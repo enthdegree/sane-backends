@@ -1,4 +1,4 @@
-.TH sane 7 "12 Jan 2002"
+.TH sane 7 "24 Jan 2002"
 .IX sane
 
 .SH NAME
@@ -43,9 +43,10 @@ website: http://www.mostang.com/sane/html/ (HTML), or
 http://www.mostang.com/sane/sane.ps (Postscript).
 .P
 There is some more information for programmers in
-@DOCDIR@/backend-writing.txt. Before a new backend or frontend project is
-started, have a look at @DOCDIR@/PROJECTS for projects that are planned or not
-yet included into the SANE distribution.
+@DOCDIR@/backend-writing.txt. Some of the internal SANE routines (sanei) are
+documented using doxygen: http://sanei.meier-geinitz.de/ . Before a new
+backend or frontend project is started, have a look at @DOCDIR@/PROJECTS for
+projects that are planned or not yet included into the SANE distribution.
 .P
 Your help is always appreciated. Look at @DOCDIR@/TODO for things that should
 be done. Not only programmers are needed, but also reading and fixing the

@@ -1,3 +1,8 @@
+2002-09-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/canon630u.desc: Added fb636u as unsupported.
+	  Added status information.
+
 2002-09-10  Peter Kirchgessner <peter@kirchgessner.net>
 
 	* doc/sane-hp.man: Added hints about special USB device names

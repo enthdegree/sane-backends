@@ -322,7 +322,7 @@ typedef struct CANON_Scanner
 }
 CANON_Scanner;
 
-char *option_name[] = {
+static char *option_name[] = {
   "OPT_NUM_OPTS",
 
   "OPT_PAGE",

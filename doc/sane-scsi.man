@@ -1,4 +1,4 @@
-.TH sane-scsi 5 "12 Nov 2001"
+.TH sane-scsi 5 "28 Mar 2002"
 .IX sane-scsi
 .SH NAME
 sane-scsi - SCSI adapter tips for scanners
@@ -213,7 +213,7 @@ echo "scsi add-single-device 2 0 5 0" > /proc/scsi/scsi
 and the kernel will probe and recognize your scanner (this needs to be
 done as root).  It's also possible to dynamically remove a SCSI device
 by using the ``remove-single-device'' command.  For details, please
-refer to to the SCSI-Programming-HOWTO.
+refer to to the SCSI-2.4-HOWTO.
 .PP
 Scanners are known to work with the following SCSI adapters under Linux. This
 list isn't complete, usually any SCSI adapter supported by Linux should work.
@@ -226,7 +226,7 @@ Therefore the scanner can't be detected correctly. See
 http://www.meier-geinitz.de/sane/trouble.html#acard for a solution.
 .TP
 Adaptec AHA-1505/AHA-1542/AHA-2940
-Reported to work fine with Linux v2.0. If you encounter kernel freezes
+Reported to work fine with Linux since v2.0. If you encounter kernel freezes
 or other unexpected behaviour get the latest Linux kernel (2.2.17 seems to
 work) or reduce SCSI buffer size to 32 kB.
 .TP
@@ -246,20 +246,15 @@ configuration''.  Change ``Negotiation'' to ``async'' and change
 are asked to reboot.
 .TP
 NCR/Symbios 53c400/53c400a or Domex DTC3181E/L/LE (DTCT436/436P) ISA SCSI card
-This card is supplied by Mustek (and other vendors). If you use Linux 2.0.x
-you may 
-need a patch from Ingmar Baumgart's homepage:
-.br
-.IR http://rzstud1.rz.uni-karlsruhe.de/~uh49/mustek-scsi.html
-.br
-The SCSI cards are supported by the module g_NCR5380.  It's necessary to tell
-the kernel the io port and type of card.  Example for a 53c400a: ``modprobe
-g_NCR5380 ncr_addr=0x280 ncr_53c400a=1''.  Once the kernel detects the card,
-it should work all right.  However, while it should work, do not expect good
-performance out of this card---it has no interrupt line and therefore while a
-scan is in progress, the system becomes almost unusable.  You may change the
-values of the USLEEP macros in drivers/scsi/g_NCR5380.c.  Some documentation is
-in this file and NCR5380.c.
+This card is supplied by Mustek (and other vendors). It's supported since
+Linux 2.2.  The SCSI cards are supported by the module g_NCR5380.  It's
+necessary to tell the kernel the io port and type of card.  Example for a
+53c400a: ``modprobe g_NCR5380 ncr_addr=0x280 ncr_53c400a=1''.  Once the kernel
+detects the card, it should work all right.  However, while it should work, do
+not expect good performance out of this card---it has no interrupt line and
+therefore while a scan is in progress, the system becomes almost unusable.
+You may change the values of the USLEEP macros in drivers/scsi/g_NCR5380.c.
+Some documentation is in this file and NCR5380.c.
 .TP
 NCR/Symbios 810
 For some scanners it may be necssary to disable disconnect/reconnect. To

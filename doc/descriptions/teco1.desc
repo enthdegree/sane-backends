@@ -10,7 +10,7 @@
 ;
 
 :backend "teco1"                  ; name of backend
-:version "1.0-5"                  ; version of backend
+:version "1.0-6"                  ; version of backend
 :status :beta                     ; :alpha, :beta, :stable, :new
 :manpage "sane-teco1"             ; name of manpage (if it exists)
 :url "http://fz.eryx.net/sane/#teco"    ; backend's web page
@@ -96,6 +96,22 @@
 :mfg "Actown"
 :model "ACT Scan I 30"
 :comment "sub model VM3520A"
+:interface "SCSI"
+:status :untested
+
+:mfg "Dextra"
+:model "DF-1200T+"
+:comment "sub model VM3530+"
+:interface "SCSI"
+:status :untested
+
+:model "DF-4830T"
+:comment "sub model VM4542"
+:interface "SCSI"
+:status :untested
+
+:model "DF-9624"
+:comment "sub model VM6530+"
 :interface "SCSI"
 :status :untested
 

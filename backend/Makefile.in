@@ -66,7 +66,7 @@ PRELOADABLE_BACKENDS = abaton agfafocus apple artec as6e avision bh canon \
         microtek2 mustek mustek_pp mustek_usb nec @NET@ pie @PINT@ plustek \
         @PNM@ @QCAM@ ricoh s9036 sceptre sharp @SM3600@ @SNAPSCAN@ \
         sp15c st400 tamarack test teco1 teco2 teco3 umax umax_pp umax1220u \
-        @V4L@ artec_eplus48u
+        @V4L@ artec_eplus48u ma1509
 ifneq (@SELECTED_BACKENDS@,)
 PRELOADABLE_BACKENDS = @SELECTED_BACKENDS@
 endif
@@ -114,6 +114,7 @@ DISTFILES = abaton.c abaton.conf abaton.h agfafocus.c agfafocus.conf \
   jinclude.h \
   leo.c leo.h leo.conf \
   lm9830.h \
+  ma1509.c ma1509.conf ma1509.h \
   Makefile.in matsushita.c \
   matsushita.conf matsushita.h microtek2.c microtek2.conf microtek2.h \
   microtek.c microtek.conf microtek.h mustek.c mustek.conf mustek.h \
@@ -315,6 +316,8 @@ libsane-hp.la: ../sanei/sanei_pio.lo
 libsane-leo.la: ../sanei/sanei_config2.lo
 libsane-leo.la: ../sanei/sanei_constrain_value.lo
 libsane-leo.la: ../sanei/sanei_scsi.lo
+libsane-ma1509.la: ../sanei/sanei_constrain_value.lo
+libsane-ma1509.la: ../sanei/sanei_usb.lo
 libsane-matsushita.la: ../sanei/sanei_config2.lo
 libsane-matsushita.la: ../sanei/sanei_constrain_value.lo
 libsane-matsushita.la: ../sanei/sanei_scsi.lo

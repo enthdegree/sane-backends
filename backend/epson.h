@@ -62,25 +62,6 @@
 #define SANE_EPSON_CONFIG_USB "usb"
 #define SANE_EPSON_CONFIG_PIO "pio"
 
-/* for experimental IOCTL support */
-#ifdef TEST_IOCTL
-#define IOCTL_SCANNER_VENDOR _IOR('u', 0xa0, int)
-#define IOCTL_SCANNER_PRODUCT _IOR('u', 0xa1, int)
-
-#define SANE_EPSON_VENDOR_ID (0x4b8)
-#define PRODUCT_PERFECTION_636 (0x101)
-#define PRODUCT_PERFECTION_610 (0x103)
-#define PRODUCT_PERFECTION_640 (0x10c)
-#define PRODUCT_PERFECTION_1200 (0x104)
-#define PRODUCT_PERFECTION_1240 (0x10b)
-#define PRODUCT_STYLUS_SCAN_2500 (0x106)
-#define PRODUCT_PERFECTION_1640 (0x10a)
-#define PRODUCT_EXPRESSION_1600 (0x107)
-#define PRODUCT_EXPRESSION_1680 (0x10e)
-#define PRODUCT_PERFECTION_1650 (0x110)
-#define PRODUCT_PERFECTION_2450 (0x112)
-#endif
-
 /* string constants for GUI elements that are not defined SANE-wide */
 
 #define SANE_NAME_GAMMA_CORRECTION "gamma-correction"

@@ -16,8 +16,8 @@
 
 */
 
-#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.22 - 2002-08-17"
-#define SANE_EPSON_BUILD	222
+#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.23 - 2002-09-01"
+#define SANE_EPSON_BUILD	223
 
 /*
    This file is part of the SANE package.
@@ -59,6 +59,7 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
+   2002-09-01	USB scanners are now using libsane-usb funtions
    2002-08-17	Fixed typo in variable name. 
 		Fixed IEEE-1394 problem with Perfection-2450.
 		Fixed problem with older B3 level SCSI scanners that do
@@ -285,107 +286,18 @@
 #include  "sane/saneopts.h"
 #include  "sane/sanei_scsi.h"
 
+#include  "sane/sanei_usb.h"
+
 #include  <sane/sanei_pio.h>
+
 #include  "epson.h"
+#include  "epson_scsi.h"
+#include  "epson_usb.h"
 
 #define  BACKEND_NAME epson
 #include  <sane/sanei_backend.h>
 
 #include  <sane/sanei_config.h>
-
-/***************************************************************************
- *  Try to isolate scsi stuff in own section.
- ***************************************************************************
- */
-
-#define  TEST_UNIT_READY_COMMAND	0x00
-#define  READ_6_COMMAND			0x08
-#define  WRITE_6_COMMAND		0x0a
-#define  INQUIRY_COMMAND		0x12
-#define  TYPE_PROCESSOR			0x03
-
-
-/*
- * sense handler for the sanei_scsi_XXX comands
- */
-static SANE_Status sense_handler (int scsi_fd, u_char *result, void *arg)
-{
-	/* to get rid of warnings */
-	scsi_fd = scsi_fd;
-	arg = arg;
-
-	if (result[0] && result[0]!=0x70)
-	{
-		DBG (2, "sense_handler() : sense code = 0x%02x\n", result[0]);
-		return SANE_STATUS_IO_ERROR;
-	}
-	else
-	{
-		return SANE_STATUS_GOOD;
-	}
-}
-
-/*
- *
- *
- */
-static SANE_Status inquiry ( int fd, int page_code, void * buf, size_t * buf_size) {
-	u_char cmd [ 6];
-	int status;
-
-	memset( cmd, 0, 6);
-	cmd[ 0] = INQUIRY_COMMAND;
-	cmd[ 2] = page_code;
-	cmd[ 4] = *buf_size > 255 ? 255 : *buf_size;
-	status = sanei_scsi_cmd( fd, cmd, sizeof cmd, buf, buf_size);
-
-	return status;
-}
-
-/*
- *
- *
- */
-static int scsi_read ( int fd, void * buf, size_t buf_size, SANE_Status * status) {
-	u_char cmd [ 6];
-
-	memset( cmd, 0, 6);
-	cmd[ 0] = READ_6_COMMAND;
-	cmd[ 2] = buf_size >> 16;
-	cmd[ 3] = buf_size >> 8;
-	cmd[ 4] = buf_size;
-
-	if( SANE_STATUS_GOOD == ( *status = sanei_scsi_cmd( fd, cmd, sizeof( cmd), buf, &buf_size)))
-		return buf_size;
-
-	return 0;
-}
-
-/*
- *
- *
- */
-static int scsi_write ( int fd, const void * buf, size_t buf_size, SANE_Status * status) {
-	u_char * cmd;
-
-	cmd = alloca( 6 + buf_size);
-	memset( cmd, 0, 6);
-	cmd[ 0] = WRITE_6_COMMAND;
-	cmd[ 2] = buf_size >> 16;
-	cmd[ 3] = buf_size >> 8;
-	cmd[ 4] = buf_size;
-	memcpy( cmd + 6, buf, buf_size);
-
-	if( SANE_STATUS_GOOD == ( *status = sanei_scsi_cmd( fd, cmd, 6 + buf_size, NULL, NULL)))
-		return buf_size;
-
-	return 0;
-}
-
-/*
- *
- *
- */
 
 #define  EPSON_CONFIG_FILE	"epson.conf"
 
@@ -393,8 +305,8 @@ static int scsi_write ( int fd, const void * buf, size_t buf_size, SANE_Status *
 #	define  PATH_MAX	(1024)
 #endif
 
-#define  walloc(x)	( x *) malloc( sizeof( x) )
-#define  walloca(x)	( x *) alloca( sizeof( x) )
+#define  walloc(x)	(x *)malloc(sizeof(x))
+#define  walloca(x)	(x *)alloca(sizeof(x))
 
 #ifndef  XtNumber
 #	define  XtNumber(x)  ( sizeof x / sizeof x [ 0] )
@@ -402,7 +314,8 @@ static int scsi_write ( int fd, const void * buf, size_t buf_size, SANE_Status *
 #	define  XtOffsetOf(s_type,field)  XtOffset(s_type*,field)
 #endif
 
-#define NUM_OF_HEX_ELEMENTS (16)
+#define NUM_OF_HEX_ELEMENTS (16)	/* number of hex numbers per line for data dump */
+#define DEVICE_NAME_LEN	(16)		/* length of device name in extended status */
 
 /* NOTE: you can find these codes with "man ascii". */
 #define	 STX	0x02
@@ -870,10 +783,10 @@ typedef struct {
  *
  */
 
-static EpsonHdr command ( Epson_Scanner * s, const u_char * cmd, size_t cmd_size, SANE_Status * status);
+static EpsonHdr command ( Epson_Scanner * s, u_char * cmd, size_t cmd_size, SANE_Status * status);
 static SANE_Status get_identity_information(SANE_Handle handle);
 static SANE_Status get_identity2_information(SANE_Handle handle);
-static int send ( Epson_Scanner * s, const void *buf, size_t buf_size, SANE_Status * status);
+static int send ( Epson_Scanner * s, void *buf, size_t buf_size, SANE_Status * status);
 static ssize_t receive ( Epson_Scanner * s, void *buf, ssize_t buf_size, SANE_Status * status);
 static SANE_Status color_shuffle(SANE_Handle handle, int *new_length);
 static SANE_Status request_focus_position(SANE_Handle handle, u_char * position);
@@ -889,8 +802,9 @@ static SANE_Status open_scanner( Epson_Scanner * s);
  *
  */
 
-static int send ( Epson_Scanner * s, const void *buf, size_t buf_size, SANE_Status * status) {
-
+static int 
+send(Epson_Scanner * s, void *buf, size_t buf_size, SANE_Status * status) 
+{
 	DBG( 3, "send buf, size = %lu\n", ( u_long) buf_size);
 
 #if 1
@@ -904,9 +818,12 @@ static int send ( Epson_Scanner * s, const void *buf, size_t buf_size, SANE_Stat
 	}
 #endif
 
-	if( s->hw->connection == SANE_EPSON_SCSI) {
-		return scsi_write( s->fd, buf, buf_size, status);
-	} else if (s->hw->connection == SANE_EPSON_PIO) {
+	if( s->hw->connection == SANE_EPSON_SCSI) 
+	{
+		return sanei_epson_scsi_write( s->fd, buf, buf_size, status);
+	} 
+	else if (s->hw->connection == SANE_EPSON_PIO) 
+	{
 		size_t n;
 
 		if( buf_size == ( n = sanei_pio_write( s->fd, buf, buf_size)))
@@ -915,14 +832,12 @@ static int send ( Epson_Scanner * s, const void *buf, size_t buf_size, SANE_Stat
 			*status = SANE_STATUS_INVAL;
 
 		return n;
-	} else if (s->hw->connection == SANE_EPSON_USB) {
+	} 
+	else if (s->hw->connection == SANE_EPSON_USB) 
+	{
 		size_t n;
-
-		if( buf_size == ( n = write( s->fd, buf, buf_size)))
-			*status = SANE_STATUS_GOOD;
-		else
-			*status = SANE_STATUS_INVAL;
-
+		n = buf_size;
+		*status =  sanei_usb_write_bulk(s->fd, buf, &n);
 		return n;
 	}
 
@@ -935,34 +850,29 @@ static int send ( Epson_Scanner * s, const void *buf, size_t buf_size, SANE_Stat
  *
  */
 
-static ssize_t receive ( Epson_Scanner * s, void *buf, ssize_t buf_size, SANE_Status * status) {
+static ssize_t 
+receive(Epson_Scanner * s, void *buf, ssize_t buf_size, SANE_Status * status) 
+{
 	ssize_t n = 0;
 
 	if( s->hw->connection == SANE_EPSON_SCSI) 
 	{
-		n = scsi_read( s->fd, buf, buf_size, status);
+		n = sanei_epson_scsi_read(s->fd, buf, buf_size, status);
 	} 
         else if ( s->hw->connection == SANE_EPSON_PIO) 
 	{
-		if( buf_size == ( n = sanei_pio_read( s->fd, buf, buf_size)))
+		if( buf_size == ( n = sanei_pio_read( s->fd, buf, (size_t) buf_size)))
 			*status = SANE_STATUS_GOOD;
 		else
 			*status = SANE_STATUS_INVAL;
 	}
 	else if (s->hw->connection == SANE_EPSON_USB) 
 	{
-		/* only report an error if we don't read anything */
-		if( 0 < ( n = read( s->fd, buf, buf_size)))
+		/* !!! only report an error if we don't read anything */
+		n = buf_size;	/* buf_size gets overwritten */
+		*status = sanei_usb_read_bulk(s->fd, (SANE_Byte *) buf, &n);
+		if (n > 0)
 			*status = SANE_STATUS_GOOD;
-		else
-		{
-			if (n < 0)
-			{
-				DBG(0, "error in receive - status = %d\n", errno);
-			}
-
-			*status = SANE_STATUS_INVAL;
-		}
 	}
 
 	DBG( 7, "receive buf, expected = %lu, got = %d\n", ( u_long) buf_size, n);
@@ -1473,7 +1383,7 @@ static void close_scanner ( Epson_Scanner * s)
 	}
 	else if ( s->hw->connection == SANE_EPSON_USB)
 	{
-		close( s->fd);
+		sanei_usb_close(s->fd);
 	}
 
 	s->fd = -1;
@@ -1506,47 +1416,28 @@ static SANE_Status open_scanner ( Epson_Scanner * s)
 
 
 	if( s->hw->connection == SANE_EPSON_SCSI) {
-		if( SANE_STATUS_GOOD != ( status = sanei_scsi_open( s->hw->sane.name, &s->fd, sense_handler, NULL))) {
-			DBG( 1, "sane_start: %s open failed: %s\n", s->hw->sane.name, sane_strstatus( status));
+		status = sanei_scsi_open(s->hw->sane.name, &s->fd, sanei_epson_scsi_sense_handler, NULL); 
+		if (SANE_STATUS_GOOD != status)
+		{
+			DBG(1, "sane_start: %s open failed: %s\n", s->hw->sane.name, sane_strstatus( status));
 			return status;
 		}
 	} else if ( s->hw->connection == SANE_EPSON_PIO) {
-		if( SANE_STATUS_GOOD != ( status = sanei_pio_open( s->hw->sane.name, &s->fd))) {
-			DBG( 1, "sane_start: %s open failed: %s\n", s->hw->sane.name, sane_strstatus( status));
+		status = sanei_pio_open( s->hw->sane.name, &s->fd);
+		if( SANE_STATUS_GOOD != status) 
+		{
+			DBG(1, "sane_start: %s open failed: %s\n", s->hw->sane.name, sane_strstatus( status));
 			return status;
 		}
-	} else if (s->hw->connection == SANE_EPSON_USB) {
-		int flags;
+	} 
+	else if (s->hw->connection == SANE_EPSON_USB) 
+	{
+		status = sanei_usb_open(s->hw->sane.name, &s->fd);
 
-#ifdef _O_RDWR
- flags = _O_RDWR;
-#else
- flags = O_RDWR;
-#endif
-#ifdef _O_EXCL
- flags |= _O_EXCL;
-#else
- flags |= O_EXCL;
-#endif
-#ifdef _O_BINARY
- flags |= _O_BINARY;
-#endif
-#ifdef O_BINARY
- flags |= O_BINARY;
-#endif
-
-		s->fd = open(s->hw->sane.name, flags);
-		if (s->fd < 0) {
-			DBG( 1, "sane_start: %s open failed: %s\n", 
-				s->hw->sane.name, strerror(errno));
-			status = (errno == EACCES) ? SANE_STATUS_ACCESS_DENIED 
-				: SANE_STATUS_INVAL;
-			return status;
-		}
-		
+		return status;
 	}
 
-	return status;
+	return SANE_STATUS_GOOD;
 }
 
 
@@ -1595,13 +1486,14 @@ static Epson_Device *first_dev = NULL;	/* first EPSON scanner in list */
 static Epson_Scanner *first_handle = NULL;
 
 
-static EpsonHdr command ( Epson_Scanner * s, const u_char * cmd, 
-      size_t cmd_size, SANE_Status * status) 
+static EpsonHdr 
+command ( Epson_Scanner * s, u_char * cmd, size_t cmd_size, SANE_Status * status) 
 {
 	EpsonHdr head;
 	u_char * buf;
 
 	if( NULL == ( head = walloc( EpsonHdrRec))) {
+		DBG( 1, "out of memory (line %d)\n", __LINE__);
 		*status = SANE_STATUS_NO_MEM;
 		return ( EpsonHdr) 0;
 	}
@@ -1667,8 +1559,9 @@ static EpsonHdr command ( Epson_Scanner * s, const u_char * cmd,
 
             if( NULL == (head = realloc (head, sizeof (EpsonHdrRec) + head->count)))
 	    {
-	      *status = SANE_STATUS_NO_MEM;
-	      return (EpsonHdr) 0;
+		    DBG( 1, "out of memory (line %d)\n", __LINE__);
+		    *status = SANE_STATUS_NO_MEM;
+		    return (EpsonHdr) 0;
 	    }
 
             buf = head->buf;
@@ -1725,7 +1618,8 @@ static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
 	dev = malloc(sizeof(*dev));
 	if (!dev)
      	 {
-	   return SANE_STATUS_NO_MEM;
+		 DBG( 1, "out of memory (line %d)\n", __LINE__);
+		 return SANE_STATUS_NO_MEM;
 	 }
 
 	
@@ -1767,6 +1661,8 @@ static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
 		dev_name += strlen(SANE_EPSON_CONFIG_USB);
 		dev_name  = sanei_config_skip_whitespace(dev_name);
 		s->hw->connection = SANE_EPSON_USB;
+
+		sanei_usb_init();
 	}
 	/*
 	 * if the config file contains a line "pio 0xXXX", then handle this case here
@@ -1805,20 +1701,23 @@ static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
  *  if interface is SCSI do an inquiry.
  */
 
-	if( s->hw->connection == SANE_EPSON_SCSI) {
-#define  INQUIRY_BUF_SIZE	36
+	if( s->hw->connection == SANE_EPSON_SCSI) 
+	{
 		u_char buf[ INQUIRY_BUF_SIZE + 1];
 		size_t buf_size = INQUIRY_BUF_SIZE;
 
-		if( SANE_STATUS_GOOD != ( status = sanei_scsi_open( dev_name, &s->fd, sense_handler, NULL))) {
-			DBG( 1, "attach: open failed: %s\n", sane_strstatus( status));
+		status = sanei_scsi_open(dev_name, &s->fd, sanei_epson_scsi_sense_handler, NULL);
+		if (SANE_STATUS_GOOD != status)
+		{
+			DBG(1, "attach: open failed: %s\n", sane_strstatus( status));
 			return status;
 		}
 		reset(s);
 		DBG( 3, "attach: sending INQUIRY\n");
-/*		buf_size = sizeof buf; */
 
-		if( SANE_STATUS_GOOD != ( status = inquiry( s->fd, 0, buf, &buf_size))) {
+		status = sanei_epson_scsi_inquiry( s->fd, 0, buf, &buf_size);
+		if (SANE_STATUS_GOOD != status)
+		{ 
 			DBG( 1, "attach: inquiry failed: %s\n", sane_strstatus( status));
 			close_scanner( s);
 			return status;
@@ -1841,100 +1740,81 @@ static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
 				&& strncmp( buf + 16, "Expression", 10) != 0
 				&& strncmp( buf + 16, "GT", 2) != 0 ))
 		{
-			DBG( 1, "attach: device doesn't look like an Epson scanner\n");
+			DBG( 1, "attach: device doesn't look like an EPSON  scanner\n");
 			close_scanner( s);
 			return SANE_STATUS_INVAL;
 		}
-
-/*
- *  else parallel or USB.
- */
-
-	} else if (s->hw->connection == SANE_EPSON_PIO) {
-		if( SANE_STATUS_GOOD != ( status = sanei_pio_open( dev_name, &s->fd))) {
-			DBG( 1, "dev_open: %s: can't open %s as a parallel-port device\n",
-				sane_strstatus( status), dev_name);
+	} 
+	/* use the SANEI functions to handle a PIO device */
+	else if (s->hw->connection == SANE_EPSON_PIO) 
+	{
+		if( SANE_STATUS_GOOD != ( status = sanei_pio_open(dev_name, &s->fd))) 
+		{
+			DBG(0, "Cannot open %s as a parallel-port device: %s\n",
+				dev_name, sane_strstatus( status));
 			return status;
 		}
-	} else if (s->hw->connection == SANE_EPSON_USB) {
-		int flags;
-#ifdef TEST_IOCTL
-		unsigned int vendorID, productID;
-		SANE_Bool do_check;
-#endif
+	} 
+	/* use the SANEI functions to handle a USB device */
+	else if (s->hw->connection == SANE_EPSON_USB) 
+	{
+		SANE_Word vendor;
+                SANE_Word product;
 
-#ifdef _O_RDWR
-		flags = _O_RDWR;
-#else
-		flags = O_RDWR;
-#endif
-#ifdef _O_EXCL
-		flags |= _O_EXCL;
-#else
-		flags |= O_EXCL;
-#endif
-#ifdef _O_BINARY
-		flags |= _O_BINARY;
-#endif
-#ifdef O_BINARY
-		flags |= O_BINARY;
-#endif
+		status = sanei_usb_open(dev_name, &s->fd);
 
-		s->fd = open(dev_name, flags);
-		if (s->fd < 0) {
-			DBG( 1, "sane_start: %s open (USB) failed: %s\n", 
-				dev_name, strerror(errno));
-			status = (errno == EACCES) ? SANE_STATUS_ACCESS_DENIED 
-				: SANE_STATUS_INVAL;
+		if (SANE_STATUS_GOOD != status)
+		{
 			return status;
 		}
 
-#ifdef __linux__
-#ifdef TEST_IOCTL
-		/* read the vendor and product IDs via the IOCTLs */
-		if (ioctl(s->fd, IOCTL_SCANNER_VENDOR , &vendorID) == -1)
-  		{
-			/* just set the vendor ID to 0 */
-			vendorID = 0;
-  		}
-  		if (ioctl(s->fd, IOCTL_SCANNER_PRODUCT , &productID) == -1)
-		{
-			/* just set the product ID to 0 */
-			productID = 0;
-		}
+		/* if the sanei_usb_get_vendor_product call is not supported,
+		   then we just ignore this and rely on the user to config
+		   the correct device.
+		 */
 
-		do_check = (getenv("SANE_EPSON_NO_IOCTL") == NULL);
-		if (do_check && (vendorID != 0) && (productID != 0))
+		if (sanei_usb_get_vendor_product (s->fd, &vendor, &product) == SANE_STATUS_GOOD) 
 		{
-			/* see if the device is actually an EPSON scanner */
-			if (vendorID != SANE_EPSON_VENDOR_ID)
+			int i;			/* loop variable */
+			SANE_Bool is_valid;
+
+			/* check the vendor ID to see if we are dealing with an EPSON device */
+			if (vendor != SANE_EPSON_VENDOR_ID)
 			{
-				DBG(0, "The device at %s is not an EPSON scanner (vendor id=0x%x)\n",
-					dev_name, vendorID);
+				/* this is not a supported vendor ID */
+				DBG(0, "The device at %s is not manufactured by EPSON (vendor id=0x%x)\n",
+						dev_name, vendor);
+				sanei_usb_close(s->fd);
+				s->fd = -1;
 				return SANE_STATUS_INVAL;
 			}
 
-			/* see if we support the scanner */
+			i = 0;	/* start with the first element */
+			is_valid = SANE_FALSE;
 
-			if (productID != PRODUCT_PERFECTION_636 &&
-			    productID != PRODUCT_PERFECTION_610 &&
-			    productID != PRODUCT_PERFECTION_640 &&
-			    productID != PRODUCT_PERFECTION_1200 &&
-			    productID != PRODUCT_PERFECTION_1240 &&
-			    productID != PRODUCT_STYLUS_SCAN_2500 &&
-			    productID != PRODUCT_PERFECTION_1640 &&
-			    productID != PRODUCT_PERFECTION_1650 &&
-			    productID != PRODUCT_PERFECTION_2450 &&
-			    productID != PRODUCT_EXPRESSION_1600 &&
-			    productID != PRODUCT_EXPRESSION_1680)
+			/* check all known product IDs to verify that we know about the device */
+			while (sanei_epson_usb_product_ids[i] != 0 && !is_valid)
+			{
+				if (product == sanei_epson_usb_product_ids[i])
+					is_valid = SANE_TRUE;
+
+				i++;
+			}
+
+			if (is_valid == SANE_FALSE)
 			{
 				DBG(0, "The device at %s is not a supported EPSON scanner (product id=0x%x)\n",
-					dev_name, productID);
+					dev_name, product);
+				sanei_usb_close(s->fd);
+				s->fd = -1;
 				return SANE_STATUS_INVAL;
 			}
+			DBG(1, "Found valid EPSON scanner: 0x%x/0x%x (vendorID/productID)\n", vendor, product);
 		}
-#endif
-#endif
+		else
+		{
+			DBG(1, "Cannot use IOCTL interface to verify that device is a scanner - will continue\n");
+		}
 	}
 
 /*
@@ -1973,8 +1853,11 @@ static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
 	 */
 
 	bitDepthList = malloc(sizeof(SANE_Word) * 4);
-	if (bitDepthList == NULL)
+	if (bitDepthList == NULL)	
+	{
+		DBG( 1, "out of memory (line %d)\n", __LINE__);
 		return SANE_STATUS_NO_MEM;
+	}
 
 	bitDepthList[0] = 1;	/* we start with one element in the list */
 	bitDepthList[1] = 8;	/* 8bit is the default */
@@ -2174,7 +2057,6 @@ static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
  *	We are overwriting whatever was set previously!
  */
 	 		{
-#define DEVICE_NAME_LEN	(16)		
 				char device_name[DEVICE_NAME_LEN + 1];
 				char *end_ptr;
 				int len;
@@ -2349,6 +2231,7 @@ SANE_Status sane_get_devices ( const SANE_Device * * * device_list, SANE_Bool lo
 	devlist = malloc((num_devices + 1) * sizeof(devlist[0]));
 	if (!devlist)
 	{
+		DBG( 1, "out of memory (line %d)\n", __LINE__);
 		return SANE_STATUS_NO_MEM;
 	}
 
@@ -3084,6 +2967,7 @@ SANE_Status sane_open ( SANE_String_Const devicename, SANE_Handle * handle)
 	s = calloc(sizeof( Epson_Scanner), 1);
 	if (!s)
 	{
+		DBG( 1, "out of memory (line %d)\n", __LINE__);
 		return SANE_STATUS_NO_MEM;
 	}
 
@@ -4320,7 +4204,10 @@ SANE_Status sane_start ( SANE_Handle handle)
 		}
 
 		if( lcount == 0)
+		{
+			DBG( 1, "out of memory (line %d)\n", __LINE__);
 			return SANE_STATUS_NO_MEM;
+		}
 
 		status = set_lcount( s, lcount);
 
@@ -4329,7 +4216,7 @@ SANE_Status sane_start ( SANE_Handle handle)
 				lcount, sane_strstatus (status));
 			return status;
 		}
-    	}
+   	}
 
 	if(s->hw->cmd->request_extended_status != 0 && SANE_TRUE == s->hw->extension) 
 	{ 
@@ -4340,7 +4227,7 @@ SANE_Status sane_start ( SANE_Handle handle)
 		params[0] = ESC;
 		params[1] = s->hw->cmd->request_extended_status;
 
-		send(s, params, 2, &status);		/* send ESC f (request extension status) */
+		send(s, params, 2, &status);		/* send ESC f (request extended status) */
 
 		if (SANE_STATUS_GOOD == status)
 		{
@@ -4451,6 +4338,7 @@ SANE_Status sane_start ( SANE_Handle handle)
 	           free(s->line_buffer[j]);
 		   s->line_buffer[j] = NULL;
 	         }
+		DBG( 1, "out of memory (line %d)\n", __LINE__);
 	        return SANE_STATUS_NO_MEM;
 	      }
 	   }
@@ -4557,8 +4445,6 @@ static SANE_Status read_data_block ( Epson_Scanner * s, EpsonDataRec * result) {
 							   gracefully */
 		}
 		
-#define	SANE_EPSON_MAX_RETRIES	(61)
-
 		while (status == SANE_STATUS_DEVICE_BUSY) {
 			if (s->retry_count > SANE_EPSON_MAX_RETRIES)
 			{
@@ -5141,6 +5027,7 @@ color_shuffle(SANE_Handle handle, int *new_length)
 						free(s->line_buffer[i]);
 						s->line_buffer[i] = NULL;
 					}
+					DBG( 1, "out of memory (line %d)\n", __LINE__);
 					return SANE_STATUS_NO_MEM;
 				}
 			} else {
@@ -5257,8 +5144,9 @@ get_identity_information(SANE_Handle handle)
 	s->hw->res_list_size = 0;
 	s->hw->res_list = ( SANE_Int *) calloc( s->hw->res_list_size, sizeof( SANE_Int));
 
-	if( NULL == s->hw->res_list) {
-		DBG( 0, "out of memory\n");
+	if( NULL == s->hw->res_list) 
+	{
+		DBG( 1, "out of memory (line %d)\n", __LINE__);
 		return SANE_STATUS_NO_MEM;
 	}
 
@@ -5275,8 +5163,9 @@ get_identity_information(SANE_Handle handle)
 				s->hw->res_list_size++;
 				s->hw->res_list = ( SANE_Int *) realloc( s->hw->res_list, s->hw->res_list_size * sizeof( SANE_Int));
 
-				if( NULL == s->hw->res_list) {
-					DBG( 0, "out of memory\n");
+				if( NULL == s->hw->res_list) 
+				{
+					DBG( 1, "out of memory (line %d)\n", __LINE__);
 					return SANE_STATUS_NO_MEM;
 				}
 
@@ -5332,7 +5221,7 @@ get_identity_information(SANE_Handle handle)
 
 	if (s->hw->resolution_list == NULL)
 	{
-		DBG( 0, "out of memory\n");
+		DBG( 1, "out of memory (line %d)\n", __LINE__);
 		return SANE_STATUS_NO_MEM;
 	}
 	*(s->hw->resolution_list) = s->hw->res_list_size;

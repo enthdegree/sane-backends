@@ -94,7 +94,8 @@ DISTFILES = abaton.c abaton.conf abaton.h agfafocus.c agfafocus.conf \
   coolscan.conf coolscan.h coolscan-scsidef.h coolscan2.c coolscan2.conf \
   dc210.c dc210.conf dc210.h \
   dc240.c dc240.conf dc240.h dc25.c dc25.conf dc25.h djpeg.c djpeg.README \
-  dll.aliases dll.c dll.conf dmc.c dmc.conf dmc.h epson.c epson.conf epson.h \
+  dll.aliases dll.c dll.conf dmc.c dmc.conf dmc.h \
+  epson.c epson_scsi.c epson_usb.c epson.conf epson.h epson_scsi.h epson_usb.h \
   fujitsu.c fujitsu.conf fujitsu.h fujitsu-scsi.h \
   gphoto2.c gphoto2.conf gphoto2.h hp-accessor.c hp-accessor.h hp.c hp.conf \
   hp-device.c hp-device.h hp.h hp-handle.c hp-handle.h hp-hpmem.c hp-option.c \
@@ -230,6 +231,7 @@ libsane.la: dll.lo dll-s.lo $(EXTRA) $(addsuffix .lo,$(DLL_PRELOAD)) $(LIBOBJS)
 EXTRA_canon_pp = canon_pp-io canon_pp-dev
 EXTRA_hp = hp-accessor hp-device hp-handle hp-hpmem hp-option hp-scl
 EXTRA_umax_pp = umax_pp_low umax_pp_mid
+EXTRA_epson = epson_scsi epson_usb
 # EXTRA_dc210 = djpeg
 # EXTRA_dc240 = djpeg
 
@@ -281,9 +283,11 @@ libsane-dc240.la: ../sanei/sanei_constrain_value.lo djpeg.lo
 libsane-dmc.la: ../sanei/sanei_config2.lo
 libsane-dmc.la: ../sanei/sanei_constrain_value.lo
 libsane-dmc.la: ../sanei/sanei_scsi.lo
+libsane-epson.la: $(addsuffix .lo,$(EXTRA_epson))
 libsane-epson.la: ../sanei/sanei_config2.lo
 libsane-epson.la: ../sanei/sanei_constrain_value.lo
 libsane-epson.la: ../sanei/sanei_scsi.lo
+libsane-epson.la: ../sanei/sanei_usb.lo
 libsane-epson.la: ../sanei/sanei_pio.lo
 libsane-fujitsu.la: ../sanei/sanei_config2.lo
 libsane-fujitsu.la: ../sanei/sanei_constrain_value.lo

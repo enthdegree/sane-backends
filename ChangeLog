@@ -1,3 +1,9 @@
+2001-06-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* frontend/scanimage.c doc/scanimage.man: Added more options for
+	  batch-scanning (patch from Caskey Dickson 
+	  <caskey-lists-sane-devel@technocage.com>).
+	
 2001-06-02  Chris Pinkham <cpinkham@infi.net>
 
 	* backend/artec.desc: updated version number to match artec.c.

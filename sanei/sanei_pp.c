@@ -1,6 +1,7 @@
 /* sane - Scanner Access Now Easy.
  * Copyright (C) 2003 Gerhard Jaeger <gerhard@gjaeger.de>
  * based work done by Eisinger <jochen.eisinger@gmx.net>
+ * also parts from libieee1284 by Tim Waugh <tim@cyberelk.net>
  * This file is part of the SANE package.
  *
  * This program is free software; you can redistribute it and/or
@@ -66,10 +67,10 @@
 #endif
 
 /* uncomment this to have some parameter checks on in/out functions,
- * note that this will slow down the calls
+ * note: that this will slow down the calls
  */
 #if 0
-#  define _PARANOIA
+# define _PARANOIA
 #endif
 
 #ifdef HAVE_UNISTD_H
@@ -154,13 +155,15 @@ typedef struct {
 	
 #ifndef HAVE_LIBIEEE1284
 	const char name[6];
-	u_long     base;        /* i/o base address */
+	u_long     base;        /**< i/o base address                */
+	u_char     ctrl;        /**< for restoring CTRL register     */
+	u_char     ecp_ctrl;    /**< for restoring ECP-CTRL register */
 #endif
 
-	u_int in_use;           /* port in use?      */
-	u_int claimed;          /* port claimed?     */
+	u_int in_use;           /**< port in use?      */
+	u_int claimed;          /**< port claimed?     */
 	
-	int caps;               /* port capabilities */
+	int caps;               /**< port capabilities */
 
 } PortRec, *Port;
 
@@ -188,9 +191,9 @@ enum ieee1284_capabilities
 };
 
 static PortRec port[] = {
-	{ "0x378", 0x378, SANE_FALSE, SANE_FALSE, 0 },
-	{ "0x278", 0x278, SANE_FALSE, SANE_FALSE, 0 },
-	{ "0x3BC", 0x3BC, SANE_FALSE, SANE_FALSE, 0 }
+	{ "0x378", 0x378, 0, 0, SANE_FALSE, SANE_FALSE, 0 },
+	{ "0x278", 0x278, 0, 0, SANE_FALSE, SANE_FALSE, 0 },
+	{ "0x3BC", 0x3BC, 0, 0, SANE_FALSE, SANE_FALSE, 0 }
 };
 
 #endif
@@ -199,20 +202,20 @@ static PortRec port[] = {
  */
 #if defined(HAVE_LIBIEEE1284)
 
-#define inbyte0(fd)	ieee1284_read_data(pplist.portv[fd]);
-#define inbyte1(fd)	(ieee1284_read_status(pplist.portv[fd]) ^ S1284_INVERTED)
-#define inbyte2(fd)	(ieee1284_read_control(pplist.portv[fd]) ^ C1284_INVERTED)
-static inline u_char inbyte4(int fd)
+#define inb_data(fd) ieee1284_read_data(pplist.portv[fd]);
+#define inb_stat(fd) (ieee1284_read_status(pplist.portv[fd]) ^ S1284_INVERTED)
+#define inb_ctrl(fd) (ieee1284_read_control(pplist.portv[fd]) ^ C1284_INVERTED)
+
+static inline u_char inb_eppdata(int fd)
 {
 	u_char val;
 	ieee1284_epp_read_data(pplist.portv[fd], 0, (char *)&val, 1);
 	return val;
 }
 
-#define outbyte0(fd,val)	ieee1284_write_data(pplist.portv[fd], val)
-#define outbyte2(fd,val)	ieee1284_write_control(pplist.portv[fd], \
+#define outbyte0(fd,val) ieee1284_write_data(pplist.portv[fd], val)
+#define outbyte2(fd,val) ieee1284_write_control(pplist.portv[fd], \
                                                    (val) ^ C1284_INVERTED)
-
 static inline void outbyte3(int fd, u_char val)
 {
 	ieee1284_epp_write_addr (pplist.portv[fd], 0, (char *)&val, 1);
@@ -220,10 +223,10 @@ static inline void outbyte3(int fd, u_char val)
 
 #else
 
-#define inbyte0(fd)	inb(port[fd].base)
-#define inbyte1(fd)	inb(port[fd].base + 1)
-#define inbyte2(fd)	inb(port[fd].base + 2)
-#define inbyte4(fd)	inb(port[fd].base + 4)
+#define inb_data(fd)    inb(port[fd].base)
+#define inb_stat(fd)    inb(port[fd].base + 1)
+#define inb_ctrl(fd)    inb(port[fd].base + 2)
+#define inb_eppdata(fd) inb(port[fd].base + 4)
 
 #define outbyte0(fd,val)	outb(val, port[fd].base)
 #define outbyte1(fd,val)	outb(val, port[fd].base + 1)
@@ -369,13 +372,12 @@ pp_probe( int handle )
 	int       retv = 0;
     
 	DBG( 4, "pp_probe: port 0x%04lx\n", port[handle].base );
-	_SET_IOPL();
 
 	/* SPP check */
 	outbyte402( handle, 0x0c );
 	outbyte2( handle, 0x0c );
 	outbyte0( handle, 0x55 );
-	a = inbyte0( handle );
+	a = inb_data( handle );
 	if( a != 0x55 ) {
 	    DBG( 4, "pp_probe: nothing supported :-(\n" );
 		return retv;
@@ -443,10 +445,10 @@ no_ecp:
 
 	outbyte0( handle, 0x55 );
 	outbyte2( handle, 0x0c );
-	a = inbyte0( handle );
+	a = inb_data( handle );
 	outbyte0( handle, 0x55 );
 	outbyte2( handle, 0x2c );
-	b = inbyte0( handle );
+	b = inb_data( handle );
 	if( a != b ) {
     	DBG( 4, "pp_probe: PS/2 bidirectional port present\n");
 		retv += CAP1284_BYTE;
@@ -462,10 +464,10 @@ no_ecp:
 		for( i = 0x00; i < 0x80; i += 0x20 ) {
 	    	outbyte402( handle, i );
 
-		    a = inbyte1( handle );
+		    a = inb_stat( handle );
 		    outbyte1( handle, a );
 		    outbyte1( handle, (a & 0xfe));
-		    a = inbyte1( handle );
+		    a = inb_stat( handle );
 	    	if (!(a & 0x01)) {
 			    DBG( 2, "pp_probe: "
 			            "Failed Intel bug check. (Phony EPP in ECP)\n" );
@@ -477,10 +479,10 @@ no_ecp:
     }
 #endif
 
-	a = inbyte1( handle );
+	a = inb_stat( handle );
 	outbyte1( handle, a);
 	outbyte1(handle, (a & 0xfe));
-	a = inbyte1( handle );
+	a = inb_stat( handle );
 
 	if (a & 0x01) {
 		outbyte402( handle, 0x0c );
@@ -489,8 +491,8 @@ no_ecp:
 	}
 
 	outbyte2( handle, 0x04 );
-	inbyte4 ( handle );
-	a = inbyte1( handle );
+	inb_eppdata ( handle );
+	a = inb_stat( handle );
 	outbyte1( handle, a );
 	outbyte1( handle, (a & 0xfe));
 
@@ -503,8 +505,8 @@ no_ecp:
 		 * EPP 1.9 with software direction
 		 */
 		outbyte2( handle, 0x24 );
-		inbyte4 ( handle );
-		a = inbyte1( handle );
+		inb_eppdata ( handle );
+		a = inb_stat( handle );
 		outbyte1( handle, a );
 		outbyte1( handle, (a & 0xfe));
 		if( a & 0x01 ) {
@@ -764,12 +766,18 @@ pp_open( const char *dev, SANE_Status * status )
 		return -1;
 	}
 
+	/* save the CTRL register settings */
+#ifdef HAVE_IOPL
+	_SET_IOPL();
+	port[i].ecp_ctrl = inbyte402(i);
+	port[i].ctrl     = inb_ctrl(i);
+#endif
+	
 	/* check the capabilities of this port */
 	port[i].caps = pp_probe( i );
 #endif
 
 	port[i].caps = pp_showcaps( port[i].caps );
-	
 	DBG( 3, "pp_open: device `%s` opened...\n", dev );
 	*status = SANE_STATUS_GOOD;
 	return i;
@@ -787,6 +795,11 @@ pp_close( int fd, SANE_Status *status )
 	DBG( 6, "pp_close: this is port '%s'\n", pplist.portv[fd]->name );
 #else
 	DBG( 6, "pp_close: this is port 0x%03lx\n", port[fd].base );
+	DBG( 6, "pp_close: restoring the CTRL registers\n" );
+	outbyte2( fd, port[fd].ctrl );
+#ifdef HAVE_IOPL
+	outbyte402( fd, port[fd].ecp_ctrl );
+#endif
 #endif
 
 	if( port[fd].claimed == SANE_TRUE ) {
@@ -849,8 +862,6 @@ sanei_pp_open( const char *dev, int *fd )
 
 	DBG( 6, "sanei_pp_open: connected to device using fd %u\n", *fd );
 
-	/* FIXME: mode checks... */
-	
 	return SANE_STATUS_GOOD;
 }
 
@@ -1009,7 +1020,7 @@ sanei_pp_inb_data( int fd )
 		return SANE_STATUS_INVAL;
     }
 #endif
-	return inbyte0( fd );
+	return inb_data( fd );
 }
 
 SANE_Byte
@@ -1027,7 +1038,7 @@ sanei_pp_inb_stat( int fd )
 		return SANE_STATUS_INVAL;
     }
 #endif
-	return inbyte1( fd );
+	return inb_stat( fd );
 }
 
 SANE_Byte
@@ -1044,7 +1055,7 @@ sanei_pp_inb_ctrl( int fd )
 		return SANE_STATUS_INVAL;
     }
 #endif
-	return inbyte2( fd );
+	return inb_ctrl( fd );
 }
 
 SANE_Byte
@@ -1062,18 +1073,18 @@ sanei_pp_inb_epp( int fd )
 		return SANE_STATUS_INVAL;
     }
 #endif
-	return inbyte4( fd );
+	return inb_eppdata( fd );
 }
 
 SANE_Status
-sanei_pp_getmode( int fd, int *mode )
+sanei_pp_getmodes( int fd, int *mode )
 {
 #if defined(HAVE_LIBIEEE1284)
 	if ((fd < 0) || (fd >= pplist.portc)) {
 #else
 	if ((fd < 0) || (fd >= NELEMS (port))) {
 #endif
-		DBG( 2, "sanei_pp_getmode: invalid fd %d\n", fd );
+		DBG( 2, "sanei_pp_getmodes: invalid fd %d\n", fd );
 		return SANE_STATUS_INVAL;
     }
 
@@ -1100,6 +1111,37 @@ sanei_pp_udelay( unsigned long usec )
 		gettimeofday( &now, NULL );
 	} while ((now.tv_sec < deadline.tv_sec) ||
 		(now.tv_sec == deadline.tv_sec && now.tv_usec < deadline.tv_usec));
+}
+
+SANE_Status
+sanei_pp_set_datadir( int fd, int rev )
+{
+#if defined(HAVE_LIBIEEE1284)
+	if ((fd < 0) || (fd >= pplist.portc)) {
+#else
+	if ((fd < 0) || (fd >= NELEMS (port))) {
+#endif
+		DBG( 2, "sanei_pp_setdir: invalid fd %d\n", fd );
+		return SANE_STATUS_INVAL;
+    }
+
+#if defined(HAVE_LIBIEEE1284)
+	ieee1284_data_dir( pplist.portv[fd], rev );
+#else
+	_VAR_NOT_USED( rev );
+#endif
+
+    return SANE_STATUS_GOOD;
+}
+
+SANE_Bool
+sanei_pp_uses_directio( void )
+{
+#if defined(HAVE_LIBIEEE1284)
+	return SANE_FALSE;
+#else
+	return SANE_TRUE;
+#endif
 }
 
 #else /* !HAVE_IOPERM */
@@ -1209,11 +1251,11 @@ SANE_Byte sanei_pp_inb_epp ( int fd )
 }
 
 SANE_Status
-sanei_pp_getmode( int fd, int *mode )
+sanei_pp_getmodes( int fd, int *mode )
 {
 	_VAR_NOT_USED( mode );
-	DBG( 4, "sanei_pp_getmode: called for fd %d\n", fd );
-	DBG( 2, "sanei_pp_getmode: fd %d is invalid\n", fd );
+	DBG( 4, "sanei_pp_getmodes: called for fd %d\n", fd );
+	DBG( 1, "sanei_pp_getmodes: fd %d is invalid\n", fd );
 	return SANE_STATUS_INVAL;
 }
 
@@ -1224,4 +1266,21 @@ sanei_pp_udelay( unsigned long usec )
 	_VAR_NOT_USED( pp_thresh );
 	DBG( 2, "sanei_pp_udelay: not supported\n" );
 }
+
+SANE_Status
+sanei_pp_set_datadir( int fd, int rev )
+{
+	_VAR_NOT_USED( rev );
+	DBG( 4, "sanei_pp_setdir: called for fd %d\n", fd );
+	DBG( 1, "sanei_pp_setdir: fd %d is invalid\n", fd );
+	return SANE_STATUS_INVAL;
+}
+
+SANE_Bool
+sanei_pp_uses_directio( void )
+{
+	DBG( 1, "sanei_pp_uses_directio: not supported\n" );
+	return SANE_FALSE;
+}
+
 #endif /* !HAVE_IOPERM */

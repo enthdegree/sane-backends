@@ -105,11 +105,10 @@ configure options, there are the following SANE specific options:
 	configuration file. Please refer to the backend's man pages for
 	details.
 
---enable-translations
-        Enable installation of backend options. Frontends can use these
-        translations for localized option titles and descriptions. GNU
-        gettext is necessary. This feature is isn't tested very well and
-        thus disabled by default. See po/README for details.
+--disable-translations
+        Disable installation of translated backend options. If you get
+        errors in the po/ directory during build, use this option.
+        See po/README for details.
 
 In addition to these configuration options, there are some more SANE-specific
 options and many standard-options.  To get a description of available options,

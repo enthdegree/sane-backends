@@ -1,3 +1,10 @@
+2002-11-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* README configure.in configure po/Makefile.in po/README:
+	  Translations are now enabled by default if the gettext tools are
+	  found. Use msgcat if available. Don't update the .po files
+	  automatically.
+
 2002-10-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* configure configure.in: Print installation directories.

@@ -207,7 +207,7 @@ ac_help="$ac_help
                           [default=no] This option is in no way related to 
                           --enable-scsi-directio"
 ac_help="$ac_help
-  --enable-translations   install translations of backend options [default=no]"
+  --disable-translations  don't install translations of backend options"
 ac_help="$ac_help
   --disable-local-backends turns off compilation of all backends but net"
 
@@ -8621,12 +8621,178 @@ fi
 # Check whether --enable-translations or --disable-translations was given.
 if test "${enable_translations+set}" = set; then
   enableval="$enable_translations"
-  INSTALL_TRANSLATIONS=install-translations
+  
+      if eval "test x$enable_translation = xno"; then 
+        INSTALL_TRANSLATIONS=
+      else
+        INSTALL_TRANSLATIONS=install-translations
+      fi
+  
 else
-  INSTALL_TRANSLATIONS=
+  INSTALL_TRANSLATIONS=install-translations
 
 fi
 
+
+
+if eval "test x$INSTALL_TRANSLATIONS = xinstall-translations" ; then
+  # Extract the first word of "msgfmt", so it can be a program name with args.
+set dummy msgfmt; ac_word=$2
+echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+echo "configure:8643: checking for $ac_word" >&5
+if eval "test \"`echo '$''{'ac_cv_path_MSGFMT'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  case "$MSGFMT" in
+  /*)
+  ac_cv_path_MSGFMT="$MSGFMT" # Let the user override the test with a path.
+  ;;
+  ?:/*)			 
+  ac_cv_path_MSGFMT="$MSGFMT" # Let the user override the test with a dos path.
+  ;;
+  *)
+  IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS=":"
+  ac_dummy="$PATH"
+  for ac_dir in $ac_dummy; do 
+    test -z "$ac_dir" && ac_dir=.
+    if test -f $ac_dir/$ac_word; then
+      ac_cv_path_MSGFMT="$ac_dir/$ac_word"
+      break
+    fi
+  done
+  IFS="$ac_save_ifs"
+  test -z "$ac_cv_path_MSGFMT" && ac_cv_path_MSGFMT="no"
+  ;;
+esac
+fi
+MSGFMT="$ac_cv_path_MSGFMT"
+if test -n "$MSGFMT"; then
+  echo "$ac_t""$MSGFMT" 1>&6
+else
+  echo "$ac_t""no" 1>&6
+fi
+
+  # Extract the first word of "xgettext", so it can be a program name with args.
+set dummy xgettext; ac_word=$2
+echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+echo "configure:8679: checking for $ac_word" >&5
+if eval "test \"`echo '$''{'ac_cv_path_XGETTEXT'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  case "$XGETTEXT" in
+  /*)
+  ac_cv_path_XGETTEXT="$XGETTEXT" # Let the user override the test with a path.
+  ;;
+  ?:/*)			 
+  ac_cv_path_XGETTEXT="$XGETTEXT" # Let the user override the test with a dos path.
+  ;;
+  *)
+  IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS=":"
+  ac_dummy="$PATH"
+  for ac_dir in $ac_dummy; do 
+    test -z "$ac_dir" && ac_dir=.
+    if test -f $ac_dir/$ac_word; then
+      ac_cv_path_XGETTEXT="$ac_dir/$ac_word"
+      break
+    fi
+  done
+  IFS="$ac_save_ifs"
+  test -z "$ac_cv_path_XGETTEXT" && ac_cv_path_XGETTEXT="no"
+  ;;
+esac
+fi
+XGETTEXT="$ac_cv_path_XGETTEXT"
+if test -n "$XGETTEXT"; then
+  echo "$ac_t""$XGETTEXT" 1>&6
+else
+  echo "$ac_t""no" 1>&6
+fi
+
+  # Extract the first word of "msgmerge", so it can be a program name with args.
+set dummy msgmerge; ac_word=$2
+echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+echo "configure:8715: checking for $ac_word" >&5
+if eval "test \"`echo '$''{'ac_cv_path_MSGMERGE'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  case "$MSGMERGE" in
+  /*)
+  ac_cv_path_MSGMERGE="$MSGMERGE" # Let the user override the test with a path.
+  ;;
+  ?:/*)			 
+  ac_cv_path_MSGMERGE="$MSGMERGE" # Let the user override the test with a dos path.
+  ;;
+  *)
+  IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS=":"
+  ac_dummy="$PATH"
+  for ac_dir in $ac_dummy; do 
+    test -z "$ac_dir" && ac_dir=.
+    if test -f $ac_dir/$ac_word; then
+      ac_cv_path_MSGMERGE="$ac_dir/$ac_word"
+      break
+    fi
+  done
+  IFS="$ac_save_ifs"
+  test -z "$ac_cv_path_MSGMERGE" && ac_cv_path_MSGMERGE="no"
+  ;;
+esac
+fi
+MSGMERGE="$ac_cv_path_MSGMERGE"
+if test -n "$MSGMERGE"; then
+  echo "$ac_t""$MSGMERGE" 1>&6
+else
+  echo "$ac_t""no" 1>&6
+fi
+
+  # Extract the first word of "msgcat", so it can be a program name with args.
+set dummy msgcat; ac_word=$2
+echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+echo "configure:8751: checking for $ac_word" >&5
+if eval "test \"`echo '$''{'ac_cv_path_MSGCAT'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  case "$MSGCAT" in
+  /*)
+  ac_cv_path_MSGCAT="$MSGCAT" # Let the user override the test with a path.
+  ;;
+  ?:/*)			 
+  ac_cv_path_MSGCAT="$MSGCAT" # Let the user override the test with a dos path.
+  ;;
+  *)
+  IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS=":"
+  ac_dummy="$PATH"
+  for ac_dir in $ac_dummy; do 
+    test -z "$ac_dir" && ac_dir=.
+    if test -f $ac_dir/$ac_word; then
+      ac_cv_path_MSGCAT="$ac_dir/$ac_word"
+      break
+    fi
+  done
+  IFS="$ac_save_ifs"
+  test -z "$ac_cv_path_MSGCAT" && ac_cv_path_MSGCAT="no"
+  ;;
+esac
+fi
+MSGCAT="$ac_cv_path_MSGCAT"
+if test -n "$MSGCAT"; then
+  echo "$ac_t""$MSGCAT" 1>&6
+else
+  echo "$ac_t""no" 1>&6
+fi
+
+  
+  
+  
+  
+  if test x$MSGFMT = xno || test x$XGETTEXT = xno || test $MSGMERGE = no ; then
+    INSTALL_TRANSLATIONS=
+    echo "disabling translations"
+  else
+    echo "enabling translations"
+  fi
+else
+  echo "disabling translations"
+fi  
 
 
 # Check whether --enable-local-backends or --disable-local-backends was given.
@@ -8644,7 +8810,7 @@ fi
 # Extract the first word of "sane-config", so it can be a program name with args.
 set dummy sane-config; ac_word=$2
 echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
-echo "configure:8648: checking for $ac_word" >&5
+echo "configure:8814: checking for $ac_word" >&5
 if eval "test \"`echo '$''{'ac_cv_path_SANE_CONFIG_PATH'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -8678,7 +8844,7 @@ else
 fi
 
 echo $ac_n "checking for sane_init in -lsane""... $ac_c" 1>&6
-echo "configure:8682: checking for sane_init in -lsane" >&5
+echo "configure:8848: checking for sane_init in -lsane" >&5
 ac_lib_var=`echo sane'_'sane_init | sed 'y%./+-%__p_%'`
 if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
@@ -8686,7 +8852,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lsane  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 8690 "configure"
+#line 8856 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 /* We use char because int might match the return type of a gcc2
@@ -8697,7 +8863,7 @@ int main() {
 sane_init()
 ; return 0; }
 EOF
-if { (eval echo configure:8701: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+if { (eval echo configure:8867: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -8917,6 +9083,10 @@ s%@SNAPSCAN@%$SNAPSCAN%g
 s%@DLL_PRELOAD@%$DLL_PRELOAD%g
 s%@PNM@%$PNM%g
 s%@INSTALL_TRANSLATIONS@%$INSTALL_TRANSLATIONS%g
+s%@MSGFMT@%$MSGFMT%g
+s%@XGETTEXT@%$XGETTEXT%g
+s%@MSGMERGE@%$MSGMERGE%g
+s%@MSGCAT@%$MSGCAT%g
 s%@SELECTED_BACKENDS@%$SELECTED_BACKENDS%g
 s%@SANE_CONFIG_PATH@%$SANE_CONFIG_PATH%g
 s%@DISTCLEAN_FILES@%$DISTCLEAN_FILES%g

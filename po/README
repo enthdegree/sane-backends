@@ -1,19 +1,19 @@
-2002-01-24
+2002-11-03
 
 This directory contains translations for the options of the SANE backends.
-They are only used if configure is called with option --enable-translations.
+They are only used if the gettext tools are found by configure.
 You will need GNU gettext: xgettext, msgfmt and msgmerge. The translations
-are used at least by the frontend XSane.
+are used at least by the frontends XSane and quiteinsane.
 
 What do you need to do if you want to:
 
 - Just read the description of SANE options in your language
-  * Use XSane or your favourite backend that supports translations, read the
+  * Use XSane or your favourite frontend that supports translations, read the
     documentation and set LANG to your local setting (e.g. de_DE for German
     language in Germany).
 
 - Update existing translations when the source code has changed
-  * cd po ; make
+  * cd po ; make backend.lang.po
   * Edit backend.lang.po, add/change translations. (with lang = your
     language, e.g. "de", and backend = your backend, e.g. mustek)
   * make ; make install
@@ -39,7 +39,7 @@ What do you need to do if you want to:
   * Edit po/Makefile.in. Add a line "backend.*.po: yourfiles" where
     yourfiles is a space-separated list of all your files containing
     translatable text. Also add backend.lang.po to DISTFILES.
-  * ./configure --enable-translations
+  * ./configure
   * cd po ; make backend.lang.po-gen
   * see above, if the language isn't used by other backends.
   * Edit backend-lang.po, enter translations. Don't forget to edit the header.
@@ -55,11 +55,6 @@ What do you need to do if you want to:
   * With other NLS implementations, converting the mo files may work.
 
 Bugs:
-- This is the first attempt to support translations. It's probably very buggy
-  and is not very well tested.
-- Documentation is not complete.
-- I'm not sure if all the functions in Makefile.in work with older versions
-  of make.
 - I used sed to also include macros into *.pot.
 - All well known options are added to *.lang.po even if they are not used
   in the backend.

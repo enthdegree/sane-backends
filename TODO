@@ -1,4 +1,4 @@
-TODO (2001-04-29)
+TODO (2001-05-01)
 
 ******** todo ********
 
@@ -25,6 +25,7 @@ backends
       Mark Plowman <mplowman@wxs.nl>
     - Linux Handscanner Ioctl Interface scanner by Harald
       Bauer <bauer-h@web.de>
+      Update email in lhii.desc and/or add backend.
     - viceo (Visioneer OneTouch 8600)
       http://www.abaforum.es/martim/bird/otlinux.htm
     - Mustek 1200 UB backend
@@ -87,6 +88,12 @@ backends
 
   * add a contact address for each backend (in backend.desc).
 
+  * lines like "if (config_line[len - 1] == '\n')"  can cause segfaults and
+    should be removed (this is done in sanei_config_read)
+    - artec
+    - plustek
+    - umax
+
 doc
 ---
   * Add sane manpage (this is work in progress: Henning Meier-Geinitz 
@@ -147,6 +154,11 @@ misc
     Maybe something like  --network-client-only or --disable-local-devices.
 
   * Add USB support for sane-find-scanner.
+
+  * check memory leaks (checked with purify and mtrace (from glibc)):
+    - sanei_wire.c: lots of leaks, e.g. lines 145 + 185
+    - sanei_scsi.c: line 1262
+    - most backends: sanei_get_devices?
 
 ******** done ********
 * Add a check for installed sane versions.

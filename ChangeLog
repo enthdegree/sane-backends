@@ -1,3 +1,10 @@
+2000-10-23  Peter Kirchgessner <peter@kirchgessner.net>
+
+        *backend/hp-accessor.c hp-device.c hp-handle.c hp-hpmem.c hp.h hp.c
+                 hp-option.c  hp-scl.c: Change sanei_debug-interface
+            Allocate accessors once (for fixed size accessors)
+            Close connection in some error conditions
+
 2000-10-23  Jochen Eisinger <jochen.eisinger@gmx.net>
 
 	* backend/dll.c: added test for ``dll'' in dll.conf

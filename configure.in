@@ -103,7 +103,7 @@ AC_CHECK_HEADERS(fcntl.h unistd.h libc.h sys/dsreq.h sys/select.h \
     bsd/dev/scsireg.h scsi/sg.h /usr/src/linux/include/scsi/sg.h io/cam/cam.h \
     camlib.h os2.h sys/socket.h sys/io.h asm/io.h gscdds.h sys/hw.h \
     sys/types.h sys/scsi/scsi.h sys/scsi/sgdefs.h sys/scsi/targets/scgio.h \
-    apollo/scsi.h sys/sdi_comm.h sys/passthrudef.h)
+    apollo/scsi.h sys/sdi_comm.h sys/passthrudef.h linux/ppdev.h)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST

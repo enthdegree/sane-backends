@@ -1,5 +1,6 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 2001 Henning Meier-Geinitz
+   Copyright (C) 2001 Frank Zago (sanei_usb_control_msg)
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -58,6 +59,33 @@
 #include "../include/sane/sanei_usb.h"
 #include "../include/sane/sanei_config.h"
 
+#if defined (__linux__)
+
+/* From /usr/src/linux/driver/usb/scanner.h */
+#define SCANNER_IOCTL_VENDOR _IOR('U', 0x20, int)
+#define SCANNER_IOCTL_PRODUCT _IOR('U', 0x21, int)
+#define SCANNER_IOCTL_CTRLMSG _IOWR('U', 0x22, devrequest)
+/* Older (unofficial) IOCTL numbers for Linux < v2.4.13 */
+#define SCANNER_IOCTL_VENDOR_OLD _IOR('u', 0xa0, int)
+#define SCANNER_IOCTL_PRODUCT_OLD _IOR('u', 0xa1, int)
+
+/* From /usr/src/linux/include/linux/usb.h */ 
+typedef struct {
+  unsigned char requesttype;
+  unsigned char request;
+  unsigned short value;
+  unsigned short index;
+  unsigned short length;
+} devrequest __attribute__ ((packed));
+
+/* From /usr/src/linux/driver/usb/scanner.h */
+struct ctrlmsg_ioctl {
+  devrequest  req;
+  void        *data;
+} cmsg;
+
+#endif /* __linux__ */
+
 
 void
 sanei_usb_init (void)
@@ -114,15 +142,10 @@ sanei_usb_get_vendor_product (SANE_Int fd, SANE_Word * vendor,
   SANE_Word vendorID, productID;
 
 #if defined (__linux__)
-#define IOCTL_SCANNER_VENDOR _IOR('U', 0x20, int)
-#define IOCTL_SCANNER_PRODUCT _IOR('U', 0x21, int)
-  /* Older (unofficial) IOCTL numbers for Linux < v2.4.13 */
-#define IOCTL_SCANNER_VENDOR_OLD _IOR('u', 0xa0, int)
-#define IOCTL_SCANNER_PRODUCT_OLD _IOR('u', 0xa1, int)
   /* read the vendor and product IDs via the IOCTLs */
-  if (ioctl (fd, IOCTL_SCANNER_VENDOR , &vendorID) == -1)
+  if (ioctl (fd, SCANNER_IOCTL_VENDOR , &vendorID) == -1)
     {
-      if (ioctl (fd, IOCTL_SCANNER_VENDOR_OLD , &vendorID) == -1)
+      if (ioctl (fd, SCANNER_IOCTL_VENDOR_OLD , &vendorID) == -1)
 	{
 	  DBG (3, "sanei_usb_get_vendor_product: ioctl (vendor) of fd %d "
 	       "failed: %s\n", fd, strerror (errno));
@@ -130,9 +153,9 @@ sanei_usb_get_vendor_product (SANE_Int fd, SANE_Word * vendor,
 	  vendorID = 0;
 	}
     }
-  if (ioctl (fd, IOCTL_SCANNER_PRODUCT , &productID) == -1)
+  if (ioctl (fd, SCANNER_IOCTL_PRODUCT , &productID) == -1)
     {
-      if (ioctl (fd, IOCTL_SCANNER_PRODUCT_OLD , &productID) == -1)
+      if (ioctl (fd, SCANNER_IOCTL_PRODUCT_OLD , &productID) == -1)
 	{
 	  DBG (3, "sanei_usb_get_vendor_product: ioctl (product) of fd %d "
 	       "failed: %s\n", fd, strerror (errno));
@@ -309,4 +332,35 @@ sanei_usb_write_bulk (SANE_Int fd, SANE_Byte * buffer, size_t *size)
 	 (unsigned long) *size, (unsigned long) write_size);
   *size = write_size;
   return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+sanei_usb_control_msg(SANE_Int fd, SANE_Int rtype, SANE_Int req,
+		      SANE_Int value, SANE_Int index, SANE_Int len,
+		      SANE_Byte *data )
+{
+#if defined(__linux__)
+  struct ctrlmsg_ioctl c;
+
+  c.req.requesttype = rtype;
+  c.req.request = req;
+  c.req.value = value;
+  c.req.index = index;
+  c.req.length = len;
+  c.data = data;
+
+  DBG(5, "sanei_usb_control_msg: rtype = 0x%02x, req = %d, value = %d, "
+      "index = %d, len = %d\n", rtype, req, value, index, len);
+  
+  if (ioctl(fd, SCANNER_IOCTL_CTRLMSG, &c) < 0)
+    {
+      DBG(5, "sanei_usb_control_msg: SCANNER_IOCTL_CTRLMSG error - %s\n",
+	  strerror(errno));
+      return SANE_STATUS_IO_ERROR;
+    }
+  return SANE_STATUS_GOOD;
+#else
+  DBG (5, "sanei_usb_control_msg: not supported on this OS\n");
+  return SANE_STATUS_UNSUPPORTED;
+#endif /* __linux__ */
 }

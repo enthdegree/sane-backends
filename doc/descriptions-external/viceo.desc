@@ -14,7 +14,7 @@
 ;:manpage "sane-viceo"               ; name of manpage (if it exists)
 :url "mailto:viceo@stevencherie.net" ; backend's web page
 :url "http://viceo.orcon.net.nz/"
-:comment "Supports E3 and E4 family USB scanners from Genius, Primax, IBM"
+:comment "Supports E3 and E4 family USB scanners from Genius, Primax, IBM. The backend is not included because the license situation is unclear."
 
 :devicetype :scanner
 

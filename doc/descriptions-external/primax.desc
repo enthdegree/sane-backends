@@ -3,6 +3,7 @@
 :status :beta                    ; :alpha, :beta, :stable, :new
 ;:manpage "sane-primax"           ; name of manpage (if it exists)
 :url "http://px-backend.sourceforge.net" ; backend's web page
+:comment "This backend is not included because it depends on the code of the primax command line program. Therefore the author want's to keep it in the primax CVS tree."
 
 :devicetype :scanner             ; start of a list of devices....
                                  ; other types:  :stillcam, :vidcam,

@@ -7,13 +7,14 @@
 ;
 ; ":backend" *must* be specified.
 ; All other information is optional (but what good is the file without it?).
-;
+
 
 :backend "hp4200"               ; name of backend
 ;:version "0.1"                    ; version of backend
 :status :alpha                    ; :alpha, :beta, :stable, :new
 ; :manpage "sane-hp4200"           ; name of manpage (if it exists)
 :url "http://hp4200-backend.sourceforge.net" ; backend's web page
+:comment "Patches for newer versions of SANE are available from <a href=\"http://fz.eryx.net/sane/#hp4200\">http://fz.eryx.net/sane/#hp4200</a>. This backend is not yet included because nobody who owns such a scanner wants to maintain it."
 
 :devicetype :scanner              ; start of a list of devices....
                                   ; other types:  :stillcam, :vidcam,

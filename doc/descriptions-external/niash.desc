@@ -14,6 +14,7 @@
 :status :alpha			; :alpha, :beta, :stable, :new
 ;:manpage "sane-niash"		; name of manpage (if it exists)
 :url "http://sourceforge.net/projects/hp3300backend"  ; backend's web page
+:comment "This backend is not included yet because the author wants to do some code clean-up and bug fixes before adding the backend to SANE. See the hp3300 website for the latest information."
 
 :devicetype :scanner		; start of a list of devices....
 				; other types:  :stillcam, :vidcam,

@@ -15,6 +15,14 @@
 	  dead for years. No response from author.
 	* doc/descriptions-external/onetouch8600.desc: Removed. Website is
 	  dead. No response from author.
+	* doc/descriptions-external/hp4200.desc
+	  doc/descriptions-external/hpoj.desc
+	  doc/descriptions-external/niash.desc
+	  doc/descriptions-external/primax.desc
+	  doc/descriptions-external/scanwit.desc
+	  doc/descriptions-external/v4l2.desc
+	  doc/descriptions-external/viceo.desc: Added comments to explain
+	  the reasons for not including these backends into SANE.
 	
 2003-04-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

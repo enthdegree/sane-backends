@@ -14,6 +14,7 @@
 :status :alpha                 ; :alpha, :beta, :stable, :new
 ;
 ;:manpage "sane-ibm"            ; name of manpage (if it exists)
+:comment "The backend is not included because it lacks code for safe detection of the scanner and documentation."
 
 :devicetype :scanner
 

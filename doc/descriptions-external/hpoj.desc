@@ -13,6 +13,9 @@
 ;:version "(external)"             ; version of backend
 :status :beta                     ; :alpha, :beta, :stable, :new
 :url "http://hpoj.sourceforge.net/" ; backend's web page
+:comment "This backend isn't included because the authors of hpoj want to keep the backend together with the rest of the hpoj project. See the hpoj website for the latest releases."
+
+
 
 :devicetype :scanner              ; start of a list of devices....
                                   ; other types:  :stillcam, :vidcam,

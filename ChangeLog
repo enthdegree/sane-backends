@@ -5,7 +5,9 @@
 	  they shouldn't be used directly.
 	* include/sane/sanei_usb.h sanei/Makefile.in sanei/sanei_usb.c
 	  doc/Makefile.in doc/sane-usb.man: Added sane USB interface.
-
+	* include/sane/sanei_config.h sanei/sanei_config2.c: Added support
+	  for searching USB devices ("usb vendor product").
+	
 2001-08-05  Peter Fales <peter@fales.com>
 
 	* backend/dc240.c - Previously, the backend always assumed that

@@ -881,6 +881,17 @@
 
 ;********************************************************************************************
 
+:mfg "NEC"
+:url "http://www.nevt.co.jp/"
+
+:model "Petiscan"
+:interface "USB"
+:url "/unsupported/nec-petiscan.html"
+:status :unsupported
+:comment "Most probably unsupported. See link for details. Vendor ID is 0x0475 (Relisys/Teco). Not know if it is similar to other Relisys/Teco USB scanners."
+
+;********************************************************************************************
+
 :mfg "Nikon"
 :url "http://www.nikon.com/"
 

@@ -1,3 +1,7 @@
+2004-06-13  Mattias Ellert <mattias.ellert@tsl.uu.se>
+
+	* doc/descriptions/unsupported.desc: Added NEC Petiscan as unsupported
+
 2004-06-13  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/sane_usb.c: Added Perfection 1650 back in that was removed by

@@ -234,10 +234,10 @@ AC_ARG_ENABLE(libusb,
     fi
   ])
 
-dnl we need both libusb header and a libusb providing usb_get_busses
+dnl we need both libusb header and a libusb providing usb_interrupt_read
 if test "${ac_cv_header_usb_h}" = "yes" && test "$USE_LIBUSB" = "yes" ; then
-  AC_CHECK_LIB(usb, usb_get_busses)
-  if test "${ac_cv_lib_usb_usb_get_busses}" = "yes" ; then
+  AC_CHECK_LIB(usb, usb_interrupt_read)
+  if test "${ac_cv_lib_usb_usb_interrupt_read}" = "yes" ; then
     HAVE_LIBUSB="yes"
   fi
 fi

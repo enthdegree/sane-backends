@@ -1,6 +1,13 @@
 
 2004-11-19  Rene Rebe <rene@exactcode.de>
 
+	* sanei/sanei_usb.c configure.in: use usb_interrupt_read instead of
+	  usb_bulk_read for sanei_usb_read_int. Fixes bug #300878. Added a
+	  missing DBG output in sanei_usb_read_int. Check for
+	  usb_interrupt_read to make sure, we have at least version 0.1.8.
+
+2004-11-19  Rene Rebe <rene@exactcode.de>
+
 	* backend/avison.c doc/descriptions/avision.desc
 	  doc/descriptions/unsupported.desc: just added new IDs including
 	  moving the HP 82xx to the avision backend

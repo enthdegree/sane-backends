@@ -1027,6 +1027,10 @@ sanei_usb_read_int (SANE_Int dn, SANE_Byte * buffer, size_t * size)
       DBG (1, "sanei_usb_read_int: dn >= MAX_DEVICES || dn < 0\n");
       return SANE_STATUS_INVAL;
     }
+  
+  DBG (5, "sanei_usb_read_int: trying to read %lu bytes\n",
+       (unsigned long) *size);
+
   if (devices[dn].method == sanei_usb_method_scanner_driver) {
      DBG (1, "sanei_usb_read_int: access method %d not implemented\n",
 	   devices[dn].method);
@@ -1036,9 +1040,9 @@ sanei_usb_read_int (SANE_Int dn, SANE_Byte * buffer, size_t * size)
 #ifdef HAVE_LIBUSB
     {
       if (devices[dn].int_in_ep)
-	read_size = usb_bulk_read (devices[dn].libusb_handle,
-				   devices[dn].int_in_ep, (char *) buffer,
-				   (int) *size, libusb_timeout);
+	read_size = usb_interrupt_read (devices[dn].libusb_handle,
+				        devices[dn].int_in_ep, (char *) buffer,
+				        (int) *size, libusb_timeout);
       else
 	{
 	  DBG (1, "sanei_usb_read_int: can't read without an int "

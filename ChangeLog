@@ -15,6 +15,7 @@
 	* backend/plustek-usb.h backend/plustek-usbdevs.c 
 	  backend/plustek-usbhw.c backend/plustek-usnscan.c: Improved
 	  fastforward stuff, cleanup work.
+	* sanei/sanei_lm983x.c: Cleanup work.
 
 2004-07-15  Rene Rebe <rene@rocklinux.org>
 

@@ -1,5 +1,20 @@
 2000-12-03  Karl Heinz Kremer <khk@khk.net>
 
+	* backend/epson.*: Version 0.1.38
+	  Removed changes regarding 12/14 bit support because of SANE
+	  feature freeze for 1.0.4. 
+	  The following fixes are in the software compared to the version
+	  prior to the feature freeze:
+	  - refresh UI after a change in the scan mode setting (was not updated
+	    when going from Binary to Gray or vice versa)
+	  - Read values for "line distance" from the scanner instead of using
+	    hardcoded values. This makes sure the backend always uses the correct
+	    values regardless of firmware version.
+	  - Fixed an "off-by-one" error in the color reordering routine that 
+	    caused weird artifacts in some instances.
+
+2000-12-03  Karl Heinz Kremer <khk@khk.net>
+
 	* backend/epson.c: Fixed off-by-one in color reordering
 
 2000-12-02  Karl Heinz Kremer <khk@khk.net>

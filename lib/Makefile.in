@@ -56,7 +56,7 @@ TARGETS = $(LIBLIB_OBJS)
 TARGETS = liblib.a
 
 DISTFILES = Makefile.in alloca.c getenv.c getopt.c getopt1.c \
-  inet_ntop.c isfdtype.c md5.c sigprocmask.c snprintf.c strdup.c \
+  inet_ntop.c inet_pton.c isfdtype.c md5.c sigprocmask.c snprintf.c strdup.c \
   strndup.c strsep.c usleep.c vsyslog.c
 
 .PHONY: all check clean depend dist distclean install uninstall

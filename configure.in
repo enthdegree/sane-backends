@@ -203,11 +203,11 @@ fi
 dnl Checks for library functions.
 AC_FUNC_ALLOCA
 AC_FUNC_MMAP
-AC_CHECK_FUNCS(atexit ioperm mkdir scsireq_enter  \
-    strftime strstr strtod  \
+AC_CHECK_FUNCS(atexit inet_addr inet_aton inet_ntoa ioperm mkdir \
+    scsireq_enter strftime strstr strtod  \
     cfmakeraw tcsendbreak strcasecmp strncasecmp _portaccess)
 
-AC_REPLACE_FUNCS(getenv inet_ntop isfdtype sigprocmask snprintf \
+AC_REPLACE_FUNCS(getenv inet_ntop inet_pton isfdtype sigprocmask snprintf \
     strdup strndup strsep usleep vsyslog)
 
 SANE_LINKER_RPATH

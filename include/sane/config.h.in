@@ -223,8 +223,20 @@
 /* Define if you have the vsyslog function.  */
 #undef HAVE_VSYSLOG
 
+/* Define if you have the inet_aton function.  */
+#undef HAVE_INET_ATON
+
+/* Define if you have the inet_ntoa function.  */
+#undef HAVE_INET_NTOA
+
+/* Define if you have the inet_addr function.  */
+#undef HAVE_INET_ADDR
+
 /* Define if you have the inet_ntop function.  */
 #undef HAVE_INET_NTOP
+
+/* Define if you have the inet_pton function.  */
+#undef HAVE_INET_PTON
 
 /* Define if you have the snprintf function.  */
 #undef HAVE_SNPRINTF

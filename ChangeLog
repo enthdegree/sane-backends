@@ -1,3 +1,7 @@
+2001-09-23  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* TODO: Added SCSI problem with Linux/Sparc.
+
 2001-09-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* sanei/sanei_scsi.c: Fixed detection of SCSI devices that return

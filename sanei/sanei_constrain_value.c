@@ -53,7 +53,7 @@ sanei_constrain_value (const SANE_Option_Descriptor * opt, void * value,
 {
   const SANE_String_Const * string_list;
   const SANE_Word * word_list;
-  int i, num_matches, match;
+  int i, k, num_matches, match;
   const SANE_Range * range;
   SANE_Word w, v;
   SANE_Bool b;
@@ -99,11 +99,24 @@ sanei_constrain_value (const SANE_Option_Descriptor * opt, void * value,
       break;
 
     case SANE_CONSTRAINT_WORD_LIST:
+      /* If there is no exact match in the list, use the nearest value */
       w = *(SANE_Word *) value;
       word_list = opt->constraint.word_list;
-      for (i = 1; w != word_list[i]; ++i)
-	if (i >= word_list[0])
-	  return SANE_STATUS_INVAL;
+      for (i = 1, k = 1, v = abs(w - word_list[1]); i <= word_list[0]; i++)
+	{
+	  SANE_Word vh;
+	  if ((vh = abs(w - word_list[i])) < v)
+	    {
+	      v = vh;
+	      k = i;
+	    }
+	}
+      if (w != word_list[k])
+	{
+	  *(SANE_Word *) value = word_list[k];
+	  if (info)
+	    *info |= SANE_INFO_INEXACT;
+	}
       break;
 
     case SANE_CONSTRAINT_STRING_LIST:

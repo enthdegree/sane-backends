@@ -15,6 +15,10 @@
 	  canon630u backend. This backend supports the CanoScan 630u and
 	  CanoScan 636u (hopefully). Patch from Nathan Rutman 
 	  <nathan@gordian.com>.
+	* doc/.cvsignore doc/Makefile.in doc/sane-canon630u.man
+	  doc/descriptions/canon630u.desc: Added documentation and description
+	  of canon630u backend. Patch from Nathan Rutman 
+	  <nathan@gordian.com>. 
 
 2002-04-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -1,3 +1,8 @@
+2003-08-21  Karl Heinz Kremer <khk@khk.net>
+
+	* backend/epson.c: Removed '//' comments - again ...
+	  Added EPSON KOWA copyright 
+
 2003-08-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* README.darwin sanei/sanei_scsi.c: Added support for the

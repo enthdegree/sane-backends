@@ -1,10 +1,10 @@
 /* 
    epson.c - SANE library for Epson flatbed scanners.
 
-   based on Kazuhiro Sasayama previous
+   Based on Kazuhiro Sasayama previous
    Work on epson.[ch] file from the SANE package.
 
-   original code taken from sane-0.71
+   Original code taken from sane-0.71
    Copyright (C) 1997 Hypercore Software Design, Ltd.
 
    modifications
@@ -12,11 +12,11 @@
    Copyright (C) 1998-1999 Kling & Hautzinger GmbH
    Copyright (C) 1999 Norihiko Sawa <sawa@yb3.so-net.ne.jp>
    Copyright (C) 2000 Mike Porter <mike@udel.edu> (mjp)
-   Copyright (C) 1999-2002 Karl Heinz Kremer <khk@khk.net>
-
+   Copyright (C) 1999-2003 Karl Heinz Kremer <khk@khk.net>
+   Copyright (C) 2003 EPSON KOWA Corporation
 */
 
-#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.37 - 2003-05-11"
+#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.38 - 2003-08-21"
 #define SANE_EPSON_BUILD	238
 
 /*
@@ -59,6 +59,8 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
+   2003-08-21   Removed '//' comments - again ...
+		Added EPSON Kowa copyright message
    2003-08-15	Added support for GT-30000, with support for the ADF in simplex mode
 		Borrowed some code from the EPSON Kowa IScan version of the backend
 		Use sanei_scsi_cmd2() to send commands. This makes this backend 
@@ -1340,42 +1342,42 @@ get_size( char c1, char c2, double *w, double *h )
 	unsigned char flag;
 
 	double wsizetbl [ ] = {
-		11.60,  // A3V
-		11.00,  // WLT
-		10.12,  // B4V
-		8.50,   // LGV
-		8.27,   // A4V
-		11.69,  // A4H
-		8.50,   // LTV
-		11.00,  // LTH
-		7.17,   // B5V
-		10.12,  // B5H
-		5.83,   // A5V
-		8.27,   // A5H
-		7.25,   // EXV
-		10.50,  // EXH
-		11.69,  // unknown
-		11.69,  // unknown
-		11.69,  // unknown
+		11.60,  /* A3V */
+		11.00,  /* WLT */
+		10.12,  /* B4V */
+		8.50,   /* LGV */
+		8.27,   /* A4V */
+		11.69,  /* A4H */
+		8.50,   /* LTV */
+		11.00,  /* LTH */
+		7.17,   /* B5V */
+		10.12,  /* B5H */
+		5.83,   /* A5V */
+		8.27,   /* A5H */
+		7.25,   /* EXV */
+		10.50,  /* EXH */
+		11.69,  /* unknown */
+		11.69,  /* unknown */
+		11.69,  /* unknown */
 	};
 	double hsizetbl [ ] = {
-		16.54,  // A3V
-		17.00,  // WLT
-		14.33,  // B4V
-		14.00,  // LGV
-		11.69,  // A4V
-		8.27,   // A4H
-		11.00,  // LTV
-		8.50,   // LTH
-		10.12,  // B5V
-		7.17,   // B5H
-		8.27,   // A5V
-		5.83,   // A5H
-		10.50,  // EXV
-		7.25,   // EXH
-		17.00,  // unknown
-		17.00,  // unknown
-		17.00,  // unknown
+		16.54,  /* A3V */
+		17.00,  /* WLT */
+		14.33,  /* B4V */
+		14.00,  /* LGV */
+		11.69,  /* A4V */
+		8.27,   /* A4H */
+		11.00,  /* LTV */
+		8.50,   /* LTH */
+		10.12,  /* B5V */
+		7.17,   /* B5H */
+		8.27,   /* A5V */
+		5.83,   /* A5H */
+		10.50,  /* EXV */
+		7.25,   /* EXH */
+		17.00,  /* unknown */
+		17.00,  /* unknown */
+		17.00,  /* unknown */
 	};
 
 	flag = c1;
@@ -1952,7 +1954,6 @@ attach(const char * dev_name, Epson_Device * * devp, int type)
 			DBG(1, "attach: open failed: %s\n", sane_strstatus( status));
 			return status;
 		}
-//		reset(s);
 		DBG( 3, "attach: sending INQUIRY\n");
 
 		status = sanei_epson_scsi_inquiry( s->fd, 0, buf, &buf_size);
@@ -5008,9 +5009,6 @@ void scan_finish(Epson_Scanner * s)
 	if (SANE_STATUS_NO_DOCS == status && s->hw->ADF && s->hw->use_extension)
 		sane_auto_eject(s);
 
-//	close_scanner(s);
-//	s->fd = -1;
-
 	for (i=0; i<s->line_distance; i++)
 	{
 		if (s->line_buffer[i] != NULL)
@@ -5694,8 +5692,8 @@ get_identity_information(SANE_Handle handle)
 		int x = 0, y = 0;
 		int count = ident->count2 * 255 + ident->count1;
 		
-		// we need to correct for the difference in size between
-		// the EpsonIdentRec and the EpsonHdrRec
+		/* we need to correct for the difference in size between
+		   the EpsonIdentRec and the EpsonHdrRec */
 		int correction = sizeof(EpsonIdentRec) - sizeof(EpsonHdrRec);
 
 		for( n = (count-correction), buf = ident->buf; n; n -= k, buf += k) {

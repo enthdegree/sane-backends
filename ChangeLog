@@ -1,3 +1,8 @@
+2003-07-20  Stéphane Voltz <svoltz@wanadoo.fr>
+
+	* doc/descriptions/umax_pp.desc: updated forgotten status to use new 
+	  keyword.
+
 2003-07-20  Oliver Rauch  <oliver.rauch@rauch-domain.de>
 
 	* backend/umax.c: changes for Umax UC630 3pass color scan

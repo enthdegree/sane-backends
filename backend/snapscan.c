@@ -2,8 +2,8 @@
  
    Copyright (C) 1997, 1998, 2001 Franck Schnefra, Michel Roelofs,
    Emmanuel Blot, Mikko Tyolajarvi, David Mosberger-Tang, Wolfgang Goeller,
-   Petter Reinholdtsen, Gary Plewa, Sebastien Sable, Mikael Magnusson
-   and Kevin Charter
+   Petter Reinholdtsen, Gary Plewa, Sebastien Sable, Mikael Magnusson,
+   Oliver Schwartz and Kevin Charter
  
    This file is part of the SANE package.
  
@@ -11,12 +11,12 @@
    modify it under the terms of the GNU General Public License as
    published by the Free Software Foundation; either version 2 of the
    License, or (at your option) any later version.
- 
+
    This program is distributed in the hope that it will be useful, but
    WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    General Public License for more details.
- 
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 59 Temple Place - Suite 330, Boston,
@@ -30,7 +30,7 @@
    resulting executable to be covered by the GNU General Public
    License.  Your use of that executable is in no way restricted on
    account of linking the SANE library code into it.
- 
+
    This exception does not, however, invalidate any other reasons why
    the executable file might be covered by the GNU General Public
    License.
@@ -42,7 +42,7 @@
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
- 
+
    This file is a component of the implementation of a backend for many
    of the the AGFA SnapScan and Acer Vuego/Prisa flatbed scanners. */
 
@@ -72,12 +72,12 @@
 #include "../include/sane/sanei_scsi.h"
 
 #ifndef PATH_MAX
-#define PATH_MAX	1024
+#define PATH_MAX        1024
 #endif
 
-#define EXPECTED_MAJOR	1
-#define MINOR_VERSION	3
-#define BUILD		0
+#define EXPECTED_MAJOR        1
+#define MINOR_VERSION        3
+#define BUILD                0
 
 #include "snapscan.h"
 
@@ -95,7 +95,6 @@
 #endif
 
 #include "../include/sane/sanei_config.h"
-#define SNAPSCAN_CONFIG_FILE "snapscan.conf"
 
 /* debug levels */
 #define DL_INFO        1
@@ -113,33 +112,34 @@ if ((s) != SANE_STATUS_GOOD) { DBG(DL_MAJOR_ERROR, "%s: %s command failed: %s\n"
 
 /* hardware configuration byte masks */
 
-#define HCFG_ADC  0x80		/* AD converter 1 ==> 10bit, 0 ==> 8bit */
-#define HCFG_ADF  0x40		/* automatic document feeder */
-#define HCFG_TPO  0x20		/* transparency option */
-#define HCFG_RB   0x10		/* ring buffer */
-#define HCFG_HT16 0x08		/* 16x16 halftone matrices */
-#define HCFG_HT8  0x04		/* 8x8 halftone matrices */
-#define HCFG_SRA  0x02		/* scanline row average (high-speed colour) */
+#define HCFG_ADC         0x80         /* AD converter 1 ==> 10bit, 0 ==> 8bit */
+#define HCFG_ADF         0x40         /* automatic document feeder */
+#define HCFG_TPO         0x20         /* transparency option */
+#define HCFG_RB          0x10         /* ring buffer */
+#define HCFG_HT16        0x08         /* 16x16 halftone matrices */
+#define HCFG_HT8         0x04         /* 8x8 halftone matrices */
+#define HCFG_SRA         0x02         /* scanline row average (high-speed colour) */
+#define HCFG_CAL_ALLOWED 0x01         /* 1 ==> calibration allowed */
 
-#define HCFG_HT   0x0C		/* support halftone matrices at all */
+#define HCFG_HT   0x0C                /* support halftone matrices at all */
 
-#define MM_PER_IN 25.4		/* # millimetres per inch */
-#define IN_PER_MM 0.03937	/* # inches per millimetre  */
+#define MM_PER_IN 25.4                /* # millimetres per inch */
+#define IN_PER_MM 0.03937        /* # inches per millimetre  */
 
 /* default option values */
 
-#define DEFAULT_RES  		300
-#define DEFAULT_PREVIEW 	SANE_FALSE
+#define DEFAULT_RES                  300
+#define DEFAULT_PREVIEW         SANE_FALSE
 
-#define DEFAULT_BRIGHTNESS	0
-#define DEFAULT_CONTRAST	0
-#define DEFAULT_GAMMA		SANE_FIX(1.8)
-#define DEFAULT_HALFTONE	SANE_FALSE
-#define DEFAULT_NEGATIVE	SANE_FALSE
-#define DEFAULT_THRESHOLD	50
-#define DEFAULT_QUALITY 	SANE_TRUE
-#define DEFAULT_CUSTOM_GAMMA	SANE_FALSE
-#define DEFAULT_GAMMA_BIND	SANE_FALSE
+#define DEFAULT_BRIGHTNESS        0
+#define DEFAULT_CONTRAST        0
+#define DEFAULT_GAMMA                SANE_FIX(1.8)
+#define DEFAULT_HALFTONE        SANE_FALSE
+#define DEFAULT_NEGATIVE        SANE_FALSE
+#define DEFAULT_THRESHOLD        50
+#define DEFAULT_QUALITY         SANE_TRUE
+#define DEFAULT_CUSTOM_GAMMA        SANE_FALSE
+#define DEFAULT_GAMMA_BIND        SANE_FALSE
 
 
 static SANE_Int def_rgb_lpr = 4;
@@ -149,19 +149,29 @@ static SANE_Int def_gs_lpr = 12;
 static const SANE_Range x_range_fb =
 {
     SANE_FIX (0.0), SANE_FIX (216.0), SANE_FIX (1.0)
-};	/* mm */
+};        /* mm */
 static const SANE_Range y_range_fb =
 {
     SANE_FIX (0.0), SANE_FIX (297.0), SANE_FIX (1.0)
-};	/* mm */
-static const SANE_Range x_range_tpo =
+};        /* mm */
+static const SANE_Range x_range_tpo_default =
 {
     SANE_FIX (0.0), SANE_FIX (129.0), SANE_FIX (1.0)
-};	/* mm */
-static const SANE_Range y_range_tpo =
+};        /* mm */
+static const SANE_Range y_range_tpo_default =
 {
     SANE_FIX (0.0), SANE_FIX (180.0), SANE_FIX (1.0)
-};	/* mm */
+};        /* mm */
+static const SANE_Range x_range_tpo_1236 =
+{
+    SANE_FIX (0.0), SANE_FIX (203.0), SANE_FIX (1.0)
+};        /* mm */
+static const SANE_Range y_range_tpo_1236 =
+{
+    SANE_FIX (0.0), SANE_FIX (254.0), SANE_FIX (1.0)
+};        /* mm */
+static SANE_Range x_range_tpo;
+static SANE_Range y_range_tpo;
 static const SANE_Range gamma_range =
 {
     SANE_FIX (0.0), SANE_FIX (4.0), SANE_FIX (0.1)
@@ -196,8 +206,8 @@ static const SANE_Range positive_percent_range =
     1 << SANE_FIXED_SCALE_SHIFT
 };
 
-/* predefined preview mode name */                                             
-static char md_auto[] = "Auto";                                                
+/* predefined preview mode name */
+static char md_auto[] = "Auto";
 
 /* predefined scan mode names */
 static char md_colour[] = "Colour";
@@ -237,12 +247,13 @@ static SANE_Char password[SANE_MAX_PASSWORD_LEN];
 #endif
 
 /* bit depth tables */
-static u_char depths8[MD_NUM_MODES] =	{8, 1, 8, 1};
-static u_char depths10[MD_NUM_MODES] =	{10, 1, 10, 1};
-static u_char depths12[MD_NUM_MODES] =	{12, 1, 12, 1};
+static u_char depths8[MD_NUM_MODES] =        {8, 1, 8, 1};
+static u_char depths10[MD_NUM_MODES] =        {10, 1, 10, 1};
+static u_char depths12[MD_NUM_MODES] =        {12, 1, 12, 1};
+static u_char depths14[MD_NUM_MODES] =        {14, 1, 14, 1};
 
 static void gamma_n (double gamma, int brightness, int contrast,
-		     u_char *buf, int length);
+                     u_char *buf, int length);
 static void gamma_to_sane (int length, u_char *in, SANE_Int *out);
 
 static inline SnapScan_Mode actual_mode (SnapScan_Scanner *pss)
@@ -262,9 +273,9 @@ static inline int calibration_line_length(SnapScan_Scanner *pss)
     int pixel_length = pss->actual_res * 8.5;
 
     if(is_colour_mode(actual_mode(pss))) {
-	return 3 * pixel_length;
+        return 3 * pixel_length;
     } else {
-	return pixel_length;
+        return pixel_length;
     }
 }
 
@@ -285,17 +296,17 @@ static SANE_Status init_gamma(SnapScan_Scanner * ps)
     ps->gamma_length = 1 << bpp;
 
     ps->gamma_tables =
-	(SANE_Int *) malloc(4 * ps->gamma_length * sizeof(SANE_Int));
+        (SANE_Int *) malloc(4 * ps->gamma_length * sizeof(SANE_Int));
 
     gamma = (u_char*) malloc(ps->gamma_length * sizeof(u_char));
 
     if (!ps->gamma_tables || !gamma)
     {
-	if (ps->gamma_tables)
-	    free (ps->gamma_tables);
+        if (ps->gamma_tables)
+            free (ps->gamma_tables);
 
-	if (gamma)
-	    free (gamma);
+        if (gamma)
+            free (gamma);
 
         return SANE_STATUS_NO_MEM;
     }
@@ -324,7 +335,7 @@ static SANE_Status init_gamma(SnapScan_Scanner * ps)
 
 /* init_options -- initialize the option set for a scanner; expects the
    scanner structure's hardware configuration byte (hconfig) to be valid.
- 
+
    ARGS: a pointer to an existing scanner structure
    RET:  nothing
    SIDE: the option set of *ps is initialized; this includes both
@@ -333,22 +344,18 @@ static SANE_Status init_gamma(SnapScan_Scanner * ps)
 static void init_options (SnapScan_Scanner * ps)
 {
     static SANE_Word resolutions_300[] =
-        {7, 50, 75, 100, 150, 200, 300, 600};
-    static SANE_Word resolutions_310[] =
         {6, 50, 75, 100, 150, 200, 300};
-    static SANE_Word resolutions_610[] =
-        {11, 75, 100, 150, 200, 300, 400, 600, 1200, 2400, 4800, 9600};
-    static SANE_Word resolutions_620[] =
-        {12, 75, 100, 150, 200, 300, 400, 600, 1200, 2400, 4800, 9600, 19200};
-    static SANE_Word resolutions_e50[] =
-        {9, 75, 100, 150, 200, 300, 400, 600, 1200, 2400}; /* 2400 and above, still  not work */
-    static SANE_String_Const names_300[] =
+    static SANE_Word resolutions_600[] =
+        {8, 50, 75, 100, 150, 200, 300, 450, 600};
+    static SANE_Word resolutions_1200[] =
+        {10, 50, 75, 100, 150, 200, 300, 450, 600, 900, 1200};
+    static SANE_String_Const names_all[] =
         {md_colour, md_bilevelcolour, md_greyscale, md_lineart, NULL};
-    static SANE_String_Const names_310[] =
+    static SANE_String_Const names_basic[] =
         {md_colour, md_greyscale, md_lineart, NULL};
-    static SANE_String_Const preview_names_300[] =
+    static SANE_String_Const preview_names_all[] =
         {md_auto, md_colour, md_bilevelcolour, md_greyscale, md_lineart, NULL};
-    static SANE_String_Const preview_names_310[] =
+    static SANE_String_Const preview_names_basic[] =
         {md_auto, md_colour, md_greyscale, md_lineart, NULL};
     SANE_Option_Descriptor *po = ps->options;
 
@@ -384,27 +391,16 @@ static void init_options (SnapScan_Scanner * ps)
     switch (ps->pdev->model)
     {
     case SNAPSCAN310:
-    case VUEGO310S:		/* WG changed */
-        po[OPT_SCANRES].constraint.word_list = resolutions_310;
-        break;
-
-    case VUEGO610S:		/* SJU added */
-        po[OPT_SCANRES].constraint.word_list = resolutions_610;
-        break;
-
-    case SNAPSCANE50:
-        po[OPT_SCANRES].constraint.word_list = resolutions_e50;
-        break;
-
-    case PRISA620S:		/* GP added */
-        po[OPT_SCANRES].constraint.word_list = resolutions_620;
-        break;
-
-    case SNAPSCAN600:
-        DBG (DL_MINOR_INFO,
-	     "600 dpi mode untested on SnapScan 600\nPlease report bugs\n");
-    default:
+    case VUEGO310S:                /* WG changed */
         po[OPT_SCANRES].constraint.word_list = resolutions_300;
+        break;
+    case SNAPSCANE50:
+    case PRISA5300:
+    case PRISA1240:
+        po[OPT_SCANRES].constraint.word_list = resolutions_1200;
+        break;
+    default:
+        po[OPT_SCANRES].constraint.word_list = resolutions_600;
         break;
     }
     ps->res = DEFAULT_RES;
@@ -453,18 +449,11 @@ static void init_options (SnapScan_Scanner * ps)
     switch (ps->pdev->model)
     {
     case SNAPSCAN310:
-    case SNAPSCAN600:
-    case SNAPSCAN1236S:
-    case SNAPSCAN1212U:
-    case SNAPSCANE50:
-    case VUEGO310S:		/* WG changed */
-        po[OPT_MODE].constraint.string_list = names_310;
+    case VUEGO310S:
+        po[OPT_MODE].constraint.string_list = names_basic;
         break;
-
-    case VUEGO610S:		/* SJU added */
-    case PRISA620S:		/* GP added */
     default:
-        po[OPT_MODE].constraint.string_list = names_300;
+        po[OPT_MODE].constraint.string_list = names_all;
         break;
     }
     ps->mode_s = md_colour;
@@ -483,18 +472,11 @@ static void init_options (SnapScan_Scanner * ps)
     switch (ps->pdev->model)
     {
     case SNAPSCAN310:
-    case SNAPSCAN600:
-    case SNAPSCAN1236S:
-    case SNAPSCAN1212U:
-    case SNAPSCANE50:
-    case VUEGO310S:		/* WG changed */
-        po[OPT_PREVIEW_MODE].constraint.string_list = preview_names_310;
+    case VUEGO310S:
+        po[OPT_PREVIEW_MODE].constraint.string_list = preview_names_basic;
         break;
-
-    case VUEGO610S:		/* SJU added */
-    case PRISA620S:		/* GP added */
     default:
-        po[OPT_PREVIEW_MODE].constraint.string_list = preview_names_300;
+        po[OPT_PREVIEW_MODE].constraint.string_list = preview_names_all;
         break;
     }
     ps->preview_mode_s = md_auto;
@@ -508,20 +490,20 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_SOURCE].cap   = SANE_CAP_SOFT_SELECT | SANE_CAP_INACTIVE;
     po[OPT_SOURCE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
     {
-	static SANE_String_Const source_list[3];
-	int i = 0;
+        static SANE_String_Const source_list[3];
+        int i = 0;
 
-	source_list[i++]= src_flatbed;
-	if (ps->hconfig & HCFG_TPO)
-	{ 
-	    source_list[i++] = src_tpo; 
-	    po[OPT_SOURCE].cap ^= SANE_CAP_INACTIVE;
-	}
-	source_list[i] = 0;
-	po[OPT_SOURCE].size = max_string_size(source_list);
-	po[OPT_SOURCE].constraint.string_list = source_list;
-	ps->source = SRC_FLATBED;
-	ps->source_s = (SANE_Char *) strdup(source_list[0]);
+        source_list[i++]= src_flatbed;
+        if (ps->hconfig & HCFG_TPO)
+        {
+            source_list[i++] = src_tpo;
+            po[OPT_SOURCE].cap ^= SANE_CAP_INACTIVE;
+        }
+        source_list[i] = 0;
+        po[OPT_SOURCE].size = max_string_size(source_list);
+        po[OPT_SOURCE].constraint.string_list = source_list;
+        ps->source = SRC_FLATBED;
+        ps->source_s = (SANE_Char *) strdup(source_list[0]);
     }
 
     po[OPT_GEOMETRY_GROUP].title = "Geometry";
@@ -603,9 +585,14 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_QUALITY_CAL].type = SANE_TYPE_BOOL;
     po[OPT_QUALITY_CAL].unit = SANE_UNIT_NONE;
     po[OPT_QUALITY_CAL].size = sizeof (SANE_Bool);
-    po[OPT_QUALITY_CAL].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     po[OPT_QUALITY_CAL].constraint_type = SANE_CONSTRAINT_NONE;
+    po[OPT_QUALITY_CAL].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     ps->val[OPT_QUALITY_CAL].b = DEFAULT_QUALITY;
+    /* Disable quality calibration option if not supported */
+    if (!(ps->hconfig & HCFG_CAL_ALLOWED)) {
+        po[OPT_QUALITY_CAL].cap |= SANE_CAP_INACTIVE;
+        ps->val[OPT_QUALITY_CAL].b = SANE_FALSE;
+    }
 
     po[OPT_GAMMA_BIND].name = SANE_NAME_ANALOG_GAMMA_BIND;
     po[OPT_GAMMA_BIND].title = SANE_TITLE_ANALOG_GAMMA_BIND;
@@ -636,7 +623,7 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_GAMMA_R].unit = SANE_UNIT_NONE;
     po[OPT_GAMMA_R].size = sizeof (SANE_Word);
     po[OPT_GAMMA_R].cap =
-	SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE;
+        SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE;
     po[OPT_GAMMA_R].constraint_type = SANE_CONSTRAINT_RANGE;
     po[OPT_GAMMA_R].constraint.range = &gamma_range;
     ps->gamma_r = DEFAULT_GAMMA;
@@ -648,7 +635,7 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_GAMMA_G].unit = SANE_UNIT_NONE;
     po[OPT_GAMMA_G].size = sizeof (SANE_Word);
     po[OPT_GAMMA_G].cap =
-	SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE;
+        SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE;
     po[OPT_GAMMA_G].constraint_type = SANE_CONSTRAINT_RANGE;
     po[OPT_GAMMA_G].constraint.range = &gamma_range;
     ps->gamma_g = DEFAULT_GAMMA;
@@ -660,7 +647,7 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_GAMMA_B].unit = SANE_UNIT_NONE;
     po[OPT_GAMMA_B].size = sizeof (SANE_Word);
     po[OPT_GAMMA_B].cap =
-	SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE;
+        SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE;
     po[OPT_GAMMA_B].constraint_type = SANE_CONSTRAINT_RANGE;
     po[OPT_GAMMA_B].constraint.range = &gamma_range;
     ps->gamma_b = DEFAULT_GAMMA;
@@ -681,7 +668,7 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_GAMMA_VECTOR_GS].unit = SANE_UNIT_NONE;
     po[OPT_GAMMA_VECTOR_GS].size = ps->gamma_length * sizeof (SANE_Word);
     po[OPT_GAMMA_VECTOR_GS].cap =
-	SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE;
+        SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE;
     po[OPT_GAMMA_VECTOR_GS].constraint_type = SANE_CONSTRAINT_RANGE;
     po[OPT_GAMMA_VECTOR_GS].constraint.range = &gamma_vrange;
     ps->val[OPT_GAMMA_VECTOR_GS].wa = ps->gamma_table_gs;
@@ -693,7 +680,7 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_GAMMA_VECTOR_R].unit = SANE_UNIT_NONE;
     po[OPT_GAMMA_VECTOR_R].size = ps->gamma_length * sizeof (SANE_Word);
     po[OPT_GAMMA_VECTOR_R].cap =
-	SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE;
+        SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE;
     po[OPT_GAMMA_VECTOR_R].constraint_type = SANE_CONSTRAINT_RANGE;
     po[OPT_GAMMA_VECTOR_R].constraint.range = &gamma_vrange;
     ps->val[OPT_GAMMA_VECTOR_R].wa = ps->gamma_table_r;
@@ -705,7 +692,7 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_GAMMA_VECTOR_G].unit = SANE_UNIT_NONE;
     po[OPT_GAMMA_VECTOR_G].size = ps->gamma_length * sizeof (SANE_Word);
     po[OPT_GAMMA_VECTOR_G].cap =
-	SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE;
+        SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE;
     po[OPT_GAMMA_VECTOR_G].constraint_type = SANE_CONSTRAINT_RANGE;
     po[OPT_GAMMA_VECTOR_G].constraint.range = &gamma_vrange;
     ps->val[OPT_GAMMA_VECTOR_G].wa = ps->gamma_table_g;
@@ -717,7 +704,7 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_GAMMA_VECTOR_B].unit = SANE_UNIT_NONE;
     po[OPT_GAMMA_VECTOR_B].size = ps->gamma_length * sizeof (SANE_Word);
     po[OPT_GAMMA_VECTOR_B].cap =
-	SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE;
+        SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE;
     po[OPT_GAMMA_VECTOR_B].constraint_type = SANE_CONSTRAINT_RANGE;
     po[OPT_GAMMA_VECTOR_B].constraint.range = &gamma_vrange;
     ps->val[OPT_GAMMA_VECTOR_B].wa = ps->gamma_table_b;
@@ -745,7 +732,7 @@ static void init_options (SnapScan_Scanner * ps)
     switch (ps->hconfig & HCFG_HT)
     {
     case HCFG_HT:
-	/* both 16x16, 8x8 matrices */
+        /* both 16x16, 8x8 matrices */
         {
             static SANE_String_Const names[] = {dm_dd8x8, dm_dd16x16, NULL};
 
@@ -754,7 +741,7 @@ static void init_options (SnapScan_Scanner * ps)
         }
         break;
     case HCFG_HT16:
-	/* 16x16 matrices only */
+        /* 16x16 matrices only */
         {
             static SANE_String_Const names[] = {dm_dd16x16, NULL};
 
@@ -763,7 +750,7 @@ static void init_options (SnapScan_Scanner * ps)
         }
         break;
     case HCFG_HT8:
-	/* 8x8 matrices only */
+        /* 8x8 matrices only */
         {
             static SANE_String_Const names[] = {dm_dd8x8, NULL};
 
@@ -772,7 +759,7 @@ static void init_options (SnapScan_Scanner * ps)
         }
         break;
     default:
-	/* no halftone matrices */
+        /* no halftone matrices */
         {
             static SANE_String_Const names[] = {dm_none, NULL};
 
@@ -830,8 +817,8 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_GS_LPR].size = sizeof (SANE_Word);
     po[OPT_GS_LPR].cap = SANE_CAP_SOFT_SELECT
                        | SANE_CAP_SOFT_DETECT
-		       | SANE_CAP_ADVANCED
-		       | SANE_CAP_INACTIVE;
+                       | SANE_CAP_ADVANCED
+                       | SANE_CAP_INACTIVE;
     po[OPT_GS_LPR].constraint_type = SANE_CONSTRAINT_RANGE;
     po[OPT_GS_LPR].constraint.range = &lpr_range;
     ps->gs_lpr = def_gs_lpr;
@@ -887,16 +874,16 @@ static size_t max_string_size (SANE_String_Const strings[])
 
     for (i = 0;  strings[i];  ++i)
     {
-	size = strlen (strings[i]) + 1;
-	if (size > max_size)
-	    max_size = size;
+        size = strlen (strings[i]) + 1;
+        if (size > max_size)
+            max_size = size;
     }
     return max_size;
 }
 
 /* gamma table computation */
 static void gamma_n (double gamma, int brightness, int contrast,
-		      u_char *buf, int bpp)
+                      u_char *buf, int bpp)
 {
     int i;
     double i_gamma = 1.0/gamma;
@@ -906,11 +893,11 @@ static void gamma_n (double gamma, int brightness, int contrast,
 
     for (i = 0;  i < length;  i++)
     {
-	double val = (i - mid) * (1.0 + contrast / 100.0)
-	    + (1.0 + brightness / 100.0) * mid;
-	val = LIMIT(val, 0, max);
+        double val = (i - mid) * (1.0 + contrast / 100.0)
+            + (1.0 + brightness / 100.0) * mid;
+        val = LIMIT(val, 0, max);
         buf[i] =
-	    (u_char) LIMIT(255*pow ((double) val/max, i_gamma) + 0.5, 0, 255);
+            (u_char) LIMIT(255*pow ((double) val/max, i_gamma) + 0.5, 0, 255);
     }
 }
 
@@ -918,14 +905,14 @@ static void gamma_from_sane (int length, SANE_Int *in, u_char *out)
 {
     int i;
     for (i = 0; i < length; i++)
-	out[i] = (u_char) LIMIT(in[i], 0, 255);
+        out[i] = (u_char) LIMIT(in[i], 0, 255);
 }
 
 static void gamma_to_sane (int length, u_char *in, SANE_Int *out)
 {
     int i;
     for (i = 0; i < length; i++)
-	out[i] = in[i];
+        out[i] = in[i];
 }
 
 /* dispersed-dot dither matrices; this is discussed in Foley, Van Dam,
@@ -981,8 +968,8 @@ static void mkDn (u_char *Dn, u_char *Dn2, unsigned n)
 
 /* available device list */
 
-static SnapScan_Device *first_device = NULL;	/* device list head */
-static int n_devices = 0;			/* the device count */
+static SnapScan_Device *first_device = NULL;        /* device list head */
+static int n_devices = 0;                        /* the device count */
 
 /* list returned from sane_get_devices() */
 static const SANE_Device **get_devices_list = NULL;
@@ -1019,38 +1006,42 @@ static SANE_Status add_device (SANE_String_Const name)
 
     vendor[0] = model[0] = '\0';
 
-    if(strstr (name, "usb"))
+    if((strstr (name, "usb")) || (strstr (name, "USB")))
       {
-	DBG (DL_VERBOSE, "%s: Detected (kind of) an USB device\n", me);
+        DBG (DL_VERBOSE, "%s: Detected (kind of) an USB device\n", me);
 
-	bus_type = USB;
-
-	status = snapscani_usb_open (name, &fd, sense_handler, NULL);
-	if (status != SANE_STATUS_GOOD)
-	  {
-	    DBG (DL_MAJOR_ERROR,
-		 "%s: error opening device %s: %s\n",
-		 me,
-		 name,
-		 sane_strstatus (status));
-	    return status;
-	  }
+        bus_type = USB;
+        if (strncasecmp(name, "usb", 3) == 0) {
+            /* ignore USB keyword */
+            name += 3;
+            name = sanei_config_skip_whitespace(name);
+        }
+        status = snapscani_usb_open (name, &fd);
+        if (status != SANE_STATUS_GOOD)
+          {
+            DBG (DL_MAJOR_ERROR,
+                 "%s: error opening device %s: %s\n",
+                 me,
+                 name,
+                 sane_strstatus (status));
+            return status;
+          }
       }
     else
       {
-	DBG (DL_VERBOSE, "%s: Detected (kind of) a SCSI device\n", me);
-	bus_type = SCSI;
+        DBG (DL_VERBOSE, "%s: Detected (kind of) a SCSI device\n", me);
+        bus_type = SCSI;
 
-	status = sanei_scsi_open (name, &fd, sense_handler, NULL);
-	if (status != SANE_STATUS_GOOD)
-	  {
-	    DBG (DL_MAJOR_ERROR,
-		 "%s: error opening device %s: %s\n",
-		 me,
-		 name,
-		 sane_strstatus (status));
-	    return status;
-	  }
+        status = sanei_scsi_open (name, &fd, sense_handler, NULL);
+        if (status != SANE_STATUS_GOOD)
+          {
+            DBG (DL_MAJOR_ERROR,
+                 "%s: error opening device %s: %s\n",
+                 me,
+                 name,
+                 sane_strstatus (status));
+            return status;
+          }
       }
 
     /* check that the device is legitimate */
@@ -1061,14 +1052,14 @@ static SANE_Status add_device (SANE_String_Const name)
              me,
              sane_strstatus (status));
 
-	if(bus_type == SCSI)
-	  {
-	    sanei_scsi_close (fd);
-	  }
-	else if(bus_type == USB)
-	  {
-	    snapscani_usb_close (fd);
-	  }
+        if(bus_type == SCSI)
+          {
+            sanei_scsi_close (fd);
+          }
+        else if(bus_type == USB)
+          {
+            snapscani_usb_close (fd);
+          }
 
         return status;
     }
@@ -1090,7 +1081,7 @@ static SANE_Status add_device (SANE_String_Const name)
     }
     if (supported_vendor)
     {
-	/* Known vendor.  Check if it is one of our supported models */
+        /* Known vendor.  Check if it is one of our supported models */
         for (i = 0;  i < known_scanners;  i++)
         {
             if (0 == strcasecmp (model, scanners[i].scsi_name))
@@ -1098,7 +1089,7 @@ static SANE_Status add_device (SANE_String_Const name)
                 model_num = scanners[i].id;
                 break;
             }
-	}
+        }
     }
     if (!supported_vendor  ||  UNKNOWN == model_num)
     {
@@ -1107,29 +1098,29 @@ static SANE_Status add_device (SANE_String_Const name)
              me,
              vendor,
              model,
-             "AGFA SnapScan 300, 310, 600 or 1236s, "
+             "AGFA SnapScan 300, 310, 600 or 1236, "
              "Acer VUEGO 300, 310S, 610S, or 610plus, "
-             "Acer PRISA model 620S");
+             "Acer PRISA 620, 640, 1240, 3300, 4300 or 5300");
 
-	if(bus_type == SCSI)
-	  {
-	    sanei_scsi_close (fd);
-	  }
-	else if(bus_type == USB)
-	  {
-	    snapscani_usb_close (fd);
-	  }
+        if(bus_type == SCSI)
+          {
+            sanei_scsi_close (fd);
+          }
+        else if(bus_type == USB)
+          {
+            snapscani_usb_close (fd);
+          }
 
         return SANE_STATUS_INVAL;
     }
 
     if(bus_type == SCSI)
       {
-	sanei_scsi_close (fd);
+        sanei_scsi_close (fd);
       }
     else if(bus_type == USB)
       {
-	snapscani_usb_close (fd);
+        snapscani_usb_close (fd);
       }
 
     pd = (SnapScan_Device *) malloc (sizeof (SnapScan_Device));
@@ -1149,12 +1140,13 @@ static SANE_Status add_device (SANE_String_Const name)
     case SNAPSCAN300:
         pd->depths = depths8;
         break;
-
     case PRISA620S:
         pd->depths = depths12;
         break;
-
-    case VUEGO610S:		/* SJU added */
+    case PRISA4300_2:
+    case PRISA5300:
+        pd->depths = depths14;
+        break;
     default:
         pd->depths = depths10;
         break;
@@ -1164,7 +1156,7 @@ static SANE_Status add_device (SANE_String_Const name)
     {
         DBG (DL_MAJOR_ERROR,
              "%s: out of memory allocating device descriptor strings.\n",
-	     me);
+             me);
         free (pd);
         return SANE_STATUS_NO_MEM;
     }
@@ -1228,8 +1220,8 @@ SANE_Status sane_init (SANE_Int *version_code,
              "release is %ld. Sorry, but you need a different version of\n"
              "this backend.\n\n",
              me,
-	     (long) /*SANE_CURRENT_MAJOR */ V_MAJOR,
-	     (long) EXPECTED_MAJOR);
+             (long) /*SANE_CURRENT_MAJOR */ V_MAJOR,
+             (long) EXPECTED_MAJOR);
         return SANE_STATUS_INVAL;
     }
 
@@ -1256,21 +1248,23 @@ SANE_Status sane_init (SANE_Int *version_code,
         if (status != SANE_STATUS_GOOD)
         {
             DBG (DL_MINOR_ERROR,
-	         "%s: failed to add device \"%s\"\n",
+                 "%s: failed to add device \"%s\"\n",
                  me,
-		 dev_name);
+                 dev_name);
         }
     }
     else
     {
         while (sanei_config_read (dev_name, sizeof (dev_name), fp))
         {
-            if (dev_name[0] == '#')	/* ignore line comments */
+            if (dev_name[0] == '#')        /* ignore line comments */
                 continue;
-            len = strlen (dev_name);
+            if (strncasecmp(dev_name, FIRMWARE_KW, strlen(FIRMWARE_KW)) == 0)
+                continue;                   /* ignore firmware lines */
 
+            len = strlen (dev_name);
             if (!len)
-                continue;		/* ignore empty lines */
+                continue;                /* ignore empty lines */
 
             sanei_config_attach_matching_devices (dev_name, add_device);
         }
@@ -1389,6 +1383,20 @@ SANE_Status sane_open (SANE_String_Const name, SANE_Handle * h)
             pss->opens = 0;
             pss->sense_str = NULL;
             pss->as_str = NULL;
+            pss->phys_buf_sz = DEFAULT_SCANNER_BUF_SZ;
+            if (psd->bus == SCSI) {
+                pss->phys_buf_sz = sanei_scsi_max_request_size;
+            }
+            DBG (DL_DATA_TRACE,
+                "%s: Allocating %d bytes as scanner buffer.\n",
+                me, pss->phys_buf_sz);
+            pss->buf = (u_char *) malloc(pss->phys_buf_sz);
+            if (!pss->buf) {
+                DBG (DL_MAJOR_ERROR,
+                "%s: out of memory creating scanner buffer.\n",
+                me);
+                return SANE_STATUS_NO_MEM;
+            }
 
             /* temp file name and the temp file */
             {
@@ -1417,18 +1425,18 @@ SANE_Status sane_open (SANE_String_Const name, SANE_Handle * h)
             }
 
             DBG (DL_VERBOSE,
-	         "%s: allocated scanner structure at %p\n",
+                 "%s: allocated scanner structure at %p\n",
                  me,
-		 (void *) pss);
+                 (void *) pss);
         }
 
         status = open_scanner (pss);
         if (status != SANE_STATUS_GOOD)
         {
             DBG (DL_MAJOR_ERROR,
-	         "%s: open_scanner failed, status: %s\n",
+                 "%s: open_scanner failed, status: %s\n",
                  me,
-		 sane_strstatus (status));
+                 sane_strstatus (status));
             free (pss);
             return SANE_STATUS_ACCESS_DENIED;
         }
@@ -1438,15 +1446,15 @@ SANE_Status sane_open (SANE_String_Const name, SANE_Handle * h)
         if (status != SANE_STATUS_GOOD)
         {
             if (status == SANE_STATUS_DEVICE_BUSY)
-	    {
+            {
                 sleep(5);
             }
-	    else
+            else
             {
                 DBG (DL_MAJOR_ERROR,
                      "%s: error waiting for scanner to warm up: %s\n",
                      me,
-		     sane_strstatus(status));
+                     sane_strstatus(status));
                 free (pss);
                 return status;
             }
@@ -1468,27 +1476,37 @@ SANE_Status sane_open (SANE_String_Const name, SANE_Handle * h)
         if (status != SANE_STATUS_GOOD)
         {
             DBG (DL_MAJOR_ERROR,
-	         "%s: error in inquiry command: %s\n",
-                 me,
-		 sane_strstatus (status));
+                    "%s: error in inquiry command: %s\n",
+                me,
+                        sane_strstatus (status));
             free (pss);
             return status;
         }
         close_scanner (pss);
 
-	status = init_gamma (pss);
+        status = init_gamma (pss);
         if (status != SANE_STATUS_GOOD)
         {
             DBG (DL_MAJOR_ERROR,
-	         "%s: error in init_gamma: %s\n",
+                 "%s: error in init_gamma: %s\n",
                  me,
-		 sane_strstatus (status));
+                 sane_strstatus (status));
             free (pss);
             return status;
         }
+        switch (pss->pdev->model)
+        {
+        case SNAPSCAN1236:
+            x_range_tpo = x_range_tpo_1236;
+            y_range_tpo = y_range_tpo_1236;
+            break;
+        default:
+            x_range_tpo = x_range_tpo_default;
+            y_range_tpo = y_range_tpo_default;
+            break;
+        }
 
         init_options (pss);
-
         pss->state = ST_IDLE;
     }
 
@@ -1512,6 +1530,7 @@ void sane_close (SANE_Handle h)
     close (pss->tfd);
     free (pss->tmpfname);
     free (pss->gamma_tables);
+    free (pss->buf);
     free (pss);
 }
 
@@ -1521,7 +1540,7 @@ const SANE_Option_Descriptor *sane_get_option_descriptor (SANE_Handle h,
     DBG (DL_CALL_TRACE,
          "sane_snapscan_get_option_descriptor (%p, %ld)\n",
          (void *) h,
-	 (long) n);
+         (long) n);
 
     if (n < NUM_OPTS)
         return ((SnapScan_Scanner *) h)->options + n;
@@ -1546,63 +1565,63 @@ static void control_options(SnapScan_Scanner *pss)
     pss->options[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
 
     if ((pss->mode == MD_COLOUR) ||
-	((pss->mode == MD_BILEVELCOLOUR) && (pss->hconfig & HCFG_HT) &&
-	 pss->halftone))
+        ((pss->mode == MD_BILEVELCOLOUR) && (pss->hconfig & HCFG_HT) &&
+         pss->halftone))
     {
-	pss->options[OPT_CUSTOM_GAMMA].cap &= ~SANE_CAP_INACTIVE;
-	pss->options[OPT_GAMMA_BIND].cap &= ~SANE_CAP_INACTIVE;
-	if (pss->val[OPT_CUSTOM_GAMMA].b)
-	{
-	    if (pss->val[OPT_GAMMA_BIND].b)
-	    {
-		pss->options[OPT_GAMMA_VECTOR_GS].cap &= ~SANE_CAP_INACTIVE;
-	    }
-	    else
-	    {
-		pss->options[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
-		pss->options[OPT_GAMMA_VECTOR_G].cap &= ~SANE_CAP_INACTIVE;
-		pss->options[OPT_GAMMA_VECTOR_B].cap &= ~SANE_CAP_INACTIVE;
-	    }
-	}
-	else
-	{
-	    pss->options[OPT_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
-	    pss->options[OPT_CONTRAST].cap &= ~SANE_CAP_INACTIVE;
-	    if (pss->val[OPT_GAMMA_BIND].b)
-	    {
-		pss->options[OPT_GAMMA_GS].cap &= ~SANE_CAP_INACTIVE;
-	    }
-	    else
-	    {
-		pss->options[OPT_GAMMA_R].cap &= ~SANE_CAP_INACTIVE;
-		pss->options[OPT_GAMMA_G].cap &= ~SANE_CAP_INACTIVE;
-		pss->options[OPT_GAMMA_B].cap &= ~SANE_CAP_INACTIVE;
-	    }
-	}
+        pss->options[OPT_CUSTOM_GAMMA].cap &= ~SANE_CAP_INACTIVE;
+        pss->options[OPT_GAMMA_BIND].cap &= ~SANE_CAP_INACTIVE;
+        if (pss->val[OPT_CUSTOM_GAMMA].b)
+        {
+            if (pss->val[OPT_GAMMA_BIND].b)
+            {
+                pss->options[OPT_GAMMA_VECTOR_GS].cap &= ~SANE_CAP_INACTIVE;
+            }
+            else
+            {
+                pss->options[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
+                pss->options[OPT_GAMMA_VECTOR_G].cap &= ~SANE_CAP_INACTIVE;
+                pss->options[OPT_GAMMA_VECTOR_B].cap &= ~SANE_CAP_INACTIVE;
+            }
+        }
+        else
+        {
+            pss->options[OPT_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
+            pss->options[OPT_CONTRAST].cap &= ~SANE_CAP_INACTIVE;
+            if (pss->val[OPT_GAMMA_BIND].b)
+            {
+                pss->options[OPT_GAMMA_GS].cap &= ~SANE_CAP_INACTIVE;
+            }
+            else
+            {
+                pss->options[OPT_GAMMA_R].cap &= ~SANE_CAP_INACTIVE;
+                pss->options[OPT_GAMMA_G].cap &= ~SANE_CAP_INACTIVE;
+                pss->options[OPT_GAMMA_B].cap &= ~SANE_CAP_INACTIVE;
+            }
+        }
     }
     else if ((pss->mode == MD_GREYSCALE) ||
-	     ((pss->mode == MD_LINEART) && (pss->hconfig & HCFG_HT) &&
-	      pss->halftone))
+             ((pss->mode == MD_LINEART) && (pss->hconfig & HCFG_HT) &&
+              pss->halftone))
     {
-	pss->options[OPT_CUSTOM_GAMMA].cap &= ~SANE_CAP_INACTIVE;
+        pss->options[OPT_CUSTOM_GAMMA].cap &= ~SANE_CAP_INACTIVE;
 
-	if (pss->val[OPT_CUSTOM_GAMMA].b)
-	{
-	    pss->options[OPT_GAMMA_VECTOR_GS].cap &= ~SANE_CAP_INACTIVE;
-	}
-	else
-	{
-	    pss->options[OPT_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
-	    pss->options[OPT_CONTRAST].cap &= ~SANE_CAP_INACTIVE;
-	    pss->options[OPT_GAMMA_GS].cap &= ~SANE_CAP_INACTIVE;
-	}
+        if (pss->val[OPT_CUSTOM_GAMMA].b)
+        {
+            pss->options[OPT_GAMMA_VECTOR_GS].cap &= ~SANE_CAP_INACTIVE;
+        }
+        else
+        {
+            pss->options[OPT_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
+            pss->options[OPT_CONTRAST].cap &= ~SANE_CAP_INACTIVE;
+            pss->options[OPT_GAMMA_GS].cap &= ~SANE_CAP_INACTIVE;
+        }
     }
 }
 
 SANE_Status sane_control_option (SANE_Handle h,
                                  SANE_Int n,
                                  SANE_Action a,
-				 void *v,
+                                 void *v,
                                  SANE_Int *i)
 {
     static const char *me = "sane_snapscan_control_option";
@@ -1610,13 +1629,13 @@ SANE_Status sane_control_option (SANE_Handle h,
     static SANE_Status status;
 
     DBG (DL_CALL_TRACE,
-         "%s (%p, %ld, %ld, %p, %p)\n",
-         me,
-	 (void *) h,
-	 (long) n,
-	 (long) a,
-	 v,
-	 (void *) i);
+        "%s (%p, %ld, %ld, %p, %p)\n",
+        me,
+        (void *) h,
+        (long) n,
+        (long) a,
+        v,
+        (void *) i);
 
     status = open_scanner (pss);
     CHECK_STATUS (status, me, "open_scanner");
@@ -1639,23 +1658,23 @@ SANE_Status sane_control_option (SANE_Handle h,
             break;
         case OPT_MODE:
             DBG (DL_VERBOSE,
-	         "%s: writing \"%s\" to location %p\n",
+                 "%s: writing \"%s\" to location %p\n",
                  me,
-		 pss->mode_s,
-		 (SANE_String) v);
+                 pss->mode_s,
+                 (SANE_String) v);
             strcpy ((SANE_String) v, pss->mode_s);
             break;
         case OPT_PREVIEW_MODE:
             DBG (DL_VERBOSE,
-	         "%s: writing \"%s\" to location %p\n",
+                 "%s: writing \"%s\" to location %p\n",
                  me,
-		 pss->preview_mode_s,
-		 (SANE_String) v);
+                 pss->preview_mode_s,
+                 (SANE_String) v);
             strcpy ((SANE_String) v, pss->preview_mode_s);
             break;
         case OPT_SOURCE:
             strcpy (v, pss->source_s);
-	    break;
+            break;
         case OPT_TLX:
             *(SANE_Fixed *) v = pss->tlx;
             break;
@@ -1676,10 +1695,10 @@ SANE_Status sane_control_option (SANE_Handle h,
             break;
         case OPT_PREDEF_WINDOW:
             DBG (DL_VERBOSE,
-	         "%s: writing \"%s\" to location %p\n",
-                 me,
-		 pss->predef_window,
-		 (SANE_String) v);
+                "%s: writing \"%s\" to location %p\n",
+                me,
+                pss->predef_window,
+                (SANE_String) v);
             strcpy ((SANE_String) v, pss->predef_window);
             break;
         case OPT_GAMMA_GS:
@@ -1694,27 +1713,27 @@ SANE_Status sane_control_option (SANE_Handle h,
         case OPT_GAMMA_B:
             *(SANE_Fixed *) v = pss->gamma_b;
             break;
-	case OPT_CUSTOM_GAMMA:
-	case OPT_GAMMA_BIND:
-	case OPT_QUALITY_CAL:
+        case OPT_CUSTOM_GAMMA:
+        case OPT_GAMMA_BIND:
+        case OPT_QUALITY_CAL:
             *(SANE_Bool *) v = pss->val[n].b;
             break;
 
-	case OPT_GAMMA_VECTOR_GS:
-	case OPT_GAMMA_VECTOR_R:
-	case OPT_GAMMA_VECTOR_G:
-	case OPT_GAMMA_VECTOR_B:
-	    memcpy (v, pss->val[n].wa, pss->options[n].size);
-	    break;
+        case OPT_GAMMA_VECTOR_GS:
+        case OPT_GAMMA_VECTOR_R:
+        case OPT_GAMMA_VECTOR_G:
+        case OPT_GAMMA_VECTOR_B:
+            memcpy (v, pss->val[n].wa, pss->options[n].size);
+            break;
         case OPT_HALFTONE:
             *(SANE_Bool *) v = pss->halftone;
             break;
         case OPT_HALFTONE_PATTERN:
             DBG (DL_VERBOSE,
-	         "%s: writing \"%s\" to location %p\n",
-                 me,
-		 pss->dither_matrix,
-		 (SANE_String) v);
+                "%s: writing \"%s\" to location %p\n",
+                me,
+                pss->dither_matrix,
+                (SANE_String) v);
             strcpy ((SANE_String) v, pss->dither_matrix);
             break;
         case OPT_NEGATIVE:
@@ -1731,9 +1750,9 @@ SANE_Status sane_control_option (SANE_Handle h,
             break;
         default:
             DBG (DL_MAJOR_ERROR,
-	         "%s: invalid option number %ld\n",
+                 "%s: invalid option number %ld\n",
                  me,
-		 (long) n);
+                 (long) n);
             return SANE_STATUS_UNSUPPORTED;
         }
         break;
@@ -1833,13 +1852,13 @@ SANE_Status sane_control_option (SANE_Handle h,
                 else
                 {
                     DBG (DL_MAJOR_ERROR,
-		         "%s: internal error: given illegal mode "
-                         "string \"%s\"\n",
-			 me,
-			 s);
+                        "%s: internal error: given illegal mode "
+                        "string \"%s\"\n",
+                        me,
+                        s);
                 }
             }
-	    control_options (pss);
+            control_options (pss);
             if (i)
                 *i = SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
             break;
@@ -1847,10 +1866,10 @@ SANE_Status sane_control_option (SANE_Handle h,
             {
                 char *s = (SANE_String) v;
                 if (strcmp (s, md_auto) == 0)
-		{
-		  pss->preview_mode_s = md_auto;
-		  pss->preview_mode = pss->mode;
-		}
+                {
+                  pss->preview_mode_s = md_auto;
+                  pss->preview_mode = pss->mode;
+                }
                 else if (strcmp (s, md_colour) == 0)
                 {
                     pss->preview_mode_s = md_colour;
@@ -1872,57 +1891,51 @@ SANE_Status sane_control_option (SANE_Handle h,
                     pss->preview_mode = MD_LINEART;
                 }
                 else
-		{
+                {
                     DBG (DL_MAJOR_ERROR,
-                         "%s: internal error: given illegal mode string "
-                         "\"%s\"\n",
-			 me,
-			 s);
+                        "%s: internal error: given illegal mode string "
+                        "\"%s\"\n",
+                        me,
+                        s);
                 }
-		if (i)
+                if (i)
                     *i = 0;
                 break;
             }
-	case OPT_SOURCE:
-	    if (strcmp(v, src_flatbed) == 0)
-	    {
-	        pss->source = SRC_FLATBED;
+        case OPT_SOURCE:
+            if (strcmp(v, src_flatbed) == 0)
+            {
+                pss->source = SRC_FLATBED;
                 pss->pdev->x_range.max = x_range_fb.max;
                 pss->pdev->y_range.max = y_range_fb.max;
-		/*
-                if (pss->brx > pss->pdev->x_range.max)
-                    pss->brx = pss->pdev->x_range.max;
-                if (pss->bry > pss->pdev->y_range.max)
-                    pss->bry = pss->pdev->y_range.max;
-		*/
- 	    }
-	    else if (strcmp(v, src_tpo) == 0)
-	    {
-	        pss->source = SRC_TPO;
+             }
+            else if (strcmp(v, src_tpo) == 0)
+            {
+                pss->source = SRC_TPO;
                 pss->pdev->x_range.max = x_range_tpo.max;
                 pss->pdev->y_range.max = y_range_tpo.max;
-	    }
-	    else
-	    {	
-	        DBG (DL_MAJOR_ERROR,
-	             "%s: internal error: given illegal source string "
- 	             "\"%s\"\n",
-		     me,
-		     (char *) v);
-	    }
- 	    /* Adjust actual range values to new max values */
- 	    if (pss->brx > pss->pdev->x_range.max)
-	      pss->brx = pss->pdev->x_range.max;
-	    if (pss->bry > pss->pdev->y_range.max)
-	      pss->bry = pss->pdev->y_range.max;
-	    pss->predef_window = pdw_none;
-	    if (pss->source_s)
-	        free (pss->source_s);
-	    pss->source_s = (SANE_Char *) strdup(v);
+            }
+            else
+            {
+                DBG (DL_MAJOR_ERROR,
+                     "%s: internal error: given illegal source string "
+                      "\"%s\"\n",
+                     me,
+                     (char *) v);
+            }
+            /* Adjust actual range values to new max values */
+            if (pss->brx > pss->pdev->x_range.max)
+                pss->brx = pss->pdev->x_range.max;
+            if (pss->bry > pss->pdev->y_range.max)
+                pss->bry = pss->pdev->y_range.max;
+            pss->predef_window = pdw_none;
+            if (pss->source_s)
+                free (pss->source_s);
+            pss->source_s = (SANE_Char *) strdup(v);
             if (i)
-	    	*i = SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
-	    break;
-	case OPT_TLX:
+                *i = SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+            break;
+        case OPT_TLX:
             pss->tlx = *(SANE_Fixed *) v;
             pss->predef_window = pdw_none;
             if (i)
@@ -2020,34 +2033,34 @@ SANE_Status sane_control_option (SANE_Handle h,
             if (i)
                 *i = 0;
             break;
-	case OPT_QUALITY_CAL:
-	    pss->val[n].b = *(SANE_Bool *)v;
-	    if (i)
-		*i = 0;
-	    break;
+        case OPT_QUALITY_CAL:
+            pss->val[n].b = *(SANE_Bool *)v;
+            if (i)
+                *i = 0;
+            break;
 
-	case OPT_CUSTOM_GAMMA:
-	case OPT_GAMMA_BIND:
-	{
-	    SANE_Bool b = *(SANE_Bool *) v;
-	    if (b == pss->val[n].b) { break; }
-	    pss->val[n].b = b;
-	    control_options (pss);
-	    if (i)
-	    {
-		*i |= SANE_INFO_RELOAD_OPTIONS;
-	    }
-	    break;
-	}
+        case OPT_CUSTOM_GAMMA:
+        case OPT_GAMMA_BIND:
+        {
+            SANE_Bool b = *(SANE_Bool *) v;
+            if (b == pss->val[n].b) { break; }
+            pss->val[n].b = b;
+            control_options (pss);
+            if (i)
+            {
+                *i |= SANE_INFO_RELOAD_OPTIONS;
+            }
+            break;
+        }
 
-	case OPT_GAMMA_VECTOR_GS:
-	case OPT_GAMMA_VECTOR_R:
-	case OPT_GAMMA_VECTOR_G:
-	case OPT_GAMMA_VECTOR_B:
-	    memcpy(pss->val[n].wa, v, pss->options[n].size);
-	    if (i)
-		*i = 0;
-	    break;
+        case OPT_GAMMA_VECTOR_GS:
+        case OPT_GAMMA_VECTOR_R:
+        case OPT_GAMMA_VECTOR_G:
+        case OPT_GAMMA_VECTOR_B:
+            memcpy(pss->val[n].wa, v, pss->options[n].size);
+            if (i)
+                *i = 0;
+            break;
         case OPT_HALFTONE:
             pss->halftone = *(SANE_Bool *) v;
             if (pss->halftone)
@@ -2070,7 +2083,7 @@ SANE_Status sane_control_option (SANE_Handle h,
                 if (pss->mode == MD_LINEART)
                     pss->options[OPT_THRESHOLD].cap &= ~SANE_CAP_INACTIVE;
             }
-	    control_options (pss);
+            control_options (pss);
             if (i)
                 *i = SANE_INFO_RELOAD_OPTIONS;
             break;
@@ -2078,20 +2091,20 @@ SANE_Status sane_control_option (SANE_Handle h,
             {
                 char *s = (SANE_String) v;
                 if (strcmp (s, dm_dd8x8) == 0)
-		{
+                {
                     pss->dither_matrix = dm_dd8x8;
                 }
-		else if (strcmp (s, dm_dd16x16) == 0)
-		{
+                else if (strcmp (s, dm_dd16x16) == 0)
+                {
                     pss->dither_matrix = dm_dd16x16;
                 }
-		else
+                else
                 {
                     DBG (DL_MAJOR_ERROR,
                          "%s: internal error: given illegal halftone pattern "
                          "string \"%s\"\n",
-			 me,
-			 s);
+                         me,
+                         s);
                 }
             }
             if (i)
@@ -2111,46 +2124,48 @@ SANE_Status sane_control_option (SANE_Handle h,
             status = inquiry (pss);
             CHECK_STATUS (status, me, "inquiry");
             DBG (0,
-		 "\nInquiry results:\n"
-		 "\tScanner:                       %s\n"
-		 "\thardware config:               0x%x\n"
-		 "\tA/D converter:                 %s\n"
-		 "\tAuto-document feeder:          %s\n"
-		 "\tTransparency option:           %s\n"
-		 "\tRing buffer:                   %s\n"
-		 "\t16x16 halftone matrix support: %s\n"
-		 "\t8x8 halftone matrix support:   %s\n"
-		 "\toptical resolution:            %lu\n"
-		 "\tscan resolution:               %lu\n"
-		 "\tnumber of lines:               %lu\n"
-		 "\tbytes per line:                %lu\n"
-		 "\tpixels per line:               %lu\n"
-		 "\tms per line:                   %f\n"
-		 "\texposure time:                 %c.%c ms\n"
-		 "\tred offset:                    %ld\n"
-		 "\tgreen offset:                  %ld\n"
-		 "\tblue offset:                   %ld\n"
-		 "\tfirmware:                      %s\n\n",
-		 pss->buf + INQUIRY_VENDOR,
-		 pss->hconfig,
-		 (pss->hconfig & HCFG_ADC)  ?  "10-bit"  :  "8-bit",
-		 (pss->hconfig & HCFG_ADF)  ?  "Yes"  :  "No",
-		 (pss->hconfig & HCFG_TPO) ?   "Yes"  :  "No",
-		 (pss->hconfig & HCFG_RB)  ?  "Yes" : "No",
-		 (pss->hconfig & HCFG_HT16)  ?  "Yes"  :  "No",
-		 (pss->hconfig & HCFG_HT8)  ?  "Yes"  :  "No",
-		 (u_long) pss->actual_res,
-		 (u_long) pss->res,
-		 (u_long) pss->lines,
-		 (u_long) pss->bytes_per_line,
-		 (u_long) pss->pixels_per_line,
-		 (double) pss->ms_per_line,
-		 pss->buf[INQUIRY_EXPTIME1] + '0',
-		 pss->buf[INQUIRY_EXPTIME2] + '0',
-		 (long) pss->chroma_offset[R_CHAN],
-		 (long) pss->chroma_offset[G_CHAN],
-		 (long) pss->chroma_offset[B_CHAN],
-		 pss->buf + INQUIRY_FIRMWARE);
+                 "\nInquiry results:\n"
+                 "\tScanner:                       %s\n"
+                 "\thardware config:               0x%x\n"
+                 "\tA/D converter:                 %s\n"
+                 "\tAuto-document feeder:          %s\n"
+                 "\tTransparency option:           %s\n"
+                 "\tRing buffer:                   %s\n"
+                 "\t16x16 halftone matrix support: %s\n"
+                 "\t8x8 halftone matrix support:   %s\n"
+                 "\tCalibration allowed:           %s\n"
+                 "\toptical resolution:            %lu\n"
+                 "\tscan resolution:               %lu\n"
+                 "\tnumber of lines:               %lu\n"
+                 "\tbytes per line:                %lu\n"
+                 "\tpixels per line:               %lu\n"
+                 "\tms per line:                   %f\n"
+                 "\texposure time:                 %c.%c ms\n"
+                 "\tred offset:                    %ld\n"
+                 "\tgreen offset:                  %ld\n"
+                 "\tblue offset:                   %ld\n"
+                 "\tfirmware:                      %s\n\n",
+                 pss->buf + INQUIRY_VENDOR,
+                 pss->hconfig,
+                 (pss->hconfig & HCFG_ADC)  ?  "10-bit"  :  "8-bit",
+                 (pss->hconfig & HCFG_ADF)  ?  "Yes"  :  "No",
+                 (pss->hconfig & HCFG_TPO) ?   "Yes"  :  "No",
+                 (pss->hconfig & HCFG_RB)  ?  "Yes" : "No",
+                 (pss->hconfig & HCFG_HT16)  ?  "Yes"  :  "No",
+                 (pss->hconfig & HCFG_HT8)  ?  "Yes"  :  "No",
+                 (pss->hconfig & HCFG_CAL_ALLOWED)  ?  "Yes"  :  "No",
+                 (u_long) pss->actual_res,
+                 (u_long) pss->res,
+                 (u_long) pss->lines,
+                 (u_long) pss->bytes_per_line,
+                 (u_long) pss->pixels_per_line,
+                 (double) pss->ms_per_line,
+                 pss->buf[INQUIRY_EXPTIME1] + '0',
+                 pss->buf[INQUIRY_EXPTIME2] + '0',
+                 (long) pss->chroma_offset[R_CHAN],
+                 (long) pss->chroma_offset[G_CHAN],
+                 (long) pss->chroma_offset[B_CHAN],
+                 pss->buf + INQUIRY_FIRMWARE);
             break;
         case OPT_SELF_TEST:
             status = send_diagnostic (pss);
@@ -2183,8 +2198,8 @@ SANE_Status sane_control_option (SANE_Handle h,
         default:
             DBG (DL_MAJOR_ERROR,
                  "%s: invalid option number %ld\n",
-		 me,
-		 (long) n);
+                 me,
+                 (long) n);
             return SANE_STATUS_UNSUPPORTED;
         }
         DBG (DL_VERBOSE, "%s: option %s set to value ",
@@ -2229,7 +2244,7 @@ SANE_Status sane_control_option (SANE_Handle h,
             pss->options[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE;
             pss->options[OPT_GS_LPR].cap |= SANE_CAP_INACTIVE;
             pss->options[OPT_RGB_LPR].cap &= ~SANE_CAP_INACTIVE;
-	    control_options (pss);
+            control_options (pss);
             if (i)
                 *i = SANE_INFO_RELOAD_OPTIONS;
             break;
@@ -2294,7 +2309,7 @@ SANE_Status sane_control_option (SANE_Handle h,
             {
                 pss->options[OPT_HALFTONE_PATTERN].cap |= SANE_CAP_INACTIVE;
             }
-	    control_options (pss);
+            control_options (pss);
             if (i)
                 *i = SANE_INFO_RELOAD_OPTIONS;
             break;
@@ -2325,9 +2340,9 @@ SANE_Status sane_control_option (SANE_Handle h,
             break;
         default:
             DBG (DL_MAJOR_ERROR,
-	         "%s: invalid option number %ld\n",
+                 "%s: invalid option number %ld\n",
                  me,
-		 (long) n);
+                 (long) n);
             return SANE_STATUS_UNSUPPORTED;
         }
         break;
@@ -2335,13 +2350,6 @@ SANE_Status sane_control_option (SANE_Handle h,
         DBG (DL_MAJOR_ERROR, "%s: invalid action code %ld\n", me, (long) a);
         return SANE_STATUS_UNSUPPORTED;
     }
-
-    if (a != SANE_ACTION_GET_VALUE)
-    {
-        SANE_Status status = set_window (pss);
-        CHECK_STATUS (status, me, "set_window");
-    }
-
     close_scanner (pss);
     return SANE_STATUS_GOOD;
 }
@@ -2357,47 +2365,64 @@ SANE_Status sane_get_parameters (SANE_Handle h,
 
     DBG (DL_CALL_TRACE, "%s (%p, %p)\n", me, (void *) h, (void *) p);
 
-    if (pss->state == ST_IDLE)
+    p->last_frame = SANE_TRUE;        /* we always do only one frame */
+
+    if ((pss->state == ST_SCAN_INIT) || (pss->state == ST_SCANNING))
     {
-        status = open_scanner (pss);
-        CHECK_STATUS (status, me, "open_scanner");
-
-        /* fetch the latest parameters */
-        status = inquiry (pss);
-        CHECK_STATUS (status, me, "inquiry");
-
-        close_scanner (pss);
+        /* we are in the middle of a scan, so we can use the data
+           that the scanner has reported */
+        if (pss->psrc != NULL)
+        {
+            DBG(DL_DATA_TRACE, "%s: Using source chain data\n", me);
+            /* use what the source chain says */
+            p->pixels_per_line = pss->psrc->pixelsPerLine(pss->psrc);
+            p->bytes_per_line = pss->psrc->bytesPerLine(pss->psrc);
+            /* p->lines = pss->psrc->remaining(pss->psrc)/p->bytes_per_line; */
+            p->lines = pss->lines;
+        }
+        else
+        {
+            DBG(DL_DATA_TRACE, "%s: Using current data\n", me);
+            /* estimate based on current data */
+            p->pixels_per_line = pss->pixels_per_line;
+            p->bytes_per_line = pss->bytes_per_line;
+            p->lines = pss->lines;
+            if (mode == MD_BILEVELCOLOUR)
+                p->bytes_per_line = p->pixels_per_line*3;
+        }
     }
     else
     {
-        DBG (DL_INFO, "NOT doing an inquiry to get scanner parameters\n");
-        status = SANE_STATUS_GOOD;
+        /* no scan in progress. The scanner data may not be up to date.
+           we have to calculate an estimate. */
+        double width, height;
+        int dpi;
+        double dots_per_mm;
+
+        DBG(DL_DATA_TRACE, "%s: Using estimated data\n", me);
+        width = SANE_UNFIX (pss->brx - pss->tlx);
+        height = SANE_UNFIX (pss->bry - pss->tly);
+        dpi = pss->res;
+        dots_per_mm = dpi / MM_PER_IN;
+        p->pixels_per_line = width * dots_per_mm;
+        p->lines = height * dots_per_mm;
+        switch (mode)
+        {
+        case MD_COLOUR:
+        case MD_BILEVELCOLOUR:
+            p->bytes_per_line = 3 * p->pixels_per_line;
+            break;
+        case MD_LINEART:
+            p->bytes_per_line = (p->pixels_per_line + 7) / 8;
+            break;
+        default:
+            /* greyscale */
+            p->bytes_per_line = p->pixels_per_line;
+            break;
+        }
     }
-
-    p->last_frame = SANE_TRUE;	/* we always do only one frame */
-
-    if (pss->psrc != NULL)
-    {
-        /* use what the source chain says */
-        p->pixels_per_line = pss->psrc->pixelsPerLine(pss->psrc);
-        p->bytes_per_line = pss->psrc->bytesPerLine(pss->psrc);
-	/* p->lines = pss->psrc->remaining(pss->psrc)/p->bytes_per_line;*/
-	p->lines = pss->lines;
-
-    }
-    else
-    {
-        /* estimate based on current data */
-        p->pixels_per_line = pss->pixels_per_line;
-        p->bytes_per_line = pss->bytes_per_line;
-        p->lines = pss->lines;
-        if (mode == MD_BILEVELCOLOUR)
-            p->bytes_per_line = p->pixels_per_line*3;
-    }
-
     p->format = (is_colour_mode(mode)) ? SANE_FRAME_RGB : SANE_FRAME_GRAY;
     p->depth = (mode == MD_LINEART) ? 1 : 8;
-
 
     DBG (DL_DATA_TRACE, "%s: depth = %ld\n", me, (long) p->depth);
     DBG (DL_DATA_TRACE, "%s: lines = %ld\n", me, (long) p->lines);
@@ -2407,7 +2432,7 @@ SANE_Status sane_get_parameters (SANE_Handle h,
          (long) p->pixels_per_line);
     DBG (DL_DATA_TRACE,
          "%s: bytes per line = %ld\n",
-	 me,
+         me,
          (long) p->bytes_per_line);
 
     return status;
@@ -2448,8 +2473,8 @@ static void reader (SnapScan_Scanner *pss)
         if (status != SANE_STATUS_GOOD)
         {
             DBG (DL_MAJOR_ERROR,
-	         "%s: %s on read.\n",
-		 me,
+                 "%s: %s on read.\n",
+                 me,
                  sane_strstatus (status));
             close (STDOUT_FILENO);
             _exit (1);
@@ -2465,7 +2490,7 @@ static void reader (SnapScan_Scanner *pss)
                 {
                     DBG (DL_MAJOR_ERROR,
                          "%s: error writing scan data on parent pipe.\n",
-			 me);
+                         me);
                     perror ("pipe error: ");
                 }
                 else
@@ -2492,21 +2517,17 @@ static SANE_Status start_reader (SnapScan_Scanner *pss)
     pss->rpipe[0] = pss->rpipe[1] = -1;
     pss->child = -1;
 
-    if (pss->pdev->model == PRISA620S	/* GP added - blocking mode only */
+    if (pss->pdev->model == VUEGO610S
         ||
-	pss->pdev->model == VUEGO610S	/* SJU added */
-	||
-	pss->pdev->model == ACER300F    /* Seb added */
-	||
-	pss->pdev->model == SNAPSCAN310 /* Seb added */
-	||
-	pss->pdev->model == VUEGO310S  /* Seb added */
-	||
-	pss->pdev->model == VUEGO610S /* Seb added */
-	||
-	pss->pdev->model == SNAPSCANE50
-	||
-	pss->pdev->model == SNAPSCAN1236S) /* Seb added */
+        pss->pdev->model == ACER300F
+        ||
+        pss->pdev->model == SNAPSCAN310
+        ||
+        pss->pdev->model == VUEGO310S
+        ||
+        pss->pdev->model == SNAPSCANE50
+        ||
+        pss->pdev->model == SNAPSCAN1236)
     {
         status = SANE_STATUS_UNSUPPORTED;
     }
@@ -2518,7 +2539,7 @@ static SANE_Status start_reader (SnapScan_Scanner *pss)
         case -1:
             /* we'll have to read in blocking mode */
             DBG (DL_MAJOR_ERROR,
-	         "%s: can't fork; must read in blocking mode.\n",
+                 "%s: can't fork; must read in blocking mode.\n",
                  me);
             close (pss->rpipe[0]);
             close (pss->rpipe[1]);
@@ -2531,18 +2552,18 @@ static SANE_Status start_reader (SnapScan_Scanner *pss)
             close (pss->rpipe[0]);
             status = create_base_source (pss, SCSI_SRC, &(pss->psrc));
             if (status == SANE_STATUS_GOOD)
-	    {
+            {
                 reader (pss);
             }
-	    else
-	    {
+            else
+            {
                 DBG (DL_MAJOR_ERROR,
                      "Reader process: failed to create SCSISource.\n");
             }
-	    /* regular exit may cause a SIGPIPE */
+            /* regular exit may cause a SIGPIPE */
             DBG (DL_MINOR_INFO, "Reader process terminating.\n");
             _exit (0);
-            break;		/* not reached */
+            break;                /* not reached */
         default:
             /* parent; close write side */
             close (pss->rpipe[1]);
@@ -2574,12 +2595,12 @@ static SANE_Status download_gamma_tables (SnapScan_Scanner *pss)
         break;
     case MD_BILEVELCOLOUR:
         if (!pss->halftone)
-	{
+        {
             gamma_r =
-	    gamma_g =
-	    gamma_b = 1.0;
+            gamma_g =
+            gamma_b = 1.0;
         }
-	break;
+        break;
     case MD_LINEART:
         if (!pss->halftone)
             gamma_gs = 1.0;
@@ -2591,114 +2612,114 @@ static SANE_Status download_gamma_tables (SnapScan_Scanner *pss)
 
     if (bpp == 10)
     {
-	dtcq_gamma_gray = DTCQ_GAMMA_GRAY10;
-	dtcq_gamma_red = DTCQ_GAMMA_RED10;
-	dtcq_gamma_green = DTCQ_GAMMA_GREEN10;
-	dtcq_gamma_blue = DTCQ_GAMMA_BLUE10;
+        dtcq_gamma_gray = DTCQ_GAMMA_GRAY10;
+        dtcq_gamma_red = DTCQ_GAMMA_RED10;
+        dtcq_gamma_green = DTCQ_GAMMA_GREEN10;
+        dtcq_gamma_blue = DTCQ_GAMMA_BLUE10;
     }
     else
     {
-	dtcq_gamma_gray = DTCQ_GAMMA_GRAY8;
-	dtcq_gamma_red = DTCQ_GAMMA_RED8;
-	dtcq_gamma_green = DTCQ_GAMMA_GREEN8;
-	dtcq_gamma_blue = DTCQ_GAMMA_BLUE8;
+        dtcq_gamma_gray = DTCQ_GAMMA_GRAY8;
+        dtcq_gamma_red = DTCQ_GAMMA_RED8;
+        dtcq_gamma_green = DTCQ_GAMMA_GREEN8;
+        dtcq_gamma_blue = DTCQ_GAMMA_BLUE8;
     }
 
     if (is_colour_mode(mode))
     {
-	if (pss->val[OPT_CUSTOM_GAMMA].b)
-	{
-	    if (pss->val[OPT_GAMMA_BIND].b)
-	    {
-		/* Use greyscale gamma for all rgb channels */
-		gamma_from_sane (pss->gamma_length, pss->gamma_table_gs,
-				 pss->buf + SEND_LENGTH);
-		status = send (pss, DTC_GAMMA, dtcq_gamma_red);
-		CHECK_STATUS (status, me, "send");
+        if (pss->val[OPT_CUSTOM_GAMMA].b)
+        {
+            if (pss->val[OPT_GAMMA_BIND].b)
+            {
+                /* Use greyscale gamma for all rgb channels */
+                gamma_from_sane (pss->gamma_length, pss->gamma_table_gs,
+                                 pss->buf + SEND_LENGTH);
+                status = send (pss, DTC_GAMMA, dtcq_gamma_red);
+                CHECK_STATUS (status, me, "send");
 
-		gamma_from_sane (pss->gamma_length, pss->gamma_table_gs,
-				 pss->buf + SEND_LENGTH);
-		status = send (pss, DTC_GAMMA, dtcq_gamma_green);
-		CHECK_STATUS (status, me, "send");
+                gamma_from_sane (pss->gamma_length, pss->gamma_table_gs,
+                                 pss->buf + SEND_LENGTH);
+                status = send (pss, DTC_GAMMA, dtcq_gamma_green);
+                CHECK_STATUS (status, me, "send");
 
-		gamma_from_sane (pss->gamma_length, pss->gamma_table_gs,
-				 pss->buf + SEND_LENGTH);
-		status = send (pss, DTC_GAMMA, dtcq_gamma_blue);
-		CHECK_STATUS (status, me, "send");
-	    }
-	    else
-	    {
-		gamma_from_sane (pss->gamma_length, pss->gamma_table_r,
-				 pss->buf + SEND_LENGTH);
-		status = send (pss, DTC_GAMMA, dtcq_gamma_red);
-		CHECK_STATUS (status, me, "send");
-		
-		gamma_from_sane (pss->gamma_length, pss->gamma_table_g,
-				 pss->buf + SEND_LENGTH);
-		status = send (pss, DTC_GAMMA, dtcq_gamma_green);
-		CHECK_STATUS (status, me, "send");
-		
-		gamma_from_sane (pss->gamma_length, pss->gamma_table_b,
-				 pss->buf + SEND_LENGTH);
-		status = send (pss, DTC_GAMMA, dtcq_gamma_blue);
-		CHECK_STATUS (status, me, "send");
-	    }
-	}
-	else
-	{
-	    if (pss->val[OPT_GAMMA_BIND].b)
-	    {
-		/* Use greyscale gamma for all rgb channels */
-		gamma_n (gamma_gs, pss->bright, pss->contrast,
-			 pss->buf + SEND_LENGTH, bpp);
-		status = send (pss, DTC_GAMMA, dtcq_gamma_red);
-		CHECK_STATUS (status, me, "send");
+                gamma_from_sane (pss->gamma_length, pss->gamma_table_gs,
+                                 pss->buf + SEND_LENGTH);
+                status = send (pss, DTC_GAMMA, dtcq_gamma_blue);
+                CHECK_STATUS (status, me, "send");
+            }
+            else
+            {
+                gamma_from_sane (pss->gamma_length, pss->gamma_table_r,
+                                 pss->buf + SEND_LENGTH);
+                status = send (pss, DTC_GAMMA, dtcq_gamma_red);
+                CHECK_STATUS (status, me, "send");
 
-		gamma_n (gamma_gs, pss->bright, pss->contrast,
-			 pss->buf + SEND_LENGTH, bpp);
-		status = send (pss, DTC_GAMMA, dtcq_gamma_green);
-		CHECK_STATUS (status, me, "send");
+                gamma_from_sane (pss->gamma_length, pss->gamma_table_g,
+                                 pss->buf + SEND_LENGTH);
+                status = send (pss, DTC_GAMMA, dtcq_gamma_green);
+                CHECK_STATUS (status, me, "send");
+                
+                gamma_from_sane (pss->gamma_length, pss->gamma_table_b,
+                                 pss->buf + SEND_LENGTH);
+                status = send (pss, DTC_GAMMA, dtcq_gamma_blue);
+                CHECK_STATUS (status, me, "send");
+            }
+        }
+        else
+        {
+            if (pss->val[OPT_GAMMA_BIND].b)
+            {
+                /* Use greyscale gamma for all rgb channels */
+                gamma_n (gamma_gs, pss->bright, pss->contrast,
+                         pss->buf + SEND_LENGTH, bpp);
+                status = send (pss, DTC_GAMMA, dtcq_gamma_red);
+                CHECK_STATUS (status, me, "send");
 
-		gamma_n (gamma_gs, pss->bright, pss->contrast,
-			 pss->buf + SEND_LENGTH, bpp);
-		status = send (pss, DTC_GAMMA, dtcq_gamma_blue);
-		CHECK_STATUS (status, me, "send");
-	    }
-	    else
-	    {
-		gamma_n (gamma_r, pss->bright, pss->contrast,
-			 pss->buf + SEND_LENGTH, bpp);
-		status = send (pss, DTC_GAMMA, dtcq_gamma_red);
-		CHECK_STATUS (status, me, "send");
+                gamma_n (gamma_gs, pss->bright, pss->contrast,
+                         pss->buf + SEND_LENGTH, bpp);
+                status = send (pss, DTC_GAMMA, dtcq_gamma_green);
+                CHECK_STATUS (status, me, "send");
 
-		gamma_n (gamma_g, pss->bright, pss->contrast,
-			 pss->buf + SEND_LENGTH, bpp);
-		status = send (pss, DTC_GAMMA, dtcq_gamma_green);
-		CHECK_STATUS (status, me, "send");
-		
-		gamma_n (gamma_b, pss->bright, pss->contrast,
-			 pss->buf + SEND_LENGTH, bpp);
-		status = send (pss, DTC_GAMMA, dtcq_gamma_blue);
-		CHECK_STATUS (status, me, "send");
-	    }
-	}
+                gamma_n (gamma_gs, pss->bright, pss->contrast,
+                         pss->buf + SEND_LENGTH, bpp);
+                status = send (pss, DTC_GAMMA, dtcq_gamma_blue);
+                CHECK_STATUS (status, me, "send");
+            }
+            else
+            {
+                gamma_n (gamma_r, pss->bright, pss->contrast,
+                         pss->buf + SEND_LENGTH, bpp);
+                status = send (pss, DTC_GAMMA, dtcq_gamma_red);
+                CHECK_STATUS (status, me, "send");
+
+                gamma_n (gamma_g, pss->bright, pss->contrast,
+                         pss->buf + SEND_LENGTH, bpp);
+                status = send (pss, DTC_GAMMA, dtcq_gamma_green);
+                CHECK_STATUS (status, me, "send");
+                
+                gamma_n (gamma_b, pss->bright, pss->contrast,
+                         pss->buf + SEND_LENGTH, bpp);
+                status = send (pss, DTC_GAMMA, dtcq_gamma_blue);
+                CHECK_STATUS (status, me, "send");
+            }
+        }
     }
     else
     {
-	if(pss->val[OPT_CUSTOM_GAMMA].b)
-	{
-	    gamma_from_sane (pss->gamma_length, pss->gamma_table_gs,
-			     pss->buf + SEND_LENGTH);
-	    status = send (pss, DTC_GAMMA, dtcq_gamma_gray);
-	    CHECK_STATUS (status, me, "send");
-	}
-	else
-	{
-	    gamma_n (gamma_gs, pss->bright, pss->contrast,
-		     pss->buf + SEND_LENGTH, bpp);
-	    status = send (pss, DTC_GAMMA, dtcq_gamma_gray);
-	    CHECK_STATUS (status, me, "send");
-	}
+        if(pss->val[OPT_CUSTOM_GAMMA].b)
+        {
+            gamma_from_sane (pss->gamma_length, pss->gamma_table_gs,
+                             pss->buf + SEND_LENGTH);
+            status = send (pss, DTC_GAMMA, dtcq_gamma_gray);
+            CHECK_STATUS (status, me, "send");
+        }
+        else
+        {
+            gamma_n (gamma_gs, pss->bright, pss->contrast,
+                     pss->buf + SEND_LENGTH, bpp);
+            status = send (pss, DTC_GAMMA, dtcq_gamma_gray);
+            CHECK_STATUS (status, me, "send");
+        }
     }
     return status;
 }
@@ -2736,10 +2757,10 @@ static SANE_Status download_halftone_matrices (SnapScan_Scanner *pss)
             /* need copies for green and blue bands */
             memcpy (pss->buf + SEND_LENGTH + matrix_sz,
                     matrix,
-		    matrix_sz);
+                    matrix_sz);
             memcpy (pss->buf + SEND_LENGTH + 2 * matrix_sz,
                     matrix,
-		    matrix_sz);
+                    matrix_sz);
         }
         else
         {
@@ -2770,69 +2791,8 @@ static SANE_Status measure_transfer_rate (SnapScan_Scanner *pss)
         pss->expected_read_bytes =
             (pss->buf_sz%128)  ?  (pss->buf_sz/128 + 1)*128  :  pss->buf_sz;
 
-        {
-            u_char *other_buf = (u_char *) malloc (pss->expected_read_bytes);
-
-            if (other_buf == NULL)
-            {
-                DBG (DL_MAJOR_ERROR,
-                     "%s: failed to allocate second test buffer.\n",
-		     me);
-                return SANE_STATUS_NO_MEM;
-            }
-
-
-            status = scsi_read (pss, READ_TRANSTIME);
-            if (status != SANE_STATUS_GOOD)
-            {
-                DBG (DL_MAJOR_ERROR, "%s: test read failed.\n", me);
-                free (other_buf);
-                return status;
-            }
-
-            /* process the data through a typical source chain; because
-               we've rounded the data at a 128-byte boundary, it may
-               happen that some data is left over */
-
-            status = create_source_chain (pss, BUF_SRC, &(pss->psrc));
-            if (status == SANE_STATUS_GOOD)
-            {
-                SANE_Int remaining = pss->read_bytes;
-                while (remaining > 0)
-                {
-                    SANE_Int ndata = pss->psrc->bytesPerLine(pss->psrc);
-                    ndata = MIN(ndata, remaining);
-                    status = pss->psrc->get(pss->psrc, other_buf, &ndata);
-                    if (status != SANE_STATUS_GOOD)
-                        break;
-                    remaining -= ndata;
-                }
-                pss->read_bytes -= remaining;
-            }
-            else
-            {
-                DBG (DL_MAJOR_ERROR,
-                     "%s: warning: couldn't allocate source chain.\n",
-		     me);
-                memcpy (other_buf, pss->buf, pss->read_bytes);
-            }
-
-            /* presumably, after copying, the front-end will be storing the
-               data in a file */
-            {
-                int result = write (pss->tfd, other_buf, pss->read_bytes);
-                if (result < 0  ||  result == INT_MAX)
-                {
-                    DBG (DL_MAJOR_ERROR,
-                         "%s: write of test data to file failed.\n",
-			 me);
-                    perror ("");
-                    return SANE_STATUS_UNSUPPORTED;
-                }
-            }
-            free (other_buf);
-        }
-
+        status = scsi_read (pss, READ_TRANSTIME);
+        CHECK_STATUS (status, me, "scsi_read");
         pss->expected_read_bytes = 0;
         status = scsi_read (pss, READ_TRANSTIME);
         CHECK_STATUS (status, me, "scsi_read");
@@ -2859,8 +2819,8 @@ static SANE_Status measure_transfer_rate (SnapScan_Scanner *pss)
     status = scsi_read (pss, READ_TRANSTIME);
     if (status != SANE_STATUS_GOOD)
     {
-	DBG (DL_MAJOR_ERROR, "%s: test read failed.\n", me);
-	return status;
+        DBG (DL_MAJOR_ERROR, "%s: test read failed.\n", me);
+        return status;
     }
 
     DBG (DL_VERBOSE, "%s: successfully calibrated transfer rate.\n", me);
@@ -2914,8 +2874,8 @@ SANE_Status sane_start (SANE_Handle h)
          "%s: after measuring speed:\n\t%lu bytes per scan line\n"
          "\t%f milliseconds per scan line.\n\t==>%f bytes per millisecond\n",
          me,
-	 (u_long) pss->bytes_per_line,
-	 pss->ms_per_line,
+         (u_long) pss->bytes_per_line,
+         pss->ms_per_line,
          pss->bytes_per_line/pss->ms_per_line);
 
     /* start scanning; reserve the unit first, because a release_unit is
@@ -2927,13 +2887,13 @@ SANE_Status sane_start (SANE_Handle h)
 
     if(pss->val[OPT_QUALITY_CAL].b)
     {
-	status = calibrate(pss);
-	if (status != SANE_STATUS_GOOD)
-	{
-	    DBG (DL_MAJOR_ERROR, "%s: calibration failed.\n", me);
-	    release_unit (pss);
-	    return status;
-	}
+        status = calibrate(pss);
+        if (status != SANE_STATUS_GOOD)
+        {
+            DBG (DL_MAJOR_ERROR, "%s: calibration failed.\n", me);
+            release_unit (pss);
+            return status;
+        }
     }
 
     status = scan(pss);
@@ -2959,19 +2919,19 @@ SANE_Status sane_start (SANE_Handle h)
 SANE_Status sane_read (SANE_Handle h,
                        SANE_Byte *buf,
                        SANE_Int maxlen,
-		       SANE_Int *plen)
+                       SANE_Int *plen)
 {
     static const char *me = "sane_snapscan_read";
     SnapScan_Scanner *pss = (SnapScan_Scanner *) h;
     SANE_Status status = SANE_STATUS_GOOD;
 
     DBG (DL_CALL_TRACE,
-    	"%s (%p, %p, %ld, %p)\n",
-         me,
-	 (void *) h,
-	 (void *) buf,
-	 (long) maxlen,
-	 (void *) plen);
+        "%s (%p, %p, %ld, %p)\n",
+        me,
+        (void *) h,
+        (void *) buf,
+        (long) maxlen,
+        (void *) plen);
 
     *plen = 0;
 
@@ -2983,7 +2943,7 @@ SANE_Status sane_read (SANE_Handle h,
         if (pss->child > 0)
         {
             int status;
-            wait (&status);	/* ensure no zombies */
+            wait (&status);        /* ensure no zombies */
         }
         release_unit (pss);
         close_scanner (pss);
@@ -3004,9 +2964,9 @@ SANE_Status sane_read (SANE_Handle h,
     {
     case ST_IDLE:
         DBG (DL_MAJOR_ERROR,
-             "%s: weird error: scanner state should not be idle on call to "
-             "sane_read.\n",
-	     me);
+            "%s: weird error: scanner state should not be idle on call to "
+            "sane_read.\n",
+            me);
         break;
     case ST_SCAN_INIT:
         /* we've read some data */
@@ -3044,9 +3004,9 @@ void sane_cancel (SANE_Handle h)
             if ((result = kill (pss->child, SIGTERM)) < 0)
             {
                 DBG (DL_VERBOSE,
-		     "%s: error: kill returns %ld\n",
-                     me,
-		     (long) result);
+                    "%s: error: kill returns %ld\n",
+                    me,
+                    (long) result);
             }
             else
             {
@@ -3064,9 +3024,9 @@ void sane_cancel (SANE_Handle h)
         break;
     default:
         DBG (DL_MAJOR_ERROR,
-	     "%s: weird error: invalid scanner state (%ld).\n",
+             "%s: weird error: invalid scanner state (%ld).\n",
              me,
-	     (long) pss->state);
+             (long) pss->state);
         break;
     }
 }
@@ -3088,7 +3048,7 @@ SANE_Status sane_set_io_mode (SANE_Handle h, SANE_Bool m)
         {
             DBG (DL_MINOR_INFO,
                  "%s: no reader child; must use blocking mode.\n",
-		 me);
+                 me);
             return SANE_STATUS_UNSUPPORTED;
         }
         op = "ON";
@@ -3127,16 +3087,38 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
- * Revision 1.5  2001/06/01 16:24:46  hmg
- * Fixed two bugs: pss->devname must be checked for 0. Return total
- * number of lines in sane_get_parameters (patch from Ben Stanley
- * <bds02@uow.edu.au>).
- * Henning Meier-Geinitz <henning@meier-geinitz.de>
+ * Revision 1.6  2001/10/09 09:45:16  oliverschwartz
+ * update snapscan to snapshot 20011008
  *
- * Revision 1.4  2001/05/26 12:47:32  hmg
- * Updated snapscan backend to version 1.2 (from
- * Sebastien Sable <Sebastien.Sable@snv.jussieu.fr>).
- * Henning Meier-Geinitz <henning@meier-geinitz.de>
+ * Revision 1.22  2001/10/08 19:26:01  oliverschwartz
+ * - Disable quality calibration for scanners that do not support it
+ *
+ * Revision 1.21  2001/10/08 18:22:02  oliverschwartz
+ * - Disable quality calibration for Acer Vuego 310F
+ * - Use sanei_scsi_max_request_size as scanner buffer size
+ *   for SCSI devices
+ * - Added new devices to snapscan.desc
+ *
+ * Revision 1.20  2001/09/18 15:01:07  oliverschwartz
+ * - Read scanner id string again after firmware upload
+ *   to indentify correct model
+ * - Make firmware upload work for AGFA scanners
+ * - Change copyright notice
+ *
+ * Revision 1.19  2001/09/17 10:01:08  sable
+ * Added model AGFA 1236U
+ *
+ * Revision 1.18  2001/09/10 10:16:32  oliverschwartz
+ * better USB / SCSI recognition, correct max scan area for 1236+TPO
+ *
+ * Revision 1.17  2001/09/09 18:06:32  oliverschwartz
+ * add changes from Acer (new models; automatic firmware upload for USB scanners); fix distorted colour scans after greyscale scans (call set_window only in sane_start); code cleanup
+ *
+ * Revision 1.16  2001/09/07 09:42:13  oliverschwartz
+ * Sync with Sane-1.0.5
+ *
+ * Revision 1.15  2001/05/15 20:51:14  oliverschwartz
+ * check for pss->devname instead of name in sane_open()
  *
  * Revision 1.14  2001/04/10 13:33:06  sable
  * Transparency adapter bug and xsane crash corrections thanks to Oliver Schwartz
@@ -3191,51 +3173,51 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
  * Revision 1.1.1.1.2.5  2000/07/29 16:04:33  hmg
  * 2000-07-29  Henning Meier-Geinitz <hmg@gmx.de>
  *
- * 	* backend/GUIDE: Added some comments about portability and
- * 	  documentation.
- * 	* backend/abaton.c backend/agfafocus.c backend/apple.c
- * 	  backend/canon.c backend/coolscan.c backend/dc210.c backend/dc25.c
- * 	  backend/dll.c backend/dmc.c backend/microtek.c backend/microtek2.c
- *  	  backend/microtek2.c backend/mustek_pp.c backend/net.c backend/pint.c
- * 	  backend/pnm.c backend/qcam.c backend/ricoh.c backend/s9036.c
- * 	  backend/sane_strstatus.c backend/sharp.c backend/snapscan.c
- * 	  backend/st400.c backend/stubs.c backend/tamarack.c backend/v4l.c:
- * 	  Changed include statements from #include <sane/...> to
- * 	  #include "sane...".
- * 	* backend/avision.c backend/dc25.c: Use DBG(0, ...) instead of
- *  	  fprintf (stderr, ...)
- * 	* backend/avision.c backend/canon-sane.c backend/coolscan.c
- * 	  backend/dc25.c backend/microtek.c backend/microtek2.c
- *  	  backend/st400.c: Use sanei_config_read() instead of fgets().
- * 	* backend/coolscan.desc backend/microtek.desc backend/microtek2.desc
- * 	  backend/st400.desc: Added :interface and :manpage entries.
- * 	* backend/nec.desc: Status is beta now (was: new). Fixed typo.
- * 	* doc/canon.README: Removed, because the information is included in
- *  	  the manpage now.
- * 	* doc/Makefile.in: Added sane-coolscan to list of mapages to install.
- * 	* README: Added Link to coolscan manpage.
- * 	* backend/mustek.*: Update to Mustek backend 1.0-94. Fixed the
- * 	  #include <sane/...> bug.
+ *         * backend/GUIDE: Added some comments about portability and
+ *           documentation.
+ *         * backend/abaton.c backend/agfafocus.c backend/apple.c
+ *           backend/canon.c backend/coolscan.c backend/dc210.c backend/dc25.c
+ *           backend/dll.c backend/dmc.c backend/microtek.c backend/microtek2.c
+ *            backend/microtek2.c backend/mustek_pp.c backend/net.c backend/pint.c
+ *           backend/pnm.c backend/qcam.c backend/ricoh.c backend/s9036.c
+ *           backend/sane_strstatus.c backend/sharp.c backend/snapscan.c
+ *           backend/st400.c backend/stubs.c backend/tamarack.c backend/v4l.c:
+ *           Changed include statements from #include <sane/...> to
+ *           #include "sane...".
+ *         * backend/avision.c backend/dc25.c: Use DBG(0, ...) instead of
+ *            fprintf (stderr, ...)
+ *         * backend/avision.c backend/canon-sane.c backend/coolscan.c
+ *           backend/dc25.c backend/microtek.c backend/microtek2.c
+ *            backend/st400.c: Use sanei_config_read() instead of fgets().
+ *         * backend/coolscan.desc backend/microtek.desc backend/microtek2.desc
+ *           backend/st400.desc: Added :interface and :manpage entries.
+ *         * backend/nec.desc: Status is beta now (was: new). Fixed typo.
+ *         * doc/canon.README: Removed, because the information is included in
+ *            the manpage now.
+ *         * doc/Makefile.in: Added sane-coolscan to list of mapages to install.
+ *         * README: Added Link to coolscan manpage.
+ *         * backend/mustek.*: Update to Mustek backend 1.0-94. Fixed the
+ *           #include <sane/...> bug.
  *
  * Revision 1.1.1.1.2.4  2000/07/25 21:47:43  hmg
  * 2000-07-25  Henning Meier-Geinitz <hmg@gmx.de>
  *
- * 	* backend/snapscan.c: Use DBG(0, ...) instead of fprintf (stderr, ...).
- * 	* backend/abaton.c backend/agfafocus.c backend/apple.c backend/dc210.c
- *  	  backend/dll.c backend/dmc.c backend/microtek2.c backend/pint.c
- * 	  backend/qcam.c backend/ricoh.c backend/s9036.c backend/snapscan.c
- * 	  backend/tamarack.c: Use sanei_config_read instead of fgets.
- * 	* backend/dc210.c backend/microtek.c backend/pnm.c: Added
- * 	  #include <sane/config.h>.
- * 	* backend/dc25.c backend/m3096.c  backend/sp15.c
- *  	  backend/st400.c: Moved #include <sane/config.h> to the beginning.
- * 	* AUTHORS: Changed agfa to agfafocus.
+ *         * backend/snapscan.c: Use DBG(0, ...) instead of fprintf (stderr, ...).
+ *         * backend/abaton.c backend/agfafocus.c backend/apple.c backend/dc210.c
+ *            backend/dll.c backend/dmc.c backend/microtek2.c backend/pint.c
+ *           backend/qcam.c backend/ricoh.c backend/s9036.c backend/snapscan.c
+ *           backend/tamarack.c: Use sanei_config_read instead of fgets.
+ *         * backend/dc210.c backend/microtek.c backend/pnm.c: Added
+ *           #include <sane/config.h>.
+ *         * backend/dc25.c backend/m3096.c  backend/sp15.c
+ *            backend/st400.c: Moved #include <sane/config.h> to the beginning.
+ *         * AUTHORS: Changed agfa to agfafocus.
  *
  * Revision 1.1.1.1.2.3  2000/07/17 21:37:28  hmg
  * 2000-07-17  Henning Meier-Geinitz <hmg@gmx.de>
  *
- * 	* backend/snapscan.c backend/snapscan-scsi.c: Replace C++ comment
- * 	  with C comment.
+ *         * backend/snapscan.c backend/snapscan-scsi.c: Replace C++ comment
+ *           with C comment.
  *
  * Revision 1.1.1.1.2.2  2000/07/13 04:47:46  pere
  * New snapscan backend version dated 20000514 from Steve Underwood.

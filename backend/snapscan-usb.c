@@ -25,7 +25,7 @@
   
   History
 
-  0.1	2000-02-01
+  0.1        2000-02-01
 
      First version released
 
@@ -47,8 +47,11 @@
      So far this strategy has worked flawlessly. Thanks Dmitri!
 */
 
-#include <sys/ipc.h> 
-#include <sys/sem.h> 
+/* $Id$
+   SnapScan backend scan data sources */
+
+#include <sys/ipc.h>
+#include <sys/sem.h>
 
 #include "snapscan-usb.h"
 
@@ -59,48 +62,48 @@ static struct sembuf sem_wait = { 0, -1, 0 };
 static struct sembuf sem_signal = { 0, 1, 0 };
 
 static SANE_Status snapscani_usb_cmd(int fd, const void *src, size_t src_size,
-		    void *dst, size_t * dst_size)
+                    void *dst, size_t * dst_size)
 {
     static const char me[] = "snapscani_usb_cmd";
     int status;
 
     DBG (DL_CALL_TRACE, "%s(%d,0x%x,%d,0x%x,0x%x (%d))\n", me,
-	 fd,(int)src,src_size,(int)dst,(int)dst_size,dst_size ? *dst_size : 0);
+         fd,(int)src,src_size,(int)dst,(int)dst_size,dst_size ? *dst_size : 0);
 
     while(bqhead) {
-	status = atomic_usb_cmd(fd, bqhead->src, bqhead->src_size, NULL, NULL);
-	if(status == SANE_STATUS_DEVICE_BUSY) {
-	    if(is_queueable(src)) {
-		enqueue_bq(fd,src,src_size);
-		return SANE_STATUS_GOOD;
-	    } else {
-		sleep(1);
-		continue;
-	    }
-	}
-	dequeue_bq();
+        status = atomic_usb_cmd(fd, bqhead->src, bqhead->src_size, NULL, NULL);
+        if(status == SANE_STATUS_DEVICE_BUSY) {
+            if(is_queueable(src)) {
+                enqueue_bq(fd,src,src_size);
+                return SANE_STATUS_GOOD;
+            } else {
+                sleep(1);
+                continue;
+            }
+        }
+        dequeue_bq();
     }
 
     status = atomic_usb_cmd(fd,src,src_size,dst,dst_size);
 
-    if((status == SANE_STATUS_DEVICE_BUSY) && is_queueable(src) ) {
-	enqueue_bq(fd,src,src_size);
-	return SANE_STATUS_GOOD;
+    if ((status == SANE_STATUS_DEVICE_BUSY) && is_queueable(src) ) {
+        enqueue_bq(fd,src,src_size);
+        return SANE_STATUS_GOOD;
     }
-    
-    return status;    
+
+    return status;
 }
 
 static SANE_Status atomic_usb_cmd(int fd, const void *src, size_t src_size,
-		    void *dst, size_t * dst_size)
+                    void *dst, size_t * dst_size)
 {
     static const char me[] = "atomic_usb_cmd";
-  
+
     int status;
     sigset_t all,oldset;
 
     DBG (DL_CALL_TRACE, "%s(%d,0x%x,%d,0x%x,0x%x (%d))\n", me,
-	 fd,(int)src,src_size,(int)dst,(int)dst_size,dst_size ? *dst_size : 0);
+         fd,(int)src,src_size,(int)dst,(int)dst_size,dst_size ? *dst_size : 0);
 
     /* Prevent the calling process from being killed */
     sigfillset(&all);
@@ -115,15 +118,14 @@ static SANE_Status atomic_usb_cmd(int fd, const void *src, size_t src_size,
 
     /* Now it is ok to be killed */
     sigprocmask(SIG_SETMASK, &oldset, NULL);
-    
-    return status;    
-    
+
+    return status;
+
 }
 
-static SANE_Status snapscani_usb_open(const char *dev, int *fdp,
-                 SANEI_SCSI_Sense_Handler handler, void *handler_arg)
+static SANE_Status snapscani_usb_open(const char *dev, int *fdp)
 {
-    return usb_open(dev,fdp,handler,handler_arg);
+    return usb_open(dev,fdp);
 }
 
 
@@ -142,12 +144,12 @@ static int usb_cmdlen(int cmd)
     case RESERVE_UNIT:
     case RELEASE_UNIT:
     case SEND_DIAGNOSTIC:
-	return 6;
+        return 6;
     case SEND:
     case SET_WINDOW:
     case READ:
     case GET_DATA_BUFFER_STATUS:
-	return 10;
+        return 10;
     }
     return 0;
 }
@@ -158,42 +160,41 @@ static char *usb_debug_data(char *str,const char *data, int len) {
 
     str[0]=0;
     for(i=0; i < (len < 10 ? len : 10); i++) {
-	sprintf(tmpstr," 0x%02x",((int)data[i]) & 0xff);
-	if(i%16 == 0 && i != 0)
-	    strcat(str,"\n");
-	strcat(str,tmpstr);
+        sprintf(tmpstr," 0x%02x",((int)data[i]) & 0xff);
+        if(i%16 == 0 && i != 0)
+            strcat(str,"\n");
+        strcat(str,tmpstr);
     }
     if(i < len)
-	strcat(str," ...");
+        strcat(str," ...");
     return str;
 }
 
 
-static SANE_Status usb_open(const char *dev, int *fdp,
-		     SANEI_SCSI_Sense_Handler handler, void *handler_arg)
+static SANE_Status usb_open(const char *dev, int *fdp)
 {
-  static const char me[] = "usb_open";
-  
-  DBG (DL_CALL_TRACE, "%s(%s)\n", me, dev);
+static const char me[] = "usb_open";
 
-  if((sem_id = semget( ftok(dev,0x1234), 1, IPC_CREAT | 0660 )) == -1) {
-      DBG (DL_MAJOR_ERROR, "%s: Can't get semaphore\n", me);
-      return SANE_STATUS_INVAL;
-  }
-  semop(sem_id, &sem_signal, 1);
+DBG (DL_CALL_TRACE, "%s(%s)\n", me, dev);
 
-  *fdp = open(dev, O_RDWR);
-  if( *fdp < 0)
-      return SANE_STATUS_INVAL;
-  return SANE_STATUS_GOOD;
+    if((sem_id = semget( ftok(dev,0x1234), 1, IPC_CREAT | 0660 )) == -1) {
+        DBG (DL_MAJOR_ERROR, "%s: Can't get semaphore\n", me);
+        return SANE_STATUS_INVAL;
+    }
+    semop(sem_id, &sem_signal, 1);
+
+    *fdp = open(dev, O_RDWR);
+    if( *fdp < 0)
+        return SANE_STATUS_INVAL;
+    return SANE_STATUS_GOOD;
 }
 
 static void usb_close(int fd) {
-  static const char me[] = "usb_close";
-  
-  DBG (DL_CALL_TRACE, "%s(%d)\n", me, fd);
-  semctl(sem_id, 0, IPC_RMID, 0);
-  close(fd);	
+    static const char me[] = "usb_close";
+
+    DBG (DL_CALL_TRACE, "%s(%d)\n", me, fd);
+    semctl(sem_id, 0, IPC_RMID, 0);
+    close(fd);
 }
 
 /*
@@ -204,12 +205,12 @@ static int usb_status(char *status_buf) {
 
     switch(status) {
     case GOOD:
-	return SANE_STATUS_GOOD;
+        return SANE_STATUS_GOOD;
     case CHECK_CONDITION:
     case BUSY:
-	return SANE_STATUS_DEVICE_BUSY;
+        return SANE_STATUS_DEVICE_BUSY;
     default:
-	return SANE_STATUS_IO_ERROR;
+        return SANE_STATUS_IO_ERROR;
     }
 }
 */
@@ -219,13 +220,13 @@ static int usb_status(char *status_buf) {
 static SANE_Status usb_write(int fd, const void *buf, int n) {
     char dbgmsg[16384];
     int r;
-    
+
     static const char me[] = "usb_write";
     DBG(DL_DATA_TRACE, "%s: writing: %s\n",me,usb_debug_data(dbgmsg,buf,n));
 
     if((r=write(fd,buf,n)) != n) {
-	DBG (DL_MAJOR_ERROR, "%s Only %d bytes written\n",me,r);
-	return SANE_STATUS_IO_ERROR;
+        DBG (DL_MAJOR_ERROR, "%s Only %d bytes written\n",me,r);
+        return SANE_STATUS_IO_ERROR;
     }
     return SANE_STATUS_GOOD;
 }
@@ -233,7 +234,7 @@ static SANE_Status usb_write(int fd, const void *buf, int n) {
 static SANE_Status usb_read(int fd, void *buf, int n) {
     char dbgmsg[16384];
     int r;
-    
+
     static const char me[] = "usb_read";
 
     /* USB driver appears to block in all cases when asking for data
@@ -245,13 +246,13 @@ static SANE_Status usb_read(int fd, void *buf, int n) {
     do
     {
       if((r=read(fd,buf,n)) != n && !(r == -1 && errno == EAGAIN)) {
-	DBG (DL_MAJOR_ERROR, "%s Only %d bytes read\n",me,r);
-	return SANE_STATUS_IO_ERROR;
+        DBG (DL_MAJOR_ERROR, "%s Only %d bytes read\n",me,r);
+        return SANE_STATUS_IO_ERROR;
       }
       if (r == -1 && errno == EAGAIN)
       {
-	  DBG (DL_MAJOR_ERROR, "%s: Got an EAGAIN\n",me);
-	  usleep(10000);
+          DBG (DL_MAJOR_ERROR, "%s: Got an EAGAIN\n",me);
+          usleep(10000);
       }
     } while (r == -1 && errno == EAGAIN);
 
@@ -260,40 +261,40 @@ static SANE_Status usb_read(int fd, void *buf, int n) {
 }
 
 static SANE_Status usb_read_status(int fd, int *scsistatus, int *transaction_status)
-{	
+{
     unsigned char status_buf[8];
     int scsistat;
     int status;
-    
+
     RETURN_ON_FAILURE(usb_read(fd,status_buf,8));
 
     if(transaction_status)
-	*transaction_status = status_buf[0];
-    
+        *transaction_status = status_buf[0];
+
     scsistat = (status_buf[1] & STATUS_MASK) >> 1;
 
     if(scsistatus)
-	*scsistatus = scsistat;
+        *scsistatus = scsistat;
 
     switch(scsistat) {
     case GOOD:
-	return SANE_STATUS_GOOD;
+        return SANE_STATUS_GOOD;
     case CHECK_CONDITION:
     case BUSY:
-	return SANE_STATUS_DEVICE_BUSY;
+        return SANE_STATUS_DEVICE_BUSY;
     default:
-	return SANE_STATUS_IO_ERROR;
+        return SANE_STATUS_IO_ERROR;
     }
 }
 
 
 static SANE_Status usb_cmd(int fd, const void *src, size_t src_size,
-		    void *dst, size_t * dst_size)
+                    void *dst, size_t * dst_size)
 {
   static const char me[] = "usb_cmd";
   int status,tstatus;
   int cmdlen,datalen;
-  
+
   DBG (DL_CALL_TRACE, "%s(%d,0x%x,%d,0x%x,0x%x (%d))\n", me,
        fd,(int)src,src_size,(int)dst,(int)dst_size,dst_size ? *dst_size : 0);
 
@@ -303,7 +304,7 @@ static SANE_Status usb_cmd(int fd, const void *src, size_t src_size,
   */
   if(((char *)src)[0] == SEND_DIAGNOSTIC)
       return(SANE_STATUS_GOOD);
-  
+
   cmdlen = usb_cmdlen(*((char *)src));
   datalen = src_size - cmdlen;
 
@@ -317,7 +318,7 @@ static SANE_Status usb_cmd(int fd, const void *src, size_t src_size,
 
   /* Send data only if the scanner is expecting it */
   if(datalen > 0 && (tstatus == TRANSACTION_WRITE)) {
-      /* Send data to scanner */      
+      /* Send data to scanner */
       RETURN_ON_FAILURE( usb_write(fd, ((SANE_Byte *) src) + cmdlen, datalen) );
 
       /* Read status */
@@ -334,14 +335,14 @@ static SANE_Status usb_cmd(int fd, const void *src, size_t src_size,
 
   if(tstatus != TRANSACTION_COMPLETED) {
       if(tstatus == TRANSACTION_WRITE)
-	  DBG(DL_MAJOR_ERROR,
-	      "%s: The transaction should now be completed, but the scanner is expecting more data" ,me);
+          DBG(DL_MAJOR_ERROR,
+              "%s: The transaction should now be completed, but the scanner is expecting more data" ,me);
       else
-	  DBG(DL_MAJOR_ERROR,
-	      "%s: The transaction should now be completed, but the scanner has more data to send" ,me);
+          DBG(DL_MAJOR_ERROR,
+              "%s: The transaction should now be completed, but the scanner has more data to send" ,me);
       return SANE_STATUS_IO_ERROR;
   }
-  
+
   return status;
 }
 
@@ -353,9 +354,9 @@ static int is_queueable(const char *src)
     case SEND:
     case SET_WINDOW:
     case SEND_DIAGNOSTIC:
-	return 1;
+        return 1;
     default:
-	return 0;
+        return 0;
     }
 }
 
@@ -366,14 +367,14 @@ static int enqueue_bq(int fd,const void *src, size_t src_size)
 {
     static const char me[] = "enqueue_bq";
     struct usb_busy_queue *bqe;
-    
+
     DBG (DL_CALL_TRACE, "%s(%d,%p,%d)\n", me, fd,src,src_size);
 
     if((bqe = malloc(sizeof(struct usb_busy_queue))) == NULL)
-	return -1;
-    
+        return -1;
+
     if((bqe->src = malloc(src_size)) == NULL)
-	return -1;
+        return -1;
 
     memcpy(bqe->src,src,src_size);
     bqe->src_size=src_size;
@@ -381,18 +382,18 @@ static int enqueue_bq(int fd,const void *src, size_t src_size)
     bqe->next=NULL;
 
     if(bqtail) {
-	bqtail->next=bqe;
-	bqtail = bqe;
+        bqtail->next=bqe;
+        bqtail = bqe;
     } else
-	bqhead = bqtail = bqe;
+        bqhead = bqtail = bqe;
 
     bqelements++;
     DBG(DL_DATA_TRACE, "%s: Busy queue: elements=%d, bqhead=%p, bqtail=%p\n",
-	me,bqelements,bqhead,bqtail);    
+        me,bqelements,bqhead,bqtail);
     return 0;
 }
 
-static void dequeue_bq() 
+static void dequeue_bq()
 {
     static const char me[] = "dequeue_bq";
     struct usb_busy_queue *tbqe;
@@ -400,19 +401,31 @@ static void dequeue_bq()
     DBG (DL_CALL_TRACE, "%s()\n", me);
 
     if(!bqhead)
-	return;
-    
+        return;
+
     tbqe = bqhead;
     bqhead = bqhead->next;
     if(!bqhead)
-	bqtail=NULL;
-    
+        bqtail=NULL;
+
     if(tbqe->src)
-	free(tbqe->src);
+        free(tbqe->src);
     free(tbqe);
 
     bqelements--;
     DBG(DL_DATA_TRACE, "%s: Busy queue: elements=%d, bqhead=%p, bqtail=%p\n",
-	me,bqelements,bqhead,bqtail);    
+        me,bqelements,bqhead,bqtail);
     
 }
+/*
+ * $Log$
+ * Revision 1.2  2001/10/09 09:45:14  oliverschwartz
+ * update snapscan to snapshot 20011008
+ *
+ * Revision 1.12  2001/09/18 15:01:07  oliverschwartz
+ * - Read scanner id string again after firmware upload
+ *   to indentify correct model
+ * - Make firmware upload work for AGFA scanners
+ * - Change copyright notice
+ *
+ * */

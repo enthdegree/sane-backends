@@ -12,7 +12,7 @@
 
 :backend "SnapScan"               	; name of backend
 :version "1.2"                    	; version of backend
-:status :alpha                    	; :alpha, :beta, :stable, :new
+:status :beta                    	; :alpha, :beta, :stable, :new
 :manpage "sane-snapscan"          	; name of manpage (if it exists)
 :url "http://snapscan.sourceforge.net/" ; backend's web page
 
@@ -40,15 +40,27 @@
 :interface "SCSI"
 :comment "Ditto. Have no specific programming info yet."
 
+:model "SnapScan 1236u"
+:interface "USB"
+:comment "Ditto. Have no specific programming info yet."
+
 :model "SnapScan 1212u"
 :interface "USB"
 :comment "Ditto. Have no specific programming info yet."
+
+:model "SnapScan e20"
+:interface "USB"
+:comment "Have no specific programming info yet."
 
 :model "SnapScan e40"
 :interface "USB"
 :comment "Have no specific programming info yet."
 
 :model "SnapScan e50"
+:interface "USB"
+:comment "Have no specific programming info yet."
+
+:model "SnapScan e60"
 :interface "USB"
 :comment "Have no specific programming info yet."
 
@@ -84,11 +96,31 @@
 :interface "USB"
 :comment "Seems to be a close SnapScan 310/600 compatible."
 
+:model "Prisa 620ut"
+:interface "USB"
+:comment "Seems to be a close SnapScan 310/600 compatible."
+
 :model "Prisa 640u"
 :interface "USB"
 :comment "Seems to be a close SnapScan 310/600 compatible."
 
 :model "Prisa 640bu"
+:interface "USB"
+:comment "Seems to be a close SnapScan 310/600 compatible."
+
+:model "Prisa 1240"
+:interface "USB"
+:comment "Seems to be a close SnapScan 310/600 compatible."
+
+:model "Prisa 3300"
+:interface "USB"
+:comment "Seems to be a close SnapScan 310/600 compatible."
+
+:model "Prisa 4300"
+:interface "USB"
+:comment "Seems to be a close SnapScan 310/600 compatible."
+
+:model "Prisa 5300"
 :interface "USB"
 :comment "Seems to be a close SnapScan 310/600 compatible."
 

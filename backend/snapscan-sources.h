@@ -2,7 +2,8 @@
  
    Copyright (C) 1997, 1998 Franck Schnefra, Michel Roelofs,
    Emmanuel Blot, Mikko Tyolajarvi, David Mosberger-Tang, Wolfgang Goeller,
-   Petter Reinholdtsen, Gary Plewa, Sebastien Sable and Kevin Charter
+   Petter Reinholdtsen, Gary Plewa, Sebastien Sable, Oliver Schwartz
+   and Kevin Charter
  
    This file is part of the SANE package.
  
@@ -87,10 +88,14 @@ static SANE_Status Source_init (Source *pself,
 
 /*
  * $Log$
- * Revision 1.3  2001/05/26 12:47:31  hmg
- * Updated snapscan backend to version 1.2 (from
- * Sebastien Sable <Sebastien.Sable@snv.jussieu.fr>).
- * Henning Meier-Geinitz <henning@meier-geinitz.de>
+ * Revision 1.4  2001/10/09 09:45:13  oliverschwartz
+ * update snapscan to snapshot 20011008
+ *
+ * Revision 1.4  2001/09/18 15:01:07  oliverschwartz
+ * - Read scanner id string again after firmware upload
+ *   to indentify correct model
+ * - Make firmware upload work for AGFA scanners
+ * - Change copyright notice
  *
  * Revision 1.3  2001/03/17 22:53:21  sable
  * Applying Mikael Magnusson patch concerning Gamma correction

@@ -2,8 +2,8 @@
  
    Copyright (C) 1997, 1998, 2001 Franck Schnefra, Michel Roelofs,
    Emmanuel Blot, Mikko Tyolajarvi, David Mosberger-Tang, Wolfgang Goeller,
-   Petter Reinholdtsen, Gary Plewa, Sebastien Sable, Mikael Magnusson
-   and Kevin Charter
+   Petter Reinholdtsen, Gary Plewa, Sebastien Sable, Mikael Magnusson,
+   Oliver Schwartz and Kevin Charter
  
    This file is part of the SANE package.
  
@@ -24,25 +24,25 @@
  
    As a special exception, the authors of SANE give permission for
    additional uses of the libraries contained in this release of SANE.
- 
+
    The exception is that, if you link a SANE library with other files
    to produce an executable, this does not by itself cause the
    resulting executable to be covered by the GNU General Public
    License.  Your use of that executable is in no way restricted on
    account of linking the SANE library code into it.
- 
+
    This exception does not, however, invalidate any other reasons why
    the executable file might be covered by the GNU General Public
    License.
- 
+
    If you submit changes to SANE to the maintainers to be included in
    a subsequent release, you agree by submitting the changes that
    those changes may be distributed with this exception intact.
- 
+
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
- 
+
    This file is a component of the implementation of a backend for many
    of the the AGFA SnapScan and Acer Vuego/Prisa flatbed scanners. */
 
@@ -51,6 +51,8 @@
    SnapScan backend scsi command functions */
 
 /* scanner scsi commands */
+
+static SANE_Status download_firmware(SnapScan_Scanner * pss);
 
 #include "snapscan-usb.h"
 
@@ -80,17 +82,17 @@ static SANE_Status sense_handler (int scsi_fd, u_char * result, void *arg)
     if ((result[0] & 0x80) == 0)
     {
         DBG (DL_DATA_TRACE, "%s: sense key is invalid.\n", me);
-        return SANE_STATUS_GOOD;	/* sense key invalid */
+        return SANE_STATUS_GOOD;    /* sense key invalid */
     }
 
     switch (sense)
     {
     case 0x00:
-    	/* no sense */
+        /* no sense */
         sense_str = "No sense.";
         break;
     case 0x02:
-    	/* not ready */
+        /* not ready */
         sense_str = "Not ready.";
         if (asc == 0x04  &&  ascq == 0x01)
         {
@@ -100,20 +102,20 @@ static SANE_Status sense_handler (int scsi_fd, u_char * result, void *arg)
         }
         break;
     case 0x04:
-    	/* hardware error */
+        /* hardware error */
         sense_str = "Hardware error.";
         /* byte 18 and 19 detail the hardware problems */
         status = SANE_STATUS_IO_ERROR;
         break;
     case 0x05:
-    	/* illegal request */
+        /* illegal request */
         sense_str = "Illegal request.";
         if (asc == 0x25 && ascq == 0x00)
             as_str = "Logical unit not supported.";
         status = SANE_STATUS_IO_ERROR;
         break;
     case 0x09:
-    	/* process error */
+        /* process error */
         sense_str = "Process error.";
         if (asc == 0x00 && ascq == 0x05)
         {
@@ -154,21 +156,20 @@ static SANE_Status open_scanner (SnapScan_Scanner *pss)
     DBG (DL_CALL_TRACE, "open_scanner\n");
     if (!pss->opens)
     {
-      if(pss->pdev->bus == SCSI)
-	{
-	  status = sanei_scsi_open (pss->devname, &(pss->fd),
-				    sense_handler, (void *) pss);
-	}
-      else
-	{
-	  status = snapscani_usb_open (pss->devname, &(pss->fd),
-				   sense_handler, (void *) pss);
-	}
+        if(pss->pdev->bus == SCSI)
+        {
+            status = sanei_scsi_open (pss->devname, &(pss->fd),
+                sense_handler, (void *) pss);
+        }
+        else
+        {
+            status = snapscani_usb_open (pss->devname, &(pss->fd));
+        }
     }
     else
     {
-	/* already open */
-	status = SANE_STATUS_GOOD;
+        /* already open */
+        status = SANE_STATUS_GOOD;
     }
     if (status == SANE_STATUS_GOOD)
         pss->opens++;
@@ -179,36 +180,36 @@ static void close_scanner (SnapScan_Scanner *pss)
 {
     DBG (DL_CALL_TRACE, "close_scanner\n");
     if (pss->opens)
-      {
+    {
         pss->opens--;
         if (!pss->opens)
-	  {
-	    if(pss->pdev->bus == SCSI)
-	      {
-		sanei_scsi_close (pss->fd);
-	      }
-	    else if(pss->pdev->bus == USB)
-	      {
-		snapscani_usb_close (pss->fd);
-	      }
-	  }
-      }
+        {
+            if(pss->pdev->bus == SCSI)
+            {
+                sanei_scsi_close (pss->fd);
+            }
+            else if(pss->pdev->bus == USB)
+            {
+                snapscani_usb_close (pss->fd);
+            }
+        }
+    }
 }
 
 static SANE_Status snapscan_cmd(SnapScan_Bus bus, int fd, const void *src,
-				size_t src_size, void *dst, size_t * dst_size)
+                size_t src_size, void *dst, size_t * dst_size)
 {
-  SANE_Status status;
-  DBG (DL_CALL_TRACE, "snapscan_cmd\n");
-  if(bus == USB)
+    SANE_Status status;
+    DBG (DL_CALL_TRACE, "snapscan_cmd\n");
+    if(bus == USB)
     {
-      status = snapscani_usb_cmd(fd, src, src_size, dst, dst_size);
+        status = snapscani_usb_cmd(fd, src, src_size, dst, dst_size);
     }
-  else
+    else
     {
-      status = sanei_scsi_cmd(fd, src, src_size, dst, dst_size);
+        status = sanei_scsi_cmd(fd, src, src_size, dst, dst_size);
     }
-  return status;
+    return status;
 }
 
 /* SCSI commands */
@@ -282,37 +283,39 @@ static void remove_trailing_space (char *s)
          position > 0  &&  ' ' == s[position - 1];
          position--)
     {
-    	/* dummy */;
+        /* dummy */;
     }
     s[position] = 0;
 }
 
-static void check_range (int *v, SANE_Range r) 
+static void check_range (int *v, SANE_Range r)
 {
-    if (*v < r.min) 
-	*v = r.min;
-    if (*v > r.max) 
-	*v = r.max;
+    if (*v < r.min)
+    *v = r.min;
+    if (*v > r.max)
+    *v = r.max;
 }
 
 #define INQUIRY_LEN 6
 #define INQUIRY_RET_LEN 120
 
-#define INQUIRY_VENDOR		8	/* Offset in reply data to vendor name */
-#define INQUIRY_PRODUCT		16	/* Offset in reply data to product id */
-#define INQUIRY_REV		32	/* Offset in reply data to revision level */
-#define INQUIRY_PRL2		36	/* Product Revision Level 2 (AGFA) */
-#define INQUIRY_HCFG		37	/* Hardware Configuration (AGFA) */
-#define INQUIRY_PIX_PER_LINE	42	/* Pixels per scan line (AGFA) */
-#define INQUIRY_BYTE_PER_LINE	44	/* Bytes per scan line (AGFA) */
-#define INQUIRY_NUM_LINES	46	/* number of scan lines (AGFA) */
-#define INQUIRY_OPT_RES		48	/* optical resolution (AGFA) */
-#define INQUIRY_SCAN_SPEED	51	/* scan speed (AGFA) */
-#define INQUIRY_EXPTIME1	52	/* exposure time, first digit (AGFA) */
-#define INQUIRY_EXPTIME2	53	/* exposure time, second digit (AGFA) */
-#define INQUIRY_G2R_DIFF	54	/* green to red difference (AGFA) */
-#define INQUIRY_B2R_DIFF	55	/* green to red difference (AGFA) */
-#define INQUIRY_FIRMWARE	96	/* firmware date and time (AGFA) */
+#define INQUIRY_VENDOR        8    /* Offset in reply data to vendor name */
+#define INQUIRY_PRODUCT        16    /* Offset in reply data to product id */
+#define INQUIRY_REV            32    /* Offset in reply data to revision level */
+#define INQUIRY_PRL2        36    /* Product Revision Level 2 (AGFA) */
+#define INQUIRY_HCFG        37    /* Hardware Configuration (AGFA) */
+#define INQUIRY_HWST        40    /* Hardware status */
+#define INQUIRY_HWMI          41    /* HARDWARE Model ID */
+#define INQUIRY_PIX_PER_LINE    42    /* Pixels per scan line (AGFA) */
+#define INQUIRY_BYTE_PER_LINE    44    /* Bytes per scan line (AGFA) */
+#define INQUIRY_NUM_LINES    46    /* number of scan lines (AGFA) */
+#define INQUIRY_OPT_RES        48    /* optical resolution (AGFA) */
+#define INQUIRY_SCAN_SPEED    51    /* scan speed (AGFA) */
+#define INQUIRY_EXPTIME1    52    /* exposure time, first digit (AGFA) */
+#define INQUIRY_EXPTIME2    53    /* exposure time, second digit (AGFA) */
+#define INQUIRY_G2R_DIFF    54    /* green to red difference (AGFA) */
+#define INQUIRY_B2R_DIFF    55    /* green to red difference (AGFA) */
+#define INQUIRY_FIRMWARE    96    /* firmware date and time (AGFA) */
 
 
 /* a mini-inquiry reads only the first 36 bytes of inquiry data, and
@@ -358,14 +361,100 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
 
     DBG (DL_CALL_TRACE, "%s\n", me);
     status = snapscan_cmd (pss->pdev->bus,
-			   pss->fd,
-			   pss->cmd,
-			   INQUIRY_LEN,
-			   pss->buf,
-			   &pss->read_bytes);
+               pss->fd,
+               pss->cmd,
+               INQUIRY_LEN,
+               pss->buf,
+               &pss->read_bytes);
     CHECK_STATUS (status, me, "snapscan_cmd");
+    /* Download Firmware for USB scanners */
+    if ( (pss->pdev->bus == USB) && (*(pss->buf + INQUIRY_HWST) & 0x02) )
+    {
+        char model[17];
+        int i;
 
+        status = download_firmware(pss);
+        CHECK_STATUS (status, me, "download_firmware");
+        /* send inquiry command again, wait for scanner to initialize */
+        do {
+            status = snapscan_cmd (pss->pdev->bus,
+                pss->fd,
+                pss->cmd,
+                INQUIRY_LEN,
+                pss->buf,
+                &pss->read_bytes);
+            if (status == SANE_STATUS_DEVICE_BUSY) {
+                DBG (DL_INFO, "%s: Waiting for scanner after firmware upload\n",me);
+                sleep(1);
+            }
+        } while (status == SANE_STATUS_DEVICE_BUSY);
+        CHECK_STATUS (status, me, "snapscan_cmd");
+        /* The model identifier will change after firmware upload */
+        memcpy (model, &pss->buf[INQUIRY_PRODUCT], 16);
+        model[16] = 0;
+        DBG (DL_INFO,
+            "%s (after firmware upload): Checking if \"%s\" is a supported scanner\n",
+            me,
+            model);
+        /* Check if it is one of our supported models */
+        pss->pdev->model = UNKNOWN;
+        for (i = 0;  i < known_scanners;  i++)
+        {
+            if (0 == strcasecmp (model, scanners[i].scsi_name))
+            {
+                pss->pdev->model = scanners[i].id;
+                break;
+            }
+        }
+        if (pss->pdev->model == UNKNOWN) {
+            DBG (DL_MINOR_ERROR,
+                "%s (after firmware upload): \"%s\" is not a supported scanner\n",
+                me,
+                model);
+        }
+    }
     /* record current parameters */
+    {
+        char exptime[4] = {' ', '.', ' ', 0};
+        exptime[0] = (char) (pss->buf[INQUIRY_EXPTIME1] + '0');
+        exptime[2] = (char) (pss->buf[INQUIRY_EXPTIME2] + '0');
+        pss->ms_per_line = atof (exptime)*(float) pss->buf[INQUIRY_SCAN_SPEED];
+        DBG (DL_DATA_TRACE, "%s: exposure time: %s ms\n", me, exptime);
+        DBG (DL_DATA_TRACE, "%s: ms per line: %f\n", me, pss->ms_per_line);
+    }
+
+    switch (pss->pdev->model)
+    {
+    case SNAPSCAN300:
+    case ACER300F:
+        pss->chroma_offset[R_CHAN] =
+        pss->chroma_offset[G_CHAN] =
+        pss->chroma_offset[B_CHAN] = 0;
+        pss->chroma = 0;
+        break;
+    default:
+    {
+        signed char min_diff;
+        signed char g = (pss->buf[INQUIRY_G2R_DIFF] & 0x80) ? -(pss->buf[INQUIRY_G2R_DIFF] & 0x7F) : pss->buf[INQUIRY_G2R_DIFF];
+        signed char b = (pss->buf[INQUIRY_B2R_DIFF] & 0x80) ? -(pss->buf[INQUIRY_B2R_DIFF] & 0x7F) : pss->buf[INQUIRY_B2R_DIFF];
+        DBG (DL_DATA_TRACE, "%s: G2R_DIFF: %d\n", me, pss->buf[INQUIRY_G2R_DIFF]);
+        DBG (DL_DATA_TRACE, "%s: B2R_DIFF: %d\n", me, pss->buf[INQUIRY_B2R_DIFF]);
+
+        min_diff = MIN (MIN (b, g), 0);
+
+        pss->chroma_offset[R_CHAN] = (u_char) (0 - min_diff);
+        pss->chroma_offset[G_CHAN] = (u_char) (g - min_diff);
+        pss->chroma_offset[B_CHAN] = (u_char) (b - min_diff);
+        pss->chroma = abs(min_diff);
+        DBG (DL_DATA_TRACE,
+            "%s: Chroma offsets=%d; Red=%u, Green:=%u, Blue=%u\n",
+            me, pss->chroma,
+            pss->chroma_offset[R_CHAN],
+            pss->chroma_offset[G_CHAN],
+            pss->chroma_offset[B_CHAN]);
+        }
+        break;
+    }
 
     pss->actual_res =
         u_char_to_u_short (pss->buf + INQUIRY_OPT_RES);
@@ -374,81 +463,37 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
     pss->bytes_per_line =
         u_char_to_u_short (pss->buf + INQUIRY_BYTE_PER_LINE);
     pss->lines =
-        u_char_to_u_short (pss->buf + INQUIRY_NUM_LINES);
+        u_char_to_u_short (pss->buf + INQUIRY_NUM_LINES) - pss->chroma;
     /* effective buffer size must be a whole number of scan lines */
     if (pss->lines)
-        pss->buf_sz = (SCANNER_BUF_SZ/pss->bytes_per_line)*pss->bytes_per_line;
+        pss->buf_sz = (pss->phys_buf_sz/pss->bytes_per_line)*pss->bytes_per_line;
     else
         pss->buf_sz = 0;
-    pss->bytes_remaining = pss->bytes_per_line*pss->lines;
+    pss->bytes_remaining = pss->bytes_per_line * (pss->lines + pss->chroma);
     pss->expected_read_bytes = 0;
     pss->read_bytes = 0;
     pss->hconfig = pss->buf[INQUIRY_HCFG];
-
-    {
-        char exptime[4] = {' ', '.', ' ', 0};
-        exptime[0] = (char) (pss->buf[INQUIRY_EXPTIME1] + '0');
-        exptime[2] = (char) (pss->buf[INQUIRY_EXPTIME2] + '0');
-        pss->ms_per_line = atof (exptime)*(float) pss->buf[INQUIRY_SCAN_SPEED];
-    }
-
-    switch (pss->pdev->model)
-    {
-    case SNAPSCAN310:
-    case SNAPSCAN600:
-    case SNAPSCAN1236S:
-    case SNAPSCAN1212U:
-    case SNAPSCANE50:
-    case VUEGO310S:		/* WG changed */
-    case VUEGO610S:		/* SJU changed */
-    case PRISA620S:		/* GP added */
-	{
-	    signed char min_diff;
-	    signed char g = (pss->buf[INQUIRY_G2R_DIFF] & 0x80) ? -(pss->buf[INQUIRY_G2R_DIFF] & 0x7F) : pss->buf[INQUIRY_G2R_DIFF];
-	    signed char b = (pss->buf[INQUIRY_B2R_DIFF] & 0x80) ? -(pss->buf[INQUIRY_B2R_DIFF] & 0x7F) : pss->buf[INQUIRY_B2R_DIFF];
-	
-	    min_diff = MIN (MIN (b, g), 0);
-
-	    pss->chroma_offset[R_CHAN] = (u_char) (0 - min_diff);
-	    pss->chroma_offset[G_CHAN] = (u_char) (g - min_diff);
-	    pss->chroma_offset[B_CHAN] = (u_char) (b - min_diff);
-
-	    DBG (DL_VERBOSE,
-	         "%s: Chroma offsets Red:%u, Green:%u Blue:%u\n",
-	         me,
-	         pss->chroma_offset[R_CHAN],
-	         pss->chroma_offset[G_CHAN],
-	         pss->chroma_offset[B_CHAN]);
-	}
-        break;
-    default:
-	pss->chroma_offset[R_CHAN] =
-	pss->chroma_offset[G_CHAN] =
-	pss->chroma_offset[B_CHAN] = 0;
-        break;
-    }
-
     DBG (DL_DATA_TRACE,
-         "%s: pixels per scan line = %lu\n",
-         me,
-	 (u_long) pss->pixels_per_line);
+        "%s: pixels per scan line = %lu\n",
+        me,
+        (u_long) pss->pixels_per_line);
     DBG (DL_DATA_TRACE,
-         "%s: bytes per scan line = %lu\n",
-         me,
-	 (u_long) pss->bytes_per_line);
+        "%s: bytes per scan line = %lu\n",
+        me,
+        (u_long) pss->bytes_per_line);
     DBG (DL_DATA_TRACE,
-         "%s: number of scan lines = %lu\n",
-         me,
-	 (u_long) pss->lines);
+        "%s: number of scan lines = %lu\n",
+        me,
+        (u_long) pss->lines);
     DBG (DL_DATA_TRACE,
          "%s: effective buffer size = %lu bytes, %lu lines\n",
          me,
-	 (u_long) pss->buf_sz,
-         (u_long) (pss->buf_sz ? pss->buf_sz / pss->lines : 0));
+        (u_long) pss->buf_sz,
+        (u_long) (pss->buf_sz ? pss->buf_sz / pss->lines : 0));
     DBG (DL_DATA_TRACE,
-         "%s: expected total scan data: %lu bytes\n",
-         me,
-         (u_long) pss->bytes_remaining);
+        "%s: expected total scan data: %lu bytes\n",
+        me,
+        (u_long) pss->bytes_remaining);
 
     return status;
 }
@@ -456,8 +501,7 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
 static SANE_Status test_unit_ready (SnapScan_Scanner *pss)
 {
     static const char *me = "test_unit_ready";
-    char cmd[] =
-        {TEST_UNIT_READY, 0, 0, 0, 0, 0};
+    char cmd[] = {TEST_UNIT_READY, 0, 0, 0, 0, 0};
     SANE_Status status;
 
     DBG (DL_CALL_TRACE, "%s\n", me);
@@ -477,9 +521,9 @@ static void reserve_unit (SnapScan_Scanner *pss)
     if (status != SANE_STATUS_GOOD)
     {
         DBG (DL_MAJOR_ERROR,
-	     "%s: scsi command error: %s\n",
-             me,
-	     sane_strstatus (status));
+            "%s: scsi command error: %s\n",
+            me,
+            sane_strstatus (status));
     }
 }
 
@@ -494,8 +538,8 @@ static void release_unit (SnapScan_Scanner *pss)
     if (status != SANE_STATUS_GOOD)
     {
         DBG (DL_MAJOR_ERROR,
-	     "%s: scsi command error: %s\n",
-             me, sane_strstatus (status));
+            "%s: scsi command error: %s\n",
+            me, sane_strstatus (status));
     }
 }
 
@@ -521,7 +565,7 @@ static SANE_Status send (SnapScan_Scanner *pss, u_char dtc, u_char dtcq)
 {
     static char me[] = "send";
     SANE_Status status;
-    u_short tl;			/* transfer length */
+    u_short tl;            /* transfer length */
 
     DBG (DL_CALL_TRACE, "%s\n", me);
 
@@ -529,20 +573,20 @@ static SANE_Status send (SnapScan_Scanner *pss, u_char dtc, u_char dtcq)
 
     switch (dtc)
     {
-    case DTC_HALFTONE:		/* halftone mask */
+    case DTC_HALFTONE:        /* halftone mask */
         switch (dtcq)
         {
         case DTCQ_HALFTONE_BW8:
-            tl = 64;		/* bw 8x8 table */
+            tl = 64;        /* bw 8x8 table */
             break;
         case DTCQ_HALFTONE_COLOR8:
-            tl = 3 * 64;	/* rgb 8x8 tables */
+            tl = 3 * 64;    /* rgb 8x8 tables */
             break;
         case DTCQ_HALFTONE_BW16:
-            tl = 256;		/* bw 16x16 table */
+            tl = 256;        /* bw 16x16 table */
             break;
         case DTCQ_HALFTONE_COLOR16:
-            tl = 3 * 256;	/* rgb 16x16 tables */
+            tl = 3 * 256;    /* rgb 16x16 tables */
             break;
         default:
             DBG (DL_MAJOR_ERROR, "%s: bad halftone data type qualifier 0x%x\n",
@@ -550,16 +594,16 @@ static SANE_Status send (SnapScan_Scanner *pss, u_char dtc, u_char dtcq)
             return SANE_STATUS_INVAL;
         }
         break;
-    case DTC_GAMMA:		/* gamma function */
+    case DTC_GAMMA:        /* gamma function */
         switch (dtcq)
         {
-        case DTCQ_GAMMA_GRAY8:	/* 8-bit tables */
+        case DTCQ_GAMMA_GRAY8:    /* 8-bit tables */
         case DTCQ_GAMMA_RED8:
         case DTCQ_GAMMA_GREEN8:
         case DTCQ_GAMMA_BLUE8:
             tl = 256;
             break;
-        case DTCQ_GAMMA_GRAY10:	/* 10-bit tables */
+        case DTCQ_GAMMA_GRAY10:    /* 10-bit tables */
         case DTCQ_GAMMA_RED10:
         case DTCQ_GAMMA_GREEN10:
         case DTCQ_GAMMA_BLUE10:
@@ -571,12 +615,12 @@ static SANE_Status send (SnapScan_Scanner *pss, u_char dtc, u_char dtcq)
             return SANE_STATUS_INVAL;
         }
         break;
-    case DTC_SPEED:		/* static transfer speed */
+    case DTC_SPEED:        /* static transfer speed */
         tl = 2;
         break;
     case DTC_CALIBRATION:
-	tl = calibration_line_length(pss);
-	break;
+    tl = calibration_line_length(pss);
+    break;
     default:
         DBG (DL_MAJOR_ERROR, "%s: unsupported data type code 0x%x\n",
              me, (unsigned) dtc);
@@ -595,42 +639,42 @@ static SANE_Status send (SnapScan_Scanner *pss, u_char dtc, u_char dtcq)
     return status;
 }
 
-#define SET_WINDOW_LEN 			10
-#define SET_WINDOW_HEADER 		10	/* header starts */
-#define SET_WINDOW_HEADER_LEN 		8
-#define SET_WINDOW_DESC 		18	/* window descriptor starts */
-#define SET_WINDOW_DESC_LEN 		48
-#define SET_WINDOW_TRANSFER_LEN 	56
-#define SET_WINDOW_TOTAL_LEN 		66
-#define SET_WINDOW_RET_LEN   		0	/* no returned data */
+#define SET_WINDOW_LEN             10
+#define SET_WINDOW_HEADER         10    /* header starts */
+#define SET_WINDOW_HEADER_LEN         8
+#define SET_WINDOW_DESC         18    /* window descriptor starts */
+#define SET_WINDOW_DESC_LEN         48
+#define SET_WINDOW_TRANSFER_LEN     56
+#define SET_WINDOW_TOTAL_LEN         66
+#define SET_WINDOW_RET_LEN           0    /* no returned data */
 
-#define SET_WINDOW_P_TRANSFER_LEN 	6
-#define SET_WINDOW_P_DESC_LEN 		6
+#define SET_WINDOW_P_TRANSFER_LEN     6
+#define SET_WINDOW_P_DESC_LEN         6
 
-#define SET_WINDOW_P_WIN_ID 		0
-#define SET_WINDOW_P_XRES   		2
-#define SET_WINDOW_P_YRES   		4
-#define SET_WINDOW_P_TLX    		6
-#define SET_WINDOW_P_TLY    		10
-#define SET_WINDOW_P_WIDTH  		14
-#define SET_WINDOW_P_LENGTH 		18
-#define SET_WINDOW_P_BRIGHTNESS   	22
-#define SET_WINDOW_P_THRESHOLD    	23
-#define SET_WINDOW_P_CONTRAST     	24
-#define SET_WINDOW_P_COMPOSITION  	25
-#define SET_WINDOW_P_BITS_PER_PIX 	26
-#define SET_WINDOW_P_HALFTONE_PATTERN  	27
-#define SET_WINDOW_P_PADDING_TYPE      	29
-#define SET_WINDOW_P_BIT_ORDERING      	30
-#define SET_WINDOW_P_COMPRESSION_TYPE  	32
-#define SET_WINDOW_P_COMPRESSION_ARG   	33
-#define SET_WINDOW_P_HALFTONE_FLAG     	35
-#define SET_WINDOW_P_DEBUG_MODE        	40
-#define SET_WINDOW_P_GAMMA_NO          	41
-#define SET_WINDOW_P_OPERATION_MODE    	42
-#define SET_WINDOW_P_RED_UNDER_COLOR   	43
-#define SET_WINDOW_P_BLUE_UNDER_COLOR  	45
-#define SET_WINDOW_P_GREEN_UNDER_COLOR 	44
+#define SET_WINDOW_P_WIN_ID         0
+#define SET_WINDOW_P_XRES           2
+#define SET_WINDOW_P_YRES           4
+#define SET_WINDOW_P_TLX            6
+#define SET_WINDOW_P_TLY            10
+#define SET_WINDOW_P_WIDTH          14
+#define SET_WINDOW_P_LENGTH         18
+#define SET_WINDOW_P_BRIGHTNESS       22
+#define SET_WINDOW_P_THRESHOLD        23
+#define SET_WINDOW_P_CONTRAST         24
+#define SET_WINDOW_P_COMPOSITION      25
+#define SET_WINDOW_P_BITS_PER_PIX     26
+#define SET_WINDOW_P_HALFTONE_PATTERN      27
+#define SET_WINDOW_P_PADDING_TYPE          29
+#define SET_WINDOW_P_BIT_ORDERING          30
+#define SET_WINDOW_P_COMPRESSION_TYPE      32
+#define SET_WINDOW_P_COMPRESSION_ARG       33
+#define SET_WINDOW_P_HALFTONE_FLAG         35
+#define SET_WINDOW_P_DEBUG_MODE            40
+#define SET_WINDOW_P_GAMMA_NO              41
+#define SET_WINDOW_P_OPERATION_MODE        42
+#define SET_WINDOW_P_RED_UNDER_COLOR       43
+#define SET_WINDOW_P_BLUE_UNDER_COLOR      45
+#define SET_WINDOW_P_GREEN_UNDER_COLOR     44
 
 static SANE_Status set_window (SnapScan_Scanner *pss)
 {
@@ -657,11 +701,12 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
     pc[SET_WINDOW_P_WIN_ID] = 0;
     u_short_to_u_charp (pss->res, pc + SET_WINDOW_P_XRES);
     u_short_to_u_charp (pss->res, pc + SET_WINDOW_P_YRES);
+    DBG (DL_CALL_TRACE, "%s Resolution: %d\n", me, pss->res);
 
     /* it's an ugly sound if the scanner drives against the rear
        wall, and with changing max values we better be sure */
-    check_range(&(pss->brx), pss->pdev->x_range);  
-    check_range(&(pss->bry), pss->pdev->y_range);  
+    check_range(&(pss->brx), pss->pdev->x_range);
+    check_range(&(pss->bry), pss->pdev->y_range);
     {
         int tlxp =
             (int) (pss->actual_res*IN_PER_MM*SANE_UNFIX(pss->tlx));
@@ -693,6 +738,8 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
                            pc + SET_WINDOW_P_WIDTH);
         u_int_to_u_char4p (MAX (((unsigned) (bryp - tlyp)), 75),
                            pc + SET_WINDOW_P_LENGTH);
+        DBG (DL_CALL_TRACE, "%s Width:  %d\n", me, brxp-tlxp);
+        DBG (DL_CALL_TRACE, "%s Length: %d\n", me, bryp-tlyp);
     }
     pc[SET_WINDOW_P_BRIGHTNESS] = 128;
     pc[SET_WINDOW_P_THRESHOLD] =
@@ -706,28 +753,28 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
             mode = pss->preview_mode;
 
         bpp = pss->pdev->depths[mode];
-
+        DBG (DL_CALL_TRACE, "%s Mode: %d\n", me, mode);
         switch (mode)
         {
         case MD_COLOUR:
-            pc[SET_WINDOW_P_COMPOSITION] = 0x05;	/* multi-level RGB */
+            pc[SET_WINDOW_P_COMPOSITION] = 0x05;    /* multi-level RGB */
             bpp *= 3;
             break;
         case MD_BILEVELCOLOUR:
             if (pss->halftone)
-                pc[SET_WINDOW_P_COMPOSITION] = 0x04;	/* halftone RGB */
+                pc[SET_WINDOW_P_COMPOSITION] = 0x04;    /* halftone RGB */
             else
-                pc[SET_WINDOW_P_COMPOSITION] = 0x03;	/* bi-level RGB */
+                pc[SET_WINDOW_P_COMPOSITION] = 0x03;    /* bi-level RGB */
             bpp *= 3;
             break;
         case MD_GREYSCALE:
-            pc[SET_WINDOW_P_COMPOSITION] = 0x02;	/* grayscale */
+            pc[SET_WINDOW_P_COMPOSITION] = 0x02;    /* grayscale */
             break;
         default:
             if (pss->halftone)
-                pc[SET_WINDOW_P_COMPOSITION] = 0x01;	/* b&w halftone */
+                pc[SET_WINDOW_P_COMPOSITION] = 0x01;    /* b&w halftone */
             else
-                pc[SET_WINDOW_P_COMPOSITION] = 0x00;	/* b&w (lineart) */
+                pc[SET_WINDOW_P_COMPOSITION] = 0x00;    /* b&w (lineart) */
             break;
         }
 
@@ -737,20 +784,20 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
     /* the RIF bit is the high bit of the padding type */
     pc[SET_WINDOW_P_PADDING_TYPE] = 0x00 /*| (pss->negative ? 0x00 : 0x80) */ ;
     pc[SET_WINDOW_P_HALFTONE_PATTERN] = 0;
-    pc[SET_WINDOW_P_HALFTONE_FLAG] = 0x80;	/* always set; image
-    						   composition
-    						   determines whether
-    						   halftone is
-    						   actually used */
+    pc[SET_WINDOW_P_HALFTONE_FLAG] = 0x80;    /* always set; image
+                                            composition
+                                            determines whether
+                                            halftone is
+                                            actually used */
 
-    u_short_to_u_charp (0x0000, pc + SET_WINDOW_P_BIT_ORDERING);	/* used? */
-    pc[SET_WINDOW_P_COMPRESSION_TYPE] = 0;	/* none */
-    pc[SET_WINDOW_P_COMPRESSION_ARG] = 0;	/* none applicable */
+    u_short_to_u_charp (0x0000, pc + SET_WINDOW_P_BIT_ORDERING);    /* used? */
+    pc[SET_WINDOW_P_COMPRESSION_TYPE] = 0;    /* none */
+    pc[SET_WINDOW_P_COMPRESSION_ARG] = 0;    /* none applicable */
     if(pss->pdev->model != ACER300F
        &&
        pss->pdev->model != SNAPSCAN310
        &&
-       pss->pdev->model != SNAPSCAN1236S
+       pss->pdev->model != SNAPSCAN1236
        &&
        pss->pdev->model != SNAPSCANE50
        &&
@@ -758,22 +805,26 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
        &&
        pss->pdev->model != VUEGO610S)
       {
-	pc[SET_WINDOW_P_DEBUG_MODE] = 2;		/* use full 128k buffer */
-	pc[SET_WINDOW_P_GAMMA_NO] = 0x01;		/* downloaded table */
+    pc[SET_WINDOW_P_DEBUG_MODE] = 2;        /* use full 128k buffer */
+    pc[SET_WINDOW_P_GAMMA_NO] = 0x01;        /* downloaded table */
       }
-    source = 0x20;
-    if (pss->preview) 
-	source |= 0x40; 
-    if (pss->source == SRC_TPO) 
-	source |= 0x08;
+    if (pss->preview) {
+        source = 0x20 + 0x40;
+
+    } else {
+    source = 0x20 + 0x80;
+    }
+    if (pss->source == SRC_TPO)
+    source |= 0x08;
     pc[SET_WINDOW_P_OPERATION_MODE] = source;
-    pc[SET_WINDOW_P_RED_UNDER_COLOR] = 0xff;	/* defaults */
+    DBG (DL_DATA_TRACE, "%s: operation mode set to %d\n", me, (int) source);
+    pc[SET_WINDOW_P_RED_UNDER_COLOR] = 0xff;    /* defaults */
     pc[SET_WINDOW_P_BLUE_UNDER_COLOR] = 0xff;
     pc[SET_WINDOW_P_GREEN_UNDER_COLOR] = 0xff;
 
     DBG (DL_CALL_TRACE, "%s\n", me);
     status = snapscan_cmd (pss->pdev->bus, pss->fd, pss->cmd,
-			   SET_WINDOW_TOTAL_LEN, NULL, NULL);
+               SET_WINDOW_TOTAL_LEN, NULL, NULL);
     CHECK_STATUS (status, me, "snapscan_cmd");
     return status;
 }
@@ -811,7 +862,7 @@ static SANE_Status scsi_read (SnapScan_Scanner *pss, u_char read_type)
     pss->read_bytes = pss->expected_read_bytes;
 
     status = snapscan_cmd (pss->pdev->bus, pss->fd, pss->cmd,
-			     READ_LEN, pss->buf, &pss->read_bytes);
+                 READ_LEN, pss->buf, &pss->read_bytes);
     CHECK_STATUS (status, me, "snapscan_cmd");
     return status;
 }
@@ -828,7 +879,7 @@ static SANE_Status request_sense (SnapScan_Scanner *pss)
 
     DBG (DL_CALL_TRACE, "%s\n", me);
     status = snapscan_cmd (pss->pdev->bus, pss->fd, cmd, sizeof (cmd),
-			   data, &read_bytes);
+               data, &read_bytes);
     if (status != SANE_STATUS_GOOD)
     {
         DBG (DL_MAJOR_ERROR, "%s: scsi command error: %s\n",
@@ -844,12 +895,12 @@ static SANE_Status request_sense (SnapScan_Scanner *pss)
 static SANE_Status send_diagnostic (SnapScan_Scanner *pss)
 {
     static const char *me = "send_diagnostic";
-    u_char cmd[] = {SEND_DIAGNOSTIC, 0x04, 0, 0, 0, 0};	/* self-test */
+    u_char cmd[] = {SEND_DIAGNOSTIC, 0x04, 0, 0, 0, 0};    /* self-test */
     SANE_Status status;
 
-    if (pss->pdev->model == PRISA620S	/* GP added */
+    if (pss->pdev->model == PRISA620S    /* GP added */
         ||
-	pss->pdev->model == VUEGO610S)	/* SJU added */
+    pss->pdev->model == VUEGO610S)    /* SJU added */
     {
         return SANE_STATUS_GOOD;
     }
@@ -859,44 +910,6 @@ static SANE_Status send_diagnostic (SnapScan_Scanner *pss)
     CHECK_STATUS (status, me, "snapscan_cmd");
     return status;
 }
-
-#if 0
-
-/* get_data_buffer_status: fetch the scanner's current data buffer
-   status. If wait == 0, the scanner must respond immediately;
-   otherwise it will wait until there is data available in the buffer
-   before reporting. */
-
-#define GET_DATA_BUFFER_STATUS_LEN 10
-#define DESCRIPTOR_LENGTH 12
-
-static SANE_Status get_data_buffer_status (SnapScan_Scanner *pss, int wait)
-{
-    static const char *me = "get_data_buffer_status";
-    SANE_Status status;
-
-    pss->read_bytes = DESCRIPTOR_LENGTH;	/* one status descriptor only */
-
-    DBG (DL_CALL_TRACE, "%s\n", me);
-
-    zero_buf (pss->cmd, MAX_SCSI_CMD_LEN);
-    pss->cmd[0] = GET_DATA_BUFFER_STATUS;
-
-
-    if (wait)
-        pss->cmd[1] = 0x01;
-    u_short_to_u_charp (DESCRIPTOR_LENGTH, pss->cmd + 7);
-
-    status = snapscan_cmd (pss->pdev->bus, pss->fd,
-                             pss->cmd,
-			     GET_DATA_BUFFER_STATUS_LEN,
-                             pss->buf,
-			     &pss->read_bytes);
-    CHECK_STATUS (status, me, "snapscan_cmd");
-    return status;
-}
-
-#endif
 
 static SANE_Status wait_scanner_ready (SnapScan_Scanner *pss)
 {
@@ -921,7 +934,7 @@ static SANE_Status wait_scanner_ready (SnapScan_Scanner *pss)
                 {
                     int delay = pss->asi1 + 1;
                     DBG (DL_INFO,
-		         "%s: scanner warming up. Waiting %ld seconds.\n",
+                 "%s: scanner warming up. Waiting %ld seconds.\n",
                          me, (long) delay);
                     sleep (delay);
                 }
@@ -961,12 +974,12 @@ static SANE_Status read_calibration_data (SnapScan_Scanner *pss, void *buf, u_ch
     read_bytes = expected_read_bytes;
 
     status = snapscan_cmd (pss->pdev->bus, pss->fd, pss->cmd,
-			     READ_LEN, buf, &read_bytes);
+                 READ_LEN, buf, &read_bytes);
     CHECK_STATUS (status, me, "snapscan_cmd");
 
     if(read_bytes != expected_read_bytes) {
-	DBG (DL_MAJOR_ERROR, "%s: read %d of %d calibration data\n", me, read_bytes, expected_read_bytes);
-	return SANE_STATUS_IO_ERROR;
+    DBG (DL_MAJOR_ERROR, "%s: read %d of %d calibration data\n", me, read_bytes, expected_read_bytes);
+    return SANE_STATUS_IO_ERROR;
     }
 
     return SANE_STATUS_GOOD;
@@ -981,43 +994,188 @@ static SANE_Status calibrate (SnapScan_Scanner *pss)
     SANE_Status status;
     int line_length = calibration_line_length(pss);
 
-    buf = (u_char *) malloc(NUM_CALIBRATION_LINES * line_length);
-    if (!buf)
-    {
-        DBG (DL_MAJOR_ERROR, "%s: out of memory allocating calibration, %d bytes.", me, NUM_CALIBRATION_LINES * line_length);
-        return SANE_STATUS_NO_MEM;
+    if (pss->hconfig & HCFG_CAL_ALLOWED) {
+        buf = (u_char *) malloc(NUM_CALIBRATION_LINES * line_length);
+        if (!buf)
+        {
+                DBG (DL_MAJOR_ERROR, "%s: out of memory allocating calibration, %d bytes.", me, NUM_CALIBRATION_LINES * line_length);
+                return SANE_STATUS_NO_MEM;
+        }
+
+        DBG (DL_MAJOR_ERROR, "%s: reading calibration data\n", me);
+        status = read_calibration_data(pss, buf, NUM_CALIBRATION_LINES);
+        CHECK_STATUS(status, me, "read_calibration_data");
+
+        for(c=0; c < line_length; c++) {
+        u_int sum = 0;
+        for(r=0; r < NUM_CALIBRATION_LINES; r++) {
+                sum += buf[c + r * line_length];
+        }
+        pss->buf[c + SEND_LENGTH] = sum / NUM_CALIBRATION_LINES;
+        }
+
+        status = send (pss, DTC_CALIBRATION, 1);
+        CHECK_STATUS(status, me, "send calibration");
     }
-
-    DBG (DL_MAJOR_ERROR, "%s: reading calibration data\n", me);
-    status = read_calibration_data(pss, buf, NUM_CALIBRATION_LINES);
-    CHECK_STATUS(status, me, "read_calibration_data");
-
-/*    status = test_unit_ready (pss);
-      CHECK_STATUS(status, me, "test unit ready");*/
-
-    for(c=0; c < line_length; c++) {
-	u_int sum = 0;
-	for(r=0; r < NUM_CALIBRATION_LINES; r++) {
-	    sum += buf[c + r * line_length];
-	}
-	pss->buf[c + SEND_LENGTH] = sum / NUM_CALIBRATION_LINES;
-    }
-
-    status = send (pss, DTC_CALIBRATION, 1);
-    CHECK_STATUS(status, me, "send calibration");
-
-/*    status = test_unit_ready (pss);
-      CHECK_STATUS(status, me, "test unit ready");*/
-
     return SANE_STATUS_GOOD;
+}
+
+static SANE_Status get_firmware_name(char** firmware_path)
+{
+    char line[PATH_MAX];
+    char found = 0;
+    FILE *fp;
+    SANE_Status status = SANE_STATUS_GOOD;
+    char* me = "get_firmware_name";
+
+    fp = sanei_config_open (SNAPSCAN_CONFIG_FILE);
+    if (!fp)
+    {
+        DBG (0,
+             "%s: configuration file not found.\n",
+             me);
+        status = SANE_STATUS_INVAL;
+    }
+    else
+    {
+        while (sanei_config_read (line, sizeof (line), fp))
+        {
+            if (line[0] == '#')    /* ignore line comments */
+                continue;
+            if (!strlen(line))
+                continue;        /* ignore empty lines */
+            if (strncasecmp(line, FIRMWARE_KW, strlen(FIRMWARE_KW)) == 0)
+            {
+                found = 1;
+                break;
+            }
+        }
+        fclose (fp);
+    }
+    if (found)
+    {
+        sanei_config_get_string(line + strlen(FIRMWARE_KW), firmware_path);
+        if (*firmware_path == NULL)
+        {
+            DBG (0, "%s: Illegal firmware entry %s.\n", me, line);
+            status = SANE_STATUS_INVAL;
+        }
+    }
+    else
+    {
+        DBG (0, "%s: No firmware entry found in config file %s.\n", me, SNAPSCAN_CONFIG_FILE);
+        status = SANE_STATUS_INVAL;
+    }
+    return status;
+}
+
+static SANE_Status download_firmware(SnapScan_Scanner * pss)
+{
+    char *pFwBuf, *pCDB;
+    char* firmware_path = NULL;
+    FILE *fd;
+    size_t bufLength,cdbLength;
+    SANE_Status status;
+    char cModelName[8], cModel[255];
+    unsigned char bModelNo;
+    int readByte;
+
+    bModelNo =*(pss->buf + INQUIRY_HWMI);
+    zero_buf(cModel, 255);
+    sprintf(cModelName, "%d", bModelNo);
+    DBG(DL_INFO, "Looking up %s\n", cModelName);
+    status = get_firmware_name(&firmware_path);
+    if (status == SANE_STATUS_GOOD)
+    {
+        cdbLength = 10;
+        DBG(DL_INFO, "Downloading %s\n", firmware_path);
+        fd = fopen(firmware_path,"r");
+        if(fd == NULL)
+        {
+            DBG (0, "Cannot open firmware file %s\n", firmware_path);
+            status = SANE_STATUS_INVAL;
+        }
+        else
+        {
+            switch (pss->pdev->model)
+            {
+            case VUEGO610S:
+            case VUEGO310S:
+            case PRISA620S:
+            case PRISA1240:
+            case PRISA640:
+            case PRISA4300:
+            case PRISA4300_2:
+            case PRISA5300:
+                /* ACER firmware files do not contain an info block */
+                fseek(fd, 0, SEEK_END);
+                bufLength = ftell(fd);
+                fseek(fd, 0, SEEK_SET);
+                break;
+            default:
+                /* AGFA firmware files contain an info block which
+                   specifies the length of the firmware data. The
+                   length information is stored at offset 0x5e from
+                   end of file */
+                {
+                    unsigned char size_l, size_h;
+                    fseek(fd, -0x5e, SEEK_END);
+                    fread(&size_l, 1, 1, fd);
+                    fread(&size_h, 1, 1, fd);
+                    fseek(fd, 0, SEEK_SET);
+                    bufLength = (size_h << 8) + size_l;
+                }
+                break;
+            }
+
+            DBG(DL_INFO, "Size of firmware: %d\n", bufLength);
+            pCDB = (char *)malloc(bufLength + cdbLength);
+            pFwBuf = pCDB + cdbLength;
+            zero_buf (pCDB, cdbLength);
+            readByte = fread(pFwBuf,1,bufLength,fd);
+
+            *pCDB = SEND;
+            *(pCDB + 2) = 0x87;
+            *(pCDB + 6) = (bufLength >> 16) & 0xff;
+            *(pCDB + 7) = (bufLength >> 8) & 0xff;
+            *(pCDB + 8) = bufLength  & 0xff;
+
+            status = snapscan_cmd (
+                pss->pdev->bus, pss->fd, pCDB, bufLength+cdbLength, NULL, NULL);
+
+            free(pCDB);
+            fclose(fd);
+        }
+        free(firmware_path);
+    }
+    return status;
 }
 
 /*
  * $Log$
- * Revision 1.4  2001/05/26 12:47:30  hmg
- * Updated snapscan backend to version 1.2 (from
- * Sebastien Sable <Sebastien.Sable@snv.jussieu.fr>).
- * Henning Meier-Geinitz <henning@meier-geinitz.de>
+ * Revision 1.5  2001/10/09 09:45:10  oliverschwartz
+ * update snapscan to snapshot 20011008
+ *
+ * Revision 1.17  2001/10/08 19:26:01  oliverschwartz
+ * - Disable quality calibration for scanners that do not support it
+ *
+ * Revision 1.16  2001/10/08 18:22:01  oliverschwartz
+ * - Disable quality calibration for Acer Vuego 310F
+ * - Use sanei_scsi_max_request_size as scanner buffer size
+ *   for SCSI devices
+ * - Added new devices to snapscan.desc
+ *
+ * Revision 1.15  2001/09/18 15:01:07  oliverschwartz
+ * - Read scanner id string again after firmware upload
+ *   to indentify correct model
+ * - Make firmware upload work for AGFA scanners
+ * - Change copyright notice
+ *
+ * Revision 1.14  2001/09/17 10:01:08  sable
+ * Added model AGFA 1236U
+ *
+ * Revision 1.13  2001/09/09 18:06:32  oliverschwartz
+ * add changes from Acer (new models; automatic firmware upload for USB scanners); fix distorted colour scans after greyscale scans (call set_window only in sane_start); code cleanup
  *
  * Revision 1.12  2001/04/10 13:00:31  sable
  * Moving sanei_usb_* to snapscani_usb*
@@ -1069,8 +1227,8 @@ static SANE_Status calibrate (SnapScan_Scanner *pss)
  * Revision 1.1.2.3  2000/07/17 21:37:27  hmg
  * 2000-07-17  Henning Meier-Geinitz <hmg@gmx.de>
  *
- * 	* backend/snapscan.c backend/snapscan-scsi.c: Replace C++ comment
- * 	  with C comment.
+ *     * backend/snapscan.c backend/snapscan-scsi.c: Replace C++ comment
+ *       with C comment.
  *
  * Revision 1.1.2.2  2000/07/13 04:47:44  pere
  * New snapscan backend version dated 20000514 from Steve Underwood.

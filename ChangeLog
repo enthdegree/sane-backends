@@ -3,6 +3,7 @@
 	* backend/mustek.c doc/descriptions/mustek.desc 
 	  doc/mustek/mustek.CHANGES: Fixed color three-pass scanning for some
 	  scanners.
+	* PROJECTS: Added Hewlett-Packard ScanJet 2200c project.
 
 2002-04-02  Peter Fales <peter@fales.com>
 

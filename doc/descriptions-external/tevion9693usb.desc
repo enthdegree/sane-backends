@@ -10,7 +10,7 @@
 ;
 
 :backend "tevion9693usb"                        ; name of backend
-:version "0.0.9"                                ; version of backend
+:version "0.0.10"                                ; version of backend
 :status :alpha                                    ; :alpha, :beta, :stable, :new
 :url "http://www.angelfire.com/linux/crapsite/" ; backend's web page
 
@@ -37,5 +37,10 @@
 :interface "USB"
 :comment "Apparently the same device like Tevion/Medion."
 
+:mfg "Trust"
+:url "http://www.trust-site.com"
+:model "Easy Webscan 19200"
+:interface "USB"
+:comment "Different product id: 0x4006; please modify tevion9693usb.conf"
 
 

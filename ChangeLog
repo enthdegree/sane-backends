@@ -13,7 +13,8 @@
 	  recent changes in the backends.
 	* include/sane/sanei_scsi.h include/sane/sanei_wire.h:  Changed
 	  license to GPL + SANE exception.
-
+	* TODO: Added canon630u SANE_I18N and include file license
+	  problem. Updated .desc file section.
 	
 2003-07-24  Peter Kirchgessner <peter@kirchgessner.net>
 

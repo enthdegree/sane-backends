@@ -1,4 +1,4 @@
-TODO (2003-07-21)
+TODO (2003-07-25)
 
 ******** todo ********
 
@@ -72,6 +72,9 @@ backends
   * avision: Add patch for using the --source option from priya
    <priyag@newgen.co.in> (?)
 
+  * Don't mark option names with SANE_I18N (see po/README for details):
+    - canon630u.c ("cal")
+
 doc
 ---
   * Add doxygen documentation for the remaining sanei files:
@@ -85,9 +88,9 @@ doc
     - umax, artec_eplus48u: http://www.umax.com.tw/ times out?
     - plustek: add Genius ColorPage HR6X EPP as supported
     - Change all description files to use the new status keyword:
-      avision, canon, canon_pp, canon630u, coolscan2, fujitsu,
-      hp, hp5400, hpsj5s, microtek, microtek2, mustek_pp,
-      plustek, sharp, snapscan, st400, umax1220u.
+      avision, canon, canon630u, coolscan2, fujitsu,
+      hp, hp5400, hpsj5s, microtek, microtek2,
+      plustek, sharp, st400, umax1220u.
 
   * manpages:
     - html manpages have broken links to other man pages if link is wrapped at
@@ -176,6 +179,17 @@ misc
 
   * configure/libtool: find a simple way to avoid all the unneccessary tests
     for c++ and fortran.
+
+  * Check the license of these files, they don't contain the SANE exception:
+      include/sane/sanei.h 		David Mosberger-Tang and Andreas Beck
+      include/sane/sanei_codec_ascii.h  David Mosberger-Tang and Andreas Beck
+      include/sane/sanei_codec_bin.h	David Mosberger-Tang and Andreas Beck 
+      include/sane/saneopts.h		David Mosberger-Tang and Andreas Beck
+   Probably just forgotten to move from GPL to GPL+SANE.
+      include/lalloca.h			The Free Software Foundation			
+      include/lassert.h			Henning Meier-Geinitz, FSF(?)
+      sanei/linux_sg3_err.h		? (somewhere from the linux kernel or sg tools?)		
+   External files. Check for replacements. Are they necessary at all?
 
 
 ******** done ********

@@ -21,6 +21,7 @@ The scanners that should work with this backend are:
 ----------------------  --------------  -----------
 .br
 
+  Mustek ScanMagic 4830S   VM3575        untested
   Primax Jewel 4800        VM356A         tested
   Primax Profi 9600        VM6575         tested
   Primax Profi 19200       VM6586         tested
@@ -169,10 +170,13 @@ sane\-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
 
 .SH AUTHORS
 
-The package is actively maintained by Frank Zago.
+The package is actively maintained by Frank Zago, Gerard Klaver.
     http://www.zago.net/sane/#teco2
+    http://gkall.hobby.nl/index.html
+
 
 Gerard Klaver contributed a patch to support the VM3564 and VM356A.
+
 
 .SH CREDITS
 

@@ -44,7 +44,7 @@
 
 /* Please increase version number with every change 
    (don't forget to update dll.desc) */
-#define DLL_VERSION "1.0.7"
+#define DLL_VERSION "1.0.8"
 
 #ifdef _AIX
 # include "lalloca.h"   /* MUST come first for AIX! */
@@ -514,6 +514,11 @@ add_alias (const char *line_param)
   command = sanei_config_skip_whitespace(line_param);
   if( !*command )
     return;
+
+  line = strchr (command, '#');
+  if (line)
+    *line = '\0';
+
   line = strpbrk(command, " \t");
   if( !line )
     return;
@@ -587,7 +592,8 @@ add_alias (const char *line_param)
 SANE_Status
 sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
-  char backend_name[PATH_MAX];
+  char config_line[PATH_MAX];
+  char *backend_name;
   size_t len;
   FILE *fp;
   int i;
@@ -623,16 +629,30 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
       return SANE_STATUS_GOOD;    /* don't insist on config file */
     }
 
-  while (sanei_config_read (backend_name, sizeof (backend_name), fp))
+  while (sanei_config_read (config_line, sizeof (config_line), fp))
     {
-      if (backend_name[0] == '#')       /* ignore line comments */
-        continue;
-      len = strlen (backend_name);
+      char * cp, * comment;
 
-      if (!len)
-        continue;               /* ignore empty lines */
-
+      cp = sanei_config_get_string (config_line, &backend_name);
+      /* ignore empty lines */
+      if (!backend_name || cp == config_line)
+        {
+          if (backend_name)
+            free (backend_name);
+          continue;
+        }
+      /* ignore line comments */
+      if (backend_name[0] == '#')
+        {
+          free (backend_name);
+          continue;
+        }
+      /* ignore comments after backend names */
+      comment = strchr (backend_name, '#'); 
+      if (comment)
+	*comment = '\0';
       add_backend (backend_name, 0);
+      free (backend_name);
     }
   fclose (fp);
 
@@ -640,16 +660,16 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   if (!fp)
     return SANE_STATUS_GOOD;    /* don't insist on aliases file */
 
-  while (sanei_config_read (backend_name, sizeof (backend_name), fp))
+  while (sanei_config_read (config_line, sizeof (config_line), fp))
     {
-      if (backend_name[0] == '#')       /* ignore line comments */
+      if (config_line[0] == '#')       /* ignore line comments */
         continue;
-      len = strlen (backend_name);
 
+      len = strlen (config_line);
       if (!len)
         continue;               /* ignore empty lines */
 
-      add_alias (backend_name);
+      add_alias (config_line);
     }
   fclose (fp);
   return SANE_STATUS_GOOD;

@@ -1,14 +1,14 @@
-.TH sane-dll 5 "11 Nov 2001" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-dll 5 "4 Dec 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-dll
 .SH NAME
 sane-dll \- SANE dynamic backend loader
 .SH DESCRIPTION
 The
-.B sane\-dll
+.B sane-dll
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to an arbitrary number of other SANE backends.  These
 backends may either be pre-loaded at the time the
-.B sane\-dll
+.B sane-dll
 library is built or, on systems that support dynamic loading of shared
 libraries, the backends may be loaded at runtime.  In the latter case,
 adding support for a new backend simply involves installing the
@@ -39,9 +39,9 @@ pre-loaded backend (if any).
 .SH CONFIGURATION
 The contents of the
 .I dll.conf
-file is a list of backend names that may be loaded dynamically
-upon demand.  Empty lines and lines starting with a hash mark (#) are
-ignored.  A sample configuration file is shown below:
+file is a list of backend names that may be loaded dynamically upon demand.
+Empty lines are ignored, also everything after a hash mark (#). A sample
+configuration file is shown below:
 .PP
 .RS
 net
@@ -143,7 +143,7 @@ a value of 128 requests all debug output to be printed.  Smaller
 levels reduce verbosity. 
 
 .nf                                                                            
-Value  Descsription
+Value  Description
 0      print severe errors only
 1      print normal errors and important messages
 2      print normal messages
@@ -155,6 +155,9 @@ export SANE_DEBUG_DLL=3
 
 
 .SH "SEE ALSO"
-sane(7), scanimage(1), sane\-"backendname"(5)
+.BR sane (7),
+.BR scanimage (1),
+.BR sane-"backendname" (5)
+
 .SH AUTHOR
 David Mosberger

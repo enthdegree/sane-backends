@@ -257,7 +257,6 @@ struct snapscan_scanner
     int fd;                    /* scsi file descriptor */
     int opens;                /* open count */
     SANE_String tmpfname;    /* temporary file name */
-    int tfd;                /* temp file descriptor */
     int rpipe[2];            /* reader pipe descriptors */
     int orig_rpipe_flags;    /* initial reader pipe flags */
     pid_t child;            /* child reader process pid */
@@ -325,8 +324,11 @@ struct snapscan_scanner
 
 /*
  * $Log$
- * Revision 1.8  2001/12/17 22:51:52  oliverschwartz
- * Update to snapscan-20011212 (snapscan 1.4.3)
+ * Revision 1.9  2001/12/18 18:34:17  oliverschwartz
+ * Update to snapscan-20011218 (snapscan 1.4.3)
+ *
+ * Revision 1.25  2001/12/18 18:28:35  oliverschwartz
+ * Removed temporary file
  *
  * Revision 1.24  2001/12/12 19:44:59  oliverschwartz
  * Clean up CVS log

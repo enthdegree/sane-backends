@@ -1407,32 +1407,6 @@ SANE_Status sane_open (SANE_String_Const name, SANE_Handle * h)
                 return SANE_STATUS_NO_MEM;
             }
 
-            /* temp file name and the temp file */
-            {
-                char tname[128];
-                snprintf (tname,
-                          sizeof (tname),
-                          TMP_FILE_PREFIX "-%p",
-                          (void *) pss);
-                if ((pss->tfd = open (tname, O_CREAT | O_RDWR | O_TRUNC, 0600)) == -1)
-                {
-                    char str[200];
-                    snprintf (str, sizeof (str), "Can't open temp file %s", tname);
-                    DBG (DL_MAJOR_ERROR, "%s: %s\n", me, str);
-                    perror (str);
-                    free (*h);
-                    return SANE_STATUS_ACCESS_DENIED;
-                }
-                unlink (tname);
-                pss->tmpfname = strdup (tname);
-                if (!pss->tmpfname)
-                {
-                    DBG (DL_MAJOR_ERROR, "%s: can't duplicate temp file name\n", me);
-                    free (*h);
-                    return SANE_STATUS_NO_MEM;
-                }
-            }
-
             DBG (DL_VERBOSE,
                  "%s: allocated scanner structure at %p\n",
                  me,
@@ -1536,7 +1510,6 @@ void sane_close (SANE_Handle h)
         break;
     }
     close_scanner (pss);
-    close (pss->tfd);
     free (pss->tmpfname);
     free (pss->gamma_tables);
     free (pss->buf);
@@ -3128,8 +3101,11 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
- * Revision 1.11  2001/12/17 22:51:51  oliverschwartz
- * Update to snapscan-20011212 (snapscan 1.4.3)
+ * Revision 1.12  2001/12/18 18:34:16  oliverschwartz
+ * Update to snapscan-20011218 (snapscan 1.4.3)
+ *
+ * Revision 1.34  2001/12/18 18:28:35  oliverschwartz
+ * Removed temporary file
  *
  * Revision 1.33  2001/12/12 19:43:30  oliverschwartz
  * - Set version number to 1.4.3

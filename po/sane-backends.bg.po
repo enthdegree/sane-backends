@@ -5,10 +5,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2003-07-28 17:21+0200\n"
-"PO-Revision-Date: \n"
-"Last-Translator: Pavel Constantinov, pavelconstantinov@bigfoot.com\n"
-"Language-Team: \n"
+"POT-Creation-Date: 2003-07-29 22:47+0200\n"
+"PO-Revision-Date: 2003-07-29 23:28+0100\n"
+"Last-Translator: Pavel Constantinov <pavelconstantinov@bigfoot.com>\n"
+"Language-Team:  <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -16,13 +16,11 @@ msgstr ""
 #: .tmp/artec_eplus48u.c:153 .tmp/gt68xx.c:118 .tmp/hp-option.c:2874
 #: .tmp/ma1509.c:101 .tmp/mustek.c:125 .tmp/mustek.c:130 .tmp/mustek_usb.c:270
 #: .tmp/sceptre.h:297 .tmp/snapscan.c:160 .tmp/umax.c:189 .tmp/umax_pp.c:133
-#, fuzzy
 msgid "Lineart"
 msgstr "Lineart"
 
 #: .tmp/artec_eplus48u.c:154 .tmp/hp-option.c:2876 .tmp/leo.h:269
 #: .tmp/teco1.h:299 .tmp/teco2.h:359 .tmp/teco3.h:303 .tmp/umax_pp.c:133
-#, fuzzy
 msgid "Grayscale"
 msgstr "В сива скала"
 
@@ -61,7 +59,6 @@ msgid "Geometry"
 msgstr "Геометрия"
 
 #: .tmp/artec_eplus48u.c:2936
-#, fuzzy
 msgid "Calibration"
 msgstr "Калибрация"
 
@@ -105,25 +102,21 @@ msgstr "Избира номера на кадъра за сканиране"
 
 #: .tmp/canon630u.c:157
 msgid "cal"
-msgstr ""
+msgstr "кал."
 
 #: .tmp/canon630u.c:158
-#, fuzzy
 msgid "Calibrate Scanner"
 msgstr "Калибрирай скенера"
 
 #: .tmp/canon630u.c:159
-#, fuzzy
 msgid "Force scanner calibration before scan"
 msgstr "Задължителна калибрация преди сканиране"
 
 #: .tmp/canon630u.c:257
-#, fuzzy
 msgid "gray"
 msgstr "сиво"
 
 #: .tmp/canon630u.c:258 .tmp/umax1220u.c:207
-#, fuzzy
 msgid "Grayscale scan"
 msgstr "Сканиране в сива скала"
 
@@ -136,7 +129,6 @@ msgid "gain"
 msgstr "увеличение"
 
 #: .tmp/canon630u.c:305
-#, fuzzy
 msgid "Analog Gain"
 msgstr "Аналогово увеличение"
 
@@ -145,17 +137,14 @@ msgid "Increase or decrease the analog gain of the CCD array"
 msgstr "Повиши или намали аналоговото увеличение на CCD матрицата"
 
 #: .tmp/canon630u.c:345
-#, fuzzy
 msgid "gamma"
 msgstr "Гама"
 
 #: .tmp/canon630u.c:346 .tmp/epson.h:68
-#, fuzzy
 msgid "Gamma Correction"
 msgstr "Корекция на гамата"
 
 #: .tmp/canon630u.c:347
-#, fuzzy
 msgid "Selects the gamma corrected transfer curve"
 msgstr "Избира кривата на коригираната гама"
 
@@ -176,7 +165,6 @@ msgid "Flatbed"
 msgstr "Flatbed"
 
 #: .tmp/epson.c:466
-#, fuzzy
 msgid "Transparency Unit"
 msgstr "Прозрачност"
 
@@ -189,9 +177,8 @@ msgid "Positive Film"
 msgstr "Позитивен екран"
 
 #: .tmp/epson.c:488
-#, fuzzy
 msgid "Negative Film"
-msgstr "Негативен екран"
+msgstr "Негативен филм"
 
 #: .tmp/epson.c:494
 msgid "Focus on glass"
@@ -208,7 +195,6 @@ msgid "None"
 msgstr "Нищо"
 
 #: .tmp/epson.c:522 .tmp/epson.c:530 .tmp/epson.c:542
-#, fuzzy
 msgid "Halftone A (Hard Tone)"
 msgstr "Полутон A (Твърд тон)"
 
@@ -217,7 +203,6 @@ msgid "Halftone B (Soft Tone)"
 msgstr "Полутон B (Мек тон)"
 
 #: .tmp/epson.c:524 .tmp/epson.c:532 .tmp/epson.c:544
-#, fuzzy
 msgid "Halftone C (Net Screen)"
 msgstr "Полутон C (Net Screen)"
 
@@ -242,7 +227,6 @@ msgid "Text Enhanced Technology"
 msgstr "Технология за оконтрастиране на текста"
 
 #: .tmp/epson.c:550
-#, fuzzy
 msgid "Download pattern A"
 msgstr "Свали десен B"
 
@@ -263,7 +247,6 @@ msgid "Blue"
 msgstr "Синьо"
 
 #: .tmp/epson.c:596
-#, fuzzy
 msgid "No Correction"
 msgstr "Без корекция"
 
@@ -284,7 +267,6 @@ msgid "Ink-jet printers"
 msgstr "Мастиленоструйни принтери"
 
 #: .tmp/epson.c:601
-#, fuzzy
 msgid "CRT monitors"
 msgstr "CRT монитори"
 
@@ -334,7 +316,7 @@ msgstr "A4"
 
 #: .tmp/epson.c:720
 msgid "max"
-msgstr ""
+msgstr "макс."
 
 #: .tmp/epson.c:2362 .tmp/gt68xx.c:432 .tmp/ma1509.c:499
 #: .tmp/matsushita.c:1044 .tmp/microtek2.h:609 .tmp/mustek.c:4109
@@ -365,7 +347,6 @@ msgid "Sharpness"
 msgstr "Острота"
 
 #: .tmp/epson.c:2575
-#, fuzzy
 msgid "Color correction"
 msgstr "Цветова корекция."
 
@@ -390,12 +371,10 @@ msgid "Shift green to blue"
 msgstr "Измести зелено към синьо"
 
 #: .tmp/epson.c:2635
-#, fuzzy
 msgid "Shift red to green"
 msgstr "Измести червено към зелено"
 
 #: .tmp/epson.c:2637
-#, fuzzy
 msgid "Shift red to blue"
 msgstr "Измести червено към синьо"
 
@@ -456,7 +435,6 @@ msgid "Mirror the image."
 msgstr "Направи огледален образ на изображението"
 
 #: .tmp/epson.c:2758 .tmp/epson.c:2770
-#, fuzzy
 msgid "Speed"
 msgstr "Скорост"
 
@@ -465,7 +443,6 @@ msgid "Auto area segmentation"
 msgstr "Автоматична сегментация на площ"
 
 #: .tmp/epson.c:2794
-#, fuzzy
 msgid "Short resolution list"
 msgstr "Кратък списък резолюции"
 
@@ -548,7 +525,6 @@ msgstr ""
 
 #: .tmp/gt68xx.c:124 .tmp/ma1509.c:106 .tmp/mustek.c:156 .tmp/snapscan.c:164
 #: .tmp/umax.c:186
-#, fuzzy
 msgid "Transparency Adapter"
 msgstr "Адаптиране на прозрачността"
 
@@ -589,7 +565,6 @@ msgstr ""
 "Не избирайте цялата височина. Тази опция е само за тестване."
 
 #: .tmp/gt68xx.c:549
-#, fuzzy
 msgid "Coarse calibration"
 msgstr "Груба калибрация"
 
@@ -599,6 +574,9 @@ msgid ""
 "disabled, options for setting the analog frontend parameters manually are "
 "provided. This option is enabled by default. For testing only."
 msgstr ""
+"Автоматична настройка на офсет и увеличение при сканиране. Ако тази опция е "
+"забранена, има опции за ръчната нагласа на аналоговите параметри на "
+"фронтенда. Тази опция е разрешена по подразбиране. Само за тестване."
 
 #: .tmp/gt68xx.c:563
 msgid "Coarse calibration for first scan only"
@@ -610,9 +588,11 @@ msgid ""
 "and can save scanning time. If the image brightness is different with each "
 "scan, disable this option. For testing only."
 msgstr ""
+"Грубата калибрация се прави само за първото сканиране. Работи с всички "
+"скенери и пести време. Ако яркостта на изображението е различна при всяко "
+"сканиране, забранете тази опция. Само за тестване"
 
 #: .tmp/gt68xx.c:585 .tmp/mustek.c:4238
-#, fuzzy
 msgid "Fast preview"
 msgstr "Бързо превю"
 
@@ -630,10 +610,9 @@ msgstr "Стойност на гамата"
 
 #: .tmp/gt68xx.c:604
 msgid "Sets the gamma value of all channels."
-msgstr ""
+msgstr "Наглася стойността на гамата за всички канали."
 
 #: .tmp/gt68xx.c:626
-#, fuzzy
 msgid "Gain correction"
 msgstr "Увеличение на корекцията"
 
@@ -646,7 +625,6 @@ msgstr ""
 "за прекалено светли или тъмни изображения."
 
 #: .tmp/gt68xx.c:639
-#, fuzzy
 msgid "Offset correction"
 msgstr "Офсетова корекция"
 
@@ -664,63 +642,55 @@ msgid "Halftone"
 msgstr "Полутон"
 
 #: .tmp/hp-option.c:2988
-#, fuzzy
 msgid "Coarse"
 msgstr "8х8 грубо"
 
 #: .tmp/hp-option.c:2989
-#, fuzzy
 msgid "Fine"
 msgstr "Име на файла"
 
 #: .tmp/hp-option.c:2990
-#, fuzzy
 msgid "Bayer"
-msgstr "Bay"
+msgstr "Bayer"
 
 #: .tmp/hp-option.c:2991
-#, fuzzy
 msgid "Vertical"
 msgstr "8x8 вертикална черта"
 
 #: .tmp/hp-option.c:2992
 msgid "Horizontal"
-msgstr ""
+msgstr "Хоризонтално"
 
 #: .tmp/hp-option.c:2993 .tmp/hp-option.c:3044
-#, fuzzy
 msgid "Custom"
 msgstr "8х8 по избор"
 
 #: .tmp/hp-option.c:3034 .tmp/hp-option.c:3090 .tmp/hp-option.c:3105
-#, fuzzy
 msgid "Auto"
-msgstr "Автоматично"
+msgstr "Авто"
 
 #: .tmp/hp-option.c:3035
 msgid "NTSC RGB"
-msgstr ""
+msgstr "NTSC RGB"
 
 #: .tmp/hp-option.c:3036
 msgid "XPA RGB"
-msgstr ""
+msgstr "XPA RGB"
 
 #: .tmp/hp-option.c:3037
+#, fuzzy
 msgid "Pass-through"
-msgstr ""
+msgstr "Pass-through"
 
 #: .tmp/hp-option.c:3038
-#, fuzzy
 msgid "NTSC Gray"
 msgstr "Сиво"
 
 #: .tmp/hp-option.c:3039
-#, fuzzy
 msgid "XPA Gray"
 msgstr "Сиво"
 
 #: .tmp/hp-option.c:3091
-#, fuzzy
 msgid "Slow"
 msgstr "По-бавно"
 
@@ -730,43 +700,40 @@ msgid "Normal"
 msgstr "Нормално"
 
 #: .tmp/hp-option.c:3093
-#, fuzzy
 msgid "Fast"
 msgstr "По-бързо"
 
 #: .tmp/hp-option.c:3094
 msgid "Extra Fast"
-msgstr ""
+msgstr "Екстра бързо"
 
 #: .tmp/hp-option.c:3106 .tmp/hp-option.c:3273 .tmp/hp-option.c:3286
 msgid "Off"
-msgstr ""
+msgstr "Изкл."
 
 #: .tmp/hp-option.c:3107
 msgid "2-pixel"
-msgstr ""
+msgstr "2-пикселно"
 
 #: .tmp/hp-option.c:3108
 msgid "4-pixel"
-msgstr ""
+msgstr "4-пикселно"
 
 #: .tmp/hp-option.c:3109
 msgid "8-pixel"
-msgstr ""
+msgstr "8-пикселно"
 
 #: .tmp/hp-option.c:3120
 msgid "Print"
-msgstr ""
+msgstr "Печат"
 
 #: .tmp/hp-option.c:3121
-#, fuzzy
 msgid "Slide"
 msgstr "Солидно бяло"
 
 #: .tmp/hp-option.c:3122
-#, fuzzy
 msgid "Film-strip"
-msgstr "Тип екран (film)"
+msgstr "Тип филм"
 
 #: .tmp/hp-option.c:3182 .tmp/plustek.c:254 .tmp/saneopts.h:170
 msgid "Negative"
@@ -774,97 +741,87 @@ msgstr "Негатив"
 
 #: .tmp/hp-option.c:3200
 msgid "ADF"
-msgstr ""
+msgstr "ADF"
 
 #: .tmp/hp-option.c:3201
 msgid "XPA"
-msgstr ""
+msgstr "XPA"
 
 #: .tmp/hp-option.c:3274 .tmp/hp-option.c:3287
 msgid "On"
-msgstr ""
+msgstr "Вкл."
 
 #: .tmp/hp-option.c:3275 .tmp/hp-option.c:3288
 msgid "Conditional"
-msgstr ""
+msgstr "Кондиционално"
 
 #: .tmp/hp-option.h:57
-#, fuzzy
 msgid "Sharpening"
-msgstr "Острота"
+msgstr "Изостряне"
 
 #: .tmp/hp-option.h:58
 msgid "Set sharpening value."
-msgstr ""
+msgstr "Нагласи стойността за изостряне."
 
 #: .tmp/hp-option.h:63
-#, fuzzy
 msgid "Auto Threshold"
 msgstr "Автоматичен праг"
 
 #: .tmp/hp-option.h:65
 msgid "Enable automatic determination of threshold for line-art scans."
-msgstr ""
+msgstr "Позволява автоматично определяне на прага за lineart сканиране."
 
 #: .tmp/hp-option.h:70
-#, fuzzy
 msgid "Smoothing"
 msgstr "Изглаждане"
 
 #: .tmp/hp-option.h:71
-#, fuzzy
 msgid "Select smoothing filter."
 msgstr "Избира полутона"
 
 #: .tmp/hp-option.h:76
 msgid "Unload media after scan"
-msgstr ""
+msgstr "Отзареждане на медията след сканиране."
 
 #: .tmp/hp-option.h:77
-#, fuzzy
 msgid "Unloads the media after a scan."
-msgstr "Зареди образа като сива скала."
+msgstr "Отзарежда медията след сканиране."
 
 #: .tmp/hp-option.h:82
-#, fuzzy
 msgid "Change document"
-msgstr "Повишение"
+msgstr "Смени документа"
 
 #: .tmp/hp-option.h:83
 msgid "Change Document."
-msgstr ""
+msgstr "Смени документа."
 
 #: .tmp/hp-option.h:88
 msgid "Unload"
-msgstr ""
+msgstr "Отзареди"
 
 #: .tmp/hp-option.h:89
 msgid "Unload Document."
-msgstr ""
+msgstr "Отзареди документа."
 
 #: .tmp/hp-option.h:94
-#, fuzzy
 msgid "Calibrate"
 msgstr "Калибриране"
 
 #: .tmp/hp-option.h:95
-#, fuzzy
 msgid "Start calibration process."
-msgstr "Груба калибрация"
+msgstr "Започване на калибрацията."
 
 #: .tmp/hp-option.h:100
-#, fuzzy
 msgid "Media"
-msgstr "Средно"
+msgstr "Медия"
 
 #: .tmp/hp-option.h:101
 msgid "Set type of media."
-msgstr ""
+msgstr "Нагласи типа медия."
 
 #: .tmp/hp-option.h:106
-#, fuzzy
 msgid "Exposure time"
-msgstr "Установи време за експониране"
+msgstr "Време за експонация"
 
 #: .tmp/hp-option.h:108
 #, c-format
@@ -873,82 +830,78 @@ msgid ""
 "175% for prints, 150% for normal slides and \"Negatives\" for negative film. "
 "For dark (underexposed) images you can increase this value."
 msgstr ""
+"По-дългото време на експонация позволява на скенера да събере повече "
+"светлина. Предложената употреба е 175% за разпечатки, 150% за нормални "
+"слайдове и \"Негативи\" за негативен филм. За тъмни (подекспонирани) "
+"изображения можете да завишите тази стойност."
 
 #: .tmp/hp-option.h:116 .tmp/hp-option.h:123
-#, fuzzy
 msgid "Color Matrix"
-msgstr "Цветови десен"
+msgstr "Цветна матрица"
 
 #: .tmp/hp-option.h:118
-#, fuzzy
 msgid "Set the scanners color matrix."
-msgstr "Наглася контраста на червения канал"
+msgstr "Наглася цветната матрица на скенера."
 
 #: .tmp/hp-option.h:124
 msgid "Custom color matrix."
-msgstr ""
+msgstr "Цветна матрица по избор."
 
 #: .tmp/hp-option.h:129
-#, fuzzy
 msgid "Mono Color Matrix"
-msgstr "Цветови десен"
+msgstr "Едноцветна матрица"
 
 #: .tmp/hp-option.h:130
 msgid "Custom color matrix for grayscale scans."
-msgstr ""
+msgstr "Цветна матрица по избор за сканиране в сива скала."
 
 #: .tmp/hp-option.h:135
-#, fuzzy
 msgid "Mirror horizontal"
-msgstr "Огледален образ"
+msgstr "Огледало хоризонтално"
 
 #: .tmp/hp-option.h:136
-#, fuzzy
 msgid "Mirror image horizontally."
-msgstr "Огледален образ"
+msgstr "Прави хоризонтален огледален образ."
 
 #: .tmp/hp-option.h:141
-#, fuzzy
 msgid "Mirror vertical"
-msgstr "Огледален образ"
+msgstr "Огледало вертикално"
 
 #: .tmp/hp-option.h:142
-#, fuzzy
 msgid "Mirror image vertically."
-msgstr "Огледален образ"
+msgstr "Прави вертикален огледален образ"
 
 #: .tmp/hp-option.h:147
-#, fuzzy
 msgid "Update options"
-msgstr "Специални опции"
+msgstr "Обнови опциите"
 
 #: .tmp/hp-option.h:148
-#, fuzzy
 msgid "Update options."
-msgstr "Фиксирани тестови опции"
+msgstr "Обнови опциите."
 
 #: .tmp/hp-option.h:153
 msgid "8 bit output"
-msgstr ""
+msgstr "8-битово извеждане."
 
 #: .tmp/hp-option.h:155
 msgid "Use bit depth greater eight internally, but output only eight bits."
 msgstr ""
+"Вътрешно използвай по-голяма дълбочина от осем бита, но извеждай само осем "
+"бита."
 
 #: .tmp/hp-option.h:161
 msgid "Front button wait"
-msgstr ""
+msgstr "Изчакай бутона"
 
 #: .tmp/hp-option.h:162
 msgid "Wait to scan for front-panel button push."
-msgstr ""
+msgstr "Изчакай за натискане на бутона преди сканиране."
 
 #: .tmp/hp-option.h:169
 msgid "Shut off lamp"
-msgstr ""
+msgstr "Изключи лампата"
 
 #: .tmp/hp-option.h:170
-#, fuzzy
 msgid "Shut off scanner lamp."
 msgstr "Изключва лампата на скенера"
 
@@ -979,12 +932,10 @@ msgstr "Режим на сканиране"
 
 #: .tmp/leo.h:268 .tmp/matsushita.h:217 .tmp/teco1.h:298 .tmp/teco2.h:358
 #: .tmp/teco3.h:302
-#, fuzzy
 msgid "Black & White"
 msgstr "Черно и бяло"
 
 #: .tmp/matsushita.c:139
-#, fuzzy
 msgid "Bayer Dither 16"
 msgstr "Bayer Dither 16"
 
@@ -993,12 +944,10 @@ msgid "Bayer Dither 64"
 msgstr "Bayer Dither 64"
 
 #: .tmp/matsushita.c:141
-#, fuzzy
 msgid "Halftone Dot 32"
 msgstr "Полутон Dot 32"
 
 #: .tmp/matsushita.c:142
-#, fuzzy
 msgid "Halftone Dot 64"
 msgstr "Полутон Dot 64"
 
@@ -1020,11 +969,11 @@ msgstr "Режим 3"
 
 #: .tmp/matsushita.c:176
 msgid "From white stick"
-msgstr ""
+msgstr "От бял"
 
 #: .tmp/matsushita.c:177
 msgid "From paper"
-msgstr ""
+msgstr "От хартия"
 
 #: .tmp/matsushita.c:178
 msgid "Automatic"
@@ -1043,13 +992,12 @@ msgid "Medium"
 msgstr "Средно"
 
 #: .tmp/matsushita.c:216 .tmp/matsushita.c:231
-#, fuzzy
 msgid "High"
 msgstr "Високо"
 
 #: .tmp/matsushita.c:245
 msgid "CRT"
-msgstr ""
+msgstr "CRT"
 
 #: .tmp/matsushita.c:257
 msgid "One page"
@@ -1060,8 +1008,9 @@ msgid "All pages"
 msgstr "Всички страници"
 
 #: .tmp/matsushita.c:994
+#, fuzzy
 msgid "sheetfed scanner"
-msgstr ""
+msgstr "скенер с sheetfeed"
 
 #: .tmp/matsushita.c:1086
 msgid "Feeder mode"
@@ -1092,7 +1041,6 @@ msgid "Reduce the isolated dot noise"
 msgstr "Намали изолирания точков шум"
 
 #: .tmp/matsushita.c:1248
-#, fuzzy
 msgid "Image emphasis"
 msgstr "Подчертаване на образа"
 
@@ -1117,7 +1065,6 @@ msgid "Duplex"
 msgstr "Дуплексно"
 
 #: .tmp/matsushita.h:228
-#, fuzzy
 msgid "Paper size"
 msgstr "Размер на хартията"
 
@@ -1138,17 +1085,14 @@ msgid "Shadow, midtone, highlight, exposure time"
 msgstr "Сенки, полутонове, светли тонове, време за експониране"
 
 #: .tmp/microtek2.h:614
-#, fuzzy
 msgid "Special options"
 msgstr "Специални опции"
 
 #: .tmp/microtek2.h:615
-#, fuzzy
 msgid "Color balance"
 msgstr "Цветови баланс"
 
 #: .tmp/microtek2.h:618
-#, fuzzy
 msgid "Disable backtracking"
 msgstr "Забрани връщане на главата"
 
@@ -1165,7 +1109,6 @@ msgid "Toggles the lamp of the flatbed"
 msgstr "Превключва лампата на flatbed-а"
 
 #: .tmp/microtek2.h:627
-#, fuzzy
 msgid "Calibration by backend"
 msgstr "Калибрация от бекенда"
 
@@ -1183,7 +1126,6 @@ msgid "This option turns off the lamp of the flatbed during a scan"
 msgstr "Тази опция изключва лампата на flatbed-а по време на сканиране"
 
 #: .tmp/microtek2.h:637
-#, fuzzy
 msgid "Quality scan"
 msgstr "Качествено сканиране"
 
@@ -1212,22 +1154,18 @@ msgstr ""
 "прага."
 
 #: .tmp/microtek2.h:651
-#, fuzzy
 msgid "Gamma correction"
 msgstr "Корекция на гамата"
 
 #: .tmp/microtek2.h:652
-#, fuzzy
 msgid "Selects the gamma correction mode."
 msgstr "Избира режима за корекция на гамата."
 
 #: .tmp/microtek2.h:655
-#, fuzzy
 msgid "Bind gamma"
 msgstr "Вържи гамата"
 
 #: .tmp/microtek2.h:656
-#, fuzzy
 msgid "Use same gamma values for all colour channels."
 msgstr "Използва същите стойности за всички цветови канали."
 
@@ -1240,7 +1178,6 @@ msgid "Selects a value for scalar gamma correction."
 msgstr "Избира стойност за скаларната гама-корекция."
 
 #: .tmp/microtek2.h:665
-#, fuzzy
 msgid "Scalar gamma red"
 msgstr "Скаларна гама - червено"
 
@@ -1249,7 +1186,6 @@ msgid "Selects a value for scalar gamma correction (red channel)"
 msgstr "Избира стойност за скаларната гама-корекция (червен канал)"
 
 #: .tmp/microtek2.h:670
-#, fuzzy
 msgid "Scalar gamma green"
 msgstr "Скаларна гама - зелено"
 
@@ -1258,7 +1194,6 @@ msgid "Selects a value for scalar gamma correction (green channel)"
 msgstr "Избира стойност за скаларната гама-корекция (зелен канал)."
 
 #: .tmp/microtek2.h:675
-#, fuzzy
 msgid "Scalar gamma blue"
 msgstr "Скаларна гама - синьо"
 
@@ -1281,36 +1216,32 @@ msgid "Midtone"
 msgstr "Полутон"
 
 #: .tmp/microtek2.h:686
-#, fuzzy, c-format
+#, c-format
 msgid "Selects which radiance level should be considered \"50 % gray\"."
 msgstr "Избира кое ниво на осветеност ще се смята за  \"50 % сиво\"."
 
 #: .tmp/microtek2.h:690
-#, fuzzy
 msgid "Midtone for red"
-msgstr "Sombra para rojo"
+msgstr "Полутон - червено"
 
 #: .tmp/microtek2.h:691
 msgid "Selects which radiance level should  be considered \"50 % red\"."
-msgstr ""
+msgstr "Избира кое ниво на осветеност ще се смята за \"50 % червено\"."
 
 #: .tmp/microtek2.h:695
-#, fuzzy
 msgid "Midtone for green"
-msgstr "Полутон за зелено"
+msgstr "Полутон - зелено"
 
 #: .tmp/microtek2.h:696
-#, fuzzy, c-format
+#, c-format
 msgid "Selects which radiance level should be considered \"50 % green\"."
 msgstr "Избира кое ниво на осветеност ще се смята за \"50% зелено\"."
 
 #: .tmp/microtek2.h:700
-#, fuzzy
 msgid "Midtone for blue"
-msgstr "Полутон за синьо"
+msgstr "Полутон - синьо"
 
 #: .tmp/microtek2.h:701
-#, fuzzy
 msgid "Selects which radiance level should be considered \"50 % blue\"."
 msgstr "Избира кое ниво на осветеност ще се счита за \"50 % синьо\"."
 
@@ -1324,7 +1255,6 @@ msgid "Balance factor for red. A value of 100% means no correction."
 msgstr "Фактор за балансиране на червеното. 100% означава без корекция."
 
 #: .tmp/microtek2.h:710
-#, fuzzy
 msgid "Green balance"
 msgstr "Баланс - зелено"
 
@@ -1334,7 +1264,6 @@ msgid "Balance factor for green. A value of 100% means no correction."
 msgstr "Фактор за балансиране на зеленото. 100% означава без корекция."
 
 #: .tmp/microtek2.h:715
-#, fuzzy
 msgid "Blue balance"
 msgstr "Баланс - синьо"
 
@@ -1372,7 +1301,6 @@ msgid "8x8 coarse"
 msgstr "8х8 грубо"
 
 #: .tmp/mustek.c:169
-#, fuzzy
 msgid "8x8 normal"
 msgstr "8х8 нормално"
 
@@ -1385,7 +1313,6 @@ msgid "8x8 very fine"
 msgstr "8х8 много фино"
 
 #: .tmp/mustek.c:170
-#, fuzzy
 msgid "6x6 normal"
 msgstr "6х6 нормално"
 
@@ -1402,7 +1329,6 @@ msgid "4x4 coarse"
 msgstr "4х4 грубо"
 
 #: .tmp/mustek.c:172
-#, fuzzy
 msgid "4x4 normal"
 msgstr "4х4 нормално"
 
@@ -1411,12 +1337,10 @@ msgid "4x4 fine"
 msgstr "4х4 фино"
 
 #: .tmp/mustek.c:172
-#, fuzzy
 msgid "3x3 normal"
 msgstr "3х3 нормално"
 
 #: .tmp/mustek.c:173
-#, fuzzy
 msgid "2x2 normal"
 msgstr "2х2 нормално"
 
@@ -1453,12 +1377,10 @@ msgid "Scan in fast gray mode (lower quality)."
 msgstr "Сканирай в бърз сив режим (по-ниско качество)."
 
 #: .tmp/mustek.c:4316
-#, fuzzy
 msgid "Brightness red channel"
 msgstr "Яркост - червен канал"
 
 #: .tmp/mustek.c:4317
-#, fuzzy
 msgid "Controls the brightness of the red channel of the acquired image."
 msgstr "Наглася яркостта на червения канал на полученото изображение."
 
@@ -1467,17 +1389,14 @@ msgid "Brightness green channel"
 msgstr "Яркост - зелен канал"
 
 #: .tmp/mustek.c:4330
-#, fuzzy
 msgid "Controls the brightness of the green channel of the acquired image."
 msgstr "Наглася яркостта на зеления канал на полученото изображение."
 
 #: .tmp/mustek.c:4342
-#, fuzzy
 msgid "Brightness blue channel"
 msgstr "Яркост - син канал"
 
 #: .tmp/mustek.c:4343
-#, fuzzy
 msgid "Controls the brightness of the blue channel of the acquired image."
 msgstr "Наглася яркостта на синия канал на полученото изображение."
 
@@ -1486,7 +1405,6 @@ msgid "Contrast red channel"
 msgstr "Контраст - червен канал"
 
 #: .tmp/mustek.c:4369
-#, fuzzy
 msgid "Controls the contrast of the red channel of the acquired image."
 msgstr "Наглася контраста на червения канал на полученото изображение."
 
@@ -1495,7 +1413,6 @@ msgid "Contrast green channel"
 msgstr "Контраст - зелен канал"
 
 #: .tmp/mustek.c:4382
-#, fuzzy
 msgid "Controls the contrast of the green channel of the acquired image."
 msgstr "Наглася контраста на зеления канал на полученото изображение."
 
@@ -1504,7 +1421,6 @@ msgid "Contrast blue channel"
 msgstr "Контраст - син канал"
 
 #: .tmp/mustek.c:4395
-#, fuzzy
 msgid "Controls the contrast of the blue channel of the acquired image."
 msgstr "Наглася контраста на синия канал на полученото изображение."
 
@@ -1517,7 +1433,6 @@ msgid "Gray 14/16"
 msgstr "Сиво 14/16"
 
 #: .tmp/plustek.c:246
-#, fuzzy
 msgid "Color 42/48"
 msgstr "Color42/48"
 
@@ -1542,12 +1457,10 @@ msgid "Source Selection"
 msgstr "Избор на източник"
 
 #: .tmp/pnm.c:199
-#, fuzzy
 msgid "Image Enhancement"
 msgstr "Подобрение на образа"
 
 #: .tmp/pnm.c:235
-#, fuzzy
 msgid "Grayify"
 msgstr "Посиви"
 
@@ -2237,7 +2150,6 @@ msgid "8.5x11 (inch)"
 msgstr "8,5х11 (инча)"
 
 #: .tmp/snapscan.c:174
-#, fuzzy
 msgid "Halftoning Unsupported"
 msgstr "Няма поддръжка на полутонове"
 
@@ -2265,7 +2177,6 @@ msgstr ""
 "ви може да увисне."
 
 #: .tmp/snapscan-options.c:279
-#, fuzzy
 msgid "Preview mode"
 msgstr "Режим на превю"
 
@@ -2298,7 +2209,6 @@ msgstr "Линии на четене по сива скала"
 
 #: .tmp/teco1.c:1145 .tmp/teco1.c:1146 .tmp/teco2.c:1795 .tmp/teco2.c:1796
 #: .tmp/teco3.c:980 .tmp/teco3.c:981
-#, fuzzy
 msgid "Dither"
 msgstr "Dither"
 
@@ -2311,7 +2221,6 @@ msgid "Solid white"
 msgstr "Солидно бяло"
 
 #: .tmp/test.c:134
-#, fuzzy
 msgid "Color pattern"
 msgstr "Цветови десен"
 
@@ -2324,7 +2233,6 @@ msgid "First entry"
 msgstr "Първо въвеждане"
 
 #: .tmp/test.c:159 .tmp/test.c:167
-#, fuzzy
 msgid "Second entry"
 msgstr "Второ въвеждане"
 
@@ -2409,7 +2317,6 @@ msgstr ""
 "данни в паметта на компютъра."
 
 #: .tmp/test.c:456
-#, fuzzy
 msgid "Read limit"
 msgstr "Лимит на четене"
 
@@ -2498,7 +2405,6 @@ msgstr ""
 "данни."
 
 #: .tmp/test.c:591
-#, fuzzy
 msgid "Enable test options"
 msgstr "Позволи тестови опции"
 
@@ -2512,7 +2418,6 @@ msgstr ""
 "на SANE."
 
 #: .tmp/test.c:606
-#, fuzzy
 msgid "Print options"
 msgstr "Принт на опциите"
 
@@ -2758,13 +2663,12 @@ msgid "Color Lineart"
 msgstr "Цветно Lineart"
 
 #: .tmp/umax.c:193
-#, fuzzy
 msgid "Color Halftone"
 msgstr "Цветно с полутонове"
 
 #: .tmp/umax.c:239
 msgid "Use Image Composition"
-msgstr ""
+msgstr "Използвай композицията на изображението."
 
 #: .tmp/umax.c:240
 msgid "Bi-level black and white (lineart mode)"
@@ -2783,7 +2687,6 @@ msgid "Multi-level RGB color (one pass color)"
 msgstr "RGB цветно в много нива (с едно минаване)"
 
 #: .tmp/umax.c:244
-#, fuzzy
 msgid "Ignore calibration"
 msgstr "Игнорирай калибрацията"
 
@@ -2840,12 +2743,10 @@ msgid "Calibration mode"
 msgstr "Режим калибрация"
 
 #: .tmp/umax.c:5854
-#, fuzzy
 msgid "Define calibration mode"
 msgstr "Дефинирай режима на калибрация"
 
 #: .tmp/umax_pp.c:472
-#, fuzzy
 msgid "Sets lamp on/off"
 msgstr "Включва/изключва лампата"
 
@@ -2862,7 +2763,6 @@ msgid "Color channels brightness settings"
 msgstr "Настройки по яркостта на цветните канали"
 
 #: .tmp/umax_pp.c:556
-#, fuzzy
 msgid "Gray brightness"
 msgstr "Яркост - сиво"
 
@@ -2871,7 +2771,6 @@ msgid "Sets gray channel brightness"
 msgstr "Наглася яркостта на сивия канал"
 
 #: .tmp/umax_pp.c:569
-#, fuzzy
 msgid "Red brightness"
 msgstr "Яркост - червено"
 
@@ -2880,7 +2779,6 @@ msgid "Sets red channel brightness"
 msgstr "Наглася яркостта на червения канал"
 
 #: .tmp/umax_pp.c:582
-#, fuzzy
 msgid "Green brightness"
 msgstr "Яркост - зелено"
 
@@ -2889,7 +2787,6 @@ msgid "Sets green channel brightness"
 msgstr "Наглася яркостта на зеления канал"
 
 #: .tmp/umax_pp.c:595
-#, fuzzy
 msgid "Blue brightness"
 msgstr "Яркост - синьо"
 
@@ -2902,7 +2799,6 @@ msgid "Color channels contrast settings"
 msgstr "Настройки по контраста на цветните канали"
 
 #: .tmp/umax_pp.c:617
-#, fuzzy
 msgid "Gray contrast"
 msgstr "Контраст - сиво"
 
@@ -2919,121 +2815,5 @@ msgid "Sets green channel contrast"
 msgstr "Наглася контраста на зеления канал"
 
 #: .tmp/umax_pp.c:655
-#, fuzzy
 msgid "Sets blue channel contrast"
 msgstr "Наглася контраста на синия канал"
-
-#~ msgid "Download Pattern A"
-#~ msgstr "Свали десен A"
-
-#~ msgid "Image"
-#~ msgstr "Изображение"
-
-#~ msgid "Miscellaneous"
-#~ msgstr "Разни"
-
-#~ msgid "offset X"
-#~ msgstr "изместване по Х"
-
-#, fuzzy
-#~ msgid "Hardware internal X position of the scanning area."
-#~ msgstr "Вътрешна Х позиция на площта за сканиране."
-
-#~ msgid "offset Y"
-#~ msgstr "изместване по Y"
-
-#, fuzzy
-#~ msgid "Hardware internal Y position of the scanning area."
-#~ msgstr "Вътрешна Y позиция на площта за сканиране."
-
-#~ msgid "Lamp status"
-#~ msgstr "Статус на лампата"
-
-#, fuzzy
-#~ msgid "Switches the lamp on or off."
-#~ msgstr "Включва и изключва лампата."
-
-#~ msgid "Calibrates for black and white level."
-#~ msgstr "Калибрира за степента на черно и бяло"
-
-#, fuzzy
-#~ msgid "Gray gain"
-#~ msgstr "Увеличение - сиво"
-
-#, fuzzy
-#~ msgid "Green gain"
-#~ msgstr "Увеличение - зелено"
-
-#, fuzzy
-#~ msgid "Blue gain"
-#~ msgstr "Увеличение - синьо"
-
-#, fuzzy
-#~ msgid "Gray highlight"
-#~ msgstr "Highlight - сиво"
-
-#, fuzzy
-#~ msgid "Black level coarse calibration"
-#~ msgstr "Груба калибрация на черното ниво"
-
-#, fuzzy
-#~ msgid "White level coarse calibration"
-#~ msgstr "Груба калибрация на бялото ниво"
-
-#, fuzzy
-#~ msgid "Offset (brightness) of the red channel."
-#~ msgstr "Офсет (яркост) на червения канал."
-
-#, fuzzy
-#~ msgid "Offset (brightness) of the blue channel."
-#~ msgstr "Офсет (яркост) на синия канал."
-
-#, fuzzy
-#~ msgid "Gain red"
-#~ msgstr "Увеличение - червено"
-
-#, fuzzy
-#~ msgid "Gain (contrast) of the red channel."
-#~ msgstr "Увеличение (контраст) на червения канал."
-
-#, fuzzy
-#~ msgid "Gain green"
-#~ msgstr "Увеличение - зелено"
-
-#, fuzzy
-#~ msgid "Gain blue"
-#~ msgstr "Увеличение - синьо"
-
-#, fuzzy
-#~ msgid "Gain (contrast) of the blue channel."
-#~ msgstr "Увеличение (контраст) на синия канал."
-
-#~ msgid "Smear"
-#~ msgstr "Зацапване (smear)"
-
-#~ msgid "10 bit-mode"
-#~ msgstr "Режим 10 бита"
-
-#~ msgid "12 bit-mode"
-#~ msgstr "Режим 12 бита"
-
-#~ msgid "Preview patch"
-#~ msgstr "Парче за превю"
-
-#~ msgid "Start-scan patch"
-#~ msgstr "Парче за начало на сканирането"
-
-#~ msgid "Don't care about image smearing problem"
-#~ msgstr "Не се занимавай със зацапването на образа"
-
-#~ msgid "Output with 10 bits instead of 8 bits"
-#~ msgstr "Изход с 10 бита, вместо с 8"
-
-#~ msgid "Output with 12 bits instead of 8 bits"
-#~ msgstr "Изход с 12 бита, вместо с 8"
-
-#~ msgid "Set preview-bit in rgb-mode"
-#~ msgstr "Нагласи превю-бита в режим RGB"
-
-#~ msgid "Use special start-scan bits"
-#~ msgstr "Използвай специални битове за началото"

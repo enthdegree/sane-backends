@@ -8,6 +8,8 @@
 	* TODO: Added frontend linking issue and color management
 	  discussion. Removed sanei_jpeg move and avision patch entries.
 	  Updated global init issue and desc file entry.
+	* po/sane-backends.bg.po: Updated Bulgarian translation (from
+	  Pavel Constantinov <pavelconstantinov@bigfoot.com>).
 
 2003-07-29  Matthew Duggan <stauff1@users.sourceforge.net>
 

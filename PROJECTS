@@ -1,4 +1,4 @@
-PROJECTS (2002-02-22)
+PROJECTS (2002-03-26)
 
 Here is a list of projects that various people have expressed interest
 in.  Before starting working on one of these projects, it may be a
@@ -23,13 +23,19 @@ ftp://mccme.ru/users/ushakov/scanwit
 Canon 1220U USB scanner (wip)
 http://sourceforge.net/projects/canonscanner/
 
-Canon FB330P, FP630P (maybe FB620P/FB320P) parport/USB scanners (wip)
-Simon Krix <kinsei@dingoblue.net.au>
-http://members.dingoblue.net.au/~kinsei/scanner/
+canon_pp backend for Canon FB630P, FB330P, N640P and N340P parallel-port
+scanners (wip)
+http://canon-fb330p.sourceforge.net/  
 
-Canon FB620S flatbed scanner and FS2710 film scanner
+Canon FB630U USB scanner (wip)
+http://canon-fb630u.sourceforge.net/
+
+Canon FB620S flatbed scanner and FS2710 film scanner (wip)
 ftp://stthd0.pc.uni-koeln.de/pub/canon-1.09.tar.gz
 Ulrich Deiters <ukd@xenon.pc.Uni-Koeln.DE>
+
+Canon N650U USB scanner support (command line program) (wip)
+http://homepage.ntlworld.com/millwardjp
 
 Canon N670U USB scanner support [alpha/developers only] (wip)
 http://home.t-online.de/home/gunther.mayer/ (look for merlin* files)
@@ -74,7 +80,7 @@ http://fz.eryx.net/sane/#teco2
 TECO / Relisys RELI & AVEC scanners (wip)
 http://fz.eryx.net/sane/#teco
 
-Test backend (similar to pnm backend, but doesn't read files) (planned)
+Test backend (similar to pnm backend, but doesn't read files) (wip)
 Henning Meier-Geinitz <henning@meier-geinitz.de> et. al.
 
 Video for Linux 2 (wip)

@@ -31,7 +31,7 @@ Backends:
  mustek:        Andreas Bolsch, David Mosberger, Andreas Czechanowski and
                 Henning Meier-Geinitz (*)
  mustek_pp:     Jochen Eisinger (*)
- nec:           FUKUDA Kazuya (*)
+ nec:           Kazuya Fukuda (*)
  net:           Andreas Beck and David Mosberger
  pnm:           Andreas Beck, Gordon Matzigkeit, David Mosberger, Michael
                 Herder (*), and Henning Meier-Geinitz (*)
@@ -43,7 +43,7 @@ Backends:
                 B&W fixes by Andrew Kuchling
  ricoh:         Feico W. Dillema
  s9036:         Ingo Schneider
- sharp:         FUKUDA Kazuya (*) and Abel Deuring (*)
+ sharp:         Kazuya Fukuda (*) and Abel Deuring (*)
  sm3600:        Marian Eichholz (*) and Glenn Ramsey (*)
  snapscan:      Kevin Charter, Franck Schneider, Michel Roelofs, Sebastien
                 Sable (*), Henrik Johansson, Chris Bagwell (*), and Oliver 
@@ -89,8 +89,8 @@ David Huggins-Daines <bn711@freenet.carleton.ca>
 David Mosberger <David.Mosberger@acm.org>
 Didier Carlier <didier@sema.be>
 Eugene S. Weiss <yossarian@users.sourceforge.net>
-FUKUDA Kazuya <fukuda@avm.nhe.nec.co.jp>
 Juergen G. Schimmer <schimmi@nbgm.siemens.de>
+Kazuya Fukuda <kazuya@pjs.nevt.nec.co.jp>
 Feico W. Dillema <dillema@acm.org>
 Franck Schneider <schnefra@hol.fr>
 Gerhard Jaeger <g.jaeger@earthling.net>

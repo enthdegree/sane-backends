@@ -31,6 +31,6 @@
 :mfg "Genius"
 :model "FS-1130 Colorpage Scanner"
 :interface "SCSI"
-:status :untested
+:status :good
 
 

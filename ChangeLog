@@ -1,3 +1,7 @@
+2004-06-30  Frank Zago  <fzago at austin dot rr dot com>
+	* backend/leo.c doc/descriptions/leo.desc: added support for 
+	  Genius FS-1130 Colorpage Scanner.
+
 2004-06-30  Gerhard Jaeger <gerhard@gjaeger.de>
 	* doc/plustek/Makefile.kernel26: fixed floating point issues 
 	  for SuSE kernels.

@@ -48,7 +48,7 @@
 
 /*--------------------------------------------------------------------------*/
 
-#define BUILD 10			/* 2003/01/16 */
+#define BUILD 11			/* 2004/06/30 */
 #define BACKEND_NAME leo
 #define LEO_CONFIG_FILE "leo.conf"
 
@@ -133,7 +133,9 @@ static const struct scanners_supported scanners[] = {
   {6, "LEO     ", "LEOScan-S3      ",
    "Leo", "S3"},
   {6, "LEO", "LEOScan-S3",
-   "Leo", "S3"}
+   "Leo", "S3"},
+  {6, "KYE CORP", "ColorPage-CS    ",
+   "Genius", "FS1130"}
 };
 
 /*--------------------------------------------------------------------------*/

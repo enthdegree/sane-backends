@@ -1,7 +1,13 @@
-Plustek.changes (2004-16-07) Gerhard Jäger <gerhard@gjaeger.de>
+Plustek.changes (2004-26-07) Gerhard Jäger <gerhard@gjaeger.de>
 ===============================================================
 
 Note: All other not mentioned builds have been never released.
+
+V 0.48-4 (2004-26-07)
+---------------------
+- added speedup parameters for UMAX3400/3450
+- added disableSpeedup option
+- added UMAX3400/3450 TPA autodetection
 
 V 0.48-3 (2004-16-07)
 ---------------------

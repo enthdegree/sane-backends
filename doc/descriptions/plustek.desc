@@ -122,11 +122,11 @@
 :model "UMAX 3400"
 :interface "USB"
 :status :complete
+:comment "there are some UMAX 3400 outside the U.S. which are not supported, as they use another chipset than the LM983x"
 
 :model "UMAX 3450"
 :interface "USB"
-:status :good
-:comment "use option enableTPA 1 to enable TPA scanning"
+:status :complete
 
 :model "UMAX 5400"
 :interface "USB"

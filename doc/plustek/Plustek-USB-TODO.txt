@@ -1,9 +1,8 @@
-Plustek-USB-TODO.txt (2004-07-05) Gerhard Jäger <gerhard@gjaeger.de>
+Plustek-USB-TODO.txt (2004-07-26) Gerhard Jäger <gerhard@gjaeger.de>
 ====================================================================
 
 TODO (in general):
-- more documentation/comments on the different functions
--
+- more documentation/comments for the different functions
 
 
 KNOWN BUGS/Limitations:

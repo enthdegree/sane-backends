@@ -124,8 +124,8 @@ static void scanimage_exit (void);
 
 static void
 auth_callback (SANE_String_Const resource,
-	       SANE_Char username[SANE_MAX_USERNAME_LEN],
-	       SANE_Char password[SANE_MAX_PASSWORD_LEN])
+	       SANE_Char *username,
+	       SANE_Char *password)
 {
   char tmp[3 + 128 + SANE_MAX_USERNAME_LEN + SANE_MAX_PASSWORD_LEN], *wipe;
   unsigned char md5digest[16];

@@ -41,8 +41,8 @@
 
 void
 auth_callback (SANE_String_Const domain,
-	       SANE_Char username[SANE_MAX_USERNAME_LEN],
-	       SANE_Char password[SANE_MAX_PASSWORD_LEN])
+	       SANE_Char *username,
+	       SANE_Char *password)
 {
   printf ("Client '%s' requested authorization.\nUser:\n", domain);
   scanf ("%s", username);

@@ -1,3 +1,6 @@
+2004-09-05  Julien Blache <jb@jblache.org>
+	* More auth_callback() fixes, although they're not critical.
+
 2004-09-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Lexmark X1130, Dell

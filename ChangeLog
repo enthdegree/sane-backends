@@ -1,3 +1,8 @@
+2001-01-06  Karl Heinz Kremer <khk@khk.net>
+
+	* backend/epson.c: Undefine TEST_IOCTL again, which was enabled
+	  by accident. 
+
 2001-01-06  Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c: improved warm up and color calibration

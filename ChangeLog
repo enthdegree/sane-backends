@@ -16,10 +16,12 @@
 	* doc/descriptions/unsupported.desc: Removed Epson Perfection 660
 	  (now supported by snapscan backend), Primax Jewel 4800 (teco2).
 	  Added Enhans/E-Lux j-6121 and Visioneer OneTouch 5300 USB.
-	* sanei/sanei_usb.c: Removed Frak's memleak fix. The memory is
+	* sanei/sanei_usb.c: Removed Frank's memleak fix. The memory is
 	  allocated only once in sanei_usb_init, not in sanei_usb_open.
 	  So releasing it in sanei_usb_close breaks backends that open
 	  devices more than once.
+	* po/sane-backends.nl.po: Updated Dutch translation (from Martin
+	  Kho <mkho@xs4all.nl> and Bertrik Sikken <bertrik@zonnet.nl>).
 
 2003-04-18  Frank Zago  <fzago at austin dot rr dot com>
 

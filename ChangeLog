@@ -1,5 +1,8 @@
 2001-05-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
-	
+
+	* configure configure.in include/sane/config.h.in README.solaris
+	  sanei/sanei_scsi.c: Added support for Solaris sgen SCSI driver
+	  (patch from Juergen Keil <jk@tools.de>).
 	* acinclude.m4 aclocal.m4 configure: Added Irix to the list
 	  of operating systems that can use -Wl,-rpath.
 	* doc/Makefile.in: Install all the READMEs and other available

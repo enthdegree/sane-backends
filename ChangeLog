@@ -1,3 +1,9 @@
+2002-01-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/qcam.c: Create lockfile with O_EXCL even when using fcntl
+	  locking. Remove it in any case after exiting. Log file handling
+	  is still buggy but this has to be done by someone who has a qcam.
+
 2002-01-10  Tom Martone <tom@martoneconsulting.com>
         * backend/bh.c
           addressed security issue with tempfile

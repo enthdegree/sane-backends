@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2004-03-13"		; version of backend
+:version "2004-03-14"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -785,6 +785,11 @@
 :status :unsupported
 :comment "Not supported. Asic 1505/05."
 
+:model "ScanExpress A3 EP"
+:interface "Parport"
+:status :unsupported
+:comment "Not supported. Maybe it will be supported by the mustek_pp backend in future."
+
 :model "ScanExpress CardSmart"
 :interface "USB"
 :url "http://www.meier-geinitz.de/sane/misc/mustek-scanners.html#UNSUPPORTED"
@@ -871,11 +876,6 @@
 
 :model "OpticPro ST28"
 :url "/unsupported/plustek-opticpro-s28.html"
-:interface "USB"
-:status :unsupported
-:comment "Uses Plustek ASIC."
-
-:model "OpticPro ST48"
 :interface "USB"
 :status :unsupported
 :comment "Uses Plustek ASIC."

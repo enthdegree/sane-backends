@@ -5,6 +5,8 @@
 	  Pol). Added more documentation. Added "chmod a+rw" alternative.
 	* doc/descriptions-external/genesys.desc: Added Plustek OpticPro
 	  ST48.
+	* doc/descriptions/unsupported.desc: Added Mustek A3 EP. Removed
+	  Plustek OpticPro ST48.
 
 2004-03-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

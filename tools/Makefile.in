@@ -94,7 +94,8 @@ sane-find-scanner: sane-find-scanner.o ../backend/sane_strstatus.lo \
 	@$(LIBTOOL) $(MLINK) $(LINK) sane-find-scanner.o \
 	  ../backend/sane_strstatus.lo $(LIBSANEI) $(LIBLIB) $(LIBS)
 
-gamma4scanimage: gamma4scanimage.o -lm
+gamma4scanimage: gamma4scanimage.o
+	@$(LIBTOOL) $(MLINK) $(LINK) gamma4scanimage.o -lm
 
 ../backend/umax_pp_low.o: ../backend/umax_pp_low.c 
 	$(COMPILE) ../backend/umax_pp_low.c -o ../backend/umax_pp_low.o \

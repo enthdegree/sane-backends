@@ -1,4 +1,4 @@
-2003-01-11
+2003-05-05
 
 This directory contains various tools that may be useful:
 
@@ -30,16 +30,24 @@ This directory contains various tools that may be useful:
 
 Maybe useful for SANE developers:
 
+ sane-config:
+        Show SANE version, linker flags etc. Might be useful for 
+        frontend developers.
+
  sane-desc:
         Generate SANE webpages (and ASCII lists) from backend .desc files.
-        Use "make sane-desc" to compile. Run "sane-desc --help" for details.
+        Run "sane-desc --help" for details. The default lists are generated
+        in doc/Makefile. 
 
- sane-desc.el, sane-desc-ext.el:
+ sane-desc.el, sane-desc-ext.el (OBSOLETE):
         These are the old elisp scripts to automagically generate descriptive
         SANE webpages from backend .desc files with emacs. Look at the
         top of the file for more details. They are here just for reference. Use
         sane-desc instead.
 
- sane-config:
-        Show SANE version, linker flags etc. Might be useful for 
-        frontend developers.
+ check-po.awk:
+        Print untranslated and fuzzy messages and their line numbers in the
+        source code and po file. Example:
+           cd po/ ; ../tools/check-po.awk sane-backends.de.po
+        You may need to adjust the path of awk in the first line of the
+        script. More documentation is in the script itself.

@@ -4,6 +4,7 @@
 	  Yann E. MORIN <yann dot morin dot 1998 at anciens dot enib dot fr>. 
 	* tools/check-po.awk: Added script to check the translations for 
 	  completeness (from Yann E. MORIN).
+	* tools/README: Added description of check-po.awk. Minor reordering.
 
 ---- FEATURE FREEZE FOR SANE 1.0.12 ---
 -- snapshot 1.0.12-pre1

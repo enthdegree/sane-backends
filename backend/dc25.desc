@@ -1,0 +1,13 @@
+;Kodak DC25 backend .desc file by Peter Fales
+
+:backend "dc25"				; name of backend
+:version "1.1"  			; version of backend
+:status :alpha     			; :alpha, :beta, :stable, :new
+:manpage "sane-dc25"			; name of manpage (if it exists)
+:url "http://www.megsinet.net/~psfales/DC-25.html";
+:devicetype :stillcam			; start of a list of devices....
+:mfg "Kodak"				; Manufacturer
+:url "http://www.kodak.com/US/en/digital/cameras/dc25/";
+:model "DC25"				;
+:model "DC20" 				;
+:comment "DC-20 is untested!"		;

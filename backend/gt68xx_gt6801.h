@@ -55,7 +55,7 @@ static SANE_Status
 gt6801_download_firmware (GT68xx_Device * dev,
 			  SANE_Byte * data, SANE_Word size);
 
-SANE_Status
+static SANE_Status
 gt6801_u16b_download_firmware (GT68xx_Device * dev,
 			       SANE_Byte * data, SANE_Word size);
 

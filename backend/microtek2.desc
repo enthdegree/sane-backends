@@ -1,5 +1,5 @@
 :backend "microtek2"              ; name of backend
-:version "0.6"                    ; version of backend
+:version "pre0.8.161099"          ; version of backend
 :status :alpha                    ; :alpha, :beta, :stable, :new
 :manpage "sane-microtek2"         ; name of manpage (if it exists)
 

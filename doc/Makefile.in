@@ -7,6 +7,7 @@ top_builddir = ..
 
 PACKAGE = @PACKAGE@
 VERSION = @VERSION@
+package_version = @PACKAGE_VERSION@
 distdir = $(top_srcdir)/$(PACKAGE)-$(VERSION)
 
 prefix = @prefix@
@@ -100,7 +101,8 @@ all: sane.ps $(MANPAGES)
 	     -e 's|@DOCDIR@|$(docdir)|g' \
 	     -e 's|@LIBDIR@|$(libdir)/sane|g' \
 	     -e 's|@BINDIR@|$(bindir)|g' \
-	     -e 's|@SBINDIR@|$(sbindir)|g' $^ >$@
+	     -e 's|@SBINDIR@|$(sbindir)|g' \
+	     -e 's|@PACKAGEVERSION@|$(package_version)|g' $^ >$@
 	@echo Generating manpage $@...
 
 install: all

@@ -2,6 +2,8 @@
 
 	* TODO: Added manpage issues and hpsj5s freeze problem. Removed canon.c
 	  model problem.
+	* doc/Makefile.in: Added variable @PACKAGEVERSION@ for usage in
+	  manpages.
 
 2002-11-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

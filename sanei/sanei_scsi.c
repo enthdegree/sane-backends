@@ -148,7 +148,6 @@
 # define INCL_DOS
 # define INCL_DOSDEVICES
 # define INCL_DOSDEVIOCTL
-# define INCL_DOSSEMAPHORES
 # define INCL_DOSMEMMGR
 # include <os2.h>
 # include "os2_srb.h"
@@ -235,6 +234,10 @@ static char lastrcmd[16]; /* hold command block of last read command */
 
 #if USE == SOLARIS_USCSI_INTERFACE
 # define MAX_DATA	(128*1024)
+#endif
+
+#if USE == OS2_INTERFACE
+# define MAX_DATA	(64*1024)
 #endif
 
 
@@ -440,7 +443,6 @@ KillDomainServer (void)
 #if USE == OS2_INTERFACE
 
 /* Driver info:  */
-static HEV postSema = 0; /* Event Semaphore for posting SRB completion */
 static HFILE driver_handle = 0;	/* file handle for device driver */
 static PVOID aspi_buf = 0;	/* Big data buffer locked by driver. */
 static int aspi_ref_count = 0;	/* # of fds using ASPI */
@@ -464,7 +466,6 @@ open_aspi (void)
 {
   ULONG rc;
   ULONG ActionTaken;
-  USHORT openSemaReturn;
   USHORT lockSegmentReturn;
   unsigned long cbreturn;
   unsigned long cbParam;
@@ -485,13 +486,11 @@ open_aspi (void)
       aspi_ref_count++;		/* increment internal usage counter */
       return 1;			/* Already open. */
     }
-  rc = DosAllocMem (&aspi_buf, sanei_scsi_max_request_size,
-		    OBJ_TILE | PAG_READ | PAG_WRITE | PAG_COMMIT);
-  if (rc)
-    {
-      DBG (1, "open_aspi: can't allocate memory\n");
-      return 0;
-    }
+   aspi_buf = _tcalloc(sanei_scsi_max_request_size, 1);
+   if (aspi_buf == NULL)
+     { DBG(1, "sanei_scsi_open_aspi: _tcalloc failed");
+       return 0;
+     }
   rc = DosOpen ((PSZ) "aspirou$",	/* open driver */
 		&driver_handle,
 		&ActionTaken,
@@ -506,23 +505,6 @@ open_aspi (void)
       DBG (1, "open_aspi:  opening failed.\n");
       return 0;
     }
-  rc = DosCreateEventSem (NULL, &postSema,	/* create event semaphore */
-			  DC_SEM_SHARED, 0);
-  if (rc)
-    {
-      /* DosCreateEventSem failed */
-      DBG (1, "open_aspi:  couldn't create semaphore.\n");
-      return 0;
-    }
-  rc = DosDevIOCtl (driver_handle, 0x92, 0x03,	/* pass semaphore handle */
-		    (void *) &postSema, sizeof (HEV),	/* to driver */
-		    &cbParam, (void *) &openSemaReturn,
-		    sizeof (USHORT), &cbreturn);
-  if (rc || openSemaReturn)
-    {
-      DBG (1, "open_aspi:  couldn't set semaphore.\n");
-      return 0;
-    }
 
   /* Lock aspi_buf. */
   rc = DosDevIOCtl (driver_handle, 0x92, 0x04,	/* pass aspi_buf pointer */
@@ -532,7 +514,7 @@ open_aspi (void)
   if (rc || lockSegmentReturn)
     {
       /* DosDevIOCtl failed */
-      DBG (1, "open_aspi:  Can't lock buffer.\n");
+      DBG (1, "sanei_scsi_open_aspi:  Can't lock buffer. rc= %d \n",rc);
       return 0;
     }
 
@@ -638,8 +620,6 @@ open_aspi (void)
 	  rc = DosDevIOCtl (driver_handle, 0x92, 0x02,
 			    (void *) &SRBlock, sizeof (SRB), &cbParam,
 			    (void *) &SRBlock, sizeof (SRB), &cbreturn);
-	  DosWaitEventSem (postSema, -1);
-	  DosResetEventSem (postSema, &rc);
 	  len = ((char *) aspi_buf)[4];		/* additional length */
 
 	  /* query id string */
@@ -663,8 +643,6 @@ open_aspi (void)
 	  rc = DosDevIOCtl (driver_handle, 0x92, 0x02,
 			    (void *) &SRBlock, sizeof (SRB), &cbParam,
 			    (void *) &SRBlock, sizeof (SRB), &cbreturn);
-	  DosWaitEventSem (postSema, -1);
-	  DosResetEventSem (postSema, &rc);
 	  DBG (1, "OS/2         '%s'\n", (char *) aspi_buf + 8);
 	  /* write data */
 	  get_inquiry_vendor ((char *) aspi_buf, vendor);
@@ -717,14 +695,11 @@ close_aspi (void)
   if (aspi_ref_count)
     return;				/* wait for usage==0 */
 
-  if (postSema)
-    DosCloseEventSem (postSema);	/* Close event semaphore. */
-  postSema = 0;
   if (driver_handle)		/* Close driver. */
     DosClose (driver_handle);
   driver_handle = 0;
   if (aspi_buf)			/* Free buffer. */
-    DosFreeMem (aspi_buf);
+    _tfree (aspi_buf);
   aspi_buf = 0;
 
   errno = 0;
@@ -3569,7 +3544,6 @@ sanei_scsi_cmd2 (int fd,
   unsigned long cbreturn;
   unsigned long cbParam;
   SRB srb;			/* SCSI Request Block */
-  ULONG count = 0;		/* For semaphore. */
   /* xxx obsolete size_t cdb_size;
   */
 
@@ -3587,12 +3561,14 @@ sanei_scsi_cmd2 (int fd,
       /* xxx obsolete assert (cdb_size == src_size);
       */
       srb.u.cmd.data_len = *dst_size;
+      DBG (1, "sanei_scsi_cmd: Reading srb.u.cmd.data_len= %lu\n",srb.u.cmd.data_len); /* fraba */
       srb.flags |= SRB_Read;
     }
   else
     {
       /* Writing. */
       srb.u.cmd.data_len = src_size;
+      DBG (1, "sanei_scsi_cmd: Writing srb.u.cmd.data_len= %lu\n",srb.u.cmd.data_len); /* fraba */
       /* xxx obsolete assert (cdb_size <= src_size);
       */
       assert (srb.u.cmd.data_len <= sanei_scsi_max_request_size);
@@ -3615,13 +3591,7 @@ sanei_scsi_cmd2 (int fd,
 
   if (rc)
     {
-      DBG (1, "sanei_scsi_cmd: DosDevIOCtl failed.\n");
-      return SANE_STATUS_IO_ERROR;
-    }
-  if (DosWaitEventSem (postSema, -1) ||		/* wait forever for sema. */
-      DosResetEventSem (postSema, &count))	/* reset semaphore. */
-    {
-      DBG (1, "sanei_scsi_cmd:  semaphore failure.\n");
+      DBG (1, "sanei_scsi_cmd: DosDevIOCtl failed. rc= %d \n",rc);
       return SANE_STATUS_IO_ERROR;
     }
 
@@ -3637,9 +3607,17 @@ sanei_scsi_cmd2 (int fd,
   if (srb.status != SRB_Done ||
       srb.u.cmd.ha_status != SRB_NoError ||
       srb.u.cmd.target_status != SRB_NoStatus) {
-    DBG (1, "sanei_scsi_cmd:  command 0x%02x failed.\n", srb.u.cmd.cdb_st[0]);
+    DBG (1, "sanei_scsi_cmd:  command 0x%02x failed.\n"
+            "srb.status= 0x%02x\n"
+            "srb.u.chm.ha_status= 0x%02x\n"
+            "srb.u.cmd.target_status= 0x%02x\n",
+             srb.u.cmd.cdb_st[0],
+             srb.status,
+             srb.u.cmd.ha_status,
+             srb.u.cmd.target_status);
     return SANE_STATUS_IO_ERROR;
   }
+
   if (dst_size && *dst_size)	/* Reading? */
     memcpy ((char *) dst, aspi_buf, *dst_size);
   return SANE_STATUS_GOOD;

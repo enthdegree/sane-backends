@@ -1,3 +1,8 @@
+2004-12-18  Karl Heinz Kremer <khk@khk.net>
+
+	* backend/epson.c backend/epson_usb.c: Added USB IDs for
+	  CX-3650 and CX-4600 and updated version number.
+
 2004-12-15  Gerard Klaver <gerard at gkall dot hobby dot nl>
 
 	* do/descriptions-external/hpaio.desc stv680.desc 

@@ -1,4 +1,4 @@
-.TH sane-gt68xx 5 "9 Mar 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-gt68xx 5 "13 Apr 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-gt68xx
 .SH NAME
 sane-gt68xx \- SANE backend for GT-68XX based USB flatbed scanners
@@ -13,11 +13,13 @@ backend:
 .RS
 Artec Ultima 2000 (only product 0x4002)
 .br
+Artec Ultima 2000 e+
+.br
 Boeder SmartScan Slim Edition
 .br
 Genius Colorpage Vivid3x
 .br
-Genius Colorpage Vivid3x
+Genius Colorpage Vivid3xe
 .br
 Lexmark X70
 .br

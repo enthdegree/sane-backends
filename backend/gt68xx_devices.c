@@ -808,6 +808,55 @@ static GT68xx_Model plustek_op1248u_model = {
   /* tested */
 };
 
+static GT68xx_Model plustek_u16b_model = {
+  "plustek-u16b",		/* Name */
+  "Plustek",			/* Device vendor string */
+  "OpticPro U16B",		/* Device model name */
+  "ccd68861.fw",		/* Name of the firmware file */
+  SANE_FALSE,			/* Dynamic allocation flag */
+
+  &plustek_gt6801_command_set,	/* Command set used by this scanner */
+
+  600,				/* maximum optical sensor resolution */
+  1200,				/* maximum motor resolution */
+  600,				/* base x-res used to calculate geometry */
+  600,				/* base y-res used to calculate geometry */
+  50,				/* if ydpi is equal or higher, use linemode */
+  SANE_TRUE,			/* Use base_ydpi for all resolutions */
+
+  {600, 300, 150, 75, 0},	/* possible x-resolutions */
+  {1200, 600, 300, 150, 75, 0},	/* possible y-resolutions */
+  {12, 8, 0},			/* possible depths in gray mode */
+  {12, 8, 0},			/* possible depths in color mode */
+
+  SANE_FIX (3.5),		/* Start of scan area in mm  (x) */
+  SANE_FIX (7.5),		/* Start of scan area in mm (y) */
+  SANE_FIX (218.0),		/* Size of scan area in mm (x) */
+  SANE_FIX (299.0),		/* Size of scan area in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (1.0),		/* Start of black mark in mm (x) */
+
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+
+  0, 8, 16,			/* RGB CCD Line-distance correction in pixel */
+  0,				/* CCD distcance for CCD with 6 lines) */
+
+  COLOR_ORDER_BGR,		/* Order of the CCD/CIS colors */
+  {0x1c, 0x29, 0x1c, 0x2c, 0x1c, 0x2b},	/* Default offset/gain */
+  {0x157, 0x157, 0x157},	/* Default exposure parameters */
+  SANE_FIX (2.0),		/* Default gamma value */
+
+  SANE_FALSE,			/* Is this a CIS scanner? */
+  GT68XX_FLAG_UNTESTED | GT68XX_FLAG_OFFSET_INV	/* Which flags are needed for this scanner? */
+  /* completely untested */
+};
+
 static GT68xx_Model genius_vivid3x_model  = {
   "genius-colorpage-vivid3x",	/* Name */
   "Genius",			/* Device vendor string */
@@ -853,8 +902,8 @@ static GT68xx_Model genius_vivid3x_model  = {
   SANE_FIX (2.0),		/* Default gamma value */
 
   SANE_FALSE,			/* Is this a CIS scanner? */
-  GT68XX_FLAG_OFFSET_INV |  GT68XX_FLAG_UNTESTED /* Which flags are needed for this scanner? */
-  /* completely untested, based on the Plustek OpticPro 1248U*/
+  GT68XX_FLAG_OFFSET_INV 	/* Which flags are needed for this scanner? */
+  /* Tested zo some degree, based on the Plustek OpticPro 1248U*/
 };
 
 static GT68xx_Model genius_vivid3xe_model  = {
@@ -921,6 +970,7 @@ static GT68xx_USB_Device_Entry gt68xx_usb_device_list[] = {
   {0x043d, 0x002d, &lexmark_x73_model},
   {0x07b3, 0x0400, &plustek_op1248u_model},
   {0x07b3, 0x0401, &plustek_op1248u_model}, /* Same scanner, different id? */
+  {0x07b3, 0x0403, &plustek_u16b_model},
   {0x0458, 0x2011, &genius_vivid3x_model},
   {0x0458, 0x2017, &genius_vivid3xe_model},
   {0, 0, NULL}

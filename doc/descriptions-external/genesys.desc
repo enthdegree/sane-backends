@@ -61,6 +61,11 @@
 :interface "USB"
 :status :unsupported
 
+:model "CanoScan 8400F"
+:url "/unsupported/canon-8400f.html"
+:interface "USB"
+:status :unsupported
+:comment "Not supported. See link for more information."
 
 :mfg "Genius"
 :url "http://www.geniusnet.com.tw/"

@@ -1,3 +1,9 @@
+2005-03-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc
+	  doc/descriptions-external/genesys.desc: Added and updated
+	  various scanners. 
+
 2005-03-04  Gerard Klaver <gerard at gkall dot hobby dot nl>
 
         * doc/sane-teco2.man: text update

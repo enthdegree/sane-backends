@@ -1,3 +1,11 @@
+2001-11-10  Stéphane Voltz  <svoltz@wanadoo.fr>
+
+	* backend/umax_pp_low.c backend/umax_pp_low.h backend/umax_pp_mid.c
+	  backend/umax_pp_mid.h backend/umax_pp.c backend/umax_pp.h:
+	  use ENABLE_DIRECTIO to compile in direct I/O. Corrected the long 
+	  standing scan area origin detection bug. Improved parport mode
+	  negociation.
+
 2001-11-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* sanei/sanei_usb.c: Fixed debug messages.

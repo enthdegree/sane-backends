@@ -157,6 +157,11 @@
 :interface "USB"
 :status :good
 
+:model "640BT"
+:interface "USB"
+:status :good
+:comment "Optional tranparency unit supported"
+
 :model "1240"
 :interface "USB"
 :status :good
@@ -231,7 +236,7 @@
 
 :model "Perfection 1670"
 :interface "USB"
-:status :basic
+:status :good
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

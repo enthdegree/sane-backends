@@ -1,6 +1,7 @@
 2004-04-29  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
-	* backend/snapscan.conf: Added USB ID for Benq 640BT
+	* backend/snapscan.conf doc/descriptions/snapscan.desc
+	  Added Benq 640BT, changed status of Epson 1670 to "good"
 
 2004-04-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

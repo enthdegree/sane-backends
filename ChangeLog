@@ -1,3 +1,8 @@
+2004-10-12 Giuseppe Sacco <eppesuig@debian.org>
+
+	* Updated italian translation.
+	* Added a "translators" section in AUTHORS
+
 2004-10-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* acinclude.m4 config.guess config.sub configure ltmain.sh: Update

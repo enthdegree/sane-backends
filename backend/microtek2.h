@@ -4,6 +4,7 @@
    microtek2.h 
 
    This file (C) 1998, 1999 Bernd Schroeder
+                 2000, 2001 Karsten Festag
 
    This file is part of the SANE package.
 
@@ -87,11 +88,9 @@
 #define MIN(a,b)                ((a) < (b)) ? (a) : (b)
 #define MAX(a,b)                ((a) > (b)) ? (a) : (b)
 
-/* GETBIT() returns the bit'th bit in a byte, bit = 0..7 */
-#define GETBIT(byte, bit)       (((byte) >> ( 7 - bit )) & 0x01)
-
 #define MICROTEK2_MAJOR         0
-#define MICROTEK2_MINOR	        8
+#define MICROTEK2_MINOR	        9
+#define MICROTEK2_BUILD         "20010517"
 #define MICROTEK2_CONFIG_FILE   "microtek2.conf"
 
 
@@ -269,6 +268,8 @@
 #define RSI_CMD_L               10
 #define RSI_SET_PCORMAC(d,s)    (d)[5] |= (((s) << 7) & 0x80)
 #define RSI_SET_COLOR(d,s)      (d)[5] |= (((s) << 5) & 0x60)
+#define RSI_SET_DARK(d,s)       (d)[5] |= (((s) << 1) & 0x02)   /*(KF)*/
+                                           /* RSI_SET_DARK was missing*/
 #define RSI_SET_WORD(d,s)       (d)[5] |= ((s) & 0x01)
 #define RSI_SET_TRANSFERLENGTH(d,s)  (d)[6] = (((s) >> 16) & 0xff); \
                                 (d)[7] = (((s) >> 8) & 0xff); \
@@ -305,7 +306,7 @@
                                 (d)[7] = (((s) >> 8) & 0xff); \
                                 (d)[8] = ((s) & 0xff);
 
-  
+
 /* READ SYSTEM_STATUS  */
 #define RSS_CMD(d)              (d)[0] = 0x28; (d)[1] = 0x00; (d)[2] = 0x81; \
                                 (d)[3] = 0x00; (d)[4] = 0x00; (d)[5] = 0x00; \
@@ -314,11 +315,17 @@
 #define RSS_CMD_L               10
 #define RSS_RESULT_L            9
 
+#define RSS_FIRSTSCAN(s)        (s)[0] & 0x80
+#define RSS_AFOCUS(s)           (s)[0] & 0x40
 #define RSS_SSKIP(s)            (s)[0] & 0x20
+#define RSS_STICK(s)            (s)[0] & 0x10
 #define RSS_NTRACK(s)           (s)[0] & 0x08
 #define RSS_NCALIB(s)           (s)[0] & 0x04
 #define RSS_TLAMP(s)            (s)[0] & 0x02
 #define RSS_FLAMP(s)            (s)[0] & 0x01
+#define RSS_FSH(s)              (s)[1] & 0x20
+#define RSS_TEFLAG(s)           (s)[1] & 0x10
+#define RSS_WHITESTRIE(s)       (s)[1] & 0x08
 #define RSS_RDYMAN(s)           (s)[1] & 0x04
 #define RSS_TRDY(s)             (s)[1] & 0x02
 #define RSS_FRDY(s)             (s)[1] & 0x01
@@ -328,12 +335,21 @@
 #define RSS_LENSSTATUS(s)       (s)[3]
 #define RSS_ALOFF(s)            (s)[4] & 0x80
 #define RSS_TIMEREMAIN(s)       (s)[4] & 0x7f
+#define RSS_MTMACNT(s)          (s)[5] & 0x40
+#define RSS_MOVE(s)             (s)[5] & 0x20
+#define RSS_LAMP(s)             (s)[5] & 0x10
+#define RSS_EJECT(s)            (s)[5] & 0x08
 #define RSS_TMACNT(s)           (s)[5] & 0x04
 #define RSS_PAPER(s)            (s)[5] & 0x02
 #define RSS_ADFCNT(s)           (s)[5] & 0x01
-#define RSS_CURRENTMODE(s)      (s)[6] & 0x03 
+#define RSS_CANCELBTN(s)        (s)[6] & 0x80
+#define RSS_COPYBTN(s)          (s)[6] & 0x40
+#define RSS_EMAILBTN(s)         (s)[6] & 0x20
+#define RSS_GOBTN(s)            (s)[6] & 0x10
+#define RSS_TURBOBTN(s)         (s)[6] & 0x08
+#define RSS_CURRENTMODE(s)      (s)[6] & 0x07
 #define RSS_BUTTONCOUNT(s)      (s)[7]
-
+#define RSS_MFOCUS(s)           (s)[9]
 
 /* SEND SYSTEM STATUS */
 #define SSS_CMD(d)              (d)[0] = 0x2a; (d)[1] = 0x00; (d)[2] = 0x81; \
@@ -343,12 +359,14 @@
 #define SSS_CMD_L               10
 #define SSS_DATA_L              9
 
-#define SSS_RESERVED04(d,p)     d[0] |= (p) & 0x10
+#define SSS_AFOCUS(d,p)         d[0] |= (p) & 0x40
+#define SSS_STICK(d,p)          d[0] |= (p) & 0x10
 #define SSS_NTRACK(d,p)         d[0] |= (p) & 0x08
 #define SSS_NCALIB(d,p)         d[0] |= (p) & 0x04
 #define SSS_TLAMP(d,p)          d[0] |= (p) & 0x02
 #define SSS_FLAMP(d,p)          d[0] |= (p) & 0x01
 #define SSS_RESERVED17(d,p)     d[1] |= (p) & 0x80
+#define SSS_FSH(d,p)            d[1] |= (p) & 0x40
 #define SSS_RDYMAN(d,p)         d[1] |= (p) & 0x04
 #define SSS_TRDY(d,p)           d[1] |= (p) & 0x02
 #define SSS_FRDY(d,p)           d[1] |= (p) & 0x01
@@ -363,6 +381,7 @@
 #define SSS_ADFCNT(d,p)         d[5] |= (p) & 0x01
 #define SSS_CURRENTMODE(d,p)    d[6] |= (p) & 0x07
 #define SSS_BUTTONCOUNT(d,p)    d[6] |= (p)
+#define SSS_MFOCUS(s)           d[9] |= (p)
 
 
 /* SET WINDOW */
@@ -415,6 +434,8 @@
 #define SW_EXTHT(d,p)           (d)[28] |= (((p) << 7) & 0x80)
 #define SW_INTHTINDEX(d,p)      (d)[28] |= ((p) & 0x7f)
 #define SW_RIF(d,p)             (d)[29] |= (((p) << 7) & 0x80)
+#define SW_NOGAMMA(d,p)         (d)[29] |= (((p) << 6) & 0x40)
+#define SW_SLOWSCAN(d,p)        (d)[29] |= (((p) << 5) & 0x20)
 #define SW_LENS(d,p)            (d)[30] = (p)
 #define SW_INFINITE(d,p)        (d)[31] |= (((p) << 7) & 0x80)
 #define SW_STAY(d,p)            (d)[31] |= (((p) << 6) & 0x40)
@@ -422,6 +443,9 @@
 #define SW_QUALITY(d,p)         (d)[31] |= (((p) << 4) & 0x10)
 #define SW_FASTSCAN(d,p)        (d)[31] |= (((p) << 3) & 0x08)
 #define SW_MEDIA(d,p)           (d)[31] |= ((p) & 0x07)
+#define SW_JPEGENABLE(d,p)      (d)[34] |= (((p) << 7) & 0x80)
+#define SW_JPEGALGOR(d,p)       (d)[34] |= (((p) << 5) & 0x60)
+#define SW_JPEGMODE(d,p)        (d)[34] |= (((p) << 3) & 0x18)
 #define SW_SHADOW_M(d,p)        (d)[40] = (p)
 #define SW_MIDTONE_M(d,p)       (d)[41] = (p)
 #define SW_HIGHLIGHT_M(d,p)     (d)[42] = (p)
@@ -448,9 +472,9 @@
 /* READ IMAGE STATUS */
 #define RIS_SET_CMD(d)          (d)[0] = 0x28; (d)[1] = 0x00; (d)[2] = 0x83; \
                                 (d)[3] = 0x00; (d)[4] = 0x00; (d)[5] = 0x00; \
-                                (d)[6] = 0x00; (d)[7] = 0x00; (d)[8] = 0x00; \
+                                (d)[6] = 0x00; (d)[7] = 0x00; (d)[8] = 0x01; \
                                 (d)[9] = 0x00
-#define RIS_CMD_L               10 
+#define RIS_CMD_L               10
 #define RIS_SET_PCORMAC(d,p)    (d)[4] |= (((p) << 7) & 0x80)
 #define RIS_SET_COLOR(d,p)      (d)[4] |= (((p) << 5) & 0x60)
 
@@ -495,34 +519,34 @@ enum Microtek2_Option
 {
   /*0*/
   OPT_NUM_OPTS = 0,
-  
+
   /*1*/OPT_MODE_GROUP,
   OPT_SOURCE,
   OPT_MODE,
-  OPT_BITDEPTH,           
-  OPT_RESOLUTION,    
+  OPT_BITDEPTH,
+  OPT_RESOLUTION,
   OPT_X_RESOLUTION,
   OPT_Y_RESOLUTION,
   OPT_PREVIEW,
-  
-  /*9*/ OPT_GEOMETRY_GROUP,  
+
+  /*9*/ OPT_GEOMETRY_GROUP,
   OPT_TL_X,             /* top-left x */
   OPT_TL_Y,             /* top-left y */
   OPT_BR_X,             /* bottom-right x */
-  OPT_BR_Y,             /* bottom-right y */ 
-  
+  OPT_BR_Y,             /* bottom-right y */
+
   /*14*/  OPT_ENHANCEMENT_GROUP,
-  OPT_BRIGHTNESS, 
-  OPT_CONTRAST, 
+  OPT_BRIGHTNESS,
+  OPT_CONTRAST,
   OPT_THRESHOLD,
   OPT_HALFTONE,
   OPT_AUTOADJUST,
 
   /*20*/ OPT_GAMMA_GROUP,
-  OPT_GAMMA_MODE, 
+  OPT_GAMMA_MODE,
   OPT_GAMMA_SCALAR,
   OPT_GAMMA_SCALAR_R,
-  OPT_GAMMA_SCALAR_G, 
+  OPT_GAMMA_SCALAR_G,
   OPT_GAMMA_SCALAR_B,
   OPT_GAMMA_CUSTOM,
   OPT_GAMMA_CUSTOM_R,
@@ -727,18 +751,18 @@ typedef struct Microtek2_Device {
     /* a sane_close. */
     u_int8_t *shading_table_w;         /* shading table white */
     u_int8_t *shading_table_d;         /* shading table dark */
-
+    u_int8_t shading_table_contents;   /* values like ms->mode */
     /* the following structure describes the device status */
 #define MD_TLAMP_ON                   2
 #define MD_FLAMP_ON                   1
 #define MD_NCALIB_ON                  4
 #define MD_NTRACK_ON                  8
-#define MD_RESERVED04_ON             16 
+#define MD_STICK_ON                  16 
 #define MD_RESERVED17_ON            128
 #define MD_CURRENT_MODE_FLATBED       0
     struct {
       u_int8_t sskip;        
-      u_int8_t reserved04;
+      u_int8_t stick;
       u_int8_t ntrack;        
       u_int8_t ncalib;
       u_int8_t tlamp;
@@ -767,7 +791,8 @@ typedef struct Microtek2_Device {
 #define MD_NO_SLIDE_MODE               1  /* indicates that it has slide */
                                           /* mode, but it does not */ 
 #define MD_DATA_FORMAT_WRONG           2  /* X6 indicates wrong mode for TMA */
-#define MD_NO_RIS_COMMAND              4  /* read image status does not work */
+#define MD_NO_ENHANCEMENTS             4  /* image enhancements do not work */
+                                          /* (Brightness, contrast, .....)  */
 #define MD_RII_TWO_BYTES               8  /* return some image information */
                                           /* in two byte */
 #define MD_NO_GAMMA                   16  /* if device does not accept */
@@ -786,6 +811,8 @@ typedef struct Microtek2_Device {
                                           /* and can not be inquired */
     u_int32_t shading_length;             /* length of the shading image */
                                           /* Phantom 336cx, C6, ... */
+    u_int8_t shading_depth;               /* bit depth of shading image */
+    u_int8_t controlbit_offset;            /* first relevant control bit */
 
 
 #define MD_MODESTRING_NUMS             4
@@ -875,6 +902,9 @@ typedef struct Microtek2_Scanner {
     u_int8_t *temporary_buffer;        /* used when automatic adjustment */
                                        /* is selected */
     char *gamma_mode;                  /* none, linear or custom */
+    
+
+
 
 /* the following defines must correspond to byte 25 of SET WINDOW body */
 #define MS_MODE_LINEART                0x00
@@ -946,6 +976,8 @@ typedef struct Microtek2_Scanner {
 #define MS_COLOR_BLUE                  2
 #define MS_COLOR_ALL                   3
     u_int8_t current_color;        /* for gamma calc. and 3-pass scanners */
+    u_int8_t current_read_color;   /* dto, for RI and RIS */
+    u_int8_t dark;                 /* (KF) for dark shading */
     u_int32_t ppl;                 /* pixels per line as returned by RII */
     u_int32_t bpl;                 /* bytes per line as returned by RII */
     u_int32_t remaining_bytes;     /* remaining bytes as returned by RII */
@@ -964,8 +996,8 @@ typedef struct Microtek2_Scanner {
       u_int8_t *src_buffer[2];     /* two buffers because of CCD gap */
       u_int8_t *src_buf;
       int current_src;
-      unsigned int free_lines;
-      unsigned int free_max_lines;
+      SANE_Int free_lines;
+      SANE_Int free_max_lines;
       u_int8_t *current_pos[3];    /* actual position in the source buffer */
       int planes[2][3];            /* # of red, green, blue planes in the */
                                    /* current source buffer and leftover */
@@ -1012,6 +1044,14 @@ typedef struct Microtek2_Scanner {
                                " flatbed during a scan. Do not expect" \
                                " excellent results. Maybe this option will" \
                                " be removed in the future."
+
+#define M_NAME_QUALITY_SCAN    "quality_scan"
+#define M_TITLE_QUALITY_SCAN   "Quality scan"
+#define M_DESC_QUALITY_SCAN    "Highest quality but lower speed"
+
+#define M_NAME_FAST_SCAN       "fast_scan"
+#define M_TITLE_FAST_SCAN      "Fast scan"
+#define M_DESC_FAST_SCAN       "Highest speed but lower quality"
 
 #define M_NAME_AUTOADJUST      "lineart-auto-adjust"
 #define M_TITLE_AUTOADJUST     "Automatic adjustment of threshold value"
@@ -1088,6 +1128,9 @@ static SANE_Status
 auto_adjust_proc_data (Microtek2_Scanner *, u_int8_t **);
 
 static SANE_Status
+calc_cx_shading_line(Microtek2_Scanner *);  /* (KF) new */
+
+static SANE_Status
 calculate_gamma(Microtek2_Scanner *, u_int8_t *, int, char *);
 
 static SANE_Status
@@ -1100,7 +1143,7 @@ static SANE_Status
 check_inquiry(Microtek2_Device *, SANE_String *);
 
 static void
-check_option(char *, Config_Options *);
+check_option(const char *, Config_Options *);
 
 static SANE_Status
 chunky_copy_pixels(u_int8_t *, u_int32_t, int, FILE *);
@@ -1133,12 +1176,21 @@ dump_area(u_int8_t *, int, char *);
 static SANE_Status
 dump_area2(u_int8_t *, int, char *);
 
+/* currently not used */
+#if 0
+static SANE_Status
+dump_to_file(u_int8_t *, int, char *, char *);
+#endif
+
 static SANE_Status 
 dump_attributes(Microtek2_Info *);
 
 static void
 get_calib_params(Microtek2_Scanner *);
 
+static SANE_Status
+get_cshading_values(Microtek2_Scanner *,u_int8_t, u_int32_t, float, int,
+                    float *, float *);     /* (KF) new */
 static SANE_Status
 get_scan_mode_and_depth(Microtek2_Scanner *, int *, SANE_Int *, int *, int *);
 
@@ -1149,7 +1201,7 @@ static SANE_Status
 get_lut_size(Microtek2_Info *, int *, int *);
 
 static SANE_Status
-gray_copy_pixels(u_int8_t *, u_int32_t, int, FILE *, int, u_int8_t *, int);
+gray_copy_pixels(Microtek2_Scanner *ms, u_int8_t *, int, int);
 
 static SANE_Status                
 gray_proc_data(Microtek2_Scanner *);
@@ -1163,7 +1215,7 @@ static SANE_Status
 init_options(Microtek2_Scanner *, u_int8_t);
 
 static SANE_Status                
-lineartfake_copy_pixels(u_int8_t *, u_int32_t, u_int8_t, int, FILE *);
+lineartfake_copy_pixels(Microtek2_Scanner *, u_int8_t *, u_int32_t, u_int8_t, int, FILE *);
 
 static SANE_Status                
 lineartfake_proc_data(Microtek2_Scanner *);
@@ -1180,11 +1232,20 @@ max_string_size (const SANE_String_Const * /* strings[] */);
 static void
 parse_config_file(FILE *, Config_Temp **);
 
+static SANE_Status
+prepare_buffers(Microtek2_Scanner *);
+
 static SANE_Status         
 prepare_shading_data(Microtek2_Scanner *, u_int32_t, u_int8_t **);
 
 static SANE_Status                
 proc_onebit_data(Microtek2_Scanner *);
+
+static SANE_Status
+read_cx_shading_image(Microtek2_Scanner *);   /* (KF) new */
+
+static SANE_Status
+read_cx_shading(Microtek2_Scanner *);   /* (KF) new */
 
 static SANE_Status 
 reader_process(Microtek2_Scanner *);
@@ -1193,7 +1254,8 @@ static SANE_Status
 restore_gamma_options(SANE_Option_Descriptor *, Microtek2_Option_Value *);
 
 static SANE_Status
-segreg_copy_pixels(u_int8_t **, u_int32_t, int, FILE *);
+segreg_copy_pixels(Microtek2_Scanner *); /* (KF) */
+/* parameter list modified */
 
 static SANE_Status                
 segreg_proc_data(Microtek2_Scanner *ms);
@@ -1229,7 +1291,7 @@ static SANE_Status
 scsi_read_attributes(Microtek2_Info *, char *, u_int8_t);
 
 static SANE_Status
-scsi_read_control_bits(Microtek2_Scanner *, int sfd); 
+scsi_read_control_bits(Microtek2_Scanner *, int); 
 
 /* currently not used */
 #if 0
@@ -1258,6 +1320,9 @@ scsi_send_gamma(Microtek2_Scanner *, u_int16_t);
 
 static SANE_Status
 scsi_send_shading(Microtek2_Scanner *, u_int8_t *, u_int32_t, u_int8_t);
+
+static SANE_Status
+scsi_read_shading(Microtek2_Scanner *, u_int8_t *, u_int32_t); /* (KF) new */
 
 static SANE_Status
 scsi_send_system_status(Microtek2_Device *, int);

@@ -1,3 +1,15 @@
+2003-11-23  Jochen Eisinger <jochen@penguin-breeder.org>
+
+	* backend/mustek_pp.c, sanei/sanei_pa4s2.c: added support for auto 
+	  probing of the port
+	* configure{.in}, backend/mustek_pp_ccd.*, backend/Makefile.in,
+	  backend/dll.conf, doc/sane-mustek_pp_ccd.man, doc/sane.man, 
+	  doc/Makefile.in, doc/descriptions/mustek_pp_ccd.desc: mustek_pp_ccd 
+	  backend removed
+	* backend/mustek_pp.conf, mustek_pp_ccd300.[ch], 
+	  doc/sane-mustek_pp.man, doc/descriptions/mustek_pp.desc: fixed CCD
+	  support for mustek_pp backend
+	* backend/mustek_pp_null.c: beautified debug scanner name
 
 2003-11-23  René Rebe <rene@rocklinux.org>
 

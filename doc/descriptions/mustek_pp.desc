@@ -10,11 +10,11 @@
 ;
 
 :backend "mustek_pp"              ; name of backend
-:version "12"                     ; version of backend
+:version "13"                     ; version of backend
 :manpage "sane-mustek_pp"         ; name of manpage (if it exists)
                                   ; backend's web page
-:url "http://penguin-breeder.org/?page=mustek_pp"
-:comment "Supports CIS type parallel port scanners from Mustek. A lot of Mustek CCD scanners are supported by the mustek_pp_ccd backend."
+:url "http://penguin-breeder.org/sane/mustek_pp/"
+:comment "Supports CIS and CCD type parallel port scanners from Mustek."
 
 :devicetype :scanner              ; start of a list of devices....
                                   ; other types:  :stillcam, :vidcam,
@@ -25,33 +25,25 @@
 :url "http://www.mustek.com.tw/"
 :url "http://www.mustek.de/"
 
-;:model "ScanExpress 6000 P"
-;:interface "Parport (EPP)"
-;:status :alpha
-;:comment "300 dpi CCD scanner"
-;:status :unsupported
-;:comment "Please use SANE version 1.0.9 or earlier for this CCD scanner. Since 1.0.10 it's no longer supported. "
+:model "ScanExpress 6000 P"
+:interface "Parport (EPP)"
+:status :beta
+:comment "300 dpi CCD scanner"
 
-;:model "ScanExpress 600 SEP"
-;:interface "Parport (EPP)"
-;:status :alpha
-;:comment "300 dpi CCD scanner"
-;:status :unsupported
-;:comment "Please use SANE version 1.0.9 or earlier for this CCD scanner. Since 1.0.10 it's no longer supported."
+:model "ScanExpress 600 SEP"
+:interface "Parport (EPP)"
+:status :beta
+:comment "300 dpi CCD scanner"
 
-;:model "ScanMagic 4800 P"
-;:interface "Parport (EPP)"
-;:status :alpha
-;:comment "300 dpi CCD scanner"
-;:status :unsupported
-;:comment "Please use SANE version 1.0.9 or earlier for this CCD scanner. Since 1.0.10 it's no longer supported."
+:model "ScanMagic 4800 P"
+:interface "Parport (EPP)"
+:status :beta
+:comment "300 dpi CCD scanner"
 
-;:model "600 III EP Plus"
-;:interface "Parport (EPP)"
-;:status :alpha
-;:comment "300 dpi CCD scanner"
-;:status :unsupported
-;:comment "Please use SANE version 1.0.9 or earlier for this CCD scanner. Since 1.0.10 it's no longer supported."
+:model "600 III EP Plus"
+:interface "Parport (EPP)"
+:status :beta
+:comment "300 dpi CCD scanner"
 
 :model "96 CP"
 :interface "Parport (EPP)"
@@ -82,12 +74,10 @@
 :url "http://www.medion.de/"
 :comment "Those scanners are also known as \"Aldi Scanner\" or \"Tchibo Scanners\""
 
-;:model "MD 9848"
-;:interface "Parport (EPP)"
-;:status :alpha
-;:comment "300 dpi CCD scanner"
-;:status :unsupported
-;:comment "Please use SANE version 1.0.9 or earlier for this CCD scanner. Since 1.0.10 it's no longer supported."
+:model "MD 9848"
+:interface "Parport (EPP)"
+:status :beta
+:comment "300 dpi CCD scanner"
 
 :model "MD/LT 935x"
 :interface "Parport (EPP)"
@@ -129,32 +119,26 @@
 :status :good
 :comment "300x600 dpi CIS scanner"
 
-;:mfg "Viviscan"
+:mfg "Viviscan"
 
-;:model "Compact II"
-;:interface "Parport (EPP)"
-;:status :alpha
-;:comment "300 dpi CCD scanner"
-;:status :unsupported
-;:comment "Please use SANE version 1.0.9 or earlier for this CCD scanner. Since 1.0.10 it's no longer supported."
+:model "Compact II"
+:interface "Parport (EPP)"
+:status :beta
+:comment "300 dpi CCD scanner"
 
-;:mfg "Cybercom"
+:mfg "Cybercom"
 
-;:model "9352"
-;:interface "Parport (EPP)"
-;:status :alpha
-;:comment "300 dpi CCD scanner"
-;:status :unsupported
-;:comment "Please use SANE version 1.0.9 or earlier for this CCD scanner. Since 1.0.10 it's no longer supported."
+:model "9352"
+:interface "Parport (EPP)"
+:status :beta
+:comment "300 dpi CCD scanner"
 
-;:mfg "Gallery"
+:mfg "Gallery"
 
-;:model "4800"
-;:interface "Parport (EPP)"
-;:status :alpha
-;:comment "300 dpi CCD scanner"
-;:status :unsupported
-;:comment "Please use SANE version 1.0.9 or earlier for this CCD scanner. Since 1.0.10 it's no longer supported."
+:model "4800"
+:interface "Parport (EPP)"
+:status :beta
+:comment "300 dpi CCD scanner"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

@@ -105,10 +105,12 @@
 
 /* USE_FORK: fork a special reader process
 */
+
+#ifdef HAVE_SYS_SHM_H
 #define USE_FORK
+#endif
 
 #ifdef USE_FORK
-
 #include <signal.h>
 #include <fcntl.h>
 #include <sys/types.h>
@@ -1365,7 +1367,7 @@ attach (const char *devnam, SHARP_Device ** devp)
 
   dev->sane.name = strdup (devnam);
   dev->sane.vendor = "SHARP";
-  model_name = inquiry_data + 16;
+  model_name = (char*) inquiry_data + 16;
   dev->sane.model  = strndup (model_name, 10);
   dev->sane.type = "flatbed scanner";
   

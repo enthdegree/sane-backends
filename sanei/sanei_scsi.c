@@ -227,7 +227,7 @@ int sanei_scsi_max_request_size = MAX_DATA;
    new SG driver for Linux
 */
 # ifdef SG_IO
-#  include "linux_sg3_err.h"  /* xxx contains several definitions of error codes */
+#  include "linux_sg3_err.h"  /* contains several definitions of error codes */
 # endif
 #ifndef SG_SET_COMMAND_Q
 #define SG_SET_COMMAND_Q 0x2271
@@ -714,9 +714,62 @@ close_aspi (void)
 #endif /* USE_OS2_INTERFACE */
 
 static int num_alloced = 0;
-static int sg_version = 0;
 
 #if USE == LINUX_INTERFACE
+
+static int sg_version = 0;
+
+static SANE_Status
+get_max_buffer_size(const char *file) 
+{
+  int fd;
+  int buffersize = SCSIBUFFERSIZE, i;
+  size_t len;
+  char *cc, *cc1, buf[32];
+
+  
+  fd = open(file, O_RDWR);
+
+  if (fd > 0)
+    {
+      cc = getenv("SANE_SG_BUFFERSIZE");
+      if (cc)
+        {
+          i = strtol(cc, &cc1, 10);
+          if (cc != cc1 && i >= 32768)
+            buffersize = i;
+        }
+      
+      ioctl(fd, SG_SET_RESERVED_SIZE, &buffersize);
+      if (0 == ioctl(fd, SG_GET_RESERVED_SIZE, &buffersize)) 
+        {
+          if (buffersize < sanei_scsi_max_request_size)
+            sanei_scsi_max_request_size = buffersize;
+          close(fd);
+          DBG(4, "get_max_buffer_size for %s: %i\n", file, sanei_scsi_max_request_size);
+          return SANE_STATUS_GOOD;
+        }
+      else
+        {
+          close(fd);
+          /* ioctl not available: we have the old SG driver */
+          fd = open ("/proc/sys/kernel/sg-big-buff", O_RDONLY);
+          if (fd > 0 && (len = read (fd, buf, sizeof (buf) - 1)) > 0)
+            {
+              buf[len] = '\0';
+              sanei_scsi_max_request_size = atoi (buf);
+              close(fd);
+            }
+          else
+            sanei_scsi_max_request_size = buffersize < SG_BIG_BUFF ?
+                                          buffersize : SG_BIG_BUFF;
+          return SANE_STATUS_IO_ERROR;
+        }
+    }
+  else 
+    return SANE_STATUS_GOOD;
+}
+
 
 SANE_Status
 sanei_scsi_open_extended (const char *dev, int *fdp,
@@ -745,21 +798,38 @@ sanei_scsi_open (const char *dev, int *fdp,
 #if USE == LINUX_INTERFACE
   if (first_time)
     {
-      char buf[32];
-      size_t len;
-      int fd;
+      char *cc, *cc1;
+      int i;
 
       first_time = 0;
-
-      fd = open ("/proc/sys/kernel/sg-big-buff", O_RDONLY);
-      if (fd > 0 && (len = read (fd, buf, sizeof (buf) - 1)) > 0)
-	{
-	  buf[len] = '\0';
-	  sanei_scsi_max_request_size = atoi (buf);
-	  DBG (1, "sanei_scsi_open: sanei_scsi_max_request_size=%d bytes\n",
-	       sanei_scsi_max_request_size);
-	  close(fd);
-	}
+      
+      /* Try to determine a reliable value for sanei_scsi_max_request_size:
+      
+         With newer versions of the SG driver, check the available buffer
+         size by opening all SG device files belonging to a scanner,
+         issue the ioctl calls for setting and reading the reserved
+         buffer size, and take the smallest value. 
+         
+         For older version of the SG driver, which don't support variable
+         buffer size, try to read /proc/sys/kernel/sg-big-biff ; if
+         this fails (SG driver too old, or loaded as a module), use
+         SG_BIG_BUFF
+      */
+      
+      sanei_scsi_max_request_size = SCSIBUFFERSIZE;
+      cc = getenv("SANE_SG_BUFFERSIZE");
+      if (cc)
+        {
+          i = strtol(cc, &cc1, 10);
+          if (cc != cc1 && i >= 32768)
+            sanei_scsi_max_request_size = i;
+        }
+      sanei_scsi_find_devices(0, 0, "Scanner", -1, -1, -1, -1, 
+                              get_max_buffer_size);
+      sanei_scsi_find_devices(0, 0, "Processor", -1, -1, -1, -1, 
+                              get_max_buffer_size);
+      DBG (4, "sanei_scsi_open: sanei_scsi_max_request_size=%d bytes\n",
+           sanei_scsi_max_request_size);
     }
 #endif
 
@@ -1112,19 +1182,6 @@ sanei_scsi_open (const char *dev, int *fdp,
 
         /* the set call may not be able to allocate as much memory
            as requested, thus we read the actual buffer size.
-
-           NOTE: sanei_scsi_max_request_size is a global variable
-           used for all devices/file handles, while version 2.0 and
-           above of the SG driver allocate buffer memory for each
-           opened file separately. Therefore, we have a possible
-           inconsistency, if more than one file is opened and
-           if the SG_GET_RESERVED_SIZE return different buffer sizes
-           for different file handles. (See Douglas Gilbert's
-           description of the SG driver for details:
-           http://www.torque.net/sg/p/scsi-generic_long.txt)
-
-           For this reason, sanei_scsi_open does not allow to open
-           two or more file handles simultaneously.
         */
         if (0 == ioctl(fd, SG_GET_RESERVED_SIZE, &real_buffersize))
           {
@@ -1132,15 +1189,8 @@ sanei_scsi_open (const char *dev, int *fdp,
                 with the requested value, in order to allow
                 sanei_scsi_open to check the buffer size exactly.
              */
-             if (real_buffersize > *buffersize)
-               {
-                 sanei_scsi_max_request_size = *buffersize;
-               }
-             else
-               {
-                 sanei_scsi_max_request_size = real_buffersize;
-                 *buffersize = real_buffersize;
-               }
+             if (real_buffersize < *buffersize)
+               *buffersize = real_buffersize;
              fdpa->buffersize = *buffersize;
           }
         else
@@ -1251,53 +1301,25 @@ SANE_Status
 sanei_scsi_open (const char *dev, int *fdp,
                 SANEI_SCSI_Sense_Handler handler, void *handler_arg)
 {
-  int i = 0, fd, len;
+  int i = 0;
   int wanted_buffersize = SCSIBUFFERSIZE, real_buffersize;
   SANE_Status res;
-  char *cc, *cc1, buf[32];
+  char *cc, *cc1;
+  static int first_time = 1;
 
-  cc = getenv("SANE_SG_BUFFERSIZE");
-  if (cc)
+  if (first_time) 
     {
-      i = strtol(cc, &cc1, 10);
-      if (cc != cc1 && i >= 32768)
-        wanted_buffersize = i;
+      cc = getenv("SANE_SG_BUFFERSIZE");
+      if (cc)
+        {
+          i = strtol(cc, &cc1, 10);
+          if (cc != cc1 && i >= 32768)
+            wanted_buffersize = i;
+        }
     }
+  else
+    wanted_buffersize = sanei_scsi_max_request_size;
 
-  /* wanted_buffersize might be too big, if we have the old SG driver.
-     Therefore, check the driver version, and reduce wante_buffersize,
-     if necessary. Otherwise, sanei_scsi_open_extended will fail.
-  */
-  fd = open(dev, O_RDWR);
-  if (fd < 0)
-    {
-      res = SANE_STATUS_INVAL;
-      if (errno == EACCES)
-        res = SANE_STATUS_ACCESS_DENIED;
-      DBG(1, "sanei_scsi_open: open of `%s' failed: %s",
-          dev, strerror(errno));
-      return res;
-    }
-  
-  i = ioctl(fd, SG_GET_VERSION_NUM, &i);
-  close(fd);
-  if (i < 0)
-    {
-      /* we have the old driver */
-      fd = open("proc/sys/kernel/sg-big-buff", O_RDONLY);
-      if (fd > 0 && (len = read (fd, buf, sizeof (buf) - 1)) > 0)
-	{
-	  buf[len] = '\0';
-	  i = atoi (buf);
-	  if (wanted_buffersize > i)
-	    wanted_buffersize = i;
-	  close(fd);
-	}
-      else
-        if (wanted_buffersize > SG_BIG_BUFF)
-          wanted_buffersize = SG_BIG_BUFF;
-    }
-  
   real_buffersize = wanted_buffersize;
   res = sanei_scsi_open_extended(dev, fdp, handler, handler_arg,
                                  &real_buffersize);
@@ -1305,7 +1327,7 @@ sanei_scsi_open (const char *dev, int *fdp,
   /* make sure that we got as much memory as we wanted, otherwise
      the backend might be confused
   */
-  if (real_buffersize != wanted_buffersize)
+  if (!first_time && real_buffersize != wanted_buffersize)
     {
       DBG(1, "sanei_scsi_open: could not allocate SG buffer memory "
           "wanted: %i got: %i\n", wanted_buffersize, real_buffersize);
@@ -1313,6 +1335,7 @@ sanei_scsi_open (const char *dev, int *fdp,
       return SANE_STATUS_NO_MEM;
     }
 
+  first_time = 0;
   return res;
 }
 #else
@@ -2090,7 +2113,8 @@ sanei_scsi_cmd2 (int fd,
 #define CSTRLEN(string_const)	(sizeof (string_const) - 1)
 
 static int
-get_devicename (int devnum, char *name, size_t name_len)
+get_devicename (int devnum, int host, int channel, int target,
+                int lun, char *name, size_t name_len)
 {
   int dev_fd, i;
   static const struct
@@ -2119,6 +2143,17 @@ get_devicename (int devnum, char *name, size_t name_len)
 	  return 0;
 	}
     }
+    
+  snprintf(name, name_len, "/dev/scsi/host%i/bus%i/target%i/lun%i/generic",
+           host, channel, target, lun);
+  dev_fd = open (name, O_RDWR);
+  if (dev_fd >= 0)
+    {
+      close (dev_fd);
+      DBG (1, "searched device is %s\n", name);
+      return 0;
+    }
+
   return -1;
 }
 
@@ -2128,18 +2163,26 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 			 int findbus, int findchannel, int findid, int findlun,
 			 SANE_Status (*attach) (const char *dev))
 {
-  size_t findvendor_len = 0, findmodel_len = 0, findtype_len = 0;
-  /* These are static to make sure the param[] struct is computable at
-     load time. */
-  static char vendor[32], model[32], type[32], revision[32];
-  static int bus, channel, id, lun;
+  #define FOUND_VENDOR  1
+  #define FOUND_MODEL   2
+  #define FOUND_TYPE    4
+  #define FOUND_REV     8
+  #define FOUND_HOST    16
+  #define FOUND_CHANNEL 32
+  #define FOUND_ID      64
+  #define FOUND_LUN     128
+  #define FOUND_ALL     255
 
-  int number, i;
+  size_t findvendor_len = 0, findmodel_len = 0, findtype_len = 0;
+  char vendor[32], model[32], type[32], revision[32];
+  int bus, channel, id, lun;
+
+  int number, i, defined;
   char line[256], dev_name[128];
   const char *string;
   FILE *proc_fp;
   char *end;
-  const struct
+  struct
     {
       const char *name;
       size_t name_len;
@@ -2154,18 +2197,27 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
     }
   param[] =
     {
-      {"Vendor:",  7, 0, { vendor }},
-      {"Model:",   6, 0, { model }},
-      {"Type:",    5, 0, { type }},
-      {"Rev:",     4, 0, { revision }},
-      {"scsi",     4, 1, { &bus }},
-      {"Channel:", 8, 1, { &channel }},
-      {"Id:",      3, 1, { &id }},
-      {"Lun:",     4, 1, { &lun }}
+      {"Vendor:",  7, 0, {0}},
+      {"Model:",   6, 0, {0}},
+      {"Type:",    5, 0, {0}},
+      {"Rev:",     4, 0, {0}},
+      {"scsi",     4, 1, {0}},
+      {"Channel:", 8, 1, {0}},
+      {"Id:",      3, 1, {0}},
+      {"Lun:",     4, 1, {0}}
     };
+  
+  param[0].u.str = vendor;
+  param[1].u.str = model;
+  param[2].u.str = type;
+  param[3].u.str = revision;
+  param[4].u.i = &bus;
+  param[5].u.i = &channel;
+  param[6].u.i = &id;
+  param[7].u.i = &lun;
 
   DBG_INIT ();
-
+  
   proc_fp = fopen (PROCFILE, "r");
   if (!proc_fp)
     {
@@ -2209,9 +2261,12 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 			++string;
 		    }
 		  string = sanei_config_skip_whitespace (string);
+		  defined |= 1 << i;
 
-		  if (param[i].u.v == &bus)
+		  if (param[i].u.v == &bus) {
 		    ++number;
+		    defined = FOUND_HOST;
+		  }
 		  break;
 		}
 	    }
@@ -2219,13 +2274,9 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 	    ++string;		/* no match */
 	}
 
-      if ((findvendor && !vendor[0]) || (findmodel && !model[0])
-	  || (findtype && !type[0])
-	  || (findbus >= 0 && bus == -1) || (findchannel >= 0 && channel == -1)
-	  || (findlun >= 0 && lun == -1))
+      if (defined != FOUND_ALL)
 	/* some info is still missing */
 	continue;
-
       if ((!findvendor || strncmp (vendor, findvendor, findvendor_len) == 0)
 	  && (!findmodel || strncmp (model, findmodel, findmodel_len) == 0)
 	  && (!findtype || strncmp (type, findtype, findtype_len) == 0)
@@ -2233,7 +2284,9 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 	  && (findchannel == -1 || channel == findchannel)
 	  && (findid == -1 || id == findid)
 	  && (findlun == -1 || lun == findlun)
-	  && get_devicename (number, dev_name, sizeof (dev_name)) >= 0
+	  && get_devicename (number, *param[4].u.i, *param[5].u.i,
+	                     *param[6].u.i, *param[7].u.i,
+	                     dev_name, sizeof (dev_name)) >= 0
 	  && (*attach) (dev_name) != SANE_STATUS_GOOD)
 	return;
 

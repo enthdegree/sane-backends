@@ -1,4 +1,4 @@
-.TH sane-epson 5 "26-Feb-2000"
+.TH sane-epson 5 "27-Dec-2000"
 .IX sane-epson
 .SH NAME
 sane-epson - SANE backend for EPSON scanners
@@ -30,12 +30,21 @@ Perfection 636   SCSI
 .br
 Perfection 636U  USB
 .br
+Perfection 610   USB
+.br
+Perfection 640   USB
+.br
 Perfection 1200S SCSI
 .br
 Perfection 1200U USB
 .br
+Perfection 1240  USB, SCSI
+.br
+Perfection 1640  USB, SCSI
+.br
 Expression 636   SCSI
 .br
+Expression 1600  USB, SCSI, IEEE-1394
 .RE
 
 For other scanners the software  may or may not work.  Please send mail to 
@@ -58,6 +67,15 @@ switch selects the basic mode of operation of the scanner valid choices are
 The Binary mode is black and white only, Gray will produce up to 256 levels of gray
 and Color means 24 bit color mode. Some scanners will internally use 36 bit color, 
 the external interface however does only support 24 bits.
+
+The
+.I --depth
+option selects the bit depth the scanner is using. This option is only available
+for scanners that support more than one bit depth. Older scanners will always
+transfer the image in 8bit mode. Newer scanners allow to select either 8 bits 
+or 12 or 14 bits per color channel. For a color scan this means an effective
+color depth of 36 or 42 bits over all channels. The valid choice depend on 
+the scanner model.
 
 The 
 .I --dropout 
@@ -183,6 +201,20 @@ The
 .I --auto-eject
 option will eject a page after scanning from the document feeder. 
 
+The
+.I --film-type
+option will select the film type for scans with the transparency unit. This
+option is only activated of the TPU is selected as scan source. Valid options
+are "Negative Film" and "Positive Film".
+
+The
+.I --focus-position
+option selects the focus position for all scans. Valid options are "Focus 2.5mm above
+glass" and "Focus on glass". The focus on the 2.5mm point above the glass is 
+necessary for scans with the transparency unit, so that the scanner can focus on the
+film if one of the film holders is used.
+
+
 
 .SH CONFIGURATION FILE
 The configuration file @CONFIGDIR@/epson.conf specifies the device(s) that the 
@@ -240,7 +272,7 @@ sane\-scsi(5), scanimage(1), xscanimage(1), xsane(1)
 .SH BUGS
 When used with "scanimage -T" the backend hangs after sucessfully 
 completing the tests. It is necessary to powercycle the scanner to
-get the communication between backend and scanner going again.
+re-establish the communication between backend and scanner again.
 
 Sometimes the scanner is not initialized correctly. The problem can be
 resolved by killing the program and restarting it again. 
@@ -251,17 +283,10 @@ under the list of supported devices. A scanner that is not recognized
 may default to the function level B3, which means that not all 
 functions that the scanner may be capable of are accessible. 
 
-If the scanner is not even recognized as an Epson scanner it is 
-probably because the device name eported by the scanner is not in
-the correct format. Please send this information to the backend 
-maintainer (email address is in the AUTHORS file).devices. A scanner that is not recognized
-may default to the function level B3, which means that not all 
-functions that the scanner may be capable of are accessible. 
-
-If the scanner is not even recognized as an Epson scanner it is 
-probably because the device name eported by the scanner is not in
-the correct format. Please send this information to the backend 
-maintainer (email address is in the AUTHORS file).
+If the scanner is not even recognized as an Epson scanner this is
+probably because the device name reported by the scanner is not in the
+correct format. Please send this information to the backend maintainer
+(email address is in the AUTHORS file). 
 
 .SH AUTHOR
 

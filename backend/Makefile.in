@@ -80,7 +80,7 @@ DISTFILES = Makefile.in abaton.c abaton.conf abaton.desc abaton.h \
   as6e.c as6e.desc as6e.h avision.c avision.conf avision.desc \
   avision.h bh.c bh.conf bh.desc bh.h canon-sane.c canon-scsi.c \
   canon.c canon.conf canon.desc canon.h canon_pp.desc cderror.h \
-  cdjpeg.h coolscan-scsidef.h coolscan.c coolscan.conf coolscan.desc 
+  cdjpeg.h coolscan-scsidef.h coolscan.c coolscan.conf coolscan.desc \
   coolscan2.desc \
   coolscan.h dc210.c dc210.conf dc210.desc dc210.h dc240.c dc240.conf \
   dc240.desc dc240.h dc25.c dc25.conf dc25.desc dc25.h djpeg.README \

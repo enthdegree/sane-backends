@@ -1,5 +1,5 @@
 /* sane - Scanner Access Now Easy.
- 
+
    Copyright (C) 1997, 1998, 1999, 2001  Franck Schnefra, Michel Roelofs,
    Emmanuel Blot, Mikko Tyolajarvi, David Mosberger-Tang, Wolfgang Goeller,
    Petter Reinholdtsen, Gary Plewa, Sebastien Sable, Mikael Magnusson,
@@ -182,7 +182,8 @@ static struct SnapScan_Model_desc scanners[] =
     {"SnapScan",            SNAPSCAN},
     {"ACERSCAN_A4____1",    ACER300F},
     {"Perfection 660",      PERFECTION660},
-    {"EPSON Scanner",       PERFECTION1670},
+    {"EPSON Scanner",       PERFECTION1670}, /* dummy entry to detect scanner */
+    {"GT-8400",             PERFECTION1670},
     {"ARCUS 1200",          ARCUS1200}
 };
 #define known_scanners ((int) (sizeof(scanners)/sizeof(scanners[0])))
@@ -374,6 +375,9 @@ struct snapscan_scanner
 
 /*
  * $Log$
+ * Revision 1.25  2003/10/07 19:41:34  oliver-guest
+ * Updates for Epson Perfection 1670
+ *
  * Revision 1.24  2003/10/07 18:29:20  oliver-guest
  * Initial support for Epson 1670, minor bugfix
  *

@@ -1,4 +1,8 @@
 2003-10-07  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+	* backend/snapscan.h backend/snapscan-scsi.c
+	  Updates for Epson Perfection 1670
+
+2003-10-07  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 	* backend/snapscan.h backend/snapscan.c backend/snapscan-option.c
 	  Initial support for Epson Perfection 1670, minor bugfix
 	  (#300247)

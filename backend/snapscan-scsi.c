@@ -1171,6 +1171,20 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
                 bufLength = ftell(fd);
                 fseek(fd, 0, SEEK_SET);
                 break;
+            case PERFECTION1670:
+                /* AGFA firmware files contain an info block which
+                   specifies the length of the firmware data. The
+                   length information is stored at offset 0x64 from
+                   end of file */
+                {
+                    unsigned char size_l, size_h;
+                    fseek(fd, -0x64, SEEK_END);
+                    fread(&size_l, 1, 1, fd);
+                    fread(&size_h, 1, 1, fd);
+                    fseek(fd, 0, SEEK_SET);
+                    bufLength = (size_h << 8) + size_l;
+                }
+                break;
             default:
                 /* AGFA firmware files contain an info block which
                    specifies the length of the firmware data. The
@@ -1211,6 +1225,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
+ * Revision 1.24  2003/10/07 19:41:34  oliver-guest
+ * Updates for Epson Perfection 1670
+ *
  * Revision 1.23  2003/08/19 21:05:08  oliverschwartz
  * Scanner ID cleanup
  *

@@ -38,7 +38,7 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.  */
 
-#define BUILD 2
+#define BUILD 3
 
 #define BACKEND_NAME	hpsj5s
 #define HPSJ5S_CONFIG_FILE "hpsj5s.conf"
@@ -57,13 +57,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <fcntl.h>
 
 
 #define LINES_TO_FEED	480	/*Default feed length */
 
 static int scanner_d = -1;	/*This is handler to the only-supported. Will be fixed. */
-static char scanner_path[PATH_MAX] = "/dev/hpsj5s";	/*String for device-file */
+static char scanner_path[PATH_MAX] = "parport0";	/*String for device-file */
 static SANE_Byte bLastCalibration;	/*Here we store calibration result */
 static SANE_Byte bCalibration;	/*Here we store new calibration value */
 static SANE_Byte bHardwareState;	/*Here we store copy of hardware flags register */
@@ -156,6 +155,8 @@ LengthForRes (SANE_Word Resolution, SANE_Word Length)
     }
 }
 
+static struct parport_list pl;	/*List of detected parallel ports. */
+
 SANE_Status
 sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
@@ -209,6 +210,9 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   sod[1].constraint.range = &ImageWidthRange;	/*Width option */
   sod[2].constraint.word_list = &ImageResolutionsList[0];	/*Resolution option */
 
+  /*Search for ports in system: */
+  ieee1284_find_ports (&pl, 0);
+
   return SANE_STATUS_GOOD;
 }
 
@@ -217,9 +221,13 @@ sane_exit (void)
 {
   if (scanner_d != -1)
     {
-      close (scanner_d);
+      CloseScanner (scanner_d);
       scanner_d = -1;
     }
+
+  /*Free alocated ports information: */
+  ieee1284_free_ports (&pl);
+
   DBG (2, "sane_exit\n");
   return;
 }
@@ -253,13 +261,15 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
     };
 
   /*Device was not opened. */
-  scanner_d = open (scanner_path, O_RDWR);
+  scanner_d = OpenScanner (scanner_path);
 
   if (scanner_d == -1)		/*No devices present */
     {
+      DBG (1, "failed to open scanner.\n");
       *device_list = void_devlist;
       return SANE_STATUS_GOOD;
     }
+  DBG (1, "port opened.\n");
 
   /*Check device. */
   DBG (1, "sane_get_devices: check scanner started.");
@@ -276,7 +286,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
     }
 
   /*We do not need it any more */
-  close (scanner_d);
+  CloseScanner (scanner_d);
   scanner_d = -1;
 
   return SANE_STATUS_GOOD;
@@ -309,7 +319,8 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
     return SANE_STATUS_DEVICE_BUSY;
 
   DBG (1, "sane_open: scanner device path name is \'%s\'\n", scanner_path);
-  scanner_d = open (scanner_path, O_RDWR);
+
+  scanner_d = OpenScanner (scanner_path);
   if (scanner_d == -1)
     return SANE_STATUS_DEVICE_BUSY;	/*This should be done more carefully */
 
@@ -318,7 +329,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   if (DetectScanner () == 0)
     {				/*Device malfunction! */
       DBG (1, "sane_open: Device malfunction.");
-      close (scanner_d);
+      CloseScanner (scanner_d);
       scanner_d = -1;
       return SANE_STATUS_IO_ERROR;
     }
@@ -332,11 +343,11 @@ void
 sane_close (SANE_Handle handle)
 {
   DBG (2, "sane_close\n");
-  /*We support only single device - so ignore handle (FIX IT LATTER) */
+  /*We support only single device - so ignore handle (FIX IT LATER) */
   if ((handle != (SANE_Handle) scanner_d) || (scanner_d == -1))
     return;			/* wrong device */
   StandByScanner ();
-  close (scanner_d);
+  CloseScanner (scanner_d);
   scanner_d = -1;
 }
 
@@ -614,7 +625,9 @@ DetectScanner (void)
   Result2 = InputCheck ();
 
   if (!(Result1 || Result2))	/*If all are 0 - it's error */
-    return 0;
+    {
+      return 0;
+    }
 
   WriteScannerRegister (0x7C, 0x80);
   WriteScannerRegister (0x7F, 0x1);
@@ -1187,8 +1200,8 @@ OutputCheck ()
   WriteAddress (0x3F);
   if (ReadDataByte () & 0x80)
     return 0;
-  else
-    return 1;
+
+  return 1;
 }
 
 static int
@@ -1199,13 +1212,16 @@ InputCheck ()
 
   WriteAddress (0x3E);
   for (i = 0; i < 256; i++)
-    Buffer[i] = ReadDataByte ();
+    {
+      Buffer[i] = ReadDataByte ();
+    }
 
   for (i = 0; i < 256; i++)
     {
       if (Buffer[i] != i)
 	return 0;
     }
+
   return 1;
 }
 
@@ -1235,9 +1251,10 @@ CallCheck ()
   ReadDataBlock (Buffer, 256);
 
   for (i = 0; i < 255; i++)
-    if (Buffer[i + 1] != (SANE_Byte) i)
-      return 0;
-
+    {
+      if (Buffer[i + 1] != (SANE_Byte) i)
+	return 0;
+    }
   return 1;
 }
 
@@ -1269,39 +1286,31 @@ LoadingPaletteToScanner ()
 static void
 WriteAddress (SANE_Byte Address)
 {
-  strOperationBlock OpBlock;
-  OpBlock.Code = OP_WRITE_ADDRESS;
-  OpBlock.Parameters.WrAddr.Address = Address;
-  write (scanner_d, &OpBlock, sizeof (OpBlock));
+  ieee1284_data_dir (pl.portv[scanner_d], 0);	/*Forward mode */
+  ieee1284_frob_control (pl.portv[scanner_d], C1284_NINIT, C1284_NINIT);
+  ieee1284_epp_write_addr (pl.portv[scanner_d], 0, (char *) &Address, 1);
 }
 
 static void
 WriteData (SANE_Byte Data)
 {
-  strOperationBlock OpBlock;
-  OpBlock.Code = OP_WRITE_DATA_BYTE;
-  OpBlock.Parameters.WrData.Data = Data;
-  write (scanner_d, &OpBlock, sizeof (OpBlock));
+  ieee1284_data_dir (pl.portv[scanner_d], 0);	/*Forward mode */
+  ieee1284_frob_control (pl.portv[scanner_d], C1284_NINIT, C1284_NINIT);
+  ieee1284_epp_write_data (pl.portv[scanner_d], 0, (char *) &Data, 1);
 }
 
 static void
 WriteScannerRegister (SANE_Byte Address, SANE_Byte Data)
 {
-  strOperationBlock OpBlock;
-  OpBlock.Code = OP_WRITE_SCANER_REGISTER;
-  OpBlock.Parameters.WrScannerReg.Address = Address;
-  OpBlock.Parameters.WrScannerReg.Data = Data;
-  write (scanner_d, &OpBlock, sizeof (OpBlock));
+  WriteAddress (Address);
+  WriteData (Data);
 }
 
 static void
 CallFunctionWithParameter (SANE_Byte Function, SANE_Byte Parameter)
 {
-  strOperationBlock OpBlock;
-  OpBlock.Code = OP_CALL_FUNCTION_WITH_PARAMETER;
-  OpBlock.Parameters.FuncParam.Function = Function;
-  OpBlock.Parameters.FuncParam.Parameter = Parameter;
-  write (scanner_d, &OpBlock, sizeof (OpBlock));
+  WriteScannerRegister (REGISTER_FUNCTION_CODE, Function);
+  WriteScannerRegister (REGISTER_FUNCTION_PARAMETER, Parameter);
 }
 
 static SANE_Byte
@@ -1316,12 +1325,161 @@ static SANE_Byte
 ReadDataByte ()
 {
   SANE_Byte Result;
-  read (scanner_d, &Result, 1);
+
+  ieee1284_data_dir (pl.portv[scanner_d], 1);	/*Reverse mode */
+  ieee1284_frob_control (pl.portv[scanner_d], C1284_NINIT, C1284_NINIT);
+  ieee1284_epp_read_data (pl.portv[scanner_d], 0, (char *) &Result, 1);
   return Result;
 }
 
 static void
-ReadDataBlock (SANE_Byte * Buffer, int lenght)
+ReadDataBlock (SANE_Byte * Buffer, int length)
 {
-  read (scanner_d, Buffer, lenght);
+
+  ieee1284_data_dir (pl.portv[scanner_d], 1);	/*Reverse mode */
+  ieee1284_frob_control (pl.portv[scanner_d], C1284_NINIT, C1284_NINIT);
+  ieee1284_epp_read_data (pl.portv[scanner_d], 0, (char *) Buffer, length);
+}
+
+/* Send a daisy-chain-style CPP command packet. */
+int
+cpp_daisy (struct parport *port, int cmd)
+{
+  unsigned char s;
+
+  ieee1284_data_dir (port, 0);	/*forward direction */
+  ieee1284_write_control (port, C1284_NINIT);
+  ieee1284_write_data (port, 0xaa);
+  usleep (2);
+  ieee1284_write_data (port, 0x55);
+  usleep (2);
+  ieee1284_write_data (port, 0x00);
+  usleep (2);
+  ieee1284_write_data (port, 0xff);
+  usleep (2);
+  s = ieee1284_read_status (port) ^ S1284_INVERTED;	/*Converted for PC-style */
+
+  s &= (S1284_BUSY | S1284_PERROR | S1284_SELECT | S1284_NFAULT);
+
+  if (s != (S1284_BUSY | S1284_PERROR | S1284_SELECT | S1284_NFAULT))
+    {
+      DBG (1, "%s: cpp_daisy: aa5500ff(%02x)\n", port->name, s);
+      return -1;
+    }
+
+  ieee1284_write_data (port, 0x87);
+  usleep (2);
+  s = ieee1284_read_status (port) ^ S1284_INVERTED;	/*Convert to PC-style */
+
+  s &= (S1284_BUSY | S1284_PERROR | S1284_SELECT | S1284_NFAULT);
+
+  if (s != (S1284_SELECT | S1284_NFAULT))
+    {
+      DBG (1, "%s: cpp_daisy: aa5500ff87(%02x)\n", port->name, s);
+      return -1;
+    }
+
+  ieee1284_write_data (port, 0x78);
+  usleep (2);
+  ieee1284_write_control (port, C1284_NINIT);
+  ieee1284_write_data (port, cmd);
+  usleep (2);
+  ieee1284_frob_control (port, C1284_NSTROBE, C1284_NSTROBE);
+  usleep (1);
+  ieee1284_frob_control (port, C1284_NSTROBE, 0);
+  usleep (1);
+  s = ieee1284_read_status (port);
+  ieee1284_write_data (port, 0xff);
+  usleep (2);
+
+  return s;
+}
+
+/*Daisy chain deselect operation.*/
+void
+daisy_deselect_all (struct parport *port)
+{
+  cpp_daisy (port, 0x30);
+}
+
+/*Daisy chain select operation*/
+int
+daisy_select (struct parport *port, int daisy, int mode)
+{
+  switch (mode)
+    {
+      /*For these modes we should switch to EPP mode: */
+    case M1284_EPP:
+    case M1284_EPPSL:
+    case M1284_EPPSWE:
+      return cpp_daisy (port, 0x20 + daisy) & S1284_NFAULT;
+      /*For these modes we should switch to ECP mode: */
+    case M1284_ECP:
+    case M1284_ECPRLE:
+    case M1284_ECPSWE:
+      return cpp_daisy (port, 0xd0 + daisy) & S1284_NFAULT;
+      /*Nothing was told for BECP in Daisy chain specification.
+         May be it's wise to use ECP? */
+    case M1284_BECP:
+      /*Others use compat mode */
+    case M1284_NIBBLE:
+    case M1284_BYTE:
+    case M1284_COMPAT:
+    default:
+      return cpp_daisy (port, 0xe0 + daisy) & S1284_NFAULT;
+    }
+}
+
+/*Daisy chain assign address operation.*/
+int
+assign_addr (struct parport *port, int daisy)
+{
+  return cpp_daisy (port, daisy);
+}
+
+static int
+OpenScanner (const char *scanner_path)
+{
+  int handle;
+  int caps;
+
+  for (handle = 0; handle < pl.portc; handle++)
+    {
+      if (strcmp (scanner_path, pl.portv[handle]->name) == 0)
+	break;
+    }
+  if (handle == pl.portc)	/*No match found */
+    return -1;
+
+  /*Open port */
+  if (ieee1284_open (pl.portv[handle], 0, &caps) != E1284_OK)
+    return -1;
+
+  /*Claim port */
+  if (ieee1284_claim (pl.portv[handle]) != E1284_OK)
+    return -1;
+
+  /*Total chain reset. */
+  daisy_deselect_all (pl.portv[handle]);
+
+  /*Assign addresses. */
+  assign_addr (pl.portv[handle], 0);	/*Assume we have device first in chain. */
+
+  /*Select required device. For now - first in chain. */
+  daisy_select (pl.portv[handle], 0, M1284_EPP);
+
+  return handle;
+}
+
+static void
+CloseScanner (int handle)
+{
+  if (handle == -1)
+    return;
+
+  daisy_deselect_all (pl.portv[handle]);
+
+  ieee1284_release (pl.portv[handle]);
+
+  ieee1284_close (pl.portv[handle]);
 }

@@ -43,7 +43,8 @@
 
 #include <sys/types.h>
 #include <sys/time.h>
-#include <sane/sanei_debug.h>
+   
+#include "../include/sane/sanei_debug.h"
 
 /* #define for user authentification */
 /* #undef	HAVE_AUTHORIZATION */

@@ -40,7 +40,7 @@
 
    This file implements a SANE backend for Mustek PP flatbed scanners.  */
 
-#include "sane/config.h"
+#include "../include/sane/config.h"
 
 #include <ctype.h>
 #include <errno.h>
@@ -55,17 +55,17 @@
 #include <sys/time.h>
 #include <sys/types.h>
 
-#include "sane/sane.h"
-#include "sane/sanei.h"
-#include "sane/saneopts.h"
-#include "sane/sanei_pa4s2.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei.h"
+#include "../include/sane/saneopts.h"
+#include "../include/sane/sanei_pa4s2.h"
 
 #include "mustek_pp.h"
 
 #define BACKEND_NAME	mustek_pp
-#include "sane/sanei_backend.h"
+#include "../include/sane/sanei_backend.h"
 
-#include "sane/sanei_config.h"
+#include "../include/sane/sanei_config.h"
 #define MUSTEK_PP_CONFIG_FILE "mustek_pp.conf"
 
 #define MIN(a,b)	((a) < (b) ? (a) : (b))
@@ -149,6 +149,8 @@
  *  1.0.9-devel		added tons off 600 dpi code: kind of works for
  *  			ASIC 1015 CCD 01 scanners (grayscale)
  *  			option preview defaults to color mode
+ *  			replaced #include "sane/..." by
+ *  			#include "../include/sane/..."
  */
 
 /* if you change the source, please set MUSTEK_PP_STATE to "devel". Do *not*

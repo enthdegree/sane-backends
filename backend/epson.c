@@ -5581,7 +5581,7 @@ static void filter_resolution_list(Epson_Scanner * s)
 	}
 	else
 	{
-		// copy the full list
+		/* copy the full list */
 		s->hw->resolution_list[0] = s->hw->res_list_size;
 		memcpy(&(s->hw->resolution_list[1]), s->hw->res_list,
 				s->hw->res_list_size * sizeof(SANE_Word));

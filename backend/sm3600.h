@@ -283,6 +283,7 @@ __SM3600EXPORT__ TState DoLampSwitch(TInstance *this,int nPattern);
 #endif
 __SM3600EXPORT__ TState DoCalibration(TInstance *this);
 __SM3600EXPORT__ TState UploadGammaTable(TInstance *this, int iByteAddress, SANE_Int *pnGamma);
+__SM3600EXPORT__ TState UploadGainCorrection(TInstance *this);
 
 /* sm3600-scanusb.c */
 __SM3600EXPORT__ TState RegWrite(TInstance *this,int iRegister, int cb, unsigned long ulValue);

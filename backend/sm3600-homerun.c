@@ -56,8 +56,10 @@ slider movement
 /* tuning constants for DoOriginate */
 #define CCH_BONSAI              60
 #define BLACK_HOLE_GRAY         30
-#define CHASSIS_GRAY_LEVEL      100
 #define BLACK_BED_LEVEL         10
+
+/* changed by user request from 100, there are probably darker stripes */
+#define CHASSIS_GRAY_LEVEL      75
 
 typedef enum { ltHome, ltUnknown, ltBed, ltError } TLineType;
 
@@ -492,6 +494,6 @@ TState DoJog(TInstance *this, int nDistance)
     }
   INST_ASSERT();
   usleep(100);
-  return WaitWhileBusy(this,100);
+  return WaitWhileBusy(this,1000); /* thanks Mattias Ellert */
 }
 

@@ -272,3 +272,41 @@ TState UploadGammaTable(TInstance *this, int iByteAddress, SANE_Int *pnGamma)
   free(puchGamma);
   return rc;
 }
+
+/* **********************************************************************
+
+UploadGainCorrection()
+
+********************************************************************** */
+
+__SM3600EXPORT__
+TState UploadGainCorrection(TInstance *this)
+{
+#ifndef SM3600_NO_GAIN_CORRECTION
+  RegWrite(this,0x3D,1,0x0F | 0x80); /* 10XXXXXX : one offset table */
+  RegWrite(this,0x3F,1,0x18); /* 16KB gain at 0x06000 */
+  {
+    struct TGain {
+      unsigned char uchLow;
+      unsigned char uchHigh;
+    } aGain[8192];
+    int i,iOff;
+    unsigned short uwGain;
+
+    /*
+      Oopsi: correction data starts at the left of the scanning window!
+    */
+    iOff=this->param.x/2+this->calibration.xMargin;
+    memset(aGain,0,sizeof(aGain));
+    for (i=iOff; i<MAX_PIXEL_PER_SCANLINE; i++)
+      {
+	uwGain=this->calibration.achStripeY[i]<<4;
+	aGain[i-iOff].uchLow =(unsigned char)(uwGain&0xFF);
+	aGain[i-iOff].uchHigh=(unsigned char)(uwGain>>8);
+      }
+    for (i=0; i<0x2000; i+=0x1000)
+      MemWriteArray(this,(0x6000+i)>>1,0x1000,(unsigned char*)(aGain+i));
+  }
+#endif
+  return SANE_STATUS_GOOD;
+}

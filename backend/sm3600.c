@@ -683,7 +683,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters *p)
   GetAreaSize(this);
   p->pixels_per_line=this->state.cxPixel;
   /* TODO: we need a more stable cyPixel prediction */
-  p->lines=this->state.cyPixel+1;
+  p->lines=this->state.cyPixel;
   p->last_frame=SANE_TRUE;
   switch (this->mode)
     {

@@ -208,7 +208,7 @@ tells the backend, that the following devicename (here
 .I /dev/usbscanner
 ) has to be interpreted as USB scanner device. If vendor- and
 product-id has not been specified, the backend tries to
-detect this by its own. If device ist set to
+detect this by its own. If device is set to
 .I auto
 then the next matching device is used.
 .br

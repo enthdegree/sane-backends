@@ -42,6 +42,7 @@
 
 #include "../include/sane/config.h"
 
+#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -55,12 +56,55 @@
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei_debug.h"
 #include "../include/sane/sanei_usb.h"
+#include "../include/sane/sanei_config.h"
 
 
 void
 sanei_usb_init (void)
 {
   DBG_INIT();
+}
+
+/* This logically belongs to sanei_config.c but not every backend that
+   uses sanei_config() wants to depend on sanei_usb.  */
+void
+sanei_usb_attach_matching_devices (const char *name,
+				   SANE_Status (*attach) (const char *dev))
+{
+  char *vendor, *product;
+
+  if (strncmp (name, "usb", 3) == 0)
+    {
+      SANE_Word vendorID = 0, productID = 0;
+
+      name += 3;
+
+      name = sanei_config_skip_whitespace (name);
+      if (*name)
+	{
+	  name = sanei_config_get_string (name, &vendor);
+	  if (vendor)
+	    {
+	      vendorID = strtol (vendor, 0, 0);
+	      free (vendor);
+	    }
+	  name = sanei_config_skip_whitespace (name);
+	}
+
+      name = sanei_config_skip_whitespace (name);
+      if (*name)
+	{
+	  name = sanei_config_get_string (name, &product);
+	  if (product)
+	    {
+	      productID = strtol (product, 0, 0);
+	      free (product);
+	    }
+	}
+      sanei_usb_find_devices (vendorID, productID, attach);
+    }
+  else 
+    (*attach) (name);
 }
 
 SANE_Status

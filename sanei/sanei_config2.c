@@ -144,36 +144,6 @@ sanei_config_attach_matching_devices (const char *name,
       if (type)
 	free (type);
     }
-  else if (strncmp (name, "usb", 3) == 0)
-    {
-      SANE_Word vendorID = 0, productID = 0;
-
-      name += 3;
-
-      name = sanei_config_skip_whitespace (name);
-      if (*name)
-	{
-	  name = sanei_config_get_string (name, &vendor);
-	  if (vendor)
-	    {
-	      vendorID = strtol (vendor, 0, 0);
-	      free (vendor);
-	    }
-	  name = sanei_config_skip_whitespace (name);
-	}
-
-      name = sanei_config_skip_whitespace (name);
-      if (*name)
-	{
-	  name = sanei_config_get_string (name, &product);
-	  if (product)
-	    {
-	      productID = strtol (product, 0, 0);
-	      free (product);
-	    }
-	}
-      sanei_usb_find_devices (vendorID, productID, attach);
-    }
   else 
     (*attach) (name);
 }

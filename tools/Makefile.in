@@ -25,6 +25,7 @@ configdir = ${sysconfdir}/sane.d
 MKDIR = $(top_srcdir)/mkinstalldirs
 INSTALL = @INSTALL@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_DATA = @INSTALL_DATA@
 RANLIB = @RANLIB@
 
@@ -65,7 +66,7 @@ LIBLIB = ../lib/liblib.a
 all:	$(DESTINATIONS)
 
 install: sane-config
-	$(INSTALL_PROGRAM) sane-config $(bindir)/sane-config
+	$(INSTALL_SCRIPT) sane-config $(bindir)/sane-config
 
 sane-config: sane-config.in $(top_builddir)/config.status 
 	cd $(top_builddir) \

@@ -1,4 +1,4 @@
-Thu Mar  4 22:41:24 1999
+2000-12-23
 
 Here are a few rules that should help writing a SANE-conformant
 backend:
@@ -92,6 +92,10 @@ backend:
   any other includes. If you use lalloca.h see above for the correct
   includes.
 
+* Include sanei_backend.h after the other includes.
+
+* It's no longer necessary to #define PATH_MAX (now in sanei_backend.h).
+
 * Please use sanei functions whenever possible (e.g. 
   sanei_config_read()). This makes porting to other os/platforms much
   easier.
@@ -108,10 +112,10 @@ backend:
   source code for your backend, you should include an update to the
   .desc file which reflects the new state of the backend.
 
-  "template.desc." is a template for new .desc files.  If you'd like
+* "template.desc." is a template for new .desc files.  If you'd like
   to try parsing your creation to recreate the sane-backends webpage,
   look at "sane-desc.el" in the tools/ directory.
 
 * When your backend is included in the SANE distribution, add an entry
-  to README and sane.lsm. The README entry should point to your 
+  to README and sane-backends.lsm. The README entry should point to your 
   documentation (man-page, website, readme).

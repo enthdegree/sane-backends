@@ -1,6 +1,6 @@
 /* sane - Scanner Access Now Easy.
 
-   Copyright (C) 2001 Eddy De Greef <eddy_de_greef@tiscalinet.be>
+   Copyright (C) 2001-2003 Eddy De Greef <eddy_de_greef at tiscali dot be>
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or

@@ -426,7 +426,7 @@ For the latest CIS driver versions, see
 .SH AUTHORS
 Jochen Eisinger <jochen.eisinger@gmx.net> 
 .br
-Eddy De Greef <eddy_de_greef@tiscali.be>
+Eddy De Greef <eddy_de_greef at tiscali dot be>
 
 .SH BUGS
 Too many... please send bug reports to 

@@ -1,3 +1,8 @@
+2003-09-12  Eddy De Greef <eddy_de_greef at tiscali dot be>
+
+	* AUTHORS, backend/mustek_pp_cis.c, backend/mustek_pp_cis.h,
+	  doc/sane-mustek_pp.man: Updated e-mail address.
+
 2003-09-12  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/.cvsignore sanei/.cvsignore: Added .libs. Sorted.

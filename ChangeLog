@@ -1,6 +1,8 @@
 2002-12-06  Peter Kirchgessner <peter@kirchgessner.net>
 
-	* backend/hp.h hp.c hp-scl.c: Add option dumb-read to work
+	* backend/hp.h backend/hp.c backend/hp-scl.c backend/hp.conf
+	* doc/sane-hp.man doc/descriptions/hp.desc
+	  Add option dumb-read to work
 	  around problem with Buslogic SCSI driver
 
 2002-12-06  Henning Meier-Geinitz <henning@meier-geinitz.de>

@@ -28,6 +28,7 @@
 	* doc/Makefile.in doc/sane.man doc/sane-umax1220u.man: Added
 	  documentation fo umax1220u backend (patch from from Marcio Luis
 	  Teixeira <marciot@holly.colostate.edu>).
+	* AUTHORS: Added Marcio Luis Teixeira.
 
 2002-01-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

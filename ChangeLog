@@ -10,7 +10,9 @@
 	  scanners seem to work.
 	* README.linux: Minor updates.
 	* README.openbsd: libusb is necessary for some backends.
-
+	* Makefile.in doc/Makefile.in doc/sane.man: The lists of supported
+	  devices are now generated and installed by default.
+	
 2003-04-18  Frank Zago  <fzago at austin dot rr dot com>
 
 	* backend/teco2.c backend/teco2.conf backend/teco2.h

@@ -1,4 +1,4 @@
-.TH sane 7 "17 Apr 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane 7 "19 Apr 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane
 
 .SH NAME
@@ -86,8 +86,9 @@ device lists contain information about the status of
 support for a specific device. If your scanner is not listed there (either
 supported or unsupported), please contact us. See section HOW CAN YOU HELP
 SANE for details. There are lists for specific releases of SANE, for the
-current develoment version and a search engine:
+current development version and a search engine:
 .IR http://www.mostang.com/sane/sane-supported-devices.html .
+The lists are also installed on your system at @DOCDIR@/.
 .TP
 .B SANE mailing list
 There is a mailing list for the purpose of discussing the SANE standard and

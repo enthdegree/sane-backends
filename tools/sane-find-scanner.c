@@ -43,11 +43,9 @@
 #endif
 
 static const char *prog_name;
-
-static int verbose;
-
+static int verbose = 1;
+static SANE_Bool force = SANE_FALSE;
 static SANE_Bool device_found = SANE_FALSE;
-
 static SANE_Bool unknown_found = SANE_FALSE;
 
 typedef struct
@@ -80,7 +78,10 @@ usage (char *msg)
 {
   fprintf (stderr, "Usage: %s [-hv] [devname ...]\n", prog_name);
   fprintf (stderr, "\t-h: print this help message\n");
-  fprintf (stderr, "\t-v: be verbose\n");
+  fprintf (stderr, "\t-v: be more verbose (can be used multiple times)\n");
+  fprintf (stderr, "\t-q: be more quiet\n");
+  fprintf (stderr, "\t-f: force opening devname as SCSI even if it looks "
+	   "like USB\n");
   if (msg)
     fprintf (stderr, "\t%s\n", msg);
 }
@@ -222,18 +223,18 @@ scanner_identify_scsi_scanner (unsigned char *buffer, int sfd,
   status = scanner_do_scsi_inquiry (buffer, sfd);
   if (status != SANE_STATUS_GOOD)
     {
-      if (verbose)
+      if (verbose > 1)
 	printf ("inquiry for device %s failed (%s)\n",
 		devicename, sane_strstatus (status));
       return;
     }
 
-  if (verbose)
+  if (verbose > 2)
     hexdump ("Inquiry for device:", buffer,
 	     get_scsi_inquiry_additional_length (buffer) + 5);
 
   devtype = get_scsi_inquiry_periph_devtype (buffer);
-  if (!verbose && devtype != IN_periph_devtype_scanner
+  if (verbose <= 1 && devtype != IN_periph_devtype_scanner
       /* old HP scanners use the CPU id ... */
       && devtype != IN_periph_devtype_cpu)
     return;			/* no, continue searching */
@@ -271,12 +272,28 @@ check_scsi_file (char *file_name)
   int sfd;
   unsigned char buffer[16384];
 
-  if (verbose)
+  if (strstr (file_name, "usb")
+      || strstr (file_name, "uscanner") || strstr (file_name, "ugen"))
+    {
+      if (force)
+	{
+	  if (verbose > 1)
+	    printf ("checking %s even though it looks like a USB device...",
+		    file_name);
+	}
+      else
+	{
+	  if (verbose > 1)
+	    printf ("ignored %s (not a SCSI device)\n", file_name);
+	  return;
+	}
+    }
+  else if (verbose > 1)
     printf ("checking %s...", file_name);
 
   result = sanei_scsi_open (file_name, &sfd, NULL, NULL);
 
-  if (verbose)
+  if (verbose > 1)
     {
       if (result != 0)
 	printf (" failed to open (%s)\n", sane_strstatus (result));
@@ -299,14 +316,30 @@ check_usb_file (char *file_name)
   SANE_Word vendor, product;
   SANE_Int fd;
 
-  if (verbose)
+  if (!strstr (file_name, "usb")
+      && !strstr (file_name, "uscanner") && !strstr (file_name, "ugen"))
+    {
+      if (force)
+	{
+	  if (verbose > 1)
+	    printf ("checking %s even though doesn't look like a "
+		    "USB device...", file_name);
+	}
+      else
+	{
+	  if (verbose > 1)
+	    printf ("ignored %s (not a USB device)\n", file_name);
+	  return;
+	}
+    }
+  else if (verbose > 1)
     printf ("checking %s...", file_name);
 
   result = sanei_usb_open (file_name, &fd);
 
   if (result != SANE_STATUS_GOOD)
     {
-      if (verbose)
+      if (verbose > 1)
 	printf (" failed to open (%s)\n", sane_strstatus (result));
     }
   else
@@ -314,15 +347,14 @@ check_usb_file (char *file_name)
       result = sanei_usb_get_vendor_product (fd, &vendor, &product);
       if (result == SANE_STATUS_GOOD)
 	{
-	  if (verbose)
+	  if (verbose > 1)
 	    printf (" open ok, vendor and product ids were identified\n");
 	  printf ("found USB scanner (vendor = 0x%04x, "
-		  "product = 0x%04x) at %s\n", vendor, product,
-		  file_name);
+		  "product = 0x%04x) at %s\n", vendor, product, file_name);
 	}
       else
 	{
-	  if (verbose)
+	  if (verbose > 1)
 	    printf (" open ok, but vendor and product could NOT be "
 		    "identified\n");
 	  printf ("found USB scanner (UNKNOWN vendor and product) "
@@ -340,25 +372,26 @@ scan_directory (char *dir_name)
   struct stat stat_buf;
   DIR *dir;
 
-  if (verbose)
+  if (verbose > 2)
     printf ("scanning directory %s\n", dir_name);
 
   if (stat (dir_name, &stat_buf) < 0)
     {
-      if (verbose)
+      if (verbose > 1)
 	printf ("cannot stat `%s' (%s)\n", dir_name, strerror (errno));
       return 0;
     }
   if (!S_ISDIR (stat_buf.st_mode))
     {
-      if (verbose)
+      if (verbose > 1)
 	printf ("`%s' is not a directory\n", dir_name);
       return 0;
     }
   if ((dir = opendir (dir_name)) == 0)
     {
-      if (verbose)
-	printf ("cannot read directory `%s' (%s)\n", dir_name, strerror (errno));
+      if (verbose > 1)
+	printf ("cannot read directory `%s' (%s)\n", dir_name,
+		strerror (errno));
       return 0;
     }
   return dir;
@@ -381,7 +414,7 @@ get_next_file (char *dir_name, DIR * dir)
 
   if (strlen (dir_name) + strlen (dir_entry->d_name) + 1 > PATH_MAX)
     {
-      if (verbose)
+      if (verbose > 1)
 	printf ("filename too long\n");
       return 0;
     }
@@ -414,6 +447,19 @@ main (int argc, char **argv)
 
 	case 'v':
 	  ++verbose;
+	  break;
+
+	case 'q':
+	  --verbose;
+	  break;
+
+	case 'f':
+	  force = SANE_TRUE;
+	  break;
+
+	default:
+	  printf ("unknown option: -%c, try -h for help\n", (*ap)[1]);
+	  exit (0);
 	}
     }
   if (ap < argv + argc)
@@ -666,8 +712,9 @@ main (int argc, char **argv)
       usb_dev_list = usb_default_dev_list;
     }
 
-  printf ("\n");  
-  if (verbose)
+  if (verbose > 0)
+    printf ("\n");
+  if (verbose > 1)
     printf ("searching for SCSI scanners:\n");
 
   while ((dev_name = *dev_list++))
@@ -696,28 +743,33 @@ main (int argc, char **argv)
     }
   if (device_found)
     {
-      printf 
-	("  # Your SCSI scanner was detected. It may or may not be supported "
-	 "by SANE. Try\n  # scanimage -L and read the backend's "
-	 "manpage.\n");
+      if (verbose > 0)
+	printf
+	  ("  # Your SCSI scanner was detected. It may or may not be "
+	   "supported by SANE. Try\n  # scanimage -L and read the backend's "
+	   "manpage.\n");
     }
   else
     {
-      printf 
-	("  # No SCSI scanners found. If you expected something different, "
-	 "make sure that\n  # you have loaded a SCSI driver for your SCSI "
-	 "adapter.\n");
+      if (verbose > 0)
+	printf
+	  ("  # No SCSI scanners found. If you expected something different, "
+	   "make sure that\n  # you have loaded a SCSI driver for your SCSI "
+	   "adapter.\n");
       if (!check_sg ())
 	{
-	  printf
-	    ("  # Also you need support for SCSI Generic (sg) in your "
-	     "operating system.\n  # If using Linux, try \"modprobe sg\".\n");
+	  if (verbose > 0)
+	    printf
+	      ("  # Also you need support for SCSI Generic (sg) in your "
+	       "operating system.\n  # If using Linux, try \"modprobe "
+	       "sg\".\n");
 	}
     }
-  printf ("\n");
+  if (verbose > 0)
+    printf ("\n");
   device_found = SANE_FALSE;
   sanei_usb_init ();
-  if (verbose)
+  if (verbose > 1)
     printf ("searching for USB scanners:\n");
 
   while ((dev_name = *usb_dev_list++))
@@ -750,37 +802,58 @@ main (int argc, char **argv)
     struct usb_bus *bus;
     struct usb_device *dev;
 
-    for (bus = usb_get_busses (); bus; bus = bus->next)
+    if (ap < argv + argc)
       {
-	for (dev = bus->devices; dev; dev = dev->next)
-	  {
-	    /* Some heuristics, which device may be a scanner */
-	    if (dev->descriptor.idVendor != 0 && 
-		dev->descriptor.idProduct != 0 &&
-		(dev->descriptor.bDeviceClass == USB_CLASS_VENDOR_SPEC ||
-		 (dev->descriptor.bDeviceClass == USB_CLASS_PER_INTERFACE &&
-		  (dev->config[0].interface->altsetting[0].bInterfaceClass
-		  == USB_CLASS_VENDOR_SPEC ||
-		   dev->config[0].interface->altsetting[0].bInterfaceClass
-		   == USB_CLASS_PER_INTERFACE))))
-	      {
-		printf ("found USB scanner (vendor=0x%04x, product=0x%04x) at "
-			"libusb:%s:%s\n", dev->descriptor.idVendor,
-			dev->descriptor.idProduct, bus->dirname,
-			dev->filename);
-		libusb_device_found = SANE_TRUE;
-		device_found = SANE_TRUE;
-	      }
-	    else if (verbose)
-	      printf ("found non-scanner (vendor=0x%04x, product=0x%04x, "
-		      "class=0x%02x, interface-class=0x%02x) "
-		      "at libusb:%s:%s\n",
-		      dev->descriptor.idVendor, dev->descriptor.idProduct,
-		      dev->descriptor.bDeviceClass, 
-		      dev->config[0].interface->altsetting[0].bInterfaceClass,
-		      bus->dirname, dev->filename);
-	  }
+	/* user-specified devices not useful for libusb */
+	if (verbose > 1)
+	  printf ("ignoring libusb devices\n");
       }
+    else
+      {
+	if (verbose > 2)
+	  printf ("trying libusb:\n");
+	for (bus = usb_get_busses (); bus; bus = bus->next)
+	  {
+	    for (dev = bus->devices; dev; dev = dev->next)
+	      {
+		if (!dev->config)
+		  {
+		    if (verbose > 1)
+		      printf ("device 0x%04x/0x%04x is not configured\n",
+			      dev->descriptor.idVendor,
+			      dev->descriptor.idProduct);
+		    continue;
+		  }
+		/* Some heuristics, which device may be a scanner */
+		if (dev->descriptor.idVendor != 0 &&
+		    dev->descriptor.idProduct != 0 &&
+		    (dev->descriptor.bDeviceClass == USB_CLASS_VENDOR_SPEC ||
+		     (dev->descriptor.bDeviceClass
+		      == USB_CLASS_PER_INTERFACE &&
+		      (dev->config[0].interface->altsetting[0].bInterfaceClass
+		       == USB_CLASS_VENDOR_SPEC ||
+		       dev->config[0].interface->altsetting[0].bInterfaceClass
+		       == USB_CLASS_PER_INTERFACE))))
+		  {
+		    printf ("found USB scanner (vendor=0x%04x, "
+			    "product=0x%04x) at libusb:%s:%s\n",
+			    dev->descriptor.idVendor,
+			    dev->descriptor.idProduct, bus->dirname,
+			    dev->filename);
+		    libusb_device_found = SANE_TRUE;
+		    device_found = SANE_TRUE;
+		  }
+		else if (verbose > 2)
+		  printf ("found non-scanner (vendor=0x%04x, product=0x%04x, "
+			  "class=0x%02x, interface-class=0x%02x) "
+			  "at libusb:%s:%s\n",
+			  dev->descriptor.idVendor, dev->descriptor.idProduct,
+			  dev->descriptor.bDeviceClass,
+			  dev->config[0].interface->altsetting[0].
+			  bInterfaceClass, bus->dirname, dev->filename);
+	      }			/* for (dev) */
+	  }			/* for (bus) */
+      }				/* if (usb_dev_list == ap) */
   }
 #endif /* HAVE_LIBUSB */
 
@@ -788,18 +861,20 @@ main (int argc, char **argv)
     {
       if (libusb_device_found)
 	{
-	  printf 
-	    ("  # A USB device was detected. This program can't be sure "
-	     "if it's really\n  # a scanner. If it is your scanner, it "
-	     "may or may not be supported by\n  # SANE. Try scanimage "
-	     "-L and read the backend's manpage.\n");
+	  if (verbose > 0)
+	    printf
+	      ("  # A USB device was detected. This program can't be sure "
+	       "if it's really\n  # a scanner. If it is your scanner, it "
+	       "may or may not be supported by\n  # SANE. Try scanimage "
+	       "-L and read the backend's manpage.\n");
 	}
-      else printf 
-	("  # Your USB scanner was detected. It may or may not "
-	 "be supported by\n  # SANE. Try scanimage -L and read the backend's "
-	 "manpage.\n");
-      if (unknown_found)
-	printf 
+      else if (verbose > 0)
+	printf
+	  ("  # Your USB scanner was detected. It may or may not "
+	   "be supported by\n  # SANE. Try scanimage -L and read the "
+	   "backend's manpage.\n");
+      if (unknown_found && verbose > 0)
+	printf
 	  ("  # `UNKNOWN vendor and product' means that there seems to be a "
 	   "scanner at this\n  # device file but the vendor and product ids "
 	   "couldn't be identified.\n  # Currently identification only works "
@@ -808,22 +883,23 @@ main (int argc, char **argv)
     }
   else
     {
-      printf 
-	("  # No USB scanners found. If you expected something different, "
-	 "make sure that\n  # you have loaded a driver for your USB host "
-	 "controller and have installed a\n  # kernel scanner module.\n");
+      if (verbose > 0)
+	printf
+	  ("  # No USB scanners found. If you expected something different, "
+	   "make sure that\n  # you have loaded a driver for your USB host "
+	   "controller and have installed a\n  # kernel scanner module.\n");
     }
-  printf ("\n");
-
-  printf ("  # Scanners connected to the parallel port or other proprietary ports "
-	  "can't be\n  # detected by this program.\n");
+  if (verbose > 0)
+    printf ("\n  # Scanners connected to the parallel port or other "
+	    "proprietary ports can't be\n  # detected by this program.\n");
   if (getuid ())
-    printf
-      ("\n  # You may want to run this program as root to find all devices. "
-       "Once you\n  # found the scanner devices, be sure to adjust access "
-       "permissions as\n  # necessary.\n");
+    if (verbose > 0)
+      printf
+	("\n  # You may want to run this program as root to find all devices. "
+	 "Once you\n  # found the scanner devices, be sure to adjust access "
+	 "permissions as\n  # necessary.\n");
 
-  if (verbose)
+  if (verbose > 1)
     printf ("done\n");
 
   return 0;

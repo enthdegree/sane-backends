@@ -1,3 +1,9 @@
+2004-03-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
+	
+	* backend/mustek.c doc/descriptions/mustek.desc
+	  doc/mustek/mustek.CHANGES: Added detection of Mustek ScanExpress
+	  1200 FS.
+
 2004-03-19  Karl Heinz Kremer <khk@khk.net>
 
 	* doc/descriptions/epson.desc: Added Perfection 4870 and CX-6400

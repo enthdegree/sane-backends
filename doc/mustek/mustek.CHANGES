@@ -1,5 +1,19 @@
 CHANGES for the SANE Mustek backend
 
+2004-03-21
+  * Released Mustek backend 1.0-136
+  * Added detection of Mustek ScanExpress 1200 FS.
+
+2003-12-25
+  * Released Mustek backend 1.0-135
+  * Added support for Mustek Paragon 600 II EP (SCSI-over-parallel port). This
+    is based on a patch from James Perry. Support for libiee1284 is
+    missing until now.
+
+2003-10-29
+  * Added support for sanei_thread.
+  * Removed OS/2 specific code.
+
 2003-10-29
   * Released Mustek backend 1.0-134
 

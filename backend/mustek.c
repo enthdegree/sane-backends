@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 1996, 1997 David Mosberger-Tang and Andreas Czechanowski,
    1998 Andreas Bolsch for extension to ScanExpress models version 0.6,
-   2000-2003 Henning Meier-Geinitz,
+   2000-2004 Henning Meier-Geinitz,
    2003 James Perry (600 EP).
    
    This file is part of the SANE package.
@@ -48,7 +48,7 @@
 
 /**************************************************************************/
 /* Mustek backend version                                                 */
-#define BUILD 135
+#define BUILD 136
 /**************************************************************************/
 
 #include "../include/sane/config.h"
@@ -1429,31 +1429,61 @@ attach (SANE_String_Const devname, Mustek_Device ** devp, SANE_Bool may_wait)
     }
   /* There are two different versions of the ScanExpress 12000SP, one
      has the model name " C06", the other one is "XC06". The latter
-     seems to be used in the newer "Plus" models */
+     seems to be used in the newer "Plus" models.
+     Also there is the Mustek ScanExpress 1200 FS, which looks similar to the
+     ScanExpress 12000 SP but has an "F" instead of the "V" in the
+     firmware version.
+  */
   else if (strncmp ((SANE_String) model_name, " C06", 4) == 0)
     {
-      /* These values were measured and compared to those from the Windows
-         driver. Tested with a ScaneExpress 12000SP 2.02 and a ScanMagic
-         9636S v 1.01 */
-      dev->x_range.min = SANE_FIX (0);
-      dev->y_range.min = SANE_FIX (0);
-      dev->x_range.max = SANE_FIX (215.9);
-      dev->y_range.max = SANE_FIX (291.2);
-
-      dev->x_trans_range.min = SANE_FIX (0);
-      dev->y_trans_range.min = SANE_FIX (0);
-      dev->x_trans_range.max = SANE_FIX (150.0);
-      dev->y_trans_range.max = SANE_FIX (175.0);
-
-      dev->dpi_range.max = SANE_FIX (1200);
-      dev->dpi_range.min = SANE_FIX (60);
-      dev->flags |= MUSTEK_FLAG_SE;
-      /* The ScanExpress models limit their x-resolution to 600 dpi
-         and do *no* interpolation at higher resolutions. So this has
-         to be done in software. */
-      dev->flags |= MUSTEK_FLAG_ENLARGE_X;
-      dev->flags |= MUSTEK_FLAG_COVER_SENSOR;
-      dev->sane.model = "ScanExpress 12000SP";
+      if (result[32] == 'F')
+	{
+	  /* Mustek ScanExpress 1200 FS. Completely untested. */
+	  dev->x_range.min = SANE_FIX (0);
+	  dev->y_range.min = SANE_FIX (0);
+	  dev->x_range.max = SANE_FIX (215.9);
+	  dev->y_range.max = SANE_FIX (291.2);
+	  
+	  dev->x_trans_range.min = SANE_FIX (0);
+	  dev->y_trans_range.min = SANE_FIX (0);
+	  dev->x_trans_range.max = SANE_FIX (150.0);
+	  dev->y_trans_range.max = SANE_FIX (175.0);
+	  
+	  dev->dpi_range.max = SANE_FIX (1200);
+	  dev->dpi_range.min = SANE_FIX (60);
+	  dev->flags |= MUSTEK_FLAG_SE;
+	  /* The ScanExpress models limit their x-resolution to 600 dpi
+	     and do *no* interpolation at higher resolutions. So this has
+	     to be done in software. */
+	  dev->flags |= MUSTEK_FLAG_ENLARGE_X;
+	  dev->flags |= MUSTEK_FLAG_COVER_SENSOR;
+	  dev->sane.model = "ScanExpress 12000 FS (untested)";
+	}
+      else
+	{
+	  /* These values were measured and compared to those from the Windows
+	     driver. Tested with a ScaneExpress 12000SP 2.02 and a ScanMagic
+	     9636S v 1.01 */
+	  dev->x_range.min = SANE_FIX (0);
+	  dev->y_range.min = SANE_FIX (0);
+	  dev->x_range.max = SANE_FIX (215.9);
+	  dev->y_range.max = SANE_FIX (291.2);
+	  
+	  dev->x_trans_range.min = SANE_FIX (0);
+	  dev->y_trans_range.min = SANE_FIX (0);
+	  dev->x_trans_range.max = SANE_FIX (150.0);
+	  dev->y_trans_range.max = SANE_FIX (175.0);
+	  
+	  dev->dpi_range.max = SANE_FIX (1200);
+	  dev->dpi_range.min = SANE_FIX (60);
+	  dev->flags |= MUSTEK_FLAG_SE;
+	  /* The ScanExpress models limit their x-resolution to 600 dpi
+	     and do *no* interpolation at higher resolutions. So this has
+	     to be done in software. */
+	  dev->flags |= MUSTEK_FLAG_ENLARGE_X;
+	  dev->flags |= MUSTEK_FLAG_COVER_SENSOR;
+	  dev->sane.model = "ScanExpress 12000SP";
+	}
     }
   else if (strncmp ((SANE_String) model_name, "XC06", 4) == 0)
     {

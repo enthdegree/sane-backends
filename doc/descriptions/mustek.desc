@@ -9,7 +9,7 @@
 ;
 
 :backend "mustek"		; name of backend
-:version "1.0-135"		; version of backend
+:version "1.0-136"		; version of backend
 :manpage "sane-mustek"		; name of manpage (if it exists)
 :url "http://www.meier-geinitz.de/sane/mustek-backend/"
 :comment "Most Mustek SCSI scanners are supported by this backend. For USB scanners, look at the mustek_usb backend."
@@ -84,6 +84,11 @@
 :model "ScanExpress 12000SP"
 :interface "SCSI"
 :status :complete
+
+:model "ScanExpress 1200 FS"
+:interface "SCSI"
+:status :untested
+:comment "One report that it crashes the computer. SCSI driver issue? Please contact me if you own such a device."
 
 :model "ScanExpress 12000SP Plus"
 :interface "SCSI"

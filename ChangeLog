@@ -1,3 +1,15 @@
+2002-01-17  Gerhard Jaeger <g.jaeger@earthling.net>
+
+	* backend/plustek.c backend/plustek.h
+	  Fixed conditional compilation problem
+	  Updated localization strings
+    * doc/sane-plustek.man: Updated
+    * doc/doxygen-sanei.conf: Added doxygen configuration file for
+      the sane libs
+    * include/sane/sanei.h include/sane/sanei_ab306.h
+      include/sane/sanei_lm983x.h sanei/sanei_lm983x.c:
+      Updated to support doxygen comments
+
 2002-01-17  Peter Fales <peter@fales.com>
 	* configure.in, configure, acinclude.m4, aclocal.m4 - Disable
 	  gphoto2 backend unless specifically requested by the user (using

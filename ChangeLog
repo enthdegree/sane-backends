@@ -1,3 +1,10 @@
+2004-01-09  Gerhard Jaeger <gerhard@gjaeger.de>
+	* doc/u12/U12.changes: initial checkin.
+	* doc/sane-u12.man doc/sane-plustek.man doc/sane-plustek_pp: added
+	  ENVIRONMENT information and did some minor updates.
+	* descriptions/plustek_pp.desc descriptions/u12.desc: status updates.
+	* po/sane-backends.de.po: fixed wrong translation.
+
 2004-01-08  Oliver Rauch <oliver.rauch@rauch-domain.de>
 	* backend/umax.c: changed order of includes because of compilation error
 

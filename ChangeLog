@@ -46,6 +46,7 @@
 	  Added warning that's printed if scanimage gets more data then
 	  expected from the parameters.
 	* include/Makefile.in: Added sanei_lm983x.h to DISTFILES.
+	* backend/qcam.c: Actually close the lock file when unlocking.
 
 2002-01-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

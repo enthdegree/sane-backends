@@ -1,3 +1,12 @@
+2004-07-05  Gerhard Jaeger <gerhard@gjaeger.de>
+	* doc/descriptions/plustek.desc: Changed status of CanoScan D660U.
+	* doc/plustek/Plustek-USB*: Update.
+	* backend/plustek.c: Bumped up build number.
+	* backend/plustek-usb.[ch] backend/plustek-usbdevs.c 
+	  backend/plustek-usbhw.c backend/plustek-usbimg.c 
+	  backend/plustek-usbmap.c backend/plustek-usbscan.c: Added support
+	  for binary scanning for the CanoScan D660U, cleanup work.
+
 2004-07-03  Peter Fales <peter@fales-lorenz.net>
 	* acinclude.m4, aclocal.m4, configure, tools/sane-config.in: 
 	  When using pkg-config to get library flags for gphoto2, any

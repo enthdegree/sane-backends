@@ -70,6 +70,7 @@ Image;
 #define OPTION_BATCH_START_AT	1004
 #define OPTION_BATCH_DOUBLE	1005
 #define OPTION_BATCH_INCREMENT	1006
+#define OPTION_BATCH_PROMPT    1007
 
 #define BATCH_COUNT_UNLIMITED -1
 
@@ -86,6 +87,7 @@ static struct option basic_options[] = {
   {"batch-start", required_argument, NULL, OPTION_BATCH_START_AT},
   {"batch-double", no_argument, NULL, OPTION_BATCH_DOUBLE},
   {"batch-increment", required_argument, NULL, OPTION_BATCH_INCREMENT},
+  {"batch-prompt", no_argument, NULL, OPTION_BATCH_PROMPT},
   {"format", required_argument, NULL, OPTION_FORMAT},
   {"accept-md5-only", no_argument, NULL, OPTION_MD5},
   {"icc-profile", required_argument, NULL, 'i'},
@@ -1466,7 +1468,10 @@ main (int argc, char **argv)
   const char *devname = 0;
   const char *defdevname = 0;
   const char *format = 0;
+  char readbuf[2];
+  char *readbuf2;
   int batch = 0;
+  int batch_prompt = 0;
   int batch_count = BATCH_COUNT_UNLIMITED;
   int batch_start_at = 1;
   int batch_increment = 1;
@@ -1520,6 +1525,9 @@ main (int argc, char **argv)
 	case 'n':
 	  dont_scan = 1;
 	  break;
+	case OPTION_BATCH_PROMPT:
+          batch_prompt = 1;
+          break;
 	case OPTION_BATCH_INCREMENT:
 	  batch_increment = atoi (optarg);
 	  break;
@@ -1692,6 +1700,7 @@ standard output.\n\
     --batch-increment=#    increase number in filename by an amount of #\n\
     --batch-double         increment page number by two for 2sided originals\n\
                            being scanned in a single sided scanner\n\
+    --batch-prompt         ask for pressing a key before scanning a page\n\
     --accept-md5-only      only accept authorization requests using md5\n\
 -n, --dont-scan            only set options, don't actually scan\n\
 -T, --test                 test backend thoroughly\n\
@@ -1970,6 +1979,12 @@ List of available devices:", prog_name);
 
 	  if (batch)
 	    {
+	      if (batch_prompt)
+                {
+                  fprintf (stderr, "Place document no. %d on the scanner.\n", n);
+                  fprintf (stderr, "Press <RETURN> to continue.\n");
+                  readbuf2=fgets(readbuf, 2, stdin);
+                }
 	      fprintf (stderr, "Scanning page %d\n", n);
 	    }
 	  status = scan_it ();

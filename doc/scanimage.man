@@ -1,4 +1,4 @@
-.TH scanimage 1 "15 Apr 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH scanimage 1 "22 Feb 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX scanimage
 .SH NAME
 scanimage \- scan an image
@@ -175,6 +175,9 @@ on a single-sided document feeder.  A specific command is provided to
 aid this:
 .B \-\-batch-double
 will automatically set the increment to 2.
+.B \-\-batch-prompt
+will ask for pressing RETURN before scanning a page. This can be used for
+scanning multiple pages without an automatic document feeder.
 .PP
 The
 .B \-\-accept-md5-only

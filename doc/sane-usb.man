@@ -1,4 +1,4 @@
-.TH sane-scsi 5 "14 Jul 2002"
+.TH sane-scsi 5 "1 Sep 2002"
 .IX sane-usb
 .SH NAME
 sane-usb - USB configuration tips for SANE
@@ -6,32 +6,18 @@ sane-usb - USB configuration tips for SANE
 This manual page contains information on how to access scanners
 with a USB interface.
 .SH GENERAL INFO
-SANE-backends currently use three methods of communicating with USB scanners: 
-.TP 2
--
-Access through sanei_usb, the generic SANE USB interface. Used by most
-USB backends.
-.TP
-- 
-Using libusb directly (a library for USB access). This method is used by the
-sm3600 backend.
-.TP
-- 
-Direct access to the USB device files to access kernel scanner drivers. Used
-by the epson backend.
-.PP
 This manual page describes the access of USB scanners over the sanei_usb
-interface. For the backends using direct kernel or libusb access have a look
-at their manual pages for details. The sections "KERNEL SCANNER DRIVER TIPS"
-and "LIBUSB ACCESS TIPS" of this manual page may be of some use for these backends, too.
+interface. Most SANE USB backends use the sanei_usb interface, only sm3600
+accesses the USB directly by libusb. Have a look at sane-sm3600 and section
+"LIBUSB ACCESS TIPS" of this manual page for that backend.
 .PP
 Two methods for accessing USB devices are used by sanei_usb: direct access
 using the kernel scanner driver and access over libusb. sanei_usb tries both
-methods, if they are available. Currently USB access is only tested for Linux
+methods, if they are available. Currently USB access is tested for Linux
 (kernel, libusb), FreeBSD (kernel, libsub), NetBSD (libusb), and OpenBSD
-(kernel, libusb). Libusb access should also work on Mac OS X (Darwin) but
-hasn't been tested yet. For installation issues, also check the
-@DOCDIR@/README.platform files.
+(kernel, libusb). Libusb access should also work on Mac OS X (Darwin) and any
+other operating system supported by libusb but hasn't been tested yet. For
+installation issues, also check the @DOCDIR@/README.platform files.
 .PP
 Most backends will detect USB scanners automatically using "usb" configuration
 file lines. This method allows to identify scanners by the USB vendor and
@@ -95,7 +81,7 @@ to switch to the other one.
 Libusb is the more general approach and will be able to access any
 scanner. Also, it supports more platforms. However, the library must be
 available and installed on the system and setting permissions isn't easy at
-least on Linux. Libusb access isn't tested very well.
+least on Linux.
 .PP
 Autodetecting scanners and using USB control messages with the kernel access
 method only works with recent (>=v2.4.12) Linux kernels. If you need one of
@@ -122,8 +108,8 @@ scanner. For
 .BR Linux ,
 this can be done with modprobe parameters: First, remove the scanner module
 (rmmod scanner), then load it again: modprobe scanner vendor=0x0001
-product=0x0002. Use the appropriate vendor and product (e.g. from syslog or
-cat /proc/bus/usb/devices). For OpenBSD the kernel must be recompiled. For
+product=0x0002. Use the appropriate vendor and product ids (e.g. from syslog
+or cat /proc/bus/usb/devices). For OpenBSD the kernel must be recompiled. For
 details look at @DOCDIR@/README.openbsd. Similar approaches should be used for
 the other BSDs.
 

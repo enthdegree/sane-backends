@@ -1,5 +1,22 @@
 CHANGES for the SANE Mustek USB backend
 
+2001-10-07
+  * Release of version 1.0-7. 
+
+2001-10-07
+
+  * usb_low: fixed output if scanner has wrong vendor/product id.
+  * usb_high: Added the detection of 300&600 sensor again. Mustek seems to
+    have used both sensors in the Mustek 1200 UB, so we must distinguish them.
+  * Disabled 1200 USB for release.
+
+2001-09-30
+  * 1200CU_Plus has Canon600 sensor (fixed).
+
+2001-09-15
+  * Added functions for sensor nec600 (1200 USB) in mustek_usb_mid.
+  * Changed init_asic and exposure times for 1200 USB.
+
 2001-09-13
   * Release of version 1.0-6.
 

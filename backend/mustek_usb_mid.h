@@ -54,6 +54,50 @@
 /* ---------------------------------- macros ------------------------------ */
 
 
+/* ---------------- sensor NEC 600 CCD function declarations -------------- */
+
+static SANE_Status
+usb_mid_n600_prepare_rgb (ma1017 * chip, SANE_Word dpi);
+
+static SANE_Status
+usb_mid_n600_prepare_mono (ma1017 * chip, SANE_Word dpi);
+
+static SANE_Status
+usb_mid_n600_prepare_rgb_600_dpi (ma1017 * chip);
+
+static SANE_Status
+usb_mid_n600_prepare_rgb_400_dpi (ma1017 * chip);
+
+static SANE_Status
+usb_mid_n600_prepare_rgb_300_dpi (ma1017 * chip);
+
+static SANE_Status
+usb_mid_n600_prepare_rgb_200_dpi (ma1017 * chip);
+
+static SANE_Status
+usb_mid_n600_prepare_rgb_100_dpi (ma1017 * chip);
+
+static SANE_Status
+usb_mid_n600_prepare_rgb_50_dpi (ma1017 * chip);
+
+static SANE_Status
+usb_mid_n600_prepare_mono_600_dpi (ma1017 * chip);
+
+static SANE_Status
+usb_mid_n600_prepare_mono_400_dpi (ma1017 * chip);
+
+static SANE_Status
+usb_mid_n600_prepare_mono_300_dpi (ma1017 * chip);
+
+static SANE_Status
+usb_mid_n600_prepare_mono_200_dpi (ma1017 * chip);
+
+static SANE_Status
+usb_mid_n600_prepare_mono_100_dpi (ma1017 * chip);
+
+static SANE_Status
+usb_mid_n600_prepare_mono_50_dpi (ma1017 * chip);
+
 /* ----------------- sensor 600 CIS function declarations ----------------- */
 
 static SANE_Status

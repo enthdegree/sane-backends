@@ -2762,9 +2762,9 @@ usb_low_identify_scanner (SANE_Int fd, Mustek_Type *scanner_type)
 	    case 0x0002: 
 	      devtype = MT_600CU;
 	      break;
-#if 0	      
+#if 0
 	    case 0x0003:
-	      devtype = MT_1200CU;
+	      devtype = MT_1200USB;
 	      break;
 #endif
 	    case 0x0006:
@@ -2777,7 +2777,7 @@ usb_low_identify_scanner (SANE_Int fd, Mustek_Type *scanner_type)
 	      if (scanner_type)
 		*scanner_type = devtype;
 	      DBG (3, "usb_low_identify_scanner: unknown product id: "
-		   "%d\n", devproduct);
+		   "0x%04x\n", devproduct);
 	      return SANE_STATUS_INVAL;
 	      break;
 	    }
@@ -2786,7 +2786,7 @@ usb_low_identify_scanner (SANE_Int fd, Mustek_Type *scanner_type)
 	{
 	  if (scanner_type)
 	    *scanner_type = devtype;
-	  DBG (3, "usb_low_identify_scanner: unknown vendor id: %d\n",
+	  DBG (3, "usb_low_identify_scanner: unknown vendor id: 0x%04d\n",
 	       devvendor);
 	  return SANE_STATUS_INVAL;
 	}

@@ -321,6 +321,7 @@ typedef struct Mustek_Usb_Device
 
   SANE_Char device_name[256];
 
+  SANE_Bool is_sensor_detected;
 }
 Mustek_Usb_Device;
 

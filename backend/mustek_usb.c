@@ -45,7 +45,7 @@
 
    This file implements a SANE backend for Mustek 1200UB flatbed scanners.  */
 
-#define BUILD 6
+#define BUILD 7
 
 #include "../include/sane/config.h"
 
@@ -494,6 +494,9 @@ attach (SANE_String_Const devname, Mustek_Usb_Device ** devp,
       break;
     case MT_1200CU_PLUS:
       dev->sane.model = "1200 CU Plus";
+      break;
+    case MT_1200USB:
+      dev->sane.model = "1200 USB";
       break;
     case MT_1200UB:
       dev->sane.model = "1200 UB";

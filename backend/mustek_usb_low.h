@@ -71,6 +71,7 @@
 typedef enum Mustek_Type
 {
   MT_UNKNOWN = 0,
+  MT_1200USB,
   MT_1200UB,
   MT_1200CU,
   MT_1200CU_PLUS,
@@ -86,7 +87,8 @@ typedef enum Sensor_Type
   ST_CANON300=3,
   ST_CANON600=4,
   ST_TOSHIBA600=5,
-  ST_CANON300600=6
+  ST_CANON300600=6,
+  ST_NEC600=7
 } 
 Sensor_Type;
 

@@ -846,6 +846,7 @@ usb_high_scan_init (Mustek_Usb_Device * dev)
   dev->mono_calibrator = NULL;
 
   dev->is_cis_detected = SANE_FALSE;
+  dev->is_sensor_detected = SANE_FALSE;
 
   RIE(usb_low_init (&dev->chip));
 
@@ -1264,27 +1265,111 @@ usb_high_scan_suggest_parameters (Mustek_Usb_Device * dev, SANE_Word dpi,
 SANE_Status
 usb_high_scan_detect_sensor (Mustek_Usb_Device *dev)
 {
+  if (dev->is_sensor_detected)
+    {
+      DBG (5, "usb_high_scan_detect_sensor: sensor already detected\n");
+      return SANE_STATUS_GOOD;
+    }
+  dev->is_sensor_detected = SANE_TRUE;
+
   switch (dev->chip->scanner_type)
     {
     case MT_600CU:
       dev->chip->sensor = ST_CANON300;
       dev->chip->motor = MT_600;
-      DBG (5, "usb_high_scan_detect_sensor: sensor=Canon 300 dpi, motor="
+      dev->is_cis_detected = SANE_TRUE;
+      DBG (4, "usb_high_scan_detect_sensor: sensor=Canon 300 dpi, motor="
 	   "600 dpi\n");
       break;
+    case MT_1200USB:
+      dev->chip->sensor = ST_NEC600;
+      dev->chip->motor = MT_1200;
+      DBG (4, "usb_high_scan_detect_sensor: sensor=Canon 600 dpi, motor="
+	   "1200 dpi\n");
+      break;
     case MT_1200UB:
-      dev->chip->sensor = ST_CANON600;
-      dev->chip->motor = MT_1200;
-      DBG (5, "usb_high_scan_detect_sensor: sensor=Canon 600 dpi, motor="
-	   "1200 dpi\n");
-      break;
-    case MT_1200CU:
     case MT_1200CU_PLUS:
-      dev->chip->sensor = ST_CANON300600;
-      dev->chip->motor = MT_1200;
-      DBG (5, "usb_high_scan_detect_sensor: sensor=Canon 300/600 dpi, motor="
-	   "1200 dpi\n");
-      break;
+    case MT_1200CU: /* need to check if it's a 300600 or 600 dpi sensor */
+      {
+	SANE_Byte *buffer;
+	static SANE_Word l_temp = 0, r_temp = 0;
+	SANE_Int i;
+	SANE_Status status;
+	SANE_Word lines_left;
+	
+	dev->chip->motor = MT_1200;
+	dev->is_cis_detected = SANE_TRUE;
+
+	buffer = NULL;
+	l_temp = 0;
+	r_temp = 0;
+	
+	buffer = (SANE_Byte *) malloc (dev->init_bytes_per_strip);
+	
+	if (!buffer)
+	  return SANE_STATUS_NO_MEM;
+	
+	for (i = 0; i < 5400; i++)
+	  buffer[i] = 0xaa;
+	
+	dev->scan_mode = GRAY8EXT;
+	dev->x_dpi = 600;
+	dev->y_dpi = 1200;
+	dev->width = 5400;
+	RIE(usb_low_open (dev->chip, dev->device_name));
+	
+	dev->is_opened = SANE_TRUE;
+	RIE(usb_high_scan_init_asic (dev, ST_CANON600));
+	RIE(usb_low_turn_peripheral_power (dev->chip, SANE_TRUE));
+	RIE(usb_low_enable_motor (dev->chip, SANE_TRUE));/* Enable Motor */
+	RIE(usb_low_turn_lamp_power (dev->chip, SANE_TRUE));
+	RIE(usb_low_invert_image (dev->chip, SANE_FALSE));
+	RIE(usb_low_set_image_dpi (dev->chip, SANE_TRUE, SW_P6P6));
+	dev->bytes_per_strip = dev->adjust_length_600;
+	dev->bytes_per_row = 5400;
+	dev->dummy = 0;
+	
+	RIE(usb_high_scan_wait_carriage_home (dev));
+	RIE(usb_high_scan_hardware_calibration (dev));
+	RIE(usb_high_scan_prepare_scan (dev));
+	
+	/* Get Data */
+	RIE(usb_low_start_rowing (dev->chip));
+	RIE(usb_low_get_row (dev->chip, buffer, &lines_left));
+	RIE(usb_low_stop_rowing (dev->chip));
+	/* Calculate */
+	for (i = 0; i < 256; i++)
+	  l_temp = l_temp + buffer[512 + i];
+	for (i = 0; i < 256; i++)
+	  r_temp = r_temp + buffer[3500 + i];
+	
+	l_temp = l_temp / 256;
+	r_temp = r_temp / 256;
+	
+	/* 300/600 switch CIS or 600 CIS */
+	DBG (5, "usb_high_scan_detect_sensor: l_temp=%d, r_temp=%d\n",
+	     l_temp, r_temp);
+	if (r_temp > 50)
+	  {
+	    dev->chip->sensor = ST_CANON600;
+	    DBG (4, "usb_high_scan_detect_sensor: sensor=Canon 600 dpi, motor="
+		 "1200 dpi\n");
+	  }
+	else
+	  {
+	    DBG (4, "usb_high_scan_detect_sensor: sensor=Canon 300/600 dpi, "
+		 "motor=1200 dpi\n");
+	    dev->chip->sensor = ST_CANON300600;
+	  }
+	
+	/* Release Resource */
+	usb_low_close (dev->chip);
+	dev->is_opened = SANE_FALSE;
+	free (buffer);
+	buffer = NULL;
+
+	break;
+      }
     default:
       DBG (5, "usb_high_scan_detect_sensor: I don't know this scanner type "
 	   "(%d)\n", dev->chip->scanner_type);
@@ -1316,9 +1401,6 @@ usb_high_scan_setup_scan (Mustek_Usb_Device * dev, Colormode color_mode,
       DBG (5,"usb_high_scan_setup_scan: !is_prepared\n");
       return SANE_STATUS_INVAL;
     }
-#if 0
-  RIE(usb_high_scan_detect_sensor (dev));
-#endif
   RIE(usb_low_open (dev->chip, dev->device_name));
   dev->is_opened = SANE_TRUE;
 
@@ -1594,6 +1676,17 @@ usb_high_scan_init_asic (Mustek_Usb_Device * dev, Sensor_Type sensor)
       ad_timing = 1;
       bank_size = BS_16K;
       DBG (5, "usb_high_scan_init_asic: sensor is set to CANON600\n");
+      break;
+    case ST_NEC600: /* fixme */
+      ccd_dpi = 32;
+      select = 224;
+      adjust = 112;
+      pin = 18;
+      motor = 0;
+      fix_pattern = SANE_FALSE;
+      ad_timing = 0;
+      bank_size = BS_16K;
+      DBG (5, "usb_high_scan_init_asic: sensor is set to NEC600\n");
       break;
     default:
       DBG (5, "usb_high_scan_init_asic: unknown sensor\n");
@@ -2215,9 +2308,18 @@ usb_high_scan_calculate_max_rgb_600_expose (Mustek_Usb_Device * dev,
   green_light_up = dev->expose_time - dev->green_rgb_600_power_delay * 64;
   blue_light_up = dev->expose_time - dev->blue_rgb_600_power_delay * 64;
   max_light_up = MAX (red_light_up, MAX (green_light_up, blue_light_up));
-  ideal_expose_time 
-    = MAX (MAX (5376, max_light_up), 
-	   usb_mid_motor_rgb_capability (dev->chip, dev->y_dpi));
+  if (dev->chip->sensor == ST_NEC600)
+    {
+      ideal_expose_time 
+	= MAX (MAX (5504, max_light_up),  
+	       usb_mid_motor_rgb_capability  (dev->chip, dev->y_dpi));
+    }
+  else
+    {
+      ideal_expose_time 
+	= MAX (MAX (5376, max_light_up), 
+	       usb_mid_motor_rgb_capability (dev->chip, dev->y_dpi));
+    }
   ideal_expose_time = (ideal_expose_time + 63) / 64 * 64;
   *ideal_red_pd = (SANE_Byte) ((ideal_expose_time - red_light_up) / 64);
   *ideal_green_pd = (SANE_Byte) ((ideal_expose_time - green_light_up) / 64);
@@ -2245,10 +2347,20 @@ usb_high_scan_calculate_max_mono_600_expose (Mustek_Usb_Device * dev,
 
   if (transfer_time > 16000)
     transfer_time = 16000;
-  ideal_expose_time 
-    = MAX (MAX (5376, max_light_up),  
-	   MAX (transfer_time, usb_mid_motor_mono_capability 
-		(dev->chip, dev->y_dpi)));
+  if (dev->chip->sensor == ST_NEC600)
+    {
+      ideal_expose_time 
+	= MAX (MAX (5504, max_light_up),  
+	       MAX (transfer_time, usb_mid_motor_mono_capability 
+		    (dev->chip, dev->y_dpi)));
+    }
+  else
+    {
+      ideal_expose_time 
+	= MAX (MAX (5376, max_light_up),  
+	       MAX (transfer_time, usb_mid_motor_mono_capability 
+		    (dev->chip, dev->y_dpi)));
+    }
   ideal_expose_time = (ideal_expose_time + 63) / 64 * 64;
   *ideal_red_pd = (SANE_Byte) ((ideal_expose_time) / 64);
   *ideal_green_pd = (SANE_Byte) ((ideal_expose_time - max_light_up) / 64);

@@ -48,6 +48,231 @@
 #include "mustek_usb_mid.h"
 #include "mustek_usb_low.c"
 
+/* ------------------ sensor NEC 3797 600 CIS functions ------------------- */
+
+static SANE_Word usb_mid_n600_optical_x_dpi[] =
+{ 600, 400, 300, 200, 100, 50, 0 };
+
+SANE_Status
+usb_mid_n600_prepare_rgb_600_dpi (ma1017 * chip)
+{
+  SANE_Status status;
+  
+  DBG (6, "usb_mid_n600_prepare_rgb_600_dpi: start\n");
+  RIE(usb_low_set_image_dpi (chip, SANE_TRUE, SW_P6P6));
+  RIE(usb_low_set_soft_resample (chip, 1));
+  RIE(usb_low_set_led_light_all (chip, SANE_FALSE));
+  DBG (6, "usb_mid_n600_prepare_rgb_600_dpi: exit\n");
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+usb_mid_n600_prepare_rgb_400_dpi (ma1017 * chip)
+{
+  SANE_Status status;
+  
+  DBG (6, "usb_mid_n600_prepare_rgb_400_dpi: start\n");
+  RIE(usb_low_set_image_dpi (chip, SANE_TRUE, SW_P4P6));
+  RIE(usb_low_set_soft_resample (chip, 1));
+  RIE(usb_low_set_led_light_all (chip, SANE_FALSE));
+  DBG (6, "usb_mid_n600_prepare_rgb_400_dpi: exit\n");
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+usb_mid_n600_prepare_rgb_300_dpi (ma1017 * chip)
+{
+  SANE_Status status;
+  
+  DBG (6, "usb_mid_n600_prepare_rgb_300_dpi: start\n");
+  RIE(usb_low_set_image_dpi (chip, SANE_TRUE, SW_P3P6));
+  RIE(usb_low_set_soft_resample (chip, 1));
+  RIE(usb_low_set_led_light_all (chip, SANE_FALSE));
+  DBG (6, "usb_mid_n600_prepare_rgb_300_dpi: exit\n");
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+usb_mid_n600_prepare_rgb_200_dpi (ma1017 * chip)
+{
+  SANE_Status status;
+  
+  DBG (6, "usb_mid_n600_prepare_rgb_200_dpi: start\n");
+  RIE(usb_low_set_image_dpi (chip, SANE_TRUE, SW_P2P6));
+  RIE(usb_low_set_soft_resample (chip, 1));
+  RIE(usb_low_set_led_light_all (chip, SANE_FALSE));
+  DBG (6, "usb_mid_n600_prepare_rgb_200_dpi: exit\n");
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+usb_mid_n600_prepare_rgb_100_dpi (ma1017 * chip)
+{
+  SANE_Status status;
+  
+  DBG (6, "usb_mid_n600_prepare_rgb_100_dpi: start\n");
+  RIE(usb_low_set_image_dpi (chip, SANE_TRUE, SW_P1P6));
+  RIE(usb_low_set_soft_resample (chip, 1));
+  RIE(usb_low_set_led_light_all (chip, SANE_FALSE));
+  DBG (6, "usb_mid_n600_prepare_rgb_100_dpi: exit\n");
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+usb_mid_n600_prepare_rgb_50_dpi (ma1017 * chip)
+{
+  SANE_Status status;
+  
+  DBG (6, "usb_mid_n600_prepare_rgb_50_dpi: start\n");
+  RIE(usb_low_set_image_dpi (chip, SANE_TRUE, SW_P1P6));
+  RIE(usb_low_set_soft_resample (chip, 2));
+  RIE(usb_low_set_led_light_all (chip, SANE_FALSE));
+  DBG (6, "usb_mid_n600_prepare_rgb_50_dpi: exit\n");
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+usb_mid_n600_prepare_mono_600_dpi (ma1017 * chip)
+{
+  SANE_Status status;
+  
+  DBG (6, "usb_mid_n600_prepare_mono_600_dpi: start\n");
+  RIE(usb_low_set_image_dpi (chip, SANE_TRUE, SW_P6P6));
+  RIE(usb_low_set_soft_resample (chip, 1));
+  RIE(usb_low_set_led_light_all (chip, SANE_TRUE));
+  DBG (6, "usb_mid_n600_prepare_mono_600_dpi: exit\n");
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+usb_mid_n600_prepare_mono_400_dpi (ma1017 * chip)
+{
+  SANE_Status status;
+  
+  DBG (6, "usb_mid_n600_prepare_mono_400_dpi: start\n");
+  RIE(usb_low_set_image_dpi (chip, SANE_TRUE, SW_P4P6));
+  RIE(usb_low_set_soft_resample (chip, 1));
+  RIE(usb_low_set_led_light_all (chip, SANE_TRUE));
+  DBG (6, "usb_mid_n600_prepare_mono_400_dpi: exit\n");
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+usb_mid_n600_prepare_mono_300_dpi (ma1017 * chip)
+{
+  SANE_Status status;
+  
+  DBG (6, "usb_mid_n600_prepare_mono_300_dpi: start\n");
+  RIE(usb_low_set_image_dpi (chip, SANE_TRUE, SW_P3P6));
+  RIE(usb_low_set_soft_resample (chip, 1));
+  RIE(usb_low_set_led_light_all (chip, SANE_TRUE));
+  DBG (6, "usb_mid_n600_prepare_mono_300_dpi: exit\n");
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+usb_mid_n600_prepare_mono_200_dpi (ma1017 * chip)
+{
+  SANE_Status status;
+  
+  DBG (6, "usb_mid_n600_prepare_mono_200_dpi: start\n");
+  RIE(usb_low_set_image_dpi (chip, SANE_TRUE, SW_P2P6));
+  RIE(usb_low_set_soft_resample (chip, 1));
+  RIE(usb_low_set_led_light_all (chip, SANE_TRUE));
+  DBG (6, "usb_mid_n600_prepare_mono_200_dpi: exit\n");
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+usb_mid_n600_prepare_mono_100_dpi (ma1017 * chip)
+{
+  SANE_Status status;
+  
+  DBG (6, "usb_mid_n600_prepare_mono_100_dpi: start\n");
+  RIE(usb_low_set_image_dpi (chip, SANE_TRUE, SW_P1P6));
+  RIE(usb_low_set_soft_resample (chip, 1));
+  RIE(usb_low_set_led_light_all (chip, SANE_TRUE));
+  DBG (6, "usb_mid_n600_prepare_mono_100_dpi: exit\n");
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+usb_mid_n600_prepare_mono_50_dpi (ma1017 * chip)
+{
+  SANE_Status status;
+  
+  DBG (6, "usb_mid_n600_prepare_mono_50_dpi: start\n");
+  RIE(usb_low_set_image_dpi (chip, SANE_TRUE, SW_P1P6));
+  RIE(usb_low_set_soft_resample (chip, 2));
+  RIE(usb_low_set_led_light_all (chip, SANE_TRUE));
+  DBG (6, "usb_mid_n600_prepare_mono_50_dpi: exit\n");
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+usb_mid_n600_prepare_rgb (ma1017 * chip, SANE_Word dpi)
+{
+  DBG (6, "usb_mid_n600_prepare_rgb: start\n");
+  switch (dpi)
+    {
+    case 50:
+      return usb_mid_n600_prepare_rgb_50_dpi (chip);
+      break;
+    case 100:
+      return usb_mid_n600_prepare_rgb_100_dpi (chip);
+      break;
+    case 200:
+      return usb_mid_n600_prepare_rgb_200_dpi (chip);
+      break;
+    case 300:
+      return usb_mid_n600_prepare_rgb_300_dpi (chip);
+      break;
+    case 400:
+      return usb_mid_n600_prepare_rgb_400_dpi (chip);
+      break;
+    case 600:
+      return usb_mid_n600_prepare_rgb_600_dpi (chip);
+      break;
+    default:
+      DBG (3, "usb_mid_n600_prepare_rgb: unmatched dpi: %d\n", dpi);
+      return SANE_STATUS_INVAL;
+      break;
+    }
+  DBG (6, "usb_mid_n600_prepare_rgb: exit\n");
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+usb_mid_n600_prepare_mono (ma1017 * chip, SANE_Word dpi)
+{
+  DBG (6, "usb_mid_n600_prepare_mono: start\n");
+  switch (dpi)
+    {
+    case 50:
+      return usb_mid_n600_prepare_mono_50_dpi (chip);
+      break;
+    case 100:
+      return usb_mid_n600_prepare_mono_100_dpi (chip);
+      break;
+    case 200:
+      return usb_mid_n600_prepare_mono_200_dpi (chip);
+      break;
+    case 300:
+      return usb_mid_n600_prepare_mono_300_dpi (chip);
+      break;
+    case 400:
+      return usb_mid_n600_prepare_mono_400_dpi (chip);
+      break;
+    case 600:
+      return usb_mid_n600_prepare_mono_600_dpi (chip);
+      break;
+    default:
+      DBG (6, "usb_mid_n600_prepare_mono: unmatched dpi: %d\n", dpi);
+      return SANE_STATUS_INVAL;
+      break;
+    }
+  return SANE_STATUS_GOOD;
+}
 
 /* ---------------------- sensor 600 CIS functions ----------------------- */
 
@@ -761,7 +986,7 @@ usb_mid_sensor_is600_mode (ma1017 * chip, SANE_Word dpi)
 	   chip, dpi);
       return SANE_FALSE;
     }
-  else if (chip->sensor == ST_CANON600)
+  else if ((chip->sensor == ST_CANON600) || (chip->sensor == ST_NEC600))
     {
       DBG (6, "usb_mid_sensor_is600_mode: chip=%p, dpi=%d, TRUE\n",
 	   chip, dpi);
@@ -802,6 +1027,8 @@ usb_mid_sensor_prepare_rgb (ma1017 * chip, SANE_Word dpi)
     return usb_mid_c300_prepare_rgb (chip, dpi);
   else if (chip->sensor == ST_CANON600)
     return usb_mid_c600_prepare_rgb (chip, dpi);
+  else if (chip->sensor == ST_NEC600)
+    return usb_mid_n600_prepare_rgb (chip, dpi);
   else
     return usb_mid_c300600_prepare_rgb (chip, dpi);
 
@@ -815,6 +1042,8 @@ usb_mid_sensor_prepare_mono (ma1017 * chip, SANE_Word dpi)
     return usb_mid_c300_prepare_mono (chip, dpi);
   else if (chip->sensor == ST_CANON600)
     return usb_mid_c600_prepare_mono (chip, dpi);
+  else if (chip->sensor == ST_NEC600)
+    return usb_mid_n600_prepare_mono (chip, dpi);
   else
     return usb_mid_c300600_prepare_mono (chip, dpi);
 
@@ -838,6 +1067,8 @@ usb_mid_sensor_get_dpi (ma1017 *chip, SANE_Word wanted_dpi, SANE_Word *dpi)
     dpi_list = usb_mid_c300600_optical_x_dpi;
   else if (chip->sensor == ST_CANON600)
     dpi_list = usb_mid_c600_optical_x_dpi;
+  else if (chip->sensor == ST_NEC600)
+    dpi_list = usb_mid_n600_optical_x_dpi;
   else
     return SANE_STATUS_INVAL;
 
@@ -1552,7 +1783,10 @@ usb_mid_motor1200_prepare_home (ma1017 * chip)
   SANE_Status status;
   
   DBG (6, "usb_mid_motor1200_prepare_home: start\n");
-  RIE(usb_low_set_motor_movement (chip, SANE_TRUE, SANE_TRUE, SANE_FALSE));
+  if (chip->sensor == ST_NEC600)
+    RIE(usb_low_set_motor_movement (chip, SANE_FALSE, SANE_TRUE, SANE_FALSE));
+  else
+    RIE(usb_low_set_motor_movement (chip, SANE_TRUE, SANE_TRUE, SANE_FALSE));
   /* Make it in 600dpi */
   RIE(usb_low_set_io_3 (chip, SANE_TRUE)); /* (IO3) ? High power : Low power */
   RIE(usb_low_move_motor_home (chip, SANE_TRUE, SANE_TRUE));
@@ -1986,7 +2220,7 @@ usb_mid_motor600_prepare_rgb (ma1017 * chip, SANE_Word dpi)
 SANE_Status
 usb_mid_motor600_prepare_mono (ma1017 * chip, SANE_Word dpi)
 {
-  DBG (3, "usb_mid_motor600_prepare_mono: start\n");
+  DBG (6, "usb_mid_motor600_prepare_mono: start\n");
   switch (dpi)
     {
     case 600:

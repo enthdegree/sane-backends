@@ -1,3 +1,16 @@
+2000-09-30  Henning Meier-Geinitz <hmg@gmx.de>
+
+	* backend/pnm.c: Fixed three segfaults due to buffer overruns:
+ 	  maximum length of filename wasn't checked; maximum length in
+ 	  sane_read wasn't always checked; ppm_type wasn't always set in
+ 	  getparmfromfile. Added some checks for safety and removal of
+ 	  warnings. Added DBG lines for every SANE API call.
+	* TODO: Added entries about the backend:devicename issue. Add a
+	  comment about fronends not to crash when length is -1. Added entry
+ 	  about sane-pie. Added point about fronends not checking if too 
+	  much data is delivered with sane_read.
+	* PROJECTS: Added entry about sane-pie.
+
 2000-09-24  Henning Meier-Geinitz <hmg@gmx.de>
 
 	* backend/mustek.*: Update to Mustek backend 1.0-97. This is a

@@ -76,6 +76,7 @@
 #define SYSVR4_INTERFACE	14
 #define SCO_UW71_INTERFACE	15
 #define SOLARIS_USCSI_INTERFACE	16
+#define MACOSX_INTERFACE	17
 
 #if defined (HAVE_SCSI_SG_H)
 # define USE LINUX_INTERFACE
@@ -177,6 +178,13 @@
 # include <apollo/scsi.h>
 # include <apollo/time.h>
 # include "sanei_DomainOS.h"
+#endif
+#if defined (HAVE_IOKIT_IOKITLIB_H)
+# define USE MACOSX_INTERFACE
+# include <CoreFoundation/CoreFoundation.h>
+# include <IOKit/IOKitLib.h>
+# include <IOKit/IOCFPlugIn.h>
+# include <IOKit/cdb/IOSCSILib.h>
 #endif
 
 #ifdef DISABLE_LINUX_SG_IO
@@ -1103,6 +1111,18 @@ sanei_scsi_open (const char *dev, int *fdp,
      else 
        fd = (int)pt_handle; 
    } 
+#elif USE == MACOSX_INTERFACE
+  if (sscanf (dev, "u%dt%dl%d", &bus, &target, &lun) != 3)
+    {
+      DBG (1, "sanei_scsi_open: device name %s is not valid\n", dev);
+      return SANE_STATUS_INVAL;
+    }
+
+  /* Find fake fd. */
+  for (fd = 0; fd < num_alloced; ++fd)
+    if (!fd_info[fd].in_use)
+      break;
+  fake_fd = 1;
 #else
 #if defined(SGIOCSTL) || (USE == SOLARIS_INTERFACE)
   {
@@ -4404,6 +4424,271 @@ unit_ready (int fd)
   return (status == SANE_STATUS_GOOD);
 }
 #endif /* USE == SOLARIS_USCSI_INTERFACE */
+
+
+#if USE == MACOSX_INTERFACE
+
+SANE_Status
+sanei_scsi_cmd2 (int fd,
+		 const void *cmd, size_t cmd_size,
+		 const void *src, size_t src_size,
+		 void *dst, size_t * dst_size) {
+
+  IOReturn ioReturnValue;
+
+  mach_port_t masterPort = NULL;
+  ioReturnValue = IOMasterPort (MACH_PORT_NULL, &masterPort);
+  if (ioReturnValue != kIOReturnSuccess || masterPort == NULL)
+    return SANE_STATUS_IO_ERROR;
+
+  io_object_t scsiDevice = NULL;
+
+  int i;
+  for (i = 0; !scsiDevice && i < 2; i++)
+    {
+      CFMutableDictionaryRef scsiMatchDictionary =
+	IOServiceMatching (kIOSCSIDeviceClassName);
+      if (scsiMatchDictionary == NULL) return SANE_STATUS_NO_MEM;
+      int deviceTypeNumber =
+	(i == 0 ? kSCSIDevTypeScanner : kSCSIDevTypeProcessor);
+      CFNumberRef deviceTypeRef = CFNumberCreate (NULL, kCFNumberIntType, 
+						  &deviceTypeNumber);
+      CFDictionarySetValue (scsiMatchDictionary,
+			    CFSTR (kSCSIPropertyDeviceTypeID), deviceTypeRef);
+      CFRelease (deviceTypeRef);
+
+      io_iterator_t scsiObjectIterator = NULL;
+      ioReturnValue = IOServiceGetMatchingServices (masterPort,
+						    scsiMatchDictionary,
+						    &scsiObjectIterator);
+      if (ioReturnValue != kIOReturnSuccess) return SANE_STATUS_NO_MEM;
+
+      io_object_t device;
+      while ((device = IOIteratorNext (scsiObjectIterator)))
+      {
+	CFNumberRef IOUnitRef =
+	  IORegistryEntryCreateCFProperty (device,
+					   CFSTR (kSCSIPropertyIOUnit),
+					   NULL, 0);
+	int iounit;
+	CFNumberGetValue (IOUnitRef, kCFNumberIntType, &iounit);
+	CFRelease (IOUnitRef);
+	CFNumberRef scsiTargetRef =
+	  IORegistryEntryCreateCFProperty (device,
+					   CFSTR (kSCSIPropertyTarget),
+					   NULL, 0);
+	int scsitarget;
+	CFNumberGetValue (scsiTargetRef, kCFNumberIntType, &scsitarget);
+	CFRelease (scsiTargetRef);
+	CFNumberRef scsiLunRef =
+	  IORegistryEntryCreateCFProperty (device,
+					   CFSTR (kSCSIPropertyLun),
+					   NULL, 0);
+	int scsilun;
+	CFNumberGetValue (scsiLunRef, kCFNumberIntType, &scsilun);
+	CFRelease (scsiLunRef);
+
+	if (fd_info[fd].bus == iounit &&
+	    fd_info[fd].target == scsitarget &&
+	    fd_info[fd].lun == scsilun)
+	  scsiDevice = device;
+	else
+	  IOObjectRelease (device);
+      }
+      IOObjectRelease (scsiObjectIterator);
+    }
+  if (!scsiDevice) return SANE_STATUS_INVAL;
+
+  IOCFPlugInInterface ** plugInInterface = NULL;
+  SInt32 score = 0;
+  ioReturnValue = IOCreatePlugInInterfaceForService (scsiDevice,
+						     kIOSCSIUserClientTypeID,
+						     kIOCFPlugInInterfaceID,
+						     &plugInInterface,
+						     &score);
+  if (ioReturnValue != kIOReturnSuccess || plugInInterface == NULL)
+    return SANE_STATUS_NO_MEM;
+
+  HRESULT plugInResult;
+
+  IOSCSIDeviceInterface ** scsiDeviceInterface = NULL;
+  plugInResult = (*plugInInterface)->
+    QueryInterface (plugInInterface,
+		    CFUUIDGetUUIDBytes (kIOSCSIDeviceInterfaceID),
+		    (LPVOID) &scsiDeviceInterface);
+  if (plugInResult != S_OK || scsiDeviceInterface == NULL)
+    return SANE_STATUS_NO_MEM;
+
+  (*plugInInterface)->Release (plugInInterface);
+  IOObjectRelease (scsiDevice);
+
+  ioReturnValue = (*scsiDeviceInterface)->open (scsiDeviceInterface);
+  if (ioReturnValue != kIOReturnSuccess) return SANE_STATUS_IO_ERROR;
+
+  IOCDBCommandInterface ** cdbCommandInterface = NULL;
+  plugInResult = (*scsiDeviceInterface)->
+    QueryInterface (scsiDeviceInterface,
+		    CFUUIDGetUUIDBytes (kIOCDBCommandInterfaceID),
+		    (LPVOID) &cdbCommandInterface);
+  if (plugInResult != S_OK || cdbCommandInterface == NULL)
+    return SANE_STATUS_NO_MEM;
+
+  CDBInfo cdb;
+  cdb.cdbLength = cmd_size;
+  memcpy (&cdb.cdb, cmd, cmd_size);
+
+  IOVirtualRange range;
+  UInt32 transferCount;
+  Boolean isWrite;
+  if (dst && dst_size)
+    {
+      bzero (dst, *dst_size);
+      range.address = (IOVirtualAddress) dst;
+      range.length = *dst_size;
+      transferCount = *dst_size;
+      isWrite = false;
+    }
+  else
+    {
+      range.address = (IOVirtualAddress) src;
+      range.length = src_size;
+      transferCount = src_size;
+      isWrite = true;
+    }
+
+  SCSIResults results;
+  UInt32 seqNumber = 0;
+  ioReturnValue = (*cdbCommandInterface)->
+    setAndExecuteCommand (cdbCommandInterface, &cdb, transferCount,
+			  &range, 1, isWrite, sane_scsicmd_timeout * 1000,
+			  0, 0, 0, &seqNumber);
+  if (ioReturnValue != kIOReturnSuccess &&
+      ioReturnValue != kIOReturnUnderrun) return SANE_STATUS_IO_ERROR;
+
+  ioReturnValue = (*cdbCommandInterface)->getResults (cdbCommandInterface,
+						      &results);
+  if (ioReturnValue != kIOReturnSuccess &&
+      ioReturnValue != kIOReturnUnderrun) return SANE_STATUS_IO_ERROR;
+
+  if (dst && dst_size) *dst_size = results.bytesTransferred;
+
+  (*cdbCommandInterface)->Release (cdbCommandInterface);
+  (*scsiDeviceInterface)->close (scsiDeviceInterface);
+  (*scsiDeviceInterface)->Release (scsiDeviceInterface);
+
+  return SANE_STATUS_GOOD;
+}
+
+
+void
+sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
+			 const char *findtype,
+			 int findbus, int findchannel, int findid, int findlun,
+			 SANE_Status (*attach) (const char *dev))
+{
+  IOReturn ioReturnValue;
+
+  mach_port_t masterPort = NULL;
+  ioReturnValue = IOMasterPort (MACH_PORT_NULL, &masterPort);
+  if (ioReturnValue != kIOReturnSuccess || masterPort == NULL) return;
+
+  int i;
+  for (i = 0; i < 2; i++)
+    {
+      CFMutableDictionaryRef scsiMatchDictionary =
+	IOServiceMatching (kIOSCSIDeviceClassName);
+      if (scsiMatchDictionary == NULL) return;
+      int deviceTypeNumber =
+	(i == 0 ? kSCSIDevTypeScanner : kSCSIDevTypeProcessor);
+      CFNumberRef deviceTypeRef = CFNumberCreate (NULL, kCFNumberIntType,
+						  &deviceTypeNumber);
+      CFDictionarySetValue (scsiMatchDictionary,
+			    CFSTR (kSCSIPropertyDeviceTypeID), deviceTypeRef);
+      CFRelease (deviceTypeRef);
+
+      io_iterator_t scsiObjectIterator = NULL;
+      ioReturnValue = IOServiceGetMatchingServices (masterPort,
+						    scsiMatchDictionary,
+						    &scsiObjectIterator);
+      if (ioReturnValue != kIOReturnSuccess) return;
+
+      io_object_t scsiDevice;
+      while ((scsiDevice = IOIteratorNext (scsiObjectIterator)))
+	{
+	  CFNumberRef IOUnitRef =
+	    IORegistryEntryCreateCFProperty (scsiDevice,
+					     CFSTR (kSCSIPropertyIOUnit),
+					     NULL, 0);
+	  int iounit;
+	  CFNumberGetValue (IOUnitRef, kCFNumberIntType, &iounit);
+	  CFRelease (IOUnitRef);
+	  CFNumberRef scsiTargetRef =
+	    IORegistryEntryCreateCFProperty (scsiDevice,
+					     CFSTR (kSCSIPropertyTarget),
+					     NULL, 0);
+	  int scsitarget;
+	  CFNumberGetValue (scsiTargetRef, kCFNumberIntType, &scsitarget);
+	  CFRelease (scsiTargetRef);
+	  CFNumberRef scsiLunRef =
+	    IORegistryEntryCreateCFProperty (scsiDevice,
+					     CFSTR (kSCSIPropertyLun),
+					     NULL, 0);
+	  int scsilun;
+	  CFNumberGetValue (scsiLunRef, kCFNumberIntType, &scsilun);
+	  CFRelease (scsiLunRef);
+
+	  IOCFPlugInInterface ** plugInInterface = NULL;
+	  SInt32 score = 0;
+	  ioReturnValue =
+	    IOCreatePlugInInterfaceForService (scsiDevice,
+					       kIOSCSIUserClientTypeID,
+					       kIOCFPlugInInterfaceID,
+					       &plugInInterface,
+					       &score);
+	  if (ioReturnValue != kIOReturnSuccess || plugInInterface == NULL)
+	    return;
+
+	  HRESULT plugInResult;
+
+	  IOSCSIDeviceInterface ** scsiDeviceInterface = NULL;
+	  plugInResult = (*plugInInterface)->
+	    QueryInterface (plugInInterface,
+			    CFUUIDGetUUIDBytes (kIOSCSIDeviceInterfaceID),
+			    (LPVOID) &scsiDeviceInterface);
+	  if (plugInResult != S_OK || scsiDeviceInterface == NULL)
+	    return;
+      
+	  (*plugInInterface)->Release (plugInInterface);
+	  IOObjectRelease (scsiDevice);
+
+	  SCSIInquiry inquiry;
+	  UInt32 inquirySize;
+	  ioReturnValue = (*scsiDeviceInterface)->
+	    getInquiryData(scsiDeviceInterface, &inquiry,
+			   sizeof (SCSIInquiry), &inquirySize);
+
+	  (*scsiDeviceInterface)->Release (scsiDeviceInterface);
+
+	  if ((findlun < 0 || findlun == scsilun) &&
+	      (findvendor == NULL || strncmp (findvendor,
+					      inquiry.vendorName,
+					      strlen (findvendor)) == 0) &&
+	      (findmodel == NULL || strncmp (findmodel,
+					     inquiry.productName,
+					     strlen (findmodel)) == 0))
+	    {
+	      char devname [16];
+	      sprintf (devname, "u%dt%dl%d", iounit, scsitarget, scsilun);
+	      (*attach) (devname);
+	    }
+	}
+      IOObjectRelease (scsiObjectIterator);
+    }
+}
+
+#define WE_HAVE_FIND_DEVICES
+
+#endif /* USE == MACOSX_INTERFACE */
 
 
 #ifndef WE_HAVE_ASYNC_SCSI

@@ -15,6 +15,10 @@
 	* acinclude.m4 aclocal.m4 configure configure.in: Added support
 	  for -framework option and check for IOKit for MacOS X. Check for
 	  latex tools. Minimum autoconf version is 2.54.
+	* ltmain.sh: Add support for -framework option for MacOS X (from
+	  Mattias Ellert <mattias.ellert@tsl.uu.se>).
+	* sanei/sanei_scsi.c: Added SCSI support for MacOS X (from
+	  Mattias Ellert <mattias.ellert@tsl.uu.se>).
 
 2003-04-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

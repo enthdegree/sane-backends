@@ -1,3 +1,7 @@
+2004-09-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added Compeye Simplex 1236C.
+
 2004-09-14  Karl Heinz Kremer <khk@khk.net>
 	
 	* backend/epson_usb.c: add USB device ID for CX6400 back in

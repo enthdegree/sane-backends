@@ -341,6 +341,16 @@
 
 ;********************************************************************************************
 
+:mfg "Compeye"
+
+:model "Simplex 1236C"
+:status :unsupported
+:url "/unsupported/trust-combiscan-19200.html"
+:interface "Parport USB"
+:comment "Unsupported. See link for details."
+
+;********************************************************************************************
+
 :mfg "Corex"
 :url "http://www.cardscan.com/"
 

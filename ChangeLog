@@ -1,3 +1,7 @@
+2003-03-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions-external/ibm.desc: Added Ricoh IS-430.
+
 2003-02-28  Ulrich Deiters <ukd@xenon.pc.uni-koeln.de>
 
 	* backend/canon-sane.c: Adjusted to use the new sanei_constrain_value

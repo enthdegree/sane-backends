@@ -36,3 +36,7 @@
 :status :alpha
 :comment "Flatbed works after change in source code."
 
+:model "IS-430"
+:interface "SCSI"
+:status :untested
+:comment "Untested, please report!"

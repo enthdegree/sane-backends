@@ -3,6 +3,8 @@
 	* lib/getopt.c: Removed #include again, breaks compilation on
 	  OS/2.
 	* config.guess config.sub: New upstream versions.
+	* acinclude.m4 aclocal.m4 configure ltmain.sh: New libtool
+	  upstream realease: 1.5.
 
 2003-04-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -1,4 +1,4 @@
-TODO (2002-01-03)
+TODO (2002-01-07)
 
 ******** todo ********
 
@@ -28,8 +28,8 @@ backends
     - Canon FB620S flatbed scanner and FS2710 film scanner
       ftp://stthd0.pc.uni-koeln.de/pub/canon-1.08.tar.gz
       Ulrich Deiters <ukd@xenon.pc.Uni-Koeln.DE>
-    - UMAX Astra 1220U  backend
-      http://umax1220u-sane.sourceforge.net/
+    - Hewlett-Packard ScanJet 3300C / 3400C and 4300C (wip)
+      http://sourceforge.net/projects/hp3300backend
 
   * Update backends
     - Combine all the Fujitsu backends into one single backend
@@ -49,9 +49,8 @@ backends
        by one user). Maybe add a command line option to saned to set the
        timeout. Otherwise turn on TCP keep alive (where available) and
        (maybe) check the connection from server side.
-     - There seems to be yet another race condition or other source for
-       freezes in saned or net. Wheile scanning with pnm and auth, scanimage
-       freezes. Last message from saned: "process_request: got request 2".
+     - Is it necessary to check the ip address of the data connection?
+     - Add documentation about the data connection.
 
   * qcam:
      - implement auto mode for brightness and black-level (don't
@@ -186,6 +185,11 @@ misc
   * Add installation procedure for translations of SANE backend's options.
 
 ******** done ********
+* UMAX Astra 1220U  backend
+  http://umax1220u-sane.sourceforge.net/
+* There seems to be yet another race condition or other source for
+  freezes in saned or net. Wheile scanning with pnm and auth, scanimage
+  freezes. Last message from saned: "process_request: got request 2".
 * Split configure option --enable-directio into --enable-scsi-directio and
   --enable-parport-directio to avoid confusion. Also add appropriate
   documentation.

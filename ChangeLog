@@ -1,3 +1,11 @@
+2004-11-19  Gerhard Jaeger <gerhard@gjaeger.de>
+	
+	* backend/plustek.c backend/plustek-usb*: Major update, see
+	  doc/plustek/Plustek-USB.changes. Esp. improved support for multiple
+	  devices and autodetection.
+	* doc/plustek/Plustek-USB.changes: Update.
+	* doc/descriptions/plustek.desc: Updated release number.
+
 2004-04-15  Stéphane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c: non i386 linux compilation fix,

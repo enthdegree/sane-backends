@@ -31,6 +31,7 @@ Backends:
  mustek:        Andreas Bolsch, David Mosberger, Andreas Czechanowski and
                 Henning Meier-Geinitz (*)
  mustek_pp:     Jochen Eisinger (*)
+ mustek_usb:    Tom Wang and Henning Meier-Geinitz (*)
  nec:           Kazuya Fukuda (*)
  net:           Andreas Beck and David Mosberger
  pnm:           Andreas Beck, Gordon Matzigkeit, David Mosberger, Michael
@@ -131,6 +132,5 @@ Sebastien Sable <Sebastien.Sable@snv.jussieu.fr>
 Simon Munton <simon@munton.demon.co.uk>
 Stéphane Voltz <svoltz@wanadoo.fr>
 Tom Martone <tom@martoneconsulting.com>
+Tom Wang <tom.wang@mustek.com.tw>
 Tristan Tarrant <ttarrant@etnoteam.it>
-
-

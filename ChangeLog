@@ -1,3 +1,15 @@
+2000-11-12  Henning Meier-Geinitz <hmg@gmx.de>
+
+	* doc/sane.tex: Fixed a typo.
+	* doc/.cvsignore: Added the files produced by make ps.
+	* README: Removed X-frontends. Point to sane-frontends and website.
+	  Some reformatting.
+	* TODO: Updated concerning frontends split.
+	* PROJECTS: Removed entries about frontends (now in 
+	  sane-frontends/README)
+	* PROBLEMS: Removed entries about frontends (now in
+	  sane-frontends/PROBLEMS)
+	
 2000-11-10  Henning Meier-Geinitz <hmg@gmx.de>
 
         * sanei/sanei_constrain_value.c: If constraint_type is

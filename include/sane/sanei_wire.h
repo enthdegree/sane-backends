@@ -70,6 +70,7 @@ typedef struct Wire
 Wire;
 
 extern void sanei_w_init (Wire *w, void (*codec_init)(Wire *));
+extern void sanei_w_exit (Wire *w);
 extern void sanei_w_space (Wire *w, size_t howmuch);
 extern void sanei_w_void (Wire *w);
 extern void sanei_w_byte (Wire *w, SANE_Byte *v);

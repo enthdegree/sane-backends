@@ -413,8 +413,11 @@ sane_exit (void)
 	  sanei_w_call (&dev->wire, SANE_NET_EXIT,
 			(WireCodecFunc) sanei_w_void, 0,
 			(WireCodecFunc) sanei_w_void, 0);
+          sanei_w_exit(&dev->wire);
 	  close (dev->ctl);
 	}
+      if (dev->name)
+        free(dev->name);
       free (dev);
     }
 }

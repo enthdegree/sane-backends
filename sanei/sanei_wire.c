@@ -446,3 +446,12 @@ sanei_w_init (Wire *w, void (*codec_init_func)(Wire *))
   if (codec_init_func != 0)
     (*codec_init_func) (w);
 }
+
+void
+sanei_w_exit (Wire *w)
+{
+  if (w->buffer.start)
+    free(w->buffer.start);
+  w->buffer.start = 0;
+  w->buffer.size = 0;
+}

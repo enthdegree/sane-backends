@@ -1,4 +1,17 @@
 -*-Mode: outline-*-
+New with 1.0.3, released 2000-08-12:
+
+* New backends: mustek_pp, plustek, st400, v4l.
+* Updated backends: Artec (v0.5.14), Coolscan (v0.4.3), Epson (v0.1.33),
+  HP (v0.88), Mustek (v1.0-96), Sharp (v0.31), UMAX (v1.0-21).
+* Removed backend info sagitta.desc due to lack of interest.
+* Installing no longer depends on 'rev'.
+* Added and structured documentation.
+* Every backend has a man page now.
+* Debug messages are now sent to syslog if stderr is a socket.
+* New 16 bit support to scanimage.
+* Bugfixes.
+
 New with 1.0.2, released 2000-03-06:
 * Aliased and hidden backend support.
 * Port to UnixWare 2.x and UnixWare 7.

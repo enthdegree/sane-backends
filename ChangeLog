@@ -6,6 +6,8 @@
 	  For release, V_EXTRA is empty. Added NUMBER_VERSION to avoid
 	  confusing sane-config and frontends that rely on numbered versions.
 	* tools/sane-config.in: Use @NUMBER_VERSION@.
+	* sane-backends.lsm: Made more compatible with LSM standard. Fixed
+	  mostang.com directory. Added OpenBSD.
 
 2001-01-08  Stéphane Voltz  <svoltz@wanadoo.fr>
 

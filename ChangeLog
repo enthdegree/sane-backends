@@ -1,3 +1,8 @@
+2003-03-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added Canon LIDE 50, IBM
+	  ADF Color Scanner, Plustek Spectra ADF.
+
 2003-03-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/as6e.c: Fixed segmentation fault when $PATH is not set.

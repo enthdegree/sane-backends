@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-03-13"		; version of backend
+:version "2003-03-20"		; version of backend
 :url "http://www.meier-geinitz.de/sane/misc/unsupported.html"
 ;:status :stable			; :alpha, :beta, :stable, :new
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
@@ -125,6 +125,12 @@
 :interface "USB"
 :status :unsupported
 :comment "Not supported. However, some information is available."
+
+:model "LiDE 50"
+:url "http://www.meier-geinitz.de/sane/misc/canon-lide-50.txt"
+:interface "USB"
+:status :unsupported
+:comment "Probably not supported. Chipset probably Genesys. Some information is available."
 
 :model "CanoScan FB1210U"
 :url "http://sourceforge.net/projects/canonscanner/"
@@ -265,6 +271,17 @@
 
 ;********************************************************************************************
 
+:mfg "IBM"
+:url "http://www.ibm.com"
+
+:model "ADF Color Scanner"
+:url "http://www-1.ibm.com/support/docview.wss?uid=psg1VLAR-3TQMPG"
+:interface "Proprietary"
+:status :unsupported
+:comment "Unsupported. Uses proprietary ISA card. Maybe the same as the Plustek Spectra ADF?"
+
+;********************************************************************************************
+
 :mfg "Lexmark"
 :url "http://www.lexmark.com/"
 
@@ -377,6 +394,13 @@
 :interface "USB"
 :status :unsupported
 :comment "Uses the Genesys Logic GL646 chipset."
+
+:model "Spectra ADF"
+;:url ""
+:interface "Proprietary"
+:status :unsupported
+:comment "Unsupported. Uses proprietary ISA card that also provides power and is labelled GPS-1 PAGE-A from Taiwan. Other labels on the scanner include ADF Color Scanner and SF600AS. Maybe the same as the IBM ADF Color Scanner?"
+
 
 ;********************************************************************************************
 

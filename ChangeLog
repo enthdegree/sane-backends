@@ -12,7 +12,8 @@
 	  doc/mustek_usb/mustek_usb.TODO doc/sane-mustek_usb.man:
 	  Added mustek_usb documentation.
 	* doc/sane.man: Updated concerning mustek_usb.
-
+	* PROJECTS TODO: Updated concerning mustek_usb.
+	
 2001-09-08 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 
 	* added information for device filesystem permissions

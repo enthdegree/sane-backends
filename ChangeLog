@@ -1,5 +1,9 @@
 2001-01-20  Tom Martone <tom@martoneconsulting.com>
 
+        * doc/.cvsignore: Added sane-bh.5.
+
+2001-01-20  Tom Martone <tom@martoneconsulting.com>
+
 	* backend/bh.c backend/bh.conf backend/bh.h doc/sane-bh.man
 	  Added new backend Bell and Howell Copiscan scanners
 	* backend/bh.desc

@@ -464,7 +464,7 @@ check_host (int fd)
 	    }
 	  else
 	    {
-	      if (inet_aton (config_line, &config_line_address))
+	      if (inet_pton (AF_INET, config_line, &config_line_address) > 0)
 		{
 		  if (memcmp (&remote_address.s_addr, 
 			      &config_line_address.s_addr, 4) == 0)
@@ -473,7 +473,7 @@ check_host (int fd)
 	      else
 		{
 		  DBG (DBG_DBG, 
-		       "check_host: inet_aton for `%s' failed\n",
+		       "check_host: inet_pton for `%s' failed\n",
 		       config_line);
 		  he = gethostbyname (config_line);
 		  if (!he)

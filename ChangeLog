@@ -1,3 +1,8 @@
+2003-11-28  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan.c: Download gamma table twice for
+	  Epson Perfection 1670
+
 2003-11-27  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/plustek/Plustek.changes: moved to Plustek-USB.changes

@@ -1208,6 +1208,20 @@ static SANE_Status start_reader (SnapScan_Scanner *pss)
     }
     return status;
 }
+static SANE_Status send_gamma_table (SnapScan_Scanner *pss, u_char dtc, u_char dtcq)
+{
+    static char me[] = "send_gamma_table";
+    SANE_Status status = SANE_STATUS_GOOD;
+    status = send (pss, dtc, dtcq);
+    CHECK_STATUS (status, me, "send");
+    if (pss->pdev->model == PERFECTION1670)
+    {
+        /* Epson Perfection 1670 needs an extra invitation */
+        status = send (pss, dtc, dtcq);
+        CHECK_STATUS (status, me, "send");
+    }
+    return status;
+}
 
 static SANE_Status download_gamma_tables (SnapScan_Scanner *pss)
 {
@@ -1277,34 +1291,34 @@ static SANE_Status download_gamma_tables (SnapScan_Scanner *pss)
                 /* Use greyscale gamma for all rgb channels */
                 gamma_from_sane (pss->gamma_length, pss->gamma_table_gs,
                                  pss->buf + SEND_LENGTH);
-                status = send (pss, DTC_GAMMA, dtcq_gamma_red);
+                status = send_gamma_table(pss, DTC_GAMMA, dtcq_gamma_red);
                 CHECK_STATUS (status, me, "send");
 
                 gamma_from_sane (pss->gamma_length, pss->gamma_table_gs,
                                  pss->buf + SEND_LENGTH);
-                status = send (pss, DTC_GAMMA, dtcq_gamma_green);
+                status = send_gamma_table(pss, DTC_GAMMA, dtcq_gamma_green);
                 CHECK_STATUS (status, me, "send");
 
                 gamma_from_sane (pss->gamma_length, pss->gamma_table_gs,
                                  pss->buf + SEND_LENGTH);
-                status = send (pss, DTC_GAMMA, dtcq_gamma_blue);
+                status = send_gamma_table(pss, DTC_GAMMA, dtcq_gamma_blue);
                 CHECK_STATUS (status, me, "send");
             }
             else
             {
                 gamma_from_sane (pss->gamma_length, pss->gamma_table_r,
                                  pss->buf + SEND_LENGTH);
-                status = send (pss, DTC_GAMMA, dtcq_gamma_red);
+                status = send_gamma_table(pss, DTC_GAMMA, dtcq_gamma_red);
                 CHECK_STATUS (status, me, "send");
 
                 gamma_from_sane (pss->gamma_length, pss->gamma_table_g,
                                  pss->buf + SEND_LENGTH);
-                status = send (pss, DTC_GAMMA, dtcq_gamma_green);
+                status = send_gamma_table(pss, DTC_GAMMA, dtcq_gamma_green);
                 CHECK_STATUS (status, me, "send");
 
                 gamma_from_sane (pss->gamma_length, pss->gamma_table_b,
                                  pss->buf + SEND_LENGTH);
-                status = send (pss, DTC_GAMMA, dtcq_gamma_blue);
+                status = send_gamma_table(pss, DTC_GAMMA, dtcq_gamma_blue);
                 CHECK_STATUS (status, me, "send");
             }
         }
@@ -1315,34 +1329,34 @@ static SANE_Status download_gamma_tables (SnapScan_Scanner *pss)
                 /* Use greyscale gamma for all rgb channels */
                 gamma_n (gamma_gs, pss->bright, pss->contrast,
                          pss->buf + SEND_LENGTH, pss->bpp);
-                status = send (pss, DTC_GAMMA, dtcq_gamma_red);
+                status = send_gamma_table(pss, DTC_GAMMA, dtcq_gamma_red);
                 CHECK_STATUS (status, me, "send");
 
                 gamma_n (gamma_gs, pss->bright, pss->contrast,
                          pss->buf + SEND_LENGTH, pss->bpp);
-                status = send (pss, DTC_GAMMA, dtcq_gamma_green);
+                status = send_gamma_table(pss, DTC_GAMMA, dtcq_gamma_green);
                 CHECK_STATUS (status, me, "send");
 
                 gamma_n (gamma_gs, pss->bright, pss->contrast,
                          pss->buf + SEND_LENGTH, pss->bpp);
-                status = send (pss, DTC_GAMMA, dtcq_gamma_blue);
+                status = send_gamma_table(pss, DTC_GAMMA, dtcq_gamma_blue);
                 CHECK_STATUS (status, me, "send");
             }
             else
             {
                 gamma_n (gamma_r, pss->bright, pss->contrast,
                          pss->buf + SEND_LENGTH, pss->bpp);
-                status = send (pss, DTC_GAMMA, dtcq_gamma_red);
+                status = send_gamma_table(pss, DTC_GAMMA, dtcq_gamma_red);
                 CHECK_STATUS (status, me, "send");
 
                 gamma_n (gamma_g, pss->bright, pss->contrast,
                          pss->buf + SEND_LENGTH, pss->bpp);
-                status = send (pss, DTC_GAMMA, dtcq_gamma_green);
+                status = send_gamma_table(pss, DTC_GAMMA, dtcq_gamma_green);
                 CHECK_STATUS (status, me, "send");
 
                 gamma_n (gamma_b, pss->bright, pss->contrast,
                          pss->buf + SEND_LENGTH, pss->bpp);
-                status = send (pss, DTC_GAMMA, dtcq_gamma_blue);
+                status = send_gamma_table(pss, DTC_GAMMA, dtcq_gamma_blue);
                 CHECK_STATUS (status, me, "send");
             }
         }
@@ -1353,14 +1367,14 @@ static SANE_Status download_gamma_tables (SnapScan_Scanner *pss)
         {
             gamma_from_sane (pss->gamma_length, pss->gamma_table_gs,
                              pss->buf + SEND_LENGTH);
-            status = send (pss, DTC_GAMMA, dtcq_gamma_gray);
+            status = send_gamma_table(pss, DTC_GAMMA, dtcq_gamma_gray);
             CHECK_STATUS (status, me, "send");
         }
         else
         {
             gamma_n (gamma_gs, pss->bright, pss->contrast,
                      pss->buf + SEND_LENGTH, pss->bpp);
-            status = send (pss, DTC_GAMMA, dtcq_gamma_gray);
+            status = send_gamma_table(pss, DTC_GAMMA, dtcq_gamma_gray);
             CHECK_STATUS (status, me, "send");
         }
     }
@@ -1748,6 +1762,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.37  2003/11/27 23:11:32  oliver-guest
+ * Send gamma table twice for Epson Perfection 1670
+ *
  * Revision 1.36  2003/11/09 21:43:45  oliver-guest
  * Disabled quality calibration for Epson Perfection 1670
  *

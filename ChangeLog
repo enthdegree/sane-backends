@@ -1,3 +1,10 @@
+2001-08-01  Stéphane Voltz  <svoltz@wanadoo.fr>
+
+	* doc/sane-umax_pp.man backend/umax_pp_low.c:
+	  One more step toward cleaner scanner probing. Added
+	  message about EPP mode not being available. Slight man
+	  update to emphasize EPP mode setting.
+
 2001-07-24  Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* backend/umax_pp.c backend/umax_pp_low.c:

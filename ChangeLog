@@ -1,3 +1,8 @@
+2002-02-13  Peter Fales <peter@fales.com>
+
+	* configure, acinclude.m4, aclocal.m4 - Another tweak to the
+	  allowed gphoto2 version numbers
+	
 2002-02-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* configure configure.in Makefile.in backend/Makefile.in  

@@ -14,7 +14,7 @@ ac_default_prefix=/usr/local
 ac_help="$ac_help
   --with-gnu-ld           assume the C compiler uses GNU ld [default=no]"
 ac_help="$ac_help
-  --enable-warnings Turn on tons of compiler warnings (if you are using GCC) [default=no]"
+  --enable-warnings Turn on tons of compiler warnings (if you are using GCC) [default=yes]"
 ac_help="$ac_help
   --enable-shared[=PKGS]  build shared libraries [default=yes]"
 ac_help="$ac_help
@@ -1367,8 +1367,7 @@ NORMAL_CFLAGS="${CFLAGS} -W -Wall"
 WARN_CFLAGS="${CFLAGS} -W -Wall -Wstrict-prototypes -Wreturn-type -Wcast-align \
   -Wpointer-arith -Wcast-qual -ansi -pedantic"
 
-
-# Warnings disabled by default
+# Warnings enabled by default
 # Check whether --enable-warnings or --disable-warnings was given.
 if test "${enable_warnings+set}" = set; then
   enableval="$enable_warnings"
@@ -1380,8 +1379,9 @@ if test "${enable_warnings+set}" = set; then
     fi
   
 else
-  CFLAGS="${NORMAL_CFLAGS}"
+  CFLAGS="${WARN_CFLAGS}"
 fi
+
 
   
 

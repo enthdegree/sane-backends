@@ -41,22 +41,9 @@ WARN_CFLAGS="${CFLAGS} -W -Wall -Wstrict-prototypes -Wreturn-type -Wcast-align \
   -Wpointer-arith -Wcast-qual -ansi -pedantic"
 
 dnl Use this during development
-dnl # Warnings enabled by default
-dnl AC_ARG_ENABLE(warnings,
-dnl   [  --enable-warnings Turn on tons of compiler warnings (if you are using GCC) [default=yes]],
-dnl   [
-dnl     if eval "test x$enable_warnings = xyes"; then 
-dnl       CFLAGS="${WARN_CFLAGS}"
-dnl     else
-dnl       CFLAGS="${NORMAL_CFLAGS}"
-dnl     fi
-dnl   ],
-dnl   [CFLAGS="${WARN_CFLAGS}"])
-
-dnl Use this for releases
-# Warnings disabled by default
+# Warnings enabled by default
 AC_ARG_ENABLE(warnings,
-  [  --enable-warnings Turn on tons of compiler warnings (if you are using GCC) [default=no]],
+  [  --enable-warnings Turn on tons of compiler warnings (if you are using GCC) [default=yes]],
   [
     if eval "test x$enable_warnings = xyes"; then 
       CFLAGS="${WARN_CFLAGS}"
@@ -64,7 +51,20 @@ AC_ARG_ENABLE(warnings,
       CFLAGS="${NORMAL_CFLAGS}"
     fi
   ],
-  [CFLAGS="${NORMAL_CFLAGS}"])
+  [CFLAGS="${WARN_CFLAGS}"])
+
+dnl Use this for releases
+dnl # Warnings disabled by default
+dnl AC_ARG_ENABLE(warnings,
+dnl   [  --enable-warnings Turn on tons of compiler warnings (if you are using GCC) [default=no]],
+dnl   [
+dnl     if eval "test x$enable_warnings = xyes"; then 
+dnl       CFLAGS="${WARN_CFLAGS}"
+dnl     else
+dnl       CFLAGS="${NORMAL_CFLAGS}"
+dnl     fi
+dnl   ],
+dnl   [CFLAGS="${NORMAL_CFLAGS}"])
   
 
 fi

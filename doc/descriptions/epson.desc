@@ -11,7 +11,7 @@
 
 :backend "epson"                  ; name of backend
 :version "0.2.32"                 ; version of backend
-:status :stable                   ; :alpha, :beta, :stable, :new
+:new :no
 :manpage "sane-epson"             ; name of manpage (if it exists)
 :url "http://www.khk.net/sane"    ; backend's web page
 
@@ -24,138 +24,138 @@
 
 :model "GT-5000"                  ; name models for above-specified mfg.
 :interface "Parport"
-:status :beta
+; :status :beta
 
 :model "Actionscanner II"
 :comment "US version of GT-5000"
 :interface "Parport"
-:status :beta
+; :status :beta
 
 :model "GT-6000"
 :interface "SCSI Parport"
-:status :beta
+; :status :beta
 
 :model "ES-300C"
 :comment "US version of GT-6000"
 :interface "SCSI Parport"
-:status :beta
+; :status :beta
 
 :model "GT-5500"
 :interface "SCSI"
-:status :beta
+; :status :beta
 
 :model "GT-6500"
 :interface "Parport"
-:status :beta
+; :status :beta
 
 :model "ES-600C"
 :comment "US version of GT-6500"
 :interface "Parport"
-:status :beta
+; :status :beta
 
 :model "ES-1200C"
 :comment "US version of GT-9000"
 :interface "Parport"
-:status :beta
+; :status :beta
 
 :model "GT-7000"
 :interface "SCSI"
-:status :beta
+; :status :beta
 
 :model "GT-8000"
 :interface "SCSI"
-:status :beta
+; :status :beta
 
 :model "ES-8500"
 :interface "SCSI"
-:status :beta
+; :status :beta
 
 :model "Perfection 636S"
 :comment "US version of GT-7000"
 :interface "SCSI"
-:status :stable
+; :status :stable
 
 :model "Perfection 636U"
 :interface "USB"
-:status :stable
+; :status :stable
 
 :model "Perfection 610"
 :interface "USB"
-:status :stable
+; :status :stable
 
 :model "Perfection 640"
 :interface "USB"
-:status :stable
+; :status :stable
 
 :model "Perfection 1200S"
 :interface "SCSI"
-:status :stable
+; :status :stable
 
 :model "Perfection 1200U"
 :interface "USB"
-:status :stable
+; :status :stable
 
 :model "Perfection 1200Photo"
 :comment "with TPU"
 :interface "USB"
-:status :stable
+; :status :stable
 
 :model "Perfection 1240"
 :interface "SCSI USB"
-:status :stable
+; :status :stable
 
 :model "Perfection 1640"
 :interface "SCSI USB"
-:status :stable
+; :status :stable
 
 :model "Perfection 1650"
 :interface "USB"
-:status :stable
+; :status :stable
 
 :model "Perfection 1660"
 :interface "USB"
-:status :stable
+; :status :stable
 
 :model "Perfection 2400"
 :interface "USB"
-:status :stable
+; :status :stable
 
 :model "Perfection 2450"
 :interface "USB IEEE-1394"
-:status :stable
+; :status :stable
 
 :model "Perfection 3200"
 :comment "US version of the GT-9800"
 :interface "USB"
-:status :stable
+; :status :stable
 
 :model "Expression 636"
 :comment "US version of GT-9500"
 :interface "SCSI"
-:status :stable
+; :status :stable
 
 :model "Expression 800"
 :interface "SCSI"
-:status :stable
+; :status :stable
 
 :model "Expression 1600"
 :interface "SCSI USB IEEE-1394"
-:status :stable
+; :status :stable
 
 :model "Expression 1680"
 :interface "SCSI USB IEEE-1394"
-:status :stable
+; :status :stable
 
 :model "FilmScan 200"
 :interface "SCSI"
 :comment "A better backend for the FilmScan 200 can be found at <A HREF=\"http://www.vjet.demon.co.uk/scanner/\">http://www.vjet.demon.co.uk/scanner/</A>"
-:status :untested
+:status :unsupported
 :url "http://www.vjet.demon.co.uk/scanner/"
 
 :model "CX-3200"
 :interface "USB"
-:status :alpha
+:status :untested
 
 :model "CX-5200"
 :interface "USB"
-:status :alpha
+:status :untested

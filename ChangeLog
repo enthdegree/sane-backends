@@ -1,3 +1,7 @@
+2003-10-03  Karl Heinz Kremer <khk@khk.net>
+
+	* doc/descriptions/epson.desc: Changed "status" information
+
 2003-10-02  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* backend/plustek_pp* backend/plustek-usb*: fixed some OS/2 compiling issues

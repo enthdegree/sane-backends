@@ -46,7 +46,7 @@
 
 /**************************************************************************/
 /* Mustek backend version                                                 */
-#define BUILD 102
+#define BUILD 103
 /**************************************************************************/
 
 #include "sane/config.h"
@@ -932,6 +932,8 @@ attach (SANE_String_Const devname, Mustek_Device **devp, SANE_Bool may_wait)
   memcpy (dev, &new_dev, sizeof (*dev));
 
   dev->name = strdup (devname);
+  if (!dev->name) 
+    return SANE_STATUS_NO_MEM;
   dev->sane.name = (SANE_String_Const) dev->name;
   dev->sane.vendor = "Mustek";
   dev->sane.type   = "flatbed scanner";
@@ -1246,8 +1248,9 @@ attach (SANE_String_Const devname, Mustek_Device **devp, SANE_Bool may_wait)
       /* These values were measured and compared to those from the Windows
 	 driver. Tested with a ScaneExpress 12000SP 2.02 and a ScanMagic
          9636S v 1.01 */
-      dev->x_range.max = SANE_FIX (215.9);
+      dev->x_range.min = SANE_FIX (0);
       dev->y_range.min = SANE_FIX (0);
+      dev->x_range.max = SANE_FIX (215.9);
       dev->y_range.max = SANE_FIX (291.2);
 
       dev->x_trans_range.min = SANE_FIX (0);
@@ -1318,7 +1321,7 @@ attach (SANE_String_Const devname, Mustek_Device **devp, SANE_Bool may_wait)
   else if (strncmp((SANE_String) model_name, "MFS-1200SPPRO", 13) == 0)
     {
       /* These values were measured with a Paragon 1200 SP Pro v2.01 */
-      dev->x_range.max = SANE_FIX (8 * MM_PER_INCH);
+      dev->x_range.max = SANE_FIX (8.6 * MM_PER_INCH);
       dev->y_range.max = SANE_FIX (13.70 * MM_PER_INCH);
       dev->dpi_range.max = SANE_FIX (1200);
       dev->sane.model = "1200 SP PRO";
@@ -1860,54 +1863,7 @@ set_window_pro (Mustek_Scanner *s)
   return dev_cmd (s, cmd, (cp - cmd), 0, 0);
 }
 
-/* ScanExpress series */
-#if 0
-static SANE_Status
-calibration (Mustek_Scanner *s)
-{
-  SANE_Status status;
-  SANE_Byte cmd[10 + 100000];
-  size_t num;
-
-  num = s->hw->cal.bytes * s->hw->cal.lines;
-  memset (cmd, 0, sizeof (cmd));
-
-  cmd[0] = MUSTEK_SCSI_READ_DATA;
-  cmd[2] = 0x01;
-  cmd[6] = (num >> 16) & 0xff;
-  cmd[7] = (num >>  8) & 0xff;
-  cmd[8] = (num >>  0) & 0xff;
-
-  status = dev_cmd (s, cmd, sizeof (read_data), 
-		    cmd + sizeof (read_data), &num); 
-
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(1, "Calibration: read failed\n");
-      return status;
-    }
-
-  num = s->hw->cal.bytes * s->hw->cal.lines;
-  
-  cmd[0] = MUSTEK_SCSI_SEND_DATA;
-  cmd[2] = 0x01;
-  cmd[6] = (num >> 16) & 0xff;
-  cmd[7] = (num >>  8) & 0xff;
-  cmd[8] = (num >>  0) & 0xff;
-  
-  status = dev_cmd (s, cmd, sizeof (send_data) + num, 0, 0);		  
-
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(1, "Calibration: send failed\n");
-      return status;
-    } 	  
-
-  return SANE_STATUS_GOOD;
-}  
-#endif
-
-/* Pro series */
+/* Pro series calibration (just a dummy at the moment) */
 static SANE_Status
 get_calibration_size_pro (Mustek_Scanner *s)
 {
@@ -1934,7 +1890,6 @@ get_calibration_size_pro (Mustek_Scanner *s)
   return SANE_STATUS_GOOD;
 }
 
-/* Pro series */
 static SANE_Status
 get_calibration_lines_pro (Mustek_Scanner *s)
 {
@@ -1943,14 +1898,13 @@ get_calibration_lines_pro (Mustek_Scanner *s)
   size_t len;
   SANE_Int line;
 
-  DBG(2, "read_calibration_lines_pro: please wait for warmup\n");
+  DBG(2, "get_calibration_lines_pro: please wait for warmup\n");
   memset (cmd, 0, sizeof (cmd));
   cmd[0] = MUSTEK_SCSI_READ_DATA;
   len = s->hw->cal.bytes;
   cmd[6] = (len >> 16) & 0xff;
   cmd[7] = (len >>  8) & 0xff;
   cmd[8] = (len >>  0) & 0xff;
-
   
   for (line = 0; line < s->hw->cal.lines; line++)
     {
@@ -1964,66 +1918,91 @@ get_calibration_lines_pro (Mustek_Scanner *s)
 	  return status;
 	}
     }
+  DBG(5, "get_calibration_lines_pro finished. Assuming 12 bits per color\n");
   return SANE_STATUS_GOOD;
 }  
 
-/* Pro series */
 static SANE_Status
 send_calibration_lines_pro (Mustek_Scanner *s)
 {
   SANE_Status status;
-  SANE_Byte *cmd;
+  SANE_Byte *cmd1, *cmd2;
   size_t buf_size;
+  SANE_Word column, line, color;
 
   DBG(5, "send_calibration_lines_pro\n");
 
   buf_size = s->hw->cal.bytes / 2;
-  cmd = (SANE_Byte *) malloc (buf_size + sizeof (scsi_send_data));
-  if (!cmd)
+  cmd1 = (SANE_Byte *) malloc (buf_size + sizeof (scsi_send_data));
+  cmd2 = (SANE_Byte *) malloc (buf_size + sizeof (scsi_send_data));
+  if (!cmd1 || !cmd2)
     {
       DBG(1, "send_calibration_lines_pro: failed to malloc %d bytes for "
 	  "sending lines\n", buf_size + sizeof (scsi_send_data));
       return SANE_STATUS_NO_MEM;
     }
-  memset (cmd, 0, sizeof (scsi_send_data)); 
-  memset (cmd + sizeof (scsi_send_data), 0xff, buf_size); 
+  memset (cmd1, 0, sizeof (scsi_send_data)); 
+  memset (cmd2, 0, sizeof (scsi_send_data)); 
 
-  cmd[0] = MUSTEK_SCSI_SEND_DATA;
-  cmd[6] = (buf_size >> 16) & 0xff;
-  cmd[7] = (buf_size >>  8) & 0xff;
-  cmd[8] = (buf_size >>  0) & 0xff;
+  cmd1[0] = cmd2[0] = MUSTEK_SCSI_SEND_DATA;
+  cmd1[6] = cmd2[6] = (buf_size >> 16) & 0xff;
+  cmd1[7] = cmd2[7] = (buf_size >>  8) & 0xff;
+  cmd1[8] = cmd2[8] = (buf_size >>  0) & 0xff;
+  cmd1[9] = 0; /* Least significant 8 bits */
+  cmd2[9] = 0x80; /* Most significant 2 bits */
 
-  cmd[9] = 0; /* first line ? */
-  status = dev_cmd (s, cmd, buf_size + 10, 0, 0);		  
+  for (color = 0; color < 3; color++)
+    {
+      for (column = 0; column < s->hw->cal.bytes / 6; column++)
+	{
+	  SANE_Word calibration_word = 0;
+	  for (line = 0; line < s->hw->cal.lines; line++)
+	    {
+	      calibration_word += 
+		*(s->hw->cal.buffer + column * 6 + color_seq[color] * 2 + 0)
+		+ (*(s->hw->cal.buffer + column * 6 + color_seq[color] * 2 + 1)
+		<< 8);
+	    }
+	  if (!calibration_word)
+	    calibration_word = 1;
+	  calibration_word = (1024 * 65536 / calibration_word) - 1024;
+	  if (calibration_word > 1023)
+	    calibration_word = 1023;
+	  *(cmd1 + sizeof (scsi_send_data) + (buf_size / 3) * color + column)
+	    = calibration_word & 0xff;
+	  *(cmd2 + sizeof (scsi_send_data) + (buf_size / 3) * color + column)
+	    = (calibration_word >> 8) & 0xff;
+	}
+    }
+
+  status = dev_cmd (s, cmd1, buf_size + sizeof (scsi_send_data), 0, 0);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(1, "send_calibration_lines_pro: send failed\n");
       return status;
     } 	  
 
-  cmd[9] = 0x80; /* second line ? */
-  memset (cmd + sizeof (scsi_send_data), 0x03, buf_size); 
-  status = dev_cmd (s, cmd, buf_size + 10, 0, 0);		  
+  status = dev_cmd (s, cmd2, buf_size + sizeof (scsi_send_data), 0, 0);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(1, "send_calibration_lines_pro: send failed\n");
       return status;
     } 	  
-  free (cmd);
+  free (cmd1);
+  free (cmd2);
   return SANE_STATUS_GOOD;
 }  
 
-/* Pro series */
 static SANE_Status
 calibration_pro (Mustek_Scanner *s)
 {
   SANE_Status status;
-
+  
   if (s->val[OPT_QUALITY_CAL].w)
     DBG(4, "calibration_pro: doing calibration\n");
   else
     return SANE_STATUS_GOOD;
-
+  
   status = get_calibration_size_pro (s);
   if (status != SANE_STATUS_GOOD)
     return status;
@@ -2045,6 +2024,155 @@ calibration_pro (Mustek_Scanner *s)
   if (status != SANE_STATUS_GOOD)
     return status;
 
+  free (s->hw->cal.buffer);
+  return SANE_STATUS_GOOD;
+}
+
+
+/* ScanExpress series calibration */
+static SANE_Status
+get_calibration_lines_se (Mustek_Scanner *s)
+{
+  SANE_Status status;
+  SANE_Byte cmd[10];
+  size_t len;
+  SANE_Word lines, bytes_per_color;
+  
+  if (s->mode == MUSTEK_MODE_COLOR)
+    {
+      lines = s->hw->cal.lines * 3;
+      bytes_per_color = s->hw->cal.bytes / 3;
+    }
+  else
+    {
+      lines = s->hw->cal.lines;
+      bytes_per_color = s->hw->cal.bytes;
+    }
+
+  DBG(4, "read_calibration_lines_se: reading %d lines (% bytes per color)\n",
+      lines, bytes_per_color);
+  memset (cmd, 0, sizeof (cmd));
+  cmd[0] = MUSTEK_SCSI_READ_DATA;
+  cmd[2] = 1;
+  cmd[7] = (lines >>  8) & 0xff;
+  cmd[8] = (lines >>  0) & 0xff;
+  len = lines * bytes_per_color;
+  status = dev_cmd (s, cmd, sizeof (scsi_read_data), s->hw->cal.buffer, &len);
+  if ((status != SANE_STATUS_GOOD) 
+      || (len != (unsigned int) (lines * bytes_per_color)))
+    {
+      DBG(1, "get_calibration_lines_se: read failed\n");
+      return status;
+    }
+  return SANE_STATUS_GOOD;
+}  
+
+static SANE_Status
+send_calibration_lines_se (Mustek_Scanner *s, SANE_Word color)
+{
+  SANE_Status status;
+  SANE_Byte *cmd;
+  size_t buf_size;
+  SANE_Word column;
+  SANE_Word lines, bytes_per_color;
+
+  if (s->mode == MUSTEK_MODE_COLOR)
+    {
+      lines = s->hw->cal.lines * 3;
+      bytes_per_color = s->hw->cal.bytes / 3;
+    }
+  else
+    {
+      lines = s->hw->cal.lines;
+      bytes_per_color = s->hw->cal.bytes;
+    }
+
+  buf_size = bytes_per_color;
+
+  DBG(5, "send_calibration_lines_se: %d bytes, color: %d\n",
+      bytes_per_color, color + 1);
+
+  cmd = (SANE_Byte *) malloc (buf_size + sizeof (scsi_send_data));
+  if (!cmd)
+    {
+      DBG(1, "send_calibration_lines_se: failed to malloc %d bytes for "
+	  "sending lines\n", buf_size + sizeof (scsi_send_data));
+      return SANE_STATUS_NO_MEM;
+    }
+  memset (cmd, 0, sizeof (scsi_send_data)); 
+    
+  for (column = 0; column < bytes_per_color; column++)
+    {
+      SANE_Word line;
+      SANE_Word cali_word = 0;
+      SANE_Int color_seq[] = {2, 0, 1};
+
+      for (line = 0; line < s->hw->cal.lines; line++)
+	cali_word += *(s->hw->cal.buffer 
+		 + line * bytes_per_color
+		 + bytes_per_color * color_seq[color]
+		 + column);
+      if (!cali_word)
+	cali_word = 1;
+      cali_word = 256 * s->hw->cal.lines * 255 / cali_word - 256;
+      if (cali_word > 255)
+	cali_word = 255;
+      *(cmd + sizeof (scsi_send_data) + column) = cali_word;
+    }
+
+  cmd[0] = MUSTEK_SCSI_SEND_DATA;
+  cmd[2] = 1;
+  cmd[6] = color + 1;
+  cmd[7] = (buf_size >>  8) & 0xff;
+  cmd[8] = (buf_size >>  0) & 0xff;
+
+  status = dev_cmd (s, cmd, buf_size + sizeof (scsi_send_data), 0, 0);		  
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG(1, "send_calibration_lines_se: send failed\n");
+      return status;
+    } 	  
+  free (cmd);
+  return SANE_STATUS_GOOD;
+}  
+
+static SANE_Status
+calibration_se (Mustek_Scanner *s)
+{
+  SANE_Status status;
+
+  if (!s->val[OPT_QUALITY_CAL].w || s->val[OPT_PREVIEW].w  
+      || s->mode == MUSTEK_MODE_LINEART)
+    return SANE_STATUS_GOOD;
+  
+  DBG(4, "calibration_se: doing calibration\n");
+
+  s->hw->cal.lines = MIN(s->hw->cal.lines, 
+			 s->hw->buffer_size / s->hw->cal.bytes);
+
+  s->hw->cal.buffer = (SANE_Byte *) malloc (s->hw->cal.bytes 
+					    * s->hw->cal.lines);
+  if (!s->hw->cal.buffer)
+    {
+      DBG(1, "calibration_se: failed to malloc %d bytes for buffer\n",
+	  s->hw->cal.bytes * s->hw->cal.lines);
+      return SANE_STATUS_NO_MEM;
+    }
+
+  status = get_calibration_lines_se (s);
+  if (status != SANE_STATUS_GOOD)
+    return status;
+  if (s->mode == MUSTEK_MODE_GRAY)
+    status = send_calibration_lines_se (s, 0);
+  else
+    {
+      status = send_calibration_lines_se (s, 0);
+      status = send_calibration_lines_se (s, 1);
+      status = send_calibration_lines_se (s, 2);
+    }
+  if (status != SANE_STATUS_GOOD)
+    return status;
+  
   free (s->hw->cal.buffer);
   return SANE_STATUS_GOOD;
 }
@@ -3570,24 +3698,32 @@ init_options (Mustek_Scanner *s)
       s->opt[OPT_MODE].size = max_string_size (mode_list_se_plus);
       s->opt[OPT_MODE].constraint.string_list = mode_list_se_plus;
       s->val[OPT_MODE].s = strdup (mode_list_se_plus[1]);
+      if (!s->val[OPT_MODE].s) 
+	return SANE_STATUS_NO_MEM;
     }
   else if (s->hw->flags & MUSTEK_FLAG_SE)
     {
       s->opt[OPT_MODE].size = max_string_size (mode_list_se);
       s->opt[OPT_MODE].constraint.string_list = mode_list_se;
       s->val[OPT_MODE].s = strdup (mode_list_se[1]);
+      if (!s->val[OPT_MODE].s) 
+	return SANE_STATUS_NO_MEM;
     }
   else if (s->hw->flags & MUSTEK_FLAG_PRO)
     {
       s->opt[OPT_MODE].size = max_string_size (mode_list_pro);
       s->opt[OPT_MODE].constraint.string_list = mode_list_pro;
       s->val[OPT_MODE].s = strdup (mode_list_pro[1]);
+      if (!s->val[OPT_MODE].s) 
+	return SANE_STATUS_NO_MEM;
     }
   else
     {
       s->opt[OPT_MODE].size = max_string_size (mode_list_paragon);
       s->opt[OPT_MODE].constraint.string_list = mode_list_paragon;
       s->val[OPT_MODE].s = strdup (mode_list_paragon[2]);
+      if (!s->val[OPT_MODE].s) 
+	return SANE_STATUS_NO_MEM;
     }
 
   /* resolution */
@@ -3609,6 +3745,8 @@ init_options (Mustek_Scanner *s)
   s->opt[OPT_SPEED].constraint_type = SANE_CONSTRAINT_STRING_LIST;
   s->opt[OPT_SPEED].constraint.string_list = speed_list;
   s->val[OPT_SPEED].s = strdup (speed_list[4]);
+  if (!s->val[OPT_SPEED].s) 
+    return SANE_STATUS_NO_MEM;
 
   /* source */
   s->opt[OPT_SOURCE].name = SANE_NAME_SCAN_SOURCE;
@@ -3623,6 +3761,8 @@ init_options (Mustek_Scanner *s)
       s->opt[OPT_SOURCE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
       s->opt[OPT_SOURCE].constraint.string_list = ta_source_list;
       s->val[OPT_SOURCE].s = strdup (ta_source_list[0]);
+      if (!s->val[OPT_SOURCE].s) 
+	return SANE_STATUS_NO_MEM;
     }
   else if (s->hw->flags & MUSTEK_FLAG_ADF)
     {
@@ -3630,6 +3770,8 @@ init_options (Mustek_Scanner *s)
       s->opt[OPT_SOURCE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
       s->opt[OPT_SOURCE].constraint.string_list = adf_source_list;
       s->val[OPT_SOURCE].s = strdup (adf_source_list[0]);
+      if (!s->val[OPT_SOURCE].s) 
+	return SANE_STATUS_NO_MEM;
     }
   else
     {
@@ -3638,6 +3780,8 @@ init_options (Mustek_Scanner *s)
       s->opt[OPT_SOURCE].constraint.string_list = source_list;
       s->val[OPT_SOURCE].s = strdup (source_list[0]);
       s->opt[OPT_SOURCE].cap |= SANE_CAP_INACTIVE;
+      if (!s->val[OPT_SOURCE].s) 
+	return SANE_STATUS_NO_MEM;
     }
 
   /* preview */
@@ -3886,6 +4030,8 @@ init_options (Mustek_Scanner *s)
   s->opt[OPT_HALFTONE_DIMENSION].constraint_type = SANE_CONSTRAINT_STRING_LIST;
   s->opt[OPT_HALFTONE_DIMENSION].constraint.string_list = halftone_list;
   s->val[OPT_HALFTONE_DIMENSION].s = strdup (halftone_list[0]);
+  if (!s->val[OPT_HALFTONE_DIMENSION].s) 
+    return SANE_STATUS_NO_MEM;
   s->opt[OPT_HALFTONE_DIMENSION].cap |= SANE_CAP_INACTIVE;
 
   /* halftone pattern */
@@ -3905,9 +4051,9 @@ init_options (Mustek_Scanner *s)
       s->opt[OPT_SPEED].cap |= SANE_CAP_INACTIVE;
     }
 
-  if (s->hw->flags & MUSTEK_FLAG_PRO)
+  if ((s->hw->flags & MUSTEK_FLAG_PRO) || (s->hw->flags & MUSTEK_FLAG_SE_PLUS))
     {
-      /* Pro models support calibration */
+      /* Pro and SE Plus models support calibration */
       s->opt[OPT_QUALITY_CAL].cap &= ~SANE_CAP_INACTIVE;
     }
 
@@ -4520,7 +4666,6 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback authorize)
 	      if (word)
 		free (word);
 	      word = 0;
-	      DBG(3, "sane_init: freed\n");
 	    }
 	  else if (strcmp (word, "force-wait") == 0)
 	    {
@@ -4531,6 +4676,40 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback authorize)
 		free (word);
 	      word = 0;
 	    }
+	  else if (strcmp (word, "legal-size") == 0)
+	    {
+	      if (new_dev_len > 0)
+		{
+		  /* Check for 12000 LS, no way to find out automatically */
+		  if (strcmp (new_dev[new_dev_len - 1]->sane.model,
+			      "ScanExpress 12000SP") == 0)
+		    {
+		      new_dev[new_dev_len - 1]->x_range.max = SANE_FIX (220.0);
+		      new_dev[new_dev_len - 1]->y_range.max = SANE_FIX (360.0);
+		      new_dev[new_dev_len - 1]->sane.model = "Paragon 1200 LS";
+		      DBG(3, "sane_init: config file line %d: enabling "
+			  "legal-size for %s\n", linenumber,
+			  new_dev[new_dev_len - 1]->sane.name);
+		    }
+		  else
+		    {
+		      DBG(3, "sane_init: config file line %d: option "
+			  "legal-size ignored, device %s is not a "
+			  "Paragon 1200 LS\n", linenumber,
+			  new_dev[new_dev_len - 1]->sane.name);
+		    }
+		  
+		}
+	      else
+		{
+		  DBG(3, "sane_init: config file line %d: option "
+		      "legal-size ignored, was set before any device "
+		      "name\n", linenumber);
+		}
+	      if (word)
+		free (word);
+	      word = 0;
+	      }
 	  else if (strcmp (word, "linedistance-fix") == 0)
 	    {
 	      if (new_dev_len > 0)
@@ -5000,6 +5179,9 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  if (s->val[option].s)
 	    free (s->val[option].s);
 	  s->val[option].s = strdup (val);
+	  if (!s->val[option].s) 
+	    return SANE_STATUS_NO_MEM;
+
 	  return SANE_STATUS_GOOD;
 
 	  /* options with side-effects: */
@@ -5059,6 +5241,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	      *info |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
 
 	    s->val[option].s = strdup (val);
+	    if (!s->val[option].s) 
+	      return SANE_STATUS_NO_MEM;
 
 	    s->opt[OPT_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
 	    s->opt[OPT_BRIGHTNESS_R].cap |= SANE_CAP_INACTIVE;
@@ -5155,6 +5339,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	      *info |= SANE_INFO_RELOAD_OPTIONS;
 	    
 	    s->val[option].s = strdup (val);
+	    if (!s->val[option].s) 
+	      return SANE_STATUS_NO_MEM;
 	    encode_halftone (s);
 	    s->opt[OPT_HALFTONE_PATTERN].cap |= SANE_CAP_INACTIVE;
 	    if (s->custom_halftone_pattern)
@@ -5172,6 +5358,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  if (s->val[option].s)
 	    free (s->val[option].s);
 	  s->val[option].s = strdup (val);
+	  if (!s->val[option].s) 
+	    return SANE_STATUS_NO_MEM;
 
 	  if (strcmp (val, "Transparency Adapter") == 0)
 	    {
@@ -5368,6 +5556,15 @@ sane_start (SANE_Handle handle)
 	      /* use 36 dpi */
 	      s->resolution_code = 36;
 	    }
+	  else if (s->hw->flags & MUSTEK_FLAG_PRO)
+	    {
+	      /* use 30 dpi color mode */
+	      s->mode = MUSTEK_MODE_COLOR;
+	      s->params.format = SANE_FRAME_RGB;
+	      s->params.depth = 8;
+	      s->one_pass_color_scan = SANE_TRUE;
+	      s->resolution_code = 30;
+	    }
 	  DBG(4, "sane_start: use fast preview (res=%d dpi)\n", 
 	      s->resolution_code);
 	}
@@ -5421,6 +5618,10 @@ sane_start (SANE_Handle handle)
 	  goto stop_scanner_and_return;
 	}
 
+      status = calibration_se (s);
+      if (status != SANE_STATUS_GOOD) 
+	goto stop_scanner_and_return;
+
       status = start_scan (s);
       if (status != SANE_STATUS_GOOD) 
 	goto stop_scanner_and_return;
@@ -5428,10 +5629,6 @@ sane_start (SANE_Handle handle)
       status = send_gamma_table_se (s);
       if (status != SANE_STATUS_GOOD) 
 	goto stop_scanner_and_return;
-/*
-      status = calibration (s);
-      if (status != SANE_STATUS_GOOD) 
-	goto stop_scanner_and_return; */
     }
 
 

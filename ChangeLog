@@ -14,6 +14,7 @@
 	* po/Makefile.in: Added niash source file.
 	* po/sane-backends.de.po: Updated and completed niash backend translation.
 	* po/sane-backends.*.po: Added niash strings.
+	* backend/plustek.c: Small cleanup.
 
 2004-07-31  Julien Blache <jb at jblache dot org>
 

@@ -41,7 +41,7 @@
    This backend is for testing frontends.
 */
 
-#define BUILD 15
+#define BUILD 16
 
 #include "../include/sane/config.h"
 
@@ -84,6 +84,12 @@ static SANE_Range resolution_range = {
   SANE_FIX (1.0),
   SANE_FIX (1200.0),
   SANE_FIX (1.0)
+};
+
+static SANE_Range ppl_loss_range = {
+  0,
+  128,
+  1
 };
 
 static SANE_Range read_limit_size_range = {
@@ -194,6 +200,7 @@ static SANE_Bool init_read_delay = SANE_FALSE;
 static SANE_Word init_read_delay_duration = 1000;
 static SANE_String init_read_status_code = "Default";
 static SANE_Bool init_fuzzy_parameters = SANE_FALSE;
+static SANE_Word init_ppl_loss = 0;
 static SANE_Bool init_non_blocking = SANE_FALSE;
 static SANE_Bool init_select_fd = SANE_FALSE;
 static SANE_Bool init_enable_test_options = SANE_FALSE;
@@ -485,8 +492,8 @@ init_options (Test_Device * test_device)
   od->title = SANE_I18N ("Return-value of sane_read");
   od->desc =
     SANE_I18N ("Select the return-value of sane_read(). \"Default\" "
-	       "is the normal handling for scanning. All other status \n"
-	       "codes are for testing how the frontend handles them.\n");
+	       "is the normal handling for scanning. All other status "
+	       "codes are for testing how the frontend handles them.");
   od->type = SANE_TYPE_STRING;
   od->unit = SANE_UNIT_NONE;
   od->size = max_string_size (read_status_code_list);
@@ -497,6 +504,21 @@ init_options (Test_Device * test_device)
   if (!test_device->val[opt_read_status_code].s)
     return SANE_STATUS_NO_MEM;
   strcpy (test_device->val[opt_read_status_code].s, init_read_status_code);
+
+  /* opt_ppl_loss */
+  od = &test_device->opt[opt_ppl_loss];
+  od->name = "ppl-loss";
+  od->title = SANE_I18N ("Loss of pixels per line");
+  od->desc =
+    SANE_I18N ("The number of pixels that are wasted at the end of each "
+	       "line.");
+  od->type = SANE_TYPE_INT;
+  od->unit = SANE_UNIT_PIXEL;
+  od->size = sizeof (SANE_Word);
+  od->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
+  od->constraint_type = SANE_CONSTRAINT_RANGE;
+  od->constraint.range = &ppl_loss_range;
+  test_device->val[opt_ppl_loss].w = init_ppl_loss;
 
   /* opt_fuzzy_parameters */
   od = &test_device->opt[opt_fuzzy_parameters];
@@ -1226,7 +1248,7 @@ finish_pass (Test_Device * test_device)
       pid = waitpid (test_device->reader_pid, &status, 0);
       if (pid < 0)
 	{
-	  DBG (1, "finish_pass: waitpid failed, already terminated? (%s)\n", 
+	  DBG (1, "finish_pass: waitpid failed, already terminated? (%s)\n",
 	       strerror (errno));
 	}
       else if (WIFEXITED (status))
@@ -1425,6 +1447,9 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	    continue;
 	  if (read_option (line, "read-status-code", param_string,
 			   &init_read_status_code) == SANE_STATUS_GOOD)
+	    continue;
+	  if (read_option (line, "ppl-loss", param_int,
+			   &init_ppl_loss) == SANE_STATUS_GOOD)
 	    continue;
 	  if (read_option (line, "fuzzy-parameters", param_bool,
 			   &init_fuzzy_parameters) == SANE_STATUS_GOOD)
@@ -1817,6 +1842,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option, SANE_Action action,
 	       SANE_UNFIX (*(SANE_Fixed *) value));
 	  break;
 	case opt_read_limit_size:	/* Int */
+	case opt_ppl_loss:
 	case opt_read_delay_duration:
 	case opt_int:
 	case opt_int_constraint_range:
@@ -2126,6 +2152,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option, SANE_Action action,
 	  break;
 	case opt_depth:	/* Int + word list options */
 	case opt_read_limit_size:
+	case opt_ppl_loss:
 	case opt_read_delay_duration:
 	case opt_int:
 	case opt_int_constraint_range:
@@ -2168,6 +2195,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   SANE_Parameters *p;
   double res, tl_x = 0, tl_y = 0, br_x = 0, br_y = 0;
   SANE_String text_format, mode;
+  SANE_Int channels = 1;
 
   DBG (2, "sane_get_parameters: handle=%p, params=%p\n", handle, params);
   if (!inited)
@@ -2249,28 +2277,26 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
     }
 
   p->pixels_per_line = (SANE_Int) (res * (br_x - tl_x) / MM_PER_INCH);
-  if (p->pixels_per_line < 1)
-    p->pixels_per_line = 1;
-
-  if (p->depth == 1)
-    {
-      /* Make sure ppl can be divided by 8 */
-      p->pixels_per_line /= 8;
-      p->pixels_per_line *= 8;
-      if (p->pixels_per_line < 8)
-	p->pixels_per_line = 8;
-    }
-  test_device->bytes_per_line = p->pixels_per_line * p->depth / 8;;
   if (test_device->val[opt_fuzzy_parameters].w == SANE_TRUE
       && test_device->scanning == SANE_FALSE)
     p->pixels_per_line *= random_factor;
+  if (p->pixels_per_line < 1)
+    p->pixels_per_line = 1;
 
-  p->bytes_per_line = p->pixels_per_line * p->depth / 8;
   if (p->format == SANE_FRAME_RGB)
-    {
-      p->bytes_per_line *= 3;
-      test_device->bytes_per_line *= 3;
-    }
+    channels = 3;
+
+  if (p->depth == 1)
+    p->bytes_per_line = channels * (p->pixels_per_line + 7) / 8;
+  else				/* depth == 8 || depth == 16 */
+    p->bytes_per_line = channels * p->pixels_per_line * ((p->depth + 7) / 8);
+
+  test_device->bytes_per_line = p->bytes_per_line;
+
+  p->pixels_per_line -= test_device->val[opt_ppl_loss].w;
+  if (p->pixels_per_line < 1)
+    p->pixels_per_line = 1;
+  test_device->pixels_per_line = p->pixels_per_line;
 
   switch (p->format)
     {
@@ -2344,8 +2370,14 @@ sane_start (SANE_Handle handle)
       DBG (1, "sane_start: already in last pass of three\n");
       return SANE_STATUS_INVAL;
     }
+
   test_device->scanning = SANE_TRUE;
+  test_device->cancelled = SANE_FALSE;
+  test_device->eof = SANE_FALSE;
+  test_device->bytes_total = 0;
+
   sane_get_parameters (handle, 0);
+
   if (test_device->params.lines == 0)
     {
       DBG (1, "sane_start: lines == 0\n");
@@ -2364,10 +2396,6 @@ sane_start (SANE_Handle handle)
       test_device->scanning = SANE_FALSE;
       return SANE_STATUS_INVAL;
     }
-  test_device->scanning = SANE_TRUE;
-  test_device->cancelled = SANE_FALSE;
-  test_device->eof = SANE_FALSE;
-  test_device->bytes_total = 0;
 
   if (pipe (pipe_descriptor) < 0)
     {

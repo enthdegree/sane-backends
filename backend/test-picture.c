@@ -53,6 +53,7 @@ init_picture_buffer (Test_Device * test_device, SANE_Byte ** buffer,
   SANE_Word line_count, b_size;
   SANE_Word lines = 0;
   SANE_Word bpl = test_device->bytes_per_line;
+  SANE_Word ppl = test_device->pixels_per_line;
   SANE_Byte *b;
   SANE_Bool is_little_endian = little_endian ();
 
@@ -126,7 +127,7 @@ init_picture_buffer (Test_Device * test_device, SANE_Byte ** buffer,
       if (buffer)
 	*buffer = b;
       DBG (3, "(child) init_picture_buffer: drawing grid test picture "
-	   "%d bytes, %d bpl, %d lines\n", b_size, bpl, lines);
+	   "%d bytes, %d bpl, %d ppl, %d lines\n", b_size, bpl, ppl, lines);
 
       for (line_count = 0; line_count < lines; line_count++)
 	{
@@ -144,35 +145,40 @@ init_picture_buffer (Test_Device * test_device, SANE_Byte ** buffer,
 		      SANE_Byte value = 0;
 		      for (x1 = 0; x1 < 8; x1++)
 			{
-			  if (((SANE_Word)
-			       ((x * 8 / increment +
-				 (7 - x1)) / p_size) % 2) ^ (line_count >
-							     (SANE_Word)
-							     (p_size +
-							      0.5)) ^
-			      (test_device->params.format == SANE_FRAME_GRAY))
-			    color = 0x0;
+			  SANE_Word xfull = x * 8 + (7 - x1);
+
+			  if (xfull < ppl)
+			    {
+			      if ((((SANE_Word) (xfull / p_size)) % 2)
+				  ^ !(line_count >
+				      (SANE_Word) (p_size + 0.5)))
+				color = 0x0;
+			      else
+				color = 0x1;
+			    }
 			  else
-			    color = 0x1;
+			    color = (rand ()) & 0x01;
 			  value |= (color << x1);
 			}
-		      for (x1 = 0; x1 < increment; x1++)
-			b[line_count * bpl + x + x1] = value;
+		      b[line_count * bpl + x] = value;
 		    }
-		  else
+		  else		/* SANE_FRAME_RGB */
 		    {
 		      SANE_Byte value = 0;
 		      for (x1 = 0; x1 < 8; x1++)
 			{
-			  if (((SANE_Word) ((x * 8 / increment + x1) / p_size)
-			       % 2) ^ (line_count >
-				       (SANE_Word) (p_size +
-						    0.5)) ^ (test_device->
-							     params.format ==
-							     SANE_FRAME_GRAY))
-			    color = 0x0;
+			  SANE_Word xfull = x * 8 / 3 + x1;
+
+			  if (xfull < ppl)
+			    {
+			      if (((SANE_Word) (xfull / p_size) % 2)
+				  ^ (line_count > (SANE_Word) (p_size + 0.5)))
+				color = 0x0;
+			      else
+				color = 0x1;
+			    }
 			  else
-			    color = 0x1;
+			    color = (rand ()) & 0x01;
 			  value |= (color << x1);
 			}
 		      for (x1 = 0; x1 < increment; x1++)
@@ -181,11 +187,15 @@ init_picture_buffer (Test_Device * test_device, SANE_Byte ** buffer,
 		}
 	      else		/* depth = 8, 16 */
 		{
-		  if ((((SANE_Int) (x / increment / p_size)) % 2)
-		      ^ (line_count > (SANE_Int) (p_size + 0.5)))
-		    color = 0x00;
+		  if (x / increment < ppl)
+		    if ((((SANE_Int) (x / increment / p_size)) % 2)
+			^ (line_count > (SANE_Int) (p_size + 0.5)))
+		      color = 0x00;
+		    else
+		      color = 0xff;
 		  else
-		    color = 0xff;
+		    color = (rand ()) & 0xff;
+
 		  for (x1 = 0; x1 < increment; x1++)
 		    b[line_count * bpl + x + x1] = color;
 		}

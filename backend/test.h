@@ -30,8 +30,9 @@ typedef enum
   opt_read_delay,
   opt_read_delay_duration,
   opt_read_status_code,
+  opt_ppl_loss,
   opt_fuzzy_parameters,
-  opt_non_blocking,	
+  opt_non_blocking,
   opt_select_fd,
   opt_enable_test_options,
   opt_print_options,
@@ -91,6 +92,7 @@ typedef struct Test_Device
   FILE *pipe_handle;
   SANE_Word pass;
   SANE_Word bytes_per_line;
+  SANE_Word pixels_per_line;
   SANE_Word lines;
   SANE_Int bytes_total;
   SANE_Bool open;

@@ -12,6 +12,7 @@
 	  may miss on some platforms.
 	* doc/descriptions/unsupported.desc: Added Mustek parport scanners.
 	  Added more information for Primascan Colorado 2600u.
+	* TODO: Updated Irix patches and desc section.
 
 2003-01-24  Gerhard Jaeger <gerhard@gjaeger.de>
 	* doc/plustek/Plustek-USB-TODO.txt

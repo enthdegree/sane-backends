@@ -68,11 +68,13 @@
  */
 #define CHECK_DEV_NOT_NULL(dev, func_name)                              \
   do {                                                                  \
+    IF_DBG(                                                             \
     if (!(dev))                                                         \
       {                                                                 \
-        DBG (0, "BUG: NULL device\n");                                 \
+        DBG (0, "BUG: NULL device\n");                                  \
         return SANE_STATUS_INVAL;                                       \
       }                                                                 \
+     )                                                                  \
   } while (SANE_FALSE)
 
 /** Check that the device is open.
@@ -82,13 +84,15 @@
  */
 #define CHECK_DEV_OPEN(dev, func_name)                                  \
   do {                                                                  \
+    IF_DBG(                                                             \
     CHECK_DEV_NOT_NULL ((dev), (func_name));                            \
     if ((dev)->fd == -1)                                                \
       {                                                                 \
         DBG (0, "%s: BUG: device %p not open\n", (func_name),           \
-             ((void *) dev));                                          \
+             ((void *) dev));                                           \
         return SANE_STATUS_INVAL;                                       \
       }                                                                 \
+    )                                                                   \
   } while (SANE_FALSE)
 
 /** Check that the device is open and active.
@@ -98,13 +102,15 @@
  */
 #define CHECK_DEV_ACTIVE(dev, func_name)                                \
   do {                                                                  \
+    IF_DBG(                                                             \
     CHECK_DEV_OPEN ((dev), (func_name));                                \
     if (!(dev)->active)                                                 \
       {                                                                 \
         DBG (0, "%s: BUG: device %p not active\n", (func_name),         \
-               ((void *) dev));                                        \
+               ((void *) dev));                                         \
         return SANE_STATUS_INVAL;                                       \
       }                                                                 \
+   )                                                                    \
   } while (SANE_FALSE)
 
 

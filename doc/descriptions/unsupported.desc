@@ -884,11 +884,6 @@
 :url "http://www.plustek.de/"
 :url "http://www.plustek.com/"
 
-:model "OpticPro 1212U"
-:interface "USB"
-:status :unsupported
-:comment "Vendor/product: 0x07b3/0x0001. Same ids as early U12/UT12 models, maybe the same chip?"
-
 :model "OpticPro A3U"
 :interface "USB"
 :status :unsupported
@@ -922,11 +917,6 @@
 :interface "USB"
 :status :unsupported
 :comment "Not supported yet. May be supported later, see link for details."
-
-:model "OpticPro U12/UT12"
-:interface "USB"
-:status :unsupported
-:comment "All devices using product ID 0x0001 are not supported, for others see Plustek backend. The older models seem to use a P98003 parallel port ASIC and a GenesysLogic parport-over USB brigde. The P98003 is also used by the P12 and PT12 models."
 
 :model "OpticPro S28"
 :interface "USB"

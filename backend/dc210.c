@@ -403,6 +403,9 @@ init_dc210 (DC210 * camera)
 
 #ifdef HAVE_TCSENDBREAK
   tcsendbreak (camera->fd, 0);
+# if defined(__sgi)
+  tcdrain (camera->fd);
+# endif
 # elif defined(TCSBRKP)
   ioctl (camera->fd, TCSBRKP, 0);
 # elif defined(TCSBRK)
@@ -412,9 +415,9 @@ init_dc210 (DC210 * camera)
    /* and wait for it to recover from the break */
 
 #ifdef HAVE_USLEEP
-   usleep (breakpause);
+  usleep (breakpause);
 #else
-+  sleep (1);
+  sleep (1);
 #endif
 
   if (send_pck (camera->fd, init_pck) == -1)

@@ -448,6 +448,9 @@ init_dc240 (DC240 * camera)
 
 #ifdef HAVE_TCSENDBREAK
   tcsendbreak (camera->fd, 0);
+# if defined(__sgi)
+  tcdrain (camera->fd);
+# endif
 # elif defined(TCSBRKP)
   ioctl (camera->fd, TCSBRKP, 0);
 # elif defined(TCSBRK)

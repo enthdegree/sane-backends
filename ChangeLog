@@ -1,3 +1,9 @@
+2003-07-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* include/sane/sanei.h include/sane/sanei_codec_ascii.h
+	  include/sane/sanei_codec_bin.h include/sane/saneopts.h: Changed
+	  license to GPL + SANE exception.
+
 2003-07-25  Peter Fales <peter@fales-lorenz.net>
 	* include/sane/sanei_cderror.h, include/sane/sanei_jinclude.h 
 	  include/sane/sanei_jpeg.h sanei/sanei_jpeg.c:  Install these

@@ -378,6 +378,7 @@ libsane-s9036.la: ../sanei/sanei_scsi.lo
 libsane-pie.la: ../sanei/sanei_config2.lo
 libsane-pie.la: ../sanei/sanei_constrain_value.lo
 libsane-pie.la: ../sanei/sanei_scsi.lo
+libsane-pie.la: ../sanei/sanei_thread.lo
 libsane-sceptre.la: ../sanei/sanei_constrain_value.lo
 libsane-sceptre.la: ../sanei/sanei_config2.lo
 libsane-sceptre.la: ../sanei/sanei_scsi.lo

@@ -1,4 +1,4 @@
-TODO (2000-11-12)
+TODO (2000-11-13)
 
 ******** todo ********
 
@@ -16,9 +16,6 @@ backends
       Mark Plowman <mplowman@wxs.nl>
     - Linux Handscanner Ioctl Interface scanner by Harald
       Bauer <hbauer@online.de>
-    - sane-pie (Pacific Image Electronics series of ScanAce SCSI
-      scanners, and the Devcom 9636/9630 BlackWidow)
-      http://www.munton.demon.co.uk/sane
     - viceo (Visioneer OneTouch 8600)
       http://www.abaforum.es/martim/bird/otlinux.htm
     - addition to hp backend (support for SCL-based HP OfficeJets)
@@ -50,6 +47,8 @@ backends
   
   * pnm: add more options for testing (e.g. arrays and read-only options)
 
+  * artec: O_SYNC is not Posix? Problems with porting to OS/2?
+
 doc
 ---
   * add sane manpage
@@ -76,8 +75,6 @@ frontends
 
 sanei
 -----
-  * don't install sanei_* headers
- 
   * add sanei_authorize (function for all backends)
 
 misc
@@ -124,7 +121,15 @@ misc
 
   * use #include "../include/lalloca.h" instead of #include <lalloca.h>
 
+  * getopt.c and umax.c seem to use gettext? Can cause crash if frontends
+    are linked to libintl, too.
+
+  * libdl is used in dll backend but -ldl is not added to LDFLAGS?
+
 ******** done ********
+* don't install sanei_* headers
+* Add sane-pie (Pacific Image Electronics series of ScanAce SCSI scanners, and
+  the Devcom 9636/9630 BlackWidow) http://www.munton.demon.co.uk/sane
 * configure --without-x doesn't work (doesn't matter when frontends
   are removed from package)
 * Create new package for frontends. 

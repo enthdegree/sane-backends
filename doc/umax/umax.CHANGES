@@ -1121,3 +1121,16 @@ build-38 -> build-39
 
   * initialized some global pointers and num_devices in sane_init
 
+  * replaced fork() by thread for OS2
+
+build-39 -> build-40
+--------------------
+
+  * UC630: dev->pause_after_reposition = 0
+
+
+build-40 -> build-41
+--------------------
+
+  * Astra 2200 SU via USB connection: quality calibration is reset and not selectable
+

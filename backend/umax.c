@@ -49,7 +49,7 @@
 
 /* --------------------------------------------------------------------------------------------------------- */
 
-#define BUILD 40
+#define BUILD 41
 
 /* --------------------------------------------------------------------------------------------------------- */
 
@@ -130,9 +130,6 @@ in ADF mode this is done often:
 #include "sane/sanei_scsi.h"
 #include "sane/sanei_debug.h"
 
-#include "sane/sanei_backend.h"
-#include "sane/sanei_config.h"
-
 #ifdef HAVE_OS2_H
 # include "../include/sane/sanei_thread.h"
 #endif
@@ -152,6 +149,8 @@ in ADF mode this is done often:
 #endif
 
 #include "umax.h"
+#include "sane/sanei_backend.h"
+#include "sane/sanei_config.h"
 
 /* ------------------------------------------------------------ SANE DEFINES ------------------------------- */
 
@@ -2818,6 +2817,12 @@ static void umax_correct_inquiry(Umax_Device *dev, char *vendor, char *product, 
 
       DBG(DBG_warning," - common x and y resolution\n");
       dev->common_xy_resolutions = 1;
+
+      if (dev->connection_type == SANE_UMAX_USB)
+      {
+        DBG(DBG_warning," - disabling quality calibration for USB connection\n");
+	set_inquiry_fw_quality(dev->buffer[0], 0);
+      }
     }
     else if (!strncmp(product, "Astra 2400S ", 12))
     {

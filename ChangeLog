@@ -13,6 +13,8 @@
 	  <karsten.festag@gmx.de>).
 	* po/Makefile.in po/sane-backends.pt.po: Added Portuguese translation 
 	  for the gt68xx backend (from Pedro Morais <morais@inocam.com>).
+	* po/sane-backends.de.po: Added some missing translations. Removed some
+	  (wrong) fuzzy translations.
 
 2003-01-08  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

@@ -225,7 +225,7 @@ level   debug output
  
 .PP
 .SH "SEE ALSO"
-sane\-net(5), saned(1)
+sane(7), sane\-net(5), saned(1)
 
 .TP
 For latest bug fixes and information see

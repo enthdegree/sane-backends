@@ -11,6 +11,8 @@
 	  DBG warnings. Removed entry about splitted sane-backends.html. 
 	  Removed entries about libtool problems. Added entry about plustek on
 	  OS/2 problem.
+	* backend/pnm.c doc/descriptions/pnm.desc: If fread returns 0, check
+	  for EOF and other errors and return appropriately.
 
 2002-03-24  Oliver Schwartz <oliver.schwartz@gmx.de>
 

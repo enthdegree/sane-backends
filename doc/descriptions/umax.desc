@@ -11,7 +11,7 @@
 
 :backend "umax"                   ; name of backend
 :version "1.0-35"                 ; version of backend
-:status :stable                   ; :alpha, :beta, :stable, :new
+:status :stable                   ; :alpha, :beta, :stable
 :manpage "sane-umax"              ; name of manpage (if it exists)
 :url "http://www.rauch-domain.de/sane-umax/index.html" ; backend's web page
 
@@ -26,222 +26,338 @@
 :url "http://www.umaxweb.com.tw/"
 :url "http://support.umax.co.uk/"
 :url "http://www.umax.de/en"
-:model "parallel scanners"        ; name models for above-specified mfg.
-:interface "Parport"
-:comment "Not supported - see backend umax_pp"
-:model "USB scanners"
-:interface "USB"
-:comment "All but Astra2200/MX3 not supported - see backend umax1220u"
-:model "firewire scanners"
-:interface "IEEE-1394"
-:comment "not tested"
+
 :model "Vista S6"
 :interface "SCSI"
+:status :stable
 :comment "OK"
+
 :model "Vista S6E"
 :interface "SCSI"
+:status :stable
 :comment "OK"
+
 :model "UMAX S-6E"
 :interface "SCSI"
+:status :stable
 :comment "OK"
+
 :model "UMAX S-6EG"
 :interface "SCSI"
+:status :stable
 :comment "OK"
+
 :model "Vista-S8"
 :interface "SCSI"
+:status :stable
 :comment "OK"
+
 :model "Supervista S-12"
 :interface "SCSI"
+:status :stable
 :comment "OK"
+
 :model "UMAX S-12"
 :interface "SCSI"
+:status :stable
 :comment "OK"
+
 :model "UMAX S-12G"
 :interface "SCSI"
+:status :stable
 :comment "OK"
+
 :model "Astra 600S"
 :interface "SCSI"
+:status :stable
 :comment "OK"
+
 :model "Astra 610S"
 :interface "SCSI"
+:status :stable
 :comment "OK"
+
 :model "Astra 1200S"
 :interface "SCSI"
+:status :stable
 :comment "OK"
+
 :model "Astra 1220S"
 :interface "SCSI"
+:status :stable
 :comment "OK"
+
 :model "Astra 2100S"
 :interface "SCSI"
+:status :stable
 :comment "OK"
+
 :model "Astra 2200 (SU)"
 :interface "SCSI"
+:status :stable
 :comment "OK"
+
 :model "Astra 2200 (SU)"
 :interface "USB"
+:status :stable
 :comment "OK, needs USB control messages => only works on linux"
+
 :model "Astra 2400S"
 :interface "SCSI"
+:status :stable
 :comment "OK"
+
 :model "Astra 6400"
 :interface "IEEE-1394"
-:comment "not tested"
+:status :unsupported
+:comment "will propably work one day"
+
 :model "Astra 6450"
 :interface "IEEE-1394"
-:comment "not tested"
+:status :unsupported
+:comment "will propably work one day"
+
 :model "Astra MX3"
 :interface "SCSI"
+:status :stable
 :comment "OK"
+
 :model "Astra MX3"
 :interface "USB"
+:status :stable
 :comment "OK, needs USB control messages => only works on linux"
+
 :model "Mirage D-16L"
 :interface "SCSI"
+:status :stable
 :comment "OK"
+
 :model "Mirage II"
 :interface "SCSI"
+:status :stable
 :comment "OK"
+
 :model "Mirage IIse"
 :interface "SCSI"
-:comment "Not tested"
+:status :untested
+:comment "may work, please test and give feedback"
+
 :model "PSD"
 :interface "SCSI"
+:status :stable
 :comment "OK"
+
 :model "PowerLook"
 :interface "SCSI"
-:comment "Not tested"
+:status :untested
+:comment "may work, please test and give feedback"
+
 :model "PL-II"
 :interface "SCSI"
-:comment "Not tested"
+:status :untested
+:comment "may work, please test and give feedback"
+
 :model "PowerLook III"
 :interface "SCSI"
+:status :stable
 :comment "OK"
+
 :model "PowerLook 270"
 :interface "SCSI"
-:comment "not supported"
+:status :unsupported
+:comment "incompatible"
+
 :model "PowerLook 270plus"
 :interface "SCSI"
-:comment "not supported"
+:status :unsupported
+:comment "incompatible"
+
 :model "PowerLook 1100"
 :interface "IEEE-1394"
-:comment "Not tested"
+:status :unsupported
+:comment "will propably work one day"
+
 :model "PowerLook 2000"
 :interface "SCSI"
-:comment "Not tested"
+:status :untested
+:comment "may work, please test and give feedback"
+
 :model "PowerLook 2100XL"
 :interface "SCSI"
-:comment "Not tested"
+:status :beta
+:comment "work in progress"
+
 :model "PowerLook 3000"
 :interface "SCSI"
+:status :stable
 :comment "OK"
+
 :model "Gemini D-16"
 :interface "SCSI"
+:status :stable
 :comment "OK"
+
 :model "UMAX VT600"
 :interface "SCSI"
-:comment "not tested"
+:status :untested
+:comment "may work, please test and give feedback"
+
 :model "Vista-T630"
 :interface "SCSI"
+:status :stable
 :comment "OK for some firmwareversions, on others only lineart OK"
+
 :model "UC 630"
 :interface "SCSI"
+:status :stable
 :comment "Version 2.8 OK, others only lineart OK"
+
 :model "UG 630"
 :interface "SCSI"
+:status :stable
 :comment "OK"
+
 :model "UG 80"
 :interface "SCSI"
+:status :stable
 :comment "OK"
+
 :model "UC 840"
 :interface "SCSI"
+:status :stable
 :comment "Version 1.6 OK, others only lineart OK"
+
 :model "UC 1200S"
 :interface "SCSI"
-:comment "unknown - please try"
+:status :untested
+:comment "may work, please test and give feedback"
+
 :model "UC 1200SE"
 :interface "SCSI"
+:status :stable
 :comment "Version 3.0 OK, others unknown"
+
 :model "UC 1260"
 :interface "SCSI"
+:status :stable
 :comment "Version 1.6 OK, others unknown"
+
 
 :mfg "Linotype Hell"              ; another manufacturer...
 :url "http://www.heidelberg-cps.com/"
+
 :model "Jade"
 :interface "SCSI"
+:status :stable
 :comment "OK, SCSI-ID=LinoHell Office"
+
 :model "Jade"
 :interface "SCSI"
+:status :stable
 :comment "OK, SCSI-ID=LinoHell JADE"
+
 :model "Jade2"
 :interface "SCSI"
+:status :stable
 :comment "OK, SCSI-ID=LinoHell Office2"
+
 :model "Saphir"
 :interface "SCSI"
-:comment "Not tested"
+:status :untested
+:comment "support disabled until tested - please contact author"
+
 :model "Saphir2"
 :interface "SCSI"
+:status :stable
 :comment "OK, SCSI-ID=LinoHell SAPHIR2"
+
 :model "Saphir Ultra"
 :interface "SCSI"
-:comment "Not tested"
+:status :untested
+:comment "support disabled until tested - please contact author"
+
 :model "Saphir Ultra II"
 :interface "SCSI"
-:comment "Not tested"
+:status :untested
+:comment "support disabled until tested - please contact author"
+
 :model "Saphir HiRes"
 :interface "SCSI"
-:comment "Not tested"
+:status :untested
+:comment "support disabled until tested - please contact author"
+
 :model "Opal"
 :interface "SCSI"
-:comment "Not tested"
+:status :untested
+:comment "support disabled until tested - please contact author"
+
 :model "Opal Ultra"
 :interface "SCSI"
-:comment "Not tested"
+:status :untested
+:comment "support disabled until tested - please contact author"
+
 :model "Linoscan 1400"
 :interface "SCSI"
+:status :stable
 :comment "OK, SCSI-ID=HDM LS4H1S"
 
-:mfg "Vobis/Highscreen"
+:mfg "Vobis"
 :url "http://www.vobis.de/"
-:model "Scanboostar Premium"
+
+:model "Highscreen Scanboostar Premium"
 :interface "SCSI"
+:status :stable
 :comment "OK, SCSI-ID=LinoHell Office2"
 
 :mfg "EDGE"                      ; another manufacturer...
 ; :url "http://???/"
+
 :model "KTX-9600US"
 :interface "SCSI"
+:status :untested
 :comment "no feedback"
 
 :mfg "Epson"                      ; another manufacturer...
 :url "http://www.epson.com/"
+
 :model "Perfection 600"
 :interface "SCSI"
+:status :stable
 :comment "OK, SCSI-ID=EPSON Perfection600"
 
 :mfg "Escom"                      ; another manufacturer...
+
 :model "Image Scanner 256"
 :interface "SCSI"
+:status :stable
 :comment "OK, SCSI-ID=UMAX UG 80"
 
 :mfg "Escort"                      ; another manufacturer...
+
 :model "Galleria 600"
 :interface "SCSI"
+:status :untested
 :comment "untested, SCSI-ID=ESCORT Galleria 600S"
 
 :mfg "Genius"                      ; another manufacturer...
 :url "http://www.genius.kye.de/"
+
 :model "ColorPage-HR5 (Pro)"
 :interface "SCSI"
+:status :stable
 :comment "OK, SCSI-ID=KYE ColorPage-HR5"
 
 :mfg "Nikon"                      ; another manufacturer...
 :url "http://www.nikon.com/"
-:model "Scantouch 110 / AX-110"
+
+:model "AX-110 / Scantouch 110"
 :interface "SCSI"
-:comment "?"
+:status :untested
+:comment "may work, please test and give feedback"
+
 :model "AX-210"
 :interface "SCSI"
+:status :stable
 :comment "OK"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,

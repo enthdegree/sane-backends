@@ -1,3 +1,8 @@
+2002-02-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* po/Makefile.in po/saneopts.fr.po po/umax.fr.po: Added french
+	  translation (from Frank Zago <fzago@greshamstorage.com>).
+
 2002-02-08  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* PROJECTS: Added info about HP Scanjet 5S.

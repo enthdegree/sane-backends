@@ -1,3 +1,8 @@
+2004-08-18  Julien Blache <jb at jblache dot org>
+	* tools/hotplug/libsane.usermap: committed patch from Aurélien
+	Jarno adding USB IDs for Epson Stylus CX6400 (and doing
+	s/EPSON/Epson/ on one entry to maintain consistency).
+
 2004-08-14  Frank Zago  <fzago at austin dot rr dot com>
 
 	* frontend/tstbackend: fixed a couple bugs.

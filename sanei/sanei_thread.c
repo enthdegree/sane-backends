@@ -1,6 +1,6 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 1998-2001 Yuri Dario
-   Copyright (C) 2003 Gerhard Jaeger (pthread/process support)
+   Copyright (C) 2003-2004 Gerhard Jaeger (pthread/process support)
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -198,7 +198,7 @@ local_thread( void *arg )
 
 	DBG( 2, "thread started, calling func() now...\n" );
 	pthread_setcancelstate( PTHREAD_CANCEL_ENABLE, &old );
-	pthread_setcanceltype( PTHREAD_CANCEL_ASYNCHRONOUS, &old );
+	pthread_setcanceltype ( PTHREAD_CANCEL_ASYNCHRONOUS, &old );
 	
 	status = ltd->func( ltd->func_data );
 
@@ -344,14 +344,12 @@ sanei_thread_waitpid( int pid, int *status )
 			stat = *ls;
 		}
 		DBG(2, "* result = %d (%p)\n", stat, (void*)status );
+		result = pid;
 	}
 	if (status)
 		*status = stat;
 
 	restore_sigpipe();
-		
-	/* should return pid */
-	return pid;
 #else
 	result = waitpid( pid, &ls, 0 );
 	if((result < 0) && (errno == ECHILD)) {
@@ -363,9 +361,8 @@ sanei_thread_waitpid( int pid, int *status )
 	}
 	if( status )
 		*status = stat;
-
-	return result;
 #endif
+	return result;
 }
 
 #endif /* HAVE_OS2_H */

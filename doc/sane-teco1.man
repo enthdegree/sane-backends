@@ -10,7 +10,7 @@ provides access to some TECO SCSI flatbed scanners. This backend
 should be considered
 .B beta-quality
 software! TECO scanners are sold under
-various brands like RELYSIS, PIOTECH, TRUST. This backend may or
+various brands like RELISYS, PIOTECH, TRUST. This backend may or
 may not support yours.
 .PP
 The scanners that should work with this backend are:
@@ -28,14 +28,16 @@ The scanners that should work with this backend are:
   Relisys RELI 2412        VM3530+       tested
   Relisys RELI 2412        VM3530+       untested  
   Relisys RELI 4816        VM4540        untested  
-  Relisys RELI 4830        VM4542        tested  
+  Relisys RELI 4830        VM4542        tested
   Relisys RELI 9600        VM6530        untested  
   Relisys RELI 9612        VM6530*       untested  
   Relisys RELI 9624        VM6530+       untested  
   Relisys RELI 9630        VM6540        untested  
   Relisys RELI DS15        VM3440        untested  
   Relisys RELI DS6         VM3420        untested  
-
+  Dextra  DF-4830T         VM4542        untested
+  Dextra  DF-1200T+        VM3530+       untested
+  Dextra  DF-9624          VM6530+       untested
 .RE
 
 Note that the untested scanner will not be directly supported. You

@@ -1,3 +1,12 @@
+2001-05-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/Makefile.in tools/sane-desc.el doc/.cvsignore: Install
+	  sane.ps and sane.dvi if latex/makeindex/dvips is available.
+	  Generate sane-backends.html in doc/. New target: 
+	  install-mostang. Installs the sane standard 
+	  (.ps, .ps.gz and html), the html manpages, and sane-backends.html
+	  on www.mostang.com.
+
 2001-05-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* configure configure.in include/sane/config.h.in README.solaris

@@ -56,7 +56,11 @@ int DBG_LEVEL = 0;
 
 #  ifdef DEBUG_DECLARE_ONLY
 
-extern void DBG_LOCAL (int level, const char *msg, ...);
+extern void DBG_LOCAL (int level, const char *msg, ...) 
+#ifdef __GNUC__
+__attribute__ ((format (printf, 2, 3)))
+#endif
+;
 
 #  else /* !DEBUG_DECLARE_ONLY */
 
@@ -64,6 +68,13 @@ extern void DBG_LOCAL (int level, const char *msg, ...);
 	
 extern void sanei_debug_msg 
   (int level, int max_level, const char *be, const char *fmt, va_list ap);
+
+#ifdef __GNUC__
+#   ifndef DEBUG_NOT_STATIC
+static
+#   endif /* !DEBUG_NOT_STATIC */
+void DBG_LOCAL (int level, const char *msg, ...) __attribute__ ((format (printf, 2, 3)));
+#endif /* __GNUC__ */
 
 #   ifndef DEBUG_NOT_STATIC
 static

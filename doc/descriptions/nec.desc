@@ -7,11 +7,8 @@
 :devicetype :scanner
 
 :mfg "NEC"                      ; name a manufacturer
-:url "http://www.nec.co.jp/"
+:url "http://www.nevt.co.jp/"
 
 :model "PC-IN500/4C"            ; name models for above-specified mfg.
 :interface "SCSI"
 :comment "PC-IN500/4C was sold only in JAPAN"
-:model "PC-IN600,700,800 series"; name models for above-specified mfg.
-:interface "SCSI, USB"
-:comment "PC-IN600,700,800 series is not supprted"

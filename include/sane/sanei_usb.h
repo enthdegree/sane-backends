@@ -70,4 +70,18 @@ sanei_usb_read_bulk (SANE_Int fd, SANE_Byte * buffer, size_t *size);
 SANE_Status
 sanei_usb_write_bulk (SANE_Int fd, SANE_Byte * buffer, size_t *size);
 
+/* A convenience function to support expanding device name patterns
+   into a list of devices.  Apart from a normal device name
+   (such as /dev/usb/scanner0), this function currently supports USB
+   device specifications of the form:
+
+	usb VENDOR PRODUCT
+
+   VENDOR and PRODUCT are non-negative integer numbers in decimal or
+   hexadecimal format. A similar function for SCSI devices can be found
+   in include/sane/config.h.
+ */
+extern void 
+sanei_usb_attach_matching_devices (const char *name,
+				   SANE_Status (*attach) (const char *dev));
 #endif /* sanei_usb_h */

@@ -1,3 +1,7 @@
+2001-05-29  Oliver Rauch <Oliver.Rauch@rauch-domain.de>
+
+	* added entry about sanei_parport in TODO
+
 2001-05-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/releases.txt: Removed comment about net.* and dll.* version

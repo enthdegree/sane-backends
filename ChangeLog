@@ -1,5 +1,7 @@
 2001-05-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* backend/dll.c backend/dll.desc: Removed access to uninitialized
+	  memory. Increased version number.
 	* backend/net.c backend/net.desc: Removed access to uninitialized
 	  memory. Changed htons to ntohs in DBG statement. Increased 
 	  version number.

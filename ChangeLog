@@ -1,3 +1,10 @@
+2001-06-09  Oliver Rauch <Oliver.Rauch@rauch-domain.de>
+
+	* sanei/sanei_scsi.c:
+	  applied patch by Douglas Gilbert <dgilbert@interlog.com>
+	  that solves compilation problem about:
+	  storage size of `ssid' isn't known
+
 2001-06-09  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson.c: Changed debug level for for an informational

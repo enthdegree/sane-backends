@@ -3,7 +3,7 @@
 .IX sane-niash
 
 .SH NAME
-sane-niash - SANE backend for scanners based on the NIASH chipset.
+sane-niash \- SANE backend for scanners based on the NIASH chipset.
 
 .SH DESCRIPTION
 The
@@ -58,7 +58,8 @@ Example:
 export SANE_DEBUG_NIASH=255
 
 .SH "SEE ALSO"
-sane(7), sane\-usb(5)
+.BR sane (7),
+.BR sane\-usb (5)
 .br
 http://www.sourceforge.net/projects/hp3300backend
 .SH AUTHOR

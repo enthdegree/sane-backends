@@ -1,4 +1,4 @@
-.TH sane 7 "29 July 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane 7 "03 Aug 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane
 
 .SH NAME
@@ -321,6 +321,12 @@ for details.
 .B nec
 The SANE nec backend supports the NEC PC-IN500/4C SCSI scanner. See
 .BR sane\-nec (5)
+for details.
+.TP
+.B niash
+The niash backend supports the Agfa Snapscan Touch and the HP ScanJet 3300c,
+3400c, and 4300c USB flatbed scanners. See
+.BR sane\-niash (5)
 for details.
 .TP
 .B pie

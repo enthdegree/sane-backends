@@ -2,6 +2,7 @@
 
 	* aclocal.m4 configure include/sane/config.h.in: Regenerated to
 	  include updates from niash and resource manager inclusion.
+	* doc/sane.man doc/sane-niash.man: Minor documentation updates.
 
 2004-08-03  Gerhard Jaeger <gerhard@gjaeger.de>
 

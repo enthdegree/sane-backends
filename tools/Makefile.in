@@ -47,7 +47,7 @@ LINK = $(CC) $(LDFLAGS) -o $@
 
 @SET_MAKE@
 
-DESTINATIONS = sane-find-scanner sane-config
+DESTINATIONS = sane-find-scanner sane-config umax_pp
 
 EXTRA = sane_strstatus.lo ../sanei/sanei_init_debug.lo \
 	../sanei/sanei_config.lo ../sanei/sanei_config2.lo \
@@ -77,6 +77,11 @@ sane-find-scanner: sane-find-scanner.o \
 	../sanei/sanei_scsi.lo ../sanei/sanei_init_debug.lo
 	@$(LIBTOOL) $(MLINK) $(LINK) sane-find-scanner.o $(LIBSANEI) $(LIBLIB) \
 		$(LIBS)
+
+umax_pp: umax_pp.o
+	@$(LIBTOOL) $(MLINK) $(LINK) umax_pp.o ../backend/umax_pp_low.lo \
+	   $(LIBSANEI) $(LIBLIB) $(LIBS)
+
 
 depend:
 	makedepend $(INCLUDES) *.c

@@ -1,0 +1,467 @@
+/*
+*  This program is free software; you can redistribute it and/or
+*  modify it under the terms of the GNU General Public License
+*  as published by the Free Software Foundation; either version
+*  2 of the License, or (at your option) any later version.
+*/
+
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <stdio.h>
+
+#define __MAIN__
+
+#include "../backend/umax_pp_low.h"
+
+void
+Usage (char *name)
+{
+  fprintf (stderr,
+	   "%s [-c color_mode] [-x coord] [-y coord] [-w width] [-h height] [-g gain] [-z highlight] [-d dpi] [-t level] [-s] [-p] [-l 0|1] [-a ioport_addr] [-r]\n",
+	   name);
+}
+
+
+int
+main (int argc, char **argv)
+{
+  char dbgstr[80];
+  int probe = 0;
+  int port = 0x378;
+  int scan = 0;
+  int lamp = -1;
+  int i;
+  int found;
+  int recover = 0;
+  int trace = 0;
+
+/* scanning parameters : defaults to preview (75 dpi color, full scan area) */
+  int gain = 0x0;
+  int highlight = 0x2C0;
+  int dpi = 75;
+  int x = 0, y = 0;
+  int width = 5100, height = 7000;
+  int color = RGB_MODE;
+
+
+
+  /* option parsing */
+  /*
+     -c --color  : color mode: RGB, BW, BW12, RGB12
+     -x          : x coordinate
+     -y          : y coordinate
+     -w --witdh  : scan width
+     -h --height : scan height
+     -f --file   : session file
+     -p --probe  : probe scanner
+     -s --scan   : scan
+     -t --trace  : execution trace
+     -l --lamp   : turn lamp on/off 1/0
+     -d --dpi    : set scan resolution
+     -g --gain   : set RVB gain
+     -z --highlight: set highlight
+     -a --addr   : io port address
+     -r          : recover from previous failed scan
+     -m --model  : model revision
+   */
+
+
+  i = 1;
+  trace = 0;
+  while (i < argc)
+    {
+      found = 0;
+
+      if ((strcmp (argv[i], "-p") == 0) || (strcmp (argv[i], "--probe") == 0))
+	{
+	  probe = 1;
+	  found = 1;
+	}
+
+      if ((strcmp (argv[i], "-c") == 0) || (strcmp (argv[i], "--color") == 0))
+	{
+	  if (i == (argc - 1))
+	    {
+	      Usage (argv[0]);
+	      fprintf (stderr, "expected color mode value\n");
+	      return (0);
+	    }
+	  color = 0;
+	  i++;
+	  found = 1;
+	  if (strcmp (argv[i], "RGB") == 0)
+	    color = RGB_MODE;
+	  if (strcmp (argv[i], "RGB12") == 0)
+	    color = RGB12_MODE;
+	  if (strcmp (argv[i], "BW") == 0)
+	    color = BW_MODE;
+	  if (strcmp (argv[i], "BW12") == 0)
+	    color = BW12_MODE;
+	  if (color == 0)
+	    {
+	      fprintf (stderr, "unexpected color mode value <%s>\n", argv[i]);
+	      fprintf (stderr, "Must be RGB, RGB12, BW, or BW12\n");
+	      return (0);
+	    }
+	}
+
+
+      if (strcmp (argv[i], "-x") == 0)
+	{
+	  if (i == (argc - 1))
+	    {
+	      Usage (argv[0]);
+	      fprintf (stderr, "expected x value\n");
+	      return (0);
+	    }
+	  x = atoi (argv[i + 1]);
+	  if (x < 0 || x > 5100)
+	    {
+	      fprintf (stderr, "x must be between 0 and 5099\n");
+	      return (0);
+	    }
+	  i++;
+	  found = 1;
+	}
+
+      if (strcmp (argv[i], "-y") == 0)
+	{
+	  if (i == (argc - 1))
+	    {
+	      Usage (argv[0]);
+	      fprintf (stderr, "expected y value\n");
+	      return (0);
+	    }
+	  y = atoi (argv[i + 1]);
+	  if (y < 0 || y > 7000)
+	    {
+	      fprintf (stderr, "y must be between 0 and 7000\n");
+	      return (0);
+	    }
+	  i++;
+	  found = 1;
+	}
+
+      if ((strcmp (argv[i], "-w") == 0) || (strcmp (argv[i], "--witdh") == 0))
+	{
+	  if (i == (argc - 1))
+	    {
+	      Usage (argv[0]);
+	      fprintf (stderr, "expected width value\n");
+	      return (0);
+	    }
+	  width = atoi (argv[i + 1]);
+	  if ((width < 1) || (width > 5100))
+	    {
+	      fprintf (stderr, "width must be between 1 and 5100\n");
+	      return (0);
+	    }
+	  if (x + width > 5100)
+	    {
+	      fprintf (stderr,
+		       "Right side of scan area exceed physical limits (x+witdh>5100)\n");
+	      return (0);
+	    }
+	  i++;
+	  found = 1;
+	}
+
+      if ((strcmp (argv[i], "-h") == 0)
+	  || (strcmp (argv[i], "--height") == 0))
+	{
+	  if (i == (argc - 1))
+	    {
+	      Usage (argv[0]);
+	      fprintf (stderr, "expected height value\n");
+	      return (0);
+	    }
+	  height = atoi (argv[i + 1]);
+	  if ((height < 1) || (height > 7000))
+	    {
+	      fprintf (stderr, "height must be between 1 and 7000\n");
+	      return (0);
+	    }
+	  if (y + height > 7100)
+	    {
+	      fprintf (stderr,
+		       "Bottom side of scan area exceed physical limits (y+height>7100)\n");
+	      return (0);
+	    }
+	  i++;
+	  found = 1;
+	}
+
+      if ((strcmp (argv[i], "-t") == 0) || (strcmp (argv[i], "--trace") == 0))
+	{
+	  if (i == (argc - 1))
+	    {
+	      Usage (argv[0]);
+	      fprintf (stderr, "expected trace value\n");
+	      return (0);
+	    }
+	  trace = atoi (argv[i + 1]);
+	  i++;
+	  found = 1;
+	}
+
+
+      if ((strcmp (argv[i], "-r") == 0)
+	  || (strcmp (argv[i], "--recover") == 0))
+	{
+	  recover = 1;
+	  found = 1;
+	}
+
+      if ((strcmp (argv[i], "-s") == 0) || (strcmp (argv[i], "--scan") == 0))
+	{
+	  scan = 1;
+	  found = 1;
+	}
+
+      if ((strcmp (argv[i], "-d") == 0) || (strcmp (argv[i], "--dpi") == 0))
+	{
+	  if (i == (argc - 1))
+	    {
+	      Usage (argv[0]);
+	      fprintf (stderr, "expected dpi value\n");
+	      return (0);
+	    }
+	  dpi = atoi (argv[i + 1]);
+	  if ((dpi < 75) || (dpi > 1200))
+	    {
+	      fprintf (stderr, "dpi value has to be between 75 and 1200\n");
+	      return (0);
+	    }
+	  if ((dpi != 75)
+	      && (dpi != 150)
+	      && (dpi != 300) && (dpi != 600) && (dpi != 1200))
+	    {
+	      fprintf (stderr,
+		       "dpi value has to be 75, 150, 300, 600 or 1200\n");
+	      return (0);
+	    }
+	  i++;
+	  found = 1;
+	}
+
+      if ((strcmp (argv[i], "-g") == 0) || (strcmp (argv[i], "--gain") == 0))
+	{
+	  if (i == (argc - 1))
+	    {
+	      Usage (argv[0]);
+	      fprintf (stderr, "expected hex gain value ( ex: A59 )\n");
+	      return (0);
+	    }
+	  i++;
+	  found = 1;
+	  if (strlen (argv[i]) != 3)
+	    {
+	      Usage (argv[0]);
+	      fprintf (stderr, "expected hex gain value ( ex: A59 )\n");
+	      return (0);
+	    }
+	  gain = strtol (argv[i], NULL, 16);
+	}
+
+      if ((strcmp (argv[i], "-z") == 0)
+	  || (strcmp (argv[i], "--highlight") == 0))
+	{
+	  if (i == (argc - 1))
+	    {
+	      Usage (argv[0]);
+	      fprintf (stderr, "expected hex highlight value ( ex: A59 )\n");
+	      return (0);
+	    }
+	  i++;
+	  found = 1;
+	  if (strlen (argv[i]) != 3)
+	    {
+	      Usage (argv[0]);
+	      fprintf (stderr, "expected hex highlight value ( ex: A59 )\n");
+	      return (0);
+	    }
+	  highlight = strtol (argv[i], NULL, 16);
+	}
+
+      if ((strcmp (argv[i], "-a") == 0) || (strcmp (argv[i], "--addr") == 0))
+	{
+	  if (i == (argc - 1))
+	    {
+	      Usage (argv[0]);
+	      fprintf (stderr, "expected hex io port value ( ex: 3BC )\n");
+	      return (0);
+	    }
+	  i++;
+	  found = 1;
+	  if (strlen (argv[i]) != 3)
+	    {
+	      Usage (argv[0]);
+	      fprintf (stderr, "expected hex io port value ( ex: 378 )\n");
+	      return (0);
+	    }
+	  port = strtol (argv[i], NULL, 16);
+	}
+
+
+      if ((strcmp (argv[i], "-l") == 0) || (strcmp (argv[i], "--lamp") == 0))
+	{
+	  if (i == (argc - 1))
+	    {
+	      Usage (argv[0]);
+	      fprintf (stderr, "expected lamp value\n");
+	      return (0);
+	    }
+	  lamp = atoi (argv[i + 1]);
+	  i++;
+	  found = 1;
+	}
+
+      if (!found)
+	{
+	  Usage (argv[0]);
+	  fprintf (stderr, "unexpected argument <%s>\n", argv[i]);
+	  return (0);
+	}
+
+      /* next arg */
+      i++;
+    }
+
+  /* since we use DBG, we have to set env var */
+  /* according to the required trace level    */
+  if (trace)
+    {
+      sprintf (dbgstr, "SANE_DEBUG_UMAX_PP_LOW=%d", trace);
+      putenv (dbgstr);
+    }
+
+
+  /* set x origin left to right */
+  x = 144 + (5100 - x) - width;
+
+  /*  enable I/O */
+  /* parport_claim */
+  if(sanei_umax_pp_InitPort (port) != 1)
+    {
+      fprintf (stderr, "failed to gain direct acces to port 0x%X!\n",port);
+      return (0);
+    }
+  if (trace)
+    printf ("UMAX 1220P scanning program version 1.10 starting ...\n");
+
+
+  /* scanning is the default behaviour */
+  if ((!scan) && (lamp < 0) && (!probe))
+    scan = 1;
+
+  /* lamp on/off */
+  if (lamp >= 0)
+    {
+      /* init transport layer */
+      if (sanei_umax_pp_InitTransport (recover) != 1)
+	{
+	  printf ("InitTransport() failed (%s:%d)\n", __FILE__, __LINE__);
+	  return (0);
+	}
+      if (sanei_umax_pp_Lamp (lamp) == 0)
+	{
+	  fprintf (stderr, "Setting lamp state failed!\n");
+	  return (0);
+	}
+    }
+
+
+  /* probe scanner */
+  if (probe)
+    {
+      if (sanei_umax_pp_ProbeScanner (recover) != 1)
+	{
+	  if (recover)
+	    {
+	      sanei_umax_pp_InitTransport (recover);
+	      sanei_umax_pp_EndSession ();
+	      if (sanei_umax_pp_ProbeScanner (recover) != 1)
+		{
+		  printf ("Recover failed ....\n");
+		  return (0);
+		}
+	      printf ("Recover done !\n");
+	    }
+	  else
+	    return (0);
+	}
+
+      /* could be written better .... but it is only test */
+      sanei_umax_pp_EndSession ();
+      /* init transport layer */
+      if (sanei_umax_pp_InitTransport (0) != 1)
+	{
+	  printf ("InitTransport() failed (%s:%d)\n", __FILE__, __LINE__);
+	  return (0);
+	}
+      i = sanei_umax_pp_CheckModel ();
+      if (i < 610)
+	{
+	  sanei_umax_pp_EndSession ();
+	  printf ("CheckModel() failed (%s:%d)\n", __FILE__, __LINE__);
+	  return (0);
+	}
+      if (trace)
+	printf ("UMAX Astra %dP detected \n", i);
+
+      /* free scanner if a scan is planned */
+      if (scan)
+	sanei_umax_pp_EndSession ();
+    }
+
+  /* scan */
+  if (scan)
+    {
+      /* init transport layer */
+      /* 0: failed
+         1: success
+         2: retry
+       */
+      do
+	{
+	  i = sanei_umax_pp_InitTransport (recover);
+	}
+      while (i == 2);
+      if (i != 1)
+	{
+	  printf ("InitTransport() failed (%s:%d)\n", __FILE__, __LINE__);
+	  return (0);
+	}
+      i = sanei_umax_pp_CheckModel ();
+      if (i < 610)
+	{
+	  sanei_umax_pp_EndSession ();
+	  printf ("CheckModel() failed (%s:%d)\n", __FILE__, __LINE__);
+	  return (0);
+	}
+      if (trace)
+	printf ("UMAX Astra %dP detected \n", i);
+      /* init scanner */
+      if (sanei_umax_pp_InitScanner (recover) == 0)
+	{
+	  sanei_umax_pp_EndSession ();
+	  return (0);
+	}
+      /* scan */
+      if (sanei_umax_pp_Scan
+	  (x, y, width, height, dpi, color, gain, highlight) != 1)
+	{
+	  sanei_umax_pp_ReleaseScanner ();
+	  sanei_umax_pp_EndSession ();
+	  return (0);
+	}
+
+      /* wait for head parking */
+      sanei_umax_pp_ParkWait ();
+      sanei_umax_pp_ReleaseScanner ();
+    }
+  sanei_umax_pp_EndSession ();
+
+  return (1);
+}

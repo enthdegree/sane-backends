@@ -187,7 +187,7 @@ static void usb_line_statistics( char *cmt, u_short* buf,
 /** usb_SetMCLK
  * get the MCLK out of our table
  */
-static void	usb_SetMCLK( pPlustek_Device dev, pScanParam pParam )
+static void	usb_SetMCLK( Plustek_Device *dev, pScanParam pParam )
 {
 	int          idx, i;
 	pClkMotorDef clk;
@@ -307,9 +307,9 @@ static void usb_GetSWOffsetGain4TPA( Plustek_Device *dev )
 	switch( sCaps->bCCD ) {
 		case kEPSON:
 			DBG( _DBG_INFO2, "kEPSON TPA adjustments\n" );
-			pParam->swGain[0] = 2000;
-			pParam->swGain[1] = 2000;
-			pParam->swGain[2] = 2000;
+			pParam->swGain[0] = 1000;
+			pParam->swGain[1] = 1000;
+			pParam->swGain[2] = 1000;
 		break;
 	}
 }
@@ -695,7 +695,7 @@ static SANE_Bool adjLampSetting( int channel, u_long  max,  u_long   ideal,
  * Affects register 0x3b, 0x3c and 0x3d
  *
  */
-static SANE_Bool usb_AdjustGain( pPlustek_Device dev, int fNegative )
+static SANE_Bool usb_AdjustGain( Plustek_Device *dev, int fNegative )
 {
 	char      tmp[40];
 	int       i;
@@ -823,13 +823,14 @@ TOGAIN:
 					}
 				}
 			}
-			DBG(_DBG_INFO2, "MAX(R,G,B)= 0x%04x(%u), 0x%04x(%u), 0x%04x(%u)\n",
-			    Gain_Hilight.Red, Gain_Hilight.Red, Gain_Hilight.Green, 
-			    Gain_Hilight.Green, Gain_Hilight.Blue, Gain_Hilight.Blue );
 
 			Gain_Hilight.Red   = (u_short)(rgb.Red / 20UL);
 			Gain_Hilight.Green = (u_short)(rgb.Green / 20UL);
 			Gain_Hilight.Blue  = (u_short)(rgb.Blue / 20UL);
+			DBG(_DBG_INFO2, "MAX(R,G,B)= 0x%04x(%u), 0x%04x(%u), 0x%04x(%u)\n",
+			    Gain_Hilight.Red, Gain_Hilight.Red, Gain_Hilight.Green, 
+			    Gain_Hilight.Green, Gain_Hilight.Blue, Gain_Hilight.Blue );
+
 			a_bRegs[0x3b] = usb_GetNewGain(Gain_Hilight.Red,   0 );
 			a_bRegs[0x3c] = usb_GetNewGain(Gain_Hilight.Green, 1 );
 			a_bRegs[0x3d] = usb_GetNewGain(Gain_Hilight.Blue,  2 );
@@ -1162,7 +1163,7 @@ static void usb_GetNewOffset( u_long *pdwSum, u_long *pdwDiff,
  * black pixels.
  * Affects register 0x38, 0x39 and 0x3a
  */
-static SANE_Bool usb_AdjustOffset( pPlustek_Device dev )
+static SANE_Bool usb_AdjustOffset( Plustek_Device *dev )
 {
 	char          tmp[40];
 	signed char   cAdjust = 16;
@@ -1365,9 +1366,9 @@ static SANE_Bool usb_AdjustOffset( pPlustek_Device dev )
  *  copied. If not, then the white strip is read with the lamp switched
  *  off...
  */
-static void usb_GetDarkShading( pPlustek_Device dev, u_short *pwDest,
-								pHiLoDef pSrce, u_long dwPixels,
-								u_long dwAdd, int iOffset )
+static void usb_GetDarkShading( Plustek_Device *dev, u_short *pwDest,
+                                pHiLoDef pSrce, u_long dwPixels,
+                                u_long dwAdd, int iOffset )
 {
 	u_long    dw;
 	u_long    dwSum[2];
@@ -1486,7 +1487,7 @@ static void usb_GetDarkShading( pPlustek_Device dev, u_short *pwDest,
  * If there's no black line available, we can use the min pixel value
  * from coarse calibration...
  */
-static SANE_Bool usb_AdjustDarkShading( pPlustek_Device dev )
+static SANE_Bool usb_AdjustDarkShading( Plustek_Device *dev )
 {
 	char      tmp[40];
     pScanDef  scanning = &dev->scanning;
@@ -1625,7 +1626,7 @@ static SANE_Bool usb_AdjustDarkShading( pPlustek_Device dev )
 
 		usb_GetDarkShading( dev, a_wDarkShading, (pHiLoDef)pScanBuffer,
                             m_ScanParam.Size.dwPhyPixels, 1,
-						    scanning->sParam.swOffset[1]);
+		                    scanning->sParam.swOffset[1]);
 
 		memcpy( a_wDarkShading + m_ScanParam.Size.dwPhyPixels,
 				a_wDarkShading, m_ScanParam.Size.dwPhyPixels * 2 );
@@ -1643,12 +1644,11 @@ static SANE_Bool usb_AdjustDarkShading( pPlustek_Device dev )
 /** usb_AdjustWhiteShading
  * fine calibration part 2 - read the white calibration area and calculate
  * the gain coefficient for each pixel
- *
  */
-static SANE_Bool usb_AdjustWhiteShading( pPlustek_Device dev )
+static SANE_Bool usb_AdjustWhiteShading( Plustek_Device *dev )
 {
 	char         tmp[40];
-    pScanDef     scanning = &dev->scanning;
+	pScanDef     scanning = &dev->scanning;
 	pDCapsDef    scaps    = &dev->usbDev.Caps;
 	pHWDef       hw       = &dev->usbDev.HwSetting;
 	u_char      *pBuf     = pScanBuffer;
@@ -1702,12 +1702,12 @@ static SANE_Bool usb_AdjustWhiteShading( pPlustek_Device dev )
 	}
 
 	m_ScanParam.bCalibration = PARAM_WhiteShading;
- 	m_ScanParam.dMCLK        = dMCLK;
+	m_ScanParam.dMCLK        = dMCLK;
 
 	if( _LM9831 == hw->chip ) {
 
 		m_ScanParam.UserDpi.x = usb_SetAsicDpiX( dev, m_ScanParam.UserDpi.x);
-	 	if( m_ScanParam.UserDpi.x < 100 )
+		if( m_ScanParam.UserDpi.x < 100 )
 			m_ScanParam.UserDpi.x = 150;
 
 		/* Now DPI X is physical */
@@ -1738,7 +1738,7 @@ static SANE_Bool usb_AdjustWhiteShading( pPlustek_Device dev )
 
 		usb_ModuleToHome( dev, SANE_TRUE );
 		usb_ModuleMove  ( dev, MOVE_Forward,
-								(u_long)dev->usbDev.pSource->ShadingOriginY);
+		                  (u_long)dev->usbDev.pSource->ShadingOriginY );
 	}
 
 	sprintf( tmp, "fine-white.raw" );
@@ -1750,13 +1750,12 @@ static SANE_Bool usb_AdjustWhiteShading( pPlustek_Device dev )
 	DBG( _DBG_INFO2, "Origin.X    = %u\n",  m_ScanParam.Origin.x );
 
 	for( dw = dwShadingLines /*SHADING_Lines*/,
-							 dwRead = 0; dw; dw -= m_ScanParam.Size.dwLines ) {
+	     dwRead = 0; dw; dw -= m_ScanParam.Size.dwLines ) {
 
 		if( usb_SetScanParameters( dev, &m_ScanParam ) &&
-											usb_ScanBegin( dev, SANE_FALSE )) {
+		    usb_ScanBegin( dev, SANE_FALSE )) {
 
-			DBG( _DBG_INFO2, "TotalBytes = %lu\n",
-											m_ScanParam.Size.dwTotalBytes );
+			DBG(_DBG_INFO2,"TotalBytes = %lu\n",m_ScanParam.Size.dwTotalBytes);
 
 			if( _LM9831 == hw->chip ) {
 				/* Delay for white shading hold for 9831-1200 scanner */
@@ -1788,9 +1787,8 @@ static SANE_Bool usb_AdjustWhiteShading( pPlustek_Device dev )
 		return SANE_FALSE;
 	}
 
-	/* Simulate the old program */
-	m_pSum = (u_long*)(pBuf + m_ScanParam.Size.dwPhyBytes *
-											dwShadingLines/*SHADING_Lines*/);
+	m_pSum = (u_long*)(pBuf + m_ScanParam.Size.dwPhyBytes * dwShadingLines);
+	
 	/*
 	 * do some reordering on CIS based devices:
      * from RRRRRRR.... GGGGGGGG.... BBBBBBBBB, create RGB RGB RGB ...
@@ -2134,7 +2132,7 @@ static void usb_ResizeWhiteShading( double dAmp, u_short *pwShading, int iGain )
 
 /** do the base settings for calibration scans
  */
-static void usb_PrepareCalibration( pPlustek_Device dev )
+static void usb_PrepareCalibration( Plustek_Device *dev )
 {
     pScanDef  scanning = &dev->scanning;
 	pDCapsDef scaps    = &dev->usbDev.Caps;
@@ -2180,7 +2178,7 @@ static void usb_PrepareCalibration( pPlustek_Device dev )
  */
 static SANE_Bool usb_AutoWarmup( Plustek_Device *dev )
 {
-	int       i;
+	int       i, stable_count;
 	pScanDef  scanning = &dev->scanning;
 	pDCapsDef scaps    = &dev->usbDev.Caps;
 	pHWDef    hw       = &dev->usbDev.HwSetting;
@@ -2230,6 +2228,7 @@ static SANE_Bool usb_AutoWarmup( Plustek_Device *dev )
 	m_ScanParam.Origin.x = (u_short)((u_long) hw->wActivePixelsStart *
 	                                                300UL / scaps->OpticDpi.x);
 
+	stable_count = 0;
 	start = 500;
 	len   = m_ScanParam.Size.dwPixels;
 
@@ -2289,17 +2288,22 @@ static SANE_Bool usb_AutoWarmup( Plustek_Device *dev )
 		diffR = curR - lastR; lastR = curR;
 		diffG = curG - lastG; lastG = curG;
 		diffB = curB - lastB; lastB = curB;
-		DBG( _DBG_INFO2, "AVE(R,G,B)= %lu(%ld), %lu(%ld), %lu(%ld)\n", 
-		                       curR, diffR, curG, diffG, curB, diffB );
+		DBG( _DBG_INFO2, "%i/%i-AVE(R,G,B)= %lu(%ld), %lu(%ld), %lu(%ld)\n", 
+		              i, stable_count, curR, diffR, curG, diffG, curB, diffB );
 
 		/* we consider the lamp to be stable, 
-		 * when the diffs are less than thresh 
+		 * when the diffs are less than thresh for at least 3 loops
 		 */
-		if((diffR < thresh) && (diffG < thresh) && (diffB < thresh))
-			break;
+		if((diffR < thresh) && (diffG < thresh) && (diffB < thresh)) {
+			if( stable_count >= 3 )
+				break;
+			stable_count++;
+		} else {
+			stable_count = 0;
+		}
 
 		/* no need to sleep in the first loop */
-		if( i != 0 )
+		if((i != 0) && (stable_count == 0))
 			sleep( _AUTO_SLEEP );
 	}
 
@@ -2760,7 +2764,7 @@ static int usb_DoCalibration( Plustek_Device *dev )
  * according to the job id, different registers or DRAM areas are set
  * in preparation for calibration or scanning
  */
-static SANE_Bool usb_DownloadShadingData( pPlustek_Device dev, u_char what )
+static SANE_Bool usb_DownloadShadingData( Plustek_Device *dev, u_char what )
 {
 	u_char    channel;
 	pDCapsDef scaps = &dev->usbDev.Caps;

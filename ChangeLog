@@ -1,5 +1,10 @@
 2000-10-02  Oliver Rauch <Oliver.Rauch@Wolfsburg.DE>
 
+	* Updated umax backend to sane-umax-1.0.3-build-24
+          take a look at backend/umax.CHANGES for details
+
+2000-10-02  Oliver Rauch <Oliver.Rauch@Wolfsburg.DE>
+
         * sanei/sanei_constrain_value.c:
           if checked option is a range and the value is out of
 	  range the value is now corrected to the minimum or maximum

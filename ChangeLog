@@ -13,6 +13,9 @@
 	  tokens.
 	* doc/descriptions/s9036.desc: Changed :devicetype to :scanner.
 	  I guess :vidcam is not appropriate for a flatbed scanner :-)
+	* doc/descriptions/net.desc doc/descriptions/test.desc: No bugs for
+	  quite some time, changed status to stable (knocking on wood).
+	  Updated comments.
 
 2002-07-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

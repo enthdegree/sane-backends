@@ -34,6 +34,11 @@
 	* backend/test.c doc/descriptions/test.desc: Make sure that frontend bugs
 	  concerning the select fd are detected.
 	* doc/sane-scsi.man: Minor formatting change.
+	* sanei/sanei_usb.c: Explicitely set first configuration. When claiming 
+	  the interface, use the interface number from bInterfaceNumber.
+	  Explicitely set the alternative setting. When closing, call clear_halt,
+	  and reset_ep, and release_interface explicitley. On errors in
+	  write/read, call clear_halt.
 
 2002-12-28  Karl Heinz Kremer <khk@khk.net>
 

@@ -79,6 +79,7 @@ typedef struct
   SANE_String devname;
   SANE_Int bulk_in_ep;
   SANE_Int bulk_out_ep;
+  SANE_Int interface_nr;
 #ifdef HAVE_LIBUSB
   usb_dev_handle *libusb_handle;
 #endif				/* HAVE_LIBUSB */
@@ -427,6 +428,7 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
       if (!dev_string)
 	return SANE_STATUS_NO_MEM;
 
+      /* Check for the matching device */
       for (bus = usb_get_busses (); bus && !found; bus = bus->next)
 	{
 	  if (strcmp (bus->dirname, bus_string) == 0)
@@ -471,6 +473,7 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
       devices[devcount].method = sanei_usb_method_libusb;
       dev = usb_device (devices[devcount].libusb_handle);
 
+      /* Set the configuration */
       if (!dev->config)
 	{
 	  DBG (1, "sanei_usb_open: device `%s' not configured?\n", devname);
@@ -479,17 +482,45 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
       if (dev->descriptor.bNumConfigurations > 1)
 	{
 	  DBG (3, "sanei_usb_open: more than one "
-	       "configuration (%d), choosing config 0\n",
-	       dev->descriptor.bNumConfigurations);
+	       "configuration (%d), choosing first config (%d)\n",
+	       dev->descriptor.bNumConfigurations, 
+	       dev->config[0].bConfigurationValue);
 	}
-      if (dev->config[0].interface->num_altsetting > 1)
+      result = usb_set_configuration (devices[devcount].libusb_handle,
+				      dev->config[0].bConfigurationValue);
+      if (result < 0)
+	{
+	  SANE_Status status = SANE_STATUS_INVAL;
+
+	  DBG (1, "sanei_usb_open: libusb complained: %s\n", usb_strerror ());
+	  if (errno == EPERM)
+	    {
+	      DBG (1, "Make sure you run as root or set appropriate "
+		   "permissions\n");
+	      status = SANE_STATUS_ACCESS_DENIED;
+	    }
+	  else if (errno == EBUSY)
+	    {
+	      DBG (1, "Maybe the kernel scanner driver claims the "
+		   "scanner's interface?\n");
+	      status = SANE_STATUS_DEVICE_BUSY;
+	    }
+	  usb_close (devices[devcount].libusb_handle);
+	  return status;
+	}
+      
+      /* Claim the interface */
+      devices[devcount].interface_nr = 
+	dev->config[0].interface[0].altsetting[0].bInterfaceNumber;
+      if (dev->config[0].bNumInterfaces > 1)
 	{
 	  DBG (3, "sanei_usb_open: more than one "
-	       "alternate setting (%d), choosing interface 0\n",
-	       dev->config[0].interface->num_altsetting);
+	       "interface (%d), choosing first interface (%d)\n",
+	       dev->config[0].bNumInterfaces, 
+	       devices[devcount].interface_nr);
 	}
-
-      result = usb_claim_interface (devices[devcount].libusb_handle, 0);
+      result = usb_claim_interface (devices[devcount].libusb_handle, 
+				    devices[devcount].interface_nr);
       if (result < 0)
 	{
 	  SANE_Status status = SANE_STATUS_INVAL;
@@ -511,6 +542,33 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 	  return status;
 	}
       interface = &dev->config[0].interface->altsetting[0];
+
+      /* Set alternative setting */
+      DBG (3, "sanei_usb_open: chosing first altsetting (%d) without "
+	   "checking\n", interface->bAlternateSetting);
+
+      result = usb_set_altinterface (devices[devcount].libusb_handle, 
+				     interface->bAlternateSetting);
+      if (result < 0)
+	{
+	  SANE_Status status = SANE_STATUS_INVAL;
+
+	  DBG (1, "sanei_usb_open: libusb complained: %s\n", usb_strerror ());
+	  if (errno == EPERM)
+	    {
+	      DBG (1, "Make sure you run as root or set appropriate "
+		   "permissions\n");
+	      status = SANE_STATUS_ACCESS_DENIED;
+	    }
+	  else if (errno == EBUSY)
+	    {
+	      DBG (1, "Maybe the kernel scanner driver claims the "
+		   "scanner's interface?\n");
+	      status = SANE_STATUS_DEVICE_BUSY;
+	    }
+	  usb_close (devices[devcount].libusb_handle);
+	  return status;
+	}
 
       /* Now we look for usable endpoints */
       for (num = 0; num < interface->bNumEndpoints; num++)
@@ -611,7 +669,15 @@ sanei_usb_close (SANE_Int dn)
     close (devices[dn].fd);
   else
 #ifdef HAVE_LIBUSB
-    usb_close (devices[dn].libusb_handle);
+    {
+      usb_clear_halt (devices[dn].libusb_handle, devices[dn].bulk_in_ep);
+      usb_clear_halt (devices[dn].libusb_handle, devices[dn].bulk_out_ep);
+      usb_resetep(devices[dn].libusb_handle, devices[dn].bulk_in_ep);
+      usb_resetep(devices[dn].libusb_handle, devices[dn].bulk_out_ep);
+      usb_release_interface (devices[dn].libusb_handle, 
+			     devices[dn].interface_nr);
+      usb_close (devices[dn].libusb_handle);
+    }
 #else
     DBG (1, "sanei_usb_close: libusb support missing\n");
 #endif
@@ -667,6 +733,9 @@ sanei_usb_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
   if (read_size < 0)
     {
       DBG (1, "sanei_usb_read_bulk: read failed: %s\n", strerror (errno));
+#ifdef HAVE_LIBUSB
+      usb_clear_halt (devices[dn].libusb_handle, devices[dn].bulk_in_ep);
+#endif
       *size = 0;
       return SANE_STATUS_IO_ERROR;
     }
@@ -733,6 +802,9 @@ sanei_usb_write_bulk (SANE_Int dn, const SANE_Byte * buffer, size_t * size)
     {
       DBG (1, "sanei_usb_write_bulk: write failed: %s\n", strerror (errno));
       *size = 0;
+#ifdef HAVE_LIBUSB
+      usb_clear_halt (devices[dn].libusb_handle, devices[dn].bulk_out_ep);
+#endif
       return SANE_STATUS_IO_ERROR;
     }
   DBG (5, "sanei_usb_write_bulk: wanted %lu bytes, wrote %ld bytes\n",

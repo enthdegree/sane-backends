@@ -12,9 +12,9 @@
 \setlength{\marginparsep}{0pt}
 \addtolength{\topmargin}{-0.75in}
 
-\title{\huge SANE Standard Version 1.02}
+\title{\huge SANE Standard Version 1.03}
 \author{}
-\date{March 8, 2002} 
+\date{2002-10-01} 
 
 \makeindex
 
@@ -259,7 +259,8 @@ may contain 8 sample values (for an image bit depth of 1), one full
 sample value (for an image bit depth of 8), or a partial sample value
 (for an image bit depth of 16 or bigger).  In the latter case, the
 bytes of each sample value are transmitted in the machine's native
-byte order.
+byte order. For depth 1, the leftmost pixel is stored in the most
+significant bit, and the rightmost pixel in the least significant bit.
 \begin{quote}
   \begin{center}
     {\bf Backend Implementation Note}
@@ -347,12 +348,15 @@ frame types:
 \end{description}
 \end{quote}
 
-In frames of type SANE\_FRAME\_GRAY, when the bit depth is 1 there are
+In frames of type \code{SANE\_FRAME\_GRAY}, when the bit depth is 1 there are
 only two sample values possible, 1 represents minimum intensity
 (black) and 0 represents maximum intensity (white).  For all other bit
 depth and frame type combinations, a sample value of 0 represents
 minimum intensity and larger values represent increasing intensity.
 
+The combination of bit depth 1 and \code{SANE\_FRAME\_RGB} (or
+\code{SANE\_FRAME\_RED}, \code{SANE\_FRAME\_GREEN}, \code{SANE\_FRAME\_BLUE})
+is rarely used and may not be supported by every frontend.
 
 \chapter{The SANE Application Programmer Interface (API)}\label{chap:api}
 

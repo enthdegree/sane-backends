@@ -1,3 +1,7 @@
+2002-08-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* PROJECTS: Added Hewlett-Packard ScanJet 4470C project.
+
 2002-08-18 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 	* tools/gamma4scanimage.c: Bugfix (atof->atoi)
 	* tools/README: added gamma4scanimage

@@ -1,3 +1,10 @@
+2002-06-25  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* tools/sane-find-scanner.c: Added support for scanning whole
+	  directories for SCSI and USB device files.  Moved SCSI and USB
+	  detection routines to their own functions.  Renamed functions
+	  related to SCSI for clarity.
+
 2002-06-21  Max Vorobiev <pcwizard@yandex.ru>
 
 	* backend/hpsj5s.c: added fcntl.h include directive.

@@ -79,7 +79,7 @@
 
 #define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
-#define BUILD               39
+#define BUILD               40
 
 #define BACKEND_NAME snapscan
 
@@ -177,6 +177,9 @@ static inline int calibration_line_length(SnapScan_Scanner *pss)
         pos_factor = 600;
         break;
     case PERFECTION1670:
+        pos_factor = 800;
+        break;
+    case PERFECTION2480:
         pos_factor = 800;
         break;
     default:
@@ -1258,7 +1261,7 @@ static SANE_Status send_gamma_table (SnapScan_Scanner *pss, u_char dtc, u_char d
     SANE_Status status = SANE_STATUS_GOOD;
     status = send (pss, dtc, dtcq);
     CHECK_STATUS (status, me, "send");
-    if (pss->pdev->model == PERFECTION1670)
+    if ((pss->pdev->model == PERFECTION1670) || (pss->pdev->model == PERFECTION2480))
     {
         /* Epson Perfection 1670 needs an extra invitation */
         status = send (pss, dtc, dtcq);
@@ -1564,7 +1567,7 @@ SANE_Status sane_start (SANE_Handle h)
 
     status = download_gamma_tables(pss);
     CHECK_STATUS (status, me, "download_gamma_tables");
-    if (pss->pdev->model == PERFECTION1670)
+    if ((pss->pdev->model == PERFECTION1670) || (pss->pdev->model == PERFECTION2480))
     {
         /* Epson Perfections needs the gamma table twice */
         status = download_gamma_tables(pss);
@@ -1834,6 +1837,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.44  2004/09/02 20:59:12  oliver-guest
+ * Added support for Epson 2480
+ *
  * Revision 1.43  2004/06/16 19:52:26  oliver-guest
  * Don't enforce even number of URB packages on 1212u_2. Fixes bug #300753.
  *

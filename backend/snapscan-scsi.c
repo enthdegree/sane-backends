@@ -503,6 +503,7 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
     switch (pss->pdev->model)
     {
     case PERFECTION1670:
+    case PERFECTION2480:
         pss->bpp = 14;
         break;
     default:
@@ -759,7 +760,6 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
     u_short_to_u_charp (pss->res, pc + SET_WINDOW_P_YRES);
     DBG (DL_CALL_TRACE, "%s Resolution: %d\n", me, pss->res);
 
-    pos_factor = pss->actual_res;
     switch (pss->pdev->model)
     {
         case PRISA5000:
@@ -768,7 +768,11 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
         case PERFECTION1670:
             pos_factor = (pss->res > 800) ?  1600 : 800;
             break;
+        case PERFECTION2480:
+            pos_factor = (pss->res > 1200) ?  2400 : 1200;
+            break;
         default:
+            pos_factor = pss->actual_res;
             break;
     }
     /* it's an ugly sound if the scanner drives against the rear
@@ -1169,6 +1173,7 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
                 fseek(fd, 0, SEEK_SET);
                 break;
             case PERFECTION1670:
+	    case PERFECTION2480:
                 /* Epson firmware files contain an info block which
                    specifies the length of the firmware data. The
                    length information is stored at offset 0x64 from
@@ -1222,6 +1227,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
+ * Revision 1.28  2004/09/02 20:59:11  oliver-guest
+ * Added support for Epson 2480
+ *
  * Revision 1.27  2004/04/02 20:19:24  oliver-guest
  * Various bugfixes for gamma corretion (thanks to Robert Tsien)
  *

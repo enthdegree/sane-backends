@@ -1,3 +1,8 @@
+2004-09-02  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+	* backend/snapscan.c backend/snapscan-scsi.c backend/snapscan-options.c
+	  backend/snapscan.h backend/snapscan.conf doc/descriptions/snapscan.desc:
+	  Added support for Epson 2480
+
 2004-09-01  Julien Blache <jb@jblache.org>
 	* frontend/saned.c: auth_callback(): arrays are passed as
 	pointers, declaring parameters as arrays of fixed size is

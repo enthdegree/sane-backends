@@ -238,5 +238,9 @@
 :interface "USB"
 :status :good
 
+:model "Perfection 2480"
+:interface "USB"
+:status :good
+
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

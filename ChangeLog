@@ -10,6 +10,8 @@
 	* doc/sane.man: Added information about #sane IRC
 	  channel. Formatting changes.
 	* doc/descriptions/unsupported.desc: Added Mustek P 3600 A3 Pro.
+	* TODO: Removed license issue. Updated desc files and global
+	  variables entries. Updated v4l entry.
 	
 2003-04-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

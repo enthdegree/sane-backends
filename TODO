@@ -1,4 +1,4 @@
-TODO (2003-04-03)
+TODO (2003-04-11)
 
 ******** todo ********
 
@@ -29,6 +29,8 @@ backends
      - Geometry support is missing
      - Frequency setting is missing
      - check if v4lctl distributed with xawtv can be used
+     - Use #define _LINUX_TIME_H 1 just before including videodev.h or videodev2.h to avoid
+       trouble if /usr/include/linux is a link.
      - Add v4l updates from Martin Palm, see
        http://www.meier-geinitz.de/sane/misc/sane-v4l-update.tar.gz
 
@@ -57,8 +59,8 @@ backends
     called more than once (if sane_exit was called before)! Global variables
     must be either initialized in sane_init or reset in sane_exit.
     At least these backends segfault:
+    - microtek
     - umax
-    
 
 doc
 ---
@@ -69,7 +71,6 @@ doc
 
   * desc files:
     - Add keywords "vendor-id" and "product-id" for SCSI and USB ids.
-    - snapscan: add Epson Perfection 660
     - plustek:  check status of Umax 3450 USB scanner (same as 3400?)
     - umax: genius.kye.de times out?
 
@@ -156,9 +157,6 @@ misc
   * Make output of sane-find-scanner more flexible. See scanimage -f for
     details.
 
-  * Check licence issues with getopt*.c and md5.c. These files are GPLed, so
-    if they are used in backends, their SANE exception will be void.
-
   * Can we link external libraries only to backends that need them?
     See http://fz.eryx.net/sane/#configure.
 
@@ -170,6 +168,8 @@ misc
 
 
 ******** done ********
+* Check licence issues with getopt*.c and md5.c. These files are GPLed, so
+  if they are used in backends, their SANE exception will be void.
 * mustek_pp: Check that global variables are initialized propperly.
 * add configure switch to enable/disable libusb support
 * Fix misdetection of Artec AT3.

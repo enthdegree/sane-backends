@@ -55,6 +55,7 @@ Start: 2.4.2001
 
 ====================================================================== */
 
+#include "sane/config.h"
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
@@ -68,7 +69,6 @@ Start: 2.4.2001
 #endif
 
 #include "sane/sane.h"
-#include "sane/config.h"
 #include "sane/sanei.h"
 #include "sane/sanei_backend.h"
 #include "sane/sanei_config.h"

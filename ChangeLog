@@ -1,3 +1,8 @@
+2003-10-27  Karl Heinz Kremer <khk@khk.net>
+	* backend/epson.c: Replaced all DBG(0, statements with 
+	  DBG(1, ... to avoid logging messages the user should
+	  not see anyways. 
+
 2003-10-27  Gerhard Jaeger <gerhard@gjaeger.de>
 	* sanei/lib/sanei_pp.c: Fixed OS/2 compilation problems.
 	* doc/descriptions/plustek_pp.desc:

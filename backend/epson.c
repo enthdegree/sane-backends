@@ -16,8 +16,8 @@
    Copyright (C) 2003 EPSON KOWA Corporation
 */
 
-#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.39 - 2003-09-12"
-#define SANE_EPSON_BUILD	239
+#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.40 - 2003-10-27"
+#define SANE_EPSON_BUILD	240
 
 /*
    This file is part of the SANE package.
@@ -59,6 +59,7 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
+   2003-10-27   Replaced DBG(0, ... with DBG(1, ...
    2003-09-12   Increment only once in loop to find USB scanners
 		Fix rounding problem when determining number of lines to scan
    2003-08-21   Removed '//' comments - again ...
@@ -1440,7 +1441,7 @@ static SANE_Status check_ext_status ( Epson_Scanner * s, int * max_x, int * max_
 	head = (EpsonHdr) command(s, params, 2, &status);
 	if (NULL == head) 
 	{
-		DBG( 0, "Extended status flag request failed\n");
+		DBG( 1, "Extended status flag request failed\n");
 		return status;
 	}
 
@@ -1452,7 +1453,7 @@ static SANE_Status check_ext_status ( Epson_Scanner * s, int * max_x, int * max_
 	}
 
 	if( buf[ 0] & EXT_STATUS_FER) {
-		DBG( 0, "option: fatal error\n");
+		DBG( 1, "option: fatal error\n");
 		status = SANE_STATUS_INVAL;
 	}
 
@@ -1994,7 +1995,7 @@ attach(const char * dev_name, Epson_Device * * devp, int type)
 	{
 		if( SANE_STATUS_GOOD != ( status = sanei_pio_open(dev_name, &s->fd))) 
 		{
-			DBG(0, "Cannot open %s as a parallel-port device: %s\n",
+			DBG(1, "Cannot open %s as a parallel-port device: %s\n",
 					dev_name, sane_strstatus( status));
 			return status;
 		}
@@ -2048,7 +2049,7 @@ attach(const char * dev_name, Epson_Device * * devp, int type)
 			if (vendor != SANE_EPSON_VENDOR_ID)
 			{
 				/* this is not a supported vendor ID */
-				DBG(0, "The device at %s is not manufactured by EPSON (vendor id=0x%x)\n",
+				DBG(1, "The device at %s is not manufactured by EPSON (vendor id=0x%x)\n",
 						dev_name, vendor);
 				sanei_usb_close(s->fd);
 				s->fd = -1;
@@ -2071,7 +2072,7 @@ attach(const char * dev_name, Epson_Device * * devp, int type)
 
 			if (is_valid == SANE_FALSE)
 			{
-				DBG(0, "The device at %s is not a supported EPSON scanner (product id=0x%x)\n",
+				DBG(1, "The device at %s is not a supported EPSON scanner (product id=0x%x)\n",
 						dev_name, product);
 				sanei_usb_close(s->fd);
 				s->fd = -1;
@@ -2239,7 +2240,7 @@ attach(const char * dev_name, Epson_Device * * devp, int type)
 		params[1] = s->hw->cmd->request_extended_status;
 
 		if( NULL == ( head = ( EpsonHdr) command( s, params, 2, &status) ) ) {
-			DBG( 0, "Extended status flag request failed\n");
+			DBG( 1, "Extended status flag request failed\n");
 			dev->sane.model = strdup("Unknown model");
 		}
 		else
@@ -3357,7 +3358,7 @@ sane_open(SANE_String_Const devicename, SANE_Handle * handle)
 				return status;
 			}
 #endif
-			DBG(0, "Error opening the device");
+			DBG(1, "Error opening the device");
 			return SANE_STATUS_INVAL;
 		}
 	}
@@ -4222,10 +4223,10 @@ SANE_Status sane_start ( SANE_Handle handle)
 
 		if( SANE_STATUS_GOOD != status) 
 		{
-			DBG( 0, "You may have to power %s your TPU\n", 
+			DBG( 1, "You may have to power %s your TPU\n", 
 					s->hw->use_extension ? "on" : "off");
 
-			DBG(0, "Also you may have to restart the Sane frontend.");
+			DBG(1, "Also you may have to restart the Sane frontend.");
 			close_scanner(s);
 			return status;
 		}
@@ -4625,7 +4626,7 @@ SANE_Status sane_start ( SANE_Handle handle)
  * for debugging purposes: 
  */
 #ifdef FORCE_COLOR_SHUFFLE
-	DBG(0, "Test mode: FORCE_COLOR_SHUFFLE = TRUE\n");
+	DBG(1, "Test mode: FORCE_COLOR_SHUFFLE = TRUE\n");
 	s->hw->color_shuffle = SANE_TRUE;
 #endif
 
@@ -4760,7 +4761,7 @@ SANE_Status sane_start ( SANE_Handle handle)
 		}
 		else
 		{
-			DBG( 0, "Extended status flag request failed\n");
+			DBG( 1, "Extended status flag request failed\n");
 		}
 	}
 
@@ -4964,7 +4965,7 @@ static SANE_Status read_data_block ( Epson_Scanner * s, EpsonDataRec * result) {
 		while (status == SANE_STATUS_DEVICE_BUSY) {
 			if (s->retry_count > SANE_EPSON_MAX_RETRIES)
 			{
-				DBG(0, "Max retry count exceeded (%d)\n", s->retry_count);
+				DBG(1, "Max retry count exceeded (%d)\n", s->retry_count);
 				return SANE_STATUS_INVAL;
 			}
 
@@ -5452,7 +5453,7 @@ color_shuffle(SANE_Handle handle, int *new_length)
 
 		if (length % s->params.bytes_per_line != 0)
 		{
-			DBG(0, "ERROR in size of buffer: %d / %d\n", 
+			DBG(1, "ERROR in size of buffer: %d / %d\n", 
 				length, s->params.bytes_per_line);
 			return SANE_STATUS_INVAL;
 		}
@@ -5617,7 +5618,7 @@ get_identity_information(SANE_Handle handle)
 	param[2] = '\0';
 
 	if( NULL == ( ident = ( EpsonIdent) command( s, param, 2, &status) ) ) {
-		DBG( 0, "ident failed\n");
+		DBG( 1, "ident failed\n");
 		return SANE_STATUS_INVAL;
 	}
 
@@ -5668,7 +5669,7 @@ get_identity_information(SANE_Handle handle)
 		dev->cmd = &epson_cmd[ n];
 	} else {
 		dev->cmd = &epson_cmd[EPSON_LEVEL_DEFAULT];
-		DBG( 0, "Unknown type %c or level %c, using %s\n", 
+		DBG( 1, "Unknown type %c or level %c, using %s\n", 
 			ident->buf[0], ident->buf[1], dev->cmd->level);
 	}
 
@@ -5868,7 +5869,7 @@ void sane_cancel ( SANE_Handle handle)
 		dummy = malloc (s->params.bytes_per_line);
 		if (dummy == NULL)
 		{
-			DBG (0, "Out of memory\n");
+			DBG (1, "Out of memory\n");
 	        	return;
 		}
 		else

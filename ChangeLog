@@ -5,6 +5,7 @@
 	  broken TPU support. Fixed missing quotation mark in Perfection
 	  1200S entry.
 	* AUTHORS: Oliver Schirrmeister has a CVS account now.
+	* doc/sane-mustek_usb.man: Added workaround for hardware bug.
 
 2003-10-21  Stéphane Voltz <svoltz@wanadoo.fr>
 	* doc/sane-umax_pp.man: added help for new configuration option

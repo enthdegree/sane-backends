@@ -1,4 +1,4 @@
-.TH sane-mustek_usb 5 "09 Jan 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-mustek_usb 5 "21 Oct 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-mustek_usb
 .SH NAME
 sane-mustek_usb \- SANE backend for Mustek USB flatbed scanners
@@ -195,7 +195,10 @@ device will result in running into timeouts.
 That means that this backend will fail when it is loaded the second time in
 some configurations: E.g. using libusb, (Free|Open|Net)BSD or with Linux if
 you unload and reload the scanner module. The only choice is to replug the
-scanner in this case.
+scanner in this case. The workaround for Linux is to use the scanner module
+(modprobe scanner) instead of libusb. See 
+.BR sane-usb (5)
+for details.
 
 .PP
 More detailed bug information is available at the Mustek backend homepage

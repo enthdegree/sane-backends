@@ -1,6 +1,6 @@
 :backend "gt68xx"
 :status :beta
-:version "1.0-36"
+:version "1.0-37"
 :new :yes
 :manpage "sane-gt68xx"
 :url "http://www.meier-geinitz.de/sane/gt68xx-backend/"

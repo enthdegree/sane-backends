@@ -692,8 +692,8 @@ static GT68xx_Model mustek_a3usb_model = {
   SANE_FIX (2.0),		/* Default gamma value */
 
   SANE_TRUE,			/* Is this a CIS scanner? */
-  GT68XX_FLAG_UNTESTED		/* Which flags are needed for this scanner? */
-    /* Mostly untested, margins seem to be wrong */
+  0				/* Which flags are needed for this scanner? */
+    /* Tested by Pedro Morais <morais@inocam.com> */
 };
 
 static GT68xx_Model lexmark_x73_model = {
@@ -741,7 +741,7 @@ static GT68xx_Model lexmark_x73_model = {
   SANE_FIX (2.0),		/* Default gamma value */
 
   SANE_FALSE,			/* Is this a CIS scanner? */
-  GT68XX_FLAG_UNTESTED		/* Which flags are needed for this scanner? */
+  0				/* Which flags are needed for this scanner? */
     /* When using automatic gain pictures are too dark. Only some ad hoc tests for
        lexmark x70 were done so far. WARNING: Don't use the Full scan option
        with the above settings, otherwise the sensor may bump at the end of

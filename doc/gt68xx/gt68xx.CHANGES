@@ -1,5 +1,9 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0-37 (2003-01-18)
+
+- Removed untested flag from A3 USB and Lexmark X70/X73.
+
 V 1.0-36 (2003-01-09)
 
 - Updated manpage and .desc concerning Lexmark X70.

@@ -1,3 +1,11 @@
+
+2003-01-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/gt68xx.c backend/gt68xx_devices.c
+	  doc/descriptions/gt68xx.desc doc/gt68xx/gt68xx.CHANGES: Removed
+	  wrong "untested" flag from Mustek AE USB and Lexmark X70/X73
+	  scanners.
+
 2003-01-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* configure configure.in include/sane/config.h.in sanei/sanei_scsi.c:

@@ -1,3 +1,9 @@
+2001-08-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* include/sane/sanei_thread.h sanei/sanei_thread.c: Updated
+	  sanei_thread functions (from Yuri Dario) and made clear that
+	  they shouldn't be used directly.
+
 2001-08-05  Peter Fales <peter@fales.com>
 
 	* backend/dc240.c - Previously, the backend always assumed that

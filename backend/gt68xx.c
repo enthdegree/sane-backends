@@ -1,0 +1,1839 @@
+/* sane - Scanner Access Now Easy.
+
+   Copyright (C) 2002 Sergey Vlasov <vsu@altlinux.ru>
+   Copyright (C) 2002 Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+   This file is part of the SANE package.
+   
+   This program is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public License as
+   published by the Free Software Foundation; either version 2 of the
+   License, or (at your option) any later version.
+   
+   This program is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   General Public License for more details.
+   
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 59 Temple Place - Suite 330, Boston,
+   MA 02111-1307, USA.
+   
+   As a special exception, the authors of SANE give permission for
+   additional uses of the libraries contained in this release of SANE.
+   
+   The exception is that, if you link a SANE library with other files
+   to produce an executable, this does not by itself cause the
+   resulting executable to be covered by the GNU General Public
+   License.  Your use of that executable is in no way restricted on
+   account of linking the SANE library code into it.
+   
+   This exception does not, however, invalidate any other reasons why
+   the executable file might be covered by the GNU General Public
+   License.
+   
+   If you submit changes to SANE to the maintainers to be included in
+   a subsequent release, you agree by submitting the changes that
+   those changes may be distributed with this exception intact.
+
+   If you write modifications of your own for SANE, it is your choice
+   whether to permit this exception to apply to your modifications.
+   If you do not wish that, delete this exception notice. 
+*/
+
+/*
+ * SANE backend for Grandtech GT-6801 and GT-6816 based scanners
+ */
+
+#include "../include/sane/config.h"
+
+#define BUILD 27
+#define MAX_DEBUG
+#define WARMUP_TIME 30
+
+#if 1
+#ifdef HAVE_SYS_SHM_H
+#define USE_FORK
+#define SHM_BUFFERS 10
+#endif
+#endif
+
+#define TUNE_CALIBRATOR
+
+#if 0
+#define SAVE_WHITE_CALIBRATION
+#endif
+#if 0
+#define SAVE_BLACK_CALIBRATION
+#endif
+
+#include <ctype.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <limits.h>
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/time.h>
+#include <time.h>
+
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei.h"
+#include "../include/sane/saneopts.h"
+#include "gt68xx.h"
+
+#define BACKEND_NAME gt68xx
+
+#include "../include/sane/sanei_backend.h"
+#include "../include/sane/sanei_config.h"
+
+#ifndef SANE_I18N
+#define SANE_I18N(text) text
+#endif
+
+#include "gt68xx_high.c"
+#include "gt68xx_devices.c"
+
+static SANE_Int num_devices = 0;
+static GT68xx_Device *first_dev = 0;
+static GT68xx_Scanner *first_handle = 0;
+static const SANE_Device **devlist = 0;
+/* Array of newly attached devices */
+static GT68xx_Device **new_dev = 0;
+/* Length of new_dev array */
+static SANE_Int new_dev_len = 0;
+/* Number of entries alloced for new_dev */
+static SANE_Int new_dev_alloced = 0;
+/* Is this computer little-endian ?*/
+SANE_Bool little_endian;
+
+static SANE_String_Const mode_list[] = {
+  SANE_I18N ("Color"),
+  SANE_I18N ("Gray"),
+  SANE_I18N ("Lineart"),
+  0
+};
+
+static SANE_String_Const source_list[] = {
+  SANE_I18N ("Flatbed"),
+  SANE_I18N ("Transparency Adapter"),
+  0
+};
+
+static SANE_Range x_range = {
+  SANE_FIX (0),			/* minimum */
+  SANE_FIX (216),		/* maximum */
+  SANE_FIX (0.1)		/* quantization */
+};
+
+static SANE_Range y_range = {
+  SANE_FIX (0),			/* minimum */
+  SANE_FIX (299),		/* maximum */
+  SANE_FIX (0.1)		/* quantization */
+};
+
+static const SANE_Range exposure_range = {
+  0,				/* minimum */
+  511,				/* maximum */
+  1				/* quantization */
+};
+
+static const SANE_Range offset_range = {
+  0,				/* minimum */
+  63,				/* maximum */
+  1				/* quantization */
+};
+
+static const SANE_Range u8_range = {
+  0,				/* minimum */
+  255,				/* maximum */
+  0				/* quantization */
+};
+
+/* Test if this machine is little endian (from coolscan.c) */
+static SANE_Bool
+calc_little_endian (void)
+{
+  SANE_Int testvalue = 255;
+  u_int8_t *firstbyte = (u_int8_t *) & testvalue;
+
+  if (*firstbyte == 255)
+    return SANE_TRUE;
+  return SANE_FALSE;
+}
+
+static size_t
+max_string_size (const SANE_String_Const strings[])
+{
+  size_t size, max_size = 0;
+  SANE_Int i;
+
+  for (i = 0; strings[i]; ++i)
+    {
+      size = strlen (strings[i]) + 1;
+      if (size > max_size)
+	max_size = size;
+    }
+  return max_size;
+}
+
+static SANE_Status
+setup_scan_request (GT68xx_Scanner * s, GT68xx_Scan_Request * scan_request)
+{
+
+  if (s->dev->model->flags & GT68XX_FLAG_MIRROR_X)
+    scan_request->x0 =
+      s->opt[OPT_TL_X].constraint.range->max - s->val[OPT_BR_X].w;
+  else
+    scan_request->x0 = s->val[OPT_TL_X].w;
+  scan_request->y0 = s->val[OPT_TL_Y].w;
+  scan_request->xs = s->val[OPT_BR_X].w - s->val[OPT_TL_X].w;
+  scan_request->ys = s->val[OPT_BR_Y].w - s->val[OPT_TL_Y].w;
+
+  if (s->val[OPT_FULL_SCAN].w == SANE_TRUE)
+    {
+      scan_request->x0 -= s->dev->model->x_offset;
+      scan_request->y0 -= s->dev->model->y_offset;
+      scan_request->xs += s->dev->model->x_offset;
+      scan_request->ys += s->dev->model->y_offset;
+    }
+
+  scan_request->xdpi = s->val[OPT_RESOLUTION].w;
+  if (scan_request->xdpi > s->dev->model->optical_xdpi)
+    scan_request->xdpi = s->dev->model->optical_xdpi;
+  scan_request->ydpi = s->val[OPT_RESOLUTION].w;
+
+  if (IS_ACTIVE (OPT_BIT_DEPTH) && !s->val[OPT_PREVIEW].w)
+    scan_request->depth = s->val[OPT_BIT_DEPTH].w;
+  else
+    scan_request->depth = 8;
+
+  if (strcmp (s->val[OPT_MODE].s, "Color") == 0)
+    scan_request->color = SANE_TRUE;
+  else
+    scan_request->color = SANE_FALSE;
+
+  if (strcmp (s->val[OPT_MODE].s, "Lineart") == 0)
+    {
+      SANE_Int xs =
+	SANE_UNFIX (scan_request->xs) * scan_request->xdpi / MM_PER_INCH +
+	0.5;
+
+      if (xs % 8)
+	{
+	  scan_request->xs =
+	    SANE_FIX ((xs - (xs % 8)) * MM_PER_INCH / scan_request->xdpi);
+	  DBG (5, "setup_scan_request: lineart mode, %d pixels %% 8 = %d\n",
+	       xs, xs % 8);
+	}
+    }
+
+  scan_request->calculate = SANE_FALSE;
+  scan_request->lamp = SANE_TRUE;
+
+  if (strcmp (s->val[OPT_SOURCE].s, "Transparency Adapter") == 0)
+    scan_request->use_ta = SANE_TRUE;
+  else
+    scan_request->use_ta = SANE_FALSE;
+
+  return SANE_STATUS_GOOD;
+}
+
+static SANE_Status
+calc_parameters (GT68xx_Scanner * s)
+{
+  SANE_String val;
+  SANE_Status status = SANE_STATUS_GOOD;
+  GT68xx_Scan_Request scan_request;
+  GT68xx_Scan_Parameters scan_params;
+
+  DBG (5, "calc_parameters: start\n");
+  val = s->val[OPT_MODE].s;
+
+  s->params.last_frame = SANE_TRUE;
+  if (strcmp (val, "Gray") == 0 || strcmp (val, "Lineart") == 0)
+    s->params.format = SANE_FRAME_GRAY;
+  else				/* Color */
+    s->params.format = SANE_FRAME_RGB;
+
+  setup_scan_request (s, &scan_request);
+  scan_request.calculate = SANE_TRUE;
+
+  status = gt68xx_device_setup_scan (s->dev, &scan_request, SA_SCAN,
+				     &scan_params);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (1, "calc_parameters: gt68xx_device_setup_scan returned: %s\n",
+	   sane_strstatus (status));
+      return status;
+    }
+
+  if (strcmp (val, "Lineart") == 0)
+    s->params.depth = 1;
+  else
+    s->params.depth = scan_params.depth;
+
+  s->params.lines = scan_params.pixel_ys;
+  s->params.pixels_per_line = scan_params.pixel_xs;
+  /* Inflate X if necessary */
+  if (s->val[OPT_RESOLUTION].w > s->dev->model->optical_xdpi)
+    s->params.pixels_per_line *=
+      (s->val[OPT_RESOLUTION].w / s->dev->model->optical_xdpi);
+  s->params.bytes_per_line = s->params.pixels_per_line;
+  if (s->params.depth > 8)
+    {
+      s->params.depth = 16;
+      s->params.bytes_per_line *= 2;
+    }
+  else if (s->params.depth == 1)
+    s->params.bytes_per_line /= 8;
+
+  if (s->params.format == SANE_FRAME_RGB)
+    s->params.bytes_per_line *= 3;
+
+  DBG (4, "calc_parameters: format=%d\n", s->params.format);
+  DBG (4, "calc_parameters: last frame=%d\n", s->params.last_frame);
+  DBG (4, "calc_parameters: lines=%d\n", s->params.lines);
+  DBG (4, "calc_parameters: pixels per line=%d\n", s->params.pixels_per_line);
+  DBG (4, "calc_parameters: bytes per line=%d\n", s->params.bytes_per_line);
+  DBG (4, "calc_parameters: Pixels %dx%dx%d\n",
+       s->params.pixels_per_line, s->params.lines, 1 << s->params.depth);
+
+  DBG (5, "calc_parameters: exit\n");
+  return status;
+}
+
+static SANE_Status
+create_bpp_list (GT68xx_Scanner * s, SANE_Int * bpp)
+{
+  int count;
+
+  for (count = 0; bpp[count] != 0; count++)
+    ;
+  s->bpp_list[0] = count;
+  for (count = 0; bpp[count] != 0; count++)
+    {
+      s->bpp_list[count + 1] = bpp[count];
+    }
+  return SANE_STATUS_GOOD;
+}
+
+static SANE_Status
+init_options (GT68xx_Scanner * s)
+{
+  SANE_Int option, count;
+  SANE_Status status;
+  SANE_Word *dpi_list;
+  GT68xx_Model *model = s->dev->model;
+  SANE_Bool has_ta = SANE_FALSE;
+
+  DBG (5, "init_options: start\n");
+
+  memset (s->opt, 0, sizeof (s->opt));
+  memset (s->val, 0, sizeof (s->val));
+
+  for (option = 0; option < NUM_OPTIONS; ++option)
+    {
+      s->opt[option].size = sizeof (SANE_Word);
+      s->opt[option].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    }
+  s->opt[OPT_NUM_OPTS].name = SANE_NAME_NUM_OPTIONS;
+  s->opt[OPT_NUM_OPTS].title = SANE_TITLE_NUM_OPTIONS;
+  s->opt[OPT_NUM_OPTS].desc = SANE_DESC_NUM_OPTIONS;
+  s->opt[OPT_NUM_OPTS].type = SANE_TYPE_INT;
+  s->opt[OPT_NUM_OPTS].cap = SANE_CAP_SOFT_DETECT;
+  s->val[OPT_NUM_OPTS].w = NUM_OPTIONS;
+
+  /* "Mode" group: */
+  s->opt[OPT_MODE_GROUP].title = SANE_I18N ("Scan Mode");
+  s->opt[OPT_MODE_GROUP].desc = "";
+  s->opt[OPT_MODE_GROUP].type = SANE_TYPE_GROUP;
+  s->opt[OPT_MODE_GROUP].size = 0;
+  s->opt[OPT_MODE_GROUP].cap = 0;
+  s->opt[OPT_MODE_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
+
+  /* scan mode */
+  s->opt[OPT_MODE].name = SANE_NAME_SCAN_MODE;
+  s->opt[OPT_MODE].title = SANE_TITLE_SCAN_MODE;
+  s->opt[OPT_MODE].desc = SANE_DESC_SCAN_MODE;
+  s->opt[OPT_MODE].type = SANE_TYPE_STRING;
+  s->opt[OPT_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
+  s->opt[OPT_MODE].size = max_string_size (mode_list);
+  s->opt[OPT_MODE].constraint.string_list = mode_list;
+  s->val[OPT_MODE].s = strdup ("Gray");
+
+  /* scan source */
+  s->opt[OPT_SOURCE].name = SANE_NAME_SCAN_SOURCE;
+  s->opt[OPT_SOURCE].title = SANE_TITLE_SCAN_SOURCE;
+  s->opt[OPT_SOURCE].desc = SANE_DESC_SCAN_SOURCE;
+  s->opt[OPT_SOURCE].type = SANE_TYPE_STRING;
+  s->opt[OPT_SOURCE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
+  s->opt[OPT_SOURCE].size = max_string_size (source_list);
+  s->opt[OPT_SOURCE].constraint.string_list = source_list;
+  s->val[OPT_SOURCE].s = strdup ("Flatbed");
+  status = gt68xx_device_get_ta_status (s->dev, &has_ta);
+  if (status != SANE_STATUS_GOOD || !has_ta)
+    DISABLE (OPT_SOURCE);
+
+  /* preview */
+  s->opt[OPT_PREVIEW].name = SANE_NAME_PREVIEW;
+  s->opt[OPT_PREVIEW].title = SANE_TITLE_PREVIEW;
+  s->opt[OPT_PREVIEW].desc = SANE_DESC_PREVIEW;
+  s->opt[OPT_PREVIEW].type = SANE_TYPE_BOOL;
+  s->opt[OPT_PREVIEW].unit = SANE_UNIT_NONE;
+  s->opt[OPT_PREVIEW].constraint_type = SANE_CONSTRAINT_NONE;
+  s->val[OPT_PREVIEW].w = SANE_FALSE;
+
+  /* lamp on */
+  s->opt[OPT_LAMP_ON].name = "lamp-on";
+  s->opt[OPT_LAMP_ON].title = SANE_I18N ("Lamp always on");
+  s->opt[OPT_LAMP_ON].desc =
+    SANE_I18N ("Don't turn off the lamp after leaving the " "frontend.");
+  s->opt[OPT_LAMP_ON].type = SANE_TYPE_BOOL;
+  s->opt[OPT_LAMP_ON].unit = SANE_UNIT_NONE;
+  s->opt[OPT_LAMP_ON].constraint_type = SANE_CONSTRAINT_NONE;
+  s->val[OPT_LAMP_ON].w = SANE_FALSE;
+  if (s->dev->model->is_cis)
+    DISABLE (OPT_LAMP_ON);
+
+  /* auto warmup */
+  s->opt[OPT_AUTO_WARMUP].name = "auto-warmup";
+  s->opt[OPT_AUTO_WARMUP].title = SANE_I18N ("Automatic warmup";
+					     s->opt[OPT_AUTO_WARMUP].desc =
+					     "Check if the lamp's brightness is constant "
+					     "instead of insisting on waiting for 30 seconds.");
+  s->opt[OPT_AUTO_WARMUP].type = SANE_TYPE_BOOL;
+  s->opt[OPT_AUTO_WARMUP].unit = SANE_UNIT_NONE;
+  s->opt[OPT_AUTO_WARMUP].constraint_type = SANE_CONSTRAINT_NONE;
+  s->val[OPT_AUTO_WARMUP].w = SANE_TRUE;
+  if (s->dev->model->is_cis)
+    DISABLE (OPT_AUTO_WARMUP);
+
+  /* bit depth */
+  s->opt[OPT_BIT_DEPTH].name = SANE_NAME_BIT_DEPTH;
+  s->opt[OPT_BIT_DEPTH].title = SANE_TITLE_BIT_DEPTH;
+  s->opt[OPT_BIT_DEPTH].desc = SANE_DESC_BIT_DEPTH;
+  s->opt[OPT_BIT_DEPTH].type = SANE_TYPE_INT;
+  s->opt[OPT_BIT_DEPTH].constraint_type = SANE_CONSTRAINT_WORD_LIST;
+  s->opt[OPT_BIT_DEPTH].size = sizeof (SANE_Word);
+  s->opt[OPT_BIT_DEPTH].constraint.word_list = 0;
+  s->opt[OPT_BIT_DEPTH].constraint.word_list = s->bpp_list;
+  RIE (create_bpp_list (s, s->dev->model->bpp_gray_values));
+  s->val[OPT_BIT_DEPTH].w = 8;
+  if (s->opt[OPT_BIT_DEPTH].constraint.word_list[0] < 2)
+    DISABLE (OPT_BIT_DEPTH);
+
+  /* resolution */
+  for (count = 0; model->ydpi_values[count] != 0; count++)
+    ;
+  dpi_list = malloc ((count + 1) * sizeof (SANE_Word));
+  if (!dpi_list)
+    return SANE_STATUS_NO_MEM;
+  dpi_list[0] = count;
+  for (count = 0; model->ydpi_values[count] != 0; count++)
+    dpi_list[count + 1] = model->ydpi_values[count];
+  s->opt[OPT_RESOLUTION].name = SANE_NAME_SCAN_RESOLUTION;
+  s->opt[OPT_RESOLUTION].title = SANE_TITLE_SCAN_RESOLUTION;
+  s->opt[OPT_RESOLUTION].desc = SANE_DESC_SCAN_RESOLUTION;
+  s->opt[OPT_RESOLUTION].type = SANE_TYPE_INT;
+  s->opt[OPT_RESOLUTION].unit = SANE_UNIT_DPI;
+  s->opt[OPT_RESOLUTION].constraint_type = SANE_CONSTRAINT_WORD_LIST;
+  s->opt[OPT_RESOLUTION].constraint.word_list = dpi_list;
+  s->val[OPT_RESOLUTION].w = 300;
+
+  /* "Debug" group: */
+  s->opt[OPT_DEBUG_GROUP].title = SANE_I18N ("Debugging Options");
+  s->opt[OPT_DEBUG_GROUP].desc = "";
+  s->opt[OPT_DEBUG_GROUP].type = SANE_TYPE_GROUP;
+  s->opt[OPT_DEBUG_GROUP].size = 0;
+  s->opt[OPT_DEBUG_GROUP].cap = 0;
+  s->opt[OPT_DEBUG_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
+
+  /* full scan */
+  s->opt[OPT_FULL_SCAN].name = "full-scan";
+  s->opt[OPT_FULL_SCAN].title = "Full scan";
+  s->opt[OPT_FULL_SCAN].desc = "Scan the complete scanning area including "
+    "calibration strip.";
+  s->opt[OPT_FULL_SCAN].type = SANE_TYPE_BOOL;
+  s->opt[OPT_FULL_SCAN].unit = SANE_UNIT_NONE;
+  s->opt[OPT_FULL_SCAN].constraint_type = SANE_CONSTRAINT_NONE;
+  s->val[OPT_FULL_SCAN].w = SANE_FALSE;
+
+  /* automatic gain */
+  s->opt[OPT_AUTO_GAIN].name = "auto-gain";
+  s->opt[OPT_AUTO_GAIN].title = "Automatic gain";
+  s->opt[OPT_AUTO_GAIN].desc = "Automatic setup of offset and gain. ";
+  s->opt[OPT_AUTO_GAIN].type = SANE_TYPE_BOOL;
+  s->opt[OPT_AUTO_GAIN].unit = SANE_UNIT_NONE;
+  s->opt[OPT_AUTO_GAIN].constraint_type = SANE_CONSTRAINT_NONE;
+  s->val[OPT_AUTO_GAIN].w = SANE_TRUE;
+
+  /* automatic gain only once */
+  s->opt[OPT_AUTO_GAIN_ONCE].name = "auto-gain-once";
+  s->opt[OPT_AUTO_GAIN_ONCE].title = "Automatic gain for first scan only";
+  s->opt[OPT_AUTO_GAIN_ONCE].desc =
+    "Enable auto gain only for the first scan.";
+  s->opt[OPT_AUTO_GAIN_ONCE].type = SANE_TYPE_BOOL;
+  s->opt[OPT_AUTO_GAIN_ONCE].unit = SANE_UNIT_NONE;
+  s->opt[OPT_AUTO_GAIN_ONCE].constraint_type = SANE_CONSTRAINT_NONE;
+  s->val[OPT_AUTO_GAIN_ONCE].w = SANE_TRUE;
+
+  /* calibration */
+  s->opt[OPT_QUALITY_CAL].name = SANE_NAME_QUALITY_CAL;
+  s->opt[OPT_QUALITY_CAL].title = SANE_TITLE_QUALITY_CAL;
+  s->opt[OPT_QUALITY_CAL].desc = SANE_TITLE_QUALITY_CAL;
+  s->opt[OPT_QUALITY_CAL].type = SANE_TYPE_BOOL;
+  s->opt[OPT_QUALITY_CAL].unit = SANE_UNIT_NONE;
+  s->opt[OPT_QUALITY_CAL].constraint_type = SANE_CONSTRAINT_NONE;
+  s->val[OPT_QUALITY_CAL].w = SANE_TRUE;
+
+  /* "Enhancement" group: */
+  s->opt[OPT_ENHANCEMENT_GROUP].title = "Enhancement";
+  s->opt[OPT_ENHANCEMENT_GROUP].desc = "";
+  s->opt[OPT_ENHANCEMENT_GROUP].type = SANE_TYPE_GROUP;
+  s->opt[OPT_ENHANCEMENT_GROUP].cap = 0;
+  s->opt[OPT_ENHANCEMENT_GROUP].size = 0;
+  s->opt[OPT_ENHANCEMENT_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
+
+  /* threshold */
+  s->opt[OPT_THRESHOLD].name = SANE_NAME_THRESHOLD;
+  s->opt[OPT_THRESHOLD].title = SANE_TITLE_THRESHOLD;
+  s->opt[OPT_THRESHOLD].desc = SANE_DESC_THRESHOLD;
+  s->opt[OPT_THRESHOLD].type = SANE_TYPE_INT;
+  s->opt[OPT_THRESHOLD].unit = SANE_UNIT_NONE;
+  s->opt[OPT_THRESHOLD].constraint_type = SANE_CONSTRAINT_RANGE;
+  s->opt[OPT_THRESHOLD].constraint.range = &u8_range;
+  s->val[OPT_THRESHOLD].w = 128;
+  DISABLE (OPT_THRESHOLD);
+
+  /* exposure time red */
+  s->opt[OPT_SCAN_EXPOS_TIME_R].name = SANE_NAME_SCAN_EXPOS_TIME_R;
+  s->opt[OPT_SCAN_EXPOS_TIME_R].title = SANE_TITLE_SCAN_EXPOS_TIME_R;
+  s->opt[OPT_SCAN_EXPOS_TIME_R].desc = SANE_DESC_SCAN_EXPOS_TIME_R;
+  s->opt[OPT_SCAN_EXPOS_TIME_R].type = SANE_TYPE_INT;
+  s->opt[OPT_SCAN_EXPOS_TIME_R].unit = SANE_UNIT_NONE;
+  s->opt[OPT_SCAN_EXPOS_TIME_R].constraint_type = SANE_CONSTRAINT_RANGE;
+  s->opt[OPT_SCAN_EXPOS_TIME_R].constraint.range = &exposure_range;
+  s->val[OPT_SCAN_EXPOS_TIME_R].w = s->dev->exposure->r_time;
+  DISABLE (OPT_SCAN_EXPOS_TIME_R);
+
+  /* exposure time green */
+  s->opt[OPT_SCAN_EXPOS_TIME_G].name = SANE_NAME_SCAN_EXPOS_TIME_G;
+  s->opt[OPT_SCAN_EXPOS_TIME_G].title = SANE_TITLE_SCAN_EXPOS_TIME_G;
+  s->opt[OPT_SCAN_EXPOS_TIME_G].desc = SANE_DESC_SCAN_EXPOS_TIME_G;
+  s->opt[OPT_SCAN_EXPOS_TIME_G].type = SANE_TYPE_INT;
+  s->opt[OPT_SCAN_EXPOS_TIME_G].unit = SANE_UNIT_NONE;
+  s->opt[OPT_SCAN_EXPOS_TIME_G].constraint_type = SANE_CONSTRAINT_RANGE;
+  s->opt[OPT_SCAN_EXPOS_TIME_G].constraint.range = &exposure_range;
+  s->val[OPT_SCAN_EXPOS_TIME_G].w = s->dev->exposure->g_time;
+  DISABLE (OPT_SCAN_EXPOS_TIME_G);
+
+  /* exposure time blue */
+  s->opt[OPT_SCAN_EXPOS_TIME_B].name = SANE_NAME_SCAN_EXPOS_TIME_B;
+  s->opt[OPT_SCAN_EXPOS_TIME_B].title = SANE_TITLE_SCAN_EXPOS_TIME_B;
+  s->opt[OPT_SCAN_EXPOS_TIME_B].desc = SANE_DESC_SCAN_EXPOS_TIME_B;
+  s->opt[OPT_SCAN_EXPOS_TIME_B].type = SANE_TYPE_INT;
+  s->opt[OPT_SCAN_EXPOS_TIME_B].unit = SANE_UNIT_NONE;
+  s->opt[OPT_SCAN_EXPOS_TIME_B].constraint_type = SANE_CONSTRAINT_RANGE;
+  s->opt[OPT_SCAN_EXPOS_TIME_B].constraint.range = &exposure_range;
+  s->val[OPT_SCAN_EXPOS_TIME_B].w = s->dev->exposure->b_time;
+  DISABLE (OPT_SCAN_EXPOS_TIME_B);
+
+  /* offset red */
+  s->opt[OPT_OFFSET_R].name = "offset-r";
+  s->opt[OPT_OFFSET_R].title = "Offset red";
+  s->opt[OPT_OFFSET_R].desc = "AFE offset red.";
+  s->opt[OPT_OFFSET_R].type = SANE_TYPE_INT;
+  s->opt[OPT_OFFSET_R].unit = SANE_UNIT_NONE;
+  s->opt[OPT_OFFSET_R].constraint_type = SANE_CONSTRAINT_RANGE;
+  s->opt[OPT_OFFSET_R].constraint.range = &offset_range;
+  s->val[OPT_OFFSET_R].w = s->dev->afe->r_offset;
+  DISABLE (OPT_OFFSET_R);
+
+  /* offset green */
+  s->opt[OPT_OFFSET_G].name = "offset-g";
+  s->opt[OPT_OFFSET_G].title = "Offset green";
+  s->opt[OPT_OFFSET_G].desc = "AFE offset green.";
+  s->opt[OPT_OFFSET_G].type = SANE_TYPE_INT;
+  s->opt[OPT_OFFSET_G].unit = SANE_UNIT_NONE;
+  s->opt[OPT_OFFSET_G].constraint_type = SANE_CONSTRAINT_RANGE;
+  s->opt[OPT_OFFSET_G].constraint.range = &offset_range;
+  s->val[OPT_OFFSET_G].w = s->dev->afe->g_offset;
+  DISABLE (OPT_OFFSET_G);
+
+  /* offset blue */
+  s->opt[OPT_OFFSET_B].name = "offset-b";
+  s->opt[OPT_OFFSET_B].title = "Offset blue";
+  s->opt[OPT_OFFSET_B].desc = "AFE offset blue.";
+  s->opt[OPT_OFFSET_B].type = SANE_TYPE_INT;
+  s->opt[OPT_OFFSET_B].unit = SANE_UNIT_NONE;
+  s->opt[OPT_OFFSET_B].constraint_type = SANE_CONSTRAINT_RANGE;
+  s->opt[OPT_OFFSET_B].constraint.range = &offset_range;
+  s->val[OPT_OFFSET_B].w = s->dev->afe->b_offset;
+  DISABLE (OPT_OFFSET_B);
+
+  /* gain red */
+  s->opt[OPT_GAIN_R].name = "gain-r";
+  s->opt[OPT_GAIN_R].title = "Gain red";
+  s->opt[OPT_GAIN_R].desc = "AFE gain red.";
+  s->opt[OPT_GAIN_R].type = SANE_TYPE_INT;
+  s->opt[OPT_GAIN_R].unit = SANE_UNIT_NONE;
+  s->opt[OPT_GAIN_R].constraint_type = SANE_CONSTRAINT_RANGE;
+  s->opt[OPT_GAIN_R].constraint.range = &offset_range;
+  s->val[OPT_GAIN_R].w = s->dev->afe->r_pga;
+  DISABLE (OPT_GAIN_R);
+
+  /* gain green */
+  s->opt[OPT_GAIN_G].name = "gain-g";
+  s->opt[OPT_GAIN_G].title = "Gain green";
+  s->opt[OPT_GAIN_G].desc = "AFE gain green.";
+  s->opt[OPT_GAIN_G].type = SANE_TYPE_INT;
+  s->opt[OPT_GAIN_G].unit = SANE_UNIT_NONE;
+  s->opt[OPT_GAIN_G].constraint_type = SANE_CONSTRAINT_RANGE;
+  s->opt[OPT_GAIN_G].constraint.range = &offset_range;
+  s->val[OPT_GAIN_G].w = s->dev->afe->g_pga;
+  DISABLE (OPT_GAIN_G);
+
+  /* gain blue */
+  s->opt[OPT_GAIN_B].name = "gain-b";
+  s->opt[OPT_GAIN_B].title = "Gain blue";
+  s->opt[OPT_GAIN_B].desc = "AFE gain blue.";
+  s->opt[OPT_GAIN_B].type = SANE_TYPE_INT;
+  s->opt[OPT_GAIN_B].unit = SANE_UNIT_NONE;
+  s->opt[OPT_GAIN_B].constraint_type = SANE_CONSTRAINT_RANGE;
+  s->opt[OPT_GAIN_B].constraint.range = &offset_range;
+  s->val[OPT_GAIN_B].w = s->dev->afe->b_pga;
+  DISABLE (OPT_GAIN_B);
+
+
+  /* "Geometry" group: */
+  s->opt[OPT_GEOMETRY_GROUP].title = SANE_I18N ("Geometry");
+  s->opt[OPT_GEOMETRY_GROUP].desc = "";
+  s->opt[OPT_GEOMETRY_GROUP].type = SANE_TYPE_GROUP;
+  s->opt[OPT_GEOMETRY_GROUP].cap = SANE_CAP_ADVANCED;
+  s->opt[OPT_GEOMETRY_GROUP].size = 0;
+  s->opt[OPT_GEOMETRY_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
+
+  x_range.max = model->x_size;
+  y_range.max = model->y_size;
+
+  /* top-left x */
+  s->opt[OPT_TL_X].name = SANE_NAME_SCAN_TL_X;
+  s->opt[OPT_TL_X].title = SANE_TITLE_SCAN_TL_X;
+  s->opt[OPT_TL_X].desc = SANE_DESC_SCAN_TL_X;
+  s->opt[OPT_TL_X].type = SANE_TYPE_FIXED;
+  s->opt[OPT_TL_X].unit = SANE_UNIT_MM;
+  s->opt[OPT_TL_X].constraint_type = SANE_CONSTRAINT_RANGE;
+  s->opt[OPT_TL_X].constraint.range = &x_range;
+  s->val[OPT_TL_X].w = 0;
+
+  /* top-left y */
+  s->opt[OPT_TL_Y].name = SANE_NAME_SCAN_TL_Y;
+  s->opt[OPT_TL_Y].title = SANE_TITLE_SCAN_TL_Y;
+  s->opt[OPT_TL_Y].desc = SANE_DESC_SCAN_TL_Y;
+  s->opt[OPT_TL_Y].type = SANE_TYPE_FIXED;
+  s->opt[OPT_TL_Y].unit = SANE_UNIT_MM;
+  s->opt[OPT_TL_Y].constraint_type = SANE_CONSTRAINT_RANGE;
+  s->opt[OPT_TL_Y].constraint.range = &y_range;
+  s->val[OPT_TL_Y].w = 0;
+
+  /* bottom-right x */
+  s->opt[OPT_BR_X].name = SANE_NAME_SCAN_BR_X;
+  s->opt[OPT_BR_X].title = SANE_TITLE_SCAN_BR_X;
+  s->opt[OPT_BR_X].desc = SANE_DESC_SCAN_BR_X;
+  s->opt[OPT_BR_X].type = SANE_TYPE_FIXED;
+  s->opt[OPT_BR_X].unit = SANE_UNIT_MM;
+  s->opt[OPT_BR_X].constraint_type = SANE_CONSTRAINT_RANGE;
+  s->opt[OPT_BR_X].constraint.range = &x_range;
+  s->val[OPT_BR_X].w = x_range.max;
+
+  /* bottom-right y */
+  s->opt[OPT_BR_Y].name = SANE_NAME_SCAN_BR_Y;
+  s->opt[OPT_BR_Y].title = SANE_TITLE_SCAN_BR_Y;
+  s->opt[OPT_BR_Y].desc = SANE_DESC_SCAN_BR_Y;
+  s->opt[OPT_BR_Y].type = SANE_TYPE_FIXED;
+  s->opt[OPT_BR_Y].unit = SANE_UNIT_MM;
+  s->opt[OPT_BR_Y].constraint_type = SANE_CONSTRAINT_RANGE;
+  s->opt[OPT_BR_Y].constraint.range = &y_range;
+  s->val[OPT_BR_Y].w = y_range.max;
+
+  RIE (calc_parameters (s));
+
+  DBG (5, "init_options: exit\n");
+  return SANE_STATUS_GOOD;
+}
+
+static SANE_Status
+attach (SANE_String_Const devname, GT68xx_Device ** devp, SANE_Bool may_wait)
+{
+  GT68xx_Device *dev;
+  SANE_Status status;
+
+  DBG (5, "attach: start: devp %s NULL, may_wait = %d\n", devp ? "!=" : "==",
+       may_wait);
+  if (!devname)
+    {
+      DBG (1, "attach: devname == NULL\n");
+      return SANE_STATUS_INVAL;
+    }
+
+  for (dev = first_dev; dev; dev = dev->next)
+    {
+      if (strcmp (dev->file_name, devname) == 0)
+	{
+	  if (devp)
+	    *devp = dev;
+	  DBG (4, "attach: device `%s' was already in device list\n",
+	       devname);
+	  return SANE_STATUS_GOOD;
+	}
+    }
+
+  DBG (4, "attach: trying to open device `%s'\n", devname);
+  RIE (gt68xx_device_new (&dev));
+  status = gt68xx_device_open (dev, devname);
+  if (status == SANE_STATUS_GOOD)
+    DBG (4, "attach: device `%s' successfully opened\n", devname);
+  else
+    {
+      DBG (4, "attach: couldn't open device `%s': %s\n", devname,
+	   sane_strstatus (status));
+      gt68xx_device_free (dev);
+      if (devp)
+	*devp = 0;
+      return status;
+    }
+
+  if (!gt68xx_device_is_configured (dev))
+    {
+      DBG (4, "attach: device `%s' is not supported: %s\n", devname,
+	   sane_strstatus (status));
+      gt68xx_device_free (dev);
+      if (devp)
+	*devp = 0;
+      return status;
+    }
+
+  dev->file_name = strdup (devname);
+  if (!dev)
+    return SANE_STATUS_NO_MEM;
+  DBG (2, "attach: found %s flatbed scanner %s at %s\n", dev->model->vendor,
+       dev->model->model, dev->file_name);
+  ++num_devices;
+  dev->next = first_dev;
+  first_dev = dev;
+
+  if (devp)
+    *devp = dev;
+  gt68xx_device_close (dev);
+  DBG (5, "attach: exit\n");
+  return SANE_STATUS_GOOD;
+}
+
+static SANE_Status
+attach_one_device (SANE_String_Const devname)
+{
+  GT68xx_Device *dev;
+  SANE_Status status;
+
+  RIE (attach (devname, &dev, SANE_FALSE));
+
+  if (dev)
+    {
+      /* Keep track of newly attached devices so we can set options as
+         necessary.  */
+      if (new_dev_len >= new_dev_alloced)
+	{
+	  new_dev_alloced += 4;
+	  if (new_dev)
+	    new_dev =
+	      realloc (new_dev, new_dev_alloced * sizeof (new_dev[0]));
+	  else
+	    new_dev = malloc (new_dev_alloced * sizeof (new_dev[0]));
+	  if (!new_dev)
+	    {
+	      DBG (1, "attach_one_device: out of memory\n");
+	      return SANE_STATUS_NO_MEM;
+	    }
+	}
+      new_dev[new_dev_len++] = dev;
+    }
+  return SANE_STATUS_GOOD;
+}
+
+#if defined(HAVE_OS2_H)
+# define PATH_SEP	"\\"
+#else
+# define PATH_SEP	"/"
+#endif
+
+static SANE_Status
+download_firmware_file (GT68xx_Device * dev)
+{
+  SANE_Status status = SANE_STATUS_GOOD;
+  SANE_Byte *buf = NULL;
+  int size = -1;
+  SANE_Char filename[PATH_MAX];
+  FILE *f;
+
+  if (strncmp (dev->model->firmware_name, PATH_SEP, 1) != 0)
+    {
+      snprintf (filename, PATH_MAX, "%s%s%s%s%s%s%s",
+		STRINGIFY (PATH_SANE_DATA_DIR),
+		PATH_SEP, "sane", PATH_SEP, "gt68xx", PATH_SEP,
+		dev->model->firmware_name);
+    }
+  else				/* absolute path */
+    strncpy (filename, dev->model->firmware_name, PATH_MAX);
+
+
+  /* Check both mixed and lower case */
+  DBG (5, "download_firmware: trying %s\n", filename);
+  f = fopen (filename, "rb");
+  if (!f)
+    {
+      SANE_Char filename_lower[PATH_MAX];
+      unsigned int i;
+
+      DBG (5,
+	   "download_firmware_file: Couldn't open firmware file `%s': %s\n",
+	   filename, strerror (errno));
+
+      for (i = 0; i <= strlen (filename); i++)
+	filename_lower[i] = tolower (filename[i]);
+
+      DBG (5, "download_firmware: trying %s\n", filename_lower);
+      f = fopen (filename_lower, "rb");
+      if (!f)
+	{
+	  DBG (5,
+	       "download_firmware_file: Couldn't open firmware file `%s': %s\n",
+	       filename, strerror (errno));
+	  DBG (0, "Couldn't open firmware file (neither `%s' nor `%s'): %s\n",
+	       filename, filename_lower, strerror (errno));
+	  status = SANE_STATUS_INVAL;
+	}
+    }
+
+  if (status == SANE_STATUS_GOOD)
+    {
+      fseek (f, 0, SEEK_END);
+      size = ftell (f);
+      fseek (f, 0, SEEK_SET);
+      if (size == -1)
+	{
+	  DBG (1, "download_firmware_file: error getting size of "
+	       "firmware file \"%s\": %s\n", filename, strerror (errno));
+	  status = SANE_STATUS_INVAL;
+	}
+    }
+
+  if (status == SANE_STATUS_GOOD)
+    {
+      DBG (5, "firmware size: %d\n", size);
+      buf = (SANE_Byte *) malloc (size);
+      if (!buf)
+	{
+	  DBG (1, "download_firmware_file: cannot allocate %d bytes "
+	       "for firmware\n", size);
+	  status = SANE_STATUS_NO_MEM;
+	}
+    }
+
+  if (status == SANE_STATUS_GOOD)
+    {
+      int bytes_read = fread (buf, 1, size, f);
+      if (bytes_read != size)
+	{
+	  DBG (1, "download_firmware_file: problem reading firmware "
+	       "file \"%s\": %s\n", filename, strerror (errno));
+	  status = SANE_STATUS_INVAL;
+	}
+    }
+
+  if (f)
+    fclose (f);
+
+  if (status == SANE_STATUS_GOOD)
+    {
+      status = gt68xx_device_download_firmware (dev, buf, size);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (1, "download_firmware_file: firmware download failed: %s\n",
+	       sane_strstatus (status));
+	}
+    }
+
+  if (buf)
+    free (buf);
+
+  return status;
+}
+
+/* -------------------------- SANE API functions ------------------------- */
+
+SANE_Status
+sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
+{
+  SANE_Char line[PATH_MAX];
+  SANE_Char *word;
+  SANE_String_Const cp;
+  SANE_Int linenumber;
+  FILE *fp;
+
+  DBG_INIT ();
+  DBG (2, "SANE GT68xx backend version %d.%d build %d from %s\n", V_MAJOR,
+       V_MINOR, BUILD, PACKAGE_VERSION);
+
+  if (version_code)
+    *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BUILD);
+
+  DBG (5, "sane_init: authorize %s null\n", authorize ? "!=" : "==");
+
+  sanei_usb_init ();
+
+  fp = sanei_config_open (GT68XX_CONFIG_FILE);
+  if (!fp)
+    {
+      /* default to /dev/usb/scanner instead of insisting on config file */
+      DBG (3, "sane_init: couldn't open config file `%s': %s. Using "
+	   "/dev/usb/scanner directly\n", GT68XX_CONFIG_FILE,
+	   strerror (errno));
+      attach ("/dev/usb/scanner", 0, SANE_FALSE);
+      return SANE_STATUS_GOOD;
+    }
+
+  little_endian = calc_little_endian ();
+  DBG (5, "sane_init: %s endian machine\n", little_endian ? "little" : "big");
+
+  linenumber = 0;
+  DBG (4, "sane_init: reading config file `%s'\n", GT68XX_CONFIG_FILE);
+  while (sanei_config_read (line, sizeof (line), fp))
+    {
+      word = 0;
+      linenumber++;
+
+      cp = sanei_config_get_string (line, &word);
+      if (!word || cp == line)
+	{
+	  DBG (6, "sane_init: config file line %d: ignoring empty line\n",
+	       linenumber);
+	  if (word)
+	    free (word);
+	  continue;
+	}
+      if (word[0] == '#')
+	{
+	  DBG (6, "sane_init: config file line %d: ignoring comment line\n",
+	       linenumber);
+	  free (word);
+	  continue;
+	}
+
+      if (strcmp (word, "firmware") == 0)
+	{
+	  free (word);
+	  word = 0;
+	  cp = sanei_config_get_string (cp, &word);
+	  if (word)
+	    {
+	      int i;
+	      for (i = 0; i < new_dev_len; i++)
+		{
+		  new_dev[i]->model->firmware_name = word;
+		  DBG (5, "sane_init: device %s: firmware will be loaded "
+		       "from %s\n", new_dev[i]->model->name,
+		       new_dev[i]->model->firmware_name);
+		}
+	      if (i == 0)
+		DBG (5, "sane_init: firmware %s can't be loaded, set device "
+		     "first\n", word);
+	    }
+	  else
+	    {
+	      DBG (5, "sane_init: option `firmware' needs a parameter\n");
+	    }
+	}
+      else if (strcmp (word, "vendor") == 0)
+	{
+	  free (word);
+	  word = 0;
+	  cp = sanei_config_get_string (cp, &word);
+	  if (word)
+	    {
+	      int i;
+
+	      for (i = 0; i < new_dev_len; i++)
+		{
+		  new_dev[i]->model->vendor = word;
+		  DBG (5, "sane_init: device %s: vendor name set to %s\n",
+		       new_dev[i]->model->name, new_dev[i]->model->vendor);
+		}
+	      if (i == 0)
+		DBG (5, "sane_init: can't set vendor name %s, set device "
+		     "first\n", word);
+	    }
+	  else
+	    {
+	      DBG (5, "sane_init: option `vendor' needs a parameter\n");
+	    }
+	}
+      else if (strcmp (word, "model") == 0)
+	{
+	  free (word);
+	  word = 0;
+	  cp = sanei_config_get_string (cp, &word);
+	  if (word)
+	    {
+	      int i;
+	      for (i = 0; i < new_dev_len; i++)
+		{
+		  new_dev[i]->model->model = word;
+		  DBG (5, "sane_init: device %s: model name set to %s\n",
+		       new_dev[i]->model->name, new_dev[i]->model->model);
+		}
+	      if (i == 0)
+		DBG (5, "sane_init: can't set model name %s, set device "
+		     "first\n", word);
+	    }
+	  else
+	    {
+	      DBG (5, "sane_init: option `model' needs a parameter\n");
+	    }
+	}
+      else if (strcmp (word, "override") == 0)
+	{
+	  free (word);
+	  word = 0;
+	  cp = sanei_config_get_string (cp, &word);
+	  if (word)
+	    {
+	      int i;
+	      for (i = 0; i < new_dev_len; i++)
+		{
+		  SANE_Status status;
+		  GT68xx_Device *dev = new_dev[i];
+		  GT68xx_Model *model;
+		  if (gt68xx_device_get_model (word, &model) == SANE_TRUE)
+		    {
+		      status = gt68xx_device_set_model (dev, model);
+		      if (status != SANE_STATUS_GOOD)
+			DBG (1, "sane_init: couldn't override model: %s\n",
+			     sane_strstatus (status));
+		      else
+			DBG (5, "sane_init: new model set to %s\n",
+			     dev->model->name);
+		    }
+		  else
+		    {
+		      DBG (1, "sane_init: override: model %s not found\n",
+			   word);
+		    }
+		}
+	      if (i == 0)
+		DBG (5, "sane_init: can't override model to %s, set device "
+		     "first\n", word);
+	    }
+	  else
+	    {
+	      DBG (5, "sane_init: option `override' needs a parameter\n");
+	    }
+	}
+      else
+	{
+	  new_dev_len = 0;
+	  DBG (4, "sane_init: config file line %d: trying to attach `%s'\n",
+	       linenumber, line);
+	  sanei_usb_attach_matching_devices (line, attach_one_device);
+	  if (word)
+	    free (word);
+	  word = 0;
+	}
+    }
+
+  if (new_dev_alloced > 0)
+    {
+      new_dev_len = new_dev_alloced = 0;
+      free (new_dev);
+    }
+
+  fclose (fp);
+  DBG (5, "sane_init: exit\n");
+
+  return SANE_STATUS_GOOD;
+}
+
+void
+sane_exit (void)
+{
+  GT68xx_Device *dev, *next;
+
+  DBG (5, "sane_exit: start\n");
+  for (dev = first_dev; dev; dev = next)
+    {
+      next = dev->next;
+      gt68xx_device_free (dev);
+    }
+  first_dev = 0;
+  if (devlist)
+    free (devlist);
+  devlist = 0;
+
+  DBG (5, "sane_exit: exit\n");
+}
+
+SANE_Status
+sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
+{
+  GT68xx_Device *dev;
+  SANE_Int dev_num;
+
+  DBG (5, "sane_get_devices: start: local_only = %s\n",
+       local_only == SANE_TRUE ? "true" : "false");
+
+  if (devlist)
+    free (devlist);
+
+  devlist = malloc ((num_devices + 1) * sizeof (devlist[0]));
+  if (!devlist)
+    return SANE_STATUS_NO_MEM;
+
+  dev_num = 0;
+  for (dev = first_dev; dev_num < num_devices; dev = dev->next)
+    {
+      SANE_Device *sane_device;
+
+      sane_device = malloc (sizeof (*sane_device));
+      if (!sane_device)
+	return SANE_STATUS_NO_MEM;
+      sane_device->name = dev->file_name;
+      sane_device->vendor = dev->model->vendor;
+      sane_device->model = dev->model->model;
+      sane_device->type = strdup ("flatbed scanner");
+      devlist[dev_num++] = sane_device;
+    }
+  devlist[dev_num++] = 0;
+
+  *device_list = devlist;
+
+  DBG (5, "sane_get_devices: exit\n");
+
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+sane_open (SANE_String_Const devicename, SANE_Handle * handle)
+{
+  GT68xx_Device *dev;
+  SANE_Status status;
+  GT68xx_Scanner *s;
+  SANE_Bool firmware_loaded, power_ok;
+
+  DBG (5, "sane_open: start (devicename = `%s')\n", devicename);
+
+  if (devicename[0])
+    {
+      for (dev = first_dev; dev; dev = dev->next)
+	if (strcmp (dev->file_name, devicename) == 0)
+	  break;
+
+      if (!dev)
+	{
+	  DBG (5, "sane_open: couldn't find `%s' in devlist, trying attach\n",
+	       devicename);
+	  RIE (attach (devicename, &dev, SANE_TRUE));
+	}
+      else
+	DBG (5, "sane_open: found `%s' in devlist\n", dev->model->name);
+    }
+  else
+    {
+      /* empty devicname -> use first device */
+      dev = first_dev;
+      devicename = dev->file_name;
+      if (dev)
+	DBG (5, "sane_open: empty devicename, trying `%s'\n", devicename);
+    }
+
+  if (!dev)
+    return SANE_STATUS_INVAL;
+
+  RIE (gt68xx_device_open (dev, devicename));
+  RIE (gt68xx_device_activate (dev));
+
+  RIE (gt68xx_device_check_firmware (dev, &firmware_loaded));
+  if (firmware_loaded)
+    DBG (3, "sane_open: firmware already loaded, skipping load\n");
+  else
+    RIE (download_firmware_file (dev));
+  RIE (gt68xx_device_check_firmware (dev, &firmware_loaded));
+  if (!firmware_loaded)
+    {
+      DBG (1, "sane_open: firmware still not loaded? Proceeding anyway\n");
+      /* return SANE_STATUS_IO_ERROR; */
+    }
+
+  RIE (gt68xx_device_get_id (dev));
+
+  RIE (gt68xx_device_stop_scan (dev));
+
+  RIE (gt68xx_device_get_power_status (dev, &power_ok));
+  if (power_ok)
+    {
+      DBG (5, "sane_open: power ok\n");
+    }
+  else
+    {
+      DBG (0, "sane_open: power control failure: check power plug!\n");
+      return SANE_STATUS_IO_ERROR;
+    }
+
+  RIE (gt68xx_scanner_new (dev, &s));
+  RIE (gt68xx_device_lamp_control (s->dev, SANE_TRUE, SANE_FALSE));
+  gettimeofday (&s->lamp_on_time, 0);
+
+  /* insert newly opened handle into list of open handles: */
+  s->next = first_handle;
+  first_handle = s;
+  *handle = s;
+  s->scanning = SANE_FALSE;
+  s->first_scan = SANE_TRUE;
+  RIE (init_options (s));
+
+  DBG (5, "sane_open: exit\n");
+
+  return SANE_STATUS_GOOD;
+}
+
+void
+sane_close (SANE_Handle handle)
+{
+  GT68xx_Scanner *prev, *s;
+
+  DBG (5, "sane_close: start\n");
+
+  /* remove handle from list of open handles: */
+  prev = 0;
+  for (s = first_handle; s; s = s->next)
+    {
+      if (s == handle)
+	break;
+      prev = s;
+    }
+  if (!s)
+    {
+      DBG (5, "close: invalid handle %p\n", handle);
+      return;			/* oops, not a handle we know about */
+    }
+
+  if (prev)
+    prev->next = s->next;
+  else
+    first_handle = s->next;
+
+  if (s->val[OPT_LAMP_ON].w == SANE_FALSE)
+    gt68xx_device_lamp_control (s->dev, SANE_FALSE, SANE_FALSE);
+  gt68xx_device_deactivate (s->dev);
+  gt68xx_device_close (s->dev);
+  gt68xx_scanner_free (s);
+
+  DBG (5, "sane_close: exit\n");
+}
+
+const SANE_Option_Descriptor *
+sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
+{
+  GT68xx_Scanner *s = handle;
+
+  if ((unsigned) option >= NUM_OPTIONS)
+    return 0;
+  DBG (5, "sane_get_option_descriptor: option = %s (%d)\n",
+       s->opt[option].name, option);
+  return s->opt + option;
+}
+
+SANE_Status
+sane_control_option (SANE_Handle handle, SANE_Int option,
+		     SANE_Action action, void *val, SANE_Int * info)
+{
+  GT68xx_Scanner *s = handle;
+  SANE_Status status;
+  SANE_Word cap;
+  SANE_Int myinfo = 0;
+
+  DBG (5, "sane_control_option: start: action = %s, option = %s (%d)\n",
+       (action == SANE_ACTION_GET_VALUE) ? "get" :
+       (action == SANE_ACTION_SET_VALUE) ? "set" :
+       (action == SANE_ACTION_SET_AUTO) ? "set_auto" : "unknown",
+       s->opt[option].name, option);
+
+  if (info)
+    *info = 0;
+
+  if (s->scanning)
+    {
+      DBG (1, "sane_control_option: don't call this function while "
+	   "scanning (option = %s (%d))\n", s->opt[option].name, option);
+
+      return SANE_STATUS_DEVICE_BUSY;
+    }
+  if (option >= NUM_OPTIONS || option < 0)
+    {
+      DBG (1, "sane_control_option: option %d >= NUM_OPTIONS || option < 0\n",
+	   option);
+      return SANE_STATUS_INVAL;
+    }
+
+  cap = s->opt[option].cap;
+
+  if (!SANE_OPTION_IS_ACTIVE (cap))
+    {
+      DBG (2, "sane_control_option: option %d is inactive\n", option);
+      return SANE_STATUS_INVAL;
+    }
+
+  if (action == SANE_ACTION_GET_VALUE)
+    {
+      switch (option)
+	{
+	  /* word options: */
+	case OPT_NUM_OPTS:
+	case OPT_RESOLUTION:
+	case OPT_BIT_DEPTH:
+	case OPT_FULL_SCAN:
+	case OPT_AUTO_GAIN:
+	case OPT_AUTO_GAIN_ONCE:
+	case OPT_QUALITY_CAL:
+	case OPT_PREVIEW:
+	case OPT_LAMP_ON:
+	case OPT_AUTO_WARMUP:
+	case OPT_THRESHOLD:
+	case OPT_SCAN_EXPOS_TIME_R:
+	case OPT_SCAN_EXPOS_TIME_G:
+	case OPT_SCAN_EXPOS_TIME_B:
+	case OPT_OFFSET_R:
+	case OPT_OFFSET_G:
+	case OPT_OFFSET_B:
+	case OPT_GAIN_R:
+	case OPT_GAIN_G:
+	case OPT_GAIN_B:
+	case OPT_TL_X:
+	case OPT_TL_Y:
+	case OPT_BR_X:
+	case OPT_BR_Y:
+	  *(SANE_Word *) val = s->val[option].w;
+	  break;
+	  /* string options: */
+	case OPT_MODE:
+	  strcpy (val, s->val[option].s);
+	  break;
+	case OPT_SOURCE:
+	  strcpy (val, s->val[option].s);
+	  break;
+	default:
+	  DBG (2, "sane_control_option: can't get unknown option %d\n",
+	       option);
+	}
+    }
+  else if (action == SANE_ACTION_SET_VALUE)
+    {
+      if (!SANE_OPTION_IS_SETTABLE (cap))
+	{
+	  DBG (2, "sane_control_option: option %d is not settable\n", option);
+	  return SANE_STATUS_INVAL;
+	}
+
+      status = sanei_constrain_value (s->opt + option, val, &myinfo);
+
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (2, "sane_control_option: sanei_constrain_value returned %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
+
+      switch (option)
+	{
+	case OPT_RESOLUTION:
+	case OPT_BIT_DEPTH:
+	case OPT_FULL_SCAN:
+	case OPT_PREVIEW:
+	case OPT_TL_X:
+	case OPT_TL_Y:
+	case OPT_BR_X:
+	case OPT_BR_Y:
+	  s->val[option].w = *(SANE_Word *) val;
+	  RIE (calc_parameters (s));
+	  myinfo |= SANE_INFO_RELOAD_PARAMS;
+	  break;
+	case OPT_LAMP_ON:
+	case OPT_AUTO_WARMUP:
+	case OPT_AUTO_GAIN_ONCE:
+	case OPT_QUALITY_CAL:
+	case OPT_THRESHOLD:
+	case OPT_SCAN_EXPOS_TIME_R:
+	case OPT_SCAN_EXPOS_TIME_G:
+	case OPT_SCAN_EXPOS_TIME_B:
+	case OPT_OFFSET_R:
+	case OPT_OFFSET_G:
+	case OPT_OFFSET_B:
+	case OPT_GAIN_R:
+	case OPT_GAIN_G:
+	case OPT_GAIN_B:
+	  s->val[option].w = *(SANE_Word *) val;
+	  break;
+	case OPT_SOURCE:
+	  if (strcmp (s->val[option].s, val) != 0)
+	    {			/* something changed */
+	      if (s->val[option].s)
+		free (s->val[option].s);
+	      s->val[option].s = strdup (val);
+	      if (strcmp (s->val[option].s, "Transparency Adapter") == 0)
+		{
+		  RIE (gt68xx_device_lamp_control
+		       (s->dev, SANE_FALSE, SANE_TRUE));
+		  x_range.max = s->dev->model->x_size_ta;
+		  y_range.max = s->dev->model->y_size_ta;
+		}
+	      else
+		{
+		  RIE (gt68xx_device_lamp_control
+		       (s->dev, SANE_TRUE, SANE_FALSE));
+		  x_range.max = s->dev->model->x_size;
+		  y_range.max = s->dev->model->y_size;
+		}
+	      s->first_scan = SANE_TRUE;
+	      myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+	    }
+	  break;
+	case OPT_MODE:
+	  if (s->val[option].s)
+	    free (s->val[option].s);
+	  s->val[option].s = strdup (val);
+	  if (strcmp (s->val[option].s, "Lineart") == 0)
+	    {
+	      ENABLE (OPT_THRESHOLD);
+	      DISABLE (OPT_BIT_DEPTH);
+	    }
+	  else
+	    {
+	      DISABLE (OPT_THRESHOLD);
+	      if (strcmp (s->val[option].s, "Gray") == 0)
+		RIE (create_bpp_list (s, s->dev->model->bpp_gray_values));
+	      else
+		RIE (create_bpp_list (s, s->dev->model->bpp_color_values));
+	      if (s->bpp_list[0] < 2)
+		DISABLE (OPT_BIT_DEPTH);
+	      else
+		ENABLE (OPT_BIT_DEPTH);
+	    }
+	  RIE (calc_parameters (s));
+	  myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+	  break;
+
+	case OPT_AUTO_GAIN:
+	  s->val[option].w = *(SANE_Word *) val;
+	  if (s->val[option].w == SANE_TRUE)
+	    {
+	      ENABLE (OPT_AUTO_GAIN_ONCE);
+	      DISABLE (OPT_SCAN_EXPOS_TIME_R);
+	      DISABLE (OPT_SCAN_EXPOS_TIME_G);
+	      DISABLE (OPT_SCAN_EXPOS_TIME_B);
+	      DISABLE (OPT_OFFSET_R);
+	      DISABLE (OPT_OFFSET_G);
+	      DISABLE (OPT_OFFSET_B);
+	      DISABLE (OPT_GAIN_R);
+	      DISABLE (OPT_GAIN_G);
+	      DISABLE (OPT_GAIN_B);
+	      s->first_scan = SANE_TRUE;
+	    }
+	  else
+	    {
+	      DISABLE (OPT_AUTO_GAIN_ONCE);
+	      ENABLE (OPT_SCAN_EXPOS_TIME_R);
+	      ENABLE (OPT_SCAN_EXPOS_TIME_G);
+	      ENABLE (OPT_SCAN_EXPOS_TIME_B);
+	      ENABLE (OPT_OFFSET_R);
+	      ENABLE (OPT_OFFSET_G);
+	      ENABLE (OPT_OFFSET_B);
+	      ENABLE (OPT_GAIN_R);
+	      ENABLE (OPT_GAIN_G);
+	      ENABLE (OPT_GAIN_B);
+	    }
+	  myinfo |= SANE_INFO_RELOAD_OPTIONS;
+	  break;
+
+	default:
+	  DBG (2, "sane_control_option: can't set unknown option %d\n",
+	       option);
+	}
+    }
+  else
+    {
+      DBG (2, "sane_control_option: unknown action %d for option %d\n",
+	   action, option);
+      return SANE_STATUS_INVAL;
+    }
+  if (info)
+    *info = myinfo;
+
+  DBG (5, "sane_control_option: exit\n");
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
+{
+  GT68xx_Scanner *s = handle;
+  SANE_Status status;
+
+  DBG (5, "sane_get_parameters: start\n");
+
+  RIE (calc_parameters (s));
+  if (params)
+    *params = s->params;
+
+  DBG (5, "sane_get_parameters: exit\n");
+
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+sane_start (SANE_Handle handle)
+{
+  GT68xx_Scanner *s = handle;
+  GT68xx_Scan_Request scan_request;
+  GT68xx_Scan_Parameters scan_params;
+  SANE_Status status;
+  SANE_Int i;
+  unsigned int *buffer_pointers[3];
+
+  DBG (5, "sane_start: start\n");
+
+  /* First make sure we have a current parameter set.  Some of the
+     parameters will be overwritten below, but that's OK.  */
+  RIE (calc_parameters (s));
+
+  if (s->val[OPT_TL_X].w >= s->val[OPT_BR_X].w)
+    {
+      DBG (0, "sane_start: top left x >= bottom right x --- exiting\n");
+      return SANE_STATUS_INVAL;
+    }
+  if (s->val[OPT_TL_Y].w >= s->val[OPT_BR_Y].w)
+    {
+      DBG (0, "sane_start: top left y >= bottom right y --- exiting\n");
+      return SANE_STATUS_INVAL;
+    }
+
+  setup_scan_request (s, &scan_request);
+  if (!s->first_scan && s->val[OPT_AUTO_GAIN_ONCE].w == SANE_TRUE)
+    s->auto_afe = SANE_FALSE;
+  else
+    s->auto_afe = s->val[OPT_AUTO_GAIN].w;
+
+  if (s->val[OPT_AUTO_GAIN].w == SANE_FALSE)
+    {
+      s->dev->exposure->r_time = s->val[OPT_SCAN_EXPOS_TIME_R].w;
+      s->dev->exposure->g_time = s->val[OPT_SCAN_EXPOS_TIME_G].w;
+      s->dev->exposure->b_time = s->val[OPT_SCAN_EXPOS_TIME_B].w;
+
+      s->dev->afe->r_offset = s->val[OPT_OFFSET_R].w;
+      s->dev->afe->g_offset = s->val[OPT_OFFSET_G].w;
+      s->dev->afe->b_offset = s->val[OPT_OFFSET_B].w;
+      s->dev->afe->r_pga = s->val[OPT_GAIN_R].w;
+      s->dev->afe->g_pga = s->val[OPT_GAIN_G].w;
+      s->dev->afe->b_pga = s->val[OPT_GAIN_B].w;
+    }
+
+  s->calib = s->val[OPT_QUALITY_CAL].w;
+  RIE (gt68xx_device_stop_scan (s->dev));
+
+  RIE (gt68xx_device_carriage_home (s->dev));
+
+  gt68xx_scanner_wait_for_positioning (s);
+  gettimeofday (&s->start_time, 0);
+
+  RIE (gt68xx_scanner_calibrate (s, &scan_request));
+  RIE (gt68xx_scanner_start_scan (s, &scan_request, &scan_params));
+  for (i = 0; i < scan_params.overscan_lines; ++i)
+    RIE (gt68xx_scanner_read_line (s, buffer_pointers));
+  DBG (4, "sane_start: wanted: dpi=%d, x=%.1f, y=%.1f, width=%.1f, "
+       "height=%.1f, color=%s\n", scan_request.xdpi,
+       SANE_UNFIX (scan_request.x0),
+       SANE_UNFIX (scan_request.y0), SANE_UNFIX (scan_request.xs),
+       SANE_UNFIX (scan_request.ys), scan_request.color ? "color" : "gray");
+
+  s->line = 0;
+  s->byte_count = s->reader->params.pixel_xs;
+  s->total_bytes = 0;
+  s->scanning = SANE_TRUE;
+  s->first_scan = SANE_FALSE;
+  DBG (5, "sane_start: exit\n");
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
+	   SANE_Int * len)
+{
+  GT68xx_Scanner *s = handle;
+  SANE_Status status;
+  static unsigned int *buffer_pointers[3];
+  SANE_Int inflate_x;
+  SANE_Bool lineart;
+
+  if (!s)
+    {
+      DBG (1, "sane_read: handle is null!\n");
+      return SANE_STATUS_INVAL;
+    }
+
+  if (!buf)
+    {
+      DBG (1, "sane_read: buf is null!\n");
+      return SANE_STATUS_INVAL;
+    }
+
+  if (!len)
+    {
+      DBG (1, "sane_read: len is null!\n");
+      return SANE_STATUS_INVAL;
+    }
+
+  *len = 0;
+
+  if (!s->scanning)
+    {
+      DBG (3, "sane_read: scan was cancelled, is over or has not been "
+	   "initiated yet\n");
+      return SANE_STATUS_CANCELLED;
+    }
+
+  DBG (5, "sane_read: start (line %d of %d, byte_count %d of %d)\n",
+       s->line, s->reader->params.pixel_ys, s->byte_count,
+       s->reader->params.pixel_xs);
+
+  if (s->line >= s->reader->params.pixel_ys
+      && s->byte_count >= s->reader->params.pixel_xs)
+    {
+      DBG (4, "sane_read: nothing more to scan: EOF\n");
+      return SANE_STATUS_EOF;
+    }
+
+  inflate_x = s->val[OPT_RESOLUTION].w / s->dev->model->optical_xdpi;
+  if (inflate_x > 1)
+    DBG (5, "sane_read: inflating x by factor %d\n", inflate_x);
+  else
+    inflate_x = 1;
+
+  lineart = (strcmp (s->val[OPT_MODE].s, "Lineart") == 0)
+    ? SANE_TRUE : SANE_FALSE;
+
+  while ((*len) < max_len)
+    {
+      if (s->byte_count >= s->reader->params.pixel_xs)
+	{
+	  if (s->line >= s->reader->params.pixel_ys)
+	    {
+	      DBG (4, "sane_read: scan complete: %d bytes, %d total\n",
+		   *len, s->total_bytes);
+	      return SANE_STATUS_GOOD;
+	    }
+	  DBG (5, "sane_read: getting line %d of %d\n", s->line,
+	       s->reader->params.pixel_ys);
+	  RIE (gt68xx_scanner_read_line (s, buffer_pointers));
+	  s->line++;
+	  s->byte_count = 0;
+	  if (s->dev->model->flags & GT68XX_FLAG_MIRROR_X)
+	    {			/* mirror lines */
+	      int i, color, colors;
+	      unsigned int swap;
+
+	      if (s->reader->params.color)
+		colors = 3;
+	      else
+		colors = 1;
+
+	      for (color = 0; color < colors; color++)
+		{
+		  for (i = 0; i < s->reader->pixels_per_line / 2; i++)
+		    {
+		      swap = buffer_pointers[color][i];
+		      buffer_pointers[color][i] =
+			buffer_pointers[color][s->reader->pixels_per_line -
+					       1 - i];
+		      buffer_pointers[color][s->reader->pixels_per_line - 1 -
+					     i] = swap;
+		    }
+		}
+	    }
+	}
+      if (lineart)
+	{
+	  SANE_Int bit;
+	  SANE_Byte threshold = s->val[OPT_THRESHOLD].w;
+
+	  buf[*len] = 0;
+	  for (bit = 7; bit >= 0; bit--)
+	    {
+	      SANE_Byte is_black =
+		(((buffer_pointers[0][s->byte_count] >> 8) & 0xff) >
+		 threshold) ? 0 : 1;
+	      buf[*len] |= (is_black << bit);
+	      if ((7 - bit) % inflate_x == (inflate_x - 1))
+		s->byte_count++;
+	    }
+	}
+      else if (s->reader->params.color)
+	{
+	  /* color */
+	  if (s->reader->params.depth > 8)
+	    {
+	      SANE_Int color = (s->total_bytes / 2) % 3;
+	      if ((s->total_bytes % 2) == 0)
+		{
+		  if (little_endian)
+		    buf[*len] = buffer_pointers[color][s->byte_count] & 0xff;
+		  else
+		    buf[*len] =
+		      (buffer_pointers[color][s->byte_count] >> 8) & 0xff;
+		}
+	      else
+		{
+		  if (little_endian)
+		    buf[*len] =
+		      (buffer_pointers[color][s->byte_count] >> 8) & 0xff;
+		  else
+		    buf[*len] = buffer_pointers[color][s->byte_count] & 0xff;
+
+		  if (s->total_bytes % (inflate_x * 6) == (inflate_x * 6 - 1))
+		    s->byte_count++;
+		}
+	    }
+	  else
+	    {
+	      SANE_Int color = s->total_bytes % 3;
+	      buf[*len] = (buffer_pointers[color][s->byte_count] >> 8) & 0xff;
+	      if (s->total_bytes % (inflate_x * 3) == (inflate_x * 3 - 1))
+		s->byte_count++;
+	    }
+	}
+      else
+	{
+	  /* gray */
+	  if (s->reader->params.depth > 8)
+	    {
+	      if ((s->total_bytes % 2) == 0)
+		{
+		  if (little_endian)
+		    buf[*len] = buffer_pointers[0][s->byte_count] & 0xff;
+		  else
+		    buf[*len] =
+		      (buffer_pointers[0][s->byte_count] >> 8) & 0xff;
+		}
+	      else
+		{
+		  if (little_endian)
+		    buf[*len] =
+		      (buffer_pointers[0][s->byte_count] >> 8) & 0xff;
+		  else
+		    buf[*len] = buffer_pointers[0][s->byte_count] & 0xff;
+		  if (s->total_bytes % (2 * inflate_x) == (2 * inflate_x - 1))
+		    s->byte_count++;
+		}
+	    }
+	  else
+	    {
+	      buf[*len] = (buffer_pointers[0][s->byte_count] >> 8) & 0xff;
+	      if (s->total_bytes % inflate_x == (inflate_x - 1))
+		s->byte_count++;
+	    }
+	}
+      (*len)++;
+      s->total_bytes++;
+    }
+
+  DBG (4, "sane_read: exit (line %d of %d, byte_count %d of %d, %d bytes, "
+       "%d total)\n",
+       s->line, s->reader->params.pixel_ys, s->byte_count,
+       s->reader->params.pixel_xs, *len, s->total_bytes);
+  return SANE_STATUS_GOOD;
+}
+
+void
+sane_cancel (SANE_Handle handle)
+{
+  GT68xx_Scanner *s = handle;
+
+  DBG (5, "sane_cancel: start\n");
+
+  if (s->scanning)
+    {
+      s->scanning = SANE_FALSE;
+      if (s->total_bytes != (s->params.bytes_per_line * s->params.lines))
+	DBG (0, "sane_cancel: warning: scanned %d bytes, expected %d "
+	     "bytes\n", s->total_bytes,
+	     s->params.bytes_per_line * s->params.lines);
+      else
+	{
+	  struct timeval now;
+	  int secs;
+
+	  gettimeofday (&now, 0);
+	  secs = now.tv_sec - s->start_time.tv_sec;
+
+	  DBG (3,
+	       "sane_cancel: scan finished, scanned %d bytes in %d seconds\n",
+	       s->total_bytes, secs);
+	}
+      gt68xx_scanner_stop_scan (s);
+      gt68xx_scanner_wait_for_positioning (s);
+      gt68xx_device_carriage_home (s->dev);
+    }
+  else
+    {
+      DBG (4, "sane_cancel: scan has not been initiated yet, "
+	   "or it is allready aborted\n");
+    }
+
+  DBG (5, "sane_cancel: exit\n");
+  return;
+}
+
+SANE_Status
+sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
+{
+  GT68xx_Scanner *s = handle;
+
+  DBG (5, "sane_set_io_mode: handle = %p, non_blocking = %s\n",
+       handle, non_blocking == SANE_TRUE ? "true" : "false");
+
+  if (!s->scanning)
+    {
+      DBG (1, "sane_set_io_mode: not scanning\n");
+      return SANE_STATUS_INVAL;
+    }
+  if (non_blocking)
+    return SANE_STATUS_UNSUPPORTED;
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
+{
+  GT68xx_Scanner *s = handle;
+
+  DBG (5, "sane_get_select_fd: handle = %p, fd = %p\n", handle, (void *) fd);
+
+  if (!s->scanning)
+    {
+      DBG (1, "sane_get_select_fd: not scanning\n");
+      return SANE_STATUS_INVAL;
+    }
+  return SANE_STATUS_UNSUPPORTED;
+}
+
+/* vim: set sw=2 cino=>2se-1sn-1s{s^-1st0(0u0 smarttab expandtab: */

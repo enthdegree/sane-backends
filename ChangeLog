@@ -1,3 +1,17 @@
+2002-10-25  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/Makefile.in backend/dll.conf backend/gt68xx.c
+	  backend/gt68xx.conf backend/gt68xx.h backend/gt68xx_devices.c
+	  backend/gt68xx_generic.c backend/gt68xx_generic.h
+	  backend/gt68xx_gt6801.c backend/gt68xx_gt6801.h
+	  backend/gt68xx_gt6816.c backend/gt68xx_gt6816.h backend/gt68xx_high.c
+	  backend/gt68xx_high.h	backend/gt68xx_low.c backend/gt68xx_low.h
+	  backend/gt68xx_mid.c backend/gt68xx_mid.h
+	  backend/gt68xx_shm_channel.c backend/gt68xx_shm_channel.h:
+	  Added gt68xx backend for scanners based on the Grandtech GT-6801
+	  and GT-8616 chips like The Mustek BearPaw CU, and TA scanners
+	  and some Artec Ultima 2000 clones.
+
 2002-10-24  Peter Fales  <peter@fales-lorenz.net>
 
 	* backend/gphoto2.c: Improve checks for values specified in config

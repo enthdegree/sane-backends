@@ -4,12 +4,13 @@ SHELL = /bin/sh
 all: check-mo
 
 # Create one line per backend with all files containing translatable text:
-epson.*.po: ../backend/epson.c ../backend/epson.h 
+epson.*.po: ../backend/epson.c ../backend/epson.h
 mustek.*.po: ../backend/mustek.c
 mustek_usb.*.po: ../backend/mustek_usb.c
 plustek.*.po: ../backend/plustek.c ../backend/plustek.h
 pnm.*.po: ../backend/pnm.c
 umax.*.po: ../backend/umax.c
+snapscan.*.po: ../backend/snapscan.c
 
 # end of configuration
 

@@ -78,7 +78,7 @@
 
 #define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
-#define BUILD                7
+#define BUILD                8
 
 #include "snapscan.h"
 
@@ -142,6 +142,9 @@ if ((s) != SANE_STATUS_GOOD) { DBG(DL_MAJOR_ERROR, "%s: %s command failed: %s\n"
 #define DEFAULT_CUSTOM_GAMMA        SANE_FALSE
 #define DEFAULT_GAMMA_BIND        SANE_FALSE
 
+#ifndef SANE_I18N
+#define SANE_I18N(text) text
+#endif
 
 static SANE_Int def_rgb_lpr = 4;
 static SANE_Int def_gs_lpr = 12;
@@ -211,34 +214,34 @@ static const SANE_Range positive_percent_range =
 static char md_auto[] = "Auto";
 
 /* predefined scan mode names */
-static char md_colour[] = "Colour";
-static char md_bilevelcolour[] = "BiLevelColour";
-static char md_greyscale[] = "GreyScale";
-static char md_lineart[] = "LineArt";
+static char md_colour[] = SANE_I18N("Color");
+static char md_bilevelcolour[] = SANE_I18N("Halftone");
+static char md_greyscale[] = SANE_I18N("Gray");
+static char md_lineart[] = SANE_I18N("Lineart");
 
 /* predefined scan source names */
-static char src_flatbed[] = "Flatbed";
-static char src_tpo[] = "Transparency Adapter";
+static char src_flatbed[] = SANE_I18N("Flatbed");
+static char src_tpo[] = SANE_I18N("Transparency Adapter");
 
 /* predefined scan window setting names */
-static char pdw_none[] = "none";
-static char pdw_6X4[] = "6x4";
-static char pdw_8X10[] = "8x10";
-static char pdw_85X11[] = "8.5x11";
+static char pdw_none[] = SANE_I18N("none");
+static char pdw_6X4[] = SANE_I18N("6x4 (inch)");
+static char pdw_8X10[] = SANE_I18N("8x10 (inch)");
+static char pdw_85X11[] = SANE_I18N("8.5x11 (inch)");
 
 /* predefined dither matrix names */
-static char dm_none[] = "Halftoning Unsupported";
-static char dm_dd8x8[] = "DispersedDot8x8";
-static char dm_dd16x16[] = "DispersedDot16x16";
+static char dm_none[] = SANE_I18N("Halftoning Unsupported");
+static char dm_dd8x8[] = SANE_I18N("DispersedDot8x8");
+static char dm_dd16x16[] = SANE_I18N("DispersedDot16x16");
 
 /* strings */
-static char lpr_desc[] =
+static char lpr_desc[] = SANE_I18N(
     "Number of scan lines to request in a SCSI read. "
     "Changing this parameter allows you to tune the speed at which "
     "data is read from the scanner during scans. If this is set too "
     "low, the scanner will have to stop periodically in the middle of "
     "a scan; if it's set too high, X-based frontends may stop responding "
-    "to X events and your system could bog down.";
+    "to X events and your system could bog down.");
 
 /* authorization stuff */
 static SANE_Auth_Callback auth = NULL;
@@ -316,7 +319,7 @@ static SANE_Status init_gamma(SnapScan_Scanner * ps)
     ps->gamma_table_r = &ps->gamma_tables[1 * ps->gamma_length];
     ps->gamma_table_g = &ps->gamma_tables[2 * ps->gamma_length];
     ps->gamma_table_b = &ps->gamma_tables[3 * ps->gamma_length];
-    
+
     /* Default tables */
     gamma_n (ps->gamma_gs, ps->bright, ps->contrast, gamma, bpp);
     gamma_to_sane (ps->gamma_length, gamma, ps->gamma_table_gs);
@@ -374,7 +377,7 @@ static void init_options (SnapScan_Scanner * ps)
         po[OPT_COUNT].constraint.range = &count_range;
     }
 
-    po[OPT_MODE_GROUP].title = "Scan Mode";
+    po[OPT_MODE_GROUP].title = SANE_I18N("Scan Mode");
     po[OPT_MODE_GROUP].desc = "";
     po[OPT_MODE_GROUP].type = SANE_TYPE_GROUP;
     po[OPT_MODE_GROUP].cap = 0;
@@ -462,10 +465,10 @@ static void init_options (SnapScan_Scanner * ps)
     ps->mode = MD_COLOUR;
 
     po[OPT_PREVIEW_MODE].name = "preview-mode";
-    po[OPT_PREVIEW_MODE].title = "Preview mode";
-    po[OPT_PREVIEW_MODE].desc =
+    po[OPT_PREVIEW_MODE].title = SANE_I18N("Preview mode");
+    po[OPT_PREVIEW_MODE].desc = SANE_I18N(
         "Select the mode for previews. Greyscale previews usually give "
-        "the best combination of speed and detail.";
+        "the best combination of speed and detail.");
     po[OPT_PREVIEW_MODE].type = SANE_TYPE_STRING;
     po[OPT_PREVIEW_MODE].unit = SANE_UNIT_NONE;
     po[OPT_PREVIEW_MODE].size = 32;
@@ -508,7 +511,7 @@ static void init_options (SnapScan_Scanner * ps)
         ps->source_s = (SANE_Char *) strdup(source_list[0]);
     }
 
-    po[OPT_GEOMETRY_GROUP].title = "Geometry";
+    po[OPT_GEOMETRY_GROUP].title = SANE_I18N("Geometry");
     po[OPT_GEOMETRY_GROUP].desc = "";
     po[OPT_GEOMETRY_GROUP].type = SANE_TYPE_GROUP;
     po[OPT_GEOMETRY_GROUP].cap = SANE_CAP_ADVANCED;
@@ -559,10 +562,10 @@ static void init_options (SnapScan_Scanner * ps)
     ps->bry = ps->pdev->y_range.max;
 
     po[OPT_PREDEF_WINDOW].name = "predef-window";
-    po[OPT_PREDEF_WINDOW].title = "Predefined settings";
-    po[OPT_PREDEF_WINDOW].desc =
+    po[OPT_PREDEF_WINDOW].title = SANE_I18N("Predefined settings");
+    po[OPT_PREDEF_WINDOW].desc = SANE_I18N(
         "Provides standard scanning areas for photographs, printed pages "
-        "and the like.";
+        "and the like.");
     po[OPT_PREDEF_WINDOW].type = SANE_TYPE_STRING;
     po[OPT_PREDEF_WINDOW].unit = SANE_UNIT_NONE;
     po[OPT_PREDEF_WINDOW].size = 32;
@@ -575,7 +578,7 @@ static void init_options (SnapScan_Scanner * ps)
     }
     ps->predef_window = pdw_none;
 
-    po[OPT_ENHANCEMENT_GROUP].title = "Enhancement";
+    po[OPT_ENHANCEMENT_GROUP].title = SANE_I18N("Enhancement");
     po[OPT_ENHANCEMENT_GROUP].desc = "";
     po[OPT_ENHANCEMENT_GROUP].type = SANE_TYPE_GROUP;
     po[OPT_ENHANCEMENT_GROUP].cap = 0;
@@ -796,14 +799,14 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_THRESHOLD].constraint.range = &positive_percent_range;
     ps->threshold = DEFAULT_THRESHOLD;
 
-    po[OPT_ADVANCED_GROUP].title = "Advanced";
+    po[OPT_ADVANCED_GROUP].title = SANE_I18N("Advanced");
     po[OPT_ADVANCED_GROUP].desc = "";
     po[OPT_ADVANCED_GROUP].type = SANE_TYPE_GROUP;
     po[OPT_ADVANCED_GROUP].cap = SANE_CAP_ADVANCED;
     po[OPT_ADVANCED_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
     po[OPT_RGB_LPR].name = "rgb-lpr";
-    po[OPT_RGB_LPR].title = "Colour lines per read";
+    po[OPT_RGB_LPR].title = SANE_I18N("Colour lines per read");
     po[OPT_RGB_LPR].desc = lpr_desc;
     po[OPT_RGB_LPR].type = SANE_TYPE_INT;
     po[OPT_RGB_LPR].unit = SANE_UNIT_NONE;
@@ -815,7 +818,7 @@ static void init_options (SnapScan_Scanner * ps)
     ps->rgb_lpr = def_rgb_lpr;
 
     po[OPT_GS_LPR].name = "gs-lpr";
-    po[OPT_GS_LPR].title = "Greyscale lines per read";
+    po[OPT_GS_LPR].title = SANE_I18N("Greyscale lines per read");
     po[OPT_GS_LPR].desc = lpr_desc;
     po[OPT_GS_LPR].type = SANE_TYPE_INT;
     po[OPT_GS_LPR].unit = SANE_UNIT_NONE;
@@ -829,41 +832,41 @@ static void init_options (SnapScan_Scanner * ps)
     ps->gs_lpr = def_gs_lpr;
 
     po[OPT_SCSI_CMDS].name = "scsi-cmds";
-    po[OPT_SCSI_CMDS].title = "SCSI commands (for debugging)";
+    po[OPT_SCSI_CMDS].title = SANE_I18N("SCSI commands (for debugging)");
     po[OPT_SCSI_CMDS].type = SANE_TYPE_GROUP;
     po[OPT_SCSI_CMDS].cap = SANE_CAP_ADVANCED;
 
     po[OPT_INQUIRY].name = "do-inquiry";
-    po[OPT_INQUIRY].title = "Inquiry";
-    po[OPT_INQUIRY].desc =
+    po[OPT_INQUIRY].title = SANE_I18N("Inquiry");
+    po[OPT_INQUIRY].desc = SANE_I18N(
         "Send an Inquiry command to the scanner and dump out some of "
-        "the current settings.";
+        "the current settings.");
     po[OPT_INQUIRY].type = SANE_TYPE_BUTTON;
     po[OPT_INQUIRY].cap = SANE_CAP_ADVANCED;
     po[OPT_INQUIRY].constraint_type = SANE_CONSTRAINT_NONE;
 
     po[OPT_SELF_TEST].name = "do-self-test";
-    po[OPT_SELF_TEST].title = "Self test";
-    po[OPT_SELF_TEST].desc =
-        "Send a Self Test command to the scanner and report the result.";
+    po[OPT_SELF_TEST].title = SANE_I18N("Self test");
+    po[OPT_SELF_TEST].desc = SANE_I18N(
+        "Send a Self Test command to the scanner and report the result.");
     po[OPT_SELF_TEST].type = SANE_TYPE_BUTTON;
     po[OPT_SELF_TEST].cap = SANE_CAP_ADVANCED;
     po[OPT_SELF_TEST].constraint_type = SANE_CONSTRAINT_NONE;
 
     po[OPT_REQ_SENSE].name = "do-req-sense";
-    po[OPT_REQ_SENSE].title = "Request sense";
-    po[OPT_REQ_SENSE].desc =
+    po[OPT_REQ_SENSE].title = SANE_I18N("Request sense");
+    po[OPT_REQ_SENSE].desc = SANE_I18N(
         "Send a Request Sense command to the scanner, and print out the sense "
-        "report.";
+        "report.");
     po[OPT_REQ_SENSE].type = SANE_TYPE_BUTTON;
     po[OPT_REQ_SENSE].cap = SANE_CAP_ADVANCED;
     po[OPT_REQ_SENSE].constraint_type = SANE_CONSTRAINT_NONE;
 
     po[OPT_REL_UNIT].name = "do-rel-unit";
-    po[OPT_REL_UNIT].title = "Release unit (cancel)";
-    po[OPT_REL_UNIT].desc =
+    po[OPT_REL_UNIT].title = SANE_I18N("Release unit (cancel)");
+    po[OPT_REL_UNIT].desc = SANE_I18N(
         "Send a Release Unit command to the scanner. This is the same as "
-        "a cancel command.";
+        "a cancel command.");
     po[OPT_REL_UNIT].type = SANE_TYPE_BUTTON;
     po[OPT_REL_UNIT].cap = SANE_CAP_ADVANCED;
     po[OPT_REL_UNIT].constraint_type = SANE_CONSTRAINT_NONE;
@@ -3093,8 +3096,16 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
- * Revision 1.17  2002/01/23 20:50:33  oliverschwartz
- * Fix recognition of Acer 320U
+ * Revision 1.18  2002/02/09 15:03:03  oliverschwartz
+ * Added language translation support for snapscan backend
+ *
+ * Revision 1.40  2002/02/09 14:55:23  oliverschwartz
+ * Added language translation support (SANE_I18N)
+ *
+ * Revision 1.39  2002/01/23 20:40:54  oliverschwartz
+ * Don't use quantization for scan area parameter
+ * Improve recognition of Acer 320U
+ * Version 1.4.7
  *
  * Revision 1.38  2002/01/14 21:11:56  oliverschwartz
  * Add workaround for bug semctl() call in libc for PPC

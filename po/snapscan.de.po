@@ -1,0 +1,168 @@
+# Translation file for SANE Snapscan backend
+# Copyright (C) 2002 Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+msgid ""
+msgstr ""
+"Project-Id-Version: sane-backends 1.0.7\n"
+"POT-Creation-Date: 2002-02-09 14:00+0100\n"
+"PO-Revision-Date: 2002-02-10 14:00+0100\n"
+"Last-Translator: Oliver Schwartz <Oliver.Schwartz@gmx.de>\n"
+"Language-Team:\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain charset=iso-8859-1\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#snapscan.c:217
+msgid "Color"
+msgstr "Farbe"
+
+#snapscan.c:218
+msgid "Halftone"
+msgstr "Halbton"
+
+#snapscan.c:219
+msgid "Gray"
+msgstr "Graustufen"
+
+#snapscan.c:220
+msgid "Lineart"
+msgstr "Strichzeichnung"
+
+#snapscan.c:223
+msgid "Flatbed"
+msgstr "Flachbett"
+
+#snapscan.c:224
+msgid "Transparency Adapter"
+msgstr "Durchlicht"
+
+#snapscan.c:227
+msgid "none"
+msgstr "keine"
+
+#snapscan.c:228
+msgid "6x4 (inch)"
+msgstr "6x4 (Zoll)"
+
+#snapscan.c:229
+msgid "8x10 (inch)"
+msgstr "8x10 (Zoll)"
+
+#snapscan.c:230
+msgid "8.5x11 (inch)"
+msgstr "8.5x11 (Zoll)"
+
+#snapscan.c:233
+msgid "Halftoning Unsupported"
+msgstr "Halbton nicht unterstützt"
+
+#snapscan.c:234
+msgid "DispersedDot8x8"
+msgstr "DispersedDot8x8"
+
+#snapscan.c:235
+msgid "DispersedDot16x16"
+msgstr "DispersedDot16x16"
+
+#snapscan.c:238
+msgid "Number of scan lines to request in a SCSI read. "
+      "Changing this parameter allows you to tune the speed at which "
+      "data is read from the scanner during scans. If this is set too "
+      "low, the scanner will have to stop periodically in the middle of "
+      "a scan; if it's set too high, X-based frontends may stop responding "
+      "to X events and your system could bog down."
+msgstr "Anzahl der Zeilen, die pro SCSI Lesevorgang angefordert werden. "
+       "Eine Änderung dieses Parameters erlaubt die Feineinstellung der "
+       "Geschwindigkeit, mit der Daten vom Scanner gelesen werden. Wenn "
+       "die Geschwindigkeit zu niedrig ist, muss der Scanner in regelmäßigen "
+       "Abständen mitten im Scanvorgang anhalten. Falls sie zu groß ist, "
+       "reagiert die Scan-Anwendung möglicherweise nicht mehr auf "
+       "Eingaben und das System kann unbenutzbar werden."
+
+#snapscan.c:380
+msgid "Scan Mode"
+msgstr "Scanmodus"
+
+#snapscan.c:468
+msgid "Preview mode"
+msgstr "Vorschaumodus"
+
+#snapscan.c:469
+msgid "Select the mode for previews. Greyscale previews usually give "
+      "the best combination of speed and detail."
+msgstr "Wählt den Scanmodus für die Vorschau aus. Vorschau in Graustufen "
+       "ist normalerweise der beste Kompromiss aus Geschwindigkeit und "
+       "Detailtreue."
+
+#snapscan.c:514
+msgid "Geometry"
+msgstr "Scanbereich"
+
+#snapscan.c:565
+msgid "Predefined settings"
+msgstr "Vordefinierte Einstellungen"
+
+#snapscan.c:566
+msgid "Provides standard scanning areas for photographs, printed pages "
+      "and the like."
+msgstr "Stellt Standardgrößen für Fotographien, bedruckte Seiten etc. "
+       "zur Verfügung."
+
+#snapscan.c:581
+msgid "Enhancement"
+msgstr "Qualitätsverbesserung"
+
+#snapscan.c:802
+msgid "Advanced"
+msgstr "Erweiterte Optionen"
+
+#snapscan.c:809
+msgid "Colour lines per read"
+msgstr "Farbzeilen pro Lesevorgang"
+
+#snapscan.c:821
+msgid "Greyscale lines per read"
+msgstr "Graustufenzeilen pro Lesevorgang"
+
+#snapscan.c:835
+msgid "SCSI commands (for debugging)"
+msgstr "SCSI Befehle (zur Fehlerbehebung)"
+
+#snapscan.c:840
+msgid "Inquiry"
+msgstr "Inquiry"
+
+#snapscan.c:841
+msgid   "Send an Inquiry command to the scanner and dump out some of "
+        "the current settings."
+msgstr "Sendet ein 'Inquiry' Kommando an den Scanner und gibt einige "
+       "der momentanen Einstellungen aus."
+
+#snapscan.c:849
+msgid "Self test"
+msgstr "Selbsttest"
+
+#snapscan.c:850
+msgid "Send a Self Test command to the scanner and report the result."
+msgstr "Sendet ein Selbstestkommando an den Scanner und gibt das "
+       "Ergebnis aus"
+
+#snapscan.c:857
+msgid "Request sense"
+msgstr "Request sense"
+
+#snapscan.c:858
+msgid "Send a Request Sense command to the scanner, and print out the sense "
+      "report."
+msgstr "Sendet ein 'Request Sense' Kommando an den Scanner und gibt "
+       "den aktuellen Sense-Status aus."
+
+#snapscan.c:866
+msgid "Release unit (cancel)"
+msgstr "Release unit (Abbruch)"
+
+#snapscan.c:867
+msgid "Send a Release Unit command to the scanner. This is the same as "
+      "a cancel command."
+msgstr "Sendet ein 'Release Unit' Kommando an den Scanner. Dies führt "
+       "zum selben Ergebnis wie ein Abbruch-Kommando"

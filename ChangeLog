@@ -1,3 +1,7 @@
+2003-10-21  Stéphane Voltz <svoltz@wanadoo.fr>
+	* doc/sane-umax_pp.man: added help for new configuration option
+	* tools/umax_pp.c: uppded version number
+
 2003-10-20  Frank Zago <fzago at austin dot rr dot com>
 	* README.aix doc/sane-leo.man doc/sane-matsushita.man 
 	  doc/sane-sceptre.man doc/sane-teco1.man doc/sane-teco2.man

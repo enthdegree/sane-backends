@@ -60,37 +60,57 @@ This backend expects device names of the form:
 .RE
 .PP 
 Where
-\fBvalue\fR
-is the base address, or the ppdev device name of the port your scanner is attached to. 
-Known ports are \fB0x378\fR, \fB0x278\fR and \fB0x3BC\fR . Or the name of the
-parallel port character device user interface, such as /dev/parport0 for the linux ppdev,
-or /dev/ppi0 for FreeBSD ppi.
-.br 
-Under linux, if you are not sure which
-port your scanner is connected to, may have a look at your /etc/modules.conf. Also typing
-dmesg|grep parport in a command shell should show you a line like: 
-.br 
-parport0: PC\-style at 0x378 (0x778), irq 7, dma 3 [PCSPP,TRISTATE,COMPAT,ECP,DMA]
-.br 
-telling you about port address and mode.
-.PP 
-If you are using the linux ppdev character device, you will have to specify
-the device name, which is /dev/parport0 for the first parallel port. Check 
-the permissions on /dev/paraport0, many linux distributions restrict them
-for root only access. Get sure they are like:
-.br 
-crw\-rw\-rw\- 1 root root 99, 0 mai 20 2002 /dev/parport0
-.br 
-crw\-rw\-rw\- 1 root root 99, 1 mai 20 2002 /dev/parport1
-.br 
-crw\-rw\-rw\- 1 root root 99, 2 mai 20 2002 /dev/parport2
-.br 
-crw\-rw\-rw\- 1 root root 99, 3 mai 20 2002 /dev/parport3
-.br 
-.br 
-The same apply with the /dev/ppi0 character device under FreeBSD.
-.br 
+\fBvalue\fR is : 
 
+.RS
+value         description.br 
+.br 
+\-\-\-\-\-\-\-\-\-\-\-\-\- \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+.br 
+auto          autodetect all parallel ports and probe
+.br 
+              them for scanner
+.br 
+safe\-auto     autodetect all parallel ports and probe
+.br 
+              them for scanner, but does not try direct
+.br 
+              hardware access
+.br 
+/dev/ppi0     uses *BSD ppi device, depending on the
+.br 
+              number of available parallel port, you
+.br 
+              have to use /dev/ppi1, /dev/ppi2, ...
+.br 
+/dev/parport0 uses linux ppdev device, depending on the
+.br 
+              number of available parallel port, you
+.br 
+              have to use /dev/parport1, /dev/parport2, ...
+.br 
+0x378         does direct hardware access on the given
+.br 
+              address. Usual values are 0x378, 0x278, 0x3BC
+.br 
+              In this case, you have to run the scanner as 
+.br 
+              root (*BSD and linux), or with 'IOPL=yes' on
+.br 
+              OS/2
+.br 
+.PP 
+.RE
+\fBNOTE:\fR in all cases, you must have sufficient priviledges
+.br 
+to get access to the chosen device or address. Depending on the
+.br 
+security settings, devices may not be available for all users.
+.br  
+You have to change permissions on the dev/ppi* or /dev/parport* devices. 
+.br 
+.PP 
+.RE
 You can rename any device using the
 .PP 
 .RS
@@ -153,18 +173,20 @@ Option
 allows you to change the model of your scanner. Current auto detection is based
 on side effects on scanning when using 1220P command set on other models, so
 it may fail on unkown hardware combination. Valid values are 1220, 1600 
-and 2000. It is usefull only when autodetection fails to detect properly your scanner 
-model. If your scanner work properly but is reported wrongly, let it be that way. 
+and 2000. It is usefull only when autodetection fails to detect properly
+your scanner model. If your scanner work properly but is reported wrongly, 
+let it be that way. 
 The only valid case to change the model is when your scanner produces 'black' or 
- 'inverted' scans.  In this case you can put the model. Be aware that it will 
-prevent autodetection.
+'inverted' scans. In this case you can put the model. Be aware that it will 
+prevent scanner model autodetection.
 .PP 
 
 Option
 .B buffer
 allows you to change the size of the scan buffer. The size must be specified in
 bytes. The default value is 2 megabytes. Decreasing this value will improve the
-progress status reporting in the frontend, but will stall the scan more often.
+smoothness of the updates of progress status in the frontend, but will stall the
+scan more often.
 
 .PP 
 
@@ -262,8 +284,7 @@ For latest bug fixes and information see
 .I http://umax1220p.sourceforge.net/
 
 .SH "AUTHOR"
-Stéphane VOLTZ <svoltz@wanadoo.fr>, man page derived from mustek_pp man page
-by Jochen Eisinger <jochen.eisinger@gmx.net>
+Stéphane VOLTZ <svoltz@wanadoo.fr>
 
 
 
@@ -276,7 +297,7 @@ your scanner to be able to help you...
 run "scanimage \-V" to determine this
 .TP 
 .I the backend version and your scanner hardware
-run "SANE_DEBUG_UMAX=255 scanimage \-L 2>log" as root. If you don't get any output
+run "SANE_DEBUG_UMAX_PP=255 scanimage \-L 2>log" as root. If you don't get any output
 from the umax_pp backend, make sure a line "umax_pp" is included into
 your @CONFIGDIR@/dll.conf.
 If your scanner isn't detected, make sure you've defined the right port address, or the

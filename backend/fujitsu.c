@@ -133,7 +133,10 @@
       2004-06-28 (anoah@pfeiffer.edu)
          - bugfix: use model code instead of string compare with 4220
            submitted by: stan@saticed.me.uk
-   
+      2004-08-24 (oschirr@abm.de)
+         - bugfix: 3091 did not work since 15.12.2003 
+         - M4099 supported (bw only)
+
    SANE FLOW DIAGRAM
 
    - sane_init() : initialize backend, attach scanners
@@ -661,7 +664,7 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
   if (!scanner->has_gamma && scanner->num_download_gamma > 0) 
     {
       
-      scanner->gamma = 0x80;
+      scanner->gamma = (scanner->model == MODEL_3091) ? 0x00 : 0x80;
     }
   else 
     {
@@ -3960,7 +3963,6 @@ identify_scanner (struct fujitsu *s)
   char version[5];
   char *pp;
 
-  DBG (1, "current version\n");
   DBG (10, "identify_scanner\n");
 
   vendor[8] = product[0x10] = version[4] = 0;
@@ -4561,6 +4563,10 @@ modelMatch (const char *product)
       return MODEL_3097;
     }
   else if (strstr (product, "4097"))
+    {
+      return MODEL_4097;
+    }
+  else if (strstr (product, "4099"))
     {
       return MODEL_4097;
     }
@@ -6025,8 +6031,7 @@ init_options (struct fujitsu *scanner)
   opt->unit = SANE_UNIT_NONE;
   opt->constraint_type = SANE_CONSTRAINT_RANGE;
   opt->constraint.range = &rangeColorOffset;
-  opt->cap = ((scanner->model != MODEL_3091)&&(scanner->model != MODEL_3092)) ? SANE_CAP_INACTIVE :
-    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+  opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
 
   opt = scanner->opt + OPT_USE_SWAPFILE;
   opt->name = "swapfile";
@@ -6036,8 +6041,7 @@ init_options (struct fujitsu *scanner)
   opt->type = SANE_TYPE_BOOL;
   opt->unit = SANE_UNIT_NONE;
   opt->constraint_type = SANE_CONSTRAINT_NONE;
-  opt->cap = ((scanner->model != MODEL_3091)&&(scanner->model != MODEL_3092)) ? SANE_CAP_INACTIVE :
-    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+  opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
 
   opt = scanner->opt + OPT_SLEEP_MODE;
   opt->name = "sleeptimer";
@@ -6112,7 +6116,8 @@ convert_rrggbb_to_rgb(struct fujitsu *scanner, unsigned char * buffptr, unsigned
 /* scanner returns pixel data as bgrbgrbgr
  * turn each pixel around to rgbrgb */
 static void
-convert_bgr_to_rgb(struct fujitsu *scanner, unsigned char * buffptr, unsigned int length)
+convert_bgr_to_rgb(struct fujitsu *scanner, unsigned char * buffptr, 
+		   unsigned int length)
 {
 
     unsigned char * outptr = buffptr;
@@ -6143,7 +6148,7 @@ convert_bgr_to_rgb(struct fujitsu *scanner, unsigned char * buffptr, unsigned in
 
 static unsigned int
 reader_duplex_alternate (struct fujitsu *scanner,
-                              FILE * fp_front, FILE * fp_back)
+			 FILE * fp_front, FILE * fp_back)
 {
 
   int status;
@@ -6154,7 +6159,7 @@ reader_duplex_alternate (struct fujitsu *scanner,
   unsigned int i_left_front, i_left_back;
 
   unsigned int largeBufferSize = 0;
-  unsigned char *largeBuffer;
+  unsigned char *largeBuffer = NULL;
 
   unsigned int duplexBufferSize = 0;
   unsigned char *duplexBuffer = NULL;
@@ -6175,6 +6180,8 @@ reader_duplex_alternate (struct fujitsu *scanner,
        */
       duplexBufferSize = i_left_back;
       duplexBuffer = malloc (duplexBufferSize);
+
+
       if (duplexBuffer == NULL)
         {
           DBG (MSG_ERR,
@@ -6188,8 +6195,15 @@ reader_duplex_alternate (struct fujitsu *scanner,
   /* make buffer aligned to size of a scanline */
   largeBufferSize = scanner->scsi_buf_size - (scanner->scsi_buf_size % scanner->bytes_per_scan_line);
   largeBuffer = malloc (largeBufferSize);
+
   if (largeBuffer == NULL) {
+
       DBG (MSG_ERR, "reader_process: out of memory for scan buffer (try option --swapfile)\n");
+      if (duplexBuffer) 
+	{
+	  free(duplexBuffer);
+	}
+
       return (0);
   }
 
@@ -6220,7 +6234,10 @@ reader_duplex_alternate (struct fujitsu *scanner,
           DBG (MSG_ERR, "reader_process: unable to get image data from scanner!\n");
           fclose (fp_front);
           fclose (fp_back);
-          /*FIXME should we free some buffers here?*/
+
+	  if (duplexBuffer) free(duplexBuffer);
+	  free(largeBuffer);
+
           return (0);
         }
 
@@ -6243,6 +6260,9 @@ reader_duplex_alternate (struct fujitsu *scanner,
           break;*/
         default:
           DBG (5, "reader_process: cant convert buffer, unsupported read_mode %d\n",scanner->read_mode);
+
+	  if (duplexBuffer) free(duplexBuffer);
+	  free(largeBuffer);
           return (0);
       }
 
@@ -6281,7 +6301,9 @@ reader_duplex_alternate (struct fujitsu *scanner,
           DBG (MSG_ERR, "reader_process: unable to get image data from scanner!\n");
           fclose (fp_front);
           fclose (fp_back);
-          /*FIXME should we free some buffers here?*/
+
+	  if (duplexBuffer) free(duplexBuffer);
+	  free(largeBuffer);
           return (0);
         }
 
@@ -6304,6 +6326,10 @@ reader_duplex_alternate (struct fujitsu *scanner,
           break;*/
         default:
           DBG (5, "reader_process: cant convert buffer, unsupported read_mode %d\n",scanner->read_mode);
+
+	  if (duplexBuffer) free(duplexBuffer);
+	  free(largeBuffer);
+
           return (0);
       }
 
@@ -6313,6 +6339,8 @@ reader_duplex_alternate (struct fujitsu *scanner,
           if((unsigned int) fwrite (largeBuffer, 1, i_data_read, fp_back) != 1){
             fclose (fp_back);
             DBG (MSG_ERR, "reader_process: out of disk space while writing temp file\n");
+	    if (duplexBuffer) free(duplexBuffer);
+	    free(largeBuffer);
             return (0);
           }
 
@@ -6342,8 +6370,10 @@ reader_duplex_alternate (struct fujitsu *scanner,
       fwrite (duplexBuffer, 1, duplexBufferSize, fp_back);
       fflush(fp_back);
       fclose(fp_back);
-      free (duplexBuffer);
     }
+
+  if (duplexBuffer) free(duplexBuffer);
+  free(largeBuffer);
 
   return total_data_size;
 }
@@ -6463,10 +6493,11 @@ reader_gray_duplex_alternate (struct fujitsu *scanner,
   unsigned int i_left_front, i_left_back;
   unsigned int total_data_size, data_to_read;
   unsigned int duplexBufferSize;
-  unsigned char *duplexBuffer;
+  unsigned char *duplexBuffer = NULL;
   unsigned char *duplexPointer;
   unsigned int largeBufferSize = 0;
   unsigned int i_data_read;
+
 
   /*
   time_t start_time, end_time;
@@ -6474,7 +6505,7 @@ reader_gray_duplex_alternate (struct fujitsu *scanner,
   */
 
   i_left_front = scanner->bytes_per_scan_line * scanner->scan_height_pixels;
-  i_left_back = i_left_front;
+  duplexBufferSize = i_left_back = i_left_front;
 
   /* Only allocate memory if we're not using a temp file. */
   if (scanner->use_temp_file)
@@ -6490,7 +6521,8 @@ reader_gray_duplex_alternate (struct fujitsu *scanner,
        * to the pipe directly sane_read will not read from that pipe
        * and the write will block.
        */
-      duplexBuffer = malloc (duplexBufferSize = i_left_back);
+      duplexBuffer = malloc (duplexBufferSize);
+
       if (duplexBuffer == NULL)
         {
           DBG (MSG_ERR,
@@ -6535,6 +6567,7 @@ reader_gray_duplex_alternate (struct fujitsu *scanner,
                "reader_process: unable to get image data from scanner!\n");
           fclose (fp_front);
           fclose (fp_back);
+	  if (duplexBuffer) free(duplexBuffer);
           return (0);
         }
 
@@ -6576,6 +6609,7 @@ reader_gray_duplex_alternate (struct fujitsu *scanner,
                "reader_process: unable to get image data from scanner!\n");
           fclose (fp_front);
           fclose (fp_back);
+	  if (duplexBuffer) free(duplexBuffer);
           return (0);
         }
 
@@ -6588,6 +6622,7 @@ reader_gray_duplex_alternate (struct fujitsu *scanner,
               fclose (fp_back);
               DBG (MSG_ERR,
                    "reader_process: out of disk space while writing temp file\n");
+	      if (duplexBuffer) free(duplexBuffer);
               return (0);
             }
         }
@@ -6624,8 +6659,9 @@ reader_gray_duplex_alternate (struct fujitsu *scanner,
       fwrite (duplexBuffer, 1, duplexBufferSize, fp_back);
       fflush(fp_back);
       fclose(fp_back);
-      free (duplexBuffer);
     }
+
+  if (duplexBuffer) free(duplexBuffer);
 
   return total_data_size;
 }
@@ -7713,9 +7749,11 @@ setMode3096 (struct fujitsu *scanner, int mode)
       scanner->threshold = 0;
       scanner->opt[OPT_THRESHOLD].cap = SANE_CAP_INACTIVE;
 
-      /* brightness is unavailable */
-      scanner->brightness = 0;
-      scanner->opt[OPT_BRIGHTNESS].cap = SANE_CAP_INACTIVE;
+      if (scanner->has_brightness) 
+        {
+          scanner->opt[OPT_BRIGHTNESS].cap =
+            SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
+        }
 
       /* Gamma unavailable. */
       if (scanner->has_gamma) 
@@ -7751,6 +7789,11 @@ setMode3096 (struct fujitsu *scanner, int mode)
 
     case MODE_COLOR:
 
+      if (scanner->has_brightness) 
+        {
+          scanner->opt[OPT_BRIGHTNESS].cap =
+            SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
+        }
       scanner->scanner_depth = 24;
       scanner->output_depth = 24;
       calculateDerivedValues (scanner);

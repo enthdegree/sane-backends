@@ -5,6 +5,7 @@
 	  Check for sys/sem.h and disable snapscan if it isn't available.
 	  Removed "//" (C++-style comment) from config.h.in. Link to djpeg
 	  only once.
+	* TODO: Added comment on command line option for timeout in saned.
 
 2001-06-09  Petter Reinholdtsen <pere@td.org.uit.no>
 

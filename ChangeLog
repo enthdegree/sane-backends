@@ -1,3 +1,10 @@
+2001-11-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* config.guess config.sub: Fetched new versions from
+	  http://savannah.gnu.org/projects/config.
+	* mkinstalldirs: Updated for OS/2 (from "Franz Bakan" 
+	  <fbakan@gmx.net>).
+	
 2001-11-22  Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c: fixed build problem on non i386 linux when

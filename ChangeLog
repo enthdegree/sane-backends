@@ -1,3 +1,14 @@
+2001-06-24  Oliver Rauch <Oliver.Rauch@rauch-domain.de>
+
+	* backend/umax*: bugfixes:
+          * bugfix for DOR:
+            - bottom-right edge keeps in position if possible when DOR is switched on
+ 
+          * bugfix for Astra 610S color mode:
+            - scale_y is set to 0.5 if y_resolutions is smaller than optical_res/2
+              this does fix the color scan problems for Astra 610S.
+              Not tested for Astra 600S.
+
 2001-06-20  Peter Fales <peter@fales.com>
 
 	* backend/dc25.c - Backed out the previously added mkdtemp()

@@ -43,8 +43,11 @@
    HP Scanner Control Language (SCL).
 */
 
-static char *hp_backend_version = "1.03";
+static char *hp_backend_version = "1.04";
 /* Changes:
+
+   V 1.04, 24-Jul-2003, PK (peter@kirchgessner.net)
+      - Add internationalization
 
    V 1.03, 14-Apr-2003, PK (peter@kirchgessner.net)
       - check valp in call of sane_control_option()

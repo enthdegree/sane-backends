@@ -2871,10 +2871,10 @@ static const struct hp_option_descriptor_s PREVIEW_MODE[1] = {{
 }};
 
 static const struct hp_choice_s _scanmode_choices[] = {
-    { HP_SCANMODE_LINEART, "Lineart", 0, 0, 0 },
-    { HP_SCANMODE_HALFTONE, "Halftone", 0, 0, 0 },
-    { HP_SCANMODE_GRAYSCALE, "Grayscale", 0, 0, 0 },
-    { HP_SCANMODE_COLOR, "Color", 0, 0, 0 },
+    { HP_SCANMODE_LINEART, SANE_I18N("Lineart"), 0, 0, 0 },
+    { HP_SCANMODE_HALFTONE, SANE_I18N("Halftone"), 0, 0, 0 },
+    { HP_SCANMODE_GRAYSCALE, SANE_I18N("Grayscale"), 0, 0, 0 },
+    { HP_SCANMODE_COLOR, SANE_I18N("Color"), 0, 0, 0 },
     { 0, 0, 0, 0, 0 }
 };
 static const struct hp_option_descriptor_s SCAN_MODE[1] = {{
@@ -2985,12 +2985,12 @@ static const struct hp_option_descriptor_s GAMMA_VECTOR_B[1] = {{
 #endif
 
 static const struct hp_choice_s _halftone_choices[] = {
-    { HP_DITHER_COARSE,		"Coarse", 0, 0, 0 },
-    { HP_DITHER_FINE,		"Fine", 0, 0, 0 },
-    { HP_DITHER_BAYER,		"Bayer", 0, 0, 0 },
-    { HP_DITHER_VERTICAL,	"Vertical", 0, 0, 0 },
-    { HP_DITHER_HORIZONTAL,	"Horizontal", 0, 1, 0 },
-    { HP_DITHER_CUSTOM, 	"Custom", 0, 0, 0 },
+    { HP_DITHER_COARSE,		SANE_I18N("Coarse"), 0, 0, 0 },
+    { HP_DITHER_FINE,		SANE_I18N("Fine"), 0, 0, 0 },
+    { HP_DITHER_BAYER,		SANE_I18N("Bayer"), 0, 0, 0 },
+    { HP_DITHER_VERTICAL,	SANE_I18N("Vertical"), 0, 0, 0 },
+    { HP_DITHER_HORIZONTAL,	SANE_I18N("Horizontal"), 0, 1, 0 },
+    { HP_DITHER_CUSTOM, 	SANE_I18N("Custom"), 0, 0, 0 },
     { 0, 0, 0, 0, 0 }
 };
 static const struct hp_option_descriptor_s HALFTONE_PATTERN[1] = {{
@@ -3031,17 +3031,17 @@ static const struct hp_option_descriptor_s HORIZONTAL_DITHER_8x8[1] = {{
 }};
 
 static const struct hp_choice_s _matrix_choices[] = {
-    { HP_MATRIX_AUTO, "Auto", 0, 1, 0 },
-    { HP_MATRIX_RGB, "NTSC RGB", _cenable_incolor, 0, 0 },
-    { HP_MATRIX_XPA_RGB, "XPA RGB", _cenable_incolor, 0, 0 },
-    { HP_MATRIX_PASS, "Pass-through", _cenable_incolor, 0, 0 },
-    { HP_MATRIX_BW, "NTSC Gray", _cenable_notcolor, 0, 0 },
-    { HP_MATRIX_XPA_BW, "XPA Gray", _cenable_notcolor, 0, 0 },
-    { HP_MATRIX_RED, "Red", _cenable_notcolor, 0, 0 },
-    { HP_MATRIX_GREEN, "Green", _cenable_notcolor, 1, 0 },
-    { HP_MATRIX_BLUE, "Blue", _cenable_notcolor, 0, 0 },
+    { HP_MATRIX_AUTO, SANE_I18N("Auto"), 0, 1, 0 },
+    { HP_MATRIX_RGB, SANE_I18N("NTSC RGB"), _cenable_incolor, 0, 0 },
+    { HP_MATRIX_XPA_RGB, SANE_I18N("XPA RGB"), _cenable_incolor, 0, 0 },
+    { HP_MATRIX_PASS, SANE_I18N("Pass-through"), _cenable_incolor, 0, 0 },
+    { HP_MATRIX_BW, SANE_I18N("NTSC Gray"), _cenable_notcolor, 0, 0 },
+    { HP_MATRIX_XPA_BW, SANE_I18N("XPA Gray"), _cenable_notcolor, 0, 0 },
+    { HP_MATRIX_RED, SANE_I18N("Red"), _cenable_notcolor, 0, 0 },
+    { HP_MATRIX_GREEN, SANE_I18N("Green"), _cenable_notcolor, 1, 0 },
+    { HP_MATRIX_BLUE, SANE_I18N("Blue"), _cenable_notcolor, 0, 0 },
 #ifdef ENABLE_CUSTOM_MATRIX
-    { HP_MATRIX_CUSTOM, "Custom", 0, 0, 0 },
+    { HP_MATRIX_CUSTOM, SANE_I18N("Custom"), 0, 0, 0 },
 #endif
     { 0, 0, 0, 0, 0 }
 };
@@ -3087,11 +3087,11 @@ static const struct hp_option_descriptor_s BWMATRIX_GRAY10[1] = {{
 #endif
 
 static const struct hp_choice_s _scan_speed_choices[] = {
-    { 0, "Auto", 0, 0, 0 },
-    { 1, "Slow", 0, 0, 0 },
-    { 2, "Normal", 0, 0, 0 },
-    { 3, "Fast", 0, 0, 0 },
-    { 4, "Extra Fast", 0, 0, 0 },
+    { 0, SANE_I18N("Auto"), 0, 0, 0 },
+    { 1, SANE_I18N("Slow"), 0, 0, 0 },
+    { 2, SANE_I18N("Normal"), 0, 0, 0 },
+    { 3, SANE_I18N("Fast"), 0, 0, 0 },
+    { 4, SANE_I18N("Extra Fast"), 0, 0, 0 },
     { 0, 0, 0, 0, 0 }
 };
 static const struct hp_option_descriptor_s SCAN_SPEED[1] = {{
@@ -3102,11 +3102,11 @@ static const struct hp_option_descriptor_s SCAN_SPEED[1] = {{
 }};
 
 static const struct hp_choice_s _smoothing_choices[] = {
-    { 0, "Auto", 0, 0, 0 },
-    { 3, "Off", 0, 0, 0 },
-    { 1, "2-pixel", 0, 0, 0 },
-    { 2, "4-pixel", 0, 0, 0 },
-    { 4, "8-pixel", 0, 0, 0 },
+    { 0, SANE_I18N("Auto"), 0, 0, 0 },
+    { 3, SANE_I18N("Off"), 0, 0, 0 },
+    { 1, SANE_I18N("2-pixel"), 0, 0, 0 },
+    { 2, SANE_I18N("4-pixel"), 0, 0, 0 },
+    { 4, SANE_I18N("8-pixel"), 0, 0, 0 },
     { 0, 0, 0, 0, 0 }
 };
 static const struct hp_option_descriptor_s SMOOTHING[1] = {{
@@ -3117,9 +3117,9 @@ static const struct hp_option_descriptor_s SMOOTHING[1] = {{
 }};
 
 static const struct hp_choice_s _media_choices[] = {
-    { HP_MEDIA_PRINT, "Print", 0, 0, 0 },
-    { HP_MEDIA_SLIDE, "Slide", 0, 0, 0 },
-    { HP_MEDIA_NEGATIVE, "Film-strip", 0, 0, 0 },
+    { HP_MEDIA_PRINT, SANE_I18N("Print"), 0, 0, 0 },
+    { HP_MEDIA_SLIDE, SANE_I18N("Slide"), 0, 0, 0 },
+    { HP_MEDIA_NEGATIVE, SANE_I18N("Film-strip"), 0, 0, 0 },
     { 0, 0, 0, 0, 0 }
 };
 static const struct hp_option_descriptor_s MEDIA[1] = {{
@@ -3170,7 +3170,7 @@ static const struct hp_option_descriptor_s OUT8[1] =
 /* The 100% setting may cause problems within the scanner */
 static const struct hp_choice_s _ps_exposure_times[] = {
     /* {0, "100%", 0, 0, 0}, */
-    { 0, "Default", 0, 0, 0 },
+    { 0, SANE_I18N("Default"), 0, 0, 0 },
     {1, "125%", 0, 0, 0},
     {2, "150%", 0, 0, 0},
     {3, "175%", 0, 0, 0},
@@ -3179,7 +3179,7 @@ static const struct hp_choice_s _ps_exposure_times[] = {
     {6, "250%", 0, 0, 0},
     {7, "275%", 0, 0, 0},
     {8, "300%", 0, 0, 0},
-    {9, "Negative", 0, 0, 0},
+    {9, SANE_I18N("Negative"), 0, 0, 0},
     {0, 0, 0, 0, 0}
 };
 
@@ -3196,9 +3196,9 @@ static const struct hp_option_descriptor_s PS_EXPOSURE_TIME[1] = {{
 /* global settings. The user should switch to ADF scanning after     */
 /* placing paper in the ADF. */
 static const struct hp_choice_s _scan_types[] = {
-    { HP_SCANTYPE_NORMAL, "Normal", 0, 0, 0 },
-    { HP_SCANTYPE_ADF, "ADF", 0, 0, 0 },
-    { HP_SCANTYPE_XPA, "XPA", 0, 0, 0 },
+    { HP_SCANTYPE_NORMAL, SANE_I18N("Normal"), 0, 0, 0 },
+    { HP_SCANTYPE_ADF, SANE_I18N("ADF"), 0, 0, 0 },
+    { HP_SCANTYPE_XPA, SANE_I18N("XPA"), 0, 0, 0 },
     {0, 0, 0, 0, 0 }
 };
 
@@ -3270,9 +3270,9 @@ static const struct hp_option_descriptor_s SCAN_BR_Y[1] = {{
 }};
 
 static const struct hp_choice_s _mirror_horiz_choices[] = {
-    { HP_MIRROR_HORIZ_OFF, "Off", 0, 0, 0 },
-    { HP_MIRROR_HORIZ_ON, "On", 0, 0, 0 },
-    { HP_MIRROR_HORIZ_CONDITIONAL, "Conditional", 0, 0, 0 },
+    { HP_MIRROR_HORIZ_OFF, SANE_I18N("Off"), 0, 0, 0 },
+    { HP_MIRROR_HORIZ_ON, SANE_I18N("On"), 0, 0, 0 },
+    { HP_MIRROR_HORIZ_CONDITIONAL, SANE_I18N("Conditional"), 0, 0, 0 },
     { 0, 0, 0, 0, 0 }
 };
 static const struct hp_option_descriptor_s MIRROR_HORIZ[1] = {{
@@ -3283,9 +3283,9 @@ static const struct hp_option_descriptor_s MIRROR_HORIZ[1] = {{
 }};
 
 static const struct hp_choice_s _mirror_vert_choices[] = {
-    { HP_MIRROR_VERT_OFF, "Off", 0, 0, 0 },
-    { HP_MIRROR_VERT_ON, "On", 0, 0, 0 },
-    { HP_MIRROR_VERT_CONDITIONAL, "Conditional", 0, 0, 0 },
+    { HP_MIRROR_VERT_OFF, SANE_I18N("Off"), 0, 0, 0 },
+    { HP_MIRROR_VERT_ON, SANE_I18N("On"), 0, 0, 0 },
+    { HP_MIRROR_VERT_CONDITIONAL, SANE_I18N("Conditional"), 0, 0, 0 },
     { 0, 0, 0, 0, 0 }
 };
 static const struct hp_option_descriptor_s MIRROR_VERT[1] = {{

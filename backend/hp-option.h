@@ -54,118 +54,120 @@
 
 #ifndef SANE_NAME_SHARPENING
 # define SANE_NAME_SHARPENING "sharpening"
-# define SANE_TITLE_SHARPENING "Sharpening"
-# define SANE_DESC_SHARPENING "Set sharpening value."
+# define SANE_TITLE_SHARPENING SANE_I18N("Sharpening")
+# define SANE_DESC_SHARPENING SANE_I18N("Set sharpening value.")
 #endif
 
 #ifndef SANE_NAME_AUTO_THRESHOLD
 # define SANE_NAME_AUTO_THRESHOLD "auto-threshold"
-# define SANE_TITLE_AUTO_THRESHOLD "Auto Threshold"
+# define SANE_TITLE_AUTO_THRESHOLD SANE_I18N("Auto Threshold")
 # define SANE_DESC_AUTO_THRESHOLD \
-    "Enable automatic determination of threshold for line-art scans."
+    SANE_I18N("Enable automatic determination of threshold for line-art scans.")
 #endif
 
 #ifndef SANE_NAME_SMOOTHING
 # define SANE_NAME_SMOOTHING "smoothing"
-# define SANE_TITLE_SMOOTHING "Smoothing"
-# define SANE_DESC_SMOOTHING "Select smoothing filter."
+# define SANE_TITLE_SMOOTHING SANE_I18N("Smoothing")
+# define SANE_DESC_SMOOTHING SANE_I18N("Select smoothing filter.")
 #endif
 
 #ifndef SANE_NAME_UNLOAD_AFTER_SCAN
 # define SANE_NAME_UNLOAD_AFTER_SCAN "unload-after-scan"
-# define SANE_TITLE_UNLOAD_AFTER_SCAN "Unload media after scan"
-# define SANE_DESC_UNLOAD_AFTER_SCAN "Unloads the media after a scan."
+# define SANE_TITLE_UNLOAD_AFTER_SCAN SANE_I18N("Unload media after scan")
+# define SANE_DESC_UNLOAD_AFTER_SCAN SANE_I18N("Unloads the media after a scan.")
 #endif
 
 #ifndef SANE_NAME_CHANGE_DOC
 # define SANE_NAME_CHANGE_DOC "change-document"
-# define SANE_TITLE_CHANGE_DOC "Change document"
-# define SANE_DESC_CHANGE_DOC "Change Document."
+# define SANE_TITLE_CHANGE_DOC SANE_I18N("Change document")
+# define SANE_DESC_CHANGE_DOC SANE_I18N("Change Document.")
 #endif
 
 #ifndef SANE_NAME_UNLOAD
 # define SANE_NAME_UNLOAD "unload"
-# define SANE_TITLE_UNLOAD "Unload"
-# define SANE_DESC_UNLOAD "Unload Document."
+# define SANE_TITLE_UNLOAD SANE_I18N("Unload")
+# define SANE_DESC_UNLOAD SANE_I18N("Unload Document.")
 #endif
 
 #ifndef SANE_NAME_CALIBRATE
 # define SANE_NAME_CALIBRATE "calibrate"
-# define SANE_TITLE_CALIBRATE "Calibrate"
-# define SANE_DESC_CALIBRATE "Start calibration process."
+# define SANE_TITLE_CALIBRATE SANE_I18N("Calibrate")
+# define SANE_DESC_CALIBRATE SANE_I18N("Start calibration process.")
 #endif
 
 #ifndef SANE_NAME_MEDIA
 # define SANE_NAME_MEDIA "media-type"
-# define SANE_TITLE_MEDIA "Media"
-# define SANE_DESC_MEDIA "Set type of media."
+# define SANE_TITLE_MEDIA SANE_I18N("Media")
+# define SANE_DESC_MEDIA SANE_I18N("Set type of media.")
 #endif
 
 #ifndef SANE_NAME_PS_EXPOSURE_TIME
 # define SANE_NAME_PS_EXPOSURE_TIME "ps-exposure-time"
-# define SANE_TITLE_PS_EXPOSURE_TIME "Exposure time"
-# define SANE_DESC_PS_EXPOSURE_TIME "A longer exposure time lets the scanner\
+# define SANE_TITLE_PS_EXPOSURE_TIME SANE_I18N("Exposure time")
+# define SANE_DESC_PS_EXPOSURE_TIME \
+    SANE_I18N("A longer exposure time lets the scanner\
  collect more light. Suggested use is 175% for prints,\
  150% for normal slides and \"Negatives\" for\
- negative film. For dark (underexposed) images you can increase this value."
+ negative film. For dark (underexposed) images you can increase this value.")
 #endif
 
 #ifndef SANE_NAME_MATRIX_TYPE
 # define SANE_NAME_MATRIX_TYPE "matrix-type"
-# define SANE_TITLE_MATRIX_TYPE "Color Matrix"
+# define SANE_TITLE_MATRIX_TYPE SANE_I18N("Color Matrix")
 /* FIXME: better description */
-# define SANE_DESC_MATRIX_TYPE "Set the scanners color matrix."
+# define SANE_DESC_MATRIX_TYPE SANE_I18N("Set the scanners color matrix.")
 #endif
 
 #ifndef SANE_NAME_MATRIX_RGB
 # define SANE_NAME_MATRIX_RGB "matrix-rgb"
-# define SANE_TITLE_MATRIX_RGB "Color Matrix"
-# define SANE_DESC_MATRIX_RGB "Custom color matrix."
+# define SANE_TITLE_MATRIX_RGB SANE_I18N("Color Matrix")
+# define SANE_DESC_MATRIX_RGB SANE_I18N("Custom color matrix.")
 #endif
 
 #ifndef SANE_NAME_MATRIX_GRAY
 # define SANE_NAME_MATRIX_GRAY "matrix-gray"
-# define SANE_TITLE_MATRIX_GRAY "Mono Color Matrix"
-# define SANE_DESC_MATRIX_GRAY "Custom color matrix for grayscale scans."
+# define SANE_TITLE_MATRIX_GRAY SANE_I18N("Mono Color Matrix")
+# define SANE_DESC_MATRIX_GRAY SANE_I18N("Custom color matrix for grayscale scans.")
 #endif
 
 #ifndef SANE_NAME_MIRROR_HORIZ
 # define SANE_NAME_MIRROR_HORIZ "mirror-horizontal"
-# define SANE_TITLE_MIRROR_HORIZ "Mirror horizontal"
-# define SANE_DESC_MIRROR_HORIZ "Mirror image horizontally."
+# define SANE_TITLE_MIRROR_HORIZ SANE_I18N("Mirror horizontal")
+# define SANE_DESC_MIRROR_HORIZ SANE_I18N("Mirror image horizontally.")
 #endif
 
 #ifndef SANE_NAME_MIRROR_VERT
 # define SANE_NAME_MIRROR_VERT "mirror-vertical"
-# define SANE_TITLE_MIRROR_VERT "Mirror vertical"
-# define SANE_DESC_MIRROR_VERT "Mirror image vertically."
+# define SANE_TITLE_MIRROR_VERT SANE_I18N("Mirror vertical")
+# define SANE_DESC_MIRROR_VERT SANE_I18N("Mirror image vertically.")
 #endif
 
 #ifndef SANE_NAME_UPDATE
 # define SANE_NAME_UPDATE "update-options"
-# define SANE_TITLE_UPDATE "Update options"
-# define SANE_DESC_UPDATE "Update options."
+# define SANE_TITLE_UPDATE SANE_I18N("Update options")
+# define SANE_DESC_UPDATE SANE_I18N("Update options.")
 #endif
 
 #ifndef SANE_NAME_OUTPUT_8BIT
 # define SANE_NAME_OUTPUT_8BIT   "output-8bit"
-# define SANE_TITLE_OUTPUT_8BIT  "8 bit output"
-# define SANE_DESC_OUTPUT_8BIT   "Use bit depth greater eight internally,\
- but output only eight bits"
+# define SANE_TITLE_OUTPUT_8BIT  SANE_I18N("8 bit output")
+# define SANE_DESC_OUTPUT_8BIT   \
+   SANE_I18N("Use bit depth greater eight internally,\
+ but output only eight bits.")
 #endif
 
 #ifndef SANE_NAME_BUTTON_WAIT
 # define SANE_NAME_BUTTON_WAIT   "button-wait"
-# define SANE_TITLE_BUTTON_WAIT  "Front button wait"
-# define SANE_DESC_BUTTON_WAIT   "Wait to scan for front-panel button push."
+# define SANE_TITLE_BUTTON_WAIT  SANE_I18N("Front button wait")
+# define SANE_DESC_BUTTON_WAIT   SANE_I18N("Wait to scan for front-panel button push.")
 # define HP_BUTTON_WAIT_NO       0
 # define HP_BUTTON_WAIT_YES      1
 #endif
 
 #ifndef SANE_NAME_LAMP_OFF
 # define SANE_NAME_LAMP_OFF      "lamp-off"
-# define SANE_TITLE_LAMP_OFF     "Shut off lamp"
-# define SANE_DESC_LAMP_OFF      "Shut off scanner lamp."
+# define SANE_TITLE_LAMP_OFF     SANE_I18N("Shut off lamp")
+# define SANE_DESC_LAMP_OFF      SANE_I18N("Shut off scanner lamp.")
 # define HP_LAMP_OFF_NO          0
 # define HP_LAMP_OFF_YES         1
 #endif

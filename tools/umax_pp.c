@@ -348,7 +348,7 @@ main (int argc, char **argv)
       return (0);
     }
   if (trace)
-    printf ("UMAX 1220P scanning program version 1.10 starting ...\n");
+    printf ("UMAX 1220P scanning program version 2.1 starting ...\n");
 
 
   /* scanning is the default behaviour */

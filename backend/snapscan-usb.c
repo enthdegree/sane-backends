@@ -173,36 +173,54 @@ static SANE_Status snapscani_usb_open(const char *dev, int *fdp,
 
 static void snapscani_usb_close(int fd) {
     static const char me[] = "snapscani_usb_close";
-
+    SANE_Word vendor_id, product_id;
+    
     DBG (DL_CALL_TRACE, "%s(%d)\n", me, fd);
     DBG (DL_DATA_TRACE,"1st read %ld write %ld\n", urb_counters->read_urbs, urb_counters->write_urbs);
-    if ((urb_counters->read_urbs & 0x01) && (urb_counters->write_urbs & 0x01))
+    
+    /* Check if URB counting is needed. If yes, ensure the number of sent and
+       received URBs is even.
+       Odd number of URBs only cause problems with libusb and certain 
+       scanner models. On other scanner models, sending additional commands
+       seems to cause problems (e.g. 1212u_2).
+       If sanei_usb_get_vendor_product returns an error there's probably no
+       libusb, so everything's fine.
+    */
+    if (sanei_usb_get_vendor_product(fd, &vendor_id, &product_id) == SANE_STATUS_GOOD)
     {
-        char cmd[] = {TEST_UNIT_READY, 0, 0, 0, 0, 0};
-
-        usb_cmd (fd, cmd, sizeof (cmd), NULL, 0);
+        /* Exclude 1212u_2 */
+        if (!((vendor_id == USB_VENDOR_AGFA) && (product_id == USB_PRODUCT_1212U2)))        
+        {
+            if ((urb_counters->read_urbs & 0x01) && (urb_counters->write_urbs & 0x01))
+            {
+                char cmd[] = {TEST_UNIT_READY, 0, 0, 0, 0, 0};
+        
+                snapscani_usb_cmd (fd, cmd, sizeof (cmd), NULL, 0);
+            }
+            else if (urb_counters->read_urbs & 0x01)
+            {
+                size_t read_bytes;
+                char cmd[] = {TEST_UNIT_READY, 0, 0, 0, 0, 0};
+                char cmd2[] = {INQUIRY, 0, 0, 0, 120, 0};
+                char data[120];
+        
+                read_bytes = 120;
+                snapscani_usb_cmd (fd, cmd2, sizeof (cmd2), data, &read_bytes);
+                snapscani_usb_cmd (fd, cmd, sizeof (cmd), NULL, 0);
+            }
+            else if (urb_counters->write_urbs & 0x01)
+            {
+                size_t read_bytes;
+                char cmd[] = {INQUIRY, 0, 0, 0, 120, 0};
+                char data[120];
+        
+                read_bytes = 120;
+                snapscani_usb_cmd (fd, cmd, sizeof (cmd), data, &read_bytes);
+            }
+            DBG (DL_DATA_TRACE,"2nd read %ld write %ld\n", urb_counters->read_urbs, 
+                urb_counters->write_urbs);
+        }
     }
-    else if (urb_counters->read_urbs & 0x01)
-    {
-        size_t read_bytes;
-        char cmd[] = {TEST_UNIT_READY, 0, 0, 0, 0, 0};
-        char cmd2[] = {INQUIRY, 0, 0, 0, 120, 0};
-        char data[120];
-
-        read_bytes = 120;
-        snapscani_usb_cmd (fd, cmd2, sizeof (cmd2), data, &read_bytes);
-        usb_cmd (fd, cmd, sizeof (cmd), NULL, 0);
-    }
-    else if (urb_counters->write_urbs & 0x01)
-    {
-        size_t read_bytes;
-        char cmd[] = {INQUIRY, 0, 0, 0, 120, 0};
-        char data[120];
-
-        read_bytes = 120;
-        usb_cmd (fd, cmd, sizeof (cmd), data, &read_bytes);
-    }
-    DBG (DL_DATA_TRACE,"2nd read %ld write %ld\n", urb_counters->read_urbs, urb_counters->write_urbs);
     urb_counters->read_urbs = 0;
     urb_counters->write_urbs = 0;
     snapscani_mutex_close(&sem_id);
@@ -546,6 +564,9 @@ static void snapscani_usb_shm_exit(void)
 #endif
 /*
  * $Log$
+ * Revision 1.18  2004/06/16 19:52:26  oliver-guest
+ * Don't enforce even number of URB packages on 1212u_2. Fixes bug #300753.
+ *
  * Revision 1.17  2004/06/06 14:50:36  oliver-guest
  * Use shared memory functions only when needed
  *

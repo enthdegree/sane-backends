@@ -198,12 +198,25 @@ static char *vendors[] =
 };
 #define known_vendors ((int) (sizeof(vendors)/sizeof(vendors[0])))
 
+/* Known vendor IDs */
+#define USB_VENDOR_AGFA  0x06bd
+#define USB_VENDOR_ACER  0x04a5
+#define USB_VENDOR_EPSON 0x04b8
+
+/* Agfa product IDs */
+#define USB_PRODUCT_1212U2 0x2061
+/* Acer product IDs */
+#define USB_PRODUCT_PRISA310 0x12a0
+#define USB_PRODUCT_PRISA320 0x2022
+/* Epson product IDs */
+#define USB_PRODUCT_PERFECTION660 0x0114
+
 static SANE_Word usb_vendor_ids[] =
 {
     /* USB Vendor IDs */
-    0x06bd,     /* Agfa */
-    0x04a5,     /* Acer */
-    0x04b8      /* Epson */
+    USB_VENDOR_AGFA,     /* Agfa */
+    USB_VENDOR_ACER,     /* Acer */
+    USB_VENDOR_EPSON      /* Epson */
 };
 #define known_usb_vendor_ids ((int) (sizeof(usb_vendor_ids)/sizeof(usb_vendor_ids[0])))
 
@@ -216,9 +229,9 @@ struct SnapScan_USB_Model_desc
 
 static struct SnapScan_USB_Model_desc usb_scanners[] =
 {
-    {0x04a5, 0x1a20, PRISA310},  /* Acer 310U */
-    {0x04a5, 0x2022, PRISA310},  /* Acer 320U */
-    {0x04b8, 0x0114, PERFECTION660}    /* Epson Perfection 660 */
+    {USB_VENDOR_ACER, USB_PRODUCT_PRISA310, PRISA310},  /* Acer 310U */
+    {USB_VENDOR_ACER, USB_PRODUCT_PRISA320, PRISA310},  /* Acer 320U */
+    {USB_VENDOR_EPSON, USB_PRODUCT_PERFECTION660, PERFECTION660} /* Epson Perfection 660 */
 };
 #define known_usb_scanners ((int) (sizeof(usb_scanners)/sizeof(usb_scanners[0])))
 
@@ -379,6 +392,9 @@ struct snapscan_scanner
 
 /*
  * $Log$
+ * Revision 1.29  2004/06/16 19:52:27  oliver-guest
+ * Don't enforce even number of URB packages on 1212u_2. Fixes bug #300753.
+ *
  * Revision 1.28  2004/04/08 21:53:10  oliver-guest
  * Use sanei_thread in snapscan backend
  *

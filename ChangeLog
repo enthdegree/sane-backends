@@ -1,3 +1,9 @@
+2004-06-06  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan.h backend/snapscan.c backend/snapscan-usb.c: 
+	  Don't enforce even number of URB packages on 1212u_2 since
+	  it causes problems. See bug #300753.
+
 2004-06-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/snapscan.c: Only use __attribute__ if gcc is used for

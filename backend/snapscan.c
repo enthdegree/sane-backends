@@ -79,7 +79,7 @@
 
 #define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
-#define BUILD               38
+#define BUILD               39
 
 #define BACKEND_NAME snapscan
 
@@ -1834,6 +1834,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.43  2004/06/16 19:52:26  oliver-guest
+ * Don't enforce even number of URB packages on 1212u_2. Fixes bug #300753.
+ *
  * Revision 1.42  2004/06/15 12:17:37  hmg-guest
  * Only use __attribute__ if gcc is used for compilation. Some other compilers
  * don't know __attribute__ and therefore can't compile sane-backends without this

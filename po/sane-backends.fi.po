@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-10-11 21:43+0200\n"
+"POT-Creation-Date: 2004-10-19 08:51+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Harri Järvi <harri.jarvi@tut.fi>\n"
 "Language-Team: Debian l10n Finnish <debian-l10n-finnish@lists.debian.org>\n"
@@ -26,7 +26,7 @@ msgstr "Viivapiirros"
 msgid "Grayscale"
 msgstr "Harmaasävy"
 
-#: .tmp/artec_eplus48u.c:156 .tmp/epson.c:482 .tmp/hp-option.c:2926
+#: .tmp/artec_eplus48u.c:156 .tmp/epson.c:483 .tmp/hp-option.c:2926
 #: .tmp/leo.h:262 .tmp/ma1509.c:101 .tmp/mustek.c:126 .tmp/mustek.c:130
 #: .tmp/mustek_usb.c:268 .tmp/saneopts.h:393 .tmp/sceptre.h:292
 #: .tmp/snapscan-options.c:75 .tmp/teco1.h:293 .tmp/teco3.h:296
@@ -36,10 +36,10 @@ msgstr "Väri"
 
 #: .tmp/artec_eplus48u.c:2805 .tmp/gt68xx.c:652 .tmp/leo.c:873
 #: .tmp/ma1509.c:597 .tmp/matsushita.c:1191 .tmp/microtek2.h:602
-#: .tmp/mustek.c:4382 .tmp/mustek_usb.c:353 .tmp/niash.c:700
+#: .tmp/mustek.c:4382 .tmp/mustek_usb.c:353 .tmp/niash.c:756
 #: .tmp/plustek.c:768 .tmp/plustek_pp.c:792 .tmp/sceptre.c:753
 #: .tmp/snapscan-options.c:507 .tmp/teco1.c:1146 .tmp/teco2.c:1952
-#: .tmp/teco3.c:971 .tmp/umax.c:5214 .tmp/umax_pp.c:549
+#: .tmp/teco3.c:971 .tmp/umax.c:5224 .tmp/umax_pp.c:549
 msgid "Enhancement"
 msgstr "Parannus"
 
@@ -51,12 +51,12 @@ msgstr "Oletukset"
 msgid "Set default values for enhancement controls."
 msgstr "Aseta oletusasetukset parantimille."
 
-#: .tmp/artec_eplus48u.c:2884 .tmp/epson.c:3216 .tmp/gt68xx.c:708
+#: .tmp/artec_eplus48u.c:2884 .tmp/epson.c:3217 .tmp/gt68xx.c:708
 #: .tmp/leo.c:825 .tmp/ma1509.c:549 .tmp/matsushita.c:1137
 #: .tmp/microtek2.h:601 .tmp/mustek.c:4334 .tmp/mustek_usb.c:305
 #: .tmp/plustek.c:722 .tmp/plustek_pp.c:746 .tmp/sceptre.c:705
 #: .tmp/snapscan-options.c:440 .tmp/teco1.c:1098 .tmp/teco2.c:1904
-#: .tmp/teco3.c:923 .tmp/test.c:618 .tmp/umax.c:5164 .tmp/umax_pp.c:500
+#: .tmp/teco3.c:923 .tmp/test.c:618 .tmp/umax.c:5174 .tmp/umax_pp.c:500
 msgid "Geometry"
 msgstr "Geometria"
 
@@ -134,366 +134,366 @@ msgstr "Gamma-korjaus"
 msgid "Selects the gamma corrected transfer curve"
 msgstr "Valitsee gamma-korjauskäyrän"
 
-#: .tmp/epson.c:480
+#: .tmp/epson.c:481
 msgid "Binary"
 msgstr "Binaari"
 
-#: .tmp/epson.c:481 .tmp/ma1509.c:101 .tmp/mustek.c:125 .tmp/mustek.c:130
+#: .tmp/epson.c:482 .tmp/ma1509.c:101 .tmp/mustek.c:125 .tmp/mustek.c:130
 #: .tmp/mustek_usb.c:269 .tmp/saneopts.h:394 .tmp/sceptre.h:291
 #: .tmp/snapscan-options.c:77 .tmp/test.c:122 .tmp/umax.c:188
 msgid "Gray"
 msgstr "Harmaasävy"
 
-#: .tmp/epson.c:487
+#: .tmp/epson.c:488
 msgid "Simplex"
 msgstr "Yksipuolinen"
 
-#: .tmp/epson.c:488 .tmp/matsushita.h:219
+#: .tmp/epson.c:489 .tmp/matsushita.h:219
 msgid "Duplex"
 msgstr "Kaksipuolinen"
 
-#: .tmp/epson.c:497 .tmp/gt68xx.c:141 .tmp/ma1509.c:106 .tmp/mustek.c:148
+#: .tmp/epson.c:498 .tmp/gt68xx.c:141 .tmp/ma1509.c:106 .tmp/mustek.c:148
 #: .tmp/mustek.c:152 .tmp/mustek.c:156 .tmp/snapscan-options.c:81
 #: .tmp/umax.c:182
 msgid "Flatbed"
 msgstr "Taso"
 
-#: .tmp/epson.c:498
+#: .tmp/epson.c:499
 msgid "Transparency Unit"
 msgstr "Läpinäkyvyysyksikkö"
 
-#: .tmp/epson.c:499 .tmp/mustek.c:152 .tmp/umax.c:184
+#: .tmp/epson.c:500 .tmp/mustek.c:152 .tmp/umax.c:184
 msgid "Automatic Document Feeder"
 msgstr "Automaattinen syöttö"
 
-#: .tmp/epson.c:519
+#: .tmp/epson.c:520
 msgid "Positive Film"
 msgstr "Positiivifilmi"
 
-#: .tmp/epson.c:520
+#: .tmp/epson.c:521
 msgid "Negative Film"
 msgstr "Negatiivifilmi"
 
-#: .tmp/epson.c:525
+#: .tmp/epson.c:526
 msgid "Focus on glass"
 msgstr "Kohdistus lasissa"
 
-#: .tmp/epson.c:526
+#: .tmp/epson.c:527
 msgid "Focus 2.5mm above glass"
 msgstr "Kohdistus 2,5 mm lasin yläpuolella"
 
-#: .tmp/epson.c:552 .tmp/epson.c:560 .tmp/epson.c:572 .tmp/epson.c:594
+#: .tmp/epson.c:553 .tmp/epson.c:561 .tmp/epson.c:573 .tmp/epson.c:595
 #: .tmp/leo.c:109 .tmp/matsushita.c:138 .tmp/matsushita.c:159
 #: .tmp/matsushita.c:191 .tmp/matsushita.c:213 .tmp/snapscan-options.c:86
 msgid "None"
 msgstr "Ei mikään"
 
-#: .tmp/epson.c:553 .tmp/epson.c:561 .tmp/epson.c:573
+#: .tmp/epson.c:554 .tmp/epson.c:562 .tmp/epson.c:574
 msgid "Halftone A (Hard Tone)"
 msgstr "Rasteri A (Hard Tone)"
 
-#: .tmp/epson.c:554 .tmp/epson.c:562 .tmp/epson.c:574
+#: .tmp/epson.c:555 .tmp/epson.c:563 .tmp/epson.c:575
 msgid "Halftone B (Soft Tone)"
 msgstr "Rasteri B (Soft Tone)"
 
-#: .tmp/epson.c:555 .tmp/epson.c:563 .tmp/epson.c:575
+#: .tmp/epson.c:556 .tmp/epson.c:564 .tmp/epson.c:576
 msgid "Halftone C (Net Screen)"
 msgstr "Rasteri C (Net Screen)"
 
-#: .tmp/epson.c:564 .tmp/epson.c:576
+#: .tmp/epson.c:565 .tmp/epson.c:577
 msgid "Dither A (4x4 Bayer)"
 msgstr "Rasteri A (4x4 Bayer)"
 
-#: .tmp/epson.c:565 .tmp/epson.c:577
+#: .tmp/epson.c:566 .tmp/epson.c:578
 msgid "Dither B (4x4 Spiral)"
 msgstr "Rasteri B (4x4 Spiral)"
 
-#: .tmp/epson.c:566 .tmp/epson.c:578
+#: .tmp/epson.c:567 .tmp/epson.c:579
 msgid "Dither C (4x4 Net Screen)"
 msgstr "Rasteri C (4x4 Net Screen)"
 
-#: .tmp/epson.c:567 .tmp/epson.c:579
+#: .tmp/epson.c:568 .tmp/epson.c:580
 msgid "Dither D (8x4 Net Screen)"
 msgstr "Rasteri D (8x4 Net Screen)"
 
-#: .tmp/epson.c:580
+#: .tmp/epson.c:581
 msgid "Text Enhanced Technology"
 msgstr "Tekstin parannusmenetelmä"
 
-#: .tmp/epson.c:581
+#: .tmp/epson.c:582
 msgid "Download pattern A"
 msgstr "Ladattu kuvio A"
 
-#: .tmp/epson.c:582
+#: .tmp/epson.c:583
 msgid "Download pattern B"
 msgstr "Ladattu kuvio B"
 
-#: .tmp/epson.c:595 .tmp/epson.c:3014 .tmp/hp-option.c:3089
+#: .tmp/epson.c:596 .tmp/epson.c:3015 .tmp/hp-option.c:3089
 msgid "Red"
 msgstr "Punainen"
 
-#: .tmp/epson.c:596 .tmp/epson.c:3010 .tmp/hp-option.c:3090
+#: .tmp/epson.c:597 .tmp/epson.c:3011 .tmp/hp-option.c:3090
 msgid "Green"
 msgstr "Vihreä"
 
-#: .tmp/epson.c:597 .tmp/epson.c:3018 .tmp/hp-option.c:3091
+#: .tmp/epson.c:598 .tmp/epson.c:3019 .tmp/hp-option.c:3091
 msgid "Blue"
 msgstr "Sininen"
 
-#: .tmp/epson.c:627
+#: .tmp/epson.c:628
 msgid "No Correction"
 msgstr "Ei korjausta"
 
-#: .tmp/epson.c:628 .tmp/epson.c:653
+#: .tmp/epson.c:629 .tmp/epson.c:654
 msgid "User defined"
 msgstr "Käyttäjän määrittelemä"
 
-#: .tmp/epson.c:629
+#: .tmp/epson.c:630
 msgid "Impact-dot printers"
 msgstr "Matriisikirjoittimet"
 
-#: .tmp/epson.c:630
+#: .tmp/epson.c:631
 msgid "Thermal printers"
 msgstr "Lämpökirjoittimet"
 
-#: .tmp/epson.c:631
+#: .tmp/epson.c:632
 msgid "Ink-jet printers"
 msgstr "Mustesuihkutulostimet"
 
-#: .tmp/epson.c:632
+#: .tmp/epson.c:633
 msgid "CRT monitors"
 msgstr "Loisteputkinäytöt"
 
-#: .tmp/epson.c:652 .tmp/hp-option.c:3222 .tmp/test.c:138
+#: .tmp/epson.c:653 .tmp/hp-option.c:3222 .tmp/test.c:138
 msgid "Default"
 msgstr "Oletus"
 
-#: .tmp/epson.c:654
+#: .tmp/epson.c:655
 msgid "High density printing"
 msgstr "Korkeatarkkuuksinen tulostus"
 
-#: .tmp/epson.c:655
+#: .tmp/epson.c:656
 msgid "Low density printing"
 msgstr "Matalatarkkuuksinen tulostus"
 
-#: .tmp/epson.c:656
+#: .tmp/epson.c:657
 msgid "High contrast printing"
 msgstr "Suuri kontrastinen tulostus"
 
-#: .tmp/epson.c:674
+#: .tmp/epson.c:675
 msgid "User defined (Gamma=1.0)"
 msgstr "Käyttäjän määrittelemä (Gamma=1.0)"
 
-#: .tmp/epson.c:675
+#: .tmp/epson.c:676
 msgid "User defined (Gamma=1.8)"
 msgstr "Käyttäjän määrittelemä (Gamma=1.8)"
 
-#: .tmp/epson.c:745
+#: .tmp/epson.c:746
 msgid "CD"
 msgstr "CD"
 
-#: .tmp/epson.c:746
+#: .tmp/epson.c:747
 msgid "A5 portrait"
 msgstr "A5 pysty"
 
-#: .tmp/epson.c:747
+#: .tmp/epson.c:748
 msgid "A5 landscape"
 msgstr "A5 vaaka"
 
-#: .tmp/epson.c:748
+#: .tmp/epson.c:749
 msgid "Letter"
 msgstr "US-Letter"
 
-#: .tmp/epson.c:749
+#: .tmp/epson.c:750
 msgid "A4"
 msgstr "A4"
 
-#: .tmp/epson.c:750
+#: .tmp/epson.c:751
 msgid "Max"
 msgstr "Koko alue"
 
-#: .tmp/epson.c:2731 .tmp/gt68xx.c:442 .tmp/ma1509.c:499
+#: .tmp/epson.c:2732 .tmp/gt68xx.c:442 .tmp/ma1509.c:499
 #: .tmp/matsushita.c:1086 .tmp/microtek2.h:600 .tmp/mustek.c:4197
-#: .tmp/mustek_usb.c:260 .tmp/niash.c:680 .tmp/plustek.c:637
+#: .tmp/mustek_usb.c:260 .tmp/niash.c:736 .tmp/plustek.c:637
 #: .tmp/plustek_pp.c:657 .tmp/sceptre.c:676 .tmp/snapscan-options.c:276
-#: .tmp/teco2.c:1876 .tmp/test.c:293 .tmp/umax.c:5042
+#: .tmp/teco2.c:1876 .tmp/test.c:293 .tmp/umax.c:5052
 msgid "Scan Mode"
 msgstr "Lukutapa"
 
-#: .tmp/epson.c:2763
+#: .tmp/epson.c:2764
 msgid "Selects the halftone."
 msgstr "Valitsee rasterin"
 
-#: .tmp/epson.c:2785
+#: .tmp/epson.c:2786
 msgid "Dropout"
 msgstr ""
 
-#: .tmp/epson.c:2786
+#: .tmp/epson.c:2787
 msgid "Selects the dropout."
 msgstr ""
 
-#: .tmp/epson.c:2798
+#: .tmp/epson.c:2799
 msgid "Selects the brightness."
 msgstr "Valitsee kirkkauden."
 
-#: .tmp/epson.c:2813
+#: .tmp/epson.c:2814
 msgid "Sharpness"
 msgstr "Terävyys"
 
-#: .tmp/epson.c:2949
+#: .tmp/epson.c:2950
 msgid "Color correction"
 msgstr "Värikorjaus"
 
-#: .tmp/epson.c:2952
+#: .tmp/epson.c:2953
 msgid "Sets the color correction table for the selected output device."
 msgstr "Valitsee värikorjaustaulukon valitulle tuloslaitteelle."
 
-#: .tmp/epson.c:2993
+#: .tmp/epson.c:2994
 msgid "Color correction coefficients"
 msgstr "Värikorjauskertoimet"
 
-#: .tmp/epson.c:2994
+#: .tmp/epson.c:2995
 msgid "Matrix multiplication of RGB"
 msgstr "Matriisikerroin RGB:lle"
 
-#: .tmp/epson.c:3011
+#: .tmp/epson.c:3012
 msgid "Shift green to red"
 msgstr "Vihreän siirtymä punaiseen"
 
-#: .tmp/epson.c:3012
+#: .tmp/epson.c:3013
 msgid "Shift green to blue"
 msgstr "Vihreän siirtymä siniseen"
 
-#: .tmp/epson.c:3013
+#: .tmp/epson.c:3014
 msgid "Shift red to green"
 msgstr "Punaisen siirtymä virheään"
 
-#: .tmp/epson.c:3015
+#: .tmp/epson.c:3016
 msgid "Shift red to blue"
 msgstr "Punaisen siirtymä siniseen"
 
-#: .tmp/epson.c:3016
+#: .tmp/epson.c:3017
 msgid "Shift blue to green"
 msgstr "Sinisen siirtymä vihreään"
 
-#: .tmp/epson.c:3017
+#: .tmp/epson.c:3018
 msgid "Shift blue to red"
 msgstr "Sinisen siirtymä punaiseen"
 
-#: .tmp/epson.c:3020
+#: .tmp/epson.c:3021
 msgid "Controls green level"
 msgstr "Määrää vihreän määrän"
 
-#: .tmp/epson.c:3021
+#: .tmp/epson.c:3022
 msgid "Adds to red based on green level"
 msgstr "Lisää punaista vihreän määrän perusteella"
 
-#: .tmp/epson.c:3022
+#: .tmp/epson.c:3023
 msgid "Adds to blue based on green level"
 msgstr "Lisää sinistä vihreän määrän perusteella"
 
-#: .tmp/epson.c:3023
+#: .tmp/epson.c:3024
 msgid "Adds to green based on red level"
 msgstr "Lisää vihreää punaisen määrän perusteella"
 
-#: .tmp/epson.c:3024
+#: .tmp/epson.c:3025
 msgid "Controls red level"
 msgstr "Määrää punaisen määrän"
 
-#: .tmp/epson.c:3025
+#: .tmp/epson.c:3026
 msgid "Adds to blue based on red level"
 msgstr "Lisää sinistä punaisen määrän perusteella"
 
-#: .tmp/epson.c:3026
+#: .tmp/epson.c:3027
 msgid "Adds to green based on blue level"
 msgstr "Lisää vihreää sinisen määrän perusteella"
 
-#: .tmp/epson.c:3027
+#: .tmp/epson.c:3028
 msgid "Adds to red based on blue level"
 msgstr "Lisää punaista sinisen määrän perusteella"
 
-#: .tmp/epson.c:3028
+#: .tmp/epson.c:3029
 #, fuzzy
 msgid "Controls blue level"
 msgstr "Määrää sinisen määrän"
 
-#: .tmp/epson.c:3115 .tmp/snapscan-options.c:731 .tmp/umax.c:5553
+#: .tmp/epson.c:3116 .tmp/snapscan-options.c:731 .tmp/umax.c:5563
 msgid "Advanced"
 msgstr "Lisäasetukset"
 
-#: .tmp/epson.c:3123
+#: .tmp/epson.c:3124
 msgid "Mirror image"
 msgstr "Peilikuva"
 
-#: .tmp/epson.c:3124
+#: .tmp/epson.c:3125
 msgid "Mirror the image."
 msgstr "Peilaa kuvan."
 
-#: .tmp/epson.c:3150
+#: .tmp/epson.c:3151
 msgid "Speed"
 msgstr "Nopeus"
 
-#: .tmp/epson.c:3163
+#: .tmp/epson.c:3164
 msgid "Auto area segmentation"
 msgstr "Automaattinen osittelu"
 
-#: .tmp/epson.c:3176
+#: .tmp/epson.c:3177
 msgid "Short resolution list"
 msgstr "Lyhyt tarkkuuslista"
 
-#: .tmp/epson.c:3178
+#: .tmp/epson.c:3179
 msgid "Display short resolution list"
 msgstr "Näyttää lyhyen tarkkuuslistan"
 
-#: .tmp/epson.c:3185
+#: .tmp/epson.c:3186
 msgid "Zoom"
 msgstr "Suurennus"
 
-#: .tmp/epson.c:3187
+#: .tmp/epson.c:3188
 msgid "Defines the zoom factor the scanner will use"
 msgstr "Määrää kuvanlukijan käyttämän zoom-kertoimen"
 
-#: .tmp/epson.c:3267
+#: .tmp/epson.c:3268
 msgid "Quick format"
 msgstr "Nopea formaatti"
 
-#: .tmp/epson.c:3278
+#: .tmp/epson.c:3279
 msgid "Optional equipment"
 msgstr "Lisävaruste"
 
-#: .tmp/epson.c:3304
+#: .tmp/epson.c:3305
 msgid "Film type"
 msgstr "Filmin tyyppi"
 
-#: .tmp/epson.c:3349
+#: .tmp/epson.c:3350
 msgid "Eject"
 msgstr "Poista"
 
-#: .tmp/epson.c:3350
+#: .tmp/epson.c:3351
 msgid "Eject the sheet in the ADF"
 msgstr "Poista kohde syöttölaitteesta"
 
-#: .tmp/epson.c:3362
+#: .tmp/epson.c:3363
 msgid "Auto eject"
 msgstr "Automaattinen poisto"
 
-#: .tmp/epson.c:3363
+#: .tmp/epson.c:3364
 msgid "Eject document after scanning"
 msgstr "Poista kohde kuvanluvun jälkeen"
 
-#: .tmp/epson.c:3375
+#: .tmp/epson.c:3376
 msgid "ADF Mode"
 msgstr "Syötttapa"
 
-#: .tmp/epson.c:3377
+#: .tmp/epson.c:3378
 msgid "Selects the ADF mode (simplex/duplex)"
 msgstr "Valitsee syöttötavan (yksi-/kaksipuolinen)"
 
-#: .tmp/epson.c:3391
+#: .tmp/epson.c:3392
 msgid "Bay"
 msgstr "Taso"
 
-#: .tmp/epson.c:3392
+#: .tmp/epson.c:3393
 msgid "Select bay to scan"
 msgstr "Valitsee kuvanluvun tasolta"
 
@@ -819,7 +819,7 @@ msgstr "Poista"
 msgid "Unload Document."
 msgstr "Poista kohde."
 
-#: .tmp/hp-option.h:97 .tmp/niash.c:672
+#: .tmp/hp-option.h:97 .tmp/niash.c:728
 msgid "Calibrate"
 msgstr "Kalibroi"
 
@@ -1430,24 +1430,24 @@ msgstr "Sinisen kontrasti"
 msgid "Controls the contrast of the blue channel of the acquired image."
 msgstr "Asettaa sinisen kanavan kontrastin."
 
-#: .tmp/niash.c:627
+#: .tmp/niash.c:683
 msgid "Image"
 msgstr ""
 
-#: .tmp/niash.c:655
+#: .tmp/niash.c:711
 msgid "Miscellaneous"
 msgstr ""
 
-#: .tmp/niash.c:662
+#: .tmp/niash.c:718
 msgid "Lamp status"
 msgstr ""
 
-#: .tmp/niash.c:663
+#: .tmp/niash.c:719
 #, fuzzy
 msgid "Switches the lamp on or off."
 msgstr "Asettaa valon päälle/pois"
 
-#: .tmp/niash.c:673
+#: .tmp/niash.c:729
 msgid "Calibrates for black and white level."
 msgstr ""
 
@@ -1499,54 +1499,55 @@ msgstr ""
 msgid "Analog frontend"
 msgstr "Analoginen gamma (punainen)"
 
-#: .tmp/plustek.c:880
-msgid "Red-gain"
-msgstr ""
+#: .tmp/plustek.c:880 .tmp/umax_pp.c:655
+#, fuzzy
+msgid "Red gain"
+msgstr "Punatasapaino"
 
 #: .tmp/plustek.c:881
-msgid "Red-gain value of the AFE"
+msgid "Red gain value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:888
-msgid "Red-offset"
+#: .tmp/plustek.c:888 .tmp/umax_pp.c:712
+msgid "Red offset"
 msgstr ""
 
 #: .tmp/plustek.c:889
-msgid "Red-offset value of the AFE"
+msgid "Red offset value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:896
+#: .tmp/plustek.c:896 .tmp/umax_pp.c:667
 #, fuzzy
-msgid "Green-gain"
-msgstr "Vihreä"
+msgid "Green gain"
+msgstr "Vihertasapaino"
 
 #: .tmp/plustek.c:897
-msgid "Green-gain value of the AFE"
+msgid "Green gain value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:904
-msgid "Green-offset"
+#: .tmp/plustek.c:904 .tmp/umax_pp.c:724
+msgid "Green offset"
 msgstr ""
 
 #: .tmp/plustek.c:905
-msgid "Green-offset value of the AFE"
+msgid "Green offset value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:912
+#: .tmp/plustek.c:912 .tmp/umax_pp.c:679
 #, fuzzy
-msgid "Blue-gain"
-msgstr "Sininen"
+msgid "Blue gain"
+msgstr "Sinitasapaino"
 
 #: .tmp/plustek.c:913
-msgid "Blue-gain value of the AFE"
+msgid "Blue gain value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:920
-msgid "Blue-offset"
+#: .tmp/plustek.c:920 .tmp/umax_pp.c:736
+msgid "Blue offset"
 msgstr ""
 
 #: .tmp/plustek.c:921
-msgid "Blue-offset value of the AFE"
+msgid "Blue offset value of the AFE"
 msgstr ""
 
 #: .tmp/plustek.c:928
@@ -2005,7 +2006,7 @@ msgstr "Lampun valomäärä"
 msgid "Set lamp density"
 msgstr "Aseta lampun valomäärä"
 
-#: .tmp/saneopts.h:202 .tmp/umax.c:5817
+#: .tmp/saneopts.h:202 .tmp/umax.c:5827
 msgid "Lamp off at exit"
 msgstr "Valo pois lopetettaessa"
 
@@ -2293,7 +2294,7 @@ msgstr "Määritä valomäärä kuvanlukua varten"
 msgid "Enable selection of lamp density"
 msgstr "Valomäärän valinta"
 
-#: .tmp/saneopts.h:389 .tmp/umax.c:5818
+#: .tmp/saneopts.h:389 .tmp/umax.c:5828
 msgid "Turn off lamp when program exits"
 msgstr "Sammuttaa valon ohjelmasta poistuttaessa"
 
@@ -2805,14 +2806,6 @@ msgstr "(1/1) Painike"
 msgid "(1/1) Button test option. Prints some text..."
 msgstr "(1/1) Painike. Tulostaa tekstiä."
 
-#: .tmp/umax1220u.c:247 .tmp/umax.c:5800
-msgid "Lamp off"
-msgstr "Valo pois"
-
-#: .tmp/umax1220u.c:248 .tmp/umax.c:5801
-msgid "Turn off scanner lamp"
-msgstr "Sammuttaa kuvanlukijan valon"
-
 #: .tmp/umax.c:189
 msgid "Color Lineart"
 msgstr "Väriviivapiirros"
@@ -2845,51 +2838,59 @@ msgstr "Monitaso RGB-väri (yksivaihe)"
 msgid "Ignore calibration"
 msgstr "Jätä kalibrointi huomiotta"
 
-#: .tmp/umax.c:5721
+#: .tmp/umax.c:5731
 msgid "Disable pre focus"
 msgstr "Poista esitarkennus"
 
-#: .tmp/umax.c:5722
+#: .tmp/umax.c:5732
 msgid "Do not calibrate focus"
 msgstr "Ei kalibroida tarkennusta"
 
-#: .tmp/umax.c:5733
+#: .tmp/umax.c:5743
 msgid "Manual pre focus"
 msgstr "Manuaalinen esitarkennus"
 
-#: .tmp/umax.c:5745
+#: .tmp/umax.c:5755
 msgid "Fix focus position"
 msgstr "Korjaa tarkennuspiste"
 
-#: .tmp/umax.c:5757
+#: .tmp/umax.c:5767
 msgid "Lens calibration in doc position"
 msgstr "Linssin tarkennus kohteeseen"
 
-#: .tmp/umax.c:5758
+#: .tmp/umax.c:5768
 msgid "Calibrate lens focus in document position"
 msgstr "Tarkentaa linssin tarkennuksen kohteeseen"
 
-#: .tmp/umax.c:5769
+#: .tmp/umax.c:5779
 msgid "Holder focus position 0mm"
 msgstr "Pidikkeen tarkennuspiste 0mm"
 
-#: .tmp/umax.c:5770
+#: .tmp/umax.c:5780
 msgid "Use 0mm holder focus position instead of 0.6mm"
 msgstr "Käytä 0mm pidikkeen tarkennuspisteenä 0,6mm sijaan"
 
-#: .tmp/umax.c:5783 .tmp/umax_pp.c:559
+#: .tmp/umax.c:5793 .tmp/umax_pp.c:559
 msgid "Lamp on"
 msgstr "Valo päälle"
 
-#: .tmp/umax.c:5784
+#: .tmp/umax.c:5794
 msgid "Turn on scanner lamp"
 msgstr "Laittaa kuvanlukijan valon päälle"
 
-#: .tmp/umax.c:5873
+#: .tmp/umax.c:5810 .tmp/umax1220u.c:247
+msgid "Lamp off"
+msgstr "Valo pois"
+
+#: .tmp/umax.c:5811 .tmp/umax1220u.c:248
+msgid "Turn off scanner lamp"
+msgstr "Sammuttaa kuvanlukijan valon"
+
+#: .tmp/umax.c:5883
 msgid "Calibration mode"
 msgstr "Kalibrointitila"
 
-#: .tmp/umax.c:5874
+#: .tmp/umax.c:5884
 msgid "Define calibration mode"
 msgstr "Määrää kalibraatiotavan"
 
@@ -2924,30 +2925,15 @@ msgstr "Harmaannuta"
 msgid "Sets gray channel gain"
 msgstr "Asettaa harmaakanavan kirkkauden"
 
-#: .tmp/umax_pp.c:655
-#, fuzzy
-msgid "Red gain"
-msgstr "Punatasapaino"
-
 #: .tmp/umax_pp.c:656
 #, fuzzy
 msgid "Sets red channel gain"
 msgstr "Asettaa punaisen kirkkauden"
 
-#: .tmp/umax_pp.c:667
-#, fuzzy
-msgid "Green gain"
-msgstr "Vihertasapaino"
-
 #: .tmp/umax_pp.c:668
 #, fuzzy
 msgid "Sets green channel gain"
 msgstr "Asettaa vihreän kirkkauden"
-
-#: .tmp/umax_pp.c:679
-#, fuzzy
-msgid "Blue gain"
-msgstr "Sinitasapaino"
 
 #: .tmp/umax_pp.c:680
 #, fuzzy
@@ -2974,32 +2960,28 @@ msgstr "Harmaan kontrasti"
 msgid "Sets gray channel offset"
 msgstr "Asettaa harmaan kontrastin"
 
-#: .tmp/umax_pp.c:712
-msgid "Red offset"
-msgstr ""
-
 #: .tmp/umax_pp.c:713
 #, fuzzy
 msgid "Sets red channel offset"
 msgstr "Asettaa punaisen kontrastin"
-
-#: .tmp/umax_pp.c:724
-msgid "Green offset"
-msgstr ""
 
 #: .tmp/umax_pp.c:725
 #, fuzzy
 msgid "Sets green channel offset"
 msgstr "Asettaa vihreän kontrastin"
 
-#: .tmp/umax_pp.c:736
-msgid "Blue offset"
-msgstr ""
-
 #: .tmp/umax_pp.c:737
 #, fuzzy
 msgid "Sets blue channel offset"
 msgstr "Asettaa sinisen kanavan kontrastin"
+
+#, fuzzy
+#~ msgid "Green-gain"
+#~ msgstr "Vihreä"
+
+#, fuzzy
+#~ msgid "Blue-gain"
+#~ msgstr "Sininen"
 
 #~ msgid "Gray 14/16"
 #~ msgstr "Harmaa 14/16"

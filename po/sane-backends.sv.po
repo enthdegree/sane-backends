@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.14\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-10-11 21:43+0200\n"
+"POT-Creation-Date: 2004-10-19 08:51+0200\n"
 "PO-Revision-Date: 2004-09-28 16:08+0200\n"
 "Last-Translator: Mattias Ellert <mattias.ellert@tsl.uu.se>\n"
 "Language-Team: Swedish <sv@li.org>\n"
@@ -31,7 +31,7 @@ msgstr "Streckteckning"
 msgid "Grayscale"
 msgstr "Gråskala"
 
-#: .tmp/artec_eplus48u.c:156 .tmp/epson.c:482 .tmp/hp-option.c:2926
+#: .tmp/artec_eplus48u.c:156 .tmp/epson.c:483 .tmp/hp-option.c:2926
 #: .tmp/leo.h:262 .tmp/ma1509.c:101 .tmp/mustek.c:126 .tmp/mustek.c:130
 #: .tmp/mustek_usb.c:268 .tmp/saneopts.h:393 .tmp/sceptre.h:292
 #: .tmp/snapscan-options.c:75 .tmp/teco1.h:293 .tmp/teco3.h:296
@@ -41,10 +41,10 @@ msgstr "Färg"
 
 #: .tmp/artec_eplus48u.c:2805 .tmp/gt68xx.c:652 .tmp/leo.c:873
 #: .tmp/ma1509.c:597 .tmp/matsushita.c:1191 .tmp/microtek2.h:602
-#: .tmp/mustek.c:4382 .tmp/mustek_usb.c:353 .tmp/niash.c:700
+#: .tmp/mustek.c:4382 .tmp/mustek_usb.c:353 .tmp/niash.c:756
 #: .tmp/plustek.c:768 .tmp/plustek_pp.c:792 .tmp/sceptre.c:753
 #: .tmp/snapscan-options.c:507 .tmp/teco1.c:1146 .tmp/teco2.c:1952
-#: .tmp/teco3.c:971 .tmp/umax.c:5214 .tmp/umax_pp.c:549
+#: .tmp/teco3.c:971 .tmp/umax.c:5224 .tmp/umax_pp.c:549
 msgid "Enhancement"
 msgstr "Förbättring"
 
@@ -56,12 +56,12 @@ msgstr "Standardvärden"
 msgid "Set default values for enhancement controls."
 msgstr "Använd standardvärden för förbättringsinställningar."
 
-#: .tmp/artec_eplus48u.c:2884 .tmp/epson.c:3216 .tmp/gt68xx.c:708
+#: .tmp/artec_eplus48u.c:2884 .tmp/epson.c:3217 .tmp/gt68xx.c:708
 #: .tmp/leo.c:825 .tmp/ma1509.c:549 .tmp/matsushita.c:1137
 #: .tmp/microtek2.h:601 .tmp/mustek.c:4334 .tmp/mustek_usb.c:305
 #: .tmp/plustek.c:722 .tmp/plustek_pp.c:746 .tmp/sceptre.c:705
 #: .tmp/snapscan-options.c:440 .tmp/teco1.c:1098 .tmp/teco2.c:1904
-#: .tmp/teco3.c:923 .tmp/test.c:618 .tmp/umax.c:5164 .tmp/umax_pp.c:500
+#: .tmp/teco3.c:923 .tmp/test.c:618 .tmp/umax.c:5174 .tmp/umax_pp.c:500
 msgid "Geometry"
 msgstr "Geometri"
 
@@ -139,366 +139,366 @@ msgstr "Gammakorrigering"
 msgid "Selects the gamma corrected transfer curve"
 msgstr "Väljer gammakorrigerad överföringskurva"
 
-#: .tmp/epson.c:480
+#: .tmp/epson.c:481
 msgid "Binary"
 msgstr "Binär"
 
-#: .tmp/epson.c:481 .tmp/ma1509.c:101 .tmp/mustek.c:125 .tmp/mustek.c:130
+#: .tmp/epson.c:482 .tmp/ma1509.c:101 .tmp/mustek.c:125 .tmp/mustek.c:130
 #: .tmp/mustek_usb.c:269 .tmp/saneopts.h:394 .tmp/sceptre.h:291
 #: .tmp/snapscan-options.c:77 .tmp/test.c:122 .tmp/umax.c:188
 msgid "Gray"
 msgstr "Grå"
 
-#: .tmp/epson.c:487
+#: .tmp/epson.c:488
 msgid "Simplex"
 msgstr "Enkelsidigt"
 
-#: .tmp/epson.c:488 .tmp/matsushita.h:219
+#: .tmp/epson.c:489 .tmp/matsushita.h:219
 msgid "Duplex"
 msgstr "Dubbelsidigt"
 
-#: .tmp/epson.c:497 .tmp/gt68xx.c:141 .tmp/ma1509.c:106 .tmp/mustek.c:148
+#: .tmp/epson.c:498 .tmp/gt68xx.c:141 .tmp/ma1509.c:106 .tmp/mustek.c:148
 #: .tmp/mustek.c:152 .tmp/mustek.c:156 .tmp/snapscan-options.c:81
 #: .tmp/umax.c:182
 msgid "Flatbed"
 msgstr "Flatbädd"
 
-#: .tmp/epson.c:498
+#: .tmp/epson.c:499
 msgid "Transparency Unit"
 msgstr "Skrivfilmsenhet"
 
-#: .tmp/epson.c:499 .tmp/mustek.c:152 .tmp/umax.c:184
+#: .tmp/epson.c:500 .tmp/mustek.c:152 .tmp/umax.c:184
 msgid "Automatic Document Feeder"
 msgstr "Automatisk dokumentmatare"
 
-#: .tmp/epson.c:519
+#: .tmp/epson.c:520
 msgid "Positive Film"
 msgstr "Positiv film"
 
-#: .tmp/epson.c:520
+#: .tmp/epson.c:521
 msgid "Negative Film"
 msgstr "Negativ film"
 
-#: .tmp/epson.c:525
+#: .tmp/epson.c:526
 msgid "Focus on glass"
 msgstr "Fokusera på glaset"
 
-#: .tmp/epson.c:526
+#: .tmp/epson.c:527
 msgid "Focus 2.5mm above glass"
 msgstr "Fokusera 2,5 mm ovanför glaset"
 
-#: .tmp/epson.c:552 .tmp/epson.c:560 .tmp/epson.c:572 .tmp/epson.c:594
+#: .tmp/epson.c:553 .tmp/epson.c:561 .tmp/epson.c:573 .tmp/epson.c:595
 #: .tmp/leo.c:109 .tmp/matsushita.c:138 .tmp/matsushita.c:159
 #: .tmp/matsushita.c:191 .tmp/matsushita.c:213 .tmp/snapscan-options.c:86
 msgid "None"
 msgstr "Inget"
 
-#: .tmp/epson.c:553 .tmp/epson.c:561 .tmp/epson.c:573
+#: .tmp/epson.c:554 .tmp/epson.c:562 .tmp/epson.c:574
 msgid "Halftone A (Hard Tone)"
 msgstr "Raster A (hårt)"
 
-#: .tmp/epson.c:554 .tmp/epson.c:562 .tmp/epson.c:574
+#: .tmp/epson.c:555 .tmp/epson.c:563 .tmp/epson.c:575
 msgid "Halftone B (Soft Tone)"
 msgstr "Raster B (mjukt)"
 
-#: .tmp/epson.c:555 .tmp/epson.c:563 .tmp/epson.c:575
+#: .tmp/epson.c:556 .tmp/epson.c:564 .tmp/epson.c:576
 msgid "Halftone C (Net Screen)"
 msgstr "Raster C (nätskärm)"
 
-#: .tmp/epson.c:564 .tmp/epson.c:576
+#: .tmp/epson.c:565 .tmp/epson.c:577
 msgid "Dither A (4x4 Bayer)"
 msgstr "Gitter A (4x4 Bayer)"
 
-#: .tmp/epson.c:565 .tmp/epson.c:577
+#: .tmp/epson.c:566 .tmp/epson.c:578
 msgid "Dither B (4x4 Spiral)"
 msgstr "Gitter B (4x4 spiral)"
 
-#: .tmp/epson.c:566 .tmp/epson.c:578
+#: .tmp/epson.c:567 .tmp/epson.c:579
 msgid "Dither C (4x4 Net Screen)"
 msgstr "Gitter C (4x4 nätskärm)"
 
-#: .tmp/epson.c:567 .tmp/epson.c:579
+#: .tmp/epson.c:568 .tmp/epson.c:580
 msgid "Dither D (8x4 Net Screen)"
 msgstr "Gitter D (8x4 nätskärm)"
 
-#: .tmp/epson.c:580
+#: .tmp/epson.c:581
 msgid "Text Enhanced Technology"
 msgstr "Textförbättringsteknik"
 
-#: .tmp/epson.c:581
+#: .tmp/epson.c:582
 msgid "Download pattern A"
 msgstr "Nedladdat mönster A"
 
-#: .tmp/epson.c:582
+#: .tmp/epson.c:583
 msgid "Download pattern B"
 msgstr "Nedladdat mönster B"
 
-#: .tmp/epson.c:595 .tmp/epson.c:3014 .tmp/hp-option.c:3089
+#: .tmp/epson.c:596 .tmp/epson.c:3015 .tmp/hp-option.c:3089
 msgid "Red"
 msgstr "Röd"
 
-#: .tmp/epson.c:596 .tmp/epson.c:3010 .tmp/hp-option.c:3090
+#: .tmp/epson.c:597 .tmp/epson.c:3011 .tmp/hp-option.c:3090
 msgid "Green"
 msgstr "Grön"
 
-#: .tmp/epson.c:597 .tmp/epson.c:3018 .tmp/hp-option.c:3091
+#: .tmp/epson.c:598 .tmp/epson.c:3019 .tmp/hp-option.c:3091
 msgid "Blue"
 msgstr "Blå"
 
-#: .tmp/epson.c:627
+#: .tmp/epson.c:628
 msgid "No Correction"
 msgstr "Ingen korrigering"
 
-#: .tmp/epson.c:628 .tmp/epson.c:653
+#: .tmp/epson.c:629 .tmp/epson.c:654
 msgid "User defined"
 msgstr "Användardefinierat"
 
-#: .tmp/epson.c:629
+#: .tmp/epson.c:630
 msgid "Impact-dot printers"
 msgstr "Matrisskrivare"
 
-#: .tmp/epson.c:630
+#: .tmp/epson.c:631
 msgid "Thermal printers"
 msgstr "Termoskrivare"
 
-#: .tmp/epson.c:631
+#: .tmp/epson.c:632
 msgid "Ink-jet printers"
 msgstr "Bläckstråleskrivare"
 
-#: .tmp/epson.c:632
+#: .tmp/epson.c:633
 msgid "CRT monitors"
 msgstr "Bildskärmar (CRT)"
 
-#: .tmp/epson.c:652 .tmp/hp-option.c:3222 .tmp/test.c:138
+#: .tmp/epson.c:653 .tmp/hp-option.c:3222 .tmp/test.c:138
 msgid "Default"
 msgstr "Standard"
 
-#: .tmp/epson.c:654
+#: .tmp/epson.c:655
 msgid "High density printing"
 msgstr "Utskrift med hög densitet"
 
-#: .tmp/epson.c:655
+#: .tmp/epson.c:656
 msgid "Low density printing"
 msgstr "Utskrift med låg densitet"
 
-#: .tmp/epson.c:656
+#: .tmp/epson.c:657
 msgid "High contrast printing"
 msgstr "Utskrift med hög kontrast"
 
-#: .tmp/epson.c:674
+#: .tmp/epson.c:675
 msgid "User defined (Gamma=1.0)"
 msgstr "Användardefinierat (gamma=1,0)"
 
-#: .tmp/epson.c:675
+#: .tmp/epson.c:676
 msgid "User defined (Gamma=1.8)"
 msgstr "Användardefinierat (gamma=1,8)"
 
-#: .tmp/epson.c:745
+#: .tmp/epson.c:746
 msgid "CD"
 msgstr "CD"
 
-#: .tmp/epson.c:746
+#: .tmp/epson.c:747
 msgid "A5 portrait"
 msgstr "A5 stående"
 
-#: .tmp/epson.c:747
+#: .tmp/epson.c:748
 msgid "A5 landscape"
 msgstr "A5 liggande"
 
-#: .tmp/epson.c:748
+#: .tmp/epson.c:749
 msgid "Letter"
 msgstr "US-Letter"
 
-#: .tmp/epson.c:749
+#: .tmp/epson.c:750
 msgid "A4"
 msgstr "A4"
 
-#: .tmp/epson.c:750
+#: .tmp/epson.c:751
 msgid "Max"
 msgstr "Max"
 
-#: .tmp/epson.c:2731 .tmp/gt68xx.c:442 .tmp/ma1509.c:499
+#: .tmp/epson.c:2732 .tmp/gt68xx.c:442 .tmp/ma1509.c:499
 #: .tmp/matsushita.c:1086 .tmp/microtek2.h:600 .tmp/mustek.c:4197
-#: .tmp/mustek_usb.c:260 .tmp/niash.c:680 .tmp/plustek.c:637
+#: .tmp/mustek_usb.c:260 .tmp/niash.c:736 .tmp/plustek.c:637
 #: .tmp/plustek_pp.c:657 .tmp/sceptre.c:676 .tmp/snapscan-options.c:276
-#: .tmp/teco2.c:1876 .tmp/test.c:293 .tmp/umax.c:5042
+#: .tmp/teco2.c:1876 .tmp/test.c:293 .tmp/umax.c:5052
 msgid "Scan Mode"
 msgstr "Bildläsarläge"
 
-#: .tmp/epson.c:2763
+#: .tmp/epson.c:2764
 msgid "Selects the halftone."
 msgstr "Väljer raster."
 
-#: .tmp/epson.c:2785
+#: .tmp/epson.c:2786
 msgid "Dropout"
 msgstr "Bortfall"
 
-#: .tmp/epson.c:2786
+#: .tmp/epson.c:2787
 msgid "Selects the dropout."
 msgstr "Väljer bortfall."
 
-#: .tmp/epson.c:2798
+#: .tmp/epson.c:2799
 msgid "Selects the brightness."
 msgstr "Väljer ljusstyrka."
 
-#: .tmp/epson.c:2813
+#: .tmp/epson.c:2814
 msgid "Sharpness"
 msgstr "Skärpa"
 
-#: .tmp/epson.c:2949
+#: .tmp/epson.c:2950
 msgid "Color correction"
 msgstr "Färgkorrigering"
 
-#: .tmp/epson.c:2952
+#: .tmp/epson.c:2953
 msgid "Sets the color correction table for the selected output device."
 msgstr "Ställer in färgkorrigeringstabellen för den valda utdataenheten."
 
-#: .tmp/epson.c:2993
+#: .tmp/epson.c:2994
 msgid "Color correction coefficients"
 msgstr "Färgkorrigeringskoefficienter"
 
-#: .tmp/epson.c:2994
+#: .tmp/epson.c:2995
 msgid "Matrix multiplication of RGB"
 msgstr "Matrismultiplikation av RGB"
 
-#: .tmp/epson.c:3011
+#: .tmp/epson.c:3012
 msgid "Shift green to red"
 msgstr "Skifta grön till röd"
 
-#: .tmp/epson.c:3012
+#: .tmp/epson.c:3013
 msgid "Shift green to blue"
 msgstr "Skifta grön till blå"
 
-#: .tmp/epson.c:3013
+#: .tmp/epson.c:3014
 msgid "Shift red to green"
 msgstr "Skifta röd till grön"
 
-#: .tmp/epson.c:3015
+#: .tmp/epson.c:3016
 msgid "Shift red to blue"
 msgstr "Skifta röd till blå"
 
-#: .tmp/epson.c:3016
+#: .tmp/epson.c:3017
 msgid "Shift blue to green"
 msgstr "Skifta blå till grön"
 
-#: .tmp/epson.c:3017
+#: .tmp/epson.c:3018
 msgid "Shift blue to red"
 msgstr "Skifta blå till röd"
 
-#: .tmp/epson.c:3020
+#: .tmp/epson.c:3021
 msgid "Controls green level"
 msgstr "Bestämmer grönnivån"
 
-#: .tmp/epson.c:3021
+#: .tmp/epson.c:3022
 msgid "Adds to red based on green level"
 msgstr "Lägger till till rött beroende på grönnivån"
 
-#: .tmp/epson.c:3022
+#: .tmp/epson.c:3023
 msgid "Adds to blue based on green level"
 msgstr "Lägger till till blått beroende på grönnivån"
 
-#: .tmp/epson.c:3023
+#: .tmp/epson.c:3024
 msgid "Adds to green based on red level"
 msgstr "Lägger till till grönt beroende på rödnivån"
 
-#: .tmp/epson.c:3024
+#: .tmp/epson.c:3025
 msgid "Controls red level"
 msgstr "Bestämmer rödnivån"
 
-#: .tmp/epson.c:3025
+#: .tmp/epson.c:3026
 msgid "Adds to blue based on red level"
 msgstr "Lägger till till blått beroende på rödnivån"
 
-#: .tmp/epson.c:3026
+#: .tmp/epson.c:3027
 msgid "Adds to green based on blue level"
 msgstr "Lägger till till grönt beroende på blånivån"
 
-#: .tmp/epson.c:3027
+#: .tmp/epson.c:3028
 msgid "Adds to red based on blue level"
 msgstr "Lägger till till rött beroende på blånivån"
 
-#: .tmp/epson.c:3028
+#: .tmp/epson.c:3029
 msgid "Controls blue level"
 msgstr "Bestämmer blånivån"
 
-#: .tmp/epson.c:3115 .tmp/snapscan-options.c:731 .tmp/umax.c:5553
+#: .tmp/epson.c:3116 .tmp/snapscan-options.c:731 .tmp/umax.c:5563
 msgid "Advanced"
 msgstr "Avancerat"
 
-#: .tmp/epson.c:3123
+#: .tmp/epson.c:3124
 msgid "Mirror image"
 msgstr "Spegla bild"
 
-#: .tmp/epson.c:3124
+#: .tmp/epson.c:3125
 msgid "Mirror the image."
 msgstr "Spegla bilden."
 
-#: .tmp/epson.c:3150
+#: .tmp/epson.c:3151
 msgid "Speed"
 msgstr "Hastighet"
 
-#: .tmp/epson.c:3163
+#: .tmp/epson.c:3164
 msgid "Auto area segmentation"
 msgstr "Automatisk ytuppdelning"
 
-#: .tmp/epson.c:3176
+#: .tmp/epson.c:3177
 msgid "Short resolution list"
 msgstr "Kort lista med upplösningar"
 
-#: .tmp/epson.c:3178
+#: .tmp/epson.c:3179
 msgid "Display short resolution list"
 msgstr "Visa en kort lista med upplösningar"
 
-#: .tmp/epson.c:3185
+#: .tmp/epson.c:3186
 msgid "Zoom"
 msgstr "Zoom"
 
-#: .tmp/epson.c:3187
+#: .tmp/epson.c:3188
 msgid "Defines the zoom factor the scanner will use"
 msgstr "Anger zoom-faktorn som bildläsaren kommer att använda"
 
-#: .tmp/epson.c:3267
+#: .tmp/epson.c:3268
 msgid "Quick format"
 msgstr "Snabbformatera"
 
-#: .tmp/epson.c:3278
+#: .tmp/epson.c:3279
 msgid "Optional equipment"
 msgstr "Tillvalsutrustning"
 
-#: .tmp/epson.c:3304
+#: .tmp/epson.c:3305
 msgid "Film type"
 msgstr "Filmtyp"
 
-#: .tmp/epson.c:3349
+#: .tmp/epson.c:3350
 msgid "Eject"
 msgstr "Mata ut"
 
-#: .tmp/epson.c:3350
+#: .tmp/epson.c:3351
 msgid "Eject the sheet in the ADF"
 msgstr "Mata ut bladet i dokumentmataren"
 
-#: .tmp/epson.c:3362
+#: .tmp/epson.c:3363
 msgid "Auto eject"
 msgstr "Mata ut automatiskt"
 
-#: .tmp/epson.c:3363
+#: .tmp/epson.c:3364
 msgid "Eject document after scanning"
 msgstr "Mata ut dokument efter inläsning"
 
-#: .tmp/epson.c:3375
+#: .tmp/epson.c:3376
 msgid "ADF Mode"
 msgstr "Dokumentmatarläge"
 
-#: .tmp/epson.c:3377
+#: .tmp/epson.c:3378
 msgid "Selects the ADF mode (simplex/duplex)"
 msgstr ""
 "Väljer läge för den automatiska dokumentmataren (enkelsidigt/dubbelsidigt)"
 
-#: .tmp/epson.c:3391
+#: .tmp/epson.c:3392
 msgid "Bay"
 msgstr "Fack"
 
-#: .tmp/epson.c:3392
+#: .tmp/epson.c:3393
 msgid "Select bay to scan"
 msgstr "Välj fack att läsa in från"
 
@@ -829,7 +829,7 @@ msgstr "Mata ut"
 msgid "Unload Document."
 msgstr "Mata ut dokument."
 
-#: .tmp/hp-option.h:97 .tmp/niash.c:672
+#: .tmp/hp-option.h:97 .tmp/niash.c:728
 msgid "Calibrate"
 msgstr "Kalibrera"
 
@@ -1444,23 +1444,23 @@ msgstr "Kontrast blå kanal"
 msgid "Controls the contrast of the blue channel of the acquired image."
 msgstr "Bestämmer kontrasten för den blå kanalen i den inlästa bilden."
 
-#: .tmp/niash.c:627
+#: .tmp/niash.c:683
 msgid "Image"
 msgstr "Bild"
 
-#: .tmp/niash.c:655
+#: .tmp/niash.c:711
 msgid "Miscellaneous"
 msgstr "Diverse"
 
-#: .tmp/niash.c:662
+#: .tmp/niash.c:718
 msgid "Lamp status"
 msgstr "Lampstatus"
 
-#: .tmp/niash.c:663
+#: .tmp/niash.c:719
 msgid "Switches the lamp on or off."
 msgstr "Sätter på eller av lampan."
 
-#: .tmp/niash.c:673
+#: .tmp/niash.c:729
 msgid "Calibrates for black and white level."
 msgstr "Kalibrerar för svart- och vitnivå"
 
@@ -1508,52 +1508,58 @@ msgstr "Lampavstängningstid i sekunder."
 msgid "Analog frontend"
 msgstr "Analogt framplan"
 
-#: .tmp/plustek.c:880
-msgid "Red-gain"
+#: .tmp/plustek.c:880 .tmp/umax_pp.c:655
+msgid "Red gain"
 msgstr "Röd förstärkning"
 
 #: .tmp/plustek.c:881
-msgid "Red-gain value of the AFE"
+#, fuzzy
+msgid "Red gain value of the AFE"
 msgstr "Det analoga framplanets rödförstärkningsvärde"
 
-#: .tmp/plustek.c:888
-msgid "Red-offset"
+#: .tmp/plustek.c:888 .tmp/umax_pp.c:712
+msgid "Red offset"
 msgstr "Röd offset"
 
 #: .tmp/plustek.c:889
-msgid "Red-offset value of the AFE"
+#, fuzzy
+msgid "Red offset value of the AFE"
 msgstr "Det analoga framplanets rödoffsetvärde"
 
-#: .tmp/plustek.c:896
-msgid "Green-gain"
+#: .tmp/plustek.c:896 .tmp/umax_pp.c:667
+msgid "Green gain"
 msgstr "Grön förstärkning"
 
 #: .tmp/plustek.c:897
-msgid "Green-gain value of the AFE"
+#, fuzzy
+msgid "Green gain value of the AFE"
 msgstr "Det analoga framplanets grönförstärkningsvärde"
 
-#: .tmp/plustek.c:904
-msgid "Green-offset"
+#: .tmp/plustek.c:904 .tmp/umax_pp.c:724
+msgid "Green offset"
 msgstr "Grön offset"
 
 #: .tmp/plustek.c:905
-msgid "Green-offset value of the AFE"
+#, fuzzy
+msgid "Green offset value of the AFE"
 msgstr "Det analoga framplanets grönoffsetvärde"
 
-#: .tmp/plustek.c:912
-msgid "Blue-gain"
+#: .tmp/plustek.c:912 .tmp/umax_pp.c:679
+msgid "Blue gain"
 msgstr "Blå förstärkning"
 
 #: .tmp/plustek.c:913
-msgid "Blue-gain value of the AFE"
+#, fuzzy
+msgid "Blue gain value of the AFE"
 msgstr "Det analoga framplanets blåförstärkningsvärde"
 
-#: .tmp/plustek.c:920
-msgid "Blue-offset"
+#: .tmp/plustek.c:920 .tmp/umax_pp.c:736
+msgid "Blue offset"
 msgstr "Blå offset"
 
 #: .tmp/plustek.c:921
-msgid "Blue-offset value of the AFE"
+#, fuzzy
+msgid "Blue offset value of the AFE"
 msgstr "Det analoga framplanets blåoffsetsvärde"
 
 #: .tmp/plustek.c:928
@@ -2008,7 +2014,7 @@ msgstr "Inl. lampdensitet"
 msgid "Set lamp density"
 msgstr "Ställ in lampdensitet"
 
-#: .tmp/saneopts.h:202 .tmp/umax.c:5817
+#: .tmp/saneopts.h:202 .tmp/umax.c:5827
 msgid "Lamp off at exit"
 msgstr "Lampa av vid avslut"
 
@@ -2296,7 +2302,7 @@ msgstr "Ange lampdensitet för inläsning"
 msgid "Enable selection of lamp density"
 msgstr "Möjliggör val av lampdensitet"
 
-#: .tmp/saneopts.h:389 .tmp/umax.c:5818
+#: .tmp/saneopts.h:389 .tmp/umax.c:5828
 msgid "Turn off lamp when program exits"
 msgstr "Slå av lampan när programmet avslutas"
 
@@ -2815,14 +2821,6 @@ msgstr "(1/1) Knapp"
 msgid "(1/1) Button test option. Prints some text..."
 msgstr "(1/1) Knapptestinställning. Skriver ut lite text..."
 
-#: .tmp/umax1220u.c:247 .tmp/umax.c:5800
-msgid "Lamp off"
-msgstr "Lampa av"
-
-#: .tmp/umax1220u.c:248 .tmp/umax.c:5801
-msgid "Turn off scanner lamp"
-msgstr "Slå av bildläsarlampan"
-
 #: .tmp/umax.c:189
 msgid "Color Lineart"
 msgstr "Färgstreckteckning"
@@ -2855,51 +2853,59 @@ msgstr "Flernivå-RGB-färg (enpass-färg)"
 msgid "Ignore calibration"
 msgstr "Ignorera kalibrering"
 
-#: .tmp/umax.c:5721
+#: .tmp/umax.c:5731
 msgid "Disable pre focus"
 msgstr "Stäng av förfokusering"
 
-#: .tmp/umax.c:5722
+#: .tmp/umax.c:5732
 msgid "Do not calibrate focus"
 msgstr "Kalibrera inte fokus"
 
-#: .tmp/umax.c:5733
+#: .tmp/umax.c:5743
 msgid "Manual pre focus"
 msgstr "Manuell förfokusering"
 
-#: .tmp/umax.c:5745
+#: .tmp/umax.c:5755
 msgid "Fix focus position"
 msgstr "Fast fokuseringsläge"
 
-#: .tmp/umax.c:5757
+#: .tmp/umax.c:5767
 msgid "Lens calibration in doc position"
 msgstr "Kalibrera linsen i dokumentets läge"
 
-#: .tmp/umax.c:5758
+#: .tmp/umax.c:5768
 msgid "Calibrate lens focus in document position"
 msgstr "Kalibrera linsens fokus i dokumentets läge"
 
-#: .tmp/umax.c:5769
+#: .tmp/umax.c:5779
 msgid "Holder focus position 0mm"
 msgstr "Hållarens fokuseringsläge 0 mm"
 
-#: .tmp/umax.c:5770
+#: .tmp/umax.c:5780
 msgid "Use 0mm holder focus position instead of 0.6mm"
 msgstr "Använd 0 mm i stället för 0,6 mm för hållarens fokuseringsläge"
 
-#: .tmp/umax.c:5783 .tmp/umax_pp.c:559
+#: .tmp/umax.c:5793 .tmp/umax_pp.c:559
 msgid "Lamp on"
 msgstr "Lampa på"
 
-#: .tmp/umax.c:5784
+#: .tmp/umax.c:5794
 msgid "Turn on scanner lamp"
 msgstr "Slå på bildläsarlampan"
 
-#: .tmp/umax.c:5873
+#: .tmp/umax.c:5810 .tmp/umax1220u.c:247
+msgid "Lamp off"
+msgstr "Lampa av"
+
+#: .tmp/umax.c:5811 .tmp/umax1220u.c:248
+msgid "Turn off scanner lamp"
+msgstr "Slå av bildläsarlampan"
+
+#: .tmp/umax.c:5883
 msgid "Calibration mode"
 msgstr "Kalibreringsläge"
 
-#: .tmp/umax.c:5874
+#: .tmp/umax.c:5884
 msgid "Define calibration mode"
 msgstr "Definiera kalibreringsläge"
 
@@ -2931,25 +2937,13 @@ msgstr "Grå förstärkning"
 msgid "Sets gray channel gain"
 msgstr "Ställer in den grå kanalens förstärkning"
 
-#: .tmp/umax_pp.c:655
-msgid "Red gain"
-msgstr "Röd förstärkning"
-
 #: .tmp/umax_pp.c:656
 msgid "Sets red channel gain"
 msgstr "Ställer in den röda kanalens förstärkning"
 
-#: .tmp/umax_pp.c:667
-msgid "Green gain"
-msgstr "Grön förstärkning"
-
 #: .tmp/umax_pp.c:668
 msgid "Sets green channel gain"
 msgstr "Ställer in den gröna kanalens förstärkning"
-
-#: .tmp/umax_pp.c:679
-msgid "Blue gain"
-msgstr "Blå förstärkning"
 
 #: .tmp/umax_pp.c:680
 msgid "Sets blue channel gain"
@@ -2971,29 +2965,35 @@ msgstr "Grå offset"
 msgid "Sets gray channel offset"
 msgstr "Ställer in den grå kanalens offset"
 
-#: .tmp/umax_pp.c:712
-msgid "Red offset"
-msgstr "Röd offset"
-
 #: .tmp/umax_pp.c:713
 msgid "Sets red channel offset"
 msgstr "Ställer in den röda kanalens offset"
-
-#: .tmp/umax_pp.c:724
-msgid "Green offset"
-msgstr "Grön offset"
 
 #: .tmp/umax_pp.c:725
 msgid "Sets green channel offset"
 msgstr "Ställer in den gröna kanalens offset"
 
-#: .tmp/umax_pp.c:736
-msgid "Blue offset"
-msgstr "Blå offset"
-
 #: .tmp/umax_pp.c:737
 msgid "Sets blue channel offset"
 msgstr "Ställer in den blå kanalens offset"
+
+#~ msgid "Red-gain"
+#~ msgstr "Röd förstärkning"
+
+#~ msgid "Red-offset"
+#~ msgstr "Röd offset"
+
+#~ msgid "Green-gain"
+#~ msgstr "Grön förstärkning"
+
+#~ msgid "Green-offset"
+#~ msgstr "Grön offset"
+
+#~ msgid "Blue-gain"
+#~ msgstr "Blå förstärkning"
+
+#~ msgid "Blue-offset"
+#~ msgstr "Blå offset"
 
 #~ msgid "Gray 14/16"
 #~ msgstr "Grå 14/16"

@@ -22,6 +22,8 @@
 	  doc/sane-tamarack.man doc/sane-umax_pp.man doc/sane-v4l.man:
 	  Added SEE ALSO entry for sane(7).
 	* doc/sane-coolscan.man: Used @@ macros instead of fixed paths.
+	* doc/sane-dc210.man doc/sane-dc240.man doc/sane-dc25.man:
+	  Used @@ macros instead of fixed paths. Fixed library paths.
 
 2001-06-09  Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 

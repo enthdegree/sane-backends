@@ -1,5 +1,10 @@
 CHANGES for the SANE Mustek backend
 
+
+2001-12-11
+  * Fixed possible segfault in sane_control_option.
+  * Added debug output of SCSI commands in dev_cmd and dev_read_req_enter.
+
 2001-11-29
   * Released Mustek backend 1.0-115.
 

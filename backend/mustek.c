@@ -46,7 +46,7 @@
 
 /**************************************************************************/
 /* Mustek backend version                                                 */
-#define BUILD 115
+#define BUILD 116
 /**************************************************************************/
 
 #include "../include/sane/config.h"
@@ -535,10 +535,57 @@ static SANE_Status
 dev_cmd (Mustek_Scanner * s, const void * src, size_t src_size,
 	 void * dst, size_t * dst_size)
 {
+  SANE_Status status;
+  SANE_Byte cmd_byte_list [50];
+  SANE_Byte cmd_byte [5];
+  const SANE_Byte *pp;
+
+  DBG(5, "dev_cmd: fd=%d, src=%p, src_size=%d, dst=%p, dst_size=%d\n",
+      s->fd, src, (SANE_Int) src_size, dst, (SANE_Int) dst_size ? *dst_size : 0);
+
+  if (src && (debug_level >= 5)) /* output data sent to SCSI device */
+    {
+      cmd_byte_list [0] = '\0';
+      for (pp = (const SANE_Byte *) src; 
+	   pp < (((const SANE_Byte *) src) + src_size);
+	   pp++)
+	{
+	  sprintf ((SANE_String) cmd_byte, " %02x", *pp);
+	  strcat ((SANE_String) cmd_byte_list, (SANE_String) cmd_byte);
+	  if (((pp - (const SANE_Byte *) src) % 0x10 == 0x0f) 
+	      || (pp >= (((const SANE_Byte *) src) + src_size - 1)))
+	    {
+	      DBG(5, "dev_cmd: sending: %s\n", cmd_byte_list);
+	      cmd_byte_list [0] = '\0';
+	    }
+	}
+    }
+
   if (s->hw->flags & MUSTEK_FLAG_N)
-    return sanei_ab306_cmd (s->fd, src, src_size, dst, dst_size);
+    status = sanei_ab306_cmd (s->fd, src, src_size, dst, dst_size);
   else
-    return sanei_scsi_cmd (s->fd, src, src_size, dst, dst_size);
+    status = sanei_scsi_cmd (s->fd, src, src_size, dst, dst_size);
+
+  if (dst && dst_size && (debug_level >= 5)) /* output data received from SCSI device */
+    {
+      cmd_byte_list [0] = '\0';
+      for (pp = (const SANE_Byte *) dst; 
+	   pp < (((const SANE_Byte *) dst) + *dst_size);
+	   pp++)
+	{
+	  sprintf ((SANE_String) cmd_byte, " %02x", *pp);
+	  strcat ((SANE_String) cmd_byte_list, (SANE_String) cmd_byte);
+	  if (((pp - (const SANE_Byte *) dst) % 0x10 == 0x0f) 
+	      || (pp >= (((const SANE_Byte *) dst) + *dst_size - 1)))
+	    {
+	      DBG(5, "dev_cmd: receiving: %s\n", cmd_byte_list);
+	      cmd_byte_list [0] = '\0';
+	    }
+	}
+    }
+
+  DBG(5, "dev_cmd: finished: dst_size=%ld\n", dst_size ? *dst_size : 0);
+  return status;
 }
 
 static SANE_Status
@@ -635,12 +682,35 @@ dev_read_req_enter (Mustek_Scanner *s, SANE_Byte *buf, SANE_Int lines,
 	}
       else if (s->hw->flags & MUSTEK_FLAG_PRO)
 	{
-	  DBG(5, "enter read request\n");	  			
 	  memset (command, 0, 6);
 	  command[0] = MUSTEK_SCSI_READ_SCANNED_DATA;
 	  command[2] = ((lines * bpl) >> 16) & 0xff;
 	  command[3] = ((lines * bpl) >> 8) & 0xff;
 	  command[4] = ((lines * bpl) >> 0) & 0xff;
+
+	  if (command && (debug_level >= 5)) /* output data sent to SCSI device */
+	    {
+	      SANE_Byte cmd_byte_list [50];
+	      SANE_Byte cmd_byte [5];
+	      const SANE_Byte *pp;
+	      SANE_Int command_size = 6;
+	      
+	      cmd_byte_list [0] = '\0';
+	      for (pp = (const SANE_Byte *) command; 
+		   pp < (((const SANE_Byte *) command) + command_size);
+		   pp++)
+		{
+		  sprintf ((SANE_String) cmd_byte, " %02x", *pp);
+		  strcat ((SANE_String) cmd_byte_list, (SANE_String) cmd_byte);
+		  if (((pp - (const SANE_Byte *) command) % 0x10 == 0x0f) 
+		      || (pp >= (((const SANE_Byte *) command) + command_size - 1)))
+		    {
+		      DBG(5, "dev_read_req_enter: sending: %s\n", cmd_byte_list);
+		      cmd_byte_list [0] = '\0';
+		    }
+		}
+	    }
+
 	  return sanei_scsi_req_enter (s->fd, command, 6, buf, lenp, idp); 
 	}
       else /* Paragon series */
@@ -5390,10 +5460,16 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       return SANE_STATUS_INVAL;
     }
 
-  DBG(5, "sane_control_option (%s option %s)\n",
-      action == SANE_ACTION_GET_VALUE ? "get" : 
-      (action == SANE_ACTION_SET_VALUE ? "set" : "unknown action with"),
-      s->opt[option].name);
+  if (s->opt[option].name)
+    DBG(5, "sane_control_option (%s option %s)\n",
+	action == SANE_ACTION_GET_VALUE ? "get" : 
+	(action == SANE_ACTION_SET_VALUE ? "set" : "unknown action with"),
+	s->opt[option].name);
+  else
+    DBG(5, "sane_control_option (%s option \"%s\")\n",
+	action == SANE_ACTION_GET_VALUE ? "get" : 
+	(action == SANE_ACTION_SET_VALUE ? "set" : "unknown action with"),
+	s->opt[option].title);
     
   if (info)
     *info = 0;

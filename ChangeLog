@@ -7,6 +7,9 @@
 	* po/sane-backends.es.po po/sane-backends.fr.po po/sane-backends.nl.po
 	  po/sane-backends.no.po po/sane-backends.pt.po po/sane-backends.ru.po
 	  po/sane-backends.sv.po: Updated for latest backend changes.
+	* backend/hp5400.c backend/hp5400.h backend/hp5400_internal.c
+	  backend/hp5400_sanei.c backend/hp5400_xfer.h: Changed license to
+	  GPL + SANE exception.
 
 2003-05-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

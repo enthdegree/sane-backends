@@ -9,6 +9,8 @@
 	  <morais@inocam.com>). Added detection of Genius Colorpage Vivid3x.
 	  It's unknown if it works. Updated .desc file. Don't print calib line
 	  warnings by default.
+	* doc/descriptions/microtek2.desc: Updated (From Karsten Festag 
+	  <karsten.festag@gmx.de>).
 
 2003-01-08  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

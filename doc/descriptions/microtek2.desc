@@ -57,6 +57,10 @@
 :model "ScanMaker 9600XL"
 :interface "SCSI"
 :comment "only flatbed mode ?"
+:status :stable
+:model "ScanMaker 9600XL"
+:interface "SCSI"
+:status :alpha
 :model "Phantom 330CX"
 :interface "Parport"
 :status :stable
@@ -80,8 +84,8 @@
 :status :stable
 :model "ScanMaker X12USL"
 :interface "SCSI"
-:comment "only 8bit color, work in progress"
-:status :alpha
+:comment "only Flatbed mode ?"
+:status :beta
 
 :mfg "Vobis"
 :url "http://www.vobis.de/"

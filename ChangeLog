@@ -1,3 +1,10 @@
+2003-03-09  Eddy De Greef <eddy_de_greef at tiscali dot be>
+
+	* backend/mustek_pp_cis.c backend/mustek_pp_cis.h: Fixed two
+          calibration bugs: one occasionally caused overexposed images at 
+          all resolutions; the other one occasionally caused color inbalances
+          when scanning narrow areas at high resolutions.
+
 2003-03-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* sanei/sanei_scsi.c: Wait for the completion of all SCSI commands in

@@ -22,11 +22,11 @@ The scanners that should work with this backend are:
 .br
 
   Primax Jewel 4800        VM356A         tested
-  Primax Profi 19200       VM6586         tested
   Primax Profi 9600        VM6575         tested
-  Relisys APOLLO Express 12   ?          untested
+  Primax Profi 19200       VM6586         tested
   Relisys APOLLO Express 3 VM356A         tested
   Relisys APOLLO Express 6 VM6565         tested
+  Relisys APOLLO Express 12   ?          untested
   Relisys AVEC II S3       VM3564         tested
   Relisys AVEC Super 3     VM3575         tested
   Relisys SCORPIO Pro      VM6575         tested
@@ -144,6 +144,11 @@ If the library was compiled with debug support enabled, this
 environment variable controls the debug level for this backend. E.g.,
 a value of 128 requests all debug output to be printed. Smaller levels
 reduce verbosity.
+.TP
+.B SANE_TECO2_CAL_ALGO
+Either 0 or 1. Selects the algorithm for the calibration. A
+value of 1 seems to give better scans on the VM3575. Feedback on it
+is welcome.
 
 
 .SH LIMITATIONS

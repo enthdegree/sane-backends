@@ -206,3 +206,34 @@ calibration
 TECO VM3575 reads 12 lines of calibration
 TECO VM656A reads 8 lines of calibration
 TECO VM6586 ??
+
+Algorithms used (text from Alex Wulms):
+The old algorithm was based on the assumption that the calibration value needs 
+to be an offset, to go from the value obtained during input to the average 
+value (0x800).
+
+E.g., if the input value is 0x800, the calibration value must be 0x800 (0x1000 
+- 0x800).
+Likewise, if the input value is 0x700, the calibration value must be 0x900 
+(0x1000 - 0x700)
+And if the input value is 0x600, the calibration value must be 0xA00
+
+The new algorithm is based on the assumption that the calibration needs to be 
+a multiplication factor, to compensate for the too strong or too weak pixel 
+in the sensor. Again, we want to obtain the average value (approximately 
+0x800) for every pixel read during calibration.
+
+E.g., if the input value is 0x800, the calibration value must be 0x800 
+(0x800*0x800 / 0x800).
+Likewise, if the input value is 0x700, the calibration value must be 0x924 
+(0x800*0x800 / 0x700).
+And if the input value is 0x600, the calibration value must 0xAAA (0x800*0x800 
+/ 0x600)
+
+Though, carefull comparison with scans done under windows has shown that the 
+factor is slightly different from 0x800*0x800(=0x400000) but in stead it 
+seems to be approximately 0x40302f (which would mean that the average value 
+is approximately 0x803 in stead of 0x800).
+
+Hope this is clarifies the new algorithm.
+

@@ -1,3 +1,7 @@
+2002-03-17  Peter Fales <peter@fales.com>
+
+	* backend/gphoto2.c - Minor bug fixes for problems found by tstbackend
+	
 2002-03-16  Gerhard Jaeger  <g.jaeger@earthling.net>
 
 	* backend/plustek.[ch]: fixed a bug, that causes segfaulting the backend

@@ -21,6 +21,7 @@
 	  doc/descriptions/dmc.desc doc/descriptions/sm3600.desc
 	  doc/descriptions/umax1220u.desc: Minor fixes and updates for the new
 	  .desc file format.
+	* TODO: Updated .desc and v4l section. Added entries for scanimage.
 
 2002-08-18 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 

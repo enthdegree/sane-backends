@@ -134,7 +134,9 @@ static SANE_Bool dumpinquiry;
 static SANE_Int  info_flags;
 
 static int tfd;			/* Camera File Descriptor */
-static char *tty_name = "/dev/ttyS0";
+static char tty_name[PATH_MAX];
+#define DEF_TTY_NAME "/dev/ttyS0"
+
 static speed_t tty_baud = DEFAULT_TTY_BAUD;
 static char *tmpname;
 static char tmpnamebuf[]  = "/tmp/dc25.XXXXXX";
@@ -300,7 +302,7 @@ static SANE_Option_Descriptor sod[] =
       sizeof (SANE_Word),
       SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
       SANE_CONSTRAINT_RANGE,
-      {(SANE_String_Const *) &contrast_range}	/* this is ANSI conformant! */
+      {(const SANE_String_Const *) &contrast_range}	/* this is ANSI conformant! */
     },
 
 #define DC25_OPT_GAMMA 10
@@ -313,7 +315,7 @@ static SANE_Option_Descriptor sod[] =
       sizeof (SANE_Word),
       SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
       SANE_CONSTRAINT_RANGE,
-      {(SANE_String_Const *) &gamma_range}	/* this is ANSI conformant! */
+      {(const SANE_String_Const *) &gamma_range}	/* this is ANSI conformant! */
     },
 
 #define DC25_OPT_DEFAULT 11
@@ -361,7 +363,7 @@ static struct pkt_speed speeds[] = { {   B9600, { 0x96, 0x00 } },
 				  {  B38400, { 0x38, 0x40 } },
 				  {  B19200, { 0x19, 0x20 } },
 		};
-#define NUM_OF_SPEEDS	(sizeof(speeds) / sizeof(struct pkt_speed))
+#define NUM_OF_SPEEDS	((int)(sizeof(speeds) / sizeof(struct pkt_speed)))
 
 static struct termios tty_orig;
 
@@ -398,6 +400,8 @@ init_dc20 (char *device, speed_t speed)
 {
 	struct termios tty_new;
 	int speed_index;
+
+	DBG(0, "DC-20/25 Backend 05/07/01\n");
 
 	for (speed_index = 0; speed_index < NUM_OF_SPEEDS; speed_index++) {
 		if (speeds[speed_index].baud == speed) {
@@ -1502,7 +1506,7 @@ zoom_y (struct pixmap *source, struct pixmap *dest)
 }
 
 static int 
-save_pixmap (struct pixmap *p, char *name, int orientation, int format)
+save_pixmap (struct pixmap *p, char *name, int UNUSEDARG orientation, int UNUSEDARG format)
 {
 	struct pixmap	*to_be_saved = p;
 	char			 fname[1024];
@@ -1690,13 +1694,15 @@ change_res (int fd, unsigned char res)
 }
 
 SANE_Status
-sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
+sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
 {
 	char dev_name[PATH_MAX],*p;
 	size_t len;
 	FILE *fp;
 	int baud;
 	
+	strcpy(tty_name,DEF_TTY_NAME);
+
 	DBG_INIT();
 
 	if (version_code)
@@ -1721,8 +1727,6 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 			if ( strncmp(dev_name,"port=",5) == 0 ) {
 				p=strchr (dev_name,'/');
 				if ( p ) {
-					len=strlen (p);
-					tty_name = malloc (len+1);
 					strcpy (tty_name,p);
 				}
 				DBG (20,"Config file port=%s\n",tty_name);
@@ -1818,7 +1822,7 @@ static const SANE_Device dev[] =
 };
 
 SANE_Status
-sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
+sane_get_devices (const SANE_Device *** device_list, SANE_Bool UNUSEDARG local_only)
 {
 	static const SANE_Device * devlist[] =
 	{
@@ -2137,7 +2141,7 @@ static unsigned char pic_pck[] = PICS_PCK;
 
 static int bytes_in_buffer;
 static int bytes_read_from_buffer;
-static char buffer[1024];
+static SANE_Byte buffer[1024];
 static int total_bytes_read;
 static SANE_Bool started = SANE_FALSE;
 static int outbytes;
@@ -2336,7 +2340,7 @@ sane_start (SANE_Handle handle)
 
 
 SANE_Status
-sane_read (SANE_Handle handle, SANE_Byte * data,
+sane_read (SANE_Handle UNUSEDARG handle, SANE_Byte * data,
 	   SANE_Int max_length, SANE_Int * length)
 {
 	DBG (127,"sane_read called, maxlen=%d\n",max_length);
@@ -2472,7 +2476,7 @@ DBG(10,"Call get_info!, image range=%d,%d\n",image_range.min,image_range.max);
 }
 
 void
-sane_cancel (SANE_Handle handle)
+sane_cancel (SANE_Handle UNUSEDARG handle)
 {
 	DBG (127,"sane_cancel() called\n");
 	started = SANE_FALSE;
@@ -2480,13 +2484,13 @@ sane_cancel (SANE_Handle handle)
 }
 
 SANE_Status
-sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
+sane_set_io_mode (SANE_Handle UNUSEDARG handle, SANE_Bool UNUSEDARG non_blocking)
 {
 	return SANE_STATUS_UNSUPPORTED;
 }
 
 SANE_Status
-sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
+sane_get_select_fd (SANE_Handle UNUSEDARG handle, SANE_Int * UNUSEDARG fd)
 {
 	return SANE_STATUS_UNSUPPORTED;
 }

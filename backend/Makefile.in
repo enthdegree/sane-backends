@@ -129,7 +129,7 @@ DISTFILES = abaton.c abaton.conf abaton.h agfafocus.c agfafocus.conf \
   umax_pp_low.c umax_pp_low.h umax_pp_mid.c umax_pp_mid.h umax-scanner.c \
   umax-scanner.h umax-scsidef.h umax-uc1200s.c umax-uc1200se.c umax-uc1260.c \
   umax-uc630.c umax-uc840.c umax-ug630.c umax-ug80.c umax-usb.c v4l.c \
-  v4l.conf v4l-frequencies.h v4l-grab.h v4l.h
+  v4l.conf v4l-frequencies.h v4l.h
 
 
 .PHONY: all clean depend dist distclean install uninstall

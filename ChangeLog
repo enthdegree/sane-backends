@@ -1,3 +1,7 @@
+2003-04-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/scanimage.man: Added EXAMPLES section.
+
 2003-04-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* AUTHORS backend/Makefile.in backend/dll.conf backend/ibm-scsi.c

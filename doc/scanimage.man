@@ -1,4 +1,4 @@
-.TH scanimage 1 "11 Apr 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH scanimage 1 "15 Apr 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX scanimage
 .SH NAME
 scanimage \- scan an image
@@ -49,6 +49,20 @@ backend (try
 .B apropos
 .I sane-
 to get a list of available backends).
+
+.SH EXAMPLES
+To get a list of devices:
+
+  scanimage \-L
+
+To scan with default settings to the file image.pnm:
+
+  scanimage >image.pnm
+
+To print all available options:
+
+  scanimage \-h
+
 .SH OPTIONS
 .PP
 The

@@ -1,4 +1,6 @@
 2004-01-21  Gerhard Jaeger <gerhard@gjaeger.de>
+	* backend/test.c: reader_process terminates now, when running as
+	  thread.
 	* backend/u12.c backend/u12-hw.c backend/u12-if.c backend/u12-io.c
 	  backend/u12-map.c backend/u12-motor.c backend/u12-shading.c
 	  backend/u12-tpa.c backend/u12.h backend/u12.conf: major update, compilation

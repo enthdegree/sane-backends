@@ -21,11 +21,11 @@
    MA 02111-1307, USA.
 */
 
-#define SANE_DESC_VERSION "0.3"
+#define SANE_DESC_VERSION "0.4"
 
 #define MAN_PAGE_LINK "http://www.mostang.com/sane/man/%s.5.html"
 #define COLOR_ALPHA    "#B00000"
-#define COLOR_BETA     "#900090"
+#define COLOR_BETA     "#B0B000"
 #define COLOR_STABLE   "#008000"
 #define COLOR_NEW      "#F00000"
 
@@ -42,7 +42,6 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <limits.h>
-#include <libgen.h>
 #include <ctype.h>
 #include <time.h>
 
@@ -174,7 +173,10 @@ typedef struct mfg_record_entry
 {
   struct mfg_record_entry *next;
   char *name;
+  char *comment;
+  struct url_entry *url;
   struct backend_record_entry *be_record;
+
 }
 mfg_record_entry;
 
@@ -958,7 +960,7 @@ sort_by_mfg (device_type dev_type)
 		  mfg_record = first_mfg_record;
 		  while (mfg_record)
 		    {
-		      if (strcmp (mfg_record->name, mfg->name) == 0)
+		      if (strcasecmp (mfg_record->name, mfg->name) == 0)
 			{
 			  backend_record_entry *be_record =
 			    mfg_record->be_record;
@@ -1002,6 +1004,8 @@ sort_by_mfg (device_type dev_type)
 				   "mfg_record_entry\n");
 			}
 		      first_mfg_record->name = mfg->name;
+		      first_mfg_record->comment = mfg->comment;
+		      first_mfg_record->url = mfg->url;
 		      first_mfg_record->be_record
 			= calloc (1, sizeof (backend_record_entry));
 		      if (!first_mfg_record->be_record)
@@ -1020,6 +1024,8 @@ sort_by_mfg (device_type dev_type)
 				   "mfg_record_entry\n");
 			}
 		      mfg_record->name = mfg->name;
+		      mfg_record->comment = mfg->comment;
+		      mfg_record->url = mfg->url;
 		      mfg_record->be_record
 			= calloc (1, sizeof (backend_record_entry));
 		      if (!mfg_record->be_record)
@@ -1459,38 +1465,37 @@ html_mfgs_table (device_type dev_type)
   first_mfg_record = sort_by_mfg (dev_type);
   mfg_record = first_mfg_record;
 
-  printf ("<table border=1>\n");
-  printf ("<tr bgcolor=E0E0FF>\n");
 
-  switch (dev_type)
+  while (mfg_record)
     {
-    case type_scanner:
-    case type_stillcam:
-    case type_vidcam:
-      printf ("<th align=center>Manufacturer</th>\n");
+      backend_record_entry *be_record = mfg_record->be_record;
+
+      printf ("<h3>Manufacturer: %s</h3>\n", mfg_record->name);
+      if (mfg_record->comment)
+	printf ("<p><b>Comment:</b> %s</p>\n", mfg_record->comment);
+      if (mfg_record->url && mfg_record->url->name)
+	{
+	  url_entry *url = mfg_record->url;
+	  printf ("<p><b>Link(s):</b> \n");
+	  while (url)
+	    {
+	      if (url != mfg_record->url)
+		printf (", ");
+	      printf ("<a href=\"%s\">%s</a>", url->name, url->name);
+	      url = url->next;
+	    }
+	  printf ("</p>\n");
+	}
+
+      printf ("<table border=1>\n");
+      printf ("<tr bgcolor=E0E0FF>\n");
+
       printf ("<th align=center>Model</th>\n");
       printf ("<th align=center>Interface</th>\n");
       printf ("<th align=center>Comment</th>\n");
       printf ("<th align=center>Backend</th>\n");
       printf ("<th align=center>Manpage</th>\n");
-      break;
-    case type_meta:
-    case type_api:
-      printf ("<th align=center>Backend</th>\n");
-      printf ("<th align=center>Manual Page</th>\n");
-      printf ("<th align=center>Description</th>\n");
-      printf ("<th align=center>Comment</th>\n");
-      break;
-    default:
-      DBG_ERR ("Unknown device type (%d)\n", dev_type);
-      return;
-    }
-
-  printf ("</tr>\n");
-
-  while (mfg_record)
-    {
-      backend_record_entry *be_record = mfg_record->be_record;
+      printf ("</tr>\n");
 
       while (be_record)
 	{
@@ -1514,19 +1519,23 @@ html_mfgs_table (device_type dev_type)
 			{
 			  while (model)
 			    {
-			      printf ("<tr><td align=center>\n");
-			      if (mfg->url && mfg->url->name)
-				printf ("<a href=\"%s\">%s</a>\n",
-					mfg->url->name, mfg->name);
-			      else
-				printf ("%s\n", mfg->name);
-			      printf ("</td>\n");
+			      /*
+			         printf ("<tr><td align=center>\n");
 
+			         if (mfg->url && mfg->url->name)
+			         printf ("<a href=\"%s\">%s</a>\n",
+			         mfg->url->name, mfg->name);
+			         else
+			         printf ("%s\n", mfg->name);
+			         printf ("</td>\n");
+			       */
 			      if (model->url && model->url->name)
-				printf ("<td><a href=\"%s\">%s</a></td>\n",
+				printf ("<tr><td align=center><a "
+					"href=\"%s\">%s</a></td>\n",
 					model->url->name, model->name);
 			      else
-				printf ("<td>%s</td>\n", model->name);
+				printf ("<td align=center>%s</td>\n",
+					model->name);
 
 			      if (model->interface)
 				printf ("<td align=center>%s</td>\n",
@@ -1588,9 +1597,9 @@ html_mfgs_table (device_type dev_type)
 	    }			/* while type */
 	  be_record = be_record->next;
 	}			/* while be_record */
+      printf ("</table>\n");
       mfg_record = mfg_record->next;
     }				/* while mfg_record */
-  printf ("</table>\n");
 }
 
 static void
@@ -1745,7 +1754,7 @@ html_print_mfgs (void)
   html_print_header ();
 
 
-  printf ("<p><div align=center>\n");
+  /*  printf ("<p><div align=center>\n"); */
 
   printf ("<h2><a name=\"SCANNERS\">Scanners</a></h2>\n");
   html_mfgs_table (type_scanner);
@@ -1762,7 +1771,7 @@ html_print_mfgs (void)
   printf ("<h2><a name=\"META\">Meta Backends</a></h2>\n");
   html_backends_table (type_meta);
 
-  printf ("</div>\n");
+  /*  printf ("</div>\n"); */
 
   printf
     ("<h3><a name=\"legend\">Legend:</a></h3>\n"
@@ -1809,11 +1818,11 @@ html_print_mfgs (void)
 int
 main (int argc, char **argv)
 {
-  char *full_name;
-
-  full_name = strdup (argv[0]);
-  program_name = basename (full_name);
-  DBG_DBG ("starting %s\n", program_name);
+  program_name = strrchr (argv[0], '/');
+  if (program_name)
+    ++program_name;
+  else
+    program_name = argv[0];
 
   if (!get_options (argc, argv))
     return 1;

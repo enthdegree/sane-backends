@@ -19,7 +19,7 @@ static void
 Usage (char *name)
 {
   fprintf (stderr,
-	   "%s [-c color_mode] [-x coord] [-y coord] [-w width] [-h height] [-g brightness] [-z contrast] [-d dpi] [-t level] [-s] [-p] [-l 0|1] [-a ioport_addr] [-r]\n",
+	   "%s [-c color_mode] [-x coord] [-y coord] [-w width] [-h height] [-g gain] [-z offset] [-d dpi] [-t level] [-s] [-p] [-l 0|1] [-a ioport_addr] [-r]\n",
 	   name);
 }
 
@@ -40,8 +40,8 @@ main (int argc, char **argv)
   int maxw, maxh;
 
 /* scanning parameters : defaults to preview (75 dpi color, full scan area) */
-  int brightness = 0x0;
-  int contrast = 0x646;
+  int gain = 0x0;
+  int offset = 0x646;
   int dpi = 75;
   int x = 0, y = 0;
   int width = -1, height = -1;
@@ -64,8 +64,8 @@ main (int argc, char **argv)
      -t --trace   : execution trace
      -l --lamp    : turn lamp on/off 1/0
      -d --dpi     : set scan resolution
-     -g --brightness   : set RVB brightness
-     -z --contrast: set contrast
+     -g --gain   : set RVB gain
+     -z --offset: set offset
      -a --addr    : io port address
      -n --name    : ppdev device name
      -r           : recover from previous failed scan
@@ -223,12 +223,12 @@ main (int argc, char **argv)
 	}
 
       if ((strcmp (argv[i], "-g") == 0)
-	  || (strcmp (argv[i], "--brightness") == 0))
+	  || (strcmp (argv[i], "--gain") == 0))
 	{
 	  if (i == (argc - 1))
 	    {
 	      Usage (argv[0]);
-	      fprintf (stderr, "expected hex brightness value ( ex: A59 )\n");
+	      fprintf (stderr, "expected hex gain value ( ex: A59 )\n");
 	      return 0;
 	    }
 	  i++;
@@ -236,20 +236,20 @@ main (int argc, char **argv)
 	  if (strlen (argv[i]) != 3)
 	    {
 	      Usage (argv[0]);
-	      fprintf (stderr, "expected hex brightness value ( ex: A59 )\n");
+	      fprintf (stderr, "expected hex gain value ( ex: A59 )\n");
 	      return 0;
 	    }
-	  brightness = strtol (argv[i], NULL, 16);
+	  gain = strtol (argv[i], NULL, 16);
 	  sanei_umax_pp_setauto (0);
 	}
 
       if ((strcmp (argv[i], "-z") == 0)
-	  || (strcmp (argv[i], "--contrast") == 0))
+	  || (strcmp (argv[i], "--offset") == 0))
 	{
 	  if (i == (argc - 1))
 	    {
 	      Usage (argv[0]);
-	      fprintf (stderr, "expected hex contrast value ( ex: A59 )\n");
+	      fprintf (stderr, "expected hex offset value ( ex: A59 )\n");
 	      return 0;
 	    }
 	  i++;
@@ -257,10 +257,10 @@ main (int argc, char **argv)
 	  if (strlen (argv[i]) != 3)
 	    {
 	      Usage (argv[0]);
-	      fprintf (stderr, "expected hex contrast value ( ex: A59 )\n");
+	      fprintf (stderr, "expected hex offset value ( ex: A59 )\n");
 	      return 0;
 	    }
-	  contrast = strtol (argv[i], NULL, 16);
+	  offset = strtol (argv[i], NULL, 16);
 	}
 
       if ((strcmp (argv[i], "-n") == 0) || (strcmp (argv[i], "--name") == 0))
@@ -547,7 +547,7 @@ main (int argc, char **argv)
 
       /* scan */
       if (sanei_umax_pp_scan
-	  (x, y, width, height, dpi, color, brightness, contrast) != 1)
+	  (x, y, width, height, dpi, color, gain, offset) != 1)
 	{
 	  sanei_umax_pp_endSession ();
 	  return 0;

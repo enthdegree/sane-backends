@@ -88,7 +88,7 @@ extern void sanei_umax_pp_setauto (int mode);
 #endif
 
 extern int sanei_umax_pp_scan (int x, int y, int width, int height, int dpi,
-			       int color, int brightness, int contrast);
+			       int color, int gain, int offset);
 extern int sanei_umax_pp_move (int distance, int precision,
 			       unsigned char *buffer);
 extern int sanei_umax_pp_setLamp (int on);
@@ -99,8 +99,8 @@ extern int sanei_umax_pp_parkWait (void);
 extern int sanei_umax_pp_readBlock (long len, int window, int dpi, int last,
 				    unsigned char *buffer);
 extern int sanei_umax_pp_startScan (int x, int y, int width, int height,
-				    int dpi, int color, int brightness,
-				    int contrast, int *rbpp, int *rtw,
+				    int dpi, int color, int gain,
+				    int offset, int *rbpp, int *rtw,
 				    int *rth);
 
 extern void sanei_umax_pp_setport (int port);

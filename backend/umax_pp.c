@@ -120,13 +120,13 @@ static Umax_PP_Device *first_dev = NULL;
 static long int buf_size = 2048 * 1024;
 
 
-static int red_brightness = 0;
-static int green_brightness = 0;
-static int blue_brightness = 0;
+static int red_gain = 0;
+static int green_gain = 0;
+static int blue_gain = 0;
 
-static int red_contrast = 0;
-static int green_contrast = 0;
-static int blue_contrast = 0;
+static int red_offset = 0;
+static int green_offset = 0;
+static int blue_offset = 0;
 
 
 
@@ -623,124 +623,124 @@ init_options (Umax_PP_Device * dev)
   dev->opt[OPT_GAMMA_VECTOR_B].constraint.range = &u8_range;
   dev->val[OPT_GAMMA_VECTOR_B].wa = &dev->gamma_table[3][0];
 
-  /*  brightness group */
-  dev->opt[OPT_MANUAL_BRIGHTNESS].name = "manual-channel-brightness";
-  dev->opt[OPT_MANUAL_BRIGHTNESS].title = SANE_I18N ("Brightness");
-  dev->opt[OPT_MANUAL_BRIGHTNESS].desc =
-    SANE_I18N ("Color channels brightness settings");
-  dev->opt[OPT_MANUAL_BRIGHTNESS].type = SANE_TYPE_BOOL;
-  dev->opt[OPT_MANUAL_BRIGHTNESS].cap |= SANE_CAP_ADVANCED;
-  dev->val[OPT_MANUAL_BRIGHTNESS].w = SANE_FALSE;
+  /*  gain group */
+  dev->opt[OPT_MANUAL_GAIN].name = "manual-channel-gain";
+  dev->opt[OPT_MANUAL_GAIN].title = SANE_I18N ("Gain");
+  dev->opt[OPT_MANUAL_GAIN].desc =
+    SANE_I18N ("Color channels gain settings");
+  dev->opt[OPT_MANUAL_GAIN].type = SANE_TYPE_BOOL;
+  dev->opt[OPT_MANUAL_GAIN].cap |= SANE_CAP_ADVANCED;
+  dev->val[OPT_MANUAL_GAIN].w = SANE_FALSE;
 
-  /* gray brightness */
-  dev->opt[OPT_GRAY_BRIGHTNESS].name = "gray-brightness";
-  dev->opt[OPT_GRAY_BRIGHTNESS].title = SANE_I18N ("Gray brightness");
-  dev->opt[OPT_GRAY_BRIGHTNESS].desc =
-    SANE_I18N ("Sets gray channel brightness");
-  dev->opt[OPT_GRAY_BRIGHTNESS].type = SANE_TYPE_INT;
-  dev->opt[OPT_GRAY_BRIGHTNESS].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
-  dev->opt[OPT_GRAY_BRIGHTNESS].unit = SANE_UNIT_NONE;
-  dev->opt[OPT_GRAY_BRIGHTNESS].size = sizeof (SANE_Int);
-  dev->opt[OPT_GRAY_BRIGHTNESS].constraint_type = SANE_CONSTRAINT_RANGE;
-  dev->opt[OPT_GRAY_BRIGHTNESS].constraint.range = &u4_range;
-  dev->val[OPT_GRAY_BRIGHTNESS].w = dev->gray_brightness;
+  /* gray gain */
+  dev->opt[OPT_GRAY_GAIN].name = "gray-gain";
+  dev->opt[OPT_GRAY_GAIN].title = SANE_I18N ("Gray gain");
+  dev->opt[OPT_GRAY_GAIN].desc =
+    SANE_I18N ("Sets gray channel gain");
+  dev->opt[OPT_GRAY_GAIN].type = SANE_TYPE_INT;
+  dev->opt[OPT_GRAY_GAIN].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
+  dev->opt[OPT_GRAY_GAIN].unit = SANE_UNIT_NONE;
+  dev->opt[OPT_GRAY_GAIN].size = sizeof (SANE_Int);
+  dev->opt[OPT_GRAY_GAIN].constraint_type = SANE_CONSTRAINT_RANGE;
+  dev->opt[OPT_GRAY_GAIN].constraint.range = &u4_range;
+  dev->val[OPT_GRAY_GAIN].w = dev->gray_gain;
 
-  /* red brightness */
-  dev->opt[OPT_RED_BRIGHTNESS].name = "red-brightness";
-  dev->opt[OPT_RED_BRIGHTNESS].title = SANE_I18N ("Red brightness");
-  dev->opt[OPT_RED_BRIGHTNESS].desc =
-    SANE_I18N ("Sets red channel brightness");
-  dev->opt[OPT_RED_BRIGHTNESS].type = SANE_TYPE_INT;
-  dev->opt[OPT_RED_BRIGHTNESS].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
-  dev->opt[OPT_RED_BRIGHTNESS].unit = SANE_UNIT_NONE;
-  dev->opt[OPT_RED_BRIGHTNESS].size = sizeof (SANE_Int);
-  dev->opt[OPT_RED_BRIGHTNESS].constraint_type = SANE_CONSTRAINT_RANGE;
-  dev->opt[OPT_RED_BRIGHTNESS].constraint.range = &u4_range;
-  dev->val[OPT_RED_BRIGHTNESS].w = dev->red_brightness;
+  /* red gain */
+  dev->opt[OPT_RED_GAIN].name = "red-gain";
+  dev->opt[OPT_RED_GAIN].title = SANE_I18N ("Red gain");
+  dev->opt[OPT_RED_GAIN].desc =
+    SANE_I18N ("Sets red channel gain");
+  dev->opt[OPT_RED_GAIN].type = SANE_TYPE_INT;
+  dev->opt[OPT_RED_GAIN].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
+  dev->opt[OPT_RED_GAIN].unit = SANE_UNIT_NONE;
+  dev->opt[OPT_RED_GAIN].size = sizeof (SANE_Int);
+  dev->opt[OPT_RED_GAIN].constraint_type = SANE_CONSTRAINT_RANGE;
+  dev->opt[OPT_RED_GAIN].constraint.range = &u4_range;
+  dev->val[OPT_RED_GAIN].w = dev->red_gain;
 
-  /* green brightness */
-  dev->opt[OPT_GREEN_BRIGHTNESS].name = "green-brightness";
-  dev->opt[OPT_GREEN_BRIGHTNESS].title = SANE_I18N ("Green brightness");
-  dev->opt[OPT_GREEN_BRIGHTNESS].desc =
-    SANE_I18N ("Sets green channel brightness");
-  dev->opt[OPT_GREEN_BRIGHTNESS].type = SANE_TYPE_INT;
-  dev->opt[OPT_GREEN_BRIGHTNESS].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
-  dev->opt[OPT_GREEN_BRIGHTNESS].unit = SANE_UNIT_NONE;
-  dev->opt[OPT_GREEN_BRIGHTNESS].size = sizeof (SANE_Int);
-  dev->opt[OPT_GREEN_BRIGHTNESS].constraint_type = SANE_CONSTRAINT_RANGE;
-  dev->opt[OPT_GREEN_BRIGHTNESS].constraint.range = &u4_range;
-  dev->val[OPT_GREEN_BRIGHTNESS].w = dev->green_brightness;
+  /* green gain */
+  dev->opt[OPT_GREEN_GAIN].name = "green-gain";
+  dev->opt[OPT_GREEN_GAIN].title = SANE_I18N ("Green gain");
+  dev->opt[OPT_GREEN_GAIN].desc =
+    SANE_I18N ("Sets green channel gain");
+  dev->opt[OPT_GREEN_GAIN].type = SANE_TYPE_INT;
+  dev->opt[OPT_GREEN_GAIN].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
+  dev->opt[OPT_GREEN_GAIN].unit = SANE_UNIT_NONE;
+  dev->opt[OPT_GREEN_GAIN].size = sizeof (SANE_Int);
+  dev->opt[OPT_GREEN_GAIN].constraint_type = SANE_CONSTRAINT_RANGE;
+  dev->opt[OPT_GREEN_GAIN].constraint.range = &u4_range;
+  dev->val[OPT_GREEN_GAIN].w = dev->green_gain;
 
-  /* blue brightness */
-  dev->opt[OPT_BLUE_BRIGHTNESS].name = "blue-brightness";
-  dev->opt[OPT_BLUE_BRIGHTNESS].title = SANE_I18N ("Blue brightness");
-  dev->opt[OPT_BLUE_BRIGHTNESS].desc =
-    SANE_I18N ("Sets blue channel brightness");
-  dev->opt[OPT_BLUE_BRIGHTNESS].type = SANE_TYPE_INT;
-  dev->opt[OPT_BLUE_BRIGHTNESS].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
-  dev->opt[OPT_BLUE_BRIGHTNESS].unit = SANE_UNIT_NONE;
-  dev->opt[OPT_BLUE_BRIGHTNESS].size = sizeof (SANE_Int);
-  dev->opt[OPT_BLUE_BRIGHTNESS].constraint_type = SANE_CONSTRAINT_RANGE;
-  dev->opt[OPT_BLUE_BRIGHTNESS].constraint.range = &u4_range;
-  dev->val[OPT_BLUE_BRIGHTNESS].w = dev->blue_brightness;
+  /* blue gain */
+  dev->opt[OPT_BLUE_GAIN].name = "blue-gain";
+  dev->opt[OPT_BLUE_GAIN].title = SANE_I18N ("Blue gain");
+  dev->opt[OPT_BLUE_GAIN].desc =
+    SANE_I18N ("Sets blue channel gain");
+  dev->opt[OPT_BLUE_GAIN].type = SANE_TYPE_INT;
+  dev->opt[OPT_BLUE_GAIN].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
+  dev->opt[OPT_BLUE_GAIN].unit = SANE_UNIT_NONE;
+  dev->opt[OPT_BLUE_GAIN].size = sizeof (SANE_Int);
+  dev->opt[OPT_BLUE_GAIN].constraint_type = SANE_CONSTRAINT_RANGE;
+  dev->opt[OPT_BLUE_GAIN].constraint.range = &u4_range;
+  dev->val[OPT_BLUE_GAIN].w = dev->blue_gain;
 
-  /*  contrast group */
-  dev->opt[OPT_MANUAL_CONTRAST].name = "manual-contrast";
-  dev->opt[OPT_MANUAL_CONTRAST].title = SANE_TITLE_CONTRAST;
-  dev->opt[OPT_MANUAL_CONTRAST].desc =
-    SANE_I18N ("Color channels contrast settings");
-  dev->opt[OPT_MANUAL_CONTRAST].type = SANE_TYPE_BOOL;
-  dev->opt[OPT_MANUAL_CONTRAST].cap |= SANE_CAP_ADVANCED;
-  dev->val[OPT_MANUAL_CONTRAST].w = SANE_FALSE;
+  /*  offset group */
+  dev->opt[OPT_MANUAL_OFFSET].name = "manual-offset";
+  dev->opt[OPT_MANUAL_OFFSET].title = SANE_I18N("Offset");
+  dev->opt[OPT_MANUAL_OFFSET].desc =
+    SANE_I18N ("Color channels offset settings");
+  dev->opt[OPT_MANUAL_OFFSET].type = SANE_TYPE_BOOL;
+  dev->opt[OPT_MANUAL_OFFSET].cap |= SANE_CAP_ADVANCED;
+  dev->val[OPT_MANUAL_OFFSET].w = SANE_FALSE;
 
-  /* gray contrast */
-  dev->opt[OPT_GRAY_CONTRAST].name = "gray-contrast";
-  dev->opt[OPT_GRAY_CONTRAST].title = SANE_I18N ("Gray contrast");
-  dev->opt[OPT_GRAY_CONTRAST].desc = SANE_I18N ("Sets gray channel contrast");
-  dev->opt[OPT_GRAY_CONTRAST].type = SANE_TYPE_INT;
-  dev->opt[OPT_GRAY_CONTRAST].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
-  dev->opt[OPT_GRAY_CONTRAST].unit = SANE_UNIT_NONE;
-  dev->opt[OPT_GRAY_CONTRAST].size = sizeof (SANE_Int);
-  dev->opt[OPT_GRAY_CONTRAST].constraint_type = SANE_CONSTRAINT_RANGE;
-  dev->opt[OPT_GRAY_CONTRAST].constraint.range = &u4_range;
-  dev->val[OPT_GRAY_CONTRAST].w = dev->gray_contrast;
+  /* gray offset */
+  dev->opt[OPT_GRAY_OFFSET].name = "gray-offset";
+  dev->opt[OPT_GRAY_OFFSET].title = SANE_I18N ("Gray offset");
+  dev->opt[OPT_GRAY_OFFSET].desc = SANE_I18N ("Sets gray channel offset");
+  dev->opt[OPT_GRAY_OFFSET].type = SANE_TYPE_INT;
+  dev->opt[OPT_GRAY_OFFSET].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
+  dev->opt[OPT_GRAY_OFFSET].unit = SANE_UNIT_NONE;
+  dev->opt[OPT_GRAY_OFFSET].size = sizeof (SANE_Int);
+  dev->opt[OPT_GRAY_OFFSET].constraint_type = SANE_CONSTRAINT_RANGE;
+  dev->opt[OPT_GRAY_OFFSET].constraint.range = &u4_range;
+  dev->val[OPT_GRAY_OFFSET].w = dev->gray_offset;
 
-  /* red contrast */
-  dev->opt[OPT_RED_CONTRAST].name = "red-contrast";
-  dev->opt[OPT_RED_CONTRAST].title = SANE_TITLE_CONTRAST;
-  dev->opt[OPT_RED_CONTRAST].desc = SANE_I18N ("Sets red channel contrast");
-  dev->opt[OPT_RED_CONTRAST].type = SANE_TYPE_INT;
-  dev->opt[OPT_RED_CONTRAST].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
-  dev->opt[OPT_RED_CONTRAST].unit = SANE_UNIT_NONE;
-  dev->opt[OPT_RED_CONTRAST].size = sizeof (SANE_Int);
-  dev->opt[OPT_RED_CONTRAST].constraint_type = SANE_CONSTRAINT_RANGE;
-  dev->opt[OPT_RED_CONTRAST].constraint.range = &u4_range;
-  dev->val[OPT_RED_CONTRAST].w = dev->red_contrast;
+  /* red offset */
+  dev->opt[OPT_RED_OFFSET].name = "red-offset";
+  dev->opt[OPT_RED_OFFSET].title = SANE_I18N ("Red offset");
+  dev->opt[OPT_RED_OFFSET].desc = SANE_I18N ("Sets red channel offset");
+  dev->opt[OPT_RED_OFFSET].type = SANE_TYPE_INT;
+  dev->opt[OPT_RED_OFFSET].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
+  dev->opt[OPT_RED_OFFSET].unit = SANE_UNIT_NONE;
+  dev->opt[OPT_RED_OFFSET].size = sizeof (SANE_Int);
+  dev->opt[OPT_RED_OFFSET].constraint_type = SANE_CONSTRAINT_RANGE;
+  dev->opt[OPT_RED_OFFSET].constraint.range = &u4_range;
+  dev->val[OPT_RED_OFFSET].w = dev->red_offset;
 
-  /* green contrast */
-  dev->opt[OPT_GREEN_CONTRAST].name = "green-contrast";
-  dev->opt[OPT_GREEN_CONTRAST].title = SANE_TITLE_CONTRAST;
-  dev->opt[OPT_GREEN_CONTRAST].desc =
-    SANE_I18N ("Sets green channel contrast");
-  dev->opt[OPT_GREEN_CONTRAST].type = SANE_TYPE_INT;
-  dev->opt[OPT_GREEN_CONTRAST].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
-  dev->opt[OPT_GREEN_CONTRAST].unit = SANE_UNIT_NONE;
-  dev->opt[OPT_GREEN_CONTRAST].size = sizeof (SANE_Int);
-  dev->opt[OPT_GREEN_CONTRAST].constraint_type = SANE_CONSTRAINT_RANGE;
-  dev->opt[OPT_GREEN_CONTRAST].constraint.range = &u4_range;
-  dev->val[OPT_GREEN_CONTRAST].w = dev->green_contrast;
+  /* green offset */
+  dev->opt[OPT_GREEN_OFFSET].name = "green-offset";
+  dev->opt[OPT_GREEN_OFFSET].title = SANE_I18N ("Green offset");
+  dev->opt[OPT_GREEN_OFFSET].desc =
+    SANE_I18N ("Sets green channel offset");
+  dev->opt[OPT_GREEN_OFFSET].type = SANE_TYPE_INT;
+  dev->opt[OPT_GREEN_OFFSET].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
+  dev->opt[OPT_GREEN_OFFSET].unit = SANE_UNIT_NONE;
+  dev->opt[OPT_GREEN_OFFSET].size = sizeof (SANE_Int);
+  dev->opt[OPT_GREEN_OFFSET].constraint_type = SANE_CONSTRAINT_RANGE;
+  dev->opt[OPT_GREEN_OFFSET].constraint.range = &u4_range;
+  dev->val[OPT_GREEN_OFFSET].w = dev->green_offset;
 
-  /* blue contrast */
-  dev->opt[OPT_BLUE_CONTRAST].name = "blue-contrast";
-  dev->opt[OPT_BLUE_CONTRAST].title = SANE_TITLE_CONTRAST;
-  dev->opt[OPT_BLUE_CONTRAST].desc = SANE_I18N ("Sets blue channel contrast");
-  dev->opt[OPT_BLUE_CONTRAST].type = SANE_TYPE_INT;
-  dev->opt[OPT_BLUE_CONTRAST].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
-  dev->opt[OPT_BLUE_CONTRAST].unit = SANE_UNIT_NONE;
-  dev->opt[OPT_BLUE_CONTRAST].size = sizeof (SANE_Int);
-  dev->opt[OPT_BLUE_CONTRAST].constraint_type = SANE_CONSTRAINT_RANGE;
-  dev->opt[OPT_BLUE_CONTRAST].constraint.range = &u4_range;
-  dev->val[OPT_BLUE_CONTRAST].w = dev->blue_contrast;
+  /* blue offset */
+  dev->opt[OPT_BLUE_OFFSET].name = "blue-offset";
+  dev->opt[OPT_BLUE_OFFSET].title = SANE_I18N ("Blue offset");
+  dev->opt[OPT_BLUE_OFFSET].desc = SANE_I18N ("Sets blue channel offset");
+  dev->opt[OPT_BLUE_OFFSET].type = SANE_TYPE_INT;
+  dev->opt[OPT_BLUE_OFFSET].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
+  dev->opt[OPT_BLUE_OFFSET].unit = SANE_UNIT_NONE;
+  dev->opt[OPT_BLUE_OFFSET].size = sizeof (SANE_Int);
+  dev->opt[OPT_BLUE_OFFSET].constraint_type = SANE_CONSTRAINT_RANGE;
+  dev->opt[OPT_BLUE_OFFSET].constraint.range = &u4_range;
+  dev->val[OPT_BLUE_OFFSET].w = dev->blue_offset;
 
   return SANE_STATUS_GOOD;
 }
@@ -860,7 +860,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	      sanei_umax_pp_setastra (val);
 	      DBG (3, "init: option astra %ld P\n", val);
 	    }
-	  else if ((strncmp (cp, "red-brightness", 14) == 0)
+	  else if ((strncmp (cp, "red-gain", 14) == 0)
 		   && isspace (cp[14]))
 	    {
 	      char *end;
@@ -880,11 +880,11 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
 	      DBG (3, "init: option buffer %ld\n", val);
 
-	      DBG (3, "init: setting global option red-brightness to %ld\n",
+	      DBG (3, "init: setting global option red-gain to %ld\n",
 		   val);
-	      red_brightness = val;
+	      red_gain = val;
 	    }
-	  else if (strncmp (cp, "green-brightness", 16) == 0
+	  else if (strncmp (cp, "green-gain", 16) == 0
 		   && isspace (cp[16]))
 	    {
 	      char *end;
@@ -902,12 +902,12 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 		       cp, val);
 		}
 
-	      DBG (3, "init: option green-brightness %ld\n", val);
-	      DBG (3, "init: setting global option green-brightness to %ld\n",
+	      DBG (3, "init: option green-gain %ld\n", val);
+	      DBG (3, "init: setting global option green-gain to %ld\n",
 		   val);
-	      green_brightness = val;
+	      green_gain = val;
 	    }
-	  else if (strncmp (cp, "blue-brightness", 15) == 0
+	  else if (strncmp (cp, "blue-gain", 15) == 0
 		   && isspace (cp[15]))
 	    {
 	      char *end;
@@ -925,13 +925,13 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 		       cp, val);
 		}
 
-	      DBG (3, "init: option blue-brightness %ld\n", val);
+	      DBG (3, "init: option blue-gain %ld\n", val);
 
-	      DBG (3, "init: setting global option blue-brightness to %ld\n",
+	      DBG (3, "init: setting global option blue-gain to %ld\n",
 		   val);
-	      blue_brightness = val;
+	      blue_gain = val;
 	    }
-	  else if ((strncmp (cp, "red-contrast", 12) == 0)
+	  else if ((strncmp (cp, "red-offset", 12) == 0)
 		   && isspace (cp[12]))
 	    {
 	      char *end;
@@ -951,11 +951,11 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
 	      DBG (3, "init: option buffer %ld\n", val);
 
-	      DBG (3, "init: setting global option red-contrast to %ld\n",
+	      DBG (3, "init: setting global option red-offset to %ld\n",
 		   val);
-	      red_contrast = val;
+	      red_offset = val;
 	    }
-	  else if (strncmp (cp, "green-contrast", 14) == 0
+	  else if (strncmp (cp, "green-offset", 14) == 0
 		   && isspace (cp[14]))
 	    {
 	      char *end;
@@ -973,12 +973,12 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 		       cp, val);
 		}
 
-	      DBG (3, "init: option green-contrast %ld\n", val);
-	      DBG (3, "init: setting global option green-contrast to %ld\n",
+	      DBG (3, "init: option green-offset %ld\n", val);
+	      DBG (3, "init: setting global option green-offset to %ld\n",
 		   val);
-	      green_contrast = val;
+	      green_offset = val;
 	    }
-	  else if (strncmp (cp, "blue-contrast", 13) == 0 && isspace (cp[13]))
+	  else if (strncmp (cp, "blue-offset", 13) == 0 && isspace (cp[13]))
 	    {
 	      char *end;
 	      long int val;
@@ -995,11 +995,11 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 		       cp, val);
 		}
 
-	      DBG (3, "init: option blue-contrast %ld\n", val);
+	      DBG (3, "init: option blue-offset %ld\n", val);
 
-	      DBG (3, "init: setting global option blue-contrast to %ld\n",
+	      DBG (3, "init: setting global option blue-offset to %ld\n",
 		   val);
-	      blue_contrast = val;
+	      blue_offset = val;
 	    }
 	}
       else if ((strncmp (cp, "port", 4) == 0) && isspace (cp[4]))
@@ -1137,13 +1137,13 @@ sane_exit (void)
   num_devices = 0;
   first_dev = NULL;
 
-  red_brightness = 0;
-  green_brightness = 0;
-  blue_brightness = 0;
+  red_gain = 0;
+  green_gain = 0;
+  blue_gain = 0;
 
-  red_contrast = 0;
-  green_contrast = 0;
-  blue_contrast = 0;
+  red_offset = 0;
+  green_offset = 0;
+  blue_offset = 0;
 
 }
 
@@ -1325,15 +1325,15 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   dev->y_range.max = dev->desc->max_v_size;
   dev->y_range.quant = 0;
 
-  dev->gray_brightness = 0;
+  dev->gray_gain = 0;
 
   /* use pre defined settings read from umax_pp.conf */
-  dev->red_brightness = red_brightness;
-  dev->green_brightness = green_brightness;
-  dev->blue_brightness = blue_brightness;
-  dev->red_contrast = red_contrast;
-  dev->green_contrast = green_contrast;
-  dev->blue_contrast = blue_contrast;
+  dev->red_gain = red_gain;
+  dev->green_gain = green_gain;
+  dev->blue_gain = blue_gain;
+  dev->red_offset = red_offset;
+  dev->green_offset = green_offset;
+  dev->blue_offset = blue_offset;
 
 
   if (dev->buf == NULL)
@@ -1404,13 +1404,13 @@ sane_close (SANE_Handle handle)
 	}
     }
 
-  /* then we switch off brightness if needed */
+  /* then we switch off gain if needed */
   if (dev->val[OPT_LAMP_CONTROL].w == SANE_TRUE)
     {
       rc = sanei_umax_pp_lamp (0);
       if (rc == UMAX1220P_TRANSPORT_FAILED)
 	{
-	  DBG (1, "close: switch off brightness failed (ignored....)\n");
+	  DBG (1, "close: switch off gain failed (ignored....)\n");
 	}
     }
 
@@ -1507,16 +1507,16 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_BR_Y:
 	case OPT_NUM_OPTS:
 	case OPT_CUSTOM_GAMMA:
-	case OPT_MANUAL_BRIGHTNESS:
-	case OPT_GRAY_BRIGHTNESS:
-	case OPT_GREEN_BRIGHTNESS:
-	case OPT_RED_BRIGHTNESS:
-	case OPT_BLUE_BRIGHTNESS:
-	case OPT_MANUAL_CONTRAST:
-	case OPT_GRAY_CONTRAST:
-	case OPT_GREEN_CONTRAST:
-	case OPT_RED_CONTRAST:
-	case OPT_BLUE_CONTRAST:
+	case OPT_MANUAL_GAIN:
+	case OPT_GRAY_GAIN:
+	case OPT_GREEN_GAIN:
+	case OPT_RED_GAIN:
+	case OPT_BLUE_GAIN:
+	case OPT_MANUAL_OFFSET:
+	case OPT_GRAY_OFFSET:
+	case OPT_GREEN_OFFSET:
+	case OPT_RED_OFFSET:
+	case OPT_BLUE_OFFSET:
 
 	  *(SANE_Word *) val = dev->val[option].w;
 	  return SANE_STATUS_GOOD;
@@ -1588,14 +1588,14 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  if (info)
 	    *info |= SANE_INFO_RELOAD_PARAMS;
 
-	case OPT_GRAY_BRIGHTNESS:
-	case OPT_GREEN_BRIGHTNESS:
-	case OPT_RED_BRIGHTNESS:
-	case OPT_BLUE_BRIGHTNESS:
-	case OPT_GRAY_CONTRAST:
-	case OPT_GREEN_CONTRAST:
-	case OPT_RED_CONTRAST:
-	case OPT_BLUE_CONTRAST:
+	case OPT_GRAY_GAIN:
+	case OPT_GREEN_GAIN:
+	case OPT_RED_GAIN:
+	case OPT_BLUE_GAIN:
+	case OPT_GRAY_OFFSET:
+	case OPT_GREEN_OFFSET:
+	case OPT_RED_OFFSET:
+	case OPT_BLUE_OFFSET:
 
 	  dev->val[option].w = *(SANE_Word *) val;
 	  /* sanity check */
@@ -1738,16 +1738,16 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    }
 	  return SANE_STATUS_GOOD;
 
-	case OPT_MANUAL_CONTRAST:
+	case OPT_MANUAL_OFFSET:
 	  w = *(SANE_Word *) val;
 
-	  if (w == dev->val[OPT_MANUAL_CONTRAST].w)
+	  if (w == dev->val[OPT_MANUAL_OFFSET].w)
 	    return SANE_STATUS_GOOD;	/* no change */
 
 	  if (info)
 	    *info |= SANE_INFO_RELOAD_OPTIONS;
 
-	  dev->val[OPT_MANUAL_CONTRAST].w = w;
+	  dev->val[OPT_MANUAL_OFFSET].w = w;
 
 	  if (w == SANE_TRUE)
 	    {
@@ -1755,36 +1755,36 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	      if ((strcmp (mode, "Grayscale") == 0)
 		  || (strcmp (mode, "Lineart") == 0))
-		dev->opt[OPT_GRAY_CONTRAST].cap &= ~SANE_CAP_INACTIVE;
+		dev->opt[OPT_GRAY_OFFSET].cap &= ~SANE_CAP_INACTIVE;
 	      else if (strcmp (mode, "Color") == 0)
 		{
-		  dev->opt[OPT_GRAY_CONTRAST].cap |= SANE_CAP_INACTIVE;
-		  dev->opt[OPT_RED_CONTRAST].cap &= ~SANE_CAP_INACTIVE;
-		  dev->opt[OPT_GREEN_CONTRAST].cap &= ~SANE_CAP_INACTIVE;
-		  dev->opt[OPT_BLUE_CONTRAST].cap &= ~SANE_CAP_INACTIVE;
+		  dev->opt[OPT_GRAY_OFFSET].cap |= SANE_CAP_INACTIVE;
+		  dev->opt[OPT_RED_OFFSET].cap &= ~SANE_CAP_INACTIVE;
+		  dev->opt[OPT_GREEN_OFFSET].cap &= ~SANE_CAP_INACTIVE;
+		  dev->opt[OPT_BLUE_OFFSET].cap &= ~SANE_CAP_INACTIVE;
 		}
 	    }
 	  else
 	    {
-	      dev->opt[OPT_GRAY_CONTRAST].cap |= SANE_CAP_INACTIVE;
-	      dev->opt[OPT_RED_CONTRAST].cap |= SANE_CAP_INACTIVE;
-	      dev->opt[OPT_GREEN_CONTRAST].cap |= SANE_CAP_INACTIVE;
-	      dev->opt[OPT_BLUE_CONTRAST].cap |= SANE_CAP_INACTIVE;
+	      dev->opt[OPT_GRAY_OFFSET].cap |= SANE_CAP_INACTIVE;
+	      dev->opt[OPT_RED_OFFSET].cap |= SANE_CAP_INACTIVE;
+	      dev->opt[OPT_GREEN_OFFSET].cap |= SANE_CAP_INACTIVE;
+	      dev->opt[OPT_BLUE_OFFSET].cap |= SANE_CAP_INACTIVE;
 	    }
 	  return SANE_STATUS_GOOD;
 
 
 
-	case OPT_MANUAL_BRIGHTNESS:
+	case OPT_MANUAL_GAIN:
 	  w = *(SANE_Word *) val;
 
-	  if (w == dev->val[OPT_MANUAL_BRIGHTNESS].w)
+	  if (w == dev->val[OPT_MANUAL_GAIN].w)
 	    return SANE_STATUS_GOOD;	/* no change */
 
 	  if (info)
 	    *info |= SANE_INFO_RELOAD_OPTIONS;
 
-	  dev->val[OPT_MANUAL_BRIGHTNESS].w = w;
+	  dev->val[OPT_MANUAL_GAIN].w = w;
 
 	  if (w == SANE_TRUE)
 	    {
@@ -1792,21 +1792,21 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	      if ((strcmp (mode, "Grayscale") == 0)
 		  || (strcmp (mode, "Lineart") == 0))
-		dev->opt[OPT_GRAY_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
+		dev->opt[OPT_GRAY_GAIN].cap &= ~SANE_CAP_INACTIVE;
 	      else if (strcmp (mode, "Color") == 0)
 		{
-		  dev->opt[OPT_GRAY_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
-		  dev->opt[OPT_RED_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
-		  dev->opt[OPT_GREEN_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
-		  dev->opt[OPT_BLUE_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
+		  dev->opt[OPT_GRAY_GAIN].cap |= SANE_CAP_INACTIVE;
+		  dev->opt[OPT_RED_GAIN].cap &= ~SANE_CAP_INACTIVE;
+		  dev->opt[OPT_GREEN_GAIN].cap &= ~SANE_CAP_INACTIVE;
+		  dev->opt[OPT_BLUE_GAIN].cap &= ~SANE_CAP_INACTIVE;
 		}
 	    }
 	  else
 	    {
-	      dev->opt[OPT_GRAY_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
-	      dev->opt[OPT_RED_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
-	      dev->opt[OPT_GREEN_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
-	      dev->opt[OPT_BLUE_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
+	      dev->opt[OPT_GRAY_GAIN].cap |= SANE_CAP_INACTIVE;
+	      dev->opt[OPT_RED_GAIN].cap |= SANE_CAP_INACTIVE;
+	      dev->opt[OPT_GREEN_GAIN].cap |= SANE_CAP_INACTIVE;
+	      dev->opt[OPT_BLUE_GAIN].cap |= SANE_CAP_INACTIVE;
 	    }
 	  return SANE_STATUS_GOOD;
 
@@ -1916,43 +1916,43 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		  }
 	      }
 
-	    /* rebuild OPT CONTRAST */
-	    dev->opt[OPT_GRAY_CONTRAST].cap |= SANE_CAP_INACTIVE;
-	    dev->opt[OPT_RED_CONTRAST].cap |= SANE_CAP_INACTIVE;
-	    dev->opt[OPT_GREEN_CONTRAST].cap |= SANE_CAP_INACTIVE;
-	    dev->opt[OPT_BLUE_CONTRAST].cap |= SANE_CAP_INACTIVE;
+	    /* rebuild OPT OFFSET */
+	    dev->opt[OPT_GRAY_OFFSET].cap |= SANE_CAP_INACTIVE;
+	    dev->opt[OPT_RED_OFFSET].cap |= SANE_CAP_INACTIVE;
+	    dev->opt[OPT_GREEN_OFFSET].cap |= SANE_CAP_INACTIVE;
+	    dev->opt[OPT_BLUE_OFFSET].cap |= SANE_CAP_INACTIVE;
 
 
-	    if (dev->val[OPT_MANUAL_CONTRAST].w == SANE_TRUE)
+	    if (dev->val[OPT_MANUAL_OFFSET].w == SANE_TRUE)
 	      {
 		if ((strcmp (val, "Grayscale") == 0)
 		    || (strcmp (val, "Lineart") == 0))
-		  dev->opt[OPT_GRAY_CONTRAST].cap &= ~SANE_CAP_INACTIVE;
+		  dev->opt[OPT_GRAY_OFFSET].cap &= ~SANE_CAP_INACTIVE;
 		else if (strcmp (val, "Color") == 0)
 		  {
-		    dev->opt[OPT_RED_CONTRAST].cap &= ~SANE_CAP_INACTIVE;
-		    dev->opt[OPT_GREEN_CONTRAST].cap &= ~SANE_CAP_INACTIVE;
-		    dev->opt[OPT_BLUE_CONTRAST].cap &= ~SANE_CAP_INACTIVE;
+		    dev->opt[OPT_RED_OFFSET].cap &= ~SANE_CAP_INACTIVE;
+		    dev->opt[OPT_GREEN_OFFSET].cap &= ~SANE_CAP_INACTIVE;
+		    dev->opt[OPT_BLUE_OFFSET].cap &= ~SANE_CAP_INACTIVE;
 		  }
 	      }
 
-	    /* rebuild OPT BRIGHTNESS */
-	    dev->opt[OPT_GRAY_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
-	    dev->opt[OPT_RED_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
-	    dev->opt[OPT_GREEN_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
-	    dev->opt[OPT_BLUE_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
+	    /* rebuild OPT GAIN */
+	    dev->opt[OPT_GRAY_GAIN].cap |= SANE_CAP_INACTIVE;
+	    dev->opt[OPT_RED_GAIN].cap |= SANE_CAP_INACTIVE;
+	    dev->opt[OPT_GREEN_GAIN].cap |= SANE_CAP_INACTIVE;
+	    dev->opt[OPT_BLUE_GAIN].cap |= SANE_CAP_INACTIVE;
 
 
-	    if (dev->val[OPT_MANUAL_BRIGHTNESS].w == SANE_TRUE)
+	    if (dev->val[OPT_MANUAL_GAIN].w == SANE_TRUE)
 	      {
 		if ((strcmp (val, "Grayscale") == 0)
 		    || (strcmp (val, "Lineart") == 0))
-		  dev->opt[OPT_GRAY_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
+		  dev->opt[OPT_GRAY_GAIN].cap &= ~SANE_CAP_INACTIVE;
 		else if (strcmp (val, "Color") == 0)
 		  {
-		    dev->opt[OPT_RED_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
-		    dev->opt[OPT_GREEN_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
-		    dev->opt[OPT_BLUE_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
+		    dev->opt[OPT_RED_GAIN].cap &= ~SANE_CAP_INACTIVE;
+		    dev->opt[OPT_GREEN_GAIN].cap &= ~SANE_CAP_INACTIVE;
+		    dev->opt[OPT_BLUE_GAIN].cap &= ~SANE_CAP_INACTIVE;
 		  }
 	      }
 
@@ -1988,50 +1988,50 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   else
     dev->color = UMAX_PP_MODE_COLOR;
 
-  /* contrast control */
-  if (dev->val[OPT_MANUAL_CONTRAST].w == SANE_TRUE)
+  /* offset control */
+  if (dev->val[OPT_MANUAL_OFFSET].w == SANE_TRUE)
     {
       if (dev->color != UMAX_PP_MODE_COLOR)
 	{
-	  dev->red_contrast = 0;
-	  dev->green_contrast = (int) (dev->val[OPT_GRAY_CONTRAST].w);
-	  dev->blue_contrast = 0;
+	  dev->red_offset = 0;
+	  dev->green_offset = (int) (dev->val[OPT_GRAY_OFFSET].w);
+	  dev->blue_offset = 0;
 	}
       else
 	{
-	  dev->red_contrast = (int) (dev->val[OPT_RED_CONTRAST].w);
-	  dev->green_contrast = (int) (dev->val[OPT_GREEN_CONTRAST].w);
-	  dev->blue_contrast = (int) (dev->val[OPT_BLUE_CONTRAST].w);
+	  dev->red_offset = (int) (dev->val[OPT_RED_OFFSET].w);
+	  dev->green_offset = (int) (dev->val[OPT_GREEN_OFFSET].w);
+	  dev->blue_offset = (int) (dev->val[OPT_BLUE_OFFSET].w);
 	}
     }
   else
     {
-      dev->red_contrast = 6;
-      dev->green_contrast = 6;
-      dev->blue_contrast = 6;
+      dev->red_offset = 6;
+      dev->green_offset = 6;
+      dev->blue_offset = 6;
     }
 
-  /* brightness control */
-  if (dev->val[OPT_MANUAL_BRIGHTNESS].w == SANE_TRUE)
+  /* gain control */
+  if (dev->val[OPT_MANUAL_GAIN].w == SANE_TRUE)
     {
       if (dev->color != UMAX_PP_MODE_COLOR)
 	{
-	  dev->red_brightness = 0;
-	  dev->green_brightness = (int) (dev->val[OPT_GRAY_BRIGHTNESS].w);
-	  dev->blue_brightness = 0;
+	  dev->red_gain = 0;
+	  dev->green_gain = (int) (dev->val[OPT_GRAY_GAIN].w);
+	  dev->blue_gain = 0;
 	}
       else
 	{
-	  dev->red_brightness = (int) (dev->val[OPT_RED_BRIGHTNESS].w);
-	  dev->green_brightness = (int) (dev->val[OPT_GREEN_BRIGHTNESS].w);
-	  dev->blue_brightness = (int) (dev->val[OPT_BLUE_BRIGHTNESS].w);
+	  dev->red_gain = (int) (dev->val[OPT_RED_GAIN].w);
+	  dev->green_gain = (int) (dev->val[OPT_GREEN_GAIN].w);
+	  dev->blue_gain = (int) (dev->val[OPT_BLUE_GAIN].w);
 	}
     }
   else
     {
-      dev->red_brightness = red_brightness;
-      dev->green_brightness = green_brightness;
-      dev->blue_brightness = blue_brightness;
+      dev->red_gain = red_gain;
+      dev->green_gain = green_gain;
+      dev->blue_gain = blue_gain;
     }
 
   /* geometry */
@@ -2168,7 +2168,7 @@ sane_start (SANE_Handle handle)
   dev->val[OPT_LAMP_CONTROL].w = SANE_TRUE;
 
   /* tests if we do auto setting */
-  if (dev->val[OPT_MANUAL_BRIGHTNESS].w == SANE_TRUE)
+  if (dev->val[OPT_MANUAL_GAIN].w == SANE_TRUE)
     autoset = 0;
   else
     autoset = 1;
@@ -2188,10 +2188,10 @@ sane_start (SANE_Handle handle)
 	   dev->BottomX - dev->TopX,
 	   dev->BottomY - dev->TopY + points,
 	   dev->dpi,
-	   (dev->red_brightness << 8) + (dev->green_brightness << 4) +
-	   dev->blue_brightness,
-	   (dev->red_contrast << 8) + (dev->green_contrast << 4) +
-	   dev->blue_contrast);
+	   (dev->red_gain << 8) + (dev->green_gain << 4) +
+	   dev->blue_gain,
+	   (dev->red_offset << 8) + (dev->green_offset << 4) +
+	   dev->blue_offset);
 
       rc = sanei_umax_pp_start (dev->TopX,
 				dev->TopY - points,
@@ -2200,12 +2200,12 @@ sane_start (SANE_Handle handle)
 				dev->dpi,
 				2,
 				autoset,
-				(dev->red_brightness << 8) +
-				(dev->green_brightness << 4) +
-				dev->blue_brightness,
-				(dev->red_contrast << 8) +
-				(dev->green_contrast << 4) +
-				dev->blue_contrast, &(dev->bpp), &(dev->tw),
+				(dev->red_gain << 8) +
+				(dev->green_gain << 4) +
+				dev->blue_gain,
+				(dev->red_offset << 8) +
+				(dev->green_offset << 4) +
+				dev->blue_offset, &(dev->bpp), &(dev->tw),
 				&(dev->th));
       /* we enlarged the scanning zone   */
       /* to allow reordering, we must    */
@@ -2221,8 +2221,8 @@ sane_start (SANE_Handle handle)
 	   dev->TopX,
 	   dev->TopY,
 	   dev->BottomX - dev->TopX,
-	   dev->BottomY - dev->TopY, dev->dpi, dev->gray_brightness << 4,
-	   dev->gray_contrast << 4);
+	   dev->BottomY - dev->TopY, dev->dpi, dev->gray_gain << 4,
+	   dev->gray_offset << 4);
       rc = sanei_umax_pp_start (dev->TopX,
 				dev->TopY,
 				dev->BottomX - dev->TopX,
@@ -2230,8 +2230,8 @@ sane_start (SANE_Handle handle)
 				dev->dpi,
 				1,
 				autoset,
-				dev->gray_brightness << 4,
-				dev->gray_contrast << 4, &(dev->bpp),
+				dev->gray_gain << 4,
+				dev->gray_offset << 4, &(dev->bpp),
 				&(dev->tw), &(dev->th));
       DBG (64, "sane_start: bpp=%d,tw=%d,th=%d\n", dev->bpp, dev->tw,
 	   dev->th);

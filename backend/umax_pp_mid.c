@@ -329,7 +329,7 @@ sanei_umax_pp_cancel (void)
 int
 sanei_umax_pp_start (int x, int y, int width, int height, int dpi, int color,
 		     int autoset,
-		     int brightness, int contrast, int *rbpp, int *rtw,
+		     int gain, int offset, int *rbpp, int *rtw,
 		     int *rth)
 {
   int col = BW_MODE;
@@ -359,8 +359,8 @@ sanei_umax_pp_start (int x, int y, int width, int height, int dpi, int color,
     }
 
   if (sanei_umax_pp_startScan
-      (x + sanei_umax_pp_getLeft (), y, width, height, dpi, col, brightness,
-       contrast, rbpp, rtw, rth) != 1)
+      (x + sanei_umax_pp_getLeft (), y, width, height, dpi, col, gain,
+       offset, rbpp, rtw, rth) != 1)
     {
       sanei_umax_pp_endSession ();
       unlock_parport ();

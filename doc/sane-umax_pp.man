@@ -1,5 +1,5 @@
 .\" .IX sane-umax_pp
-.TH "sane-umax_pp" "5" "16 September 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane-umax_pp" "5" "23 August 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .SH "NAME"
 sane\-umax_pp \- SANE backend for Umax Astra parallel port flatbed scanners
 .SH "DESCRIPTION"
@@ -142,37 +142,37 @@ scanners.  Empty lines and lines starting with a hash mark (#) are
 ignored.
 .PP 
 The height options supported are
-.BR red\-brightness ,
-.BR green\-brightness ,
-.BR blue\-brightness ,
-.BR red\-contrast ,
-.BR green\-contrast ,
-.BR blue\-contrast ,
+.BR red\-gain ,
+.BR green\-gain ,
+.BR blue\-gain ,
+.BR red\-offset ,
+.BR green\-offset ,
+.BR blue\-offset ,
 .BR astra ,
 and
 .BR buffer .
 
 Options
-.B red\-brightness
+.B red\-gain
 ,
-.B green\-brightness
+.B green\-gain
 and
-.B blue\-brightness
+.B blue\-gain
 allow you to adjust the sensitivy of your scanner for the given color. Values
-range from 0 (lowest brightness) to 15 (highest). If the advanced option "Brightness" isn't
-checked in the frontend, the backend does automatic brightness calibration, and do not use
+range from 0 (lowest gain) to 15 (highest). If the advanced option "Gain" isn't
+checked in the frontend, the backend does automatic gain calibration, and do not use
 user provided values.
 
 .PP 
 
 Options
-.B red\-contrast
+.B red\-offset
 ,
-.B green\-contrast
+.B green\-offset
 and
-.B blue\-contrast
-allow you to adjust the contrast of your scanner for the given color. Values
-range from 0 (lowest contrast) to 15 (highest). 
+.B blue\-offset
+allow you to adjust the offset of your scanner for the given color. Values
+range from 0 (lowest offset) to 15 (highest). 
 .PP 
 
 Option

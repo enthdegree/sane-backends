@@ -132,7 +132,7 @@ extern int sanei_umax_pp_cancel (void);
 
 /* starts scanning:
 	- find scanner origin
-	- does channel brightness calibration if needed
+	- does channel gain calibration if needed
 	- does calibration
 	- initialize scan operation
 
@@ -142,8 +142,8 @@ extern int sanei_umax_pp_cancel (void);
 
 	color is true for color scan, false for gray-levels
 
-	brightness value is 256*red_brightness+16*green_brightness+blue_brightness
-	if brightness is given (ie <> 0), auto brightness will not be performed
+	gain value is 256*red_gain+16*green_gain+blue_gain
+	if gain is given (ie <> 0), auto gain will not be performed
 
 	
 
@@ -152,8 +152,8 @@ extern int sanei_umax_pp_cancel (void);
    the width of scanned area expressed in pixels
 */
 extern int sanei_umax_pp_start (int x, int y, int width, int height, int dpi,
-				int color, int autoset, int brightness,
-				int contrast, int *rbpp, int *rtw, int *rth);
+				int color, int autoset, int gain,
+				int offset, int *rbpp, int *rtw, int *rth);
 
 
 /* reads one block of data from scanner

@@ -1,3 +1,12 @@
+2004-08-25  Stéphane Voltz <svoltz@wanadoo.fr>
+
+	* tools/umax_pp.c backend/umax_pp.c backend/umax_pp.conf
+	  backend/umax_pp.h backend/umax_pp_low.c backend/umax_pp_low.h
+	  backend/umax_pp_mid.c backend/umax_pp_mid.h doc/sane-umax_pp.man:
+	  rename 'contrast' to 'offset' and 'highlight' to 'gain'. Translations
+	  will need to be updated. Beginning of 610/1220P codepath merge.
+
+
 2004-08-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Epson 2480 and Microtek

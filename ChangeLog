@@ -33,6 +33,8 @@
 	  page. Fixed some formatting issues.
 	* doc/backend-writing.txt: Added paragraph about @LIBDIR@ and friends
 	  in manual pages.
+	* TODO: Added several entries about manual pages. Removed entry about
+	  sane(7).
 
 2001-06-09  Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 

@@ -1,5 +1,3 @@
-." Process this file with
-." man -l sane-microtek2.man
 .TH sane-microtek2 5 "28 Jan 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .SH NAME
 sane-microtek2 \- SANE backend for Microtek scanners with SCSI-2 command set
@@ -23,59 +21,39 @@ See
 .PP
 At present, the following scanners are known positively to work with this
 backend:
-.PP
-Vendor     Product id:        Remark
-.br
---------   --------------     -------------
-.br
-Microtek   E3+                Parport and SCSI
-.br
-Microtek   X6                 SCSI
-.br
-Microtek   X6EL               SCSI
-.br
-Microtek   X6USB              USB
-.br
-Microtek   ScanMaker V300     Parport and SCSI
-.br
-Microtek   ScanMaker V310     Parport and SCSI
-.br
-Microtek   ScanMaker V600     Parport and SCSI
-.br
-Microtek   ScanMaker 330      SCSI
-.br
-Microtek   ScanMaker 630      SCSI
-.br
-Microtek   ScanMaker 636      SCSI
-.br
-Microtek   ScanMaker 9600XL   SCSI; only flatbed mode?
-.br
-Microtek   Phantom 330CX      Parport
-.br
-Microtek   SlimScan C3        Parport
-.br
-Microtek   SlimScan C6        USB
-.br
-Microtek   Phantom 636        SCSI
-.br
-Microtek   Phantom 636CX      Parport
-.br
-Microtek   V6USL              SCSI and USB
-.br
-Microtek   V6UPL              USB; not stable
-.br
-Microtek   X12USL             SCSI; only 8bit color, work in progress
-.br
-Vobis      HighScan           SCSI (E3+ based models)
-.br
-Scanport   SQ300              Parport?
-.br
-Scanport   SQ4836             SCSI
-.br
-Scanpaq    SQ2030             Parport
+.TS
+tab(:), box; 
+lb lb lb
+l l l.
+Vendor:Product id:Remark
+=
+Microtek:E3+:Parport and SCSI
+Microtek:X6:SCSI
+Microtek:X6EL:SCSI
+Microtek:X6USB:USB
+Microtek:ScanMaker V300:Parport and SCSI
+Microtek:ScanMaker V310:Parport and SCSI
+Microtek:ScanMaker V600:Parport and SCSI
+Microtek:ScanMaker 330:SCSI
+Microtek:ScanMaker 630:SCSI
+Microtek:ScanMaker 636:SCSI
+Microtek:ScanMaker 9600XL:SCSI; only flatbed mode?
+Microtek:Phantom 330CX:Parport
+Microtek:SlimScan C3:Parport
+Microtek:SlimScan C6:USB
+Microtek:Phantom 636:SCSI
+Microtek:Phantom 636CX:Parport
+Microtek:V6USL:SCSI and USB
+Microtek:V6UPL:USB; not stable
+Microtek:X12USL:SCSI; only 8bit color, work in progress
+Vobis:HighScan:SCSI (E3+ based models)
+Scanport:SQ300:Parport?
+Scanport:SQ4836:SCSI
+Scanpaq:SQ2030:Parport
+.TE
 .PP
 Additional information can be found at
-.B http://www.sane\-project.org/ .
+.BR http://www.sane\-project.org/ .
 .PP
 If you own a Microtek scanner other than the ones listed above,
 it may or may not work with SANE! Because equal scanners are sold under

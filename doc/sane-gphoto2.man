@@ -41,7 +41,7 @@ line would read "topfolder=/DCIM"
 Some cameras don't implement a file structure and store all pictures
 in the "/" directory.  This is indicated by setting "subdirs=0" with
 "topfolder=/"
-.pp
+.PP
 .RS
 port=usb:
 .br

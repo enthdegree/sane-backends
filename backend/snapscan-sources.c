@@ -303,7 +303,7 @@ static SANE_Status FDSource_init (FDSource *pself,
     if (status == SANE_STATUS_GOOD)
     {
         pself->fd = fd;
-        pself->bytes_remaining = pss->bytes_remaining;
+        pself->bytes_remaining = pss->bytes_per_line * (pss->lines + pss->chroma);
     }
     return status;
 }
@@ -962,6 +962,9 @@ static SANE_Status create_source_chain (SnapScan_Scanner *pss,
 
 /*
  * $Log$
+ * Revision 1.9  2004/04/09 16:18:37  oliver-guest
+ * Fix initialization of FDSource.bytes_remaining
+ *
  * Revision 1.8  2004/04/09 11:59:02  oliver-guest
  * Fixes for pthread implementation
  *

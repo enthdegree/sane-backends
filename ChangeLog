@@ -1,3 +1,13 @@
+2000-11-22  Oliver Rauch <Oliver.Rauch@Wolfsburg.DE>
+
+	* changed configure.in, configure frontend/Makefile.in
+	  and backend/Makfile.in:
+	  The shared libraries required by the backends are linked to
+	  the backends (they have been linked to the frontends before).
+	  Only libintl is linked to the frontend.
+	* changed tool/sane-config.in, sane-config --libs => "-lsane",
+	  all other libraries are linked to the backend libs now
+
 2000-11-24  Jochen Eisinger <jochen.eisinger@gmx.net>
 
 	* doc/scanimage.man doc/saned.man: updated description of password

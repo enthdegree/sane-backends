@@ -4,6 +4,12 @@
 	  ENVIRONMENT information and did some minor updates.
 	* descriptions/plustek_pp.desc descriptions/u12.desc: status updates.
 	* po/sane-backends.de.po: fixed wrong translation.
+	* doc/plustek/Plustek-USB.changes: update.
+	* doc/plustek/Plustek-PARPORT-TODO.txt: update.
+	* doc/Makefile.in: added u12 subdirectory.
+	* backend/plustek.[ch] backend/plustek-usb*.[ch]: copyright updates
+	  and some changes concerning the CanoScan lamp calibration.
+	* backend/u12.[ch] backend/u12-*.[ch]: copyright updates.
 
 2004-01-08  Oliver Rauch <oliver.rauch@rauch-domain.de>
 	* backend/umax.c: changed order of includes because of compilation error

@@ -433,14 +433,12 @@ leo_identify_scanner (Leo_Scanner * dev)
 
 /* SCSI sense handler. Callback for SANE. */
 static SANE_Status
-leo_sense_handler (int scsi_fd, unsigned char *result, void *arg)
+leo_sense_handler (int scsi_fd, unsigned char *result, void __unused__ *arg)
 {
   int asc, ascq, sensekey;
   int len;
 
   DBG (DBG_proc, "leo_sense_handler (scsi_fd = %d)\n", scsi_fd);
-
-  arg = arg;			/* silence gcc */
 
   sensekey = get_RS_sense_key (result);
   len = 7 + get_RS_additional_length (result);
@@ -1292,7 +1290,7 @@ leo_send_halftone_pattern (Leo_Scanner * dev)
 /* Sane entry points */
 
 SANE_Status
-sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
+sane_init (SANE_Int * version_code, SANE_Auth_Callback __unused__ authorize)
 {
   FILE *fp;
   char dev_name[PATH_MAX];
@@ -1301,8 +1299,6 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   DBG_INIT ();
 
   DBG (DBG_sane_init, "sane_init\n");
-
-  authorize = authorize;	/* silence gcc */
 
   DBG (DBG_error, "This is sane-leo version %d.%d-%d\n", V_MAJOR,
        V_MINOR, BUILD);
@@ -1341,14 +1337,12 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 }
 
 SANE_Status
-sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
+sane_get_devices (const SANE_Device *** device_list, SANE_Bool __unused__ local_only)
 {
   Leo_Scanner *dev;
   int i;
 
   DBG (DBG_proc, "sane_get_devices: enter\n");
-
-  local_only = local_only;	/* silence gcc */
 
   if (devlist)
     free (devlist);
@@ -1917,15 +1911,12 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 }
 
 SANE_Status
-sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
+sane_set_io_mode (SANE_Handle __unused__ handle, SANE_Bool __unused__ non_blocking)
 {
   SANE_Status status;
   Leo_Scanner *dev = handle;
 
   DBG (DBG_proc, "sane_set_io_mode: enter\n");
-
-  handle = handle;		/* silence gcc */
-  non_blocking = non_blocking;	/* silence gcc */
 
   if (!dev->scanning)
     {
@@ -1947,12 +1938,9 @@ sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 }
 
 SANE_Status
-sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
+sane_get_select_fd (SANE_Handle __unused__ handle, SANE_Int __unused__ * fd)
 {
   DBG (DBG_proc, "sane_get_select_fd: enter\n");
-
-  handle = handle;		/* silence gcc */
-  fd = fd;			/* silence gcc */
 
   DBG (DBG_proc, "sane_get_select_fd: exit\n");
 

@@ -1,6 +1,9 @@
 2002-07-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* frontend/stiff.c: Fixed 16 bit tiff output.
+	* backend/test.c backend/test.conf backend/test.h
+	  backend/test-picture.c doc/descriptions/test.desc doc/sane-test.man:
+	  Added option invert-endianess to test 16 bit modes.
 
 2002-07-24  Kazuya Fukuda <kaafuu@mug.biglobe.ne.jp>
 

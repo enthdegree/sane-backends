@@ -1,3 +1,8 @@
+2004-10-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/gt68xx.c backend/gt68xx_high.h doc/descriptions/gt68xx.desc
+	  doc/gt68xx/gt68xx.CHANGES: Removed unused gain and offset options.
+
 2004-10-31  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* backend/plustek.c: Additional debug output.

@@ -1,5 +1,9 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0.66 (2004-10-31)
+
+* Removed unused gain and offset options.
+
 V 1.0.65 (2004-10-11)
 
 * Used new lamp option from saneopts.h.

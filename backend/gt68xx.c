@@ -48,7 +48,7 @@
 
 #include "../include/sane/config.h"
 
-#define BUILD 65
+#define BUILD 66
 #define MAX_DEBUG
 #define WARMUP_TIME 60
 #define CALIBRATION_HEIGHT 2.5
@@ -677,32 +677,6 @@ init_options (GT68xx_Scanner * s)
   s->opt[OPT_THRESHOLD].constraint.range = &u8_range;
   s->val[OPT_THRESHOLD].w = 128;
   DISABLE (OPT_THRESHOLD);
-
-  /* gain correction */
-  s->opt[OPT_GAIN].name = "gain";
-  s->opt[OPT_GAIN].title = 
-    SANE_I18N ("Gain correction");
-  s->opt[OPT_GAIN].desc =
-    SANE_I18N ("This value is added to the internal gain value. "
-	       "Use for extremely light or dark images.");
-  s->opt[OPT_GAIN].type = SANE_TYPE_INT;
-  s->opt[OPT_GAIN].unit = SANE_UNIT_NONE;
-  s->opt[OPT_GAIN].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_GAIN].constraint.range = &offset_range;
-  s->val[OPT_GAIN].w = 0;
-
-  /* offset correction */
-  s->opt[OPT_OFFSET].name = "offset";
-  s->opt[OPT_OFFSET].title = 
-    SANE_I18N ("Offset correction");
-  s->opt[OPT_OFFSET].desc =
-    SANE_I18N ("This value is added to the internal offset value. "
-	       "Use for extremely light or dark images.");
-  s->opt[OPT_OFFSET].type = SANE_TYPE_INT;
-  s->opt[OPT_OFFSET].unit = SANE_UNIT_NONE;
-  s->opt[OPT_OFFSET].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_OFFSET].constraint.range = &offset_range;
-  s->val[OPT_OFFSET].w = 0;
 
   /* "Geometry" group: */
   s->opt[OPT_GEOMETRY_GROUP].title = SANE_I18N ("Geometry");
@@ -1502,8 +1476,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_FULL_SCAN:
 	case OPT_COARSE_CAL:
 	case OPT_COARSE_CAL_ONCE:
-	case OPT_OFFSET:
-	case OPT_GAIN:
 	case OPT_QUALITY_CAL:
 	case OPT_FAST_PREVIEW:
 	case OPT_BACKTRACK:
@@ -1566,8 +1538,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_AUTO_WARMUP:
 	case OPT_COARSE_CAL_ONCE:
 	case OPT_BACKTRACK_LINES:
-	case OPT_OFFSET:
-	case OPT_GAIN:
 	case OPT_QUALITY_CAL:
 	case OPT_GAMMA_VALUE:
 	case OPT_THRESHOLD:

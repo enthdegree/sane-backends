@@ -1,3 +1,10 @@
+2002-01-18  Rene Rebe <rene.rebe@gmx.net>
+
+        * backend/avision.h, backend/avision.c, backend/avision.conf:
+	  many cleanups, fixed sane_cancel to not hang - but perform the
+	  cancel, added a disable-gamma-table option and added the possible
+	  options into the avision.conf file
+
 2002-01-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/Makefile.in: Added doxygen-sanei.conf to DIST_FILES.

@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-07-31"		; version of backend
+:version "2003-08-07"		; version of backend
 :url "http://www.meier-geinitz.de/sane/misc/unsupported.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 ;:url "http://www.meier-geinitz.de/sane/mustek-backend/"
@@ -571,9 +571,9 @@
 
 :model "Paragon 600 II ED/EP"
 :interface "Parport"
-:url "http://www.meier-geinitz.de/sane/misc/mustek-scanners.html"
+:url "http://www.meier-geinitz.de/sane/misc/mustek-600IIep.html"
 :status :unsupported
-:comment "Not supported. SCSI over Parport."
+:comment "Not supported by SANE yet, but there is a stand-alone program and support will be added to the mustek backend."
 
 :model "ScanExpress 600 USB"
 :interface "USB"
@@ -661,6 +661,11 @@
 :interface "USB"
 :status :unsupported
 :comment "All devices using product ID 0x0001 are not supported, for others see Plustek backend. The older models seem to use a P98003 parallel port ASIC and a GenesysLogic parport-over USB brigde. The P98003 is also used by the P12 and PT12 models."
+
+:model "OpticSlim 1200"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. No details yet."
 
 :model "Spectra ADF"
 ;:url ""

@@ -796,6 +796,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       break;
     }
 
+  /* for SET_AUTO the parameter ``value'' is ignored */
+  if (action == SANE_ACTION_SET_AUTO)
+    value_size = 0;
+
   req.handle = s->handle;
   req.option = option;
   req.action = action;

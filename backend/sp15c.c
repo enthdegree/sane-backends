@@ -45,6 +45,9 @@ static const char RCSid[] = "$Header$";
 
 /*
  * $Log$
+ * Revision 1.7  2004/05/28 18:52:53  hmg-guest
+ * Fixed sanei_thread fix (bug #300634, by Mattias Ellert).
+ *
  * Revision 1.6  2004/05/23 17:28:56  hmg-guest
  * Use sanei_thread instead of fork() in the unmaintained backends.
  * Patches from Mattias Ellert (bugs: 300635, 300634, 300633, 300629).
@@ -828,7 +831,8 @@ sane_start (SANE_Handle handle)
   scanner->reader_pipe = fds[1];
   scanner->reader_pid = sanei_thread_begin (reader_process, (void *) scanner);
 
-  close (scanner->reader_pipe);
+  if (sanei_thread_is_forked)
+    close (scanner->reader_pipe);
 
   DBG (10, "sane_start: ok\n");
   return SANE_STATUS_GOOD;

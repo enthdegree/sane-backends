@@ -63,7 +63,8 @@
 # include <asm/io.h>		/* older Linux */
 #elif HAVE_SYS_HW_H
 # include <sys/hw.h>		/* OS/2 */
-#elif defined(__i386__)  && defined (__GNUC__)	/* other x86 with GCC (Win9x ?) */
+#elif defined(__i386__)  && defined (__GNUC__)	&& defined HAVE_IOPERM
+  /* other x86 with GCC (Win9x ?) */
 
 static __inline__ void
 outb (u_char value, u_long port)

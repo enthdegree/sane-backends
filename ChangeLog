@@ -1,3 +1,7 @@
+2004-04-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* japi/.cvsignore: Updated.
+
 2004-04-10  Jochen Eisinger <jochen@penguin-breeder.org>
 
 	* tools/sane-find-scanner.c, doc/sane-mustek_pp.man,

@@ -1,3 +1,8 @@
+2003-01-09  Peter Fales  <peter@fales-lorenz.net>
+
+        * backend/dc210.c, backend/dc240.c:  Fix compile failure
+	  on OS/2.
+
 2003-01-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/gt68xx.c backend/gt68xx.conf backend/gt68xx_devices.c

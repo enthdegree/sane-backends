@@ -1,3 +1,18 @@
+2002-09-28  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* sanei/sanei_lm983x.c: cleanup in reset function
+	* doc/descriptions/plustek.desc: Update according to the new
+	  entry definitions
+	* doc/sane-plustek.man: Fixed format and updated info
+	* backend/plustek.c backend/plustek-devs.c backend/plustek-pp.c
+	  backend/plustek-share.h backend/plustek-usb.c backend/plustek-usb.h
+	  backend/plustek-usbhw.c backend/plustek-usbimg.c
+	  backend/plustek-usbmap.c backend/plustek-usbscan.c
+	  backend/plustek-usbshading.c backend/plustek.conf:
+	  Major update to support CIS based devices
+	  Added register dump and raw picturue/calibration data dump
+	  Added support for Canon N650U and N670U (currently 8-bit color mode only)
+
 2002-09-28  Andras Major <andras@users.sourceforge.net>
 
 	* backends/coolscan2.c doc/descriptions/coolscan2.desc

@@ -1,3 +1,7 @@
+2004-06-30  Gerhard Jaeger <gerhard@gjaeger.de>
+	* doc/plustek/Makefile.kernel26: fixed floating point issues 
+	  for SuSE kernels.
+
 2004-06-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Microtek and Xerox
@@ -6,8 +10,8 @@
 	  jose <jgato@lambdaux.com>). Other minor fixes.
 	
 2004-06-28 m. allan noah <anoah at pfeiffer dot edu>
-         * backend/fujitsu.c: use model code instead of string compare
-           submitted by: stan at saticed.me.uk
+	* backend/fujitsu.c: use model code instead of string compare
+	   submitted by: stan at saticed.me.uk
 
 2004-06-21  Gerhard Jaeger <gerhard@gjaeger.de>
 	* doc/descriptions/unsupported.desc: removed Compac S4 100 

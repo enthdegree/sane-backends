@@ -1,3 +1,8 @@
+2004-03-08  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* tools/check-usb-scanner.c: GL841 max packet size can be 512
+	  bytes on USB 2.0.
+
 2004-03-04  Oliver Schirrmeister <oschirr@abm.de>
 	* backend/fujitsu.c 
           enabled dropoutcolor for fi4x20C

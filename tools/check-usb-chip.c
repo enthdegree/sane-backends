@@ -1,7 +1,7 @@
 /*
    check-usb-chip.c -- Find out what USB scanner chipset is used
    
-   Copyright (C) 2003 Henning Meier-Geinitz <henning@meier-geinitz.de>
+   Copyright (C) 2003, 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2003 Gerhard Jäger <gerhard@gjaeger.de>
                       for LM983x tests
    Copyright (C) 2003 Gerard Klaver <gerard at gkall dot hobby dot nl>
@@ -1548,8 +1548,10 @@ check_gl841 (struct usb_device *dev)
        bEndpointAddress != 0x81)
       || (dev->config[0].interface[0].altsetting[0].endpoint[0].
 	  bmAttributes != 0x02)
-      || (dev->config[0].interface[0].altsetting[0].endpoint[0].
-	  wMaxPacketSize != 0x40)
+      || ((dev->config[0].interface[0].altsetting[0].endpoint[0].
+	  wMaxPacketSize != 0x40) &&
+	  (dev->config[0].interface[0].altsetting[0].endpoint[0].
+	   wMaxPacketSize != 0x200))
       || (dev->config[0].interface[0].altsetting[0].endpoint[0].bInterval !=
 	  0x0))
     {
@@ -1570,8 +1572,10 @@ check_gl841 (struct usb_device *dev)
        bEndpointAddress != 0x02)
       || (dev->config[0].interface[0].altsetting[0].endpoint[1].
 	  bmAttributes != 0x02)
-      || (dev->config[0].interface[0].altsetting[0].endpoint[1].
-	  wMaxPacketSize != 0x40)
+      || ((dev->config[0].interface[0].altsetting[0].endpoint[1].
+	  wMaxPacketSize != 0x40) &&
+	  (dev->config[0].interface[0].altsetting[0].endpoint[1].
+	   wMaxPacketSize != 0x200))
       || (dev->config[0].interface[0].altsetting[0].endpoint[1].bInterval !=
 	  0))
     {

@@ -35,11 +35,11 @@ Backends:
  mustek_usb:    Tom Wang and Henning Meier-Geinitz (*)
  nec:           Kazuya Fukuda (*)
  net:           Andreas Beck and David Mosberger
- pnm:           Andreas Beck, Gordon Matzigkeit, David Mosberger, Michael
-                Herder (*), and Henning Meier-Geinitz (*)
  pie:           Simon Munton (*)
  pint:          Gordon Matzigkeit
  plustek:       Rick Bronson, Gerhard Jaeger (*)
+ pnm:           Andreas Beck, Gordon Matzigkeit, David Mosberger, Michael
+                Herder (*), and Henning Meier-Geinitz (*)
  qcam:          Scott Laird (original driver), David Mosberger (SANE backend),
                 despeckling filter by Patrick Reynolds, 
                 B&W fixes by Andrew Kuchling
@@ -91,8 +91,6 @@ David Huggins-Daines <bn711@freenet.carleton.ca>
 David Mosberger <David.Mosberger@acm.org>
 Didier Carlier <didier@sema.be>
 Eugene S. Weiss <yossarian@users.sourceforge.net>
-Juergen G. Schimmer <schimmi@nbgm.siemens.de>
-Kazuya Fukuda <kazuya@pjs.nevt.nec.co.jp>
 Feico W. Dillema <dillema@acm.org>
 Franck Schneider <schnefra@hol.fr>
 Gerhard Jaeger <g.jaeger@earthling.net>
@@ -106,10 +104,12 @@ Ingo Schneider <schneidi@informatik.tu-muenchen.de>
 Ingo Wilken <Ingo.Wilken@informatik.uni-oldenburg.de>
 Jeff Freedman <jsf@hevanet.com>
 Jochen Eisinger <jochen.eisinger@gmx.net>
+Juergen G. Schimmer <schimmi@nbgm.siemens.de>
 Karl Anders Øygard <karlo@opera.no>
 Karl Heinz Kremer <khk@khk.net>
 Karsten Festag <karsten.festag@t-online.de>
 Kazuhiro Sasayama <kaz@hypercore.co.jp>
+Kazuya Fukuda <kazuya@pjs.nevt.nec.co.jp>
 Kevin Charter <charter@cs.rice.edu>
 Manuel Panea <Manuel.Panea@rzg.mpg.de>
 Marian Eichholz <eichholz@computer.org>

@@ -2941,14 +2941,14 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	continue;
 
       len = strlen (cp);
-      if (cp[len - 1] == '\n')
+/*      if (cp[len - 1] == '\n')
 	cp[--len] = '\0';
 
       while (len && isspace (cp[len - 1]))
 	cp[--len] = '\0';
 
       if (!len)
-	continue;		/* ignore empty lines */
+	continue;*/		/* ignore empty lines */
 
 
       if (strncmp (cp, "option", 6) == 0 && isspace (cp[6]))

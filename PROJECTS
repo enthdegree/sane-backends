@@ -30,9 +30,9 @@ Canon N670U USB scanner support [alpha/developers only] (wip)
 http://home.t-online.de/home/gunther.mayer/ (look for merlin* files)
 Gunther Mayer <Gunther.Mayer@t-online.de>
 
-E3 USB chipset support (e.g. Genius Vivid Pro USB, Colorado USB 19200,
+E3 and E4 USB chipset support (e.g. Genius Vivid Pro USB, Colorado USB 19200,
 Visioneer OneTouch 7600, IBM IdeaScan 2000 USB) (wip)
-http://homepages.paradise.net.nz/stevenel/scanner/
+http://viceo.orcon.net.nz
 
 Handheld scanner support: e.g. for Mustek CG-6000 (wip)
 ftp://www.cs.ubishops.ca/pub/lhii/

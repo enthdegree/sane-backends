@@ -4,7 +4,8 @@
 	  URLs.
 	* doc/descriptions-external/gt68xx.desc: Added some untested scanners.
 	  Updated Mustek entries.
-
+ 	* TODO: Removed hpsj5s .desc file problem.
+	
 2002-09-22  Peter Fales <peter@fales-lorenz.net>
 
 	* doc/sane-dc25.man, backend/dc25.c, backend/dc25.h, 

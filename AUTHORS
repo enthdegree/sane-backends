@@ -8,43 +8,44 @@ Java API:
 
 Backends:
 
- abaton:	David Huggins-Daines
- agfafocus:	Karl Anders Øygard
- apple:		Milon Firikis
- artec:		Chris Pinkham (*)
+ abaton:        David Huggins-Daines
+ agfafocus:     Karl Anders Øygard
+ apple:         Milon Firikis
+ artec:         Chris Pinkham (*)
  as6e:          Eugene S. Weiss (*)
- avision:	Meino Christian Cramer, Rene Rebe(*)
- canon:		Helmut Koeberle, Manuel Panea (*), and Markus Mertinat
- coolscan:	Didier Carlier, Andreas Rick (*)
- dc25:		Peter Fales (*)
- dc210:		Brian J. Murrell
- dll:		David Mosberger
- dmc:		David F. Skoll
- epson:		Karl Heinz Kremer(*)
- hp:		Peter Kirchgessner (*)
-		Geoffrey Dairiki
- m3096g:	Randolph Bentson (*)
- microtek:	Matthew Marjanovic (*)
- microtek2:	Bernd Schroeder (*)
- mustek:	Andreas Bolsch, David Mosberger, Andreas Czechanowski and
-		Henning Meier-Geinitz (*)
+ avision:       Meino Christian Cramer, Rene Rebe(*)
+ canon:         Helmut Koeberle, Manuel Panea (*), and Markus Mertinat
+ coolscan:      Didier Carlier, Andreas Rick (*)
+ dc25:          Peter Fales (*)
+ dc210:         Brian J. Murrell
+ dll:           David Mosberger
+ dmc:           David F. Skoll
+ epson:         Karl Heinz Kremer(*)
+ hp:            Peter Kirchgessner (*)
+                Geoffrey Dairiki
+ m3096g:        Randolph Bentson (*)
+ microtek:      Matthew Marjanovic (*)
+ microtek2:     Bernd Schroeder (*)
+ mustek:        Andreas Bolsch, David Mosberger, Andreas Czechanowski and
+                Henning Meier-Geinitz (*)
  mustek_pp:     Jochen Eisinger (*)
- net:		Andreas Beck and David Mosberger
- pnm:		Andreas Beck, Gordon Matzigkeit, and David Mosberger
- pie:		Simon Munton (*)
- pint:		Gordon Matzigkeit
- plustek:	Rick Bronson, Gerhard Jaeger (*)
- qcam:		Scott Laird (original driver), David Mosberger (SANE backend),
-		despeckling filter by Patrick Reynolds,
-		B&W fixes by Andrew Kuchling
- ricoh:		Feico W. Dillema
- s9036:		Ingo Schneider
- sharp:		FUKUDA Kazuya (*) and Abel Deuring (*)
- snapscan:	Kevin Charter, Franck Schneider, and Michel Roelofs
- sp15c:		Randolph Bentson (*)
- st400:     Ingo Wilken (*)
- tamarack:	Roger Wolff
- umax:		Oliver Rauch (*) and Michael K. Johnson
+ nec:           FUKUDA Kazuya (*)
+ net:           Andreas Beck and David Mosberger
+ pnm:           Andreas Beck, Gordon Matzigkeit, and David Mosberger
+ pie:           Simon Munton (*)
+ pint:          Gordon Matzigkeit
+ plustek:       Rick Bronson, Gerhard Jaeger (*)
+ qcam:          Scott Laird (original driver), David Mosberger (SANE backend),
+                despeckling filter by Patrick Reynolds, 
+                B&W fixes by Andrew Kuchling
+ ricoh:         Feico W. Dillema
+ s9036:         Ingo Schneider
+ sharp:         FUKUDA Kazuya (*) and Abel Deuring (*)
+ snapscan:      Kevin Charter, Franck Schneider, and Michel Roelofs
+ sp15c:         Randolph Bentson (*)
+ st400:         Ingo Wilken (*)
+ tamarack:      Roger Wolff
+ umax:          Oliver Rauch (*) and Michael K. Johnson
  v4l:           Juergen G. Schimmer
 
 (*) Current active maintainer(s).

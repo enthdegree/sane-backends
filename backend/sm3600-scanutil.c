@@ -68,7 +68,7 @@ void DBG(int nLevel, const char *szFormat, ...)
 }
 #endif
 
-void debug_printf(unsigned long ulType, const char *szFormat, ...)
+static void debug_printf(unsigned long ulType, const char *szFormat, ...)
 {
   va_list ap;
   if ((ulDebugMask & ulType)!=ulType) return;
@@ -90,7 +90,7 @@ being global) and the user gets a nice panic screen :-)
 
 ********************************************************************** */
 
-int SetError(TInstance *this, int nError, const char *szFormat, ...)
+static int SetError(TInstance *this, int nError, const char *szFormat, ...)
 {
   va_list ap;
   if (this->nErrorState) return 0; /* do not overwrite error state */
@@ -113,7 +113,7 @@ DumpBuffer(fh,pch,cch)
 
 ********************************************************************** */
 
-void DumpBuffer(FILE *fh, const char *pch, int cch)
+static void DumpBuffer(FILE *fh, const char *pch, int cch)
 {
   int i=0;
   while (i<cch)
@@ -138,7 +138,7 @@ augmenting the result around the middle value of 128.
 
 ********************************************************************** */
 
-void FixExposure(unsigned char *pchBuf,
+static void FixExposure(unsigned char *pchBuf,
 		 int cchBulk,
 		 int nBrightness,
 		 int nContrast)
@@ -166,7 +166,7 @@ Frees all dynamical memory for scan buffering.
 
 ********************************************************************** */
 
-TState FreeState(TInstance *this, TState nReturn)
+static TState FreeState(TInstance *this, TState nReturn)
 {
   if (this->state.ppchLines)
     {
@@ -192,7 +192,7 @@ EndScan()
 
 ====================================================================== */
 
-TState EndScan(TInstance *this)
+static TState EndScan(TInstance *this)
 {
   if (!this->state.bScanning) return SANE_STATUS_GOOD;
   /* move slider back to start */
@@ -208,7 +208,7 @@ TState CancelScan(TInstance *this)
 
 ====================================================================== */
 
-TState CancelScan(TInstance *this)
+static TState CancelScan(TInstance *this)
 {
   TBool bCanceled;
   DBG(DEBUG_INFO,"CancelScan() called\n");
@@ -239,7 +239,7 @@ ReadChunk()
 
 ====================================================================== */
 
-TState ReadChunk(TInstance *this, unsigned char *achOut,
+static TState ReadChunk(TInstance *this, unsigned char *achOut,
 		 int cchMax, int *pcchRead)
 {
   /* have we to copy more than we have? */
@@ -298,7 +298,7 @@ GetAreaSize()
 
 ====================================================================== */
 
-void GetAreaSize(TInstance *this)
+static void GetAreaSize(TInstance *this)
 {
   /* this->state.cxPixel : pixels, we *want* (after interpolation)
      this->state.cxMax   : pixels, we *need* (before interpolation) */
@@ -326,7 +326,7 @@ Init gammy tables and gain tables within controller memory.
 
 ====================================================================== */
 
-TState InitGammaTables(TInstance *this)
+static TState InitGammaTables(TInstance *this)
 {
   int           i;
   for (i=0; i<4096; i++)
@@ -351,7 +351,7 @@ Top level caller for scantool.
 
 #define APP_CHUNK_SIZE   8192
 
-TState DoScanFile(TInstance *this)
+static TState DoScanFile(TInstance *this)
 {
   int    cx,cy;
   long   lcchRead;

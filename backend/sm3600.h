@@ -235,50 +235,54 @@ typedef enum { none, hpos, hposH, hres } TRegIndex;
 #define USB_CHUNK_SIZE 0x8000
 
 /* scanutil.c */
-int SetError(TInstance *this, int nError, const char *szFormat, ...);
-void debug_printf(unsigned long ulType, const char *szFormat, ...);
-void DumpBuffer(FILE *fh, const char *pch, int cch);
-void FixExposure(unsigned char *pchBuf,
-		 int cchBulk,
-		 int nBrightness,
-		 int nContrast);
-TState FreeState(TInstance *this, TState nReturn);
-TState EndScan(TInstance *this);
-TState ReadChunk(TInstance *this, unsigned char *achOut,
-		 int cchMax, int *pcchRead);
-TState DoScanFile(TInstance *this);
-void   GetAreaSize(TInstance *this);
-TState InitGammaTables(TInstance *this);
-TState CancelScan(TInstance *this);
+static int SetError(TInstance *this, int nError, const char *szFormat, ...);
+static void debug_printf(unsigned long ulType, const char *szFormat, ...);
+static void DumpBuffer(FILE *fh, const char *pch, int cch);
+static void FixExposure(unsigned char *pchBuf,
+			int cchBulk,
+			int nBrightness,
+			int nContrast);
+static TState FreeState(TInstance *this, TState nReturn);
+static TState EndScan(TInstance *this);
+static TState ReadChunk(TInstance *this, unsigned char *achOut,
+			int cchMax, int *pcchRead);
+static TState DoScanFile(TInstance *this);
+static void   GetAreaSize(TInstance *this);
+static TState InitGammaTables(TInstance *this);
+static TState CancelScan(TInstance *this);
 
 /* scanmtek.c */
 extern unsigned short aidProduct[];
-TState DoInit(TInstance *this);
-TState DoReset(TInstance *this);
-TState WaitWhileBusy(TInstance *this,int cSecs);
-TState WaitWhileScanning(TInstance *this,int cSecs);
-TState DoJog(TInstance *this,int nDistance);
-TState DoLampSwitch(TInstance *this,int nPattern);
-TState DoCalibration(TInstance *this);
-TState UploadGammaTable(TInstance *this, int iByteAddress, SANE_Int *pnGamma);
+static TState DoInit(TInstance *this);
+static TState DoReset(TInstance *this);
+static TState WaitWhileBusy(TInstance *this,int cSecs);
+static TState WaitWhileScanning(TInstance *this,int cSecs);
+static TState DoJog(TInstance *this,int nDistance);
+static TState DoLampSwitch(TInstance *this,int nPattern);
+static TState DoCalibration(TInstance *this);
+static TState UploadGammaTable(TInstance *this, int iByteAddress, SANE_Int *pnGamma);
 
 /* scanusb.c */
-TState RegWrite(TInstance *this,int iRegister, int cb, unsigned long ulValue);
-TState RegWriteArray(TInstance *this,int iRegister, int cb, unsigned char *pchBuffer);
-TState RegCheck(TInstance *this,int iRegister, int cch, unsigned long ulValue);
-int BulkRead(TInstance *this,FILE *fhOut, unsigned int cchBulk);
-int BulkReadBuffer(TInstance *this,unsigned char *puchBufferOut, unsigned int cchBulk); /* gives count */
-unsigned int RegRead(TInstance *this,int iRegister, int cch);
-TState MemReadArray(TInstance *this, int iAddress, int cb, unsigned char *pchBuffer);
-TState MemWriteArray(TInstance *this, int iAddress, int cb, unsigned char *pchBuffer);
+static TState RegWrite(TInstance *this,int iRegister, int cb, unsigned long ulValue);
+static TState RegWriteArray(TInstance *this,int iRegister, int cb, 
+			    unsigned char *pchBuffer);
+static TState RegCheck(TInstance *this,int iRegister, int cch, unsigned long ulValue);
+static int BulkRead(TInstance *this,FILE *fhOut, unsigned int cchBulk);
+static int BulkReadBuffer(TInstance *this,unsigned char *puchBufferOut,
+			  unsigned int cchBulk); /* gives count */
+static unsigned int RegRead(TInstance *this,int iRegister, int cch);
+static TState MemReadArray(TInstance *this, int iAddress, int cb,
+			   unsigned char *pchBuffer);
+static TState MemWriteArray(TInstance *this, int iAddress, int cb,
+			    unsigned char *pchBuffer);
 
 /* gray.c */
-TState StartScanGray(TInstance *this);
+static TState StartScanGray(TInstance *this);
 /* color.c */
-TState StartScanColor(TInstance *this);
+static TState StartScanColor(TInstance *this);
 
 /* homerun.c */
-TState DoOriginate(TInstance *this, TBool bStepOut);
+static TState DoOriginate(TInstance *this, TBool bStepOut);
 
 /* ====================================================================== */
 

@@ -62,7 +62,7 @@ ReadNextColorLine()
 
 ********************************************************************** */
 
-TState ReadNextColorLine(PTInstance this)
+static TState ReadNextColorLine(PTInstance this)
 {
   int           iWrite,i;
   int           iRead; /* read position in raw line */
@@ -142,7 +142,7 @@ StartScanColor()
 ====================================================================== */
 
 /* Parameter are in resolution units! */
-TState StartScanColor(TInstance *this)
+static TState StartScanColor(TInstance *this)
 {
 
   /* live could be easy: Simple calculate a window, start the scan,

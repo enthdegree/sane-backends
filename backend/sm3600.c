@@ -71,12 +71,12 @@ Start: 2.4.2001
 #define PATH_MAX       1024
 #endif
 
-#include "sane/sane.h"
-#include "sane/config.h"
-#include "sane/sanei.h"
-#include "sane/sanei_backend.h"
-#include "sane/sanei_config.h"
-#include "sane/saneopts.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/config.h"
+#include "../include/sane/sanei.h"
+#include "../include/sane/sanei_backend.h"
+#include "../include/sane/sanei_config.h"
+#include "../include/sane/saneopts.h"
 
 /* prevent inclusion of scantool.h */
 #define SCANTOOL_H
@@ -135,7 +135,7 @@ static const SANE_Range rangeGamma = { 0, 4095, 1 };
 
 static const SANE_Int setResolutions[] = { 6, 75,100,200,300,600 };
 
-SANE_Status
+static SANE_Status
 InitOptions(TInstance *this)
 {
   TOptionIndex iOpt;
@@ -351,9 +351,7 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback authCB)
 
   DBG_INIT();
 
-  authCB++; /* compiler */
-
-  DBG(DEBUG_VERBOSE,"SM3600 init\n");
+  DBG(DEBUG_VERBOSE,"SM3600 init (authCB %s NULL)\n", authCB ? "!=" : "=");
   if (version_code)
    {
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BUILD);
@@ -768,7 +766,9 @@ sane_cancel (SANE_Handle handle)
 SANE_Status
 sane_set_io_mode(SANE_Handle h, SANE_Bool m)
 {
-  h++;
+  SANE_Handle h_tmp;
+
+  h_tmp = h;
   if (m==SANE_TRUE) /* no non-blocking-mode */
     return SANE_STATUS_UNSUPPORTED;
   return SANE_STATUS_GOOD;
@@ -777,6 +777,11 @@ sane_set_io_mode(SANE_Handle h, SANE_Bool m)
 SANE_Status
 sane_get_select_fd(SANE_Handle handle, SANE_Int *fd)
 {
-  handle++; fd++;
+  SANE_Handle handle_tmp;
+  SANE_Int *fd_tmp;
+
+  handle_tmp = handle;
+  fd_tmp = fd;
+
   return SANE_STATUS_UNSUPPORTED; /* we have no file IO */
 }

@@ -106,7 +106,7 @@ RegWriteArray(iRegister, cb, unsigned char uchValues)
 
 ********************************************************************** */
 
-TState RegWrite(TInstance *this, int iRegister, int cb, unsigned long ulValue)
+static TState RegWrite(TInstance *this, int iRegister, int cb, unsigned long ulValue)
 {
   char *pchBuffer;
   int   i;
@@ -141,7 +141,7 @@ TState RegWrite(TInstance *this, int iRegister, int cb, unsigned long ulValue)
   return SANE_STATUS_GOOD;
 }
 
-TState RegWriteArray(TInstance *this, int iRegister, int cb, unsigned char *pchBuffer)
+static TState RegWriteArray(TInstance *this, int iRegister, int cb, unsigned char *pchBuffer)
 {
   int   i;
   INST_ASSERT();
@@ -164,7 +164,7 @@ MemWriteArray(iAddress, cb, ulValue)
 
 ********************************************************************** */
 
-TState MemWriteArray(TInstance *this, int iAddress,
+static TState MemWriteArray(TInstance *this, int iAddress,
 		     int cb, unsigned char *pchBuffer)
 {
   int   i;
@@ -188,7 +188,7 @@ MemReadArray(iRegister, cb, ulValue)
 
 ********************************************************************** */
 
-TState MemReadArray(TInstance *this, int iAddress, int cb, unsigned char *pchBuffer)
+static TState MemReadArray(TInstance *this, int iAddress, int cb, unsigned char *pchBuffer)
 {
   int   i;
   INST_ASSERT();
@@ -211,7 +211,7 @@ RegCheck(iRegister, cb, ulValue)
 
 ********************************************************************** */
 
-TState RegCheck(TInstance *this, int iRegister, int cch, unsigned long ulValue)
+static TState RegCheck(TInstance *this, int iRegister, int cch, unsigned long ulValue)
 {
   char *pchBuffer,*pchTransfer;
   int   i,rcCode;
@@ -270,7 +270,7 @@ cchRead=BulkRead(fh,cchBulk)
 
 ********************************************************************** */
 
-int BulkRead(TInstance *this, FILE *fhOut, unsigned int cchBulk)
+static int BulkRead(TInstance *this, FILE *fhOut, unsigned int cchBulk)
 {
   int   cchRead,rc;
   char *pchBuffer;
@@ -327,7 +327,7 @@ cchRead=BulkReadBuffer(puchBuffer, cchBulk)
 
 ********************************************************************** */
 
-int BulkReadBuffer(TInstance *this,
+static int BulkReadBuffer(TInstance *this,
 		   unsigned char *puchBufferOut,
 		   unsigned int cchBulk)
 {
@@ -380,7 +380,7 @@ Read register in big endian (INTEL-) format.
 
 ********************************************************************** */
 
-unsigned int RegRead(TInstance *this, int iRegister, int cch)
+static unsigned int RegRead(TInstance *this, int iRegister, int cch)
 {
   char        *pchTransfer;
   int          i;

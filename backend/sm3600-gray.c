@@ -202,7 +202,7 @@ ReadNextGrayLine()
 
 ====================================================================== */
 
-TState ReadNextGrayLine(PTInstance this)
+static TState ReadNextGrayLine(PTInstance this)
 {
   int           iWrite;
   int           iDot;
@@ -310,7 +310,7 @@ StartScanGray()
 
 ====================================================================== */
 
-TState StartScanGray(TInstance *this)
+static TState StartScanGray(TInstance *this)
 {
   unsigned char  *puchRegs;
   int             i;

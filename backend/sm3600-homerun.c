@@ -197,7 +197,7 @@ static TLineType GetLineType(TInstance *this)
   return ltUnknown;
 }
 
-TState DoOriginate(TInstance *this, TBool bStepOut)
+static TState DoOriginate(TInstance *this, TBool bStepOut)
 {
   TLineType lt;
   if (this->bVerbose)
@@ -233,7 +233,7 @@ The distance is given in 600 DPI.
 
 ********************************************************************** */
 
-TState DoJog(TInstance *this, int nDistance)
+static TState DoJog(TInstance *this, int nDistance)
 {
   int cSteps;
   int nSpeed,nRest;

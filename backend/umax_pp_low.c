@@ -3124,7 +3124,7 @@ FoncSendWord (int *cmd)
 }
 
 
-int
+static int
 CmdSetDataBuffer (int *data)
 {
   int cmd1[] = { 0x00, 0x00, 0x22, 0x88, -1 };	/* 34 bytes write on channel 8 */

@@ -513,8 +513,8 @@ matsushita_read_document_size (Matsushita_Scanner * dev)
   assert (dev->params.lines == B32TOI (&dev->buffer[4]));
   assert (dev->params.pixels_per_line == B32TOI (&dev->buffer[0]));
 
-  DBG (DBG_proc, "matsushita_read_document_size: exit, %d bytes read\n",
-       size);
+  DBG (DBG_proc, "matsushita_read_document_size: exit, %ld bytes read\n",
+       (long)size);
 
   return (SANE_STATUS_GOOD);
 }
@@ -665,11 +665,11 @@ matsushita_identify_scanner (Matsushita_Scanner * dev)
   hexdump (DBG_info2, "inquiry", dev->buffer, size);
 
   dev->scsi_type = dev->buffer[0] & 0x1f;
-  strncpy (dev->scsi_vendor, dev->buffer + 0x08, 0x08);
+  memcpy (dev->scsi_vendor, dev->buffer + 0x08, 0x08);
   dev->scsi_vendor[0x08] = 0;
-  strncpy (dev->scsi_product, dev->buffer + 0x10, 0x010);
+  memcpy (dev->scsi_product, dev->buffer + 0x10, 0x010);
   dev->scsi_product[0x10] = 0;
-  strncpy (dev->scsi_version, dev->buffer + 0x20, 0x04);
+  memcpy (dev->scsi_version, dev->buffer + 0x20, 0x04);
   dev->scsi_version[0x04] = 0;
 
   DBG (DBG_info, "device is \"%s\" \"%s\" \"%s\"\n",
@@ -1458,7 +1458,7 @@ matsushita_set_window (Matsushita_Scanner * dev, int side)
   hexdump (DBG_info2, "windows", window, 72);
 
   status = sanei_scsi_cmd2 (dev->sfd, cdb.data, cdb.len,
-			    &window, sizeof (window), NULL, NULL);
+							window, sizeof (window), NULL, NULL);
 
   DBG (DBG_proc, "matsushita_set_window: exit, status=%d\n", status);
 
@@ -2348,7 +2348,11 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	}
 
       /* Something must have been read */
-      assert (dev->image_begin != dev->image_end);
+      if (dev->image_begin == dev->image_end)
+	{
+	  DBG (DBG_info, "sane_read: nothing read\n");
+	  return SANE_STATUS_IO_ERROR;
+	}
 
       /* Copy the data to the frontend buffer. */
       size = max_len - buf_offset;
@@ -2366,7 +2370,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
     }
   while ((buf_offset != max_len) && dev->bytes_left);
 
-  DBG (DBG_info, "sane_read: leave, bytes_left=%d\n", dev->bytes_left);
+  DBG (DBG_info, "sane_read: leave, bytes_left=%ld\n", (long)dev->bytes_left);
 
   return SANE_STATUS_GOOD;
 }
@@ -2374,14 +2378,28 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 SANE_Status
 sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 {
+	SANE_Status status;
+	Matsushita_Scanner *dev = handle;
+
   DBG (DBG_proc, "sane_set_io_mode: enter\n");
 
   handle = handle;		/* silence gcc */
   non_blocking = non_blocking;	/* silence gcc */
 
+    if (dev->scanning == SANE_FALSE)
+    {
+      return (SANE_STATUS_INVAL);
+    }
+
+	if (non_blocking == SANE_FALSE) {
+		status = SANE_STATUS_GOOD;
+	} else {
+		status = SANE_STATUS_UNSUPPORTED;
+	}
+
   DBG (DBG_proc, "sane_set_io_mode: exit\n");
 
-  return SANE_STATUS_UNSUPPORTED;
+  return status;
 }
 
 SANE_Status

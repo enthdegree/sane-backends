@@ -10,6 +10,10 @@ V_MINOR=0
 V_REV=8
 V_EXTRA=-cvs
 
+AC_SUBST(V_MAJOR)
+AC_SUBST(V_MINOR)
+AC_SUBST(V_REV)
+
 PACKAGE=sane-backends
 VERSION=${V_MAJOR}.${V_MINOR}.${V_REV}${V_EXTRA}
 NUMBER_VERSION=${V_MAJOR}.${V_MINOR}.${V_REV}
@@ -97,7 +101,6 @@ if test "${ac_cv_prog_gcc}" = "yes"; then
        done
     fi])
 fi # ac_cv_prog_gcc
-echo using CFLAGS=${CFLAGS}
 
 dnl special LDFLAGS
 case "${host_os}" in  
@@ -359,6 +362,7 @@ if test "${enable_dynamic}" != yes || test "${enable_preload}" = "yes"; then
 else
   DLL_PRELOAD=""
 fi
+AC_SUBST(DLL_PRELOAD)
 
 AC_ARG_ENABLE(pnm-backend, 
   [  --enable-pnm-backend    enable the pnm backend for testing frontends. Warning:
@@ -420,13 +424,13 @@ AC_SUBST(SELECTED_BACKENDS)
 AC_PATH_PROG(SANE_CONFIG_PATH, sane-config, no)
 AC_CHECK_LIB(sane, sane_init, LIBSANE_EXISTS="yes")
 
-AC_SUBST(V_MAJOR)
-AC_SUBST(V_MINOR)
-AC_SUBST(V_REV)
-AC_SUBST(DLL_PRELOAD)
-
 DISTCLEAN_FILES="*~ .*~ *.log *.bak *.old *.orig *.out *.rej \"\#\"* \".\\#\"*"
 AC_SUBST(DISTCLEAN_FILES)
+
+echo using CPPFLAGS=\"${CPPFLAGS}\"
+echo using CFLAGS=\"${CFLAGS}\"
+echo using LDFLAGS=\"${LDFLAGS}\"
+echo using LIBS=\"${LIBS}\"
 
 AC_OUTPUT([Makefile lib/Makefile sanei/Makefile frontend/Makefile
 	   japi/Makefile backend/Makefile include/Makefile doc/Makefile

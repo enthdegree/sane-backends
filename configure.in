@@ -104,7 +104,7 @@ AC_CHECK_HEADERS(fcntl.h unistd.h libc.h sys/dsreq.h sys/select.h \
     camlib.h os2.h sys/socket.h sys/io.h asm/io.h gscdds.h sys/hw.h \
     sys/types.h sys/scsi/scsi.h sys/scsi/sgdefs.h sys/scsi/targets/scgio.h \
     apollo/scsi.h sys/sdi_comm.h sys/passthrudef.h linux/ppdev.h usb.h \
-    sys/bitypes.h, sys/sem.h)
+    sys/bitypes.h sys/sem.h)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -209,13 +209,16 @@ if test "${sane_cv_use_libjpeg}" != "yes"; then
   echo "disabling DC210/DC240 backends (failed to find JPEG library)"
   DC210=
   DC240=
+  DJPEG=
 else
   echo "enabling DC210/DC240 backends"
   DC210=dc210
   DC240=dc240
+  DJPEG=djpeg
 fi
 AC_SUBST(DC210)
 AC_SUBST(DC240)
+AC_SUBST(DJPEG)
 if test "${ac_cv_header_sys_scanio_h}" = "no"; then
   echo "disabling PINT backend"
   PINT=

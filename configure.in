@@ -103,7 +103,8 @@ AC_CHECK_HEADERS(fcntl.h unistd.h libc.h sys/dsreq.h sys/select.h \
     bsd/dev/scsireg.h scsi/sg.h /usr/src/linux/include/scsi/sg.h io/cam/cam.h \
     camlib.h os2.h sys/socket.h sys/io.h asm/io.h gscdds.h sys/hw.h \
     sys/types.h sys/scsi/scsi.h sys/scsi/sgdefs.h sys/scsi/targets/scgio.h \
-    apollo/scsi.h sys/sdi_comm.h sys/passthrudef.h linux/ppdev.h usb.h)
+    apollo/scsi.h sys/sdi_comm.h sys/passthrudef.h linux/ppdev.h usb.h \
+    sys/bitypes.h)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -112,12 +113,7 @@ AC_TYPE_SIGNAL
 AC_TYPE_SIZE_T
 AC_TYPE_PID_T
 AC_CHECK_TYPE(ssize_t, long)
-AC_CHECK_TYPE(u_char, unsigned char)
-AC_CHECK_TYPE(u_int, unsigned int)
-AC_CHECK_TYPE(u_long, unsigned long)
-AC_CHECK_TYPE(u_int8_t, unsigned char)
-AC_CHECK_TYPE(u_int16_t, unsigned short)
-AC_CHECK_TYPE(u_int32_t, unsigned int)
+SANE_CHECK_U_TYPES
 
 if test "$ac_cv_header_sys_scsiio_h" = "yes" \
      -a "$ac_cv_header_scsi_h" = "yes";

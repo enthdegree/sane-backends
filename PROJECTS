@@ -1,4 +1,4 @@
-PROJECTS (2001-04-29)
+PROJECTS (2001-05-01)
 
 Here is a list of projects that various people have expressed interest
 in.  Before starting working on one of these projects, it may be a
@@ -21,6 +21,10 @@ David Mosberger
 
 Canon 1220U USB scanner (wip)
 http://sourceforge.net/projects/canonscanner/
+
+Canon FB330P, FP630P (maybe FB620P/FB320P) parport/USB scanners (wip)
+Simon Krix <kinsei@dingoblue.net.au>
+http://members.dingoblue.net.au/~kinsei/scanner/
 
 E3 USB chipset support (e.g. Genius Vivid Pro USB, Colorado USB 19200,
 Visioneer OneTouch 7600, IBM IdeaScan 2000 USB) (wip)

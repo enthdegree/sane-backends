@@ -1,5 +1,6 @@
 2001-05-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
-	
+
+	* backend/sm3600.desc: Changed status to new.
 	* backend/as6e.desc: Changed status to alpha because backend
 	  isn't new any more.
 	* acinclude.m4 aclocal.m4 configure configure.in 

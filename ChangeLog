@@ -1,8 +1,10 @@
+
 2002-12-01  Rene Rebe <rene.rebe@gmx.net>
 	 * backend/avision.h backend/avision.c backend/avision.conf
 	   doc/descriptions/avision.desc: updated the Avisin backend - 
 	   including auto-generated .desc file listing all devices
 	   also present in the avisino.c device-list.
+	*  doc/descriptions/avision.desc: syntax fix
 
 2002-12-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

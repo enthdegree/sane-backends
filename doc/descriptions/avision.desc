@@ -31,147 +31,147 @@
 
 :model "AV100CS"
 :interface "SCSI"
-:status "untested"
+:status :untested
 :model "AV100IIICS"
 :interface "SCSI"
-:status "untested"
+:status :untested
 :model "AV100S"
 :interface "SCSI"
-:status "untested"
+:status :untested
 :model "AV240SC"
 :interface "SCSI"
-:status "untested"
+:status :untested
 :model "AV260CS"
 :interface "SCSI"
-:status "untested"
+:status :untested
 :model "AV360CS"
 :interface "SCSI"
-:status "untested"
+:status :untested
 :model "AV363CS"
 :interface "SCSI"
-:status "untested"
+:status :untested
 :model "AV420CS"
 :interface "SCSI"
-:status "untested"
+:status :untested
 :model "AV6120"
 :interface "SCSI"
-:status "untested"
+:status :untested
 :model "AV620CS"
 :interface "SCSI"
-:status "stable"
+:status :stable
 :model "AV620CS Plus"
 :interface "SCSI"
-:status "stable"
+:status :stable
 :model "AV630CS"
 :interface "SCSI"
-:status "stable"
+:status :stable
 :model "AV630CSL"
 :interface "SCSI"
-:status "untested"
+:status :untested
 :model "AV6240"
 :interface "SCSI"
-:status "stable"
+:status :stable
 :model "AV600U"
 :interface "USB"
-:status "untested"
+:status :untested
 :model "AV660S"
 :interface "USB"
-:status "untested"
+:status :untested
 :model "AV680S"
 :interface "USB"
-:status "untested"
+:status :untested
 :model "AV690U"
 :interface "USB"
-:status "untested"
+:status :untested
 :model "AV800S"
 :interface "SCSI"
-:status "untested"
+:status :untested
 :model "AV810C"
 :interface "SCSI"
-:status "untested"
+:status :untested
 :model "AV820"
 :interface "SCSI"
-:status "untested"
+:status :untested
 :model "AV820C"
 :interface "SCSI"
-:status "untested"
+:status :untested
 :model "AV820C Plus"
 :interface "SCSI"
-:status "untested"
+:status :untested
 :model "AV830C"
 :interface "SCSI"
-:status "untested"
+:status :untested
 :model "AV830C Plus"
 :interface "SCSI"
-:status "untested"
+:status :untested
 :model "AV880"
 :interface "SCSI"
-:status "untested"
+:status :untested
 :model "AV880C"
 :interface "SCSI"
-:status "untested"
+:status :untested
 :model "AV8000S"
 :interface "SCSI"
-:status "stable"
+:status :stable
 :model "AVA3"
 :interface "SCSI"
-:status "untested"
+:status :untested
 
 :mfg "Hewlett-Packard"
 :url "http://www.hp.com"
 
 :model "ScanJet 5300C"
 :interface "USB"
-:status "stable"
+:status :stable
 :model "ScanJet 5370C"
 :interface "USB"
-:status "alpha"
+:status :alpha
 :model "ScanJet 7400c"
 :interface "USB"
-:status "alpha"
+:status :alpha
 
 :mfg "Minolta"
 :url "http://www.minolta.com"
 
 :model "FS-V1"
 :interface "USB"
-:status "alpha"
+:status :alpha
 
 :mfg "Mitsubishi"
 
 :model "MCA-ADFC"
 :interface "SCSI"
-:status "untested"
+:status :untested
 :model "S1200C"
 :interface "SCSI"
-:status "untested"
+:status :untested
 :model "S600C"
 :interface "SCSI"
-:status "untested"
+:status :untested
 :model "SS600"
 :interface "SCSI"
-:status "beta"
+:status :beta
 
 :mfg "Fujitsu"
 
 :model "ScanPartner"
 :interface "SCSI"
-:status "untested"
+:status :untested
 :model "ScanPartner 10"
 :interface "SCSI"
-:status "untested"
+:status :untested
 :model "ScanPartner 10C"
 :interface "SCSI"
-:status "untested"
+:status :untested
 :model "ScanPartner 15C"
 :interface "SCSI"
-:status "untested"
+:status :untested
 :model "ScanPartner 300C"
 :interface "SCSI"
-:status "untested"
+:status :untested
 :model "ScanPartner 600C"
 :interface "SCSI"
-:status "untested"
+:status :untested
 :model "ScanPartner Jr"
 :interface "SCSI"
-:status "untested"
+:status :untested

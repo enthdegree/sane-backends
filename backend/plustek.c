@@ -11,7 +11,7 @@
  * Original code taken from sane-0.71<br>
  * Copyright (C) 1997 Hypercore Software Design, Ltd.<br>
  * Also based on the work done by Rick Bronson<br>
- * Copyright (C) 2000-2004 Gerhard Jaeger <gerhard@gjaeger.de><br>
+ * Copyright (C) 2000-2005 Gerhard Jaeger <gerhard@gjaeger.de><br>
  *
  * History:
  * - 0.30 - initial version
@@ -72,6 +72,7 @@
  * - 0.48 - added additional options
  *          split scanmode and bit-depth
  * - 0.49 - improved multi-device capability
+ *        - tweaked some device settings
  *.
  * <hr>
  * This file is part of the SANE package.
@@ -147,7 +148,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.49-1"
+#define BACKEND_VERSION "0.49-2"
 #define BACKEND_NAME    plustek
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"

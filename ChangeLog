@@ -1,3 +1,8 @@
+2004-04-15  Stéphane Voltz <svoltz@wanadoo.fr>
+
+	* backend/umax_pp_low.c: non i386 linux compilation fix,
+          1220P gray levels scan hang fix, 1220P color calibration tuning.
+
 2004-11-14  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* snapscan-sources.c: Applied patch by Julien Blache to change

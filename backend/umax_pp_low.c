@@ -305,6 +305,8 @@ sanei_insb (unsigned int port, unsigned char *addr, unsigned long count)
 static void
 sanei_insl (unsigned int port, unsigned char *addr, unsigned long count)
 {
+int i;
+
   for (i = 0; i < count * 4; i++)
     addr[i] = sanei_inb (port);
 }
@@ -8858,19 +8860,15 @@ static void
 decodeVGA (int *motor)
 {
   if (sanei_umax_pp_getastra () > 610)
-  {
-  	DBG(0,"VGA (R,G,B)=(%d,%d,%d)\n",
-	      (motor[10] & 0xF0)>>4,
-	      (motor[10] & 0x0F),
-	      (motor[11] & 0x0F));
-  }
+    {
+      DBG (0, "VGA (R,G,B)=(%d,%d,%d)\n",
+	   (motor[10] & 0xF0) >> 4, (motor[10] & 0x0F), (motor[11] & 0x0F));
+    }
   else
-  {
-  	DBG(0,"VGA (R,G,B)=(%d,%d,%d)\n",
-	      (motor[11] & 0x0F),
-	      (motor[10] & 0xF0)>>4,
-	      (motor[10] & 0x0F));
-  }
+    {
+      DBG (0, "VGA (R,G,B)=(%d,%d,%d)\n",
+	   (motor[11] & 0x0F), (motor[10] & 0xF0) >> 4, (motor[10] & 0x0F));
+    }
 }
 
 /*
@@ -11403,7 +11401,7 @@ offsetCalibration1220p (int color, int *offRed, int *offGreen, int *offBlue)
       high = (float) val / i;	/* Vadc2 */
       if (DBG_LEVEL >= 128)
 	Dump (0x18, buffer, NULL);
-      *offRed = 15.0 - ((high-low)*2);
+      *offRed = 15.0 - ((high - low) * 2);
 
       /* block that repeats */
       /* must be monochrome since hscan=1 */
@@ -11449,7 +11447,7 @@ offsetCalibration1220p (int color, int *offRed, int *offGreen, int *offBlue)
 	val += buffer[i];
       high = (float) val / i;
 
-      *offBlue = 15.0 - ((high-low)*2);
+      *offBlue = 15.0 - ((high - low) * 2);
     }
 
   /* block that repeats */
@@ -11496,11 +11494,11 @@ offsetCalibration1220p (int color, int *offRed, int *offGreen, int *offBlue)
     val += buffer[i];
   high = (float) val / i;
 
-  *offGreen = 15.0 - ((high-low)*2);
+  *offGreen = 15.0 - ((high - low) * 2);
 
-  DBG (32, "STEF: offsets(RED,GREEN,BLUE=(%d,%d,%d)\n", *offRed, *offGreen,
-       *offBlue);
-  DBG (16, "offsetCalibration1220p() done ... (%s:%d)\n", __FILE__, __LINE__);
+  /*DBG (1, "STEF: offsets(RED,GREEN,BLUE=(%d,%d,%d)\n", *offRed, *offGreen,
+       *offBlue);*/
+  DBG (16, "offsetCalibration1220p() done ...\n");
   return 1;
 }
 
@@ -11969,8 +11967,8 @@ coarseGainCalibration1220p (int color, int dcRed, int dcGreen,
   unsigned char buffer[5300];
   int i;
   double sum;
-  int xstart=540;
-  int xend=5100;
+  int xstart = 540;
+  int xend = 5100;
   int commit[9] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, -1 };
   int opsc04[9] = { 0x06, 0xF4, 0xFF, 0x81, 0x1B, 0x00, 0x00, 0x00, -1 };
   int opsc10[9] = { 0x06, 0xF4, 0xFF, 0x81, 0x1B, 0x00, 0x08, 0x00, -1 };
@@ -11999,12 +11997,12 @@ coarseGainCalibration1220p (int color, int dcRed, int dcGreen,
        __LINE__);
 
   /* temporay workaround */
-  /* color=RGB_MODE; */
+  color = RGB_MODE;
 
   /* initialize VGA components */
   *vgaGreen = 0;
-  *vgaRed = 0;
-  *vgaBlue = 0;
+  *vgaRed = 2;
+  *vgaBlue = 2;
 
   CMDSETGET (2, 0x10, opsc18);
   CMDSETGET (8, 0x24, opsc39);
@@ -12053,9 +12051,9 @@ coarseGainCalibration1220p (int color, int dcRed, int dcGreen,
 	Dump (0x14B4, buffer, NULL);
       sum = 0;
       for (i = xstart; i < xend; i++)
-	   sum+=buffer[i];
-      sum=sum/(xend-xstart);
-      while ((opsc04[6] < 0x0F) && (sum<140))
+	sum += buffer[i];
+      sum = sum / (xend - xstart);
+      while ((opsc04[6] < 0x0F) && (sum < 140))
 	{
 	  CMDSYNC (0x00);
 	  opsc04[6]++;
@@ -12064,10 +12062,10 @@ coarseGainCalibration1220p (int color, int dcRed, int dcGreen,
 	  CMDGETBUF (4, 0x0014B4, buffer);
 	  if (DBG_LEVEL >= 128)
 	    Dump (0x14B4, buffer, NULL);
-      sum = 0;
-      for (i = xstart; i < xend; i++)
-	   sum+=buffer[i];
-      sum=sum/(xend-xstart);
+	  sum = 0;
+	  for (i = xstart; i < xend; i++)
+	    sum += buffer[i];
+	  sum = sum / (xend - xstart);
 	}
       *vgaRed = opsc04[6];
 
@@ -12095,9 +12093,9 @@ coarseGainCalibration1220p (int color, int dcRed, int dcGreen,
 	Dump (0x14B4, buffer, NULL);
       sum = 0;
       for (i = xstart; i < xend; i++)
-	   sum+=buffer[i];
-      sum=sum/(xend-xstart);
-      while ((opsc04[6] < 0x0F) && (sum<140))
+	sum += buffer[i];
+      sum = sum / (xend - xstart);
+      while ((opsc04[6] < 0x0F) && (sum < 140))
 	{
 	  CMDSYNC (0x00);
 	  opsc04[6]++;
@@ -12106,10 +12104,10 @@ coarseGainCalibration1220p (int color, int dcRed, int dcGreen,
 	  CMDGETBUF (4, 0x14B4, buffer);
 	  if (DBG_LEVEL >= 128)
 	    Dump (0x14B4, buffer, NULL);
-      sum = 0;
-      for (i = xstart; i < xend; i++)
-	   sum+=buffer[i];
-      sum=sum/(xend-xstart);
+	  sum = 0;
+	  for (i = xstart; i < xend; i++)
+	    sum += buffer[i];
+	  sum = sum / (xend - xstart);
 	}
       *vgaBlue = opsc04[6];
     }
@@ -12147,11 +12145,11 @@ coarseGainCalibration1220p (int color, int dcRed, int dcGreen,
   CMDGETBUF (4, 0x14B4, buffer);
   if (DBG_LEVEL >= 128)
     Dump (0x14B4, buffer, NULL);
-      sum = 0;
-      for (i = xstart; i < xend; i++)
-	   sum+=buffer[i];
-      sum=sum/(xend-xstart);
-  while ((opsc04[6] < 0x07) && (sum<140))
+  sum = 0;
+  for (i = xstart; i < xend; i++)
+    sum += buffer[i];
+  sum = sum / (xend - xstart);
+  while ((opsc04[6] < 0x07) && (sum < 120))
     {
       CMDSYNC (0x00);
       opsc04[6]++;
@@ -12162,11 +12160,12 @@ coarseGainCalibration1220p (int color, int dcRed, int dcGreen,
 	Dump (0x14B4, buffer, NULL);
       sum = 0;
       for (i = xstart; i < xend; i++)
-	   sum+=buffer[i];
-      sum=sum/(xend-xstart);
+	sum += buffer[i];
+      sum = sum / (xend - xstart);
     }
   *vgaGreen = opsc04[6];
-  DBG (1, "coarseGainCalibration1220p() done ...\n");
+  DBG (1, "coarseGainCalibration1220p()=%d,%d,%d done ...\n", *vgaRed,
+       *vgaGreen, *vgaBlue);
   return 1;
 }
 
@@ -12370,10 +12369,10 @@ shadingCalibration610p (int color, int dcRed, int dcGreen, int dcBlue,
 		{
 		case 0:	/* RED  1.80 */
 		case 1:	/* BLUE : 2.10 */
-		  coeff = (int)(pct / 0.57 + 0.5);
+		  coeff = (int) (pct / 0.57 + 0.5);
 		  break;
 		case 2:	/* GREEN 1.50 */
-		  coeff = (int)(pct / 0.45 + 0.5);
+		  coeff = (int) (pct / 0.45 + 0.5);
 		  break;
 		}
 	      if (coeff < 0)
@@ -12398,24 +12397,24 @@ shadingCalibration610p (int color, int dcRed, int dcGreen, int dcBlue,
     {
       DumpNB (w * bpp, h, data, NULL);
       DumpNB (w, h * bpp, data, NULL);
-      for(x=0;x<2550;x++)
-          printf(" %02x",data[x]);
-      printf("\n");
-      for(x=0;x<2550;x++)
-          printf(" %02x",data[x+2550]);
-      printf("\n");
-      for(x=0;x<2550;x++)
-          printf(" %02x",data[x+5100]);
-      printf("\n");
-      for(x=0;x<256;x++)
-          printf(" %02x",data[x+7650]);
-      printf("\n");
-      for(x=0;x<256;x++)
-          printf(" %02x",data[x+7650+256]);
-      printf("\n");
-      for(x=0;x<256;x++)
-          printf(" %02x",data[x+7650+512]);
-      printf("\n");
+      for (x = 0; x < 2550; x++)
+	printf (" %02x", data[x]);
+      printf ("\n");
+      for (x = 0; x < 2550; x++)
+	printf (" %02x", data[x + 2550]);
+      printf ("\n");
+      for (x = 0; x < 2550; x++)
+	printf (" %02x", data[x + 5100]);
+      printf ("\n");
+      for (x = 0; x < 256; x++)
+	printf (" %02x", data[x + 7650]);
+      printf ("\n");
+      for (x = 0; x < 256; x++)
+	printf (" %02x", data[x + 7650 + 256]);
+      printf ("\n");
+      for (x = 0; x < 256; x++)
+	printf (" %02x", data[x + 7650 + 512]);
+      printf ("\n");
     }
 
   free (data);

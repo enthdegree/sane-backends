@@ -1291,7 +1291,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    free (s->val[option].s);
 	  s->val[option].s = strdup (val);
 	  
-	  RIE(status = calc_parameters(s));
+	  RIE(calc_parameters(s));
 
 	  s->opt[OPT_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
 	  s->opt[OPT_CUSTOM_GAMMA].cap |= SANE_CAP_INACTIVE;

@@ -2,6 +2,9 @@
 
 	* TODO: Removed saned issues.
 	* doc/descriptions/unsupported.desc: Added Microtek 336 CX.
+	* configure configure.in backend/Makefile.in: The list of backends
+	  that are built is now in configure.in. Print backends that are
+	  built. Allow manually setting the backends.
 
 2003-06-05  Jochen Eisinger <jochen.eisinger@gmx.de>
 

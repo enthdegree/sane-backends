@@ -246,97 +246,110 @@ dnl enable/disable backends and features based on previous tests and user's
 dnl choice
 dnl ***********************************************************************
 
-if test "${sane_cv_use_libjpeg}" != "yes"; then
-  echo "disabling DC210/DC240 backends (failed to find JPEG library)"
-  DC210=
-  DC240=
-  DJPEG=
-else
-  echo "enabling DC210/DC240 backends"
-  DC210=dc210
-  DC240=dc240
-  DJPEG=djpeg
-fi
-AC_SUBST(DC210)
-AC_SUBST(DC240)
-AC_SUBST(DJPEG)
-
-if test "${sane_cv_use_libieee1284}" != "yes"
-then
-  echo "disabling CANON_PP backend (failed to find required libieee1284 version)"
-  CANON_PP=
-else
-  echo "enabling CANON_PP backend"
-  CANON_PP=canon_pp
-fi
-AC_SUBST(CANON_PP)
-
-if test "${sane_cv_use_libieee1284}" != "yes"
-then
-  echo "disabling HPSJ5S backend (failed to find required libieee1284 version)"
-  HPSJ5S=
-else
-  echo "enabling HPSJ5S backend"
-  HPSJ5S=hpsj5s
-fi
-AC_SUBST(HPSJ5S)
-
-if test "${HAVE_GPHOTO2}" != "gphoto2-config" \
-      -o "${sane_cv_use_libjpeg}" != "yes"; then
-  echo "disabling GPHOTO2 backend (not requested, or failed to find gphoto2-config or JPEG lib)"
-  GPHOTO2=
-else
-  echo "enabling GPHOTO2 backend"
-  GPHOTO2=gphoto2
-fi
-AC_SUBST(GPHOTO2)
-
-if test "${ac_cv_header_sys_scanio_h}" = "no"; then
-  echo "disabling PINT backend"
-  PINT=
-else
-  echo "enabling PINT backend"
-  PINT=pint
-fi
-AC_SUBST(PINT)
-if test "${ac_cv_func_ioperm}" = "no" \
-    && test "${ac_cv_func__portaccess}" = "no"
-then
-  echo "disabling QuickCam backend"
-  QCAM=
-else
-  echo "enabling QuickCam backend"
-  QCAM=qcam
-fi
-AC_SUBST(QCAM)
-if test "${sane_v4l_version}" = "v4l"
-then
-  echo "enabling Video4Linux backend"
-  V4L=v4l
-else
-  echo "disabling Video4Linux backend"
-  V4L=
-fi
-AC_SUBST(V4L)
 if test "${ac_cv_header_sys_socket_h}" = "no"; then
-  echo "disabling NET backend"
-  NET=
+  echo "*** disabling saned (sys/socket.h not found)"
   SANED=
 else
-  echo "enabling NET backend"
-  NET=net
   SANED=saned
 fi
-AC_SUBST(NET)
 AC_SUBST(SANED)
-if test "${ac_cv_header_sys_sem_h}" = "no" ; then
-  echo "disabling SnapScan backend"
-  SNAPSCAN=
+
+dnl These are the backends that are build in any case:
+
+AC_ARG_ENABLE(local-backends,
+  AC_HELP_STRING([--disable-local-backends],
+                 [turn off compilation of all backends but net]))
+
+if eval "test x$enable_local_backends = xno"; then 
+   BACKENDS="net"
 else
-  echo "enabling SnapScan backend"
-  SNAPSCAN=snapscan
+  if test "${BACKENDS}" != "" ; then
+    AC_MSG_NOTICE([Manually selected backends: ${BACKENDS}])
+  else
+    BACKENDS="abaton agfafocus apple artec as6e avision bh canon \
+          canon630u coolscan coolscan2 dc25 dmc \
+          epson fujitsu gt68xx hp leo matsushita microtek \
+          microtek2 mustek mustek_pp mustek_usb nec pie plustek \
+          ricoh s9036 sceptre sharp \
+          sp15c st400 tamarack test teco1 teco2 teco3 umax umax_pp umax1220u \
+          artec_eplus48u ma1509 ibm hp5400"
+
+  if test "${sane_cv_use_libjpeg}" != "yes"; then
+    echo "*** disabling DC210 backend (failed to find JPEG library)"
+    echo "*** disabling DC240 backend (failed to find JPEG library)"
+  else
+    BACKENDS="${BACKENDS} dc210 dc240"
+    DJPEG=djpeg
+  fi
+  AC_SUBST(DJPEG)
+
+  if test "${sane_cv_use_libieee1284}" != "yes"
+    then
+    echo "*** disabling CANON_PP backend (failed to find libieee1284 library)"
+    echo "*** disabling HPSJ5S backend (failed to find libieee1284 library)"
+  else
+    BACKENDS="${BACKENDS} canon_pp hpsj5s"
+  fi
+
+  if test "${HAVE_GPHOTO2}" != "gphoto2-config" \
+        -o "${sane_cv_use_libjpeg}" != "yes"; then
+    echo "*** disabling GPHOTO2 backend (not requested, or failed to find gphoto2-config or JPEG library)"
+  else
+    BACKENDS="${BACKENDS} gphoto2"
+  fi
+
+  if test "${ac_cv_header_sys_scanio_h}" = "no"; then
+    echo "*** disabling PINT backend (sys/scanio.h not found)"
+  else
+    BACKENDS="${BACKENDS} pint"
+  fi
+
+  if test "${ac_cv_func_ioperm}" = "no" \
+      && test "${ac_cv_func__portaccess}" = "no"
+  then
+    echo "*** disabling qcam backend (ioperm or portaccess not found)"
+  else
+    BACKENDS="${BACKENDS} qcam"
+  fi
+
+  if test "${sane_v4l_version}" != "v4l"
+  then
+    echo "*** disabling v4l (Video for Linux) backend (linux/videodev.h not found)"
+  else
+    BACKENDS="${BACKENDS} v4l"
+  fi
+
+  if test "${ac_cv_header_sys_socket_h}" = "no"; then
+    echo "*** disabling net backend (sys/socket.h not found)"
+  else
+    BACKENDS="${BACKENDS} net"
+  fi
+
+  if test "${ac_cv_header_sys_sem_h}" = "no" ; then
+    echo "*** disabling snapscan backend (sys/sem.h not found)"
+  else
+    BACKENDS="${BACKENDS} snapscan"
+  fi
+
+  AC_ARG_ENABLE(pnm-backend, 
+    AC_HELP_STRING([--enable-pnm-backend],
+                   [enable the pnm backend for testing frontends (possible
+                    security risk, see PROBLEMS file)]),
+    [
+    BACKENDS="${BACKENDS} pnm"
+    ], [
+    echo "*** disabling pnm backend (not selected manually)"
+  ])
+
+  if test "${HAVE_LIBUSB}" != "yes" ; then
+    echo "*** disabling SM3600 backend (libusb or usb.h not found)"
+  else
+    BACKENDS="${BACKENDS} sm3600"
+  fi
+ fi
 fi
-AC_SUBST(SNAPSCAN)
+
+AC_SUBST(BACKENDS)
 
 if test "${enable_shared}" = "no"; then
   enable_preload=yes
@@ -349,12 +362,6 @@ else
 fi
 AC_SUBST(DLL_PRELOAD)
 
-AC_ARG_ENABLE(pnm-backend, 
-  AC_HELP_STRING([--enable-pnm-backend],
-                 [enable the pnm backend for testing frontends (possible
-                  security risk, see PROBLEMS file)]),
-  [PNM="pnm"], [PNM=""])
-AC_SUBST(PNM)
 
 AC_ARG_ENABLE(scsibuffersize, 
   AC_HELP_STRING([--enable-scsibuffersize=N],
@@ -385,15 +392,6 @@ AC_ARG_ENABLE(parport-directio,
     fi
   ])
 
-if test "${HAVE_LIBUSB}" = "yes" ; then
-  echo "enabling SM3600 backend"
-  SM3600=sm3600
-else
-  echo "disabling SM3600 backend"
-  SM3600=
-fi
-AC_SUBST(SM3600)
-
 AC_ARG_ENABLE(translations,
   AC_HELP_STRING([--disable-translations],
                  [don't install translations of backend options]),
@@ -418,18 +416,6 @@ else
 fi  
 AC_SUBST(INSTALL_TRANSLATIONS)
 
-
-AC_ARG_ENABLE(local-backends,
-  AC_HELP_STRING([--disable-local-backends],
-                 [turn off compilation of all backends but net]),
-  [
-    if eval "test x$enable_local_backends = xno"; then 
-      SELECTED_BACKENDS="net"
-    fi
-  ],
-,
-)
-AC_SUBST(SELECTED_BACKENDS)
 
 if test "$LATEX" != "no" && test "$DVIPS" != "no" && test "$MAKEINDEX" != "no" ; then
   USE_LATEX="yes"
@@ -456,18 +442,28 @@ dnl ***********************************************************************
 dnl print configuration information
 dnl ***********************************************************************
 
-echo "Variables used for compilation/linking:"
-echo using CPPFLAGS=\"${CPPFLAGS}\"
-echo using CFLAGS=\"${CFLAGS}\"
-echo using LDFLAGS=\"${LDFLAGS}\"
-echo using LIBS=\"${LIBS}\"
-echo "Installation directories:"
+echo "-> Variables used for compilation/linking:"
+echo CPPFLAGS=\"${CPPFLAGS}\"
+echo CFLAGS=\"${CFLAGS}\"
+echo LDFLAGS=\"${LDFLAGS}\"
+echo LIBS=\"${LIBS}\"
+echo "-> Installation directories:"
 echo "Configuration: `eval eval echo ${sysconfdir}`"
 echo "Libraries:     `eval eval echo ${libdir}`"
 echo "Binaries:      `eval eval echo ${bindir}` and `eval eval echo ${sbindir}`"
 echo "Manpages:      `eval eval echo ${mandir}`"
-echo "Network parameters:"
+echo "-> Network parameters:"
+if test "${SANED}" = "saned" ; then
+  echo "Build saned:   yes"
+else
+  echo "Build saned:   no"
+fi
 echo "IPv6 support:  `eval eval echo ${ipv6}`"
+echo "-> The following backends will be built:"
+for backend in ${BACKENDS} ; do
+  echo $ECHO_N "${backend} " 
+done
+echo
 
 if test "$SANE_CONFIG_PATH" != "no" ; then
   SANE_INSTALLED_VERSION=`$SANE_CONFIG_PATH --version`

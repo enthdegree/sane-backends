@@ -463,7 +463,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS V_MAJOR V_MINOR V_REV PACKAGE VERSION NUMBER_VERSION build build_cpu build_vendor build_os host host_cpu host_vendor host_os CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA SET_MAKE CPP EGREP SANE_CONFIG_PATH MSGFMT XGETTEXT MSGMERGE LATEX DVIPS MAKEINDEX INCLUDES LINKER_RPATH DL_LIB DYNAMIC_FLAG HAVE_GPHOTO2 ac_ct_HAVE_GPHOTO2 ALLOCA LIBOBJS LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB STRIP ac_ct_STRIP DLLTOOL ac_ct_DLLTOOL AS ac_ct_AS OBJDUMP ac_ct_OBJDUMP CXX CXXFLAGS ac_ct_CXX CXXCPP F77 FFLAGS ac_ct_F77 LIBTOOL DC210 DC240 DJPEG CANON_PP HPSJ5S GPHOTO2 PINT QCAM V4L NET SANED SNAPSCAN DLL_PRELOAD PNM SM3600 INSTALL_TRANSLATIONS SELECTED_BACKENDS USE_LATEX DISTCLEAN_FILES LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS V_MAJOR V_MINOR V_REV PACKAGE VERSION NUMBER_VERSION build build_cpu build_vendor build_os host host_cpu host_vendor host_os CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA SET_MAKE CPP EGREP SANE_CONFIG_PATH MSGFMT XGETTEXT MSGMERGE LATEX DVIPS MAKEINDEX INCLUDES LINKER_RPATH DL_LIB DYNAMIC_FLAG HAVE_GPHOTO2 ac_ct_HAVE_GPHOTO2 ALLOCA LIBOBJS LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB STRIP ac_ct_STRIP DLLTOOL ac_ct_DLLTOOL AS ac_ct_AS OBJDUMP ac_ct_OBJDUMP CXX CXXFLAGS ac_ct_CXX CXXCPP F77 FFLAGS ac_ct_F77 LIBTOOL SANED DJPEG BACKENDS DLL_PRELOAD INSTALL_TRANSLATIONS USE_LATEX DISTCLEAN_FILES LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1035,6 +1035,8 @@ Optional Features:
   --enable-fast-install[=PKGS]
                           optimize for fast installation [default=yes]
   --disable-libtool-lock  avoid locking (might break parallel builds)
+  --disable-local-backends
+                          turn off compilation of all backends but net
   --enable-pnm-backend    enable the pnm backend for testing frontends
                           (possible security risk, see PROBLEMS file)
   --enable-scsibuffersize=N
@@ -1046,8 +1048,6 @@ Optional Features:
                           enable direct hardware access to the parallel port,
                           so frontends will require special permission level
   --disable-translations  don't install translations of backend options
-  --disable-local-backends
-                          turn off compilation of all backends but net
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -23609,96 +23609,113 @@ LIBTOOL='$(SHELL) $(top_builddir)/libtool'
 
 
 
-if test "${sane_cv_use_libjpeg}" != "yes"; then
-  echo "disabling DC210/DC240 backends (failed to find JPEG library)"
-  DC210=
-  DC240=
-  DJPEG=
-else
-  echo "enabling DC210/DC240 backends"
-  DC210=dc210
-  DC240=dc240
-  DJPEG=djpeg
-fi
-
-
-
-
-if test "${sane_cv_use_libieee1284}" != "yes"
-then
-  echo "disabling CANON_PP backend (failed to find required libieee1284 version)"
-  CANON_PP=
-else
-  echo "enabling CANON_PP backend"
-  CANON_PP=canon_pp
-fi
-
-
-if test "${sane_cv_use_libieee1284}" != "yes"
-then
-  echo "disabling HPSJ5S backend (failed to find required libieee1284 version)"
-  HPSJ5S=
-else
-  echo "enabling HPSJ5S backend"
-  HPSJ5S=hpsj5s
-fi
-
-
-if test "${HAVE_GPHOTO2}" != "gphoto2-config" \
-      -o "${sane_cv_use_libjpeg}" != "yes"; then
-  echo "disabling GPHOTO2 backend (not requested, or failed to find gphoto2-config or JPEG lib)"
-  GPHOTO2=
-else
-  echo "enabling GPHOTO2 backend"
-  GPHOTO2=gphoto2
-fi
-
-
-if test "${ac_cv_header_sys_scanio_h}" = "no"; then
-  echo "disabling PINT backend"
-  PINT=
-else
-  echo "enabling PINT backend"
-  PINT=pint
-fi
-
-if test "${ac_cv_func_ioperm}" = "no" \
-    && test "${ac_cv_func__portaccess}" = "no"
-then
-  echo "disabling QuickCam backend"
-  QCAM=
-else
-  echo "enabling QuickCam backend"
-  QCAM=qcam
-fi
-
-if test "${sane_v4l_version}" = "v4l"
-then
-  echo "enabling Video4Linux backend"
-  V4L=v4l
-else
-  echo "disabling Video4Linux backend"
-  V4L=
-fi
-
 if test "${ac_cv_header_sys_socket_h}" = "no"; then
-  echo "disabling NET backend"
-  NET=
+  echo "*** disabling saned (sys/socket.h not found)"
   SANED=
 else
-  echo "enabling NET backend"
-  NET=net
   SANED=saned
 fi
 
 
-if test "${ac_cv_header_sys_sem_h}" = "no" ; then
-  echo "disabling SnapScan backend"
-  SNAPSCAN=
+
+# Check whether --enable-local-backends or --disable-local-backends was given.
+if test "${enable_local_backends+set}" = set; then
+  enableval="$enable_local_backends"
+
+fi;
+
+if eval "test x$enable_local_backends = xno"; then
+   BACKENDS="net"
 else
-  echo "enabling SnapScan backend"
-  SNAPSCAN=snapscan
+  if test "${BACKENDS}" != "" ; then
+    { echo "$as_me:$LINENO: Manually selected backends: ${BACKENDS}" >&5
+echo "$as_me: Manually selected backends: ${BACKENDS}" >&6;}
+  else
+    BACKENDS="abaton agfafocus apple artec as6e avision bh canon \
+          canon630u coolscan coolscan2 dc25 dmc \
+          epson fujitsu gt68xx hp leo matsushita microtek \
+          microtek2 mustek mustek_pp mustek_usb nec pie plustek \
+          ricoh s9036 sceptre sharp \
+          sp15c st400 tamarack test teco1 teco2 teco3 umax umax_pp umax1220u \
+          artec_eplus48u ma1509 ibm hp5400"
+
+  if test "${sane_cv_use_libjpeg}" != "yes"; then
+    echo "*** disabling DC210 backend (failed to find JPEG library)"
+    echo "*** disabling DC240 backend (failed to find JPEG library)"
+  else
+    BACKENDS="${BACKENDS} dc210 dc240"
+    DJPEG=djpeg
+  fi
+
+
+  if test "${sane_cv_use_libieee1284}" != "yes"
+    then
+    echo "*** disabling CANON_PP backend (failed to find libieee1284 library)"
+    echo "*** disabling HPSJ5S backend (failed to find libieee1284 library)"
+  else
+    BACKENDS="${BACKENDS} canon_pp hpsj5s"
+  fi
+
+  if test "${HAVE_GPHOTO2}" != "gphoto2-config" \
+        -o "${sane_cv_use_libjpeg}" != "yes"; then
+    echo "*** disabling GPHOTO2 backend (not requested, or failed to find gphoto2-config or JPEG library)"
+  else
+    BACKENDS="${BACKENDS} gphoto2"
+  fi
+
+  if test "${ac_cv_header_sys_scanio_h}" = "no"; then
+    echo "*** disabling PINT backend (sys/scanio.h not found)"
+  else
+    BACKENDS="${BACKENDS} pint"
+  fi
+
+  if test "${ac_cv_func_ioperm}" = "no" \
+      && test "${ac_cv_func__portaccess}" = "no"
+  then
+    echo "*** disabling qcam backend (ioperm or portaccess not found)"
+  else
+    BACKENDS="${BACKENDS} qcam"
+  fi
+
+  if test "${sane_v4l_version}" != "v4l"
+  then
+    echo "*** disabling v4l (Video for Linux) backend (linux/videodev.h not found)"
+  else
+    BACKENDS="${BACKENDS} v4l"
+  fi
+
+  if test "${ac_cv_header_sys_socket_h}" = "no"; then
+    echo "*** disabling net backend (sys/socket.h not found)"
+  else
+    BACKENDS="${BACKENDS} net"
+  fi
+
+  if test "${ac_cv_header_sys_sem_h}" = "no" ; then
+    echo "*** disabling snapscan backend (sys/sem.h not found)"
+  else
+    BACKENDS="${BACKENDS} snapscan"
+  fi
+
+  # Check whether --enable-pnm-backend or --disable-pnm-backend was given.
+if test "${enable_pnm_backend+set}" = set; then
+  enableval="$enable_pnm_backend"
+
+    BACKENDS="${BACKENDS} pnm"
+
+else
+
+    echo "*** disabling pnm backend (not selected manually)"
+
+fi;
+
+  if test "${HAVE_LIBUSB}" != "yes" ; then
+    echo "*** disabling SM3600 backend (libusb or usb.h not found)"
+  else
+    BACKENDS="${BACKENDS} sm3600"
+  fi
+ fi
 fi
+
 
 
 if test "${enable_shared}" = "no"; then
@@ -23711,14 +23728,6 @@ else
   DLL_PRELOAD=""
 fi
 
-
-# Check whether --enable-pnm-backend or --disable-pnm-backend was given.
-if test "${enable_pnm_backend+set}" = set; then
-  enableval="$enable_pnm_backend"
-  PNM="pnm"
-else
-  PNM=""
-fi;
 
 
 # Check whether --enable-scsibuffersize or --disable-scsibuffersize was given.
@@ -23755,15 +23764,6 @@ if test "${enable_parport_directio+set}" = set; then
 
 fi;
 
-if test "${HAVE_LIBUSB}" = "yes" ; then
-  echo "enabling SM3600 backend"
-  SM3600=sm3600
-else
-  echo "disabling SM3600 backend"
-  SM3600=
-fi
-
-
 # Check whether --enable-translations or --disable-translations was given.
 if test "${enable_translations+set}" = set; then
   enableval="$enable_translations"
@@ -23789,17 +23789,6 @@ else
   echo "disabling translations"
 fi
 
-
-
-# Check whether --enable-local-backends or --disable-local-backends was given.
-if test "${enable_local_backends+set}" = set; then
-  enableval="$enable_local_backends"
-
-    if eval "test x$enable_local_backends = xno"; then
-      SELECTED_BACKENDS="net"
-    fi
-
-fi;
 
 
 if test "$LATEX" != "no" && test "$DVIPS" != "no" && test "$MAKEINDEX" != "no" ; then
@@ -24505,23 +24494,11 @@ s,@F77@,$F77,;t t
 s,@FFLAGS@,$FFLAGS,;t t
 s,@ac_ct_F77@,$ac_ct_F77,;t t
 s,@LIBTOOL@,$LIBTOOL,;t t
-s,@DC210@,$DC210,;t t
-s,@DC240@,$DC240,;t t
-s,@DJPEG@,$DJPEG,;t t
-s,@CANON_PP@,$CANON_PP,;t t
-s,@HPSJ5S@,$HPSJ5S,;t t
-s,@GPHOTO2@,$GPHOTO2,;t t
-s,@PINT@,$PINT,;t t
-s,@QCAM@,$QCAM,;t t
-s,@V4L@,$V4L,;t t
-s,@NET@,$NET,;t t
 s,@SANED@,$SANED,;t t
-s,@SNAPSCAN@,$SNAPSCAN,;t t
+s,@DJPEG@,$DJPEG,;t t
+s,@BACKENDS@,$BACKENDS,;t t
 s,@DLL_PRELOAD@,$DLL_PRELOAD,;t t
-s,@PNM@,$PNM,;t t
-s,@SM3600@,$SM3600,;t t
 s,@INSTALL_TRANSLATIONS@,$INSTALL_TRANSLATIONS,;t t
-s,@SELECTED_BACKENDS@,$SELECTED_BACKENDS,;t t
 s,@USE_LATEX@,$USE_LATEX,;t t
 s,@DISTCLEAN_FILES@,$DISTCLEAN_FILES,;t t
 s,@LTLIBOBJS@,$LTLIBOBJS,;t t
@@ -24988,18 +24965,28 @@ fi
 
 
 
-echo "Variables used for compilation/linking:"
-echo using CPPFLAGS=\"${CPPFLAGS}\"
-echo using CFLAGS=\"${CFLAGS}\"
-echo using LDFLAGS=\"${LDFLAGS}\"
-echo using LIBS=\"${LIBS}\"
-echo "Installation directories:"
+echo "-> Variables used for compilation/linking:"
+echo CPPFLAGS=\"${CPPFLAGS}\"
+echo CFLAGS=\"${CFLAGS}\"
+echo LDFLAGS=\"${LDFLAGS}\"
+echo LIBS=\"${LIBS}\"
+echo "-> Installation directories:"
 echo "Configuration: `eval eval echo ${sysconfdir}`"
 echo "Libraries:     `eval eval echo ${libdir}`"
 echo "Binaries:      `eval eval echo ${bindir}` and `eval eval echo ${sbindir}`"
 echo "Manpages:      `eval eval echo ${mandir}`"
-echo "Network parameters:"
+echo "-> Network parameters:"
+if test "${SANED}" = "saned" ; then
+  echo "Build saned:   yes"
+else
+  echo "Build saned:   no"
+fi
 echo "IPv6 support:  `eval eval echo ${ipv6}`"
+echo "-> The following backends will be built:"
+for backend in ${BACKENDS} ; do
+  echo $ECHO_N "${backend} "
+done
+echo
 
 if test "$SANE_CONFIG_PATH" != "no" ; then
   SANE_INSTALLED_VERSION=`$SANE_CONFIG_PATH --version`

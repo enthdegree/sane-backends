@@ -62,16 +62,7 @@ FIRMWARE_DIRS = gt68xx
 
 @SET_MAKE@
 
-PRELOADABLE_BACKENDS = abaton agfafocus apple artec as6e avision bh canon \
-        canon630u @CANON_PP@ coolscan coolscan2 dc25 @DC210@ @DC240@ dmc \
-        epson fujitsu @GPHOTO2@ gt68xx hp @HPSJ5S@ leo matsushita microtek \
-        microtek2 mustek mustek_pp mustek_usb nec @NET@ pie @PINT@ plustek \
-        @PNM@ @QCAM@ ricoh s9036 sceptre sharp @SM3600@ @SNAPSCAN@ \
-        sp15c st400 tamarack test teco1 teco2 teco3 umax umax_pp umax1220u \
-        @V4L@ artec_eplus48u ma1509 ibm hp5400
-ifneq (@SELECTED_BACKENDS@,)
-PRELOADABLE_BACKENDS = @SELECTED_BACKENDS@
-endif
+PRELOADABLE_BACKENDS = @BACKENDS@
 
 ALL_BACKENDS = $(PRELOADABLE_BACKENDS) dll
 

@@ -1,4 +1,4 @@
-.TH sane-canon 5 "27 July 2000"
+.TH sane-canon 5 "29 May 2001"
 .IX sane-canon
 .SH NAME
 sane-canon - SANE backend for Canon flatbed scanners
@@ -29,6 +29,33 @@ damaged.
 That said, TESTERS ARE WELCOME. Send your bug reports and comments to
 Manuel Panea <mpd@rzg.mpg.de>.
 .PP
+.SH "DEVICE NAMES"
+This backend expects device names of the form:
+.PP
+.RS
+.I special
+.RE
+.PP
+Where
+.I special
+is the path-name for the special device that corresponds to a
+SCSI scanner. The special device name must be a generic SCSI device or a
+symlink to such a device.  The program 
+.IR sane-find-scanner 
+helps to find out the correct device. Under Linux, such a device name
+could be
+.I /dev/sga
+or
+.IR /dev/sge ,
+for example.  See sane-scsi(5) for details.
+
+.SH CONFIGURATION
+The contents of the
+.I canon.conf
+file is a list of device names that correspond to Canon
+scanners.  Empty lines and lines starting with a hash mark (#) are
+ignored.  Only one device name can be listed in 
+.I canon.conf.
 
 .SH TIPS
 .PP
@@ -57,6 +84,11 @@ resolutions.
 .PP
 .SH FILES
 .TP
+.I @CONFIGDIR@/canon.conf
+The backend configuration file (see also description of
+.B SANE_CONFIG_DIR
+below).
+.TP
 .I @LIBDIR@/libsane-canon.a
 The static library implementing this backend.
 .TP
@@ -64,6 +96,20 @@ The static library implementing this backend.
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 .SH ENVIRONMENT
+.TP
+.B SANE_CONFIG_DIR
+This environment variable specifies the list of directories that may
+contain the configuration file.  Under UNIX, the directories are
+separated by a colon (`:'), under OS/2, they are separated by a
+semi-colon (`;').  If this variable is not set, the configuration file
+is searched in two default directories: first, the current working
+directory (".") and then in @CONFIGDIR@.  If the value of the
+environment variable ends with the directory separator character, then
+the default directories are searched after the explicitly specified
+directories.  For example, setting
+.B SANE_CONFIG_DIR
+to "/tmp/config:" would result in directories "tmp/config", ".", and
+"@CONFIGDIR@" being searched (in this order).
 .TP
 .B SANE_DEBUG_CANON
 If the library was compiled with debug support enabled, this
@@ -74,11 +120,11 @@ Example:
 export SANE_DEBUG_CANON=4
 
 .SH "SEE ALSO"
-sane\-scsi(5)
+sane(7), sane\-scsi(5), sane\-find\-scanner(1)
 .br
 http://www.rzg.mpg.de/~mpd/sane/
 .br
-doc/canon.install2700F.txt (installation of a CanoScan 2700F
+@DOCDIR@/canon/canon.install2700F.txt (installation of a CanoScan 2700F)
 .br
 .SH AUTHOR
 Helmut Koeberle, Manuel Panea, and Markus Mertinat

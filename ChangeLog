@@ -1,3 +1,8 @@
+2000-11-19  Henning Meier-Geinitz <hmg@gmx.de>
+
+	* TODO: Removed entry about stiff.*. Updated entry about testing
+	  saned.
+
 2000-11-19  Jochen Eisinger <jochen.eisinger@gmx.net>
 
 	* backend/mustek_pp.[ch]: replaced #include "sane/.." by

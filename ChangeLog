@@ -1,3 +1,12 @@
+2000-11-24  Jochen Eisinger <jochen.eisinger@gmx.net>
+
+	* doc/scanimage.man doc/saned.man: updated description of password
+	  file
+	* sanei/sanei_auth.c frontend/saned.c frontend/scanimage.c: replaced
+	  index() by strchr(). Changed style of password file
+	* backend/net.c: the net backend now prepends net:host: to the
+	  resource before calling the auth_callback function
+
 2000-11-22  Oliver Rauch <Oliver.Rauch@Wolfsburg.DE>
 
 	* removed doc/xcam.man, doc/xscanimage.man and

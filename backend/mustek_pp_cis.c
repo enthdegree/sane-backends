@@ -126,7 +126,7 @@
  *****************************************************************************/
 #ifdef M1015_LOG_LL
 
-   FILE* M1015_LOG_1;
+   static FILE* M1015_LOG_1;
    
    #define M1015_START_LL\
       M1015_LOG_1 = fopen("cis_ll.log", "w");
@@ -199,7 +199,8 @@
  *****************************************************************************/ 
 #ifdef M1015_LOG_HL
 
-   FILE* M1015_LOG_2;
+   static FILE* M1015_LOG_2;
+   static char hl_prev_line[4096], hl_next_line[4096], hl_repeat_count;
    
    /*
     * A few variables for hierarchical log message indentation.
@@ -213,19 +214,43 @@
    #define M1015_START_HL\
        M1015_LOG_2 = fopen("cis_hl.log", "w");\
        cis_indent = cis_indent_start + strlen(cis_indent_start);\
-       cis_indent_end = cis_indent;
+       cis_indent_end = cis_indent;\
+       hl_prev_line[0] = 0;\
+       hl_next_line[0] = 0;\
+       hl_repeat_count = 0;
        
+   #define M1015_FLUSH_HL\
+      if (strcmp(hl_prev_line, hl_next_line))\
+      {\
+         fprintf(M1015_LOG_2, &hl_prev_line[0]);\
+         strcpy(&hl_prev_line[0], &hl_next_line[0]);\
+         if (hl_repeat_count != 0)\
+         {\
+            fprintf(M1015_LOG_2, "%s [last message repeated %d times]\n",\
+                    cis_indent, hl_repeat_count+1);  \
+         }\
+         hl_repeat_count = 0;\
+      }\
+      else\
+      {\
+         hl_repeat_count += 1;\
+      }
+       
+   #define M1015_MARK(info)\
+      sprintf(&hl_next_line[0], "%s+ %s\n", cis_indent, info);\
+      M1015_FLUSH_HL
+
    #define M1015_STOP_HL\
+       hl_next_line[0] = 0;\
+       M1015_FLUSH_HL\
        fclose(M1015_LOG_2); 
    
-   #define M1015_MARK(info)\
-      fprintf(M1015_LOG_2, "%s+ %s\n", cis_indent, info);
-     
 #else  /* M1015_LOG_HL */ 
 
    #define M1015_START_HL
    #define M1015_STOP_HL
    #define M1015_MARK(info)
+   #define M1015_FLUSH_HL
       
 #endif /* M1015_LOG_HL */
 
@@ -410,8 +435,9 @@ Mustek_PP_1015_read_reg(Mustek_PP_CIS_dev * dev, Mustek_PP_1015R_reg reg)
    SANEI_PA4S2_READEND (dev->desc->fd); 
    
 #ifdef M1015_LOG_HL
-   fprintf(M1015_LOG_2, "%s read_reg(%s); [%s]\n", cis_indent, 
+   sprintf(&hl_next_line[0], "%s read_reg(%s); [%s]\n", cis_indent, 
            Mustek_PP_1015_reg_r_name(reg), Mustek_PP_1015_show_val(tmp));
+   M1015_FLUSH_HL;
 #endif
    
 #ifdef M1015_TRACE_REGS   
@@ -433,9 +459,7 @@ Mustek_PP_1015_wait_bit(Mustek_PP_CIS_dev * dev, Mustek_PP_1015R_reg reg,
 {
    SANE_Byte tmp;
    SANE_Byte mask, val;
-#if defined (M1015_LOG_LL) || defined (M1015_LOG_HL)
    int tries = 0;
-#endif
    
    assert(reg <= 3);
    assert(bit <= 3);
@@ -453,16 +477,35 @@ Mustek_PP_1015_wait_bit(Mustek_PP_CIS_dev * dev, Mustek_PP_1015R_reg reg,
       sanei_pa4s2_readbyte (dev->desc->fd, &tmp); 
       sanei_pa4s2_readend (dev->desc->fd); 
       
+#ifdef M1015_LOG_HL
+   sprintf(&hl_next_line[0], "%s wait_bit(%s, %s, %d): %s %s;\n", cis_indent, 
+           Mustek_PP_1015_reg_r_name(reg), Mustek_PP_1015_bit_name(bit),
+           on?1:0, Mustek_PP_1015_show_val(mask), Mustek_PP_1015_show_val(tmp));
+   M1015_FLUSH_HL;
+#endif
       val = ((on == SANE_TRUE) ? tmp : ~tmp ) & mask;
       
       if (val != 0) break;
             
       if (period) usleep(period);
+      
+      if (tries > 50000) 
+      {
+#ifdef M1015_LOG_HL
+         sprintf(&hl_next_line[0], "%s wait_bit(%s, %s, %d): failed;\n", cis_indent, 
+           Mustek_PP_1015_reg_r_name(reg), Mustek_PP_1015_bit_name(bit), on?1:0);
+         M1015_FLUSH_HL;
+#endif
+         DBG(2, "Mustek_PP_1015_wait_bit: failed (reg %d, bit %d, on: %d)\n",
+             reg, bit, on?1:0);
+         return SANE_FALSE;
+      }
    }
    
 #ifdef M1015_LOG_HL
-   fprintf(M1015_LOG_2, "%s wait_bit(%s, %s, %d);\n", cis_indent, 
+   sprintf(&hl_next_line[0], "%s wait_bit(%s, %s, %d);\n", cis_indent, 
            Mustek_PP_1015_reg_r_name(reg), Mustek_PP_1015_bit_name(bit), on?1:0);
+   M1015_FLUSH_HL;
 #endif
 #ifdef M1015_LOG_LL
    fprintf(M1015_LOG_1, "\tread_reg(%s, %d);\n", Mustek_PP_1015_reg_r_name(reg),
@@ -524,8 +567,9 @@ Mustek_PP_1015_write_reg(Mustek_PP_CIS_dev * dev, Mustek_PP_1015W_reg reg, SANE_
 #endif
 
 #ifdef M1015_LOG_HL
-   fprintf(M1015_LOG_2, "%s write_reg(%s, 0x%02X);\n", cis_indent, 
+   sprintf(&hl_next_line[0], "%s write_reg(%s, 0x%02X);\n", cis_indent, 
            Mustek_PP_1015_reg_w_name(reg), val);
+   M1015_FLUSH_HL;
 #endif
 }
 
@@ -560,8 +604,9 @@ Mustek_PP_1015_write_reg2(Mustek_PP_CIS_dev * dev, Mustek_PP_1015W_reg reg,
 #endif
    
 #ifdef M1015_LOG_HL
-   fprintf(M1015_LOG_2, "%s write_reg2(%s, 0x%02X, 0x%02X);\n", 
+   sprintf(&hl_next_line[0], "%s write_reg2(%s, 0x%02X, 0x%02X);\n", 
            cis_indent, Mustek_PP_1015_reg_w_name(reg), val1, val2);
+   M1015_FLUSH_HL;
 #endif
 }
 
@@ -600,8 +645,9 @@ Mustek_PP_1015_write_reg3(Mustek_PP_CIS_dev * dev, Mustek_PP_1015W_reg reg,
 #endif
    
 #ifdef M1015_LOG_HL
-   fprintf(M1015_LOG_2, "%s write_reg3(%s, 0x%02X, 0x%02X, 0x%02X);\n", 
+   sprintf(&hl_next_line[0], "%s write_reg3(%s, 0x%02X, 0x%02X, 0x%02X);\n", 
            cis_indent, Mustek_PP_1015_reg_w_name(reg), val1, val2, val3);
+   M1015_FLUSH_HL;
 #endif
 }
 
@@ -660,9 +706,10 @@ Mustek_PP_1015_write_reg_stop(Mustek_PP_CIS_dev * dev)
    SANE_Byte regNo   = (dev->CIS.regs.current_write_reg & 0x0F);
    assert (regNo   <= 3);
    
-   fprintf(M1015_LOG_2, "%s write_reg_multi(%s, *%d);\n",  cis_indent,
+   sprintf(&hl_next_line[0], "%s write_reg_multi(%s, *%d);\n",  cis_indent,
            Mustek_PP_1015_reg_w_name(dev->CIS.regs.current_write_reg), 
            dev->CIS.regs.write_count);
+   M1015_FLUSH_HL;
 #endif
    assert (regBank <= 3);
    
@@ -682,7 +729,8 @@ Mustek_PP_1015_send_command(Mustek_PP_CIS_dev * dev, SANE_Byte command)
    SANEI_PA4S2_WRITEBYTE (dev->desc->fd, 6, command);
    
 #ifdef M1015_LOG_HL
-   fprintf(M1015_LOG_2, "%s send_command(0x%02X);\n", cis_indent, command);
+   sprintf(&hl_next_line[0], "%s send_command(0x%02X);\n", cis_indent, command);
+   M1015_FLUSH_HL;
 #endif
 }
 
@@ -2581,16 +2629,16 @@ SANE_Status cis_drv_start (SANE_Handle hndl)
        */  
       for (i=0; i<4; ++i)
       {
-         dev->CIS.regs.in_regs[i] = -1;
+         cisdev->CIS.regs.in_regs[i] = -1;
          for (j=0; j<4; ++j)
          {
-            dev->CIS.regs.out_regs[i][j] = -1;
+            cisdev->CIS.regs.out_regs[i][j] = -1;
          }
       }
 
-      dev->CIS.regs.channel = -1;
+      cisdev->CIS.regs.channel = -1;
       /* These values have been read earlier. */
-      dev->CIS.regs.in_regs[0] = dev->desc->asic;
+      cisdev->CIS.regs.in_regs[0] = 0xA5;
    }
 #endif
 

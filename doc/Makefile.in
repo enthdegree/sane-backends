@@ -40,7 +40,11 @@ SECT5	= sane-abaton.5 sane-agfafocus.5 sane-apple.5 sane-as6e.5 sane-dll.5 \
           sane-st400.5 sane-mustek_pp.5 sane-dc210.5 sane-v4l.5 \
           sane-snapscan.5 sane-canon.5 sane-coolscan.5 sane-bh.5 sane-dc240.5
 MANPAGES = $(SECT1) $(SECT5)
-DOCS	= sane.ps sane.dvi
+READMES = README AUTHORS COPYING ChangeLog LEVEL2 LICENSE NEWS PROBLEMS \
+          PROJECTS README README.aix README.hp-ux README.linux README.os2 \
+          README.solaris README.unixware2 README.unixware7 TODO
+DOCS    = backend-writing.txt sane.ps sane.dvi
+BACKDIRS= canon mustek umax
 LATEX	= TEXINPUTS=$(srcdir):$$TEXINPUTS latex
 DLH	= TEXINPUTS=$(srcdir):$$TEXINPUTS dlh
 MAN2HTML= nroff -man |\
@@ -50,11 +54,13 @@ MAN2HTML= nroff -man |\
 all: $(MANPAGES)
 
 %.1 %.5: %.man
-	sed -e 's|@DATADIR@|$(datadir)|g' \
-	    -e 's|@CONFIGDIR@|$(configdir)|g' \
-	    -e 's|@LIBDIR@|$(libdir)|g' \
-	    -e 's|@BINDIR@|$(bindir)|g' \
-	    -e 's|@SBINDIR@|$(sbindir)|g' $^ >$@
+	@sed -e 's|@DATADIR@|$(datadir)|g' \
+	     -e 's|@CONFIGDIR@|$(configdir)|g' \
+	     -e 's|@DOCDIR@|$(docdir)|g' \
+	     -e 's|@LIBDIR@|$(libdir)|g' \
+	     -e 's|@BINDIR@|$(bindir)|g' \
+	     -e 's|@SBINDIR@|$(sbindir)|g' $^ >$@
+	@echo Generating manpage $@...
 
 install: $(MANPAGES)
 	$(MKDIR) $(mandir)/man1 $(mandir)/man5
@@ -66,15 +72,25 @@ install: $(MANPAGES)
 	  echo installing $${page} in $(mandir)/man5/$${page}...; \
 	  $(INSTALL_DATA) $${page} $(mandir)/man5/$${page} || exit 1; \
 	done
-
-install-docs: ps
 	$(MKDIR) $(docdir)
-	@for doc in $(DOCS); do \
-	  echo installing $${doc} in $(docdir)/$${doc}...; \
-	  $(INSTALL_DATA) $${doc} $(docdir)/$${doc} || exit 1; \
+	@for readme in $(READMES); do \
+	  echo installing $${readme} in $(docdir)/$${readme}...; \
+	  $(INSTALL_DATA) $(top_srcdir)/$${readme} $(docdir)/$${readme} \
+	    || exit 1; \
 	done
-
-docs: ps html
+	@for backdir in $(BACKDIRS); do \
+	  echo installing $${backdir} in $(docdir)/$${backdir}...; \
+	  $(MKDIR) $(docdir)/$${backdir} ; \
+	  for doc in $${backdir}/* ; do \
+	    if test -f $${doc} ; then \
+	      $(INSTALL_DATA) $${doc} $(docdir)/$${backdir} || exit 1; \
+	    fi \
+	  done \
+	done
+	@-for doc in $(DOCS); do \
+	    echo installing $${doc} in $(docdir)/$${doc}...; \
+	    $(INSTALL_DATA) $${doc} $(docdir)/$${doc}; \
+	  done
 
 sane.ind:
 	touch sane.ind
@@ -82,7 +98,6 @@ sane.ind:
 	makeindex sane.idx
 
 ps: sane.ind
-	-rm -f figs; $(LN_S) $(srcdir)/figs .
 	$(LATEX) $(srcdir)/sane
 	$(LATEX) $(srcdir)/sane
 	dvips sane.dvi -o sane.ps
@@ -113,8 +128,11 @@ distclean: clean
 	rm -f *.lot *.lof *.ind
 	rm -f sane.dvi sane.ps
 	rm -f sane/*.html sane/*.gif
-	-rmdir sane
+	for manpage in $(MANPAGES) ; do \
+	  rm -f $${manpage}.html ; \
+	done
+
 
 depend:
 
-.PHONY: all install depend clean ps html htmlman sane-backends-html
+.PHONY: all install depend clean ps html html-man sane-backends-html

@@ -1,9 +1,10 @@
 2002-05-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* configure configure.in frontend/scaneimage.c
+	* configure configure.in frontend/scanimage.c
 	  include/sane/config.h.in: Fixed 16 bit pnm output. The byte-order
 	  was wrong for little-endian systems. Based on code from Roland
 	  Roberts <roland@astrofoto.org>.
+	* NEWS: Minor updates.
 
 2002-05-07  Frank Zago  <fzago@greshamstorage.com>
 

@@ -1,3 +1,10 @@
+2001-04-29  Chris Pinkham <cpinkham@infi.net>
+
+	* backend/artec.c: Fixed bug causing possible dereference of a NULL
+	  pointer.
+	* backend/artec.desc: Modified USB entry to say AS6E scanner supported
+	  by SANE AS6E backend.
+
 2001-04-29  Petter Reinholdtsen <pere@td.org.uit.no>
 
 	* sanei/sanei_config.c sanei/sanei_codec_bin.c: Avoid reading

@@ -33,6 +33,9 @@ backends
       Henning Meier-Geinitz <hmg@gmx.de>
     - UMAX 1220P/2000P & HP 320C
       http://umax1220p.sourceforge.net
+    - Genius Vivid Pro USB, Colorado USB 19200, Visioneer OneTouch 7600 
+      IBM IdeaScan 2000 USB 
+      http://homepages.paradise.net.nz/stevenel/scanner/
 
   * Update backends
     - add additions/bug fixes to microtek2 from Karsten Festag

@@ -1,0 +1,108 @@
+#!/bin/sh
+#
+# This script is part of SANE, <URL:http://www.mostang.com/sane/>
+#
+# Send bugreports and other requests to sane-devel@mostang.com
+
+PACKAGE="@PACKAGE@"
+scriptname="@PACKAGE@-config"
+
+prefix="@prefix@"
+exec_prefix="@exec_prefix@"
+
+LIBS="@LIBS@"
+pkgincludedir="@pkgincludedir@"
+pkglibdir="@pkglibdir@"
+includedir="@includedir@"
+mandir="@mandir@"
+infodir="@infodir@"
+libdir="@libdir@"
+localstatedir="@localstatedir@"
+sysconfdir="@sysconfdir@"
+datadir="@datadir@"
+libexecdir="@libexecdir@"
+sbindir="@sbindir@"
+bindir="@bindir@"
+#${prefix}
+#exec_prefix_set=no
+srcdir="@srcdir@"
+top_srcdir="@top_srcdir@"
+cflags=
+
+usage="\
+Usage: \n\
+  $scriptname --version         - show installed script and SANE version\n\
+  $scriptname --ldflags         - linker flags required to link with SANE\n\
+  $scriptname --libs            - libraries required to link with SANE\n\
+  $scriptname --cflags          - compiler flags required to find SANE headers\n\
+  $scriptname --help            - show usage info (this message)          \n\
+  $scriptname --help SUBCOMMAND - show help for SUBCOMMAND                \n\
+  $scriptname --prefix          - prefix used during SANE compile\n\
+  $scriptname --exec-prefix     - exec-prefix used during SANE compile\n"
+
+if test $# -eq 0; then
+      echo -e "${usage}" 1>&2
+      exit 1
+fi
+
+if test $# -gt 0; then
+  case $1 in
+    --version)
+      echo @VERSION@
+      ;;
+    --help)
+      if test $# -eq 1; then
+        echo -e "${usage}" 1>&2
+      elif test $# -eq 2; then
+        case $2 in 
+          --cflags)
+            echo "Usage: $0 --cflags"
+            echo "  Print C compiler flags for compiling code that uses SANE."
+            echo "  This includes any \`-I' flags needed to find Sane's header files."
+            ;;
+          --ldflags)
+            echo "Usage: $0 --ldflags"
+            echo "  Print linker flags for building the \`$PACKAGE' executable."
+            echo "  Print the linker command-line flags necessary to link against"
+            echo "  the SANE library.  The libraries are listed with --libs."
+            ;;
+          --libs)
+            echo "Usage: $0 --libs"
+            echo "  Print linker flags for building the \`$PACKAGE' executable."
+            echo "  Print the linker command-line flags necessary to link against"
+            echo "  the SANE library, and any other libraries it requires."
+            ;;
+        esac
+      else
+        echo -e "${usage}" 1>&2
+      fi
+      exit 1
+      ;;
+    --ldflags)
+      echo "-L${libdir}"
+      ;;
+    --libs)
+      echo "-lsane ${LIBS}"
+      ;;
+    --cflags)
+      unique_cflags="-I${includedir}"
+      for i in $cflags; do
+        if test $i != $includedir; then
+          unique_cflags="${unique_cflags} $i"
+        fi
+      done
+      echo ${unique_cflags}
+      ;;
+    --prefix)
+      echo ${prefix}
+      ;;
+    --exec-prefix)
+      echo ${exec_prefix}
+      ;;
+    *)
+      echo -e "${usage}" 1>&2
+      exit 1
+      ;;
+  esac
+fi
+

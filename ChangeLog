@@ -1,7 +1,16 @@
+2001-05-27  Oliver Rauch <Oliver.Rauch@rauch-domain.de>
+
+	* changed scsi buffer size for solaris sg driver
+	  (USE == SOLARIS_INTERFACE in sanei_scsi.c) to 32 KB
+	  again because it does not work for at least one system
+	  with 64KB.
+
 2001-05-27  Petter Reinholdtsen <pere@td.org.uit.no>
 
 	* doc/releases.txt: Added points on tagging the source and
 	  generating a diff from the last release.
+
+--- cvs snapshot-2001-05-27 ---
 
 2001-05-27  Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 

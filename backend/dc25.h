@@ -271,8 +271,6 @@ static int zoom_x (struct pixmap *source, struct pixmap *dest);
 
 static int zoom_y (struct pixmap *source, struct pixmap *dest);
 
-static int save_pixmap (struct pixmap *p, char *name, int orientation, int format);
-
 static int comet_to_pixmap (unsigned char *, struct pixmap *);
 
 

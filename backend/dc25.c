@@ -2092,7 +2092,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
        (action ==
 	SANE_ACTION_SET_VALUE ? "SET" : (action ==
 					 SANE_ACTION_GET_VALUE ? "GET" :
-					 "SETAUTO")), value, info);
+					 "SETAUTO")), value, (void *)info);
 
   if (handle != MAGIC || !is_open)
     return SANE_STATUS_INVAL;	/* Unknown handle ... */
@@ -2284,6 +2284,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
     case SANE_ACTION_SET_AUTO:
       switch (option)
 	{
+#if 0
 	case DC25_OPT_CONTRAST:
 	  dc25_opt_contrast = SANE_FIX (DC25_OPT_CONTRAST_DEFAULT);
 	  break;
@@ -2291,6 +2292,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case DC25_OPT_GAMMA:
 	  dc25_opt_gamma = SANE_FIX (DC25_OPT_GAMMA_DEFAULT);
 	  break;
+#endif
 
 	default:
 	  return SANE_STATUS_UNSUPPORTED;	/* We are DUMB */
@@ -2335,7 +2337,8 @@ sane_start (SANE_Handle handle)
   int n, i;
   FILE *f;
 
-  DBG (127, "sane_start called\n");
+  DBG (127, "sane_start called, handle=%x\n",handle);
+
   if (handle != MAGIC || !is_open ||
       (dc25_opt_image_number == 0 && dc25_opt_snap == SANE_FALSE))
     return SANE_STATUS_INVAL;	/* Unknown handle ... */
@@ -2557,6 +2560,10 @@ sane_read (SANE_Handle UNUSEDARG handle, SANE_Byte * data,
 {
   DBG (127, "sane_read called, maxlen=%d\n", max_length);
 
+  if ( ! started ) {
+	return SANE_STATUS_INVAL;
+  }
+
   if (dc25_opt_thumbnails)
     {
       if (total_bytes_read == THUMBSIZE)
@@ -2727,7 +2734,23 @@ SANE_Status
 sane_set_io_mode (SANE_Handle UNUSEDARG handle,
 		  SANE_Bool UNUSEDARG non_blocking)
 {
-  return SANE_STATUS_UNSUPPORTED;
+  /* sane_set_io_mode() is only valid during a scan */
+  if (started)
+    {
+      if (non_blocking == SANE_FALSE)
+	{
+	  return SANE_STATUS_GOOD;
+	}
+      else
+	{
+	  return SANE_STATUS_UNSUPPORTED;
+	}
+    }
+  else
+    {
+      /* We aren't currently scanning */
+      return SANE_STATUS_INVAL;
+    }
 }
 
 SANE_Status

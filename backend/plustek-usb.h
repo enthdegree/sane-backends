@@ -28,6 +28,7 @@
  *        - removed _WAF_FIX_GAIN and _WAF_FIX_OFS
  *        - added skipCoarseCalib to ScanDef
  *        - added additional defines for cis and epson-ccd sensor
+ * - 0.47 - no changes
  * .
  * <hr>
  * This file is part of the SANE package.

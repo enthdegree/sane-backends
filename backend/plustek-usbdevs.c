@@ -12,7 +12,7 @@
  * History:
  * - 0.40 - starting version of the USB support
  * - 0.41 - added EPSON1250 entries
- *        - changed reg 0x58 of EPSON Hw0x04B8_0x010F_0 to 0x0d
+ *        - changed reg 0x58 of EPSON Hw0x04B8_0x010F to 0x0d
  *        - reduced memory size of EPSON to 512
  *        - adjusted tpa origin of UT24
  * - 0.42 - added register 0x27, 0x2c-0x37
@@ -38,9 +38,12 @@
  *        - removed EPSON 660 stuff
  *        - added Canon 1220U entry
  *        - added entry for Compaq S4-100
- * -0.46  - fine-tuning for the CanoScan devices
+ * - 0.46 - fine-tuning for the CanoScan devices
  *        - fixed HP2200 shading position
  *        - renamed to plustek-usbdevs.c
+ * - 0.47 - added BearPaw 1200 settings for PID 0x4001 (LM9832)
+ *        - tweaked the LiDE20 MCLK setting for 75DPI grayscale
+ *        - enlarged the scan-area of the UMAX3400 to 11.7"
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -542,7 +545,7 @@ static DCapsDef Cap0x0400_0x1001_0 =
  * Epson Perfection/Photo1260 (thanks to Till Kamppeter)
  * NS9832 + 4 Buttons + CCD????
  */
-static DCapsDef Cap0x04B8_0x010F_0 =
+static DCapsDef Cap0x04B8_0x010F =
 {
 	/* Normal */
 	{{   25,   85},  10, -1, {2550, 3508}, { 100, 100 }, COLOR_BW },
@@ -564,14 +567,9 @@ static DCapsDef Cap0x04B8_0x010F_0 =
 
 /* Umax 3400/3450
  */
-static DCapsDef Cap0x1606_0x0060_0 =
+static DCapsDef Cap0x1606_0x0060 =
 {
-	/* the ini file provided by umax says the scanner bed is 11.7", but
-	   setting the value below to 3510 (11.7 * 300) results in the head
-	   hitting the end at the end of the scan.  so i'm just guessing that
- 	   the scanner bed area in the .ini file includes the dead area at
- 	   the beginning, and the number below does not. */
- 	{{ 0, 105}, 0, -1, {2550, 3510 - 105}, {100, 100}, COLOR_BW },
+ 	{{ 0, 105}, 0, -1, {2550, 3508}, {100, 100}, COLOR_BW },
  	{{ 0,  0},  0, -1, {0, 0}, { 0, 0 }, 0 },
  	{{ 0,  0},  0, -1, {0, 0}, { 0, 0 }, 0 },
  	{{ 0,  0},  0, -1, {0, 0}, { 0, 0 }, 0 },
@@ -588,7 +586,7 @@ static DCapsDef Cap0x1606_0x0060_0 =
 
 /* Umax 5400
  */
-static DCapsDef Cap0x1606_0x0160_0 =
+static DCapsDef Cap0x1606_0x0160 =
 {
  	{{ 30, 165}, 0, -1, {2550, 3508}, {100, 100}, COLOR_BW },
  	{{  0,   0}, 0, -1, {0, 0}, { 0, 0 }, 0 },
@@ -607,7 +605,7 @@ static DCapsDef Cap0x1606_0x0160_0 =
 
 /* Canon N650U/N656U
  */
-static DCapsDef Cap0x04A9_0x2206_0 =
+static DCapsDef Cap0x04A9_0x2206 =
 {
  	{{ 0, 90}, 35, 10, {2550, 3508}, {75, 75}, COLOR_GRAY16 },
  	{{ 0,  0},  0,  0, {0, 0}, { 0, 0 }, 0 },
@@ -625,7 +623,7 @@ static DCapsDef Cap0x04A9_0x2206_0 =
 
 /* Canon N1220U
  */
-static DCapsDef Cap0x04A9_0x2207_0 =
+static DCapsDef Cap0x04A9_0x2207 =
 {
 	{{ 0, 85}, 35, 10, {2550, 3508}, {75, 75}, COLOR_BW },
     {{ 0,  0},  0,  0, {0, 0}, { 0, 0 }, 0 },
@@ -643,7 +641,7 @@ static DCapsDef Cap0x04A9_0x2207_0 =
 
 /* Canon N670U/N676U/LiDE20
  */
-static DCapsDef Cap0x04A9_0x220D_0 =
+static DCapsDef Cap0x04A9_0x220D =
 {
  	{{ 0, 110}, 35, 10, {2550, 3508}, {75, 75}, COLOR_GRAY16 },
  	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
@@ -661,7 +659,7 @@ static DCapsDef Cap0x04A9_0x220D_0 =
 
 /* Canon N1240U
  */
-static DCapsDef Cap0x04A9_0x220E_0 =
+static DCapsDef Cap0x04A9_0x220E =
 {
 	{{ 0, 100}, 50, 10, {2550, 3508}, {75, 75}, COLOR_BW },
     {{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
@@ -1506,6 +1504,63 @@ static HWDef Hw0x0400_0x1000_0 =
 	MODEL_MUSTEK600
 };
 
+/** Mustek BearPaw 1200 (LM9832) */
+static HWDef Hw0x0400_0x1001_1 =
+{
+	1.25,   /* ok dMaxMotorSpeed (Max_Speed)                */
+	1.25,   /* ok dMaxMoveSpeed (Max_Speed)                 */
+	12,     /* ok dIntegrationTimeLowLamp                   */
+	12,     /* ok dIntegrationTimeHighLamp                  */
+	600,    /* ok wMotorDpi (Full step DPI)                 */
+	512,    /* ok wRAMSize (KB)                             */
+	9,      /* ok dMinIntegrationTimeLowres (ms)            */
+	9,      /* ok dMinIntegrationTimeHighres (ms)           */
+	1169,   /* ok wGreenPWMDutyCycleLow (reg 0x2a + 0x2b)   */
+	1169,   /* ok wGreenPWMDutyCycleHigh (reg 0x2a + 0x2b)  */
+	0x02,   /* ok bSensorConfiguration (0x0b)               */
+	0x7c,   /* ok sensor control settings (reg 0x0c)        */
+	0x3f,   /* ok sensor control settings (reg 0x0d)        */
+	0x15,   /* ok sensor control settings (reg 0x0e)        */
+            /* ok  mono (reg 0x0f to 0x18) */
+	{ 0x04, 0x07, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x03, 0x06},
+            /* ok color (reg 0x0f to 0x18)                  */
+	{ 0x04, 0x16, 0x01, 0x02, 0x05, 0x06, 0x00, 0x00, 0x0a, 0x16},
+	_GREEN_CH,	/* bReg_0x26 color mode - bits 4 and 5      */
+	0,          /* bReg 0x27 color mode                     */
+	1,          /* bReg 0x29 illumination mode              */
+	/* illumination mode settings (not used for CCD devices)*/
+	{ 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0 },
+	257,    /* ok StepperPhaseCorrection (reg 0x1a + 0x1b)  */
+	0x0e,   /* ok bOpticBlackStart (reg 0x1c)               */
+	0x1d,   /* ok bOpticBlackEnd (reg 0x1d)                 */
+	140,    /* ok wActivePixelsStart (reg 0x1e + 0x1f)      */
+	5369,   /* ok wLineEnd (reg 0x20 + 0x21)                */
+	0,      /* red lamp on    (reg 0x2c + 0x2d)             */
+	16383,  /* red lamp off   (reg 0x2e + 0x2f)             */
+	0,      /* green lamp on  (reg 0x30 + 0x31)             */
+	0,      /* green lamp off (reg 0x32 + 0x33)             */
+	0,      /* blue lamp on   (reg 0x34 + 0x35)             */
+	16383,  /* blue lamp off  (reg 0x36 + 0x37)             */
+	0x13,   /* ok stepper motor control (reg 0x45)          */
+	0,      /* wStepsAfterPaperSensor2 (reg 0x4c + 0x4d)    */
+    0x1e,   /* steps to reverse on buffer full (reg 0x50)   */
+	0xfc,   /* ok acceleration profile (reg 0x51)           */
+	0,      /* ok lines to process (reg 0x54)               */
+	0x13,   /* ok kickstart (reg 0x55)                      */
+	0x03,   /* ok pwm freq (reg 0x56)                       */
+	0x20,   /* ok pwm duty cycle (reg 0x57)                 */
+	0x0d,	/* ok Paper sense (reg 0x58)                    */
+	0x44,   /* ok misc io12 (reg 0x59)                      */
+	0x44,   /* ok misc io34 (reg 0x5a)                      */
+	0x4f,   /* ok misc io56 (reg 0x5b)                      */
+	0,      /* ok test mode ADC Output CODE MSB (reg 0x5c)  */
+	0,      /* ok test mode ADC Output CODE LSB (reg 0x5d)  */
+	0,      /* ok test mode (reg 0x5e)                      */
+	_LM9832,
+	MODEL_MUSTEK600
+};
+
 /** BearPaw 2400 */
 static HWDef Hw0x0400_0x1001_0 =
 {
@@ -1569,7 +1624,7 @@ static HWDef Hw0x0400_0x1001_0 =
 };
 
 /** EPSON Perfection/Photo 1250 */
-static HWDef Hw0x04B8_0x010F_0 =
+static HWDef Hw0x04B8_0x010F =
 {
     0.9,    /* dMaxMotorSpeed (Max_Speed)                   */
     0.8,    /* dMaxMoveSpeed (Max_Speed)                    */
@@ -1633,7 +1688,7 @@ static HWDef Hw0x04B8_0x010F_0 =
 };
 
 /** EPSON Perfection/Photo 1260 */
-static HWDef Hw0x04B8_0x011D_0 =
+static HWDef Hw0x04B8_0x011D =
 {
     0.9,    /* dMaxMotorSpeed (Max_Speed)                   */
     0.8,    /* dMaxMoveSpeed (Max_Speed)                    */
@@ -1697,7 +1752,7 @@ static HWDef Hw0x04B8_0x011D_0 =
 };
 
 /** Umax 3400/3450 */
-static HWDef Hw0x1606_0x0060_0 =
+static HWDef Hw0x1606_0x0060 =
 {
     1.5,    /* dMaxMotorSpeed (Max_Speed)                */
     0.8,    /* dMaxMoveSpeed (Max_Speed)                 */
@@ -1762,7 +1817,7 @@ static HWDef Hw0x1606_0x0060_0 =
 };
 
 /** Umax 5400 */
-static HWDef Hw0x1606_0x0160_0 =
+static HWDef Hw0x1606_0x0160 =
 {
     1.1,    /* dMaxMotorSpeed (Max_Speed)                */
     0.9,    /* dMaxMoveSpeed (Max_Speed)                 */
@@ -1827,7 +1882,7 @@ static HWDef Hw0x1606_0x0160_0 =
 };
 
 /** Canon 650/656 */
-static HWDef Hw0x04A9_0x2206_0 =
+static HWDef Hw0x04A9_0x2206 =
 {
     0.86,   /* dMaxMotorSpeed (Max_Speed)                    */
     0.243,  /* dMaxMoveSpeed (Max_Speed)                     */
@@ -1894,7 +1949,7 @@ static HWDef Hw0x04A9_0x2206_0 =
 };
 
 /** Canon N1220U */
-static HWDef Hw0x04A9_0x2207_0 =
+static HWDef Hw0x04A9_0x2207 =
 {
     0.72,   /* dMaxMotorSpeed (Max_Speed)                     */
     0.36,   /* dMaxMoveSpeed (Max_Speed)                      */
@@ -1960,7 +2015,7 @@ static HWDef Hw0x04A9_0x2207_0 =
 };
 
 /** Canon 670/676/LiDE20 */
-static HWDef Hw0x04A9_0x220D_0 =
+static HWDef Hw0x04A9_0x220D =
 {
     0.86,   /* dMaxMotorSpeed (Max_Speed)                    */
     0.243,  /* dMaxMoveSpeed (Max_Speed)                     */
@@ -2027,7 +2082,7 @@ static HWDef Hw0x04A9_0x220D_0 =
 };
 
 /** Canon N1240U */
-static HWDef Hw0x04A9_0x220E_0 =
+static HWDef Hw0x04A9_0x220E =
 {
     0.72,   /* dMaxMotorSpeed (Max_Speed)                     */
     0.36,   /* dMaxMoveSpeed (Max_Speed)                      */
@@ -2120,46 +2175,47 @@ static SetDef Settings[] =
 	{"0x07B3-0x0016-4", &Cap0x07B3_0x0016_4, &Hw0x07B3_0x0016_4, "Unknown device" },
 	{"0x07B3-0x0017-2", &Cap0x07B3_0x0017_2, &Hw0x07B3_0x0017_2, "Unknown device" },
 	{"0x07B3-0x0017-3", &Cap0x07B3_0x0017_3, &Hw0x07B3_0x0017_3, "Unknown device" },
-	{"0x07B3-0x0007",	&Cap0x07B3_0x0007_0, &Hw0x07B3_0x0007_0, "Unknown device" },
-	{"0x07B3-0x000F",	&Cap0x07B3_0x000F_0, &Hw0x07B3_0x000F_0, "Unknown device" },
-	{"0x07B3-0x000F-4",	&Cap0x07B3_0x000F_4, &Hw0x07B3_0x000F_4, "Unknown device" },
-	{"0x07B3-0x0005-2",	&Cap0x07B3_0x0005_2, &Hw0x07B3_0x0007_2, "Unknown device" }, /* TOKYO 600 */
-	{"0x07B3-0x0014-1",	&Cap0x07B3_0x0014_1, &Hw0x07B3_0x0017_1, "Unknown device" }, /* A3 */
-	{"0x07B3-0x0012-0",	&Cap0x07B3_0x0012_0, &Hw0x07B3_0x0012_0, "Unknown device" }, /* Brother Demo */
-	
+	{"0x07B3-0x0007",   &Cap0x07B3_0x0007_0, &Hw0x07B3_0x0007_0, "Unknown device" },
+	{"0x07B3-0x000F",   &Cap0x07B3_0x000F_0, &Hw0x07B3_0x000F_0, "Unknown device" },
+	{"0x07B3-0x000F-4", &Cap0x07B3_0x000F_4, &Hw0x07B3_0x000F_4, "Unknown device" },
+	{"0x07B3-0x0005-2", &Cap0x07B3_0x0005_2, &Hw0x07B3_0x0007_2, "Unknown device" }, /* TOKYO 600 */
+	{"0x07B3-0x0014-1", &Cap0x07B3_0x0014_1, &Hw0x07B3_0x0017_1, "Unknown device" }, /* A3 */
+	{"0x07B3-0x0012-0", &Cap0x07B3_0x0012_0, &Hw0x07B3_0x0012_0, "Unknown device" }, /* Brother Demo */
+
 	/* Mustek BearPaw...*/
-    {"0x0400-0x1000",   &Cap0x0400_0x1000_0, &Hw0x0400_0x1000_0, "BearPaw 1200" },
-	{"0x0400-0x1001",	&Cap0x0400_0x1001_0, &Hw0x0400_0x1001_0, "BearPaw 2400" },
+	{"0x0400-0x1000-0", &Cap0x0400_0x1000_0, &Hw0x0400_0x1000_0, "BearPaw 1200" },
+	{"0x0400-0x1001-1", &Cap0x0400_0x1000_0, &Hw0x0400_0x1001_1, "BearPaw 1200" },
+	{"0x0400-0x1001-0", &Cap0x0400_0x1001_0, &Hw0x0400_0x1001_0, "BearPaw 2400" },
 
 	/* Genius devices... */
-	{"0x0458-0x2007",	&Cap0x07B3_0x0007_0, &Hw0x07B3_0x0007_0, "ColorPage-HR6 V2" },
-	{"0x0458-0x2008",	&Cap0x07B3_0x0007_0, &Hw0x07B3_0x0007_0, "ColorPage-HR6 V2" },
-	{"0x0458-0x2009",	&Cap0x07B3_0x000F_0, &Hw0x07B3_0x000F_0, "ColorPage-HR6A"   },
-	{"0x0458-0x2013",	&Cap0x07B3_0x0007_4, &Hw0x07B3_0x0007_4, "ColorPage-HR7"    },
-	{"0x0458-0x2015",	&Cap0x07B3_0x0005_4, &Hw0x07B3_0x0007_4, "ColorPage-HR7LE"  },
-	{"0x0458-0x2016",	&Cap0x07B3_0x0005_4, &Hw0x07B3_0x0007_0, "ColorPage-HR6X"   },
+	{"0x0458-0x2007",   &Cap0x07B3_0x0007_0, &Hw0x07B3_0x0007_0, "ColorPage-HR6 V2" },
+	{"0x0458-0x2008",   &Cap0x07B3_0x0007_0, &Hw0x07B3_0x0007_0, "ColorPage-HR6 V2" },
+	{"0x0458-0x2009",   &Cap0x07B3_0x000F_0, &Hw0x07B3_0x000F_0, "ColorPage-HR6A"   },
+	{"0x0458-0x2013",   &Cap0x07B3_0x0007_4, &Hw0x07B3_0x0007_4, "ColorPage-HR7"    },
+	{"0x0458-0x2015",   &Cap0x07B3_0x0005_4, &Hw0x07B3_0x0007_4, "ColorPage-HR7LE"  },
+	{"0x0458-0x2016",   &Cap0x07B3_0x0005_4, &Hw0x07B3_0x0007_0, "ColorPage-HR6X"   },
 
 	/* Hewlett Packard... */
-	{"0x03F0-0x0505",	&Cap0x03F0_0x0505, &Hw0x03F0_0x0505, "Scanjet 2100c" },
-	{"0x03F0-0x0605",	&Cap0x03F0_0x0605, &Hw0x03F0_0x0605, "Scanjet 2200c" },
+	{"0x03F0-0x0505",   &Cap0x03F0_0x0505, &Hw0x03F0_0x0505, "Scanjet 2100c" },
+	{"0x03F0-0x0605",   &Cap0x03F0_0x0605, &Hw0x03F0_0x0605, "Scanjet 2200c" },
 
 	/* EPSON... */
-	{"0x04B8-0x010F",	&Cap0x04B8_0x010F_0, &Hw0x04B8_0x010F_0, "Perfection 1250/Photo" },
-	{"0x04B8-0x011D",	&Cap0x04B8_0x010F_0, &Hw0x04B8_0x011D_0, "Perfection 1260/Photo" },
+	{"0x04B8-0x010F",   &Cap0x04B8_0x010F, &Hw0x04B8_0x010F, "Perfection 1250/Photo" },
+	{"0x04B8-0x011D",   &Cap0x04B8_0x010F, &Hw0x04B8_0x011D, "Perfection 1260/Photo" },
 
 	/* UMAX... */
-	{"0x1606-0x0060",	&Cap0x1606_0x0060_0, &Hw0x1606_0x0060_0, "3400/3450" },
-	{"0x1606-0x0160",	&Cap0x1606_0x0160_0, &Hw0x1606_0x0160_0, "5400"      },
+	{"0x1606-0x0060",   &Cap0x1606_0x0060, &Hw0x1606_0x0060, "3400/3450" },
+	{"0x1606-0x0160",   &Cap0x1606_0x0160, &Hw0x1606_0x0160, "5400"      },
   
 	/* COMPAQ... */
-	{"0x049F-0x001A",	&Cap0x1606_0x0060_0, &Hw0x1606_0x0060_0, "S4-100" },
+	{"0x049F-0x001A",   &Cap0x1606_0x0060, &Hw0x1606_0x0060, "S4-100" },
 
 	/* CANON... */
-	{"0x04A9-0x2206",   &Cap0x04A9_0x2206_0, &Hw0x04A9_0x2206_0, "N650U/N656U" },
-	{"0x04A9-0x2207",   &Cap0x04A9_0x2207_0, &Hw0x04A9_0x2207_0, "N1220U"      },
-	{"0x04A9-0x220D",   &Cap0x04A9_0x220D_0, &Hw0x04A9_0x220D_0, "N670U/N676U/LiDE20" },
-	{"0x04A9-0x220E",   &Cap0x04A9_0x220E_0, &Hw0x04A9_0x220E_0, "N1240U/LiDE30"      },
-	
+	{"0x04A9-0x2206",   &Cap0x04A9_0x2206, &Hw0x04A9_0x2206, "N650U/N656U" },
+	{"0x04A9-0x2207",   &Cap0x04A9_0x2207, &Hw0x04A9_0x2207, "N1220U"      },
+	{"0x04A9-0x220D",   &Cap0x04A9_0x220D, &Hw0x04A9_0x220D, "N670U/N676U/LiDE20" },
+	{"0x04A9-0x220E",   &Cap0x04A9_0x220E, &Hw0x04A9_0x220E, "N1240U/LiDE30"      },
+
 	/* Please add other devices here...
 	 * The first entry is a string, composed out of the vendor and product id,
 	 * it's used by the driver to select the device settings. For other devices
@@ -2178,7 +2234,7 @@ static SetDef Settings[] =
 	 * The fourth entry is simply the name of the device, which will be
 	 * displayed by the frontend
 	 */
-    { NULL, NULL, NULL, NULL }  /* last entry, never remove... */
+	{ NULL, NULL, NULL, NULL }  /* last entry, never remove... */
 };
 
 /**
@@ -2284,8 +2340,8 @@ static ClkMotorDef Motors[] = {
 	    { 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0 },
 
 		/* Gray mode MCLK settings */
-	    { 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0 },
-	    { 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0 }
+	    { 12.5, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0 },
+	    { 12.5, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0 }
 	},
 
 	{ MODEL_CANON1200, 8, 51, 3,

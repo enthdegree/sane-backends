@@ -43,6 +43,9 @@
  * - 0.46 - flag initialized is now used as device index
  *        - added calFile to Plustek_Device
  *        - removed _OPT_HALFTONE
+ * - 0.47 - added mov to adjustment
+ *        - changed stopScan function definition
+ *        - removed open function
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -233,6 +236,7 @@ typedef struct {
 /** for adjusting the scanner settings
  */
 typedef struct {
+	int     mov;                /**< model override */
 	int     lampOff;
 	int     lampOffOnEnd;
 	int     warmup;
@@ -263,7 +267,6 @@ typedef struct {
 	double  ggamma;
 	double  bgamma;
 
-	
 	double  graygamma;
 
 } AdjDef, *pAdjDef;
@@ -340,7 +343,6 @@ typedef struct Plustek_Device
     /*
      * each device we support may need other access functions...
      */
-    int  (*open)       ( const char*, void* );
     int  (*close)      ( struct Plustek_Device* );
     void (*shutdown)   ( struct Plustek_Device* );
     int  (*getCaps)    ( struct Plustek_Device* );
@@ -349,7 +351,7 @@ typedef struct Plustek_Device
     int  (*setMap)     ( struct Plustek_Device*, SANE_Word*,
 												 SANE_Word, SANE_Word );
     int  (*startScan)  ( struct Plustek_Device* );
-    int  (*stopScan)   ( struct Plustek_Device*, int* );
+    int  (*stopScan)   ( struct Plustek_Device* );
     int  (*prepare)    ( struct Plustek_Device*, SANE_Byte* );
     int  (*readLine)   ( struct Plustek_Device* );
 
@@ -395,7 +397,7 @@ typedef struct Plustek_Scanner
 typedef struct {
 	
 	char     devName[PATH_MAX];
-	char     usbId[_MAX_ID_LEN];	
+	char     usbId[_MAX_ID_LEN];
 
 	/* contains the stuff to adjust... */
 	AdjDef   adj;

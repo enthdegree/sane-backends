@@ -31,7 +31,7 @@
  * - 0.46 - fixed problem in usb_GetLampStatus for CIS devices, as we
  *          read back reg[0x29] to wrong position
  *          made it compile without itimer definitions
- *          moved usb_HostSwap() to this file.
+ * - 0.47 - moved usb_HostSwap() and usb_Swap() to this file.
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -104,11 +104,18 @@ static SANE_Bool usb_HostSwap( void )
 		DBG( _DBG_READ, "We're big-endian!  No need to swap!\n" );
 		return 0;
 	}
-	DBG( _DBG_READ, "We're little-endian!  NatSemi LM983x is big!"
-	                "Must swap calibration data!\n" );
+	DBG( _DBG_READ, "We're little-endian!  NatSemi LM983x is big!\n" );
+	DBG( _DBG_READ, "--> Must swap calibration data!\n" );
 	return 1;
 }
 
+/** as the name says..
+ */
+static void usb_Swap( u_short *pw, u_long dwBytes )
+{
+	for( dwBytes /= 2; dwBytes--; pw++ )
+		_SWAP(((u_char*) pw)[0], ((u_char*)pw)[1]);
+}
 
 /** usb_GetMotorSet
  * according to the model, the function returns the address of

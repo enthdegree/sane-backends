@@ -59,11 +59,13 @@
  *        - changed readImage interface for USB devices
  *        - homeing of USB scanner is now working correctly
  * - 0.46 - added plustek-usbcal.c for extra CIS device calibration
- *          based in Montys' great work
+ *          based on Montys' great work
  *        - added altCalibration option
  *        - removed parallelport support --> new backend: plustek_pp
  *        - cleanup
  *        - added sanei_thread support
+ * - 0.47 - added mov-option (model override)
+ *        - removed drvOpen
  *.
  * <hr>
  * This file is part of the SANE package.
@@ -139,8 +141,8 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.46-9"
-#define BACKEND_NAME	plustek
+#define BACKEND_VERSION "0.47-2"
+#define BACKEND_NAME    plustek
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
 #include "../include/sane/sanei_thread.h"
@@ -244,6 +246,7 @@ static void show_cnf( pCnfDef cnf )
 	DBG( _DBG_SANE_INIT,"Device configuration:\n" );
 	DBG( _DBG_SANE_INIT,"device name  : >%s<\n",cnf->devName                 );
 	DBG( _DBG_SANE_INIT,"USB-ID       : >%s<\n",cnf->usbId                   );
+	DBG( _DBG_SANE_INIT,"model ovr.   : %d\n",  cnf->adj.mov                 );
 	DBG( _DBG_SANE_INIT,"warmup       : %ds\n", cnf->adj.warmup              );
 	DBG( _DBG_SANE_INIT,"lampOff      : %d\n",  cnf->adj.lampOff             );
 	DBG( _DBG_SANE_INIT,"lampOffOnEnd : %s\n",  _YN(cnf->adj.lampOffOnEnd   ));
@@ -272,32 +275,12 @@ static void show_cnf( pCnfDef cnf )
 	DBG( _DBG_SANE_INIT,"---------------------\n" );
 }
 
-/** open the device specific driver and reset the internal timing stuff
- * @param  dev - pointer to the device specific structure
- * @return the function returns the result of the open call, on success
- *         of course the handle
- */
-static int drvopen(	Plustek_Device *dev )
-{
-	int handle;
-
-    DBG( _DBG_INFO, "drvopen()\n" );
-
-	handle = dev->open((const char*)dev->name, (void *)dev );
-
-	tsecs = 0;
-
-	return handle;
-}
-
 /** Calls the device specific stop and close functions.
  * @param  dev - pointer to the device specific structure
  * @return The function always returns SANE_STATUS_GOOD
  */
 static SANE_Status drvclose( Plustek_Device *dev )
 {
-	int int_cnt;
-
 	if( dev->fd >= 0 ) {
 
 	    DBG( _DBG_INFO, "drvclose()\n" );
@@ -306,12 +289,9 @@ static SANE_Status drvclose( Plustek_Device *dev )
 			DBG( _DBG_INFO, "TIME END 1: %lus\n", time(NULL)-tsecs);
 		}
 
-		/*
-		 * don't check the return values, simply do it and close the driver
-		 */
-		int_cnt = 0;
-		dev->stopScan( dev, &int_cnt );
-		dev->close( dev );
+		/* don't check the return values, simply do it */
+		dev->stopScan( dev );
+		dev->close   ( dev );
 	}
 	dev->fd = -1;
 
@@ -1035,7 +1015,6 @@ static SANE_Status attach( const char *dev_name, pCnfDef cnf,
 	dev->sane.type = "USB flatbed scanner";
 
 #ifdef _PLUSTEK_USB
-	dev->open  	     = usbDev_open;
 	dev->close 	     = usbDev_close;
 	dev->getCaps     = usbDev_getCaps;
 	dev->getCropInfo = usbDev_getCropInfo;
@@ -1067,7 +1046,7 @@ static SANE_Status attach( const char *dev_name, pCnfDef cnf,
 	/*
 	 * go ahead and open the scanner device
 	 */
-	handle = drvopen( dev );
+	handle = usbDev_open( dev );
 	if( handle < 0 ) {
 		DBG( _DBG_ERROR,"open failed: %d\n", handle );
 		return SANE_STATUS_IO_ERROR;
@@ -1253,7 +1232,9 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 
 			decodeVal( str, "tpaOffX", _INT, &config.adj.tpa.x, &ival );
 			decodeVal( str, "tpaOffY", _INT, &config.adj.tpa.y, &ival );
-			
+
+			decodeVal( str, "mov", _INT, &config.adj.mov, &ival);
+
 			dval = 1.0;
 			decodeVal( str, "grayGamma",  _FLOAT, &config.adj.graygamma,&dval);
 			decodeVal( str, "redGamma",   _FLOAT, &config.adj.rgamma, &dval );
@@ -1270,14 +1251,16 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 		    if( config.devName[0] != '\0' ) {
 				attach( config.devName, &config, 0 );
 			} else {
-				DBG( _DBG_WARNING, "section contains no device name,"
-				                   " ignored!\n" );
+				if( first_dev != NULL ) {
+					DBG( _DBG_WARNING, "section contains no device name,"
+					                   " ignored!\n" );
+				 }
 			}
 		
 			/* re-initialize the configuration structure */
 			init_config_struct( &config );
 		
-		    tmp = config.usbId;
+			tmp = config.usbId;
 			decodeUsbIDs( str, &tmp );
 		
 			DBG( _DBG_SANE_INIT, "... next device\n" );
@@ -1290,12 +1273,12 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 		/* ignore other stuff... */
 		DBG( _DBG_SANE_INIT, "ignoring >%s<\n", str );
 	}
-   	fclose (fp);
+	fclose (fp);
 
     /* try to attach the last device in the config file... */
-    if( config.devName[0] != '\0' )
+	if( config.devName[0] != '\0' )
 		attach( config.devName, &config, 0 );
-   	
+
 	return SANE_STATUS_GOOD;
 }
 
@@ -1850,7 +1833,7 @@ SANE_Status sane_start( SANE_Handle handle )
 	/*
 	 * open the driver and get some information about the scanner
 	 */
-	dev->fd = drvopen( dev );
+	dev->fd = usbDev_open( dev );
 	if( dev->fd < 0 ) {
 		DBG( _DBG_ERROR,"sane_start: open failed: %d\n", errno );
 
@@ -1958,16 +1941,18 @@ SANE_Status sane_start( SANE_Handle handle )
 		DBG( _DBG_ERROR, "dev->setEnv() failed(%d)\n", result );
 		dev->close( dev );
 		return SANE_STATUS_IO_ERROR;
-    }
+	}
 
     /* download gamma correction tables... */
 	if( scanmode <= COLOR_GRAY16 ) {
 	   	dev->setMap( dev, s->gamma_table[0], s->gamma_length, _MAP_MASTER);
 	} else {
 	   	dev->setMap( dev, s->gamma_table[1], s->gamma_length, _MAP_RED   );
-   		dev->setMap( dev, s->gamma_table[2], s->gamma_length, _MAP_GREEN );
-   		dev->setMap( dev, s->gamma_table[3], s->gamma_length, _MAP_BLUE  );
-    }
+		dev->setMap( dev, s->gamma_table[2], s->gamma_length, _MAP_GREEN );
+		dev->setMap( dev, s->gamma_table[3], s->gamma_length, _MAP_BLUE  );
+	}
+
+	tsecs = 0; /* reset timer */
 
 	result = dev->startScan( dev );
 	if( result < 0 ) {
@@ -2017,42 +2002,13 @@ SANE_Status sane_start( SANE_Handle handle )
 		return SANE_STATUS_IO_ERROR;
 	}
 
-	/* reader_pid = 0 ===> child process */
-#if 0	
-	if( 0 == s->reader_pid ) {
-
-		sigset_t         ignore_set;
-		struct SIGACTION act;
-
-		DBG( _DBG_SANE_INIT, "reader process...\n" );
-
-		if( sanei_thread_is_forked()) {
-			close( s->r_pipe );
-			s->r_pipe = -1;
-		}
-
-		sigfillset ( &ignore_set );
-		sigdelset  ( &ignore_set, SIGTERM );
-		sigprocmask( SIG_SETMASK, &ignore_set, 0 );
-
-		memset   ( &act, 0, sizeof (act));
-		sigaction( SIGTERM, &act, 0 );
-
-		status = reader_process( s );
-
-		DBG( _DBG_SANE_INIT, "reader process done, status = %i\n", status );
-
-		/* don't use exit() since that would run the atexit() handlers */
-		_exit( status );
-	}
-#endif
 	signal( SIGCHLD, sig_chldhandler );
 
 	if( sanei_thread_is_forked()) {
 		close( s->w_pipe );
 		s->w_pipe = -1;
 	}
-		
+
 	DBG( _DBG_SANE_INIT, "sane_start done\n" );
 	return SANE_STATUS_GOOD;
 }
@@ -2063,7 +2019,7 @@ SANE_Status sane_read( SANE_Handle handle, SANE_Byte *data,
 									   SANE_Int max_length, SANE_Int *length )
 {
 	Plustek_Scanner *s = (Plustek_Scanner*)handle;
-	ssize_t 		 nread;
+	ssize_t          nread;
 
 	*length = 0;
 

@@ -17,6 +17,7 @@
  * - 0.44 - map inversion for negatatives now only upon user request
  * - 0.45 - no changes
  * - 0.46 - no changes
+ * - 0.47 - no changes
  * .
  * <hr>
  * This file is part of the SANE package.

@@ -8,7 +8,7 @@
  *
  * Based on sources acquired from Plustek Inc.<br>
  * Copyright (C) 2001-2003 Gerhard Jaeger <gerhard@gjaeger.de><br>
- * Large parts Copyright (C) 2003 Monty <monty@xiph.org>
+ * Large parts Copyright (C) 2003 Christopher Montgomery <monty@xiph.org>
  *
  * Montys' comment:
  * The basic premise: The stock Plustek-usbshading.c in the plustek
@@ -34,6 +34,7 @@
  *         - added CCD calibration capability
  *         - added the usage of the swGain and swOffset values, to allow
  *           tweaking the calibration results on a sensor base
+ * - 0.47  - moved usb_HostSwap() to plustek_usbhw.c
  * 
  * This file is part of the SANE package.
  *
@@ -214,7 +215,6 @@ static int cano_adjLampSetting( u_short *min,
  * where the lamp_off parameter is adjustable; I'd make it more general, 
  * but I only have the CIS hardware to test.
  */
-
 static int cano_AdjustLightsource( pPlustek_Device dev)
 {
 	char         tmp[40];
@@ -231,7 +231,12 @@ static int cano_AdjustLightsource( pPlustek_Device dev)
 	DBG( _DBG_INFO2, "cano_AdjustLightsource()\n" );
 
 	if( !(hw->bReg_0x26 & _ONE_CH_COLOR)) {
-		DBG( _DBG_INFO2, "- function skipped\n" );
+		DBG( _DBG_INFO2, "- function skipped, CCD device!\n" );
+		
+		if( !usb_Wait4Warmup( dev )) {
+			DBG( _DBG_ERROR, "cano_AdjustLightsource() - CANCEL detected\n" );
+			return SANE_FALSE;
+		}
 		return SANE_TRUE;	
 	}
 
@@ -862,9 +867,9 @@ static SANE_Bool cano_AdjustDarkShading( pPlustek_Device dev )
 				}
 			}
 
-			a_wDarkShading[i]         = red/j   + pParam->swOffset[0];
-			a_wDarkShading[i+stepW]   = green/j + pParam->swOffset[1];
-			a_wDarkShading[i+stepW*2] = blue/j  + pParam->swOffset[2];
+			a_wDarkShading[i]         = red/m_ScanParam.Size.dwPhyLines   + pParam->swOffset[0];
+			a_wDarkShading[i+stepW]   = green/m_ScanParam.Size.dwPhyLines + pParam->swOffset[1];
+			a_wDarkShading[i+stepW*2] = blue/m_ScanParam.Size.dwPhyLines  + pParam->swOffset[2];
 		}
     
 		if(usb_HostSwap())
@@ -987,9 +992,9 @@ static SANE_Bool cano_AdjustWhiteShading( pPlustek_Device dev )
 			}
 
 			/* tweaked by the settings in swGain --> 1000/swGain[r,g,b] */
-			red   = (65535.*1000./pParam->swGain[0]) * 16384.*j/red;
-			green = (65535.*1000./pParam->swGain[1]) * 16384.*j/green;
-			blue  = (65535.*1000./pParam->swGain[2]) * 16384.*j/blue;
+			red   = (65535.*1000./pParam->swGain[0]) * 16384.*m_ScanParam.Size.dwPhyLines/red;
+			green = (65535.*1000./pParam->swGain[1]) * 16384.*m_ScanParam.Size.dwPhyLines/green;
+			blue  = (65535.*1000./pParam->swGain[2]) * 16384.*m_ScanParam.Size.dwPhyLines/blue;
 
 			a_wWhiteShading[i]         = (red   > 65535? 65535:red  );
 			a_wWhiteShading[i+stepW]   = (green > 65535? 65535:green);

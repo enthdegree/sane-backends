@@ -33,6 +33,9 @@
  *        - removed homeing stuff from readline function
  *        - fixed flag setting in usbDev_startScan()
  * - 0.46 - added additional branch to support alternate calibration
+ * - 0.47 - added special handling with 0x400 vendor ID and model override
+ *        - removed PATH_MAX
+ *        - change usbDev_stopScan and usbDev_open prototype
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -74,10 +77,6 @@
  * If you do not wish that, delete this exception notice.
  * <hr>
  */
-
-#ifndef PATH_MAX
-# define PATH_MAX	1024
-#endif
 
 /** useful for description tables
  */
@@ -158,7 +157,7 @@ static void usb_initDev( pPlustek_Device dev, int idx, int handle, int vendor )
   		tmp = DEVCAPSFLAG_TPA;
 	}
 
-	/* copy the original values... */											
+	/* copy the original values... */
 	memcpy( &dev->usbDev.Caps, Settings[idx].pDevCaps, sizeof(DCapsDef));
 	memcpy( &dev->usbDev.HwSetting, Settings[idx].pHwDef, sizeof(HWDef));
 
@@ -168,30 +167,29 @@ static void usb_initDev( pPlustek_Device dev, int idx, int handle, int vendor )
 	}
 
 	if( dev->adj.warmup >= 0 )
-        dev->usbDev.dwWarmup = dev->adj.warmup;
+		dev->usbDev.dwWarmup = dev->adj.warmup;
 	
 	if( dev->adj.lampOff >= 0 )
-        dev->usbDev.dwLampOnPeriod = dev->adj.lampOff;
+		dev->usbDev.dwLampOnPeriod = dev->adj.lampOff;
 
-    if( dev->adj.lampOffOnEnd >= 0 )
-        dev->usbDev.bLampOffOnEnd = dev->adj.lampOffOnEnd;
+	if( dev->adj.lampOffOnEnd >= 0 )
+		dev->usbDev.bLampOffOnEnd = dev->adj.lampOffOnEnd;
 
-    if( dev->adj.skipCalibration > 0 )
+	if( dev->adj.skipCalibration > 0 )
 		dev->usbDev.Caps.workaroundFlag |= _WAF_BYPASS_CALIBRATION;
 
-    if( dev->adj.skipFine > 0 )
+	if( dev->adj.skipFine > 0 )
 		dev->usbDev.Caps.workaroundFlag |= _WAF_SKIP_FINE;
 
-    if( dev->adj.skipFineWhite > 0 )
+	if( dev->adj.skipFineWhite > 0 )
 		dev->usbDev.Caps.workaroundFlag |= _WAF_SKIP_WHITEFINE;
-		
-    if( dev->adj.invertNegatives > 0 )
+
+	if( dev->adj.invertNegatives > 0 )
 		dev->usbDev.Caps.workaroundFlag |= _WAF_INV_NEGATIVE_MAP;
 
 	DBG( _DBG_INFO, "Device WAF: 0x%08lx\n", dev->usbDev.Caps.workaroundFlag );
-			
-	/*
-	 * adjust data origin
+	
+	/* adjust data origin
 	 */
 	dev->usbDev.Caps.Positive.DataOrigin.x -= dev->adj.tpa.x;	
 	dev->usbDev.Caps.Positive.DataOrigin.y -= dev->adj.tpa.y;	
@@ -202,9 +200,8 @@ static void usb_initDev( pPlustek_Device dev, int idx, int handle, int vendor )
 	dev->usbDev.Caps.Normal.DataOrigin.x -= dev->adj.pos.x;	
 	dev->usbDev.Caps.Normal.DataOrigin.y -= dev->adj.pos.y;
 
-	/*
-     * adjust shading position
-     */
+	/** adjust shading position
+	 */
 	if( dev->adj.posShadingY >= 0 )
 		dev->usbDev.Caps.Normal.ShadingOriginY   = dev->adj.posShadingY;
 
@@ -213,12 +210,11 @@ static void usb_initDev( pPlustek_Device dev, int idx, int handle, int vendor )
 
 	if( dev->adj.negShadingY >= 0 )
 		dev->usbDev.Caps.Negative.ShadingOriginY = dev->adj.negShadingY;
-		
-	/*
-	 * the following you normally get from the registry...
+
+	/* the following you normally get from the registry...
 	 */
 	bMaxITA = 0;     /* Maximum integration time adjust */
-		
+
 	dev->usbDev.ModelStr = Settings[idx].pModelString;
 
 	dev->fd = handle;
@@ -442,7 +438,6 @@ static SANE_Bool usb_IsDeviceInList( char *usbIdStr )
 }
 
 /**
- *
  */
 static SANE_Status usb_attach( SANE_String_Const dev_name )
 {
@@ -484,7 +479,7 @@ static SANE_Bool usbDev_autodetect( SANE_Word *vendor, SANE_Word *product )
 
 			*vendor  = v;
 			*product = p;
-       		return SANE_TRUE;
+			return SANE_TRUE;
 		}
 	}
 
@@ -492,26 +487,25 @@ static SANE_Bool usbDev_autodetect( SANE_Word *vendor, SANE_Word *product )
 }
 
 /**
- *
  */
-static int usbDev_open( const char *dev_name, void *misc )
+static int usbDev_open( Plustek_Device *dev )
 {
-    char            devStr[50];
-    int             result;
-	int             i;
-	SANE_Int        handle;
-	SANE_Byte       version;
-	SANE_Word    	vendor, product;
-	SANE_Bool       was_empty;
-    pPlustek_Device dev = (pPlustek_Device)misc;
+	char      devStr[50];
+	int       result;
+	int       i;
+	int       lc;
+	SANE_Int  handle;
+	SANE_Byte version;
+	SANE_Word vendor, product;
+	SANE_Bool was_empty;
 
-    DBG( _DBG_INFO, "usbDev_open(%s,%s)\n", dev_name, dev->usbId );
+	DBG( _DBG_INFO, "usbDev_open(%s,%s)\n", dev->name, dev->usbId );
 
-    /* preset our internal usb device structure */
-   	memset( &dev->usbDev, 0, sizeof(DeviceDef));
+	/* preset our internal usb device structure */
+	memset( &dev->usbDev, 0, sizeof(DeviceDef));
 	USB_devname[0] = '\0';
 
-	if( !strcmp( dev_name, "auto" )) {
+	if( !strcmp( dev->name, "auto" )) {
 
 		if( dev->usbId[0] == '\0' ) {
 
@@ -545,7 +539,7 @@ static int usbDev_open( const char *dev_name, void *misc )
 
 	} else {
 
-		if( SANE_STATUS_GOOD != sanei_usb_open( dev_name, &handle ))
+		if( SANE_STATUS_GOOD != sanei_usb_open( dev->name, &handle ))
     		return -1;
 	}
 	
@@ -590,31 +584,30 @@ static int usbDev_open( const char *dev_name, void *misc )
 		vendor  = strtol( &dev->usbId[0], 0, 0 );
 		product = strtol( &dev->usbId[7], 0, 0 );
 		DBG( _DBG_INFO, "... using the specified: "
-		                "0x%04x-0x%04x\n", vendor, product );
+		                "0x%04X-0x%04X\n", vendor, product );
 	}
 
-    /*
-     * before accessing the scanner, check if supported!
-     */
-    if( !usb_IsDeviceInList( dev->usbId )) {
-     	DBG( _DBG_ERROR, "Device >%s<, is not supported!\n", dev->usbId );
+	/* before accessing the scanner, check if supported!
+	 */
+	if( !usb_IsDeviceInList( dev->usbId )) {
+		DBG( _DBG_ERROR, "Device >%s<, is not supported!\n", dev->usbId );
 		sanei_usb_close( handle );
 		return -1;
 	}
 
-    if( SANE_STATUS_GOOD != usbio_DetectLM983x( handle, &version )) {
+	if( SANE_STATUS_GOOD != usbio_DetectLM983x( handle, &version )) {
 		sanei_usb_close( handle );
-        return -1;
-    }
+		return -1;
+	}
 
-    if ((version < 3) || (version > 4)) {
+	if ((version < 3) || (version > 4)) {
 		DBG( _DBG_ERROR, "This is not a LM9831 or LM9832 chip based scanner.\n" );
 		sanei_usb_close( handle );
 		return -1;
-    }
+	}
 
 	dev->fd = handle;
-    usbio_ResetLM983x ( dev );
+	usbio_ResetLM983x ( dev );
 	usb_IsScannerReady( dev );
 	dev->fd = -1;
 
@@ -622,7 +615,7 @@ static int usbDev_open( const char *dev_name, void *misc )
 	dev->usbDev.product = product;
 
 	DBG( _DBG_INFO, "Detected vendor & product ID: "
-		                "0x%04x-0x%04x\n", vendor, product );
+		                "0x%04X-0x%04X\n", vendor, product );
 
 	/*
 	 * Plustek uses the misc IO 1/2 to get the PCB ID
@@ -639,26 +632,36 @@ static int usbDev_open( const char *dev_name, void *misc )
 		if( handle >= 0 )
 			return handle;	
 		
-	} else {		
+	} else {
 
-	    /* now roam through the setting list... */
-	    strncpy( devStr, dev->usbId, 13 );
-		devStr[13] = '\0';
+		/* now roam through the setting list... */
+		lc = 13;
+		strncpy( devStr, dev->usbId, lc );
+		devStr[lc] = '\0';
+
+		if( 0x400 == vendor ) {
+			if((dev->adj.mov < 0) || (dev->adj.mov > 1)) {
+				DBG( _DBG_INFO, "BearPaw MOV ot of range: %d\n", dev->adj.mov );
+				dev->adj.mov = 0;
+			}
+			sprintf( devStr, "%s-%d", dev->usbId, dev->adj.mov );
+			lc = strlen(devStr);
+			DBG( _DBG_INFO, "BearPaw device: %s (%d)\n", devStr, lc );
+		}
 
 		if( was_empty )
 			dev->usbId[0] = '\0';
-		
-	    /*
-    	 * if we don't use the PCD ID extension...
-	     */
+
+		/* if we don't use the PCD ID extension...
+		 */
 		for( i = 0; NULL != Settings[i].pIDString; i++ ) {
 
-			if( 0 == strncmp( Settings[i].pIDString, devStr, 13 )) {
-		    	DBG( _DBG_INFO, "Device description for >%s< found.\n", devStr );
+			if( 0 == strncmp( Settings[i].pIDString, devStr, lc )) {
+				DBG( _DBG_INFO, "Device description for >%s< found.\n", devStr );
 				usb_initDev( dev, i, handle, vendor );
 			    return handle;
 			}
-		}			
+		}
 	}
 
 	sanei_usb_close( handle );
@@ -891,9 +894,9 @@ static int usbDev_setScanEnv( Plustek_Device *dev, pScanInfo si )
 
 /**
  */
-static int usbDev_stopScan( Plustek_Device *dev, int *mode )
+static int usbDev_stopScan( Plustek_Device *dev )
 {
-	DBG( _DBG_INFO, "usbDev_stopScan(mode=%u)\n", *mode );
+	DBG( _DBG_INFO, "usbDev_stopScan()\n" );
 
 	/* in cancel-mode we first stop the motor */
 	usb_ScanEnd( dev );
@@ -985,10 +988,11 @@ static int usbDev_Prepare( struct Plustek_Device *dev, SANE_Byte *buf )
 		
 	} else {
 
-	if( dev->adj.altCalibrate )
-		result = cano_DoCalibration( dev );
-	else
-		result = usb_DoCalibration( dev );
+		if( dev->adj.altCalibrate ) {
+			result = cano_DoCalibration( dev );
+		} else {
+			result = usb_DoCalibration( dev );
+		}
 	}
 
     if( SANE_TRUE != result ) {

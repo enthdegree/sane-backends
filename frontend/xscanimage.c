@@ -119,7 +119,7 @@ static struct option long_options[] =
   {
     {"help", no_argument, NULL, 'h'},
     {"version", no_argument, NULL, 'V'},
-    {0, }
+    {0, 0, 0, 0 }
   };
 
 
@@ -367,24 +367,24 @@ update_param (GSGDialog *dialog, void *arg)
   if (sane_get_parameters (gsg_dialog_get_device (dialog), &params)
       == SANE_STATUS_GOOD)
     {
-      u_long size = 10 * params.bytes_per_line * params.lines;
+      double size = params.bytes_per_line * params.lines;
       const char *unit = "B";
 
       if (params.format >= SANE_FRAME_RED && params.format <= SANE_FRAME_BLUE)
 	size *= 3;
 
-      if (size >= 10 * 1024 * 1024)
+      if (size >= 1024 * 1024)
 	{
 	  size /= 1024 * 1024;
 	  unit = "MB";
 	}
-      else if (size >= 10 * 1024)
+      else if (size >= 1024)
 	{
 	  size /= 1024;
 	  unit = "KB";
 	}
-      sprintf (buf, "%dx%d: %lu.%01lu %s", params.pixels_per_line,
-	       params.lines, size / 10, size % 10, unit);
+      sprintf (buf, "%dx%d: %1.1f %s", params.pixels_per_line,
+	       params.lines, size, unit);
     }
   else
     sprintf (buf, "Invalid parameters.");
@@ -555,7 +555,7 @@ input_available (gpointer data, gint source, GdkInputCondition cond)
 
   while (1)
     {
-      status = sane_read (dev, buf, sizeof (buf), &len);
+      status = sane_read (dev, (unsigned char *) buf, sizeof (buf), &len);
       if (status != SANE_STATUS_GOOD)
 	{
 	  if (status == SANE_STATUS_EOF)

@@ -138,7 +138,7 @@ ab306_outb (Port *p, u_long addr, u_char val)
 
   if (p->port_fd >= 0)
     {
-      if (lseek (p->port_fd, addr, SEEK_SET) != addr)
+      if ((u_long) lseek (p->port_fd, addr, SEEK_SET) != addr)
 	return;
       if (write (p->port_fd, &val, 1) != 1)
 	return;
@@ -154,7 +154,7 @@ ab306_inb (Port *p, u_long addr)
 
   if (p->port_fd >= 0)
     {
-      if (lseek (p->port_fd, addr, SEEK_SET) != addr)
+      if ((u_long) lseek (p->port_fd, addr, SEEK_SET) != addr)
 	return -1;
       if (read (p->port_fd, &ch, 1) != 1)
 	return -1;
@@ -196,7 +196,8 @@ static SANE_Status
 ab306_write (Port *p, const void *buf, size_t len)
 {
   u_long base = p->base;
-  int i, cksum = 0;
+  u_int i;
+  int cksum = 0;
 
   DBG(3, "ab306_write: waiting for scanner to be ready %02x\n",
       ab306_inb (p, base + 1));
@@ -397,7 +398,7 @@ sanei_ab306_cmd (int fd, const void *src, size_t src_size,
 
   if (dst && *dst_size > 0)
     {
-      int i, cksum = 0;
+      u_int i, cksum = 0;
 
       DBG(3, "sanei_ab306_cmd: waiting for scanner to be NOT ready %02x\n",
 	  ab306_inb (p, p->base + 1));
@@ -447,13 +448,13 @@ sanei_ab306_rdata (int fd, int planes, SANE_Byte * buf, int lines, int bpl)
 	  do
 	    nstat = ab306_inb (p, p->base + 1);
 	  while (((p->lstat ^ nstat) & 0x10) == 0);
-
+	  
 	  if (p->port_fd >= 0)
 	    {
 	      /* the pixel-loop: */
 	      for (bcnt = 0; bcnt < xmax; bcnt++)
 		{
-		  if (lseek (p->port_fd, p->base, SEEK_SET) != p->base)
+		  if ((u_long) lseek (p->port_fd, p->base, SEEK_SET) != p->base)
 		    return SANE_STATUS_IO_ERROR;
 		  if (read (p->port_fd, buf, 1) != 1)
 		    return SANE_STATUS_IO_ERROR;

@@ -50,7 +50,7 @@ Backends:
  mustek_usb:    Tom Wang and Henning Meier-Geinitz (*)
  nec:           Kazuya Fukuda
  net:           Andreas Beck and David Mosberger
- niash:         Ullirch Sigwanz (*), Bertrik Sikken
+ niash:         Ullrich Sigwanz (*), Bertrik Sikken
  pie:           Simon Munton (*)
  pint:          Gordon Matzigkeit
  plustek:       Gerhard Jaeger (*)
@@ -191,4 +191,5 @@ Thomas Soumarmon <soumarmt@nerim.net>
 Tom Martone <tom@martoneconsulting.com>
 Tom Wang <tom.wang@mustek.com.tw>
 Tristan Tarrant <ttarrant@etnoteam.it>
+Ullrich Sigwanz <usigwanz@freesurf.ch>
 Ulrich Deiters <ukd@xenon.pc.Uni-Koeln.DE>

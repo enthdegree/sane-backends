@@ -1,6 +1,11 @@
+2002-09-06  Frank Zago  <fzago at austin dot rr dot com>
+
+	* README.aix: added mention of the AIX 5.1 version of the passthru
+	  driver.
+
 2002-09-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* tools/sane-config.in: Removed "fuction" keyword (bourne shell
+	* tools/sane-config.in: Removed "function" keyword (bourne shell
 	  compatibility).
 
 2002-09-03  Abel Deuring <a.deuring@satzbau-gmbh.de>

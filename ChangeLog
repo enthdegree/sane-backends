@@ -7,6 +7,8 @@
 	  IBM 2456, the Ricoh IS-420 and maybe the IS-410 and IS-430 from
 	  mf <massifr@tiscalinet.it>. Added manual page, fixed some
 	  warnings, Added detection for IS-410 and IS-430.
+	* doc/descriptions-external/ibm.desc: Removed, now included in
+	  SANE distribution.
 	
 2003-04-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -1,5 +1,5 @@
 /* sane - Scanner Access Now Easy.
-   Copyright (C) 2001 Henning Meier-Geinitz
+   Copyright (C) 2001, 2002 Henning Meier-Geinitz
    Copyright (C) 2001 Frank Zago (sanei_usb_control_msg)
    This file is part of the SANE package.
 
@@ -39,7 +39,7 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
 
-   This file provides a generic (?) USB interface.  */
+   This file provides a generic USB interface.  */
 
 #include "../include/sane/config.h"
 
@@ -53,14 +53,47 @@
 #include <sys/ioctl.h>
 #include <stdio.h>
 
+#ifdef HAVE_LIBUSB
+#include <usb.h>
+#endif /* HAVE_LIBUSB */
+
 #define BACKEND_NAME	sanei_usb
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei_debug.h"
 #include "../include/sane/sanei_usb.h"
 #include "../include/sane/sanei_config.h"
 
-#if defined (__linux__)
+typedef enum
+{
+  sanei_usb_method_scanner_driver = 0,	/* kernel scanner driver 
+					   (Linux, BSD) */
+  sanei_usb_method_libusb
+}
+sanei_usb_access_method_type;
 
+typedef struct
+{
+  SANE_Bool open;
+  sanei_usb_access_method_type method;
+  int fd;
+  SANE_Int bulk_in_ep;
+  SANE_Int bulk_out_ep;
+#ifdef HAVE_LIBUSB
+  usb_dev_handle *libusb_handle;
+#endif				/* HAVE_LIBUSB */
+}
+device_list_type;
+
+#define MAX_DEVICES 100
+
+/* per-device information, using the functions fd as index */
+static device_list_type devices[MAX_DEVICES];
+
+#ifdef HAVE_LIBUSB
+int libusb_timeout = 30 * 1000;	/* 30 seconds */
+#endif /* HAVE_LIBUSB */
+
+#if defined (__linux__)
 /* From /usr/src/linux/driver/usb/scanner.h */
 #define SCANNER_IOCTL_VENDOR _IOR('U', 0x20, int)
 #define SCANNER_IOCTL_PRODUCT _IOR('U', 0x21, int)
@@ -69,29 +102,45 @@
 #define SCANNER_IOCTL_VENDOR_OLD _IOR('u', 0xa0, int)
 #define SCANNER_IOCTL_PRODUCT_OLD _IOR('u', 0xa1, int)
 
-/* From /usr/src/linux/include/linux/usb.h */ 
-typedef struct {
+/* From /usr/src/linux/include/linux/usb.h */
+typedef struct
+{
   unsigned char requesttype;
   unsigned char request;
   unsigned short value;
   unsigned short index;
   unsigned short length;
-} devrequest __attribute__ ((packed));
+}
+devrequest __attribute__ ((packed));
 
 /* From /usr/src/linux/driver/usb/scanner.h */
-struct ctrlmsg_ioctl {
-  devrequest  req;
-  void        *data;
-} cmsg;
-
+struct ctrlmsg_ioctl
+{
+  devrequest req;
+  void *data;
+}
+cmsg;
 #endif /* __linux__ */
 
 
 void
 sanei_usb_init (void)
 {
-  DBG_INIT();
+  DBG_INIT ();
+
+  memset (devices, 0, sizeof (devices));
+
+#ifdef HAVE_LIBUSB
+  usb_init ();
+#ifdef DBG_LEVEL
+  if (DBG_LEVEL > 4)
+    usb_set_debug (255);
+#endif /* DBG_LEVEL */
+  usb_find_busses ();
+  usb_find_devices ();
+#endif /* HAVE_LIBUSB */
 }
+
 
 /* This logically belongs to sanei_config.c but not every backend that
    uses sanei_config() wants to depend on sanei_usb.  */
@@ -131,7 +180,7 @@ sanei_usb_attach_matching_devices (const char *name,
 	}
       sanei_usb_find_devices (vendorID, productID, attach);
     }
-  else 
+  else
     (*attach) (name);
 }
 
@@ -142,38 +191,66 @@ sanei_usb_get_vendor_product (SANE_Int fd, SANE_Word * vendor,
   SANE_Word vendorID = 0;
   SANE_Word productID = 0;
 
+  if (fd >= MAX_DEVICES || fd < 0)
+    {
+      DBG (1, "sanei_usb_get_vendor_product: fd >= MAX_DEVICES || fd < 0\n");
+      return SANE_STATUS_INVAL;
+    }
+
+  if (devices[fd].method == sanei_usb_method_scanner_driver)
+    {
 #if defined (__linux__)
-  /* read the vendor and product IDs via the IOCTLs */
-  if (ioctl (fd, SCANNER_IOCTL_VENDOR , &vendorID) == -1)
-    {
-      if (ioctl (fd, SCANNER_IOCTL_VENDOR_OLD , &vendorID) == -1)
-	DBG (3, "sanei_usb_get_vendor_product: ioctl (vendor) of fd %d "
-	     "failed: %s\n", fd, strerror (errno));
+      /* read the vendor and product IDs via the IOCTLs */
+      if (ioctl (devices[fd].fd, SCANNER_IOCTL_VENDOR, &vendorID) == -1)
+	{
+	  if (ioctl (devices[fd].fd, SCANNER_IOCTL_VENDOR_OLD, &vendorID)
+	      == -1)
+	    DBG (3, "sanei_usb_get_vendor_product: ioctl (vendor) "
+		 "of device %d failed: %s\n", fd, strerror (errno));
+	}
+      if (ioctl (devices[fd].fd, SCANNER_IOCTL_PRODUCT, &productID) == -1)
+	{
+	  if (ioctl (devices[fd].fd, SCANNER_IOCTL_PRODUCT_OLD,
+		     &productID) == -1)
+	    DBG (3, "sanei_usb_get_vendor_product: ioctl (product) "
+		 "of device %d failed: %s\n", fd, strerror (errno));
+	}
+#endif /* defined (__linux__) */
+      /* put more os-dependant stuff ... */
     }
-  if (ioctl (fd, SCANNER_IOCTL_PRODUCT , &productID) == -1)
+  else if (devices[fd].method == sanei_usb_method_libusb)
     {
-      if (ioctl (fd, SCANNER_IOCTL_PRODUCT_OLD , &productID) == -1)
-	DBG (3, "sanei_usb_get_vendor_product: ioctl (product) of fd %d "
-	     "failed: %s\n", fd, strerror (errno));
+#ifdef HAVE_LIBUSB
+      vendorID = usb_device (devices[fd].libusb_handle)->descriptor.idVendor;
+      productID =
+	usb_device (devices[fd].libusb_handle)->descriptor.idProduct;
+#else
+      DBG (1, "sanei_usb_get_vendor_product: libusb support missing\n");
+      return SANE_STATUS_UNSUPPORTED;
+#endif /* HAVE_LIBUSB */
     }
+  else
+    {
+      DBG (1, "sanei_usb_get_vendor_product: access method %d not "
+	   "implemented\n", devices[fd].method);
+      return SANE_STATUS_INVAL;
+    }
+
   if (vendor)
     *vendor = vendorID;
   if (product)
     *product = productID;
-#endif /* not defined (__linux__) */
 
   if (!vendorID || !productID)
     {
-      DBG (3, "sanei_usb_get_vendor_product: fd %d: Your OS doesn't seem to "
-	   "support detection of vendor+product ids\n",
-	   fd);
-
+      DBG (3, "sanei_usb_get_vendor_product: device %d: Your OS doesn't "
+	   "seem to support detection of vendor+product ids\n", fd);
       return SANE_STATUS_UNSUPPORTED;
     }
   else
     {
-      DBG (3, "sanei_usb_get_vendor_product: fd %d: vendorID: 0x%x, "
-	   "productID: 0x%x\n", fd, vendorID, productID);
+      DBG (3, "sanei_usb_get_vendor_product: device %d: vendorID: 0x%04x, "
+	   "productID: 0x%04x\n", fd, vendorID, productID);
       return SANE_STATUS_GOOD;
     }
 }
@@ -217,68 +294,285 @@ sanei_usb_find_devices (SANE_Int vendor, SANE_Int product,
 #elif defined(__FreeBSD__)
     "/dev/uscanner",
 #endif
-    0};
-  SANE_Char devname[30];
+    0
+  };
+  SANE_Char devname[1024];
   int devcount;
   SANE_Status status;
 
-#define SANEI_USB_MAX_DEVICES 16
+#define SANEI_USB_MAX_DEVICE_FILES 16
 
-  DBG (3, "sanei_usb_find_devices: vendor=0x%x, product=0x%x, attach=%p\n",
+  DBG (3,
+       "sanei_usb_find_devices: vendor=0x%04x, product=0x%04x, attach=%p\n",
        vendor, product, attach);
 
+  /* First we check the device files for access over the kernel scanner
+     drivers */
   for (prefix = prefixlist; *prefix; prefix++)
     {
       status = check_vendor_product (*prefix, vendor, product, attach);
       if (status == SANE_STATUS_UNSUPPORTED)
-	return status; /* give up if we can't detect vendor/product */
-      for (devcount = 0; devcount < SANEI_USB_MAX_DEVICES; 
-	   devcount++)
+	break;			/* give up if we can't detect vendor/product */
+      for (devcount = 0; devcount < SANEI_USB_MAX_DEVICE_FILES; devcount++)
 	{
-	  snprintf (devname, sizeof (devname), "%s%d", *prefix,
-		    devcount);
+	  snprintf (devname, sizeof (devname), "%s%d", *prefix, devcount);
 	  status = check_vendor_product (devname, vendor, product, attach);
 	  if (status == SANE_STATUS_UNSUPPORTED)
-	    return status; /* give up if we can't detect vendor/product */
+	    break;		/* give up if we can't detect vendor/product */
 	}
     }
+  /* Now we will check all the devices libusb finds (if available) */
+#ifdef HAVE_LIBUSB
+  {
+    struct usb_bus *bus;
+    struct usb_device *dev;
+
+    for (bus = usb_get_busses (); bus; bus = bus->next)
+      {
+	for (dev = bus->devices; dev; dev = dev->next)
+	  {
+	    if (dev->descriptor.idVendor == vendor
+		&& dev->descriptor.idProduct == product)
+	      {
+		DBG (3,
+		     "sanei_usb_find_devices: found matching libusb device "
+		     "(bus=%s, filename=%s, vendor=0x%04x, product=0x%04x)\n",
+		     bus->dirname, dev->filename, dev->descriptor.idVendor,
+		     dev->descriptor.idProduct);
+		snprintf (devname, sizeof (devname), "libusb:%s:%s",
+			  bus->dirname, dev->filename);
+		attach (devname);
+	      }
+	    else
+	      DBG (5, "sanei_usb_find_devices: found libusb device "
+		   "(bus=%s, filename=%s, vendor=0x%04x, product=0x%04x)\n",
+		   bus->dirname, dev->filename, dev->descriptor.idVendor,
+		   dev->descriptor.idProduct);
+	  }
+      }
+  }
+#endif /* HAVE_LIBUSB */
   return SANE_STATUS_GOOD;
 }
 
 SANE_Status
-sanei_usb_open (SANE_String_Const devname, SANE_Int *fd)
+sanei_usb_open (SANE_String_Const devname, SANE_Int * fd)
 {
+  int devcount;
+
   if (!fd)
     {
-      DBG (1, "sanei_usb_open: fd == NULL\n");
+      DBG (1, "sanei_usb_open: can't open `%s': fd == NULL\n", devname);
       return SANE_STATUS_INVAL;
     }
-  *fd = open (devname, O_RDWR);
-  if (*fd < 0)
-    {
-      SANE_Status status = SANE_STATUS_INVAL;
 
-      DBG (1, "sanei_usb_open: open failed: %s\n", strerror (errno));
-      if (errno == EACCES)
-	status = SANE_STATUS_ACCESS_DENIED;
-      return status;
+  for (devcount = 0;
+       devcount < MAX_DEVICES && devices[devcount].open == SANE_TRUE;
+       devcount++)
+    ;
+
+  if (devices[devcount].open)
+    {
+      DBG (1, "sanei_usb_open: can't open `%s': "
+	   "maximum amount of devices (%d) reached\n", devname, MAX_DEVICES);
+      return SANE_STATUS_NO_MEM;
     }
-  DBG (5, "sanei_usb_open: fd %d opened\n", *fd);
+
+  memset (&devices[devcount], 0, sizeof (devices[devcount]));
+
+  if (strncmp (devname, "libusb:", 7) == 0)
+    {
+      /* Using libusb */
+#ifdef HAVE_LIBUSB
+      SANE_String start, end, bus_string, dev_string;
+      struct usb_bus *bus;
+      struct usb_device *dev;
+      struct usb_interface_descriptor *interface;
+      SANE_Int result;
+      int num;
+
+
+      DBG (5, "sanei_usb_open: trying to open device `%s'\n", devname);
+      start = strchr (devname, ':');
+      if (!start)
+	return SANE_STATUS_INVAL;
+      start++;
+      end = strchr (start, ':');
+      if (!end)
+	return SANE_STATUS_INVAL;
+      bus_string = strndup (start, end - start);
+      if (!bus_string)
+	return SANE_STATUS_NO_MEM;
+
+      start = strchr (start, ':');
+      if (!start)
+	return SANE_STATUS_INVAL;
+      start++;
+      dev_string = strdup (start);
+      if (!dev_string)
+	return SANE_STATUS_NO_MEM;
+
+      for (bus = usb_get_busses (); bus; bus = bus->next)
+	{
+	  if (strcmp (bus->dirname, bus_string) == 0)
+	    {
+	      for (dev = bus->devices; dev; dev = dev->next)
+		{
+		  if (strcmp (dev->filename, dev_string) == 0)
+		    devices[devcount].libusb_handle = usb_open (dev);
+		}
+	    }
+	}
+
+      if (!devices[devcount].libusb_handle)
+	{
+	  DBG (1, "sanei_usb_open: can't open device `%s': "
+	       "not found or libusb error (%s)\n", devname, strerror (errno));
+	  return SANE_STATUS_INVAL;
+	}
+      devices[devcount].method = sanei_usb_method_libusb;
+
+      dev = usb_device (devices[devcount].libusb_handle);
+
+      if (dev->descriptor.bNumConfigurations > 1)
+	{
+	  DBG (3, "sanei_usb_open: more than one "
+	       "configuration (%d), choosing config 0\n",
+	       dev->descriptor.bNumConfigurations);
+	}
+
+      if (dev->config[0].interface->num_altsetting > 1)
+	{
+	  DBG (3, "sanei_usb_open: more than one "
+	       "alternate setting (%d), choosing interface 0\n",
+	       dev->config[0].interface->num_altsetting);
+	}
+
+      result = usb_claim_interface (devices[devcount].libusb_handle, 0);
+      if (result < 0)
+	{
+	  SANE_Status status = SANE_STATUS_INVAL;
+
+	  DBG (1, "sanei_usb_open: libusb complained: %s\n", usb_strerror ());
+	  if (errno == EPERM)
+	    {
+	      DBG (1, "Make sure you run as root or set appropriate "
+		   "permissions\n");
+	      status = SANE_STATUS_ACCESS_DENIED;
+	    }
+	  else if (errno == EBUSY)
+	    {
+	      DBG (1, "Maybe the kernel scanner driver claims the "
+		   "scanner's interface?\n");
+	      status = SANE_STATUS_DEVICE_BUSY;
+	    }
+	  usb_close (devices[devcount].libusb_handle);
+	  return status;
+	}
+      interface = &dev->config[0].interface->altsetting[0];
+
+      /* Now we look for usable endpoints */
+      for (num = 0; num < interface->bNumEndpoints; num++)
+	{
+	  struct usb_endpoint_descriptor *endpoint;
+	  int address, direction, transfer_type;
+
+	  endpoint = &interface->endpoint[num];
+	  address = endpoint->bEndpointAddress & USB_ENDPOINT_ADDRESS_MASK;
+	  direction = endpoint->bEndpointAddress & USB_ENDPOINT_DIR_MASK;
+	  transfer_type = endpoint->bmAttributes & USB_ENDPOINT_TYPE_MASK;
+
+	  if (transfer_type != USB_ENDPOINT_TYPE_BULK)
+	    {
+	      DBG (5, "sanei_usb_open: ignoring %s-%s endpoint "
+		   "(address: %d)\n",
+		   transfer_type == USB_ENDPOINT_TYPE_CONTROL ? "control" :
+		   transfer_type == USB_ENDPOINT_TYPE_ISOCHRONOUS
+		   ? "isochronous" : "interrupt",
+		   direction ? "in" : "out", address);
+	      continue;
+	    }
+	  DBG (5, "sanei_usb_open: found bulk-%s endpoint (address %d)\n",
+	       direction ? "in" : "out", address);
+	  if (direction)	/* in */
+	    {
+	      if (devices[devcount].bulk_in_ep)
+		DBG (3, "sanei_usb_open: we already have a bulk-in endpoint "
+		     "(address: %d), ignoring the new one\n",
+		     devices[devcount].bulk_in_ep);
+	      else
+		devices[devcount].bulk_in_ep = address;
+	    }
+	  else
+	    {
+	      if (devices[devcount].bulk_out_ep)
+		DBG (3, "sanei_usb_open: we already have a bulk-out endpoint "
+		     "(address: %d), ignoring the new one\n",
+		     devices[devcount].bulk_out_ep);
+	      else
+		devices[devcount].bulk_out_ep = address;
+	    }
+	}
+#else /* not HAVE_LIBUSB */
+      DBG (1, "sanei_usb_open: can't open device `%s': "
+	   "libusb support missing\n", devname);
+      return SANE_STATUS_UNSUPPORTED;
+#endif /* not HAVE_LIBUSB */
+    }
+  else
+    {
+      /* Using kernel scanner driver */
+      devices[devcount].fd = open (devname, O_RDWR);
+      if (devices[devcount].fd < 0)
+	{
+	  SANE_Status status = SANE_STATUS_INVAL;
+
+	  if (errno == EACCES)
+	    status = SANE_STATUS_ACCESS_DENIED;
+	  else if (errno == ENOENT)
+	    {
+	      DBG (5, "sanei_usb_open: open of `%s' failed: %s\n",
+		   devname, strerror (errno));
+	      return status;
+	    }
+	  DBG (1, "sanei_usb_open: open of `%s' failed: %s\n",
+	       devname, strerror (errno));
+	  return status;
+	}
+      devices[devcount].method = sanei_usb_method_scanner_driver;
+    }
+  devices[devcount].open = SANE_TRUE;
+  *fd = devcount;
+  DBG (3, "sanei_usb_open: opened usb device `%s' (*fd=%d)\n",
+       devname, devcount);
   return SANE_STATUS_GOOD;
 }
 
 void
 sanei_usb_close (SANE_Int fd)
 {
-  DBG (5, "sanei_usb_close: closing fd %d\n", fd);
-  close (fd);
+  DBG (5, "sanei_usb_close: closing device %d\n", fd);
+  if (fd >= MAX_DEVICES || fd < 0)
+    {
+      DBG (1, "sanei_usb_close: fd >= MAX_DEVICES || fd < 0\n");
+      return;
+    }
+  if (devices[fd].method == sanei_usb_method_scanner_driver)
+    close (devices[fd].fd);
+  else
+#ifdef HAVE_LIBUSB
+    usb_close (devices[fd].libusb_handle);
+#else
+    DBG (1, "sanei_usb_close: libusb support missing\n");
+#endif
+  devices[fd].open = SANE_FALSE;
   return;
 }
 
 SANE_Status
-sanei_usb_read_bulk (SANE_Int fd, SANE_Byte * buffer, size_t *size)
+sanei_usb_read_bulk (SANE_Int fd, SANE_Byte * buffer, size_t * size)
 {
-  ssize_t read_size;
+  ssize_t read_size = 0;
 
   if (!size)
     {
@@ -286,7 +580,40 @@ sanei_usb_read_bulk (SANE_Int fd, SANE_Byte * buffer, size_t *size)
       return SANE_STATUS_INVAL;
     }
 
-  read_size = read (fd, buffer, *size);
+  if (fd >= MAX_DEVICES || fd < 0)
+    {
+      DBG (1, "sanei_usb_read_bulk: fd >= MAX_DEVICES || fd < 0\n");
+      return SANE_STATUS_INVAL;
+    }
+  if (devices[fd].method == sanei_usb_method_scanner_driver)
+    read_size = read (devices[fd].fd, buffer, *size);
+  else if (devices[fd].method == sanei_usb_method_libusb)
+#ifdef HAVE_LIBUSB
+    {
+      if (devices[fd].bulk_in_ep)
+	read_size = usb_bulk_read (devices[fd].libusb_handle,
+				   devices[fd].bulk_in_ep, (char *) buffer,
+				   (int) *size, libusb_timeout);
+      else
+	{
+	  DBG (1, "sanei_usb_read_bulk: can't read without a bulk-in "
+	       "endpoint\n");
+	  return SANE_STATUS_INVAL;
+	}
+    }
+#else /* not HAVE_LIBUSB */
+    {
+      DBG (1, "sanei_usb_read_bulk: libusb support missing\n");
+      return SANE_STATUS_UNSUPPORTED;
+    }
+#endif /* not HAVE_LIBUSB */
+  else
+    {
+      DBG (1, "sanei_usb_read_bulk: access method %d not implemented\n",
+	   devices[fd].method);
+      return SANE_STATUS_INVAL;
+    }
+
   if (read_size < 0)
     {
       DBG (1, "sanei_usb_read_bulk: read failed: %s\n", strerror (errno));
@@ -300,15 +627,15 @@ sanei_usb_read_bulk (SANE_Int fd, SANE_Byte * buffer, size_t *size)
       return SANE_STATUS_EOF;
     }
   DBG (5, "sanei_usb_read_bulk: wanted %lu bytes, got %ld bytes\n",
-	 (unsigned long) *size, (unsigned long) read_size);
+       (unsigned long) *size, (unsigned long) read_size);
   *size = read_size;
   return SANE_STATUS_GOOD;
 }
 
 SANE_Status
-sanei_usb_write_bulk (SANE_Int fd, SANE_Byte * buffer, size_t *size)
+sanei_usb_write_bulk (SANE_Int fd, SANE_Byte * buffer, size_t * size)
 {
-  ssize_t write_size;
+  ssize_t write_size = 0;
 
   if (!size)
     {
@@ -316,7 +643,41 @@ sanei_usb_write_bulk (SANE_Int fd, SANE_Byte * buffer, size_t *size)
       return SANE_STATUS_INVAL;
     }
 
-  write_size = write (fd, buffer, *size);
+  if (fd >= MAX_DEVICES || fd < 0)
+    {
+      DBG (1, "sanei_usb_write_bulk: fd >= MAX_DEVICES || fd < 0\n");
+      return SANE_STATUS_INVAL;
+    }
+
+  if (devices[fd].method == sanei_usb_method_scanner_driver)
+    write_size = write (devices[fd].fd, buffer, *size);
+  else if (devices[fd].method == sanei_usb_method_libusb)
+#ifdef HAVE_LIBUSB
+    {
+      if (devices[fd].bulk_in_ep)
+	write_size = usb_bulk_write (devices[fd].libusb_handle,
+				     devices[fd].bulk_out_ep, (char *) buffer,
+				     (int) *size, libusb_timeout);
+      else
+	{
+	  DBG (1, "sanei_usb_write_bulk: can't write without a bulk-out "
+	       "endpoint\n");
+	  return SANE_STATUS_INVAL;
+	}
+    }
+#else /* not HAVE_LIBUSB */
+    {
+      DBG (1, "sanei_usb_write_bulk: libusb support missing\n");
+      return SANE_STATUS_UNSUPPORTED;
+    }
+#endif /* not HAVE_LIBUSB */
+  else
+    {
+      DBG (1, "sanei_usb_read_bulk: access method %d not implemented\n",
+	   devices[fd].method);
+      return SANE_STATUS_INVAL;
+    }
+
   if (write_size < 0)
     {
       DBG (1, "sanei_usb_write_bulk: write failed: %s\n", strerror (errno));
@@ -324,38 +685,75 @@ sanei_usb_write_bulk (SANE_Int fd, SANE_Byte * buffer, size_t *size)
       return SANE_STATUS_IO_ERROR;
     }
   DBG (5, "sanei_usb_write_bulk: wanted %lu bytes, wrote %ld bytes\n",
-	 (unsigned long) *size, (unsigned long) write_size);
+       (unsigned long) *size, (unsigned long) write_size);
   *size = write_size;
   return SANE_STATUS_GOOD;
 }
 
 SANE_Status
-sanei_usb_control_msg(SANE_Int fd, SANE_Int rtype, SANE_Int req,
-		      SANE_Int value, SANE_Int index, SANE_Int len,
-		      SANE_Byte *data )
+sanei_usb_control_msg (SANE_Int fd, SANE_Int rtype, SANE_Int req,
+		       SANE_Int value, SANE_Int index, SANE_Int len,
+		       SANE_Byte * data)
 {
-#if defined(__linux__)
-  struct ctrlmsg_ioctl c;
-
-  c.req.requesttype = rtype;
-  c.req.request = req;
-  c.req.value = value;
-  c.req.index = index;
-  c.req.length = len;
-  c.data = data;
-
-  DBG(5, "sanei_usb_control_msg: rtype = 0x%02x, req = %d, value = %d, "
-      "index = %d, len = %d\n", rtype, req, value, index, len);
-  
-  if (ioctl(fd, SCANNER_IOCTL_CTRLMSG, &c) < 0)
+  if (fd >= MAX_DEVICES || fd < 0)
     {
-      DBG(5, "sanei_usb_control_msg: SCANNER_IOCTL_CTRLMSG error - %s\n",
-	  strerror(errno));
-      return SANE_STATUS_IO_ERROR;
+      DBG (1, "sanei_usb_control_msg: fd >= MAX_DEVICES || fd < 0\n");
+      return SANE_STATUS_INVAL;
     }
-  return SANE_STATUS_GOOD;
-#else
-  DBG (5, "sanei_usb_control_msg: not supported on this OS\n");
-  return SANE_STATUS_UNSUPPORTED;
-#endif /* __linux__ */
+
+  if (devices[fd].method == sanei_usb_method_scanner_driver)
+    {
+#if defined(__linux__)
+      struct ctrlmsg_ioctl c;
+
+      c.req.requesttype = rtype;
+      c.req.request = req;
+      c.req.value = value;
+      c.req.index = index;
+      c.req.length = len;
+      c.data = data;
+
+      DBG (5, "sanei_usb_control_msg: rtype = 0x%02x, req = %d, value = %d, "
+	   "index = %d, len = %d\n", rtype, req, value, index, len);
+
+      if (ioctl (devices[fd].fd, SCANNER_IOCTL_CTRLMSG, &c) < 0)
+	{
+	  DBG (5, "sanei_usb_control_msg: SCANNER_IOCTL_CTRLMSG error - %s\n",
+	       strerror (errno));
+	  return SANE_STATUS_IO_ERROR;
+	}
+      return SANE_STATUS_GOOD;
+#else /* not __linux__ */
+      DBG (5, "sanei_usb_control_msg: not supported on this OS\n");
+      return SANE_STATUS_UNSUPPORTED;
+#endif /* not __linux__ */
+    }
+  else if (devices[fd].method == sanei_usb_method_libusb)
+#ifdef HAVE_LIBUSB
+    {
+      int result;
+
+      result = usb_control_msg (devices[fd].libusb_handle, rtype, req,
+				value, index, (char *) data, len,
+				libusb_timeout);
+      if (result < 0)
+	{
+	  DBG (1, "sanei_usb_control_msg: libusb complained: %s\n",
+	       usb_strerror ());
+	  return SANE_STATUS_INVAL;
+	}
+      return SANE_STATUS_GOOD;
+    }
+#else /* not HAVE_LIBUSB */
+    {
+      DBG (1, "sanei_usb_control_msg: libusb support missing\n");
+      return SANE_STATUS_UNSUPPORTED;
+    }
+#endif /* not HAVE_LIBUSB */
+  else
+    {
+      DBG (1, "sanei_usb_read_bulk: access method %d not implemented\n",
+	   devices[fd].method);
+      return SANE_STATUS_UNSUPPORTED;
+    }
 }

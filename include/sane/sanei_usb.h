@@ -1,5 +1,5 @@
 /* sane - Scanner Access Now Easy.
-   Copyright (C) 2001 Henning Meier-Geinitz
+   Copyright (C) 2001, 2002 Henning Meier-Geinitz
    This file is part of the SANE package.
 
    SANE is free software; you can redistribute it and/or modify it
@@ -20,10 +20,12 @@
 /** @file sanei_usb.h
  * This file provides a generic USB interface.  
  *
- * Currently, only access to device files as provided by the Linux USB
- * scanner driver is supported. FreeBSD and OpenBSD with their uscanner 
- * drivers also work. However, detection and control messages aren't
- * supported on these platforms.
+ * Currently, two access methods to USB devices are provided:
+ * - Access to device
+ * files as used by the Linux kernel USB scanner driver is supported. FreeBSD
+ * and OpenBSD with their uscanner drivers also work this way. However, 
+ * detection and control messages aren't supported on these platforms.
+ * - Access using libusb (where available). 
  *
  * @sa sanei_lm983x.h, sanei_pa4s2.h, sanei_pio.h, sanei_scsi.h, and <a 
  * href="http://www.mostang.com/sane/man/sane-usb.5.html">man sane-usb(5)</a>
@@ -36,12 +38,90 @@
 #include "../include/sane/config.h"
 #include "../include/sane/sane.h"
 
+/* USB spec defines */
+#ifndef USB_CLASS_PER_INTERFACE
+/* Also defined in libusb */
+/* Device and/or interface class codes */
+#define USB_CLASS_PER_INTERFACE         0x00
+#define USB_CLASS_AUDIO                 0x01
+#define USB_CLASS_COMM                  0x02
+#define USB_CLASS_HID                   0x03
+#define USB_CLASS_PRINTER               0x07
+#define USB_CLASS_MASS_STORAGE          0x08
+#define USB_CLASS_HUB                   0x09
+#define USB_CLASS_DATA                  0x0a
+#define USB_CLASS_VENDOR_SPEC           0xff
+
+/* USB descriptor types */
+#define USB_DT_DEVICE                   0x01
+#define USB_DT_CONFIG                   0x02
+#define USB_DT_STRING                   0x03
+#define USB_DT_INTERFACE                0x04
+#define USB_DT_ENDPOINT                 0x05
+
+#define USB_DT_HID                      0x21
+#define USB_DT_REPORT                   0x22
+#define USB_DT_PHYSICAL                 0x23
+#define USB_DT_HUB                      0x29
+
+/* Descriptor sizes per descriptor type */
+#define USB_DT_DEVICE_SIZE              18
+#define USB_DT_CONFIG_SIZE              9
+#define USB_DT_INTERFACE_SIZE           9
+#define USB_DT_ENDPOINT_SIZE            7
+#define USB_DT_ENDPOINT_AUDIO_SIZE      9
+#define USB_DT_HUB_NONVAR_SIZE          7
+
+/* Endpoint descriptor values */
+#define USB_ENDPOINT_ADDRESS_MASK       0x0f
+#define USB_ENDPOINT_DIR_MASK           0x80
+
+#define USB_ENDPOINT_TYPE_MASK          0x03
+#define USB_ENDPOINT_TYPE_CONTROL       0
+#define USB_ENDPOINT_TYPE_ISOCHRONOUS   1
+#define USB_ENDPOINT_TYPE_BULK          2
+#define USB_ENDPOINT_TYPE_INTERRUPT     3
+
+/* Standard requests */
+#define USB_REQ_GET_STATUS              0x00
+#define USB_REQ_CLEAR_FEATURE           0x01
+#define USB_REQ_SET_FEATURE             0x03
+#define USB_REQ_SET_ADDRESS             0x05
+#define USB_REQ_GET_DESCRIPTOR          0x06
+#define USB_REQ_SET_DESCRIPTOR          0x07
+#define USB_REQ_GET_CONFIGURATION       0x08
+#define USB_REQ_SET_CONFIGURATION       0x09
+#define USB_REQ_GET_INTERFACE           0x0A
+#define USB_REQ_SET_INTERFACE           0x0B
+#define USB_REQ_SYNCH_FRAME             0x0C
+
+/* USB types */
+#define USB_TYPE_STANDARD               (0x00 << 5)
+#define USB_TYPE_CLASS                  (0x01 << 5)
+#define USB_TYPE_VENDOR                 (0x02 << 5)
+#define USB_TYPE_RESERVED               (0x03 << 5)
+
+/* USB recipients */
+#define USB_RECIP_DEVICE                0x00
+#define USB_RECIP_INTERFACE             0x01
+#define USB_RECIP_ENDPOINT              0x02
+#define USB_RECIP_OTHER                 0x03
+
+#endif /* not USB_CLASS_PER_INTERFACE */
+
+/* Not defined in libsub */
+#define USB_TYPE_MASK                   (0x03 << 5)
+#define USB_RECIP_MASK                  0x1f
+
+/* USB directions */
+#define USB_DIR_OUT                     0
+#define USB_DIR_IN                      0x80
+
 /** Initialize sanei_usb.
  *
  * Call this before any other sanei_usb function.
  */
-extern void
-sanei_usb_init (void);
+extern void sanei_usb_init (void);
 
 /** Get the vendor and product ids.
  *
@@ -89,15 +169,13 @@ sanei_usb_find_devices (SANE_Int vendor, SANE_Int product,
  *   permissions
  * - SANE_STATUS_INVAL - on every other error
  */
-extern SANE_Status
-sanei_usb_open (SANE_String_Const devname, SANE_Int *fd);
+extern SANE_Status sanei_usb_open (SANE_String_Const devname, SANE_Int * fd);
 
 /** Close a USB device.
  * 
  * @param fd file descriptor of the device
  */
-extern void
-sanei_usb_close (SANE_Int fd);
+extern void sanei_usb_close (SANE_Int fd);
 
 /** Initiate a bulk transfer read.
  *
@@ -114,9 +192,9 @@ sanei_usb_close (SANE_Int fd);
  * - SANE_STATUS_IO_ERROR - if an error occured during the read
  * - SANE_STATUS_INVAL - on every other error
  *
- */ 
+ */
 extern SANE_Status
-sanei_usb_read_bulk (SANE_Int fd, SANE_Byte * buffer, size_t *size);
+sanei_usb_read_bulk (SANE_Int fd, SANE_Byte * buffer, size_t * size);
 
 /** Initiate a bulk transfer write.
  *
@@ -133,7 +211,7 @@ sanei_usb_read_bulk (SANE_Int fd, SANE_Byte * buffer, size_t *size);
  * - SANE_STATUS_INVAL - on every other error
  */
 extern SANE_Status
-sanei_usb_write_bulk (SANE_Int fd, SANE_Byte * buffer, size_t *size);
+sanei_usb_write_bulk (SANE_Int fd, SANE_Byte * buffer, size_t * size);
 
 /** Send/receive a control message to/from a USB device.
  *
@@ -162,7 +240,7 @@ sanei_usb_write_bulk (SANE_Int fd, SANE_Byte * buffer, size_t *size);
 extern SANE_Status
 sanei_usb_control_msg (SANE_Int fd, SANE_Int rtype, SANE_Int req,
 		       SANE_Int value, SANE_Int index, SANE_Int len,
-		       SANE_Byte *data);
+		       SANE_Byte * data);
 
 /** Expand device name patterns into a list of devices.
  *
@@ -179,7 +257,7 @@ sanei_usb_control_msg (SANE_Int fd, SANE_Int rtype, SANE_Int req,
  * @param attach attach function
  *
  */
-extern void 
+extern void
 sanei_usb_attach_matching_devices (const char *name,
 				   SANE_Status (*attach) (const char *dev));
 

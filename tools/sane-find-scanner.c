@@ -397,7 +397,7 @@ main (int argc, char **argv)
 	  "/dev/uk0", "/dev/uk1", "/dev/uk2", "/dev/uk3", "/dev/uk4",
 	  "/dev/uk5", "/dev/uk6",
 	  "/dev/ss0", 
-#elif defined(__hpux__)
+#elif defined(__hpux)
 	  /* First controller, id 0-8 */
 	  "/dev/rscsi/c0t0d0", "/dev/rscsi/c0t1d0", "/dev/rscsi/c0t2d0",
 	  "/dev/rscsi/c0t3d0", "/dev/rscsi/c0t4d0", "/dev/rscsi/c0t5d0",

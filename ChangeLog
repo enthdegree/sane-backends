@@ -8,7 +8,8 @@
 	* backend/as6e.c: Fixed some warnings.
 	* backend/coolscan.c backend/coolscan-scsi.h: Fixed a bunch of
 	  compilation warnings.
-	* backend/djpeg.c: Fixed some warnings.
+	* backend/djpeg.c: Fixed some warnings. 
+	* backend/dmc.c: Fixed some warnings. 
 
 2003-04-03  Eddy De Greef <eddy_de_greef at tiscali dot be>
 

@@ -53,7 +53,8 @@ typedef ppm_dest_struct *ppm_dest_ptr;
 METHODDEF (void)
 sanei_jpeg_start_output_ppm (j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 {
-
+  cinfo = cinfo;
+  dinfo = dinfo;
   /* header image is supplied for us */
 
 }
@@ -61,6 +62,8 @@ sanei_jpeg_start_output_ppm (j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 METHODDEF (void)
 sanei_jpeg_finish_output_ppm (j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 {
+  cinfo = cinfo;
+  dinfo = dinfo;
 
   /* nothing to do */
 }
@@ -77,8 +80,10 @@ METHODDEF (void)
 sanei_jpeg_put_pixel_rows (j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
 			   JDIMENSION rows_supplied, char *data)
 {
-
   ppm_dest_ptr dest = (ppm_dest_ptr) dinfo;
+  cinfo = cinfo;
+  dinfo = dinfo;
+  rows_supplied = rows_supplied;
 
   memcpy (data, dest->iobuffer, dest->buffer_width);
 }
@@ -93,11 +98,14 @@ METHODDEF (void)
 sanei_jpeg_copy_pixel_rows (j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
 			    JDIMENSION rows_supplied, char *data)
 {
-
   ppm_dest_ptr dest = (ppm_dest_ptr) dinfo;
   register char *bufferptr;
   register JSAMPROW ptr;
   register JDIMENSION col;
+
+  cinfo = cinfo;
+  dinfo = dinfo;
+  rows_supplied = rows_supplied;
 
   ptr = dest->pub.buffer[0];
   bufferptr = dest->iobuffer;
@@ -128,6 +136,8 @@ sanei_jpeg_put_demapped_rgb (j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
   register JSAMPROW color_map2 = cinfo->colormap[2];
   register JDIMENSION col;
 
+  rows_supplied = rows_supplied;
+
   ptr = dest->pub.buffer[0];
   bufferptr = dest->iobuffer;
   for (col = cinfo->output_width; col > 0; col--)
@@ -150,6 +160,8 @@ sanei_jpeg_put_demapped_gray (j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
   register JSAMPROW ptr;
   register JSAMPROW color_map = cinfo->colormap[0];
   register JDIMENSION col;
+
+  rows_supplied = rows_supplied;
 
   ptr = dest->pub.buffer[0];
   bufferptr = dest->iobuffer;

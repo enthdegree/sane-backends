@@ -609,7 +609,7 @@ DMCSetASA(int fd, unsigned int asa)
 
     DBG(3, "DMCSetAsa: %d\n", asa);
     for (i=1; i<=ASA_100+1; i++) {
-	if (asa == ValidASAs[i]) break;
+	if (asa == (unsigned int) ValidASAs[i]) break;
     }
 
     if (i > ASA_100+1) return SANE_STATUS_INVAL;
@@ -806,6 +806,8 @@ sane_init(SANE_Int *version_code, SANE_Auth_Callback authorize)
     size_t len;
     FILE *fp;
 
+    authorize = authorize;
+
     DBG_INIT();
     if (version_code) {
 	*version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, 0);
@@ -880,6 +882,8 @@ sane_get_devices(SANE_Device const ***device_list, SANE_Bool local_only)
     static SANE_Device const **devlist = 0;
     DMC_Device *dev;
     int i = 0;
+
+    local_only = local_only;
 
     if (devlist) free(devlist);
     devlist = malloc((NumDevices+1) * sizeof(devlist[0]));
@@ -1210,7 +1214,7 @@ sane_start(SANE_Handle handle)
 	c->hw->asa = c->val[OPT_ASA].w;
     }
 
-    if (c->val[OPT_SHUTTER_SPEED].w != c->hw->shutterSpeed) {
+    if ((unsigned int) c->val[OPT_SHUTTER_SPEED].w != c->hw->shutterSpeed) {
 	status = DMCSetShutterSpeed(c->fd, c->val[OPT_SHUTTER_SPEED].w);
 	if (status != SANE_STATUS_GOOD) {
 	    DMCCancel(c);
@@ -1309,7 +1313,7 @@ sane_read(SANE_Handle handle, SANE_Byte *buf, SANE_Int max_len, SANE_Int *len)
 	    (2*c->params.bytes_per_line);
 	/* If user is trying to read less than two complete lines, fail */
 	if (max_len == 0) return SANE_STATUS_INVAL;
-	if (max_len > c->bytes_to_read) max_len = c->bytes_to_read;
+	if ((unsigned int) max_len > c->bytes_to_read) max_len = c->bytes_to_read;
 	for (i=0; i<max_len; i += 2*c->params.bytes_per_line) {
 	    c->bytes_to_read -= 2*c->params.bytes_per_line;
 	    status = DMCReadTwoSuperResolutionLines(c, buf+i,
@@ -1326,14 +1330,14 @@ sane_read(SANE_Handle handle, SANE_Byte *buf, SANE_Int max_len, SANE_Int *len)
 
 	/* If user is trying to read less than one complete row, fail */
 	if (max_len == 0) return SANE_STATUS_INVAL;
-	if (max_len > c->bytes_to_read) max_len = c->bytes_to_read;
-	c->bytes_to_read -= max_len;
+	if ((unsigned int) max_len > c->bytes_to_read) max_len = c->bytes_to_read;
+	c->bytes_to_read -= (unsigned int) max_len;
 	status = DMCRead(c->fd, 0x00, c->imageMode, buf, max_len, &size);
 	*len = size;
 	return status;
     }
 
-    if (max_len > c->bytes_to_read) max_len = c->bytes_to_read;
+    if ((unsigned int) max_len > c->bytes_to_read) max_len = c->bytes_to_read;
     if (c->readPtr) {
 	*len = max_len;
 	memcpy(buf, c->readPtr, max_len);
@@ -1346,11 +1350,11 @@ sane_read(SANE_Handle handle, SANE_Byte *buf, SANE_Int max_len, SANE_Int *len)
     c->readBuffer = malloc(c->bytes_to_read);
     if (!c->readBuffer) return SANE_STATUS_NO_MEM;
     c->readPtr = c->readBuffer;
-    status = DMCRead(c->fd, 0x00, c->imageMode, c->readBuffer,
+    status = DMCRead(c->fd, 0x00, c->imageMode, (SANE_Byte *) c->readBuffer,
 		     c->bytes_to_read, &size);
     *len = size;
     if (status != SANE_STATUS_GOOD) return status;
-    if (*len != c->bytes_to_read) return SANE_STATUS_IO_ERROR;
+    if ((unsigned int) *len != c->bytes_to_read) return SANE_STATUS_IO_ERROR;
 
     /* Now copy */
     *len = max_len;
@@ -1381,11 +1385,17 @@ sane_cancel (SANE_Handle handle)
 SANE_Status
 sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 {
+  handle = handle;
+  non_blocking = non_blocking;
+
   return SANE_STATUS_UNSUPPORTED;
 }
 
 SANE_Status
 sane_get_select_fd (SANE_Handle handle, SANE_Int *fd)
 {
+  handle = handle;
+  fd = fd;
+
   return SANE_STATUS_UNSUPPORTED;
 }

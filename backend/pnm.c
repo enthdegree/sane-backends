@@ -40,7 +40,7 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.  */
 
-#define BUILD 1
+#define BUILD 2
 
 #include "../include/sane/config.h"
 
@@ -1033,8 +1033,37 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
 
   DBG(2,"sane_read: max_length = %d, rgbleftover = {%d, %d, %d}\n",
       max_length, rgbleftover[0], rgbleftover[1], rgbleftover[2]);
-  if (handle != MAGIC || !is_open || !infile || !data || !length)
-    return SANE_STATUS_INVAL;	/* Unknown handle or no file to read... */
+  if (!length)
+    {
+      DBG(1, "sane_read: length == NULL\n");
+      return SANE_STATUS_INVAL;
+    }
+  *length = 0;
+  if (!data)
+    {
+      DBG(1, "sane_read: data == NULL\n");
+      return SANE_STATUS_INVAL;
+    }
+  if (handle != MAGIC)
+    {
+      DBG(1, "sane_read: unknown handle\n");
+      return SANE_STATUS_INVAL;
+    }
+  if (!is_open)
+    {
+      DBG(1, "sane_read: call sane_open first\n");
+      return SANE_STATUS_INVAL;
+    }
+  if (!infile)
+    {
+      DBG(1, "sane_read: scan was cancelled\n");
+      return SANE_STATUS_CANCELLED;
+    }
+  if (feof (infile))
+    {
+      DBG(2, "sane_read: EOF reached\n");
+      return SANE_STATUS_EOF;
+    }
 
   if(status_jammed == SANE_TRUE) return SANE_STATUS_JAMMED;
   if(status_eof == SANE_TRUE) return SANE_STATUS_EOF;
@@ -1043,11 +1072,6 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
   if(status_ioerror == SANE_TRUE) return SANE_STATUS_IO_ERROR;
   if(status_nomem == SANE_TRUE) return SANE_STATUS_NO_MEM;
   if(status_accessdenied == SANE_TRUE) return SANE_STATUS_ACCESS_DENIED;
-
-  *length = 0;
-
-  if (feof (infile))
-    return SANE_STATUS_EOF;
 
   /* Allocate a buffer for the RGB values. */
   if (ppm_type == ppm_color && (gray || three_pass))

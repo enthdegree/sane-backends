@@ -1377,7 +1377,7 @@ SANE_Status sane_open (SANE_String_Const name, SANE_Handle * h)
 
         {
             pss->devname = strdup (name);
-            if (!name)
+            if (!pss->devname)
             {
                 free (*h);
                 DBG (DL_MAJOR_ERROR,
@@ -2381,7 +2381,9 @@ SANE_Status sane_get_parameters (SANE_Handle h,
         /* use what the source chain says */
         p->pixels_per_line = pss->psrc->pixelsPerLine(pss->psrc);
         p->bytes_per_line = pss->psrc->bytesPerLine(pss->psrc);
-        p->lines = pss->psrc->remaining(pss->psrc)/p->bytes_per_line;
+	/* p->lines = pss->psrc->remaining(pss->psrc)/p->bytes_per_line;*/
+	p->lines = pss->lines;
+
     }
     else
     {
@@ -3125,6 +3127,12 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.5  2001/06/01 16:24:46  hmg
+ * Fixed two bugs: pss->devname must be checked for 0. Return total
+ * number of lines in sane_get_parameters (patch from Ben Stanley
+ * <bds02@uow.edu.au>).
+ * Henning Meier-Geinitz <henning@meier-geinitz.de>
+ *
  * Revision 1.4  2001/05/26 12:47:32  hmg
  * Updated snapscan backend to version 1.2 (from
  * Sebastien Sable <Sebastien.Sable@snv.jussieu.fr>).

@@ -1,3 +1,8 @@
+2002-09-01  Peter Kirchgessner <peter@kirchgessner.net>
+
+	* configure.in, doc/sane-hp.man, doc/descriptions/hp.desc
+	  applied patch by David Paschal to remove PTAL-support from hp-backend
+
 2002-09-01  Matthew Duggan <stauff1@users.sourceforge.net>
 
 	* backend/canon_pp.c backend/canon_pp-dev.c backend/canon_pp-dev.h 

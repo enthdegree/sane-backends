@@ -54,7 +54,7 @@
 
 /* Actual Interface */
 void sanei_canon_pp_set_ieee1284_mode(int m);
-int sanei_canon_pp_wake_scanner(struct parport *port);
+int sanei_canon_pp_wake_scanner(struct parport *port, int mode);
 int sanei_canon_pp_write(struct parport *port, int length, 
 		unsigned char *data);
 int sanei_canon_pp_read(struct parport *port, int length, 

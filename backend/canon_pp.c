@@ -293,7 +293,7 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 		 * us to call ieee1284_close in any of the remaining error
 		 * cases in this loop. */
 #if 0
-		tmp = sanei_canon_pp_detect(s_tmp->params.port);
+		tmp = sanei_canon_pp_detect(s_tmp->params.port, INITMODE_AUTO);
 
 
 		if (tmp && (s_tmp->ieee1284_mode != M1284_NIBBLE))
@@ -304,7 +304,8 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 
 			s_tmp->ieee1284_mode = M1284_NIBBLE;
 			sanei_canon_pp_set_ieee1284_mode(s_tmp->ieee1284_mode);
-			tmp = sanei_canon_pp_detect(s_tmp->params.port);
+			tmp = sanei_canon_pp_detect(s_tmp->params.port, 
+					INITMODE_AUTO);
 		}
 		/* still no go? */
 		if (tmp)
@@ -327,7 +328,8 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 		}
 		
 		DBG(2, "sane_init: >> initialise\n");
-		tmp = sanei_canon_pp_initialise(&(s_tmp->params));
+		tmp = sanei_canon_pp_initialise(&(s_tmp->params), 
+				INITMODE_AUTO);
 		DBG(2, "sane_init: << %d initialise\n", tmp);
 		/* put it back to sleep until we're ready to 
 		 * open for business again  */
@@ -343,7 +345,8 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 
 			s_tmp->ieee1284_mode = M1284_NIBBLE;
 			sanei_canon_pp_set_ieee1284_mode(s_tmp->ieee1284_mode);
-			tmp = sanei_canon_pp_initialise(&(s_tmp->params));
+			tmp = sanei_canon_pp_initialise(&(s_tmp->params), 
+					INITMODE_AUTO);
 		}
 		if (tmp) {
 			DBG(10, "sane_init: Couldn't contact scanner on port "
@@ -524,7 +527,7 @@ sane_open (SANE_String_Const name, SANE_Handle *h)
 	/* I put the scanner to sleep before, better wake it back up */
 
 	DBG(2, "sane_open: >> initialise\n");
-	tmp = sanei_canon_pp_initialise(&(cs->params));
+	tmp = sanei_canon_pp_initialise(&(cs->params), INITMODE_AUTO);
 	DBG(2, "sane_open: << %d initialise\n", tmp);
 	if (tmp != 0) {
 		DBG(1, "sane_open: initialise returned %d, something is "

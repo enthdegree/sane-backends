@@ -23,12 +23,12 @@
 :model "CanoScan FB310P"	; name models for above-specified mfg.
 :interface "Parport (ECP)"
 :status :unsupported
-:comment "Need a scanner to work on"
+:comment "Rebadged Avision, different command set"
 
 :model "CanoScan FB610P"	; name models for above-specified mfg.
 :interface "Parport (ECP)"
 :status :unsupported
-:comment "Need a scanner to work on"
+:comment "Rebadged Avision, different command set"
 
 :model "CanoScan FB320P"	; name models for above-specified mfg.
 :interface "Parport (ECP)"

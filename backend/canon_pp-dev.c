@@ -70,6 +70,7 @@
 /* No SANE, Things that only apply to stand-alone */
 #include <stdio.h>
 #include <stdarg.h>
+
 static void DBG(int level, const char *format, ...)
 {
 	va_list args;
@@ -324,12 +325,12 @@ int sanei_canon_pp_init_scan(scanner_parameters *sp, scan_parameters *scanp)
 
 
 /* Wake the scanner, detect it, and fill sp with stuff */
-int sanei_canon_pp_initialise(scanner_parameters *sp)
+int sanei_canon_pp_initialise(scanner_parameters *sp, int mode)
 {
 	unsigned char scanner_info[12];
 
 	/* Hopefully take the scanner out of transparent mode */
-	if (sanei_canon_pp_wake_scanner(sp->port))
+	if (sanei_canon_pp_wake_scanner(sp->port, mode))
 	{
 		DBG(10, "initialise: could not wake scanner\n");
 		return 1;
@@ -1319,7 +1320,7 @@ int sanei_canon_pp_sleep_scanner(struct parport *port)
 	/* expect(port, "Enter Transparent Mode", 0x1f, 0x1f, 1000000); */
 }
 
-int sanei_canon_pp_detect(struct parport *port)
+int sanei_canon_pp_detect(struct parport *port, int mode)
 {
 	/*int caps;*/
 	/* This code needs to detect whether or not a scanner is present on 
@@ -1342,7 +1343,7 @@ int sanei_canon_pp_detect(struct parport *port)
 		DBG(0,"detect: Unable to claim port\n");
 		return 2;
 	}
-	if (sanei_canon_pp_wake_scanner(port))
+	if (sanei_canon_pp_wake_scanner(port, mode))
 	{
 		DBG(10, "detect: could not wake scanner\n");
 		ieee1284_release(port);

@@ -75,6 +75,11 @@
 /* Scanner things */
 #define CALSIZE 18      /* Lines per calibration */
 
+/* Init modes */
+#define INITMODE_20P 1
+#define INITMODE_30P 2
+#define INITMODE_AUTO 3
+
 /* Misc things */
 #define T_SCAN 1
 #define T_CALIBRATE 2
@@ -148,7 +153,7 @@ typedef struct image_segment_struct
 
 /* Brings the scanner in and out of transparent mode 
    and detects model information */
-int sanei_canon_pp_initialise(scanner_parameters *sp);
+int sanei_canon_pp_initialise(scanner_parameters *sp, int mode);
 int sanei_canon_pp_close_scanner(scanner_parameters *sp);
 
 /* Image scanning functions */
@@ -170,7 +175,7 @@ int sanei_canon_pp_calibrate(scanner_parameters *sp, char *cal_file);
 int sanei_canon_pp_adjust_gamma(scanner_parameters *sp);
 
 /* Detect if a scanner is present on a given port */
-int sanei_canon_pp_detect(struct parport *port);
+int sanei_canon_pp_detect(struct parport *port, int mode);
 
 /* Put a scanner to sleep */
 int sanei_canon_pp_sleep_scanner(struct parport *port);

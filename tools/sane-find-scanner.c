@@ -46,6 +46,7 @@ static const char *prog_name;
 static int verbose = 1;
 static SANE_Bool force = SANE_FALSE;
 static SANE_Bool device_found = SANE_FALSE;
+static SANE_Bool libusb_device_found = SANE_FALSE;
 static SANE_Bool unknown_found = SANE_FALSE;
 
 typedef struct
@@ -366,6 +367,248 @@ check_usb_file (char *file_name)
     }
 }
 
+#ifdef HAVE_LIBUSB
+
+static char *
+get_libusb_string_descriptor (struct usb_device *dev, int index)
+{
+  usb_dev_handle *handle;
+  char *buffer;
+  struct usb_string_descriptor *sd;
+  int size = 100;
+  int i;
+
+  if (!index)
+    return 0;
+  buffer = calloc (1, size + 1);
+  if (!buffer)
+    return 0;
+  sd = (struct usb_string_descriptor *) buffer;
+  handle = usb_open (dev);
+  if (!handle)
+    return 0;
+  if (usb_control_msg (handle,
+		       USB_ENDPOINT_IN + USB_TYPE_STANDARD + USB_RECIP_DEVICE,
+		       USB_REQ_GET_DESCRIPTOR,
+		       (USB_DT_STRING << 8) + index, 0, buffer,
+		       size, 1000) < 0)
+    {
+      usb_close (handle);
+      return 0;
+    }
+  if (sd->bLength < 2 || sd->bLength > size
+      || sd->bDescriptorType != USB_DT_STRING)
+    {
+      usb_close (handle);
+      return 0;
+    }
+  size = sd->bLength - 2;
+  for (i = 0; i < (size / 2); i++)
+    buffer[i] = buffer[2 + 2 * i];
+  buffer[i] = 0;
+
+  usb_close (handle);
+  return buffer;
+}
+
+static char *
+get_libusb_vendor (struct usb_device *dev)
+{
+  return get_libusb_string_descriptor (dev, dev->descriptor.iManufacturer);
+}
+
+static char *
+get_libusb_product (struct usb_device *dev)
+{
+  return get_libusb_string_descriptor (dev, dev->descriptor.iProduct);
+}
+
+static void
+check_libusb_device (struct usb_device *dev)
+{
+  int is_scanner = 0;
+  char *vendor = get_libusb_vendor (dev);
+  char *product = get_libusb_product (dev);
+
+  if (!dev->config)
+    {
+      if (verbose > 1)
+	printf ("device 0x%04x/0x%04x is not configured\n",
+		dev->descriptor.idVendor, dev->descriptor.idProduct);
+      return;
+    }
+
+  if (verbose > 2)
+    {
+      /* print everything we know about the device */
+      int config_nr;
+      struct usb_device_descriptor *d = &dev->descriptor;
+
+
+      printf ("\n");
+      printf ("<device descriptor of 0x%04x/0x%04x at %s:%s",
+	      d->idVendor, d->idProduct, dev->bus->dirname, dev->filename);
+      if (vendor || product)
+	{
+	  printf (" (%s%s%s)", vendor ? vendor : "",
+		  (vendor && product) ? " " : "", product ? product : "");
+	}
+      printf ("\n");
+      printf ("bLength               %d\n", d->bLength);
+      printf ("bDescriptorType       %d\n", d->bDescriptorType);
+      printf ("bcdUSB                %d.%d%d\n", d->bcdUSB >> 8,
+	      (d->bcdUSB >> 4) & 15, d->bcdUSB & 15);
+      printf ("bDeviceClass          %d\n", d->bDeviceClass);
+      printf ("bDeviceSubClass       %d\n", d->bDeviceSubClass);
+      printf ("bDeviceProtocol       %d\n", d->bDeviceProtocol);
+      printf ("bMaxPacketSize0       %d\n", d->bMaxPacketSize0);
+      printf ("idVendor              0x%04X\n", d->idVendor);
+      printf ("idProduct             0x%04X\n", d->idProduct);
+      printf ("bcdDevice             %d.%d%d\n", d->bcdDevice >> 8,
+	      (d->bcdDevice >> 4) & 15, d->bcdDevice & 15);
+      printf ("iManufacturer         %d (%s)\n", d->iManufacturer,
+	      d->iManufacturer
+	      ? get_libusb_string_descriptor (dev, d->iManufacturer) : "");
+      printf ("iProduct              %d (%s)\n", d->iProduct,
+	      d->iProduct
+	      ? get_libusb_string_descriptor (dev, d->iProduct) : "");
+      printf ("iSerialNumber         %d (%s)\n", d->iSerialNumber,
+	      d->iSerialNumber
+	      ? get_libusb_string_descriptor (dev, d->iSerialNumber) : "");
+      printf ("bNumConfigurations    %d\n", d->bNumConfigurations);
+
+      for (config_nr = 0; config_nr < d->bNumConfigurations; config_nr++)
+	{
+	  struct usb_config_descriptor *c = &dev->config[config_nr];
+	  int interface_nr;
+
+	  printf (" <configuration %d>\n", config_nr);
+	  printf (" bLength              %d\n", c->bLength);
+	  printf (" bDescriptorType      %d\n", c->bDescriptorType);
+	  printf (" wTotalLength         %d\n", c->wTotalLength);
+	  printf (" bNumInterfaces       %d\n", c->bNumInterfaces);
+	  printf (" bConfigurationValue  %d\n", c->bConfigurationValue);
+	  printf (" iConfiguration       %d (%s)\n", c->iConfiguration,
+		  c->iConfiguration ?
+		  get_libusb_string_descriptor (dev, c->iConfiguration) : "");
+	  printf (" bmAttributes         %d (%s%s)\n", c->bmAttributes,
+		  c->bmAttributes & 64 ? "Self-powered" : "",
+		  c->bmAttributes & 32 ? "Remote Wakeup" : "");
+	  printf (" MaxPower             %d mA\n", c->MaxPower * 2);
+
+	  for (interface_nr = 0; interface_nr < c->bNumInterfaces;
+	       interface_nr++)
+	    {
+	      struct usb_interface *interface = &c->interface[interface_nr];
+	      int alt_setting_nr;
+
+	      printf ("  <interface %d>\n", interface_nr);
+	      for (alt_setting_nr = 0;
+		   alt_setting_nr < interface->num_altsetting;
+		   alt_setting_nr++)
+		{
+		  struct usb_interface_descriptor *i
+		    = &interface->altsetting[0];
+		  int ep_nr;
+		  printf ("   <altsetting %d>\n", alt_setting_nr);
+		  printf ("   bLength            %d\n", i->bLength);
+		  printf ("   bDescriptorType    %d\n", i->bDescriptorType);
+		  printf ("   bInterfaceNumber   %d\n", i->bInterfaceNumber);
+		  printf ("   bAlternateSetting  %d\n", i->bAlternateSetting);
+		  printf ("   bNumEndpoints      %d\n", i->bNumEndpoints);
+		  printf ("   bInterfaceClass    %d\n", i->bInterfaceClass);
+		  printf ("   bInterfaceSubClass %d\n",
+			  i->bInterfaceSubClass);
+		  printf ("   bInterfaceProtocol %d\n",
+			  i->bInterfaceProtocol);
+		  printf ("   iInterface         %d (%s)\n", i->iInterface,
+			  i->iInterface 
+			  ? get_libusb_string_descriptor (dev,
+							  i->iInterface) : "");
+		  for (ep_nr = 0; ep_nr < i->bNumEndpoints; ep_nr++)
+		    {
+		      struct usb_endpoint_descriptor *e = &i->endpoint[ep_nr];
+		      char *ep_type;
+
+		      switch (e->bmAttributes & USB_ENDPOINT_TYPE_MASK)
+			{
+			case USB_ENDPOINT_TYPE_CONTROL:
+			  ep_type = "control";
+			  break;
+			case USB_ENDPOINT_TYPE_ISOCHRONOUS:
+			  ep_type = "isochronous";
+			  break;
+			case USB_ENDPOINT_TYPE_BULK:
+			  ep_type = "bulk";
+			  break;
+			case USB_ENDPOINT_TYPE_INTERRUPT:
+			  ep_type = "interrupt";
+			  break;
+			default:
+			  ep_type = "unknown";
+			  break;
+			}
+		      printf ("    <endpoint %d>\n", ep_nr);
+		      printf ("    bLength           %d\n", e->bLength);
+		      printf ("    bDescriptorType   %d\n",
+			      e->bDescriptorType);
+		      printf ("    bEndpointAddress  0x%02X (%s 0x%02X)\n",
+			      e->bEndpointAddress,
+			      e->bEndpointAddress & USB_ENDPOINT_DIR_MASK ?
+			      "in" : "out",
+			      e->
+			      bEndpointAddress & USB_ENDPOINT_ADDRESS_MASK);
+		      printf ("    bmAttributes      %d (%s)\n",
+			      e->bmAttributes, ep_type);
+		      printf ("    wMaxPacketSize    %d\n",
+			      e->wMaxPacketSize);
+		      printf ("    bInterval         %d ms\n", e->bInterval);
+		      printf ("    bRefresh          %d\n", e->bRefresh);
+		      printf ("    bSynchAddress     %d\n", e->bSynchAddress);
+		    }
+		}
+	    }
+	}
+
+    }
+
+  /* Some heuristics, which device may be a scanner */
+  if (dev->descriptor.idVendor == 0)	/* hub */
+    --is_scanner;
+  if (dev->descriptor.idProduct == 0)	/* hub */
+    --is_scanner;
+
+  switch (dev->descriptor.bDeviceClass)
+    {
+    case USB_CLASS_VENDOR_SPEC:
+      ++is_scanner;
+      break;
+    case USB_CLASS_PER_INTERFACE:
+      switch (dev->config[0].interface->altsetting[0].bInterfaceClass)
+	{
+	case USB_CLASS_VENDOR_SPEC:
+	case USB_CLASS_PER_INTERFACE:
+	case 16:		/* data? */
+	  ++is_scanner;
+	  break;
+	}
+    }
+
+  if (is_scanner > 0)
+    {
+      printf ("found USB scanner (vendor=0x%04x", dev->descriptor.idVendor);
+      if (vendor)
+	printf (" [%s]", vendor);
+      printf (", product=0x%04x", dev->descriptor.idProduct);
+      if (product)
+	printf (" [%s]", product);
+      printf (") at libusb:%s:%s\n", dev->bus->dirname, dev->filename);
+      libusb_device_found = SANE_TRUE;
+      device_found = SANE_TRUE;
+    }
+}
+#endif /* HAVE_LIBUSB */
+
 static DIR *
 scan_directory (char *dir_name)
 {
@@ -426,7 +669,6 @@ int
 main (int argc, char **argv)
 {
   char **dev_list, **usb_dev_list, *dev_name, **ap;
-  SANE_Bool libusb_device_found = SANE_FALSE;
 
   prog_name = strrchr (argv[0], '/');
   if (prog_name)
@@ -816,41 +1058,7 @@ main (int argc, char **argv)
 	  {
 	    for (dev = bus->devices; dev; dev = dev->next)
 	      {
-		if (!dev->config)
-		  {
-		    if (verbose > 1)
-		      printf ("device 0x%04x/0x%04x is not configured\n",
-			      dev->descriptor.idVendor,
-			      dev->descriptor.idProduct);
-		    continue;
-		  }
-		/* Some heuristics, which device may be a scanner */
-		if (dev->descriptor.idVendor != 0 &&
-		    dev->descriptor.idProduct != 0 &&
-		    (dev->descriptor.bDeviceClass == USB_CLASS_VENDOR_SPEC ||
-		     (dev->descriptor.bDeviceClass
-		      == USB_CLASS_PER_INTERFACE &&
-		      (dev->config[0].interface->altsetting[0].bInterfaceClass
-		       == USB_CLASS_VENDOR_SPEC ||
-		       dev->config[0].interface->altsetting[0].bInterfaceClass
-		       == USB_CLASS_PER_INTERFACE))))
-		  {
-		    printf ("found USB scanner (vendor=0x%04x, "
-			    "product=0x%04x) at libusb:%s:%s\n",
-			    dev->descriptor.idVendor,
-			    dev->descriptor.idProduct, bus->dirname,
-			    dev->filename);
-		    libusb_device_found = SANE_TRUE;
-		    device_found = SANE_TRUE;
-		  }
-		else if (verbose > 2)
-		  printf ("found non-scanner (vendor=0x%04x, product=0x%04x, "
-			  "class=0x%02x, interface-class=0x%02x) "
-			  "at libusb:%s:%s\n",
-			  dev->descriptor.idVendor, dev->descriptor.idProduct,
-			  dev->descriptor.bDeviceClass,
-			  dev->config[0].interface->altsetting[0].
-			  bInterfaceClass, bus->dirname, dev->filename);
+		check_libusb_device (dev);
 	      }			/* for (dev) */
 	  }			/* for (bus) */
       }				/* if (usb_dev_list == ap) */

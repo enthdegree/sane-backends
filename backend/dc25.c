@@ -2754,7 +2754,7 @@ sane_set_io_mode (SANE_Handle UNUSEDARG handle,
 }
 
 SANE_Status
-sane_get_select_fd (SANE_Handle UNUSEDARG handle, SANE_Int * UNUSEDARG fd)
+sane_get_select_fd (SANE_Handle UNUSEDARG handle, SANE_Int UNUSEDARG * fd)
 {
   return SANE_STATUS_UNSUPPORTED;
 }

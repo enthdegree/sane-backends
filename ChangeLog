@@ -1,3 +1,7 @@
+2000-12-16  Jochen Eisinger <jochen.eisinger@gmx.net>
+
+	* sanei/sanei_wire.c: added test for negative parameter to memcpy()
+
 2000-12-15 Gerhard Jaeger <g.jaeger@earthling.net>
 
     * fixed wrong options in sane-plustek.man

@@ -56,7 +56,6 @@ sanei_check_value (const SANE_Option_Descriptor * opt, void * value)
   int i;
   const SANE_Range * range;
   SANE_Word w, v;
-  SANE_Bool b;
   size_t len;
 
   switch (opt->constraint_type)

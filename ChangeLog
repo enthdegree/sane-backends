@@ -8,6 +8,9 @@
 	* doc/descriptions/mustek_usb.desc: Changed status to stable 
 	  (knocking on wood...). Added more Mustek URLs, fixed the existing
 	  one. Added per-model status. Added "compatible" comments.
+	* doc/descriptions/mustek.desc: Fixed Mustek URL. Added Trust comment
+	  about similar names. Added comments about compatible scanners.
+	  Fixed Primax URL.
 
 2002-07-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -46,7 +46,7 @@
 
 /**************************************************************************/
 /* Mustek backend version                                                 */
-#define BUILD 107
+#define BUILD 108
 /**************************************************************************/
 
 #include "../include/sane/config.h"
@@ -94,6 +94,9 @@ static double strip_height;
 
 /* Should we wait for the scan slider to return after each scan? */
 static SANE_Bool force_wait;
+
+/* Should we disable double buffering when reading data from the scanner? */
+static SANE_Bool disable_double_buffering;
 
 static SANE_Int num_devices;
 static Mustek_Device *first_dev;
@@ -404,7 +407,7 @@ scsi_inquiry_wait_ready (Mustek_Scanner *s)
     {
       DBG(5, "scsi_inquiry_wait_ready: sending INQUIRY\n");
       status = inquiry (s);
-      DBG(5, "scsi_inquiry_ready: INQUIRY finished\n");
+      DBG(5, "scsi_inquiry_wait_ready: INQUIRY finished\n");
       switch (status)
 	{
 	default:
@@ -4536,6 +4539,10 @@ reader_process (Mustek_Scanner *s, SANE_Int fd)
       SANE_Bool finished; /* block is finished */                               
     } bstat [2];
 
+  if (disable_double_buffering)
+    DBG(3, "reader_process: disable_double_buffering is set, this may be "
+	"slow.\n");
+
   sigemptyset (&sigterm_set);
   sigaddset (&sigterm_set, SIGTERM);
 
@@ -4681,6 +4688,15 @@ reader_process (Mustek_Scanner *s, SANE_Int fd)
               if (bstat[buffernumber].finished)
                 break; /* everything written; exit loop */
             }
+	  if (disable_double_buffering)
+	    {
+	      /* Enter only one buffer at once */
+	      if (buffernumber == 1)
+		buffernumber = 0;
+	      else
+		buffernumber = 1;
+	    }
+
           /* enter read requests only if data left */
           if ((s->line < s->hw->lines) && (buffer_count < max_buffers))
             {
@@ -4732,12 +4748,13 @@ reader_process (Mustek_Scanner *s, SANE_Int fd)
                   return status;
                 }
             }
- 
-          if (buffernumber == 1)
-            buffernumber = 0;
-          else
-            buffernumber = 1;
- 
+	  if (!disable_double_buffering)
+	    {
+	      if (buffernumber == 1)
+		buffernumber = 0;
+	      else
+		buffernumber = 1;
+	    }
           /* This is said to fix the scanner hangs that reportedly show on
              some MFS-12000SP scanners.  */
           if (s->mode == 0 && (s->hw->flags & MUSTEK_FLAG_LINEART_FIX))
@@ -4819,6 +4836,7 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback authorize)
   
   num_devices = 0;
   force_wait = SANE_FALSE;
+  disable_double_buffering = SANE_FALSE;
 
   fp = sanei_config_open (MUSTEK_CONFIG_FILE);
   if (!fp)
@@ -4895,6 +4913,15 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback authorize)
 	      DBG(3, "sane_init: config file line %d: enabling force-wait\n",
 		   linenumber);
 	      force_wait = SANE_TRUE;
+	      if (word)
+		free (word);
+	      word = 0;
+	    }
+	  else if (strcmp (word, "disable-double-buffering") == 0)
+	    {
+	      DBG(3, "sane_init: config file line %d: disabling "
+		  "double-buffering\n", linenumber);
+	      disable_double_buffering = SANE_TRUE;
 	      if (word)
 		free (word);
 	      word = 0;

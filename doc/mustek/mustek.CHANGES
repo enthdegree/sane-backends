@@ -1,5 +1,14 @@
 CHANGES for the SANE Mustek backend
 
+2001-07-07
+  * Released Mustek backend 1.0-108.
+
+2001-07-07
+  * added option to disable double-buffering
+  * don't set any options by default in mustek.conf
+  * updated manpage
+  * fixed debug statement in scsi_inquiry_wait_ready
+
 2001-05-06
   * Fixed memory leak in sane_get_devices ()
 

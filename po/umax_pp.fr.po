@@ -1,0 +1,116 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# FIRST AUTHOR <svoltz@wanadoo.fr>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: sane-backends 1.0.7\n"
+"POT-Creation-Date: 2002-03-15 14:55+0100\n"
+"PO-Revision-Date: 2002-03-15 15:11+0100\n"
+"Last-Translator: Stéphane Voltz <svoltz@wanadoo.fr>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=iso-8859-1\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+
+#: .tmp/umax_pp.c:349
+msgid "Scan Mode"
+msgstr "Mode de numérisation"
+
+#: .tmp/umax_pp.c:396
+msgid "Geometry"
+msgstr "Aire de numérisation"
+
+#: .tmp/umax_pp.c:444
+msgid "Enhancement"
+msgstr "Réglages fins"
+
+#: .tmp/umax_pp.c:453
+msgid "Lamp on"
+msgstr "Lampe allumée"
+
+#: .tmp/umax_pp.c:454
+msgid "Sets lamp on/off"
+msgstr "Allume ou éteint la lampe"
+
+#: .tmp/umax_pp.c:519
+msgid "Gain"
+msgstr "Lumière"
+
+#: .tmp/umax_pp.c:520
+msgid "Color channels gain settings"
+msgstr "Réglage de la lumière des couleurs"
+
+#: .tmp/umax_pp.c:527
+msgid "Gray gain"
+msgstr "Lumière niveaux de gris"
+
+#: .tmp/umax_pp.c:528
+msgid "Sets gray channel gain"
+msgstr "Régle la lumière des niveaux de gris"
+
+#: .tmp/umax_pp.c:539
+msgid "Red gain"
+msgstr "Lumière du rouge"
+
+#: .tmp/umax_pp.c:540
+msgid "Sets red channel gain"
+msgstr "Régle la lumière du rouge"
+
+#: .tmp/umax_pp.c:551
+msgid "Green gain"
+msgstr "Lumière du vert"
+
+#: .tmp/umax_pp.c:552
+msgid "Sets green channel gain"
+msgstr "Régle la lumière du vert"
+
+#: .tmp/umax_pp.c:563
+msgid "Blue gain"
+msgstr "Lumière du bleu"
+
+#: .tmp/umax_pp.c:564
+msgid "Sets blue channel gain"
+msgstr "Régle la lumière du bleu"
+
+#: .tmp/umax_pp.c:575
+msgid "Highlight"
+msgstr "Contraste"
+
+#: .tmp/umax_pp.c:576
+msgid "Color channels highlight settings"
+msgstr "Réglages des contrastes des couleurs"
+
+#: .tmp/umax_pp.c:583
+msgid "Gray highlight"
+msgstr "Contraste gris"
+
+#: .tmp/umax_pp.c:584
+msgid "Sets gray channel highlight"
+msgstr "Régle le contraste des niveaux de gris"
+
+#: .tmp/umax_pp.c:595
+msgid "Red highlight"
+msgstr "Contraste rouge"
+
+#: .tmp/umax_pp.c:596
+msgid "Sets red channel highlight"
+msgstr "Régle le contraste pour le rouge"
+
+#: .tmp/umax_pp.c:607
+msgid "Green highlight"
+msgstr "Contraste vert"
+
+#: .tmp/umax_pp.c:608
+msgid "Sets green channel highlight"
+msgstr "Régle le contraste pour levertbleu"
+
+#: .tmp/umax_pp.c:619
+msgid "Blue highlight"
+msgstr "Contraste bleu"
+
+#: .tmp/umax_pp.c:620
+msgid "Sets blue channel highlight"
+msgstr "Régle le contraste pour le bleu"

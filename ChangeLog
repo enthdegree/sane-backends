@@ -1,5 +1,7 @@
 2001-05-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
-	
+
+	* backend/mustek.c doc/mustek/mustek.CHANGES: Free devlist
+	  in sane_exit.
 	* TODO: Updated concerning config_line[len - 1] stuff.
 	* backend/dll.c backend/dll.desc: Removed access to uninitialized
 	  memory. Increased version number.

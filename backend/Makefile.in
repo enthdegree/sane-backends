@@ -40,6 +40,7 @@ INCLUDES = -I. -I$(srcdir) -I$(top_builddir)/include -I$(top_srcdir)/include
 CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
 LDFLAGS = @LDFLAGS@
+BACKENDLIBS = @LIBS@ @DL_LIB@
 DEFS = @DEFS@
 
 LIBTOOL = ../libtool
@@ -69,7 +70,7 @@ LIBOBJS = $(addprefix ../lib/,$(addsuffix .lo,$(LIBLIB_FUNCS)))
 
 libsane-%.la: %.lo %-s.lo $(EXTRA) $(LIBOBJS)
 	@$(LIBTOOL) $(MLINK) $(CC) -export-dynamic -o $@ $($*_LIBS) \
-	$(LDFLAGS) $^ -rpath $(libsanedir) \
+	$(LDFLAGS) $(BACKENDLIBS) $^ -rpath $(libsanedir) \
 	-version-info $(V_MAJOR):$(V_REV):$(V_MINOR)
 
 %-s.lo:	%-s.c
@@ -147,7 +148,7 @@ dll-preload.c:
 	echo "};" >> $@
 
 libsane.la: dll.lo dll-s.lo $(EXTRA) $(addsuffix .lo,$(DLL_PRELOAD)) $(LIBOBJS)
-	@$(LIBTOOL) $(MLINK) $(CC) -o $@ $(LDFLAGS) $^ \
+	@$(LIBTOOL) $(MLINK) $(CC) -o $@ $(LDFLAGS) $(BACKENDLIBS)  $^ \
 		$(addsuffix .lo,$(DLL_PRELOAD_EXTRAS)) \
 		-rpath $(libdir) -version-info $(V_MAJOR):$(V_REV):$(V_MINOR)
 

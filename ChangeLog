@@ -2,6 +2,8 @@
 
 	* backend/microtek2.c: Fixed some (but not all) MIN related
 	  compilation warnings (bug #300823).
+	* tools/sane-find-scanner.c: Look for NetBSD uscanner devices (bug
+	  #300815).
 
 2004-06-22  Rene Rebe <rene@rocklinux.org>
 	* backend/avision.c, backend/avision.h, doc/sane-avision.man:

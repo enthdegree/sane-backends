@@ -1161,6 +1161,16 @@ main (int argc, char **argv)
 	"/dev/uscanner10", "/dev/uscanner11",
 	"/dev/uscanner12", "/dev/uscanner13",
 	"/dev/uscanner14", "/dev/uscanner15",
+#elif defined(__NetBSD__)
+	"/dev/uscanner",
+	"/dev/uscanner0", "/dev/uscanner1",
+	"/dev/uscanner2", "/dev/uscanner3",
+	"/dev/uscanner4", "/dev/uscanner5",
+	"/dev/uscanner6", "/dev/uscanner7",
+	"/dev/uscanner8", "/dev/uscanner9",
+	"/dev/uscanner10", "/dev/uscanner11",
+	"/dev/uscanner12", "/dev/uscanner13",
+	"/dev/uscanner14", "/dev/uscanner15",
 #elif defined(__OpenBSD__)
 	"/dev/uscanner",
 	"/dev/uscanner0", "/dev/uscanner1",

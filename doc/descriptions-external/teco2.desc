@@ -11,13 +11,11 @@
 
 :backend "teco2"                  ; name of backend
 :version "(1.0-0)"                ; version of backend
-:status :alpha                    ; :alpha, :beta, :stable, :new
-:manpage "sane-teco2"            ; name of manpage (if it exists)
+:status :beta                     ; :alpha, :beta, :stable, :new
+:manpage "sane-teco2"
 :url "http://fz.eryx.net/sane/#teco2"   ; backend's web page
 
-:devicetype :scanner              ; start of a list of devices....
-                                  ; other types:  :stillcam, :vidcam,
-                                  ;               :meta, :api
+:devicetype :scanner
 
 :mfg "Relisys"
 :url "http://www.relisys.com/"
@@ -33,12 +31,30 @@
 :status :alpha
 
 :model "APOLLO Express 6"
-:comment "sub model VM656A"
+:comment "sub model VM6565"       ; aka VM656A
+:interface "SCSI"
+:status :beta
+
+:model "SCORPIO Pro"
+:comment "sub model VM6575"
 :interface "SCSI"
 :status :beta
 
 :model "SCORPIO Pro-S"
 :comment "sub model VM6586"
 :interface "SCSI"
+:status :untested
+
+
+:mfg "Primax"
+:url "http://www.primax.nl/"
+
+:model "Profi 9600"
+:comment "sub model VM6575"
+:interface "SCSI"
 :status :alpha
 
+:model "Profi 19200"
+:comment "sub model VM6586"
+:interface "SCSI"
+:status :beta

@@ -1,6 +1,6 @@
 :backend "gt68xx"
 :status :beta
-:version "1.0-35"
+:version "1.0-36"
 :new :yes
 :manpage "sane-gt68xx"
 :url "http://www.meier-geinitz.de/sane/gt68xx-backend/"
@@ -64,8 +64,8 @@
 
 :model "ScanExpress A3 USB"
 :interface "USB"
-:status :alpha
-:comment "Basically works but margins are not correct. More reports welcome."
+:status :beta
+:comment "Works."
 
 :model "ScanExpress 2400 USB"
 :interface "USB"
@@ -120,6 +120,11 @@
 :interface "USB"
 :comment "Simlar to Mustek ScanExpress 1200 UB Plus"
 
+:model "MD/LT 9375"
+:status :untested
+:interface "USB"
+:comment "Untested, but is reported to have the same ids as the Artec Ultima 2000. Please test."
+
 :model "MD/LT 9385"
 :status :beta
 :interface "USB"
@@ -146,14 +151,14 @@
 :mfg "Lexmark"
 :url "http://www.lexmark.com/"
 :model "X70"
-:status :alpha
+:status :beta
 :interface "USB"
-:comment "works, but sometimes the image brightness changes with resolution"
+:comment "works, some resolutions fail at 16 bit"
 
 :model "X73"
-:status :alpha
+:status :beta
 :interface "USB"
-:comment "should work like the X70, but was reported to fail, more reports welcome"
+:comment "works, some resolutions fail at 16 bit, same as X70"
 
 :mfg "Genius"
 :url "http://www.genius-kye.com/"
@@ -161,4 +166,4 @@
 :model "Colorpage Vivid3x"
 :status :untested
 :interface "USB"
-:comment "Not detected yet but should work when code is added"
+:comment "Should be detected but most probably doesn't work yet. Testers welcome."

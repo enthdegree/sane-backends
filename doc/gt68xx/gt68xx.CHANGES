@@ -1,5 +1,15 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0-36 (2003-01-09)
+
+- Updated manpage and .desc concerning Lexmark X70.
+- Updated manpage concerning kernel 2.4.21-pre3 containing the 1-endpoint fix.
+- Fixed A3 USB resolution setting.
+- Updated A3 USB margins (Pedro Morais <morais@inocam.com>).
+- Added detection of Genius Colorpage Vivid3x. It's unknown if it works.
+- Updated .desc file.
+- Don't print calib line warnings by default.
+
 V 1.0-35 (2002-12-23)
 
 - Added "afe" option for gt68xx.conf for selecting default afe values.

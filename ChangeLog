@@ -1,3 +1,15 @@
+2003-01-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/gt68xx.c backend/gt68xx.conf backend/gt68xx_devices.c
+	  backend/gt68xx_high.c doc/sane-gt68xx.man
+	  doc/descriptions/gt68xx.desc doc/gt68xx/gt68xx.CHANGES:
+	  Updated manpage and .desc concerning Lexmark X70. Updated manpage
+	  concerning kernel 2.4.21-pre3 containing the 1-endpoint fix. Fixed
+	  A3 USB resolution setting. Updated A3 USB margins (Pedro Morais
+	  <morais@inocam.com>). Added detection of Genius Colorpage Vivid3x.
+	  It's unknown if it works. Updated .desc file. Don't print calib line
+	  warnings by default.
+
 2003-01-08  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* doc/descriptions/snapscan.desc:

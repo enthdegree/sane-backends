@@ -182,7 +182,7 @@ gt68xx_calibrator_add_white_line (GT68xx_Calibrator * cal, unsigned int *line)
 #endif
     }
   if (sum / width / 256 < 0x50)
-    XDBG ((0,
+    XDBG ((1,
 	   "%s: WARNING: dark calibration line: %2d medium white: 0x%02x\n",
 	   function_name, cal->white_count - 1, sum / width / 256));
   else
@@ -1021,7 +1021,7 @@ gt68xx_afe_ccd_calc (GT68xx_Afe_Values * values, unsigned int *buffer)
   values->white = max_white;
   if (values->white < 50 || values->black > 150
       || values->white - values->black < 30)
-    XDBG ((0, "%s: WARNING: max_white %3d   avg_black %3d\n",
+    XDBG ((1, "%s: WARNING: max_white %3d   avg_black %3d\n",
 	   function_name, values->white, values->black));
   else
     XDBG ((5, "%s: max_white %3d   avg_black %3d\n",

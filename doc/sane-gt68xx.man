@@ -1,4 +1,4 @@
-.TH sane-gt68xx 5 "23 Dec 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-gt68xx 5 "08 Jan 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-gt68xx
 .SH NAME
 sane-gt68xx \- SANE backend for GT-68XX based USB flatbed scanners
@@ -16,6 +16,8 @@ Artec Ultima 2000 (only product 0x4002)
 Boeder SmartScan Slim Edition
 .br
 Lexmark X70
+.br
+Lexmark X73
 .br
 Medion/Lifetec/Tevion/Cytron MD/LT 9385
 .br
@@ -78,10 +80,8 @@ the Packard Bell and the Lexmark scanner) need a Linux kernel 2.4.12 or newer.
 Recent 2.2 kernels may also work, but I haven't tested them. Older kernels or
 other operating systems won't work. Use libusb instead.
 .PP
-The scanners based on the GT-6801 (all other scanners) need an updated kernel
-scanner module that is not yet included in the official kernel code. It can
-be downloaded from the gt68xx backend homepage. There is also an installation
-instruction.
+The scanners based on the GT-6801 (all other scanners) need Linux kernel
+2.4.21 or newer. Older kernels will not work.
 
 .SH FIRMWARE FILE
 You need a firmware file for your scanner. That's a small file containing

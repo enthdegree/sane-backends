@@ -1,3 +1,13 @@
+2002-10-02  Matto Marjanovic  <maddog@mir.com>
+
+	* doc/descriptions/microtek.desc: Updated version number.
+	* backend/microtek.c:  
+	  Fixed bug in sane_read() [had failed to set return length to zero
+           in non-STATUS_GOOD conditions].
+	  Fixed bug in sane_set_io_mode() [had returned SANE_STATUS_UNSUPPORTED
+           if blocking mode was requested].
+	  Bumped version up to 0.13.1.
+
 2002-10-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions-external/gt68xx.desc: Added new scanners. Updated

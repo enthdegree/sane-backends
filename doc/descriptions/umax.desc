@@ -339,7 +339,7 @@
 :status :untested
 :comment "untested, SCSI-ID=ESCORT Galleria 600S"
 
-:mfg "Genius"                      ; another manufacturer...
+:mfg "Genius"                  ; another manufacturer...
 :url "http://www.genius.kye.de/"
 
 :model "ColorPage-HR5 (Pro)"

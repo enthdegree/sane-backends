@@ -150,11 +150,17 @@ enum Umax_Option
     OPT_SCAN_LAMP_DEN,
 
     OPT_SELECT_EXPOSURE_TIME,
+    OPT_SELECT_CAL_EXPOSURE_TIME,
     OPT_SELECT_LAMP_DENSITY,
 
     OPT_LAMP_ON,
     OPT_LAMP_OFF,
     OPT_LAMP_OFF_AT_EXIT,
+
+    OPT_BATCH_SCAN_START,							/* start batch scan function */
+    OPT_BATCH_SCAN_LOOP,							 /* loop batch scan function */
+    OPT_BATCH_SCAN_END,								  /* end batch scan function */
+    OPT_BATCH_NEXT_TL_Y,						      /* batch scan function next y position */
 
 #ifdef UMAX_CALIBRATION_MODE_SELECTABLE
     OPT_CALIB_MODE,
@@ -305,6 +311,7 @@ typedef struct Umax_Device
   int			inquiry_shadow_max;					      /* maximum value for s */
 
   int			inquiry_quality_ctrl;						    /* 1 = supported */
+  int			inquiry_batch_scan;						    /* 1 = supported */
   int			inquiry_preview;						    /* 1 = supported */
   int			inquiry_lamp_ctrl;						    /* 1 = supported */
   int			inquiry_transavail;						/* 1 = uta available */
@@ -375,6 +382,9 @@ typedef struct Umax_Device
   int			gamma_input_bits_code;				/* 1 = 24bpp, 4 = 30 bpp, 8 = 36 bpp */
   int			set_auto;					    /* 0 or 1, don't know what it is */
   int			preview;							     /* 1 if preview */
+  int			batch_scan;					  /* 1 = batch scan, 0 = normal scan */
+  int			batch_end;						  /* 1 = reposition scanhead */
+  int			batch_next_tl_y;			  /* top left y position for next batch scan */
   int			quality;					/* 1 = quality_calibration, 0 = fast */
   int			reverse;					      /* 1: exchange black and white */
   int			reverse_multi;						   /* 1: invert color values */
@@ -442,7 +452,9 @@ typedef struct Umax_Device
 
   int			calibration_area;		      /* define calibration area if no area is given */
   int                   calibration_width_offset;  /* some scanners do calibrate with some additional pixels */
+  int                   calibration_width_offset_batch;			      /* the same for batch scanning */
   int                   calibration_bytespp;		   /* correction of bytespp if driver knows about it */
+  int                   exposure_time_rgb_bind;		  /* exposure time can not be defined for each color */
   int			invert_shading_data;	     /* invert shading data before sending it to the scanner */
   int                   common_xy_resolutions;			/* do not allow different x and y resolution */
   int			pause_for_color_calibration;	/* pause between start_scan and do_calibration in ms */
@@ -452,6 +464,7 @@ typedef struct Umax_Device
   int			pause_for_moving;	       /* pause for moving scanhead over full scanarea in ms */
   int			lamp_control_available;		       /* is set when scanner supportes lamp control */
   int			gamma_lsb_padded;                              /* 16 bit gamma data is padded to lsb */
+  int			force_quality_calibration;			   /* always set quality calibration */
 } Umax_Device;
 
 

@@ -106,18 +106,22 @@ static char *scanner_str[] =
   "UMAX ",	"Mirage IIse ",
   "UMAX ",	"PL-II ",
 /*  "UMAX ",	"PowerLook 2000 ", */
+  "UMAX ",	"PowerLook 2100XL",
   "UMAX ",	"PowerLook III ",
   "UMAX ",	"PowerLook 3000 ",
   "UMAX ",	"Gemini D-16 ",
+  "UMAX ",      "PS-2400X ", /* same as LinoHell SAPHIR */
+/*  "Color",	"FilmScanner____1", */ /* UMAX Powerlook 270 */
   "LinoHell",	"JADE ",   /* is a Supervista S-12 */
   "LinoHell",	"Office ", /* is a Supervista S-12 */
   "LinoHell",	"Office2 ",
+  "LinoHell",	"SAPHIR ", /* same as UMAX PS-2400X */
   "LinoHell",	"SAPHIR2 ",
 /*  "LinoHell",	"SAPHIR3 ", */
 /*  "LinoHell",	"SAPHIR4 ", */
   "Linotype",	"SAPHIR4 ",
 /*  "LinoHell",	"OPAL ", */
-  "HDM ",	"LS4H1S  ", /* Linoscan 1400 */
+  "HDM ",	"LS4H1S ", /* Linoscan 1400 */
   "Nikon ",	"AX-110 ", /* is a Vista S6E */
   "Nikon ",	"AX-210 ", /* is a Supervista S12 */
   "KYE ",	"ColorPage-HR5 ", 

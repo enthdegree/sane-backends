@@ -36,7 +36,7 @@ are available from the backend homepage:
 .br
 .br
 .RS
-.B http://www4.infi.net/~cpinkham/sane/ (does not exist anymore?)
+.B http://www4.infi.net/~cpinkham/sane/
 .RE
 
 .SH DOCUMENTATION

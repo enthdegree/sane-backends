@@ -1,8 +1,8 @@
 2002-04-08  Rene Rebe <rene.rebe@gmx.net>
-	* backend/avision.c backend/avision.h backend/avision.desc
+	* backend/avision.c backend/avision.h doc/descriptions/avision.desc
 	  doc/sane-avision.man: updated to Avision backend build 25. More
 	  stable for HP usb scanners, suport for Misubishi scanners and
-	  various cleanups.
+	  various cleanups. - And corrected the avision.desc location.
 
 2002-04-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

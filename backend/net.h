@@ -43,7 +43,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
-#include <sane/sanei_wire.h>
+#include "../include/sane/sanei_wire.h"
 
 typedef struct Net_Device
   {

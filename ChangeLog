@@ -1,10 +1,18 @@
+2003-09-30  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* doc/descriptions/unsupported.desc: removed OpticSlim entry
+	* doc/descriptions/gt68xx.desc doc/gt68xx/gt68xx.CHANGES
+	  doc/sane-gt68xx.man backend/gt68xx.conf: added Plustek OpticSlim entry
+	* backend/gt68xx_devices.c: added settings for Plustek OpticSlim 1200
+
 2003-09-29  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/sane-plustek.man: minor update
 	* backend/plustek.c: changed version number, cleanup
 	* backend/plustek-usb*.c: cleanup
 	* backend/plustek-pp.*: cleanup
-	* backend/plustek-share.h backend/Makefile.in: removed, no longer needed
+	* backend/plustek-share.h: removed, no longer needed
+	* backend/Makefile.in: removed reference to plustek-share.h
 
 2003-09-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -955,6 +955,54 @@ static GT68xx_Model genius_vivid3xe_model  = {
   /* mostly untested, based on the Genius Vivid3x */
 };
 
+static GT68xx_Model plustek_opticslim1200 = {
+  "plustek-opticslim-1200",	/* Name */
+  "Plustek",				/* Device vendor string */
+  "OpticSlim 1200",			/* Device model name */
+  "cism216.fw",				/* Name of the firmware file */
+  SANE_FALSE,				/* Dynamic allocation flag */
+
+  &mustek_gt6816_command_set,	/* Command set used by this scanner */
+
+  600,					/* maximum optical sensor resolution */
+  1200,					/* maximum motor resolution */
+  600,					/* base x-res used to calculate geometry */
+  600,					/* base y-res used to calculate geometry */
+  1200,					/* if ydpi is equal or higher, use linemode */
+  SANE_FALSE,			/* Use base_ydpi for all resolutions */
+
+  {600, 300, 150, 75, 50, 0},	/* possible x-resolutions */
+  {1200, 600, 300, 150, 75, 50, 0},	/* possible y-resolutions */
+  {16, 8, 0},			/* possible depths in gray mode */
+  {16, 8, 0},			/* possible depths in color mode */
+
+  SANE_FIX (1.0),		/* Start of scan area in mm  (x) */
+  SANE_FIX (9.5),		/* Start of scan area in mm (y) */
+  SANE_FIX (218.0),		/* Size of scan area in mm (x) */
+  SANE_FIX (299.0),		/* Size of scan area in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (140.0),		/* Start of black mark in mm (x) */
+
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+
+  0, 0, 0,				/* RGB CCD Line-distance correction in pixel */
+  0,					/* CCD distcance for CCD with 6 lines) */
+
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
+  {0x15, 0x09, 0x18, 0x11, 0x16, 0x0c},	/* Default offset/gain */
+  {0x157, 0x157, 0x157},	/* Default exposure parameters */
+  SANE_FIX (2.0),			/* Default gamma value */
+
+  SANE_TRUE,				/* Is this a CIS scanner? */
+  0
+};
+
 static GT68xx_USB_Device_Entry gt68xx_usb_device_list[] = {
   {0x055f, 0x0218, &mustek_2400ta_model},
   {0x055f, 0x0219, &mustek_2400taplus_model},
@@ -971,6 +1019,7 @@ static GT68xx_USB_Device_Entry gt68xx_usb_device_list[] = {
   {0x07b3, 0x0400, &plustek_op1248u_model},
   {0x07b3, 0x0401, &plustek_op1248u_model}, /* Same scanner, different id? */
   {0x07b3, 0x0403, &plustek_u16b_model},
+  {0x07b3, 0x0413, &plustek_opticslim1200},
   {0x0458, 0x2011, &genius_vivid3x_model},
   {0x0458, 0x2017, &genius_vivid3xe_model},
   {0, 0, NULL}

@@ -2,6 +2,7 @@ gt68xx.CHANGES -*-text-*-
 
 V 1.0-49 (2003-0?-??)
 
+* Added Settings for Plustek OpticSlim 1200
 * Fixed wrong test for allocation in gt68xx.c.
 * Added ScanMagic 1200 UB Plus to man page and .desc.
 

@@ -701,13 +701,13 @@
 :status :unsupported
 :comment "Uses RealTek chipset (RTL8801D)"
 
-:model "OpticPro S12"
+:model "OpticPro S12/ST12"
 :url "http://www.genesyslogic.com/GL646.htm"
 :interface "USB"
 :status :unsupported
 :comment "Uses the Genesys Logic GL646 chipset."
 
-:model "OpticPro S24"
+:model "OpticPro S24/ST24"
 :url "http://www.genesyslogic.com/GL646.htm"
 :interface "USB"
 :status :unsupported
@@ -717,11 +717,6 @@
 :interface "USB"
 :status :unsupported
 :comment "All devices using product ID 0x0001 are not supported, for others see Plustek backend. The older models seem to use a P98003 parallel port ASIC and a GenesysLogic parport-over USB brigde. The P98003 is also used by the P12 and PT12 models."
-
-:model "OpticSlim 1200"
-:interface "USB"
-:status :unsupported
-:comment "Unsupported. No details yet."
 
 :model "OpticPro S28"
 :interface "USB"

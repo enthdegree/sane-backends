@@ -1,4 +1,4 @@
-.TH sane-gt68xx 5 "22 Jul 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-gt68xx 5 "30 Sept 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-gt68xx
 .SH NAME
 sane-gt68xx \- SANE backend for GT-68XX based USB flatbed scanners
@@ -59,6 +59,8 @@ Packard Bell Diamond 1200 (Plus)
 .br
 Plustek OpticPro 1248U
 .br
+Plustek OpticSlim 1200
+.br
 RevScan 19200i
 .br
 Trust Compact Scan USB 19200
@@ -66,7 +68,7 @@ Trust Compact Scan USB 19200
 Trust Flat Scan USB 19200
 .RE
 .PP
-More details can be found on the gt68xx backend homepage 
+More details can be found on the gt68xx backend homepage
 .IR http://www.meier-geinitz.de/sane/gt68xx/ .
 .PP
 The Artec E+ 48U and its clones are supported by the artec_eplus48u backend, see

@@ -1,3 +1,7 @@
+2002-09-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* TODO: Updated desc and SANE standard sections. Removed ptal entry.
+
 2002-09-01  Peter Kirchgessner <peter@kirchgessner.net>
 
 	* configure.in, doc/sane-hp.man, doc/descriptions/hp.desc

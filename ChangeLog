@@ -21,6 +21,8 @@
 	  <nathan@gordian.com>. 
 	* PROJECTS doc/sane.man: Updated for canon630u backend.
 	* AUTHORS: Updated for canon630u backend.
+	* doc/saned.man: The path in the xinetd example pinted to /usr/local
+	  unconditionally.
 
 2002-04-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

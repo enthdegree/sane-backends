@@ -11,6 +11,11 @@ backends
       Dick Bruijn <dick@wau.mis.ah.nl>
     - primax http://primax.sourceforge.net/
     - hp4200 http://hp4200-backend.sourceforge.net/
+    - v4l2 http://video.inodes.org/sane-v4l2/
+    - Relisys Scorpio Super 3 SCSI II by Tyler
+      Bindon <martica@martica.org>.
+    - Linux Handscanner Ioctl Interface scanner by Harald
+      Bauer <hbauer@online.de>
 
   * use DBG(...) instead of fprintf(stderr, ...)
      - microtek
@@ -43,6 +48,9 @@ backends
     etc controls
  
   * qcam: figure out how/if to support bulb mode
+
+  * qcam: convert to use sanei_pio functions instead of direct port
+  access.
 
 doc
 ---
@@ -86,6 +94,8 @@ frontends
   * dll: make it robust against against it being listed in the configuration
     file (currently bad things will happen if dll attempts to load itself)
  
+   * dll: Rewrite to use libtool ltdl library
+
 sanei
 -----
   * don't install sanei_* headers (?)

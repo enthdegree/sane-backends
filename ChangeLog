@@ -1,6 +1,9 @@
 2001-11-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* configure configure.in: Enabled warnings by default.
+	* sane-backends.lsm: Made more compatible with template.
+	  Added myself as maintainer to avoid problems when uploading
+	  to tsx-11 and sunsite in future.
 
 ******  Release of sane-backends 1.0.6. End of code freeze ******
 

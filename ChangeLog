@@ -4,6 +4,7 @@
 	  reported to work.
 	* doc/descriptions/unsupported.desc: Added more information for
 	  Artec and Visioneer/Primax scanners.
+	* TODO: Added saned + configure issue.
 
 2003-05-21   Stéphane Voltz  <svoltz@wanadoo.fr>
 	* backend/umax_pp_low.c: backed out clearing epp timeout. It prevented most

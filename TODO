@@ -1,4 +1,4 @@
-TODO (2003-05-18)
+TODO (2003-05-22)
 
 ******** todo ********
 
@@ -168,6 +168,11 @@ misc
   * There is a misterious problem with string list options that occurs
     with (at least) the epson backend, saned and xsane. See
     http://www.mostang.com/pipermail/sane-devel/2003-May/018755.html.
+
+  * Remove test for poll in configure.
+
+  * use u_int32_t instead of uint32_t in saned.c.
+
 
 ******** done ********
 * plustek:  check status of Umax 3450 USB scanner (same as 3400?)

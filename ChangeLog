@@ -1,3 +1,9 @@
+2013-07-15  Frank Zago  <fzago at austin dot rr dot com>
+
+	* doc/descriptions/leo.desc doc/descriptions/sceptre.desc
+	  doc/descriptions/teco1.desc doc/descriptions/matsushita.desc:
+	  added new per backend status, added more scanners.
+
 2002-07-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* README.darwin: New file. Added some basic information for
@@ -356,7 +362,7 @@
 	  comment to the conf file and adjusted the version in
 	  the desc file.
 
-2002-05-26  Frank Zago  <fzago@austin.rr.com>
+2002-05-26  Frank Zago  <fzago at austin dot rr dot com>
 
 	* doc/descriptions-external/teco2.desc
 	  doc/descriptions-external/teco3.desc: new backends descriptions.

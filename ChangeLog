@@ -3,6 +3,8 @@
 	* backend/mustek_usb.desc: New file. This backend supports
 	  the Mustek 1200UB, 1200CU and 1200CU Plus.
 
+	* PROJECTS TODO: Updated concerning mustek_usb backend.
+
 2001-08-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* PROJECTS TODO: Added UMAX Astra 1220U backend.

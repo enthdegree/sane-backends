@@ -12,7 +12,7 @@
 :backend "fujitsu"               ; name of backend
 ;:url "http://www.remote.org/frederik/projects/software/sane/" 
 :version "1.0"                   ; version of backend
-:status :beta                    ; :alpha, :beta, :stable, :new
+;:status :beta                    ; :alpha, :beta, :stable, :new
 :manpage "sane-fujitsu"          ; name of manpage (if it exists)
 
 :devicetype :scanner              ; start of a list of devices....
@@ -26,23 +26,42 @@
 :model "M3096G"                  ; name models for above-specified mfg.
 :interface "SCSI"
 ;:url "http://www.aa.net/~bentson/sane.html" 
+:status :good
+
 :model "M3091DCd"                 ; name models for above-specified mfg.
 :interface "SCSI"
 :url "http://www.remote.org/frederik/projects/software/sane/" 
+:status :good
+
 :model "M3092DCd"                 
 :interface "SCSI"
+:status :good
+
 :model "M3093GXim"
 :interface "SCSI"
+:status :good
+
 :model "M3093GDim"
 :interface "SCSI"
+:status :good
+
 :model "M4097"
 :interface "SCSI"
+:status :good
+
 :model "fi-4120C"
 :interface "SCSI USB"
+:status :good
+
 :model "fi-4220C"
 :interface "SCSI USB"
+:status :good
+
 :model "fi-4340C"
 :interface "SCSI USB"
+:status :good
+
 :model "ScanPartner 93GX"
 :interface "SCSI"
+:status :good
 

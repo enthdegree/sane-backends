@@ -195,8 +195,8 @@ AC_CHECK_TYPE(u_long, unsigned long)
 AC_DEFUN(SANE_CHECK_GPHOTO2,
 [
 	AC_ARG_WITH(gphoto2,
-	  [  --with-gphoto2[=DIR]    specify the top-level GPHOTO2 directory 
-                          [default=/usr/local]])
+	  [  --with-gphoto2          Include the gphoto2 backend],
+[
 	
 	if test "$with_gphoto2" = "no" ; then
 		echo disabling GPHOTO2
@@ -207,11 +207,19 @@ AC_DEFUN(SANE_CHECK_GPHOTO2,
 			with_gphoto2=`gphoto2-config --prefix`
 		fi
 
+		if test "`gphoto2-config --version`" != "gphoto2 2.0beta4dev8" ; then 
+			echo 
+			echo "Sorry, can't use GPHOTO2"
+			echo "GPHOTO2 APIs have been changing rapidly. Only"
+			echo "the current version from CVS is likely to work."
+			echo 
+		fi
+
 		CPPFLAGS="${CPPFLAGS} `gphoto2-config --cflags`"
 		GPHOTO2_LIBS="`gphoto2-config --libs`"
 		SANE_EXTRACT_LDFLAGS(LDFLAGS, GPHOTO2_LIBS)
 		LIBS="${LIBS} ${GPHOTO2_LIBS}"
-	fi
+])	fi
 ])
 
 

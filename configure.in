@@ -228,7 +228,7 @@ AC_SUBST(DJPEG)
 
 if test "${HAVE_GPHOTO2}" != "gphoto2-config" \
       -o "${sane_cv_use_libjpeg}" != "yes"; then
-  echo "disabling GPHOTO2 backend (failed to find gphoto2-config or JPEG lib)"
+  echo "disabling GPHOTO2 backend (not requested, or failed to find gphoto2-config or JPEG lib)"
   GPHOTO2=
 else
   echo "enabling GPHOTO2 backend"

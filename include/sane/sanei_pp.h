@@ -61,6 +61,17 @@ enum sanei_pp_mode {
 #define SANEI_PP_DATAIN  1
 #define SANEI_PP_DATAOUT 0
 
+/** Parallelport Control-Register definitions
+ */
+#define SANEI_PP_CTRL_STROBE        0x01
+#define SANEI_PP_CTRL_AUTOLF        0x02
+#define SANEI_PP_CTRL_NOT_INIT      0x04
+#define SANEI_PP_CTRL_SELECT_IN     0x08
+#define SANEI_PP_CTRL_ENABLE_IRQ    0x10
+#define SANEI_PP_CTRL_DIRECTION     0x20
+#define SANEI_PP_CTRL_RESERVED      0xc0
+
+
 /** Initialize sanei_pp.
  *
  * This function must be called before any other sanei_pp function.

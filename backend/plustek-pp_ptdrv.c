@@ -1203,10 +1203,10 @@ static int ptdrvIoctl( pScanData ps, UInt cmd, pVoid arg )
 				ps->DataInf.dwVxdFlag |= _VF_FIRSTSCANLINE;
 				ps->DataInf.dwScanFlag&=~(_SCANNER_SCANNING|_SCANNER_PAPEROUT);
 
-		        copy_to_user((pStartScan)arg, pstart, sizeof(StartScan));
+			copy_to_user((pStartScan)arg, pstart, sizeof(StartScan));
 			}
-      	}
-      	break;
+		}
+		break;
 
 	/* stop scan */
     case _PTDRV_STOP_SCAN:

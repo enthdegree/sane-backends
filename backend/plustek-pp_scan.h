@@ -163,13 +163,7 @@ typedef long long TimerDef, *pTimerDef;
  * timer topics
  */
 #ifndef __KERNEL__
-#if 0
-# warning "outb as delay!!!!"
-# define _DO_UDELAY(usecs)   { int i; for( i = usecs; i--; ) outb(0, 0x80); }
-#else
 # define _DO_UDELAY(usecs)   sanei_pp_udelay(usecs)
-#endif
-
 # define _DODELAY(msecs)     { int i; for( i = msecs; i--; ) _DO_UDELAY(1000); }
 #else
 # define _DO_UDELAY(usecs)   udelay(usecs)

@@ -1971,7 +1971,7 @@ SANE_Status sane_start( SANE_Handle handle )
 		return SANE_STATUS_IO_ERROR;
     }
 
-    /* download gamma correction tables... */
+	/* download gamma correction tables... */
 	if( scanmode <= COLOR_256GRAY || scanmode == COLOR_GRAY16 ) {
 	   	s->hw->setMap( s->hw, s->gamma_table[0], s->gamma_length, _MAP_MASTER);
 	} else {

@@ -556,7 +556,7 @@ static int ioP98ReadWriteTest( pScanData ps )
 	IODataToRegister( ps, ps->RegMemoryHigh, 0 );
 
 	/* fill to buffer */
-	IOMoveDataToScanner( ps, buffer, 1280 );		
+	IOMoveDataToScanner( ps, buffer, _MEMTEST_SIZE );
 
 	IODataToRegister( ps, ps->RegModeControl, _ModeMappingMem );
 	IODataToRegister( ps, ps->RegMemoryLow,  0 );

@@ -324,9 +324,7 @@ static int ppDev_setMap( Plustek_Device *dev, SANE_Word *map,
 		ioctl( dev->fd, _PTDRV_SETMAP, &m );
 
 	/* we ignore the return values */
-
 	free( buf );
-	
 	return 0;
 }
 

@@ -69,8 +69,7 @@ static RegDef p12CcdStop[] = {
 
 /*************************** local functions *********************************/
 
-/*.............................................................................
- * init the stuff according to the buttons
+/** init the stuff according to the buttons
  */
 static void p12ButtonSetup( pScanData ps, Byte nrOfButtons )
 {
@@ -84,12 +83,11 @@ static void p12ButtonSetup( pScanData ps, Byte nrOfButtons )
     ps->sCaps.dwFlag               |= (SFLAG_MULTIFUNC | SFLAG_BUTTONOPT);
 }
 
-/*.............................................................................
- * According to what we have detected, set the other stuff
+/** According to what we have detected, set the other stuff
  */
 static void p12InitiateComponentModel( pScanData ps )
 {
-    /* preset some stuff and do te differences later */
+    /* preset some stuff and do the differences later */
     ps->Device.buttons        = 0;
     ps->Device.Model1Mono     = _BUTTON_MODE + _CCD_SHIFT_GATE + _SCAN_GRAYTYPE;
     ps->Device.Model1Color    = _BUTTON_MODE + _CCD_SHIFT_GATE;

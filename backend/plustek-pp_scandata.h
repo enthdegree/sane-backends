@@ -103,34 +103,6 @@ typedef struct {
 /*
  * here we have some structs internally used
  */
-/* CHECK: replace current stuff by this - looks much better !!! */
-#if 0
-
-typedef struct _IMAGESIZE
-{
-    DWORD			dwPixels;
-    DWORD			dwBytes;
-    DWORD			dwLines;
-    DWORD			dwBytesCh;
-} IMAGESIZE, *PIMAGESIZE;
-
-
-typedef struct _IMAGEDEF
-{
-    IMAGESIZE Image;
-    DWORD     dwVxDFlag;
-    DWORD     dwScanFlag;
-    CROPRECT  Area;
-    XY        Dpi;
-    WORD      wDataType;
-    WORD      wBrightness;
-    WORD      wPhyDpiY;
-    WORD      wResult;
-    WORD      Reserved;
-} IMAGEDEF, *PIMAGEDEF;
-#endif
-
-
 typedef struct {
     ULong	    	dwVxdFlag;
     ULong	    	dwScanFlag;

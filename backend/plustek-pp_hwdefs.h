@@ -736,7 +736,7 @@ typedef struct _SCANDEF
     ULong			dwScanOrigin;   /* where to start the scan              */
     Bool			fRefreshState;  /* refresh ?                            */
     Bool			fMotorBackward;
-    UChar			motorPower;     /* how to driver the motor              */
+    UChar			motorPower;     /* how to drive the motor               */
 
     ULong			dwMinReadFifo;
     ULong			dwMaxReadFifo;

@@ -165,10 +165,12 @@ typedef const struct mode_param
 #define _SCANNER_PAPEROUT			0x4000000
 
 /* for GetLensInformation */
+#if 0
 #define SOURCE_Reflection	0
 #define SOURCE_Transparency	1
 #define SOURCE_Negative 	2
 #define SOURCE_ADF          3
+#endif
 
 /******************************************************************************
  * Section 6 - additional definitions

@@ -132,7 +132,7 @@ sanei_config_open (const char *filename)
 const char *
 sanei_config_skip_whitespace (const char *str)
 {
-  while (isspace (*str))
+  while (str && *str && isspace (*str))
     ++str;
   return str;
 }
@@ -187,7 +187,7 @@ sanei_config_read (char *str, int n, FILE *stream)
 
       /* remove ending whitespaces */
    len = strlen( str);
-   while( isspace( str[--len]))
+   while( (0 < len) && (isspace( str[--len])) )
       str[len] = '\0';
 
       /* remove starting whitespaces */

@@ -1,3 +1,10 @@
+2002-03-15  Stéphane Voltz  <svoltz@wanadoo.fr>
+
+	* backend/umax_pp_low.c:  fixed 1200 dpi mode
+	* backend/umax_pp:  changes for translations support
+	* po/Makefile.in po/umax_pp.fr.po:  create french translations for 
+	  umax_pp backend
+	  
 2002-03-12  Frank Zago <fzago@greshamstorage.com>
 
 	* PROJECTS backend/teco.desc: new project
@@ -76,7 +83,7 @@
 
 2002-03-06  Frank Zago <fzago@greshamstorage.com>
 
-	* po/Makefile.in doc/sane.man doc/Makefile.in backend/matsushita.desc
+	* po/Makefile,in doc/sane.man doc/Makefile.in backend/matsushita.desc
 	  backend/dll.conf backend/Makefile.in sane-backends.lsm AUTHORS
 	  po/matsushita.fr.po doc/matsushita/matsushita.txt 
 	  doc/matsushita/matsushita10_trc.txt 

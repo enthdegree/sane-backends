@@ -15,6 +15,7 @@
 	* backend/mustek.c backend/mustek.desc doc/mustek/mustek.CHANGES:
 	  Fixed calibration bug for the 1200 Pro. New version: 1.0-118.
 	* include/sane/sanei_thread.h: Removed */.
+	* backend/tamarack.c: Used return SANE_STATUS_INVAL instead of exit.
 
 2002-01-19  Peter Fales <peter@fales.com>
 

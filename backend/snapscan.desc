@@ -64,6 +64,10 @@
 :interface "USB"
 :comment "Have no specific programming info yet."
 
+:model "SnapScan e42"
+:interface "USB"
+:comment "Have no specific programming info yet."
+
 :model "SnapScan e50"
 :interface "USB"
 :comment "Have no specific programming info yet."

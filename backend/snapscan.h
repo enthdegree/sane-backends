@@ -122,8 +122,9 @@ static struct SnapScan_Model_desc scanners[] =
     {"SNAPSCAN e20",        SNAPSCANE20},
     {"SNAPSCAN e25",        SNAPSCANE20},
     {"SNAPSCAN e26",        SNAPSCANE20},
-    {"SNAPSCAN e26    ",        SNAPSCANE20},
+    {"SNAPSCAN e26    ",    SNAPSCANE20},
     {"SNAPSCAN e40",        SNAPSCANE50},
+    {"SNAPSCAN e42",        SNAPSCANE50},
     {"SNAPSCAN e50",        SNAPSCANE50},
     {"SNAPSCAN e52",        SNAPSCANE52},
     {"SNAPSCAN 1236",       SNAPSCAN1236},
@@ -323,8 +324,11 @@ struct snapscan_scanner
 
 /*
  * $Log$
- * Revision 1.10  2001/12/20 23:22:52  oliverschwartz
- * Update to snapscan-20011221 (snapscan 1.4.3)
+ * Revision 1.11  2002/01/10 22:20:17  oliverschwartz
+ * Update to snapscan-20020110 (snapscan 1.4.4)
+ *
+ * Revision 1.27  2002/01/06 18:34:02  oliverschwartz
+ * Added support for Snapscan e42 thanks to Yari Adán Petralanda
  *
  * Revision 1.26  2001/12/20 23:18:01  oliverschwartz
  * Remove tmpfname

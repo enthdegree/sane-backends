@@ -78,7 +78,7 @@
 
 #define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
-#define BUILD                3
+#define BUILD                4
 
 #include "snapscan.h"
 
@@ -1103,7 +1103,7 @@ static SANE_Status add_device (SANE_String_Const name)
              vendor,
              model,
              "AGFA SnapScan 300, 310, 600, 1212, 1236, e20, e25, e26, "
-             "e40, e50, e52 or e60\n"
+             "e40, e42, e50, e52 or e60\n"
              "Acer 300, 310, 610, 610+, "
              "620, 620+, 640, 1240, 3300, 4300 or 5300\n"
              "Guillemot MaxiScan A4 Deluxe");
@@ -3100,8 +3100,14 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
- * Revision 1.13  2001/12/20 23:22:50  oliverschwartz
- * Update to snapscan-20011221 (snapscan 1.4.3)
+ * Revision 1.14  2002/01/10 22:20:15  oliverschwartz
+ * Update to snapscan-20020110 (snapscan 1.4.4)
+ *
+ * Revision 1.37  2002/01/10 21:33:12  oliverschwartz
+ * Set version number to 1.4.4
+ *
+ * Revision 1.36  2002/01/06 18:34:02  oliverschwartz
+ * Added support for Snapscan e42 thanks to Yari Adán Petralanda
  *
  * Revision 1.35  2001/12/20 23:18:01  oliverschwartz
  * Remove tmpfname

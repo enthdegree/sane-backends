@@ -1,4 +1,4 @@
-.TH sane 7 "06 Jan 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane 7 "29 July 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane
 
 .SH NAME
@@ -764,6 +764,7 @@ for details).
 .BR sane\-mustek_usb (5),
 .BR sane\-nec (5),
 .BR sane\-net (5),
+.BR sane\-niash (5),
 .BR sane\-pie (5),
 .BR sane\-pint (5),
 .BR sane\-plustek (5),

@@ -502,7 +502,7 @@ sane_open (SANE_String_Const name, SANE_Handle *h)
 	SANE_Range *tmp_range;
 	int tmp;
 
-	DBG(2, ">> sane_open (h=%p, name=\"%s\")\n", h, name);
+	DBG(2, ">> sane_open (h=%p, name=\"%s\")\n", (void *)h, name);
 
 	if ((h == NULL) || (name == NULL)) 
 	{
@@ -735,8 +735,8 @@ sane_control_option (SANE_Handle h, SANE_Int opt, SANE_Action act,
 		 * frontends seem to like passing a null */
 	{
 		DBG(1,"sane_control_option: Frontend passed me a null! "
-				"(h=%p,val=%p,info=%p)\n",h,
-				val,info);
+				"(h=%p,val=%p,info=%p)\n",(void*)h,
+				val,(void*)info);
 		return SANE_STATUS_INVAL;
 	}
 
@@ -913,7 +913,8 @@ sane_get_parameters (SANE_Handle h, SANE_Parameters *params)
 {
 	int res, max_width, max_height, max_res;
         CANONP_Scanner *cs = ((CANONP_Scanner *)h);
-	DBG(2, ">> sane_get_parameters (h=%p, params=%p)\n", h, params);
+	DBG(2, ">> sane_get_parameters (h=%p, params=%p)\n", (void*)h, 
+			(void*)params);
 
 	if (h == NULL) return SANE_STATUS_INVAL;
 
@@ -1147,7 +1148,8 @@ sane_read (SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *lenp)
 	if ((h == NULL) || (buf == NULL) || (lenp == NULL)) 
 	{
 		DBG(1, "sane_read: This frontend's passing me dodgy gear! "
-				"(h=%p, buf=%p, lenp=%p)\n", h, buf, lenp);
+				"(h=%p, buf=%p, lenp=%p)\n", 
+				(void*)h, (void*)buf, (void*)lenp);
 		return SANE_STATUS_INVAL;
 	}
 

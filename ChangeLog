@@ -1,3 +1,7 @@
+2004-01-31  Matthew Duggan <stauff1@users.sourceforge.net>
+
+	* backend/canon_pp.c: Remove more compile warnings.
+
 2004-01-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Mustek BearPaw 4800TA Pro II.

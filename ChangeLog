@@ -1,3 +1,8 @@
+2001-11-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* testsuite/Makefile.in testsuite/README: Added comment about
+	  the need to enable pnm. Made output easier to read.
+
 2001-11-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
 	
 	* backend/mustek.c backend/mustek.desc doc/mustek/mustek.CHANGES: 

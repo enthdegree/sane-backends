@@ -1,14 +1,16 @@
 2002-11-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* configure configure.in backend/canon630u.c backend/dll.c backend/gt68xx.c
-	  backend/mustek_usb.c backend/net.c backend/pnm.c backend/test.c
-	  backend/umax1220u.c backend/v4l.c doc/Makefile.in include/sane/config.h.in
-	  tools/sane-desc.c: Fixed PACKAGE_VERSION breakage. PACKAGE_VERSION was
-	  redefined by autoconf 2.5 with a different meaning. Use PACKAGE_STRING
-	  instead.
-	* backend/mustek.c doc/descriptions/mustek.desc doc/mustek/mustek.CHANGES:
-	  PACKAGE_VERSION fix. Fixed debug message in do_stop: really print exit
-	  status of reader process.
+	* configure configure.in backend/canon630u.c backend/dll.c
+	  backend/gt68xx.c backend/mustek_usb.c backend/net.c backend/pnm.c
+	  backend/test.c backend/umax1220u.c backend/v4l.c doc/Makefile.in
+	  include/sane/config.h.in tools/sane-desc.c: Fixed PACKAGE_VERSION
+	  breakage. PACKAGE_VERSION was redefined by autoconf 2.5 with a
+	  different meaning. Use PACKAGE_STRING instead.
+	* backend/mustek.c doc/descriptions/mustek.desc
+	  doc/mustek/mustek.CHANGES: PACKAGE_VERSION fix. Fixed debug message
+	  in do_stop: really print exit status of reader process.
+	* doc/sane-usb.man: PACKAGEVERSION fix. Removed HP exception. Added
+	  MacOS X.
 
 2002-11-29 Oliver Rauch <Oliver.Rauch@Rauch-Domain.DE>
 

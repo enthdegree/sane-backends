@@ -1,4 +1,4 @@
-.TH sane-usb 5 "19 Nov 2002"  @PACKAGEVERSION@ "SANE Scanner Access Now Easy"
+.TH sane-usb 5 "27 Nov 2002"  "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-usb
 .SH NAME
 sane-usb \- USB configuration tips for SANE
@@ -14,9 +14,6 @@ drivers, see
 .BR sane-avision (5)
 and
 .BR sane-microtek2 (5)
-for details. The HP backend currently supports only direct access to the
-generic kernel scanner driver. See the appropriate section in this manpage and
-.BR sane-hp (5)
 for details. The sm3600 backend supports only access via libusb. See the
 appropriate section in this manpage and
 .BR sane-sm3600 (5).
@@ -58,10 +55,9 @@ Two methods for accessing USB devices are currently in use: direct access
 using the kernel scanner driver and access over libusb. By default, both
 methods are tried by SANE, if they are available. Currently USB access is
 tested for Linux (kernel, libusb), FreeBSD (kernel, libsub), NetBSD (libusb),
-and OpenBSD (kernel, libusb). Libusb access should also work on Mac OS X
-(Darwin) and any other operating system supported by libusb but hasn't been
-tested yet. For installation issues, also check the @DOCDIR@/README.platform
-files.
+OpenBSD (kernel, libusb) and MacOS X (libusb). Testing on MacOS X is very
+limited and not all scanners seem to work reliably with the BSDs. For
+installation issues, also check the @DOCDIR@/README.platform files.
 .PP
 Generally speaking, if your scanner works with one method, there is no need to
 switch to the other one.

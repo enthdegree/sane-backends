@@ -82,7 +82,32 @@ backends
 
   * Fix backends where sane_exit() do not release memory allocated by
     sane_get_devices().
+      - abaton
+      - agfafocus
+      - apple
+      - artec
+      - as6e
+      - avision
+      - bh
+      - canon
+      - coolscan
+      - dmc
+      - epson
+      - m3096
+      - microtek
+      - microtek2 ?
+      - nec
+      - pie
+      - plustek
       - qcam
+      - ricoh
+      - s9036
+      - sharp
+      - sp15c
+      - tamarack
+      - umax
+      - umax_pp
+      
       - etc?
 
   * as6e: change :new status to :alpha, :beta, or :stable.

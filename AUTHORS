@@ -58,6 +58,7 @@ Backends:
  st400:         Ingo Wilken (*)
  tamarack:      Roger Wolff
  teco1:         Frank Zago (*)
+ test:          Henning Meier-Geinitz (*)
  umax:          Oliver Rauch (*) and Michael K. Johnson
  umax_pp:       Stéphane Voltz (*)
  umax1220u:     Marcio L. Teixeira (*)

@@ -4,6 +4,12 @@
 	  to libtool 1.5.10.
 	* doc/descriptions/unsupported.desc: Added link to
 	  Microtek Filmscan 35. 
+	* backend/gt68xx.c backend/gt68xx.conf backend/gt68xx_high.c
+	  doc/descriptions/gt68xx.desc doc/gt68xx/gt68xx.CHANGES:
+	  Fixed typos. Added Packard Bell Diamond 2450 to .conf and
+	  changed status to "good". Avoid error message when closing
+	  scanner. Don't print max_white warning when debugging is not
+	  enabled.
 
 2004-10-11  Oliver Schirrmeister (oschirr@abm.de)
 

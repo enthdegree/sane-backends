@@ -1,5 +1,5 @@
 :backend "gt68xx"
-:version "1.0-64"
+:version "1.0-65"
 :manpage "sane-gt68xx"
 :url "http://www.meier-geinitz.de/sane/gt68xx-backend/"
 :comment "Only the USB scanners mentioned below are supported. For other Mustek BearPaws, look at the Plustek and the MA-1509 backend."
@@ -248,7 +248,7 @@
 :comment "Similar to Mustek BearPaw 1200 Plus"
 
 :model "Diamond 2450"
-:status :basic
+:status :good
 :interface "USB"
 ;:comment "Needs more testing."
 

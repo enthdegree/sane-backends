@@ -658,7 +658,7 @@ gt68xx_scanner_calibrate (GT68xx_Scanner * scanner,
 
       if (status != SANE_STATUS_GOOD)
 	{
-	  DBG (5, "gt68xx_scanner_calibrate: gt68xx_set_gain failed: %s\n",
+	  DBG (5, "gt68xx_scanner_calibrate: gt68xx_afe_*_auto failed: %s\n",
 		 sane_strstatus (status));
 	  return status;
 	}
@@ -1009,7 +1009,7 @@ gt68xx_afe_ccd_calc (GT68xx_Afe_Values * values, unsigned int *buffer)
   values->white = max_white;
   if (values->white < 50 || values->black > 150
       || values->white - values->black < 30 || max_black - min_black > 15)
-    DBG (0, "gt68xx_afe_ccd_calc: WARNING: max_white %3d   min_black %3d  max_black %3d\n",
+    DBG (1, "gt68xx_afe_ccd_calc: WARNING: max_white %3d   min_black %3d  max_black %3d\n",
 	   values->white, values->black, max_black);
   else
     DBG (5, "gt68xx_afe_ccd_calc: max_white %3d   min_black %3d  max_black %3d\n",

@@ -1,5 +1,13 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0.65 (2004-10-11)
+
+* Used new lamp option from saneopts.h.
+* Fixed typos.
+* Added Packard Bell Diamond 2450 to .conf and changed status to "good".
+* Avoid error message when closing scanner.
+* Don't print max_white warning when debugging is not enabled.
+
 V 1.0.64 (2004-10-02)
 
 * Added Trust 240TH easy Webscan Gold to list of supported devices.

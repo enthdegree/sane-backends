@@ -48,7 +48,7 @@
 
 #include "../include/sane/config.h"
 
-#define BUILD 64
+#define BUILD 65
 #define MAX_DEBUG
 #define WARMUP_TIME 60
 #define CALIBRATION_HEIGHT 2.5
@@ -567,7 +567,7 @@ init_options (GT68xx_Scanner * s)
   s->opt[OPT_FULL_SCAN].title = SANE_I18N ("Full scan");
   s->opt[OPT_FULL_SCAN].desc = 
     SANE_I18N ("Scan the complete scanning area including calibration strip. "
-	       "Be carefull. Don't select the full height. For testing only.");
+	       "Be careful. Don't select the full height. For testing only.");
   s->opt[OPT_FULL_SCAN].type = SANE_TYPE_BOOL;
   s->opt[OPT_FULL_SCAN].unit = SANE_UNIT_NONE;
   s->opt[OPT_FULL_SCAN].constraint_type = SANE_CONSTRAINT_NONE;
@@ -1405,6 +1405,7 @@ void
 sane_close (SANE_Handle handle)
 {
   GT68xx_Scanner *prev, *s;
+  GT68xx_Device *dev;
 
   DBG (5, "sane_close: start\n");
 
@@ -1429,9 +1430,11 @@ sane_close (SANE_Handle handle)
 
   if (s->val[OPT_LAMP_OFF_AT_EXIT].w == SANE_TRUE)
     gt68xx_device_lamp_control (s->dev, SANE_FALSE, SANE_FALSE);
-  gt68xx_device_deactivate (s->dev);
-  gt68xx_device_close (s->dev);
+
+  dev = s->dev;
   gt68xx_scanner_free (s);
+  gt68xx_device_deactivate (dev);
+  gt68xx_device_close (dev);
 
   DBG (5, "sane_close: exit\n");
 }

@@ -1,3 +1,10 @@
+2002-10-01  Matthew Duggan <stauff1@users.sourceforge.net>
+	* backend/canon_pp.c backend/canon_pp-dev.c backend/canon_pp-dev.h:  
+	  Finally fixed cancelling, which I broke some time ago in the quest 
+	  for speed.  FB620P still doesn't abort nicely (firmware bug?).
+	* doc/sane-canon_pp.man: Added notes on FB620P problems.
+	* doc/descriptions/canon_pp.desc: Bumped version number.
+
 2002-09-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/test.c backend/test-picture.c doc/descriptions/test.desc:

@@ -4,6 +4,7 @@
 	  Bug #300241: fix invers image on 3c/4c/6100C at 10 bit depth
 	  Redo when TEST UNIT READY failed
 	  Redo when read returns with 0 bytes (non-SCSI only)
+	* doc/sane-hp.man: Add environment SANE_HP_RDREDO, SANE_HOME_HP
 
 2003-10-09  Stéphane Voltz <svoltz@wanadoo.fr>
 

@@ -479,6 +479,10 @@ check_ma1017 (struct usb_device *dev)
       finish_interface (handle);
       return 0;
     }
+  /* Read one byte again to work around a bug in the MA-1017 chipset that 
+     appears when an odd number of bytes is read or written. */
+  result = usb_bulk_write (handle, 0x01, req, 2, 1000);
+  result = usb_bulk_read (handle, 0x82, &res, 1, 1000);
   finish_interface (handle);
   return "MA-1017";
 }
@@ -1390,12 +1394,10 @@ check_gl660_gl646 (struct usb_device *dev)
       return 0;
     }
 
-  if ((dev->config[0].interface[0].altsetting[0].endpoint[0].
-       bEndpointAddress != 0x81)
-      || (dev->config[0].interface[0].altsetting[0].endpoint[0].
-	  bmAttributes != 0x02)
-      || (dev->config[0].interface[0].altsetting[0].endpoint[0].
-	  wMaxPacketSize != 0x40)
+  if ((dev->config[0].interface[0].altsetting[0].endpoint[0].bEndpointAddress != 0x81)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[0].bmAttributes != 0x02)
+      || ((dev->config[0].interface[0].altsetting[0].endpoint[0].wMaxPacketSize != 0x40) &&
+	  (dev->config[0].interface[0].altsetting[0].endpoint[0].wMaxPacketSize != 0x200))
       || (dev->config[0].interface[0].altsetting[0].endpoint[0].bInterval !=
 	  0x0))
     {
@@ -1403,21 +1405,17 @@ check_gl660_gl646 (struct usb_device *dev)
 	printf
 	  ("    this is not a GL660+GL646 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
 	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
-	   dev->config[0].interface[0].altsetting[0].endpoint[0].
-	   bEndpointAddress,
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].bEndpointAddress,
 	   dev->config[0].interface[0].altsetting[0].endpoint[0].bmAttributes,
-	   dev->config[0].interface[0].altsetting[0].endpoint[0].
-	   wMaxPacketSize,
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].wMaxPacketSize,
 	   dev->config[0].interface[0].altsetting[0].endpoint[0].bInterval);
       return 0;
     }
 
-  if ((dev->config[0].interface[0].altsetting[0].endpoint[1].
-       bEndpointAddress != 0x02)
-      || (dev->config[0].interface[0].altsetting[0].endpoint[1].
-	  bmAttributes != 0x02)
-      || (dev->config[0].interface[0].altsetting[0].endpoint[1].
-	  wMaxPacketSize != 0x40)
+  if ((dev->config[0].interface[0].altsetting[0].endpoint[1].bEndpointAddress != 0x02)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[1].bmAttributes != 0x02)
+      || ((dev->config[0].interface[0].altsetting[0].endpoint[1].wMaxPacketSize != 0x40) &&
+	  (dev->config[0].interface[0].altsetting[0].endpoint[0].wMaxPacketSize != 0x200))
       || (dev->config[0].interface[0].altsetting[0].endpoint[1].bInterval !=
 	  0))
     {
@@ -1425,21 +1423,17 @@ check_gl660_gl646 (struct usb_device *dev)
 	printf
 	  ("    this is not a GL660+GL646 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
 	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
-	   dev->config[0].interface[0].altsetting[0].endpoint[1].
-	   bEndpointAddress,
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].bEndpointAddress,
 	   dev->config[0].interface[0].altsetting[0].endpoint[1].bmAttributes,
-	   dev->config[0].interface[0].altsetting[0].endpoint[1].
-	   wMaxPacketSize,
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].wMaxPacketSize,
 	   dev->config[0].interface[0].altsetting[0].endpoint[1].bInterval);
       return 0;
     }
 
-  if ((dev->config[0].interface[0].altsetting[0].endpoint[2].
-       bEndpointAddress != 0x83)
-      || (dev->config[0].interface[0].altsetting[0].endpoint[2].
-	  bmAttributes != 0x03)
-      || (dev->config[0].interface[0].altsetting[0].endpoint[2].
-	  wMaxPacketSize != 0x1)
+  if ((dev->config[0].interface[0].altsetting[0].endpoint[2].bEndpointAddress != 0x83)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[2].bmAttributes != 0x03)
+      || ((dev->config[0].interface[0].altsetting[0].endpoint[2].wMaxPacketSize != 0x1) &&
+	  (dev->config[0].interface[0].altsetting[0].endpoint[0].wMaxPacketSize != 0x200))
       || (dev->config[0].interface[0].altsetting[0].endpoint[2].bInterval !=
 	  8))
     {
@@ -1447,11 +1441,9 @@ check_gl660_gl646 (struct usb_device *dev)
 	printf
 	  ("    this is not a GL660+GL646 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
 	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
-	   dev->config[0].interface[0].altsetting[0].endpoint[2].
-	   bEndpointAddress,
+	   dev->config[0].interface[0].altsetting[0].endpoint[2].bEndpointAddress,
 	   dev->config[0].interface[0].altsetting[0].endpoint[2].bmAttributes,
-	   dev->config[0].interface[0].altsetting[0].endpoint[2].
-	   wMaxPacketSize,
+	   dev->config[0].interface[0].altsetting[0].endpoint[2].wMaxPacketSize,
 	   dev->config[0].interface[0].altsetting[0].endpoint[2].bInterval);
       return 0;
     }

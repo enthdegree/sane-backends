@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-02-16"		; version of backend
+:version "2003-02-19"		; version of backend
 :url "http://www.meier-geinitz.de/sane/misc/unsupported.html"
 ;:status :stable			; :alpha, :beta, :stable, :new
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
@@ -46,6 +46,46 @@
 :url "http://umax1220u-sane.sourceforge.net/index.php?ScannerChipsets"
 :interface "USB"
 :comment "Same name, but different ids: vendor/product 0x05d8/0x4001 is not supported. Chips: WINBOND W6662CF, POWERVISION PV108630-C2L, ATC 93LC46 (EEPROM?). The chips look similar to that reported on the umax1220u page. The scanner with product id 0x4002 is supported by the gt68xx backend."
+
+;********************************************************************************************
+
+:mfg "Avision"
+:url "http://www.avision.com/"
+
+:model "iVina FB1600"
+:url "http://www.genesyslogic.com/GL646.htm"
+:interface "USB"
+:status :unsupported
+:comment "Not supported. Is reported to use GeneScan II GL646 chipset. Same as UMAX Astra 4500."
+
+:model "iVina FB1800"
+;:url ""
+:interface "USB"
+:status :unsupported
+:comment "Not supported. No chipset information available. Same as UMAX Astra 4700."
+
+:model "iVina FB2400"
+;:url ""
+:interface "USB"
+:status :unsupported
+:comment "Not supported. No chipset information available. Same as UMAX Astra 6700."
+
+;********************************************************************************************
+
+:mfg "Brother"
+:url "http://www.brother.com/"
+
+:model "MFC 4600"
+:status :unsupported
+:url "http://www.mostang.com/pipermail/sane-devel/2001-August/011438.html"
+:interface "Parport USB"
+:comment "Unsupported. Some information is available (see link)."
+
+:model "MFC 6800"
+:status :unsupported
+:url "http://www.mostang.com/pipermail/sane-devel/2003-February/017785.html"
+:interface "USB"
+:comment "Unsupported. A backend is under development (see link). Vendor/product 0x04f9/0x0111."
 
 ;********************************************************************************************
 
@@ -258,12 +298,6 @@
 :comment "Not supported. See link for some information."
 :status :unsupported
 
-:model "BearPaw 1200 F"
-:url "http://www.meier-geinitz.de/sane/misc/mustek-scanners.html#UNSUPPORTED"
-:interface "USB"
-:comment "Not supported. See link for some information."
-:status :unsupported
-
 :model "ScanExpress 12000 P"
 :url "http://penguin-breeder.org/?page=mustek_pp"
 :interface "Parport"
@@ -367,11 +401,24 @@
 
 :mfg "UMAX"
 :url "http://www.umax.com/"
+
 :model "Astra 4500"
 :url "http://www.genesyslogic.com/GL646.htm"
 :interface "USB"
 :status :unsupported
-:comment "Not supported. Is reported to use GeneScan II GL646 chipset."
+:comment "Not supported. Vendor/product 0x0638/0x0a10. Is reported to use GeneScan II GL646 chipset. Same as Avision iVina FB1600."
+
+:model "Astra 4700"
+;:url ""
+:interface "USB"
+:status :unsupported
+:comment "Not supported. No chipset information available. Same as Avision iVina FB1800."
+
+:model "Astra 6700"
+;:url ""
+:interface "USB"
+:status :unsupported
+:comment "Not supported. No chipset information available. Same as Avision iVina FB2400."
 
 ;********************************************************************************************
 

@@ -2,6 +2,8 @@
 
 	* doc/descriptions-external/ma1509.desc: Added description of the 
 	  ma1509 backend for Mustek BearPaw 1200F scanners.
+	* doc/descriptions/unsupported.desc: Added Avision, Brother, and Umax
+	  scanners. Removed Mustek BearPaw 1200F.
 
 2003-02-18   Stéphane Voltz  <svoltz@wanadoo.fr>
 

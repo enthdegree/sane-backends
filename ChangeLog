@@ -1,3 +1,13 @@
+2002-02-05  Stéphane Voltz  <svoltz@wanadoo.fr>
+
+	* backend/umax_pp_low.c backend/umax_pp_low.h backend/umax_pp_mid.h
+	  backend/umax_pp_mid.c backend/umax_pp.c backend/umax_pp.h: 
+	  tuned down duration of pauses in scanner ringing. Indent'ing all
+	  files. Include header files according to HAVE_XXX_H defines in
+	  config.h .
+	* tools/umax_pp.c: updated version and added printing of config
+		options
+	  
 2002-02-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* configure configure.in: Version is 1.0.7-cvs. Enable warnings by
@@ -93,7 +103,7 @@
 	* doc/backend-writing.txt doc/sane.man: Added note about doxygen
 	  configuration for sanei.
 
-2001-01-24  Stéphane Voltz  <svoltz@wanadoo.fr>
+2002-01-24  Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c: corrected 2000P mis-detection by adding
 	  pauses in epat wake-up.
@@ -465,7 +475,7 @@
 	  backend.
 	* frontend/.gdbinit: Removed unnecessary file.
 
-2001-01-08  Stéphane Voltz  <svoltz@wanadoo.fr>
+2002-01-08  Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* configure.in: added help text for --enable-parport-directio
 
@@ -533,7 +543,7 @@
 	* backend/epson.c: Undefine TEST_IOCTL again, which was enabled
 	  by accident. 
 
-2001-01-06  Stéphane Voltz  <svoltz@wanadoo.fr>
+2002-01-06  Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c: improved warm up and color calibration
 	  of much better quality now. Manual settings now work correctly.

@@ -108,6 +108,9 @@
 /* Define to 1 if you have the <libc.h> header file. */
 #undef HAVE_LIBC_H
 
+/* Define to 1 if you have the `ieee1284' library (-lcam). */
+#undef HAVE_LIBIEEE1284
+
 /* Define to 1 if you have the `m' library (-lm). */
 #undef HAVE_LIBM
 

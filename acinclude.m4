@@ -217,6 +217,9 @@ AC_DEFUN([SANE_CHECK_IEEE1284],
       ],[sane_cv_use_libieee1284="no"])
     ],)
   ],)
+  if test "$sane_cv_use_libieee1284" = "yes" ; then
+    AC_DEFINE(HAVE_LIBIEEE1284,1,[Define to 1 if you have the `ieee1284' library (-lcam).])
+  fi
 ])
 
 

@@ -232,6 +232,7 @@ AC_DEFUN(SANE_CHECK_GPHOTO2,
 		    "gphoto2 2.0beta4dev9" | \
 		    "gphoto2 2.0beta5"* | \
 		    "gphoto2 2.0beta6"* | \
+		    "gphoto2 2.0" |  \
 		    "gphoto2 2.0.1"*  \
 		 ) 
 			CPPFLAGS="${CPPFLAGS} `gphoto2-config --cflags`"

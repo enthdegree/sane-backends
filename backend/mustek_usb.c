@@ -46,7 +46,7 @@
    This file implements a SANE backend for Mustek 1200UB and similar 
    flatbed scanners.  */
 
-#define BUILD 8
+#define BUILD 9
 
 #include "../include/sane/config.h"
 
@@ -84,6 +84,9 @@
 static SANE_Int num_devices;
 static Mustek_Usb_Device *first_dev;
 static Mustek_Usb_Scanner *first_handle;
+
+/* Maximum amount of data read in one turn from USB */
+static SANE_Word max_block_size = 8 * 1024;
 
 /* Array of newly attached devices */
 static Mustek_Usb_Device **new_dev;	
@@ -537,7 +540,8 @@ attach (SANE_String_Const devname, Mustek_Usb_Device ** devp,
       return status;
     }
   dev->chip->scanner_type = scanner_type;
-
+  dev->chip->max_block_size = max_block_size;
+  
   DBG (2, "attach: found %s %s %s at %s\n", dev->sane.vendor, dev->sane.type,
        dev->sane.model, dev->sane.name);
   ++num_devices;
@@ -692,7 +696,7 @@ SANE_Status
 sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
   SANE_Char line[PATH_MAX];
-  SANE_Char *word;
+  SANE_Char *word, *end;
   SANE_String_Const cp;
   SANE_Int linenumber;
   FILE *fp;
@@ -749,7 +753,36 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	  word = 0;
 	  cp = sanei_config_get_string (cp, &word);
 
-	  if (strcmp (word, "1200ub") == 0)
+	  if (strcmp (word, "max_block_size") == 0)
+	    {
+	      free (word);
+	      word = 0;
+	      cp = sanei_config_get_string (cp, &word);
+	      errno = 0;
+	      max_block_size = strtol (word, &end, 0);
+	      if (end == word)
+		{
+		  DBG(3, "sane-init: config file line %d: max_block_size "
+		      "must have a parameter; using 8192 bytes\n", linenumber);
+		  max_block_size = 8192;
+		}
+	      if (errno)
+		{
+		  DBG(3, "sane-init: config file line %d: max_block_size `%s' "
+		      "is invalid (%s); using 8192 bytes\n",  linenumber,
+		      word, strerror (errno));
+		  max_block_size = 8192;	
+		}
+	      else
+		{
+		  DBG(3, "sane_init: config file line %d: max_block_size set "
+		      "to %d bytes\n", linenumber, max_block_size);
+		}
+	      if (word)
+		free (word);
+	      word = 0;
+	    }
+	  else if (strcmp (word, "1200ub") == 0)
 	    {
 	      if (new_dev_len > 0)
 		{

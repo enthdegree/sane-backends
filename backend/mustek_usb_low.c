@@ -2614,39 +2614,44 @@ usb_low_wait_rowing (ma1017 * chip)
 SANE_Status
 usb_low_read_rows (ma1017 * chip, SANE_Byte * data, SANE_Word byte_count)
 {
-  size_t n;
+  size_t n, bytes_total;
   SANE_Status status;
 
   DBG (7, "usb_low_read_rows: start\n");
-  if (!chip->is_opened)
+  if (!(chip->is_opened))
     {
       DBG (3, "usb_low_read_rows: is_opened==SANE_FALSE\n");
       return SANE_STATUS_INVAL;
     }
-  if (!chip->is_rowing)
+  if (!(chip->is_rowing))
     {
       DBG (3, "usb_low_read_rows: is_rowing==SANE_FALSE\n");
       return SANE_STATUS_INVAL;
     }
 
-  n = byte_count;
-  status = sanei_usb_read_bulk (chip->fd, (SANE_Byte *) data, &n);
-  if (status != SANE_STATUS_GOOD)
+  n = MIN(byte_count, chip->max_block_size);
+  bytes_total = 0;
+
+  while ((SANE_Word) bytes_total < byte_count)
     {
-      DBG (7, "usb_low_read_rows: problems during read: %s\n",
-	   sane_strstatus (status));
-      return status;
+      status = sanei_usb_read_bulk (chip->fd, (SANE_Byte *) (data + bytes_total), &n);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (7, "usb_low_read_rows: problems during read: %s -- exiting\n",
+	       sane_strstatus (status));
+	  return status;
+	}
+      bytes_total += n;
+      if ((SANE_Word) bytes_total != byte_count)
+	{
+	  DBG (7, "usb_low_read_rows:  wanted %d, got %d "
+	       "bytes (%d in total) -- retrying\n", byte_count, (SANE_Word) n,
+	       (SANE_Word) bytes_total);
+	}
+      n = MIN((byte_count - (SANE_Word) bytes_total), chip->max_block_size);
     }
 
-  if ((SANE_Word) n != byte_count)
-    {
-      DBG (7, "usb_low_read_rows: problems during read, wanted %ul, got %ul "
-	   "bytes: %s\n", (unsigned long) byte_count, (unsigned long) n,
-	   sane_strstatus (status));
-      return SANE_STATUS_IO_ERROR;
-    }
-
-  DBG (7, "usb_low_read_rows: exit, read %ul bytes\n", (unsigned long) n);
+  DBG (7, "usb_low_read_rows: exit, read %d bytes\n", (SANE_Word) bytes_total);
   return SANE_STATUS_GOOD;
 }
 

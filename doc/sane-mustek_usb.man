@@ -1,4 +1,4 @@
-.TH sane-mustek 5 "15 Nov 2001"
+.TH sane-mustek 5 "9 Dec 2001"
 .IX sane-mustek_usb
 .SH NAME
 sane-mustek_usb - SANE backend for Mustek USB flatbed scanners
@@ -91,10 +91,17 @@ work, a device name and the option specifying the scanner type must be placed
 in
 .IR mustek_usb.conf .
 .PP
+The global
+.I option max_block_size
+can be used to limit the amount of data acquired in one turn from the USB
+system. It may be woth trying, if USB errors occur.
+.PP
 A sample configuration file is shown below:
 .PP
 .RS
 # Comment
+.br
+option max_block_size 1024
 .br
 usb 0x055f 0x0001
 .br
@@ -103,10 +110,11 @@ usb 0x055f 0x0001
 option 600cu
 .RE
 .PP
-The first line is ignored. The second line tries to autodetect a scanner with
-vendor id 0x055f and product id 0x0001 (Mustek 1200 CU). The third line tells
-the backend to attach to /dev/usb/scanner0 and the fourth line specifies that
-/dev/usb/scanner 0 is a Mustek 600 CU.
+The first line is ignored. The second line sets the buffer size to a maximum of
+1024 bytes.  The third line tries to autodetect a scanner with vendor id 0x055f
+and product id 0x0001 (Mustek 1200 CU). The fourth line tells the backend to
+attach to /dev/usb/scanner0 and the fifth line specifies that
+/dev/usb/scanner0 is a Mustek 600 CU.
 .SH FILES
 .TP
 .I @CONFIGDIR@/mustek_usb.conf

@@ -181,6 +181,7 @@ typedef struct ma1017
   Sensor_Type sensor;
   Motor_Type motor;
   Mustek_Type scanner_type;
+  SANE_Word max_block_size;
 }
 ma1017;
 

@@ -1,3 +1,12 @@
+2000-08-19  Henning Meier-Geinitz <hmg@gmx.de>
+
+	* TODO: Included TODO file for 1.0.4.
+	* sanei/sanei_ab306.c: Removed some comiler warnings.
+	* doc/sane.tex: Set \date to the date of the last change (not
+	  the date of running latex (\today))
+	* frontend/xscanimage.c: Fixed image size overrun (>ca. 400 MB). 
+	  Removed some compiler warnings.
+	
 2000-08-15  Henning Meier-Geinitz <hmg@gmx.de>
 
 	* configure configure.in: Default to --enable-warnings again.

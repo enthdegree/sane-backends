@@ -225,7 +225,9 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 					 * parallel port above */
 					first_dev->weights_file = tmp_wf;
 					DBG(100, "sane_init: Successfully "
-							"parsed cal.\n");
+							"parsed (old) cal, "
+							"weight file is "
+							"'%s'.\n", tmp_wf);
 					continue;
 
 				}
@@ -233,15 +235,26 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 				/* Now find which scanner wants 
 				 * this calibration file */
 				s_tmp = first_dev;
+				DBG(100, "sane_init: Finding scanner on port "
+						"'%s'\n", tmp_port+1);
 				while (s_tmp != NULL)
 				{
 					if (!strcmp(s_tmp->params.port->name,
 								tmp_port+1))
 					{
+						DBG(100, "sane_init: Found!\n");
+						/* Now terminate the weight 
+						 * file string */
 						*tmp_port = '\0';
 						s_tmp->weights_file = tmp_wf;
 						DBG(100, "sane_init: Parsed "
-								"cal.\n");
+								"cal, for port"
+								" '%s', weight"
+								" file is '%s'"
+								".\n", 
+								s_tmp->params.
+								  port->name,
+								tmp_wf);
 						break;
 					}
 					s_tmp = s_tmp->next;

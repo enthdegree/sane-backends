@@ -1,3 +1,7 @@
+2004-02-27  Matthew Duggan <stauff1@users.sourceforge.net>
+
+	* backend/canon_pp.c: Add more debug output to help resolve bug #300524
+
 2004-02-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/scanimage.man frontend/scanimage.c: Added support for asking

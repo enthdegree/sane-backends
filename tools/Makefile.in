@@ -53,7 +53,7 @@ DISTCLEAN_FILES = @DISTCLEAN_FILES@
 
 @SET_MAKE@
 
-DESTINATIONS = sane-find-scanner sane-config umax_pp
+DESTINATIONS = sane-find-scanner sane-config umax_pp gamma4scanimage
 
 EXTRA = sane_strstatus.lo ../sanei/sanei_init_debug.lo \
 	../sanei/sanei_config.lo ../sanei/sanei_config2.lo \
@@ -77,12 +77,13 @@ DISTFILES = Makefile.in README libtool-get-dll-ext mustek600iin-off.c \
 
 all:	$(DESTINATIONS)
 
-install: sane-config sane-find-scanner
+install: sane-config sane-find-scanner gamma4scanimage
 	$(INSTALL_SCRIPT) sane-config $(DESTDIR)$(bindir)/sane-config
 	$(INSTALL_PROGRAM) sane-find-scanner $(DESTDIR)$(bindir)/sane-find-scanner
+	$(INSTALL_PROGRAM) gamma4scanimage $(DESTDIR)$(bindir)/gamma4scanimage
 
 uninstall: 
-	rm -f $(bindir)/sane-config $(bindir)/sane-find-scanner
+	rm -f $(bindir)/sane-config $(bindir)/sane-find-scanner $(bindir)/gamma4scanimage
 
 sane-config: sane-config.in $(top_builddir)/config.status 
 	cd $(top_builddir) \
@@ -92,6 +93,8 @@ sane-find-scanner: sane-find-scanner.o ../backend/sane_strstatus.lo \
 	../sanei/sanei_scsi.lo ../sanei/sanei_usb.lo ../sanei/sanei_init_debug.lo
 	@$(LIBTOOL) $(MLINK) $(LINK) sane-find-scanner.o \
 	  ../backend/sane_strstatus.lo $(LIBSANEI) $(LIBLIB) $(LIBS)
+
+gamma4scanimage: gamma4scanimage.o -lm
 
 ../backend/umax_pp_low.o: ../backend/umax_pp_low.c 
 	$(COMPILE) ../backend/umax_pp_low.c -o ../backend/umax_pp_low.o \

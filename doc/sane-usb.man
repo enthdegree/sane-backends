@@ -1,4 +1,4 @@
-.TH sane-scsi 5 "11 Aug 2001"
+.TH sane-scsi 5 "16 Aug 2001"
 .IX sane-usb
 .SH NAME
 sane-usb - USB configuration tips for SANE
@@ -23,8 +23,7 @@ This manual page describes the access of USB scanners over the sanei_usb
 interface. For point 1 and three of this list have a look at the backend's
 manual page for details.
 .PP
-Currently USB access is only tested for Linux. It may work on FreeBSD but it's
-not tested.
+Currently USB access is only tested for Linux and FreeBSD.
 .PP
 For scanners with a USB interface, it may be necessary to edit the
 appropriate backend configuration file before using SANE for the first time.
@@ -33,7 +32,9 @@ device file that the scanner is connected to (e.g., under Linux,
 .B /dev/usb/scanner0
 or
 .B /dev/usbscanner0
-is such a USB device).  Do
+is such a USB device, the device file for FreeBSD is e.g.
+.BR /dev/uscanner0 ).
+Do
 .I not
 create a symlink from
 .B /dev/scanner

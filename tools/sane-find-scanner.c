@@ -411,6 +411,7 @@ main (int argc, char **argv)
 	};
       static char *usb_default_dev_list[] =
         {
+#if defined(__linux__)
 	  "/dev/usb/scanner",
 	  "/dev/usb/scanner0", "/dev/usb/scanner1",
 	  "/dev/usb/scanner2", "/dev/usb/scanner3",
@@ -429,6 +430,17 @@ main (int argc, char **argv)
 	  "/dev/usbscanner10", "/dev/usbscanner11",
 	  "/dev/usbscanner12", "/dev/usbscanner13",
 	  "/dev/usbscanner14", "/dev/usbscanner15",
+#elif defined(__FreeBSD__)
+	  "/dev/uscanner",
+	  "/dev/uscanner0", "/dev/uscanner1",
+	  "/dev/uscanner2", "/dev/uscanner3",
+	  "/dev/uscanner4", "/dev/uscanner5",
+	  "/dev/uscanner6", "/dev/uscanner7",
+	  "/dev/uscanner8", "/dev/uscanner9",
+	  "/dev/uscanner10", "/dev/uscanner11",
+	  "/dev/uscanner12", "/dev/uscanner13",
+	  "/dev/uscanner14", "/dev/uscanner15",
+#endif
 	  0
 	};
 

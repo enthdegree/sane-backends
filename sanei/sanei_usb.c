@@ -143,9 +143,14 @@ sanei_usb_find_devices (SANE_Int vendor, SANE_Int product,
 			SANE_Status (*attach) (SANE_String_Const dev))
 {
   SANE_String *prefix;
-  SANE_String prefixlist[] = {"/dev/usbscanner",
-			      "/dev/usb/scanner",
-			      0};
+  SANE_String prefixlist[] = {
+#if defined(__linux__)
+    "/dev/usbscanner",
+    "/dev/usb/scanner",
+#elif defined(__FreeBSD__)
+    "/dev/uscanner",
+#endif
+    0};
   SANE_Char devname[30];
   int devcount;
 

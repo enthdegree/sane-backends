@@ -1,4 +1,4 @@
-.TH sane-find-scanner 1 "11 Aug 2001"
+.TH sane-find-scanner 1 "16 Aug 2001"
 .IX sane-find-scanner
 .SH NAME
 sane-find-scanner - find SCSI and USB scanners and their device files
@@ -19,8 +19,8 @@ device type of "scanner" or "processor" (some old HP scanners seem to send
 supported by any SANE backend. For USB devices, the corresponding files are
 opened and the vendor and device ids are determined if the operating system
 supports this feature. Currently USB scanners are only found if they are
-supported by the Linux scanner module (or a similar system on other
-platforms).  sane-find-scanner won't find parallel port scanners, or scanners
+supported by the Linux scanner module or the FreeBSD uscanner
+driver. sane-find-scanner won't find parallel port scanners, or scanners
 connected to proprietary ports.
 
 .SH OPTIONS
@@ -46,7 +46,9 @@ Look for a scanner (only) at /dev/scanner and print the result.
 sane(7), sane-scsi(5), sane-usb(5), scanimage(1), xscanimage(1), xsane(1),
 sane-"backendname"(5)
 .SH AUTHOR
-Oliver Rauch and others. Manual page by Henning Meier-Geinitz.
+Oliver Rauch, Henning Meier-Geinitz and others. Manual page by Henning
+Meier-Geinitz.
 .SH BUGS
 No support for parallel port scanners yet. USB support should be extended to
-other platforms and scanners.
+other platforms and scanners. Detection of USB vendor/device ids should be
+extended, if possible.

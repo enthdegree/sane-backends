@@ -1,3 +1,9 @@
+2002-04-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/mustek.c doc/descriptions/mustek.desc 
+	  doc/mustek/mustek.CHANGES: Fixed color three-pass scanning for some
+	  scanners.
+
 2002-04-02  Peter Fales <peter@fales.com>
 
 	* configure, acinclude.m4, aclocal.m4 - Another tweak to the

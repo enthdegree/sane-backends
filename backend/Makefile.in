@@ -57,7 +57,7 @@ PRELOADABLE_BACKENDS = abaton agfafocus apple artec as6e avision bh canon \
         coolscan dc25 @DC210@ @DC240@ dmc epson @GPHOTO2@ hp m3096g \
 	microtek microtek2 mustek mustek_pp mustek_usb nec @NET@ pie @PINT@ \
 	plustek @PNM@ @QCAM@ ricoh s9036 sharp @SM3600@ @SNAPSCAN@ sp15c \
-	st400 tamarack umax umax_pp @V4L@
+	st400 tamarack umax umax_pp umax1220u @V4L@
 ALL_BACKENDS = $(PRELOADABLE_BACKENDS) dll
 
 LIBS = $(addprefix libsane-,$(addsuffix .la,$(ALL_BACKENDS)))
@@ -67,7 +67,7 @@ EXTRA = sane_strstatus.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_config.lo
 
 # With libtool-1.0, we have to mention each library object explicitly... ;-(
 LIBLIB_FUNCS = alloca getenv getopt getopt1 isfdtype sigprocmask snprintf \
-        strdup strndup strsep usleep vsyslog
+        strdup strndup strsep usleep vsyslog inet_ntop
 LIBOBJS = $(addprefix ../lib/,$(addsuffix .lo,$(LIBLIB_FUNCS)))
 
 libsane-%.la: %.lo %-s.lo $(EXTRA) $(LIBOBJS)
@@ -277,6 +277,10 @@ libsane-umax.la: ../sanei/sanei_scsi.lo
 libsane-v4l.la: ../sanei/sanei_constrain_value.lo
 libsane-umax_pp.la: $(addsuffix .lo,$(EXTRA_umax_pp))
 libsane-umax_pp.la: ../sanei/sanei_constrain_value.lo
+libsane-umax1220u.la: ../sanei/sanei_config2.lo
+libsane-umax1220u.la: ../sanei/sanei_constrain_value.lo
+libsane-umax1220u.la: ../sanei/sanei_usb.lo
+libsane-umax1220u.la: ../sanei/sanei_pv8630.lo
 
 ifneq ($(DLL_PRELOAD),)
 # need to make dll dependent on all sanei files:
@@ -291,6 +295,7 @@ libsane-dll.la libsane.la: ../sanei/sanei_ab306.lo
 libsane-dll.la libsane.la: ../sanei/sanei_pio.lo
 libsane-dll.la libsane.la: ../sanei/sanei_pa4s2.lo
 libsane-dll.la libsane.la: ../sanei/sanei_usb.lo
+libsane-dll.la libsane.la: ../sanei/sanei_pv8630.lo
 endif
 
 depend:

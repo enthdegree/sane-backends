@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.10\n"
-"POT-Creation-Date: 2003-04-20 17:06+0200\n"
+"POT-Creation-Date: 2003-04-27 14:51+0200\n"
 "PO-Revision-Date: 2003-02-26 18:30+0100\n"
 "Last-Translator: Martin Kho <mkho@xs4all.nl>\n"
 "Language-Team: Nederlands\n"
@@ -20,7 +20,7 @@ msgstr ""
 msgid "Lineart"
 msgstr "Lijntekening"
 
-#: .tmp/artec_eplus48u.c:154 .tmp/leo.h:269 .tmp/teco1.h:299 .tmp/teco2.h:355
+#: .tmp/artec_eplus48u.c:154 .tmp/leo.h:269 .tmp/teco1.h:299 .tmp/teco2.h:357
 #: .tmp/teco3.h:303 .tmp/umax_pp.c:133
 msgid "Grayscale"
 msgstr "Grijstrap"
@@ -28,7 +28,7 @@ msgstr "Grijstrap"
 #: .tmp/artec_eplus48u.c:155 .tmp/epson.c:456 .tmp/gt68xx.c:116 .tmp/leo.h:270
 #: .tmp/ma1509.c:101 .tmp/mustek.c:126 .tmp/mustek.c:130 .tmp/mustek_usb.c:268
 #: .tmp/plustek.c:224 .tmp/plustek.c:234 .tmp/plustek.c:244 .tmp/sceptre.h:300
-#: .tmp/snapscan.c:157 .tmp/teco1.h:300 .tmp/teco2.h:356 .tmp/teco3.h:304
+#: .tmp/snapscan.c:157 .tmp/teco1.h:300 .tmp/teco2.h:358 .tmp/teco3.h:304
 #: .tmp/test.c:123 .tmp/umax.c:190 .tmp/umax_pp.c:133
 msgid "Color"
 msgstr "Kleur"
@@ -37,7 +37,7 @@ msgstr "Kleur"
 #: .tmp/ma1509.c:597 .tmp/matsushita.c:1149 .tmp/microtek2.h:611
 #: .tmp/mustek.c:4294 .tmp/mustek_usb.c:353 .tmp/plustek.c:918
 #: .tmp/sceptre.c:753 .tmp/snapscan-options.c:402 .tmp/teco1.c:1136
-#: .tmp/teco2.c:1652 .tmp/teco3.c:971 .tmp/umax.c:5162 .tmp/umax_pp.c:461
+#: .tmp/teco2.c:1679 .tmp/teco3.c:971 .tmp/umax.c:5162 .tmp/umax_pp.c:461
 msgid "Enhancement"
 msgstr "Kleurverbetering"
 
@@ -53,7 +53,7 @@ msgstr "Kies standaard waarden om verbeter opties te krijgen."
 #: .tmp/leo.c:823 .tmp/ma1509.c:549 .tmp/matsushita.c:1095
 #: .tmp/microtek2.h:610 .tmp/mustek.c:4246 .tmp/mustek_usb.c:305
 #: .tmp/plustek.c:872 .tmp/sceptre.c:705 .tmp/snapscan-options.c:335
-#: .tmp/teco1.c:1088 .tmp/teco2.c:1604 .tmp/teco3.c:923 .tmp/test.c:619
+#: .tmp/teco1.c:1088 .tmp/teco2.c:1631 .tmp/teco3.c:923 .tmp/test.c:619
 #: .tmp/umax.c:5112 .tmp/umax_pp.c:412
 msgid "Geometry"
 msgstr "Geometrie"
@@ -326,7 +326,7 @@ msgstr "maximaal"
 #: .tmp/epson.c:2362 .tmp/gt68xx.c:432 .tmp/ma1509.c:499
 #: .tmp/matsushita.c:1044 .tmp/microtek2.h:609 .tmp/mustek.c:4109
 #: .tmp/mustek_usb.c:260 .tmp/plustek.c:777 .tmp/sceptre.c:676
-#: .tmp/snapscan-options.c:189 .tmp/teco2.c:1576 .tmp/test.c:294
+#: .tmp/snapscan-options.c:189 .tmp/teco2.c:1603 .tmp/test.c:294
 #: .tmp/umax.c:4990
 msgid "Scan Mode"
 msgstr "Scanmodus"
@@ -647,6 +647,50 @@ msgstr ""
 "Deze waarde wordt toegevoegd aan de interne waarde van de offset. Alleen "
 "voor extreem lichte of donkere beelden gebruiken."
 
+#: .tmp/hp5400.c:273
+msgid "Image"
+msgstr ""
+
+#: .tmp/hp5400.c:312
+msgid "Miscellaneous"
+msgstr ""
+
+#: .tmp/hp5400.c:318
+msgid "offset X"
+msgstr ""
+
+#: .tmp/hp5400.c:320
+#, fuzzy
+msgid "Hardware internal X position of the scanning area."
+msgstr "Linkerkant van het scanoppervlak."
+
+#: .tmp/hp5400.c:329
+msgid "offset Y"
+msgstr ""
+
+#: .tmp/hp5400.c:331
+#, fuzzy
+msgid "Hardware internal Y position of the scanning area."
+msgstr "Linkerkant van het scanoppervlak."
+
+#: .tmp/hp5400.c:343
+msgid "Lamp status"
+msgstr ""
+
+#: .tmp/hp5400.c:344
+#, fuzzy
+msgid "Switches the lamp on or off."
+msgstr "Schakelt de lamp aan/uit"
+
+#: .tmp/hp5400.c:354
+#, fuzzy
+msgid "Calibrate"
+msgstr "Kalibreren"
+
+#: .tmp/hp5400.c:355
+msgid "Calibrates for black and white level."
+msgstr ""
+
 #: .tmp/leo.c:110
 msgid "Diamond"
 msgstr "Ruitvormig"
@@ -672,7 +716,7 @@ msgstr ""
 msgid "Scan mode"
 msgstr "Scanmodus"
 
-#: .tmp/leo.h:268 .tmp/matsushita.h:217 .tmp/teco1.h:298 .tmp/teco2.h:354
+#: .tmp/leo.h:268 .tmp/matsushita.h:217 .tmp/teco1.h:298 .tmp/teco2.h:356
 #: .tmp/teco3.h:302
 msgid "Black & White"
 msgstr "Zwart/wit"
@@ -1907,7 +1951,7 @@ msgstr "Definieer de lichthoeveelheid waarmee wordt gescand"
 msgid "Enable selection of lamp density"
 msgstr "Schakelt de keuze van de lichthoeveelheid in"
 
-#: .tmp/sceptre.c:596 .tmp/teco2.c:1526
+#: .tmp/sceptre.c:596 .tmp/teco2.c:1553
 msgid "flatbed scanner"
 msgstr "Flatbed scanner"
 
@@ -2003,7 +2047,7 @@ msgstr "Kleurlijnen per leesopdracht"
 msgid "Greyscale lines per read"
 msgstr "Grijstraplijnen per leesopdracht"
 
-#: .tmp/teco1.c:1145 .tmp/teco1.c:1146 .tmp/teco2.c:1661 .tmp/teco2.c:1662
+#: .tmp/teco1.c:1145 .tmp/teco1.c:1146 .tmp/teco2.c:1688 .tmp/teco2.c:1689
 #: .tmp/teco3.c:980 .tmp/teco3.c:981
 msgid "Dither"
 msgstr "Dither"

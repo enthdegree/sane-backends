@@ -11,6 +11,10 @@
 	* doc/descriptions/unsupported.desc: Added more information for
 	  the HP Scanjet 2300c.
 	* lib/getopt.c: Add missing includes.
+	* po/Makefile.in po/sane-backends.de.po po/sane-backends.es.po
+	  po/sane-backends.fr.po po/sane-backends.nl.po
+	  po/sane-backends.pt.po po/sane-backends.ru.po
+	  po/sane-backends.sv.po: Added hp5400 backend. Updated po files.
 
 2003-04-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

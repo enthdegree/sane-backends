@@ -7,7 +7,7 @@ ALL_LINGUAS = de es fr nl pt ru sv
 SRC_FILES = ../include/sane/saneopts.h ../backend/artec_eplus48u.c \
   ../backend/avision.h \
   ../backend/canon630u.c ../backend/epson.c ../backend/epson.h \
-  ../backend/gt68xx.c ../backend/leo.c ../backend/leo.h \
+  ../backend/gt68xx.c ../backend/hp5400.c ../backend/leo.c ../backend/leo.h \
   ../backend/ma1509.c \
   ../backend/matsushita.c ../backend/matsushita.h ../backend/mustek.c \
   ../backend/microtek2.c ../backend/microtek2.h \

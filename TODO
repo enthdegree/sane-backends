@@ -1,4 +1,4 @@
-TODO (2001-08-11)
+TODO (2001-09-09)
 
 ******** todo ********
 
@@ -18,9 +18,6 @@ backends
       Bauer <bauer-h@web.de>
     - viceo (Visioneer OneTouch 8600)
       http://www.abaforum.es/martim/bird/otlinux.htm
-    - Mustek USB backend (1200UB, 1200CU, 1200CU Plus)
-      http://www.meier-geinitz.de/sane/
-      Henning Meier-Geinitz <henning@meier-geinitz.de>
     - bearpaw (Mustek BearPaw 1200 + maybe 2400)
       Henning Meier-Geinitz <hmg@gmx.de>
     - Genius Vivid Pro USB, Colorado USB 19200, Visioneer OneTouch 7600 
@@ -191,6 +188,9 @@ misc
 
 ******** done ********
 
+* Add Mustek USB backend (1200UB, 1200CU, 1200CU Plus)
+  http://www.meier-geinitz.de/sane/
+  Henning Meier-Geinitz <henning@meier-geinitz.de>
 * Add USB support for sane-find-scanner.
 * move .desc files for backends that are not included in SANE to
   different directory (e.g. backends and external-backends)?

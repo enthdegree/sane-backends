@@ -1232,6 +1232,9 @@ check_inquiry(Microtek2_Device *md, SANE_String *model_string)
           /* The V6USL does not accept gamma tables */
           md->model_flags |= MD_NO_GAMMA;
           break;
+        case 0xa5:
+          *model_string = "ArtixScan 4000t";
+          break;
         case 0xac:
           *model_string = "ScanMaker V6UL";
           /* The V6USL does not accept gamma tables, perhaps the V6UL also */
@@ -4279,31 +4282,19 @@ scsi_read_attributes(Microtek2_Info *pmi, char *device, u_int8_t scan_source)
 /*---------- scsi_read_control_bits() ----------------------------------------*/
 
 static SANE_Status
-scsi_read_control_bits(Microtek2_Scanner *ms, int sfd)
+scsi_read_control_bits(Microtek2_Scanner *ms)
 {
     Microtek2_Device *md;
     SANE_Status status;
     u_int8_t cmd[RCB_CMD_L];
-    int open_fd = 0;
     u_int32_t byte;
     int bit;
     int count_1s;
 
     md = ms->dev;
 
-    DBG(30, "scsi_read_control_bits: ms=%p, fd=%d\n", ms, sfd);
+    DBG(30, "scsi_read_control_bits: ms=%p, fd=%d\n", ms, ms->sfd);
     DBG(30, "ms->control_bytes = %p\n", ms->control_bytes);
-    if ( sfd == -1 )
-      { 
-        open_fd = 1;
-        status = sanei_scsi_open(md->name, &sfd, scsi_sense_handler, 0);
-        if ( status != SANE_STATUS_GOOD ) 
-          {
-            DBG(1, "scsi_read_control_bits: open '%s'\n",
-                    sane_strstatus(status));
-            return status;
-          }
-      }
 
     RCB_SET_CMD(cmd);
     RCB_SET_LENGTH(cmd, ms->n_control_bytes);
@@ -4311,7 +4302,7 @@ scsi_read_control_bits(Microtek2_Scanner *ms, int sfd)
     if ( md_dump >= 2)
         dump_area2(cmd, RCB_CMD_L, "readcontrolbits");
     
-    status = sanei_scsi_cmd(sfd,
+    status = sanei_scsi_cmd(ms->sfd,
                             cmd,
                             sizeof(cmd),
                             ms->control_bytes,
@@ -4320,21 +4311,13 @@ scsi_read_control_bits(Microtek2_Scanner *ms, int sfd)
     if ( status != SANE_STATUS_GOOD ) 
       {
         DBG(1, "scsi_read_control_bits: cmd '%s'\n", sane_strstatus(status));
-        sanei_scsi_close(sfd);
         return status;
-      }
-
-    if ( open_fd == 1 )
-      {
-        sanei_scsi_close(sfd);
-        sfd = -1;
       }
 
     if ( md_dump >= 2)
         dump_area2(ms->control_bytes,
                    ms->n_control_bytes,
                    "readcontrolbitsresult");
-
 
     count_1s = 0;
     for ( byte = 0; byte < ms->n_control_bytes; byte++ )
@@ -5223,6 +5206,11 @@ sane_start(SANE_Handle handle)
     if ( status != SANE_STATUS_GOOD )
         goto cleanup;
 
+    /* !!FIXME!! - hack for C6USB because RIS over USB doesn't wait until */
+    /* scanner ready */
+    if (mi->model_code == 0x9a)
+        sleep(2);
+
     status = scsi_wait_for_image(ms);
     if ( status  != SANE_STATUS_GOOD )
         goto cleanup;
@@ -5237,7 +5225,7 @@ sane_start(SANE_Handle handle)
 
     if ( md->model_flags & MD_READ_CONTROL_BIT )
       {
-        status = scsi_read_control_bits(ms, ms->sfd);
+        status = scsi_read_control_bits(ms);
         if ( status != SANE_STATUS_GOOD )
             goto cleanup;
 
@@ -5403,7 +5391,7 @@ static void
 write_shading_buf_pnm(Microtek2_Scanner *ms)
 {
   FILE *outfile;
-  unsigned int pixel, color, line, offset;
+  unsigned int pixel, color, line;
   unsigned char  img_val_out;
   float img_val;
   int colseq[3]={2, 1, 0};
@@ -5414,18 +5402,18 @@ write_shading_buf_pnm(Microtek2_Scanner *ms)
   mi = &md->info[md->scan_source];
 
   outfile = fopen("shading_buf_w.pnm", "w");
-  fprintf(outfile, "P6\n#imagedata\n%d %d\n255\n", mi->geo_width, md->shading_length);
+  fprintf(outfile, "P6\n#imagedata\n%d %d\n255\n",
+          mi->geo_width, md->shading_length);
   for ( line=0; line < md->shading_length; ++line )
     {
       for ( pixel=0; pixel < (unsigned int) mi->geo_width; ++pixel)
         {
           for ( color=0; color < 3; ++color )
             {
-              offset = line * mi->geo_width * 3
-                       + colseq[color] * mi->geo_width
-                       + pixel;
-              img_val = *(ms->shading_image + offset * 2 );
-              img_val += *(ms->shading_image + offset * 2 + 1)* 256.0;
+              img_val = *((u_int16_t *) ms->shading_image
+                         + line * ( ms->bpl / ms->lut_entry_size )
+                         + colseq[color] * ( ms->bpl / ms->lut_entry_size / 3 )
+                         + pixel);
               img_val /= 16.0;
               img_val_out = (unsigned char)img_val;
               fputc(img_val_out, outfile);
@@ -5578,13 +5566,9 @@ condense_shading(Microtek2_Scanner *ms)
     shad_bplc = shad_pixels * ms->lut_entry_size;
 
     if ( md_dump >= 3 )
-        dump_area2(md->shading_table_w, shad_bplc * 3,
-                   "shading_table_w");
+        dump_area2(md->shading_table_w, shad_bplc * 3, "shading_table_w");
 
-    cond_length = ms->ppl * ms->lut_entry_size;
-    if ( ms->mode == MS_MODE_COLOR )
-        cond_length *= 3;
-/*    cond_length = ms->bpl; */
+    cond_length = ms->bpl * ms->lut_entry_size;
 
     if ( ms->condensed_shading_w )
       {
@@ -5592,8 +5576,8 @@ condense_shading(Microtek2_Scanner *ms)
         ms->condensed_shading_w = NULL;
       }
     ms->condensed_shading_w = (u_int8_t *)malloc(cond_length);
-    DBG(100, "condense_shading: ms->condensed_shading_w=%p, malloc'd %d bytes\n",
-                               ms->condensed_shading_w, cond_length);
+    DBG(100, "condense_shading: ms->condensed_shading_w=%p,"
+             "malloc'd %d bytes\n", ms->condensed_shading_w, cond_length);
     if ( ms->condensed_shading_w == NULL )
       {
         DBG(1, "condense_shading: malloc for white table failed\n");
@@ -5612,8 +5596,8 @@ condense_shading(Microtek2_Scanner *ms)
             ms->condensed_shading_d = NULL;
           }
         ms->condensed_shading_d = (u_int8_t *)malloc(cond_length);
-        DBG(100, "condense_shading: ms->condensed_shading_d=%p, malloc'd %d bytes\n",
-                                   ms->condensed_shading_d, cond_length);
+        DBG(100, "condense_shading: ms->condensed_shading_d=%p,"
+                 " malloc'd %d bytes\n", ms->condensed_shading_d, cond_length);
         if ( ms->condensed_shading_d == NULL )
           {
             DBG(1, "condense_shading: malloc for dark table failed\n");
@@ -5625,7 +5609,8 @@ condense_shading(Microtek2_Scanner *ms)
 
     count = 0;
 
-    for (lfd_bit = 0; lfd_bit < mi->geo_width; ++lfd_bit)
+    for (lfd_bit = 0; ( lfd_bit < mi->geo_width ) && ( count < (int)ms->ppl );
+         ++lfd_bit)
       {
         byte = ( lfd_bit + md->controlbit_offset ) / 8;
         bit = ( lfd_bit + md->controlbit_offset ) % 8;
@@ -5692,7 +5677,8 @@ condense_shading(Microtek2_Scanner *ms)
       {
         dump_area2(ms->condensed_shading_w, cond_length, "condensed_shading_w");
         if ( ms->condensed_shading_d != NULL )
-          dump_area2(ms->condensed_shading_d, cond_length, "condensed_shading_d");
+          dump_area2(ms->condensed_shading_d, cond_length,
+                     "condensed_shading_d");
 
         write_cshading_pnm(ms);
       }
@@ -5771,7 +5757,8 @@ read_shading_image(Microtek2_Scanner *ms)
             return status;
 
         ms->shading_image = malloc(ms->bpl * ms->src_remaining_lines);
-        DBG(100, "read shading image: ms->shading_image=%p, malloc'd %d bytes\n",
+        DBG(100, "read shading image: ms->shading_image=%p,"
+                 " malloc'd %d bytes\n",
                ms->shading_image, ms->bpl * ms->src_remaining_lines);
         if ( ms->shading_image == NULL )
           {
@@ -6011,8 +5998,8 @@ prepare_shading_data(Microtek2_Scanner *ms, u_int32_t lines, u_int8_t **data)
                 value = 0;
                 for ( line = 0; line < lines; line++ )
                     value += *((u_int16_t *) ms->shading_image
-                             + line * 3 * mi->geo_width
-                             + color * mi->geo_width
+                             + line * ( ms->bpl / ms->lut_entry_size )
+                             + color * ( ms->bpl / ms->lut_entry_size / 3 )
                              + i);
 
                 value /= lines;
@@ -6082,7 +6069,7 @@ prepare_shading_data(Microtek2_Scanner *ms, u_int32_t lines, u_int8_t **data)
 
                     value /= lines;
                     *((u_int16_t *) *data + color * mi->geo_width + i) =
-                                                   MIN(0xffff, (u_int16_t) value);
+                          MIN(0xffff, (u_int16_t) value);
                   }
               }
 
@@ -6253,7 +6240,7 @@ calc_cx_shading_line(Microtek2_Scanner *ms)
                md->shading_table_w, shading_line_bytes);
         if ( md->shading_table_w == NULL )
           {
-            DBG(100, "calc_cx_shading: malloc for white shading table failed\n");
+            DBG(100, "calc_cx_shading: malloc for white shadingtable failed\n");
             status = SANE_STATUS_NO_MEM;
             cleanup_scanner(ms);
           }
@@ -7036,7 +7023,7 @@ segreg_copy_pixels(Microtek2_Scanner *ms)
     u_int32_t pixel;
     int color, i, gamma_by_backend, right_to_left, scale1, scale2, bpp_in;
     float s_w, s_d;          /* shading byte from condensed_shading */
-    float val, maxval, shading_factor;
+    float val, maxval = 0, shading_factor = 0;
     u_int16_t val16 = 0;
     u_int8_t val8 = 0;
     u_int8_t *from_effective;
@@ -7047,13 +7034,17 @@ segreg_copy_pixels(Microtek2_Scanner *ms)
     mi = &md->info[md->scan_source];
     gamma_by_backend =  md->model_flags & MD_NO_GAMMA ? 1 : 0;
     right_to_left = mi->direction & MI_DATSEQ_RTOL;
-    maxval = (float) pow(2.0, (float) ms->depth) - 1.0;
-    s_w = maxval;
-    s_d = 0.0;
-    shading_factor = (float) pow(2.0, (double) (md->shading_depth - ms->depth) );
     scale1 = 16 - ms->depth;
     scale2 = 2 * ms->depth - 16;
     bpp_in = ( ms->bits_per_pixel_in + 7 ) / 8; /* Bytes per pixel from scanner */
+
+    if ((md->model_flags & MD_READ_CONTROL_BIT) && ms->calib_backend)
+      {
+        maxval = (float) pow(2.0, (float) ms->depth) - 1.0;
+        s_w = maxval;
+        s_d = 0.0;
+        shading_factor = (float) pow(2.0, (double) (md->shading_depth - ms->depth) );
+      }
 
     if ( gamma_by_backend )
       {
@@ -7239,9 +7230,9 @@ lplconcat_copy_pixels(Microtek2_Scanner *ms,
   u_int8_t *gamma[3];
   float s_d;                             /* dark shading pixel */
   float s_w;                             /* white shading pixel */
-  float shading_factor;
+  float shading_factor = 0;
   float f[3];                            /* color balance factor */
-  float val, maxval;
+  float val, maxval = 0;
   int color;
   int step, scale1, scale2;
   int i;
@@ -7253,10 +7244,14 @@ lplconcat_copy_pixels(Microtek2_Scanner *ms,
   md = ms->dev;
   mi = &md->info[md->scan_source];
 
-  shading_factor = (float) pow(2.0, (double) (md->shading_depth - ms->depth) );
-  maxval = (float) pow(2.0, (double) ms->depth) - 1.0;
-  s_w = maxval;
-  s_d = 0.0;
+  if ((md->model_flags & MD_READ_CONTROL_BIT) && ms->calib_backend)
+    {
+      shading_factor = (float) pow(2.0, (double) (md->shading_depth - ms->depth) );
+      maxval = (float) pow(2.0, (double) ms->depth) - 1.0;
+      s_w = maxval;
+      s_d = 0.0;
+    }
+
   step = ( right_to_left == 1 ) ? -1 : 1;
   if ( ms->depth > 8 ) step *= 2;
   scale1 = 16 - ms->depth;
@@ -7275,7 +7270,6 @@ lplconcat_copy_pixels(Microtek2_Scanner *ms,
   DBG(100, "lplconcat_copy_pixels: color balance:\n"
              " ms->balance[R]=%d, ms->balance[G]=%d, ms->balance[B]=%d\n",
              ms->balance[0], ms->balance[1], ms->balance[2]);
-
 
   for ( pixel = 0; pixel < ms->ppl; pixel++ )
     {
@@ -7491,25 +7485,29 @@ gray_copy_pixels(Microtek2_Scanner *ms,
     u_int16_t val16;
     u_int8_t val8;
     int step, scale1, scale2;
-    float val, maxval;
-    float s_w, s_d, shading_factor;
+    float val, maxval = 0;
+    float s_w, s_d, shading_factor = 0;
 
     DBG(30, "gray_copy_pixels: pixels=%d, from=%p, fp=%p, depth=%d\n",
              ms->ppl, from, ms->fp, ms->depth);
 
     md = ms->dev;
     step = right_to_left == 1 ? -1 : 1;
-    maxval = (float) pow(2.0, (float) ms->depth) - 1.0;
-    s_w = maxval;
-    s_d = 0.0;
-    shading_factor = (float) pow(2.0, (double) (md->shading_depth - ms->depth) );
+    if ( ms->depth > 8 ) step *= 2;
+    val = 0;
     scale1 = 16 - ms->depth;
     scale2 = 2 * ms->depth - 16;
-    val = 0;
+
+    if ((md->model_flags & MD_READ_CONTROL_BIT) && ms->calib_backend)
+      {
+        maxval = (float) pow(2.0, (float) ms->depth) - 1.0;
+        s_w = maxval;
+        s_d = 0.0;
+        shading_factor = (float) pow(2.0, (double) (md->shading_depth - ms->depth) );
+      }
 
     if ( ms->depth >= 8 )
       {
-        if ( ms->depth > 8 ) step *= 2;
         for ( pixel = 0; pixel < ms->ppl; pixel++ )
           {
             if ( ms->depth > 8 )

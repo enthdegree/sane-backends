@@ -1,4 +1,4 @@
-.TH saned 1 "9 Feb 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH saned 1 "29 Oct 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX saned
 .SH NAME
 saned \- SANE network daemon
@@ -161,7 +161,9 @@ sane 6566/tcp # SANE network scanner daemon
 In addition to the control connection (port 6566) saned also uses a data
 connection. The port of this socket is selected by the operating system and
 can't be specified by the user currently. This may be a problem if the
-connection must go through a firewall (packet filter).
+connection must go through a firewall (packet filter). If you must use a packet
+filter, make sure that all ports > 1024 are open on the server for connections
+from the client.
 
 .SH FILES
 .TP

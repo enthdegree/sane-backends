@@ -1,3 +1,7 @@
+2002-07-23  Stéphane Voltz  <svoltz@wanadoo.fr>
+
+	* doc/descriptions/umax_pp.desc: tagged 610P as unsupported
+
 2002-07-22  Frank Zago  <fzago at austin dot rr dot com>
 
 	* TODO: scheduled teco2 and teco3 backends for 1.0.9

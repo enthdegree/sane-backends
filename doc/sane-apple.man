@@ -24,7 +24,7 @@ works with this backend, please let us know by sending the scanner's
 model name, SCSI id, and firmware revision to
 .IR sane\-devel@mostang.com .
 See http://www.mostang.com/sane/mail.html for details on how to subscribe to
-sane-devel.
+sane\-devel.
 
 .SH "DEVICE NAMES"
 This backend expects device names of the form:

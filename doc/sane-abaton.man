@@ -16,7 +16,8 @@ works with this backend, or if you own an Abaton scanner that does not
 work with this backend, please contact
 .IR sane\-devel@mostang.com
 with the model number, so that arrangements can be made to include
-support for it.
+support for it. Have a look at http://www.mostang.com/sane/mail.html
+concerning subscription to sane-devel.
 .PP
 Abaton is out of business, and these scanners are not supported by
 Everex (the parent company of Abaton), nor is there any programming

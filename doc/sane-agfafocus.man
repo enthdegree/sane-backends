@@ -32,6 +32,8 @@ If you own a scanner other than the ones listed above that works with
 this backend, please let us know by sending the scanner's model name,
 SCSI id, and firmware revision to
 .IR sane\-devel@mostang.com .
+Have a look at http://www.mostang.com/sane/mail.html
+concerning subscription to sane-devel.
 .PP
 All of these scanners are pre-SCSI-2, and do not even report properly
 to SCSI Inquiry.  This is typically evident in SCSI bus scans, where

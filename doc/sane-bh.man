@@ -31,10 +31,11 @@ COPISCAN II 3338(A) Simplex Scanner (with ACE)
 If you have a Bell+Howell scanner and are able to test it with this
 backend, please contact
 .IR sane\-devel@mostang.com
-with the model number and testing results.  Additionally, the author is
-curious as to the likelihood of using this backend with the newer 
-4000 and 8000 series scanners.  If you have such a beast, please let
-me know.
+with the model number and testing results. Have a look at
+http://www.mostang.com/sane/mail.html concerning subscription to
+sane-devel. Additionally, the author is curious as to the likelihood of using
+this backend with the newer 4000 and 8000 series scanners.  If you have such a
+beast, please let me know.
 .PP
 The Bell+Howell Copiscan II series document scanners are high
 volume, high throughput scanners designed for document scanning 

@@ -1,7 +1,9 @@
 
 2004-11-19  Rene Rebe <rene@exactcode.de>
 
-	* backend/avison.c doc/descriptions/avision.desc: just added new IDs
+	* backend/avison.c doc/descriptions/avision.desc
+	  doc/descriptions/unsupported.desc: just added new IDs including
+	  moving the HP 82xx to the avision backend
 
 2004-11-19  Gerhard Jaeger <gerhard@gjaeger.de>
 	

@@ -541,24 +541,6 @@
 :comment "Not supported. See link for details."
 :status :unsupported
 
-:model "ScanJet 8200C"
-:url "/unsupported/hp-scanjet-8200c.html"
-:interface "USB"
-:comment "Not supported. See link for details."
-:status :unsupported
-
-:model "ScanJet 8250C"
-;:url ""
-:interface "USB"
-:comment "Not supported. SCSI optional. Includes ADF and TA. Probably similar to 8200C. No further information."
-:status :unsupported
-
-:model "ScanJet 8290C"
-:url "/unsupported/hp-scanjet-8290.html"
-:interface "USB"
-:comment "Not supported. See link for details."
-:status :unsupported
-
 ;********************************************************************************************
 
 :mfg "IBM"

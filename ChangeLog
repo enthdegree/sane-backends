@@ -1,3 +1,8 @@
+2004-12-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/gt68xx_devices.c: Disabled stop_scan command for Mustek
+	  BearPaw 2448 TA Plus.
+
 2004-12-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/sane-gphoto2.man doc/sane-microtek2.man: Fixed minor

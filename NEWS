@@ -2,7 +2,7 @@
 
 New with 1.0.5, released 2001-??-??:
 
-* New backends: bh, dc240, umax_pp.
+* New backends: bh, dc240, sm3600, umax_pp.
 * Updated backends: artec(), dll (), epson (), hp (), mustek (), net(), 
   plustek(), pnm (), tamarack (), umax ()
 * Fixed security bug in saned.c that allowed access to scanner without
@@ -17,6 +17,7 @@ New with 1.0.5, released 2001-??-??:
   more it has a man page now.
 * There is a testsuite for sane, but only one test is implemented yet.
 * Better output about versions of backends and frontends.
+* There is a man page for SANE  nom (sane(7)).
 * Install all available documentation.
 * Bugfixes.
 

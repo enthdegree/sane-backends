@@ -1,6 +1,8 @@
 2001-10-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/apple.desc: Updated URL.
+	* backend/canaon_pp.desc: Fixed two wrong scanner names (from
+	  Matthew Duggan" <stauff@guarana.org>).
 
 2001-10-29  Peter Fales <peter@fales.com>
 

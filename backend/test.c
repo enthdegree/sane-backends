@@ -1267,22 +1267,6 @@ reader_process (Test_Device * test_device, SANE_Int fd)
   return SANE_STATUS_GOOD;
 }
 
-#ifdef HAVE_OS2_H
-/*
- * reader thread for OS/2: need a wrapper, because threads can have
- * only one parameter.
-*/
-static void
-os2_reader_process (void *data)
-{
-  struct Test_Device *test_device = (struct Test_Device *) data;
-
-  DBG (1, "reader_process thread started\n");
-  reader_process (test_device, test_device->reader_fds);
-}
-
-#else
-
 /*
  * this code either runs in child or thread context...
  */
@@ -1314,7 +1298,6 @@ static int reader_task(void *data)
   DBG (2, "(child) sane_start: reader_process timed out\n");
   return (int)status;
 }
-#endif
 
 static SANE_Status
 finish_pass (Test_Device * test_device)
@@ -2493,11 +2476,11 @@ sane_start (SANE_Handle handle)
   /* create reader routine as new process or thread */
   test_device->pipe       = pipe_descriptor[0];
   test_device->reader_fds = pipe_descriptor[1];
-  test_device->reader_pid = sanei_thread_begin ( reader_task, (void *) test_device);
+  test_device->reader_pid = sanei_thread_begin(reader_task,(void*)test_device);
 
   if (test_device->reader_pid < 0)
     {
-      DBG (1, "sane_start: fork failed (%s)\n", strerror (errno));
+      DBG (1, "sane_start: sanei_thread_begin failed (%s)\n", strerror(errno));
       return SANE_STATUS_NO_MEM;
     }
 

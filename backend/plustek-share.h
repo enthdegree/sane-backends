@@ -363,7 +363,6 @@ typedef struct {
 #define _ScanMode_Color         0
 #define _ScanMode_AverageOut	1	/* CCD averaged 2 pixels value for output*/
 #define _ScanMode_Mono			2   /* not color mode						 */
-//#define _FastScanMode			_ScanMode_AverageOut
 
 /******************************************************************************
  * Section 6 - additional definitions

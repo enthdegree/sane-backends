@@ -28,8 +28,10 @@
  *		  removed unused variables from struct Plustek_Scanner
  *        moved fd from struct Plustek_Scanner to Plustek_Device
  *		  added next members to struct Plustek_Scanner and Plustek_Device
- * 0.37 - added max_x to struct Plustek_Scan
- * 0.38 - added caps to struct Plustek_Scan
+ * 0.37 - added max_x to struct Plustek_Device
+ * 0.38 - added caps to struct Plustek_Device
+ *        added exit code to struct Plustek_Scanner
+ *        removed dropout stuff
  *
  *.............................................................................
  *
@@ -123,7 +125,6 @@ enum {
     OPT_MODE,
 	OPT_EXT_MODE,
     OPT_HALFTONE,
-    OPT_DROPOUT,
     OPT_BRIGHTNESS,
     OPT_CONTRAST,
     OPT_RESOLUTION,
@@ -143,18 +144,18 @@ enum {
 
 typedef struct Plustek_Device
 {
-	struct Plustek_Device *next;
-	int 				   fd;				/* device handle */
-    SANE_Device 		   sane;
-	SANE_Int			   max_x;
-	SANE_Int			   max_y;
-    SANE_Int 			   level;
-    SANE_Range 			   dpi_range;
-    SANE_Range 			   x_range;
-    SANE_Range 			   y_range;
-    SANE_Int  		 	  *res_list;
-    SANE_Int 			   res_list_size;
-    ScannerCaps            caps;            /* caps reported by teh driver */
+	struct Plustek_Device *next;             /* pointer to next dev in list  */
+	int 				   fd;				 /* device handle                */
+    char                  *name;             /* (to avoid compiler warnings!)*/
+    SANE_Device 		   sane;             /* info struct                  */
+	SANE_Int			   max_x;            /* max XY-extension of the scan-*/
+	SANE_Int			   max_y;            /* area                         */
+    SANE_Range 			   dpi_range;        /* resolution range             */
+    SANE_Range 			   x_range;          /* x-range of the scan-area     */
+    SANE_Range 			   y_range;          /* y-range of the scan-area     */
+    SANE_Int  		 	  *res_list;         /* to hold the available phys.  */
+    SANE_Int 			   res_list_size;    /* resolution values            */
+    ScannerCaps            caps;             /* caps reported by the driver  */
 } Plustek_Device;
 
 typedef union
@@ -168,6 +169,7 @@ typedef struct Plustek_Scanner
 {
     struct Plustek_Scanner *next;
     pid_t 					reader_pid;		/* process id of reader          */
+    SANE_Status             exit_code;      /* status of the reader process  */
     int 					pipe;			/* pipe to reader process        */
 	unsigned long			bytes_read;		/* number of bytes currently read*/
     Plustek_Device 		   *hw;				/* pointer to current device     */

@@ -33,6 +33,9 @@
  *        getting X-size of scan area from driver
  *        applied Michaels´ patch for OPT_RESOLUTION (SANE_INFO_INEXACT stuff)
  * 0.38 - now using the information from the driver
+ *        some minor fixes
+ *        removed dropout stuff
+ *        removed some warning conditions
  *
  *.............................................................................
  *
@@ -115,10 +118,6 @@
 #define _DBG_SANE_INIT 10
 #define _DBG_READ      15
 
-/*********************** other definitions ***********************************/
-
-#define _MODEL_STR_LEN		255
-
 /************************** global vars **************************************/
 
 static int num_devices;
@@ -181,15 +180,6 @@ static const SANE_String_Const halftone_list[] =
 	NULL
 };
 
-static const SANE_String_Const dropout_list[] =
-{
-	"None",
-	"Red",
-	"Green",
-	"Blue",
-	NULL
-};
-
 static const SANE_Range percentage_range =
 {
 	-100 << SANE_FIXED_SCALE_SHIFT, /* minimum 		*/
@@ -229,7 +219,7 @@ static int drvopen( const char *dev_name )
 	result = ioctl(handle, _PTDRV_OPEN_DEVICE, &version );
 	if( result < 0 ) {
 		close( handle );
-		DBG( _DBG_ERROR,"ioctl PT_DRV_OPEN_DEVICE failed(%d)\n", result );
+		DBG( _DBG_ERROR, "ioctl PT_DRV_OPEN_DEVICE failed(%d)\n", result );
         if( -9019 == result )
     		DBG( _DBG_ERROR,"Version problem, please recompile driver!\n" );
 		return result;
@@ -289,6 +279,36 @@ static pModeParam getModeList( Plustek_Scanner *scanner )
 		mp = &mp[_TPAModeSupportMin];
 
 	return mp;
+}
+
+/*.............................................................................
+ *
+ */
+static SANE_Bool getReaderProcessExitCode( Plustek_Scanner *scanner )
+{
+    int res;
+    int status;
+
+    scanner->exit_code = SANE_STATUS_IO_ERROR;
+
+	if( scanner->reader_pid > 0 ) {
+
+        res = waitpid( scanner->reader_pid, &status, WNOHANG );
+
+        if( res == scanner->reader_pid ) {
+
+    		DBG( _DBG_INFO, "res=%i, status=%i\n",res,status );
+
+            if( WIFEXITED( status ))
+                scanner->exit_code = WEXITSTATUS(status);
+            else
+                scanner->exit_code = SANE_STATUS_GOOD;
+
+            return SANE_TRUE;
+        }
+    }
+
+    return SANE_FALSE;
 }
 
 /*.............................................................................
@@ -357,7 +377,8 @@ static int reader_process( Plustek_Scanner *scanner, int pipe_fd )
 
 	/* on error, there's no need to clean up, as this is done by the parent */
 	if((int)status < 0 ) {
-		DBG( _DBG_ERROR, "read failed, error %i\n", errno );
+		DBG( _DBG_ERROR, "read failed, status = %i, errno %i\n",
+                                                          (int)status, errno );
 		if( errno == EBUSY )
 			return SANE_STATUS_DEVICE_BUSY;
 
@@ -387,14 +408,14 @@ static SANE_Status do_cancel( Plustek_Scanner *scanner, SANE_Bool closepipe  )
 
 	scanner->scanning = SANE_FALSE;
 
-	if (scanner->reader_pid > 0) {
+	if( scanner->reader_pid > 0 ) {
 
 		DBG( _DBG_PROC,"killing reader_process\n" );
 
 		/* tell the driver to stop scanning */
 		if( -1 != scanner->hw->fd ) {
 			int_cnt = 1;
-			ioctl(scanner->hw->fd, _PTDRV_STOP_SCAN, &int_cnt );
+			ioctl( scanner->hw->fd, _PTDRV_STOP_SCAN, &int_cnt );
 		}
 
 		/* kill our child process and wait until done */
@@ -462,7 +483,7 @@ static SANE_Status init_options( Plustek_Scanner *s )
 
 	memset( s->opt, 0, sizeof(s->opt));
 
-	for (i = 0; i < NUM_OPTIONS; ++i) {
+	for( i = 0; i < NUM_OPTIONS; ++i ) {
 		s->opt[i].size = sizeof (SANE_Word);
 		s->opt[i].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     }
@@ -472,7 +493,6 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	s->opt[OPT_NUM_OPTS].desc  = SANE_DESC_NUM_OPTIONS;
 	s->opt[OPT_NUM_OPTS].type  = SANE_TYPE_INT;
 	s->opt[OPT_NUM_OPTS].unit  = SANE_UNIT_NONE;
-	s->opt[OPT_NUM_OPTS].size  = sizeof(SANE_Word);
 	s->opt[OPT_NUM_OPTS].cap   = SANE_CAP_SOFT_DETECT;
 	s->opt[OPT_NUM_OPTS].constraint_type = SANE_CONSTRAINT_NONE;
 	s->val[OPT_NUM_OPTS].w 	   = NUM_OPTIONS;
@@ -520,18 +540,6 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	s->opt[OPT_HALFTONE].constraint.string_list = halftone_list;
 	s->val[OPT_HALFTONE].w = 0;	/* Standard dithermap */
 	s->opt[OPT_HALFTONE].cap |= SANE_CAP_INACTIVE;
-
-	/* dropout */
-	s->opt[OPT_DROPOUT].name  = "dropout";
-	s->opt[OPT_DROPOUT].title = "Dropout";
-	s->opt[OPT_DROPOUT].desc  = "Selects the dropout.";
-	s->opt[OPT_DROPOUT].type  = SANE_TYPE_STRING;
-	s->opt[OPT_DROPOUT].size  = 32;
-	s->opt[OPT_DROPOUT].cap  |= SANE_CAP_ADVANCED;
-	s->opt[OPT_DROPOUT].constraint_type = SANE_CONSTRAINT_STRING_LIST;
-	s->opt[OPT_DROPOUT].constraint.string_list = dropout_list;
-	s->val[OPT_DROPOUT].w = 0;	/* None */
-	s->opt[OPT_DROPOUT].cap |= SANE_CAP_INACTIVE;
 
 	/* brightness */
 	s->opt[OPT_BRIGHTNESS].name  = SANE_NAME_BRIGHTNESS;
@@ -612,8 +620,6 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	s->val[OPT_BR_Y].w = SANE_FIX(_DEFAULT_BRY);
 
 	/* disable extended mode list for devices without TPA */
-	DBG(_DBG_SANE_INIT, "0x%08lx\n", s->hw->caps.dwFlag );
-
 	if( 0 == (s->hw->caps.dwFlag & SFLAG_TPA)) {
 		s->opt[OPT_EXT_MODE].cap |= SANE_CAP_INACTIVE;
 	}
@@ -622,11 +628,10 @@ static SANE_Status init_options( Plustek_Scanner *s )
 }
 
 /*.............................................................................
- *
+ * attach a device to the backend
  */
 static SANE_Status attach( const char *dev_name, Plustek_Device **devp )
 {
-	char 	       *str;
 	int 		    cntr;
 	int			    result;
 	int			    handle;
@@ -637,11 +642,14 @@ static SANE_Status attach( const char *dev_name, Plustek_Device **devp )
 	DBG(_DBG_SANE_INIT, "attach (%s, %p)\n", dev_name, (void *)devp);
 
 	/* already attached ?*/
-	for( dev = first_dev; dev; dev = dev->next )
-		if (strcmp (dev->sane.name, dev_name) == 0) {
-			if (devp)
-		*devp = dev;
-		return SANE_STATUS_GOOD;
+	for( dev = first_dev; dev; dev = dev->next ) {
+
+		if( 0 == strcmp( dev->sane.name, dev_name )) {
+			if( devp )
+        		*devp = dev;
+
+    		return SANE_STATUS_GOOD;
+        }
     }
 
 	/*
@@ -667,7 +675,7 @@ static SANE_Status attach( const char *dev_name, Plustek_Device **devp )
 	}
 
 	/* did we fail on connection? */
-	if (scaps.wIOBase == _NO_BASE ) {
+	if( _NO_BASE == scaps.wIOBase ) {
 		DBG( _DBG_ERROR, "failed to find Plustek scanner\n" );
 		close(handle);
 		return SANE_STATUS_INVAL;
@@ -675,13 +683,14 @@ static SANE_Status attach( const char *dev_name, Plustek_Device **devp )
 
 	/* allocate some memory for the device */
 	dev = malloc( sizeof (*dev));
-	if (!dev)
+	if( NULL == dev )
     	return SANE_STATUS_NO_MEM;
 
-	memset (dev, 0, sizeof (*dev));
+	memset(dev, 0, sizeof (*dev));
 
 	dev->fd			 = -1;
-	dev->sane.name   = strdup (dev_name);
+    dev->name        = strdup(dev_name);    /* hold it double to avoid  */
+	dev->sane.name   = dev->name;           /* compiler warnings        */
 	dev->sane.vendor = "Plustek";
 	dev->sane.type   = "flatbed scanner";
 
@@ -689,10 +698,13 @@ static SANE_Status attach( const char *dev_name, Plustek_Device **devp )
     dev->caps = scaps;
 
 	DBG( _DBG_INFO, "Scanner information:\n" );
-    if( dev->caps.Model <= MODEL_OP_PT12 )
+    if( dev->caps.Model <= MODEL_OP_PT12 ) {
     	DBG( _DBG_INFO, "Model  : %s\n", ModelStr[dev->caps.Model] );
-    else
+    	dev->sane.model = ModelStr[dev->caps.Model];
+    } else {
     	DBG( _DBG_INFO, "Model  : %s\n", ModelStr[0] );
+    	dev->sane.model = ModelStr[0];
+    }
 
 	DBG( _DBG_INFO, "Asic   : 0x%02x\n", dev->caps.AsicID );
 	DBG( _DBG_INFO, "Flags  : 0x%08lx\n", dev->caps.dwFlag );
@@ -701,7 +713,7 @@ static SANE_Status attach( const char *dev_name, Plustek_Device **devp )
 	dev->max_x = scaps.wMaxExtentX*MM_PER_INCH/_MEASURE_BASE;
 	dev->max_y = scaps.wMaxExtentY*MM_PER_INCH/_MEASURE_BASE;
 
-	dev->res_list = (SANE_Int *) calloc(((lens.rDpiX.wMax -_DEF_DPI)/25 + 1),
+	dev->res_list = (SANE_Int *)calloc(((lens.rDpiX.wMax -_DEF_DPI)/25 + 1),
 			     sizeof (SANE_Int));  /* one more to avoid a buffer overflow */
 
 	if (NULL == dev->res_list) {
@@ -710,33 +722,17 @@ static SANE_Status attach( const char *dev_name, Plustek_Device **devp )
 		return SANE_STATUS_INVAL;
 	}
 
+    /* build up the resolution table */
 	dev->res_list_size = 0;
-	for (cntr = _DEF_DPI; cntr <= lens.rDpiX.wMax; cntr += 25) {
+	for( cntr = _DEF_DPI; cntr <= lens.rDpiX.wMax; cntr += 25 ) {
 		dev->res_list_size++;
-		dev->res_list[dev->res_list_size - 1] = (SANE_Int) cntr;
+		dev->res_list[dev->res_list_size - 1] = (SANE_Int)cntr;
 	}
 
 	status = limitResolution( dev );
 	drvclose( handle );
 
-	str = malloc(_MODEL_STR_LEN);
-	if( NULL == str ) {
-		DBG(_DBG_ERROR,"attach: out of memory\n");
-		return SANE_STATUS_NO_MEM;
-	}
-
-	str[(_MODEL_STR_LEN-1)] = '\0';
-	str[0] = '\0';
-
-	/* error, give asic # */
-	if (scaps.Model > sizeof (ModelStr) / sizeof (*ModelStr)) {
-		sprintf(str, "ASIC ID = 0x%x",  scaps.AsicID);
-	} else {
-		sprintf(str, ModelStr[scaps.Model]);  /* lookup model string */
-	}
-
-	dev->sane.model = str;
-	dev->fd			= handle;
+	dev->fd = handle;
 
 	DBG( _DBG_SANE_INIT, "attach: model = >%s<\n", dev->sane.model );
 
@@ -822,15 +818,20 @@ void sane_exit( void )
 
 
 	for( dev = first_dev; dev; dev = next ) {
+
     	next = dev->next;
 
+        /*
+         * we're doin' this to avoid compiler warnings as dev->sane.name
+         * is defined as const char*
+         */
 		if( dev->sane.name )
-			free ((void *) dev->sane.name);
+			free( dev->name );
 
-		if( dev->sane.model )
-			free ((void *) dev->sane.model);
+        if( dev->res_list )
+			free( dev->res_list );
 
-		free (dev);
+		free( dev );
 	}
 
 	auth         = NULL;
@@ -848,8 +849,8 @@ SANE_Status sane_get_devices(const SANE_Device ***device_list,
 	Plustek_Device            *dev;
 	int                        i;
 
-	DBG(_DBG_SANE_INIT, "sane_get_devices (%p, %ld)\n", (void *) device_list,
-				       (long) local_only);
+	DBG(_DBG_SANE_INIT, "sane_get_devices (%p, %ld)\n",
+                                               device_list, (long) local_only);
 
 	/* already called, so cleanup */
 	if( devlist )
@@ -871,23 +872,25 @@ SANE_Status sane_get_devices(const SANE_Device ***device_list,
 /*.............................................................................
  * open the sane device
  */
-SANE_Status sane_open( SANE_String_Const devicename, SANE_Handle * handle )
+SANE_Status sane_open( SANE_String_Const devicename, SANE_Handle* handle )
 {
 	SANE_Status      status;
 	Plustek_Device  *dev;
 	Plustek_Scanner *s;
 
-	DBG( _DBG_SANE_INIT, "sane_open\n" );
+	DBG( _DBG_SANE_INIT, "sane_open - %s\n", devicename );
 
-	if (devicename[0]) {
-    	for (dev = first_dev; dev; dev = dev->next)
-			if (strcmp (dev->sane.name, devicename) == 0)
+	if( devicename[0] ) {
+    	for( dev = first_dev; dev; dev = dev->next ) {
+			if( strcmp( dev->sane.name, devicename ) == 0 )
 				break;
+        }
 
-		if (!dev) {
-			status = attach (devicename, &dev);
+		if( !dev ) {
 
-			if (status != SANE_STATUS_GOOD)
+			status = attach( devicename, &dev );
+
+			if( SANE_STATUS_GOOD != status )
 				return status;
 		}
 	} else {
@@ -895,11 +898,11 @@ SANE_Status sane_open( SANE_String_Const devicename, SANE_Handle * handle )
 		dev = first_dev;
 	}
 
-	if (!dev)
+	if( !dev )
     	return SANE_STATUS_INVAL;
 
 	s = malloc (sizeof (*s));
-	if (!s)
+	if( NULL == s )
     	return SANE_STATUS_NO_MEM;
 
 	memset(s, 0, sizeof (*s));
@@ -957,29 +960,16 @@ void sane_close (SANE_Handle handle)
 }
 
 /*.............................................................................
- *
+ * goes through a string list and returns the start-address of the string
+ * that has been found, or NULL on error
  */
-const SANE_Option_Descriptor *
-			sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
+static const SANE_String_Const *search_string_list(
+                            const SANE_String_Const *list, SANE_String value )
 {
-	Plustek_Scanner *s = (Plustek_Scanner *) handle;
-
-	if (option < 0 || option >= NUM_OPTIONS)
-		return NULL;
-
-	return &(s->opt[option]);
-}
-
-/*.............................................................................
- *
- */
-static const SANE_String_Const *
-		search_string_list (const SANE_String_Const * list, SANE_String value)
-{
-	while (*list != NULL && strcmp (value, *list) != 0)
+	while( *list != NULL && strcmp(value, *list) != 0 )
 		++list;
 
-	if (*list == NULL)
+	if( *list == NULL )
 		return NULL;
 
 	return list;
@@ -996,17 +986,17 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 	SANE_Status status;
 	const SANE_String_Const *optval;
 
-	if ( s->scanning ) {
+	if ( s->scanning )
 		return SANE_STATUS_DEVICE_BUSY;
-	}
 
-	if (option < 0 || option >= NUM_OPTIONS)
+	if((option < 0) || (option >= NUM_OPTIONS))
     	return SANE_STATUS_INVAL;
 
-	if (info != NULL)
+	if( NULL != info )
 		*info = 0;
 
-	switch (action) {
+	switch( action ) {
+
 		case SANE_ACTION_GET_VALUE:
 			switch (option) {
 			case OPT_NUM_OPTS:
@@ -1027,7 +1017,6 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 			case OPT_MODE:
 			case OPT_EXT_MODE:
 			case OPT_HALFTONE:
-			case OPT_DROPOUT:
 				strcpy ((char *) value,
 					  s->opt[option].constraint.string_list[s->val[option].w]);
 				break;
@@ -1036,167 +1025,187 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 		}
 		break;
 
-	case SANE_ACTION_SET_VALUE:
-    	status = sanei_constrain_value( s->opt + option, value, info );
-		if (status != SANE_STATUS_GOOD) {
-			return status;
-		}
+    	case SANE_ACTION_SET_VALUE:
+        	status = sanei_constrain_value( s->opt + option, value, info );
+		    if( SANE_STATUS_GOOD != status )
+			    return status;
 
-		optval = NULL;
-		if (s->opt[option].constraint_type == SANE_CONSTRAINT_STRING_LIST) {
-			optval = search_string_list (s->opt[option].constraint.string_list,
-									       (char *) value);
-			if (optval == NULL)
-	    		return SANE_STATUS_INVAL;
-		}
+    		optval = NULL;
+	    	if( SANE_CONSTRAINT_STRING_LIST == s->opt[option].constraint_type ) {
 
-      	switch (option) {
-			case OPT_RESOLUTION: {
-			    int n;
-	    		int min_d = s->hw->res_list[s->hw->res_list_size - 1];
-			    int v     = *(SANE_Word *)value;
-	    		int best  = v;
+		    	optval = search_string_list( s->opt[option].constraint.string_list,
+								         (char *) value);
+    			if( NULL == optval )
+	        		return SANE_STATUS_INVAL;
+		    }
 
-			    for (n = 0; n < s->hw->res_list_size; n++) {
-					int d = abs (v - s->hw->res_list[n]);
+          	switch (option) {
 
-					if (d < min_d) {
-					    min_d = d;
-				    	best  = s->hw->res_list[n];
-					}
-				}
+	    		case OPT_RESOLUTION: {
+		    	    int n;
+	    	    	int min_d = s->hw->res_list[s->hw->res_list_size - 1];
+			        int v     = *(SANE_Word *)value;
+    	    		int best  = v;
 
-	    		s->val[option].w = (SANE_Word)best;
+	    		    for( n = 0; n < s->hw->res_list_size; n++ ) {
+		    			int d = abs(v - s->hw->res_list[n]);
 
-                if(v != best)
-                    *(SANE_Word *)value = best;
+					    if( d < min_d ) {
+				    	    min_d = d;
+				    	    best  = s->hw->res_list[n];
+    					}
+	    			}
 
-				if (info != NULL) {
-					if( v != best)	
-                        *info |= SANE_INFO_INEXACT;
-					*info |= SANE_INFO_RELOAD_PARAMS;
-     		  	}
-			    break;
+	        		s->val[option].w = (SANE_Word)best;
 
-		  	}
-			case OPT_TL_X:
-			case OPT_TL_Y:
-			case OPT_BR_X:
-			case OPT_BR_Y:
-				s->val[option].w = *(SANE_Word *)value;
-				if (info != NULL)
-					*info |= SANE_INFO_RELOAD_PARAMS;
-				break;
+                    if( v != best )
+                        *(SANE_Word *)value = best;
 
-			case OPT_CONTRAST:
-			case OPT_BRIGHTNESS:
-    			s->val[option].w =
+	    			if( NULL != info ) {
+		    			if( v != best )	
+                            *info |= SANE_INFO_INEXACT;
+				    	*info |= SANE_INFO_RELOAD_PARAMS;
+         		  	}
+	    		    break;
+
+		      	}
+    			case OPT_TL_X:
+	    		case OPT_TL_Y:
+		    	case OPT_BR_X:
+			    case OPT_BR_Y:
+    				s->val[option].w = *(SANE_Word *)value;
+	    			if( NULL != info )
+    					*info |= SANE_INFO_RELOAD_PARAMS;
+	    			break;
+
+		    	case OPT_CONTRAST:
+			    case OPT_BRIGHTNESS:
+        			s->val[option].w =
 							((*(SANE_Word *)value) >> SANE_FIXED_SCALE_SHIFT);
-				break;
+	    			break;
 
-			case OPT_MODE:
-				if(mode_params[optval - mode_list].scanmode != COLOR_HALFTONE){
-					s->opt[OPT_HALFTONE].cap |= SANE_CAP_INACTIVE;
-					s->opt[OPT_CONTRAST].cap &= ~SANE_CAP_INACTIVE;
-				} else {
-					s->opt[OPT_HALFTONE].cap &= ~SANE_CAP_INACTIVE;
-					s->opt[OPT_CONTRAST].cap |= SANE_CAP_INACTIVE;
-				}
-#if 0
-				if (mode_params[optval - mode_list].color) {
-					s->opt[OPT_DROPOUT].cap |= SANE_CAP_INACTIVE;
-				} else {
-					s->opt[OPT_DROPOUT].cap &= ~SANE_CAP_INACTIVE;
-				}
-#endif
-				if (info != NULL)
-					*info |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
-			/* fall through */
-			case OPT_HALFTONE:
-			case OPT_DROPOUT:
-				s->val[option].w = optval - s->opt[option].constraint.string_list;
-				break;
+		    	case OPT_MODE: {
 
-			case OPT_EXT_MODE:
-				s->val[option].w = optval - s->opt[option].constraint.string_list;
-
-				/*
-				 * change the area and mode_list when changing the source
-				 */
-				if( s->val[option].w == 0 ) {
-
-					s->hw->dpi_range.min = _DEF_DPI;
-
-					s->hw->x_range.max = SANE_FIX(s->hw->max_x);
-					s->hw->y_range.max = SANE_FIX(s->hw->max_y);
-					s->val[OPT_TL_X].w = SANE_FIX(_DEFAULT_TLX);
-					s->val[OPT_TL_Y].w = SANE_FIX(_DEFAULT_TLY);
-   					s->val[OPT_BR_X].w = SANE_FIX(_DEFAULT_BRX);
-					s->val[OPT_BR_Y].w = SANE_FIX(_DEFAULT_BRY);
+                    int idx = (optval - mode_list);
 
                 	if((_ASIC_IS_98001  == s->hw->caps.AsicID) ||
-                       (_ASIC_IS_98003  == s->hw->caps.AsicID)) {
-						s->opt[OPT_MODE].constraint.string_list = mode_9800x_list;
-					} else {
-						s->opt[OPT_MODE].constraint.string_list = mode_list;
-					}
-					s->val[OPT_MODE].w = 3;		/* _COLOR_TRUE24 */
+                                     (_ASIC_IS_98003  == s->hw->caps.AsicID)) {
+                            idx = optval - mode_9800x_list;
+                    }
 
-				} else {
+	    			if( mode_params[idx].scanmode != COLOR_HALFTONE ){
+		    			s->opt[OPT_HALFTONE].cap |= SANE_CAP_INACTIVE;
+			    		s->opt[OPT_CONTRAST].cap &= ~SANE_CAP_INACTIVE;
+				    } else {
+					    s->opt[OPT_HALFTONE].cap &= ~SANE_CAP_INACTIVE;
+    					s->opt[OPT_CONTRAST].cap |= SANE_CAP_INACTIVE;
+	    			}
 
-					s->hw->dpi_range.min = _TPAMinDpi;
+	    			if( mode_params[idx].scanmode == COLOR_BW )
+			    		s->opt[OPT_CONTRAST].cap |= SANE_CAP_INACTIVE;
 
-					if( s->val[option].w == 1 ) {
-    					s->hw->x_range.max = SANE_FIX(_TP_X);
-						s->hw->y_range.max = SANE_FIX(_TP_Y);
-						s->val[OPT_TL_X].w = SANE_FIX(_DEFAULT_TP_TLX);
-						s->val[OPT_TL_Y].w = SANE_FIX(_DEFAULT_TP_TLY);
-   						s->val[OPT_BR_X].w = SANE_FIX(_DEFAULT_TP_BRX);
-						s->val[OPT_BR_Y].w = SANE_FIX(_DEFAULT_TP_BRY);
+			    	if( NULL != info )
+    					*info |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
+                }
 
-					} else {
-    					s->hw->x_range.max = SANE_FIX(_NEG_X);
-						s->hw->y_range.max = SANE_FIX(_NEG_Y);
-						s->val[OPT_TL_X].w = SANE_FIX(_DEFAULT_NEG_TLX);
-						s->val[OPT_TL_Y].w = SANE_FIX(_DEFAULT_NEG_TLY);
-   						s->val[OPT_BR_X].w = SANE_FIX(_DEFAULT_NEG_BRX);
-						s->val[OPT_BR_Y].w = SANE_FIX(_DEFAULT_NEG_BRY);
-					}
+           		/* fall through to OPT_HALFTONE */
+	    		case OPT_HALFTONE:
+			    	s->val[option].w = optval - s->opt[option].constraint.string_list;
+				    break;
 
-					if( s->hw->caps.dwFlag & SFLAG_TPA ) {
-						s->opt[OPT_MODE].constraint.string_list =
+    			case OPT_EXT_MODE:
+	    			s->val[option].w = optval - s->opt[option].constraint.string_list;
+
+		    		/*
+			    	 * change the area and mode_list when changing the source
+				     */
+    				if( s->val[option].w == 0 ) {
+
+	    				s->hw->dpi_range.min = _DEF_DPI;
+
+		    			s->hw->x_range.max = SANE_FIX(s->hw->max_x);
+			    		s->hw->y_range.max = SANE_FIX(s->hw->max_y);
+				    	s->val[OPT_TL_X].w = SANE_FIX(_DEFAULT_TLX);
+					    s->val[OPT_TL_Y].w = SANE_FIX(_DEFAULT_TLY);
+   	    				s->val[OPT_BR_X].w = SANE_FIX(_DEFAULT_BRX);
+    					s->val[OPT_BR_Y].w = SANE_FIX(_DEFAULT_BRY);
+
+                    	if((_ASIC_IS_98001  == s->hw->caps.AsicID) ||
+                           (_ASIC_IS_98003  == s->hw->caps.AsicID)) {
+				    		s->opt[OPT_MODE].constraint.string_list = mode_9800x_list;
+					    } else {
+						    s->opt[OPT_MODE].constraint.string_list = mode_list;
+    					}
+	    				s->val[OPT_MODE].w = 3;		/* _COLOR_TRUE24 */
+
+				    } else {
+
+					    s->hw->dpi_range.min = _TPAMinDpi;
+
+    					if( s->val[option].w == 1 ) {
+        					s->hw->x_range.max = SANE_FIX(_TP_X);
+		    				s->hw->y_range.max = SANE_FIX(_TP_Y);
+			    			s->val[OPT_TL_X].w = SANE_FIX(_DEFAULT_TP_TLX);
+				    		s->val[OPT_TL_Y].w = SANE_FIX(_DEFAULT_TP_TLY);
+   					    	s->val[OPT_BR_X].w = SANE_FIX(_DEFAULT_TP_BRX);
+						    s->val[OPT_BR_Y].w = SANE_FIX(_DEFAULT_TP_BRY);
+
+    					} else {
+        					s->hw->x_range.max = SANE_FIX(_NEG_X);
+			    			s->hw->y_range.max = SANE_FIX(_NEG_Y);
+		    				s->val[OPT_TL_X].w = SANE_FIX(_DEFAULT_NEG_TLX);
+				    		s->val[OPT_TL_Y].w = SANE_FIX(_DEFAULT_NEG_TLY);
+   					    	s->val[OPT_BR_X].w = SANE_FIX(_DEFAULT_NEG_BRX);
+						    s->val[OPT_BR_Y].w = SANE_FIX(_DEFAULT_NEG_BRY);
+    					}
+
+	    				if( s->hw->caps.dwFlag & SFLAG_TPA ) {
+		    				s->opt[OPT_MODE].constraint.string_list =
 											&mode_9800x_list[_TPAModeSupportMin];
-					} else {
-						s->opt[OPT_MODE].constraint.string_list =
+			    		} else {
+				    		s->opt[OPT_MODE].constraint.string_list =
 												&mode_list[_TPAModeSupportMin];
-					}
-					s->val[OPT_MODE].w = 1;		/* _COLOR_TRUE24 */
-    			}
+					    }
+    					s->val[OPT_MODE].w = 1;		/* _COLOR_TRUE24 */
+        			}
 
-				s->opt[OPT_HALFTONE].cap |= SANE_CAP_INACTIVE;
-/*				s->opt[OPT_DROPOUT].cap  |= SANE_CAP_INACTIVE;
- */
-				s->opt[OPT_CONTRAST].cap &= ~SANE_CAP_INACTIVE;
+		    		s->opt[OPT_HALFTONE].cap |= SANE_CAP_INACTIVE;
+				    s->opt[OPT_CONTRAST].cap &= ~SANE_CAP_INACTIVE;
 
-				if (info != NULL)
-					*info |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
-				break;
+    				if( NULL != info )
+	    				*info |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
+		    		break;
 
-			default:
-				return SANE_STATUS_INVAL;
-		}
-		break;
-	default:
-    	return SANE_STATUS_INVAL;
+			    default:
+				    return SANE_STATUS_INVAL;
+    		}
+	    	break;
+
+    	default:
+        	return SANE_STATUS_INVAL;
 	}
 
 	return SANE_STATUS_GOOD;
 }
 
 /*.............................................................................
+ * according to the option number, return a pointer to a descriptor
+ */
+const SANE_Option_Descriptor *
+   			 sane_get_option_descriptor( SANE_Handle handle, SANE_Int option )
+{
+	Plustek_Scanner *s = (Plustek_Scanner *) handle;
+
+	if((option < 0) || (option >= NUM_OPTIONS))
+		return NULL;
+
+	return &(s->opt[option]);
+}
+
+/*.............................................................................
  * return the current parameter settings
  */
-SANE_Status sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
+SANE_Status sane_get_parameters( SANE_Handle handle, SANE_Parameters *params )
 {
 	int    			 ndpi;
 	pModeParam  	 mp;
@@ -1206,7 +1215,7 @@ SANE_Status sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
      * do the same, if sane_get_parameters() is called
      * by a frontend before sane_start() is called
      */
-    if ((NULL == params) ||	(s->scanning != SANE_TRUE)) {
+    if((NULL == params) || (s->scanning != SANE_TRUE)) {
 
 		mp = getModeList( s );
 
@@ -1215,18 +1224,18 @@ SANE_Status sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 		ndpi = s->val[OPT_RESOLUTION].w;
 
 	    s->params.pixels_per_line =	SANE_UNFIX(s->val[OPT_BR_X].w -
-									s->val[OPT_TL_X].w) / MM_PER_INCH * ndpi;
+									  s->val[OPT_TL_X].w) / MM_PER_INCH * ndpi;
 
     	s->params.lines = SANE_UNFIX( s->val[OPT_BR_Y].w -
-									s->val[OPT_TL_Y].w) / MM_PER_INCH * ndpi;
+									  s->val[OPT_TL_Y].w) / MM_PER_INCH * ndpi;
 
 		/* pixels_per_line seems to be 8 * n.  */
 		/* s->params.pixels_per_line = s->params.pixels_per_line & ~7; debug only */
 
 	    s->params.last_frame = SANE_TRUE;
-    	s->params.depth = mp[s->val[OPT_MODE].w].depth;
+    	s->params.depth      = mp[s->val[OPT_MODE].w].depth;
 
-		if (mp[s->val[OPT_MODE].w].color) {
+		if( mp[s->val[OPT_MODE].w].color ) {
 			s->params.format = SANE_FRAME_RGB;
 			s->params.bytes_per_line = 3 * s->params.pixels_per_line;
 		} else {
@@ -1366,7 +1375,7 @@ SANE_Status sane_start( SANE_Handle handle )
 	cb.ucmd.cInf.ImgDef.wDataType = scanmode;
 
 /*
- * CHECK: what about the 10 bit mode
+ * CHECK: what about the 10 bit mode?
  */
 	if( COLOR_TRUE48 == scanmode )
 		cb.ucmd.cInf.ImgDef.wBits = OUTPUT_12Bits;
@@ -1493,7 +1502,7 @@ SANE_Status sane_start( SANE_Handle handle )
 	}
 
 	/* reader_pid = 0 ===> child process */		
-	if ( 0 == s->reader_pid ) {									
+	if( 0 == s->reader_pid ) {									
 
 		sigset_t 		 ignore_set;
 		struct SIGACTION act;
@@ -1545,9 +1554,11 @@ SANE_Status sane_read( SANE_Handle handle, SANE_Byte *data,
 		return do_cancel( s, SANE_TRUE );
 	}
 
-	if (nread < 0) {
-		if (errno == EAGAIN) {
+	if( nread < 0 ) {
 
+		if( EAGAIN == errno ) {
+
+            /* if we already had read the picture, so it's okay and stop */
 			if( s->bytes_read ==
 				(unsigned long)(s->params.lines * s->params.bytes_per_line)) {
 				waitpid( s->reader_pid, 0, 0 );
@@ -1557,6 +1568,7 @@ SANE_Status sane_read( SANE_Handle handle, SANE_Byte *data,
 				return close_pipe(s);
 			}
 
+            /* else force the frontend to try again*/
 			return SANE_STATUS_GOOD;
 
 		} else {
@@ -1569,9 +1581,22 @@ SANE_Status sane_read( SANE_Handle handle, SANE_Byte *data,
 	*length        = nread;
 	s->bytes_read += nread;
 
-	if (0 == nread) {
+    /* nothing red means that we're finished OR we had a problem...*/
+	if( 0 == nread ) {
+
 		drvclose( s->hw->fd );
 		s->hw->fd = -1;
+
+        if( 0 == s->bytes_read ) {
+
+            getReaderProcessExitCode( s );
+
+            if( SANE_STATUS_GOOD != s->exit_code ) {
+                close_pipe(s);
+        		return s->exit_code;
+            }
+        }
+
 		return close_pipe(s);
 	}
 
@@ -1587,9 +1612,8 @@ void sane_cancel (SANE_Handle handle)
 
 	DBG( _DBG_SANE_INIT, "sane_cancel\n" );
 
-	if( s->scanning ) {
+	if( s->scanning )
 		do_cancel( s, SANE_FALSE );
-	}
 }
 
 /*.............................................................................
@@ -1606,7 +1630,7 @@ SANE_Status sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 		return SANE_STATUS_INVAL;
 	}
 
-	if (fcntl (s->pipe, F_SETFL, non_blocking ? O_NONBLOCK : 0) < 0) {
+	if( fcntl (s->pipe, F_SETFL, non_blocking ? O_NONBLOCK : 0) < 0) {
 		DBG( _DBG_ERROR, "ERROR: can´t set to non-blocking mode !\n" );
 		return SANE_STATUS_IO_ERROR;
 	}
@@ -1624,7 +1648,7 @@ SANE_Status sane_get_select_fd( SANE_Handle handle, SANE_Int * fd )
 
 	DBG( _DBG_SANE_INIT, "sane_get_select_fd\n" );
 
-	if ( !s->scanning ) {
+	if( !s->scanning ) {
 		DBG( _DBG_ERROR, "ERROR: not scanning !\n" );
 		return SANE_STATUS_INVAL;
 	}

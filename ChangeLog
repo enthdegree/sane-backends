@@ -1,6 +1,8 @@
 2004-10-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added various scanners.
+	* po/sane-backends.da.po: Updated Danish translation (from Mogens
+	  Jaeger <mogensjaeger@get2net.dk>). 
 	
 2004-10-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -1,19 +1,19 @@
-# translation of sane-backends.po to Dansk
-# translation of sane-backends.de.po to Dansk
+# Oversættelse af sane-backends meddelelser til Dansk
 # Copyright (C) 2002 SANE Project.
 # Mogens Jaeger <mogensjaeger@get2net.dk>, 2004.
 msgid ""
 msgstr ""
-"Project-Id-Version: sane-backends\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-10-11 21:43+0200\n"
-"PO-Revision-Date: 2004-04-13 00:53+0200\n"
+"Project-Id-Version: sane-backends 1.0.15\n"
+"POT-Creation-Date: 2004-10-06 14:59+0200\n"
+"PO-Revision-Date: 2004-10-15 04:25+0200\n"
 "Last-Translator: Mogens Jaeger <mogensjaeger@get2net.dk>\n"
-"Language-Team: Dansk <da@li.org>\n"
+"Language-Team: Danish <dansk@klid.dk>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: KBabel 1.0.2\n"
+"Report-Msgid-Bugs-To: \n"
+"X-Generator: KBabel 1.3.1\n"
+"Plural-Forms:  nplurals=2; plural=(n != 1);\n"
 
 #: .tmp/artec_eplus48u.c:154 .tmp/hp-option.c:2923 .tmp/ma1509.c:101
 #: .tmp/mustek.c:125 .tmp/mustek.c:130 .tmp/mustek_usb.c:270
@@ -37,10 +37,10 @@ msgstr "Farve"
 
 #: .tmp/artec_eplus48u.c:2805 .tmp/gt68xx.c:652 .tmp/leo.c:873
 #: .tmp/ma1509.c:597 .tmp/matsushita.c:1191 .tmp/microtek2.h:602
-#: .tmp/mustek.c:4382 .tmp/mustek_usb.c:353 .tmp/niash.c:700
-#: .tmp/plustek.c:768 .tmp/plustek_pp.c:792 .tmp/sceptre.c:753
-#: .tmp/snapscan-options.c:507 .tmp/teco1.c:1146 .tmp/teco2.c:1952
-#: .tmp/teco3.c:971 .tmp/umax.c:5214 .tmp/umax_pp.c:549
+#: .tmp/mustek.c:4382 .tmp/mustek_usb.c:353 .tmp/plustek.c:768
+#: .tmp/plustek_pp.c:792 .tmp/sceptre.c:753 .tmp/snapscan-options.c:507
+#: .tmp/teco1.c:1146 .tmp/teco2.c:1952 .tmp/teco3.c:971 .tmp/umax.c:5214
+#: .tmp/umax_pp.c:546
 msgid "Enhancement"
 msgstr "Forbedring"
 
@@ -57,7 +57,7 @@ msgstr "Anvend standardværdier for forbedrings kontroller."
 #: .tmp/microtek2.h:601 .tmp/mustek.c:4334 .tmp/mustek_usb.c:305
 #: .tmp/plustek.c:722 .tmp/plustek_pp.c:746 .tmp/sceptre.c:705
 #: .tmp/snapscan-options.c:440 .tmp/teco1.c:1098 .tmp/teco2.c:1904
-#: .tmp/teco3.c:923 .tmp/test.c:618 .tmp/umax.c:5164 .tmp/umax_pp.c:500
+#: .tmp/teco3.c:923 .tmp/test.c:618 .tmp/umax.c:5164 .tmp/umax_pp.c:497
 msgid "Geometry"
 msgstr "Skanområde"
 
@@ -88,7 +88,7 @@ msgid ""
 "the configuration file, are used."
 msgstr ""
 "Hvis aktiveret, bliver der kun gennemført skygge korrektion under "
-"kalibreringen. Standard værdierne for forstærkning, offset og "
+"kalibreringen. Standard værdierne for forstærkning, forskydning og "
 "eksponeringstid, enten indbygget eller fra konfigurationsfilen, bliver brugt."
 
 #: .tmp/artec_eplus48u.c:2967
@@ -317,9 +317,9 @@ msgstr "Maks"
 
 #: .tmp/epson.c:2731 .tmp/gt68xx.c:442 .tmp/ma1509.c:499
 #: .tmp/matsushita.c:1086 .tmp/microtek2.h:600 .tmp/mustek.c:4197
-#: .tmp/mustek_usb.c:260 .tmp/niash.c:680 .tmp/plustek.c:637
-#: .tmp/plustek_pp.c:657 .tmp/sceptre.c:676 .tmp/snapscan-options.c:276
-#: .tmp/teco2.c:1876 .tmp/test.c:293 .tmp/umax.c:5042
+#: .tmp/mustek_usb.c:260 .tmp/plustek.c:637 .tmp/plustek_pp.c:657
+#: .tmp/sceptre.c:676 .tmp/snapscan-options.c:276 .tmp/teco2.c:1876
+#: .tmp/test.c:293 .tmp/umax.c:5042
 msgid "Scan Mode"
 msgstr "Skanner tilstand"
 
@@ -524,8 +524,8 @@ msgid ""
 "After sending the scan command, wait until the button on the scanner is "
 "pressed to actually start the scan process."
 msgstr ""
-"Når skan kommando er sendt, afvent da at knappen på skanneren bliver "
-"trykket, før skanningen reelt starter."
+"Når skan kommando er sendt, starter skanningen først når der er "
+"trykket på knappen på skanneren."
 
 #: .tmp/gt68xx.c:142 .tmp/ma1509.c:106 .tmp/mustek.c:156
 #: .tmp/snapscan-options.c:82 .tmp/umax.c:183
@@ -534,11 +534,11 @@ msgstr "Film adapter"
 
 #: .tmp/gt68xx.c:461
 msgid "Gray mode color"
-msgstr ""
+msgstr "Farve ved gråtone tilstand"
 
 #: .tmp/gt68xx.c:462
 msgid "Selects which scan color is used gray mode (default: green)."
-msgstr ""
+msgstr "Vælger hvilken skan farve der bruges i gråtone tilstand (standard er grøn)."
 
 #: .tmp/gt68xx.c:543
 msgid "Debugging Options"
@@ -549,12 +549,11 @@ msgid "Automatic warmup"
 msgstr "Automatisk opvarmning"
 
 #: .tmp/gt68xx.c:556
-#, fuzzy
 msgid ""
 "Warm-up until the lamp's brightness is constant instead of insisting on 60 "
 "seconds warm-up time."
 msgstr ""
-"Varm op indtil lampens lyshed er konstant, i stedet for at insistere på 30 "
+"Varm op indtil lampens lyshed er konstant, i stedet for at insistere på 60 "
 "sekunders opvarmnings tid."
 
 #: .tmp/gt68xx.c:567
@@ -562,9 +561,8 @@ msgid "Full scan"
 msgstr "Fuld skanning"
 
 #: .tmp/gt68xx.c:569
-#, fuzzy
 msgid ""
-"Scan the complete scanning area including calibration strip. Be careful. "
+"Scan the complete scanning area including calibration strip. Be carefull. "
 "Don't select the full height. For testing only."
 msgstr ""
 "Skan hele skannings arealet inklsive kalibrations striben. Vær forsigtig. "
@@ -613,9 +611,8 @@ msgstr ""
 "tilstand. Dette kan være gråtone, eller lav opløsning."
 
 #: .tmp/gt68xx.c:634
-#, fuzzy
 msgid "Backtrack lines"
-msgstr "Gennemtving bagudrettet sporing"
+msgstr "Bagudrettede linier"
 
 #: .tmp/gt68xx.c:636
 msgid ""
@@ -623,6 +620,10 @@ msgid ""
 "happens when the scanner scans faster than the computer can receive the "
 "data. Low values cause faster scans but increase the risk of omitting lines."
 msgstr ""
+"Antal linier skannervognen flyttes tilbage når bagudrettet sporing opstår. "
+"Det sker når skanneren skanner hurtigere end computeren kan modtage dataene. "
+"Små værdier giver hurtigere skanninger, men øger risikoen for at linier bliver "
+"sprunget over."
 
 #: .tmp/gt68xx.c:661
 msgid "Gamma value"
@@ -791,8 +792,7 @@ msgstr "Automatisk tærskelværdi"
 
 #: .tmp/hp-option.h:68
 msgid "Enable automatic determination of threshold for line-art scans."
-msgstr ""
-"Aktiver automatisk fastsættelse af tærskelværdi for stregtegnings skanninger."
+msgstr "Aktiver automatisk fastsættelse af tærskelværdi for stregtegnings skanninger."
 
 #: .tmp/hp-option.h:73
 msgid "Smoothing"
@@ -826,7 +826,7 @@ msgstr "Skub ud"
 msgid "Unload Document."
 msgstr "Skubber dokumentet ud."
 
-#: .tmp/hp-option.h:97 .tmp/niash.c:672
+#: .tmp/hp-option.h:97 .tmp/niash.c:491
 msgid "Calibrate"
 msgstr "Kalibrering"
 
@@ -1222,8 +1222,7 @@ msgid "Channel"
 msgstr "Kanal"
 
 #: .tmp/microtek2.h:672
-msgid ""
-"Selects the colour band, \"Master\" means that all colours are affected."
+msgid "Selects the colour band, \"Master\" means that all colours are affected."
 msgstr "Vælger farvekanal, \"Master\" betyder at alle farvekanaler påvirkes."
 
 #: .tmp/microtek2.h:676
@@ -1241,7 +1240,7 @@ msgstr "Mellemtone for rød"
 
 #: .tmp/microtek2.h:682
 msgid "Selects which radiance level should be considered \"50 % red\"."
-msgstr "Vælger hvilket glansniveau der skal anses for \"50% rød\"."
+msgstr "Vælger hvilket glansniveau der skal anses for \"50 % rød\"."
 
 #: .tmp/microtek2.h:686
 msgid "Midtone for green"
@@ -1265,27 +1264,24 @@ msgid "Red balance"
 msgstr "Rød balance"
 
 #: .tmp/microtek2.h:697
-#, c-format
 msgid "Balance factor for red. A value of 100% means no correction."
-msgstr "Balancefaktor for rød. Værdien 100% betyder ingen korrektion."
+msgstr "Balancefaktor for rød. 100 % giver ingen korrektion."
 
 #: .tmp/microtek2.h:701
 msgid "Green balance"
 msgstr "Grøn balance"
 
 #: .tmp/microtek2.h:702
-#, c-format
 msgid "Balance factor for green. A value of 100% means no correction."
-msgstr "Balancefaktor for grøn. Værdien 100% betyder ingen korrektion."
+msgstr "Balancefaktor for grøn. 100 % giver ingen korrektion."
 
 #: .tmp/microtek2.h:706
 msgid "Blue balance"
 msgstr "Blå balance"
 
 #: .tmp/microtek2.h:707
-#, c-format
 msgid "Balance factor for blue. A value of 100% means no correction."
-msgstr "Balancefaktor for blå. Værdien 100% betyder ingen korrektion."
+msgstr "Balancefaktor for blå. 100 % giver ingen korrektion."
 
 #: .tmp/microtek2.h:711
 msgid "Firmware balance"
@@ -1443,26 +1439,25 @@ msgstr "Kontrast blå kanal"
 msgid "Controls the contrast of the blue channel of the acquired image."
 msgstr "Fastsætter kontrasten i den blå kanal i det rekvirerede billede."
 
-#: .tmp/niash.c:627
+#: .tmp/niash.c:446
 msgid "Image"
-msgstr ""
+msgstr "Billede"
 
-#: .tmp/niash.c:655
+#: .tmp/niash.c:474
 msgid "Miscellaneous"
-msgstr ""
+msgstr "Diverse"
 
-#: .tmp/niash.c:662
+#: .tmp/niash.c:481
 msgid "Lamp status"
-msgstr ""
+msgstr "Lampe status"
 
-#: .tmp/niash.c:663
-#, fuzzy
+#: .tmp/niash.c:482
 msgid "Switches the lamp on or off."
 msgstr "Tænder/slukker for lampen"
 
-#: .tmp/niash.c:673
+#: .tmp/niash.c:492
 msgid "Calibrates for black and white level."
-msgstr ""
+msgstr "Kalibrerer for sort og hvidt niveau."
 
 #: .tmp/plustek.c:218 .tmp/plustek_pp.c:201
 msgid "Transparency"
@@ -1481,116 +1476,104 @@ msgid "Manually switching the lamp(s)."
 msgstr "Manuelt tænd/sluk for lampen(lamperne)."
 
 #: .tmp/plustek.c:845
-#, fuzzy
 msgid "Calibration data cache"
-msgstr "Kalibrerings tilstand"
+msgstr "Kalibrerings data cache"
 
 #: .tmp/plustek.c:846
 msgid "Enables or disables calibration data cache."
-msgstr ""
+msgstr "Aktiver eller deaktiver kalibrerings data cache."
 
 #: .tmp/plustek.c:857
-#, fuzzy
 msgid "Warmup-time"
-msgstr "Opvarmning lampe"
+msgstr "Opvarmningstid"
 
 #: .tmp/plustek.c:858
-#, fuzzy
 msgid "Warmup-time in seconds."
 msgstr "Opvarmningstid i sekunder."
 
 #: .tmp/plustek.c:865
-#, fuzzy
 msgid "Lampoff-time"
-msgstr "Sluk lampe"
+msgstr "Sluk lampe tid"
 
 #: .tmp/plustek.c:866
-#, fuzzy
 msgid "Lampoff-time in seconds."
-msgstr "Opvarmningstid i sekunder."
+msgstr "Sluk lampe tid i sekunder."
 
 #: .tmp/plustek.c:874
-#, fuzzy
 msgid "Analog frontend"
-msgstr "Analog gamma rød"
+msgstr "Analog forende"
 
 #: .tmp/plustek.c:880
 msgid "Red-gain"
-msgstr ""
+msgstr "Rød-forstærkning"
 
 #: .tmp/plustek.c:881
 msgid "Red-gain value of the AFE"
-msgstr ""
+msgstr "Rød-forstærknings værdi for den analoge forende"
 
 #: .tmp/plustek.c:888
 msgid "Red-offset"
-msgstr ""
+msgstr "Rød-forskydning"
 
 #: .tmp/plustek.c:889
 msgid "Red-offset value of the AFE"
-msgstr ""
+msgstr "Rød-forskydnings værdi for den analoge forende"
 
 #: .tmp/plustek.c:896
-#, fuzzy
 msgid "Green-gain"
-msgstr "Grøn"
+msgstr "Grøn-forstærkning"
 
 #: .tmp/plustek.c:897
 msgid "Green-gain value of the AFE"
-msgstr ""
+msgstr "Grøn-forstærknings værdi for den analoge forende"
 
 #: .tmp/plustek.c:904
-#, fuzzy
 msgid "Green-offset"
-msgstr "Tænder/slukker for lampen"
+msgstr "Grøn-forskydning"
 
 #: .tmp/plustek.c:905
 msgid "Green-offset value of the AFE"
-msgstr ""
+msgstr "Grøn-forskydnings værdi for den analoge forende"
 
 #: .tmp/plustek.c:912
-#, fuzzy
 msgid "Blue-gain"
-msgstr "Blå"
+msgstr "Blå-forstærkning"
 
 #: .tmp/plustek.c:913
 msgid "Blue-gain value of the AFE"
-msgstr ""
+msgstr "Blå-forstærknings værdi for den analoge forende"
 
 #: .tmp/plustek.c:920
 msgid "Blue-offset"
-msgstr ""
+msgstr "Blå-forskydning"
 
 #: .tmp/plustek.c:921
 msgid "Blue-offset value of the AFE"
-msgstr ""
+msgstr "Blå-forskydnings værdi for den analoge forende"
 
 #: .tmp/plustek.c:928
-#, fuzzy
 msgid "Red lamp off"
-msgstr "Tænder/slukker for lampen"
+msgstr "Rød lampe slukket"
 
 #: .tmp/plustek.c:929
 msgid "Defines red lamp off parameter"
-msgstr ""
+msgstr "Fastsætter parametre for slukning af rød lampe"
 
 #: .tmp/plustek.c:936
-#, fuzzy
 msgid "Green lamp off"
-msgstr "Tænder/slukker for lampen"
+msgstr "Grøn lampe slukket"
 
 #: .tmp/plustek.c:937
 msgid "Defines green lamp off parameter"
-msgstr ""
+msgstr "Fastsætter parametre for slukning af grøn lampe"
 
 #: .tmp/plustek.c:944
-#, fuzzy
 msgid "Blue lamp off"
-msgstr "Tænder/slukker for lampen"
+msgstr "Blå lampe slukket"
 
 #: .tmp/plustek.c:945
 msgid "Defines blue lamp off parameter"
-msgstr ""
+msgstr "Fastsætter parametre for slukning af blå lampe"
 
 #: .tmp/plustek_pp.c:194
 msgid "Color36"
@@ -2023,8 +2006,7 @@ msgid "Lamp off at exit"
 msgstr "Lampe slukkes ved afslutning"
 
 #: .tmp/saneopts.h:206
-msgid ""
-"Read-only option that specifies how many options a specific devices supports."
+msgid "Read-only option that specifies how many options a specific devices supports."
 msgstr ""
 "Skrivebeskyttet indstilling der specificerer hvor mange indstillinger en "
 "bestemt enhed understøtter."
@@ -2211,8 +2193,7 @@ msgstr ""
 "skanning af halvtone billeder."
 
 #: .tmp/saneopts.h:337
-msgid ""
-"Defines the halftoning (dithering) pattern for scanning halftoned images."
+msgid "Defines the halftoning (dithering) pattern for scanning halftoned images."
 msgstr ""
 "Angiver det halvtone gitter (dithering) der skal anvendes ved skanning af "
 "halvtone billeder."
@@ -2388,8 +2369,7 @@ msgstr "Forud definerede indstillinger"
 
 # snapscan.c:566
 #: .tmp/snapscan-options.c:493
-msgid ""
-"Provides standard scanning areas for photographs, printed pages and the like."
+msgid "Provides standard scanning areas for photographs, printed pages and the like."
 msgstr "Giver standard skanområde for fotografier, tryk o.l."
 
 # snapscan.c:809
@@ -2460,8 +2440,7 @@ msgid "Three-pass simulation"
 msgstr "Tre-gennemløbs simulering"
 
 #: .tmp/test.c:354
-msgid ""
-"Simulate a three-pass scanner. In color mode, three frames are transmitted."
+msgid "Simulate a three-pass scanner. In color mode, three frames are transmitted."
 msgstr ""
 "Simuler en tre-gennemløbs skanner. I farvetilstand overføres tre "
 "billedrammer."
@@ -2516,8 +2495,7 @@ msgid "Read limit"
 msgstr "Læse begrænsning"
 
 #: .tmp/test.c:456
-#, fuzzy
-msgid "Limit the amount of data transferred with each call to sane_read()."
+msgid "Limit the amount of data tranferred with each call to sane_read()."
 msgstr "Begræns mængden af overført data ved hvert kald af sane_read()."
 
 #: .tmp/test.c:469
@@ -2541,8 +2519,7 @@ msgid "Duration of read-delay"
 msgstr "Varighed af læse forsinkelse"
 
 #: .tmp/test.c:499
-msgid ""
-"How long to wait after transferring each buffer of data through the pipe."
+msgid "How long to wait after transferring each buffer of data through the pipe."
 msgstr ""
 "Fastlægger, hvor længe der skal ventes efter overførsel af hver databuffer "
 "gennem røret."
@@ -2596,8 +2573,7 @@ msgid "Offer select file descriptor"
 msgstr "Tilbyd en vælg fil beskriver"
 
 #: .tmp/test.c:577
-msgid ""
-"Offer a select filedescriptor for detecting if sane_read() will return data."
+msgid "Offer a select filedescriptor for detecting if sane_read() will return data."
 msgstr ""
 "Tilbyd en vælg fil beskriver for at bestemme om sane_read() vil returnere "
 "data."
@@ -2734,16 +2710,14 @@ msgstr "(3/6) Heltals begrænsnings ord liste"
 
 #: .tmp/test.c:851
 msgid "(3/6) Int test option with unit bits and constraint word list set."
-msgstr ""
-"(3/6) Heltal test indstilling med enheden \"bit\" og en ordliste begrænsning."
+msgstr "(3/6) Heltal test indstilling med enheden \"bit\" og en ordliste begrænsning."
 
 #: .tmp/test.c:866
 msgid "(4/6) Int array"
 msgstr "(4/6) Heltal tabel"
 
 #: .tmp/test.c:867
-msgid ""
-"(4/6) Int test option with unit mm and using an array without constraints."
+msgid "(4/6) Int test option with unit mm and using an array without constraints."
 msgstr ""
 "(4/6) Heltal test indstilling med enheden \"mm\" og en tabel uden "
 "indskrænkninger."
@@ -2773,82 +2747,68 @@ msgstr ""
 "begrænset ordliste."
 
 #: .tmp/test.c:917
-#, fuzzy
 msgid "Fixed test options"
-msgstr "Fixed-Testoptionen"
+msgstr "Faste test indstillinger"
 
 #: .tmp/test.c:930
-#, fuzzy
 msgid "(1/3) Fixed"
-msgstr "(1/3) Fixed"
+msgstr "(1/3) Faste"
 
 #: .tmp/test.c:931
-#, fuzzy
 msgid "(1/3) Fixed test option with no unit and no constraint set."
-msgstr "(1/3) Fixed test option with no unit and no constraint set."
+msgstr "(1/3) Faste test indstillinger uden enhed og ingen restriktioner sat."
 
 #: .tmp/test.c:946
-#, fuzzy
 msgid "(2/3) Fixed constraint range"
-msgstr "(2/3) Fixed constraint range"
+msgstr "(2/3) Fast restriktions område"
 
 #: .tmp/test.c:947
-#, fuzzy
 msgid ""
 "(2/3) Fixed test option with unit microsecond and constraint range set. "
 "Minimum is -42.17, maximum 32767.9999, and quant is 2.0."
 msgstr ""
-"(2/3) Fixed test option with unit microsecond and constraint range set. "
-"Minimum is -42.17, maximum 32767.9999, and quant is 2.0."
+"(2/3) Fast test indstilling, med enhed i nicrosekund og restriktion s område sat. "
+"Minimalt er -42.17, og maksimalt 32767.9999, og mængde er 2.0."
 
 #: .tmp/test.c:963
-#, fuzzy
 msgid "(3/3) Fixed constraint word list"
-msgstr "(3/3) Fixed constraint word list"
+msgstr "(3/3) Fast restriktions ordliste"
 
 #: .tmp/test.c:964
-#, fuzzy
 msgid "(3/3) Fixed test option with no unit and constraint word list set."
-msgstr "(3/3) Fixed test option with no unit and constraint word list set."
+msgstr "(3/3) Fast test indstilling uden enheder og restriktions ordliste sat."
 
 #: .tmp/test.c:979
-#, fuzzy
 msgid "String test options"
-msgstr "String test options"
+msgstr "Streng test indstillinger"
 
 #: .tmp/test.c:992
-#, fuzzy
 msgid "(1/3) String"
-msgstr "(1/3) String"
+msgstr "(1/3) Streng"
 
 #: .tmp/test.c:993
-#, fuzzy
 msgid "(1/3) String test option without constraint."
-msgstr "(1/3) String test option without constraint."
+msgstr "(1/3) Streng test indstillinger uden restriktioner."
 
 #: .tmp/test.c:1010
-#, fuzzy
 msgid "(2/3) String constraint string list"
-msgstr "(2/3) String constraint string list"
+msgstr "(2/3) Streng restriktioner strengliste"
 
 #: .tmp/test.c:1011
-#, fuzzy
 msgid "(2/3) String test option with string list constraint."
-msgstr "(2/3) String test option with string list constraint."
+msgstr "(2/3) Streng test indstillinger med strengliste restriktioner."
 
 #: .tmp/test.c:1030
-#, fuzzy
 msgid "(3/3) String constraint long string list"
-msgstr "(3/3) String constraint long string list"
+msgstr "(3/3) Streng restriktioner lang strengliste"
 
 #: .tmp/test.c:1031
-#, fuzzy
 msgid ""
 "(3/3) String test option with string list constraint. Contains some more "
 "entries..."
 msgstr ""
-"(3/3) String test option with string list constraint. Contains some more "
-"entries..."
+"(3/3) Streng test indstillinger med strengliste restriktioner. Indeholder "
+"nogle flere indgange..."
 
 #: .tmp/test.c:1051
 msgid "Button test options"
@@ -2861,14 +2821,6 @@ msgstr "(1/1) Knap"
 #: .tmp/test.c:1065
 msgid "(1/1) Button test option. Prints some text..."
 msgstr "(1/1) Knap test indstilling. Udskriver noget tekst..."
-
-#: .tmp/umax1220u.c:247 .tmp/umax.c:5800
-msgid "Lamp off"
-msgstr "Sluk lampe"
-
-#: .tmp/umax1220u.c:248 .tmp/umax.c:5801
-msgid "Turn off scanner lamp"
-msgstr "Sluk for skannerens lampe"
 
 # original text: "Lineart"
 #: .tmp/umax.c:189
@@ -2937,13 +2889,21 @@ msgstr "Holder fokus position 0mm"
 msgid "Use 0mm holder focus position instead of 0.6mm"
 msgstr "Anvend 0mm holder fokus position i stedet for 0,6mm"
 
-#: .tmp/umax.c:5783 .tmp/umax_pp.c:559
+#: .tmp/umax.c:5783 .tmp/umax_pp.c:556
 msgid "Lamp on"
 msgstr "Lampe tændt"
 
 #: .tmp/umax.c:5784
 msgid "Turn on scanner lamp"
 msgstr "Tænd for skanner lampen"
+
+#: .tmp/umax.c:5800 .tmp/umax1220u.c:247
+msgid "Lamp off"
+msgstr "Sluk lampe"
+
+#: .tmp/umax.c:5801 .tmp/umax1220u.c:248
+msgid "Turn off scanner lamp"
+msgstr "Sluk for skannerens lampe"
 
 #: .tmp/umax.c:5873
 msgid "Calibration mode"
@@ -2954,146 +2914,95 @@ msgstr "Kalibrerings tilstand"
 msgid "Define calibration mode"
 msgstr "Definer kalibrerings tilstand"
 
-#: .tmp/umax_pp.c:560
+#: .tmp/umax_pp.c:557
 msgid "Sets lamp on/off"
 msgstr "Tænder/slukker for lampen"
 
-#: .tmp/umax_pp.c:569
+#: .tmp/umax_pp.c:566
 msgid "UTA on"
 msgstr "UTA tændt"
 
-#: .tmp/umax_pp.c:570
+#: .tmp/umax_pp.c:567
 msgid "Sets UTA on/off"
 msgstr "Tænder/slukker for UTA'en"
 
-#: .tmp/umax_pp.c:635
+#: .tmp/umax_pp.c:632
 msgid "Gain"
-msgstr ""
+msgstr "Forstærk"
 
-#: .tmp/umax_pp.c:636
-#, fuzzy
+#: .tmp/umax_pp.c:633
 msgid "Color channels gain settings"
-msgstr "Indstillinger for farve kanalers lyshed"
+msgstr "Farvekanal forstærknings indstillinger"
 
-#: .tmp/umax_pp.c:643
-#, fuzzy
+#: .tmp/umax_pp.c:640
 msgid "Gray gain"
-msgstr "Grøn"
+msgstr "Grå forstærkning"
 
-#: .tmp/umax_pp.c:644
-#, fuzzy
+#: .tmp/umax_pp.c:641
 msgid "Sets gray channel gain"
-msgstr "Indstillinger for den grå kanals lyshed"
+msgstr "Fastsætter grå kanals forstærkning"
 
-#: .tmp/umax_pp.c:655
-#, fuzzy
+#: .tmp/umax_pp.c:652
 msgid "Red gain"
-msgstr "Rød balance"
+msgstr "Rød forstærkning"
 
-#: .tmp/umax_pp.c:656
-#, fuzzy
+#: .tmp/umax_pp.c:653
 msgid "Sets red channel gain"
-msgstr "Indstillinger for den røde kanals lyshed"
+msgstr "Fastsætter den røde kanals forstærkning"
 
-#: .tmp/umax_pp.c:667
-#, fuzzy
+#: .tmp/umax_pp.c:664
 msgid "Green gain"
-msgstr "Grøn"
+msgstr "Grøn forstærkning"
 
-#: .tmp/umax_pp.c:668
-#, fuzzy
+#: .tmp/umax_pp.c:665
 msgid "Sets green channel gain"
-msgstr "Indstillinger for den grønne kanals lyshed"
+msgstr "Fastsætter den grønne kanals forstærkning"
 
-#: .tmp/umax_pp.c:679
-#, fuzzy
+#: .tmp/umax_pp.c:676
 msgid "Blue gain"
-msgstr "Blå"
+msgstr "Blå forstærkning"
 
-#: .tmp/umax_pp.c:680
-#, fuzzy
+#: .tmp/umax_pp.c:677
 msgid "Sets blue channel gain"
-msgstr "Indstillinger for den blå kanals lyshed"
+msgstr "Fastsætter den blå kanals forstærkning"
 
-#: .tmp/umax_pp.c:691
-#, fuzzy
+#: .tmp/umax_pp.c:688
 msgid "Offset"
-msgstr "Slukket"
+msgstr "Forskydning"
 
-#: .tmp/umax_pp.c:693
-#, fuzzy
+#: .tmp/umax_pp.c:690
 msgid "Color channels offset settings"
-msgstr "Indstillinger for farve kanalernes kontrast"
+msgstr "Indstillinger for farve kanalernes forskydning"
 
-#: .tmp/umax_pp.c:700
-#, fuzzy
+#: .tmp/umax_pp.c:697
 msgid "Gray offset"
-msgstr "Tænder/slukker for lampen"
+msgstr "Grå forskydning"
 
-#: .tmp/umax_pp.c:701
-#, fuzzy
+#: .tmp/umax_pp.c:698
 msgid "Sets gray channel offset"
-msgstr "Indstillinger for den grå kanals kontrast"
+msgstr "Indstillinger for den grå kanals forskydning"
 
-#: .tmp/umax_pp.c:712
-#, fuzzy
+#: .tmp/umax_pp.c:709
 msgid "Red offset"
-msgstr "Tænder/slukker for lampen"
+msgstr "Rød forskydning"
 
-#: .tmp/umax_pp.c:713
-#, fuzzy
+#: .tmp/umax_pp.c:710
 msgid "Sets red channel offset"
-msgstr "Indstillinger for den røde kanals kontrast"
+msgstr "Indstillinger for den røde kanals forskydning"
 
-#: .tmp/umax_pp.c:724
-#, fuzzy
+#: .tmp/umax_pp.c:721
 msgid "Green offset"
-msgstr "Tænder/slukker for lampen"
+msgstr "Grøn forskydning"
 
-#: .tmp/umax_pp.c:725
-#, fuzzy
+#: .tmp/umax_pp.c:722
 msgid "Sets green channel offset"
-msgstr "Indstillinger for den grønne kanals kontrast"
+msgstr "Indstillinger for den grønne kanals forskydning"
 
-#: .tmp/umax_pp.c:736
-#, fuzzy
+#: .tmp/umax_pp.c:733
 msgid "Blue offset"
-msgstr "Tænder/slukker for lampen"
+msgstr "Blå forskydning"
 
-#: .tmp/umax_pp.c:737
-#, fuzzy
+#: .tmp/umax_pp.c:734
 msgid "Sets blue channel offset"
-msgstr "Indstillinger for den blå kanals kontrast"
+msgstr "Indstillinger for den blå kanals forskydning"
 
-#~ msgid "Gray 14/16"
-#~ msgstr "Grå 14/16"
-
-#~ msgid "Color 42/48"
-#~ msgstr "Farve 42/48"
-
-#~ msgid "Lamp always on"
-#~ msgstr "Lampen er altid tændt"
-
-#~ msgid "Don't turn off the lamp after leaving the frontend."
-#~ msgstr "Undlad at slukke lampen, når programmet afsluttes."
-
-#, fuzzy
-#~ msgid "Lamp off on shutdown"
-#~ msgstr "Lampe slukkes ved afslutning"
-
-#~ msgid "Gray brightness"
-#~ msgstr "Lyshed for gråtone"
-
-#~ msgid "Gray contrast"
-#~ msgstr "Kontrast for gråtone"
-
-#~ msgid "High quality"
-#~ msgstr "Høj kvalitet"
-
-# original text: "Scan in fast gray mode (lower quality)."
-#~ msgid "Scan in (slower) high quality mode"
-#~ msgstr "Skan i (langsom) høj kvalitets tilstand"
-
-# snapscan.c:227
-#~ msgid "none"
-#~ msgstr "keine"

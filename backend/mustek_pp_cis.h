@@ -224,6 +224,8 @@ typedef struct Mustek_PP_CIS_dev
   SANE_Bool fast_skip;
   /* Discrimination value to choose between black and white */
   SANE_Byte bw_limit; 
+  /* Run in calibration mode ? (default: no) */
+  SANE_Bool calib_mode;
   
   /* temporary buffer for 1 line (of one color) */
   SANE_Byte *tmpbuf;

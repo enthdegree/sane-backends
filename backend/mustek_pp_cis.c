@@ -64,7 +64,7 @@
  * parameters. Note that an inaccuracy in the order of 1 mm seems to be
  * normal for the Mustek 600/1200 CP series.
  */
-#define MUSTEK_PP_CIS_600CP_DEFAULT_SKIP   	178
+#define MUSTEK_PP_CIS_600CP_DEFAULT_SKIP   	250
 #define MUSTEK_PP_CIS_1200CP_DEFAULT_SKIP 	330
 
 /*
@@ -2104,6 +2104,15 @@ cis_calibrate (Mustek_PP_CIS_dev * dev)
           dev->CIS.skipsToOrigin);
    cis_move_motor(dev, dev->CIS.skipsToOrigin);
    
+   if (dev->calib_mode)
+   {
+      /* In calibration mode, we scan the interior of the scanner before the
+         glass plate in order to find the position of the calibration strip
+         and the start of the glass plate. */
+      DBG(3, "cis_calibrate: running in calibration mode. Returning home.\n");
+      cis_return_home (dev, SANE_FALSE);  /* Wait till it's home */
+   }
+   
    return dev->desc->state != STATE_CANCELLED ? SANE_TRUE : SANE_FALSE;
    
 }  
@@ -2283,6 +2292,7 @@ void cis_drv_setup (SANE_Handle hndl)
       may override them. */
    cisdev->fast_skip = SANE_TRUE;
    cisdev->bw_limit = 127;
+   cisdev->calib_mode = SANE_FALSE;
    if (cisdev->model == MUSTEK_PP_CIS600)
    {
       cisdev->top_skip = MUSTEK_PP_CIS_600CP_DEFAULT_SKIP;
@@ -2364,6 +2374,16 @@ SANE_Status cis_drv_config(SANE_Handle hndl, SANE_String_Const optname,
          return SANE_STATUS_INVAL;
       }
       cisdev->bw_limit = value;
+   }
+   else if (!strcmp(optname, "calibration_mode"))
+   {
+      if (optval)
+      {
+         DBG (1, "cis_drv_config: unexpected value for option calibration_mode\n");
+         return SANE_STATUS_INVAL;
+      }
+      DBG (3, "cis_drv_config: using calibration mode\n");
+      cisdev->calib_mode = SANE_TRUE;
    }
    else
    {

@@ -65,7 +65,7 @@ install:
 	$(MKDIR) $(DESTDIR)$(includedir)/sane
 	@list="$(INSTALLED_INCLUDES)"; for file in $$list; do \
 	  echo installing sane/$${file} in $(includedir)/sane/$${file}...; \
-	  $(INSTALL_DATA) sane/$${file} $(DESTDIR)$(includedir)/sane/$${file} \
+	  $(INSTALL_DATA) $(srcdir)/sane/$${file} $(DESTDIR)$(includedir)/sane/$${file} \
             || exit 1; \
 	done
 

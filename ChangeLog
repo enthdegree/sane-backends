@@ -1,3 +1,6 @@
+2004-03-15  Oliver Rauch <oliver.rauch@rauch-domain.de>
+	* backend/umax: bugfix for sense_handler and do_calibration
+
 2004-03-15  Stéphane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c backend/umax_pp_low.h backend/umax_pp_mid.c

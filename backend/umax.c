@@ -49,7 +49,7 @@
 
 /* --------------------------------------------------------------------------------------------------------- */
 
-#define BUILD 43
+#define BUILD 44
 
 /* --------------------------------------------------------------------------------------------------------- */
 
@@ -887,6 +887,11 @@ static SANE_Status sense_handler(int scsi_fd, unsigned char *result, void *arg)	
   }
 
   DBG(DBG_sense, "check condition sense: %s\n", sense_str[sensekey]);
+
+  /* when we reach here then we have no valid data in buffer[0] */
+  /* but it may be helpful to have the result data in buffer[0] */
+  memset(dev->buffer[0], 0, rs_return_block_size);  /* clear sense data buffer */
+  memcpy(dev->buffer[0], result, len+1); /* copy sense data to buffer */
 
   if (len > 0x15)
   {
@@ -2455,11 +2460,11 @@ static SANE_Status umax_do_calibration(Umax_Device *dev)
 
     DBG(DBG_info,"driver is doing calibration\n");
 
-    memset(dev->buffer[0], 0, rs_return_block_size);					  /* clear sense data buffer */
 
     if (umax_execute_request_sense)
     {
       DBG(DBG_info,"request sense call is enabled\n");
+      memset(dev->buffer[0], 0, rs_return_block_size);					  /* clear sense data buffer */
       umax_do_request_sense(dev);					   /* new request-sense call to get all data */
     }
     else
@@ -2543,9 +2548,9 @@ static SANE_Status umax_do_calibration(Umax_Device *dev)
     }
     else
     {
-      width   =  get_RS_SCC_calibration_width(dev->buffer[0]);
       lines   =  get_RS_SCC_calibration_lines(dev->buffer[0]);
       bytespp =  get_RS_SCC_calibration_bytespp(dev->buffer[0]);
+      width   =  get_RS_SCC_calibration_bytesperline(dev->buffer[0]) / bytespp;
     }
 
     if (dev->calibration_bytespp > 0) /* correct bytespp if necessary and driver knows about it or user did select it */

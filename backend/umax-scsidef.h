@@ -933,7 +933,7 @@ static scsiblk request_sense = { request_senseC, sizeof(request_senseC) };
 
 #define get_RS_scanner_error_code(b)			b[0x15]
 #define get_RS_SCC_condition_code(b)			b[0x17]
-#define get_RS_SCC_calibration_width(b)			getnbyte(b+0x18, 4)
+#define get_RS_SCC_calibration_bytesperline(b)		getnbyte(b+0x18, 4)
 #define get_RS_SCC_calibration_lines(b)			getnbyte(b+0x1c, 2)
 #define get_RS_SCC_calibration_bytespp(b)		b[0x1e]
 

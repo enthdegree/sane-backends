@@ -86,7 +86,7 @@ typedef SANE_Option_Descriptor *	_HpSaneOption;
 typedef struct hp_option_descriptor_s *	_HpOptionDescriptor;
 typedef struct hp_option_s *		_HpOption;
 
-typedef const struct hp_data_info_s *	HpDataInfo;
+typedef struct hp_data_info_s *	HpDataInfo;
 typedef struct hp_data_info_s *		_HpDataInfo;
 
 typedef HpAccessor		HpAccessorOptd;
@@ -286,15 +286,15 @@ sanei_hp_choice_isEnabled (HpChoice this, HpOptSet optset, HpData data,
 }
 
 static hp_bool_t
-_cenable_incolor (HpChoice this, HpOptSet optset, HpData data,
-                  const HpDeviceInfo *info)
+_cenable_incolor (HpChoice UNUSEDARG this, HpOptSet optset, HpData data,
+                  const HpDeviceInfo UNUSEDARG *info)
 {
   return sanei_hp_optset_scanmode(optset, data) == HP_SCANMODE_COLOR;
 }
 
 static hp_bool_t
-_cenable_notcolor (HpChoice this, HpOptSet optset, HpData data,
-                   const HpDeviceInfo *info)
+_cenable_notcolor (HpChoice UNUSEDARG this, HpOptSet optset, HpData data,
+                   const HpDeviceInfo UNUSEDARG *info)
 {
   return sanei_hp_optset_scanmode(optset, data) != HP_SCANMODE_COLOR;
 }
@@ -732,7 +732,7 @@ _set_size (HpOption opt, HpData data, SANE_Int size)
 
 /* #ifdef HP_EXPERIMENTAL */
 static SANE_Status
-_probe_int (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
+_probe_int (_HpOption this, HpScsi scsi, HpOptSet UNUSEDARG optset, HpData data)
 {
   HpScl		scl	= this->descriptor->scl_command;
   int		minval, maxval;
@@ -758,7 +758,7 @@ _probe_int (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
 /* #endif */
 
 static SANE_Status
-_probe_int_brightness (_HpOption this, HpScsi scsi, HpOptSet optset,
+_probe_int_brightness (_HpOption this, HpScsi scsi, HpOptSet UNUSEDARG optset,
                       HpData data)
 {
   HpScl		scl	= this->descriptor->scl_command;
@@ -799,7 +799,8 @@ _probe_int_brightness (_HpOption this, HpScsi scsi, HpOptSet optset,
 }
 
 static SANE_Status
-_probe_resolution (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
+_probe_resolution (_HpOption this, HpScsi scsi, HpOptSet UNUSEDARG optset,
+                   HpData data)
 {
   int		minval, maxval, min2, max2;
   int		val	= 0, val2;
@@ -855,7 +856,8 @@ _probe_resolution (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
 }
 
 static SANE_Status
-_probe_bool (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
+_probe_bool (_HpOption this, HpScsi scsi, HpOptSet UNUSEDARG optset,
+             HpData data)
 {
   HpScl		scl	= this->descriptor->scl_command;
   int		val	= 0;
@@ -877,7 +879,8 @@ _probe_bool (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
 
 
 static SANE_Status
-_probe_change_doc (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
+_probe_change_doc (_HpOption this, HpScsi scsi, HpOptSet UNUSEDARG optset,
+                   HpData data)
 
 {SANE_Status status;
  int cap = 0;
@@ -912,7 +915,8 @@ _probe_change_doc (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
  * _probe_change_doc(), to hide the unnecessary "Unload" button on
  * non-ADF OfficeJets. */
 static SANE_Status
-_probe_unload (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
+_probe_unload (_HpOption this, HpScsi scsi, HpOptSet UNUSEDARG optset,
+               HpData data)
 
 {SANE_Status status;
  int cap = 0;
@@ -943,7 +947,8 @@ _probe_unload (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
 }
 
 static SANE_Status
-_probe_calibrate (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
+_probe_calibrate (_HpOption this, HpScsi scsi, HpOptSet UNUSEDARG optset,
+                  HpData data)
 {
   int val = 0;  /* Always false */
   int minval, maxval;
@@ -1127,7 +1132,8 @@ _probe_choice (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
 }
 
 static SANE_Status
-_probe_each_choice (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
+_probe_each_choice (_HpOption this, HpScsi scsi, HpOptSet UNUSEDARG optset,
+                    HpData data)
 {
   HpScl		scl	= this->descriptor->scl_command;
   int		minval, maxval, val;
@@ -1176,7 +1182,7 @@ _probe_each_choice (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
 
 /* pseudo probe for exposure times in Photosmart */
 static SANE_Status
-_probe_ps_exposure_time (_HpOption this, HpScsi scsi, HpOptSet optset,
+_probe_ps_exposure_time (_HpOption this, HpScsi scsi, HpOptSet UNUSEDARG optset,
                          HpData data)
 {
     int           minval = 0, maxval = 9, val = 0;
@@ -1211,8 +1217,8 @@ _probe_ps_exposure_time (_HpOption this, HpScsi scsi, HpOptSet optset,
 
 /* probe scan type (normal, adf, xpa) */
 static SANE_Status
-_probe_scan_type (_HpOption this, HpScsi scsi, HpOptSet optset,
-                         HpData data)
+_probe_scan_type (_HpOption this, HpScsi scsi, HpOptSet UNUSEDARG optset,
+                  HpData data)
 {
   int           val;
   int           numchoices = 0;
@@ -1282,7 +1288,8 @@ _probe_scan_type (_HpOption this, HpScsi scsi, HpOptSet optset,
 }
 
 static SANE_Status
-_probe_mirror_horiz (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
+_probe_mirror_horiz (_HpOption this, HpScsi scsi, HpOptSet UNUSEDARG optset,
+                     HpData data)
 {
   HpScl		scl	= this->descriptor->scl_command;
   int		minval, maxval, val, sec_dir;
@@ -1326,7 +1333,8 @@ _probe_mirror_horiz (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
 }
 
 static SANE_Status
-_probe_mirror_vert (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
+_probe_mirror_vert (_HpOption this, HpScsi scsi, HpOptSet UNUSEDARG optset,
+                    HpData data)
 {
   int		minval = HP_MIRROR_VERT_OFF,
                 maxval = HP_MIRROR_VERT_ON,
@@ -1370,7 +1378,7 @@ _probe_mirror_vert (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
 
 
 static SANE_Status _probe_front_button(_HpOption this, HpScsi scsi,
-                                      HpOptSet optset, HpData data)
+                                      HpOptSet UNUSEDARG optset, HpData data)
 {
   int val = 0;
 
@@ -1481,7 +1489,7 @@ _probe_download_type (HpScl scl, HpScsi scsi)
 }
 
 static SANE_Status
-_probe_custom_gamma (_HpOption this, HpScsi scsi, HpOptSet optset,
+_probe_custom_gamma (_HpOption this, HpScsi scsi, HpOptSet UNUSEDARG optset,
                      HpData data)
 {
  HpScl       scl = this->descriptor->scl_command;
@@ -1674,7 +1682,8 @@ _probe_matrix (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
 }
 
 static SANE_Status
-_probe_num_options (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
+_probe_num_options (_HpOption this, HpScsi UNUSEDARG scsi,
+                    HpOptSet UNUSEDARG optset, HpData data)
 {
   /* If we dont have an accessor, get one */
   if (!this->data_acsr)
@@ -1687,7 +1696,8 @@ _probe_num_options (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
 }
 
 static SANE_Status
-_probe_devpix (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
+_probe_devpix (_HpOption this, HpScsi scsi, HpOptSet UNUSEDARG optset,
+               HpData data)
 {
   HpScl	scl	= this->descriptor->scl_command;
   int	resolution;
@@ -2080,7 +2090,8 @@ _program_matrix (HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
 }
 
 static SANE_Status
-_program_resolution (HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
+_program_resolution (HpOption this, HpScsi scsi, HpOptSet UNUSEDARG optset,
+                     HpData data)
 {
 
   int xresolution = hp_option_getint(this, data);
@@ -2302,8 +2313,8 @@ _program_media (HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
 }
 
 static SANE_Status
-_program_unload_after_scan (HpOption this, HpScsi scsi, HpOptSet optset,
-                            HpData data)
+_program_unload_after_scan (HpOption this, HpScsi scsi,
+                            HpOptSet UNUSEDARG optset, HpData data)
 { HpDeviceInfo *info;
 
   info = sanei_hp_device_info_get ( sanei_hp_scsi_devicename  (scsi) );
@@ -2317,8 +2328,8 @@ _program_unload_after_scan (HpOption this, HpScsi scsi, HpOptSet optset,
 }
 
 static SANE_Status
-_program_lamp_off (HpOption this, HpScsi scsi, HpOptSet optset,
-                            HpData data)
+_program_lamp_off (HpOption UNUSEDARG this, HpScsi scsi,
+                   HpOptSet UNUSEDARG optset, HpData UNUSEDARG data)
 {
   DBG(3,"program_lamp_off: shut off lamp\n");
 
@@ -2328,7 +2339,7 @@ _program_lamp_off (HpOption this, HpScsi scsi, HpOptSet optset,
 static SANE_Status
 _program_scan_type (HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
 
-{ int      req_scan_type, val, minval, maxval, current_scan_type;
+{ int      req_scan_type;
 
   req_scan_type = sanei_hp_accessor_getint(this->data_acsr, data);
 
@@ -2413,7 +2424,8 @@ _program_scan_type (HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
 }
 
 static SANE_Status
-_program_change_doc (HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
+_program_change_doc (HpOption UNUSEDARG this, HpScsi scsi,
+                     HpOptSet UNUSEDARG optset, HpData UNUSEDARG data)
 {
   int istat;
 
@@ -2468,7 +2480,8 @@ _program_unload (HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
 }
 
 static SANE_Status
-_program_calibrate (HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
+_program_calibrate (HpOption UNUSEDARG this, HpScsi scsi,
+                    HpOptSet UNUSEDARG optset, HpData UNUSEDARG data)
 {
   struct passwd *pw;
   SANE_Status status = SANE_STATUS_GOOD;
@@ -2499,8 +2512,8 @@ _program_calibrate (HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
  * some headers of the calibration data. The scanner uses a slower stepping
  * speed for higher exposure times */
 static SANE_Status
-_program_ps_exposure_time (HpOption this, HpScsi scsi, HpOptSet optset,
-                           HpData data)
+_program_ps_exposure_time (HpOption this, HpScsi scsi,
+                           HpOptSet UNUSEDARG optset, HpData data)
 {
     SANE_Status status = SANE_STATUS_GOOD;
     size_t calib_size = 0;
@@ -2584,7 +2597,8 @@ _program_scanmode (HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
 }
 
 static SANE_Status
-_program_mirror_horiz (HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
+_program_mirror_horiz (HpOption this, HpScsi scsi, HpOptSet UNUSEDARG optset,
+                       HpData data)
 {
   int sec_dir, mirror = hp_option_getint(this, data);
 
@@ -2628,8 +2642,8 @@ _enable_rgb_maps (HpOption this, HpOptSet optset, HpData data,
 #endif
 
 static hp_bool_t
-_enable_mono_map (HpOption this, HpOptSet optset, HpData data,
-                  const HpDeviceInfo *info)
+_enable_mono_map (HpOption UNUSEDARG this, HpOptSet optset, HpData data,
+                  const HpDeviceInfo UNUSEDARG *info)
 {
   HpOption 	cgam	= hp_optset_get(optset, CUSTOM_GAMMA);
 
@@ -2639,8 +2653,8 @@ _enable_mono_map (HpOption this, HpOptSet optset, HpData data,
 }
 
 static hp_bool_t
-_enable_rgb_matrix (HpOption this, HpOptSet optset, HpData data,
-                    const HpDeviceInfo *info)
+_enable_rgb_matrix (HpOption UNUSEDARG this, HpOptSet optset, HpData data,
+                    const HpDeviceInfo UNUSEDARG *info)
 {
   HpOption 	type = hp_optset_get(optset, MATRIX_TYPE);
 
@@ -2679,8 +2693,8 @@ _enable_brightness (HpOption this, HpOptSet optset, HpData data,
 }
 
 static hp_bool_t
-_enable_autoback (HpOption this, HpOptSet optset, HpData data,
-                  const HpDeviceInfo *info)
+_enable_autoback (HpOption UNUSEDARG this, HpOptSet optset, HpData data,
+                  const HpDeviceInfo UNUSEDARG *info)
 {
   return sanei_hp_optset_scanmode(optset, data) == HP_SCANMODE_LINEART;
 }
@@ -2721,15 +2735,15 @@ _enable_custom_gamma (HpOption this, HpOptSet optset, HpData data,
 }
 
 static hp_bool_t
-_enable_halftone (HpOption this, HpOptSet optset, HpData data,
-                  const HpDeviceInfo *info)
+_enable_halftone (HpOption UNUSEDARG this, HpOptSet optset, HpData data,
+                  const HpDeviceInfo UNUSEDARG *info)
 {
   return sanei_hp_optset_scanmode(optset, data) == HP_SCANMODE_HALFTONE;
 }
 
 static hp_bool_t
-_enable_halftonevec (HpOption this, HpOptSet optset, HpData data,
-                     const HpDeviceInfo *info)
+_enable_halftonevec (HpOption UNUSEDARG this, HpOptSet optset, HpData data,
+                     const HpDeviceInfo UNUSEDARG *info)
 {
   if (sanei_hp_optset_scanmode(optset, data) == HP_SCANMODE_HALFTONE)
     {
@@ -2741,8 +2755,8 @@ _enable_halftonevec (HpOption this, HpOptSet optset, HpData data,
 }
 
 static hp_bool_t
-_enable_data_width (HpOption this, HpOptSet optset, HpData data,
-                   const HpDeviceInfo *info)
+_enable_data_width (HpOption UNUSEDARG this, HpOptSet optset, HpData data,
+                   const HpDeviceInfo UNUSEDARG *info)
 {enum hp_scanmode_e mode;
 
  mode = sanei_hp_optset_scanmode (optset, data);
@@ -2750,7 +2764,7 @@ _enable_data_width (HpOption this, HpOptSet optset, HpData data,
 }
 
 static hp_bool_t
-_enable_out8 (HpOption this, HpOptSet optset, HpData data,
+_enable_out8 (HpOption UNUSEDARG this, HpOptSet optset, HpData data,
               const HpDeviceInfo *info)
 {
   if (hp_optset_isEnabled (optset, data, SANE_NAME_BIT_DEPTH, info))
@@ -2762,8 +2776,8 @@ _enable_out8 (HpOption this, HpOptSet optset, HpData data,
 }
 
 static hp_bool_t
-_enable_calibrate (HpOption this, HpOptSet optset, HpData data,
-                   const HpDeviceInfo *info)
+_enable_calibrate (HpOption UNUSEDARG this, HpOptSet optset, HpData data,
+                   const HpDeviceInfo UNUSEDARG *info)
 {
   HpOption 	media	= hp_optset_get(optset, MEDIA);
 

@@ -224,7 +224,7 @@ sanei_hp_device_support_probe (HpScsi scsi)
 
 SANE_Status
 sanei_hp_device_probe_model (enum hp_device_compat_e *compat, HpScsi scsi,
-                             int *model_num)
+                             int *model_num, const char **model_name)
 {
   static struct {
       HpScl		cmd;
@@ -243,9 +243,9 @@ sanei_hp_device_probe_model (enum hp_device_compat_e *compat, HpScsi scsi,
       { SCL_HP_MODEL_10,10,"PhotoSmart Photo Scanner", HP_COMPAT_PS },
       { SCL_HP_MODEL_11,11,"OfficeJet 1150C",          HP_COMPAT_OJ_1150C },
       { SCL_HP_MODEL_12,12,"OfficeJet 1170C or later", HP_COMPAT_OJ_1170C },
-      { SCL_HP_MODEL_14,14,"ScanJet 6200C/6250C",      HP_COMPAT_6200C },
+      { SCL_HP_MODEL_14,14,"ScanJet 62x0C",            HP_COMPAT_6200C },
       { SCL_HP_MODEL_16,15,"ScanJet 5200C",            HP_COMPAT_5200C },
-      { SCL_HP_MODEL_17,17,"ScanJet 6300C/6350C",      HP_COMPAT_6300C }
+      { SCL_HP_MODEL_17,17,"ScanJet 63x0C",            HP_COMPAT_6300C }
   };
   int		i;
   char		buf[8];
@@ -254,6 +254,7 @@ sanei_hp_device_probe_model (enum hp_device_compat_e *compat, HpScsi scsi,
   static char	*last_device = NULL;
   static enum hp_device_compat_e last_compat;
   static int    last_model_num = -1;
+  static const char *last_model_name = "Model Unknown";
 
   assert(scsi);
   DBG(1, "probe_scanner: Probing %s\n", sanei_hp_scsi_devicename (scsi));
@@ -265,6 +266,7 @@ sanei_hp_device_probe_model (enum hp_device_compat_e *compat, HpScsi scsi,
       DBG(3, "probe_scanner: use cached compatibility flags\n");
       *compat = last_compat;
       if (model_num) *model_num = last_model_num;
+      if (model_name) *model_name = last_model_name;
       return SANE_STATUS_GOOD;
     }
     sanei_hp_free (last_device);
@@ -272,6 +274,7 @@ sanei_hp_device_probe_model (enum hp_device_compat_e *compat, HpScsi scsi,
   }
   *compat = 0;
   last_model_num = -1;
+  last_model_name = "Model Unknown";
   for (i = 0; i < (int)(sizeof(probes)/sizeof(probes[0])); i++)
     {
       DBG(1,"probing %s\n",probes[i].model);
@@ -280,7 +283,18 @@ sanei_hp_device_probe_model (enum hp_device_compat_e *compat, HpScsi scsi,
       if (!FAILED( status = sanei_hp_scl_upload(scsi, probes[i].cmd,
 					  buf, sizeof(buf)) ))
 	{
-	  DBG(1, "probe_scanner: %s compatible\n", probes[i].model);
+	  DBG(1, "probe_scanner: %s compatible (%5s)\n", probes[i].model, buf);
+          last_model_name = probes[i].model;
+          /* Some scanners have different responses */
+          if (probes[i].model_num == 9)
+          {
+            if (strncmp (buf, "5110A", 5) == 0)
+              last_model_name = "ScanJet 5p";
+            else if (strncmp (buf, "5190A", 5) == 0)
+              last_model_name = "ScanJet 5100C";
+            else if (strncmp (buf, "6290A", 5) == 0)
+              last_model_name = "ScanJet 4100C";
+          }
 	  *compat |= probes[i].flag;
           last_model_num = probes[i].model_num;
 	}
@@ -291,6 +305,7 @@ sanei_hp_device_probe_model (enum hp_device_compat_e *compat, HpScsi scsi,
   last_device = sanei_hp_strdup (sanei_hp_scsi_devicename (scsi));
   last_compat = *compat;
   if (model_num) *model_num = last_model_num;
+  if (model_name) *model_name = last_model_name;
 
   return SANE_STATUS_GOOD;
 }
@@ -298,7 +313,7 @@ sanei_hp_device_probe_model (enum hp_device_compat_e *compat, HpScsi scsi,
 SANE_Status
 sanei_hp_device_probe (enum hp_device_compat_e *compat, HpScsi scsi)
 {
-  return sanei_hp_device_probe_model (compat, scsi, 0);
+  return sanei_hp_device_probe_model (compat, scsi, 0, 0);
 }
 
 hp_bool_t
@@ -313,23 +328,13 @@ hp_nonscsi_device_new (HpDevice * newp, const char * devname, HpConnect connect)
   HpDevice	this;
   HpScsi	scsi;
   SANE_Status	status;
-  char *	str;
+  const char *  model_name = "ScanJet";
 
   if (FAILED( sanei_hp_nonscsi_new(&scsi, devname, connect) ))
   {
     DBG(1, "%s: Can't open nonscsi device\n", devname);
     return SANE_STATUS_INVAL;	/* Can't open device */
   }
-
-#ifdef TEST_NEEDED
-  if (sanei_hp_scsi_inq(scsi)[0] != 0x03
-      || memcmp(sanei_hp_scsi_vendor(scsi), "HP      ", 8) != 0)
-    {
-      DBG(1, "%s: does not seem to be an HP scanner\n", devname);
-      sanei_hp_scsi_destroy(scsi,1);
-      return SANE_STATUS_INVAL;
-    }
-#endif
 
   /* reset scanner; returns all parameters to defaults */
   if (FAILED( sanei_hp_scl_reset(scsi) ))
@@ -347,22 +352,23 @@ hp_nonscsi_device_new (HpDevice * newp, const char * devname, HpConnect connect)
       return SANE_STATUS_NO_MEM;
 
   this->sanedev.name = sanei_hp_strdup(devname);
-  str = sanei_hp_strdup(sanei_hp_scsi_model(scsi));
-  if (!this->sanedev.name || !str)
+  if (!this->sanedev.name)
       return SANE_STATUS_NO_MEM;
-  this->sanedev.model = str;
-  if ((str = strchr(str, ' ')) != 0)
-      *str = '\0';
   this->sanedev.vendor = "Hewlett-Packard";
   this->sanedev.type   = "flatbed scanner";
 
-  status = sanei_hp_device_probe(&(this->compat), scsi);
+  status = sanei_hp_device_probe_model (&(this->compat), scsi, 0, &model_name);
   if (!FAILED(status))
   {
       sanei_hp_device_support_probe (scsi);
       status = sanei_hp_optset_new(&(this->options), scsi, this);
   }
   sanei_hp_scsi_destroy(scsi,1);
+
+  if (!model_name) model_name = "ScanJet";
+  this->sanedev.model = sanei_hp_strdup (model_name);
+  if (!this->sanedev.model)
+      return SANE_STATUS_NO_MEM;
 
   if (FAILED(status))
     {

@@ -53,6 +53,12 @@
 #define DEBUG_NOT_STATIC
 #include "sane/sanei_debug.h"
 
+#ifdef __GNUC__
+#define UNUSEDARG __attribute__ ((unused))
+#else
+#define UNUSEDARG
+#endif
+
 /* FIXME: these should be options? */
 #undef ENABLE_7x12_TONEMAPS
 #define ENABLE_16x16_DITHERS
@@ -103,8 +109,7 @@ typedef int 		hp_bool_t;
 typedef unsigned char	hp_byte_t;
 
 typedef enum { HP_CONNECT_SCSI, HP_CONNECT_DEVICE,
-               HP_CONNECT_PIO, HP_CONNECT_USB, HP_CONNECT_RESERVE,
-	       HP_CONNECT_PTAL } HpConnect;
+               HP_CONNECT_PIO, HP_CONNECT_USB, HP_CONNECT_RESERVE } HpConnect;
 
 typedef struct
 {
@@ -171,18 +176,18 @@ typedef struct
 } HpProcessData;
 
 /* hp-option.c */
-typedef const SANE_Option_Descriptor *		HpSaneOption;
+typedef SANE_Option_Descriptor *	HpSaneOption;
 
-typedef const struct hp_choice_s *		HpChoice;
-typedef const struct hp_option_s *		HpOption;
+typedef const struct hp_choice_s *	HpChoice;
+typedef struct hp_option_s *		HpOption;
 typedef const struct hp_option_descriptor_s *	HpOptionDescriptor;
-typedef struct hp_optset_s *			HpOptSet;
+typedef struct hp_optset_s *		HpOptSet;
 
 /* hp-accessor.c */
 typedef struct hp_data_s *		HpData;
-typedef const struct hp_accessor_s *	HpAccessor;
-typedef const struct hp_accessor_vector_s *	HpAccessorVector;
-typedef const struct hp_accessor_choice_s *	HpAccessorChoice;
+typedef struct hp_accessor_s *	HpAccessor;
+typedef struct hp_accessor_vector_s *	HpAccessorVector;
+typedef struct hp_accessor_choice_s *	HpAccessorChoice;
 
 /* hp-device.c */
 typedef struct hp_device_s *	HpDevice;

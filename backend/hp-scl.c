@@ -62,6 +62,7 @@ extern int sanei_debug_hp;*/
 #include <sys/stat.h>
 #include <fcntl.h>
 #include "sane/sanei_scsi.h"
+#include "sane/sanei_usb.h"
 #include "sane/sanei_pio.h"
 
 #include "hp.h"
@@ -72,10 +73,6 @@ extern int sanei_debug_hp;*/
 #include "hp-scsi.h"
 #include "hp-scl.h"
 #include "hp-device.h"
-
-#ifdef HAVE_PTAL
-#include <ptal.h>
-#endif
 
 #define HP_SCSI_INQ_LEN		(36)
 #define HP_SCSI_CMD_LEN		(6)
@@ -88,10 +85,6 @@ extern int sanei_debug_hp;*/
  */
 struct hp_scsi_s
 {
-#ifdef HAVE_PTAL
-    ptalDevice_t dev;
-    ptalChannel_t chan;
-#endif
     int		fd;
     char      * devname;
 
@@ -131,10 +124,8 @@ static SANE_Status
 hp_nonscsi_write (HpScsi this, hp_byte_t *data, size_t len, HpConnect connect)
 
 {int n = -1;
-#ifdef HAVE_PTAL
- int isReset;
- struct timeval startTimeout,continueTimeout;
-#endif
+ size_t loc_len;
+ SANE_Status status = SANE_STATUS_GOOD;
 
  if (len <= 0) return SANE_STATUS_GOOD;
 
@@ -149,50 +140,13 @@ hp_nonscsi_write (HpScsi this, hp_byte_t *data, size_t len, HpConnect connect)
      break;
 
    case HP_CONNECT_USB:      /* Not supported */
-     n = -1;
+     loc_len = len;
+     status = sanei_usb_write_bulk ((SANE_Int)this->fd, data, &loc_len);
+     n = loc_len;
      break;
 
    case HP_CONNECT_RESERVE:
      n = -1;
-     break;
-
-   case HP_CONNECT_PTAL:
-#ifndef HAVE_PTAL
-     n = -1;
-#else
-     /* Check to see if we need to re-open the scan channel in case
-      * JetDirect closed it due to an idle timeout. */
-     if (ptalChannelOpenOrReopen(this->chan)==PTAL_ERROR) {
-
-     	break;
-     }
-     if (ptalChannelPrepareForSelect(this->chan,&this->fd,0,0,0,0)==
-         PTAL_ERROR) {
-
-     	break;
-     }
-
-     /* If we're sending an SCL RESET command, then flush stale
-      * response data after sending the command.  Otherwise,
-      * flush stale data before sending the command.  This is
-      * necessary because data is buffered between us and the
-      * scanner, which will not be affected by the SCL RESET. */
-     isReset=(len==2 && data[0]==27 && data[1]=='E');
-     startTimeout.tv_sec=0;
-     startTimeout.tv_usec=0;
-     continueTimeout.tv_sec=2;
-     continueTimeout.tv_usec=0;
-
-     if (!isReset) {
-	ptalChannelFlush(this->chan,&startTimeout,&continueTimeout);
-     }
-
-     n=ptalChannelWrite(this->chan,data,len);
-
-     if (isReset) {
-	ptalChannelFlush(this->chan,&startTimeout,&continueTimeout);
-     }
-#endif
      break;
 
    default:
@@ -203,17 +157,15 @@ hp_nonscsi_write (HpScsi this, hp_byte_t *data, size_t len, HpConnect connect)
  if (n == 0) return SANE_STATUS_EOF;
  else if (n < 0) return SANE_STATUS_IO_ERROR;
 
- return SANE_STATUS_GOOD;
+ return status;
 }
 
 static SANE_Status
 hp_nonscsi_read (HpScsi this, hp_byte_t *data, size_t *len, HpConnect connect,
-  int isResponse)
+  int UNUSEDARG isResponse)
 
 {int n = -1;
-#ifdef HAVE_PTAL
- struct timeval continueTimeout;
-#endif
+ SANE_Status status = SANE_STATUS_GOOD;
 
  if (*len <= 0) return SANE_STATUS_GOOD;
 
@@ -228,23 +180,12 @@ hp_nonscsi_read (HpScsi this, hp_byte_t *data, size_t *len, HpConnect connect,
      break;
 
    case HP_CONNECT_USB:
-     n = -1;
+     status = sanei_usb_read_bulk ((SANE_Int)this->fd, (SANE_Byte *)data, len);
+     n = *len;
      break;
 
    case HP_CONNECT_RESERVE:
      n = -1;
-     break;
-
-   case HP_CONNECT_PTAL:
-#ifndef HAVE_PTAL
-     n = -1;
-#else
-     continueTimeout.tv_sec=0;
-     if (isResponse) continueTimeout.tv_sec=1;
-     if (*len>1024) continueTimeout.tv_sec=2;
-     continueTimeout.tv_usec=10000;
-     n=ptalSclChannelRead(this->chan,data,*len,0,&continueTimeout,isResponse);
-#endif
      break;
 
    default:
@@ -256,13 +197,14 @@ hp_nonscsi_read (HpScsi this, hp_byte_t *data, size_t *len, HpConnect connect,
  else if (n < 0) return SANE_STATUS_IO_ERROR;
 
  *len = n;
- return SANE_STATUS_GOOD;
+ return status;
 }
 
 static SANE_Status
 hp_nonscsi_open (const char *devname, int *fd, HpConnect connect)
 
 {int lfd, flags;
+ SANE_Int dn;
  SANE_Status status = SANE_STATUS_INVAL;
 
 #ifdef _O_RDWR
@@ -301,16 +243,12 @@ hp_nonscsi_open (const char *devname, int *fd, HpConnect connect)
      break;
 
    case HP_CONNECT_USB:
-     status = SANE_STATUS_INVAL;
+     DBG(17, "hp_nonscsi_open: open usb with \"%s\"\n", devname);
+     status = sanei_usb_open (devname, &dn);
+     lfd = (int)dn;
      break;
 
    case HP_CONNECT_RESERVE:
-     status = SANE_STATUS_INVAL;
-     break;
-
-   case HP_CONNECT_PTAL:
-     /* This is handled in hp_nonscsi_write()
-      * because we need more than the file descriptor. */
      status = SANE_STATUS_INVAL;
      break;
 
@@ -343,14 +281,10 @@ hp_nonscsi_close (int fd, HpConnect connect)
      break;
 
    case HP_CONNECT_USB:
+     sanei_usb_close (fd);
      break;
 
    case HP_CONNECT_RESERVE:
-     break;
-
-   case HP_CONNECT_PTAL:
-     /* This is handled in hp_scsi_close()
-      * because we need more than the file descriptor. */
      break;
 
    default:
@@ -368,26 +302,6 @@ sanei_hp_nonscsi_new (HpScsi * newp, const char * devname, HpConnect connect)
   if (!new)
     return SANE_STATUS_NO_MEM;
 
-#ifdef HAVE_PTAL
- if (connect==HP_CONNECT_PTAL) {
-    /* The constant allocation and deallocation of the HpScsi object
-     * does not work well with OfficeJets, especially when connected
-     * to JetDirect.  As a somewhat inefficient workaround, we
-     * allocate and set up the PTAL channel once, and look it up by
-     * device name and service type on successive HpScsi instantiations. */
-    new->dev=ptalDeviceOpen((char *)devname);
-    if (!new->dev) {
-      sanei_hp_free(new);
-      return SANE_STATUS_NO_MEM;
-    }
-    new->chan=ptalChannelFindOrAllocate(new->dev,PTAL_STYPE_SCAN,0,0);
-    if (!new->chan) {
-      sanei_hp_free(new);
-      return SANE_STATUS_NO_MEM;
-    }
-    new->fd=PTAL_NO_FD;
- } else {
-#endif
   status = hp_nonscsi_open(devname, &new->fd, connect);
   if (FAILED(status))
   {
@@ -395,12 +309,9 @@ sanei_hp_nonscsi_new (HpScsi * newp, const char * devname, HpConnect connect)
     sanei_hp_free(new);
     return SANE_STATUS_IO_ERROR;
   }
-#ifdef HAVE_PTAL
- }
-#endif
 
   /* For SCSI-devices we would have the inquire command here */
-  strncpy ((char *)new->inq_data, "\003zzzzzzzHP      MODELx          R000",
+  strncpy ((char *)new->inq_data, "\003zzzzzzzHP      ------          R000",
            sizeof (new->inq_data));
 
   new->bufp = new->buf + HP_SCSI_CMD_LEN;
@@ -419,22 +330,12 @@ hp_scsi_close (HpScsi this)
 
  connect = sanei_hp_scsi_get_connect (this);
 
-#ifdef HAVE_PTAL
- if (connect==HP_CONNECT_PTAL) {
-   ptalChannelClose(this->chan);
- } else {
-#endif
-
  assert(this->fd >= 0);
 
  if (connect != HP_CONNECT_SCSI)
    hp_nonscsi_close (this->fd, connect);
  else
    sanei_scsi_close (this->fd);
-
-#ifdef HAVE_PTAL
- }
-#endif
 }
 
 SANE_Status
@@ -505,16 +406,13 @@ sanei_hp_scsi_new (HpScsi * newp, const char * devname)
  * device (from hp-handle.c), and "completely" destroy it when
  * the frontend closes its handle. */
 void
-sanei_hp_scsi_destroy (HpScsi this,int completely)
+sanei_hp_scsi_destroy (HpScsi this,int UNUSEDARG completely)
 {
   /* Moved to hp_scsi_close():
    * assert(this->fd >= 0);
    * DBG(3, "scsi_close: closing fd %d\n", this->fd);
    */
 
-#ifdef HAVE_PTAL
- if (sanei_hp_scsi_get_connect(this)!=HP_CONNECT_PTAL || completely)
-#endif
   hp_scsi_close (this);
   if ( this->devname ) sanei_hp_free (this->devname);
   sanei_hp_free(this);
@@ -577,7 +475,7 @@ sanei_hp_get_max_model (HpScsi scsi)
  {enum hp_device_compat_e compat;
   int model_num;
 
-   if ( sanei_hp_device_probe_model ( &compat, scsi, &model_num)
+   if ( sanei_hp_device_probe_model ( &compat, scsi, &model_num, 0)
             == SANE_STATUS_GOOD )
      info->max_model = model_num;
  }
@@ -755,7 +653,7 @@ hp_scsi_scl(HpScsi this, HpScl scl, int val)
 
 /* The OfficeJets tend to return inquiry responses containing array
  * data in two packets.  The added "isResponse" parameter tells
- * ptalSclChannelRead whether it should keep reading until it gets
+ * whether we should keep reading until we get
  * a well-formed response.  Naturally, this parameter would be zero
  * when reading scan data. */
 static SANE_Status

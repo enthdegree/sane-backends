@@ -43,10 +43,13 @@
    HP Scanner Control Language (SCL).
 */
 
-static char *hp_backend_version = "0.96";
+static char *hp_backend_version = "1.00";
 /* Changes:
 
-   V 0.96, 05-Aug-2001, PK (peter@kirchgessner.net)
+   V 1.00, 17-Nov-2002, PK (peter@kirchgessner.net)
+      - add libusb support
+
+   V 0.96, 05-Aug-2002, PK (peter@kirchgessner.net)
       - check USB device names
 
    V 0.95, 07-Jul-2001, PK (peter@kirchgessner.net)
@@ -195,13 +198,10 @@ static char *hp_backend_version = "0.96";
 /* #include <sane/sane.h> */
 #include "sane/sanei_config.h"
 #include "sane/sanei_backend.h"
+#include "sane/sanei_usb.h"
 /* #include <sane/sanei_debug.h> */
 #include "hp-device.h"
 #include "hp-handle.h"
-
-#ifdef HAVE_PTAL
-#include <ptal.h>
-#endif
 
 #ifndef PATH_MAX
 # define PATH_MAX	1024
@@ -375,8 +375,13 @@ sanei_hp_device_info_get (const char *devname)
  HpDeviceInfo *info;
  int retries = 1;
 
- if (!global.is_up) return 0;
+ if (!global.is_up)
+ {
+   DBG(17, "sanei_hp_device_info_get: global.is_up = %d\n", (int)global.is_up);
+   return 0;
+ }
 
+ DBG(250, "sanei_hp_device_info_get: searching %s\n", devname);
  do
  {
  infolist = &(global.infolist);
@@ -384,6 +389,7 @@ sanei_hp_device_info_get (const char *devname)
  {
    infolistelement = *infolist;
    info = &(infolistelement->info);
+   DBG(250, "sanei_hp_device_info_get: check %s\n", info->devname);
    if (strcmp (info->devname, devname) == 0)  /* Found ? */
    {
      return info;
@@ -484,6 +490,7 @@ hp_init (void)
 {
   memset(&global, 0, sizeof(global));
   global.is_up++;
+  DBG(3, "hp_init: global.is_up = %d\n", (int)global.is_up);
   return SANE_STATUS_GOOD;
 }
 
@@ -501,6 +508,7 @@ hp_destroy (void)
 
       sanei_hp_free_all();
       global.is_up = 0;
+      DBG(3, "hp_destroy: global.is_up = %d\n", (int)global.is_up);
     }
 }
 
@@ -530,7 +538,6 @@ hp_get_dev (const char *devname, HpDevice* devp)
   else if (hp_connect == HP_CONNECT_PIO) connect = "pio";
   else if (hp_connect == HP_CONNECT_USB) connect = "usb";
   else if (hp_connect == HP_CONNECT_RESERVE) connect = "reserve";
-  else if (hp_connect == HP_CONNECT_PTAL) connect = "ptal";
   else connect = "unknown";
 
   DBG(3, "hp_get_dev: New device %s, connect-%s, scsi-request=%lu\n",
@@ -555,8 +562,33 @@ hp_get_dev (const char *devname, HpDevice* devp)
 static SANE_Status
 hp_attach (const char *devname)
 {
+  DBG(7,"hp_attach: \"%s\"\n", devname);
   hp_device_config_add (devname);
   return hp_get_dev (devname, 0);
+}
+
+static void
+hp_attach_matching_devices (HpDeviceConfig *config, const char *devname)
+{
+ static int usb_initialized = 0;
+
+ if (strncmp (devname, "usb", 3) == 0)
+ {
+   config->connect = HP_CONNECT_USB;
+   config->use_scsi_request = 0;
+   DBG(1,"hp_attach_matching_devices: usb attach matching \"%s\"\n",devname);
+   if (!usb_initialized)
+   {
+      sanei_usb_init ();
+      usb_initialized = 1;
+   }
+   sanei_usb_attach_matching_devices (devname, hp_attach);
+ }
+ else
+ {
+   DBG(1, "hp_attach_matching_devices: attach matching %s\n", devname);
+   sanei_config_attach_matching_devices (devname, hp_attach);
+ }
 }
 
 static SANE_Status
@@ -637,17 +669,6 @@ hp_read_config (void)
               config->got_connect_type = 1;
               config->use_scsi_request = 0;
             }
-            else if (strcmp (arg2, "connect-ptal") == 0)
-            {
-#ifdef HAVE_PTAL
-              config->connect = HP_CONNECT_PTAL;
-              config->got_connect_type = 1;
-              config->use_scsi_request = 0;
-#else
-              DBG(0,"hp_read_config: connect-ptal:\n");
-              DBG(0,"  hp-backend not compiled with PTAL support.\n");
-#endif
-            }
             else if (strcmp (arg2, "disable-scsi-request") == 0)
             {
               config->use_scsi_request = 0;
@@ -672,9 +693,8 @@ hp_read_config (void)
             }
             if (cu_device[0] != '\0')  /* Did we work on a device ? */
             {
-              memcpy (hp_global_config_get (), &dev_config,sizeof (dev_config));
-              DBG(1, "hp_read_config: attach %s\n", cu_device);
-              sanei_config_attach_matching_devices (cu_device, hp_attach);
+              memcpy (hp_global_config_get(), &dev_config,sizeof (dev_config));
+              hp_attach_matching_devices (hp_global_config_get(), cu_device);
               cu_device[0] = '\0';
             }
 
@@ -690,7 +710,7 @@ hp_read_config (void)
         {
           memcpy (hp_global_config_get (), &dev_config, sizeof (dev_config));
           DBG(1, "hp_read_config: attach %s\n", cu_device);
-          sanei_config_attach_matching_devices (cu_device, hp_attach);
+          hp_attach_matching_devices (hp_global_config_get (), cu_device);
           cu_device[0] = '\0';
         }
       fclose (fp);
@@ -703,7 +723,7 @@ hp_read_config (void)
       char *dev_name = "/dev/scanner";
 
       memcpy (hp_global_config_get (), &df_config, sizeof (df_config));
-      sanei_config_attach_matching_devices (dev_name, hp_attach);
+      hp_attach_matching_devices (hp_global_config_get (), dev_name);
     }
 
   global.config_read++;
@@ -743,15 +763,11 @@ hp_update_devlist (void)
  */
 
 SANE_Status
-sane_init (SANE_Int *version_code, SANE_Auth_Callback authorize)
+sane_init (SANE_Int *version_code, SANE_Auth_Callback UNUSEDARG authorize)
 {SANE_Status status;
 
   DBG_INIT();
   DBG(3, "sane_init called\n");
-
-#ifdef HAVE_PTAL
-  ptalInit();
-#endif
 
   hp_destroy();
 
@@ -772,7 +788,8 @@ sane_exit (void)
 }
 
 SANE_Status
-sane_get_devices (const SANE_Device ***device_list, SANE_Bool local_only)
+sane_get_devices (const SANE_Device ***device_list,
+                  SANE_Bool UNUSEDARG local_only)
 {
   DBG(3, "sane_get_devices called\n");
 

@@ -26,10 +26,12 @@ Astra 2000P
 .br 
 .RE
 .PP 
-This backend handles 75x75, 150x150, 300x300, 600x600 and 600x1200 dpi scan
-resolutions, in color and gray levels. There is a software lineart mode.
+This backend handles 75x75, 150x150, 300x300, 600x600 and 600x1200 for 1220P/1600P/2000P
+dpi scan reslutions,and 75x75, 150x150, 300x300 and 300x600 for 610P. In color and gray 
+levels, there is a software lineart mode.
 .PP 
-These scanners share the same ASIC. Only parts such as CCD and ADC change from
+The new generation models share a newer version of the 610P ASIC embedded in an EPAT chip. 
+Only parts such as CCD and ADC change from
 one to another. They even all reports being UMAX Astra 1220P via IEEE1284.
 There isn't software way to recognize them properly. Under windows, model is
 set by the driver installed, regardless of the hardware. 
@@ -37,8 +39,9 @@ set by the driver installed, regardless of the hardware.
 .TP 
 .B EPP/ECP MODES ONLY
 The current version of the backend uses only EPP or ECP mode to communicate 
-with the scanner. PS/2 and SPP mode aren't implemented. It is recommended that 
-you set your parallel port to EPP in BIOS with the current version of this 
+with the scanner. PS/2 mode isn't implemented. The 610P only use SPP. It is 
+recommended that you set your parallel port to EPP in BIOS with the current 
+version of this 
 backend. You can leave it to ECP or ECP+EPP, but in this case you may not use
 ppdev but only direct hardware access if you have to use ECP.  ECPEPP will only
  work if you use a 2.4 or 2.6 kernel with ppdev character device support.
@@ -290,7 +293,9 @@ For latest bug fixes and information see
 .SH "AUTHOR"
 Stéphane VOLTZ <svoltz@wanadoo.fr>
 
-
+.SH "CREDITS"
+Support for the 610P has been made possible thank to an hardware donation
+by William Stuart.
 
 .SH "BUG REPORTS"
 If something doesn't work, please contact me. But I need some information about

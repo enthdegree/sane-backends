@@ -1,4 +1,11 @@
-2004-06-06  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+2004-06-17  Stéphane Voltz <svoltz@wanadoo.fr>
+
+	* backend/umax_pp_low.c doc/descriptions/umax_pp.desc 
+	  doc/sane-umax_pp.man:
+	  fixed overflows in 610P shading calibration coefficients,
+	  minor man update, 610P status change from minimal to good
+
+2004-06-16  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan.h backend/snapscan.c backend/snapscan-usb.c: 
 	  Don't enforce even number of URB packages on 1212u_2 since

@@ -12343,6 +12343,10 @@ shadingCalibration (int color, int dcRed, int dcGreen, int dcBlue,
 	    sum += data[y * w + x];
 	  avg = ((float) (sum)) / ((float) (h - (top + bottom)));
 	  coeff = (256.0 * (250.0 / avg - 1.0)) / 1.70;
+	  if(coeff<0)
+	  	coeff=0;
+	  if(coeff>255)
+	  	coeff=255;
 	  calibration[x + 2 * w - 4] = (int) (coeff + 0.5);
 	}
     }
@@ -12369,6 +12373,10 @@ shadingCalibration (int color, int dcRed, int dcGreen, int dcBlue,
 		  coeff = (256.0 * (250.0 / avg - 1.0)) / 1.70;
 		  break;
 		}
+	  if(coeff<0)
+	  	coeff=0;
+	  if(coeff>255)
+	  	coeff=255;
 	      calibration[x + i * w - 4] = (int) (coeff + 0.5);
 	    }
 	  /* 100 in coeffs -> +104 on picture */

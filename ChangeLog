@@ -1,3 +1,9 @@
+2001-12-28  Abel Deuring <a.deuring@satzbau-gmbh.de>
+	* configure.in, configure, sanei/sanei_scsi.c, umax_pp_low.c,
+	  README.linux: replaced --enable-directio and ENABLE_DIRECTIO
+	  with --enable-scsi-directio / --enable-parport-directio resp.
+	  ENABLE_SCSI_DIRECTIO / ENABLE_PARPORT_DIRECTIO
+
 2001-12-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* PROJECTS TODO: Updated info about "Relisys Scorpio Super 3 SCSI II".

@@ -1,3 +1,8 @@
+2004-08-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added Epson 2480 and Microtek
+	  Filmscan 35.
+
 2004-08-23  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* tools/sane-find-scanner.c: Worked around a cygwin libusb
@@ -25,11 +30,12 @@
 
 2004-08-08  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* backend/gt68xx.c backend/gt68xx.conf backend/gt68xx_devices.c doc/descriptions/gt68xx.desc
+	* backend/gt68xx.c backend/gt68xx.conf backend/gt68xx_devices.c
+	  doc/descriptions/gt68xx.desc
 	  doc/gt68xx/gt68xx.CHANGES tools/hotplug/libsane.usermap:
 	  Added Mustek ScanExpress 1248 UB and new version of Mustek
 	  BearPaw 1200 CU Plus.
-	* doc/descriptions/unsupported.desc: Added Lexm,ark and Xerox scanners.
+	* doc/descriptions/unsupported.desc: Added Lexmark and Xerox scanners.
 
 2004-08-05  Gerard Klaver <gerard at gkall dot hobby dot nl>
 

@@ -21,14 +21,15 @@
    MA 02111-1307, USA.
 */
 
-#define SANE_DESC_VERSION "0.6"
+#define SANE_DESC_VERSION "0.7"
 
 #define MAN_PAGE_LINK "http://www.mostang.com/sane/man/%s.5.html"
-#define COLOR_ALPHA    "#B00000"
-#define COLOR_BETA     "#B0B000"
-#define COLOR_STABLE   "#008000"
-#define COLOR_UNTESTED "#0000B0"
-#define COLOR_NEW      "#F00000"
+#define COLOR_ALPHA       "#B00000"
+#define COLOR_BETA        "#B0B000"
+#define COLOR_STABLE      "#008000"
+#define COLOR_UNTESTED    "#0000B0"
+#define COLOR_UNSUPPORTED "#F00000"
+#define COLOR_NEW         "#F00000"
 
 #include <../include/sane/config.h>
 
@@ -80,7 +81,8 @@ typedef enum status_entry
   status_alpha,
   status_beta,
   status_stable,
-  status_untested
+  status_untested,
+  status_unsupported
 }
 status_entry;
 
@@ -647,6 +649,13 @@ read_files (void)
 			    ("setting status of model `%s' to `untested'\n",
 			     current_model->name);
 			  current_model->status = status_untested;
+			}
+		      else if (strcmp (string_entry, ":unsupported") == 0)
+			{
+			  DBG_INFO
+			    ("setting status of model `%s' to `unsupported'\n",
+			     current_model->name);
+			  current_model->status = status_unsupported;
 			}
 		      else
 			{
@@ -1386,6 +1395,9 @@ ascii_print_backends (void)
 			    case status_untested:
 			      printf ("    status untested\n");
 			      break;
+			    case status_unsupported:
+			      printf ("    status unsupported\n");
+			      break;
 			    default:
 			      printf ("    status *unknown*\n");
 			      break;
@@ -1639,6 +1651,10 @@ html_backends_table (device_type dev_type)
 			      printf ("<font color=" COLOR_UNTESTED
 				      ">untested</font>");
 			      break;
+			    case status_unsupported:
+			      printf ("<font color=" COLOR_UNSUPPORTED
+				      ">unsupported</font>");
+			      break;
 			    default:
 			      printf ("?");
 			      break;
@@ -1753,6 +1769,10 @@ html_mfgs_table (device_type dev_type)
 		  break;
 		case status_untested:
 		  printf ("<font color=" COLOR_UNTESTED ">untested</font>");
+		  break;
+		case status_unsupported:
+		  printf ("<font color=" COLOR_UNSUPPORTED
+			  ">unsupported</font>");
 		  break;
 		default:
 		  printf ("?");
@@ -1926,7 +1946,10 @@ html_print_backends (void)
      "  <dd>How the device is connected to the computer.</dd>\n"
      "  <dt><b>Status</b>:</dt>\n"
      "  <dd>A vague indication of robustness and reliability.\n"
-     "      <ul><li><font color=" COLOR_UNTESTED ">untested</font> means the "
+     "      <ul><li><font color=" COLOR_UNSUPPORTED ">unsupported</font>"
+     "        means the device is not supported at least by this backend. "
+     "        It may be supported by other backends, however.\n"
+     "      <li><font color=" COLOR_UNTESTED ">untested</font> means the "
      "        device may be supported but couldn't be tested. Be very "
      "        careful.\n"
      "      <li><font color=" COLOR_ALPHA ">alpha</font> means it must\n"
@@ -1987,7 +2010,10 @@ html_print_mfgs (void)
      "  <dd>How the device is connected to the computer.</dd>\n"
      "  <dt><b>Status</b>:</dt>\n"
      "  <dd>A vague indication of robustness and reliability.\n"
-     "      <ul><li><font color=" COLOR_UNTESTED ">untested</font> means the "
+     "      <ul><li><font color=" COLOR_UNSUPPORTED ">unsupported</font>"
+     "        means the device is not supported at least by this backend. "
+     "        It may be supported by other backends, however.\n"
+     "      <li><font color=" COLOR_UNTESTED ">untested</font> means the "
      "        device may be supported but couldn't be tested. Be very "
      "        careful.\n"
      "      <li><font color=" COLOR_ALPHA ">alpha</font> means it must\n"

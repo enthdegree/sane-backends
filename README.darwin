@@ -22,11 +22,14 @@ That's a limitation of MacOS X (doesn't use file descriptors for USB access).
 SCSI-scanners:
 --------------
 There is support for SCSI scanners but hasn't had much testing. Please send 
-failure and success reports to the sane-devel mailing list.
+failure and success reports to the sane-devel mailing list. At least
+the Epson Perfection 1640SU is reported to work.
+
+sane-find-scanner is not able to find SCSI scanners on MacOS X yet.
 
 USB-scanners:
 -------------
-Works with libusb. Very limited testing until now. Try 
+Work with libusb. Very limited testing until now. Try 
 "sane-find-scanner -v -v" and report success or failure to the SANE mailing
 list. Backends that use fork to create separate reader processes seem to fail.
 
@@ -35,4 +38,4 @@ Parport-scanners:
 I don't have any information about these. Please contact me or the SANE mailing
 list if you succeeded in using one of these.
 
-2003-04-30 Henning Meier-Geinitz <henning@meier-geinitz.de>
+2003-06-12 Henning Meier-Geinitz <henning@meier-geinitz.de>

@@ -24,7 +24,9 @@ the latest source from the CVS repository and build the source yourself.
 To build SANE on a UnixWare 7.1.X system the following packages are required: 
 
         * make (GNU make) 
-        * glibs (contains gtk, glib, libjpeg, libpnm, libtiff etc.) 
+        * glibs (contains gtk, glib, libjpeg, libpnm, libtiff etc.; only
+          necessary for frontends xscanimage, xcam, and xsane which are
+          distributed separately) 
 
 The packages can be downloaded from the Skunkware ftp server (see URL above). 
 I've used the following versions to build sane-1.0.2: 
@@ -39,16 +41,6 @@ install the gimp package, too. This is the version I've used:
 
 GCC is not required. SANE compiles quite happily (and faster) with UnixWares 
 native C compiler. 
-
-You also need a utility called 'rev' which isn't part of UnixWare 7. This 
-tool is used by the backend Makefile to give the SANE libraries in their 
-target locations the proper names. You can find the rev source at the end 
-of the README.unixware2 file. Save the code as rev.c, compile it and copy 
-the binary to a location that is in your $PATH, e.g. /usr/local/bin: 
-
-        (save code as rev.c) 
-        # cc -o rev rev.c 
-        # cp rev.c /usr/local/bin 
 
 Set the LD_RUN_PATH variable to add /usr/local/lib to the list of directories 
 to be searched by the dynamic linker: 

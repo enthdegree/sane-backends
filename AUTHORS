@@ -55,8 +55,6 @@ Frontends:
  jscanimage:    Jeff Freedman and Guido Muesch
  saned:		Andreas Beck and David Mosberger
  scanimage:	Andreas Beck, David Mosberger, Gordon Matzigkeit
- xcam:		David Mosberger
- xscanimage:	Tristan Tarrant, Andreas Beck, and David Mosberger
 
 Please also read the file PROJECTS for projects that are planned or
 not yet included into the SANE distribution.

@@ -1,4 +1,4 @@
-.TH scanimage 1 "30 September 2000"
+.TH scanimage 1 "24 November 2000"
 .IX scanimage
 .SH NAME
 scanimage - scan an image
@@ -278,9 +278,7 @@ use this file in conjunction with the --accept-md5-only option to avoid
 server-side attacks. The resource may contain any character but is limited
 to 127 characters.
 .SH "SEE ALSO"
-xscanimage(1), xcam(1), sane\-dll(5), sane\-dmc(5), sane\-epson(5),
-sane\-hp(5), sane\-microtek(5), sane\-mustek(5), sane\-net(5), sane\-pnm(5),
-sane\-pint(5), sane\-qcam(5), sane\-umax(5)
+xscanimage(1), xcam(1), xsane(1), sane\-dll(5), sane\-net(5), sane-"backendname"(5)
 .SH AUTHOR
 David Mosberger, Andreas Beck, and Gordon Matzigkeit
 .SH BUGS

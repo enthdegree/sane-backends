@@ -1,3 +1,4 @@
+# translation of sane-backends.po to 
 # German translation for SANE backend options
 # Copyright (C) 2002-2004 SANE Project.
 # Burma Group Karlsruhe, Heiko Schaefer <heiko@burmagroup.de>, 2002.
@@ -11,14 +12,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-10-11 21:43+0200\n"
-"PO-Revision-Date: 2004-10-11 22:21+0200\n"
-"Last-Translator: Henning Meier-Geinitz <henning@meier-geinitz.de>\n"
+"POT-Creation-Date: 2004-10-19 08:51+0200\n"
+"PO-Revision-Date: 2004-10-19 09:04+0200\n"
+"Last-Translator: Gerhard Jaeger <gerhard@gjaeger.de>\n"
 "Language-Team:  <de@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: KBabel 1.3.1\n"
+"X-Generator: KBabel 1.9.1\n"
 
 #: .tmp/artec_eplus48u.c:154 .tmp/hp-option.c:2923 .tmp/ma1509.c:101
 #: .tmp/mustek.c:125 .tmp/mustek.c:130 .tmp/mustek_usb.c:270
@@ -32,7 +33,7 @@ msgstr "Strichzeichnung"
 msgid "Grayscale"
 msgstr "Graustufen"
 
-#: .tmp/artec_eplus48u.c:156 .tmp/epson.c:482 .tmp/hp-option.c:2926
+#: .tmp/artec_eplus48u.c:156 .tmp/epson.c:483 .tmp/hp-option.c:2926
 #: .tmp/leo.h:262 .tmp/ma1509.c:101 .tmp/mustek.c:126 .tmp/mustek.c:130
 #: .tmp/mustek_usb.c:268 .tmp/saneopts.h:393 .tmp/sceptre.h:292
 #: .tmp/snapscan-options.c:75 .tmp/teco1.h:293 .tmp/teco3.h:296
@@ -42,10 +43,10 @@ msgstr "Farbe"
 
 #: .tmp/artec_eplus48u.c:2805 .tmp/gt68xx.c:652 .tmp/leo.c:873
 #: .tmp/ma1509.c:597 .tmp/matsushita.c:1191 .tmp/microtek2.h:602
-#: .tmp/mustek.c:4382 .tmp/mustek_usb.c:353 .tmp/niash.c:700
+#: .tmp/mustek.c:4382 .tmp/mustek_usb.c:353 .tmp/niash.c:756
 #: .tmp/plustek.c:768 .tmp/plustek_pp.c:792 .tmp/sceptre.c:753
 #: .tmp/snapscan-options.c:507 .tmp/teco1.c:1146 .tmp/teco2.c:1952
-#: .tmp/teco3.c:971 .tmp/umax.c:5214 .tmp/umax_pp.c:549
+#: .tmp/teco3.c:971 .tmp/umax.c:5224 .tmp/umax_pp.c:549
 msgid "Enhancement"
 msgstr "Farbverbesserung"
 
@@ -57,12 +58,12 @@ msgstr "Defaulteinstellungen"
 msgid "Set default values for enhancement controls."
 msgstr "Auf Voreinstellungen für Verbesserungen zurücksetzen."
 
-#: .tmp/artec_eplus48u.c:2884 .tmp/epson.c:3216 .tmp/gt68xx.c:708
+#: .tmp/artec_eplus48u.c:2884 .tmp/epson.c:3217 .tmp/gt68xx.c:708
 #: .tmp/leo.c:825 .tmp/ma1509.c:549 .tmp/matsushita.c:1137
 #: .tmp/microtek2.h:601 .tmp/mustek.c:4334 .tmp/mustek_usb.c:305
 #: .tmp/plustek.c:722 .tmp/plustek_pp.c:746 .tmp/sceptre.c:705
 #: .tmp/snapscan-options.c:440 .tmp/teco1.c:1098 .tmp/teco2.c:1904
-#: .tmp/teco3.c:923 .tmp/test.c:618 .tmp/umax.c:5164 .tmp/umax_pp.c:500
+#: .tmp/teco3.c:923 .tmp/test.c:618 .tmp/umax.c:5174 .tmp/umax_pp.c:500
 msgid "Geometry"
 msgstr "Scanbereich"
 
@@ -88,6 +89,7 @@ msgid "Only perform shading-correction"
 msgstr "Nur Shading-Korrektur durchführen"
 
 #: .tmp/artec_eplus48u.c:2956
+
 msgid ""
 "If enabled, only the shading correction is performed during calibration. The "
 "default values for gain, offset and exposure time, either build-in or from "
@@ -127,11 +129,11 @@ msgstr "Führe einen Graustufen-Scan statt eines Farb-Scans durch"
 
 #: .tmp/canon630u.c:305
 msgid "Analog Gain"
-msgstr "Analoger Gewinn"
+msgstr "Analoge Verstärkung"
 
 #: .tmp/canon630u.c:306
 msgid "Increase or decrease the analog gain of the CCD array"
-msgstr "Vergrößere oder verkleinere den analogen Gewinn des CCD-Sensors"
+msgstr "Vergrößere oder verkleinere die Analog Verstärkung des CCD-Sensors"
 
 #: .tmp/canon630u.c:346 .tmp/epson.h:68
 msgid "Gamma Correction"
@@ -141,368 +143,368 @@ msgstr "Gammakorrektur"
 msgid "Selects the gamma corrected transfer curve"
 msgstr "Wählt die korrigierte Gammakurve aus."
 
-#: .tmp/epson.c:480
+#: .tmp/epson.c:481
 msgid "Binary"
 msgstr "Schwarzweiss"
 
-#: .tmp/epson.c:481 .tmp/ma1509.c:101 .tmp/mustek.c:125 .tmp/mustek.c:130
+#: .tmp/epson.c:482 .tmp/ma1509.c:101 .tmp/mustek.c:125 .tmp/mustek.c:130
 #: .tmp/mustek_usb.c:269 .tmp/saneopts.h:394 .tmp/sceptre.h:291
 #: .tmp/snapscan-options.c:77 .tmp/test.c:122 .tmp/umax.c:188
 msgid "Gray"
 msgstr "Graustufen"
 
-#: .tmp/epson.c:487
+#: .tmp/epson.c:488
 msgid "Simplex"
 msgstr "Einseitig"
 
-#: .tmp/epson.c:488 .tmp/matsushita.h:219
+#: .tmp/epson.c:489 .tmp/matsushita.h:219
 msgid "Duplex"
 msgstr "Duplex"
 
-#: .tmp/epson.c:497 .tmp/gt68xx.c:141 .tmp/ma1509.c:106 .tmp/mustek.c:148
+#: .tmp/epson.c:498 .tmp/gt68xx.c:141 .tmp/ma1509.c:106 .tmp/mustek.c:148
 #: .tmp/mustek.c:152 .tmp/mustek.c:156 .tmp/snapscan-options.c:81
 #: .tmp/umax.c:182
 msgid "Flatbed"
 msgstr "Flachbett"
 
-#: .tmp/epson.c:498
+#: .tmp/epson.c:499
 msgid "Transparency Unit"
 msgstr "Durchlichtaufsatz"
 
-#: .tmp/epson.c:499 .tmp/mustek.c:152 .tmp/umax.c:184
+#: .tmp/epson.c:500 .tmp/mustek.c:152 .tmp/umax.c:184
 msgid "Automatic Document Feeder"
 msgstr "Autom. Dokumenteneinzug"
 
-#: .tmp/epson.c:519
+#: .tmp/epson.c:520
 msgid "Positive Film"
 msgstr "Filmpositiv"
 
-#: .tmp/epson.c:520
+#: .tmp/epson.c:521
 msgid "Negative Film"
 msgstr "Filmnegativ"
 
-#: .tmp/epson.c:525
+#: .tmp/epson.c:526
 msgid "Focus on glass"
 msgstr "Fokus auf dem Glas"
 
-#: .tmp/epson.c:526
+#: .tmp/epson.c:527
 msgid "Focus 2.5mm above glass"
 msgstr "Fokus 2.5mm über dem Glas"
 
-#: .tmp/epson.c:552 .tmp/epson.c:560 .tmp/epson.c:572 .tmp/epson.c:594
+#: .tmp/epson.c:553 .tmp/epson.c:561 .tmp/epson.c:573 .tmp/epson.c:595
 #: .tmp/leo.c:109 .tmp/matsushita.c:138 .tmp/matsushita.c:159
 #: .tmp/matsushita.c:191 .tmp/matsushita.c:213 .tmp/snapscan-options.c:86
 msgid "None"
 msgstr "Kein"
 
-#: .tmp/epson.c:553 .tmp/epson.c:561 .tmp/epson.c:573
+#: .tmp/epson.c:554 .tmp/epson.c:562 .tmp/epson.c:574
 msgid "Halftone A (Hard Tone)"
 msgstr "Halbton A (hart)"
 
-#: .tmp/epson.c:554 .tmp/epson.c:562 .tmp/epson.c:574
+#: .tmp/epson.c:555 .tmp/epson.c:563 .tmp/epson.c:575
 msgid "Halftone B (Soft Tone)"
 msgstr "Halbton B (weich)"
 
-#: .tmp/epson.c:555 .tmp/epson.c:563 .tmp/epson.c:575
+#: .tmp/epson.c:556 .tmp/epson.c:564 .tmp/epson.c:576
 msgid "Halftone C (Net Screen)"
 msgstr "Halbton C"
 
-#: .tmp/epson.c:564 .tmp/epson.c:576
+#: .tmp/epson.c:565 .tmp/epson.c:577
 msgid "Dither A (4x4 Bayer)"
 msgstr "Dithering A (4x4 Bayer)"
 
-#: .tmp/epson.c:565 .tmp/epson.c:577
+#: .tmp/epson.c:566 .tmp/epson.c:578
 msgid "Dither B (4x4 Spiral)"
 msgstr "Dithering B (4x4 Spiral)"
 
-#: .tmp/epson.c:566 .tmp/epson.c:578
+#: .tmp/epson.c:567 .tmp/epson.c:579
 msgid "Dither C (4x4 Net Screen)"
 msgstr "Dithering C (4x4 Net Screen)"
 
-#: .tmp/epson.c:567 .tmp/epson.c:579
+#: .tmp/epson.c:568 .tmp/epson.c:580
 msgid "Dither D (8x4 Net Screen)"
 msgstr "Dithering D (8x4 Net Screen)"
 
-#: .tmp/epson.c:580
+#: .tmp/epson.c:581
 msgid "Text Enhanced Technology"
 msgstr "Technik zur Textverbesserung"
 
-#: .tmp/epson.c:581
+#: .tmp/epson.c:582
 msgid "Download pattern A"
 msgstr "Übertrage Muster A"
 
-#: .tmp/epson.c:582
+#: .tmp/epson.c:583
 msgid "Download pattern B"
 msgstr "Übertrage Muster B"
 
-#: .tmp/epson.c:595 .tmp/epson.c:3014 .tmp/hp-option.c:3089
+#: .tmp/epson.c:596 .tmp/epson.c:3015 .tmp/hp-option.c:3089
 msgid "Red"
 msgstr "Rot"
 
-#: .tmp/epson.c:596 .tmp/epson.c:3010 .tmp/hp-option.c:3090
+#: .tmp/epson.c:597 .tmp/epson.c:3011 .tmp/hp-option.c:3090
 msgid "Green"
 msgstr "Grün"
 
-#: .tmp/epson.c:597 .tmp/epson.c:3018 .tmp/hp-option.c:3091
+#: .tmp/epson.c:598 .tmp/epson.c:3019 .tmp/hp-option.c:3091
 msgid "Blue"
 msgstr "Blau"
 
-#: .tmp/epson.c:627
+#: .tmp/epson.c:628
 msgid "No Correction"
 msgstr "Keine Korrektur"
 
-#: .tmp/epson.c:628 .tmp/epson.c:653
+#: .tmp/epson.c:629 .tmp/epson.c:654
 msgid "User defined"
 msgstr "Benutzerdefiniert"
 
-#: .tmp/epson.c:629
+#: .tmp/epson.c:630
 msgid "Impact-dot printers"
 msgstr "Nadeldrucker"
 
-#: .tmp/epson.c:630
+#: .tmp/epson.c:631
 msgid "Thermal printers"
 msgstr "Thermische Drucker"
 
-#: .tmp/epson.c:631
+#: .tmp/epson.c:632
 msgid "Ink-jet printers"
 msgstr "Tintenstrahldrucker"
 
-#: .tmp/epson.c:632
+#: .tmp/epson.c:633
 msgid "CRT monitors"
 msgstr "CRT Monitore"
 
-#: .tmp/epson.c:652 .tmp/hp-option.c:3222 .tmp/test.c:138
+#: .tmp/epson.c:653 .tmp/hp-option.c:3222 .tmp/test.c:138
 msgid "Default"
 msgstr "Standardeinstellung"
 
-#: .tmp/epson.c:654
+#: .tmp/epson.c:655
 msgid "High density printing"
 msgstr "Drucken mit hoher Auflösung"
 
-#: .tmp/epson.c:655
+#: .tmp/epson.c:656
 msgid "Low density printing"
 msgstr "Drucken mit geringer Auflösung"
 
-#: .tmp/epson.c:656
+#: .tmp/epson.c:657
 msgid "High contrast printing"
 msgstr "Drucken mit hohem Kontrast"
 
-#: .tmp/epson.c:674
+#: .tmp/epson.c:675
 msgid "User defined (Gamma=1.0)"
 msgstr "Benutzerdefiniert (Gamma=1.0)"
 
-#: .tmp/epson.c:675
+#: .tmp/epson.c:676
 msgid "User defined (Gamma=1.8)"
 msgstr "Benutzerdefiniert (Gamma=1.8)"
 
-#: .tmp/epson.c:745
+#: .tmp/epson.c:746
 msgid "CD"
 msgstr "CD"
 
-#: .tmp/epson.c:746
+#: .tmp/epson.c:747
 msgid "A5 portrait"
 msgstr "A5 hoch"
 
-#: .tmp/epson.c:747
+#: .tmp/epson.c:748
 msgid "A5 landscape"
 msgstr "A5 quer"
 
-#: .tmp/epson.c:748
+#: .tmp/epson.c:749
 msgid "Letter"
 msgstr "Letter"
 
 # nls translation file for backend epson
 # language: german (de)
-#: .tmp/epson.c:749
+#: .tmp/epson.c:750
 msgid "A4"
 msgstr "A4"
 
-#: .tmp/epson.c:750
+#: .tmp/epson.c:751
 #, fuzzy
 msgid "Max"
 msgstr "maximal"
 
-#: .tmp/epson.c:2731 .tmp/gt68xx.c:442 .tmp/ma1509.c:499
+#: .tmp/epson.c:2732 .tmp/gt68xx.c:442 .tmp/ma1509.c:499
 #: .tmp/matsushita.c:1086 .tmp/microtek2.h:600 .tmp/mustek.c:4197
-#: .tmp/mustek_usb.c:260 .tmp/niash.c:680 .tmp/plustek.c:637
+#: .tmp/mustek_usb.c:260 .tmp/niash.c:736 .tmp/plustek.c:637
 #: .tmp/plustek_pp.c:657 .tmp/sceptre.c:676 .tmp/snapscan-options.c:276
-#: .tmp/teco2.c:1876 .tmp/test.c:293 .tmp/umax.c:5042
+#: .tmp/teco2.c:1876 .tmp/test.c:293 .tmp/umax.c:5052
 msgid "Scan Mode"
 msgstr "Scanmodus"
 
-#: .tmp/epson.c:2763
+#: .tmp/epson.c:2764
 msgid "Selects the halftone."
 msgstr "Wählt den Halbton aus."
 
-#: .tmp/epson.c:2785
+#: .tmp/epson.c:2786
 msgid "Dropout"
 msgstr "Blindfarbe"
 
-#: .tmp/epson.c:2786
+#: .tmp/epson.c:2787
 msgid "Selects the dropout."
 msgstr "Wählt die Blindfarbe."
 
-#: .tmp/epson.c:2798
+#: .tmp/epson.c:2799
 msgid "Selects the brightness."
 msgstr "Wählt die Helligkeit."
 
-#: .tmp/epson.c:2813
+#: .tmp/epson.c:2814
 msgid "Sharpness"
 msgstr "Schärfe"
 
-#: .tmp/epson.c:2949
+#: .tmp/epson.c:2950
 msgid "Color correction"
 msgstr "Farbkorrektur"
 
-#: .tmp/epson.c:2952
+#: .tmp/epson.c:2953
 msgid "Sets the color correction table for the selected output device."
 msgstr "Setzt die Farbkorrekturtabelle für das ausgewählte Ausgabegerät"
 
-#: .tmp/epson.c:2993
+#: .tmp/epson.c:2994
 msgid "Color correction coefficients"
 msgstr "Farbkorrekturkoeffizienten"
 
-#: .tmp/epson.c:2994
+#: .tmp/epson.c:2995
 msgid "Matrix multiplication of RGB"
 msgstr "Matritzenmultiplikation der RGB-Werte"
 
-#: .tmp/epson.c:3011
+#: .tmp/epson.c:3012
 msgid "Shift green to red"
 msgstr "Verschiebt Grün nach Rot"
 
-#: .tmp/epson.c:3012
+#: .tmp/epson.c:3013
 msgid "Shift green to blue"
 msgstr "Verschiebt Grün nach Blau"
 
-#: .tmp/epson.c:3013
+#: .tmp/epson.c:3014
 msgid "Shift red to green"
 msgstr "Verschiebt Rot nach Grün"
 
-#: .tmp/epson.c:3015
+#: .tmp/epson.c:3016
 msgid "Shift red to blue"
 msgstr "Verschiebt Rot nach Blau"
 
-#: .tmp/epson.c:3016
+#: .tmp/epson.c:3017
 msgid "Shift blue to green"
 msgstr "Verschiebt Blau nach Grün"
 
-#: .tmp/epson.c:3017
+#: .tmp/epson.c:3018
 msgid "Shift blue to red"
 msgstr "Verschiebt Blau nach Rot"
 
-#: .tmp/epson.c:3020
+#: .tmp/epson.c:3021
 msgid "Controls green level"
 msgstr "Legt den den Grünanteil fest"
 
-#: .tmp/epson.c:3021
+#: .tmp/epson.c:3022
 msgid "Adds to red based on green level"
 msgstr "Erhöhe den Rotanteil basierend auf dem Grünwert"
 
-#: .tmp/epson.c:3022
+#: .tmp/epson.c:3023
 msgid "Adds to blue based on green level"
 msgstr "Erhöhe den Blauanteil basierend auf dem Grünwert"
 
-#: .tmp/epson.c:3023
+#: .tmp/epson.c:3024
 msgid "Adds to green based on red level"
 msgstr "Erhöhe den Grünanteil basierend auf dem Rotwert"
 
-#: .tmp/epson.c:3024
+#: .tmp/epson.c:3025
 msgid "Controls red level"
 msgstr "Legt den Rotanteil fest"
 
-#: .tmp/epson.c:3025
+#: .tmp/epson.c:3026
 msgid "Adds to blue based on red level"
 msgstr "Erhöhe den Blauanteil basierend auf dem Rotwert"
 
-#: .tmp/epson.c:3026
+#: .tmp/epson.c:3027
 msgid "Adds to green based on blue level"
 msgstr "Erhöhe den Grünanteil basierend auf dem Blauwert"
 
-#: .tmp/epson.c:3027
+#: .tmp/epson.c:3028
 msgid "Adds to red based on blue level"
 msgstr "Erhöhe den Rotanteil basierend auf dem Blauwert"
 
-#: .tmp/epson.c:3028
+#: .tmp/epson.c:3029
 msgid "Controls blue level"
 msgstr "Legt den Blauwert fest"
 
-#: .tmp/epson.c:3115 .tmp/snapscan-options.c:731 .tmp/umax.c:5553
+#: .tmp/epson.c:3116 .tmp/snapscan-options.c:731 .tmp/umax.c:5563
 msgid "Advanced"
 msgstr "Erweitert"
 
-#: .tmp/epson.c:3123
+#: .tmp/epson.c:3124
 msgid "Mirror image"
 msgstr "Bild spiegeln"
 
-#: .tmp/epson.c:3124
+#: .tmp/epson.c:3125
 msgid "Mirror the image."
 msgstr "Das Bild spiegeln"
 
-#: .tmp/epson.c:3150
+#: .tmp/epson.c:3151
 msgid "Speed"
 msgstr "Geschwindigkeit"
 
-#: .tmp/epson.c:3163
+#: .tmp/epson.c:3164
 msgid "Auto area segmentation"
 msgstr "Automatische Auswahl des Scanbereichs"
 
-#: .tmp/epson.c:3176
+#: .tmp/epson.c:3177
 msgid "Short resolution list"
 msgstr "Kurze Auflösungsliste"
 
-#: .tmp/epson.c:3178
+#: .tmp/epson.c:3179
 msgid "Display short resolution list"
 msgstr "Zeige eine kurze Auflösungsliste an"
 
-#: .tmp/epson.c:3185
+#: .tmp/epson.c:3186
 msgid "Zoom"
 msgstr "Vergrösserung"
 
-#: .tmp/epson.c:3187
+#: .tmp/epson.c:3188
 msgid "Defines the zoom factor the scanner will use"
 msgstr "Definiert den Vergrösserungsfaktor, der vom Scanner benutzt wird"
 
-#: .tmp/epson.c:3267
+#: .tmp/epson.c:3268
 msgid "Quick format"
 msgstr "Schnellformat"
 
-#: .tmp/epson.c:3278
+#: .tmp/epson.c:3279
 msgid "Optional equipment"
 msgstr "Optionales Zubehör"
 
-#: .tmp/epson.c:3304
+#: .tmp/epson.c:3305
 msgid "Film type"
 msgstr "Filmtyp"
 
-#: .tmp/epson.c:3349
+#: .tmp/epson.c:3350
 msgid "Eject"
 msgstr "auswerfen"
 
-#: .tmp/epson.c:3350
+#: .tmp/epson.c:3351
 msgid "Eject the sheet in the ADF"
 msgstr "Wirft das Blatt aus dem automatischen Dokumenteinzug aus"
 
-#: .tmp/epson.c:3362
+#: .tmp/epson.c:3363
 msgid "Auto eject"
 msgstr "Automatischer Auswurf"
 
-#: .tmp/epson.c:3363
+#: .tmp/epson.c:3364
 msgid "Eject document after scanning"
 msgstr "Auswurf des Dokuments nach dem Scannen"
 
-#: .tmp/epson.c:3375
+#: .tmp/epson.c:3376
 msgid "ADF Mode"
 msgstr "ADF-Modus"
 
-#: .tmp/epson.c:3377
+#: .tmp/epson.c:3378
 msgid "Selects the ADF mode (simplex/duplex)"
 msgstr "Wählt den ADF-Modus aus (einseitig/doppelseitig)"
 
-#: .tmp/epson.c:3391
+#: .tmp/epson.c:3392
 msgid "Bay"
 msgstr "Schacht"
 
-#: .tmp/epson.c:3392
+#: .tmp/epson.c:3393
 msgid "Select bay to scan"
 msgstr "Wähle den Schacht zum Scannen aus"
 
@@ -545,7 +547,9 @@ msgstr "Graustufen-Farbe"
 
 #: .tmp/gt68xx.c:462
 msgid "Selects which scan color is used gray mode (default: green)."
-msgstr "Legt fest, welche SCanfarbe im Garustufen-Modus verwendet wird (Standardwert: Grün)."
+msgstr ""
+"Legt fest, welche SCanfarbe im Garustufen-Modus verwendet wird "
+"(Standardwert: Grün)."
 
 #: .tmp/gt68xx.c:543
 msgid "Debugging Options"
@@ -559,7 +563,9 @@ msgstr "Automatisches Aufwärmen"
 msgid ""
 "Warm-up until the lamp's brightness is constant instead of insisting on 60 "
 "seconds warm-up time."
-msgstr "Warte solange, bis die Helligkeit der Lampe konstant ist anstatt einfach 60 Sekunden zu warten."
+msgstr ""
+"Warte solange, bis die Helligkeit der Lampe konstant ist anstatt einfach 60 "
+"Sekunden zu warten."
 
 #: .tmp/gt68xx.c:567
 msgid "Full scan"
@@ -628,7 +634,11 @@ msgid ""
 "Number of lines the scan slider moves back when backtracking occurs. That "
 "happens when the scanner scans faster than the computer can receive the "
 "data. Low values cause faster scans but increase the risk of omitting lines."
-msgstr "Anzahl der Zeilen, die der Scanschlitten zurückfährt, wenn Backtracking auftritt. Das passiert, wenn der Scanner schneller scant, als der Computer die Daten aufnehmen kann. Niedrigere Werte sorgen für schnellere Scans, erhöhen jedoch das Risiko, Zeilen zu überspringen."
+msgstr ""
+"Anzahl der Zeilen, die der Scanschlitten zurückfährt, wenn Backtracking "
+"auftritt. Das passiert, wenn der Scanner schneller scant, als der Computer "
+"die Daten aufnehmen kann. Niedrigere Werte sorgen für schnellere Scans, "
+"erhöhen jedoch das Risiko, Zeilen zu überspringen."
 
 #: .tmp/gt68xx.c:661
 msgid "Gamma value"
@@ -640,14 +650,14 @@ msgstr "Legt den Gammawert für alle Kanäle fest."
 
 #: .tmp/gt68xx.c:684
 msgid "Gain correction"
-msgstr "Gewinnanpassung"
+msgstr "Verstärkungskorrektur"
 
 #: .tmp/gt68xx.c:686
 msgid ""
 "This value is added to the internal gain value. Use for extremely light or "
 "dark images."
 msgstr ""
-"Dieser Wert wird zum internen Gewinn (Kontrast) addiert. Diese Einstellung "
+"Dieser Wert wird zur internen Verstärkung (Kontrast) addiert. Diese Einstellung "
 "kann für extrem helle oder dunkle Bilder benutzt werden."
 
 #: .tmp/gt68xx.c:697
@@ -833,7 +843,7 @@ msgstr "Auswerfen"
 msgid "Unload Document."
 msgstr "Dokument auswerfen."
 
-#: .tmp/hp-option.h:97 .tmp/niash.c:672
+#: .tmp/hp-option.h:97 .tmp/niash.c:728
 msgid "Calibrate"
 msgstr "Kalibrierung"
 
@@ -1456,23 +1466,23 @@ msgstr "Kontrast der blauen Komponente"
 msgid "Controls the contrast of the blue channel of the acquired image."
 msgstr "Stellt den Kontrast der blauen Komponente des gescannten Bildes ein."
 
-#: .tmp/niash.c:627
+#: .tmp/niash.c:683
 msgid "Image"
 msgstr "Bild"
 
-#: .tmp/niash.c:655
+#: .tmp/niash.c:711
 msgid "Miscellaneous"
 msgstr "Verschiedenes"
 
-#: .tmp/niash.c:662
+#: .tmp/niash.c:718
 msgid "Lamp status"
 msgstr "Lampen Status"
 
-#: .tmp/niash.c:663
+#: .tmp/niash.c:719
 msgid "Switches the lamp on or off."
 msgstr "Schaltet die Lampe an oder aus"
 
-#: .tmp/niash.c:673
+#: .tmp/niash.c:729
 msgid "Calibrates for black and white level."
 msgstr "Kalibriert Schwarz- und Weisswert."
 
@@ -1520,52 +1530,54 @@ msgstr "Lampenausschaltzeit in Sekunden."
 msgid "Analog frontend"
 msgstr "Analog Frontend"
 
-#: .tmp/plustek.c:880
-msgid "Red-gain"
+#: .tmp/plustek.c:880 .tmp/umax_pp.c:655
+msgid "Red gain"
 msgstr "Verstärkung roter Kanal"
 
 #: .tmp/plustek.c:881
-msgid "Red-gain value of the AFE"
+msgid "Red gain value of the AFE"
 msgstr "Verstärkung roter Kanal des AD-Wandlers."
 
-#: .tmp/plustek.c:888
-msgid "Red-offset"
+#: .tmp/plustek.c:888 .tmp/umax_pp.c:712
+msgid "Red offset"
 msgstr "Offset roter Kanal"
 
 #: .tmp/plustek.c:889
-msgid "Red-offset value of the AFE"
+#, fuzzy
+msgid "Red offset value of the AFE"
 msgstr "Offset roter Kanal des AD-Wandlers."
 
-#: .tmp/plustek.c:896
-msgid "Green-gain"
+#: .tmp/plustek.c:896 .tmp/umax_pp.c:667
+msgid "Green gain"
 msgstr "Verstärkung grüner Kanal."
 
 #: .tmp/plustek.c:897
-msgid "Green-gain value of the AFE"
+msgid "Green gain value of the AFE"
 msgstr "Verstärkung grüner Kanal des AD-Wandlers."
 
-#: .tmp/plustek.c:904
-msgid "Green-offset"
-msgstr "Offset grüner Kanal."
+#: .tmp/plustek.c:904 .tmp/umax_pp.c:724
+msgid "Green offset"
+msgstr "Offset grüner Kanal"
 
 #: .tmp/plustek.c:905
-msgid "Green-offset value of the AFE"
+msgid "Green offset value of the AFE"
 msgstr "Offset grüner Kanal des AD-Wandlers."
 
-#: .tmp/plustek.c:912
-msgid "Blue-gain"
+#: .tmp/plustek.c:912 .tmp/umax_pp.c:679
+msgid "Blue gain"
 msgstr "Verstärkung blauer Kanal"
 
 #: .tmp/plustek.c:913
-msgid "Blue-gain value of the AFE"
+#, fuzzy
+msgid "Blue gain value of the AFE"
 msgstr "Verstärkung blauer Kanal des AD-Wandlers."
 
-#: .tmp/plustek.c:920
-msgid "Blue-offset"
+#: .tmp/plustek.c:920 .tmp/umax_pp.c:736
+msgid "Blue offset"
 msgstr "Offset blauer Kanal"
 
 #: .tmp/plustek.c:921
-msgid "Blue-offset value of the AFE"
+msgid "Blue offset value of the AFE"
 msgstr "Offset blauer Kanal des AD-Wandlers."
 
 #: .tmp/plustek.c:928
@@ -2021,7 +2033,7 @@ msgstr "Lichtwert beim Scannen"
 msgid "Set lamp density"
 msgstr "Definiere Lichtwert"
 
-#: .tmp/saneopts.h:202 .tmp/umax.c:5817
+#: .tmp/saneopts.h:202 .tmp/umax.c:5827
 msgid "Lamp off at exit"
 msgstr "Lampe beim Beenden ausschalten"
 
@@ -2154,15 +2166,21 @@ msgstr "Bestimmt, welcher Helligkeitswert als Weiß angesehen werden soll."
 
 #: .tmp/saneopts.h:293
 msgid "Selects what red radiance level should be considered \"white\"."
-msgstr "Bestimmt, welcher Helligkeitswert der roten Komponente  als \"Weiß\" angesehen werden soll."
+msgstr ""
+"Bestimmt, welcher Helligkeitswert der roten Komponente  als \"Weiß\" "
+"angesehen werden soll."
 
 #: .tmp/saneopts.h:296
 msgid "Selects what green radiance level should be considered \"white\"."
-msgstr "Bestimmt, welcher Helligkeitswert der grünen Komponente als \"Weiß\" angesehen werden soll."
+msgstr ""
+"Bestimmt, welcher Helligkeitswert der grünen Komponente als \"Weiß\" "
+"angesehen werden soll."
 
 #: .tmp/saneopts.h:299
 msgid "Selects what blue radiance level should be considered \"white\"."
-msgstr "Bestimmt, welcher Helligkeitswert der blauen Komponente als \"Weiß\" angesehen werden soll."
+msgstr ""
+"Bestimmt, welcher Helligkeitswert der blauen Komponente als \"Weiß\" "
+"angesehen werden soll."
 
 #: .tmp/saneopts.h:304
 msgid "Selects what red radiance level should be considered \"black\"."
@@ -2318,7 +2336,7 @@ msgstr "Definiere die Lichtwerte beim Scannen."
 msgid "Enable selection of lamp density"
 msgstr "Ermögliche Auswahl der Lichtwerte."
 
-#: .tmp/saneopts.h:389 .tmp/umax.c:5818
+#: .tmp/saneopts.h:389 .tmp/umax.c:5828
 msgid "Turn off lamp when program exits"
 msgstr "Schalte Lampe beim Beenden des Programms aus"
 
@@ -2864,14 +2882,6 @@ msgstr "(1/1) Button"
 msgid "(1/1) Button test option. Prints some text..."
 msgstr "(1/1) Button-Testoption. Gibt etwas Text aus..."
 
-#: .tmp/umax1220u.c:247 .tmp/umax.c:5800
-msgid "Lamp off"
-msgstr "Lampe aus"
-
-#: .tmp/umax1220u.c:248 .tmp/umax.c:5801
-msgid "Turn off scanner lamp"
-msgstr "Schalte Scannerlampe aus"
-
 # original text: "Lineart"
 #: .tmp/umax.c:189
 msgid "Color Lineart"
@@ -2907,52 +2917,60 @@ msgstr "Multi-Level RGB Farbe (ein-Pass-Farbe)"
 msgid "Ignore calibration"
 msgstr "Kalibrierung ignorieren"
 
-#: .tmp/umax.c:5721
+#: .tmp/umax.c:5731
 msgid "Disable pre focus"
 msgstr "Pre-Focus ausschalten"
 
-#: .tmp/umax.c:5722
+#: .tmp/umax.c:5732
 msgid "Do not calibrate focus"
 msgstr "Focus nicht kalibrieren"
 
-#: .tmp/umax.c:5733
+#: .tmp/umax.c:5743
 msgid "Manual pre focus"
 msgstr "Manueller Pre-Focus"
 
-#: .tmp/umax.c:5745
+#: .tmp/umax.c:5755
 msgid "Fix focus position"
 msgstr "Feste Focus-Position"
 
-#: .tmp/umax.c:5757
+#: .tmp/umax.c:5767
 msgid "Lens calibration in doc position"
 msgstr "Linse auf Dokument kalibrieren"
 
-#: .tmp/umax.c:5758
+#: .tmp/umax.c:5768
 msgid "Calibrate lens focus in document position"
 msgstr "Focus der Linse auf dem Dokument kalibrieren"
 
-#: .tmp/umax.c:5769
+#: .tmp/umax.c:5779
 msgid "Holder focus position 0mm"
 msgstr "Halter Focus Position 0mm"
 
-#: .tmp/umax.c:5770
+#: .tmp/umax.c:5780
 msgid "Use 0mm holder focus position instead of 0.6mm"
 msgstr "Benutze 0mm Halter Focus Position anstatt 0.6mm"
 
-#: .tmp/umax.c:5783 .tmp/umax_pp.c:559
+#: .tmp/umax.c:5793 .tmp/umax_pp.c:559
 msgid "Lamp on"
 msgstr "Lampe an"
 
-#: .tmp/umax.c:5784
+#: .tmp/umax.c:5794
 msgid "Turn on scanner lamp"
 msgstr "Schalte Scannerlampe ein"
 
-#: .tmp/umax.c:5873
+#: .tmp/umax.c:5810 .tmp/umax1220u.c:247
+msgid "Lamp off"
+msgstr "Lampe aus"
+
+#: .tmp/umax.c:5811 .tmp/umax1220u.c:248
+msgid "Turn off scanner lamp"
+msgstr "Schalte Scannerlampe aus"
+
+#: .tmp/umax.c:5883
 msgid "Calibration mode"
 msgstr "Kalibrierungs Modus"
 
 # original text: "Define lamp density for calibration"
-#: .tmp/umax.c:5874
+#: .tmp/umax.c:5884
 msgid "Define calibration mode"
 msgstr "Kalibriermodus definieren"
 
@@ -2970,43 +2988,31 @@ msgstr "Schaltet den UTA ein/aus"
 
 #: .tmp/umax_pp.c:635
 msgid "Gain"
-msgstr "Gewinn"
+msgstr "Verstärkung"
 
 #: .tmp/umax_pp.c:636
 msgid "Color channels gain settings"
-msgstr "Farbkanalgewinneinstellungen"
+msgstr "Farbkanal Verstärkungseinstellungen"
 
 #: .tmp/umax_pp.c:643
 msgid "Gray gain"
-msgstr "Gewinn grauer Kanal"
+msgstr "Verstärkung grauer Kanal"
 
 #: .tmp/umax_pp.c:644
 msgid "Sets gray channel gain"
-msgstr "Legt den Gewinn des grauen Kanals fest"
-
-#: .tmp/umax_pp.c:655
-msgid "Red gain"
-msgstr "Gewinn roter Kanal"
+msgstr "Legt die Verstärkung des grauen Kanals fest"
 
 #: .tmp/umax_pp.c:656
 msgid "Sets red channel gain"
-msgstr "Legt den Gewinn des roten Kanals fest"
-
-#: .tmp/umax_pp.c:667
-msgid "Green gain"
-msgstr "Gewinn grüner Kanal"
+msgstr "Legt die Verstärkung des roten Kanals fest"
 
 #: .tmp/umax_pp.c:668
 msgid "Sets green channel gain"
-msgstr "Legt den Gewinn des grünen Kanals fest"
-
-#: .tmp/umax_pp.c:679
-msgid "Blue gain"
-msgstr "Gewinn blauer Kanal"
+msgstr "Legt die Verstärkung des grünen Kanals fest"
 
 #: .tmp/umax_pp.c:680
 msgid "Sets blue channel gain"
-msgstr "Legt den Gewinn des blauen Kanals fest"
+msgstr "Legt die Verstärkung des blauen Kanals fest"
 
 #: .tmp/umax_pp.c:691
 msgid "Offset"
@@ -3024,25 +3030,13 @@ msgstr "Offset grüner Kanal"
 msgid "Sets gray channel offset"
 msgstr "Legt den Offset des grauen Kanals fest"
 
-#: .tmp/umax_pp.c:712
-msgid "Red offset"
-msgstr "Offset roter Kanal"
-
 #: .tmp/umax_pp.c:713
 msgid "Sets red channel offset"
 msgstr "Legt den Offset des roten Kanals fest"
 
-#: .tmp/umax_pp.c:724
-msgid "Green offset"
-msgstr "Offset grüner Kanal"
-
 #: .tmp/umax_pp.c:725
 msgid "Sets green channel offset"
 msgstr "Legt den Offset des grünen Kanals fest"
-
-#: .tmp/umax_pp.c:736
-msgid "Blue offset"
-msgstr "Offset blauer Kanal"
 
 #: .tmp/umax_pp.c:737
 msgid "Sets blue channel offset"

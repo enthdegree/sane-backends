@@ -1,5 +1,6 @@
 2001-05-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* LEVEL2: Added point about sane_init results != SANE_STATUS_GOOD.
 	* TODO: Added entries about memory leaks, sane_init return values, and
 	  HP-UX problems in isfdtype.c.
 

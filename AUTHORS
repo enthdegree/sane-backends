@@ -45,8 +45,9 @@ Backends:
  s9036:         Ingo Schneider
  sharp:         FUKUDA Kazuya (*) and Abel Deuring (*)
  sm3600:        Marian Eichholz (*) and Glenn Ramsey (*)
- snapscan:      Kevin Charter, Franck Schneider, Michel Roelofs, Sebastien Sable (*),
-                and Henrik Johansson
+ snapscan:      Kevin Charter, Franck Schneider, Michel Roelofs, Sebastien
+                Sable (*), Henrik Johansson, Chris Bagwell (*), and Oliver 
+                Schwartz (*)
  sp15c:         Randolph Bentson (*)
  st400:         Ingo Wilken (*)
  tamarack:      Roger Wolff
@@ -79,6 +80,7 @@ Andreas Rick <andreas.rick@free.fr>
 Andrew Kuchling <amk@magnet.com>
 Bernd Schroeder <bernd@aquila.muc.de>
 Brian J. Murrell <brian@interlinx.bc.ca>
+Chris Bagwell <cbagwell@users.sourceforge.net>
 Chris Pinkham <cpinkham@infi.net>
 Christian Bucher <cbucher@vernetzt.at>
 David Etherton <etherton@netcom.com>
@@ -117,6 +119,7 @@ Michael K. Johnson <johnsonm@redhat.com>
 Michel Roelofs <michelr@stack.nl>
 Milon Firikis <milonf@ariadne-t.gr>
 Oliver Rauch <Oliver.Rauch@Rauch-domain.de>
+Oliver Schwartz <oliverschwartz@users.sourceforge.net>
 Patrick Reynolds <patrickr@virginia.edu>
 Peter Fales <peter@fales.com>
 Peter Kirchgessner <peter@kirchgessner.net>
@@ -129,3 +132,5 @@ Simon Munton <simon@munton.demon.co.uk>
 Stéphane Voltz <svoltz@wanadoo.fr>
 Tom Martone <tom@martoneconsulting.com>
 Tristan Tarrant <ttarrant@etnoteam.it>
+
+

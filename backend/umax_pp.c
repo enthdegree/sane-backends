@@ -72,6 +72,11 @@
 #include "../include/sane/sanei_backend.h"
 
 #include "../include/sane/sanei_config.h"
+
+#ifdef DMALLOC
+#include "dmalloc.h"
+#endif
+
 #define UMAX_PP_CONFIG_FILE "umax_pp.conf"
 
 #define MIN(a,b)	((a) < (b) ? (a) : (b))
@@ -94,7 +99,7 @@
 
 /* if you change the source, please set UMAX_PP_STATE to "devel". Do *not*
  * change the UMAX_PP_BUILD. */
-#define UMAX_PP_BUILD	5
+#define UMAX_PP_BUILD	6
 #define UMAX_PP_STATE	"devel"
 
 static int num_devices = 0;
@@ -592,7 +597,8 @@ init_options (Umax_PP_Device * dev)
 
 
 
-SANE_Status sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
+SANE_Status
+sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
   char dev_name[512];
   const char *cp;
@@ -968,7 +974,8 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   return SANE_STATUS_GOOD;
 }
 
-SANE_Status sane_open (SANE_String_Const devicename, SANE_Handle * handle)
+SANE_Status
+sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 {
   Umax_PP_Device *dev;
   Umax_PP_Descriptor *desc;
@@ -1196,7 +1203,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 {
   Umax_PP_Device *dev = handle;
   SANE_Status status;
-  SANE_Word w, cap;
+  SANE_Word w, cap, tmpw;
   int dpi, rc;
 
   DBG (6, "control_option: option %d, action %d\n", option, action);
@@ -1329,6 +1336,16 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_BLUE_HIGHLIGHT:
 
 	  dev->val[option].w = *(SANE_Word *) val;
+	  /* sanity check */
+	  if (dev->val[OPT_BR_Y].w < dev->val[OPT_TL_Y].w)
+	    {
+	      tmpw = dev->val[OPT_BR_Y].w;
+	      dev->val[OPT_BR_Y].w = dev->val[OPT_TL_Y].w;
+	      dev->val[OPT_TL_Y].w = tmpw;
+	      if (info)
+		*info |= SANE_INFO_INEXACT;
+	      DBG (16, "control_option: swapping Y coordinates\n");
+	    }
 	  return SANE_STATUS_GOOD;
 
 	  /* side-effect-free word-array options: */
@@ -1385,6 +1402,16 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		  DBG (16, "control_option: rounding X to %d\n",
 		       *(SANE_Word *) val);
 		}
+	    }
+	  /* sanity check */
+	  if (dev->val[OPT_BR_X].w < dev->val[OPT_TL_X].w)
+	    {
+	      tmpw = dev->val[OPT_BR_X].w;
+	      dev->val[OPT_BR_X].w = dev->val[OPT_TL_X].w;
+	      dev->val[OPT_TL_X].w = tmpw;
+	      if (info)
+		*info |= SANE_INFO_INEXACT;
+	      DBG (16, "control_option: swapping X coordinates\n");
 	    }
 	  return SANE_STATUS_GOOD;
 
@@ -1634,7 +1661,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 }
 
 
-SANE_Status sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
+SANE_Status
+sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 {
   Umax_PP_Device *dev = handle;
   int dpi, remain;
@@ -1789,10 +1817,11 @@ SANE_Status sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 }
 
 
-SANE_Status sane_start (SANE_Handle handle)
+SANE_Status
+sane_start (SANE_Handle handle)
 {
   Umax_PP_Device *dev = handle;
-  int rc;
+  int rc, autoset;
 
   /* sanity check */
   if (dev->state == UMAX_PP_STATE_SCANNING)
@@ -1826,6 +1855,12 @@ SANE_Status sane_start (SANE_Handle handle)
   /* sets lamp flag to TRUE */
   dev->val[OPT_LAMP_CONTROL].w = SANE_TRUE;
 
+  /* tests if we do auto setting */
+  if (dev->val[OPT_MANUAL_GAIN].w == SANE_TRUE)
+    autoset = 0;
+  else
+    autoset = 1;
+
   /* call start scan */
   if (dev->color == UMAX_PP_MODE_COLOR)
     {
@@ -1845,6 +1880,7 @@ SANE_Status sane_start (SANE_Handle handle)
 				dev->BottomY - dev->TopY,
 				dev->dpi,
 				1,
+				autoset,
 				(dev->red_gain << 8) +
 				(dev->green_gain << 4) + dev->blue_gain,
 				(dev->red_highlight << 8) +
@@ -1866,6 +1902,7 @@ SANE_Status sane_start (SANE_Handle handle)
 				dev->BottomY - dev->TopY,
 				dev->dpi,
 				0,
+				autoset,
 				dev->gray_gain << 4,
 				dev->gray_highlight << 4,
 				&(dev->bpp), &(dev->tw), &(dev->th));
@@ -2040,7 +2077,8 @@ sane_cancel (SANE_Handle handle)
     }
 }
 
-SANE_Status sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
+SANE_Status
+sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 {
   DBG (129, "unused arg: handle = %p, non_blocking = %d\n",
        handle, (int) non_blocking);
@@ -2050,7 +2088,8 @@ SANE_Status sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
   return SANE_STATUS_UNSUPPORTED;
 }
 
-SANE_Status sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
+SANE_Status
+sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
 {
 
   DBG (129, "unused arg: handle = %p, fd = %p\n", handle, fd);

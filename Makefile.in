@@ -81,7 +81,7 @@ sort-cvsignore:
 libcheck:
 	@echo "Libraries exporting 'illegal' symbols:"
 	@for lib in backend/.libs/*.a; do \
-	  lines=`nm -g $$lib|grep ' T '|egrep -v ' sane_| sanei_'` ; \
+	  lines=`nm -g $$lib|grep '\( T \)\|\( D \)'|egrep -v ' sane_| sanei_'` ; \
 	  if test -n "$$lines" ; \
 	  then \
 	    echo -e "*** $$lib:\n$$lines"; \

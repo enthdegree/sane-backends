@@ -1,3 +1,6 @@
+2005-03-31 Julien Blache <jb@jblache.org>
+	* doc/scanimage.man: fix typos, patch from A Costa.
+
 2005-03-20 Earle F. Philhower III <earle@ziplabel.com>
 	* backend/sm3840_scan.c: Big-endian graymode fix
 

@@ -209,7 +209,7 @@ defined by the
 .B SANE
 API (in particular the
 .B sane_read
-function is excercised by this test).
+function is exercised by this test).
 .PP
 The
 .B \-h
@@ -366,7 +366,7 @@ legal value for this option would be "3,4,5,6,7,8,9,10,11,12".  Since
 it's cumbersome to specify long vectors in this form, the same can be
 expressed by the abbreviated form "[0]3-[9]12".  What this means is
 that the first vector element is set to 3, the 9-th element is set to
-12 and the values inbetween are interpolated linearly.  Of course, it
+12 and the values in between are interpolated linearly.  Of course, it
 is possible to specify multiple such linear segments.  For example,
 "[0]3-[2]3-[6]7,[7]10-[9]6" is equivalent to "3,3,3,4,5,6,7,10,8,6".
 The program
@@ -382,7 +382,7 @@ for details).
     The filename of the image to be loaded.
 .PP
 .RS
-The descriptoin above is an example of an option that takes an
+The description above is an example of an option that takes an
 arbitrary string value (which happens to be a filename).  Again,
 the value in brackets show that the option is current set to the
 filename 

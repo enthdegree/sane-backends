@@ -6,6 +6,10 @@
 	  <marciot@holly.colostate.edu>).
 	* doc/sane-usb.man: Updated concerning backends supporting sanei_usb
 	  and OpenBSD. Other minor fixes.
+	* include/sane/sanei_pv8630.h sanei/sanei_pv8630.h sanei/Makefile.in:
+	  Added support for the PowerVision 8630 chip, a USB to parallel
+	  converter used in many scanners (patch from from Marcio Luis Teixeira
+	  <marciot@holly.colostate.edu>). Fixed sanei_thread Makefile.in entry.
 
 2001-12-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -490,7 +490,7 @@ _LOC int DetectScanner( pScanData ps, int mode )
 	} else {
 
         /* this will be called each time before operating on a previously
-         * detected device, to make sure we're already operating on the same one
+         * detected device, to make sure we are still operating on the same one
          */
 		if( _ASIC_IS_98001 == mode ) {
 

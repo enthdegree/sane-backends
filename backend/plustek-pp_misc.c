@@ -492,10 +492,10 @@ _LOC int MiscInitPorts( pScanData ps, int port )
     ps->IO.pbStatusPort  = (UShort)port+1;
     ps->IO.pbControlPort = (UShort)port+2;
     ps->IO.pbEppDataPort = (UShort)port+4;
-    
+
 #else
 	int mode;
-	
+
 	if( NULL == ps )
 		return _E_NULLPTR;
 

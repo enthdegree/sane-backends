@@ -246,11 +246,12 @@ static SANE_Auth_Callback auth = NULL;
 static void show_cnf( pCnfDef cnf )
 {
 	DBG( _DBG_SANE_INIT,"Device configuration:\n" );
-	DBG( _DBG_SANE_INIT,"device name  : >%s<\n", cnf->devName                );
-	DBG( _DBG_SANE_INIT,"direct I/O   : %s\n",   _YN(cnf->adj.direct_io     ));
-	DBG( _DBG_SANE_INIT,"warmup       : %ds\n",  cnf->adj.warmup             );
-	DBG( _DBG_SANE_INIT,"lampOff      : %d\n",   cnf->adj.lampOff            );
-	DBG( _DBG_SANE_INIT,"lampOffOnEnd : %s\n",   _YN(cnf->adj.lampOffOnEnd  ));
+	DBG( _DBG_SANE_INIT,"device name   : >%s<\n", cnf->devName               );
+	DBG( _DBG_SANE_INIT,"direct I/O    : %s\n",   _YN(cnf->adj.direct_io    ));
+	DBG( _DBG_SANE_INIT,"warmup        : %ds\n",  cnf->adj.warmup            );
+	DBG( _DBG_SANE_INIT,"lampOff       : %d\n",   cnf->adj.lampOff           );
+	DBG( _DBG_SANE_INIT,"lampOffOnEnd  : %s\n",   _YN(cnf->adj.lampOffOnEnd ));
+	DBG( _DBG_SANE_INIT,"model override: %d\n",   cnf->adj.mov               );
 	DBG( _DBG_SANE_INIT,"---------------------\n" );
 }
 

@@ -3,6 +3,9 @@
 	* backend/epson.c backend/epson_usb.[ch]: Fix problem with 
 	  "usb <vendor> <product> syntax in config file
 
+	* backend/epson.c: Move sanei_init_usb() to sane_init(). Thanks
+	  to Ron Cemer for the patch.
+
 2003-02-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Updated Canon, Fujitsu, and

@@ -16,8 +16,8 @@
 
 */
 
-#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.33 - 2003-02-15"
-#define SANE_EPSON_BUILD	233
+#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.34 - 2003-02-15"
+#define SANE_EPSON_BUILD	234
 
 /*
    This file is part of the SANE package.
@@ -59,6 +59,8 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
+   2003-02-15   Move sanei_usb_init() to sane_init(). Thanks to Ron Cemer
+   				for providing the patch.
    2003-02-15	Fix problem with "usb <vendor> <product> syntax in config file
    2002-12-28	Added advanced option to display only short resolution list for 
    		displays that can not show the complete list.
@@ -317,7 +319,7 @@
 #define  walloca(x)	(x *)alloca(sizeof(x))
 
 #ifndef  XtNumber
-#	define  XtNumber(x)  ( sizeof x / sizeof x [ 0] )
+#	define  XtNumber(x)  ( sizeof(x)/ sizeof(x[0]) )
 #	define  XtOffset(p_type,field)  ((size_t)&(((p_type)NULL)->field))
 #	define  XtOffsetOf(s_type,field)  XtOffset(s_type*,field)
 #endif
@@ -977,7 +979,7 @@ expect_ack(Epson_Scanner * s)
 	size_t len;
 	SANE_Status status;
 
-	len = sizeof result;
+	len = sizeof(result);
 
 	receive( s, result, len, &status);
 
@@ -1711,16 +1713,6 @@ attach(const char * dev_name, Epson_Device * * devp, int type)
 	 */
 
 	/*
-	 * if the config file contains a line "usb /dev/usbscanner", then handle 
-	 * this here and use the USB device from now on.
-	 */
-	if (s->hw->connection == SANE_EPSON_USB)
-	{
-		/* we have a match for the USB string and adjust the device name */
-		sanei_usb_init();
-	}
-
-	/*
 	 *  if interface is SCSI do an inquiry.
 	 */
 
@@ -2222,6 +2214,8 @@ sane_init(SANE_Int * version_code, SANE_Auth_Callback authorize)
 
 	if( version_code != NULL)
 		*version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, SANE_EPSON_BUILD);
+
+	sanei_usb_init();
 
 	/* default to /dev/scanner instead of insisting on config file */
 	if( (fp = sanei_config_open (EPSON_CONFIG_FILE)))

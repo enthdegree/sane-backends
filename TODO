@@ -13,7 +13,8 @@ backends
       destination library directory is in the search path of the
       linker. [The correct fix is to use -R (on Solaris) and -rpath
       (on the rest?) to include the dynamic link path in the binaries
-      / libraries. pere 2001-02-09]
+      / libraries. pere 2001-02-09 -- I believe this is partly fixed
+      in tools/sane-config.in 2001-05-18]
 
   * Add new backends (?)
     - primax http://primax.sourceforge.net/
@@ -123,8 +124,12 @@ doc
 
   * Documentation for sanei API
     - any ideas for this?
+    - Options:
+      - Doxygen, <URL:http://www.stack.nl/~dimitri/doxygen/>
+      - ROBODoc, <URL:http://www.xs4all.nl/~rfsber/Robo/>
 
-  * sane.tex: Define the return values for sane_init?
+  * sane.tex: Define the return values for sane_init?  Define the
+    consequences if sane_init do not return SANE_STATUS_GOOD.
 
   * Add links to sane(7) in all maual pages
  

@@ -2,7 +2,8 @@
 
 	* README: Some more information on where to find the config files and
 	  a hint to make a backup.
-
+	* doc/sane.man: Updated mustek_usb and plustek backend entries. Added
+	  FILES section. Minor fixes and updates.
 
 2002-03-10  Frank Zago <fzago@greshamstorage.com>
 

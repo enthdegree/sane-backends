@@ -10,6 +10,8 @@
 	  ColorPage-Vivid Pro II. 
 	* tools/hotplug/libsane.usermap: Added Epson Stylus RX425 based on
 	  bug report #301114.
+	* doc/sane-agfafocus.man doc/sane-artec.man: Fixed some macros
+	  (patch from esr@thyrsus.com).
 
 2005-01-12  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

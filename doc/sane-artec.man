@@ -12,22 +12,22 @@ that provides access to Artec/Ultima SCSI flatbed scanners.  At present,
 the following scanners are known to work at least partially with this backend:
 .PP
 .RS
+.IP *
 Artec A6000C
-.br
+.IP *
 Artec A6000C PLUS
-.br
+.IP *
 Artec ViewStation AT3
-.br
+.IP *
 BlackWidow BW4800SP (rebadged Artec AT3)
-.br
+.IP *
 Artec ViewStation AT6
-.br
+.IP *
 Artec ViewStation AT12
-.br
+.IP *
 Artec AM12S
-.br
+.IP *
 Plustek 19200S (rebadged Artec AM12S)
-.br
 .RE
 .PP
 Although this manual page is generally updated with each release,
@@ -51,65 +51,39 @@ correspond to Artec scanners.  Empty lines and lines starting with a
 hash mark (#) are ignored.  See
 .I sane-scsi(5)
 on details of what constitutes a valid device name.
-.br
+
 Sample file:
 .br
 .br
+.nf
 # artec.conf
-.br
 #
-.br
 # this is a comment.
-.br
 #
-.br
 # this line says search for any SCSI devices which are scanners and have
-.br
 #     a vendor string of 'ULTIMA'
-.br
 scsi ULTIMA
-.br
 #
-.br
 # the next line forces the backend to assume the next scanner found has
-.br
 #     the specified vendor string (useful for testing rebadged models).
-.br
 vendor ULTIMA
-.br
 #
-.br
 # the next line forces the backend to assume the next scanner found has
-.br
 #     the specified model string (useful for testing rebadged models).
-.br
 model AT3
-.br
 #
-.br
 # now a line that actually specifies a device.  The backend is going to
-.br
 #     assume this is an Artec/Ultima AT3 because we forced the vendor and
-.br
 #     model above.
-.br
 /dev/scanner
-.br
 #
-.br
 # once we hit a scanner device line, the forced vendor and model
-.br
 # string are
-.br
 #     'forgotten', so the vendor and model for this next device will be
-.br
 #     determined from the result of a SCSI inquiry.
-.br
 /dev/sge
-.br
 #
-.br
-.br
+.fi
 
 .SH SCSI ADAPTER TIPS
 
@@ -155,8 +129,7 @@ If the library was compiled with debug support enabled, this environment
 variable controls the debug level for this backend. E.g., a value of 128
 requests all debug output to be printed. Smaller levels reduce verbosity:
 SANE_DEBUG_ARTEC values
-.DS
-.sp
+
 .ft CR
 .nf
  Number  Remark
@@ -181,7 +154,9 @@ SANE_DEBUG_ARTEC values
  == 101  print raw data from scanner to artec.data.raw file
 
  == 128  print out all messages
-
+.fi
+.ft R
+.PP
 Example:
 export SANE_DEBUG_ARTEC=13
 

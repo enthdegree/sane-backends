@@ -107,7 +107,6 @@ variable controls the debug level for this backend. E.g., a value of 128
 requests all debug output to be printed. Smaller levels reduce verbosity.
 SANE_DEBUG_AGFAFOCUS values:
 
-.DS
 .sp 
 .ft CR
 .nf
@@ -126,6 +125,8 @@ Number  Remark
  11      print called sane-procedures
  12      print sane infos
  13      print sane option-control messages
+.fi
+.ft R
 
 .SH MISSING FUNCTIONALITY
 

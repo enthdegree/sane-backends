@@ -51,15 +51,20 @@
 #include <ctype.h>
 #include <errno.h>
 #include <limits.h>
-#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 #include <math.h>
 
+#ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
+#endif
+#ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
+#endif
 
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"
@@ -71,7 +76,6 @@
 #define BACKEND_NAME	umax_pp
 #include "../include/sane/sanei_backend.h"
 
-#include "../include/sane/sanei_config.h"
 
 #ifdef DMALLOC
 #include "dmalloc.h"
@@ -99,7 +103,7 @@
 
 /* if you change the source, please set UMAX_PP_STATE to "devel". Do *not*
  * change the UMAX_PP_BUILD. */
-#define UMAX_PP_BUILD	6
+#define UMAX_PP_BUILD	8
 #define UMAX_PP_STATE	"devel"
 
 static int num_devices = 0;

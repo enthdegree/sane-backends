@@ -44,16 +44,23 @@
 
 
 
+#include "../include/sane/config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
+#endif
+#ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
+#endif
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+#ifdef HAVE_FCNTL_H
 #include <fcntl.h>
-#include <signal.h>
-#include "../include/sane/config.h"
+#endif
 #include "../include/sane/sanei_debug.h"
 #include <errno.h>
 
@@ -2550,29 +2557,29 @@ RingScanner (void)
 
   /* send ring string */
   Outb (DATA, 0x22);
-  usleep (10000);
+  usleep (1000);
   Outb (DATA, 0x22);
-  usleep (10000);
+  usleep (1000);
   Outb (DATA, 0xAA);
-  usleep (10000);
+  usleep (1000);
   Outb (DATA, 0xAA);
-  usleep (10000);
+  usleep (1000);
   Outb (DATA, 0x55);
-  usleep (10000);
+  usleep (1000);
   Outb (DATA, 0x55);
-  usleep (10000);
+  usleep (1000);
   Outb (DATA, 0x00);
-  usleep (10000);
+  usleep (1000);
   Outb (DATA, 0x00);
-  usleep (10000);
+  usleep (1000);
   Outb (DATA, 0xFF);
-  usleep (10000);
+  usleep (1000);
   Outb (DATA, 0xFF);
-  usleep (10000);
+  usleep (1000);
 
   /* OK ? */
   status = Inb (STATUS);
-  usleep (10000);
+  usleep (1000);
   if ((status & 0xB8) != 0xB8)
     {
       DBG (1, "status %d doesn't match! %s:%d\n", status, __FILE__, __LINE__);
@@ -2583,11 +2590,11 @@ RingScanner (void)
   if (ret)
     {
       Outb (DATA, 0x87);
-      usleep (10000);
+      usleep (1000);
       Outb (DATA, 0x87);
-      usleep (10000);
+      usleep (1000);
       status = Inb (STATUS);
-      usleep (10000);
+      usleep (1000);
       if ((status & 0xB8) != 0x18)
 	{
 	  DBG (1, "status %d doesn't match! %s:%d\n", status, __FILE__,
@@ -2600,9 +2607,9 @@ RingScanner (void)
   if (ret)
     {
       Outb (DATA, 0x78);
-      usleep (10000);
+      usleep (1000);
       Outb (DATA, 0x78);
-      usleep (10000);
+      usleep (1000);
       status = Inb (STATUS);
       if ((status & 0x30) != 0x30)
 	{
@@ -2616,13 +2623,13 @@ RingScanner (void)
   if (ret)
     {
       Outb (DATA, 0x08);
-      usleep (10000);
+      usleep (1000);
       Outb (DATA, 0x08);
-      usleep (10000);
+      usleep (1000);
       Outb (DATA, 0xFF);
-      usleep (10000);
+      usleep (1000);
       Outb (DATA, 0xFF);
-      usleep (10000);
+      usleep (1000);
     }
 
   /* restore state */
@@ -5069,44 +5076,6 @@ sanei_umax_pp_ProbeScanner (int recover)
 }
 
 
-/* signal handler: simply flags the cancel request */
-/*static void
-handler (int signum)
-{*/
-  /* reserve SIGUSR1 for futur use */
-  /*if (signum != SIGUSR1)
-     gCancel = 1;
-     } */
-
-
-/* set the signal handler to manage signals */
-/*static int
-InitCancel (void)
-{
-  signal (SIGINT, handler);
-  signal (SIGTERM, handler);
-  return (1);
-}*/
-
-
-
-/* cancel sequence                       */
-/* no free, no fclose ... emergency exit */
-/*static int
-Cancel (void)
-{
-  if (sanei_umax_pp_Park () == 0)
-    {
-      DBG (0, "Park failed !!! (%s:%d)\n", __FILE__, __LINE__);
-    }
-  sanei_umax_pp_EndSession ();
-  DBG (1, "Cancel done ...\n");
-}*/
-
-
-
-
-
 static int
 deconnect_epat (void)
 {
@@ -5794,8 +5763,10 @@ sanei_umax_pp_CmdSync (int cmd)
 int
 CmdGetBlockBuffer (int cmd, int len, int window, unsigned char *buffer)
 {
+#ifdef HAVE_SYS_TIME_H
   struct timeval td, tf;
   float elapsed;
+#endif
   int reg, i;
   int word[5], read;
 
@@ -5846,10 +5817,13 @@ CmdGetBlockBuffer (int cmd, int len, int window, unsigned char *buffer)
   while (read < len)
     {
       /* wait for the data to be ready */
+#ifdef HAVE_SYS_TIME_H
       gettimeofday (&td, NULL);
+#endif
       while ((reg & 0x08) == 0x08)
 	{
 	  reg = EPPRegisterRead (0x19) & 0xF8;
+#ifdef HAVE_SYS_TIME_H
 	  gettimeofday (&tf, NULL);
 	  elapsed =
 	    ((tf.tv_sec * 1000000 + tf.tv_usec) -
@@ -5863,6 +5837,7 @@ CmdGetBlockBuffer (int cmd, int len, int window, unsigned char *buffer)
 	      Epilogue ();
 	      return (read);
 	    }
+#endif
 	}
       if ((reg != 0xC0) && (reg != 0xD0) && (reg != 0x00))
 	{
@@ -5903,10 +5878,13 @@ CmdGetBlockBuffer (int cmd, int len, int window, unsigned char *buffer)
 
 
   /* wait for the data to be ready */
+#ifdef HAVE_SYS_TIME_H
   gettimeofday (&td, NULL);
+#endif
   while ((reg & 0x08) == 0x08)
     {
       reg = EPPRegisterRead (0x19) & 0xF8;
+#ifdef HAVE_SYS_TIME_H
       gettimeofday (&tf, NULL);
       elapsed =
 	((tf.tv_sec * 1000000 + tf.tv_usec) -
@@ -5920,6 +5898,7 @@ CmdGetBlockBuffer (int cmd, int len, int window, unsigned char *buffer)
 	  Epilogue ();
 	  return (read);
 	}
+#endif
     }
   if ((reg != 0xC0) && (reg != 0xD0) && (reg != 0x00))
     {
@@ -7282,10 +7261,12 @@ int
 sanei_umax_pp_Scan (int x, int y, int width, int height, int dpi, int color,
 		    int gain, int highlight)
 {
+#ifdef HAVE_SYS_TIME_H
   struct timeval td, tf;
+  float elapsed;
+#endif
   unsigned char *buffer;
   long int somme, len, read, blocksize;
-  float elapsed;
   FILE *fout = NULL;
   int *dest = NULL;
   int bpl, hp;
@@ -7341,7 +7322,9 @@ sanei_umax_pp_Scan (int x, int y, int width, int height, int dpi, int color,
 	}
 
       /* data reading loop */
+#ifdef HAVE_SYS_TIME_H
       gettimeofday (&td, NULL);
+#endif
       while ((read < somme) && (!gCancel))
 	{
 	  /* 2096100 max */
@@ -7401,7 +7384,9 @@ sanei_umax_pp_Scan (int x, int y, int width, int height, int dpi, int color,
 	    }
 	}
 
+#ifdef HAVE_SYS_TIME_H
       gettimeofday (&tf, NULL);
+#endif
 
       /* release ressources */
       if (fout != NULL)
@@ -7410,9 +7395,11 @@ sanei_umax_pp_Scan (int x, int y, int width, int height, int dpi, int color,
       free (buffer);
 
       /* scan time are high enough to forget about usec */
+#ifdef HAVE_SYS_TIME_H
       elapsed = tf.tv_sec - td.tv_sec;
       DBG (8, "%ld bytes transfered in %f seconds ( %.2f Kb/s)\n", somme,
 	   elapsed, (somme / elapsed) / 1024.0);
+#endif
 
 
       /* park head */

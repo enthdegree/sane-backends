@@ -69,7 +69,7 @@
  * @sa sanei_pa4s2_open
  *
  */
-extern char ** sanei_pa4s2_devices();
+extern char ** sanei_pa4s2_devices(void);
 
 /** Open pa4s2 device 
  *

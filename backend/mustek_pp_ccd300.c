@@ -580,7 +580,7 @@ min_color_levels_101x (Mustek_pp_Handle * dev)
 
       set_ccd_channel_101x (dev, CCD300_CHANNEL_GREEN);
       set_sti (dev);
-      wait_bank_change (dev, priv->bank_count);
+      wait_bank_change (dev, priv->bank_count, 1);
 
       read_line_101x (dev, buf, CCD300_MAXHSIZE, 0, NULL, NULL);
 
@@ -859,7 +859,7 @@ get_grayscale_line_101x (Mustek_pp_Handle * dev, SANE_Byte * buf)
   while (--skips)
     {
       motor_forward_101x (dev);
-      wait_bank_change (dev, priv->bank_count);
+      wait_bank_change (dev, priv->bank_count, 1);
       reset_bank_count (dev);
     }
 

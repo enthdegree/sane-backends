@@ -1,6 +1,11 @@
+2002-11-22  Michael Herder <crapsite at gmx.net>
+
+          Fixed header in artec_eplus48u.de.po.
+          *po/artec_eplus48u.de.po
+
 2002-11-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* doc/descriptions/mustek_usb.desc doc/sane-mustek_usb.man 
+	* doc/descriptions/mustek_usb.desc doc/sane-mustek_usb.man
 	  doc/mustek_usb/mustek_usb.CHANGES doc/mustek_usb/mustek_usb.TODO:
 	  Minor manpage fixes. Added links to similar backends. More
 	  information about non-Linux OS.

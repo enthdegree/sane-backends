@@ -1,18 +1,18 @@
 # German translation of SANE backend artec_eplus48u.
-# Copyright (C) YEAR Free Software Foundation, Inc.
+# Copyright (C) 2002 Michael Herder
 # Michael Herder <crapsite@gmx.net>, 2002.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: sane-backends 1.0.9\n"
 "POT-Creation-Date: 2002-11-21 21:33+0100\n"
-"PO-Revision-Date: 2002-11-21 21:37GMT\n"
-"Last-Translator: \n"
+"PO-Revision-Date: 2002-11-22 09:04GMT\n"
+"Last-Translator: Michael Herder <crapsite@gmx.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 0.9.5\n"
-"Language-Team:  <de@li.org>\n"
+"Language-Team: \n"
 
 #: .tmp/artec_eplus48u.c:153
 msgid "Lineart"

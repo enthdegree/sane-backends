@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
 
-   Copyright (C) 2000 Kazuya Fukuda, based on sharp.c, which is based on
-   canon.c.
+   Copyright (C) 2000-2001 Kazuya Fukuda, based on sharp.c, which is 
+   based on canon.c.
 
    This file is part of the SANE package.
 
@@ -44,6 +44,13 @@
    This file implements a SANE backend for NEC flatbed scanners.  */
 
 /*
+   Version 0.12
+   - Remove references to sharp backend (grep for "JX").
+   - Check for HAVE_SYS_SHM_H before including sys/shm.h and
+     disable shared memory support if necessary.
+   - free devlist allocated in sane_get_devices() in sane_exit()
+   - resolution setting bug fixed(PC-IN500/4C 10dpi step)
+   - remove resolution list
    Version 0.11
    - get_data_buffer_status is not called in sane_get_parameter and 
      sane_read_direct, sane_read_shuffled.
@@ -82,12 +89,15 @@
 #endif
 
 /* USE_FORK: fork a special reader process
+   disable shared memory support.
 */
-#ifndef NOTUSE_PCIN500
+#if 0
+#ifdef HAVE_SYS_SHM_H
 #define USE_FORK
 #endif
-#ifdef USE_FORK
+#endif
 
+#ifdef USE_FORK
 #include <signal.h>
 #include <fcntl.h>
 #include <sys/types.h>
@@ -104,6 +114,13 @@
 #ifndef USE_COLOR_THRESHOLD
 #define USE_COLOR_THRESHOLD
 #endif
+/* enable a short list of some standard resolutions. XSane provides 
+   its own resolution list; therefore its is generally not reasonable
+   to enable this list, if you mainly using XSane. But it might be handy
+   if you are working with xscanimage
+*/
+/* #define USE_RESOLUTION_LIST */ 
+
 #include "nec.h"
 
 #define BACKEND_NAME nec
@@ -124,6 +141,7 @@
 static int num_devices = 0;
 static NEC_Device *first_dev = NULL;
 static NEC_Scanner *first_handle = NULL;
+static const SANE_Device **devlist = 0;
 
 typedef enum
   {
@@ -181,22 +199,6 @@ static SANE_String use_adf = "Automatic Document Feeder";
 static SANE_String use_fsu = "Transparency Adapter";
 static SANE_String use_simple = "Flatbed";
 
-/* auto selection of ADF and FSU, as described in the JX330 manual, 
-   is a nice idea -- but I assume that the possible scan window 
-   sizes depend not only for the JX250, but also for JX330 on the 
-   usage of ADF or FSU. Thus, the user might be able to select scan
-   windows of an "illegal" size, which would have to be automatically
-   corrected, and I don't see, how the user could be informed about 
-   this "window clipping". More important, I don't see, how the 
-   frontend could be informed that the ADF is automatically enabled.
-   
-   Insert a "#define ALLOW_AUTO_SELECT_ADF", if you want to play
-   with this feature.
-*/
-#ifdef ALLOW_AUTO_SELECT_ADF
-static SANE_String_Const use_auto = "AutoSelection";
-#endif
-
 #define HAVE_FSU 1
 #define HAVE_ADF 2
 
@@ -206,9 +208,7 @@ static SANE_String_Const use_auto = "AutoSelection";
 #define SCAN_SIMPLE 0
 #define SCAN_WITH_FSU 1
 #define SCAN_WITH_ADF 2
-#ifdef ALLOW_AUTO_SELECT_ADF
-#define SCAN_ADF_FSU_AUTO 3
-#endif
+
 #define LOAD_PAPER 1
 #define UNLOAD_PAPER 0
 
@@ -251,6 +251,7 @@ static const SANE_String_Const speed_list[] =
 };
 #endif
 
+#ifdef USE_RESOLUTION_LIST
 #define RESOLUTION_MAX_PCINXXX 8
 static const SANE_String_Const resolution_list_pcinxxx[] =
 {
@@ -264,6 +265,7 @@ static const SANE_String_Const resolution_list_pcin500[] =
   "50", "75", "100", "150", "200", "300", "400", "480", "Select",
   0
 };
+#endif
 
 #define EDGE_NONE    "None"
 #define EDGE_MIDDLE  "Middle"
@@ -434,6 +436,7 @@ mode_select_mud (int fd, int mud)
   return (status);
 }
 
+#if 0
 static SANE_Status
 mode_select_adf_fsu (int fd, int mode)
 {
@@ -461,12 +464,6 @@ mode_select_adf_fsu (int fd, int mode)
         mp->a_mode = 0x40;
         mp->f_mode = 0;
         break;
-#ifdef ALLOW_AUTO_SELECT_ADF
-      case: SCAN_ADF_FSU_AUTO:
-        mp->a_mode = 0;
-        mp->f_mode = 0;
-        break;
-#endif
     }
 
   status = sanei_scsi_cmd (fd, cmd, sizeof (cmd), 0, 0);
@@ -474,6 +471,7 @@ mode_select_adf_fsu (int fd, int mode)
   DBG (11, ">>\n");
   return (status);
 }
+#endif
 
 static SANE_Status wait_ready(int fd);
 
@@ -634,10 +632,6 @@ reader_process(NEC_Scanner *s)
   
   bytes_to_queue = s->bytes_to_read;
   
-  /* it seems that some carriage stops can be avoided with the
-     JX-250, if the data of an integral number of scan lines is
-     read with one SCSI command
-  */
   max_bytes_per_read = s->dev->info.bufsize / s->params.bytes_per_line;
   if (max_bytes_per_read)
     max_bytes_per_read *= s->params.bytes_per_line;
@@ -976,65 +970,6 @@ wait_ready(int fd)
     
 }
 
-#if 0
-/* ask the scanner for the maximum scan sizes with/without ADF and
-   FSU. The JX330 manual does mention the sizes.
-*/
-static SANE_Status
-get_max_scan_size(int fd, NEC_Device *dev, int mode)
-{
-  SANE_Status status;
-  mode_sense_subdevice m_subdev;
-  size_t buf_size;
-        
-  status = mode_select_adf_fsu(fd, mode);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (1, "get_scan_sizes: MODE_SELECT/subdevice page failed\n");
-      sanei_scsi_close (fd);
-      return (SANE_STATUS_INVAL);
-    }
-
-  DBG (3, "get_scan_sizes: sending MODE SENSE/subdevice page\n");
-  memset (&m_subdev, 0, sizeof (m_subdev));
-  buf_size = sizeof (m_subdev);
-  status = mode_sense (fd, &m_subdev, &buf_size, 0x20);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (1, "get_scan_sizes: MODE_SENSE/subdevice page failed\n");
-      sanei_scsi_close (fd);
-      return (SANE_STATUS_INVAL);
-    }
-
-  dev->info.tl_x_ranges[mode].min = 0;
-  dev->info.tl_x_ranges[mode].max = SANE_FIX(PIX_TO_MM(
-    (m_subdev.max_x[0] << 24) + (m_subdev.max_x[1] << 16) +
-    (m_subdev.max_x[2] << 8) + m_subdev.max_x[3] - 1, dev->info.mud));
-  dev->info.tl_x_ranges[mode].quant = 0;
-  
-  dev->info.br_x_ranges[mode].min = SANE_FIX(PIX_TO_MM(1, dev->info.mud));
-  dev->info.br_x_ranges[mode].max = SANE_FIX(PIX_TO_MM(
-    (m_subdev.max_x[0] << 24) + (m_subdev.max_x[1] << 16) +
-    (m_subdev.max_x[2] << 8) + m_subdev.max_x[3], dev->info.mud));
-  dev->info.br_x_ranges[mode].quant = 0;
-
-  dev->info.tl_y_ranges[mode].min = 0;
-  if (dev->sensedat.model == PCIN500 || mode != SCAN_WITH_FSU)
-    dev->info.tl_y_ranges[mode].max = SANE_FIX(PIX_TO_MM(
-      (m_subdev.max_y[0] << 24) + (m_subdev.max_y[1] << 16) +
-      (m_subdev.max_y[2] << 8) + m_subdev.max_y[3] - 1, dev->info.mud));
-  dev->info.tl_y_ranges[mode].quant = 0;
-  
-  dev->info.br_y_ranges[mode].min = SANE_FIX(PIX_TO_MM(1, dev->info.mud));
-  dev->info.br_y_ranges[mode].max = SANE_FIX(PIX_TO_MM(
-    (m_subdev.max_y[0] << 24) + (m_subdev.max_y[1] << 16) +
-    (m_subdev.max_y[2] << 8) + m_subdev.max_y[3], dev->info.mud));
-  dev->info.br_y_ranges[mode].quant = 0;
-  
-  return SANE_STATUS_GOOD;
-}
-#endif
-
 static SANE_Status
 attach (const char *devnam, NEC_Device ** devp)
 {
@@ -1180,8 +1115,10 @@ attach (const char *devnam, NEC_Device ** devp)
   DBG (5, "dev->sane.model = %s\n", dev->sane.model);
   DBG (5, "dev->sane.type = %s\n", dev->sane.type);
 
-  dev->info.xres_range.quant = 0;
-  dev->info.yres_range.quant = 0;
+  if (sensedat.model == PCIN500)
+    dev->info.res_range.quant = 10;
+  else
+    dev->info.res_range.quant = 0;
 
   dev->info.tl_x_ranges[SCAN_SIMPLE].min = SANE_FIX(0);
   dev->info.br_x_ranges[SCAN_SIMPLE].min = SANE_FIX(1);
@@ -1192,8 +1129,10 @@ attach (const char *devnam, NEC_Device ** devp)
   dev->info.tl_y_ranges[SCAN_SIMPLE].quant = SANE_FIX(0);
   dev->info.br_y_ranges[SCAN_SIMPLE].quant = SANE_FIX(0);
 
-  dev->info.xres_default = 150;
-  dev->info.yres_default = 150;
+  if (sensedat.model == PCIN500)
+    dev->info.res_default = 15;
+  else
+    dev->info.res_default = 150;
   dev->info.tl_x_ranges[SCAN_SIMPLE].max = SANE_FIX(209);
   dev->info.br_x_ranges[SCAN_SIMPLE].max = SANE_FIX(210);
   dev->info.tl_y_ranges[SCAN_SIMPLE].max = SANE_FIX(296);
@@ -1205,11 +1144,9 @@ attach (const char *devnam, NEC_Device ** devp)
   dev->info.adf_fsu_installed = 0;
   if (dev->sensedat.model == PCIN500)
     {
-      dev->info.xres_range.max = 480;
-      dev->info.xres_range.min = 30;
+      dev->info.res_range.max = 48;
+      dev->info.res_range.min = 5;
 
-      dev->info.yres_range.max = 480;
-      dev->info.yres_range.min = 30;
       dev->info.x_default = SANE_FIX(210);
       dev->info.tl_x_ranges[SCAN_SIMPLE].max = SANE_FIX(210); /* 304.8mm is the real max */
       dev->info.br_x_ranges[SCAN_SIMPLE].max = SANE_FIX(210); /* 304.8mm is the real max */
@@ -1220,11 +1157,9 @@ attach (const char *devnam, NEC_Device ** devp)
     }
   else
     {
-      dev->info.xres_range.max = 400;
-      dev->info.xres_range.min = 50;
+      dev->info.res_range.max = 400;
+      dev->info.res_range.min = 50;
 
-      dev->info.yres_range.max = 400;
-      dev->info.yres_range.min = 50;
       dev->info.x_default = SANE_FIX(210);
       dev->info.tl_x_ranges[SCAN_SIMPLE].max = SANE_FIX(210); /* 304.8mm is the real max */
       dev->info.br_x_ranges[SCAN_SIMPLE].max = SANE_FIX(210); /* 304.8mm is the real max */
@@ -1247,14 +1182,10 @@ attach (const char *devnam, NEC_Device ** devp)
   dev->info.color_range.max = 255;
   dev->info.color_range.quant = 0;
 
-  DBG (5, "xres_default=%d\n", dev->info.xres_default);
-  DBG (5, "xres_range.max=%d\n", dev->info.xres_range.max);
-  DBG (5, "xres_range.min=%d\n", dev->info.xres_range.min);
-  DBG (5, "xres_range.quant=%d\n", dev->info.xres_range.quant);
-  DBG (5, "yres_default=%d\n", dev->info.yres_default);
-  DBG (5, "yres_range.max=%d\n", dev->info.yres_range.max);
-  DBG (5, "yres_range.min=%d\n", dev->info.yres_range.min);
-  DBG (5, "xres_range.quant=%d\n", dev->info.xres_range.quant);
+  DBG (5, "res_default=%d\n", dev->info.res_default);
+  DBG (5, "res_range.max=%d\n", dev->info.res_range.max);
+  DBG (5, "res_range.min=%d\n", dev->info.res_range.min);
+  DBG (5, "res_range.quant=%d\n", dev->info.res_range.quant);
 
   DBG (5, "x_default=%f\n", SANE_UNFIX(dev->info.x_default));
   DBG (5, "tl_x_range[0].max=%f\n", SANE_UNFIX(dev->info.tl_x_ranges[SCAN_SIMPLE].max));
@@ -1528,7 +1459,7 @@ init_options (NEC_Scanner * s)
 
   /* half tone */
   init_string_option(s, SANE_NAME_HALFTONE_PATTERN, SANE_TITLE_HALFTONE_PATTERN,
-    SANE_DESC_HALFTONE " (JX-330 only)", halftone_list, OPT_HALFTONE, 0);
+    SANE_DESC_HALFTONE " (not support)", halftone_list, OPT_HALFTONE, 0);
 
   if (s->dev->sensedat.model == PCIN500)
     s->opt[OPT_HALFTONE].cap |= SANE_CAP_INACTIVE;
@@ -1536,11 +1467,6 @@ init_options (NEC_Scanner * s)
   i = 0;
   default_source = -1;
 
-#ifdef ALLOW_AUTO_SELECT_ADF
-  /* The JX330, but nut not the JX250 supports auto selection of ADF/FSU: */
-  if (s->dev->info.adf_fsu_installed && (s->dev->sensedat.model == JX330))
-    s->dev->info->scansources[i++] = use_auto;
-#endif
   if (s->dev->info.adf_fsu_installed & HAVE_ADF)
     {
       s->dev->info.scansources[i++] = use_adf;
@@ -1581,33 +1507,28 @@ init_options (NEC_Scanner * s)
   s->opt[OPT_RESOLUTION_GROUP].cap = 0;
   s->opt[OPT_RESOLUTION_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
+#ifdef USE_RESOLUTION_LIST
   /* select resolution */
   if (s->dev->sensedat.model == PCIN500)
     init_string_option(s, "Resolution", "Resolution", "Resolution", 
-      resolution_list_pcin500, OPT_RESOLUTION, RESOLUTION_MAX_PCIN500);
+      resolution_list_pcin500, OPT_RESOLUTION_LIST, RESOLUTION_MAX_PCIN500);
   else
     init_string_option(s, "Resolution", "Resolution", "Resolution", 
-      resolution_list_pcinxxx, OPT_RESOLUTION, RESOLUTION_MAX_PCINXXX);
+      resolution_list_pcinxxx, OPT_RESOLUTION_LIST, RESOLUTION_MAX_PCINXXX);
+#endif
   
-  /* x resolution */
-  s->opt[OPT_X_RESOLUTION].name = "X" SANE_NAME_SCAN_RESOLUTION;
-  s->opt[OPT_X_RESOLUTION].title = "X " SANE_TITLE_SCAN_RESOLUTION;
-  s->opt[OPT_X_RESOLUTION].desc = SANE_DESC_SCAN_RESOLUTION;
-  s->opt[OPT_X_RESOLUTION].type = SANE_TYPE_INT;
-  s->opt[OPT_X_RESOLUTION].unit = SANE_UNIT_DPI;
-  s->opt[OPT_X_RESOLUTION].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_X_RESOLUTION].constraint.range = &s->dev->info.xres_range;
-  s->val[OPT_X_RESOLUTION].w = s->dev->info.xres_default;
-
-  /* y resolution */
-  s->opt[OPT_Y_RESOLUTION].name = "Y" SANE_NAME_SCAN_RESOLUTION;
-  s->opt[OPT_Y_RESOLUTION].title = "Y " SANE_TITLE_SCAN_RESOLUTION;
-  s->opt[OPT_Y_RESOLUTION].desc = SANE_DESC_SCAN_RESOLUTION;
-  s->opt[OPT_Y_RESOLUTION].type = SANE_TYPE_INT;
-  s->opt[OPT_Y_RESOLUTION].unit = SANE_UNIT_DPI;
-  s->opt[OPT_Y_RESOLUTION].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_Y_RESOLUTION].constraint.range = &s->dev->info.yres_range;
-  s->val[OPT_Y_RESOLUTION].w = s->dev->info.yres_default;
+  /* x & y resolution */
+  s->opt[OPT_RESOLUTION].name = SANE_NAME_SCAN_RESOLUTION;
+  if (s->dev->sensedat.model == PCIN500)
+      s->opt[OPT_RESOLUTION].title = SANE_TITLE_SCAN_RESOLUTION"(x 10)";
+  else
+      s->opt[OPT_RESOLUTION].title = SANE_TITLE_SCAN_RESOLUTION;
+  s->opt[OPT_RESOLUTION].desc = SANE_DESC_SCAN_RESOLUTION;
+  s->opt[OPT_RESOLUTION].type = SANE_TYPE_INT;
+  s->opt[OPT_RESOLUTION].unit = SANE_UNIT_DPI;
+  s->opt[OPT_RESOLUTION].constraint_type = SANE_CONSTRAINT_RANGE;
+  s->opt[OPT_RESOLUTION].constraint.range = &s->dev->info.res_range;
+  s->val[OPT_RESOLUTION].w = s->dev->info.res_default;
 
   /* "Geometry" group: */
   s->opt[OPT_GEOMETRY_GROUP].title = "Geometry";
@@ -1656,9 +1577,6 @@ init_options (NEC_Scanner * s)
   s->opt[OPT_BR_Y].unit = SANE_UNIT_MM;
   s->opt[OPT_BR_Y].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_BR_Y].constraint.range = &s->dev->info.br_y_ranges[default_source];
-  /* The FSU for JX250 allows a maximum scan length of 11.5 inch, 
-     which is less than the default value of 297 mm
-  */
   scalar = s->dev->info.y_default;
   clip_value (&s->opt[OPT_BR_X], &scalar);
   s->val[OPT_BR_Y].w = scalar;
@@ -1881,12 +1799,6 @@ do_cancel (NEC_Scanner * s)
         };
       if (reader_running(s))
         {
-          /* be brutal... 
-             !! The waiting time of 10 seconds might be far too short
-             !! if the resolution limit of the JX 250 is increased to
-             !! to more than 400 dpi: for these (interpolated) resolutions,
-             !! the JX 250 is awfully slow.
-          */
           kill(s->reader_pid, SIGKILL);
         }
       wait(&exit_status);
@@ -1976,9 +1888,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   DBG_INIT ();
   DBG (10, "<< sane_init ");
 
-#if defined PACKAGE && defined VERSION
-  DBG (2, "sane_init: " PACKAGE " " VERSION "\n");
-#endif
+  DBG (1, "sane_init: NEC (Ver %d.%d)\n", NEC_MAJOR, NEC_MINOR);
 
   if (version_code)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, 0);
@@ -2149,13 +2059,15 @@ sane_exit (void)
     }
   first_dev = 0;
 
+  if (devlist)
+    free(devlist);
+
   DBG (10, ">>\n");
 }
 
 SANE_Status
 sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 {
-  static const SANE_Device **devlist = 0;
   NEC_Device *dev;
   int i;
   DBG (10, "<< sane_get_devices ");
@@ -2308,8 +2220,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       switch (option)
 	{
 	  /* word options: */
-	case OPT_X_RESOLUTION:
-	case OPT_Y_RESOLUTION:
+	case OPT_RESOLUTION:
 	case OPT_TL_X:
 	case OPT_TL_Y:
 	case OPT_BR_X:
@@ -2352,7 +2263,9 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_HALFTONE:
 	case OPT_PAPER:
 	case OPT_GAMMA:
-	case OPT_RESOLUTION:
+#ifdef USE_RESOLUTION_LIST
+	case OPT_RESOLUTION_LIST:
+#endif
 	case OPT_EDGE_EMPHASIS:
 	case OPT_LIGHTCOLOR:
 	case OPT_SCANSOURCE:
@@ -2378,8 +2291,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       switch (option)
 	{
 	  /* (mostly) side-effect-free word options: */
-	case OPT_X_RESOLUTION:
-	case OPT_Y_RESOLUTION:
+	case OPT_RESOLUTION:
 	case OPT_TL_X:
 	case OPT_TL_Y:
 	case OPT_BR_X:
@@ -2575,7 +2487,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  }
 	  return (SANE_STATUS_GOOD);
 
-	case OPT_RESOLUTION:
+#ifdef USE_RESOLUTION_LIST
+	case OPT_RESOLUTION_LIST:
 	  if (info)
 	    *info |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
 #if 0
@@ -2583,19 +2496,19 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    free (s->val[option].s);
 	  s->val[option].s = strdup (val);
 #endif
-	  for (i = 0; s->opt[OPT_RESOLUTION].constraint.string_list[i]; i++) {
+	  for (i = 0; s->opt[OPT_RESOLUTION_LIST].constraint.string_list[i]; i++) {
 	    if (strcmp (val, 
-	          s->opt[OPT_RESOLUTION].constraint.string_list[i]) == 0){
-	      s->val[OPT_X_RESOLUTION].w 
-	        = atoi(s->opt[OPT_RESOLUTION].constraint.string_list[i]);
-	      s->val[OPT_Y_RESOLUTION].w 
-	        = atoi(s->opt[OPT_RESOLUTION].constraint.string_list[i]);
+	          s->opt[OPT_RESOLUTION_LIST].constraint.string_list[i]) == 0){
+	      s->val[OPT_RESOLUTION].w 
+	        = atoi(s->opt[OPT_RESOLUTION_LIST].constraint.string_list[i]);
 	      if (info)
 	        *info |= SANE_INFO_RELOAD_PARAMS;
 	      break;
 	    }
 	  }
 	  return (SANE_STATUS_GOOD);
+#endif
+
 #ifdef USE_CUSTOM_GAMMA
 	  /* side-effect-free word-array options: */
 	case OPT_GAMMA_VECTOR:
@@ -2627,13 +2540,12 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 SANE_Status
 sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 {
-  int width, length, xres, yres;
+  int width, length, res;
   const char *mode;
   NEC_Scanner *s = handle;
   DBG (10, "<< sane_get_parameters ");
 
-  xres = s->val[OPT_X_RESOLUTION].w;
-  yres = s->val[OPT_Y_RESOLUTION].w;
+  res = s->val[OPT_RESOLUTION].w * s->dev->info.res_range.quant;
   if (!s->scanning)
     {
       /* make best-effort guess at what parameters will look like once
@@ -2649,8 +2561,8 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 
       s->width = width;
       s->length = length;
-      s->params.pixels_per_line = width * xres / s->dev->info.mud;
-      s->params.lines = length * yres / s->dev->info.mud;
+      s->params.pixels_per_line = width * res / s->dev->info.mud;
+      s->params.lines = length * res / s->dev->info.mud;
 
       if (s->dev->sensedat.model == PCIN500)
 	{
@@ -2689,8 +2601,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
       }
     }
 #endif
-  xres = s->val[OPT_X_RESOLUTION].w;
-  yres = s->val[OPT_Y_RESOLUTION].w;
+  res = s->val[OPT_RESOLUTION].w * s->dev->info.res_range.quant;
 
   mode = s->val[OPT_MODE].s;
 
@@ -2932,10 +2843,6 @@ sane_start (SANE_Handle handle)
   /* make sure that we got at least 32 kB. Even then, the scan will be
      awfully slow. 
      
-     NOTE: If you need to decrease this value, remember that s->buffer
-     is used in send_ascii_gamma_tables (JX330/JX610) and in 
-     send_binary_g_table (JX250). send_ascii_gamma_tables needs 4106 bytes,
-     and send_binary_g_table needs 522 bytes.
   */
   if (s->dev->info.bufsize < 32 * 1024)
     {
@@ -3037,13 +2944,11 @@ sane_start (SANE_Handle handle)
 
   if (s->val[OPT_PREVIEW].w == SANE_FALSE)
     {
-      s->xres = s->val[OPT_X_RESOLUTION].w;
-      s->yres = s->val[OPT_Y_RESOLUTION].w;
+      s->res = s->val[OPT_RESOLUTION].w * s->dev->info.res_range.quant;
     }
   else
     {
-      s->xres = 75;
-      s->yres = 75;
+      s->res = 75;
     }
   s->ulx = MM_TO_PIX(SANE_UNFIX(s->val[OPT_TL_X].w), s->dev->info.mud);
   s->uly = MM_TO_PIX(SANE_UNFIX(s->val[OPT_TL_Y].w), s->dev->info.mud);
@@ -3055,11 +2960,7 @@ sane_start (SANE_Handle handle)
     s->bpp = s->params.depth;
 
   s->adf_fsu_mode = SCAN_SIMPLE; /* default: scan without ADF and FSU */
-#ifdef ALLOW_AUTO_SELECT_ADF
-  if (strcmp (adf_fsu, use_auto) == 0)
-    s->adf_fsu_mode = SCAN_ADF_FSU_AUTO;
-  else
-#endif
+
   if (strcmp(adf_fsu, use_fsu) == 0)
     s->adf_fsu_mode = SCAN_WITH_FSU;
   else if (strcmp(adf_fsu, use_adf) == 0)
@@ -3141,41 +3042,6 @@ sane_start (SANE_Handle handle)
     s->lightcolor = 3;
 
   s->adf_scan = 0;
-#ifdef NOTUSE_PCIN500
-  if (s->dev->sensedat.model != JX610)
-    {
-      status = mode_select_adf_fsu(s->fd, s->adf_fsu_mode);
-      if (status != SANE_STATUS_GOOD)
-        {
-          DBG (10, "sane_start: mode_select_adf_fsu failed: %s\n", sane_strstatus (status));
-          sanei_scsi_close (s->fd);
-          s->fd = -1;
-          return (status);
-        }
-      /* if the ADF is selected, check if it is ready */
-      memset (&m_subdev, 0, sizeof (m_subdev));
-      buf_size = sizeof (m_subdev);
-      status = mode_sense (s->fd, &m_subdev, &buf_size, 0x20);
-      DBG(11, "mode sense result a_mode: %x f_mode: %x\n", 
-          m_subdev.a_mode_type, m_subdev.f_mode_type);
-      if (status != SANE_STATUS_GOOD)
-        {
-          DBG (10, "sane_start: MODE_SENSE/subdevice page failed\n");
-          sanei_scsi_close (s->fd);
-          s->fd = -1;
-          return (status);
-        }
-      if (s->adf_fsu_mode == SCAN_WITH_ADF) 
-        s->adf_scan = 1;
-#ifdef ALLOW_AUTO_SELECT_ADF
-      else if (s->adf_fsu_mode == SCAN_ADF_FSU_AUTO)
-        {
-          if (m_subdev.a_mode_type & 0x80)
-            s->adf_scan = 1;
-        }
-#endif
-    }
-#endif
   
 #ifdef USE_CUSTOM_GAMMA
   if (s->val[OPT_CUSTOM_GAMMA].w == SANE_FALSE)
@@ -3216,9 +3082,6 @@ sane_start (SANE_Handle handle)
      else
 #else
        {
-         /* the JX250 does not support the "fixed gamma selection", 
-            therefore, lets calculate & send gamma values
-         */
          int i;
          SANE_Word gtbl[256];
 #if 0
@@ -3252,34 +3115,6 @@ sane_start (SANE_Handle handle)
       return (status);
     }
 #endif
-#ifdef NOTUSE_PCIN500
-  if (s->dev->sensedat.model != JX250)
-    {
-      ss.dtc = 0x86;
-      ss.dtq = 0x05;
-      ss.length = 0;
-      DBG (5, "start: SEND\n");
-      status = send (s->fd,  &ss);
-      if (status != SANE_STATUS_GOOD)
-        {
-          DBG (1, "send failed: %s\n", sane_strstatus (status));
-          sanei_scsi_close (s->fd);
-          s->fd = -1;
-          return (status);
-        }
-      
-#ifdef USE_COLOR_THRESHOLD
-      status = send_threshold_data(s);
-      if (status != SANE_STATUS_GOOD)
-        {
-          DBG (1, "send threshold data failed: %s\n", sane_strstatus (status));
-          sanei_scsi_close (s->fd);
-          s->fd = -1;
-          return (status);
-        }
-#endif
-    }
-#endif
 
   s->tint = s->val[OPT_TINT].w;
   s->color = s->val[OPT_COLOR].w;
@@ -3295,10 +3130,10 @@ sane_start (SANE_Handle handle)
     
   wp.wpdh.wdl[0] = buf_size >> 8;
   wp.wpdh.wdl[1] = buf_size;
-  wp.wdb.x_res[0] = s->xres >> 8;
-  wp.wdb.x_res[1] = s->xres;
-  wp.wdb.y_res[0] = s->yres >> 8;
-  wp.wdb.y_res[1] = s->yres;
+  wp.wdb.x_res[0] = s->res >> 8;
+  wp.wdb.x_res[1] = s->res;
+  wp.wdb.y_res[0] = s->res >> 8;
+  wp.wdb.y_res[1] = s->res;
   wp.wdb.x_ul[0] = s->ulx >> 24;
   wp.wdb.x_ul[1] = s->ulx >> 16;
   wp.wdb.x_ul[2] = s->ulx >> 8;
@@ -3564,7 +3399,7 @@ sane_start (SANE_Handle handle)
 
   DBG (1, "%d pixels per line, %d bytes, %d lines high, total %lu bytes, "
        "dpi=%d\n", s->params.pixels_per_line, s->params.bytes_per_line,
-       s->params.lines, (u_long) s->bytes_to_read, s->val[OPT_Y_RESOLUTION].w);
+       s->params.lines, (u_long) s->bytes_to_read, s->val[OPT_RESOLUTION].w);
 
   s->busy = SANE_FALSE;
   s->buf_used = 0;
@@ -3807,8 +3642,6 @@ sane_read (SANE_Handle handle, SANE_Byte *dst_buf, SANE_Int max_len,
       return (SANE_STATUS_CANCELLED);
     }
   
-  /* RGB scans with a JX 250 and bi-level color scans
-     must be handled differently: */
   if (s->image_composition <= 2)
     status = sane_read_direct(handle, dst_buf, max_len, len);
   else if (s->image_composition <= 4)

@@ -69,6 +69,9 @@
 #define DEFAULT_BUFSIZE 128 * 1024
 #define DEFAULT_QUEUED_READS 2
 
+#define NEC_MAJOR	0
+#define NEC_MINOR	12
+
 typedef enum
   {
     OPT_NUM_OPTS = 0,
@@ -83,9 +86,10 @@ typedef enum
     OPT_CUSTOM_GAMMA,
 #endif
     OPT_RESOLUTION_GROUP,
+#ifdef USE_RESOLUTION_LIST
+    OPT_RESOLUTION_LIST,
+#endif
     OPT_RESOLUTION,
-    OPT_X_RESOLUTION,
-    OPT_Y_RESOLUTION,
 
     OPT_GEOMETRY_GROUP,
     OPT_TL_X,			/* top-left x */
@@ -170,8 +174,7 @@ NEC_Model;
 
 typedef struct NEC_Info
   {
-    SANE_Range xres_range;
-    SANE_Range yres_range;
+    SANE_Range res_range;
     SANE_Range tl_x_ranges[3]; /* normal / FSU / ADF */
     SANE_Range br_x_ranges[3]; /* normal / FSU / ADF */
     SANE_Range tl_y_ranges[3]; /* normal / FSU / ADF */
@@ -180,8 +183,7 @@ typedef struct NEC_Info
     SANE_Range tint_range;
     SANE_Range color_range;
 
-    SANE_Int xres_default;
-    SANE_Int yres_default;
+    SANE_Int res_default;
     SANE_Int x_default;
     SANE_Int y_default;
     SANE_Int bmu;
@@ -240,8 +242,7 @@ typedef struct NEC_Scanner
     SANE_Int buf_used;
     SANE_Int buf_pos;
     SANE_Int modes;
-    SANE_Int xres;
-    SANE_Int yres;
+    SANE_Int res;
     SANE_Int ulx;
     SANE_Int uly;
     SANE_Int width;

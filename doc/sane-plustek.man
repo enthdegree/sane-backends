@@ -1,8 +1,8 @@
-.TH sane-plustek 5 "27 November 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-plustek 5 "5 December 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-plustek
 .SH NAME
-sane-plustek \- SANE backend for Plustek parallel port and
-LM983[1/2/3] based USB flatbed scanners
+sane-plustek \- SANE backend for LM983[1/2/3] based
+USB flatbed scanners
 .SH DESCRIPTION
 The
 .B sane-plustek
@@ -20,7 +20,7 @@ Semiconductor chipsets LM9831, LM9832 and LM9833. The following tables
 show various devices which are currently reported to work. If your
 Plustek scanner has another Product ID, then the device is
 .B NOT
-supported, as it contains an unsupported ASIC.
+supported by this backend.
 .br
 
 Vendor Plustek - ID: 0x07B3

@@ -17,6 +17,8 @@ CanoScan N340P
 .br
 CanoScan N640P
 .br
+CanoScan N640P ex
+.br
 .RE
 .PP
 No USB scanners are supported and there are no plans to support them in 

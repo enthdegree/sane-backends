@@ -62,6 +62,9 @@
 #if defined(HAVE_OS2_H)
 # define DIR_SEP	";"
 # define PATH_SEP	'\\'
+#elif defined(HAVE_WINDOWS_H)
+# define DIR_SEP	";"
+# define PATH_SEP	'\\'
 #else
 # define DIR_SEP	":"
 # define PATH_SEP	'/'

@@ -99,6 +99,15 @@
 # define PATH_MAX       1024
 #endif
 
+#if defined(HAVE_OS2_H)
+# define DIR_SEP        ";"
+#elif defined(HAVE_WINDOWS_H)
+# define DIR_SEP        ";"
+#else
+# define DIR_SEP        ":"
+#endif
+
+
 #include "sane/sanei_config.h"
 #define DLL_CONFIG_FILE "dll.conf"
 #define DLL_ALIASES_FILE "dll.aliases"
@@ -365,7 +374,7 @@ load (struct backend *be)
     }
   DBG (3, "load: searching backend `%s' in `%s'\n", be->name, src);
 
-  dir = strsep (&src, ":");
+  dir = strsep (&src, DIR_SEP);
 
   while (dir)
     {
@@ -377,7 +386,7 @@ load (struct backend *be)
 	break;
       DBG (4, "load: couldn't open `%s' (%s)\n", libname, strerror (errno));
 
-      dir = strsep (&src, ":");
+      dir = strsep (&src, DIR_SEP);
     }
   if (orig_src)
     free (orig_src);

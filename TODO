@@ -102,9 +102,6 @@ backends
 
   * add a contact address for each backend (in backend.desc).
 
-  * dc25: mkdtemp doesn't exist at least on AIX, Irix and Solaris. Don't depend
-    on this function. --RELEASE CRITICAL--
-
 doc
 ---
   * Add sane-usb manpage

@@ -4313,7 +4313,7 @@ init_options (Mustek_Scanner * s)
 
   /* brightness red */
   s->opt[OPT_BRIGHTNESS_R].name = "brightness-r";
-  s->opt[OPT_BRIGHTNESS_R].title = SANE_I18N ("Brightness red channel");
+  s->opt[OPT_BRIGHTNESS_R].title = SANE_I18N ("Red brightness");
   s->opt[OPT_BRIGHTNESS_R].desc = SANE_I18N ("Controls the brightness of "
 					     "the red channel of the "
 					     "acquired image.");
@@ -4326,7 +4326,7 @@ init_options (Mustek_Scanner * s)
 
   /* brightness green */
   s->opt[OPT_BRIGHTNESS_G].name = "brightness-g";
-  s->opt[OPT_BRIGHTNESS_G].title = SANE_I18N ("Brightness green channel");
+  s->opt[OPT_BRIGHTNESS_G].title = SANE_I18N ("Green brightness");
   s->opt[OPT_BRIGHTNESS_G].desc = SANE_I18N ("Controls the brightness of "
 					     "the green channel of the "
 					     "acquired image.");
@@ -4339,7 +4339,7 @@ init_options (Mustek_Scanner * s)
 
   /* brightness blue */
   s->opt[OPT_BRIGHTNESS_B].name = "brightness-b";
-  s->opt[OPT_BRIGHTNESS_B].title = SANE_I18N ("Brightness blue channel");
+  s->opt[OPT_BRIGHTNESS_B].title = SANE_I18N ("Blue brightness");
   s->opt[OPT_BRIGHTNESS_B].desc = SANE_I18N ("Controls the brightness of "
 					     "the blue channel of the "
 					     "acquired image.");

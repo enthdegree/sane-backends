@@ -1,3 +1,8 @@
+2002-01-20  Abel Deuring <a.deuring@satzbau-gmbh.de>
+	* sanei/sanei_scsi.c: set timeout value for all operating
+	  systems to 1 minute. The timeout value is now derived from
+	  the macro SANE_SCSICMD_TIMEOUT.
+
 2002-01-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/mustek.c backend/mustek.desc doc/mustek/mustek.CHANGES:

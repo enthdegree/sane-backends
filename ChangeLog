@@ -3,6 +3,7 @@
 	* configure configure.in include/sane/config.h.in: Added HAVE_LIBUSB
 	  #define. Check for usb_get_busses to make sure, we have at least 
 	  version 0.1.6. Added OS/2 substitution for strncasecmp.
+	* include/sane/sanei_usb.h sanei/sanei_usb.c: Added support for libusb.
 
 2002-06-29  Matthew Duggan <stauff1@users.sourceforge.net>
 

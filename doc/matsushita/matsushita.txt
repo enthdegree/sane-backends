@@ -77,6 +77,10 @@ SET WINDOWS:
 	  0x02 = Dot 32
 	  0x03 = Dot 64
 	  0x04 = Error diffusion
+	  0x80 = User downloaded pattern
+   29 = reverse image
+      0x00 = no reverse
+      0x80 = reverse 
    43 = image emphasis
 	  0x80 smooth
 	  0x00 none
@@ -86,11 +90,20 @@ SET WINDOWS:
    44 = gamma (Gray 4/8 only)
       0x00 normal
 	  0x01 from CRT
+	  0x80 gamma table 0 (previously downloaded)
+	  0x81 gamma table 1 (previously downloaded)
+	  0x82 gamma table 2 (previously downloaded)
+	  0x83 gamma table 3 (previously downloaded)
+   47 = ? (only used by the ISIS driver)
+      bit 7 = ? set by the ISIS driver
+      bit 6 = length control
+      bit 2 = ? set by the ISIS driver
+      bit 1 = ? set by the ISIS driver
    48-51 = width (again?, maybe paper size)
    52-55 = length (again?, maybe paper size)
    57 = feeder mode
       0x00 = one page
-	  other = number of pages to read (windows driver defaults to 0xff)
+	  other = number of pages to read (TWAIN driver defaults to 0xff)
    58 = auto threshold
       0x00 = none (twain default)
 	  0x80 = mode 1
@@ -131,6 +144,17 @@ READ:
 	       0-3: length in pixels
 	       4-7: width in lines
 
+SEND(10):
+  2A 00 03 00 00 01 00 01 0A 00
+  2 = data type code
+    0x02 = halftone pattern 
+       data is 10 bytes of header + 64 bytes for the matrix
+    0x03 = gamma table
+       data is 10 bytes of header + 256 bytes for the table
+  5 = gamma table number (data type code is 2)
+    the scanner can store 4 gamma tables (from 0 to 3)
+  7-8 = length
+
 SET AREA (?)
 C0 00 00 00 00 00 00 00 58 00
 Total message length = 88 bytes
@@ -161,6 +185,5 @@ Other supported commands:
 16 RESERVE UNIT
 17 RELEASE UNIT
 1D SEND DIAGNOSTIC
-2A SEND(10)
 31 OBJECT POSITION
 3B WRITE BUFFER

@@ -1,3 +1,8 @@
+2001-10-26  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+  * backend/snapscan.conf
+    Make /dev/sga the default device to avoid USB hangup
+
 2001-10-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* TODO: Removed net/saned cancel problem. Added entry about

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.7\n"
 "POT-Creation-Date: 2002-01-08 23:52+0100\n"
-"PO-Revision-Date: 2002-01-08 23:44+0100\n"
+"PO-Revision-Date: 2002-01-09 23:55+0100\n"
 "Last-Translator: Henning Meier-Geinitz <henning@meier-geinitz.de>\n"
 "Language-Team:\n"
 "MIME-Version: 1.0\n"
@@ -586,28 +586,28 @@ msgid ""
 "green, and blue channels simultaneously (i.e., it is an intensity gamma "
 "table)."
 msgstr ""
-"Gamma-Tabelle. Im Farbmodus wirkt sich diese Option auf alle Farbkomponenten "
+"Gammatabelle. Im Farbmodus wirkt sich diese Option auf alle Farbkomponenten "
 "aus."
 
 #: .tmp/saneopts.h:237
 msgid "Gamma-correction table for the red band."
-msgstr "Gamma-Tabelle für rote Komponente."
+msgstr "Gammatabelle für rote Komponente."
 
 #: .tmp/saneopts.h:240
 msgid "Gamma-correction table for the green band."
-msgstr "Gamma-Tabelle für grüne Komponente."
+msgstr "Gammatabelle für grüne Komponente."
 
 #: .tmp/saneopts.h:243
 msgid "Gamma-correction table for the blue band."
-msgstr "Gamma-Tabelle für blaue Komponente."
+msgstr "Gammatabelle für blaue Komponente."
 
 #: .tmp/saneopts.h:246
 msgid "Controls the brightness of the acquired image."
-msgstr "Regelt die Helligkeit des Bildes."
+msgstr "Stellt die Helligkeit des gescannten Bildes ein."
 
 #: .tmp/saneopts.h:249
 msgid "Controls the contrast of the acquired image."
-msgstr "Regelt den Kontrast des Bildes."
+msgstr "Stellt den Kontrast des gescannten Bildes ein."
 
 #: .tmp/saneopts.h:252
 msgid ""
@@ -670,11 +670,13 @@ msgid ""
 "Sets the size of the halftoning (dithering) pattern used when scanning "
 "halftoned images."
 msgstr ""
+"Legt die Größe des Halbtonmusters fest, das beim Scannen von Halbtonbildern "
+"verwendet wird."
 
 #: .tmp/saneopts.h:300
 msgid ""
 "Defines the halftoning (dithering) pattern for scanning halftoned images."
-msgstr ""
+msgstr "Legt das Halbtonmuster fest, das beim Scannen von Halbtonbildern verwendet wird."
 
 #: .tmp/saneopts.h:304
 msgid "Use same values for X and Y resolution"

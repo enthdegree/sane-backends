@@ -3,13 +3,13 @@
 # Henning Meier-Geinitz <henning@meier-geinitz.de>, 2002.
 # based on the translation file for the umax backend
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2002-01-07 21:54+0100\n"
-"PO-Revision-Date: 2001-08-26 22:00 CEST\n"
+"Project-Id-Version: sane-backends 1.0.7\n"
+"POT-Creation-Date: 2002-01-08 20:40+0100\n"
+"PO-Revision-Date: 2002-01-10 0:11 CEST\n"
 "Last-Translator: Henning Meier-Geinitz <henning@meier-geinitz.de>\n"
+"Language-Team:\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=iso-8859-1\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -46,11 +46,11 @@ msgstr "Farbverbesserung"
 
 #: .tmp/saneopts.h:105
 msgid "Number of options"
-msgstr ""
+msgstr "Anzahl der Optionen"
 
 #: .tmp/saneopts.h:106
 msgid "Preview"
-msgstr ""
+msgstr "Vorschau"
 
 #: .tmp/saneopts.h:107
 msgid "Force monochrome preview"
@@ -58,25 +58,22 @@ msgstr ""
 
 #: .tmp/saneopts.h:108
 msgid "Bit depth"
-msgstr ""
+msgstr "Farbtiefe (Bits)"
 
 # original text: "Scan Mode"
 #: .tmp/saneopts.h:109
-#, fuzzy
 msgid "Scan mode"
 msgstr "Scanmodus"
 
 # original text: "Scan Mode"
 #: .tmp/saneopts.h:110
-#, fuzzy
 msgid "Scan speed"
-msgstr "Scanmodus"
+msgstr "Scangeschwindigkeit"
 
 # original text: "Scan Mode"
 #: .tmp/saneopts.h:111
-#, fuzzy
 msgid "Scan source"
-msgstr "Scanmodus"
+msgstr "Scanquelle"
 
 #: .tmp/saneopts.h:112
 msgid "Force backtracking"
@@ -84,23 +81,23 @@ msgstr ""
 
 #: .tmp/saneopts.h:113
 msgid "Top-left x"
-msgstr ""
+msgstr "Links"
 
 #: .tmp/saneopts.h:114
 msgid "Top-left y"
-msgstr ""
+msgstr "Oben"
 
 #: .tmp/saneopts.h:115
 msgid "Bottom-right x"
-msgstr ""
+msgstr "Rechts"
 
 #: .tmp/saneopts.h:116
 msgid "Bottom-right y"
-msgstr ""
+msgstr "Unten"
 
 #: .tmp/saneopts.h:117
 msgid "Scan resolution"
-msgstr ""
+msgstr "Scanauflösung"
 
 #: .tmp/saneopts.h:118
 msgid "X-resolution"
@@ -112,27 +109,27 @@ msgstr ""
 
 #: .tmp/saneopts.h:120
 msgid "Use custom gamma table"
-msgstr ""
+msgstr "Benutze scannerinterne Gammatabelle"
 
 #: .tmp/saneopts.h:121
 msgid "Image intensity"
-msgstr ""
+msgstr "Gammatabelle"
 
 #: .tmp/saneopts.h:122
 msgid "Red intensity"
-msgstr ""
+msgstr "Gammatabelle (rot)"
 
 #: .tmp/saneopts.h:123
 msgid "Green intensity"
-msgstr ""
+msgstr "Gammatabelle (grün)"
 
 #: .tmp/saneopts.h:124
 msgid "Blue intensity"
-msgstr ""
+msgstr "Gammatabelle (blau)"
 
 #: .tmp/saneopts.h:125
 msgid "Brightness"
-msgstr ""
+msgstr "Helligkeit"
 
 #: .tmp/saneopts.h:126
 msgid "Contrast"
@@ -333,7 +330,7 @@ msgstr ""
 
 #: .tmp/saneopts.h:182
 msgid "Request a preview-quality scan."
-msgstr ""
+msgstr "Scanne in Vorschauqualität."
 
 #: .tmp/saneopts.h:185
 msgid ""
@@ -350,7 +347,7 @@ msgstr ""
 
 #: .tmp/saneopts.h:195
 msgid "Selects the scan mode (e.g., lineart,monochrome, or color)."
-msgstr ""
+msgstr "Wählt den Scanmodus (z.B. Strichzeichnung, Graustufen oder Farbe)."
 
 #: .tmp/saneopts.h:198
 msgid "Determines the speed at which the scan proceeds."
@@ -366,23 +363,23 @@ msgstr ""
 
 #: .tmp/saneopts.h:207
 msgid "Top-left x position of scan area."
-msgstr ""
+msgstr "Linker Rand des zu scannenden Bereichs."
 
 #: .tmp/saneopts.h:210
 msgid "Top-left y position of scan area."
-msgstr ""
+msgstr "Oberer Rand des zu scannenden Bereichs."
 
 #: .tmp/saneopts.h:213
 msgid "Bottom-right x position of scan area."
-msgstr ""
+msgstr "Rechter Rand des zu scannenden Bereichs."
 
 #: .tmp/saneopts.h:216
 msgid "Bottom-right y position of scan area."
-msgstr ""
+msgstr "Unterer Rand des zu scannenden Bereichs."
 
 #: .tmp/saneopts.h:219
 msgid "Sets the resolution of the scanned image."
-msgstr ""
+msgstr "Legt die Auflösung des Bildes fest."
 
 #: .tmp/saneopts.h:222
 msgid "Sets the horizontal resolution of the scanned image."
@@ -394,34 +391,34 @@ msgstr ""
 
 #: .tmp/saneopts.h:228
 msgid "Determines whether a builtin or a custom gamma-table should be used."
-msgstr ""
+msgstr "Bestimmt, dass die scannerinterne Gammakorrektur verwendet wird."
 
 #: .tmp/saneopts.h:232
 msgid ""
 "Gamma-correction table.  In color mode this option equally affects the red, "
 "green, and blue channels simultaneously (i.e., it is an intensity gamma "
 "table)."
-msgstr ""
+msgstr "Gammatabelle. Im Farbmodus wirkt sich diese Option auf alle Farbkomponenten aus.\""
 
 #: .tmp/saneopts.h:237
 msgid "Gamma-correction table for the red band."
-msgstr ""
+msgstr "Gammatabelle für rote Komponente."
 
 #: .tmp/saneopts.h:240
 msgid "Gamma-correction table for the green band."
-msgstr ""
+msgstr "Gammatabelle für grüne Komponente."
 
 #: .tmp/saneopts.h:243
 msgid "Gamma-correction table for the blue band."
-msgstr ""
+msgstr "Gammatabelle für blaue Komponente."
 
 #: .tmp/saneopts.h:246
 msgid "Controls the brightness of the acquired image."
-msgstr ""
+msgstr "Stellt die Helligkeit des gescannten Bildes ein."
 
 #: .tmp/saneopts.h:249
 msgid "Controls the contrast of the acquired image."
-msgstr ""
+msgstr "Stellt den Kontrast des gescannten Bildes ein."
 
 #: .tmp/saneopts.h:252
 msgid ""

@@ -13,7 +13,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.12\n"
-"POT-Creation-Date: 2003-05-08 14:19+0200\n"
+"POT-Creation-Date: 2003-05-11 12:06+0200\n"
 "PO-Revision-Date: 2003-05-05 17:04+0200\n"
 "Last-Translator: Yann E. MORIN <yann dot morin dot 1998 at anciens dot enib "
 "dot fr>\n"
@@ -23,6 +23,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 # ####################################################
+# YEM-20030511 : Acknowledgements
+# Thanks to all that helped on this update : now
+# reaching 97.2% complete with no fuzzyness!
+# ----------------------------------------------------
 # YEM-20030504 : Updates for sane-backends 1.0.12
 # ----------------------------------------------------
 # YEM-20030225 : Acknowledgements
@@ -674,43 +678,46 @@ msgstr ""
 "Cette valeur est ajoutée au décalage interne. Utilisez pour des images très "
 "claires ou très sombres."
 
-#: .tmp/hp5400.c:273
+#: .tmp/hp5400.c:293
 msgid "Image"
 msgstr "Image"
 
-#: .tmp/hp5400.c:312
+#: .tmp/hp5400.c:332
 msgid "Miscellaneous"
 msgstr "Divers"
 
-#: .tmp/hp5400.c:318
+#: .tmp/hp5400.c:338
 msgid "offset X"
 msgstr "Décalage en X"
 
-#: .tmp/hp5400.c:320
+# Hmmm... Looks like there is a hw offset due to the scanning area
+# being smaller than the lens is capable of.
+#: .tmp/hp5400.c:340
 msgid "Hardware internal X position of the scanning area."
-msgstr "Position X en haut à gauche de l'aire de numérisation"
+msgstr "Position en X du coin en haut à gauche de l'aire de numérisation"
 
-#: .tmp/hp5400.c:329
+#: .tmp/hp5400.c:349
 msgid "offset Y"
 msgstr "Décalage en Y"
 
-#: .tmp/hp5400.c:331
+# See two trans above
+#: .tmp/hp5400.c:351
 msgid "Hardware internal Y position of the scanning area."
-msgstr "Position X en haut à gauche de l'aire de numérisation"
+msgstr "Position en Y du coin en haut à gauche de l'aire de numérisation"
 
-#: .tmp/hp5400.c:343
+#: .tmp/hp5400.c:363
 msgid "Lamp status"
 msgstr "Etat de la lampe"
 
-#: .tmp/hp5400.c:344
+#: .tmp/hp5400.c:364
 msgid "Switches the lamp on or off."
 msgstr "Allume/éteint la lampe."
 
-#: .tmp/hp5400.c:354
+#: .tmp/hp5400.c:374
 msgid "Calibrate"
 msgstr "Calibration"
 
-#: .tmp/hp5400.c:355
+#: .tmp/hp5400.c:375
 msgid "Calibrates for black and white level."
 msgstr "Calibration des niveaux noir et blanc."
 
@@ -910,6 +917,9 @@ msgstr ""
 #: .tmp/microtek2.h:619
 msgid "If checked the scanner does not perform backtracking"
 msgstr ""
+"Si l'interface à laquelle votre scanner est connectée n'est pas assez "
+"rapide, cette option permettra de reprendre la numérisation et de "
+"renvoyerles données manquantes."
 
 #: .tmp/microtek2.h:623
 msgid "Toggle lamp of flatbed"
@@ -984,35 +994,36 @@ msgstr "Utilise la même valeur gamma pour toutes les couleurs."
 
 #: .tmp/microtek2.h:660
 msgid "Scalar gamma"
-msgstr ""
+msgstr "Valeur de gamma"
 
 #: .tmp/microtek2.h:661
 msgid "Selects a value for scalar gamma correction."
-msgstr ""
+msgstr "Sélectionne une valeur numérique pour la correction gamma"
 
 #: .tmp/microtek2.h:665
 msgid "Scalar gamma red"
-msgstr ""
+msgstr "Valeur de gamma rouge"
 
 #: .tmp/microtek2.h:666
 msgid "Selects a value for scalar gamma correction (red channel)"
 msgstr ""
+"Sélectionne une valeur numérique pour la correction gamma (canal rouge)"
 
 #: .tmp/microtek2.h:670
 msgid "Scalar gamma green"
-msgstr ""
+msgstr "Valeur de gamma vert"
 
 #: .tmp/microtek2.h:671
 msgid "Selects a value for scalar gamma correction (green channel)"
-msgstr ""
+msgstr "Sélectionne une valeur numérique pour la correction gamma (canal vert)"
 
 #: .tmp/microtek2.h:675
 msgid "Scalar gamma blue"
-msgstr ""
+msgstr "Valeur de gamma bleu"
 
 #: .tmp/microtek2.h:676
 msgid "Selects a value for scalar gamma correction (blue channel)"
-msgstr ""
+msgstr "Sélectionne une valeur numérique pour la correction gamma (canal bleu)"
 
 #: .tmp/microtek2.h:680
 msgid "Channel"
@@ -1726,6 +1737,9 @@ msgstr "Choisit la source de numérisation."
 #: .tmp/saneopts.h:203
 msgid "Controls whether backtracking is forced."
 msgstr ""
+"Si l'interface à laquelle votre scanner est connectée n'est pas assez "
+"rapide, cette option ne permettra pas de reprendre la numérisation, et les "
+"données manquantes seront perdues."
 
 #: .tmp/saneopts.h:206
 msgid "Top-left x position of scan area."
@@ -1971,6 +1985,37 @@ msgstr "Autorise la sélection de la puissance de la lampe"
 msgid "flatbed scanner"
 msgstr "numériseur à plat"
 
+#: .tmp/snapscan-options.c:279
+msgid "Preview mode"
+msgstr "Aperçu"
+
+#: .tmp/snapscan-options.c:281
+msgid ""
+"Select the mode for previews. Greyscale previews usually give the best "
+"combination of speed and detail."
+msgstr ""
+"Sélectionne le mode de prévisualisation. Les aperçus en niveaux de gris "
+"donnent habituellement le meilleur compromis entre vitesse et détails."
+
+#: .tmp/snapscan-options.c:387
+msgid "Predefined settings"
+msgstr "Valeurs prédéfinies"
+
+#: .tmp/snapscan-options.c:389
+msgid ""
+"Provides standard scanning areas for photographs, printed pages and the like."
+msgstr ""
+"Fournit des emplacements standards pour la numérisation de photos, de pages "
+"imprimées, etc..."
+
+#: .tmp/snapscan-options.c:632
+msgid "Colour lines per read"
+msgstr "Nombre de lignes en couleurs par cycle de lecture"
+
+#: .tmp/snapscan-options.c:644
+msgid "Greyscale lines per read"
+msgstr "Nombre de lignes en niveaux de gris par cycle de lecture"
+
 #: .tmp/snapscan.c:165
 msgid "Document Feeder"
 msgstr "Chargeur automatique de document"
@@ -2017,37 +2062,6 @@ msgstr ""
 "des pauses lors du transfert, tandis qu'une valeur trop élevée pourrait "
 "empécher les applications Xwindow de traiter les évènements X, et votre "
 "système pourrait s'écrouler."
-
-#: .tmp/snapscan-options.c:279
-msgid "Preview mode"
-msgstr "Aperçu"
-
-#: .tmp/snapscan-options.c:281
-msgid ""
-"Select the mode for previews. Greyscale previews usually give the best "
-"combination of speed and detail."
-msgstr ""
-"Sélectionne le mode de prévisualisation. Les aperçus en niveaux de gris "
-"donnent habituellement le meilleur compromis entre vitesse et détails."
-
-#: .tmp/snapscan-options.c:387
-msgid "Predefined settings"
-msgstr "Valeurs prédéfinies"
-
-#: .tmp/snapscan-options.c:389
-msgid ""
-"Provides standard scanning areas for photographs, printed pages and the like."
-msgstr ""
-"Fournit des emplacements standards pour la numérisation de photos, de pages "
-"imprimées, etc..."
-
-#: .tmp/snapscan-options.c:632
-msgid "Colour lines per read"
-msgstr "Nombre de lignes en couleurs par cycle de lecture"
-
-#: .tmp/snapscan-options.c:644
-msgid "Greyscale lines per read"
-msgstr "Nombre de lignes en niveaux de gris par cycle de lecture"
 
 #: .tmp/teco1.c:1145 .tmp/teco1.c:1146 .tmp/teco2.c:1688 .tmp/teco2.c:1689
 #: .tmp/teco3.c:980 .tmp/teco3.c:981
@@ -2250,6 +2264,8 @@ msgstr ""
 msgid ""
 "Offer a select filedescriptor for detecting if sane_read() will return data."
 msgstr ""
+"Présente un descripteur de fichier de type select(2) pour tester si un appel "
+"a sane_read() renverra des données."
 
 #: .tmp/test.c:591
 msgid "Enable test options"
@@ -2498,14 +2514,6 @@ msgstr "(1/1) Bouton"
 msgid "(1/1) Button test option. Prints some text..."
 msgstr "(1/1) Bouton de test. Affiche du texte..."
 
-#: .tmp/umax1220u.c:247 .tmp/umax.c:5774
-msgid "Lamp off"
-msgstr "Lampe éteinte"
-
-#: .tmp/umax1220u.c:248 .tmp/umax.c:5775
-msgid "Turn off scanner lamp"
-msgstr "Eteint la lampe du scanner"
-
 #: .tmp/umax.c:192
 msgid "Color Lineart"
 msgstr "Trait couleur"
@@ -2563,14 +2571,12 @@ msgid "Calibrate lens focus in document position"
 msgstr "Calibre la lentille en mode document."
 
 #: .tmp/umax.c:5743
-#, fuzzy
 msgid "Holder focus position 0mm"
-msgstr "Mise au pooint a 0mm"
+msgstr "Mise au point au niveau de la vitre"
 
 #: .tmp/umax.c:5744
-#, fuzzy
 msgid "Use 0mm holder focus position instead of 0.6mm"
-msgstr "Effectue la mise au point a 0mm au lieu de 0.6mm"
+msgstr "Effectue la mise au point à 0mm de la vitre au lieu de 0.6mm"
 
 #: .tmp/umax.c:5757 .tmp/umax_pp.c:471
 msgid "Lamp on"
@@ -2579,6 +2585,14 @@ msgstr "Lampe allumée"
 #: .tmp/umax.c:5758
 msgid "Turn on scanner lamp"
 msgstr "Allume la lampe du scanner"
+
+#: .tmp/umax.c:5774 .tmp/umax1220u.c:247
+msgid "Lamp off"
+msgstr "Lampe éteinte"
+
+#: .tmp/umax.c:5775 .tmp/umax1220u.c:248
+msgid "Turn off scanner lamp"
+msgstr "Eteint la lampe du scanner"
 
 #: .tmp/umax.c:5791
 msgid "Lamp off at exit"

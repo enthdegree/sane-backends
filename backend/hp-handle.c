@@ -811,7 +811,7 @@ sanei_hp_handle_cancel (HpHandle this)
          this->reader_pid);
      if (this->child_forked)
        kill(this->reader_pid, SIGTERM);
-#ifndef HP_USE_THREAD
+#ifdef HP_USE_THREAD
      else
        sanei_thread_kill(this->reader_pid, SIGTERM);
 #endif

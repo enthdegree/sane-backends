@@ -142,6 +142,8 @@ DISTFILES = abaton.c abaton.conf abaton.h agfafocus.c agfafocus.conf \
   teco2.c teco2.conf teco2.h \
   teco3.c teco3.conf teco3.h \
   test.c test.conf test.h test-picture.c umax1220u.c \
+  u12.c u12.h u12-scanner.h u12-hwdef.h u12.conf u12-shading.c u12-tpa.c \
+  u12-ccd.c u12-hw.c u12-if.c u12-image.c u12-io.c u12-map.c u12-motor.c \
   umax1220u-common.c \
   umax1220u.conf umax.c umax.conf umax.h umax_pp.c umax_pp.conf umax_pp.h \
   umax_pp_low.c umax_pp_low.h umax_pp_mid.c umax_pp_mid.h umax-scanner.c \
@@ -408,6 +410,9 @@ libsane-teco2.la: ../sanei/sanei_scsi.lo
 libsane-teco3.la: ../sanei/sanei_config2.lo
 libsane-teco3.la: ../sanei/sanei_constrain_value.lo
 libsane-teco3.la: ../sanei/sanei_scsi.lo
+libsane-u12.la: ../sanei/sanei_constrain_value.lo
+libsane-u12.la: ../sanei/sanei_usb.lo
+libsane-u12.la: ../sanei/sanei_thread.lo
 libsane-umax.la: ../sanei/sanei_config2.lo
 libsane-umax.la: ../sanei/sanei_constrain_value.lo
 libsane-umax.la: ../sanei/sanei_scsi.lo

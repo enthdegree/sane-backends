@@ -55,7 +55,7 @@
 
 #define MICROTEK_MAJOR 0
 #define MICROTEK_MINOR 12
-#define MICROTEK_PATCH 1
+#define MICROTEK_PATCH 2
 
 #include "sane/config.h"
 
@@ -96,6 +96,8 @@
 static int num_devices = 0;
 static Microtek_Device *first_dev = NULL;     /* list of known devices */
 static Microtek_Scanner *first_handle = NULL; /* list of open scanners */
+static const SANE_Device **devlist = NULL;    /* sane_get_devices() */
+
 
 static SANE_Bool inhibit_clever_precal = SANE_FALSE;
 static SANE_Bool inhibit_real_calib = SANE_FALSE;
@@ -147,8 +149,8 @@ static SANE_Range speed_range = {1, 7, 1};
 
 static SANE_Range brightness_range = {-100, 100, 1};
 /*static SANE_Range brightness_range = {0, 255, 1};*/
-static SANE_Range exposure_range = {-18, 21, 3};
-static SANE_Range contrast_range = {-42, 49, 7};
+/*static SANE_Range exposure_range = {-18, 21, 3};*/
+/*static SANE_Range contrast_range = {-42, 49, 7};*/
 static SANE_Range u8_range = {0, 255, 1};
 static SANE_Range analog_gamma_range = 
 { SANE_FIX(0.1), SANE_FIX(4.0), SANE_FIX(0) };
@@ -1175,7 +1177,10 @@ init_options(Microtek_Scanner *ms)
   sod[OPT_EXPOSURE].unit  = SANE_UNIT_PERCENT;
   sod[OPT_EXPOSURE].size  = sizeof(SANE_Word);
   sod[OPT_EXPOSURE].constraint_type = SANE_CONSTRAINT_RANGE;
-  sod[OPT_EXPOSURE].constraint.range      = &exposure_range;
+  ms->exposure_range.min = ms->dev->info.min_exposure;
+  ms->exposure_range.max = ms->dev->info.max_exposure;
+  ms->exposure_range.quant = 3;
+  sod[OPT_EXPOSURE].constraint.range      = &(ms->exposure_range);
   val[OPT_EXPOSURE].w     = 0;
 
   sod[OPT_BRIGHTNESS].name  = SANE_NAME_BRIGHTNESS;
@@ -1197,7 +1202,10 @@ init_options(Microtek_Scanner *ms)
   sod[OPT_CONTRAST].unit  = SANE_UNIT_PERCENT;
   sod[OPT_CONTRAST].size  = sizeof(SANE_Word);
   sod[OPT_CONTRAST].constraint_type = SANE_CONSTRAINT_RANGE;
-  sod[OPT_CONTRAST].constraint.range      = &contrast_range;
+  ms->contrast_range.min = ms->dev->info.min_contrast;
+  ms->contrast_range.max = ms->dev->info.max_contrast;
+  ms->contrast_range.quant = 7;
+  sod[OPT_CONTRAST].constraint.range      = &(ms->contrast_range);
   val[OPT_CONTRAST].w     = 0;
 
 
@@ -1438,9 +1446,33 @@ parse_inquiry(Microtek_Info *mi, unsigned char *result)
   
   mi->doc_size_code              = (SANE_Byte)result[60];
   /* we'll compute the max sizes after we know base resolution... */
-  
+
+  /* why are these things set in two places (and probably wrong anyway)? */
   mi->cont_settings              = (SANE_Int)((result[61] & 0xf0) >> 4);
+  if ((SANE_Int)(result[72]))
+    mi->cont_settings            = (SANE_Int)(result[72]);
+  mi->min_contrast = -42;
+  mi->max_contrast = (mi->cont_settings * 7) - 49;
+  
   mi->exp_settings               = (SANE_Int)(result[61] & 0x0f);
+  if ((SANE_Int)(result[73]))
+    mi->exp_settings             = (SANE_Int)(result[73]);
+  mi->min_exposure  = -18;
+  mi->max_exposure  = (mi->exp_settings * 3) - 21;
+#if 0
+  mi->contrast_vals              = (SANE_Int)(result[72]);
+  mi->min_contrast = -42;
+  mi->max_contrast =  49;
+  if (mi->contrast_vals)
+    mi->max_contrast = (mi->contrast_vals * 7) - 49;
+  
+  mi->exposure_vals              = (SANE_Int)(result[73]);
+  mi->min_exposure  = -18;
+  mi->max_exposure  =  21;
+  if (mi->exposure_vals)
+    mi->max_exposure  = (mi->exposure_vals * 3) - 21;
+#endif
+
   mi->model_code                 = (SANE_Byte)(result[62]);
   switch (mi->model_code) {
   case 0x16: /* the other ScanMaker 600ZS */
@@ -1473,7 +1505,7 @@ parse_inquiry(Microtek_Info *mi, unsigned char *result)
   case 0x52: /* ScanMaker 35t     */
     mi->base_resolution = 1828;
     break;
-  case 0x62: /* ScanMaker 35t+    */
+  case 0x62: /* ScanMaker 35t+, Polaroid 35/LE    */
     mi->base_resolution = 1950;
     break;
   default:
@@ -1638,18 +1670,6 @@ parse_inquiry(Microtek_Info *mi, unsigned char *result)
   mi->color_sequence             = (SANE_Byte)(result[69] & 0x7f);
   mi->does_3pass                 = (SANE_Byte)(!(result[69] & 0x80));
   mi->does_mode1                 = (SANE_Byte)(result[71] & 0x01);
-  
-  mi->contrast_vals              = (SANE_Int)(result[72]);
-  mi->min_contrast = -42;
-  mi->max_contrast =  49;
-  if (mi->contrast_vals)
-    mi->max_contrast = (mi->contrast_vals * 7) - 49;
-  
-  mi->exposure_vals              = (SANE_Int)(result[73]);
-  mi->min_exposure  = -18;
-  mi->max_exposure  =  21;
-  if (mi->exposure_vals)
-    mi->max_exposure  = (mi->exposure_vals * 3) - 21;
   
   mi->bit_formats                = (SANE_Byte)(result[74] & 0x0F);
   mi->extra_cap                  = (SANE_Byte)(result[75] & 0x07);
@@ -1892,6 +1912,7 @@ id_microtek(u_int8_t *result, char **model_string)
       !(strncmp("MII SC25", &(result[8]), 8)) ||  /* for some -other- 600GS */
       !(strncmp("AGFA    ", &(result[8]), 8)) ||  /* for Arcus II */
       !(strncmp("Microtek", &(result[8]), 8)) ||  /* for some 35t+'s */
+      !(strncmp("Polaroid", &(result[8]), 8)) ||  /* for SprintScan 35LE */
       !(strncmp("        ", &(result[8]), 8)) ) {
     switch (result[62]) {
     case 0x16 :
@@ -1923,7 +1944,11 @@ id_microtek(u_int8_t *result, char **model_string)
     case 0x5f :
       *model_string = "ScanMaker E3";       break;
     case 0x62 :
-      *model_string = "ScanMaker 35t+";	    break;
+      if (!(strncmp("Polaroid", &(result[8]), 8))) 
+	*model_string = "Polaroid SprintScan 35/LE";
+      else
+	*model_string = "ScanMaker 35t+";
+      break;
     case 0x63 :
     case 0x66 :
       *model_string = "ScanMaker E6";       break;
@@ -2921,7 +2946,6 @@ SANE_Status
 sane_get_devices(const SANE_Device ***device_list, 
 		 SANE_Bool local_only)
 {
-  static const SANE_Device **devlist = 0;
   Microtek_Device *dev;
   int i;
 
@@ -3505,6 +3529,7 @@ sane_get_parameters (SANE_Handle handle,
 
     s->calib_once = s->val[OPT_CALIB_ONCE].w;
 
+    s->reversecolors = s->val[OPT_NEGATIVE].w;
     s->prescan = s->val[OPT_PREVIEW].w;
     s->exposure = (s->val[OPT_EXPOSURE].w / 3) + 7;
     s->contrast = (s->val[OPT_CONTRAST].w / 7) + 7;
@@ -3513,11 +3538,17 @@ sane_get_parameters (SANE_Handle handle,
     s->highlight = s->val[OPT_HIGHLIGHT].w;
     s->midtone   = s->val[OPT_MIDTONE].w;
     if (SANE_OPTION_IS_ACTIVE(s->sod[OPT_BRIGHTNESS].cap)) {
-      /*if (s->val[OPT_BRIGHTNESS].w >= 0) */
+#if 1  /* this is _not_ what the docs specify! */
+      if (s->val[OPT_BRIGHTNESS].w >= 0)
+	s->bright_r = (SANE_Byte) (s->val[OPT_BRIGHTNESS].w);
+      else
+	s->bright_r = (SANE_Byte) (0x80 | (- s->val[OPT_BRIGHTNESS].w));
+#else
       s->bright_r = (SANE_Byte) (s->val[OPT_BRIGHTNESS].w);
-	/*else
-	s->bright_r = (SANE_Byte) (0x80 | (- s->val[OPT_BRIGHTNESS].w));*/
+#endif
       s->bright_g = s->bright_b = s->bright_r;
+      DBG(23, "bright_r of %d set to 0x%0x\n",
+	  s->val[OPT_BRIGHTNESS].w, s->bright_r);
     } else {
       s->bright_r = s->bright_g = s->bright_b = 0;
     }
@@ -3935,7 +3966,8 @@ sane_exit (void)
     free(first_dev);
     first_dev = next;
   }
-  /* devlist in sane_get_devices???? XXXXXXXXXXXXXX*/
+  /* the devlist allocated by sane_get_devices */
+  free(devlist);
   DBG(10, "sane_exit:  MICROTEK says goodbye.\n");
 }
 

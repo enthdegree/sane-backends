@@ -205,10 +205,10 @@ typedef struct Microtek_Info {
 #define MI_EXCAP_DIS_LNTBL 0x02
 #define MI_EXCAP_DIS_RECAL 0x04
   SANE_Byte extra_cap;
-  SANE_Int contrast_vals;
+  /*  SANE_Int contrast_vals;  rolled into cont_settings */
   SANE_Int min_contrast;
   SANE_Int max_contrast;
-  SANE_Int exposure_vals;
+  /*  SANE_Int exposure_vals;  rolled into exp_settings */
   SANE_Int min_exposure;
   SANE_Int max_exposure;
   SANE_Byte does_expansion;     /* does expanded-mode expansion internally? */
@@ -307,6 +307,8 @@ typedef struct Microtek_Scanner {
   /*  SANE_Int gamma_max_entry;*/
   
   SANE_Range gamma_entry_range;
+  SANE_Range contrast_range;
+  SANE_Range exposure_range;
 
   /* ...set by sane_get_parameters  (i.e. parameters specified by options) */
   SANE_Parameters params;   /* format, lastframe, lines, depth, ppl, bpl */

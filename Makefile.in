@@ -33,7 +33,9 @@ INSTALL_DATA = @INSTALL_DATA@
 
 SUBDIRS	= include lib sanei backend frontend doc tools po
 
-DISTFILES = AUTHORS COPYING ChangeLog LEVEL2 LICENSE Makefile.in NEWS \
+DISTFILES = AUTHORS COPYING ChangeLog ChangeLog-1.0.0 ChangeLog-1.0.1 \
+  ChangeLog-1.0.2 ChangeLog-1.0.3 ChangeLog-1.0.4 ChangeLog-1.0.5 LEVEL2 \
+  LICENSE Makefile.in NEWS \
   PROBLEMS PROJECTS README README.aix README.hp-ux README.linux \
   README.openbsd README.os2 README.solaris README.unixware2 README.unixware7 \
   TODO acinclude.m4 aclocal.m4 config.guess config.sub configure \
@@ -89,7 +91,7 @@ clean: clean-recursive
 distclean: clean distclean-recursive
 	rm -f *~ *.log *.bak libtool
 	rm -f Makefile config.cache config.status
-	rm -f japi/Makefile
+	rm -f japi/Makefile testsuite/Makefile
 	rm -rf $(distdir)
 
 depend: depend-recursive

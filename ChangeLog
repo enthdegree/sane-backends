@@ -1,3 +1,6 @@
+2004-01-10  Oliver Rauch <oliver.rauch@rauch-domain.de>
+	* doc/umax: corrected links in umax documentations
+
 2004-01-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/sane-config.man: Only one option can be used at the same

@@ -12,15 +12,17 @@
 :backend "sp15c"               ; name of backend
 :version "1.12"                    ; version of backend
 :status :beta                    ; :alpha, :beta, :stable, :new
-:manpage "sane-fujitsu"          ; name of manpage (if it exists)
+:manpage "sane-sp15c"          ; name of manpage (if it exists)
 ;:url "http://www.aa.net/~bentson/sane.html" ; backend's web page
 
 :devicetype :scanner              ; start of a list of devices....
                                   ; other types:  :stillcam, :vidcam,
                                   ;               :meta, :api
 
-:mfg "Fujitsu Computer Products of America"  ; name a manufacturer
-:url "http://www.fcpa.fujitsu.com/product/scn/"
+:mfg "Fujitsu"  ; name a manufacturer
+:url "http://www.fcpa.fujitsu.com/products/scanners/"
+:url "http://www.fujitsu.com"
+
 :model "SP15C"                  ; name models for above-specified mfg.
 :interface "SCSI"
 

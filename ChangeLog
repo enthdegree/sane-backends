@@ -1,3 +1,9 @@
+2002-10-23  Stéphane Voltz  <svoltz@wanadoo.fr>
+
+	* backend/umax_pp_low.c: added O_NONBLOCK to flags when opening ppdev
+	  character device, to get around hangs with 2.4.19 linux kernels in
+	  pure EPP mode.
+
 2002-10-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* README.linux: Added comment about DEC cc on Linux Alpha.

@@ -433,7 +433,7 @@ sanei_umax_pp_InitPort (int port, char *name)
 	{
 	  /* ppdev opening and configuration                               */
 	  found = 0;
-	  fd = open (name, O_RDWR | O_NOCTTY);
+	  fd = open (name, O_RDWR | O_NOCTTY | O_NONBLOCK);
 	  if (fd < 0)
 	    {
 	      switch (errno)
@@ -609,11 +609,11 @@ sanei_umax_pp_InitPort (int port, char *name)
 #ifdef HAVE_IOPERM
   if (port < 0x400)
     {
-  if (ioperm (port, 8, 1) != 0)
-    {
-      DBG (1, "ioperm could not gain access to 0x%X\n", port);
-      return (0);
-    }
+      if (ioperm (port, 8, 1) != 0)
+	{
+	  DBG (1, "ioperm could not gain access to 0x%X\n", port);
+	  return (0);
+	}
     }
   /* ECP i/o range */
   if (iopl (3) != 0)
@@ -675,14 +675,14 @@ Outb (int port, int value)
 	case 2:
 	  if (val & 0x20)
 	    {
-	    rc = ioctl (fd, PPDATADIR, &val);
+	      rc = ioctl (fd, PPDATADIR, &val);
 	      if (rc)
 		DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n",
 		     strerror (errno), __FILE__, __LINE__);
 	    }
 	  else
 	    {
-	    rc = ioctl (fd, PPWCONTROL, &val);
+	      rc = ioctl (fd, PPWCONTROL, &val);
 	      if (rc)
 		DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n",
 		     strerror (errno), __FILE__, __LINE__);
@@ -7791,7 +7791,7 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
     0x41, 0xA0, 0x0A, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x33, 0x1A, 0x00,
     -1
   };
-#define UMAX_PP_DANGEROUS_EXPERIMENT 666
+
 #ifdef UMAX_PP_DANGEROUS_EXPERIMENT
   FILE *f = NULL;
   char line[1024], *ptr;
@@ -8204,9 +8204,9 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
 	      for (i = 0; (i < max) && ((ptr - line) < strlen (line)); i++)
 		{
 		  if (ptr[0] != '-')
-		  {
-		    sscanf (ptr, "%X", base + i);
-		  }
+		    {
+		      sscanf (ptr, "%X", base + i);
+		    }
 		  ptr += 3;
 		}
 	    }

@@ -5,6 +5,8 @@
 	  gl640ReadBulk() to avoid crash on platforms where
 	  'sizeof(size_t) > sizeof(int)'.
 
+	* backend/coolscan.c: Remove semicolon at the end of functions.
+
 2002-10-09  Frank Zago  <fzago at austin dot rr dot com>
 
 	* backend/teco1.c backend/teco1.conf doc/descriptions/teco1.desc:

@@ -1,6 +1,7 @@
 2002-04-23  Frank Zago <fzago@greshamstorage.com>
 
 	* backend/coolscan2.c: Fixed the version reporting problem.
+	* backend/dll.conf: added coolscan2 entry.
 
 2002-04-23  Peter Fales <peter@fales-lorenz.net>
 

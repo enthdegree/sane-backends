@@ -1,3 +1,10 @@
+2003-10-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/sane-scsi.man: Added hint for setting device permissions for
+	  /dev/xpt0 for FreeBSD users.
+	* AUTHORS backend/artec.c backend/artec.h doc/sane-artec.man:
+	  Fixed Chris Pinkham's email address.
+	* doc/descriptions/unsupported.desc: Added Microtek ScanMaker 4900.
 
 2003-10-28  Rene Rebe <rene@rocklinux.org>
 	* backend/avision.h backend/avision.c doc/descriptions/avision.desc

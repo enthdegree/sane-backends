@@ -1,3 +1,8 @@
+2004-03-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* sanei/sanei_scsi.c: Increased SCSI buffer size on MacOS X.
+	  Patch from Mattias Ellert, bug #300601.
+
 2004-03-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/gt68xx.c backend/gt68xx_devices.c

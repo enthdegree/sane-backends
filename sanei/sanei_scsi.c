@@ -270,6 +270,10 @@ static char lastrcmd[16];	/* hold command block of last read command */
 # define MAX_DATA	(64*1024)
 #endif
 
+#if USE == MACOSX_INTERFACE
+# define MAX_DATA	(128*1024)
+#endif
+
 
 #ifndef MAX_DATA
 # define MAX_DATA	(32*1024)

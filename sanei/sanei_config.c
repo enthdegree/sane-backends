@@ -162,7 +162,7 @@ sanei_config_get_string (const char *str, char **string_const)
   if (start)
     *string_const = strndup (start, len);
   else
-    string_const = 0;
+    *string_const = 0;
   return str;
 }
 

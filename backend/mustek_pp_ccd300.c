@@ -1947,7 +1947,7 @@ ccd300_start (SANE_Handle handle)
     {
       int failed = SANE_FALSE, cnt;
 
-      priv->line_step = SANE_FIX (300.0 / (float) priv->hwres);
+      priv->line_step = SANE_FIX (300.0 / (float) dev->res);
       priv->rdiff = priv->line_step;
       priv->bdiff = priv->rdiff + (priv->blue_offs << SANE_FIXED_SCALE_SHIFT);
       priv->gdiff =

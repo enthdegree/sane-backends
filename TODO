@@ -1,4 +1,4 @@
-TODO (2000-11-21)
+TODO (2000-11-23)
 
 ******** todo ********
 
@@ -24,7 +24,6 @@ backends
 
   * use DBG(...) instead of fprintf(stderr, ...)
      - microtek
-     - microtek2
 
   * check net/saned
      - net backend segfaults if saned isn't started (or timed out)
@@ -44,6 +43,9 @@ backends
   * pnm: add more options for testing (e.g. arrays and read-only options)
 
   * artec: O_SYNC is not Posix? Problems with porting to OS/2?
+
+  * dc210 and jpeg stuff: move sanei_* functions to sanei/ (if they are 
+    necssary).
 
 doc
 ---
@@ -102,9 +104,6 @@ misc
     (x). Defining something like EXTERN(x) x seems to work.  Same for dc210.c
     Something like --disable-jpeg for configure would be nice.
 
-  * build on AIX does only work for static libraries. The shared libraries
-    seem to overwrite each other.
-
   * move .desc files for backends that are not included in SANE to
     different directory (e.g. backends and external-backends)?
 
@@ -127,7 +126,14 @@ misc
 
   * libdl is used in dll backend but -ldl is not added to LDFLAGS?
 
+  * Add test for PTAL to acinclude.m4/configure.in
+
+  * use strchr() instead of index() in sanei_auth, scanimage, saned, and
+    mustek_pp to avoid problems when icluding strings.h or string.h.
+
 ******** done ********
+* build on AIX does only work for static libraries. The shared libraries
+  seem to overwrite each other.
 * add sanei_authorize (function for all backends)
 * make authorization_callback work in net-backend and saned. Try to 
   avoid plain text passwords?

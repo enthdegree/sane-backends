@@ -10,6 +10,8 @@
 	  (patch from Frank Zago <fzago@greshamstorage.com>).
 	* po/Makefile.in po/sceptre.fr.po: Added french translation for
 	  sceptre backend (patch from Frank Zago <fzago@greshamstorage.com>).
+	* AUTHORS PROJECTS sane-backends.lsm: Updated concerning sceptre
+	  backend (patch from Frank Zago <fzago@greshamstorage.com>).
 
 2002-02-20  Stéphane Voltz  <svoltz@wanadoo.fr>
 

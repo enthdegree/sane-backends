@@ -21,6 +21,7 @@
 	  Added scanimage width/height problem. Added possible solution to po
 	  file mess.
 	* doc/Makefile.in doc/sane-config.man: Added man page for sane-config.
+	* doc/.cvsignore: Added sane-config.1.
 
 2002-10-15  Peter Kirchgessner <peter@kirchgessner.net>
 

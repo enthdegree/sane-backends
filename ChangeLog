@@ -12,6 +12,8 @@
 	  Made sure ioctls are only used when necessary. 
 	  Used vendor == "Noname".  Added ??? comments for suspicious code.
 	  Lots of minor fixes and cleanup. Added version number: 1.0-2.
+	* backend/v4l-grab.h: Deleted (unused).
+	* backend/Makefile.in: Removed v4l-grab.h. 
 
 2002-08-18 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 

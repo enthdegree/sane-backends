@@ -56,10 +56,9 @@ ALL_LINGUAS = $(sort $(subst .,,$(suffix $(basename $(ALL_POS)))))
 DISTCLEAN_FILES = @DISTCLEAN_FILES@
 
 DISTFILES = Makefile.in README epson.de.po mustek.de.po matsushita.fr.po \
-  mustek_usb.de.po plustek.de.po plustek.es.po pnm.de.po \
-  saneopts.de.po saneopts.fr.po saneopts.es.po \
-  sceptre.fr.po teco1.fr.po umax.de.po umax.fr.po umax_pp.fr.po snapscan.de.po \
-  umax_pp.de.po
+  mustek_usb.de.po plustek.de.po plustek.es.po pnm.de.po saneopts.de.po \
+  saneopts.fr.po saneopts.es.po sceptre.fr.po teco1.fr.po umax.de.po \
+  umax.fr.po umax_pp.fr.po snapscan.de.po umax_pp.de.po
 
 .PHONY: all clean depend dist distclean install install-translations \
   uninstall update-mo update-po generate-%
@@ -68,11 +67,20 @@ DISTFILES = Makefile.in README epson.de.po mustek.de.po matsushita.fr.po \
 
 saneopts.*.po: ../include/sane/saneopts.h
 
-# backend.lang.po -> backend.lang.mo
+# backend.lang.po -> backend.lang.mo; include saneopts.??.po while removing
+# its msgid "" to avoid msgfmt errors
 .po.mo:
 	@lang=$(subst .,,$(suffix $(basename $(subst install-,,$@)))) ; \
 	 echo generating $@ from $< and saneopts.$${lang}.po ; \
-	 $(MSGFMT) -o $@ $< saneopts.$${lang}.po
+	 (cat $< ; \
+	  awk 'BEGIN {empty_msgid = 0; empty_line = 0}; \
+	       /^msgid ""/ {empty_msgid = 1}; \
+	       {if (empty_msgid == 1) {if (/^$$/) {empty_line = 1}}} ; \
+	       {if (empty_line != 1) {sub(/^/, "#")} ; \
+	       print}' \
+	      saneopts.$${lang}.po ; \
+	 )| $(MSGFMT) -o $@ -
+
 
 # Sourcefiles -> backend.lang.po (updating po)
 $(foreach lang,$(ALL_LINGUAS),%.$(lang).po):

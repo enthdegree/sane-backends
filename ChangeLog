@@ -1,7 +1,13 @@
+2003-11-02  Gerhard Jaeger <gerhard@gjaeger.de>
+	* doc/descriptions/unsupported.desc: Added Plustek OpticSlim 2400.
+	* include/sanei/sanei_thread.h: Removed OS/2 porting section.
+	* sanei/sanei_pp.c include/sanei/sanei_pp.h:
+	  Fixed udelay stuff, documentation update.
+
 2003-11-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/Makefile.in: sanei_pp must be linked if we preload
-	  backends. 
+	  backends.
 
 ---- FEATURE FREEZE FOR SANE 1.0.13 ---
 -- snapshot 1.0.12-pre2

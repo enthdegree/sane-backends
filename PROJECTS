@@ -27,6 +27,10 @@ Canon FB620S flatbed scanner and FS2710 film scanner
 ftp://stthd0.pc.uni-koeln.de/pub/canon-1.09.tar.gz
 Ulrich Deiters <ukd@xenon.pc.Uni-Koeln.DE>
 
+Canon N670U USB scanner support [alpha/developers only] (wip)
+http://home.t-online.de/home/gunther.mayer/ (look for merlin* files)
+Gunther Mayer <Gunther.Mayer@t-online.de>
+
 Coolscan2 backend: support for LS-40, LS-4000, and LS-8000 (wip)
 http://coolscan2.sourceforge.net/
 

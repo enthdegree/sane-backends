@@ -1,3 +1,10 @@
+2002-07-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* tools/sane-desc.c: Models are sorted alphanumerically now. Added
+	  support for priorities if one model is mentioned by two backends.
+	  Don't print tables when no suitable backend was found.
+	  More comments. Fixed some warnings. Code cleanup. 
+
 2013-07-15  Frank Zago  <fzago at austin dot rr dot com>
 
 	* doc/descriptions/leo.desc doc/descriptions/sceptre.desc

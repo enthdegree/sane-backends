@@ -42,7 +42,7 @@ Backends:
  leo:           Frank Zago (*)
  ma1509:        Henning Meier-Geinitz (*)
  matsushita:    Frank Zago (*)
- microtek:      Matthew Marjanovic
+ microtek:      Matthew Marjanovic (*)
  microtek2:     Bernd Schroeder, Karsten Festag
  mustek:        Andreas Bolsch, David Mosberger, Andreas Czechanowski and
                 Henning Meier-Geinitz (*)
@@ -63,7 +63,7 @@ Backends:
  s9036:         Ingo Schneider
  sceptre:       Frank Zago (*)
  sharp:         Kazuya Fukuda and Abel Deuring (*)
- sm3600:        Marian Eichholz and Glenn Ramsey
+ sm3600:        Marian Eichholz (*) and Glenn Ramsey
  snapscan:      Kevin Charter, Franck Schneider, Michel Roelofs, Sebastien
                 Sable, Henrik Johansson, Chris Bagwell, and Oliver Schwartz (*)
  sp15c:         Randolph Bentson

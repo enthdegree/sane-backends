@@ -1,4 +1,4 @@
-PROJECTS (2001-09-09)
+PROJECTS (2001-09-17)
 
 Here is a list of projects that various people have expressed interest
 in.  Before starting working on one of these projects, it may be a
@@ -16,9 +16,6 @@ wip       Work in progress. There is (more or less) working code. For details,
 Backends:
 ---------
 
-Autobrightness/contrast for cameras etc. (planned?)
-David Mosberger
-
 Canon 1220U USB scanner (wip)
 http://sourceforge.net/projects/canonscanner/
 
@@ -33,12 +30,6 @@ Ulrich Deiters <ukd@xenon.pc.Uni-Koeln.DE>
 E3 USB chipset support (e.g. Genius Vivid Pro USB, Colorado USB 19200,
 Visioneer OneTouch 7600, IBM IdeaScan 2000 USB) (wip)
 http://homepages.paradise.net.nz/stevenel/scanner/
-
-ePhoto (wip?)
-Matthew K. Gray <mkgray@mit.edu>
- 
-EpsPhoto: for PhotoPC500 (wanted?)
-Jeff Tranter <tranter@software.Mitel.COM>
 
 Fujitsu M3091DCd support (wip)
 Frederik Ramm <frederik@remote.org>
@@ -82,23 +73,15 @@ Sony DSC-F1, WWF)
 Handheld scanner support: e.g. for Mustek CG-6000 (wip)
 ftp://www.cs.ubishops.ca/pub/lhii/
 
-HP OfficeJet and LaserJet all-in-one devices Linux driver (wip)
-http://hpoj.sourceforge.net
-
-HP USB backend for HP 4200 (wip)
-http://hp4200-backend.sourceforge.net/
-
 m3096g updates (wip)
 http://www.abm.de/sane/
 
 Mustek BearPaw USB scanner (wip)
+http://www.meier-geinitz.de/sane/lm983x.html
 Henning Meier-Geinitz <henning@meier-geinitz.de> et. al.
 
 Primax parallel port scanners (wip)
 http://primax.sourceforge.net/
-
-SGI IndyCam (wip)
-Erik Nygren <nygren@mit.edu>
 
 UMAX Astra 1220U (wip)
 http://umax1220u-sane.sourceforge.net/
@@ -117,7 +100,7 @@ BeOS port (wip)
 http://www.intuiware.com/Products/BeSANE/index.html
 
 OS/2 support (wip)
-http://www.quasarbbs.com/yuri/sane2.html
+http://home.tiscalinet.de/fbakan/sane105.htm
 
 win32 port of SANE (planned)
 Oliver Rauch <oliver.rauch@Wolfsburg.DE>

@@ -39,6 +39,18 @@
 	  doc/descriptions/umax.desc doc/descriptions/umax_pp.desc
 	  doc/descriptions/v4l.desc:
 	  Moved descriptions of included backends from backend/*.desc.
+	* doc/descriptions-external/canon_pp.desc 
+	  doc/descriptions-external/coolscan2.desc
+	  doc/descriptions-external/hp4200.desc
+	  doc/descriptions-external/hpoj.desc
+	  doc/descriptions-external/ibm.desc
+	  doc/descriptions-external/lhii.desc
+	  doc/descriptions-external/m3091.desc
+	  doc/descriptions-external/niash.desc
+	  doc/descriptions-external/teco.desc
+	  doc/descriptions-external/v4l2.desc
+	  doc/descriptions-external/template.desc.:
+	  Moved descriptions of external backends from backend/*.desc.
 
 
 2002-03-19  Frank Zago <fzago@greshamstorage.com>

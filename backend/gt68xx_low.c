@@ -467,7 +467,8 @@ gt68xx_device_memory_write (GT68xx_Device * dev,
        (void *) dev, addr, size, data);
   CHECK_DEV_ACTIVE (dev, "gt68xx_device_memory_write");
 
-  status = sanei_usb_control_msg (dev->fd, 0x40, 0x01,
+  status = sanei_usb_control_msg (dev->fd, 0x40,
+				  dev->model->command_set->request,
 				  dev->model->command_set->memory_write_value,
 				  addr, size, data);
 
@@ -490,7 +491,8 @@ gt68xx_device_memory_read (GT68xx_Device * dev,
        (void *) dev, addr, size, data);
   CHECK_DEV_ACTIVE (dev, "gt68xx_device_memory_read");
 
-  status = sanei_usb_control_msg (dev->fd, 0xc0, 0x01,
+  status = sanei_usb_control_msg (dev->fd, 0xc0,
+				  dev->model->command_set->request,
 				  dev->model->command_set->memory_read_value,
 				  addr, size, data);
 
@@ -577,6 +579,9 @@ gt68xx_device_small_req (GT68xx_Device * dev, GT68xx_Packet cmd,
 				    fixed_cmd, res, 0x08);
 }
 
+
+#if 0
+/* currently not used */
 SANE_Status
 gt68xx_device_check_firmware (GT68xx_Device * dev, SANE_Bool * loaded)
 {
@@ -587,6 +592,7 @@ gt68xx_device_check_firmware (GT68xx_Device * dev, SANE_Bool * loaded)
   else
     return SANE_STATUS_UNSUPPORTED;
 }
+#endif
 
 SANE_Status
 gt68xx_device_download_firmware (GT68xx_Device * dev,

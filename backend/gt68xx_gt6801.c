@@ -172,6 +172,44 @@ gt6801_download_firmware (GT68xx_Device * dev,
   return SANE_STATUS_GOOD;
 }
 
+SANE_Status
+gt6801_u16b_download_firmware (GT68xx_Device * dev,
+			       SANE_Byte * data, SANE_Word size)
+{
+  DECLARE_FUNCTION_NAME ("gt6801_download_firmware") SANE_Status status;
+  SANE_Byte download_buf[MAX_DOWNLOAD_BLOCK_SIZE];
+  SANE_Byte *block;
+  SANE_Word addr, bytes_left;
+  GT68xx_Packet boot_req;
+  SANE_Word block_size = MAX_DOWNLOAD_BLOCK_SIZE;
+
+  CHECK_DEV_ACTIVE (dev, function_name);
+
+  for (addr = 0; addr < size; addr += block_size)
+    {
+      bytes_left = size - addr;
+      if (bytes_left > block_size)
+	block = data + addr;
+      else
+	{
+	  memset (download_buf, 0, block_size);
+	  memcpy (download_buf, data + addr, bytes_left);
+	  block = download_buf;
+	}
+      RIE (gt68xx_device_memory_write (dev, addr, block_size, block));
+    }
+
+  /* not tested: */
+  memset (boot_req, 0, sizeof (boot_req));
+  boot_req[0] = 0x69;
+  boot_req[1] = 0x01;
+  boot_req[2] = 0xc0;
+  boot_req[3] = 0x1c;
+  RIE (gt68xx_device_req (dev, boot_req, boot_req));
+
+  return SANE_STATUS_GOOD;
+}
+
 
 SANE_Status
 gt6801_get_power_status (GT68xx_Device * dev, SANE_Bool * power_ok)
@@ -275,6 +313,41 @@ gt6801_stop_scan (GT68xx_Device * dev)
   RIE (gt68xx_device_req (dev, req, req));
   RIE (gt68xx_device_check_result (req, 0x42));
   return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+gt6801_u16b_stop_scan (GT68xx_Device * dev)
+{
+  GT68xx_Packet req;
+  SANE_Status status;
+  SANE_Int count = 0;
+
+  /* For some reason, the Plustek U16B needs both stop commands. */
+  memset (req, 0, sizeof (req));
+  req[0] = 0x42;
+  req[1] = 0x01;
+
+  DBG (5, "gt6801_u16b_stop_scan: stopping scan\n");
+  for (count = 0; count < 20; count++)
+    {  
+      memset (req, 0, sizeof (req));
+      req[0] = 0x42;
+      req[1] = 0x01;
+      RIE (gt68xx_device_req (dev, req, req));
+      if (gt68xx_device_check_result (req, 0x42))
+	break;
+      DBG (7, "gt6801_u16b_stop_scan: failed, count = %d\n", count);
+    }
+  if (count <= 20)
+    {
+      DBG (7, "gt6801_u16b_stop_scan: succeeded\n");
+      memset (req, 0, sizeof (req));
+      req[0] = 0x41;
+      req[1] = 0x01;
+      return gt68xx_device_small_req (dev, req, req);
+    }
+
+  return SANE_STATUS_IO_ERROR;
 }
 
 SANE_Status

@@ -807,6 +807,7 @@ static SANE_Status
 gt68xx_device_small_req (GT68xx_Device * dev, GT68xx_Packet cmd,
 			 GT68xx_Packet res);
 
+#if 0
 /** Check whether the firmware is downloaded into the scanner.
  *
  * @param dev Device object.
@@ -820,6 +821,7 @@ gt68xx_device_small_req (GT68xx_Device * dev, GT68xx_Packet cmd,
  */
 static SANE_Status
 gt68xx_device_check_firmware (GT68xx_Device * dev, SANE_Bool * loaded);
+#endif
 
 static SANE_Status
 gt68xx_device_download_firmware (GT68xx_Device * dev,

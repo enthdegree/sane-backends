@@ -4,5 +4,15 @@
 	  version.
 	* doc/releases.txt: Updated information about diffs.
 	* doc/descriptions/unsupported.desc: Added HP and Mustek scanners.
+	* backend/gt68xx.c backend/gt68xx.conf backend/gt68xx_devices.c
+	  backend/gt68xx_gt6801.c backend/gt68xx_gt6801.h backend/gt68xx_low.c
+	  backend/gt68xx_low.h doc/descriptions/gt68xx.desc
+	  doc/gt68xx/gt68xx.CHANGES: Added Mustek BearPaw 2448 TA
+	  Plus. Added special command set for Plustek U16B. Added
+	  Plug-n-Scan 2400 M(T) to list of devices. No positive report yet.
+          Used request for memory writes and reads instead of a fixed
+	  value of 0x04. Set Genius Vivid4x to GT6816. Untested. All
+	  changes have not been	tested on their respective scanners yet.
+	  New version: 1.0.50.
 
 Older entries can be found in ChangeLog-1.0.13.

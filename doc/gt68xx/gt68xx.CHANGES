@@ -1,5 +1,14 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0-50 (2003-11-23)
+
+* Added Mustek BearPaw 2448 TA Plus. It's completely untested.
+* Added special command set for Plustek U16B. Changed stop scan command and
+  download_firmware. Everything is untested.
+* Added Plug-n-Scan 2400 M(T) to list of devices. No positive report yet.
+* Used request for memory writes and reads instead of a fixed value of 0x04.
+* Set Genius Vivid4x to GT6816. Untested.
+
 V 1.0-49 (2003-09-30)
 
 * Fixed wrong test for allocation in gt68xx.c.

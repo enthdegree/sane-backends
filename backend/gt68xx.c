@@ -48,7 +48,7 @@
 
 #include "../include/sane/config.h"
 
-#define BUILD 49
+#define BUILD 50
 #define MAX_DEBUG
 #define WARMUP_TIME 30
 #define CALIBRATION_HEIGHT 2.5
@@ -1200,7 +1200,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   GT68xx_Device *dev;
   SANE_Status status;
   GT68xx_Scanner *s;
-  SANE_Bool firmware_loaded, power_ok;
+  SANE_Bool power_ok;
 
   DBG (5, "sane_open: start (devicename = `%s')\n", devicename);
 
@@ -1245,7 +1245,11 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
       DBG (0, "         details as possible, e.g. the exact name of your\n");
       DBG (0, "         scanner and what does (not) work.\n");
     }
-  /*  RIE (gt68xx_device_check_firmware (dev, &firmware_loaded));*/
+
+  /* The firmware check is disabled by default because it may confuse
+     some scanners: So the firmware is loaded everytime. */
+#if 0
+  RIE (gt68xx_device_check_firmware (dev, &firmware_loaded));
   firmware_loaded = SANE_FALSE;
   if (firmware_loaded)
     DBG (3, "sane_open: firmware already loaded, skipping load\n");
@@ -1257,6 +1261,9 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
       DBG (1, "sane_open: firmware still not loaded? Proceeding anyway\n");
       /* return SANE_STATUS_IO_ERROR; */
     }
+#else
+    RIE (download_firmware_file (dev));
+#endif
 
   RIE (gt68xx_device_get_id (dev));
 

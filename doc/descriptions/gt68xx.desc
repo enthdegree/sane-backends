@@ -1,5 +1,5 @@
 :backend "gt68xx"
-:version "1.0-49"
+:version "1.0-50"
 :manpage "sane-gt68xx"
 :url "http://www.meier-geinitz.de/sane/gt68xx-backend/"
 :comment "Only the USB scanners mentioned below are supported. For other Mustek BearPaws, look at the Plustek and the MA-1509 backend."
@@ -155,6 +155,21 @@
 :interface "USB"
 :status :good
 :comment "Transparency adapter supported"
+
+:model "BearPaw 2448 TA Plus"
+:interface "USB"
+:status :untested
+:comment "Untested. Please test and report success or failure to me."
+
+:model "Plug-n-Scan 2400 MT"
+:interface "USB"
+:status :untested
+:comment "Same as BearPaw 2400 TA Plus? May work. Please test and tell me the result."
+
+:model "Plug-n-Scan 2400 M"
+:interface "USB"
+:status :untested
+:comment "Same as BearPaw 2400 TA Plus? May work. Please test and tell me the result."
 
 :model "ScanExpress 1200 UB Plus"
 :interface "USB"

@@ -164,6 +164,44 @@ static GT68xx_Command_Set plustek_gt6801_command_set = {
   gt68xx_generic_get_id
 };
 
+static GT68xx_Command_Set plustek_u16b_command_set = {
+  "plustek-u16b",
+
+  0x40,				/* Request type */
+  0x04,				/* Request */
+
+  0x200a,			/* Memory read - wValue */
+  0x2009,			/* Memory write - wValue */
+
+  0x2010,			/* Send normal command - wValue */
+  0x3f40,			/* Send normal command - wIndex */
+  0x2011,			/* Receive normal result - wValue */
+  0x3f00,			/* Receive normal result - wIndex */
+
+  0x2012,			/* Send small command - wValue */
+  0x3f40,			/* Send small command - wIndex */
+  0x2013,			/* Receive small result - wValue */
+  0x3f00,			/* Receive small result - wIndex */
+
+  /* activate */ NULL,
+  /* deactivate */ NULL,
+  gt6801_check_plustek_firmware, /* not tested */
+  gt6801_u16b_download_firmware, /* ok? */
+  gt6801_get_power_status, /* not tested */
+  /* get_ta_status (FIXME: implement this) */ NULL,
+  gt6801_lamp_control, /* ok */
+  gt6816_is_moving, /* ok */
+  /* gt68xx_generic_move_relative *** to be tested */ NULL,
+  gt6801_carriage_home, /* ok */
+  gt68xx_generic_start_scan, /* ok */
+  gt68xx_generic_read_scanned_data, /* ok */
+  gt6801_u16b_stop_scan,  /* ok */
+  gt6801_setup_scan, /* not tested */
+  gt68xx_generic_set_afe, /* not tested */
+  /* set_exposure_time */ NULL,
+  gt68xx_generic_get_id /* not tested */
+};
+
 static GT68xx_Model mustek_2400ta_model = {
   "mustek-bearpaw-2400-ta",	/* Name */
   "Mustek",			/* Device vendor string */
@@ -261,6 +299,54 @@ static GT68xx_Model mustek_2400taplus_model = {
     /* Setup and tested */
 };
 
+static GT68xx_Model mustek_2448taplus_model = {
+  "mustek-bearpaw-2448-ta-plus",	/* Name */
+  "Mustek",			/* Device vendor string */
+  "BearPaw 2448 TA Plus",	/* Device model name */
+  "A2Nfw.usb",			/* Name of the firmware file */
+  SANE_FALSE,			/* Dynamic allocation flag */
+
+  &mustek_gt6816_command_set,	/* Command set used by this scanner */
+
+  1200,				/* maximum optical sensor resolution */
+  2400,				/* maximum motor resolution */
+  600,				/* base x-res used to calculate geometry */
+  1200,				/* base y-res used to calculate geometry */
+  1200,				/* if ydpi is equal or higher, use linemode */
+  SANE_FALSE,			/* Use base_ydpi for all resolutions */
+
+  {1200, 600, 300, 100, 50, 0},	/* possible x-resolutions */
+  {2400, 1200, 600, 300, 100, 50, 0},	/* possible y-resolutions */
+  {16, 12, 8, 0},			/* possible depths in gray mode */
+  {16, 12, 8, 0},		/* possible depths in color mode */
+
+  SANE_FIX (7.41),		/* Start of scan area in mm  (x) */
+  SANE_FIX (7.4),		/* Start of scan area in mm (y) */
+  SANE_FIX (217.5),		/* Size of scan area in mm (x) */
+  SANE_FIX (298.0),		/* Size of scan area in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (5.0),		/* Start of black mark in mm (x) */
+
+  SANE_FIX (94.0),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (107.0) /* Start of scan area in TA mode in mm (y) */ ,
+  SANE_FIX (37.0),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (165.0),		/* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (95.0),		/* Start of white strip in TA mode in mm (y) */
+
+  0, 48, 96,			/* RGB CCD Line-distance correction in pixel */
+  8,				/* CCD distcance for CCD with 6 lines) */
+
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
+  {0x2a, 0x0c, 0x2e, 0x06, 0x2d, 0x07},	/* Default offset/gain */
+  {0x157, 0x157, 0x157},	/* Default exposure parameters */
+  SANE_FIX (2.0),		/* Default gamma value */
+
+  SANE_FALSE,			/* Is this a CIS scanner? */
+  GT68XX_FLAG_UNTESTED		/* Which flags are needed for this scanner? */
+    /* Completely untested. Based on 2400 TA Plus. Maybe use 2400 TA entry? */
+};
 
 static GT68xx_Model mustek_1200ta_model = {
   "mustek-bearpaw-1200-ta",	/* Name */
@@ -704,7 +790,7 @@ static GT68xx_Model mustek_a3usb_model = {
   SANE_FALSE,			/* Is this a CIS scanner? */
   0				/* Which flags are needed for this scanner? */
     /* Tested by Pedro Morais <morais@inocam.com>, changes to CCD by hmg, white
-       strip/black mark untested */
+       strip/black mark untested, line distance must be set up */
 };
 
 static GT68xx_Model lexmark_x73_model = {
@@ -815,7 +901,7 @@ static GT68xx_Model plustek_u16b_model = {
   "ccd68861.fw",		/* Name of the firmware file */
   SANE_FALSE,			/* Dynamic allocation flag */
 
-  &plustek_gt6801_command_set,	/* Command set used by this scanner */
+  &plustek_u16b_command_set,	/* Command set used by this scanner */
 
   600,				/* maximum optical sensor resolution */
   1200,				/* maximum motor resolution */
@@ -913,7 +999,7 @@ static GT68xx_Model genius_vivid4x_model  = {
   "ccd548.fw",			/* Name of the firmware file */
   SANE_FALSE,			/* Dynamic allocation flag */
 
-  &plustek_gt6801_command_set,	/* Command set used by this scanner */
+  &mustek_gt6816_command_set,	/* Command set used by this scanner */
 
   600,				/* maximum optical sensor resolution */
   600,				/* maximum motor resolution */
@@ -1064,6 +1150,7 @@ static GT68xx_USB_Device_Entry gt68xx_usb_device_list[] = {
   {0x05d8, 0x4002, &mustek_2400cu_model},	/* manual override */
   {0x05d8, 0x4002, &mustek_scanexpress2400usb_model}, /* manual override */
   {0x055f, 0x0210, &mustek_a3usb_model},
+  {0x05d8, 0x021a, &mustek_2448taplus_model},
   {0x043d, 0x002d, &lexmark_x73_model},
   {0x07b3, 0x0400, &plustek_op1248u_model},
   {0x07b3, 0x0401, &plustek_op1248u_model}, /* Same scanner, different id? */

@@ -1,3 +1,22 @@
+2000-11-08  Henning Meier-Geinitz <hmg@gmx.de>
+
+	* TODO: Updated. Added entries for viceo backend and addition to hp
+	  backend. Updated entries about the include issue. Added point about
+	  additional options for pnm backend, install problem of libsane.la, 
+	  and some build problems and the --without-x problem. Some more 
+	  details for detecting older SANE versions. 
+
+	* LEVEL2: Added entry about sending messages from backend to frontend.
+	  Removed entry about image polarity.
+
+	* backend/mustek.c backend/mustek.h backend/mustek.CHANGES 
+	  backend/mustek.desc: Update to Mustek backend 1.0-99. Better 
+	  transparency adapter support for ScanExpress scanners. Changed
+	  color support for ScanExpress scanners (faster at some resolutions
+	  now). Paragon 1200 SP color mode should work now without garbage at
+	  the end of an image. Some bugfixes. Details in 
+	  backend/mustek.CHANGES.
+	
 2000-11-08  Jochen Eisinger <jochen.eisinger@gmx.net>
 
 	* include/sane/sanei_debug.h: fixed typo

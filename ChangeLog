@@ -1,3 +1,12 @@
+2002-02-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* configure configure.in Makefile.in backend/Makefile.in  
+	  doc/Makefile.in frontend/Makefile.in include/Makefile.in
+	  japi/Makefile.in lib/Makefile.in sanei/Makefile.in
+	  tools/Makefile.in testsuite/Makefile.in po/Makefile.in: Added global
+	  list of file patterns for "make distclean". Some "make clean"
+	  and "make distclean" cleanup and additions.
+
 2002-02-12  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* tools/sane-config.in: Avoid printing "-I/usr/include" as this

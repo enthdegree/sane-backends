@@ -19,11 +19,11 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  */
 
 #ifdef _AIX
-# include <lalloca.h>		/* MUST come first for AIX! */
+# include "../include/lalloca.h"		/* MUST come first for AIX! */
 #endif
 
-#include <sane/config.h>
-#include <lalloca.h>
+#include "../include/sane/config.h"
+#include "../include/lalloca.h"
 
 #include <assert.h>
 #include <getopt.h>
@@ -36,9 +36,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include <sane/sane.h>
-#include <sane/sanei.h>
-#include <sane/saneopts.h>
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei.h"
+#include "../include/sane/saneopts.h"
 
 #include "stiff.h"
 
@@ -150,27 +150,21 @@ auth_callback (SANE_String_Const resource,
 		  if ((strlen (tmp) > 0) && (tmp[strlen (tmp) - 1] == '\r'))
 		    tmp[strlen (tmp) - 1] = 0;
 
-
-
 		  if (strchr (tmp, ':') != NULL)
 		    {
 
 		      if (strchr (strchr (tmp, ':') + 1, ':') != NULL)
 			{
 
-
 			  if (
 			      (strncmp
 			       (strchr (strchr (tmp, ':') + 1, ':') + 1,
 				resource, len) == 0)
 			      &&
-			      (strlen
+			      ((int) strlen
 			       (strchr (strchr (tmp, ':') + 1, ':') + 1) ==
 			       len))
 			    {
-
-
-
 
 			      if ((strchr (tmp, ':') - tmp) <
 				  SANE_MAX_USERNAME_LEN)
@@ -181,7 +175,6 @@ auth_callback (SANE_String_Const resource,
 				       (strchr (tmp, ':') + 1)) <
 				      SANE_MAX_PASSWORD_LEN)
 				    {
-
 
 				      strncpy (username, tmp,
 					       strchr (tmp, ':') - tmp);
@@ -204,8 +197,6 @@ auth_callback (SANE_String_Const resource,
 				    }
 				}
 
-
-
 			    }
 			}
 		    }
@@ -221,9 +212,8 @@ auth_callback (SANE_String_Const resource,
       md5mode = 1;
       len = (strstr (resource, "$MD5$") - resource);
       if (query_user == 1)
-	fprintf (stderr,
-		 "Authentification required for resource %*.*s. Enter username: ",
-		 len, len, resource);
+	fprintf (stderr, "Authentification required for resource %*.*s. "
+		 "Enter username: ", len, len, resource);
     }
   else
     {
@@ -1334,6 +1324,26 @@ get_resolution (void)
   return resol;
 }
 
+void
+scanimage_exit ()
+{
+  if (device)
+    {
+      if (verbose > 1) 
+	fprintf (stderr, "Closing device\n");
+      sane_close (&device);
+    }
+  if (verbose > 1) 
+    fprintf (stderr, "Calling sane_exit\n");
+  sane_exit ();
+
+  if (all_options)
+    free (all_options);
+  if (option_number)
+    free (option_number);
+  if (verbose > 1) 
+    fprintf (stderr, "scanimage: finished\n");
+}
 
 int
 main (int argc, char **argv)
@@ -1350,7 +1360,7 @@ main (int argc, char **argv)
   char *full_optstring;
   SANE_Int version_code;
 
-  atexit (sane_exit);
+  atexit (scanimage_exit);
 
   prog_name = strrchr (argv[0], '/');
   if (prog_name)
@@ -1561,7 +1571,7 @@ standard output.\n\
       }
 
       optind = 0;
-      opterr = 1;		/* re-enable error printing and arg permutation */
+      opterr = 1;	      /* re-enable error printing and arg permutation */
       while ((ch = getopt_long (argc, argv, full_optstring, all_options,
 				&index)) != EOF)
 	{
@@ -1569,7 +1579,7 @@ standard output.\n\
 	    {
 	    case ':':
 	    case '?':
-	      exit (1);		/* error message is printed by getopt_long() */
+	      exit (1);	      /* error message is printed by getopt_long() */
 
 	    case 'd':
 	    case 'h':
@@ -1733,11 +1743,5 @@ List of available devices:", prog_name);
   else
     status = test_it ();
 
-  sane_close (device);
-
-  if (all_options)
-    free (all_options);
-  if (option_number)
-    free (option_number);
   return status;
 }

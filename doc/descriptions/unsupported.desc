@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-11-26"		; version of backend
+:version "2003-12-06"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -184,6 +184,12 @@
 :status :unsupported
 :comment "Probably not supported. USB Vendor/product 0x04a9/0x220b. See link for more information and test program."
 
+:model "CanoScan D646U ex"
+;:url "/unsupported/canon-d646u.html"
+:interface "USB"
+:status :unsupported
+:comment "Probably not supported. No further details known."
+
 :model "CanoScan D660U"
 :interface "USB"
 :url "/unsupported/canon-d660u.html"
@@ -288,6 +294,13 @@
 :interface "USB"
 :status :unsupported
 :comment "Probably unsupported. Support is planned by the (external) epkowa backend. Seems to neither use Epson nor Benq protocol. Details appreciated."
+
+:model "Stylus Photo RX500"
+:url "/unsupported/epson-stylus-photo-rx500.html"
+:interface "USB"
+:status :unsupported
+:comment "Probably unsupported. See link for details."
+
 
 ;********************************************************************************************
 
@@ -519,6 +532,12 @@
 :interface "USB"
 :status :unsupported
 :comment "Probably unsupported. Vendor/product 0x0461/0x0377. See link for details."
+
+:model "MD 6190"
+:url "/unsupported/medion-md6190.html"
+:interface "USB"
+:status :unsupported
+:comment "Probably unsupported. See link for details."
 
 :model "MD 6228"
 :url "/unsupported/medion-md6228.html"
@@ -928,6 +947,12 @@
 ;********************************************************************************************
 
 :mfg "Relisys"
+
+:model "Eclipse 1200U"
+:url "/unsupported/relisys-eclipse-1200u.html"
+:interface "USB"
+:status :unsupported
+:comment "Probably unsupported. See link for details."
 
 :model "Scorpio Ultra 3"
 :url "/unsupported/relisys-scorpio-ultra3.html"

@@ -4,6 +4,7 @@
 	  sanei/sanei_scsi.c: sanei_scsi.c should now compile with the new
 	  and old SCSI API of MacOS X. Patch from Mattias Ellert
 	  <mattias.ellert@tsl.uu.se>.
+	* doc/descriptions/unsupported.desc: Added several scanners.
 
 2003-12-01  Nathan Rutman <nthn1@yahoo.com>
 

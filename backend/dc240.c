@@ -539,7 +539,7 @@ get_info (DC240 * camera)
     {
       DBG (0,
 	   "Camera model (%d) is not DC-240 (5).  "
-	   "Only the DC-240 is supported by this driver.\n");
+	   "Only the DC-240 is supported by this driver.\n", camera->model);
     }
 
   camera->ver_major = buf[2];
@@ -710,7 +710,7 @@ end_of_data (SANE_Int fd)
 	}
       else
 	{
-	  DBG (127, "end_of_data: waiting...\n", c);
+	  DBG (127, "end_of_data: waiting...\n");
 	}
       sleep (1);		/* not too fast */
     }
@@ -1015,7 +1015,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
        (action ==
 	SANE_ACTION_SET_VALUE ? "SET" : (action ==
 					 SANE_ACTION_GET_VALUE ? "GET" :
-					 "SETAUTO")), value, info);
+					 "SETAUTO")), value, (void *)info);
 
   if (handle != MAGIC || !is_open)
     return SANE_STATUS_INVAL;	/* Unknown handle ... */
@@ -1797,7 +1797,7 @@ read_dir (SANE_String dir)
 
       if (dir_insert (&dir_buf.entry[i]) != 0)
 	{
-	  DBG (1, "%s: error: failed to insert dir entry\n");
+	  DBG (1, "%s: error: failed to insert dir entry\n", f);
 	  return -1;
 	}
       retval++;

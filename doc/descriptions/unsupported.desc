@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-07-18"		; version of backend
+:version "2003-07-20"		; version of backend
 :url "http://www.meier-geinitz.de/sane/misc/unsupported.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 ;:url "http://www.meier-geinitz.de/sane/mustek-backend/"
@@ -168,10 +168,11 @@
 :comment "Not supported. USB Vendor/product 0x04a9/0x220f. See link for more information. With transparency adapter."
 
 :model "CanoScan 9900F"
-;:url "http://www.meier-geinitz.de/sane/misc/canon-8000f.txt"
+:url "http://www.meier-geinitz.de/sane/misc/canon-9900f.txt"
 :interface "USB"
 :status :unsupported
-:comment "Probably unsupported, no details known. 3200x6400 dpi USB2. With transparency adapter"
+:comment "Probably unsupported, similar to 8000F. Vendor/product 0x04a9/0x2210. 3200x6400 dpi USB2. With transparency adapter."
+
 :model "CanoScan D646U"
 :url "http://www.meier-geinitz.de/sane/misc/canon-d646u.txt"
 :interface "USB"

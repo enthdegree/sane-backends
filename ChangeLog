@@ -2,6 +2,8 @@
 
 	* TODO: Added mustek_pp CCD support and avision patch
 	  entry. Updated .desc file section.
+	* doc/descriptions/unsupported.desc: Added more information for
+	  Canon 9900F.
 
 2003-07-21  Stéphane Voltz <svoltz@wanadoo.fr>
 

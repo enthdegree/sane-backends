@@ -11,6 +11,8 @@
 	  the manpage).
 	* doc/descriptions/ricoh.desc: Removed unused version and comment
 	  tokens.
+	* doc/descriptions/s9036.desc: Changed :devicetype to :scanner.
+	  I guess :vidcam is not appropriate for a flatbed scanner :-)
 
 2002-07-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -178,3 +178,8 @@
 :interface "USB"
 :status :complete
 
+:model "CanoScan D660U"
+:interface "USB"
+:status :basic
+:comment "Binary and gray mode not working"
+

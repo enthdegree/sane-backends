@@ -1,3 +1,8 @@
+2003-05-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* po/sane-backends.fr.po: Updates for the French translation from
+	  Yann E. MORIN <yann dot morin dot 1998 at anciens dot enib dot fr>. 
+
 ---- FEATURE FREEZE FOR SANE 1.0.12 ---
 -- snapshot 1.0.12-pre1
 

@@ -1,0 +1,101 @@
+.TH sane-dll 5 "13 May 1998"
+.IX sane-dll
+.SH NAME
+sane-dll - SANE dynamic backend loader
+.SH DESCRIPTION
+The
+.B sane\-dll
+library implements a SANE (Scanner Access Now Easy) backend that
+provides access to an arbitrary number of other SANE backends.  These
+backends may either be pre-loaded at the time the
+.B sane\-dll
+library is built or, on systems that support dynamic loading of shared
+libraries, the backends may be loaded at runtime.  In the latter case,
+adding support for a new backend simply involves installing the
+relevant library in
+.I @LIBDIR@
+and adding an entry to the
+.I dll.conf
+configuration file.  In other words, no applications need to be
+modified or recompiled to add support for new devices.
+.SH "DEVICE NAMES"
+This backend expects device names of the form:
+.PP
+.RS
+.IR backend : device
+.RE
+.PP
+Where
+.I backend
+is the name of the backend and
+.I device
+is the name of the device in this backend that should be addressed.
+If the device name does not contain a colon (:), then the entire string
+is treated as the
+.I device
+string for the default backend.  The default backend is the backend
+listed last in the configuration file (see below) or the first
+pre-loaded backend (if any).
+.SH CONFIGURATION
+The contents of the
+.I dll.conf
+file is a list of backend names that may be loaded dynamically
+upon demand.  Empty lines and lines starting with a hash mark (#) are
+ignored.  A sample configuration file is shown below:
+.PP
+.RS
+net
+.br
+# this is a comment
+.br
+pnm
+.br
+mustek
+.RE
+.PP
+Note that backends that were pre-loaded when building this library do
+not have to be listed in this configuration file.  That is, if a
+backend was preloaded, then that backend will always be present,
+regardless of whether it's listed in the configuration file or not.
+.PP
+The list of preloaded backends is determined by macro
+.B PRELOADABLE_BACKENDS
+in file backend/Makefile.in of the SANE source code distribution.  After
+changing the value of this macro, it is necessary to reconfigure, rebuild,
+and reinstall SANE for the change to take effect.
+.SH FILES
+.TP
+.I @CONFIGDIR@/dll.conf
+The backend configuration file (see also description of
+.B SANE_CONFIG_DIR
+below).
+.TP
+.I @LIBDIR@/libsane-dll.a
+The static library implementing this backend.
+.TP
+.I @LIBDIR@/libsane-dll.so
+The shared library implementing this backend (present on systems that
+support dynamic loading).
+.SH ENVIRONMENT
+.TP
+.B SANE_CONFIG_DIR
+This environment variable specifies the list of directories that may
+contain the configuration file.  Under UNIX, the directories are
+separated by a colon (`:'), under OS/2, they are separated by a
+semi-colon (`;').  If this variable is not set, the configuration file
+is searched in two default directories: first, the current working
+directory (".") and then in @CONFIGDIR@.  If the value of the
+environment variable ends with the directory separator character, then
+the default directories are searched after the explicitly specified
+directories.  For example, setting
+.B SANE_CONFIG_DIR
+to "/tmp/config:" would result in directories "tmp/config", ".", and
+"@CONFIGDIR@" being searched (in this order).
+.TP
+.B SANE_DEBUG_DLL
+If the library was compiled with debug support enabled, this
+environment variable controls the debug level for this backend.  E.g.,
+a value of 128 requests all debug output to be printed.  Smaller
+levels reduce verbosity.
+.SH AUTHOR
+David Mosberger

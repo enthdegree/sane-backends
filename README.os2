@@ -1,0 +1,83 @@
+
+   SANE 1.01 for OS/2 - build 1
+   ----------------------------
+   07 Mar 1999, Yuri Dario <mc6530@mclink.it>
+
+
+SANE (Scanner Access Now Easy)
+------------------------------
+For more info about the SANE Project, please visit 
+
+	http://www.mostang.com/sane
+
+You should also check the main site for an updated list of supported scanners.
+
+Note that I can't say you if your scanner is supported; check SANE homepage 
+instead.
+
+Documentation
+-------------
+To read docs with correct format, you should type
+
+	more < doc\sane-epson.txt
+
+Installation
+------------
+Add aspirout.sys to your config.sys
+
+	DEVICE=c:\sane\aspirout.sys
+
+and reboot.
+To run scanimage.exe you need also to download the latest EMX runtime,
+available on Hobbes or Leo as emxrt.zip; tested with version 0.9c fix4.
+find-scanner.exe can be used to recognize a scanner on the scsi bus. Then
+you should edit your xxx.conf file and add the scanner address, a string like
+b0t4l0. This can be simplified using autodetection: with autodetection you can 
+use a string like
+
+	scsi EPSON
+
+in your xxx.conf file; the autodection will enable the backend that recognize
+'EPSON' in the scanner id.
+
+To test scanimage, run
+
+	scanimage --help
+
+you should see your scanner following the list of internal devices:
+
+	List of available devices:
+	    pnm:0 pnm:1
+
+If it is not present, check your scsi driver, the aspi driver OS2ASPI.DMD and
+aspirout.sys; on Warp4 you can use the Hardware Manager to check scanner 
+presence. Then look at your xxx.conf, maybe there is something wrong in the
+text.
+
+Parallel Port
+-----------------
+This release has support for parallel port enabled: actually only the Epson
+backend makes uses of such support; the Epson GT-300 can be recognized, but
+scanning can't be completed.
+
+Also HP-5100C parallel scanner can be run under OS/2: you need to download
+the EPST driver from Shuttle Tech. homepage (www.shuttletech.com); follow the
+instruction for installation. Then the scanner is seen as a scsi HP, so the
+HP backend can work with it.
+
+The Quickcam backend is also included with lpt support, but I can't say how it
+is working.
+
+History:
+--------
+07 Mar 1999 release 1.01 pre-test3
+	no OS/2 specific fixes
+
+20 Oct 1998 release 0.74
+	fixed fork()ing backends with new sanei_thread api.
+	fixed scsi autodetection
+	added parallel port support
+
+===============================================================================
+Yuri Dario <mc6530@mclink.it>
+http://www.geocities.com/SiliconValley/Peaks/4320

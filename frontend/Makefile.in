@@ -1,0 +1,108 @@
+SHELL = /bin/sh
+
+VPATH = @srcdir@
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+top_builddir = ..
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
+includedir = @includedir@
+oldincludedir = /usr/include
+configdir = ${sysconfdir}/sane.d
+
+MKDIR = $(top_srcdir)/mkinstalldirs
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
+
+CC = @CC@
+INCLUDES = -I. -I$(srcdir) -I$(top_builddir)/include -I$(top_srcdir)/include \
+	@INCLUDES@ @GTK_CFLAGS@
+DEFS = @DEFS@
+CPPFLAGS = @CPPFLAGS@
+CFLAGS = @CFLAGS@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
+GTK_LIBS = @GTK_LIBS@
+GIMP_LIBS = @GIMP_LIBS@
+
+LIBTOOL = ../libtool
+MINST	= --mode=install
+MLINK	= --mode=link
+XSCAN	= @XSCAN@
+SANED	= @SANED@
+
+COMPILE = $(CC) -c $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
+LINK = $(CC) $(LDFLAGS) -o $@
+
+@SET_MAKE@
+
+BINPROGS = scanimage $(XSCAN)
+SBINPROGS = $(SANED)
+PROGRAMS = $(BINPROGS) $(SBINPROGS)
+TESTPROGRAMS = test
+LIBLIB = ../lib/liblib.a
+LIBSANE = ../backend/libsane.la
+LIBSANEI = ../sanei/libsanei.a
+
+SCAN_OBJS = scanimage.o
+XSCAN_OBJS = xscanimage.o progress.o preview.o preferences.o gtkglue.o
+XCAM_OBJS = xcam.o preferences.o gtkglue.o
+
+.c.o:
+	$(COMPILE) $<
+
+all: $(PROGRAMS)
+
+install: $(PROGRAMS)
+	$(MKDIR) $(bindir) $(sbindir) $(datadir)
+	@for program in $(BINPROGS); do \
+	  $(LIBTOOL) $(MINST) $(INSTALL_PROGRAM) $${program} \
+	    $(bindir)/$${program}; \
+	done
+	@for program in $(SBINPROGS); do \
+	  $(LIBTOOL) $(MINST) $(INSTALL_PROGRAM) $${program} \
+	    $(sbindir)/$${program}; \
+	done
+	$(INSTALL_DATA) $(srcdir)/sane-style.rc $(datadir)/sane-style.rc
+
+test: test.o $(LIBSANE) $(LIBLIB)
+	@$(LIBTOOL) $(MLINK) $(LINK) test.o $(LIBSANE) $(LIBLIB) $(LIBS)
+
+saned: saned.o $(LIBSANEI) $(LIBSANE) $(LIBLIB)
+	@$(LIBTOOL) $(MLINK) $(LINK) saned.o $(LIBSANEI) $(LIBSANE) $(LIBLIB) \
+		$(LIBS)
+
+scanimage: $(SCAN_OBJS) $(LIBSANE) $(LIBLIB)
+	@$(LIBTOOL) $(MLINK) $(LINK) $(SCAN_OBJS) $(LIBSANE) $(LIBLIB) $(LIBS)
+
+xscanimage: $(XSCAN_OBJS) $(LIBSANEI) $(LIBSANE) $(LIBLIB)
+	@$(LIBTOOL) $(MLINK) $(LINK) $(XSCAN_OBJS) $(LIBSANEI) $(LIBSANE) \
+		$(LIBLIB) $(GIMP_LIBS) $(GTK_LIBS) $(LIBS)
+
+xcam: $(XCAM_OBJS) $(LIBSANE) $(LIBSANEI) $(LIBLIB)
+	@$(LIBTOOL) $(MLINK) $(LINK) $(XCAM_OBJS) $(LIBSANEI) $(LIBSANE) \
+		$(LIBLIB) $(GTK_LIBS) $(LIBS)
+
+clean:
+	rm -f *.o *~ .*~ *.bak
+	rm -rf .libs
+
+distclean: clean
+	rm -f Makefile $(PROGRAMS) $(TESTPROGRAMS)
+
+depend:
+	makedepend $(INCLUDES) *.c
+
+.PHONY: all install depend clean distclean

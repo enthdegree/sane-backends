@@ -1,0 +1,70 @@
+-------------------------------------------------------------------------------
+
+Q: compiling sane aborts with error "virtual memory exhausted"
+   on slackware linux with gcc. What goes wrong?
+
+A: The optimization set by "-O2" makes problems, try which one of the following
+   calls work:
+
+   make CFLAGS="-g -Wall -O1"
+   make CFLAGS="-g -Wall -O"
+   make CFLAGS="-g -Wall"
+
+-------------------------------------------------------------------------------
+
+Q: Will there be a support for the UMAX-parallel-port-scanners?
+
+A: UMAX published their SCSI-protocol for scanners, but the
+   parallel-port-protocol is not published until now. Without
+   such informations I will not work on a driver!
+
+   Martin Mevald <martinmv@penguin.cz> is working on a driver!
+
+-------------------------------------------------------------------------------
+
+Q: Will there be a support for the UMAX-USB-scanners?
+
+A: I don't know if there is a published protocoll for the UMAX-USB-scanners.
+   As far as I know there are no generic-USB-drivers on unix-systems in the
+   moment. For linux it is worked on a driver.
+
+-------------------------------------------------------------------------------
+
+Q: I get a black area at the top of the image. What's wrong?
+
+A: This is a problem with some scsi-drivers.
+
+   For advansys-scsi-cards update to a new kernel which includes at least
+   the driver version 3.1E of the advansys-scsi-driver. Take a look at:
+   http://www.advansys.com/linux.htm
+
+-------------------------------------------------------------------------------
+
+Q: I want to use the scsi-card that comes with my umax scanner.
+   What card is it and is it supported by my os?
+
+A: The cards that come with the umax scanners are very simple cards.
+   I suggest not to use this cards.
+
+   If you really want to try:
+   the UDS-IS11 is a DTC3181E-card based on the NCR5380-chip.
+   On linux you may have the chance to get it work with the recent
+   g_NCR5380-driver. The card does not have IRQ/DMA.
+   Try the following option for kernel/module:  
+        dtc3181e=0x280,254  
+   (Thanks to Colin Brough for that tip)
+
+-------------------------------------------------------------------------------
+
+Q: I use linux with a NCR/Symbios logic SCSI-Controller, sane does not work
+   right.
+
+A: There are two differen drivers in the linux Kernel/modules.
+   Use the BSD-driver!
+
+-------------------------------------------------------------------------------
+
+You find a lot of tips and informations in the internet. E.g. take a look
+at http://www.scantips.com
+
+

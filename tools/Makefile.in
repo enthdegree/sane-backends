@@ -1,0 +1,82 @@
+SHELL = /bin/sh
+
+VPATH = @srcdir@
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+top_builddir = ..
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
+includedir = @includedir@
+oldincludedir = /usr/include
+configdir = ${sysconfdir}/sane.d
+
+MKDIR = $(top_srcdir)/mkinstalldirs
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
+RANLIB = @RANLIB@
+
+CC = @CC@
+INCLUDES = -I. -I$(srcdir) -I$(top_builddir)/include -I$(top_srcdir)/include
+CPPFLAGS = @CPPFLAGS@
+CFLAGS = @CFLAGS@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
+DEFS = @DEFS@
+
+LIBTOOL = ../libtool
+MCOMP	= --mode=compile
+MLINK	= --mode=link
+MINST	= --mode=install
+
+COMPILE = $(CC) -c $(CFLAGS) $(DEFS) $(INCLUDES) $(CPPFLAGS)
+LINK = $(CC) $(LDFLAGS) -o $@
+
+@SET_MAKE@
+
+DESTINATIONS = find-scanner
+
+EXTRA = sane_strstatus.lo ../sanei/sanei_init_debug.lo \
+	../sanei/sanei_config.lo ../sanei/sanei_config2.lo \
+	../lib/usleep.lo ../lib/strndup.lo
+
+LIBSANEI = ../sanei/libsanei.a
+# Library routines that should be part of libc, but aren't on some systems:
+LIBLIB = ../lib/liblib.a
+
+.c.o:
+	$(COMPILE) $<
+
+%.lo:	%.c
+	@$(LIBTOOL) $(MCOMP) $(COMPILE) -DLIBDIR=$(libdir) $<
+
+all:	$(DESTINATIONS)
+
+find-scanner: find-scanner.o \
+	../sanei/sanei_scsi.lo ../sanei/sanei_init_debug.lo
+	@$(LIBTOOL) $(MLINK) $(LINK) find-scanner.o $(LIBSANEI) $(LIBLIB) \
+		$(LIBS)
+
+depend:
+	makedepend $(INCLUDES) *.c
+
+clean:
+	rm -f *.lo *.o *~ *.la *.bak 
+	find . -type l -name \*-s.c | xargs rm -f
+	rm -rf .libs
+
+distclean: clean
+	rm -f Makefile $(DESTINATIONS)
+
+.PHONY: all install depend clean distclean

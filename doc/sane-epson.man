@@ -1,0 +1,46 @@
+.TH sane-epson 5 "28 Oct 1998"
+.IX sane-epson
+.SH NAME
+sane-epson - SANE backend for EPSON ScanJet scanners
+.SH DESCRIPTION
+The
+.B sane-epson
+library implements a SANE (Scanner Access Now Easy) backend that
+provides access to Epson SCSI scanners.  This backend should be
+considered
+.B alpha-quality
+software!  The current backend is known to work for GT-5000, GT-5500,
+and GR-8500 scanners.  For other scanners, it may or may not work.
+Please send mail to sane\-devel@mostang.com to report successes or
+failures.  The backend has the following are known problems:
+.PP
+.RS
+- image depth is limited to 8 bits/channel (24 bits/pixel)
+.br
+- gamma-table is for CRT-B only
+.br
+- cancel does not work
+.br
+- device name is fixed to /dev/scanner
+.br
+- memory leaks
+.RE
+.SH FILES
+.TP
+.I @LIBDIR@/libsane-epson.a
+The static library implementing this backend.
+.TP
+.I @LIBDIR@/libsane-epson.so
+The shared library implementing this backend (present on systems that
+support dynamic loading).
+.SH ENVIRONMENT
+.TP
+.B SANE_DEBUG_EPSON
+If the library was compiled with debug support enabled, this
+environment variable controls the debug level for this backend.  E.g.,
+a value of 128 requests all debug output to be printed.  Smaller
+levels reduce verbosity.
+.SH "SEE ALSO"
+sane\-scsi(5)
+.SH AUTHOR
+Kazuhiro Sasayama

@@ -1,0 +1,41 @@
+;
+; SANE Backend specification file
+;
+; It's basically emacs-lisp --- so ";" indicates comment to end of line.
+; All syntactic elements are keyword tokens, followed by a string or
+;  keyword argument, as specified.
+;
+; ":backend" *must* be specified.
+; All other information is optional (but what good is the file without it?).
+;
+
+:backend "hp"                     ; name of backend
+:version "0.80"                   ; version of backend
+:status :alpha                    ; :alpha, :beta, :stable, :new
+:manpage "sane-hp"                ; name of manpage (if it exists)
+:url "http://www.kirchgessner.net/" ; backend's web page
+
+:devicetype :scanner              ; start of a list of devices....
+                                  ; other types:  :stillcam, :vidcam,
+                                  ;               :meta, :api
+
+:mfg "HP"                         ; name a manufacturer
+:url "http://www.hp.com/"
+:comment "Parallel port/USB scanners not supported"
+:model "HP ScanJet Plus"           ; name models for above-specified mfg.
+:model "HP ScanJet IIc"
+:model "HP ScanJet IIp"
+:model "HP ScanJet IIcx"
+:model "HP ScanJet 3c"
+:model "HP ScanJet 4c"
+:model "HP ScanJet 6100C"
+:model "HP ScanJet 3p"
+:model "HP ScanJet 4p"
+:model "HP ScanJet 5p"
+:model "HP ScanJet 6200C"
+:model "HP ScanJet 6250C"
+:model "HP PhotoSmart PhotoScanner"
+
+; :comment and :url specifiers are optional after :mfg, :model, :desc,
+;  and at the top-level.
+

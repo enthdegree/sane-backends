@@ -1,0 +1,505 @@
+CHANGES FOR UMAX BACKEND FOR SANE
+---------------------------------
+
+umax -> sane-0.6:
+-----------------
+
+    * umax-sane-backend created:
+      - umax.c splitted in:
+        umax-cli.c, umax-scsi.c, umax-driver.c, umax-text.c
+      - umax.h splitted in:
+        umax-scanner.h, umax-scsi.h, umax-scsidef.h, umax-struct.h
+      - outputs done by DBG(level,msg,args...) defined in debug.h
+      - scsi-calls changed to sane-format (of sane-0.57)
+      - created umax.c and umax.h for sane-backend
+
+    * changed search-path for scsi.h and sg.h, now needs /usr/include/scsi
+
+    * removed mistake in bound-function
+
+    * added "Vista S-6E" as supported
+
+    * added PowerLook-II (PL-II) as supported
+
+    * added Astra 600S as supported
+
+
+sane-0.6 / 0.61 / 0.62 -> 0.63
+------------------------------
+
+    * added exception to gpl-licence:
+    >   This program is free software; you can redistribute it and/or
+    >   modify it under the terms of the GNU General Public License as
+    >   published by the Free Software Foundation; either version 2 of the
+    >   License, or (at your option) any later version.
+    >
+    >   This program is distributed in the hope that it will be useful, but
+    >   WITHOUT ANY WARRANTY; without even the implied warranty of
+    >   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    >   General Public License for more details.
+    >
+    >   You should have received a copy of the GNU General Public License
+    >   along with this program; if not, write to the Free Software
+    >   Foundation, Inc., 59 Temple Place - Suite 330, Boston,
+    >   MA 02111-1307, USA.
+    >
+    >   As a special exception, the authors of SANE give permission for
+    >   additional uses of the libraries contained in this release of SANE.
+    >
+    >   The exception is that, if you link a SANE library with other files
+    >   to produce an executable, this does not by itself cause the
+    >   resulting executable to be covered by the GNU General Public
+    >   License.  Your use of that executable is in no way restricted on
+    >   account of linking the SANE library code into it.
+    >
+    >   This exception does not, however, invalidate any other reasons why
+    >   the executable file might be covered by the GNU General Public
+    >   License.
+    >
+    >   If you submit changes to SANE to the maintainers to be included in
+    >   a subsequent release, you agree by submitting the changes that
+    >   those changes may be distributed with this exception intact.
+    >
+    >   If you write modifications of your own for SANE, it is your choice
+    >   whether to permit this exception to apply to your modifications.
+    >   If you do not wish that, delete this exception notice.
+
+    * split resolution in x-res and y-res, flag bind-resolution
+
+    * only sane_... functions will be exported from umax-backend,
+      all umax_... functions are made static
+
+    * removed umax-emergency-routine for SANE
+
+    * made program-flow (esp. with do_canel) SANE-specific
+
+    * fixed missing 3-pass parts
+
+    * made scanmodes, sources, analog gamma, gamma download, negative,
+      quality calibration, highlight, shadow only selectable if they are
+      available
+
+    * calibration-mode selectable in advanced options if available
+
+    * warmup selectable if available
+
+    * changed umax-scsi.c like described from Gordon Matzigkeit
+      in his diff/patch-file from 21.06.97 so that the umax-backend
+      should compile on non-linux-systems now - thanks!
+
+    * split highlight and shadow in R, G and B for color-mode.
+
+    * reset adf and uta flag when not used (in sane_start)
+
+    * added possibilty to change calibration-mode if available
+
+    * added send_halftone_pattern to umax-scsi.c
+
+    * changed umax-scsi.c like described from Gordon Matzigkeit
+      in his diff/patch-file from 21.06.97 so that the umax-backend
+      should compile on non-linux-systems now - thanks
+
+    * added support for each color (R,G,B) for highlight and shadow
+
+    * added "Astra 1200S" and "UC840" as supported 
+
+    * added bad bugfix for preview-problem with S6E
+      (in umax-scsi.c function start_scan)
+
+    * moved resolution-check from check_values to bound_scanarea,
+      now no floatingpoint-exception will occur if no resolution is given!
+
+    * changed range-check for width and height
+
+    * removed bug in set_window for three-pass-rgb-mode
+      -selected wrong buffer for some green and blue options
+      -scanmode now is greyscale instead of rgb
+
+    * changed start_scan(us) to better use with wid-list
+      and added missing 3 wid-bytes in scan.cmd
+
+    * removed parameter color in three_pass_function_headers,
+      the color ist taken from us->three_pass_color now.
+
+
+sane-0.63/0.64/0.65 -> 0.66
+---------------------------
+
+    * changed gamma-data-upload for 3-pass-color-scan
+
+    * corrected wrong calculation for highlight and shadow
+      selection for rgb-values
+
+    * changed gamma data to use 8 bit (256 bytes) or 10 bit (1024 bytes)
+
+    * included 10/30 bits per pixel mode
+
+    * changed bug in sane_exit (free()) that sometimes made a
+      segmentation-fault
+
+    * made patches runtime-selectable
+
+    * changed set_window_command to support 30 bits per pixel
+
+    * changed send_gamma_data to support three_pass_gamma and 10/30 bpp
+
+    * changed row_len in umax_bound_scanarea to 10/30 bit mode
+
+    * added halftone-support for ug630, uc630 and uc840,
+      but I don't know if all values are ok!
+
+    * changed CBHS-50-range to 78-178 (from 103-153)
+
+    * changed rangecheck for highlight and shadow
+
+    * fixed get_cbhs_range-bug in umax-scsidef.h
+
+    * added ADF-inquiry-bits to umax-scsidef.h
+
+    * added color_line_arrangement_mode-inquiry-byte to umax-scsidef.h
+
+    * added CCD_line_distance-inquiry-byte to umax-scsidef.h
+
+    * added all most unused bits and bytes in inquiry to umax-scsidef.h
+
+    * made patches runtime-selectable
+
+
+sane-0.66 -> 0.67
+-----------------
+
+    * removed bug in sane_start: ADF and UTA flags have not been set correct
+
+    * removed bug in init_options: value range for 10 gamma-input-bits corrected
+
+    * made custom gamma available for lineart and halftone for nonlinear effects
+
+    * added Vista-T630 as supported scanner
+
+    * removed test_warmup in wait_scanner because adaptec 1542 has problems
+      with request_sense-command in test_warmup
+      it was only used for printing a message, so it was not important.
+
+    * if a scanner has a full inquiry-block but is not known to be supported,
+      the driver will print a warning and continue instead of aborting,
+      option --continue (on umax-cli) will suppress the warning!
+
+    * changed ugly definition
+      char gamma[x] -> char *gamma; gamma=alloca(x);
+
+    * removed bug (wrong length for 10 bit-gamma) in send_gamma_data
+
+    * changed all buffer-definitions to unsigned char and insterted
+      type conversions, so there are no more warnings because of
+      typemismatches.
+
+    * corrected bad definition of set_DCF2_gamma_output_bits
+
+
+sane-0.67 -> 0.68
+-----------------
+
+    * changed open config to fp = sanei_config_open(UMAX_CONFIG_FILE)
+
+    * changed all set OPT...BIND commands, endless-loop happend in sane-0.67
+      =>ane-0.67-umax-fix.diff.gz
+      after that patch changed same for ten_bit_mode
+
+    * changed some strdup() to (SANE_Char *)strdup()
+
+    * added UMAX Astra 610S as supported scanner. it has the same problems
+      in color-mode like the Astra 600S.
+
+
+sane-0.68 -> 0.69
+-----------------
+
+    * changed maximum y-resolution from optical_res to y_res
+
+    * changed sane_cancel (waitpid) like suggested by David Mosberger
+
+    * added #include <lalloca.h> for AIX-support
+
+    * replaced call to umax_wait_scanner with umax_do_calibration
+      after umax_start_scan in umax.c
+
+    * moved sense_handler to umax-scsi.c
+
+    * removed call to umax_get_data_buffer_status in reader_process
+
+    * added umax_send_shading_data, umax_send_gain_data
+      and   umax_read_shading_data, umax_read_gain_data
+
+    * changed name: umax_read_data_block -> umax_read_image_data
+
+    * changed length offest in do_inquiry from 5 to 4
+      and changed set_inquiry_length-offset from 5 to 4
+
+    * added calib_lines to structure US and added it to
+      set_window - command in umax-scsi.c
+
+    * changed in umax-scsi.c routine identify_scanner:
+      vendor and product is tested for each model instead of
+      vendor=="UMAX " and only model tested!
+      Because of that the format of scanner_str has changed
+      from product,product,...
+      to vendor,product, vendor,product,...
+
+    * added support for Linotype Hell Jade (LinoHell Office)
+
+    * added empty routine umax_do_calibration in umax-scsi.c, it shall be called
+      after umax_start_scan!
+
+    * replaced all umax_*scsi with sanei_*scsi, so the umax-driver
+      now directly calls the sanei_scsi-commands.
+
+    * moved sense-handler from umax.c to umax-scsi.c
+      and added detection for driver-calibration-request
+      sense_handler got a new parameter (void *arg).
+
+    * changed wait_scanner for SUN: usleep(0.1sec) -> sleep(1s)
+      this is only a bad bugfix that will be replaced one day!
+
+
+sane-0.69 -> 0.70
+-----------------
+
+    * moved reader_process to umax-scsi.c
+
+    * changed include <sane/config.h> for _AIX and non-_AIX
+
+    * added missing "," in definition line for UMAX Astra 1200S in umax-scanner.h
+
+    * added in umax-scsi.c in function identify_scanner a test that only
+      warnings and errors are printed if vendor="UMAX "
+
+    * added routine umax_order_line_to_pixel and umax_order_line
+
+    * moved reader_process from umax.c to umax-scsi.c
+      and added routine for color ordering.
+
+    * reset length offest in do_inquiry from 4 to 5
+      and set_inquiry_length-offset from 4 to 5
+      because umax-S6E didn't work with it!
+
+    * corrected error in identify-scanner in vendor-test
+
+    * changed end-detection of list of known scanners from
+      #define known_scanners 15 to last item "END_OF_LIST"
+
+    * added routine that corrects wrong inquiry-data from
+      Astra 600S and Astra 610S
+
+    * added test and selection for do_color_ordering in check_values
+
+    * changed __sun-code in umax_wait_scanner because the scsi-driver
+      answers with IOERROR instead of DEVICE_BUSY
+      (this is only a bugfix for a little time)
+
+
+sane-0.70/0.71 -> 0.72
+----------------------
+
+    * inactivated selection of quality calibration (until it is supported
+      by the driver)
+
+    * changed maximum x_resolution from optical_res to max_x_res
+
+    * reordered DBG-levels and defined them by symbols
+
+    * changed all sizes that used type int to type size_t
+
+    * changed wait_scanner for testing !sane_status_good,
+      because testing sane_status_device_busy does not work with
+      all scsi-drivers!
+
+    * changed ccd-order in umax_order_line, the order is now
+      specified by 9 values (before by 3 values), changed
+      order tables and added a table for Astra 600S and
+      another table for Astra 610S
+
+    * changed ccd-order, now based on optical_resolution
+      and added new routine umax_forget_line
+
+    * added inquiry-block for UC1200S: NOT TESTED!
+
+    * added inquiry-block for UC1260: NOT TESTED!
+
+    * included print_inquiry into umax-scsi.c
+
+    * added correction-routine for x_res > 600 dpi, phys_width is
+      corrected in umax-scsi.c: bound_scanarea
+
+    * changed umax-scsi: sense_handler:
+      changed test for valid sense-block
+      added test for button pressed
+
+    * added output of sense-code and error-code in sense_handler
+
+    * added options to select calibratin and scan exposure times
+
+    * added options to select calibratin and scan lamp density
+
+    * moved all option-names/titles/descr. to saneopts.h
+
+    * combined bind for highlight, shadow, analog-gamma and new
+      exposure time functions to rgb-bind
+      
+    * added set_WD_line_arrangement(buffer_r, WD_line_arrengement_by_driver);
+      if driver is doing color-ordering from line to pixel
+
+    * included umax-scsi.c into umax.c
+
+    * included umax-struct.h into umax.h
+
+    * included US-structure into Umax_Device-structure
+
+    * added free(scanner->device->buffer) to sane_close
+
+    * added free(scanner->device->pixelbuffer) to sane_cancel
+
+    * added free(scanner->device->pixelbuffer) to do_cancel
+
+    * added SANE_UNIT_MICROSECOND to exposure-times
+
+    * added output of status-string in wait_scanner
+
+    * moved some options for Scan-mode-block to Enhancemant-block
+
+sane-0.72 -> 0.73
+-----------------
+
+    * disabled RGB_BIND if no such value is available
+
+    * included readproc
+
+    * included bound_scanarea into check_values, problem
+      with wrong scanarea for UTA should be solved now!
+
+    * all scanmode- and scansource-strings are #DEFINEd now
+
+sane-0.73 -> 0.74
+-----------------
+
+    * added support for 12/36 bits per pixel (for Astra 1220S)
+
+    * added support for Astra 1220S
+
+    * included inquiry data for UG80 (Escom Image Scanner 256)
+
+    * moved WAIT_SCANNER from umax_read_data to umax_read_image_data,
+      umax_read_shading_data now works!
+
+    * added umax_start_scan at the end of calibration by driver,
+      the scanner does not hang any more if quality calibration is enabled!
+      There must'nt be a "wait_scanner" in calibration by driver routine!!!
+
+    * added usage of driver internal values for calibration by driver if
+      the scanner does not give back the informations about the shading data:
+      width = dev->width * dev->inquiry_optical_res ( * 3 in RGB-mode )
+
+    * added 2 calibration-routines:
+      - use last line for shading data
+      - calculate average value for shading data
+      - prepared routine for complex calculation
+
+    * added gamma download curve format type 0 and 1
+
+    * defined gamma DCF = 1 for UC1200S and UC1260
+
+    * defined gamma DCF = 0 for UC1200SE and ARCUS PLUS
+
+    * changed sense_handler: if bad sense_key => DEVICE_BUSY
+      problem with black area at top of scan for some SCSI-adapters is solved now
+
+    * changed wait_scanner: waits 0.5 sec now
+
+    * disabled quality calibration in preview mode
+
+    * made upper_left_x and upper_left_y even values
+      it looks like even resolutions > 600 dpi work now!
+      (not ok!!!)
+
+    * added sigterm_handler for umax_reader_process
+      changed sane_canel, do_canel and do_eof(=close_pipe),
+      cancel now works!
+     
+    * changed trim_rowbufsize that made problems with SGI,
+      there has been an overflow because of big buffersize
+
+      
+sane-0.74 -> 1.00 (build 0)
+---------------------------
+
+    * added output of umax-backend-version in sane_init
+
+    * added support for Linotype Hell Jade2 (Vobis ScanBoostar Premium)
+      SCSI-ID "LinoHell","Office2"
+
+    * changed base of calculation of scanwidth and scanlegth from
+      pixel to resolutionbase (1/300, 1/600 or 1/1200 inch)
+      problem with wrong pixelcount at higher resolutions should be
+      solved now
+
+    * changed selection for calibration mode
+
+    * changed calculation for width in pixels for lineart and halftone mode
+
+    * added inquiry for UMAX UC1200SE
+
+    * corrected 12/36-bit-mode in send_gamma_data and array in umax.h
+
+    * added support for Gemini D-16
+
+
+sane-1.00-build-0 -> build-1
+-----------------------------
+
+    * added support for Nikon AX-210
+
+    * changed all grey to gray (David Mosberger asked for it)
+
+    * changed bug in gray gamma table conversion
+
+    * added Linotype Hell Saphir 2 as supported scanner
+
+    * changed umax-uc1260.h
+
+    * added "- 1" in umax_order_line:
+      else if (dev->pixelline_opt_res < length * 3 - CCD_distance * 3 - 1)
+      else if (dev->pixelline_opt_res < length * 3 - CCD_distance - 1)
+
+    * changed all allloca() to malloc() + free()
+
+    * removed options speed and smear, I got the info from umax that
+      these values should never be changed!
+
+-----------------
+
+    * removed ten_bit_mode and twelve_bit_mode options, added option bit_depth
+      and added support for 9, 14 and 16 bpp
+
+    * replaced u10_range and u12_range by dynamically set scanner.output_range
+
+    * removed static allocation for gamma_table[0..3], this is done dynamically
+      in sane_open and freed in sane_close now.
+
+    * added an empty string to the end of scan_mode_list and source_list
+
+build-1 -> build-2
+------------------
+
+   * added "*info |= SANE_INFO_RELOAD_PARAMS;" in control_option set bit_depth
+
+   * added inverted calibration modes for Astra 6X0S scanners.
+
+
+build-2 -> build-3
+------------------
+
+   * inversion of calibration is automatically set for Astra 6X0S and Vista S6E
+
+   * check for machine endianess is done only at backend start now!
+
+   * made umax_do request_sense static
+

@@ -1,0 +1,5 @@
+#!sh
+#
+#	Notes:	Set CPP to your path to cpp.exe.
+#
+LN_S=cp configure --sysconfdir=. --program-suffix=.exe --disable-dynamic --without-x

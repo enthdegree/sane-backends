@@ -1,0 +1,7 @@
+:backend "pnm"
+:status :beta
+:manpage "sane-pnm"
+
+:devicetype :api
+:desc "Reads PNM files"
+:comment "Used for debugging frontends"

@@ -1,0 +1,116 @@
+.TH sane-net 5 "27 February 1999"
+.IX sane-net
+.SH NAME
+sane-net - SANE network backend
+.SH DESCRIPTION
+The
+.B sane-net
+library implements a SANE (Scanner Access Now Easy) backend that
+provides access to image acquisition devices through a network
+connection.  This makes it possible to control devices attached to a
+remote host and also provides a means to grant users access to
+protected resources.
+
+.SH "DEVICE NAMES"
+This backend expects device names of the form:
+.PP
+.RS
+.IR host : device
+.RE
+.PP
+Where
+.I host
+is the name of the (remote-) host and
+.I device
+is the name of the device on this host that should be addressed.
+If the device name does not contain a colon (:), then the entire string
+is treated as the
+.I device
+string for the default host.  The default host is the host listed last
+in the configuration file (see below).
+.SH CONFIGURATION
+The contents of the
+.IR net.conf .
+file is a list of host names that should be contacted for
+scan requests.  Empty lines and lines starting with a hash mark (#) are
+ignored.  A sample configuration file is shown below:
+.PP
+.RS
+scan-server.somedomain.firm
+.br
+# this is a comment
+.br
+localhost
+.RE
+.PP
+The above list of host names can be extended at run-time using environment
+variable
+.BR SANE_NET_HOSTS .
+This environment variable is a colon-separated list of hostnames that
+should be contacted in addition to the hosts mentioned in the
+configuration file.  For example, a user could set the environment
+variable to the string:
+.PP
+.RS
+new.scanner.com:scanner.univ.edu
+.RE
+.PP
+To request that hosts
+.I new.scanner.com
+and
+.I scanner.univ.edu
+are contacted in addition to the hosts listed above.
+.PP
+For this backend to function properly, it is also necessary to define the
+.B sane
+service in
+.IR /etc/services .
+At present, the
+.B sane
+service should be defined using a line of the following form:
+.PP
+.RS
+sane 6566/tcp # SANE network scanner daemon
+.RE
+.PP
+Note that port number 6566 has not been officially assigned to the
+SANE service and may change in the future.
+.SH FILES
+.TP
+.I @CONFIGDIR@/net.conf
+The backend configuration file (see also description of
+.B SANE_CONFIG_DIR
+below).
+.TP
+.I @LIBDIR@/libsane-net.a
+The static library implementing this backend.
+.TP
+.I @LIBDIR@/libsane-net.so
+The shared library implementing this backend (present on systems that
+support dynamic loading).
+.SH ENVIRONMENT
+.TP
+.B SANE_CONFIG_DIR
+This environment variable specifies the list of directories that may
+contain the configuration file.  Under UNIX, the directories are
+separated by a colon (`:'), under OS/2, they are separated by a
+semi-colon (`;').  If this variable is not set, the configuration file
+is searched in two default directories: first, the current working
+directory (".") and then in @CONFIGDIR@.  If the value of the
+environment variable ends with the directory separator character, then
+the default directories are searched after the explicitly specified
+directories.  For example, setting
+.B SANE_CONFIG_DIR
+to "/tmp/config:" would result in directories "tmp/config", ".", and
+"@CONFIGDIR@" being searched (in this order).
+.TP
+.B SANE_NET_HOSTS
+A colon-separated list of host names to be contacted by this backend.
+.TP
+.B SANE_DEBUG_NET
+If the library was compiled with debug support enabled, this
+environment variable controls the debug level for this backend.  E.g.,
+a value of 128 requests all debug output to be printed.  Smaller
+levels reduce verbosity.
+.SH AUTHOR
+David Mosberger and Andreas Beck

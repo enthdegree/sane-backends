@@ -1,0 +1,107 @@
+SHELL = /bin/sh
+
+VPATH = @srcdir@
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+top_builddir = ..
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
+includedir = @includedir@
+oldincludedir = /usr/include
+configdir = ${sysconfdir}/sane.d
+
+MKDIR = $(top_srcdir)/mkinstalldirs
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
+LN_S = @LN_S@
+
+@SET_MAKE@
+
+SECT1	= saned.1 scanimage.1 xscanimage.1
+SECT5	= sane-abaton.5 sane-agfafocus.5 sane-apple.5 sane-dll.5 sane-dc25.5 \
+	  sane-dmc.5 sane-epson.5 sane-hp.5 sane-microtek.5 sane-microtek2.5 \
+	  sane-mustek.5 sane-net.5 sane-pint.5 sane-pnm.5 sane-umax.5 \
+	  sane-qcam.5 sane-scsi.5
+MANPAGES = $(SECT1) $(SECT5)
+LATEX	= TEXINPUTS=$(srcdir):$$TEXINPUTS latex
+DLH	= TEXINPUTS=$(srcdir):$$TEXINPUTS dlh
+MAN2HTML= nroff -man |\
+	  man2html -compress -title $${page} -cgiurl '$$title.$$section.html'|\
+	  sed 's,<BODY>,<BODY BGCOLOR=\#FFFFFF TEXT=\#000000><H1 ALIGN=CENTER><IMG SRC="../sane.gif" HEIGHT=117 WIDTH=346></H1>,'
+
+all: $(MANPAGES)
+
+%.1 %.5: %.man
+	sed -e 's|@DATADIR@|$(datadir)|g' \
+	    -e 's|@CONFIGDIR@|$(configdir)|g' \
+	    -e 's|@LIBDIR@|$(libdir)|g' \
+	    -e 's|@BINDIR@|$(bindir)|g' \
+	    -e 's|@SBINDIR@|$(sbindir)|g' $^ >$@
+
+install: $(MANPAGES)
+	$(MKDIR) $(mandir)/man1 $(mandir)/man5
+	@for page in $(SECT1); do \
+	  echo installing $${page} in $(mandir)/man1/$${page}...; \
+	  $(INSTALL_DATA) $${page} $(mandir)/man1/$${page} || exit 1; \
+	done
+	@for page in $(SECT5); do \
+	  echo installing $${page} in $(mandir)/man5/$${page}...; \
+	  $(INSTALL_DATA) $${page} $(mandir)/man5/$${page} || exit 1; \
+	done
+
+docs: ps html
+
+sane.ind:
+	touch sane.ind
+	$(LATEX) $(srcdir)/sane
+	makeindex sane.idx
+
+ps: sane.ind
+	-rm -f figs; $(LN_S) $(srcdir)/figs .
+	$(LATEX) $(srcdir)/sane
+	$(LATEX) $(srcdir)/sane
+	dvips sane.dvi -o sane.ps
+
+html: sane.ind sane-backends-html html-man
+	$(DLH) $(srcdir)/sane.tex
+
+sane-backends-html:
+	cd $(top_srcdir)/backend \
+	 && emacs -batch --load $(top_srcdir)/tools/sane-desc.el \
+		-f sane-desc-doit
+
+html-man: $(MANPAGES)
+	@for page in $(MANPAGES); do \
+	  echo "translating $${page} to $${page}.html..."; \
+	  cat $${page} | $(MAN2HTML) > $${page}.html; \
+	done
+
+sane.tex: sane.ind
+
+clean:
+	rm -f *.toc *.aux *.log *.cp *.fn *.tp *.vr *.pg *.ky *.blg *.idx *.cb
+	rm -f *.ilg
+
+distclean: clean
+	rm -f $(MANPAGES)
+	rm -f Makefile *~
+	rm -f *.lot *.lof *.ind
+	rm -f sane.dvi sane.ps
+	rm -f sane/*.html sane/*.gif
+	-rmdir sane
+
+depend:
+
+.PHONY: all install depend clean ps html htmlman sane-backends-html

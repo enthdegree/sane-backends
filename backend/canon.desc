@@ -1,0 +1,27 @@
+; SANE Backend specification file
+;
+; It's basically emacs-lisp --- so ";" indicates comment to end of line.
+; All syntactic elements are keyword tokens, followed by a string or
+;  keyword argument, as specified.
+;
+; ":backend" *must* be specified.
+; All other information is optional (but what good is the file without it?).
+;
+
+:backend "canon"		; name of backend
+:version "0.1"			; version of backend
+:status :alpha			; :alpha, :beta, :stable, :new
+
+:devicetype :scanner
+
+:mfg "Canon"			; name a manufacturer
+:url "http://www.canon.com/"
+:model "CanoScan 300"		; name models for above-specified mfg.
+:comment "1 pass; flatbed scanner"
+:model "CanoScan 600"		; name models for above-specified mfg.
+:comment "1 pass; flatbed scanner"
+:model "CanoScan 2700F"		; name models for above-specified mfg.
+:comment "1 pass; film scanner"
+
+; :comment and :url specifiers are optional after :mfg, :model, :desc,
+;  and at the top-level.

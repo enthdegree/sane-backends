@@ -1,0 +1,22 @@
+TODO UMAX BACKEND FOR SANE
+==========================
+
+ * DOR-Mode
+
+ * change set_window if (dev->do_color_ordering != 0) {..}
+   one of the settings makes an error for Astra 6X0S scanners
+
+ * make UTA test work with UTA-lamp on!
+
+ * UTA x- and y-original point is not used!
+
+ * include push-button function to SANE_START (?)
+
+ * test exposure-times
+
+ * if possible - add white calibration on picture
+
+ * add support for parallel-port-scanners
+
+ * turn off gamma correction in lineart mode
+

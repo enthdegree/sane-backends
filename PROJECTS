@@ -1,0 +1,52 @@
+Sun Feb 28 19:17:53 1999
+
+Here is a list of projects that various people have expressed interest
+in.  Before starting working on one of these projects, it may be a
+good idea to get in touch with the relevant people.  (A status of
+"wip" means that it is work-in-progress.)
+
+Frontend:  Status: Contact:
+---------- ------- ----------------------------------------
+xcam	   wip	   David Mosberger
+xscanimage wip	   Tristan Tarrant & David Mosberger
+xsane	   wip	   Oliver Rauch <Oliver.Rauch@Wolfsburg.DE>
+jscan	   wip	   (Java-based frontend to allow accessing
+		    scanners through web pages, etc)
+		   Jeff Freedman <jsf@hevanet.com>
+		   Guido Muesch <odiug@faho.rwth-aachen.de>
+
+Backend:   Status: Contact:				    available hw:
+--------   ------- ---------------------------------------- -------------
+Primax	   planned http://thor.prohosting.com/~chrordig/Primax/
+Polaroid   wip	   Dick Bruijn <dick@wau.mis.ah.nl>	    Polaroid SprintScan
+							    35 LE
+Artec      wip     Chris Pinkham <cpinkham@infi.net>        Artec AT3
+Apple	   wip	   Milon Firikis <milonf@ariadne-t.gr>	    AppleScanner
+Coolscan   wip	   Didier Carlier <carlierd@acm.org>	    Nikon Coolscan II
+DC25	   wip	   Peter Fales <psfales@earthling.net>	    Kodak DC25
+DMC	   wip	   David Skoll <dskoll@chipworks.com>	    Polaroid Digital
+							    Microscope Camera
+EpsPhoto   wanted  Jeff Tranter <tranter@software.Mitel.COM>PhotoPC500 (want)
+Kodak	   wanted  John Kodis <kodis@kodis.jagunet.com>	    Kodak DS-20 (want)
+autoadj	   planned David Mosberger
+		   (Autobrightness/contrast for cameras etc.)
+Logitech   planned Erik Troan <ewt@redhat.com>		    ???
+Plustek	   planned Antal Novak <afn@weevil.net>
+SnapScan   wip	   Kevin Charter <charter@cs.ualberta.ca>   Agfa SnapScan
+		   Franck Schneider <schnefra@hol.fr>
+		   Michel Roelofs <michelr@stack.nl>
+Canon	   wip     Helmut Koeberle <helmut.koeberle@bytec.de> Canoscan 600
+		   Manuel Panea <mpd@rzg.mpg.de>	    Canon 2700F
+		   http://www.rzg.mpg.de/~mpd/private/sane-canon.html
+Epson	   wip	   Kazuhiro Sasayama <kaz@hypercore.co.jp>  GT-5000
+		   David L. Sifry <david@sifry.com>	    1200C
+		   Valentin Hilbig <tino@tino.augsburg.net> GT6000
+sgivl      wip     Erik Nygren <nygren@mit.edu>             SGI IndyCam
+Microtek   wip	   Matthew Marjanovic <maddog@mir.com>	    ScanMaker E6
+MicrotekII wip	   Bernd Schroeder <bernd@aquila.muc.de>    ScanMaker 630
+ePhoto	   wip (?) Matthew K. Gray <mkgray@mit.edu> [prop]  ePhoto
+HP	   wip	   See http://www.kirchgessner.net/
+
+Misc:		 Status: Contact:
+---------------- ------- --------
+OS/2 support	 wip	 Jeff Freedman <jsf@hevanet.com>

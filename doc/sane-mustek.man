@@ -1,0 +1,246 @@
+.TH sane-mustek 5 "24 October 1998"
+.IX sane-mustek
+.SH NAME
+sane-mustek - SANE backend for Mustek flatbed scanners
+.SH DESCRIPTION
+The
+.B sane-mustek
+library implements a SANE (Scanner Access Now Easy) backend that
+provides access to Mustek flatbed scanners.  At present, the following
+scanners are known to work with this backend:
+.PP
+.RS
+Model:      Product id: Firmware revision: Type:
+.br
+----------- ----------- ------------------ -----
+.br
+MFC-600S    MFC-06000CZ v1.01 (and higher) 1-pass
+.br
+MFC-600CD   MFC-06000CZ v2.03 (and higher) 1-pass
+.br
+MFS-6000CX  MSF-06000CX v2.71 (and higher) 3-pass
+.br
+MSF-6000SP  MSF-06000SP v3.12 (and higher) 1-pass
+.br
+MFS-8000SP  MFS-08000SP v2.05 (lineart drops lines?) 1-pass
+.br
+MFC-800S    MFC-08000CZ v1.06 [color fails] 1-pass
+.br
+MFS-1200SP  MSF-12000SP v1.00 (and higher) 1-pass
+.br
+MFS-1200SP  MFS-12000SP v1.02 [color fails?] 1-pass
+.br
+MFS-1200SP  MFS-12000SP v1.07 1-pass
+.br
+MFS-12000CX MFS-12000CX v2.71 (and higher) 3-pass
+.br
+SE-6000SP   C03 S10IDW    ?   1-pass
+.br
+SE-12000SP  C06 S12IDW  v1.01 1-pass 		
+.RE
+.PP
+Don't mix up MFS and ScanExpress models! They're completely different.
+.PP
+Note that most of the above scanners come with a SCSI interface.  The
+only non-SCSI scanner that has some support at this point is the 600
+II N scanner which comes with its own parallel port adapter (i.e., it
+does
+.I not
+attach to the printer port).  More info on how to use the 600 II N can
+be found below in section PARALLEL PORT SCANNERS.
+.PP
+If you own a Mustek scanner other than the ones listed above that
+works with this backend, please let us know by sending the scanner's
+model name, SCSI id, and firmware revision to
+.IR sane\-devel@mostang.com .
+
+.SH "DEVICE NAMES"
+This backend expects device names of the form:
+.PP
+.RS
+.I special
+.RE
+.PP
+Where
+.I special
+is either the path-name for the special device that corresponds to a
+SCSI scanner or the port number at which a parallel-port scanner can
+be found (see section PARALLEL PORT SCANNERS below).  For SCSI
+scanners, the special device name must be a generic SCSI device or a
+symlink to such a device.  Under Linux, such a device name could be
+.I /dev/sga
+or
+.IR /dev/sge ,
+for example.  See sane-scsi(5) for details.
+.SH CONFIGURATION
+The contents of the
+.I mustek.conf
+file is a list of options and device names that correspond to Mustek
+scanners.  Empty lines and lines starting with a hash mark (#) are
+ignored.  See sane-scsi(5) on details of what constitutes a valid
+device name.
+.PP
+The three options supported are
+.BR linedistance-fix ,
+.BR lineart-fix ,
+and
+.BR strip-height .
+Options come in two flavors: global and positional ones.  Global
+options apply to all devices managed by the backend whereas positional
+options apply just to the most recently mentioned device.  Note that
+this means that the order in which the options appear matters!
+Option
+.B linedistance-fix
+is positional and works around a problem that occurs with some SCSI
+controllers (notably the ncr810 controller under Linux).  If color
+scans have horizontal stripes and/or the colors are off, then it's
+likely that your controller suffers from this problem.  Turning on
+this option usually fixes the problem.
+
+Option
+.B lineart-fix
+is positional and works around a timing problem that seems to exist
+with certain MFS-12000SP scanners.  The problem manifests itself in
+dropped lines when scanning in lineart mode.  Turning on this option
+should fix the problem but may slow down scanning a bit.
+
+Finally,
+.B strip-height
+is a global option limits the maximum height of the strip scanned with
+a single SCSI read command.  The height is specified in inches and may
+contain a fractional part (e.g., 1.5).  Setting the strip-height to a
+small value (one inch, for example) reduces the likelihood of
+encountering problems with SCSI driver timeouts and/or timeouts with
+other devices on the same SCSI bus.  Unfortunately, it also increases
+scan times.  Thus, if the scanner is the only device on the SCSI bus
+it is connected to and if it is known that the SCSI driver does not
+suffer from premature timeouts, it is recommended to increase the
+strip-height or remove the option completely, which corresponds to an
+infinite strip height.  See sane-scsi(5) on how to avoid problems with
+SCSI timeouts.
+.PP
+A sample configuration file is shown below:
+.PP
+.RS
+# limit strip height of /dev/scanner to 1.5 inches:
+.br
+option strip-height 1.5
+.br
+
+.br
+/dev/scanner    # first Mustek scanner
+
+.br
+/dev/sge        # second Mustek scanner
+.br
+  # turn on fixes for /dev/sge:
+.br
+  option lineart-fix
+.br
+  option linedistance-fix
+.RE
+
+.SH SCSI ADAPTER TIPS
+Mustek SCSI scanners are typically delivered with an ISA SCSI adapter.
+Unfortunately, that adapter is not worth much since it is not
+interrupt driven.  It is (sometimes) possible to get the supplied card
+to work, but without interrupt line, scanning will put so much load on
+the system, that it becomes almost unusable for other tasks.
+.PP
+If you already have a working SCSI controller in your system, you
+should consider that Mustek scanners do not support the SCSI-2
+disconnect/reconnect protocol and hence tie up the SCSI bus while a
+scan is in progress.  This means that no other SCSI device on the same
+bus can be accessed while a scan is in progress.
+.PP
+Because the Mustek-supplied adapter is not worth much and because
+Mustek scanners do not support the SCSI-2 disconnect/reconnect
+protocol, it is recommended to install a separate (cheap) SCSI
+controller for Mustek scanners.  For example, ncr810 based cards are
+known to work fine and cost as little as fifty US dollars.
+.PP
+For Mustek scanners, it is typically necessary to configure the
+low-level SCSI driver to disable synchronous transfers, tagged command
+queuing, and target disconnects.  See sane\-scsi(5) for driver and
+platform-specific information.
+.PP
+The ScanExpress models have sometimes trouble with high resolution
+color mode. If you encounter sporadic corrupted images (parts duplicated
+or shifted horizontally) kill all other applications before scanning
+and (if sufficient merory available) disable swapping. 
+.SH PARALLEL PORT SCANNERS
+This backend has very preliminary support for the Paragon 600 II N
+parallel port scanner.  Note that this scanner comes with its own ISA
+card that implements a funky parallel port (in other words, the
+scanner does not connected to the printer parallel port).  The code
+present in this release has NOT been tested, so proceed at your own
+risk!  Be prepared to pull the scanner cable on short notice in case
+the situation grows dangerous and/or noisy.
+.PP
+A parallel port scanner can be configured by listing the port number
+of the adapter in the mustek.conf file.  Valid port numbers are 0x26b,
+0x2ab, 0x2eb, 0x22b, 0x32b, 0x36b, 0x3ab, 0x3eb.  Pick one that
+doesn't conflict with the other hardware in your computer.
+.PP
+Note that for parallel port scanners root privileges are required to
+access the I/O ports.  Thus, either make frontends such as
+scanimage(1) and xscanimage(1) setuid root (generally not recommend
+for saftey reasons) or, alternatively, access this backend through the
+network daemon saned(1).
+.PP
+Also note that after a while of no activity, some scanners themself (not
+the SANE backend) turns off their CCFL lamps. This shutdown is not always
+perfect with the result that the lamp sometimes continues to glow
+dimly at one end. This doesn't appear to be dangerous since as soon as
+you use the scanner again, the lamp turns back on to the normal high
+brightness. However, the first image scanned after such a shutdown may
+have stripes and appear to be over-exposed.  When this happens, just
+take another scan, and the image will be fine.
+.SH FILES
+.TP
+.I @CONFIGDIR@/mustek.conf
+The backend configuration file (see also description of
+.B SANE_CONFIG_DIR
+below).
+.TP
+.I @LIBDIR@/libsane-mustek.a
+The static library implementing this backend.
+.TP
+.I @LIBDIR@/libsane-mustek.so
+The shared library implementing this backend (present on systems that
+support dynamic loading).
+.SH ENVIRONMENT
+.TP
+.B SANE_CONFIG_DIR
+This environment variable specifies the list of directories that may
+contain the configuration file.  Under UNIX, the directories are
+separated by a colon (`:'), under OS/2, they are separated by a
+semi-colon (`;').  If this variable is not set, the configuration file
+is searched in two default directories: first, the current working
+directory (".") and then in @CONFIGDIR@.  If the value of the
+environment variable ends with the directory separator character, then
+the default directories are searched after the explicitly specified
+directories.  For example, setting
+.B SANE_CONFIG_DIR
+to "/tmp/config:" would result in directories "tmp/config", ".", and
+"@CONFIGDIR@" being searched (in this order).
+.TP
+.B SANE_DEBUG_MUSTEK
+If the library was compiled with debug support enabled, this
+environment variable controls the debug level for this backend.  E.g.,
+a value of 128 requests all debug output to be printed.  Smaller
+levels reduce verbosity.
+.SH "SEE ALSO"
+sane\-scsi(5)
+.SH AUTHOR
+David Mosberger and Andreas Czechanowski, SE extensions Andreas Bolsch
+.SH BUGS
+Transparency adapter and automatic document feeder support is severly
+lacking (due to absence of equipment to test this with).
+
+There seems to be a performance bug that makes scanning on (some)
+three-pass scanner slower than necessary. High resolution with
+ScanExpress is rather slow, they suffer from a very small internal
+buffer.
+
+

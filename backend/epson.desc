@@ -1,0 +1,10 @@
+:backend "epson"               ; name of backend
+:manpage "sane-epson"
+
+:mfg "Epson"
+:model "GT-5500"
+:comment "OK"
+
+:mfg "Epson"
+:model "GT-7000"	; reported to work fine by <r_valetti@popmail.iol.it>
+:comment "OK"

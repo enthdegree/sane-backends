@@ -1,0 +1,2 @@
+:backend "pint"               ; name of backend
+:manpage "sane-pint"

@@ -1,0 +1,9 @@
+xcam --- a graphical camera frontend for SANE
+
+Should be straightforward to use.  Just be sure to use a very recent
+version of GTK.  I had back luck with the version that came with the
+September snapshot of GIMP.  The version in the December snapshot
+works much better though.
+
+AUTHORS
+David Mosberger-Tang <davidm@azstarnet.com>

@@ -1,0 +1,1276 @@
+/* sane - Scanner Access Now Easy.
+   Copyright (C) 1997 Geoffrey T. Dairiki
+   This file is part of the SANE package.
+
+   This program is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public License as
+   published by the Free Software Foundation; either version 2 of the
+   License, or (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 59 Temple Place - Suite 330, Boston,
+   MA 02111-1307, USA.
+
+   As a special exception, the authors of SANE give permission for
+   additional uses of the libraries contained in this release of SANE.
+
+   The exception is that, if you link a SANE library with other files
+   to produce an executable, this does not by itself cause the
+   resulting executable to be covered by the GNU General Public
+   License.  Your use of that executable is in no way restricted on
+   account of linking the SANE library code into it.
+
+   This exception does not, however, invalidate any other reasons why
+   the executable file might be covered by the GNU General Public
+   License.
+
+   If you submit changes to SANE to the maintainers to be included in
+   a subsequent release, you agree by submitting the changes that
+   those changes may be distributed with this exception intact.
+
+   If you write modifications of your own for SANE, it is your choice
+   whether to permit this exception to apply to your modifications.
+   If you do not wish that, delete this exception notice.
+
+   This file is part of a SANE backend for HP Scanners supporting
+   HP Scanner Control Language (SCL).
+*/
+
+#include <sane/config.h>
+#include <lalloca.h>		/* Must be first */
+
+#ifdef HAVE_UNISTD_H
+# include <unistd.h>
+#endif
+#include <ctype.h>
+#include <string.h>
+#include <errno.h>
+#include <assert.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <sane/sanei_scsi.h>
+#include <sane/sanei_pio.h>
+
+#include "hp.h"
+
+#include <sane/sanei_backend.h>
+
+#include "hp-option.h"
+#include "hp-scsi.h"
+#include "hp-scl.h"
+
+#if (defined(__IBMC__) || defined(__IBMCPP__))
+#ifndef _AIX
+#define inline /* */
+#endif
+#endif
+
+#define HP_SCSI_INQ_LEN		(36)
+#define HP_SCSI_CMD_LEN		(6)
+#define HP_SCSI_BUFSIZ	(HP_SCSI_MAX_WRITE + HP_SCSI_CMD_LEN)
+
+
+
+/*
+ *
+ */
+
+struct hp_scsi_s
+{
+    int		fd;
+    char      * devname;
+
+    /* Output buffering */
+    hp_byte_t	buf[HP_SCSI_BUFSIZ];
+    hp_byte_t *	bufp;
+
+    hp_byte_t	inq_data[HP_SCSI_INQ_LEN];
+};
+
+
+static SANE_Status
+hp_nonscsi_write (HpScsi this, hp_byte_t *data, size_t len, HpConnect connect)
+
+{size_t n = -1;
+
+ if (len <= 0) return SANE_STATUS_GOOD;
+
+ switch (connect)
+ {
+   case HP_CONNECT_DEVICE:   /* direct device-io */
+     n = write (this->fd, data, len);
+     break;
+
+   case HP_CONNECT_PIO:      /* Use sanepio interface */
+     n = sanei_pio_write (this->fd, data, len);
+     break;
+
+   case HP_CONNECT_USB:      /* Not supported */
+     n = -1;
+     break;
+
+   case HP_CONNECT_RESERVE:
+     n = -1;
+     break;
+
+   default:
+     n = -1;
+     break;
+ }
+
+ if (n == 0) return SANE_STATUS_EOF;
+ else if (n < 0) return SANE_STATUS_IO_ERROR;
+
+ return SANE_STATUS_GOOD;
+}
+
+static SANE_Status
+hp_nonscsi_read (HpScsi this, hp_byte_t *data, size_t *len, HpConnect connect)
+
+{size_t n = -1;
+
+ if (*len <= 0) return SANE_STATUS_GOOD;
+
+ switch (connect)
+ {
+   case HP_CONNECT_DEVICE:
+     n = read (this->fd, data, *len);
+     break;
+
+   case HP_CONNECT_PIO:
+     n = sanei_pio_read (this->fd, data, *len);
+     break;
+
+   case HP_CONNECT_USB:
+     n = -1;
+     break;
+
+   case HP_CONNECT_RESERVE:
+     n = -1;
+     break;
+
+   default:
+     n = -1;
+     break;
+ }
+
+ if (n == 0) return SANE_STATUS_EOF;
+ else if (n < 0) return SANE_STATUS_IO_ERROR;
+
+ *len = n;
+ return SANE_STATUS_GOOD;
+}
+
+static SANE_Status
+hp_nonscsi_open (const char *devname, int *fd, HpConnect connect)
+
+{int lfd, flags;
+ SANE_Status status = SANE_STATUS_INVAL;
+
+#ifdef _O_RDWR
+ flags = _O_RDWR;
+#else
+ flags = O_RDWR;
+#endif
+#ifdef _O_EXCL
+ flags |= _O_EXCL;
+#else
+ flags |= O_EXCL;
+#endif
+#ifdef _O_BINARY
+ flags |= _O_BINARY;
+#endif
+#ifdef O_BINARY
+ flags |= O_BINARY;
+#endif
+
+ switch (connect)
+ {
+   case HP_CONNECT_DEVICE:
+     lfd = open (devname, flags);
+     if (lfd < 0)
+     {
+        DBG(1, "hp_nonscsi_open: open device %s failed (%s)\n", devname,
+            strerror (errno) );
+       status = (errno == EACCES) ? SANE_STATUS_ACCESS_DENIED : SANE_STATUS_INVAL;
+     }
+     else
+       status = SANE_STATUS_GOOD;
+     break;
+
+   case HP_CONNECT_PIO:
+     status = sanei_pio_open (devname, &lfd);
+     break;
+
+   case HP_CONNECT_USB:
+     status = SANE_STATUS_INVAL;
+     break;
+
+   case HP_CONNECT_RESERVE:
+     status = SANE_STATUS_INVAL;
+     break;
+
+   default:
+     status = SANE_STATUS_INVAL;
+     break;
+ }
+
+ if (status != SANE_STATUS_GOOD)
+ {
+    DBG(1, "hp_nonscsi_open: open device %s failed\n", devname);
+ }
+
+ if (fd) *fd = lfd;
+ return status;
+}
+
+static void
+hp_nonscsi_close (int fd, HpConnect connect)
+
+{
+ switch (connect)
+ {
+   case HP_CONNECT_DEVICE:
+     close (fd);
+     break;
+
+   case HP_CONNECT_PIO:
+     sanei_pio_close (fd);
+     break;
+
+   case HP_CONNECT_USB:
+     break;
+
+   case HP_CONNECT_RESERVE:
+     break;
+
+   default:
+     break;
+ }
+}
+
+SANE_Status
+sanei_hp_nonscsi_new (HpScsi * newp, const char * devname, HpConnect connect)
+{
+ HpScsi new;
+ SANE_Status status;
+
+  new = sanei_hp_allocz(sizeof(*new));
+  if (!new)
+    return SANE_STATUS_NO_MEM;
+
+  status = hp_nonscsi_open(devname, &new->fd, connect);
+  if (FAILED(status))
+  {
+    DBG(1, "nonscsi_new: open failed (%s)\n", sane_strstatus(status));
+    sanei_hp_free(new);
+    return SANE_STATUS_IO_ERROR;
+  }
+
+  /* For SCSI-devices we would have the inquire command here */
+  strncpy (new->inq_data, "\003zzzzzzzHP      MODELx          R000",
+           sizeof (new->inq_data));
+
+  new->bufp = new->buf + HP_SCSI_CMD_LEN;
+  new->devname = sanei_hp_alloc ( strlen ( devname ) + 1 );
+  if ( new->devname ) strcpy (new->devname, devname);
+
+  *newp = new;
+  return SANE_STATUS_GOOD;
+}
+
+static void
+hp_scsi_close (HpScsi this)
+
+{HpConnect connect;
+
+ connect = sanei_hp_scsi_get_connect (this);
+
+ if (connect != HP_CONNECT_SCSI)
+   hp_nonscsi_close (this->fd, connect);
+ else
+   sanei_scsi_close (this->fd);
+}
+
+SANE_Status
+sanei_hp_scsi_new (HpScsi * newp, const char * devname)
+{
+  static hp_byte_t inq_cmd[] = { 0x12, 0, 0, 0, HP_SCSI_INQ_LEN, 0};
+  static hp_byte_t tur_cmd[] = { 0x00, 0, 0, 0, 0, 0};
+  size_t	inq_len		= HP_SCSI_INQ_LEN;
+  HpScsi	new;
+  HpConnect     connect;
+  SANE_Status	status;
+
+  connect = sanei_hp_get_connect (devname);
+  if (connect != HP_CONNECT_SCSI)
+    return sanei_hp_nonscsi_new (newp, devname, connect);
+
+  new = sanei_hp_allocz(sizeof(*new));
+  if (!new)
+      return SANE_STATUS_NO_MEM;
+
+  status = sanei_scsi_open(devname, &new->fd, 0, 0);
+  if (FAILED(status))
+    {
+      DBG(1, "scsi_new: open failed (%s)\n", sane_strstatus(status));
+      sanei_hp_free(new);
+      return SANE_STATUS_IO_ERROR;
+    }
+
+  DBG(3, "scsi_inquire: sending INQUIRE\n");
+  status = sanei_scsi_cmd(new->fd, inq_cmd, 6, new->inq_data, &inq_len);
+  if (FAILED(status))
+    {
+      DBG(1, "scsi_inquire: inquiry failed: %s\n", sane_strstatus(status));
+      sanei_scsi_close(new->fd);
+      sanei_hp_free(new);
+      return status;
+    }
+
+  DBG(3, "scsi_new: sending TEST_UNIT_READY\n");
+  status = sanei_scsi_cmd(new->fd, tur_cmd, 6, 0, 0);
+  if (FAILED(status))
+    {
+      DBG(1, "hp_scsi_open: test unit ready failed (%s)\n",
+	  sane_strstatus(status));
+      sanei_scsi_close(new->fd);
+      sanei_hp_free(new);
+    }
+
+  new->bufp = new->buf + HP_SCSI_CMD_LEN;
+  new->devname = sanei_hp_alloc ( strlen ( devname ) + 1 );
+  if ( new->devname ) strcpy (new->devname, devname);
+
+  *newp = new;
+  return SANE_STATUS_GOOD;
+}
+
+void
+sanei_hp_scsi_destroy (HpScsi this)
+{
+  assert(this->fd >= 0);
+  DBG(3, "scsi_close: closing fd %d\n", this->fd);
+
+  hp_scsi_close (this);
+  if ( this->devname ) sanei_hp_free (this->devname);
+  sanei_hp_free(this);
+}
+
+hp_byte_t *
+sanei_hp_scsi_inq (HpScsi this)
+{
+  return this->inq_data;
+}
+
+const char *
+sanei_hp_scsi_vendor (HpScsi this)
+{
+  static char buf[9];
+  memcpy(buf, sanei_hp_scsi_inq(this) + 8, 8);
+  buf[8] = '\0';
+  return buf;
+}
+
+const char *
+sanei_hp_scsi_model (HpScsi this)
+{
+
+  static char buf[17];
+  memcpy(buf, sanei_hp_scsi_inq(this) + 16, 16);
+  buf[16] = '\0';
+  return buf;
+}
+
+const char *
+sanei_hp_scsi_devicename (HpScsi this)
+{
+  return this->devname;
+}
+
+HpConnect
+sanei_hp_get_connect (const char *devname)
+
+{const HpDeviceInfo *info;
+
+ info = sanei_hp_device_info_get (devname);
+ if (!info)
+ {
+   DBG(1, "sanei_hp_get_connect: Could not get info for %s. Assume SCSI\n",
+       devname);
+   return HP_CONNECT_SCSI;
+ }
+
+ if ( !(info->config_is_up) )
+ {
+   DBG(1, "sanei_hp_get_connect: Config not initialized for %s. Assume SCSI\n",
+       devname);
+   return HP_CONNECT_SCSI;
+ }
+
+ return info->config.connect;
+}
+
+HpConnect
+sanei_hp_scsi_get_connect (HpScsi this)
+
+{
+ return sanei_hp_get_connect (sanei_hp_scsi_devicename (this));
+}
+
+
+static SANE_Status
+hp_scsi_flush (HpScsi this)
+{
+  hp_byte_t *	data	= this->buf + HP_SCSI_CMD_LEN;
+  size_t 	len 	= this->bufp - data;
+  HpConnect     connect;
+
+  assert(len < HP_SCSI_MAX_WRITE);
+  if (len == 0)
+      return SANE_STATUS_GOOD;
+
+  this->bufp = this->buf;
+
+  DBG(10, "scsi_flush: writing %lu bytes:\n", (unsigned long) len);
+  DBGDUMP(10, data, len);
+
+  *this->bufp++ = 0x0A;
+  *this->bufp++ = 0;
+  *this->bufp++ = len >> 16;
+  *this->bufp++ = len >> 8;
+  *this->bufp++ = len;
+  *this->bufp++ = 0;
+
+  connect = sanei_hp_scsi_get_connect (this);
+  if (connect == HP_CONNECT_SCSI)
+    return sanei_scsi_cmd (this->fd, this->buf, HP_SCSI_CMD_LEN + len, 0, 0);
+  else
+    return hp_nonscsi_write (this, this->buf+HP_SCSI_CMD_LEN, len, connect);
+}
+
+static inline size_t
+hp_scsi_room (HpScsi this)
+{
+  return this->buf + HP_SCSI_BUFSIZ - this->bufp;
+}
+
+static SANE_Status
+hp_scsi_need (HpScsi this, size_t need)
+{
+  assert(need < HP_SCSI_MAX_WRITE);
+
+  if (need > hp_scsi_room(this))
+      RETURN_IF_FAIL( hp_scsi_flush(this) );
+
+  return SANE_STATUS_GOOD;
+}
+
+static SANE_Status
+hp_scsi_write (HpScsi this, const void *data, size_t len)
+{
+  if ( len < HP_SCSI_MAX_WRITE )
+    {
+      RETURN_IF_FAIL( hp_scsi_need(this, len) );
+      memcpy(this->bufp, data, len);
+      this->bufp += len;
+    }
+  else
+    {size_t maxwrite = HP_SCSI_MAX_WRITE - 16;
+     const char *c_data = (const char *)data;
+
+      while ( len > 0 )
+        {
+          if ( maxwrite > len ) maxwrite = len;
+          RETURN_IF_FAIL( hp_scsi_write(this, c_data, maxwrite) );
+          c_data += maxwrite;
+          len -= maxwrite;
+        }
+    }
+  return SANE_STATUS_GOOD;
+}
+
+static SANE_Status
+hp_scsi_scl(HpScsi this, HpScl scl, int val)
+{
+  char	group	= tolower(SCL_GROUP_CHAR(scl));
+  char	param	= toupper(SCL_PARAM_CHAR(scl));
+  int	count;
+
+  assert(IS_SCL_CONTROL(scl) || IS_SCL_COMMAND(scl));
+  assert(isprint(group) && isprint(param));
+
+  RETURN_IF_FAIL( hp_scsi_need(this, 10) );
+
+  /* Dont try to optimize SCL-commands like using <ESC>*a1b0c5T */
+  /* Some scanners have problems with it (e.g. HP Photosmart Photoscanner */
+  /* with window position/extent, resolution) */
+  count = sprintf((char *)this->bufp, "\033*%c%d%c", group, val, param);
+  this->bufp += count;
+
+  assert(count > 0 && this->bufp < this->buf + HP_SCSI_BUFSIZ);
+
+  return hp_scsi_flush(this);
+}
+
+
+static SANE_Status
+hp_scsi_read (HpScsi this, void * dest, size_t *len)
+{
+  HpConnect connect;
+  static hp_byte_t read_cmd[6] = { 0x08, 0, 0, 0, 0, 0 };
+
+  RETURN_IF_FAIL( hp_scsi_flush(this) );
+
+  read_cmd[2] = *len >> 16;
+  read_cmd[3] = *len >> 8;
+  read_cmd[4] = *len;
+
+  connect = sanei_hp_scsi_get_connect (this);
+  if (connect == HP_CONNECT_SCSI)
+  {
+    RETURN_IF_FAIL( sanei_scsi_cmd (this->fd, read_cmd,
+				  sizeof(read_cmd), dest, len) );
+  }
+  else
+  {
+    RETURN_IF_FAIL( hp_nonscsi_read (this, dest, len, connect) );
+  }
+  DBG(10, "scsi_read:  %lu bytes:\n", (unsigned long) *len);
+  DBGDUMP(10, dest, *len);
+  return SANE_STATUS_GOOD;
+}
+
+
+static int signal_caught = 0;
+
+static RETSIGTYPE
+signal_catcher (int sig)
+{
+  if (!signal_caught)
+      signal_caught = sig;
+}
+
+static void
+hp_data_map (register const unsigned char *map, register int count,
+             register unsigned char *data)
+{
+  if (count <= 0) return;
+  while (count--)
+  {
+    *data = map[*data];
+    data++;
+  }
+}
+
+static const unsigned char *
+hp_get_simulation_map (const char *devname, const HpDeviceInfo *info)
+{
+ hp_bool_t     sim_gamma, sim_brightness, sim_contrast;
+ int           k, ind;
+ const unsigned char *map = NULL;
+ static unsigned char map8x8[256];
+
+  sim_gamma = info->simulate.gamma_simulate;
+  sim_brightness = sanei_hp_device_simulate_get (devname, SCL_BRIGHTNESS);
+  sim_contrast = sanei_hp_device_simulate_get (devname, SCL_CONTRAST);
+
+  if ( sim_gamma )
+  {
+    map = &(info->simulate.gamma_map[0]);
+  }
+  else if ( sim_brightness && sim_contrast )
+  {
+    for (k = 0; k < 256; k++)
+    {
+      ind = info->simulate.contrast_map[k];
+      map8x8[k] = info->simulate.brightness_map[ind];
+    }
+    map = &(map8x8[0]);
+  }
+  else if ( sim_brightness )
+    map = &(info->simulate.brightness_map[0]);
+  else if ( sim_contrast )
+    map = &(info->simulate.contrast_map[0]);
+
+  return map;
+}
+
+SANE_Status
+sanei_hp_scsi_pipeout (HpScsi this, int outfd, size_t count,
+                       int mirror, int bytes_per_line,
+                       int bits_per_channel)
+{
+  /* We will catch these signals, and rethrow them after cleaning up,
+   * anything not in this list, we will ignore. */
+  static int kill_sig[] = {
+      SIGHUP, SIGINT, SIGQUIT, SIGILL, SIGPIPE, SIGALRM, SIGTERM,
+      SIGUSR1, SIGUSR2, SIGBUS,
+#ifdef SIGSTKFLT
+      SIGSTKFLT,
+#endif
+#ifdef SIGIO
+      SIGIO,
+#else
+# ifdef SIGPOLL
+      SIGPOLL,
+# endif
+#endif
+#ifdef SIGXCPU
+      SIGXCPU,
+#endif
+#ifdef SIGXFSZ
+      SIGXFSZ,
+#endif
+#ifdef SIGVTALRM
+      SIGVTALRM,
+#endif
+#ifdef SIGPWR
+      SIGPWR,
+#endif
+  };
+#define HP_NSIGS (sizeof(kill_sig)/sizeof(kill_sig[0]))
+  struct SIGACTION old_handler[HP_NSIGS];
+  struct SIGACTION sa;
+  sigset_t	old_set, sig_set;
+  int		i;
+
+#define HP_PIPEBUF	32768
+  SANE_Status	status	= SANE_STATUS_GOOD;
+  struct {
+      size_t	len;
+      void *	id;
+      hp_byte_t	cmd[6];
+      hp_byte_t	data[HP_PIPEBUF];
+  } 	buf[2], *req;
+  int		reqs_completed = 0;
+  int		reqs_issued = 0;
+  int           num_lines;
+  size_t        image_len;
+  char          *image_buf = 0, *image_data = 0;
+  char          *read_buf = 0;
+  const HpDeviceInfo *info;
+  const char    *devname = sanei_hp_scsi_devicename (this);
+  int enable_requests = 1;
+  const unsigned char *map = NULL;
+  HpConnect     connect = HP_CONNECT_SCSI;
+
+  RETURN_IF_FAIL( hp_scsi_flush(this) );
+
+  info = sanei_hp_device_info_get (devname);
+
+  assert (info);
+
+  if ( info->config_is_up )
+  {
+    enable_requests = info->config.use_scsi_request;
+    connect = info->config.connect;
+  }
+  else
+  {
+    enable_requests = 0;
+  }
+
+  if (connect != HP_CONNECT_SCSI)
+    enable_requests = 0;
+
+  /* Currently we can only simulate 8 bits mapping */
+  if (bits_per_channel == 8)
+    map = hp_get_simulation_map (devname, info);
+
+  sigfillset(&sig_set);
+  sigprocmask(SIG_BLOCK, &sig_set, &old_set);
+
+  memset(&sa, 0, sizeof(sa));
+  sa.sa_handler = signal_catcher;
+  sigfillset(&sa.sa_mask);
+
+  sigemptyset(&sig_set);
+  for (i = 0; i < HP_NSIGS; i++)
+    {
+      sigaction(kill_sig[i], &sa, &old_handler[i]);
+      sigaddset(&sig_set, kill_sig[i]);
+    }
+  signal_caught = 0;
+  sigprocmask(SIG_UNBLOCK, &sig_set, 0);
+
+  if ( mirror )
+    {
+      image_buf = image_data = sanei_hp_alloc ( count );
+      if ( !image_buf )
+	{
+	   mirror = 0;
+	   DBG(1, "do_read: Not enough memory to mirror image\n");
+	}
+    }
+
+  DBG(1, "do_read: Start reading data from scanner\n");
+
+  if (enable_requests)   /* Issue SCSI-requests ? */
+  {
+    while (count > 0 || reqs_completed < reqs_issued)
+    {
+      while (count > 0 && reqs_issued < reqs_completed + 2)
+	{
+	  req = buf + (reqs_issued++ % 2);
+
+	  req->len = HP_PIPEBUF;
+	  if (count < req->len)
+	      req->len = count;
+	  count -= req->len;
+
+	  req->cmd[0] = 0x08;
+	  req->cmd[1] = 0;
+	  req->cmd[2] = req->len >> 16;
+	  req->cmd[3] = req->len >> 8;
+	  req->cmd[4] = req->len;
+	  req->cmd[5] = 0;
+
+	  DBG(3, "do_read: entering request to read %lu bytes\n",
+	      (unsigned long) req->len);
+
+	  status = sanei_scsi_req_enter(this->fd, req->cmd, 6,
+				      req->data, &req->len, &req->id);
+	  if (status != SANE_STATUS_GOOD)
+	    {
+	      DBG(1, "do_read: Error from scsi_req_enter: %s\n",
+		  sane_strstatus(status));
+	      goto quit;
+	    }
+	  if (signal_caught)
+	      goto quit;
+	}
+
+      if (signal_caught)
+	  goto quit;
+
+      assert(reqs_completed < reqs_issued);
+      req = buf + (reqs_completed++ % 2);
+
+      DBG(3, "do_read: waiting for data\n");
+      status = sanei_scsi_req_wait(req->id);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG(1, "do_read: Error from scsi_req_wait: %s\n",
+	      sane_strstatus(status));
+	  goto quit;
+	}
+      if (signal_caught)
+	  goto quit;
+
+      if ( map )
+        hp_data_map (map, (int)req->len, (unsigned char *)req->data);
+
+      if ( mirror )
+         {
+	    DBG(3, "do_read: got %lu bytes, save in memory...\n",
+		(unsigned long) req->len);
+            memcpy(image_data, req->data, req->len);
+            image_data += req->len;
+         }
+      else
+         {
+	    DBG(3, "do_read: got %lu bytes, writing...\n",
+		(unsigned long) req->len);
+	    if (write(outfd, req->data, req->len) != req->len)
+	      {
+		if (signal_caught)
+		  goto quit;
+		DBG(1, "do_read: write failed: %s\n", strerror(errno));
+		status = SANE_STATUS_IO_ERROR;
+		goto quit;
+	      }
+         }
+    }
+  }
+  else  /* Read directly */
+  {
+    read_buf = sanei_hp_alloc ( HP_PIPEBUF );
+    if (!read_buf)
+    {
+      DBG(1, "do_read: not enough memory for read buffer\n");
+      goto quit;
+    }
+
+    while (count > 0)
+    {size_t nread;
+
+      if (signal_caught)
+	  goto quit;
+
+      DBG(5, "do_read: %lu bytes left to read\n", (unsigned long)count);
+
+      nread = HP_PIPEBUF;
+      if (nread > count) nread = count;
+
+      DBG(3, "do_read: try to read data (%lu bytes)\n", (unsigned long)nread);
+
+      status = hp_scsi_read (this, read_buf, &nread);
+      if (status != SANE_STATUS_GOOD)
+      {
+        DBG(1, "do_read: Error from scsi_read: %s\n",sane_strstatus(status));
+        goto quit;
+      }
+
+      DBG(3, "do_read: got %lu bytes\n", (unsigned long)nread);
+
+      if (nread <= 0)
+      {
+        DBG(1, "do_read: Nothing read\n");
+        continue;
+      }
+
+      if ( map )
+        hp_data_map (map, (int)nread, (unsigned char *)read_buf);
+
+      if ( mirror )
+      {
+         DBG(3, "do_read: got %lu bytes, save in memory...\n",
+             (unsigned long) nread);
+         memcpy(image_data, read_buf, nread);
+         image_data += nread;
+      }
+      else
+      {
+         DBG(3, "do_read: got %lu bytes, writing...\n",
+             (unsigned long) nread);
+         if (write(outfd, read_buf, nread) != nread)
+         {
+           if (signal_caught)
+             goto quit;
+           DBG(1, "do_read: write failed: %s\n", strerror(errno));
+           status = SANE_STATUS_IO_ERROR;
+           goto quit;
+         }
+      }
+      count -= nread;
+    }
+  }
+
+  if ( mirror )
+    {
+      image_len = (size_t) (image_data - image_buf);
+      num_lines = ((int)(image_len+bytes_per_line-1)) / bytes_per_line;
+      image_data = image_buf + (num_lines-1) * bytes_per_line;
+
+      DBG(3, "do_read: write %d bytes from memory...\n", (int)image_len);
+
+      while (num_lines > 0 )
+        {
+          if (write(outfd, image_data, bytes_per_line) != bytes_per_line)
+            {
+              if (signal_caught)
+                goto quit;
+              DBG(1,"do_read: write from memory failed: %s\n", strerror(errno));
+              status = SANE_STATUS_IO_ERROR;
+              goto quit;
+            }
+          num_lines--;
+          image_data -= bytes_per_line;
+        }
+    }
+
+quit:
+
+  if ( image_buf ) sanei_hp_free ( image_buf );
+  if ( read_buf ) sanei_hp_free ( read_buf );
+
+  if (enable_requests && (reqs_completed < reqs_issued))
+    {
+      DBG(1, "do_read: cleaning up leftover requests\n");
+      while (reqs_completed < reqs_issued)
+	{
+	  req = buf + (reqs_completed++ % 2);
+	  sanei_scsi_req_wait(req->id);
+	}
+    }
+
+  sigfillset(&sig_set);
+  sigprocmask(SIG_BLOCK, &sig_set, 0);
+  for (i = 0; i < HP_NSIGS; i++)
+      sigaction(kill_sig[i], &old_handler[i], 0);
+  sigprocmask(SIG_SETMASK, &old_set, 0);
+
+  if (signal_caught)
+    {
+      DBG(1, "do_read: caught signal %d\n", signal_caught);
+      raise(signal_caught);
+      return SANE_STATUS_CANCELLED;
+    }
+
+  return status;
+}
+
+
+
+/*
+ *
+ */
+
+static SANE_Status
+_hp_scl_inq (HpScsi scsi, HpScl scl, HpScl inq_cmnd,
+	     void *valp, size_t *lengthp)
+{
+  size_t	bufsize	= 16 + (lengthp ? *lengthp: 0);
+  char *	buf	= alloca(bufsize);
+  char		expect[16], expect_char;
+  int		val, count;
+  SANE_Status	status;
+
+  if (!buf)
+      return SANE_STATUS_NO_MEM;
+
+  /* Flush data before sending inquiry. */
+  /* Otherwise scanner might not generate a response. */
+  RETURN_IF_FAIL( hp_scsi_flush (scsi)) ;
+
+  RETURN_IF_FAIL( hp_scsi_scl(scsi, inq_cmnd, SCL_INQ_ID(scl)) );
+
+  status =  hp_scsi_read(scsi, buf, &bufsize);
+  if (FAILED(status))
+    {
+      DBG(1, "scl_inq: read failed (%s)\n", sane_strstatus(status));
+      return status;
+    }
+
+  if (SCL_PARAM_CHAR(inq_cmnd) == 'R')
+      expect_char = 'p';
+  else
+      expect_char = tolower(SCL_PARAM_CHAR(inq_cmnd) - 1);
+
+  count = sprintf(expect, "\033*s%d%c", SCL_INQ_ID(scl), expect_char);
+  if (memcmp(buf, expect, count) != 0)
+    {
+      DBG(1, "scl_inq: malformed response: expected '%s', got '%.*s'\n",
+	  expect, count, buf);
+      return SANE_STATUS_IO_ERROR;
+    }
+  buf += count;
+
+  if (buf[0] == 'N')
+    {				/* null response */
+      DBG(3, "scl_inq: parameter '%c' (%d) unsupported\n",
+	  SCL_PARAM_CHAR(scl), SCL_INQ_ID(scl));
+      return SANE_STATUS_UNSUPPORTED;
+    }
+
+  if (sscanf(buf, "%d%n", &val, &count) != 1)
+    {
+      DBG(1, "scl_inq: malformed response: expected int, got '%.8s'\n", buf);
+      return SANE_STATUS_IO_ERROR;
+    }
+  buf += count;
+
+  expect_char = lengthp ? 'W' : 'V';
+  if (*buf++ != expect_char)
+    {
+      DBG(1, "scl_inq: malformed response: expected '%c', got '%.4s'\n",
+	  expect_char, buf - 1);
+      return SANE_STATUS_IO_ERROR;
+    }
+
+  if (!lengthp)
+      *(int *)valp = val; /* Get integer value */
+  else
+    {
+      if (val > *lengthp)
+	{
+	  DBG(1, "scl_inq: inquiry returned %d bytes, expected <= %lu\n",
+	      val, (unsigned long) *lengthp);
+	  return SANE_STATUS_IO_ERROR;
+	}
+      *lengthp = val;
+      memcpy(valp, buf , *lengthp); /* Get binary data */
+    }
+
+  return SANE_STATUS_GOOD;
+}
+
+
+SANE_Status
+sanei_hp_scl_upload_binary (HpScsi scsi, HpScl scl, size_t *lengthhp,
+                            char **bufhp)
+{
+  size_t	bufsize	= 16, sv;
+  char *	buf	= alloca(bufsize);
+  char *        bufstart = buf;
+  char *        hpdata;
+  char		expect[16], expect_char;
+  int		n, val, count;
+  SANE_Status	status;
+
+  if (!buf)
+      return SANE_STATUS_NO_MEM;
+
+  assert ( IS_SCL_DATA_TYPE (scl) );
+
+  /* Flush data before sending inquiry. */
+  /* Otherwise scanner might not generate a response. */
+  RETURN_IF_FAIL( hp_scsi_flush (scsi)) ;
+
+  RETURN_IF_FAIL( hp_scsi_scl(scsi, SCL_UPLOAD_BINARY_DATA, SCL_INQ_ID(scl)) );
+
+  status =  hp_scsi_read(scsi, buf, &bufsize);
+  if (FAILED(status))
+    {
+      DBG(1, "scl_upload_binary: read failed (%s)\n", sane_strstatus(status));
+      return status;
+    }
+
+  expect_char = 't';
+  count = sprintf(expect, "\033*s%d%c", SCL_INQ_ID(scl), expect_char);
+  if (memcmp(buf, expect, count) != 0)
+    {
+      DBG(1, "scl_upload_binary: malformed response: expected '%s', got '%.*s'\n",
+	  expect, count, buf);
+      return SANE_STATUS_IO_ERROR;
+    }
+  buf += count;
+
+  if (buf[0] == 'N')
+    {				/* null response */
+      DBG(1, "scl_upload_binary: parameter '%c' (%d) unsupported\n",
+	  SCL_PARAM_CHAR(scl), SCL_INQ_ID(scl));
+      return SANE_STATUS_UNSUPPORTED;
+    }
+
+  if (sscanf(buf, "%d%n", &val, &count) != 1)
+    {
+      DBG(1, "scl_inq: malformed response: expected int, got '%.8s'\n", buf);
+      return SANE_STATUS_IO_ERROR;
+    }
+  buf += count;
+
+  expect_char = 'W';
+  if (*buf++ != expect_char)
+    {
+      DBG(1, "scl_inq: malformed response: expected '%c', got '%.4s'\n",
+	  expect_char, buf - 1);
+      return SANE_STATUS_IO_ERROR;
+    }
+
+  *lengthhp = val;
+  *bufhp = hpdata = sanei_hp_alloc ( val );
+  if (!hpdata)
+      return SANE_STATUS_NO_MEM;
+
+  if (buf < bufstart + bufsize)
+    {
+       n = bufsize - (buf - bufstart);
+       if (n > val) n = val;
+       memcpy (hpdata, buf, n);
+       hpdata += n;
+       val -= n;
+    }
+
+  status = SANE_STATUS_GOOD;
+  if ( val > 0 )
+    {
+      sv = val;
+      status = hp_scsi_read(scsi, hpdata, &sv);
+      if (status != SANE_STATUS_GOOD)
+        sanei_hp_free ( *bufhp );
+    }
+
+  return status;
+}
+
+
+SANE_Status
+sanei_hp_scl_set(HpScsi scsi, HpScl scl, int val)
+{
+  RETURN_IF_FAIL( hp_scsi_scl(scsi, scl, val) );
+
+
+#ifdef PARANOID
+  RETURN_IF_FAIL( sanei_hp_scl_errcheck(scsi) );
+#endif
+
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+sanei_hp_scl_inquire(HpScsi scsi, HpScl scl, int * valp, int * minp, int * maxp)
+{
+  HpScl	inquiry = ( IS_SCL_CONTROL(scl)
+		    ? SCL_INQUIRE_PRESENT_VALUE
+		    : SCL_INQUIRE_DEVICE_PARAMETER );
+
+  assert(IS_SCL_CONTROL(scl) || IS_SCL_PARAMETER(scl));
+  assert(IS_SCL_CONTROL(scl) || (!minp && !maxp));
+
+  if (valp)
+      RETURN_IF_FAIL( _hp_scl_inq(scsi, scl, inquiry, valp, 0) );
+  if (minp)
+      RETURN_IF_FAIL( _hp_scl_inq(scsi, scl,
+				  SCL_INQUIRE_MINIMUM_VALUE, minp, 0) );
+  if (maxp)
+      RETURN_IF_FAIL( _hp_scl_inq(scsi, scl,
+				  SCL_INQUIRE_MAXIMUM_VALUE, maxp, 0) );
+  return SANE_STATUS_GOOD;
+}
+
+#ifdef _HP_NOT_USED
+static SANE_Status
+hp_scl_get_bounds(HpScsi scsi, HpScl scl, int * minp, int * maxp)
+{
+  assert(IS_SCL_CONTROL(scl));
+  RETURN_IF_FAIL( _hp_scl_inq(scsi, scl, SCL_INQUIRE_MINIMUM_VALUE, minp, 0) );
+  return _hp_scl_inq(scsi, scl, SCL_INQUIRE_MAXIMUM_VALUE, maxp, 0);
+}
+#endif
+
+#ifdef _HP_NOT_USED
+static SANE_Status
+hp_scl_get_bounds_and_val(HpScsi scsi, HpScl scl,
+			  int * minp, int * maxp, int * valp)
+{
+  assert(IS_SCL_CONTROL(scl));
+  RETURN_IF_FAIL( _hp_scl_inq(scsi, scl, SCL_INQUIRE_MINIMUM_VALUE, minp, 0) );
+  RETURN_IF_FAIL( _hp_scl_inq(scsi, scl, SCL_INQUIRE_MAXIMUM_VALUE, maxp, 0) );
+  return    _hp_scl_inq(scsi, scl, SCL_INQUIRE_PRESENT_VALUE, valp, 0);
+}
+#endif
+
+SANE_Status
+sanei_hp_scl_download(HpScsi scsi, HpScl scl, const void * valp, size_t len)
+{
+  assert(IS_SCL_DATA_TYPE(scl));
+
+  sanei_hp_scl_clearErrors ( scsi );
+  RETURN_IF_FAIL( hp_scsi_need(scsi, 16) );
+  RETURN_IF_FAIL( hp_scsi_scl(scsi, SCL_DOWNLOAD_TYPE, SCL_INQ_ID(scl)) );
+                            /* Download type not supported ? */
+  RETURN_IF_FAIL( sanei_hp_scl_errcheck(scsi) );
+  RETURN_IF_FAIL( hp_scsi_scl(scsi, SCL_DOWNLOAD_LENGTH, len) );
+  RETURN_IF_FAIL( hp_scsi_write(scsi, valp, len) );
+
+#ifdef PARANOID
+  RETURN_IF_FAIL( sanei_hp_scl_errcheck(scsi) );
+#endif
+
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+sanei_hp_scl_upload(HpScsi scsi, HpScl scl, void * valp, size_t len)
+{
+  size_t	nread = len;
+  HpScl		inquiry = ( IS_SCL_DATA_TYPE(scl)
+			    ? SCL_UPLOAD_BINARY_DATA
+			    : SCL_INQUIRE_DEVICE_PARAMETER );
+
+  assert(IS_SCL_DATA_TYPE(scl) || IS_SCL_PARAMETER(scl));
+
+  RETURN_IF_FAIL( _hp_scl_inq(scsi, scl, inquiry, valp, &nread) );
+  if (IS_SCL_PARAMETER(scl) && nread < len)
+      ((char *)valp)[nread] = '\0';
+  else if (len != nread)
+    {
+      DBG(1, "scl_upload: requested %lu bytes, got %lu\n",
+	  (unsigned long) len, (unsigned long) nread);
+      return SANE_STATUS_IO_ERROR;
+    }
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+sanei_hp_scl_calibrate(HpScsi scsi)
+{
+  RETURN_IF_FAIL( hp_scsi_scl(scsi, SCL_CALIBRATE, 0) );
+  return hp_scsi_flush(scsi);
+}
+
+SANE_Status
+sanei_hp_scl_startScan(HpScsi scsi, hp_bool_t adf_scan)
+{
+  DBG(1, "sanei_hp_scl_startScan: Start %sscan\n", adf_scan ? "ADF " : "");
+
+  if ( adf_scan )
+    RETURN_IF_FAIL( hp_scsi_scl(scsi, SCL_ADF_SCAN, 0) );
+  else
+    RETURN_IF_FAIL( hp_scsi_scl(scsi, SCL_START_SCAN, 0) );
+  return hp_scsi_flush(scsi);
+}
+
+SANE_Status
+sanei_hp_scl_reset(HpScsi scsi)
+{
+  RETURN_IF_FAIL( hp_scsi_write(scsi, "\033E", 2) );
+  RETURN_IF_FAIL( hp_scsi_flush(scsi) );
+  return sanei_hp_scl_errcheck(scsi);
+}
+
+SANE_Status
+sanei_hp_scl_clearErrors(HpScsi scsi)
+{
+  RETURN_IF_FAIL( hp_scsi_flush(scsi) );
+  RETURN_IF_FAIL( hp_scsi_write(scsi, "\033*oE", 4) );
+  return hp_scsi_flush(scsi);
+}
+
+static const char *
+hp_scl_strerror (int errnum)
+{
+  static const char * errlist[] = {
+      "Command Format Error",
+      "Unrecognized Command",
+      "Parameter Error",
+      "Illegal Window",
+      "Scaling Error",
+      "Dither ID Error",
+      "Tone Map ID Error",
+      "Lamp Error",
+      "Matrix ID Error",
+      "Cal Strip Param Error",
+      "Gross Calibration Error"
+  };
+
+  if (errnum >= 0 && errnum < sizeof(errlist)/sizeof(errlist[0]))
+      return errlist[errnum];
+  else
+      switch(errnum) {
+      case 1024: return "ADF Paper Jam";
+      case 1025: return "Home Position Missing";
+      case 1026: return "Paper Not Loaded";
+      default: return "??Unkown Error??";
+      }
+}
+
+/* Check for SCL errors */
+SANE_Status
+sanei_hp_scl_errcheck (HpScsi scsi)
+{
+  int		errnum;
+  int		nerrors;
+  SANE_Status	status;
+
+  status = sanei_hp_scl_inquire(scsi, SCL_CURRENT_ERROR_STACK, &nerrors,0,0);
+  if (!FAILED(status) && nerrors)
+      status = sanei_hp_scl_inquire(scsi, SCL_OLDEST_ERROR, &errnum,0,0);
+  if (FAILED(status))
+    {
+      DBG(1, "scl_errcheck: Can't read SCL error stack: %s\n",
+	  sane_strstatus(status));
+      return SANE_STATUS_IO_ERROR;
+    }
+
+  if (nerrors)
+    {
+      DBG(1, "Scanner issued SCL error: (%d) %s\n",
+	  errnum, hp_scl_strerror(errnum));
+
+      sanei_hp_scl_clearErrors (scsi);
+      return SANE_STATUS_IO_ERROR;
+    }
+
+  return SANE_STATUS_GOOD;
+}

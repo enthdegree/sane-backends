@@ -1,0 +1,256 @@
+.TH sane-apple 5 "13 May 1998"
+.IX sane-apple
+.SH NAME
+sane-apple - SANE backend for Apple flatbed scanners
+.SH DESCRIPTION
+The
+.B sane-apple
+library implements a SANE (Scanner Access Now Easy) backend that
+provides access to Apple flatbed scanners. At present, the following
+scanners are supported from this backend:
+.PP
+.br
+----------- ----------- ------------------ -----
+.br
+AppleScanner 4bit 16 Shades of Gray
+.br
+OneScanner 8bit 256 Shades of Gray
+.br
+ColorOneScanner 24bit RGB color 3-pass
+
+.PP
+If you own a Apple scanner other than the ones listed above that
+works with this backend, please let us know by sending the scanner's
+model name, SCSI id, and firmware revision to
+.IR sane\-devel@mostang.com .
+
+.SH "DEVICE NAMES"
+This backend expects device names of the form:
+.PP
+.RS
+.I special
+.RE
+.PP
+Where
+.I special
+is either the path-name for the special device that corresponds to a
+SCSI scanner. For SCSI
+scanners, the special device name must be a generic SCSI device or a
+symlink to such a device.  Under Linux, such a device name could be
+.I /dev/sga
+or
+.IR /dev/sge ,
+for example.  See sane-scsi(5) for details.
+.SH CONFIGURATION
+The contents of the
+.I apple.conf
+file is a list of options and device names that correspond to Apple
+scanners.  Empty lines and lines starting with a hash mark (#) are
+ignored.  See sane-scsi(5) on details of what constitutes a valid
+device name.
+.PP
+Options come in two flavors: global and positional ones.  Global
+options apply to all devices managed by the backend whereas positional
+options apply just to the most recently mentioned device.  Note that
+this means that the order in which the options appear matters!
+
+.SH SCSI ADAPTER TIPS
+SCSI scanners are typically delivered with an ISA SCSI adapter.
+Unfortunately, that adapter is not worth much since it is not
+interrupt driven.  It is (sometimes) possible to get the supplied card
+to work, but without interrupt line, scanning will put so much load on
+the system, that it becomes almost unusable for other tasks.
+.SH FILES
+.TP
+.I @CONFIGDIR@/apple.conf
+The backend configuration file (see also description of
+.B SANE_CONFIG_DIR
+below).
+.TP
+.I @LIBDIR@/libsane-apple.a
+The static library implementing this backend.
+.TP
+.I @LIBDIR@/libsane-apple.so
+The shared library implementing this backend (present on systems that
+support dynamic loading).
+.SH ENVIRONMENT
+.TP
+.B SANE_CONFIG_DIR
+This environment variable specifies the list of directories that may
+contain the configuration file.  Under UNIX, the directories are
+separated by a colon (`:'), under OS/2, they are separated by a
+semi-colon (`;').  If this variable is not set, the configuration file
+is searched in two default directories: first, the current working
+directory (".") and then in @CONFIGDIR@.  If the value of the
+environment variable ends with the directory separator character, then
+the default directories are searched after the explicitly specified
+directories.  For example, setting
+.B SANE_CONFIG_DIR
+to "/tmp/config:" would result in directories "tmp/config", ".", and
+"@CONFIGDIR@" being searched (in this order).
+.TP
+.B SANE_DEBUG_APPLE
+If the library was compiled with debug support enabled, this
+environment variable controls the debug level for this backend.  E.g.,
+a value of 255 requests all debug output to be printed.  Smaller
+levels reduce verbosity.
+
+.SH CURRENT STATUS
+The apple backend is now in version 0.3 (Tue Jul 21 1998). Since
+I only have the AppleScanner and not the other models (OneScanner,
+ColorOneScanner) I can only develop/test for the AppleScanner effectively.
+However with this release I almost complete the gui part of all scanners.
+Most of the functionality is there. At least OneScanner should scan
+at the AppleScanner's compatible modes (LineArt, HalfTone, Gray16). My
+personal belief is that with a slight touch of debugging the OneScanner
+could be actually usable. The ColorOneScanner needs more work. AppleScanner
+is of course almost fully supported.
+
+.SH MISSING FUNCTIONALITY
+Currently all 3 models are lacking upload/dowload support.
+.TP
+.B AppleScanner
+Cannot up/download a halftone pattern.
+.TP
+.B OneScanner
+Cannot up/download halftone pattern and calibration vector.
+.TP
+.B ColorOneScanner
+Cannot up/download halftone pattern, calibration vectors,
+custom Color Correction Table (CCT) and of course custom gamma tables.
+.TP
+.B Park/UnPark (OneScanner, ColorOneScanner)
+.PP
+The above functionalities are not only missing because I don't actually
+have the hardware to experiment on it. Another reason is the lack
+of understanding of how SANE API could provide enaugh means to me
+to actually describe other array types than the gamma one.
+
+.SH UNSUPPORTED FEATURES.
+The following "features" will never be supported. At least as I am maintaining
+the sane-apple backend.
+.TP
+.B NoHome (AppleScanner)
+The scanner lamp stays on and the carriage assembly remains where it stops
+at the end of the scan. After two minutes, if the scanner does not receive
+another SCAN command the lamp goes off and the carriage returns to the home
+position.
+.TP
+.B Compression (AppleScanner)
+Scanner it can compress data with CCITT Group III, one dimensional algorithm
+(fax), and the Skip White Line algorithm.
+.TP
+.B Multiple Windows (AppleScanner)
+AppleScanner may support multiple windows. That it would be a cool feature
+and a challenge for me to code it if you could intermix different options
+for different windows (scan areas). This way you could scan a document
+in LineArt mode but the figures in it on Gray and in a different resolution.
+Unfortunately this is impossible.
+.TP
+.B Scan Direction (OneScanner)
+It controls the scan direction. (?)
+.TP
+.B Status/Reset Button (OneScanner)
+This option controls the status of the button in OneScanner model. You can
+also reset the button status by software.
+
+.SH BUGS
+The bugs in a sane backend are divided in two classes. We have
+.B GUI
+bugs and
+.B scanner specific
+bugs.
+.PP
+We know we have a GUI bug when a parameter is not showing up itself when it
+should (active) or vice versa. To find out which parameters are active
+accross various Apple modes and models from the documentation
+.B ftp://ftpdev.info.apple.com/devworld/Technical_Documentation/Peripherals_Documentation/
+is an interesting exercise. I may missed some dependancies. For example
+for the threshold parameter the Apple Scanners Programming guide says
+nothing. I had to assume that is valid only in LineArt mode.
+.PP
+Scanner specific bugs are mostly due to mandatory round offs in order to
+scan. In the documentation in some place states that the width of the
+scan area should be a byte multiple. In an other place says that the
+width of the scan area should be an even byte multiple. Go figure...
+.PP
+Other source of bugs are due to scsi communcation, scsi connects and
+disconnects. However the classical bugs are still there. So you may
+encouter buffer overruns, null pointers, memory corruption and
+.B SANE
+API violations.
+.TP
+.B SIGSEGV on SliceBars
+When you try to modify the scan area from the slice bar you have a nice
+little cute core dump. I don't know why. If you select the scan are from
+the preview window, or by hand typing the numbers everything is fine. The
+SIGSEGV happens deep in gtk library (gdk). I really cannot debug it.
+.TP
+.B Options too much
+It is possible, especially for the ColorOneScanner, that the backend's
+options panel to exceed from your screen. It happens with mine
+and I am running at 1024x768 my X Server. What can I say? Try smaller
+fonts in the X server, or virtual screens.
+.TP
+.B Weird SCSI behaviour.
+I am quoting David Myers Here...
+
+>> OS: FreeBSD 2.2.6
+
+>> CC: egcs-1.02
+
+>Just wanted to follow up on this...  I recently changed my SCSI card from
+
+>the Adaptec 2940UW to a dual-channel Symbios 786 chipset.  When I started up
+
+>SANE with your driver, I managed to scan line art drawings okay, but Gray16
+
+>scans led to a stream of SCSI error messages on the console, ultimately
+
+>hanging with a message saying the scanner wasn't releasing the SCSI bus.
+
+>This may be that the Symbios is simply less tolerant of ancient
+
+>hardware, or may be bugs in your driver or in SANE itself...
+
+.SH DEBUG
+if you encounter a GUI bug please set the environment variable
+SANE_DEBUG_APPLE to 255 and rerun the excact sequence of keystrokes
+and menu selections to reproduce it. Then send me a report with the
+log attached.
+.PP
+It would be very helpfull if you have handy an Apple machine (I am not sure
+how Mackintos are spelled) with the AppleScanners driver installed and check
+what option are grayed out (inactive) in what modes and report back to me.
+.PP
+if you want to offer some help but you don't have a scanner or you
+don't have the model you would like to offer some help, or you are
+a sane developer and you just want to take a look at how the apple backend
+looks like. Goto to apple.h and #define the NEUTRALIZE_BACKEND
+macro. You can select the scanner model through the APPLE_MODEL_SELECT
+macro. Available options are APPLESCANNER, ONESCANNER, COLORONESCANNER.
+.PP
+if you encounter a SCSI bus error or trimmed and/or displaced images please
+also set the environment variable SANE_DEBUG_SANEI_SCSI to 255 before sendme
+the report.
+
+.SH TODO
+.TP
+.B Non Blocking Support
+Make sane\-apple a non blocking backend. Properly support for
+.B sane_set_io_mode
+and
+.B sane_get_select_fd
+.TP
+.B Scan
+Make scan possible for all models in all supported modes.
+.TP
+.B Missing Functionality.
+
+.SH "SEE ALSO"
+sane\-scsi(5)
+
+.SH AUTHOR
+The sane-apple backend was written not entirely from scratch by
+Milon Firikis. It is mostly based on the mustek backend from
+David Mosberger and Andreas Czechanowski

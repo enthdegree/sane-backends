@@ -1,0 +1,84 @@
+Authors of the SANE standard:
+
+ Andreas Beck and David Mosberger
+
+Java API:
+
+ Jeff Freedman
+
+Backends:
+
+ abaton:	David Huggins-Daines
+ agfa:		Karl Anders Øygard
+ apple:		Milon Firikis
+ artec:		Chris Pinkham
+ canon:		Helmut Koeberle, Manuel Panea, and Markus Mertinat
+ coolscan:	Didier Carlier
+ dc25:		Peter Fales
+ dc210:		Brian J. Murrell
+ dll:		David Mosberger
+ dmc:		David F. Skoll
+ epson:		Kazuhiro Sasayama
+ hp:		Peter Kirchgessner
+		Geoffrey Dairiki
+ microtek:	Matthew Marjanovic
+ microtek2:	Bernd Schroeder
+ mustek:	Andreas Bolsch, David Mosberger and Andreas Czechanowski
+ net:		Andreas Beck and David Mosberger
+ pnm:		Andreas Beck, Gordon Matzigkeit, and David Mosberger
+ pint:		Gordon Matzigkeit
+ qcam:		Scott Laird (original driver), David Mosberger (SANE backend),
+		despeckling filter by Patrick Reynolds,
+		B&W fixes by Andrew Kuchling
+ ricoh:		Feico W. Dillema
+ sharp:		FUKUDA Kazuya and Abel Deuring
+ snapscan:	Kevin Charter, Franck Schneider, and Michel Roelofs
+ tamarack:	Roger Wolff
+ umax:		Oliver Rauch and Michael K. Johnson
+
+Frontends:
+
+ saned:		Andreas Beck and David Mosberger
+ scanimage:	Andreas Beck, David Mosberger, Gordon Matzigkeit
+ xcam:		David Mosberger
+ xscanimage:	Tristan Tarrant, Andreas Beck, and David Mosberger
+
+email addresses:
+
+Abel Deuring <a.deuring@satzbau-gmbh.de>
+Andreas Beck <becka@sunserver1.rz.uni-duesseldorf.de>
+Andreas Bolsch <ab@maths.nott.ac.uk>
+Andreas Czechanowski <m075@ins.uni-stuttgart.de>
+Andrew Kuchling <amk@magnet.com>
+Bernd Schroeder <bernd@aquila.muc.de>
+Brian J. Murrell <brian@interlinx.bc.ca>
+Chris Pinkham <cpinkham@infi.net>
+Christian Bucher <cbucher@vernetzt.at>
+David Etherton <etherton@netcom.com>
+David F. Skoll <dskoll@iname.com>
+David Huggins-Daines <bn711@freenet.carleton.ca>
+David Mosberger <David.Mosberger@acm.org>
+Didier Carlier <didier@sema.be>
+FUKUDA Kazuya <fukuda@avm.nhe.nec.co.jp>
+Feico W. Dillema <dillema@acm.org>
+Franck Schneider <schnefra@hol.fr>
+Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+Helmut Koeberle <helmut.koeberle@bytec.de>
+Helmut Koeberle <helmut.koeberle@bytec.de>
+Ingo Schneider <schneidi@informatik.tu-muenchen.de>
+Jeff Freedman <jsf@hevanet.com>
+Karl Anders Oygard <karlo@opera.no>
+Kazuhiro Sasayama <kaz@hypercore.co.jp>
+Kevin Charter <charter@cs.rice.edu>
+Manuel Panea <Manuel.Panea@rzg.mpg.de>
+Markus Mertinat <Markus.Mertinat@Physik.Uni-Augsburg.DE>
+Matthew Marjanovic <maddog@mir.com>
+Michael K. Johnson <johnsonm@redhat.com>
+Michel Roelofs <michelr@stack.nl>
+Milon Firikis <milonf@ariadne-t.gr>
+Oliver Rauch <Oliver.Rauch@Wolfsburg.DE>
+Patrick Reynolds <patrickr@virginia.edu>
+Peter Fales <psfales@earthling.net>
+Peter Kirchgessner <peter@kirchgessner.net>
+Roger Wolff <R.E.Wolff@BitWizard.nl>
+Tristan Tarrant <ttarrant@etnoteam.it>

@@ -1,0 +1,99 @@
+#
+#	Makefile for a Java project with native methods.
+#
+
+SHELL = /bin/sh
+
+VPATH = @srcdir@
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+top_builddir = ..
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
+includedir = @includedir@
+oldincludedir = /usr/include
+configdir = ${sysconfdir}/sane.d
+
+V_MAJOR = @V_MAJOR@
+V_MINOR = @V_MINOR@
+DLL_PRELOAD = @DLL_PRELOAD@
+
+MKDIR = $(top_srcdir)/mkinstalldirs
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
+RANLIB = @RANLIB@
+
+CC = @CC@
+#	We'll need something in 'configure' for the Java includes.
+INCLUDES = -I. -I$(srcdir) -I$(top_builddir)/include -I$(top_srcdir)/include \
+	-I${JDK_HOME}/include -I${JDK_HOME}/include/genunix
+
+CPPFLAGS = @CPPFLAGS@
+CFLAGS = @CFLAGS@
+LDFLAGS = @LDFLAGS@
+DEFS = @DEFS@
+
+LIBTOOL = ../libtool
+MCOMP	= --mode=compile
+MLINK	= --mode=link
+MINST	= --mode=install
+
+COMPILE = $(CC) -c $(CFLAGS) $(DEFS) $(INCLUDES) $(CPPFLAGS)
+
+@SET_MAKE@
+
+LIBSANE = -L`pwd`/../backend/libs -lsane
+
+# Classes to compile.
+CLASSES = SaneDevice.class SaneOption.class SaneRange.class Sane.class \
+	SaneParameters.class ScanIt.class ImageCanvas.class \
+	ImageCanvasClient.class
+
+.SUFFIXES: .c .o .h .la .lo .java .class
+
+.java.class:
+	javac $<
+
+.class.h:
+	javah -jni $*
+
+%.lo:	%.c
+	@$(LIBTOOL) $(MCOMP) $(COMPILE) $<
+
+# Don't delete any intermediate files.
+.PRECIOUS: %.h %.lo
+
+all: libsanej.la $(CLASSES) Test.class Jscanimage.class
+
+libsanej.la: Sane.lo
+	@$(LIBTOOL) $(MLINK) $(CC) -o $@ $(LDFLAGS) $^ \
+		-rpath $(libdir) -version-info \
+		$(V_MAJOR):$(V_MINOR):0 $(LIBSANE)
+
+clean:
+	rm -f *.class *.lo *.o *~ *.la *.bak
+	rm -f Sane.h
+	rm -rf .libs
+
+#	Install library.  Don't know where to install .class files yet.
+
+install:
+	$(MKDIR) $(libdir) $(configdir)
+	$(LIBTOOL) $(MINST) $(INSTALL_PROGRAM) libsanej.la \
+		$(libdir)/libsanej.la || exit 1;
+	@$(LIBTOOL) $(MINST) --finish $(libdir)
+
+
+Sane.c: Sane.h

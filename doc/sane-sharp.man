@@ -1,0 +1,64 @@
+.TH sane-sharp 5 "5 Apr 1999"
+.IX sane-sharp
+.SH NAME
+sane-sharp - SANE backend for SHARP scanners
+.SH DESCRIPTION
+The
+.B sane-sharp
+library implements a SANE (Scanner Access Now Easy) backend that
+provides access to Sharp SCSI scanners.  This backend should be
+considered
+.B alpha-quality
+software!  In the current state it is known to work with JX-610 and JX-250 
+scanners. It is prepared for usage with a JX-330 but we were not able
+to test it with this device.
+
+For other scanners, it may or may not work.
+.PP
+The backend has the following known problems:
+.RS
+- only Color and Gray mode work(8 bits/pixel)(only JX-610)
+.br
+- Preview does not work (only JX-610)
+.br
+- Threshold level does not work (only JX-610)
+.br
+- maximum resolution is limited to 600 dpi(JX-610 supported 
+to 1200 dpi) resp. 400 dpi (JX-250)
+.br
+- device name is fixed to /dev/scanner
+.RE
+.PP
+At present,
+the following scanners are known to work with this backend.
+.RS
+Vendor	Product id:
+.br
+-----	-----------
+.br
+Sharp	JX-610
+.br
+Sharp	JX-250
+.RE
+.SH FILES
+.TP
+.I @CONFIGDIR@/sharp.conf
+The backend configuration file.
+.TP
+.I @LIBDIR@/libsane-sharp.a
+The static library implementing this backend.
+.TP
+.I @LIBDIR@/libsane-sharp.so
+The shared library implementing this backend (present on systems that
+support dynamic loading).
+.SH ENVIRONMENT
+.TP
+.B SANE_DEBUG_SHARP
+If the library was compiled with debug support enabled, this
+environment variable controls the debug level for this backend.  E.g.,
+a value of 128 requests all debug output to be printed.  Smaller
+levels reduce verbosity.
+.SH "SEE ALSO"
+sane\-scsi(5)
+.SH AUTHORS
+Kazuya Fukuda, Abel Deuring

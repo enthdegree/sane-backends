@@ -1,0 +1,205 @@
+.TH sane-hp 5 "28 February 1999"
+.IX sane-hp
+.SH NAME
+sane-hp - SANE backend for HP ScanJet scanners
+.SH DESCRIPTION
+The
+.B sane-hp
+library implements a SANE (Scanner Access Now Easy) backend that
+provides access to HP ScanJet scanners.  At present, the following
+scanners are known positively to work with this backend:
+.PP
+.RS
+Model:         Product id:                Interface:
+.br
+----------     -----------                ----------
+.br
+ScanJet Plus   C9195A                     HP Parallel Interface Card
+.br
+ScanJet IIc    C1750A 3226                SCSI
+.br
+ScanJet IIcx   C2500A 3332                SCSI
+.br
+ScanJet IIp    C1790A                     SCSI
+.br
+ScanJet 3C     C2520A 3503                SCSI
+.br
+ScanJet 4C     C2520A                     SCSI
+.br
+ScanJet 6100C  C2520A 3644                SCSI
+.br
+ScanJet 6200C  C6270A 3828                SCSI
+.br
+ScanJet 6250C  C6270A 3828                SCSI
+.br
+ScanJet 3P     C2570A 3406                SCSI
+.br
+ScanJet 4P     C1130A 3540                SCSI
+.br
+ScanJet 5P     C5110A                     SCSI
+.br
+PhotoSmart     C5100A R029, R030, R032    SCSI
+.RE
+.PP
+Any HP scanners connected to the parallel port are not supported.
+.PP
+If you own a ScanJet scanner other than the ones listed above, please
+let us know if your model works with this backend.  To do this, send a
+mail with the relevant information for your scanner to
+.IR sane\-devel@mostang.com .
+.SH "DEVICE NAMES"
+This backend expects device names of the form:
+.PP
+.RS
+.I special
+.RE
+.PP
+Where
+.I special
+is the UNIX path-name for the special device that corresponds to the
+scanner.  For SCSI scanners the special device name must be a generic SCSI
+device or a symlink to such a device.  Under Linux, such a device name could be
+.I /dev/sga
+or
+.IR /dev/sge ,
+for example. For the Hp ScanJet Plus the special device name must be the device
+that corresponds to the parallel interface card that was shipped with the
+scanner. Under Linux, such a device name could be
+.I /dev/hpscan
+for example.
+.SH CONFIGURATION
+The contents of the
+.I hp.conf
+file is a list of options and device names that correspond to HP ScanJet
+scanners.  Empty lines and lines starting with a hash mark
+(#) are ignored. See sane-scsi(5) on details of what constitutes
+a valid device name.
+.PP
+Options specified infront of the first line that keeps a device name 
+are defaults for all devices. Options specified below a line that
+keeps a device name apply just to the most recently mentioned device.
+.PP
+Supported options are
+.BR connect-scsi ,
+and
+.BR connect-device .
+
+Option
+.B connect-scsi
+specifies that the scanner is connected to the system by SCSI.
+Input/output is performed using SCSI-commands.
+This is the default.
+
+Option
+.B connect-device
+specifies that the scanner is connected to the system by a special
+device. Input/output is performed by read()/write()-operations
+on the device. This option must be used for HP ScanJet Plus.
+.PP
+  A sample configuration file is shown below:
+.PP
+.RS
+/dev/scanner
+.br
+# this is a comment
+.br
+/dev/hpscan
+.br
+  option connect-device
+.RE
+.SH FILES
+.TP
+.I @CONFIGDIR@/hp.conf
+The backend configuration file (see also description of
+.B SANE_CONFIG_DIR
+below).
+.TP
+.I @LIBDIR@/libsane-hp.a
+The static library implementing this backend.
+.TP
+.I @LIBDIR@/libsane-hp.so
+The shared library implementing this backend (present on systems that
+support dynamic loading).
+.TP
+.I $HOME/.sane/calib-hp:<device>.dat
+Calibration data for HP PhotoSmart PhotoScanner that is retrieved from the
+scanner after calibration. The data is uploaded to the scanner at start
+of the backend if it is in media mode 'print media' or if the media mode is
+changed to 'print media'.
+.SH ENVIRONMENT
+.TP
+.B SANE_CONFIG_DIR
+This environment variable specifies the list of directories that may
+contain the configuration file.  Under UNIX, the directories are
+separated by a colon (`:'), under OS/2, they are separated by a
+semi-colon (`;').  If this variable is not set, the configuration file
+is searched in two default directories: first, the current working
+directory (".") and then in @CONFIGDIR@.  If the value of the
+environment variable ends with the directory separator character, then
+the default directories are searched after the explicitly specified
+directories.  For example, setting
+.B SANE_CONFIG_DIR
+to "/tmp/config:" would result in directories "tmp/config", ".", and
+"@CONFIGDIR@" being searched (in this order).
+.TP
+.B SANE_DEBUG_HP
+If the library was compiled with debug support enabled, this
+environment variable controls the debug level for this backend.  E.g.,
+a value of 128 requests all debug output to be printed.  Smaller
+levels reduce verbosity.
+
+.SH BUGS
+.TP
+.B HP PhotoSmart PhotoScanner
+In media mode 'slide' and 'negative', scan resolutions must be selected
+as multiple of 300 dpi. The scanner does not scale the data correctly
+on other resolutions. Some newer models (firmware code R030 and later)
+do not support adjustment of contrast/intensity level and tone map.
+The backend will simulate this by software, but only for gray
+and 24 bit color.
+.TP
+.B Automatic Document Feeder (ADF)
+For use of the ADF with xscanimage(1), first place paper in the ADF and
+then check the box labeled 'scan from ADF'. Press 'change document'
+to load a sheet. Then press 'scan' to start a scan. 
+Maybe it is sufficient to press 'scan' without 'change document'
+for repeated scans. The use of the preview window is not recommended
+when working with the ADF.
+
+.TP
+.B Immediate actions
+Some actions in xscanimage(1) (i.e. unload, select media, calibrate)
+have an immediate effect on the scanner without starting a scan.
+These options can not be used with scanimage.
+
+.SH TODO
+.TP
+.B HP PhotoSmart PhotoScanner
+PhotoScanners with firmware release R030 and up have
+no firmware support for contrast/brightness/gamma table. In the current
+backend this is simulated by software on 24 bits data.
+Simulation on 30 bits should give better results.
+.TP
+.B Parallel scanner support
+Parallel scanners other than ScanJet Plus are not supported.
+If someone wants to add parallel scanner support, search the source code
+for
+.B HP_CONNECT_RESERVE .
+This will lead you to 4 routines in hp-scl.c to open, read, write and
+close those devices. The option
+.B connect-reserve
+must be specified in the
+.B hp.conf
+file to activate the routines.
+If there is a kernel driver that would make a scanner on the parallel
+port available as a special device, it could be possible that accessing
+the scanner by
+.B connect-device
+will work.
+
+
+.SH "SEE ALSO"
+sane\-scsi(5)
+.SH AUTHOR
+The sane-hp backend was written by Geoffrey T. Dairiki. HP PhotoSmart
+PhotoScanner support by Peter Kirchgessner.

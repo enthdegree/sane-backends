@@ -1,0 +1,66 @@
+SHELL = /bin/sh
+
+VPATH = @srcdir@
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+top_builddir = .
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
+includedir = @includedir@
+oldincludedir = /usr/include
+
+MKDIR = $(top_srcdir)/mkinstalldirs
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
+
+@SET_MAKE@
+
+INSTALLED_INCLUDES = $(addprefix $(top_srcdir)/include/sane/,sane.h sanei.h \
+	sanei_backend.h sanei_codec_ascii.h sanei_codec_bin.h sanei_debug.h \
+	sanei_net.h sanei_scsi.h sanei_wire.h saneopts.h) \
+	include/sane/config.h
+
+SUBDIRS	= lib sanei backend frontend doc tools
+
+all: all-recursive
+
+
+install: install-recursive
+	$(MKDIR) $(includedir)/sane
+	@list="$(INSTALLED_INCLUDES)"; for file in $$list; do \
+	  echo installing $${file} in $(includedir)/sane...; \
+	  $(INSTALL_DATA) $${file} $(includedir)/sane || exit 1; \
+	done
+
+clean: clean-recursive
+
+distclean: clean distclean-recursive
+	rm -f *~ include/*~ include/sane/*~ *.log *.bak libtool
+	rm -f include/sane/config.h Makefile config.cache config.status
+	rm -f japi/Makefile
+
+depend: depend-recursive
+
+all-recursive install-recursive clean-recursive distclean-recursive \
+depend-recursive:
+	for subdir in $(SUBDIRS); do		\
+	  target=`echo $@ | sed s/-recursive//`; \
+	  echo making $$target in $$subdir;	\
+	  (cd $$subdir && $(MAKE) $$target)	\
+	   || case "$(MFLAGS)" in *k*) fail=yes;; *) exit 1;; esac; \
+	done && test -z "$$fail"
+
+.PHONY: all clean depend \
+	all-recursive install-recursive clean-recursive depend-recursive

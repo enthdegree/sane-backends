@@ -1,0 +1,409 @@
+\documentstyle{article}
+\parindent0pt
+\parskip1ex
+\oddsidemargin-8mm
+\evensidemargin-12mm
+\topmargin-30mm
+\textheight25cm
+\textwidth17.3cm
+\input{epsf.tex}
+
+\title{
+ \begin{figure}[h]
+  \centerline{\epsfxsize=9cm \epsffile{sane-logo.ps}}
+  \centerline{\epsfxsize=4cm \epsffile{umaxlogo.ps}}
+ \end{figure}
+ UMAX-backend for SANE - User's Guide }
+
+\author{Oliver Rauch
+{\tt <Oliver.Rauch@Wolfsburg.DE>}}
+\date{6th march 1999}
+
+
+\begin{document}
+
+\maketitle
+
+
+\newpage
+\tableofcontents
+
+\newpage
+\section{User's Manual}
+
+\subsection{Frontend functions and options:}
+
+This backend dynamically enabels the options, scan-modes, etc. that are
+supported by the scanner in dependence of the scanning-mode and other options.
+
+
+ \begin{figure}[h]
+   \centerline
+   {
+     \epsfysize=12cm \epsffile{sane-umax.ps}
+     \epsfysize=12cm \epsffile{sane-umax-histogram.ps}
+    }
+ \end{figure}
+
+
+
+\subsubsection{Scan modes:}
+
+The available scan modes depend on the scanner type!\\
+
+\small
+\begin{tabular}{|l|l|}
+\hline
+Mode&Remark\\
+\hline
+\hline
+Lineart&1 bit/pixel black/white mode\\
+Halftone&1 bit/pixel dithered black/white mode\\
+Grayscale&8 / 9 / 10 / 12 / 14 / 16 bits/pixel gray mode\\
+Color&24 / 27 / 30 / 36 / 40 / 48 bits/pixel RGB mode\\
+\hline
+\end{tabular}
+\normalsize
+
+
+\subsubsection{Scan sources:}
+
+\begin{itemize}
+\item Flatbed
+\item Transparency adapter (UTA)
+\item Automatic document feeder (ADF)
+\end{itemize}
+The UTA and the ADF are only selectable if they are available!
+
+
+\subsubsection{Options:}
+
+There are two kind of options: the standard options that are often used
+and the \emph{advanced options}.\\
+
+ \begin{figure}[h]
+   \centerline{ \epsfxsize=5cm \epsffile{sane-umax-standard.ps}}
+ \end{figure}
+
+\small
+\begin{tabular}{|l|l|}
+\hline
+Option&Remark\\
+\hline
+\hline
+Analog gamma correction&For color/intensity enhancement, value-range: 1..2,\\
+&doesn't reduce the number of used colors!\\
+&only supported by some scanners (e.g. Supervista S12).\\
+\hline
+Bit depth&Select image depth in bits/sample.\\
+\hline
+Bind RGB values&Use same values for each color, only selectable if such options are available\\
+\hline
+Brightness&Define brightness for halftone-mode.\\
+\hline
+Contrast&Define contrast for halftone-mode.\\
+\hline
+Custom gamma table&Digital gamma correction, for color/intensity enhancement!\\
+&Side-effect: may reduce the number of used colors!\\
+&For 30 and 36 bit scanners the used gamma table uses 30/36 input bits, so the\\
+&reduction of the used colors is not so big!\\
+\hline
+Highlight&Define radiance level for highlight, only supported by some scanners.\\
+\hline
+Lamp warmup&Enable extended lamp warmup, only supported by some scanners.\\
+\hline
+Negative scan&Inverts color-intensity: for scanning negatives.\\
+\hline
+Quality calibration&Do quality white calibration.\\
+\hline
+Shadow&Define radiance level for shadow, only supported by some scanners.\\
+\hline
+Threshold&Define threshold for lineart-mode.\\
+\hline
+\end{tabular}
+\normalsize
+
+\newpage
+
+On graphical frontends the \emph{advanced options}
+may be disabled so the frontend-window keeps small.
+To enable the \emph{advanced options}
+take a look at the frontend's manual!\\
+
+ \begin{figure}[h]
+   \centerline{ \epsfxsize=6cm \epsffile{sane-umax-advanced.ps}}
+ \end{figure}
+
+\small
+\begin{tabular}{|l|l|}
+\hline
+Advanced Option&Remark\\
+\hline
+\hline
+Cal. exposure time&Define exposure time for calibration,\\
+&only supported by some scanners.\\
+\hline
+Cal. lamp density&Define lamp density for calibration,\\
+&only supported by some scanners.\\
+\hline
+Scan exposure time&Define exposure time for scan,\\
+&only supported by some scanners.\\
+\hline
+Scan lamp density&Define lamp density for scan,\\
+&only supported by some scanners.\\
+\hline
+Set exposure time&Enable selection of exposure time,\\
+&if not enabled, scanner uses default values.\\
+\hline
+Set lamp density&Enable selection of lamp density, if not\\
+&enabled, scanner automatically selects a value.\\
+\hline
+Set scan lamp density&Enable selection of lamp density for scan, if not enabled\\
+&scanner uses the value that was used for calibration.\\
+\hline
+\end{tabular}
+\normalsize
+
+
+
+\newpage
+\section{ Installation Manual}
+
+\subsection{Compilation and Installation}
+
+The umax-backend is created and installed automatically while compiling
+and installing SANE.
+
+\subsection{Configuration:}
+
+The configuration file for the UMAX-backend resides in
+
+\begin{verbatim}
+     /usr/local/etc/sane.d/umax.conf.
+\end{verbatim}
+
+Its contents is a list of device names that correspond to UMAX scanners.
+Empty lines and lines starting with a hash mark (\#) are ignored.
+Lines starting with the word {\bf scsi} use variable device selection,
+for further information take a look at sane-scsi.
+
+A sample configuration file is shown below:
+
+\begin{verbatim}
+     #scsi vendor model type  bus channel id lun
+     scsi  UMAX   *     *     *   *       *  *
+     /dev/scanner
+     # this is a comment
+     /dev/sge
+\end{verbatim}
+
+
+The special device name must be a generic SCSI device or a symlink to such a
+device. To find out to which device your scanner is assigned and how you
+have to set the permissions of that device, have a look at sane-scsi or
+use the tool {\tt find-scanner}.
+
+The file may include devices, that correspond to scanners by other vendors.
+The Umax-backend will ignore these devices.
+
+
+\subsection{SCSI adapter tips:}
+
+The UMAX-scanners do block the scsi-bus for a few seconds while scanning.
+It is not necessary to connect the scanner to its own SCSI-adapter.
+But if you need short response time for your SCSI-harddisk (e.g. if your
+computer is a file-server), I suggest you use an own SCSI-adapter for
+your UMAX-scanner.\\
+
+The SCSI-adapters that are shipped with some Umax-scanners are very simple ones.
+I suggest not to use it. If you really want to try: the UDS-IS11 is a
+DTC3181E-card based on the NCR5380-chip. On linux you may have the chance to get
+it work with the recent g\_NCR5380-driver. The card does not have IRQ/DMA. Try the
+following option for kernel/module:\\
+    dtc3181e=0x280,254\\
+
+See the relevant hardware FAQs and HOWTOs for your platform for more information.\\
+
+
+See also: sane-scsi
+
+
+
+
+\subsection{Files:}
+
+\begin{itemize}
+\item The backend configuration file: /usr/local/etc/sane.d/umax.conf
+\item The static library implementing this backend:
+
+/usr/local/lib/libsane-umax.a
+\item The shared library implementing this backend :
+
+/usr/local/lib/libsane-umax.so
+(present on systems that support dynamic loading)
+\end{itemize}
+
+
+
+
+
+\subsection{Environment:}
+
+
+
+\begin{itemize}
+\item SANE\_DEBUG\_UMAX
+\item see sane-dll
+\item see sane-scsi
+\item see backends
+\item see frontends
+\end{itemize}
+
+
+If the library was compiled with debug support enabled, this environment
+variable controls the debug level for this backend. E.g., a value of 128
+requests all debug output to be printed. Smaller levels reduce verbosity:
+
+
+
+
+\subsubsection{SANE\_DEBUG\_UMAX values}
+
+\small
+\begin{tabular}{|l|l|}
+\hline
+Number&Remark\\
+\hline
+\hline
+0&print important errors (printed each time)\\
+1&print errors\\
+2&print sense\\
+3&print warnings\\
+4&print scanner-inquiry\\
+5&print informations\\
+6&print less important informations\\
+7&print called procedures\\
+8&print reader-process messages\\
+10&print called sane-init-routines\\
+11&print called sane-procedures\\
+12&print sane infos\\
+13&print sane option-control messages\\
+\hline
+\end{tabular}
+\normalsize
+
+
+Example:
+
+export SANE\_DEBUG\_UMAX=8
+
+
+
+
+\newpage
+\section{Supported scanners}
+
+\bf{The umax-backend only supports SCSI-scanners, parallel- and USB-scanners are not supported!}
+
+\small
+\begin{tabular}{|l|l|l|c|c|c|c|c|c|c|}
+\hline
+Name&Vendor&SCSI-ID&F/W&Line-&Half-&Gray-&Color&Bits&Maximum\\
+&&&Version&art&tone&scale&RGB&&resolution\\
+\hline
+\hline
+UMAX scanners:&&&&&&&&&\\
+Vista S6           &UMAX     &Vista-S6        &all     &ok  &--  &ok  &ok    &1,8,24    &  300 x  600\\
+Vista S6E          &UMAX     &Vista-S6E       &all     &ok  &--  &ok  &ok    &1,8,24    &  300 x  600\\
+Vista S6E          &UMAX     &UMAX S-6E       &all     &ok  &--  &ok  &ok    &1,8,24    &  300 x  600\\
+Vista S6E          &UMAX     &UMAX S-6EG      &all     &ok  &--  &ok  &ok    &1,8,24    &  300 x  600\\
+Vista S8           &UMAX     &Vista-S8        &?       &?   &?   &?   &?     &1,8,24    &  400 x  800\\
+Supervista S12     &UMAX     &UMAX S-12G      &all     &ok  &--  &ok  &ok    &1,8,24    &  600 x 1200\\
+Supervista S12     &UMAX     &UMAX S-12       &all     &ok  &--  &ok  &ok    &1,8,24    &  600 x 1200\\
+Supervista S12     &UMAX     &Supervista S-12 &all     &ok  &--  &ok  &ok    &1,8,24    &  600 x 1200\\
+Astra 600S         &UMAX     &Astra 600S      &all     &ok  &--  &ok  &ok    &1,8,24    &  300 x  600\\
+Astra 610S         &UMAX     &Astra 610S      &all     &ok  &--  &ok  &ok    &1,8,24    &  300 x  600\\
+Astra 1200S        &UMAX     &Astra 1200S     &all     &ok  &--  &ok  &ok    &1,8,24,30 &  600 x 1200\\
+Astra 1220S        &UMAX     &Astra 1220S     &all     &ok  &--  &ok  &ok    &1,8,24,36 &  600 x 1200\\
+UC630              &UMAX     &UC630           &not 1.6 &ok  &?   &bad &bad   &1,8,24    &  300 x  300\\
+UC630              &UMAX     &UC630           &1.6     &ok  &?   &ok  &ok    &1,8,24    &  300 x  300\\
+UG630              &UMAX     &UG630           &all     &ok  &?   &ok  &--    &1,8       &  300 x  300\\
+UG80               &UMAX     &UG80            &all     &ok  &?   &ok  &--    &1,8       &  300 x  300\\
+UC840              &UMAX     &UC840           &not 1.6 &ok  &?   &bad &bad   &1,8,24    &  400 x  400\\
+UC840              &UMAX     &UC840           &1.6     &ok  &?   &ok  &ok    &1,8,24    &  400 x  400\\
+UC1200S            &UMAX     &UC1200S         &?       &bad &bad &bad &bad   &1,8,24    &  600 x  600\\
+UC1200SE           &UMAX     &UC1200S         &?       &?   &?   &?   &?     &1,8,24    &  600 x  600\\
+UC1260             &UMAX     &UC1260          &not 1.6 &?   &?   &?   &?     &1,8,24    &  600 x 1200\\
+UC1260             &UMAX     &UC1260          &1.6     &ok  &?   &ok  &ok    &1,8,24    &  600 x 1200\\
+Mirage             &UMAX     &Mirage D-16L    &?       &?   &?   &?   &?     &1,8,24,30 &  700 x 1400\\
+                   &         &                &        &    &    &    &      &          & 1400 x 2800\\
+Mirage II          &UMAX     &Mirage II       &?       &?   &?   &?   &?     &1,8,24,36 &  700 x 1400\\
+                   &         &                &        &    &    &    &      &          & 1400 x 2800\\
+Mirage IIse        &UMAX     &Mirage IIse     &?       &?   &?   &?   &?     &1,8,24,36 &  700 x 1400\\
+Vista T630         &UMAX     &Vista-T630      &some    &ok  &--  &ok  &ok    &1,8,24    &  300 x  600\\
+PageScan           &UMAX     &PSD             &all     &ok  &--  &ok  &ok    &1,8,24    &  300 x  300\\
+PowerLook          &UMAX     &unknown         &        &    &    &    &      &          &\\
+PowerLook II       &UMAX     &PL-II           &some    &ok  &--  &ok  &ok    &1,8,24,36 &  600 x 1200\\
+PowerLook III      &UMAX     &Power Look III  &?       &?   &?   &?   &?     &1,8,24,42 & 1200 x 2400\\
+PowerLook 2000     &UMAX     &Power Look 2000 &?       &?   &?   &?   &?     &1,8,24,36 & 1200 x 2400\\
+PowerLook 3000     &UMAX     &Power Look 3000 &?       &?   &?   &?   &?     &1,8,24,42 & 1220 x 3048\\
+                   &         &                &        &    &    &    &      &          & 3048 x 3048\\
+Gemini D-16        &UMAX     &Gemini D-16     &?       &ok  &--  &ok  &ok    &1,8,24    &  400 x 800\\
+                   &         &                &        &    &    &    &      &          &  800 x 1600\\
+\hline
+Linotype Hell scanners:&&&&&&&&&\\
+Jade               &LinoHell &Office          &all     &ok  &--  &ok  &ok    &1,8,24    &  600 x 1200\\
+Jade2              &LinoHell &Office2         &all     &ok  &--  &ok  &ok    &1,8,24,30 &  600 x 1200\\
+Saphir             &LinoHell &unknown         &        &    &    &    &      &          &\\
+Saphir2            &LinoHell &SAPHIR2         &all     &ok  &--  &ok  &ok    &1,8,24,36 &  600 x 1200\\
+Saphir Ultra       &LinoHell &unknown         &        &    &    &    &      &          &\\
+Saphir Ultra II    &LinoHell &unknown         &        &    &    &    &      &          &\\
+Saphir HiRes       &LinoHell &unknown         &        &    &    &    &      &          &\\
+Opal               &LinoHell &unknown         &        &    &    &    &      &          &\\
+Opal Ultra         &LinoHell &unknown         &        &    &    &    &      &          &\\
+\hline
+Vobis/Highscreen scanners:&&&&&&&&&\\
+Scanboostar Premium &LinoHell &Office2         &all     &ok  &--  &ok  &ok    &1,8,24,30 &  600 x 1200\\
+\hline
+Escom scanners:&&&&&&&&&\\
+Image Scanner 256  &UMAX     &UG80            &all     &ok  &?   &ok  &--    &1,8       &  300 x  300\\
+\hline
+Nikon scanners:&&&&&&&&&\\
+AX-210             &Nikon    &AX-210          &all(?)  &ok  &?   &ok  &--    &1,8,24    &   600 x  1200\\
+\hline
+\end{tabular}
+\normalsize
+
+
+If you own a UMAX-scanner other than the ones listed above, it may work with SANE.
+It depends on the informations the scanner returns to the umax-backend. If the
+data-block is large enough, the backend prints a warning and continues, but it is
+possible that not everything works fine. I suggest you hold one hand on the
+power-button of the scanner while you try the first scans!
+
+
+
+
+\newpage
+\section{General Informations}
+
+
+\subsection{BUGS:}
+
+\begin{itemize}
+\item resolutions greater than 600 dpi sometimes don't work! 
+\end{itemize}
+
+
+\subsection{Authors:}
+
+Oliver Rauch
+
+
+\subsection{See also:}
+
+sane, introduction, backends, frontends, sane-scsi, sane-dll
+
+
+
+\end{document}

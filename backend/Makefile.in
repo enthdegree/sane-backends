@@ -1,0 +1,251 @@
+SHELL = /bin/sh
+
+VPATH = @srcdir@
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+top_builddir = ..
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+libsanedir = $(libdir)/sane
+infodir = @infodir@
+mandir = @mandir@
+includedir = @includedir@
+oldincludedir = /usr/include
+configdir = ${sysconfdir}/sane.d
+
+V_MAJOR = @V_MAJOR@
+V_MINOR = @V_MINOR@
+V_REV = @V_REV@
+DLL_PRELOAD = @DLL_PRELOAD@
+DLL_PRELOAD_EXTRAS = $(foreach be,$(DLL_PRELOAD),$($(addprefix EXTRA_,$(be))))
+
+MKDIR = $(top_srcdir)/mkinstalldirs
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
+RANLIB = @RANLIB@
+LN_S = @LN_S@
+
+CC = @CC@
+INCLUDES = -I. -I$(srcdir) -I$(top_builddir)/include -I$(top_srcdir)/include
+CPPFLAGS = @CPPFLAGS@
+CFLAGS = @CFLAGS@
+LDFLAGS = @LDFLAGS@
+DEFS = @DEFS@
+
+LIBTOOL = ../libtool
+MCOMP	= --mode=compile
+MLINK	= --mode=link
+MINST	= --mode=install
+
+COMPILE = $(CC) -c $(CFLAGS) $(DEFS) $(INCLUDES) $(CPPFLAGS)
+
+@SET_MAKE@
+
+PRELOADABLE_BACKENDS = abaton agfafocus apple artec canon coolscan \
+	dc25 @DC210@ dmc epson hp microtek microtek2 mustek @NET@ @PINT@ \
+	pnm @QCAM@ ricoh s9036 sharp snapscan tamarack umax
+ALL_BACKENDS = $(PRELOADABLE_BACKENDS) dll
+
+LIBS = $(addprefix libsane-,$(addsuffix .la,$(ALL_BACKENDS)))
+CONFIGS = $(addsuffix .conf,$(ALL_BACKENDS)) saned.conf
+
+EXTRA = sane_strstatus.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_config.lo
+
+# With libtool-1.0, we have to mention each library object explicitly... ;-(
+LIBLIB_FUNCS = alloca getopt getopt1 snprintf strndup strsep strndup usleep
+LIBOBJS = $(addprefix ../lib/,$(addsuffix .lo,$(LIBLIB_FUNCS)))
+
+libsane-%.la: %.lo %-s.lo $(EXTRA) $(LIBOBJS)
+	@$(LIBTOOL) $(MLINK) $(CC) -export-dynamic -o $@ $($*_LIBS) \
+	$(LDFLAGS) $^ -rpath $(libsanedir) \
+	-version-info $(V_MAJOR):$(V_REV):$(V_MINOR)
+
+%-s.lo:	%-s.c
+	@$(LIBTOOL) $(MCOMP) $(COMPILE) -DSTUBS -DBACKEND_NAME=$* $<
+
+%.lo:	%.c
+	@$(LIBTOOL) $(MCOMP) $(COMPILE) -DBACKEND_NAME=$* \
+		-DLIBDIR=$(libsanedir) $<
+
+%-s.c:	$(srcdir)/stubs.c
+	rm -f $@
+	$(LN_S) $(srcdir)/stubs.c $@
+
+# Don't delete any intermediate files.
+.PRECIOUS: %-s.c %-s.lo %.lo dll-preload.c
+
+all:	$(LIBS) libsane.la
+
+install:
+	$(MKDIR) $(libdir) $(libsanedir) $(configdir)
+	@list="$(LIBS)"; for be in $$list; do \
+	  echo installing $${be} in $(libsanedir)...; \
+	  $(LIBTOOL) $(MINST) $(INSTALL_PROGRAM) $${be} $(libsanedir)/$${be} \
+	    || exit 1; \
+	done
+	@$(LIBTOOL) $(MINST) --finish $(libsanedir)
+	@list="$(ALL_BACKENDS)"; cd $(libsanedir) && for be in $$list; do \
+	  file=libsane-$${be}.so.$(V_MAJOR); \
+	  lib=`grep dlname= libsane-$${be}.la | cut -f2 -d"'"`; \
+	  if test ! -f $${file} -a -n "$${lib}"; then \
+	    $(LN_S) $${lib} $${file}; \
+	  fi; \
+	done
+	rm -f $(libdir)/libsane.a $(libdir)/libsane.so \
+		$(libdir)/libsane.so.$(V_MAJOR)*
+	$(LN_S) sane/libsane-dll.a $(libdir)/libsane.a
+	$(LN_S) sane/libsane-dll.so $(libdir)/libsane.so
+	@cd $(libsanedir) && for n in libsane-dll.so.$(V_MAJOR)*; do \
+	  nn=`echo $$n | sed 's,^libsane-dll,libsane,'`; \
+	  (cd ..; $(LN_S) sane/$$n $$nn); \
+	done || exit 1
+	@list="$(CONFIGS)"; for cfg in $$list; do \
+	  if test ! -r $(srcdir)/$${cfg}; then continue; fi; \
+	  if test -f $(configdir)/$${cfg}; then \
+	    echo NOT overwriting $${cfg} in $(configdir)...; \
+	  else \
+	    echo installing $${cfg} in $(configdir)...; \
+	    $(INSTALL_DATA) $(srcdir)/$${cfg} $(configdir)/$${cfg} || exit 1; \
+	  fi; \
+	done
+
+dll.lo: dll-preload.c
+
+dll-preload.c:
+	rm -f $@
+	list="$(DLL_PRELOAD)"; for be in $$list; do \
+	  echo "PRELOAD_DECL($$be)" >> $@; \
+	done
+	echo "static struct backend preloaded_backends[] = {" >> $@
+	sep=""; \
+	list="$(DLL_PRELOAD)"; \
+	if test -z "$${list}"; then \
+	  echo { 0 } >> $@; \
+	else \
+	  for be in $$list; do \
+	    echo "$${sep}PRELOAD_DEFN($$be)" >> $@; \
+	    sep=","; \
+	  done; \
+	fi
+	echo "};" >> $@
+
+libsane.la: dll.lo dll-s.lo $(EXTRA) $(addsuffix .lo,$(DLL_PRELOAD)) $(LIBOBJS)
+	@$(LIBTOOL) $(MLINK) $(CC) -o $@ $(LDFLAGS) $^ \
+		$(addsuffix .lo,$(DLL_PRELOAD_EXTRAS)) \
+		-rpath $(libdir) -version-info $(V_MAJOR):$(V_REV):$(V_MINOR)
+
+# additional dependencies
+
+EXTRA_hp = hp-accessor hp-device hp-handle hp-hpmem hp-option hp-scl
+EXTRA_dc210 = djpeg
+
+# When preloading dll, we need to add in all preloaded objects:
+libsane-dll.la: $(addsuffix .lo,$(DLL_PRELOAD))
+libsane-dll.la: $(addsuffix .lo,$(DLL_PRELOAD_EXTRAS))
+
+# We must not build SANE backend libraries that contain unresolved references
+# to any of the sanei routines.  These explicit dependencies take care of
+# this:
+
+libsane-abaton.la: ../sanei/sanei_config2.lo
+libsane-abaton.la: ../sanei/sanei_constrain_value.lo
+libsane-abaton.la: ../sanei/sanei_scsi.lo
+libsane-agfafocus.la: ../sanei/sanei_config2.lo
+libsane-agfafocus.la: ../sanei/sanei_constrain_value.lo
+libsane-agfafocus.la: ../sanei/sanei_scsi.lo
+libsane-apple.la: ../sanei/sanei_config2.lo
+libsane-apple.la: ../sanei/sanei_constrain_value.lo
+libsane-apple.la: ../sanei/sanei_scsi.lo
+libsane-artec.la: ../sanei/sanei_config2.lo
+libsane-artec.la: ../sanei/sanei_constrain_value.lo
+libsane-artec.la: ../sanei/sanei_scsi.lo
+libsane-canon.la: ../sanei/sanei_config2.lo
+libsane-canon.la: ../sanei/sanei_constrain_value.lo
+libsane-canon.la: ../sanei/sanei_scsi.lo
+libsane-coolscan.la: ../sanei/sanei_config2.lo
+libsane-coolscan.la: ../sanei/sanei_constrain_value.lo
+libsane-coolscan.la: ../sanei/sanei_scsi.lo
+libsane-dc25.la: ../sanei/sanei_constrain_value.lo
+libsane-dc210.la: ../sanei/sanei_constrain_value.lo djpeg.lo
+libsane-dmc.la: ../sanei/sanei_config2.lo
+libsane-dmc.la: ../sanei/sanei_constrain_value.lo
+libsane-dmc.la: ../sanei/sanei_scsi.lo
+libsane-epson.la: ../sanei/sanei_config2.lo
+libsane-epson.la: ../sanei/sanei_constrain_value.lo
+libsane-epson.la: ../sanei/sanei_scsi.lo
+libsane-epson.la: ../sanei/sanei_pio.lo
+libsane-hp.la: ../sanei/sanei_config2.lo
+libsane-hp.la: ../sanei/sanei_constrain_value.lo
+libsane-hp.la: ../sanei/sanei_scsi.lo
+libsane-hp.la: $(addsuffix .lo,$(EXTRA_hp))
+libsane-hp.la: ../sanei/sanei_pio.lo
+libsane-microtek.la: ../sanei/sanei_config2.lo
+libsane-microtek.la: ../sanei/sanei_constrain_value.lo
+libsane-microtek.la: ../sanei/sanei_scsi.lo
+libsane-microtek2.la: ../sanei/sanei_config2.lo
+libsane-microtek2.la: ../sanei/sanei_constrain_value.lo
+libsane-microtek2.la: ../sanei/sanei_scsi.lo
+libsane-mustek.la: ../sanei/sanei_config2.lo
+libsane-mustek.la: ../sanei/sanei_constrain_value.lo
+libsane-mustek.la: ../sanei/sanei_scsi.lo
+libsane-mustek.la: ../sanei/sanei_ab306.lo
+libsane-net.la: ../sanei/sanei_codec_bin.lo
+libsane-net.la: ../sanei/sanei_net.lo
+libsane-net.la: ../sanei/sanei_wire.lo
+libsane-pint.la: ../sanei/sanei_constrain_value.lo
+libsane-pnm.la: ../sanei/sanei_constrain_value.lo
+libsane-qcam.la: ../sanei/sanei_constrain_value.lo
+libsane-ricoh.la: ../sanei/sanei_config2.lo
+libsane-ricoh.la: ../sanei/sanei_constrain_value.lo
+libsane-ricoh.la: ../sanei/sanei_scsi.lo
+libsane-s9036.la: ../sanei/sanei_config2.lo
+libsane-s9036.la: ../sanei/sanei_constrain_value.lo
+libsane-s9036.la: ../sanei/sanei_scsi.lo
+libsane-sharp.la: ../sanei/sanei_config2.lo
+libsane-sharp.la: ../sanei/sanei_constrain_value.lo
+libsane-sharp.la: ../sanei/sanei_scsi.lo
+libsane-snapscan.la: ../sanei/sanei_config2.lo
+libsane-snapscan.la: ../sanei/sanei_constrain_value.lo
+libsane-snapscan.la: ../sanei/sanei_scsi.lo
+libsane-tamarack.la: ../sanei/sanei_config2.lo
+libsane-tamarack.la: ../sanei/sanei_constrain_value.lo
+libsane-tamarack.la: ../sanei/sanei_scsi.lo
+libsane-umax.la: ../sanei/sanei_config2.lo
+libsane-umax.la: ../sanei/sanei_constrain_value.lo
+libsane-umax.la: ../sanei/sanei_scsi.lo
+
+ifneq ($(DLL_PRELOAD),)
+# need to make dll dependent on all sanei files:
+libsane-dll.la libsane.la: ../sanei/sanei_config.lo
+libsane-dll.la libsane.la: ../sanei/sanei_config2.lo
+libsane-dll.la libsane.la: ../sanei/sanei_codec_bin.lo
+libsane-dll.la libsane.la: ../sanei/sanei_constrain_value.lo
+libsane-dll.la libsane.la: ../sanei/sanei_net.lo
+libsane-dll.la libsane.la: ../sanei/sanei_scsi.lo
+libsane-dll.la libsane.la: ../sanei/sanei_wire.lo
+libsane-dll.la libsane.la: ../sanei/sanei_ab306.lo
+libsane-dll.la libsane.la: ../sanei/sanei_pio.lo
+endif
+
+depend:
+	makedepend $(INCLUDES) *.c
+
+clean:
+	rm -f *.lo *.o *~ *.la libsane.la *.bak dll-preload.c
+	find . -type l -name \*-s.c | xargs rm -f
+	rm -rf .libs
+
+distclean: clean
+	rm -f Makefile libsane.so
+
+.PHONY: all install depend clean distclean

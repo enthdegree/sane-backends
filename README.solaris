@@ -1,0 +1,82 @@
+Fri Apr  3 00:45:55 1998
+
+You need a generic SCSI driver to run SANE on Solaris.  There are at
+least two such drivers: the scg driver by Joerg Schillig and the
+sg driver by Kevin Sheehan.
+
+NOTE: You should install the SCSI generic driver BEFORE you run
+`configure' in the sane directory---otherwise configure won't set up
+SANE to work with the generic scsi driver.
+
+*** scg driver
+
+The SCSI general driver scg is
+
+	Copyright 1986-1995 Joerg Schilling,
+
+It is supplied binary in pkgadd(1m) format and is tested from Solaris
+2.3 to Solaris 2.6 (sparc) and Solaris 2.3 to Solaris 2.5.1 (x86).  It
+can be found in
+
+	ftp://ftp.fokus.gmd.de/pub/unix/kernel/scg/
+
+To install it on a SPARC do:
+
+	cd /tmp 
+	get SCHILYscg.sparc.tar.Z
+	uncompress SCHILYscg.sparc.tar.Z
+	tar -xvf SCHILYscg.sparc.tar
+as root:
+	pkgadd -d .
+
+NOTE: Be very careful with pkgadd as it does not check for the correct
+      target architecture. Do not install drivers for x86 on sparc
+      and vice versa.  You will get a corrupt system otherwise.
+
+For Solaris on an x86 do:
+
+	cd /tmp 
+	get SCHILYscg.i386.tar.Z
+	uncompress SCHILYscg.i386.tar.Z
+	tar -xvf SCHILYscg.i386.tar
+as root:
+	pkgadd -d .
+
+Then do a reboot --r
+
+Once the system has rebooted, there should be a device node /dev/scgXX
+for each of your SCSI adapters (/dev/scg0 for the first adapter,
+/dev/scg1 for the second, and so on...)
+
+Because the device name specifies a SCSI adapter, you need to use a
+special device naming syntax so SANE can tell which device you want to
+talk to.  If the device is at SCSI id 0, the character 'a' should be
+appended, character 'b' should be used for SCSI id 1, and so on
+(see also the Solaris section in sane-scsi(5)).
+
+E.g., to configure an HP scanner, configuration file
+/opt/local/etc/sane.d/hp.conf might contain:
+
+	/dev/scg0c	if the scanner has the SCSI target id 2
+
+WARNING! Everybody who can read/write a generic SCSI device can do
+with all your disks whatever he/she wants. It takes only a few lines
+of code to send a FORMAT control block...  Rather than giving users
+access to the SCSI adapter special device, it may be a better idea to
+install scanimage/xscanimage setgid to a special "scanner" group and
+then turn on write permission for the scanner group.
+
+*** sg driver
+
+Another solution to the permission problem is to use the generic SCSI
+driver sg by Kevin Sheehan.  This driver is not free but uses separate
+device node for each SCSI target:
+
+	/dev/sg/0, /dev/sg/1, ...
+
+This allows to control device access on a per-device basis.
+
+If you have questions or problems with the Solaris support in SANE,
+send mail to:
+
+     hu@garfield.m.isar.de

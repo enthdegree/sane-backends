@@ -1,0 +1,155 @@
+-*-Mode: Outline-*-
+
+How to configure, build, and install SANE.
+
+* Prerequisites
+
+In order to build SANE, the following tools and libraries are required:
+
+	- GNU make: version 3.70 or newer
+
+	- ANSI C compiler: GNU C (gcc) is recommended for best performance,
+	  but any ANSI-compliant compiler should do
+
+	- To build the graphical frontends (xscanimage and xcam), it is
+	  necessary to have the GTK libraries (libgtk, libgdk, and
+	  libglib) and associated header files installed.  In
+	  addition, if you want to use xscanimage from within GIMP,
+	  you'll need to make sure libgimp (version 0.99.13 or newer)
+	  and its header files are installed as well.  The GTK libraries and
+	  GIMP can be obtained from:
+
+		ftp://ftp.gimp.org/pub/
+
+SANE is know to build on the following platforms:
+
+	- AIX
+	- Digital Unix (Alpha)		[no generic SCSI support]
+	- FreeBSD
+	- FreeSCO
+	- HP-UX (PA-RISC)
+	- IRIX
+	- Linux (Alpha, m68k, x86)
+	- NetBSD (x86?)
+	- OpenStep/NeXTStep (x86)	[xscanimage/xcam untested]
+	- OS/2
+	- Solaris (SPARC)
+	- SunOS (SPARC)			[no generic SCSI support]
+
+For a detailed support matrix, see:
+
+    http://www.mostang.com/sane/sane-support.html
+
+* Configuration
+
+Simply invoke configure in the top-level directory.  Besides the usual
+GNU configure options, there are the following SANE specific options:
+
+ --disable-shared
+	Don't use shared libraries.  Useful for debugging or when there
+	is a problem building shared libraries.  This implicitly turns
+	on --disable-dynamic as well.
+
+ --disable-dynamic
+	Disable dynamic loading of backends (in the dll backend).
+	configure normally turns on dynamic loading when it
+	can find the appropriate header files and libraries
+	(<dlfcn.h> and -dl).
+
+ --enable-preload
+	Preload backends into DLL backend.  This is useful for debugging,
+	when dynamic loading is unavailable, or to reduce runtime linking
+	overheads.  If dynamic loading or shared libraries are unavailable
+	or disabled, this option is turned on automatically.
+
+In addition to these SANE-specific configuration options, there are
+many standard-options.  To get a description of available standard
+option, invoke configure with option --help.
+
+If you plan on debugging one of the SANE programs, we recommend to run
+configure like this:
+
+   CFLAGS="-g -O -Wall" ./configure --disable-shared
+
+** AIX
+
+Under AIX, you'll need the generic SCSI device driver gsc written by
+Matthew Jacob <mjacob@feral.com> (nice piece of work!). When you
+install this driver, copy the header file gscdds.h to /usr/include, as
+we look for it there. 
+Find this driver under:
+
+	ftp://ftp.feral.com/pub/aix/gsc.tar.gz
+	ftp://ftp.thp.Uni-Duisburg.DE/pub/source/gsc.tar.gz
+
+** HP-UX
+
+Under HP-UX, it is necessary to add options -Aa and -D_HPUX_SOURCE to
+the compiler flags when using HP's C compiler (not gcc).  This can be
+done by invoking configure with:
+
+	CC=cc CPPFLAGS=-D_HPUX_SOURCE CFLAGS=-Aa ./configure
+
+** Solaris
+
+See README.solaris.
+
+* Build
+
+To build SANE, simply type "make" in the top-level directory.
+
+* Installation and Configuration
+
+Once the build has finished, install SANE with "make install".  By
+default, this will place the SANE libraries in /usr/local/lib/, the
+configuration files in /usr/local/etc/sane.d/, and the manual pages in
+/usr/local/man/.  The location of these directories can be overridden
+with configure options; see "configure --help" for details.
+
+For information on configuring and trouble-shooting the various SANE
+components, please refer to the manual pages listed below:
+
+       Regarding:	  Read:
+       -----------------  ------------------------------------------
+       scanimage	  scanimage(1)
+       xscanimage	  xscanimage(1)
+       saned		  saned(1)
+       xcam		  no man-page---see frontend/xcam.README
+
+       Dynamic loading	  sane-dll(5)
+       Mustek scanners	  sane-mustek(5) and sane-scsi(5)
+       UMAX scanners	  sane-umax(5) and sane-scsi(5)
+       HP scanners	  sane-hp(5) and sane-scsi(5)
+       Networking	  sane-net(5) and saned(1)
+       PINT scanners	  sane-pint(5)
+       QuickCam		  sane-qcam(5)
+
+Please note that the default configuration uses sane-dll as the
+top-level backend.  Hence it is probably a good idea to start with
+reading sane-dll(5).  The top-level backend is determined by the
+libsane.* symlinks in /usr/local/lib/.
+
+If you encounter any problems with getting your device(s) recognized,
+try setting the various environment variables that are there to assist
+in debugging such problems.  The environment variables are documented
+in the relevant manual pages.  For example, to get the maximum amount
+of debug information when testing a Mustek scanner, set environment
+variables SANE_DEBUG_DLL, SANE_DEBUG_MUSTEK, and SANE_DEBUG_SANEI_SCSI
+to 128 and then invoke scanimage or whatever program you're trying to
+debug.  For a Mustek scanner at /dev/scanner, you might want to invoke
+scanimage as follows:
+
+	scanimage -d mustek:/dev/scanner -h
+
+If this works, you could try to acquire an image with:
+
+	scanimage -d mustek:/dev/scanner >t.pnm
+
+If you are not sure what generic SCSI device your scanner is connected
+to, try the command tools/find-scanner.  It is normally sufficient to
+invoke the program without any arguments.  Invoking this command
+should produce output similar to this:
+
+  $ tools/find-scanner
+  find-scanner: found "MUSTEK MFC-06000CZ 1.01" at device /dev/scanner
+  find-scanner: found "MUSTEK MFC-06000CZ 1.01" at device /dev/sge

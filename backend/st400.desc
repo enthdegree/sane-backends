@@ -1,0 +1,13 @@
+; ST400 backend .desc by Ingo Wilken
+
+:backend "st400"			; name of backend
+:status :alpha				; :alpha, :beta, :stable, :new
+:manpage "sane-st400"		; name of manpage (if it exists)
+:url "http://www.informatik.uni-oldenburg.de/~ingo/sane/" ; backend's web page
+
+:devicetype :scanner		; start of a list of devices
+
+:mfg "Siemens"
+:url "http://www.siemens.de/"
+:model "ST400"
+:comment "6 bit gray"

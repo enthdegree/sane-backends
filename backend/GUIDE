@@ -1,0 +1,101 @@
+Thu Mar  4 22:41:24 1999
+
+Here are a few rules that should help writing a SANE-conformant
+backend:
+
+* Please make sure that all global symbols exported from a SANE
+  backend start with the prefix "sane" or "sanei".  You can
+  verify this by running GNU "nm" on the static library.  For
+  example:
+
+	nm -g  backend/.libs/libsane-hp.a
+
+  would list all global symbols in the HP backend.
+
+* Please test a backend with "scanimage -T" (plus other options,
+  as appropriate/necessary) as this will make sure that sane_read()
+  always returns the correct amount of data etc.
+
+* Please test a backend not just with scanimage and xscanimage, but
+  also with saned.  Based on past experience, it is often the case
+  that remote scanning can uncover subtle bugs.  Note that you don't
+  have to use two different machines to test "remote" scanning---you
+  can use one and the same machine to test a backend via saned (just
+  be sure to enable the "net" backend in dll.conf and follow the
+  steps described in saned(1)).
+
+* Please follow the GNU coding standards.  It's clear that the style
+  outlined there is nobody's favorite, but it's much easier to
+  maintain SANE if everybody follows more or less the same coding
+  style.  It also looks more professional.  The GNU standards can be
+  found at:
+
+	http://www.gnu.org/prep/standards_toc.html
+	ftp://ftp.gnu.org/pub/gnu/standards/standards.text
+
+  Note that GNU emacs supports automatic indentation according to this
+  standard.  The command "indent -gnu" can be used to reformat
+  existing sources according to this standard.
+
+* Please be curteous to programmer's with terminals that are 80
+  characters wide.  It's not difficult to avoid long lines, so please
+  do so.  Note that in ANSI C you can split long strings into pieces
+  separated by white space.  For example,
+  "this is an awfully long string" can be written as "this is an "
+  "awfully long string".
+
+* Please do not assume that `size_t' is `unsigned int'.  On some
+  systems, it's `unsigned long' and the size of this type may be
+  bigger than that of an int (this is true for practially any of the
+  64-bit systems).  To print a variable of type size_t portably, cast
+  the variable to u_long and print it with the %lu specifier.  E.g.:
+
+	size_t len;
+
+	printf ("len=%lu\n", (u_long) len);
+
+* Please do not depend on GNU C specific features or, if you do, make
+  the dependency conditional so other compilers will still be able to
+  compile the files.  In particular:
+
+	- do not use C++ style comments (//-line comments)
+
+	- do not declare dynamically sized automatic arrays; instead,
+	  use alloca() after including <lalloca.h>.  For example:
+
+		void
+		func (int n)
+		{
+		  char buf[n];
+		}
+
+	  should be re-written as:
+
+		#ifdef _AIX
+		# include <lalloca.h>	/* MUST come first for AIX! */
+		#endif
+
+		#include "sane/config.h"
+		#include <lalloca.h>
+			:
+		void
+		func (int n)
+		{
+		  char *buf = alloca (n);
+		}
+
+* Even if you haven't written a man-page for your backend yet, you
+  *must* create a .desc file which describes it.  Anytime you submit
+  source code for your backend, you should include an update to the
+  .desc file which reflects the new state of the backend.
+
+  "template.desc." is a template for new .desc files.  If you'd like
+  to try parsing your creation to recreate the sane-backends webpage,
+  look at "sane-desc.el" in the tools/ directory.
+
+* Don't use any #pragma directives---they're completely
+  compiler-dependent.
+
+* Do make sure that your code is byte-order independent.  This is
+  particularly important for networking-related code and when dealing
+  with non-textual data files.

@@ -10,7 +10,8 @@
 ;
 
 :backend "template"               ; name of backend
-:version "0.n"                    ; version of backend
+:version "0.n"                    ; version of backend, use brackets (x.y) if
+                                  ; the backend is not included in SANE yet
 :status :alpha                    ; :alpha, :beta, :stable, :new
 :manpage "sane-template"          ; name of manpage (if it exists)
 :url "http://www.luser.com/temp/" ; backend's web page
@@ -25,7 +26,7 @@
 :interface "SCSI"                 ; interface type of the device:
                                   ; "SCSI", "USB", "Parport (EPP)",
                                   ; "Parport (SPP)", "Parport (ECP)",
-                                  ; "Serial port" or "Propretiary".
+                                  ; "Serial port" or "Proprietary".
 :model "Templ ZS"
 :interface "USB"
 :model "Templ ZQ"

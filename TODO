@@ -1,4 +1,4 @@
-TODO (2000-09-16)
+TODO (2000-09-17)
 
 ******** todo ********
 
@@ -81,14 +81,11 @@ frontends
   * xcam: add dithering and support for SANE depths other than 8 bit (test
     with Mustek backend, for example)
 
-   * xcam: add recording feature (e.g., GIF, JPG, or MPEG)
+  * xcam: add recording feature (e.g., GIF, JPG, or MPEG)
 
-   * dll: make it robust against against it being listed in the configuration
-     file (currently bad things will happen if dll attempts to load itself)
+  * dll: make it robust against against it being listed in the configuration
+    file (currently bad things will happen if dll attempts to load itself)
  
-   * xscanimage: Fix "Gtk-CRITICAL **: file gtkmain.c: line 534 ..." bug
-     when no SANE devices found
-
 sanei
 -----
   * don't install sanei_* headers (?)
@@ -111,18 +108,6 @@ misc
     - only global debug level
 
   * remove compiler warnings (>400 warnings even in disable-warning mode!)
-
-  * Update LEVEL2 file. Ideas:
-    - add support for buttons etc. on the scanner/camera
-    - Change of the version number system (the current standard version
-      system is not really used in the SANE distribution).
-    - add more frame types
-    - add alpha channel so that RGBI scanners like Nikon LS-20 can
-      send infra-red info back to gimp for post-processing
-    - Might be nice if arbitrarily defined multiple channels, were possible.
-      Some way of indicating the number of channels possible, and some
-      details (wavelength, bandwidth, ...)
-    - (see sane-devel archive for more ideas)
 
   * Test SANE on different os/platforms, fix possible compilation problems 
      Test methods: scanimage -d pnm:0 --filename=file.pnm -T
@@ -148,6 +133,9 @@ misc
 
 ******** done ********
 
+* Update LEVEL2 file. Ideas:
+* xscanimage: Fix "Gtk-CRITICAL **: file gtkmain.c: line 534 ..." bug
+  when no SANE devices found
 + PREVIEW: maybe there should be an option to limit the preview
   scan to the selected area? YES => this will also make it easier
   to avoid the scan area selection to get confused when the user

@@ -1,4 +1,4 @@
-.TH sane-mustek 5 "22 Dec 2001"
+.TH sane-mustek 5 "5 Nov 2002"
 .IX sane-mustek
 .SH NAME
 sane-mustek - SANE backend for Mustek flatbed scanners
@@ -365,6 +365,8 @@ Scanning with the SCSI adapters supplied by Mustek is very slow at
 high resolutions and wide scanareas. 
 
 Some scanners (e.g. Paragon 1200 A3 + Pro, SE A3) need more testing.
+
+The gamma table supports only 256 colors, even if some scanners can do more.
 
 More detailed bug information is available at the Mustek backend
 homepage

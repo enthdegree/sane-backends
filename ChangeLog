@@ -8,6 +8,10 @@
 	  backend options. Updated manpage and .desc file concerning scanner
 	  status. Added untested flag for Mustek ScanEpress A3 USB and Lexmark
 	  X73.
+	* backend/mustek.c doc/sane-mustek.man doc/descriptions/mustek.desc
+	  doc/mustek/mustek.CHANGES: Upload linear gamma table for Pro models
+	  if custom gamma is off instead of uploading the composed gamma table.
+	  That avoids applying gamm twice. Minor man page update.
 
 2002-11-05   Stéphane Voltz  <svoltz@wanadoo.fr>
 

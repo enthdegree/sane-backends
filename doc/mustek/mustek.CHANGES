@@ -1,5 +1,13 @@
 CHANGES for the SANE Mustek backend
 
+2002-11-07
+  * Released Mustek backend 1.0-129
+
+2002-11-05
+  * Upload linear gamma table for Pro models if custom gamma is off instead
+    of uploading the composed gamma table. That avoids applying gamm twice.
+  * Minor man page update.
+
 2002-10-11
   * Released Mustek backend 1.0-128
 

@@ -25,6 +25,8 @@
 	* README: Updated. Fixed minor bugs.
 	* AUTHORS: Added sanei authors.
 	* doc/saned.man: Added info about data connection.
+	* po/mustek.de.po: Updated German translation for the Mustek SCSI
+	  backend.
 
 2001-01-08  Stéphane Voltz  <svoltz@wanadoo.fr>
 

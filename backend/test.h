@@ -81,9 +81,7 @@ typedef struct Test_Device
   SANE_Parameters params;
   SANE_String name;
   SANE_Int reader_pid;
-#ifdef HAVE_OS2_H
-  SANE_Int reader_fds;  /* OS/2: pipe write handler for reader */
-#endif
+  SANE_Int reader_fds;
   SANE_Int pipe;
   FILE *pipe_handle;
   SANE_Word pass;

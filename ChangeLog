@@ -1,3 +1,13 @@
+2002-10-04  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* backend/plustek.conf fixed option enableTPA
+	* po/plustek.de.po po/plustek.es.po removed "Negative"
+	* backend/plustek.c backend/plustek-devs.c backend/plustek-usb.c 
+	  backend/plustek-usbhw.c backend/plustek-usbimg.c
+	  backend/plustek-usbmap.c backend/plustek-usbscan.c
+	  backend/plustek-usbshading.c
+	  Minor bug fixes
+
 2002-10-04  Karl Heinz Kremer <khk@khk.net>
 
 	* doc/sane-epson.man: Added quotes around halftoning options.

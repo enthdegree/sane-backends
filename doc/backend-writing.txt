@@ -1,4 +1,4 @@
-2002-05-05
+2002-06-09
 
 Here are a few rules and tips that should help writing a
 SANE-conformant backend and including it into the SANE package:
@@ -205,12 +205,13 @@ DOCUMENTATION
 * The .desc files are located in the directories "doc/descriptions" and
   "doc/descriptions-external" (for included and external backends).
 
-* "template.desc." is a template for new .desc files. The format of the files
-  in the two directories is very similar.  If you'd like to try parsing your
-  creation to recreate the sane-backends webpages, look at "sane-desc.el" and
-  "sane-desc-ext.el" in the tools/ directory or use "make sane-backends.html"
-  and "make sane-backends-external.html" in "doc/". It may be necessary to
-  adjust the Makefile.
+* "doc/descriptions.txt" describes the format of the ".desc" files. There is
+  also a template for new .desc files: "template.desc.". The format of the
+  files in the two directories is very similar.  If you'd like to try parsing
+  your creation to recreate the sane-backends webpages, look at "sane-desc.el"
+  and "sane-desc-ext.el" in the tools/ directory or use "make
+  sane-backends.html" and "make sane-backends-external.html" in "doc/". It may
+  be necessary to adjust the Makefile.
 
 * When your backend is included in the SANE distribution, add an entry to
   doc/sane.man, AUTHORS and sane-backends.lsm. The sane.man entry should point

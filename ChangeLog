@@ -1,5 +1,11 @@
 2001-05-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* TODO: Updates concerning memory leaks and access violations.
+
+	* AUTHORS doc/Makefile.in: doc/sane-sm3600.man doc/sane.man: Updated
+	  documentation concerning sm3600 backend and added man page (from
+	  from Marian Eichholz <eichholz@computer.org>).
+	
 	* configure configure.in include/sane/config.h.in: Detect presence
 	  of libusb and enable sm3600 backend.
 	

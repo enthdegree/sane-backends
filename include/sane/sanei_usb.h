@@ -54,7 +54,7 @@
  * are not file descriptors.
  *
  * @sa sanei_lm983x.h, sanei_pa4s2.h, sanei_pio.h, sanei_scsi.h, and <a 
- * href="http://www.mostang.com/sane/man/sane-usb.5.html">man sane-usb(5)</a>
+ * href="http://www.sane-project.org/man/sane-usb.5.html">man sane-usb(5)</a>
  * for user-oriented documentation
  */
 

@@ -66,18 +66,18 @@
  *
  * @section additional Additional documentation
  * - The SANE standard can be found at <a 
- *   href="http://www.mostang.com/sane/html/">the SANE webserver</a>.
+ *   href="http://www.sane-project.org/html/">the SANE webserver</a>.
  * - Information on how to write a backend: <a
  *   href="../backend-writing.txt">backend-writing.txt</a>.
  * - General SANE documentation is on <a
- *   href="http://www.mostang.com/sane/docs.html>the SANE documentation
+ *   href="http://www.sane-project.org/docs.html>the SANE documentation
  *   page</a>.
  * 
  * @section contact Contact 
  *
  * The common way to contact the developers of SANE is the sane-devel
  * mailing list. See the <a
- * href="http://www.mostang.com/sane/mail.html">mailing list webpage</a>
+ * href="http://www.sane-project.org/mailing-lists.html">mailing list webpage</a>
  * for details. That's the place to ask questions, report bugs, or announce
  * a new backend.
  * 

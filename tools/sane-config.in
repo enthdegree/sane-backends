@@ -1,8 +1,8 @@
 #!/bin/sh
 #
-# This script is part of SANE, <URL:http://www.mostang.com/sane/>
+# This script is part of SANE, <URL:http://www.sane-project.org/>
 #
-# Send bugreports and other requests to sane-devel@mostang.com
+# Send bugreports and other requests to sane-devel@lists.alioth.debian.org
 
 PACKAGE="@PACKAGE@"
 scriptname="sane-config"

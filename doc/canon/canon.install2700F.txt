@@ -84,7 +84,7 @@ Corrections and suggestions are welcome, of course. Thank you.
 --------------------------------------------------------
 
    Fetch the latest SANE distribution from the SANE homepage at:
-       http://www.mostang.com/sane.
+       http://www.sane-project.org/
    
    Unpack and configure it.
    

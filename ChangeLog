@@ -1,3 +1,9 @@
+2002-08-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* AUTHORS: Made Ulrich Deiters the active maintainer of the canon
+	  backend.
+	* TODO: Updated concerning HP backend and manufacturer names.
+
 2002-08-07  Matthew Duggan <stauff1@users.sourceforge.net>
 
 	* backend/canon_pp.c backend/canon_pp-dev.c backend/caon_pp-io.c

@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-05-22"		; version of backend
+:version "2003-05-25"		; version of backend
 :url "http://www.meier-geinitz.de/sane/misc/unsupported.html"
 ;:status :stable			; :alpha, :beta, :stable, :new
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
@@ -583,6 +583,15 @@
 :interface "USB"
 :status :unsupported
 :comment "Not supported. Some information is available. Vendor=0x06dc product=0x0014. Is reported to use an RealTek RTS8801 chipset."
+
+;********************************************************************************************
+
+:mfg "Reflecta"
+
+:model "DigitDia 3600"
+:interface "USB IEEE-1394"
+:status :unsupported
+:comment "Probably unsupported. Film scanner that can scan directly from the magazine."
 
 ;********************************************************************************************
 

@@ -1,3 +1,7 @@
+2003-05-25  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added DigitDia 3600.
+
 2003-05-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/mustek.desc: Primax Compact 4800 SCSI is

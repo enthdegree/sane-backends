@@ -4,6 +4,10 @@
 	  for --fixed-constraint-range (bug #300388).
 	* include/sane/sanei_usb.h: Include stdlib.h for size_t.
 	* sanei/sanei_constrain_value.c: Fixed overflow (bug #300389).
+	* acinclude.m4 aclocal.m4 configure configure.in backend/v4l.c
+	  backend/v4l.h doc/descriptions/v4l.desc: Don't include
+	  linux/videodev.h kernel header anymore. Use own defines
+	  instead. Fixes bug #300324.
 
 2003-12-18  Gerhard Jaeger <gerhard@gjaeger.de>
 	* doc/sane-plustek.man: new version, minor fixes

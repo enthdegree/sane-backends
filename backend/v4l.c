@@ -1,6 +1,6 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 1999 Juergen G. Schimmer
-   Updates and bugfixes (C) 2002 Henning Meier-Geinitz
+   Updates and bugfixes (C) 2002, 2003 Henning Meier-Geinitz
 
    This file is part of the SANE package.
 
@@ -43,7 +43,7 @@
    This file implements a SANE backend for v4l-Devices.
 */
 
-#define BUILD 2
+#define BUILD 3
 
 #include "../include/sane/config.h"
 
@@ -73,14 +73,6 @@
 
 #include <sys/ioctl.h>
 #include <asm/types.h>		/* XXX glibc */
-
-/* Avoid inclusion of <linux/videodev2.h> from <linux/videodev.h>.
- * It includes <linux/time.h> which redefines some structs from <sys/time.h>.
- * It doesn't matter at the moment, because we don't support V4L2 anyway.
- */
-#define __LINUX_VIDEODEV2_H
-
-#include <linux/videodev.h>
 
 #define BACKEND_NAME v4l
 #include "../include/sane/sanei_backend.h"

@@ -108,10 +108,10 @@ AC_CHECK_HEADERS(fcntl.h unistd.h libc.h sys/dsreq.h sys/select.h \
     sys/types.h sys/scsi/scsi.h sys/scsi/sgdefs.h sys/scsi/targets/scgio.h \
     apollo/scsi.h sys/sdi_comm.h sys/passthrudef.h linux/ppdev.h \
     dev/ppbus/ppi.h machine/cpufunc.h usb.h sys/bitypes.h sys/sem.h sys/poll.h \
-    IOKit/cdb/IOSCSILib.h IOKit/scsi-commands/SCSICommandOperationCodes.h windows.h limits.h )
+    IOKit/cdb/IOSCSILib.h IOKit/scsi-commands/SCSICommandOperationCodes.h \
+    windows.h limits.h sys/ioctl.h asm/types.h)
 AC_CHECK_HEADERS([asm/io.h],,,[#include <sys/types.h>])
 SANE_CHECK_MISSING_HEADERS
-SANE_V4L_VERSION
 
 dnl ***********************************************************************
 dnl Checks for types and structures
@@ -172,6 +172,15 @@ AC_MSG_CHECKING([for struct flock in fcntl.h])
 AC_EGREP_HEADER([struct flock], fcntl.h, [AC_MSG_RESULT(yes) ;
                 AC_DEFINE(HAVE_STRUCT_FLOCK, 1,
                 [Define if struct flock is available.])], AC_MSG_RESULT(no))
+
+AC_MSG_CHECKING([for Linux ioctl defines])
+AC_TRY_COMPILE([
+#include <sys/ioctl.h>
+#include <asm/types.h>
+],[
+__u32 houba = _IOR('v',14, unsigned long);
+],[AC_MSG_RESULT(yes);
+have_linux_ioctl_defines="yes";],AC_MSG_RESULT(no))
 
 dnl ***********************************************************************
 dnl Checks for compiler characteristics
@@ -322,9 +331,9 @@ else
     BACKENDS="${BACKENDS} qcam"
   fi
 
-  if test "${sane_v4l_version}" != "v4l"
+  if test "${have_linux_ioctl_defines}" != "yes"
   then
-    echo "*** disabling v4l (Video for Linux) backend (linux/videodev.h not found or unusable)"
+    echo "*** disabling v4l (Video for Linux) backend"
   else
     BACKENDS="${BACKENDS} v4l"
   fi

@@ -10,7 +10,7 @@
 ;
 
 :backend "v4l"                    ; name of backend
-:version "1.0-2"                  ; version of backend
+:version "1.0-3"                  ; version of backend
 :manpage "sane-v4l"               ; name of manpage (if it exists)
 :url "mailto:henning@meier-geinitz.de" ; backend's web page
 

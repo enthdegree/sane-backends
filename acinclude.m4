@@ -5,7 +5,6 @@ dnl   SANE_CHECK_MISSING_HEADERS
 dnl   SANE_SET_LDFLAGS
 dnl   SANE_CHECK_DLL_LIB
 dnl   SANE_EXTRACT_LDFLAGS(LDFLAGS, LIBS)
-dnl   SANE_V4L_VERSION
 dnl   SANE_CHECK_JPEG
 dnl   SANE_CHECK_IEEE1284
 dnl   SANE_CHECK_PTHREAD
@@ -178,54 +177,6 @@ done
 $2="${tmp_LIBS}"
 unset tmp_LIBS
 unset param
-])
-
-#
-# Test header file <linux/videodev.h> to check if this is Video for
-# Linux 1 or 2.  Sets variable sane_v4l_version to 'v4l' or 'v4l2'
-# depending on the detected version.
-# Test by Petter Reinholdtsen <pere@td.org.uit.no>, 2000-07-07
-#
-AC_DEFUN([SANE_V4L_VERSION],
-[
-  AC_CHECK_HEADER([linux/videodev.h],
-  [
-    AC_CACHE_CHECK([Video4Linux version 1 or 2], sane_v4l_version,
-    [
-      AC_EGREP_CPP(v4l2_yes,
-      [
-        #include <linux/videodev.h>
-        #ifdef V4L2_MAJOR_VERSION
-          v4l2_yes
-        #endif
-      ],[sane_v4l_version=v4l2],[sane_v4l_version=v4l])
-    ])
-  ],,
-  [
-    /* To be sure, we include everything v4l includes */
-    #include <assert.h>
-    #include <ctype.h>
-    #include <errno.h>
-    #include <fcntl.h>
-    #include <limits.h>
-    #include <math.h>
-    #include <setjmp.h>
-    #include <signal.h>
-    #include <stdio.h>
-    #include <stdlib.h>
-    #include <string.h>
-    #include <sys/types.h>
-    #include <sys/wait.h>
-    #include <unistd.h>
-    #include <sys/mman.h>
-
-    #include <unistd.h>
-    #include <sys/time.h>
-    #include <sys/stat.h>
-    #include <sys/ioctl.h>
-    #include <asm/types.h>
-    #define __LINUX_VIDEODEV2_H
-  ])
 ])
 
 #

@@ -1092,7 +1092,16 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  break;
 
 	case GPHOTO2_OPT_SNAP:
-	  gphoto2_opt_snap = !!*(SANE_Word *) value;
+	  switch (  *(SANE_Bool *) value ) {
+	  case SANE_TRUE:
+	    gphoto2_opt_snap = SANE_TRUE;
+	    break;
+	  case SANE_FALSE:
+	    gphoto2_opt_snap = SANE_FALSE;
+	    break;
+	  default:
+	    return SANE_STATUS_INVAL;
+	  }
 
 	  /* Snap forces new image size and changes image range */
 
@@ -1143,7 +1152,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  break;
 
 	case GPHOTO2_OPT_FOLDER:
-	  printf ("FIXME set folder not implemented yet\n");
+	  DBG (1, "FIXME set folder not implemented yet\n");
 	  break;
 
 	case GPHOTO2_OPT_DEFAULT:
@@ -1404,7 +1413,7 @@ sane_start (SANE_Handle handle)
   CHECK_RET (gp_file_get_mime_type (data_file, &mime_type));
   if (strcmp (GP_MIME_JPEG, mime_type) != 0)
     {
-      DBG (0, "FIXME - Only jpeg files currently supported\n");
+      DBG (0, "FIXME - Only jpeg files currently supported, can't do %s for file %s/%s\n",mime_type, cmdbuf, filename );
       return SANE_STATUS_INVAL;
     }
 
@@ -1443,6 +1452,11 @@ SANE_Status
 sane_read (SANE_Handle UNUSEDARG handle, SANE_Byte * data,
 	   SANE_Int max_length, SANE_Int * length)
 {
+  if ( Cam_data.scanning == SANE_FALSE ) 
+    {
+      return SANE_STATUS_INVAL;
+    }
+
   /* If there is anything in the buffer, satisfy the read from there */
   if (linebuffer_size && linebuffer_index < linebuffer_size)
     {
@@ -1506,7 +1520,23 @@ SANE_Status
 sane_set_io_mode (SANE_Handle UNUSEDARG handle, SANE_Bool
 		  UNUSEDARG non_blocking)
 {
-  return SANE_STATUS_UNSUPPORTED;
+  /* sane_set_io_mode() is only valid during a scan */
+  if (Cam_data.scanning)
+    {
+      if ( non_blocking == SANE_FALSE )
+        {
+	  return SANE_STATUS_GOOD;
+	}
+      else
+        {
+	  return SANE_STATUS_UNSUPPORTED;
+        }
+    }
+  else 
+    {
+      /* We aren't currently scanning */
+      return SANE_STATUS_INVAL;
+    }
 }
 
 /*
@@ -1924,4 +1954,6 @@ converter_init (void)
   parms.pixels_per_line = cinfo.output_width;
   parms.lines = cinfo.output_height;
 
+  linebuffer_size=0;
+  linebuffer_index=0;
 }

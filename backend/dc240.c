@@ -1026,6 +1026,17 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   switch (action)
     {
     case SANE_ACTION_SET_VALUE:
+
+      /* Can't set disabled options */
+      if (!SANE_OPTION_IS_ACTIVE (sod[option].cap))
+	{
+	  return (SANE_STATUS_INVAL);
+	}
+
+      /* initialize info to zero - we'll OR in various values later */
+      if (info)
+	*info = 0;
+
       status = sanei_constrain_value (sod + option, value, &myinfo);
       if (status != SANE_STATUS_GOOD)
 	{
@@ -1036,7 +1047,11 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       switch (option)
 	{
 	case DC240_OPT_IMAGE_NUMBER:
-	  Camera.current_picture_number = *(SANE_Word *) value;
+	  if (*(SANE_Word *) value <= Camera.pic_taken)		
+	    Camera.current_picture_number = *(SANE_Word *) value;
+	  else
+	    Camera.current_picture_number = Camera.pic_taken;
+
 	  myinfo |= SANE_INFO_RELOAD_PARAMS;
 
 	  /* get the image's resolution, unless the camera has no 
@@ -1051,6 +1066,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	case DC240_OPT_THUMBS:
 	  dc240_opt_thumbnails = !!*(SANE_Word *) value;
+
+	  /* Thumbnail forces an image size change: */
 	  myinfo |= SANE_INFO_RELOAD_PARAMS;
 
 	  if (Camera.pic_taken != 0)
@@ -1061,7 +1078,19 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  break;
 
 	case DC240_OPT_SNAP:
-	  dc240_opt_snap = !!*(SANE_Word *) value;
+	  switch (  *(SANE_Bool *) value ) {
+	  case SANE_TRUE:
+	    dc240_opt_snap = SANE_TRUE;
+	    break;
+	  case SANE_FALSE:
+	    dc240_opt_snap = SANE_FALSE;
+	    break;
+	  default:
+	    return SANE_STATUS_INVAL;
+	  }
+
+	  /* Snap forces new image size and changes image range */
+
 	  myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
 	  /* if we are snapping a new one */
 	  if (dc240_opt_snap)
@@ -1103,7 +1132,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  break;
 
 	case DC240_OPT_FOLDER:
-	  printf ("FIXME set folder not implemented yet\n");
+	  DBG (1, "FIXME set folder not implemented yet\n");
 	  break;
 
 	case DC240_OPT_DEFAULT:
@@ -1144,6 +1173,12 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       break;
 
     case SANE_ACTION_GET_VALUE:
+      /* Can't return status for disabled options */
+      if (!SANE_OPTION_IS_ACTIVE (sod[option].cap))
+	{
+	  return (SANE_STATUS_INVAL);
+	}
+
       switch (option)
 	{
 	case 0:
@@ -1191,7 +1226,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	}
     }
 
-  if (info)
+  if (info  &&  action == SANE_ACTION_SET_VALUE)
     {
       *info = myinfo;
       myinfo = 0;
@@ -1426,6 +1461,11 @@ sane_read (SANE_Handle UNUSEDARG handle, SANE_Byte * data,
   SANE_Int lines = 0;
   SANE_Char filename_buf[256];
 
+  if ( Camera.scanning == SANE_FALSE ) 
+    {
+      return SANE_STATUS_INVAL;
+    }
+
   /* If there is anything in the buffer, satisfy the read from there */
   if (linebuffer_size && linebuffer_index < linebuffer_size)
     {
@@ -1520,7 +1560,23 @@ SANE_Status
 sane_set_io_mode (SANE_Handle UNUSEDARG handle, SANE_Bool
 		  UNUSEDARG non_blocking)
 {
-  return SANE_STATUS_UNSUPPORTED;
+  /* sane_set_io_mode() is only valid during a scan */
+  if (Camera.scanning)
+    {
+      if ( non_blocking == SANE_FALSE )
+        {
+	  return SANE_STATUS_GOOD;
+	}
+      else
+        {
+	  return SANE_STATUS_UNSUPPORTED;
+        }
+    }
+  else 
+    {
+      /* We aren't currently scanning */
+      return SANE_STATUS_INVAL;
+    }
 }
 
 SANE_Status

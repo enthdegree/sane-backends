@@ -1,3 +1,10 @@
+2002-04-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/mustek_usb.c doc/descriptions/mustek_usb.desc
+	  doc/mustek_usb/mustek_usb.CHANGES: Cleanup in sane_control_option,
+	  sane_set_io_mode, sane_get_select_fd and sane_exit. New version:
+	  1.0-13.
+
 2002-04-09  Petter Reinholdtsen <pere@td.org.uit.no>
 
 	* sanei/sanei_pv8630.c (sanei_pv8630_bulkwrite): Avoid warning on
@@ -17,7 +24,7 @@
 	* doc/descriptions/avision.desc: fixed syntax
 
 2002-04-08  Henning Meier-Geinitz <henning@meier-geinitz.de>
-
+ 
 	* Makefile.in: make libcheck now also checks for non-static variables.
 	* v4l.c: Some variables haven't been static. sane_set_io_mode must
 	  return SANE_STATUS_GOOD if non_blocking == SANE_FALSE.

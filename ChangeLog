@@ -1,3 +1,10 @@
+2003-11-27  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* doc/plustek/Plustek.changes: moved to Plustek-USB.changes
+	* doc/plustek/Plustek-PARPORT.changes: added
+	* doc/plustek/Plustek-USB.txt doc/sane-plustek.man
+	  doc/sane-plustek_pp.man: Update
+
 2003-11-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Epson CX6400. Removed

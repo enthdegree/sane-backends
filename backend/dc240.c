@@ -126,7 +126,7 @@ static DC240 Camera;
 
 static SANE_Range image_range = {
   0,
-  14,
+  0,
   0
 };
 
@@ -994,10 +994,13 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  Camera.current_picture_number = *(SANE_Word *) value;
 	  myinfo |= SANE_INFO_RELOAD_PARAMS;
 
-	  /* get the image's resolution */
-	  set_res (Camera.
-		   Pictures[Camera.current_picture_number - 1].low_res);
-
+	  /* get the image's resolution, unless the camera has no 
+	   * pictures yet 
+           */
+	  if ( Camera.pic_taken != 0 ) {
+	    set_res (Camera.
+		     Pictures[Camera.current_picture_number - 1].low_res);
+	  }
 	  break;
 
 	case DC240_OPT_THUMBS:

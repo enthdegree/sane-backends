@@ -48,7 +48,7 @@
 
 /*--------------------------------------------------------------------------*/
 
-#define BUILD 4					/* 2002/04/08 */
+#define BUILD 5			/* 2002/04/21 */
 #define BACKEND_NAME teco1
 #define TECO_CONFIG_FILE "teco1.conf"
 
@@ -142,7 +142,7 @@ static const struct scanners_supported scanners[] = {
    },
 
   {6, "TECO VM3520",
-   "AVEC", "Colour Office 2400",
+   "Relisys", "AVEC Colour Office 2400",
    {1, 600, 1},			/* resolution */
    300, 600,			/* max x and Y resolution */
    3				/* color 3 pass */
@@ -327,7 +327,7 @@ teco_free (Teco_Scanner * dev)
     {
       free (dev->buffer);
     }
-  if (dev->image == NULL)
+  if (dev->image)
     {
       free (dev->image);
     }
@@ -644,7 +644,12 @@ get_filled_data_length (Teco_Scanner * dev, size_t * to_read)
   status = sanei_scsi_cmd2 (dev->sfd, cdb.data, cdb.len,
 			    NULL, 0, dev->buffer, &size);
 
-  assert (size == 0x12);
+  if (size < 0x10)
+    {
+      DBG (DBG_error,
+	   "get_filled_data_length: not enough data returned (%ld)\n",
+	   (long) size);
+    }
 
   hexdump (DBG_info2, "get_filled_data_length return", dev->buffer, size);
 
@@ -654,18 +659,34 @@ get_filled_data_length (Teco_Scanner * dev, size_t * to_read)
        dev->params.lines, B16TOI (&dev->buffer[12]),
        dev->params.bytes_per_line, B16TOI (&dev->buffer[14]));
 
-  switch (dev->scan_mode)
+  if (dev->real_bytes_left == 0)
     {
-    case TECO_BW:
-      assert (dev->params.lines == B16TOI (&dev->buffer[12]));
-      assert (dev->params.bytes_per_line == B16TOI (&dev->buffer[14]));
-      break;
+      /* Beginning of a scan. */
+      dev->params.lines = B16TOI (&dev->buffer[12]);
 
-    case TECO_GRAYSCALE:
-    case TECO_COLOR:
-      assert (dev->params.lines == B16TOI (&dev->buffer[12]));
-      assert (dev->params.pixels_per_line == B16TOI (&dev->buffer[14]));
-      break;
+      switch (dev->scan_mode)
+	{
+	case TECO_BW:
+	  dev->params.bytes_per_line = B16TOI (&dev->buffer[14]);
+	  dev->params.pixels_per_line = dev->params.bytes_per_line / 8;
+	  break;
+
+	case TECO_GRAYSCALE:
+	  dev->params.pixels_per_line = B16TOI (&dev->buffer[14]);
+	  dev->params.bytes_per_line = dev->params.pixels_per_line;
+
+	case TECO_COLOR:
+	  dev->params.pixels_per_line = B16TOI (&dev->buffer[14]);
+	  if (dev->def->pass == 3)
+	    {
+	      dev->params.bytes_per_line = dev->params.pixels_per_line;
+	    }
+	  else
+	    {
+	      dev->params.bytes_per_line = dev->params.pixels_per_line * 3;
+	    }
+	  break;
+	}
     }
 
   DBG (DBG_info, "get_filled_data_length: to read = %ld\n", (long) *to_read);
@@ -1319,8 +1340,6 @@ teco_copy_raw_to_frontend (Teco_Scanner * dev, SANE_Byte * buf, size_t * len)
 static SANE_Status
 do_cancel (Teco_Scanner * dev)
 {
-  SANE_Status status;
-
   DBG (DBG_sane_proc, "do_cancel enter\n");
 
   if (dev->scanning == SANE_TRUE)
@@ -1334,9 +1353,9 @@ do_cancel (Teco_Scanner * dev)
       dev->width = 0;
       dev->length = 0;
 
-      status = teco_set_window (dev);
+      teco_set_window (dev);
 
-      status = teco_scan (dev);
+      teco_scan (dev);
 
       teco_close (dev);
     }
@@ -1700,6 +1719,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	      dev->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
 	      dev->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
 	      dev->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
+	      dev->opt[OPT_GAMMA_VECTOR_GRAY].cap |= SANE_CAP_INACTIVE;
 	    }
 	  if (info)
 	    {
@@ -1800,15 +1820,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 	  dev->params.pixels_per_line =
 	    ((dev->width * dev->x_resolution) / 300);
 	  dev->pass = dev->def->pass;
-
-	  if (dev->def->pass == 1)
-	    {
-	      dev->params.bytes_per_line = dev->params.pixels_per_line * 3;
-	    }
-	  else
-	    {
-	      dev->params.bytes_per_line = dev->params.pixels_per_line;
-	    }
+	  dev->params.bytes_per_line = dev->params.pixels_per_line * 3;
 	  dev->params.depth = 8;
 	  break;
 	}
@@ -1839,8 +1851,6 @@ sane_start (SANE_Handle handle)
   if (!(dev->scanning))
     {
 
-      sane_get_parameters (dev, NULL);
-
       /* Open again the scanner. */
       if (sanei_scsi_open
 	  (dev->devicename, &(dev->sfd), teco_sense_handler, dev) != 0)
@@ -1848,6 +1858,20 @@ sane_start (SANE_Handle handle)
 	  DBG (DBG_error, "ERROR: sane_start: open failed\n");
 	  return SANE_STATUS_INVAL;
 	}
+
+      /* Reset the scanner. */
+      sane_get_parameters (dev, NULL);
+      dev->x_resolution = 300;
+      dev->y_resolution = 300;
+      dev->x_tl = 0;
+      dev->y_tl = 0;
+      dev->width = 0;
+      dev->length = 0;
+      teco_set_window (dev);
+      teco_scan (dev);
+
+      /* Set the correct parameters. */
+      sane_get_parameters (dev, NULL);
 
       /* The scanner must be ready. */
       status = teco_wait_scanner (dev);
@@ -1871,6 +1895,7 @@ sane_start (SANE_Handle handle)
 	  return status;
 	}
 
+      dev->real_bytes_left = 0;
       status = get_filled_data_length (dev, &size);
       if (status)
 	{
@@ -1992,7 +2017,11 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	}
 
       /* Something must have been read */
-      assert (dev->image_begin != dev->image_end);
+      if (dev->image_begin == dev->image_end)
+	{
+	  DBG (DBG_info, "sane_read: nothing read\n");
+	  return SANE_STATUS_IO_ERROR;
+	}
 
       /* Copy the data to the frontend buffer. */
       size = max_len - buf_offset;
@@ -2011,7 +2040,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   while ((buf_offset != max_len) && dev->bytes_left);
 
   DBG (DBG_info, "sane_read: leave, bytes_left=%ld\n",
-       (long) dev->bytes_left);
+     (long) dev->bytes_left);
 
   return SANE_STATUS_GOOD;
 }
@@ -2019,18 +2048,27 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 SANE_Status
 sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 {
-	SANE_Status status;
+  SANE_Status status;
+  Teco_Scanner *dev = handle;
 
   DBG (DBG_proc, "sane_set_io_mode: enter\n");
 
   handle = handle;		/* silence gcc */
   non_blocking = non_blocking;	/* silence gcc */
 
-  if (non_blocking == SANE_FALSE) {
-	  status = SANE_STATUS_GOOD;
-  } else {
-	  status = SANE_STATUS_UNSUPPORTED;
-  }
+  if (dev->scanning == SANE_FALSE)
+    {
+      return SANE_STATUS_INVAL;
+    }
+
+  if (non_blocking == SANE_FALSE)
+    {
+      status = SANE_STATUS_GOOD;
+    }
+  else
+    {
+      status = SANE_STATUS_UNSUPPORTED;
+    }
 
   DBG (DBG_proc, "sane_set_io_mode: exit\n");
 

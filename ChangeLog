@@ -1,3 +1,8 @@
+2001-05-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/sane.tex: Clarified the paragraph concerning sane_read. If
+	  *len != 0 the status must be SANE_STATUS_GOOD.
+	
 2001-05-08  Simon Munton <simon@munton.demon.co.uk>
 	* backend/pie.c: Free devlist in sane_exit. Removed redundant check for
 	trailing newline in config file.

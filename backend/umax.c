@@ -49,7 +49,7 @@
 
 /* --------------------------------------------------------------------------------------------------------- */
 
-#define BUILD 27
+#define BUILD 28
 
 /* --------------------------------------------------------------------------------------------------------- */
 
@@ -130,7 +130,6 @@ in ADF mode this is done often:
 #include "sane/sanei_scsi.h"
 #include "sane/sanei_debug.h"
 
-#include <assert.h>
 #include <math.h>
 #include <string.h>
 
@@ -601,10 +600,8 @@ static void umax_print_inquiry(Umax_Device *dev)
   if (dev->inquiry_len<=0x81) {return;}
   DBG(DBG_inquiry,"\n");
   DBG(DBG_inquiry,"UTA (transparency-mode):\n");
-  DBG(DBG_inquiry,"UTA x-original point......................: %2.2f inch\n",
-      (double)get_inquiry_uta_x_original(inquiry_block) * 0.01);
-  DBG(DBG_inquiry,"UTA y-original point......................: %2.2f inch\n",
-      (double)get_inquiry_uta_y_original(inquiry_block) * 0.01);
+  DBG(DBG_inquiry,"UTA x-original point......................: %2.2f inch\n", dev->inquiry_uta_x_off);
+  DBG(DBG_inquiry,"UTA y-original point......................: %2.2f inch\n", dev->inquiry_uta_y_off);
   DBG(DBG_inquiry,"UTA maximum scan width....................: %2.2f inch\n", dev->inquiry_uta_width); 
   DBG(DBG_inquiry,"UTA maximum scan length...................: %2.2f inch\n", dev->inquiry_uta_length);
  
@@ -1407,8 +1404,8 @@ static int umax_reposition_scanner(Umax_Device *dev)
  int status;
  int pause;
 
-  pause = dev->pause_after_reposition + dev->pause_for_moving *
-                                        (dev->upper_left_y + dev->scanlength)/((float) dev->maxlength);
+  pause = dev->pause_after_reposition + dev->pause_for_moving * (dev->upper_left_y + dev->scanlength) / 
+                                        ( (dev->inquiry_fb_length * dev->y_coordinate_base) );
 
   DBG(DBG_info2, "trying to reposition scanner ...\n");
   status = sanei_scsi_cmd(dev->sfd, object_position.cmd, object_position.size, NULL, NULL);
@@ -2213,7 +2210,7 @@ static SANE_Status umax_do_calibration(Umax_Device *dev)
       {
         DBG(DBG_warning,"         Calibration is done for each CCD pixel with full depth!\n");
 
-        width = dev->maxwidth * dev->relevant_optical_res / dev->x_coordinate_base;
+        width = (int)(dev->inquiry_fb_width * dev->inquiry_optical_res);
 
         if (dev->calibration_width_offset > 0) /* driver or user (umax.conf) define an offset */
         {
@@ -2797,6 +2794,8 @@ static void umax_calculate_exposure_time(Umax_Device *dev, int def, int *value)
 
 static int umax_check_values(Umax_Device *dev)
 {
+ double inquiry_x_orig;
+ double inquiry_y_orig;
  double inquiry_width;
  double inquiry_length;
  unsigned int maxwidth;
@@ -2900,44 +2899,61 @@ static int umax_check_values(Umax_Device *dev)
 
   /* ------------------------------- scanarea ------------------------ */
 
-  if (dev->module == WD_module_flatbed)							    /* flatbed width */
+  if (dev->module == WD_module_flatbed)							     /* flatbed mode */
   {
-     inquiry_width  = dev->inquiry_fb_width;
+     inquiry_x_orig = 0;								   /* flatbed origin */
+     inquiry_y_orig = 0;
+     inquiry_width  = dev->inquiry_fb_width;						    /* flatbed width */
      inquiry_length = dev->inquiry_fb_length;
   }
-  else										       /* transparency width */
+  else										        /* transparency mode */
   {
-     inquiry_width  = dev->inquiry_uta_width;
-     inquiry_length = dev->inquiry_uta_length;
+     inquiry_x_orig = dev->inquiry_uta_x_off;						       /* uta origin */
+     inquiry_y_orig = dev->inquiry_uta_y_off;
+     inquiry_width  = dev->inquiry_uta_x_off + dev->inquiry_uta_width;				/* uta width */
+     inquiry_length = dev->inquiry_uta_y_off + dev->inquiry_uta_length;
   }
 
   if (dev->dor != 0)
   {
-     inquiry_width  = dev->inquiry_dor_width;							/* dor width */
-     inquiry_length = dev->inquiry_dor_length;
+     inquiry_x_orig = dev->inquiry_dor_x_off;						       /* dor origin */
+     inquiry_y_orig = dev->inquiry_dor_y_off;
+     inquiry_width  = dev->inquiry_dor_x_off + dev->inquiry_dor_width;				/* dor width */
+     inquiry_length = dev->inquiry_dor_y_off + dev->inquiry_dor_length;
   }
 
-  if ((inquiry_width > 0) && (inquiry_length > 0))
-  {
-    dev->maxwidth  = inquiry_width  * dev->x_coordinate_base;
-    dev->maxlength = inquiry_length * dev->y_coordinate_base;
-  }
 							     /* limit the size to what the scanner can scan. */
 					   /* this is particularly important because the scanners don't have */
 				  /* built-in checks and will happily grind their gears if this is exceeded. */
 
-  maxwidth = dev->maxwidth - dev->upper_left_x - 1;
+
+  maxwidth = inquiry_width  * dev->x_coordinate_base - dev->upper_left_x - 1;
+
   if ( (dev->scanwidth <= 0) || (dev->scanwidth > maxwidth) )
   {
     dev->scanwidth = maxwidth;
   }
 
-  maxlength = dev->maxlength - dev->upper_left_y - 1;
+  if (dev->upper_left_x < inquiry_x_orig)
+  {
+    dev->upper_left_x = inquiry_x_orig;
+  }
+
+
+  maxlength = inquiry_length * dev->y_coordinate_base - dev->upper_left_y - 1;
+
   if ( (dev->scanlength <= 0) || (dev->scanlength > maxlength) )
   {
     dev->scanlength = maxlength;
   }
-									    /* Now calculate width in pixels */
+
+  if (dev->upper_left_y < inquiry_y_orig)
+  {
+    dev->upper_left_y = inquiry_y_orig;
+  }
+
+
+  /* Now calculate width and length in pixels */
   dev->width_in_pixels  = umax_calculate_pixels(dev->scanwidth,  dev->x_resolution,
                                                 dev->relevant_optical_res * dev->scale_x, dev->x_coordinate_base);
 
@@ -3599,6 +3615,8 @@ static void umax_get_inquiry_values(Umax_Device *dev)
 
   dev->inquiry_uta_width  = (double)get_inquiry_uta_max_scan_width(inquiry_block)  * 0.01;
   dev->inquiry_uta_length = (double)get_inquiry_uta_max_scan_length(inquiry_block) * 0.01;
+  dev->inquiry_uta_x_off  = (double)get_inquiry_uta_x_original_point(inquiry_block) * 0.01;
+  dev->inquiry_uta_y_off  = (double)get_inquiry_uta_y_original_point(inquiry_block) * 0.01;
 
   dev->inquiry_dor_width  = (double)get_inquiry_dor_max_scan_width(inquiry_block)  * 0.01;
   dev->inquiry_dor_length = (double)get_inquiry_dor_max_scan_length(inquiry_block) * 0.01;
@@ -3868,8 +3886,6 @@ static void umax_initialize_values(Umax_Device *dev)	      /* called each time b
   dev->wdb_len               = 0;
   dev->width_in_pixels       = 0;						     /* scan width in pixels */
   dev->length_in_pixels      = 0;						    /* scan length in pixels */
-  dev->maxwidth              = 0;
-  dev->maxlength             = 0;
   dev->scanwidth             = 0;			           /* width in inch at x_coordinate_base dpi */
   dev->scanlength            = 0;				  /* length in inch at y_coordinate_base dpi */
   dev->x_resolution          = 0;
@@ -5351,7 +5367,7 @@ SANE_Status sane_init(SANE_Int *version_code, SANE_Auth_Callback authorize)
 #ifdef HAVE_SANEI_IPC
   DBG(DBG_error,"compiled with sanei_ipc for inter-process-data-transfer\n");
 #else
-  DBG(DBG_error,"compiled with old pipe for inter-process-data-transfer\n");
+  DBG(DBG_error,"compiled with pipe for inter-process-data-transfer\n");
 #endif
   DBG(DBG_error,"(C) 1997-2000 by Oliver Rauch\n");
   DBG(DBG_error,"EMAIL: Oliver.Rauch@rauch-domain.de\n");
@@ -5703,15 +5719,19 @@ static void umax_set_max_geometry(Umax_Scanner *scanner)
 
   if (scanner->val[OPT_DOR].w)
   {
-    scanner->device->x_range.max = SANE_FIX(scanner->device->inquiry_dor_width  * MM_PER_INCH);
-    scanner->device->y_range.max = SANE_FIX(scanner->device->inquiry_dor_length * MM_PER_INCH);
+    scanner->device->x_range.min = SANE_FIX(scanner->device->inquiry_dor_x_off * MM_PER_INCH);
+    scanner->device->x_range.max = SANE_FIX( (scanner->device->inquiry_dor_x_off + scanner->device->inquiry_dor_width)  * MM_PER_INCH);
+    scanner->device->y_range.min = SANE_FIX(scanner->device->inquiry_dor_y_off * MM_PER_INCH);
+    scanner->device->y_range.max = SANE_FIX( (scanner->device->inquiry_dor_y_off + scanner->device->inquiry_dor_length) * MM_PER_INCH);
 
     scanner->device->x_dpi_range.max = SANE_FIX(scanner->device->inquiry_dor_x_res);
     scanner->device->y_dpi_range.max = SANE_FIX(scanner->device->inquiry_dor_y_res);      
   }
   else if ( (strcmp(scanner->val[OPT_SOURCE].s, FLB_STR) == 0) || (strcmp(scanner->val[OPT_SOURCE].s, ADF_STR) == 0) )
   {
+    scanner->device->x_range.min = 0;
     scanner->device->x_range.max = SANE_FIX(scanner->device->inquiry_fb_width  * MM_PER_INCH);
+    scanner->device->y_range.min = 0;
     scanner->device->y_range.max = SANE_FIX(scanner->device->inquiry_fb_length * MM_PER_INCH);
 
     scanner->device->x_dpi_range.max = SANE_FIX(scanner->device->inquiry_x_res);
@@ -5719,17 +5739,19 @@ static void umax_set_max_geometry(Umax_Scanner *scanner)
   }
   else if (strcmp(scanner->val[OPT_SOURCE].s, UTA_STR) == 0)
   {
-    scanner->device->x_range.max = SANE_FIX(scanner->device->inquiry_uta_width  * MM_PER_INCH);
-    scanner->device->y_range.max = SANE_FIX(scanner->device->inquiry_uta_length * MM_PER_INCH);
+    scanner->device->x_range.min = SANE_FIX(scanner->device->inquiry_uta_x_off  * MM_PER_INCH);
+    scanner->device->x_range.max = SANE_FIX( (scanner->device->inquiry_uta_x_off + scanner->device->inquiry_uta_width) * MM_PER_INCH);
+    scanner->device->y_range.min = SANE_FIX(scanner->device->inquiry_uta_y_off  * MM_PER_INCH);
+    scanner->device->y_range.max = SANE_FIX( ( scanner->device->inquiry_uta_y_off + scanner->device->inquiry_uta_length) * MM_PER_INCH);
 
     scanner->device->x_dpi_range.max = SANE_FIX(scanner->device->inquiry_x_res);
     scanner->device->y_dpi_range.max = SANE_FIX(scanner->device->inquiry_y_res);      
   }
 
-  DBG(DBG_info,"x_range.max     = %f\n", SANE_UNFIX(scanner->device->x_range.max));
-  DBG(DBG_info,"y_range.max     = %f\n", SANE_UNFIX(scanner->device->y_range.max));
-  DBG(DBG_info,"x_dpi_range.max = %f\n", SANE_UNFIX(scanner->device->x_dpi_range.max));
-  DBG(DBG_info,"y_dpi_range.max = %f\n", SANE_UNFIX(scanner->device->y_dpi_range.max));
+  DBG(DBG_info,"x_range     = [%f .. %f]\n", SANE_UNFIX(scanner->device->x_range.min), SANE_UNFIX(scanner->device->x_range.max));
+  DBG(DBG_info,"y_range     = [%f .. %f]\n", SANE_UNFIX(scanner->device->y_range.min), SANE_UNFIX(scanner->device->y_range.max));
+  DBG(DBG_info,"x_dpi_range = [1 .. %f]\n", SANE_UNFIX(scanner->device->x_dpi_range.max));
+  DBG(DBG_info,"y_dpi_range = [1 .. %f]\n", SANE_UNFIX(scanner->device->y_dpi_range.max));
 }
 
 /* ------------------------------------------------------------ SANE CONTROL OPTION ------------------------ */
@@ -6828,17 +6850,35 @@ SANE_Status sane_start(SANE_Handle handle)
     xbasedots = scanner->device->x_coordinate_base / MM_PER_INCH;
     ybasedots = scanner->device->y_coordinate_base / MM_PER_INCH;
 
+#if 0
     scanner->device->upper_left_x = ((int) (SANE_UNFIX(scanner->val[OPT_TL_X].w) * xbasedots)) & 65534;
     scanner->device->upper_left_y = ((int) (SANE_UNFIX(scanner->val[OPT_TL_Y].w) * ybasedots)) & 65534;
 
-    scanner->device->scanwidth  = ((int)((SANE_UNFIX(scanner->val[OPT_BR_X].w - scanner->val[OPT_TL_X].w)) * xbasedots)) & 65534;
-    scanner->device->scanlength = ((int)((SANE_UNFIX(scanner->val[OPT_BR_Y].w - scanner->val[OPT_TL_Y].w)) * ybasedots)) & 65534;
+    scanner->device->scanwidth    = ((int)((SANE_UNFIX(scanner->val[OPT_BR_X].w - scanner->val[OPT_TL_X].w)) * xbasedots)) & 65534;
+    scanner->device->scanlength   = ((int)((SANE_UNFIX(scanner->val[OPT_BR_Y].w - scanner->val[OPT_TL_Y].w)) * ybasedots)) & 65534;
+#endif
+
+    scanner->device->upper_left_x = (int) (SANE_UNFIX(scanner->val[OPT_TL_X].w) * xbasedots);
+    scanner->device->upper_left_y = (int) (SANE_UNFIX(scanner->val[OPT_TL_Y].w) * ybasedots);
+
+    scanner->device->scanwidth    = (int)((SANE_UNFIX(scanner->val[OPT_BR_X].w - scanner->val[OPT_TL_X].w)) * xbasedots);
+    scanner->device->scanlength   = (int)((SANE_UNFIX(scanner->val[OPT_BR_Y].w - scanner->val[OPT_TL_Y].w)) * ybasedots);
 
     if (umax_check_values(scanner->device) != 0)
     {
       DBG(DBG_error,"ERROR: invalid scan-values\n");
       scanner->scanning = SANE_FALSE;
      return SANE_STATUS_INVAL;
+    }
+
+    /* The scanner defines a x-origin-offset for DOR mode, this offset is used for the */
+    /* x range in this backend, so the frontend/user knows the correct positions related to */
+    /* scanner´s surface. But the scanner wants x values from origin 0 instead */
+    /* of the x-origin defined by the scanner´s inquiry */
+    if (scanner->device->dor != 0) /* dor mode active */
+    {
+      DBG(DBG_info,"substracting DOR x-origin-offset from upper left x\n");
+      scanner->device->upper_left_x -= scanner->device->inquiry_dor_x_off * scanner->device->x_coordinate_base; /* correct DOR x-origin */
     }
 
     scanner->params.bytes_per_line  = scanner->device->row_len;
@@ -7126,7 +7166,11 @@ SANE_Status sane_start(SANE_Handle handle)
     }
   }										  /* end of send gammacurves */
 
-  /* umax_reposition_scanner(scanner->device); removed because Astra2400S does not work with it */
+  if ( scanner->device->three_pass_color > WD_wid_red) /* three pass scan, not first pass */
+  {
+    umax_reposition_scanner(scanner->device);
+  }
+
   umax_set_window_param(scanner->device);
   status = umax_start_scan(scanner->device);
   if (status) /* errror */

@@ -262,6 +262,8 @@ typedef struct Umax_Device
   double		inquiry_fb_length;					 /* flatbed length in inches */
   double		inquiry_uta_width;				     /* transparency width in inches */
   double		inquiry_uta_length;				    /* transparency length in inches */
+  double		inquiry_uta_x_off;				  /* transparency x offset in inches */
+  double		inquiry_uta_y_off;				  /* transparency y offset in inches */
   double		inquiry_dor_width;				/* double resolution width in inches */
   double		inquiry_dor_length;			       /* double resolution length in inches */
   double		inquiry_dor_x_off;			     /* double resolution x offset in inches */
@@ -352,8 +354,6 @@ typedef struct Umax_Device
   int			use_exposure_time_def_b;				    /* exposure time default */
 
   int			wdb_len;						   /* use this length of WDB */
-  double		maxwidth;					      /* use this width of scan-area */
-  double		maxlength;					     /* use this length of scan-area */
   unsigned int		width_in_pixels;				 /* thats the wanted width in pixels */
   unsigned int		length_in_pixels;				/* thats the wanted length in pixels */
   unsigned int		scanwidth;		       /* thats the width in pixels at x_coordinate_base dpi */

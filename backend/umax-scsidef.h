@@ -357,8 +357,8 @@ static scsiblk inquiry = { inquiryC, sizeof(inquiryC) };
 #define get_inquiry_max_y_res(in)				in[0x75]
 #define get_inquiry_fb_max_scan_width(in)			getnbyte(in + 0x76, 2)
 #define get_inquiry_fb_max_scan_length(in)			getnbyte(in + 0x78, 2)
-#define get_inquiry_uta_x_original(in)				getnbyte(in + 0x7a, 2)
-#define get_inquiry_uta_y_original(in)				getnbyte(in + 0x7c, 2)
+#define get_inquiry_uta_x_original_point(in)			getnbyte(in + 0x7a, 2)
+#define get_inquiry_uta_y_original_point(in)			getnbyte(in + 0x7c, 2)
 #define get_inquiry_uta_max_scan_width(in)			getnbyte(in + 0x7e, 2)
 #define get_inquiry_uta_max_scan_length(in)			getnbyte(in + 0x80, 2)
 

@@ -1,3 +1,8 @@
+2003-02-04  Michael Herder <crapsite@gmx.net>
+
+        * doc/descriptions/artec_eplus48u.desc:
+	  Unified manufacturer names according to Hennings suggestion.
+
 2003-02-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/sane-backends.pt.po: Fixed UTF character.

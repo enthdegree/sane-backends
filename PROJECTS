@@ -1,4 +1,4 @@
-PROJECTS (2001-05-01)
+PROJECTS (2001-05-04)
 
 Here is a list of projects that various people have expressed interest
 in.  Before starting working on one of these projects, it may be a
@@ -25,6 +25,10 @@ http://sourceforge.net/projects/canonscanner/
 Canon FB330P, FP630P (maybe FB620P/FB320P) parport/USB scanners (wip)
 Simon Krix <kinsei@dingoblue.net.au>
 http://members.dingoblue.net.au/~kinsei/scanner/
+
+Canon FB620S flatbed scanner and FS2710 film scanner
+ftp://stthd0.pc.uni-koeln.de/pub/canon-1.08.tar.gz
+Ulrich Deiters <ukd@xenon.pc.Uni-Koeln.DE>
 
 E3 USB chipset support (e.g. Genius Vivid Pro USB, Colorado USB 19200,
 Visioneer OneTouch 7600, IBM IdeaScan 2000 USB) (wip)
@@ -66,9 +70,6 @@ http://primax.sourceforge.net/
 
 SGI IndyCam (wip)
 Erik Nygren <nygren@mit.edu>
-
-Umax 1220P / HP3200C parport scanner (wip)
-http://umax1220p.sourceforge.net
 
 Visioneer OneTouch 8600: viceo (wip)
 http://www.littlecms.com/iphoto/otlinux.htm

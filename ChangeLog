@@ -1,3 +1,10 @@
+2000-12-10  Henning Meier-Geinitz <hmg@gmx.de>
+
+	* backend/mustek.c backend/mustek.desc backend/mustek.CHANGES:
+	  Fixed wrong comment in encode_resolution. Added missing test for
+	  return status in sane_start.  Fixed wrong calculation of tlx and
+	  tly for Pro series scanners. Increased version number.
+
 2000-12-09  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson.c: Fixed user defined gamma curve for

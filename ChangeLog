@@ -1,6 +1,8 @@
 2002-05-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* configure configure.in: Warnings enabled by default.
+	* sanei/sanei_scsi.c: Fixed request-sense handling for OpenStep
+	  (from Oliver Schirrmeister <oschirr@abm.de>).
 
 2002-05-27 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 

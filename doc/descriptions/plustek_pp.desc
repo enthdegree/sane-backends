@@ -133,7 +133,8 @@
 
 :model "Colorpage HR6X EPP"
 :interface "Parport (SPP, EPP)"
-:status :untested
+:status :good
+:comment "Negative scanning does not work correctly"
 
 ;********************************************************************************************
 

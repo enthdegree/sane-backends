@@ -23,7 +23,7 @@
 
 :model "OpticPro UT12"
 :interface "USB"
-:status :untested
+:status :minimal
 :comment "NOTE: Only devices with product ID 0x0001 are supported!"
 
 :model "OpticPro 1212U"

@@ -1,3 +1,7 @@
+2003-01-23  Andras Major <andras@users.sourceforge.net>
+
+	* backend/coolscan2.c: hack for IR readout with LS-4000.
+
 2003-01-23  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Primax/Visioneer Primascan

@@ -2788,7 +2788,7 @@ cs2_scan (cs2_t * s, cs2_scan_t type)
       cs2_scanner_ready (s, CS2_STATUS_READY);
 
       cs2_init_buffer (s);
-      if (s->type == CS2_TYPE_LS40)
+      if ((s->type == CS2_TYPE_LS40) || (s->type == CS2_TYPE_LS4000))
 	cs2_parse_cmd (s, "24 00 00 00 00 00 00 00 3a 80");
       else
 	cs2_parse_cmd (s, "24 00 00 00 00 00 00 00 3a 00");

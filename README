@@ -1,5 +1,6 @@
 How to configure, build, and install SANE.
 
+
 Introduction:
 =============
 SANE stands for Scanner Access Now Easy.
@@ -7,22 +8,15 @@ This package contains the SANE libraries (this means backends and
 network scanning parts) and the command line frontend scanimage.
 You always find the most recent version of SANE on:
 
-  http://www.mostang.com/sane
+  http://www.mostang.com/sane/
 
-The source is available via anonymous CVS, hosted by The Hungry
-Programmers. Information on the CVS repository is available from
-<URL:http://www.student.uit.no/~pere/linux/sane/cvs-server.html>.  The
-following will fetch the latests source:
+At the same location there are also links to snapshots of the CVS server and
+sometimes beta releases of sane-backends. These are unstable development
+versions, so be careful when using them. Please report any problems to us. See
+contact section for details.
 
-  cvs -d :pserver:anoncvs@anoncvs.hungry.com:/cvsroot login 
-  [password "anoncvs"] 
-  cvs -d :pserver:anoncvs@anoncvs.hungry.com:/cvsroot co sane
-
-There are several graphical frontends available for SANE.
-XSane is available on http://www.xsane.org
-The graphical frontends that have been included into the sane package up to
-version sane-1.0.3 (xscanimage and xcam) have been put into an own package
-sane-frontends-1.0.x, this package is available on http://www.mostang.com/sane
+There are several graphical frontends available for SANE, see the list at
+http://www.mostang.com/sane/sane-frontends.html.
 
 
 Quick install:
@@ -33,6 +27,7 @@ make
 make install
 
 man sane
+
 
 Prerequisites
 =============
@@ -47,26 +42,31 @@ In order to build SANE, the following tools and libraries are required:
 Some more libraries are not strictly necessary to compile SANE, but some
 functionality may be lost if they are not available:
         
-        - libusb (>=0.1.6): For the sm3600 backend. Can also be used for
-          other USB backends especially on non-Linux platforms.
-        - libjpeg (>=6B): For the dc210, dc240, and gphoto2 backends.
-        - libieee1284 (>=0.1.5): For the canon_pp backend.
-        - libgphoto2 (>=2.0beta4dev8): For the gphoto2 backend.
+        - libusb (>=0.1.6): Strongly recommended if you use a USB scanner.
+          Some backends won't work without libusb at all.
 
-SANE should build on most Unix-like systems. Support for OS/2 is also
-available. For more details look at the operating system specific README.*
-files. For a detailed support matrix, see:
+        - libjpeg (>=6B): For the dc210, dc240, and gphoto2 backends.
+
+        - libieee1284 (>=0.1.5): For the canon_pp and hpsj5s backends.
+
+        - libgphoto2 (>=2.0): For the gphoto2 backend.
+
+SANE should build on most Unix-like systems. Support for OS/2, MacOS X and
+BeOS is also available. For more details look at the operating system specific
+README.* files. For a detailed support matrix, see:
 
     http://www.mostang.com/sane/sane-support.html
 
-This table may be out of date. Please send any corrections or additions to
-sane-devel@mostang.com together with your platform, os and version.
+This table may be out of date. Please tell us about any corrections or
+additions. Please mention your operating sytem and platform and all the other
+details mentioned in the table. See also the contact section.
 
 Please check that there aren't any older versions of SANE installed on your
-system. Especially if sane-libraries are installed in a different prefix
-directory (e.g. /usr/lib) this may cause problems with external
-frontends. Please remove these libraries (libsane.*, sane/libsane-*) before
-installing this version of SANE.
+system. Especially if SANE libraries are installed in a different prefix
+directory (e.g. /usr/lib/) this may cause problems with external
+frontends. Please remove these libraries (libsane.*, sane/libsane-*) by using
+your packet manager or manually before installing this version of SANE.
+
 
 Configuration
 =============
@@ -146,8 +146,9 @@ Before running any SANE program, read the PROBLEMS file in this directory.
 For information on configuring and trouble-shooting the various SANE
 components, please refer to the manual page sane(7).
 
-The tools directory contains some small programs that may be helpfull. They
+The tools/ directory contains some small programs that may be helpfull. They
 are described in tools/README.
+
 
 Removing
 ========
@@ -157,3 +158,19 @@ older versions of SANE if they have been installed at the same prefix.
 Warning: Your configuration will be deleted also so make sure you have a
 backup. By default the configuration files are located in
 the directory /usr/local/etc/sane.d/.
+
+
+Contact
+=======
+
+For general discussion about SANE, bug reports and feature requests contact
+the sane-devel mailing list. You must be subscribed to the list to send
+mail. See http://www.mostang.com/sane/mail.html for details.
+
+If you have a question or bug report for a specific backend, you may also
+contact the author of this backend directly. See the AUTHORS file for a list
+of addresses.
+
+If you don't want to subscribe to sane-devel and want to report bugs
+concerning security, compilation, installation, porting, or documentation of
+SANE, you can also contact Henning Meier-Geinitz <henning@meier-geinitz.de>.

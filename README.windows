@@ -27,17 +27,19 @@ If you have more than one scanner, you should do the following:
 
 Run "scanimage > out.pnm" to get a scan.
 
+xscanimage and XSane also work. xscanimage compiles and runs out of
+the box. XSane 0.92 needs a couple build fixes.
+
 
 Limitations
 ===========
 
 The current annoying limitations are:
   - Only SCSI scanners will work. No USB/FireWire/Parallel.
-  - Only scanimage works. No graphical interface has been ported.
   - Tested on Windows 2000 only. Should work on Windows NT/XP too;
     may or may not work on Windows 95/98/ME.
 
 
 
-2003/9/23
+2003/9/25
 Frank Zago.

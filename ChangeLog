@@ -1,3 +1,7 @@
+2003-09-25  Frank Zago  <fzago at austin dot rr dot com>
+
+	* README.windows: updated status of xscanimage and XSane.
+
 2003-09-25  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* po/Makefile.in: Added plustek_pp.c.
@@ -61,7 +65,7 @@
 
 	* Makefile.in NEWS configure configure.in backend/Makefile.in 
 	  backend/dll.c include/sane/config.h.in sanei/sanei_scsi.c 
-	  tools/sane-find-scanner.c
+	  tools/sane-find-scanner.c: cygwin port.
 
 2003-09-23  Gerhard Jaeger <gerhard@gjaeger.de>
 

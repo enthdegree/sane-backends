@@ -21,6 +21,7 @@
 #endif
 
 #include <stdio.h>
+#include <string.h>
 
 /*
  * sense handler for the sanei_scsi_XXX comands

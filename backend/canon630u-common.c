@@ -61,6 +61,7 @@
 #ifdef HAVE_OS2_H
 #include <sys/types.h> 		/* mode_t */
 #endif
+#include <sys/stat.h>
 #include "lm9830.h"
 
 #define USB_TYPE_VENDOR                 (0x02 << 5)

@@ -1223,7 +1223,7 @@ InitScan2 (enum ScanType scantype, struct ScanRequest *req,
     float pixels = ((float) htons (req->lenx) * (float) htons (req->leny)) *
       ((float) htons (req->dpix) * (float) htons (req->dpiy)) /
       ((float) HW_LPI * (float) HW_LPI);
-    int bpp = rintf ((float) htonl (res.transfersize) / pixels);
+    int bpp = (int) ((float) htonl (res.transfersize) / pixels + 0.5);
     int planes = (bpp == 1) ? 1 : 3;
     bpp /= planes;
 

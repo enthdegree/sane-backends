@@ -1,3 +1,8 @@
+2003-04-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/hp5400_internal.c backend/canon630u-common.c
+	  backend/epson_scsi.c: Minor compilation fixes for MacOS X and OS/2.
+
 2003-04-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* README.netbsd: Some additions concerning uscanner driver.

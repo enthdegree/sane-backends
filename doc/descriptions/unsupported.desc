@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2004-10-11"		; version of backend
+:version "2004-10-15"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -404,11 +404,23 @@
 :status :unsupported
 :comment "Probably unsupported. May work with snapscan backend after some modification. See link for details."
 
+:model "GT-F600"
+;:url "/unsupported/"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. Doesn't speak ESC/I. Closely related to the GT-9400. It will be supported by epkowa backeend in future."
+
 :model "Perfection 1270"
 :url "/unsupported/epson-perfection-1270.html"
 :interface "USB"
 :status :unsupported
 :comment "Probably unsupported. May work with snapscan backend after some modification. See link for details."
+
+:model "Perfection 4180"
+;:url "/unsupported/"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. Doesn't speak ESC/I. Closely related to the GT-9400. It will be supported by epkowa backeend in future."
 
 ;********************************************************************************************
 
@@ -581,6 +593,17 @@
 :interface "Proprietary"
 :status :unsupported
 :comment "Unsupported. Uses proprietary ISA card. Maybe the same as the Plustek Spectra ADF?"
+
+;********************************************************************************************
+
+:mfg "Kodak"
+:url "http://www.kodak.com"
+
+:model "Snapshot Photo Scanner 1"
+;:url ""
+:interface "Parport"
+:status :unsupported
+:comment "Unsupported. Model ID HWF96PHS"
 
 ;********************************************************************************************
 
@@ -1097,6 +1120,7 @@
 
 :model "OpticBook 3600"
 :interface "USB"
+:url "/unsupported/plustek-opticbook-3600.html"
 :status :unsupported
 :comment "Bookscanner. No further information available."
 
@@ -1150,6 +1174,12 @@
 :interface "Parport"
 :status :unsupported
 :comment "Not supported. However, a stand-alone program is available."
+
+:model "OneTouch 5300"
+;:url ""
+:interface "Parport"
+:status :unsupported
+:comment "Not supported."
 
 
 ;********************************************************************************************
@@ -1533,6 +1563,12 @@
 :model "2400 Onetouch"
 :url "/unsupported/xerox-2400-onetouch.html"
 :interface "USB"
+:status :unsupported
+:comment "Not supported. See link for more details."
+
+:model "DocuImage 620S"
+:url "/unsupported/xerox-docuimage-620s.html"
+:interface "SCSI"
 :status :unsupported
 :comment "Not supported. See link for more details."
 

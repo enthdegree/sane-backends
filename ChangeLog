@@ -1,3 +1,7 @@
+2004-10-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added various scanners.
+	
 2004-10-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* include/sane/sanei_wire.h sanei/sanei_wire.c: Limit the total

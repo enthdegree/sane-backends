@@ -33,7 +33,7 @@ DEFS = @DEFS@
 CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
 LDFLAGS = @LDFLAGS@
-LIBS = @LIBS@
+LIBS = @LIBS@ @INTLLIBS@
 
 LIBTOOL = ../libtool
 MINST	= --mode=install

@@ -189,7 +189,7 @@ sanei_usb_get_vendor_product (SANE_Int fd, SANE_Word * vendor,
 }
 
 
-static void
+static SANE_Status
 check_vendor_product (SANE_String_Const devname, SANE_Word vendor,
 		      SANE_Word product,
 		      SANE_Status (*attach) (SANE_String_Const dev))
@@ -200,7 +200,7 @@ check_vendor_product (SANE_String_Const devname, SANE_Word vendor,
 
   status = sanei_usb_open (devname, &fd);
   if (status != SANE_STATUS_GOOD)
-    return;
+    return status;
 
   status = sanei_usb_get_vendor_product (fd, &devvendor, &devproduct);
   sanei_usb_close (fd);
@@ -212,7 +212,7 @@ check_vendor_product (SANE_String_Const devname, SANE_Word vendor,
 	    attach (devname);
 	}
     }
-  return;
+  return status;
 }
 
 SANE_Status
@@ -230,6 +230,7 @@ sanei_usb_find_devices (SANE_Int vendor, SANE_Int product,
     0};
   SANE_Char devname[30];
   int devcount;
+  SANE_Status status;
 
 #define SANEI_USB_MAX_DEVICES 16
 
@@ -238,13 +239,17 @@ sanei_usb_find_devices (SANE_Int vendor, SANE_Int product,
 
   for (prefix = prefixlist; *prefix; prefix++)
     {
-      check_vendor_product (*prefix, vendor, product, attach);
+      status = check_vendor_product (*prefix, vendor, product, attach);
+      if (status == SANE_STATUS_UNSUPPORTED)
+	return status; /* give up if we can't detect vendor/product */
       for (devcount = 0; devcount < SANEI_USB_MAX_DEVICES; 
 	   devcount++)
 	{
 	  snprintf (devname, sizeof (devname), "%s%d", *prefix,
 		    devcount);
-	  check_vendor_product (devname, vendor, product, attach);
+	  status = check_vendor_product (devname, vendor, product, attach);
+	  if (status == SANE_STATUS_UNSUPPORTED)
+	    return status; /* give up if we can't detect vendor/product */
 	}
     }
   return SANE_STATUS_GOOD;

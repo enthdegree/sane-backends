@@ -16,7 +16,7 @@
 
 */
 
-#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.1.36 - 2000-12-02"
+#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.1.37 - 2000-12-03"
 
 /*
    This file is part of the SANE package.
@@ -58,6 +58,7 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
+   2000-12-03   Fixed off-by-one error in color reordering function.
    2000-12-02   Read information about optical resolution and line
    		distance from scanner instead of hardcoded values.
 		Add support for color depth > 8 bits per channel.
@@ -4521,33 +4522,50 @@ START_READ:
 		 * are doing this here:
 		 */
 
+		/*
+		 * HACK !!!
+		 * The Perfection 1640 seems to have the R and G channels swapped. At
+		 * this time this is the only 14 bit scanner, so I'm using this information
+		 * to reverse the re-order rule.
+		 * This has to be checked again after new 14bit scanners are released !!!
+		 */
+
+
+		if (s->hw->maxDepth == 14)
+			reorder = !reorder;		/* !!! */
+
 		if (reorder)
 		{
 			SANE_Byte *ptr;
 
-			for (ptr = s->buf; ptr < s->end; ptr++)
+			ptr = s->buf;
+			while (ptr < s->end)
 			{
 				if (s->params.depth > 8)
 				{
+					SANE_Byte tmp;
+
 					/* R->G G->R */
-					SANE_Word tmp;
+					tmp = ptr[0];
+					ptr[0] = ptr[2];	/* first Byte G */
+					ptr[2] = tmp;		/* first Byte R */
+
+					tmp = ptr[1];
+					ptr[1] = ptr[3];	/* second Byte G */
+					ptr[3] = tmp;		/* second Byte R */
 	
-					tmp = (SANE_Word) *ptr;
-					(SANE_Word) *ptr = (SANE_Word) *(ptr+2); /* G */
-					(SANE_Word) *(ptr+2) = tmp;		/* R */
-								/* B stays the same */
-					ptr += 6;		/* go to next */
+					ptr += 6;		/* go to next pixel */
 				}
 				else
 				{
 					/* R->G G->R */
 					SANE_Byte tmp;
 	
-					tmp = *ptr;
-					*ptr = *(ptr+1);	/* G */
-					*(ptr+1) = tmp;		/* R */
+					tmp = ptr[0];
+					ptr[0] = ptr[1];	/* G */
+					ptr[1] = tmp;		/* R */
 								/* B stays the same */
-					ptr += 3;		/* go to next */
+					ptr += 3;		/* go to next pixel */
 				}
 			}
 		}

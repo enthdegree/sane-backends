@@ -76,12 +76,6 @@
 #define NULL	0L
 #endif
 
-#ifdef __GNUC__
-#define UNUSEDARG __attribute__ ((unused))
-#else
-#define UNUSEDARG
-#endif
-
 typedef struct picture_info
   {
     unsigned int low_res;

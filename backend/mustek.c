@@ -46,10 +46,10 @@
 
 /**************************************************************************/
 /* Mustek backend version                                                 */
-#define BUILD 106
+#define BUILD 107
 /**************************************************************************/
 
-#include "sane/config.h"
+#include "../include/sane/config.h"
 
 #include <ctype.h>
 #include <errno.h>
@@ -76,6 +76,10 @@
 #define BACKEND_NAME	mustek
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
+
+#ifndef SANE_I18N
+#define SANE_I18N(text) text
+#endif
 
 /* Debug level from sanei_init_debug */
 static SANE_Int debug_level;
@@ -113,12 +117,13 @@ static const SANE_Int color_seq[] =
 /* Which modes are supported? */
 static SANE_String_Const mode_list_paragon[] =
   {
-    "Lineart", "Halftone", "Gray", "Color",
+    SANE_I18N("Lineart"), SANE_I18N("Halftone"), SANE_I18N("Gray"),
+    SANE_I18N("Color"),
     0
   };
 static SANE_String_Const mode_list_se[] =
   {
-    "Lineart", "Gray", "Color",
+    SANE_I18N("Lineart"), SANE_I18N("Gray"), SANE_I18N("Color"),
     0
   };
 
@@ -131,24 +136,25 @@ static SANE_String_Const bit_depth_list_pro[] =
 /* Some scanners support setting speed manually */
 static SANE_String_Const speed_list[] =
   {
-    "Slowest", "Slower", "Normal", "Faster", "Fastest",
+    SANE_I18N("Slowest"), SANE_I18N("Slower"), SANE_I18N("Normal"),
+    SANE_I18N("Faster"), SANE_I18N("Fastest"),
     0
   };
 
 /* Which scan-sources are supported? */
 static const SANE_String_Const source_list[] =
   {
-    "Flatbed", 
+    SANE_I18N("Flatbed"), 
     0
   };
 static SANE_String_Const adf_source_list[] =
   {
-    "Flatbed", "Automatic Document Feeder",
+    SANE_I18N("Flatbed"), SANE_I18N("Automatic Document Feeder"),
     0
   };
 static SANE_String_Const ta_source_list[] =
   {
-    "Flatbed", "Transparency Adapter",
+    SANE_I18N("Flatbed"), SANE_I18N("Transparency Adapter"),
     0
   };
 
@@ -163,10 +169,13 @@ static const SANE_Range u8_range =
 /* Which kind of halftone patterns are available? */
 static SANE_String_Const halftone_list[] =
   {
-    "8x8 coarse", "8x8 normal", "8x8 fine", "8x8 very fine", "6x6 normal",
-    "5x5 coarse", "5x5 fine", "4x4 coarse", "4x4 normal", "4x4 fine",
-    "3x3 normal", "2x2 normal", "8x8 custom", "6x6 custom", "5x5 custom",
-    "4x4 custom", "3x3 custom", "2x2 custom",
+    SANE_I18N("8x8 coarse"), SANE_I18N("8x8 normal"), SANE_I18N("8x8 fine"),
+    SANE_I18N("8x8 very fine"), SANE_I18N("6x6 normal"),
+    SANE_I18N("5x5 coarse"), SANE_I18N("5x5 fine"), SANE_I18N("4x4 coarse"),
+    SANE_I18N("4x4 normal"), SANE_I18N("4x4 fine"), SANE_I18N("3x3 normal"),
+    SANE_I18N("2x2 normal"), SANE_I18N("8x8 custom"), SANE_I18N("6x6 custom"),
+    SANE_I18N("5x5 custom"), SANE_I18N("4x4 custom"), SANE_I18N("3x3 custom"),
+    SANE_I18N("2x2 custom"),
     0
   };
 
@@ -1704,7 +1713,7 @@ area_and_windows (Mustek_Scanner *s)
        * The MSF-06000CZ seems to lock-up if the pixel-unit is used.
        * Using 1/8" works.
        * This doesn't seem to be true with the current scheme.
-       * This code isn't used at the moment.  <hmg@gmx.de>
+       * This code isn't used at the moment.  <henning@meier-geinitz.de>
        */
       *cp++ = ((s->mode & MUSTEK_MODE_LINEART) ? 0x00 : 0x01);
 
@@ -3903,7 +3912,7 @@ init_options (Mustek_Scanner *s)
 
   /* "Mode" group: */
 
-  s->opt[OPT_MODE_GROUP].title = "Scan Mode";
+  s->opt[OPT_MODE_GROUP].title = SANE_I18N("Scan Mode");
   s->opt[OPT_MODE_GROUP].desc = "";
   s->opt[OPT_MODE_GROUP].type = SANE_TYPE_GROUP;
   s->opt[OPT_MODE_GROUP].cap = 0;
@@ -3934,9 +3943,9 @@ init_options (Mustek_Scanner *s)
 
   /* fast gray mode (pro models) */
   s->opt[OPT_FAST_GRAY_MODE].name = "fast-gray-mode";
-  s->opt[OPT_FAST_GRAY_MODE].title = "Fast gray mode";
-  s->opt[OPT_FAST_GRAY_MODE].desc = "Scan in fast gray mode (lower "
-    "quality).";
+  s->opt[OPT_FAST_GRAY_MODE].title = SANE_I18N("Fast gray mode");
+  s->opt[OPT_FAST_GRAY_MODE].desc = SANE_I18N("Scan in fast gray mode " \
+					      "(lower quality).");
   s->opt[OPT_FAST_GRAY_MODE].type = SANE_TYPE_BOOL;
   s->val[OPT_FAST_GRAY_MODE].w = SANE_FALSE;
   s->opt[OPT_FAST_GRAY_MODE].cap |= SANE_CAP_INACTIVE;
@@ -4031,16 +4040,16 @@ init_options (Mustek_Scanner *s)
 
   /* fast preview */
   s->opt[OPT_FAST_PREVIEW].name = "fast-preview";
-  s->opt[OPT_FAST_PREVIEW].title = "Fast preview";
-  s->opt[OPT_FAST_PREVIEW].desc = "Request that all previews are done in "
-    "in the fastest (low-quality) mode. This may be a non-color mode or a "
-    "low resolution mode.";
+  s->opt[OPT_FAST_PREVIEW].title = SANE_I18N("Fast preview");
+  s->opt[OPT_FAST_PREVIEW].desc = SANE_I18N("Request that all previews are " \
+    "done in in the fastest (low-quality) mode. This may be a non-color " \
+    "mode or a low resolution mode.");
   s->opt[OPT_FAST_PREVIEW].type = SANE_TYPE_BOOL;
   s->val[OPT_FAST_PREVIEW].w = SANE_FALSE;
 
   /* "Geometry" group: */
 
-  s->opt[OPT_GEOMETRY_GROUP].title = "Geometry";
+  s->opt[OPT_GEOMETRY_GROUP].title = SANE_I18N("Geometry");
   s->opt[OPT_GEOMETRY_GROUP].desc = "";
   s->opt[OPT_GEOMETRY_GROUP].type = SANE_TYPE_GROUP;
   s->opt[OPT_GEOMETRY_GROUP].cap = SANE_CAP_ADVANCED;
@@ -4088,7 +4097,7 @@ init_options (Mustek_Scanner *s)
 
   /* "Enhancement" group: */
 
-  s->opt[OPT_ENHANCEMENT_GROUP].title = "Enhancement";
+  s->opt[OPT_ENHANCEMENT_GROUP].title = SANE_I18N("Enhancement");
   s->opt[OPT_ENHANCEMENT_GROUP].desc = "";
   s->opt[OPT_ENHANCEMENT_GROUP].type = SANE_TYPE_GROUP;
   s->opt[OPT_ENHANCEMENT_GROUP].cap = 0;
@@ -4108,9 +4117,11 @@ init_options (Mustek_Scanner *s)
   s->val[OPT_BRIGHTNESS].w = 0;
 
   /* brightness red */
-  s->opt[OPT_BRIGHTNESS_R].name = SANE_NAME_BRIGHTNESS "_r";
-  s->opt[OPT_BRIGHTNESS_R].title = SANE_TITLE_BRIGHTNESS " red";
-  s->opt[OPT_BRIGHTNESS_R].desc = SANE_DESC_BRIGHTNESS " Red channel.";
+  s->opt[OPT_BRIGHTNESS_R].name = "brightness_r";
+  s->opt[OPT_BRIGHTNESS_R].title = SANE_I18N("Brightness red channel");
+  s->opt[OPT_BRIGHTNESS_R].desc = SANE_I18N("Controls the brightness of " \
+					    "the red channel of the " \
+					    "acquired image.");
   s->opt[OPT_BRIGHTNESS_R].type = SANE_TYPE_FIXED;
   s->opt[OPT_BRIGHTNESS_R].unit = SANE_UNIT_PERCENT;
   s->opt[OPT_BRIGHTNESS_R].constraint_type = SANE_CONSTRAINT_RANGE;
@@ -4119,9 +4130,11 @@ init_options (Mustek_Scanner *s)
   s->val[OPT_BRIGHTNESS_R].w = 0;
 
   /* brightness green */
-  s->opt[OPT_BRIGHTNESS_G].name = SANE_NAME_BRIGHTNESS "_g";
-  s->opt[OPT_BRIGHTNESS_G].title = SANE_TITLE_BRIGHTNESS " green";
-  s->opt[OPT_BRIGHTNESS_G].desc = SANE_DESC_BRIGHTNESS " Green channel.";
+  s->opt[OPT_BRIGHTNESS_G].name = "brightness_g";
+  s->opt[OPT_BRIGHTNESS_G].title = SANE_I18N("Brightness green channel");
+  s->opt[OPT_BRIGHTNESS_G].desc = SANE_I18N("Controls the brightness of " \
+					    "the green channel of the " \
+					    "acquired image.");
   s->opt[OPT_BRIGHTNESS_G].type = SANE_TYPE_FIXED;
   s->opt[OPT_BRIGHTNESS_G].unit = SANE_UNIT_PERCENT;
   s->opt[OPT_BRIGHTNESS_G].constraint_type = SANE_CONSTRAINT_RANGE;
@@ -4130,9 +4143,11 @@ init_options (Mustek_Scanner *s)
   s->val[OPT_BRIGHTNESS_G].w = 0;
 
   /* brightness blue */
-  s->opt[OPT_BRIGHTNESS_B].name = SANE_NAME_BRIGHTNESS "_b";
-  s->opt[OPT_BRIGHTNESS_B].title = SANE_TITLE_BRIGHTNESS " blue";
-  s->opt[OPT_BRIGHTNESS_B].desc = SANE_DESC_BRIGHTNESS " Blue channel.";
+  s->opt[OPT_BRIGHTNESS_B].name = "brightness_b";
+  s->opt[OPT_BRIGHTNESS_B].title = SANE_I18N("Brightness blue channel");
+  s->opt[OPT_BRIGHTNESS_B].desc = SANE_I18N("Controls the brightness of " \
+					    "the blue channel of the " \
+					    "acquired image.");
   s->opt[OPT_BRIGHTNESS_B].type = SANE_TYPE_FIXED;
   s->opt[OPT_BRIGHTNESS_B].unit = SANE_UNIT_PERCENT;
   s->opt[OPT_BRIGHTNESS_B].constraint_type = SANE_CONSTRAINT_RANGE;
@@ -4154,9 +4169,11 @@ init_options (Mustek_Scanner *s)
   s->val[OPT_CONTRAST].w = 0;
 
   /* contrast red */
-  s->opt[OPT_CONTRAST_R].name = SANE_NAME_CONTRAST "_r";
-  s->opt[OPT_CONTRAST_R].title = SANE_TITLE_CONTRAST " red";
-  s->opt[OPT_CONTRAST_R].desc = SANE_DESC_CONTRAST " Red channel.";
+  s->opt[OPT_CONTRAST_R].name = "contrast_r";
+  s->opt[OPT_CONTRAST_R].title = SANE_I18N("Contrast blue channel");
+  s->opt[OPT_CONTRAST_R].desc = SANE_I18N("Controls the contrast of " \
+					  "the red channel of the " \
+					  "acquired image.");
   s->opt[OPT_CONTRAST_R].type = SANE_TYPE_FIXED;
   s->opt[OPT_CONTRAST_R].unit = SANE_UNIT_PERCENT;
   s->opt[OPT_CONTRAST_R].constraint_type = SANE_CONSTRAINT_RANGE;
@@ -4165,9 +4182,11 @@ init_options (Mustek_Scanner *s)
   s->val[OPT_CONTRAST_R].w = 0;
 
   /* contrast green */
-  s->opt[OPT_CONTRAST_G].name = SANE_NAME_CONTRAST "_g";
-  s->opt[OPT_CONTRAST_G].title = SANE_TITLE_CONTRAST " green";
-  s->opt[OPT_CONTRAST_G].desc = SANE_DESC_CONTRAST " Green channel.";
+  s->opt[OPT_CONTRAST_G].name = "contrast_g";
+  s->opt[OPT_CONTRAST_G].title = SANE_I18N("Contrast green channel");
+  s->opt[OPT_CONTRAST_G].desc = SANE_I18N("Controls the contrast of " \
+					  "the green channel of the " \
+					  "acquired image.");
   s->opt[OPT_CONTRAST_G].type = SANE_TYPE_FIXED;
   s->opt[OPT_CONTRAST_G].unit = SANE_UNIT_PERCENT;
   s->opt[OPT_CONTRAST_G].constraint_type = SANE_CONSTRAINT_RANGE;
@@ -4176,9 +4195,11 @@ init_options (Mustek_Scanner *s)
   s->val[OPT_CONTRAST_G].w = 0;
 
   /* contrast blue */
-  s->opt[OPT_CONTRAST_B].name = SANE_NAME_CONTRAST "_b";
-  s->opt[OPT_CONTRAST_B].title = SANE_TITLE_CONTRAST " blue";
-  s->opt[OPT_CONTRAST_B].desc = SANE_DESC_CONTRAST " Blue channel.";
+  s->opt[OPT_CONTRAST_B].name = "contrast_b";
+  s->opt[OPT_CONTRAST_B].title = SANE_I18N("Contrast blue channel");
+  s->opt[OPT_CONTRAST_B].desc = SANE_I18N("Controls the contrast of " \
+					  "the blue channel of the " \
+					  "acquired image.");
   s->opt[OPT_CONTRAST_B].type = SANE_TYPE_FIXED;
   s->opt[OPT_CONTRAST_B].unit = SANE_UNIT_PERCENT;
   s->opt[OPT_CONTRAST_B].constraint_type = SANE_CONSTRAINT_RANGE;
@@ -4283,8 +4304,6 @@ init_options (Mustek_Scanner *s)
   s->opt[OPT_HALFTONE_PATTERN].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_HALFTONE_PATTERN].constraint.range = &u8_range;
   s->val[OPT_HALFTONE_PATTERN].wa = s->halftone_pattern;
-
-
 
   return SANE_STATUS_GOOD;
 }
@@ -4784,13 +4803,8 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback authorize)
   debug_level = 0;
 #endif
 
-#ifdef VERSION
-  DBG(2, "SANE Mustek backend version %d.%d build %d (SANE %s)\n", V_MAJOR,
-      V_MINOR, BUILD, VERSION);
-#else
-  DBG(2, "SANE Mustek backend version %d.%d build %d\n", V_MAJOR,
-      V_MINOR, BUILD);
-#endif
+  DBG(2, "SANE mustek backend version %d.%d build %d from %s\n", V_MAJOR,
+      V_MINOR, BUILD, PACKAGE_VERSION);
 
   if (version_code)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BUILD);

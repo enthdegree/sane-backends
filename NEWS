@@ -9,14 +9,15 @@ New with 1.0.8, released 2002-05-27:
   sceptre (Sceptre VividScan S1200), teco1 (some Teco/Relisys flatbed
   scanners), test (test frontends and SANE installation).
 * Updated backends: avision, canon, dc240, dll, epson, gphoto2, mustek,
-  mustek_usb, net, plustek, pnm, sharp, sm3600, snapscan, umax, umax_pp, v4l.
+  mustek_pp, mustek_usb, nec, net, plustek, pnm, sharp, sm3600, snapscan, umax,
+  umax_pp, v4l.
 * New translations for several backends (de, es, fr).
 * Networking supports hosts without working DNS now.
 * SCSI system ignores USB files and doesn't block (Linux).
 * New test frontend and backend for testing SANE.
 * Several build system improvements (e.g., new libtool, better make distclean,
   build only shared libs by default).
-* Portability fixes (especially for AIX, Linux (2.2, hppa, sparc), HP/UX,
+* Portability fixes (especially for AIX, Linux (2.2, hppa, sparc), HP-UX,
   NetBSD, OS/2).
 * Better documentation of internal functions (sanei).
 * Various Documentation updates.

@@ -51,3 +51,4 @@ Maybe useful for SANE developers:
            cd po/ ; ../tools/check-po.awk sane-backends.de.po
         You may need to adjust the path of awk in the first line of the
         script. More documentation is in the script itself.
+

@@ -1,3 +1,12 @@
+2002-05-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* AUTHORS backend/Makefile.in backend/dll.conf backend/hpsj5s.c
+	  backend/hpsj5s.conf backend/hpsj5s.h backend/hpsj5s_int.h
+	  doc/sane-hpsj5s.man doc/descriptions/hpsj5s.desc doc/.cvsignore
+	  doc/Makefile.in doc/sane.man: Added hpsj5s backend for the
+	  Hewlett-Packard ScanJet 5S parport scanner (from Max Vorobiev
+	  <pcwizard@zelmail.ru>).
+
 2002-05-29  Frank Zago  <fzago at austin dot rr dot com>
 
 	* configure.in: Added test for long long. Fixed declaration for

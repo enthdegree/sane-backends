@@ -117,7 +117,7 @@ AC_CHECK_HEADER(resmgr.h,[
 	AC_CHECK_LIB(
 		resmgr,
 		rsm_open_device,[
-			AC_DEFINE(HAVE_RESMGR,1,[define if you have the resmgr library"])
+			AC_DEFINE(HAVE_RESMGR,1,[define if you have the resmgr library])
 			LIBS="$LIBS -lresmgr"
 		]
 	)

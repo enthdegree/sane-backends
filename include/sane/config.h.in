@@ -203,7 +203,7 @@
 /* Define to 1 if you have the `pthread_kill' function. */
 #undef HAVE_PTHREAD_KILL
 
-/* define if you have the resmgr library" */
+/* define if you have the resmgr library */
 #undef HAVE_RESMGR
 
 /* Define to 1 if you have the `scsireq_enter' function. */

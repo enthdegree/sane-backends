@@ -5,6 +5,8 @@
 	  <karsten.festag@gmx.de>). 
 	* doc/descriptions/unsupported.desc: Added link to artiscan 9600
 	  project. Removed Genius ColorPage-EP.
+	* configure.in include/sane/config.h.in: Removed dangling
+	  quotation mark.
 
 2004-10-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

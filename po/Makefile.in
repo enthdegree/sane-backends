@@ -10,6 +10,7 @@ mustek_usb.*.po: ../backend/mustek_usb.c
 plustek.*.po: ../backend/plustek.c ../backend/plustek.h
 pnm.*.po: ../backend/pnm.c
 umax.*.po: ../backend/umax.c
+sceptre.*.po: ../backend/sceptre.c ../backend/sceptre.h
 snapscan.*.po: ../backend/snapscan.c
 
 # end of configuration
@@ -53,7 +54,7 @@ DISTCLEAN_FILES = @DISTCLEAN_FILES@
 
 DISTFILES = Makefile.in README epson.de.po mustek.de.po \
   mustek_usb.de.po plustek.de.po pnm.de.po saneopts.de.po saneopts.fr.po \
-  umax.de.po umax.fr.po snapscan.de.po
+  sceptre.fr.po umax.de.po umax.fr.po snapscan.de.po
 
 .PHONY: all clean depend dist distclean install install-translations \
   uninstall update-mo update-po generate-%

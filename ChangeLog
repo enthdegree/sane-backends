@@ -1,3 +1,8 @@
+2001-07-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/Makefile.in: Use 6 lines as top/bottom margin for man2html
+	  to avoid losing 2 lines at every page break.
+
 2001-07-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* configure configure.in: Enabled warnings by default.

@@ -27,7 +27,27 @@
 :model "Aiptek Pencam"
 :interface "USB"
 :status :minimal
-:comment "image is OK for CIF and QCIF, VGA and QVGA untested, streaming video is a problem"
+:comment "usb vid 0c0553 pid 0x0202, image is OK for CIF and QCIF, VGA and QVGA untested, streaming video is a problem"
+
+:mfg "Konica"                         ; name a manufacturer
+:url "http://www.konicaminolta.com"
+
+; name models for above-specified mfg.
+:model "e-mini"
+:interface "USB"
+:status :untested
+:comment "usb vid 0x04c8 pid 0x0722  "
+
+:mfg "Digital Dream"                         ; name a manufacturer
+:url "http://www.digitaldreamco.com/en/index.shtml"
+
+; name models for above-specified mfg.
+:model "l' espion XS"
+:interface "USB"
+:status :untested
+:comment "usb vid 0x1183 pid 0x0001"
+
+
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

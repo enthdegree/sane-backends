@@ -15,6 +15,7 @@ inet_ntop (int af, const void *src, char *dst, size_t cnt)
   struct in_addr in;
   char *text_addr;
 
+#ifdef HAVE_INET_NTOA
   if (af == AF_INET)
     {
       memcpy (&in.s_addr, src, sizeof (in.s_addr));
@@ -27,6 +28,7 @@ inet_ntop (int af, const void *src, char *dst, size_t cnt)
       else
 	return 0;
     }
+#endif /* HAVE_INET_NTOA */
   return 0;
 }
 

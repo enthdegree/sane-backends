@@ -1,3 +1,15 @@
+2003-05-01 Oliver Rauch <Oliver.Rauch@XSane.org>
+
+	* backend/
+		umax-scanner.c  umax-scsidef.h  umax-uc1200se.c  umax-uc630.c
+		umax-ug630.c    umax-usb.c      umax.conf        umax.h
+		umax-scanner.h  umax-uc1200s.c  umax-uc1260.c   umax-uc840.c
+		umax-ug80.c     umax.c          umax.desc
+	  doc/sane-umax.man doc/umax/*
+
+	  update of sane-umax backend
+
+
 2003-04-30  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan.c backend/snapscan.h backend/snapscan-options.c

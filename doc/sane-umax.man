@@ -1,4 +1,4 @@
-.TH sane-umax 5 "16 august 2000" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-umax 5 "29 november 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-umax
 
 .SH NAME
@@ -42,6 +42,7 @@ shown below:
  option calibration-full-ccd -1
  option calibration-width-offset -1
  option calibration-bytes-pixel -1
+ option exposure-time-rgb-bind -1
  option invert-shading-data -1 
  option lamp-control-available 0
  option gamma-lsb-padded 0
@@ -122,6 +123,12 @@ shown below:
     1 = 1 byte/pixel,
     2 = 2 bytes/pixel
    use # bytes per pixel for calibration
+
+ - exposure-time-rgb-bind:
+   values:
+   -1 = automatically set by driver - if known
+    0 = disabled (own selection for red, green and blue)
+    1 = enabled (same values for red, green and blue)
  
  - invert-shading-data:
    values:

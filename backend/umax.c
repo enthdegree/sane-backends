@@ -3073,6 +3073,28 @@ static void umax_correct_inquiry(Umax_Device *dev, char *vendor, char *product, 
       }
     }
   }
+  else if (!strncmp(vendor, "TriGem ", 7))
+  {
+    if (!strncmp(product, "PowerScanII ", 12)) /* is a Supervista S-12 */
+    {
+      DBG(DBG_warning,"setting up special options for %s\n", product);
+
+      DBG(DBG_warning," - setting maximum calibration data lines to 66\n");
+      set_inquiry_max_calibration_data_lines(dev->buffer[0], 66);
+
+      if (dev->calibration_width_offset == -99999) /* no calibration-width-offset defined in umax.conf */
+      {
+        dev->calibration_width_offset = -1;
+        DBG(DBG_warning," - adding calibration width offset of %d pixels\n", dev->calibration_width_offset);
+      }
+
+      if (dev->calibration_area == -1) /* no calibration area defined in umax.conf */
+      {
+        DBG(DBG_warning," - calibration by driver is done for each CCD pixel\n");
+        dev->calibration_area = UMAX_CALIBRATION_AREA_CCD;
+      }
+    }
+  }
 }
 
 
@@ -5916,6 +5938,12 @@ SANE_Status sane_init(SANE_Int *version_code, SANE_Auth_Callback authorize)
  size_t len;
  FILE *fp;
 
+  /* we have to initialize these global variables here because sane_init can be called several times */
+  num_devices  = 0;
+  devlist      = NULL;
+  first_dev    = NULL;
+  first_handle = NULL;
+
   DBG_INIT();
 
   DBG(DBG_sane_init,"sane_init\n");
@@ -7543,8 +7571,8 @@ SANE_Status sane_start(SANE_Handle handle)
 
     /* The scanner defines a x-origin-offset for DOR mode, this offset is used for the */
     /* x range in this backend, so the frontend/user knows the correct positions related to */
-    /* scanner´s surface. But the scanner wants x values from origin 0 instead */
-    /* of the x-origin defined by the scanner´s inquiry */
+    /* scanner's surface. But the scanner wants x values from origin 0 instead */
+    /* of the x-origin defined by the scanner`s inquiry */
     if (scanner->device->dor != 0) /* dor mode active */
     {
       DBG(DBG_info,"substracting DOR x-origin-offset from upper left x\n");

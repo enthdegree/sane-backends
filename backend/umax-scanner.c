@@ -119,7 +119,7 @@ static char *scanner_str[] =
   "LinoHell",	"SAPHIR2 ",
   "LinoHell",	"SAPHIR3 ", /* 1000x2000 dpi */
 /*  "LinoHell",	"SAPHIR4 ", */
-  "Linotype",	"SAPHIR4 ",
+  "Linotype",	"SAPHIR4 ", /* Linotype-Hell Saphir Ultra II */
 /*  "LinoHell",	"OPAL ", */
   "HDM ",	"LS4H1S ", /* Linoscan 1400 */
   "Nikon ",	"AX-110 ", /* is a Vista S6E */
@@ -128,6 +128,7 @@ static char *scanner_str[] =
   "EPSON ",	"Perfection600 ", 
   "ESCORT ",    "Galleria 600S ", /* is an Astra 600S */
   "EDGE ",	"KTX-9600US ", /* may be an Astra 1220S */
+  "TriGem ",	"PowerScanII ", /* is a Supervista S12 */
   "END_OF_LIST"
 };
 

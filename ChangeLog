@@ -11,6 +11,11 @@
 	  Converted to use new :status values.
 	* doc/descriptions/unsupported.desc: Sorted (more or less)
 	  alphabetically. Added some Canon and Hewlett-Packard scanners.
+	* frontends/scanimage.c: When parsing string options whose
+	  arguments are too short, don't overwrite the remaining command
+	  line arguments. Print "[inactive]" after every inactive option.
+	* TODO: Added fujitsu patch, description file updates,
+	  close_on_exec problem. Removed scanimage bugs.
 
 2003-07-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

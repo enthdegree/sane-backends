@@ -1,3 +1,7 @@
+2001-05-17  Oliver Rauch <Oliver.Rauch@rauch-domain.de>
+
+	* removed bug in umax backend sane_exit
+
 2001-05-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* include/lalloca.h: Used a more suitable comment.

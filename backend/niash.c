@@ -155,32 +155,32 @@ static const SANE_Range rangeGamma = { SANE_FIX (0.25), SANE_FIX (4.0),
   SANE_FIX (0.0)
 };
 
-/* interpolate a sane gamma table to a hardware appropriate one */
+/* interpolate a sane gamma table to a hardware appropriate one 
+   just in case the sane gamma table would be smaller */
 static void
 _ConvertGammaTable (SANE_Word * saneGamma, unsigned char *hwGamma)
 {
   int i;
+  int current = 0;
   for (i = 0; i < SANE_GAMMA_SIZE; ++i)
     {
       int j;
-      int current, next;
+      int next;
 
-      current = (i * HW_GAMMA_SIZE) / SANE_GAMMA_SIZE;
+      /* highest range of copy indices */
       next = ((i + 1) * HW_GAMMA_SIZE) / SANE_GAMMA_SIZE;
 
-      for (j = current; j < HW_GAMMA_SIZE && j < next; ++j)
+      /* always copy the first */
+      hwGamma[current] = saneGamma[i];
+
+      /* the interpolation of the rest depends on the gap */
+      for (j = current + 1; j < HW_GAMMA_SIZE && j < next; ++j)
 	{
-	  if (j == current)
-	    {
-	      hwGamma[j] = saneGamma[i];
-	    }
-	  else
-	    {
-	      hwGamma[j] =
-		(saneGamma[i] * (next - j) +
-		 saneGamma[i + 1] * (j - current)) / (next - current);
-	    }
+	  hwGamma[j] =
+	    (saneGamma[i] * (next - j) +
+	     saneGamma[i + 1] * (j - current)) / (next - current);
 	}
+      current = next;
     }
 }
 
@@ -296,6 +296,10 @@ _rgb2gray (unsigned char *buffer, int pixels, int threshold)
 	  acc = 0;
 	}
     }
+#undef WEIGHT_R
+#undef WEIGHT_G
+#undef WEIGHT_B
+#undef WEIGHT_W
 }
 
 /* convert 24bit RGB to 1bit B/W */
@@ -303,7 +307,7 @@ static void
 _rgb2lineart (unsigned char *buffer, int pixels, int threshold)
 {
   static const int aMask[BITS_PER_BYTE] = { 128, 64, 32, 16, 8, 4, 2, 1 };
-  unsigned char acc = 0;
+  int acc = 0;
   int nx;
   int x;
   int thresh;
@@ -336,7 +340,7 @@ typedef struct tgModeParam
 static const TModeParam modeParam[] = {
   {DEPTH_COLOR, SANE_FRAME_RGB, _bytesPerLineColor, _rgb2rgb},
   {DEPTH_GRAY, SANE_FRAME_GRAY, _bytesPerLineGray, _rgb2gray},
-  {DEPTH_LINEART, SANE_FRAME_GRAY, _bytesPerLineLineart, _rgb2lineart},
+  {DEPTH_LINEART, SANE_FRAME_GRAY, _bytesPerLineLineart, _rgb2lineart}
 };
 
 
@@ -759,7 +763,7 @@ _InitOptions (TScanner * s)
 	  pDesc->title = SANE_TITLE_THRESHOLD;
 	  pDesc->desc = SANE_DESC_THRESHOLD;
 	  pDesc->type = SANE_TYPE_INT;
-	  pDesc->unit = SANE_UNIT_NONE;
+	  pDesc->unit = SANE_UNIT_PERCENT;
 	  pDesc->constraint_type = SANE_CONSTRAINT_RANGE;
 	  pDesc->constraint.range = &rangeThreshold;
 	  pDesc->cap =

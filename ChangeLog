@@ -1,3 +1,8 @@
+2004-10-14  Ullrich Sigwanz <usigwanz@freesurf.ch>
+
+        * backend/niash.c: removing a non-ANSI conform comma.
+        adapting the gammma conversion.
+
 2004-10-14  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* sanei/sanei_thread.c: Added missing pthread_detach() so the

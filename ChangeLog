@@ -1,3 +1,7 @@
+2001-12-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/dll.conf: Added (commented out) st400 entry.
+
 2001-12-18  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan.c    backend/snapscan.h

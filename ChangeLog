@@ -18,7 +18,7 @@
           creates sane-backends-x.y.z.tar.gz and make sane-backends also
           creates the appropriate sane-x-y-z.lsm. Moved distclean to include/.
           Fixed .PHONY. Made sane-backands-*.lsm look nicer.
-
+	* doc/backend-writing.txt: Point to po/README for the I18N details.
 
 2001-01-08  Stéphane Voltz  <svoltz@wanadoo.fr>
 

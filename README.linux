@@ -33,12 +33,12 @@ device mustek:/dev/scanner' is a Mustek ScanExpress 12000SP flatbed scanner
 
 If this doesn't work you may have to add the right SCSI generic device name
 to the configuration file. This should be documented in the man page for
-your backend. To find out about the right SCSI device use sane-find-scanner:
+your backend. To find out about the right SCSI device use tools/find-scanner:
 
-# sane-find-scanner
-sane-find-scanner: found scanner "SCANNER  2.02" at device /dev/scanner
-sane-find-scanner: found scanner "SCANNER  2.02" at device /dev/sg0
-sane-find-scanner: found scanner "SCANNER  2.02" at device /dev/sga 
+# tools/find-scanner
+find-scanner: found scanner "SCANNER  2.02" at device /dev/scanner
+find-scanner: found scanner "SCANNER  2.02" at device /dev/sg0
+find-scanner: found scanner "SCANNER  2.02" at device /dev/sga 
 
 It may help to set a soft link /dev/scanner to the respective device.
 
@@ -59,6 +59,16 @@ idescsi:
   devices" (idescsi) is reported to cause problems in connection with
   SANE. If your scanner isn't found or you encounter segmentation faults
   try to disable idescsi.
+
+Direct IO: Recent versions of the Linux SG driver for the 2.4 kernels support 
+  direct IO, i.e., the SCSI adapter's DMA chip copies data directly to/from 
+  user memory. Direct IO reduces memory usage and it may give better 
+  throughput for very fast scanners, but it can lead to access conflicts, 
+  if a backend uses shared memory. Sane does not use direct IO by default,
+  if you want to use it, run
+
+	configure --enable-directio=yes
+
 
 Other Information
 =================

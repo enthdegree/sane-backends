@@ -1693,7 +1693,6 @@ issue (struct req *req)
                             }
                         }
                      );
-              IF_DBG(if (DBG_LEVEL >= 255) system("cat /proc/scsi/sg/debug 1>&2");)
 #ifdef SG_IO
             }
           else
@@ -1916,7 +1915,16 @@ sanei_scsi_req_enter2 (int fd,
       req->sgdata.sg3.hdr.sbp = &(req->sgdata.sg3.sense_buffer[0]);
       /* 10 minutes should be ok even for slow scanners */
       req->sgdata.sg3.hdr.timeout = 1000 * 60 * 10;
+#ifdef ENABLE_DIRECTIO
+      /* for the adventurous: If direct IO is used,
+         the kernel locks the buffer. This can lead to conflicts,
+         if a backend uses shared memory.
+         OTOH, direct IO may be faster, and it reduces memory usage
+      */
       req->sgdata.sg3.hdr.flags = SG_FLAG_DIRECT_IO;
+#else
+      req->sgdata.sg3.hdr.flags = 0;
+#endif
       req->sgdata.sg3.hdr.pack_id = pack_id++;
       req->sgdata.sg3.hdr.usr_ptr = 0;
     }
@@ -1982,6 +1990,7 @@ sanei_scsi_req_wait (void *id)
        }
       else
         {
+          IF_DBG(if (DBG_LEVEL >= 255) system("cat /proc/scsi/sg/debug 1>&2");)
           ATOMIC (nread = read (req->fd, &req->sgdata.sg3.hdr, sizeof(Sg_io_hdr));
                  req->done = 1);
        }
@@ -2073,7 +2082,7 @@ sanei_scsi_req_wait (void *id)
           else
             {
              /* check for errors, but let the sense_handler decide.... */
-             if (   (req->sgdata.sg3.hdr.info && SG_INFO_CHECK != 0)
+             if (   ((req->sgdata.sg3.hdr.info & SG_INFO_CHECK) != 0)
                  || (req->sgdata.sg3.hdr.sb_len_wr > 0 &&
                  ((req->sgdata.sg3.sense_buffer[0] & 0x7f) != 0)))
                {

@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
 
    based on sources acquired from Plustek Inc.
-   Copyright (C) 2002-2003 Gerhard Jaeger <gerhard@gjaeger.de>
+   Copyright (C) 2002-2004 Gerhard Jaeger <gerhard@gjaeger.de>
 
    This file is part of the SANE package.
  
@@ -54,7 +54,7 @@
 #include <string.h>
 #include <errno.h>
 
-#define BACKEND_NAME	sanei_lm983x   /**< the name of this module for dbg  */
+#define BACKEND_NAME sanei_lm983x   /**< the name of this module for dbg  */
 
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei_debug.h"
@@ -63,10 +63,10 @@
 
 /***************************** some definitions ******************************/
 
-#define _MIN(a,b)	((a) < (b) ? (a) : (b))
-#define _MAX(a,b)	((a) > (b) ? (a) : (b))
+#define _MIN(a,b) ((a) < (b) ? (a) : (b))
+#define _MAX(a,b) ((a) > (b) ? (a) : (b))
 
-#define _CMD_BYTE_CNT	   4           /**< header for LM983x transfers      */
+#define _CMD_BYTE_CNT      4           /**< header for LM983x transfers      */
 #define _MAX_RETRY         20          /**< number of tries for reset        */
 #define _LM9831_MAX_REG    0x7f        /**< number of LM983x bytes           */
 #define _MAX_TRANSFER_SIZE 60          /**< max. number of bytes to transfer */
@@ -82,41 +82,41 @@ sanei_lm983x_init( void )
 SANE_Status
 sanei_lm983x_write_byte( SANE_Int fd, SANE_Byte reg, SANE_Byte value )
 {
-    return sanei_lm983x_write( fd, reg, &value, 1, SANE_FALSE );
+	return sanei_lm983x_write( fd, reg, &value, 1, SANE_FALSE );
 }
 
 SANE_Status
 sanei_lm983x_write( SANE_Int fd, SANE_Byte reg,
-		    		SANE_Byte *buffer, SANE_Word len, SANE_Bool increment )
+                    SANE_Byte *buffer, SANE_Word len, SANE_Bool increment )
 {
-	size_t		size;
-    SANE_Byte	command_buffer[_MAX_TRANSFER_SIZE + _CMD_BYTE_CNT];
-    SANE_Status	result;
-    SANE_Word	bytes, max_len;
+	size_t      size;
+	SANE_Byte   command_buffer[_MAX_TRANSFER_SIZE + _CMD_BYTE_CNT];
+	SANE_Status result;
+	SANE_Word   bytes, max_len;
 
-  	DBG( 15, "sanei_lm983x_write: fd=%d, reg=%d, len=%d, increment=%d\n", fd,
+	DBG( 15, "sanei_lm983x_write: fd=%d, reg=%d, len=%d, increment=%d\n", fd,
 	         reg, len, increment);
 	
 	if( reg > _LM9831_MAX_REG ) {
 		DBG( 1, "sanei_lm983x_write: register out of range (%u>%u)\n",
 				 reg, _LM9831_MAX_REG );
 		return SANE_STATUS_INVAL;
-	}		
+	}
 	
 	for( bytes = 0; len > 0; ) {
 
 		max_len = _MIN( len, _MAX_TRANSFER_SIZE );
 
-        command_buffer[0] = 0;                  	/* write 			  */
-        command_buffer[1] = reg;                	/* LM9831 register	  */
+		command_buffer[0] = 0;                      /* write              */
+		command_buffer[1] = reg;                    /* LM983x register    */
 		
 		if( increment == SANE_TRUE ) {
-			command_buffer[0] += 0x02;				/* increase reg?	  */
+			command_buffer[0] += 0x02;              /* increase reg?      */
 			command_buffer[1] += bytes;
 		}
 
-		command_buffer[2] = (max_len >> 8) & 0xff;	/* bytes to write MSB */
-		command_buffer[3] = max_len & 0xff;			/* bytes to write LSB */
+		command_buffer[2] = (max_len >> 8) & 0xff;  /* bytes to write MSB */
+		command_buffer[3] = max_len & 0xff;         /* bytes to write LSB */
 
 		memcpy( command_buffer + _CMD_BYTE_CNT, buffer + bytes, max_len );
 
@@ -125,21 +125,20 @@ sanei_lm983x_write( SANE_Int fd, SANE_Byte reg,
 		
 		if( SANE_STATUS_GOOD != result )
 			return result;
-		
-        if( size != (size_t)(max_len + _CMD_BYTE_CNT)) {
+
+		if( size != (size_t)(max_len + _CMD_BYTE_CNT)) {
 			DBG( 2, "sanei_lm983x_write: short write (%d/%d)\n",
-				 result, max_len + _CMD_BYTE_CNT);
+			     result, max_len + _CMD_BYTE_CNT);
 
 			if( size < _CMD_BYTE_CNT ) {
-	      		DBG( 1, "sanei_lm983x_write: couldn't even send command\n" );
-       			return SANE_STATUS_IO_ERROR;
-	    	}
+				DBG( 1, "sanei_lm983x_write: couldn't even send command\n" );
+				return SANE_STATUS_IO_ERROR;
+			}
 			DBG( 1, "sanei_lm983x_write: trying again\n" );
 		}
 		len   -= (size - _CMD_BYTE_CNT);
 		bytes += (size - _CMD_BYTE_CNT);
-	}		
-
+	}
 	DBG( 15, "sanei_lm983x_write: succeeded\n" );
 	return SANE_STATUS_GOOD;
 }
@@ -148,36 +147,36 @@ SANE_Status
 sanei_lm983x_read( SANE_Int fd, SANE_Byte reg,
                    SANE_Byte *buffer, SANE_Word len, SANE_Bool increment )
 {
-	size_t		size;
-	SANE_Byte	command_buffer[_CMD_BYTE_CNT];
-	SANE_Status	result;
-	SANE_Word	bytes, max_len, read_bytes;
+	size_t      size;
+	SANE_Byte   command_buffer[_CMD_BYTE_CNT];
+	SANE_Status result;
+	SANE_Word   bytes, max_len, read_bytes;
 
-	DBG( 15, "sanei_lm983x_read: fd=%d, reg=%d, len=%d, increment=%d\n",
-                                                     fd, reg, len, increment );
+	DBG( 15, "sanei_lm983x_read: fd=%d, reg=%d, len=%d, increment=%d\n", fd,
+	         reg, len, increment );
 	if( reg > _LM9831_MAX_REG ) {
 		DBG( 1, "sanei_lm983x_read: register out of range (%u>%u)\n",
-				 reg, _LM9831_MAX_REG );
+		        reg, _LM9831_MAX_REG );
 		return SANE_STATUS_INVAL;
-	}		
+	}
 
 	for( bytes = 0; len > 0; ) {
 
 		max_len = _MIN(len, 0xFFFF );
 		command_buffer[0] = 1;                 /* read */
 		command_buffer[1] = reg;               /* LM9831 register */
-		
+
 		if( increment ) {
 			command_buffer[0] += 0x02;
 			command_buffer[1] += bytes;
 		}
-		
+
 		command_buffer[2] = (max_len >> 8) & 0xff; /* bytes to read MSB */
 		command_buffer[3] = max_len & 0xff;        /* bytes to read LSB */
 
 		DBG( 15, "sanei_lm983x_read: writing command: "
-	   		"%02x %02x %02x %02x\n", command_buffer[0], command_buffer[1],
-	   		                         command_buffer[2], command_buffer[3]);
+			"%02x %02x %02x %02x\n", command_buffer[0], command_buffer[1],
+			                         command_buffer[2], command_buffer[3]);
 
 		size   = _CMD_BYTE_CNT;
 		result = sanei_usb_write_bulk( fd, command_buffer, &size );
@@ -187,39 +186,35 @@ sanei_lm983x_read( SANE_Int fd, SANE_Byte reg,
 		
 		if( size != _CMD_BYTE_CNT) {
 			DBG( 1, "sanei_lm983x_read: short write while writing command "
-	       			"(%d/_CMD_BYTE_CNT)\n", result);
+			        "(%d/_CMD_BYTE_CNT)\n", result);
 			return SANE_STATUS_IO_ERROR;
 		}
 
 		read_bytes = 0;
-		
 		do {
-		
+
 			size = (max_len - read_bytes);
-			
+
 			result = sanei_usb_read_bulk( fd, (buffer + bytes + read_bytes), &size );
 
 			if( SANE_STATUS_GOOD != result )
 				return result;
-	  		
-	  		read_bytes += size;
-	  		DBG( 15, "sanei_lm983x_read: read %d bytes\n", size );
-	  		
-	  		if( read_bytes != max_len ) {
+
+			read_bytes += size;
+			DBG( 15, "sanei_lm983x_read: read %d bytes\n", size );
+
+			if( read_bytes != max_len ) {
 				DBG( 2, "sanei_lm983x_read: short read (%d/%d)\n",
 				                                 result, max_len );
-				
 				/* wait a little bit before retrying */
-	      		usleep( 10000 );
-	      		DBG( 2, "sanei_lm983x_read: trying again\n" );
-	    	}
-	    	
+				usleep( 10000 );
+				DBG( 2, "sanei_lm983x_read: trying again\n" );
+			}
 		} while( read_bytes < max_len );
-		
-      	bytes += (max_len);
-      	len   -= (max_len);
+
+		bytes += (max_len);
+		len   -= (max_len);
 	}
-	
 	DBG( 15, "sanei_lm983x_read: succeeded\n" );
 	return SANE_STATUS_GOOD;
 }
@@ -230,7 +225,7 @@ SANE_Bool sanei_lm983x_reset( SANE_Int fd )
 	SANE_Byte   tmp;
 	SANE_Int    i;
 
-   	DBG( 15, "sanei_lm983x_reset()\n" );
+	DBG( 15, "sanei_lm983x_reset()\n" );
 
 	for( i = 0; i < _MAX_RETRY; i++ ) {
 		
@@ -254,15 +249,14 @@ SANE_Bool sanei_lm983x_reset( SANE_Int fd )
 			if( res == SANE_STATUS_GOOD ) {
 				DBG( 15, "Resetting the LM983x already done\n" );
 				return SANE_TRUE;
-			}	
+			}
 		} else {
 
 			res = sanei_lm983x_write_byte( fd, 0x07, 0x20 );
-
 			if( res == SANE_STATUS_GOOD ) {
 				DBG( 15, "Resetting the LM983x done\n" );
 				return SANE_TRUE;
-			}	
+			}
 		}
 	}
 	return SANE_FALSE;

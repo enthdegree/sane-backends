@@ -2,6 +2,9 @@
 
 	* doc/descriptions-external/gt68xx.desc: Added new scanners. Updated
 	  status of supported scanners.
+	* doc/sane.tex: Added explanation of bit order for 1 bit modes. Added
+	  comment about 1 bit color modes. Fixed missing \code command. New 
+	  version: 1.03.
 
 2002-09-30  Peter Fales <peter@fales-lorenz.net>
 

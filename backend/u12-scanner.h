@@ -5,6 +5,7 @@
  *
  * History:
  * - 0.01 - initial version
+ * - 0.02 - removed useless stuff
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -245,7 +246,6 @@ typedef struct
 	u_long          negBegin;       /* used while scanning in TPA modes     */
 	u_long          posBegin;
 	SANE_Byte       bDiscardAll;
-	u_long          dwLinesToRead;  
 
 	union {
 		u_short     wGreenDiscard;

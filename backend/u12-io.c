@@ -7,6 +7,8 @@
  *
  * History:
  * - 0.01 - initial version
+ * - 0.02 - changed u12io_GetFifoLength() behaviour
+ *        - added delays to reset function
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -265,7 +267,7 @@ gl640ReadBulk( int fd, u_char *setup, u_char *data, size_t size, int mod )
 	setup[4] = (size) & 0xFF;
 	setup[5] = (size >> 8) & 0xFF;
 	setup[6] = mod;
-	
+
 	CHK (gl640WriteControl (fd, GL640_BULK_SETUP, setup, 8));
 
 	len_info = NULL;
@@ -282,6 +284,7 @@ gl640ReadBulk( int fd, u_char *setup, u_char *data, size_t size, int mod )
 		status = sanei_usb_read_bulk( fd, data, &current );
 		if( status != SANE_STATUS_GOOD ) {
 			DBG( _DBG_ERROR, "gl640ReadBulk error\n");
+			break;
 		}
 		data     += current;
 		complete += current;
@@ -414,11 +417,19 @@ static SANE_Bool u12io_OpenScanPath( U12_Device *dev )
 	u12io_SwitchToSPPMode( dev );
 
 	outb_data( dev->fd, _ID_TO_PRINTER );
+	_DODELAY(20);
 
 	outb_data( dev->fd, _ID1ST );
+	_DODELAY(5);
+
 	outb_data( dev->fd, _ID2ND );
+	_DODELAY(5);
+
 	outb_data( dev->fd, _ID3RD );
-    outb_data( dev->fd, _ID4TH );
+	_DODELAY(5);
+
+	outb_data( dev->fd, _ID4TH );
+	_DODELAY(5);
 
 	tmp = u12io_DataFromRegister( dev, REG_ASICID );
 	if( ASIC_ID == tmp ) {
@@ -482,7 +493,7 @@ static SANE_Status u12io_DataToRegs( U12_Device *dev, SANE_Byte *buf, int len )
 	SANE_Status status;
 
 	if( dev->mode != _PP_MODE_EPP ) {
-		DBG( _DBG_ERROR, "u12io_DataToRegsr() in wrong mode!\n" );
+		DBG( _DBG_ERROR, "u12io_DataToRegs() in wrong mode!\n" );
 		return SANE_STATUS_IO_ERROR;
 	}
 
@@ -515,8 +526,7 @@ static SANE_Status u12io_MoveDataToScanner( U12_Device *dev,
 {
 	SANE_Status status;
 
-/*    u12io_IORegisterToScanner( dev, REG_INITDATAFIFO );
-*/
+/*	u12io_RegisterToScanner( dev, REG_INITDATAFIFO ); */
 	u12io_RegisterToScanner( dev, REG_WRITEDATAMODE );
 
 	bulk_setup_data[1] = 0x01;
@@ -531,8 +541,7 @@ static SANE_Status u12io_ReadData( U12_Device *dev, SANE_Byte *buf, int len )
 	SANE_Status status;
 
 	u12io_DataToRegister( dev, REG_MODECONTROL, dev->regs.RD_ModeControl );
-/*    u12io_RegisterToScanner( dev, REG_INITDATAFIFO );
- */
+/*	u12io_RegisterToScanner( dev, REG_INITDATAFIFO ); */
 	u12io_RegisterToScanner( dev, REG_READDATAMODE );
 
 	bulk_setup_data[1] = 0x00;
@@ -542,41 +551,78 @@ static SANE_Status u12io_ReadData( U12_Device *dev, SANE_Byte *buf, int len )
 	return SANE_STATUS_GOOD;
 }
 
-/** perform a SW reset of ASIC 98003
+/** perform a SW reset of ASIC P98003
  */
 static void u12io_SoftwareReset( U12_Device *dev )
 {
-	DBG( _DBG_INFO, "Device reset!!!\n" );
+	DBG( _DBG_INFO, "Device reset (%i)!!!\n", dev->fd );
 
 	u12io_DataToRegister( dev, REG_TESTMODE, _SW_TESTMODE );
 
-/*	u12io_SwitchToSPPMode( dev );
- */
-	outb_data( dev->fd, 0 );
+	outb_data( dev->fd, _ID_TO_PRINTER );
+	_DODELAY(20);
 
 	outb_data( dev->fd, _RESET1ST );
+	_DODELAY(5);
 	outb_data( dev->fd, _RESET2ND );
+	_DODELAY(5);
 	outb_data( dev->fd, _RESET3RD );
+	_DODELAY(5);
 	outb_data( dev->fd, _RESET4TH );
+	_DODELAY(250);
 }
 
 /**
  */
-static SANE_Bool u12io_IsConnected( int fd )
+static SANE_Bool u12io_IsConnected( U12_Device *dev )
 {
+	int       mode;
 	SANE_Byte tmp;
+	SANE_Byte buf[6];
 
-	tmp = inb_status( fd );
+	DBG( _DBG_INFO, "u12io_IsConnected()\n" );
+	tmp = inb_status( dev->fd );
+	DBG( _DBG_INFO, "* tmp1 = 0x%02x\n", tmp );
 
-	gl640WriteReq( fd, GL640_EPP_ADDR, REG_ASICID );
-	gl640ReadReq ( fd, GL640_EPP_DATA_READ, &tmp );
+	gl640WriteReq( dev->fd, GL640_EPP_ADDR, REG_ASICID );
+	gl640ReadReq ( dev->fd, GL640_EPP_DATA_READ, &tmp );
+	DBG( _DBG_INFO, "* REG_ASICID = 0x%02x\n", tmp );
 
 	if( tmp != ASIC_ID ) {
-		DBG( _DBG_INFO, "Scanner NOT connected!\n" );
+
+		DBG( _DBG_INFO, "* Scanner is NOT connected!\n" );
+/* FIXME: really needed? */
+#if 1
+		if( dev->initialized ) {
+
+			tmp = inb_status( dev->fd );
+			DBG( _DBG_INFO, "* tmp3 = 0x%02x\n", tmp );
+
+			gl640WriteReq( dev->fd, GL640_EPP_ADDR, REG_ASICID );
+			gl640ReadReq ( dev->fd, GL640_EPP_DATA_READ, &tmp );
+			DBG( _DBG_INFO, "* REG_ASICID = 0x%02x\n", tmp );
+
+			mode = dev->mode;
+			dev->mode = _PP_MODE_EPP;
+			u12io_DataToRegister( dev, REG_ADCADDR, 1 );
+			u12io_DataToRegister( dev, REG_ADCDATA, 0 );
+			u12io_DataToRegister( dev, REG_ADCSERIALOUT, 0 );
+
+			buf[0] = REG_MODECONTROL;
+			buf[1] = 0x19;
+			buf[2] = REG_STEPCONTROL;
+			buf[3] = 0xff;
+			buf[4] = REG_MOTOR0CONTROL;
+			buf[5] = 0;
+			u12io_DataToRegs( dev, buf, 3 );
+			dev->mode = mode;
+		}
+#endif
 		return SANE_FALSE;
 	} 
 
-	DBG( _DBG_INFO, "Scanner connected!\n" );
+	u12io_SwitchToEPPMode( dev );
+	DBG( _DBG_INFO, "* Scanner is connected!\n" );
 	return SANE_TRUE;
 }
 
@@ -755,7 +801,17 @@ static u_long u12io_GetFifoLength( U12_Device *dev )
 	len_r = (u_long)data[5]  * 256 + (u_long)data[4];
 	len_g = (u_long)data[8]  * 256 + (u_long)data[7];
 	len_b = (u_long)data[11] * 256 + (u_long)data[10];
-	len = len_r /*+ len_g + len_b*/;
+
+	if( dev->DataInf.wPhyDataType < COLOR_TRUE24 ) {
+		len = len_g;
+	} else {
+
+		len = len_r;
+		if( len_g < len )
+			len = len_g;
+		if( len_b < len )
+			len = len_b;
+	}
 
 	DBG( _DBG_READ, "FIFO-LEN: %lu %lu %lu = %lu\n", len_r, len_g, len_b, len );
 	return len;

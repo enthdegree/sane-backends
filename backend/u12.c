@@ -7,6 +7,7 @@
  *
  * History:
  * - 0.01 - initial version
+ * - 0.02 - enabled other scan-modes
  *.
  * <hr>
  * This file is part of the SANE package.
@@ -78,14 +79,14 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.01-1"
+#define BACKEND_VERSION "0.02-2"
 #define BACKEND_NAME    u12
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
 #include "../include/sane/sanei_thread.h"
 #include "../include/sane/sanei_usb.h"
 
-/*#define ALL_MODES*/
+#define ALL_MODES
 
 #include "u12-scanner.h"
 #include "u12-hwdef.h"
@@ -144,7 +145,7 @@ static const SANE_String_Const mode_list[] =
 	SANE_I18N("Binary"),
 	SANE_I18N("Gray"),
 	SANE_I18N("Color"),
-	SANE_I18N("Color 42/48"),
+	SANE_I18N("Color 36"),
 	NULL
 };
 
@@ -416,13 +417,16 @@ static SANE_Status do_cancel( U12_Scanner *scanner, SANE_Bool closepipe )
 #endif
 		}
 		scanner->reader_pid = 0;
-		DBG( _DBG_PROC,"reader_process killed\n");
+		DBG( _DBG_PROC, "reader_process killed\n");
 
 #if 1
-		u12io_SoftwareReset( scanner->hw );
-		_DODELAY(250);
-		u12io_CloseScanPath( scanner->hw );
-		u12io_OpenScanPath( scanner->hw );
+		if( scanner->hw->fd >= 0 ) {
+			u12io_SoftwareReset( scanner->hw );
+#if 0
+			u12io_CloseScanPath( scanner->hw );
+			_DODELAY(250);
+#endif
+		}
 #endif
 	}
 
@@ -1168,6 +1172,9 @@ void sane_close( SANE_Handle handle )
 	if( NULL != s->hw->shade.pHilight )
 		free( s->hw->shade.pHilight );
 
+	if( NULL != s->hw->scaleBuf )
+		free( s->hw->scaleBuf );
+
 	drvClose( s->hw );
 
 	if (prev)
@@ -1592,33 +1599,33 @@ SANE_Status sane_start( SANE_Handle handle )
 	 */
 	ndpi = s->val[OPT_RESOLUTION].w;
 
-    /* exchange the values as we can't deal with negative heights and so on...*/
-    tmp = s->val[OPT_TL_X].w;
-    if( tmp > s->val[OPT_BR_X].w ) {
+	/* exchange the values as we can't deal with negative heights and so on...*/
+	tmp = s->val[OPT_TL_X].w;
+	if( tmp > s->val[OPT_BR_X].w ) {
 		DBG( _DBG_INFO, "exchanging BR-X - TL-X\n" );
-        s->val[OPT_TL_X].w = s->val[OPT_BR_X].w;
-        s->val[OPT_BR_X].w = tmp;
-    }
+		s->val[OPT_TL_X].w = s->val[OPT_BR_X].w;
+		s->val[OPT_BR_X].w = tmp;
+	}
 
-    tmp = s->val[OPT_TL_Y].w;
-    if( tmp > s->val[OPT_BR_Y].w ) {
+	tmp = s->val[OPT_TL_Y].w;
+	if( tmp > s->val[OPT_BR_Y].w ) {
 		DBG( _DBG_INFO, "exchanging BR-Y - TL-Y\n" );
-        s->val[OPT_TL_Y].w = s->val[OPT_BR_Y].w;
-        s->val[OPT_BR_Y].w = tmp;
-    }
+		s->val[OPT_TL_Y].w = s->val[OPT_BR_Y].w;
+	s->val[OPT_BR_Y].w = tmp;
+	}
 
 	/* position and extent are always relative to 300 dpi */
 	dpi_x = (double)dev->dpi_max_x;
 	dpi_y = (double)dev->dpi_max_y;
 
-	left   = (int)(SANE_UNFIX (s->val[OPT_TL_X].w)* dpi_x/
-										 (_MM_PER_INCH*(dpi_y/_MEASURE_BASE)));
-	top    = (int)(SANE_UNFIX (s->val[OPT_TL_Y].w)*dpi_y/
-										 (_MM_PER_INCH*(dpi_y/_MEASURE_BASE)));
-	width  = (int)(SANE_UNFIX (s->val[OPT_BR_X].w - s->val[OPT_TL_X].w) *
-								dpi_x / (_MM_PER_INCH *(dpi_x/_MEASURE_BASE)));
-	height = (int)(SANE_UNFIX (s->val[OPT_BR_Y].w - s->val[OPT_TL_Y].w) *
-								dpi_y / (_MM_PER_INCH *(dpi_y/_MEASURE_BASE)));
+	left   = (int)(SANE_UNFIX(s->val[OPT_TL_X].w)* dpi_x/
+	                                     (_MM_PER_INCH*(dpi_x/_MEASURE_BASE)));
+	top    = (int)(SANE_UNFIX(s->val[OPT_TL_Y].w)*dpi_y/
+	                                     (_MM_PER_INCH*(dpi_y/_MEASURE_BASE)));
+	width  = (int)(SANE_UNFIX(s->val[OPT_BR_X].w - s->val[OPT_TL_X].w) *
+	                            dpi_x / (_MM_PER_INCH *(dpi_x/_MEASURE_BASE)));
+	height = (int)(SANE_UNFIX(s->val[OPT_BR_Y].w - s->val[OPT_TL_Y].w) *
+	                            dpi_y / (_MM_PER_INCH *(dpi_y/_MEASURE_BASE)));
 
 	if((width == 0) || (height == 0)) {
 		DBG( _DBG_ERROR, "invalid width or height!\n" );
@@ -1656,7 +1663,7 @@ SANE_Status sane_start( SANE_Handle handle )
 #endif
 
 	if( s->val[OPT_PREVIEW].w )
-		image.dwFlag &= _SCANDEF_PREVIEW;
+		image.dwFlag |= _SCANDEF_PREVIEW;
 
     /* set adjustments for brightness and contrast */
 	dev->DataInf.siBrightness = s->val[OPT_BRIGHTNESS].w;
@@ -1689,11 +1696,6 @@ SANE_Status sane_start( SANE_Handle handle )
 		u12if_close( dev );
 		return SANE_STATUS_IO_ERROR;
     }
-
-#if 0
-	DBG( _DBG_SANE_INIT, "dwflag = 0x%lx dwBytesPerLine = %ld \n",
-						dev->scanning.dwFlag, dev->scanning.dwBytesLine );
-#endif
 
 	s->buf = realloc( s->buf, (s->params.lines) * s->params.bytes_per_line );
 	if( NULL == s->buf ) {

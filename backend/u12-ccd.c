@@ -6,6 +6,7 @@
  *
  * History:
  * - 0.01 - initial version
+ * - 0.02 - no changes
  * .
  * <hr>
  * This file is part of the SANE package.

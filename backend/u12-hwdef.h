@@ -5,6 +5,7 @@
  *
  * History:
  * - 0.01 - initial version
+ * - 0.02 - change _DEF_BW_THRESHOLD
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -236,11 +237,11 @@
                          _MotorHQuarterStep + _MotorPowerEnable)
 
 /* Register RegConfiguration (Addr: 0x1e) */
-#define _P98_CCD_TYPE_ID        0x07
-#define _P98_NEC_MACHINE        0x08
-#define _P98_PCBID              0xF0
+#define _P98_CCD_TYPE_ID       0x07
+#define _P98_NEC_MACHINE       0x08
+#define _P98_PCBID             0xF0
 
-#define _DEF_BW_THRESHOLD      111      /* default B/W mode threshold value */
+#define _DEF_BW_THRESHOLD      128      /* default B/W mode threshold value */
 #define _NUMBER_OF_SCANSTEPS   64       /* Asic spec.: up to 64 scan steps  */
 #define _SCANSTATE_BYTES      (_NUMBER_OF_SCANSTEPS/2)
 

@@ -6,6 +6,9 @@
  *
  * History:
  * - 0.01 - initial version
+ * - 0.02 - fixed fnColor42() to return 16bit values instead of
+ *          only 12bit (this is the maximum the scanner can)
+ *        - added scaling function u12image_ScaleX()
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -122,7 +125,6 @@ static SANE_Bool fnReadToDriver( U12_Device *dev )
  */
 static SANE_Bool fnReadOutScanner( U12_Device *dev )
 {
-#if 1
 	if( dev->scan.bd_rk.wBlueDiscard ) {
 
 		dev->scan.bd_rk.wBlueDiscard--;
@@ -141,18 +143,15 @@ static SANE_Bool fnReadOutScanner( U12_Device *dev )
 		return SANE_FALSE;
 
 	} else {
-#endif
 		u12io_ReadColorData( dev, dev->bufs.b1.pReadBuf,
 		                     dev->DataInf.dwAsicBytesPerPlane );
 		return SANE_TRUE;
-#if 1
 	}
-#endif
 }
 
 /** some sampling functions
  */
-static SANE_Bool fnEveryLines( U12_Device *dev )
+static SANE_Bool fnEveryLine( U12_Device *dev )
 {
 	_VAR_NOT_USED( dev );
 	return SANE_TRUE;
@@ -218,7 +217,7 @@ static void fnColor42( U12_Device *dev, void *pb, void *img, u_long len )
 {
 	u_short      *src;
 	RGBUShortDef *dest;
-
+    
 	register u_long i;
 
 	_VAR_NOT_USED( len );
@@ -227,9 +226,9 @@ static void fnColor42( U12_Device *dev, void *pb, void *img, u_long len )
 
 	for ( i = dev->DataInf.dwAsicPixelsPerPlane; i; i--, src++, dest++) {
 
-		dest->Red   = *src;
-		dest->Green = src[dev->DataInf.dwAsicPixelsPerPlane];
-		dest->Blue  = src[dev->DataInf.dwAsicPixelsPerPlane * 2];
+		dest->Red   = (*src) << 4;
+		dest->Green = (src[dev->DataInf.dwAsicPixelsPerPlane]) << 4;
+		dest->Blue  = (src[dev->DataInf.dwAsicPixelsPerPlane * 2]) << 4;
 	}
 }
 
@@ -424,14 +423,13 @@ static void u12image_GetImageInfo( U12_Device *dev, ImgDef *image )
 static int imageSetupScanSettings( U12_Device *dev, ImgDef *img )
 {
 	u_short brightness;
-	u_long  xAdjust;
 
 	DBG( _DBG_INFO, "imageSetupScanSettings()\n" );
 
-	xAdjust = img->crArea.x + img->crArea.cx;
-
 	dev->DataInf.dwScanFlag = img->dwFlag;
 	dev->DataInf.crImage    = img->crArea;
+
+	DBG( _DBG_INFO,"* DataInf.dwScanFlag = 0x%08lx\n",dev->DataInf.dwScanFlag);
 
 	dev->DataInf.crImage.x <<= 1;
 
@@ -447,31 +445,18 @@ static int imageSetupScanSettings( U12_Device *dev, ImgDef *img )
 			 dev->DataInf.crImage.x,  dev->DataInf.crImage.y,
 			 dev->DataInf.crImage.cx, dev->DataInf.crImage.cy );
 
-    /*
-	 * SetBwBrightness
-     * [NOTE]
-     *
-     *	 0                   _DEF_BW_THRESHOLD					   255
-     *	 +-------------------------+--------------------------------+
-     *	 |<------- Black --------->|<----------- White ------------>|
-     *	 So, if user wish to make image darker, the threshold value should be
-     *	 higher than _defBwThreshold, otherwise it should lower than the
-     *	 _DefBwThreshold.
-     *	 Darker = _DefBwThreshold + White * Input / 127;
-     *		  Input < 0, and White = 255 - _DefBwThreshold, so
-     *		= _DefBwThreshold - (255 - _DefBwThreshold) * Input / 127;
-     *	 The brighter is the same idea.
-	 *
- 	 * CHECK: it seems that the brightness only works for the binary mode !
+	/*
+	 * 0                   _DEF_BW_THRESHOLD                     255
+	 * +-------------------------+--------------------------------+
+	 * |<------- Black --------->|<----------- White ------------>|
+	 *  So, if user wish to make image darker, the threshold value should be
+	 *  higher than _defBwThreshold, otherwise it should lower than the
+	 *  _DefBwThreshold.
+	 *  Darker = _DEF_BW_THRESHOLD + White * Input / 127;
+	 *             Input < 0, and White = 255 - _DEF_BW_THRESHOLD, so
+	 *           = _DEF_BW_THRESHOLD - (255 - _DEF_BW_THRESHOLD) * Input / 127;
+	 *  The brighter is the same idea.
 	 */
-#if 0
-	if( dev->DataInf.wPhyDataType != COLOR_BW ) {/* if not line art 			*/
-		dev->wBrightness = pInf->siBrightness;   /* use internal tables for 	*/
-		dev->wContrast   = pInf->siContrast;		/* brightness and contrast	*/
-
-		pInf->siBrightness = 0;				/* don't use asic for threshold */
-    }
-#endif
 
 /* CHECK: We have now two methods for setting the brightness...
 */
@@ -485,19 +470,7 @@ static int imageSetupScanSettings( U12_Device *dev, ImgDef *img )
 	}
 
 	dev->regs.RD_ThresholdControl = brightness;
-	DBG( _DBG_INFO, "* 1. brightness = %i\n", brightness );
-
-	if( dev->DataInf.siBrightness >= 0 ) {
-		brightness = (short)((long)(-(255 - _DEF_BW_THRESHOLD) *
-						 dev->DataInf.siBrightness) / 127 + _DEF_BW_THRESHOLD);
-	} else {
-		brightness = (short)((long)(_DEF_BW_THRESHOLD *
-						 dev->DataInf.siBrightness) / 127 + _DEF_BW_THRESHOLD);
-	}
-	brightness = (brightness ^ 0xff) & 0xff;
-
-	dev->regs.RD_ThresholdControl = brightness;
-	DBG( _DBG_INFO, "* 2. brightness = %i\n", brightness );
+	DBG( _DBG_INFO, "* RD_ThresholdControl = %i\n", brightness );
 	return 0;
 }
 
@@ -593,7 +566,7 @@ static SANE_Status u12image_SetupScanSettings( U12_Device *dev, ImgDef *img )
 	/* ------- lines to sample or not? ------- */
 	if( dev->DataInf.xyAppDpi.y == dev->DataInf.xyPhyDpi.y ) {
 		DBG( _DBG_INFO, "* Sample every line\n" );
-		dev->scan.DoSample = fnEveryLines;
+		dev->scan.DoSample = fnEveryLine;
 	} else {
 		if( dev->DataInf.dwScanFlag & _SCANDEF_PREVIEW ) {
 
@@ -744,10 +717,6 @@ static SANE_Bool u12image_DataIsReady( U12_Device *dev, void* buf )
 
 	if( dev->scan.DoSample( dev )) {
 
-		if( dev->scan.dwLinesToRead == 1 &&
-		                      !(u12io_GetScanState( dev ) & _SCANSTATE_STOP))
-			u12io_RegisterToScanner( dev, REG_REFRESHSCANSTATE );
-
 		/* direct is done here without copying...*/
 		if( fnDataDirect != dev->scan.DataProcess ) {
 			(*dev->scan.DataProcess)(dev, buf, (void*)(dev->scan.BufPut.red.bp),
@@ -827,10 +796,111 @@ static SANE_Status u12image_ReadOneImageLine( U12_Device *dev, void* buf )
 	} while( !u12io_CheckTimer( &timer ));
 
 	DBG( _DBG_ERROR, "Timeout - Scanner malfunction !!\n" );
-	u12motor_ToHomePosition( dev );
+	u12motor_ToHomePosition( dev, SANE_TRUE );
 
 	/* timed out, scanner malfunction */
 	return SANE_STATUS_IO_ERROR;
+}
+
+/**
+ */
+static void u12image_PrepareScaling( U12_Device *dev )
+{
+	int    step;
+	double ratio;
+
+	dev->scaleBuf = NULL;
+	DBG( _DBG_INFO, "APP-DPIX=%u, MAX-DPIX=%u\n",
+		             dev->DataInf.xyAppDpi.x, dev->dpi_max_x );
+
+	if( dev->DataInf.xyAppDpi.x > dev->dpi_max_x ) {
+		
+		dev->scaleBuf = malloc( dev->DataInf.dwAppBytesPerLine );
+
+		ratio = (double)dev->DataInf.xyAppDpi.x/(double)dev->dpi_max_x;
+		dev->scaleIzoom = (int)(1.0/ratio * 1000);
+
+		switch( dev->DataInf.wAppDataType ) {
+
+			case COLOR_BW      : step = 0;  break;
+			case COLOR_256GRAY : step = 1;  break;
+			case COLOR_TRUE24  : step = 3;  break;
+			case COLOR_TRUE42  : step = 6;  break;
+			default			   : step = 99; break;
+		}
+		dev->scaleStep = step;
+
+		DBG( _DBG_INFO, "u12image_PrepareScaling: izoom=%i, step=%u\n",
+		                dev->scaleIzoom, step );
+	} else {
+
+		DBG( _DBG_INFO, "u12image_PrepareScaling: DISABLED\n" );
+	} 
+}
+
+/** scaling picture data in x-direction, using a DDA algorithm
+ *  (digital differential analyzer).
+ */
+static void u12image_ScaleX( U12_Device *dev, SANE_Byte *ib, SANE_Byte *ob )
+{
+	SANE_Byte tmp;
+	int       ddax;
+	u_long    i, j, x;
+
+	/* when not supported, only copy the data */
+	if( 99 == dev->scaleStep ) {
+		memcpy( ob, ib, dev->DataInf.dwAppBytesPerLine );
+		return;
+	}
+
+	/* now scale... */
+	if( 0 == dev->scaleStep ) {
+
+		/* binary scaling */
+		ddax = 0;
+		x    = 0;
+		memset( ob, 0, dev->DataInf.dwAppBytesPerLine );
+
+		for( i = 0; i < dev->DataInf.dwPhysBytesPerLine*8; i++ ) {
+
+			ddax -= 1000;
+
+			while( ddax < 0 ) {
+
+				tmp = ib[(i>>3)];
+
+				if((x>>3) < dev->DataInf.dwAppBytesPerLine ) {
+					if( 0 != (tmp &= (1 << ((~(i & 0x7))&0x7))))
+						ob[x>>3] |= (1 << ((~(x & 0x7))&0x7));
+				}
+				x++;
+				ddax += dev->scaleIzoom;
+			}
+		}
+
+	} else {
+
+		/* color and gray scaling */
+		ddax = 0;
+		x    = 0;
+		for( i = 0; i < dev->DataInf.dwPhysBytesPerLine*dev->scaleStep;
+		                                                  i+=dev->scaleStep ) {
+
+			ddax -= 1000;
+
+			while( ddax < 0 ) {
+
+				for( j = 0; j < (u_long)dev->scaleStep; j++ ) {
+
+					if((x+j) < dev->DataInf.dwAppBytesPerLine ) {
+						ob[x+j] = ib[i+j];
+					}
+				}
+				x    += dev->scaleStep;
+				ddax += dev->scaleIzoom;
+			}
+		}
+	}
 }
 
 /* END U12_IMAGE.C ..........................................................*/

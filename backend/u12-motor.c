@@ -6,6 +6,7 @@
  *
  * History:
  * - 0.01 - initial version
+ * - 0.02 - no changes
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -173,7 +174,7 @@ static void u12motor_PositionModuleToHome( U12_Device *dev )
 
 /** function to bring the sensor back home
  */
-static void u12motor_ToHomePosition( U12_Device *dev )
+static void u12motor_ToHomePosition( U12_Device *dev, SANE_Bool wait )
 {
 	TimerDef  timer;
 
@@ -181,11 +182,14 @@ static void u12motor_ToHomePosition( U12_Device *dev )
 	if( !(u12io_DataFromRegister( dev, REG_STATUS ) & _FLAG_PAPER)) {
 
 		u12motor_PositionModuleToHome( dev );
-		u12io_StartTimer( &timer, _SECOND * 20);
-		do {
-			if( u12io_DataFromRegister( dev, REG_STATUS ) & _FLAG_PAPER)
-				break;
-		} while( !u12io_CheckTimer( &timer ));
+
+		if( wait ) {
+			u12io_StartTimer( &timer, _SECOND * 20);
+			do {
+				if( u12io_DataFromRegister( dev, REG_STATUS ) & _FLAG_PAPER)
+					break;
+			} while( !u12io_CheckTimer( &timer ));
+		}
 	}
 	DBG( _DBG_INFO, "- done !\n" );
 }

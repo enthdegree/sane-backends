@@ -5,6 +5,9 @@
  *
  * History:
  * - 0.01 - initial version
+ * - 0.02 - added model tweaking
+ *        - fixed autodetection bug
+ *        - added line-scaling stuff
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -77,7 +80,7 @@ static TabDef u12Vendors[] = {
 /** list of supported devices
  */
 static DevDesc u12Devices[] = {
-	{ "0x07B3-0x0001", "U12"                    },
+	{ "0x07B3-0x0001", "1212U/U12"     },
 	{ "0x0458-0x2004", "Colorpage HR6" },
 	{ NULL,            NULL }
 };
@@ -139,6 +142,7 @@ static SANE_Status u12_initDev( U12_Device *dev, int handle, int vendor )
 static void u12if_shutdown( U12_Device *dev  )
 {
 	SANE_Int handle;
+	TimerDef timer;
 
 	DBG( _DBG_INFO, "Shutdown called (dev->fd=%d, %s)\n",
 													dev->fd, dev->sane.name );
@@ -149,9 +153,22 @@ static void u12if_shutdown( U12_Device *dev  )
 
 		u12hw_PutToIdleMode( dev );
 
+		if( !(u12io_DataFromRegister( dev, REG_STATUS ) & _FLAG_PAPER)) {
+
+			u12motor_PositionModuleToHome( dev );
+
+			u12io_StartTimer( &timer, _SECOND * 20);
+			do {
+				if( u12io_DataFromRegister( dev, REG_STATUS ) & _FLAG_PAPER) {
+					break;
+				}
+			} while( !u12io_CheckTimer( &timer ));
+		}
+		DBG( _DBG_INFO, "* Home position reached.\n" );
+
 		if( 0 != dev->adj.lampOffOnEnd ) {
 
-			DBG( _DBG_INFO, "Switching lamp off...\n" );
+			DBG( _DBG_INFO, "* Switching lamp off...\n" );
 			dev->regs.RD_ScanControl &= ~_SCAN_LAMPS_ON;
 			u12io_DataToRegister(dev,REG_SCANCONTROL, dev->regs.RD_ScanControl );
 		}
@@ -165,24 +182,37 @@ static void u12if_shutdown( U12_Device *dev  )
 #if 0
 	usb_StopLampTimer( dev );
 #endif
+	DBG( _DBG_INFO, "Shutdown done.\n" );
 }
 
 /** This function checks wether a device, described by a given
- * string(vendor and product ID), is support by this backend or not
+ * string(vendor and product ID), is supported by this backend or not
  *
  * @param usbIdStr - sting consisting out of product and vendor ID
  *                   format: "0xVVVV-0xPPPP" VVVV = Vendor ID, PPP = Product ID
  * @returns; SANE_TRUE if supported, SANE_FALSE if not
  */
-static SANE_Bool u12if_IsDeviceSupported( char *usbIdStr )
+static SANE_Bool u12if_IsDeviceSupported( U12_Device *dev )
 {
+	int i;
+#if 0
 	/* Plustek U12, UT12, U1212, U12B */
-	if( !strcmp( usbIdStr, "0x07B3-0x0001" ))
+	if( !strcmp( dev->usbId, "0x07B3-0x0001" ))
 		return SANE_TRUE;
 
 	/* Genius Colorpage Vivid III V2 */
-	if( !strcmp( usbIdStr, "0x0458-0x2004" ))
+	if( !strcmp( dev->usbId, "0x0458-0x2004" )) {
 		return SANE_TRUE;
+	}
+#else
+	for( i = 0; NULL != u12Devices[i].name; i++ ) {
+
+		if( !strcmp( dev->usbId, u12Devices[i].vp )) {
+			dev->sane.model = u12Devices[i].name;
+			return SANE_TRUE;
+		}
+	}
+#endif
 
 	return SANE_FALSE;
 }
@@ -219,9 +249,9 @@ static SANE_Bool usbDev_autodetect( SANE_Word *vendor, SANE_Word *product )
 
 	for( i = 0; NULL != u12Devices[i].name; i++ ) {
 
-		v = strtol( &(u12Devices[i].name)[0], 0, 0 );
-		p = strtol( &(u12Devices[i].name)[7], 0, 0 );
-		DBG( _DBG_INFO, "Checking for 0x%04x-0x%04x\n", v, p );
+		v = strtol( &(u12Devices[i].vp)[0], 0, 0 );
+		p = strtol( &(u12Devices[i].vp)[7], 0, 0 );
+		DBG( _DBG_INFO, "* checking for 0x%04x-0x%04x\n", v, p );
 
 		sanei_usb_find_devices( v, p, u12if_usbattach );
 
@@ -229,6 +259,7 @@ static SANE_Bool usbDev_autodetect( SANE_Word *vendor, SANE_Word *product )
 
 			*vendor  = v;
 			*product = p;
+			DBG( _DBG_INFO, "* using device >%s<\n", USB_devname );
 			return SANE_TRUE;
 		}
 	}
@@ -280,8 +311,9 @@ static int u12if_open( U12_Device *dev )
 			}
 		}
 
-		if( SANE_STATUS_GOOD != sanei_usb_open( USB_devname, &handle ))
-    		return -1;
+		if( SANE_STATUS_GOOD != sanei_usb_open( USB_devname, &handle )) {
+			return -1;
+		}
 
 		/* replace the old devname, so we are able to have multiple
          * auto-detected devices
@@ -342,7 +374,7 @@ static int u12if_open( U12_Device *dev )
 
 	/* before accessing the scanner, check if supported!
 	 */
-	if( !u12if_IsDeviceSupported( dev->usbId )) {
+	if( !u12if_IsDeviceSupported( dev )) {
 		DBG( _DBG_ERROR, "Device >%s<, is not supported!\n", dev->usbId );
 		sanei_usb_close( handle );
 		return -1;
@@ -371,6 +403,11 @@ static int u12if_open( U12_Device *dev )
 		return -1;
 	}
 
+	if( _PLUSTEK_VENID == vendor ) {
+		if( dev->Tpa )
+			dev->sane.model = "UT12";
+	}
+	
 	dev->initialized = SANE_TRUE;
 	return handle;
 }
@@ -457,24 +494,26 @@ static SANE_Status u12if_setScanEnv( U12_Device *dev, ImgDef *img )
 
 /**
  */
-static SANE_Status u12if_stopScan( U12_Device *dev )
-{
-	DBG( _DBG_INFO, "u12if_stopScan()\n" );
-
-	u12motor_ToHomePosition( dev );
-
-	dev->DataInf.dwAppLinesPerArea = 0;
-	dev->DataInf.dwScanFlag &= ~_SCANDEF_SCANNING;
-	return SANE_STATUS_GOOD;
-}
-
-/**
- */
 static SANE_Status u12if_startScan( U12_Device *dev )
 {
 	DBG( _DBG_INFO, "u12if_startScan()\n" );
 	u12hw_SetGeneralRegister( dev );
 	u12hw_ControlLampOnOff( dev );
+	return SANE_STATUS_GOOD;
+}
+
+/**
+ */
+static SANE_Status u12if_stopScan( U12_Device *dev )
+{
+	DBG( _DBG_INFO, "u12if_stopScan()\n" );
+
+	u12motor_ToHomePosition( dev, SANE_FALSE );
+#if 0
+	u12io_SoftwareReset( dev );
+#endif
+	dev->DataInf.dwAppLinesPerArea = 0;
+	dev->DataInf.dwScanFlag &= ~_SCANDEF_SCANNING;
 	return SANE_STATUS_GOOD;
 }
 
@@ -486,7 +525,7 @@ static SANE_Status u12if_prepare( U12_Device *dev )
 	
 	DBG( _DBG_INFO, "u12if_prepare()\n" );
 
-	u12motor_ToHomePosition( dev );
+	u12motor_ToHomePosition( dev, SANE_TRUE );
 
 	res = u12hw_WarmupLamp( dev );
 	if( res != SANE_STATUS_GOOD )
@@ -495,6 +534,8 @@ static SANE_Status u12if_prepare( U12_Device *dev )
 	res = u12shading_DoCalibration( dev );
 	if( res != SANE_STATUS_GOOD )
 		return res;
+
+	u12image_PrepareScaling( dev );
                            
 	u12motor_ForceToLeaveHomePos( dev );
 	u12hw_SetupScanningCondition( dev );
@@ -527,44 +568,18 @@ static SANE_Status u12if_readLine( U12_Device *dev, SANE_Byte *line_buffer )
 		return SANE_STATUS_CANCELLED;
 	}
 
-#if 0
-	ps->Scan.dwLinesToRead = count / ps->DataInf.dwAppBytesPerLine;
-	DBG( DBG_HIGH, "dwLinesToRead = %ld\n", ps->Scan.dwLinesToRead );
+	if( dev->scaleBuf != NULL ) {
+		res = u12image_ReadOneImageLine( dev, dev->scaleBuf );
+		if( SANE_STATUS_GOOD != res )
+			return res;
 
-	if( ps->Scan.dwLinesToRead > ps->DataInf.dwAppLinesPerArea )
-		ps->Scan.dwLinesToRead = ps->DataInf.dwAppLinesPerArea;
+		u12image_ScaleX( dev, dev->scaleBuf, line_buffer );
 
-	ps->DataInf.dwAppLinesPerArea -= ps->Scan.dwLinesToRead;
-
-	if (ps->DataInf.dwScanFlag & SCANDEF_BmpStyle)
-		buffer += ((ps->Scan.dwLinesToRead - 1) * ps->DataInf.dwAppBytesPerLine);
-
-	if (ps->DataInf.dwVxdFlag & _VF_DATATOUSERBUFFER)
-		ps->DataInf.pCurrentBuffer = ps->Scan.bp.pMonoBuf;
-
-		while(ps->fScanningStatus && ps->Scan.dwLinesToRead) {
-#endif
-
-	res = u12image_ReadOneImageLine( dev, line_buffer );
-	if( SANE_STATUS_GOOD != res )
-		return res;
-
-#if 0
-	/*
-	 * as we might scan images that exceed the CCD-capabilities
-	 * in x-resolution, we have to enlarge the line data
-	 */
-	if( NULL != scaleBuf ) {
-		ScaleX( ps, ps->Scan.bp.pMonoBuf, scaleBuf );
-    	copy_to_user( buffer, scaleBuf, ps->DataInf.dwAppPhyBytesPerLine);
+	} else {
+		res = u12image_ReadOneImageLine( dev, line_buffer );
+		if( SANE_STATUS_GOOD != res )
+			return res;
 	}
-#endif
-
-#if 0
-	buffer += ps->Scan.lBufferAdjust;
-	dwLinesRead++;
-	ps->Scan.dwLinesToRead--;
-#endif
 	return SANE_STATUS_GOOD;
 }
 

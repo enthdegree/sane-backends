@@ -6,6 +6,7 @@
  *
  * History:
  * - 0.01 - initial version
+ * - 0.02 -
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -161,7 +162,7 @@ static SANE_Status u12shadingAdjustShadingWaveform( U12_Device *dev )
 
 	dev->scan.refreshState = SANE_FALSE;
 	u12io_PutOnAllRegisters( dev );
-	_DODELAY( 45 );
+/*	_DODELAY( 100 ); */
 
 	if( dev->shade.pHilight ) {
 
@@ -592,7 +593,7 @@ static SANE_Status u12shading_AdjustRGBGain( U12_Device *dev )
 		dev->a_nbNewAdrPointer[1] = 0x77;
 
 		u12io_PutOnAllRegisters( dev );
-		_DODELAY( 45 );
+/*		_DODELAY( 100 ); */
 
 		/* read one shading line and work on it */
 		if( u12io_ReadOneShadingLine( dev,
@@ -701,7 +702,7 @@ static SANE_Status u12shadingAdjustDark( U12_Device *dev )
 		dev->a_nbNewAdrPointer[1] = 0x77;
 
 		u12io_PutOnAllRegisters( dev );
-		_DODELAY( 45 );
+/*		_DODELAY( 100 ); */
 
 		/* read one shading line and work on it */
 		if( u12io_ReadOneShadingLine(dev,

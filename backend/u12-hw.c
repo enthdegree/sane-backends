@@ -5,6 +5,7 @@
  *
  * History:
  * - 0.01 - initial version
+ * - 0.02 - cleanup
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -133,6 +134,7 @@ static void u12hw_InitiateComponentModel( U12_Device *dev )
 
 	switch( dev->PCBID ) {
 
+	/* typical for Plustek OpticPro U12 and 1212U */
 	case _PLUSTEK_SCANNER:
 		DBG( _DBG_INFO, "We have a Plustek Scanner ;-)\n" );
 		break;
@@ -147,6 +149,7 @@ static void u12hw_InitiateComponentModel( U12_Device *dev )
 		u12hw_ButtonSetup( dev, 4 );
 		break;
 
+	/* typical for Plustek OpticPro UT12 */
 	case _SCANNER4ButtonTPA:
 		DBG( _DBG_INFO, "Scanner has 4 Buttons & TPA\n" );
 		dev->Tpa = SANE_TRUE;
@@ -159,6 +162,7 @@ static void u12hw_InitiateComponentModel( U12_Device *dev )
 		u12hw_ButtonSetup( dev, 5 );
 		break;
 
+	/* typical for Genius Colorpage HR6 */
 	case _SCANNER5ButtonTPA:
 		DBG( _DBG_INFO, "Scanner has 5 Buttons & TPA\n" );
 		dev->ModelOriginY += 20;
@@ -583,12 +587,20 @@ static SANE_Status u12hw_CheckDevice( U12_Device *dev )
 {
 #ifndef _FAKE_DEVICE
 	SANE_Byte tmp;
+	SANE_Byte rb[8];
+	int       c;
 
-	if( !u12io_IsConnected( dev->fd )) {
+#if 1
+	if( !u12io_IsConnected( dev )) {
 
 		if( !u12io_OpenScanPath( dev ))
 			return SANE_STATUS_IO_ERROR;
 	}
+#else
+	u12io_IsConnected( dev );
+	if( !u12io_OpenScanPath( dev ))
+		return SANE_STATUS_IO_ERROR;
+#endif
 
 	/* some setup stuff... */
 	tmp = u12io_GetExtendedStatus( dev );
@@ -601,15 +613,21 @@ static SANE_Status u12hw_CheckDevice( U12_Device *dev )
 		DBG( _DBG_INFO, "* TPA lamp is ON\n" );
 	}
 
-	u12io_DataToRegister( dev, REG_PLLPREDIV,      1 );
-	u12io_DataToRegister( dev, REG_PLLMAINDIV,  0x20 );
-	u12io_DataToRegister( dev, REG_PLLPOSTDIV,     2 );
-	u12io_DataToRegister( dev, REG_CLOCKSELECTOR,  2 );
+	c = 0;
+	_SET_REG( rb, c, REG_PLLPREDIV,      1 );
+	_SET_REG( rb, c, REG_PLLMAINDIV,  0x20 );
+	_SET_REG( rb, c, REG_PLLPOSTDIV,     2 );
+	_SET_REG( rb, c, REG_CLOCKSELECTOR,  2 );
+	u12io_DataToRegs( dev, rb, c );
 
-	if( !dev->initialized ) 
+#if 0
+	return u12hw_Memtest( dev );
+#else
+	if( !dev->initialized )
 		return u12hw_Memtest( dev );
 	else
 		return SANE_STATUS_GOOD;
+#endif
 #else
 	_VAR_NOT_USED( dev );
 	return SANE_STATUS_GOOD;

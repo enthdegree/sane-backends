@@ -5,6 +5,7 @@
  *
  * History:
  * - 0.01 - initial version
+ * - 0.02 - added scaling variables to struct u12d
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -277,10 +278,13 @@ typedef struct u12d
 	RGBByteDef   RegDACOffset;
 	RGBByteDef   RegDACGain;
 
-	ShadowRegs   regs;    /**< for holding ASIC register values        */
-	DataInfo     DataInf; /**< all static info about the current scan  */
-	ScanInfo     scan;    /**< buffer and motor management during scan */
+	ShadowRegs   regs;       /**< for holding ASIC register values        */
+	DataInfo     DataInf;    /**< all static info about the current scan  */
+	ScanInfo     scan;       /**< buffer and motor management during scan */
 	BufferDef    bufs;
+	void        *scaleBuf;   /**< buffer for line scaling    */
+	int          scaleStep;  /**< step size for line scaling */
+	int          scaleIzoom; /**< factor for line scaling    */
 
 	u_long       ModelOriginY;
 	SANE_Byte    ModelCtrl;

@@ -1,3 +1,7 @@
+2003-12-15  Oliver Schirrmeister <oschirr@abm.de>
+	* backends/fujitsu.[hc]: Bugfix: The options pagewidth and
+	  pageheight were disabled for the fi4530
+         
 2003-12-15  Eugene Weiss <eweiss@sbcglobal.net>
 	*  backend/as6e.c:  fixed bugs 300123 and 300133.
 

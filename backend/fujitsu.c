@@ -122,6 +122,8 @@
            that don't have build in gamma patterns.
          - Bugfix: fi-4530 and fi-4210 don't support standard paper size
            spezification. Disable this option for these scanners.
+      V 1.14 16-Dec-2003 (oschirr@abm.de)
+         - Bugfix: pagewidth and pageheight where disable for the fi-4530C.
 
    SANE FLOW DIAGRAM
 
@@ -183,9 +185,10 @@
 #define MSG_INFO        6
 #define FLOW_CONTROL    10
 #define MSG_IO          15
+#define MSG_IO_READ     17
 #define IO_CMD          20
 #define IO_CMD_RES      20
-
+#define MSG_GET         25
 /* ------------------------------------------------------------------------- */
 
 static const char sourceADF[] = "ADF";
@@ -740,7 +743,8 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 {
   struct fujitsu *scanner = handle;
 
-  DBG (10, "sane_get_option_descriptor: \"%s\"\n", scanner->opt[option].name);
+  DBG (MSG_GET, 
+       "sane_get_option_descriptor: \"%s\"\n", scanner->opt[option].name);
 
   if ((unsigned) option >= NUM_OPTIONS)
     return NULL;
@@ -805,7 +809,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
    */
   if (action == SANE_ACTION_GET_VALUE)
     {
-      DBG (10, "sane_control_option: get value \"%s\"\n",
+      DBG (MSG_GET, "sane_control_option: get value \"%s\"\n",
            scanner->opt[option].name);
       DBG (11, "\tcap = %d\n", cap);
 
@@ -1274,7 +1278,14 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
                         SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
                       scanner->opt[OPT_PAPER_ORIENTATION].cap =
                         SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-                    }
+                    } 
+		  else 
+		    {
+		      scanner->opt[OPT_PAGE_WIDTH].cap = 
+                        SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+		      scanner->opt[OPT_PAGE_HEIGHT].cap = 
+                        SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+		    }
                 }
               else
                 {
@@ -3813,7 +3824,7 @@ read_large_data_block (struct fujitsu *s, unsigned char *buffer,
 
   *i_data_read = 0;
   current_scanner = s;
-  DBG (FLOW_CONTROL, "read_large_data_block requested %u bytes\n", length);
+  DBG (MSG_IO_READ, "read_large_data_block requested %u bytes\n", length);
   do
     {
       data_to_read = 
@@ -6097,7 +6108,8 @@ reader_duplex_alternate (struct fujitsu *scanner,
   do {
       data_to_read = (i_left_front < largeBufferSize) ? i_left_front : largeBufferSize;
 
-      DBG (5, "reader_process: read %d bytes from front side\n", data_to_read);
+      DBG (MSG_IO_READ, 
+	   "reader_process: read %d bytes from front side\n", data_to_read);
       status = read_large_data_block (scanner, scanner->buffer, data_to_read, 
                                       0x0, &i_data_read);
 
@@ -6148,7 +6160,7 @@ reader_duplex_alternate (struct fujitsu *scanner,
       /* write data to file */
       fwrite (largeBuffer, 1, i_data_read, fp_front);
 
-      DBG (5, "reader_process_front: buffer of %d bytes read; %d bytes to go\n",
+      DBG (MSG_IO_READ, "reader_process_front: buffer of %d bytes read; %d bytes to go\n",
            i_data_read, i_left_front);
 
 
@@ -6157,7 +6169,8 @@ reader_duplex_alternate (struct fujitsu *scanner,
        */
       data_to_read = (i_left_back < largeBufferSize) ? i_left_back : largeBufferSize;
 
-      DBG (5, "reader_process: read %d bytes from back side\n", data_to_read);
+      DBG (MSG_IO_READ, 
+	   "reader_process: read %d bytes from back side\n", data_to_read);
       status = read_large_data_block (scanner, scanner->buffer, data_to_read, 
                                       0x80, &i_data_read);
 
@@ -6221,7 +6234,8 @@ reader_duplex_alternate (struct fujitsu *scanner,
           memcpy (duplexPointer, largeBuffer, i_data_read);
       }
 
-      DBG (5, "reader_process_back: buffer of %d bytes read; %d bytes to go\n",
+      DBG (MSG_IO_READ,
+	   "reader_process_back: buffer of %d bytes read; %d bytes to go\n",
            data_to_read, i_left_back);
 
   } while (i_left_front > 0 || i_left_back > 0);
@@ -6288,7 +6302,8 @@ reader_simplex (struct fujitsu *scanner, FILE * fp_front, int i_window_id)
   do {
       data_to_read = (i_left_front < largeBufferSize) ? i_left_front : largeBufferSize;
 
-      DBG (5, "reader_process: read %d bytes from front side\n", data_to_read);
+      DBG (MSG_IO_READ, 
+	   "reader_process: read %d bytes from front side\n", data_to_read);
       status = read_large_data_block (scanner, scanner->buffer, data_to_read, 
                                       i_window_id, &i_data_read);
 
@@ -6338,7 +6353,7 @@ reader_simplex (struct fujitsu *scanner, FILE * fp_front, int i_window_id)
       /* write data to file */
       fwrite (largeBuffer, 1, i_data_read, fp_front);
 
-      DBG (5, "reader_process_front: buffer of %d bytes read; %d bytes to go\n",
+      DBG (MSG_IO_READ, "reader_process_front: buffer of %d bytes read; %d bytes to go\n",
            i_data_read, i_left_front);
 
   } while (i_left_front > 0);
@@ -6406,7 +6421,8 @@ reader_gray_duplex_alternate (struct fujitsu *scanner,
       data_to_read = (i_left_front < largeBufferSize)
         ? i_left_front : largeBufferSize;
 
-      DBG (5, "reader_process: read %d bytes from front side\n", data_to_read);
+      DBG (MSG_IO_READ, 
+	   "reader_process: read %d bytes from front side\n", data_to_read);
       status = read_large_data_block (scanner, scanner->buffer, data_to_read, 
                                       0x0, &i_data_read);
 
@@ -6435,7 +6451,7 @@ reader_gray_duplex_alternate (struct fujitsu *scanner,
       total_data_size += data_to_read;
       fwrite (scanner->buffer, 1, data_to_read, fp_front);
       i_left_front -= data_to_read;
-      DBG (15,
+      DBG (MSG_IO_READ,
            "reader_process_front: buffer of %d bytes read; %d bytes to go\n",
            data_to_read, i_left_front);
 
@@ -6446,7 +6462,8 @@ reader_gray_duplex_alternate (struct fujitsu *scanner,
       data_to_read = (i_left_back < largeBufferSize)
         ? i_left_back : largeBufferSize;
 
-      DBG (15, "reader_process: read %d bytes from back side\n", data_to_read);
+      DBG (MSG_IO_READ, 
+	   "reader_process: read %d bytes from back side\n", data_to_read);
       status = read_large_data_block (scanner, scanner->buffer, data_to_read, 
                                       0x80, &i_data_read);
 
@@ -6491,7 +6508,7 @@ reader_gray_duplex_alternate (struct fujitsu *scanner,
         }
 
       i_left_back -= data_to_read;
-      DBG (5,
+      DBG (MSG_IO_READ,
            "reader_process_back: buffer of %d bytes read; %d bytes to go\n",
            data_to_read, i_left_back);
     }
@@ -6592,7 +6609,7 @@ reader3091ColorSimplex (struct fujitsu *scanner, FILE * fp)
       largeBuffer = malloc (largeBufferSize = 4 * lookAheadSize);
     }
 
-  DBG (10,
+  DBG (MSG_IO_READ,
        "reader_process: reading %u+%u bytes in large blocks of %u bytes\n",
        data_left, lookAheadSize, largeBufferSize);
 
@@ -6833,7 +6850,8 @@ reader3091ColorDuplex (struct fujitsu *scanner, FILE * fp_front, FILE * fp_back)
         }
     }
 
-  DBG (10, "reader_process: reading %u bytes in blocks of %u bytes\n",
+  DBG (MSG_IO_READ,
+       "reader_process: reading %u bytes in blocks of %u bytes\n",
        data_left, scanner->scsi_buf_size);
 
 
@@ -7448,10 +7466,13 @@ setDefaults3096 (struct fujitsu *scanner)
 
   scanner->white_level_follow = WD_white_level_follow_DEFAULT;
 
-  scanner->page_width = FIXED_MM_TO_SCANNER_UNIT (scanner->bottom_right_x);
-  scanner->page_height = FIXED_MM_TO_SCANNER_UNIT (scanner->bottom_right_y);
-  scanner->opt[OPT_PAGE_HEIGHT].cap = SANE_CAP_INACTIVE;
-  scanner->opt[OPT_PAGE_WIDTH].cap = SANE_CAP_INACTIVE;
+  if (scanner->has_fixed_paper_size) 
+    {
+      scanner->page_width=FIXED_MM_TO_SCANNER_UNIT (scanner->bottom_right_x);
+      scanner->page_height=FIXED_MM_TO_SCANNER_UNIT (scanner->bottom_right_y);
+      scanner->opt[OPT_PAGE_HEIGHT].cap = SANE_CAP_INACTIVE;
+      scanner->opt[OPT_PAGE_WIDTH].cap = SANE_CAP_INACTIVE;
+    }
 
   scanner->dtc_selection = WD_dtc_selection_DEFAULT;
   scanner->opt[OPT_NOISE_REMOVAL].cap = SANE_CAP_INACTIVE;

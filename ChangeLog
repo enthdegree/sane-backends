@@ -2,6 +2,9 @@
 
 	* doc/descriptions/unsupported.desc: Added Enhans, Genius and UMAX
 	  scanners.
+	* backend/test.c doc/descriptions/test.desc: Some options had
+	  wrong constraints or didn't match their descriptions (bug
+	  #300235).
 
 2003-09-25  Frank Zago  <fzago at austin dot rr dot com>
 

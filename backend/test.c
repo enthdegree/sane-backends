@@ -41,7 +41,7 @@
    This backend is for testing frontends.
 */
 
-#define BUILD 22
+#define BUILD 23
 
 #include "../include/sane/config.h"
 
@@ -114,8 +114,8 @@ static SANE_Range int_constraint_range = {
 };
 
 static SANE_Range fixed_constraint_range = {
-  SANE_FIX (17001.0),
-  SANE_FIX (32767.0),
+  SANE_FIX (-42.17),
+  SANE_FIX (32767.9999),
   SANE_FIX (2.0)
 };
 
@@ -181,7 +181,7 @@ static SANE_Int int_array_constraint_range[] = {
 };
 
 static SANE_Int int_array_constraint_word_list[] = {
-  -42, 0, 9, 17, 42, 42
+  -42, 0, -8, 17, 42, 42
 };
 
 static double random_factor;	/* use for fuzzyness of parameters */
@@ -881,7 +881,7 @@ init_options (Test_Device * test_device)
   od = &test_device->opt[opt_int_array_constraint_range];
   od->name = "int-constraint-array-constraint-range";
   od->title = SANE_I18N ("(5/6) Int array constraint range");
-  od->desc = SANE_I18N ("(5/6) Int test option with unit mm and using "
+  od->desc = SANE_I18N ("(5/6) Int test option with unit dpi and using "
 			"an array with a range constraint. Minimum is 4, "
 			"maximum 192, and quant is 2.");
   od->type = SANE_TYPE_INT;
@@ -900,7 +900,7 @@ init_options (Test_Device * test_device)
   od->name = "int-constraint-array-constraint-word-list";
   od->title = SANE_I18N ("(6/6) Int array constraint word list");
   od->desc = SANE_I18N ("(6/6) Int test option with unit percent and using "
-			"an array a word list constraint.");
+			"an array with a word list constraint.");
   od->type = SANE_TYPE_INT;
   od->unit = SANE_UNIT_PERCENT;
   od->size = 6 * sizeof (SANE_Word);

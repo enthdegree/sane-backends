@@ -1,3 +1,6 @@
+2004-08-04  Oliver Rauch <Oliver.Rauch@Rauch-DOmain.DE>
+	* doc/umax/umax.FAQ: corrected bug about dtc3181e scsi controller
+
 2004-08-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* aclocal.m4 configure include/sane/config.h.in: Regenerated to

@@ -7,6 +7,10 @@
 	  Plustek U16B to .desc and .conf, updated UT16B.
 	* po/sane-backends.de.po: Added some translations for the HP
 	  backend. Minor header updates.
+	* po/sane-backends.cs.po po/sane-backends.es.po po/sane-backends.fr.po
+	  po/sane-backends.nl.po po/sane-backends.no.po po/sane-backends.pt.po
+	  po/sane-backends.ru.po po/sane-backends.sv.po: Regenerated to include
+	  recent changes in the backends.
 	
 2003-07-24  Peter Kirchgessner <peter@kirchgessner.net>
 

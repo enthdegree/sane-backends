@@ -5,7 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.9\n"
-"POT-Creation-Date: 2003-05-08 14:19+0200\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2003-07-25 09:27+0200\n"
 "PO-Revision-Date: 2002-10-28 12:13MSK\n"
 "Last-Translator: Vitaly Lipatov <lav@altlinux.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -15,30 +16,31 @@ msgstr ""
 "X-Generator: KBabel 0.9.6\n"
 
 # original text: "Lineart"
-#: .tmp/artec_eplus48u.c:153 .tmp/gt68xx.c:118 .tmp/ma1509.c:101
-#: .tmp/mustek.c:125 .tmp/mustek.c:130 .tmp/mustek_usb.c:270
+#: .tmp/artec_eplus48u.c:153 .tmp/gt68xx.c:118 .tmp/hp-option.c:2874
+#: .tmp/ma1509.c:101 .tmp/mustek.c:125 .tmp/mustek.c:130 .tmp/mustek_usb.c:270
 #: .tmp/sceptre.h:297 .tmp/snapscan.c:160 .tmp/umax.c:189 .tmp/umax_pp.c:133
 msgid "Lineart"
 msgstr "Штриховое"
 
-#: .tmp/artec_eplus48u.c:154 .tmp/leo.h:269 .tmp/teco1.h:299 .tmp/teco2.h:357
-#: .tmp/teco3.h:303 .tmp/umax_pp.c:133
+#: .tmp/artec_eplus48u.c:154 .tmp/hp-option.c:2876 .tmp/leo.h:269
+#: .tmp/teco1.h:299 .tmp/teco2.h:359 .tmp/teco3.h:303 .tmp/umax_pp.c:133
 msgid "Grayscale"
 msgstr "Полутоновое"
 
-#: .tmp/artec_eplus48u.c:155 .tmp/epson.c:456 .tmp/gt68xx.c:116 .tmp/leo.h:270
-#: .tmp/ma1509.c:101 .tmp/mustek.c:126 .tmp/mustek.c:130 .tmp/mustek_usb.c:268
-#: .tmp/plustek.c:224 .tmp/plustek.c:234 .tmp/plustek.c:244 .tmp/sceptre.h:300
-#: .tmp/snapscan.c:157 .tmp/teco1.h:300 .tmp/teco2.h:358 .tmp/teco3.h:304
+#: .tmp/artec_eplus48u.c:155 .tmp/epson.c:456 .tmp/gt68xx.c:116
+#: .tmp/hp-option.c:2877 .tmp/leo.h:270 .tmp/ma1509.c:101 .tmp/mustek.c:126
+#: .tmp/mustek.c:130 .tmp/mustek_usb.c:268 .tmp/plustek.c:225
+#: .tmp/plustek.c:235 .tmp/plustek.c:245 .tmp/sceptre.h:300
+#: .tmp/snapscan.c:157 .tmp/teco1.h:300 .tmp/teco2.h:360 .tmp/teco3.h:304
 #: .tmp/test.c:123 .tmp/umax.c:194 .tmp/umax_pp.c:133
 msgid "Color"
 msgstr "Цветной"
 
 #: .tmp/artec_eplus48u.c:2809 .tmp/gt68xx.c:594 .tmp/leo.c:871
 #: .tmp/ma1509.c:597 .tmp/matsushita.c:1149 .tmp/microtek2.h:611
-#: .tmp/mustek.c:4294 .tmp/mustek_usb.c:353 .tmp/plustek.c:918
+#: .tmp/mustek.c:4294 .tmp/mustek_usb.c:353 .tmp/plustek.c:917
 #: .tmp/sceptre.c:753 .tmp/snapscan-options.c:403 .tmp/teco1.c:1136
-#: .tmp/teco2.c:1679 .tmp/teco3.c:971 .tmp/umax.c:5188 .tmp/umax_pp.c:461
+#: .tmp/teco2.c:1786 .tmp/teco3.c:971 .tmp/umax.c:5194 .tmp/umax_pp.c:461
 msgid "Enhancement"
 msgstr "Дополнительно"
 
@@ -56,9 +58,9 @@ msgstr ""
 #: .tmp/artec_eplus48u.c:2888 .tmp/epson.c:2831 .tmp/gt68xx.c:650
 #: .tmp/leo.c:823 .tmp/ma1509.c:549 .tmp/matsushita.c:1095
 #: .tmp/microtek2.h:610 .tmp/mustek.c:4246 .tmp/mustek_usb.c:305
-#: .tmp/plustek.c:872 .tmp/sceptre.c:705 .tmp/snapscan-options.c:336
-#: .tmp/teco1.c:1088 .tmp/teco2.c:1631 .tmp/teco3.c:923 .tmp/test.c:619
-#: .tmp/umax.c:5138 .tmp/umax_pp.c:412
+#: .tmp/plustek.c:871 .tmp/sceptre.c:705 .tmp/snapscan-options.c:336
+#: .tmp/teco1.c:1088 .tmp/teco2.c:1738 .tmp/teco3.c:923 .tmp/test.c:619
+#: .tmp/umax.c:5144 .tmp/umax_pp.c:412
 msgid "Geometry"
 msgstr "Расположение"
 
@@ -157,13 +159,13 @@ msgstr "Коррекция гаммы"
 msgid "Selects the gamma corrected transfer curve"
 msgstr "Аналоговая коррекция гаммы"
 
-#: .tmp/epson.c:454 .tmp/plustek.c:221 .tmp/plustek.c:231 .tmp/plustek.c:241
+#: .tmp/epson.c:454 .tmp/plustek.c:222 .tmp/plustek.c:232 .tmp/plustek.c:242
 msgid "Binary"
 msgstr "Одноцветный"
 
 #: .tmp/epson.c:455 .tmp/gt68xx.c:117 .tmp/ma1509.c:101 .tmp/mustek.c:125
-#: .tmp/mustek.c:130 .tmp/mustek_usb.c:269 .tmp/plustek.c:223
-#: .tmp/plustek.c:233 .tmp/plustek.c:242 .tmp/sceptre.h:299
+#: .tmp/mustek.c:130 .tmp/mustek_usb.c:269 .tmp/plustek.c:224
+#: .tmp/plustek.c:234 .tmp/plustek.c:243 .tmp/sceptre.h:299
 #: .tmp/snapscan.c:159 .tmp/test.c:123 .tmp/umax.c:191
 msgid "Gray"
 msgstr "Чёрно-белый"
@@ -243,15 +245,15 @@ msgstr "Загрузить шаблон A"
 msgid "Download pattern B"
 msgstr "Загрузить шаблон B"
 
-#: .tmp/epson.c:564 .tmp/epson.c:2636
+#: .tmp/epson.c:564 .tmp/epson.c:2636 .tmp/hp-option.c:3040
 msgid "Red"
 msgstr "Красный"
 
-#: .tmp/epson.c:565 .tmp/epson.c:2632
+#: .tmp/epson.c:565 .tmp/epson.c:2632 .tmp/hp-option.c:3041
 msgid "Green"
 msgstr "Зелёный"
 
-#: .tmp/epson.c:566 .tmp/epson.c:2640
+#: .tmp/epson.c:566 .tmp/epson.c:2640 .tmp/hp-option.c:3042
 msgid "Blue"
 msgstr "Синий"
 
@@ -279,7 +281,7 @@ msgstr "Струйные принтеры"
 msgid "CRT monitors"
 msgstr "Мониторы с ЭЛТ"
 
-#: .tmp/epson.c:621 .tmp/test.c:139
+#: .tmp/epson.c:621 .tmp/hp-option.c:3173 .tmp/test.c:139
 msgid "Default"
 msgstr "По умолчанию"
 
@@ -331,9 +333,9 @@ msgstr "макс"
 
 #: .tmp/epson.c:2362 .tmp/gt68xx.c:432 .tmp/ma1509.c:499
 #: .tmp/matsushita.c:1044 .tmp/microtek2.h:609 .tmp/mustek.c:4109
-#: .tmp/mustek_usb.c:260 .tmp/plustek.c:777 .tmp/sceptre.c:676
-#: .tmp/snapscan-options.c:189 .tmp/teco2.c:1603 .tmp/test.c:294
-#: .tmp/umax.c:5016
+#: .tmp/mustek_usb.c:260 .tmp/plustek.c:776 .tmp/sceptre.c:676
+#: .tmp/snapscan-options.c:189 .tmp/teco2.c:1710 .tmp/test.c:294
+#: .tmp/umax.c:5022
 msgid "Scan Mode"
 msgstr "Режим сканирования"
 
@@ -434,7 +436,7 @@ msgstr "Добавляет к красному, основанному на ур
 msgid "Control blue level"
 msgstr "Управляет уровнем синего"
 
-#: .tmp/epson.c:2737 .tmp/snapscan-options.c:625 .tmp/umax.c:5527
+#: .tmp/epson.c:2737 .tmp/snapscan-options.c:625 .tmp/umax.c:5533
 msgid "Advanced"
 msgstr "Дополнительно"
 
@@ -648,49 +650,298 @@ msgid ""
 "dark images."
 msgstr ""
 
-#: .tmp/hp5400.c:273
-msgid "Image"
-msgstr ""
+# original text: "Halftone"
+#: .tmp/hp-option.c:2875 .tmp/mustek.c:125 .tmp/plustek.c:223
+#: .tmp/plustek.c:233 .tmp/sceptre.h:298 .tmp/snapscan.c:158 .tmp/umax.c:190
+msgid "Halftone"
+msgstr "Полутоновое"
 
-#: .tmp/hp5400.c:312
-msgid "Miscellaneous"
-msgstr ""
-
-#: .tmp/hp5400.c:318
-msgid "offset X"
-msgstr ""
-
-#: .tmp/hp5400.c:320
+#: .tmp/hp-option.c:2988
 #, fuzzy
-msgid "Hardware internal X position of the scanning area."
-msgstr "Координата Х левого верхнего угла области сканирования."
+msgid "Coarse"
+msgstr "8x8 грубое"
 
-#: .tmp/hp5400.c:329
-msgid "offset Y"
+#: .tmp/hp-option.c:2989
+#, fuzzy
+msgid "Fine"
+msgstr "Название файла"
+
+#: .tmp/hp-option.c:2990
+#, fuzzy
+msgid "Bayer"
+msgstr "8x8 грубое"
+
+#: .tmp/hp-option.c:2991
+#, fuzzy
+msgid "Vertical"
+msgstr "8x8 очень хорошее"
+
+#: .tmp/hp-option.c:2992
+msgid "Horizontal"
 msgstr ""
 
-#: .tmp/hp5400.c:331
+#: .tmp/hp-option.c:2993 .tmp/hp-option.c:3044
 #, fuzzy
-msgid "Hardware internal Y position of the scanning area."
-msgstr "Координата Х левого верхнего угла области сканирования."
+msgid "Custom"
+msgstr "8x8 выборочно"
 
-#: .tmp/hp5400.c:343
-msgid "Lamp status"
+#: .tmp/hp-option.c:3034 .tmp/hp-option.c:3090 .tmp/hp-option.c:3105
+#, fuzzy
+msgid "Auto"
+msgstr "Автоматически"
+
+#: .tmp/hp-option.c:3035
+msgid "NTSC RGB"
 msgstr ""
 
-#: .tmp/hp5400.c:344
-#, fuzzy
-msgid "Switches the lamp on or off."
-msgstr "Включить/выключить лампу"
+#: .tmp/hp-option.c:3036
+msgid "XPA RGB"
+msgstr ""
 
-#: .tmp/hp5400.c:354
+#: .tmp/hp-option.c:3037
+msgid "Pass-through"
+msgstr ""
+
+#: .tmp/hp-option.c:3038
+#, fuzzy
+msgid "NTSC Gray"
+msgstr "Чёрно-белый"
+
+#: .tmp/hp-option.c:3039
+#, fuzzy
+msgid "XPA Gray"
+msgstr "Чёрно-белый"
+
+#: .tmp/hp-option.c:3091
+#, fuzzy
+msgid "Slow"
+msgstr "Медленная"
+
+#: .tmp/hp-option.c:3092 .tmp/hp-option.c:3199 .tmp/matsushita.c:244
+#: .tmp/mustek.c:141 .tmp/plustek.c:252
+msgid "Normal"
+msgstr "Нормальный"
+
+#: .tmp/hp-option.c:3093
+#, fuzzy
+msgid "Fast"
+msgstr "Быстрая"
+
+#: .tmp/hp-option.c:3094
+msgid "Extra Fast"
+msgstr ""
+
+#: .tmp/hp-option.c:3106 .tmp/hp-option.c:3273 .tmp/hp-option.c:3286
+msgid "Off"
+msgstr ""
+
+#: .tmp/hp-option.c:3107
+msgid "2-pixel"
+msgstr ""
+
+#: .tmp/hp-option.c:3108
+msgid "4-pixel"
+msgstr ""
+
+#: .tmp/hp-option.c:3109
+msgid "8-pixel"
+msgstr ""
+
+#: .tmp/hp-option.c:3120
+msgid "Print"
+msgstr ""
+
+#: .tmp/hp-option.c:3121
+msgid "Slide"
+msgstr ""
+
+#: .tmp/hp-option.c:3122
+#, fuzzy
+msgid "Film-strip"
+msgstr "Тип плёнки"
+
+#: .tmp/hp-option.c:3182 .tmp/plustek.c:254 .tmp/saneopts.h:149
+msgid "Negative"
+msgstr "Негатив"
+
+#: .tmp/hp-option.c:3200
+msgid "ADF"
+msgstr ""
+
+#: .tmp/hp-option.c:3201
+msgid "XPA"
+msgstr ""
+
+#: .tmp/hp-option.c:3274 .tmp/hp-option.c:3287
+msgid "On"
+msgstr ""
+
+#: .tmp/hp-option.c:3275 .tmp/hp-option.c:3288
+msgid "Conditional"
+msgstr ""
+
+#: .tmp/hp-option.h:57
+msgid "Sharpening"
+msgstr ""
+
+#: .tmp/hp-option.h:58
+msgid "Set sharpening value."
+msgstr ""
+
+#: .tmp/hp-option.h:63
+#, fuzzy
+msgid "Auto Threshold"
+msgstr "Автоматический порог"
+
+#: .tmp/hp-option.h:65
+msgid "Enable automatic determination of threshold for line-art scans."
+msgstr ""
+
+#: .tmp/hp-option.h:70
+#, fuzzy
+msgid "Smoothing"
+msgstr "Сглаживать"
+
+#: .tmp/hp-option.h:71
+msgid "Select smoothing filter."
+msgstr ""
+
+#: .tmp/hp-option.h:76
+msgid "Unload media after scan"
+msgstr ""
+
+#: .tmp/hp-option.h:77
+#, fuzzy
+msgid "Unloads the media after a scan."
+msgstr "Загрузить изображение как чёрно-белое"
+
+#: .tmp/hp-option.h:82
+#, fuzzy
+msgid "Change document"
+msgstr "Дополнительно"
+
+#: .tmp/hp-option.h:83
+msgid "Change Document."
+msgstr ""
+
+#: .tmp/hp-option.h:88
+msgid "Unload"
+msgstr ""
+
+#: .tmp/hp-option.h:89
+msgid "Unload Document."
+msgstr ""
+
+#: .tmp/hp-option.h:94
 #, fuzzy
 msgid "Calibrate"
 msgstr "Режим калибровки"
 
-#: .tmp/hp5400.c:355
-msgid "Calibrates for black and white level."
+# original text: "Quality calibration"
+#: .tmp/hp-option.h:95
+#, fuzzy
+msgid "Start calibration process."
+msgstr "Игнорировать калибровку"
+
+#: .tmp/hp-option.h:100
+#, fuzzy
+msgid "Media"
+msgstr "Нормальный"
+
+#: .tmp/hp-option.h:101
+msgid "Set type of media."
 msgstr ""
+
+#: .tmp/hp-option.h:106
+#, fuzzy
+msgid "Exposure time"
+msgstr "Установить время экспозиции"
+
+#: .tmp/hp-option.h:108
+#, c-format
+msgid ""
+"A longer exposure time lets the scanner collect more light. Suggested use is "
+"175% for prints, 150% for normal slides and \"Negatives\" for negative film. "
+"For dark (underexposed) images you can increase this value."
+msgstr ""
+
+#: .tmp/hp-option.h:116 .tmp/hp-option.h:123
+#, fuzzy
+msgid "Color Matrix"
+msgstr "Загрузить шаблон A"
+
+#: .tmp/hp-option.h:118
+#, fuzzy
+msgid "Set the scanners color matrix."
+msgstr "Устанавливает интенсивность канала красного"
+
+#: .tmp/hp-option.h:124
+msgid "Custom color matrix."
+msgstr ""
+
+#: .tmp/hp-option.h:129
+#, fuzzy
+msgid "Mono Color Matrix"
+msgstr "Загрузить шаблон A"
+
+#: .tmp/hp-option.h:130
+msgid "Custom color matrix for grayscale scans."
+msgstr ""
+
+#: .tmp/hp-option.h:135
+#, fuzzy
+msgid "Mirror horizontal"
+msgstr "Зеркальное изображение"
+
+#: .tmp/hp-option.h:136
+#, fuzzy
+msgid "Mirror image horizontally."
+msgstr "Зеркальное изображение"
+
+#: .tmp/hp-option.h:141
+#, fuzzy
+msgid "Mirror vertical"
+msgstr "Зеркальное изображение"
+
+#: .tmp/hp-option.h:142
+#, fuzzy
+msgid "Mirror image vertically."
+msgstr "Зеркальное изображение"
+
+#: .tmp/hp-option.h:147
+#, fuzzy
+msgid "Update options"
+msgstr "Количество параметров"
+
+#: .tmp/hp-option.h:148
+#, fuzzy
+msgid "Update options."
+msgstr "Тестовый параметр только для чтения"
+
+#: .tmp/hp-option.h:153
+msgid "8 bit output"
+msgstr ""
+
+#: .tmp/hp-option.h:155
+msgid "Use bit depth greater eight internally, but output only eight bits."
+msgstr ""
+
+#: .tmp/hp-option.h:161
+msgid "Front button wait"
+msgstr ""
+
+#: .tmp/hp-option.h:162
+msgid "Wait to scan for front-panel button push."
+msgstr ""
+
+#: .tmp/hp-option.h:169
+msgid "Shut off lamp"
+msgstr ""
+
+#: .tmp/hp-option.h:170
+#, fuzzy
+msgid "Shut off scanner lamp."
+msgstr "Выключить лампу сканера"
 
 #: .tmp/leo.c:110
 msgid "Diamond"
@@ -720,7 +971,7 @@ msgstr "8x8 очень хорошее"
 msgid "Scan mode"
 msgstr "Режим сканирования"
 
-#: .tmp/leo.h:268 .tmp/matsushita.h:217 .tmp/teco1.h:298 .tmp/teco2.h:356
+#: .tmp/leo.h:268 .tmp/matsushita.h:217 .tmp/teco1.h:298 .tmp/teco2.h:358
 #: .tmp/teco3.h:302
 msgid "Black & White"
 msgstr "Чёрный и белый"
@@ -787,10 +1038,6 @@ msgstr "Нормальный"
 #: .tmp/matsushita.c:216 .tmp/matsushita.c:231
 msgid "High"
 msgstr "Высокий"
-
-#: .tmp/matsushita.c:244 .tmp/mustek.c:141 .tmp/plustek.c:251
-msgid "Normal"
-msgstr "Нормальный"
 
 #: .tmp/matsushita.c:245
 msgid "CRT"
@@ -1093,12 +1340,6 @@ msgstr ""
 msgid "Sets the color balance values to the firmware provided values."
 msgstr ""
 
-# original text: "Halftone"
-#: .tmp/mustek.c:125 .tmp/plustek.c:222 .tmp/plustek.c:232 .tmp/sceptre.h:298
-#: .tmp/snapscan.c:158 .tmp/umax.c:190
-msgid "Halftone"
-msgstr "Полутоновое"
-
 # scan speed
 #: .tmp/mustek.c:141
 msgid "Slowest"
@@ -1247,36 +1488,32 @@ msgstr "Контрастность синего канала"
 msgid "Controls the contrast of the blue channel of the acquired image."
 msgstr "Управляет контрастностью синего канала полученного изображения."
 
-#: .tmp/plustek.c:235
+#: .tmp/plustek.c:236
 msgid "Color36"
 msgstr "Цветное36"
 
-#: .tmp/plustek.c:243
+#: .tmp/plustek.c:244
 msgid "Gray 14/16"
 msgstr ""
 
-#: .tmp/plustek.c:245
+#: .tmp/plustek.c:246
 #, fuzzy
 msgid "Color 42/48"
 msgstr "Цветное42"
 
-#: .tmp/plustek.c:252
+#: .tmp/plustek.c:253
 msgid "Transparency"
 msgstr "Прозрачный"
 
-#: .tmp/plustek.c:253 .tmp/saneopts.h:149
-msgid "Negative"
-msgstr "Негатив"
-
-#: .tmp/plustek.c:259
+#: .tmp/plustek.c:260
 msgid "Dithermap 1"
 msgstr ""
 
-#: .tmp/plustek.c:260
+#: .tmp/plustek.c:261
 msgid "Dithermap 2"
 msgstr ""
 
-#: .tmp/plustek.c:261
+#: .tmp/plustek.c:262
 msgid "Randomize"
 msgstr ""
 
@@ -1948,7 +2185,7 @@ msgstr "Определить плотность лампы для сканиро
 msgid "Enable selection of lamp density"
 msgstr "Включить выбор плотности лампы"
 
-#: .tmp/sceptre.c:596 .tmp/teco2.c:1553
+#: .tmp/sceptre.c:596 .tmp/teco2.c:1660
 msgid "flatbed scanner"
 msgstr "планшетный сканер"
 
@@ -2046,7 +2283,7 @@ msgstr "Цветных строк за запрос на чтение"
 msgid "Greyscale lines per read"
 msgstr "Чёрно-белых строк за запрос на чтение"
 
-#: .tmp/teco1.c:1145 .tmp/teco1.c:1146 .tmp/teco2.c:1688 .tmp/teco2.c:1689
+#: .tmp/teco1.c:1145 .tmp/teco1.c:1146 .tmp/teco2.c:1795 .tmp/teco2.c:1796
 #: .tmp/teco3.c:980 .tmp/teco3.c:981
 msgid "Dither"
 msgstr ""
@@ -2449,11 +2686,11 @@ msgstr ""
 msgid "(1/1) Button test option. Prints some text..."
 msgstr ""
 
-#: .tmp/umax1220u.c:247 .tmp/umax.c:5774
+#: .tmp/umax1220u.c:247 .tmp/umax.c:5780
 msgid "Lamp off"
 msgstr "Выключить лампу"
 
-#: .tmp/umax1220u.c:248 .tmp/umax.c:5775
+#: .tmp/umax1220u.c:248 .tmp/umax.c:5781
 msgid "Turn off scanner lamp"
 msgstr "Выключить лампу сканера"
 
@@ -2492,60 +2729,60 @@ msgstr "Многоуровневые цвета RGB (однопроходной 
 msgid "Ignore calibration"
 msgstr "Игнорировать калибровку"
 
-#: .tmp/umax.c:5695
+#: .tmp/umax.c:5701
 msgid "Disable pre focus"
 msgstr "Выключить предварительный фокус"
 
-#: .tmp/umax.c:5696
+#: .tmp/umax.c:5702
 msgid "Do not calibrate focus"
 msgstr "Не калибровать фокус"
 
-#: .tmp/umax.c:5707
+#: .tmp/umax.c:5713
 msgid "Manual pre focus"
 msgstr "Ручная предварительная фокусировка"
 
-#: .tmp/umax.c:5719
+#: .tmp/umax.c:5725
 msgid "Fix focus position"
 msgstr "Зафиксировать позицию фокуса"
 
-#: .tmp/umax.c:5731
+#: .tmp/umax.c:5737
 msgid "Lens calibration in doc position"
 msgstr ""
 
-#: .tmp/umax.c:5732
+#: .tmp/umax.c:5738
 msgid "Calibrate lens focus in document position"
 msgstr ""
 
-#: .tmp/umax.c:5743
+#: .tmp/umax.c:5749
 msgid "Holder focus position 0mm"
 msgstr "Держать позицию фокуса на 0мм"
 
-#: .tmp/umax.c:5744
+#: .tmp/umax.c:5750
 msgid "Use 0mm holder focus position instead of 0.6mm"
 msgstr "Использовать фокус 0мм вместо 0.6мм"
 
-#: .tmp/umax.c:5757 .tmp/umax_pp.c:471
+#: .tmp/umax.c:5763 .tmp/umax_pp.c:471
 msgid "Lamp on"
 msgstr "Включить лампу"
 
-#: .tmp/umax.c:5758
+#: .tmp/umax.c:5764
 msgid "Turn on scanner lamp"
 msgstr "Включить лампу сканера"
 
-#: .tmp/umax.c:5791
+#: .tmp/umax.c:5797
 msgid "Lamp off at exit"
 msgstr "Выключить лампу при выходе"
 
-#: .tmp/umax.c:5792
+#: .tmp/umax.c:5798
 msgid "Turn off lamp when program exits"
 msgstr "Выключить лампу при выходе из программы"
 
-#: .tmp/umax.c:5847
+#: .tmp/umax.c:5853
 msgid "Calibration mode"
 msgstr "Режим калибровки"
 
 # original text: "Define lamp density for calibration"
-#: .tmp/umax.c:5848
+#: .tmp/umax.c:5854
 msgid "Define calibration mode"
 msgstr "Задать режим калибровки"
 
@@ -2635,6 +2872,18 @@ msgstr "Устанавливает интенсивность канала зе�
 #, fuzzy
 msgid "Sets blue channel contrast"
 msgstr "Устанавливает интенсивность канала синего"
+
+#, fuzzy
+#~ msgid "Hardware internal X position of the scanning area."
+#~ msgstr "Координата Х левого верхнего угла области сканирования."
+
+#, fuzzy
+#~ msgid "Hardware internal Y position of the scanning area."
+#~ msgstr "Координата Х левого верхнего угла области сканирования."
+
+#, fuzzy
+#~ msgid "Switches the lamp on or off."
+#~ msgstr "Включить/выключить лампу"
 
 #~ msgid "Gray gain"
 #~ msgstr "Интенсивность серого"

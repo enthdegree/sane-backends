@@ -6,6 +6,8 @@
 	* backend/mustek_usb.c backend/mustek_usb_low.h
 	  doc/descriptions/mustek_usb.desc doc/mustek_usb/mustek_usb.CHANGES:
 	  Free devlist on exit. Undef MIN and MAX macros before defining them.
+	* backend/Makefile.in frontend/Makefile.in: Added missing files to
+	  DISTFILES.
 
 2002-04-24  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

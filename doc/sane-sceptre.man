@@ -19,10 +19,10 @@ Model                        Connection Type
 .br
 ---------------------------  -------------------
 .br
-Sceptre VividScan 1200       SCSI
+Sceptre VividScan S1200      SCSI
 .RE
 
-The make of this scanner is KINPO, so other scanner from that manufacturer may also work.
+The make of this scanner is KINPO, so other scanners from that manufacturer may also work (eg. the S600).
 .SH OPTIONS
 The options the backend supports can either be selected through command line
 options to programs like scanimage or through GUI elements in xscanimage or xsane.
@@ -32,54 +32,73 @@ Valid command line options and their syntax can be listed by using
 scanimage --help -d sceptre
 .RE
 
-The 
-.I --mode 
-switch selects the basic mode of operation of the scanner valid choices are 
+.TP
+.B Scan Mode
+
+.TP
+.B --mode 
+selects the basic mode of operation of the scanner valid choices are 
 .I Lineart, Halftone, Gray and Color. 
-The Lineart and Haltone mode are black and white only (1 bit). Gray will produce 256 levels of gray (8 bits). Color will produce a 24 bits color image. The scanner suports 30 bits internally but it only exports 24.
+The Lineart and Haltone mode are black and white only (1 bit). Gray
+will produce 256 levels of gray (8 bits). Color will produce a 24 bits
+color image. The scanner suports 30 bits internally but it only
+exports 24.
 
-The
-.I --halftone-pattern
-switch selects the pattern mode that is used in Halftone mode. Valid options are 1, 2, 3 and 4.
+.TP
+.B --resolution
+selects the resolution for a scan. The scanner can do several
+resolutions between 50 and 1200.
 
-The 
-.I --gamma-correction
-switch controls the scanner internal gamma correction. Valid options are "Default", "User
-defined", "High density printing" "Low density printing" and "High contrast printing".
+.TP
+.B --halftone-pattern
+selects the pattern mode that is used in Halftone mode. Valid options
+are 1, 2, 3 and 4.
 
-The 
-.I --resolution
-switch selects the resolution for a scan. The scanner can do several resolutions between 50 and 1200.
+.TP 
+.B --gamma-correction
+controls the scanner internal gamma correction. Valid options are
+"Default", "User defined", "High density printing" "Low density
+printing" and "High contrast printing".
 
-The 
-.I --custom-gamma
-parameter (color mode only) allows the user to specify a gamma table (see the next 3 parameters).
+.TP
+.B --custom-gamma
+(color mode only) allows the user to specify a gamma table (see the
+next 3 parameters).
 
-The 
-.I --red-gamma-table 
-parameter (color mode only) can be used to download a user defined gamma table for the red channel. The table must be 256 bytes long.
+.TP 
+.B --red-gamma-table 
+(color mode only) can be used to download a user defined
+gamma table for the red channel. The table must be 256 bytes long.
 
-The 
-.I --green-gamma-table 
-parameter (color mode only) can be used to download a user defined gamma table for the green channel. The table must be 256 bytes long.
+.TP 
+.B --green-gamma-table 
+(color mode only) can be used to download a user defined
+gamma table for the green channel. The table must be 256 bytes long.
 
-The 
-.I --blue-gamma-table 
-parameter (color mode only) can be used to download a user defined gamma table for the blue channel. The table must be 256 bytes long.
+.TP
+.B --blue-gamma-table 
+(color mode only) can be used to download a user defined gamma table
+for the blue channel. The table must be 256 bytes long.
 
-The
-.I --threshold
-sets the threshold for black and white pixels in lineart mode. Possible values are from 0 (darker) to 255 (lighter).
+.TP
+.B --threshold
+sets the threshold for black and white pixels in lineart
+mode. Possible values are from 0 (darker) to 255 (lighter).
 
-The 
-.I --preview
-option requests a preview scan. The resolution used for that scan is 30 dpi. The default is "no".
+.TP 
+.B --preview
+requests a preview scan. The resolution used for that scan is 30 dpi
+and the scan area is the maximum allowed. The scan mode is user
+selected. The default is "no".
 
-The geometry options
-.I -l -t -x -y 
+.TP
+.B The geometry options
+
+.TP
+.B -l -t -x -y 
 control the scan area: -l sets the top left x coordinate, -t the top
 left y coordinate, -x selects the width and -y the height of the scan
-aea. All parameters are specified in milimeters.
+area. All parameters are specified in milimeters by default.
 
 
 .SH CONFIGURATION FILE
@@ -101,17 +120,27 @@ support dynamic loading).
 .B SANE_DEBUG_SCEPTRE
 If the library was compiled with debug support enabled, this
 environment variable controls the debug level for this backend. E.g.,
-a value of 128 requests all debug output to be printed. Smaller
-levels reduce verbosity.
+a value of 128 requests all debug output to be printed. Smaller levels
+reduce verbosity.
 
-.SH "SEE ALSO"
 
-sane\-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
+.SH LIMITATIONS
+.TP
+.B Resolutions
+The windows TWAIN driver can be set to any resolution between 50 to 1200
+(excluding software interpolation). This backend cannot. Only a
+handful of resolution are available, although they should be numerous
+enough.
 
 
 .SH BUGS
 
 None known.
+
+
+.SH "SEE ALSO"
+
+sane\-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
 
 
 .SH AUTHOR

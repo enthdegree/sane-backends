@@ -49,6 +49,9 @@ static char *hp_backend_revision = "$Revision$";
 
    V 1.05:
    $Log$
+   Revision 1.19  2003/10/24 17:26:07  kig-guest
+   Use new sanei-thread-interface
+
    Revision 1.18  2003/10/09 19:37:29  kig-guest
    Redo when TEST UNIT READY failed
    Redo when read returns with 0 bytes (non-SCSI only)
@@ -224,6 +227,7 @@ static char *hp_backend_revision = "$Revision$";
 #include "sane/sanei_config.h"
 #include "sane/sanei_backend.h"
 #include "sane/sanei_usb.h"
+#include "sane/sanei_thread.h"
 /* #include <sane/sanei_debug.h> */
 #include "hp-device.h"
 #include "hp-handle.h"
@@ -798,6 +802,7 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback UNUSEDARG authorize)
 
   DBG_INIT();
   DBG(3, "sane_init called\n");
+  sanei_thread_init ();
 
   hp_destroy();
 

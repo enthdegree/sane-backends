@@ -60,67 +60,13 @@ extern int sanei_debug_hp; */
 #include "hp-handle.h"
 
 #include "sane/sanei_backend.h"
+#include "sane/sanei_thread.h"
 
 #include "hp-device.h"
 #include "hp-option.h"
 #include "hp-accessor.h"
 #include "hp-scsi.h"
 #include "hp-scl.h"
-
-/* Do we really need threads ? */
-/* #define HAVE_OS2_H */
-#ifdef HAVE_OS2_H
-#define HP_USE_THREAD
-#endif
-
-/* Some tests with Linux-threads */
-/* #define HP_LINUX_THREAD_TEST */
-
-#ifdef HP_LINUX_THREAD_TEST
-#ifndef HP_USE_THREAD
-#define HP_USE_THREAD
-#endif
-#endif
-
-
-#ifdef HP_LINUX_THREAD_TEST
-#include <pthread.h>
-
-static int
-sanei_thread_begin( void (*start)(void *arg), void* arg_list)
-
-{pthread_t thread; 
- int tcval = pthread_create (&thread, NULL, start, arg_list);
-
- if (tcval != 0)
- {
-   DBG(1, "pthread_create() failed with %d\n", tcval);
-   return -1;
- }
- DBG(1, "pthread_create() created thread %d\n", (int)thread);
- return (int)thread;
-}
-
-static void
-sanei_thread_kill( int pid, int sig)
-{
- DBG(1, "pthread_kill() will kill %d\n", (int)pid);
- pthread_kill (pid, sig);
-}
-
-static int
-sanei_thread_waitpid( int pid, int *stat_loc, int UNUSEDARG options)
-{
-  if (stat_loc)
-    *stat_loc = 0;
-  return pid;
-}
-
-#else
-#ifdef HP_USE_THREAD
-#include "../include/sane/sanei_thread.h"
-#endif
-#endif
 
 struct hp_handle_s
 {
@@ -132,6 +78,7 @@ struct hp_handle_s
     int			child_forked; /* Flag if we used fork() or not */
     size_t		bytes_left;
     int			pipe_read_fd;
+    sigset_t            sig_set;
 
     sig_atomic_t	cancelled;
 
@@ -148,28 +95,22 @@ hp_handle_isScanning (HpHandle this)
   return this->reader_pid != 0;
 }
 
-#ifdef HP_USE_THREAD
 /*
- * reader thread: need a wrapper, because threads can have
- * only one parameter.
-*/
-static void
-os2_reader_process (void *data)
+ * reader thread. Used when threads are used
+ */
+static int
+reader_thread (void *data)
 {
-  sigset_t 		sig_set;
-  struct SIGACTION	sa;
   struct hp_handle_s *this = (struct hp_handle_s *) data;
+  struct SIGACTION	act;
   SANE_Status status;
 
-  DBG (1, "os2_reader_process: thread started\n"
+  DBG (1, "reader_thread: thread started\n"
    "  parameters: scsi = 0x%08lx, pipe_write_fd = %d\n",
           (long) this->scsi, this->pipe_write_fd);
 
-  memset(&sa, 0, sizeof(sa));
-  sa.sa_handler = SIG_DFL;
-  sigaction(SIGTERM, &sa, 0);
-  sigdelset(&sig_set, SIGTERM);
-  sigprocmask(SIG_SETMASK, &sig_set, 0);
+  memset(&act, 0, sizeof(act));
+  sigaction(SIGTERM, &act, 0);
 
   DBG (1, "Starting sanei_hp_scsi_pipeout()\n");
   status = sanei_hp_scsi_pipeout (this->scsi, this->pipe_write_fd,
@@ -179,17 +120,44 @@ os2_reader_process (void *data)
   close (this->pipe_write_fd);
   this->pipe_write_fd = -1;
   sanei_hp_scsi_destroy (this->scsi, 0);
+  return status;
 }
-#endif
+
+/*
+ * reader process. Used when forking child.
+ */
+static int
+reader_process (void *data)
+{
+  struct hp_handle_s *this = (struct hp_handle_s *) data;
+  struct SIGACTION	sa;
+  SANE_Status status;
+
+  /* Here we are in a forked child. The thread will not come up to here. */
+  /* Forked child must close read end of pipe */
+  close (this->pipe_read_fd);
+  this->pipe_read_fd = -1;
+
+  memset(&sa, 0, sizeof(sa));
+  sa.sa_handler = SIG_DFL;
+  sigaction(SIGTERM, &sa, 0);
+  sigdelset(&(this->sig_set), SIGTERM);
+  sigprocmask(SIG_SETMASK, &(this->sig_set), 0);
+
+  /* not closing writing end of pipe gives an infinite loop on Digital UNIX */
+  status = sanei_hp_scsi_pipeout (this->scsi, this->pipe_write_fd,
+                                  &(this->procdata));
+  close (this->pipe_write_fd);
+  this->pipe_write_fd = -1;
+  DBG(3,"reader_process: Exiting child (%s)\n",sane_strstatus(status));
+  return (status);
+}
 
 static SANE_Status
 hp_handle_startReader (HpHandle this, HpScsi scsi)
 {
   int	fds[2];
-  sigset_t 		sig_set, old_set;
-  struct SIGACTION	sa;
-  SANE_Status           status;
-  HpProcessData        *procdata = &(this->procdata);
+  sigset_t 		old_set;
 
   assert(this->reader_pid == 0);
   this->cancelled = 0;
@@ -198,30 +166,20 @@ hp_handle_startReader (HpHandle this, HpScsi scsi)
   if (pipe(fds))
       return SANE_STATUS_IO_ERROR;
 
-  sigfillset(&sig_set);
-  sigprocmask(SIG_BLOCK, &sig_set, &old_set);
+  sigfillset(&(this->sig_set));
+  sigprocmask(SIG_BLOCK, &(this->sig_set), &old_set);
 
   this->scsi = scsi;
   this->pipe_write_fd = fds[1];
   this->pipe_read_fd = fds[0];
 
-  /* create reader routine as new process or thread */
+  /* Will childs be forked ? */
+  this->child_forked = sanei_thread_is_forked ();
 
-#ifndef HP_USE_THREAD
-  this->child_forked = 1;
-  this->reader_pid = fork ();
-#else
-  this->child_forked = 0;
-
-  DBG(3,"hp_handle_startReader: About to begin thread with\n");
-  DBG(3,"  parameters: scsi = 0x%08lx, pipe_write_fd = %d\n",
-          (long)this->scsi, this->pipe_write_fd);
-
-  this->reader_pid = sanei_thread_begin (os2_reader_process, (void *) this);
-
-  DBG(3,"  reader_pid = %d\n", (int)this->reader_pid);
-#endif
-
+  /* Start a thread or fork a child. None of them will return here. */
+  /* Returning means to be in the parent or thread/fork failed */
+  this->reader_pid = sanei_thread_begin (this->child_forked ? reader_process :
+                                         reader_thread, (void *) this);
   if (this->reader_pid != 0)
     {
       /* Here we are in the parent */
@@ -229,6 +187,7 @@ hp_handle_startReader (HpHandle this, HpScsi scsi)
 
       if ( this->child_forked )
       { /* After fork(), parent must close writing end of pipe */
+        DBG(3, "hp_handle_startReader: parent closes write end of pipe\n");
         close (this->pipe_write_fd);
         this->pipe_write_fd = -1;
       }
@@ -252,28 +211,8 @@ hp_handle_startReader (HpHandle this, HpScsi scsi)
       return SANE_STATUS_GOOD;
     }
 
-  if (!this->child_forked)
-  {
-    DBG(3, "Unexpected return from sanei_thread_begin()\n");
-  }
-
-  /* Here we are in a forked child. The thread will not come up to here. */
-  /* Forked child must close read end of pipe */
-  close (this->pipe_read_fd);
-  this->pipe_read_fd = -1;
-
-  memset(&sa, 0, sizeof(sa));
-  sa.sa_handler = SIG_DFL;
-  sigaction(SIGTERM, &sa, 0);
-  sigdelset(&sig_set, SIGTERM);
-  sigprocmask(SIG_SETMASK, &sig_set, 0);
-
-  /* not closing writing end of pipe gives an infinite loop on Digital UNIX */
-  status = sanei_hp_scsi_pipeout(scsi,this->pipe_write_fd,procdata);
-  close (this->pipe_write_fd);
-  this->pipe_write_fd = -1;
-  DBG(3,"hp_handle_startReader: Exiting child (%s)\n",sane_strstatus(status));
-  _exit(status);
+  DBG(3, "Unexpected return from sanei_thread_begin()\n");
+  return SANE_STATUS_INVAL;
 }
 
 static SANE_Status
@@ -295,10 +234,8 @@ hp_handle_stopScan (HpHandle this)
       }
       else
       {
-#ifdef HP_USE_THREAD
-        sanei_thread_kill (this->reader_pid, SIGTERM);
-        sanei_thread_waitpid(this->reader_pid, &info, 0);
-#endif
+        sanei_thread_kill (this->reader_pid);
+        sanei_thread_waitpid(this->reader_pid, &info);
       }
       DBG(1, "hp_handle_stopScan: child %s = %d\n",
 	  WIFEXITED(info) ? "exited, status" : "signalled, signal",
@@ -811,10 +748,8 @@ sanei_hp_handle_cancel (HpHandle this)
          this->reader_pid);
      if (this->child_forked)
        kill(this->reader_pid, SIGTERM);
-#ifdef HP_USE_THREAD
      else
-       sanei_thread_kill(this->reader_pid, SIGTERM);
-#endif
+       sanei_thread_kill(this->reader_pid);
   }
 }
 

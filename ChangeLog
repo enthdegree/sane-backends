@@ -1,3 +1,15 @@
+2004-01-15  Gerard Klaver <gerard at gkall dot hobby dot nl>
+
+	* include/sane/saneopts.h: Added options WHITE_LEVEL_R, WHITE_LEVEL_G,
+	                           and WHITE_LEVEL_B.
+	* doc/sane-teco2.man: changed --white-level to white-level-r, -g, -b
+	                      update text
+	* backend/teco2.c: changed WHITE_LEVEL to WHITE_LEVEL_R, _G and _B,
+	                   changed calibration part for the VM3564, VM356A and
+			   VM3575 (subtract highest and lowest value and then
+			   divide).
+	* backend/teco2.h: changed WHITE_LEVEL to WHITE_LEVEL_R, _G, _B.
+
 2004-01-14  Gerhard Jaeger <gerhard@gjaeger.de>
 	* backend/u12.c: Fixed preview bug.
 

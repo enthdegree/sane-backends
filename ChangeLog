@@ -1,3 +1,8 @@
+2001-10-08  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/ibm.desc: New file. Backend for the IBM 2456 and the
+	  Ricoh IS-410.
+
 2001-10-07  Peter Fales <peter@fales.com>
 
 	* backend/gphoto2.desc: Cleaned up syntax errors

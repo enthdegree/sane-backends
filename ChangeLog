@@ -1,6 +1,8 @@
 2003-04-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/scanimage.man: Added EXAMPLES section.
+	* doc/descriptions/unsupported.desc: Added information about
+	  Hewlett-Packard and Mustek scanners.
 
 2003-04-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
 
    based on sources acquired from Plustek Inc.
-   Copyright (C) 2002 Gerhard Jaeger <gerhard@gjaeger.de>
+   Copyright (C) 2002-2003 Gerhard Jaeger <gerhard@gjaeger.de>
 
    This file is part of the SANE package.
  
@@ -145,6 +145,6 @@ extern SANE_Status sanei_lm983x_read( SANE_Int fd, SANE_Byte reg,
  * - SANE_FALSE - reset failed
  */
 extern SANE_Bool sanei_lm983x_reset( SANE_Int fd );
-					    					
+
 #endif /* sanei_lm983x_h */
 

@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
 
    based on sources acquired from Plustek Inc.
-   Copyright (C) 2002 Gerhard Jaeger <gerhard@gjaeger.de>
+   Copyright (C) 2002-2003 Gerhard Jaeger <gerhard@gjaeger.de>
 
    This file is part of the SANE package.
  
@@ -268,4 +268,4 @@ SANE_Bool sanei_lm983x_reset( SANE_Int fd )
 	return SANE_FALSE;
 }
 
-/* END sanei_lm983x.c........................................................*/
+/* END sanei_lm983x.c .......................................................*/

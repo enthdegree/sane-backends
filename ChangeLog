@@ -1,3 +1,13 @@
+2000-10-02  Oliver Rauch <Oliver.Rauch@Wolfsburg.DE>
+
+        * sanei/sanei_constrain_value.c:
+          if checked option is a range and the value is out of
+	  range the value is now corrected to the minimum or maximum
+	  allowed value and SANE_INFO_INEXACT is set.
+	  The old version returned with an error. This caused problems
+	  when the value was a little bit out of range because of rounding
+          errors.
+
 2000-09-30  Henning Meier-Geinitz <hmg@gmx.de>
 
 	* backend/pnm.c: Fixed three segfaults due to buffer overruns:

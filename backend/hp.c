@@ -620,8 +620,8 @@ hp_read_config (void)
               config->connect = HP_CONNECT_PTAL;
               config->use_scsi_request = 0;
 #else
-              DBG(1,"hp_read_config: connect-ptal:\n");
-              DBG(1,"  hp-backend not compiled with PTAL support.\n");
+              DBG(0,"hp_read_config: connect-ptal:\n");
+              DBG(0,"  hp-backend not compiled with PTAL support.\n");
 #endif
             }
             else if (strcmp (arg2, "disable-scsi-request") == 0)

@@ -21,6 +21,7 @@
  *        - added dimension stuff to dumpPic
  * - 0.46 - disabled reset prior to the detection of Merlin
  * - 0.47 - no changes
+ * - 0.48 - cleanup
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -94,12 +95,12 @@ static void dumpPic( char* name, SANE_Byte *buffer, u_long len )
 {
 	FILE *fp;
 
-	if( DBG_LEVEL < _DBG_DUMP )
+	if( DBG_LEVEL < _DBG_DPIC )
 		return;
 
 	if( NULL == buffer ) {
 
-		DBG( _DBG_DUMP, "Creating file '%s'\n", name );
+		DBG( _DBG_DPIC, "Creating file '%s'\n", name );
 
 		fp = fopen( name, "w+b" );
 
@@ -107,7 +108,7 @@ static void dumpPic( char* name, SANE_Byte *buffer, u_long len )
 
 			if( 0 != dPix.x ) {
 
-				DBG( _DBG_DUMP, "> X=%lu, Y=%lu, depth=%u\n",
+				DBG( _DBG_DPIC, "> X=%lu, Y=%lu, depth=%u\n",
 											dPix.x, dPix.y, dPix.depth );
 				if( dPix.depth > 8 )
 					fprintf( fp, "P6\n%lu %lu\n65535\n", dPix.x, dPix.y );
@@ -120,7 +121,7 @@ static void dumpPic( char* name, SANE_Byte *buffer, u_long len )
 	}
 
 	if( NULL == fp ) {
-		DBG( _DBG_DUMP, "Can not open file '%s'\n", name );
+		DBG( _DBG_DPIC, "Can not open file '%s'\n", name );
 		return;
 	}
 
@@ -152,10 +153,10 @@ static void dumpPicInit( pScanParam sd, char* name )
 static void dumpregs( int fd, SANE_Byte *cmp )
 {
 	char      buf[256], b2[10];
-    SANE_Byte regs[0x80];
+	SANE_Byte regs[0x80];
 	int       i;
 
-	if( DBG_LEVEL < _DBG_INFO2 )
+	if( DBG_LEVEL < _DBG_DREGS )
 		return;
 
 	buf[0] = '\0';
@@ -170,10 +171,10 @@ static void dumpregs( int fd, SANE_Byte *cmp )
 
 	for( i = 0x0; i < 0x80; i++ ) {
 
-    	if((i%16) ==0 ) {
+		if((i%16) ==0 ) {
 
 			if( buf[0] )
-				DBG( _DBG_INFO2, "%s\n", buf );
+				DBG( _DBG_DREGS, "%s\n", buf );
 			sprintf( buf, "0x%02x:", i );
 		}
 
@@ -181,28 +182,28 @@ static void dumpregs( int fd, SANE_Byte *cmp )
 			strcat( buf, " ");
 
 		/* the dataport read returns with "0 Bytes read", of course. */
-    	if((i == 0) || (i == 5) || (i == 6))
-      		strcat( buf, "XX ");
-    	else {
+		if((i == 0) || (i == 5) || (i == 6))
+			strcat( buf, "XX ");
+		else {
 
-	    	sprintf( b2, "%02x ", regs[i]);
+			sprintf( b2, "%02x ", regs[i]);
 			strcat( buf, b2 );
 		}
 
 	}
-	DBG( _DBG_INFO2, "%s\n", buf );
+	DBG( _DBG_DREGS, "%s\n", buf );
 
 	if( cmp ) {
 
 		buf[0] = '\0';
 
-		DBG( _DBG_INFO2, "Internal setting:\n" );
+		DBG( _DBG_DREGS, "Internal setting:\n" );
 		for( i = 0x0; i < 0x80; i++ ) {
 
-    		if((i%16) ==0 ) {
+			if((i%16) ==0 ) {
 
 				if( buf[0] )
-					DBG( _DBG_INFO2, "%s\n", buf );
+					DBG( _DBG_DREGS, "%s\n", buf );
 				sprintf( buf, "0x%02x:", i );
 			}
 
@@ -210,15 +211,14 @@ static void dumpregs( int fd, SANE_Byte *cmp )
 				strcat( buf, " ");
 
 	    	if((i == 0) || (i == 5) || (i == 6))
-    	  		strcat( buf, "XX ");
-    		else {
-
-	    		sprintf( b2, "%02x ", cmp[i]);
+				strcat( buf, "XX ");
+			else {
+				sprintf( b2, "%02x ", cmp[i]);
 				strcat( buf, b2 );
 			}
 
 		}
-		DBG( _DBG_INFO2, "%s\n", buf );
+		DBG( _DBG_DREGS, "%s\n", buf );
 	}
 }
 
@@ -232,7 +232,7 @@ static void dumpregs( int fd, SANE_Byte *cmp )
  * @return
  */
 static SANE_Bool usbio_WriteReg( SANE_Int handle,
-								 SANE_Byte reg, SANE_Byte value )
+                                 SANE_Byte reg, SANE_Byte value )
 {
 	int       i;
 	SANE_Byte data;
@@ -243,19 +243,16 @@ static SANE_Bool usbio_WriteReg( SANE_Int handle,
 		sanei_lm983x_write_byte( handle, reg, value );
 	
 		/* Flush register 0x02 when register 0x58 is written */
- 		if( 0x58 == reg ) {
+		if( 0x58 == reg ) {
+			_UIO( usbio_ReadReg( handle, 2, &data ));
+			_UIO( usbio_ReadReg( handle, 2, &data ));
+		}
 
-			_UIO( usbio_ReadReg( handle, 2, &data ));
-			_UIO( usbio_ReadReg( handle, 2, &data ));
- 		
- 		}
- 		
-		if( reg != 7 ) 	
+		if( reg != 7 )
 			return SANE_TRUE;
-			
+
 		/* verify register 7 */
 		_UIO( usbio_ReadReg( handle, 7, &data ));
-	
 		if( data == value ) {
 			return SANE_TRUE;
 		}
@@ -302,7 +299,7 @@ static SANE_Status usbio_DetectLM983x( SANE_Int fd, SANE_Byte *version )
 				 break;
 	}
 
-	DBG( _DBG_INFO, "%s\n", buf );  	
+	DBG( _DBG_INFO, "%s\n", buf ); 
 	return res;
 }
 

@@ -37,6 +37,7 @@
  * - 0.47  - moved usb_HostSwap() to plustek_usbhw.c
  *         - fixed problem in cano_AdjustLightsource(), so that it won't
  *           stop too early.
+ * - 0.48  - cleanup
  * 
  * This file is part of the SANE package.
  *
@@ -203,7 +204,7 @@ static int cano_adjLampSetting( u_short *min,
 		 * for this channel to recalibrate.
 		 */
 		if( *off > 0x3FFF ) {
-			DBG( _DBG_INFO2, "* lamp off limited (0x%04x --> 0x3FFF)\n", *off);
+			DBG( _DBG_INFO, "* lamp off limited (0x%04x --> 0x3FFF)\n", *off);
 			*off = 0x3FFF;
 			return 0;
 		}
@@ -237,10 +238,10 @@ static int cano_AdjustLightsource( pPlustek_Device dev )
 	if( usb_IsEscPressed())
 		return SANE_FALSE;
 
-	DBG( _DBG_INFO2, "cano_AdjustLightsource()\n" );
+	DBG( _DBG_INFO, "cano_AdjustLightsource()\n" );
 
 	if( !(hw->bReg_0x26 & _ONE_CH_COLOR)) {
-		DBG( _DBG_INFO2, "- function skipped, CCD device!\n" );
+		DBG( _DBG_INFO, "- function skipped, CCD device!\n" );
 		
 		if( !usb_Wait4Warmup( dev )) {
 			DBG( _DBG_ERROR, "cano_AdjustLightsource() - CANCEL detected\n" );
@@ -273,6 +274,12 @@ static int cano_AdjustLightsource( pPlustek_Device dev )
 	min_rgb.Red   = hw->red_lamp_on;
 	min_rgb.Green = hw->green_lamp_on;
 	min_rgb.Blue  = hw->blue_lamp_on;
+
+	if((dev->adj.rlampoff != -1) && 
+	   (dev->adj.glampoff != -1) && (dev->adj.rlampoff != -1)) {
+		DBG( _DBG_INFO, "- function skipped, using frontend values!\n" );
+		return SANE_TRUE;
+	}
 
 	for( i = 0; ; i++ ) {
   
@@ -346,20 +353,20 @@ static int cano_AdjustLightsource( pPlustek_Device dev )
       
 		if( m_ScanParam.bDataType == SCANDATATYPE_Color ) {
 			DBG( _DBG_INFO2, "red_lamp_off  = %u/%u/%u\n",
-								min_rgb.Red ,hw->red_lamp_off, max_rgb.Red );
+			                  min_rgb.Red ,hw->red_lamp_off, max_rgb.Red );
 		}
 			
 		DBG( _DBG_INFO2, "green_lamp_off = %u/%u/%u\n",
-							min_rgb.Green, hw->green_lamp_off, max_rgb.Green );
+		                  min_rgb.Green, hw->green_lamp_off, max_rgb.Green );
 							
 		if( m_ScanParam.bDataType == SCANDATATYPE_Color ) {
 			DBG( _DBG_INFO2, "blue_lamp_off = %u/%u/%u\n",
-							min_rgb.Blue, hw->blue_lamp_off, max_rgb.Blue );
+			                  min_rgb.Blue, hw->blue_lamp_off, max_rgb.Blue );
 		}
       
 		DBG(_DBG_INFO2, "CUR(R,G,B)= 0x%04x(%u), 0x%04x(%u), 0x%04x(%u)\n",
-			 				tmp_rgb.Red, tmp_rgb.Red, tmp_rgb.Green,
-							 tmp_rgb.Green, tmp_rgb.Blue, tmp_rgb.Blue );
+		                     tmp_rgb.Red, tmp_rgb.Red, tmp_rgb.Green,
+		                     tmp_rgb.Green, tmp_rgb.Blue, tmp_rgb.Blue );
 		res_r = 0;
 		res_g = 0;
 		res_b = 0;
@@ -367,13 +374,13 @@ static int cano_AdjustLightsource( pPlustek_Device dev )
 		/* bisect */
 		if( m_ScanParam.bDataType == SCANDATATYPE_Color ) {
 			res_r = cano_adjLampSetting( &min_rgb.Red, &max_rgb.Red,
-											  &hw->red_lamp_off, tmp_rgb.Red );
+			                             &hw->red_lamp_off, tmp_rgb.Red );
 			res_b = cano_adjLampSetting( &min_rgb.Blue, &max_rgb.Blue,
-											 &hw->blue_lamp_off,tmp_rgb.Blue );
+			                             &hw->blue_lamp_off,tmp_rgb.Blue );
 		}
 
 		res_g = cano_adjLampSetting( &min_rgb.Green, &max_rgb.Green,
-										  &hw->green_lamp_off, tmp_rgb.Green );
+		                             &hw->green_lamp_off, tmp_rgb.Green );
 
 		/* nothing adjusted, so stop here */
 		if((res_r == 0) && (res_g == 0) && (res_b == 0))
@@ -396,14 +403,14 @@ static int cano_AdjustLightsource( pPlustek_Device dev )
 		usb_AdjustLamps(dev);
 	}
 
-	DBG( _DBG_INFO2, "* red_lamp_on    = %u\n", hw->red_lamp_on  );
-	DBG( _DBG_INFO2, "* red_lamp_off   = %u\n", hw->red_lamp_off );
-	DBG( _DBG_INFO2, "* green_lamp_on  = %u\n", hw->green_lamp_on  );
-	DBG( _DBG_INFO2, "* green_lamp_off = %u\n", hw->green_lamp_off );
-	DBG( _DBG_INFO2, "* blue_lamp_on   = %u\n", hw->blue_lamp_on   );
-	DBG( _DBG_INFO2, "* blue_lamp_off  = %u\n", hw->blue_lamp_off  );
+	DBG( _DBG_INFO, "* red_lamp_on    = %u\n", hw->red_lamp_on  );
+	DBG( _DBG_INFO, "* red_lamp_off   = %u\n", hw->red_lamp_off );
+	DBG( _DBG_INFO, "* green_lamp_on  = %u\n", hw->green_lamp_on  );
+	DBG( _DBG_INFO, "* green_lamp_off = %u\n", hw->green_lamp_off );
+	DBG( _DBG_INFO, "* blue_lamp_on   = %u\n", hw->blue_lamp_on   );
+	DBG( _DBG_INFO, "* blue_lamp_off  = %u\n", hw->blue_lamp_off  );
     
-	DBG( _DBG_INFO2, "cano_AdjustLightsource() done.\n" );
+	DBG( _DBG_INFO, "cano_AdjustLightsource() done.\n" );
 	return SANE_TRUE;
 }
 
@@ -458,19 +465,25 @@ static SANE_Bool cano_AdjustGain( pPlustek_Device dev )
   
 	bMaxITA = 0xff;
 
-	max[0]  = max[1] = max[2] = 0x3f;
-	min[0]  = min[1] = min[2] = 1;
+	max[0] = max[1] = max[2] = 0x3f;
+	min[0] = min[1] = min[2] = 1;
 
-	DBG( _DBG_INFO2, "cano_AdjustGain()\n" );
+	DBG( _DBG_INFO, "cano_AdjustGain()\n" );
+	if((dev->adj.rgain != -1) && 
+	   (dev->adj.ggain != -1) && (dev->adj.bgain != -1)) {
+		setAdjGain( dev->adj.rgain, &a_bRegs[0x3b] );
+		setAdjGain( dev->adj.ggain, &a_bRegs[0x3c] );
+		setAdjGain( dev->adj.bgain, &a_bRegs[0x3d] );
+		DBG( _DBG_INFO, "- function skipped, using frontend values!\n" );
+		return SANE_TRUE;
+	}
   
-	/*
-	 * define the strip to scan for coarse calibration
+	/* define the strip to scan for coarse calibration
 	 * done at 300dpi
 	 */
-
-	m_ScanParam.Size.dwLines  = 1;				/* for gain */
+	m_ScanParam.Size.dwLines  = 1;                       /* for gain */
 	m_ScanParam.Size.dwPixels = scaps->Normal.Size.x *
-				    								scaps->OpticDpi.x / 300UL;
+	                                                 scaps->OpticDpi.x / 300UL;
   
 	m_ScanParam.Size.dwBytes  = m_ScanParam.Size.dwPixels * 2;
 
@@ -480,7 +493,7 @@ static SANE_Bool cano_AdjustGain( pPlustek_Device dev )
 	}
   
 	m_ScanParam.Origin.x = (u_short)((u_long) hw->wActivePixelsStart *
-													300UL / scaps->OpticDpi.x);
+	                                                300UL / scaps->OpticDpi.x);
 	m_ScanParam.bCalibration = PARAM_Gain;
   
 	DBG( _DBG_INFO2, "Coarse Calibration Strip:\n" );
@@ -583,7 +596,7 @@ static SANE_Bool cano_AdjustGain( pPlustek_Device dev )
   
 	}
   
-	DBG( _DBG_INFO2, "cano_AdjustGain() done.\n" );
+	DBG( _DBG_INFO, "cano_AdjustGain() done.\n" );
 
 	return SANE_TRUE;
 }
@@ -648,9 +661,17 @@ static int cano_AdjustOffset( pPlustek_Device dev )
 	if( usb_IsEscPressed())
 		return SANE_FALSE;
   
-	DBG( _DBG_INFO2, "cano_AdjustOffset()\n" );
+	DBG( _DBG_INFO, "cano_AdjustOffset()\n" );
+	if((dev->adj.rofs != -1) && 
+	   (dev->adj.gofs != -1) && (dev->adj.bofs != -1)) {
+		a_bRegs[0x38] = (dev->adj.rofs & 0x3f);
+		a_bRegs[0x39] = (dev->adj.gofs & 0x3f);
+		a_bRegs[0x3a] = (dev->adj.bofs & 0x3f);
+		DBG( _DBG_INFO, "- function skipped, using frontend values!\n" );
+		return SANE_TRUE;
+	}
 
-	m_ScanParam.Size.dwLines  = 1;				/* for gain */
+	m_ScanParam.Size.dwLines  = 1;
 	m_ScanParam.Size.dwPixels = scaps->Normal.Size.x*scaps->OpticDpi.x/300UL;
 
 	if( hw->bReg_0x26 & _ONE_CH_COLOR )
@@ -775,7 +796,7 @@ static int cano_AdjustOffset( pPlustek_Device dev )
 		a_bRegs[0x38] = a_bRegs[0x39] = a_bRegs[0x3a] = now[0];	
 	}
   
-	DBG( _DBG_INFO2, "cano_AdjustOffset() done.\n" );
+	DBG( _DBG_INFO, "cano_AdjustOffset() done.\n" );
 	return SANE_TRUE;
 }
 
@@ -795,7 +816,7 @@ static SANE_Bool cano_AdjustDarkShading( pPlustek_Device dev )
 	int          step, stepW, val;
 	u_long       red, green, blue, gray;
   
-	DBG( _DBG_INFO2, "cano_AdjustDarkShading()\n" );
+	DBG( _DBG_INFO, "cano_AdjustDarkShading()\n" );
 	if( usb_IsEscPressed())
 		return SANE_FALSE;
    
@@ -915,7 +936,7 @@ static SANE_Bool cano_AdjustDarkShading( pPlustek_Device dev )
 		        a_wDarkShading, m_ScanParam.Size.dwPhyPixels * 2);
 	}
     
-	DBG( _DBG_INFO2, "cano_AdjustDarkShading() done\n" );
+	DBG( _DBG_INFO, "cano_AdjustDarkShading() done\n" );
 	return SANE_TRUE;
 }
 
@@ -935,7 +956,7 @@ static SANE_Bool cano_AdjustWhiteShading( pPlustek_Device dev )
 	int          step, stepW;
 	u_long       red, green, blue, gray;
   
-	DBG( _DBG_INFO2, "cano_AdjustWhiteShading()\n" );
+	DBG( _DBG_INFO, "cano_AdjustWhiteShading()\n" );
 	if( usb_IsEscPressed())
 		return SANE_FALSE;
 
@@ -950,7 +971,7 @@ static SANE_Bool cano_AdjustWhiteShading( pPlustek_Device dev )
 	m_ScanParam.Origin.y  = 0;
 	m_ScanParam.bBitDepth = 16;
 
-	m_ScanParam.UserDpi.y = scaps->OpticDpi.y;
+	m_ScanParam.UserDpi.y    = scaps->OpticDpi.y;
 	m_ScanParam.Size.dwBytes = m_ScanParam.Size.dwPixels * 2;
 
 	if( hw->bReg_0x26 & _ONE_CH_COLOR &&
@@ -1042,12 +1063,12 @@ static SANE_Bool cano_AdjustWhiteShading( pPlustek_Device dev )
 			usb_Swap(a_wWhiteShading, m_ScanParam.Size.dwPhyPixels * 2 );
 
 		memcpy(a_wWhiteShading+ m_ScanParam.Size.dwPhyPixels * 2,
-							a_wWhiteShading, m_ScanParam.Size.dwPhyPixels * 2);
+		                    a_wWhiteShading, m_ScanParam.Size.dwPhyPixels * 2);
 		memcpy(a_wWhiteShading+ m_ScanParam.Size.dwPhyPixels * 4,
-							a_wWhiteShading, m_ScanParam.Size.dwPhyPixels * 2);
+		                    a_wWhiteShading, m_ScanParam.Size.dwPhyPixels * 2);
 	}
     
-	DBG( _DBG_INFO2, "cano_AdjustWhiteShading() done\n" );
+	DBG( _DBG_INFO, "cano_AdjustWhiteShading() done\n" );
 	return SANE_TRUE;
 }
 
@@ -1062,7 +1083,7 @@ static int cano_DoCalibration( pPlustek_Device dev )
 	if( SANE_TRUE == scanning->fCalibrated )
 		return SANE_TRUE;
 
-	DBG( _DBG_INFO2, "cano_DoCalibration()\n" );
+	DBG( _DBG_INFO, "cano_DoCalibration()\n" );
 
 	if( _IS_PLUSTEKMOTOR(hw->motorModel)){
 		DBG( _DBG_ERROR, "altCalibration can't work with this Plustek motor control setup\n" );

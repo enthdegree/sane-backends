@@ -30,6 +30,8 @@
  *        - added additional defines for cis and epson-ccd sensor
  * - 0.47 - cleanup work
  *        - added gamma to struct HWDefault
+ * - 0.48 - added DEVCAPSFLAG_LargeTPA
+ *        - added min_ffstep to ClkMotorDef
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -74,33 +76,33 @@
 #ifndef __PLUSTEK_USB_H__
 #define __PLUSTEK_USB_H__
 
-/** CCD ID (PCB ID): total 3 bits */
-#define	kNEC3799	0
-#define kSONY518	1
-#define	kSONY548	2
-#define	kNEC8861	3
-#define	kNEC3778	4
-#define	kNECSLIM	5
-#define	kCIS650 	6
-#define	kCIS670 	7
-#define	kCIS1220	8
-#define	kCIS1240	9
-#define	kEPSON  	10
+/** CCD ID (PCB ID): total 3 bits (on Plustek devices) */
+#define kNEC3799    0
+#define kSONY518    1
+#define kSONY548    2
+#define kNEC8861    3
+#define kNEC3778    4
+#define kNECSLIM    5
+#define kCIS650     6
+#define kCIS670     7
+#define kCIS1220    8
+#define kCIS1240    9
+#define kEPSON     10
 
 /*********************************** plustek_types.h!!! ************************/
 
 /* makes trouble with gcc3
-#define _SWAP(x,y)	(x)^=(y)^=(x)^=(y)
+#define _SWAP(x,y)  (x)^=(y)^=(x)^=(y)
 */
-#define _SWAP(x,y)	{(x)^=(y); (x)^=((y)^=(x));}
+#define _SWAP(x,y)   { (x)^=(y); (x)^=((y)^=(x));}
 
-#define _LOWORD(x)	((u_short)(x & 0xffff))
-#define _HIWORD(x)	((u_short)(x >> 16))
+#define _LOWORD(x)  ((u_short)(x & 0xffff))
+#define _HIWORD(x)  ((u_short)(x >> 16))
 #define _LOBYTE(x)  ((u_char)((x) & 0xFF))
 #define _HIBYTE(x)  ((u_char)((x) >> 8))
 
-#define _HILO2WORD(x)	((u_short)x.bHi * 256U + x.bLo)
-#define _PHILO2WORD(x)	((u_short)x->bHi * 256U + x->bLo)
+#define _HILO2WORD(x)   ((u_short)x.bHi * 256U + x.bLo)
+#define _PHILO2WORD(x)  ((u_short)x->bHi * 256U + x->bLo)
 
 /* useful for RGB-values */
 typedef struct {
@@ -142,14 +144,14 @@ typedef union {
 
 typedef union {
 
-	u_char	     *pb;
+	u_char       *pb;
 	u_short      *pw;
 	pMonoWordDef  pmw;
 	pColorByteDef pcb;
 	pColorWordDef pcw;
 	pRGBByteDef   pb_rgb;
 	pRGBUShortDef pw_rgb;
-	pHiLoDef	  philo;
+	pHiLoDef      philo;
 
 } AnyPtr, *pAnyPtr;
 
@@ -158,18 +160,18 @@ typedef struct {
 	unsigned short y;
 } XY, *pXY;
 
-#define _VAR_NOT_USED(x)	((x)=(x))
+#define _VAR_NOT_USED(x) ((x)=(x))
 
 /*****************************************************************************/
 
-#define IDEAL_GainNormal				0xf000UL		/* 240 */
-#define IDEAL_GainPositive				0xfe00UL		/* 254 */
-#define IDEAL_Offset					0x1000UL		/* 20  */
+#define IDEAL_GainNormal                0xf000UL        /* 240 */
+#define IDEAL_GainPositive              0xfe00UL        /* 254 */
+#define IDEAL_Offset                    0x1000UL        /* 20  */
 
-#define GAIN_Target						65535UL
+#define GAIN_Target                     65535UL
 
-#define DRAM_UsedByAsic8BitMode			216				/* in KB */
-#define DRAM_UsedByAsic16BitMode		196 /*192*/		/* in KB */
+#define DRAM_UsedByAsic8BitMode         216             /* in KB */
+#define DRAM_UsedByAsic16BitMode        196 /*192*/     /* in KB */
 
 /** Chip-types */
 typedef enum _CHIPSET
@@ -211,11 +213,12 @@ enum _SENSORCOLOR
 /** DCapsDef.wFlags */
 enum _DEVCAPSFLAG
 {
-	DEVCAPSFLAG_Normal		= 0x0001,
-	DEVCAPSFLAG_Positive	= 0x0002,
-	DEVCAPSFLAG_Negative	= 0x0004,
-	DEVCAPSFLAG_TPA			= 0x0006,
-	DEVCAPSFLAG_Adf			= 0x0008
+	DEVCAPSFLAG_Normal   = 0x0001,
+	DEVCAPSFLAG_Positive = 0x0002,
+	DEVCAPSFLAG_Negative = 0x0004,
+	DEVCAPSFLAG_TPA      = 0x0006,
+	DEVCAPSFLAG_Adf      = 0x0008,
+	DEVCAPSFLAG_LargeTPA = 0x0010
 };
 
 /** to allow some workarounds */
@@ -244,13 +247,13 @@ enum _LAMPS
 };
 
 /** for encoding a misc I/O register as TPA */
-#define _TPA(register)          ((u_long)(register << 16))
+#define _TPA(register) ((u_long)(register << 16))
 
 /** Mask to check for available TPA */
-#define _HAS_TPA(flag)		(flag & 0xFFFF0000)
+#define _HAS_TPA(flag) (flag & 0xFFFF0000)
 
 /** Get the TPA misc I/O register */
-#define _GET_TPALAMP(flag)	(flag >> 16)
+#define _GET_TPALAMP(flag) (flag >> 16)
 
 /** motor types */
 typedef enum
@@ -297,16 +300,22 @@ enum MODULEMOVE
 /** SCANDEF.dwFlags */
 enum SCANFLAG
 {
-	SCANFLAG_bgr			= 0x00000010,
-	SCANFLAG_BottomUp		= 0x00000020,
-	SCANFLAG_Invert			= 0x00000040,
-	SCANFLAG_DWORDBoundary	= 0x00000080,
-	SCANFLAG_RightAlign		= 0x00000100,
-	SCANFLAG_StillModule	= 0x00000200, 
-	SCANFLAG_StartScan		= 0x40000000,
-	SCANFLAG_Scanning		= 0x20000080,
-	SCANFLAG_Pseudo48		= 0x08000000,
-	SCANFLAG_SampleY		= 0x04000000
+	SCANDEF_Transparency    = 0x00000100,  /* Scanning from transparency*/
+	SCANDEF_Negative        = 0x00000200,  /* Scanning from negative    */
+	SCANDEF_QualityScan     = 0x00000400,  /* Scanning in quality mode  */
+	SCANDEF_ContinuousScan  = 0x00001000,
+	SCANDEF_Adf             = 0x00002000,  /* Scan from ADF tray        */
+
+	SCANFLAG_bgr            = 0x00004000,
+	SCANFLAG_BottomUp       = 0x00008000,
+	SCANFLAG_Invert         = 0x00010000,
+	SCANFLAG_DWORDBoundary  = 0x00020000,
+	SCANFLAG_RightAlign     = 0x00040000,
+	SCANFLAG_StillModule    = 0x00080000, 
+	SCANFLAG_StartScan      = 0x40000000,
+	SCANFLAG_Scanning       = 0x20020000,
+	SCANFLAG_Pseudo48       = 0x08000000,
+	SCANFLAG_SampleY        = 0x04000000
 };
 
 typedef	struct Origins
@@ -317,15 +326,15 @@ typedef	struct Origins
 
 typedef struct SrcAttr
 {
-	XY     DataOrigin;		/**< The origin x is from visible pixel not CCD  */
+	XY     DataOrigin;      /**< The origin x is from visible pixel not CCD  */
                             /*   pixel 0, in 300 DPI base.                   */
-							/*   The origin y is from visible top            */
+	                        /*   The origin y is from visible top            */
                             /*  (glass area), in 300 DPI                     */
-	short  ShadingOriginY;	/**< The origin y is from top of scanner body    */
+	short  ShadingOriginY;  /**< The origin y is from top of scanner body    */
 	short  DarkShadOrgY;    /**< if the device has a dark calibration strip  */
-	XY     Size;			/**< Scanning width/height, in 300 DPI base.     */
-	XY     MinDpi;			/**< Minimum dpi supported for scanning          */
-	u_char bMinDataType;	/**< Minimum data type supports                  */
+	XY     Size;            /**< Scanning width/height, in 300 DPI base.     */
+	XY     MinDpi;          /**< Minimum dpi supported for scanning          */
+	u_char bMinDataType;    /**< Minimum data type supports                  */
 
 } SrcAttrDef, *pSrcAttrDef;
 
@@ -456,16 +465,15 @@ typedef struct DeviceDef
 	DCapsDef    Caps;          /**< pointer to the attribute of current dev  */
 	HWDef       HwSetting;     /**< Pointer to the characteristics of device */
 	pSrcAttrDef pSource;       /**< Scanning src, it's equal to Caps.Normal  */
-							   /**< on the source that the user specified.   */
-	OrgDef	    Normal;        /**< Reflection - Pix to adjust scanning orgs */
-	OrgDef	    Positive;      /**< Pos film - Pix to adjust scanning orgs   */
-	OrgDef	    Negative;      /**< Neg film - Pix to adjust scanning orgs   */
-	OrgDef	    Adf;           /**< Adf - Pixels to adjust scanning origins  */
-	u_long	    dwWarmup;      /**< Ticks to wait for lamp stable, in ms.    */
-	u_long	    dwTicksLampOn; /**< The ticks when lamp turns on             */
-	u_long	    dwLampOnPeriod;/**< How many seconds to keep lamp on         */
-	SANE_Bool	bLampOffOnEnd; /**< switch lamp off on end or keep cur. state*/
-	int		    currentLamp;   /**< The lamp ID of the currently used lamp   */
+	                           /**< on the source that the user specified.   */
+	OrgDef      Normal;        /**< Reflection - Pix to adjust scanning orgs */
+	OrgDef      Positive;      /**< Pos film - Pix to adjust scanning orgs   */
+	OrgDef      Negative;      /**< Neg film - Pix to adjust scanning orgs   */
+	OrgDef      Adf;           /**< Adf - Pixels to adjust scanning origins  */
+	u_long      dwTicksLampOn; /**< The ticks when lamp turns on             */
+	u_long      dwLampOnPeriod;/**< How many seconds to keep lamp on         */
+	SANE_Bool   bLampOffOnEnd; /**< switch lamp off on end or keep cur. state*/
+	int         currentLamp;   /**< The lamp ID of the currently used lamp   */
 
 } DeviceDef, *pDeviceDef;
 
@@ -518,7 +526,7 @@ typedef struct
      * unit based on 300 DPI
      */
 	XY      UserDpi;		/**< User specified DPI                          */
-	XY   	Origin;			/**> Scanning origin in optic dpi                */
+	XY   	Origin;			/**< Scanning origin in optic dpi                */
 	double	dMCLK;			/**< for positive & negative & Adf               */
 	short	brightness;		
 	short	contrast;		
@@ -609,12 +617,13 @@ typedef struct
  */
 typedef struct {
 
-	eModelDef motorModel;	/**< the motor ID */
+	eModelDef motorModel;    /**< the motor ID */
 
-	u_char pwm_fast;		/**< PWM during fast movement      */
-	u_char pwm_duty_fast;   /**< PWM duty during fast movement */
-	u_char mclk_fast;       /**< MCLK during fast movement     */
-
+	u_char  pwm_fast;       /**< PWM during fast movement      */
+	u_char  pwm_duty_fast;  /**< PWM duty during fast movement */
+	u_char  mclk_fast;      /**< MCLK during fast movement     */
+	u_short min_ffstep;     /**< minimal ffstep size for speedup, 
+	                             0xffff disables the stuff */
     /**
      * here we define some ranges for better supporting
      * non-Plustek devices with it's different hardware

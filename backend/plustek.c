@@ -69,6 +69,7 @@
  *        - added call to usb_StartLampTimer, when we're using
  *          SIGALRM for lamp timer
  *        - closing now writer pipe, when reader_process is done
+ * - 0.48 - added additional options
  *.
  * <hr>
  * This file is part of the SANE package.
@@ -116,7 +117,7 @@
  */
   
 #ifdef _AIX
-# include "../include/lalloca.h"		/* MUST come first for AIX! */
+# include "../include/lalloca.h" 
 #endif
 
 #include "../include/sane/config.h"
@@ -144,7 +145,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.47-11"
+#define BACKEND_VERSION "0.48-1"
 #define BACKEND_NAME    plustek
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
@@ -161,9 +162,10 @@
 #define _DBG_INFO       5
 #define _DBG_PROC       7
 #define _DBG_SANE_INIT 10
-#define _DBG_INFO2     13
-#define _DBG_DUMP      20
-#define _DBG_READ      25
+#define _DBG_INFO2     15
+#define _DBG_DREGS     20        
+#define _DBG_DPIC      25        
+#define _DBG_READ      30
 
 /*****************************************************************************/
 
@@ -232,12 +234,10 @@ static const SANE_Range percentage_range =
 	   1 << SANE_FIXED_SCALE_SHIFT  /* quantization */
 };
 
-static const SANE_Range warmup_range =
-{
-	  0, /* minimum      */
-	999, /* maximum      */
-	  1  /* quantization */
-};
+static const SANE_Range warmup_range   = { -1,   999, 1 };
+static const SANE_Range offtimer_range = {  0,   999, 1 };
+static const SANE_Range gain_range     = { -1,    63, 1 };
+static const SANE_Range loff_range     = { -1, 16363, 1 };
 
 /* authorization stuff */
 static SANE_Auth_Callback auth = NULL;
@@ -277,6 +277,9 @@ static void show_cnf( pCnfDef cnf )
 	DBG( _DBG_SANE_INIT,"red gain     : %d\n",  cnf->adj.rgain               );
 	DBG( _DBG_SANE_INIT,"green gain   : %d\n",  cnf->adj.ggain               );
 	DBG( _DBG_SANE_INIT,"blue gain    : %d\n",  cnf->adj.bgain               );
+	DBG( _DBG_SANE_INIT,"red offset   : %d\n",  cnf->adj.rofs                );
+	DBG( _DBG_SANE_INIT,"green offset : %d\n",  cnf->adj.gofs                );
+	DBG( _DBG_SANE_INIT,"blue offset  : %d\n",  cnf->adj.bofs                );
 	DBG( _DBG_SANE_INIT,"red lampoff  : %d\n",  cnf->adj.rlampoff            );
 	DBG( _DBG_SANE_INIT,"green lampoff: %d\n",  cnf->adj.glampoff            );
 	DBG( _DBG_SANE_INIT,"blue lampoff : %d\n",  cnf->adj.blampoff            );
@@ -302,8 +305,8 @@ static SANE_Status drvclose( Plustek_Device *dev )
 		}
 
 		/* don't check the return values, simply do it */
-		dev->stopScan( dev );
-		dev->close   ( dev );
+		usbDev_stopScan( dev );
+		usbDev_close   ( dev );
 	}
 	dev->fd = -1;
 
@@ -316,10 +319,10 @@ static pModeParam getModeList( Plustek_Scanner *scanner )
 {
 	pModeParam mp= mode_params;
 
-	/* the transparency/negative mode supports only GRAY/COLOR/COLOR32/COLOR48
+	/* the transparency/negative mode supports only COLOR_TRUE24 & COLOR_TRUE48
 	 */
 	if( 0 != scanner->val[OPT_EXT_MODE].w ) {
-		mp = &mp[_TPAModeSupportMin];
+		mp = &mp[scanner->hw->usbDev.Caps.Positive.bMinDataType];
 	}
 
 	return mp;
@@ -427,13 +430,13 @@ static int reader_process( void *args )
 
 	/* here we read all data from the driver... */
 	buf    = scanner->buf;
-	status = scanner->hw->prepare( scanner->hw, buf );
+	status = usbDev_Prepare( scanner->hw, buf );
 
 	if( 0 == status ) {
 
 		for( line = 0; line < scanner->params.lines; line++ ) {
 
-			status = scanner->hw->readLine( scanner->hw );
+			status = usbDev_ReadLine( scanner->hw );
 			if((int)status < 0 ) {
 				break;
 			}
@@ -451,7 +454,7 @@ static int reader_process( void *args )
 	if((int)status < 0 ) {
 		DBG( _DBG_ERROR, "read failed, status = %i, errno %i\n",
                                                           (int)status, lerrn );
-		if( -9009 == (int)status )
+		if( _E_ABORT == (int)status )
 			return SANE_STATUS_CANCELLED;
 		
 		if( lerrn == EBUSY )
@@ -817,7 +820,7 @@ static SANE_Status init_options( Plustek_Scanner *s )
 		s->opt[OPT_EXT_MODE].cap |= SANE_CAP_INACTIVE;
 	}
 
-	/* "Enhancement" group: */
+	/* "Device settings" group: */
 	s->opt[OPT_DEVICE_GROUP].name  = "device-settings";
 	s->opt[OPT_DEVICE_GROUP].title = SANE_I18N("Device-Settings");
 	s->opt[OPT_DEVICE_GROUP].desc  = "";
@@ -831,13 +834,119 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	s->opt[OPT_LAMPSWITCH].type  = SANE_TYPE_BOOL;
 	s->val[OPT_LAMPSWITCH].w     = SANE_FALSE;
 
+	s->opt[OPT_CACHECAL].name  = "calibration-cache";
+	s->opt[OPT_CACHECAL].title = SANE_I18N("Calibration data cache");;
+	s->opt[OPT_CACHECAL].desc  = SANE_I18N("Enables or disables calibration data cache.");
+	s->opt[OPT_CACHECAL].type  = SANE_TYPE_BOOL;
+	s->val[OPT_CACHECAL].w     = adj->cacheCalData;
+
+	s->opt[OPT_LAMPOFF_ONEND].name  = "lampoff_onend";
+	s->opt[OPT_LAMPOFF_ONEND].title = SANE_I18N("Lamp off on shutdown");;
+	s->opt[OPT_LAMPOFF_ONEND].desc  = SANE_I18N("Switch lamp off when leaving the backend.");
+	s->opt[OPT_LAMPOFF_ONEND].type  = SANE_TYPE_BOOL;
+	s->val[OPT_LAMPOFF_ONEND].w     = adj->lampOffOnEnd;
+
 	s->opt[OPT_WARMUPTIME].name  = "warmup-time";
-	s->opt[OPT_WARMUPTIME].title = SANE_I18N("Warmup-Time");;
-	s->opt[OPT_WARMUPTIME].desc  = SANE_I18N("Warmup-Time in seconds.");
+	s->opt[OPT_WARMUPTIME].title = SANE_I18N("Warmup-time");;
+	s->opt[OPT_WARMUPTIME].desc  = SANE_I18N("Warmup-time in seconds.");
 	s->opt[OPT_WARMUPTIME].type  = SANE_TYPE_INT;
 	s->opt[OPT_WARMUPTIME].constraint_type = SANE_CONSTRAINT_RANGE;
 	s->opt[OPT_WARMUPTIME].constraint.range = &warmup_range;
 	s->val[OPT_WARMUPTIME].w     = adj->warmup;
+
+	s->opt[OPT_LAMPOFF_TIMER].name  = "lampoff-time";
+	s->opt[OPT_LAMPOFF_TIMER].title = SANE_I18N("Lampoff-time");;
+	s->opt[OPT_LAMPOFF_TIMER].desc  = SANE_I18N("Lampoff-time in seconds.");
+	s->opt[OPT_LAMPOFF_TIMER].type  = SANE_TYPE_INT;
+	s->opt[OPT_LAMPOFF_TIMER].constraint_type = SANE_CONSTRAINT_RANGE;
+	s->opt[OPT_LAMPOFF_TIMER].constraint.range = &offtimer_range;
+	s->val[OPT_LAMPOFF_TIMER].w     = adj->lampOff;
+
+	/* "Analog Frontend" group*/
+	s->opt[OPT_AFE_GROUP].name  = "afe-group";
+	s->opt[OPT_AFE_GROUP].title = SANE_I18N("Analog frontend");
+	s->opt[OPT_AFE_GROUP].desc  = "";
+	s->opt[OPT_AFE_GROUP].type  = SANE_TYPE_GROUP;
+	s->opt[OPT_AFE_GROUP].cap   = 0;
+	
+	s->opt[OPT_OVR_REDGAIN].name  = "red-gain";
+	s->opt[OPT_OVR_REDGAIN].title = SANE_I18N("Red-gain");
+	s->opt[OPT_OVR_REDGAIN].desc  = SANE_I18N("Red-gain value of the AFE");
+	s->opt[OPT_OVR_REDGAIN].type  = SANE_TYPE_INT;
+	s->opt[OPT_OVR_REDGAIN].constraint_type = SANE_CONSTRAINT_RANGE;
+	s->opt[OPT_OVR_REDGAIN].constraint.range = &gain_range;
+	s->val[OPT_OVR_REDGAIN].w     = adj->rgain;
+
+	s->opt[OPT_OVR_REDOFS].name  = "red-offset";
+	s->opt[OPT_OVR_REDOFS].title = SANE_I18N("Red-offset");
+	s->opt[OPT_OVR_REDOFS].desc  = SANE_I18N("Red-offset value of the AFE");
+	s->opt[OPT_OVR_REDOFS].type  = SANE_TYPE_INT;
+	s->opt[OPT_OVR_REDOFS].constraint_type = SANE_CONSTRAINT_RANGE;
+	s->opt[OPT_OVR_REDOFS].constraint.range = &gain_range;
+	s->val[OPT_OVR_REDOFS].w     = adj->rofs;
+
+	s->opt[OPT_OVR_GREENGAIN].name  = "green-gain";
+	s->opt[OPT_OVR_GREENGAIN].title = SANE_I18N("Green-gain");
+	s->opt[OPT_OVR_GREENGAIN].desc  = SANE_I18N("Green-gain value of the AFE");
+	s->opt[OPT_OVR_GREENGAIN].type  = SANE_TYPE_INT;
+	s->opt[OPT_OVR_GREENGAIN].constraint_type = SANE_CONSTRAINT_RANGE;
+	s->opt[OPT_OVR_GREENGAIN].constraint.range = &gain_range;
+	s->val[OPT_OVR_GREENGAIN].w     = adj->ggain;
+
+	s->opt[OPT_OVR_GREENOFS].name  = "green-offset";
+	s->opt[OPT_OVR_GREENOFS].title = SANE_I18N("Green-offset");
+	s->opt[OPT_OVR_GREENOFS].desc  = SANE_I18N("Green-offset value of the AFE");
+	s->opt[OPT_OVR_GREENOFS].type  = SANE_TYPE_INT;
+	s->opt[OPT_OVR_GREENOFS].constraint_type = SANE_CONSTRAINT_RANGE;
+	s->opt[OPT_OVR_GREENOFS].constraint.range = &gain_range;
+	s->val[OPT_OVR_GREENOFS].w     = adj->gofs;
+
+	s->opt[OPT_OVR_BLUEGAIN].name  = "blue-gain";
+	s->opt[OPT_OVR_BLUEGAIN].title = SANE_I18N("Blue-gain");
+	s->opt[OPT_OVR_BLUEGAIN].desc  = SANE_I18N("Blue-gain value of the AFE");
+	s->opt[OPT_OVR_BLUEGAIN].type  = SANE_TYPE_INT;
+	s->opt[OPT_OVR_BLUEGAIN].constraint_type = SANE_CONSTRAINT_RANGE;
+	s->opt[OPT_OVR_BLUEGAIN].constraint.range = &gain_range;
+	s->val[OPT_OVR_BLUEGAIN].w     = adj->bgain;
+
+	s->opt[OPT_OVR_BLUEOFS].name  = "blue-offset";
+	s->opt[OPT_OVR_BLUEOFS].title = SANE_I18N("Blue-offset");
+	s->opt[OPT_OVR_BLUEOFS].desc  = SANE_I18N("Blue-offset value of the AFE");
+	s->opt[OPT_OVR_BLUEOFS].type  = SANE_TYPE_INT;
+	s->opt[OPT_OVR_BLUEOFS].constraint_type = SANE_CONSTRAINT_RANGE;
+	s->opt[OPT_OVR_BLUEOFS].constraint.range = &gain_range;
+	s->val[OPT_OVR_BLUEOFS].w     = adj->bofs;
+
+	s->opt[OPT_OVR_RED_LOFF].name  = "redlamp-off";
+	s->opt[OPT_OVR_RED_LOFF].title = SANE_I18N("Red lamp off");
+	s->opt[OPT_OVR_RED_LOFF].desc  = SANE_I18N("Defines red lamp off parameter");
+	s->opt[OPT_OVR_RED_LOFF].type  = SANE_TYPE_INT;
+	s->opt[OPT_OVR_RED_LOFF].constraint_type = SANE_CONSTRAINT_RANGE;
+	s->opt[OPT_OVR_RED_LOFF].constraint.range = &loff_range;
+	s->val[OPT_OVR_RED_LOFF].w     = adj->rlampoff;
+
+	s->opt[OPT_OVR_GREEN_LOFF].name  = "greenlamp-off";
+	s->opt[OPT_OVR_GREEN_LOFF].title = SANE_I18N("Green lamp off");
+	s->opt[OPT_OVR_GREEN_LOFF].desc  = SANE_I18N("Defines green lamp off parameter");
+	s->opt[OPT_OVR_GREEN_LOFF].type  = SANE_TYPE_INT;
+	s->opt[OPT_OVR_GREEN_LOFF].constraint_type = SANE_CONSTRAINT_RANGE;
+	s->opt[OPT_OVR_GREEN_LOFF].constraint.range = &loff_range;
+	s->val[OPT_OVR_GREEN_LOFF].w     = adj->glampoff;
+
+	s->opt[OPT_OVR_BLUE_LOFF].name  = "bluelamp-off";
+	s->opt[OPT_OVR_BLUE_LOFF].title = SANE_I18N("Blue lamp off");
+	s->opt[OPT_OVR_BLUE_LOFF].desc  = SANE_I18N("Defines blue lamp off parameter");
+	s->opt[OPT_OVR_BLUE_LOFF].type  = SANE_TYPE_INT;
+	s->opt[OPT_OVR_BLUE_LOFF].constraint_type = SANE_CONSTRAINT_RANGE;
+	s->opt[OPT_OVR_BLUE_LOFF].constraint.range = &loff_range;
+	s->val[OPT_OVR_BLUE_LOFF].w     = adj->blampoff;
+
+	/* only available for CIS devices*/
+	if( !usb_IsCISDevice( dev )) {
+		s->opt[OPT_OVR_RED_LOFF].cap   |= SANE_CAP_INACTIVE;
+		s->opt[OPT_OVR_GREEN_LOFF].cap |= SANE_CAP_INACTIVE;
+		s->opt[OPT_OVR_BLUE_LOFF].cap  |= SANE_CAP_INACTIVE;
+	}
 
 	return SANE_STATUS_GOOD;
 }
@@ -866,7 +975,7 @@ static void decodeUsbIDs( char *src, char **dest )
 			
 		u_short pi = 0, vi = 0;
 
-		if( *name ) {
+		if( *name ) {                              
 	
 			name = sanei_config_get_string( name, &tmp );
 			if( tmp ) {
@@ -1029,12 +1138,12 @@ static SANE_Status attach( const char *dev_name,
 
 	memset(dev, 0, sizeof (*dev));
 
-	dev->fd          = -1;
-	dev->name        = strdup(dev_name);    /* hold it double to avoid   */
-	dev->sane.name   = dev->name;           /* compiler warnings         */
-	dev->sane.vendor = "Plustek";
-	dev->initialized = -1;                  /* will be used as index too */
-	dev->calFile     = NULL;
+	dev->fd           = -1;
+	dev->name         = strdup(dev_name);    /* hold it double to avoid   */
+	dev->sane.name    = dev->name;           /* compiler warnings         */
+	dev->sane.vendor  = "Plustek";
+	dev->initialized  = -1;                  /* will be used as index too */
+	dev->calFile      = NULL;
 
 	memcpy( &dev->adj, &cnf->adj, sizeof(AdjDef));
 
@@ -1043,21 +1152,7 @@ static SANE_Status attach( const char *dev_name,
 	dev->sane.type = "USB flatbed scanner";
 
 #ifdef _PLUSTEK_USB
-	dev->close 	     = usbDev_close;
-	dev->getCaps     = usbDev_getCaps;
-	dev->getCropInfo = usbDev_getCropInfo;
-	dev->setScanEnv  = usbDev_setScanEnv;
-	dev->startScan   = usbDev_startScan;
-	dev->stopScan    = usbDev_stopScan;
-	dev->setMap      = usbDev_setMap;
-	dev->readLine    = usbDev_readLine;
-	dev->prepare     = usbDev_Prepare;
-	dev->shutdown    = usbDev_shutdown;
-
 	strncpy( dev->usbId, cnf->usbId, _MAX_ID_LEN );
-
-	if( cnf->adj.warmup >= 0 )
-		dev->usbDev.dwWarmup = cnf->adj.warmup;
 
 	if( cnf->adj.lampOff >= 0 )
 		dev->usbDev.dwLampOnPeriod = cnf->adj.lampOff;
@@ -1081,10 +1176,10 @@ static SANE_Status attach( const char *dev_name,
 	/* okay, so assign the handle... */
 	dev->fd = handle;
 
-	result = dev->getCaps( dev );
+	result = usbDev_getCaps( dev );
 	if( result < 0 ) {
-		DBG( _DBG_ERROR, "dev->getCaps() failed(%d)\n", result);
-		dev->close(dev);
+		DBG( _DBG_ERROR, "usbDev_getCaps() failed(%d)\n", result);
+		usbDev_close(dev);
 		return SANE_STATUS_IO_ERROR;
 	}
 
@@ -1113,7 +1208,7 @@ static SANE_Status attach( const char *dev_name,
 
 	if (NULL == dev->res_list) {
 		DBG( _DBG_ERROR, "alloc fail, resolution problem\n" );
-		dev->close(dev);
+		usbDev_close(dev);
 		return SANE_STATUS_INVAL;
 	}
 
@@ -1158,6 +1253,9 @@ static void init_config_struct( pCnfDef cnf )
 	cnf->adj.rgain        = -1;
 	cnf->adj.ggain        = -1;
 	cnf->adj.bgain        = -1;
+	cnf->adj.rofs         = -1;
+	cnf->adj.gofs         = -1;
+	cnf->adj.bofs         = -1;
 	cnf->adj.rlampoff     = -1;
 	cnf->adj.glampoff     = -1;
 	cnf->adj.blampoff     = -1;
@@ -1238,6 +1336,9 @@ sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 			decodeVal( str, "red_gain",   _INT, &config.adj.rgain,      &ival);
 			decodeVal( str, "green_gain", _INT, &config.adj.ggain,      &ival);
 			decodeVal( str, "blue_gain",  _INT, &config.adj.bgain,      &ival);
+			decodeVal( str, "red_offset",    _INT, &config.adj.rofs,    &ival);
+			decodeVal( str, "green_offset" , _INT, &config.adj.gofs,    &ival);
+			decodeVal( str, "blue_offset",   _INT, &config.adj.bofs,    &ival);
 			decodeVal( str, "red_lampoff",   _INT, &config.adj.rlampoff,&ival);
 			decodeVal( str, "green_lampoff", _INT, &config.adj.glampoff,&ival);
 			decodeVal( str, "blue_lampoff",  _INT, &config.adj.blampoff,&ival);
@@ -1329,8 +1430,7 @@ sane_exit( void )
 		next = dev->next;
 
 		/* call the shutdown function of each device... */
-		if( dev->shutdown )
-			dev->shutdown( dev );
+		usbDev_shutdown( dev );
 
 		/* we're doin' this to avoid compiler warnings as dev->sane.name
 		 * is defined as const char*
@@ -1529,9 +1629,18 @@ sane_control_option( SANE_Handle handle, SANE_Int option,
 			case OPT_BR_Y:
 			case OPT_LAMPSWITCH:
 			case OPT_CUSTOM_GAMMA:
-			  *(SANE_Word *)value = s->val[option].w;
-			  break;
-
+			case OPT_LAMPOFF_ONEND:
+			case OPT_CACHECAL:
+			case OPT_OVR_REDGAIN:
+			case OPT_OVR_GREENGAIN:
+			case OPT_OVR_BLUEGAIN:
+			case OPT_OVR_REDOFS:
+			case OPT_OVR_GREENOFS:
+			case OPT_OVR_BLUEOFS:
+			case OPT_OVR_RED_LOFF:
+			case OPT_OVR_GREEN_LOFF:
+			case OPT_OVR_BLUE_LOFF:
+			case OPT_LAMPOFF_TIMER:
 			case OPT_WARMUPTIME:
 				*(SANE_Word *)value = s->val[option].w;
 				break;
@@ -1592,16 +1701,16 @@ sane_control_option( SANE_Handle handle, SANE_Int option,
 
 				case OPT_RESOLUTION: {
 					int n;
-					int min_d = s->hw->res_list[s->hw->res_list_size - 1];
+					int min_d = dev->res_list[dev->res_list_size - 1];
 					int v     = *(SANE_Word *)value;
 					int best  = v;
 
-					for( n = 0; n < s->hw->res_list_size; n++ ) {
-						int d = abs(v - s->hw->res_list[n]);
+					for( n = 0; n < dev->res_list_size; n++ ) {
+						int d = abs(v - dev->res_list[n]);
 
 						if( d < min_d ) {
 							min_d = d;
-							best  = s->hw->res_list[n];
+							best  = dev->res_list[n];
 						}
 					}
 
@@ -1628,9 +1737,24 @@ sane_control_option( SANE_Handle handle, SANE_Int option,
 						*info |= SANE_INFO_RELOAD_PARAMS;
 					break;
 
+				case OPT_CACHECAL:
+					s->val[option].w = *(SANE_Word *)value;
+					dev->adj.cacheCalData = s->val[option].w;
+					break;
+
 				case OPT_LAMPSWITCH:
 					s->val[option].w = *(SANE_Word *)value;
 					usb_LampSwitch( dev, s->val[option].w );
+					if( s->val[option].w == 0 )
+						usb_StopLampTimer( dev );
+					else
+						usb_StartLampTimer( dev );
+					break;
+
+				case OPT_LAMPOFF_ONEND:
+					s->val[option].w = *(SANE_Word *)value;
+					dev->adj.lampOffOnEnd = s->val[option].w;
+					usb_CheckAndCopyAdjs( dev );
 					break;
 
 				case OPT_CUSTOM_GAMMA:
@@ -1672,137 +1796,202 @@ sane_control_option( SANE_Handle handle, SANE_Int option,
 					}
 					break;
 
+				case OPT_LAMPOFF_TIMER:
+					s->val[option].w = (*(SANE_Word *)value);
+					adj->lampOff     = (*(SANE_Word *)value);
+					usb_CheckAndCopyAdjs( dev );
+					break;
+
 				case OPT_WARMUPTIME:
 					s->val[option].w = (*(SANE_Word *)value);
 					adj->warmup      = (*(SANE_Word *)value);
+					usb_CheckAndCopyAdjs( dev );
 					break;
+
+				case OPT_OVR_REDGAIN:
+					s->val[option].w = (*(SANE_Word *)value);
+					adj->rgain       = (*(SANE_Word *)value);
+					break;
+				case OPT_OVR_GREENGAIN:
+					s->val[option].w = (*(SANE_Word *)value);
+					adj->ggain       = (*(SANE_Word *)value);
+					break;
+				case OPT_OVR_BLUEGAIN:
+					s->val[option].w = (*(SANE_Word *)value);
+					adj->bgain       = (*(SANE_Word *)value);
+					break;
+				case OPT_OVR_REDOFS:
+					s->val[option].w = (*(SANE_Word *)value);
+					adj->rofs        = (*(SANE_Word *)value);
+					break;
+				case OPT_OVR_GREENOFS:
+					s->val[option].w = (*(SANE_Word *)value);
+					adj->gofs       = (*(SANE_Word *)value);
+					break;
+				case OPT_OVR_BLUEOFS:
+					s->val[option].w = (*(SANE_Word *)value);
+					adj->bofs        = (*(SANE_Word *)value);
+					break;
+				case OPT_OVR_RED_LOFF:
+					s->val[option].w = (*(SANE_Word *)value);
+					adj->rlampoff    = (*(SANE_Word *)value);
+					break;
+				case OPT_OVR_GREEN_LOFF:
+					s->val[option].w = (*(SANE_Word *)value);
+					adj->glampoff    = (*(SANE_Word *)value);
+					break;
+				case OPT_OVR_BLUE_LOFF:
+					s->val[option].w = (*(SANE_Word *)value);
+					adj->blampoff    = (*(SANE_Word *)value);
+					break;
+
 				case OPT_CONTRAST:
 				case OPT_BRIGHTNESS:
 					s->val[option].w =
 							((*(SANE_Word *)value) >> SANE_FIXED_SCALE_SHIFT);
 					break;
 
-		    	case OPT_MODE: 
-                    idx = (optval - mode_usb_list);
+				case OPT_MODE: 
+					idx = (optval - mode_usb_list);
 					mp  = getModeList( s );
 					
 					s->opt[OPT_CONTRAST].cap     &= ~SANE_CAP_INACTIVE;
 					s->opt[OPT_CUSTOM_GAMMA].cap &= ~SANE_CAP_INACTIVE;
 
-	    			if( mp[idx].scanmode == COLOR_BW ) {
-			    		s->opt[OPT_CONTRAST].cap     |= SANE_CAP_INACTIVE;
-			    		s->opt[OPT_CUSTOM_GAMMA].cap |= SANE_CAP_INACTIVE;
-			    	}	
-			    	
-			    	s->opt[OPT_GAMMA_VECTOR].cap   |= SANE_CAP_INACTIVE;
-			    	s->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
-			    	s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
-			    	s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
-					
+					if( mp[idx].scanmode == COLOR_BW ) {
+						s->opt[OPT_CONTRAST].cap     |= SANE_CAP_INACTIVE;
+						s->opt[OPT_CUSTOM_GAMMA].cap |= SANE_CAP_INACTIVE;
+					}
+
+					s->opt[OPT_GAMMA_VECTOR].cap   |= SANE_CAP_INACTIVE;
+					s->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
+					s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
+					s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
+
 					if( s->val[OPT_CUSTOM_GAMMA].w &&
-			    		!(s->opt[OPT_CUSTOM_GAMMA].cap & SANE_CAP_INACTIVE)) {
-			    		
+						!(s->opt[OPT_CUSTOM_GAMMA].cap & SANE_CAP_INACTIVE)) {
+						
     					if((mp[idx].scanmode == COLOR_256GRAY) ||
 						   (mp[idx].scanmode == COLOR_GRAY16)) {
-						    s->opt[OPT_GAMMA_VECTOR].cap   &= ~SANE_CAP_INACTIVE;
+							s->opt[OPT_GAMMA_VECTOR].cap   &= ~SANE_CAP_INACTIVE;
 						} else {
-					    	s->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
-					    	s->opt[OPT_GAMMA_VECTOR_G].cap &= ~SANE_CAP_INACTIVE;
-					    	s->opt[OPT_GAMMA_VECTOR_B].cap &= ~SANE_CAP_INACTIVE;
+							s->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
+							s->opt[OPT_GAMMA_VECTOR_G].cap &= ~SANE_CAP_INACTIVE;
+							s->opt[OPT_GAMMA_VECTOR_B].cap &= ~SANE_CAP_INACTIVE;
 						}
 					}
 
-			    	if( NULL != info )
-    					*info |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
+					if( NULL != info )
+						*info |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
 
-			    	s->val[option].w = optval - s->opt[option].constraint.string_list;
-				    break;
+					s->val[option].w = optval - s->opt[option].constraint.string_list;
+					break;
 
-    			case OPT_EXT_MODE: {
-	    			s->val[option].w = optval - s->opt[option].constraint.string_list;
+				case OPT_EXT_MODE: {
+					s->val[option].w = optval - s->opt[option].constraint.string_list;
 
-		    		/*
-			    	 * change the area and mode_list when changing the source
-				     */
-    				if( s->val[option].w == 0 ) {
+					/* change the area and mode_list when changing the source
+					 */
+					if( s->val[option].w == 0 ) {
+						dev->scanning.sParam.bSource = SOURCE_Reflection;
 
-	    				s->hw->dpi_range.min = _DEF_DPI;
+						dev->dpi_range.min = _DEF_DPI;
 
-		    			s->hw->x_range.max = SANE_FIX(s->hw->max_x);
-			    		s->hw->y_range.max = SANE_FIX(s->hw->max_y);
-				    	s->val[OPT_TL_X].w = SANE_FIX(_DEFAULT_TLX);
-					    s->val[OPT_TL_Y].w = SANE_FIX(_DEFAULT_TLY);
-   	    				s->val[OPT_BR_X].w = SANE_FIX(_DEFAULT_BRX);
-    					s->val[OPT_BR_Y].w = SANE_FIX(_DEFAULT_BRY);
+						dev->x_range.max = SANE_FIX(dev->max_x);
+						dev->y_range.max = SANE_FIX(dev->max_y);
+						s->val[OPT_TL_X].w = SANE_FIX(_DEFAULT_TLX);
+						s->val[OPT_TL_Y].w = SANE_FIX(_DEFAULT_TLY);
+						s->val[OPT_BR_X].w = SANE_FIX(_DEFAULT_BRX);
+						s->val[OPT_BR_Y].w = SANE_FIX(_DEFAULT_BRY);
 
-					    s->opt[OPT_MODE].constraint.string_list = mode_usb_list;
-	    				s->val[OPT_MODE].w = COLOR_TRUE24;
+						s->opt[OPT_MODE].constraint.string_list = mode_usb_list;
+						s->val[OPT_MODE].w = COLOR_TRUE24;
 
-				    } else {
+					} else {
 
-					    s->hw->dpi_range.min = _TPAMinDpi;
+						dev->dpi_range.min = _TPAMinDpi;
 
-    					if( s->val[option].w == 1 ) {
-        					s->hw->x_range.max = SANE_FIX(_TP_X);
-		    				s->hw->y_range.max = SANE_FIX(_TP_Y);
-			    			s->val[OPT_TL_X].w = SANE_FIX(_DEFAULT_TP_TLX);
-				    		s->val[OPT_TL_Y].w = SANE_FIX(_DEFAULT_TP_TLY);
-   					    	s->val[OPT_BR_X].w = SANE_FIX(_DEFAULT_TP_BRX);
-						    s->val[OPT_BR_Y].w = SANE_FIX(_DEFAULT_TP_BRY);
+						if( s->val[option].w == 1 ) {
 
-    					} else {
-        					s->hw->x_range.max = SANE_FIX(_NEG_X);
-			    			s->hw->y_range.max = SANE_FIX(_NEG_Y);
-		    				s->val[OPT_TL_X].w = SANE_FIX(_DEFAULT_NEG_TLX);
-				    		s->val[OPT_TL_Y].w = SANE_FIX(_DEFAULT_NEG_TLY);
-   					    	s->val[OPT_BR_X].w = SANE_FIX(_DEFAULT_NEG_BRX);
-						    s->val[OPT_BR_Y].w = SANE_FIX(_DEFAULT_NEG_BRY);
-    					}
-	    				s->opt[OPT_MODE].constraint.string_list =
-											&mode_usb_list[_TPAModeSupportMin];
-						s->val[OPT_MODE].w = 0;		/* COLOR_24 is the default */
-        			}
+							dev->scanning.sParam.bSource = SOURCE_Transparency;
+							if( dev->usbDev.Caps.wFlags & DEVCAPSFLAG_LargeTPA ) {
+								dev->x_range.max = SANE_FIX(_SCALE(_TPALargePageWidth));
+								dev->y_range.max = SANE_FIX(_SCALE(_TPALargePageHeight));
+							} else {
+								dev->x_range.max = SANE_FIX(_SCALE(_TPAPageWidth));
+								dev->y_range.max = SANE_FIX(_SCALE(_TPAPageHeight));
+							}
+							s->val[OPT_TL_X].w = SANE_FIX(_DEFAULT_TP_TLX);
+							s->val[OPT_TL_Y].w = SANE_FIX(_DEFAULT_TP_TLY);
+							s->val[OPT_BR_X].w = SANE_FIX(_DEFAULT_TP_BRX);
+							s->val[OPT_BR_Y].w = SANE_FIX(_DEFAULT_TP_BRY);
 
-				    s->opt[OPT_CONTRAST].cap &= ~SANE_CAP_INACTIVE;
+						} else {
+							dev->scanning.sParam.bSource = SOURCE_Negative;
+							if( dev->usbDev.Caps.wFlags & DEVCAPSFLAG_LargeTPA ) {
+								dev->x_range.max = SANE_FIX(_SCALE(_NegLargePageWidth));
+								dev->y_range.max = SANE_FIX(_SCALE(_NegLargePageHeight));
+							} else {
+								dev->x_range.max = SANE_FIX(_SCALE(_NegPageWidth));
+								dev->y_range.max = SANE_FIX(_SCALE(_NegPageHeight));
+							}
+							s->val[OPT_TL_X].w = SANE_FIX(_DEFAULT_NEG_TLX);
+							s->val[OPT_TL_Y].w = SANE_FIX(_DEFAULT_NEG_TLY);
+							s->val[OPT_BR_X].w = SANE_FIX(_DEFAULT_NEG_BRX);
+							s->val[OPT_BR_Y].w = SANE_FIX(_DEFAULT_NEG_BRY);
+						}
+						s->opt[OPT_MODE].constraint.string_list =
+						&mode_usb_list[dev->usbDev.Caps.Positive.bMinDataType];
+						s->val[OPT_MODE].w = 0;  /* COLOR_24 is the default */
+					}
+					if( s->val[OPT_LAMPSWITCH].w != 0 ) {
+						usb_LampSwitch( dev, s->val[OPT_LAMPSWITCH].w );
+						if( s->val[OPT_LAMPSWITCH].w == 0 )
+							usb_StopLampTimer( dev );
+						else
+							usb_StartLampTimer( dev );
+					}
 
-    				if( NULL != info )
-	    				*info |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
-		    		break;
-	            }
+					s->opt[OPT_CONTRAST].cap &= ~SANE_CAP_INACTIVE;
+
+					if( NULL != info )
+						*info |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
+					break;
+				}
 				case OPT_GAMMA_VECTOR:
 					DBG( _DBG_INFO, "Setting MASTER gamma.\n" );
 					memcpy( s->val[option].wa, value, s->opt[option].size );
 					checkGammaSettings(s);
-	    			if( NULL != info )
-		    			*info |= SANE_INFO_RELOAD_PARAMS;
+					if( NULL != info )
+						*info |= SANE_INFO_RELOAD_PARAMS;
 					break;
 
 				case OPT_GAMMA_VECTOR_R:
 					DBG( _DBG_INFO, "Setting RED gamma.\n" );
 					memcpy( s->val[option].wa, value, s->opt[option].size );
 					checkGammaSettings(s);
-	    			if( NULL != info )
-		    			*info |= SANE_INFO_RELOAD_PARAMS;
+					if( NULL != info )
+						*info |= SANE_INFO_RELOAD_PARAMS;
 					break;
 
 				case OPT_GAMMA_VECTOR_G:
 					DBG( _DBG_INFO, "Setting GREEN gamma.\n" );
 					memcpy( s->val[option].wa, value, s->opt[option].size );
 					checkGammaSettings(s);
-	    			if( NULL != info )
-		    			*info |= SANE_INFO_RELOAD_PARAMS;
+					if( NULL != info )
+						*info |= SANE_INFO_RELOAD_PARAMS;
 					break;
 
 				case OPT_GAMMA_VECTOR_B:
 					DBG( _DBG_INFO, "Setting BLUE gamma.\n" );
 					memcpy( s->val[option].wa, value, s->opt[option].size );
 					checkGammaSettings(s);
-	    			if( NULL != info )
-		    			*info |= SANE_INFO_RELOAD_PARAMS;
+					if( NULL != info )
+						*info |= SANE_INFO_RELOAD_PARAMS;
 					break;
 
-			    default:
-				    return SANE_STATUS_INVAL;
+				default:
+					return SANE_STATUS_INVAL;
 			}
 			break;
 
@@ -1887,7 +2076,7 @@ SANE_Status
 sane_start( SANE_Handle handle )
 {
 	Plustek_Scanner *s = (Plustek_Scanner *)handle;
-	pPlustek_Device  dev;
+	Plustek_Device  *dev;
 	pModeParam       mp;
 
 	int         result;
@@ -1928,13 +2117,13 @@ sane_start( SANE_Handle handle )
 		return SANE_STATUS_IO_ERROR;
 	}
 
-	result = dev->getCaps( dev );
+	result = usbDev_getCaps( dev );
 	if( result < 0 ) {
-		DBG( _DBG_ERROR, "dev->getCaps() failed(%d)\n", result);
-		dev->close( dev );
+		DBG( _DBG_ERROR, "usbDev_getCaps() failed(%d)\n", result);
+		usbDev_close( dev );
 		return SANE_STATUS_IO_ERROR;
-    }
-	
+	}
+
 	/* All ready to go.  Set image def and see what the scanner
 	 * says for crop info.
 	 */
@@ -1961,13 +2150,13 @@ sane_start( SANE_Handle handle )
 	dpi_y = (double)dev->usbDev.Caps.OpticDpi.x * 2;
 	
 	left   = (int)(SANE_UNFIX (s->val[OPT_TL_X].w)*dpi_x/
-												(MM_PER_INCH*(dpi_x/300.0)));
+	                                            (MM_PER_INCH*(dpi_x/300.0)));
 	top    = (int)(SANE_UNFIX (s->val[OPT_TL_Y].w)*dpi_y/
-												(MM_PER_INCH*(dpi_y/300.0)));
+	                                            (MM_PER_INCH*(dpi_y/300.0)));
 	width  = (int)(SANE_UNFIX (s->val[OPT_BR_X].w - s->val[OPT_TL_X].w) *
-										dpi_x / (MM_PER_INCH *(dpi_x/300.0)));
+	                                    dpi_x / (MM_PER_INCH *(dpi_x/300.0)));
 	height = (int)(SANE_UNFIX (s->val[OPT_BR_Y].w - s->val[OPT_TL_Y].w) *
-										dpi_y / (MM_PER_INCH *(dpi_y/300.0)));
+	                                    dpi_y / (MM_PER_INCH *(dpi_y/300.0)));
 
 	/* adjust mode list according to the model we use and the
 	 * source we have
@@ -1994,17 +2183,17 @@ sane_start( SANE_Handle handle )
 		default: break;
 	}
 
-	result = dev->getCropInfo( dev, &crop );
+	result = usbDev_getCropInfo( dev, &crop );
 	if( result < 0 ) {
-		DBG( _DBG_ERROR, "dev->getCropInfo() failed(%d)\n", result );
-		dev->close( dev );
+		DBG( _DBG_ERROR, "usbDev_getCropInfo() failed(%d)\n", result );
+		usbDev_close( dev );
 		return SANE_STATUS_IO_ERROR;
 	}
 
 	/* DataInf.dwAppPixelsPerLine = crop.dwPixelsPerLine;  */
 	s->params.pixels_per_line = crop.dwPixelsPerLine;
 	s->params.bytes_per_line  = crop.dwBytesPerLine;
-	s->params.lines 		  = crop.dwLinesPerArea;
+	s->params.lines           = crop.dwLinesPerArea;
 
 	/* build a SCANINFO block and get ready to scan it */
 	crop.ImgDef.dwFlag |= SCANDEF_QualityScan;
@@ -2022,28 +2211,28 @@ sane_start( SANE_Handle handle )
 	DBG( _DBG_SANE_INIT, "brightness %i, contrast %i\n",
 						sinfo.siBrightness, sinfo.siContrast );
 
-	result = dev->setScanEnv( dev, &sinfo );
+	result = usbDev_setScanEnv( dev, &sinfo );
 	if( result < 0 ) {
-		DBG( _DBG_ERROR, "dev->setEnv() failed(%d)\n", result );
-		dev->close( dev );
+		DBG( _DBG_ERROR, "usbDev_setScanEnv() failed(%d)\n", result );
+		usbDev_close( dev );
 		return SANE_STATUS_IO_ERROR;
 	}
 
 	/* download gamma correction tables... */
 	if( scanmode <= COLOR_GRAY16 ) {
-	   	dev->setMap( dev, s->gamma_table[0], s->gamma_length, _MAP_MASTER);
+		usbDev_setMap( dev, s->gamma_table[0], s->gamma_length, _MAP_MASTER);
 	} else {
-	   	dev->setMap( dev, s->gamma_table[1], s->gamma_length, _MAP_RED   );
-		dev->setMap( dev, s->gamma_table[2], s->gamma_length, _MAP_GREEN );
-		dev->setMap( dev, s->gamma_table[3], s->gamma_length, _MAP_BLUE  );
+		usbDev_setMap( dev, s->gamma_table[1], s->gamma_length, _MAP_RED   );
+		usbDev_setMap( dev, s->gamma_table[2], s->gamma_length, _MAP_GREEN );
+		usbDev_setMap( dev, s->gamma_table[3], s->gamma_length, _MAP_BLUE  );
 	}
 
 	tsecs = 0; /* reset timer */
 
-	result = dev->startScan( dev );
+	result = usbDev_startScan( dev );
 	if( result < 0 ) {
-		DBG( _DBG_ERROR, "dev->startScan() failed(%d)\n", result );
-		dev->close( dev );
+		DBG( _DBG_ERROR, "usbDev_startScan() failed(%d)\n", result );
+		usbDev_close( dev );
 		return SANE_STATUS_IO_ERROR;
     }
 
@@ -2053,7 +2242,7 @@ sane_start( SANE_Handle handle )
 	s->buf = realloc( s->buf, (s->params.lines) * s->params.bytes_per_line );
 	if( NULL == s->buf ) {
 		DBG( _DBG_ERROR, "realloc failed\n" );
-		dev->close( dev );
+		usbDev_close( dev );
 		return SANE_STATUS_NO_MEM;
 	}
 
@@ -2069,7 +2258,7 @@ sane_start( SANE_Handle handle )
 	if( pipe(fds) < 0 ) {
 		DBG( _DBG_ERROR, "ERROR: could not create pipe\n" );
 	    s->scanning = SANE_FALSE;
-		dev->close( dev );
+		usbDev_close( dev );
 		return SANE_STATUS_IO_ERROR;
 	}
 
@@ -2084,7 +2273,7 @@ sane_start( SANE_Handle handle )
 	if( s->reader_pid < 0 ) {
 		DBG( _DBG_ERROR, "ERROR: could not start reader task\n" );
 	    s->scanning = SANE_FALSE;
-		dev->close( dev );
+		usbDev_close( dev );
 		return SANE_STATUS_IO_ERROR;
 	}
 

@@ -7,7 +7,7 @@
  *  @brief Definitions for the backend.
  *
  * Based on Kazuhiro Sasayama previous
- * Work on plustek.[ch] file from the SANE package.<br>
+ * work on plustek.[ch] file from the SANE package.<br>
  *
  * original code taken from sane-0.71<br>
  * Copyright (C) 1997 Hypercore Software Design, Ltd.<br>
@@ -31,7 +31,7 @@
  *        - removed dropout stuff
  * - 0.39 - PORTTYPE enum
  *        - added function pointers to control a scanner device
- *        (Parport and USB)
+ *          (Parport and USB)
  * - 0.40 - added USB stuff
  * - 0.41 - added configuration stuff
  * - 0.42 - added custom gamma tables
@@ -46,6 +46,11 @@
  * - 0.47 - added mov to adjustment
  *        - changed stopScan function definition
  *        - removed open function
+ *        - added OPT_LAMPSWITCH and OPT_WARMUPTIME
+ * - 0.48 - added OPT_CACHECAL, OPT_OVR_*, OPT_LAMPOFF_TIMER and
+ *          OPT_LAMPOFF_ONEND, also did some cleanup
+ *        - moved SCANDEF definitions to plustek-usb.h
+ *        - removed function pointer
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -100,52 +105,52 @@
 # define PATH_MAX 1024
 #endif
 
-#define _MEASURE_BASE		300UL
-#define _DEF_DPI		 	50
+#define _MEASURE_BASE       300UL
+#define _DEF_DPI            50
 
 /** the default image size
  */
-#define _DEFAULT_TLX  		0		/* 0..216 mm */
-#define _DEFAULT_TLY  		0		/* 0..297 mm */
-#define _DEFAULT_BRX		126		/* 0..216 mm*/
-#define _DEFAULT_BRY		76.21	/* 0..297 mm */
+#define _DEFAULT_TLX          0     /* 0..216 mm */
+#define _DEFAULT_TLY          0     /* 0..297 mm */
+#define _DEFAULT_BRX        126     /* 0..216 mm */
+#define _DEFAULT_BRY         76.21  /* 0..297 mm */
 
-#define _DEFAULT_TP_TLX  	3.5		/* 0..42.3 mm */
-#define _DEFAULT_TP_TLY  	10.5	/* 0..43.1 mm */
-#define _DEFAULT_TP_BRX		38.5	/* 0..42.3 mm */
-#define _DEFAULT_TP_BRY		33.5	/* 0..43.1 mm */
+#define _DEFAULT_TP_TLX      3.5    /* 0..42.3 mm */
+#define _DEFAULT_TP_TLY     10.5    /* 0..43.1 mm */
+#define _DEFAULT_TP_BRX     38.5    /* 0..42.3 mm */
+#define _DEFAULT_TP_BRY     33.5    /* 0..43.1 mm */
 
-#define _DEFAULT_NEG_TLX  	1.5		/* 0..38.9 mm */
-#define _DEFAULT_NEG_TLY  	1.5		/* 0..29.6 mm */
-#define _DEFAULT_NEG_BRX	37.5	/* 0..38.9 mm */
-#define _DEFAULT_NEG_BRY	25.5	/* 0..29.6 mm */
+#define _DEFAULT_NEG_TLX     1.5    /* 0..38.9 mm */
+#define _DEFAULT_NEG_TLY     1.5    /* 0..29.6 mm */
+#define _DEFAULT_NEG_BRX	37.5    /* 0..38.9 mm */
+#define _DEFAULT_NEG_BRY	25.5    /* 0..29.6 mm */
 
 /** image sizes for normal, transparent and negative modes
  */
-#define _TPAPageWidth       500U
-#define _TPAPageHeight      510U
-#define _TPAMinDpi          150
-#define _TPAModeSupportMin  COLOR_TRUE24
+#define _TPAPageWidth        500UL
+#define _TPAPageHeight       510UL
+#define _TPALargePageWidth  1270UL
+#define _TPALargePageHeight 1570UL
+#define _TPAMinDpi           150
 
-#define _NegativePageWidth  460UL
-#define _NegativePageHeight 350UL
+#define _NegPageWidth        460UL
+#define _NegPageHeight       350UL
+#define _NegLargePageWidth  1270UL
+#define _NegLargePageHeight 1570UL
 
-#define _TP_X   ((double)_TPAPageWidth/300.0 * MM_PER_INCH)
-#define _TP_Y   ((double)_TPAPageHeight/300.0 * MM_PER_INCH)
-#define _NEG_X  ((double)_NegativePageWidth/300.0 * MM_PER_INCH)
-#define _NEG_Y  ((double)_NegativePageHeight/300.0 * MM_PER_INCH)
+#define _SCALE(X) ((double)(X)/300.0 * MM_PER_INCH)
 
 /** scan modes
  */
-#define COLOR_BW     	0
-#define COLOR_256GRAY	1
-#define COLOR_GRAY16 	2
-#define COLOR_TRUE24 	3
-#define COLOR_TRUE48 	4
+#define COLOR_BW        0
+#define COLOR_256GRAY   1
+#define COLOR_GRAY16    2
+#define COLOR_TRUE24    3
+#define COLOR_TRUE48    4
 
 /** usb id buffer
  */
-#define _MAX_ID_LEN	20
+#define _MAX_ID_LEN 20
 
 /**
  */
@@ -154,19 +159,9 @@
 
 /**
  */
-#define SCANDEF_Transparency	    0x00000100	/* Scanning from transparency*/
-#define SCANDEF_Negative	    	0x00000200	/* Scanning from negative    */
-#define SCANDEF_QualityScan	    	0x00000400	/* Scanning in quality mode  */
-#define SCANDEF_ContinuousScan      0x00001000
-#define SCANDEF_TPA                 (SCANDEF_Transparency | SCANDEF_Negative)
-
-#define SCANDEF_Adf                 0x00020000  /* Scan from ADF tray        */
-
-/**
- */
-#define SOURCE_Reflection	0
-#define SOURCE_Transparency	1
-#define SOURCE_Negative 	2
+#define SOURCE_Reflection   0
+#define SOURCE_Transparency 1
+#define SOURCE_Negative     2
 #define SOURCE_ADF          3
 
 /** for Gamma tables
@@ -178,7 +173,7 @@
 
 /** generic error codes...
  */
-#define _FIRST_ERR	-9000
+#define _FIRST_ERR -9000
 
 #define _E_ALLOC            (_FIRST_ERR-1)  /**< error allocating memory    */
 #define _E_INVALID          (_FIRST_ERR-2)  /**< invalid parameter detected */
@@ -215,7 +210,20 @@ enum {
 	OPT_GAMMA_VECTOR_B,
 	OPT_DEVICE_GROUP,
 	OPT_LAMPSWITCH,
+	OPT_LAMPOFF_TIMER,
+	OPT_LAMPOFF_ONEND,
 	OPT_WARMUPTIME,
+	OPT_CACHECAL,
+	OPT_AFE_GROUP,
+	OPT_OVR_REDGAIN,
+	OPT_OVR_GREENGAIN,
+	OPT_OVR_BLUEGAIN,
+	OPT_OVR_REDOFS,
+	OPT_OVR_GREENOFS,
+	OPT_OVR_BLUEOFS,
+	OPT_OVR_RED_LOFF,
+	OPT_OVR_GREEN_LOFF,
+	OPT_OVR_BLUE_LOFF,
 	NUM_OPTIONS
 };
 
@@ -242,16 +250,21 @@ typedef struct {
 	int     altCalibrate;  /* force use of the alternate canoscan autocal;
 	                          perhaps other Canon scanners require the
 	                          alternate autocalibration as well */
-	int rgain;
+	/* AFE adjustemnts, gain and offset */
+	int rgain;      
 	int ggain;
 	int bgain;
+	int rofs;      
+	int gofs;
+	int bofs;
+	
 	int rlampoff;   /* for red lamp off setting (CIS-scanner)   */
 	int glampoff;   /* for green lamp off setting (CIS-scanner) */
 	int blampoff;   /* for blue lamp off setting (CIS-scanner)  */
 
-	OffsDef pos; 	/* for adjusting normal scan area       */
-	OffsDef tpa; 	/* for adjusting transparency scan area */
-	OffsDef neg; 	/* for adjusting negative scan area     */
+	OffsDef pos;    /* for adjusting normal scan area       */
+	OffsDef tpa;    /* for adjusting transparency scan area */
+	OffsDef neg;    /* for adjusting negative scan area     */
 
 	int     posShadingY;
 	int     tpaShadingY;
@@ -294,9 +307,9 @@ typedef struct {
 } ScanInfo, *pScanInfo;
 
 typedef struct {
-	unsigned long	dwFlag;
-	unsigned short	wMaxExtentX;	/**< scanarea width					*/
-	unsigned short	wMaxExtentY;	/**< scanarea height				*/
+	unsigned long  dwFlag;
+	unsigned short wMaxExtentX; /**< scanarea width  */
+	unsigned short wMaxExtentY; /**< scanarea height */
 } ScannerCaps, *pScannerCaps;
 
 /** for defining the scanmodes
@@ -324,8 +337,8 @@ typedef struct Plustek_Device
 	SANE_Int              *res_list;         /* to hold the available phys.  */
 	SANE_Int               res_list_size;    /* resolution values            */
 	ScannerCaps            caps;             /* caps reported by the driver  */
-	AdjDef                 adj;	             /* for driver adjustment        */
-	
+	AdjDef                 adj;              /* for driver adjustment        */
+
 	/**************************** USB-stuff **********************************/
 	char                   usbId[_MAX_ID_LEN];/* to keep Vendor and product  */
 	                                         /* ID string (from conf) file   */
@@ -335,19 +348,6 @@ typedef struct Plustek_Device
 #ifdef HAVE_SETITIMER
 	struct itimerval       saveSettings;     /* for lamp timer               */
 #endif
-	/* each device we support may need other access functions...
-	 */
-	int  (*close)      ( struct Plustek_Device* );
-	void (*shutdown)   ( struct Plustek_Device* );
-	int  (*getCaps)    ( struct Plustek_Device* );
-	int  (*getCropInfo)( struct Plustek_Device*, pCropInfo  );
-	int  (*setScanEnv) ( struct Plustek_Device*, pScanInfo  );
-	int  (*setMap)     ( struct Plustek_Device*, SANE_Word*,
-	                                             SANE_Word, SANE_Word );
-	int  (*startScan)  ( struct Plustek_Device* );
-	int  (*stopScan)   ( struct Plustek_Device* );
-	int  (*prepare)    ( struct Plustek_Device*, SANE_Byte* );
-	int  (*readLine)   ( struct Plustek_Device* );
 
 } Plustek_Device, *pPlustek_Device;
 
@@ -355,8 +355,8 @@ typedef struct Plustek_Device
 /* for compatibility with older versions */
 typedef union
 {
-	SANE_Word w;
-	SANE_Word *wa;		/* word array */
+	SANE_Word   w;
+	SANE_Word  *wa;
 	SANE_String s;
 } Option_Value;
 #endif
@@ -375,7 +375,7 @@ typedef struct Plustek_Scanner
 	SANE_Bool               scanning;       /* TRUE during scan-process      */
 	SANE_Parameters         params;         /* for keeping the parameter     */
 
-    /************************** gamma tables *********************************/
+	/************************** gamma tables *********************************/
 
 	SANE_Word   gamma_table[4][4096];
 	SANE_Range  gamma_range;
@@ -384,7 +384,6 @@ typedef struct Plustek_Scanner
 	SANE_Option_Descriptor opt[NUM_OPTIONS];
 
 } Plustek_Scanner, *pPlustek_Scanner;
-
 
 /** for collecting configuration info...
  */

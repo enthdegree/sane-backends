@@ -11,6 +11,7 @@
  * History:
  * - 0.46 - first version
  * - 0.47 - no changes
+ * - 0.48 - no changes
  * .
  * <hr>
  * This file is part of the SANE package.

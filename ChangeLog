@@ -1,5 +1,7 @@
 2000-11-22  Oliver Rauch <Oliver.Rauch@Wolfsburg.DE>
 
+	* removed doc/xcam.man, doc/xscanimage.man and
+	  updated doc/Makefile.in
 	* changed configure.in and frontend/Makefile.in,
 	  "-lintl" is not added to @LIBS@ any more, @INTLLIBS@
 	  is defined instead now, this is necessary because "-lintl"

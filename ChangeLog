@@ -3,5 +3,6 @@
 	* configure configure.in: Warnings enabled again. Added -cvs to
 	  version.
 	* doc/releases.txt: Updated information about diffs.
+	* doc/descriptions/unsupported.desc: Added HP and Mustek scanners.
 
 Older entries can be found in ChangeLog-1.0.13.

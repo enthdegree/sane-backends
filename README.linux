@@ -1,3 +1,27 @@
+Information about USB scanners:
+================================
+
+With Linux 2.4.* you could either use the kernel scanner module or libusb to
+access USB scanners.  In Linux 2.6.4 the kernel scanner module was removed.
+Therefore with this and later kernels libusb must be used.
+
+While SANE automatically uses libusb when the library and its header file were
+present during the build of sane-backends, setting permissions will require
+some attention.
+
+The device files used by libusb are located in /proc/bus/usb/
+(e.g. /proc/bus/usb/001/003).  The exact file name can be found out by running
+sane-find-scanner which would print "libusb:001:003" in this case.  While
+setting permissions with e.g. "chmod a+rw /proc/bus/usb/001/003" seems to work,
+this change is not permanent.  The permissions will be reset when the scanner is
+replugged or Linux is rebooted.
+
+One solution to set permissions on-the-fly are the Linux hot-plug tools that
+should come with any current distribution.  SANE itsself comes with a hotplug
+script and related documentaion in the tools/hotplug/ directory. Please refer to
+the README in that directory for the details.
+
+
 Information about SCSI scanners:
 ================================
 
@@ -84,12 +108,6 @@ about missing SCSI headers.
 Other Information
 =================
 
-Compilation errors in /usr/include/linux/videodev.h: These errors happen if 
-  there is a link /usr/include/linux -> /usr/src/linux/include/linux. Most
-  distributions come with their own Linux-specific headers so this link is
-  ususally not a good idea (and frowned upon by the kernel hackers). As a
-  workaround, make sure that the link points to a Linux 2.4 kernel (not 2.6).
-
 Excessive warnings "pointer of type `void *' used in arithmetic":
   Some older versions of glibc generate these warnings not related to SANE
   source code. To suppress these warnings do
@@ -97,11 +115,6 @@ Excessive warnings "pointer of type `void *' used in arithmetic":
   export CFLAGS="-g -O2 -D__NO_STRING_INLINES"
 
   and rerun configure.
-
-Older gcc compilers may abort with error "virtual memory exhausted",
-  usually in canon.c. Try to compile with lower optimization levels:
-  make CFLAGS="-g -Wall -O1", make CFLAGS="-g -Wall -O", or
-  make CFLAGS="-g -Wall".
 
 If you use DEC cc on Linux Alpha, you may need to set LDFLAGS="-N" to
   be able to build sane-backends.

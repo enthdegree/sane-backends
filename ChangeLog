@@ -1,6 +1,8 @@
 2004-04-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* NEWS: Updated for sane-backends 1.0.14.
+	* README.linux: Added some hints about setting permissions with
+	  libusb on Linux 2.6. Removed some obsolete paragraphs.
 
 2004-03-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -1,59 +1,61 @@
 /*.............................................................................
- * Project : linux driver for Plustek parallel-port scanners
+ * Project : SANE library for Plustek parallelport flatbed scanners.
  *.............................................................................
- * File:	plustek-pp_ptdrv.c - this is the driver interface
- *.............................................................................
+ */
+
+/* @file plustek-pp_ptdrv.c
+ * @brief this is the driver interface
  *
  * based on sources acquired from Plustek Inc.
  * Copyright (C) 1998 Plustek Inc.
  * Copyright (C) 2000-2003 Gerhard Jaeger <gerhard@gjaeger.de>
  * also based on the work done by Rick Bronson
- *.............................................................................
+ *
  * History:
- * 0.30 - initial version
- * 0.31 - Added some comments
- *		  added claiming/release of parallel port resources for this driver
- *		  added scaling function for high resolution modes where dpix < dpiy
- * 0.32 - Revised lamp-off behaviour
- *		- removed function ptdrvIsLampOn
- *		- fixed misbehaviour when using cat /dev/pt_drv
- *		- moved parport-functions to module misc.c
- * 0.33 - added parameter lOffonEnd
- *		  revised parport concurrency
- *		  removed calls to ps->PositionLamp
- * 0.34 - no changes
- * 0.35 - removed _PTDRV_PUT_SCANNER_MODEL from ioctl interface
- *		  added Kevins' changes (MiscRestorePort)
- *		  added parameter legal and function PtDrvLegalRequested()
- * 0.36 - removed a bug in the shutdown function
- *		  removed all OP600P specific stuff because of the Primax tests
- *		  added version code to ioctl interface
- *		  added new parameter mov - model override
- *		  removed parameter legal
- *		  removed function PtDrvLegalRequested
- *		  changes, due to define renaming
- *		  patch for OpticPro 4800P
- *		  added multiple device support
- *		  added proc fs support/also for Kernel2.4
- * 0.37 - cleanup work, moved the procfs stuff to file procfs.c
- *        and some definitions to plustek_scan.h
- *		  moved MODELSTR to misc.c
- *        output of the error-code after initialization
- * 0.38 - added P12 stuff
- *        removed function ptdrvIdleMode
- *        moved function ptdrvP96Calibration() to p48xxCalibration
- *        moved function ptdrvP98Calibration() to p9636Calibration
- *        added devfs support (patch by Gordon Heydon <gjheydon@bigfoot.com>)
- * 0.39 - added schedule stuff after reading one line to have a better
- *        system response in SPP modes
- *        added forceMode switch
- * 0.40 - added MODULE_LICENSE stuff
- * 0.41 - added _PTDRV_ADJUST functionality
- *        changed ioctl call to PutImage
- * 0.42 - added _PTDRV_SETMAP functionality
- *        improved the cancel functionality
- *        added LINUX_26 stuff
- *        changed include names
+ * - 0.30 - initial version
+ * - 0.31 - Added some comments
+ *        - added claiming/release of parallel port resources for this driver
+ *        - added scaling function for high resolution modes where dpix < dpiy
+ * - 0.32 - Revised lamp-off behaviour
+ *        - removed function ptdrvIsLampOn
+ *        - fixed misbehaviour when using cat /dev/pt_drv
+ *        - moved parport-functions to module misc.c
+ * - 0.33 - added parameter lOffonEnd
+ *        - revised parport concurrency
+ *        - removed calls to ps->PositionLamp
+ * - 0.34 - no changes
+ * - 0.35 - removed _PTDRV_PUT_SCANNER_MODEL from ioctl interface
+ *        - added Kevins' changes (MiscRestorePort)
+ *        - added parameter legal and function PtDrvLegalRequested()
+ * - 0.36 - removed a bug in the shutdown function
+ *        - removed all OP600P specific stuff because of the Primax tests
+ *        - added version code to ioctl interface
+ *        - added new parameter mov - model override
+ *        - removed parameter legal
+ *        - removed function PtDrvLegalRequested
+ *        - changes, due to define renaming
+ *        - patch for OpticPro 4800P
+ *        - added multiple device support
+ *        - added proc fs support/also for Kernel2.4
+ * - 0.37 - cleanup work, moved the procfs stuff to file procfs.c
+ *        - and some definitions to plustek_scan.h
+ *        - moved MODELSTR to misc.c
+ *        - output of the error-code after initialization
+ * - 0.38 - added P12 stuff
+ *        - removed function ptdrvIdleMode
+ *        - moved function ptdrvP96Calibration() to p48xxCalibration
+ *        - moved function ptdrvP98Calibration() to p9636Calibration
+ *        - added devfs support (patch by Gordon Heydon <gjheydon@bigfoot.com>)
+ * - 0.39 - added schedule stuff after reading one line to have a better
+ *          system response in SPP modes
+ *        - added forceMode switch
+ * - 0.40 - added MODULE_LICENSE stuff
+ * - 0.41 - added _PTDRV_ADJUST functionality
+ *        - changed ioctl call to PutImage
+ * - 0.42 - added _PTDRV_SETMAP functionality
+ *        - improved the cancel functionality
+ *        - added LINUX_26 stuff
+ *        - changed include names
  * .
  * <hr>
  * This file is part of the SANE package.

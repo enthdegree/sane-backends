@@ -1,8 +1,11 @@
 /*.............................................................................
- * Project : linux driver for Plustek parallel-port scanners
+ * Project : SANE library for Plustek parallelport flatbed scanners.
  *.............................................................................
- * File:	plustek-pp_p48xx.c - here we have all functionality according to
- *                               the ASIC96001/3 basedmodels
+ */
+
+/* @file plustek-pp_p48xx.c
+ * @brief here we have all functionality according to the ASIC96001/3 based
+ *        models.
  *.............................................................................
  *
  * based on sources acquired from Plustek Inc.
@@ -11,32 +14,32 @@
  * also based on the work done by Rick Bronson
  *.............................................................................
  * History:
- * 0.30 - initial version
- * 0.31 - fixed a bug for the return value in p48xxDoTest
- *		  added additional debug messages
- *		  added function p48xxCheck4800Memory
- * 0.32 - added debug messages
- *		  fixed a bug in p48xxDoTest
- *		  disabled RD_WatchDogControl, lamp will be controlled by driver
- * 0.33 - added function p48xxSetAsicRegisters()
- *		  fixed a bug in p48xxDoTest (reset the ASIC registers)
- *		  removed p48xxPositionLamp
- * 0.34 - added some comments
- * 0.35 - added some comments
- * 0.36 - added function p48xxInitAllModules() to allow reinit of the modules
- *		  switching from Full- to Halfstep at ps->PhysicalDpi now in
- *		  p48xxSetGeneralRegister
- *		  fixed the color-inverse problem for model OP4800
- * 0.37 - move p48xxOpenScanPath, p48xxCloseScanPath
- *        and p48xxRegisterToScanner to io.c
- *        removed // comments
- *        added override for A3I scanner
- * 0.38 - added function p48xxPutToIdleMode()
- *        added function p48xxCalibration
- * 0.39 - added A3I stuff
- * 0.40 - disabled A3I stuff
- * 0.41 - no changes
- * 0.42 - changed include names
+ * - 0.30 - initial version
+ * - 0.31 - fixed a bug for the return value in p48xxDoTest
+ *        - added additional debug messages
+ *        - added function p48xxCheck4800Memory
+ * - 0.32 - added debug messages
+ *        - fixed a bug in p48xxDoTest
+ *        - disabled RD_WatchDogControl, lamp will be controlled by driver
+ * - 0.33 - added function p48xxSetAsicRegisters()
+ *        - fixed a bug in p48xxDoTest (reset the ASIC registers)
+ *        - removed p48xxPositionLamp
+ * - 0.34 - added some comments
+ * - 0.35 - added some comments
+ * - 0.36 - added function p48xxInitAllModules() to allow reinit of the modules
+ *        - switching from Full- to Halfstep at ps->PhysicalDpi now in
+ *        - p48xxSetGeneralRegister
+ *        - fixed the color-inverse problem for model OP4800
+ * - 0.37 - move p48xxOpenScanPath, p48xxCloseScanPath
+ *          and p48xxRegisterToScanner to io.c
+ *        - removed // comments
+ *        - added override for A3I scanner
+ * - 0.38 - added function p48xxPutToIdleMode()
+ *        - added function p48xxCalibration
+ * - 0.39 - added A3I stuff
+ * - 0.40 - disabled A3I stuff
+ * - 0.41 - no changes
+ * - 0.42 - changed include names
  * .
  * <hr>
  * This file is part of the SANE package.

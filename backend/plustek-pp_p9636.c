@@ -1,40 +1,41 @@
 /*.............................................................................
- * Project : linux driver for Plustek parallel-port scanners
+ * Project : SANE library for Plustek parallelport flatbed scanners.
  *.............................................................................
- * File:	plustek-pp_p9636.c - here we have all functionality according
- *                               to the p9636t
- *.............................................................................
+ */
+
+/* @file plustek-pp_p9636.c
+ * @brief here we have all functionality according to the p9636t
  *
  * based on sources acquired from Plustek Inc.
  * Copyright (C) 1998 Plustek Inc.
  * Copyright (C) 2000-2003 Gerhard Jaeger <gerhard@gjaeger.de>
  * also based on the work done by Rick Bronson
- *.............................................................................
+ *
  * History:
- * 0.30 - initial version
- * 0.31 - Added some comments
- * 0.32 - minor bug-fixes
- *		  change p9636ReconnectScannerPath
- *		  moved function IOSetStartStopRegister into this file
- * 0.33 - went back to original three calls to p9636ReconnectScannerPath
- *		  to make sure that HP-printers will not start to print during
- *		  scan-process
- *		  removed function p9636PositionLamp()
- * 0.34 - no changes
- * 0.35 - no changes
- * 0.36 - changes, due to define renaming
- * 0.37 - move p9636OpenScanPath, p9636CloseScanPath
- *        and p9636RegisterToScanner to io.c
- *        removed skipping of the memory test for OP9636P
- *        removed // comments
- * 0.38 - added function p9636PutToIdleMode()
- *        moved p9636ReadWriteTest to io.c
- *        added function p9636Calibration
- *        renamed function 	p9636SetP98001Init() to p9636InitP98001()
- * 0.39 - no changes
- * 0.40 - no changes
- * 0.41 - no changes
- * 0.42 - changed include names
+ * - 0.30 - initial version
+ * - 0.31 - Added some comments
+ * - 0.32 - minor bug-fixes
+ *        - change p9636ReconnectScannerPath
+ *        - moved function IOSetStartStopRegister into this file
+ * - 0.33 - went back to original three calls to p9636ReconnectScannerPath
+ *          to make sure that HP-printers will not start to print during
+ *          scan-process
+ *        - removed function p9636PositionLamp()
+ * - 0.34 - no changes
+ * - 0.35 - no changes
+ * - 0.36 - changes, due to define renaming
+ * - 0.37 - move p9636OpenScanPath, p9636CloseScanPath
+ *          and p9636RegisterToScanner to io.c
+ *        - removed skipping of the memory test for OP9636P
+ *        - removed // comments
+ * - 0.38 - added function p9636PutToIdleMode()
+ *        - moved p9636ReadWriteTest to io.c
+ *        - added function p9636Calibration
+ *        - renamed function p9636SetP98001Init() to p9636InitP98001()
+ * - 0.39 - no changes
+ * - 0.40 - no changes
+ * - 0.41 - no changes
+ * - 0.42 - changed include names
  * .
  * <hr>
  * This file is part of the SANE package.

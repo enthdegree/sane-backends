@@ -1,43 +1,45 @@
 /*.............................................................................
- * Project : linux driver for Plustek parallel-port scanners
+ * Project : SANE library for Plustek parallelport flatbed scanners.
  *.............................................................................
- * File:	plustek-pp_motor.c - all functions for motor control
- *.............................................................................
+ */
+
+/* @file plustek-pp_motor.c
+ * @brief all functions for motor control
  *
  * based on sources acquired from Plustek Inc.
  * Copyright (C) 1998 Plustek Inc.
  * Copyright (C) 2000-2003 Gerhard Jaeger <gerhard@gjaeger.de>
  * also based on the work done by Rick Bronson
- *.............................................................................
+ *
  * History:
- * 0.30 - initial version
- * 0.31 - no changes
- * 0.32 - slight cosmetic changes
- *		  added function MotorToHomePosition()
- * 0.33 - added additional debug-messages
- *		  increased speed for returning to homeposition for Models >= 9630
- *		  (and ASIC 96003)
- * 0.34 - added FIFO overflow check in motorP96SetSpeed
- *		  removed WaitBack() function from pScanData structure
- *		  removed wStayMaxStep from pScanData structure
- * 0.35 - changed motorP96UpdateDataCurrentReadLine() to handle proper
- *		  work of ASIC96003 based 600dpi models
- * 0.36 - merged motorP96WaitBack and motorP98WaitBack to motorWaitBack
- *        merged motorP96SetSpeed and motorP98SetSpedd to motorSetSpeed
- *		  added Sensor-Check in function MotorToHomePosition
- *		  reduced number of forward steps for MotorToHomePosition
- * 0.37 - removed function motorP96GetStartStopGap() - no longer used
- *        removed a_bStepDown1Table and a_bStepUp1Table
- *        removed // comments
- *        added A3I stuff
- * 0.38 - cosmetic changes
- *        added P12 stuff
- * 0.39 - Did some finetuning in MotorP98003ModuleForwardBackward()
- *        Fixed a problem, that could cause the driver to throw a
- *        kernel exception
- * 0.40 - changed back to build 0.39-3 (disabled A3I stuff)
- * 0.41 - no changes
- * 0.42 - changed include names
+ * - 0.30 - initial version
+ * - 0.31 - no changes
+ * - 0.32 - slight cosmetic changes
+ *        - added function MotorToHomePosition()
+ * - 0.33 - added additional debug-messages
+ *        - increased speed for returning to homeposition for Models >= 9630
+ *          (and ASIC 96003)
+ * - 0.34 - added FIFO overflow check in motorP96SetSpeed
+ *        - removed WaitBack() function from pScanData structure
+ *        - removed wStayMaxStep from pScanData structure
+ * - 0.35 - changed motorP96UpdateDataCurrentReadLine() to handle proper
+ *        - work of ASIC96003 based 600dpi models
+ * - 0.36 - merged motorP96WaitBack and motorP98WaitBack to motorWaitBack
+ *        - merged motorP96SetSpeed and motorP98SetSpedd to motorSetSpeed
+ *        - added Sensor-Check in function MotorToHomePosition
+ *        - reduced number of forward steps for MotorToHomePosition
+ * - 0.37 - removed function motorP96GetStartStopGap() - no longer used
+ *        - removed a_bStepDown1Table and a_bStepUp1Table
+ *        - removed // comments
+ *        - added A3I stuff
+ * - 0.38 - cosmetic changes
+ *        - added P12 stuff
+ * - 0.39 - Did some finetuning in MotorP98003ModuleForwardBackward()
+ *        - Fixed a problem, that could cause the driver to throw a
+ *          kernel exception
+ * - 0.40 - changed back to build 0.39-3 (disabled A3I stuff)
+ * - 0.41 - no changes
+ * - 0.42 - changed include names
  * .
  * <hr>
  * This file is part of the SANE package.

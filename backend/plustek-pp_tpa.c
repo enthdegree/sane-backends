@@ -1,32 +1,32 @@
 /*.............................................................................
- * Project : linux driver for Plustek parallel-port scanners
+ * Project : SANE library for Plustek parallelport flatbed scanners.
  *.............................................................................
- * File:	plustek-pp_tpa.c
- *.............................................................................
- * Here we find some adjustments according to the scan source
- * This file is ASIC P9800x specific
- *.............................................................................
+ */
+
+/* @file plustek-pp_tpa.c
+ * @brief Here we find some adjustments according to the scan source.
+ *        This file is ASIC P9800x specific
  *
  * based on sources acquired from Plustek Inc.
  * Copyright (C) 1998 Plustek Inc.
  * Copyright (C) 2000-2003 Gerhard Jaeger <gerhard@gjaeger.de>
  * also based on the work done by Rick Bronson
- *.............................................................................
+ *
  * History:
- * 0.30 - initial version
- * 0.31 - Added some comments
- * 0.32 - no changes
- * 0.33 - new header
- * 0.34 - no changes
- * 0.35 - no changes
- * 0.36 - no changes
- * 0.37 - cosmetic changes
- * 0.38 - Replaced AllPointer by DataPointer
- *        renamed this file from transform.c tpa.c
- * 0.39 - no changes
- * 0.40 - no changes
- * 0.41 - no changes
- * 0.42 - changed include names
+ * - 0.30 - initial version
+ * - 0.31 - Added some comments
+ * - 0.32 - no changes
+ * - 0.33 - new header
+ * - 0.34 - no changes
+ * - 0.35 - no changes
+ * - 0.36 - no changes
+ * - 0.37 - cosmetic changes
+ * - 0.38 - Replaced AllPointer by DataPointer
+ *        - renamed this file from transform.c tpa.c
+ * - 0.39 - no changes
+ * - 0.40 - no changes
+ * - 0.41 - no changes
+ * - 0.42 - changed include names
  * .
  * <hr>
  * This file is part of the SANE package.

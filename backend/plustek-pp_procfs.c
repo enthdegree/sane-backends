@@ -1,18 +1,20 @@
 /*.............................................................................
- * Project : linux driver for Plustek parallel-port scanners
+ * Project : SANE library for Plustek parallelport flatbed scanners.
  *.............................................................................
- * File:     plustek-pp_procfs.c - this is the interface to the proc filesystem
- *.............................................................................
+ */
+
+/* @file plustek-pp_procfs.c
+ * @brief this is the interface to the proc filesystem
  *
  * Copyright (C) 2000-2003 Gerhard Jaeger <gerhard@gjaeger.de>
- *.............................................................................
+ *
  * History:
- * 0.37 - initial version
- * 0.38 - changes according to generic structure changes
- * 0.39 - added info about forceMode and slowIO
- * 0.40 - no changes
- * 0.41 - no changes
- * 0.42 - changed include names
+ * - 0.37 - initial version
+ * - 0.38 - changes according to generic structure changes
+ * - 0.39 - added info about forceMode and slowIO
+ * - 0.40 - no changes
+ * - 0.41 - no changes
+ * - 0.42 - changed include names
  * .
  * <hr>
  * This file is part of the SANE package.

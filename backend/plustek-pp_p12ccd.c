@@ -1,22 +1,23 @@
 /*.............................................................................
- * Project : linux driver for Plustek parallel-port scanners
+ * Project : SANE library for Plustek parallelport flatbed scanners.
  *.............................................................................
- * File:	plustek-pp_p12ccd.c - here we have the whole code to intialize the
- *                                CCD and DAC stuff
- *.............................................................................
+ */
+
+/* @file plustek-pp_p12ccd.c
+ * @brief here we have the whole code to intialize the CCD and DAC stuff
  *
  * based on sources acquired from Plustek Inc.
  * Copyright (C) 2000 Plustek Inc.
  * Copyright (C) 2001-2003 Gerhard Jaeger <gerhard@gjaeger.de>
- *.............................................................................
+ *
  * History:
- * 0.38 - initial version
- * 0.39 - using now fnDarkOffsetWolfson3797 instead of fnDarkOffsetWolfson3799
- *        This should provide a better picture quality on the GENIUS Colorpage
- *        Vivid V2
- * 0.40 - no changes
- * 0.41 - no changes
- * 0.42 - changed include names
+ * - 0.38 - initial version
+ * - 0.39 - using now fnDarkOffsetWolfson3797 instead of fnDarkOffsetWolfson3799
+ *          This should provide a better picture quality on the GENIUS Colorpage
+ *          Vivid V2
+ * - 0.40 - no changes
+ * - 0.41 - no changes
+ * - 0.42 - changed include names
  * .
  * <hr>
  * This file is part of the SANE package.

@@ -1,24 +1,25 @@
 /*.............................................................................
- * Project : linux driver for Plustek parallel-port scanners
+ * Project : SANE library for Plustek parallelport flatbed scanners.
  *.............................................................................
- * File:	plustek-pp_scale.c
- *.............................................................................
+ */
+
+/* @file plustek-pp_scale.c
+ * @brief Scaling functionality
  *
- * Scaling functionality
  * Copyright (C) 2000-2003 Gerhard Jaeger <gerhard@gjaeger.de>
- *.............................................................................
+ *
  * History:
- * 0.32 - initial version
- * 0.33 - no changes
- * 0.34 - no changes
- * 0.35 - no changes
- * 0.36 - no changes
- * 0.37 - no changes
- * 0.38 - no changes
- * 0.39 - no changes
- * 0.40 - no changes
- * 0.41 - no changes
- * 0.42 - changed include names
+ * - 0.32 - initial version
+ * - 0.33 - no changes
+ * - 0.34 - no changes
+ * - 0.35 - no changes
+ * - 0.36 - no changes
+ * - 0.37 - no changes
+ * - 0.38 - no changes
+ * - 0.39 - no changes
+ * - 0.40 - no changes
+ * - 0.41 - no changes
+ * - 0.42 - changed include names
  * .
  * <hr>
  * This file is part of the SANE package.

@@ -1,41 +1,43 @@
 /*.............................................................................
- * Project : linux driver for Plustek parallel-port scanners
+ * Project : SANE library for Plustek parallelport flatbed scanners.
  *.............................................................................
- * File:     plustek-pp_models.c - model specific stuff
- *.............................................................................
+ */
+
+/* @file plustek-pp_models.c
+ * @brief model specific stuff
  *
  * based on sources acquired from Plustek Inc.
  * Copyright (C) 1998 Plustek Inc.
  * Copyright (C) 2000-2003 Gerhard Jaeger <gerhard@gjaeger.de>
  * also based on the work done by Rick Bronson
- *.............................................................................
+ *
  * History:
- * 0.30 - initial version
- * 0.31 - no changes
- * 0.32 - no changes
- * 0.33 - no changes
- * 0.34 - no changes
- * 0.35 - added some comments
- *		  did some fine tuning on the 9630P and 12000P/9600P models
- *		  moved function initPageSettings() to this module
- * 0.36 - as the ps->MaxWideLineBlks and ps->MaxWideLineLen are only used
- *        for the OP 4800, it has been removed from pScanData
- *		  changed settings of OP600 according to the Primax Direct 4800 tests
- *		  removed dwPreferSize from struct ScannerCaps
- *		  fixed the 5seconds bed-hit problem for ASIC 96001/3 based models
- *		  changes, due to define renaming
- * 0.37 - added ButtonCount init
- *        added A3I model
- *        added functions modelInitCaps(), modelInitMotor() and
- *        modelSetBufferSizes()
- * 0.38 - added P12 stuff
- *        code cleanup
- * 0.39 - no changes
- * 0.40 - changed back to build 0.39-3 (disabled A3I stuff)
- * 0.41 - added _OVR_PLUSTEK_4800P switch
- * 0.42 - added SFLAG_CUSTOM_GAMMA to capabilities
- *        added _OVR_PRIMAX_4800D30 switch
- *        changed include names
+ * - 0.30 - initial version
+ * - 0.31 - no changes
+ * - 0.32 - no changes
+ * - 0.33 - no changes
+ * - 0.34 - no changes
+ * - 0.35 - added some comments
+ *        - did some fine tuning on the 9630P and 12000P/9600P models
+ *        - moved function initPageSettings() to this module
+ * - 0.36 - as the ps->MaxWideLineBlks and ps->MaxWideLineLen are only used
+ *          for the OP 4800, it has been removed from pScanData
+ *        - changed settings of OP600 according to the Primax Direct 4800 tests
+ *        - removed dwPreferSize from struct ScannerCaps
+ *        - fixed the 5seconds bed-hit problem for ASIC 96001/3 based models
+ *        - changes, due to define renaming
+ * - 0.37 - added ButtonCount init
+ *        - added A3I model
+ *        - added functions modelInitCaps(), modelInitMotor() and
+ *          modelSetBufferSizes()
+ * - 0.38 - added P12 stuff
+ *        - code cleanup
+ * - 0.39 - no changes
+ * - 0.40 - changed back to build 0.39-3 (disabled A3I stuff)
+ * - 0.41 - added _OVR_PLUSTEK_4800P switch
+ * - 0.42 - added SFLAG_CUSTOM_GAMMA to capabilities
+ *        - added _OVR_PRIMAX_4800D30 switch
+ *        - changed include names
  * .
  * <hr>
  * This file is part of the SANE package.

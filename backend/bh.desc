@@ -10,9 +10,9 @@
 ;
 
 :backend "bh"                     ; name of backend
-:version "(0.1)"                    ; version of backend
+:version "1.0-4"                    ; version of backend
 :status :new                      ; :alpha, :beta, :stable, :new
-;:manpage "sane-bh"                ; name of manpage (if it exists)
+:manpage "sane-bh"                ; name of manpage (if it exists)
 :url "http://www.martoneconsulting.com/sane-bh.html" ; backend's web page
 
 :devicetype :scanner              ; start of a list of devices....

@@ -64,7 +64,7 @@ PRELOADABLE_BACKENDS = abaton agfafocus apple artec as6e avision bh canon \
         epson fujitsu @GPHOTO2@ hp @HPSJ5S@ leo matsushita microtek microtek2 \
         mustek mustek_pp mustek_usb nec @NET@ pie @PINT@ plustek \
         @PNM@ @QCAM@ ricoh s9036 sceptre sharp @SM3600@ @SNAPSCAN@ \
-        sp15c st400 tamarack test teco1 teco3 umax umax_pp umax1220u @V4L@
+        sp15c st400 tamarack test teco1 teco2 teco3 umax umax_pp umax1220u @V4L@
 ifneq (@SELECTED_BACKENDS@,)
 PRELOADABLE_BACKENDS = @SELECTED_BACKENDS@
 endif
@@ -122,6 +122,7 @@ DISTFILES = abaton.c abaton.conf abaton.h agfafocus.c agfafocus.conf \
   snapscan-sources.h snapscan-usb.c snapscan-usb.h snapscan-options.c sp15c.c \
   sp15c.conf sp15c.h sp15c-scsi.h st400.c st400.conf st400.h stubs.c \
   tamarack.c tamarack.conf tamarack.h teco1.c teco1.h teco1.conf \
+  teco2.c teco2.conf teco2.h \
   teco3.c teco3.conf teco3.h \
   test.c test.conf test.h test-picture.c umax1220u.c \
   umax1220u-common.c \
@@ -360,6 +361,9 @@ libsane-test.la: ../sanei/sanei_constrain_value.lo
 libsane-teco1.la: ../sanei/sanei_config2.lo
 libsane-teco1.la: ../sanei/sanei_constrain_value.lo
 libsane-teco1.la: ../sanei/sanei_scsi.lo
+libsane-teco2.la: ../sanei/sanei_config2.lo
+libsane-teco2.la: ../sanei/sanei_constrain_value.lo
+libsane-teco2.la: ../sanei/sanei_scsi.lo
 libsane-teco3.la: ../sanei/sanei_config2.lo
 libsane-teco3.la: ../sanei/sanei_constrain_value.lo
 libsane-teco3.la: ../sanei/sanei_scsi.lo

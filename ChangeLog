@@ -1,3 +1,7 @@
+2002-06-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* README.solaris: Added comment about SCSI-only support.
+
 2002-06-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions.txt: New file. Specification of the format of

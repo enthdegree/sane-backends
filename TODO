@@ -50,7 +50,7 @@ backends
 
   * nec: Remove references to sharp backend (grep for "JX").
 
-  * nec + sharp: Check for HAVE_SYS_SHM_H before including sys/shm.h and
+  * nec: Check for HAVE_SYS_SHM_H before including sys/shm.h and
     disable shared memory support if necessary.
 
 doc

@@ -1,6 +1,7 @@
 2001-10-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/ibm.desc: Removed old entry.
+	* backend/sm3600.desc: Changed status to :alpha.
 
 2001-10-09  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

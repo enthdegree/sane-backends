@@ -1,3 +1,13 @@
+2001-06-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/nec.c backend/nec.h backend/nec.desc: Update to backend
+	  version 0.12 (from Kazuya Fukuda <kazuya@pjs.nevt.nec.co.jp>).
+	  Removed references to sharp backend (grep for "JX"). Check for
+	  HAVE_SYS_SHM_H before including sys/shm.h and disable shared
+	  memory support if necessary. Free devlist allocated in
+	  sane_get_devices() in sane_exit() resolution setting bug fixed 
+	  (PC-IN500/4C 10dpi step). Removed resolution list.
+
 2001-06-02  Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 
 	* changed minimum scsi buffer size from 64KB to 32KB

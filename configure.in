@@ -100,8 +100,8 @@ AC_CHECK_HEADERS(fcntl.h unistd.h libc.h sys/dsreq.h sys/select.h \
     bsd/dev/scsireg.h scsi/sg.h /usr/src/linux/include/scsi/sg.h io/cam/cam.h \
     camlib.h os2.h sys/socket.h sys/io.h gscdds.h sys/hw.h \
     sys/types.h sys/scsi/scsi.h sys/scsi/sgdefs.h sys/scsi/targets/scgio.h \
-    apollo/scsi.h sys/sdi_comm.h sys/passthrudef.h linux/ppdev.h usb.h \
-    sys/bitypes.h sys/sem.h sys/poll.h)
+    apollo/scsi.h sys/sdi_comm.h sys/passthrudef.h linux/ppdev.h \
+    dev/ppbus/ppi.h usb.h sys/bitypes.h sys/sem.h sys/poll.h)
 AC_CHECK_HEADERS([asm/io.h],,,[#include <sys/types.h>])
 SANE_CHECK_MISSING_HEADERS
 SANE_V4L_VERSION

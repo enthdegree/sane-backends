@@ -5621,14 +5621,15 @@ fi
 
 
 
+
 for ac_header in fcntl.h unistd.h libc.h sys/dsreq.h sys/select.h \
     sys/time.h sys/shm.h \
     sys/scanio.h scsi.h sys/scsi.h sys/scsicmd.h sys/scsiio.h \
     bsd/dev/scsireg.h scsi/sg.h /usr/src/linux/include/scsi/sg.h io/cam/cam.h \
     camlib.h os2.h sys/socket.h sys/io.h gscdds.h sys/hw.h \
     sys/types.h sys/scsi/scsi.h sys/scsi/sgdefs.h sys/scsi/targets/scgio.h \
-    apollo/scsi.h sys/sdi_comm.h sys/passthrudef.h linux/ppdev.h usb.h \
-    sys/bitypes.h sys/sem.h sys/poll.h
+    apollo/scsi.h sys/sdi_comm.h sys/passthrudef.h linux/ppdev.h \
+    dev/ppbus/ppi.h usb.h sys/bitypes.h sys/sem.h sys/poll.h
 do
 as_ac_Header=`echo "ac_cv_header_$ac_header" | $as_tr_sh`
 if eval "test \"\${$as_ac_Header+set}\" = set"; then
@@ -9573,7 +9574,7 @@ test "x$enable_libtool_lock" != xno && enable_libtool_lock=yes
 case $host in
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 9576 "configure"' > conftest.$ac_ext
+  echo '#line 9577 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -10102,7 +10103,7 @@ chmod -w .
 save_CFLAGS="$CFLAGS"
 CFLAGS="$CFLAGS -o out/conftest2.$ac_objext"
 compiler_c_o=no
-if { (eval echo configure:10105: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>out/conftest.err; } && test -s out/conftest2.$ac_objext; then
+if { (eval echo configure:10106: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>out/conftest.err; } && test -s out/conftest2.$ac_objext; then
   # The compiler can only warn and ignore the option if not recognized
   # So say no if there are warnings
   if test -s out/conftest.err; then
@@ -11934,7 +11935,7 @@ else
     lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 11937 "configure"
+#line 11938 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -12032,7 +12033,7 @@ else
     lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 12035 "configure"
+#line 12036 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H

@@ -39,6 +39,9 @@
 /* Define to 1 if you have the `cfmakeraw' function. */
 #undef HAVE_CFMAKERAW
 
+/* Define to 1 if you have the <dev/ppbus/ppi.h> header file. */
+#undef HAVE_DEV_PPBUS_PPI_H
+
 /* Is /dev/urandom available? */
 #undef HAVE_DEV_URANDOM
 

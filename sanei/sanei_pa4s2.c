@@ -65,24 +65,16 @@
 #include <unistd.h>
 #endif
 
-#if defined(__ICC) /* the Intel C++ Compiler cannot expand asm inline macros */
-
 #if defined(HAVE_SYS_IO_H)
+# if defined (__ICC) && __ICC >= 700
+#  define __GNUC__ 2
+# endif
 #include <sys/io.h>
-#elif defined(HAVE_ASM_IO_H)
-#include <asm/io.h>		/* ugly, but backwards compatible */
-#elif defined(HAVE_SYS_HW_H)
-#include <sys/hw.h>
-#endif
-
-#undef HAVE_SYS_IO_H
-#undef HAVE_ASM_IO_H
-#undef HAVE_SYS_HW_H
-
-#endif
-
-#if defined(HAVE_SYS_IO_H)
-#include <sys/io.h>
+# if defined (__ICC) && __ICC >= 700
+#  undef __GNUC__
+# elif defined(__ICC) && defined(HAVE_ASM_IO_H)
+#  include <asm/io.h>
+# endif
 #elif defined(HAVE_ASM_IO_H)
 #include <asm/io.h>		/* ugly, but backwards compatible */
 #elif defined(HAVE_SYS_HW_H)

@@ -1,3 +1,9 @@
+2004-10-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added several
+	scanners. Removed Genius Vivid 1200 XE (actually supported by
+	gt68xx backend).
+
 2004-10-01  Oliver Rauch <Oliver.Rauch@Rauch-DOmain.DE>
 
 	* backend/umax-scanner.c, umax.conf and umax.desc:

@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2004-09-06"		; version of backend
+:version "2004-10-02"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -41,6 +41,16 @@
 :status :unsupported
 :comment "Unsupported. Same as Microtek Artixscan 2500f"
 
+
+;********************************************************************************************
+
+:mfg "Ambir"
+
+:model "Visigo A4"
+:url "/unsupported/syscan-travelscan-460.html"
+:interface "USB"
+:status :unsupported
+:comment "Not supported. See link for details."
 
 ;********************************************************************************************
 
@@ -201,6 +211,12 @@
 
 :model "CanoScan 5000F"
 :url "/unsupported/canon-5000f.html"
+:interface "USB"
+:status :unsupported
+:comment "Probably unsupported. See link for details."
+
+:model "CanoScan 5200F"
+:url "/unsupported/canon-5200f.html"
 :interface "USB"
 :status :unsupported
 :comment "Probably unsupported. See link for details."
@@ -447,13 +463,6 @@
 :interface "Parport"
 :status :unsupported
 :comment "Not supported. No details known."
-
-:model "Colorpage Vivid 1200 XE"
-:url "/unsupported/genius-colorpage-vivid-1200EX.html"
-:interface "USB"
-:status :unsupported
-:comment "Not supported yet. May work with the gt68xx backend in future. See link for details."
-
 
 ;********************************************************************************************
 
@@ -1273,13 +1282,13 @@
 :mfg "Syscan"
 
 :model "TravelScan 460/464"
-:url "http://lists.alioth.debian.org/pipermail/sane-devel/2003-February/006651.html"
+:url "/unsupported/syscan-travelscan-460.html"
 :interface "USB"
 :status :unsupported
-:comment "Not supported. Some information is available. May work with the Plustek backend in future."
+:comment "Not supported. Some information is available. See link for details."
 
 :model "TravelScan FS-531"
-:url "unsupported/syscan-travelscan-fs531.html"
+:url "/unsupported/syscan-travelscan-fs531.html"
 :interface "USB"
 :status :unsupported
 :comment "Not supported. May work with the Plustek backend in future. See link for details."

@@ -1,5 +1,21 @@
 -*-Mode: outline-*-
 
+New with 1.0.5, released 2001-??-??:
+
+* New backends: bh, dc240.
+* Updated backends: dll (), epson (), hp (), mustek (), pnm (), tamarack (),
+  umax ()
+* find-scanner was renamed to sane-find-scanner and is installed now. Further
+  more it has a man page now.
+* Linux-part of sanei_scsi.c was updated concerning buffersizes, devfs, and
+  kernel 2.4. More debug output.
+* sanei_scsi_find_devices works on FreeBSD now.
+* There is a testsuite for sane, but only one test is implemented yet.
+* Fixed security bug in saned.c that allowed access to scanner without
+  password.
+* Bugfixes.
+
+
 New with 1.0.4, released 2000-12-21:
 
 * New backends: as6e, nec, pie.

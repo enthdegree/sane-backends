@@ -1,14 +1,14 @@
-.TH sane-mustek 5 "11 Aug 2001"
+.TH sane-mustek 5 "18 Nov 2001"
 .IX sane-mustek
 .SH NAME
 sane-mustek - SANE backend for Mustek flatbed scanners
 .SH DESCRIPTION
 The
 .B sane-mustek
-library implements a SANE (Scanner Access Now Easy) backend that
-provides access to Mustek (and some relabeled Trust) flatbed scanners.
-At present, the following scanners are known to work more or less with
-this backend:
+library implements a SANE (Scanner Access Now Easy) backend that provides
+access to Mustek (and some relabeled Trust and Primax) flatbed scanners.  At
+present, the following scanners are known to work more or less with this
+backend:
 .PP
 .RS
 Paragon MFS-6000CX
@@ -44,6 +44,8 @@ Trust Imagery 1200 SP
 Trust Imagery 4800 SP
 .br
 Trust SCSI Connect 19200
+.br
+Primax Compact 4800 SCSI
 .br
 .RE
 .PP

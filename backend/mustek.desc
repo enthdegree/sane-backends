@@ -67,6 +67,7 @@
 :comment "Please test!"
 :model "Paragon 600 II N"
 :interface "Proprietary"
+
 :mfg "Trust"			; name a manufacturer
 :url "http://www.trust-site.com"
 :model "Imagery 1200 SP"
@@ -76,6 +77,11 @@
 :model "SCSI Connect 19200"
 :interface "SCSI"
 :model "SCSI excellence series 19200"
+:interface "SCSI"
+
+:mfg "Primax"			; name a manufacturer
+:url "http://www.primax.nl"
+:model "Compact 4800 SCSI"
 :interface "SCSI"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,

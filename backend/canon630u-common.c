@@ -158,7 +158,7 @@ gl640ReadReq (int fd, GL640_Request req, byte * data)
    fb630u: setup[2] = 0x80
 */
 static SANE_Status
-gl640WriteBulk (int fd, byte * setup, byte * data, unsigned int size)
+gl640WriteBulk (int fd, byte * setup, byte * data, size_t size)
 {
   SANE_Status status;
   setup[0] = 1;
@@ -181,7 +181,7 @@ gl640WriteBulk (int fd, byte * setup, byte * data, unsigned int size)
    fb630u: setup[2] = 0x80
 */
 static SANE_Status
-gl640ReadBulk (int fd, byte * setup, byte * data, unsigned int size)
+gl640ReadBulk (int fd, byte * setup, byte * data, size_t size)
 {
   SANE_Status status;
   setup[0] = 0;

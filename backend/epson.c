@@ -16,7 +16,7 @@
 
 */
 
-#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.1.34 - 2000-11-19"
+#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.1.35 - 2000-11-23"
 
 /*
    This file is part of the SANE package.
@@ -58,6 +58,8 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
+   2000-11-23   Display "Set Focus" control only for scanners that
+                can actually handle the command.
    2000-11-19   Added support for the "set focus position" command,
                 this is necessary for the Expression1600.
    2000-07-28   Changed #include <...> to #include "..." for the
@@ -1712,7 +1714,7 @@ static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
 
 	if (s->hw->cmd->request_identity2 != 0)
 	{
-		 get_identity2_information(s);
+		get_identity2_information(s);
 		if (status != SANE_STATUS_GOOD)
 			return status;
 	}	/* request identity 2 */
@@ -1747,7 +1749,8 @@ static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
 	{
 		DBG( 1, "Disabling 'Set Focus' support\n");
 		s->hw->focusSupport = SANE_FALSE;
-		s->opt[ OPT_FOCUS].cap |= SANE_CAP_INACTIVE; 
+		s->opt[OPT_FOCUS].cap |= SANE_CAP_INACTIVE; 
+		s->val[OPT_FOCUS].w = 0;	/* on glass - just in case */
 	}
 
 		
@@ -2627,7 +2630,16 @@ static SANE_Status init_options ( Epson_Scanner * s) {
 		s->opt[ OPT_FOCUS].constraint_type = SANE_CONSTRAINT_STRING_LIST;
 		s->opt[ OPT_FOCUS].constraint.string_list = focus_list;
 		s->val[ OPT_FOCUS].w = 0;
+
 		s->opt[ OPT_FOCUS].cap |= SANE_CAP_ADVANCED; 
+		if  (s->hw->focusSupport == SANE_TRUE)
+		{
+			s->opt[ OPT_FOCUS].cap &= ~SANE_CAP_INACTIVE; 
+		}
+		else
+		{
+			s->opt[ OPT_FOCUS].cap |= SANE_CAP_INACTIVE; 
+		}
 
 #if 0
 		if( ( ! s->hw->TPU) && ( ! s->hw->cmd->set_bay) ) {		/* Hack: Using set_bay to indicate. */

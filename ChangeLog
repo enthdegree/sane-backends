@@ -1,3 +1,12 @@
+2001-01-21  Henning Meier-Geinitz <hmg@gmx.de>
+
+	* AUTHORS: Added Tom Martone.
+	* PROJECTS: Removed bh (now included in sane).
+	* README: Added entry for sane-bh(5).
+	* TODO: Removed bh. Updated BearPaw entry. Added entry about v4l
+	  problem.
+	* backend/v4l.c: Changed comment as v4l is part of the sane package.
+
 2001-01-20  Tom Martone <tom@martoneconsulting.com>
 
         * doc/.cvsignore: Added sane-bh.5.

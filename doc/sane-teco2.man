@@ -1,4 +1,4 @@
-.TH sane-teco2 5 "23 October 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-teco2 5 "15 January 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-teco2
 .SH NAME
 sane-teco2 \- SANE backend for TECO / RELISYS scanners
@@ -22,17 +22,17 @@ The scanners that should work with this backend are:
 .br
 
   Mustek ScanMagic 4830S   VM3575        untested
-  Primax Jewel 4800        VM356A         tested
-  Primax Profi 9600        VM6575         tested
-  Primax Profi 19200       VM6586         tested
-  Relisys APOLLO Express 3 VM356A         tested
-  Relisys APOLLO Express 6 VM6565         tested
+  Primax Jewel 4800        VM356A         basic
+  Primax Profi 9600        VM6575         basic
+  Primax Profi 19200       VM6586         good
+  Relisys APOLLO Express 3 VM356A         basic
+  Relisys APOLLO Express 6 VM6565         good
   Relisys APOLLO Express 12   ?          untested
-  Relisys AVEC II S3       VM3564         tested
-  Relisys AVEC Super 3     VM3575         tested
-  Relisys SCORPIO Pro      VM6575         tested
-  Relisys SCORPIO Pro-S    VM6586         tested
-  Relisys SCORPIO Super 3  VM3575         tested
+  Relisys AVEC II S3       VM3564         basic
+  Relisys AVEC Super 3     VM3575         basic
+  Relisys SCORPIO Pro      VM6575         good
+  Relisys SCORPIO Pro-S    VM6586        untested
+  Relisys SCORPIO Super 3  VM3575         basic
 
 .RE
 
@@ -121,10 +121,22 @@ gamma table for the green channel. The table must be 256 bytes long.
 for the blue channel. The table must be 256 bytes long.
 
 .TP
-.B --white-level
-(VM3564, VM356A, VM3575 only)can be used to reduce the noise, when scanning
-some sheets by changing the calibration value loaded into the scanner.
+.B --white-level-r
+(VM3564, VM356A, VM3575 only) Selects what red radiance level should be
+considered "white", when scanning some sheets by changing the calibration 
+value loaded into the scanner. Scale 0..64 in steps of 1.
 
+.TP
+.B --white-level-g
+(VM3564, VM356A, VM3575 only) Selects what green radiance level should be
+considered "white", when scanning some sheets by changing the calibration i
+value loaded into the scanner. Scale 0..64 in steps of 1.
+
+.TP
+.B --white-level-g
+(VM3564, VM356A, VM3575 only) Selects what blue radiance level should be
+considered "white", when scanning some sheets by changing the calibration
+value loaded into the scanner. Scale 0..64 in steps of 1.
 
 .TP 
 .B --preview
@@ -182,19 +194,19 @@ sane\-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
 
 .SH AUTHORS
 
-The package is actively maintained by Frank Zago, Gerard Klaver.
-    http://www.zago.net/sane/#teco2
-    http://gkall.hobby.nl/index.html
+Frank Zago   http://www.zago.net/sane/#teco2
+
+The package is actively maintained by Gerard Klaver.
+             http://gkall.hobby.nl/teco2.html
 
 
-Gerard Klaver contributed a patch to support the VM3564 and VM356A.
 
 
 .SH CREDITS
 
 Thanks to:
 .TP
-Gerard Klaver for his relentless VM3575 testings.
+Gerard Klaver for his relentless VM3575 testings and contributed a patch to support the VM3564 and VM356A.
 .TP
 Mark Plowman for providing the first SCSI traces from a VM3575.
 .TP

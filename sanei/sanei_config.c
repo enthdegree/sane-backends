@@ -96,7 +96,7 @@ sanei_config_open (const char *filename)
       if (dir_list)
 	{
 	  len = strlen (dir_list);
-	  if (dir_list[len - 1] == DIR_SEP[0])
+	  if ((len > 0) && (dir_list[len - 1] == DIR_SEP[0]))
 	    {
 	      /* append default search directories: */
 	      mem = malloc (len + sizeof (DEFAULT_DIRS));

@@ -59,11 +59,15 @@
 #ifdef HAVE_UNISTD_H
 # include <unistd.h>
 #endif
+#ifdef HAVE_OS2_H
+# define INCL_DOSPROCESS
+# include <os2.h>
+#endif
 #if !defined USE_PTHREAD && !defined HAVE_OS2_H
-#include <signal.h>
+# include <signal.h>
 #endif
 #if defined USE_PTHREAD
-#include <pthread.h>
+# include <pthread.h>
 #endif
 
 #define BACKEND_NAME sanei_thread      /**< name of this module for debugging */
@@ -143,9 +147,6 @@ sanei_thread_get_status( int pid )
 
 #ifdef HAVE_OS2_H
 
-#define INCL_DOSPROCESS
-#include <os2.h>
-
 static void
 local_thread( void *arg )
 {
@@ -155,7 +156,7 @@ local_thread( void *arg )
 	ltd->status = ltd->func( ltd->func_data );
 
 	DBG( 2, "func() done - status = %d\n", ltd->status );
-	_end_thread();
+	_endthread();
 }
 
 /*
@@ -181,8 +182,6 @@ sanei_thread_begin( int (*func)(void *args), void* args )
    
 	DBG( 2, "_beginthread() created thread %d\n", pid );
 	return pid;
-}
-
 }
 
 int
@@ -363,4 +362,4 @@ sanei_thread_waitpid( int pid, int *status )
 
 #endif /* HAVE_OS2_H */
 
-
+/* END sanei_thread.c .......................................................*/

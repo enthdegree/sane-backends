@@ -103,13 +103,13 @@ extern SANE_Status sanei_thread_get_status( int pid );
  * argument. Add a function to your backend with this name and let it call your
  * own reader process. See mustek.c for an example.
  */
+/* FIXME: remove this ASAP */
 #ifdef HAVE_OS2_H
 static int os2_reader_process( void* data);
 
 #define fork()            sanei_thread_begin(os2_reader_process)
 #define kill(a, b)        sanei_thread_kill( a )
 #define waitpid(a, b, c)  sanei_thread_waitpid( a, b )
-#endif
 #endif
 
 #endif /* sanei_thread_h */

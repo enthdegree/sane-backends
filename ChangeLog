@@ -16,6 +16,7 @@
 	* TODO: Updated entries about compilation warnings for various
 	  backends. Removed entries about canon update and dll sane_exit
 	  problems.
+	* PROJECTS: Removed canon update.
 
 2002-04-21  Abel Deuring <a.deuring@satzbau-gmbh.de>
 	* backend/sharp.c: added a "free(devlist)" call to sane_exit

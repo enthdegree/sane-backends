@@ -1,5 +1,14 @@
-Plustek.changes (2004-08-02) Gerhard Jäger <gerhard@gjaeger.de>
+Plustek.changes (2004-21-04) Gerhard Jäger <gerhard@gjaeger.de>
 ===============================================================
+
+V 0.47-11 (2004-21-04)
+----------------------
+- minor fixes, esp. for MacOSX
+- added lamp-off and warmup options to be configurable by backends
+
+V 0.47-8 - 0.47-10
+------------------
+-never released
 
 V 0.47-7 (2004-08-02)
 ---------------------

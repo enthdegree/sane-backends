@@ -1,4 +1,4 @@
-.TH sane-u12 5 "09 Jan 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-u12 5 "23 Apr 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-u12
 .SH NAME
 sane-u12 \- SANE backend for Plustek USB flatbed scanners,
@@ -7,10 +7,14 @@ based on older parport designs
 The
 .B sane-u12
 library implements a SANE (Scanner Access Now Easy) backend that
-provides access to USB flatbed scanners based on ...
+provides access to USB flatbed scanners based on Plusteks' ASIC
+98003 (parallel-port ASIC) and a GeneSys Logics' USB-parport
+bridge chip.
 
 .SH "SUPPORTED DEVICES"
-The backend is able to support USB scanner based on...
+The backend is able to support some early Plustek USB scanner based
+their old parport design around the ASIC 98003 and other rebadged
+Plustek devices. The following tables will give you a short overview.
 
 If your Plustek scanner has another Product ID, then the device is
 .B NOT
@@ -175,4 +179,8 @@ before calling your favorite scan-frontend (i.e. xscanimage).
 The value controls the verbosity of the backend.
 
 .SH "KNOWN BUGS & RESTRICTIONS"
-* The driver is in alpha state, so please don't expect too much!!!
+* The driver is in alpha state, so please don't expect too
+  much!!!
+.br
+* When using libusb, it might be, that the backend hangs. 
+  In that case, reconnect the scanner.

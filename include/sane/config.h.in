@@ -49,6 +49,9 @@
 /* Define to 1 if you have the <dev/ppbus/ppi.h> header file. */
 #undef HAVE_DEV_PPBUS_PPI_H
 
+/* Define to 1 if you have the <machine/cpufunc.h> header file. */
+#undef HAVE_MACHINE_CPUFUNC_H
+
 /* Is /dev/urandom available? */
 #undef HAVE_DEV_URANDOM
 
@@ -102,6 +105,9 @@
 
 /* Define to 1 if you have the `ioperm' function. */
 #undef HAVE_IOPERM
+
+/* Define to 1 if you have the `i386_set_ioperm' function. */
+#undef HAVE_I386_SET_IOPERM
 
 /* Define to 1 if you have the <io/cam/cam.h> header file. */
 #undef HAVE_IO_CAM_CAM_H

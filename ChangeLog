@@ -1,3 +1,11 @@
+2003-09-18  Stéphane Voltz <svoltz@wanadoo.fr>
+
+	* backend/sane-umax_pp.c: fix default port address handling
+	  (patch from Malcolm Parsons <malcolm.parsons@virgin.net>)
+	* configure.in configure include/sane/config.h.in: added detection of
+	  machine/cpufunc.h and i386_set_ioperm() for FreeBSD support.
+	  
+
 2003-09-16  Stéphane Voltz <svoltz@wanadoo.fr>
 
 	* doc/sane-umax_pp_low.man: updated man page

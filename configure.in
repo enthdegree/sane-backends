@@ -106,7 +106,7 @@ AC_CHECK_HEADERS(fcntl.h unistd.h libc.h sys/dsreq.h sys/select.h \
     camlib.h os2.h sys/socket.h sys/io.h gscdds.h sys/hw.h \
     sys/types.h sys/scsi/scsi.h sys/scsi/sgdefs.h sys/scsi/targets/scgio.h \
     apollo/scsi.h sys/sdi_comm.h sys/passthrudef.h linux/ppdev.h \
-    dev/ppbus/ppi.h usb.h sys/bitypes.h sys/sem.h sys/poll.h IOKit/IOKitLib.h)
+    dev/ppbus/ppi.h machine/cpufunc.h usb.h sys/bitypes.h sys/sem.h sys/poll.h IOKit/IOKitLib.h)
 AC_CHECK_HEADERS([asm/io.h],,,[#include <sys/types.h>])
 SANE_CHECK_MISSING_HEADERS
 SANE_V4L_VERSION
@@ -183,7 +183,7 @@ dnl Checks for library functions
 dnl ***********************************************************************
 AC_FUNC_ALLOCA
 AC_FUNC_MMAP
-AC_CHECK_FUNCS(atexit inet_addr inet_aton inet_ntoa ioperm mkdir \
+AC_CHECK_FUNCS(atexit inet_addr inet_aton inet_ntoa ioperm i386_set_ioperm mkdir \
     scsireq_enter strftime strstr strtod  \
     cfmakeraw tcsendbreak strcasecmp strncasecmp _portaccess \
     getaddrinfo getnameinfo poll)

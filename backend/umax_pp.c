@@ -1130,10 +1130,18 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
       DBG (3, "open: trying default device %s, port=%s,ppdev=%s\n",
 	   devlist[0].sane.name, devlist[0].port, devlist[0].ppdevice);
       if (devlist[0].port != NULL)
-	rc = sanei_umax_pp_open (atoi (devlist[0].port), NULL);
+        {
+          if ((devlist[0].port[0] == '0')
+              && ((devlist[0].port[1] == 'x') || (devlist[0].port[1] == 'X')))
+            prt = strtol (devlist[0].port + 2, NULL, 16);
+          else
+            prt = atoi (devlist[0].port);
+	  rc = sanei_umax_pp_open (prt, NULL);
+        }
       else
-	rc = sanei_umax_pp_open (0, devlist[0].ppdevice);
-
+        {
+          rc = sanei_umax_pp_open (0, devlist[0].ppdevice);
+        }
       desc = &devlist[0];
     }
   switch (rc)
@@ -1141,8 +1149,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
     case UMAX1220P_TRANSPORT_FAILED:
       if (name == NULL)
 	{
-	  DBG (1, "failed to init transport layer on port 0x%03X\n",
-	       atoi (desc->port));
+	  DBG (1, "failed to init transport layer on port 0x%03X\n", prt);
 	}
       else
 	{
@@ -1153,8 +1160,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
     case UMAX1220P_SCANNER_FAILED:
       if (name == NULL)
 	{
-	  DBG (1, "failed to initialize scanner on port 0x%03X\n",
-	       atoi (desc->port));
+	  DBG (1, "failed to initialize scanner on port 0x%03X\n", prt);
 	}
       else
 	{
@@ -1164,7 +1170,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
     case UMAX1220P_BUSY:
       if (name == NULL)
 	{
-	  DBG (1, "busy scanner on port 0x%03X\n", atoi (desc->port));
+	  DBG (1, "busy scanner on port 0x%03X\n", prt);
 	}
       else
 	{

@@ -1,4 +1,4 @@
-TODO (2000-09-30)
+TODO (2000-10-03)
 
 ******** todo ********
 
@@ -23,12 +23,6 @@ backends
   * use DBG(...) instead of fprintf(stderr, ...)
      - microtek
      - microtek2
-
-  * use sanei_config_read() instead of fgets()
-     - umax (will be fixed with the next backend release)
-
-  * use #include "sane/..." instead of #include <sane/...>
-     - umax (see above)
 
   * check #include <lalloca.h> (is this a global system header
     on any platform? Otherwise --> "lalloca.h")
@@ -74,14 +68,6 @@ frontends
 
   * xscanimage/xcam: support depths > 8 bits/channel
 
-  * scanimage: add information about backend:devicename in the man
-    page and scanimage --help.
-
-  * scanimage: check if devicename starts with a / and print a warning
-    message
- 
-  * scanimage: if no devices are detected print a message
-
   * xscanimage: provide both scale and textentry for ranges (make new widget)
 
   * xcam: provide access to option doc strings
@@ -110,6 +96,9 @@ frontends
   * Add a check in the frontends if the backend delivers more data than
     it announced by sane_get_parameters to avoid segfaults with bad 
     backends?
+
+  * Adapt xscanimage to new GIMP API. Try to make it backwards compatible
+    with old GIMP versions if possible.
 
 sanei
 -----
@@ -148,7 +137,8 @@ misc
 
   * Add a check for installed sane versions.
 
-  * Print a warning when already a sane version is installed.                       
+  * Print a warning when already a sane version is installed.
+
   * Maybe add script to detect and deinstall existing sane versions
 
   * 0 is white for sane in lineart and halftone, however, 0 is black for
@@ -157,6 +147,13 @@ misc
 
 ******** done ********
 
+* scanimage: add information about backend:devicename in the man
+  page and scanimage --help.
+* scanimage: check if devicename starts with a / and print a warning
+  message
+* scanimage: if no devices are detected print a message
+* use sanei_config_read() instead of fgets()
+* use #include "sane/..." instead of #include <sane/...>
 * Update LEVEL2 file. Ideas:
 * xscanimage: Fix "Gtk-CRITICAL **: file gtkmain.c: line 534 ..." bug
   when no SANE devices found

@@ -212,14 +212,14 @@ struct cam_dirent
  * in the following dir_buf structure - it has to match data read from
  * the camera.  gcc does this with __attribute__ ((packed))
  */
-#error
+#  error "Please port to this compiler."
 #endif
 
 struct dir_buf
 {
   SANE_Byte entries_msb PACKED;
   SANE_Byte entries_lsb PACKED;
-  struct cam_dirent entry[1000] __attribute__ ((packed));
+  struct cam_dirent entry[1000] PACKED;
 };
 
 struct cam_dirlist

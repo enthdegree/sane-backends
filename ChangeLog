@@ -1,3 +1,14 @@
+2002-11-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/gt68xx.c backend/gt68xx_devices.c backend/gt68xx_high.h
+	  backend/gt68xx_low.h doc/sane-gt68xx.man doc/descriptions/gt68xx.desc
+	  doc/gt68xx/gt68xx.CHANGES po/Makefile.in po/gt68xx.de.po: Changed
+	  option titles and descriptions to make them better readable. Added
+	  translation markers for all options. Added German translation for
+	  backend options. Updated manpage and .desc file concerning scanner
+	  status. Added untested flag for Mustek ScanEpress A3 USB and Lexmark
+	  X73.
+
 2002-11-05   Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* backend/umax_pp.c  backend/umax_pp_mid.c : OS/2 compile fix, indent

@@ -129,6 +129,7 @@
 #define GT68XX_FLAG_MIRROR_X	 (1 << 0)	/* CIS unit mounted the other way round? */
 #define GT68XX_FLAG_MOTOR_HOME	 (1 << 1)	/* Use motor_home command (0x34) */
 #define GT68XX_FLAG_OFFSET_INV   (1 << 2)	/* Offset control is inverted */
+#define GT68XX_FLAG_UNTESTED     (1 << 3)	/* Print a warning for these scanners */
 
 /* Forward typedefs */
 typedef struct GT68xx_USB_Device_Entry GT68xx_USB_Device_Entry;

@@ -1,6 +1,6 @@
 :backend "gt68xx"
 :status :alpha
-:version "1.0-27"
+:version "1.0-29"
 :manpage "sane-gt68xx"
 :url "http://www.meier-geinitz.de/sane/gt68xx-backend/"
 :comment "Only the USB scanners mentioned below are supported. For other Mustek BearPaws, look at the Plustek backend."
@@ -21,8 +21,7 @@
 
 :model "BearPaw 1200 CU Plus"
 :interface "USB"
-:comment "probably works, reports are welcome"
-:status :untested
+:status :beta
 
 :model "BearPaw 1200 TA"
 :interface "USB"
@@ -46,8 +45,7 @@
 
 :model "BearPaw 2400 CU Plus"
 :interface "USB"
-:status :alpha
-:comment "works, but calibration is slow"
+:status :beta
 
 :model "BearPaw 2400 TA"
 :interface "USB"
@@ -131,7 +129,7 @@
 :comment "Similar to Artec Ultima 2000"
 
 :model "Compact Scan USB 19200"
-:status :alpha
+:status :beta
 :interface "USB"
 :comment "works, if you have vendor id 0x055f and product id 0x0006, use the mustek_usb backend instead, similar to Mustek ScanExpress 1200 UB (Plus)"
 

@@ -1,3 +1,11 @@
+V 1.0-29 (2002-11-??)
+
+- Changed option titles and descriptions to make them better readable.
+- Added translation markers for all options.
+- Added German translation for backend options.
+- Updated manpage and .desc file concerning scanner status.
+- Added untested flag for Mustek ScanEpress A3 USB and Lexmark X73.
+
 V 1.0-28 (2002-10-31)
 
 - Reduce scan width of 2400 TA Plus: otherwise the black mark would create

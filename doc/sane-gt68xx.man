@@ -1,4 +1,4 @@
-.TH sane-gt68xx 5 "25 Oct 2002"
+.TH sane-gt68xx 5 "5 Nov 2002"
 .IX sane-gt68xx
 .SH NAME
 sane-gt68xx - SANE backend for GT-68XX based USB flatbed scanners
@@ -25,7 +25,7 @@ Medion/Lifetec/Tevion MD 9458
 .br
 Mustek BearPaw 1200 CS
 .br
-Mustek BearPaw 1200 CU
+Mustek BearPaw 1200 CU (Plus)
 .br
 Mustek BearPaw 1200 TA
 .br

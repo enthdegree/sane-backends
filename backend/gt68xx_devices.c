@@ -227,8 +227,8 @@ static GT68xx_Model mustek_1200ta_model = {
   {0x2a, 0x0c, 0x2e, 0x06, 0x2d, 0x07},
   {0x157, 0x157, 0x157},
   SANE_FALSE,
-  0
-    /* Everything untested */
+  GT68XX_FLAG_UNTESTED
+  /* Setup for 1200 TA */
 };
 
 static GT68xx_Model mustek_1200cuplus_model = {
@@ -488,7 +488,7 @@ static GT68xx_Model mustek_2400cu_model = {
   {0x157, 0x157, 0x157},
   SANE_TRUE,
   0
-    /* basically tested, works up to 300 dpi (?) */
+    /* basically tested, details may need tweaking */
 };
 
 static GT68xx_Model mustek_a3usb_model = {
@@ -530,8 +530,8 @@ static GT68xx_Model mustek_a3usb_model = {
   {0x14, 0x07, 0x14, 0x07, 0x14, 0x07},
   {0x157, 0x157, 0x157},
   SANE_TRUE,
-  0
-    /* Completely untested */
+  GT68XX_FLAG_UNTESTED
+    /* Completely untested, doesn't seem to work */
 };
 
 static GT68xx_Model lexmark_x73_model = {
@@ -574,12 +574,13 @@ static GT68xx_Model lexmark_x73_model = {
   {0x14, 0x07, 0x14, 0x07, 0x14, 0x07},
   {0x157, 0x157, 0x157},
   SANE_FALSE,
-  0
-    /* 50 dpi and 1200 dpi scan does not work (for lexmark x70); when using
-       automatic gain pictures are too dark. Only some ad hoc tests for
-       lexmark x70 were done so far. WARNING: Don't use the Full scan option
-       with the above settings, otherwise the sensor may bump at the end of
-       the sledge and the scanner may be damaged!  */
+  GT68XX_FLAG_UNTESTED
+
+  /* 50 dpi and 1200 dpi scan does not work (for lexmark x70); when using
+     automatic gain pictures are too dark. Only some ad hoc tests for
+     lexmark x70 were done so far. WARNING: Don't use the Full scan option
+     with the above settings, otherwise the sensor may bump at the end of
+     the sledge and the scanner may be damaged!  */
 };
 
 static GT68xx_USB_Device_Entry gt68xx_usb_device_list[] = {

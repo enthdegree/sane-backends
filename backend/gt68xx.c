@@ -48,7 +48,7 @@
 
 #include "../include/sane/config.h"
 
-#define BUILD 28
+#define BUILD 29
 #define MAX_DEBUG
 #define WARMUP_TIME 30
 
@@ -391,26 +391,13 @@ init_options (GT68xx_Scanner * s)
   s->opt[OPT_LAMP_ON].name = "lamp-on";
   s->opt[OPT_LAMP_ON].title = SANE_I18N ("Lamp always on");
   s->opt[OPT_LAMP_ON].desc =
-    SANE_I18N ("Don't turn off the lamp after leaving the " "frontend.");
+    SANE_I18N ("Don't turn off the lamp after leaving the frontend.");
   s->opt[OPT_LAMP_ON].type = SANE_TYPE_BOOL;
   s->opt[OPT_LAMP_ON].unit = SANE_UNIT_NONE;
   s->opt[OPT_LAMP_ON].constraint_type = SANE_CONSTRAINT_NONE;
   s->val[OPT_LAMP_ON].w = SANE_FALSE;
   if (s->dev->model->is_cis)
     DISABLE (OPT_LAMP_ON);
-
-  /* auto warmup */
-  s->opt[OPT_AUTO_WARMUP].name = "auto-warmup";
-  s->opt[OPT_AUTO_WARMUP].title = SANE_I18N ("Automatic warmup";
-					     s->opt[OPT_AUTO_WARMUP].desc =
-					     "Check if the lamp's brightness is constant "
-					     "instead of insisting on waiting for 30 seconds.");
-  s->opt[OPT_AUTO_WARMUP].type = SANE_TYPE_BOOL;
-  s->opt[OPT_AUTO_WARMUP].unit = SANE_UNIT_NONE;
-  s->opt[OPT_AUTO_WARMUP].constraint_type = SANE_CONSTRAINT_NONE;
-  s->val[OPT_AUTO_WARMUP].w = SANE_TRUE;
-  if (s->dev->model->is_cis)
-    DISABLE (OPT_AUTO_WARMUP);
 
   /* bit depth */
   s->opt[OPT_BIT_DEPTH].name = SANE_NAME_BIT_DEPTH;
@@ -452,34 +439,56 @@ init_options (GT68xx_Scanner * s)
   s->opt[OPT_DEBUG_GROUP].cap = 0;
   s->opt[OPT_DEBUG_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
+  /* auto warmup */
+  s->opt[OPT_AUTO_WARMUP].name = "auto-warmup";
+  s->opt[OPT_AUTO_WARMUP].title = SANE_I18N ("Automatic warmup");
+  s->opt[OPT_AUTO_WARMUP].desc = 
+    SANE_I18N ("Warm-up until the lamp's brightness is constant "
+	       "instead of insisting on 30 seconds warm-up time.");
+  s->opt[OPT_AUTO_WARMUP].type = SANE_TYPE_BOOL;
+  s->opt[OPT_AUTO_WARMUP].unit = SANE_UNIT_NONE;
+  s->opt[OPT_AUTO_WARMUP].constraint_type = SANE_CONSTRAINT_NONE;
+  s->val[OPT_AUTO_WARMUP].w = SANE_TRUE;
+  if (s->dev->model->is_cis)
+    DISABLE (OPT_AUTO_WARMUP);
+
   /* full scan */
   s->opt[OPT_FULL_SCAN].name = "full-scan";
-  s->opt[OPT_FULL_SCAN].title = "Full scan";
-  s->opt[OPT_FULL_SCAN].desc = "Scan the complete scanning area including "
-    "calibration strip.";
+  s->opt[OPT_FULL_SCAN].title = SANE_I18N ("Full scan");
+  s->opt[OPT_FULL_SCAN].desc = 
+    SANE_I18N ("Scan the complete scanning area including calibration strip. "
+	       "Be carefull. Don't select the full height. For testing only.");
   s->opt[OPT_FULL_SCAN].type = SANE_TYPE_BOOL;
   s->opt[OPT_FULL_SCAN].unit = SANE_UNIT_NONE;
   s->opt[OPT_FULL_SCAN].constraint_type = SANE_CONSTRAINT_NONE;
   s->val[OPT_FULL_SCAN].w = SANE_FALSE;
 
   /* automatic gain */
-  s->opt[OPT_AUTO_GAIN].name = "auto-gain";
-  s->opt[OPT_AUTO_GAIN].title = "Automatic gain";
-  s->opt[OPT_AUTO_GAIN].desc = "Automatic setup of offset and gain. ";
-  s->opt[OPT_AUTO_GAIN].type = SANE_TYPE_BOOL;
-  s->opt[OPT_AUTO_GAIN].unit = SANE_UNIT_NONE;
-  s->opt[OPT_AUTO_GAIN].constraint_type = SANE_CONSTRAINT_NONE;
-  s->val[OPT_AUTO_GAIN].w = SANE_TRUE;
+  s->opt[OPT_COARSE_CAL].name = "coarse-calibration";
+  s->opt[OPT_COARSE_CAL].title = SANE_I18N ("Coarse calibration");
+  s->opt[OPT_COARSE_CAL].desc =
+    SANE_I18N ("Setup gain and offset for scanning automatically. If this "
+	       "option is disabled, options for setting the analog frontend "
+	       "parameters manually are provided. This option is enabled "
+	       "by default. For testing only.");
+  s->opt[OPT_COARSE_CAL].type = SANE_TYPE_BOOL;
+  s->opt[OPT_COARSE_CAL].unit = SANE_UNIT_NONE;
+  s->opt[OPT_COARSE_CAL].constraint_type = SANE_CONSTRAINT_NONE;
+  s->val[OPT_COARSE_CAL].w = SANE_TRUE;
 
   /* automatic gain only once */
-  s->opt[OPT_AUTO_GAIN_ONCE].name = "auto-gain-once";
-  s->opt[OPT_AUTO_GAIN_ONCE].title = "Automatic gain for first scan only";
-  s->opt[OPT_AUTO_GAIN_ONCE].desc =
-    "Enable auto gain only for the first scan.";
-  s->opt[OPT_AUTO_GAIN_ONCE].type = SANE_TYPE_BOOL;
-  s->opt[OPT_AUTO_GAIN_ONCE].unit = SANE_UNIT_NONE;
-  s->opt[OPT_AUTO_GAIN_ONCE].constraint_type = SANE_CONSTRAINT_NONE;
-  s->val[OPT_AUTO_GAIN_ONCE].w = SANE_TRUE;
+  s->opt[OPT_COARSE_CAL_ONCE].name = "coarse-calibration-once";
+  s->opt[OPT_COARSE_CAL_ONCE].title = 
+    SANE_I18N ("Coarse calibration for first scan only");
+  s->opt[OPT_COARSE_CAL_ONCE].desc =
+    SANE_I18N ("Coarse calibration is only done for the first scan. Works "
+	       "with most scanners and can save scanning time. If the image "
+	       "brightness is different with each scan, disable this option. "
+	       "For testing only.");
+  s->opt[OPT_COARSE_CAL_ONCE].type = SANE_TYPE_BOOL;
+  s->opt[OPT_COARSE_CAL_ONCE].unit = SANE_UNIT_NONE;
+  s->opt[OPT_COARSE_CAL_ONCE].constraint_type = SANE_CONSTRAINT_NONE;
+  s->val[OPT_COARSE_CAL_ONCE].w = SANE_TRUE;
 
   /* calibration */
   s->opt[OPT_QUALITY_CAL].name = SANE_NAME_QUALITY_CAL;
@@ -489,25 +498,6 @@ init_options (GT68xx_Scanner * s)
   s->opt[OPT_QUALITY_CAL].unit = SANE_UNIT_NONE;
   s->opt[OPT_QUALITY_CAL].constraint_type = SANE_CONSTRAINT_NONE;
   s->val[OPT_QUALITY_CAL].w = SANE_TRUE;
-
-  /* "Enhancement" group: */
-  s->opt[OPT_ENHANCEMENT_GROUP].title = "Enhancement";
-  s->opt[OPT_ENHANCEMENT_GROUP].desc = "";
-  s->opt[OPT_ENHANCEMENT_GROUP].type = SANE_TYPE_GROUP;
-  s->opt[OPT_ENHANCEMENT_GROUP].cap = 0;
-  s->opt[OPT_ENHANCEMENT_GROUP].size = 0;
-  s->opt[OPT_ENHANCEMENT_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
-
-  /* threshold */
-  s->opt[OPT_THRESHOLD].name = SANE_NAME_THRESHOLD;
-  s->opt[OPT_THRESHOLD].title = SANE_TITLE_THRESHOLD;
-  s->opt[OPT_THRESHOLD].desc = SANE_DESC_THRESHOLD;
-  s->opt[OPT_THRESHOLD].type = SANE_TYPE_INT;
-  s->opt[OPT_THRESHOLD].unit = SANE_UNIT_NONE;
-  s->opt[OPT_THRESHOLD].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_THRESHOLD].constraint.range = &u8_range;
-  s->val[OPT_THRESHOLD].w = 128;
-  DISABLE (OPT_THRESHOLD);
 
   /* exposure time red */
   s->opt[OPT_SCAN_EXPOS_TIME_R].name = SANE_NAME_SCAN_EXPOS_TIME_R;
@@ -544,8 +534,9 @@ init_options (GT68xx_Scanner * s)
 
   /* offset red */
   s->opt[OPT_OFFSET_R].name = "offset-r";
-  s->opt[OPT_OFFSET_R].title = "Offset red";
-  s->opt[OPT_OFFSET_R].desc = "AFE offset red.";
+  s->opt[OPT_OFFSET_R].title = SANE_I18N ("Offset red");
+  s->opt[OPT_OFFSET_R].desc = 
+    SANE_I18N ("Offset (brightness) of the red channel.");
   s->opt[OPT_OFFSET_R].type = SANE_TYPE_INT;
   s->opt[OPT_OFFSET_R].unit = SANE_UNIT_NONE;
   s->opt[OPT_OFFSET_R].constraint_type = SANE_CONSTRAINT_RANGE;
@@ -555,8 +546,9 @@ init_options (GT68xx_Scanner * s)
 
   /* offset green */
   s->opt[OPT_OFFSET_G].name = "offset-g";
-  s->opt[OPT_OFFSET_G].title = "Offset green";
-  s->opt[OPT_OFFSET_G].desc = "AFE offset green.";
+  s->opt[OPT_OFFSET_G].title = SANE_I18N ("Offset green");
+  s->opt[OPT_OFFSET_G].desc = 
+    SANE_I18N ("Offset (brightness) of the green (and gray) channel.");
   s->opt[OPT_OFFSET_G].type = SANE_TYPE_INT;
   s->opt[OPT_OFFSET_G].unit = SANE_UNIT_NONE;
   s->opt[OPT_OFFSET_G].constraint_type = SANE_CONSTRAINT_RANGE;
@@ -566,8 +558,9 @@ init_options (GT68xx_Scanner * s)
 
   /* offset blue */
   s->opt[OPT_OFFSET_B].name = "offset-b";
-  s->opt[OPT_OFFSET_B].title = "Offset blue";
-  s->opt[OPT_OFFSET_B].desc = "AFE offset blue.";
+  s->opt[OPT_OFFSET_B].title = SANE_I18N ("Offset blue");
+  s->opt[OPT_OFFSET_B].desc = 
+    SANE_I18N ("Offset (brightness) of the blue channel.");
   s->opt[OPT_OFFSET_B].type = SANE_TYPE_INT;
   s->opt[OPT_OFFSET_B].unit = SANE_UNIT_NONE;
   s->opt[OPT_OFFSET_B].constraint_type = SANE_CONSTRAINT_RANGE;
@@ -577,8 +570,9 @@ init_options (GT68xx_Scanner * s)
 
   /* gain red */
   s->opt[OPT_GAIN_R].name = "gain-r";
-  s->opt[OPT_GAIN_R].title = "Gain red";
-  s->opt[OPT_GAIN_R].desc = "AFE gain red.";
+  s->opt[OPT_GAIN_R].title = SANE_I18N ("Gain red");
+  s->opt[OPT_GAIN_R].desc = 
+    SANE_I18N ("Gain (contrast) of the red channel.");
   s->opt[OPT_GAIN_R].type = SANE_TYPE_INT;
   s->opt[OPT_GAIN_R].unit = SANE_UNIT_NONE;
   s->opt[OPT_GAIN_R].constraint_type = SANE_CONSTRAINT_RANGE;
@@ -588,8 +582,9 @@ init_options (GT68xx_Scanner * s)
 
   /* gain green */
   s->opt[OPT_GAIN_G].name = "gain-g";
-  s->opt[OPT_GAIN_G].title = "Gain green";
-  s->opt[OPT_GAIN_G].desc = "AFE gain green.";
+  s->opt[OPT_GAIN_G].title = SANE_I18N ("Gain green");
+  s->opt[OPT_GAIN_G].desc = 
+    SANE_I18N ("Gain (contrast) of the green (and gray) channel.");
   s->opt[OPT_GAIN_G].type = SANE_TYPE_INT;
   s->opt[OPT_GAIN_G].unit = SANE_UNIT_NONE;
   s->opt[OPT_GAIN_G].constraint_type = SANE_CONSTRAINT_RANGE;
@@ -599,8 +594,9 @@ init_options (GT68xx_Scanner * s)
 
   /* gain blue */
   s->opt[OPT_GAIN_B].name = "gain-b";
-  s->opt[OPT_GAIN_B].title = "Gain blue";
-  s->opt[OPT_GAIN_B].desc = "AFE gain blue.";
+  s->opt[OPT_GAIN_B].title = SANE_I18N ("Gain blue");
+  s->opt[OPT_GAIN_B].desc = 
+    SANE_I18N ("Gain (contrast) of the blue channel.");
   s->opt[OPT_GAIN_B].type = SANE_TYPE_INT;
   s->opt[OPT_GAIN_B].unit = SANE_UNIT_NONE;
   s->opt[OPT_GAIN_B].constraint_type = SANE_CONSTRAINT_RANGE;
@@ -608,6 +604,24 @@ init_options (GT68xx_Scanner * s)
   s->val[OPT_GAIN_B].w = s->dev->afe->b_pga;
   DISABLE (OPT_GAIN_B);
 
+  /* "Enhancement" group: */
+  s->opt[OPT_ENHANCEMENT_GROUP].title = SANE_I18N ("Enhancement");
+  s->opt[OPT_ENHANCEMENT_GROUP].desc = "";
+  s->opt[OPT_ENHANCEMENT_GROUP].type = SANE_TYPE_GROUP;
+  s->opt[OPT_ENHANCEMENT_GROUP].cap = 0;
+  s->opt[OPT_ENHANCEMENT_GROUP].size = 0;
+  s->opt[OPT_ENHANCEMENT_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
+
+  /* threshold */
+  s->opt[OPT_THRESHOLD].name = SANE_NAME_THRESHOLD;
+  s->opt[OPT_THRESHOLD].title = SANE_TITLE_THRESHOLD;
+  s->opt[OPT_THRESHOLD].desc = SANE_DESC_THRESHOLD;
+  s->opt[OPT_THRESHOLD].type = SANE_TYPE_INT;
+  s->opt[OPT_THRESHOLD].unit = SANE_UNIT_NONE;
+  s->opt[OPT_THRESHOLD].constraint_type = SANE_CONSTRAINT_RANGE;
+  s->opt[OPT_THRESHOLD].constraint.range = &u8_range;
+  s->val[OPT_THRESHOLD].w = 128;
+  DISABLE (OPT_THRESHOLD);
 
   /* "Geometry" group: */
   s->opt[OPT_GEOMETRY_GROUP].title = SANE_I18N ("Geometry");
@@ -1164,6 +1178,15 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   RIE (gt68xx_device_open (dev, devicename));
   RIE (gt68xx_device_activate (dev));
 
+  if (dev->model->flags & GT68XX_FLAG_UNTESTED)
+    {
+      DBG (0, "WARNING: Your scanner is not fully supported or at least \n");
+      DBG (0, "         had only limited testing. Please be careful and \n");
+      DBG (0, "         report any failure/success to \n");
+      DBG (0, "         henning@meier-geinitz.de. Please provide as many\n");
+      DBG (0, "         details as possible, e.g. the exact name of your\n");
+      DBG (0, "         scanner and what does (not) work.\n");
+    }
   RIE (gt68xx_device_check_firmware (dev, &firmware_loaded));
   if (firmware_loaded)
     DBG (3, "sane_open: firmware already loaded, skipping load\n");
@@ -1304,8 +1327,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_RESOLUTION:
 	case OPT_BIT_DEPTH:
 	case OPT_FULL_SCAN:
-	case OPT_AUTO_GAIN:
-	case OPT_AUTO_GAIN_ONCE:
+	case OPT_COARSE_CAL:
+	case OPT_COARSE_CAL_ONCE:
 	case OPT_QUALITY_CAL:
 	case OPT_PREVIEW:
 	case OPT_LAMP_ON:
@@ -1371,7 +1394,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  break;
 	case OPT_LAMP_ON:
 	case OPT_AUTO_WARMUP:
-	case OPT_AUTO_GAIN_ONCE:
+	case OPT_COARSE_CAL_ONCE:
 	case OPT_QUALITY_CAL:
 	case OPT_THRESHOLD:
 	case OPT_SCAN_EXPOS_TIME_R:
@@ -1434,11 +1457,11 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
 	  break;
 
-	case OPT_AUTO_GAIN:
+	case OPT_COARSE_CAL:
 	  s->val[option].w = *(SANE_Word *) val;
 	  if (s->val[option].w == SANE_TRUE)
 	    {
-	      ENABLE (OPT_AUTO_GAIN_ONCE);
+	      ENABLE (OPT_COARSE_CAL_ONCE);
 	      DISABLE (OPT_SCAN_EXPOS_TIME_R);
 	      DISABLE (OPT_SCAN_EXPOS_TIME_G);
 	      DISABLE (OPT_SCAN_EXPOS_TIME_B);
@@ -1452,7 +1475,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    }
 	  else
 	    {
-	      DISABLE (OPT_AUTO_GAIN_ONCE);
+	      DISABLE (OPT_COARSE_CAL_ONCE);
 	      ENABLE (OPT_SCAN_EXPOS_TIME_R);
 	      ENABLE (OPT_SCAN_EXPOS_TIME_G);
 	      ENABLE (OPT_SCAN_EXPOS_TIME_B);
@@ -1529,12 +1552,12 @@ sane_start (SANE_Handle handle)
     }
 
   setup_scan_request (s, &scan_request);
-  if (!s->first_scan && s->val[OPT_AUTO_GAIN_ONCE].w == SANE_TRUE)
+  if (!s->first_scan && s->val[OPT_COARSE_CAL_ONCE].w == SANE_TRUE)
     s->auto_afe = SANE_FALSE;
   else
-    s->auto_afe = s->val[OPT_AUTO_GAIN].w;
+    s->auto_afe = s->val[OPT_COARSE_CAL].w;
 
-  if (s->val[OPT_AUTO_GAIN].w == SANE_FALSE)
+  if (s->val[OPT_COARSE_CAL].w == SANE_FALSE)
     {
       s->dev->exposure->r_time = s->val[OPT_SCAN_EXPOS_TIME_R].w;
       s->dev->exposure->g_time = s->val[OPT_SCAN_EXPOS_TIME_G].w;

@@ -5,6 +5,7 @@ all: check-mo
 
 # Create one line per backend with all files containing translatable text:
 epson.*.po: ../backend/epson.c ../backend/epson.h
+gt68xx.*.po: ../backend/gt68xx.c
 matsushita.*.po: ../backend/matsushita.c ../backend/matsushita.h
 mustek.*.po: ../backend/mustek.c
 mustek_usb.*.po: ../backend/mustek_usb.c
@@ -56,10 +57,10 @@ ALL_LINGUAS = $(sort $(subst .,,$(suffix $(basename $(ALL_POS)))))
 
 DISTCLEAN_FILES = @DISTCLEAN_FILES@
 
-DISTFILES = Makefile.in README epson.de.po mustek.de.po matsushita.fr.po \
-  mustek_usb.de.po plustek.de.po plustek.es.po pnm.de.po saneopts.de.po \
-  saneopts.fr.po saneopts.es.po sceptre.fr.po teco1.fr.po umax.de.po \
-  umax.fr.po umax_pp.fr.po snapscan.de.po umax_pp.de.po
+DISTFILES = Makefile.in README epson.de.po gt68xx.de.po mustek.de.po \
+  matsushita.fr.po mustek_usb.de.po plustek.de.po plustek.es.po pnm.de.po \
+  saneopts.de.po saneopts.fr.po saneopts.es.po sceptre.fr.po teco1.fr.po \
+  umax.de.po umax.fr.po umax_pp.fr.po snapscan.de.po umax_pp.de.po
 
 .PHONY: all clean depend dist distclean install install-translations \
   uninstall update-mo update-po generate-%

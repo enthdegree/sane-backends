@@ -1,3 +1,7 @@
+2002-09-10  Peter Kirchgessner <peter@kirchgessner.net>
+
+	* doc/sane-hp.man: Added hints about special USB device names
+
 2002-09-07  Frank Zago  <fzago at austin dot rr dot com>
 
 	* backend/teco1.c backend/teco1.h teco1.desc: added threshold

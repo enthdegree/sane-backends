@@ -201,6 +201,8 @@ AC_CHECK_LIB(usb, usb_open)
 
 SANE_CHECK_JPEG
 
+SANE_CHECK_IEEE1284
+
 SANE_CHECK_GPHOTO2
 
 dnl IRIX sometimes has SYSVR3/4 network DSOs, but we do not need or want
@@ -257,6 +259,15 @@ AC_SUBST(DC210)
 AC_SUBST(DC240)
 AC_SUBST(DJPEG)
 
+if test "${sane_cv_use_libieee1284}" != "yes"
+then
+  echo "disabling CANON_PP backend (failed to find required libieee1284)"
+  CANON_PP=
+else
+  echo "enabling CANON_PP backend"
+  CANON_PP=canon_pp
+fi
+AC_SUBST(CANON_PP)
 
 if test "${HAVE_GPHOTO2}" != "gphoto2-config" \
       -o "${sane_cv_use_libjpeg}" != "yes"; then

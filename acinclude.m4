@@ -4,6 +4,7 @@ dnl   SANE_EXTRACT_LDFLAGS(LDFLAGS, LIBS)
 dnl   SANE_V4L_VERSION
 dnl   SANE_CHECK_PTAL
 dnl   SANE_CHECK_JPEG
+dnl   SANE_CHECK_IEEE1284
 dnl   JAPHAR_GREP_CFLAGS(flag, cmd_if_missing, cmd_if_present)
 dnl   SANE_LINKER_RPATH
 dnl   SANE_CHECK_U_TYPES
@@ -94,6 +95,19 @@ AC_DEFUN(SANE_CHECK_PTAL,
 	unset PTAL_OLD_CPPFLAGS
 	unset PTAL_OLD_LDFLAGS
 ])
+
+
+#
+# Checks for ieee1284 library, needed for canon_pp backend.
+AC_DEFUN(SANE_CHECK_IEEE1284,
+[
+  AC_CHECK_LIB(ieee1284, ieee1284_wait_status, [
+    AC_CHECK_HEADER(ieee1284.h,
+      [sane_cv_use_libieee1284="yes"; LIBS="${LIBS} -lieee1284"
+    ],)
+  ],)
+])
+
 
 #
 # Checks for jpeg library >= v6B (61), needed for DC210,  DC240, and 

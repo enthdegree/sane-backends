@@ -1,23 +1,24 @@
-TODO (2002-03-19)
+TODO (2002-03-24)
 
 ******** todo ********
 
 backends
 --------
-  * Add new backends (+ means: scheduled for version 1.0.8)
-    - hp4200 http://hp4200-backend.sourceforge.net/
+  * Add new backends (+ means: scheduled for version 1.0.8, (+) means: 
+    still maintained and/or updates will come)
+   (+)hp4200 http://hp4200-backend.sourceforge.net/
     - v4l2 http://video.inodes.org/sane-v4l2/
-    - Relisys Scorpio Super 3 SCSI II
+   (+)Relisys Scorpio Super 3 SCSI II
       Mark Plowman <sane-devel@plowman.xs4all.nl>
       http://www.xs4all.nl/~plowman/
     - Linux Handscanner Ioctl Interface scanner by Harald
       Bauer <bauer-h@web.de>
     - viceo (Visioneer OneTouch 8600)
       http://www.littlecms.com/iphoto/otlinux.htm
-    - Genius Vivid Pro USB, Colorado USB 19200, Visioneer OneTouch 7600 
+   (+)Genius Vivid Pro USB, Colorado USB 19200, Visioneer OneTouch 7600 
       IBM IdeaScan 2000 USB 
       http://homepages.paradise.net.nz/stevenel/scanner/
-    - Fujitsu M3091DCd support
+    + Fujitsu M3091DCd support
       Frederik Ramm <frederik@remote.org>
       http://www.remote.org/frederik/projects/software/sane/
     + canon_pp backend for Canon FB630P, FB330P, N640P and N340P
@@ -27,7 +28,6 @@ backends
       http://sourceforge.net/projects/hp3300backend
 
   * Update backends
-    - Combine all the Fujitsu backends into one single backend
     + Canon FB620S flatbed scanner and FS2710 film scanner support
       (update for canon backend).
       ftp://stthd0.pc.uni-koeln.de/pub/canon-1.08.tar.gz
@@ -92,9 +92,7 @@ backends
   * Fix warnings about DBG calls:
     - avision
     - m3096g
-    - plustek
     - sm3600
-    - umax
     - umax1220u
     - v4l
 
@@ -112,9 +110,6 @@ doc
 
   * sane.tex: Add a warning/explanation about problems with 
     sane_get_select_fd, Unix select() calls and sane_cancel.
-
-  * sane-backends.html should state more clearly which backends are included
-    in the distribution. Solution: Split into two lists.
 
   * sane-backends.html should be sorted by manufacturer, not by backend.
 
@@ -165,13 +160,8 @@ platform-specific
 
   * Add support for semaphores also for OS/2 (currently used in snapscan).
 
-  * Fix shared lib problem with NetBSD. Starting scanimage results in:
-    "Cannot open "../backend/.libs/libsane.so". However, scanadf works.
-
-  * Check if a new version of libtool can fix the above mentioned issues.
-    Currently (2002-03-17) the CVS version of libtool works on NetBSD but
-    breaks AIX-4.
-
+  * The plustek backend doesn't compile on OS/2 beacuse 
+    in plustek-usbhw.c itimerval is unknown.
 
 misc
 ----
@@ -194,6 +184,14 @@ misc
 
 
 ******** done ********
+* Fix shared lib problem with NetBSD. Starting scanimage results in:
+  "Cannot open "../backend/.libs/libsane.so". However, scanadf works.
+* Check if a new version of libtool can fix the above mentioned issues.
+  Currently (2002-03-17) the CVS version of libtool works on NetBSD but
+  breaks AIX-4.
+* Combine all the Fujitsu backends into one single backend
+* sane-backends.html should state more clearly which backends are included
+  in the distribution. Solution: Split into two lists.
 * Keep config.guess and config.sub up-to-date.
 * sane.tex: Add new sane.type = "film scanner". Check the other well known
   strings for completeness.

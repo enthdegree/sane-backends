@@ -1,3 +1,7 @@
+2002-03-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/hpoj.desc: New file (from David Paschal <paschal@rcsis.com>).
+
 2002-03-17  Peter Fales <peter@fales.com>
 
 	* backend/gphoto2.c - Minor bug fixes for problems found by tstbackend
@@ -18,7 +22,7 @@
 
 	* PROJECTS backend/teco.desc: new project
 
-2002-03-11  Henning Meier-Geinitz <henning@meier-geinitz.d>
+2002-03-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* README: Some more information on where to find the config files and
 	  a hint to make a backup.
@@ -72,12 +76,12 @@
 	* backend/Makfile.in: added missing depenencies for
 	  new umax backends
 
-2002-03-08  Henning Meier-Geinitz <henning@meier-geinitz.d>
+2002-03-08  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/sane.tex: Added "multi-function peripheral" to list of types in
 	  SANE standard.
 
-2002-03-07  Henning Meier-Geinitz <henning@meier-geinitz.d>
+2002-03-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* include/sane/config.h.in: Fix comment for HAVE_USB_H.
 	* TODO: Added entry about md5/getopt license issues.

@@ -920,6 +920,7 @@ struct GT68xx_Afe_Values
   SANE_Int max_width;
   SANE_Int scan_dpi;
   SANE_Fixed start_black;
+  SANE_Int offset_direction;
 };
 
 #ifndef NDEBUG
@@ -1037,9 +1038,9 @@ gt68xx_afe_ccd_adjust_channel_offset (GT68xx_Afe_Values * values,
   gt68xx_afe_ccd_calc (values, buffer);
   avg = (values->white + values->black) / 2;
   if (avg <= 122)
-    *offset -= off_dist;
+    *offset -= (off_dist * values->offset_direction);
   else if (avg >= 130)
-    *offset += off_dist;
+    *offset += (off_dist * values->offset_direction);
   DBG (5, "Offset: white=%d, black=%d, avg=%d, offset=%d\n",
        values->white, values->black, avg, *offset);
 }
@@ -1055,7 +1056,7 @@ gt68xx_afe_ccd_adjust_channel_white (GT68xx_Afe_Values * values,
   if ((values->white - values->black) < 230)
     {
       if (values->white > 253)
-	(*offset)++;
+	(*offset) += values->offset_direction;
       else
 	(*pga)++;
     }
@@ -1085,7 +1086,7 @@ gt68xx_afe_ccd_adjust_channel_black (GT68xx_Afe_Values * values,
       if (values->white > 250)
 	(*pga)--;
       else
-	(*offset)--;
+	(*offset) -= values->offset_direction;
     }
   else if (values->black < 15)	/* just right */
     {
@@ -1095,7 +1096,7 @@ gt68xx_afe_ccd_adjust_channel_black (GT68xx_Afe_Values * values,
 	done = 1;
     }
   else
-    (*offset)++;		/* too high */
+    (*offset) += values->offset_direction;	/* too high */
 
   DBG (5, "Black: white=%d, black=%d, offset=%d, pga=%d\n",
        values->white, values->black, *offset, *pga);
@@ -1132,6 +1133,10 @@ gt68xx_afe_ccd_auto (GT68xx_Scanner * scanner,
 
   afe->r_pga = afe->g_pga = afe->b_pga = 0x00;
   afe->r_offset = afe->g_offset = afe->b_offset = 0x20;
+
+  values.offset_direction = 1;
+  if (scanner->dev->model->flags & GT68XX_FLAG_OFFSET_INV)
+    values.offset_direction = -1;
 
   request.x0 = SANE_FIX (0.0);
   request.xs = scanner->dev->model->x_size;
@@ -1443,7 +1448,7 @@ gt68xx_afe_cis_calc_white (GT68xx_Afe_Values * values,
 static SANE_Bool
 gt68xx_afe_cis_adjust_offset (GT68xx_Afe_Values * values,
 			      unsigned int *black_buffer,
-			      SANE_Int offset_direction, SANE_Byte * offset)
+			      SANE_Byte * offset)
 {
   SANE_Int offs = 0, tmp_offset = *offset;
   SANE_Int low = 8, high = 22;
@@ -1451,16 +1456,16 @@ gt68xx_afe_cis_adjust_offset (GT68xx_Afe_Values * values,
   gt68xx_afe_cis_calc_black (values, black_buffer);
   if (values->black < low)
     {
-      offs = (offset_direction * (low - values->black) / 4);
+      offs = (values->offset_direction * (low - values->black) / 4);
       if (offs == 0)
-	offs = offset_direction;
+	offs = values->offset_direction;
       DBG (5, "black = %d (too low) --> offs = %d\n", values->black, offs);
     }
   else if (values->black > high)
     {
-      offs = -(offset_direction * (values->black - high) / 7);
+      offs = -(values->offset_direction * (values->black - high) / 7);
       if (offs == 0)
-	offs = -offset_direction;
+	offs = -values->offset_direction;
       DBG (5, "black = %d (too high) --> offs = %d\n", values->black, offs);
     }
   else
@@ -1635,7 +1640,6 @@ gt68xx_afe_cis_auto (GT68xx_Scanner * scanner)
   GT68xx_Afe_Values values;
   GT68xx_AFE_Parameters *afe = scanner->dev->afe;
   GT68xx_Exposure_Parameters *exposure = scanner->dev->exposure;
-  SANE_Int offset_direction;
   SANE_Int done;
   SANE_Bool first = SANE_TRUE;
   unsigned int *r_buffer = 0, *g_buffer = 0, *b_buffer = 0;
@@ -1655,13 +1659,12 @@ gt68xx_afe_cis_auto (GT68xx_Scanner * scanner)
     return SANE_STATUS_NO_MEM;
 
   total_count = 0;
-  /*  afe->r_pga = afe->g_pga = afe->b_pga = 0x06; */
   do
     {
       offset_count = 0;
-      offset_direction = 1;
+      values.offset_direction = 1;
       if (scanner->dev->model->flags & GT68XX_FLAG_OFFSET_INV)
-	offset_direction = -1;
+	values.offset_direction = -1;
       exposure->r_time = exposure->g_time = exposure->b_time = 0x157;
       do
 	{
@@ -1671,17 +1674,13 @@ gt68xx_afe_cis_auto (GT68xx_Scanner * scanner)
 	  /* read black line */
 	  RIE (gt68xx_afe_cis_read_lines (&values, scanner, SANE_FALSE, first,
 					  r_buffer, g_buffer, b_buffer));
-	  /*offset_direction /= 2; */
 
 	  done =
-	    gt68xx_afe_cis_adjust_offset (&values, r_buffer, offset_direction,
-					  &afe->r_offset);
+	    gt68xx_afe_cis_adjust_offset (&values, r_buffer, &afe->r_offset);
 	  done &=
-	    gt68xx_afe_cis_adjust_offset (&values, g_buffer, offset_direction,
-					  &afe->g_offset);
+	    gt68xx_afe_cis_adjust_offset (&values, g_buffer, &afe->g_offset);
 	  done &=
-	    gt68xx_afe_cis_adjust_offset (&values, b_buffer, offset_direction,
-					  &afe->b_offset);
+	    gt68xx_afe_cis_adjust_offset (&values, b_buffer, &afe->b_offset);
 
 	  offset_count++;
 	  total_count++;

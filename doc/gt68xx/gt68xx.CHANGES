@@ -1,3 +1,23 @@
+gt68xx.CHANGES -*-text-*-
+
+V 1.0-32 (2002-12-08)
+
+- "Coarse calibration for first scan only" is off by default now. As at least
+  CIS calibration is faster now, it doesn't seem to be necessary and produces
+  wrong images sometimes.
+- Added gamma table.
+- Setup gamma to 2.0 by default.
+- Fixed (hopefully) sigpipe when cancelling.
+- No geometry quantization anymore (not necessary). That should fix scanimage
+  warnings.
+- Plustek 1248U: do linemode for every resolution, fix color correction.
+- Set SANE_CAP_EMULATED for gamma value.
+- Added comments for every Model member in gt68xx_devices.
+- Added Plustek UT16B and Genius Vivid3x to .desc.
+- Added implementation for inverted offset for CCD scanners.
+- Added Mustek ScanExpress 2400 USB. Well, at least it's detected.
+- Added NEW marker to .desc.
+
 V 1.0-31 (2002-11-21)
 
 - Changed 150 to 200 dpi for Mustek BearPaw 2400 TA.

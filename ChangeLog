@@ -6,6 +6,18 @@
 	  and epson. Added sanei_usb issues. Updated MacOS X and OS/2 porting
 	  issues.
 	* README.darwin: Updated.
+	* backend/gt68xx.c backend/gt68xx.conf backend/gt68xx_devices.c
+	  backend/gt68xx_high.c backend/gt68xx_high.h backend/gt68xx_low.c
+	  backend/gt68xx_low.h doc/sane-gt68xx.man doc/descriptions/gt68xx.desc
+	  doc/gt68xx/gt68xx.CHANGES:
+	  Coarse calibration for first scan only" is off by default now. Added gamma
+	  table factor option (SANE_CAP_EMULATED). Setup gamma to 2.0 by default.
+	  Fixed (hopefully) sigpipe when cancelling. No geometry quantization anymore
+	  (not necessary). Plustek 1248U: do linemode for every resolution, fix color
+	  correction. Added comments for every Model member in gt68xx_devices.
+	  Added Plustek UT16B and Genius Vivid3x to .desc. Added implementation for
+	  inverted offset for CCD scanners. Added Mustek ScanExpress 2400 USB. Well,
+	  at least it's detected. Added NEW marker to .desc.
 
 2002-12-07 Abel Deuring <a.deuring@satzbau-gmbh.de>
 	* sanei/sanei_scsi.c: improved error handling

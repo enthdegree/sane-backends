@@ -1,6 +1,7 @@
 :backend "gt68xx"
 :status :beta
-:version "1.0-31"
+:version "1.0-32"
+:new :yes
 :manpage "sane-gt68xx"
 :url "http://www.meier-geinitz.de/sane/gt68xx-backend/"
 :comment "Only the USB scanners mentioned below are supported. For other Mustek BearPaws, look at the Plustek backend."
@@ -66,6 +67,10 @@
 :status :alpha
 :comment "Basically works but margins are not correct. More reports welcome."
 
+:model "ScanExpress 2400 USB"
+:interface "USB"
+:status :untested
+:comment "Should be detected but may need some more work in the code. Testers welcome."
 
 :mfg "Plustek"
 :url "http://www.plustek.de/"
@@ -75,6 +80,11 @@
 :interface "USB"
 :status :alpha
 :comment "Works up to 600 dpi in gray mode, try disabling calibration"
+
+:model "OpticPro UT16B"
+:interface "USB"
+:status :untested
+:comment "Isn't detected yet mut may work some time in future. Testers welcome."
 
 :mfg "Artec"
 :url "http://www.artecusa.com/"
@@ -144,3 +154,11 @@
 :status :alpha
 :interface "USB"
 :comment "should work like the X70, but was reported to fail, more reports welcome"
+
+:mfg "Genius"
+:url "http://www.genius-kye.com/"
+
+:model "Colorpage Vivid3x"
+:status :untested
+:interface "USB"
+:comment "Not detected yet but should work when code is added"

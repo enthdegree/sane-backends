@@ -412,6 +412,8 @@ gt68xx_device_activate (GT68xx_Device * dev)
 
   memcpy (dev->afe, &dev->model->afe_params, sizeof (*dev->afe));
   memcpy (dev->exposure, &dev->model->exposure, sizeof (*dev->exposure));
+  dev->gamma_value = dev->model->default_gamma_value;
+
   dev->active = SANE_TRUE;
 
   return SANE_STATUS_GOOD;
@@ -1032,22 +1034,22 @@ gt68xx_device_read_finish (GT68xx_Device * dev)
        (long) dev->read_bytes_left);
 
 #ifdef USE_FORK
-  if (dev->shm_channel)
-    {
-      shm_channel_free (dev->shm_channel);
-      dev->shm_channel = NULL;
-    }
-
   if (dev->reader_pid != 0)
     {
       int status;
-      usleep (100000);
+      /* usleep (100000);*/
       DBG (7, "gt68xx_device_read_finish: trying to kill reader process\n");
       kill (dev->reader_pid, SIGKILL);
       waitpid (dev->reader_pid, &status, 0);
       DBG (7, "gt68xx_device_read_finish: reader process killed\n");
       dev->reader_pid = 0;
     }
+  if (dev->shm_channel)
+    {
+      shm_channel_free (dev->shm_channel);
+      dev->shm_channel = NULL;
+    }
+
 #endif /* USE_FORK */
 
   free (dev->read_buffer);

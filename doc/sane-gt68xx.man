@@ -37,6 +37,8 @@ Mustek ScanExpress A3 USB
 .br
 Mustek ScanExpress 1200 UB Plus
 .br
+Mustek ScanExpress 2400 USB
+.br
 Packard Bell Diamond 1200
 .br
 Plustek OpticPro 1248U

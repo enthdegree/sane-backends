@@ -210,6 +210,7 @@ enum GT68xx_Option
   OPT_GAIN_B,
 
   OPT_ENHANCEMENT_GROUP,
+  OPT_GAMMA_VALUE,
   OPT_THRESHOLD,
 
   OPT_GEOMETRY_GROUP,
@@ -258,6 +259,7 @@ struct GT68xx_Scanner
   struct timeval lamp_on_time;		   /**< Time when the lamp was turned on */
   struct timeval start_time;		   /**< Time when the scan was started */
   SANE_Int bpp_list[5];			   /**< */
+  SANE_Int *gamma_table;                   /**< Gray gamma table */
 };
 
 

@@ -48,7 +48,7 @@
 
 #include "../include/sane/config.h"
 
-#define BUILD 31
+#define BUILD 32
 #define MAX_DEBUG
 #define WARMUP_TIME 30
 
@@ -79,6 +79,7 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <time.h>
+#include <math.h>
 
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"
@@ -124,15 +125,15 @@ static SANE_String_Const source_list[] = {
 };
 
 static SANE_Range x_range = {
-  SANE_FIX (0),			/* minimum */
-  SANE_FIX (216),		/* maximum */
-  SANE_FIX (0.1)		/* quantization */
+  SANE_FIX (0.0),		/* minimum */
+  SANE_FIX (216.0),		/* maximum */
+  SANE_FIX (0.0)		/* quantization */
 };
 
 static SANE_Range y_range = {
-  SANE_FIX (0),			/* minimum */
-  SANE_FIX (299),		/* maximum */
-  SANE_FIX (0.1)		/* quantization */
+  SANE_FIX (0.0),		/* minimum */
+  SANE_FIX (299.0),		/* maximum */
+  SANE_FIX (0.0)		/* quantization */
 };
 
 static const SANE_Range exposure_range = {
@@ -145,6 +146,12 @@ static const SANE_Range offset_range = {
   0,				/* minimum */
   63,				/* maximum */
   1				/* quantization */
+};
+
+static SANE_Range gamma_range = {
+  SANE_FIX (0.01),		/* minimum */
+  SANE_FIX (5.0),		/* maximum */
+  SANE_FIX (0.01)		/* quantization */
 };
 
 static const SANE_Range u8_range = {
@@ -488,7 +495,7 @@ init_options (GT68xx_Scanner * s)
   s->opt[OPT_COARSE_CAL_ONCE].type = SANE_TYPE_BOOL;
   s->opt[OPT_COARSE_CAL_ONCE].unit = SANE_UNIT_NONE;
   s->opt[OPT_COARSE_CAL_ONCE].constraint_type = SANE_CONSTRAINT_NONE;
-  s->val[OPT_COARSE_CAL_ONCE].w = SANE_TRUE;
+  s->val[OPT_COARSE_CAL_ONCE].w = SANE_FALSE;
 
   /* calibration */
   s->opt[OPT_QUALITY_CAL].name = SANE_NAME_QUALITY_CAL;
@@ -611,6 +618,18 @@ init_options (GT68xx_Scanner * s)
   s->opt[OPT_ENHANCEMENT_GROUP].cap = 0;
   s->opt[OPT_ENHANCEMENT_GROUP].size = 0;
   s->opt[OPT_ENHANCEMENT_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
+
+  /* internal gamma value */
+  s->opt[OPT_GAMMA_VALUE].name = "gamma-value";
+  s->opt[OPT_GAMMA_VALUE].title = SANE_I18N ("Gamma value");
+  s->opt[OPT_GAMMA_VALUE].desc = SANE_I18N ("Sets the gamma value of all channels.");
+  s->opt[OPT_GAMMA_VALUE].type = SANE_TYPE_FIXED;
+  s->opt[OPT_GAMMA_VALUE].unit = SANE_UNIT_NONE;
+  s->opt[OPT_GAMMA_VALUE].constraint_type = SANE_CONSTRAINT_RANGE;
+  s->opt[OPT_GAMMA_VALUE].constraint.range = &gamma_range;
+  s->opt[OPT_GAMMA_VALUE].cap |= SANE_CAP_EMULATED;
+  s->val[OPT_GAMMA_VALUE].w = s->dev->gamma_value;
+  
 
   /* threshold */
   s->opt[OPT_THRESHOLD].name = SANE_NAME_THRESHOLD;
@@ -1224,6 +1243,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   *handle = s;
   s->scanning = SANE_FALSE;
   s->first_scan = SANE_TRUE;
+  s->gamma_table = 0;
   RIE (init_options (s));
 
   DBG (5, "sane_open: exit\n");
@@ -1333,6 +1353,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_PREVIEW:
 	case OPT_LAMP_ON:
 	case OPT_AUTO_WARMUP:
+	case OPT_GAMMA_VALUE:
 	case OPT_THRESHOLD:
 	case OPT_SCAN_EXPOS_TIME_R:
 	case OPT_SCAN_EXPOS_TIME_G:
@@ -1396,6 +1417,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_AUTO_WARMUP:
 	case OPT_COARSE_CAL_ONCE:
 	case OPT_QUALITY_CAL:
+	case OPT_GAMMA_VALUE:
 	case OPT_THRESHOLD:
 	case OPT_SCAN_EXPOS_TIME_R:
 	case OPT_SCAN_EXPOS_TIME_G:
@@ -1531,7 +1553,7 @@ sane_start (SANE_Handle handle)
   GT68xx_Scan_Request scan_request;
   GT68xx_Scan_Parameters scan_params;
   SANE_Status status;
-  SANE_Int i;
+  SANE_Int i, gamma_size;
   unsigned int *buffer_pointers[3];
 
   DBG (5, "sane_start: start\n");
@@ -1571,6 +1593,26 @@ sane_start (SANE_Handle handle)
       s->dev->afe->b_pga = s->val[OPT_GAIN_B].w;
     }
 
+  s->dev->gamma_value = s->val[OPT_GAMMA_VALUE].w;
+  gamma_size = s->params.depth == 16 ? 65536 : 256;
+  s->gamma_table = malloc (sizeof (SANE_Int) * gamma_size);
+  if (!s->gamma_table)
+    {
+      DBG (1, "sane_start: couldn't malloc %d bytes for gamma table\n",
+	   gamma_size);
+      return SANE_STATUS_NO_MEM;
+    }
+  for (i = 0; i < gamma_size; i++)
+    {
+      s->gamma_table [i] = 
+	(gamma_size - 1) * pow (((double) i) / (gamma_size - 1),
+			  1.0 / SANE_UNFIX(s->dev->gamma_value)) + 0.5;
+      if (s->gamma_table [i] > (gamma_size - 1))
+	s->gamma_table [i] = (gamma_size - 1);
+      if (s->gamma_table [i] < 0) 
+	s->gamma_table [i] = 0;
+    }
+
   s->calib = s->val[OPT_QUALITY_CAL].w;
   RIE (gt68xx_device_stop_scan (s->dev));
 
@@ -1607,6 +1649,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   static unsigned int *buffer_pointers[3];
   SANE_Int inflate_x;
   SANE_Bool lineart;
+  SANE_Int i, color, colors;
 
   if (!s)
     {
@@ -1655,6 +1698,11 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   lineart = (strcmp (s->val[OPT_MODE].s, "Lineart") == 0)
     ? SANE_TRUE : SANE_FALSE;
 
+  if (s->reader->params.color)
+    colors = 3;
+  else
+    colors = 1;
+
   while ((*len) < max_len)
     {
       if (s->byte_count >= s->reader->params.pixel_xs)
@@ -1670,15 +1718,22 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	  RIE (gt68xx_scanner_read_line (s, buffer_pointers));
 	  s->line++;
 	  s->byte_count = 0;
-	  if (s->dev->model->flags & GT68XX_FLAG_MIRROR_X)
-	    {			/* mirror lines */
-	      int i, color, colors;
-	      unsigned int swap;
 
-	      if (s->reader->params.color)
-		colors = 3;
-	      else
-		colors = 1;
+	  /* Apply gamma */
+	  for (color = 0; color < colors; color++)
+	    for (i = 0; i < s->reader->pixels_per_line; i++)
+	      {
+		if (s->reader->params.depth > 8)
+		  buffer_pointers[color][i] = s->gamma_table[buffer_pointers[color][i]];
+		else
+		  buffer_pointers[color][i] = 
+		    (s->gamma_table[buffer_pointers[color][i] >> 8] << 8) +
+		    (s->gamma_table[buffer_pointers[color][i] >> 8]);
+	      }
+	  /* mirror lines */
+	  if (s->dev->model->flags & GT68XX_FLAG_MIRROR_X)
+	    {
+	      unsigned int swap;
 
 	      for (color = 0; color < colors; color++)
 		{
@@ -1815,6 +1870,9 @@ sane_cancel (SANE_Handle handle)
       gt68xx_scanner_stop_scan (s);
       gt68xx_scanner_wait_for_positioning (s);
       gt68xx_device_carriage_home (s->dev);
+      if (s->gamma_table)
+	free (s->gamma_table);
+      s->gamma_table = 0;
     }
   else
     {

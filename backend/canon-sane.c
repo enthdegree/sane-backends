@@ -270,6 +270,8 @@ sane_close (SANE_Handle handle)
     free (s->inbuffer);		/* modification for FB620S */
   if (s->outbuffer)
     free (s->outbuffer);	/* modification for FB620S */
+  if (s->auxbuf_len > 0)
+    free (s->auxbuf);		/* modification for FS2710S */
 
   free (s);
 

@@ -1216,15 +1216,15 @@ init_options (CANON_Scanner * s)
   s->opt[OPT_SCANNING_SPEED].constraint.string_list = scanning_speed_list;
   s->opt[OPT_SCANNING_SPEED].cap |=
     (s->hw->info.model == CS2700) ? 0 : SANE_CAP_INACTIVE;
-  s->opt[OPT_SCANNING_SPEED].cap &=
-    (s->hw->info.model == CS2700) ? SANE_TRUE : ~SANE_CAP_SOFT_SELECT;
+  if (s->hw->info.model != CS2700)
+    s->opt[OPT_SCANNING_SPEED].cap &= ~SANE_CAP_SOFT_SELECT;
   s->val[OPT_SCANNING_SPEED].s = strdup (scanning_speed_list[0]);
 
   /* "Resolution" group: */
   s->opt[OPT_RESOLUTION_GROUP].title = "Scan Resolution";
   s->opt[OPT_RESOLUTION_GROUP].desc = "";
   s->opt[OPT_RESOLUTION_GROUP].type = SANE_TYPE_GROUP;
-  s->opt[OPT_RESOLUTION_GROUP].cap = 0;;
+  s->opt[OPT_RESOLUTION_GROUP].cap = 0;
   s->opt[OPT_RESOLUTION_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
   /* bind resolution */

@@ -1,4 +1,4 @@
-.TH sane-canon_pp 5 "30 March 2002"
+.TH sane-canon_pp 5 "7 April 2002"
 .IX sane-canon_pp
 .SH NAME
 sane-canon_pp - SANE backend for Canon Parallel Port flatbed scanners
@@ -128,8 +128,8 @@ debug levels increase the verbosity of the output.
 
 Example: 
 export SANE_DEBUG_CANON_PP=4
-.SH BUGS
-A note on features available in the Windows interface:
+.SH NOTES
+.B Features available in the Windows interface
 .TP
 .B Brightness and Contrast 
 These are not implemented, and probably never will be.  These
@@ -144,6 +144,24 @@ software, so GIMP is your best bet for now.
 .B Gamma Tables
 This is under investigation, but for now only a simple gamma profile will be 
 loaded.
+.PP
+.B Other Notes
+.PP
+ECP mode in libieee1284 doesn't always work properly, even with new hardware.  
+We beleive that this is a ppdev problem.  If you change the configuration file
+to include 
+.B force_nibble
+, the problem will go away, but you will only be able to scan in nibble mode.
+.PP
+Sometimes the scanner can be left in a state where our code cannot revive it.
+If the backend reports no scanner present, try unplugging the power and 
+plugging it back in.  Also try unplugging printers from the passthrough port.
+.PP
+The scanner will not respond correctly to our commands when you first plug in 
+the power.  You may find if you try a scan very soon after plugging in the 
+power that the backend will incorrectly report that you have no scanner present.
+To avoid this, give it about 10 seconds to reset itself before attempting any 
+scans.
 
 .SH "SEE ALSO"
 sane(7), sane-dll(5)

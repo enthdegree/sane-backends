@@ -7235,6 +7235,8 @@ setDefaults3091 (struct fujitsu *scanner)
   scanner->contrast = 0;
   scanner->reverse = 0;
   scanner->bitorder = 0;
+  scanner->compress_type = 0;
+  scanner->scanning_order = 0;
   setMode3091 (scanner, MODE_COLOR);
 
   scanner->val[OPT_TL_X].w = 0;

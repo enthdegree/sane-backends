@@ -9,10 +9,17 @@
 	* backend/plustek.h backend/plustek.c backend/plustek-usbhw.c:
 	  Added checks for intervaltimer, to make it compile on OS/2.
 
+2003-10-16  m. allan noah <anoah at pfeiffer dot edu>
+
+	* backend/fujitsu.c: memset the device struct and the scsi buff
+	  when a new device is attached. Submitted by 
+	  Chris Chesney <cchesney at go-integral dot com>.
+          Initialized a couple vars in the 3091 init routines.
+
 2003-10-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* AUTHORS: Marked maintainers that have CVS access with a
-	  (*). Added m. allan. noah to fujitsu backend. Added Julien Blache
+	  (*). Added m. allan noah to fujitsu backend. Added Julien Blache
 	  and Petter Reinholdtsen to "Miscellaneous coding". Removed
 	  Petter Reinholdtsen from "CVS repository maintainer".
 	* doc/sane-usb.man: sane-find-scanner is in section 1, not 5.

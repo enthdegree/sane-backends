@@ -620,8 +620,9 @@ static int
 shadingCalibration (int color, int dcRed, int dcGreen, int dcBlue,
 		    int vgaRed, int vgaGreen, int vgaBlue, int *calibration);
 static int
-gammaCalibration (int color, int dcRed, int dcGreen, int dcBlue,
-		  int vgaRed, int vgaGreen, int vgaBlue, int *calibration);
+leftShadingCalibration (int color, int dcRed, int dcGreen, int dcBlue,
+			int vgaRed, int vgaGreen, int vgaBlue,
+			int *calibration);
 
 #define WRITESLOW(x,y) \
         PS2registerWrite((x),(y)); \
@@ -9262,16 +9263,9 @@ evalGain (int sum, int count)
   float pct;
   float avg;
 
-
-  /*if(getenv("CORRECTION"))                    
-     return(atoi(getenv("CORRECTION"))); */
-
-  /* 19000 is a little too bright */
-  /* gn = (int) ((double) (18500 * count) / sum - 100 + 0.5); */
-
   /* after ~ 60 * 10 scans , it looks like 1 step is a 0.57% increase   */
   /* so we take the value and compute the percent increase to reach 250 */
-  /* not 255, because we want some room for inaccuracy                  */
+  /* (target code) not 255, because we want some room for inaccuracy    */
   /* pct=100-(value*100)/250                                            */
   /* then correction is pct/0.57                                        */
   avg = (float) (sum) / (float) (count);
@@ -10498,9 +10492,7 @@ sanei_umax_pp_scan (int x, int y, int width, int height, int dpi, int color,
       /* max is 2096100                                             */
       /* so blocksize will hold a round number of lines, easing the */
       /* write data to file operation                               */
-      /*blocksize=(2096100/bpl)*bpl; */
       bpl = bpp * tw;
-      /*hp = 16776960 / bpl; *//* XXX STEF XXX 16 Mo buffer (!!) */
       hp = 2096100 / bpl;
       blocksize = hp * bpl;
       nb = 0;
@@ -10550,7 +10542,6 @@ sanei_umax_pp_scan (int x, int y, int width, int height, int dpi, int color,
 	  /* write pnm header */
 	  if (color >= RGB_MODE)
 	    fprintf (fout, "P6\n%d %d\n255\n", tw, th - 2 * delta);
-	  /*fprintf (fout, "P5\n%d %d\n255\n", tw, 3*th); */
 	  else
 	    fprintf (fout, "P5\n%d %d\n255\n", tw, th);
 	}
@@ -10629,10 +10620,6 @@ sanei_umax_pp_scan (int x, int y, int width, int height, int dpi, int color,
 		  remain = (len + remain) - hp * bpl;
 		  switch (sanei_umax_pp_getastra ())
 		    {
-		    case 6100:
-		      fwrite (buffer + reserve, hp * bpl, 1, fout);
-		      break;
-
 		    case 610:
 		      /* first comes RED
 		       * then        BLUE
@@ -10784,7 +10771,7 @@ sanei_umax_pp_startScan (int x, int y, int width, int height, int dpi,
   /* DC offsets */
   int dcRed, dcGreen, dcBlue;
   int vgaRed, vgaGreen, vgaBlue;
-  int len;
+  int len, delta;
 
   int lm9811[9] = {
     0x06, 0xF4, 0xFF, 0x81, 0x1B, 0x00, 0x00, 0x00,
@@ -10944,33 +10931,30 @@ sanei_umax_pp_startScan (int x, int y, int width, int height, int dpi,
   /* don't break 1220P/2000P yet ... */
   if (sanei_umax_pp_getastra () < 1220)
     {
-
-      if (sanei_umax_pp_getauto ())
+      /* XXX STEF XXX : done even is manual settings, some day skip it
+       * and move head the right amount */
+      if (offsetCalibration (color, &dcRed, &dcGreen, &dcBlue) == 0)
 	{
-	  if (offsetCalibration (color, &dcRed, &dcGreen, &dcBlue) == 0)
-	    {
-	      DBG (0, "offsetCalibration failed !!! (%s:%d)\n", __FILE__,
-		   __LINE__);
-	      return 0;
-	    }
-	  DBG (16, "offsetCalibration(%d=>%d,%d,%d) passed ... (%s:%d)\n",
-	       color, dcRed, dcGreen, dcBlue, __FILE__, __LINE__);
-	  MOVE (-69, PRECISION_OFF, NULL);
-
-	  if (coarseGainCalibration
-	      (color, dcRed, dcGreen, dcBlue, &vgaRed, &vgaGreen,
-	       &vgaBlue) == 0)
-	    {
-	      DBG (0, "coarseGainCalibration failed !!! (%s:%d)\n", __FILE__,
-		   __LINE__);
-	      return 0;
-	    }
-	  DBG (16,
-	       "coarseGainCalibration(%d,%d,%d,%d=>%d,%d,%d) passed ... (%s:%d)\n",
-	       color, dcRed, dcGreen, dcBlue, vgaRed, vgaGreen, vgaBlue,
-	       __FILE__, __LINE__);
+	  DBG (0, "offsetCalibration failed !!! (%s:%d)\n", __FILE__,
+	       __LINE__);
+	  return 0;
 	}
-      else
+      DBG (16, "offsetCalibration(%d=>%d,%d,%d) passed ... (%s:%d)\n",
+	   color, dcRed, dcGreen, dcBlue, __FILE__, __LINE__);
+      MOVE (-69, PRECISION_OFF, NULL);
+
+      if (coarseGainCalibration
+	  (color, dcRed, dcGreen, dcBlue, &vgaRed, &vgaGreen, &vgaBlue) == 0)
+	{
+	  DBG (0, "coarseGainCalibration failed !!! (%s:%d)\n", __FILE__,
+	       __LINE__);
+	  return 0;
+	}
+      DBG (16,
+	   "coarseGainCalibration(%d,%d,%d,%d=>%d,%d,%d) passed ... (%s:%d)\n",
+	   color, dcRed, dcGreen, dcBlue, vgaRed, vgaGreen, vgaBlue,
+	   __FILE__, __LINE__);
+      if (!sanei_umax_pp_getauto ())
 	{
 	  dcBlue = contrast % 16;
 	  dcGreen = (contrast / 16) % 16;
@@ -10996,16 +10980,16 @@ sanei_umax_pp_startScan (int x, int y, int width, int height, int dpi,
 	   __LINE__);
 
       /* gamma calibration */
-      if (gammaCalibration
+      if (leftShadingCalibration
 	  (color, dcRed, dcGreen, dcBlue, vgaRed, vgaGreen, vgaBlue,
 	   calibration) == 0)
 	{
-	  DBG (0, "gammaCalibration failed !!! (%s:%d)\n", __FILE__,
+	  DBG (0, "leftShadingCalibration failed !!! (%s:%d)\n", __FILE__,
 	       __LINE__);
 	  return 0;
 	}
       DBG (16,
-	   "gammaCalibration(%d,%d,%d,%d,%d,%d,%d) passed ... (%s:%d)\n",
+	   "leftShadingCalibration(%d,%d,%d,%d,%d,%d,%d) passed ... (%s:%d)\n",
 	   color, dcRed, dcGreen, dcBlue, vgaRed, vgaGreen, vgaBlue, __FILE__,
 	   __LINE__);
     }
@@ -11127,7 +11111,6 @@ sanei_umax_pp_startScan (int x, int y, int width, int height, int dpi,
   if ((color < RGB_MODE) && (sanei_umax_pp_getastra () <= 610))
     ydpi = 600;
 
-  /* XXX STEF XXX : bug here, we overflow there */
   /* at maximum resolution                      */
   if (color >= RGB_MODE)
     {
@@ -11349,12 +11332,24 @@ sanei_umax_pp_startScan (int x, int y, int width, int height, int dpi,
   /* 3 ccd lines + 3 gamma tables + end tag */
   if (sanei_umax_pp_getastra () <= 610)
     {
+      /* XXX STEF XXX : there is a 4 pixels shift to the right 
+       * the first shading correction value applies to the forth
+       * pixel of scan (at 300 dpi), we allready shift to the left
+       * when doing shadingCalibration, but now we have to move coeffs
+       * to match x coordinate */
+      delta = x - sanei_umax_pp_getLeft ();
+      if (delta)
+	{
+	  memcpy (calibration,
+		  calibration + delta, (7650 - delta) * sizeof (int));
+	}
       CMDSET (4, 0x20E4, calibration);
     }
   else
     {
       CMDSET (4, 0x3EC6, calibration);
     }
+
   COMPLETIONWAIT;
 
   *rbpp = bpp;
@@ -12210,7 +12205,7 @@ shadingCalibration (int color, int dcRed, int dcGreen, int dcBlue,
   int len, dpi, size;
   int w, h, x, y;
   int sum, i;
-  float avg, coeff;
+  float avg, coeff = 0;
   unsigned char *data = NULL;
   int top, bottom;
 
@@ -12222,8 +12217,8 @@ shadingCalibration (int color, int dcRed, int dcGreen, int dcBlue,
       y = 10;
       dpi = 300;
       h = 90;
-      top = 18;
-      bottom = 12;
+      top = 8;
+      bottom = 8;
     }
   else
     {
@@ -12232,8 +12227,8 @@ shadingCalibration (int color, int dcRed, int dcGreen, int dcBlue,
       y = 10;
       dpi = 600;
       h = 67;
-      top = 18;
-      bottom = 12;
+      top = 8;
+      bottom = 8;
     }
 
   data = (unsigned char *) malloc (w * h * 3);
@@ -12292,32 +12287,45 @@ shadingCalibration (int color, int dcRed, int dcGreen, int dcBlue,
   if (DBG_LEVEL > 128)
     DumpNB (w * 3, h, data, NULL);
 
-  for (x = 0; x < w; x++)
+  for (i = 0; i < 3; i++)
     {
-      for (i = 0; i < 3; i++)
+      for (x = 4; x < w; x++)
 	{
 	  sum = 0;
 	  for (y = top; y < h - bottom; y++)
 	    sum += data[(y * 3 + i) * w + x];
 	  avg = ((float) (sum)) / ((float) (h - (top + bottom)));
-	  if (DBG_LEVEL > 128)
+	  /*coeff = (256.0 * (250.0 / avg - 1.0)) / 1.95; */
+	  switch (i)
 	    {
-	      for (y = 0; y < top; y++)
-		data[(y * 3 + i) * w + x] = avg;
-	      for (y = h - bottom; y < h; y++)
-		data[(y * 3 + i) * w + x] = avg;
+	    case 0:		/* RED */
+	      coeff = (256.0 * (250.0 / avg - 1.0)) / 1.80;
+	      break;
+	    case 1:		/* BLUE */
+	      coeff = (256.0 * (250.0 / avg - 1.0)) / 1.70;
+	      break;
+	    case 2:		/* GREEN */
+	      coeff = (256.0 * (250.0 / avg - 1.0)) / 1.70;
+	      break;
 	    }
-	  /*coeff = (256.0 * (255.0 / avg - 1.0)) / 1.95; */
-	  coeff = 256.0 * (255.0 / avg - 1.0);
-	  /* prevent overflow */
-	  if (coeff > 127)
-	    coeff = 127;
-	  calibration[x + i * w] = coeff;
+	  calibration[x + i * w - 4] = (int) (coeff + 0.5);
 	}
+      /* 100 in coeffs -> +104 on picture */
+    }
+
+  /* use default color tables */
+  for (x = 0; x < 256; x++)
+    {
+      calibration[3 * w + x] = ggRed[x];
+      calibration[3 * w + x + 256] = ggGreen[x];
+      calibration[3 * w + x + 512] = ggBlue[x];
     }
 
   if (DBG_LEVEL > 128)
-    DumpNB (w * 3, h, data, NULL);
+    {
+      DumpNB (w * 3, h, data, NULL);
+      DumpNB (w, h * 3, data, NULL);
+    }
 
   free (data);
   TRACE (16, "shadingCalibration end ...\n");
@@ -12332,8 +12340,9 @@ shadingCalibration (int color, int dcRed, int dcGreen, int dcBlue,
  * On failure, returns 0.
  */
 static int
-gammaCalibration (int color, int dcRed, int dcGreen, int dcBlue,
-		  int vgaRed, int vgaGreen, int vgaBlue, int *calibration)
+leftShadingCalibration (int color, int dcRed, int dcGreen, int dcBlue,
+			int vgaRed, int vgaGreen, int vgaBlue,
+			int *calibration)
 {
   int motor[17] = {
     0x14, 0x80, 0x02, 0x60, 0xDE, 0x01, 0xC0, 0x2F,
@@ -12367,7 +12376,7 @@ gammaCalibration (int color, int dcRed, int dcGreen, int dcBlue,
   int ofst;
   unsigned char *data = NULL;
 
-  TRACE (16, "entering gammaCalibration ...\n");
+  TRACE (16, "entering leftShadingCalibration ...\n");
   if (sanei_umax_pp_getastra () < 1220)
     {
       len = 0x22;
@@ -12392,7 +12401,7 @@ gammaCalibration (int color, int dcRed, int dcGreen, int dcBlue,
   commit = (int *) malloc ((w * 3 + 5) * sizeof (int));
   if (commit == NULL)
     {
-      DBG (0, "gammaCalibration: failed to allocate memory (%s:%d)\n",
+      DBG (0, "leftShadingCalibration: failed to allocate memory (%s:%d)\n",
 	   __FILE__, __LINE__);
       return 0;
     }
@@ -12400,7 +12409,7 @@ gammaCalibration (int color, int dcRed, int dcGreen, int dcBlue,
   data = (unsigned char *) malloc (w * h * 3);
   if (data == NULL)
     {
-      DBG (0, "gammaCalibration: failed to allocate memory (%s:%d)\n",
+      DBG (0, "leftShadingCalibration: failed to allocate memory (%s:%d)\n",
 	   __FILE__, __LINE__);
       free (commit);
       return 0;
@@ -12449,24 +12458,18 @@ gammaCalibration (int color, int dcRed, int dcGreen, int dcBlue,
       h = h - y - 1;
       size = w * h;
     }
-  DBG (128, "gammaCalibration: trying to read 0x%06X bytes ... (%s:%d)\n",
+  DBG (128,
+       "leftShadingCalibration: trying to read 0x%06X bytes ... (%s:%d)\n",
        size, __FILE__, __LINE__);
   CMDGETBUF (4, size, data);
   if (DBG_LEVEL > 128)
-    DumpNB (w, size / w, data, NULL);
+    DumpNB (3 * w, h, data, NULL);
 
   /* XXX STEF XXX */
-  /* here we have color data that can are used to build gamma tables */
-  /* however, we have to figure how to do it ....                    */
-  /* use default color tables                                        */
-  for (x = 0; x < 256; x++)
-    {
-      calibration[3 * w + x] = ggRed[x];
-      calibration[3 * w + x + 256] = ggGreen[x];
-      calibration[3 * w + x + 512] = ggBlue[x];
-    }
+  /* build coefficients for the 25 left pixels */
+  /* and compute gamma correction ?            */
 
   free (data);
-  TRACE (16, "gammaCalibration end ...\n");
+  TRACE (16, "leftShadingCalibration end ...\n");
   return 1;
 }

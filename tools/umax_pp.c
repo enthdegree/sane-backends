@@ -29,7 +29,7 @@ main (int argc, char **argv)
 {
   char dbgstr[80];
   int probe = 0;
-  int port = 0x378;
+  int port = 0;
   char *name = NULL;
   int scan = 0;
   int lamp = -1;
@@ -47,6 +47,8 @@ main (int argc, char **argv)
   int width = -1, height = -1;
   int color = RGB_MODE;
 
+  char **ports;
+  int rc;
 
 
   /* option parsing */
@@ -326,18 +328,57 @@ main (int argc, char **argv)
       putenv (dbgstr);
     }
 
-
-  /*  enable I/O */
-  /* parport_claim */
-  if (sanei_umax_pp_initPort (port, name) != 1)
+  /* no address or device given */
+  rc = 0;
+  if ((name == NULL) && (port == 0))
     {
-      fprintf (stderr, "failed to gain direct acces to port 0x%X!\n", port);
-      return 0;
+      /* safe tests: user parallel port devices */
+      ports = sanei_parport_find_device ();
+      if (ports != NULL)
+	{
+	  i = 0;
+	  rc = 0;
+	  while ((ports[i] != NULL) && (rc != 1))
+	    {
+	      rc = sanei_umax_pp_initPort (port, ports[i]);
+	      i++;
+	    }
+	}
+
+      /* try for direct hardware access */
+      if (rc != 1)
+	{
+	  ports = sanei_parport_find_port ();
+	  i = 0;
+	  rc = 0;
+	  while ((ports[i] != NULL) && (rc != 1))
+	    {
+	      rc = sanei_umax_pp_initPort (strtol (ports[i], NULL, 16), NULL);
+	      i++;
+	    }
+	}
+      if (rc != 1)
+	{
+	  fprintf (stderr, "failed to detect a valid device or port!\n");
+	  return 0;
+	}
+    }
+  else
+    {
+      if (sanei_umax_pp_initPort (port, name) != 1)
+	{
+	  if (port)
+	    fprintf (stderr, "failed to gain direct acces to port 0x%X!\n",
+		     port);
+	  else
+	    fprintf (stderr, "failed to gain acces to device %s!\n", name);
+	  return 0;
+	}
     }
   if (trace)
     {
       printf
-	("UMAX 610P/1220P/2000P scanning program version 6.1 starting ...\n");
+	("UMAX 610P/1220P/2000P scanning program version 6.2 starting ...\n");
 #ifdef HAVE_LINUX_PPDEV_H
       printf ("ppdev character device built-in.\n");
 #endif
@@ -479,9 +520,6 @@ main (int argc, char **argv)
 	  return 0;
 	}
 
-      /* set x origin left to right */
-      x = sanei_umax_pp_getLeft () + (maxw - x) - width;
-
       /* init transport layer */
       /* 0: failed
          1: success
@@ -503,6 +541,10 @@ main (int argc, char **argv)
 	  sanei_umax_pp_endSession ();
 	  return 0;
 	}
+
+      /* set x origin left to right */
+      x = sanei_umax_pp_getLeft () + (maxw - x) - width;
+
       /* scan */
       if (sanei_umax_pp_scan
 	  (x, y, width, height, dpi, color, brightness, contrast) != 1)

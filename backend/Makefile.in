@@ -63,8 +63,8 @@ PRELOADABLE_BACKENDS = abaton agfafocus apple artec as6e avision bh canon \
         canon630u @CANON_PP@ coolscan dc25 @DC210@ @DC240@ dmc epson \
         @GPHOTO2@ hp m3096g matsushita microtek microtek2 mustek mustek_pp \
         mustek_usb nec @NET@ pie @PINT@ plustek @PNM@ @QCAM@ ricoh s9036 \
-        sceptre sharp @SM3600@ @SNAPSCAN@ sp15c st400 tamarack umax umax_pp \
-        umax1220u @V4L@
+        sceptre sharp @SM3600@ @SNAPSCAN@ sp15c st400 tamarack teco1 umax \
+        umax_pp umax1220u @V4L@
 ALL_BACKENDS = $(PRELOADABLE_BACKENDS) dll
 
 LIBS = $(addprefix libsane-,$(addsuffix .la,$(ALL_BACKENDS)))
@@ -107,7 +107,8 @@ DISTFILES = abaton.c abaton.conf abaton.h agfafocus.c agfafocus.conf \
   snapscan.conf snapscan.h snapscan-scsi.c snapscan-sources.c \
   snapscan-sources.h snapscan-usb.c snapscan-usb.h snapscan-options.c sp15c.c \
   sp15c.conf sp15c.h sp15c-scsi.h st400.c st400.conf st400.h stubs.c \
-  tamarack.c tamarack.conf tamarack.h umax1220u.c umax1220u-common.c \
+  tamarack.c tamarack.conf tamarack.h teco1.c teco1.h \
+  teco1.conf umax1220u.c umax1220u-common.c \
   umax1220u.conf umax.c umax.conf umax.h umax_pp.c umax_pp.conf umax_pp.h \
   umax_pp_low.c umax_pp_low.h umax_pp_mid.c umax_pp_mid.h umax-scanner.c \
   umax-scanner.h umax-scsidef.h umax-uc1200s.c umax-uc1200se.c umax-uc1260.c \
@@ -332,6 +333,9 @@ libsane-st400.la: ../sanei/sanei_scsi.lo
 libsane-tamarack.la: ../sanei/sanei_config2.lo
 libsane-tamarack.la: ../sanei/sanei_constrain_value.lo
 libsane-tamarack.la: ../sanei/sanei_scsi.lo
+libsane-teco1.la: ../sanei/sanei_config2.lo
+libsane-teco1.la: ../sanei/sanei_constrain_value.lo
+libsane-teco1.la: ../sanei/sanei_scsi.lo
 libsane-umax.la: ../sanei/sanei_config2.lo
 libsane-umax.la: ../sanei/sanei_constrain_value.lo
 libsane-umax.la: ../sanei/sanei_scsi.lo

@@ -14,7 +14,6 @@
 :status :beta                     ; :alpha, :beta, :stable
 :manpage "sane-teco2"
 :url "http://fz.eryx.net/sane/#teco2"   ; backend's web page
-:new :yes
 
 :devicetype :scanner
 

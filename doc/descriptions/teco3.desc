@@ -14,7 +14,6 @@
 :status :beta                     ; :alpha, :beta, :stable
 :manpage "sane-teco3"             ; name of manpage (if it exists)
 :url "http://fz.eryx.net/sane/#teco3"    ; backend's web page
-:new :yes
 
 :devicetype :scanner              ; start of a list of devices....
                                   ; other types:  :stillcam, :vidcam,

@@ -4,6 +4,7 @@
 
 :backend "artec_eplus48u"
 :version "0.0.10"
+:new :yes
 :manpage "sane-artec_eplus48u"
 :status :alpha
 :url "http://www.angelfire.com/linux/crapsite/"

@@ -18,6 +18,9 @@
 	  Added Plustek UT16B and Genius Vivid3x to .desc. Added implementation for
 	  inverted offset for CCD scanners. Added Mustek ScanExpress 2400 USB. Well,
 	  at least it's detected. Added NEW marker to .desc.
+	* doc/descriptions/artec_eplus48u.desc doc/descriptions/hpsj5s.desc
+	  doc/descriptions/teco2.desc doc/descriptions/teco3.desc:
+	  Updated NEW! markers.
 
 2002-12-07 Abel Deuring <a.deuring@satzbau-gmbh.de>
 	* sanei/sanei_scsi.c: improved error handling

@@ -1,3 +1,8 @@
+2002-10-09  Frank Zago  <fzago at austin dot rr dot com>
+
+	* backend/teco1.c backend/teco1.conf doc/descriptions/teco1.desc:
+	  Added entry for AVEC color 2412.
+
 2002-10-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/microtek2.desc: Added per-scanner status (from

@@ -1,5 +1,45 @@
 CHANGES for the SANE Mustek backend
 
+2000-11-26
+  * Default for "fast preview" is "false" now because this option doesn't work
+    for all SE scanners correctly.
+  * Added more debug output for area_and_windows.
+  * Added more debug output for set_window.
+  * Set minimum tly for 8000SP to 0.
+  * Don't use block mode for Paragon 8000 SP scanners because this breaks
+    color mode with firmware 2.x.
+
+2000-11-19
+  * Paragon 6000 SP doesn't use block mode any more. It's a bit faster now.
+  * Updated sane-mustek.man concerning buffersize and blocksite.
+
+2000-11-17
+  * Updated manpage concerning force-wait. Some minor corrections and additions
+  * Added option force-wait to mustek.conf and did some minor changes.
+
+2000-11-16
+  * With option force_wait set, the backend waits also before sending the
+    inquiry command. This seems to be necessary for the 600 II N.
+
+2000-11-12
+  * Use SANE_Int, SANE_Bool, SANE_Word for int wherever this seems to
+    be appropriate.
+  * Move macros to mustek.h.
+  * Code cleanup.
+
+2000-11-11
+  * OPT_GRAY_PREVIEW is now called OPT_FAST_PREVIEW.
+  * For SE scanners use 36/38 dpi color for fast preview.
+  * use include "../include/sane/" instead of "sane/"
+  * go back to old scheme for SE scanners in color mode (faster scans
+    couldn't be reproduced)
+
+2000-11-10
+  * added more debug output in constrain_value
+
+2000-11-05
+  * Released backend version 1.0-98.
+
 2000-11-05
   * Added support for TAIV for SE 12000 SP. Lamp is turned off while
     scanning (seems to work for firmware >= 2.00)

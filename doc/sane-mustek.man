@@ -1,4 +1,4 @@
-.TH sane-mustek 5 "23 Sep 2000"
+.TH sane-mustek 5 "19 Nov 2000"
 .IX sane-mustek
 .SH NAME
 sane-mustek - SANE backend for Mustek flatbed scanners
@@ -143,42 +143,44 @@ should fix the problem but may slow down scanning a bit.
 
 Option
 .B buffersize
-is a positional option that overrides the default value set for the
-total SCSI buffer size. The buffer size is specified in kilobytes. The
-default value depends on the scanner type. Because of double buffering
-the buffer actually send to the scanner is half of the size of this
-value. Note that some ScanExpress scanners don't like buffer sizes
-above 64 kb (buffersize = 128). If your sg driver can't set SCSI
-buffer sizes at runtime you may have to change that value, too. See
-sane-scsi(5) for details.
+is a positional option that overrides the default value set for the size of
+the SCSI buffer. The buffer size is specified in kilobytes. The default value
+is 128. Because of double buffering the buffer actually sent to the scanner
+is half the size of this value. Try to increase this value to achieve higher
+scan speeds. Note that some ScanExpress scanners don't like buffer sizes above
+64 kb (buffersize = 128). If your sg driver can't set SCSI buffer sizes at
+runtime you may have to change that value, too. See sane-scsi(5) for details.
 
 Option
 .B blocksize
-is a positional option that overrides the default value set for the
-maximum amount of data scanned in one block. The buffer size is
-specified in kilobytes. Some scanners freeze if this value is bigger
-than 2048. The default value is 1 GB (so effectively no limit) for
-most scanners.
+is a positional option that overrides the default value set for the maximum
+amount of data scanned in one block. The buffer size is specified in
+kilobytes. Some scanners freeze if this value is bigger than 2048. The default
+value is 1 GB (so effectively no limit) for most scanners. Don't change this
+value if you don't know exactly what you do.
 
 Option
-.B strip-height is a global option. If enabled, the Mustek backend
-waits after each scan until the scan slider reaches its start position.
-This option may be useful for testing. Default is off (not enabled).
+.B strip-height
+is a global option that limits the maximum height of the strip scanned with a
+single SCSI read command.  The height is specified in inches and may contain a
+fractional part (e.g., 1.5).  Setting the strip-height to a small value (one
+inch, for example) reduces the likelihood of encountering problems with SCSI
+driver timeouts and/or timeouts with other devices on the same SCSI bus.
+Unfortunately, it also increases scan times.  Thus, if the scanner is the only
+device on the SCSI bus it is connected to and if it is known that the SCSI
+driver does not suffer from premature timeouts, it is recommended to increase
+the strip-height or remove the option completely, which corresponds to an
+infinite strip height.  See sane-scsi(5) on how to avoid problems with SCSI
+timeouts.
 
 Finally,
-.B strip-height
-is a global option limits the maximum height of the strip scanned with
-a single SCSI read command.  The height is specified in inches and may
-contain a fractional part (e.g., 1.5).  Setting the strip-height to a
-small value (one inch, for example) reduces the likelihood of
-encountering problems with SCSI driver timeouts and/or timeouts with
-other devices on the same SCSI bus.  Unfortunately, it also increases
-scan times.  Thus, if the scanner is the only device on the SCSI bus
-it is connected to and if it is known that the SCSI driver does not
-suffer from premature timeouts, it is recommended to increase the
-strip-height or remove the option completely, which corresponds to an
-infinite strip height.  See sane-scsi(5) on how to avoid problems with
-SCSI timeouts.
+.B force-wait
+is a global option. If set, the backend will wait until the device is ready
+before sending the inquiry command. Further more the backend will force the
+scan slider to return to its starting position (not implemented for all
+scanners). This option may be necessary with the 600 II N or when scanimage is
+used multiple times (e.g. in scripts). The default is off (not set).
+
 .PP
 A sample configuration file is shown below:
 .PP
@@ -263,6 +265,9 @@ If your images have horizontal stripes in color mode, check option
 linedistance-fix (see above). Apply this option for a scanner with
 firmware version 2.x and disable it for version 1.x. 
 .PP
+If the Mustek backend blocks while sending the inqiury command to the scanner,
+add the option force-wait to mustek.conf.
+.PP
 Also note that after a while of no activity, some scanners themself (not
 the SANE backend) turns off their CCFL lamps. This shutdown is not always
 perfect with the result that the lamp sometimes continues to glow
@@ -318,17 +323,19 @@ Example:
 export SANE_DEBUG_MUSTEK=4
 
 .SH "SEE ALSO"
-sane\-scsi(5)
+sane\-scsi(5), sane-mustek_pp(5)
 .SH AUTHOR
-David Mosberger and Andreas Czechanowski, SE extensions Andreas
-Bolsch, bug fixes and Pro series extension Henning Meier-Geinitz
+David Mosberger, Andreas Czechanowski, Andreas Bolsch (SE extensions),
+Henning Meier-Geinitz
 .SH BUGS
 Scanning with the SCSI adapters supplied by Mustek is very slow at
 high resolutions and wide scanareas. 
 
-Only 1, 8 and 24 bit modes are supported.
+Only 1, 8 and 24 bit modes are supported until now.
 
-Some scanners (e.g. Paragon 1200 A3 Pro) need more testing.
+Calibration doesn't work yet.
+
+Some scanners (e.g. Paragon 1200 A3 + Pro, SE A3) need more testing.
 
 More detailed bug information is available at the Mustek backend
 homepage

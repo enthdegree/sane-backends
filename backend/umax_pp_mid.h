@@ -109,6 +109,16 @@ extern int sanei_umax_pp_lamp (int on);
 extern int sanei_umax_pp_open (int port);
 
 
+
+/* 
+	release any ressource acquired during open
+	since there may be only one scanner, no port parameter
+*/
+extern int sanei_umax_pp_close (void);
+
+
+
+
 /*
  stops any pending action, then parks the head
 */

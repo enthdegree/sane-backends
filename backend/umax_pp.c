@@ -94,7 +94,7 @@
 
 /* if you change the source, please set UMAX_PP_STATE to "devel". Do *not*
  * change the UMAX_PP_BUILD. */
-#define UMAX_PP_BUILD	4
+#define UMAX_PP_BUILD	5
 #define UMAX_PP_STATE	"devel"
 
 static int num_devices = 0;
@@ -298,6 +298,7 @@ init_options (Umax_PP_Device * dev)
       dev->opt[i].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     }
 
+  dev->opt[OPT_NUM_OPTS].name = SANE_NAME_NUM_OPTIONS;
   dev->opt[OPT_NUM_OPTS].title = SANE_TITLE_NUM_OPTIONS;
   dev->opt[OPT_NUM_OPTS].desc = SANE_DESC_NUM_OPTIONS;
   dev->opt[OPT_NUM_OPTS].type = SANE_TYPE_INT;
@@ -307,9 +308,9 @@ init_options (Umax_PP_Device * dev)
   /* "Mode" group: */
 
   dev->opt[OPT_MODE_GROUP].title = "Scan Mode";
+  dev->opt[OPT_MODE_GROUP].name = "";
   dev->opt[OPT_MODE_GROUP].desc = "";
   dev->opt[OPT_MODE_GROUP].type = SANE_TYPE_GROUP;
-  dev->opt[OPT_MODE_GROUP].cap = 0;
   dev->opt[OPT_MODE_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
   /* scan mode */
@@ -347,16 +348,16 @@ init_options (Umax_PP_Device * dev)
   dev->opt[OPT_GRAY_PREVIEW].title = SANE_TITLE_GRAY_PREVIEW;
   dev->opt[OPT_GRAY_PREVIEW].desc = SANE_DESC_GRAY_PREVIEW;
   dev->opt[OPT_GRAY_PREVIEW].type = SANE_TYPE_BOOL;
-  dev->opt[OPT_PREVIEW].size = sizeof (SANE_Word);
-  dev->opt[OPT_PREVIEW].unit = SANE_UNIT_NONE;
+  dev->opt[OPT_GRAY_PREVIEW].size = sizeof (SANE_Word);
+  dev->opt[OPT_GRAY_PREVIEW].unit = SANE_UNIT_NONE;
   dev->val[OPT_GRAY_PREVIEW].w = SANE_FALSE;
 
   /* "Geometry" group: */
 
   dev->opt[OPT_GEOMETRY_GROUP].title = "Geometry";
   dev->opt[OPT_GEOMETRY_GROUP].desc = "";
+  dev->opt[OPT_GEOMETRY_GROUP].name = "";
   dev->opt[OPT_GEOMETRY_GROUP].type = SANE_TYPE_GROUP;
-  dev->opt[OPT_GEOMETRY_GROUP].cap = 0;
   dev->opt[OPT_GEOMETRY_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
   /* top-left x */
@@ -403,11 +404,12 @@ init_options (Umax_PP_Device * dev)
 
   dev->opt[OPT_ENHANCEMENT_GROUP].title = "Enhancement";
   dev->opt[OPT_ENHANCEMENT_GROUP].desc = "";
+  dev->opt[OPT_ENHANCEMENT_GROUP].name = "";
   dev->opt[OPT_ENHANCEMENT_GROUP].type = SANE_TYPE_GROUP;
-  dev->opt[OPT_ENHANCEMENT_GROUP].cap = SANE_CAP_ADVANCED;
+  dev->opt[OPT_ENHANCEMENT_GROUP].cap |= SANE_CAP_ADVANCED;
   dev->opt[OPT_ENHANCEMENT_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
-  /* preview */
+  /* lamp control */
   dev->opt[OPT_LAMP_CONTROL].name = "lamp-control";
   dev->opt[OPT_LAMP_CONTROL].title = "Lamp on";
   dev->opt[OPT_LAMP_CONTROL].desc = "Sets lamp on/off";
@@ -415,13 +417,14 @@ init_options (Umax_PP_Device * dev)
   dev->opt[OPT_LAMP_CONTROL].size = sizeof (SANE_Word);
   dev->opt[OPT_LAMP_CONTROL].unit = SANE_UNIT_NONE;
   dev->val[OPT_LAMP_CONTROL].w = SANE_TRUE;
+  dev->opt[OPT_LAMP_CONTROL].cap |= SANE_CAP_ADVANCED;
 
   /* custom-gamma table */
   dev->opt[OPT_CUSTOM_GAMMA].name = SANE_NAME_CUSTOM_GAMMA;
   dev->opt[OPT_CUSTOM_GAMMA].title = SANE_TITLE_CUSTOM_GAMMA;
   dev->opt[OPT_CUSTOM_GAMMA].desc = SANE_DESC_CUSTOM_GAMMA;
   dev->opt[OPT_CUSTOM_GAMMA].type = SANE_TYPE_BOOL;
-  dev->opt[OPT_CUSTOM_GAMMA].cap |= SANE_CAP_ADVANCED;
+  dev->opt[OPT_CUSTOM_GAMMA].cap |= SANE_CAP_ADVANCED ;
   dev->val[OPT_CUSTOM_GAMMA].w = SANE_FALSE;
 
   /* grayscale gamma vector */
@@ -429,7 +432,7 @@ init_options (Umax_PP_Device * dev)
   dev->opt[OPT_GAMMA_VECTOR].title = SANE_TITLE_GAMMA_VECTOR;
   dev->opt[OPT_GAMMA_VECTOR].desc = SANE_DESC_GAMMA_VECTOR;
   dev->opt[OPT_GAMMA_VECTOR].type = SANE_TYPE_INT;
-  dev->opt[OPT_GAMMA_VECTOR].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
+  dev->opt[OPT_GAMMA_VECTOR].cap |= SANE_CAP_INACTIVE;
   dev->opt[OPT_GAMMA_VECTOR].unit = SANE_UNIT_NONE;
   dev->opt[OPT_GAMMA_VECTOR].size = 256 * sizeof (SANE_Word);
   dev->opt[OPT_GAMMA_VECTOR].constraint_type = SANE_CONSTRAINT_RANGE;
@@ -441,7 +444,7 @@ init_options (Umax_PP_Device * dev)
   dev->opt[OPT_GAMMA_VECTOR_R].title = SANE_TITLE_GAMMA_VECTOR_R;
   dev->opt[OPT_GAMMA_VECTOR_R].desc = SANE_DESC_GAMMA_VECTOR_R;
   dev->opt[OPT_GAMMA_VECTOR_R].type = SANE_TYPE_INT;
-  dev->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
+  dev->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
   dev->opt[OPT_GAMMA_VECTOR_R].unit = SANE_UNIT_NONE;
   dev->opt[OPT_GAMMA_VECTOR_R].size = 256 * sizeof (SANE_Word);
   dev->opt[OPT_GAMMA_VECTOR_R].constraint_type = SANE_CONSTRAINT_RANGE;
@@ -453,7 +456,7 @@ init_options (Umax_PP_Device * dev)
   dev->opt[OPT_GAMMA_VECTOR_G].title = SANE_TITLE_GAMMA_VECTOR_G;
   dev->opt[OPT_GAMMA_VECTOR_G].desc = SANE_DESC_GAMMA_VECTOR_G;
   dev->opt[OPT_GAMMA_VECTOR_G].type = SANE_TYPE_INT;
-  dev->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
+  dev->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
   dev->opt[OPT_GAMMA_VECTOR_G].unit = SANE_UNIT_NONE;
   dev->opt[OPT_GAMMA_VECTOR_G].size = 256 * sizeof (SANE_Word);
   dev->opt[OPT_GAMMA_VECTOR_G].constraint_type = SANE_CONSTRAINT_RANGE;
@@ -465,7 +468,7 @@ init_options (Umax_PP_Device * dev)
   dev->opt[OPT_GAMMA_VECTOR_B].title = SANE_TITLE_GAMMA_VECTOR_B;
   dev->opt[OPT_GAMMA_VECTOR_B].desc = SANE_DESC_GAMMA_VECTOR_B;
   dev->opt[OPT_GAMMA_VECTOR_B].type = SANE_TYPE_INT;
-  dev->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
+  dev->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
   dev->opt[OPT_GAMMA_VECTOR_B].unit = SANE_UNIT_NONE;
   dev->opt[OPT_GAMMA_VECTOR_B].size = 256 * sizeof (SANE_Word);
   dev->opt[OPT_GAMMA_VECTOR_B].constraint_type = SANE_CONSTRAINT_RANGE;
@@ -908,6 +911,7 @@ sane_exit (void)
   int i;
   Umax_PP_Device *dev;
 
+  DBG (3, "sane_exit: (...)\n");
   if (first_dev)
     DBG (3, "exit: closing open devices\n");
 
@@ -931,7 +935,6 @@ sane_exit (void)
   if (devarray != NULL)
     free (devarray);
 
-  DBG (3, "exit: (...)\n");
 
   num_devices = 0;
 }
@@ -1107,6 +1110,7 @@ sane_close (SANE_Handle handle)
   Umax_PP_Device *prev, *dev;
   int rc;
 
+  DBG (3, "sane_close: ...\n");
   /* remove handle from list of open handles: */
   prev = NULL;
 
@@ -1153,6 +1157,8 @@ sane_close (SANE_Handle handle)
 	}
     }
 
+      sanei_umax_pp_close ();
+
 
 
   if (prev != NULL)
@@ -1161,7 +1167,6 @@ sane_close (SANE_Handle handle)
     first_dev = dev->next;
 
   free (dev->buf);
-  sanei_umax_pp_EndSession ();
   DBG (3, "close: device closed\n");
 
   free (handle);

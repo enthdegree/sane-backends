@@ -104,7 +104,6 @@ static int SendLength (int *cmd, int len);
 
 static void Init001 (void);
 static int Init002 (int arg);
-static int Init004 (void);
 static int Init005 (int arg);
 static int Init021 (void);
 static int Init022 (void);
@@ -114,7 +113,6 @@ static void WriteBuffer (int size, unsigned char *source);
 static void EPPReadBuffer (int size, unsigned char *dest);
 static void EPPWriteBuffer (int size, unsigned char *source);
 static void EPPRead32Buffer (int size, unsigned char *dest);
-static void InitPausedRead (void);
 static int PausedReadBuffer (int size, unsigned char *dest);
 static void EPPWrite32Buffer (int size, unsigned char *source);
 
@@ -279,7 +277,7 @@ static int ggamma[256] =
 static int *ggGreen = ggamma;
 static int *ggBlue = ggamma;
 static int *ggRed = ggamma;
-static int gParport = -1;
+static int gParport = 0;
 static int gCancel = 0;
 
 
@@ -376,19 +374,17 @@ sanei_parport_info (int number, int *addr)
 int
 sanei_umax_pp_InitPort (int port)
 {
-  int spp_status;
-  int spp_control;
-  int spp_data;
+  int fd;
 #if ((defined HAVE_IOPERM)||(defined HAVE_LINUX_PPDEV_H))
   int mode;
 #endif
 #ifdef HAVE_LINUX_PPDEV_H
+  char strmodes[160];
   char parport_name[16];
-  int i, found;
-  int value;
-  int ectr, addr;
+  int i;
+  int addr;
+  int found = 0;
 #endif
-  int fd;
 
   /* since this function must be called before */
   /* any other, we put debug init here         */
@@ -398,36 +394,157 @@ sanei_umax_pp_InitPort (int port)
   gPort = port;
 
 #ifdef IO_SUPPORT_MISSING
-  if (gPort)			/* dummy test for compiler relief */
-    {
-      DBG (1, "*** Direct I/O unavailable, giving up ***\n");
-      return (0);
-    }
+  DBG (1, "*** Direct I/O unavailable, giving up ***\n");
+  return (0);
 #else
 
-#ifdef HAVE_IOPERM
-  if (ioperm (port, 8, 1) != 0)
+
+#ifdef HAVE_LINUX_PPDEV_H
+  /* ppdev opening and configuration                               */
+  /* we start with /dev/parport0 and go through all /dev/parportx  */
+  /* until we find the right one                                   */
+  i = 0;
+  found = 0;
+  sprintf (parport_name, "/dev/parport%d", i);
+  fd = open (parport_name, O_RDWR | O_NOCTTY);
+  while ((fd != -1) && (!found))
     {
-      DBG (1, "ioperm could not gain access to 0x%X\n", port);
-      return (0);
-    }
-  /* ECP i/o range */
-  if (iopl (3) != 0)
-    {
-      DBG (1, "iopl could not raise IO permission to level 3\n");
-      return (0);
-    }
-  mode = getuid ();
-  setreuid (mode, mode);
-  mode = getgid ();
-  setregid (mode, mode);
+      /* claim port */
+      if (ioctl (fd, PPCLAIM))
+	{
+	  DBG (1, "umax_pp: cannot claim port '%s'\n", parport_name);
+	}
+      else
+	{
+	  /* we check if parport does EPP or ECP */
+#ifdef PPGETMODES
+	  if (ioctl (fd, PPGETMODES, &mode))
+	    {
+	      DBG (16, "umax_pp: ppdev couldn't gave modes for port '%s'\n",
+		   parport_name);
+	    }
+	  else
+	    {
+	      sprintf (strmodes, "\n");
+	      if (mode & PARPORT_MODE_COMPAT)
+		sprintf (strmodes, "%s\t\tPARPORT_MODE_COMPAT\n", strmodes);
+	      if (mode & PARPORT_MODE_PCSPP)
+		sprintf (strmodes, "%s\t\tPARPORT_MODE_PCSPP\n", strmodes);
+	      if (mode & PARPORT_MODE_EPP)
+		sprintf (strmodes, "%s\t\tPARPORT_MODE_EPP\n", strmodes);
+	      if (mode & PARPORT_MODE_ECP)
+		sprintf (strmodes, "%s\t\tPARPORT_MODE_ECP\n", strmodes);
+	      DBG (32, "parport modes: %X\n", mode);
+	      DBG (32, "parport modes: %s\n", strmodes);
+	      if (!(mode & PARPORT_MODE_EPP) && !(mode & PARPORT_MODE_ECP))
+		{
+		  DBG (1,
+		       "port 0x%X does not have EPP or ECP, giving up ...\n",
+		       port);
+		  mode = IEEE1284_MODE_COMPAT;
+		  ioctl (fd, PPSETMODE, &mode);
+		  ioctl (fd, PPRELEASE);
+		  close (fd);
+		  return (0);
+		}
+	    }
+
+#else
+	  DBG (16,
+	       "umax_pp: ppdev used to build SANE doesn't have PPGETMODES.\n");
 #endif
+	  /* prefered mode is EPP */
+	  mode = IEEE1284_MODE_EPP;
+	  if (ioctl (fd, PPSETMODE, &mode))
+	    {
+	      DBG (16,
+		   "umax_pp: ppdev couldn't set mode to IEEE1284_MODE_EPP for '%s'\n",
+		   parport_name);
+
+	      mode = IEEE1284_MODE_ECP;
+	      if (ioctl (fd, PPSETMODE, &mode))
+		{
+		  DBG (16,
+		       "umax_pp: ppdev couldn't set mode to IEEE1284_MODE_ECP for '%s'\n",
+		       parport_name);
+		  DBG (1,
+		       "port 0x%X can't be set to EPP or ECP, giving up ...\n",
+		       port);
+
+		  mode = IEEE1284_MODE_COMPAT;
+		  ioctl (fd, PPSETMODE, &mode);
+		  ioctl (fd, PPRELEASE);
+		  close (fd);
+		  return (0);
+		}
+	      else
+		{
+		  DBG (16,
+		       "umax_pp: mode set to PARPORT_MODE_ECP for '%s'\n",
+		       parport_name);
+		}
+	    }
+	  else
+	    {
+	      DBG (16,
+		   "umax_pp: mode set to PARPORT_MODE_EPP for '%s'\n",
+		   parport_name);
+	    }
+
+
+	  /* find the base addr of ppdev */
+	  if (sanei_parport_info (i, &addr))
+	    {
+	      if (gPort == addr)
+		{
+		  found = 1;
+		  DBG (1, "Using /proc info\n");
+		}
+	    }
+
+	  /* release port */
+	  if(!found)
+	  {
+	      mode = IEEE1284_MODE_COMPAT;
+	      ioctl (fd, PPSETMODE, &mode);
+	      ioctl (fd, PPRELEASE);
+	  }
+	}
+
+
+
+      /* next parport */
+      if (!found)
+	{
+	  close (fd);
+	  i++;
+	  sprintf (parport_name, "/dev/parport%d", i);
+	  fd = open (parport_name, O_RDONLY | O_NOCTTY);
+	}
+    }
+
+  if (!found)
+    {
+      DBG (1, "no relevant /dev/parportx found...\n");
+    }
+  else
+    {
+      DBG (1, "Using /dev/parport%d ...\n", i);
+      sanei_umax_pp_setparport (fd);
+      return (1); 
+    }
+#endif /* HAVE_LINUX_PPDEV_H */
+
 
 #ifdef HAVE_SYS_HW_H
   /* gainig io perm under OS/2                    */
   /* IOPL must has been raised to 3 in config.sys */
   /* for EMX portaccess always succeeds           */
-  _portaccess (port, port + 7);
+  if (!found)
+    {
+      _portaccess (port, port + 7);
+      return (1);
+    }
 #endif
 
 
@@ -451,133 +568,29 @@ sanei_umax_pp_InitPort (int port)
       DBG (1, "opening '/dev/io' got unxepected errno=%d\n", errno);
       return (0);
     }
-
-
-  /* this ensures that the port is in the expected idle state */
-  /* only useful when doing effective hardware access         */
-  spp_data = Inb (DATA);
-  spp_status = Inb (STATUS);
-  spp_control = Inb (CONTROL);
-  DBG (128, "START STATE:\n");
-  DBG (128, "\tport   =0x%02X\n", port);
-  DBG (128, "\tdata   =0x%02X\n", spp_data);
-  DBG (128, "\tstatus =0x%02X\n", spp_status);
-  DBG (128, "\tcontrol=0x%02X\n", spp_control);
-  if (spp_data != 0x04)
-    Outb (0x04, DATA);
-  if (spp_control != 0xCC)
-    {
-      spp_control = spp_control & 0x1F;
-      Outb (0x0C, CONTROL);
-    }
-#endif
-
-#ifdef HAVE_LINUX_PPDEV_H
-  /* ppdev opening and configuration                               */
-  /* we start with /dev/parport0 and go through all /dev/parportx  */
-  /* until we find the right one                                   */
-  i = 0;
-  found = 0;
-  sprintf (parport_name, "/dev/parport%d", i);
-  fd = open (parport_name, O_RDONLY | O_NOCTTY);
-  while ((fd != -1) && (!found))
-    {
-      /* claim port */
-      if (ioctl (fd, PPCLAIM))
-	{
-	  DBG (1, "umax_pp: cannot claim port '%s'\n", parport_name);
-	}
-      else
-	{
-	  /* we check if parport is does ECP */
-#ifdef PPGETMODES
-	  if (ioctl (fd, PPGETMODES, &mode))
-	    {
-	      DBG (16, "umax_pp: ppdev couldn't gave modes for port '%s'\n",
-		   parport_name);
-	    }
-	  else
-	    {
-	      DBG (32, "parport modes: %X\n", mode);
-	      if (mode & PARPORT_MODE_ECP)
-		{
-		  DBG (16, "umax_pp: initializing ECPEPP\n");
-		  /* set up ECPEPP the hard way ... */
-		  /* frob_econtrol (port, 0xe0, 4 << 5);
-		     unsigned char ectr = inb (ECONTROL (pb));
-		     outb ((ectr & ~m) ^ v, ECONTROL (pb));     */
-		  ectr = Inb (ECPCONTROL);
-		  ectr = (ectr & ~(0xE0)) ^ (4 << 5);
-		  Outb (ECPCONTROL, ectr);
-
-		}
-	      if (!(mode & PARPORT_MODE_ECP) && !(mode & PARPORT_MODE_ECP))
-		{
-		  DBG (1,
-		       "port 0x%X does not have EPP or ECP, giving up ...\n",
-		       port);
-		  return (0);
-		}
-	    }
-#else
-	  DBG (16,
-	       "umax_pp: ppdev used to build SANE doesn't have PPGETMODES.\n");
-#endif
-
-	  /* find the base addr of ppdev */
-	  if (sanei_parport_info (i, &addr))
-	    {
-	      if (gPort == addr)
-		{
-		  found = 1;
-		  DBG (1, "Using /proc info\n");
-		}
-	    }
-	  else
-	    {
-	      /* write to DATA via direct io and read DATA via parport */
-	      /* if values match, we found the right parport           */
-	      Outb (DATA, 0x5A);
-	      if (ioctl (fd, PPRDATA, &value))
-		{
-		  DBG (16, "umax_pp: cannot read data from port <%s>\n",
-		       parport_name);
-		}
-	      value &= 0xFF;
-	      if (value == 0x5A)
-		{
-		  found = 1;
-		  DBG (1, "Using '%s'.\n", parport_name);
-		}
-	    }
-
-	  /* release port */
-	  mode = IEEE1284_MODE_COMPAT;
-	  ioctl (fd, PPSETMODE, &mode);
-	  ioctl (fd, PPRELEASE);
-	}
-
-
-
-      /* next parport */
-      if (!found)
-	{
-	  close (fd);
-	  i++;
-	  sprintf (parport_name, "/dev/parport%d", i);
-	  fd = open (parport_name, O_RDONLY | O_NOCTTY);
-	}
-    }
-
-  if (!found)
-    {
-      DBG (1, "no relevant /dev/parportx found...\n");
-    }
   else
+    return (1);
+
+#ifdef HAVE_IOPERM
+  if (ioperm (port, 8, 1) != 0)
     {
-      gParport = fd;
+      DBG (1, "ioperm could not gain access to 0x%X\n", port);
+      return (0);
     }
+  /* ECP i/o range */
+  if (iopl (3) != 0)
+    {
+      DBG (1, "iopl could not raise IO permission to level 3\n");
+      return (0);
+    }
+  mode = getuid ();
+  setreuid (mode, mode);
+  mode = getgid ();
+  setregid (mode, mode);
 #endif
+
+
+#endif /* IO_SUPPORT_MISSING */
   return (1);
 }
 
@@ -590,12 +603,46 @@ static void
 Outb (int port, int value)
 {
 #ifndef IO_SUPPORT_MISSING
+
+#ifdef HAVE_LINUX_PPDEV_H
+  int fd, rc;
+  unsigned char val;
+#endif
+
 #ifdef HAVE_SYS_HW_H
   _outp8 (port, value);
 #else
+
+#ifdef HAVE_LINUX_PPDEV_H
+  fd = sanei_umax_pp_getparport ();
+  val = (unsigned char) value;
+  if (fd > 0)
+    {
+      /* there should be ECPCONTROL that doesn't go through ppdev */
+      /* it will leave when all the I/O will be done with ppdev   */
+      switch (port - gPort)
+	{
+	case 0:
+	  rc = ioctl (fd, PPWDATA, &val);
+	  return;
+	case 2:
+	  if (val & 0x20)
+	    rc = ioctl (fd, PPDATADIR, &val);
+	  else
+	    rc = ioctl (fd, PPWCONTROL, &val);
+	  return;
+	case 0x402:
+	  break;
+	default:
+	  DBG (16, "Outb(0x%03X,0x%02X) escaped ppdev\n", port, value);
+	}
+    }
+#endif /* HAVE_LINUX_PPDEV_H */
+
   outb (value, port);
-#endif
-#endif
+
+#endif /* HAVE_SYS_HW_H      */
+#endif /* IO_SUPPORT_MISSING */
 }
 
 
@@ -606,13 +653,54 @@ static int
 Inb (int port)
 {
   int res = 0xFF;
+#ifdef HAVE_LINUX_PPDEV_H
+  int fd, rc;
+  unsigned char val;
+#endif
+
 #ifndef IO_SUPPORT_MISSING
+
 #ifdef HAVE_SYS_HW_H
   res = _inp8 (port) & 0xFF;
 #else
+
+#ifdef HAVE_LINUX_PPDEV_H
+  fd = sanei_umax_pp_getparport ();
+  if (fd > 0)
+    {
+      /* there should be ECPCONTROL that doesn't go through ppdev */
+      /* it will leave when all the I/O will be done with ppdev   */
+      switch (port - gPort)
+	{
+	case 0:
+	  rc = ioctl (fd, PPRDATA, &val);
+	  res = val;
+	  return res;
+
+	case 1:
+	  rc = ioctl (fd, PPRSTATUS, &val);
+	  res = val;
+	  return res;
+
+	case 2:
+	  rc = ioctl (fd, PPRCONTROL, &val);
+	  res = val;
+	  return res;
+
+	case 0x402:
+	  break;
+
+	default:
+	  DBG (16, "Inb(0x%03X) escaped ppdev\n", port);
+	}
+    }
+#endif /* HAVE_LINUX_PPDEV_H */
+
   res = inb (port) & 0xFF;
-#endif
-#endif
+
+#endif /* HAVE_SYS_HW_H */
+
+#endif /* IO_SUPPORT_MISSING */
   return res;
 }
 
@@ -1446,8 +1534,41 @@ Init002 (int arg)
 static int
 EPPRegisterRead (int reg)
 {
+#ifdef HAVE_LINUX_PPDEV_H
+  int fd, mode, rc, ex;
+  unsigned char breg, bval;
+#endif
   int control;
   int value;
+
+
+#ifdef HAVE_LINUX_PPDEV_H
+  /* check we have ppdev working */
+  fd = sanei_umax_pp_getparport ();
+  if (fd > 0)
+    {
+      breg = (unsigned char) (reg);
+      mode = IEEE1284_MODE_EPP | IEEE1284_ADDR;
+      rc = ioctl (fd, PPGETMODE, &ex);
+      rc = ioctl (fd, PPSETMODE, &mode);
+      rc = write (fd, &breg, 1);
+
+      mode = 1;			/* data_reverse */
+      rc = ioctl (fd, PPDATADIR, &mode);
+
+      mode = IEEE1284_MODE_EPP | IEEE1284_DATA;
+      rc = ioctl (fd, PPSETMODE, &mode);
+      rc = read (fd, &bval, 1);
+      value = bval;
+
+      mode = 0;			/* forward */
+      rc = ioctl (fd, PPDATADIR, &mode);
+      rc = ioctl (fd, PPSETMODE, &ex);
+
+      return value;
+    }
+  /* if not, direct harware access */
+#endif
 
   Outb (EPPADR, reg);
   control = Inb (CONTROL);
@@ -1464,63 +1585,160 @@ EPPRegisterRead (int reg)
 static void
 EPPRegisterWrite (int reg, int value)
 {
+#ifdef HAVE_LINUX_PPDEV_H
+  int fd, mode, rc, ex;
+  unsigned char breg, bval;
+#endif
+
   reg = reg | 0x40;
+
+#ifdef HAVE_LINUX_PPDEV_H
+  /* check we have ppdev working */
+  fd = sanei_umax_pp_getparport ();
+  if (fd > 0)
+    {
+      breg = (unsigned char) (reg);
+      mode = IEEE1284_MODE_EPP | IEEE1284_ADDR;
+      rc = ioctl (fd, PPGETMODE, &ex);
+      rc = ioctl (fd, PPSETMODE, &mode);
+      rc = write (fd, &breg, 1);
+
+      bval = (unsigned char) (value);
+      mode = IEEE1284_MODE_EPP | IEEE1284_DATA;
+      rc = ioctl (fd, PPSETMODE, &mode);
+      rc = write (fd, &bval, 1);
+
+      return;
+    }
+  /* if not, direct harware access */
+#endif
   Outb (EPPADR, reg);
   Outb (EPPDATA, value);
 }
 
+static void
+EPPBlockMode (int flag)
+{
+#ifdef HAVE_LINUX_PPDEV_H
+  int fd, mode, rc, ex;
+  unsigned char bval;
 
+  /* check we have ppdev working */
+  fd = sanei_umax_pp_getparport ();
+  if (fd > 0)
+    {
+      bval = (unsigned char) (flag);
+      mode = IEEE1284_MODE_EPP | IEEE1284_ADDR;
+      rc = ioctl (fd, PPGETMODE, &ex);
+      rc = ioctl (fd, PPSETMODE, &mode);
+      rc = write (fd, &bval, 1);
+      rc = ioctl (fd, PPSETMODE, &ex);
+
+      return;
+    }
+  /* if not, direct harware access */
+#endif
+  Outb (EPPADR, flag);
+}
 
 static void
 EPPReadBuffer (int size, unsigned char *dest)
 {
+#ifdef HAVE_LINUX_PPDEV_H
+  int fd, mode, rc, ex, exf;
+#endif
   int control;
 
-  Outb (EPPADR, 0x80);
-  control = Inb (CONTROL);
-  Outb (CONTROL, (control & 0x1F) | 0x20);
+#ifdef HAVE_LINUX_PPDEV_H
+  /* check we have ppdev working */
+  fd = sanei_umax_pp_getparport ();
+  if (fd > 0)
+    {
+      EPPBlockMode (0x80);
+      rc = ioctl (fd, PPGETMODE, &ex);
+      rc = ioctl (fd, PPGETFLAGS, &exf);
+      mode = 1;			/* data_reverse */
+      rc = ioctl (fd, PPDATADIR, &mode);
+      mode = PP_FASTREAD;
+      rc = ioctl (fd, PPSETFLAGS, &mode);
+      mode = IEEE1284_MODE_EPP | IEEE1284_DATA;
+      rc = ioctl (fd, PPSETMODE, &mode);
+      rc = read (fd, dest, size-1);
 
+      mode = 0;			/* forward */
+      rc = ioctl (fd, PPDATADIR, &mode);
+      EPPBlockMode (0xA0);
+
+      mode = 1;			/* data_reverse */
+      rc = ioctl (fd, PPDATADIR, &mode);
+      mode = IEEE1284_MODE_EPP | IEEE1284_DATA;
+      rc = ioctl (fd, PPSETMODE, &mode);
+      rc = read (fd, dest+ size-1,1);
+
+      mode = 0;			/* forward */
+      rc = ioctl (fd, PPDATADIR, &mode);
+      rc = ioctl (fd, PPSETMODE, &ex);
+      rc = ioctl (fd, PPSETFLAGS, &exf);
+
+      return;
+    }
+  /* if not, direct harware access */
+#endif
+
+  EPPBlockMode (0x80);
+  control = Inb (CONTROL);
+  Outb (CONTROL, (control & 0x1F) | 0x20);	/* reverse */
   Insb (EPPDATA, dest, size - 1);
   control = Inb (CONTROL);
-  Outb (CONTROL, (control & 0x1F));
 
-  Outb (EPPADR, 0xA0);
+  Outb (CONTROL, (control & 0x1F));		/* forward */
+  EPPBlockMode (0xA0);
   control = Inb (CONTROL);
-  Outb (CONTROL, (control & 0x1F) | 0x20);
 
+  Outb (CONTROL, (control & 0x1F) | 0x20);	/* reverse */
   Insb (EPPDATA, (unsigned char *) (dest + size - 1), 1);
+
   control = Inb (CONTROL);
-  Outb (CONTROL, (control & 0x1F));
+  Outb (CONTROL, (control & 0x1F));		/* forward */
 }
 
 
 static void
 EPPWriteBuffer (int size, unsigned char *source)
 {
-  Outb (EPPADR, 0xC0);
+#ifdef HAVE_LINUX_PPDEV_H
+  int fd, mode, rc;
+#endif
+
+
+  EPPBlockMode (0xC0);
+#ifdef HAVE_LINUX_PPDEV_H
+  /* check we have ppdev working */
+  fd = sanei_umax_pp_getparport ();
+  if (fd > 0)
+    {
+      mode = IEEE1284_MODE_EPP | IEEE1284_DATA;
+      rc = ioctl (fd, PPSETMODE, &mode);
+      rc = write (fd, source, size);
+      return;
+    }
+  /* if not, direct harware access */
+#endif
   Outsb (EPPDATA, source, size);
 }
 
 
 /* returns 0 if mode OK, else -1 */
 static int
-Init004 (void)
+CheckEPAT (void)
 {
-  int control;
-  int mode;
+  int version;
 
-  Outb (EPPADR, 0x0B);
-  control = Inb (CONTROL);
-  Outb (CONTROL, (control & 0x1F) | 0x20);
-
-  mode = Inb (CONTROL + 5);
-  control = Inb (CONTROL);
-  Outb (CONTROL, (control & 0x1F));
-
-  if (mode == 0xC7)
+  version = EPPRegisterRead (0x0B);
+  if (version == 0xC7)
     return (0);
-  DBG (0, "Init004: expected 0xC7, got 0x%X! (%s:%d)\n", mode, __FILE__,
-       __LINE__);
+  DBG (0, "CheckEPAT: expected EPAT version 0xC7, got 0x%X! (%s:%d)\n",
+       version, __FILE__, __LINE__);
   return (-1);
 
 }
@@ -1602,13 +1820,50 @@ Init022 (void)
 static void
 EPPRead32Buffer (int size, unsigned char *dest)
 {
+#ifdef HAVE_LINUX_PPDEV_H
+  int fd, mode, rc, ex, exf;
+#endif
   int control;
 
-  Outb (EPPADR, 0x80);
-  /* beurk XXX STEF XXX */
-  /* but hides away outb in other functions */
-  if (size == 0)
-    return;
+#ifdef HAVE_LINUX_PPDEV_H
+  /* check we have ppdev working */
+  fd = sanei_umax_pp_getparport ();
+  if (fd > 0)
+    {
+      EPPBlockMode (0x80);
+      rc = ioctl (fd, PPGETMODE, &ex);
+      rc = ioctl (fd, PPGETFLAGS, &exf);
+      mode = 1;			/* data_reverse */
+      rc = ioctl (fd, PPDATADIR, &mode);
+      mode = PP_FASTREAD;
+      rc = ioctl (fd, PPSETFLAGS, &mode);
+      mode = IEEE1284_MODE_EPP | IEEE1284_DATA;
+      rc = ioctl (fd, PPSETMODE, &mode);
+      rc = read (fd, dest, size-4);
+
+      rc = read (fd, dest+size-4, 3);
+
+      mode = 0;			/* forward */
+      rc = ioctl (fd, PPDATADIR, &mode);
+      EPPBlockMode (0xA0);
+
+      mode = 1;			/* data_reverse */
+      rc = ioctl (fd, PPDATADIR, &mode);
+      mode = IEEE1284_MODE_EPP | IEEE1284_DATA;
+      rc = ioctl (fd, PPSETMODE, &mode);
+      rc = read (fd, dest+ size-1,1);
+
+      mode = 0;			/* forward */
+      rc = ioctl (fd, PPDATADIR, &mode);
+      rc = ioctl (fd, PPSETMODE, &ex);
+      rc = ioctl (fd, PPSETFLAGS, &exf);
+
+      return;
+    }
+  /* if not, direct harware access */
+#endif
+
+  EPPBlockMode (0x80);
 
   control = Inb (CONTROL);
   Outb (CONTROL, (control & 0x1F) | 0x20);
@@ -1618,7 +1873,7 @@ EPPRead32Buffer (int size, unsigned char *dest)
   control = Inb (CONTROL);
   Outb (CONTROL, (control & 0x1F));
 
-  Outb (EPPADR, 0xA0);
+  EPPBlockMode (0xA0);
   control = Inb (CONTROL);
   Outb (CONTROL, (control & 0x1F) | 0x20);
 
@@ -1630,12 +1885,31 @@ EPPRead32Buffer (int size, unsigned char *dest)
 static void
 EPPWrite32Buffer (int size, unsigned char *source)
 {
+#ifdef HAVE_LINUX_PPDEV_H
+  int fd, mode, rc, ex;
+#endif
   if ((size % 4) != 0)
     {
       DBG (0, "EPPWrite32Buffer: size %% 4 != 0!! (%s:%d)\n", __FILE__,
 	   __LINE__);
     }
-  Outb (EPPADR, 0xC0);
+  EPPBlockMode (0xC0);
+#ifdef HAVE_LINUX_PPDEV_H
+  /* check we have ppdev working */
+  fd = sanei_umax_pp_getparport ();
+  if (fd > 0)
+    {
+      mode = PP_FASTWRITE;
+      rc = ioctl (fd, PPGETFLAGS, &ex);
+      rc = ioctl (fd, PPSETFLAGS, &mode);
+      mode = IEEE1284_MODE_EPP | IEEE1284_DATA;
+      rc = ioctl (fd, PPSETMODE, &mode);
+      rc = write (fd, source, size);
+      rc = ioctl (fd, PPSETFLAGS, &ex);
+      return;
+    }
+  /* if not, direct harware access */
+#endif
   Outsw (EPPDATA, source, size / 4);
 }
 
@@ -1676,9 +1950,164 @@ WaitOnError (void)
   return (c);
 }
 
+
+
+#ifdef HAVE_LINUX_PPDEV_H
 /* read up to size bytes, returns bytes read */
 static int
-PausedReadBuffer (int size, unsigned char *dest)
+ParportPausedReadBuffer (int size, unsigned char *dest)
+{
+  unsigned char status;
+  int error;
+  int word;
+  int bread;
+  int c;
+  int fd,rc,mode,ex,exf;
+
+  /* init */
+  bread = 0;
+  error = 0;
+  fd=sanei_umax_pp_getparport();
+      rc = ioctl (fd, PPGETMODE, &ex);
+      rc = ioctl (fd, PPGETFLAGS, &exf);
+
+      mode = 1;			/* data_reverse */
+      rc = ioctl (fd, PPDATADIR, &mode);
+
+  if ((size & 0x03) != 0)
+    {
+      while ((!error) && ((size & 0x03) != 0))
+	{
+          mode = PP_FASTREAD;
+          rc = ioctl (fd, PPSETFLAGS, &mode);
+          mode = IEEE1284_MODE_EPP | IEEE1284_DATA;
+          rc = ioctl (fd, PPSETMODE, &mode);
+          rc = read (fd, dest, 1);
+	  size--;
+	  dest++;
+	  bread++;
+	  rc = ioctl (fd, PPRSTATUS, &status);
+	  error = status & 0x08;
+	}
+      if (error)
+	{
+	  DBG (0, "Read error (%s:%d)\n", __FILE__, __LINE__);
+	  return (0);
+	}
+    }
+
+  /* from here, we read 1 byte, then size/4-1 32 bits words, and then
+     3 bytes, pausing on ERROR bit of STATUS */
+  size -= 4;
+
+  /* sanity test, seems to be wrongly handled ... */
+  if (size == 0)
+    {
+      DBG (0, "case not handled! (%s:%d)\n", __FILE__, __LINE__);
+      return (0);
+    }
+
+  word = 0;
+  error = 0;
+  bread += size;
+  do
+    {
+      do
+	{
+          rc = read (fd, dest, 1);
+	  size--;
+	  dest++;
+	readstatus:
+	  if (size > 0)
+	    {
+	      rc = ioctl (fd, PPRSTATUS, &status);
+	      word = status & 0x10;
+	      error = status & 0x08;
+	    }
+	}
+      while ((size > 0) && (!error) && (!word));
+    }
+  while ((size < 4) && (!error) && (size > 0));
+
+  /* here size=0 or error=8 or word=0x10 */
+  if ((word) && (!error) && (size))
+    {
+      rc = read (fd, dest, 4);
+      dest += 4;
+      size -= 4;
+      if (size != 0)
+	error = 0x08;
+    }
+  if (!error)
+    {
+      c = 0;
+      rc = ioctl (fd, PPRSTATUS, &status);
+      error = status & 0x08;
+      if (error)
+	c = WaitOnError ();
+    }
+  else
+    {				/* 8282 */
+      c = WaitOnError ();
+      if (c == 0)
+	goto readstatus;
+    }
+  if (c == 1)
+    {
+      bread -= size;
+    }
+  else
+    {
+      bread += 3;
+      size = 3;
+      do
+	{
+	  do
+	    {
+      	      rc = read (fd, dest, 1);
+	      dest++;
+	      size--;
+	      if (size)
+		{
+                  rc = ioctl (fd, PPRSTATUS, &status);
+		  error = status & 0x08;
+		  if (!error)
+		  {
+                    rc = ioctl (fd, PPRSTATUS, &status);
+		    error = status & 0x08;
+		  }
+		}
+	    }
+	  while ((size > 0) && (!error));
+	  c = 0;
+	  if (error)
+	    c = WaitOnError ();
+	}
+      while ((size > 0) && (c == 0));
+    }
+
+  /* end reading */
+  mode = 0;			/* forward */
+  rc = ioctl (fd, PPDATADIR, &mode);
+  EPPBlockMode (0xA0);
+
+  mode = 1;			/* data_reverse */
+  rc = ioctl (fd, PPDATADIR, &mode);
+  rc = read (fd, dest, 1);
+  bread++;
+
+  mode = 0;			/* forward */
+  rc = ioctl (fd, PPDATADIR, &mode);
+  rc = ioctl (fd, PPSETMODE, &ex);
+  rc = ioctl (fd, PPSETFLAGS, &exf);
+  return (bread);
+}
+#endif
+
+
+/* read up to size bytes, returns bytes read */
+static int
+DirectPausedReadBuffer (int size, unsigned char *dest)
 {
   int control;
   int status;
@@ -1802,7 +2231,7 @@ PausedReadBuffer (int size, unsigned char *dest)
   /* end reading */
   control = Inb (CONTROL) & 0x1F;
   Outb (CONTROL, control);
-  Outb (EPPADR, 0xA0);
+  EPPBlockMode (0xA0);
   control = Inb (CONTROL) & 0x1F;
   Outb (CONTROL, control | 0x20);
   Insb (EPPDATA, dest, 1);
@@ -1811,6 +2240,19 @@ PausedReadBuffer (int size, unsigned char *dest)
   Outb (CONTROL, control);
   return (read);
 }
+
+
+int PausedReadBuffer (int size, unsigned char *dest)
+{
+#ifdef HAVE_LINUX_PPDEV_H
+  if(sanei_umax_pp_getparport ()>0)
+  	return(ParportPausedReadBuffer(size,dest));
+#endif
+  return(DirectPausedReadBuffer(size,dest));
+}
+
+
+
 
 /* returns 1 on success, 0 otherwise */
 static int
@@ -2002,13 +2444,6 @@ SendWord (int *cmd)
   return (0);
 }
 
-
-
-static void
-InitPausedRead (void)
-{
-  Outb (EPPADR, 0x80);
-}
 
 
 /******************************************************************************/
@@ -2477,7 +2912,7 @@ PausedReadData (int size, unsigned char *dest)
     }
   EPPREGISTERREAD (0x0C, 0x04);
   EPPREGISTERWRITE (0x0C, 0x44);	/* sets data direction ? */
-  EPPRead32Buffer (0x0, dest);
+  EPPBlockMode (0x80);
   read = PausedReadBuffer (size, dest);
   if (read < size)
     {
@@ -2695,8 +3130,9 @@ CmdSetDataBuffer (int *data)
   int cmd1[] = { 0x00, 0x00, 0x22, 0x88, -1 };	/* 34 bytes write on channel 8 */
   int cmd2[] =
     { 0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C, 0x00, 0x03, 0xC1, 0x80,
-      0x00, 0x20, 0x02, 0x00, 0x16, 0x41, 0xE0, 0xAC, 0x03, 0x03, 0x00, 0x00,
-      0x46, 0xA0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, -1 };
+    0x00, 0x20, 0x02, 0x00, 0x16, 0x41, 0xE0, 0xAC, 0x03, 0x03, 0x00, 0x00,
+    0x46, 0xA0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, -1
+  };
   int cmd3[] = { 0x00, 0x08, 0x00, 0x84, -1 };	/* 2048 bytes size write on channel 4 (data) */
   int cmd4[] = { 0x00, 0x08, 0x00, 0xC4, -1 };	/* 2048 bytes size read on channel 4 (data) */
   int i;
@@ -3015,20 +3451,24 @@ sanei_umax_pp_InitScanner (int recover)
     {				/* homing needed, readcmd[34] should be 0x48 */
       int op01[17] =
 	{ 0x01, 0x00, 0x32, 0x70, 0x00, 0x00, 0x60, 0x2F, 0x17, 0x05, 0x00,
-	  0x00, 0x00, 0x80, 0xE4, 0x00, -1 };
+	0x00, 0x00, 0x80, 0xE4, 0x00, -1
+      };
       int op05[17] =
 	{ 0x01, 0x00, 0x01, 0x70, 0x00, 0x00, 0x60, 0x2F, 0x13, 0x05, 0x00,
-	  0x00, 0x00, 0x80, 0xF0, 0x00, -1 };
+	0x00, 0x00, 0x80, 0xF0, 0x00, -1
+      };
       int op02[37] =
 	{ 0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C, 0x00, 0x04, 0x40,
-	  0x01, 0x00, 0x20, 0x02, 0x00, 0x16, 0x00, 0x70, 0x9F, 0x06, 0x00,
-	  0x00, 0xF6, 0x4D, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF,
-	  0x0B, 0x1A, 0x00, -1 };
+	0x01, 0x00, 0x20, 0x02, 0x00, 0x16, 0x00, 0x70, 0x9F, 0x06, 0x00,
+	0x00, 0xF6, 0x4D, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF,
+	0x0B, 0x1A, 0x00, -1
+      };
       int op04[37] =
 	{ 0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C, 0x00, 0x03, 0xC1,
-	  0x80, 0x00, 0x20, 0x02, 0x00, 0x16, 0x80, 0x15, 0x78, 0x03, 0x03,
-	  0x00, 0x00, 0x46, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF,
-	  0x0B, 0x1A, 0x00, -1 };
+	0x80, 0x00, 0x20, 0x02, 0x00, 0x16, 0x80, 0x15, 0x78, 0x03, 0x03,
+	0x00, 0x00, 0x46, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF,
+	0x0B, 0x1A, 0x00, -1
+      };
       int op03[9] = { 0x00, 0x00, 0x00, 0xAA, 0xCC, 0xEE, 0xFF, 0xFF, -1 };
 
       CMDSYNC (0xC2);
@@ -4001,7 +4441,7 @@ sanei_umax_pp_ProbeScanner (int recover)
 	{
 	  /* EPP mode not set */
 	  DBG (0,
-	       "\n*** It appears that EPP data transfer doesn't work    ***");
+	       "*** It appears that EPP data transfer doesn't work    ***\n");
 	  DBG (0,
 	       "*** Please read SETTING EPP section in sane-umax_pp.5 ***\n");
 	}
@@ -4064,8 +4504,10 @@ sanei_umax_pp_ProbeScanner (int recover)
   Outb (DATA, 0x0);
   ClearRegister (0);
   Init001 ();
-  Init004 ();
-  DBG (16, "Init004() passed... (%s:%d)\n", __FILE__, __LINE__);
+
+  if (CheckEPAT () != 0)
+    return (0);
+  DBG (16, "CheckEPAT() passed... (%s:%d)\n", __FILE__, __LINE__);
 
   tmp = Inb (CONTROL) & 0x1F;
   Outb (CONTROL, tmp);
@@ -4465,14 +4907,14 @@ sanei_umax_pp_ProbeScanner (int recover)
   EPPREGISTERWRITE (0x1A, 0x00);
   EPPREGISTERWRITE (0x1A, 0x0C);
 
-  EPPREGISTERWRITE (0x0A, 0x11); /* start */
+  EPPREGISTERWRITE (0x0A, 0x11);	/* start */
   for (i = 0; i < 150; i++)
     {
       EPPWrite32Buffer (0x400, dest);
       DBG (16, "Loop %d: EPPWrite32Buffer(0x400,dest) passed... (%s:%d)\n", i,
 	   __FILE__, __LINE__);
     }
-  EPPREGISTERWRITE (0x0A, 0x18); /* end */
+  EPPREGISTERWRITE (0x0A, 0x18);	/* end */
 
   /* read them back */
   EPPREGISTERWRITE (0x0A, 0x11);	/*start transfert */
@@ -5053,7 +5495,7 @@ CmdGetBuffer (int cmd, int len, unsigned char *buffer)
       needed = len - read;
       if (needed > 32768)
 	needed = 32768;
-      InitPausedRead ();
+      EPPBlockMode (0x80);
       tmp = PausedReadBuffer (needed, buffer + read);
       if (tmp < needed)
 	{
@@ -5781,12 +6223,14 @@ Move (int distance, int precision, unsigned char *buffer)
 {
   int header[17] =
     { 0x01, 0x00, 0x00, 0x20, 0x00, 0x00, 0x60, 0x2F, 0x2F, 0x01, 0x00, 0x00,
-      0x00, 0x80, 0xA4, 0x00, -1 };
+    0x00, 0x80, 0xA4, 0x00, -1
+  };
   int body[37] =
     { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x04, 0x00, 0x6E, 0xF6, 0x79, 0xBF, 0x01, 0x00, 0x00, 0x00,
-      0x46, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x13, 0x1A, 0x00,
-      -1 };
+    0x00, 0x00, 0x04, 0x00, 0x6E, 0xF6, 0x79, 0xBF, 0x01, 0x00, 0x00, 0x00,
+    0x46, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x13, 0x1A, 0x00,
+    -1
+  };
   int end[9] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, -1 };
   int steps, len;
   unsigned char tmp[0x200];
@@ -5931,12 +6375,14 @@ MoveToOrigin (void)
   int val, delta;
   int header[17] =
     { 0xB4, 0x00, 0x00, 0x70, 0x00, 0x00, 0x60, 0x2F, 0x2F, 0x05, 0x00, 0x00,
-      0x00, 0x80, 0xA4, 0x00, -1 };
+    0x00, 0x80, 0xA4, 0x00, -1
+  };
   int body[37] =
     { 0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C, 0x00, 0x04, 0x40, 0x01,
-      0x00, 0x00, 0x04, 0x00, 0x6E, 0xFB, 0xC4, 0xE5, 0x06, 0x00, 0x00, 0x60,
-      0x4D, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x13, 0x1A, 0x00,
-      -1 };
+    0x00, 0x00, 0x04, 0x00, 0x6E, 0xFB, 0xC4, 0xE5, 0x06, 0x00, 0x00, 0x60,
+    0x4D, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x13, 0x1A, 0x00,
+    -1
+  };
   int end[9] = { 0x06, 0xF4, 0xFF, 0x81, 0x1B, 0x00, 0x08, 0x00, -1 };
   int opsc03[9] = { 0x00, 0x00, 0x00, 0xAA, 0xCC, 0xEE, 0x80, 0xFF, -1 };
 
@@ -6030,28 +6476,34 @@ WarmUp (int color, int *gain)
   int opsc10[9] = { 0x06, 0xF4, 0xFF, 0x81, 0x1B, 0x00, 0x08, 0x00, -1 };
   int opsc18[17] =
     { 0x01, 0x00, 0x00, 0x70, 0x00, 0x00, 0x60, 0x2F, 0x2F, 0x00, 0x88, 0x08,
-      0x00, 0x80, 0xA4, 0x00, -1 };
+    0x00, 0x80, 0xA4, 0x00, -1
+  };
   int opsc38[37] =
     { 0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C, 0x00, 0x04, 0x40, 0x01,
-      0x00, 0x00, 0x04, 0x00, 0x6E, 0x18, 0x10, 0x03, 0x06, 0x00, 0x00, 0x00,
-      0x46, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x13, 0x1A, 0x00,
-      -1 };
+    0x00, 0x00, 0x04, 0x00, 0x6E, 0x18, 0x10, 0x03, 0x06, 0x00, 0x00, 0x00,
+    0x46, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x13, 0x1A, 0x00,
+    -1
+  };
   int opsc39[37] =
     { 0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C, 0x00, 0x04, 0x40, 0x01,
-      0x00, 0x00, 0x04, 0x00, 0x6E, 0x41, 0x20, 0x24, 0x06, 0x00, 0x00, 0x00,
-      0x46, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x13, 0x1A, 0x00,
-      -1 };
+    0x00, 0x00, 0x04, 0x00, 0x6E, 0x41, 0x20, 0x24, 0x06, 0x00, 0x00, 0x00,
+    0x46, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x13, 0x1A, 0x00,
+    -1
+  };
   int opsc40[37] =
     { 0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C, 0x00, 0x04, 0x40, 0x01,
-      0x00, 0x00, 0x04, 0x00, 0x6E, 0x41, 0x60, 0x4F, 0x06, 0x00, 0x00, 0x00,
-      0x46, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x93, 0x1A, 0x00,
-      -1 };
+    0x00, 0x00, 0x04, 0x00, 0x6E, 0x41, 0x60, 0x4F, 0x06, 0x00, 0x00, 0x00,
+    0x46, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x93, 0x1A, 0x00,
+    -1
+  };
   int opsc51[17] =
     { 0x09, 0x00, 0x00, 0x70, 0x00, 0x00, 0x60, 0x2F, 0x2F, 0x00, 0xA5, 0x09,
-      0x00, 0x40, 0xA4, 0x00, -1 };
+    0x00, 0x40, 0xA4, 0x00, -1
+  };
   int opsc48[17] =
     { 0x09, 0x00, 0x00, 0x70, 0x00, 0x00, 0x60, 0x2F, 0x2F, 0x00, 0x00, 0x00,
-      0x00, 0x40, 0xA4, 0x00, -1 };
+    0x00, 0x40, 0xA4, 0x00, -1
+  };
   float offsetX, offsetY, offsetZ;
   float avgX, avgY, avgZ;
 
@@ -6404,12 +6856,14 @@ sanei_umax_pp_Park (void)
 {
   int header[17] =
     { 0x01, 0x00, 0x01, 0x70, 0x00, 0x00, 0x60, 0x2F, 0x13, 0x05, 0x00, 0x00,
-      0x00, 0x80, 0xF0, 0x00, -1 };
+    0x00, 0x80, 0xF0, 0x00, -1
+  };
   int body[37] =
     { 0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C, 0x00, 0x03, 0xC1, 0x80,
-      0x00, 0x00, 0x04, 0x00, 0x16, 0x80, 0x15, 0x78, 0x03, 0x03, 0x00, 0x00,
-      0x46, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x1B, 0x1A, 0x00,
-      -1 };
+    0x00, 0x00, 0x04, 0x00, 0x16, 0x80, 0x15, 0x78, 0x03, 0x03, 0x00, 0x00,
+    0x46, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x1B, 0x1A, 0x00,
+    -1
+  };
   int status = 0x90;
 
   CMDSYNC (0x00);
@@ -6434,17 +6888,20 @@ GammaCalibration (int color, int dpi, int gain, int highlight, int width,
 {
   int opsc32[17] =
     { 0x4A, 0x00, 0x00, 0x70, 0x00, 0x00, 0x60, 0x00, 0x17, 0x05, 0xA5, 0x08,
-      0x00, 0x00, 0xAC, 0x00, -1 };
+    0x00, 0x00, 0xAC, 0x00, -1
+  };
   int opsc41[37] =
     { 0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C, 0x00, 0x04, 0x40, 0x01,
-      0x00, 0x00, 0x04, 0x00, 0x6E, 0x90, 0xD0, 0x47, 0x06, 0x00, 0x00, 0xC4,
-      0x5C, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x93, 0x1B, 0x00,
-      -1 };
+    0x00, 0x00, 0x04, 0x00, 0x6E, 0x90, 0xD0, 0x47, 0x06, 0x00, 0x00, 0xC4,
+    0x5C, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x93, 0x1B, 0x00,
+    -1
+  };
   int opscnb[37] =
     { 0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C, 0x00, 0x04, 0x40, 0x01,
-      0x00, 0x00, 0x04, 0x00, 0x6E, 0x90, 0xD0, 0x47, 0x06, 0x00, 0x00, 0xEC,
-      0x54, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x93, 0x1A, 0x00,
-      -1 };
+    0x00, 0x00, 0x04, 0x00, 0x6E, 0x90, 0xD0, 0x47, 0x06, 0x00, 0x00, 0xEC,
+    0x54, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x93, 0x1A, 0x00,
+    -1
+  };
   int opsc04[9] = { 0x06, 0xF4, 0xFF, 0x81, 0x1B, 0x00, 0x00, 0x00, -1 };
   int opsc02[9] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, -1 };
   int size;
@@ -6660,9 +7117,9 @@ sanei_umax_pp_Scan (int x, int y, int width, int height, int dpi, int color,
 	{
 	  /* write pnm header */
 	  if (color >= RGB_MODE)
-	    fprintf (fout, "P6\n%d %d\n255\n", bpl / bpp, th);
+	    fprintf (fout, "P6\n%d %d\n255\n", tw, th);
 	  else
-	    fprintf (fout, "P5\n%d %d\n255\n", bpl / bpp, th);
+	    fprintf (fout, "P5\n%d %d\n255\n", tw, th);
 	}
 
       /* data reading loop */
@@ -6675,8 +7132,7 @@ sanei_umax_pp_Scan (int x, int y, int width, int height, int dpi, int color,
 	  else
 	    len = somme - read;
 	  len =
-	    sanei_umax_pp_ReadBlock (len, bpl / bpp, dpi, (len < blocksize),
-				     buffer);
+	    sanei_umax_pp_ReadBlock (len, tw, dpi, (len < blocksize), buffer);
 	  if (len == 0)
 	    {
 	      DBG (0, "ReadBlock failed, cancelling scan ...\n");
@@ -6819,17 +7275,20 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
   int opsc04[9] = { 0x06, 0xF4, 0xFF, 0x81, 0x1B, 0x00, 0x00, 0x00, -1 };
   int opsc53[17] =
     { 0xA4, 0x80, 0x07, 0x50, 0xEC, 0x03, 0x00, 0x2F, 0x17, 0x07, 0x84, 0x08,
-      0x00, 0x00, 0xAC, 0x00, -1 };
+    0x00, 0x00, 0xAC, 0x00, -1
+  };
   int opsc35[37] =
     { 0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C, 0x00, 0x03, 0xC1, 0x80,
-      0x00, 0x00, 0x04, 0x00, 0x16, 0x41, 0xE0, 0xAC, 0x03, 0x03, 0x00, 0x00,
-      0x46, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x13, 0x1A, 0x00,
-      -1 };
+    0x00, 0x00, 0x04, 0x00, 0x16, 0x41, 0xE0, 0xAC, 0x03, 0x03, 0x00, 0x00,
+    0x46, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x13, 0x1A, 0x00,
+    -1
+  };
   int opscan[37] =
     { 0x00, 0x00, 0xB0, 0x4F, 0xD8, 0xE7, 0xFA, 0x10, 0xEF, 0xC4, 0x3C, 0x71,
-      0x0F, 0x00, 0x04, 0x00, 0x6E, 0x61, 0xA1, 0x24, 0xC4, 0x7E, 0x00, 0xAE,
-      0x41, 0xA0, 0x0A, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x33, 0x1A, 0x00,
-      -1 };
+    0x0F, 0x00, 0x04, 0x00, 0x6E, 0x61, 0xA1, 0x24, 0xC4, 0x7E, 0x00, 0xAE,
+    0x41, 0xA0, 0x0A, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x33, 0x1A, 0x00,
+    -1
+  };
 
   DBG (8, "StartScan(%d,%d,%d,%d,%d,%d,%X);\n", x, y, width, height, dpi,
        color, gain);
@@ -7076,22 +7535,31 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
     {
     case 1200:
       opsc53[6] = 0x60;
-      opsc53[8] = 0x5E;
+      opsc53[8] = 0x5E;		/* old value */
+      opsc53[8] = 0x5C;		/* new working value */
       opsc53[9] = 0x05;
       opsc53[14] = opsc53[14] & 0xF0;
+      /*opsc53[14] = (opsc53[14] & 0xF0) | 0x04;	 -> 600 dpi ? */
       break;
+
     case 600:
       opsc53[6] = 0x60;
-      opsc53[8] = 0x2F;
+      opsc53[8] = 0x2F;		/* old value */
+      opsc53[8] = 0x2E;		/* new working value */
       opsc53[9] = 0x05;
       opsc53[14] = (opsc53[14] & 0xF0) | 0x04;
       break;
+
     case 300:
       opsc53[6] = 0x00;
       opsc53[8] = 0x17;
       opsc53[9] = 0x05;
       opsc53[14] = (opsc53[14] & 0xF0) | 0x0C;
+
+      /* si | 0C h=2*w, si | 04 h=w ? */
+
       break;
+
     case 150:
       opsc53[6] = 0x00;
       opsc53[8] = 0x17;

@@ -1,5 +1,5 @@
 /* sane - Scanner Access Now Easy.
-   Copyright (C) 2000 Yuri Dario
+   Copyright (C) 1998-2001 Yuri Dario
    This file is part of the SANE package.
 
    SANE is free software; you can redistribute it and/or modify it under
@@ -16,18 +16,31 @@
    along with sane; see the file COPYING.  If not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-   This file declares a _proposed_ internal SANE interface.  It was
-   proposed 2000-02-19 by Yuri Dario to wrap UNIX functions fork(),
-   kill(), waitpid() and wait(), which are missing on OS/2.
+   Helper functions for the OS/2 port (using threads instead of forked
+   processes). Don't use them in the backends, they are used automatically by
+   macros.
 */
    
 #ifndef sanei_thread_h
 #define sanei_thread_h
+#include "../include/sane/config.h"
 
-extern int sanei_thread_begin( void (*start)(void *arg), 
-                               void *arg_list);
+extern int sanei_thread_begin( void (*start)(void *arg), void* arg_list);
 extern int sanei_thread_kill( int pid, int sig);
 extern int sanei_thread_waitpid( int pid, int *stat_loc, int options);
 extern int sanei_thread_wait( int *stat_loc);
+
+static void os2_reader_process( void* data);
+
+#ifdef HAVE_OS2_H
+   /*
+      use preprocessor for routing process-related function to
+      OS/2 threaded code: in this way, Unix backends requires only
+      minimal code changes.
+   */
+#define fork() 			sanei_thread_begin( os2_reader_process)
+#define kill( a, b)		sanei_thread_kill( a,b)
+#define waitpid( a, b, c)	sanei_thread_waitpid( a, b, c)
+#endif
 
 #endif /* sanei_thread_h */

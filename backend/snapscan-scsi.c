@@ -1124,7 +1124,8 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
         fd = fopen(firmware,"r");
         if(fd == NULL)
         {
-            DBG (0, "Cannot open firmware file %s\n", firmware);
+            DBG (0, "Cannot open firmware file %s.\n", firmware);
+            DBG (0, "Edit the firmware file entry in %s.\n", SNAPSCAN_CONFIG_FILE);
             status = SANE_STATUS_INVAL;
         }
         else
@@ -1184,11 +1185,14 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
- * Revision 1.17  2002/05/02 17:19:15  oliverschwartz
- * SnapScan backend 1.4.13: Support for ADF
+ * Revision 1.18  2002/07/12 23:29:06  oliverschwartz
+ * SnapScan backend 1.4.15
  *
- * Revision 1.16  2002/04/27 15:35:17  oliverschwartz
- * SnapScan backend 1.4.12: Fix option handling
+ * Revision 1.32  2002/06/06 20:40:01  oliverschwartz
+ * Changed default scan area for transparancy unit of SnapScan e50
+ *
+ * Revision 1.31  2002/05/02 18:28:44  oliverschwartz
+ * Added ADF support
  *
  * Revision 1.30  2002/04/27 14:41:22  oliverschwartz
  * Print number of open handles in close_scanner()

@@ -58,6 +58,10 @@ static const SANE_Range y_range_fb =
 {
     SANE_FIX (0.0), SANE_FIX (297.0), 0
 };        /* mm */
+
+/* default TPO range (shortest y_range 
+   to avoid tray collision.
+*/
 static const SANE_Range x_range_tpo_default =
 {
     SANE_FIX (0.0), SANE_FIX (129.0), 0
@@ -66,6 +70,8 @@ static const SANE_Range y_range_tpo_default =
 {
     SANE_FIX (0.0), SANE_FIX (180.0), 0
 };        /* mm */
+
+/* TPO range for the Agfa 1236 */
 static const SANE_Range x_range_tpo_1236 =
 {
     SANE_FIX (0.0), SANE_FIX (203.0), 0
@@ -74,6 +80,17 @@ static const SANE_Range y_range_tpo_1236 =
 {
     SANE_FIX (0.0), SANE_FIX (254.0), 0
 };        /* mm */
+
+/* TPO range for the Agfa e50 */
+static const SANE_Range x_range_tpo_e50 =
+{
+    SANE_FIX (0.0), SANE_FIX (40.0), 0
+};        /* mm */
+static const SANE_Range y_range_tpo_e50 =
+{
+    SANE_FIX (0.0), SANE_FIX (240.0), 0
+};        /* mm */
+
 static SANE_Range x_range_tpo;
 static SANE_Range y_range_tpo;
 static const SANE_Range gamma_range =
@@ -135,6 +152,26 @@ static void init_options (SnapScan_Scanner * ps)
         {md_auto, md_colour, md_greyscale, md_lineart, NULL};
     SANE_Option_Descriptor *po = ps->options;
 
+    /* Initialize TPO range */
+    switch (ps->pdev->model)
+    {
+    case SNAPSCAN1236:
+        x_range_tpo = x_range_tpo_1236;
+        y_range_tpo = y_range_tpo_1236;
+        break;
+    case SNAPSCANE20:
+    case SNAPSCANE50:
+    case SNAPSCANE52:
+        x_range_tpo = x_range_tpo_e50;
+        y_range_tpo = y_range_tpo_e50;
+        break;
+    default:
+        x_range_tpo = x_range_tpo_default;
+        y_range_tpo = y_range_tpo_default;
+        break;
+    }
+
+	/* Initialize option descriptors */
     po[OPT_COUNT].name = SANE_NAME_NUM_OPTIONS;
     po[OPT_COUNT].title = SANE_TITLE_NUM_OPTIONS;
     po[OPT_COUNT].desc = SANE_DESC_NUM_OPTIONS;
@@ -377,10 +414,11 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_QUALITY_CAL].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     ps->val[OPT_QUALITY_CAL].b = DEFAULT_QUALITY;
     /* Disable quality calibration option if not supported
-       Note: Snapscan e52 does not support quality calibration,
+       Note: Snapscan e52 and Prisa5300 do not support quality calibration,
        although HCFG_CAL_ALLOWED is set. */
     if ((!(ps->hconfig & HCFG_CAL_ALLOWED))
-        || (ps->pdev->model == SNAPSCANE52)) {
+        || (ps->pdev->model == SNAPSCANE52)
+        || (ps->pdev->model == PRISA5300)) {
         po[OPT_QUALITY_CAL].cap |= SANE_CAP_INACTIVE;
         ps->val[OPT_QUALITY_CAL].b = SANE_FALSE;
     }
@@ -847,7 +885,7 @@ SANE_Status sane_control_option (SANE_Handle h,
             return SANE_STATUS_INVAL;
         }
         /* prevent setting of options during a scan */
-        if (pss->state!=ST_IDLE) {
+        if ((pss->state==ST_SCAN_INIT) || (pss->state==ST_SCANNING)) {
             DBG(DL_INFO,
                 "set value for option %s ignored: scanner is still scanning (status %d)\n",
                 pss->options[n].name,
@@ -1348,11 +1386,17 @@ SANE_Status sane_control_option (SANE_Handle h,
 
 /*
  * $Log$
- * Revision 1.4  2002/05/02 17:19:14  oliverschwartz
- * SnapScan backend 1.4.13: Support for ADF
+ * Revision 1.5  2002/07/12 23:29:05  oliverschwartz
+ * SnapScan backend 1.4.15
  *
- * Revision 1.3  2002/04/27 15:35:16  oliverschwartz
- * SnapScan backend 1.4.12: Fix option handling
+ * Revision 1.6  2002/07/12 23:23:06  oliverschwartz
+ * Disable quality calibration for 5300
+ *
+ * Revision 1.5  2002/06/06 20:40:00  oliverschwartz
+ * Changed default scan area for transparancy unit of SnapScan e50
+ *
+ * Revision 1.4  2002/05/02 18:28:44  oliverschwartz
+ * Added ADF support
  *
  * Revision 1.3  2002/04/27 14:43:59  oliverschwartz
  * - Remove SCSI debug options

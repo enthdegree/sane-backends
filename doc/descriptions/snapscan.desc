@@ -12,9 +12,10 @@
 
 :backend "SnapScan"               	; name of backend
 :version "1.4"                    	; version of backend
-:status :beta                    	; :alpha, :beta, :stable, :new
+:status :stable                    	; :alpha, :beta, :stable, :new
 :manpage "sane-snapscan"          	; name of manpage (if it exists)
 :url "http://snapscan.sourceforge.net/" ; backend's web page
+:comment "Supported  bit depths: 24 bit (color), 8 bit (gray)"
 
 :devicetype :scanner              	; start of a list of devices....
                                   	; other types:  :stillcam, :vidcam,
@@ -26,131 +27,138 @@
 
 :model "SnapScan 300"                  	; name models for above-specified mfg.
 :interface "SCSI"
-:comment "Only 8 bits/sample at present."
+:status :beta
 
 :model "SnapScan 310"
 :interface "SCSI"
-:comment "Ditto"
+:status :beta
 
 :model "SnapScan 600"
 :interface "SCSI"
-:comment "Ditto"
+:status :stable
+:comment "Optional ADF supported."
 
 :model "SnapScan 1236s"
 :interface "SCSI"
-:comment "Ditto. Have no specific programming info yet."
+:status :stable
+:comment "Optional ADF and transparency unit supported."
 
 :model "SnapScan 1236u"
 :interface "USB"
-:comment "Ditto. Have no specific programming info yet."
+:status :stable
+:comment "Optional ADF and transparency unit supported."
 
 :model "SnapScan 1212u"
 :interface "USB"
-:comment "Ditto. Have no specific programming info yet."
+:status :stable
 
 :model "SnapScan e20"
 :interface "USB"
-:comment "Have no specific programming info yet."
+:status :stable
 
 :model "SnapScan e25"
 :interface "USB"
-:comment "Have no specific programming info yet."
+:status :stable
 
 :model "SnapScan e26"
 :interface "USB"
-:comment "Have no specific programming info yet."
+:status :stable
 
 :model "SnapScan e40"
 :interface "USB"
-:comment "Have no specific programming info yet."
+:status :stable
 
 :model "SnapScan e42"
 :interface "USB"
-:comment "Have no specific programming info yet."
+:status :stable
 
 :model "SnapScan e50"
 :interface "USB"
-:comment "Have no specific programming info yet."
+:status :stable
+:comment "Optional tranparency unit supported"
 
 :model "SnapScan e52"
 :interface "USB"
-:comment "Have no specific programming info yet."
+:status :stable
+:comment "Optional tranparency unit supported"
 
 :model "SnapScan e60"
 :interface "USB"
-:comment "Have no specific programming info yet."
+:status :untested
+
+:mfg "Acer Peripherals"
+:comment "Company was renamed to <a href=\"#BENQ\">Benq</a>."
 
 :mfg "Vuego"
-;------------------------------------------------------------------------------
+:comment "Company was renamed to <a href=\"#BENQ\">Benq</a>."
 
-:model "310s"
-:interface "SCSI"
-:comment "Close SnapScan 310 compatible."
-
-:mfg "Acer / Benq"
-:url "www.benq.com"
+:mfg "Benq"
+:url "http://www.benq.com"
+:comment "Formerly Acer Peripherals"
 ;------------------------------------------------------------------------------
 
 :model "300f"
 :interface "SCSI"
+:status :stable
 
 :model "310s"
 :interface "SCSI"
-:comment "Same thing as the Vuego 310s."
+:status :stable
 
 :model "610s"
 :interface "SCSI"
+:status :stable
 
 :model "610plus"
 :interface "SCSI"
-:comment "Seems to be a close SnapScan 310/600 compatible."
+:status :stable
 
-:model "Prisa 620s"
+:model "620s"
 :interface "SCSI"
-:comment "Seems to be a close SnapScan 310/600 compatible."
+:status :stable
 
-:model "Prisa 620u"
+:model "620u"
 :interface "USB"
-:comment "Seems to be a close SnapScan 310/600 compatible."
+:status :stable
+:comment "Optional tranparency unit supported"
 
-:model "Prisa 620ut"
+:model "640u"
 :interface "USB"
-:comment "Seems to be a close SnapScan 310/600 compatible."
+:status :stable
 
-:model "Prisa 640u"
+:model "640bu"
 :interface "USB"
-:comment "Seems to be a close SnapScan 310/600 compatible."
+:status :stable
 
-:model "Prisa 640bu"
+:model "1240"
 :interface "USB"
-:comment "Seems to be a close SnapScan 310/600 compatible."
+:status :stable
+:comment "Optional tranparency unit supported"
 
-:model "Prisa 1240"
+:model "3300"
 :interface "USB"
-:comment "Seems to be a close SnapScan 310/600 compatible."
+:status :stable
 
-:model "Prisa 3300"
+:model "4300"
 :interface "USB"
-:comment "Have no specific programming info yet."
+:status :stable
 
-:model "Prisa 4300"
+:model "5300"
 :interface "USB"
-:comment "Have no specific programming info yet, untested."
-
-:model "Prisa 5300"
-:interface "USB"
-:comment "Have no specific programming info yet, untested."
+:status :alpha
 
 :mfg "Guillemot / Hercules"
-:url "www.guillemot.com"
+:url "http://www.guillemot.com"
 ;------------------------------------------------------------------------------
 
 :model "Maxi Scan A4 Deluxe (SCSI)"
 :interface "SCSI"
-:comment "May be a repackaged Vuego 310s or SnapScan 310s."
+:status :stable
+:comment "Seems to be a repackaged SnapScan 310s."
 
 :model "Scan@home Touch 1248 (USB)"
 :interface "USB"
+:status :stable
 :comment "Seems to be a repackaged Acer 3300."
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,

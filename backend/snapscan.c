@@ -78,7 +78,7 @@
 
 #define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
-#define BUILD               13
+#define BUILD               15
 
 #include "snapscan.h"
 
@@ -718,6 +718,8 @@ SANE_Status sane_init (SANE_Int *version_code,
     first_device = NULL;
     n_devices = 0;
 
+    sanei_usb_init();
+
     /* build a device structure */
     fp = sanei_config_open (SNAPSCAN_CONFIG_FILE);
     if (!fp)
@@ -975,17 +977,6 @@ SANE_Status sane_open (SANE_String_Const name, SANE_Handle * h)
                  sane_strstatus (status));
             free (pss);
             return status;
-        }
-        switch (pss->pdev->model)
-        {
-        case SNAPSCAN1236:
-            x_range_tpo = x_range_tpo_1236;
-            y_range_tpo = y_range_tpo_1236;
-            break;
-        default:
-            x_range_tpo = x_range_tpo_default;
-            y_range_tpo = y_range_tpo_default;
-            break;
         }
 
         init_options (pss);
@@ -1567,11 +1558,11 @@ SANE_Status sane_start (SANE_Handle h)
         release_unit (pss);
         return status;
     }
-
+    /* Wait for scanner ready again (e.g. until paper is loaded from an ADF) */
     status = wait_scanner_ready (pss);
     if (status != SANE_STATUS_GOOD)
     {
-        DBG (DL_MAJOR_ERROR, "%s: scan command failed: %s.\n", me, sane_strstatus(status));
+        DBG (DL_MAJOR_ERROR, "%s: scan command failed while waiting for scanner: %s.\n", me, sane_strstatus(status));
         release_unit (pss);
         return status;
     }
@@ -1762,11 +1753,24 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
- * Revision 1.23  2002/05/02 17:19:16  oliverschwartz
- * SnapScan backend 1.4.13: Support for ADF
+ * Revision 1.24  2002/07/12 23:29:07  oliverschwartz
+ * SnapScan backend 1.4.15
  *
- * Revision 1.22  2002/04/27 15:35:18  oliverschwartz
- * SnapScan backend 1.4.12: Fix option handling
+ * Revision 1.49  2002/07/12 22:53:54  oliverschwartz
+ * Version 1.4.15
+ *
+ * Revision 1.48  2002/07/12 22:53:16  oliverschwartz
+ * call sanei_usb_init() before sanei_usb_attach_matching_devices()
+ *
+ * Revision 1.47  2002/06/06 21:16:23  oliverschwartz
+ * Set backend version to 1.4.14
+ *
+ * Revision 1.46  2002/06/06 20:40:01  oliverschwartz
+ * Changed default scan area for transparancy unit of SnapScan e50
+ *
+ * Revision 1.45  2002/05/02 18:29:34  oliverschwartz
+ * - Added ADF support
+ * - Fixed status handling after cancel
  *
  * Revision 1.44  2002/04/27 14:42:30  oliverschwartz
  * Cleanup of debug logging

@@ -153,7 +153,6 @@ static SANE_Status snapscani_usb_open(const char *dev, int *fdp,
         return SANE_STATUS_INVAL;
     }
     semop(sem_id, &sem_signal, 1);
-    sanei_usb_init();
     usb_sense_handler=sense_handler;
     usb_pss = pss;
     return sanei_usb_open(dev, fdp);
@@ -208,52 +207,36 @@ static char *usb_debug_data(char *str,const char *data, int len) {
 
 #define RETURN_ON_FAILURE(x) if((status = x) != SANE_STATUS_GOOD) return status;
 
-static SANE_Status usb_write(int fd, const void *buf, int n) {
+static SANE_Status usb_write(int fd, const void *buf, size_t n) {
     char dbgmsg[16384];
-    int r;
+    SANE_Status status;
+    size_t bytes_written = n;
 
     static const char me[] = "usb_write";
     DBG(DL_DATA_TRACE, "%s: writing: %s\n",me,usb_debug_data(dbgmsg,buf,n));
 
-    if((r=write(fd,buf,n)) != n) {
-        DBG (DL_MAJOR_ERROR, "%s Only %d bytes written\n",me,r);
-        return SANE_STATUS_IO_ERROR;
+    status = sanei_usb_write_bulk(fd, (const SANE_Byte*)buf, &bytes_written);
+    if(bytes_written != n) {
+        DBG (DL_MAJOR_ERROR, "%s Only %d bytes written\n",me,bytes_written);
+        status = SANE_STATUS_IO_ERROR;
     }
-    return SANE_STATUS_GOOD;
+    return status;
 }
 
-static SANE_Status usb_read(int fd, void *buf, int n) {
+static SANE_Status usb_read(SANE_Int fd, void *buf, size_t n) {
     char dbgmsg[16384];
-    int r;
-
     static const char me[] = "usb_read";
+    SANE_Status status;
+    size_t bytes_read = n;
 
-    /* USB driver appears to block in all cases when asking for data
-     * except if the device says its not ready.  In this case, we
-     * attempt to block ourselves to act like the sane SCSI driver.
-     * This relies on the USB driver to eventually report something
-     * besides EAGAIN if there is a serious problem.
-     */
-    do
-    {
-      if((r=read(fd,buf,n)) != n && !(r == -1 && errno == EAGAIN)) {
-        if (r == -1) {
-           DBG (DL_MAJOR_ERROR, "%s Error returned from read: %s (%d)\n",
-                me,strerror(errno),errno);
-        } else {
-           DBG (DL_MAJOR_ERROR, "%s Only %d bytes read\n",me,r);
-        }
-        return SANE_STATUS_IO_ERROR;
-      }
-      if (r == -1 && errno == EAGAIN)
-      {
-          DBG (DL_MAJOR_ERROR, "%s: Got an EAGAIN\n",me);
-          usleep(10000);
-      }
-    } while (r == -1 && errno == EAGAIN);
+    status = sanei_usb_read_bulk(fd, (SANE_Byte*)buf, &bytes_read);
+    if (bytes_read != n) {
+        DBG (DL_MAJOR_ERROR, "%s Only %d bytes read\n",me,bytes_read);
+        status = SANE_STATUS_IO_ERROR;
+    }
 
     DBG(DL_DATA_TRACE, "%s: reading: %s\n",me,usb_debug_data(dbgmsg,buf,n));
-    return SANE_STATUS_GOOD;
+    return status;
 }
 
 static SANE_Status usb_read_status(int fd, int *scsistatus, int *transaction_status)
@@ -452,8 +435,11 @@ static SANE_Status usb_request_sense(SnapScan_Scanner *pss) {
 
 /*
  * $Log$
- * Revision 1.10  2002/04/27 15:35:17  oliverschwartz
- * SnapScan backend 1.4.12: Fix option handling
+ * Revision 1.11  2002/07/12 23:29:06  oliverschwartz
+ * SnapScan backend 1.4.15
+ *
+ * Revision 1.21  2002/07/12 22:52:42  oliverschwartz
+ * use sanei_usb_read_bulk() and sanei_usb_write_bulk()
  *
  * Revision 1.20  2002/04/27 14:36:25  oliverschwartz
  * Pass a char as 'proj' argument for ftok()

@@ -120,7 +120,7 @@ static struct SnapScan_Driver_desc drivers[] =
     {PRISA620S,      "Acer620"},
     {PRISA640,       "Acer640"},
     {PRISA4300,      "Acer4300"},
-    {PRISA4300,      "Acer4300 (42 bit)"},
+    {PRISA4300_2,    "Acer4300 (42 bit)"},
     {PRISA1240,      "Acer1240"},
     {PRISA5300,      "Acer5300"}
 };
@@ -362,8 +362,11 @@ struct snapscan_scanner
 
 /*
  * $Log$
- * Revision 1.15  2002/04/27 15:35:19  oliverschwartz
- * SnapScan backend 1.4.12: Fix option handling
+ * Revision 1.16  2002/07/12 23:29:08  oliverschwartz
+ * SnapScan backend 1.4.15
+ *
+ * Revision 1.32  2002/07/12 22:22:47  oliverschwartz
+ * Correct driver description for 4300_2
  *
  * Revision 1.31  2002/04/27 14:44:27  oliverschwartz
  * - Remove SCSI debug options

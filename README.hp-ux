@@ -1,8 +1,6 @@
 Building and Installing SANE on HP-UX
 -------------------------------------
 
-Time-stamp: <2001-10-03T16:41:13 mxp>
-
 This file contains some notes on building and installing SANE on
 HP-UX.  It tells you which compiler switches to use, how to find out
 to which controller card your scanner is connected, and how to create
@@ -17,10 +15,15 @@ the HP compiler, invoke configure like this:
 
   CC=cc CFLAGS="-Ae -O" ./configure
 
+Higher optimization levels than -O (equivalent to +O2) may fail
+to compile correctly.
+
 If you're using the HP compiler on 64-bit HP-UX 11, you must build
 64-bit executables:
 
   CC=cc CFLAGS="-Ae +DA2.0W -O" ./configure
+
+
 
 Some of the make files use GNU extensions, so you have to use gmake
 (GNU make).  Gmake binaries are available from the HP-UX Porting and

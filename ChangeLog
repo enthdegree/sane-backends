@@ -1,3 +1,8 @@
+2004-05-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* README.hp-ux: Mention trouble with higher optimization levels
+	  (from Ulrich Deiters <ukd@xenon.pc.Uni-Koeln.DE>).
+
 2004-05-27  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan.c backend/snapscan-usb.c: Use shared

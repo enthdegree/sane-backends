@@ -1,4 +1,4 @@
-TODO (2001-05-01)
+TODO (2001-05-04)
 
 ******** todo ********
 
@@ -32,14 +32,15 @@ backends
       ftp://ftp.mustek.com.tw/pub/driver/1200UB/Linux/
     - bearpaw (Mustek BearPaw 1200 + maybe 2400)
       Henning Meier-Geinitz <hmg@gmx.de>
-    - UMAX 1220P/2000P & HP 320C
-      http://umax1220p.sourceforge.net
     - Genius Vivid Pro USB, Colorado USB 19200, Visioneer OneTouch 7600 
       IBM IdeaScan 2000 USB 
       http://homepages.paradise.net.nz/stevenel/scanner/
     - Fujitsu M3091DCd support
       Frederik Ramm <frederik@remote.org>
       http://www.remote.org/frederik/projects/software/sane/
+    - Canon FB620S flatbed scanner and FS2710 film scanner
+      ftp://stthd0.pc.uni-koeln.de/pub/canon-1.08.tar.gz
+      Ulrich Deiters <ukd@xenon.pc.Uni-Koeln.DE>
 
   * Update backends
     - add additions/bug fixes to microtek2 from Karsten Festag
@@ -91,7 +92,6 @@ backends
   * lines like "if (config_line[len - 1] == '\n')"  can cause segfaults and
     should be removed (this is done in sanei_config_read)
     - artec
-    - plustek
     - umax
 
 doc
@@ -136,7 +136,7 @@ misc
   * move .desc files for backends that are not included in SANE to
     different directory (e.g. backends and external-backends)?
 
-  * Maybe add script to detect and deinstall existing sane versions
+  * Maybe add script to deinstall existing sane versions
     - make uninstall
     - install sane-uninstall script. Advantage: uninstall possible
       without sourcecode
@@ -167,7 +167,12 @@ misc
        module scanimage.
     This happens in all libraries.
 
+  * Check Tru64 Unix compilation problems with u_int* types. 
+
+  * Add installation procedure for translations of SANE backend's options.
+
 ******** done ********
+* Add backend UMAX 1220P/2000P & HP 320C http://umax1220p.sourceforge.net
 * install all documentation that's available
 * Add a check for installed sane versions.
   - Print a warning when already a sane version is installed

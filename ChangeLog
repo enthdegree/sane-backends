@@ -1,3 +1,9 @@
+2002-03-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* TODO: Marked backends that really should be included. Clearified
+	  comment about sane-backends.html. Added comment about sort order
+	  this list. Add comment about better linking of external libs.
+
 2002-03-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/hpoj.desc: New file (from David Paschal <paschal@rcsis.com>).

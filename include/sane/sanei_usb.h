@@ -246,7 +246,7 @@ sanei_usb_write_bulk (SANE_Int dn, const SANE_Byte * buffer, size_t * size);
  * This function is only supported for libusb devices and kernel acces with
  * Linux 2.4.13 and newer.
  * For a detailed explanation of the parameters, have a look at the USB
- * specification at the <a href="http://www.usb.org/developers/docs.html">
+ * specification at the <a href="http://www.usb.org/developers/docs/">
  * www.usb.org developers information page</a>.
  * 
  * @param dn device number

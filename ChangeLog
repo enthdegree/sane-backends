@@ -1,3 +1,8 @@
+2001-05-27  Petter Reinholdtsen <pere@td.org.uit.no>
+
+	* doc/releases.txt: Added points on tagging the source and
+	  generating a diff from the last release.
+
 2001-05-27  Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 
 	* sanei/sanei_scsi.c: changed scsi buffer size (MAX_DATA)

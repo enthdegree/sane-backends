@@ -1,3 +1,8 @@
+2004-04-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* po/Makefile.in po/sane-backends.da.po: Added Danish translation
+	  (from  Mogens Jaeger <mogensjaeger@get2net.dk>).
+
 2004-04-12  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* README.windows: Mentioned C++ misdetection trouble.

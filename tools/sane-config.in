@@ -85,9 +85,9 @@ if test $# -gt 0; then
     --ldflags)
 
       if test -z "$LINKER_RPATH"; then
-        echo "-L${libdir}"
+        echo "-L${libdir} @GPHOTO2_LDFLAGS@"
       else
-        echo "-L${libdir} ${LINKER_RPATH}${libdir}"
+        echo "-L${libdir} @GPHOTO2_LDFLAGS@ ${LINKER_RPATH}${libdir}"
       fi
       ;;
     --libs)

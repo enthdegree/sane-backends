@@ -1,3 +1,10 @@
+2004-07-03  Peter Fales <peter@fales-lorenz.net>
+	* acinclude.m4, aclocal.m4, configure, tools/sane-config.in: 
+	  When using pkg-config to get library flags for gphoto2, any
+	  extra flags (such as -L) must be passed to sane-config.in so
+	  that it can find the libraries in a non-standard location.
+	  (Bug #300686)
+
 2004-07-02  Gerhard Jaeger <gerhard@gjaeger.de>
 	* po/*.po: Updated according to changes in the plustek backend.
 	* backend/plustek.c backend/plustek-usb*: Major update, see

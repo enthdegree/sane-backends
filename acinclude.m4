@@ -352,8 +352,12 @@ AC_DEFUN([SANE_CHECK_GPHOTO2],
 
 	])
 
-	# If --with-gphoto2=yes (or not supplied), then enable it
-	# if pkg-config can be found and libgphoto2 is present
+	# If --with-gphoto2=yes (or not supplied), first check if 
+	# pkg-config exists, then use it to check if libgphoto2 is
+	# present.  If all that works, then see if we can actually link
+        # a program.   And, if that works, then add the -l flags to 
+	# LIBS and any other flags to GPHOTO2_LDFLAGS to pass to 
+	# sane-config.
 	if test "$with_gphoto2" != "no" ; then 
 
 		AC_CHECK_TOOL(HAVE_GPHOTO2, pkg-config, false)
@@ -363,7 +367,10 @@ AC_DEFUN([SANE_CHECK_GPHOTO2],
 				with_gphoto2=`pkg-config --modversion libgphoto2`
 				CPPFLAGS="${CPPFLAGS} `pkg-config --cflags libgphoto2`"
 				GPHOTO2_LIBS="`pkg-config --libs libgphoto2`"
-				SANE_EXTRACT_LDFLAGS(LDFLAGS, GPHOTO2_LIBS)
+				SANE_EXTRACT_LDFLAGS(GPHOTO2_LDFLAGS, GPHOTO2_LIBS)
+				LDFLAGS="$LDFLAGS $GPHOTO2_LDFLAGS"
+
+				AC_SUBST(GPHOTO2_LDFLAGS)
 
 			 	saved_LIBS="${LIBS}"
 				LIBS="${LIBS} ${GPHOTO2_LIBS}"

@@ -26,7 +26,6 @@
 
 #include <ctype.h>
 #include <limits.h>
-#include <netdb.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -35,9 +34,10 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 
+#include <netdb.h>
 #include <netinet/in.h>
 
-#include <sane/sane.h>
+#include "../include/sane/sane.h"
 
 void
 auth_callback (SANE_String_Const domain,

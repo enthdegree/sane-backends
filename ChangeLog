@@ -1,3 +1,9 @@
+2003-07-25  Peter Fales <peter@fales-lorenz.net>
+	* include/sane/sanei_cderror.h, include/sane/sanei_jinclude.h 
+	  include/sane/sanei_jpeg.h sanei/sanei_jpeg.c:  Install these
+	  files as copies of the ones currently in backend.  (The old
+	  files will be deleted later)
+
 2003-07-25  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/gt68xx.c backend/gt68xx.conf doc/sane-gt68xx.man

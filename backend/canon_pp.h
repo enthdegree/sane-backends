@@ -111,6 +111,7 @@ struct CANONP_Scanner_Struct
 	scan_parameters scan;
 
 	int ieee1284_mode;
+	int init_mode;
 
 	SANE_Bool scanner_present;
 

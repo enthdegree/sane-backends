@@ -65,6 +65,7 @@ starting with a hash mark (#) are ignored.
 The supported options are currently
 .BR ieee1284 ,
 .BR calibrate ,
+.BR init_mode ,
 and 
 .BR force_nibble
 
@@ -80,10 +81,25 @@ Option
 .IR cal-file 
 .IR [portname]
 defines which calibration file to use on a per-port basis.  If you only have 
-one scanner, the portname argument may be omitted - but be careful as this 
+one parport, the portname argument may be omitted - but be careful as this 
 will cause problems on multi-scanner systems.  You may have as many of these
 lines as you like, as long as each has a unique port name.  The tilde (`~') 
-character is acceptable and will be expaned to the value of the HOME environment.
+character is acceptable and will be expaned to the value of the HOME 
+environment.
+
+Option 
+.B init_mode
+.IR <AUTO|FB620P|FB630P>
+.IR [portname]
+defines which initialisation (wake-up) mode to use on a per-port basis.  
+If you only have one parport, the portname argument may be omitted - but 
+be careful as this may cause problems on multi-scanner systems.  
+You may have as many of these lines as you like, as long as each has a unique 
+port name.  The valid initialisation modes are FB620P (which strobes 10101010 
+and 01010101 on the data pins), FB630P (which strobes 11001100 and 00110011 
+on the data pins) and AUTO, which will try FB630P mode first then FB620P mode
+second.  The FB620P mode is also used by the FB320P.  The FB630P mode is used
+by the FB330P, N340P, and N640P.
 
 Option
 .B force_nibble

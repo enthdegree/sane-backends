@@ -128,9 +128,10 @@ static const SANE_Int res600[] = {4, 75, 150, 300, 600};
 sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 {
 	SANE_Status status = SANE_STATUS_GOOD;
-	int i, tmp;
+	int i, tmp; 
+	int tmp_im = INITMODE_AUTO;
 	FILE *fp;
-	char line[80];
+	char line[81]; /* plus 1 for a null */
 	char *tmp_wf, *tmp_port;
 	CANONP_Scanner *s_tmp;
 
@@ -176,13 +177,16 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 	if (num_devices == 0)
 		status = SANE_STATUS_IO_ERROR;
 
+	/* just to be extra sure, the line will always have an end: */
+	line[sizeof(line)-1] = '\0';
+
 	/* 
 	 * Read information from config file: pixel weight location and default 
 	 * port.
 	 */
 	if((fp = sanei_config_open(CANONP_CONFIG_FILE)))
 	{
-		while(sanei_config_read(line, sizeof (line), fp))
+		while(sanei_config_read(line, sizeof (line) - 1, fp))
 		{
 			DBG(100, "sane_init: >%s<\n", line);
 			if(line[0] == '#')	/* ignore line comments */
@@ -227,19 +231,16 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 								tmp_port))
 					{
 						s_tmp->weights_file = tmp_wf;
-						break;
-						DBG(100, "sane_init: "
-								"Successfully"
-								" parsed "
+						DBG(100, "sane_init: Parsed "
 								"cal.\n");
+						break;
 					}
 					s_tmp = s_tmp->next;
 				}
 				if (s_tmp == NULL)
 				{
-					/* we made it all the way
-					 * through the list and didn't
-					 * find the port */
+					/* we made it all the way through the
+					 * list and didn't find the port */
 					free(tmp_wf);
 					DBG(10, "sane_init: calibrate line is "
 							"for unknown port!\n");
@@ -262,6 +263,57 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 				DBG(100, "sane_init: force_nibble "
 						"requested.\n");
 				force_nibble = SANE_TRUE;
+				continue;
+			}
+
+			if(strncmp(line,"init_mode ", 10) == 0)
+			{
+
+				/* parse what sort of initialisation mode to 
+				 * use */
+				if (strncmp(line+10, "FB620P", 6) == 0)
+					tmp_im = INITMODE_20P;
+				else if (strncmp(line+10, "FB630P", 6) == 0)
+					tmp_im = INITMODE_30P;
+				else if (strncmp(line+10, "AUTO", 4) == 0)
+					tmp_im = INITMODE_AUTO;
+
+				/* now work out which port it blongs to */
+
+				tmp_port = strstr(line+10, " ") + 1;
+
+				if (tmp_port == NULL)
+				{
+					/* first_dev should never be null here
+					 * because we found at least one 
+					 * parallel port above */
+					first_dev->init_mode = tmp_im;
+					DBG(100, "sane_init: Parsed init-1.\n");
+					continue;
+				}
+
+
+				s_tmp = first_dev;
+				while (s_tmp != NULL)
+				{
+					if (!strcmp(s_tmp->params.port->name,
+								tmp_port+1))
+					{
+						s_tmp->init_mode = tmp_im;
+						DBG(100, "sane_init: Parsed "
+								"init.\n");
+						break;
+					}
+					s_tmp = s_tmp->next;
+				}
+				if (s_tmp == NULL)
+				{
+					/* we made it all the way through the
+					 * list and didn't find the port */
+					DBG(10, "sane_init: init_mode line is "
+							"for unknown port!\n");
+				}
+
 				continue;
 			}
 			DBG(1, "sane_init: Unknown configuration command!");
@@ -293,7 +345,8 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 		 * us to call ieee1284_close in any of the remaining error
 		 * cases in this loop. */
 #if 0
-		tmp = sanei_canon_pp_detect(s_tmp->params.port, INITMODE_AUTO);
+		tmp = sanei_canon_pp_detect(s_tmp->params.port, 
+				s_tmp->init_mode);
 
 
 		if (tmp && (s_tmp->ieee1284_mode != M1284_NIBBLE))
@@ -305,7 +358,7 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 			s_tmp->ieee1284_mode = M1284_NIBBLE;
 			sanei_canon_pp_set_ieee1284_mode(s_tmp->ieee1284_mode);
 			tmp = sanei_canon_pp_detect(s_tmp->params.port, 
-					INITMODE_AUTO);
+					s_tmp->init_mode);
 		}
 		/* still no go? */
 		if (tmp)
@@ -329,47 +382,40 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 		
 		DBG(2, "sane_init: >> initialise\n");
 		tmp = sanei_canon_pp_initialise(&(s_tmp->params), 
-				INITMODE_AUTO);
+				s_tmp->init_mode);
 		DBG(2, "sane_init: << %d initialise\n", tmp);
-		/* put it back to sleep until we're ready to 
-		 * open for business again  */
-		sanei_canon_pp_sleep_scanner(s_tmp->params.port);
-		/* leave the port open but not claimed - this is regardless 
-		 * of the return value of initialise */
-		ieee1284_release(s_tmp->params.port);
-		if (tmp && (s_tmp->ieee1284_mode != M1284_NIBBLE))
-		{
-			/* A failure, try again in nibble mode... */
-			DBG(1, "sane_init: Failed on ECP mode, falling "
-					"back to nibble mode\n");
-
-			s_tmp->ieee1284_mode = M1284_NIBBLE;
-			sanei_canon_pp_set_ieee1284_mode(s_tmp->ieee1284_mode);
-			tmp = sanei_canon_pp_initialise(&(s_tmp->params), 
-					INITMODE_AUTO);
-		}
 		if (tmp) {
 			DBG(10, "sane_init: Couldn't contact scanner on port "
-				"%s. Maybe it's not a scanner?\n",
+				"%s. Probably no scanner there?\n",
 				s_tmp->params.port->name);
+			ieee1284_release(s_tmp->params.port);
 			ieee1284_close(s_tmp->params.port);
 			s_tmp->scanner_present = SANE_FALSE;
 			continue;
 		}
 
+		/* put it back to sleep until we're ready to 
+		 * open for business again - this will only work
+		 * if we actually have a scanner there! */
+		DBG(100, "sane_init: And back to sleep again\n");
+		sanei_canon_pp_sleep_scanner(s_tmp->params.port);
+
+		/* leave the port open but not claimed - this is regardless 
+		 * of the return value of initialise */
+		ieee1284_release(s_tmp->params.port);
+
 		/* Finally, we're sure there's a scanner there! Now we
 		 * just have to load the weights file...*/
+
 		if (fix_weights_file(s_tmp) != SANE_STATUS_GOOD) {
 			DBG(1, "sane_init: Eeek! fix_weights_file failed for "
 				"scanner on port %s!\n", 
 				s_tmp->params.port->name);
-
-			ieee1284_close(s_tmp->params.port);
-			continue;
+			/* non-fatal.. scans will look ugly as sin unless
+			 * they calibrate */
 		}
 
 		/* Cocked, locked and ready to rock */
-
 		s_tmp->hw.model = s_tmp->params.name;
 		s_tmp->scanner_present = SANE_TRUE;
 	}
@@ -527,7 +573,7 @@ sane_open (SANE_String_Const name, SANE_Handle *h)
 	/* I put the scanner to sleep before, better wake it back up */
 
 	DBG(2, "sane_open: >> initialise\n");
-	tmp = sanei_canon_pp_initialise(&(cs->params), INITMODE_AUTO);
+	tmp = sanei_canon_pp_initialise(&(cs->params), cs->init_mode);
 	DBG(2, "sane_open: << %d initialise\n", tmp);
 	if (tmp != 0) {
 		DBG(1, "sane_open: initialise returned %d, something is "
@@ -1571,6 +1617,7 @@ static SANE_Status init_device(struct parport *pp)
 	cs->sent_eof = SANE_TRUE;
 	cs->lines_scanned = 0;
 	cs->bytes_sent = 0;
+	cs->init_mode = INITMODE_AUTO;
 
 	DBG(10, "init_device: [configuring options]\n");
 
@@ -1957,7 +2004,10 @@ SANE_Status detect_mode(CANONP_Scanner *cs)
 	 * by libieee1284 now, and it's too prone to hitting a ppdev bug 
 	 */
 
-	if (/*(cs->ieee1284_mode == M1284_ECP) ||*/
+	/* Disabled check entirely.. check now in initialise when we 
+	 * actually do a read */
+#if 0
+	if ((cs->ieee1284_mode == M1284_ECP) ||
 			(cs->ieee1284_mode == M1284_ECPSWE))
 	{
 		DBG(1, "detect_mode: attempting a 0 byte read, if we hang "
@@ -1969,8 +2019,8 @@ SANE_Status detect_mode(CANONP_Scanner *cs)
 		 * Not checking on hardware ECP mode should work-around 
 		 * effectively.
 		 *
-		 * I have sent email to twaugh about it, should be fixed in 2.4.19 
-		 * and above.
+		 * I have sent email to twaugh about it, should be fixed in 
+		 * 2.4.19 and above.
 		 */
 		if (ieee1284_ecp_read_data(cs->params.port, 0, NULL, 0) == 
 				E1284_NOTIMPL)
@@ -1981,6 +2031,7 @@ SANE_Status detect_mode(CANONP_Scanner *cs)
 			cs->ieee1284_mode = M1284_NIBBLE;
 		}
 	}
+#endif
 
 	if (force_nibble == SANE_TRUE) {
 		DBG(10, "detect_mode: Nibble mode force in effect.\n");

@@ -638,7 +638,7 @@ attach_device(SANE_String *driver, SANE_String *name,
               SANE_String *port, SANE_String *option_ta)
 {
   int found = 0, driver_no, port_no;
-  char **ports;
+  const char **ports;
 
   if (!strcmp (*port, "*"))
     {
@@ -737,7 +737,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   if (fp == NULL)
     {
       char driver_name[64];
-      char **devices = sanei_pa4s2_devices();
+      const char **devices = sanei_pa4s2_devices();
       int device_no;
 	
       DBG (2, "sane_init: could not open configuration file\n");

@@ -1,3 +1,8 @@
+2004-04-06  Jochen Eisinger <jochen@penguin-breeder.org>
+
+	* sanei/sanei_pa4s2.c include/sane/sanei_pa4s2.h, backend/mustek_pp.c:
+	  fixed compiler warnings
+
 2004-04-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/gt68xx.c backend/gt68xx.conf backend/gt68xx_devices.c

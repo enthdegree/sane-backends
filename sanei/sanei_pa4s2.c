@@ -556,9 +556,9 @@ pa4s2_open (const char *dev, SANE_Status * status)
 #define inbyte2(fd)	(ieee1284_read_control(pplist.portv[fd]) ^ C1284_INVERTED)
 static u_char inbyte4(int fd)
 {
-  u_char val;
+  char val;
   ieee1284_epp_read_data(pplist.portv[fd], 0, &val, 1);
-  return val;
+  return (u_char)val;
 }
 
 #define outbyte0(fd,val)	ieee1284_write_data(pplist.portv[fd], val)
@@ -567,7 +567,7 @@ static u_char inbyte4(int fd)
 
 static void outbyte3(int fd, u_char val)
 {
-  ieee1284_epp_write_addr (pplist.portv[fd], 0, &val, 1);
+  ieee1284_epp_write_addr (pplist.portv[fd], 0, (char *)&val, 1);
 }
 
 #else
@@ -912,13 +912,13 @@ pa4s2_close (int fd, SANE_Status * status)
 
 }
 
-char **
+const char **
 sanei_pa4s2_devices()
 {
 
   SANE_Status status;
   int n;
-  char **devices;
+  const char **devices;
 
   TEST_DBG_INIT();
 

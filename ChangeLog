@@ -1,3 +1,8 @@
+2003-01-05   Stéphane Voltz  <svoltz@wanadoo.fr>
+
+        * backend/umax_pp_low.c: small image quality improvement
+	* backend/umax_pp.conf: ppdev device is now default option
+
 2003-01-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* frontend/saned.c: Print version number.

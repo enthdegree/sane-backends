@@ -1,4 +1,4 @@
-/* sane - Scanner Access Now Easy.
+/**
    Copyright (C) 2001 Stéphane Voltz <svoltz@wanadoo.fr>
    This file is part of the SANE package.
 
@@ -7813,6 +7813,7 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
     -1
   };
 
+
 #ifdef UMAX_PP_DANGEROUS_EXPERIMENT
   FILE *f = NULL;
   char line[1024], *ptr;
@@ -8146,8 +8147,10 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
 
   if (color >= RGB_MODE)
     {
-      opsc53[6] = 0x00;
       opsc53[7] = 0x2F;
+      /* 00 seems to give better results ?     */
+      /* 80 some more gain, lamp power level ? */ 
+      /* 8x does not make much difference      */
       opsc04[6] = 0x8F;
       if (sanei_umax_pp_getastra () == 1600)
 	{
@@ -8156,13 +8159,12 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
 	}
       else
 	{
-	  opsc04[7] = 0xA0;
+	  opsc04[7] = 0xF0;
 	  opsc53[13] = 0x09;
 	}
     }
   else
     {
-      opsc53[6] = 0x60;
       opsc53[7] = 0x40;
       opsc53[13] = 0xC0;
       opsc04[6] = 0x80 | ((gain / 16) & 0x0F);

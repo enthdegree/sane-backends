@@ -254,7 +254,7 @@ typedef struct Mustek_Scanner
     SANE_Option_Descriptor opt[NUM_OPTIONS];
     Option_Value val[NUM_OPTIONS];
     SANE_Int gamma_table[4][256];
-    SANE_Int halftone_pattern[64];
+    SANE_Int *halftone_pattern;
     SANE_Bool custom_halftone_pattern;
     SANE_Int halftone_pattern_type;
 

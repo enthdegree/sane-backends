@@ -34,6 +34,7 @@
  * - 0.41 - merged Kevins' patch to make EPP(ECP) work
  * - 0.42 - changed get_fast_time to _GET_TIME
  *        - changed include names
+ * - 0.43 - added LINUX_26 stuff
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -94,11 +95,11 @@
  * the following correlations
  */
 #if defined LINUX_24 || defined LINUX_26
-# define PARPORT_MODE_PCPS2		PARPORT_MODE_TRISTATE
-# define PARPORT_MODE_PCEPP		PARPORT_MODE_EPP
-# define PARPORT_MODE_PCECPPS2	PARPORT_MODE_TRISTATE
+# define PARPORT_MODE_PCPS2     PARPORT_MODE_TRISTATE
+# define PARPORT_MODE_PCEPP     PARPORT_MODE_EPP
+# define PARPORT_MODE_PCECPPS2  PARPORT_MODE_TRISTATE
 # define PARPORT_MODE_PCECPEPP  PARPORT_MODE_EPP
-# define PARPORT_MODE_PCECR		PARPORT_MODE_ECP
+# define PARPORT_MODE_PCECR     PARPORT_MODE_ECP
 #endif
 #endif
 
@@ -124,6 +125,39 @@ static int portIsClaimed[_MAX_PTDEVS] = { 0, 0, 0, 0 };
 /*************************** local functions *********************************/
 
 #ifdef __KERNEL__
+#ifdef LINUX_26
+
+static pScanData __ps = NULL;
+static int       __pa = -1;
+
+/** callback from parport driver
+ */
+static void misc_attach(struct parport *port)
+{
+	DBG( DBG_LOW, "misc_attach\n" );
+
+	__ps->pp = NULL;
+	if( port->base == (unsigned long)__pa ) {
+		DBG( DBG_LOW, "Requested port (0x%02x) found\n", __pa );
+		DBG( DBG_LOW, "Port mode reported: (0x%04x)\n",  port->modes );
+		__ps->pp = port;
+	}
+
+	__ps = NULL;
+	__pa = -1;
+}
+
+static void misc_detach( struct parport *port )
+{
+	DBG( DBG_LOW, "misc_detach\n" );
+}
+
+static struct parport_driver pt_drv = {
+	.name   = "pt_drv",
+	.attach = misc_attach,
+	.detach = misc_detach,
+};
+#endif
 
 /** display the avaialable port-modes
  */
@@ -655,11 +689,24 @@ _LOC int MiscRegisterPort( pScanData ps, int portAddr )
 	DBG( DBG_LOW, "Assigning port handle %i\n", portAddr );
     ps->pardev = portAddr;
 #else
-	struct parport *pp;
+	struct parport *pp = NULL;
 
 	DBG( DBG_LOW, "Requested port at 0x%02x\n", portAddr );
 
-	pp 		   = parport_enumerate();
+#ifdef LINUX_26
+	__ps = ps;
+	__pa = portAddr;
+
+	if( parport_register_driver(&pt_drv)) {
+		/* Failed; nothing we can do. */
+		return _E_REGISTER;
+	}
+	if( NULL == pp ) {
+		return _E_PORTSEARCH;
+	}
+
+#else	
+	pp         = parport_enumerate();
 	ps->pardev = NULL;
 
 	if( NULL == pp ) {
@@ -676,9 +723,9 @@ _LOC int MiscRegisterPort( pScanData ps, int portAddr )
 			ps->pp = pp;
 			break;
 		}
-
 		pp = pp->next;
 	}
+#endif
 
 	if( NULL == ps->pp ) {
 		return _E_NO_PORT;
@@ -688,7 +735,7 @@ _LOC int MiscRegisterPort( pScanData ps, int portAddr )
 	 * register this device
 	 */
 	ps->pardev = parport_register_device( ps->pp, "Plustek Driver",
-						    miscPreemptionCallback, NULL, NULL, 0, (pVoid)ps );
+	                    miscPreemptionCallback, NULL, NULL, 0, (pVoid)ps );
 
 	if( NULL == ps->pardev ) {
 		return _E_REGISTER;
@@ -698,7 +745,6 @@ _LOC int MiscRegisterPort( pScanData ps, int portAddr )
 #endif
 
 	portIsClaimed[ps->devno] = 0;
-
 	return _OK;
 }
 
@@ -711,6 +757,9 @@ _LOC void MiscUnregisterPort( pScanData ps )
 		DBG( DBG_LOW, "Port unregistered\n" );
 		parport_unregister_device( ps->pardev );
 	}
+#ifdef LINUX_26
+	parport_unregister_driver( &pt_drv );
+#endif
 #else
 	sanei_pp_close( ps->pardev );
 #endif

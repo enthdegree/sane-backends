@@ -16,6 +16,7 @@
  * 0.41 - no changes
  * 0.42 - added _GET_TIME
  *      - added LINUX_26 for new kernel
+ *      - added _MINOR
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -297,6 +298,13 @@
 #  include "linux/slab.h"
 #  define _GET_TIME do_gettimeofday
 #endif
+
+#ifdef LINUX_26
+#  define _MINOR(p) iminor(p)
+#else
+#  define _MINOR(p) minor(p->i_rdev)
+#endif
+
 
 #endif /* _SYSDEP_H_ */
 

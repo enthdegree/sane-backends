@@ -80,7 +80,8 @@
 #  include <sys/io.h>
 # endif
 #else
-
+# include <linux/kernel.h>
+# include <linux/init.h>
 # include <linux/version.h>
 # include "plustek-pp_sysdep.h"
 # include <linux/delay.h>

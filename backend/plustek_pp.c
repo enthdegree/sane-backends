@@ -87,7 +87,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.01-7"
+#define BACKEND_VERSION "0.01-8"
 #define BACKEND_NAME	plustek_pp
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
@@ -124,8 +124,8 @@ MODELSTR;
 #endif
 
 /* needed to statisfy the module code ... */
-#define _PTDRV_V0	0
-#define _PTDRV_V1	44
+#define _PTDRV_V0   0
+#define _PTDRV_V1   44
 
 /* I know this is in general no good idea, but it works */
 # include "plustek-pp_io.c"
@@ -2114,12 +2114,13 @@ SANE_Status sane_read( SANE_Handle handle, SANE_Byte *data,
 	if( 0 == nread ) {
 
 		drvclose( s->hw );
-        s->exit_code = sanei_thread_get_status( s->reader_pid );
+		s->exit_code = sanei_thread_get_status( s->reader_pid );
 
-        if( SANE_STATUS_GOOD != s->exit_code ) {
-            close_pipe(s);
-      		return s->exit_code;
-        }
+		if( SANE_STATUS_GOOD != s->exit_code ) {
+			close_pipe(s);
+			return s->exit_code;
+		}
+		s->reader_pid = -1;
 		return close_pipe(s);
 	}
 

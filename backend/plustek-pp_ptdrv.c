@@ -101,6 +101,9 @@
 # include <linux/module.h>
 
 # ifdef CONFIG_DEVFS_FS
+#  ifdef LINUX_26
+#   error "DEVFS not supported for this kernel-version"
+#  endif
 #  include <linux/devfs_fs_kernel.h>
 # endif
 #endif
@@ -270,11 +273,7 @@ static void ptdrvStartLampTimer( pScanData ps );
  */
 static pScanData get_pt_from_inode(struct inode *ip)
 {
-#ifdef LINUX_26
-    int minor = MINOR(kdev_t_to_nr(ip->i_rdev));
-#else    
-    int minor = MINOR(ip->i_rdev);
-#endif
+    int minor = _MINOR(ip);
 
     /*
      * unit out of range
@@ -476,7 +475,7 @@ static void ptdrvLampWarmup( pScanData ps )
 		MiscStartTimer( &timer, _SECOND * ps->warmup );
 		while( !MiscCheckTimer( &timer )) {
 		
-			/* on break, we setup the initial timer again... */	
+			/* on break, we setup the initial timer again... */
 			if( _FALSE == ps->fScanningStatus ) {
 				MiscStartTimer( &toTimer[ps->devno], (_SECOND * ps->warmup));
 				return;		
@@ -1550,7 +1549,11 @@ ReadFinished:
 /*.............................................................................
  * gets called upon module initialization
  */
+#ifdef LINUX_26
+static int __init ptdrv_init( void )
+#else
 int init_module( void )
+#endif
 {
     UInt devCount;
     UInt i;
@@ -1641,7 +1644,11 @@ int init_module( void )
 /*.............................................................................
  * cleanup the show
  */
+#ifdef LINUX_26
+static void __exit ptdrv_exit( void )
+#else
 void cleanup_module( void )
+#endif
 {
 	UInt 	  i;
 	pScanData ps;
@@ -1679,6 +1686,11 @@ void cleanup_module( void )
 	DBG( DBG_HIGH, "pt_drv: cleanup done.\n" );
 	DBG( DBG_HIGH, "*********************************************\n" );
 }
+
+#ifdef LINUX_26
+module_init(ptdrv_init);
+module_exit(ptdrv_exit);
+#endif
 
 #endif /*MODULE*/
 

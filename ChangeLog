@@ -1,3 +1,9 @@
+2004-03-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* frontend/saned.c: Added checks for bad handles for
+	  SANE_NET_CLOSE and SANE_NET_CANCEL. This is intended to stop
+	  saned from segfaulting when a bad handle is used.
+
 2004-03-02  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson.c: Added D8 function level for RX-500

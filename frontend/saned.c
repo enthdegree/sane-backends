@@ -1,6 +1,6 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 1997 Andreas Beck
-   Copyright (C) 2001 - 2003 Henning Meier-Geinitz
+   Copyright (C) 2001 - 2004 Henning Meier-Geinitz
    Copyright (C) 2003 Julien BLACHE <jb@jblache.org>
        AF-independent + IPv6 code
 
@@ -446,7 +446,7 @@ get_free_handle (void)
 static void
 close_handle (int h)
 {
-  if (handle[h].inuse)
+  if (h >= 0 && handle[h].inuse)
     sane_close (handle[h].handle);
   handle[h].inuse = 0;
 }
@@ -1768,6 +1768,8 @@ process_request (Wire * w)
 	    free (resource);
 	    memset (&reply, 0, sizeof (reply));	/* avoid leaking bits */
 	    reply.status = sane_open (name, &be_handle);
+	    DBG (DBG_MSG, "process_request: sane_open returned: %s\n", 
+		 sane_strstatus (reply.status));
 	  }
 
 	if (reply.status == SANE_STATUS_GOOD)
@@ -2000,8 +2002,11 @@ process_request (Wire * w)
 	SANE_Word ack = 0;
 
 	h = decode_handle (w, "cancel");
-	sane_cancel (handle[h].handle);
-	handle[h].docancel = 1;
+	if (h >= 0)
+	  {
+	    sane_cancel (handle[h].handle);
+	    handle[h].docancel = 1;
+	  }
 	sanei_w_reply (w, (WireCodecFunc) sanei_w_word, &ack);
       }
       break;

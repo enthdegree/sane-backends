@@ -21,42 +21,82 @@
 
 :mfg "Relisys"
 :url "http://www.relisys.com/"
+
 :model "RELI 2412"
 :interface "SCSI"
 :comment "sub model VM3530+"
+:status :stable
+
 :model "AVEC 2400"
 :interface "SCSI"
 :comment "sub model VM3520"
-;:model "AVEC 2412"
-;:comment "sub model VM3520+"
-;:model "AVEC 4800"
-;:comment "sub model VM4530"
-;:model "AVEC 4816"
-;:comment "sub model VM4530+"
-;:model "RELI DS6"
-;:comment "sub model VM3420"
-;:model "RELI DS15"
-;:comment "sub model VM3440"
-;:model "RELI 2400"
-;:comment "sub model VM3530"
-;:model "RELI 4816"
-;:comment "sub model VM4540"
-;:model "RELI 4830"
-;:comment "sub model VM4542"
-;:model "RELI 9600"
-;:comment "sub model VM6530"
-;:model "RELI 9612"
-;:comment "sub model VM6530*"
-;:model "RELI 9624"
-;:comment "sub model VM6530+"
-;:model "RELI 9630"
-;:comment "sub model VM6540"
+:status :stable
 
+:model "RELI 4830"
+:interface "SCSI"
+:comment "sub model VM4542"
+:status :beta
 
-;:mfg "Actown"
-;:model "ACT Scan I 30"
-;:comment "sub model VM3520A"
+:model "AVEC 2412"
+:comment "sub model VM3520+"
+:interface "SCSI"
+:status :untested
 
+:model "AVEC 4800"
+:comment "sub model VM4530"
+:interface "SCSI"
+:status :untested
+
+:model "AVEC 4816"
+:comment "sub model VM4530+"
+:interface "SCSI"
+:status :untested
+
+:model "RELI DS6"
+:comment "sub model VM3420"
+:interface "SCSI"
+:status :untested
+
+:model "RELI DS15"
+:comment "sub model VM3440"
+:interface "SCSI"
+:status :untested
+
+:model "RELI 2400"
+:comment "sub model VM3530"
+:interface "SCSI"
+:status :untested
+
+:model "RELI 4816"
+:comment "sub model VM4540"
+:interface "SCSI"
+:status :untested
+
+:model "RELI 9600"
+:comment "sub model VM6530"
+:interface "SCSI"
+:status :untested
+
+:model "RELI 9612"
+:comment "sub model VM6530*"
+:interface "SCSI"
+:status :untested
+
+:model "RELI 9624"
+:comment "sub model VM6530+"
+:interface "SCSI"
+:status :untested
+
+:model "RELI 9630"
+:comment "sub model VM6540"
+:interface "SCSI"
+:status :untested
+
+:mfg "Actown"
+:model "ACT Scan I 30"
+:comment "sub model VM3520A"
+:interface "SCSI"
+:status :untested
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

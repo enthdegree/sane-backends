@@ -132,6 +132,14 @@ extern SANE_Bool sanei_pp_uses_directio( void );
  */
 extern SANE_Status sanei_pp_getmodes( int fd, int *mode );
 
+/** Set the operation mode for a given device.
+ *
+ * @param fd   - handle of the device, whose modes shall be set.
+ * @param mode - mode to set, see sanei_pp_mode.
+ * @return SANE_STATUS_GOOD on success.
+ */
+extern SANE_Status sanei_pp_setmode( int fd, int mode );
+
 /** Write data to ports (spp-data, ctrl and epp-address)
  *
  * @param fd  - handle of device to which shall be written to.

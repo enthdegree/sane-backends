@@ -336,23 +336,6 @@ pp_showcaps( int caps )
 		mode |= SANEI_PP_MODE_ECP;
 	}
 
-#if 0
-	if( caps &  CAP1284_RAW )
-		strcat( ct, "RAW " );
-
-	if( caps &  CAP1284_COMPAT )
-		strcat( ct, "COMPAT " );
-		
-	if( caps &  CAP1284_EPPSL )
-		strcat( ct, "EPPSL " );
-
-	if( caps &  CAP1284_EPPSWE )
-		strcat( ct, "EPPSWE " );
-
-	if( caps &  CAP1284_BECP )
-		strcat( ct, "BECP " );
-#endif
-
 	DBG( 4, "Supported Modes: %s\n", ct );
 	return mode;
 }
@@ -362,7 +345,7 @@ pp_showcaps( int caps )
 /** probe the parallel port
  */
 static int
-pp_probe( int handle )
+pp_probe( int fd )
 {
 #ifdef HAVE_IOPL 
 	SANE_Byte c;
@@ -371,13 +354,13 @@ pp_probe( int handle )
 	SANE_Byte a, b;
 	int       retv = 0;
     
-	DBG( 4, "pp_probe: port 0x%04lx\n", port[handle].base );
+	DBG( 4, "pp_probe: port 0x%04lx\n", port[fd].base );
 
 	/* SPP check */
-	outbyte402( handle, 0x0c );
-	outb_ctrl( handle, 0x0c );
-	outb_data( handle, 0x55 );
-	a = inb_data( handle );
+	outbyte402( fd, 0x0c );
+	outb_ctrl ( fd, 0x0c );
+	outb_data ( fd, 0x55 );
+	a = inb_data( fd );
 	if( a != 0x55 ) {
 	    DBG( 4, "pp_probe: nothing supported :-(\n" );
 		return retv;
@@ -391,42 +374,42 @@ pp_probe( int handle )
 
 	/* clear at most 1k of data from FIFO */
 	for( i = 1024; i > 0; i-- ) { 
-		a = inbyte402( handle );
+		a = inbyte402( fd );
 		if ((a & 0x03) == 0x03)
 			goto no_ecp;
 		if (a & 0x01)
 		    break;
-		inbyte400( handle); /* Remove byte from FIFO */
+		inbyte400( fd ); /* Remove byte from FIFO */
 	}
 
 	if (i <= 0)
 		goto no_ecp;
 
 	b = a ^ 3;
-	outbyte402( handle, b );
-	c = inbyte402( handle );
+	outbyte402( fd, b );
+	c = inbyte402( fd );
 
 	if (a == c) {
-		outbyte402( handle, 0xc0 ); /* FIFO test */
+		outbyte402( fd, 0xc0 ); /* FIFO test */
 		j = 0;
-		while (!(inbyte402( handle ) & 0x01) && (j < 1024)) {
-	    	inbyte402( handle );
+		while (!(inbyte402( fd ) & 0x01) && (j < 1024)) {
+	    	inbyte402( fd );
 	    	j++;
 		}
 		if (j >= 1024)
 		    goto no_ecp;
 		i = 0;
 		j = 0;
-		while (!(inbyte402( handle ) & 0x02) && (j < 1024)) {
-		    outbyte400( handle, 0x00 );
+		while (!(inbyte402( fd ) & 0x02) && (j < 1024)) {
+		    outbyte400( fd, 0x00 );
 	    	i++;
 		    j++;
 		}
 		if (j >= 1024)
 		    goto no_ecp;
 		j = 0;
-		while (!(inbyte402( handle ) & 0x01) && (j < 1024)) {
-	    	inbyte400( handle );
+		while (!(inbyte402( fd ) & 0x01) && (j < 1024)) {
+	    	inbyte400( fd );
 		    j++;
 		}
 		if (j >= 1024)
@@ -440,34 +423,34 @@ no_ecp:
 #endif
 	/* check for PS/2 compatible port */
 	if( retv & CAP1284_ECP ) {
-		outbyte402(handle, 0x20 );
+		outbyte402( fd, 0x20 );
 	}
 
-	outb_data( handle, 0x55 );
-	outb_ctrl( handle, 0x0c );
-	a = inb_data( handle );
-	outb_data( handle, 0x55 );
-	outb_ctrl( handle, 0x2c );
-	b = inb_data( handle );
+	outb_data( fd, 0x55 );
+	outb_ctrl( fd, 0x0c );
+	a = inb_data( fd );
+	outb_data( fd, 0x55 );
+	outb_ctrl( fd, 0x2c );
+	b = inb_data( fd );
 	if( a != b ) {
     	DBG( 4, "pp_probe: PS/2 bidirectional port present\n");
 		retv += CAP1284_BYTE;
     }
 
     /* check for EPP support */
-	if( port[handle].base & 0x007 ) {
+	if( port[fd].base & 0x007 ) {
 	    DBG( 4, "pp_probe: EPP not supported at this address\n" );
 		return retv;
     }
 #ifdef HAVE_IOPL
     if( retv & CAP1284_ECP ) {
 		for( i = 0x00; i < 0x80; i += 0x20 ) {
-	    	outbyte402( handle, i );
+	    	outbyte402( fd, i );
 
-		    a = inb_stat( handle );
-		    outb_stat( handle, a );
-		    outb_stat( handle, (a & 0xfe));
-		    a = inb_stat( handle );
+		    a = inb_stat( fd );
+		    outb_stat( fd, a );
+		    outb_stat( fd, (a & 0xfe));
+		    a = inb_stat( fd );
 	    	if (!(a & 0x01)) {
 			    DBG( 2, "pp_probe: "
 			            "Failed Intel bug check. (Phony EPP in ECP)\n" );
@@ -475,26 +458,26 @@ no_ecp:
 		    }
 		}
 	    DBG( 4, "pp_probe: Passed Intel bug check.\n" );
-		outbyte402( handle, 0x80 );
+		outbyte402( fd, 0x80 );
     }
 #endif
 
-	a = inb_stat( handle );
-	outb_stat( handle, a);
-	outb_stat(handle, (a & 0xfe));
-	a = inb_stat( handle );
+	a = inb_stat( fd );
+	outb_stat( fd, a );
+	outb_stat( fd, (a & 0xfe));
+	a = inb_stat( fd );
 
 	if (a & 0x01) {
-		outbyte402( handle, 0x0c );
-		outb_ctrl  ( handle, 0x0c );
+		outbyte402( fd, 0x0c );
+		outb_ctrl ( fd, 0x0c );
 		return retv;
 	}
 
-	outb_ctrl( handle, 0x04 );
-	inb_eppdata ( handle );
-	a = inb_stat( handle );
-	outb_stat( handle, a );
-	outb_stat( handle, (a & 0xfe));
+	outb_ctrl( fd, 0x04 );
+	inb_eppdata ( fd );
+	a = inb_stat( fd );
+	outb_stat( fd, a );
+	outb_stat( fd, (a & 0xfe));
 
 	if( a & 0x01 ) {
 	    DBG( 4, "pp_probe: EPP 1.9 with hardware direction protocol\n");
@@ -504,11 +487,11 @@ no_ecp:
 		 * EPP 1.7
 		 * EPP 1.9 with software direction
 		 */
-		outb_ctrl( handle, 0x24 );
-		inb_eppdata ( handle );
-		a = inb_stat( handle );
-		outb_stat( handle, a );
-		outb_stat( handle, (a & 0xfe));
+		outb_ctrl( fd, 0x24 );
+		inb_eppdata ( fd );
+		a = inb_stat( fd );
+		outb_stat( fd, a );
+		outb_stat( fd, (a & 0xfe));
 		if( a & 0x01 ) {
 			DBG( 4, "pp_probe: EPP 1.9 with software direction protocol\n" );
 		    retv += CAP1284_EPPSWE;
@@ -518,10 +501,23 @@ no_ecp:
 		}
 	}
 
-	outbyte402( handle, 0x0c );
-	outb_ctrl  ( handle, 0x0c );
+	outbyte402( fd, 0x0c );
+	outb_ctrl ( fd, 0x0c );
     return retv;
 }
+
+/** set the parallel port mode
+ */
+static int
+pp_setmode( int fd, int mode )
+{
+/* FIXME: move from plustek_pp backend... */
+	_VAR_NOT_USED( fd );
+	_VAR_NOT_USED( mode );
+
+	return SANE_STATUS_GOOD;
+}
+
 #endif
 
 static unsigned long
@@ -1073,7 +1069,7 @@ sanei_pp_inb_epp( int fd )
 #endif
 		DBG( 2, "sanei_pp_inb_epp: invalid fd %d\n", fd );
 		return SANE_STATUS_INVAL;
-    }
+	}
 #endif
 	return inb_eppdata( fd );
 }
@@ -1088,12 +1084,58 @@ sanei_pp_getmodes( int fd, int *mode )
 #endif
 		DBG( 2, "sanei_pp_getmodes: invalid fd %d\n", fd );
 		return SANE_STATUS_INVAL;
-    }
+	}
 
-    if( mode )
-    	*mode = port[fd].caps;
+	if( mode )
+		*mode = port[fd].caps;
 
-    return SANE_STATUS_GOOD;
+	return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+sanei_pp_setmode( int fd, int mode )
+{
+#if defined(HAVE_LIBIEEE1284)
+	int result;
+
+	if ((fd < 0) || (fd >= pplist.portc)) {
+#else
+	if ((fd < 0) || (fd >= NELEMS (port))) {
+#endif
+		DBG( 2, "sanei_pp_setmode: invalid fd %d\n", fd );
+		return SANE_STATUS_INVAL;
+	}
+
+	if((mode !=	SANEI_PP_MODE_SPP) && (mode !=	SANEI_PP_MODE_BIDI) &&
+	   (mode !=	SANEI_PP_MODE_EPP) && (mode !=	SANEI_PP_MODE_ECP)) {
+		DBG( 2, "sanei_pp_setmode: invalid mode %d\n", mode );
+		return SANE_STATUS_INVAL;
+	}
+	
+#if defined(HAVE_LIBIEEE1284)
+	switch( mode ) {
+		case SANEI_PP_MODE_SPP:  mode = M1284_NIBBLE; break;
+		case SANEI_PP_MODE_BIDI: mode = M1284_BYTE;   break;
+		case SANEI_PP_MODE_EPP:  mode = M1284_EPP;    break;
+		case SANEI_PP_MODE_ECP:  mode = M1284_ECP;    break;
+
+		default:
+			DBG( 2, "sanei_pp_setmode: invalid mode %d\n", mode );
+			return SANE_STATUS_INVAL;
+	}
+
+	result = ieee1284_negotiate( pplist.portv[fd], mode );
+	if( E1284_OK != result ) {
+		DBG( 2, "sanei_pp_setmode failed\n" );
+		pp_libieee1284_errorstr( result );
+		return SANE_STATUS_INVAL;
+	}
+
+	return SANE_STATUS_GOOD;
+#else
+    return pp_setmode( fd, mode );
+
+#endif
 }
 
 void
@@ -1101,7 +1143,7 @@ sanei_pp_udelay( unsigned long usec )
 {
 	struct timeval now, deadline;
 
-	if( usec < pp_thresh )
+	if( usec == 0 )
 		return;
 
 	gettimeofday( &deadline, NULL );
@@ -1109,6 +1151,9 @@ sanei_pp_udelay( unsigned long usec )
 	deadline.tv_sec  += deadline.tv_usec / 1000000;
 	deadline.tv_usec %= 1000000;
 
+	if( usec < pp_thresh )
+		return;
+	
 	do {
 		gettimeofday( &now, NULL );
 	} while ((now.tv_sec < deadline.tv_sec) ||
@@ -1265,6 +1310,15 @@ sanei_pp_getmodes( int fd, int *mode )
 	_VAR_NOT_USED( mode );
 	DBG( 4, "sanei_pp_getmodes: called for fd %d\n", fd );
 	DBG( 1, "sanei_pp_getmodes: fd %d is invalid\n", fd );
+	return SANE_STATUS_INVAL;
+}
+
+SANE_Status
+sanei_pp_setmode( int fd, int mode )
+{
+	_VAR_NOT_USED( mode );
+	DBG( 4, "sanei_pp_setmode: called for fd %d\n", fd );
+	DBG( 1, "sanei_pp_setmode: fd %d is invalid\n", fd );
 	return SANE_STATUS_INVAL;
 }
 

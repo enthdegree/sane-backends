@@ -1,3 +1,7 @@
+2002-10-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* README.linux: Added comment about DEC cc on Linux Alpha.
+
 2002-10-19  Peter Fales <peter@fales-lorenz.net>
 
 	* backend/dc25.c - Moved use of UNUSEDARG macro to fix

@@ -81,3 +81,7 @@ Excessive warnings "pointer of type `void *' used in arithmetic":
   export CFLAGS="-g -O2 -D__NO_STRING_INLINES"
 
   and rerun configure.
+
+
+If you use DEC cc on Linux Alpha, you may need to set LDFLAGS="-N" to
+  be able to build sane-backends.

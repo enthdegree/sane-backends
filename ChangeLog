@@ -2,6 +2,8 @@
 
 	* po/Makefile.in: Added SHELL variable. Fixes po generation on OS/2.
 	* po/README: Added some comments on what the Makefile actually does.
+	* doc/backend-writing.txt doc/sane.man: Added note about doxygen
+	  configuration for sanei.
 
 2001-01-24  Stéphane Voltz  <svoltz@wanadoo.fr>
 

@@ -8,6 +8,8 @@
 	* TODO: Removed net/saned cancel problem. Added entry about
 	  clarifying sane_get_select_fd/sane_cancel in sane.tex.
 	  Added entry about sanei_usb and control messages.
+	* sanei/sanei_usb.c: Fixed vendor/device detection for Linux
+	  versions >= 2.4.13.
 
 2001-10-25  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

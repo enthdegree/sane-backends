@@ -73,6 +73,13 @@
 
 #include <sys/ioctl.h>
 #include <asm/types.h>		/* XXX glibc */
+
+/* Avoid inclusion of <linux/videodev2.h> from <linux/videodev.h>.
+ * It includes <linux/time.h> which redefines some structs from <sys/time.h>.
+ * It doesn't matter at the moment, because we don't support V4L2 anyway.
+ */
+#define __LINUX_VIDEODEV2_H
+
 #include <linux/videodev.h>
 
 #define BACKEND_NAME v4l

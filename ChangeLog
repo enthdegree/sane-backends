@@ -1,3 +1,16 @@
+2003-10-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions-external/hp_rts88xx.desc: Added description
+	  file of new hp_rts88xx backend for HP 44x0 scanners (from
+	  Johannes Hub <johanneshub@foni.net>).
+	* doc/descriptions/unsupported.desc: Added Minolta DiMAGE Scan
+	  Elite 5400. Removed HP 44x0 (now supported by hp_rts88xx
+	  backend).  Updated Epson Perfection 3170. Updated Plustek
+	  S24/ST24.
+	* doc/descriptions/avision.desc doc/descriptions/canon.desc
+	  doc/descriptions/sharp.desc: Updated to new status values.
+	  Bugs: #300146, #300147, #300154.
+
 2003-10-23  Frank Zago <fzago at austin dot rr dot com>
 
 	* README.windows: added note about libusb port for cygwin.

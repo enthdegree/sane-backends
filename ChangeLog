@@ -26,6 +26,8 @@
 	* po/saneopts.de.po po/saneopts.es.po po/saneopts.fr.po po/saneopts.ru.po
 	  po/saneopts.sv.po: Remove global saneopts translations. The translations
 	  are now in the per-language sane-backends.??.po files.
+	* TODO: Updated .desc file, mapages, sanei_usb and OS/2 entries. Removed
+	  entry about po files.
 
 2003-01-07  Peter Fales  <peter@fales-lorenz.net>
 

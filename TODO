@@ -1,4 +1,4 @@
-TODO (2003-01-05)
+TODO (2003-01-08)
 
 ******** todo ********
 
@@ -74,22 +74,14 @@ doc
     - sanei_wire.h
 
   * desc files:
-    - snapscan.desc: Add Mitsubishi DV650U usb scanner
-      "It turns out the DV650U has the same ID string (FlatbedScanner_23),
-       vendor & product ID (0x04a5, 0x20b0) and firmware file (u176v042.bin)
-       as Acer/Benq 4300, listed at http://snapscan.sourceforge.net"
     - Add Epson Stylus cx3200 MFP to epson.desc (supported only with
       patch to Linux USB scanner driver)
     - Add keywords "vendor-id" and "product-id" for SCSI and USB ids.
-    - hp.desc, umax_pp.desc: Use "ScanJet number" instead of "HP ScanJet number"
-      or "HP number" for better sorting of the lists
     - avision.desc: Is the removal of the HP 7450 intended?
- 
 
   * manpages:
     - html manpages have broken links to other man pages if link is wrapped at
       the end of the line (e.g. sane-pint points to pint.5.html).
-    - umax_pp.man: Don't use "'" at the beginning of lines.
 
 frontends
 ---------
@@ -136,6 +128,7 @@ sanei
 
   * sanei_usb:
     - using only the first interface may be a problem with all-in-one devices
+      Use the same approach as in kernel scanner driver instead.
     - some scanners seem to provide more than one bulk-in endpoint(?) 
 
 
@@ -158,7 +151,6 @@ platform-specific
       libusb::usb_find_devices().
   
   * OS/2 issues: 
-    - configure creates 264 sh-thd-??????? files?
     - Add $EXEEXT or sed expression to Makefiles to get the .exe extension?
     - Add support for semaphores also for OS/2 (currently used in snapscan).
 
@@ -179,9 +171,11 @@ misc
   * Fix japi to run on current jdks. Swing is now included, and there is
     a segfault in Sane.c.
 
-  * Remove backend-specific .po files when they are no longer needed.
-
 ******** done ********
+* Remove backend-specific .po files when they are no longer needed.
+* hp.desc, umax_pp.desc: Use "ScanJet number" instead of "HP ScanJet number"
+  or "HP number" for better sorting of the lists
+* umax_pp.man: Don't use "'" at the beginning of lines.
 * add unsupported.desc with links to information about unsupported scanners
 * MacOS X: Check libtool glitches. Does an update make sense?
 * sane.tex (->sane2):

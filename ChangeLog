@@ -1,3 +1,11 @@
+2001-05-16  Stéphane Voltz <svoltz@wanadoo.fr>
+
+	* backend/umax_pp.c: fix memory leak in sane_exit
+
+	* backend/umax_pp_low.c backend/umax_pp_low.h : added /proc parsing
+	  when available to get I/O addr. Added pauses in 610P probe
+	  sequence.
+
 2001-05-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* frontend/scanimage.c: scanimage_exit: use the handle (not its

@@ -1,3 +1,8 @@
+2002-09-23  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/fujitsu.desc: Changed status to beta and added
+	  URLs.
+
 2002-09-22  Peter Fales <peter@fales-lorenz.net>
 
 	* doc/sane-dc25.man, backend/dc25.c, backend/dc25.h, 

@@ -78,7 +78,7 @@
 
 #define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
-#define BUILD               15
+#define BUILD               16
 
 #include "snapscan.h"
 
@@ -449,7 +449,7 @@ static SANE_Status snapscani_check_device(
              "Guillemot MaxiScan A4 Deluxe");
         status = SANE_STATUS_INVAL;
     } else {
-        DBG(DL_VERBOSE, "%s: Autodected driver: %s\n", me, get_driver_name(*model_num));
+        DBG(DL_VERBOSE, "%s: Autodetected driver: %s\n", me, get_driver_name(*model_num));
     }
     return status;
 }
@@ -534,7 +534,7 @@ static SANE_Status add_scsi_device (SANE_String_Const full_name)
     char model[17];
     SANE_Char *name = NULL;
 
-    DBG (DL_CALL_TRACE, "%s(%s)\n", me, name);
+    DBG (DL_CALL_TRACE, "%s(%s)\n", me, full_name);
 
     sanei_config_get_string(full_name, &name);
     /* Avoid adding the same device more then once */
@@ -1753,8 +1753,14 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
- * Revision 1.24  2002/07/12 23:29:07  oliverschwartz
- * SnapScan backend 1.4.15
+ * Revision 1.25  2002/09/26 20:09:19  oliverschwartz
+ * SnapScan backend 1.4.16 (support for Acer/Benq 5000)
+ *
+ * Revision 1.51  2002/09/26 19:27:44  oliverschwartz
+ * Version 1.4.16
+ *
+ * Revision 1.50  2002/09/24 16:07:44  oliverschwartz
+ * Added support for Benq 5000
  *
  * Revision 1.49  2002/07/12 22:53:54  oliverschwartz
  * Version 1.4.15

@@ -143,6 +143,10 @@
 :interface "USB"
 :status :stable
 
+:model "5000"
+:interface "USB"
+:status :alpha
+
 :model "5300"
 :interface "USB"
 :status :alpha

@@ -1139,6 +1139,7 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
             case PRISA640:
             case PRISA4300:
             case PRISA4300_2:
+            case PRISA5000:
             case PRISA5300:
                 /* ACER firmware files do not contain an info block */
                 fseek(fd, 0, SEEK_END);
@@ -1185,8 +1186,11 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
- * Revision 1.18  2002/07/12 23:29:06  oliverschwartz
- * SnapScan backend 1.4.15
+ * Revision 1.19  2002/09/26 20:09:18  oliverschwartz
+ * SnapScan backend 1.4.16 (support for Acer/Benq 5000)
+ *
+ * Revision 1.33  2002/09/24 16:07:48  oliverschwartz
+ * Added support for Benq 5000
  *
  * Revision 1.32  2002/06/06 20:40:01  oliverschwartz
  * Changed default scan area for transparancy unit of SnapScan e50

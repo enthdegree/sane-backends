@@ -91,9 +91,10 @@ typedef enum
     VUEGO610S,          /* Vuego 610S and 610plus SJU changed */
     PRISA620S,          /* Acer ScanPrisa 620 - 600 DPI */
     PRISA640,           /* Acer ScanPrisa 640 - 600 DPI */
+    PRISA1240,          /* Acer ScanPrisa 1240 - 1200 DPI */
     PRISA4300,          /* Acer ScanPrisa 3300/4300 - 600 DPI */
     PRISA4300_2,        /* Acer ScanPrisa 3300/4300 - 600 DPI, 42 bit*/
-    PRISA1240,          /* Acer ScanPrisa 1240 - 1200 DPI */
+    PRISA5000,          /* Acer ScanPrisa 5000 - 1200 DPI */
     PRISA5300           /* Acer ScanPrisa 5300 - 1200 DPI */
 } SnapScan_Model;
 
@@ -122,6 +123,7 @@ static struct SnapScan_Driver_desc drivers[] =
     {PRISA4300,      "Acer4300"},
     {PRISA4300_2,    "Acer4300 (42 bit)"},
     {PRISA1240,      "Acer1240"},
+    {PRISA5000,      "Acer5000"},
     {PRISA5300,      "Acer5300"}
 };
 
@@ -150,6 +152,7 @@ static struct SnapScan_Model_desc scanners[] =
     {"FlatbedScanner22",    PRISA4300_2},
     {"FlatbedScanner23",    PRISA4300_2},
     {"FlatbedScanner24",    PRISA5300},
+    {"FlatbedScanner25",    PRISA5000},
     {"SNAPSCAN 1212U",      SNAPSCAN1212U},
     {"SNAPSCAN 1212U_2",    SNAPSCAN1212U},
     {"SNAPSCAN e20",        SNAPSCANE20},
@@ -362,8 +365,11 @@ struct snapscan_scanner
 
 /*
  * $Log$
- * Revision 1.16  2002/07/12 23:29:08  oliverschwartz
- * SnapScan backend 1.4.15
+ * Revision 1.17  2002/09/26 20:09:20  oliverschwartz
+ * SnapScan backend 1.4.16 (support for Acer/Benq 5000)
+ *
+ * Revision 1.33  2002/09/24 16:07:47  oliverschwartz
+ * Added support for Benq 5000
  *
  * Revision 1.32  2002/07/12 22:22:47  oliverschwartz
  * Correct driver description for 4300_2

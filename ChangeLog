@@ -1,6 +1,8 @@
 2001-12-25  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* README.linux: Used "sane-find-scanner". Some minor changes.
+	* config.guess config.sub: Updated from 
+	  http://savannah.gnu.org/projects/config.
 
 2001-12-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

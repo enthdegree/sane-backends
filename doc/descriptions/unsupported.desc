@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-06-09"		; version of backend
+:version "2003-06-13"		; version of backend
 :url "http://www.meier-geinitz.de/sane/misc/unsupported.html"
 ;:status :stable			; :alpha, :beta, :stable, :new
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
@@ -248,7 +248,7 @@
 
 :model "ScanJet 2300C"
 :interface "USB"
-:url "http://www.meier-geinitz.de/sane/misc/hp-scanjet2300c.txt"
+:url "http://www.meier-geinitz.de/sane/misc/hp-scanjet-2300c.txt"
 :status :unsupported
 :comment "Unsupported. Vendor/product 0x03f0/0x0901. See link for devices output."
 
@@ -307,9 +307,9 @@
 :status :unsupported
 
 :model "ScanJet 5550C"
-;:url ""
+:url "http://www.meier-geinitz.de/sane/misc/hp-scanjet-5550c.txt"
 :interface "USB"
-:comment "Not supported. Same as 4570C, but with ADF."
+:comment "Not supported. Same as 4570C, but with ADF. See link for details."
 :status :unsupported
 
 :model "ScanJet 8200C"

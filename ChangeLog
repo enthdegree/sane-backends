@@ -1,3 +1,7 @@
+2003-06-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added link for HP 5550c.
+
 2003-06-11  Oliver Schirrmeister <oschirr@abm.de>
 
 	* backend/fujitsu.c fixed bug in that code when a scanner is 

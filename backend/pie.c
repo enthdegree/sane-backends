@@ -92,6 +92,8 @@
 #include "sane/sanei_backend.h"
 #include "sane/sanei_config.h"
 
+# include "../include/sane/sanei_thread.h"
+
 #include "pie-scsidef.h"
 
 #define DBG_error0  0
@@ -99,6 +101,7 @@
 #define DBG_sense   2
 #define DBG_warning 3
 #define DBG_inquiry 4
+
 #define DBG_info    5
 #define DBG_info2   6
 #define DBG_proc    7
@@ -177,6 +180,7 @@ enum Pie_Option
   OPT_MODE_GROUP,
   OPT_MODE,
   OPT_RESOLUTION,
+
 
   /* ------------------------------------------- */
 
@@ -305,7 +309,8 @@ typedef struct Pie_Scanner
 
   pid_t reader_pid;
   int pipe;
-
+  int reader_fds;
+  
   int colormode;		/* whether RGB, GRAY, LINEART, HALFTONE */
   int resolution;
   int cal_mode;			/* set to value to compare cal_info mode to */
@@ -715,6 +720,7 @@ pie_print_inquiry (Pie_Device * dev)
        dev->inquiry_enhancements);
   DBG (DBG_inquiry, "Gamma bits....................: %d\n",
        dev->inquiry_gamma_bits);
+
   DBG (DBG_inquiry, "Fast Preview Resolution.......: %d\n",
        dev->inquiry_fast_preview_res);
   DBG (DBG_inquiry, "Min Highlight.................: %d\n",
@@ -1393,6 +1399,7 @@ init_options (Pie_Scanner * scanner)
   scanner->opt[OPT_GAMMA_VECTOR_G].size =
     scanner->gamma_length * sizeof (SANE_Word);
 
+
   /* blue gamma vector */
   scanner->opt[OPT_GAMMA_VECTOR_B].name = SANE_NAME_GAMMA_VECTOR_B;
   scanner->opt[OPT_GAMMA_VECTOR_B].title = SANE_TITLE_GAMMA_VECTOR_B;
@@ -1816,6 +1823,7 @@ pie_perform_cal (Pie_Scanner * scanner, int cal_index)
 
   for (filter = FILTER_NEUTRAL; filter <= FILTER_BLUE; filter <<= 1)
     {
+
       /* only send data for filter we expect to send */
       if (!(filter & scanner->cal_filter))
 	continue;
@@ -2476,6 +2484,7 @@ pie_grab_scanner (Pie_Scanner * scanner)
     sanei_scsi_cmd (scanner->sfd, reserve_unit.cmd, reserve_unit.size, NULL,
 		    NULL);
 
+
   if (status)
     {
       DBG (DBG_error, "pie_grab_scanner: command returned status %s\n",
@@ -2793,19 +2802,35 @@ reader_process_sigterm_handler (int signal)
 
 
 static int
-reader_process (Pie_Scanner * scanner, int pipe_fd)	/* executed as a child process */
+reader_process ( void *data )	/* executed as a child process */
 {
   int status;
   FILE *fp;
+  Pie_Scanner * scanner;
+  sigset_t ignore_set;
   struct SIGACTION act;
 
+  scanner = (Pie_Scanner *)data;
+  
+  if (sanei_thread_is_forked ()) {
+
+      close ( scanner->pipe );
+
+      sigfillset (&ignore_set);
+      sigdelset (&ignore_set, SIGTERM);
+      sigprocmask (SIG_SETMASK, &ignore_set, 0);
+
+      memset (&act, 0, sizeof (act));
+      sigaction (SIGTERM, &act, 0);
+  }
+  
   DBG (DBG_sane_proc, "reader_process started\n");
 
   memset (&act, 0, sizeof (act));	/* define SIGTERM-handler */
   act.sa_handler = reader_process_sigterm_handler;
   sigaction (SIGTERM, &act, 0);
 
-  fp = fdopen (pipe_fd, "w");
+  fp = fdopen (scanner->reader_fds, "w");
   if (!fp)
     {
       return SANE_STATUS_IO_ERROR;
@@ -2872,8 +2897,8 @@ do_cancel (Pie_Scanner * scanner)
   if (scanner->reader_pid > 0)
     {
       DBG (DBG_sane_info, "killing reader_process\n");
-      kill (scanner->reader_pid, SIGTERM);
-      waitpid (scanner->reader_pid, 0, 0);
+      sanei_thread_kill (scanner->reader_pid);
+      sanei_thread_waitpid (scanner->reader_pid, 0);
       scanner->reader_pid = 0;
       DBG (DBG_sane_info, "reader_process killed\n");
     }
@@ -3672,25 +3697,22 @@ sane_start (SANE_Handle handle)
       return SANE_STATUS_IO_ERROR;
     }
 
-  scanner->reader_pid = fork ();	/* create reader routine as new process */
-  if (scanner->reader_pid == 0)
-    {				/* reader_pid = 0 ===> child process */
-      sigset_t ignore_set;
-      struct SIGACTION act;
+  scanner->pipe       = fds[0];
+  scanner->reader_fds = fds[1];
+  scanner->reader_pid = sanei_thread_begin( reader_process, (void*)scanner );
 
-      close (fds[0]);
-
-      sigfillset (&ignore_set);
-      sigdelset (&ignore_set, SIGTERM);
-      sigprocmask (SIG_SETMASK, &ignore_set, 0);
-
-      memset (&act, 0, sizeof (act));
-      sigaction (SIGTERM, &act, 0);
-
-      _exit (reader_process (scanner, fds[1]));	/* don't use exit() since that would run the atexit() handlers */
+  if (scanner->reader_pid < 0)
+    {
+      DBG (1, "sane_start: sanei_thread_begin failed (%s)\n",
+             strerror (errno));
+      return SANE_STATUS_NO_MEM;
     }
-  close (fds[1]);
-  scanner->pipe = fds[0];
+
+  if (sanei_thread_is_forked ())
+    {
+      close (scanner->reader_fds);
+      scanner->reader_fds = -1;
+    }
 
   return SANE_STATUS_GOOD;
 }

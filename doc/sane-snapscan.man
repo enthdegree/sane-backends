@@ -1,14 +1,15 @@
-.TH sane-snapscan 5 "08 Dec 2000"
+.TH sane-snapscan 5 "26 May 2001"
 .IX sane-snapscan
 .SH NAME
 sane-snapscan - SANE backend for AGFA SnapScan flatbed scanners
 .SH DESCRIPTION
 The
 .B sane-snapscan
-library implements a SANE (Scanner Access Now Easy) backend that
-provides access to AGFA SnapScan flatbed scanners. At present, the
-following scanners are supported from this backend: AGFA SnapScan 300,
-310s, 600, and 1236s, and close compatibles like the Vuego 310s (with
+library implements a SANE (Scanner Access Now Easy) backend that provides
+access to AGFA SnapScan flatbed scanners. At present, the following scanners
+are supported from this backend: AGFA SnapScan 300, 310, 600, and 1236s,
+1212u, e40, e50, Vuego 310s, Acer 300f, 310s, 610s, 610plus, Prisa 620s, Prisa
+620u, Prisa 640u, Prisa 640bu, Guillemot Maxi Scan A4 Deluxe (SCSI) (with
 varying success).
 .PP
 
@@ -29,6 +30,8 @@ symlink to such a device.  Under Linux, such a device name could be
 or
 .IR /dev/sge ,
 for example.  See sane-scsi(5) for details.
+.P
+For USB scanners see http://snapscan.sourceforge.net/ for details.
 
 .SH CONFIGURATION
 The contents of the
@@ -78,15 +81,16 @@ levels reduce verbosity.
 Man page doesn't provide much information yet.
 
 .SH "SEE ALSO"
-sane\-scsi(5)
+sane(7), sane\-scsi(5)
 .br
 http://www.cs.ualberta.ca/~charter/SnapScan/snapscan.html
 .br
 http://sourceforge.net/projects/snapscan/ (new development website)
 
 .SH AUTHOR
-Kevin Charter, Franck Schneider, and Michel Roelofs
+Kevin Charter, Franck Schneider, Michel Roelofs, Emmanuel Blot,
+Mikko Tyolajarvi, David Mosberger-Tang, Wolfgang Goeller,
+Petter Reinholdtsen, Gary Plewa, Sebastien Sable, and Mikael Magnusson.
 .br
-Man page by Henning Meier-Geinitz (mostly based on the web page and 
-source code)
-
+Man page by Henning Meier-Geinitz (mostly based on the web pages and 
+source code).

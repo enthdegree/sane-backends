@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-11-07"		; version of backend
+:version "2003-11-08"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -270,12 +270,6 @@
 
 :mfg "Epson"
 :url "http://www.epson.com/"
-
-:model "Perfection 1670"
-:url "/unsupported/epson-perfection-1670.html"
-:interface "USB"
-:status :unsupported
-:comment "Currently not supported. However, there is work in progress to get it supported. See link for details."
 
 :model "Perfection 3170"
 ;:url ""

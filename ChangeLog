@@ -2,6 +2,7 @@
 
 	* backend/test.c doc/descriptions/test.desc: Fixed initial value
 	  for --fixed-constraint-range (bug #300388).
+	* include/sane/sanei_usb.h: Include stdlib.h for size_t.
 
 2003-12-18  Gerhard Jaeger <gerhard@gjaeger.de>
 	* doc/sane-plustek.man: new version, minor fixes

@@ -64,6 +64,8 @@
 #include "../include/sane/config.h"
 #include "../include/sane/sane.h"
 
+#include <stdlib.h> /* for size_t */
+
 /* USB spec defines */
 #ifndef USB_CLASS_PER_INTERFACE
 /* Also defined in libusb */

@@ -1,3 +1,8 @@
+2002-10-08  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/saned.man doc/sane-net.man: Removed comment about saned port not
+	  officially assigned.
+
 2002-10-05  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson.c: Fixed problem with incorrect response to 

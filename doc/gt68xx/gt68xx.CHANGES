@@ -1,5 +1,12 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0-42 (2003-03-02)
+
+- Make sure that the firmware for plustek-like scanners is loaded. Didn't work for
+  Genius vivid3xe.
+- Added both Genius scanners to man page.
+- Removed warning from Genius Vivid3xe.
+
 V 1.0-41 (2003-02-27)
 
 - Added Genius Colorpage Vivid3xe.

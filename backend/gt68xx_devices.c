@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
 
    Copyright (C) 2002 Sergey Vlasov <vsu@altlinux.ru>
-   Copyright (C) 2002 Henning Meier-Geinitz <henning@meier-geinitz.de>
+   Copyright (C) 2002, 2003 Henning Meier-Geinitz <henning@meier-geinitz.de>
    
    This file is part of the SANE package.
    
@@ -901,8 +901,8 @@ static GT68xx_Model genius_vivid3xe_model  = {
   SANE_FIX (2.0),		/* Default gamma value */
 
   SANE_FALSE,			/* Is this a CIS scanner? */
-  GT68XX_FLAG_OFFSET_INV |  GT68XX_FLAG_UNTESTED /* Which flags are needed for this scanner? */
-  /* completely untested, based on the Genius Vivid3x*/
+  GT68XX_FLAG_OFFSET_INV /* Which flags are needed for this scanner? */
+  /* mostly untested, based on the Genius Vivid3x */
 };
 
 static GT68xx_USB_Device_Entry gt68xx_usb_device_list[] = {

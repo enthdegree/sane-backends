@@ -1,3 +1,12 @@
+2003-03-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/gt68xx.c backend/gt68xx_devices.c backend/gt68xx_gt6801.c
+	  doc/sane-gt68xx.man doc/descriptions/gt68xx.desc
+	  doc/gt68xx/gt68xx.CHANGES: Make sure that the firmware for
+	  plustek-like scanners is loaded. Didn't work for Genius vivid3xe.
+	  Added both Genius scanners to man page. Removed warning from Genius
+	  Vivid3xe.
+
 2003-03-02  Michael Herder <crapsite@gmx.net>
 
         * doc/descriptions/artec_eplus48u.desc:

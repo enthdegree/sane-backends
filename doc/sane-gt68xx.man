@@ -1,4 +1,4 @@
-.TH sane-gt68xx 5 "22 Feb 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-gt68xx 5 "1 Mar 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-gt68xx
 .SH NAME
 sane-gt68xx \- SANE backend for GT-68XX based USB flatbed scanners
@@ -14,6 +14,10 @@ backend:
 Artec Ultima 2000 (only product 0x4002)
 .br
 Boeder SmartScan Slim Edition
+.br
+Genius Colorpage Vivid3x
+.br
+Genius Colorpage Vivid3x
 .br
 Lexmark X70
 .br
@@ -260,9 +264,6 @@ GT-6816 based scanners don't work at all for yet unknown reasons.
 The first few lines of the image are garbage for the 2400 TA
 Plus.
 .PP
-The images are too dark for some scanners, especially in TA mode. Maybe
-add a gamma option?
-.PP
 Interpolation should be used instead of just copying data, when the X- and
 Y-resolution differ.
 .PP
@@ -271,4 +272,5 @@ Support for buttons is missing.
 More detailed bug information is available at the gt68xx backend homepage
 .IR http://www.meier-geinitz.de/sane/gt68xx .
 Please contact me if you find a bug or missing feature:
-<henning@meier-geinitz.de>
+<henning@meier-geinitz.de>. Please send a debug log if your scanner isn't
+detected correctly (see SANE_DEBUG_GT68XX above).

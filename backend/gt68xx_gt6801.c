@@ -2,7 +2,7 @@
 
    Copyright (C) 2002 Sergey Vlasov <vsu@altlinux.ru>
    GT6801 support by Andreas Nowack <nowack.andreas@gmx.de>
-   Copyright (C) 2002 Henning Meier-Geinitz <henning@meier-geinitz.de>
+   Copyright (C) 2002, 2003 Henning Meier-Geinitz <henning@meier-geinitz.de>
    
    This file is part of the SANE package.
    
@@ -113,13 +113,19 @@ gt6801_check_plustek_firmware (GT68xx_Device * dev, SANE_Bool * loaded)
   RIE (gt68xx_device_small_req (dev, req, req));
 
   /* check for correct answer */
-  if ((req[0] == 0) && (req[1] == 0x12) && (req[3] != 0))
+  if ((req[0] == 0) && (req[1] == 0x12) && (req[3] == 0x80))
     /* req[3] is 0 if fw is not loaded, if loaded it's 0x80
      * at least on my 1284u (gerhard@gjaeger.de)
+     *
+     * With the Genius scanners req[3] is 0x02/0x82. (hmg)
      */
     *loaded = SANE_TRUE;
   else
     *loaded = SANE_FALSE;
+
+  /* Until I find out if testing for req[3] & 0x80 is save, load the firmware
+     everytime */
+  *loaded = SANE_FALSE;
 
   return SANE_STATUS_GOOD;
 }

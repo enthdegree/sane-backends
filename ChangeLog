@@ -7,6 +7,8 @@
 	  m3096g backend and also includes the m3091 backend.
 	* backend/m3096g.c backend/m3096g.h backend/m3096g.conf
 	  backend/m3096g-scsi.h: Removed, support is now in fujitsu-backend.
+	* backend/Makefile.in backend/dll.conf: Adjusted for new fujitsu
+	  backend.
 
 2002-04-15  Marian Eichholz <eichholz@computer.org>
 	* sm3600 imported from sm3600.sf.net

@@ -1,3 +1,10 @@
+2001-09-06  Peter Fales <peter@fales.com>
+
+	* backend/gphoto2.c, backend/gphoto2.h, backend/gphoto2.conf,
+	  backend/gphoto2.desc, doc/sane-gphoto2.man:  Initial files
+	  for gphoto2 backend (interface to cameras supported by the
+	  gphoto2 commands/libraries).  Makefile changes coming soon.
+
 2001-09-06  Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c: made CmdSetDataBuffer static

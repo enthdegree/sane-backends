@@ -4,6 +4,7 @@
 	  device strings (vendor, product) consisting of spaces. 
 	  sanei_scsi_req_enter2 was changed to copy the CDB and data before
 	  sending it to the device. Both patches are from Abel Deuring.
+	* sanei/sanei_config2.c: Removed some remainings of the USB merge.
 
 2001-09-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

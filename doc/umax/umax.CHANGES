@@ -1008,7 +1008,6 @@ build-30 -> build-31 (sane-1.0.6)
    for UMAX Supervista S-12, LinoHell Office and LinHell JADE
 
 
-
 build-31 -> build-32
 --------------------
 
@@ -1019,4 +1018,19 @@ build-31 -> build-32
     0 = inactive (msb padded)
     1 = active (lsb padded)
     activated for astra 1220s, internal 12 bit gamma correction does work now
+
+
+build-32 -> build-33
+--------------------
+
+  * added USB support for Astra 2200
+    thanks to Frank Zago <fzago@greshamstorage.com>
+    for creating umax-usb.c and suggesting several changes to umax.c
+   
+  * added umax.conf option "connection-type", values: 1=scsi, 2=usb
+
+  * added umax.conf device selection "usb 0x1606 0x0230" (usb vendor_id product_id) 
+
+  * removed #ifdef HAVE_SANEI_IPC parts (SANEI_IPC was never defined)
+
 

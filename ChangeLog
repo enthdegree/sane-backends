@@ -1,3 +1,8 @@
+2004-11-14  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* snapscan-sources.c: Applied patch by Julien Blache to change
+	  ch_past_init from SANE_Int to SANE_Bool
+
 2004-11-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/gt68xx.c backend/gt68xx_devices.c

@@ -688,8 +688,8 @@ typedef struct
     SANE_Int   ch_size;           /* channel buffer size */
     SANE_Int   ch_ndata;          /* actual #bytes in channel buffer */
     SANE_Int   ch_pos;            /* position in buffer */
-    SANE_Int   ch_past_init;      /* flag indicating if we have enough data to shift pixels down */
     SANE_Int   ch_bytes_per_pixel;
+    SANE_Bool  ch_past_init;      /* flag indicating if we have enough data to shift pixels down */
 } Deinterlacer;
 
 static SANE_Int Deinterlacer_remaining (Source *pself)
@@ -759,7 +759,7 @@ static SANE_Status Deinterlacer_get (Source *pself, SANE_Byte *pbuf, SANE_Int *p
         }
 	/* set the flag so we know we have enough data to start shifting columns */
 	if (ps->ch_pos >= ps->ch_size /5 *4)
-	   ps->ch_past_init = 1;
+	   ps->ch_past_init = SANE_TRUE;
 
         pbuf++;
         remaining--;
@@ -818,7 +818,7 @@ static SANE_Status Deinterlacer_init (Deinterlacer *pself,
         {
             pself->ch_ndata = 0;
             pself->ch_pos = 0;
-            pself->ch_past_init = 0;
+            pself->ch_past_init = SANE_FALSE;
 	    if (actual_mode(pss) == MD_GREYSCALE)
 	    	pself->ch_bytes_per_pixel = 1;
 	    else
@@ -1143,7 +1143,6 @@ static SANE_Status create_source_chain (SnapScan_Scanner *pss,
                 pss->res == 2400)
                 status = create_Deinterlacer (pss, *pps, pps);
             break;
-	    
         case MD_LINEART:
             /* The SnapScan creates a negative image by
                default... so for the user interface to make sense,
@@ -1163,6 +1162,9 @@ static SANE_Status create_source_chain (SnapScan_Scanner *pss,
 
 /*
  * $Log$
+ * Revision 1.12  2004/11/14 19:26:38  oliver-guest
+ * Applied patch from Julien Blache to change ch_past_init from SANE_Int to SANE_Bool
+ *
  * Revision 1.11  2004/11/09 23:17:38  oliver-guest
  * First implementation of deinterlacer for Epson scanners at high resolutions (thanks to Brad Johnson)
  *

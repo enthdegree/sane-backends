@@ -1,4 +1,4 @@
-.TH sane-umax_pp 5 "28 April 2001"
+.TH sane-umax_pp 5 "15 February 2002"
 .IX sane-umax_pp
 .SH NAME
 sane-umax_pp - SANE backend for Umax parallel port flatbed scanners
@@ -44,7 +44,8 @@ This backend does support parport sharing only
 if you have a kernel with ppdev support.
 .I 
 .PP
-Note that the backend needs to run as root. To allow user access to the scanner
+Note that if you don't use the ppdev character device, the backend 
+needs to run as root. To allow user access to the scanner
 run the backend through the network interface (See saned(1) and sane\-net(5)).
 A more relaxed solution (security wise) is to add suid bit to the frontend
 (See chmod(1)).
@@ -55,12 +56,13 @@ access to IO ports.
 This backend expects device names of the form:
 .PP
 .RS
-.I port addr
+.I port value
 .RE
 .PP
 Where
-.B addr
-is the base address of the port your scanner is attached to. Known ports are
+.B value
+is the base address, or the ppdev device name of the port your scanner is attached to. 
+Known ports are
 .B 0x378
 (lp1)
 .B 0x278
@@ -69,7 +71,10 @@ is the base address of the port your scanner is attached to. Known ports are
 (lp0). Note that if you are using a Kernel 2.2.x or better , the first
 parallel port is named lp0 regardless of the base address. However,
 this backend requires the base address of your port. If you are not sure which
-port your scanner is connected to, have a look at your /etc/conf.modules.
+port your scanner is connected to, have a look at your /etc/modules.conf.
+.PP
+If you are using the linux ppdev character device, you will have to specify
+the device name, which is /dev/parport0 for the first parallel port.
 
 You can rename any device using the
 .PP
@@ -81,7 +86,7 @@ You can rename any device using the
 .I vendor vendor
 .RE
 .PP
-options. These options apply to the last port option.
+options. These options apply to the last port option. 
 
 .SH CONFIGURATION
 Please make sure to edit umax_pp.conf
@@ -131,7 +136,11 @@ Option
 allows you to change the model of your scanner. Current auto detection is based
 on side effects on scanning when using 1220P command set on other models, so
 it may fail on unkown hardware combination. Valid values are 1220, 1600 
-and 2000.
+and 2000. It is usefull only autodetection fails to detect properly your scanner 
+model. If your scanner work properly but is reported wrongly, let it be that way. 
+The only valid case to change the model is when your scanner produces 'black' or 
+'inverted' scans.  In this case you can put the model. Be aware that it will 
+prevent autodetection.
 .PP
 
 Option

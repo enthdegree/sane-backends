@@ -111,8 +111,14 @@ Port;
 
 static Port port[] =
   {
-    {0x26b, -1, }, {0x2ab, -1, }, {0x2eb, -1, }, {0x22b, -1, },
-    {0x32b, -1, }, {0x36b, -1, }, {0x3ab, -1, }, {0x3eb, -1, }
+    {0x26b, -1, 0, 0, 0},
+    {0x2ab, -1, 0, 0, 0},
+    {0x2eb, -1, 0, 0, 0},
+    {0x22b, -1, 0, 0, 0},
+    {0x32b, -1, 0, 0, 0},
+    {0x36b, -1, 0, 0, 0},
+    {0x3ab, -1, 0, 0, 0},
+    {0x3eb, -1, 0, 0, 0}
   };
 
 static const SANE_Byte wakeup[] =
@@ -200,8 +206,8 @@ ab306_write (Port *p, const void *buf, size_t len)
   DBG(4, "ab306_write: writing data\n");
   for (i = 0; i < len; ++i)
     {
-      ab306_cout (p, ((u_char *) buf)[i]);
-      cksum += ((u_char *) buf)[i];
+      ab306_cout (p, ((const u_char *) buf)[i]);
+      cksum += ((const u_char *) buf)[i];
     }
 
   DBG(4, "ab306_write: writing checksum\n");
@@ -384,7 +390,7 @@ sanei_ab306_cmd (int fd, const void *src, size_t src_size,
 
   if (src_size > cdb_size)
     {
-      status = ab306_write (p, src + cdb_size, src_size - cdb_size);
+      status = ab306_write (p, cp + cdb_size, src_size - cdb_size);
       if (status != SANE_STATUS_GOOD)
 	return status;
     }

@@ -63,7 +63,53 @@ The list of preloaded backends is determined by macro
 in file backend/Makefile.in of the SANE source code distribution.  After
 changing the value of this macro, it is necessary to reconfigure, rebuild,
 and reinstall SANE for the change to take effect.
+
+Aliases are defined in the new config file 
+.I dll.aliases
+.  This can
+contain entries of the form
+
+.PP
+.RS
+.br
+alias SomeName SaneDeviceName
+.br
+alias "Some Name" SaneDeviceName
+.br
+hide SaneDeviceName
+.RE
+.PP
+For example:
+
+.PP
+.RS
+.br
+alias Epson net:somehost:epson:/dev/sgX
+.br
+alias "Siemens ST400" st400:/dev/sgY
+.br
+hide net:somehost:pnm:0
+.br
+hide net:somehost:pnm:1
+.br
+alias "Read from file" pnm:0
+.br
+hide pnm:1
+.RE
+.PP
+
+Aliased device names are automatically hidden.
+
+The idea is that users don't have to deal with complicated device
+names (especially for networked devices), and to hide other exported
+devices which might confuse them. Note that a hidden device can still
+be accessed if the device name is known, it just doesn't appear on the
+list.
+
 .SH FILES
+.TP
+.I @CONFIGDIR@/dll.aliases
+The list of aliased or hidden backends.
 .TP
 .I @CONFIGDIR@/dll.conf
 The backend configuration file (see also description of

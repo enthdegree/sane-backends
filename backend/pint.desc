@@ -1,2 +1,12 @@
 :backend "pint"               ; name of backend
+; :version "0.?"                    ; version of backend
+:status :alpha                      ; :alpha, :beta, :stable, :new
+; :url ""                           ; backend's homepage
 :manpage "sane-pint"
+
+:devicetype :api
+
+; name models for above-specified mfg.
+:desc "Scanners with the machine-independent PINT interface"
+
+; :comment ""

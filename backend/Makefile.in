@@ -51,9 +51,9 @@ COMPILE = $(CC) -c $(CFLAGS) $(DEFS) $(INCLUDES) $(CPPFLAGS)
 
 @SET_MAKE@
 
-PRELOADABLE_BACKENDS = abaton agfafocus apple artec canon coolscan \
-	dc25 @DC210@ dmc epson hp microtek microtek2 mustek @NET@ @PINT@ \
-	pnm @QCAM@ ricoh s9036 sharp snapscan tamarack umax
+PRELOADABLE_BACKENDS = abaton agfafocus apple artec avision canon coolscan \
+	dc25 @DC210@ dmc epson hp m3096g microtek microtek2 mustek @NET@ \
+	@PINT@ pnm @QCAM@ ricoh s9036 sharp snapscan sp15c tamarack umax
 ALL_BACKENDS = $(PRELOADABLE_BACKENDS) dll
 
 LIBS = $(addprefix libsane-,$(addsuffix .la,$(ALL_BACKENDS)))
@@ -94,21 +94,26 @@ install:
 	    || exit 1; \
 	done
 	@$(LIBTOOL) $(MINST) --finish $(libsanedir)
-	@list="$(ALL_BACKENDS)"; cd $(libsanedir) && for be in $$list; do \
-	  file=libsane-$${be}.so.$(V_MAJOR); \
+	@# Assume the dll name without any versions is last
+	@dllend=`grep library_names= libsane-dll.la |rev|cut -d" " -f1|rev|sed 's/libsane-dll.//'|cut -d\' -f1`; \
+	list="$(ALL_BACKENDS)"; cd $(libsanedir) && for be in $$list; do \
+	  file=libsane-$${be}.$$dllend.$(V_MAJOR); \
 	  lib=`grep dlname= libsane-$${be}.la | cut -f2 -d"'"`; \
 	  if test ! -f $${file} -a -n "$${lib}"; then \
 	    $(LN_S) $${lib} $${file}; \
 	  fi; \
 	done
-	rm -f $(libdir)/libsane.a $(libdir)/libsane.so \
-		$(libdir)/libsane.so.$(V_MAJOR)*
-	$(LN_S) sane/libsane-dll.a $(libdir)/libsane.a
-	$(LN_S) sane/libsane-dll.so $(libdir)/libsane.so
-	@cd $(libsanedir) && for n in libsane-dll.so.$(V_MAJOR)*; do \
+	@# Assume the dll name without any versions is last
+	@dllend=`grep library_names= libsane-dll.la |rev|cut -f1 -d" "|rev|sed 's/libsane-dll.//'|cut -f1 -d\'`; \
+	rm -f $(libdir)/libsane.a $(libdir)/libsane.$$dllend \
+		$(libdir)/libsane.$$dllend.$(V_MAJOR)*; \
+	$(LN_S) sane/libsane-dll.a $(libdir)/libsane.a; \
+	$(LN_S) sane/libsane-dll.$$dllend $(libdir)/libsane.$$dllend ; \
+	cd $(libsanedir) && for n in libsane-dll.$$dllend.$(V_MAJOR)*; do \
 	  nn=`echo $$n | sed 's,^libsane-dll,libsane,'`; \
 	  (cd ..; $(LN_S) sane/$$n $$nn); \
 	done || exit 1
+	$(INSTALL_PROGRAM) libsane.la $(libdir)/libsane.la
 	@list="$(CONFIGS)"; for cfg in $$list; do \
 	  if test ! -r $(srcdir)/$${cfg}; then continue; fi; \
 	  if test -f $(configdir)/$${cfg}; then \
@@ -169,6 +174,9 @@ libsane-apple.la: ../sanei/sanei_scsi.lo
 libsane-artec.la: ../sanei/sanei_config2.lo
 libsane-artec.la: ../sanei/sanei_constrain_value.lo
 libsane-artec.la: ../sanei/sanei_scsi.lo
+libsane-avision.la: ../sanei/sanei_config2.lo
+libsane-avision.la: ../sanei/sanei_constrain_value.lo
+libsane-avision.la: ../sanei/sanei_scsi.lo
 libsane-canon.la: ../sanei/sanei_config2.lo
 libsane-canon.la: ../sanei/sanei_constrain_value.lo
 libsane-canon.la: ../sanei/sanei_scsi.lo
@@ -189,6 +197,9 @@ libsane-hp.la: ../sanei/sanei_constrain_value.lo
 libsane-hp.la: ../sanei/sanei_scsi.lo
 libsane-hp.la: $(addsuffix .lo,$(EXTRA_hp))
 libsane-hp.la: ../sanei/sanei_pio.lo
+libsane-m3096g.la: ../sanei/sanei_config2.lo
+libsane-m3096g.la: ../sanei/sanei_constrain_value.lo
+libsane-m3096g.la: ../sanei/sanei_scsi.lo
 libsane-microtek.la: ../sanei/sanei_config2.lo
 libsane-microtek.la: ../sanei/sanei_constrain_value.lo
 libsane-microtek.la: ../sanei/sanei_scsi.lo
@@ -217,6 +228,9 @@ libsane-sharp.la: ../sanei/sanei_scsi.lo
 libsane-snapscan.la: ../sanei/sanei_config2.lo
 libsane-snapscan.la: ../sanei/sanei_constrain_value.lo
 libsane-snapscan.la: ../sanei/sanei_scsi.lo
+libsane-sp15c.la: ../sanei/sanei_config2.lo
+libsane-sp15c.la: ../sanei/sanei_constrain_value.lo
+libsane-sp15c.la: ../sanei/sanei_scsi.lo
 libsane-tamarack.la: ../sanei/sanei_config2.lo
 libsane-tamarack.la: ../sanei/sanei_constrain_value.lo
 libsane-tamarack.la: ../sanei/sanei_scsi.lo

@@ -347,7 +347,7 @@ init_dc210 (DC210 * camera)
   /*
      We need the device to be raw. 8 bits even parity on 9600 baud to start.
    */
-#ifdef HAVE_cfmakeraw
+#ifdef HAVE_CFMAKERAW
   cfmakeraw (&tty_new);
 #else
   tty_new.c_lflag &= ~(ICANON | ECHO | ISIG);

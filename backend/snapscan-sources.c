@@ -1,6 +1,10 @@
 /* $Id$
    SnapScan backend data sources (implementation) */
 
+#ifndef __FUNCTION__
+#define __FUNCTION__ "(undef)"
+#endif
+
 #ifdef TEMPORARY
   SANE_Status status = SANE_STATUS_GOOD;
   FDSource *ps = (FDSource*)pself;
@@ -158,7 +162,7 @@ SANE_Status SCSISource_init (SCSISource *pself, SnapScan_Scanner *pss)
       if(gettimeofday(&(pself->time), NULL) != 0)
 	{
 	  DBG (DL_MAJOR_ERROR, "%s: error in gettimeofday(): %s\n",
-	       __FUNCTION__, sys_errlist[errno]);
+	       __FUNCTION__, strerror(errno));
 	  pself->time.tv_sec = SCSISOURCE_BAD_TIME;
 	  pself->time.tv_usec = SCSISOURCE_BAD_TIME;
 	}
@@ -216,7 +220,7 @@ FDSource_get (Source *pself, SANE_Byte *pbuf, SANE_Int *plen)
 	    /* it's an IO error */
 	    {
 	      DBG (DL_MAJOR_ERROR, "%s: read failed: %s\n",
-		   __FUNCTION__, sys_errlist[errno]);
+		   __FUNCTION__, strerror(errno));
 	      status = SANE_STATUS_IO_ERROR;
 	    }
 	}

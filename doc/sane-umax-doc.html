@@ -1,310 +1,61 @@
-<HTML>
-<HEAD>
-   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
-   <META NAME="GENERATOR" CONTENT="Mozilla/4.05 [en] (X11; I; Linux 2.0.36 i586) [Netscape]">
-   <META NAME="Author" CONTENT="Oliver Rauch">
-   <META NAME="Keywords" CONTENT="umax,scanner,driver,linux,unix,os/2">
-   <TITLE>sane-umax documentation</TITLE>
-</HEAD>
-<BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#0000EF" VLINK="#51188E" ALINK="#FF0000">
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.6 [en] (X11; I; Linux 2.2.11 i586) [Netscape]">
+   <meta name="Author" content="Oliver Rauch">
+   <meta name="Keywords" content="umax,scanner,driver,linux,unix,os/2">
+   <title>SANE-UMAX documentation - index</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EF" vlink="#51188E" alink="#FF0000">
 
-<CENTER>
-<H1>
-<IMG SRC="sane-logo.gif" HEIGHT=300 WIDTH=256></H1></CENTER>
-
-<CENTER><IMG SRC="sane-umax-text.gif" HEIGHT=45 WIDTH=157></CENTER>
-
-<CENTER>&nbsp;</CENTER>
-
-<CENTER>
-<HR WIDTH="100%"></CENTER>
-
-<CENTER>
-<H1>
-&nbsp;SANE-BACKEND FOR UMAX SCANNERS</H1></CENTER>
-
-<CENTER>
-<HR WIDTH="100%"></CENTER>
+<h1>
+<img SRC="sane-logo2.jpg" height=150 width=128 align=LEFT></h1>
 &nbsp;
-<H2>
-<B>FRONTEND FUNCTIONS AND OPTIONS:</B></H2>
+<h1>
+<font color="#009900">&nbsp;&nbsp;&nbsp; </font><u><font color="#000099">SANE-BACKEND
+FOR UMAX SCANNERS</font></u></h1>
 
-<BLOCKQUOTE>This backend dynamically enabeles the options that are supported
-by the scanner in dependence of the scanning-mode and other options. Here
-is an example of the frontend <A HREF="http://www.wolfsburg.de/~rauch/sane/sane-xsane.html"><I>x</I>sane</A>
-:</BLOCKQUOTE>
-&nbsp;
-<CENTER>&nbsp;</CENTER>
+<p><br><img SRC="sane-umax-text.jpg" height=45 width=157>
+<br>&nbsp;
+<br>&nbsp;
+<blockquote>&nbsp;</blockquote>
 
-<CENTER><IMG SRC="sane-umax.gif" HEIGHT=443 WIDTH=306>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<IMG SRC="sane-umax-histogram.gif" HEIGHT=369 WIDTH=280></CENTER>
+<h1>
+<u>Index:</u></h1>
 
-<CENTER>&nbsp;</CENTER>
-&nbsp;
-<BR>&nbsp;
-<H3>
-Scan modes:</H3>
+<blockquote>
+<li>
+<font size=+1><a href="sane-umax-options-doc.html">Options</a></font></li>
 
-<CENTER><TABLE BORDER=2 CELLSPACING=2 CELLPADDING=2 WIDTH="700" >
-<TR BGCOLOR="#40E0D0">
-<TD><B>Mode</B></TD>
+<li>
+<font size=+1><a href="sane-umax-scanners-doc.html">Supported UMAX scanners</a></font></li>
 
-<TD><B>Remark</B></TD>
-</TR>
+<li>
+<font size=+1><a href="sane-umax-old-scanners-doc.html">Supported old UMAX
+scanners</a></font></li>
 
-<TR>
-<TD>Lineart</TD>
+<li>
+<font size=+1><a href="sane-umax-not-listed-doc.html">Not listed UMAX scanners</a></font></li>
 
-<TD>1 bit/pixel black/white mode</TD>
-</TR>
+<li>
+<font size=+1><a href="sane-umax-scanner-clones-doc.html">Supported UMAX
+scanner clones</a></font></li>
 
-<TR>
-<TD>Halftone</TD>
+<li>
+<font size=+1><a href="sane-umax-speed-doc.html">How fast is a UMAX scanner
+with SANE?</a></font></li>
 
-<TD>1 bit/pixel dithered black/white mode</TD>
-</TR>
+<li>
+<font size=+1><a href="sane-umax-config-doc.html">Configuration</a></font></li>
 
-<TR>
-<TD>Grayscale</TD>
+<li>
+<font size=+1><a href="http://www.Wolfsburg.DE/~rauch/sane/sane-umax.html">SANE-UMAX-Homepage</a></font></li>
 
-<TD>8 / 10 / 12 / 14 bits/pixel gray mode</TD>
-</TR>
+<li>
+<font size=+1>AUTHOR:&nbsp;&nbsp;&nbsp;&nbsp; <a href="mailto:Oliver.Rauch@Wolfsburg.DE">Oliver
+Rauch</a></font></li>
+</blockquote>
 
-<TR>
-<TD>Color</TD>
-
-<TD>24 / 30 / 36 / 42 bits/pixel RGB mode</TD>
-</TR>
-</TABLE></CENTER>
-&nbsp;
-<BR>&nbsp;
-<H3>
-Scan sources:</H3>
-
-<CENTER><TABLE BORDER=2 CELLSPACING=2 CELLPADDING=2 WIDTH="300" NOSAVE >
-<TR BGCOLOR="#40E0D0">
-<TD B>Scan sources</TD>
-</TR>
-
-<TR>
-<TD>Flatbed</TD>
-</TR>
-
-<TR>
-<TD>Transparency adapter (UTA)</TD>
-</TR>
-
-<TR>
-<TD>Automatic document feeder (ADF)</TD>
-</TR>
-</TABLE></CENTER>
-&nbsp;
-<BR>&nbsp;
-<H3>
-Standard options:</H3>
-
-<CENTER><IMG SRC="sane-umax-standard.gif" HEIGHT=272 WIDTH=309></CENTER>
-
-<CENTER>&nbsp;</CENTER>
-
-<CENTER>&nbsp;</CENTER>
-
-<CENTER><TABLE BORDER=2 CELLSPACING=2 CELLPADDING=2 WIDTH="700" >
-<TR BGCOLOR="#40E0D0">
-<TD><B>Standard options</B></TD>
-
-<TD><B>Remark</B></TD>
-</TR>
-
-<TR>
-<TD>Analog <A HREF="http://www.mostang.com/sane/sane-gamma.html">gamma</A>
-correction</TD>
-
-<TD>analog gamma correction doesn't reduce the number of used colors! Value
-between 1 and 2, only supported by Supervista S12</TD>
-</TR>
-
-<TR>
-<TD>Highlight</TD>
-
-<TD>only supported by some scanners</TD>
-</TR>
-
-<TR>
-<TD>Shadow</TD>
-
-<TD>only supported by some scanners</TD>
-</TR>
-
-<TR>
-<TD>Contrast</TD>
-
-<TD>only available in halftone-mode</TD>
-</TR>
-
-<TR>
-<TD>Brightness</TD>
-
-<TD>only available in halftone-mode</TD>
-</TR>
-
-<TR>
-<TD>Threshold</TD>
-
-<TD>only available in lineart-mode</TD>
-</TR>
-
-<TR>
-<TD>Custom <A HREF="http://www.mostang.com/sane/sane-gamma.html">gamma</A>
-table</TD>
-
-<TD>digital gamma correction, for color/intensity enhancement! Side-effect:
-may reduce the number of used colors!</TD>
-</TR>
-
-<TR>
-<TD>Quality calibration</TD>
-
-<TD>For a quality white calibration. For some scanners the driver has to
-do this calibration, because I do not know all used calibartion-modes,
-the driver may hang if you select this option! Take a look at the advanced
-option <I>Shading type</I>, this defines how the calibration is done if
-the backend has to do the calibration!</TD>
-</TR>
-
-<TR>
-<TD>Negative scan</TD>
-
-<TD>Inverts color-intensity, for scanning negatives</TD>
-</TR>
-
-<TR>
-<TD>Bit depth</TD>
-
-<TD>Image depth in bits/sample the scanner sends to the computer, normally
-8 in grayscale and color mode. Some scanners support more than 8bits/sample,
-but only few file formats support it. If your scanner supports more than
-8bis/sample you already get an improvement if you set the bit detpth to
-8 because the scanner internal gamma correction is done with the maximum
-available bit depth!!!</TD>
-</TR>
-
-<TR>
-<TD>Lamp warmup</TD>
-
-<TD>enable extended lamp-warmup&nbsp;</TD>
-</TR>
-</TABLE></CENTER>
-&nbsp;
-<BR>&nbsp;
-<H3>
-Advanced Options:</H3>
-
-<CENTER><IMG SRC="sane-umax-advanced.gif" HEIGHT=235 WIDTH=291></CENTER>
-
-<CENTER>&nbsp;</CENTER>
-
-<CENTER>&nbsp;</CENTER>
-
-<CENTER><TABLE BORDER=2 CELLSPACING=2 CELLPADDING=2 WIDTH="700" >
-<TR BGCOLOR="#40E0D0">
-<TD><B>Advanced options</B></TD>
-
-<TD><B>Remark</B></TD>
-</TR>
-
-<TR>
-<TD>Set exposure time</TD>
-
-<TD>Enable selection of exposure time, if not enabled, scanner uses default
-values.</TD>
-</TR>
-
-<TR>
-<TD>Cal. exposure time</TD>
-
-<TD>Define exposure time for calibration, only supported by some scanners.</TD>
-</TR>
-
-<TR>
-<TD>Scan exposure time</TD>
-
-<TD>Define exposure time for scan, only supported by some scanners.</TD>
-</TR>
-
-<TR>
-<TD>Set lamp density</TD>
-
-<TD>Enable selection of lamp density, if not enabled, scanner automatically
-selects a value.</TD>
-</TR>
-
-<TR>
-<TD>Cal. lamp density</TD>
-
-<TD>Define lamp density for calibration, only supported by some scanners.</TD>
-</TR>
-
-<TR>
-<TD>Set scan lamp density</TD>
-
-<TD>Enable selection of lamp density for scan, if not enabled scanner uses
-the value that was used for calibration.</TD>
-</TR>
-
-<TR>
-<TD>Scan lamp density</TD>
-
-<TD>Define lamp density for scan, only supported by some scanners.</TD>
-</TR>
-
-<TR>
-<TD>Shading type</TD>
-
-<TD>Some scanners do the white calibration internally. Other scanners want
-the backend to calculate the data needed for white calibration, in this
-case this option defines how the backend calculates the data that is sent
-back to the scanner. Normally, this option is predefined correctly by the
-backend. If the white calibration is bad on your scanner, try to change
-this value. For most scanners it is ok to set this option to "calculate
-average", but for some scanners (Astra 6X0S, Vista S6E, may be others too),
-this option must be set to "calculate average and invert".</TD>
-</TR>
-</TABLE></CENTER>
-&nbsp;
-<BR>&nbsp;
-
-<P>
-<HR WIDTH="100%">
-<H2>
-BUGS:</H2>
-
-<BLOCKQUOTE>
-<LI>
-Resolutions greater than 600 dpi sometimes make problems</LI>
-</BLOCKQUOTE>
-&nbsp;
-<BR>
-<HR WIDTH="100%">
-<H2>
-AUTHOR:&nbsp;&nbsp;&nbsp;&nbsp; <FONT SIZE=+0><A HREF="mailto:Oliver.Rauch@Wolfsburg.DE">Oliver
-Rauch</A></FONT></H2>
-
-<HR WIDTH="100%">
-<CENTER><A HREF="sane-umax-scanners-doc.html">supported scanners</A>, <A HREF="sane-umax-config-doc.html">configuration</A></CENTER>
-
-<CENTER>
-<HR WIDTH="100%"></CENTER>
-
-<CENTER><A HREF="http://www.mostang.com/sane/">SANE-homepage</A>, <A HREF="http://www.mostang.com/sane/sane-backends.html">backends</A>,
-<A HREF="http://www.Wolfsburg.DE/~rauch">SANE-UMAX patches</A></CENTER>
-
-<CENTER>
-<HR WIDTH="100%"></CENTER>
-
-<CENTER><FONT COLOR="#009900">This page has been changed on 5th. april
-1999</FONT></CENTER>
-&nbsp;
-<BR>&nbsp;
-<BR>&nbsp;
-</BODY>
-</HTML>
+</body>
+</html>

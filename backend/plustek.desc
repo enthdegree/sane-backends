@@ -10,7 +10,7 @@
 ;
 
 :backend "plustek"		; name of backend
-:version "0.11"			; version of backend
+:version "(0.27)"		; version of backend
 :status :beta			; :alpha, :beta, :stable, :new
 ;;:manpage "sane-umax"		; name of manpage (if it exists)
 :url "http://www.efn.org/~rick/plustek/"	; backend's web page

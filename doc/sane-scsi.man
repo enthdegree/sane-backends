@@ -148,6 +148,18 @@ increase this value to the maximum legal value of 128*1024-512=130560
 bytes.  After changing this value, it is necessary to recompile both
 the kernel (or the SCSI generic module) and the SCSI backends.
 .PP
+From SG driver version 2.0 on, the maximum buffer size can
+be changed at program run time, and the restriction to 127 kB is also
+removed. This driver version is part of the Linux kernels from version 
+2.2.7 on. If larger buffers are reasonable for your scanner, set the
+environment variable
+.B SANE_SG_BUFFERSIZE
+to the desired buffer size in bytes. It is not recommended to use more 
+than 1 MB, because for large values the probability increases that the 
+SG driver cannot allocate the necessary buffer(s). For ISA cards, even 
+1 MB might be a too large value. For a detailed discussion of memory 
+issues of the SG driver, see http::/www.torque.net/sg.
+.PP
 A common issue with SCSI scanners is what to do when you booted
 the system while the scanner was turned off?  In such a case, the
 scanner won't be recognized by the kernel and SANE won't be able

@@ -2,7 +2,7 @@
 
 /* umax-scanner.h: scanner-definiton header-file for UMAX scanner driver.
   
-   (C) 1997-1998 Oliver Rauch
+   (C) 1997-2000 Oliver Rauch
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
@@ -92,33 +92,36 @@ static inquiry_blk *inquiry_table[] =
 
 static char *scanner_str[] =
 {
-  "UMAX "   ,"Vista-S6 ",
-  "UMAX "   ,"Vista-S6E ",
-  "UMAX "   ,"UMAX S-6E ",
-  "UMAX "   ,"UMAX S-6EG ",
-  "UMAX "   ,"Vista-S8 ",
-  "UMAX "   ,"Vista-T630 ",
-  "UMAX "   ,"UMAX S-12 ",
-  "UMAX "   ,"UMAX S-12G ",
-  "UMAX "   ,"SuperVista S-12 ",
-  "UMAX "   ,"PSD ",
-  "UMAX "   ,"PL-II ",
-  "UMAX "   ,"Astra 600S ",
-  "UMAX "   ,"Astra 610S ",
-  "UMAX "   ,"Astra 1200S ",
-  "UMAX "   ,"Astra 1220S ", 
-/*  "UMAX "   ,"Mirage D-16L ", */
-/*  "UMAX "   ,"Mirage II ", */
-  "UMAX "   ,"Mirage IIse ",
-/*  "UMAX "   ,"PL-II ", */
-/*  "UMAX "   ,"Power Look 2000 ", */
-/*  "UMAX "   ,"Power Look III ", */
-/*  "UMAX "   ,"Power Look 3000 ", */
-  "UMAX "   ,"Gemini D-16 ",
-  "LinoHell","Office ",
-  "LinoHell","Office2 ",
-  "LinoHell","SAPHIR2 ",
-  "Nikon "  ,"AX-210 ",
+  "UMAX ",	"Vista-T630 ",
+  "UMAX ",	"Vista-S6 ",
+  "UMAX ",	"Vista-S6E ",
+  "UMAX ",	"UMAX S-6E ",
+  "UMAX ",	"UMAX S-6EG ",
+  "UMAX ",	"Vista-S8 ",
+  "UMAX ",	"UMAX S-12 ",
+  "UMAX ",	"UMAX S-12G ",
+  "UMAX ",	"SuperVista S-12 ",
+  "UMAX ",	"PSD ",
+  "UMAX ",	"PL-II ",
+  "UMAX ",	"Astra 600S ",
+  "UMAX ",	"Astra 610S ",
+  "UMAX ",	"Astra 1200S ",
+  "UMAX ",	"Astra 1220S ", 
+  "UMAX ",	"Astra 2200 ", 
+  "UMAX ",	"Astra 2400S ",
+  "UMAX ",	"Mirage D-16L ",
+/*  "UMAX ",	"Mirage II ", */
+  "UMAX ",	"Mirage IIse ",
+/*  "UMAX ",	"PL-II ", */
+/*  "UMAX ",	"Power Look 2000 ", */
+/*  "UMAX ",	"Power Look III ", */
+/*  "UMAX ",	"Power Look 3000 ", */
+  "UMAX ",	"Gemini D-16 ",
+  "LinoHell",	"Office ",
+  "LinoHell",	"Office2 ",
+  "LinoHell",	"SAPHIR2 ",
+  "Nikon ",	"AX-210 ",
+  "KYE ",	"ColorPage-HR5 ", 
   "END_OF_LIST"
 };
 

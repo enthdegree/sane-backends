@@ -426,7 +426,9 @@ This page was lasted updated on %s
 
   <dt><b>Version:</b></dt>
   <dd>Version of backend/driver distributed in the lastest SANE release.
-      Newer versions may be available from their home sites.</dd>
+      Newer versions may be available from their home sites.  If the
+      version number is in parentheses, the backend is not included in
+      the SANE distribution.</dd>
 
   <dt><b>Status:</b></dt>
   <dd>A vague indication of robustness and reliability.

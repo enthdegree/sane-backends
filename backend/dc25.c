@@ -99,6 +99,7 @@
 #include <sane/sane.h>
 #include <sane/sanei.h>
 #include <sane/saneopts.h>
+#include <sane/config.h>
 
 #define BACKEND_NAME	dc25
 #include <sane/sanei_backend.h>
@@ -343,15 +344,21 @@ static SANE_Parameters parms =
 
 static unsigned char init_pck[] = INIT_PCK;
 
+/*
+ * List of speeds to try to establish connection with the camera.  
+ * Check 9600 first, as it's the speed the camera comes up in, then
+ * 115200, as that is the one most likely to be configured from a 
+ * previous run
+ */
 static struct pkt_speed speeds[] = { {   B9600, { 0x96, 0x00 } },
-				  {  B19200, { 0x19, 0x20 } },
-				  {  B38400, { 0x38, 0x40 } },
+#ifdef B115200
+				  { B115200, { 0x11, 0x52 } },
+#endif
 #ifdef B57600
 				  {  B57600, { 0x57, 0x60 } },
 #endif
-#ifdef B115200
-				  { B115200, { 0x11, 0x52 } }
-#endif
+				  {  B38400, { 0x38, 0x40 } },
+				  {  B19200, { 0x19, 0x20 } },
 		};
 #define NUM_OF_SPEEDS	(sizeof(speeds) / sizeof(struct pkt_speed))
 
@@ -423,7 +430,7 @@ init_dc20 (char *device, speed_t speed)
 	/*
 	 We need the device to be raw. 8 bits even parity on 9600 baud to start.
 	*/
-#ifdef HAVE_cfmakeraw
+#ifdef HAVE_CFMAKERAW
 	cfmakeraw (&tty_new);
 #else
 	tty_new.c_lflag &= ~(ICANON | ECHO | ISIG);
@@ -432,7 +439,7 @@ init_dc20 (char *device, speed_t speed)
 	tty_new.c_cflag |= PARENB;
 	tty_new.c_cflag &= ~PARODD;
 	tty_new.c_cc[VMIN] = 0;
-	tty_new.c_cc[VTIME] = 10;
+	tty_new.c_cc[VTIME] = 50;
 	cfsetospeed (&tty_new, B9600);
 	cfsetispeed (&tty_new, B9600);
 
@@ -582,29 +589,52 @@ read_data (int fd, unsigned char *buf, int sz)
 	unsigned char ccsum;
 	unsigned char rcsum;
 	unsigned char c;
+	int retries=0;
 	int n;
 	int r = 0;
 	int i;
 
-	for (n = 0; n < sz && (r = read (fd, (char *)&buf[n], sz - n)) > 0; n += r)
-		;
+	while ( retries++ < 5 ) {
+	
+		/*
+		 * If this is not the first time through, then it must be
+		 * a retry - signal the camera that we didn't like what
+		 * we got.  In either case, start filling the packet
+		 */
+		if ( retries != 1 ) {
 
-	if (r <= 0) {
-		DBG (2,"read_data: error: read returned -1\n");
-		return -1;
-	}
+			DBG (2, "Attempt retry %d\n",retries);
+			c=0xe3;
+			if (write (fd, (char *)&c, 1) != 1) {
+				DBG (2,"read_data: error: write ack\n");
+				return -1;
+			}
 
-	if (n < sz || read (fd, &rcsum, 1) != 1) {
-		DBG (2,"read_data: error: buffer underrun or no checksum\n");
-		return -1;
-	}
+		}
 
-	for (i = 0, ccsum = 0; i < n; i++)
-		ccsum ^= buf[i];
+		for (n = 0; n < sz && (r = read (fd, (char *)&buf[n], sz - n)) > 0; n += r)
+			;
+	
+		if (r <= 0) {
+			DBG (2,"read_data: error: read returned -1\n");
+			continue;
+		}
 
-	if (ccsum != rcsum) {
-		DBG (2,"read_data: error: bad checksum (%02x != %02x)\n",rcsum, ccsum);
-		return -1;
+		if (n < sz || read (fd, &rcsum, 1) != 1) {
+			DBG (2,"read_data: error: buffer underrun or no checksum\n");
+			continue;
+		}
+
+		for (i = 0, ccsum = 0; i < n; i++)
+			ccsum ^= buf[i];
+
+		if (ccsum != rcsum) {
+			DBG (2,"read_data: error: bad checksum (%02x != %02x)\n",rcsum, ccsum);
+			continue;
+		}
+		
+		/* If we got this far, then the packet is OK */
+		break;
 	}
 
 	c = 0xd2;

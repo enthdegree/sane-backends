@@ -1,7 +1,7 @@
 ;Sagitta backend .desc file by Andre Herms.
 
 :backend "sagitta"		; name of backend
-:version "0.3"                  ; version of backend
+:version "(0.4)"                  ; version of backend
 :status :alpha                  ; :alpha, :beta, :stable, :new
 ;:manpage none			; name of manpage (if it exists)
 :url "http://www.cs.uni-magdeburg.de/~aherms/sane-sagitta.html" ; backend's web page

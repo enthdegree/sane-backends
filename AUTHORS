@@ -11,18 +11,20 @@ Backends:
  abaton:	David Huggins-Daines
  agfa:		Karl Anders Øygard
  apple:		Milon Firikis
- artec:		Chris Pinkham
- canon:		Helmut Koeberle, Manuel Panea, and Markus Mertinat
+ artec:		Chris Pinkham (*)
+ avision:	Meino Christian Cramer, Rene Rebe(*)
+ canon:		Helmut Koeberle, Manuel Panea (*), and Markus Mertinat
  coolscan:	Didier Carlier
- dc25:		Peter Fales
+ dc25:		Peter Fales (*)
  dc210:		Brian J. Murrell
  dll:		David Mosberger
  dmc:		David F. Skoll
- epson:		Kazuhiro Sasayama
- hp:		Peter Kirchgessner
+ epson:		Karl Heinz Kremer(*)
+ hp:		Peter Kirchgessner (*)
 		Geoffrey Dairiki
- microtek:	Matthew Marjanovic
- microtek2:	Bernd Schroeder
+ m3096g:	Randolph Bentson (*)
+ microtek:	Matthew Marjanovic (*)
+ microtek2:	Bernd Schroeder (*)
  mustek:	Andreas Bolsch, David Mosberger and Andreas Czechanowski
  net:		Andreas Beck and David Mosberger
  pnm:		Andreas Beck, Gordon Matzigkeit, and David Mosberger
@@ -31,10 +33,14 @@ Backends:
 		despeckling filter by Patrick Reynolds,
 		B&W fixes by Andrew Kuchling
  ricoh:		Feico W. Dillema
- sharp:		FUKUDA Kazuya and Abel Deuring
+ s9036:		Ingo Schneider
+ sharp:		FUKUDA Kazuya (*) and Abel Deuring (*)
  snapscan:	Kevin Charter, Franck Schneider, and Michel Roelofs
+ sp15c:		Randolph Bentson (*)
  tamarack:	Roger Wolff
- umax:		Oliver Rauch and Michael K. Johnson
+ umax:		Oliver Rauch (*) and Michael K. Johnson
+
+(*) Current active maintainer(s).
 
 Frontends:
 
@@ -64,15 +70,16 @@ Feico W. Dillema <dillema@acm.org>
 Franck Schneider <schnefra@hol.fr>
 Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
 Helmut Koeberle <helmut.koeberle@bytec.de>
-Helmut Koeberle <helmut.koeberle@bytec.de>
 Ingo Schneider <schneidi@informatik.tu-muenchen.de>
 Jeff Freedman <jsf@hevanet.com>
-Karl Anders Oygard <karlo@opera.no>
+Karl Anders Øygard <karlo@opera.no>
+Karl Heinz Kremer <khk@khk.net>
 Kazuhiro Sasayama <kaz@hypercore.co.jp>
 Kevin Charter <charter@cs.rice.edu>
 Manuel Panea <Manuel.Panea@rzg.mpg.de>
 Markus Mertinat <Markus.Mertinat@Physik.Uni-Augsburg.DE>
 Matthew Marjanovic <maddog@mir.com>
+Meino Christian Cramer <mccramer@s.netic.de>
 Michael K. Johnson <johnsonm@redhat.com>
 Michel Roelofs <michelr@stack.nl>
 Milon Firikis <milonf@ariadne-t.gr>
@@ -80,5 +87,7 @@ Oliver Rauch <Oliver.Rauch@Wolfsburg.DE>
 Patrick Reynolds <patrickr@virginia.edu>
 Peter Fales <psfales@earthling.net>
 Peter Kirchgessner <peter@kirchgessner.net>
+Randolph Bentson <bentson@grieg.holmsjoen.com>
+Rene Rebe <rene.rebe@myokay.net>
 Roger Wolff <R.E.Wolff@BitWizard.nl>
 Tristan Tarrant <ttarrant@etnoteam.it>

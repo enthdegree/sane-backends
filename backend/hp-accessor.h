@@ -54,7 +54,8 @@ HpAccessor sanei_hp_accessor_new       (HpData data, size_t size);
 HpAccessor sanei_hp_accessor_int_new   (HpData data);
 HpAccessor sanei_hp_accessor_bool_new  (HpData data);
 HpAccessor sanei_hp_accessor_fixed_new (HpData data);
-HpAccessor sanei_hp_accessor_choice_new(HpData data, HpChoice choices);
+HpAccessor sanei_hp_accessor_choice_new(HpData data, HpChoice choices,
+                                        hp_bool_t may_change);
 HpAccessor sanei_hp_accessor_vector_new(HpData data,
                                         unsigned length, unsigned depth);
 HpAccessor sanei_hp_accessor_gamma_vector_new(HpData data,

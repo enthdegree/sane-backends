@@ -221,6 +221,9 @@
 /* Define if you have the <sys/select.h> header file. */
 #undef HAVE_SYS_SELECT_H
 
+/* Define if you have the <sys/socket.h> header file. */
+#undef HAVE_SYS_SOCKET_H
+
 /* Define if you have the <sys/time.h> header file. */
 #undef HAVE_SYS_TIME_H
 
@@ -244,6 +247,12 @@
 
 /* Define if you have the <sys/scsi.h> header file. */
 #undef HAVE_SYS_SCSI_H
+
+/* Define if you have the <sys/sdi_comm.h> header file. */ 
+#undef HAVE_SYS_SDI_COMM_H 
+
+/* Define if you have the <sys/passthrudef.h.h> header file. */ 
+#undef HAVE_SYS_PASSTHRUDEF_H 
 
 /* Define if you have the <sys/scsi/targets/scgio.h> header file. */
 #undef HAVE_SYS_SCSI_TARGETS_SCGIO_H
@@ -319,6 +328,9 @@
 
 /* Define if you have the POSIX routine tcsendbreak().  */
 #undef HAVE_TCSENDBREAK
+
+/* Define if you have cfmakeraw() */
+#undef HAVE_CFMAKERAW
 
 #ifndef HAVE_STRNCASECMP
   /* OS/2 needs this */

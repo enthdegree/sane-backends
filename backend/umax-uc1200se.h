@@ -3,7 +3,7 @@
 
 /* umax-uc1200se.h: inquiry for UMAX scanner uc1200se
   
-   (C) 1998 Oliver Rauch
+   (C) 1998-2000 Oliver Rauch
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
@@ -74,21 +74,21 @@ static unsigned char UC1200SE_INQUIRY[] =
 	00, 00, 00, 00, 00, 00, 00, 00,
 
 /* 60 -62 scanner capability*/
-	0x2e,
+	0x3e,
 	0x0c,
-	0x07, 
+	0x03, 
 
 /* 63 reserved */
 	0x00,
 
 /* 64 gamma */
-	0xa3,
+	0x83,
 
 /* 65 reserved */
 	0x00,
 
 /* 66 GIB */
-	0x05,
+	0x04,
 
 /* 67 reserved */
 	0x00,
@@ -97,13 +97,13 @@ static unsigned char UC1200SE_INQUIRY[] =
 	0x01,
 
 /* 69 - 6a halftone */
-	0x0c, 0x2f,
+	0x00, 0x2f,
 
 /* 6b - 6c reserved */
 	0x00, 0x00,
 
 /* 6d color sequence */
-	0xe8, /* 0xe9 or 0xe1 ? */
+	0xe1, /* 0xe8, 0xe9 or 0xe1 ? */
 
 /* 6e - 71 video memory */
 	0x00, 0x20, 0x00, 0x00,
@@ -166,7 +166,7 @@ static unsigned char UC1200SE_INQUIRY[] =
 	0x00,
 
 /* 92-93 window descriptor block length */
-	0x00, 0x30,
+	0x00, 0x31,
 
 /* 94 optical resolution residue (1dpi) */
 	0x00,

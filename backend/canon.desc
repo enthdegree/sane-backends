@@ -12,6 +12,8 @@
 :version "0.1"			; version of backend
 :status :alpha			; :alpha, :beta, :stable, :new
 
+:url "http://www.rzg.mpg.de/~mpd/sane/" ; backend home page
+
 :devicetype :scanner
 
 :mfg "Canon"			; name a manufacturer

@@ -1,4 +1,4 @@
-.TH sane-microtek 5 "July 24 1998"
+.TH sane-microtek 5 "February 8, 2000"
 .IX sane-microtek
 .SH NAME
 sane-microtek \- SANE backend for Microtek scanners
@@ -6,19 +6,29 @@ sane-microtek \- SANE backend for Microtek scanners
 The
 .B sane-microtek
 library implements a SANE (Scanner Access Now Easy) backend that
-provides access to Microtek scanners.  At present, the following
-hardware is known to work with this backend:
+provides access to the "second generation" Microtek scanners.  At present,
+the following hardware is known to work with this backend:
 .PP
 .RS
 Microtek ScanMaker E2, E3, E6
 .br
 Microtek ScanMaker II, IIG, IIHR, IISP, III
 .br
+Microtek ScanMaker 35t, 35t+, 45t
+.br
 Microtek ScanMaker 600GS, 600ZS (see bug notes)
+.br
+Agfa StudioScan
+.br
+Agfa StudioScan II, StudioScan IIsi
 .br
 Agfa Arcus II (but not the "Arcus")
 .br
+Agfa DuoScan (premliminary)
+.br
 Vobis "Highscreen Realscan"
+.br
+Microtek Color PageWiz (preliminary)
 .br
 .PP
 Transparent Media Adapter
@@ -31,12 +41,18 @@ The driver supports line art, halftone, 8bpp gray, and 24bpp color scans
 at normal and "expanded" resolutions (i.e. 1200x1200 on an E6), fast scans
 for color previews, and downloadable gamma tables.
 .PP
+The supported scanners are all SCSI scanners.  However, some parallel
+port models may work (under Linux), if they use a parport->scsi chip,
+and if you can find a scsi->parport driver.  This is known to be the
+case for the Color PageWiz.
+.PP
 The driver does 
 .B not
 support the newest Microtek scanners, such as the V330 and V660, which use
 a new and very different SCSI-II command set.  For those, try the alternate
 .B microtek2
-backend.
+backend.  Most non-SCSI scanners would use the new command set.  Most
+scanners newer than the Scanmaker E6 would use the new command set.
 .PP
 If you own a Microtek scanner other than the ones listed above, tell us
 what happens --- see the
@@ -84,10 +100,16 @@ ignored.  A sample configuration file is shown below:
 /dev/sge
 .RE
 .PP
-The configuration file may also contain the special token
+The configuration file may also contain the special tokens
+.I norealcal
+or
 .I noprecal.
-Including this will disable logic which tries to avoid scanner
-precalibration.
+.I norealcal
+will disable the use of magic, undocumented scanner calibration commands
+which are known to work on the E6, but may not work with other models.
+.I noprecal
+will disable logic which tries to avoid scanner precalibration.  This logic
+would only have been activated if the magic calibration code was turned off.
 
 .PP
 .SH FILES
@@ -148,13 +170,15 @@ i.e. don't complain about these --- but if brightness and/or contrast
 work for you, please tell me.
 .PP
 If your scanner locks up, try setting the 
+.I norealcal
+or
 .I noprecal
-option in the configuration file, and see if it helps.  (If it does,
-report it.)
+option in the configuration file (first one, then both), and see if it helps.
+(If it does, report it.)
 .PP
 Send lengthy bug reports and new scanner information to
 .BR mtek-bugs@mir.com .
-Bug reports and new scanner inquiries should include an error log file.
+All bug reports and new scanner inquiries should include an error log file.
 You can generate copious
 stderr output by setting the SANE_DEBUG_MICROTEK environment variable
 described above.  For example:

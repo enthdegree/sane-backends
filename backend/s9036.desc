@@ -1,1 +1,12 @@
 :backend "s9036"               ; name of backend
+; :version "0.XXX"             ; version of backend
+:status :alpha                 ; :alpha, :beta, :stable, :new
+; :url ""                      ; backend's homepage
+; :manpage "sane-XXX"
+
+:devicetype :vidcam
+
+:mfg "Siemens"                 ; name a manufacturer
+:url "http://www.siemens.com/"
+:model "9036 Flatbed scanner"  ; name models for above-specified mfg.
+; :comment ""

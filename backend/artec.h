@@ -38,17 +38,16 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
 
-   This file implements a SANE backend for the Ultima/Artec AT3 and
-   A6000C scanners.
+   This file implements a SANE backend for the Artec/Ultima scanners.
 
-   Copyright (C) 1998, Chris Pinkham
+   Copyright (C) 1998,1999 Chris Pinkham
    Released under the terms of the GPL.
    *NO WARRANTY*
 
    *********************************************************************
    For feedback/information:
 
-   cpinkham@sh001.infi.net
+   cpinkham@infi.net
    http://www4.infi.net/~cpinkham/sane/sane-artec-doc.html
    *********************************************************************
  */
@@ -60,6 +59,17 @@
 
 #define MIN(a,b) (((a) < (b)) ? (a) : (b))
 #define MAX(a,b) (((a) > (b)) ? (a) : (b))
+
+#define ARTEC_MIN_X( hw )	( hw->horz_resolution_list[ 0 ] ? \
+							hw->horz_resolution_list[ 1 ] : 0 )
+#define ARTEC_MAX_X( hw )	( hw->horz_resolution_list[ 0 ] ? \
+							hw->horz_resolution_list[ \
+								hw->horz_resolution_list[ 0 ] ] : 0 )
+#define ARTEC_MIN_Y( hw )	( hw->vert_resolution_list[ 0 ] ? \
+							hw->vert_resolution_list[ 1 ] : 0 )
+#define ARTEC_MAX_Y( hw )	( hw->vert_resolution_list[ 0 ] ? \
+							hw->vert_resolution_list[ \
+								hw->vert_resolution_list[ 0 ] ] : 0 )
 
 typedef enum
   {
@@ -81,17 +91,56 @@ typedef enum
     OPT_BR_Y,			/* bottom-right y */
 
     OPT_ENHANCEMENT_GROUP,
-    OPT_QUALITY_CAL,
     OPT_CONTRAST,
-    OPT_THRESHOLD,
     OPT_BRIGHTNESS,
+    OPT_THRESHOLD,
     OPT_HALFTONE_PATTERN,
     OPT_FILTER_TYPE,
+    OPT_PIXEL_AVG,
+    OPT_EDGE_ENH,
+
+    OPT_CUSTOM_GAMMA, /* use custom gamma table */
+    OPT_GAMMA_VECTOR,
+    OPT_GAMMA_VECTOR_R,
+    OPT_GAMMA_VECTOR_G,
+    OPT_GAMMA_VECTOR_B,
+
+    OPT_TRANSPARENCY,
+    OPT_ADF,
+
+    OPT_CALIBRATION_GROUP,
+    OPT_QUALITY_CAL,
+    OPT_SOFTWARE_CAL,
 
     /* must come last */
     NUM_OPTIONS
   }
 ARTEC_Option;
+
+/* Some FLAGS */
+#define ARTEC_FLAG_CALIBRATE			0x00000001 /* supports hardware calib */
+#define ARTEC_FLAG_CALIBRATE_RGB		0x00000003 /* yes 3, set CALIB. also */
+#define ARTEC_FLAG_CALIBRATE_DARK_WHITE	0x00000005 /* yes 5, set CALIB. also */
+#define ARTEC_FLAG_RGB_LINE_OFFSET		0x00000008 /* need line offset buffer */
+#define ARTEC_FLAG_RGB_CHAR_SHIFT		0x00000010 /* RRRRGGGGBBBB line fmt */
+#define ARTEC_FLAG_OPT_CONTRAST         0x00000020 /* supports set contrast */
+#define ARTEC_FLAG_ONE_PASS_SCANNER		0x00000040 /* single pass scanner */
+#define ARTEC_FLAG_GAMMA				0x00000080 /* supports set gamma */
+#define ARTEC_FLAG_GAMMA_SINGLE			0x00000180 /* yes 180, implies GAMMA */
+#define ARTEC_FLAG_SEPARATE_RES			0x00000200 /* separate x & y scan res */
+#define ARTEC_FLAG_IMAGE_REV_LR         0x00000400 /* reversed left-right */
+#define ARTEC_FLAG_ENHANCE_LINE_EDGE    0x00000800 /* line edge enhancement */
+#define ARTEC_FLAG_HALFTONE_PATTERN     0x00001000 /* > 1 halftone  pattern */
+#define ARTEC_FLAG_REVERSE_WINDOW       0x00002000 /* reverse selected area */
+#define ARTEC_FLAG_SC_BUFFERS_LINES     0x00004000 /* scanner has line buffer */
+#define ARTEC_FLAG_SC_HANDLES_OFFSET    0x00008000 /* sc. handles line offset */
+#define ARTEC_FLAG_SENSE_HANDLER        0x00010000 /* supports sense handler */
+#define ARTEC_FLAG_SENSE_ENH_18         0x00020000 /* supports enh. byte 18 */
+#define ARTEC_FLAG_SENSE_BYTE_19        0x00040000 /* supports sense byte 19 */
+#define ARTEC_FLAG_SENSE_BYTE_22        0x00080000 /* supports sense byte 22 */
+#define ARTEC_FLAG_PIXEL_AVERAGING      0x00100000 /* supports pixel avg-ing */
+#define ARTEC_FLAG_ADF                  0x00200000 /* auto document feeder */
+#define ARTEC_FLAG_OPT_BRIGHTNESS       0x00400000 /* supports set brightness */
 
 typedef enum
   {
@@ -140,6 +189,14 @@ typedef enum
   }
 ARTEC_Filter_Type;
 
+typedef enum
+  {
+    ARTEC_SOFT_CALIB_RED = 0,
+	ARTEC_SOFT_CALIB_GREEN,
+	ARTEC_SOFT_CALIB_BLUE
+  }
+ARTEC_Software_Calibrate;
+
 typedef union
   {
     SANE_Word w;
@@ -154,23 +211,29 @@ typedef struct ARTEC_Device
     SANE_Device sane;
     double width;
     SANE_Range x_range;
-    SANE_Range x_dpi_range;
     SANE_Word *horz_resolution_list;
     double height;
     SANE_Range y_range;
-    SANE_Range y_dpi_range;
     SANE_Word *vert_resolution_list;
     SANE_Range threshold_range;
     SANE_Range contrast_range;
     SANE_Range brightness_range;
     SANE_Word setwindow_cmd_size;
     SANE_Word calibrate_method;
+	SANE_Word max_read_size;
 
+    long flags;
     SANE_Bool support_cap_data_retrieve;
     SANE_Bool req_shading_calibrate;
     SANE_Bool req_rgb_line_offset;
     SANE_Bool req_rgb_char_shift;
-    SANE_Bool opt_brightness;
+
+    /* info for 1-pass vs. 3-pass */
+    SANE_Bool onepass;
+
+    SANE_Bool support_gamma;
+    SANE_Bool single_gamma;
+	SANE_Int gamma_length;
   }
 ARTEC_Device;
 
@@ -181,6 +244,12 @@ typedef struct ARTEC_Scanner
 
     SANE_Option_Descriptor opt[NUM_OPTIONS];
     Option_Value val[NUM_OPTIONS];
+
+	SANE_Int gamma_table[4][4096];
+	double soft_calibrate_data[3][2592];
+	SANE_Int halftone_pattern[64];
+	SANE_Range gamma_range;
+	int gamma_length;
 
     int scanning;
     SANE_Parameters params;
@@ -193,6 +262,11 @@ typedef struct ARTEC_Scanner
     int y_resolution;
     int tl_x;
     int tl_y;
+
+    /* info for 1-pass vs. 3-pass */
+    int this_pass;
+    SANE_Bool onepasscolor;
+    SANE_Bool threepasscolor;
 
     int fd;			/* SCSI filedescriptor */
 

@@ -474,8 +474,6 @@ sane-1.00-build-0 -> build-1
     * removed options speed and smear, I got the info from umax that
       these values should never be changed!
 
------------------
-
     * removed ten_bit_mode and twelve_bit_mode options, added option bit_depth
       and added support for 9, 14 and 16 bpp
 
@@ -494,12 +492,221 @@ build-1 -> build-2
    * added inverted calibration modes for Astra 6X0S scanners.
 
 
-build-2 -> build-3
-------------------
+build-2 -> build-3 (sane-1.0.1)
+-------------------------------
 
    * inversion of calibration is automatically set for Astra 6X0S and Vista S6E
 
    * check for machine endianess is done only at backend start now!
 
    * made umax_do request_sense static
+
+
+build-3 -> build-4
+------------------
+
+   * Added option name and parameter in debug output in option set value
+
+   * Added option name in debug output in option get value
+
+   * Changed calculation of pixels/line and lines, may be the problem
+     with shaered images at resolutions>600 dpi is solved now
+     later Remark: This error does still occur, but not so often!
+
+
+build-4 -> build-5
+------------------
+
+   * Changed calculation in umax_order_line, color images should
+     have the correct length now for Astra 6X0S and Vista S6E
+
+   * Added DOR resolutions and area
+
+
+build-5 -> build-6
+------------------
+
+   * Bits for ADF and UTA in driver internal inquiry block (old UMAX scanners)
+     are set dynamically now.
+
+   * Added Genius ColorPage-HR5 (vendor KYE) (=Astra 1200S) as supported scanner
+
+   * Added Astra 2400S as experimentally supported scanner
+
+   * Added pauses for Astra 2400S
+
+   * Removed reposition_scanner at start of scan, Astra 2400S does not work with it!
+
+   * changed debug output in correct_inquiry
+
+   * for UMAX S12 the driver does not wait any more until scanner is repositioned
+     this is experimental, it may work with other scanners too!
+
+
+build-6 -> build-7
+------------------
+
+   * changed some int -> unsigned int (resolution and scanwidth etc)
+
+   * calculate_pixel is called with right values in UTA mode now.
+
+   * if DOR resolution is not defined and DOR is available
+     the DOR resolution is set to double standard resolution
+
+   * removed wait_scanner after set_window-command
+
+   * added Mirage D16-L as supported scanner
+
+   * Astra 2400S works stable now
+
+
+build-7 -> build-8
+------------------
+
+    * for Mirage D-16L the driver does not wait any more until scanner is repositioned
+      this is experimental, it may work with other scanners too!
+
+    * Mirage D-16L does not give back informations for calibration by driver,
+      added new modus that "guesses" the values for Mirage D-16L.
+
+    * Added read_shading_data to 16 bit calibration routine and made a routine for
+      averaging with low byte first and one for high byte first
+
+    * Byte order (HBT) is set always (also in lineart and halftone)
+      because it is used in driver calibration
+
+    * Added relevant_*_res the is set to normal or double resolution values
+
+    * Added test if scsi buffer is large enough for one shading line
+
+    * selection for Calibration mode, Shading type and Speed/Smear
+      are only compiled in if define is set in umax.h
+
+
+build-8 -> build-9
+------------------
+
+    * slow speed options is preset for Vista T-630
+
+    * speed/smear can be set now (forgotten #ifdef)
+
+    * selection of exposure times now is only available if it is enabeld
+
+    * gamma table is disabled in lineart and halftone modes
+
+    * if image is transmitted completly sane_read (close_pipe)
+      returns with SANE_STATUS_GOOD in adf mode and in any other case
+      with SANE_STATUS_EOF
+
+
+build-9 -> build-10
+-------------------
+
+    * removed change about sane_read returns SANE_STATUS_GOOD in ADF mode
+
+    * transformed all gif files into jpeg format because of all the
+      trouble about the gif licence. Will never use gif again!
+
+    * added correction for inquiry-ADF-bit for Astra 2400S
+
+    * added second test method to detect ADF error in sane_start:
+      inquiry block is read and cover open, jammed and no paper is tested
+
+
+build-10 -> build-11
+--------------------
+
+    * test for adf errors (sane_start) is now only done if adf is selected
+
+
+build-11 -> build-12
+--------------------
+
+    * moved adf error tests from sane_start to umax_start_scan
+
+    * sane_control_option: printing option name is set to "(none)" if pointer is NULL
+
+    * added error message after each call of sanei_scsi_cmd
+
+    * changed manipulation of ADF bit for Astra 2400S in umax_correct_inquiry
+      from dev->adf to set_inquiry_sc_adf()
+
+
+build-12 -> build-13
+--------------------
+
+    * changed inquiry data of UC1200SE
+
+    * added set_inquiry_CBHS(50) in correct_inquiry for UC1200SE
+
+    * correct_inquiry is called for scanners with short inquiry now
+
+    * dev->inquiry_max_calib_lines is preset to 66,
+      problem with Vist S6E V1.6 should be solved this way.
+
+    * inquiry block parameters > 0x93 are only used if block is long enough
+
+
+build-13 -> build-14
+--------------------
+
+    * changed inquiry_cbhs_[min,max] -> inquiry_[contrast, brightness, threshold,
+      highlight, shadow]_[min,max] and set correct values for CBHS_255 and CBHS_50
+
+    * changed cbhs_str[CBHS_50] from "78-178" to "0-50"
+
+    * changed umax-uc1200se.h inquiry byte 0x64 bit 5 to 0 (gamma download format != 2)
+      and wdb len from 0x30 to 0x31
+
+    * disabled halftone pattern download, and halftone dimension selection - not ready
+      preselected is a 8x8 built in halftone pattern
+
+    * removed set_inquiry_CBHS(50) from correct_inquiry for UC1200SE
+
+    * added "Astra 2200 " as supported scanner
+
+    * added cast from (void *) to (unsigned char*) in umax_send_gamma_data
+
+
+build-14 -> build-15
+--------------------
+
+    * add "(unsigned)" to option number test in sane_control_option
+
+    * for Astra 1200 the driver does not wait any more until scanner is repositioned
+      this is experimental, it may work with other scanners too!
+
+
+build-15 -> build-16
+--------------------
+
+    * OPT_SOURCE: removed change of width/height and "*info |= SANE_INFO_RELOAD_PARAMS;"
+      from get_value to set_value and added "*info |= SANE_INFO_RELOAD_OPTIONS;"
+     
+
+build-16 -> build-17
+--------------------
+
+    * changed calibration mode from SHADING_TYPE_AVERAGE_INVERT to SHADING_TYPE_AVERAGE
+      for UMAX S-6E, UMAX S-6EG and Vista-S6E
+
+    * changed several int -> unsigned int
+
+    * added support for sanei_scsi_open_extended and variable scsi buffer size
+
+
+build-17 -> build-18
+--------------------
+
+    * some cosmetic changes of the form
+        if (..) {...}
+      =>
+        if (..)
+        {
+          ...
+        }
+
+    * removed unnecessary SHADING_TYPE-handling routines for UMAX S-6E, UMAX S-6EG and Vista-S6E
+
+    * scsi buffer is only reallocated when size has changed
 

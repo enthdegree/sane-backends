@@ -19,9 +19,9 @@
 :mfg "Tamarack"                        ; name a manufacturer
 :url "http://www.tamarack.net/"
 :model "Artiscan 6000C"                ; name models for above-specified mfg.
-:comment "3 pass, 300 DPI; please report succes to R.E.Wolff@BitWizard.nl"
+:comment "3 pass, 300 DPI"
 :model "Artiscan 8000C"                ; name models for above-specified mfg.
-:comment "3 pass, 400 DPI; please report succes to R.E.Wolff@BitWizard.nl"
+:comment "3 pass, 400 DPI"
 :model "Artiscan 12000C"               ; name models for above-specified mfg.
 :comment "3 pass, 600 DPI"
 

@@ -75,7 +75,7 @@ GPlugInInfo PLUG_IN_INFO =
 
 enum
   {
-    STANDALONE, GIMP_EXTENSION
+    STANDALONE, SANE_GIMP_EXTENSION
   };
 
 static struct
@@ -301,7 +301,7 @@ run (char *name, int nparams, GParam * param,
   int nargs;
 
   run_mode = param[0].data.d_int32;
-  scan_win.mode = GIMP_EXTENSION;
+  scan_win.mode = SANE_GIMP_EXTENSION;
 
   *nreturn_vals = 1;
   *return_vals = values;
@@ -456,7 +456,7 @@ quit_xscan (void)
   sane_exit ();
   gtk_main_quit ();
 #ifdef HAVE_LIBGIMP_GIMP_H
-  if (scan_win.mode == GIMP_EXTENSION)
+  if (scan_win.mode == SANE_GIMP_EXTENSION)
     gimp_quit ();
 #endif
   exit (0);
@@ -803,7 +803,7 @@ scan_start (void)
   gsg_set_sensitivity (dialog, FALSE);
 
 #ifdef HAVE_LIBGIMP_GIMP_H
-  if (scan_win.mode == GIMP_EXTENSION && scan_win.tile)
+  if (scan_win.mode == SANE_GIMP_EXTENSION && scan_win.tile)
     {
       int height, remaining;
 
@@ -950,7 +950,7 @@ scan_start (void)
   scan_win.input_tag = -1;
   if (sane_set_io_mode (dev, SANE_TRUE) == SANE_STATUS_GOOD
       && sane_get_select_fd (dev, &fd) == SANE_STATUS_GOOD)
-    scan_win.input_tag = gdk_input_add (fd, GDK_INPUT_READ,
+    scan_win.input_tag = gdk_input_add (fd, GDK_INPUT_READ | GDK_INPUT_EXCEPTION,
 					input_available, 0);
   else
     input_available (0, -1, GDK_INPUT_READ);

@@ -1,0 +1,89 @@
+This is a SANE backend with support for the following SCSI scanners:
+
+  Canon CanoScan 300
+  Canon CanoScan 600
+  Canon CanoScan 2700F
+
+No parallel port scanners are supported and there are no plans to support
+them in the future.
+
+** IMPORTANT: this is alpha code. Don't expect this to work correctly. Many 
+functions are missing, others contain errors. In some cases, your computer
+might even hang. It cannot be excluded (although I consider it extremely
+unprobable) that your scanner will be damaged. **
+
+That said, TESTERS ARE WELCOME. Send your bug reports and comments to
+Manuel Panea <mpd@rzg.mpg.de>.
+
+--------------------------------------------------------------------------
+
+To install this SANE backend:
+
+1) Get the SANE sources (from http://www.mostang.com/sane)
+and install them. You will find the original canon backend. Do the complete 
+installation for the canon backend as explained in the docs which you get
+with the sources and test that it works.
+
+2) Assuming you installed the SANE sources under /usr/local/src/sane, copy
+this backend's files to the /usr/local/src/sane/backend directory,
+overwriting the existing "canon*" files.
+
+3) Go to /usr/local/src/sane and type "make".
+
+4) Test the backend by typing "frontend/xscanimage canon:/dev/scanner"
+
+
+---------------------------------------------------------------------------
+
+
+Here are some assorted tips and information about the use of the
+backend. They refer to the 2700F model, but they may also apply to the
+300/600 models:
+
+* There is a bug in file 'frontend/preview.c', that is, a bug in the
+  'xscanimage' frontend. I include a modified version.  Only one line need
+  be changed. The bug makes preview images look like diagonal stripes in
+  certain cases. This has been reported and should be fixed in a future
+  version of 'xscanimage'.
+
+* There seems to be another bug in file '/usr/src/linux/drivers/scsi/sg.c'
+  (many thanks to Jonathan Adams for pointing this out, I really got stucked
+  for a long time until I knew about this). This bug makes some SCSI commands
+  not work. Apparently not everyone gets the problem because depending on
+  your SCSI configuration maybe you don't need 'sg.c'. If your computer hangs
+  misteriously, edit the file and change the 'sg_write' procedure (near
+  to where 'size=COMMAND_SIZE(opcode);' appears. Add the two lines:
+
+    if ((opcode == 0xd5) || (opcode == 0xd4)) size = 6;
+    else
+
+  before the line:		
+
+    if (opcode >= 0xc0 && device->header.twelve_byte) size = 12;
+
+  Then recompile the kernel (or the 'sg' module, if you use modules).
+
+
+* When scanning either slides or negatives, I found that I must set the
+  gamma value to something about 2.2 to 2.4 (I set the same value for all
+  three red, green, blue). Also, for slides, using "Auto Exposure" helps
+  a lot.
+
+* The "Auto Exposure" function for slides makes the scanner do a first
+  pass on the film to determine the Highlight and Shadow point
+  values. The "Auto Focus" function triggers yet another pass to
+  determine the focus value. After that, the real scanning pass takes
+  place. The "Auto Exposure" function is not available for negatives yet.
+
+* Even after "Auto Focus", the image I get is often a bit too
+  blurred. I found that using the GIMP to do a
+  "Filter->Enhance->Sharpen" at about 40 to 60 improves the image
+  quite a bit. In fact, I find it so good that I might implement a
+  sharpen filter into the backend in the future.
+
+* The "native" scanner resolutions of the 2700F are the integer
+  sub-multiples of 2720 dpi, i.e. 1360, 680, 340 and 170. You can scan
+  at any other resolution, but you will notice that the image has
+  noticeably more jaggies that when using one of the "native"
+  resolutions.
+

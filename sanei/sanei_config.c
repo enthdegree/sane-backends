@@ -167,3 +167,38 @@ sanei_config_get_string (const char *str, char **string_const)
     *string_const = strndup (start, len);
   return str;
 }
+
+/*
+ * Read a string from configuration file.
+ * Strips all unwanted chars.  Use this instead of fgets() to remove
+ * line ending chars on all known platforms.
+ */
+char *
+sanei_config_read (char *str, int n, FILE *stream)
+{
+   char* rc;
+   char* start;
+   int   len;
+
+      /* read line from stream */
+   rc = fgets( str, n, stream);
+   if (rc == NULL)
+      return NULL;
+
+      /* remove ending whitespaces */
+   len = strlen( str);
+   while( isspace( str[--len]))
+      str[len] = '\0';
+
+      /* remove starting whitespaces */
+   start = str;
+   while( isspace( *start))
+      start++;
+
+   if (start != str) 
+      do {
+         *str++ = *start++;
+      } while( *str);
+
+   return rc;
+}

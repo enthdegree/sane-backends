@@ -10,8 +10,8 @@
 ;
 
 :backend "hp"                     ; name of backend
-:version "0.80"                   ; version of backend
-:status :alpha                    ; :alpha, :beta, :stable, :new
+:version "0.86"                   ; version of backend
+:status :beta                    ; :alpha, :beta, :stable, :new
 :manpage "sane-hp"                ; name of manpage (if it exists)
 :url "http://www.kirchgessner.net/" ; backend's web page
 
@@ -21,21 +21,26 @@
 
 :mfg "HP"                         ; name a manufacturer
 :url "http://www.hp.com/"
-:comment "Parallel port/USB scanners not supported"
 :model "HP ScanJet Plus"           ; name models for above-specified mfg.
 :model "HP ScanJet IIc"
 :model "HP ScanJet IIp"
 :model "HP ScanJet IIcx"
 :model "HP ScanJet 3c"
-:model "HP ScanJet 4c"
-:model "HP ScanJet 6100C"
 :model "HP ScanJet 3p"
+:model "HP ScanJet 4c"
 :model "HP ScanJet 4p"
+:model "HP ScanJet 4100C"
 :model "HP ScanJet 5p"
+:model "HP ScanJet 5100C"
+:model "HP ScanJet 5200C"
+:model "HP ScanJet 6100C"
 :model "HP ScanJet 6200C"
 :model "HP ScanJet 6250C"
+:model "HP ScanJet 6300C"
+:model "HP ScanJet 6350C"
 :model "HP PhotoSmart PhotoScanner"
-
+:comment "Parallel port HP ScanJet 5100C/5200C require ppSCSI driver. See http://www.torque.net/parport/ppscsi.html (under development)"
+:comment "USB on HP ScanJet 4100C/5200C/6200C/6300C require USB driver. See http://www.jump.net/~dnelson/linux/usb (under development)"
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.
 

@@ -45,22 +45,53 @@
 
 #include <sys/types.h>
 
+/* default values for configurable options.
+   Though these options are only meaningful if USE_FORK is defined,
+   they are 
+   DEFAULT_BUFFERS:      number of buffers allocated as shared memory
+                         for the data transfer from reader_process to
+                         read_data. The minimum value is 2
+   DEFAULT_BUFSIZE:      default size of one buffer. Must be greater
+                         than zero.
+   DEFAULT_QUEUED_READS: number of read requests queued by 
+                         sanei_scsi_req_enter. Since queued read requests
+                         are currently only supported for Linux and 
+                         DomainOS, this value should automatically be set
+                         dependent on the target OS...
+                         For Linux, 2 is the optimum; for DomainOS, I
+                         don't have any recommendation; other OS
+                         should use the value zero.
+   
+   The value for DEFAULT_BUFSIZE is probably too Linux-oriented...
+*/
+
+#define DEFAULT_BUFFERS 12
+#define DEFAULT_BUFSIZE 128 * 1024
+#define DEFAULT_QUEUED_READS 2
+
 typedef enum
   {
     OPT_NUM_OPTS = 0,
 
     OPT_MODE_GROUP,
-    XOPT_MODE,
+    OPT_MODE,
     OPT_HALFTONE,
     OPT_PAPER,
+    OPT_SCANSOURCE,
     OPT_GAMMA,
-
+#ifdef USE_CUSTOM_GAMMA
+    OPT_CUSTOM_GAMMA,
+#endif
     OPT_SPEED,
 
     OPT_RESOLUTION_GROUP,
-    OPT_RESOLUTION,
+#ifdef USE_RESOLUTION_LIST
+    OPT_RESOLUTION_LIST,
+#endif
     OPT_X_RESOLUTION,
+#ifdef USE_SEPARATE_Y_RESOLUTION
     OPT_Y_RESOLUTION,
+#endif
 
     OPT_GEOMETRY_GROUP,
     OPT_TL_X,			/* top-left x */
@@ -70,10 +101,16 @@ typedef enum
 
     OPT_ENHANCEMENT_GROUP,
     OPT_EDGE_EMPHASIS,
-    XOPT_THRESHOLD,
+    OPT_THRESHOLD,
+#ifdef USE_COLOR_THRESHOLD
+    OPT_THRESHOLD_R,
+    OPT_THRESHOLD_G,
+    OPT_THRESHOLD_B,
+#endif
     OPT_LIGHTCOLOR,
-#ifdef USE_CUSTOM_GAMMA
-    OPT_CUSTOM_GAMMA,
+    OPT_PREVIEW,
+
+#ifdef USE_CUSTOM_GAMMA 
     OPT_GAMMA_VECTOR,
     OPT_GAMMA_VECTOR_R,
     OPT_GAMMA_VECTOR_G,
@@ -92,12 +129,55 @@ typedef union
   }
 Option_Value;
 
+#ifdef USE_FORK
+
+/* status defines for a buffer: 
+   buffer not used / read request queued / buffer contains data
+*/
+#define SHM_EMPTY 0
+#define SHM_BUSY  1
+#define SHM_FULL  2
+typedef struct SHARP_shmem_ctl
+  {
+    int shm_status;   /* can be SHM_EMPTY, SHM_BUSY, SHM_FULL */
+    size_t used;      /* number of bytes successfully read from scanner */
+    size_t nreq;      /* number of bytes requested from scanner */
+    size_t start;    /* index of the begin of used area of the buffer */
+    void *qid;
+    SANE_Byte *buffer;
+  }
+SHARP_shmem_ctl;
+
+typedef struct SHARP_rdr_ctl
+  {
+    int cancel;      /* 1 = flag for the reader process to cancel */
+    int running; /* 1 indicates that the reader process is alive */
+    SANE_Status status; /* return status of the reader process */
+    SHARP_shmem_ctl *buf_ctl;
+  }
+SHARP_rdr_ctl;
+#endif /* USE_FORK */
+
+typedef enum 
+  {
+    /* JX250, JX330, JX610 are used as array indices, so the corresponding
+       numbers should start at 0
+    */
+    unknown = -1,
+    JX250,
+    JX330,
+    JX610
+  }
+SHARP_Model;
+
 typedef struct SHARP_Info
   {
     SANE_Range xres_range;
     SANE_Range yres_range;
-    SANE_Range x_range;
-    SANE_Range y_range;
+    SANE_Range tl_x_ranges[3]; /* normal / FSU / ADF */
+    SANE_Range br_x_ranges[3]; /* normal / FSU / ADF */
+    SANE_Range tl_y_ranges[3]; /* normal / FSU / ADF */
+    SANE_Range br_y_ranges[3]; /* normal / FSU / ADF */
     SANE_Range threshold_range;
 
     SANE_Int xres_default;
@@ -106,16 +186,45 @@ typedef struct SHARP_Info
     SANE_Int y_default;
     SANE_Int bmu;
     SANE_Int mud;
+    SANE_Int adf_fsu_installed;
+    SANE_String_Const scansources[5];
+    size_t buffers;
+    size_t bufsize;
+    int wanted_bufsize;
+    size_t queued_reads;
   }
 SHARP_Info;
+
+typedef struct SHARP_Sense_Data
+  {
+    SHARP_Model model;
+    /* flag, if conditions like "paper jam" or "cover open" 
+       are considered as an error. Should be 0 for attach, else
+       a frontend might refuse to start, if the scanner returns
+       these errors.
+    */
+    int complain_on_adf_error;
+    /* Linux returns only 16 bytes of sense data... */
+    u_char sb[16]; 
+  }
+SHARP_Sense_Data;
 
 typedef struct SHARP_Device
   {
     struct SHARP_Device *next;
     SANE_Device sane;
     SHARP_Info info;
+    /* xxx now part of sense data SHARP_Model model; */
+    SHARP_Sense_Data sensedat;
   }
 SHARP_Device;
+
+typedef struct SHARP_New_Device 
+  {
+    struct SHARP_Device *dev;
+    struct SHARP_New_Device *next;
+  }
+SHARP_New_Device;
 
 typedef struct SHARP_Scanner
   {
@@ -126,14 +235,10 @@ typedef struct SHARP_Scanner
     Option_Value val[NUM_OPTIONS];
     SANE_Parameters params;
 
-    SANE_Byte *buffer;
-    size_t buf_used;
-    size_t buf_pos;
-    SANE_Byte *outbuffer;
-    size_t outbuf_start;
-    size_t outbuf_used;
-    size_t outbuf_size;
-    size_t outbuf_remain_read;
+    int    get_params_called;
+    SANE_Byte *buffer;    /* for color data re-ordering, required for JX 250 */
+    SANE_Int buf_used;
+    SANE_Int buf_pos;
     SANE_Int modes;
     SANE_Int xres;
     SANE_Int yres;
@@ -150,6 +255,8 @@ typedef struct SHARP_Scanner
     SANE_Int gamma;
     SANE_Int edge;
     SANE_Int lightcolor;
+    SANE_Int adf_fsu_mode; /* mode selected by user */
+    SANE_Int adf_scan; /* flag, if the actual scan is an ADF scan */
 
     size_t bytes_to_read;
     size_t max_lines_to_read;
@@ -160,6 +267,12 @@ typedef struct SHARP_Scanner
 #ifdef USE_CUSTOM_GAMMA
     SANE_Int gamma_table[4][256];
 #endif
+#ifdef USE_FORK
+    pid_t reader_pid;
+    SHARP_rdr_ctl   *rdr_ctl;
+    int shmid;
+    size_t read_buff; /* index of the buffer actually used by read_data */
+#endif /* USE_FORK */
   }
 SHARP_Scanner;
 
@@ -213,10 +326,16 @@ typedef struct WDB
 }
 WDB;
 
-/* "extension" off the window descriptor block for the JX 250 */
-typedef struct WDBX250
+/* "extension" of the window descriptor block for the JX 330 */
+typedef struct WDBX330
   {
     SANE_Byte moire_reduction[2];
+  }
+WDBX330;
+
+/* "extension" of the window descriptor block for the JX 250 */
+typedef struct XWDBX250
+  {
     SANE_Byte threshold_red;
     SANE_Byte threshold_green;
     SANE_Byte threshold_blue;
@@ -232,6 +351,7 @@ typedef struct window_param
 {
     WPDH wpdh;
     WDB wdb;
+    WDBX330 wdbx330;
     WDBX250 wdbx250;
 }
 window_param;
@@ -245,7 +365,7 @@ typedef struct mode_sense_param
     SANE_Byte resereved[5];
     SANE_Byte blocklength[3];
     SANE_Byte page_code;
-    SANE_Byte constant6;
+    SANE_Byte page_length; /* 6 */
     SANE_Byte bmu;
     SANE_Byte res2;
     SANE_Byte mud[2];
@@ -254,6 +374,36 @@ typedef struct mode_sense_param
 }
 mode_sense_param;
 
+typedef struct mode_sense_subdevice
+{
+  /* This definition reflects the JX250. The JX330 would need a slightly
+     different definition, but the bytes used right now (for ADF and FSU)
+     are identical.
+  */
+    SANE_Byte mode_data_length;
+    SANE_Byte mode_param_header2;
+    SANE_Byte mode_param_header3;
+    SANE_Byte mode_desciptor_length;
+    SANE_Byte res1[5];
+    SANE_Byte blocklength[3];
+    SANE_Byte page_code;
+    SANE_Byte page_length; /* 0x1a */
+    SANE_Byte a_mode_type;
+    SANE_Byte f_mode_type;
+    SANE_Byte res2;
+    SANE_Byte max_x[4];
+    SANE_Byte max_y[4];
+    SANE_Byte res3[2];
+    SANE_Byte x_basic_resolution[2];
+    SANE_Byte y_basic_resolution[2];
+    SANE_Byte x_max_resolution[2];
+    SANE_Byte y_max_resolution[2];
+    SANE_Byte x_min_resolution[2];
+    SANE_Byte y_min_resolution[2];
+    SANE_Byte res4;
+}
+mode_sense_subdevice;
+
 typedef struct mode_select_param
 {
     SANE_Byte mode_param_header1;
@@ -261,7 +411,7 @@ typedef struct mode_select_param
     SANE_Byte mode_param_header3;
     SANE_Byte mode_param_header4;
     SANE_Byte page_code;
-    SANE_Byte constant6;
+    SANE_Byte page_length; /* 6 */
     SANE_Byte res1;
     SANE_Byte res2;
     SANE_Byte mud[2];
@@ -269,6 +419,20 @@ typedef struct mode_select_param
     SANE_Byte res4;
 }
 mode_select_param;
+
+typedef struct mode_select_subdevice
+{
+    SANE_Byte mode_param_header1;
+    SANE_Byte mode_param_header2;
+    SANE_Byte mode_param_header3;
+    SANE_Byte mode_param_header4;
+    SANE_Byte page_code;
+    SANE_Byte page_length; /*  0x1A */
+    SANE_Byte a_mode;
+    SANE_Byte f_mode;
+    SANE_Byte res[24];
+}
+mode_select_subdevice;
 
 /* SCSI commands */
 #define TEST_UNIT_READY        0x00
@@ -284,12 +448,12 @@ mode_select_param;
 #define GET_WINDOW             0x25
 #define READ                   0x28
 #define SEND                   0x2a
+#define OBJECT_POSITION        0x31
 
 #define SENSE_LEN              18
 #define INQUIRY_LEN            36
 #define MODEPARAM_LEN          12
+#define MODE_SUBDEV_LEN        32
 #define WINDOW_LEN             76
-
-#define DEFAULT_BUFSIZE 128
 
 #endif /* not sharp_h */

@@ -31,12 +31,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <sys/types.h>
 
 #include <sane/sane.h>
 #include <sane/sanei.h>
 #include <sane/saneopts.h>
+
+#ifndef PATH_MAX
+#define PATH_MAX 1024
+#endif
 
 #ifndef HAVE_ATEXIT
 # define atexit(func)	on_exit(func, 0)	/* works for SunOS, at least */
@@ -61,7 +66,8 @@ static struct option basic_options[] =
   {"verbose", no_argument, NULL, 'v'},
   {"test", no_argument, NULL, 'T'},
   {"version", no_argument, NULL, 'V'},
-  {0, }
+  {"batch", optional_argument, NULL, 'b'},
+  {0, 0, NULL, 0}
 };
 
 #define BASE_OPTSTRING	"d:hLvVT"
@@ -749,7 +755,7 @@ advance (Image *image)
   return image->data;
 }
 
-static void
+static SANE_Status
 scan_it (void)
 {
   int i, len, first_frame = 1, offset = 0, must_buffer = 0;
@@ -847,6 +853,7 @@ scan_it (void)
 	      image.x = image.width - 1;
 	      image.y = -1;
 	      if (!advance (&image))
+		status = SANE_STATUS_NO_MEM;
 		goto cleanup;
 	    }
 	}
@@ -870,7 +877,7 @@ scan_it (void)
 		{
 		  fprintf (stderr, "%s: sane_read: %s\n",
 			   prog_name, sane_strstatus (status));
-		  return;
+		  return status;
 		}
 	      break;
 	    }
@@ -885,6 +892,7 @@ scan_it (void)
 		    {
 		      image.data[offset + 3*i] = buffer[i];
 		      if (!advance (&image))
+			status = SANE_STATUS_NO_MEM;
 			goto cleanup;
 		    }
 		  offset += 3*len;
@@ -895,6 +903,7 @@ scan_it (void)
 		    {
 		      image.data[offset + i] = buffer[i];
 		      if ((offset + i) % 3 == 0 && !advance (&image))
+			status = SANE_STATUS_NO_MEM;
 			goto cleanup;
 		    }
 		  offset += len;
@@ -905,6 +914,7 @@ scan_it (void)
 		    {
 		      image.data[offset + i] = buffer[i];
 		      if (!advance (&image))
+			status = SANE_STATUS_NO_MEM;
 			goto cleanup;
 		    }
 		  offset += len;
@@ -938,6 +948,8 @@ cleanup:
   sane_cancel (device);
   if (image.data)
     free (image.data);
+
+  return status;
 }
 
 #define clean_buffer(buf,size)	memset ((buf), 0x23, size)
@@ -960,7 +972,7 @@ pass_fail (int max, int len, SANE_Byte *buffer, SANE_Status status)
     fprintf (stderr, "PASS\n");
 }
 
-static void
+static SANE_Status
 test_it (void)
 {
   int i, len;
@@ -1039,6 +1051,7 @@ test_it (void)
   sane_cancel (device);
   if (image.data)
     free (image.data);
+  return status;
 }
 
 int
@@ -1049,6 +1062,8 @@ main (int argc, char **argv)
   const SANE_Device ** device_list;
   SANE_Int num_dev_options = 0;
   const char * devname = 0;
+  const char * format = 0;
+  int batch = 0;
   SANE_Status status;
   char *full_optstring;
 
@@ -1076,6 +1091,7 @@ main (int argc, char **argv)
 	  break;	/* may be an option that we'll parse later on */
 
 	case 'd': devname = optarg; break;
+	case 'b': batch = 1; format = optarg; break;
 	case 'h': help = 1; break;
 	case 'v': ++verbose; break;
 	case 'T': test= 1; break;
@@ -1115,6 +1131,7 @@ main (int argc, char **argv)
 Start image acquisition on a scanner device and write PNM image data to\n\
 standard output.\n\
 \n\
+-b, --batch=FORMAT         working in batch mode\n\
 -d, --device-name=DEVICE   use a given scanner device\n\
 -h, --help                 display this help message and exit\n\
 -L, --list-devices         show available scanner devices\n\
@@ -1337,11 +1354,51 @@ List of available devices:", prog_name);
   signal (SIGTERM, sighandler);
 
   if (test == 0) 
-    scan_it ();
+    {
+      int n = 1;
+
+      if (batch && NULL == format)
+	format = "out%d.pnm";
+
+      do
+	{
+	  char path [PATH_MAX];
+	  if (batch) /* format is NULL unless batch mode */
+	    sprintf (path, format, n);	/* love --(C++) */
+
+	  if (batch && NULL == freopen (path, "w", stdout) )
+	    {
+	      fprintf (stderr, "cannot open %s\n", path);
+	      return SANE_STATUS_ACCESS_DENIED;
+	    }
+
+	  status = scan_it ();
+	  if (batch)
+	    fprintf( stderr, "status = %d\n", status);
+
+	  switch (status)
+	    {
+	      case SANE_STATUS_GOOD:
+	        break;
+	      case SANE_STATUS_EOF:
+	        status = SANE_STATUS_GOOD;
+	        break;
+	      default:
+	        if (batch)
+	          {
+		    fclose(stdout);
+		    unlink(path);
+		  }
+	        break;
+	    }	/* switch */
+	  n++;
+	}
+      while (batch && SANE_STATUS_GOOD == status);
+    }
   else
-    test_it ();
+    status = test_it ();
 
   sane_close (device);
 
-  return 0;
+  return status;
 }

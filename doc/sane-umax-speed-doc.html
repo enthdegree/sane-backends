@@ -1,0 +1,440 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.6 [en] (X11; I; Linux 2.2.11 i586) [Netscape]">
+   <meta name="Author" content="Oliver Rauch">
+   <meta name="Keywords" content="umax,scanner,driver,linux,unix,os/2">
+   <title>SANE-UMAX documentation - how fast is a UMAX scanner with SANE?</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EF" vlink="#51188E" alink="#FF0000">
+<img SRC="sane-logo2.jpg" height=150 width=128 align=LEFT>
+<br>&nbsp;
+<h1>
+<font color="#000099">&nbsp;&nbsp;&nbsp; <u>HOW FAST IS A UMAX SCANNER
+WITH SANE?</u></font></h1>
+
+<p><br><img SRC="sane-umax-text.jpg" height=45 width=157>
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<center><table BORDER COLS=2 WIDTH="60%" NOSAVE >
+<tr ALIGN=CENTER BGCOLOR="#40E0D0" NOSAVE>
+<td COLSPAN="2" NOSAVE>Used System:</td>
+</tr>
+
+<tr>
+<td>CPU</td>
+
+<td>AMD K6-III/400</td>
+</tr>
+
+<tr>
+<td>RAM</td>
+
+<td>128MB</td>
+</tr>
+
+<tr>
+<td>SCSI-Controller</td>
+
+<td>NCR/Symbios logic 53C810</td>
+</tr>
+
+<tr>
+<td>Scanner</td>
+
+<td>UMAX Supervista S12</td>
+</tr>
+</table></center>
+
+<br>&nbsp;
+<blockquote>&nbsp;
+<br>&nbsp;
+<center><table BORDER COLS=5 WIDTH="80%" NOSAVE >
+<tr ALIGN=CENTER BGCOLOR="#40E0D0" NOSAVE>
+<td COLSPAN="5" NOSAVE>
+<center>RGB scan 24 bits/pixel</center>
+</td>
+</tr>
+
+<tr ALIGN=CENTER BGCOLOR="#40E0D0" NOSAVE>
+<td>Resolution/dpi</td>
+
+<td NOSAVE>Size(h x v)/cm</td>
+
+<td NOSAVE>size/MB</td>
+
+<td>time/min:sec</td>
+
+<td>remark</td>
+</tr>
+
+<tr ALIGN=CENTER NOSAVE>
+<td>&nbsp;</td>
+
+<td NOSAVE>&nbsp;</td>
+
+<td>&nbsp;</td>
+
+<td>0:13</td>
+
+<td>calibration</td>
+</tr>
+
+<tr ALIGN=CENTER NOSAVE>
+<td>100</td>
+
+<td NOSAVE>21.6 x 29.7</td>
+
+<td>2.8</td>
+
+<td>0:30</td>
+
+<td>&nbsp;</td>
+</tr>
+
+<tr ALIGN=CENTER NOSAVE>
+<td>200</td>
+
+<td NOSAVE>21.6 x 29.7</td>
+
+<td>11.3</td>
+
+<td>0:30</td>
+
+<td>&nbsp;</td>
+</tr>
+
+<tr ALIGN=CENTER NOSAVE>
+<td>300</td>
+
+<td NOSAVE>21.6 x 29.7</td>
+
+<td>25.5</td>
+
+<td>0:35</td>
+
+<td>&nbsp;</td>
+</tr>
+
+<tr ALIGN=CENTER NOSAVE>
+<td>400</td>
+
+<td NOSAVE>21.6 x 29.7</td>
+
+<td>45.5</td>
+
+<td>1:00</td>
+
+<td>some backtracks</td>
+</tr>
+
+<tr ALIGN=CENTER NOSAVE>
+<td>>=500</td>
+
+<td NOSAVE>21.6 x 29.7</td>
+
+<td>&nbsp;</td>
+
+<td>too long</td>
+
+<td>&nbsp;not usable</td>
+</tr>
+
+<tr ALIGN=CENTER NOSAVE>
+<td>500</td>
+
+<td NOSAVE>9.0 x 13.0</td>
+
+<td>12.9</td>
+
+<td>0:30</td>
+
+<td>&nbsp;</td>
+</tr>
+
+<tr ALIGN=CENTER NOSAVE>
+<td>600</td>
+
+<td NOSAVE>9.0 x 13.0</td>
+
+<td>18.6</td>
+
+<td>0:30</td>
+
+<td>&nbsp;</td>
+</tr>
+
+<tr ALIGN=CENTER NOSAVE>
+<td>700</td>
+
+<td NOSAVE>9.0 x 13.0</td>
+
+<td>25.4</td>
+
+<td>0:55</td>
+
+<td>&nbsp;</td>
+</tr>
+
+<tr ALIGN=CENTER NOSAVE>
+<td>1200</td>
+
+<td NOSAVE>9.0 x 13.0</td>
+
+<td>74.4</td>
+
+<td>5:20</td>
+
+<td NOSAVE>lots of backtracks</td>
+</tr>
+</table></center>
+
+<center><table BORDER COLS=5 WIDTH="80%" NOSAVE >
+<caption>&nbsp;</caption>
+
+<tr ALIGN=CENTER BGCOLOR="#40E0D0" NOSAVE>
+<td COLSPAN="5" NOSAVE>
+<center>Grayscale scan 8 bits/pixel</center>
+</td>
+</tr>
+
+<tr ALIGN=CENTER BGCOLOR="#40E0D0" NOSAVE>
+<td>Resolution/dpi</td>
+
+<td NOSAVE>Size(h x v)/cm</td>
+
+<td NOSAVE>size/MB</td>
+
+<td>time/min:sec</td>
+
+<td>remark</td>
+</tr>
+
+<tr ALIGN=CENTER NOSAVE>
+<td>&nbsp;</td>
+
+<td NOSAVE>&nbsp;</td>
+
+<td>&nbsp;</td>
+
+<td>0:10</td>
+
+<td>calibration</td>
+</tr>
+
+<tr ALIGN=CENTER NOSAVE>
+<td>100</td>
+
+<td NOSAVE>21.6 x 29.7</td>
+
+<td>1.0</td>
+
+<td>0:25</td>
+
+<td>&nbsp;</td>
+</tr>
+
+<tr ALIGN=CENTER NOSAVE>
+<td>200</td>
+
+<td NOSAVE>21.6 x 29.7</td>
+
+<td>3.7</td>
+
+<td>0:30</td>
+
+<td>&nbsp;</td>
+</tr>
+
+<tr ALIGN=CENTER NOSAVE>
+<td>300</td>
+
+<td NOSAVE>21.6 x 29.7</td>
+
+<td>8.5</td>
+
+<td>0:30</td>
+
+<td>&nbsp;</td>
+</tr>
+
+<tr ALIGN=CENTER NOSAVE>
+<td>400</td>
+
+<td NOSAVE>21.6 x 29.7</td>
+
+<td>15.0</td>
+
+<td>0:30</td>
+
+<td>&nbsp;</td>
+</tr>
+
+<tr ALIGN=CENTER NOSAVE>
+<td>500</td>
+
+<td NOSAVE>21.6 x 29.7</td>
+
+<td>23.7</td>
+
+<td>0:35</td>
+
+<td>&nbsp;</td>
+</tr>
+
+<tr ALIGN=CENTER NOSAVE>
+<td>600</td>
+
+<td NOSAVE>21.6 x 29.7</td>
+
+<td>34.1</td>
+
+<td>0:45</td>
+
+<td>&nbsp;some backtracks</td>
+</tr>
+
+<tr ALIGN=CENTER NOSAVE>
+<td>700</td>
+
+<td NOSAVE>21.6 x 29.7</td>
+
+<td>46.4</td>
+
+<td>0:50</td>
+
+<td>&nbsp;some backtracks&nbsp;</td>
+</tr>
+
+<tr ALIGN=CENTER NOSAVE>
+<td>800</td>
+
+<td NOSAVE>21.6 x 29.7</td>
+
+<td>60.6</td>
+
+<td>1:20</td>
+
+<td>&nbsp;some backtracks&nbsp;</td>
+</tr>
+
+<tr ALIGN=CENTER NOSAVE>
+<td>900</td>
+
+<td NOSAVE>21.6 x 29.7</td>
+
+<td>76.8</td>
+
+<td>1:35</td>
+
+<td>&nbsp;some backtracks&nbsp;</td>
+</tr>
+
+<tr ALIGN=CENTER NOSAVE>
+<td>1000</td>
+
+<td NOSAVE>21.6 x 29.7</td>
+
+<td>94.8</td>
+
+<td>1:40</td>
+
+<td>&nbsp;some backtracks&nbsp;</td>
+</tr>
+
+<tr ALIGN=CENTER NOSAVE>
+<td>1100</td>
+
+<td NOSAVE>21.6 x 29.7</td>
+
+<td>114.7</td>
+
+<td>1:40</td>
+
+<td>&nbsp;some backtracks&nbsp;</td>
+</tr>
+
+<tr ALIGN=CENTER NOSAVE>
+<td>1200</td>
+
+<td NOSAVE>21.6 x 29.7</td>
+
+<td>136.5</td>
+
+<td>1:40</td>
+
+<td>&nbsp;some backtracks&nbsp;</td>
+</tr>
+</table></center>
+
+<center><table BORDER COLS=5 WIDTH="80%" NOSAVE >
+<caption>&nbsp;</caption>
+
+<tr ALIGN=CENTER BGCOLOR="#40E0D0" NOSAVE>
+<td COLSPAN="5" NOSAVE>
+<center>Lineart scan 1 bit/pixel</center>
+</td>
+</tr>
+
+<tr ALIGN=CENTER BGCOLOR="#40E0D0" NOSAVE>
+<td>Resolution/dpi</td>
+
+<td NOSAVE>Size(h x v)/cm</td>
+
+<td NOSAVE>size/MB</td>
+
+<td>time/min:sec</td>
+
+<td>remark</td>
+</tr>
+
+<tr ALIGN=CENTER NOSAVE>
+<td>&nbsp;</td>
+
+<td NOSAVE>&nbsp;</td>
+
+<td>&nbsp;</td>
+
+<td>0:07</td>
+
+<td>calibration</td>
+</tr>
+
+<tr ALIGN=CENTER NOSAVE>
+<td>&nbsp;100</td>
+
+<td NOSAVE>21.6 x 29.7&nbsp;</td>
+
+<td>0.122</td>
+
+<td>0:20</td>
+
+<td>&nbsp;</td>
+</tr>
+
+<tr ALIGN=CENTER NOSAVE>
+<td>&nbsp;1200</td>
+
+<td NOSAVE>21.6 x 29.7&nbsp;</td>
+
+<td>17.0</td>
+
+<td>0:40</td>
+
+<td>&nbsp;</td>
+</tr>
+</table></center>
+</blockquote>
+
+<center><a href="sane-umax-doc.html">SANE-UMAX index</a>
+<br>
+<hr WIDTH="100%">
+<br><font color="#009900">This page has been changed on 31th. october 1999</font></center>
+
+<p><br>
+</body>
+</html>

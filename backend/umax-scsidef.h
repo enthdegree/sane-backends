@@ -3,7 +3,7 @@
 /* umax-scsidef.h: scsi-definiton header file for UMAX scanner driver.
 
     Copyright (C) 1996-1997 Michael K. Johnson
-    Copyright (C) 1997-1999 Oliver Rauch
+    Copyright (C) 1997-2000 Oliver Rauch
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License as
@@ -47,6 +47,8 @@
 
 #ifndef UMAX_SCSIDEF_H
 #define UMAX_SCSIDEF_H
+
+#include "umax.h"
 
 
 /* --------------------------------------------------------------------------------------------------------- */
@@ -150,6 +152,7 @@ static scsiblk inquiry = { inquiryC, sizeof(inquiryC) };
 #define get_inquiry_0x01_bit6(in)				getbitfield(in + 0x01, 0x01, 6)
 #define get_inquiry_0x01_bit5(in)				getbitfield(in + 0x01, 0x01, 5)
 #define get_inquiry_CBHS(in)					getbitfield(in + 0x01, 0x03, 3)
+#define set_inquiry_CBHS(in, val)				setbitfield(in + 0x01, 0x03, 3, val)
 #  define IN_CBHS_50			0x00
 #  define IN_CBHS_255			0x01
 #  define IN_CBHS_auto			0x02
@@ -189,6 +192,7 @@ static scsiblk inquiry = { inquiryC, sizeof(inquiryC) };
 #define get_inquiry_product(in, buf)				strncpy(buf, in + 0x10, 0x010)
 #define get_inquiry_version(in, buf)				strncpy(buf, in + 0x20, 0x04)
 
+#define set_inquiry_fw_quality(in, val)				setbitfield(in + 0x24, 1, 0, val)
 #define get_inquiry_fw_quality(in)				getbitfield(in + 0x24, 1, 0)
 #define get_inquiry_fw_fast_preview(in)				getbitfield(in + 0x24, 1, 1)
 #define get_inquiry_fw_shadow_comp(in)				getbitfield(in + 0x24, 1, 2)
@@ -223,10 +227,18 @@ static scsiblk inquiry = { inquiryC, sizeof(inquiryC) };
 #define get_inquiry_sc_lineart(in)				getbitfield(in + 0x60, 1, 2)
 #define get_inquiry_sc_halftone(in)				getbitfield(in + 0x60, 1, 3)
 #define get_inquiry_sc_gray(in)					getbitfield(in + 0x60, 1, 4)
-#define get_inquiry_sc_gray(in)					getbitfield(in + 0x60, 1, 4)
 #define get_inquiry_sc_color(in)				getbitfield(in + 0x60, 1, 5)
 #define get_inquiry_sc_uta(in)					getbitfield(in + 0x60, 1, 6)
 #define get_inquiry_sc_adf(in)					getbitfield(in + 0x60, 1, 7)
+
+#define set_inquiry_sc_three_pass_color(in,val)			setbitfield(in + 0x60, 1, 0, val)
+#define set_inquiry_sc_one_pass_color(in,val)			setbitfield(in + 0x60, 1, 1, val)
+#define set_inquiry_sc_lineart(in,val)				setbitfield(in + 0x60, 1, 2, val)
+#define set_inquiry_sc_halftone(in,val)				setbitfield(in + 0x60, 1, 3, val)
+#define set_inquiry_sc_gray(in,val)				setbitfield(in + 0x60, 1, 4, val)
+#define set_inquiry_sc_color(in,val)				setbitfield(in + 0x60, 1, 5, val)
+#define set_inquiry_sc_uta(in,val)				setbitfield(in + 0x60, 1, 6, val)
+#define set_inquiry_sc_adf(in,val)				setbitfield(in + 0x60, 1, 7, val)
 
 #define get_inquiry_sc_double_res(in)				getbitfield(in + 0x61, 1, 0)
 #define get_inquiry_sc_high_byte_first(in)			getbitfield(in + 0x61, 1, 1)
@@ -318,13 +330,13 @@ static scsiblk inquiry = { inquiryC, sizeof(inquiryC) };
 #  define IN_color_sequence_BRG		0x04
 #  define IN_color_sequence_BGR		0x05
 #  define IN_color_sequence_all		0x07
-#define get_inquiry_color_order(in)				getbitfield(in+0x6d,0x1f,0)
-#define set_inquiry_color_order(in,val)				setbitfield(in+0x6d,0x1f,0,val)
-#define get_inquiry_color_order_pixel(in)			getbitfield(in+0x6d, 1, 0)
-#define get_inquiry_color_order_line_no_ccd(in)			getbitfield(in+0x6d, 1, 1)
-#define get_inquiry_color_order_plane(in)			getbitfield(in+0x6d, 1, 2)
-#define get_inquiry_color_order_line_w_ccd(in)			getbitfield(in+0x6d, 1, 3)
-#define get_inquiry_color_order_reserved(in)			getbitfield(in+0x6d, 1, 4)
+#define get_inquiry_color_order(in)				getbitfield(in + 0x6d, 0x1f, 0)
+#define set_inquiry_color_order(in,val)				setbitfield(in + 0x6d, 0x1f, 0, val)
+#define get_inquiry_color_order_pixel(in)			getbitfield(in + 0x6d, 1, 0)
+#define get_inquiry_color_order_line_no_ccd(in)			getbitfield(in + 0x6d, 1, 1)
+#define get_inquiry_color_order_plane(in)			getbitfield(in + 0x6d, 1, 2)
+#define get_inquiry_color_order_line_w_ccd(in)			getbitfield(in + 0x6d, 1, 3)
+#define get_inquiry_color_order_reserved(in)			getbitfield(in + 0x6d, 1, 4)
 #  define IN_color_ordering_pixel	0x01
 #  define IN_color_ordering_line_no_ccd	0x02
 #  define IN_color_ordering_plane	0x04
@@ -344,9 +356,10 @@ static scsiblk inquiry = { inquiryC, sizeof(inquiryC) };
 #define get_inquiry_uta_max_scan_length(in)			getnbyte(in + 0x80, 2)
 
 #define get_inquiry_0x82(in)					in[0x82]
-#define get_inquiry_0x83(in)					in[0x83]
-#define get_inquiry_0x84(in)					in[0x84]
-#define get_inquiry_0x85(in)					in[0x85]
+
+#define get_inquiry_dor_max_opt_res(in)				in[0x83]
+#define get_inquiry_dor_max_x_res(in)				in[0x84]
+#define get_inquiry_dor_max_y_res(in)				in[0x85]
 
 #define get_inquiry_dor_x_original_point(in)			getnbyte(in + 0x86, 2)
 #define get_inquiry_dor_y_original_point(in)			getnbyte(in + 0x88, 2)
@@ -379,6 +392,12 @@ static scsiblk inquiry = { inquiryC, sizeof(inquiryC) };
 #define set_inquiry_fb_uta_line_arrangement_mode(out,val)	out[0x9b]=val
 #define set_inquiry_adf_line_arrangement_mode(out,val)		out[0x9c]=val
 #define set_inquiry_CCD_line_distance(out,val)			out[0x9d]=val
+
+#define get_inquiry_0x9e(in)					in[0x9e]
+
+#define get_inquiry_dor_optical_resolution_residue(in)		in[0xa0]
+#define get_inquiry_dor_x_resolution_residue(in)		in[0xa1]
+#define get_inquiry_dor_y_resolution_residue(in)		in[0xa2]
 
 
 /* --------------------------------------------------------------------------------------------------------- */
@@ -895,7 +914,7 @@ static scsiblk request_sense = { request_senseC, sizeof(request_senseC) };
 /* --------------------------------------------------------------------------------------------------------- */
 
 
-static char *cbhs_str[]       = { "78-178","0-255", "0-255 autoexposure", "reserved" };
+static char *cbhs_str[]       = { "0-50","0-255", "0-255 autoexposure", "reserved" };
 
 static char *scanmode_str[]   = { "flatbed (FB)", "automatic document feeder (ADF)" };
 

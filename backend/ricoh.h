@@ -79,6 +79,12 @@ static const SANE_Range u8_range =
     255,				/* maximum */
       0				        /* quantization */
   };
+static const SANE_Range is50_res_range =
+  {
+     75,                                /* minimum */
+    400,                                /* maximum */
+      0                                 /* quantization */
+  };
 
 static const SANE_Range is60_res_range =
   {

@@ -1,4 +1,4 @@
-.TH sane-hp 5 "28 February 1999"
+.TH sane-hp 5 "12-February 2000"
 .IX sane-hp
 .SH NAME
 sane-hp - SANE backend for HP ScanJet scanners
@@ -10,38 +10,54 @@ provides access to HP ScanJet scanners.  At present, the following
 scanners are known positively to work with this backend:
 .PP
 .RS
-Model:         Product id:                Interface:
+Model:         Product id:     Interface:
 .br
-----------     -----------                ----------
+----------     -----------     ----------
 .br
-ScanJet Plus   C9195A                     HP Parallel Interface Card
+ScanJet Plus   C9195A          HP Parallel Interface Card
 .br
-ScanJet IIc    C1750A 3226                SCSI
+ScanJet IIc    C1750A 3226     SCSI
 .br
-ScanJet IIcx   C2500A 3332                SCSI
+ScanJet IIcx   C2500A 3332     SCSI
 .br
-ScanJet IIp    C1790A                     SCSI
+ScanJet IIp    C1790A          SCSI
 .br
-ScanJet 3C     C2520A 3503                SCSI
+ScanJet 3C     C2520A 3503     SCSI
 .br
-ScanJet 4C     C2520A                     SCSI
+ScanJet 3P     C2570A 3406     SCSI
 .br
-ScanJet 6100C  C2520A 3644                SCSI
+ScanJet 4C     C2520A          SCSI
 .br
-ScanJet 6200C  C6270A 3828                SCSI
+ScanJet 4P     C1130A 3540     SCSI
 .br
-ScanJet 6250C  C6270A 3828                SCSI
+ScanJet 4100C  C6290A          USB
 .br
-ScanJet 3P     C2570A 3406                SCSI
+ScanJet 5P     C5110A          SCSI
 .br
-ScanJet 4P     C1130A 3540                SCSI
+ScanJet 5100C  C5190A          parallel port
 .br
-ScanJet 5P     C5110A                     SCSI
+ScanJet 5200C  C7190A 3846     parallel port/USB
 .br
-PhotoSmart     C5100A R029, R030, R032    SCSI
+ScanJet 6100C  C2520A 3644     SCSI
+.br
+ScanJet 6200C  C6270A 3828     SCSI/USB
+.br
+ScanJet 6250C  C6270A 3828     SCSI/USB
+.br
+ScanJet 6300C  C7670A          SCSI/USB
+.br
+ScanJet 6350C  C7670A          SCSI/USB
+.br
+PhotoSmart     C5100A R029,R030,R032    SCSI
 .RE
 .PP
-Any HP scanners connected to the parallel port are not supported.
+Support for models 5100C/5200C connected to the parallel port requires
+the ppSCSI driver available at http://www.torque.net/parport/ppscsi.html
+(under development)
+.PP
+Support for models 5200C/6200C/6250C/6300C/6350C connected to the USB requires
+an USB driver available at http://www.jump.net/~dnelson/linux/usb
+(under development)
 .PP
 If you own a ScanJet scanner other than the ones listed above, please
 let us know if your model works with this backend.  To do this, send a
@@ -64,9 +80,9 @@ or
 .IR /dev/sge ,
 for example. For the Hp ScanJet Plus the special device name must be the device
 that corresponds to the parallel interface card that was shipped with the
-scanner. Under Linux, such a device name could be
+scanner. That is
 .I /dev/hpscan
-for example.
+A special driver is required for this card. See ftp://rvs.ctrl-c.liu.se/pub/wingel/hpscan for details.
 .SH CONFIGURATION
 The contents of the
 .I hp.conf
@@ -81,8 +97,9 @@ keeps a device name apply just to the most recently mentioned device.
 .PP
 Supported options are
 .BR connect-scsi ,
+.BR connect-device
 and
-.BR connect-device .
+.BR enable-image-buffering .
 
 Option
 .B connect-scsi
@@ -95,6 +112,11 @@ Option
 specifies that the scanner is connected to the system by a special
 device. Input/output is performed by read()/write()-operations
 on the device. This option must be used for HP ScanJet Plus.
+
+Option
+.B enable-image-buffering
+stores the scanned image in memory before passing it to the frontend. Could be
+used in case of forward/backward moving scanner.
 .PP
   A sample configuration file is shown below:
 .PP
@@ -151,8 +173,8 @@ levels reduce verbosity.
 .SH BUGS
 .TP
 .B HP PhotoSmart PhotoScanner
-In media mode 'slide' and 'negative', scan resolutions must be selected
-as multiple of 300 dpi. The scanner does not scale the data correctly
+In media mode 'slide' and 'negative', scan resolutions are rounded to
+multiple of 300 dpi. The scanner does not scale the data correctly
 on other resolutions. Some newer models (firmware code R030 and later)
 do not support adjustment of contrast/intensity level and tone map.
 The backend will simulate this by software, but only for gray
@@ -160,7 +182,7 @@ and 24 bit color.
 .TP
 .B Automatic Document Feeder (ADF)
 For use of the ADF with xscanimage(1), first place paper in the ADF and
-then check the box labeled 'scan from ADF'. Press 'change document'
+then change option scantype to 'ADF'. Press 'change document'
 to load a sheet. Then press 'scan' to start a scan. 
 Maybe it is sufficient to press 'scan' without 'change document'
 for repeated scans. The use of the preview window is not recommended
@@ -181,22 +203,10 @@ backend this is simulated by software on 24 bits data.
 Simulation on 30 bits should give better results.
 .TP
 .B Parallel scanner support
-Parallel scanners other than ScanJet Plus are not supported.
-If someone wants to add parallel scanner support, search the source code
-for
-.B HP_CONNECT_RESERVE .
-This will lead you to 4 routines in hp-scl.c to open, read, write and
-close those devices. The option
-.B connect-reserve
-must be specified in the
-.B hp.conf
-file to activate the routines.
-If there is a kernel driver that would make a scanner on the parallel
-port available as a special device, it could be possible that accessing
-the scanner by
-.B connect-device
-will work.
-
+Beside the ScanJet Plus which came with its own parallel interface card,
+currently only the HP ScanJet 5100C/5200C are supported.
+These scanners are using an internal parallel-to-SCSI converter which
+is supported by the ppSCSI-driver (see above).
 
 .SH "SEE ALSO"
 sane\-scsi(5)

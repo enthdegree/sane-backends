@@ -6,10 +6,7 @@ Oliver Rauch <Oliver.Rauch@Wolfsburg.DE>
 
 KNOWN BUGS:
 
-	* some UC630 and UC840 don't work in greyscale and rgb-mode
+	* pixel count in x-direction is sometimes wrong if xres > 600dpi (Vista S12)
 
-	* pixel count in x-direction is sometimes wrong (res>600dpi)
-
-	* line count is sometimes wrong for Astra 6X0S in colormode while
-	  driver does color ordering
+        * first scan with Astra 2400S gives wrong colors
 

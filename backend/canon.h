@@ -45,6 +45,16 @@
 #ifndef canon_h
 #define canon_h 1
 
+/* all the different possible model names. */
+#define FB1200S "IX-12015E      "
+#define FB620S  "IX-06035E      "
+#define CS300   "IX-03035B      "
+#define CS600   "IX-06015C      "
+#define CS2700F "IX-27015C       "
+#define IX_4025 "IX-4025        "
+#define IX_4015 "IX-4015        "
+#define IX_3010 "IX-3010        "
+
 #include <sys/types.h>
 
 #define NO_FOCUS     0
@@ -57,6 +67,7 @@
 #define NO_AUTO_EXPOSURE 0
 #define AUTO_EXPOSURE    1
 
+#define AUTO_DOC_FEEDER_UNIT    0x01
 #define TRANSPARENCY_UNIT       0x02
 #define SCAN_CONTROL_CONDITIONS 0x20
 #define ALL_SCAN_MODE_PAGES     0x3F
@@ -65,12 +76,35 @@
 #define GREEN 1
 #define BLUE  2
 
+#define ADF_STAT_NONE		0
+#define ADF_STAT_INACTIVE	1
+#define ADF_STAT_ACTIVE		2
+#define ADF_STAT_DISABLED	3
+
+#define ADF_Status		(4+2) /* byte positioning */
+#define ADF_Settings		(4+3) /* in data block    */
+
+#define ADF_NOT_PRESENT		0x01  /* bit selection    */
+#define ADF_PROBLEM		0x0E  /* from bytes in    */
+#define ADF_PRIORITY		0x03  /* data block.      */
+#define ADF_FEEDER		0x04  /*                  */
+
 #define TPU_STAT_NONE		0
 #define TPU_STAT_INACTIVE	1
 #define TPU_STAT_ACTIVE		2
 
 #define CS3_600  0    /* CanoScan 300/600 */
 #define CS2700   1    /* CanoScan 2700F   */
+
+typedef struct
+{
+  SANE_Int Status;   /* Auto Document Feeder Unit Status */
+  SANE_Int Problem;  /* ADF Problems list */
+  SANE_Int Priority; /* ADF Priority setting */
+  SANE_Int Feeder;   /* ADF Feeder setting */
+
+} CANON_ADF;
+
 
 typedef struct
 {
@@ -92,7 +126,11 @@ typedef enum
     OPT_MODE_GROUP,
     OPT_MODE,
     OPT_NEGATIVE,                    /* Reverse image format */
+    OPT_NEGATIVE_TYPE,               /* Negative film type */
+    OPT_SCANNING_SPEED,
+    OPT_RESOLUTION_GROUP,
     OPT_RESOLUTION_BIND,
+    OPT_HW_RESOLUTION_ONLY,
     OPT_X_RESOLUTION,
     OPT_Y_RESOLUTION,
 
@@ -105,8 +143,7 @@ typedef enum
 
     OPT_CUSTOM_GAMMA,		/* use custom gamma tables? */
     OPT_CUSTOM_GAMMA_BIND,
-    /* The gamma vectors MUST appear in the order gray, red, green,
-       blue.  */
+    /* The gamma vectors MUST appear in the order gray, red, green, blue. */
     OPT_GAMMA_VECTOR,
     OPT_GAMMA_VECTOR_R,
     OPT_GAMMA_VECTOR_G,
@@ -139,6 +176,10 @@ typedef enum
     OPT_SHADOW_G,               /* shadow    point for green */
     OPT_HILITE_B,               /* highlight point for blue  */
     OPT_SHADOW_B,               /* shadow    point for blue  */
+
+    OPT_ADF_GROUP,		/* to allow display of options. */
+    OPT_FLATBED_ONLY,		/* in case you have a sheetfeeder
+				   but don't want to use it. */
 
     OPT_TPU_GROUP,
     OPT_TPU_ON,
@@ -199,6 +240,7 @@ typedef struct CANON_Device
     struct CANON_Device *next;
     SANE_Device sane;
     CANON_Info info;
+    CANON_ADF adf;
     CANON_TPU tpu;
   }
 CANON_Device;
@@ -227,6 +269,8 @@ typedef struct CANON_Scanner
     SANE_Int image_composition;
     SANE_Int bpp;
     SANE_Bool RIF; /* Reverse Image Format */
+    SANE_Int negative_filmtype;
+    SANE_Int scanning_speed;
     SANE_Bool GRC; /* Gray Response Curve  */
     SANE_Bool Mirror;
     SANE_Bool AE;  /* Auto Exposure */
@@ -237,9 +281,88 @@ typedef struct CANON_Scanner
     SANE_Int HiliteB;
     SANE_Int ShadowB;
 
+    /* 990320, ss: array for fixed resolutions */
+    SANE_Word xres_word_list [8];
+    SANE_Word yres_word_list [8];
+
     size_t bytes_to_read;
     int scanning;
   }
 CANON_Scanner;
+
+char *option_name[]=
+  {
+    "OPT_NUM_OPTS",
+
+    "OPT_PAGE",
+
+    "OPT_MODE_GROUP",
+    "OPT_MODE",
+    "OPT_NEGATIVE",
+    "OPT_NEGATIVE_TYPE",
+    "OPT_SCANNING_SPEED",
+
+    "OPT_RESOLUTION_GROUP",
+    "OPT_RESOLUTION_BIND",
+    "OPT_HW_RESOLUTION_ONLY",
+    "OPT_X_RESOLUTION",
+    "OPT_Y_RESOLUTION",
+
+    "OPT_ENHANCEMENT_GROUP",
+    "OPT_BRIGHTNESS",
+    "OPT_CONTRAST",
+    "OPT_THRESHOLD",
+
+    "OPT_MIRROR",
+
+    "OPT_CUSTOM_GAMMA",
+    "OPT_CUSTOM_GAMMA_BIND",
+    "OPT_GAMMA_VECTOR",
+    "OPT_GAMMA_VECTOR_R",
+    "OPT_GAMMA_VECTOR_G",
+    "OPT_GAMMA_VECTOR_B",
+    "OPT_AE",
+
+    "OPT_EJECT_GROUP",
+    "OPT_EJECT_AFTERSCAN",
+    "OPT_EJECT_BEFOREEXIT",
+    "OPT_EJECT_NOW",
+
+    "OPT_FOCUS_GROUP",
+    "OPT_AF",
+    "OPT_AF_ONCE",
+    "OPT_FOCUS",
+
+    "OPT_MARGINS_GROUP",
+    "OPT_TL_X",
+    "OPT_TL_Y",
+    "OPT_BR_X",
+    "OPT_BR_Y",
+
+    "OPT_COLORS_GROUP",
+    "OPT_HNEGATIVE",
+    "OPT_BIND_HILO",
+
+    "OPT_HILITE_R",
+    "OPT_SHADOW_R",
+    "OPT_HILITE_G",
+    "OPT_SHADOW_G",
+    "OPT_HILITE_B",
+    "OPT_SHADOW_B",
+
+    "OPT_TPU_GROUP",
+    "OPT_TPU_ON",
+    "OPT_TPU_PN",
+    "OPT_TPU_DCM",
+    "OPT_TPU_TRANSPARENCY",
+    "OPT_TPU_FILMTYPE",
+
+    "OPT_PREVIEW",
+
+    "NUM_OPTIONS"
+  };
+
+
+
 
 #endif /* not canon_h */

@@ -42,6 +42,8 @@
    HP Scanner Control Language (SCL).
 */
 
+#define STUBS
+extern int sanei_debug_hp;
 #include <sane/config.h>
 #include <lalloca.h>		/* Must be first */
 
@@ -82,7 +84,6 @@
 /*
  *
  */
-
 struct hp_scsi_s
 {
     int		fd;
@@ -95,11 +96,35 @@ struct hp_scsi_s
     hp_byte_t	inq_data[HP_SCSI_INQ_LEN];
 };
 
+#define HP_TMP_BUF_SIZE (1024*4)
+#define HP_WR_BUF_SIZE (1024*4)
+
+typedef struct
+{
+  HpProcessData procdata;
+
+  int outfd;
+  const unsigned char *map;
+
+  unsigned char *image_buf; /* Buffer to store complete image (if req.) */
+  unsigned char *image_ptr;
+  int image_buf_size;
+
+  unsigned char *tmp_buf; /* Buffer for scan data to get even number of bytes */
+  int tmp_buf_size;
+  int tmp_buf_len;
+
+  unsigned char wr_buf[HP_WR_BUF_SIZE];
+  unsigned char *wr_ptr;
+  int wr_buf_size;
+  int wr_left;
+} PROCDATA_HANDLE;
+
 
 static SANE_Status
 hp_nonscsi_write (HpScsi this, hp_byte_t *data, size_t len, HpConnect connect)
 
-{size_t n = -1;
+{int n = -1;
 
  if (len <= 0) return SANE_STATUS_GOOD;
 
@@ -135,7 +160,7 @@ hp_nonscsi_write (HpScsi this, hp_byte_t *data, size_t len, HpConnect connect)
 static SANE_Status
 hp_nonscsi_read (HpScsi this, hp_byte_t *data, size_t *len, HpConnect connect)
 
-{size_t n = -1;
+{int n = -1;
 
  if (*len <= 0) return SANE_STATUS_GOOD;
 
@@ -344,6 +369,7 @@ sanei_hp_scsi_new (HpScsi * newp, const char * devname)
 	  sane_strstatus(status));
       sanei_scsi_close(new->fd);
       sanei_hp_free(new);
+      return status; /* Fix problem with non-scanner devices */
     }
 
   new->bufp = new->buf + HP_SCSI_CMD_LEN;
@@ -440,8 +466,8 @@ hp_scsi_flush (HpScsi this)
 
   this->bufp = this->buf;
 
-  DBG(10, "scsi_flush: writing %lu bytes:\n", (unsigned long) len);
-  DBGDUMP(10, data, len);
+  DBG(16, "scsi_flush: writing %lu bytes:\n", (unsigned long) len);
+  DBGDUMP(16, data, len);
 
   *this->bufp++ = 0x0A;
   *this->bufp++ = 0;
@@ -544,8 +570,8 @@ hp_scsi_read (HpScsi this, void * dest, size_t *len)
   {
     RETURN_IF_FAIL( hp_nonscsi_read (this, dest, len, connect) );
   }
-  DBG(10, "scsi_read:  %lu bytes:\n", (unsigned long) *len);
-  DBGDUMP(10, dest, *len);
+  DBG(16, "scsi_read:  %lu bytes:\n", (unsigned long) *len);
+  DBGDUMP(16, dest, *len);
   return SANE_STATUS_GOOD;
 }
 
@@ -604,10 +630,348 @@ hp_get_simulation_map (const char *devname, const HpDeviceInfo *info)
   return map;
 }
 
+
+/* Check the native byte order on the local machine */
+static hp_bool_t
+is_lowbyte_first_byteorder (void)
+
+{unsigned short testvar = 1;
+ unsigned char *testptr = (unsigned char *)&testvar;
+
+ if (sizeof (unsigned short) == 2)
+   return (testptr[0] == 1);
+ else if (sizeof (unsigned short) == 4)
+   return ((testptr[0] == 1) || (testptr[2] == 1));
+ else
+   return (   (testptr[0] == 1) || (testptr[2] == 1)
+           || (testptr[4] == 1) || (testptr[6] == 1));
+}
+
+/* The SANE standard defines that 2-byte data must use the full 16 bit range.
+ * Byte order returned by the backend must be native byte order.
+ * Scaling to 16 bit and byte order is achived by hp_scale_to_16bit.
+ * for >8 bits data, take the two data bytes and scale their content
+ * to the full 16 bit range, using
+ *     scaled = unscaled << (newlen - oldlen) +
+ *              unscaled >> (oldlen - (newlen - oldlen)),
+ * with newlen=16 and oldlen the original bit depth.
+ */
+static void
+hp_scale_to_16bit(int count, register unsigned char *data, int depth,
+                  hp_bool_t invert)
+{
+    register unsigned int tmp;
+    register unsigned int mask;
+    register hp_bool_t lowbyte_first = is_lowbyte_first_byteorder ();
+    unsigned int shift1 = 16 - depth;
+    unsigned int shift2 = 2*depth - 16;
+    int k;
+
+    if (count <= 0) return;
+
+    mask = 1;
+    for (k = 1; k < depth; k++) mask |= (1 << k);
+
+    if (lowbyte_first)
+    {
+      while (count--) {
+         tmp = ((((unsigned int)data[0])<<8) | ((unsigned int)data[1])) & mask;
+         tmp = (tmp << shift1) + (tmp >> shift2);
+         if (invert) tmp = ~tmp;
+         *data++ = tmp & 255U;
+         *data++ = (tmp >> 8) & 255U;
+      }
+    }
+    else  /* Highbyte first */
+    {
+      while (count--) {
+         tmp = ((((unsigned int)data[0])<<8) | ((unsigned int)data[1])) & mask;
+         tmp = (tmp << shift1) + (tmp >> shift2);
+         if (invert) tmp = ~tmp;
+         *data++ = (tmp >> 8) & 255U;
+         *data++ = tmp & 255U;
+      }
+    }
+}
+
+static PROCDATA_HANDLE *
+process_data_init (HpProcessData *procdata, const unsigned char *map,
+                   int outfd, hp_bool_t use_imgbuf)
+
+{PROCDATA_HANDLE *ph = sanei_hp_alloc (sizeof (PROCDATA_HANDLE));
+ int tsz;
+
+ if (ph == NULL) return NULL;
+
+ memset (ph, 0, sizeof (*ph));
+ memcpy (&(ph->procdata), procdata, sizeof (*procdata));
+ procdata = &(ph->procdata);
+
+ tsz = (HP_TMP_BUF_SIZE <= 0) ? procdata->bytes_per_line : HP_TMP_BUF_SIZE;
+ ph->tmp_buf = sanei_hp_alloc (tsz);
+ if (ph->tmp_buf == NULL)
+ {
+   sanei_hp_free (ph);
+   return NULL;
+ }
+ ph->tmp_buf_size = tsz;
+ ph->tmp_buf_len = 0;
+
+ ph->map = map;
+ ph->outfd = outfd;
+
+ if ( procdata->mirror_vertical || use_imgbuf)
+ {
+   tsz = procdata->lines*procdata->bytes_per_line;
+   ph->image_ptr = ph->image_buf = sanei_hp_alloc (tsz);
+   if ( !ph->image_buf )
+   {
+     procdata->mirror_vertical = 0;
+     ph->image_buf_size = 0;
+     DBG(1, "process_scanline_init: Not enough memory to mirror image\n");
+   }
+   else
+     ph->image_buf_size = tsz;
+ }
+
+ ph->wr_ptr = ph->wr_buf;
+ ph->wr_buf_size = ph->wr_left = sizeof (ph->wr_buf);
+
+ return ph;
+}
+
+
+static SANE_Status
+process_data_write (PROCDATA_HANDLE *ph, unsigned char *data, int nbytes)
+
+{int ncopy;
+
+ if (ph == NULL) return SANE_STATUS_INVAL;
+
+ /* Fill up write buffer */
+ ncopy = ph->wr_left;
+ if (ncopy > nbytes) ncopy = nbytes;
+
+ memcpy (ph->wr_ptr, data, ncopy);
+ ph->wr_ptr += ncopy;
+ ph->wr_left -= ncopy;
+ data += ncopy;
+ nbytes -= ncopy;
+
+ if ( ph->wr_left > 0 )  /* Did not fill up the write buffer ? Finished */
+   return SANE_STATUS_GOOD;
+
+ DBG(12, "process_data_write: write %d bytes\n", ph->wr_buf_size);
+ if ( write (ph->outfd, ph->wr_buf, ph->wr_buf_size) != ph->wr_buf_size)
+ {
+   DBG(1, "process_data_write: write failed: %s\n",
+       signal_caught ? "signal caught" : strerror(errno));
+   return SANE_STATUS_IO_ERROR;
+ }
+ ph->wr_ptr = ph->wr_buf;
+ ph->wr_left = ph->wr_buf_size;
+
+ /* For large amount of data write it from data-buffer */
+ while ( nbytes > ph->wr_buf_size )
+ {
+   if ( write (ph->outfd, data, ph->wr_buf_size) != ph->wr_buf_size)
+   {
+     DBG(1, "process_data_write: write failed: %s\n",
+         signal_caught ? "signal caught" : strerror(errno));
+     return SANE_STATUS_IO_ERROR;
+   }
+   nbytes -= ph->wr_buf_size;
+   data += ph->wr_buf_size;
+ }
+
+ if ( nbytes > 0 ) /* Something left ? Save it to (empty) write buffer */
+ {
+   memcpy (ph->wr_ptr, data, nbytes);
+   ph->wr_ptr += nbytes;
+   ph->wr_left -= nbytes;
+ }
+ return SANE_STATUS_GOOD;
+}
+
+
+static SANE_Status
+process_scanline (PROCDATA_HANDLE *ph, unsigned char *linebuf,
+                  int bytes_per_line)
+
+{
+ HpProcessData *procdata;
+
+ if (ph == NULL) return SANE_STATUS_INVAL;
+ procdata = &(ph->procdata);
+
+ if ( ph->map )
+   hp_data_map (ph->map, bytes_per_line, linebuf);
+
+ if (procdata->bits_per_channel > 8)
+   hp_scale_to_16bit( bytes_per_line/2, linebuf,
+                      procdata->bits_per_channel,
+                      procdata->invert);
+
+ if ( ph->image_buf )
+ {
+   DBG(5, "process_scanline: save in memory\n");
+
+   if ( ph->image_ptr+bytes_per_line-1 <= ph->image_buf+ph->image_buf_size-1 )
+   {
+     memcpy(ph->image_ptr, linebuf, bytes_per_line);
+     ph->image_ptr += bytes_per_line;
+   }
+   else
+   {
+     DBG(1, "process_scanline: would exceed image buffer\n");
+   }
+ }
+ else /* Save scanlines in a bigger buffer. */
+ {    /* Otherwise we will get performance problems */
+
+   RETURN_IF_FAIL ( process_data_write (ph, linebuf, bytes_per_line) );
+ }
+ return SANE_STATUS_GOOD;
+}
+
+
+static SANE_Status
+process_data (PROCDATA_HANDLE *ph, unsigned char *read_ptr, int nread)
+
+{int bytes_left;
+ HpProcessData *procdata;
+
+ if (nread <= 0) return SANE_STATUS_GOOD;
+
+ if (ph == NULL) return SANE_STATUS_INVAL;
+
+ procdata = &(ph->procdata);
+ if ( ph->tmp_buf_len > 0 )  /* Something left ? */
+ {
+   bytes_left = ph->tmp_buf_size - ph->tmp_buf_len;
+   if (nread < bytes_left)  /* All to buffer ? */
+   {
+     memcpy (ph->tmp_buf+ph->tmp_buf_len, read_ptr, nread);
+     ph->tmp_buf_len += nread;
+     return SANE_STATUS_GOOD;
+   }
+   memcpy (ph->tmp_buf+ph->tmp_buf_len, read_ptr, bytes_left);
+   read_ptr += bytes_left;
+   nread -= bytes_left;
+   RETURN_IF_FAIL ( process_scanline (ph, ph->tmp_buf, ph->tmp_buf_size) );
+   ph->tmp_buf_len = 0;
+ }
+ while (nread > 0)
+ {
+   if (nread >= ph->tmp_buf_size)
+   {
+     RETURN_IF_FAIL ( process_scanline (ph, read_ptr, ph->tmp_buf_size) );
+     read_ptr += ph->tmp_buf_size;
+     nread -= ph->tmp_buf_size;
+   }
+   else
+   {
+     memcpy (ph->tmp_buf, read_ptr, nread);
+     ph->tmp_buf_len = nread;
+     nread = 0;
+   }
+ }
+ return SANE_STATUS_GOOD;
+}
+
+
+static SANE_Status
+process_data_flush (PROCDATA_HANDLE *ph)
+
+{SANE_Status status = SANE_STATUS_GOOD;
+ HpProcessData *procdata;
+ unsigned char *image_data;
+ size_t image_len;
+ int num_lines, bytes_per_line;
+ int nbytes;
+
+ if (ph == NULL) return SANE_STATUS_INVAL;
+
+ if ( ph->tmp_buf_len > 0 )
+   process_scanline (ph, ph->tmp_buf, ph->tmp_buf_len);
+
+ if ( ph->wr_left != ph->wr_buf_size ) /* Something in write buffer ? */
+ {
+   nbytes = ph->wr_buf_size - ph->wr_left;
+   if ( write (ph->outfd, ph->wr_buf, nbytes) != nbytes)
+   {
+     DBG(1, "process_data_flush: write failed: %s\n",
+         signal_caught ? "signal caught" : strerror(errno));
+     return SANE_STATUS_IO_ERROR;
+   }
+   ph->wr_ptr = ph->wr_buf;
+   ph->wr_left = ph->wr_buf_size;
+ }
+
+ procdata = &(ph->procdata);
+ if ( ph->image_buf )
+ {
+   bytes_per_line = procdata->bytes_per_line;
+   image_len = (size_t) (ph->image_ptr - ph->image_buf);
+   num_lines = ((int)(image_len + bytes_per_line-1)) / bytes_per_line;
+
+   DBG(3, "process_data_finish: write %d bytes from memory...\n",
+       (int)image_len);
+
+   if ( procdata->mirror_vertical )
+   {
+     image_data = ph->image_buf + (num_lines-1) * bytes_per_line;
+     while (num_lines > 0 )
+     {
+       if (write(ph->outfd, image_data, bytes_per_line) != bytes_per_line)
+       {
+         DBG(1,"process_data_finish: write from memory failed: %s\n",
+             signal_caught ? "signal caught" : strerror(errno));
+         status = SANE_STATUS_IO_ERROR;
+         break;
+       }
+       num_lines--;
+       image_data -= bytes_per_line;
+     }
+   }
+   else
+   {
+     image_data = ph->image_buf;
+     while (num_lines > 0 )
+     {
+       if (write(ph->outfd, image_data, bytes_per_line) != bytes_per_line)
+       {
+         DBG(1,"process_data_finish: write from memory failed: %s\n",
+             signal_caught ? "signal caught" : strerror(errno));
+         status = SANE_STATUS_IO_ERROR;
+         break;
+       }
+       num_lines--;
+       image_data += bytes_per_line;
+     }
+   }
+ }
+ return status;
+}
+
+
+static void
+process_data_finish (PROCDATA_HANDLE *ph)
+
+{
+ DBG(12, "process_data_finish called\n");
+
+ if (ph == NULL) return;
+
+ if (ph->image_buf != NULL) sanei_hp_free (ph->image_buf);
+
+ sanei_hp_free (ph->tmp_buf);
+ sanei_hp_free (ph);
+}
+
+
 SANE_Status
-sanei_hp_scsi_pipeout (HpScsi this, int outfd, size_t count,
-                       int mirror, int bytes_per_line,
-                       int bits_per_channel)
+sanei_hp_scsi_pipeout (HpScsi this, int outfd, HpProcessData *procdata)
 {
   /* We will catch these signals, and rethrow them after cleaning up,
    * anything not in this list, we will ignore. */
@@ -642,6 +1006,7 @@ sanei_hp_scsi_pipeout (HpScsi this, int outfd, size_t count,
   struct SIGACTION sa;
   sigset_t	old_set, sig_set;
   int		i;
+  int           bits_per_channel = procdata->bits_per_channel;
 
 #define HP_PIPEBUF	32768
   SANE_Status	status	= SANE_STATUS_GOOD;
@@ -650,18 +1015,19 @@ sanei_hp_scsi_pipeout (HpScsi this, int outfd, size_t count,
       void *	id;
       hp_byte_t	cmd[6];
       hp_byte_t	data[HP_PIPEBUF];
-  } 	buf[2], *req;
+  } 	buf[2], *req = NULL;
   int		reqs_completed = 0;
   int		reqs_issued = 0;
-  int           num_lines;
-  size_t        image_len;
-  char          *image_buf = 0, *image_data = 0;
+  char          *image_buf = 0;
   char          *read_buf = 0;
   const HpDeviceInfo *info;
   const char    *devname = sanei_hp_scsi_devicename (this);
   int enable_requests = 1;
+  int enable_image_buffering = 0;
   const unsigned char *map = NULL;
   HpConnect     connect = HP_CONNECT_SCSI;
+  PROCDATA_HANDLE *ph = NULL;
+  size_t count = procdata->lines * procdata->bytes_per_line;
 
   RETURN_IF_FAIL( hp_scsi_flush(this) );
 
@@ -672,6 +1038,7 @@ sanei_hp_scsi_pipeout (HpScsi this, int outfd, size_t count,
   if ( info->config_is_up )
   {
     enable_requests = info->config.use_scsi_request;
+    enable_image_buffering = info->config.use_image_buffering;
     connect = info->config.connect;
   }
   else
@@ -694,7 +1061,7 @@ sanei_hp_scsi_pipeout (HpScsi this, int outfd, size_t count,
   sigfillset(&sa.sa_mask);
 
   sigemptyset(&sig_set);
-  for (i = 0; i < HP_NSIGS; i++)
+  for (i = 0; i < (int)(HP_NSIGS); i++)
     {
       sigaction(kill_sig[i], &sa, &old_handler[i]);
       sigaddset(&sig_set, kill_sig[i]);
@@ -702,15 +1069,13 @@ sanei_hp_scsi_pipeout (HpScsi this, int outfd, size_t count,
   signal_caught = 0;
   sigprocmask(SIG_UNBLOCK, &sig_set, 0);
 
-  if ( mirror )
-    {
-      image_buf = image_data = sanei_hp_alloc ( count );
-      if ( !image_buf )
-	{
-	   mirror = 0;
-	   DBG(1, "do_read: Not enough memory to mirror image\n");
-	}
-    }
+  ph = process_data_init (procdata, map, outfd, enable_image_buffering);
+
+  if ( ph == NULL )
+  {
+    DBG(1, "do_read: Error with process_data_init()\n");
+    goto quit;
+  }
 
   DBG(1, "do_read: Start reading data from scanner\n");
 
@@ -766,29 +1131,12 @@ sanei_hp_scsi_pipeout (HpScsi this, int outfd, size_t count,
       if (signal_caught)
 	  goto quit;
 
-      if ( map )
-        hp_data_map (map, (int)req->len, (unsigned char *)req->data);
-
-      if ( mirror )
-         {
-	    DBG(3, "do_read: got %lu bytes, save in memory...\n",
-		(unsigned long) req->len);
-            memcpy(image_data, req->data, req->len);
-            image_data += req->len;
-         }
-      else
-         {
-	    DBG(3, "do_read: got %lu bytes, writing...\n",
-		(unsigned long) req->len);
-	    if (write(outfd, req->data, req->len) != req->len)
-	      {
-		if (signal_caught)
-		  goto quit;
-		DBG(1, "do_read: write failed: %s\n", strerror(errno));
-		status = SANE_STATUS_IO_ERROR;
-		goto quit;
-	      }
-         }
+      status = process_data (ph, (unsigned char *)req->data, (int)req->len);
+      if ( status != SANE_STATUS_GOOD )
+      {
+        DBG(1,"do_read: Error in process_data\n");
+        goto quit;
+      }
     }
   }
   else  /* Read directly */
@@ -828,57 +1176,21 @@ sanei_hp_scsi_pipeout (HpScsi this, int outfd, size_t count,
         continue;
       }
 
-      if ( map )
-        hp_data_map (map, (int)nread, (unsigned char *)read_buf);
-
-      if ( mirror )
+      status = process_data (ph, (unsigned char *)read_buf, (int)nread);
+      if ( status != SANE_STATUS_GOOD )
       {
-         DBG(3, "do_read: got %lu bytes, save in memory...\n",
-             (unsigned long) nread);
-         memcpy(image_data, read_buf, nread);
-         image_data += nread;
-      }
-      else
-      {
-         DBG(3, "do_read: got %lu bytes, writing...\n",
-             (unsigned long) nread);
-         if (write(outfd, read_buf, nread) != nread)
-         {
-           if (signal_caught)
-             goto quit;
-           DBG(1, "do_read: write failed: %s\n", strerror(errno));
-           status = SANE_STATUS_IO_ERROR;
-           goto quit;
-         }
+        DBG(1,"do_read: Error in process_data\n");
+        goto quit;
       }
       count -= nread;
     }
   }
 
-  if ( mirror )
-    {
-      image_len = (size_t) (image_data - image_buf);
-      num_lines = ((int)(image_len+bytes_per_line-1)) / bytes_per_line;
-      image_data = image_buf + (num_lines-1) * bytes_per_line;
-
-      DBG(3, "do_read: write %d bytes from memory...\n", (int)image_len);
-
-      while (num_lines > 0 )
-        {
-          if (write(outfd, image_data, bytes_per_line) != bytes_per_line)
-            {
-              if (signal_caught)
-                goto quit;
-              DBG(1,"do_read: write from memory failed: %s\n", strerror(errno));
-              status = SANE_STATUS_IO_ERROR;
-              goto quit;
-            }
-          num_lines--;
-          image_data -= bytes_per_line;
-        }
-    }
+  process_data_flush (ph);
 
 quit:
+
+  process_data_finish (ph);
 
   if ( image_buf ) sanei_hp_free ( image_buf );
   if ( read_buf ) sanei_hp_free ( read_buf );
@@ -895,7 +1207,7 @@ quit:
 
   sigfillset(&sig_set);
   sigprocmask(SIG_BLOCK, &sig_set, 0);
-  for (i = 0; i < HP_NSIGS; i++)
+  for (i = 0; i < (int)(HP_NSIGS); i++)
       sigaction(kill_sig[i], &old_handler[i], 0);
   sigprocmask(SIG_SETMASK, &old_set, 0);
 
@@ -981,7 +1293,7 @@ _hp_scl_inq (HpScsi scsi, HpScl scl, HpScl inq_cmnd,
       *(int *)valp = val; /* Get integer value */
   else
     {
-      if (val > *lengthp)
+      if (val > (int)*lengthp)
 	{
 	  DBG(1, "scl_inq: inquiry returned %d bytes, expected <= %lu\n",
 	      val, (unsigned long) *lengthp);
@@ -1190,14 +1502,17 @@ sanei_hp_scl_calibrate(HpScsi scsi)
 }
 
 SANE_Status
-sanei_hp_scl_startScan(HpScsi scsi, hp_bool_t adf_scan)
+sanei_hp_scl_startScan(HpScsi scsi, HpScl scl)
 {
-  DBG(1, "sanei_hp_scl_startScan: Start %sscan\n", adf_scan ? "ADF " : "");
+  char *msg = "";
 
-  if ( adf_scan )
-    RETURN_IF_FAIL( hp_scsi_scl(scsi, SCL_ADF_SCAN, 0) );
-  else
-    RETURN_IF_FAIL( hp_scsi_scl(scsi, SCL_START_SCAN, 0) );
+  if (scl == SCL_ADF_SCAN) msg = " (ADF)";
+  else if (scl == SCL_XPA_SCAN) msg = " (XPA)";
+  else scl = SCL_START_SCAN;
+
+  DBG(1, "sanei_hp_scl_startScan: Start scan%s\n", msg);
+
+  RETURN_IF_FAIL( hp_scsi_scl(scsi, scl, 0) );
   return hp_scsi_flush(scsi);
 }
 
@@ -1234,7 +1549,7 @@ hp_scl_strerror (int errnum)
       "Gross Calibration Error"
   };
 
-  if (errnum >= 0 && errnum < sizeof(errlist)/sizeof(errlist[0]))
+  if (errnum >= 0 && errnum < (int)(sizeof(errlist)/sizeof(errlist[0])))
       return errlist[errnum];
   else
       switch(errnum) {

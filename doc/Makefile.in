@@ -33,13 +33,13 @@ SECT1	= saned.1 scanimage.1 xscanimage.1
 SECT5	= sane-abaton.5 sane-agfafocus.5 sane-apple.5 sane-dll.5 sane-dc25.5 \
 	  sane-dmc.5 sane-epson.5 sane-hp.5 sane-microtek.5 sane-microtek2.5 \
 	  sane-mustek.5 sane-net.5 sane-pint.5 sane-pnm.5 sane-umax.5 \
-	  sane-qcam.5 sane-scsi.5
+	  sane-qcam.5 sane-scsi.5 sane-artec.5 sane-fujitsu.5 sane-sharp.5
 MANPAGES = $(SECT1) $(SECT5)
 LATEX	= TEXINPUTS=$(srcdir):$$TEXINPUTS latex
 DLH	= TEXINPUTS=$(srcdir):$$TEXINPUTS dlh
 MAN2HTML= nroff -man |\
 	  man2html -compress -title $${page} -cgiurl '$$title.$$section.html'|\
-	  sed 's,<BODY>,<BODY BGCOLOR=\#FFFFFF TEXT=\#000000><H1 ALIGN=CENTER><IMG SRC="../sane.gif" HEIGHT=117 WIDTH=346></H1>,'
+	  sed 's,<BODY>,<BODY BGCOLOR=\#FFFFFF TEXT=\#000000><H1 ALIGN=CENTER><IMG SRC="../sane.png" HEIGHT=117 WIDTH=346></H1>,'
 
 all: $(MANPAGES)
 

@@ -74,6 +74,38 @@ usage (char *msg)
     fprintf (stderr, "\t%s\n", msg);
 }
 
+/* if SCSI generic is optional on your OS, and there is a software test
+   which will determine if it is included, add it here. If you are sure
+   that SCSI generic was found, return 1. If SCSI generic is always
+   available in your OS, return 1 */
+
+int
+check_sg (void)
+{
+#if defined(__linux__)
+  /* Assumption: /proc/devices lines are shorter than 256 characters */
+  char line[256], driver[256]= "";
+  FILE *stream;
+
+  stream= fopen("/proc/devices", "r");
+  /* Likely reason for failure, no /proc => probably no SG either */
+  if (stream == NULL) return 0;
+ 
+  while (fgets(line, sizeof(line)-1, stream)) {
+    if (sscanf(line, " %*d %s\n", driver) > 0 && !strcmp(driver, "sg"))
+      break;
+  }
+  fclose(stream);
+
+  if (strcmp(driver, "sg")) {
+    return 0;
+  } else {
+    return 1;
+  }
+#endif
+  return 1; /* Give up, and assume yes to avoid false negatives */
+}
+
 void 
 scanner_do_inquiry (unsigned char *buffer, int sfd)
 {
@@ -408,6 +440,13 @@ main (int argc, char **argv)
 	  sanei_scsi_close (sfd);
 	}
     }
+  if (!check_sg()) {
+    printf (
+       "# If your scanner uses SCSI, you must have a driver for your SCSI\n"
+       "# adaptor and support for SCSI Generic (sg) in your Operating System\n"
+       "# in order for the scanner to be used with SANE. If your scanner is\n"
+       "# NOT listed above, check that you have installed the drivers.\n\n");
+  }
   if (verbose)
     printf ("%s: done\n", prog_name);
   return 0;

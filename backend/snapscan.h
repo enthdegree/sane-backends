@@ -1,8 +1,8 @@
 /* sane - Scanner Access Now Easy.
 
-   Copyright (C) 1997, 1998 Franck Schnefra, Michel Roelofs,
-   Emmanuel Blot, Mikko Tyolajarvi, David Mosberger-Tang, Wolfgang Goeller
-   and Kevin Charter
+   Copyright (C) 1997, 1998, 1999  Franck Schnefra, Michel Roelofs,
+   Emmanuel Blot, Mikko Tyolajarvi, David Mosberger-Tang, Wolfgang Goeller,
+   Petter Reinholdtsen, Gary Plewa, and Kevin Charter
 
    This file is part of the SANE package.
 
@@ -65,7 +65,8 @@ typedef enum
   SNAPSCAN310,			/* the SnapScan 310 */
   SNAPSCAN600,			/* the SnapScan 600 */
   SNAPSCAN1236S,		/* the SnapScan 1236s */
-  VUEGO310S			/* Vuego-Version of SnapScan 310 WG changed */
+  VUEGO310S,			/* Vuego-Version of SnapScan 310 WG changed */
+  PRISA620S			/* Prisa-Version of SnapScan 600 GP added */ 
 } SnapScan_Model;
 
 struct SnapScan_Model_desc
@@ -78,6 +79,7 @@ static struct SnapScan_Model_desc scanners[] =
 {
   /* SCSI model name -> enum value */
   { "FlatbedScanner_4",	VUEGO310S },
+  { "FlatbedScanner_9", PRISA620S },
   { "SNAPSCAN 1236",	SNAPSCAN1236S },
   { "SNAPSCAN 310",	SNAPSCAN310 },
   { "SNAPSCAN 600",	SNAPSCAN600 },
@@ -89,7 +91,7 @@ static char *vendors[] =
 {
   /* SCSI Vendor name */
   "AGFA",
-  "COLOR",
+  "COLOR"
 };
 #define known_vendors (sizeof(vendors)/sizeof(vendors[0]))
 
@@ -155,7 +157,11 @@ typedef struct snapscan_device
 #define MAX_SCSI_CMD_LEN 256	/* not that large */
 #define SCANNER_BUF_SZ 31744
 
-typedef struct snapscan_scanner
+typedef struct snapscan_scanner SnapScan_Scanner;
+
+#include <snapscan-sources.h>
+
+struct snapscan_scanner
   {
     SANE_String devname;	/* the scsi device name */
     SnapScan_Device *pdev;	/* the device */
@@ -174,7 +180,7 @@ typedef struct snapscan_scanner
     size_t buf_sz;		/* effective buffer size */
     size_t expected_read_bytes;	/* expected amount of data in a single read */
     size_t read_bytes;		/* amount of actual data read */
-    size_t expected_data_len;	/* total amount of expected data in scan */
+    size_t bytes_remaining;	/* remaining bytes expected from scanner */
     size_t actual_res;		/* actual resolution */
     size_t lines;		/* number of scan lines */
     size_t bytes_per_line;	/* bytes per scan line */
@@ -186,9 +192,26 @@ typedef struct snapscan_scanner
     char *as_str;		/* additional sense string */
     u_char asi1;		/* first additional sense info byte */
     u_char asi2;		/* second additional sense info byte */
+#ifdef OBSOLETE
+    struct
+    {				/* RGB ring buffer for 310/600 model */
+	SANE_Byte *data;	/* buffer data */
+	SANE_Int line_in;	/* virtual position */
+	SANE_Int pixel_pos;
+	SANE_Int line_out;	/* read lines */
+	SANE_Byte g_offset;	/* green offset */
+	SANE_Byte b_offset;	/* blue offset */
+	SANE_Byte r_offset;	/* red offset */
+    } rgb_buf;
+#else
+    SANE_Byte g_offset;		/* green chroma offset */
+    SANE_Byte b_offset;		/* blue chroma offset */
+    SANE_Byte r_offset;		/* red chroma offset */
+#endif
+    Source *psrc;		/* data source */
 
-      SANE_Option_Descriptor
-      options[NUM_OPTS];	/* the option descriptors */
+    SANE_Option_Descriptor
+    options[NUM_OPTS];		/* the option descriptors */
     /* the options themselves... */
     SANE_Int res;		/* resolution */
     SANE_Bool preview;		/* preview mode toggle */
@@ -213,28 +236,45 @@ typedef struct snapscan_scanner
     SANE_Int threshold;		/* threshold for line art */
     SANE_Int rgb_lpr;		/* lines per scsi read (RGB) */
     SANE_Int gs_lpr;		/* lines per scsi read (greyscale) */
-    struct
-      {				/* RGB ring buffer for 310/600 model */
-	SANE_Byte *data;	/* buffer data */
-	SANE_Int line_in;	/* virtual position */
-	SANE_Int pixel_pos;
-	SANE_Int line_out;	/* read lines */
-	SANE_Byte g_offset;	/* green offset */
-	SANE_Byte b_offset;	/* blue offset */
-	SANE_Byte r_offset;	/* red offset */
-      } rgb_buf;
-  }
-
-SnapScan_Scanner;
-
+  };
 
 #endif
 
-/* $Log$
- * Revision 1.1.1.1  1999/08/09 18:05:53  pere
- * Wiped old repository.  Imported v1.0.1.
+/*
+ * $Log$
+ * Revision 1.2  2000/03/05 13:55:21  pere
+ * Merged main branch with current DEVEL_1_9.
  *
- * Revision 1.25  1998/12/16  18:40:53  charter
+ * Revision 1.1.1.1.2.1  1999/09/15 18:20:02  charter
+ * Early version 1.0 snapscan.h
+ *
+ * Revision 2.2  1999/09/09 18:25:02  charter
+ * Checkpoint. Removed references to snapscan-310.c stuff using
+ * "#ifdef OBSOLETE".
+ *
+ * Revision 2.1  1999/09/08 03:05:05  charter
+ * Start of branch 2; same as 1.30.
+ *
+ * Revision 1.30  1999/09/07 20:54:07  charter
+ * Changed expected_data_len to bytes_remaining.
+ *
+ * Revision 1.29  1999/09/02 05:29:46  charter
+ * Fixed the spelling of Petter's name (again).
+ *
+ * Revision 1.28  1999/09/02 05:28:50  charter
+ * Added Gary Plewa's name to the list of contributors.
+ *
+ * Revision 1.27  1999/09/02 04:48:25  charter
+ * Added models and strings for the Acer PRISA 620s (thanks to Gary Plewa).
+ *
+ * Revision 1.26  1999/09/02 02:01:46  charter
+ * Checking in rev 1.26 (for backend version 0.7) again.
+ * This is part of the recovery from the great disk crash of Sept 1, 1999.
+ *
+ * Revision 1.26  1999/07/09 20:54:34  charter
+ * Modifications for SnapScan 1236s (Petter Reinholdsten).
+ *
+ * Revision 1.25  1998/12/16 18:40:53  charter
  * Commented the INOPERATIVE define to get rid of spurious brightness
  * and contrast controls accidentally reintroduced previously.
  *

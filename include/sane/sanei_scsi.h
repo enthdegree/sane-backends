@@ -48,6 +48,31 @@ extern SANE_Status sanei_scsi_open (const char * device_name, int * fd,
 				    SANEI_SCSI_Sense_Handler sense_handler,
 				    void *sense_arg);
 
+/* The extended open call allows a backend to ask for a specific
+   buffer size. sanei_scsi_open tries to allocate a buffer of the
+   size given by *buffersize upon entry to this function. If
+   sanei_scsi_open_extended returns successfully, *buffersize
+   contains the available buffer size. This value may be both
+   smaller or larger than the value requested by the backend;
+   it can even be zero. The backend must decide, if it got enough
+   buffer memory to work.
+
+   Note that the value of *buffersize may differ for different
+   files.
+*/
+extern SANE_Status sanei_scsi_open_extended (
+       const char * device_name, int * fd,
+       SANEI_SCSI_Sense_Handler sense_handler,
+       void *sense_arg, int *buffersize);
+
+/* Let backends decide, which open call to use:
+   if HAVE_SANEI_SCSI_OPEN_EXTENDED is defined, sanei_scsi_open_extended
+   may be used.
+   May also be used to decide, if sanei_scsi_req_flush_all or
+   sanei_scsi_req_flush_all_extended should be used.
+*/
+#define HAVE_SANEI_SCSI_OPEN_EXTENDED
+
 /* One or more scsi commands can be enqueued by calling req_enter().
    SRC is the pointer to the SCSI command and associated write data
    and SRC_SIZE is the length of the command and data.  DST is a
@@ -76,8 +101,13 @@ extern SANE_Status sanei_scsi_cmd (int fd,
 				   const void * src, size_t src_size,
 				   void * dst, size_t * dst_size);
 
-/* Flush all pending SCSI commands.  */
+/* Flush all pending SCSI commands. This function work only,
+   if zero or one SCSI file handles are open.
+*/
 extern void sanei_scsi_req_flush_all (void);
+
+/* Flush all SCSI commands pending for one handle */
+extern void sanei_scsi_req_flush_all_extended (int fd);
 
 extern void sanei_scsi_close (int fd);
 

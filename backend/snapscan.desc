@@ -11,10 +11,10 @@
 ;
 
 :backend "SnapScan"               ; name of backend
-:version "0.5"                    ; version of backend
+:version "0.7"                    ; version of backend
 :status :alpha                    ; :alpha, :beta, :stable, :new
 ;:manpage "sane-template"          ; name of manpage (if it exists)
-:url "http://www.cs.ualberta.ca/~charter/snapscan.html" ; backend's web page
+:url "http://www.cs.ualberta.ca/~charter/SnapScan/snapscan.html" ; backend's web page
 
 :devicetype :scanner              ; start of a list of devices....
                                   ; other types:  :stillcam, :vidcam,
@@ -23,17 +23,24 @@
 :mfg "AGFA"                   ; name a manufacturer
 :url "http://www.agfa.com/"
 :model "SnapScan 300"                  ; name models for above-specified mfg.
-:comment "Only 8 bits/sample at present"
+:comment "Only 8 bits/sample at present."
 :model "SnapScan 310"
 :comment "Ditto"
 :model "SnapScan 600"
 :comment "Ditto"
 :model "SnapScan 1236s"
-:comment "Ditto"
+:comment "Ditto. Have no specific programming info yet."
 :mfg "Vuego"
-:model "310S"
+:model "310s"
 :comment "Close SnapScan 310 compatible."
-
+:mfg "Acer"
+:model "310s"
+:comment "Same thing as the Vuego 310s."
+:model "Prisa 620s"
+:comment "Seems to be a close SnapScan 310/600 compatible."
+:mfg "Guillemot International"
+:model "Maxi Scan A4 Deluxe (SCSI)"
+:comment "May be a repackaged Vuego 310s or SnapScan 310s."
 ;:devicetype :api                  ; specify a different type
 ;:desc "Interface to FrObYz API"   ; describe a non-hardware device
 

@@ -57,7 +57,9 @@ enum hp_device_compat_e {
     HP_COMPAT_5P	= 1 << 7,
     HP_COMPAT_5100C	= 1 << 8, /* also 4100 C */
     HP_COMPAT_PS	= 1 << 9, /* Hp PhotoSmart Photo Scanner */
-    HP_COMPAT_6200C	= 1 << 10
+    HP_COMPAT_6200C	= 1 << 10,
+    HP_COMPAT_5200C	= 1 << 11,
+    HP_COMPAT_6300C	= 1 << 12
 };
 
 struct hp_device_s

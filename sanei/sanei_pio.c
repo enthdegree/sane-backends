@@ -51,6 +51,9 @@
 
 #include <sane/config.h>
 
+#define BACKEND_NAME sanei_pio
+#include <sane/sanei_backend.h>		/* pick up compatibility defs */
+
 #ifdef HAVE_UNISTD_H
 # include <unistd.h>
 #endif
@@ -101,9 +104,6 @@ inb (u_long port)
 
 #include <sane/saneopts.h>
 
-#define BACKEND_NAME sanei_pio
-#include <sane/sanei_backend.h>		/* pick up compatibility defs */
-
 #define PORT_DEV	"/dev/port"
 
 /*    base    278 (lpt2)
@@ -152,8 +152,8 @@ PortRec, *Port;
 
 static PortRec port[] =
   {
-    {0x378, -1,},
-    {0x278, -1,}
+    {0x378, -1, 0, 0},
+    {0x278, -1, 0, 0}
   };
 
 extern int setuid (uid_t);
@@ -177,7 +177,7 @@ pio_outb (const Port port, u_char val, u_long addr)
     outb (val, addr);
   else
     {
-      if (addr != lseek (port->fd, addr, SEEK_SET))
+      if (addr != (u_long)lseek (port->fd, addr, SEEK_SET))
 	return -1;
       if (1 != write (port->fd, &val, 1))
 	return -1;
@@ -193,7 +193,7 @@ pio_inb (const Port port, u_char * val, u_long addr)
     *val = inb (addr);
   else
     {
-      if (addr != lseek (port->fd, addr, SEEK_SET))
+      if (addr != (u_long)lseek (port->fd, addr, SEEK_SET))
 	return -1;
       if (1 != read (port->fd, val, 1))
 	return -1;
@@ -234,7 +234,7 @@ pio_wait (const Port port, u_char val, u_char mask)
   exit (-1);
 }
 
-static void inline 
+static inline void
 pio_ctrl (const Port port, u_char val)
 {
   DBG (DL60, "ctrl on port 0x%03lx %02x %02x\n",

@@ -43,10 +43,38 @@
    HP Scanner Control Language (SCL).
 */
 
-static char *hp_backend_version = "0.82";
+static char *hp_backend_version = "0.86";
 /* Changes:
 
-   V 0.82, 28-Feb-99, Ewald de Witt <ewald@pobox.com>:
+   V 0.86, 12-Feb-2000, PK:
+      - fix gcc warnings
+      - fix problems with bitdepths > 8
+      - allow hp_data_resize to be called with newsize==bufsiz
+        (Jens Heise, <heisbeee@calvados.zrz.TU-Berlin.DE>)
+      - add option enable-image-buffering
+   V 0.85, 30-Jan-2000, PK:
+      - correct and enhace data widths > 8 (Ewald de Wit  <ewald@pobox.com>)
+      - enable data width for all scanners
+      - PhotoSmart: exposure "Off" changed to "Default"
+      - PhotoSmart: even if max. datawidth 24 is reported, allow 30 bits.
+      - change keyword -data-width to -depth and use value for bits per sample
+      - change keyword -halftone-type to -halftone-pattern
+      - change keyword -scantype to -source
+      - fix problem with multiple definition of sanei_debug_hp
+   V 0.83, 04-Jul-99, PK:
+      - reset scanner before downloading parameters (fixes problem
+        with sleep mode of scanners)
+      - fix problem with coredump if non-scanner HP SCSI devices
+        are connected (CDR)
+      - option scan-from-adf replaced by scantype normal/adf/xpa
+      - change value "Film strip" to "Film-strip" for option
+        --media-type
+      - PhotoScanner: allow only scanning at multiple of 300 dpi
+        for scanning slides/film strips. This also fixes a problem with the
+        preview which uses arbitrary resolutions.
+      - Marian Szebenyi: close pipe (endless loop on Digital UNIX)
+
+   V 0.82, 28-Feb-99, Ewald de Wit <ewald@pobox.com>:
       - add options 'exposure time' and 'data width'
 
    V 0.81, 11-Jan-99, PK:
@@ -143,15 +171,15 @@ sanei_hp_dbgdump (const void * bufp, size_t len)
   int		i;
   FILE *	fp	= stderr;
 
-  for (offset = 0; offset < len; offset += 16)
+  for (offset = 0; offset < (int)len; offset += 16)
     {
       fprintf(fp, " 0x%04X ", offset);
-      for (i = offset; i < offset + 16 && i < len; i++)
+      for (i = offset; i < offset + 16 && i < (int)len; i++)
 	  fprintf(fp, " %02X", buf[i]);
       while (i++ < offset + 16)
 	  fputs("   ", fp);
       fputs("  ", fp);
-      for (i = offset; i < offset + 16 && i < len; i++)
+      for (i = offset; i < offset + 16 && i < (int)len; i++)
 	  fprintf(fp, "%c", isprint(buf[i]) ? buf[i] : '.');
       fputs("\n", fp);
     }
@@ -244,6 +272,7 @@ hp_init_config (HpDeviceConfig *config)
   {
     config->connect = HP_CONNECT_SCSI;
     config->use_scsi_request = 1;
+    config->use_image_buffering = 0;
   }
 }
 
@@ -316,6 +345,18 @@ sanei_hp_device_info_get (const char *devname)
  while (retries-- > 0);
 
  return 0;
+}
+
+HpDevice
+sanei_hp_device_get (const char *devname)
+{
+  HpDeviceList  ptr;
+
+  for (ptr = global.device_list; ptr; ptr = ptr->next)
+      if (strcmp(sanei_hp_device_sanedevice(ptr->dev)->name, devname) == 0)
+	  return ptr->dev;
+
+  return 0;
 }
 
 static void
@@ -538,6 +579,10 @@ hp_read_config (void)
             else if (strcmp (arg2, "disable-scsi-request") == 0)
             {
               config->use_scsi_request = 0;
+            }
+            else if (strcmp (arg2, "enable-image-buffering") == 0)
+            {
+              config->use_image_buffering = 1;
             }
             else
             {

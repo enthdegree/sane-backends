@@ -6,7 +6,6 @@ These are Geoffreys TODOs:
 
    Dither pattern option not working right.
 
-   Support 10 & 12 bit modes
    More use of FAILED macro , maybe SUCCESS macro ?
 
    Convert to single .h file?
@@ -49,7 +48,5 @@ New TODOs:
   - rubbish on bottom of scanned image
   - too few data that is received on bottom of scanned image for PhotoScanner
   - scan time for slides at 2400 dpi is twice as long as under M$-Windows
-  - for slides and negatives it supports only scan resolutions that are
-    a multiple of 300. Other resolutions will give images stretched in
-    y-direction (scan movement). We should only have a selection menu
-    for the supported resolutions instead of a slider.
+
+ Support 10/12-bits for greyscale

@@ -75,6 +75,7 @@
 static int num_devices = 0;
 static Ricoh_Device *first_dev = NULL;
 static Ricoh_Scanner *first_handle = NULL;
+static int is50 = 0;
 
 #include "ricoh-scsi.c"
 
@@ -141,12 +142,14 @@ attach (const char *devnam, Ricoh_Device ** devp)
 
   if (ibuf.devtype != 6
       || strncmp (ibuf.vendor, "RICOH", 5) != 0
-      || strncmp (ibuf.product, "IS60", 4) != 0)
+      || (strncmp (ibuf.product, "IS50", 4) != 0
+	  && strncmp (ibuf.product, "IS60", 4) != 0))
     {
       DBG (1, "attach: device doesn't look like the Ricoh scanner I know\n");
       sanei_scsi_close (fd);
       return (SANE_STATUS_INVAL);
     }
+  is50 = (strncmp (ibuf.product, "IS50", 4) == 0);
 
   DBG (3, "attach: sending TEST_UNIT_READY\n");
   status = test_unit_ready (fd);
@@ -241,7 +244,10 @@ attach (const char *devnam, Ricoh_Device ** devp)
   if (wbuf.image_comp == RICOH_GRAYSCALE || wbuf.image_comp == RICOH_DITHERED_MONOCHROME)
     {
       dev->info.brightness_default = 256 - wbuf.brightness;
-      dev->info.contrast_default = 256 - wbuf.contrast;
+      if (is50)
+	dev->info.contrast_default = wbuf.contrast;
+      else
+	dev->info.contrast_default = 256 - wbuf.contrast;
     }
   else /* wbuf.image_comp == RICOH_BINARY_MONOCHROME */
     {
@@ -348,6 +354,10 @@ init_options (Ricoh_Scanner * s)
   s->opt[OPT_X_RESOLUTION].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_X_RESOLUTION].constraint.range = &is60_res_range;
   s->val[OPT_X_RESOLUTION].w = s->hw->info.xres_default;
+  if (is50)
+    s->opt[OPT_X_RESOLUTION].constraint.range = &is50_res_range;
+  else
+    s->opt[OPT_X_RESOLUTION].constraint.range = &is60_res_range;
 
   /* y resolution */
   s->opt[OPT_Y_RESOLUTION].name = "Y" SANE_NAME_SCAN_RESOLUTION;
@@ -356,8 +366,11 @@ init_options (Ricoh_Scanner * s)
   s->opt[OPT_Y_RESOLUTION].type = SANE_TYPE_INT;
   s->opt[OPT_Y_RESOLUTION].unit = SANE_UNIT_DPI;
   s->opt[OPT_Y_RESOLUTION].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_Y_RESOLUTION].constraint.range = &is60_res_range;
   s->val[OPT_Y_RESOLUTION].w =  s->hw->info.yres_default;
+  if (is50)
+    s->opt[OPT_Y_RESOLUTION].constraint.range = &is50_res_range;
+  else
+    s->opt[OPT_Y_RESOLUTION].constraint.range = &is60_res_range;
 
   /* "Geometry" group: */
   s->opt[OPT_GEOMETRY_GROUP].title = "Geometry";
@@ -833,7 +846,10 @@ sane_start (SANE_Handle handle)
       if (wbuf.image_comp == RICOH_DITHERED_MONOCHROME) 
 	wbuf.mrif_filtering_gamma_id = (SANE_Byte) 0x10;
       wbuf.brightness = 256 - (SANE_Byte) s->brightness;
-      wbuf.contrast = 256 - (SANE_Byte) s->contrast;
+      if (is50)
+        wbuf.contrast = (SANE_Byte) s->contrast;
+      else
+        wbuf.contrast = 256 - (SANE_Byte) s->contrast;
     }
   else /* wbuf.image_comp == RICOH_BINARY_MONOCHROME */
     {

@@ -1,0 +1,257 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.6 [en] (X11; I; Linux 2.2.11 i586) [Netscape]">
+   <meta name="Author" content="Oliver Rauch">
+   <meta name="Keywords" content="umax,scanner,driver,linux,unix,os/2">
+   <title>SANE-UMAX documentation - configuration</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EF" vlink="#51188E" alink="#FF0000">
+<img SRC="sane-logo2.jpg" height=150 width=128 align=LEFT>
+<br>&nbsp;
+<br>&nbsp;
+<h1>
+&nbsp;&nbsp;&nbsp;&nbsp; <u><font color="#000099">CONFIGURATION</font></u></h1>
+<img SRC="sane-umax-text.jpg" height=45 width=157>
+<br>&nbsp;
+<br>&nbsp;
+<h2>
+CONFIGURATION:</h2>
+
+<blockquote>The configuration file for this backend resides in
+<dd>
+/usr/local/etc/sane.d/umax.conf.</dd>
+</blockquote>
+
+<blockquote>Its contents is a list of device names that correspond to UMAX
+scanners. Empty lines and lines starting with a hash mark (#) are ignored.
+A sample configuration file is shown below:
+<br>&nbsp;
+<dd>
+#scsi Vendor Model Type Bus Channel ID LUN</dd>
+
+<dd>
+scsi UMAX * Scanner * * * * *</dd>
+
+<dd>
+/dev/scanner</dd>
+
+<dd>
+# this is a comment</dd>
+
+<dd>
+/dev/sge</dd>
+</blockquote>
+
+<blockquote>The special device name must be a generic SCSI device or a
+symlink to such a device. To find out to which device your scanner is assigned
+and how you have to set the permissions of that device, have a look at
+<a href="http://www.mostang.com/sane/sane-scsi.html">sane-scsi</a>.</blockquote>
+
+<h2>
+SCSI ADAPTER TIPS:</h2>
+
+<blockquote>The UMAX-scanners do block the scsi-bus for a few seconds while
+scanning. It is not necessary to connect the scanner to its own SCSI-adapter.
+But if you need short response time for your SCSI-harddisk (e.g. if your
+computer is a file-server), I suggest you use an own SCSI-adapter for your
+UMAX-scanner.</blockquote>
+
+<blockquote>The SCSI-adapters that are shipped with some Umax-scanners
+are very simple ones. I suggest not to use them. If you really want to
+try: the UDS-IS11 uses a DTC3181E chip (compatible to NCR5380). On linux
+you may have the chance to get it work with the recent g_NCR5380-driver.
+The card does not have IRQ/DMA. Try the following option for kernel boot
+option:
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dtc_3181e=0x280,255
+<p>&nbsp;or use the following command:
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; insmod g_NCR5380 ncr_irq=255
+ncr_addr=0x280 dtc_3181e=1
+<p>&nbsp;&nbsp;&nbsp;&nbsp; - ncr_irq=255 : no IRQ, no DMA
+<br>&nbsp;&nbsp;&nbsp;&nbsp; - ncr_irq=254 : autoprobe IRQ
+<br>&nbsp;&nbsp;&nbsp;&nbsp; - ncr_addr&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+: can be: 0x220 0x240 0x280 0x2A0 0x2C0 0x300 0x320 0x340
+<br>&nbsp;
+<p>For&nbsp; <a href="http://support.umax.co.uk/technotes/f096B.htm">informations
+about the umax-scsi-cards</a> take a look here.</blockquote>
+
+<blockquote>See the relevant hardware FAQs and HOWTOs for your platform
+for more information.
+<br>See also: <a href="http://www.mostang.com/sane/sane-scsi.html">sane-scsi</a></blockquote>
+
+<h2>
+FILES:</h2>
+
+<blockquote>
+<li>
+The backend configuration file: /usr/local/etc/sane.d/umax.conf</li>
+
+<li>
+The static library implementing this backend: /usr/local/lib/sane/libsane-umax.a</li>
+
+<li>
+The shared library implementing this backend : /usr/local/lib/sane/libsane-umax.so</li>
+
+<dd>
+(present on systems that support dynamic loading)</dd>
+</blockquote>
+
+<h2>
+ENVIRONMENT:</h2>
+
+<blockquote>
+<li>
+SANE_DEBUG_UMAX</li>
+
+<li>
+see <a href="http://www.mostang.com/sane/sane-backends.html">backends</a></li>
+
+<li>
+see <a href="http://www.mostang.com/sane/sane-frontends.html">frontends</a></li>
+</blockquote>
+
+<blockquote>If the library was compiled with debug support enabled, this
+environment variable controls the debug level for this backend. E.g., a
+value of 128 requests all debug output to be printed. Smaller levels reduce
+verbosity:</blockquote>
+
+<center><table BORDER=2 CELLSPACING=2 CELLPADDING=2 WIDTH="700" >
+<tr BGCOLOR="#40E0D0">
+<td VALIGN=TOP COLSPAN="2"><b><font face="Arial">SANE_DEBUG_UMAX values</font></b></td>
+</tr>
+
+<tr>
+<td WIDTH="10%">
+<address>
+<b>Number</b></address>
+</td>
+
+<td WIDTH="90%">
+<address>
+<b>Remark</b></address>
+</td>
+</tr>
+
+<tr>
+<td>
+<address>
+0&nbsp;</address>
+</td>
+
+<td>print important errors (printed each time)&nbsp;</td>
+</tr>
+
+<tr>
+<td>
+<address>
+1&nbsp;</address>
+</td>
+
+<td>print errors&nbsp;</td>
+</tr>
+
+<tr>
+<td>2</td>
+
+<td>print sense</td>
+</tr>
+
+<tr>
+<td>
+<address>
+3</address>
+</td>
+
+<td>print warnings&nbsp;</td>
+</tr>
+
+<tr>
+<td>4</td>
+
+<td>print scanner-inquiry</td>
+</tr>
+
+<tr>
+<td>
+<address>
+5&nbsp;</address>
+</td>
+
+<td>print informations</td>
+</tr>
+
+<tr>
+<td>6</td>
+
+<td>print less important informations</td>
+</tr>
+
+<tr>
+<td>7</td>
+
+<td>print called procedures</td>
+</tr>
+
+<tr>
+<td>8</td>
+
+<td>print reader_process messages</td>
+</tr>
+
+<tr>
+<td>
+<address>
+10&nbsp;</address>
+</td>
+
+<td>print called sane-init-routines&nbsp;</td>
+</tr>
+
+<tr>
+<td>
+<address>
+11</address>
+</td>
+
+<td>print called sane-procedures</td>
+</tr>
+
+<tr>
+<td>
+<address>
+12</address>
+</td>
+
+<td>print sane-infos</td>
+</tr>
+
+<tr>
+<td>
+<address>
+13</address>
+</td>
+
+<td>print sane option control messages</td>
+</tr>
+</table></center>
+
+<h4>
+Example:</h4>
+
+<dd>
+export SANE_DEBUG_UMAX=8</dd>
+
+<blockquote>
+<center><a href="sane-umax-doc.html">SANE-UMAX-index</a></center>
+</blockquote>
+
+<center>
+<hr WIDTH="100%">
+<br><font color="#009900">This page has been changed on 3rd.&nbsp; june
+1999</font></center>
+
+<p><br>
+<br>
+</body>
+</html>

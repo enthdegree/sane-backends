@@ -1,72 +1,5 @@
 /**************************************************************************/
 
-static char *option_name[]=
-  {
-    "OPT_NUM_OPTS",
-
-    "OPT_PAGE",
-
-    "OPT_MODE_GROUP",
-    "OPT_MODE",
-    "OPT_NEGATIVE",
-    "OPT_RESOLUTION_BIND",
-    "OPT_X_RESOLUTION",
-    "OPT_Y_RESOLUTION",
-
-    "OPT_ENHANCEMENT_GROUP",
-    "OPT_BRIGHTNESS",
-    "OPT_CONTRAST",
-    "OPT_THRESHOLD",
-
-    "OPT_MIRROR",
-
-    "OPT_CUSTOM_GAMMA",
-    "OPT_CUSTOM_GAMMA_BIND",
-    "OPT_GAMMA_VECTOR",
-    "OPT_GAMMA_VECTOR_R",
-    "OPT_GAMMA_VECTOR_G",
-    "OPT_GAMMA_VECTOR_B",
-    "OPT_AE",
-
-    "OPT_EJECT_GROUP",
-    "OPT_EJECT_AFTERSCAN",
-    "OPT_EJECT_BEFOREEXIT",
-    "OPT_EJECT_NOW",
-
-    "OPT_FOCUS_GROUP",
-    "OPT_AF",
-    "OPT_AF_ONCE",
-    "OPT_FOCUS",
-
-    "OPT_MARGINS_GROUP",
-    "OPT_TL_X",
-    "OPT_TL_Y",
-    "OPT_BR_X",
-    "OPT_BR_Y",
-
-    "OPT_COLORS_GROUP",
-    "OPT_HNEGATIVE",
-    "OPT_BIND_HILO",
-
-    "OPT_HILITE_R",
-    "OPT_SHADOW_R",
-    "OPT_HILITE_G",
-    "OPT_SHADOW_G",
-    "OPT_HILITE_B",
-    "OPT_SHADOW_B",
-
-    "OPT_TPU_GROUP",
-    "OPT_TPU_ON",
-    "OPT_TPU_PN",
-    "OPT_TPU_DCM",
-    "OPT_TPU_TRANSPARENCY",
-    "OPT_TPU_FILMTYPE",
-
-    "OPT_PREVIEW",
-
-    "NUM_OPTIONS"
-  };
-
 SANE_Status
 sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
@@ -278,14 +211,14 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   size_t buf_size;
   int i, neg, gamma_component;
 
-  DBG (1, ">> sane_control_option %s\n", option_name[option]);
+  DBG (21, ">> sane_control_option %s\n", option_name[option]);
 
   if (info)
     *info = 0;
 
   if (s->scanning == SANE_TRUE)
   {
-    DBG (1, ">> sane_control_option: device is busy scanning\n");
+    DBG (21, ">> sane_control_option: device is busy scanning\n");
     return (SANE_STATUS_DEVICE_BUSY);
   }
   if (option >= NUM_OPTIONS)
@@ -297,14 +230,16 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
   if (action == SANE_ACTION_GET_VALUE)
   {
-    DBG (1, "sane_control_option get value of %s\n", option_name[option]);
+    DBG (21, "sane_control_option get value of %s\n", option_name[option]);
     switch (option)
     {
       /* word options: */
+    case OPT_FLATBED_ONLY:
     case OPT_TPU_ON:
     case OPT_TPU_PN:
     case OPT_TPU_TRANSPARENCY:
     case OPT_RESOLUTION_BIND:
+    case OPT_HW_RESOLUTION_ONLY:   /* 990320, ss */
     case OPT_X_RESOLUTION:
     case OPT_Y_RESOLUTION:
     case OPT_TL_X:
@@ -336,11 +271,11 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
     case OPT_FOCUS:
       if ( (option >= OPT_NEGATIVE) && (option <= OPT_SHADOW_B) )
       {
-	DBG(7, "GET_VALUE for %s: s->val[%s].w = %d\n",
+	DBG(21, "GET_VALUE for %s: s->val[%s].w = %d\n",
 	    option_name[option], option_name[option], s->val[option].w);
       }
       *(SANE_Word *) val = s->val[option].w;
-      DBG(1, "value for option %s: %d\n", option_name[option], s->val[option].w);
+      DBG(21, "value for option %s: %d\n", option_name[option], s->val[option].w);
       if (info)
 	*info |= SANE_INFO_RELOAD_PARAMS;
       return (SANE_STATUS_GOOD);
@@ -354,7 +289,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       buf_size = sizeof (gbuf);
       sanei_scsi_open (s->hw->sane.name, &s->fd, sense_handler, 0);
 
-      DBG (7, "sending GET_DENSITY_CURVE\n");
+      DBG (21, "sending GET_DENSITY_CURVE\n");
       if (s->val[OPT_CUSTOM_GAMMA_BIND].w == SANE_TRUE)
       {
 	/* If using bind analog gamma, option will be OPT_GAMMA_VECTOR.
@@ -374,7 +309,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       s->fd = -1;
       if (status != SANE_STATUS_GOOD)
       {
-	DBG (7, "GET_DENSITY_CURVE\n");
+	DBG (21, "GET_DENSITY_CURVE\n");
 	return (SANE_STATUS_INVAL);
       }
 
@@ -394,7 +329,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       }
 	
       memcpy (val, s->val[option].wa, s->opt[option].size);
-      DBG(1, "value for option %s: %d\n", option_name[option], s->val[option].w);
+      DBG(21, "value for option %s: %d\n", option_name[option], s->val[option].w);
       return (SANE_STATUS_GOOD);
 
       /* string options: */
@@ -404,22 +339,37 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       strcpy (val, s->val[option].s);
       if (info)
 	*info |= SANE_INFO_RELOAD_PARAMS;
-      DBG(1, "value for option %s: %s\n", option_name[option], s->val[option].s);
+      DBG(21, "value for option %s: %s\n", option_name[option], s->val[option].s);
       return (SANE_STATUS_GOOD);
 
     case OPT_PAGE:
       strcpy (val, s->val[option].s);
       if (info)
 	*info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
-      DBG(1, "value for option %s: %s\n", option_name[option], s->val[option].s);
+      DBG(21, "value for option %s: %s\n", option_name[option], s->val[option].s);
       return (SANE_STATUS_GOOD);
 
     case OPT_NEGATIVE:
       strcpy (val, s->val[option].s);
       if (info)
 	*info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
-      DBG(1, "value for option %s: %s\n", option_name[option], s->val[option].s);
+      DBG(21, "value for option %s: %s\n", option_name[option], s->val[option].s);
       return (SANE_STATUS_GOOD);
+
+    case OPT_NEGATIVE_TYPE:
+      strcpy (val, s->val[option].s);
+      if (info)
+	*info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+      DBG(21, "value for option %s: %s\n", option_name[option], s->val[option].s);
+      return (SANE_STATUS_GOOD);
+
+    case OPT_SCANNING_SPEED:
+      strcpy (val, s->val[option].s);
+      if (info)
+	*info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+      DBG(21, "value for option %s: %s\n", option_name[option], s->val[option].s);
+      return (SANE_STATUS_GOOD);
+
     default:
       val = 0;
       return (SANE_STATUS_GOOD);
@@ -427,7 +377,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   }
   else if (action == SANE_ACTION_SET_VALUE)
   {
-    DBG (1, "sane_control_option set value for %s\n", option_name[option]);
+    DBG (21, "sane_control_option set value for %s\n", option_name[option]);
     if (!SANE_OPTION_IS_SETTABLE (cap))
       return (SANE_STATUS_INVAL);
   
@@ -470,7 +420,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
     case OPT_EJECT_AFTERSCAN:
     case OPT_EJECT_BEFOREEXIT:
       s->val[option].w = *(SANE_Word *) val;
-      DBG(7, "SET_VALUE for %s: s->val[%s].w = %d\n",
+      DBG(21, "SET_VALUE for %s: s->val[%s].w = %d\n",
 	  option_name[option], option_name[option], s->val[option].w);
       return (SANE_STATUS_GOOD);
 
@@ -496,6 +446,55 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	}
       }
       return SANE_STATUS_GOOD;
+
+    /* 990320, ss: switch between slider and option menue for resolution */
+    case OPT_HW_RESOLUTION_ONLY:
+      if (s->val[option].w != *(SANE_Word *) val)
+        {
+        int iPos, xres, yres;
+
+	s->val[option].w = *(SANE_Word *) val;
+	
+	if (info) { *info |= SANE_INFO_RELOAD_OPTIONS; }
+	if (s->val[option].w == SANE_FALSE)
+	  {
+          /* use complete range */
+          s->opt[OPT_X_RESOLUTION].constraint_type  = SANE_CONSTRAINT_RANGE;
+          s->opt[OPT_X_RESOLUTION].constraint.range = &s->hw->info.xres_range;
+          s->opt[OPT_Y_RESOLUTION].constraint_type  = SANE_CONSTRAINT_RANGE;
+          s->opt[OPT_Y_RESOLUTION].constraint.range = &s->hw->info.yres_range;
+	  }
+	else
+	  {
+          /* use only hardware resolutions */
+          s->opt[OPT_X_RESOLUTION].constraint_type = SANE_CONSTRAINT_WORD_LIST;
+          s->opt[OPT_X_RESOLUTION].constraint.word_list = s->xres_word_list;
+          s->opt[OPT_Y_RESOLUTION].constraint_type = SANE_CONSTRAINT_WORD_LIST;
+          s->opt[OPT_Y_RESOLUTION].constraint.word_list = s->yres_word_list;
+          
+          /* adjust resolutions */
+          xres = s->xres_word_list[1];
+          for (iPos = 0; iPos < s->xres_word_list[0]; iPos++)
+            {
+            if (s->val[OPT_X_RESOLUTION].w >= s->xres_word_list[iPos+1])
+              {
+              xres = s->xres_word_list[iPos+1];
+              }
+            }
+          s->val[OPT_X_RESOLUTION].w = xres;
+
+          yres = s->yres_word_list[1];
+          for (iPos = 0; iPos < s->yres_word_list[0]; iPos++)
+            {
+            if (s->val[OPT_Y_RESOLUTION].w >= s->yres_word_list[iPos+1])
+              {
+              yres = s->yres_word_list[iPos+1];
+              }
+            }
+          s->val[OPT_Y_RESOLUTION].w = yres;
+          }
+        }
+      return (SANE_STATUS_GOOD);
 
     case OPT_BIND_HILO:
       if (s->val[option].w != *(SANE_Word *) val)
@@ -552,6 +551,28 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	s->opt[OPT_FOCUS].cap &= ~SANE_CAP_INACTIVE;
       }
       return (SANE_STATUS_GOOD);
+
+    case OPT_FLATBED_ONLY:
+      switch (action)
+      {
+      case SANE_ACTION_SET_VALUE:
+        s->val[option].w = *(SANE_Word *) val;
+        if (s->hw->adf.Status != ADF_STAT_NONE &&
+          s->val[option].w == SANE_TRUE) /* switch on */
+        {
+          s->hw->adf.Priority |= 0x03; /* flatbed mode */
+          s->hw->adf.Feeder   &= 0x00; /* no autofeed mode (default)*/
+          s->hw->adf.Status    = ADF_STAT_DISABLED;
+          s->val[option].w = SANE_TRUE;
+        } /* if it isn't connected, don't bother fixing */
+        break;
+      case SANE_ACTION_GET_VALUE:
+        val = &s->val[option].w;
+        break;
+      default:
+        break;
+      }
+      return SANE_STATUS_GOOD;
 
     case OPT_TPU_ON:
       if ( s->val[OPT_TPU_ON].w == TPU_STAT_INACTIVE ) /* switch on */
@@ -681,11 +702,37 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       if (!strcmp(val, "Negatives"))
       {
 	s->RIF = 0;
+	s->opt[OPT_NEGATIVE_TYPE].cap &= ~SANE_CAP_INACTIVE;
+	s->opt[OPT_SCANNING_SPEED].cap &= ~SANE_CAP_INACTIVE;
+	s->opt[OPT_AE].cap |= SANE_CAP_INACTIVE;
       }
       else
       {
 	s->RIF = 1;
+	s->opt[OPT_NEGATIVE_TYPE].cap |= SANE_CAP_INACTIVE;
+	s->opt[OPT_SCANNING_SPEED].cap |= SANE_CAP_INACTIVE;
+	s->opt[OPT_AE].cap &= ~SANE_CAP_INACTIVE;
       }
+      return (SANE_STATUS_GOOD);
+
+    case OPT_NEGATIVE_TYPE:
+      if (info && strcmp (s->val[option].s, (SANE_String) val))
+	*info |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
+      if (s->val[option].s)
+	free (s->val[option].s);
+      s->val[option].s = strdup (val);
+      for(i = 0; strcmp(val, negative_filmtype_list[i]); i++);
+      s->negative_filmtype = i;
+      return (SANE_STATUS_GOOD);
+
+    case OPT_SCANNING_SPEED:
+      if (info && strcmp (s->val[option].s, (SANE_String) val))
+	*info |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
+      if (s->val[option].s)
+	free (s->val[option].s);
+      s->val[option].s = strdup (val);
+      for(i = 0; strcmp(val, scanning_speed_list[i]); i++);
+      s->scanning_speed = i;
       return (SANE_STATUS_GOOD);
 
     case OPT_PAGE:
@@ -696,13 +743,15 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       s->val[option].s = strdup (val);
       if (info)
 	*info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
-      DBG(1, "value for option %s: %s\n", option_name[option], s->val[option].s);
+      DBG(21, "value for option %s: %s\n", option_name[option], s->val[option].s);
       if (!strcmp(val, "Show normal options"))
       {
-	DBG(1,"setting OPT_PAGE to 'Normal options'\n");
+	DBG(21,"setting OPT_PAGE to 'Normal options'\n");
 	s->opt[OPT_MODE_GROUP].cap &= ~SANE_CAP_ADVANCED;
+	s->opt[OPT_RESOLUTION_GROUP].cap &= ~SANE_CAP_ADVANCED;
 	s->opt[OPT_ENHANCEMENT_GROUP].cap &= ~SANE_CAP_ADVANCED;
 	s->opt[OPT_EJECT_GROUP].cap &= ~SANE_CAP_ADVANCED;
+	s->opt[OPT_ADF_GROUP].cap &= ~SANE_CAP_ADVANCED;
 
 	s->opt[OPT_FOCUS_GROUP].cap |= SANE_CAP_ADVANCED;
 	s->opt[OPT_MARGINS_GROUP].cap |= SANE_CAP_ADVANCED;
@@ -710,10 +759,12 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       }
       else if (!strcmp(val, "Show advanced options"))
       {
-	DBG(1,"setting OPT_PAGE to 'Advanced options'\n");
+	DBG(21,"setting OPT_PAGE to 'Advanced options'\n");
 	s->opt[OPT_MODE_GROUP].cap |= SANE_CAP_ADVANCED;
+	s->opt[OPT_RESOLUTION_GROUP].cap |= SANE_CAP_ADVANCED;
 	s->opt[OPT_ENHANCEMENT_GROUP].cap |= SANE_CAP_ADVANCED;
 	s->opt[OPT_EJECT_GROUP].cap |= SANE_CAP_ADVANCED;
+	s->opt[OPT_ADF_GROUP].cap |= SANE_CAP_ADVANCED;
 
 	s->opt[OPT_FOCUS_GROUP].cap &= ~SANE_CAP_ADVANCED;
 	s->opt[OPT_MARGINS_GROUP].cap &= ~SANE_CAP_ADVANCED;
@@ -722,8 +773,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       else
       {
 	s->opt[OPT_MODE_GROUP].cap &= ~SANE_CAP_ADVANCED;
+	s->opt[OPT_RESOLUTION_GROUP].cap &= ~SANE_CAP_ADVANCED;
 	s->opt[OPT_ENHANCEMENT_GROUP].cap &= ~SANE_CAP_ADVANCED;
 	s->opt[OPT_EJECT_GROUP].cap &= ~SANE_CAP_ADVANCED;
+	s->opt[OPT_ADF_GROUP].cap &= ~SANE_CAP_ADVANCED;
 	s->opt[OPT_FOCUS_GROUP].cap &= ~SANE_CAP_ADVANCED;
 	s->opt[OPT_MARGINS_GROUP].cap &= ~SANE_CAP_ADVANCED;
 	s->opt[OPT_COLORS_GROUP].cap &= ~SANE_CAP_ADVANCED;
@@ -735,14 +788,14 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       status = medium_position(s->fd);
       if (status != SANE_STATUS_GOOD)
       {
-	DBG (1, "MEDIUM POSTITION failed\n");
+	DBG (21, "MEDIUM POSTITION failed\n");
 	sanei_scsi_close (s->fd);
 	s->fd = -1;
 	return (SANE_STATUS_INVAL);
       }
-DBG(1, "AF_NOW before = '%d'\n", s->AF_NOW);
+DBG(21, "AF_NOW before = '%d'\n", s->AF_NOW);
       s->AF_NOW = SANE_TRUE;
-DBG(1, "AF_NOW after = '%d'\n", s->AF_NOW);
+DBG(21, "AF_NOW after = '%d'\n", s->AF_NOW);
       sanei_scsi_close (s->fd);
       s->fd = -1;
       return status;
@@ -830,7 +883,7 @@ DBG(1, "AF_NOW after = '%d'\n", s->AF_NOW);
     case OPT_GAMMA_VECTOR_G:
     case OPT_GAMMA_VECTOR_B:
       memcpy (s->val[option].wa, val, s->opt[option].size);
-      DBG(1, "setting gamma vector\n");
+      DBG(21, "setting gamma vector\n");
 /*       if (info) */
 /* 	*info |= SANE_INFO_RELOAD_OPTIONS; */
       return (SANE_STATUS_GOOD);
@@ -926,14 +979,43 @@ sane_start (SANE_Handle handle)
   char *mode_str;
   CANON_Scanner *s = handle;
   SANE_Status status;
-  u_char wbuf[72], dbuf[28];
+  u_char wbuf[72], dbuf[28], ebuf[64];
   size_t buf_size;
+  int i;
 
   DBG (1, ">> sane_start\n");
 
   s->scanning = SANE_FALSE;
 
-  if( (s->val[OPT_AE].w == SANE_TRUE)
+  if( (s->hw->adf.Status == SANE_TRUE)
+      && (s->val[OPT_FLATBED_ONLY].w != SANE_TRUE)
+      && (s->hw->adf.Problem != 0))
+  {
+    DBG (3, "SCANNER ADF HAS A PROBLEM\n");
+    if (s->hw->adf.Problem & 0x08)
+    {
+      status = SANE_STATUS_COVER_OPEN;
+      DBG (3, "ADF Cover Open\n");
+    }
+    else if (s->hw->adf.Problem & 0x04)
+    {
+      status = SANE_STATUS_JAMMED;
+      DBG (3, "ADF Paper Jam\n");
+    }
+    else /* adf.Problem = 0x02 */
+    {
+      status = SANE_STATUS_NO_DOCS;
+      DBG (3, "ADF No More Documents\n");
+    }
+    return status;
+  }
+  else if( (s->hw->adf.Status == SANE_TRUE)
+      && (s->val[OPT_FLATBED_ONLY].w == SANE_TRUE))
+  {
+    set_adf_mode(s->fd, s->hw->adf.Priority);
+    /* 2.23 define ADF Mode */
+  }
+  else if( (s->val[OPT_AE].w == SANE_TRUE)
       && (!strcmp(s->val[OPT_NEGATIVE].s, "Slides"))
       && (s->val[OPT_PREVIEW].w == SANE_FALSE))
   {
@@ -973,7 +1055,7 @@ sane_start (SANE_Handle handle)
     do_gamma(s);
   }
 
-#if 0
+#if 1
   DBG (3, "attach: sending GET SCAN MODE for scan control conditions\n");
   memset (ebuf, 0, sizeof (ebuf));
   buf_size = 20;
@@ -995,16 +1077,17 @@ sane_start (SANE_Handle handle)
   buf_size = 12;
   status = get_scan_mode (s->fd, (u_char)TRANSPARENCY_UNIT, 
 			  ebuf, &buf_size);
-/*   if (status != SANE_STATUS_GOOD) */
-/*   { */
-/*     DBG (1, "attach: GET SCAN MODE for scan control conditions failed\n"); */
-/*     sanei_scsi_close (s->fd); */
-/*     return (SANE_STATUS_INVAL); */
-/*   } */
+  if (status != SANE_STATUS_GOOD)
+  {
+    DBG (1, "attach: GET SCAN MODE for transparency unit failed\n");
+    sanei_scsi_close (s->fd);
+    return (SANE_STATUS_INVAL);
+  }
   for (i=0; i<buf_size; i++)
   {
     DBG(3, "scan mode control byte[%d] = %d\n", i, ebuf[i]);
   }
+
 #endif
 
 
@@ -1034,8 +1117,9 @@ sane_start (SANE_Handle handle)
      (strcmp (mode_str, "Halftone") == 0)) 
     ? s->val[OPT_HNEGATIVE].w : !s->val[OPT_HNEGATIVE].w;
 
-  s->brightness = (s->RIF == 1) ? 
-    s->val[OPT_BRIGHTNESS].w : (255 - s->val[OPT_BRIGHTNESS].w);
+/*   s->brightness = (s->RIF == 0) ?  */
+/*     s->val[OPT_BRIGHTNESS].w : (255 - s->val[OPT_BRIGHTNESS].w); */
+  s->brightness = s->val[OPT_BRIGHTNESS].w;
   s->contrast = s->val[OPT_CONTRAST].w;
   s->threshold = s->val[OPT_THRESHOLD].w;
   s->bpp = s->params.depth;
@@ -1112,13 +1196,14 @@ sane_start (SANE_Handle handle)
   wbuf[33] = s->image_composition;
   wbuf[34] = s->bpp;
   wbuf[36] = 1;
-  wbuf[37] = (s->RIF << 7) + 3;
-/*   wbuf[50] = (s->GRC << 3) | (s->Mirror << 2) | (s->AE); */
-  wbuf[50] = (s->GRC << 3) | (s->Mirror << 2) ;
-  if(s->RIF == 1)
-  {
-    wbuf[50] |= s->AE;
-  }
+/*   wbuf[37] = (s->RIF << 7) + 3; */
+  wbuf[37] = (1 << 7) + 3;
+  wbuf[50] = (s->GRC << 3) | (s->Mirror << 2) | (s->AE);
+/*   wbuf[50] = (s->GRC << 3) | (s->Mirror << 2) ; */
+/*   if(s->RIF == 1) */
+/*   { */
+/*     wbuf[50] |= s->AE; */
+/*   } */
 
   wbuf[54] = 2;
   wbuf[57] = 1;
@@ -1165,6 +1250,55 @@ sane_start (SANE_Handle handle)
   DBG (5, "length=%d\n", (wbuf[26] * 256 * 256 * 256)
        + (wbuf[27] * 256 * 256) + (wbuf[28] * 256) + wbuf[29]);
 
+
+#if 1
+  DBG (3, "sane_start: sending DEFINE SCAN MODE for transparency unit, NP=%d, Negative film type=%d\n", !s->RIF, s->negative_filmtype);
+  memset (wbuf, 0, sizeof (wbuf));
+  wbuf[0] = 0x02;
+  wbuf[1] = 6;
+  wbuf[2] = 0x80;
+  wbuf[3] = 0x05;
+  wbuf[4] = 39;
+  wbuf[5] = 16;
+  wbuf[6] = !s->RIF;
+  wbuf[7] = s->negative_filmtype;
+  status = define_scan_mode (s->fd, TRANSPARENCY_UNIT, wbuf);
+  if (status != SANE_STATUS_GOOD)
+  {
+    DBG (1, "define scan mode failed: %s\n", sane_strstatus (status));
+    return (status);
+  }
+#endif
+
+#if 1
+  DBG (3, "sane_start: sending DEFINE SCAN MODE for scan control conditions\n");
+  memset (wbuf, 0, sizeof (wbuf));
+  wbuf[0] = 0x20;
+  wbuf[1] = 14;
+  wbuf[11] = s->scanning_speed;
+  status = define_scan_mode (s->fd, SCAN_CONTROL_CONDITIONS, wbuf);
+  if (status != SANE_STATUS_GOOD)
+  {
+    DBG (1, "define scan mode failed: %s\n", sane_strstatus (status));
+    return (status);
+  }
+
+  DBG (3, "sane_start: sending GET SCAN MODE for scan control conditions\n");
+  memset (ebuf, 0, sizeof (ebuf));
+  buf_size = sizeof (ebuf);
+  status = get_scan_mode (s->fd, SCAN_CONTROL_CONDITIONS, ebuf, &buf_size);
+  if (status != SANE_STATUS_GOOD)
+  {
+    DBG (1, "sane_start: GET SCAN MODE for scan control conditions failed\n");
+    sanei_scsi_close (s->fd);
+    return (SANE_STATUS_INVAL);
+  }
+  for (i=0; i<buf_size; i++)
+  {
+    DBG(3, "scan mode byte[%d] = %d\n", i, ebuf[i]);
+  }
+#endif
+
   status = scan (s->fd);
   if (status != SANE_STATUS_GOOD)
   {
@@ -1208,10 +1342,12 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   CANON_Scanner *s = handle;
   SANE_Status status;
   size_t nread;
+
   DBG (21, ">> sane_read\n");
 
   *len = 0;
 
+  DBG(21, "   sane_read: nread=%d, bytes_to_read=%d\n", nread, s->bytes_to_read);
   if (s->bytes_to_read == 0)
   {
     do_cancel (s);
@@ -1233,6 +1369,8 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   }
   *len = nread;
   s->bytes_to_read -= nread;
+
+  DBG(21, "   sane_read: nread=%d, bytes_to_read=%d\n", nread, s->bytes_to_read);
 
   DBG (21, "<< sane_read\n");
   return (SANE_STATUS_GOOD);

@@ -16,3 +16,4 @@ This directory contains various tools that may be useful:
 
  mustek600iin-off:
 	Allows you to turn off a Mustek 600 II N scanner.
+	Use "make mustek600iin-off" to compile.

@@ -1,6 +1,7 @@
 ; ST400 backend .desc by Ingo Wilken
 
 :backend "st400"			; name of backend
+:version "(1.4)"                        ; version number
 :status :alpha				; :alpha, :beta, :stable, :new
 :manpage "sane-st400"		; name of manpage (if it exists)
 :url "http://www.informatik.uni-oldenburg.de/~ingo/sane/" ; backend's web page

@@ -42,6 +42,8 @@
    HP Scanner Control Language (SCL).
 */
 
+#define STUBS
+extern int sanei_debug_hp;
 #include <sane/config.h>
 
 #ifdef HAVE_UNISTD_H
@@ -91,12 +93,12 @@ hp_handle_isScanning (HpHandle this)
 }
 
 static SANE_Status
-hp_handle_startReader (HpHandle this, HpScsi scsi, size_t count,
-                       int mirror, int bytes_per_line, int bpc)
+hp_handle_startReader (HpHandle this, HpScsi scsi, HpProcessData *procdata)
 {
   int	fds[2];
   sigset_t 		sig_set, old_set;
   struct SIGACTION	sa;
+  SANE_Status           status;
 
   assert(this->reader_pid == 0);
   this->cancelled = 0;
@@ -131,7 +133,10 @@ hp_handle_startReader (HpHandle this, HpScsi scsi, size_t count,
   sigdelset(&sig_set, SIGTERM);
   sigprocmask(SIG_SETMASK, &sig_set, 0);
 
-  _exit(sanei_hp_scsi_pipeout(scsi,fds[1],count,mirror,bytes_per_line,bpc));
+  /* not closing fds[1] gives an infinite loop on Digital UNIX */
+  status = sanei_hp_scsi_pipeout(scsi,fds[1],procdata);
+  close (fds[1]);
+  _exit(status);
 }
 
 static SANE_Status
@@ -169,12 +174,16 @@ hp_handle_stopScan (HpHandle this)
 }
 
 static SANE_Status
-hp_handle_uploadParameters (HpHandle this, HpScsi scsi)
+hp_handle_uploadParameters (HpHandle this, HpScsi scsi, int *scan_depth,
+                            hp_bool_t *soft_invert)
 {
   SANE_Parameters * p	 = &this->scan_params;
   int data_width;
+  enum hp_device_compat_e compat;
 
   assert(scsi);
+
+  *soft_invert = 0;
 
   p->last_frame = SANE_TRUE;
   /* inquire resulting size of image after setting it up */
@@ -192,15 +201,24 @@ hp_handle_uploadParameters (HpHandle this, HpScsi scsi)
   case HP_SCANMODE_HALFTONE: /* Halftone */
       p->format = SANE_FRAME_GRAY;
       p->depth  = 1;
+      *scan_depth = 1;
       break;
   case HP_SCANMODE_GRAYSCALE: /* Grayscale */
       p->format = SANE_FRAME_GRAY;
       p->depth  = 8;
+      *scan_depth = 8;
       break;
   case HP_SCANMODE_COLOR: /* RGB */
       p->format = SANE_FRAME_RGB;
-      p->depth  = data_width/3;
-      DBG(1, "hp_handle_uploadParameters: data with %d\n", data_width);
+      p->depth  = (data_width > 24) ? 16 : 8;
+      *scan_depth = data_width / 3;
+
+      /* HP PhotoSmart does not invert when depth > 8. Lets do it by software */
+      if (   (*scan_depth > 8)
+          && (sanei_hp_device_probe (&compat, scsi) == SANE_STATUS_GOOD)
+          && (compat & HP_COMPAT_PS) )
+        *soft_invert = 1;
+      DBG(1, "hp_handle_uploadParameters: data width %d\n", data_width);
       break;
   default:
       assert(!"Aack");
@@ -275,6 +293,8 @@ sanei_hp_handle_control(HpHandle this, SANE_Int optnum,
 SANE_Status
 sanei_hp_handle_getParameters (HpHandle this, SANE_Parameters *params)
 {
+  SANE_Status   status;
+
   if (!params)
       return SANE_STATUS_GOOD;
 
@@ -284,8 +304,24 @@ sanei_hp_handle_getParameters (HpHandle this, SANE_Parameters *params)
       return SANE_STATUS_GOOD;
     }
 
-  return sanei_hp_optset_guessParameters(this->dev->options,
-                                         this->data, params);
+  status = sanei_hp_optset_guessParameters(this->dev->options,
+                                           this->data, params);
+#ifdef INQUIRE_AFTER_SCAN
+  /* Photosmart: this gives the correct number of lines when doing
+     an update of the SANE parameters right after a preview */
+  if (!strcmp("C5100A", this->dev->sanedev.model)) {
+      HpScsi        scsi;
+      SANE_Parameters * p    = &this->scan_params;
+
+    if (!FAILED( sanei_hp_scsi_new(&scsi, this->dev->sanedev.name) )) {
+      RETURN_IF_FAIL( sanei_hp_scl_inquire(scsi, SCL_NUMBER_OF_LINES,
+           &p->lines,0,0));
+      sanei_hp_scsi_destroy(scsi);
+      *params = this->scan_params;
+    }
+  }
+#endif
+  return status;
 }
 
 SANE_Status
@@ -293,8 +329,8 @@ sanei_hp_handle_startScan (HpHandle this)
 {
   SANE_Status	status;
   HpScsi	scsi;
-  hp_bool_t     mirror_vertical;
-  hp_bool_t     adf_scan;
+  HpScl         scl;
+  HpProcessData procdata;
 
   /* FIXME: setup preview mode stuff? */
 
@@ -306,7 +342,9 @@ sanei_hp_handle_startScan (HpHandle this)
   status = sanei_hp_optset_download(this->dev->options, this->data, scsi);
 
   if (!FAILED(status))
-     status = hp_handle_uploadParameters(this, scsi);
+     status = hp_handle_uploadParameters(this, scsi,
+                                         &(procdata.bits_per_channel),
+                                         &(procdata.invert));
 
   if (FAILED(status))
     {
@@ -314,14 +352,14 @@ sanei_hp_handle_startScan (HpHandle this)
       return status;
     }
 
-  mirror_vertical = sanei_hp_optset_mirror_vert (this->dev->options, this->data,
-                                           scsi);
-  DBG(1, "start: %s to mirror image vertically\n", mirror_vertical ?
+  procdata.mirror_vertical =
+     sanei_hp_optset_mirror_vert (this->dev->options, this->data, scsi);
+  DBG(1, "start: %s to mirror image vertically\n", procdata.mirror_vertical ?
          "Request" : "No request" );
 
-  adf_scan = sanei_hp_optset_adf_scan (this->dev->options, this->data, scsi);
+  scl = sanei_hp_optset_scan_type (this->dev->options, this->data);
 
-  DBG(1, "start: %s to mirror image vertically\n", mirror_vertical ?
+  DBG(1, "start: %s to mirror image vertically\n", procdata.mirror_vertical ?
          "Request" : "No request" );
 
   this->bytes_left = ( this->scan_params.bytes_per_line
@@ -330,13 +368,15 @@ sanei_hp_handle_startScan (HpHandle this)
   DBG(1, "start: %d pixels per line, %d bytes, %d lines high\n",
       this->scan_params.pixels_per_line, this->scan_params.bytes_per_line,
       this->scan_params.lines);
+  procdata.bytes_per_line = (int)this->scan_params.bytes_per_line;
+  procdata.lines = this->scan_params.lines;
 
-  status = sanei_hp_scl_startScan(scsi, adf_scan);
+  status = sanei_hp_scl_startScan(scsi, scl);
 
   if (!FAILED( status ))
-      status = hp_handle_startReader(this, scsi, this->bytes_left,
-                 (int)mirror_vertical, (int)this->scan_params.bytes_per_line,
-                 (int)this->scan_params.depth);
+  {
+      status = hp_handle_startReader(this, scsi, &procdata);
+  }
 
   sanei_hp_scsi_destroy(scsi);
 

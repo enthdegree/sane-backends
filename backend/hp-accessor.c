@@ -42,6 +42,8 @@
    HP Scanner Control Language (SCL).
 */
 
+#define STUBS
+extern int sanei_debug_hp;
 #include <sane/config.h>
 
 #include <assert.h>
@@ -77,10 +79,10 @@ struct hp_data_s
 static void
 hp_data_resize (HpData this, size_t newsize)
 {
-  assert(!this->frozen);
 
   if (this->bufsiz != newsize)
     {
+      assert(!this->frozen);
       this->buf = sanei_hp_realloc(this->buf, newsize);
       assert(this->buf);
       this->bufsiz = newsize;
@@ -402,7 +404,7 @@ hp_accessor_choice_set (HpAccessor _this, HpData data, void * valp)
 	  continue;
       strlist++;
 
-      if (strcmp(valp, choice->name) == 0)
+      if (strcmp((const char *)valp, choice->name) == 0)
 	{
 	  *(HpChoice *)hp_data_data(data, this->data_offset) = choice;
 	  return SANE_STATUS_GOOD;
@@ -457,7 +459,7 @@ sanei_hp_accessor_choice_maxsize (HpAccessorChoice this)
   SANE_Int	size	= 0;
 
   for (choice = this->choices; choice; choice = choice->next)
-      if (strlen(choice->name) >= size)
+      if ((SANE_Int)strlen(choice->name) >= size)
 	  size = strlen(choice->name) + 1;
   return size;
 }
@@ -485,7 +487,8 @@ sanei_hp_accessor_choice_strlist (HpAccessorChoice this,
 }
 
 HpAccessor
-sanei_hp_accessor_choice_new (HpData data, HpChoice choices)
+sanei_hp_accessor_choice_new (HpData data, HpChoice choices,
+                              hp_bool_t may_change)
 {
   static const struct hp_accessor_type_s type = {
       hp_accessor_choice_get, hp_accessor_choice_set,
@@ -494,6 +497,8 @@ sanei_hp_accessor_choice_new (HpData data, HpChoice choices)
   HpChoice	choice;
   size_t	count	= 0;
   _HpAccessorChoice this;
+
+  if ( may_change ) data->frozen = 0;
 
   for (choice = choices; choice; choice = choice->next)
       count++;
@@ -793,7 +798,7 @@ sanei_hp_accessor_subvector_new (HpAccessorVector super,
   if (!this)
       return 0;
 
-  assert(nchan > 0 && chan >= 0 && chan < nchan);
+  assert(chan < nchan);
   assert(this->length % nchan == 0);
 
   this->length /= nchan;

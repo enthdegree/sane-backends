@@ -13,20 +13,18 @@ A: The optimization set by "-O2" makes problems, try which one of the following
 -------------------------------------------------------------------------------
 
 Q: Will there be a support for the UMAX-parallel-port-scanners?
-
-A: UMAX published their SCSI-protocol for scanners, but the
-   parallel-port-protocol is not published until now. Without
-   such informations I will not work on a driver!
-
-   Martin Mevald <martinmv@penguin.cz> is working on a driver!
-
--------------------------------------------------------------------------------
-
 Q: Will there be a support for the UMAX-USB-scanners?
 
-A: I don't know if there is a published protocoll for the UMAX-USB-scanners.
-   As far as I know there are no generic-USB-drivers on unix-systems in the
-   moment. For linux it is worked on a driver.
+A: UMAX published their SCSI-protocol for scanners. However they
+   have not so far published parallel port and USB protocols. Without
+   the protocol documentation I will not work on a driver.
+
+   Martin Mevald <martinmv@penguin.cz> has worked on a parallel-port-driver
+   but stopped the development.
+
+   The Astra 2200W does work when connected via SCSI.
+   It could work with SCSI-via-USB-driver and connected via USB, but that
+   is not tested.
 
 -------------------------------------------------------------------------------
 
@@ -50,9 +48,17 @@ A: The cards that come with the umax scanners are very simple cards.
    the UDS-IS11 is a DTC3181E-card based on the NCR5380-chip.
    On linux you may have the chance to get it work with the recent
    g_NCR5380-driver. The card does not have IRQ/DMA.
-   Try the following option for kernel/module:  
-        dtc3181e=0x280,254  
-   (Thanks to Colin Brough for that tip)
+
+   Try the following option for kernel:  dtc_3181e=0x280,255  
+   or use the following command:
+
+     insmod g_NCR5380 ncr_irq=255 ncr_addr=0x280 dtc_3181e=1
+
+     - ncr_irq=255 : no IRQ, no DMA
+     - ncr_irq=254 : autoprobe IRQ
+     - ncr_addr    : can be: 0x220 0x240 0x280 0x2A0 0x2C0 0x300 0x320 0x340
+
+   (Thanks to Colin Brough and Hans Schaefer for that tip)
 
 -------------------------------------------------------------------------------
 
@@ -60,7 +66,35 @@ Q: I use linux with a NCR/Symbios logic SCSI-Controller, sane does not work
    right.
 
 A: There are two differen drivers in the linux Kernel/modules.
-   Use the BSD-driver!
+   Use the BSD-driver (ncr53c8xx)!
+
+-------------------------------------------------------------------------------
+
+Q: Does SANE and the umax backend work on LinuxPPC / big endian machine ?
+
+A: There are people using the sane-umax on a LinuxPPC (big endian) machine.
+
+   Other people write that they can not scan on a LinuxPPC. It looks like this
+   is a problem with the driver of the scsi card.
+
+   The "MESH" SCSI card is reported to work. The NCR53C94 SCSI card
+   seems not to work.
+
+-------------------------------------------------------------------------------
+
+Q: I am using an AM53C974 based scsi card with a umax scanner, the system
+   freezes when I start a scan, what can I do?
+
+A: Try the recent driver for the scsi card, take a look at:
+   http://www.garloff.de/kurt/linux/dc390/index.html
+
+-------------------------------------------------------------------------------
+
+Q: Sane hangs or crashes when I start a frontend for sane, what can I do?
+
+A: Sometimes the backends that are not used make problems.
+   Edit /usr/(local)/etc/sane.d/dll.conf
+   and comment out everything but the backend you need.
 
 -------------------------------------------------------------------------------
 

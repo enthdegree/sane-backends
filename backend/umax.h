@@ -2,7 +2,7 @@
 
 /* umax.h - headerfile for SANE-backend for umax scanners
   
-   (C) 1997-1998 Oliver Rauch
+   (C) 1997-2000 Oliver Rauch
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
@@ -51,6 +51,19 @@
 #include "sys/types.h"
 
 
+/* --------------------------------------------------------------------------------------------------------- */
+/* COMPILER OPTIONS: */
+
+
+#define UMAX_HIDE_UNUSED
+/* #define SANE_UMAX_DEBUG_S12 */
+/* #define PREVIEW_FIX_ON */
+
+/* #define UMAX_SHADING_TYPE_SELECTABLE */
+/* #define UMAX_SPEED_SELECTABLE */
+/* #define UMAX_CALIBRATION_MODE_SELECTABLE */
+
+                                         
 /* --------------------------------------------------------------------------------------------------------- */
 
 
@@ -135,13 +148,19 @@ enum Umax_Option
     OPT_SELECT_EXPOSURE_TIME,
     OPT_SELECT_LAMP_DENSITY,
 
-#if 0
+#ifdef UMAX_SPEED_SELECTABLE
     OPT_SLOW,
     OPT_SMEAR,
 #endif
 
+#ifdef UMAX_CALIBRATION_MODE_SELECTABLE
     OPT_CALIB_MODE,
+#endif
+
+#ifdef UMAX_SHADING_TYPE_SELECTABLE
     OPT_SHADING_TYPE,
+#endif
+
     OPT_PREVIEW,					/* preview, sets preview-bit and bind x/y-resolution */
 
     /* must come last: */
@@ -213,15 +232,20 @@ typedef struct Umax_Device
   /* data defined by inquiry */
   int			inquiry_len;					   /* length of inquiry return block */
   int			inquiry_wdb_len;				/* length of window descriptor block */
-  int			inquiry_optical_res;			     /* optical resolution form read_inquiry */
+  int			inquiry_optical_res;			     		       /* optical resolution */
   int			inquiry_x_res;						     /* maximum x-resolution */
   int			inquiry_y_res;						     /* maximum y-resolution */
+  int			inquiry_dor_optical_res;			  /* optical resolution for dor mode */
+  int			inquiry_dor_x_res;				/* maximum x-resolution for dor mode */
+  int			inquiry_dor_y_res;				/* maximum y-resolution for dor mode */
   double		inquiry_fb_width;					  /* flatbed width in inches */
   double		inquiry_fb_length;					 /* flatbed length in inches */
   double		inquiry_uta_width;				     /* transparency width in inches */
   double		inquiry_uta_length;				    /* transparency length in inches */
   double		inquiry_dor_width;				/* double resolution width in inches */
   double		inquiry_dor_length;			       /* double resolution length in inches */
+  double		inquiry_dor_x_off;			     /* double resolution x offset in inches */
+  double		inquiry_dor_y_off;			     /* double resolution y offset in inches */
 
   int			inquiry_exposure_adj;				/* 1 if exposure adjust is supported */
   int			inquiry_exposure_time_step_unit;		  /* exposure time unit in micro sec */ 
@@ -247,6 +271,16 @@ typedef struct Umax_Device
   int			inquiry_cbhs;						    /* 50, 255, 255+autoexp. */
   int			inquiry_cbhs_min;					   /* minimum value for cbhs */
   int			inquiry_cbhs_max;					   /* maximum value for cbhs */
+  int			inquiry_contrast_min;					      /* minimum value for c */
+  int			inquiry_contrast_max;					      /* maximum value for c */
+  int			inquiry_brightness_min;					      /* minimum value for b */
+  int			inquiry_brightness_max;					      /* maximum value for b */
+  int			inquiry_threshold_min;					      /* minimum value for t */
+  int			inquiry_threshold_max;					      /* maximum value for t */
+  int			inquiry_highlight_min;					      /* minimum value for h */
+  int			inquiry_highlight_max;					      /* maximum value for h */
+  int			inquiry_shadow_min;					      /* minimum value for s */
+  int			inquiry_shadow_max;					      /* maximum value for s */
 
   int			inquiry_quality_ctrl;						    /* 1 = supported */
   int			inquiry_preview;						    /* 1 = supported */
@@ -281,6 +315,10 @@ typedef struct Umax_Device
   int			inquiry_fb_uta_color_arrangement;		    /* line arrangement for fb & uta */
   int			inquiry_adf_color_arrangement;				 /* line arrangement for adf */
 
+  int			relevant_optical_res;			     		       /* optical resolution */
+  int			relevant_max_x_res;					     /* maximum x-resolution */
+  int			relevant_max_y_res;					     /* maximum y-resolution */
+
   /* selected data */
 
   int			use_exposure_time_min;					   /*  exposure tine minimum */
@@ -291,23 +329,23 @@ typedef struct Umax_Device
   int			wdb_len;						   /* use this length of WDB */
   double		maxwidth;					      /* use this width of scan-area */
   double		maxlength;					     /* use this length of scan-area */
-  int			width_in_pixels;				 /* thats the wanted width in pixels */
-  int			length_in_pixels;				/* thats the wanted length in pixels */
-  int			scanwidth;		       /* thats the width in pixels at x_coordinate_base dpi */
-  int			scanlength;		      /* thats the length in pixels at y_coordinate_base dpi */
-  int			bytes_per_color;					     /* bytes per each color */
+  unsigned int		width_in_pixels;				 /* thats the wanted width in pixels */
+  unsigned int		length_in_pixels;				/* thats the wanted length in pixels */
+  unsigned int		scanwidth;		       /* thats the width in pixels at x_coordinate_base dpi */
+  unsigned int		scanlength;		      /* thats the length in pixels at y_coordinate_base dpi */
+  unsigned int		bytes_per_color;					     /* bytes per each color */
 
-  int			x_resolution;					     /* scan-resolution for x in dpi */
-  int			y_resolution;					     /* scan-resolution for y in dpi */
+  unsigned int		x_resolution;					     /* scan-resolution for x in dpi */
+  unsigned int		y_resolution;					     /* scan-resolution for y in dpi */
   double		scale_x;					  /* x-scaling of optical resolution */
   double		scale_y;					  /* y-scaling of optical resolution */
   int			upper_left_x;			     /* thats the left edge in points at 1200pt/inch */
   int			upper_left_y;			      /* thats the top edge in points at 1200pt/inch */
 
-  int			x_coordinate_base;			      /* x base in pixels/inch, normaly 1200 */
-  int			y_coordinate_base;			      /* y base in pixels/inch, normaly 1200 */
+  unsigned int		x_coordinate_base;			      /* x base in pixels/inch, normaly 1200 */
+  unsigned int		y_coordinate_base;			      /* y base in pixels/inch, normaly 1200 */
 
-  int			bits_per_pixel;						 /* number of bits per pixel */
+  unsigned int		bits_per_pixel;						 /* number of bits per pixel */
   int			bits_per_pixel_code;				/* 1 = 24bpp, 4 = 30 bpp, 8 = 36 bpp */
   int			gamma_input_bits_code;				/* 1 = 24bpp, 4 = 30 bpp, 8 = 36 bpp */
   int			set_auto;					    /* 0 or 1, don't know what it is */
@@ -370,6 +408,13 @@ typedef struct Umax_Device
   int			do_color_ordering;				 /* 1: order line-mode to pixel-mode */
 
   int			button_pressed;				   /* scan-button on scanner is pressed => 1 */
+
+  int			calibration_area;		      /* define calibration area if no area is given */
+  int			pause_for_color_calibration;	/* pause between start_scan and do_calibration in ms */
+  int			pause_for_gray_calibration;	/* pause between start_scan and do_calibration in ms */
+  int			pause_after_calibration;	 /* pause between do_calibration and read data in ms */
+  int			pause_after_reposition;				    /* pause for repositioning in ms */
+  int			pause_for_moving;	       /* pause for moving scanhead over full scanarea in ms */
 
   int                   RGB_PREVIEW_FIX;
 } Umax_Device;

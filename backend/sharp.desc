@@ -1,6 +1,6 @@
 :backend "sharp"                ; name of backend
-:version "0.15"                 ; version of backend
-:status :new                    ; :alpha, :beta, :stable, :new
+:version "0.30"                 ; version of backend
+:status :beta                   ; :alpha, :beta, :stable, :new
 :url "http://www.satzbau-gmbh.de/staff/abel/sane-sharp.html" 
 				; backend's homepage
 
@@ -9,8 +9,8 @@
 :mfg "SHARP"                    ; name a manufacturer
 :url "http://sharp-world.com/"
 :model "JX-610"                 ; name models for above-specified mfg.
-:comment "Preview/Color Lineart/Lineart/Threshold does not work!(JX-610)"
+:comment ""
 :model "JX-250"                 ; name models for above-specified mfg.
-:comment "Color Lineart does not give useful output"
+:comment ""
 :model "JX-330"                 ; name models for above-specified mfg.
 :comment "backend is not yet tested with a JX 330!"

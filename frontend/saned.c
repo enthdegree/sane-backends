@@ -26,6 +26,7 @@
 
 #include <sane/config.h>
 #include <lalloca.h>
+#include <sys/types.h>
 
 #include <assert.h>
 #include <errno.h>
@@ -935,6 +936,8 @@ main (int argc, char *argv[])
 		   "%s: using default port %d\n", prog_name, strerror (errno),
 		   prog_name, ntohs (port));
 	}
+      sin.sin_family = AF_INET;
+      sin.sin_addr.s_addr = INADDR_ANY;
       sin.sin_port = port;
 
       fd = socket (AF_INET, SOCK_STREAM, 0);
@@ -963,6 +966,18 @@ main (int argc, char *argv[])
     }
   else
     /* use filedescriptor opened by inetd: */
+#ifdef HAVE_OS2_H
+      /* under OS/2, the socket handle is passed as argument on the command
+         line; the socket handle is relative to IBM TCP/IP, so a call
+         to impsockethandle() is required to add it to the EMX runtime */
+    if (argc == 2)
+      {
+        wire.io.fd = _impsockhandle (atoi (argv[1]),0);
+        if (wire.io.fd==-1)
+          perror( "impsockhandle");
+      }
+    else
+#endif /* HAVE_OS2_H */
     wire.io.fd = 1;
 
   signal (SIGALRM, quit);

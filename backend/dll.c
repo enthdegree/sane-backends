@@ -91,6 +91,7 @@
 
 #include <sane/sanei_config.h>
 #define DLL_CONFIG_FILE "dll.conf"
+#define DLL_ALIASES_FILE "dll.aliases"
 
 enum SANE_Ops
   {
@@ -170,6 +171,14 @@ struct meta_scanner
     SANE_Handle handle;
   };
 
+struct alias
+  {
+    struct alias *next;
+    char *oldname;
+    char *newname;
+  };
+
+static struct alias *first_alias;
 static SANE_Auth_Callback auth_callback;
 static struct backend *first_backend;
 static const char *op_name[] =
@@ -211,11 +220,10 @@ add_backend (const char *name, struct backend **bep)
 	return SANE_STATUS_GOOD;
       }
 
-  be = malloc (sizeof (*be));
+  be = calloc (1, sizeof (*be));
   if (!be)
     return SANE_STATUS_NO_MEM;
 
-  memset (be, 0, sizeof (*be));
   be->name = strdup (name);
   if (!be->name)
     return SANE_STATUS_NO_MEM;
@@ -302,7 +310,11 @@ load (struct backend *be)
 #endif /* HAVE_DLOPEN */
   if (!be->handle)
     {
+#ifdef HAVE_DLOPEN
+      DBG(2, "dlopen() failed (%s)\n", dlerror());
+#else
       DBG(2, "dlopen() failed (%s)\n", strerror (errno));
+#endif
       return SANE_STATUS_INVAL;
     }
 
@@ -379,6 +391,87 @@ init (struct backend *be)
   return SANE_STATUS_GOOD;
 }
 
+
+static void
+add_alias (char *line)
+{
+  const char *command;
+  enum { CMD_ALIAS, CMD_HIDE } cmd;
+  const char *oldname, *oldend, *newname, *newend;
+  size_t oldlen, newlen;
+  struct alias *alias;
+
+  command = sanei_config_skip_whitespace(line);
+  if( !*command )
+    return;
+  line = strpbrk(command, " \t");
+  if( !line )
+    return;
+  *line++ = '\0';
+
+  if( strcmp(command, "alias") == 0 )
+    cmd = CMD_ALIAS;
+  else
+  if( strcmp(command, "hide") == 0 )
+    cmd = CMD_HIDE;
+  else
+    return;
+
+  newlen = 0;
+  newname = NULL;
+  if( cmd == CMD_ALIAS )
+    {
+      newname = sanei_config_skip_whitespace(line);
+      if( !*newname )
+	return;
+      if( *newname == '\"' )
+	{
+	  ++newname;
+	  newend = strchr(newname, '\"');
+	}
+      else
+	  newend = strpbrk(newname, " \t");
+      if( !newend )
+	return;
+
+      newlen = newend - newname;
+      line = (char*)(newend+1);
+    }
+
+  oldname = sanei_config_skip_whitespace(line);
+  if( !*oldname )
+    return;
+  oldend = oldname + strcspn(oldname, " \t");
+
+  oldlen = oldend - oldname;
+
+  alias = malloc(sizeof(struct alias));
+  if( alias )
+    {
+      alias->oldname = malloc(oldlen + newlen + 2);
+      if( alias->oldname )
+	{
+	  strncpy(alias->oldname, oldname, oldlen);
+	  alias->oldname[oldlen] = '\0';
+	  if( cmd == CMD_ALIAS )
+	    {
+	      alias->newname = alias->oldname + oldlen + 1;
+	      strncpy(alias->newname, newname, newlen);
+	      alias->newname[newlen] = '\0';
+	    }
+	  else
+	      alias->newname = NULL;
+
+	  alias->next = first_alias;
+	  first_alias = alias;
+	  return;
+	}
+      free(alias);
+    }
+  return;
+}
+
+
 SANE_Status
 sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
@@ -422,6 +515,24 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
     }
   fclose (fp);
 
+  fp = sanei_config_open (DLL_ALIASES_FILE);
+  if (!fp)
+    return SANE_STATUS_GOOD;	/* don't insist on aliases file */
+
+  while (fgets (backend_name, sizeof (backend_name), fp))
+    {
+      if (backend_name[0] == '#')	/* ignore line comments */
+	continue;
+      len = strlen (backend_name);
+      if (backend_name[len - 1] == '\n')
+	backend_name[--len] = '\0';
+
+      if (!len)
+	continue;		/* ignore empty lines */
+
+      add_alias (backend_name);
+    }
+  fclose (fp);
   return SANE_STATUS_GOOD;
 }
 
@@ -429,6 +540,7 @@ void
 sane_exit (void)
 {
   struct backend *be, *next;
+  struct alias *alias;
 
   DBG(1, "exiting\n");
 
@@ -461,6 +573,13 @@ sane_exit (void)
 	}
     }
   first_backend = 0;
+
+  while( (alias = first_alias) != NULL )
+    {
+      first_alias = first_alias->next;
+      free(alias->oldname);
+      free(alias);
+    }
 }
 
 /* Note that a call to get_devices() implies that we'll have to load
@@ -517,19 +636,47 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 	{
 	  SANE_Device *dev;
 	  char *mem;
+	  struct alias *alias;
 
-	  /* create a new device entry with a device name that is the
-	     sum of the backend name a colon and the backend's device
-	     name: */
-	  len = strlen (be->name) + 1 + strlen (be_list[i]->name);
-	  mem = malloc (sizeof (*dev) + len + 1);
-	  if (!mem)
-	    return SANE_STATUS_NO_MEM;
+	  for(alias = first_alias; alias != NULL; alias = alias->next)
+	    {
+	      len = strlen(be->name);
+	      if( strlen(alias->oldname) <= len )
+		  continue;
+	      if( strncmp(alias->oldname, be->name, len) == 0 
+		  && alias->oldname[len] == ':'
+		  && strcmp(&alias->oldname[len+1], be_list[i]->name) == 0 )
+		break;
+	    }
 
-	  full_name = mem + sizeof (*dev);
-	  strcpy (full_name, be->name);
-	  strcat (full_name, ":");
-	  strcat (full_name, be_list[i]->name);
+	  if( alias )
+	    {
+	      if( !alias->newname )   /* hidden device */
+		continue;
+
+	      len = strlen(alias->newname);
+	      mem = malloc(sizeof(*dev) + len + 1);
+	      if( !mem )
+		return SANE_STATUS_NO_MEM;
+
+	      full_name = mem + sizeof(*dev);
+	      strcpy(full_name, alias->newname);
+	    }
+	  else
+	    {
+	      /* create a new device entry with a device name that is the
+		 sum of the backend name a colon and the backend's device
+		 name: */
+	      len = strlen (be->name) + 1 + strlen (be_list[i]->name);
+	      mem = malloc (sizeof (*dev) + len + 1);
+	      if (!mem)
+		return SANE_STATUS_NO_MEM;
+
+	      full_name = mem + sizeof (*dev);
+	      strcpy (full_name, be->name);
+	      strcat (full_name, ":");
+	      strcat (full_name, be_list[i]->name);
+	    }
 
 	  dev = (SANE_Device *) mem;
 	  dev->name = full_name;
@@ -557,6 +704,18 @@ sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
   SANE_Handle *handle;
   struct backend *be;
   SANE_Status status;
+  struct alias *alias;
+
+  for( alias = first_alias; alias != NULL; alias = alias->next )
+    {
+      if( !alias->newname )
+	continue;
+      if( strcmp(alias->newname, full_name) == 0 )
+	{
+	  full_name = alias->oldname;
+	  break;
+	}
+    }
 
   dev_name = strchr (full_name, ':');
   if (dev_name)
@@ -607,11 +766,10 @@ sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
   if (status != SANE_STATUS_GOOD)
     return status;
 
-  s = malloc (sizeof (*s));
+  s = calloc (1, sizeof (*s));
   if (!s)
     return SANE_STATUS_NO_MEM;
 
-  memset (s, 0, sizeof (*s));
   s->be = be;
   s->handle = handle;
   *meta_handle = s;

@@ -790,7 +790,7 @@ scan_start (Preview *p)
 
   if (sane_set_io_mode (dev, SANE_TRUE) == SANE_STATUS_GOOD
       && sane_get_select_fd (dev, &fd) == SANE_STATUS_GOOD)
-    p->input_tag = gdk_input_add (fd, GDK_INPUT_READ, input_available, p);
+    p->input_tag = gdk_input_add (fd, GDK_INPUT_READ | GDK_INPUT_EXCEPTION, input_available, p);
   else
     input_available (p, -1, GDK_INPUT_READ);
 }

@@ -1,3 +1,11 @@
+2002-01-15  Peter Fales <peter@fales.com>
+	* backend/gphoto2.c:  Following yet another gphoto2 API change -
+	  converted gp_debug_printf to gp_log
+
+	  configure.in, configure, acinclude.m4, aclocal.m4 - Improvements
+	  to the way gphoto2 is detected and used based on using 
+	  gphoto2-config. 
+
 2002-01-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/pnm.c backend/pnm.desc po/pnm.de.po: Removed descripions

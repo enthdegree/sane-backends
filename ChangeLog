@@ -1,3 +1,8 @@
+2002-12-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* configure configure.in backend/dll.c: Add dynamic loading support
+	  for MacOS X/Darwin (from Peter O'Gorman <peter@pogma.com>).
+
 2002-11-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* po/Makefile.in po/epson.sv.po po/saneopts.sv.po: Added Swedish

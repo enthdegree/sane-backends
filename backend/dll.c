@@ -44,7 +44,7 @@
 
 /* Please increase version number with every change 
    (don't forget to update dll.desc) */
-#define DLL_VERSION "1.0.6"
+#define DLL_VERSION "1.0.7"
 
 #ifdef _AIX
 # include "lalloca.h"   /* MUST come first for AIX! */
@@ -78,6 +78,12 @@
 /* HP/UX DLL support */
 #if defined (HAVE_SHL_LOAD) && defined(HAVE_DL_H)
 # include <dl.h>
+# define HAVE_DLL
+#endif
+
+/* Mac OS X/Darwin support */
+#if defined (HAVE_NSLINKMODULE) && defined(HAVE_MACH_O_DYLD_H)
+# include <mach-o/dyld.h>
 # define HAVE_DLL
 #endif
 
@@ -251,6 +257,22 @@ add_backend (const char *name, struct backend **bep)
   return SANE_STATUS_GOOD;
 }
 
+#if defined(HAVE_NSLINKMODULE)
+static const char *dyld_get_error_str ();
+
+static const char 
+*dyld_get_error_str ()
+{
+  NSLinkEditErrors c;
+  int errorNumber;
+  const char *fileName;
+  const char *errorString;
+
+  NSLinkEditError (&c, &errorNumber, &fileName, &errorString);
+  return errorString;
+}
+#endif
+
 static SANE_Status
 load (struct backend *be)
 {
@@ -274,6 +296,11 @@ load (struct backend *be)
 # define PREFIX "libsane-"
 # define POSTFIX ".sl.%u"
   mode = BIND_DEFERRED;
+#elif defined(HAVE_NSLINKMODULE)
+# define PREFIX "libsane-"
+# define POSTFIX ".%u.so"
+  mode = NSLINKMODULE_OPTION_RETURN_ON_ERROR + 
+          NSLINKMODULE_OPTION_PRIVATE;
 #else
 # error "Tried to compile unsupported DLL."
 #endif /* HAVE_DLOPEN */
@@ -344,6 +371,16 @@ load (struct backend *be)
   be->handle = dlopen (libname, mode);
 #elif defined(HAVE_SHL_LOAD)
   be->handle = (shl_t)shl_load (libname, mode, 0L);
+#elif defined(HAVE_NSLINKMODULE)
+  {
+    NSObjectFileImage objectfile_img = NULL;
+    if (NSCreateObjectFileImageFromFile (libname, &objectfile_img) 
+	== NSObjectFileImageSuccess)
+      {
+	be->handle = NSLinkModule (objectfile_img, libname, mode);
+	NSDestroyObjectFileImage (objectfile_img);
+      } 
+  }
 #else
 # error "Tried to compile unsupported DLL."
 #endif /* HAVE_DLOPEN */
@@ -351,6 +388,8 @@ load (struct backend *be)
     {
 #ifdef HAVE_DLOPEN
       DBG(1, "load: dlopen() failed (%s)\n", dlerror());
+#elif defined(HAVE_NSLINKMODULE)
+      DBG(1, "load: dyld error (%s)\n", dyld_get_error_str());
 #else
       DBG(1, "load: dlopen() failed (%s)\n", strerror (errno));
 #endif
@@ -370,6 +409,18 @@ load (struct backend *be)
       op = (void *(*)(void)) dlsym (be->handle, funcname + 1);
 #elif defined(HAVE_SHL_LOAD)
       shl_findsym ((shl_t*)&(be->handle), funcname + 1, TYPE_UNDEFINED, &op);
+#elif defined(HAVE_NSLINKMODULE)
+      {
+        NSSymbol *nssym = NSLookupSymbolInModule (be->handle, funcname);
+        if (!nssym) 
+	  {
+	    DBG(15, "dyld error: %s\n", dyld_get_error_str());
+	  }  
+        else
+	  {
+	    op = (void *(*)(void)) NSAddressOfSymbol (nssym);
+	  }  
+      }  
 #else
 # error "Tried to compile unsupported DLL."
 #endif /* HAVE_DLOPEN */
@@ -382,6 +433,18 @@ load (struct backend *be)
           op = (void *(*)(void)) dlsym (be->handle, funcname);
 #elif defined(HAVE_SHL_LOAD)
           shl_findsym (be->handle, funcname, TYPE_UNDEFINED, &op);
+#elif defined(HAVE_NSLINKMODULE)
+      {
+        NSSymbol *nssym = NSLookupSymbolInModule (be->handle, funcname);
+        if (!nssym) 
+	  {
+	    DBG(15, "dyld error: %s\n", dyld_get_error_str());
+	  }  
+        else
+	  {
+	    op = (void *(*)(void)) NSAddressOfSymbol (nssym);
+	  }  
+      }  
 #else
 # error "Tried to compile unsupported DLL."
 #endif /* HAVE_DLOPEN */
@@ -619,6 +682,14 @@ sane_exit (void)
 #elif defined(HAVE_SHL_LOAD)
           if (be->handle)
             shl_unload(be->handle);
+#elif defined(HAVE_NSLINKMODULE)
+          if (be->handle)
+            NSUnLinkModule(be->handle,
+            		NSUNLINKMODULE_OPTION_NONE
+# ifdef __ppc__
+                    | NSUNLINKMODULE_OPTION_RESET_LAZY_REFERENCES
+# endif            		
+            		);          
 #else
 # error "Tried to compile unsupported DLL."
 #endif /* HAVE_DLOPEN */

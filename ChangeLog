@@ -1,3 +1,11 @@
+2002-07-25  Matthew Duggan <stauff1@users.sourceforge.net>
+
+	* backend/canon_pp.c: Now uses mm instead of pixel measurements, better
+	  behaved in xsane etc as a result.
+	* backend/canon_pp.h: Tweaked up max buffer size to size avaialable in
+	  hardware.
+	* doc/descriptions/canon_pp.desc: increment version no.
+
 2002-07-24  Frank Zago  <fzago at austin dot rr dot com>
 
 	* Added a SUBMITTING CHECKLIST

@@ -6,7 +6,7 @@
  *
  * History:
  * - 0.01 - initial version
- * - 0.02 - no changes
+ * - 0.02 - cleanup
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -101,11 +101,11 @@ static void u12tpa_Reshading( U12_Device *dev )
 	dev->regs.RD_Origin = (u_short)dev->scan.negBegin;
 	dev->regs.RD_Pixels = _NEG_PAGEWIDTH600;
 
-	memset( dev->a_nbNewAdrPointer, 0, _SCANSTATE_BYTES );
+	memset( dev->scanStates, 0, _SCANSTATE_BYTES );
 
 	/* put 9 scan states to make sure there are 8 lines available at least */
 	for( i = 0; i <= 12; i++)
-		dev->a_nbNewAdrPointer[i] = 0x8f;
+		dev->scanStates[i] = 0x8f;
 
 	u12io_PutOnAllRegisters( dev );
 	_DODELAY( 70 );
@@ -319,8 +319,8 @@ static void u12tpa_Reshading( U12_Device *dev )
 		dev->regs.RD_StepControl   = _MOTOR0_SCANSTATE;
 		dev->regs.RD_Motor0Control = _FORWARD_MOTOR;
 
-		memset( dev->a_nbNewAdrPointer, 0, _SCANSTATE_BYTES );
-		dev->a_nbNewAdrPointer[1] = 0x77;
+		memset( dev->scanStates, 0, _SCANSTATE_BYTES );
+		dev->scanStates[1] = 0x77;
 
 		u12io_PutOnAllRegisters( dev );
 		_DODELAY( 50 );

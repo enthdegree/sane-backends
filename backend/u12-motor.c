@@ -65,7 +65,7 @@ static TimerDef u12motor_Timer;
  */
 static void u12motor_DownloadNullScanStates( U12_Device *dev )
 {
-	memset( dev->a_nbNewAdrPointer, 0, _SCANSTATE_BYTES );
+	memset( dev->scanStates, 0, _SCANSTATE_BYTES );
 	u12io_DownloadScanStates( dev );
 }
 
@@ -165,7 +165,7 @@ static void u12motor_PositionModuleToHome( U12_Device *dev )
 	_SET_REG( rb, c, REG_STEPCONTROL, (_MOTOR0_SCANSTATE | _MOTOR_FREERUN));
 	u12io_DataToRegs( dev, rb, c );
 
-	memset( dev->a_nbNewAdrPointer, 0x88, _SCANSTATE_BYTES );
+	memset( dev->scanStates, 0x88, _SCANSTATE_BYTES );
 	u12io_DownloadScanStates( dev );
 
 	u12io_RegisterToScanner( dev, REG_REFRESHSCANSTATE );
@@ -213,7 +213,7 @@ static SANE_Status u12motor_BackToHomeSensor( U12_Device *dev )
 	u12motor_Force16Steps( dev, _DIR_NONE );
 
 	/* stepping every state */
-	memset( dev->a_nbNewAdrPointer, 0x88, _SCANSTATE_BYTES );
+	memset( dev->scanStates, 0x88, _SCANSTATE_BYTES );
 	u12io_DownloadScanStates( dev );
 	_DODELAY(50);
 

@@ -155,7 +155,7 @@ static SANE_Status u12shadingAdjustShadingWaveform( U12_Device *dev )
 	}
 	dev->regs.RD_Origin = _SHADING_BEGINX;
 
-	for( pvar.pdw = (u_long*)dev->a_nbNewAdrPointer,
+	for( pvar.pdw = (u_long*)dev->scanStates,
 		var.dwValue = _SCANSTATE_BYTES >> 2; var.dwValue--; pvar.pdw++) {
 		*pvar.pdw = 0x00f00080;
 	}
@@ -589,8 +589,8 @@ static SANE_Status u12shading_AdjustRGBGain( U12_Device *dev )
 		dev->regs.RD_Dpi    = 300;
 		dev->regs.RD_Pixels = 2560;
 
-		memset( dev->a_nbNewAdrPointer, 0, _SCANSTATE_BYTES );
-		dev->a_nbNewAdrPointer[1] = 0x77;
+		memset( dev->scanStates, 0, _SCANSTATE_BYTES );
+		dev->scanStates[1] = 0x77;
 
 		u12io_PutOnAllRegisters( dev );
 /*		_DODELAY( 100 ); */
@@ -698,8 +698,8 @@ static SANE_Status u12shadingAdjustDark( U12_Device *dev )
 		else
 			dev->regs.RD_Dpi = 600;
 
-		memset( dev->a_nbNewAdrPointer, 0, _SCANSTATE_BYTES );
-		dev->a_nbNewAdrPointer[1] = 0x77;
+		memset( dev->scanStates, 0, _SCANSTATE_BYTES );
+		dev->scanStates[1] = 0x77;
 
 		u12io_PutOnAllRegisters( dev );
 /*		_DODELAY( 100 ); */
@@ -789,6 +789,7 @@ static void u12shading_DownloadMapTable( U12_Device *dev, SANE_Byte *buf )
  */
 static SANE_Status u12shading_DoCalibration( U12_Device *dev )
 {
+	SANE_Byte   tb[4096*3];
 	u_long      i, tmp;
 	SANE_Byte   bScanControl, rb[20];
 	SANE_Status res;
@@ -856,24 +857,16 @@ static SANE_Status u12shading_DoCalibration( U12_Device *dev )
 
 	dev->regs.RD_ScanControl = bScanControl;
 
-	/* here we have to download the table in any case...*/
-{
-	/* FIXME... */
-#if 0
-	u12shading_DownloadMapTable( dev, (SANE_Byte *)dev->gamma_table );
-#else
-	SANE_Byte tb[4096*3];
-	int i;
-
-	for( i = 0; i < 4096; i++ ) {
-		tb[i]      = (SANE_Byte)(i >> 4);
-		tb[i+4096] = (SANE_Byte)(i >> 4);
-		tb[i+8192] = (SANE_Byte)(i >> 4);
+	/* here we have to prepare and download the table in any case...*/
+	if( dev->DataInf.wPhyDataType <= COLOR_256GRAY ) {
+		u12map_Adjust( dev, _MAP_MASTER, tb );
+	} else {
+		u12map_Adjust( dev, _MAP_RED, tb   );
+		u12map_Adjust( dev, _MAP_GREEN, tb );
+		u12map_Adjust( dev, _MAP_BLUE, tb  );
 	}
 
 	u12shading_DownloadMapTable( dev, tb );
-#endif
-}
 
 	u12motor_BackToHomeSensor( dev );
 	DBG( _DBG_INFO, "u12shading_DoCalibration() - done.\n" );

@@ -8,6 +8,7 @@
  * - 0.02 - added model tweaking
  *        - fixed autodetection bug
  *        - added line-scaling stuff
+ *        - removed u12if_setScanEnv()
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -464,25 +465,6 @@ static SANE_Status u12if_getCaps( U12_Device *dev )
 
 /**
  */
-static SANE_Status u12if_setScanEnv( U12_Device *dev, ImgDef *img )
-{
-	SANE_Status res;
-	
-	DBG( _DBG_INFO, "u12if_setScanEnv()\n" );
-	res = u12image_SetupScanSettings( dev, img );
-
-	if( img->wDataType <= COLOR_256GRAY ) {
-		u12map_Adjust( dev, _MAP_MASTER );
-	} else {
-		u12map_Adjust( dev, _MAP_RED   );
-		u12map_Adjust( dev, _MAP_GREEN );
-		u12map_Adjust( dev, _MAP_BLUE  );
-	}
-	return res;
-}
-
-/**
- */
 static SANE_Status u12if_startScan( U12_Device *dev )
 {
 	DBG( _DBG_INFO, "u12if_startScan()\n" );
@@ -531,7 +513,10 @@ static SANE_Status u12if_prepare( U12_Device *dev )
 	u12image_PrepareScaling( dev );
                            
 	u12motor_ForceToLeaveHomePos( dev );
-	u12hw_SetupScanningCondition( dev );
+	if( dev->DataInf.dwScanFlag & _SCANDEF_PREVIEW )
+		u12hw_SetupPreviewCondition( dev );
+	else	
+		u12hw_SetupScanningCondition( dev );
 
 	res = u12motor_WaitForPositionY( dev );
 

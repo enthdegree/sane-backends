@@ -333,6 +333,144 @@ static void u12hw_SetGeneralRegister( U12_Device *dev )
 
 /**
  */
+static void u12hw_SetupPreviewCondition( U12_Device *dev )
+{
+	int       i, c;
+	u_long    channel;
+	SANE_Byte rb[100];
+
+	DBG( _DBG_INFO, "u12_SetupPreviewCondition()\n" );
+
+	u12hw_SetGeneralRegister( dev );
+
+	u12io_RegisterToScanner( dev, REG_RESETMTSC );
+	_DODELAY(250);
+
+	/* ------- Set the max. read fifo to Asic ------- */
+	memset( dev->scanStates, 0, _SCANSTATE_BYTES );
+	if( dev->DataInf.xyAppDpi.x >= 38 ) { /* 38 <= x <= 75 */
+
+		for(i = 0; i < _SCANSTATE_BYTES; i++ )
+			dev->scanStates[i] = 0xad;
+
+	} else if( dev->DataInf.xyAppDpi.x >= 19 ) { /* 19 <= x <= 30(37) */
+
+		u_short *pState = (u_short*)dev->scanStates;
+
+		for( i = 0; i < (_SCANSTATE_BYTES / 2); i++ )
+			pState[i] = 0x89ac;
+
+	} else {    /* 16 <= x <= 18 */
+
+		u_long *pState = (u_long*)dev->scanStates;
+
+		for(i = 0; i < (_SCANSTATE_BYTES / 4); i++)
+			pState[i] = 0x888889ac;
+	}
+
+	dev->regs.RD_BufFullSize = dev->DataInf.dwAppPixelsPerLine *
+	                  ((dev->DataInf.xyPhyDpi.y * dev->max_y + 299) / 300) + 1;
+	if( dev->regs.RD_BufFullSize > _SIZE_BLUEFIFO )
+		dev->regs.RD_BufFullSize = _SIZE_BLUEFIFO -
+		                           dev->DataInf.dwAppPixelsPerLine - 1;
+
+	dev->scan.dwMaxReadFifo =
+	dev->scan.dwMinReadFifo = dev->DataInf.dwAppPixelsPerLine *2 ;
+
+	if( dev->scan.dwMinReadFifo < 1024)
+		dev->scan.dwMinReadFifo = dev->scan.dwMaxReadFifo = 1024;
+
+	dev->scan.dwMaxReadFifo += (dev->DataInf.dwAsicBytesPerPlane / 2);
+
+	if( dev->DataInf.wPhyDataType > COLOR_256GRAY ) 
+		dev->scan.bFifoSelect = REG_BFIFOOFFSET;
+	else
+		dev->scan.bFifoSelect = REG_GFIFOOFFSET;
+
+	channel = _BLUE_FULLSIZE << 16;
+	dev->regs.RD_BufFullSize = _SIZE_BLUEFIFO;
+
+	dev->regs.RD_LineControl    = _LOBYTE(dev->shade.wExposure);
+	dev->regs.RD_ExtLineControl = _HIBYTE(dev->shade.wExposure);
+	dev->regs.RD_XStepTime      = _LOBYTE(dev->shade.wXStep);
+	dev->regs.RD_ExtXStepTime   = _HIBYTE(dev->shade.wXStep);
+	dev->regs.RD_Motor0Control  = _FORWARD_MOTOR;
+	dev->regs.RD_StepControl    = _MOTOR0_SCANSTATE | _MOTOR_FREERUN;
+	dev->regs.RD_ModeControl    = _ModeScan;
+
+	if( dev->DataInf.wPhyDataType == COLOR_BW ) {
+		dev->regs.RD_ScanControl = _SCAN_BITMODE;
+	} else if( dev->DataInf.wPhyDataType <= COLOR_TRUE24 )
+		dev->regs.RD_ScanControl = _SCAN_BYTEMODE;
+	else {
+		dev->regs.RD_ScanControl = _SCAN_12BITMODE;
+	}
+
+	dev->regs.RD_ScanControl |= _SCAN_1ST_AVERAGE;
+	u12hw_SelectLampSource( dev );
+
+	dev->regs.RD_MotorTotalSteps = (dev->DataInf.crImage.cy * 4) +
+	                               (dev->f0_8_16 ? 32 : 16) +
+	                               (dev->scan.bDiscardAll ? 32 : 0);
+	DBG( _DBG_INFO, "* RD_MotorTotalSteps = 0x%04x\n",
+	                                             dev->regs.RD_MotorTotalSteps);
+
+	dev->regs.RD_ScanControl1 = (_MTSC_ENABLE | _SCANSTOPONBUFFULL |
+	                             _MFRC_RUNSCANSTATE | _MFRC_BY_XSTEP);
+	DBG( _DBG_INFO, "* RD_ScanControl1 = 0x%02x\n", dev->regs.RD_ScanControl1);
+
+	dev->regs.RD_Dpi = dev->DataInf.xyPhyDpi.x;
+
+	dev->regs.RD_Origin  = (u_short)(dev->adj.leftNormal*2+_DATA_ORIGIN_X);
+	dev->regs.RD_Origin += dev->DataInf.crImage.x;
+
+	if( dev->shade.intermediate & _ScanMode_AverageOut )
+		dev->regs.RD_Origin >>= 1;
+
+	if( dev->DataInf.wPhyDataType == COLOR_BW )
+		dev->regs.RD_Pixels = dev->DataInf.dwAsicBytesPerPlane;
+	else
+		dev->regs.RD_Pixels = dev->DataInf.dwAppPixelsPerLine;
+
+	/* ------- Wait for scan state stop ------- */
+	u12io_DataToRegister( dev, REG_MODECONTROL, _ModeIdle );
+
+	u12io_DownloadScanStates( dev );
+
+	c = 0;
+	_SET_REG( rb, c, REG_LINECONTROL, dev->regs.RD_LineControl );
+	_SET_REG( rb, c, REG_EXTENDEDLINECONTROL,
+	                      dev->regs.RD_ExtLineControl);
+	_SET_REG( rb, c, REG_XSTEPTIME, dev->regs.RD_XStepTime );
+	_SET_REG( rb, c, REG_EXTENDEDXSTEP, dev->regs.RD_ExtXStepTime );
+	_SET_REG( rb, c, REG_MOTORDRVTYPE,
+	                      dev->regs.RD_MotorDriverType );
+	_SET_REG( rb, c, REG_STEPCONTROL, dev->regs.RD_StepControl );
+	_SET_REG( rb, c, REG_MOTOR0CONTROL, dev->regs.RD_Motor0Control );
+	_SET_REG( rb, c, REG_MODELCONTROL, dev->regs.RD_ModelControl );
+	_SET_REG( rb, c, REG_DPILO, (_LOBYTE(dev->regs.RD_Dpi)));
+	_SET_REG( rb, c, REG_DPIHI, (_HIBYTE(dev->regs.RD_Dpi)));
+	_SET_REG( rb, c, REG_SCANPOSLO, (_LOBYTE(dev->regs.RD_Origin)));
+	_SET_REG( rb, c, REG_SCANPOSHI,(_HIBYTE(dev->regs.RD_Origin)));
+	_SET_REG( rb, c, REG_WIDTHPIXELLO,(_LOBYTE(dev->regs.RD_Pixels)));
+	_SET_REG( rb, c, REG_WIDTHPIXELHI,(_HIBYTE(dev->regs.RD_Pixels)));
+	_SET_REG( rb, c, REG_THRESHOLDLO,
+	                                 (_LOBYTE(dev->regs.RD_ThresholdControl)));
+	_SET_REG( rb, c, REG_THRESHOLDHI,
+	                                 (_HIBYTE(dev->regs.RD_ThresholdControl)));
+	_SET_REG( rb, c, REG_MOTORTOTALSTEP0,
+	                                  (_LOBYTE(dev->regs.RD_MotorTotalSteps)));
+	_SET_REG( rb, c, REG_MOTORTOTALSTEP1,
+	                                  (_HIBYTE(dev->regs.RD_MotorTotalSteps)));
+	_SET_REG( rb, c, REG_SCANCONTROL, dev->regs.RD_ScanControl);
+	u12io_DataToRegs( dev, rb, c );
+	_DODELAY(100);
+
+	u12io_RegisterToScanner( dev, REG_INITDATAFIFO );
+}
+
+/**
+ */
 static void u12hw_SetupScanningCondition( U12_Device *dev )
 {
 	TimerDef   timer;
@@ -483,7 +621,7 @@ static void u12hw_SetupScanningCondition( U12_Device *dev )
 	                         dev->regs.RD_Origin, dev->regs.RD_Pixels );
 
 	/* ------- Prepare scan states ------- */
-	memset( dev->a_nbNewAdrPointer, 0, _SCANSTATE_BYTES );
+	memset( dev->scanStates, 0, _SCANSTATE_BYTES );
 	memset( dev->bufs.b1.pReadBuf,  0, _NUMBER_OF_SCANSTEPS );
 
 	if( dev->DataInf.wPhyDataType <= COLOR_256GRAY )
@@ -498,7 +636,7 @@ static void u12hw_SetupScanningCondition( U12_Device *dev )
 	}
 	for( channel = 0, pState = dev->bufs.b1.pReadBuf;
 	                                  channel < _SCANSTATE_BYTES; channel++)  {
-		dev->a_nbNewAdrPointer[channel] = pState[0] | (pState[1] << 4);
+		dev->scanStates[channel] = pState[0] | (pState[1] << 4);
 	    pState += 2;
 	}
 
@@ -765,10 +903,11 @@ static void usb_LampTimerIrq( int sig )
  */
 static void u12hw_StartLampTimer( U12_Device *dev )
 {
-#ifdef HAVE_SETITIMER
 	sigset_t         block, pause_mask;
 	struct sigaction s;
+#ifdef HAVE_SETITIMER
 	struct itimerval interval;
+#endif
 
 	/* block SIGALRM */
 	sigemptyset( &block );
@@ -786,6 +925,7 @@ static void u12hw_StartLampTimer( U12_Device *dev )
 
 	sigprocmask( SIG_UNBLOCK, &block, &pause_mask );
 
+#ifdef HAVE_SETITIMER
 	/*
 	 * define a one-shot timer
 	 */
@@ -794,16 +934,15 @@ static void u12hw_StartLampTimer( U12_Device *dev )
 	interval.it_interval.tv_usec = 0;
 	interval.it_interval.tv_sec  = 0;
 
-	dev_xxx = dev;
-
 	if( 0 != dev->adj.lampOff ) {
+		dev_xxx = dev;
 		setitimer( ITIMER_REAL, &interval, &dev->saveSettings );
 		DBG( _DBG_INFO, "Lamp-Timer started (using ITIMER)\n" );
 	}
 #else
 	dev_xxx = dev;
 
-	alarm( dev->usbDev.dwLampOnPeriod );
+	alarm( dev->adj.lampOff );
 	DBG( _DBG_INFO, "Lamp-Timer started (using ALARM)\n" );
 #endif
 }
@@ -812,7 +951,6 @@ static void u12hw_StartLampTimer( U12_Device *dev )
  */
 static void u12hw_StopLampTimer( U12_Device *dev )
 {
-#ifdef HAVE_SETITIMER
 	sigset_t block, pause_mask;
 
 	/* block SIGALRM */
@@ -820,14 +958,13 @@ static void u12hw_StopLampTimer( U12_Device *dev )
 	sigaddset  ( &block, SIGALRM );
 	sigprocmask( SIG_BLOCK, &block, &pause_mask );
 
+	dev_xxx = NULL;
+
+#ifdef HAVE_SETITIMER
 	if( 0 != dev->adj.lampOff )
 		setitimer( ITIMER_REAL, &dev->saveSettings, NULL );
-
-	dev_xxx = NULL;
-
 #else
 	_VAR_NOT_USED( dev );
-	dev_xxx = NULL;
 
 	alarm( 0 );
 #endif

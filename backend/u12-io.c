@@ -690,7 +690,7 @@ static SANE_Status u12io_DownloadScanStates( U12_Device *dev )
 
 	bulk_setup_data[1] = 0x01;
 	CHK( gl640WriteBulk( dev->fd, bulk_setup_data,
-	                     dev->a_nbNewAdrPointer, _SCANSTATE_BYTES ));
+	                     dev->scanStates, _SCANSTATE_BYTES ));
 	bulk_setup_data[1] = 0x11;
 
 /* FIXME: refreshState probably always FALSE */	

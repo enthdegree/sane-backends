@@ -8,6 +8,7 @@
  * History:
  * - 0.01 - initial version
  * - 0.02 - enabled other scan-modes
+ *        - increased default gamma to 1.5
  *.
  * <hr>
  * This file is part of the SANE package.
@@ -79,7 +80,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.02-4"
+#define BACKEND_VERSION "0.02-6"
 #define BACKEND_NAME    u12
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
@@ -638,7 +639,7 @@ static SANE_Status init_options( U12_Scanner *s )
 	s->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
 	s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
 	s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
-	
+
 #ifdef ALL_MODES
 	/* disable extended mode list for devices without TPA */
 	if( SANE_FALSE == s->hw->Tpa ) {
@@ -660,11 +661,11 @@ static void decodeUsbIDs( char *src, char **dest )
 
 	if( isspace(src[len])) {
 		strncpy( tmp, &src[len+1], (strlen(src)-(len+1)));
-        tmp[(strlen(src)-(len+1))] = '\0';
+		tmp[(strlen(src)-(len+1))] = '\0';
 	}
 
 	name = tmp;
-   	name = sanei_config_skip_whitespace( name );
+	name = sanei_config_skip_whitespace( name );
 
 	if( '\0' == name[0] ) {
 		DBG( _DBG_SANE_INIT, "next device uses autodetection\n" );
@@ -679,23 +680,23 @@ static void decodeUsbIDs( char *src, char **dest )
 		    	vi = strtol( tmp, 0, 0 );
 			    free( tmp );
 			}
-	    }
-				
+		}
+
 		name = sanei_config_skip_whitespace( name );
-     	if( *name ) {
+		if( *name ) {
 		
 			name = sanei_config_get_string( name, &tmp );
 			if( tmp ) {
-	      		pi = strtol( tmp, 0, 0 );
-		    	free( tmp );
-		    }
+				pi = strtol( tmp, 0, 0 );
+				free( tmp );
+			}
 		}
 
-		/* create what we need to go through our device list...*/			
+		/* create what we need to go through our device list...*/
 		sprintf( *dest, "0x%04X-0x%04X", vi, pi );
 		DBG( _DBG_SANE_INIT, "next device is a USB device (%s)\n", *dest );
-	}	
-}				
+	}
+}
 
 #define _INT   0
 #define _FLOAT 1
@@ -721,7 +722,7 @@ static SANE_Bool decodeVal( char *src, char *opt,
 	/* get the name of the option */
 	name = sanei_config_get_string( name, &tmp );
 
-	if( tmp ) {	
+	if( tmp ) {
 
 		/* on success, compare wiht the given one */
 		if( 0 == strcmp( tmp, opt )) {
@@ -885,8 +886,8 @@ static SANE_Status attach( const char *dev_name,
 	dev->next = first_dev;
 	first_dev = dev;
 
-	if (devp)
-    	*devp = dev;
+	if( devp )
+		*devp = dev;
 
 	return SANE_STATUS_GOOD;
 }
@@ -896,7 +897,7 @@ static SANE_Status attach( const char *dev_name,
  */
 static void init_config_struct( pCnfDef cnf )
 {
-    memset( cnf, 0, sizeof(CnfDef));
+	memset( cnf, 0, sizeof(CnfDef));
 
 	cnf->adj.warmup       = -1;
 	cnf->adj.lampOff      = -1;
@@ -967,7 +968,7 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 			
 			ival = 0;
 
-			dval = 1.0;
+			dval = 1.5;
 			decodeVal( str, "grayGamma",  _FLOAT, &config.adj.graygamma,&dval);
 			decodeVal( str, "redGamma",   _FLOAT, &config.adj.rgamma, &dval );
 			decodeVal( str, "greenGamma", _FLOAT, &config.adj.ggamma, &dval );
@@ -1231,7 +1232,7 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 					  s->opt[option].constraint.string_list[s->val[option].w]);
 				break;
 #endif
-	
+
 	  		/* word array options: */
 	  		case OPT_GAMMA_VECTOR:
 			case OPT_GAMMA_VECTOR_R:
@@ -1239,7 +1240,7 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 			case OPT_GAMMA_VECTOR_B:
 				memcpy( value, s->val[option].wa, s->opt[option].size );
 				break;
-								
+
 			default:
 				return SANE_STATUS_INVAL;
 		}
@@ -1315,7 +1316,7 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 				    s->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
 				    s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
 				    s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
-					    					    					
+
     				if( SANE_TRUE == s->val[option].w ) {
     				
     					if( scanmode == COLOR_256GRAY ) {
@@ -1667,9 +1668,9 @@ SANE_Status sane_start( SANE_Handle handle )
 	DBG( _DBG_SANE_INIT, "brightness %i, contrast %i\n",
 	                     dev->DataInf.siBrightness, dev->DataInf.siContrast );
 
-	result = u12if_setScanEnv( dev, &image );
+	result = u12image_SetupScanSettings( dev, &image );
 	if( SANE_STATUS_GOOD != result ) {
-		DBG( _DBG_ERROR, "u12if_setEnv() failed(%d)\n", result );
+		DBG( _DBG_ERROR, "u12image_SetupScanSettings() failed(%d)\n", result );
 		u12if_close( dev );
 		return SANE_STATUS_IO_ERROR;
 	}
@@ -1685,19 +1686,19 @@ SANE_Status sane_start( SANE_Handle handle )
 	/* reset our timer...*/
 	tsecs = 0;
 
-	result = u12if_startScan( dev );
-	if( SANE_STATUS_GOOD != result ) {
-		DBG( _DBG_ERROR, "u12if_startScan() failed(%d)\n", result );
-		u12if_close( dev );
-		return SANE_STATUS_IO_ERROR;
-    }
-
 	s->buf = realloc( s->buf, (s->params.lines) * s->params.bytes_per_line );
 	if( NULL == s->buf ) {
 		DBG( _DBG_ERROR, "realloc failed\n" );
 		u12if_close( dev );
 		return SANE_STATUS_NO_MEM;
 	}
+
+	result = u12if_startScan( dev );
+	if( SANE_STATUS_GOOD != result ) {
+		DBG( _DBG_ERROR, "u12if_startScan() failed(%d)\n", result );
+		u12if_close( dev );
+		return SANE_STATUS_IO_ERROR;
+    }
 
 	s->scanning = SANE_TRUE;
 

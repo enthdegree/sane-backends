@@ -5,7 +5,8 @@
  *
  * History:
  * - 0.01 - initial version
- * - 0.02 - no changes
+ * - 0.02 - inverting map when scanning binary images
+ *        - changed u12map_Adjust()
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -109,7 +110,7 @@ static void u12map_CheckGammaSettings( U12_Device *dev )
 
 /** adjust acording to brightness and contrast
  */
-static void u12map_Adjust( U12_Device *dev, int which )
+static void u12map_Adjust( U12_Device *dev, int which, SANE_Byte *buf )
 {
 	int     i;
 	u_long *pdw;
@@ -140,50 +141,51 @@ static void u12map_Adjust( U12_Device *dev, int which )
 			tmp = ((double)(dev->gamma_table[0][i] + b)) * c;
 			if( tmp < 0 )   tmp = 0;
 			if( tmp > 255 ) tmp = 255;
-			dev->gamma_table[0][i] = (SANE_Byte)tmp;
+			buf[i] = (SANE_Byte)tmp;
 		}
 
 		if((_MAP_MASTER == which) || (_MAP_GREEN == which)) {
 			tmp = ((double)(dev->gamma_table[1][i] + b)) * c;
 			if( tmp < 0 )   tmp = 0;
 			if( tmp > 255 ) tmp = 255;
-			dev->gamma_table[1][i] = (SANE_Byte)tmp;
+			buf[4096+i] = (SANE_Byte)tmp;
     	}
 
 		if((_MAP_MASTER == which) || (_MAP_BLUE == which)) {
 			tmp = ((double)(dev->gamma_table[2][i] + b)) * c;
 			if( tmp < 0 )   tmp = 0;
 			if( tmp > 255 ) tmp = 255;
-			dev->gamma_table[2][i] = (SANE_Byte)tmp;
+			buf[8192+i] = (SANE_Byte)tmp;
 		}
 	}
 
-	if( dev->DataInf.dwScanFlag & _SCANDEF_Negative ) {
+	if((dev->DataInf.dwScanFlag & _SCANDEF_Negative) ||
+	   (dev->DataInf.wPhyDataType == COLOR_BW)) {
 		DBG( _DBG_INFO, "inverting...\n" );
 
 		if((_MAP_MASTER == which) || (_MAP_RED == which)) {
 
 			DBG( _DBG_INFO, "inverting RED map\n" );
-			pdw = (u_long*)&dev->gamma_table[0];
+			pdw = (u_long*)&buf[0];
 		    for( i = dev->gamma_length / 4; i; i--, pdw++ )
 				*pdw = ~(*pdw);
-    	}
+		}
 
 		if((_MAP_MASTER == which) || (_MAP_GREEN == which)) {
 
 			DBG( _DBG_INFO, "inverting GREEN map\n" );
-			pdw = (u_long*)&dev->gamma_table[1];
+			pdw = (u_long*)&buf[4096];
 		    for( i = dev->gamma_length / 4; i; i--, pdw++ )
 				*pdw = ~(*pdw);
-    	}
+		}
 
 		if((_MAP_MASTER == which) || (_MAP_BLUE == which)) {
 
 			DBG( _DBG_INFO, "inverting BLUE map\n" );
-			pdw = (u_long*)&dev->gamma_table[2];
+			pdw = (u_long*)&buf[8192];
 		    for( i = dev->gamma_length / 4; i; i--, pdw++ )
 				*pdw = ~(*pdw);
-    	}
+		}
 	}
 }
 

@@ -263,7 +263,7 @@ typedef struct u12d
 	SANE_Byte    XStepColor;
 	SANE_Byte    XStepBack;
 	SANE_Bool    f0_8_16;
-	SANE_Byte    a_nbNewAdrPointer[_SCANSTATE_BYTES];
+	SANE_Byte    scanStates[_SCANSTATE_BYTES];
 
 	/* CCD section */
 	SANE_Byte    CCDID;         /**< what CCD do we have              */

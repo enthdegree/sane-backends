@@ -44,6 +44,7 @@ Backends:
  ricoh:         Feico W. Dillema
  s9036:         Ingo Schneider
  sharp:         FUKUDA Kazuya (*) and Abel Deuring (*)
+ sm3600:        Marian Eichholz (*) and Glenn Ramsey (*)
  snapscan:      Kevin Charter, Franck Schneider, and Michel Roelofs
  sp15c:         Randolph Bentson (*)
  st400:         Ingo Wilken (*)
@@ -90,6 +91,7 @@ Juergen G. Schimmer <schimmi@nbgm.siemens.de>
 Feico W. Dillema <dillema@acm.org>
 Franck Schneider <schnefra@hol.fr>
 Gerhard Jaeger <g.jaeger@earthling.net>
+Glenn Ramsey <glenn@componic.com>
 Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
 Guido Muesch <odiug@faho.rwth-aachen.de>
 Helmut Koeberle <helmut.koeberle@bytec.de>
@@ -104,6 +106,7 @@ Karsten Festag <karsten.festag@t-online.de>
 Kazuhiro Sasayama <kaz@hypercore.co.jp>
 Kevin Charter <charter@cs.rice.edu>
 Manuel Panea <Manuel.Panea@rzg.mpg.de>
+Marian Eichholz <eichholz@computer.org>
 Markus Mertinat <Markus.Mertinat@Physik.Uni-Augsburg.DE>
 Matthew Marjanovic <maddog@mir.com>
 Meino Christian Cramer <mccramer@s.netic.de>

@@ -1,4 +1,4 @@
-.TH sane 7 "13 May 2001"
+.TH sane 7 "16 May 2001"
 .IX sane
 
 .SH NAME
@@ -205,6 +205,10 @@ sane-s9036(5) for details.
 .TP
 .B sharp
 The SANE sharp backend supports Sharp SCSI scanners. See sane-sharp(5) for details.
+.TP
+.B sm3600
+The SANE sm3600 backend supports the Microtek ScanMaker 3600 USB scanner. See
+sane-sm3600(5) for details.
 .TP
 .B snapscan
 The snapscan backend supports AGFA SnapScan flatbed scanners. See

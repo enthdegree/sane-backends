@@ -115,6 +115,11 @@ AC_TYPE_PID_T
 AC_CHECK_TYPE(ssize_t, long)
 SANE_CHECK_U_TYPES
 
+AC_MSG_CHECKING([for struct flock in fcntl.h])
+AC_EGREP_HEADER([struct flock], fcntl.h, [AC_MSG_RESULT(yes) ;
+                AC_DEFINE(HAVE_STRUCT_FLOCK, 1,
+                [Define if struct flock is available.])], AC_MSG_RESULT(no))
+ 
 if test "$ac_cv_header_sys_scsiio_h" = "yes" \
      -a "$ac_cv_header_scsi_h" = "yes";
 then

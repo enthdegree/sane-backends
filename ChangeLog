@@ -5,6 +5,8 @@
 	  Fujitsu 1200CUS to man page, .conf and .desc. Changed .conf file
 	  to be more readable.  Added RevScan 19200i to .conf file.  Added
 	  Plustek U16B to .desc and .conf, updated UT16B.
+	* po/sane-backends.de.po: Added some translations for the HP
+	  backend. Minor header updates.
 	
 2003-07-24  Peter Kirchgessner <peter@kirchgessner.net>
 

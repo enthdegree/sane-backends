@@ -7,7 +7,7 @@ The
 .B sane-matsushita
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to some Panasonic KV-SS high speed scanners. This
-backend should be considered beta quality.
+backend is stable.
 .PP
 At present, the following scanners are known to work with this
 backend:
@@ -18,6 +18,7 @@ backend:
 --------------
 .br
    KV-SS 25
+   KV-SS 25D
 .RE
 .PP
 Other Panasonic high speed scanners may or may not work with that backend.
@@ -47,7 +48,7 @@ selects the number of pages to scan (one or until the tray is empty).
 .B Geometry
 
 .TP
-.B --paper_size A4|...|Legal|Letter [A4]
+.B --paper-size A4|...|Legal|Letter [A4]
 options selects the area to scan. It adjust the 
 .B -l -t -x -y
 options accordingly. It does not need to be the real size of the paper.
@@ -118,6 +119,9 @@ levels reduce verbosity.
 
 .SH LIMITATIONS
 .TP
+.B Memory in the KV-SS 25
+The KV-SS 25 has not enough internal memory to scan a whole A4 page in duplex mode at high densities. The frontend will return a memory error in that case. Apparently, the KV-SS 25D has not that problem.
+.TP
 .B Pattern and gamma downloading
 The scanner, with the proper firmware, can download a halftone pattern
 and a gamma table. This is not implemented.
@@ -128,6 +132,16 @@ more precise enhancment options. This is not implemented.
 .TP
 .B Duplex mode
 The backend does not support the setting of different options for each side. The scan will occur with the same options (halftone pattern, brightness, image emphasis) for both sides.
+
+
+.SH SCANNING EXAMPLE
+To date, the only frontend capable of using this scanner at full speed is
+.B
+scanadf.
+
+A scanadf command line would be:
+
+scanadf -d matsushita --output-file scan%04d.pbm --start-count 0 --duplex --resolution 300 --feeder-mode="All pages" --paper-size="A4"
 
 
 .SH BUGS

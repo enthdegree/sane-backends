@@ -19,7 +19,7 @@
 ;:status :stable
 
 ; backend's web page
-:url "http://www.rocklinux-consulting.de/oss/avision/index.html"
+:url "http://www.exactcode.de/oss/avision/index.html"
 
 ; name of manpage (if it exists)
 :manpage "sane-avision"

@@ -1,3 +1,10 @@
+
+2004-10-20  Rene Rebe <rene@exactcode.de>
+
+	* backend/avision.c doc/descriptions/avision.desc doc/sane-avision.man:
+	  substituted my mail address and web-site to a new one - due to
+	  leaving the rocklinux project
+
 2004-10-19  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* backend/plustek.c: Using now the same strings for gain and offset 

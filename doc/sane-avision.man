@@ -3,7 +3,7 @@
 
 .SH NAME
 sane-avision \- SANE backend for original Avision and Avision OEM scanners
-(HP, Minolta, Mitsubishi, UMAX and possibly more) flatbed scanners.
+(HP, Minolta, Mitsubishi, UMAX and possibly more) flatbed and film scanners.
 
 .SH ABOUT THIS FILE
 
@@ -16,8 +16,11 @@ library implements a SANE (Scanner Access Now Easy) backend that
 provides access to various Avision scanners and the Avision OEM
 scanners labelled by HP, Minolta, Mitsubishi or Fujitsu.
 
-.B I suggest you hold one hand on the power-button of the scanner while you try
-the first scans!
+It is fully big-endian aware and in every-day use on PowerPC and SPARC
+systems.
+
+.B I suggest you hold one hand on the power-button of the scanner while
+you try the first scans - especially with film-scanners!
 
 .SH CONFIGURATION
 
@@ -163,7 +166,7 @@ export SANE_DEBUG_AVISION=7
 .SH "SEE ALSO"
 sane(7), sane\-scsi(5), sane\-usb(5)
 .br
-http://www.rocklinux-consulting.de/oss/avision/
+http://www.exactcode.de/oss/avision/
 
 .SH AUTHOR
 René Rebe and Meino Christian Cramer

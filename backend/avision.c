@@ -48,14 +48,14 @@
    command set.
    
    Copyright 2003, 2004 by
-                "René Rebe" <rene@rocklinux.org>
+                "René Rebe" <rene@exactcode.de>
    
    Copyright 2002 by
-                "René Rebe" <rene@rocklinux.org>
+                "René Rebe" <rene@exactcode.de>
                 "Jose Paulo Moitinho de Almeida" <moitinho@civil.ist.utl.pt>
    
    Copyright 1999, 2000, 2001 by
-                "René Rebe" <rene@rocklinux.org>
+                "René Rebe" <rene@exactcode.de>
                 "Meino Christian Cramer" <mccramer@s.netic.de>
    
    Additional Contributers:
@@ -2426,7 +2426,7 @@ attach (SANE_String_Const devname, Avision_ConnectionType con_type,
   if (!found) {
     DBG (1, "attach: model is not in the list of supported models!\n");
     DBG (1, "attach: You might want to report this output. To:\n");
-    DBG (1, "attach: rene@rocklinux.org (the Avision backend author)\n");
+    DBG (1, "attach: rene@exactcode.de (the Avision backend author)\n");
     
     status = SANE_STATUS_INVAL;
     goto close_scanner_and_return;

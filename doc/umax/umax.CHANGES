@@ -940,3 +940,21 @@ build-26 -> build-27
 
    * changed default minimum scsi buffer size from 64KB to 32 KB
 
+    
+build-27 -> build-28
+--------------------
+
+   * removed "#include <assert.h>" from umax.c, assert() is never called
+
+   * added UMAX Powerlook 3000 as supported scanner
+
+   * bugfix for 3 pass scanning:
+     reposition_scanner is called in sane_start for 2nd and 3rd pass of 3 pass scan
+
+
+   * bugfix for UTA and DOR geometry offsets:
+     - added inquiry_uta_x_off and inquiry_uta_y_off
+     - geometry ranges are defined from xoff..xoff+dx, yoff..yoff+dx now
+     - check_values also does test for this range
+     - removed dev->maxwidth and dev->maxlength, values are calculated in place now
+

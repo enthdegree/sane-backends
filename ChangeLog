@@ -10,6 +10,8 @@
 	  Moved the function to check the "usb VENDOR PRODUCT" config
 	  lines to sanei_usb to avoid linking problems.
 	* backend/Makefile.in: Fixed spelling mistakes concerning st400.
+	* Makefile.in: make libcheck now also prints the name(s) of the
+	  `illegal' functions.
 
 2001-09-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -20,6 +20,15 @@
    backend is not limited to these options but for the sake of
    consistency it's better to use options declared here when appropriate.
  */
+
+/* This file defines several option NAMEs, TITLEs and DESCs
+   that are (or should be) used by several backends.
+
+   All well known options should be listed here. But this does
+   not mean that all options that are listed here are well known options.
+   To find out if an option is a well known option and how well known
+   options have to be defined please take a look at the sane standard!!!
+ */
 #ifndef saneopts_h
 #define saneopts_h
 
@@ -83,12 +92,7 @@
 #define SANE_NAME_ANALOG_GAMMA_G	"analog-gamma-g"
 #define SANE_NAME_ANALOG_GAMMA_B	"analog-gamma-b"
 #define SANE_NAME_ANALOG_GAMMA_BIND	"analog-gamma-bind"
-#define SANE_NAME_SMEAR			"smear"
-#define SANE_NAME_TEN_BIT_MODE		"ten-bit-mode"
-#define SANE_NAME_TWELVE_BIT_MODE	"twelve-bit-mode"
 #define SANE_NAME_WARMUP		"warmup"
-#define SANE_NAME_RGB_PREVIEW_PATCH	"preview-patch"
-#define SANE_NAME_START_SCAN_PATCH	"start-scan-patch"
 #define SANE_NAME_CAL_EXPOS_TIME	"cal-exposure-time"
 #define SANE_NAME_CAL_EXPOS_TIME_R	"cal-exposure-time-r"
 #define SANE_NAME_CAL_EXPOS_TIME_G	"cal-exposure-time-g"
@@ -152,12 +156,7 @@
 #define SANE_TITLE_ANALOG_GAMMA_G	SANE_I18N("Analog gamma green")
 #define SANE_TITLE_ANALOG_GAMMA_B	SANE_I18N("Analog gamma blue")
 #define SANE_TITLE_ANALOG_GAMMA_BIND    SANE_I18N("Bind analog gamma")
-#define SANE_TITLE_SMEAR		SANE_I18N("Smear")
-#define SANE_TITLE_TEN_BIT_MODE		SANE_I18N("10 bit-mode")
-#define SANE_TITLE_TWELVE_BIT_MODE	SANE_I18N("12 bit-mode")
 #define SANE_TITLE_WARMUP		SANE_I18N("Warmup lamp")
-#define SANE_TITLE_RGB_PREVIEW_PATCH	SANE_I18N("Preview patch")
-#define SANE_TITLE_START_SCAN_PATCH	SANE_I18N("Start-scan patch")
 #define SANE_TITLE_CAL_EXPOS_TIME	SANE_I18N("Cal. exposure-time")
 #define SANE_TITLE_CAL_EXPOS_TIME_R	SANE_I18N("Cal. exposure-time for red")
 #define SANE_TITLE_CAL_EXPOS_TIME_G	SANE_I18N("Cal. exposure-time for " \
@@ -322,18 +321,8 @@ SANE_I18N("Analog gamma-correction for green")
 SANE_I18N("Analog gamma-correction for blue")
 #define SANE_DESC_ANALOG_GAMMA_BIND \
 SANE_I18N("In RGB-mode use same values for each color")
-#define SANE_DESC_SMEAR \
-SANE_I18N("Don't care about image smearing problem")
-#define SANE_DESC_TEN_BIT_MODE \
-SANE_I18N("Output with 10 bits instead of 8 bits")
-#define SANE_DESC_TWELVE_BIT_MODE \
-SANE_I18N("Output with 12 bits instead of 8 bits")
 #define SANE_DESC_WARMUP \
 SANE_I18N("Warmup lamp before scanning")
-#define SANE_DESC_RGB_PREVIEW_PATCH \
-SANE_I18N("Set preview-bit in rgb-mode")
-#define SANE_DESC_START_SCAN_PATCH \
-SANE_I18N("Use special start-scan bits")
 #define SANE_DESC_CAL_EXPOS_TIME \
 SANE_I18N("Define exposure-time for calibration")
 #define SANE_DESC_CAL_EXPOS_TIME_R \

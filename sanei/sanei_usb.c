@@ -601,6 +601,12 @@ sanei_usb_close (SANE_Int dn)
       DBG (1, "sanei_usb_close: dn >= MAX_DEVICES || dn < 0\n");
       return;
     }
+  if (!devices[dn].open)
+    {
+      DBG (1, "sanei_usb_close: device %d already closed or never opened\n",
+	   dn);
+      return;
+    }
   if (devices[dn].method == sanei_usb_method_scanner_driver)
     close (devices[dn].fd);
   else

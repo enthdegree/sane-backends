@@ -1,3 +1,8 @@
+2001-10-08  Peter Fales <peter@fales.com>
+
+	* backend/gphoto2.desc: Yet another try at getting a format that
+	  generates the right web page.
+
 2001-10-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/ibm.desc: Removed old entry.

@@ -184,7 +184,7 @@ export SANE_DEBUG_ARTEC=13
 
 .SH BUGS
 
-Known bugs known in this release: A6000C+ users with firmware v1.92 or
+Known bugs in this release: A6000C+ users with firmware v1.92 or
 earlier have problems with the backend, the cause has not been determined.
 Sometimes the backend is not particularly robust, you can possibly lock up
 the SCSI bus (and/or machine) by not having patience enough when scanning.

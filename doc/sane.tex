@@ -14,7 +14,7 @@
 
 \title{\huge SANE Standard Version 1.01}
 \author{}
-\date{July 31, 2000} 
+\date{October 17, 2000} 
 
 \makeindex
 
@@ -347,6 +347,11 @@ frame types:
 \end{description}
 \end{quote}
 
+In frames of type SANE\_FRAME\_GRAY, when the bit depth is 1 there are
+only two sample values possible, 1 represents minimum intensity
+(black) and 0 represents maximum intensity (white).  For all other bit
+depth and frame type combinations, a sample value of 0 represents
+minimum intensity and larger values represent increasing intensity.
 
 
 \chapter{The SANE Application Programmer Interface (API)}\label{chap:api}

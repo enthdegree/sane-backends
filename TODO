@@ -1,4 +1,4 @@
-TODO (2002-03-24)
+TODO (2002-04-01)
 
 ******** todo ********
 
@@ -21,9 +21,6 @@ backends
     + Fujitsu M3091DCd support
       Frederik Ramm <frederik@remote.org>
       http://www.remote.org/frederik/projects/software/sane/
-    + canon_pp backend for Canon FB630P, FB330P, N640P and N340P
-      parallel-port scanners.
-      http://canon-fb330p.sourceforge.net/
     - Hewlett-Packard ScanJet 3300C / 3400C and 4300C (wip)
       http://sourceforge.net/projects/hp3300backend
 

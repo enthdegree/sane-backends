@@ -1,4 +1,4 @@
-PROJECTS (2002-03-26)
+PROJECTS (2002-04-02)
 
 Here is a list of projects that various people have expressed interest
 in.  Before starting working on one of these projects, it may be a
@@ -22,10 +22,6 @@ ftp://mccme.ru/users/ushakov/scanwit
 
 Canon 1220U USB scanner (wip)
 http://sourceforge.net/projects/canonscanner/
-
-canon_pp backend for Canon FB630P, FB330P, N640P and N340P parallel-port
-scanners (wip)
-http://canon-fb330p.sourceforge.net/  
 
 Canon FB630U USB scanner (wip)
 http://canon-fb630u.sourceforge.net/

@@ -430,6 +430,7 @@ libsane-dll.la libsane.la: ../sanei/sanei_pa4s2.lo
 libsane-dll.la libsane.la: ../sanei/sanei_usb.lo
 libsane-dll.la libsane.la: ../sanei/sanei_pv8630.lo
 libsane-dll.la libsane.la: ../sanei/sanei_lm983x.lo
+libsane-dll.la libsane.la: ../sanei/sanei_thread.lo
 ifneq (@SANEI_JPEG@,)
 libsane-dll.la libsane.la: ../sanei/sanei_jpeg.lo
 endif

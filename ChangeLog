@@ -1,3 +1,10 @@
+2004-06-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/snapscan.c: Only use __attribute__ if gcc is used for
+	  compilation. Some other compilers don't know __attribute__ and
+	  therefore can't compile sane-backends without this fix. See
+	  bug #300803.
+
 2004-06-15  Stéphane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.h backend/umax_pp_low.c backend/umax_pp_mid.c:

@@ -83,7 +83,11 @@
 
 #define BACKEND_NAME snapscan
 
+#ifdef __GNUC__
 #define UNUSEDARG __attribute__ ((unused))
+#else
+#define UNUSEDARG
+#endif
 
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/saneopts.h"
@@ -1830,6 +1834,11 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.42  2004/06/15 12:17:37  hmg-guest
+ * Only use __attribute__ if gcc is used for compilation. Some other compilers
+ * don't know __attribute__ and therefore can't compile sane-backends without this
+ * fix. See bug #300803.
+ *
  * Revision 1.41  2004/05/26 22:37:01  oliver-guest
  * Use shared memory for urb counters in snapscan backend
  *

@@ -1,3 +1,9 @@
+2002-03-10  Gerhard Jaeger  <g.jaeger@earthling.net>
+
+	* po/plustek.de.po:  Update
+	* po/plustek.es.po, po/saneopts.es.po:  Added spanish translation
+	  thanks to Gustavo D. Vranjes                                 
+
 2002-03-10  Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c:  fast and adaptative scanner probe function.

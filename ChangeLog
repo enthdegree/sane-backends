@@ -1,3 +1,10 @@
+2001-04-11  Abel Deuring <a.deuring@satzbau-gmbh.de>
+	* sanei/sanei_scsi.c: fixed a bug in error handling for the
+	  Linux SG driver verison 3.x
+	* sanei/sanei_scsi.c, configure.in, configure: Usage of direct IO
+	  disabled by default.
+         * README.linux: Added a note, how to enable direct IO
+
 2001-04-08  Henning Meier-Geinitz <hmg@gmx.de>
 	
 	* backend/mustek.c backend/mustek.desc backend/mustek.CHANGES

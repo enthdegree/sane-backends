@@ -403,7 +403,7 @@ static void _InitOptions(TScanner *s)
 }
 
 
-static int _ReportDevice(TScannerModel *pModel, char *pszDeviceName)
+static int _ReportDevice(TScannerModel *pModel, const char *pszDeviceName)
 {
   TDevListEntry *pNew, *pDev;
 

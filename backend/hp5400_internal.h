@@ -170,10 +170,11 @@ void
 WriteGammaCalibTable (int iHandle, const int *pabGammaR,
 				  const int *pabGammaG,
 				  const int *pabGammaB);
-
+#ifdef STANDALONE
 HP5400_SANE_STATIC
 void
 SetDefaultGamma (int iHandle);
+#endif
 
 HP5400_SANE_STATIC
 void
@@ -189,6 +190,7 @@ HP5400_SANE_STATIC
 void
 CircBufferExit (TDataPipe * p);
 
+#ifdef STANDALONE
 HP5400_SANE_STATIC
 void
 DecodeImage (FILE * file, int planes, int bpp, int xsize, int ysize,
@@ -198,21 +200,26 @@ HP5400_SANE_STATIC
 int
 hp5400_test_scan_response (struct ScanResponse *resp,
 				      struct ScanRequest *req);
+#endif
+
 
 HP5400_SANE_STATIC
 int
 DoAverageScan (int iHandle, struct ScanRequest *req, int code,
 			  unsigned int **array);
 
+#ifdef STANDALONE
 HP5400_SANE_STATIC
 int
 DoScan (int iHandle, struct ScanRequest *req, const char *filename, int code,
 		   struct ScanResponse *res);
+#endif
 
 HP5400_SANE_STATIC
 int
 Calibrate (int iHandle, int dpi);
 
+#ifdef STANDALONE
 HP5400_SANE_STATIC
 int
 hp5400_scan (int iHandle, TScanParams * params, THWParams * pHWParams,
@@ -225,6 +232,7 @@ PreviewScan (int iHandle);
 HP5400_SANE_STATIC
 int
 InitScanner (int iHandle);
+#endif
 
 HP5400_SANE_STATIC
 int
@@ -237,7 +245,7 @@ FinishScan (THWParams * pHWParams);
 
 HP5400_SANE_STATIC
 int
-HP5400Open (THWParams * params, char *filename);
+HP5400Open (THWParams * params, const char *filename);
 
 HP5400_SANE_STATIC
 void
@@ -245,9 +253,9 @@ HP5400Close (THWParams * params);
 
 HP5400_SANE_STATIC
 int
-HP5400Detect (char *filename,
+HP5400Detect (const char *filename,
 			 int (*_ReportDevice) (TScannerModel * pModel,
-					       char *pszDeviceName));
+					       const char *pszDeviceName));
 
 
 HP5400_SANE_STATIC

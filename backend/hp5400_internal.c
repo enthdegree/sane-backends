@@ -60,6 +60,8 @@
 #include <unistd.h>
 #include <math.h>
 #include <netinet/in.h>		/* for htons */
+#include <string.h>
+
 
 #include "hp5400.h"
 #include "hp5400_xfer.h"
@@ -309,6 +311,7 @@ WriteGammaCalibTable (int iHandle, const int *pabGammaR, const int *pabGammaG,
   return;
 }
 
+#ifdef STANDALONE
 HP5400_SANE_STATIC
 void
 SetDefaultGamma (int iHandle)
@@ -321,6 +324,7 @@ SetDefaultGamma (int iHandle)
 
   WriteGammaCalibTable (iHandle, buffer, buffer, buffer);
 }
+#endif
 
 #define BUFFER_SIZE (6*65536)
 
@@ -389,9 +393,9 @@ int
 CircBufferGetLine (int iHandle, TDataPipe * p, void *pabLine)
 {
   int i;
-
   int maxoff = 0;
-
+  char* buftmp = (char*) (p->buffer);
+  
 /*  HP5400_DBG(DBG_MSG, "CircBufferGetLine:\n");   */
 
   if (p->roff > maxoff)
@@ -421,13 +425,13 @@ CircBufferGetLine (int iHandle, TDataPipe * p, void *pabLine)
 
       /* free old buffer */
       free (tmpBuf);
+      buftmp = (char*)(p->buffer);
     }
 
   while (p->bufstart + maxoff >= p->bufend)	/* Not enough data in buffer */
     {
       int res;
       unsigned short cmd[4] = { 0, 0, 0, 0 };
-
       cmd[2] = p->blksize;
 
       assert ((p->bufend + p->blksize) <= p->buffersize);
@@ -437,14 +441,19 @@ CircBufferGetLine (int iHandle, TDataPipe * p, void *pabLine)
 
       res =
 	hp5400_bulk_read_block (iHandle, CMD_INITBULK3, cmd, sizeof (cmd),
-    				p->buffer + p->bufend, p->blksize);
+    				buftmp + p->bufend, p->blksize);
       if (res != p->blksize)
 	{
 	  HP5400_DBG (DBG_ERR, "*** ERROR: Read returned %d. FATAL.", res);
 	  return -1;
 	}
 #ifdef IMAGE_DEBUG
-      fwrite (p->buffer + p->bufend, p->blksize, 1, temp);
+      fwrite (
+    	buftmp + p->bufend
+	,p->blksize
+	,1
+	,temp
+	);
 #endif
       p->bufend += p->blksize;
     }
@@ -455,9 +464,9 @@ CircBufferGetLine (int iHandle, TDataPipe * p, void *pabLine)
   if (p->bpp == 1)
     {
       char *itPix = (char *) pabLine;
-      char *itR = (char *) (p->buffer + p->bufstart + p->roff);
-      char *itG = (char *) (p->buffer + p->bufstart + p->goff);
-      char *itB = (char *) (p->buffer + p->bufstart + p->boff);
+      char *itR = (char *) (buftmp + p->bufstart + p->roff);
+      char *itG = (char *) (buftmp + p->bufstart + p->goff);
+      char *itB = (char *) (buftmp + p->bufstart + p->boff);
       for (i = 0; i < p->pixels; i++)
 	{
 	  /* pointer move goes a little bit faster than vector access */
@@ -471,9 +480,9 @@ CircBufferGetLine (int iHandle, TDataPipe * p, void *pabLine)
   else
     {
       short *itPix = (short *) pabLine;
-      short *itR = (short *) (p->buffer + p->bufstart + p->roff);
-      short *itG = (short *) (p->buffer + p->bufstart + p->goff);
-      short *itB = (short *) (p->buffer + p->bufstart + p->boff);
+      short *itR = (short *) (buftmp + p->bufstart + p->roff);
+      short *itG = (short *) (buftmp + p->bufstart + p->goff);
+      short *itB = (short *) (buftmp + p->bufstart + p->boff);
       for (i = 0; i < p->pixels; i++)
 	{
 #if 0
@@ -501,7 +510,11 @@ CircBufferGetLine (int iHandle, TDataPipe * p, void *pabLine)
   /* If we've used a whole block at the beginning, move it */
   if (p->bufstart > p->blksize)
     {
-      memmove (p->buffer, p->buffer + p->bufstart, p->bufend - p->bufstart);
+      memmove (
+	buftmp
+	,buftmp + p->bufstart
+	,p->bufend - p->bufstart
+	);
 
       p->bufend -= p->bufstart;
       p->bufstart = 0;
@@ -524,6 +537,7 @@ CircBufferExit (TDataPipe * p)
 }
 
 
+#ifdef STANDALONE
 /* bpp is BYTES per pixel */
 HP5400_SANE_STATIC
 void
@@ -582,7 +596,6 @@ DecodeImage (FILE * file, int planes, int bpp, int xsize, int ysize,
   free (buf);
 }
 
-
 HP5400_SANE_STATIC
 int
 hp5400_test_scan_response (struct ScanResponse *resp, struct ScanRequest *req)
@@ -597,6 +610,7 @@ hp5400_test_scan_response (struct ScanResponse *resp, struct ScanRequest *req)
        htons (resp->ysize));
   return 1;
 }
+#endif
 
 /* This is a very specialised scanning function. It does the scan request as
  * usual but instead of producing an image it returns three arrays of ints.
@@ -655,6 +669,7 @@ DoAverageScan (int iHandle, struct ScanRequest *req, int code,
   return 0;
 }
 
+#ifdef STANDALONE
 HP5400_SANE_STATIC
 int
 DoScan (int iHandle, struct ScanRequest *req, const char *filename, int code,
@@ -704,6 +719,7 @@ DoScan (int iHandle, struct ScanRequest *req, const char *filename, int code,
   fclose (file);
   return 0;
 }
+#endif
 
 HP5400_SANE_STATIC
 int
@@ -839,6 +855,7 @@ Calibrate (int iHandle, int dpi)
   return 0;
 }
 
+#ifdef STANDALONE
 HP5400_SANE_STATIC
 int
 hp5400_scan (int iHandle, TScanParams * params, THWParams * pHWParams,
@@ -906,7 +923,6 @@ hp5400_scan (int iHandle, TScanParams * params, THWParams * pHWParams,
   return result;
 }
 
-
 HP5400_SANE_STATIC
 int
 PreviewScan (int iHandle)
@@ -925,6 +941,7 @@ PreviewScan (int iHandle)
 
   return hp5400_scan (iHandle, &params, &pHWParams, "output.ppm");
 }
+
 
 static char UISetup1[] = {
 /* Offset 40 */
@@ -971,6 +988,7 @@ InitScanner (int iHandle)
     }
   return 0;
 }
+#endif
 
 /* Warning! The caller must have configured the gamma tables at this stage */
 HP5400_SANE_STATIC
@@ -1232,7 +1250,7 @@ FinishScan (THWParams * pHWParams)
 
 HP5400_SANE_STATIC
 int
-HP5400Open (THWParams * params, char *filename)
+HP5400Open (THWParams * params, const char *filename)
 {
   int iHandle = hp5400_open (filename);
   char szVersion[32];
@@ -1311,9 +1329,9 @@ HP5400Close (THWParams * params)
 
 HP5400_SANE_STATIC
 int
-HP5400Detect (char *filename,
+HP5400Detect (const char *filename,
 	      int (*_ReportDevice) (TScannerModel * pModel,
-				    char *pszDeviceName))
+				    const char *pszDeviceName))
 {
   int iHandle = hp5400_open (filename);
 

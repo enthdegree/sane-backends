@@ -1,4 +1,11 @@
 2004-10-02  Thomas Soumarmon <thomas.soumarmon@cogitae.net>
+
+	* backend/hp5400_internal.c backend/hp5400_internal.h
+	  backend/hp5400_sanei.c backend/hp5400_sanei.h
+	  backend/hp5400_sane.c: 
+	  removing some compilation warnings
+
+2004-10-02  Thomas Soumarmon <thomas.soumarmon@cogitae.net>
 	
 	* backend/hp5400_internal.c: hp5400 version mathing test
           has been removed by default.

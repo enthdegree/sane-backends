@@ -1,5 +1,311 @@
 CHANGES for the SANE Mustek backend
 
+2000-07-30
+  * Fixed bug concerning inquiry of 3-pass scanners. ASCII values > 127
+    weren't interpreted correctly (char instead of unsigned char).
+
+2000-07-30
+  * Released backend version 1.0-95
+
+2000-07-30
+  * Removed while {wait ()} loop. Used waitpid() instead. Maybe this cures
+    some reported freezes. It's cleaner anyway.
+  * Removed dead code.
+
+2000-07-28
+  * Released backend version 1.0-94
+
+2000-07-29
+  * Use #include "sane/..." instead of #include <sane/...>.
+
+2000-07-27
+  * Released backend version 1.0-93
+
+2000-07-27
+  * removed warnings
+
+2000-07-26
+  * fixed possible segfault pointer info was not checked for 0 (found by
+    Petter Reinholdtsen)
+  * Updated comment about Paragon 600 II N linedistance correction in man 
+    page
+
+2000-07-25
+  * Fixed color scanning for Paragon 600 II N firmware < 2.00.
+
+2000-07-25
+  * Released backend version 1.0-92
+  
+2000-07-24
+  * Fixed ADF handling (output was mirrored in x direction). Gray and lineart
+    seems to work now. Color and halftone modes look somewhat crazy.
+  * Removed comment about lack of testing of ADFs in manpage. They are
+    tested to work now with most scanner at least basically.
+  * removed braindead test for Pro series concerning gamma table length
+    (discovered by Jan-Erik Karlsson).
+
+2000-07-22
+  * Fixed margin positions of MFS 6000CX and removed warning.
+  * Warning is printed with DBG level 0 again.
+
+2000-07-18
+  * Released backend version 1.0-91
+
+2000-07-18
+  * Removed again MUSTEK_FLAG_LD_NONE for MFS-08000SP. Maybe the automatical
+    detection works now.
+
+2000-07-15
+  * Released backend version 1.0-90
+
+2000-07-15
+  * Added MUSTEK_FLAG_LD_NONE for MFS-08000SP and removed warning for
+    this scanner. Added TA support. First report for this device from
+    Roland Koebler.
+  * Changed LD correction system. Some scanners (e.g. the 800 II SP)
+    seem to need different LD correction depending on resolution.
+    Now with LD_NORMAL max_value is checked and correction is only done
+    if it is != 0. Hope this works for all scanners.
+  * Moved the comment after the example port entry in mustek.conf to
+    the next line. Now this line should work.
+  * Updated manpage concerning PP scanners and 600 II N.
+
+2000-06-30
+  * Released backend version 1.0-89
+
+2000-06-30
+  * Fixed bug in do_stop. The scan slider didn't return after the scan 
+    in some situations.
+
+2000-06-28
+  * Released backend version 1.0-88
+
+2000-06-28
+  * Changed again linedistance handling for the Paragon 1200SP. This
+    time version 1.07 seems to need a special treetment. Even with normal
+    linedistance correction the image is corrupted at buffer boundaries
+    in color mode. Maybe a firmware bug? Thanks to Michael Prechtl for
+    all his tests.
+
+2000-06-25
+  * added missing newline to mustek.conf
+
+2000-06-25
+  * Released backend version 1.0-87
+
+2000-06-25
+  * updated manpage concerning parport and USB scanners
+  * added example for 600 II N to mustek.conf 
+
+2000-06-22
+  * fixed debug output bug in fix_linedistance_se (found by Jan-Erik Karlsson)
+
+2000-06-21
+  * fixed dependancy of mustek.h on sane-backends.h
+
+2000-06-19
+  * Fixed gamma correction in lineart mode for Paragon 1200 A3
+
+2000-06-18
+  * Released backend version 1.0-86
+
+2000-06-18
+  * added enlarging x resolution for Paragon 1200 A3 Pro
+  * Paragon 1200 A3 PRO is fully functional now. Thanks to Heinrich Falk, who
+    borrowed me this device.
+
+2000-06-17
+  * added calibration for Paragon 1200 A3 Pro (only dummy, doesn't work yet)
+  * adjusted options for Paragon 1200 A3 Pro
+  * added lineart support for Paragon 1200 A4 Pro
+  * removed support for color lineart and color halftone modes
+  * added color support for Paragon 1200 A3 Pro
+  * added scsi_wait_sense, this fixed 1200 A3 Pro hangs
+  * fixed gamma correction for 1200 A3 Pro. At the moment only 8 bit and
+    24 bit per pixel are supported (12/36 are possible in hardware)
+
+2000-06-16
+  * addded debugging output in sane_control_option
+  * added gamma correction for Paragon 1200 A3 Pro (doesn't work correctly yet)
+
+2000-06-15
+  * removed old config file reading system.
+
+2000-06-14
+  * Preliminary support for the Mustek Paragon 1200 A3 Pro. Only grayscale
+    mode works so far. Missing: Gamma correction and calibration. The scanner
+    is locked after each scan.
+
+2000-06-12
+  * Fixed bug in sane_control_option. option was not checked for negative
+    values. Thanks to Jochen Eisinger.
+  * Code cleanup and reorganization for inclusion of the Paragon 1200 A3 Pro.
+
+2000-06-07
+  * Fixed bug in sane_close where the chain of handles got destroyed by 
+    closing the first device. This bug is in the backend since 3 1/2 years.
+    Thanks to Jochen Eisinger for spotting this.
+
+2000-06-05
+  * Fixed some debug messages in fix_linedistance_se
+
+2000-06-04
+  * released backend version 1.0-85
+
+2000-06-04
+  * changed (again) Paragon 12000 SP linedistance handling, now 1.02 uses
+    normal LD corrections, all other use none. We'll see, if this works. 
+    Thanks to Reinhard Günzel who helped to debug this.
+  * fixed some long lines (>80 chars)
+
+2000-06-03
+  * released backend version 1.0-84
+
+2000-06-03
+  * changed line-distance handling, removed ld.max_value magic (didn't work)
+  * fixed (maybe) Paragon 12000 SP color stripes problems (v 1.11 and others)
+  * simpler linedistance debug output, only for 1-pass Paragon scanners
+
+2000-06-02
+  * removed code in dev_read_start which was never called (suggestion
+    from Jan-Erik Karlsson)
+
+2000-05-21
+  * added double buffering (trying to copy the scsi buffer to the frontend
+    while getting a new one). This probably won't work on all
+    platforms and with all SCSI host adapters but in this case performance
+    shouldn't be worse than before.
+
+2000-05-21
+  * released backend version 1.0-83
+
+2000-05-21
+  * The Mustek Paragon 1200 A3 PRO is now detected. This is only a test
+    release. Be carefull and read the PROBLEMS file if you want to
+    try this scanner.
+
+2000-05-19
+  * released backend version 1.0-82
+
+2000-05-18
+  * set debug level for output of unknown Mustek scanner to 0 (suggestion
+    from Thorben Kundinger)
+
+2000-05-12
+  * fixed bug in distinguishing firmware formats
+  * added shrinked image fix to ScanExpress 12000SP models <= v2.0
+
+2000-05-08
+  * fixed remaining sane_cancel problems (in non_blocking mode)
+  * fixed color stripes and segmentation fault for Paragon MFS-12000SP 
+    1.00 (at least for me)
+  * added more debug output to inquiry
+  * added possibility to distinguish old and new firmware formats
+  * added one more debug level (5)
+  * added output of SANE version
+
+2000-05-07
+  * released backend version 1.0-81
+
+2000-05-06
+  * added transparency adapter support for the Paragon 600 II CD, 600S, 
+    800 II SP, 600 II N, ScannExpress 6000SP and 12000SP
+  * removed "color lineart" and "color halftone" for all scanners.
+    These modes didn't work for any of my scanners.
+  * added more debug output for ADF and TA
+  * fixed bug when ADF is out of documents
+  * Scan source option is only available if TA or ADF is present. For
+    SE and N models TA is always available because it can't be detected 
+    by hardware
+  * removed "backtrack", "speed" and "grain" from 600 II N options,
+    the scanner doesn't support them
+  * updated mustek.desc and mustek.man
+
+2000-05-02
+  * Reduced scan area for the Paragon MFC-600S because of ugly noises at
+    the end of the scan area
+
+2000-04-29
+  * Adjusted scan area to the Windows driver defaults for ScanExpress
+    6000SP; added MUSTEK_FLAG_ENLARGE_X for this scanner
+  * Added Warning for scanners that are not (fully) tested
+
+2000-04-26
+  * changed sane_init to use sanei_config_read () and 
+    sanei_config_get_string ()
+
+2000-04-24
+  * released backend version 1.0-80
+  
+2000-04-23
+  * fixed lineart and color scanning >600 dpi for the SE 12000SP
+  * added variable debug_level to be faster without debugging in attach ()
+  * fixed bug in mustek.conf handling; positional options were applied
+    to the first device only
+  * added an option to mustek.conf: "buffersize". This overwrites the
+    default scan buffer sizes. The unit is kilobytes.
+  * adjusted mustek.conf to more reasonable defaults
+  * update manpage and mustek.desc to reflect the changes
+
+2000-04-22
+  * fixed greyscale scanning >600 dpi for the SE 12000SP
+
+2000-04-21
+  * added more debug output to sane_get_parameters
+
+2000-04-20
+  * Output of scanning time now works with scanimage, too.
+  * Adjusted scan area to the Windows driver defaults for Paragon 
+    MFS-6000CX
+  * Added transparency adapter support for the Paragon MFS-6000CX and
+    MFS-12000SP
+
+2000-04-19
+  * Adjusted scan area to the Windows driver defaults for Paragon 
+    MFS-12000SP
+
+2000-04-17
+  * added support for the sanei_scsi_open_extended method with variable
+    buffersizes
+  * removed support for SCSI queue. Couldn't find improvements
+    for any scanner
+
+2000-04-16
+  * removed "color lineart" and "color halftone" for single pass scanners.
+    These modes didn't work for any of my scanners.
+  * fixed problems in color mode for the MFS-8000SP (gamma table is now
+    uploaded even if not selected)
+  * Output "cover open" only for ScanExpress scanners (Paragon scanners 
+    don't have a cover sensor)
+  * Added transparency adapter support for the Paragon MFS-6000SP and
+    MFS-12000CX
+  * Added output of transfer speed (kb/s)
+  * maximum allocated memory for read request can be set by a #define
+  * buffer size can be set on a per scanner basis
+  * Adjusted scan area to the Windows driver defaults for Paragon 
+    800 II SP
+  * Added quotation marks to inquiry output
+
+2000-04-15
+  * Adjusted scan area to the Windows driver defaults for Paragon 8000SP,
+    ScanExpress 12000SP
+  * Fixed scan area settings (TL-X and TL-Y) for transparency adapter (TA)
+  * Added TA support for Paragon 8000SP
+  
+2000-04-13
+  * Added more debug output in sane_read and some other functions
+  * removed warnings
+
+2000-04-12
+  * Added more debug output concerning buffer handling
+
+2000-04-10
+  * Adjusted scan area to the Windows driver defaults for Paragon 12000CX,
+    6000SP, 600 II CD, 600 II N
+
+2000-04-09
+  * released backend version 1.0-79
+  
 2000-04-08
   * added output of scanning time (debuglevel 2 and higher)
   * removed old code from sane_cancel
@@ -76,3 +382,6 @@ CHANGES for the SANE Mustek backend
   * added linedistance correction for the 600 II N + documentation updates
   * added detection of newer ScanExpress models ("XC06" instead og " C06")
   * bugfix for 600 II N waiting 60 s before cancelling
+
+
+Henning Meier-Geinitz <hmg@gmx.de>

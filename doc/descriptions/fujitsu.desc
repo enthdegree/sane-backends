@@ -11,7 +11,7 @@
 
 :backend "fujitsu"               ; name of backend
 ;:url "http://www.remote.org/frederik/projects/software/sane/" 
-:version "1.0"                   ; version of backend
+:version "1.12"                   ; version of backend
 ;:status :beta                    ; :alpha, :beta, :stable, :new
 :manpage "sane-fujitsu"          ; name of manpage (if it exists)
 
@@ -20,7 +20,7 @@
                                   ;               :meta, :api
 
 :mfg "Fujitsu"  ; name a manufacturer
-:url "http://imagescanner.fujitsu.com/product/index.html"
+:url "http://www.fujitsu.com/services/computing/peripheral/scanners/product/"
 :url "http://www.fujitsu.com/"
 
 :model "M3096G"                  ; name models for above-specified mfg.

@@ -379,7 +379,7 @@ load (struct backend *be)
         {
           /* Try again, with an underscore prepended. */
 #ifdef HAVE_DLOPEN
-          op = (void *(*)()) dlsym (be->handle, funcname);
+          op = (void *(*)(void)) dlsym (be->handle, funcname);
 #elif defined(HAVE_SHL_LOAD)
           shl_findsym (be->handle, funcname, TYPE_UNDEFINED, &op);
 #else
@@ -439,15 +439,16 @@ init (struct backend *be)
 
 
 static void
-add_alias (char *line)
+add_alias (const char *line_param)
 {
   const char *command;
   enum { CMD_ALIAS, CMD_HIDE } cmd;
-  const char *oldname, *oldend, *newname, *newend;
+  const char *oldname, *oldend, *newname;
   size_t oldlen, newlen;
   struct alias *alias;
+  char *line;
 
-  command = sanei_config_skip_whitespace(line);
+  command = sanei_config_skip_whitespace(line_param);
   if( !*command )
     return;
   line = strpbrk(command, " \t");
@@ -467,6 +468,8 @@ add_alias (char *line)
   newname = NULL;
   if( cmd == CMD_ALIAS )
     {
+	  char *newend;
+
       newname = sanei_config_skip_whitespace(line);
       if( !*newname )
         return;

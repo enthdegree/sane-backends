@@ -98,6 +98,7 @@ static SANE_Bool force_wait;
 static SANE_Int num_devices;
 static Mustek_Device *first_dev;
 static Mustek_Scanner *first_handle;
+static const SANE_Device **devlist = 0;
 
 /* Array of newly attached devices */
 static Mustek_Device **new_dev;	
@@ -5105,14 +5106,14 @@ sane_exit (void)
       free (dev->name);
       free (dev);
     }
-
+  if (devlist)
+    free (devlist);
   sanei_ab306_exit ();		/* may have to do some cleanup */
 }
 
 SANE_Status
 sane_get_devices (const SANE_Device ***device_list, SANE_Bool local_only)
 {
-  static const SANE_Device **devlist = 0;
   Mustek_Device *dev;
   SANE_Int i;
 

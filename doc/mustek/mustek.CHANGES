@@ -1,5 +1,14 @@
 CHANGES for the SANE Mustek backend
 
+2001-05-06
+  * Fixed memory leak in sane_get_devices ()
+
+2001-04-29
+  * Fixed several memory leaks.
+
+2001-04-27
+  * Released Mustek backend 1.0-107 (in CVS).
+
 2001-04-23
   * Add internationalization support (mark all strings that can be translated
     with SANE_I18N()).

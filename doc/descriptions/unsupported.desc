@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-04-15"		; version of backend
+:version "2003-04-22"		; version of backend
 :url "http://www.meier-geinitz.de/sane/misc/unsupported.html"
 ;:status :stable			; :alpha, :beta, :stable, :new
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
@@ -216,11 +216,11 @@
 :mfg "Genius"
 :url "http://www.geniusnet.com.tw/"
 
-:model "HR7X Slim"
-:url "http://www.genesyslogic.com/GL646.htm"
+:model "ColorPage HR7X Slim"
+:url "http://www.meier-geinitz.de/sane/misc/genius-colorpage-hr7x.txt"
 :interface "USB"
 :status :unsupported
-:comment "Not supported. Is reported to use the GL646 chipset (see link)."
+:comment "Not supported. Vendor/product: 0x0458/0x2018. Is reported to use the GL646 chipset. See link for more details."
 
 :model "Colorpage Vivid III"
 :url "http://www.meier-geinitz.de/sane/misc/genius-colorpage-vivid-III.txt"
@@ -389,7 +389,7 @@
 :url "http://www.meier-geinitz.de/sane/misc/microtek-scanport-3000.txt"
 :interface "USB"
 :status :unsupported
-:comment "Unsupported. Vendor/Product ids: 0x04a7/0x0224. Seems to use Realtek RTS8801B. See link for details."
+:comment "Unsupported. Vendor/Product ids: 0x04a7/0x0224. Seems to use Realtek RTS8801B. Same as Visioneer OneTouch 4800. See link for details."
 
 
 ;********************************************************************************************
@@ -637,6 +637,12 @@
 :interface "USB"
 :status :unsupported
 :comment "Not supported. Is reported to use LM9832 (or LM9830 + E5). Is reported to have the same ids as the Primascan Colorado 2600u, see that entry for more info."
+
+:model "OneTouch 4800 USB"
+:url "http://www.meier-geinitz.de/sane/misc/visioneer-onetouch4800.txt"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. Vendor/Product ids: 0x04a7/0x0224. Seems to use Realtek RTS8801B. Same as Microtek Scanport 3000. See link for details."
 
 :model "OneTouch 5300 USB"
 :url "http://www.meier-geinitz.de/sane/misc/visioneer-onetouch5300usb.txt"

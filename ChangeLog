@@ -5,6 +5,11 @@
 	  avision hpusbscsi documentation issue. Removed scanimage/OS/2
 	  problem.
 	* doc/sane-mustek.man: Added some more details for SCSI adapters.
+	* doc/descriptions/ibm.desc: Ricoh IS-420 doesn't seem to work
+	  out-of-the-box.
+	* doc/descriptions/unsupported.desc: Added Visioneer OneTouch 4800
+	  USB. Added more information for the Genius ColorPage HR7X Slim
+	  and Microtek Scanport 3000.
 
 2003-04-23  Frank Zago  <fzago at austin dot rr dot com>
 

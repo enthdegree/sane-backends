@@ -11,7 +11,7 @@
 
 :backend "test"               ; name of backend
 :version "1.0-16"                    ; version of backend
-:status :beta                    ; :alpha, :beta, :stable, :new
+:status :stable                    ; :alpha, :beta, :stable, :new
 :manpage "sane-test"           ; name of manpage (if it exists)
 :url "http://www.meier-geinitz.de/sane/test-backend/" ; backend's web page
 
@@ -20,5 +20,5 @@
                                   ;               :meta, :api
 
 :desc "Frontend-tester"
-:comment "Backend for testing frontends"
+:comment "Backend for testing frontends. Also serves as example for SANE backend options."
 

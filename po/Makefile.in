@@ -103,6 +103,7 @@ uninstall: $(UNINSTALL_TRANSLATIONS)
 clean:
 	rm -f *.mo
 	rm -f *.old
+	rm -f *.pot
 
 distclean: clean
 	rm -f $(DISTCLEAN_FILES)

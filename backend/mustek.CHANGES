@@ -1,0 +1,36 @@
+CHANGES for the SANE Mustek backend
+
+2000-03-18
+  * released backend version 0.76
+  
+2000-03-17
+  * removed some compiler warnings
+  * changed the sane.model names (e.g. ScanExpress 12000SP instead of
+    C06IDW...)
+  * added SCSI information output to inquiry
+  * adjusted debug levels and debug output
+
+2000-03-15
+  * fixed typo in man page
+
+2000-03-12
+  * released backend version 0.75
+  * man page update
+  * mustek.desc update
+  * test for option < 0 in sane_get_option_descriptor (thanks to Oliver Rauch)
+  * added do_stop in sane_cancel (don't wait for next read that will
+    possibly never happen)
+  * fixed firmware version identification for newer ScanExpress models
+    (patch from Marco G. Salvagno)
+  * probably fixed linedistance correction at high resolutions for 
+    MFS-1200SP firmware 1.00 and possibly others (patch from Andreas Beck)
+  * added check for ADF ready in sane_start (patch from Joerg Anders)
+  * Bug fix in the STORE makros (patch from Norbert Mueller)
+ 
+  
+2000-03-06
+  * created mustek.CHANGES file
+  * released backend version 0.74
+  * added linedistance correction for the 600 II N + documentation updates
+  * added detection of newer ScanExpress models ("XC06" instead og " C06")
+  * bugfix for 600 II N waiting 60 s before cancelling

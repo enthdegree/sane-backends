@@ -64,6 +64,7 @@ SANE_SET_LDFLAGS
 SANE_LINKER_RPATH
 CPPFLAGS="${CPPFLAGS} -DPATH_SANE_CONFIG_DIR=\$(configdir) \
 	  -DPATH_SANE_DATA_DIR=\$(datadir) \
+	  -DPATH_SANE_LOCK_DIR=\$(localstatedir) \
 	  -DV_MAJOR=${V_MAJOR} -DV_MINOR=${V_MINOR}"
 
 dnl ***********************************************************************
@@ -92,6 +93,7 @@ fi
 SANE_CHECK_JPEG
 SANE_CHECK_IEEE1284
 SANE_CHECK_PTHREAD
+SANE_CHECK_LOCKING
 SANE_CHECK_GPHOTO2
 dnl check sane to make sure we don't have two installations
 AC_CHECK_LIB(sane, sane_init, LIBSANE_EXISTS="yes")
@@ -483,6 +485,11 @@ echo "Libraries:     `eval eval echo ${libdir}`"
 echo "Binaries:      `eval eval echo ${bindir}` and `eval eval echo ${sbindir}`"
 echo "Manpages:      `eval eval echo ${mandir}`"
 echo "Documentation: `eval eval echo ${docdir}`"
+if eval "test x$INSTALL_LOCKPATH = xinstall-lockpath" ; then
+  echo "Lockfiles:     `eval eval echo ${localstatedir}/lock/sane`"
+else
+  echo "Lockfiles:"
+fi
 echo "-> Network parameters:"
 if test "${SANED}" = "saned" ; then
   echo "Build saned:   yes"

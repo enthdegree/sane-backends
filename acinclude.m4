@@ -8,6 +8,7 @@ dnl   SANE_EXTRACT_LDFLAGS(LDFLAGS, LIBS)
 dnl   SANE_CHECK_JPEG
 dnl   SANE_CHECK_IEEE1284
 dnl   SANE_CHECK_PTHREAD
+dnl   SANE_CHECK_LOCKING
 dnl   JAPHAR_GREP_CFLAGS(flag, cmd_if_missing, cmd_if_present)
 dnl   SANE_LINKER_RPATH
 dnl   SANE_CHECK_U_TYPES
@@ -258,6 +259,54 @@ AC_DEFUN([SANE_CHECK_JPEG],
       AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
     ],)
   ],)
+])
+
+#
+# Checks for pthread support
+AC_DEFUN([SANE_CHECK_LOCKING],
+[
+  LOCKPATH_GROUP=uucp
+  use_locking=yes
+
+  #
+  # we check the user
+  AC_ARG_ENABLE( [locking],
+    AC_HELP_STRING([--enable-locking],
+                   [activate device locking (default=yes, but only used by some backends)]),
+    [
+      if test $enableval = yes ; then
+        use_locking=yes
+      else
+        use_locking=no
+      fi
+    ])
+  if test $use_locking = yes ; then
+    AC_DEFINE([ENABLE_LOCKING], 1, 
+              [Define to 1 if device locking should be enabled.])
+    INSTALL_LOCKPATH=install-lockpath
+    AC_ARG_WITH([group],
+      AC_HELP_STRING([--with-group],
+                     [use the specified group for lock dir @<:@default=uucp@:>@]),
+        [LOCKPATH_GROUP="$withval"]
+    )
+    # check if the group does exist
+    lasterror=""
+    touch sanetest.file
+    chgrp $LOCKPATH_GROUP sanetest.file || lasterror=$?
+    rm -f sanetest.file
+    if test ! -z $lasterror; then
+      AC_MSG_ERROR([Group $LOCKPATH_GROUP not exist on this system, either create it or use an existing.])
+    fi
+  else
+    INSTALL_LOCKPATH=
+  fi
+  AC_MSG_CHECKING([whether to enable device locking])
+  AC_MSG_RESULT([$use_locking])
+  if test $use_locking = yes ; then
+    AC_MSG_NOTICE([Setting lockdir group to $LOCKPATH_GROUP])
+  fi
+  AC_SUBST(INSTALL_LOCKPATH)
+  AC_SUBST(LOCKPATH_GROUP)
 ])
 
 dnl

@@ -43,6 +43,11 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
+ * 7-5-2001 removed removal of '\n' after sanei_config_read()
+ *	    free devlist allocated in sane_get_devices() on sane_exit()
+ *
+ * 2-3-2001 improved the reordering of RGB data in pie_reader_process()
+ *
  * 11-11-2000 eliminated some warnings about signed/unsigned comparisons
  *            removed #undef NDEBUG and C++ style comments
  *
@@ -95,7 +100,7 @@
 #define DBG_sane_option 13
 #define DBG_dump	14
 
-#define BUILD 5
+#define BUILD 6
 
 #define PIE_CONFIG_FILE "pie.conf"
 #define MM_PER_INCH	 25.4
@@ -323,7 +328,7 @@ static const SANE_Range percentage_range_100 = {
 static int num_devices;
 static Pie_Device *first_dev;
 static Pie_Scanner *first_handle;
-
+static const SANE_Device **devlist = NULL;
 
 
 
@@ -2734,18 +2739,19 @@ pie_reader_process (Pie_Scanner * scanner, FILE * fp)
       if (scanner->colormode == RGB)
 	{
 	  int i;
-	  unsigned char *red, *green, *blue, *dest;
+	  unsigned char *src, *dest;
+	  int offset;
 
 	  dest = reorder;
-	  red = buffer;
-	  green = red + scanner->params.pixels_per_line;
-	  blue = green + scanner->params.pixels_per_line;
+	  src = buffer;
+	  offset = scanner->params.pixels_per_line;
 
 	  for (i = scanner->params.pixels_per_line; i > 0; i--)
 	    {
-	      *dest++ = *red++;
-	      *dest++ = *green++;
-	      *dest++ = *blue++;
+	      *dest++ = *src;
+	      *dest++ = *(src + offset);
+	      *dest++ = *(src + 2 * offset);
+	      src++;
 	    }
 	  fwrite (reorder, 1, scanner->params.bytes_per_line, fp);
 	}
@@ -2897,7 +2903,6 @@ do_cancel (Pie_Scanner * scanner)
 SANE_Status
 sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
-
   char dev_name[PATH_MAX];
   size_t len;
   FILE *fp;
@@ -2924,10 +2929,6 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	}			/* ignore line comments */
 
       len = strlen (dev_name);
-      if (dev_name[len - 1] == '\n')
-	{
-	  dev_name[--len] = '\0';
-	}
 
       if (!len)			/* ignore empty lines */
 	{
@@ -2968,6 +2969,11 @@ sane_exit (void)
 
       free (dev);
     }
+
+  if (devlist)
+    {
+      free (devlist);
+    }
 }
 
 
@@ -2977,7 +2983,6 @@ sane_exit (void)
 SANE_Status
 sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 {
-  static const SANE_Device **devlist = 0;
   Pie_Device *dev;
   int i;
 

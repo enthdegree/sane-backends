@@ -2,6 +2,7 @@
 
 	* tools/sane-desc.c: Added <br> after backend name. Colors can be
 	  changed by macros now. Centered entries. Code cleanup.
+	* configure: Regenerated from configure.in.
 
 2002-07-06  Max Vorobiev <pcwizard@yandex.ru>
 

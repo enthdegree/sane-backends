@@ -1,5 +1,8 @@
 2001-04-29  Petter Reinholdtsen <pere@td.org.uit.no>
 
+	* backend/net.c sanei/sanei_wire.c include/sane/sanei_wire.h: Make
+	sure net backend release all memory when finished.
+
 	* README: Added info about the CVS repository.
 
 2001-04-29  Henning Meier-Geinitz <henning@meier-geinitz.de>

@@ -32,10 +32,10 @@
 int main(int argc, char **argv)
 {
  double gamma  = 1.0;
+ int maxin     = 16383; /* 14 bit gamma input */
+ int maxout    = 255; /* 8 bit gamma output */
  int shadow    = 0;
- int highlight = 16383;
- int maxin     = 16383;
- int maxout    = 255;
+ int highlight = maxin;
  int in, out;
  float f;
 
@@ -52,22 +52,22 @@ int main(int argc, char **argv)
 
   if (argc>2)
   {
-    shadow    = atof(argv[2]);
+    shadow    = atoi(argv[2]);
   }
 
   if (argc>3)
   {
-    highlight = atof(argv[3]);
+    highlight = atoi(argv[3]);
   }
 
   if (argc>4)
   {
-    maxin     = atof(argv[4]);
+    maxin     = atoi(argv[4]);
   }
 
   if (argc>5)
   {
-    maxout    = atof(argv[5]);
+    maxout    = atoi(argv[5]);
   }
 
   if (shadow < 0)

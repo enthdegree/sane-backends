@@ -1,0 +1,65 @@
+.TH gamma4scanimage 1 "18 august 2002"
+.IX sane-umax
+
+.SH NAME
+gamma4scanimage
+
+.SH ABOUT THIS FILE
+
+This file gives a short information about the usage and options of gamma4scanimage
+
+.SH DESCRIPTION
+
+The tool
+.B gamma4scanimage
+creates a gamma table in the format expected by scanimage. You can define a
+.BR gamma,
+a
+.BR shadow
+and a
+.BR highlight
+value. You also have to specify the size (
+.BR maxin
+) and maximum output value (
+.BR maxout
+)
+of the gamma table.
+
+Usage: gamma4scanimage gamma [shadow [highlight [maxin [maxout]]]]
+
+.BR gamma
+is a floating point value, neutral value is 1.0, if the value is larger than 1.0
+then the image gets brighter.
+
+.BR shadow
+defines the minmum input value that is necessary to create an output value larger than zero.
+shadow has to be in the range [0..maxin].
+
+.BR highlight
+defines the maximum input value that produces an output value smaller than maxout.
+highlight has to be in the range [0..maxin], highlight has to be larger than shadow.
+
+.BR maxin
+defines the size of the gamma table. The size depends on the scanner/backend.
+If the scanner uses 8 bits gamma input then maxin has to be set to 255, for 10 bits 
+1023, for 12 bits 4095, for 14 bits 16383. The default is 16383.
+To find out what value maxin has to be call scanimage with a very large gamma table
+[0]0-99999[255] then scanimage prints an error message with the needed size of the
+gamma table.
+
+.BR maxout
+defines the maximum output value. Take a look at the output of scanimage -h to find out
+what maxout has to be.
+
+.SH Example:
+scanimage --custom-gamma=yes --gamma-table `gamma4scanimage 1.8 0 11500 16383 255` >image.pnm
+
+.SH SEE ALSO
+scanimage(7)
+
+.SH AUTHOR
+
+Oliver Rauch
+
+.SH EMAIL-CONTACT
+Oliver.Rauch@Rauch-Domain.DE

@@ -26,6 +26,10 @@ This directory contains various tools that may be useful:
 	1600P and 2000P, without using the backend. So that
 	scanner protocol can be tested directly.
 
+ gamma4scanimage: creates a gamma table in the format expected by scanimage.
+	You can define a gamma value, shadow and highlight. 
+	Take a look at manual page  gamma4scanimage for further information.
+
 Maybe useful for SANE developers:
 
  sane-desc:

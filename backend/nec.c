@@ -2830,8 +2830,12 @@ sane_start (SANE_Handle handle)
   s->dev->info.bufsize = s->dev->info.wanted_bufsize;
   if (s->dev->info.bufsize < 32 * 1024)
     s->dev->info.bufsize = 32 * 1024;
-  status = sanei_scsi_open_extended (s->dev->sane.name, &s->fd, 
-              &sense_handler, &s->dev->sensedat, &s->dev->info.bufsize);
+  {
+    int bsize = s->dev->info.bufsize;
+    status = sanei_scsi_open_extended (s->dev->sane.name, &s->fd, 
+              &sense_handler, &s->dev->sensedat, &bsize);
+    s->dev->info.bufsize = bsize;
+  }
 
   if (status != SANE_STATUS_GOOD)
     {

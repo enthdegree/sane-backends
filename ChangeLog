@@ -1,3 +1,7 @@
+2004-10-21  Mattias Ellert <mattias.ellert@tsl.uu.se>
+
+	* backend/gt68xx.c backend/mustek.c: Remove an extra "in".
+	* po/*.po: Fixing fuzzy translations (and some others).
 
 2004-10-21  Rene Rebe <rene@exactcode.de>
 

@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.10\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-10-19 08:51+0200\n"
-"PO-Revision-Date: 2003-01-10 13:51+0000\n"
+"POT-Creation-Date: 2004-10-21 22:17+0200\n"
+"PO-Revision-Date: 2004-10-21 16:41+0200\n"
 "Last-Translator: Pedro Morais <morais@inocam.com>\n"
 "Language-Team: pt <morais@inocam.com>\n"
 "MIME-Version: 1.0\n"
@@ -88,11 +88,11 @@ msgstr ""
 msgid "Button state"
 msgstr "Estado do botão"
 
-#: .tmp/avision.h:537
+#: .tmp/avision.h:539
 msgid "Number of the frame to scan"
 msgstr ""
 
-#: .tmp/avision.h:538
+#: .tmp/avision.h:540
 msgid "Selects the number of the frame to scan"
 msgstr ""
 
@@ -115,7 +115,6 @@ msgid "Do a grayscale rather than color scan"
 msgstr ""
 
 #: .tmp/canon630u.c:305
-#, fuzzy
 msgid "Analog Gain"
 msgstr "Ganho analógico"
 
@@ -125,7 +124,7 @@ msgstr ""
 
 #: .tmp/canon630u.c:346 .tmp/epson.h:68
 msgid "Gamma Correction"
-msgstr ""
+msgstr "Correcção do gamma"
 
 #: .tmp/canon630u.c:347
 msgid "Selects the gamma corrected transfer curve"
@@ -306,9 +305,8 @@ msgid "A4"
 msgstr "A4"
 
 #: .tmp/epson.c:751
-#, fuzzy
 msgid "Max"
-msgstr "máximo"
+msgstr "Máximo"
 
 #: .tmp/epson.c:2732 .tmp/gt68xx.c:442 .tmp/ma1509.c:499
 #: .tmp/matsushita.c:1086 .tmp/microtek2.h:600 .tmp/mustek.c:4197
@@ -541,12 +539,11 @@ msgid "Automatic warmup"
 msgstr "Aquecimento automático"
 
 #: .tmp/gt68xx.c:556
-#, fuzzy
 msgid ""
 "Warm-up until the lamp's brightness is constant instead of insisting on 60 "
 "seconds warm-up time."
 msgstr ""
-"Aquecer até o brilho da lâmpada ser constante em ver de insistir em 30 "
+"Aquecer até o brilho da lâmpada ser constante em ver de insistir em 60 "
 "segundos de tempo de aquecimento."
 
 #: .tmp/gt68xx.c:567
@@ -554,7 +551,6 @@ msgid "Full scan"
 msgstr "Digitalização completa"
 
 #: .tmp/gt68xx.c:569
-#, fuzzy
 msgid ""
 "Scan the complete scanning area including calibration strip. Be careful. "
 "Don't select the full height. For testing only."
@@ -597,8 +593,8 @@ msgstr ""
 
 #: .tmp/gt68xx.c:624 .tmp/mustek.c:4327
 msgid ""
-"Request that all previews are done in in the fastest (low-quality) mode. "
-"This may be a non-color mode or a low resolution mode."
+"Request that all previews are done in the fastest (low-quality) mode. This "
+"may be a non-color mode or a low resolution mode."
 msgstr ""
 
 #: .tmp/gt68xx.c:634
@@ -621,9 +617,8 @@ msgid "Sets the gamma value of all channels."
 msgstr "Define o valor de 'gamma' em todos os canais."
 
 #: .tmp/gt68xx.c:684
-#, fuzzy
 msgid "Gain correction"
-msgstr "Sem Correcção"
+msgstr "Correcção do ganho"
 
 #: .tmp/gt68xx.c:686
 msgid ""
@@ -632,9 +627,8 @@ msgid ""
 msgstr ""
 
 #: .tmp/gt68xx.c:697
-#, fuzzy
 msgid "Offset correction"
-msgstr "Sem Correcção"
+msgstr "Correcção do deslocamento"
 
 #: .tmp/gt68xx.c:699
 msgid ""
@@ -674,7 +668,6 @@ msgid "Custom"
 msgstr ""
 
 #: .tmp/hp-option.c:3083 .tmp/hp-option.c:3139 .tmp/hp-option.c:3154
-#, fuzzy
 msgid "Auto"
 msgstr "Automático"
 
@@ -691,17 +684,14 @@ msgid "Pass-through"
 msgstr ""
 
 #: .tmp/hp-option.c:3087
-#, fuzzy
 msgid "NTSC Gray"
-msgstr "Cinzento"
+msgstr "NTSC cinzento"
 
 #: .tmp/hp-option.c:3088
-#, fuzzy
 msgid "XPA Gray"
-msgstr "Cinzento"
+msgstr "XPA cinzento"
 
 #: .tmp/hp-option.c:3140
-#, fuzzy
 msgid "Slow"
 msgstr "Lento"
 
@@ -711,7 +701,6 @@ msgid "Normal"
 msgstr "Normal"
 
 #: .tmp/hp-option.c:3142
-#, fuzzy
 msgid "Fast"
 msgstr "Rápido"
 
@@ -777,7 +766,6 @@ msgid "Set sharpening value."
 msgstr ""
 
 #: .tmp/hp-option.h:66
-#, fuzzy
 msgid "Auto Threshold"
 msgstr "Limiar de aquecimento"
 
@@ -1159,7 +1147,7 @@ msgstr ""
 
 #: .tmp/microtek2.h:642
 msgid "Gamma correction"
-msgstr ""
+msgstr "Correcção do gamma"
 
 #: .tmp/microtek2.h:643
 msgid "Selects the gamma correction mode."
@@ -1380,9 +1368,8 @@ msgid "Scan in fast gray mode (lower quality)."
 msgstr ""
 
 #: .tmp/mustek.c:4404
-#, fuzzy
 msgid "Red brightness"
-msgstr "Brilho"
+msgstr "Brilho do vermelho"
 
 #: .tmp/mustek.c:4405
 #, fuzzy
@@ -1390,9 +1377,8 @@ msgid "Controls the brightness of the red channel of the acquired image."
 msgstr "Deslocamento (brilho) do canal vermelho."
 
 #: .tmp/mustek.c:4417
-#, fuzzy
 msgid "Green brightness"
-msgstr "Brilho"
+msgstr "Brilho do verde"
 
 #: .tmp/mustek.c:4418
 #, fuzzy
@@ -1400,9 +1386,8 @@ msgid "Controls the brightness of the green channel of the acquired image."
 msgstr "Deslocamento (brilho) do canal vermelho."
 
 #: .tmp/mustek.c:4430
-#, fuzzy
 msgid "Blue brightness"
-msgstr "Brilho"
+msgstr "Brilho do azul"
 
 #: .tmp/mustek.c:4431
 #, fuzzy
@@ -1411,7 +1396,7 @@ msgstr "Deslocamento (brilho) do canal azul."
 
 #: .tmp/mustek.c:4456
 msgid "Contrast red channel"
-msgstr "Contraste do canal vermelho."
+msgstr "Contraste do canal vermelho"
 
 #: .tmp/mustek.c:4457
 #, fuzzy
@@ -1502,9 +1487,8 @@ msgid "Analog frontend"
 msgstr "Ganho analógico"
 
 #: .tmp/plustek.c:880 .tmp/umax_pp.c:655
-#, fuzzy
 msgid "Red gain"
-msgstr "ganho"
+msgstr "Ganho do vermelho"
 
 #: .tmp/plustek.c:881
 msgid "Red gain value of the AFE"
@@ -1512,16 +1496,15 @@ msgstr ""
 
 #: .tmp/plustek.c:888 .tmp/umax_pp.c:712
 msgid "Red offset"
-msgstr ""
+msgstr "Deslocamento do vermelho"
 
 #: .tmp/plustek.c:889
 msgid "Red offset value of the AFE"
 msgstr ""
 
 #: .tmp/plustek.c:896 .tmp/umax_pp.c:667
-#, fuzzy
 msgid "Green gain"
-msgstr "Verde"
+msgstr "Ganho do verde"
 
 #: .tmp/plustek.c:897
 msgid "Green gain value of the AFE"
@@ -1529,16 +1512,15 @@ msgstr ""
 
 #: .tmp/plustek.c:904 .tmp/umax_pp.c:724
 msgid "Green offset"
-msgstr ""
+msgstr "Deslocamento do verde"
 
 #: .tmp/plustek.c:905
 msgid "Green offset value of the AFE"
 msgstr ""
 
 #: .tmp/plustek.c:912 .tmp/umax_pp.c:679
-#, fuzzy
 msgid "Blue gain"
-msgstr "Azul"
+msgstr "Ganho do azul"
 
 #: .tmp/plustek.c:913
 msgid "Blue gain value of the AFE"
@@ -1546,7 +1528,7 @@ msgstr ""
 
 #: .tmp/plustek.c:920 .tmp/umax_pp.c:736
 msgid "Blue offset"
-msgstr ""
+msgstr "Deslocamento do azul"
 
 #: .tmp/plustek.c:921
 msgid "Blue offset value of the AFE"
@@ -1828,19 +1810,16 @@ msgid "White level"
 msgstr "Nível de branco"
 
 #: .tmp/saneopts.h:160
-#, fuzzy
 msgid "White level for red"
-msgstr "Nível de branco"
+msgstr "Nível de branco para vermelho"
 
 #: .tmp/saneopts.h:161
-#, fuzzy
 msgid "White level for green"
-msgstr "Nível de branco"
+msgstr "Nível de branco para verde"
 
 #: .tmp/saneopts.h:162
-#, fuzzy
 msgid "White level for blue"
-msgstr "Nível de branco"
+msgstr "Nível de branco para azul"
 
 #: .tmp/saneopts.h:163
 msgid "Shadow"
@@ -2717,6 +2696,14 @@ msgstr ""
 msgid "(1/1) Button test option. Prints some text..."
 msgstr ""
 
+#: .tmp/umax1220u.c:247 .tmp/umax.c:5810
+msgid "Lamp off"
+msgstr ""
+
+#: .tmp/umax1220u.c:248 .tmp/umax.c:5811
+msgid "Turn off scanner lamp"
+msgstr ""
+
 #: .tmp/umax.c:189
 msgid "Color Lineart"
 msgstr "Linhas em cor"
@@ -2789,14 +2776,6 @@ msgstr "Lâmpada acesa"
 msgid "Turn on scanner lamp"
 msgstr ""
 
-#: .tmp/umax.c:5810 .tmp/umax1220u.c:247
-msgid "Lamp off"
-msgstr ""
-
-#: .tmp/umax.c:5811 .tmp/umax1220u.c:248
-msgid "Turn off scanner lamp"
-msgstr ""
-
 #: .tmp/umax.c:5883
 msgid "Calibration mode"
 msgstr "Modo de calibração"
@@ -2830,103 +2809,45 @@ msgid "Gray gain"
 msgstr "Ganho do cinzento"
 
 #: .tmp/umax_pp.c:644
-#, fuzzy
 msgid "Sets gray channel gain"
-msgstr "Contraste do canal verde"
+msgstr "Ganho do canal cinzento"
 
 #: .tmp/umax_pp.c:656
-#, fuzzy
 msgid "Sets red channel gain"
-msgstr "Contraste do canal vermelho."
+msgstr "Ganho do canal vermelho"
 
 #: .tmp/umax_pp.c:668
-#, fuzzy
 msgid "Sets green channel gain"
-msgstr "Contraste do canal verde"
+msgstr "Ganho do canal verde"
 
 #: .tmp/umax_pp.c:680
-#, fuzzy
 msgid "Sets blue channel gain"
-msgstr "Contraste do canal azul"
+msgstr "Ganho do canal azul"
 
 #: .tmp/umax_pp.c:691
 msgid "Offset"
-msgstr ""
+msgstr "Deslocamento"
 
 #: .tmp/umax_pp.c:693
 msgid "Color channels offset settings"
 msgstr ""
 
 #: .tmp/umax_pp.c:700
-#, fuzzy
 msgid "Gray offset"
-msgstr "Contraste"
+msgstr "Deslocamento do cinzento"
 
 #: .tmp/umax_pp.c:701
-#, fuzzy
 msgid "Sets gray channel offset"
-msgstr "Contraste do canal verde"
+msgstr "Deslocamento do canal cinzento"
 
 #: .tmp/umax_pp.c:713
-#, fuzzy
 msgid "Sets red channel offset"
-msgstr "Contraste do canal vermelho."
+msgstr "Deslocamento do canal vermelho"
 
 #: .tmp/umax_pp.c:725
-#, fuzzy
 msgid "Sets green channel offset"
-msgstr "Contraste do canal verde"
+msgstr "Deslocamento do canal verde"
 
 #: .tmp/umax_pp.c:737
-#, fuzzy
 msgid "Sets blue channel offset"
-msgstr "Contraste do canal azul"
-
-#, fuzzy
-#~ msgid "Red-gain"
-#~ msgstr "ganho"
-
-#, fuzzy
-#~ msgid "Green-gain"
-#~ msgstr "Verde"
-
-#, fuzzy
-#~ msgid "Blue-gain"
-#~ msgstr "Azul"
-
-#, fuzzy
-#~ msgid "Color 42/48"
-#~ msgstr "Cor42"
-
-#~ msgid "Lamp always on"
-#~ msgstr "Lâmpada sempre acesa"
-
-#~ msgid "Don't turn off the lamp after leaving the frontend."
-#~ msgstr "Não desligar a lâmpada depois de sair do topo."
-
-#, fuzzy
-#~ msgid "Gray brightness"
-#~ msgstr "Brilho"
-
-#~ msgid "none"
-#~ msgstr "nenhum"
-
-#~ msgid "gray"
-#~ msgstr "cinzento"
-
-#~ msgid "Brightness red channel"
-#~ msgstr "Bbrilho do canal vermelho."
-
-#~ msgid "Brightness green channel"
-#~ msgstr "Brilho do canal verde."
-
-#~ msgid "Brightness blue channel"
-#~ msgstr "Brilho do canal azul."
-
-#, fuzzy
-#~ msgid "Black level coarse calibration"
-#~ msgstr "Calibração rudimentar"
-
-#, fuzzy
-#~ msgid "White level coarse calibration"
-#~ msgstr "Calibração rudimentar"
+msgstr "Deslocamento do canal azul"

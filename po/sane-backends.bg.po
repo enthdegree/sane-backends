@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-10-19 08:51+0200\n"
-"PO-Revision-Date: 2003-07-29 23:28+0100\n"
+"POT-Creation-Date: 2004-10-21 22:17+0200\n"
+"PO-Revision-Date: 2004-10-21 10:59+0200\n"
 "Last-Translator: Pavel Constantinov <pavelconstantinov@bigfoot.com>\n"
 "Language-Team:  <>\n"
 "MIME-Version: 1.0\n"
@@ -93,11 +93,11 @@ msgstr ""
 msgid "Button state"
 msgstr "Button state"
 
-#: .tmp/avision.h:537
+#: .tmp/avision.h:539
 msgid "Number of the frame to scan"
 msgstr "Номер на кадъра за сканиране"
 
-#: .tmp/avision.h:538
+#: .tmp/avision.h:540
 msgid "Selects the number of the frame to scan"
 msgstr "Избира номера на кадъра за сканиране"
 
@@ -144,9 +144,8 @@ msgid "Gray"
 msgstr "Сиво"
 
 #: .tmp/epson.c:488
-#, fuzzy
 msgid "Simplex"
-msgstr "Дуплексно"
+msgstr "Симплексно"
 
 #: .tmp/epson.c:489 .tmp/matsushita.h:219
 msgid "Duplex"
@@ -309,9 +308,8 @@ msgid "A4"
 msgstr "A4"
 
 #: .tmp/epson.c:751
-#, fuzzy
 msgid "Max"
-msgstr "макс."
+msgstr "Макс."
 
 #: .tmp/epson.c:2732 .tmp/gt68xx.c:442 .tmp/ma1509.c:499
 #: .tmp/matsushita.c:1086 .tmp/microtek2.h:600 .tmp/mustek.c:4197
@@ -414,7 +412,6 @@ msgid "Adds to red based on blue level"
 msgstr "Добавя към червеното според степента на синьо"
 
 #: .tmp/epson.c:3029
-#, fuzzy
 msgid "Controls blue level"
 msgstr "Наглася степента на синьо"
 
@@ -501,7 +498,6 @@ msgid "Select bay to scan"
 msgstr "Избор на bay за сканиране"
 
 #: .tmp/epson.h:69
-#, fuzzy
 msgid ""
 "Selects the gamma correction value from a list of pre-defined devices or the "
 "user defined table, which can be downloaded to the scanner"
@@ -551,12 +547,11 @@ msgid "Automatic warmup"
 msgstr "Автоматично загряване"
 
 #: .tmp/gt68xx.c:556
-#, fuzzy
 msgid ""
 "Warm-up until the lamp's brightness is constant instead of insisting on 60 "
 "seconds warm-up time."
 msgstr ""
-"Загрявай, докато яркостта на лампата е постоянна, вместо да настояваш за 30 "
+"Загрявай, докато яркостта на лампата е постоянна, вместо да настояваш за 60 "
 "секундно загряване."
 
 #: .tmp/gt68xx.c:567
@@ -564,7 +559,6 @@ msgid "Full scan"
 msgstr "Цялостно сканиране"
 
 #: .tmp/gt68xx.c:569
-#, fuzzy
 msgid ""
 "Scan the complete scanning area including calibration strip. Be careful. "
 "Don't select the full height. For testing only."
@@ -606,8 +600,8 @@ msgstr "Бързо превю"
 
 #: .tmp/gt68xx.c:624 .tmp/mustek.c:4327
 msgid ""
-"Request that all previews are done in in the fastest (low-quality) mode. "
-"This may be a non-color mode or a low resolution mode."
+"Request that all previews are done in the fastest (low-quality) mode. This "
+"may be a non-color mode or a low resolution mode."
 msgstr ""
 "Поискай всички превюта да се правят в най-бърз (нискокачествен) режим. Това "
 "може да е безцветен режим или режим с ниска резолюция."
@@ -705,11 +699,11 @@ msgstr "Pass-through"
 
 #: .tmp/hp-option.c:3087
 msgid "NTSC Gray"
-msgstr "Сиво"
+msgstr "NTSC сиво"
 
 #: .tmp/hp-option.c:3088
 msgid "XPA Gray"
-msgstr "Сиво"
+msgstr "XPA сиво"
 
 #: .tmp/hp-option.c:3140
 msgid "Slow"
@@ -846,7 +840,7 @@ msgid "Exposure time"
 msgstr "Време за експонация"
 
 #: .tmp/hp-option.h:111
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "A longer exposure time lets the scanner collect more light. Suggested use is "
 "175% for prints, 150% for normal slides and \"Negative\" for negative film. "
@@ -854,7 +848,7 @@ msgid ""
 msgstr ""
 "По-дългото време на експонация позволява на скенера да събере повече "
 "светлина. Предложената употреба е 175% за разпечатки, 150% за нормални "
-"слайдове и \"Негативи\" за негативен филм. За тъмни (подекспонирани) "
+"слайдове и \"Негатив\" за негативен филм. За тъмни (подекспонирани) "
 "изображения можете да завишите тази стойност."
 
 #: .tmp/hp-option.h:119 .tmp/hp-option.h:126
@@ -947,7 +941,6 @@ msgstr "8x8 Bayer"
 msgid "8x8 Vertical Line"
 msgstr "8x8 вертикална черта"
 
-# Scanmodus
 #: .tmp/leo.c:783 .tmp/saneopts.h:138
 msgid "Scan mode"
 msgstr "Режим на сканиране"
@@ -1235,14 +1228,13 @@ msgstr "Полутон"
 #: .tmp/microtek2.h:677
 #, c-format
 msgid "Selects which radiance level should be considered \"50 % gray\"."
-msgstr "Избира кое ниво на осветеност ще се смята за  \"50 % сиво\"."
+msgstr "Избира кое ниво на осветеност ще се смята за \"50 % сиво\"."
 
 #: .tmp/microtek2.h:681
 msgid "Midtone for red"
 msgstr "Полутон - червено"
 
 #: .tmp/microtek2.h:682
-#, fuzzy
 msgid "Selects which radiance level should be considered \"50 % red\"."
 msgstr "Избира кое ниво на осветеност ще се смята за \"50 % червено\"."
 
@@ -1444,7 +1436,7 @@ msgstr "Наглася контраста на синия канал на пол
 
 #: .tmp/niash.c:683
 msgid "Image"
-msgstr ""
+msgstr "Изображение"
 
 #: .tmp/niash.c:711
 msgid "Miscellaneous"
@@ -1455,9 +1447,8 @@ msgid "Lamp status"
 msgstr ""
 
 #: .tmp/niash.c:719
-#, fuzzy
 msgid "Switches the lamp on or off."
-msgstr "Включва/изключва лампата"
+msgstr "Включва/изключва лампата."
 
 #: .tmp/niash.c:729
 msgid "Calibrates for black and white level."
@@ -1514,54 +1505,48 @@ msgid "Analog frontend"
 msgstr "Аналогова гама - червено"
 
 #: .tmp/plustek.c:880 .tmp/umax_pp.c:655
-#, fuzzy
 msgid "Red gain"
-msgstr "увеличение"
+msgstr "Увеличение - червено"
 
 #: .tmp/plustek.c:881
 msgid "Red gain value of the AFE"
 msgstr ""
 
 #: .tmp/plustek.c:888 .tmp/umax_pp.c:712
-#, fuzzy
 msgid "Red offset"
-msgstr "Включва/изключва лампата"
+msgstr "Офсет - червено"
 
 #: .tmp/plustek.c:889
 msgid "Red offset value of the AFE"
 msgstr ""
 
 #: .tmp/plustek.c:896 .tmp/umax_pp.c:667
-#, fuzzy
 msgid "Green gain"
-msgstr "Зелено"
+msgstr "Увеличение - зелено"
 
 #: .tmp/plustek.c:897
 msgid "Green gain value of the AFE"
 msgstr ""
 
 #: .tmp/plustek.c:904 .tmp/umax_pp.c:724
-#, fuzzy
 msgid "Green offset"
-msgstr "Включва/изключва лампата"
+msgstr "Офсет - зелено"
 
 #: .tmp/plustek.c:905
 msgid "Green offset value of the AFE"
 msgstr ""
 
 #: .tmp/plustek.c:912 .tmp/umax_pp.c:679
-#, fuzzy
 msgid "Blue gain"
-msgstr "Синьо"
+msgstr "Увеличение - синьо"
 
 #: .tmp/plustek.c:913
 msgid "Blue gain value of the AFE"
 msgstr ""
 
 #: .tmp/plustek.c:920 .tmp/umax_pp.c:736
-#, fuzzy
 msgid "Blue offset"
-msgstr "Включва/изключва лампата"
+msgstr "Офсет - синьо"
 
 #: .tmp/plustek.c:921
 msgid "Blue offset value of the AFE"
@@ -1865,19 +1850,16 @@ msgid "White level"
 msgstr "Степен на бялото"
 
 #: .tmp/saneopts.h:160
-#, fuzzy
 msgid "White level for red"
-msgstr "Степен на бялото"
+msgstr "Степен на бялото - червено"
 
 #: .tmp/saneopts.h:161
-#, fuzzy
 msgid "White level for green"
-msgstr "Измести синьо към зелено"
+msgstr "Степен на бялото - зелено"
 
 #: .tmp/saneopts.h:162
-#, fuzzy
 msgid "White level for blue"
-msgstr "Степен на бялото"
+msgstr "Степен на бялото - синьо"
 
 #: .tmp/saneopts.h:163
 msgid "Shadow"
@@ -2056,7 +2038,6 @@ msgstr ""
 "мултибитово сканиране."
 
 #: .tmp/saneopts.h:223
-#, fuzzy
 msgid "Selects the scan mode (e.g., lineart, monochrome, or color)."
 msgstr "Избира режим на сканиране (lineart, монохромно или цветно)."
 
@@ -2156,19 +2137,16 @@ msgid "Selects what radiance level should be considered \"white\"."
 msgstr "Избира кое ниво на осветеност се смята за \"бяло\"."
 
 #: .tmp/saneopts.h:293
-#, fuzzy
 msgid "Selects what red radiance level should be considered \"white\"."
-msgstr "Избира кое ниво на осветеност се смята за \"бяло\"."
+msgstr "Избира кое ниво на червена осветеност се смята за \"бяло\"."
 
 #: .tmp/saneopts.h:296
-#, fuzzy
 msgid "Selects what green radiance level should be considered \"white\"."
-msgstr "Избира кое ниво на осветеност се смята за \"бяло\"."
+msgstr "Избира кое ниво на зелена осветеност се смята за \"бяло\"."
 
 #: .tmp/saneopts.h:299
-#, fuzzy
 msgid "Selects what blue radiance level should be considered \"white\"."
-msgstr "Избира кое ниво на осветеност се смята за \"бяло\"."
+msgstr "Избира кое ниво на синя осветеност се смята за \"бяло\"."
 
 #: .tmp/saneopts.h:304
 msgid "Selects what red radiance level should be considered \"black\"."
@@ -2514,7 +2492,6 @@ msgid "Read limit"
 msgstr "Лимит на четене"
 
 #: .tmp/test.c:456
-#, fuzzy
 msgid "Limit the amount of data transferred with each call to sane_read()."
 msgstr ""
 "Ограничава количеството данни, предадени с всяко повикване на sane_read()."
@@ -2681,7 +2658,6 @@ msgid "(5/6) Bool soft select soft detect emulated"
 msgstr "(5/6) Булева мек избор мек детект емулирана"
 
 #: .tmp/test.c:770
-#, fuzzy
 msgid ""
 "(5/6) Bool test option that has soft select, soft detect, and emulated (and "
 "advanced) capabilities."
@@ -2730,10 +2706,9 @@ msgid "(3/6) Int constraint word list"
 msgstr "(3/6) Int ограничен word list"
 
 #: .tmp/test.c:851
-#, fuzzy
 msgid "(3/6) Int test option with unit bits and constraint word list set."
 msgstr ""
-"(3/6) Интегрална тестова опция с единица бит и нагласен ограничeн word list."
+"(3/6) Интегрална тестова опция с единица бит и нагласен ограничен word list."
 
 #: .tmp/test.c:866
 msgid "(4/6) Int array"
@@ -2750,26 +2725,24 @@ msgid "(5/6) Int array constraint range"
 msgstr "(5/6) Int array ограничен обхват"
 
 #: .tmp/test.c:883
-#, fuzzy
 msgid ""
 "(5/6) Int test option with unit dpi and using an array with a range "
 "constraint. Minimum is 4, maximum 192, and quant is 2."
 msgstr ""
-"Интегрална тестова опция с единица мм; използва array с ограничен обхват. "
-"Минимумът е 4, максимумът е 192, а стъпката е 2."
+"(5/6) Интегрална тестова опция с единица dpi; използва array с ограничен "
+"обхват. Минимумът е 4, максимумът е 192, а стъпката е 2."
 
 #: .tmp/test.c:900
 msgid "(6/6) Int array constraint word list"
 msgstr "(6/6) Int array ограничен word list"
 
 #: .tmp/test.c:901
-#, fuzzy
 msgid ""
 "(6/6) Int test option with unit percent and using an array with a word list "
 "constraint."
 msgstr ""
-"Интегрална тестова опция с единица процент; използва array с ограничен word "
-"list."
+"(6/6) Интегрална тестова опция с единица процент; използва array с ограничен "
+"word list."
 
 #: .tmp/test.c:917
 msgid "Fixed test options"
@@ -2800,7 +2773,6 @@ msgid "(3/3) Fixed constraint word list"
 msgstr "(3/3) Фиксирана ограничен word list"
 
 #: .tmp/test.c:964
-#, fuzzy
 msgid "(3/3) Fixed test option with no unit and constraint word list set."
 msgstr ""
 "(3/3) Фиксирана тестова опция без нагласена единица и с ограничен word list."
@@ -2848,6 +2820,14 @@ msgstr "(1/1) Button"
 #: .tmp/test.c:1065
 msgid "(1/1) Button test option. Prints some text..."
 msgstr "(1/1) Бутонна тестова опция. Извежда някакъв текст..."
+
+#: .tmp/umax1220u.c:247 .tmp/umax.c:5810
+msgid "Lamp off"
+msgstr "Изкл. лампа"
+
+#: .tmp/umax1220u.c:248 .tmp/umax.c:5811
+msgid "Turn off scanner lamp"
+msgstr "Изключва лампата на скенера"
 
 #: .tmp/umax.c:189
 msgid "Color Lineart"
@@ -2921,14 +2901,6 @@ msgstr "Вкл. лампа"
 msgid "Turn on scanner lamp"
 msgstr "Включи лампата на скенера"
 
-#: .tmp/umax.c:5810 .tmp/umax1220u.c:247
-msgid "Lamp off"
-msgstr "Изкл. лампа"
-
-#: .tmp/umax.c:5811 .tmp/umax1220u.c:248
-msgid "Turn off scanner lamp"
-msgstr "Изключва лампата на скенера"
-
 #: .tmp/umax.c:5883
 msgid "Calibration mode"
 msgstr "Режим калибрация"
@@ -2951,136 +2923,56 @@ msgstr "Включва/изключва UTA"
 
 #: .tmp/umax_pp.c:635
 msgid "Gain"
-msgstr ""
+msgstr "Увеличение"
 
 #: .tmp/umax_pp.c:636
-#, fuzzy
 msgid "Color channels gain settings"
-msgstr "Настройки по яркостта на цветните канали"
+msgstr "Настройки по увеличение на цветните канали"
 
 #: .tmp/umax_pp.c:643
-#, fuzzy
 msgid "Gray gain"
-msgstr "Зелено"
+msgstr "Увеличение - сиво"
 
 #: .tmp/umax_pp.c:644
-#, fuzzy
 msgid "Sets gray channel gain"
-msgstr "Наглася яркостта на сивия канал"
+msgstr "Наглася увеличение на сивия канал"
 
 #: .tmp/umax_pp.c:656
-#, fuzzy
 msgid "Sets red channel gain"
-msgstr "Наглася яркостта на червения канал"
+msgstr "Наглася увеличение на червения канал"
 
 #: .tmp/umax_pp.c:668
-#, fuzzy
 msgid "Sets green channel gain"
-msgstr "Наглася яркостта на зеления канал"
+msgstr "Наглася увеличение на зеления канал"
 
 #: .tmp/umax_pp.c:680
-#, fuzzy
 msgid "Sets blue channel gain"
-msgstr "Наглася яркостта на синия канал"
+msgstr "Наглася увеличение на синия канал"
 
 #: .tmp/umax_pp.c:691
-#, fuzzy
 msgid "Offset"
-msgstr "Изкл."
+msgstr "Офсет"
 
 #: .tmp/umax_pp.c:693
-#, fuzzy
 msgid "Color channels offset settings"
-msgstr "Настройки по контраста на цветните канали"
+msgstr "Настройки по офсета на цветните канали"
 
 #: .tmp/umax_pp.c:700
-#, fuzzy
 msgid "Gray offset"
-msgstr "Включва/изключва лампата"
+msgstr "Офсет - сиво"
 
 #: .tmp/umax_pp.c:701
-#, fuzzy
 msgid "Sets gray channel offset"
-msgstr "Наглася контраста на сивия канал"
+msgstr "Наглася офсета на сивия канал"
 
 #: .tmp/umax_pp.c:713
-#, fuzzy
 msgid "Sets red channel offset"
-msgstr "Наглася контраста на червения канал"
+msgstr "Наглася офсета на червения канал"
 
 #: .tmp/umax_pp.c:725
-#, fuzzy
 msgid "Sets green channel offset"
-msgstr "Наглася контраста на зеления канал"
+msgstr "Наглася офсета на зеления канал"
 
 #: .tmp/umax_pp.c:737
-#, fuzzy
 msgid "Sets blue channel offset"
-msgstr "Наглася контраста на синия канал"
-
-#, fuzzy
-#~ msgid "Red-gain"
-#~ msgstr "увеличение"
-
-#, fuzzy
-#~ msgid "Green-gain"
-#~ msgstr "Зелено"
-
-#, fuzzy
-#~ msgid "Green-offset"
-#~ msgstr "Включва/изключва лампата"
-
-#, fuzzy
-#~ msgid "Blue-gain"
-#~ msgstr "Синьо"
-
-#~ msgid "Gray 14/16"
-#~ msgstr "Сиво 14/16"
-
-#~ msgid "Color 42/48"
-#~ msgstr "Color42/48"
-
-#~ msgid "Lamp always on"
-#~ msgstr "Лампата винаги включена"
-
-#~ msgid "Don't turn off the lamp after leaving the frontend."
-#~ msgstr "Не изключвай лампата след излизане от фронтенда."
-
-#, fuzzy
-#~ msgid "Lamp off on shutdown"
-#~ msgstr "Изкл. лампа при изход"
-
-#~ msgid "Gray brightness"
-#~ msgstr "Яркост - сиво"
-
-#~ msgid "Gray contrast"
-#~ msgstr "Контраст - сиво"
-
-#, fuzzy
-#~ msgid "High quality"
-#~ msgstr "Осветление"
-
-#, fuzzy
-#~ msgid "Scan in (slower) high quality mode"
-#~ msgstr "Сканирай в бърз сив режим (по-ниско качество)."
-
-#~ msgid "none"
-#~ msgstr "нищо"
-
-#~ msgid "cal"
-#~ msgstr "кал."
-
-#~ msgid "gray"
-#~ msgstr "сиво"
-
-#~ msgid "gamma"
-#~ msgstr "Гама"
-
-#~ msgid "Brightness red channel"
-#~ msgstr "Яркост - червен канал"
-
-#~ msgid "Brightness green channel"
-#~ msgstr "Яркост - зелен канал"
-
-#~ msgid "Brightness blue channel"
-#~ msgstr "Яркост - син канал"
+msgstr "Наглася офсета на синия канал"

@@ -621,7 +621,7 @@ init_options (GT68xx_Scanner * s)
   s->opt[OPT_FAST_PREVIEW].name = "fast-preview";
   s->opt[OPT_FAST_PREVIEW].title = SANE_I18N ("Fast preview");
   s->opt[OPT_FAST_PREVIEW].desc =
-    SANE_I18N ("Request that all previews are done in in the fastest "
+    SANE_I18N ("Request that all previews are done in the fastest "
 	       "(low-quality) mode. This may be a non-color mode or a low "
 	       "resolution mode.");
   s->opt[OPT_FAST_PREVIEW].type = SANE_TYPE_BOOL;

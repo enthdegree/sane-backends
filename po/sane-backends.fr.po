@@ -14,8 +14,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.12\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-10-19 08:51+0200\n"
-"PO-Revision-Date: 2003-05-30 16:34CET\n"
+"POT-Creation-Date: 2004-10-21 22:17+0200\n"
+"PO-Revision-Date: 2004-10-21 21:05+0200\n"
 "Last-Translator: Yann E. MORIN <yann dot morin dot 1998 at anciens dot enib "
 "dot fr>\n"
 "Language-Team:\n"
@@ -46,7 +46,6 @@ msgstr ""
 # for the simple reason there is no single word, to my knowledge, that fit.
 # I'll keep the english there as well.
 # ####################################################
-# sceptre.h:280
 #: .tmp/artec_eplus48u.c:154 .tmp/hp-option.c:2923 .tmp/ma1509.c:101
 #: .tmp/mustek.c:125 .tmp/mustek.c:130 .tmp/mustek_usb.c:270
 #: .tmp/saneopts.h:395 .tmp/sceptre.h:289 .tmp/snapscan-options.c:78
@@ -59,7 +58,6 @@ msgstr "Trait"
 msgid "Grayscale"
 msgstr "Niveaux de gris"
 
-# sceptre.h:280
 #: .tmp/artec_eplus48u.c:156 .tmp/epson.c:483 .tmp/hp-option.c:2926
 #: .tmp/leo.h:262 .tmp/ma1509.c:101 .tmp/mustek.c:126 .tmp/mustek.c:130
 #: .tmp/mustek_usb.c:268 .tmp/saneopts.h:393 .tmp/sceptre.h:292
@@ -129,11 +127,11 @@ msgstr ""
 msgid "Button state"
 msgstr "Etat du bouton"
 
-#: .tmp/avision.h:537
+#: .tmp/avision.h:539
 msgid "Number of the frame to scan"
 msgstr "Numéro de la trame à numériser"
 
-#: .tmp/avision.h:538
+#: .tmp/avision.h:540
 msgid "Selects the number of the frame to scan"
 msgstr "Sélectionner le numéro de la trame à numériser"
 
@@ -169,12 +167,10 @@ msgstr "Correction gamma"
 msgid "Selects the gamma corrected transfer curve"
 msgstr "Sélectionne la courbe de correction gamma"
 
-# sceptre.h:280
 #: .tmp/epson.c:481
 msgid "Binary"
 msgstr "Noir et blanc"
 
-# sceptre.h:280
 #: .tmp/epson.c:482 .tmp/ma1509.c:101 .tmp/mustek.c:125 .tmp/mustek.c:130
 #: .tmp/mustek_usb.c:269 .tmp/saneopts.h:394 .tmp/sceptre.h:291
 #: .tmp/snapscan-options.c:77 .tmp/test.c:122 .tmp/umax.c:188
@@ -347,9 +343,8 @@ msgid "A4"
 msgstr "A4"
 
 #: .tmp/epson.c:751
-#, fuzzy
 msgid "Max"
-msgstr "max"
+msgstr "Max"
 
 #: .tmp/epson.c:2732 .tmp/gt68xx.c:442 .tmp/ma1509.c:499
 #: .tmp/matsushita.c:1086 .tmp/microtek2.h:600 .tmp/mustek.c:4197
@@ -369,9 +364,10 @@ msgstr "Exclusion"
 
 # Dictionnary gives me 'marginal' for dropout. Sounds like
 # a part of the scan area is 'droped out', I mean excluded.
+# No, it is one of the colours that is excluded.
 #: .tmp/epson.c:2787
 msgid "Selects the dropout."
-msgstr "Sélectionne la zone exclue."
+msgstr "Sélectionne le couleur exclu."
 
 #: .tmp/epson.c:2799
 msgid "Selects the brightness."
@@ -456,7 +452,6 @@ msgid "Adds to red based on blue level"
 msgstr "Ajoute au rouge en fonction du niveau de bleu"
 
 #: .tmp/epson.c:3029
-#, fuzzy
 msgid "Controls blue level"
 msgstr "Contrôle le niveau de bleu"
 
@@ -537,12 +532,10 @@ msgid "Bay"
 msgstr "Baie"
 
 #: .tmp/epson.c:3393
-#, fuzzy
 msgid "Select bay to scan"
-msgstr "selectionne la baie contennant le document à numériser"
+msgstr "Selectionne la baie contennant le document à numériser"
 
 #: .tmp/epson.h:69
-#, fuzzy
 msgid ""
 "Selects the gamma correction value from a list of pre-defined devices or the "
 "user defined table, which can be downloaded to the scanner"
@@ -593,20 +586,18 @@ msgid "Automatic warmup"
 msgstr "Préchauffage automatique"
 
 #: .tmp/gt68xx.c:556
-#, fuzzy
 msgid ""
 "Warm-up until the lamp's brightness is constant instead of insisting on 60 "
 "seconds warm-up time."
 msgstr ""
 "Préchauffer jusqu'à ce que l'intensité de la lampe soit constante, au lieu "
-"d'attendre 30 secondes."
+"d'attendre 60 secondes."
 
 #: .tmp/gt68xx.c:567
 msgid "Full scan"
 msgstr "Numérisation complète"
 
 #: .tmp/gt68xx.c:569
-#, fuzzy
 msgid ""
 "Scan the complete scanning area including calibration strip. Be careful. "
 "Don't select the full height. For testing only."
@@ -650,8 +641,8 @@ msgstr "Aperçu rapide"
 
 #: .tmp/gt68xx.c:624 .tmp/mustek.c:4327
 msgid ""
-"Request that all previews are done in in the fastest (low-quality) mode. "
-"This may be a non-color mode or a low resolution mode."
+"Request that all previews are done in the fastest (low-quality) mode. This "
+"may be a non-color mode or a low resolution mode."
 msgstr ""
 "Les aperçus seront effectués dans le mode le plus rapide (basse qualité). Ce "
 "peut etre en noir et blanc, et/ou dans une basse en résolution."
@@ -699,7 +690,6 @@ msgstr ""
 "Cette valeur est ajoutée au décalage interne. Utilisez pour des images très "
 "claires ou très sombres."
 
-# sceptre.h:280
 #: .tmp/hp-option.c:2924 .tmp/mustek.c:125 .tmp/plustek_pp.c:182
 #: .tmp/plustek_pp.c:191 .tmp/sceptre.h:290 .tmp/snapscan-options.c:76
 #: .tmp/umax.c:187
@@ -707,35 +697,30 @@ msgid "Halftone"
 msgstr "Demi-teinte"
 
 #: .tmp/hp-option.c:3037
-#, fuzzy
 msgid "Coarse"
-msgstr "8x8 - Grossier"
+msgstr "Grossier"
 
 #: .tmp/hp-option.c:3038
-#, fuzzy
 msgid "Fine"
-msgstr "Nom de fichier"
+msgstr "Précis"
 
 #: .tmp/hp-option.c:3039
-#, fuzzy
 msgid "Bayer"
-msgstr "Baie"
+msgstr "Bayer"
 
 #: .tmp/hp-option.c:3040
 msgid "Vertical"
-msgstr ""
+msgstr "Vertical"
 
 #: .tmp/hp-option.c:3041
 msgid "Horizontal"
-msgstr ""
+msgstr "Horizontal"
 
 #: .tmp/hp-option.c:3042 .tmp/hp-option.c:3093
-#, fuzzy
 msgid "Custom"
-msgstr "8x8 - Personalisé"
+msgstr "Personalisé"
 
 #: .tmp/hp-option.c:3083 .tmp/hp-option.c:3139 .tmp/hp-option.c:3154
-#, fuzzy
 msgid "Auto"
 msgstr "Automatique"
 
@@ -751,22 +736,17 @@ msgstr ""
 msgid "Pass-through"
 msgstr ""
 
-# sceptre.h:280
 #: .tmp/hp-option.c:3087
-#, fuzzy
 msgid "NTSC Gray"
-msgstr "Gris"
+msgstr "Gris NTSC"
 
-# sceptre.h:280
 #: .tmp/hp-option.c:3088
-#, fuzzy
 msgid "XPA Gray"
-msgstr "Gris"
+msgstr "Gris XPA"
 
 #: .tmp/hp-option.c:3140
-#, fuzzy
 msgid "Slow"
-msgstr "Plus lent"
+msgstr "Lent"
 
 #: .tmp/hp-option.c:3141 .tmp/hp-option.c:3248 .tmp/matsushita.c:244
 #: .tmp/mustek.c:141 .tmp/plustek.c:217 .tmp/plustek_pp.c:200
@@ -774,9 +754,8 @@ msgid "Normal"
 msgstr "Normal"
 
 #: .tmp/hp-option.c:3142
-#, fuzzy
 msgid "Fast"
-msgstr "Plus rapide"
+msgstr "Rapide"
 
 #: .tmp/hp-option.c:3143
 msgid "Extra Fast"
@@ -843,7 +822,6 @@ msgid "Set sharpening value."
 msgstr ""
 
 #: .tmp/hp-option.h:66
-#, fuzzy
 msgid "Auto Threshold"
 msgstr "Seuil automatique"
 
@@ -906,9 +884,8 @@ msgid "Set type of media."
 msgstr ""
 
 #: .tmp/hp-option.h:109
-#, fuzzy
 msgid "Exposure time"
-msgstr "Fixer le temps d'exposition"
+msgstr "Temps d'exposition"
 
 #: .tmp/hp-option.h:111
 #, c-format
@@ -966,7 +943,6 @@ msgstr "Image mirroir"
 msgid "Update options"
 msgstr "Options spéciales"
 
-# YEM-20030216 : I understand that 'fixed' is to be opposed to 'float'.
 #: .tmp/hp-option.h:151
 #, fuzzy
 msgid "Update options."
@@ -993,9 +969,8 @@ msgid "Shut off lamp"
 msgstr ""
 
 #: .tmp/hp-option.h:173
-#, fuzzy
 msgid "Shut off scanner lamp."
-msgstr "Eteint la lampe du scanner"
+msgstr "Eteint la lampe du scanner."
 
 #: .tmp/leo.c:110
 msgid "Diamond"
@@ -1317,7 +1292,6 @@ msgid "Midtone for red"
 msgstr "Teinte moyenne rouge"
 
 #: .tmp/microtek2.h:682
-#, fuzzy
 msgid "Selects which radiance level should be considered \"50 % red\"."
 msgstr "Sélectionne le niveau de luminosité équivalant à \"50% rouge\"."
 
@@ -1588,54 +1562,48 @@ msgid "Analog frontend"
 msgstr "Gamma analogique rouge"
 
 #: .tmp/plustek.c:880 .tmp/umax_pp.c:655
-#, fuzzy
 msgid "Red gain"
-msgstr "gain"
+msgstr "Gain des rouges"
 
 #: .tmp/plustek.c:881
 msgid "Red gain value of the AFE"
 msgstr ""
 
 #: .tmp/plustek.c:888 .tmp/umax_pp.c:712
-#, fuzzy
 msgid "Red offset"
-msgstr "Décalage en Y"
+msgstr "Décalage des rouges"
 
 #: .tmp/plustek.c:889
 msgid "Red offset value of the AFE"
 msgstr ""
 
 #: .tmp/plustek.c:896 .tmp/umax_pp.c:667
-#, fuzzy
 msgid "Green gain"
-msgstr "Vert"
+msgstr "Gain des verts"
 
 #: .tmp/plustek.c:897
 msgid "Green gain value of the AFE"
 msgstr ""
 
 #: .tmp/plustek.c:904 .tmp/umax_pp.c:724
-#, fuzzy
 msgid "Green offset"
-msgstr "Allume/éteint la lampe."
+msgstr "Décalage des verts"
 
 #: .tmp/plustek.c:905
 msgid "Green offset value of the AFE"
 msgstr ""
 
 #: .tmp/plustek.c:912 .tmp/umax_pp.c:679
-#, fuzzy
 msgid "Blue gain"
-msgstr "Bleu"
+msgstr "Gain des bleus"
 
 #: .tmp/plustek.c:913
 msgid "Blue gain value of the AFE"
 msgstr ""
 
 #: .tmp/plustek.c:920 .tmp/umax_pp.c:736
-#, fuzzy
 msgid "Blue offset"
-msgstr "Décalage en Y"
+msgstr "Décalage des bleus"
 
 #: .tmp/plustek.c:921
 msgid "Blue offset value of the AFE"
@@ -1668,7 +1636,6 @@ msgstr "Allume/éteint la lampe."
 msgid "Defines blue lamp off parameter"
 msgstr ""
 
-# sceptre.h:280
 #: .tmp/plustek_pp.c:194
 msgid "Color36"
 msgstr "Couleur 36 bits"
@@ -1694,7 +1661,6 @@ msgstr "Sélection de la source"
 msgid "Image Enhancement"
 msgstr "Amélioration de l'image"
 
-# sceptre.h:280
 #: .tmp/pnm.c:235
 msgid "Grayify"
 msgstr "Griser"
@@ -1945,19 +1911,16 @@ msgid "White level"
 msgstr "Niveau blanc"
 
 #: .tmp/saneopts.h:160
-#, fuzzy
 msgid "White level for red"
-msgstr "Niveau blanc"
+msgstr "Niveau blanc des rouges"
 
 #: .tmp/saneopts.h:161
-#, fuzzy
 msgid "White level for green"
-msgstr "Décalage bleu -> vert"
+msgstr "Niveau blanc des verts"
 
 #: .tmp/saneopts.h:162
-#, fuzzy
 msgid "White level for blue"
-msgstr "Niveau blanc"
+msgstr "Niveau blanc des bleus"
 
 #: .tmp/saneopts.h:163
 msgid "Shadow"
@@ -2138,7 +2101,6 @@ msgstr ""
 "\" et de 8 pour les numérisation \"haute-résolution\""
 
 #: .tmp/saneopts.h:223
-#, fuzzy
 msgid "Selects the scan mode (e.g., lineart, monochrome, or color)."
 msgstr "Choisit le mode de numérisation (comme Trait, Monochrome ou Couleur)"
 
@@ -2242,22 +2204,19 @@ msgstr ""
 "Spécifie quel niveau de luminosité est considéré comme étant \"blanc\"."
 
 #: .tmp/saneopts.h:293
-#, fuzzy
 msgid "Selects what red radiance level should be considered \"white\"."
 msgstr ""
-"Spécifie quel niveau de luminosité est considéré comme étant \"blanc\"."
+"Spécifie quel niveau de luminosité rouge est considéré comme étant \"blanc\"."
 
 #: .tmp/saneopts.h:296
-#, fuzzy
 msgid "Selects what green radiance level should be considered \"white\"."
 msgstr ""
-"Spécifie quel niveau de luminosité est considéré comme étant \"blanc\"."
+"Spécifie quel niveau de luminosité verte est considéré comme étant \"blanc\"."
 
 #: .tmp/saneopts.h:299
-#, fuzzy
 msgid "Selects what blue radiance level should be considered \"white\"."
 msgstr ""
-"Spécifie quel niveau de luminosité est considéré comme étant \"blanc\"."
+"Spécifie quel niveau de luminosité bleue est considéré comme étant \"blanc\"."
 
 #: .tmp/saneopts.h:304
 msgid "Selects what red radiance level should be considered \"black\"."
@@ -2302,7 +2261,7 @@ msgid ""
 "acquiring an image with a camera. Larger values cause more blooming."
 msgstr ""
 "Le niveau de saturation contrôle l'éclairage qui se produit lors de "
-"l'acquisition par un appareil-photo. Une valeur importante cause plus  "
+"l'acquisition par un appareil-photo. Une valeur importante cause plus "
 "d'éclairage."
 
 #: .tmp/saneopts.h:330
@@ -2558,7 +2517,7 @@ msgstr "Simulation d'une numérisation à trois passes"
 msgid ""
 "Simulate a three-pass scanner. In color mode, three frames are transmitted."
 msgstr ""
-"Simule une numérisation à trois passes, en renvoyant 3 trames séparées. "
+"Simule une numérisation à trois passes, en renvoyant 3 trames séparées."
 
 #: .tmp/test.c:369
 msgid "Set the order of frames"
@@ -2615,7 +2574,6 @@ msgid "Read limit"
 msgstr "Limite de lecture"
 
 #: .tmp/test.c:456
-#, fuzzy
 msgid "Limit the amount of data transferred with each call to sane_read()."
 msgstr ""
 "Limite la quantité de données qui sont transmises à chaque appel à sane_read"
@@ -2781,7 +2739,6 @@ msgid "(5/6) Bool soft select soft detect emulated"
 msgstr "(5/6) Option booléenne émulée"
 
 #: .tmp/test.c:770
-#, fuzzy
 msgid ""
 "(5/6) Bool test option that has soft select, soft detect, and emulated (and "
 "advanced) capabilities."
@@ -2828,7 +2785,6 @@ msgid "(3/6) Int constraint word list"
 msgstr "(3/6) Entier listé"
 
 #: .tmp/test.c:851
-#, fuzzy
 msgid "(3/6) Int test option with unit bits and constraint word list set."
 msgstr ""
 "(3/6) Option à valeur entière dont les valeurs possibles sont contenues dans "
@@ -2850,20 +2806,18 @@ msgid "(5/6) Int array constraint range"
 msgstr "(5/6) Tableau d'entiers avec domaine"
 
 #: .tmp/test.c:883
-#, fuzzy
 msgid ""
 "(5/6) Int test option with unit dpi and using an array with a range "
 "constraint. Minimum is 4, maximum 192, and quant is 2."
 msgstr ""
 "(5/6) Tableau d'options à valeur entière avec domaine de variations. Unité: "
-"mm. Min: 4. Max: 192. Pas: 2."
+"dpi. Min: 4. Max: 192. Pas: 2."
 
 #: .tmp/test.c:900
 msgid "(6/6) Int array constraint word list"
 msgstr "(6/6) Tableau d'entiers à valeurs listées"
 
 #: .tmp/test.c:901
-#, fuzzy
 msgid ""
 "(6/6) Int test option with unit percent and using an array with a word list "
 "constraint."
@@ -2903,7 +2857,6 @@ msgid "(3/3) Fixed constraint word list"
 msgstr "(3/3) Réel fixe listé"
 
 #: .tmp/test.c:964
-#, fuzzy
 msgid "(3/3) Fixed test option with no unit and constraint word list set."
 msgstr ""
 "(3/3) Option à valeur réelle (vurgule fixe) sans unité et dont les valeurs "
@@ -2953,6 +2906,14 @@ msgstr "(1/1) Bouton"
 #: .tmp/test.c:1065
 msgid "(1/1) Button test option. Prints some text..."
 msgstr "(1/1) Bouton de test. Affiche du texte..."
+
+#: .tmp/umax1220u.c:247 .tmp/umax.c:5810
+msgid "Lamp off"
+msgstr "Lampe éteinte"
+
+#: .tmp/umax1220u.c:248 .tmp/umax.c:5811
+msgid "Turn off scanner lamp"
+msgstr "Eteint la lampe du scanner"
 
 #: .tmp/umax.c:189
 msgid "Color Lineart"
@@ -3026,14 +2987,6 @@ msgstr "Lampe allumée"
 msgid "Turn on scanner lamp"
 msgstr "Allume la lampe du scanner"
 
-#: .tmp/umax.c:5810 .tmp/umax1220u.c:247
-msgid "Lamp off"
-msgstr "Lampe éteinte"
-
-#: .tmp/umax.c:5811 .tmp/umax1220u.c:248
-msgid "Turn off scanner lamp"
-msgstr "Eteint la lampe du scanner"
-
 #: .tmp/umax.c:5883
 msgid "Calibration mode"
 msgstr "Mode de calibration"
@@ -3056,155 +3009,56 @@ msgstr "Activer/déactiver l'adaptateur universel de transparents (UTA)"
 
 #: .tmp/umax_pp.c:635
 msgid "Gain"
-msgstr ""
+msgstr "Gain"
 
 #: .tmp/umax_pp.c:636
-#, fuzzy
 msgid "Color channels gain settings"
-msgstr "Réglages de luminosité des couleurs"
+msgstr "Réglages de gain des couleurs"
 
 #: .tmp/umax_pp.c:643
-#, fuzzy
 msgid "Gray gain"
-msgstr "Vert"
+msgstr "Gain des gris"
 
 #: .tmp/umax_pp.c:644
-#, fuzzy
 msgid "Sets gray channel gain"
-msgstr "Fixe la luminosité pour le gris"
+msgstr "Fixe le gain pour le gris"
 
 #: .tmp/umax_pp.c:656
-#, fuzzy
 msgid "Sets red channel gain"
-msgstr "Fixe la luminosité pour le rouge"
+msgstr "Fixe le gain pour le rouge"
 
 #: .tmp/umax_pp.c:668
-#, fuzzy
 msgid "Sets green channel gain"
-msgstr "Fixe la luminosité pour le vert"
+msgstr "Fixe le gain pour le vert"
 
 #: .tmp/umax_pp.c:680
-#, fuzzy
 msgid "Sets blue channel gain"
-msgstr "Fixe la luminosité pour le bleu"
+msgstr "Fixe le gain pour le bleu"
 
 #: .tmp/umax_pp.c:691
-#, fuzzy
 msgid "Offset"
-msgstr "Décalage en X"
+msgstr "Décalage"
 
 #: .tmp/umax_pp.c:693
-#, fuzzy
 msgid "Color channels offset settings"
-msgstr "Contraste des couleurs"
+msgstr "Réglages de décalage des couleurs"
 
 #: .tmp/umax_pp.c:700
-#, fuzzy
 msgid "Gray offset"
-msgstr "Allume/éteint la lampe."
+msgstr "Décalage des gris"
 
 #: .tmp/umax_pp.c:701
-#, fuzzy
 msgid "Sets gray channel offset"
-msgstr "Fixe le contraste pour le gris"
+msgstr "Fixe le décalage pour le gris"
 
 #: .tmp/umax_pp.c:713
-#, fuzzy
 msgid "Sets red channel offset"
-msgstr "Fixe le contraste pour le rouge"
+msgstr "Fixe le décalage pour le rouge"
 
 #: .tmp/umax_pp.c:725
-#, fuzzy
 msgid "Sets green channel offset"
-msgstr "Fixe le contraste pour le vert"
+msgstr "Fixe le décalage pour le vert"
 
 #: .tmp/umax_pp.c:737
-#, fuzzy
 msgid "Sets blue channel offset"
-msgstr "Fixe le contraste pour le bleu"
-
-#, fuzzy
-#~ msgid "Red-gain"
-#~ msgstr "gain"
-
-#, fuzzy
-#~ msgid "Red-offset"
-#~ msgstr "Décalage en Y"
-
-#, fuzzy
-#~ msgid "Green-gain"
-#~ msgstr "Vert"
-
-#, fuzzy
-#~ msgid "Green-offset"
-#~ msgstr "Allume/éteint la lampe."
-
-#, fuzzy
-#~ msgid "Blue-gain"
-#~ msgstr "Bleu"
-
-#, fuzzy
-#~ msgid "Blue-offset"
-#~ msgstr "Décalage en Y"
-
-#~ msgid "Gray 14/16"
-#~ msgstr "Gris 14/16 bits"
-
-# sceptre.h:280
-#~ msgid "Color 42/48"
-#~ msgstr "Couleur 42/48 bits"
-
-#~ msgid "Lamp always on"
-#~ msgstr "Lampe toujours allumée"
-
-#~ msgid "Don't turn off the lamp after leaving the frontend."
-#~ msgstr "Ne pas éteindre la lampe en quittant l'interface."
-
-#, fuzzy
-#~ msgid "Lamp off on shutdown"
-#~ msgstr "Eteindre la lampe à la sortie"
-
-#~ msgid "Gray brightness"
-#~ msgstr "Luminosité des gris"
-
-#~ msgid "Gray contrast"
-#~ msgstr "Contraste des gris"
-
-#, fuzzy
-#~ msgid "High quality"
-#~ msgstr "Contraste"
-
-#, fuzzy
-#~ msgid "Scan in (slower) high quality mode"
-#~ msgstr "Numérise rapidement en mode gris (qualité réduite)."
-
-#~ msgid "none"
-#~ msgstr "Aucun(e)"
-
-#~ msgid "cal"
-#~ msgstr "Calibrer"
-
-# sceptre.h:280
-#~ msgid "gray"
-#~ msgstr "gris"
-
-#~ msgid "gamma"
-#~ msgstr "gamma"
-
-#~ msgid "Brightness red channel"
-#~ msgstr "Luminosité - rouge"
-
-#~ msgid "Brightness green channel"
-#~ msgstr "Luminosité - vert"
-
-#~ msgid "Brightness blue channel"
-#~ msgstr "Luminosité - bleu"
-
-# Hmmm... Looks like there is a hw offset due to the scanning area
-# being smaller than the lens is capable of.
-#~ msgid "Hardware internal X position of the scanning area."
-#~ msgstr "Position en X du coin en haut à gauche de l'aire de numérisation"
-
-# See two trans above
-#~ msgid "Hardware internal Y position of the scanning area."
-#~ msgstr "Position en Y du coin en haut à gauche de l'aire de numérisation"
+msgstr "Fixe le décalage pour le bleu"

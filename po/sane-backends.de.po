@@ -1,4 +1,3 @@
-# translation of sane-backends.po to 
 # German translation for SANE backend options
 # Copyright (C) 2002-2004 SANE Project.
 # Burma Group Karlsruhe, Heiko Schaefer <heiko@burmagroup.de>, 2002.
@@ -12,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-10-19 08:51+0200\n"
-"PO-Revision-Date: 2004-10-19 09:04+0200\n"
+"POT-Creation-Date: 2004-10-21 22:17+0200\n"
+"PO-Revision-Date: 2004-10-21 11:24+0200\n"
 "Last-Translator: Gerhard Jaeger <gerhard@gjaeger.de>\n"
 "Language-Team:  <de@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -89,7 +88,6 @@ msgid "Only perform shading-correction"
 msgstr "Nur Shading-Korrektur durchführen"
 
 #: .tmp/artec_eplus48u.c:2956
-
 msgid ""
 "If enabled, only the shading correction is performed during calibration. The "
 "default values for gain, offset and exposure time, either build-in or from "
@@ -103,11 +101,11 @@ msgstr ""
 msgid "Button state"
 msgstr "Schalter Status"
 
-#: .tmp/avision.h:537
+#: .tmp/avision.h:539
 msgid "Number of the frame to scan"
 msgstr "Nummer des zu scannenden Bildes"
 
-#: .tmp/avision.h:538
+#: .tmp/avision.h:540
 msgid "Selects the number of the frame to scan"
 msgstr "Wählt die Nummer des zu scannenden Bildes aus"
 
@@ -133,7 +131,7 @@ msgstr "Analoge Verstärkung"
 
 #: .tmp/canon630u.c:306
 msgid "Increase or decrease the analog gain of the CCD array"
-msgstr "Vergrößere oder verkleinere die Analog Verstärkung des CCD-Sensors"
+msgstr "Vergrößere oder verkleinere die analoge Verstärkung des CCD-Sensors"
 
 #: .tmp/canon630u.c:346 .tmp/epson.h:68
 msgid "Gamma Correction"
@@ -313,16 +311,13 @@ msgstr "A5 quer"
 msgid "Letter"
 msgstr "Letter"
 
-# nls translation file for backend epson
-# language: german (de)
 #: .tmp/epson.c:750
 msgid "A4"
 msgstr "A4"
 
 #: .tmp/epson.c:751
-#, fuzzy
 msgid "Max"
-msgstr "maximal"
+msgstr "Maximal"
 
 #: .tmp/epson.c:2732 .tmp/gt68xx.c:442 .tmp/ma1509.c:499
 #: .tmp/matsushita.c:1086 .tmp/microtek2.h:600 .tmp/mustek.c:4197
@@ -610,16 +605,14 @@ msgstr ""
 "Wenn die Helligkeit der Bilder von Scan zu Scan schwankt, sollte diese "
 "Option ausgeschaltet werden. Nur für Testzwecke."
 
-# original text: "Fast preview"
 #: .tmp/gt68xx.c:622 .tmp/mustek.c:4326
 msgid "Fast preview"
 msgstr "Schnelle Vorschau"
 
-# original text: "Request that all previews are done in in the fastest (low-quality) mode. This may be a non-color mode or a low resolution mode."
 #: .tmp/gt68xx.c:624 .tmp/mustek.c:4327
 msgid ""
-"Request that all previews are done in in the fastest (low-quality) mode. "
-"This may be a non-color mode or a low resolution mode."
+"Request that all previews are done in the fastest (low-quality) mode. This "
+"may be a non-color mode or a low resolution mode."
 msgstr ""
 "Legt fest, dass alle Vorschau-Scans im schnellsten Modus (mit geringer "
 "Qualität) durchgeführt werden. Das kann ein Schwarzweißmodus oder ein Modus "
@@ -657,12 +650,12 @@ msgid ""
 "This value is added to the internal gain value. Use for extremely light or "
 "dark images."
 msgstr ""
-"Dieser Wert wird zur internen Verstärkung (Kontrast) addiert. Diese Einstellung "
-"kann für extrem helle oder dunkle Bilder benutzt werden."
+"Dieser Wert wird zur internen Verstärkung (Kontrast) addiert. Diese "
+"Einstellung kann für extrem helle oder dunkle Bilder benutzt werden."
 
 #: .tmp/gt68xx.c:697
 msgid "Offset correction"
-msgstr "Versatzanpassung"
+msgstr "Versatzkorrektur"
 
 #: .tmp/gt68xx.c:699
 msgid ""
@@ -672,7 +665,6 @@ msgstr ""
 "Dieser Wert wird zum internen Versatz (Helligkeit) addiert. Diese "
 "Einstellung kann für extrem helle oder dunkle Bilder benutzt werden."
 
-# original text: "Halftone"
 #: .tmp/hp-option.c:2924 .tmp/mustek.c:125 .tmp/plustek_pp.c:182
 #: .tmp/plustek_pp.c:191 .tmp/sceptre.h:290 .tmp/snapscan-options.c:76
 #: .tmp/umax.c:187
@@ -925,7 +917,8 @@ msgstr "8-Bit-Ausgabe"
 
 #: .tmp/hp-option.h:158
 msgid "Use bit depth greater eight internally, but output only eight bits."
-msgstr "Benutze intern eine Frabtiefe von mehr als 8 Bit, extern aber nur 8 Bit."
+msgstr ""
+"Benutze intern eine Frabtiefe von mehr als 8 Bit, extern aber nur 8 Bit."
 
 #: .tmp/hp-option.h:164
 msgid "Front button wait"
@@ -963,7 +956,6 @@ msgstr "8x8 Bayer"
 msgid "8x8 Vertical Line"
 msgstr "8x8 Vertikale Linie"
 
-# Scanmodus
 #: .tmp/leo.c:783 .tmp/saneopts.h:138
 msgid "Scan mode"
 msgstr "Scanmodus"
@@ -980,12 +972,10 @@ msgstr "Bayer Halbton 16"
 msgid "Bayer Dither 64"
 msgstr "Bayer Halbton 64"
 
-# original text: "Halftone"
 #: .tmp/matsushita.c:141
 msgid "Halftone Dot 32"
 msgstr "Halbton Punkt 32"
 
-# original text: "Halftone"
 #: .tmp/matsushita.c:142
 msgid "Halftone Dot 64"
 msgstr "Halbton Punkt 64"
@@ -1050,7 +1040,6 @@ msgstr "Alle Seiten"
 msgid "sheetfed scanner"
 msgstr "Einzugsscanner"
 
-# snapscan.c:468
 #: .tmp/matsushita.c:1128
 msgid "Feeder mode"
 msgstr "Einzugsmodus"
@@ -1195,19 +1184,19 @@ msgstr ""
 
 #: .tmp/microtek2.h:642
 msgid "Gamma correction"
-msgstr "Gamma - Modus"
+msgstr "Gammakorrektur"
 
 #: .tmp/microtek2.h:643
 msgid "Selects the gamma correction mode."
-msgstr "Modus der Gamma - Korrektur"
+msgstr "Modus der Gammakorrektur."
 
 #: .tmp/microtek2.h:646
 msgid "Bind gamma"
-msgstr "gemeinsames Gamma"
+msgstr "Verbinde Gammawerte"
 
 #: .tmp/microtek2.h:647
 msgid "Use same gamma values for all colour channels."
-msgstr "alle Farben benutzen dieselbe Gamma - Korrektur"
+msgstr "Alle Farben benutzen dieselbe Gammakorrektur."
 
 #: .tmp/microtek2.h:651
 msgid "Scalar gamma"
@@ -1246,8 +1235,10 @@ msgid "Channel"
 msgstr "Farbkanal"
 
 #: .tmp/microtek2.h:672
-msgid "Selects the colour band, \"Master\" means that all colours are affected."
-msgstr "Wählt den Farbkanal; \"Master\" bedeutet, dass alle Farben beeinflusst werden"
+msgid ""
+"Selects the colour band, \"Master\" means that all colours are affected."
+msgstr ""
+"Wählt den Farbkanal; \"Master\" bedeutet, dass alle Farben beeinflusst werden"
 
 #: .tmp/microtek2.h:676
 msgid "Midtone"
@@ -1318,7 +1309,6 @@ msgstr "Standard - Balance"
 msgid "Sets the color balance values to the firmware provided values."
 msgstr "Setzt die Farbbalance auf die vom Hersteller vorgegebenen Werte"
 
-# scan speed
 #: .tmp/mustek.c:141
 msgid "Slowest"
 msgstr "Sehr langsam"
@@ -1403,17 +1393,14 @@ msgstr "4x4 benutzerdefiniert"
 msgid "3x3 custom"
 msgstr "3x3 benutzerdefiniert"
 
-# halftone pattern types
 #: .tmp/mustek.c:177
 msgid "2x2 custom"
 msgstr "2x2 benutzerdefiniert"
 
-# original text: "Fast gray mode"
 #: .tmp/mustek.c:4229
 msgid "Fast gray mode"
 msgstr "Schneller Graumodus"
 
-# original text: "Scan in fast gray mode (lower quality)."
 #: .tmp/mustek.c:4230
 msgid "Scan in fast gray mode (lower quality)."
 msgstr "Scanne im schnellen Graumodus (geringere Bildqualität)."
@@ -1543,13 +1530,12 @@ msgid "Red offset"
 msgstr "Offset roter Kanal"
 
 #: .tmp/plustek.c:889
-#, fuzzy
 msgid "Red offset value of the AFE"
 msgstr "Offset roter Kanal des AD-Wandlers."
 
 #: .tmp/plustek.c:896 .tmp/umax_pp.c:667
 msgid "Green gain"
-msgstr "Verstärkung grüner Kanal."
+msgstr "Verstärkung grüner Kanal"
 
 #: .tmp/plustek.c:897
 msgid "Green gain value of the AFE"
@@ -1568,7 +1554,6 @@ msgid "Blue gain"
 msgstr "Verstärkung blauer Kanal"
 
 #: .tmp/plustek.c:913
-#, fuzzy
 msgid "Blue gain value of the AFE"
 msgstr "Verstärkung blauer Kanal des AD-Wandlers."
 
@@ -2038,7 +2023,8 @@ msgid "Lamp off at exit"
 msgstr "Lampe beim Beenden ausschalten"
 
 #: .tmp/saneopts.h:206
-msgid "Read-only option that specifies how many options a specific devices supports."
+msgid ""
+"Read-only option that specifies how many options a specific devices supports."
 msgstr ""
 "Nur-Lese-Option, die angibt, wieviele Optionen ein bestimmtes Gerät "
 "unterstützt."
@@ -2167,7 +2153,7 @@ msgstr "Bestimmt, welcher Helligkeitswert als Weiß angesehen werden soll."
 #: .tmp/saneopts.h:293
 msgid "Selects what red radiance level should be considered \"white\"."
 msgstr ""
-"Bestimmt, welcher Helligkeitswert der roten Komponente  als \"Weiß\" "
+"Bestimmt, welcher Helligkeitswert der roten Komponente als \"Weiß\" "
 "angesehen werden soll."
 
 #: .tmp/saneopts.h:296
@@ -2241,7 +2227,8 @@ msgid ""
 msgstr "Legt die Größe der für den Scanvorgang verwendeten Halbtonmatrix fest."
 
 #: .tmp/saneopts.h:337
-msgid "Defines the halftoning (dithering) pattern for scanning halftoned images."
+msgid ""
+"Defines the halftoning (dithering) pattern for scanning halftoned images."
 msgstr "Definiert die für den Scanvorgang zu verwendende Halbton-Matrix."
 
 #: .tmp/saneopts.h:341
@@ -2294,15 +2281,18 @@ msgstr "Bestimmt die Beleuchtungszeit für die Kalibrierung."
 
 #: .tmp/saneopts.h:367
 msgid "Define exposure-time for red calibration"
-msgstr "Bestimmt die Beleuchtungszeit für die Kalibrierung der roten Komponente."
+msgstr ""
+"Bestimmt die Beleuchtungszeit für die Kalibrierung der roten Komponente."
 
 #: .tmp/saneopts.h:369
 msgid "Define exposure-time for green calibration"
-msgstr "Bestimmt die Beleuchtungszeit für die Kalibrierung der grünen Komponente."
+msgstr ""
+"Bestimmt die Beleuchtungszeit für die Kalibrierung der grünen Komponente."
 
 #: .tmp/saneopts.h:371
 msgid "Define exposure-time for blue calibration"
-msgstr "Bestimmt die Beleuchtungszeit für die Kalibrierung der blauen Komponente."
+msgstr ""
+"Bestimmt die Beleuchtungszeit für die Kalibrierung der blauen Komponente."
 
 #: .tmp/saneopts.h:373
 msgid "Define exposure-time for scan"
@@ -2344,42 +2334,34 @@ msgstr "Schalte Lampe beim Beenden des Programms aus"
 msgid "flatbed scanner"
 msgstr "Flachbettscanner"
 
-# snapscan.c:166
 #: .tmp/snapscan-options.c:83
 msgid "Document Feeder"
 msgstr "Automatischer Dokumenteinzug"
 
-# snapscan.c:228
 #: .tmp/snapscan-options.c:87
 msgid "6x4 (inch)"
 msgstr "6x4 (Zoll)"
 
-# snapscan.c:229
 #: .tmp/snapscan-options.c:88
 msgid "8x10 (inch)"
 msgstr "8x10 (Zoll)"
 
-# snapscan.c:230
 #: .tmp/snapscan-options.c:89
 msgid "8.5x11 (inch)"
 msgstr "8.5x11 (Zoll)"
 
-# snapscan.c:233
 #: .tmp/snapscan-options.c:92
 msgid "Halftoning Unsupported"
 msgstr "Halbton nicht unterstützt"
 
-# snapscan.c:234
 #: .tmp/snapscan-options.c:93
 msgid "DispersedDot8x8"
 msgstr "DispersedDot8x8"
 
-# snapscan.c:235
 #: .tmp/snapscan-options.c:94
 msgid "DispersedDot16x16"
 msgstr "DispersedDot16x16"
 
-# snapscan.c:238
 #: .tmp/snapscan-options.c:98
 msgid ""
 "Number of scan lines to request in a SCSI read. Changing this parameter "
@@ -2396,12 +2378,10 @@ msgstr ""
 "möglicherweise nicht mehr auf Eingaben und das System kann unbenutzbar "
 "werden."
 
-# snapscan.c:468
 #: .tmp/snapscan-options.c:383
 msgid "Preview mode"
 msgstr "Vorschaumodus"
 
-# snapscan.c:469
 #: .tmp/snapscan-options.c:385
 msgid ""
 "Select the mode for previews. Greyscale previews usually give the best "
@@ -2410,22 +2390,20 @@ msgstr ""
 "Wählt den Scanmodus für die Vorschau aus. Vorschau in Graustufen ist "
 "normalerweise der beste Kompromiss aus Geschwindigkeit und Detailtreue."
 
-# snapscan.c:565
 #: .tmp/snapscan-options.c:491
 msgid "Predefined settings"
 msgstr "Vordefinierte Einstellungen"
 
-# snapscan.c:566
 #: .tmp/snapscan-options.c:493
-msgid "Provides standard scanning areas for photographs, printed pages and the like."
-msgstr "Stellt Standardgrößen für Fotographien, bedruckte Seiten etc. zur Verfügung."
+msgid ""
+"Provides standard scanning areas for photographs, printed pages and the like."
+msgstr ""
+"Stellt Standardgrößen für Fotographien, bedruckte Seiten etc. zur Verfügung."
 
-# snapscan.c:809
 #: .tmp/snapscan-options.c:738
 msgid "Colour lines per read"
 msgstr "Farbzeilen pro Lesevorgang"
 
-# snapscan.c:821
 #: .tmp/snapscan-options.c:750
 msgid "Greyscale lines per read"
 msgstr "Graustufenzeilen pro Lesevorgang"
@@ -2488,7 +2466,8 @@ msgid "Three-pass simulation"
 msgstr "Three-Pass-Simulation"
 
 #: .tmp/test.c:354
-msgid "Simulate a three-pass scanner. In color mode, three frames are transmitted."
+msgid ""
+"Simulate a three-pass scanner. In color mode, three frames are transmitted."
 msgstr ""
 "Simuliere einen Three-Pass-Scanner. Im Farbmodus werden drei Frames "
 "übertragen."
@@ -2573,7 +2552,8 @@ msgid "Duration of read-delay"
 msgstr "Dauer der Leseverzögerung."
 
 #: .tmp/test.c:499
-msgid "How long to wait after transferring each buffer of data through the pipe."
+msgid ""
+"How long to wait after transferring each buffer of data through the pipe."
 msgstr ""
 "Legt fest, wie lange nach der Übertragung eines Datenpuffers durch die Pipe "
 "gewartet wird."
@@ -2627,7 +2607,8 @@ msgid "Offer select file descriptor"
 msgstr "Biete Select-Dateideskriptor an"
 
 #: .tmp/test.c:577
-msgid "Offer a select filedescriptor for detecting if sane_read() will return data."
+msgid ""
+"Offer a select filedescriptor for detecting if sane_read() will return data."
 msgstr ""
 "Biete einen Select-Dateideskriptor an, damit das Frontend erkennen kann, ob "
 "sane_read() Daten zurückliefern würde."
@@ -2734,8 +2715,8 @@ msgid ""
 "advanced) capabilities. This option can be automatically set by the backend."
 msgstr ""
 "(6/6) Dies ist eine Bool-Testoption, welche die Fähigkeiten \"soft select\", "
-"\"soft detect\",  und \"automatic\" (und \"advanced\") hat. Diese Option "
-"kann vom Backend automatisch gesetzt werden."
+"\"soft detect\", und \"automatic\" (und \"advanced\") hat. Diese Option kann "
+"vom Backend automatisch gesetzt werden."
 
 #: .tmp/test.c:804
 msgid "Int test options"
@@ -2777,8 +2758,10 @@ msgid "(4/6) Int array"
 msgstr "(4/6) Int array"
 
 #: .tmp/test.c:867
-msgid "(4/6) Int test option with unit mm and using an array without constraints."
-msgstr "(4/6) Int-Testoption mit der Einheit \"mm\" und einem Feld ohne Beschränkung."
+msgid ""
+"(4/6) Int test option with unit mm and using an array without constraints."
+msgstr ""
+"(4/6) Int-Testoption mit der Einheit \"mm\" und einem Feld ohne Beschränkung."
 
 #: .tmp/test.c:882
 msgid "(5/6) Int array constraint range"
@@ -2836,7 +2819,8 @@ msgstr "(3/3) Fixed constraint word list"
 
 #: .tmp/test.c:964
 msgid "(3/3) Fixed test option with no unit and constraint word list set."
-msgstr "(3/3) Fixed-Testoption ohne Einheit und mit einer Wortlisten-Beschränkung."
+msgstr ""
+"(3/3) Fixed-Testoption ohne Einheit und mit einer Wortlisten-Beschränkung."
 
 #: .tmp/test.c:979
 msgid "String test options"
@@ -2882,12 +2866,18 @@ msgstr "(1/1) Button"
 msgid "(1/1) Button test option. Prints some text..."
 msgstr "(1/1) Button-Testoption. Gibt etwas Text aus..."
 
-# original text: "Lineart"
+#: .tmp/umax1220u.c:247 .tmp/umax.c:5810
+msgid "Lamp off"
+msgstr "Lampe aus"
+
+#: .tmp/umax1220u.c:248 .tmp/umax.c:5811
+msgid "Turn off scanner lamp"
+msgstr "Schalte Scannerlampe aus"
+
 #: .tmp/umax.c:189
 msgid "Color Lineart"
 msgstr "Farb-Strichzeichnung"
 
-# original text: "Halftone"
 #: .tmp/umax.c:190
 msgid "Color Halftone"
 msgstr "Farb-Halbton"
@@ -2912,7 +2902,6 @@ msgstr "Multi-Level schwarz&weiss (Graustufen Modus)"
 msgid "Multi-level RGB color (one pass color)"
 msgstr "Multi-Level RGB Farbe (ein-Pass-Farbe)"
 
-# original text: "Quality calibration"
 #: .tmp/umax.c:241
 msgid "Ignore calibration"
 msgstr "Kalibrierung ignorieren"
@@ -2957,19 +2946,10 @@ msgstr "Lampe an"
 msgid "Turn on scanner lamp"
 msgstr "Schalte Scannerlampe ein"
 
-#: .tmp/umax.c:5810 .tmp/umax1220u.c:247
-msgid "Lamp off"
-msgstr "Lampe aus"
-
-#: .tmp/umax.c:5811 .tmp/umax1220u.c:248
-msgid "Turn off scanner lamp"
-msgstr "Schalte Scannerlampe aus"
-
 #: .tmp/umax.c:5883
 msgid "Calibration mode"
 msgstr "Kalibrierungs Modus"
 
-# original text: "Define lamp density for calibration"
 #: .tmp/umax.c:5884
 msgid "Define calibration mode"
 msgstr "Kalibriermodus definieren"
@@ -3041,4 +3021,3 @@ msgstr "Legt den Offset des grünen Kanals fest"
 #: .tmp/umax_pp.c:737
 msgid "Sets blue channel offset"
 msgstr "Legt den Offset des blauen Kanals fest"
-

@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.14\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-10-19 08:51+0200\n"
-"PO-Revision-Date: 2004-10-12 02:28+0200\n"
+"POT-Creation-Date: 2004-10-21 22:17+0200\n"
+"PO-Revision-Date: 2004-10-21 13:08+0200\n"
 "Last-Translator: Giuseppe Sacco <eppesuig@debian.org>\n"
 "Language-Team: italian translation project <tp@lists.linux.it>\n"
 "MIME-Version: 1.0\n"
@@ -96,11 +96,11 @@ msgstr ""
 msgid "Button state"
 msgstr "Stato del pulsante"
 
-#: .tmp/avision.h:537
+#: .tmp/avision.h:539
 msgid "Number of the frame to scan"
 msgstr "Numero di frame da acquisire"
 
-#: .tmp/avision.h:538
+#: .tmp/avision.h:540
 msgid "Selects the number of the frame to scan"
 msgstr "Selezionare il numero di frame da acquisire"
 
@@ -608,8 +608,8 @@ msgstr "Anteprima veloce."
 
 #: .tmp/gt68xx.c:624 .tmp/mustek.c:4327
 msgid ""
-"Request that all previews are done in in the fastest (low-quality) mode. "
-"This may be a non-color mode or a low resolution mode."
+"Request that all previews are done in the fastest (low-quality) mode. This "
+"may be a non-color mode or a low resolution mode."
 msgstr ""
 "Richiede che tutte le anteprime siano fatte nella modalità più veloce "
 "possibile (a bassa qualità). Questa potrebbe essere senza i colori o a bassa "
@@ -1521,7 +1521,6 @@ msgid "Red gain"
 msgstr "Guadagno sul rosso"
 
 #: .tmp/plustek.c:881
-#, fuzzy
 msgid "Red gain value of the AFE"
 msgstr "Valore del guadagno sul rosso per AFE (Analog FrontEnd)"
 
@@ -1530,7 +1529,6 @@ msgid "Red offset"
 msgstr "Scarto sul rosso"
 
 #: .tmp/plustek.c:889
-#, fuzzy
 msgid "Red offset value of the AFE"
 msgstr "Valore dello scarto sul rosso per AFE (Analog FrontEnd)"
 
@@ -1539,7 +1537,6 @@ msgid "Green gain"
 msgstr "Guadagno sul verde"
 
 #: .tmp/plustek.c:897
-#, fuzzy
 msgid "Green gain value of the AFE"
 msgstr "Valore del guadagno sul verde per AFE (Analog FrontEnd)"
 
@@ -1548,7 +1545,6 @@ msgid "Green offset"
 msgstr "Scarto sul verde"
 
 #: .tmp/plustek.c:905
-#, fuzzy
 msgid "Green offset value of the AFE"
 msgstr "Valore dello scarto sul verde per AFE (Analog FrontEnd)"
 
@@ -1557,7 +1553,6 @@ msgid "Blue gain"
 msgstr "Guadagno sul blu"
 
 #: .tmp/plustek.c:913
-#, fuzzy
 msgid "Blue gain value of the AFE"
 msgstr "Valore del guadagno sul blu per AFE (Analog FrontEnd)"
 
@@ -1566,7 +1561,6 @@ msgid "Blue offset"
 msgstr "Scarto sul blu"
 
 #: .tmp/plustek.c:921
-#, fuzzy
 msgid "Blue offset value of the AFE"
 msgstr "Valore dello scarto sul blu per AFE (Analog FrontEnd)"
 
@@ -2857,6 +2851,14 @@ msgstr "(1/1) pulsante"
 msgid "(1/1) Button test option. Prints some text..."
 msgstr "(1/1) opzione pulsante di test. Stampa un testo..."
 
+#: .tmp/umax1220u.c:247 .tmp/umax.c:5810
+msgid "Lamp off"
+msgstr "Lampada spenta"
+
+#: .tmp/umax1220u.c:248 .tmp/umax.c:5811
+msgid "Turn off scanner lamp"
+msgstr "Spegnere la lampada"
+
 #: .tmp/umax.c:189
 msgid "Color Lineart"
 msgstr "Colore binario"
@@ -2929,14 +2931,6 @@ msgstr "Lampada accesa"
 #: .tmp/umax.c:5794
 msgid "Turn on scanner lamp"
 msgstr "Accendere la lampada"
-
-#: .tmp/umax.c:5810 .tmp/umax1220u.c:247
-msgid "Lamp off"
-msgstr "Lampada spenta"
-
-#: .tmp/umax.c:5811 .tmp/umax1220u.c:248
-msgid "Turn off scanner lamp"
-msgstr "Spegnere la lampada"
 
 #: .tmp/umax.c:5883
 msgid "Calibration mode"
@@ -3013,21 +3007,3 @@ msgstr "Imposta la scarto sul verde"
 #: .tmp/umax_pp.c:737
 msgid "Sets blue channel offset"
 msgstr "Imposta la scarto sul blu"
-
-#~ msgid "Red-gain"
-#~ msgstr "Guadagno sul rosso"
-
-#~ msgid "Red-offset"
-#~ msgstr "Scarto sul rosso"
-
-#~ msgid "Green-gain"
-#~ msgstr "Guadagno sul verde"
-
-#~ msgid "Green-offset"
-#~ msgstr "Scarto sul verde"
-
-#~ msgid "Blue-gain"
-#~ msgstr "Guadagno sul blu"
-
-#~ msgid "Blue-offset"
-#~ msgstr "Scarto sul blu"

@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2004-06-24"		; version of backend
+:version "2004-06-28"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -717,6 +717,12 @@
 :status :unsupported
 :comment "Unsupported. See link for more details."
 
+:model "ScanMaker 6000"
+:url "/unsupported/microtek-scanmaker-6000.html"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. See link for more details."
+
 :model "ScanMaker 6700"
 :url "/unsupported/microtek-scanmaker-6700.html"
 :interface "USB IEEE-1394"
@@ -738,6 +744,12 @@
 :model "ScanMaker 9800XL"
 :url "/unsupported/microtek-scanmaker-9800.html"
 :interface "USB SCSI IEEE-1394"
+:status :unsupported
+:comment "Unsupported. See link."
+
+:model "ScanMaker i320"
+:url "/unsupported/microtek-scanmaker-i320.html"
+:interface "USB"
 :status :unsupported
 :comment "Unsupported. See link."
 
@@ -1407,6 +1419,12 @@
 
 :model "WorkCentre Pro 412"
 :url "/unsupported/xerox-workcentre-pro412.html"
+:interface "USB Parport"
+:status :unsupported
+:comment "Not supported. See link for more details."
+
+:model "WorkCentre PE16"
+:url "/unsupported/xerox-workcentre-pe16.html"
 :interface "USB Parport"
 :status :unsupported
 :comment "Not supported. See link for more details."

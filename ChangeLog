@@ -1,3 +1,7 @@
+2004-06-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added Microtek and Xerox scanners. 
+
 2004-06-28 m. allan noah <anoah at pfeiffer dot edu>
          * backend/fujitsu.c: use model code instead of string compare
            submitted by: stan at saticed.me.uk

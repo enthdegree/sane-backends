@@ -613,6 +613,12 @@
 :mfg "Lexmark"
 :url "http://www.lexmark.com/"
 
+:model "X74"
+:url "/unsupported/lexmark-x75.html"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. See link for details."
+
 :model "X75"
 :url "/unsupported/lexmark-x75.html"
 :interface "USB"

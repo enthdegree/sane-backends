@@ -1,7 +1,7 @@
 /***************************************************************************
  * SANE - Scanner Access Now Easy.
 
-   microtek2.c 
+   microtek2.c
 
    This file (C) 1998, 1999 Bernd Schroeder
    modifications 2000, 2001 Karsten Festag
@@ -50,7 +50,7 @@
    SCSI-2 command set.
 
    (feedback to:  bernd@aquila.muc.de)
-   (              karsten.festag@gmx.de)
+   (              karsten.festag@t-online.de)
  ***************************************************************************/
 
 
@@ -93,6 +93,9 @@
 #else
 #define BACKEND_NAME microtek2_test
 #endif
+
+/* for testing*/
+/*#define NO_PHANTOMTYPE_SHADING*/
 
 #include "../include/sane/sanei_backend.h"
 
@@ -152,7 +155,7 @@ sane_close (SANE_Handle handle)
     /* remove Scanner from linked list */
     if ( ms_first_handle == ms )
         ms_first_handle = ms->next;
-    else 
+    else
       {
         Microtek2_Scanner *ts = ms_first_handle;
         while ( (ts != NULL) && (ts->next != ms) )
@@ -237,8 +240,8 @@ sane_get_devices(const SANE_Device ***device_list, SANE_Bool local_only)
     DBG(30, "sane_get_devices: local_only=%d\n", local_only);
 
     /* this is hack to get the list freed with a call from sane_exit() */
-    if ( device_list == NULL ) 
-      {   
+    if ( device_list == NULL )
+      {
         if ( sd_list )
           {
             DBG(100, "free sd_list at %p\n", sd_list);
@@ -272,7 +275,7 @@ sane_get_devices(const SANE_Device ***device_list, SANE_Bool local_only)
     md = md_first_dev;
     while ( md )
       {
-	status = attach(md);
+        status = attach(md);
         if ( status != SANE_STATUS_GOOD )
           {
             DBG(10, "sane_get_devices: attach status '%s'\n",
@@ -338,7 +341,7 @@ sane_get_parameters(SANE_Handle handle, SANE_Parameters *params)
 
         switch ( mode )
           {
-	    case MS_MODE_COLOR:
+            case MS_MODE_COLOR:
               if ( mi->onepass )
                 {
                   ms->params.format = SANE_FRAME_RGB;
@@ -350,10 +353,10 @@ sane_get_parameters(SANE_Handle handle, SANE_Parameters *params)
                   ms->params.last_frame = SANE_FALSE;
                 }
               break;
-	    case MS_MODE_GRAY:
-	    case MS_MODE_HALFTONE:
-	    case MS_MODE_LINEART:
-	    case MS_MODE_LINEARTFAKE:
+            case MS_MODE_GRAY:
+            case MS_MODE_HALFTONE:
+            case MS_MODE_LINEART:
+            case MS_MODE_LINEARTFAKE:
               ms->params.format = SANE_FRAME_GRAY;
               ms->params.last_frame = SANE_TRUE;
               break;
@@ -401,7 +404,7 @@ sane_get_parameters(SANE_Handle handle, SANE_Parameters *params)
         {
           bytes_per_line = ( width_pixel * bits_pp_out ) / 8 ;
           if ( mode == MS_MODE_COLOR && mi->onepass )
-	      bytes_per_line *= 3;
+              bytes_per_line *= 3;
         }
       ms->params.bytes_per_line = (SANE_Int) bytes_per_line;
     }  /* if ms->scanning */
@@ -474,7 +477,8 @@ sane_init(SANE_Int *version_code, SANE_Auth_Callback authorize)
 
         while ( md_config_temp )
           {
-            sanei_config_attach_matching_devices(md_config_temp->device, attach_one);
+            sanei_config_attach_matching_devices(md_config_temp->device,
+                                                 attach_one);
             if ( md_config_temp->next )  /* go to next device, if existent */
                 md_config_temp = md_config_temp->next;
             else
@@ -517,10 +521,10 @@ sane_open(SANE_String_Const name, SANE_Handle *handle)
 
     if ( name )
       {
-	/* add_device_list() returns a pointer to the device struct if */
+        /* add_device_list() returns a pointer to the device struct if */
         /* the device is known or newly added, else it returns NULL */
 
-	status = add_device_list(name, &md);
+        status = add_device_list(name, &md);
         if ( status != SANE_STATUS_GOOD )
             return status;
       }
@@ -613,7 +617,7 @@ sane_read(SANE_Handle handle, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *len )
             DBG(15, "sane_read: Scanner %p not scanning\n", ms);
             status = SANE_STATUS_IO_ERROR;
           }
-        DBG(15, "sane_read: scan cancelled or scanner not scanning ->cleanup\n");
+        DBG(15, "sane_read: scan cancelled or scanner not scanning->cleanup\n");
         cleanup_scanner(ms);
         return status;
       }
@@ -624,8 +628,8 @@ sane_read(SANE_Handle handle, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *len )
       {
         if ( errno == EAGAIN )
           {
-            return SANE_STATUS_GOOD;
             DBG(30, "sane_read: currently no data available\n");
+            return SANE_STATUS_GOOD;
           }
         else
           {
@@ -759,34 +763,44 @@ attach(Microtek2_Device *md)
 
     SANE_String model_string; 
     SANE_Status status;
+    SANE_Byte source_info;
 
-    
+
     DBG(30, "attach: device='%s'\n", md->name);
 
-    status = scsi_inquiry(&(md->info[MD_SOURCE_FLATBED]), md->name);
-    if ( status != SANE_STATUS_GOOD ) 
+    status = scsi_inquiry( &md->info[MD_SOURCE_FLATBED], md->name );
+    if ( status != SANE_STATUS_GOOD )
       {
 	DBG(1, "attach: '%s'\n", sane_strstatus(status));
         return status;
-      }                     
+      }
+
+    /* We copy the inquiry info into the info structures for each scansource */
+    /* like ADF, TMA, STRIPE and SLIDE */
+
+    for ( source_info = 1; source_info < 5; ++source_info )
+        memcpy( &md->info[source_info],
+                &md->info[MD_SOURCE_FLATBED],
+                sizeof( Microtek2_Info ) );
 
     /* Here we should insert a function, that stores all the relevant */
     /* information in the info structure in a more conveniant format */
-    /* in the device structure, e.g. the model name with a trailing '\0'. */ 
+    /* in the device structure, e.g. the model name with a trailing '\0'. */
 
-    status = check_inquiry(md, &model_string);   
+    status = check_inquiry(md, &model_string);
     if ( status != SANE_STATUS_GOOD )
         return status;
 
     md->sane.name = md->name;
     md->sane.vendor = "Microtek";
-    md->sane.model = strdup(model_string); 
+    md->sane.model = strdup(model_string);
     if ( md->sane.model == NULL )
         DBG(1, "attach: strdup for model string failed\n");
     md->sane.type = "flatbed scanner";
     md->revision = strtod(md->info[MD_SOURCE_FLATBED].revision, NULL);
 
-    status = scsi_read_attributes(&md->info[0], md->name, MD_SOURCE_FLATBED);
+    status = scsi_read_attributes(&md->info[MD_SOURCE_FLATBED],
+                                  md->name, MD_SOURCE_FLATBED);
     if ( status != SANE_STATUS_GOOD )
       {
 	DBG(1, "attach: '%s'\n", sane_strstatus(status));
@@ -796,19 +810,21 @@ attach(Microtek2_Device *md)
     if ( MI_LUTCAP_NONE( md->info[MD_SOURCE_FLATBED].lut_cap) )
         /* no gamma tables */
         md->model_flags |= MD_NO_GAMMA;
- 
+
     /* check whether the device supports transparency media adapters */
     if ( md->info[MD_SOURCE_FLATBED].option_device & MI_OPTDEV_TMA )
       {
-        status = scsi_read_attributes(&md->info[0], md->name, MD_SOURCE_TMA);
+        status = scsi_read_attributes(&md->info[MD_SOURCE_TMA],
+                                      md->name, MD_SOURCE_TMA);
         if ( status != SANE_STATUS_GOOD )
             return status;
       }
-    
+
     /* check whether the device supports an ADF */
     if ( md->info[MD_SOURCE_FLATBED].option_device & MI_OPTDEV_ADF )
       {
-        status = scsi_read_attributes(&md->info[0], md->name, MD_SOURCE_ADF);
+        status = scsi_read_attributes(&md->info[MD_SOURCE_ADF],
+                                      md->name, MD_SOURCE_ADF);
         if ( status != SANE_STATUS_GOOD )
             return status;
       }
@@ -816,7 +832,8 @@ attach(Microtek2_Device *md)
     /* check whether the device supports STRIPES */
     if ( md->info[MD_SOURCE_FLATBED].option_device & MI_OPTDEV_STRIPE )
       {
-        status = scsi_read_attributes(&md->info[0], md->name, MD_SOURCE_STRIPE);
+        status = scsi_read_attributes(&md->info[MD_SOURCE_STRIPE],
+                                      md->name, MD_SOURCE_STRIPE);
         if ( status != SANE_STATUS_GOOD )
             return status;
       }
@@ -826,12 +843,11 @@ attach(Microtek2_Device *md)
       {
         /* The Phantom 636cx indicates in its attributes that it supports */
         /* slides, but it doesn't. Thus this command would fail. */
-    
+
         if ( ! (md->model_flags & MD_NO_SLIDE_MODE) )
           {
-            status = scsi_read_attributes(&md->info[0],
-                                          md->name,
-                                          MD_SOURCE_SLIDE);
+            status = scsi_read_attributes(&md->info[MD_SOURCE_SLIDE],
+                                          md->name, MD_SOURCE_SLIDE);
             if ( status != SANE_STATUS_GOOD )
                 return status;
           }
@@ -844,7 +860,7 @@ attach(Microtek2_Device *md)
     return SANE_STATUS_GOOD;
 }
 
-                
+
 /*---------- attach_one() ----------------------------------------------------*/
 
 static SANE_Status
@@ -1197,14 +1213,15 @@ check_inquiry(Microtek2_Device *md, SANE_String *model_string)
         case 0x71:
         case 0x94:
         case 0xa0:
-        case 0xaf:
           *model_string = "Phantom 330cx / Phantom 336cx / SlimScan C3";
           /* These models do not accept gamma tables. Apparently they */
           /* read the control bits and do not accept shading tables */
           /* They also don't support enhancements (contrast, brightness...)*/
           md->model_flags |= MD_NO_SLIDE_MODE
                           | MD_NO_GAMMA
-                          | MD_PHANTOM336CX_TYPE_SHADING
+#ifndef NO_PHANTOMTYPE_SHADING
+			  | MD_PHANTOM336CX_TYPE_SHADING
+#endif
                           | MD_READ_CONTROL_BIT
                           | MD_NO_ENHANCEMENTS;
           md->opt_backend_calib_default = SANE_TRUE;
@@ -1264,9 +1281,22 @@ check_inquiry(Microtek2_Device *md, SANE_String *model_string)
           /* The V6USL does not accept gamma tables, perhaps the V6UL also */
           md->model_flags |= MD_NO_GAMMA;
           break;
+        case 0xaf:
+          *model_string = "SlimScan C3";
+          md->model_flags |= MD_NO_SLIDE_MODE
+                          | MD_NO_GAMMA
+                          | MD_READ_CONTROL_BIT
+                          | MD_NO_ENHANCEMENTS;
+          md->opt_backend_calib_default = SANE_TRUE;
+          md->opt_no_backtrack_default = SANE_TRUE;
+          md->n_control_bytes = 320;
+          md->controlbit_offset = 7;
+          /*md->shading_depth = 10;*/ /*don't know*/
+	  break;
         case 0xb0:
           *model_string = "ScanMaker X12USL";
           md->opt_backend_calib_default = SANE_TRUE;
+          md->model_flags |= MD_16BIT_TRANSFER;
           break;
         case 0xb3:
            *model_string = "ScanMaker 3600";
@@ -1281,6 +1311,13 @@ check_inquiry(Microtek2_Device *md, SANE_String *model_string)
           break;
         case 0xb8:
            *model_string = "ScanMaker 3700";
+           break;
+        case 0xde:
+           *model_string = "ScanMaker 9800XL";
+           md->model_flags |= MD_NO_GAMMA
+	                   | MD_16BIT_TRANSFER;
+           md->opt_backend_calib_default = SANE_TRUE;
+           md->opt_no_backtrack_default = SANE_TRUE;
            break;
         default:
           DBG(1, "check_inquiry: Model 0x%02x not supported\n", mi->model_code);
@@ -1668,6 +1705,7 @@ dump_attributes(Microtek2_Info *mi)
       case 0xb4: DBG(1,  "ScanMaker 4700\n"); break;
       case 0xb6: DBG(1,  "ScanMaker V6UPL\n"); break;
       case 0xb8: DBG(1,  "ScanMaker 3700\n"); break;
+      case 0xde: DBG(1,  "ScanMaker 9800XL\n"); break;
       default:   DBG(1,  "Unknown\n"); break;
     }
   DBG(1, "  Device Type Code%10s: 0x%02x (%s),\n", " ",
@@ -1973,6 +2011,7 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
     int i;
     static int first_call = 1;     /* indicates, whether option */
                                    /* descriptors must be initialized */
+       /* cannot be used as after a sane_close the sod's must be initialized */
 
     DBG(30, "init_options: handle=%p, source=%d\n", ms, current_scan_source);
 
@@ -2264,8 +2303,6 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
 
     if ( first_call )
       {
-        first_call = 0;
-
         /* initialize option descriptors and ranges */
 
         /* Percentage range for brightness, contrast */
@@ -2319,10 +2356,15 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
         sod[OPT_NUM_OPTS].cap = SANE_CAP_SOFT_DETECT;
         sod[OPT_NUM_OPTS].constraint_type = SANE_CONSTRAINT_NONE;
         val[OPT_NUM_OPTS].w = NUM_OPTIONS;      /* NUM_OPTIONS is no option */
+        DBG(255, "sod=%p\n", sod);
+        DBG(255, "OPT_NUM_OPTS=%d\n", OPT_NUM_OPTS);
+        DBG(255, "SANE_CAP_SOFT_DETECT=%d\n", SANE_CAP_SOFT_DETECT);
+        DBG(255, "OPT_NUM_OPTS.cap=%d\n", sod[0].cap);
 
         /* The Scan Mode Group */
-        sod[OPT_MODE_GROUP].title = "Scan Mode";
+        sod[OPT_MODE_GROUP].title = M_TITLE_SCANMODEGRP;
         sod[OPT_MODE_GROUP].type = SANE_TYPE_GROUP;
+        sod[OPT_MODE_GROUP].size = 0;
         sod[OPT_MODE_GROUP].desc = "";
         sod[OPT_MODE_GROUP].cap = 0;
         sod[OPT_MODE_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
@@ -2378,15 +2420,15 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
         sod[OPT_RESOLUTION].unit = SANE_UNIT_DPI;
         sod[OPT_RESOLUTION].constraint.range = &md->x_res_range_dpi;
 
-        sod[OPT_X_RESOLUTION].name = "x-" SANE_NAME_SCAN_RESOLUTION;
-        sod[OPT_X_RESOLUTION].title = "X-Resolution";
+        sod[OPT_X_RESOLUTION].name = SANE_NAME_SCAN_X_RESOLUTION;
+        sod[OPT_X_RESOLUTION].title = SANE_TITLE_SCAN_X_RESOLUTION;
         sod[OPT_X_RESOLUTION].desc = SANE_DESC_SCAN_RESOLUTION;
         sod[OPT_X_RESOLUTION].unit = SANE_UNIT_DPI;
         sod[OPT_X_RESOLUTION].cap |= SANE_CAP_INACTIVE;
         sod[OPT_X_RESOLUTION].constraint.range = &md->x_res_range_dpi;
 
-        sod[OPT_Y_RESOLUTION].name = "y-" SANE_NAME_SCAN_RESOLUTION;
-        sod[OPT_Y_RESOLUTION].title = "Y-Resolution";
+        sod[OPT_Y_RESOLUTION].name = SANE_NAME_SCAN_Y_RESOLUTION;
+        sod[OPT_Y_RESOLUTION].title = SANE_TITLE_SCAN_Y_RESOLUTION;
         sod[OPT_Y_RESOLUTION].desc = SANE_DESC_SCAN_RESOLUTION;
         sod[OPT_Y_RESOLUTION].unit = SANE_UNIT_DPI;
         sod[OPT_Y_RESOLUTION].cap |= SANE_CAP_INACTIVE;
@@ -2401,8 +2443,9 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
         sod[OPT_PREVIEW].constraint_type = SANE_CONSTRAINT_NONE;
 
         /* Geometry group, for scan area selection */
-        sod[OPT_GEOMETRY_GROUP].title = "Geometry";
+        sod[OPT_GEOMETRY_GROUP].title = M_TITLE_GEOMGRP;
         sod[OPT_GEOMETRY_GROUP].type = SANE_TYPE_GROUP;
+        sod[OPT_GEOMETRY_GROUP].size = 0;
         sod[OPT_GEOMETRY_GROUP].desc = "";
         sod[OPT_GEOMETRY_GROUP].cap = SANE_CAP_ADVANCED;
         sod[OPT_GEOMETRY_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
@@ -2432,9 +2475,10 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
         sod[OPT_BR_Y].constraint.range = &md->y_range_mm;
 
         /* Enhancement group */
-        sod[OPT_ENHANCEMENT_GROUP].title = "Enhancement";
+        sod[OPT_ENHANCEMENT_GROUP].title = M_TITLE_ENHANCEGRP;
         sod[OPT_ENHANCEMENT_GROUP].type = SANE_TYPE_GROUP;
         sod[OPT_ENHANCEMENT_GROUP].desc = "";
+        sod[OPT_ENHANCEMENT_GROUP].size = 0;
         sod[OPT_ENHANCEMENT_GROUP].cap = 0;
         sod[OPT_ENHANCEMENT_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
@@ -2472,6 +2516,7 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
         sod[OPT_GAMMA_GROUP].title = "Gamma";
         sod[OPT_GAMMA_GROUP].desc = "";
         sod[OPT_GAMMA_GROUP].type = SANE_TYPE_GROUP;
+        sod[OPT_GAMMA_GROUP].size = 0;
         sod[OPT_GAMMA_GROUP].cap = 0;
         sod[OPT_GAMMA_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
@@ -2548,9 +2593,10 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
         sod[OPT_GAMMA_CUSTOM_B].constraint.range = &md->custom_gamma_range;
 
         /* Shadow, midtone, highlight */
-        sod[OPT_SMH_GROUP].title = "Shadow, midtone, highlight, exposure time";
+        sod[OPT_SMH_GROUP].title = M_TITLE_SMHGRP;
         sod[OPT_SMH_GROUP].desc = "";
         sod[OPT_SMH_GROUP].type = SANE_TYPE_GROUP;
+        sod[OPT_SMH_GROUP].size = 0;
         sod[OPT_SMH_GROUP].cap = 0;
         sod[OPT_SMH_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
@@ -2648,7 +2694,7 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
 
         sod[OPT_EXPOSURE].name = SANE_NAME_SCAN_EXPOS_TIME;
         sod[OPT_EXPOSURE].title = SANE_TITLE_SCAN_EXPOS_TIME;
-        sod[OPT_EXPOSURE].desc = "Allows to lengthen the exposure time";
+        sod[OPT_EXPOSURE].desc = SANE_DESC_SCAN_EXPOS_TIME;
         sod[OPT_EXPOSURE].type = SANE_TYPE_INT;
         sod[OPT_EXPOSURE].unit = SANE_UNIT_PERCENT;
         sod[OPT_EXPOSURE].size = sizeof(SANE_Int);
@@ -2656,8 +2702,7 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
 
         sod[OPT_EXPOSURE_R].name = SANE_NAME_SCAN_EXPOS_TIME_R;
         sod[OPT_EXPOSURE_R].title = SANE_TITLE_SCAN_EXPOS_TIME_R;
-        sod[OPT_EXPOSURE_R].desc = "Allows to lengthen the exposure time "
-                                   "for the red channel";
+        sod[OPT_EXPOSURE_R].desc = SANE_DESC_SCAN_EXPOS_TIME_R;
         sod[OPT_EXPOSURE_R].type = SANE_TYPE_INT;
         sod[OPT_EXPOSURE_R].unit = SANE_UNIT_PERCENT;
         sod[OPT_EXPOSURE_R].size = sizeof(SANE_Int);
@@ -2665,8 +2710,7 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
 
         sod[OPT_EXPOSURE_G].name = SANE_NAME_SCAN_EXPOS_TIME_G;
         sod[OPT_EXPOSURE_G].title = SANE_TITLE_SCAN_EXPOS_TIME_G;
-        sod[OPT_EXPOSURE_G].desc = "Allows to lengthen the exposure time "
-                                   "for the green channel";
+        sod[OPT_EXPOSURE_G].desc = SANE_DESC_SCAN_EXPOS_TIME_G;
         sod[OPT_EXPOSURE_G].type = SANE_TYPE_INT;
         sod[OPT_EXPOSURE_G].unit = SANE_UNIT_PERCENT;
         sod[OPT_EXPOSURE_G].size = sizeof(SANE_Int);
@@ -2674,16 +2718,16 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
 
         sod[OPT_EXPOSURE_B].name = SANE_NAME_SCAN_EXPOS_TIME_B;
         sod[OPT_EXPOSURE_B].title = SANE_TITLE_SCAN_EXPOS_TIME_B;
-        sod[OPT_EXPOSURE_B].desc = "Allows to lengthen the exposure time "
-                                   "for the blue channel";
+        sod[OPT_EXPOSURE_B].desc = SANE_DESC_SCAN_EXPOS_TIME_B;
         sod[OPT_EXPOSURE_B].type = SANE_TYPE_INT;
         sod[OPT_EXPOSURE_B].unit = SANE_UNIT_PERCENT;
         sod[OPT_EXPOSURE_B].size = sizeof(SANE_Int);
         sod[OPT_EXPOSURE_B].constraint.range = &md->exposure_range;
 
         /* The Special Options Group */
-        sod[OPT_SPECIAL].title = "Special options";
+        sod[OPT_SPECIAL].title = M_TITLE_SPECIALGRP;
         sod[OPT_SPECIAL].type = SANE_TYPE_GROUP;
+        sod[OPT_SPECIAL].size = 0;
         sod[OPT_SPECIAL].desc = "";
         sod[OPT_SPECIAL].cap = SANE_CAP_ADVANCED;
         sod[OPT_SPECIAL].constraint_type = SANE_CONSTRAINT_NONE;
@@ -2741,8 +2785,9 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
             sod[OPT_TOGGLELAMP].cap |= SANE_CAP_INACTIVE;
 
         /* color balance */
-        sod[OPT_COLORBALANCE].title =  "Color balance";
+        sod[OPT_COLORBALANCE].title = M_TITLE_COLBALANCEGRP;
         sod[OPT_COLORBALANCE].type = SANE_TYPE_GROUP;
+        sod[OPT_COLORBALANCE].size = 0;
         sod[OPT_COLORBALANCE].desc = "";
         sod[OPT_COLORBALANCE].cap = SANE_CAP_ADVANCED;
         sod[OPT_COLORBALANCE].constraint_type = SANE_CONSTRAINT_NONE;
@@ -2984,12 +3029,14 @@ sane_control_option(SANE_Handle handle, SANE_Int option,
 
     if ( option < 0 || option >= NUM_OPTIONS )
       {
+        DBG(100, "sane_control_option: option %d; action %d \n", option, action);
         DBG(10, "sane_control_option: option %d invalid\n", option);
         return SANE_STATUS_INVAL;
       }
 
     if ( ! SANE_OPTION_IS_ACTIVE(ms->sod[option].cap) )
       {
+        DBG(100, "sane_control_option: option %d; action %d \n", option, action);
         DBG(10, "sane_control_option: option %d not active\n", option);
         return SANE_STATUS_INVAL;
       }
@@ -2999,7 +3046,7 @@ sane_control_option(SANE_Handle handle, SANE_Int option,
 
     switch ( action )
       {
-        case SANE_ACTION_GET_VALUE:
+        case SANE_ACTION_GET_VALUE:   /* read out option values */
           switch ( option )
             {
               /* word options */
@@ -3097,30 +3144,38 @@ sane_control_option(SANE_Handle handle, SANE_Int option,
           /* NOTREACHED */
           /* break; */
 
-        case SANE_ACTION_SET_VALUE:
+        case SANE_ACTION_SET_VALUE:     /* set option values */
           if ( ! SANE_OPTION_IS_SETTABLE(sod[option].cap) )
             {
+              DBG(100, "sane_control_option: option %d; action %d \n",
+                        option, action);
               DBG(10, "sane_control_option: trying to set unsettable option\n");
               return SANE_STATUS_INVAL;
             }
 
           /* do not check OPT_BR_Y, xscanimage sometimes tries to set */
           /* it to a too large value; bug in xscanimage ? */
-          if ( option != OPT_BR_Y )
-            {
+          /* if ( option != OPT_BR_Y )
+            { */
               status = sanei_constrain_value(ms->sod + option, value, info);
               if (status != SANE_STATUS_GOOD)
                 {
                   DBG(10, "sane_control_option: invalid option value\n");
                   return status;
                 }
-            }
+          /*  } */
 
           switch ( sod[option].type )
             {
               case SANE_TYPE_BOOL:
                 DBG(50, "sane_control_option: option=%d, action=%d, value=%d\n",
                          option, action, *(SANE_Int *) value);
+                if ( ! ( ( *(SANE_Bool *) value == SANE_TRUE )
+                         || ( *(SANE_Bool *) value == SANE_FALSE ) ) )
+                    {
+                      DBG(10, "sane_control_option: invalid BOOL option value\n");
+                      return SANE_STATUS_INVAL;
+                    }
                 if ( val[option].w == *(SANE_Bool *) value ) /* no change */
                     return SANE_STATUS_GOOD;
                 val[option].w = *(SANE_Bool *) value;
@@ -3503,7 +3558,8 @@ sane_get_option_descriptor(SANE_Handle handle, SANE_Int n)
 {
     Microtek2_Scanner *ms = handle;
 
-    DBG(255, "sane_get_option_descriptor: handle=%p, opt=%d\n", handle, n);
+    DBG(255, "sane_get_option_descriptor: handle=%p, sod=%p, opt=%d\n",
+              handle, ms->sod, n);
 
     if ( n < 0 || n > NUM_OPTIONS )
       {
@@ -3706,7 +3762,7 @@ get_calib_params(Microtek2_Scanner *ms)
     DBG(30, "get_calib_params: handle=%p\n", ms);
 
     md = ms->dev;
-    mi = &md->info[0];   /* must be changed */
+    mi = &md->info[md->scan_source];
 
     ms->x_resolution_dpi = mi->opt_resolution / mi->calib_divisor;
     ms->y_resolution_dpi = mi->opt_resolution / 5; /* ignore dust particles */
@@ -3737,6 +3793,7 @@ get_calib_params(Microtek2_Scanner *ms)
     ms->rawdat = 1;
     ms->quality = 1;
     ms->fastscan = 0;
+/*    ms->scan_source = md->scan_source; */
     ms->scan_source = 0;
     ms->brightness_m = ms->brightness_r = ms->brightness_g =
                        ms->brightness_b = 128;
@@ -3849,6 +3906,9 @@ get_scan_parameters(Microtek2_Scanner *ms)
     if ( ms->height_dots < 10 )
         ms->height_dots = 10;
 
+/*test!!!*/
+/*    ms->y1_dots -= 50;*/
+
     /* take scanning direction into account */
     if ((mi->direction & MI_DATSEQ_RTOL) == 1)
         ms->x1_dots = mi->geo_width - ms->x1_dots - ms->width_dots;
@@ -3951,7 +4011,7 @@ get_scan_mode_and_depth(Microtek2_Scanner *ms,
 
     Microtek2_Device *md;
     Microtek2_Info *mi;
-    
+
     DBG(30, "get_scan_mode_and_depth: handle=%p\n", ms);
 
     md = ms->dev;
@@ -3959,45 +4019,55 @@ get_scan_mode_and_depth(Microtek2_Scanner *ms,
 
     if ( strcmp(ms->val[OPT_MODE].s, MD_MODESTRING_COLOR) == 0 )
 	*mode = MS_MODE_COLOR;
-    else if ( strcmp(ms->val[OPT_MODE].s, MD_MODESTRING_GRAY) == 0 ) 
+    else if ( strcmp(ms->val[OPT_MODE].s, MD_MODESTRING_GRAY) == 0 )
 	*mode = MS_MODE_GRAY;
-    else if ( strcmp(ms->val[OPT_MODE].s, MD_MODESTRING_HALFTONE) == 0) 
+    else if ( strcmp(ms->val[OPT_MODE].s, MD_MODESTRING_HALFTONE) == 0)
 	*mode = MS_MODE_HALFTONE;
     else if ( strcmp(ms->val[OPT_MODE].s, MD_MODESTRING_LINEART) == 0 )
-      { 
+      {
         if ( MI_LINEART_NONE(mi->scanmode)
              || ms->val[OPT_AUTOADJUST].w == SANE_TRUE
              || md->model_flags & MD_READ_CONTROL_BIT)
             *mode = MS_MODE_LINEARTFAKE;
         else
 	    *mode = MS_MODE_LINEART;
-      } 
-    else 
+      }
+    else
       {
         DBG(1, "get_scan_mode_and_depth: Unknown mode %s\n",
                 ms->val[OPT_MODE].s);
         return SANE_STATUS_INVAL;
       }
 
-    if ( strcmp(ms->val[OPT_MODE].s, MD_MODESTRING_COLOR) == 0 
+    if ( strcmp(ms->val[OPT_MODE].s, MD_MODESTRING_COLOR) == 0
          || strcmp(ms->val[OPT_MODE].s, MD_MODESTRING_GRAY) == 0 )
       {
-        if ( ms->val[OPT_BITDEPTH].w == MD_DEPTHVAL_12 )
+        if ( ms->val[OPT_BITDEPTH].w == MD_DEPTHVAL_16 )
+          {
+            *depth = 16;
+            *bits_per_pixel_in = *bits_per_pixel_out = 16;
+          }
+        else if ( ms->val[OPT_BITDEPTH].w == MD_DEPTHVAL_14 )
+          {
+            *depth = 14;
+            *bits_per_pixel_in = *bits_per_pixel_out = 16;
+          }
+        else if ( ms->val[OPT_BITDEPTH].w == MD_DEPTHVAL_12 )
           {
             *depth = 12;
             *bits_per_pixel_in = *bits_per_pixel_out = 16;
           }
-        else if ( ms->val[OPT_BITDEPTH].w == MD_DEPTHVAL_10 ) 
+        else if ( ms->val[OPT_BITDEPTH].w == MD_DEPTHVAL_10 )
           {
             *depth = 10;
             *bits_per_pixel_in = *bits_per_pixel_out = 16;
           }
-        else if ( ms->val[OPT_BITDEPTH].w ==  MD_DEPTHVAL_8 ) 
+        else if ( ms->val[OPT_BITDEPTH].w ==  MD_DEPTHVAL_8 )
           {
             *depth = 8;
             *bits_per_pixel_in = *bits_per_pixel_out = 8;
           }
-        else if ( ms->val[OPT_MODE].w == MD_DEPTHVAL_4 ) 
+        else if ( ms->val[OPT_MODE].w == MD_DEPTHVAL_4 )
           {
             *depth = 4;
             *bits_per_pixel_in = 4;
@@ -4322,6 +4392,9 @@ scsi_read_attributes(Microtek2_Info *pmi, char *device, u_int8_t scan_source)
         result[0] &= 0xfd;
     /* calib_divisor is bit49 which isn't read yet */
     mi->calib_divisor = 1;
+    /* 9600XL */
+    if ( (&pmi[0])->model_code == 0xde )
+        mi->calib_divisor = 2;
 
 #if 0
     result[13] &= 0xfe; /* simulate no lineart */
@@ -4343,11 +4416,12 @@ scsi_read_attributes(Microtek2_Info *pmi, char *device, u_int8_t scan_source)
     RSA_GEOHEIGHT(mi->geo_height, result);
     RSA_OPTRESOLUTION(mi->opt_resolution, result);
     RSA_DEPTH(mi->depth, result);
-    /* The X12USL doesn't say that it has 14bit and uses a calib divisor */
-    if ( mi->model_code == 0xb0 )
+    /* The X12USL doesn't say that it has 14bit */
+    if ( (&pmi[0])->model_code == 0xb0 )
       {
         mi->depth |= MI_HASDEPTH_14;
-        mi->calib_divisor = 2;
+        if ( scan_source == MD_SOURCE_FLATBED )
+            mi->calib_divisor = 2;
       }
     RSA_SCANMODE(mi->scanmode, result);
     RSA_CCDPIXELS(mi->ccd_pixels, result);
@@ -4535,10 +4609,8 @@ scsi_read_image_info(Microtek2_Scanner *ms)
     size_t size;
     SANE_Status status;
     Microtek2_Device *md;
-    Microtek2_Info *mi;
 
     md = ms->dev;
-    mi = &md->info[MD_SOURCE_FLATBED];
 
     DBG(30, "scsi_read_image_info: ms=%p\n", ms);
 
@@ -4632,7 +4704,7 @@ scsi_read_image_status(Microtek2_Scanner *ms)
     SANE_Bool endian_type;
 
     md = ms->dev;
-    mi = &md->info[0];
+    mi = &md->info[md->scan_source];
 
     DBG(30, "scsi_read_image_status: ms=%p\n", ms);
 
@@ -4955,8 +5027,10 @@ scsi_send_system_status(Microtek2_Device *md, int fd)
     SSS_BUTTONCOUNT(pos, md->status.buttoncount);
 
     if ( md_dump >= 2)
+      {
         dump_area2(cmd, SSS_CMD_L, "sendsystemstatus");
         dump_area2(cmd + SSS_CMD_L, SSS_DATA_L, "sendsystemstatusdata");
+      }
 
     status = sanei_scsi_cmd(sfd, cmd, sizeof(cmd), NULL, 0);
     if ( status != SANE_STATUS_GOOD )
@@ -5158,15 +5232,15 @@ scsi_test_unit_ready(Microtek2_Device *md)
 SANE_Status
 sane_start(SANE_Handle handle)
 {
-    SANE_Status status;
+    SANE_Status status = SANE_STATUS_GOOD;
     Microtek2_Scanner *ms = handle;
     Microtek2_Device *md;
     Microtek2_Info *mi;
     u_int8_t *pos;
-    int color, rc;
+    int color, rc, retry;
 
     DBG(30, "sane_start: handle=0x%p\n", handle);
-   
+
     md = ms->dev;
     mi = &md->info[md->scan_source];
     ms->n_control_bytes = md->n_control_bytes;
@@ -5188,9 +5262,16 @@ sane_start(SANE_Handle handle)
     if (ms->sfd < 0) /* first or only pass of this scan */
       {
         /* open device */
-        status = sanei_scsi_open (md->sane.name, &ms->sfd,
-                                  scsi_sense_handler, 0);
-        if (status != SANE_STATUS_GOOD)
+        for ( retry = 0; retry < 10; retry++ )
+	  {
+            status = sanei_scsi_open (md->sane.name, &ms->sfd,
+                                      scsi_sense_handler, 0);
+            if ( status != SANE_STATUS_DEVICE_BUSY )
+	      break;
+            DBG(30, "sane_start: Scanner busy, trying again\n");
+            sleep(1);
+	  }
+        if ( status != SANE_STATUS_GOOD )
           {
             DBG(1, "sane_start: scsi_open: '%s'\n", sane_strstatus(status));
             goto cleanup;
@@ -5208,10 +5289,12 @@ sane_start(SANE_Handle handle)
         if ( ( ms->val[OPT_CALIB_BACKEND].w == SANE_TRUE )
              && !( md->model_flags & MD_PHANTOM336CX_TYPE_SHADING ) )
           {
-            if ( ( md->shading_table_w == NULL )
+	    /* Read shading only once - possible with CIS scanners */
+	    /* assuming only CIS scanners use Controlbits */
+	    if ( ( md->shading_table_w == NULL )
                  || !( md->model_flags & MD_READ_CONTROL_BIT ) )
               {
-                status = get_scan_parameters(ms);
+		status = get_scan_parameters(ms);
                 if ( status != SANE_STATUS_GOOD )
                         goto cleanup;
 
@@ -5220,8 +5303,8 @@ sane_start(SANE_Handle handle)
                         goto cleanup;
               }
           }
-
-        status = get_scan_parameters(ms);
+    
+	status = get_scan_parameters(ms);
         if ( status != SANE_STATUS_GOOD )
             goto cleanup;
 
@@ -5245,8 +5328,11 @@ sane_start(SANE_Handle handle)
           }
 
         if ( ms->lightlid35 )
+          {
             md->status.flamp &= ~MD_FLAMP_ON;
-
+            md->status.tlamp |= MD_TLAMP_ON;
+          }
+          
         if ( ms->no_backtracking )
             md->status.ntrack |= MD_NTRACK_ON;
         else
@@ -5518,10 +5604,10 @@ cleanup:
 
 }
 static void
-write_shading_buf_pnm(Microtek2_Scanner *ms)
+write_shading_buf_pnm(Microtek2_Scanner *ms, u_int32_t lines)
 {
   FILE *outfile;
-  u_int16_t pixel, color, line, factor;
+  u_int16_t pixel, color, linenr, factor;
   unsigned char  img_val_out;
   float img_val = 0;
   Microtek2_Device *md;
@@ -5540,36 +5626,43 @@ write_shading_buf_pnm(Microtek2_Scanner *ms)
       factor = 4;
   else
       factor = 1;
+  if ( md->model_flags & MD_16BIT_TRANSFER )
+      factor = 256;
 
   outfile = fopen("shading_buf_w.pnm", "w");
   fprintf(outfile, "P6\n#imagedata\n%d %d\n255\n",
-          mi->geo_width / mi->calib_divisor, md->shading_length);
-  for ( line=0; line < md->shading_length; ++line )
+          mi->geo_width / mi->calib_divisor, lines);
+  for ( linenr=0; linenr < lines; linenr++ )
     {
+      if (mi->data_format == MI_DATAFMT_LPLSEGREG)
+        {
+	  DBG(1, "Output of shading buffer unsupported for"
+                           "Segreg Data format\n");
+          break;
+        }
+
       for ( pixel=0;
             pixel < (u_int16_t) (mi->geo_width / mi->calib_divisor);
-            ++pixel)
+            pixel++)
         {
-          for ( color=0; color < 3; ++color )
+          for ( color=0; color < 3; color++ )
             {
               switch( mi->data_format )
                 {
                   case MI_DATAFMT_LPLCONCAT:
                     img_val = *((u_int16_t *) ms->shading_image
-                               + line * ( ms->bpl / ms->lut_entry_size )
+                               + linenr * ( ms->bpl / ms->lut_entry_size )
                                + mi->color_sequence[color]
                                     * ( ms->bpl / ms->lut_entry_size / 3 )
                                + pixel);
                     break;
                   case MI_DATAFMT_CHUNKY:
-                    img_val = *((u_int16_t *) ms->shading_image
-                               + line * 3 * mi->geo_width / mi->calib_divisor
+                  case MI_DATAFMT_9800:
+                    img_val = *((u_int16_t *)ms->shading_image
+                               + linenr * 3 * ( mi->geo_width
+                                                / mi->calib_divisor )
                                + 3 * pixel
                                + mi->color_sequence[color]);
-                    break;
-                  case MI_DATAFMT_LPLSEGREG:
-                    DBG(1, "Output of shading buffer unsupported for"
-                           "Segreg Data format\n");
                     break;
                 }
               img_val /= factor;
@@ -5609,6 +5702,8 @@ write_shading_pnm(Microtek2_Scanner *ms)
       factor = 4;
   else
       factor = 1;
+  if ( md->model_flags & MD_16BIT_TRANSFER )
+      factor = 256;
 
   if ( md->model_flags & MD_PHANTOM336CX_TYPE_SHADING )
     num_shading_pixels = ms->n_control_bytes * 8;
@@ -5690,6 +5785,8 @@ write_cshading_pnm(Microtek2_Scanner *ms)
       factor = 4;
   else
       factor = 1;
+  if ( md->model_flags & MD_16BIT_TRANSFER )
+      factor = 256;
 
   outfile = fopen("microtek2_cshading_w.pnm", "w");
   if ( ms->mode == MS_MODE_COLOR )
@@ -5912,7 +6009,7 @@ read_shading_image(Microtek2_Scanner *ms)
     DBG(30, "read_shading_image: ms=%p\n", ms);
 
     md = ms->dev;
-    mi = &md->info[0];
+    mi = &md->info[md->scan_source];
 
 
     if ( ! MI_WHITE_SHADING_ONLY(mi->shtrnsferequ)
@@ -6053,6 +6150,7 @@ read_shading_image(Microtek2_Scanner *ms)
       md->status.ncalib &= ~MD_NCALIB_ON;
 
     md->status.flamp |= MD_FLAMP_ON;
+/*    md->status.tlamp &= ~MD_TLAMP_ON;  */
     md->status.ntrack |= MD_NTRACK_ON;
 
     if ( md->model_flags & MD_PHANTOM_C6 )
@@ -6062,6 +6160,13 @@ read_shading_image(Microtek2_Scanner *ms)
       }
 
     get_calib_params(ms);
+
+#ifdef NO_PHANTOMTYPE_SHADING
+/*    md->status.stick &= ~MD_STICK_ON; */
+/*    md->status.ncalib &= ~MD_NCALIB_ON; */
+/*    md->status.reserved17 &= ~MD_RESERVED17_ON; */
+    ms->rawdat = 0;
+#endif
 
     status = scsi_send_system_status(md, ms->sfd);
     if ( status != SANE_STATUS_GOOD )
@@ -6083,9 +6188,21 @@ read_shading_image(Microtek2_Scanner *ms)
     if ( status != SANE_STATUS_GOOD )
         return status;
 
-    status = scsi_read_system_status(md, ms->sfd);
-    if ( status != SANE_STATUS_GOOD )
-        return status;
+#ifdef NO_PHANTOMTYPE_SHADING
+    if ( !( md->model_flags & MD_READ_CONTROL_BIT ) )
+      {
+#endif
+	status = scsi_read_system_status(md, ms->sfd);
+        if ( status != SANE_STATUS_GOOD )
+            return status;
+#ifdef NO_PHANTOMTYPE_SHADING
+      }
+#endif
+
+#ifdef NO_PHANTOMTYPE_SHADING
+    if ( mi->model_code == 0x94 )
+        status = scsi_read_control_bits(ms);
+#endif
 
     ms->shading_image = malloc(ms->bpl * ms->src_remaining_lines);
     DBG(100, "read shading image: ms->shading_image=%p, malloc'd %d bytes\n",
@@ -6132,7 +6249,7 @@ read_shading_image(Microtek2_Scanner *ms)
 
     if ( md_dump >= 3 )
       {
-        write_shading_buf_pnm(ms);
+        write_shading_buf_pnm(ms, lines);
         write_shading_pnm(ms);
       }
 
@@ -6165,6 +6282,11 @@ read_shading_image(Microtek2_Scanner *ms)
         md->status.stick &= ~MD_STICK_ON;
         md->status.reserved17 &= ~MD_RESERVED17_ON;
       }
+
+#ifdef NO_PHANTOMTYPE_SHADING
+    if (mi->model_code == 0x94)
+        md->status.ncalib &= ~MD_NCALIB_ON;
+#endif
 
     status = scsi_send_system_status(md, ms->sfd);
     if ( status != SANE_STATUS_GOOD )
@@ -6206,21 +6328,17 @@ prepare_shading_data(Microtek2_Scanner *ms, u_int32_t lines, u_int8_t **data)
           ms, lines, *data);
 
   md = ms->dev;
-  mi = &md->info[0];
+  mi = &md->info[md->scan_source];
   status = SANE_STATUS_GOOD;
 
   get_lut_size(mi, &ms->lut_size, &ms->lut_entry_size);
-  if ( ms->lut_entry_size == 1 )
-    {
-      DBG(1, "prepare_shading_data: wordsize == 1 unsupported\n");
-      return SANE_STATUS_UNSUPPORTED;
-    }
   length = 3 * ms->lut_entry_size * mi->geo_width / mi->calib_divisor;
 
   if ( *data == NULL )
     {
       *data = (u_int8_t *) malloc(length);
-      DBG(100, "prepare_shading_data: malloc'd %d bytes at %p\n", length, *data);
+      DBG(100, "prepare_shading_data: malloc'd %d bytes at %p\n",
+                length, *data);
       if ( *data == NULL )
         {
           DBG(1, "prepare_shading_data: malloc for shading table failed\n");
@@ -6242,6 +6360,11 @@ prepare_shading_data(Microtek2_Scanner *ms, u_int32_t lines, u_int8_t **data)
   switch( mi->data_format )
     {
       case MI_DATAFMT_LPLCONCAT:
+        if ( ms->lut_entry_size == 1 )
+          {
+            DBG(1, "prepare_shading_data: wordsize == 1 unsupported\n");
+            return SANE_STATUS_UNSUPPORTED;
+          }
         for ( color = 0; color < 3; color++ )
           {
             for ( i = 0; i < ( mi->geo_width / mi->calib_divisor ); i++ )
@@ -6274,6 +6397,12 @@ prepare_shading_data(Microtek2_Scanner *ms, u_int32_t lines, u_int8_t **data)
         break;
 
       case MI_DATAFMT_CHUNKY:
+      case MI_DATAFMT_9800:
+        if ( ms->lut_entry_size == 1 )
+          {
+            DBG(1, "prepare_shading_data: wordsize == 1 unsupported\n");
+            return SANE_STATUS_UNSUPPORTED;
+          }
         for ( color = 0; color < 3; color++ )
           {
             for ( i = 0; i < ( mi->geo_width / mi->calib_divisor ); i++ )
@@ -6312,16 +6441,34 @@ prepare_shading_data(Microtek2_Scanner *ms, u_int32_t lines, u_int8_t **data)
             for ( i = 0; i < ( mi->geo_width / mi->calib_divisor ); i++ )
               {
                 value = 0;
-                for ( line = 0; line < lines; line++ )
-                    value += *((u_int16_t *) ms->shading_image
-                             + line * 3 * mi->geo_width / mi->calib_divisor
-                             + 3 * i
-                             + color);
+                if ( ms->lut_entry_size == 1 )
+		  {
+                    for ( line = 0; line < lines; line++ )
+			value += *((u_int8_t *) ms->shading_image
+				+ line * 3 * mi->geo_width / mi->calib_divisor
+				+ 3 * i
+				+ color);
 
-                value /= lines;
-                *((u_int16_t *) *data
-                 + color * ( mi->geo_width / mi->calib_divisor ) + i) =
-                      MIN(0xffff, (u_int16_t) value);
+		    value /= lines;
+                    *((u_int8_t *) *data
+			+ color * ( mi->geo_width / mi->calib_divisor ) + i) =
+			MIN(0xff, (u_int8_t) value);
+
+		  }
+		else
+		  {
+		    for ( line = 0; line < lines; line++ )
+			value += *((u_int16_t *) ms->shading_image
+				+ line * 3 * mi->geo_width / mi->calib_divisor
+				+ 3 * i
+				+ color);
+
+		    value /= lines;
+		    *((u_int16_t *) *data
+			+ color * ( mi->geo_width / mi->calib_divisor ) + i) =
+			MIN(0xffff, (u_int16_t) value);
+		  }
+
               }
           }
         break;
@@ -6779,7 +6926,7 @@ calculate_gamma(Microtek2_Scanner *ms, u_int8_t *pos, int color, char *mode)
 
 /*---------- shading_function() ----------------------------------------------*/
 
-static SANE_Status                
+static SANE_Status
 shading_function(Microtek2_Scanner *ms, u_int8_t *data)
 {
     Microtek2_Device *md;
@@ -6793,7 +6940,7 @@ shading_function(Microtek2_Scanner *ms, u_int8_t *data)
 
     md = ms->dev;
     mi = &md->info[md->scan_source];
-
+/*    mi = &md->info[MD_SOURCE_FLATBED]; */
 
     if ( ms->lut_entry_size == 1 )
       {
@@ -6833,6 +6980,7 @@ shading_function(Microtek2_Scanner *ms, u_int8_t *data)
                   value = (u_int32_t) ( ( 1073741824 / (double) value )
                                            * ( (double) mi->balance[color]
                                             / 256.0) );
+                  value = MIN(value, (u_int32_t)65535);
                  *((u_int16_t *) data
                     + color * ( mi->geo_width / mi->calib_divisor ) + i) =
                                                MIN(0xffff, (u_int16_t) value);
@@ -6845,7 +6993,7 @@ shading_function(Microtek2_Scanner *ms, u_int8_t *data)
               }
           }
       }
-   
+
     return SANE_STATUS_GOOD;
 }
 
@@ -7006,6 +7154,7 @@ reader_process(Microtek2_Scanner *ms)
                   switch ( mi->data_format ) 
                     {
 		      case MI_DATAFMT_CHUNKY:
+		      case MI_DATAFMT_9800:
                         status = chunky_proc_data(ms);
                         if ( status != SANE_STATUS_GOOD )
                             return status;
@@ -7113,18 +7262,18 @@ chunky_proc_data(Microtek2_Scanner *ms)
 #endif
 
     from = ms->buf.src_buf;
-    
+    from += bpl_ppl_diff;
+
     DBG(30, "chunky_proc_data: lines=%d, bpl=%d, ppl=%d, bpp=%d, depth=%d"
             " junk=%d\n", ms->src_lines_to_read, ms->bpl, ms->ppl,
              bpp, ms->depth, bpl_ppl_diff);
-          
+
     for ( line = 0; line < (u_int32_t) ms->src_lines_to_read; line++ )
       {
-        from += bpl_ppl_diff;
-        status = chunky_copy_pixels(from, ms->ppl, ms->depth, ms->fp);
+        status = chunky_copy_pixels(ms, from);
         if ( status != SANE_STATUS_GOOD )
             return status;
-        from += ms->bpl - bpl_ppl_diff;
+        from += ms->bpl;
       }
 
     return SANE_STATUS_GOOD;
@@ -7133,38 +7282,48 @@ chunky_proc_data(Microtek2_Scanner *ms)
 /*---------- chunky_copy_pixels() --------------------------------------------*/
 
 static SANE_Status
-chunky_copy_pixels(u_int8_t *from, u_int32_t pixels, int depth, FILE * fp)
+chunky_copy_pixels(Microtek2_Scanner *ms, u_int8_t *from)
 {
+    Microtek2_Device *md;
     u_int32_t pixel;
     int color;
 
     DBG(30, "chunky_copy_pixels: from=%p, pixels=%d, fp=%p, depth=%d\n",
-             from, pixels, fp, depth);
+             from, ms->ppl, ms->fp, ms->depth);
 
-    if ( depth > 8 )
+    md = ms->dev;
+    if ( ms->depth > 8 )
       {
-        int scale1;
-        int scale2;
-        u_int16_t val16;
-
-        scale1 = 16 - depth;
-        scale2 = 2 * depth - 16;
-        for ( pixel = 0; pixel < pixels; pixel++ )
+        if ( !( md->model_flags & MD_16BIT_TRANSFER ) )
           {
-            for ( color = 0; color < 3; color++ )
+            int scale1;
+            int scale2;
+            u_int16_t val16;
+
+            scale1 = 16 - ms->depth;
+            scale2 = 2 * ms->depth - 16;
+            for ( pixel = 0; pixel < ms->ppl; pixel++ )
               {
-                val16 = *(u_int16_t *) from;
-                val16 = ( val16 << scale1 ) | ( val16 >> scale2 );
-                fwrite((void *) &val16, 2, 1, fp);
-                from += 2;
+                for ( color = 0; color < 3; color++ )
+                  {
+                    val16 = *( (u_int16_t *) from + 3 * pixel + color );
+                    val16 = ( val16 << scale1 ) | ( val16 >> scale2 );
+                    fwrite((void *) &val16, 2, 1, ms->fp);
+                  }
               }
           }
+        else
+          {
+            fwrite((void *) from, 2, 3 * ms->ppl, ms->fp);
+          }
       }
-    else if ( depth == 8 )
-        fwrite((void *) from, 3 * pixels, 1, fp);
+    else if ( ms->depth == 8 )
+      {
+        fwrite((void *) from, 1, 3 * ms->ppl, ms->fp);
+      }
     else
       {
-        DBG(1, "chunky_copy_pixels: Unknown depth %d\n", depth);
+        DBG(1, "chunky_copy_pixels: Unknown depth %d\n", ms->depth);
         return SANE_STATUS_IO_ERROR;
       }
 
@@ -7173,7 +7332,7 @@ chunky_copy_pixels(u_int8_t *from, u_int32_t pixels, int depth, FILE * fp)
 
 /*---------- segreg_proc_data() ----------------------------------------------*/
 
-static SANE_Status                
+static SANE_Status
 segreg_proc_data(Microtek2_Scanner *ms)
 {
     SANE_Status status;
@@ -7187,7 +7346,7 @@ segreg_proc_data(Microtek2_Scanner *ms)
     int pad;
     int colseq2;
     int color;
-    int save_current_src; 
+    int save_current_src;
     int frame;
     int right_to_left;
 
@@ -7200,7 +7359,7 @@ segreg_proc_data(Microtek2_Scanner *ms)
     bpp = ms->bits_per_pixel_out / 8; /* bits_per_pixel_out is either 8 or 16 */
     bpf = ms->bpl / 3;
     right_to_left = mi->direction & MI_DATSEQ_RTOL;
-    
+
     DBG(30, "segreg_proc_data: lines=%d, bpl=%d, ppl=%d, bpf=%d, bpp=%d,\n"
             "depth=%d, pad=%d, freelines=%d, calib_backend=%d\n",
              ms->src_lines_to_read, ms->bpl, ms->ppl, bpf, bpp,
@@ -7246,11 +7405,11 @@ segreg_proc_data(Microtek2_Scanner *ms)
 
     DBG(30, "segreg_proc_data: planes[0][0]=%d, planes[0][1]=%d, "
             "planes[0][2]=%d\n", ms->buf.planes[0][0], ms->buf.planes[0][1],
-             ms->buf.planes[0][2] ); 
+             ms->buf.planes[0][2] );
     DBG(30, "segreg_proc_data: planes[1][0]=%d, planes[1][1]=%d, "
             "planes[1][2]=%d\n", ms->buf.planes[1][0], ms->buf.planes[1][1],
-             ms->buf.planes[1][2] ); 
-             
+             ms->buf.planes[1][2] );
+
     while ( lines_to_deliver > 0 )
       {
         for ( color = 0; color < 3; color++ )
@@ -7265,11 +7424,11 @@ segreg_proc_data(Microtek2_Scanner *ms)
 
             ms->buf.current_pos[color] += 2;    /* skip color indicator */
           }
- 
+
         status = segreg_copy_pixels(ms);
         if ( status != SANE_STATUS_GOOD )
           {
-            DBG(1, "segreg_copy_pixels:status %d\n", status); 
+            DBG(1, "segreg_copy_pixels:status %d\n", status);
             return status;
           }
 
@@ -7301,7 +7460,7 @@ segreg_proc_data(Microtek2_Scanner *ms)
         --lines_to_deliver;
       }
 
-    if ( ms->buf.current_src != save_current_src ) 
+    if ( ms->buf.current_src != save_current_src )
       {
         for ( color = 0; color < 3; color++ )
           {
@@ -7311,7 +7470,7 @@ segreg_proc_data(Microtek2_Scanner *ms)
       }
 
     DBG(30, "segreg_proc_data: src_buf=%p, free_lines=%d\n",
-             ms->buf.src_buf, ms->buf.free_lines); 
+             ms->buf.src_buf, ms->buf.free_lines);
 
     return SANE_STATUS_GOOD;
 }
@@ -7339,14 +7498,15 @@ segreg_copy_pixels(Microtek2_Scanner *ms)
     right_to_left = mi->direction & MI_DATSEQ_RTOL;
     scale1 = 16 - ms->depth;
     scale2 = 2 * ms->depth - 16;
-    bpp_in = ( ms->bits_per_pixel_in + 7 ) / 8; /* Bytes per pixel from scanner */
+    bpp_in = ( ms->bits_per_pixel_in + 7 ) / 8; /*Bytes per pixel from scanner*/
 
     if ((md->model_flags & MD_READ_CONTROL_BIT) && ms->calib_backend)
       {
         maxval = (float) pow(2.0, (float) ms->depth) - 1.0;
         s_w = maxval;
         s_d = 0.0;
-        shading_factor = (float) pow(2.0, (double) (md->shading_depth - ms->depth) );
+        shading_factor = (float) pow(2.0, (double) (md->shading_depth
+							 - ms->depth) );
       }
 
     if ( gamma_by_backend )
@@ -7359,7 +7519,7 @@ segreg_copy_pixels(Microtek2_Scanner *ms)
 
     DBG(30, "segreg_copy_pixels: pixels=%d\n", ms->ppl);
     DBG(100, "segreg_copy_pixels: buffer 0x%p, right_to_left=%d, depth=%d\n",
-                                  ms->buf.current_pos, right_to_left, ms->depth);
+                                 ms->buf.current_pos, right_to_left, ms->depth);
 
     for (color = 0; color < 3; color++ )
         f[color] = (float) ms->balance[color] / 100.0;
@@ -7388,7 +7548,7 @@ segreg_copy_pixels(Microtek2_Scanner *ms)
               return SANE_STATUS_IO_ERROR;
             }
 
-            if ((md->model_flags & MD_READ_CONTROL_BIT) && ms->calib_backend
+	    if ((md->model_flags & MD_READ_CONTROL_BIT) && ms->calib_backend
                  && ( ms->condensed_shading_w != NULL ))
                  /* apply shading by backend */
               {
@@ -7417,8 +7577,8 @@ segreg_copy_pixels(Microtek2_Scanner *ms)
                 val = MAX( 0.0, val);
                 val = MIN( maxval, val );
               }
-
-            val16 = (u_int16_t) val;
+            
+	    val16 = (u_int16_t) val;
             val8  = (u_int8_t)  val;
 
             /* apply gamma correction if needed */
@@ -7549,7 +7709,7 @@ lplconcat_copy_pixels(Microtek2_Scanner *ms,
 
   if ((md->model_flags & MD_READ_CONTROL_BIT) && ms->calib_backend)
     {
-      shading_factor = (float) pow(2.0, (double) (md->shading_depth - ms->depth) );
+      shading_factor = (float) pow(2.0,(double)(md->shading_depth - ms->depth));
       maxval = (float) pow(2.0, (double) ms->depth) - 1.0;
       s_w = maxval;
       s_d = 0.0;
@@ -7564,7 +7724,7 @@ lplconcat_copy_pixels(Microtek2_Scanner *ms,
     {
       i =  ( ms->depth > 8 ) ? 2 : 1;
       for ( color = 0; color < 3; color++ )
-          gamma[color] = ms->gamma_table + i * (int) pow(2.0, (double) ms->depth);
+          gamma[color] = ms->gamma_table + i * (int) pow(2.0,(double)ms->depth);
     }
 
   for (color = 0; color < 3; color++ )
@@ -7587,7 +7747,8 @@ lplconcat_copy_pixels(Microtek2_Scanner *ms,
               DBG(1, "lplconcat_copy_pixels: Unknown depth %d\n", ms->depth);
               return SANE_STATUS_IO_ERROR;
             }
-          if ((md->model_flags & MD_READ_CONTROL_BIT) && ms->calib_backend
+	  
+	  if ((md->model_flags & MD_READ_CONTROL_BIT) && ms->calib_backend
                && ( ms->condensed_shading_w != NULL ))
                /* apply shading by backend */
             {
@@ -7648,7 +7809,7 @@ lplconcat_copy_pixels(Microtek2_Scanner *ms,
 
 /*---------- wordchunky_proc_data() ------------------------------------------*/
 
-static SANE_Status                
+static SANE_Status
 wordchunky_proc_data(Microtek2_Scanner *ms)
 {
     SANE_Status status;
@@ -7657,7 +7818,7 @@ wordchunky_proc_data(Microtek2_Scanner *ms)
 
 
     DBG(30, "wordchunky_proc_data: ms=%p\n", ms);
-             
+
     from = ms->buf.src_buf;
     for ( line = 0; line < (u_int32_t) ms->src_lines_to_read; line++ )
       {
@@ -7732,7 +7893,7 @@ wordchunky_copy_pixels(u_int8_t *from, u_int32_t pixels, int depth, FILE *fp)
 
 /*---------- gray_proc_data() ------------------------------------------------*/
 
-static SANE_Status                
+static SANE_Status
 gray_proc_data(Microtek2_Scanner *ms)
 {
     SANE_Status status;
@@ -7745,9 +7906,9 @@ gray_proc_data(Microtek2_Scanner *ms)
 
     DBG(30, "gray_proc_data: lines=%d, bpl=%d, ppl=%d, depth=%d\n",
              ms->src_lines_to_read, ms->bpl, ms->ppl, ms->depth);
- 
+
     md = ms->dev;
-    mi = &md->info[0];
+    mi = &md->info[md->scan_source];
 
     gamma_by_backend =  md->model_flags & MD_NO_GAMMA ? 1 : 0;
     right_to_left = mi->direction & MI_DATSEQ_RTOL;
@@ -7841,7 +8002,8 @@ gray_copy_pixels(Microtek2_Scanner *ms,
                 val16 = (u_int16_t) val;
                 if ( gamma_by_backend )
                     val16 = *((u_int16_t *) ms->gamma_table + val16);
-                val16 = ( val16 << scale1 ) | ( val16 >> scale2 );
+                if ( !( md->model_flags & MD_16BIT_TRANSFER ) )
+                    val16 = ( val16 << scale1 ) | ( val16 >> scale2 );
                 fwrite((void *) &val16, 2, 1, ms->fp);
               }
 
@@ -7879,7 +8041,7 @@ gray_copy_pixels(Microtek2_Scanner *ms,
 
 /*---------- proc_onebit_data() ----------------------------------------------*/
 
-static SANE_Status                
+static SANE_Status
 proc_onebit_data(Microtek2_Scanner *ms)
 {
     Microtek2_Device *md;
@@ -7917,7 +8079,7 @@ proc_onebit_data(Microtek2_Scanner *ms)
             /* trailing bits at the end of the scan line and invert the */
             /* bit sequence. We copy 8 bits into a byte, but these bits */
             /* are normally not byte aligned. */
-            
+
             /* Determine the position of the first bit to copy */
             ppl = ms->ppl;
             byte = ( ppl + 7 ) / 8 - 1;
@@ -7942,7 +8104,7 @@ proc_onebit_data(Microtek2_Scanner *ms)
                 if ( bit < 0 )
                   {
                     bit = 7;
-                    --byte; 
+                    --byte;
                   }
                 --ppl;
               }
@@ -7955,7 +8117,7 @@ proc_onebit_data(Microtek2_Scanner *ms)
         else
             for ( byte = 0; byte < bytes_to_copy; byte++ )
                 fputc( (char) ~from[byte], ms->fp);
-        
+
         from += ms->bpl;
 
       } while ( ++line < (u_int32_t) ms->src_lines_to_read );
@@ -7966,7 +8128,7 @@ proc_onebit_data(Microtek2_Scanner *ms)
 
 /*---------- lineartfake_proc_data() -----------------------------------------*/
 
-static SANE_Status                
+static SANE_Status
 lineartfake_proc_data(Microtek2_Scanner *ms)
 {
     Microtek2_Device *md;
@@ -7978,7 +8140,7 @@ lineartfake_proc_data(Microtek2_Scanner *ms)
 
     DBG(30, "lineartfake_proc_data: lines=%d, bpl=%d, ppl=%d, depth=%d\n",
              ms->src_lines_to_read, ms->bpl, ms->ppl, ms->depth);
- 
+
     md = ms->dev;
     mi = &md->info[md->scan_source];
     right_to_left = mi->direction & MI_DATSEQ_RTOL;
@@ -8008,7 +8170,7 @@ lineartfake_proc_data(Microtek2_Scanner *ms)
 
 /*---------- lineartfake_copy_pixels() ---------------------------------------*/
 
-static SANE_Status                
+static SANE_Status
 lineartfake_copy_pixels(Microtek2_Scanner *ms,
                         u_int8_t *from,
                         u_int32_t pixels,
@@ -8073,7 +8235,7 @@ lineartfake_copy_pixels(Microtek2_Scanner *ms,
           }
         from += step;
       }
-    
+
     if ( bit != 0 )
       {
         dest <<= 7 - bit;
@@ -8157,7 +8319,7 @@ get_cshading_values(Microtek2_Scanner *ms,
   else
     csh_offset = color * ms->ppl + pixel;
 
-  if ( ! (md->model_flags & MD_PHANTOM336CX_TYPE_SHADING) )
+  if ( ms->lut_entry_size == 2 )
     /* condensed shading is 2 byte color data */
     {
       if ( ms->condensed_shading_d != NULL )
@@ -8171,11 +8333,15 @@ get_cshading_values(Microtek2_Scanner *ms,
       *s_w /= shading_factor;
       *s_d /= shading_factor;
     }
+
   else
     /* condensed shading is 8 bit data */
     {
       *s_w = (float) *( ms->condensed_shading_w + csh_offset );
-      *s_d = (float) *( ms->condensed_shading_d + csh_offset );
+      if ( ms->condensed_shading_d != NULL )
+        *s_d = (float) *( ms->condensed_shading_d + csh_offset );
+      else
+        *s_d = 0.0;
     }
   return SANE_STATUS_GOOD;
 }

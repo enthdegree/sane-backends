@@ -90,12 +90,12 @@
 
 #define MICROTEK2_MAJOR         0
 #define MICROTEK2_MINOR	        95
-#define MICROTEK2_BUILD         "20020127"
+#define MICROTEK2_BUILD         "200301082330"
 #define MICROTEK2_CONFIG_FILE   "microtek2.conf"
 
 
 /******************************************************************************/
-/* defines that are common to all devices                                      */
+/* defines that are common to all devices                                     */
 /******************************************************************************/
 
 #define MD_RESOLUTION_DEFAULT   72 << SANE_FIXED_SCALE_SHIFT
@@ -606,113 +606,120 @@ typedef union {
 /* Description of options not included in saneopts.h                          */
 /******************************************************************************/
 
+#define M_TITLE_SCANMODEGRP    SANE_I18N("Scan Mode")
+#define M_TITLE_GEOMGRP        SANE_I18N("Geometry")
+#define M_TITLE_ENHANCEGRP     SANE_I18N("Enhancement")
+#define M_TITLE_SMHGRP         SANE_I18N("Shadow, midtone, highlight,"\
+                                         " exposure time");
+#define M_TITLE_SPECIALGRP     SANE_I18N("Special options")
+#define M_TITLE_COLBALANCEGRP  SANE_I18N("Color balance")
+
 #define M_NAME_NOBACKTRACK     "no-backtracking"
-#define M_TITLE_NOBACKTRACK    "Disable backtracking"
-#define M_DESC_NOBACKTRACK     "If checked the scanner does not perform" \
-                               " backtracking."
+#define M_TITLE_NOBACKTRACK    SANE_I18N("Disable backtracking")
+#define M_DESC_NOBACKTRACK     SANE_I18N("If checked the scanner does not" \
+                               " perform backtracking")
 
 #define M_NAME_TOGGLELAMP      "toggle-lamp"
-#define M_TITLE_TOGGLELAMP     "Toggle lamp of flatbed"
-#define M_DESC_TOGGLELAMP      "Toggles the lamp of the flatbed"
+#define M_TITLE_TOGGLELAMP     SANE_I18N("Toggle lamp of flatbed")
+#define M_DESC_TOGGLELAMP      SANE_I18N("Toggles the lamp of the flatbed")
 
 #define M_NAME_CALIBBACKEND    "backend-calibration"
-#define M_TITLE_CALIBBACKEND   "Calibration by backend"
-#define M_DESC_CALIBBACKEND    "If checked the color calibration before" \
-                               " a scan is done by the backend. Uncheck" \
-                               " this option if you experience any problem."
+#define M_TITLE_CALIBBACKEND   SANE_I18N("Calibration by backend")
+#define M_DESC_CALIBBACKEND    SANE_I18N("If checked the color calibration" \
+                               " before a scan is done by the backend")
 
 #define M_NAME_LIGHTLID35      "lightlid35"
-#define M_TITLE_LIGHTLID35     "Use the lightlid-35mm adapter"
-#define M_DESC_LIGHTLID35      "This option turns off the lamp of the" \
-                               " flatbed during a scan. Do not expect" \
-                               " excellent results. Maybe this option will" \
-                               " be removed in the future."
+#define M_TITLE_LIGHTLID35     SANE_I18N("Use the lightlid-35mm adapter")
+#define M_DESC_LIGHTLID35      SANE_I18N("This option turns off the lamp of" \
+                               " the flatbed during a scan")
 
 #define M_NAME_QUALITY_SCAN    "quality_scan"
-#define M_TITLE_QUALITY_SCAN   "Quality scan"
-#define M_DESC_QUALITY_SCAN    "Highest quality but lower speed"
+#define M_TITLE_QUALITY_SCAN   SANE_I18N("Quality scan")
+#define M_DESC_QUALITY_SCAN    SANE_I18N("Highest quality but lower speed")
 
 #define M_NAME_FAST_SCAN       "fast_scan"
-#define M_TITLE_FAST_SCAN      "Fast scan"
-#define M_DESC_FAST_SCAN       "Highest speed but lower quality"
+#define M_TITLE_FAST_SCAN      SANE_I18N("Fast scan")
+#define M_DESC_FAST_SCAN       SANE_I18N("Highest speed but lower quality")
 
 #define M_NAME_AUTOADJUST      "lineart-auto-adjust"
-#define M_TITLE_AUTOADJUST     "Automatic adjustment of threshold value"
-#define M_DESC_AUTOADJUST      "If checked the backend automatically tries" \
-                               " to determine an optimal value for the" \
-                               " threshold."
+#define M_TITLE_AUTOADJUST     SANE_I18N("Automatic adjustment of threshold")
+#define M_DESC_AUTOADJUST      SANE_I18N("If checked the backend automatically"\
+                               " tries to determine an optimal value for the" \
+                               " threshold.")
 
 #define M_NAME_GAMMA_MODE      "gamma-correction"
-#define M_TITLE_GAMMA_MODE     "Gamma correction"
-#define M_DESC_GAMMA_MODE      "Selects the gamma correction mode."
+#define M_TITLE_GAMMA_MODE     SANE_I18N("Gamma correction")
+#define M_DESC_GAMMA_MODE      SANE_I18N("Selects the gamma correction mode.")
 
 #define M_NAME_GAMMA_BIND      "bind-gamma"
-#define M_TITLE_GAMMA_BIND     "Bind gamma"
-#define M_DESC_GAMMA_BIND      "Use same gamma values for all colour channels."
+#define M_TITLE_GAMMA_BIND     SANE_I18N("Bind gamma")
+#define M_DESC_GAMMA_BIND      SANE_I18N("Use same gamma values for all" \
+                               " colour channels.")
 
 #define M_NAME_GAMMA_SCALAR    "scalar-gamma"
-#define M_TITLE_GAMMA_SCALAR   "Scalar gamma"
-#define M_DESC_GAMMA_SCALAR    "Selects a value for scalar gamma correction."
+#define M_TITLE_GAMMA_SCALAR   SANE_I18N("Scalar gamma")
+#define M_DESC_GAMMA_SCALAR    SANE_I18N("Selects a value for scalar" \
+                               " gamma correction.")
 
 #define M_NAME_GAMMA_SCALAR_R  "scalar-gamma-r"
-#define M_TITLE_GAMMA_SCALAR_R "Scalar gamma red"
-#define M_DESC_GAMMA_SCALAR_R  "Selects a value for scalar gamma correction" \
-                               " (red channel)"
+#define M_TITLE_GAMMA_SCALAR_R SANE_I18N("Scalar gamma red")
+#define M_DESC_GAMMA_SCALAR_R  SANE_I18N("Selects a value for scalar gamma" \
+                               " correction (red channel)")
 
 #define M_NAME_GAMMA_SCALAR_G  "scalar-gamma-g"
-#define M_TITLE_GAMMA_SCALAR_G "Scalar gamma green"
-#define M_DESC_GAMMA_SCALAR_G  "Selects a value for scalar gamma correction" \
-                               " (green channel)"
+#define M_TITLE_GAMMA_SCALAR_G SANE_I18N("Scalar gamma green")
+#define M_DESC_GAMMA_SCALAR_G  SANE_I18N("Selects a value for scalar gamma" \
+                               " correction (green channel)")
 
 #define M_NAME_GAMMA_SCALAR_B  "scalar-gamma-b"
-#define M_TITLE_GAMMA_SCALAR_B "Scalar gamma blue"
-#define M_DESC_GAMMA_SCALAR_B  "Selects a value for scalar gamma correction" \
-                               " (blue channel)"
+#define M_TITLE_GAMMA_SCALAR_B SANE_I18N("Scalar gamma blue")
+#define M_DESC_GAMMA_SCALAR_B  SANE_I18N("Selects a value for scalar gamma" \
+                               " correction (blue channel)")
 
 #define M_NAME_CHANNEL         "channel"
-#define M_TITLE_CHANNEL        "Channel"
-#define M_DESC_CHANNEL         "Selects the colour band, \"Master\" means," \
-                               " that all colours are affected."
+#define M_TITLE_CHANNEL        SANE_I18N("Channel")
+#define M_DESC_CHANNEL         SANE_I18N("Selects the colour band, \"Master\"" \
+                               " means that all colours are affected.")
 
 #define M_NAME_MIDTONE         "midtone"
-#define M_TITLE_MIDTONE        "Midtone"
-#define M_DESC_MIDTONE         "Selects which radiance level should be" \
-                               " considered \"50 % gray\"."
+#define M_TITLE_MIDTONE        SANE_I18N("Midtone")
+#define M_DESC_MIDTONE         SANE_I18N("Selects which radiance level should" \
+                               " be considered \"50 % gray\".")
 
 #define M_NAME_MIDTONE_R       "midtone-r"
-#define M_TITLE_MIDTONE_R      "Midtone for red"
-#define M_DESC_MIDTONE_R       "Selects which radiance level should be" \
-                               " considered \"50 % red\"."
+#define M_TITLE_MIDTONE_R      SANE_I18N("Midtone for red")
+#define M_DESC_MIDTONE_R       SANE_I18N("Selects which radiance level should " \
+                               " be considered \"50 % red\".")
 
 #define M_NAME_MIDTONE_G       "midtone-g"
-#define M_TITLE_MIDTONE_G      "Midtone for green"
-#define M_DESC_MIDTONE_G       "Selects which radiance level should be" \
-                               " considered \"50 % green\"."
+#define M_TITLE_MIDTONE_G      SANE_I18N("Midtone for green")
+#define M_DESC_MIDTONE_G       SANE_I18N("Selects which radiance level should" \
+                               " be considered \"50 % green\".")
 
 #define M_NAME_MIDTONE_B       "midtone-b"
-#define M_TITLE_MIDTONE_B      "Midtone for blue"
-#define M_DESC_MIDTONE_B       "Selects which radiance level should be" \
-                               " considered \"50 % blue\"."
+#define M_TITLE_MIDTONE_B      SANE_I18N("Midtone for blue")
+#define M_DESC_MIDTONE_B       SANE_I18N("Selects which radiance level should" \
+                               " be considered \"50 % blue\".")
 
 #define M_NAME_BALANCE_R       "balance-r"
-#define M_TITLE_BALANCE_R      "Red balance"
-#define M_DESC_BALANCE_R       "Balance factor for red. A value of 100% means " \
-                               "no correction."
+#define M_TITLE_BALANCE_R      SANE_I18N("Red balance")
+#define M_DESC_BALANCE_R       SANE_I18N("Balance factor for red. A value of" \
+                               " 100% means no correction.")
 
 #define M_NAME_BALANCE_G       "balance-g"
-#define M_TITLE_BALANCE_G      "Green balance"
-#define M_DESC_BALANCE_G       "Balance factor for green. A value of 100% "\
-                               "means no correction."
+#define M_TITLE_BALANCE_G      SANE_I18N("Green balance")
+#define M_DESC_BALANCE_G       SANE_I18N("Balance factor for green. A value of"\
+                               " 100% means no correction.")
 
 #define M_NAME_BALANCE_B       "balance-b"
-#define M_TITLE_BALANCE_B      "Blue balance"
-#define M_DESC_BALANCE_B       "Balance factor for blue. A value of 100% means " \
-                               "no correction. "
+#define M_TITLE_BALANCE_B      SANE_I18N("Blue balance")
+#define M_DESC_BALANCE_B       SANE_I18N("Balance factor for blue. A value of" \
+                               " 100% means no correction.")
 
 #define M_NAME_BALANCE_FW      "balance-fw"
-#define M_TITLE_BALANCE_FW     "Firmware balance"
-#define M_DESC_BALANCE_FW      "Sets the color balance values to the "\
-                               "firmware provided values. "\
+#define M_TITLE_BALANCE_FW     SANE_I18N("Firmware balance")
+#define M_DESC_BALANCE_FW      SANE_I18N("Sets the color balance values to"\
+                               " the firmware provided values.")
 
 /******************************************************************************/
 /* Structure that contains global options                                     */
@@ -775,6 +782,7 @@ typedef struct Microtek2_Info {
 #define MI_DATAFMT_CHUNKY              1
 #define MI_DATAFMT_LPLCONCAT           2
 #define MI_DATAFMT_LPLSEGREG           3
+#define MI_DATAFMT_9800                4
 #define MI_DATAFMT_WORDCHUNKY          5
     SANE_Byte data_format;
 #define MI_COLSEQ_RED                  0
@@ -929,8 +937,10 @@ typedef struct Microtek2_Device {
 #define MD_X6_SHORT_TRANSFER	     512  /* X6 USB crashes if you read
 					     too much */
 #define MD_NO_RIS_COMMAND           1024  /* doesn't like read_image_status */
+#define MD_16BIT_TRANSFER           2048  /* transfers 10/12/14bit scans as */
+                                          /* 16bit data */
 
-    u_int32_t n_control_bytes;            /* for read_control_bits; the */
+    size_t n_control_bytes;               /* for read_control_bits; the */
                                           /* number is model dependent */
                                           /* and can not be inquired */
     u_int32_t shading_length;             /* length of the shading image */
@@ -1095,7 +1105,7 @@ typedef struct Microtek2_Scanner {
     int current_pass;              /* current pass if 3-pass scan */
     int lut_size;                  /* size of gamma lookup table */
     int lut_entry_size;            /* size of one entry in lookup table */
-    u_int16_t lut_size_bytes;      /* size of LUT in bytes */
+    u_int32_t lut_size_bytes;      /* size of LUT in bytes */
     u_int8_t word;                 /* word transfer, used in some read cmds */
     /* MS_COLOR_X must correspond to color field in READ IMAGE STATUS */
 #define MS_COLOR_RED                   0
@@ -1135,8 +1145,8 @@ typedef struct Microtek2_Scanner {
 
     SANE_Bool onepass;
 
-    u_int32_t n_control_bytes;     /* for READ CONTROL BITS */
-    u_int8_t *control_bytes;       /* pointer to the result */
+    size_t    n_control_bytes;     /* for READ CONTROL BITS */
+    u_int8_t  *control_bytes;      /* pointer to the result */
 
     int scanning;             /* true == between sane_start & sane_read=EOF */
     int cancelled;
@@ -1182,7 +1192,7 @@ static void
 check_option(const char *, Config_Options *);
 
 static SANE_Status
-chunky_copy_pixels(u_int8_t *, u_int32_t, int, FILE *);
+chunky_copy_pixels(Microtek2_Scanner *, u_int8_t *);
 
 static SANE_Status
 chunky_proc_data(Microtek2_Scanner *);

@@ -8,6 +8,9 @@
 	* doc/descriptions.txt: Explained the new status values. Removed
 	  reference to emacs-lisp code for generation of HTML
 	  files. Explained unsupported.desc.
+	* tools/sane-desc.el.in tools/sane-desc-ext.el: Removed because
+	  these emacs-lisp scripts haven't been used for some time now.
+	  Use sane-desc.c instead.
 
 2003-06-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -2738,7 +2738,7 @@ compute_white_shading_data (Avision_Scanner* s,
 	++ values_limitted;
       }
 
-#ifdef 0      
+#if 0
       /* test */
       result = 0xA000;
 #endif

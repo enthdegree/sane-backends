@@ -1,7 +1,7 @@
 .TH sane-as6e 5 "  November 19, 2000" "SANE Artec  AS6E Backend "
 
 .SH NAME
-sane-as6e \-SANE backend for using the Artec AS6E parallel port interface scanner.
+sane-as6e \- SANE backend for using the Artec AS6E parallel port interface scanner.
 
 .SH DESCRIPTION
 The
@@ -19,7 +19,7 @@ It can be found at
 
 .SH FILES
 .B as6edriver 
--driver program that controls the scanner.
+\- driver program that controls the scanner.
 
 .SH BUGS
 

@@ -55,7 +55,7 @@ The contents of the
 file is a list of device names that correspond to Canon
 scanners.  Empty lines and lines starting with a hash mark (#) are
 ignored.  Only one device name can be listed in 
-.I canon.conf.
+.IR canon.conf .
 
 .SH TIPS
 .PP

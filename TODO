@@ -1,4 +1,4 @@
-TODO (2000-08-19)
+TODO (2000-09-16)
 
 ******** todo ********
 
@@ -13,7 +13,6 @@ backends
     - hp4200 http://hp4200-backend.sourceforge.net/
 
   * use DBG(...) instead of fprintf(stderr, ...)
-     - hp
      - microtek
      - microtek2
 
@@ -85,7 +84,10 @@ frontends
    * xcam: add recording feature (e.g., GIF, JPG, or MPEG)
 
    * dll: make it robust against against it being listed in the configuration
-    file (currently bad things will happen if dll attempts to load itself)
+     file (currently bad things will happen if dll attempts to load itself)
+ 
+   * xscanimage: Fix "Gtk-CRITICAL **: file gtkmain.c: line 534 ..." bug
+     when no SANE devices found
 
 sanei
 -----
@@ -130,13 +132,19 @@ misc
      All the above with shared and static libraries.
 
   * move .desc files for backends that are not included in SANE to
-    different directory
+    different directory (e.g. backends and external-backends)
 
   * add ADF and TA entries to .desc files
 
   * add alpha channel so that RGBI scanners like Nikon LS-20 can
     send infra-red info back to gimp for post-processing                
 
+  * Add a check for installed sane versions.
+
+  * Print a warning when already a sane version is installed.                       
+  * Maybe add script to detect and deinstall existing sane versions
+
+  * 0 is white for sane 
 
 ******** done ********
 

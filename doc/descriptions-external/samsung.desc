@@ -11,7 +11,7 @@
 
 :backend "samsung"                 ; name of backend
 ;:version "(external)"             ; version of backend
-:url "http;//www.samsung.com/"     ; backend's web page
+:url "http://www.samsung.com/"     ; backend's web page
 :comment "See the website for the latest release."
 
 

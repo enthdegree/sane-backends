@@ -1,3 +1,8 @@
+2004-03-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added Tevion MD 40420. Moved
+	  Plustek OpticPro S(T)28 to genesys.desc.
+
 2004-03-22  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan.h Added detection for Epson 660 by USB ID

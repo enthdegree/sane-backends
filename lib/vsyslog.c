@@ -1,4 +1,4 @@
-#include "config.h"
+#include "../include/sane/config.h"
 
 #include "stdio.h"
 #include <syslog.h>

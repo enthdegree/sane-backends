@@ -1,4 +1,4 @@
-#include "config.h"
+#include "../include/sane/config.h"
 
 #ifndef HAVE_ISFDTYPE
 

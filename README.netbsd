@@ -8,11 +8,22 @@ SANE should compile and install out-of-the-box.
 
 SCSI-scanners:
 --------------
-If the SCSI host adapter is supported, there are no known problems. Try
-sane-find-scanner to find out the correct device and edit the backend's
-configuration file appropriately or set a link /dev/scanner to the device
-file. Auto-configuration using the "scsi *" lines in the config files
-doesn't work.
+SANE only supports the generic /dev/uk? devices. /dev/ss? won't work. If your
+scanner is detected by the ss driver, disable the driver with the "config"
+utility or compile a new kernel without ss. Set a link /dev/scanner to /dev/uk0
+(or whatever you use) and/or edit your backend's config file
+appropriately. Don't forget to set up permissions to the device file correctly
+for access by a non-root user (read/write). Auto-configuration using the "scsi
+*" lines in the config files doesn't work.
+
+Scanners with higher resolutions need bigger SCSI buffers. Therefore, edit
+sanei/sanei_scsi.c and look for these lines:
+
+#ifndef MAX_DATA
+# define MAX_DATA	(32*1024)
+#endif
+
+Increase the buffer size to e.g. 128 * 1024. Recompile.
 
 USB-scanners:
 -------------

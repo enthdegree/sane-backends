@@ -7,6 +7,8 @@
 2004-06-08  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* tools/RenSaneDlls.cmd: Fixed newlines.
+	* README.netbsd: Mention SCSI buffer size problems and uk/ss files
+	  issue.
 
 2004-06-06  Karl Heinz Kremer <khk@khk.net>
 

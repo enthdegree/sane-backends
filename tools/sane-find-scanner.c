@@ -385,20 +385,45 @@ static char *
 get_libusb_string_descriptor (struct usb_device *dev, int index)
 {
   usb_dev_handle *handle;
-  char *buffer;
+  char *buffer, short_buffer[2];
   struct usb_string_descriptor *sd;
-  int size = 100;
+  int size = 2;
   int i;
 
   if (!index)
     return 0;
+
+
+  handle = usb_open (dev);
+  if (!handle)
+    return 0;
+
+  sd = (struct usb_string_descriptor *) short_buffer;
+
+  if (usb_control_msg (handle,
+		       USB_ENDPOINT_IN + USB_TYPE_STANDARD + USB_RECIP_DEVICE,
+		       USB_REQ_GET_DESCRIPTOR,
+		       (USB_DT_STRING << 8) + index, 0, short_buffer,
+		       size, 1000) < 0)
+    {
+      usb_close (handle);
+      return 0;
+    }
+
+  if (sd->bLength < 2 
+      || sd->bDescriptorType != USB_DT_STRING)
+    {
+      usb_close (handle);
+      return 0;
+    }
+  
+  size = sd->bLength;
+
   buffer = calloc (1, size + 1);
   if (!buffer)
     return 0;
   sd = (struct usb_string_descriptor *) buffer;
-  handle = usb_open (dev);
-  if (!handle)
-    return 0;
+
   if (usb_control_msg (handle,
 		       USB_ENDPOINT_IN + USB_TYPE_STANDARD + USB_RECIP_DEVICE,
 		       USB_REQ_GET_DESCRIPTOR,
@@ -408,6 +433,7 @@ get_libusb_string_descriptor (struct usb_device *dev, int index)
       usb_close (handle);
       return 0;
     }
+
   if (sd->bLength < 2 || sd->bLength > size
       || sd->bDescriptorType != USB_DT_STRING)
     {

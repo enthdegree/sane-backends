@@ -1,3 +1,8 @@
+2004-10-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* tools/sane-find-scanner.c: When getting string descriptors, ask
+	  for the length of the descriptor first (bug #301001).
+
 2004-10-18  Ullrich Sigwanz <usigwanz@freesurf.ch>
 
         * backend/niash_core.c: 

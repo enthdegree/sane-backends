@@ -89,13 +89,13 @@
 #if defined (HAVE_GETADDRINFO) && defined (HAVE_GETNAMEINFO)
 # define NET_USES_AF_INDEP
 # ifdef ENABLE_IPV6
-#  define NET_VERSION "1.0.11 (AF-indep+IPv6)"
+#  define NET_VERSION "1.0.12 (AF-indep+IPv6)"
 # else
-#  define NET_VERSION "1.0.11 (AF-indep)"
+#  define NET_VERSION "1.0.12 (AF-indep)"
 # endif /* ENABLE_IPV6 */
 #else
 # undef ENABLE_IPV6
-# define NET_VERSION "1.0.11"
+# define NET_VERSION "1.0.12"
 #endif /* HAVE_GETADDRINFO && HAVE_GETNAMEINFO */
 
 static SANE_Auth_Callback auth_callback;
@@ -305,7 +305,7 @@ connect_dev (Net_Device * dev)
 	{
 	  DBG (1, "connect_dev: [%d] don't know how to deal with addr family %d\n",
 	       i, addrp->ai_family);
-	  break;
+	  continue;
 	}
       
       dev->ctl = socket (addrp->ai_family, SOCK_STREAM, 0);
@@ -314,14 +314,14 @@ connect_dev (Net_Device * dev)
 	  DBG (1, "connect_dev: [%d] failed to obtain socket (%s)\n",
 	       i, strerror (errno));
 	  dev->ctl = -1;
-	  break;
+	  continue;
 	}
 
       if (connect (dev->ctl, addrp->ai_addr, addrp->ai_addrlen) < 0)
 	{
 	  DBG (1, "connect_dev: [%d] failed to connect (%s)\n", i, strerror (errno));
 	  dev->ctl = -1;
-	  break;
+	  continue;
 	}
       DBG (3, "connect_dev: [%d] connection succeeded (%s)\n", i, (addrp->ai_family == AF_INET6) ? "IPv6" : "IPv4");
       dev->addr_used = addrp;

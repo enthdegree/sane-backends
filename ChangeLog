@@ -2,6 +2,9 @@
 
 	* po/sane-backends.fr.po: Fixed two wrong codings of accented
 	  characters.
+	* backend/net.c: Fixed bug concerning hosts that have both IPv6
+	  and IPv4 addresses but only accept connections on IPv4. Patch
+	  from Julien BLACHE <jb@jblache.org>.
 
 2003-05-27  Frank Zago  <fzago at austin dot rr dot com>
 

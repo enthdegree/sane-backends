@@ -1,4 +1,4 @@
-TODO (2000-12-04)
+TODO (2000-12-05)
 
 ******** todo ********
 
@@ -48,8 +48,7 @@ backends
   * dc210 and jpeg stuff: move sanei_* functions to sanei/ (if they are 
     necssary).
 
-  * as6e: Check result of stat for errors to avoid false recognitions of the
-    as6edriver.
+  * plustek-share.h: remove //
 
 doc
 ---
@@ -112,7 +111,11 @@ misc
 
   * use #include "../include/lalloca.h" instead of #include <lalloca.h>
 
+  * check include/sane/config.h.in for unnecessary macros.
+
 ******** done ********
+* as6e: Check result of stat for errors to avoid false recognitions of the
+  as6edriver.
 * artec: O_SYNC is not Posix. Breaks compilation on FreeBSD and (maybe) OS/2.
 * use strchr() instead of index() in mustek_pp to avoid problems when
   icluding strings.h or string.h.

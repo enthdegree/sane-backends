@@ -121,10 +121,11 @@
 
 /************************** global vars **************************************/
 
-static int num_devices;
-static Plustek_Device  *first_dev;
-static Plustek_Scanner *first_handle;
-static unsigned long    tsecs = 0;
+static int                 num_devices;
+static Plustek_Device     *first_dev;
+static Plustek_Scanner    *first_handle;
+static const SANE_Device **devlist = NULL;
+static unsigned long       tsecs = 0;
 
 static ModeParam mode_params[] =
 {
@@ -836,11 +837,17 @@ void sane_exit( void )
 		free( dev );
 	}
 
+	/* cleanup the device list if exist... */
+	if( devlist )
+    	free( devlist );
+	
+    /* call driver specific shutdown function... */
 	_DOWN();
 
 	auth         = NULL;
 	first_dev    = NULL;
 	first_handle = NULL;
+	devlist      = NULL;
 }
 
 /*.............................................................................
@@ -849,9 +856,8 @@ void sane_exit( void )
 SANE_Status sane_get_devices(const SANE_Device ***device_list,
 														SANE_Bool local_only )
 {
-	static const SANE_Device **devlist = 0;
-	Plustek_Device            *dev;
-	int                        i;
+	Plustek_Device *dev;
+	int             i;
 
 	DBG(_DBG_SANE_INIT, "sane_get_devices (%p, %ld)\n",
                                                device_list, (long) local_only);

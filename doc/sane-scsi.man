@@ -1,4 +1,4 @@
-.TH sane-scsi 5 "28 Mar 2002"
+.TH sane-scsi 5 "13 Apr 2002"
 .IX sane-scsi
 .SH NAME
 sane-scsi - SCSI adapter tips for scanners
@@ -256,9 +256,11 @@ therefore while a scan is in progress, the system becomes almost unusable.
 You may change the values of the USLEEP macros in drivers/scsi/g_NCR5380.c.
 Some documentation is in this file and NCR5380.c.
 .TP
-NCR/Symbios 810
+NCR/Symbios 810 
 For some scanners it may be necssary to disable disconnect/reconnect. To
-achieve this use the option ncr53c8xx="disc:n".
+achieve this use the option ncr53c8xx="disc:n". Some people reported that
+their scanner only worked with the 53c7,8xx driver, not the ncr53c8xx. Try
+both if you have trouble.
 .br
 For Linux kernels before 2.0.33 it may be necessary to increase the SCSI
 timeout. The default timeout for the Linux kernels before 2.0.33 is 10
@@ -268,6 +270,11 @@ system console, it's an indication that the timeout is too short.  In this
 case, find the line ``if (np->latetime>10)'' in file ncr53c8xx.c (normally in
 directory /usr/src/linux/drivers/scsi) and change the constant 10 to, say, 60
 (one minute).  Then rebuild the kernel/module and try again.
+.TP
+Tekram DC315
+The driver can be downloaded from http://www.garloff.de/kurt/linux/dc395/.
+For some older scanners it may be necessary to disable all the more advanced
+features by using e.g. modprobe dc395x_trm dc395x_trm=7,5,1,32.
 .TP
 Tekram DC390
 Version 1.11 of the Tekram driver seems to work fine mostly, except

@@ -6,6 +6,8 @@
 	  (based on patch from Jochen Eisinger <jochen.eisinger@gmx.de>).
 	  Fixed some debug output and formatting issues of the byte order
 	  patch. Increased version number to 1.0.5.
+	* frontend/saned.c: More debug output. Used DBG instead of
+	  fprintf/perror. Fixed some formatting issues.
 	
 2001-10-10  Jochen Eisinger <jochen.eisinger@gmx.de>
 

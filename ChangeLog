@@ -1,4 +1,8 @@
-2003-06-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
+2003-06-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions.txt: Changed unmaintained tag to lowercase.
+
+2003-06-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* tools/sane-desc.c: Changed to use the new status system for
 	  devices: unsupported, untested, minimal, basic, good, complete.

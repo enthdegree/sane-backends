@@ -40,7 +40,7 @@ they shouldn't be used more than once per file.
 `:version' has one string argument containing the backend's version
 number. The version should match the version used in the backend source code.
 Example: `:version: "12.3.5"'. If the backend isn't maintained, the version
-should be `UNMAINTAINED' or contain this tag together with the version number.
+should be `unmaintained' or contain this tag together with the version number.
 
 `:new' indicates that the backend is brand-new in the latest SANE release if
 the keyword argument is `:yes'.  Otherwise, `:no' should be used or `:new'

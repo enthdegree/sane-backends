@@ -1,5 +1,17 @@
 CHANGES for the SANE Mustek backend
 
+2002-01-07
+  * Released Mustek backend 1.0-117.
+
+2001-12-29
+  * Send start_stop_scan for Pro even if scan wasn't cancelled but less
+    data than expected was send (e.g. scanimage -T).
+
+2001-12-22
+  * Added Trust Imagery 1200 to man page and .desc.
+
+2001-12-15
+  * Released Mustek backend 1.0-116.
 
 2001-12-11
   * Fixed possible segfault in sane_control_option.

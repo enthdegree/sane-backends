@@ -46,7 +46,7 @@
 
 /**************************************************************************/
 /* Mustek backend version                                                 */
-#define BUILD 116
+#define BUILD 117
 /**************************************************************************/
 
 #include "../include/sane/config.h"
@@ -541,7 +541,8 @@ dev_cmd (Mustek_Scanner * s, const void * src, size_t src_size,
   const SANE_Byte *pp;
 
   DBG(5, "dev_cmd: fd=%d, src=%p, src_size=%d, dst=%p, dst_size=%d\n",
-      s->fd, src, (SANE_Int) src_size, dst, (SANE_Int) dst_size ? *dst_size : 0);
+      s->fd, src, (SANE_Int) src_size, dst,
+      (SANE_Int) dst_size ? *dst_size : 0);
 
   if (src && (debug_level >= 5)) /* output data sent to SCSI device */
     {
@@ -549,24 +550,24 @@ dev_cmd (Mustek_Scanner * s, const void * src, size_t src_size,
       for (pp = (const SANE_Byte *) src; 
 	   pp < (((const SANE_Byte *) src) + src_size);
 	   pp++)
-	{
-	  sprintf ((SANE_String) cmd_byte, " %02x", *pp);
-	  strcat ((SANE_String) cmd_byte_list, (SANE_String) cmd_byte);
-	  if (((pp - (const SANE_Byte *) src) % 0x10 == 0x0f) 
-	      || (pp >= (((const SANE_Byte *) src) + src_size - 1)))
-	    {
-	      DBG(5, "dev_cmd: sending: %s\n", cmd_byte_list);
-	      cmd_byte_list [0] = '\0';
-	    }
+		{
+		  sprintf ((SANE_String) cmd_byte, " %02x", *pp);
+		  strcat ((SANE_String) cmd_byte_list, (SANE_String) cmd_byte);
+		  if (((pp - (const SANE_Byte *) src) % 0x10 == 0x0f) 
+			  || (pp >= (((const SANE_Byte *) src) + src_size - 1)))
+			{
+			  DBG(5, "dev_cmd: sending: %s\n", cmd_byte_list);
+			  cmd_byte_list [0] = '\0';
+			}
+		}
 	}
-    }
-
   if (s->hw->flags & MUSTEK_FLAG_N)
     status = sanei_ab306_cmd (s->fd, src, src_size, dst, dst_size);
   else
     status = sanei_scsi_cmd (s->fd, src, src_size, dst, dst_size);
 
-  if (dst && dst_size && (debug_level >= 5)) /* output data received from SCSI device */
+  if (dst && dst_size && (debug_level >= 5)) 
+    /* output data received from SCSI device */
     {
       cmd_byte_list [0] = '\0';
       for (pp = (const SANE_Byte *) dst; 
@@ -682,34 +683,12 @@ dev_read_req_enter (Mustek_Scanner *s, SANE_Byte *buf, SANE_Int lines,
 	}
       else if (s->hw->flags & MUSTEK_FLAG_PRO)
 	{
+	  scsi_sense_wait_ready (s);
 	  memset (command, 0, 6);
 	  command[0] = MUSTEK_SCSI_READ_SCANNED_DATA;
 	  command[2] = ((lines * bpl) >> 16) & 0xff;
 	  command[3] = ((lines * bpl) >> 8) & 0xff;
 	  command[4] = ((lines * bpl) >> 0) & 0xff;
-
-	  if (command && (debug_level >= 5)) /* output data sent to SCSI device */
-	    {
-	      SANE_Byte cmd_byte_list [50];
-	      SANE_Byte cmd_byte [5];
-	      const SANE_Byte *pp;
-	      SANE_Int command_size = 6;
-	      
-	      cmd_byte_list [0] = '\0';
-	      for (pp = (const SANE_Byte *) command; 
-		   pp < (((const SANE_Byte *) command) + command_size);
-		   pp++)
-		{
-		  sprintf ((SANE_String) cmd_byte, " %02x", *pp);
-		  strcat ((SANE_String) cmd_byte_list, (SANE_String) cmd_byte);
-		  if (((pp - (const SANE_Byte *) command) % 0x10 == 0x0f) 
-		      || (pp >= (((const SANE_Byte *) command) + command_size - 1)))
-		    {
-		      DBG(5, "dev_read_req_enter: sending: %s\n", cmd_byte_list);
-		      cmd_byte_list [0] = '\0';
-		    }
-		}
-	    }
 
 	  return sanei_scsi_req_enter (s->fd, command, 6, buf, lenp, idp); 
 	}
@@ -2568,7 +2547,17 @@ mode_select_pro (Mustek_Scanner *s)
   else
     mode[6] = 0x00; /* lineart */
 
-  mode[11] = 0x00;  /* what's this? */
+  mode[7] = 0;
+  mode[8] = 0;
+  mode[9] = 0;
+  mode[10] = 0;
+  mode[11] = 0x00;
+  mode[12] = 0x27;
+  mode[13] = 0xb0;
+  mode[14] = 0x04;
+  mode[15] = 0x43;
+  mode[16] = 0x41;
+
   cp = mode + 17;
   STORE16L(cp, s->resolution_code);
 
@@ -2853,10 +2842,14 @@ do_stop (Mustek_Scanner *s)
   if (s->fd >= 0)
     {
       if (s->hw->flags & MUSTEK_FLAG_PRO)
-	dev_wait_ready (s);
-      if ((s->hw->flags & MUSTEK_FLAG_PARAGON_1) 
+	{
+	  if (s->total_bytes < s->params.lines * s->params.bytes_per_line)
+	    status = dev_cmd (s, scsi_start_stop, sizeof (scsi_start_stop), 
+			      0, 0);
+	  dev_wait_ready (s);
+	}
+      else  if ((s->hw->flags & MUSTEK_FLAG_PARAGON_1) 
 	  || (s->hw->flags & MUSTEK_FLAG_PARAGON_2) 
-	  || (s->hw->flags & MUSTEK_FLAG_PRO)
 	  || (s->hw->flags & MUSTEK_FLAG_THREE_PASS))
 	{
 	  if (s->cancelled && 
@@ -4848,7 +4841,6 @@ reader_process (Mustek_Scanner *s, SANE_Int fd)
               DBG(4, "reader_process: buffer %d: entering read request for %d "
                   "bytes (buffer %d)\n", buffernumber + 1,
                   bstat[buffernumber].lines * bpl, buffer_count);
- 
               sigprocmask (SIG_BLOCK, &sigterm_set, 0);
               status = dev_read_req_enter (s, bstat[buffernumber].data,
                                            bstat[buffernumber].lines, bpl,
@@ -5382,7 +5374,7 @@ sane_close (SANE_Handle handle)
       DBG(1, "sane_close: invalid handle %p\n", handle);
       return;		/* oops, not a handle we know about */
     }
-
+  
   if (s->scanning)
     do_stop (handle);
 
@@ -6111,11 +6103,11 @@ sane_start (SANE_Handle handle)
       status = mode_select_pro (s);	
       if (status != SANE_STATUS_GOOD)
 	goto stop_scanner_and_return;
-      
+
       status = calibration_pro (s);	
       if (status != SANE_STATUS_GOOD)
 	goto stop_scanner_and_return;
-      
+
       status = send_gamma_table (s);
       if (status != SANE_STATUS_GOOD) 
 	goto stop_scanner_and_return;
@@ -6123,6 +6115,9 @@ sane_start (SANE_Handle handle)
       status = start_scan (s);
       if (status != SANE_STATUS_GOOD) 
 	goto stop_scanner_and_return;
+
+      scsi_unit_wait_ready (s);
+      scsi_sense_wait_ready (s);
 
       status = get_image_status (s, &s->params.bytes_per_line, 
 				 &s->params.lines);

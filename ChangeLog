@@ -1,3 +1,9 @@
+2001-09-04  Jochen Eisinger <jochen.eisinger@gmx.de>
+
+	* backend/net.desc doc/saned.man doc/sane-net.man: added
+	  pointer to new saned homepage 
+	  (http://home.nexgo.de/jochen.eisinger/saned/)
+
 2001-09-04  Peter Kirchgessner <peter@kirchgessner.net>
 
         * backend/hp-device.[hc] hp-handle.c hp-scl.[hc]

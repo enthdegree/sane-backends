@@ -1,5 +1,9 @@
 2000-10-23  Jochen Eisinger <jochen.eisinger@gmx.net>
 
+	* backend/dll.c: added test for ``dll'' in dll.conf
+
+2000-10-23  Jochen Eisinger <jochen.eisinger@gmx.net>
+
 	* sanei/sanei_init_debug.c include/sane/sanei_debug.h
 	  frontend/saned.c: removed vararg macros
 

@@ -1,3 +1,9 @@
+2002-01-10  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+	
+	* backend/snapscan.c   backend/snapscan.h  backend/snapscan.desc:
+	  Update to snapscan-20020110 (Version 1.4.4) 
+          - add support for SnapScan e42	  
+
 2002-01-10  Gerhard Jaeger <g.jaeger@earthling.net>
 
     * include/sane/sanei_lm983x.h sanei/sanei_lm983x.c sanei/Makefile.in:

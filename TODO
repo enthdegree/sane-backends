@@ -1,4 +1,4 @@
-TODO (2001-10-28)
+TODO (2001-11-21)
 
 ******** todo ********
 
@@ -34,6 +34,12 @@ backends
 
   * Update backends
     - Combine all the Fujitsu backends into one single backend
+
+  * Check all backends which use fork/kill for the kill (-1,...) bug
+    first found in the microtek2 backend.
+
+  * really fix all the parport/inb/outb compilation issues which break
+    porting to some non-i386 platforms.
 
   * Use DBG(...) instead of fprintf(stderr, ...) or printf
      - microtek
@@ -157,6 +163,10 @@ misc
   * check memory leaks (checked with purify and mtrace (from glibc)):
 
   * Add installation procedure for translations of SANE backend's options.
+ 
+  * Update (at least) config.guess and config.sub to support newer platforms.
+
+  * Must -ldl be added to sane-config.in?
 
 ******** done ********
 * Use @LIBDIR@, @CONFIGDIR@ and the other @@ macros to refer to paths.

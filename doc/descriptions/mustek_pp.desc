@@ -11,7 +11,6 @@
 
 :backend "mustek_pp"              ; name of backend
 :version "12"                     ; version of backend
-:status :alpha                    ; :alpha, :beta, :stable, :new
 :manpage "sane-mustek_pp"         ; name of manpage (if it exists)
                                   ; backend's web page
 :url "http://penguin-breeder.org/?page=mustek_pp"
@@ -48,23 +47,23 @@
 
 :model "ScanExpress 600 CP"
 :interface "Parport (EPP)"
-:status :beta
-:comment "CIS scanner"
+:status :good
+:comment "300x600 dpi CIS scanner"
 
 :model "ScanMagic 600 CP"
 :interface "Parport (EPP)"
-:status :beta
-:comment "CIS scanner"
+:status :good
+:comment "300x600 dpi CIS scanner"
 
 :model "ScanExpress 1200 CP"
 :interface "Parport (EPP)"
-:status :beta
-:comment "CIS scanner"
+:status :good
+:comment "600x1200 dpi CIS scanner"
 
 :model "ScanExpress 1200 CP+"
 :interface "Parport (EPP)"
-:status :beta
-:comment "CIS scanner"
+:status :good
+:comment "600x1200 dpi CIS scanner"
 
 :mfg "Medion/Lifetec/Tevion/Cytron"
 :url "http://www.medion.de/"
@@ -77,38 +76,43 @@
 
 :model "MD/LT 935x"
 :interface "Parport (EPP)"
-:status :beta
-:comment "CIS scanner"
+:status :good
+:comment "600x1200 dpi CIS scanner"
 
 :model "MD/LT 985x"
 :interface "Parport (EPP)"
-:status :beta
-:comment "CIS scanner"
+:status :good
+:comment "600x1200 dpi CIS scanner"
 
 :model "MD/LT 9890"
 :interface "Parport (EPP)"
-:status :beta
-:comment "CIS scanner"
+:status :good
+:comment "600x1200 dpi CIS scanner"
 
 :mfg "Targa"
 
 :model "Funline TS12 EP"
 :interface "Parport (EPP)"
-:status :beta
-:comment "CIS scanner"
+:status :good
+:comment "600x1200 dpi CIS scanner"
 
 :model "Funline TS6 EP"
 :interface "Parport (EPP)"
-:status :beta
-:comment "CIS scanner"
+:status :good
+:comment "300x600 dpi CIS scanner"
 
 :mfg "Trust"
 :url "http://www.trust-site.com/home/"
 
 :model "Easy Connect 9600+"
 :interface "Parport (EPP)"
-:status :beta
-:comment "CIS scanner"
+:status :good
+:comment "300x600 dpi CIS scanner"
+
+:model "Easy Connect 19200+"
+:interface "Parport (EPP)"
+:status :good
+:comment "300x600 dpi CIS scanner"
 
 :mfg "Viviscan"
 

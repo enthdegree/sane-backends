@@ -76,6 +76,12 @@
 #define NULL	0L
 #endif
 
+#ifdef __GNUC__
+#define UNUSEDARG __attribute__ ((unused))
+#else
+#define UNUSEDARG
+#endif
+
 typedef struct picture_info
   {
     unsigned int low_res;
@@ -270,8 +276,10 @@ static int read_data (int fd, unsigned char *buf, int sz);
 
 static int end_of_data (int fd);
 
-static PictureInfo *get_pictures_info (int fd);
+static PictureInfo *get_pictures_info (void);
 
-static int get_picture_info (int fd, PictureInfo * pic, int p);
+static int get_picture_info (PictureInfo * pic, int p);
 
-static SANE_Status snap_pic (int fd);
+static SANE_Status snap_pic (int);
+
+char *sanei_config_read (char *str, int n, FILE * stream);

@@ -1,3 +1,9 @@
+2002-01-12  Gerhard Jaeger <g.jaeger@earthling.net>
+
+    * include/sane/sanei_lm983x.h sanei/sanei_lm983x.c:
+      added sanei_lm983x_init(), updated comments and fixed the u_long
+    * AUTHORS: Added myself to the list of sanei authors.
+
 2002-01-12  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/sane.man doc/scanimage.man: Added link to scanadf.

@@ -25,9 +25,9 @@
 :model "CanoScan FB630P"	; name models for above-specified mfg.
 :interface "Parport (EPP)"
 :comment "1 pass; flatbed scanner"
-:model "CanoScan FB340P"	; name models for above-specified mfg.
+:model "CanoScan N340P"		; name models for above-specified mfg.
 :interface "Parport (EPP)"
 :comment "1 pass; flatbed scanner"
-:model "CanoScan FB640P"	; name models for above-specified mfg.
+:model "CanoScan N640P"		; name models for above-specified mfg.
 :interface "Parport (EPP)"
 :comment "1 pass; flatbed scanner"

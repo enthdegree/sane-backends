@@ -106,7 +106,8 @@ Not only should we check for the additional directory, but pictures may
 actually be found in multiple directories.
 .PP
 More general comments, suggestions, and inquiries about frontends
-or SANE should go to 
-.BR sane\-devel@mostang.com ,
-the SANE Developers mailing list.
+or SANE should go to the SANE Developers mailing list 
+(see http://www.mostang.com/sane/mail.html for details). 
+You must be subscribed to the list, otherwise your mail won't be
+sent to the subscribers.
 

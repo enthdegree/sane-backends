@@ -17,7 +17,7 @@
  * 0.42 - added setmap function
  *        fixed the stopscan problem, that causes a crash in the kernel module
  * 0.43 - no changes
- * 0.44 - no changes
+ * 0.44 - added initialized setting
  *
  *.............................................................................
  *
@@ -70,6 +70,7 @@ static int ppDev_open( const char *dev_name, void *misc )
 	int 		    result;
 	int			    handle;
 	CompatAdjDef    compatAdj;
+	PPAdjDef        adj;
 	unsigned short  version = _PTDRV_IOCTL_VERSION;
 	Plustek_Device *dev     = (Plustek_Device *)misc;
 
@@ -120,7 +121,23 @@ static int ppDev_open( const char *dev_name, void *misc )
 		return result;
     }
 
-	_IOCTL( handle, _PTDRV_ADJUST, &dev->adj );
+	memset( &adj, 0, sizeof(PPAdjDef));
+
+	adj.lampOff      = dev->adj.lampOff;
+	adj.lampOffOnEnd = dev->adj.lampOffOnEnd;
+	adj.warmup       = dev->adj.warmup;
+
+	memcpy( &adj.pos, &dev->adj.pos, sizeof(OffsDef));
+	memcpy( &adj.neg, &dev->adj.neg, sizeof(OffsDef));
+	memcpy( &adj.tpa, &dev->adj.tpa, sizeof(OffsDef));
+
+	adj.rgamma    = dev->adj.rgamma;
+	adj.ggamma    = dev->adj.ggamma;
+	adj.bgamma    = dev->adj.bgamma;
+	adj.graygamma = dev->adj.graygamma;
+
+	_IOCTL( handle, _PTDRV_ADJUST, &adj );
+	dev->initialized = SANE_TRUE;
 
 	return handle;
 }

@@ -84,7 +84,8 @@ static void usb_initDev( pPlustek_Device dev, int idx, int handle, int vendor )
 	int       i;
 	ScanParam sParam;
 
-	DBG( _DBG_INFO, "usb_initDev(%d,0x%04x)\n", idx, vendor );
+	DBG( _DBG_INFO, "usb_initDev(%d,0x%04x,%u)\n",
+											idx, vendor, dev->initialized );
 
 	memcpy( &dev->usbDev.Caps, Settings[idx].pDevCaps, sizeof(DCapsDef));
 	memcpy( &dev->usbDev.HwSetting, Settings[idx].pHwDef, sizeof(HWDef));
@@ -97,6 +98,12 @@ static void usb_initDev( pPlustek_Device dev, int idx, int handle, int vendor )
 
     if( dev->adj.lampOffOnEnd >= 0 )
         dev->usbDev.bLampOffOnEnd = dev->adj.lampOffOnEnd;
+
+    if( dev->adj.skipCalibration > 0 )
+		dev->usbDev.Caps.workaroundFlag |= _WAF_BYPASS_CALIBRATION;
+
+    if( dev->adj.invertNegatives > 0 )
+		dev->usbDev.Caps.workaroundFlag |= _WAF_INV_NEGATIVE_MAP;
 	
 	/*
 	 * adjust data origin
@@ -108,7 +115,19 @@ static void usb_initDev( pPlustek_Device dev, int idx, int handle, int vendor )
 	dev->usbDev.Caps.Negative.DataOrigin.y -= dev->adj.neg.y;	
 
 	dev->usbDev.Caps.Normal.DataOrigin.x -= dev->adj.pos.x;	
-	dev->usbDev.Caps.Normal.DataOrigin.y -= dev->adj.pos.y;	
+	dev->usbDev.Caps.Normal.DataOrigin.y -= dev->adj.pos.y;
+
+	/*
+     * adjust shading position
+     */
+	if( dev->adj.posShadingY >= 0 )
+		dev->usbDev.Caps.Normal.ShadingOriginY   = dev->adj.posShadingY;
+
+	if( dev->adj.tpaShadingY >= 0 )
+		dev->usbDev.Caps.Positive.ShadingOriginY = dev->adj.tpaShadingY;
+
+	if( dev->adj.negShadingY >= 0 )
+		dev->usbDev.Caps.Negative.ShadingOriginY = dev->adj.negShadingY;
 		
 	/*
 	 * the following you normally get from the registry...
@@ -165,6 +184,9 @@ static void usb_initDev( pPlustek_Device dev, int idx, int handle, int vendor )
 
 	/* check and move sensor to its home position */
 	usb_ModuleToHome( dev, SANE_FALSE );
+
+	/* set the global flag, that we are initialized so far */
+	dev->initialized = SANE_TRUE;
 }
 
 /*.............................................................................

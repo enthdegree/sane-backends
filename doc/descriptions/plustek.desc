@@ -220,7 +220,17 @@
 :model "Perfection 1250Photo"
 :interface "USB"
 :status :stable
-:comment "Mostly OK - use enableTPA"
+:comment "Mostly OK - use option enableTPA"
+
+:model "Perfection 1260"
+:interface "USB"
+:status :stable
+:comment "Mostly OK"
+
+:model "Perfection 1260Photo"
+:interface "USB"
+:status :stable
+:comment "Mostly OK - use option enableTPA"
 
 :mfg "Umax"                  ; name of manufacturer
 :url "http://www.umax.com/"

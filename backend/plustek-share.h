@@ -23,7 +23,7 @@
  *        changed IOCTL interface to allow downloadable MAPS
  *        added error codes
  * 0.43 - added tpa entry for AdjDef
- * 0.44 - no changes
+ * 0.44 - extended AdjDef
  *
  *.............................................................................
  *
@@ -215,7 +215,7 @@ typedef struct {
 } OffsDef, *pOffsDef;
 
 /*
- * for compatiblitiy to version 0x0102 drivers
+ * for compatiblity to version 0x0102 drivers
  */
 typedef struct {
 
@@ -230,7 +230,7 @@ typedef struct {
 } CompatAdjDef, *pCompatAdjDef;
 
 /*
- * for adjusting the drivers
+ * for adjusting the parport-drivers
  */
 typedef struct {
 	int     lampOff;
@@ -249,6 +249,38 @@ typedef struct {
 	
 	double  graygamma;
 
+} PPAdjDef, *pPPAdjDef;
+
+/*
+ * for adjusting the usb stuff
+ */
+typedef struct {
+	int     lampOff;
+	int     lampOffOnEnd;
+	int     warmup;
+	int     enableTpa;
+	int     skipCalibration;
+	int     invertNegatives;
+
+	int rgain;
+	int ggain;
+	int bgain;
+
+	OffsDef pos; 	/* for adjusting normal scan area       */
+	OffsDef tpa; 	/* for adjusting transparency scan area */
+	OffsDef neg; 	/* for adjusting negative scan area     */
+
+	int     posShadingY;
+	int     tpaShadingY;
+	int     negShadingY;
+
+	/* for adjusting the default gamma settings */
+	double  rgamma;
+	double  ggamma;
+	double  bgamma;
+
+	double  graygamma;
+
 } AdjDef, *pAdjDef;
 
 /*
@@ -258,8 +290,6 @@ typedef struct {
 	int	  id;
 	char *desc;	
 } TabDef, *pTabDef;
-
-
 
 /* NOTE: needs to be kept in sync with table below */
 #define MODELSTR static char *ModelStr[] = { \

@@ -1335,7 +1335,7 @@ static SANE_Int usb_ReadData( struct Plustek_Device *dev )
 
 	DBG( _DBG_READ, "usb_ReadData()\n" );
 
-	dwAdjust = 1;
+	dwAdjust = 1;                                                
 
 	/* for 1 channel color, we have to adjust the phybytes... */
 	if( hw->bReg_0x26 & _ONE_CH_COLOR ) {

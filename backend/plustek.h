@@ -36,7 +36,7 @@
  *        changed usbId to static array
  *		  added _MAX_ID_LEN
  * 0.43 - no changes
- * 0.44 - no changes
+ * 0.44 - added flag initialized
  *
  *.............................................................................
  *
@@ -158,6 +158,7 @@ typedef enum {
 
 typedef struct Plustek_Device
 {
+	SANE_Bool              initialized;      /* device already initialized?  */
 	struct Plustek_Device *next;             /* pointer to next dev in list  */
 	int 				   fd;				 /* device handle                */
     char                  *name;             /* (to avoid compiler warnings!)*/

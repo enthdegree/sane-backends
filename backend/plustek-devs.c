@@ -28,7 +28,7 @@
  *        added Genius Model strings
  *        added Canon N670U entry
  *        added bStepsToReverse to the HwDesc structure
- *        tweaked EPSON1250 settings for TPA (negative origins)
+ *        tweaked EPSON1250 settings for TPA (thanks to Till Kamppeter)
  *
  *.............................................................................
  *
@@ -590,13 +590,17 @@ static DCapsDef Cap0x0400_0x1001_0 =
 };
 
 /* Epson Perfection/Photo1250 (thanks to Gene Heskett and Reinhard Max)
+ * Epson Perfection/Photo1260 (thanks to Till Kamppeter)
  * NS9832 + 4 Buttons + CCD????
  */
 static DCapsDef Cap0x04B8_0x010F_0 =
 {
-	{{       25,       80},  10, {2550, 3508}, { 100, 100 }, COLOR_BW },
-	{{      965,      350}, 543, { 473,  414}, { 150, 150 }, COLOR_GRAY16 },
-	{{1004 + 20, 744 - 20}, 543, { 567,  414}, { 150, 150 }, COLOR_GRAY16 },
+	/* Normal */
+	{{   25,  80},  10, {2550, 3508}, { 100, 100 }, COLOR_BW },
+	/* Positive */
+	{{ 1100,  972}, 810, { 473,  414}, { 150, 150 }, COLOR_GRAY16 },
+	/* Negative */
+	{{ 1116, 1049}, 810, { 567,  414}, { 150, 150 }, COLOR_GRAY16 },
 	{{ 0,  0},   0, {0, 0}, { 0, 0 }, 0 },
 	{1200, 1200},
 	0,
@@ -1532,7 +1536,7 @@ static HWDef Hw0x04B8_0x010F_0 =
 
     0x41,   /* ok misc io12 (reg 0x59)                      */
     0x44,   /* ok misc io34 (reg 0x5a)                      */
-    0x94,   /* ok misc io56 (reg 0x5b)                      */
+    0x14,   /* ok misc io56 (reg 0x5b)                      */
     0,      /* ok test mode ADC Output CODE MSB (reg 0x5c)  */
     0,      /* ok test mode ADC Output CODE LSB (reg 0x5d)  */
     0,      /* ok test mode (reg 0x5e)                      */

@@ -20,6 +20,8 @@
  *        modified getLampStatus function for CIS devices
  *        added usb_Wait4Warmup()
  *        moved usb_IsEscPressed to this file
+ *        added usb_switchLampX
+ *        do now not reinitialized MISC I/O pins upon reset registers
  *
  *.............................................................................
  *
@@ -691,11 +693,11 @@ static int usb_GetLampStatus( pPlustek_Device dev )
 	if( NULL == hw ) {
 		DBG( _DBG_ERROR, "NULL-Pointer detected: usb_GetLampStatus()\n" );
 		return -1;
-	}	
-	
+	}
+
  	/* do we use the misc I/O pins for switching the lamp ? */
 	if( _WAF_MISC_IO_LAMPS & sc->workaroundFlag ) {
-			
+
 		usb_GetLampRegAndMask( sc->lamp, &reg, &msk );
 
 		if( 0 == reg ) {
@@ -724,9 +726,9 @@ static int usb_GetLampStatus( pPlustek_Device dev )
 					iLampStatus |= DEV_LampTPA;
 			}
 		}
-	
+
 	} else {
-	
+
 		sanei_lm983x_read(dev->fd, 0x29,&a_bRegs[0x29],0x37-0x29+1,SANE_TRUE);
 
 		if((a_bRegs[0x29] & 3) == 1) {
@@ -743,42 +745,12 @@ static int usb_GetLampStatus( pPlustek_Device dev )
 
 				if((a_bRegs[0x36] * 256 + a_bRegs[0x37]) > hw->wLineEnd )
 					iLampStatus |= DEV_LampTPA;
-			}				
+			}
 		}
 	}
 
 	DBG( _DBG_INFO, "LAMP-STATUS: 0x%08x\n", iLampStatus );
 	return iLampStatus;
-}
-
-/** usb_switchLamp
- * used for all devices that use some misc I/O pins to switch the lamp
- */
-static SANE_Bool usb_switchLamp( pPlustek_Device dev, SANE_Bool on )
-{
-	SANE_Byte reg, msk;
-    pScanDef  scanning = &dev->scanning;
-	pDCapsDef sc       = &dev->usbDev.Caps;
-
-	if((scanning->sParam.bSource == SOURCE_Negative) ||
-	   (scanning->sParam.bSource == SOURCE_Transparency))
-		usb_GetLampRegAndMask( _GET_TPALAMP(sc->lamp), &reg, &msk );
-	else
-		usb_GetLampRegAndMask( sc->lamp, &reg, &msk );
-
- 	if( 0 == reg )
-    	return SANE_FALSE; /* no need to switch something */
-
-	if( on )
-		a_bRegs[reg] |= msk;
-  	else
-		a_bRegs[reg] &= ~msk;
-
-	DBG( _DBG_INFO, "Switch Lamp: %u, regs[0x%02x] = 0x%02x\n",
-													on, reg, a_bRegs[reg] );
-    usbio_WriteReg( dev->fd, reg, a_bRegs[reg] );
-
-    return SANE_TRUE;
 }
 
 /** usb_switchLampX
@@ -798,7 +770,7 @@ static SANE_Bool usb_switchLampX( pPlustek_Device dev,
  	if( 0 == reg )
     	return SANE_FALSE; /* no need to switch something */
 
-	DBG( _DBG_INFO, "usb_switchLampX(ON=%u,TPA=%u)", on, tpa );
+	DBG( _DBG_INFO, "usb_switchLampX(ON=%u,TPA=%u)\n", on, tpa );
 
 	if( on )
 		a_bRegs[reg] |= msk;
@@ -810,6 +782,23 @@ static SANE_Bool usb_switchLampX( pPlustek_Device dev,
     usbio_WriteReg( dev->fd, reg, a_bRegs[reg] );
 
     return SANE_TRUE;
+}
+
+/** usb_switchLamp
+ * used for all devices that use some misc I/O pins to switch the lamp
+ */
+static SANE_Bool usb_switchLamp( pPlustek_Device dev, SANE_Bool on )
+{
+	SANE_Bool result;
+
+	if((dev->scanning.sParam.bSource == SOURCE_Negative) ||
+	   (dev->scanning.sParam.bSource == SOURCE_Transparency)) {
+		result = usb_switchLampX( dev, on, SANE_TRUE );
+	} else {
+		result = usb_switchLampX( dev, on, SANE_FALSE );
+	}
+
+    return result;
 }
 
 /** usb_LedOn
@@ -1007,11 +996,11 @@ static SANE_Bool usb_LampOn( pPlustek_Device dev,
  *                 it should contain all we need
  * @return - Nothing
  */
-static void usb_ResetRegisters(  pPlustek_Device dev )
+static void usb_ResetRegisters( pPlustek_Device dev )
 {
 	pHWDef hw = &dev->usbDev.HwSetting;
 
-	DBG( _DBG_INFO, "RESETTING REGISTERS\n" );
+	DBG( _DBG_INFO, "RESETTING REGISTERS(%u)\n", dev->initialized );
 	memset( a_bRegs, 0, sizeof(a_bRegs));
 
 	memcpy( a_bRegs+0x0b, &hw->bSensorConfiguration, 4 );
@@ -1028,7 +1017,20 @@ static void usb_ResetRegisters(  pPlustek_Device dev )
 	a_bRegs[0x50] = hw->bStepsToReverse;
 	a_bRegs[0x51] = hw->bReg_0x51;
 
-	memcpy( a_bRegs+0x54, &hw->bReg_0x54, 0x5e - 0x54 + 1 );
+	/* if already initialized, we ignore the MISC I/O settings as
+     * they are used to determine the current lamp settings...
+     */
+	if( dev->initialized ) {
+		memcpy( a_bRegs+0x54, &hw->bReg_0x54, 0x58 - 0x54 + 1 );
+		a_bRegs[0x5c] = hw->bReg_0x5c;
+		a_bRegs[0x5d] = hw->bReg_0x5d;
+		a_bRegs[0x5e] = hw->bReg_0x5e;
+		sanei_lm983x_read( dev->fd, 0x59, &a_bRegs[0x59], 3, SANE_TRUE );
+	} else {
+		memcpy( a_bRegs+0x54, &hw->bReg_0x54, 0x5e - 0x54 + 1 );
+	}
+	DBG( _DBG_INFO, "MISC I/O after RESET: 0%02x, 0%02x, 0%02x\n",
+								a_bRegs[0x59], a_bRegs[0x5a], a_bRegs[0x5b] );
 }
 
 /** usb_ModuleStatus

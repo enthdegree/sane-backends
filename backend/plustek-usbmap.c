@@ -12,7 +12,7 @@
  * 0.41 - fixed brightness problem for lineart mode
  * 0.42 - removed preset of linear gamma tables
  * 0.43 - no changes
- * 0.44 - no changes
+ * 0.44 - map inversion for negatatives now only upon user request
  *
  *.............................................................................
  *
@@ -113,6 +113,7 @@ static void usb_MapAdjust( pPlustek_Device dev )
 static SANE_Bool usb_MapDownload( pPlustek_Device dev, u_char bDataType )
 {
     pScanDef  scanning = &dev->scanning;
+	pDCapsDef sc       = &dev->usbDev.Caps;
 
 	int       color, maxColor;			/* loop counters             */
 	int       i, iThreshold;
@@ -175,7 +176,8 @@ static SANE_Bool usb_MapDownload( pPlustek_Device dev, u_char bDataType )
 		}
 
 		if( /*scanning->dwFlag & SCANFLAG_Pseudo48 && */
-			scanning->sParam.bSource == SOURCE_Negative ) {
+			(scanning->sParam.bSource == SOURCE_Negative) &&
+			(sc->workaroundFlag &_WAF_INV_NEGATIVE_MAP)) {
 			fInverse ^= 1;
 		}
 		

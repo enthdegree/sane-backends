@@ -18,6 +18,7 @@
  *        added CLKDef
  * 0.44 - added vendor and product ID to struct DeviceDef
  *        added _WAF_BYPASS_CALIBRATION
+ *		  added _WAF_INV_NEGATIVE_MAP
  *
  *.............................................................................
  *
@@ -175,7 +176,8 @@ enum _WORKAROUNDS
 	_WAF_BSHIFT7_BUG		= 0x00000001, /* to fix U12 bug in 14bit mode    */
 	_WAF_MISC_IO_LAMPS      = 0x00000002, /* special lamp switching          */
 	_WAF_BLACKFINE          = 0x00000004, /* use black calibration strip     */
-	_WAF_BYPASS_CALIBRATION = 0x00000008  /* no calibration,use linear gamma */
+	_WAF_BYPASS_CALIBRATION = 0x00000008, /* no calibration,use linear gamma */
+	_WAF_INV_NEGATIVE_MAP   = 0x00000010  /* the backend does the neg. stuff */
 };
 
 enum _LAMPS

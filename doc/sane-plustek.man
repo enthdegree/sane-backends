@@ -1,4 +1,4 @@
-.TH sane-plustek 5 "27 September 2002"
+.TH sane-plustek 5 "14 October 2002"
 .IX sane-plustek
 .SH NAME
 sane-plustek \- SANE backend for Plustek parallel port and
@@ -13,6 +13,9 @@ parallel port scanners you will need a kernel module, called
 pt_drv which currently can be downloaded from
 .br
 .B http://www.gjaeger.de/scanner/plustek.html
+.PP
+.B !!!Please note that you need the kernel module only for
+.B parallel port scanners!!!
 
 .SH "PARALLEL PORT SUPPORT"
 
@@ -35,9 +38,9 @@ OpticPro 12000P Turbo  98001 600x1200 dpi 36bit 512Kb
 .br
 OpticPro 9636P+/Turbo  98001 600x1200 dpi 36bit 512Kb
 .br
-OpticPro 9636P         98001 600x1200 dpi 36bit 512Kb
+OpticPro 9636P         96003 600x1200 dpi 36bit 128Kb
 .br
-OpticPro 12000P/96000P 96003 600x1200 dpi 30bit 128Kb
+OpticPro 12000P/96000P 96003 600x1200 dpi 36bit 128Kb
 .br
 OpticPro 1236P         96003 600x1200 dpi 30bit 128Kb
 .br
@@ -47,7 +50,7 @@ OpticPro 9630P/FBIV    96003 600x1200 dpi 30bit 128Kb
 .br
 OpticPro 9630PL (14")  96003 600x1200 dpi 30bit 128Kb
 .br
-OpticPro A3I           96003  400x800 dpi 30bit 128Kb
+OpticPro A3I           96003  400x800 dpi 36bit 128Kb
 .br
 OpticPro 600P/6000P    96003  300x600 dpi 30bit  32Kb
 .br
@@ -122,7 +125,10 @@ BrightScan OpticPro         OpticPro P12
 
 The Backend is able to support USB scanner based on the National
 Semiconductor chipset LM9831, LM9832 and LM9833. The following tables
-show various devices which are currently reported to work.
+show various devices which are currently reported to work. If your
+Plustek scanner has another Product ID, then the device is 
+.B NOT
+supported, as it contains unsupported ASICs inside.
 .br
 
 Vendor Plustek - ID: 0x07B3
@@ -134,6 +140,8 @@ USB Model:         ASIC:  Properties:              Prod-ID
 ----------------------------------------------------------
 .br
 OpticPro U12       LM9831  600x1200dpi 42bit 512Kb 0x0010
+.br
+OpticPro UT12      LM9831  600x1200dpi 42bit 512Kb 0x0013
 .br
 OpticPro UT12      LM9832  600x1200dpi 42bit 512Kb 0x0017
 .br
@@ -155,6 +163,16 @@ USB Model:         ASIC:  Properties:              Prod-ID
 ----------------------------------------------------------
 .br
 Colorpage HR6 V2   LM9832  600x1200dpi 42bit 512Kb 0x2007
+.br
+Colorpage HR6 V2   LM9832  600x1200dpi 42bit 512Kb 0x2008
+.br
+Colorpage HR6A     LM9832  600x1200dpi 42bit 512Kb 0x2009
+.br
+Colorpage HR7      LM9832  600x1200dpi 42bit 512Kb 0x2013
+.br
+Colorpage HR7LE    LM9832  600x1200dpi 42bit 512Kb 0x2015
+.br
+Colorpage HR6X     LM9832  600x1200dpi 42bit 512Kb 0x2016
 .PP
 
 Vendor Hewlett-Packard - ID: 0x03F0
@@ -202,9 +220,9 @@ USB Model:         ASIC:  Properties:              Prod-ID
 .br
 ----------------------------------------------------------
 .br
-CanoScan N650/656U LM9832 1200x2400dpi 42bit 512Kb 0x2206
+CanoScan N650/656U LM9832 1200x2400dpi 48bit 512Kb 0x2206
 .br
-CanoScan N670/676U LM9832 1200x2400dpi 42bit 512Kb 0x220D
+CanoScan N670/676U LM9832 1200x2400dpi 48bit 512Kb 0x220D
 .PP
 
 .SH "OTHER PLUSTEK SCANNERS"
@@ -215,8 +233,8 @@ and is supported by the
 backend.
 .br
 Only the National Semiconductor LM9831/2 based devices of Plustek
-are supported by this driver. Older versions of the UT12, the U1212
-and U1248 (GrandTech chipset are not supported)
+are supported by this driver. Older versions of the U12, the UT12, 
+the U1212 and U1248 (GrandTech chipset are not supported)
 .PP
 
 .SH "DEVICE NAMES"
@@ -260,7 +278,7 @@ The configuration of this backend can be divided into two sections:
 .PP
 .br
 Please make sure, that the configuration matches the real world,
-namely your configuration.
+namely your configuration. And note again, .I pt_drv is only needed
 .PP
 
 .SH "CONFIGURATION - PARALLEL PORT SCANNER"
@@ -439,6 +457,111 @@ tells the backend, that the following devicename (here
 product-id has not been specified, the backend tries to
 detect this by its own.
 .PP
+.B
+The Options:
+.PP
+option warmup t
+.RS
+.I t
+specifies the warmup period in seconds
+.RE
+.PP
+option lampOff t
+.RS
+.I t
+is the time in seconds for switching off the lamps in
+standby mode
+.RE
+.PP
+option lOffonEnd b
+.RS
+.I b
+specifies the behaviour when closing the backend, 1 --> switch
+lamps off, 0 --> do not change lamp status
+.RE
+.PP
+option invertNegatives b
+.RS
+.I b
+0 --> do not invert the picture during negativ scans,
+1 --> invert picture
+.RE
+.PP
+option skipCalibration b
+.RS
+.I b
+0 --> perform calibration,
+1 --> skip calibration (only non Plustek devices)
+.RE
+.PP
+option enableTPA b
+.RS
+.I b
+0 --> default behaviour, specified by the internal tables,
+1 --> override internal tables and allow TPA mode (EPSON only)
+.RE
+
+.PP
+option posOffX x
+.br
+option posOffY y
+.br
+option tpaOffX x
+.br
+option tpaOffY y
+.br
+option negOffX x
+.br
+option negOffY y
+.RS
+.I x y
+By using this settings, the user can adjust the given image
+positions.
+.B Please note, that there's no internal range checking for
+.B this feature.
+.RE
+.PP
+option posShadingY p
+.br
+option tpaShadingY p
+.br
+option negShadingY p
+.RS
+.I p
+overrides the internal shading position. The values are in steps.
+.B Please note, that there's no internal range checking for
+.B this feature.
+.RE
+.PP
+option redGamma r
+.br
+option greenGamma g
+.br
+option blueGamma b
+.br
+option grayGamma gr
+.RS
+.I r g b gr
+.RE
+By using these values, the internal linear gamma table (r,g,b,gr = 1.0)
+can be adjusted.
+.PP
+option red_gain r
+.br
+option green_gain g
+.br
+option blue_gain b
+.RS
+.I r g b
+These values can be used to adjust the internally detected gain values of
+the AFE for each channel. The range is between 0 and 63.
+.RE
+
+
+
+
+
+.PP
 See the plustek.conf file for examples.
 .PP
 .B Note:
@@ -499,7 +622,7 @@ or directly from the projects' homepage at:
 .B http://www.gjaeger.de/scanner/plustek.html
 .PP
 
-.SH "BUGS & RESTRICTIONS"
+.SH "KNOWN BUGS & RESTRICTIONS"
 .PP
 .br
 * The Halftoning works, but the quality is poor
@@ -568,7 +691,5 @@ USB models:
   the model list above and compare the product-id to
 .br
   the one your device has.
-
-
-
-
+.br
+* Negative scanning quality is poor.

@@ -120,7 +120,7 @@
 #include "sane/sanei.h"
 #include "sane/saneopts.h"
 
-#define BACKEND_VERSION "0.44-3"
+#define BACKEND_VERSION "0.44-9"
 #define BACKEND_NAME	plustek
 #include "sane/sanei_backend.h"
 #include "sane/sanei_config.h"
@@ -280,22 +280,30 @@ static SANE_Auth_Callback auth = NULL;
 static void show_cnf( pCnfDef cnf )
 {
 	DBG( _DBG_SANE_INIT, "Device configuration:\n" );
-	DBG( _DBG_SANE_INIT, "device name  : >%s<\n", cnf->devName          );
-	DBG( _DBG_SANE_INIT, "porttype     : %d\n",   cnf->porttype         );
-	DBG( _DBG_SANE_INIT, "USB-ID       : >%s<\n", cnf->usbId            );
-	DBG( _DBG_SANE_INIT, "warmup       : %ds\n",  cnf->adj.warmup       );
-	DBG( _DBG_SANE_INIT, "lampOff      : %d\n",   cnf->adj.lampOff      );
-	DBG( _DBG_SANE_INIT, "lampOffOnEnd : %d\n",   cnf->adj.lampOffOnEnd );
-	DBG( _DBG_SANE_INIT, "pos_x        : %d\n",   cnf->adj.pos.x        );
-	DBG( _DBG_SANE_INIT, "pos_y        : %d\n",   cnf->adj.pos.y        );
-	DBG( _DBG_SANE_INIT, "neg_x        : %d\n",   cnf->adj.neg.x        );
-	DBG( _DBG_SANE_INIT, "neg_y        : %d\n",   cnf->adj.neg.y        );
-	DBG( _DBG_SANE_INIT, "tpa_x        : %d\n",   cnf->adj.tpa.x        );
-	DBG( _DBG_SANE_INIT, "tpa_y        : %d\n",   cnf->adj.tpa.y        );
-	DBG( _DBG_SANE_INIT, "red Gamma    : %.2f\n", cnf->adj.rgamma       );
-	DBG( _DBG_SANE_INIT, "green Gamma  : %.2f\n", cnf->adj.ggamma       );
-	DBG( _DBG_SANE_INIT, "blue Gamma   : %.2f\n", cnf->adj.bgamma       );
-	DBG( _DBG_SANE_INIT, "gray Gamma   : %.2f\n", cnf->adj.graygamma     );
+	DBG( _DBG_SANE_INIT, "device name  : >%s<\n", cnf->devName             );
+	DBG( _DBG_SANE_INIT, "porttype     : %d\n",   cnf->porttype            );
+	DBG( _DBG_SANE_INIT, "USB-ID       : >%s<\n", cnf->usbId               );
+	DBG( _DBG_SANE_INIT, "warmup       : %ds\n",  cnf->adj.warmup          );
+	DBG( _DBG_SANE_INIT, "lampOff      : %d\n",   cnf->adj.lampOff         );
+	DBG( _DBG_SANE_INIT, "lampOffOnEnd : %d\n",   cnf->adj.lampOffOnEnd    );
+	DBG( _DBG_SANE_INIT, "skipCalibr.  : %d\n",   cnf->adj.skipCalibration );
+	DBG( _DBG_SANE_INIT, "invertNegs.  : %d\n",   cnf->adj.invertNegatives );
+	DBG( _DBG_SANE_INIT, "pos_x        : %d\n",   cnf->adj.pos.x           );
+	DBG( _DBG_SANE_INIT, "pos_y        : %d\n",   cnf->adj.pos.y           );
+	DBG( _DBG_SANE_INIT, "pos_shading_y: %d\n",   cnf->adj.posShadingY     );
+	DBG( _DBG_SANE_INIT, "neg_x        : %d\n",   cnf->adj.neg.x           );
+	DBG( _DBG_SANE_INIT, "neg_y        : %d\n",   cnf->adj.neg.y           );
+	DBG( _DBG_SANE_INIT, "neg_shading_y: %d\n",   cnf->adj.negShadingY     );
+	DBG( _DBG_SANE_INIT, "tpa_x        : %d\n",   cnf->adj.tpa.x           );
+	DBG( _DBG_SANE_INIT, "tpa_y        : %d\n",   cnf->adj.tpa.y           );
+	DBG( _DBG_SANE_INIT, "tpa_shading_y: %d\n",   cnf->adj.tpaShadingY     );
+	DBG( _DBG_SANE_INIT, "red gain     : %d\n",   cnf->adj.rgain           );
+	DBG( _DBG_SANE_INIT, "green gain   : %d\n",   cnf->adj.ggain           );
+	DBG( _DBG_SANE_INIT, "blue gain    : %d\n",   cnf->adj.bgain           );
+	DBG( _DBG_SANE_INIT, "red Gamma    : %.2f\n", cnf->adj.rgamma          );
+	DBG( _DBG_SANE_INIT, "green Gamma  : %.2f\n", cnf->adj.ggamma          );
+	DBG( _DBG_SANE_INIT, "blue Gamma   : %.2f\n", cnf->adj.bgamma          );
+	DBG( _DBG_SANE_INIT, "gray Gamma   : %.2f\n", cnf->adj.graygamma       );
 	DBG( _DBG_SANE_INIT, "---------------------\n" );
 }
 
@@ -1135,6 +1143,7 @@ static SANE_Status attach( const char *dev_name, pCnfDef cnf,
     dev->name        = strdup(dev_name);    /* hold it double to avoid  */
 	dev->sane.name   = dev->name;           /* compiler warnings        */
 	dev->sane.vendor = "Plustek";
+	dev->initialized = SANE_FALSE;
 
 	memcpy( &dev->adj, &cnf->adj, sizeof(AdjDef));
 
@@ -1299,6 +1308,13 @@ static void init_config_struct( pCnfDef cnf )
 	cnf->adj.lampOff      = -1;
 	cnf->adj.lampOffOnEnd = -1;
 
+	cnf->adj.posShadingY  = -1;
+	cnf->adj.tpaShadingY  = -1;
+	cnf->adj.negShadingY  = -1;
+	cnf->adj.rgain        = -1;
+	cnf->adj.ggain        = -1;
+	cnf->adj.bgain        = -1;
+
 	cnf->adj.graygamma = 1.0;
 	cnf->adj.rgamma    = 1.0;
 	cnf->adj.ggamma    = 1.0;
@@ -1368,9 +1384,20 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 			decodeVal( str, "warmup",    _INT, &config.adj.warmup,      &ival);
 			decodeVal( str, "lampOff",   _INT, &config.adj.lampOff,     &ival);
 			decodeVal( str, "lOffOnEnd", _INT, &config.adj.lampOffOnEnd,&ival);
+			decodeVal( str, "posShadingY",_INT, &config.adj.posShadingY,&ival);
+			decodeVal( str, "tpaShadingY",_INT, &config.adj.tpaShadingY,&ival);
+			decodeVal( str, "negShadingY",_INT, &config.adj.negShadingY,&ival);
+			decodeVal( str, "red_gain",   _INT, &config.adj.rgain,      &ival);
+			decodeVal( str, "green_gain", _INT, &config.adj.ggain,      &ival);
+			decodeVal( str, "blue_gain",  _INT, &config.adj.bgain,      &ival);
 			
 			ival = 0;
-   			decodeVal( str, "enableTPA", _INT, &config.adj.enableTpa, &ival );
+   			decodeVal( str, "enableTPA", _INT, &config.adj.enableTpa, &ival);
+			decodeVal( str, "skipCalibration",
+									  _INT, &config.adj.skipCalibration,&ival);
+			decodeVal( str, "invertNegatives",
+									  _INT, &config.adj.invertNegatives,&ival);
+
 			decodeVal( str, "posOffX", _INT, &config.adj.pos.x, &ival );
 			decodeVal( str, "posOffY", _INT, &config.adj.pos.y, &ival );
 

@@ -1,3 +1,15 @@
+2002-10-15  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* doc/sane-plustek.man: Major update
+	* doc/descriptions/plustek.desc: Added EPSON 1260 entry
+	* backend/plustek.conf updated options
+	* backend/plustek.c backend/plustek-devs.c backend/plustek-usb.c
+	  backend/plustek-usbhw.c backend/plustek-pp.c
+	  backend/plustek-usbmap.c backend/plustek-usbimg.c
+	  backend/plustek-usbscan.c backend/plustek-usbshading.c
+	  backend/plustek.h backend/plustek-share.h backend/plustek-usb.h
+	  Bug fixes and workarounds
+
 2002-10-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/sane.tex: Backend behaviour is undefined if sane_init

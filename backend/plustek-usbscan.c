@@ -1298,7 +1298,7 @@ static SANE_Bool usb_SetScanParameters( pPlustek_Device dev, pScanParam pParam )
 	memset( &a_bRegs[0x03], 0, 3 );
 	memset( &a_bRegs[0x5C], 0, 0x7F-0x5C+1 );
 
-	/* 0x08 - 0x5E */
+	/* 0x08 - 0x5a */
 	_UIO(sanei_lm983x_write( dev->fd, 0x08, &a_bRegs[0x08], 0x5a - 0x08+1, SANE_TRUE));
 
 	/* 0x03 - 0x05 */

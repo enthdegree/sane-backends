@@ -1,5 +1,5 @@
 :backend "microtek"
-:version "0.13.0"
+:version "0.13.1"
 :status :beta
 :manpage "sane-microtek" 
 :url "http://www.mir.com/mtek/"

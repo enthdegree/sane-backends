@@ -1,3 +1,18 @@
+2002-08-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/v4l.c backend/v4l.h doc/descriptions/v4l.desc:
+	  Big clean up of Video for Linux backend. Removed old unused
+	  stuff from qcam and others including unused options and variables
+	  concerning direct port access. Removed wcam license (no 
+	  "substantial portions of code" are used any more). Removed
+	  unuesed headers. Made lots of global variables local. Lots
+	  of checks for null pointer dereferences and errors when opening
+	  files or using ioctl/mmap. Added option to select grey or color
+	  mode. Added support for different channels. Fixed lots of options.
+	  Made sure ioctls are only used when necessary. 
+	  Used vendor == "Noname".  Added ??? comments for suspicious code.
+	  Lots of minor fixes and cleanup. Added version number: 1.0-2.
+
 2002-08-18 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 
 	* frontend/scanimage.c, frontend/stiff.h, frontend/stiff.c:

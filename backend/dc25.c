@@ -138,8 +138,7 @@ static char tty_name[PATH_MAX];
 #define DEF_TTY_NAME "/dev/ttyS0"
 
 static speed_t tty_baud = DEFAULT_TTY_BAUD;
-static char *tmpname;
-static char tmpnamebuf[]  = "/tmp/dc25.XXXXXX";
+static char tmpdir[]  = "/tmp/dc25.XXXXXX";
 
 static Dc20Info *dc20_info;
 static Dc20Info CameraInfo;
@@ -1173,7 +1172,7 @@ static int
 convert_pic (char *base_name, int format, int orientation)
 {
 	FILE			*ifp;
-	unsigned char	 pic[MAX_IMAGE_SIZE];
+	unsigned char		 pic[MAX_IMAGE_SIZE];
 	int				 res,
 					 image_size,
 					 image_width,
@@ -1201,7 +1200,7 @@ convert_pic (char *base_name, int format, int orientation)
 		return -1;
 	}
 
-	if (strncmp (pic, COMET_MAGIC, sizeof(COMET_MAGIC)) != 0) {
+	if (strncmp ((char *)pic, COMET_MAGIC, sizeof(COMET_MAGIC)) != 0) {
 		DBG (10,"convert_pic: error: file %s is not in COMET format\n",base_name);
 		fclose (ifp);
 		return -1;
@@ -1870,10 +1869,9 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 		DBG (1,"No device info\n");
 	}
 
-	if ( tmpname == NULL ) {
-		tmpname = tmpnamebuf;
-		if ( mktemp(tmpname) == NULL ) {
-			perror (tmpname);	
+	if ( strstr (tmpdir, "XXXXXX") ) {
+		if (!mkdtemp (tmpdir) ) {
+			perror (tmpdir);	
 			DBG (1,"Unable to make temp file name\n");
 			return SANE_STATUS_INVAL;
 		}
@@ -2261,13 +2259,17 @@ sane_start (SANE_Handle handle)
 		 * to set the "-u1" flag on the system drives.
 		 */
 
+		char tmpname[100];
+		size_t tmpdirlen = strlen (tmpdir);
+		memcpy (tmpname, tmpdir, tmpdirlen);
+		strcpy (tmpname + tmpdirlen, "comet");
 		f = fopen (tmpname,"wb");
 		if ( f == NULL ) {
 			DBG (4,"Unable to open tmp file\n");
 			return SANE_STATUS_INVAL;
 		}
 
-		strcpy (buffer,COMET_MAGIC);
+		strcpy ((char *)buffer,COMET_MAGIC);
 		fwrite (buffer,1,COMET_HEADER_SIZE,f);
 
 		pic_pck[3] = (unsigned char)dc25_opt_image_number;

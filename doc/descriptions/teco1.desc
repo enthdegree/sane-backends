@@ -25,6 +25,7 @@
 :interface "SCSI"
 :comment "sub model VM3530+"
 :model "AVEC 2400"
+:interface "SCSI"
 :comment "sub model VM3520"
 ;:model "AVEC 2412"
 ;:comment "sub model VM3520+"

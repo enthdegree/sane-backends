@@ -12,6 +12,8 @@
 	* frontend/saned.c: Check that the IP addresses of the peer are the
 	  same for control and data connections. Exit, if this is not the
 	  case. Changed some debug levels.
+	* PROJECTS: Updated some URLs. Removed m3096g and Mustek BearPaw 
+	  (both are included now in SANE). Added test backend and SaneTwain.
 
 2002-01-10  Tom Martone <tom@martoneconsulting.com>
         * backend/bh.c

@@ -1,5 +1,8 @@
 2001-05-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* backend/bh.c backend/m3096g.c backend/sp15c.c: Fixed 
+	  config_line[len-1] bug which could generate an access violation 
+	  if len==0.
 	* lib/alloca.c lib(getnev.c lib/getopt.c lib/getopt1.c
 	  lib/isfdtype.c lib/md5.c lib sigprocmask.c lib/snprintf.c lib
 	  strdup.c lib strndup.c lib strsep.c lib usleep.c lib/vsyslog.c:

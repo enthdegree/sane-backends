@@ -1,3 +1,13 @@
+2003-03-10  Oliver Schirrmeister <oschirr@abm.de>
+
+	* backend/fujitsu.c backund/fujitsu-scsi.h backend/fujitsu.h
+          * patch from Ron Cemer <ron@roncemer.com>
+	    fixes the broken "ADF empty" detection on the Fujitsu scanners 
+	    when connected via USB.  It also fixes a sense-request issues,
+	    which were required in order to determine whether the ADF is 
+	    empty.  It also eliminates some duplicate code blocks.
+	  * renamed some functions
+	
 2003-03-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/gt68xx.c backend/gt68xx_devices.c backend/gt68xx_low.h

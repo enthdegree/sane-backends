@@ -346,7 +346,7 @@ static int scsiBuffer = 64 * 1024;
  * required for compressed data transfer. sense_handler has to tell
  * the caller the number of scanned bytes. 
  */
-static struct fujitsu *current_scanner;
+static struct fujitsu *current_scanner = NULL;
 
 /*
  * used by sane_get_devices
@@ -1992,28 +1992,14 @@ sane_start (SANE_Handle handle)
   if ((ret = fujitsu_send(scanner)))
     {
       DBG (5, "sane_start: ERROR: failed to start send command\n");
-      free_scanner (scanner);
-      if (scanner->connection == SANE_FUJITSU_USB) {
-            sanei_usb_close (scanner->sfd);
-      } else if (scanner->connection == SANE_FUJITSU_SCSI) {
-            sanei_scsi_close (scanner->sfd);
-      }
-      scanner->object_count = 0;
-      scanner->sfd = -1;
+      do_cancel(scanner);
       return ret;
     }
 #if 0
   if ((ret = imprinter(scanner)))
     {
       DBG (5, "sane_start: ERROR: failed to start imprinter command\n");
-      free_scanner (scanner);
-      if (scanner->connection == SANE_FUJITSU_USB) {
-            sanei_usb_close (scanner->sfd);
-      } else if (scanner->connection == SANE_FUJITSU_SCSI) {
-            sanei_scsi_close (scanner->sfd);
-      }
-      scanner->object_count = 0;
-      scanner->sfd = -1;
+      do_cancel(Scanner);
       return ret;
     }
 #endif
@@ -2022,14 +2008,7 @@ sane_start (SANE_Handle handle)
       (ret = object_position (scanner, SANE_TRUE)))
     {
       DBG (5, "sane_start: WARNING: ADF empty\n");
-      free_scanner (scanner);
-      if (scanner->connection == SANE_FUJITSU_USB) {
-            sanei_usb_close (scanner->sfd);
-      } else if (scanner->connection == SANE_FUJITSU_SCSI) {
-            sanei_scsi_close (scanner->sfd);
-      }
-      scanner->object_count = 0;
-      scanner->sfd = -1;
+      do_cancel(scanner);
       return ret;
     }
 
@@ -2039,14 +2018,7 @@ sane_start (SANE_Handle handle)
   if ((ret = setWindowParam (scanner)))
     {
       DBG (5, "sane_start: ERROR: failed to set window\n");
-      free_scanner (scanner);
-      if (scanner->connection == SANE_FUJITSU_USB) {
-            sanei_usb_close (scanner->sfd);
-      } else if (scanner->connection == SANE_FUJITSU_SCSI) {
-            sanei_scsi_close (scanner->sfd);
-      }
-      scanner->object_count = 0;
-      scanner->sfd = -1;
+      do_cancel(scanner);
       return ret;
     }
 
@@ -2071,13 +2043,7 @@ sane_start (SANE_Handle handle)
     {
       DBG (MSG_ERR, "ERROR: could not create pipe\n");
       scanner->object_count = 0;
-      free_scanner (scanner);
-      if (scanner->connection == SANE_FUJITSU_USB) {
-            sanei_usb_close (scanner->sfd);
-      } else if (scanner->connection == SANE_FUJITSU_SCSI) {
-            sanei_scsi_close (scanner->sfd);
-      }
-      scanner->sfd = -1;
+      do_cancel(scanner);
       return SANE_STATUS_IO_ERROR;
     }
 
@@ -2090,13 +2056,7 @@ sane_start (SANE_Handle handle)
             {
               DBG (MSG_ERR, "ERROR: could not create temporary file.\n");
               scanner->object_count = 0;
-              free_scanner (scanner);
-              if (scanner->connection == SANE_FUJITSU_USB) {
-                    sanei_usb_close (scanner->sfd);
-              } else if (scanner->connection == SANE_FUJITSU_SCSI) {
-                    sanei_scsi_close (scanner->sfd);
-              }
-              scanner->sfd = -1;
+              do_cancel (scanner);
               return SANE_STATUS_IO_ERROR;
             }
         }
@@ -2106,13 +2066,7 @@ sane_start (SANE_Handle handle)
             {
               DBG (MSG_ERR, "ERROR: could not create duplex pipe.\n");
               scanner->object_count = 0;
-              free_scanner (scanner);
-              if (scanner->connection == SANE_FUJITSU_USB) {
-                    sanei_usb_close (scanner->sfd);
-              } else if (scanner->connection == SANE_FUJITSU_SCSI) {
-                    sanei_scsi_close (scanner->sfd);
-              }
-              scanner->sfd = -1;
+              do_cancel (scanner);
               return SANE_STATUS_IO_ERROR;
             }
         }
@@ -2265,7 +2219,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf,
       source = scanner->duplex_pipe;    /* this may be a pipe or a file */
       break;
     default:
-      return doCancel (scanner);
+      return do_cancel (scanner);
     }
   DBG (30, "sane_read, object_count=%d\n", scanner->object_count);
 
@@ -2281,7 +2235,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf,
         }
       else
         {
-          doCancel (scanner);
+          do_cancel (scanner);
           return SANE_STATUS_IO_ERROR;
         }
     }
@@ -2341,7 +2295,7 @@ void
 sane_cancel (SANE_Handle h)
 {
   DBG (10, "sane_cancel\n");
-  doCancel ((struct fujitsu *) h);
+  do_cancel ((struct fujitsu *) h);
 }
 
 
@@ -2361,7 +2315,7 @@ sane_close (SANE_Handle handle)
   if (((struct fujitsu *) handle)->object_count != 0)
                 {
     do_reset (handle);
-    doCancel (handle);
+    do_cancel (handle);
                 }
 }
 
@@ -2530,11 +2484,10 @@ scsi_sense_handler (int scsi_fd, u_char * sensed_data, void *arg)
     {
     case 0x0:                   /* No Sense */
       DBG (5, "\t%d/%d/%d: Scanner ready\n", sense, asc, ascq);
-      if (get_RS_EOM (sensed_data))
-        {
+      if ( (current_scanner != NULL) && (get_RS_EOM (sensed_data)) ) {
           current_scanner->i_transfer_length = get_RS_information (sensed_data);
           return SANE_STATUS_EOF;
-        }
+      }
       return SANE_STATUS_GOOD;
 
     case 0x2:                   /* Not Ready */
@@ -2753,6 +2706,9 @@ scsi_sense_handler (int scsi_fd, u_char * sensed_data, void *arg)
 static void
 do_inquiry (struct fujitsu *s)
 {
+  int i, tries = (s->connection == SANE_FUJITSU_USB) ? 5 : 1;
+  size_t res;
+
   DBG (10, "do_inquiry\n");
 
   memset (s->buffer, '\0', 256);        /* clear buffer */
@@ -2762,8 +2718,17 @@ do_inquiry (struct fujitsu *s)
  
   hexdump (MSG_IO, "inquiry", inquiryB.cmd, inquiryB.size);
 
-  do_cmd (s->connection, s->sfd, inquiryB.cmd, inquiryB.size,
-               s->buffer, 96, NULL);
+  for (i = 0; i < tries; i++) 
+    {
+      DBG(10, "try inquiry %d\n", i);
+      if (   (do_cmd (s->connection, s->sfd, inquiryB.cmd, inquiryB.size,
+		      s->buffer, 96, &res) == SANE_STATUS_GOOD)
+	     && (res >= 96)   ) 
+	{
+	  break;
+	}
+      usleep(100000L);
+    }
 }
 
 static SANE_Status
@@ -3014,8 +2979,8 @@ do_usb_cmd (int fd, unsigned char *cmd,
     int op_code = 0;
     int i, j;
     int tries = 0;
+    int status_byte = 0;
     unsigned char buf[1024];
-/*    unsigned char sense_bytes[64]; */
 
 retry:
     hexdump (IO_CMD, "<cmd<", cmd, cmd_len);
@@ -3043,9 +3008,9 @@ retry:
             /* All other URBs must be 64 bytes (max) per URB. */
         if ( (j == 0) && (cnt > 31) ) cnt = 31; else if (cnt > 64) cnt = 64;
         hexdump (IO_CMD, "*** URB going out:", &buf[j], cnt);
-        DBG (IO_CMD, "try to write %u bytes\n", cnt);
+        DBG (10, "try to write %u bytes\n", cnt);
         ret = sanei_usb_write_bulk(fd, &buf[j], &cnt);
-        DBG (IO_CMD, "wrote %u bytes\n", cnt);
+        DBG (10, "wrote %u bytes\n", cnt);
         if (ret != SANE_STATUS_GOOD) break;
         j += cnt;
     }
@@ -3056,32 +3021,45 @@ retry:
     ol = 0;
     if (ret == SANE_STATUS_GOOD) {
         if ( (out != NULL) && (req_out_len > 0) ) {
-            while (ol < req_out_len) {
+/*            while (ol < req_out_len) {*/
                 cnt = (size_t)(req_out_len-ol);
-                DBG (IO_CMD, "try to read %u bytes\n", cnt);
+                DBG (10, "try to read %u bytes\n", cnt);
                 ret = sanei_usb_read_bulk(fd, &out[ol], &cnt);
-                DBG (IO_CMD, "read %u bytes\n", cnt);
+                DBG (10, "read %u bytes\n", cnt);
                 if (cnt > 0) {
                     hexdump (IO_CMD, "*** Data read:", &out[ol], cnt);
                 }
                 if (ret != SANE_STATUS_GOOD) {
                     DBG(MSG_ERR, "*** Got error %d trying to read\n", ret);
                 }
-                if (ret != SANE_STATUS_GOOD) break;
+/*                if (ret != SANE_STATUS_GOOD) break;*/
                 ol += cnt;
             }
-        }
+/*        }*/
 
-        DBG(MSG_ERR, "*** Try to read CSW\n");
-        cnt = sizeof(buf);
+        DBG(10, "*** Try to read CSW\n");
+        cnt = 13;
         sanei_usb_read_bulk(fd, buf, &cnt);
         hexdump (IO_CMD, "*** Read CSW", buf, cnt);
+
+	status_byte = ((int)buf[9]) & 0xff;
+	if (status_byte != 0) {
+	  DBG
+	    (MSG_ERR,
+	     "Got bad status: %2.2x op_code=%2.2x ret=%d req_out_len=%u ol=%u\n",
+	     status_byte,
+	     op_code,
+	     ret,
+	     req_out_len,
+	     ol);
+       }    
     }
 
         /* Auto-retry failed data reads, in case the scanner is busy. */
     if ( (op_code == READ) && (tries < 100) && (ol == 0) ) {
         usleep(100000L);
         tries++;
+	DBG(MSG_ERR, "read failed; retry %d\n", tries);
         goto retry;
     }
 
@@ -3107,6 +3085,22 @@ retry:
     {
       hexdump (IO_CMD_RES, ">rslt>", out, (ol > 0x60) ? 0x60 : ol);
     }
+
+/*  if ( (op_code == OBJECT_POSITION) || (op_code == TEST_UNIT_READY) ) { */
+  if (status_byte == 0x02) {	/* check condition */
+      /* Issue a REQUEST_SENSE command and pass the resulting sense data
+         into the scsi_sense_handler routine.  */
+    memset(buf, 0, 18);
+    if (do_usb_cmd
+	  (fd,
+	   request_senseB.cmd,
+	   request_senseB.size,
+	   buf,
+	   18,
+	   NULL) == SANE_STATUS_GOOD) {
+      ret = scsi_sense_handler(fd, buf, NULL);
+    }
+  }
 
   return ret;
 }
@@ -3391,9 +3385,9 @@ do_reset (struct fujitsu *scanner)
  * Performs cleanup.
  */
 static SANE_Status
-doCancel (struct fujitsu *scanner)
+do_cancel (struct fujitsu *scanner)
 {
-  DBG (10, "doCancel\n");
+  DBG (10, "do_cancel\n");
   scanner->object_count = 0;
   scanner->eof = SANE_TRUE;
 
@@ -3409,7 +3403,7 @@ doCancel (struct fujitsu *scanner)
   if (scanner->reader_pid > 0)
     {
       int exit_status;
-      DBG (10, "doCancel: kill reader_process\n");
+      DBG (10, "do_cancel: kill reader_process\n");
 
       /* Tell reader process to stop, then wait for it to react. 
        * If kill fails because the process doesn't exist for some 
@@ -3428,7 +3422,7 @@ doCancel (struct fujitsu *scanner)
   if (scanner->sfd >= 0)
     {
       free_scanner (scanner);
-      DBG (10, "doCancel: close filedescriptor\n");
+      DBG (10, "do_cancel: close filedescriptor\n");
       if (scanner->connection == SANE_FUJITSU_USB) {
             sanei_usb_close (scanner->sfd);
       } else if (scanner->connection == SANE_FUJITSU_SCSI) {
@@ -3778,6 +3772,7 @@ read_large_data_block (struct fujitsu *s, unsigned char *buffer,
       DBG(10, "data read = %d data requested = %d\n", *i_data_read, length);
     }
 
+  current_scanner = NULL;
   return status;
 }
 
@@ -4078,7 +4073,6 @@ identify_scanner (struct fujitsu *s)
 
       s->compression_mode_list[1] = NULL;
     }
-
 
   if (SANE_STATUS_GOOD == getVitalProductData (s))
     {

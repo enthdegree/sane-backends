@@ -506,7 +506,7 @@ static int wait_scanner (struct fujitsu *s);
 
 static int object_position (struct fujitsu *s, int i_load);
 
-static SANE_Status doCancel (struct fujitsu *scanner);
+static SANE_Status do_cancel (struct fujitsu *scanner);
 
 static SANE_Status do_reset (struct fujitsu *scanner);
 

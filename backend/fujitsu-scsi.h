@@ -914,12 +914,11 @@ static scsiblk window_descriptor_blockB =
 
 /* ==================================================================== */
 
-/*
   static unsigned char request_senseC[] =
-  {REQUEST_SENSE, 0x00, 0x00, 0x00, 0x00, 0x00};
+  {REQUEST_SENSE, 0x00, 0x00, 0x00, 0x12, 0x00,
+   0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
   static scsiblk request_senseB =
   {request_senseC, sizeof (request_senseC)};
-*/
 
 #define set_RS_allocation_length(sb,val) sb[0x04] = (unsigned char)val
 /* defines for request sense return block */

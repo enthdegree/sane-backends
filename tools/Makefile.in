@@ -53,7 +53,7 @@ DISTCLEAN_FILES = @DISTCLEAN_FILES@
 
 @SET_MAKE@
 
-DESTINATIONS = sane-find-scanner sane-config umax_pp gamma4scanimage
+DESTINATIONS = sane-find-scanner sane-config umax_pp gamma4scanimage sane-desc
 
 EXTRA = sane_strstatus.lo ../sanei/sanei_init_debug.lo \
 	../sanei/sanei_config.lo ../sanei/sanei_config2.lo \

@@ -25,6 +25,7 @@
 	  This breaks MacOS X and doesn't seem to be necessary on other
 	  platforms any more.
 	* include/lalloca.h: Don't use builtin alloca on MacOS X.
+	* tools/Makefile.in: Build sane-desc by default.
 
 2003-04-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -3362,7 +3362,7 @@ get_devicename (int bus, int target, int lun, char *name, size_t name_len)
 void
 sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 			 const char *findtype,
-		      int findbus, int findchannel, int findid, int findlun,
+			 int findbus, int findchannel, int findid, int findlun,
 			 SANE_Status (*attach) (const char *dev))
 {
   size_t findvendor_len = 0, findmodel_len = 0, findtype_len = 0;
@@ -3387,15 +3387,24 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
     }
   param[] =
     {
-      {"Vendor:",  7, 0, { vendor }},
-      {"Model:",   6, 0, { model }},
-      {"Type:",    5, 0, { type }},
-      {"Rev:",     4, 0, { revision }},
-      {"scsi",     4, 1, { &bus }},
-      {"Channel:", 8, 1, { &channel }},
-      {"Id:",      3, 1, { &id }},
-      {"Lun:",     4, 1, { &lun }}
+      {"Vendor:",  7, 0, { 0 }},
+      {"Model:",   6, 0, { 0 }},
+      {"Type:",    5, 0, { 0 }},
+      {"Rev:",     4, 0, { 0 }},
+      {"scsi",     4, 1, { 0 }},
+      {"Channel:", 8, 1, { 0 }},
+      {"Id:",      3, 1, { 0 }},
+      {"Lun:",     4, 1, { 0 }}
   };
+
+  param[0].u.str = vendor;
+  param[1].u.str = model;
+  param[2].u.str = type;
+  param[3].u.str = revision;
+  param[4].u.i = &bus;
+  param[5].u.i = &channel;
+  param[6].u.i = &id;
+  param[7].u.i = &lun;
 
   DBG_INIT ();
 

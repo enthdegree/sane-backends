@@ -9,6 +9,7 @@
 
 	* configure aclocal.m4 acinclude.m4: Fixed MacOS X LD_FLAGS bug.
 	* doc/sane-scsi.man: Removed link to ACard problem.
+	* doc/sane.tex: Updated contact information.
 
 2002-12-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

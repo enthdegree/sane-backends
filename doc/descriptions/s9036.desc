@@ -1,6 +1,5 @@
 :backend "s9036"               ; name of backend
-; :version "0.XXX"             ; version of backend
-:status :alpha                 ; :alpha, :beta, :stable, :new
+:version "unmaintained"             ; version of backend
 ; :url ""                      ; backend's homepage
 :manpage "sane-s9036"
 
@@ -11,4 +10,5 @@
 
 :model "9036 Flatbed scanner"  ; name models for above-specified mfg.
 :interface "SCSI"
+:status :basic
 ; :comment ""

@@ -11,7 +11,6 @@
 
 :backend "v4l"                    ; name of backend
 :version "1.0-2"                  ; version of backend
-:status :alpha                    ; :alpha, :beta, :stable, :new
 :manpage "sane-v4l"               ; name of manpage (if it exists)
 :url "mailto:henning@meier-geinitz.de" ; backend's web page
 
@@ -21,6 +20,6 @@
 
 
 :desc "Interface to Video For Linux API"      ; describe a non-hardware device
-:comment "Supports video cameras and other devices accessed by the v4l kernel API, e.g. bttv devices."
+:comment "Supports video cameras and other devices accessed by the v4l kernel API, e.g. bttv devices. Quite a lot of known bugs."
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

@@ -11,8 +11,7 @@
 ;
 
 :backend "dmc"               ; name of backend
-:version "1.0"                    ; version of backend
-:status :stable                    ; :alpha, :beta, :stable, :new
+:version "unmaintained"                    ; version of backend
 :manpage "sane-dmc"          ; name of manpage (if it exists)
 :devicetype :stillcam             ; start of a list of devices....
                                   ; other types:  :stillcam, :vidcam,
@@ -20,9 +19,11 @@
 
 :mfg "Polaroid"                   ; name a manufacturer
 :url "http://www.polaroid.com/"
+
 :model "DMC"                  ; name models for above-specified mfg.
 :interface "SCSI"
 ;:url "http://digitalimage.polaroid.com/products/digital_imaging/digital_cameras/dmcsuite/dmc/"
+:status :good
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.
 

@@ -1,6 +1,5 @@
 :backend "agfafocus"
-:version "0.2"
-:status :alpha
+:version "unmaintained"
 :manpage "sane-agfafocus" 
 
 :devicetype :scanner
@@ -25,10 +24,12 @@
 
 :model "Focus Color"
 :interface "SCSI"
+:status :good
 :comment "3-pass"
 
 :model "Focus Color Plus"
 :interface "SCSI"
+:status :good
 :comment "3-pass"
 
 :mfg "Siemens"

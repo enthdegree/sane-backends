@@ -11,11 +11,9 @@
 :backend "ibm"                 ; name of backend
 :url "http://www.meier-geinitz.de/sane/ibm-backend/"
 :version "1.0-4"          ; version of backend
-:status :alpha                 ; :alpha, :beta, :stable, :new
 ;
 :manpage "sane-ibm"            ; name of manpage (if it exists)
 :comment "This backend has had only limited testing. It needs more work especially for the Ricoh scanners. Patches are welcome."
-:new :yes
 
 :devicetype :scanner
 
@@ -24,7 +22,7 @@
 
 :model "2456"                  ; name models for above-specified mfg.
 :interface "SCSI"
-:status :alpha
+:status :basic
 :comment "Was reported to work long time ago. Reports are welcome."
 
 :mfg "Ricoh"                         ; name a manufacturer
@@ -35,7 +33,7 @@
 
 :model "IS-420"
 :interface "SCSI"
-:status :alpha
+:status :basic
 :comment "Works at least in flatbed mode."
 
 :model "IS-430"

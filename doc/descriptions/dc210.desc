@@ -2,7 +2,6 @@
 
 :backend "dc210"		; name of backend
 :version "0.0"                  ; version of backend
-:status :alpha                  ; :alpha, :beta, :stable, :new
 :manpage "sane-dc210"		; name of manpage (if it exists)
 :url "mailto:peter@fales-lorenz.net"   ; backend's web page
 
@@ -12,3 +11,4 @@
 :url "http://www.kodak.com/global/en/service/digCam/dc210/dc210.shtml"
 :model "DC210"
 :interface "Serial port"
+:status :basic

@@ -10,8 +10,7 @@
 ;
 
 :backend "sp15c"               ; name of backend
-:version "1.12"                    ; version of backend
-:status :beta                    ; :alpha, :beta, :stable, :new
+:version "unmaintained"                    ; version of backend
 :manpage "sane-sp15c"          ; name of manpage (if it exists)
 ;:url "http://www.aa.net/~bentson/sane.html" ; backend's web page
 
@@ -25,4 +24,4 @@
 
 :model "SP15C"                  ; name models for above-specified mfg.
 :interface "SCSI"
-
+:status :good

@@ -8,8 +8,7 @@
 ; All other information is optional (but what good is the file without it?).
 ;
 :backend "ricoh"               ; name of backend
-;:version "?"                   ; version of backend
-:status :alpha                 ; :alpha, :beta, :stable, :new
+:version "unmaintained"                   ; version of backend
 ;
 :manpage "sane-ricoh"         ; name of manpage (if it exists)
 
@@ -20,9 +19,11 @@
 
 :model "Ricoh IS50"                ; name models for above-specified mfg.
 :interface "SCSI"
+:status :basic
 ;:comment "?"
 
 :model "Ricoh IS60"                ; name models for above-specified mfg.
 :interface "SCSI"
+:status :basic
 ;:comment "?"
 

@@ -4,9 +4,22 @@
 	* doc/descriptions/template.desc. 
 	  doc/descriptions-external/template.desc.: Updated according to 
 	  descriptions.txt.
-	* doc/sane-gt68xx.man, doc/descriptions/gt68xx.desc
+	* doc/sane-gt68xx.man doc/descriptions/gt68xx.desc
 	  doc/gt68xx/gt68xx.CHANGES: Added RevScan 19200i. Updated
 	  device status entries.
+	* doc/descriptions/abaton.desc doc/descriptions/agfafocus.desc
+	  doc/descriptions/apple.desc doc/descriptions/artec.desc
+	  doc/descriptions/dc210.desc doc/descriptions/dll.desc
+	  doc/descriptions/dmc.desc doc/descriptions/ibm.desc
+	  doc/descriptions/ma1509.desc doc/descriptions/mustek.desc
+	  doc/descriptions/mustek_usb.desc doc/descriptions/net.desc
+	  doc/descriptions/pint.desc doc/descriptions/pnm.desc
+	  doc/descriptions/qcam.desc doc/descriptions/ricoh.desc
+	  doc/descriptions/s9036.desc doc/descriptions/sp15c.desc
+	  doc/descriptions/tamarack.desc doc/descriptions/test.desc
+	  doc/descriptions/v4l.desc: Updated to new status system.
+	  Added "unmaintained" where appropriate. The status values are
+	  sometimes guessed from the documentation.
 
 2003-06-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

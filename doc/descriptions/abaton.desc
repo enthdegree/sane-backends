@@ -1,6 +1,5 @@
 :backend "abaton"
-:version "0.1"
-:status :alpha
+:version "unmaintained"
 :manpage "sane-abaton"
 ;:url "http://aix2.uottawa.ca/~s1204672/sane/"
 
@@ -12,6 +11,7 @@
 
 :model "Scan 300/GS"
 :interface "SCSI"
+:status :complete
 :comment "All known modes and functions supported"
 
 :model "Scan 300/S"

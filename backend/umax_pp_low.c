@@ -67,13 +67,13 @@
 #elif HAVE_SYS_HW_H
 # include <sys/hw.h>		/* OS/2 */
 #else
-#ifdef ENABLE_DIRECTIO
-#undef ENABLE_DIRECTIO
+#ifdef ENABLE_PARPORT_DIRECTIO
+#undef ENABLE_PARPORT_DIRECTIO
 #endif
 #endif
 
 /* we need either direct io or ppdev */
-#if ! defined ENABLE_DIRECTIO && ! defined HAVE_LINUX_PPDEV_H
+#if ! defined ENABLE_PARPORT_DIRECTIO && ! defined HAVE_LINUX_PPDEV_H
 #define IO_SUPPORT_MISSING
 #endif
 
@@ -656,13 +656,13 @@ Outb (int port, int value)
     }
 #endif /* HAVE_LINUX_PPDEV_H */
 
-#ifdef ENABLE_DIRECTIO
+#ifdef ENABLE_PARPORT_DIRECTIO
 #ifdef HAVE_SYS_HW_H
   _outp8 (port, value);
 #else
   outb (value, port);
 #endif /* HAVE_SYS_HW_H      */
-#endif /* ENABLE_DIRECTIO    */
+#endif /* ENABLE_PARPORT_DIRECTIO    */
 
 #endif /* IO_SUPPORT_MISSING */
 }
@@ -713,13 +713,13 @@ Inb (int port)
     }
 #endif /* HAVE_LINUX_PPDEV_H */
 
-#ifdef ENABLE_DIRECTIO
+#ifdef ENABLE_PARPORT_DIRECTIO
 #ifdef HAVE_SYS_HW_H
   res = _inp8 (port) & 0xFF;
 #else
   res = inb (port) & 0xFF;
 #endif /* HAVE_SYS_HW_H */
-#endif /* ENABLE_DIRECTIO    */
+#endif /* ENABLE_PARPORT_DIRECTIO    */
 
 #endif /* IO_SUPPORT_MISSING */
   return res;
@@ -730,7 +730,7 @@ static void
 Insb (int port, unsigned char *dest, int size)
 {
 #ifndef IO_SUPPORT_MISSING
-#ifdef ENABLE_DIRECTIO
+#ifdef ENABLE_PARPORT_DIRECTIO
 #ifndef __i386__
   int i;
   for (i = 0; i < size; i++)
@@ -742,7 +742,7 @@ Insb (int port, unsigned char *dest, int size)
   insb (port, dest, size);
 #endif
 #endif
-#endif /* ENABLE_DIRECTIO    */
+#endif /* ENABLE_PARPORT_DIRECTIO    */
 #endif
 }
 
@@ -750,7 +750,7 @@ static void
 Outsb (int port, unsigned char *source, int size)
 {
 #ifndef IO_SUPPORT_MISSING
-#ifdef ENABLE_DIRECTIO
+#ifdef ENABLE_PARPORT_DIRECTIO
 #ifndef __i386__
   int i;
 
@@ -763,7 +763,7 @@ Outsb (int port, unsigned char *source, int size)
   outsb (port, source, size);
 #endif
 #endif
-#endif /* ENABLE_DIRECTIO    */
+#endif /* ENABLE_PARPORT_DIRECTIO    */
 #endif
 }
 
@@ -774,7 +774,7 @@ static void
 Insw (int port, unsigned char *dest, int size)
 {
 #ifndef IO_SUPPORT_MISSING
-#ifdef ENABLE_DIRECTIO
+#ifdef ENABLE_PARPORT_DIRECTIO
 #ifndef __i386__
   int i;
 
@@ -787,7 +787,7 @@ Insw (int port, unsigned char *dest, int size)
   insl (port, dest, size);
 #endif
 #endif
-#endif /* ENABLE_DIRECTIO    */
+#endif /* ENABLE_PARPORT_DIRECTIO    */
 #endif
 }
 
@@ -795,7 +795,7 @@ static void
 Outsw (int port, unsigned char *source, int size)
 {
 #ifndef IO_SUPPORT_MISSING
-#ifdef ENABLE_DIRECTIO
+#ifdef ENABLE_PARPORT_DIRECTIO
 #ifndef __i386__
   int i;
 
@@ -808,7 +808,7 @@ Outsw (int port, unsigned char *source, int size)
   outsw (port, source, size);
 #endif
 #endif
-#endif /* ENABLE_DIRECTIO    */
+#endif /* ENABLE_PARPORT_DIRECTIO    */
 #endif
 }
 

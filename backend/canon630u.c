@@ -485,10 +485,10 @@ optionTopLeftYCallback (SANE_Option * option, SANE_Handle handle,
 /*-----------------------------------------------------------------*/
 /*
 This option controls the bot-right-x corner of the scan
-Default to 2 inches.
+Default to 215.9mm, max.
 */
 
-static SANE_Fixed optionBotRightXValue = SANE_FIX (2 * MM_IN_INCH);
+static SANE_Fixed optionBotRightXValue = SANE_FIX (215.9);
 
 static SANE_Option_Descriptor optionBotRightXDescriptor = {
   SANE_NAME_SCAN_BR_X,
@@ -529,10 +529,10 @@ optionBotRightXCallback (SANE_Option * option, SANE_Handle handle,
 /*-----------------------------------------------------------------*/
 /*
 This option controls the bot-right-y corner of the scan
-Default to 2 inches
+Default to 296.3mm, max
 */
 
-static SANE_Fixed optionBotRightYValue = SANE_FIX (2 * MM_IN_INCH);
+static SANE_Fixed optionBotRightYValue = SANE_FIX (296.3);
 
 static SANE_Option_Descriptor optionBotRightYDescriptor = {
   SANE_NAME_SCAN_BR_Y,
@@ -930,7 +930,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
   DBG (3,
        "sane_control_option: handle=%p, opt=%d, act=%d, val=%p, info=%p\n",
-       handle, option, action, value, info);
+       handle, option, action, value, (void *)info);
 
   return dispatch_control_option (handle, option, action, value, info);
 }
@@ -1037,8 +1037,7 @@ sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 SANE_Status
 sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
 {
-  Canon_Scanner *scanner = handle;
-  DBG (3, "sane_get_select_fd: handle = %p, fd %s 0\n", handle,
-       fd ? "!=" : "=");
+  handle = handle;                   /* silence gcc */
+  fd = fd;                           /* silence gcc */
   return SANE_STATUS_UNSUPPORTED;
 }

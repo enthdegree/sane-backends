@@ -4,43 +4,23 @@
 sane-canon630u \- SANE backend for the Canon 630u USB flatbed scanner
 .SH DESCRIPTION
 The
-.B sane-canon
+.B sane-canon630u
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to the following Canon flatbed scanners:
 .PP
 .RS
 CanoScan 630u
 .br
-CanoScan 636u (hopefully)
+CanoScan 636u
 .br
 .RE
 .PP
-IMPORTANT: this is alpha code.  Although there are no known bugs at this
-time, this code uses the Linux USB kernel drivers, which are currently
-in active development.  So it may not work, your computer might even hang, and it cannot
-be excluded (although I consider it extremely unprobable) that your scanner
-will be damaged.
+Color scanning is supported at 75, 150, 300, and 600 dpi, and gamma and
+analog gain are adjustable.
 .PP
-That said, TESTERS ARE WELCOME. Send your bug reports and comments to
-Nathan Rutman <nathan@gordian.com>
+TESTERS ARE WELCOME. Send your bug reports and comments to
+Nathan Rutman <nthn1@yahoo.com>
 .PP
-.SH "DEVICE NAMES"
-This backend expects device names of the form:
-.PP
-.RS
-.I special
-.RE
-.PP
-Where
-.I special
-is the path-name for the special device that corresponds to a USB scanner
-or a symlink to such a device.  The program
-.IR sane-find-scanner 
-helps to find out the correct device. Under Linux, such a device name
-could be
-.I /dev/usb/scanner0
-for example.  See sane-usb(5) for details.
-
 .SH CONFIGURATION
 The contents of the
 .I canon630u.conf
@@ -48,7 +28,16 @@ file is a list of device names that correspond to Canon
 USB scanners.  Empty lines and lines starting with a hash mark (#) are
 ignored.  Only one device name can be listed in 
 .IR canon630u.conf .
-
+The program
+.IR sane-find-scanner 
+helps to find out the correct device. Under Linux, such a device name
+could be
+.I /dev/usb/scanner0
+for example.  See sane-usb(5) for details.
+.PP
+This product-specific scanner driver uses the lower-level kernel USB driver
+"scanner".  Check for "Driver=usbscanner" under /proc/bus/usb/devices.  If
+"Driver=(none)", try forcing it with "insmod scanner vendor=0x04a9 product=0x2204"
 .SH NOTES
 .PP
 Due to Canon's unwillingness to provide scanner documentation, this
@@ -59,9 +48,11 @@ it seems to work for my scanner.  If you have complaints, let me know.
 This driver requires the ability to send USB Control Messages, available in
 kernel 2.4.12 or later. 
 .PP
-This scanner may not be recognized (yet) by the USB kernel driver.  Check
-for "Driver=usbscanner" under /proc/bus/usb/devices.  If "Driver=(none)",
-try forcing it with "modprobe scanner vendor=0x04a9 product=0x2204"
+Some users have reported that this driver doesn't work at all.  This seems
+to be a hardware specific issue, although I don't know what exactly the
+problem is.  If you are having problems, please send me the info in
+/proc/bus/usb/devices, /proc/pci, the kernel scanner.c driver version from
+/var/log/messages, and the output from "SANE_DEBUG_CANON630U=12 scanimage > /dev/null"
 .PP
 .SH FILES
 .TP
@@ -80,7 +71,7 @@ support dynamic loading).
 .I /tmp/canon.cal
 The calibration file used to normalize pixel brightness.  This is
 calculated every time the scanner is first used after it has lost power.
-It can be forced to recalibrate by simply deleting this file. 
+Deleting this file will force recalibration. 
 .SH ENVIRONMENT
 .TP
 .B SANE_CONFIG_DIR
@@ -102,7 +93,8 @@ If the library was compiled with debug support enabled, this
 environment variable controls the debug level for this backend.  Higher
 debug levels increase the verbosity of the output. 
 
-Example: 
+Example:
+.br 
 SANE_DEBUG_CANON630U=12 scanimage > /dev/null
 .SH "SEE ALSO"
 sane(7), sane\-usb(5), sane\-find\-scanner(1)

@@ -1,6 +1,6 @@
 /* ------------------------------------------------------------------------- */
 /* sane - Scanner Access Now Easy.
-   coolscan.c , version  0.4.3
+   coolscan.c , version  0.4.4
 
    This file is part of the SANE package.
 
@@ -81,7 +81,6 @@
 #include <string.h>
 
 #include <sys/types.h>
-#include <sys/wait.h>
 #include <unistd.h>
 
 #include "sane/sane.h"
@@ -89,6 +88,7 @@
 #include "sane/saneopts.h"
 #include "sane/sanei_scsi.h"
 #include "sane/sanei_debug.h"
+#include "sane/sanei_thread.h"
 
 #include "sane/sanei_config.h"
 #define COOLSCAN_CONFIG_FILE "coolscan.conf"
@@ -1986,21 +1986,6 @@ static const SANE_Range shift_range =
   0
 };
 
-static const SANE_Range percentage_range =
-{
-  -100 << SANE_FIXED_SCALE_SHIFT,	/* minimum */
-  100 << SANE_FIXED_SCALE_SHIFT,	/* maximum */
-  1 << SANE_FIXED_SCALE_SHIFT	/* quantization */
-};
-
-
-static const SANE_Range percentage_range_100 =
-{
-  0 << SANE_FIXED_SCALE_SHIFT,	/* minimum */
-  100 << SANE_FIXED_SCALE_SHIFT,	/* maximum */
-  1 << SANE_FIXED_SCALE_SHIFT	/* quantization */
-};
-
 static int num_devices;
 static Coolscan_t *first_dev;
 
@@ -2049,8 +2034,9 @@ do_cancel (Coolscan_t * scanner)
       DBG (10, "do_cancel: kill reader_process\n");
 
       /* ensure child knows it's time to stop: */
-      kill (scanner->reader_pid, SIGTERM);
-      while (wait (&exit_status) != scanner->reader_pid);
+      sanei_thread_kill (scanner->reader_pid);
+      while (sanei_thread_waitpid(scanner->reader_pid, &exit_status) !=
+                                                        scanner->reader_pid );
       scanner->reader_pid = 0;
     }
 
@@ -2545,7 +2531,7 @@ static int RGBIfix1(unsigned char* rgbimat,unsigned char* orgbimat,
 #endif
 /* This function is executed as a child process. */
 static int
-reader_process (Coolscan_t * scanner, int pipe_fd)
+reader_process (void *data )
 {
   int status;
   unsigned int i;
@@ -2554,19 +2540,35 @@ reader_process (Coolscan_t * scanner, int pipe_fd)
   unsigned int data_to_read;
   unsigned int data_to_write;
   FILE *fp;
-  sigset_t sigterm_set;
+  sigset_t sigterm_set, ignore_set;
   struct SIGACTION act;
   unsigned int bpl, linesPerBuf, lineOffset;
   unsigned char r_data, g_data, b_data;
   unsigned int j, line;
-      
+  Coolscan_t * scanner = (Coolscan_t*)data;
 
-  DBG (10, "reader_process started\n");
+  if (sanei_thread_is_forked ())
+    {
+      DBG (10, "reader_process started (forked)\n");
+      close (scanner->pipe);
+      scanner->pipe = -1;
+
+      sigfillset ( &ignore_set );
+      sigdelset  ( &ignore_set, SIGTERM );
+      sigprocmask( SIG_SETMASK, &ignore_set, 0 );
+
+      memset (&act, 0, sizeof (act));
+      sigaction (SIGTERM, &act, 0);
+    }
+  else
+    {
+      DBG (10, "reader_process started (as thread)\n");
+    }
 
   sigemptyset (&sigterm_set);
   sigaddset (&sigterm_set, SIGTERM);
 
-  fp = fdopen (pipe_fd, "w");
+  fp = fdopen ( scanner->reader_fds, "w");
   if (!fp)
     {
       DBG (1, "reader_process: couldn't open pipe!\n");
@@ -3236,6 +3238,8 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   authorize = authorize;
 
   DBG_INIT ();
+  sanei_thread_init ();
+  
   DBG (10, "sane_init\n");
   if (version_code)
       *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, 0);
@@ -4078,27 +4082,21 @@ sane_start (SANE_Handle handle)
       return SANE_STATUS_IO_ERROR;
     }
 
-  scanner->reader_pid = fork ();
-  if (scanner->reader_pid == 0)
+  scanner->pipe       = fds[0];
+  scanner->reader_fds = fds[1];
+  scanner->reader_pid = sanei_thread_begin( reader_process, (void*)scanner );
+  if (scanner->reader_pid < 0)
     {
-      /* reader_pid = 0 ===> child process */
-      sigset_t ignore_set;
-      struct SIGACTION act;
-
-      close (fds[0]);
-
-      sigfillset (&ignore_set);
-      sigdelset (&ignore_set, SIGTERM);
-      sigprocmask (SIG_SETMASK, &ignore_set, 0);
-
-      memset (&act, 0, sizeof (act));
-      sigaction (SIGTERM, &act, 0);
-
-      /* don't use exit() since that would run the atexit() handlers... */
-      _exit (reader_process (scanner, fds[1]));
+      DBG (1, "sane_start: sanei_thread_begin failed (%s)\n",
+             strerror (errno));
+      return SANE_STATUS_NO_MEM;
     }
-  close (fds[1]);
-  scanner->pipe = fds[0];
+
+  if (sanei_thread_is_forked ())
+    {
+      close (scanner->reader_fds);
+      scanner->reader_fds = -1;
+    }
 
   return SANE_STATUS_GOOD;
 }
@@ -4149,8 +4147,8 @@ sane_cancel (SANE_Handle handle)
 
   if (s->reader_pid > 0)
     {
-      kill (s->reader_pid, SIGTERM);
-      waitpid (s->reader_pid, 0, 0);
+      sanei_thread_kill   ( s->reader_pid );
+      sanei_thread_waitpid( s->reader_pid, NULL );
       s->reader_pid = 0;
     }
   swap_res (s);

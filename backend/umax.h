@@ -499,7 +499,8 @@ typedef struct Umax_Scanner
   SANE_Parameters		params;
 
   pid_t				reader_pid;
-  int				pipe;
+  int				pipe_read_fd;
+  int				pipe_write_fd;
 } Umax_Scanner;
 
 

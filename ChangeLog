@@ -1,3 +1,8 @@
+2003-05-04 Oliver Rauch <Oliver.Rauch@XSane.org>
+
+	* backend/umax.c  umax.h
+	  applied changes that replace fork() by thread for OS2
+
 2003-05-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* include/md5.h: Set fixed alignment because otherwise the MacOS X

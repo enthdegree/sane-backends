@@ -130,6 +130,10 @@ in ADF mode this is done often:
 #include "sane/sanei_scsi.h"
 #include "sane/sanei_debug.h"
 
+#ifdef HAVE_OS2_H
+# include "../include/sane/sanei_thread.h"
+#endif
+
 #ifdef UMAX_ENABLE_USB
 # include "sane/sanei_usb.h"
 #endif
@@ -4913,7 +4917,7 @@ static RETSIGTYPE reader_process_sigterm_handler(int signal)
 /* ------------------------------------------------------------ READER PROCESS ----------------------------- */
 
 
-static int reader_process(Umax_Scanner *scanner, int pipe_fd)		      /* executed as a child process */
+static int reader_process(Umax_Scanner *scanner)			      /* executed as a child process */
 {
  FILE *fp;
  int status;
@@ -4950,13 +4954,13 @@ static int reader_process(Umax_Scanner *scanner, int pipe_fd)		      /* executed
     }
   }
 
-  memset (&act, 0, sizeof (act));						   /* define SIGTERM-handler */
+  memset(&act, 0, sizeof (act));						   /* define SIGTERM-handler */
   act.sa_handler = reader_process_sigterm_handler;
-  sigaction (SIGTERM, &act, 0);
+  sigaction(SIGTERM, &act, 0);
 
   data_length = scanner->params.lines * scanner->params.bytes_per_line;
 
-  fp = fdopen (pipe_fd, "w");
+  fp = fdopen(scanner->pipe_write_fd, "w");
   if (!fp)
   {
     return SANE_STATUS_IO_ERROR;
@@ -4965,7 +4969,7 @@ static int reader_process(Umax_Scanner *scanner, int pipe_fd)		      /* executed
   DBG(DBG_sane_info,"reader_process: starting to READ data\n");
 
   status = umax_reader_process(scanner->device, fp, data_length);
-  fclose(fp);
+  fclose(fp); /* close write end of pipe */
 
   for (i = 1; i<scanner->device->request_scsi_maxqueue; i++)
   {
@@ -7936,13 +7940,18 @@ SANE_Status sane_start(SANE_Handle handle)
    return SANE_STATUS_IO_ERROR;
   }
 
+  scanner->pipe_read_fd  = fds[0]; 
+  scanner->pipe_write_fd = fds[1];
+
+#ifndef HAVE_OS2_H
   scanner->reader_pid = fork();					     /* create reader routine as new process */
+
   if (scanner->reader_pid == 0)
   {									/* reader_pid = 0 ===> child process */
     sigset_t ignore_set;
     struct SIGACTION act;
 
-    close(fds[0]);
+    close(fds[0]); /* forked child process: close read end of pipe, reader_process only needs the write end */
 
     sigfillset(&ignore_set);
     sigdelset(&ignore_set, SIGTERM);
@@ -7951,11 +7960,14 @@ SANE_Status sane_start(SANE_Handle handle)
     memset(&act, 0, sizeof (act));
     sigaction (SIGTERM, &act, 0);
 
-    _exit(reader_process(scanner, fds[1]));   /* don't use exit() since that would run the atexit() handlers */
+    _exit(reader_process(scanner));   /* don't use exit() since that would run the atexit() handlers */
   }
 
-  close(fds[1]);
-  scanner->pipe = fds[0]; 
+  close(fds[1]); /* when we use fork then we have to close the write end of the pipe here */
+#else /*  OS2 */
+  /* create reader routine as thread */
+  scanner->reader_pid = sanei_thread_begin(sane_umax_os2_reader_process, (void *) scanner);
+#endif
 
  return SANE_STATUS_GOOD;
 }
@@ -7971,7 +7983,7 @@ SANE_Status sane_read(SANE_Handle handle, SANE_Byte *buf, SANE_Int max_len, SANE
 
   *len = 0;
 
-  nread = read(scanner->pipe, buf, max_len);
+  nread = read(scanner->pipe_read_fd, buf, max_len);
 
   DBG(DBG_sane_info, "sane_read: read %ld bytes\n", (long) nread);
 
@@ -8005,12 +8017,12 @@ SANE_Status sane_read(SANE_Handle handle, SANE_Byte *buf, SANE_Int max_len, SANE
       do_cancel(scanner);
     }
 
-    DBG(DBG_sane_proc,"closing pipe\n");
+    DBG(DBG_sane_proc,"closing read end of pipe\n");
 
-    if (scanner->pipe >= 0)
+    if (scanner->pipe_read_fd >= 0)
     {
-      close(scanner->pipe);
-      scanner->pipe = -1;
+      close(scanner->pipe_read_fd);
+      scanner->pipe_read_fd = -1;
     }
 
     return SANE_STATUS_EOF;    
@@ -8047,7 +8059,7 @@ SANE_Status sane_set_io_mode(SANE_Handle handle, SANE_Bool non_blocking)
 
   if (!scanner->scanning) { return SANE_STATUS_INVAL; }
 
-  if (fcntl(scanner->pipe, F_SETFL, non_blocking ? O_NONBLOCK : 0) < 0)
+  if (fcntl(scanner->pipe_read_fd, F_SETFL, non_blocking ? O_NONBLOCK : 0) < 0)
   {
     return SANE_STATUS_IO_ERROR;
   }  
@@ -8069,7 +8081,7 @@ SANE_Status sane_get_select_fd(SANE_Handle handle, SANE_Int *fd)
     return SANE_STATUS_INVAL;
   }
 
-  *fd = scanner->pipe;
+  *fd = scanner->pipe_read_fd;
 
  return SANE_STATUS_GOOD;
 }

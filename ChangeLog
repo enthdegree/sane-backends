@@ -5,6 +5,9 @@
 	* doc/descriptions-external/sm3840.desc: Added new external
 	  backend sm3840.
 	* doc/descriptions-external/brother.desc: Updated status.
+	* po/Makefile.in po/sane-backends.pl.po: Added Polish translation
+	  (from Jerzy Szczudlowski
+	  <jerzy-guest@users.alioth.debian.org>). See bug #301054.
 	   
 2005-02-04  Gerhard Jaeger <gerhard@gjaeger.de>
 

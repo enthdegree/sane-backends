@@ -392,13 +392,13 @@ teco_identify_scanner (Teco_Scanner * dev)
   hexdump (DBG_info2, "inquiry", dev->buffer, size);
 
   dev->scsi_type = dev->buffer[0] & 0x1f;
-  strncpy (dev->scsi_vendor, dev->buffer + 0x08, 0x08);
+  memcpy (dev->scsi_vendor, dev->buffer + 0x08, 0x08);
   dev->scsi_vendor[0x08] = 0;
-  strncpy (dev->scsi_product, dev->buffer + 0x10, 0x010);
+  memcpy (dev->scsi_product, dev->buffer + 0x10, 0x010);
   dev->scsi_product[0x10] = 0;
-  strncpy (dev->scsi_version, dev->buffer + 0x20, 0x04);
+  memcpy (dev->scsi_version, dev->buffer + 0x20, 0x04);
   dev->scsi_version[0x04] = 0;
-  strncpy (dev->scsi_teco_name, dev->buffer + 0x2A, 0x0B);
+  memcpy (dev->scsi_teco_name, dev->buffer + 0x2A, 0x0B);
   dev->scsi_teco_name[0x0B] = 0;
 
   DBG (DBG_info, "device is \"%s\" \"%s\" \"%s\" \"%s\"\n",
@@ -674,6 +674,7 @@ get_filled_data_length (Teco_Scanner * dev, size_t * to_read)
 	case TECO_GRAYSCALE:
 	  dev->params.pixels_per_line = B16TOI (&dev->buffer[14]);
 	  dev->params.bytes_per_line = dev->params.pixels_per_line;
+	  break;
 
 	case TECO_COLOR:
 	  dev->params.pixels_per_line = B16TOI (&dev->buffer[14]);
@@ -1858,17 +1859,6 @@ sane_start (SANE_Handle handle)
 	  DBG (DBG_error, "ERROR: sane_start: open failed\n");
 	  return SANE_STATUS_INVAL;
 	}
-
-      /* Reset the scanner. */
-      sane_get_parameters (dev, NULL);
-      dev->x_resolution = 300;
-      dev->y_resolution = 300;
-      dev->x_tl = 0;
-      dev->y_tl = 0;
-      dev->width = 0;
-      dev->length = 0;
-      teco_set_window (dev);
-      teco_scan (dev);
 
       /* Set the correct parameters. */
       sane_get_parameters (dev, NULL);

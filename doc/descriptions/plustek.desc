@@ -3,7 +3,7 @@
 ;
 
 :backend "plustek"
-:version "0.46"
+:version "0.47"
 :manpage "sane-plustek"
 ; backend's web page
 :url "http://www.gjaeger.de/scanner/plustek.html"
@@ -79,6 +79,7 @@
 :model "BearPaw 1200"
 :interface "USB"
 :status :complete
+:comment "both product versions are supported, see backends' man-page"
 
 :model "BearPaw 2400"
 :interface "USB"

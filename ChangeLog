@@ -1,3 +1,19 @@
+2000-11-23  Henning Meier-Geinitz <hmg@gmx.de>
+
+	* NEWS: Updated for SANE 1.0.4. Please check.
+	* README.aix: Removed paragraph about shared libs not working.
+	* README.linux: Added paragraph about excessive warnings due to glibc
+	  bug (from Peter Kirchgessner).
+	* TODO: Removed entry about shared libs not working on AIX. Added entry
+	  about PTAL checks. Removed entry about DBG and microtek2. Added entry
+	  about dc210 and jpeg functions. Added entry about using strchr() 
+	  instead of index().
+	* sane.lsm: Added NEC.
+	* backend/microtek2.c: (from karsten.festag@t-online.de (Karsten
+	  Festag)) Use DBG instead of printf/fprintf. Use 
+	  #include "../sane/include/..." instead of #include "sane/...". Fixed
+	  warnings. 
+	
 2000-11-23  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson.c:  Display "Set Focus" control only for scanners that
@@ -65,7 +81,6 @@
 	  SANE interface for user authorization using MD5 digest
 	* lib/Makefile.in sanei/Makefile.in: updated Makefiles
 
->>>>>>> 1.53
 2000-11-19  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson.c: Removed one debug output statement.

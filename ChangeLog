@@ -1,7 +1,11 @@
+2003-10-28  Gerhard Jaeger <gerhard@gjaeger.de>
+	* doc/sane-plustek.man backend/plustek.conf backend/plustek.c:
+	  Changed configuration file back to remain compatible with the old format.
+
 2003-10-27  Karl Heinz Kremer <khk@khk.net>
-	* backend/epson.c: Replaced all DBG(0, statements with 
+	* backend/epson.c: Replaced all DBG(0, statements with
 	  DBG(1, ... to avoid logging messages the user should
-	  not see anyways. 
+	  not see anyways.
 
 2003-10-27  Gerhard Jaeger <gerhard@gjaeger.de>
 	* sanei/lib/sanei_pp.c: Fixed OS/2 compilation problems.

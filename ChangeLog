@@ -20,6 +20,7 @@
 	* backend/dll.c doc/sane-dll.man doc/descriptions/dll.desc: Ignore
 	  comments that are in the same line as the backend entries. Minor
 	  manpage fixes. Intented according GNU coding standards.
+	* configure.os2: Removed. No longer necessary.
 
 2002-12-04  Matthew Duggan <stauff1@users.sourceforge.net>
 	* backend/canon_pp-dev.c: Don't compare firmware version numbers - 

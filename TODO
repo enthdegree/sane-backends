@@ -65,6 +65,11 @@ backends
   * v4l: Problems (crash) with more than one video card. It looks like 
     the two different cards are identified as the same card.
 
+  * Fix backends where sane_exit() do not release memory allocated by
+    sane_get_devices().
+      - qcam
+      - etc?
+
 doc
 ---
   * Add sane manpage

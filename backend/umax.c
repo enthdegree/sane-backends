@@ -2600,6 +2600,20 @@ static void umax_correct_inquiry(Umax_Device *dev, char *vendor, char *product, 
       /* calibration_area = image */
     }
   }
+  else if (!strncmp(vendor, "HDM ", 4))
+  {
+    if (!strncmp(product, "LS4H1S ", 7)) /* is a Powerlook III */
+    {
+      DBG(DBG_warning,"setting up special options for %s\n", product);
+
+      if (dev->calibration_width_offset == -1) /* no calibration-width-offset defined in umax.conf */
+      {
+        dev->calibration_width_offset = 28;
+        DBG(DBG_warning," - adding calibration width offset of %d pixels\n", dev->calibration_width_offset);
+      }
+      /* calibration_area = image */
+    }
+  }
   else if (!strncmp(vendor, "ESCORT ", 7))
   {
     if (!strncmp(product, "Galleria 600S ", 14)) /* this is an Astra 600S */
@@ -2891,9 +2905,15 @@ static int umax_check_values(Umax_Device *dev)
   {
     dev->scale_y = 2;
    }
-  else
+  else if (dev->y_resolution > dev->relevant_optical_res/2)
   {
     dev->scale_y = 1;
+  }
+  else
+  {
+    /* astra 610S needs this in umax_forget_line */
+    /* not tested with astra 600s */
+    dev->scale_y = 0.5;
   }
 
 
@@ -5752,6 +5772,28 @@ static void umax_set_max_geometry(Umax_Scanner *scanner)
   DBG(DBG_info,"y_range     = [%f .. %f]\n", SANE_UNFIX(scanner->device->y_range.min), SANE_UNFIX(scanner->device->y_range.max));
   DBG(DBG_info,"x_dpi_range = [1 .. %f]\n", SANE_UNFIX(scanner->device->x_dpi_range.max));
   DBG(DBG_info,"y_dpi_range = [1 .. %f]\n", SANE_UNFIX(scanner->device->y_dpi_range.max));
+
+  /* make sure geometry selection is in bounds */
+
+  if ( scanner->val[OPT_TL_X].w < scanner->device->x_range.min)
+  {
+    scanner->val[OPT_TL_X].w = scanner->device->x_range.min;
+  }
+ 
+  if (scanner->val[OPT_TL_Y].w > scanner->device->y_range.min)
+  {
+    scanner->val[OPT_TL_Y].w = scanner->device->y_range.min;
+  }
+
+  if ( scanner->val[OPT_BR_X].w > scanner->device->x_range.max)
+  {
+    scanner->val[OPT_BR_X].w = scanner->device->x_range.max;
+  }
+ 
+  if (scanner->val[OPT_BR_Y].w > scanner->device->y_range.max)
+  {
+    scanner->val[OPT_BR_Y].w = scanner->device->y_range.max;
+  }
 }
 
 /* ------------------------------------------------------------ SANE CONTROL OPTION ------------------------ */
@@ -5978,9 +6020,6 @@ SANE_Status sane_control_option(SANE_Handle handle, SANE_Int option, SANE_Action
 
           DBG(DBG_info,"sane_control_option: set DOR = %d\n", scanner->val[option].w);
           umax_set_max_geometry(scanner); 
-                                                                                          
-          scanner->val[OPT_BR_X].w = scanner->device->x_range.max;       
-          scanner->val[OPT_BR_Y].w = scanner->device->y_range.max;           
         }
        return SANE_STATUS_GOOD;
       }

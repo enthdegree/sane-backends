@@ -115,6 +115,7 @@ static char *scanner_str[] =
 /*  "LinoHell",	"SAPHIR4 ", */
   "Linotype",	"SAPHIR4 ",
 /*  "LinoHell",	"OPAL ", */
+  "HDM ",	"LS4H1S  ", /* Linoscan 1400 */
   "Nikon ",	"AX-210 ",
   "KYE ",	"ColorPage-HR5 ", 
   "EPSON ",	"Perfection600 ", 

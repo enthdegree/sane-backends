@@ -76,9 +76,9 @@ SCL (beside the OfficeJets), the above list of supported scanners is
 complete.
 Other HP scanners are not supported by the "hp" backend, but might be supported
 by another one. See
-.IR http://www.mostang.com/sane .
+.IR http://www.sane\-project.org/ .
 You can also watch the sane-devel mailinglist at
-.IR http://www.mostang.com/sane/mail.html .
+.IR http://www.sane\-project.org/mailing\-lists.html .
 .PP
 More details about the hp backend can be found on its homepage 
 .IR http://www.kirchgessner.net/sane.html .

@@ -88,13 +88,13 @@ If you own a Mustek (or Trust) scanner other than the ones listed
 above that works with this backend, please let us know by sending the
 scanner's exact model name (look at the front and back of the scanner)
 and a debug output to
-.IR sane-devel@mostang.com .
+.IR sane\-devel@lists.alioth.debian.org .
 You can get the debug output by setting the environment variable
 .B SANE_DEBUG_MUSTEK
 to 5 and showing the list of available scanners with scanimage\ \-L . Please
 send all of it to the mailing list. You must be subscribed to sane-devel
 before you can send mail to the list. See
-.I http://www.mostang.com/sane/mail.html
+.I http://www.sane\-project.org/mailing\-lists.html
 for details.
 
 .SH "DEVICE NAMES"

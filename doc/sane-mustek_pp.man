@@ -430,9 +430,9 @@ Eddy De Greef <eddy_de_greef at tiscali dot be>
 
 .SH BUGS
 Too many... please send bug reports to 
-.I sane\-devel@mostang.com
+.I sane\-devel@lists.alioth.debian.org
 (note that you have to subscribe first to the list before you can send
-emails... see http://www.mostang.com/sane/mail.html)
+emails... see http://www.sane\-project.org/mailing\-lists.html)
 .PP
 .RS
 * 1013 support isn't bullet proofed

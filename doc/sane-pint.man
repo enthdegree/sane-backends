@@ -21,8 +21,8 @@ successfully.
 If have successfully used the PINT driver with your scanner, but it
 does not work using this SANE backend, please let us know.  To do
 this, send a mail with the relevant information for your scanner to
-.IR sane\-devel@mostang.com .
-Have a look at http://www.mostang.com/sane/mail.html concerning subscription
+.IR sane\-devel@lists.alioth.debian.org .
+Have a look at http://www.sane\-project.org/mailing\-lists.html concerning subscription
 to sane-devel.
 
 .SH "DEVICE NAMES"

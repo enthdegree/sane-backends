@@ -76,7 +76,7 @@ Scanport   SQ4836             SCSI
 Scanpaq    SQ2030             Parport
 .PP
 Additional information can be found at
-.B http://www.mostang.com/sane/ .
+.B http://www.sane\-project.org/ .
 .PP
 If you own a Microtek scanner other than the ones listed above,
 it may or may not work with SANE! Because equal scanners are sold under

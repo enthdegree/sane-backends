@@ -189,6 +189,6 @@ setenv SANE_DEBUG_MICROTEK 128
 .PP
 More general comments, suggestions, and inquiries about frontends
 or SANE should go to 
-.BR sane\-devel@mostang.com ,
+.BR sane\-devel@lists.alioth.debian.org ,
 the SANE Developers mailing list. Have a look at
-http://www.mostang.com/sane/mail.html concerning subscription to sane-devel.
+http://www.sane\-project.org/mailing\-lists.html concerning subscription to sane-devel.

@@ -12,6 +12,8 @@
  *.............................................................................
  * History:
  * 0.40 - starting version of the USB support
+ * 0.41 - added workaround flag to struct DevCaps
+ *
  *.............................................................................
  *
  * This program is free software; you can redistribute it and/or modify
@@ -154,6 +156,13 @@ enum _DEVCAPSFLAG
 	DEVCAPSFLAG_Adf			= 0x0008
 };
 
+enum _WORKAROUNDS
+{
+	_WAF_NONE               = 0x00000000,   /* no fix anywhere needed        */
+	_WAF_BSHIFT7_BUG		= 0x00000001,	/* to fix U12 bug in 14bit mode  */
+	_WAF_MISC_IO6_LAMP      = 0x00000002    /* to make EPSON1250 lamp work   */
+};
+
 /* Generic usage */
 enum _CHANNEL
 {
@@ -225,6 +234,8 @@ typedef struct DevCaps
 	u_char		bButtons;		/* Number of buttons                         */
 	u_char		bCCD;			/* CCD ID                                    */
 	u_char		bPCB;			/* PCB ID                                    */
+	u_long		workaroundFlag;	/* Flag to allow special work arounds, see   */
+	                            /* _WORKAROUNDS                              */
 
 } DCapsDef, *pDCapsDef;
 
@@ -312,10 +323,10 @@ typedef struct DeviceDef
 	OrgDef	    Positive;		 /* Pos film - Pix to adjust scanning orgs   */
 	OrgDef	    Negative;		 /* Neg film - Pix to adjust scanning orgs   */
 	OrgDef	    Adf;			 /* Adf - Pixels to adjust scanning origins  */
-	u_long	    dwWarmUp;		 /* Ticks to wait for lamp stable, in ms.    */
+	u_long	    dwWarmup;		 /* Ticks to wait for lamp stable, in ms.    */
 	u_long	    dwTicksLampOn;   /* The ticks when lamp turns on             */
-	u_long	    dwSecondsLampOn; /* secs for counting when to turn off lamp  */
-	u_char	    bLampOnPeriod;   /* How many minutes to keep lamp on         */
+	u_long	    dwLampOnPeriod;  /* How many seconds to keep lamp on         */
+	SANE_Bool	bLampOffOnEnd;   /* switch lamp off on end or keep cur. state*/
 	u_char	    bCurrentLamp;	 /* The lamp ID                              */
 	u_char	    bLastColor;	     /* The last color channel comes from CCD    */
 	u_char	    bStepsToReverse; /* reg 0x50, this value is from registry    */

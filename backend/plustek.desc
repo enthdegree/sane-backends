@@ -10,7 +10,7 @@
 ;
 
 :backend "plustek"              ; name of backend
-:version "0.40"                 ; version of backend
+:version "0.41"                 ; version of backend
 :status :stable                 ; :alpha, :beta, :stable, :new
 :manpage "sane-plustek"         ; name of manpage (if it exists)
 
@@ -153,10 +153,15 @@
 
 :model "Colorpage Vivid III V2"
 :interface "Parport (SPP, EPP)"
-:comment "OK"
+:comment "OK - Reported as PT12"
+
+:model "Colorpage Vivid Pro II Film"
+:interface "Parport (SPP, EPP)"
+:comment "OK - Reported as OP9636T/12000T"
 
 :model "Colorpage HR6 V2"
 :interface "USB"
+:comment "OK"
 
 :mfg "BrightScan"
 

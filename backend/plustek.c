@@ -41,6 +41,7 @@
  *        removed function attach_one()
  *        added USB interface stuff
  * 0.40 - USB scanning works now
+ * 0.41 - added some configuration stuff and also changed .conf file
  *
  *.............................................................................
  *
@@ -111,6 +112,7 @@
 #include "sane/sanei_backend.h"
 #include "sane/sanei_config.h"
 
+/* might be used to disable all USB stuff */
 #define _PLUSTEK_USB
 
 #include "plustek-share.h"
@@ -128,6 +130,10 @@
 #define _DBG_PROC       7
 #define _DBG_SANE_INIT 10
 #define _DBG_READ      15
+
+/*****************************************************************************/
+
+#define _DEFAULT_DEVICE "/dev/pt_drv"
 
 /* declare it here, as it's used in plustek-usbscan.c too :-( */
 static SANE_Bool cancelRead;
@@ -249,8 +255,34 @@ static SANE_Auth_Callback auth = NULL;
 
 /****************************** the backend... *******************************/
 
-/*.............................................................................
- * open the driver
+/**
+ * function to display the configuration options for the current device
+ * @param cnf - pointer to the configuration structure whose content should be
+ *              displayed
+ */
+static void show_cnf( pCnfDef cnf )
+{
+	DBG( _DBG_SANE_INIT, "Device configuration:\n" );
+	DBG( _DBG_SANE_INIT, "device name  : >%s<\n", cnf->devName          );
+	DBG( _DBG_SANE_INIT, "porttype     : %d\n",   cnf->porttype         );
+	DBG( _DBG_SANE_INIT, "USB-ID       : >%s<\n", cnf->usbId            );
+	DBG( _DBG_SANE_INIT, "warmup       : %ds\n",  cnf->adj.warmup       );
+	DBG( _DBG_SANE_INIT, "lampOff      : %d\n",   cnf->adj.lampOff      );
+	DBG( _DBG_SANE_INIT, "lampOffOnEnd : %d\n",   cnf->adj.lampOffOnEnd );
+	DBG( _DBG_SANE_INIT, "pos_x        : %d\n",   cnf->adj.pos.x        );
+	DBG( _DBG_SANE_INIT, "pos_y        : %d\n",   cnf->adj.pos.y        );
+	DBG( _DBG_SANE_INIT, "neg_x        : %d\n",   cnf->adj.neg.x        );
+	DBG( _DBG_SANE_INIT, "neg_y        : %d\n",   cnf->adj.neg.y        );
+	DBG( _DBG_SANE_INIT, "tpa_x        : %d\n",   cnf->adj.tpa.x        );
+	DBG( _DBG_SANE_INIT, "tpa_y        : %d\n",   cnf->adj.tpa.y        );
+	DBG( _DBG_SANE_INIT, "---------------------\n" );
+}
+
+/**
+ * open the device specific driver and reset the internal timing stuff
+ * @param  dev - pointer to the device specific structure
+ * @return the function returns the result of the open call, on success
+ *         of course the handle
  */
 static int drvopen(	Plustek_Device *dev )
 {
@@ -265,8 +297,10 @@ static int drvopen(	Plustek_Device *dev )
 	return handle;
 }
 
-/*.............................................................................
- * close the driver
+/*
+ * Calls the devic specific stop and close functions.
+ * @param  dev - pointer to the device specific structure
+ * @return The function always returns SANE_STATUS_GOOD
  */
 static SANE_Status drvclose( Plustek_Device *dev )
 {
@@ -535,8 +569,12 @@ static SANE_Status do_cancel( Plustek_Scanner *scanner, SANE_Bool closepipe  )
 	return SANE_STATUS_CANCELLED;
 }
 
-/*.............................................................................
- *
+/**
+ * because of some internal problems (inside the parport driver, we have to
+ * limit the max resolution to optical resolution. This is done by this
+ * function
+ * @param  dev - pointer to the device specific structure
+ * @return The function always returns SANE_STATUS_GOOD
  */
 static SANE_Status limitResolution( Plustek_Device *dev )
 {
@@ -723,28 +761,30 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	return SANE_STATUS_GOOD;
 }
 
-/*.............................................................................
- * retrieve the vendor and product id from the cfg file...
+/**
+ * Function to retrieve the vendor and product id from a given string
+ * @param src  - string, that should be investigated
+ * @param dest - pointer to a string to receive the USB ID
  */
-static void getUsbIDs( char **dest, char *src )
+static void decodeUsbIDs( char *src, char **dest )
 {		
-	char *tmp = *dest;
+	const char *name;	
+	char       *tmp = *dest;
 
-	if( isspace(src[3])) {
-		strncpy( tmp, &src[4], 13 );
-        tmp[13] = '\0';
+	if( isspace(src[5])) {
+		strncpy( tmp, &src[6], (strlen(src)-6));
+        tmp[(strlen(src)-6)] = '\0';
 	}
 
-	if( '\0' == tmp[0] ) {
+	name = tmp;
+   	name = sanei_config_skip_whitespace( name );
+
+	if( '\0' == name[0] ) {
 		DBG( _DBG_SANE_INIT, "next device is a USB device (autodetection)\n" );
 	} else {
 			
-		u_short     pi = 0, vi = 0;
-		const char *name;	
+		u_short pi = 0, vi = 0;
 
-		name = *dest;
-       	name = sanei_config_skip_whitespace( name );
-      			
 		if( *name ) {
 	
 			name = sanei_config_get_string( name, &tmp );
@@ -770,11 +810,93 @@ static void getUsbIDs( char **dest, char *src )
 	}	
 }				
 
+/**
+ * function to decode an integer value and give it back to the caller.
+ * @param src    -  pointer to the source string to check
+ * @param opt    -  string that keeps the option name to check src for
+ * @param result -  pointer to the var that should receive our result
+ * @param def    - default value that result should be in case of any error
+ * @return The function returns SANE_TRUE if the option has been found,
+ *         if not, it returns SANE_FALSE
+ */
+static SANE_Bool decodeInt( char *src, char *opt, int *result, int def )
+{
+	char       *tmp, *tmp2;
+	const char *name;
+
+	/* skip the option string */
+	name = (const char*)&src[strlen("option")];
+
+	/* get the name of the option */
+	name = sanei_config_get_string( name, &tmp );
+
+	if( tmp ) {	
+
+		/* on success, compare wiht the given one */
+		if( 0 == strcmp( tmp, opt )) {
+	
+			DBG( _DBG_SANE_INIT, "Decoding option >%s<\n", opt );
+
+			/* assign the default value for this option... */
+			*result = def;
+	
+			if( *name ) {
+
+				/* get the configuration value and decode it */
+				name = sanei_config_get_string( name, &tmp2 );
+
+				if( tmp2 ) {
+		      		*result = strtol( tmp2, 0, 0 );
+			    	free( tmp2 );
+				}
+			}	
+			return SANE_TRUE;
+		}
+		free( tmp );
+	}
+	
+   	return SANE_FALSE;
+}
+
+/**
+ * function to retrive the device name of a given string
+ * @param src  -  string that keeps the option name to check src for
+ * @param dest -  pointer to the string, that should receive the detected
+ *                devicename
+ * @return The function returns SANE_TRUE if the devicename has been found,
+ *         if not, it returns SANE_FALSE
+ */
+static SANE_Bool decodeDevName( char *src, char *dest )
+{
+	char       *tmp;	
+	const char *name;
+
+	if( 0 == strncmp( "device", src, 6 )) {
+
+		name = (const char*)&src[strlen("device")];
+		name = sanei_config_skip_whitespace( name );
+	
+		DBG( _DBG_SANE_INIT, "Decoding device name >%s<\n", name );
+		
+		if( *name ) {
+			name = sanei_config_get_string( name, &tmp );
+			if( tmp ) {
+	      		
+				strcpy( dest, tmp );
+		    	free( tmp );
+		    	return SANE_TRUE;
+		    }
+		}	
+	}
+	
+   	return SANE_FALSE;
+}
+
 /*.............................................................................
  * attach a device to the backend
  */
-static SANE_Status attach( const char *dev_name, char *usbId,
-   										   PORTTYPE pt, Plustek_Device **devp )
+static SANE_Status attach( const char *dev_name, pCnfDef cnf,
+										                Plustek_Device **devp )
 {
 	int 		    cntr;
 	int			    result;
@@ -782,8 +904,7 @@ static SANE_Status attach( const char *dev_name, char *usbId,
 	SANE_Status	    status;
 	Plustek_Device *dev;
 
-	DBG(_DBG_SANE_INIT, "attach (%s, %s, %u, %p)\n",
-                        dev_name, usbId, pt, (void *)devp);
+	DBG(_DBG_SANE_INIT, "attach (%s, %p, %p)\n", dev_name, cnf, (void *)devp);
 
 	/* already attached ?*/
 	for( dev = first_dev; dev; dev = dev->next ) {
@@ -804,14 +925,18 @@ static SANE_Status attach( const char *dev_name, char *usbId,
 	/* assing all the stuff we need fo this device... */
 
 	memset(dev, 0, sizeof (*dev));
-
+	
 	dev->fd			 = -1;
     dev->name        = strdup(dev_name);    /* hold it double to avoid  */
 	dev->sane.name   = dev->name;           /* compiler warnings        */
 	dev->sane.vendor = "Plustek";
     dev->usbId       = NULL;
 
-	if( PARPORT == pt ) {
+	memcpy( &dev->adj, &cnf->adj, sizeof(AdjDef));
+
+	show_cnf( cnf );
+
+	if( PARPORT == cnf->porttype ) {
 
 		dev->sane.type   = "parallel port flatbed scanner";
 		
@@ -844,7 +969,16 @@ static SANE_Status attach( const char *dev_name, char *usbId,
         dev->readImage   = usbDev_readImage;
 		dev->shutdown    = usbDev_shutdown;
 
-        dev->usbId       = strdup( usbId );
+        dev->usbId = strdup( cnf->usbId );
+
+		if( cnf->adj.warmup >= 0 )
+	        dev->usbDev.dwWarmup = cnf->adj.warmup;
+
+		if( cnf->adj.lampOff >= 0 )
+	        dev->usbDev.dwLampOnPeriod = cnf->adj.lampOff;
+
+        if( cnf->adj.lampOffOnEnd >= 0 )
+	        dev->usbDev.bLampOffOnEnd = cnf->adj.lampOffOnEnd;
 #else
 		free( dev->name );
 		free( dev );
@@ -945,14 +1079,26 @@ static SANE_Status attach( const char *dev_name, char *usbId,
 	return SANE_STATUS_GOOD;
 }
 
+/**
+ * function to preset a configuration structure
+ * @param cnf - pointer to the structure that should be initialized
+ */
+static void init_config_struct( pCnfDef cnf )
+{
+    memset( cnf, 0, sizeof(CnfDef));
+
+	cnf->adj.warmup       = -1;
+	cnf->adj.lampOff      = -1;
+	cnf->adj.lampOffOnEnd = -1;
+}
+
 /*.............................................................................
  * intialize the backend
  */
 SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 {
-	char     dev_name[PATH_MAX] = "/dev/pt_drv";
-    char     usbId[20] = "";
-	PORTTYPE pt;
+	char     str[PATH_MAX] = _DEFAULT_DEVICE;
+    CnfDef   config;
 	size_t   len;
 	FILE    *fp;
 
@@ -967,65 +1113,90 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 	first_dev    = NULL;
 	first_handle = NULL;
 	num_devices  = 0;
-    pt           = PARPORT;
+
+	/* initialize the configuration structure */
+	init_config_struct( &config );
 
 	if( version_code != NULL )
 		*version_code = SANE_VERSION_CODE(V_MAJOR, V_MINOR, 0);
 
 	fp = sanei_config_open( PLUSTEK_CONFIG_FILE );
 
-	/* default to /dev/pt_drv instead of insisting on config file */
+	/* default to _DEFAULT_DEVICE instead of insisting on config file */
 	if( NULL == fp ) {
-		return attach("/dev/pt_drv", NULL, PARPORT, 0);
+		return attach(_DEFAULT_DEVICE, &config, 0);
 	}
 
-	while (sanei_config_read( dev_name, sizeof(dev_name), fp)) {
+	while( sanei_config_read( str, sizeof(str), fp)) {
 		
-		DBG( _DBG_SANE_INIT, "sane_init, >%s<\n", dev_name );
-		if( dev_name[0] == '#')		/* ignore line comments */
+		DBG( _DBG_SANE_INIT, "sane_init, >%s<\n", str );
+		if( str[0] == '#')		/* ignore line comments */
     		continue;
 			
-		len = strlen(dev_name);
+		len = strlen(str);
 		if( 0 == len )
            	continue;			    /* ignore empty lines */
 
-#if ( V_REV == 1 )||( V_REV == 2 )
-		if( dev_name[len - 1] == '\n' )
-           	dev_name[--len] = '\0';
-
-		len = strlen(dev_name);
-		if( 0 == len )
-           	continue;
-#endif
-
-		/* check for port-type: */
-		if( 0 == strncmp(dev_name, "usb", 3)) {
+		/* check for options */
+		if( 0 == strncmp(str, "option", 6)) {
 		
-		char *xx = usbId;
+			decodeInt( str, "warmup",    &config.adj.warmup,  -1 );
+			decodeInt( str, "lampOff",   &config.adj.lampOff, -1 );
+			decodeInt( str, "lOffOnEnd", &config.adj.lampOffOnEnd, -1 );
 
-			getUsbIDs( &xx, dev_name );
+			decodeInt( str, "posOffX",  &config.adj.pos.x,  0 );
+			decodeInt( str, "posOffY",  &config.adj.pos.y,  0 );
+
+			decodeInt( str, "negOffX",  &config.adj.neg.x,  0 );
+			decodeInt( str, "negOffY",  &config.adj.neg.y,  0 );
+
+			decodeInt( str, "tpaOffX",  &config.adj.tpa.x,  0 );
+			decodeInt( str, "tpaOffY",  &config.adj.tpa.y,  0 );
+			continue;
+
+		/* check for sections: */
+		} else if( 0 == strncmp( str, "[usb]", 5)) {
 		
-			pt = USB;
+		    char *tmp;
+		
+		    /* new section, try and attach previous device */
+		    if( config.devName[0] != '\0' )
+				attach( config.devName, &config, 0 );
+		
+			/* re-initialize the configuration structure */
+			init_config_struct( &config );
+		
+		    tmp = config.usbId;
+			decodeUsbIDs( str, &tmp );
+		
+			config.porttype = USB;
+			DBG( _DBG_SANE_INIT, "next device is an USB device\n" );
 			continue;				
 
-		} else if(( 0 == strncmp(dev_name, "parport", 8))
-											       && ( '\0' == dev_name[8])) {
-            usbId[0] = '\0';
-			pt       = PARPORT;
+		} else if(( 0 == strncmp( str, "[parport]", 10))&&( '\0' == str[10])) {
+											
+		    /* new section, try and attach previous device */
+		    if( config.devName[0] != '\0' )
+				attach( config.devName, &config, 0 );
+											
+			/* re-initialize the configuration structure */
+			init_config_struct( &config );
 			DBG( _DBG_SANE_INIT, "next device is a PARPORT device\n" );
 			continue;				
+		
+		} else if( SANE_TRUE == decodeDevName( str, config.devName )) {
+			continue;
 		}
-
-		DBG( _DBG_SANE_INIT, "sane_init, >%s<\n", dev_name );
-
-		attach( dev_name, usbId, pt, 0 );
-
-		/* after attaching the device, reset to PARPORT */
-		pt       = PARPORT;
-        usbId[0] = '\0';
+		
+		/* ignore other stuff... */
+		DBG( _DBG_SANE_INIT, "ignoring >%s<\n", str );
 	}
    	fclose (fp);
 
+    /* try to attach the last device in the config file... */
+    if( config.devName[0] != '\0' )
+		attach( config.devName, &config, 0 );
+   	
 	return SANE_STATUS_GOOD;
 }
 
@@ -1111,7 +1282,7 @@ SANE_Status sane_open( SANE_String_Const devicename, SANE_Handle* handle )
 	SANE_Status      status;
 	Plustek_Device  *dev;
 	Plustek_Scanner *s;
-    char             usbId[20] = "";
+    CnfDef           config;
 
 	DBG( _DBG_SANE_INIT, "sane_open - %s\n", devicename );
 
@@ -1123,12 +1294,15 @@ SANE_Status sane_open( SANE_String_Const devicename, SANE_Handle* handle )
 
 		if( !dev ) {
 
+			memset( &config, 0, sizeof(CnfDef));
+			
 			/* check if a valid parport-device is meant... */
-			status = attach( devicename, NULL, PARPORT, &dev );
+			status = attach( devicename, &config, &dev );
 			if( SANE_STATUS_GOOD != status ) {
 
 				/* check if a valid usb-device is meant... */
-				status = attach( devicename, usbId, USB, &dev );
+				config.porttype = USB;
+				status = attach( devicename, &config, &dev );
 				if( SANE_STATUS_GOOD != status )
 					return status;
 			}
@@ -1519,10 +1693,6 @@ SANE_Status sane_start( SANE_Handle handle )
 	int			scanmode;
 	int         fds[2];
 	StartScan	start;
-/* HEINER: Remove!!! */
-#if 0
-	ImgDef      img;
-#endif
 	CropInfo	crop;
 	ScanInfo    sinfo;
 	SANE_Status status;
@@ -1665,39 +1835,7 @@ SANE_Status sane_start( SANE_Handle handle )
 	s->params.lines 		  = crop.dwLinesPerArea;
 
 	/* build a SCANINFO block and get ready to scan it */
-/* HEINER: Remove!!! */
-#if 0
-	img.xyDpi.x   = ndpi;
-	img.xyDpi.y   = ndpi;
-	img.crArea.x  = left;
-	img.crArea.y  = top;
-	img.crArea.cx = width;
-	img.crArea.cy = height;
-	img.wDataType = scanmode;
-
-	if( COLOR_TRUE48 == scanmode )
-		img.wBits = OUTPUT_12Bits;
-	else if( COLOR_TRUE32 == scanmode )
-		img.wBits = OUTPUT_10Bits;
-	else
-		img.wBits = OUTPUT_8Bits;
-#endif
-
 	sinfo.ImgDef.dwFlag |= (SCANDEF_BuildBwMap | SCANDEF_QualityScan);
-
-/*
- *	cb.ucmd.sInf.ImgDef.dwFlag |= SCANDEF_Inverse;
- */
-/* HEINER: Remove!!! */
-#if 0
-	switch( s->val[OPT_EXT_MODE].w ) {
-		case 1: img.dwFlag |= SCANDEF_Transparency; break;
-		case 2: img.dwFlag |= SCANDEF_Negative; 	break;
-		default: break;
-	}
-
-	img.wLens = 1;
-#endif
 
     /* set adjustments for brightness and contrast */
 	sinfo.siBrightness = s->val[OPT_BRIGHTNESS].w;

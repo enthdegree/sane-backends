@@ -13,6 +13,7 @@
  *.............................................................................
  * History:
  * 0.40 - initial version
+ * 0.41 - added _PTDRV_ADJUST call
  *
  *.............................................................................
  *
@@ -62,11 +63,11 @@
  */
 static int ppDev_open( const char *dev_name, void *misc )
 {
-	int 		   result;
-	int			   handle;
-	unsigned short version = _PTDRV_IOCTL_VERSION;
+	int 		    result;
+	int			    handle;
+	unsigned short  version = _PTDRV_IOCTL_VERSION;
+	Plustek_Device *dev     = (Plustek_Device *)misc;
 
-    _VAR_NOT_USED( misc );
 	_INIT(0x378,190,15);
 
 	if ((handle = _OPEN(dev_name)) < 0) {
@@ -82,6 +83,8 @@ static int ppDev_open( const char *dev_name, void *misc )
     		DBG( _DBG_ERROR,"Version problem, please recompile driver!\n" );
 		return result;
     }
+
+	_IOCTL( handle, _PTDRV_ADJUST, &dev->adj );
 
 	return handle;
 }
@@ -123,21 +126,7 @@ static int ppDev_getCropInfo( Plustek_Device *dev, pCropInfo crop )
  */
 static int ppDev_putImgInfo( Plustek_Device *dev, pImgDef img )
 {
-    CmdBlk cb;
-
-    int tmpcx = (short)img->crArea.cx;
-    int tmpcy = (short)img->crArea.cy;
-
-    DBG( _DBG_INFO, "cx = %u, cy =%u\n", tmpcy, tmpcy );
-
-    cb.ucmd.cInf.ImgDef = *img;
-
-    tmpcx = (short)cb.ucmd.cInf.ImgDef.crArea.cx;
-    tmpcy = (short)cb.ucmd.cInf.ImgDef.crArea.cy;
-
-    DBG( _DBG_INFO, "cx = %u, cy =%u\n", tmpcy, tmpcy );
-
-	return _IOCTL( dev->fd, _PTDRV_PUT_IMAGEINFO, &cb );
+	return _IOCTL( dev->fd, _PTDRV_PUT_IMAGEINFO, img );
 }
 
 /*.............................................................................

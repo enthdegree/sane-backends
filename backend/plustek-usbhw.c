@@ -9,6 +9,7 @@
  *.............................................................................
  * History:
  * 0.40 - starting version of the USB support
+ * 0.41 - added EPSON1250 specific stuff
  *
  *.............................................................................
  *
@@ -237,8 +238,8 @@ static Bool usb_ModuleMove(pPlustek_Device dev, u_char bAction, u_long dwStep)
 	if( !usbio_WriteReg(dev->fd, 0x26, 0x0C))
 		return SANE_FALSE;
 
-	_UIO(sanei_lm9831_write(dev->fd, 0x48, &a_bRegs[0x48], 2, SANE_TRUE));
-	_UIO(sanei_lm9831_write(dev->fd, 0x4A, &a_bRegs[0x4A], 2, SANE_TRUE));
+	_UIO(sanei_lm983x_write(dev->fd, 0x48, &a_bRegs[0x48], 2, SANE_TRUE));
+	_UIO(sanei_lm983x_write(dev->fd, 0x4A, &a_bRegs[0x4A], 2, SANE_TRUE));
 
 	/* disable home */
 	if( !usbio_WriteReg(dev->fd, 0x58, a_bRegs[0x58] & ~7))
@@ -433,8 +434,8 @@ static Bool usb_ModuleToHome( pPlustek_Device dev, Bool fWait )
 		if( !usbio_WriteReg(dev->fd, 0x26, 0x8C))
 			return SANE_FALSE;
 		
-		_UIO(sanei_lm9831_write(dev->fd, 0x48, &a_bRegs[0x48], 4, SANE_TRUE));
-		_UIO(sanei_lm9831_write(dev->fd, 0x56, &a_bRegs[0x56], 3, SANE_TRUE));
+		_UIO(sanei_lm983x_write(dev->fd, 0x48, &a_bRegs[0x48], 4, SANE_TRUE));
+		_UIO(sanei_lm983x_write(dev->fd, 0x56, &a_bRegs[0x56], 3, SANE_TRUE));
 
 		if( !usbio_WriteReg(dev->fd, 0x45, a_bRegs[0x45]))
 			return SANE_FALSE;
@@ -539,21 +540,30 @@ static int usb_GetLampStatus( pPlustek_Device dev )
 {
 	int    iLampStatus = 0;
 	pHWDef hw          = &dev->usbDev.HwSetting;
+	pDCapsDef sc       = &dev->usbDev.Caps;
+
 
 	if( NULL == hw ) {
 		DBG( _DBG_ERROR, "NULL-Pointer detected: usb_GetLampStatus()\n" );
 		return -1;
 	}	
 	
-	sanei_lm9831_read( dev->fd, 0x29, &a_bRegs[0x29], 0x37-0x29+1, SANE_TRUE );
+	if( _WAF_MISC_IO6_LAMP == (_WAF_MISC_IO6_LAMP & sc->workaroundFlag)) {
+			
+		iLampStatus |= DEV_LampReflection;
+	
+	} else {
+	
+		sanei_lm983x_read(dev->fd, 0x29,&a_bRegs[0x29],0x37-0x29+1,SANE_TRUE);
 
-	if((a_bRegs[0x29] & 3) == 1) {
+		if((a_bRegs[0x29] & 3) == 1) {
 
-		if((a_bRegs[0x2e] * 256 + a_bRegs[0x2f]) > hw->wLineEnd )
-			iLampStatus |= DEV_LampReflection;
+			if((a_bRegs[0x2e] * 256 + a_bRegs[0x2f]) > hw->wLineEnd )
+				iLampStatus |= DEV_LampReflection;
 
-		if((a_bRegs[0x36] * 256 + a_bRegs[0x37]) > hw->wLineEnd )
-			iLampStatus |= DEV_LampTPA;
+			if((a_bRegs[0x36] * 256 + a_bRegs[0x37]) > hw->wLineEnd )
+				iLampStatus |= DEV_LampTPA;
+		}				
 	}
 
 	return iLampStatus;
@@ -590,6 +600,7 @@ static Bool usb_LampOn( pPlustek_Device dev,
 						Bool fOn, int iLampID, Bool fResetTimer )
 {
     pScanDef  scanning    = &dev->scanning;
+	pDCapsDef sc          = &dev->usbDev.Caps;
 	int       iLampStatus = usb_GetLampStatus( dev );
 
 	if( NULL == scanning ) {
@@ -614,23 +625,35 @@ static Bool usb_LampOn( pPlustek_Device dev,
 	}
 
 	if( fOn ) {
-
+	
 		if(iLampStatus != iLampID) {
 
 			memset( &a_bRegs[0x29], 0, (0x37-0x29+1));
-			a_bRegs[0x29] = 1;	/* mode 1 */
-
-			if( iLampID == DEV_LampReflection ) {
-				a_bRegs[0x2e] = 16383 / 256;
-				a_bRegs[0x2f] = 16383 % 256;
-			}
-
-			if( iLampID == DEV_LampTPA ) {
-				a_bRegs[0x36] = 16383 / 256;
-				a_bRegs[0x37] = 16383 % 256;
-			}
 			
-			sanei_lm9831_write( dev->fd, 0x29,
+			/*
+			 * EPSON specific stuff
+			 */
+			if(_WAF_MISC_IO6_LAMP==(_WAF_MISC_IO6_LAMP & sc->workaroundFlag)) {
+
+				a_bRegs[0x29] = 3;	/* mode 3 */
+	            usbio_WriteReg( dev->fd, 0x5b, 0x94 );
+			
+			} else {
+
+				a_bRegs[0x29] = 1;	/* mode 1 */
+
+				if( iLampID == DEV_LampReflection ) {
+					a_bRegs[0x2e] = 16383 / 256;
+					a_bRegs[0x2f] = 16383 % 256;
+				}
+
+				if( iLampID == DEV_LampTPA ) {
+					a_bRegs[0x36] = 16383 / 256;
+					a_bRegs[0x37] = 16383 % 256;
+				}
+			}				
+			
+			sanei_lm983x_write( dev->fd, 0x29,
 								&a_bRegs[0x29], 0x37-0x29+1, SANE_TRUE );
 #if 0
 			if(!(iLampStatus & iLampID) && fResetTimer)
@@ -646,19 +669,31 @@ static Bool usb_LampOn( pPlustek_Device dev,
 		if( iStatusChange != iLampStatus ) {
 
 			memset( &a_bRegs[0x29], 0, 0x37-0x29+1 );
-			a_bRegs[0x29] = 1;	/* mode 1 */
 
-			if( iStatusChange & DEV_LampReflection ) {
-				a_bRegs[0x2e] = 16383 / 256;
-				a_bRegs[0x2f] = 16383 % 256;
-			}
+			/*
+			 * EPSON specific stuff
+			 */
+			if(_WAF_MISC_IO6_LAMP==(_WAF_MISC_IO6_LAMP & sc->workaroundFlag)) {
 
-			if( iStatusChange & DEV_LampTPA ) {
-				a_bRegs[0x36] = 16383 / 256;
-				a_bRegs[0x37] = 16383 % 256;
+				a_bRegs[0x29] = 3;	/* mode 3 */
+	            usbio_WriteReg( dev->fd, 0x5b, 0x14 );
+			
+			} else {
+			
+				a_bRegs[0x29] = 1;	/* mode 1 */
+
+				if( iStatusChange & DEV_LampReflection ) {
+					a_bRegs[0x2e] = 16383 / 256;
+					a_bRegs[0x2f] = 16383 % 256;
+				}
+    	
+				if( iStatusChange & DEV_LampTPA ) {
+					a_bRegs[0x36] = 16383 / 256;
+					a_bRegs[0x37] = 16383 % 256;
+				}					
 			}
 			
-			sanei_lm9831_write( dev->fd, 0x29,
+			sanei_lm983x_write( dev->fd, 0x29,
 								&a_bRegs[0x29], 0x37-0x29+1, SANE_TRUE );
 		}
 	}
@@ -719,7 +754,7 @@ static SANE_Bool usb_ModuleStatus( pPlustek_Device dev )
 			usbio_WriteReg( dev->fd, 0x07, 0x20 );
 			usbio_WriteReg( dev->fd, 0x07, 0 );
 			
-			sanei_lm9831_write( dev->fd, 0x58,
+			sanei_lm983x_write( dev->fd, 0x58,
 								&hw->bReg_0x58, 0x5b-0x58+1, SANE_TRUE );
 			usbio_ReadReg( dev->fd, 2, &value );
 			usbio_ReadReg( dev->fd, 2, &value );

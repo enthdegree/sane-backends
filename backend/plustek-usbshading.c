@@ -9,6 +9,7 @@
  *.............................................................................
  * History:
  * 0.40 - starting version of the USB support
+ * 0.41 - minor fixes
  *
  *.............................................................................
  *
@@ -103,12 +104,12 @@ static Bool usb_SetDarkShading( int fd, u_char channel,
 		a_bRegs[0x04] = 0;
 		a_bRegs[0x05] = 0;
 
-		res = sanei_lm9831_write( fd, 0x04, &a_bRegs[0x04], 2, SANE_TRUE );
+		res = sanei_lm983x_write( fd, 0x04, &a_bRegs[0x04], 2, SANE_TRUE );
 
 		/* Download offset coefficients */
 		if( SANE_STATUS_GOOD == res ) {
 			
-			res = sanei_lm9831_write(fd, 0x06,
+			res = sanei_lm983x_write(fd, 0x06,
 										(u_char*)lpCoeff, wCount, SANE_FALSE );
 			if( SANE_STATUS_GOOD == res )
 				return SANE_TRUE;
@@ -140,11 +141,11 @@ static Bool usb_SetWhiteShading( int fd, u_char channel,
 		a_bRegs[0x04] = 0;
 		a_bRegs[0x05] = 0;
 
-		res = sanei_lm9831_write( fd, 0x04, &a_bRegs[0x04], 2, SANE_TRUE );
+		res = sanei_lm983x_write( fd, 0x04, &a_bRegs[0x04], 2, SANE_TRUE );
 
 		/* Download offset coefficients */
 		if( SANE_STATUS_GOOD == res ) {
-			res = sanei_lm9831_write(fd, 0x06,
+			res = sanei_lm983x_write(fd, 0x06,
 										(u_char*)lpData, wCount, SANE_FALSE );
 			if( SANE_STATUS_GOOD == res )
 				return SANE_TRUE;
@@ -692,7 +693,7 @@ static Bool usb_AdjustOffset( pPlustek_Device dev )
 			a_bRegs[0x3a] = a_bRegs[0x39] = a_bRegs[0x38];
 		}
 
-		_UIO(sanei_lm9831_write(dev->fd, 0x38, &a_bRegs[0x38], 3, SANE_TRUE));
+		_UIO(sanei_lm983x_write(dev->fd, 0x38, &a_bRegs[0x38], 3, SANE_TRUE));
 		cAdjust >>= 1;
 	}
 
@@ -834,15 +835,27 @@ static Bool usb_AdjustDarkShading( pPlustek_Device dev )
 	   (!usb_ScanReadImage(dev,pScanBuffer,m_ScanParam.Size.dwPhyBytes)) ||
 	   (!usb_ScanEnd( dev ))) {
 		
-		a_bRegs[0x29] = 1;
+		if(_WAF_MISC_IO6_LAMP==(_WAF_MISC_IO6_LAMP & scaps->workaroundFlag)) {
+			a_bRegs[0x29] = 3;
+			usbio_WriteReg( dev->fd, 0x5b, 0x94);
+		} else {
+			a_bRegs[0x29] = 1;
+		}			
 		usbio_WriteReg( dev->fd, 0x29, a_bRegs[0x29]);
 		
 		DBG( _DBG_ERROR, "usb_AdjustDarkShading() failed\n" );
 		return SANE_FALSE;
 	}
 	
-	/* set illumination mode to 1 */
-	a_bRegs[0x29] = 1;
+	/*
+	 * set illumination mode to 1 or 3 on EPSON
+	 */
+	if(_WAF_MISC_IO6_LAMP==(_WAF_MISC_IO6_LAMP & scaps->workaroundFlag)) {
+		a_bRegs[0x29] = 3;
+		usbio_WriteReg( dev->fd, 0x5b, 0x94 );
+	} else {
+		a_bRegs[0x29] = 1;
+	}		
 
 	if( !usbio_WriteReg( dev->fd, 0x29, a_bRegs[0x29])) {
 		DBG( _DBG_ERROR, "usb_AdjustDarkShading() failed\n" );
@@ -1614,7 +1627,7 @@ static Bool usb_DownloadShadingData( pPlustek_Device dev, u_char bJobID )
 			a_bRegs[0x41] = 0x00;
 			a_bRegs[0x42] = (u_char)(( hw->wDRAMSize > 512)? 0x64: 0x24);
 
-			_UIO(sanei_lm9831_write( dev->fd, 0x40,
+			_UIO(sanei_lm983x_write( dev->fd, 0x40,
 									 &a_bRegs[0x40], 0x42-0x40+1, SANE_TRUE ));
 			break;
 
@@ -1669,7 +1682,7 @@ static Bool usb_DownloadShadingData( pPlustek_Device dev, u_char bJobID )
 			a_bRegs[0x41] = 0x00;
 			a_bRegs[0x42] = (u_char)((hw->wDRAMSize > 512)? 0x60: 0x20);
 
-			_UIO(sanei_lm9831_write( dev->fd, 0x3e, &a_bRegs[0x3e],
+			_UIO(sanei_lm983x_write( dev->fd, 0x3e, &a_bRegs[0x3e],
 									  0x42 - 0x3e + 1, SANE_TRUE ));
 			break;									
 	}

@@ -9,6 +9,7 @@
  *.............................................................................
  * History:
  * 0.40 - starting version of the USB support
+ * 0.41 - minor fixes
  *
  *.............................................................................
  *
@@ -904,12 +905,12 @@ static Bool usb_SetScanParameters( pPlustek_Device dev, pScanParam pParam )
 	memset( &a_bRegs[0x5C], 0, 0x7F-0x5C+1 );
 	
 	/* 0x08 - 0x5E */
-	_UIO(sanei_lm9831_write( dev->fd, 0x08, &a_bRegs[0x08], 0x5E - 0x08+1, SANE_TRUE));
+	_UIO(sanei_lm983x_write( dev->fd, 0x08, &a_bRegs[0x08], 0x5E - 0x08+1, SANE_TRUE));
 
 	/* 0x03 - 0x05 */
-	_UIO(sanei_lm9831_write( dev->fd, 0x03, &a_bRegs[0x03], 3, SANE_TRUE));
+	_UIO(sanei_lm983x_write( dev->fd, 0x03, &a_bRegs[0x03], 3, SANE_TRUE));
 	/* 0x5C - 0x7F */
-	_UIO(sanei_lm9831_write( dev->fd, 0x5C, &a_bRegs[0x5C], 0x7F - 0x5C +1, SANE_TRUE));
+	_UIO(sanei_lm983x_write( dev->fd, 0x5C, &a_bRegs[0x5C], 0x7F - 0x5C +1, SANE_TRUE));
 
 	if( !usbio_WriteReg( dev->fd, 0x07, 0 ))
 		return SANE_FALSE;
@@ -959,7 +960,7 @@ static Bool usb_ScanBegin( pPlustek_Device dev, Bool fAutoPark )
 			u_long dwBytesToRead = m_bOldScanData * hw->wDRAMSize * 4;
 			u_char *pBuffer      = malloc( sizeof(u_char) * dwBytesToRead );
 
-			_UIO(sanei_lm9831_read( dev->fd, 0x00, pBuffer, dwBytesToRead, SANE_FALSE ));
+			_UIO(sanei_lm983x_read( dev->fd, 0x00, pBuffer, dwBytesToRead, SANE_FALSE ));
 
 			free( pBuffer );
 
@@ -1039,7 +1040,7 @@ static Bool usb_IsDataAvailableInDRAM( pPlustek_Device dev )
 
 	for(;;)	{
 
-		_UIO( sanei_lm9831_read( dev->fd, 0x01, a_bBand, 3, SANE_FALSE ));
+		_UIO( sanei_lm983x_read( dev->fd, 0x01, a_bBand, 3, SANE_FALSE ));
 
 		/* It is not stable for read */
 		if((a_bBand[0] != a_bBand[1]) && (a_bBand[1] != a_bBand[2]))
@@ -1167,7 +1168,7 @@ static Bool usb_ScanReadImage( pPlustek_Device dev, void *pBuf, u_long dwSize )
 	}
 #endif
 
-	res = sanei_lm9831_read(dev->fd, 0x00, (u_char *)pBuf, dwSize, SANE_FALSE);
+	res = sanei_lm983x_read(dev->fd, 0x00, (u_char *)pBuf, dwSize, SANE_FALSE);
 
 	DBG( _DBG_READ, "usb_ScanReadImage() done, result: %d\n", res );
 

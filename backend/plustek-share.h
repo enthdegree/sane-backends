@@ -19,6 +19,8 @@
  * 0.39 - added user-space stuff
  *        added Genius Colorpage Vivid III V2 stuff
  * 0.40 - added stuff to share with USB and Parport
+ * 0.41 - changed the IOCTL version number
+ *        added adjustment stuff
  *
  *.............................................................................
  *
@@ -96,20 +98,21 @@
 #define _PTDRV_OPEN_DEVICE 	    _IOW('x', 1, unsigned short)/* open			 */
 #define _PTDRV_GET_CAPABILITIES _IOR('x', 2, ScannerCaps)	/* get caps		 */
 #define _PTDRV_GET_LENSINFO 	_IOR('x', 3, LensInfo)		/* get lenscaps	 */
-#define _PTDRV_PUT_IMAGEINFO 	_IOW('x', 4, CmdBlk)		/* put image info*/
+#define _PTDRV_PUT_IMAGEINFO 	_IOW('x', 4, ImgDef)		/* put image info*/
 #define _PTDRV_GET_CROPINFO 	_IOR('x', 5, CropInfo)		/* get crop		 */
 #define _PTDRV_SET_ENV 			_IOWR('x',6, ScanInfo)		/* set env.		 */
 #define _PTDRV_START_SCAN 		_IOR('x', 7, StartScan)		/* start scan 	 */
 #define _PTDRV_STOP_SCAN 		_IOWR('x', 8, int)			/* stop scan 	 */
 #define _PTDRV_CLOSE_DEVICE 	_IO('x',  9)				/* close 		 */
 #define _PTDRV_ACTION_BUTTON	_IOR('x', 10, int)	 		/* rd act. button*/
+#define _PTDRV_ADJUST           _IOR('x', 11, AdjDef)		/* adjust driver */
 
 /*
  * this version MUST match the one inside the driver to make sure, that
  * both sides use the same structures. This version changes each time
  * the ioctl interface changes
  */
-#define _PTDRV_IOCTL_VERSION	0x0101
+#define _PTDRV_IOCTL_VERSION	0x0102
 
 /*.............................................................................
  * the structures for driver communication
@@ -145,8 +148,6 @@ typedef struct {
     unsigned long	dwPixelsPerLine;
     unsigned long	dwBytesPerLine;
     unsigned long	dwLinesPerArea;
-    unsigned long	dwOffsetX;
-    unsigned long	dwOffsetY;
     ImgDef 	        ImgDef;
 } CropInfo, *pCropInfo;
 
@@ -189,20 +190,24 @@ typedef struct {
     unsigned short	wBeginY;		/* offset from top	*/
 } LensInfo, *pLensInfo;
 
-/* TODO: move it out the way...*/
 typedef struct {
-    union {
-		unsigned short	wShadingBufSize;	/* output			*/
-		unsigned short	wMapType;			/* input			*/
-		unsigned short	wIDOwner;			/* output			*/
-		unsigned short	wLensNumber;		/* input/output		*/
-		unsigned short	wCmd;				/* GetScannerStatus	*/
-		unsigned long	wError; 			/* Get last error	*/
-		ScanInfo 		sInf;				/* input			*/
-		CropInfo 		cInf;				/* input			*/
-		unsigned long	dwSize;				/* prefer size		*/
-    } ucmd;
-} CmdBlk, *pCmdBlk;
+	int x;
+	int y;
+} OffsDef, *pOffsDef;
+
+/*
+ * for adjusting the drivers
+ */
+typedef struct {
+	int     lampOff;
+	int     lampOffOnEnd;
+	int     warmup;
+
+	OffsDef pos; /* for adjusting normal scan area       */
+	OffsDef tpa; /* for adjusting transparency scan area */
+	OffsDef neg; /* for adjusting negative scan area     */
+
+} AdjDef, *pAdjDef;
 
 /*
  * useful for description tables

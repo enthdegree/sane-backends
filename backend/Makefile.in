@@ -295,6 +295,7 @@ libsane-pint.la: ../sanei/sanei_constrain_value.lo
 libsane-plustek.la: ../sanei/sanei_config2.lo
 libsane-plustek.la: ../sanei/sanei_constrain_value.lo
 libsane-plustek.la: ../sanei/sanei_usb.lo
+libsane-plustek.la: ../sanei/sanei_lm983x.lo
 libsane-pnm.la: ../sanei/sanei_constrain_value.lo
 libsane-qcam.la: ../sanei/sanei_constrain_value.lo
 libsane-ricoh.la: ../sanei/sanei_config2.lo
@@ -347,6 +348,7 @@ libsane-dll.la libsane.la: ../sanei/sanei_pio.lo
 libsane-dll.la libsane.la: ../sanei/sanei_pa4s2.lo
 libsane-dll.la libsane.la: ../sanei/sanei_usb.lo
 libsane-dll.la libsane.la: ../sanei/sanei_pv8630.lo
+libsane-dll.la libsane.la: ../sanei/sanei_lm983x.lo
 endif
 
 depend:

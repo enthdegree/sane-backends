@@ -10,6 +10,7 @@
  *.............................................................................
  * History:
  * 0.40 - starting version of the USB support
+ * 0.41 - fixed the 14bit problem for LM9831 devices
  *
  *.............................................................................
  *
@@ -993,7 +994,8 @@ static void usb_GrayDuplicatePseudo16( struct Plustek_Device *dev )
  */
 static void usb_GetImageProc( struct Plustek_Device *dev )
 {
-    pScanDef scanning = &dev->scanning;
+    pScanDef  scanning = &dev->scanning;
+	pDCapsDef sc       = &dev->usbDev.Caps;
 
     bShift = 0;
 
@@ -1086,12 +1088,22 @@ static void usb_GetImageProc( struct Plustek_Device *dev )
 		}
 	}
 	
-	if (scanning->sParam.bBitDepth == 8) {
-		if (scanning->dwFlag & SCANFLAG_Pseudo48) {
-			if (scanning->dwFlag & SCANFLAG_RightAlign) {
+	if( scanning->sParam.bBitDepth == 8 ) {
+	
+		if( scanning->dwFlag & SCANFLAG_Pseudo48 ) {
+			if( scanning->dwFlag & SCANFLAG_RightAlign ) {
 				bShift = 5;
 			} else {
-				bShift = 0; /*7; Holger Bischof 16.12.2001 */
+
+				/*
+				 * this should fix the Bearpaw/U12 discrepancy
+				 * in general the fix is needed, but not for the U12
+				 * why? - no idea!
+				 */			
+				if(_WAF_BSHIFT7_BUG == (_WAF_BSHIFT7_BUG & sc->workaroundFlag))
+					bShift = 0; /* Holger Bischof 16.12.2001 */
+				else
+					bShift = 7;
 			}
 			DBG( _DBG_INFO, "bShift adjusted: %u\n", bShift );
 		}
@@ -1131,7 +1143,7 @@ static SANE_Int usb_ReadData( struct Plustek_Device *dev )
    				
    			a_bRegs[0x4F] = 0;
 				
-   			sanei_lm9831_write( dev->fd, 0x4e, &a_bRegs[0x4e], 2, SANE_TRUE );
+   			sanei_lm983x_write( dev->fd, 0x4e, &a_bRegs[0x4e], 2, SANE_TRUE );
    		}
 
    		while( scanning->bLinesToSkip ) {

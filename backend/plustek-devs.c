@@ -9,6 +9,7 @@
  *.............................................................................
  * History:
  * 0.40 - starting version of the USB support
+ * 0.41 - added EPSON1250 entries
  *
  *.............................................................................
  *
@@ -98,7 +99,8 @@ static DCapsDef Cap0x07B3_0x0017_0 =
 	4,					/* bSensorDistance */
 	4,					/* bButtons */
 	0,					/* bCCD */
-	0x07				/* bPCB */
+	0x07,				/* bPCB */
+	_WAF_NONE           /* no workarounds or other special stuff needed */
 };
 
 /* Plustek Model: ???
@@ -113,7 +115,7 @@ static DCapsDef Cap0x07B3_0x0015_0 =
 	{600, 600},		
 	0,	
 	SENSORORDER_rgb,
-	4, 4, 0, 0x05			
+	4, 4, 0, 0x05, _WAF_NONE
 };
 
 /* Plustek Model: ???
@@ -128,7 +130,7 @@ static DCapsDef Cap0x07B3_0x0014_0 =
 	{600, 600},		
 	0,	
 	SENSORORDER_rgb,
-	4, 0, 0, 0x04			
+	4, 0, 0, 0x04, _WAF_NONE			
 };
 
 /* Plustek Model: ???
@@ -143,7 +145,7 @@ static DCapsDef Cap0x07B3_0x0007_0 =
 	{600, 600},		
 	DEVCAPSFLAG_Positive + DEVCAPSFLAG_Negative,
 	SENSORORDER_rgb,
-	4, 5, 0, 0x07
+	4, 5, 0, 0x07, _WAF_NONE
 };
 
 /* Plustek Model: ???
@@ -158,7 +160,7 @@ static DCapsDef Cap0x07B3_0x0005_2 =
 	{600, 600},
 	0,
 	SENSORORDER_bgr,
-	8, 2, 2, 0x05
+	8, 2, 2, 0x05, _WAF_NONE
 };
 
 /* Plustek Model: ???
@@ -173,7 +175,7 @@ static DCapsDef Cap0x07B3_0x0007_4 =
 	{1200, 1200},
 	DEVCAPSFLAG_Positive + DEVCAPSFLAG_Negative,
 	SENSORORDER_rgb,
-	12,	5, 4, 0x07
+	12,	5, 4, 0x07, _WAF_NONE
 };
 
 /* Plustek Model: ???
@@ -188,7 +190,7 @@ static DCapsDef Cap0x07B3_0x0005_4 =
 	{1200, 1200},
 	0,
 	SENSORORDER_rgb,
-	12,	5, 4, 0x05
+	12,	5, 4, 0x05, _WAF_NONE
 };
 
 /* Plustek Model: ???
@@ -203,7 +205,7 @@ static DCapsDef Cap0x07B3_0x000F_0 =
 	{600, 600},
 	DEVCAPSFLAG_Normal + DEVCAPSFLAG_Adf,
 	SENSORORDER_rgb,
-	4, 5, 0, 0x0F
+	4, 5, 0, 0x0F, _WAF_NONE
 };
 
 
@@ -219,7 +221,7 @@ static DCapsDef Cap0x07B3_0x0013_0 =
 	{600, 600},
 	DEVCAPSFLAG_Positive + DEVCAPSFLAG_Negative,
 	SENSORORDER_rgb,
-	4, 4, 0, 0x03
+	4, 4, 0, 0x03, _WAF_NONE
 };
 
 /* Plustek Model: U24
@@ -234,7 +236,7 @@ static DCapsDef Cap0x07B3_0x0011_0 =
 	{600, 600},
 	0,	
 	SENSORORDER_rgb,
-	4, 4, 0, 0x01
+	4, 4, 0, 0x01, _WAF_NONE
 };
 
 /* Plustek Model: U12
@@ -249,7 +251,7 @@ static DCapsDef Cap0x07B3_0x0010_0 =
 	{600, 600},
 	0,
 	SENSORORDER_rgb,
-	4, 0, 0, 0x00
+	4, 0, 0, 0x00, _WAF_BSHIFT7_BUG
 };
 
 /* Plustek Model: ???
@@ -264,7 +266,7 @@ static DCapsDef Cap0x07B3_0x0013_4 =
 	{1200, 1200},
 	DEVCAPSFLAG_Positive + DEVCAPSFLAG_Negative,	
 	SENSORORDER_rgb,
-	12, 4, 4, 0x03
+	12, 4, 4, 0x03, _WAF_NONE
 };
 
 /* Plustek Model: ???
@@ -279,7 +281,7 @@ static DCapsDef Cap0x07B3_0x0011_4 =
 	{1200, 1200},
 	0,
 	SENSORORDER_rgb,
-	12, 4, 4, 0x01
+	12, 4, 4, 0x01, _WAF_NONE
 };
 
 /* Plustek Model: ???
@@ -294,7 +296,7 @@ static DCapsDef Cap0x07B3_0x0010_4 =
 	{1200, 1200},
 	0,
 	SENSORORDER_rgb,
-	12, 0, 4, 0x00
+	12, 0, 4, 0x00, _WAF_NONE
 };
 
 /* Plustek Model: ???
@@ -309,7 +311,7 @@ static DCapsDef Cap0x07B3_0x000F_4 =
 	{1200, 1200},
 	DEVCAPSFLAG_Normal + DEVCAPSFLAG_Adf,
 	SENSORORDER_rgb,
-	12, 5, 4, 0x0F
+	12, 5, 4, 0x0F, _WAF_NONE
 };
 
 /* Plustek Model: ???
@@ -324,7 +326,7 @@ static DCapsDef Cap0x07B3_0x0016_4 =
 	{1200, 1200},
 	DEVCAPSFLAG_Positive + DEVCAPSFLAG_Negative,
 	SENSORORDER_rgb,
-	12, 4, 4, 0x06
+	12, 4, 4, 0x06, _WAF_NONE
 };
 
 /* Plustek Model: UT24
@@ -339,7 +341,7 @@ static DCapsDef Cap0x07B3_0x0017_4 =
 	{1200, 1200},		
 	DEVCAPSFLAG_Positive + DEVCAPSFLAG_Negative,
 	SENSORORDER_rgb,
-	12,	4, 4, 0x07			
+	12,	4, 4, 0x07, _WAF_NONE			
 };
 
 /* Plustek Model: ???
@@ -354,7 +356,7 @@ static DCapsDef Cap0x07B3_0x0015_4 =
 	{1200, 1200},		
 	0,	
 	SENSORORDER_rgb,	
-	12, 4, 4, 0x05				
+	12, 4, 4, 0x05, _WAF_NONE				
 };
 
 /* Plustek Model: ???
@@ -369,7 +371,7 @@ static DCapsDef Cap0x07B3_0x0014_4 =
 	{1200, 1200},		
 	0,
 	SENSORORDER_rgb,	
-	12, 0, 4, 0x04				
+	12, 0, 4, 0x04, _WAF_NONE				
 };
 
 /* Plustek Model: ???
@@ -384,7 +386,7 @@ static DCapsDef Cap0x07B3_0x0014_1 =
 	{400, 400},			
 	0,	
 	SENSORORDER_rgb,	
-	8, 0, 1, 0x04				
+	8, 0, 1, 0x04, _WAF_NONE				
 };
 
 /* Model: ???
@@ -399,7 +401,7 @@ static DCapsDef Cap0x07B3_0x0012_0 =
 	{600, 600},
 	0,	
 	SENSORORDER_rgb,	
-	4, 0, 0, 0x02				
+	4, 0, 0, 0x02, _WAF_NONE				
 };
 
 /* Plustek Model: ???
@@ -414,7 +416,7 @@ static DCapsDef Cap0x07B3_0x0017_2 =
 	{600, 600},		
 	DEVCAPSFLAG_Positive + DEVCAPSFLAG_Negative,	
 	SENSORORDER_bgr,	
-	8, 4, 2, 0x07				
+	8, 4, 2, 0x07, _WAF_NONE				
 };
 
 /* Plustek Model: ???
@@ -429,7 +431,7 @@ static DCapsDef Cap0x07B3_0x0017_3 =
 	{600, 600},
 	DEVCAPSFLAG_Positive + DEVCAPSFLAG_Negative,	
 	SENSORORDER_rgb,	
-	8, 4, kNEC8861,	0x07				
+	8, 4, kNEC8861,	0x07, _WAF_NONE				
 };
 
 /*
@@ -448,7 +450,7 @@ static DCapsDef Cap0x07B3_0x0017_1 =
 	{600, 600},	
 	DEVCAPSFLAG_Positive + DEVCAPSFLAG_Negative,	
 	SENSORORDER_rgb,	
-	8, 4, 1, 0x07				
+	8, 4, 1, 0x07, _WAF_NONE				
 };
 
 static DCapsDef Cap0x07B3_0x0015_1 =
@@ -460,7 +462,7 @@ static DCapsDef Cap0x07B3_0x0015_1 =
 	{600, 200},		
 	0,	
 	SENSORORDER_rgb,	
-	8, 4, 1, 0x05				
+	8, 4, 1, 0x05, _WAF_NONE				
 };
 
 static DCapsDef Cap0x07B3_0x0015_2 =
@@ -472,7 +474,7 @@ static DCapsDef Cap0x07B3_0x0015_2 =
 	{600, 600},	
 	0,
 	SENSORORDER_bgr,	
-	8, 4, 2, 0x05				
+	8, 4, 2, 0x05, _WAF_NONE				
 };
 
 /* Plustek Model: ???
@@ -487,7 +489,7 @@ static DCapsDef Cap0x07B3_0x0014_2 =
 	{600, 600},	
 	0,
 	SENSORORDER_bgr,	
-	8, 0, 2, 0x04					
+	8, 0, 2, 0x04, _WAF_NONE					
 };
 
 #endif
@@ -504,7 +506,7 @@ static DCapsDef Cap0x03F0_0x0605 =
 	{600, 600},
 	0,	
 	SENSORORDER_rgb,	
-	4, 0, 0, 0x02				
+	4, 0, 0, 0x02, _WAF_NONE				
 };
 
 /* Mustek BearPaw 1200 (thanks to Henning Meier-Geinitz)
@@ -519,7 +521,7 @@ static DCapsDef Cap0x0400_0x1000_0 =
     {600, 600},/*1200*/
     0,
     SENSORORDER_bgr,
-    4, 5, 3, 0x00
+    4, 5, 3, 0x00, _WAF_NONE
 };
 
 /* Mustek BearPaw 2400
@@ -534,7 +536,26 @@ static DCapsDef Cap0x0400_0x1001_0 =
     {600, 600},
     0,
     SENSORORDER_bgr,
-    6, 5, 2, 0x05
+    6, 5, 2, 0x05, _WAF_NONE
+};
+
+/* Epson Perfection/Photo1250
+ * NS9832 + Button + CCD????
+ */
+static DCapsDef Cap0x04B8_0x010F_0 =
+{
+	{{ 0, 168}, 0, {2550, 3508}, { 100, 100 }, COLOR_BW },
+	{{ 0,  0}, 0, {0, 0}, { 0, 0 }, 0 },
+	{{ 0,  0}, 0, {0, 0}, { 0, 0 }, 0 },
+	{{ 0,  0}, 0, {0, 0}, { 0, 0 }, 0 },
+	{1200, 1200},
+	0,
+	SENSORORDER_bgr,
+	4,			        /* sensor distance                         */
+	2,      	        /* number of buttons                       */
+	kNEC8861,           /* use default settings during calibration */
+	0,                  /* not used here...                        */
+	_WAF_MISC_IO6_LAMP  /* use miscio 6 for lamp switching         */
 };
 
 /******************* additional Hardware descriptions ************************/
@@ -988,10 +1009,10 @@ static HWDef Hw0x03F0_0x0605 =
  	{5, 23, 1, 3, 0, 0, 0, 12, 10, 22},
 
 	1,		/* StepperPhaseCorrection (0x1a & 0x1b)     */
-	14,		/* 15,=09bOpticBlackStart (0x1c)            */
-	62,		/* 60,=09bOpticBlackEnd (0x1d)              */
-	110,	/* 65,=09wActivePixelsStart (0x1e & 0x1f)   */
-	5400,	/* 5384 ,wLineEnd=09(0x20 & 0x21)       	*/
+	14,		/* 15,= bOpticBlackStart (0x1c)             */
+	62,		/* 60,= bOpticBlackEnd (0x1d)               */
+	110,	/* 65,= wActivePixelsStart (0x1e & 0x1f)    */
+	5400,	/* 5384 ,wLineEnd=(0x20 & 0x21)         	*/
 
 	/* Misc                                             */
 	3,		/* bReg_0x45                                */
@@ -1059,31 +1080,82 @@ static HWDef Hw0x0400_0x1000_0 =
 /* BearPaw 2400 */
 static HWDef Hw0x0400_0x1001_0 =
 {
-         1.0, 0.9,
-         9, 9,
-         1200,
-         2048,
-         4, 5,
-         3000, 4095,
-         0x02, 0x3f,     0x2f, 0x36,
-         {2, 7, 0, 1, 0, 0, 0, 0, 4, 0},
-         {7, 20, 1, 4, 7, 10, 0, 6, 12, 0},
-         1,
-         16,
-         64,
-         152,
-         5416,
-         3,
-         0,
-         0xfc,
-         0,
-         0xff,
-         64,
-         20,
-         0x0d, 0x88, 0x28, 0x3b,
-         0, 0, 0,
-         SANE_FALSE,
-         MODEL_Tokyo600
+	1.0, 0.9,
+    9, 9,
+    1200,
+    2048,
+    4, 5,
+    3000, 4095,
+    0x02, 0x3f,     0x2f, 0x36,
+    {2, 7, 0, 1, 0, 0, 0, 0, 4, 0},
+    {7, 20, 1, 4, 7, 10, 0, 6, 12, 0},
+    1,
+    16,
+    64,
+    152,
+    5416,
+    3,
+    0,
+    0xfc,
+    0,
+    0xff,
+    64,
+    20,
+    0x0d, 0x88, 0x28, 0x3b,
+    0, 0, 0,
+    SANE_FALSE,
+    MODEL_Tokyo600
+};
+
+/* EPSON Perfection/Photo 1250 */
+static HWDef Hw0x04B8_0x010F_0 =
+{
+    1.0,    /* dMaxMotorSpeed (Max_Speed)                */
+    0.9,    /* dMaxMoveSpeed (Max_Speed)                 */
+    12,     /* wIntegrationTimeLowLamp                   */
+    12,     /* wIntegrationTimeHighLamp                  */
+    600,    /* wMotorDpi (Full step DPI)                 */
+    2048,   /* wRAMSize (KB)                             */
+    4,      /* wMinIntegrationTimeLowres (ms)            */
+    5,      /* wMinIntegrationTimeHighres (ms)           */
+    3000,   /* ok wGreenPWMDutyCycleLow (reg 0x2a + 0x2b)   */
+    4095,   /* ok wGreenPWMDutyCycleHigh (reg 0x2a + 0x2b)  */
+
+    0x02,   /* ok bSensorConfiguration (0x0b)               */
+    0x04,   /* ok sensor control settings (reg 0x0c)        */
+    0x7f,   /* ok sensor control settings (reg 0x0d)        */
+    0x13,   /* ok sensor control settings (reg 0x0e)        */
+
+    {0x02, 0x07, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00},
+            /* ?? mono (reg 0x0f to 0x18) */
+
+    {0x06, 0x16, 0x00, 0x05, 0x0c, 0x17, 0x00, 0x00, 0x08, 0x14},
+            /* ok color (reg 0x0f to 0x18)                  */
+
+    1,      /* ok StepperPhaseCorrection (reg 0x1a + 0x1b)  */
+    0x00,   /* ok bOpticBlackStart (reg 0x1c)               */
+    0x42,   /* ok bOpticBlackEnd (reg 0x1d)                 */
+    69,     /* ok wActivePixelsStart (reg 0x1e + 0x1f)      */
+    10766,  /* ok wLineEnd (reg 0x20 + 0x21)                */
+
+    3,      /* ok stepper motor control (reg 0x45)          */
+    0,      /* ok wStepsAfterPaperSensor2 (reg 0x4c + 0x4d) */
+    0x0c,   /* ok acceleration profile (reg 0x51)           */
+    0,      /* ok lines to process (reg 0x54)               */
+    0x0f,   /* ok kickstart (reg 0x55)                      */
+    0x02,   /* ok pwm freq (reg 0x56)                       */
+    1,      /* ok pwm duty cycle (reg 0x57)                 */
+
+    0x09,   /* ok Paper sense (reg 0x58)                    */
+
+    0x41,   /* ok misc io12 (reg 0x59)                      */
+    0x44,   /* ok misc io34 (reg 0x5a)                      */
+    0x49,   /* ok misc io56 (reg 0x5b)                      */
+    0,      /* test mode ADC Output CODE MSB (reg 0x5c)  */
+    0,      /* test mode ADC Output CODE LSB (reg 0x5d)  */
+    0,      /* test mode (reg 0x5e)                      */
+    SANE_FALSE,                         /* has a lm9831? */
+    MODEL_Tokyo600
 };
 
 /******************** all available combinations *****************************/
@@ -1134,7 +1206,7 @@ static SetDef Settings[] =
 	{"0x03F0-0x0605",	&Cap0x03F0_0x0605, &Hw0x03F0_0x0605, "Scanjet 2200c" },
 
 	/* EPSON... */
-	{"0x04B8-0x010F",	&Cap0x07B3_0x0005_2, &Hw0x07B3_0x0007_2, "Perfection 1250/Photo" },
+	{"0x04B8-0x010F",	&Cap0x04B8_0x010F_0, &Hw0x04B8_0x010F_0, "Perfection 1250/Photo" },
 	
 	/* UMAX... */
 /*	{"0x1606-0x0060",	&Cap..., &HW..., "UMAX 3400" }, */

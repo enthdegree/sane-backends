@@ -9,6 +9,7 @@
  *.............................................................................
  * History:
  * 0.40 - starting version of the USB support
+ * 0.41 - no changes
  *
  *.............................................................................
  *
@@ -50,9 +51,6 @@
  * whether to permit this exception to apply to your modifications.
  * If you do not wish that, delete this exception notice.
  */
-
-/* the other stuff is included by plustek.c ...*/
-#include "sane/sanei_usb.h"
 
 #define CHECK(func)                   \
     {                                 \
@@ -96,7 +94,7 @@ static void usb_initDev( pPlustek_Device dev, int idx, int handle, int vendor )
 
 	/*
 	 * the following you normally get from the registry...
-	 *usbVendors[i].desc 30 and 8 are for a UT12
+	 * 30 and 8 are for a UT12
 	 */
     dev->usbDev.bStepsToReverse = 30;
     dev->usbDev.dwBufferSize    = 8 * 1024 * 1024; /*min val is 4MB!!!*/
@@ -161,7 +159,7 @@ static int usb_CheckForPlustekDevice( int handle, pPlustek_Device dev )
     /*
    	 * get the PCB-ID
      */
-	result = sanei_lm9831_read( handle, 0x59, reg59s, 3, SANE_TRUE );
+	result = sanei_lm983x_read( handle, 0x59, reg59s, 3, SANE_TRUE );
    	if( SANE_STATUS_GOOD != result ) {
 		sanei_usb_close( handle );
        	return -1;
@@ -171,20 +169,20 @@ static int usb_CheckForPlustekDevice( int handle, pPlustek_Device dev )
 	reg59[1] = 0x02;	/* PIO3: Input, PIO4: Output as low */
 	reg59[2] = 0x03;
 
-	result = sanei_lm9831_write( handle, 0x59,  reg59, 3, SANE_TRUE );
+	result = sanei_lm983x_write( handle, 0x59,  reg59, 3, SANE_TRUE );
     if( SANE_STATUS_GOOD != result ) {
 		sanei_usb_close( handle );
        	return -1;
 	}
 
-	result = sanei_lm9831_read ( handle, 0x02, &pcbID, 1, SANE_TRUE );
+	result = sanei_lm983x_read ( handle, 0x02, &pcbID, 1, SANE_TRUE );
     if( SANE_STATUS_GOOD != result ) {
 		sanei_usb_close( handle );
        	return -1;
 	}
 
 	pcbID = (u_char)((pcbID >> 2) & 0x07);
-	result = sanei_lm9831_read( handle, 0x59, reg59s, 3, SANE_TRUE );
+	result = sanei_lm983x_read( handle, 0x59, reg59s, 3, SANE_TRUE );
     if( SANE_STATUS_GOOD != result ) {
 		sanei_usb_close( handle );
        	return -1;
@@ -222,15 +220,26 @@ static void usbDev_shutdown( Plustek_Device *dev  )
 
 	DBG( _DBG_INFO, "Shutdown called (dev->fd=%d, %s)\n",
 													dev->fd, dev->sane.name );
-    if( SANE_STATUS_GOOD == sanei_usb_open( dev->sane.name, &handle )) {
-		
-    	dev->fd = handle;
+	if( NULL == dev->usbDev.ModelStr ) {
+	
+		DBG( _DBG_INFO, "Function ignored!\n" );
+		return;
+	}
+	
+	if( 0 != dev->usbDev.bLampOffOnEnd ) {
 
-		usb_LampOn( dev, SANE_FALSE, -1, SANE_FALSE );
+    	DBG( _DBG_INFO, "Switching lamp of...\n" );
+
+		if( SANE_STATUS_GOOD == sanei_usb_open( dev->sane.name, &handle )) {
 		
-		dev->fd = -1;
+	    	dev->fd = handle;
+
+			usb_LampOn( dev, SANE_FALSE, -1, SANE_FALSE );
 		
-		sanei_usb_close( handle );
+			dev->fd = -1;
+		
+			sanei_usb_close( handle );
+		}		
 	}
 }
 
@@ -248,6 +257,9 @@ static int usbDev_open( const char *dev_name, void *misc )
     pPlustek_Device dev = (pPlustek_Device)misc;
 
     DBG( _DBG_INFO, "usbDev_open(%s,%s)\n", dev_name, dev->usbId );
+
+    /* preset our internal usb device structure */
+   	memset( &dev->usbDev, 0, sizeof(DeviceDef));
 
     if( SANE_STATUS_GOOD != sanei_usb_open( dev_name, &handle )) {
         return -1;
@@ -307,7 +319,7 @@ static int usbDev_open( const char *dev_name, void *misc )
     usbio_ResetLM983x( dev );
 	dev->fd = -1;
 #endif	
-	sanei_lm9831_reset( handle );
+	sanei_lm983x_reset( handle );
 	
 	/*
 	 * Plustek uses the misc IO 1/2 to get the PCB ID
@@ -463,9 +475,6 @@ static int usbDev_getCropInfo( Plustek_Device *dev, pCropInfo ci )
 
 	if( ci->ImgDef.dwFlag & SCANDEF_BoundaryDWORD )
 		ci->dwBytesPerLine = (ci->dwBytesPerLine + 3UL) & 0xfffffffcUL;
-
-	ci->dwOffsetX = (u_long)ci->ImgDef.crArea.x * ci->ImgDef.xyDpi.x / 300UL;
-	ci->dwOffsetY = (u_long)ci->ImgDef.crArea.y * ci->ImgDef.xyDpi.y / 300UL;
 
 	DBG( _DBG_INFO, "PPL = %u\n",  ci->dwPixelsPerLine );
 	DBG( _DBG_INFO, "LPA = %u\n",  ci->dwLinesPerArea );

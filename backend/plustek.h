@@ -33,6 +33,7 @@
  *        added function pointers to control a scanner device
  *        (Parport and USB)
  * 0.40 - added USB stuff
+ * 0.41 - added configuration stuff
  *
  *.............................................................................
  *
@@ -138,10 +139,10 @@ enum {
 };
 
 /*
- *
+ * to distinguish between parallelport and USB device
  */
 typedef enum {
-	PARPORT,
+	PARPORT = 0,
 	USB,
 	NUM_PORTTYPES
 } PORTTYPE;
@@ -166,6 +167,7 @@ typedef struct Plustek_Device
     SANE_Int  		 	  *res_list;         /* to hold the available phys.  */
     SANE_Int 			   res_list_size;    /* resolution values            */
     ScannerCaps            caps;             /* caps reported by the driver  */
+	AdjDef                 adj;              /* for driver adjustment        */
 
     /**************************** USB-stuff **********************************/
     char                  *usbId;            /* pointer to Vendor and product*/
@@ -221,6 +223,21 @@ typedef const struct mode_param {
 	int depth;
 	int scanmode;
 } ModeParam, *pModeParam;
+
+
+/*
+ * for collecting configuration info...
+ */
+typedef struct {
+	
+	char     devName[PATH_MAX];
+	PORTTYPE porttype;
+	char     usbId[20];	
+
+	/* contains the stuff to adjust... */
+	AdjDef   adj;
+
+} CnfDef, *pCnfDef;
 
 #endif	/* guard __PLUSTEK_H__ */
 

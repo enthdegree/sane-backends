@@ -9,6 +9,7 @@
  *.............................................................................
  * History:
  * 0.40 - starting version of the USB support
+ * 0.41 - fixed brightness problem for lineart mode
  *
  *.............................................................................
  *
@@ -81,7 +82,7 @@ static SANE_Bool usb_LinearMapDownload( pPlustek_Device dev )
 		usbio_WriteReg( dev->fd, 0x05, 0 );
 		
 		/* write the gamma table entry to merlin */
-		sanei_lm9831_write( dev->fd,  0x06,
+		sanei_lm983x_write( dev->fd,  0x06,
 							a_bMap+i*_MAP_SIZE, _MAP_SIZE, SANE_FALSE );
 	}
 	
@@ -249,10 +250,10 @@ static SANE_Bool usb_MapDownload( pPlustek_Device dev, u_char bDataType )
 			for( i = 0; i < (int)_MAP_SIZE; i++, pMap++ )
 				map[i] = ~*pMap;
 			
-			sanei_lm9831_write( dev->fd,  0x06, map, _MAP_SIZE, SANE_FALSE );
+			sanei_lm983x_write( dev->fd,  0x06, map, _MAP_SIZE, SANE_FALSE );
 			
 		} else {
-			sanei_lm9831_write( dev->fd,  0x06, a_bMap+color*_MAP_SIZE,
+			sanei_lm983x_write( dev->fd,  0x06, a_bMap+color*_MAP_SIZE,
 								 _MAP_SIZE, SANE_FALSE );
 		}								
 	

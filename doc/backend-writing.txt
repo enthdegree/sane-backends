@@ -1,4 +1,4 @@
-2001-06-10
+2002-01-08
 
 When you start writing a backend, please contact the SANE mailing list in
 order to add your backend to the PROJECTS file.
@@ -107,13 +107,7 @@ PROGRAMMING
   your backend.
 
 * To support translation of SANE options, please mark the descriptions (desc)
-  and title of options with SANE_I18N(). Do the same for string lists used in
-  options. The name of options mustn't be marked. This way translation of your
-  backend's options is easier. Do *not* mark macros. Especially you don't need
-  to mark standard option strings like SANE_TITLE_NUM_OPTIONS as this is
-  already done in saneopts.h.
-
-  Example: s->opt[5].title = SANE_I18N("Enhancement");
+  and title of options with SANE_I18N(). See po/README for details.
 
 
 TESTING

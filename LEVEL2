@@ -1,0 +1,18 @@
+Tue Jun  3 10:22:33 1997
+
+Here are some ideas under discussion for the next major revision of
+the SANE API:
+
+ o Additional image data types, such as JPEG, MPEG, FlashPix, raw.
+   These would be useful for devices that directly generate such
+   formats (still cameras, for example).  The raw image format could
+   be used when no other format is applicable.  This would allow to
+   at least read and save the data in a file.  This would probably
+   have to be coupled with adding a function that lets a frontend
+   tell the backend what level it supports, something like
+   sane_set_level (int max_supported_level).
+   [Based on suggestion by Andreas Beck <becka@charon.rz.beck-sw.de>]
+
+ o Support for other multimedia types, such as audio.  This probably
+   would also require adding a write() interface to the SANE API.
+   [Suggested by Erik Troan <ewt@redhat.com>.]

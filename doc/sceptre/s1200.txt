@@ -81,14 +81,14 @@ GET DATA BUFFER STATUS
 Returns:
   - byte 0 to 7: ? (these bytes looks rather standard)
   - byte 8 to 11: total size left to read
-  - byte 12 to 13: number of lines (constant diuring a scan)
-  - byte 14 to 15: pixels per line (constant diuring a scan)
+  - byte 12 to 13: number of lines (constant during a scan)
+  - byte 14 to 15: pixels per line (constant during a scan)
 
 /*--------------------------------------------------------------------------*/
 
 Color shifts
 
-Color order returned by the scanner is Blue, then Green then Red. There is a color shift, meaning the lines for the Red is not on the same line than the Green.
+Color order returned by the scanner is Red, then Green, then Blue. There is a color shift, meaning the raster for the Red is not followed by the Green raster for the same line.
 The shifts are:
   dpi          lines per color
  1200				 16
@@ -105,3 +105,5 @@ The shifts are:
    50				  0
 
 Some resolution give garbage. However that table might not be complete.
+
+

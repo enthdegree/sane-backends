@@ -103,13 +103,13 @@ generic SCSI device is set appropriately.  We recommend to add a group
 access to the scanner.  The permission of the device should then be
 set to allow group read and write access.  For example, if the scanner
 is at generic SCSI device
-.BR /dev/sge ,
+.BR /dev/sg0 ,
 then the following two commands would set the permission correctly:
 .PP
 .RS
-$ chgrp scanner /dev/sge
+$ chgrp scanner /dev/sg0
 .br
-$ chmod 660 /dev/sge
+$ chmod 660 /dev/sg0
 .br
 .RE
 .PP

@@ -4,6 +4,8 @@
 	  sanei_check_value in addition to the existing sanei_constrain_value.
 	  It checks if the value of a sane option fits into the constraint but
 	  doesn't try to do any fixing/rounding.
+	* doc/sane-scsi.man: Changed the example to use /dev/sg0 instead of
+	  /dev/sge.
 
 2003-03-03  Gerhard Jaeger <gerhard@gjaeger.de>
 	* doc/plustek/Plustek-USB-TODO.txt: update

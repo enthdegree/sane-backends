@@ -1,3 +1,12 @@
+2002-07-25  Matthew Duggan <stauff1@users.sourceforge.net>
+
+	* backend/canon_pp.c: Now always uses as much scanner buffer as
+	  possible, then feeds data to frontend.  Results in large speed 
+	  increase in ECP mode.  Also fixed problems with saned compatibility.
+	* backend/canon_pp.h: Added bytes_sent to scanner data structure.
+	* doc/sane-canon_pp.man: Discuss hardware problems at high
+	  resolutions.
+
 2002-07-25  Frank Zago  <fzago at austin dot rr dot com>
 
 	* doc/sane.man doc/teco/teco3.txt doc/.cvsignore

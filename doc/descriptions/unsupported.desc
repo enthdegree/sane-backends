@@ -9,7 +9,8 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-02-04"		; version of backend
+:version "2003-02-16"		; version of backend
+:url "http://www.meier-geinitz.de/sane/misc/unsupported.html"
 ;:status :stable			; :alpha, :beta, :stable, :new
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 ;:url "http://www.meier-geinitz.de/sane/mustek-backend/"
@@ -21,6 +22,18 @@
 
 :mfg "Artec/Ultima"
 :url "http://www.artecusa.com/"
+
+:model "1236 USB"
+:status :unsupported
+;:url ""
+:interface "USB"
+:comment "Unsupported. Is reported to be a LM983x based scanner. More information would be appreciated."
+
+:model "E+ Pro"
+:status :unsupported
+:url "http://www.meier-geinitz.de/sane/misc/artec_epluspro.txt"
+:interface "USB"
+:comment "Not supported. Vendor/product 0x05d8/0x4004. /proc/bus/usb/devices output is available. Chipset is GT6816. May work with the gt68xx backend after some work in the source code."
 
 :model "AM12e+"
 :status :unsupported

@@ -724,7 +724,10 @@ static void usb_GetPauseLimit( pPlustek_Device dev, pScanParam pParam )
 {
 	pHWDef hw = &dev->usbDev.HwSetting;
 
-	/* Get available buffer size in KB */
+	/* Get available buffer size in KB
+	 * for 512kb this will be 296
+	 * for 2Mb   this will be 1832
+	 */
 	m_dwPauseLimit = (u_long)(hw->wDRAMSize - (16 + 16 + 4) * 3 * 2);
 	m_dwPauseLimit -= (pParam->Size.dwPhyBytes / 1024 + 1);
 
@@ -736,7 +739,7 @@ static void usb_GetPauseLimit( pPlustek_Device dev, pScanParam pParam )
 	m_dwPauseLimit = usb_max( usb_min(m_dwPauseLimit,
 						(u_long)ceil(pParam->Size.dwTotalBytes / 1024.0)), 2);
 
-	a_bRegs[0x4E] = (u_char)floor((m_dwPauseLimit*512.0) / (2*hw->wDRAMSize));
+	a_bRegs[0x4e] = (u_char)floor((m_dwPauseLimit*512.0) / (2*hw->wDRAMSize));
 
 	if( a_bRegs[0x4e] > 1 )	{
 		a_bRegs[0x4e]--;

@@ -1,19 +1,27 @@
-.TH sane-plustek 5 "27 December 2001"
+.TH sane-plustek 5 "30 December 2001"
 .IX sane-plustek
 .SH NAME
-sane-plustek - SANE backend for Plustek parallel port and USB flatbed scanners
+sane-plustek
+.br
+SANE backend for Plustek parallel port and
+.br
+LM983[1/2] based USB flatbed scanners
 
 .SH DESCRIPTION
 The
 .B sane-plustek
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to Plustek parallel port and USB flatbed scanners.
-The backend needs the kernel module pt_drv which currently can be
-downloaded from
+The USB support is part of the SANE package but for usage with
+parallel port scanners you will need a kernel module, called
+pt_drv which currently can be downloaded from
 .br
 .B http://home.t-online.de/home/g-jaeger/plustek.html
-.br
-At present, the following scanners should work with this backend:
+
+.SH "PARALLEL PORT SUPPORT"
+
+At present, the following scanners should work with this backend
+and the corresponding kernel module:
 .PP
 Parallelport Model:    ASIC: Properties:
 .br
@@ -53,36 +61,7 @@ OpticPro 4800P/FBII    96001  300x600 dpi 24bit  32Kb
 .br
 .PP
 
-USB Model:         ASIC:  Properties:              Product
-.br
-Vendor-ID: 0x07B3                                  ID
-.br
------------------- ------ ------------------------ ------
-.br
-OpticPro U12       LM9832  600x1200dpi 42bit 512Kb 0x0010
-.br
-OpticPro UT12      LM9832  600x1200dpi 42bit 512Kb 0x0017
-.br
-OpticPro UT16      LM9832  600x1200dpi 42bit 512Kb 0x0017
-.br
-OpticPro U24       LM9832 1200x2400dpi 42bit   2Mb 0x0011
-.br
-OpticPro UT24      LM9832 1200x2400dpi 42bit   2Mb 0x0017
-.PP
-
-.SH "OTHER PLUSTEK SCANNERS"
-
-The SCSI scanner OpticPro 19200S is a rebadged Artec AM12S scanner
-and is supported by the
-.B Artec
-backend.
-.br
-Only the National Semiconductor LM9831/2 based devices of Plustek
-are supported by this driver. Older versions of the UT12, the U1212
-and U1248 (GrandTech chipset are not supported)
-.PP
-
-.SH "PRIMAX SCANNERS"
+.B "PRIMAX SCANNERS"
 
 There are some scanners sold by Primax, but they are in fact
 Plustek devices. These scanners are also supported.
@@ -101,11 +80,11 @@ Compact 4800 Direct 30bit   OpticPro 4830   not tested
 Compact 9600 Direct 30bit   OpticPro 9630   works
 .PP
 
-.SH "GENIUS SCANNERS"
+.B "GENIUS SCANNERS"
 
 The following devices are sold as Genius Scanners, but are in fact
 Plustek devices.
-The following table will show the relationship:
+The table will show the relationship:
 .PP
 Model:                      Remarks:
 .br
@@ -114,12 +93,9 @@ Model:                      Remarks:
 Colorpage Vivid III V2      Like P12 but has two buttons
 .br
                             and Wolfson DAC
-.br
-Colorpage HR6 V2            Supported by the USB driver
-                            (IDs: 0x0458 0x2007)
 .PP
 
-.SH "ARIES SCANNERS"
+.B "ARIES SCANNERS"
 
 There's one scanner sold as Aries Scanner, but is in fact a
 Plustek device.
@@ -132,7 +108,7 @@ Model:                      Plustek Model:  Remarks:
 Scan-It 4800                OpticPro 600    mov=2
 .PP
 
-.SH "BrightScan SCANNERS"
+.B "BrightScan SCANNERS"
 
 There's one scanner sold as BrightScan OpticPro Scanner, this is also
 rebadged Plustek device.
@@ -143,6 +119,78 @@ Model:                      Remarks:
 --------------------------- ----------------------------
 .br
 BrightScan OpticPro         OpticPro P12
+
+.SH "USB SUPPORT"
+
+The Backend is able to support USB scanner based on the National
+Semiconductor chipset LM9831 and LM9832. The following tables
+show various devices which are currently reported to work.
+.br
+
+Vendor Plustek - ID: 0x07B3
+.br
+----------------------------------------------------------
+.br
+USB Model:         ASIC:  Properties:              Prod-ID
+.br
+----------------------------------------------------------
+.br
+OpticPro U12       LM9832  600x1200dpi 42bit 512Kb 0x0010
+.br
+OpticPro UT12      LM9832  600x1200dpi 42bit 512Kb 0x0017
+.br
+OpticPro UT16      LM9832  600x1200dpi 42bit 512Kb 0x0017
+.br
+OpticPro U24       LM9832 1200x2400dpi 42bit   2Mb 0x0011
+.br
+OpticPro UT24      LM9832 1200x2400dpi 42bit   2Mb 0x0017
+.PP
+
+Vendor KYE/Genius - ID: 0x0458
+.br
+----------------------------------------------------------
+.br
+USB Model:         ASIC:  Properties:              Prod-ID
+.br
+----------------------------------------------------------
+.br
+Colorpage HR6 V2   LM9832  600x1200dpi 42bit 512Kb 0x2007
+.PP
+
+Vendor Hewlett-Packard - ID: 0x03F0
+.br
+----------------------------------------------------------
+.br
+USB Model:         ASIC:  Properties:              Prod-ID
+.br
+----------------------------------------------------------
+.br
+ScanJet 2200c      LM9832  600x1200dpi 42bit 512Kb 0x0605
+.PP
+
+Vendor Mustek - ID: 0x0400
+.br
+----------------------------------------------------------
+.br
+USB Model:         ASIC:  Properties:              Prod-ID
+.br
+----------------------------------------------------------
+.br
+BearPaw 1200       LM9831  600x1200dpi 42bit 512Kb 0x1000
+.br
+BearPaw 2400       LM9832 1200x2400dpi 42bit   2Mb 0x1001
+.PP
+
+.SH "OTHER PLUSTEK SCANNERS"
+
+The SCSI scanner OpticPro 19200S is a rebadged Artec AM12S scanner
+and is supported by the
+.B Artec
+backend.
+.br
+Only the National Semiconductor LM9831/2 based devices of Plustek
+are supported by this driver. Older versions of the UT12, the U1212
+and U1248 (GrandTech chipset are not supported)
 .PP
 
 .SH "DEVICE NAMES"
@@ -174,7 +222,7 @@ file
 See the plustek.conf file for examples.
 .PP
 
-.SH CONFIGURATION
+.SH "CONFIGURATION - PARALLEL PORT SCANNER"
 .PP
 As the driver is a loadable kernel module, it is configured
 by invoking insmod with the appropriate parameters or
@@ -306,6 +354,27 @@ high resolution modes. If you encounter sporadic corrupted
 images (parts duplicated or shifted horizontally) kill all
 other applications before scanning and (if sufficient
 memory available) disable swapping.
+.PP
+
+.SH "CONFIGURATION - USB SCANNER"
+.PP
+To use the USB device with this backend, you need at least
+two entries in the configuration file
+.br
+.I @CONFIGDIR@/plustek.conf
+.TP
+.I [usb] vendor-id product-id
+.TP
+.I /dev/usbscanner
+.PP
+.I usb
+tells the backend, that the following devicename (here
+.I /dev/usbscanner
+) has to be used as USB scanner device. If vendor- and
+product-id has not been specified, the backend tries to
+detect this by its own.
+.PP
+See the plustek.conf file for examples.
 .PP
 
 .SH FILES

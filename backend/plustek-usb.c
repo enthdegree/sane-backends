@@ -9,7 +9,8 @@
  *.............................................................................
  * History:
  * 0.40 - starting version of the USB support
- * 0.41 - no changes
+ * 0.41 - removed CHECK
+ *        added Canon to the manufacturer list
  *
  *.............................................................................
  *
@@ -52,14 +53,6 @@
  * If you do not wish that, delete this exception notice.
  */
 
-#define CHECK(func)                   \
-    {                                 \
-      SANE_Status status;             \
-      status = func;                  \
-      if (status != SANE_STATUS_GOOD) \
-          return status;              \
-    }
-
 /*
  * to allow different vendors...
  */
@@ -71,9 +64,9 @@ static TabDef usbVendors[] = {
 	{ 0x0458, "KYE/Genius"      },
 	{ 0x03F0, "Hewlett-Packard" },
 	{ 0x04B8, "Epson"           },
+	{ 0x04A9, "Canon"           },
 	{ 0xFFFF, NULL              }
 };
-
 
 /********************** the USB scanner interface ****************************/
 
@@ -85,7 +78,7 @@ static void usb_initDev( pPlustek_Device dev, int idx, int handle, int vendor )
 	int       i;
 	ScanParam sParam;
 
-	DBG( _DBG_INFO, "usb_initDev()\n" );
+	DBG( _DBG_INFO, "usb_initDev(%d,0x%04x)\n", idx, vendor );
 
 	memset( &dev->usbDev, 0, sizeof(DeviceDef));
 

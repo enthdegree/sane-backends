@@ -42,6 +42,7 @@
  *        added USB interface stuff
  * 0.40 - USB scanning works now
  * 0.41 - added some configuration stuff and also changed .conf file
+ *        added call to sanei_usb_init() and sanei_lm983x_init()
  *
  *.............................................................................
  *
@@ -1103,6 +1104,9 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 	FILE    *fp;
 
 	DBG_INIT();
+	
+	sanei_usb_init();
+	sanei_lm983x_init();
 
 #if defined PACKAGE && defined VERSION
 	DBG( _DBG_SANE_INIT, "sane_init: " PACKAGE " " VERSION "\n");

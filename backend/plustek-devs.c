@@ -10,7 +10,8 @@
  * History:
  * 0.40 - starting version of the USB support
  * 0.41 - added EPSON1250 entries
- *
+ *      - changed reg 0x58 of EPSON Hw0x04B8_0x010F_0 to 0x0d
+ *      - reduced memory size of EPSON to 512
  *.............................................................................
  *
  * This file is part of the SANE package.
@@ -1115,7 +1116,7 @@ static HWDef Hw0x04B8_0x010F_0 =
     12,     /* wIntegrationTimeLowLamp                   */
     12,     /* wIntegrationTimeHighLamp                  */
     600,    /* wMotorDpi (Full step DPI)                 */
-    2048,   /* wRAMSize (KB)                             */
+    512,    /* wRAMSize (KB)                             */
     4,      /* wMinIntegrationTimeLowres (ms)            */
     5,      /* wMinIntegrationTimeHighres (ms)           */
     3000,   /* ok wGreenPWMDutyCycleLow (reg 0x2a + 0x2b)   */
@@ -1146,7 +1147,7 @@ static HWDef Hw0x04B8_0x010F_0 =
     0x02,   /* ok pwm freq (reg 0x56)                       */
     1,      /* ok pwm duty cycle (reg 0x57)                 */
 
-    0x09,   /* ok Paper sense (reg 0x58)                    */
+    0x0d,   /* ok Paper sense (reg 0x58)                    */
 
     0x41,   /* ok misc io12 (reg 0x59)                      */
     0x44,   /* ok misc io34 (reg 0x5a)                      */
@@ -1207,7 +1208,10 @@ static SetDef Settings[] =
 
 	/* EPSON... */
 	{"0x04B8-0x010F",	&Cap0x04B8_0x010F_0, &Hw0x04B8_0x010F_0, "Perfection 1250/Photo" },
-	
+
+	/* CANON... */
+/*	{"0x04A9-0x220D", ,, "N670U" }, */
+		
 	/* UMAX... */
 /*	{"0x1606-0x0060",	&Cap..., &HW..., "UMAX 3400" }, */
 		

@@ -10,7 +10,7 @@
  * History:
  * 0.40 - starting version of the USB support
  * 0.41 - minor fixes
- *
+ *      - added workaround stuff for EPSON1250
  *.............................................................................
  *
  * This file is part of the SANE package.
@@ -837,6 +837,7 @@ static Bool usb_AdjustDarkShading( pPlustek_Device dev )
 		
 		if(_WAF_MISC_IO6_LAMP==(_WAF_MISC_IO6_LAMP & scaps->workaroundFlag)) {
 			a_bRegs[0x29] = 3;
+			a_bRegs[0x5b] = 0x94;
 			usbio_WriteReg( dev->fd, 0x5b, 0x94);
 		} else {
 			a_bRegs[0x29] = 1;
@@ -852,6 +853,7 @@ static Bool usb_AdjustDarkShading( pPlustek_Device dev )
 	 */
 	if(_WAF_MISC_IO6_LAMP==(_WAF_MISC_IO6_LAMP & scaps->workaroundFlag)) {
 		a_bRegs[0x29] = 3;
+		a_bRegs[0x5b] = 0x94;
 		usbio_WriteReg( dev->fd, 0x5b, 0x94 );
 	} else {
 		a_bRegs[0x29] = 1;

@@ -10,7 +10,7 @@
  * History:
  * 0.40 - starting version of the USB support
  * 0.41 - added EPSON1250 specific stuff
- *
+ *      - added alternative usb_IsScannerReady function
  *.............................................................................
  *
  * This file is part of the SANE package.
@@ -82,13 +82,14 @@ static Bool usb_MotorOn( int handle, Bool fOn )
 	return SANE_TRUE;
 }
 
-/*................................................................b.............
+/*.............................................................................
  *
  */
 static Bool usb_IsScannerReady( pPlustek_Device dev )
 {
 	u_char value;
 
+#if 1	
  	_UIO( usbio_ReadReg( dev->fd, 7, &value));
 
 	if( value == 0 )
@@ -100,6 +101,22 @@ static Bool usb_IsScannerReady( pPlustek_Device dev )
 			return SANE_TRUE;
 		}
 	}
+
+#else
+  SANE_Word delay;
+
+	for( delay = 0; delay < 300; delay++ ) {
+		_UIO( usbio_ReadReg( dev->fd, 7, &value));
+
+      	if( value == 0 )
+			return SANE_TRUE;
+
+      	if (value >= 8)
+      		_UIO( usbio_WriteReg( dev->fd, 0x07, 0 ));
+      		
+		usleep( 100000 );
+    }
+#endif
 
 	DBG( _DBG_ERROR, "Scanner not ready!!!\n" );
 	return SANE_FALSE;
@@ -636,6 +653,7 @@ static Bool usb_LampOn( pPlustek_Device dev,
 			if(_WAF_MISC_IO6_LAMP==(_WAF_MISC_IO6_LAMP & sc->workaroundFlag)) {
 
 				a_bRegs[0x29] = 3;	/* mode 3 */
+				a_bRegs[0x5b] = 0x14;
 	            usbio_WriteReg( dev->fd, 0x5b, 0x94 );
 			
 			} else {
@@ -676,6 +694,7 @@ static Bool usb_LampOn( pPlustek_Device dev,
 			if(_WAF_MISC_IO6_LAMP==(_WAF_MISC_IO6_LAMP & sc->workaroundFlag)) {
 
 				a_bRegs[0x29] = 3;	/* mode 3 */
+				a_bRegs[0x5b] = 0x14;
 	            usbio_WriteReg( dev->fd, 0x5b, 0x14 );
 			
 			} else {

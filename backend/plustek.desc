@@ -150,6 +150,7 @@
 :comment "OK - use driver-switch mov=2"
 
 :mfg "KYE - Genius"           ; name of manufacturer
+:url "http://www.geniusnet.com.tw/"
 
 :model "Colorpage Vivid III V2"
 :interface "Parport (SPP, EPP)"
@@ -169,6 +170,25 @@
 :interface "Parport (SPP, EPP)"
 :comment "OK - Reported as P12"
 
+:mfg "Mustek"                  ; name of manufacturer
+:url "http://www.mustek.com/"
+
+;name models for above-specified mfg.
+:model "BearPaw 1200"
+:interface "USB"
+:comment "Mostly OK"
+
+:model "BearPaw 2400"
+:interface "USB"
+:comment "Mostly OK"
+
+
+:mfg "Hewlett-Packard"                  ; name of manufacturer
+:url "http://www.hp.com/"
+
+:model "HP ScanJet 2200C"
+:interface "USB"
+:comment "Mostly OK"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

@@ -1,4 +1,4 @@
-TODO (2001-05-24)
+TODO (2001-05-26)
 
 ******** todo ********
 
@@ -40,9 +40,6 @@ backends
       Ulrich Deiters <ukd@xenon.pc.Uni-Koeln.DE>
 
   * Update backends
-    - add additions/bug fixes to microtek2 from Karsten Festag
-      <karsten.festag@t-online.de> (partially done)
-    - include snapscan updates http://sourceforge.net/projects/snapscan
     - Combine all the Fujitsu backends into one single backend
 
   * Use DBG(...) instead of fprintf(stderr, ...) or printf
@@ -54,25 +51,23 @@ backends
        support depths > 8 bits/channel)
      - Add keep-alive mechanism to avoid timeouts
 
-  * qcam: implement auto mode for brightness and black-level (don't
-    just advertise it!) Actually, implement an auto "backend" instead
-    that can be plugged in front of any backend with brightness/contrast
-    etc controls
- 
-  * qcam: figure out how/if to support bulb mode
+0  * qcam:
+     - implement auto mode for brightness and black-level (don't
+       just advertise it!) Actually, implement an auto "backend" instead
+       that can be plugged in front of any backend with brightness/contrast
+       etc controls
+     - figure out how/if to support bulb mode
+     - convert to use sanei_pio functions instead of direct port
+       access.
+     - Check file handling in /tmp.
 
-  * qcam: convert to use sanei_pio functions instead of direct port
-    access.
-
-  * qcam: Check file handling in /tmp.
-  
   * dc210 and jpeg stuff: move sanei_* functions to sanei/ (if they are 
     necessary).
 
-  * nec: Remove references to sharp backend (grep for "JX").
-
-  * nec: Check for HAVE_SYS_SHM_H before including sys/shm.h and
-    disable shared memory support if necessary.
+  * nec:
+     - Remove references to sharp backend (grep for "JX").
+     - Check for HAVE_SYS_SHM_H before including sys/shm.h and
+       disable shared memory support if necessary.
 
   * v4l: Problems (crash) with more than one video card. It looks like 
     the two different cards are identified as the same card.
@@ -102,8 +97,6 @@ backends
       
       - etc?
 
-  * as6e: change :new status to :alpha, :beta, or :stable.
-
   * as6e: attach: memory (dev + dev-sane.name) isn't freed if diver isn't
     found.
 
@@ -117,8 +110,12 @@ backends
     - artec
     - bh
     - m3096g
-    - microtek2
     - sp15c
+
+  * Don't export any other symbols than sane_* and sanei_*
+    - artec
+    - coolscan
+    - mustek_pp
 
 doc
 ---
@@ -185,15 +182,18 @@ misc
        module scanimage.
     This happens in all libraries.
 
-  * Check Tru64 Unix compilation problems with u_int* types. They are already
-    defined in sys/bitypes.h but this file isn't checked with AC_CHECK_TYPE.
-
-  * Fix HP-UX problems in isfdtype.c (and maybe others). sys/stat.h doesn't
-    seem to define stuct stat.
-
   * Add installation procedure for translations of SANE backend's options.
 
 ******** done ********
+* add additions/bug fixes to microtek2 from Karsten Festag
+  <karsten.festag@t-online.de> (partially done)
+* include snapscan updates http://sourceforge.net/projects/snapscan
+* as6e: change :new status to :alpha, :beta, or :stable.
+* Check Tru64 Unix compilation problems with u_int* types. They are already
+  defined in sys/bitypes.h but this file isn't checked with AC_CHECK_TYPE.
+  (-> include sys/bitypes.h in these cases).
+* Fix HP-UX problems in isfdtype.c (and maybe others). sys/stat.h doesn't
+  seem to define stuct stat (not a bug, make was used instead of gmake).
 * Polaroid SprintScan 35 LE [should be included into microtek] 
 * Maybe add script to deinstall existing sane versions
   - make uninstall

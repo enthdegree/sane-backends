@@ -8,9 +8,15 @@
 
 errstatus=0
 dirmode=""
+owner=""
+group=""
+
+chmodprog="${CHMODPROG-chmod}"
+chownprog="${CHOWNPROG-chown}"
+chgrpprog="${CHOWNPROG-chgrp}"
 
 usage="\
-Usage: mkinstalldirs [-h] [--help] [-m mode] dir ..."
+Usage: mkinstalldirs [-h] [--help] [-m mode] [-o owner] [-g group] dir ..."
 
 # process command line arguments
 while test $# -gt 0 ; do
@@ -21,6 +27,16 @@ while test $# -gt 0 ; do
         shift
         test $# -eq 0 && { echo "${usage}" 1>&2; exit 1; }
         dirmode="${1}"
+        shift ;;
+     -o )					# -o OWNER arg
+        shift
+        test $# -eq 0 && { echo "${usage}" 1>&2; exit 1; }
+        owner="${1}"
+        shift ;;
+     -g )					# -g OWNER arg
+        shift
+        test $# -eq 0 && { echo "${usage}" 1>&2; exit 1; }
+        group="${1}"
         shift ;;
      -- ) shift; break ;;			# stop option processing
      -* ) echo "${usage}" 1>&2; exit 1 ;;	# unknown option
@@ -50,10 +66,30 @@ do
   	  errstatus=$lasterr
 	else
 	  if test ! -z "$dirmode"; then
-	     echo "chmod $dirmode $pathcomp"
+	     echo "$chmodprog $dirmode $pathcomp"
 
 	     lasterr=""
-	     chmod $dirmode "$pathcomp" || lasterr=$?
+	     $chmodprog $dirmode "$pathcomp" || lasterr=$?
+
+	     if test ! -z "$lasterr"; then
+	       errstatus=$lasterr
+	     fi
+	  fi
+	  if test ! -z "$owner"; then
+	     echo "$chownprog $owner $pathcomp"
+
+	     lasterr=""
+	     $chownprog $owner "$pathcomp" || lasterr=$?
+
+	     if test ! -z "$lasterr"; then
+	       errstatus=$lasterr
+	     fi
+	  fi
+	  if test ! -z "$group"; then
+	     echo "$chgrpprog $group $pathcomp"
+
+	     lasterr=""
+	     $chgrpprog $group "$pathcomp" || lasterr=$?
 
 	     if test ! -z "$lasterr"; then
 	       errstatus=$lasterr

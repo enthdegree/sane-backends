@@ -11,7 +11,7 @@
 
 :backend "sm3600"                 ; name of backend
 :version "0.1"                    ; version of backend
-:status :new                      ; :alpha, :beta, :stable, :new
+:status :alpha                      ; :alpha, :beta, :stable, :new
 :manpage "sane-sm3600"            ; name of manpage (if it exists)
 :url "http://sm3600.sourceforge.net/" ; backend's web page
 

@@ -1,3 +1,8 @@
+2003-07-24  Peter Kirchgessner <peter@kirchgessner.net>
+
+	* backend/hp.c, backend/hp-option.h, backend/hp-option.c
+	  po/Makefile.in: Add support for Internationalization for hp-backend.
+
 2003-07-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* tools/check-usb-chip.c: Added support for detecting Genesys

@@ -175,6 +175,8 @@ setup_scan (usb_dev_handle * udev, SM3840_Params * p)
   int i, j;
   int red, green, blue;
   unsigned char rd_byte;
+  unsigned short GRAYMASK = 0xc000;
+
 
 #ifndef BACKENDNAME
   char fname[64];
@@ -766,9 +768,10 @@ setup_scan (usb_dev_handle * udev, SM3840_Params * p)
     write_regs (udev, 6, 0xb0, 0x00, 0xb1, 0x80, 0xb2, 0x07, 0xb3, 0xff, 0xb4,
 		0xbf, 0xb5, 0x07);
   write_vctl (udev, 0x0c, 0x0002, whitemapsize, 0x00);
+  fix_endian_short (&GRAYMASK, 1);
   if (gray)
     for (i = 0; i < whitemapsize / 2; i++)
-      lightmap[i] |= 0xc000;
+      lightmap[i] |= GRAYMASK;
   len =
     usb_bulk_write (udev, 2, (unsigned char *) lightmap, whitemapsize,
 		    wr_timeout);

@@ -2,6 +2,7 @@
 
 	* PROJECTS: Added Hewlett-Packard ScanJet 4470C project.
 	* tools/.cvsignore: Added gamma4scanimage.
+	* tools/MAkefile.in: Added gamma4scanimage.c to DISTFILES.
 
 2002-08-18 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 	* tools/gamma4scanimage.c: Bugfix (atof->atoi)

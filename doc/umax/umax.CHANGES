@@ -958,3 +958,12 @@ build-27 -> build-28
      - check_values also does test for this range
      - removed dev->maxwidth and dev->maxlength, values are calculated in place now
 
+   * bugfix for DOR:
+     - bottom-right edge keeps in position if possible when DOR is switched on
+
+   * bugfix for Astra 610S color mode:
+     - scale_y is set to 0.5 if y_resolutions is smaller than optical_res/2
+     this does fix the color scan problems for Astra 610S.
+     Not tested for Astra 600S.
+
+

@@ -1,3 +1,7 @@
+2001-06-04  Oliver Rauch <Oliver.Rauch@rauch-domain.de>
+
+	* update of umax backend to version 1.0 buid 27
+
 2001-06-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* sanei/sanei_scsi.c: Fixed some small bugs concerning error reporting.

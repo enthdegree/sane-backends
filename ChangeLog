@@ -1,9 +1,13 @@
+---- CODE FREEZE FOR SANE 1.0.14 ---
+-- snapshot 1.0.14-pre3
+
 2004-04-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Lexmark X5130, UMAX
 	  Astra 4000 and 4600.
 	* doc/descriptions-external/genesys.desc: Removed comments from
 	  some scanners as the chipset is known now.
+	* configure configure.in: Disabled compilation warnings.
 
 2004-04-24  Jochen Eisinger <jochen@penguin-breeder.org>
 

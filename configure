@@ -1528,7 +1528,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 V_MAJOR=1
 V_MINOR=0
 V_REV=13
-is_release=no
+is_release=yes
 
           ac_config_headers="$ac_config_headers include/sane/config.h"
 

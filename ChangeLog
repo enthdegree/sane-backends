@@ -1,3 +1,12 @@
+2002-04-14  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* backend/plustek.[ch], backend/plustek-usbhw.c, backend/plustek-usbio.c,
+	  backend/plustek-usbscan.c, backend/plustek-usbshading.c 
+	  backend/plustek-usb.c, backend/plustek-devs.c backend/plustek-usb.h
+	  backend/plustek-share.h: Code cleanup, fixed OS/2 compilation breakage
+	  fixed problem that causes non LM983x based devices to crash, minor fixes
+	  added CANON N650U device structure
+
 2002-04-13  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson.[ch]: Added new product IDs for Perfection 1650 and

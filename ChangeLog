@@ -1,3 +1,8 @@
+2003-11-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added Brother DCP 8020 and
+	  UMAX Astra 3600.
+
 2003-11-14  Eddy De Greef <eddy_de_greef at tiscali dot be>
 	* doc/sane-mustek_pp.man: added the new libieee1284 style parport
 	  names.

@@ -510,9 +510,11 @@ static void
 config_ccd_1013 (Mustek_PP_Device * dev)
 {
 
-  if (dev->CCD.res != 0)
-    dev->CCD.res_step =
-      SANE_FIX ((float) dev->CCD.hwres / (float) dev->CCD.res);
+  if (dev->CCD.res == 0)
+	  return;
+  
+  dev->CCD.res_step =
+    SANE_FIX ((float) dev->CCD.hwres / (float) dev->CCD.res);
 
   set_dpi_value (dev);
 

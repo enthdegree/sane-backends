@@ -17,7 +17,10 @@ SANE_Word sanei_epson_usb_product_ids [] =
 	0x110, 	/* Perfection 1650 */
 	0x112, 	/* Perfection 2450 */
 	0x11b, 	/* Perfection 2400 */
+	0x11c,	/* GT-9800  / Perfection 3200 */
 	0x11e, 	/* Perfection 1660 */
+	0x801,	/* CX-5200 */
+	0x802,	/* CX-3200 */
 	0	/* last entry */
 };
 

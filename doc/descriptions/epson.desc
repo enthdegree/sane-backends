@@ -10,7 +10,7 @@
 ;
 
 :backend "epson"                  ; name of backend
-:version "0.2.21"                 ; version of backend
+:version "0.2.32"                 ; version of backend
 :status :stable                   ; :alpha, :beta, :stable, :new
 :manpage "sane-epson"             ; name of manpage (if it exists)
 :url "http://www.khk.net/sane"    ; backend's web page
@@ -145,3 +145,12 @@
 :interface "SCSI"
 :comment "A better backend for the FilmScan 200 can be found at <A HREF=\"http://www.vjet.demon.co.uk/scanner/\">http://www.vjet.demon.co.uk/scanner/</A>"
 :status :untested
+:url "http://www.vjet.demon.co.uk/scanner/"
+
+:model "CX-3200"
+:interface "USB"
+:status :new
+
+:model "CX-5200"
+:interface "USB"
+:status :new

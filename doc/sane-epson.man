@@ -58,6 +58,10 @@ Expression 636 / GT-9500     SCSI
 Expression 1600              USB, SCSI, IEEE-1394
 .br
 Expression 1680              USB, SCSI, IEEE-1394
+.br
+CX-3200                      USB
+.br
+CX-5200                      USB
 .RE
 
 For other scanners the software  may or may not work.  Please send mail to 

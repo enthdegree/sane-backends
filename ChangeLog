@@ -1,3 +1,10 @@
+2003-01-19  Karl Heinz Kremer <khk@khk.net>
+
+	* backend/epson_usb.c: Added USB product IDs for MFDs.
+	* doc/descriptions/epson.desc: Updated version number, added
+	  entries for MFDs.
+	* doc/sane-epson.man: Added MFDs.
+
 -- snapshot 1.0.10-pre2
 
 2003-01-18  Henning Meier-Geinitz <henning@meier-geinitz.de>

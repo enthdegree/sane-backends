@@ -22,6 +22,7 @@
  *        - CanoScan fixes and fine-tuning
  * - 0.46 - CanoScan will now be calibrated by code in plustek-usbcal.c
  *        - added functions to save and restore calibration data from a file
+ *        - fixed some TPA issues
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -556,7 +557,7 @@ static void usb_Swap( u_short *pw, u_long dwBytes )
 
 /** according to the pixel values,
  */
-static u_char usb_GetNewGain( u_short wMax )
+static u_char usb_GetNewGain( u_short wMax, int channel )
 {
 	double dRatio, dAmp;
 	u_long dwInc, dwDec;
@@ -565,7 +566,7 @@ static u_char usb_GetNewGain( u_short wMax )
 	if( !wMax )
 		wMax = 1;
 
-	dAmp = 0.93 + 0.067 * a_bRegs[0x3d];
+	dAmp = 0.93 + 0.067 * a_bRegs[0x3b+channel];
 
 	if((m_dwIdealGain / (wMax / dAmp)) < 3) {
 
@@ -577,9 +578,9 @@ static u_char usb_GetNewGain( u_short wMax )
 		dwDec = (u_long)((0.93 + floor (dRatio) * 0.067) * wMax / dAmp);
 		if((dwInc >= 0xff00) ||
 		   (labs (dwInc - m_dwIdealGain) > labs(dwDec - m_dwIdealGain))) {
-			bGain = (u_char)floor (dRatio);
+			bGain = (u_char)floor(dRatio);
 		} else {
-			bGain = ceil(dRatio);
+			bGain = (u_char)ceil(dRatio);
         }
 
 		if( bGain > 0x3f )
@@ -782,9 +783,9 @@ TOGAIN:
 			Gain_Hilight.Red   = (u_short)(rgb.Red / 20UL);
 			Gain_Hilight.Green = (u_short)(rgb.Green / 20UL);
 			Gain_Hilight.Blue  = (u_short)(rgb.Blue / 20UL);
-			a_bRegs[0x3b] = usb_GetNewGain(Gain_Hilight.Red);
-			a_bRegs[0x3c] = usb_GetNewGain(Gain_Hilight.Green);
-			a_bRegs[0x3d] = usb_GetNewGain(Gain_Hilight.Blue);
+			a_bRegs[0x3b] = usb_GetNewGain(Gain_Hilight.Red,   0 );
+			a_bRegs[0x3c] = usb_GetNewGain(Gain_Hilight.Green, 1 );
+			a_bRegs[0x3d] = usb_GetNewGain(Gain_Hilight.Blue,  2 );
 
 		} else {
 
@@ -808,7 +809,7 @@ TOGAIN:
 
 			Gain_Reg.Red  = Gain_Reg.Green =
 			Gain_Reg.Blue = a_bRegs[0x3b] =
-			a_bRegs[0x3c] = a_bRegs[0x3d] = usb_GetNewGain(Gain_Hilight.Green);
+			a_bRegs[0x3c] = a_bRegs[0x3d] = usb_GetNewGain(Gain_Hilight.Green,1);
 		}
 	} else {
 
@@ -877,12 +878,12 @@ TOGAIN:
 				  	tmp_rgb.Red, tmp_rgb.Red, tmp_rgb.Green,
 				    tmp_rgb.Green, tmp_rgb.Blue, tmp_rgb.Blue);
 
-			m_dwIdealGain = IDEAL_GainNormal;
-						 /* min(min(rgb.wRed, rgb.wGreen), rgb.wBlue) */
+/*			m_dwIdealGain = IDEAL_GainNormal;
+*/						 /* min(min(rgb.wRed, rgb.wGreen), rgb.wBlue) */
 
-			a_bRegs[0x3b] = usb_GetNewGain( tmp_rgb.Red   );
-			a_bRegs[0x3c] = usb_GetNewGain( tmp_rgb.Green );
-			a_bRegs[0x3d] = usb_GetNewGain( tmp_rgb.Blue  );
+			a_bRegs[0x3b] = usb_GetNewGain( tmp_rgb.Red,   0 );
+			a_bRegs[0x3c] = usb_GetNewGain( tmp_rgb.Green, 1 );
+			a_bRegs[0x3d] = usb_GetNewGain( tmp_rgb.Blue,  2 );
 
 			if( !_IS_PLUSTEKMOTOR(hw->motorModel)) {
 
@@ -891,8 +892,8 @@ TOGAIN:
 				/* on CIS devices, we can control the lamp off settings */
 				if( hw->bReg_0x26 & _ONE_CH_COLOR ) {
 
-					m_dwIdealGain = IDEAL_GainNormal;
-
+/*					m_dwIdealGain = IDEAL_GainNormal;
+ */
 					if( adjLampSetting( CHANNEL_red, tmp_rgb.Red, m_dwIdealGain,
 									    hw->red_lamp_on, &hw->red_lamp_off )) {
    						adj = SANE_TRUE;
@@ -1003,14 +1004,14 @@ TOGAIN:
 
 			a_bRegs[0x3b] =
 			a_bRegs[0x3c] =
-			a_bRegs[0x3d] = usb_GetNewGain(w_tmp);
+			a_bRegs[0x3d] = usb_GetNewGain(w_tmp, 0);
 
 			DBG(_DBG_INFO2, "MAX(G)= 0x%04x(%u)\n", w_max, w_max );
 			DBG(_DBG_INFO2, "MIN(G)= 0x%04x(%u)\n", w_min, w_min );
 			DBG(_DBG_INFO2, "CUR(G)= 0x%04x(%u)\n", w_tmp, w_tmp );
 
-			m_dwIdealGain = IDEAL_GainNormal;
-
+/*			m_dwIdealGain = IDEAL_GainNormal;
+ */
 			if( !_IS_PLUSTEKMOTOR(hw->motorModel)) {
 
 				SANE_Bool adj = SANE_FALSE;

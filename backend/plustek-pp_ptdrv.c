@@ -98,16 +98,18 @@
  * <hr>
  */
 #ifdef __KERNEL__
-#include <linux/module.h>
-#endif
+# include <linux/module.h>
 
-#ifdef CONFIG_DEVFS_FS
-#include <linux/devfs_fs_kernel.h>
+# ifdef CONFIG_DEVFS_FS
+#  include <linux/devfs_fs_kernel.h>
+# endif
 #endif
 
 #include "plustek-pp_scan.h"
 
-#include <linux/param.h>
+#ifdef __KERNEL__
+# include <linux/param.h>
+#endif
 
 /****************************** static vars **********************************/
 

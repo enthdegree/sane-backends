@@ -604,13 +604,15 @@ static void imageP98DoFilter( pScanData ps, pUChar pPut )
 			imageP98UnSharpCompare( ps, ps->pGet2[dw+1], ps->pGet3[dw+1], &dwNewValue);
 			imageP98UnSharpCompare( ps, ps->pGet2[dw+1], ps->pGet3[dw+2], &dwNewValue);
 
-    	    if(dwNewValue > 0)
-				if((dwNewValue /= ps->dwDivFilter) < 255)
+    	    if( dwNewValue > 0 ) {
+				if((dwNewValue /= ps->dwDivFilter) < 255) {
 		    		*pPut = (Byte) dwNewValue;
-				else
+				} else {
 				    *pPut = 255;
-		    else
+				}
+		    } else {
 				*pPut = 0;
+			}
 		}
 		pPut = ps->pGet1;
 		ps->pGet1 = ps->pGet2;
@@ -1400,17 +1402,20 @@ static void imageP98003SetupScanStateVariables( pScanData ps, ULong index )
 
     if( ps->DataInf.wPhyDataType >= COLOR_TRUE24 ) {
 
-    	if( ps->DataInf.xyPhyDpi.y > 75U )
-    	    if( ps->Device.f0_8_16 )
+    	if( ps->DataInf.xyPhyDpi.y > 75U ) { 
+    	    if( ps->Device.f0_8_16 ) {
 	        	ps->Scan.gd_gk.wGreenDiscard = ps->DataInf.xyPhyDpi.y / 75U;
-    	    else
+    	    } else {
 	        	ps->Scan.gd_gk.wGreenDiscard = ps->DataInf.xyPhyDpi.y / 150U;
-    	else
+	        }
+    	} else {
            	ps->Scan.gd_gk.wGreenDiscard = 1;
+		}
 
        	ps->Scan.bd_rk.wBlueDiscard = ps->Scan.gd_gk.wGreenDiscard << 1;
-    } else
+    } else {
        	ps->Scan.bd_rk.wBlueDiscard = ps->Scan.gd_gk.wGreenDiscard = 0;
+    }
 }
 
 /*.............................................................................

@@ -358,10 +358,9 @@ static void ioRestoreParallelMode( pScanData ps )
 /*.............................................................................
  * try to connect to scanner
  */
-static void ioP98001EstablishScannerConnection( pScanData, ULong );
-
- 
-inline void ioP98001EstablishScannerConnection( pScanData ps, ULong delTime )
+/*static void ioP98001EstablishScannerConnection( pScanData, ULong );
+ */
+_LOC _INL void ioP98001EstablishScannerConnection( pScanData ps, ULong delTime )
 {
 	_OUTB_DATA( ps, _ID_TO_PRINTER );
     _DO_UDELAY( delTime );

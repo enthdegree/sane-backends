@@ -78,8 +78,10 @@
 
 #ifdef _BACKEND_ENABLED
 # define _LOC	static
+# define _INL
 #else
 # define _LOC
+# define _INL	inline
 #endif
 
 /*
@@ -90,8 +92,8 @@ _LOC int       MiscReinitStruct      ( pScanData ps );
 
 _LOC int    MiscInitPorts   ( pScanData ps, int port );
 _LOC void   MiscRestorePort ( pScanData ps );
-_LOC inline void MiscStartTimer  ( pTimerDef timer, unsigned long us );
-_LOC inline int  MiscCheckTimer  ( pTimerDef timer );
+_LOC _INL void MiscStartTimer  ( pTimerDef timer, unsigned long us );
+_LOC _INL int  MiscCheckTimer  ( pTimerDef timer );
 
 _LOC int  MiscRegisterPort       ( pScanData ps, int portAddr );
 _LOC void MiscUnregisterPort     ( pScanData ps );

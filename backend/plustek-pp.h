@@ -315,6 +315,18 @@ typedef const struct mode_param
 	 ((size) << 16))
 #endif
 
+#ifndef _IOC_DIR
+#define _IOC_DIR(cmd)	(((cmd) >> 30) & 0x3)
+#endif
+
+#ifndef _IOC_SIZE
+#define _IOC_SIZE(cmd)	(((cmd) >> 16) & 0x3FFF)
+#endif
+
+#ifndef _IOC_WRITE
+#define _IOC_WRITE	1U
+#endif
+
 #ifndef _IO
 #define _IO(type,nr)		_IOC(0U,(type),(nr),0)
 #endif
@@ -324,7 +336,7 @@ typedef const struct mode_param
 #endif
 
 #ifndef _IOW
-#define _IOW(type,nr,size)	_IOC(1U,(type),(nr),sizeof(size))
+#define _IOW(type,nr,size)	_IOC(_IOC_WRITE,(type),(nr),sizeof(size))
 #endif
 
 #ifndef _IOWR

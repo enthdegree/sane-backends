@@ -757,7 +757,7 @@ _LOC void MiscRestorePort( pScanData ps )
 
 /** starts a timer
  */
-_LOC inline void MiscStartTimer( pTimerDef timer , unsigned long us)
+_LOC _INL void MiscStartTimer( pTimerDef timer , unsigned long us)
 {
     struct timeval start_time;
 
@@ -772,7 +772,7 @@ _LOC inline void MiscStartTimer( pTimerDef timer , unsigned long us)
 
 /** checks for timeout
  */
-_LOC inline int MiscCheckTimer( pTimerDef timer )
+_LOC _INL int MiscCheckTimer( pTimerDef timer )
 {
     struct timeval current_time;
 

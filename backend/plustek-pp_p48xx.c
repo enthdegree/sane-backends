@@ -190,8 +190,8 @@ static int p48xxDoTest( pScanData ps )
 
 		/* check if fail */
    		if (ul != _TEST_SZ / sizeof(ULong)) {
-			DBG( DBG_LOW, "Bank not present, error at pos %lu (%u)\n", ul,
-				 _TEST_SZ / sizeof(ULong));
+			DBG( DBG_LOW, "Bank not present, error at pos %lu (%lu)\n", ul,
+				 (ULong)(_TEST_SZ / sizeof(ULong)));
        		break;
 		}
 

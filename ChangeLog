@@ -1,4 +1,9 @@
-2003-10-10  Peter Fales <peter@fales-lorenz.net>
+2003-10-02  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* backend/plustek_pp* backend/plustek-usb*: fixed some OS/2 compiling issues
+	* doc/plustek: fixed module compilation stuff and increase version number
+
+2003-10-02  Peter Fales <peter@fales-lorenz.net>
 	* backend/gphoto2.c backend/gphoto2.h: Try to handle the case where
 	  the camera has a corrupt file that can't be decoded as a JPEG
 	  image.
@@ -7,7 +12,7 @@
 
 	* doc/sane-mustek_pp.man, doc/descriptions/mustek_pp.desc:
 	  Added Mustek 96 CP to list of supported scanners.
-          
+
 2003-09-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Fixed links to messages in
@@ -17,13 +22,13 @@
 	  number of SANE in the doxygen documentation.
 	* doc/backend-writing.txt doc/sane.man: Updated links to sanei
 	  documentation.
-	* doc/.cvsignore include/sane/sanei.h include/sane/sanei_scsi.h: 
+	* doc/.cvsignore include/sane/sanei.h include/sane/sanei_scsi.h:
 	  Minor fixes for sanei documentation.
 	* backend/gt68xx.c backend/gt68xx.conf backend/gt68xx_devices.c
 	  backend/gt68xx_high.c doc/descriptions/gt68xx.desc
 	  doc/gt68xx/gt68xx.CHANGES: Added detection of Genius Vivid 4x.
 	  It won't work out-of-the-box, however. CCD coarse calib
-	  shouldn't run into an endless loop anymore. Plustek 1248U 
+	  shouldn't run into an endless loop anymore. Plustek 1248U
 	  is much faster now.
 
 2003-09-30  Gerhard Jaeger <gerhard@gjaeger.de>

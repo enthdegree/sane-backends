@@ -64,6 +64,10 @@
  * <hr>
  */
 
+/** array used to get motor-settings and mclk-settings
+ */
+static int dpi_ranges[] = {	75,100,150,200,300,400,600,800,1200,2400 };
+
 static u_char     bMaxITA;
 
 static SANE_Bool  m_fAutoPark;

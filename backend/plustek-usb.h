@@ -604,10 +604,6 @@ typedef struct
                                       will be used in 16bit color modes only */
 } MDef, *pMDef;
 
-/** array used to get motor-settings and mclk-settings
- */
-static int dpi_ranges[] = {	75,100,150,200,300,400,600,800,1200,2400 };
-
 /** according to the CCD and motor, we provide various settings
  */
 typedef struct {

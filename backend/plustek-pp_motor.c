@@ -2076,14 +2076,16 @@ static void motorP96WaitBack( pScanData ps )
 
     _DODELAY(200);			/* let the motor stable */
 
-    if( ps->DataInf.xyPhyDpi.y <= ps->PhysicalDpi )
-		if( ps->DataInf.wPhyDataType == COLOR_TRUE24 )
+    if( ps->DataInf.xyPhyDpi.y <= ps->PhysicalDpi ) {
+		if( ps->DataInf.wPhyDataType == COLOR_TRUE24 ) {
 		    dw = _P96_FORWARDMOVES - 1;
-		else
+		} else {
 	    	dw = _P96_FORWARDMOVES - 2;
-    else
+		}
+    } else {
 		dw = _P96_FORWARDMOVES;
-
+	}
+	
 	memset( a_bScanStateTable, 1, dw );
     memset(&a_bScanStateTable[dw], 0xff, 250 - dw );
 

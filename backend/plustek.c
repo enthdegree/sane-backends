@@ -171,6 +171,7 @@ static SANE_Bool cancelRead;
 
 /* the USB-stuff... I know this is in general no good idea, but it works */
 #ifdef _PLUSTEK_USB
+
 # include "plustek-usbio.c"
 # include "plustek-usbdevs.c"
 # include "plustek-usbhw.c"

@@ -333,8 +333,10 @@ typedef struct Plustek_Device
                                              /* ID string (from conf) file   */
     struct ScanDef         scanning;         /* here we hold all stuff for   */
                                              /* the USB-scanner              */
-	struct DeviceDef       usbDev;	
+	struct DeviceDef       usbDev;
+#ifdef _PLUSTEK_USB
 	struct itimerval       saveSettings;     /* for lamp timer               */
+#endif
     /*
      * each device we support may need other access functions...
      */

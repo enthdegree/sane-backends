@@ -18,6 +18,7 @@ dnl   SANE_CHECK_PTAL
 dnl   SANE_CHECK_JPEG
 dnl   JAPHAR_GREP_CFLAGS(flag, cmd_if_missing, cmd_if_present)
 dnl   SANE_LINKER_RPATH
+dnl   SANE_CHECK_U_TYPES
 dnl
 
 #
@@ -166,6 +167,36 @@ AC_DEFUN(SANE_LINKER_RPATH,
   AC_SUBST(LINKER_RPATH)dnl
 ])
 
+dnl
+dnl   SANE_CHECK_U_TYPES
+dnl
+dnl Some of the following  types seem to be defined only in sys/bitypes.h on
+dnl some systems (e.g. Tru64 Unix). This is a problem for files that include
+dnl sys/bitypes.h indirectly (e.g. net.c). If this is true, we add
+dnl sys/bitypes.h to CPPFLAGS.
+AC_DEFUN(SANE_CHECK_U_TYPES,
+[if test "$ac_cv_header_sys_bitypes_h" = "yes" ; then
+  AC_MSG_CHECKING([for u_int8_t only in sys/bitypes.h])
+  AC_EGREP_CPP(u_int8_t,
+  [
+  #include "confdefs.h"
+  #include <sys/types.h>
+  #if STDC_HEADERS
+  #include <stdlib.h>
+  #include <stddef.h>
+  #endif
+  ],[AC_MSG_RESULT([no, also in standard headers])],
+    [AC_EGREP_HEADER(u_int8_t,netinet/in.h,
+       [CPPFLAGS="$CPPFLAGS -isys/bitypes.h"; AC_MSG_RESULT(yes)],
+       [AC_MSG_RESULT([no, not even included with netinet/in.h])])])
+fi
+AC_CHECK_TYPE(u_int8_t, unsigned char)
+AC_CHECK_TYPE(u_int16_t, unsigned short)
+AC_CHECK_TYPE(u_int32_t, unsigned int)
+AC_CHECK_TYPE(u_char, unsigned char)
+AC_CHECK_TYPE(u_int, unsigned int)
+AC_CHECK_TYPE(u_long, unsigned long)
+])
 
 # serial 40 AC_PROG_LIBTOOL
 AC_DEFUN(AC_PROG_LIBTOOL,

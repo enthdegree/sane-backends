@@ -41,13 +41,13 @@
    This file provides a generic SCSI interface.  */
 
 #ifdef _AIX
-# include <lalloca.h>		/* MUST come first for AIX! */
+# include "../include/lalloca.h"		/* MUST come first for AIX! */
 #endif
 
-#include "sane/config.h"
-#include <lalloca.h>
+#include "../include/sane/config.h"
+#include "../include/lalloca.h"
+#include "../include/lassert.h"
 
-#include <assert.h>
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -184,12 +184,12 @@
 # define USE STUBBED_INTERFACE
 #endif
 
-#include "sane/sanei.h"
-#include "sane/sanei_config.h"
-#include "sane/sanei_scsi.h"
+#include "../include/sane/sanei.h"
+#include "../include/sane/sanei_config.h"
+#include "../include/sane/sanei_scsi.h"
 
 #define BACKEND_NAME	sanei_scsi
-#include "sane/sanei_debug.h"
+#include "../include/sane/sanei_debug.h"
 
 #if USE == DECUNIX_INTERFACE
 static int cam_fd = -1;		/* used for SCSI CAM based interfaces */

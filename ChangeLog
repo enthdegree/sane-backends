@@ -1,3 +1,8 @@
+2003-07-15  Stéphane Voltz <svoltz@wanadoo.fr>
+
+	* doc/descriptions/umax_pp.desc: updated to use new :status
+	  keyword.
+
 2003-07-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Corex and Relisys

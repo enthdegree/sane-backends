@@ -1,3 +1,9 @@
+2002-08-17  Karl Heinz Kremer <khk@khk.net>
+
+	* backend/epson.[ch]: Fixed typo in variable name. Fixed IEEE-1394 
+	  problem with Perfection-2450. Fixed problem with older B3 level 
+	  SCSI scanners that do not support the extended status request.
+
 2002-08-17 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 	* tools/gamma4scanimage.c: NEW: tool to create gamma table for scanimage
 	* tools/Makefile.in: changed file to compile and install gamma4scanimage

@@ -407,13 +407,12 @@ AC_DEFUN([SANE_CHECK_GPHOTO2],
 	AC_ARG_WITH(gphoto2,
 	  AC_HELP_STRING([--with-gphoto2],
                          [include the gphoto2 backend @<:@default=yes@:>@]),
-[
+	[
 	
 	# If --with-gphoto2=no or --without-gphoto2, disable backend
-	if test "$with_gphoto2" = "no" ; then
-		echo disabling GPHOTO2
-	fi
-])
+	# as "$with_gphoto2" will be set to "no"
+
+	])
 
 	# If --with-gphoto2=yes (or not supplied), then enable it
 	# if gphoto2-config can be found
@@ -428,9 +427,6 @@ AC_DEFUN([SANE_CHECK_GPHOTO2],
 			GPHOTO2_LIBS="`gphoto2-config --libs`"
 			SANE_EXTRACT_LDFLAGS(LDFLAGS, GPHOTO2_LIBS)
 			LIBS="${LIBS} ${GPHOTO2_LIBS}"
-			echo enabling GPHOTO2
-		else
-			echo disabling GPHOTO2		
 		fi
 	fi
 

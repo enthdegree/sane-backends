@@ -1,3 +1,7 @@
+2003-12-07  Peter Fales <peter@fales-lorenz.net>
+	* acinclude.m4, aclocal.m4, configure:  remove "enabling GPHOTO2"
+	  messages printed by configure
+
 2003-12-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added some scanners.

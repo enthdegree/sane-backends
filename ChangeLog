@@ -1,3 +1,8 @@
+2003-11-27  Karl Heinz Kremer <khk@khk.net>
+	
+	* doc/descriptions/epson.desc: Changed status for CX3200 and
+	  CX5200 from untested to good
+
 2003-11-28  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan.c: Download gamma table twice for

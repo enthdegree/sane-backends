@@ -154,8 +154,8 @@
 
 :model "CX-3200"
 :interface "USB"
-:status :untested
+:status :good
 
 :model "CX-5200"
 :interface "USB"
-:status :untested
+:status :good

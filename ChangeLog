@@ -2,6 +2,10 @@
 
 	* backend/dc240.desc:  Change status from new to alpha
 
+	  acinclude.m4, aclocal.m4, configure:  Cosmetic changes to 
+	  help text and change function used in gphoto2 lib check due
+	  to API change
+
 2001-09-16  Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c backend/umax_pp_mid.c

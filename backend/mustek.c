@@ -5141,7 +5141,6 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
   SANE_Status status;
   Mustek_Scanner *s;
 
-  DBG(4, "sane_open\n");
   if (!devicename)
     {
       DBG(1, "sane_open: devicename is null!\n");
@@ -5152,6 +5151,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
       DBG(1, "sane_open: handle is null!\n");
       return SANE_STATUS_INVAL;
     }
+  DBG(4, "sane_open: devicename=%s\n", devicename);
 
   if (devicename[0])
     {
@@ -5188,6 +5188,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
   first_handle = s;
 
   *handle = s;
+  DBG(4, "sane_open: finished (handle=%p)\n", s);
   return SANE_STATUS_GOOD;
 }
 
@@ -5196,7 +5197,7 @@ sane_close (SANE_Handle handle)
 {
   Mustek_Scanner *prev, *s;
 
-  DBG(4, "sane_close\n");
+  DBG(4, "sane_close: handle=%p\n", handle);
   /* remove handle from list of open handles: */
   prev = 0;
   for (s = first_handle; s; s = s->next)

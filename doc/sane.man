@@ -259,9 +259,16 @@ Backend for Kodak DC20/DC25 Digital Cameras. See sane-dc25(5).
 .B sane-dmc
 Backend for the Polaroid Digital Microscope Camera. See sane-dmc(5).
 .TP
+.B sane-gphoto2
+Backend for digital cameras supported by the gphoto2 library package.  (See
+http://www.gphoto.org for more information and a list of supported
+cameras.)   Gphoto2 supports over 140 different camera models.
+However, please note that more development and testing is needed before 
+all of these cameras will be supported by SANE backend.  See
+sane-gphoto2(5).
+.TP
 .B sane-qcam
 Backend for Connectix QuickCam cameras. See sane-qcam(5).
-
 .P
 Also, have a look at the backend information page at
 http://www.mostang.com/sane/sane-backends.html and the list of projects in

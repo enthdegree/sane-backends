@@ -1,3 +1,10 @@
+2003-12-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* configure configure.in include/sane/config.h.in
+	  sanei/sanei_scsi.c: sanei_scsi.c should now compile with the new
+	  and old SCSI API of MacOS X. Patch from Mattias Ellert
+	  <mattias.ellert@tsl.uu.se>.
+
 2003-12-01  Nathan Rutman <nthn1@yahoo.com>
 
 	* backend/canon630u.c: Change default scan size to full platen,

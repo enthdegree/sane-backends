@@ -100,8 +100,12 @@
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
-/* Define to 1 if you have the <IOKit/IOKitLib.h> header file. */
-#undef HAVE_IOKIT_IOKITLIB_H
+/* Define to 1 if you have the <IOKit/cdb/IOSCSILib.h> header file. */
+#undef HAVE_IOKIT_CDB_IOSCSILIB_H
+
+/* Define to 1 if you have the
+   <IOKit/scsi-commands/SCSICommandOperationCodes.h> header file. */
+#undef HAVE_IOKIT_SCSI_COMMANDS_SCSICOMMANDOPERATIONCODES_H
 
 /* Define to 1 if you have the `ioperm' function. */
 #undef HAVE_IOPERM

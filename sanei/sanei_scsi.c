@@ -180,48 +180,30 @@
 # include <apollo/scsi.h>
 # include <apollo/time.h>
 # include "sanei_DomainOS.h"
-#elif defined (HAVE_WINDOWS_H)
-#define USE WIN32_INTERFACE
-#include <windows.h>
-#include <ddk/scsi.h>
-#include <ddk/ntddscsi.h>
-#endif
-
-/* OS X */
-
-#if defined (HAVE_IOKIT_IOKITLIB_H)
+#elif defined (HAVE_IOKIT_CDB_IOSCSILIB_H) || \
+      defined (HAVE_IOKIT_SCSI_COMMANDS_SCSICOMMANDOPERATIONCODES_H)
 # define USE MACOSX_INTERFACE
-
-# if defined (OSX_ONLY_10_2_API)
-/* Ensure only one of these two defines are set if any */
-#  if defined (OSX_ONLY_10_1_API)
-#   undef OSX_ONLY_10_1_API
-#  endif
-# endif
-
 # include <CoreFoundation/CoreFoundation.h>
 # include <IOKit/IOKitLib.h>
-
-# ifndef OSX_ONLY_10_2_API
-
-/* Includes for old API */
-
+# ifdef HAVE_IOKIT_CDB_IOSCSILIB_H
 #  include <IOKit/IOCFPlugIn.h>
 #  include <IOKit/cdb/IOSCSILib.h>
 # endif
-
-# ifndef OSX_ONLY_10_1_API
-
-/* Includes for STUC API */
+# ifdef HAVE_IOKIT_SCSI_COMMANDS_SCSICOMMANDOPERATIONCODES_H
 /* The def of VERSION causes problems in the following include files */
-
 #  undef VERSION
 #  include <IOKit/scsi-commands/SCSICmds_INQUIRY_Definitions.h>
 #  include <IOKit/scsi-commands/SCSICommandOperationCodes.h>
 #  include <IOKit/scsi-commands/SCSITaskLib.h>
+ CFDataRef CreateGUIDFromDevName (const char *devname);
+ char *CreateDevNameFromGUID (CFDataRef dataDesc);
 # endif
-
-#endif /* OS X */
+#elif defined (HAVE_WINDOWS_H)
+# define USE WIN32_INTERFACE
+# include <windows.h>
+# include <ddk/scsi.h>
+# include <ddk/ntddscsi.h>
+#endif
 
 #ifdef DISABLE_LINUX_SG_IO
 #undef SG_IO
@@ -1156,28 +1138,15 @@ sanei_scsi_open (const char *dev, int *fdp,
   }
 #elif USE == MACOSX_INTERFACE
   {
-
-    /* Verify the device name */
-
-    pdata = NULL;
-
-# ifndef OSX_ONLY_10_1_API
-
-    /* For the new implementation, copy the device SCSI GUID into the pdata */
-
-    pdata = CreateGUIDFromDevName (dev);
-    /* New API
-       if (strncmp("iokitscsi@<",dev, 11) == 0) {
-       pdata = strdup(dev);
-       }
-     */
+# ifdef HAVE_IOKIT_SCSI_COMMANDS_SCSICOMMANDOPERATIONCODES_H
+    pdata = (void*) CreateGUIDFromDevName (dev);
 # endif
-
-    if ((pdata == NULL)
-# ifndef OSX_ONLY_10_2_API
-	&& (sscanf (dev, "u%dt%dl%d", &bus, &target, &lun) != 3)	/* Old API */
+# ifdef HAVE_IOKIT_CDB_IOSCSILIB_H
+    if ((pdata == NULL) &&
+	(sscanf (dev, "u%dt%dl%d", &bus, &target, &lun) != 3))
+# else
+    if (pdata == NULL)
 # endif
-      )
       {
 	DBG (1, "sanei_scsi_open: device name %s is not valid\n", dev);
 	return SANE_STATUS_INVAL;
@@ -1189,7 +1158,6 @@ sanei_scsi_open (const char *dev, int *fdp,
 	break;
     fake_fd = 1;
   }
-
 #elif USE == WIN32_INTERFACE
   {
 	  char scsi_hca_name[20];
@@ -4885,7 +4853,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 
 #if USE == MACOSX_INTERFACE
 
-# ifndef OSX_ONLY_10_2_API
+# ifdef HAVE_IOKIT_CDB_IOSCSILIB_H
 
   SANE_Status
     sanei_scsi_cmd2_old_api (int fd,
@@ -5176,9 +5144,9 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
       }
   }
 
-# endif	/* ifndef OSX_ONLY_10_2_API */
+# endif	/* ifdef HAVE_IOKIT_CDB_IOSCSILIB_H */
 
-# ifndef OSX_ONLY_10_1_API
+# ifdef HAVE_IOKIT_SCSI_COMMANDS_SCSICOMMANDOPERATIONCODES_H
 
   void CreateMatchingDictionaryForSTUC (SInt32 peripheralDeviceType,
 					const char *findvendor,
@@ -5187,92 +5155,95 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 					CFMutableDictionaryRef * matchingDict)
   {
     CFMutableDictionaryRef subDict;
-
-    /* assert(matchingDict != NULL); */
+    CFNumberRef deviceTypeRef;
+    CFStringRef str;
 
     /* Create the dictionaries */
     *matchingDict =
       CFDictionaryCreateMutable (kCFAllocatorDefault, 0,
 				 &kCFTypeDictionaryKeyCallBacks,
 				 &kCFTypeDictionaryValueCallBacks);
-    if (*matchingDict != NULL)
+    if (*matchingDict == NULL)
       {
-	subDict =
-	  CFDictionaryCreateMutable (kCFAllocatorDefault, 0,
-				     &kCFTypeDictionaryKeyCallBacks,
-				     &kCFTypeDictionaryValueCallBacks);
-
-	if (subDict != NULL)
-	  {
-	    /* Create a dictionary with the "SCSITaskDeviceCategory" key with the appropriate value */
-	    /* for the device type we're interested in. */
-	    SInt32 deviceTypeNumber = peripheralDeviceType;
-	    CFNumberRef deviceTypeRef = NULL;
-
-	    CFDictionarySetValue (subDict,
-				  CFSTR (kIOPropertySCSITaskDeviceCategory),
-				  CFSTR
-				  (kIOPropertySCSITaskUserClientDevice));
-
-	    deviceTypeRef =
-	      CFNumberCreate (kCFAllocatorDefault, kCFNumberIntType,
-			      &deviceTypeNumber);
-	    CFDictionarySetValue (subDict,
-				  CFSTR (kIOPropertySCSIPeripheralDeviceType),
-				  deviceTypeRef);
-	    CFRelease (deviceTypeRef);
-
-	    /* Add search for a vendor or model */
-
-	    if (findvendor)
-	      {
-		CFDictionarySetValue (subDict,
-				      CFSTR
-				      (kIOPropertySCSIVendorIdentification),
-				      CFStringCreateWithCString
-				      (kCFAllocatorDefault, findvendor,
-				       kCFStringEncodingUTF8));
-	      }
-	    if (findmodel)
-	      {
-		CFDictionarySetValue (subDict,
-				      CFSTR
-				      (kIOPropertySCSIProductIdentification),
-				      CFStringCreateWithCString
-				      (kCFAllocatorDefault, findmodel,
-				       kCFStringEncodingUTF8));
-	      }
-
-	    if (scsiguid)
-	      {
-		CFDictionarySetValue (subDict,
-				      CFSTR
-				      (kIOPropertySCSITaskUserClientInstanceGUID),
-				      scsiguid);
-
-	      }
-
-	  }
-
-	/* Add the dictionary to the main dictionary with the key "IOPropertyMatch" to
-	   narrow the search to the above dictionary. */
-	CFDictionarySetValue (*matchingDict, CFSTR (kIOPropertyMatchKey),
-			      subDict);
-
-	CFRelease (subDict);
+	return;
       }
+
+    subDict =
+      CFDictionaryCreateMutable (kCFAllocatorDefault, 0,
+				 &kCFTypeDictionaryKeyCallBacks,
+				 &kCFTypeDictionaryValueCallBacks);
+    if (subDict == NULL)
+      {
+	CFRelease (*matchingDict);
+	*matchingDict = NULL;
+	return;
+      }
+
+    /* Create a dictionary with the "SCSITaskDeviceCategory" key with the
+       appropriate value for the device type we're interested in.*/
+
+    CFDictionarySetValue (subDict,
+			  CFSTR (kIOPropertySCSITaskDeviceCategory),
+			  CFSTR (kIOPropertySCSITaskUserClientDevice));
+
+    deviceTypeRef = CFNumberCreate (kCFAllocatorDefault, kCFNumberIntType,
+				    &peripheralDeviceType);
+    CFDictionarySetValue (subDict,
+			  CFSTR (kIOPropertySCSIPeripheralDeviceType),
+			  deviceTypeRef);
+    CFRelease (deviceTypeRef);
+
+    /* Add search for a vendor or model */
+
+    if (findvendor)
+      {
+	str = CFStringCreateWithCString (kCFAllocatorDefault, findvendor,
+					 kCFStringEncodingUTF8);
+	CFDictionarySetValue (subDict,
+			      CFSTR (kIOPropertySCSIVendorIdentification),
+			      str);
+	CFRelease (str);
+      }
+    if (findmodel)
+      {
+	str = CFStringCreateWithCString (kCFAllocatorDefault, findmodel,
+					 kCFStringEncodingUTF8);
+	CFDictionarySetValue (subDict,
+			      CFSTR (kIOPropertySCSIProductIdentification),
+			      str);
+	CFRelease (str);
+      }
+    if (scsiguid)
+      {
+	CFDictionarySetValue (subDict,
+			      CFSTR
+			      (kIOPropertySCSITaskUserClientInstanceGUID),
+			      scsiguid);
+      }
+
+    /* Add the dictionary to the main dictionary with the key "IOPropertyMatch"
+       to narrow the search to the above dictionary. */
+
+    CFDictionarySetValue (*matchingDict, CFSTR (kIOPropertyMatchKey), subDict);
+    CFRelease (subDict);
   }
 
-  CFDataRef CreateGUIDFromDevName (char *devname)
+  CFDataRef CreateGUIDFromDevName (const char *devname)
   {
+    const char *p;
+    int L;
+    UInt8 *guid;
+    UInt8 *g;
+    int i, d;
+    CFDataRef dataDesc;
 
     /* Decode a fake devname */
 
     if (strncmp ("iokitscsi@<", devname, 11) != 0)
       return NULL;
 
-    char *p = devname + 11;
-    int L = strlen (p) - 1;
+    p = devname + 11;
+    L = strlen (p) - 1;
 
     if ((L < 2) || ((L % 2) != 0))
       return NULL;
@@ -5280,9 +5251,8 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 
     /* Allocate a buffer for the GUID */
 
-    UInt8 *guid = (UInt8 *) malloc (L);
-    UInt8 *g = guid;
-    int i, d;
+    guid = (UInt8 *) malloc (L);
+    g = guid;
 
     for (i = L; i > 0; i--, p += 2)
       {
@@ -5293,7 +5263,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 
     /* Create the CFData */
 
-    CFDataRef dataDesc = CFDataCreate (kCFAllocatorDefault, guid, L);
+    dataDesc = CFDataCreate (kCFAllocatorDefault, guid, L);
     free (guid);
 
     return dataDesc;
@@ -5301,16 +5271,20 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 
   char *CreateDevNameFromGUID (CFDataRef dataDesc)
   {
+    int L;
+    const char *p;
+    char *devname;
+    char *d;
 
     if (dataDesc == NULL)
       return NULL;
 
     /* Create a fake device name */
 
-    int L = CFDataGetLength (dataDesc);
-    char *p = CFDataGetBytePtr (dataDesc);
-    char *devname = (char *) malloc (13 + 2 * L);
-    char *d = devname + 11;
+    L = CFDataGetLength (dataDesc);
+    p = CFDataGetBytePtr (dataDesc);
+    devname = (char *) malloc (13 + 2 * L);
+    d = devname + 11;
 
     sprintf (devname, "iokitscsi@<");
     for (; L > 0; L--, d += 2)
@@ -5320,9 +5294,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
     sprintf (d, ">");
 
     return devname;
-
   }
-
 
   void CreateDeviceInterfaceUsingSTUC (io_object_t scsiDevice,
 				       IOCFPlugInInterface ***
@@ -5330,49 +5302,48 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 				       SCSITaskDeviceInterface ***
 				       theInterface)
   {
-    kern_return_t kr = kIOReturnSuccess;
+    IOReturn ioReturnValue;
     IOCFPlugInInterface **plugInInterface = NULL;
-    SCSITaskDeviceInterface **interface = NULL;
-    HRESULT plugInResult = S_OK;
     SInt32 score = 0;
-
-    /* assert(scsiDevice != NULL); */
+    HRESULT plugInResult;
+    SCSITaskDeviceInterface **interface = NULL;
 
     /* Create the base interface of type IOCFPlugInInterface.
        This object will be used to create the SCSI device interface object. */
-    kr = IOCreatePlugInInterfaceForService (scsiDevice,
-					    kIOSCSITaskDeviceUserClientTypeID,
-					    kIOCFPlugInInterfaceID,
-					    &plugInInterface, &score);
 
-    if (kr != kIOReturnSuccess)
+    ioReturnValue =
+      IOCreatePlugInInterfaceForService (scsiDevice,
+					 kIOSCSITaskDeviceUserClientTypeID,
+					 kIOCFPlugInInterfaceID,
+					 &plugInInterface, &score);
+    if (ioReturnValue != kIOReturnSuccess)
       {
 	DBG (5,
-	     "Couldn't create a plugin interface for the io_service_t. (0x%08x)\n",
-	     kr);
+	     "Couldn't create a plugin interface for the service. (0x%08x)\n",
+	     ioReturnValue);
+	return;
       }
-    else
-      {
-	/* Query the base plugin interface for an instance of the specific SCSI device interface
-	   object. */
-	plugInResult = (*plugInInterface)->QueryInterface (plugInInterface,
-							   CFUUIDGetUUIDBytes
-							   (kIOSCSITaskDeviceInterfaceID),
-							   (LPVOID) &
-							   interface);
 
-	if (plugInResult != S_OK)
-	  {
-	    DBG (5, "Couldn't create SCSI device interface. (%ld)\n",
-		 plugInResult);
-	  }
+    /* Query the base plugin interface for an instance of the specific
+       SCSI device interface object. */
+
+    plugInResult =
+      (*plugInInterface)->QueryInterface (plugInInterface,
+					  CFUUIDGetUUIDBytes
+					  (kIOSCSITaskDeviceInterfaceID),
+					  (LPVOID) & interface);
+    if (plugInResult != S_OK)
+      {
+	DBG (5, "Couldn't create SCSI device interface. (%ld)\n",
+	     plugInResult);
+	return;
       }
 
     /* Set the return values. */
+
     *thePlugInInterface = plugInInterface;
     *theInterface = interface;
   }
-
 
   SANE_Status
     ExecuteSCSITask (SCSITaskInterface ** task,
@@ -5380,21 +5351,18 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 		     const void *src, size_t src_size,
 		     void *dst, size_t * dst_size)
   {
-
     SCSITaskStatus taskStatus;
     SCSI_Sense_Data senseData;
     SCSICommandDescriptorBlock cdb;
-    IOReturn kr = kIOReturnSuccess;
+    IOReturn ioReturnValue;
     IOVirtualRange range;
     UInt64 transferCount = 0;
-    UInt32 transferCountHi = 0;
-    UInt32 transferCountLo = 0;
     size_t data_length = 0;
     int transferType = 0;
 
     if (dst && dst_size)	/* isRead */
       {
-	DBG (6, "isRead dst_size:%d\n", *dst_size);
+	DBG (6, "isRead dst_size:%ld\n", *dst_size);
 
 	/* Zero the buffer. */
 	bzero (dst, *dst_size);
@@ -5408,7 +5376,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
       }
     else
       {
-	DBG (6, "isWrite src_size:%d\n", src_size);
+	DBG (6, "isWrite src_size:%ld\n", src_size);
 
 	/* Configure the virtual range for the buffer. */
 	range.address = (IOVirtualAddress) src;
@@ -5427,72 +5395,58 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
     memcpy (cdb, cmd, cmd_size);
 
     /* Set the actual cdb in the task */
-    kr = (*task)->SetCommandDescriptorBlock (task, cdb, cmd_size);
-    if (kr != kIOReturnSuccess)
+    ioReturnValue = (*task)->SetCommandDescriptorBlock (task, cdb, cmd_size);
+    if (ioReturnValue != kIOReturnSuccess)
       {
-	DBG (5, "Error setting CDB. (0x%08x)\n", kr);
+	DBG (5, "Error setting CDB. (0x%08x)\n", ioReturnValue);
 	return SANE_STATUS_IO_ERROR;
       }
 
     /* Set the scatter-gather entry in the task */
-    kr =
-      (*task)->SetScatterGatherEntries (task, &range, 1, data_length,
-					transferType);
-
-    if (kr != kIOReturnSuccess)
+    ioReturnValue = (*task)->SetScatterGatherEntries (task, &range, 1,
+						      data_length,
+						      transferType);
+    if (ioReturnValue != kIOReturnSuccess)
       {
-	DBG (5, "Error setting scatter-gather entries. (0x%08x)\n", kr);
+	DBG (5, "Error setting scatter-gather entries. (0x%08x)\n",
+	     ioReturnValue);
 	return SANE_STATUS_IO_ERROR;
       }
 
     /* Set the timeout in the task */
-    kr = (*task)->SetTimeoutDuration (task, sane_scsicmd_timeout * 100);
-    if (kr != kIOReturnSuccess)
+    ioReturnValue = (*task)->SetTimeoutDuration (task,
+						 sane_scsicmd_timeout * 1000);
+    if (ioReturnValue != kIOReturnSuccess)
       {
-	DBG (5, "Error setting timeout. (0x%08x)\n", kr);
+	DBG (5, "Error setting timeout. (0x%08x)\n", ioReturnValue);
 	return SANE_STATUS_IO_ERROR;
       }
 
     DBG (5, "Executing command\n");
 
     /* Send it! */
-    kr =
-      (*task)->ExecuteTaskSync (task, &senseData, &taskStatus,
-				&transferCount);
-    if (kr != kIOReturnSuccess)
+    ioReturnValue = (*task)->ExecuteTaskSync (task, &senseData, &taskStatus,
+					      &transferCount);
+    if (ioReturnValue != kIOReturnSuccess)
       {
-	DBG (5, "Error executing task. (0x%08x)\n", kr);
+	DBG (5, "Error executing task. (0x%08x)\n", ioReturnValue);
 	return SANE_STATUS_IO_ERROR;
       }
 
-    DBG (5, "ExecuteTaskSync OK Trasferred %ld bytes\n", transferCount);
+    DBG (5, "ExecuteTaskSync OK Trasferred %lld bytes\n", transferCount);
 
-    /* Get the transfer counts */
-    transferCountHi = ((transferCount >> 32) & 0xFFFFFFFF);
-    transferCountLo = (transferCount & 0xFFFFFFFF);
-
-    if (taskStatus == kSCSITaskStatus_GOOD)
-      {
-	/* Task worked correctly */
-	if (dst && dst_size)
-	  *dst_size = transferCount;
-	return SANE_STATUS_GOOD;
-      }
-    else if (taskStatus == kSCSITaskStatus_CHECK_CONDITION)
-      {
-	/* Something happened. Print the sense string */
-	DBG (5, "taskStatus = 0x%08x Something Happened...\n", taskStatus);
-	/* PrintSenseString(&senseData, false); */
-      }
-    else
+    if (taskStatus != kSCSITaskStatus_GOOD)
       {
 	DBG (5, "taskStatus = 0x%08x\n", taskStatus);
+	return SANE_STATUS_IO_ERROR;
       }
 
-    return SANE_STATUS_IO_ERROR;
+    /* Task worked correctly */
+    if (dst && dst_size)
+      *dst_size = transferCount;
 
+    return SANE_STATUS_GOOD;
   }
-
 
   SANE_Status
     ExecuteCommandUsingSTUC (SCSITaskDeviceInterface ** interface,
@@ -5500,20 +5454,17 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 			     const void *src, size_t src_size,
 			     void *dst, size_t * dst_size)
   {
-
-    SCSITaskInterface **task = NULL;
-    IOReturn kr = kIOReturnSuccess;
-
-    /* assert(interface != NULL); */
-
+    SCSITaskInterface **task;
+    IOReturn ioReturnValue;
+    SANE_Status returnValue;
 
     /* Get exclusive access for the device if we can. This must be done
        before any SCSITasks can be created and sent to the device. */
-    kr = (*interface)->ObtainExclusiveAccess (interface);
+    ioReturnValue = (*interface)->ObtainExclusiveAccess (interface);
 
-    if (kr != kIOReturnSuccess)
+    if (ioReturnValue != kIOReturnSuccess)
       {
-	DBG (5, "ObtainExclusiveAccess failed. (0x%08x)\n", kr);
+	DBG (5, "ObtainExclusiveAccess failed. (0x%08x)\n", ioReturnValue);
 	return SANE_STATUS_NO_MEM;
       }
 
@@ -5526,23 +5477,17 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 	(*interface)->ReleaseExclusiveAccess (interface);
 	return SANE_STATUS_NO_MEM;
       }
-    else
-      {
 
-	SANE_Status returnValue = ExecuteSCSITask (task,
-						   cmd, cmd_size, src,
-						   src_size, dst, dst_size);
+    returnValue = ExecuteSCSITask (task, cmd, cmd_size,
+				   src, src_size, dst, dst_size);
 
+    /* Release the task interface */
+    (*task)->Release (task);
 
-	/* Release the task interface */
-	(*task)->Release (task);
+    /* Release exclusive access */
+    (*interface)->ReleaseExclusiveAccess (interface);
 
-	/* Release exclusive access */
-	(*interface)->ReleaseExclusiveAccess (interface);
-
-	return returnValue;
-
-      }
+    return returnValue;
   }
 
   SANE_Status
@@ -5551,40 +5496,45 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 			      const void *src, size_t src_size,
 			      void *dst, size_t * dst_size)
   {
-
+    CFDataRef guid;
+    mach_port_t masterPort;
+    int i;
+    io_object_t scsiDevice;
+    SInt32 peripheralDeviceType;
+    CFMutableDictionaryRef matchingDict;
+    io_iterator_t iokIterator;
     IOReturn ioReturnValue;
+    IOCFPlugInInterface **plugInInterface = NULL;
+    SCSITaskDeviceInterface **interface = NULL;
+    io_object_t nextDevice;
+    SANE_Status returnValue;
 
-    CFDataRef guid = (CFDataRef) fd_info[fd].pdata;
+    guid = fd_info[fd].pdata;
     if (!guid)
       return SANE_STATUS_INVAL;
 
-
-    DBG (2, "cmd2: cmd_size:%d src_size:%d dst_size:%d isWrite:%d\n",
-	 cmd_size, src_size, (!dst_size) ? 0 : dst_size, (!dst_size) ? 1 : 0);
+    DBG (2, "cmd2: cmd_size:%ld src_size:%ld dst_size:%ld isWrite:%d\n",
+	 cmd_size, src_size, (!dst_size) ? 0 : *dst_size, (!dst_size) ? 1 : 0);
 
     /* Use default master port */
-
-    mach_port_t masterPort = kIOMasterPortDefault;
-
-    io_object_t scsiDevice = NULL;
+    masterPort = NULL;
+    ioReturnValue = IOMasterPort (MACH_PORT_NULL, &masterPort);
+    if (ioReturnValue != kIOReturnSuccess || masterPort == NULL)
+      return SANE_STATUS_IO_ERROR;
 
     /* Search for both Scanner type and Processor type devices */
-
     /* GB TDB This should only be needed for find */
-
-    int i;
+    scsiDevice = NULL;
     for (i = 0; !scsiDevice && i < 2; i++)
       {
-	SInt32 peripheralDeviceType =
+	peripheralDeviceType =
 	  (i == 0 ? kINQUIRY_PERIPHERAL_TYPE_ScannerSCSI2Device :
-	   kINQUIRY_PERIPHERAL_TYPE_ProcessorSPCDevice);
+	            kINQUIRY_PERIPHERAL_TYPE_ProcessorSPCDevice);
 
-
-	/* Set up a matching dictionary to search the I/O Registry for the SCSI device */
+	/* Set up a matching dictionary to search the I/O Registry for
+	   the SCSI device */
 	/* we are interested in, specifying the SCSITaskUserClient GUID. */
-
-	CFMutableDictionaryRef matchingDict = NULL;
-
+	matchingDict = NULL;
 	CreateMatchingDictionaryForSTUC (peripheralDeviceType, NULL, NULL,
 					 guid, &matchingDict);
 	if (matchingDict == NULL)
@@ -5594,9 +5544,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 	  }
 
 	/* Now search I/O Registry for the matching device */
-
-	io_iterator_t iokIterator = NULL;
-
+	iokIterator = NULL;
 	ioReturnValue =
 	  IOServiceGetMatchingServices (masterPort, matchingDict,
 					&iokIterator);
@@ -5606,53 +5554,42 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 	    return SANE_STATUS_NO_MEM;
 	  }
 
-	/* Check device */
+	scsiDevice = IOIteratorNext (iokIterator);
 
-	io_service_t nextDevice = NULL;
-
-	while (nextDevice = IOIteratorNext (iokIterator))
+	while ((nextDevice = IOIteratorNext (iokIterator)))
 	  {
-	    scsiDevice = nextDevice;
+	    IOObjectRelease (nextDevice);
 	  }
 
 	IOObjectRelease (iokIterator);
-
       }
 
     if (!scsiDevice)
       {
-	DBG (5, "Device not found %s\n", devname);
+	DBG (5, "Device not found\n");
 	return SANE_STATUS_INVAL;
       }
 
     /* Found Device */
-
     /* Create interface */
-
-    IOCFPlugInInterface **plugInInterface = NULL;
-    SCSITaskDeviceInterface **interface = NULL;
 
     CreateDeviceInterfaceUsingSTUC (scsiDevice, &plugInInterface, &interface);
 
-    ioReturnValue = IOObjectRelease (scsiDevice);	/* Done with SCSI object from I/O Registry. */
+    /* Done with SCSI object from I/O Registry. */
+    ioReturnValue = IOObjectRelease (scsiDevice);
 
-    SANE_Status returnValue = SANE_STATUS_IO_ERROR;
+    returnValue = SANE_STATUS_IO_ERROR;
 
     if (ioReturnValue != kIOReturnSuccess)
       {
-
 	DBG (5, "Error releasing SCSI device. (0x%08x)\n", ioReturnValue);
-
       }
     else if (interface != NULL)
       {
-
 	/* Execute the command */
-
 	returnValue =
 	  ExecuteCommandUsingSTUC (interface, cmd, cmd_size, src, src_size,
 				   dst, dst_size);
-
       }
 
     if (interface != NULL)
@@ -5666,196 +5603,95 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
       }
 
     return returnValue;
-
   }
 
-  boolean_t
+  void
     sanei_scsi_find_devices_stuc_api (const char *findvendor,
 				      const char *findmodel,
 				      const char *findtype, int findbus,
-				      int findchannel, int findid,
-				      int findlun,
+				      int findchannel, int findid, int findlun,
 				      SANE_Status (*attach) (const char *dev))
   {
-    /* sanei_debug_sanei_scsi=8; */
-
+    mach_port_t masterPort;
     IOReturn ioReturnValue;
+    int i;
+    SInt32 peripheralDeviceType;
+    CFMutableDictionaryRef matchingDict;
+    io_iterator_t iokIterator;
+    io_object_t scsiDevice;
+    CFDataRef GUIDRef;
+    char *devname;
 
-    boolean_t foundDevices = false;
+    masterPort = NULL;
+    ioReturnValue = IOMasterPort (MACH_PORT_NULL, &masterPort);
+    if (ioReturnValue != kIOReturnSuccess || masterPort == NULL)
+      return;
 
-    /* Use default master port */
-
-    mach_port_t masterPort = kIOMasterPortDefault;
-
-    io_object_t scsiDevice = NULL;
-
-    DBG (5, "Search for Vendor:%s Model:%s\n", (findvendor) ? findvendor : "",
-	 (findmodel) ? findmodel : "");
+    DBG (5, "Search for Vendor: %s Model: %s\n",
+	 (findvendor) ? findvendor : "(none)",
+	 (findmodel) ? findmodel : "(none)");
 
     /* Search for both Scanner type and Processor type devices */
 
-    int i;
-    for (i = 0; !scsiDevice && i < 2; i++)
+    for (i = 0; i < 2; i++)
       {
-	SInt32 peripheralDeviceType =
+	peripheralDeviceType =
 	  (i == 0 ? kINQUIRY_PERIPHERAL_TYPE_ScannerSCSI2Device :
-	   kINQUIRY_PERIPHERAL_TYPE_ProcessorSPCDevice);
+	            kINQUIRY_PERIPHERAL_TYPE_ProcessorSPCDevice);
 
+	/* Set up a matching dictionary to search the I/O Registry for SCSI
+	   devices we are interested in. */
 
-	/* Set up a matching dictionary to search the I/O Registry for SCSI devices 
-	   we are interested in. */
-
-	CFMutableDictionaryRef matchingDict = NULL;
-
+	matchingDict = NULL;
 	CreateMatchingDictionaryForSTUC (peripheralDeviceType, findvendor,
 					 findmodel, NULL, &matchingDict);
 	if (matchingDict == NULL)
 	  {
 	    DBG (5, "CreateMatchingDictionaryForSTUC Failed\n");
-	    return false;
+	    return;
 	  }
 
 	/* Now search I/O Registry for matching devices. */
 
-	io_iterator_t iokIterator = NULL;
-
+	iokIterator = NULL;
 	ioReturnValue =
 	  IOServiceGetMatchingServices (masterPort, matchingDict,
 					&iokIterator);
 	if (ioReturnValue != kIOReturnSuccess)
 	  {
 	    DBG (5, "IOServiceGetMatchingServices Failed\n");
-	    return false;
+	    return;
 	  }
 
-	/* Check device */
+	/* Check devices */
 
-	io_service_t nextDevice = NULL;
-
-	while (nextDevice = IOIteratorNext (iokIterator))
+	while ((scsiDevice = IOIteratorNext (iokIterator)))
 	  {
-
 	    /* Create a fake device name from the SCSITaskUserClient GUID */
 
-	    CFMutableDictionaryRef properties;
-	    ioReturnValue =
-	      IORegistryEntryCreateCFProperties (nextDevice, &properties,
-						 kCFAllocatorDefault,
-						 kNilOptions);
-	    if (ioReturnValue == kIOReturnSuccess)
+	    GUIDRef = IORegistryEntryCreateCFProperty
+	      (scsiDevice, CFSTR (kIOPropertySCSITaskUserClientInstanceGUID),
+	       NULL, 0);
+	    devname = CreateDevNameFromGUID (GUIDRef);
+	    CFRelease (GUIDRef);
+
+	    if (devname)
 	      {
-
-		/* Create a fake device name */
-
-		char *devname = CreateDevNameFromGUID ((CFDataRef)
-						       CFDictionaryGetValue
-						       (properties,
-							CFSTR
-							(kIOPropertySCSITaskUserClientInstanceGUID)));
-		if (devname)
-		  {
-
-		    DBG (1, "Found:%s\n", devname);
-
-		    foundDevices = true;
-
-		    /* Attach to the device */
-		    (*attach) (devname);
-
-		    free (devname);
-		  }
-		else
-		  {
-		    DBG (1, "Can't find SCSITaskUserClient GUID\n");
-		  }
-		CFRelease (properties);
+		DBG (1, "Found:%s\n", devname);
+		/* Attach to the device */
+		(*attach) (devname);
+		free (devname);
 	      }
 	    else
 	      {
-		DBG (1, "ERROR creating property table\n");
+		DBG (1, "Can't find SCSITaskUserClient GUID\n");
 	      }
-
-
-/*        
-        //Create interface
-        
-        IOCFPlugInInterface		**plugInInterface = NULL;
-        SCSITaskDeviceInterface		**interface = NULL;
-                
-        CreateDeviceInterfaceUsingSTUC(nextDevice,
-                                        &plugInInterface,
-                                        &interface);
-        
-        ioReturnValue = IOObjectRelease(nextDevice); // Done with SCSI object from I/O Registry.
-        
-        SANE_Status returnValue = SANE_STATUS_IO_ERROR;
-        
-        SCSICmd_INQUIRY_StandardData	inqBuffer;
-        
-        if (ioReturnValue != kIOReturnSuccess) {
-        
-            DBG(5, "Error releasing SCSI device. (0x%08x)\n", ioReturnValue);
-        
-        } else if (interface != NULL) {
-            
-            // Perform an inquiry
-            
-            SCSICommandDescriptorBlock		cdb;
-            size_t inq_size			= sizeof(SCSICmd_INQUIRY_StandardData);
-        
-            // We're going to execute an INQUIRY to the device as a
-            // test of exclusive commands.
-            bzero(cdb, sizeof(cdb));
-            cdb[0] = kSCSICmd_INQUIRY;
-            cdb[4] = sizeof(SCSICmd_INQUIRY_StandardData);
-            
-            returnValue = ExecuteCommandUsingSTUC(interface, cdb, kSCSICDBSize_6Byte, NULL, 0, 
-                                                    &inqBuffer, &inq_size);
-            
-        }
-            
-        if (interface != NULL) {
-            (*interface)->Release(interface);
-        }
-        
-        if (plugInInterface != NULL) {
-            IODestroyPlugInInterface(plugInInterface);
-        }
-
-        if (returnValue == SANE_STATUS_GOOD) {
-            
-            // Match Vendor and Product IDs
-            DBG(6, "Vendor:%s Model:%s\n",inqBuffer.VENDOR_IDENTIFICATION,inqBuffer.PRODUCT_INDENTIFICATION);
-            
-            if ((findvendor == NULL || strncmp (findvendor,
-                                            inqBuffer.VENDOR_IDENTIFICATION,
-                                            strlen (findvendor)) == 0) &&
-                (findmodel == NULL || strncmp (findmodel,
-                                            inqBuffer.PRODUCT_INDENTIFICATION,
-                                            strlen (findmodel)) == 0))
-            {
-                char devname [40];
-                UInt64 guid = 0x0d001234abcd1234L;
-                sprintf (devname, "iokitscsi@0x%llx", guid);
-                (*attach) (devname);
-                foundDevices = true;
-            }
-        }
-*/
-
-
 	  }
-
 	IOObjectRelease (iokIterator);
-
       }
-
-    return foundDevices;
-
   }
 
-# endif	/* ifndef OSX_ONLY_10_1_API */
-
+# endif	/* HAVE_IOKIT_SCSI_COMMANDS_SCSICOMMANDOPERATIONCODES_H */
 
   SANE_Status
     sanei_scsi_cmd2 (int fd,
@@ -5863,29 +5699,20 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 		     const void *src, size_t src_size,
 		     void *dst, size_t * dst_size)
   {
-
-# ifndef OSX_ONLY_10_1_API
-
-    char *devname = (char *) fd_info[fd].pdata;
-
-    if (devname)
-      {
-	/* STUC i/f */
-	return sanei_scsi_cmd2_stuc_api (fd, cmd, cmd_size, src, src_size,
-					 dst, dst_size);
-      }
+    if (fd_info[fd].pdata)
+# ifdef HAVE_IOKIT_SCSI_COMMANDS_SCSICOMMANDOPERATIONCODES_H
+      return sanei_scsi_cmd2_stuc_api (fd, cmd, cmd_size, src, src_size,
+				       dst, dst_size);
+# else
+      return SANE_STATUS_INVAL;
+# endif
     else
-      {
-#endif
-
-# ifndef OSX_ONLY_10_2_API
-	return sanei_scsi_cmd2_old_api (fd, cmd, cmd_size, src, src_size, dst,
-					dst_size);
-#endif
-
-# ifndef OSX_ONLY_10_1_API
-      }
-#endif
+# ifdef HAVE_IOKIT_CDB_IOSCSILIB_H
+      return sanei_scsi_cmd2_old_api (fd, cmd, cmd_size, src, src_size,
+				      dst, dst_size);
+# else
+      return SANE_STATUS_INVAL;
+# endif
   }
 
   void
@@ -5895,25 +5722,15 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 			     int findlun,
 			     SANE_Status (*attach) (const char *dev))
   {
-
-    /* Try to use new API first */
-
-# ifndef OSX_ONLY_10_1_API
-
-    if (!sanei_scsi_find_devices_stuc_api (findvendor, findmodel, findtype,
-					   findbus, findchannel, findid,
-					   findlun, attach))
-      {
+# ifdef HAVE_IOKIT_SCSI_COMMANDS_SCSICOMMANDOPERATIONCODES_H
+    sanei_scsi_find_devices_stuc_api (findvendor, findmodel, findtype,
+				      findbus, findchannel, findid,
+				      findlun, attach);
 # endif
-# ifndef OSX_ONLY_10_2_API
-
-	sanei_scsi_find_devices_old_api (findvendor, findmodel, findtype,
-					 findbus, findchannel, findid,
-					 findlun, attach);
-# endif
-
-# ifndef OSX_ONLY_10_1_API
-      }
+# ifdef HAVE_IOKIT_CDB_IOSCSILIB_H
+    sanei_scsi_find_devices_old_api (findvendor, findmodel, findtype,
+				     findbus, findchannel, findid,
+				     findlun, attach);
 # endif
   }
 

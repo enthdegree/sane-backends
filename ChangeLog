@@ -10,6 +10,8 @@
 
 2001-04-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* sanei/sanei_config.c: Avoid reading uninitialized memory when 
+	  checking SANE_CONFIG_DIR.
 	* backend/mustek.c: Fixed several memory leaks.
 	* frontend/scanimage.c: Fixed memory leak.
 	* sanei/sanei_config2.c: Fixed memory leak: vendor wasn't freed.

@@ -5,6 +5,8 @@
 	  crossing 64k borders due to restrictions of 16-bit device-driver.
 	  Cosmetic changes and some casts to reduce compiler-warnings. Patch
 	  from Franz Bakan <fbakan@gmx.net>.
+	* sanei/sanei_thread.c: Increased stacksize for thread. Patch from
+	  Franz Bakan <fbakan@gmx.net>.
 
 2003-03-10  Oliver Schirrmeister <oschirr@abm.de>
 

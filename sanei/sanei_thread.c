@@ -69,7 +69,7 @@ int
 sanei_thread_begin( void (*start)(void *arg), 
                     void* arg_list)
 {
-   return _beginthread( start, NULL, 64*1024, arg_list);
+   return _beginthread( start, NULL, 1024*1024, arg_list);
 }
 
 int

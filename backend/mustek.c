@@ -46,7 +46,7 @@
 
 /**************************************************************************/
 /* Mustek backend version                                                 */
-#define BUILD 100
+#define BUILD 101
 /**************************************************************************/
 
 #include "sane/config.h"
@@ -1319,12 +1319,11 @@ attach (SANE_String_Const devname, Mustek_Device **devp, SANE_Bool may_wait)
     {
       /* These values were measured with a Paragon 1200 SP Pro v2.01 */
       dev->x_range.max = SANE_FIX (8 * MM_PER_INCH);
-      dev->y_range.max = SANE_FIX (13.85 * MM_PER_INCH);
+      dev->y_range.max = SANE_FIX (13.70 * MM_PER_INCH);
       dev->dpi_range.max = SANE_FIX (1200);
       dev->sane.model = "1200 SP PRO";
       dev->flags |= MUSTEK_FLAG_LD_NONE;
       dev->flags |= MUSTEK_FLAG_ENLARGE_X;
-      warning = SANE_TRUE;
     }
   /* No documentation, but it works: Paragon 1200 A3 PRO  */
   else if (strncmp((SANE_String) model_name, "MFS-1200A3PRO", 13) == 0)
@@ -5366,13 +5365,11 @@ sane_start (SANE_Handle handle)
 	      s->one_pass_color_scan = SANE_TRUE;
 	      s->resolution_code = 36;
 	    }
-#if 0
 	  else if (s->hw->flags & MUSTEK_FLAG_PARAGON_1)
 	    {
 	      /* use 36 dpi */
 	      s->resolution_code = 36;
 	    }
-#endif
 	  DBG(4, "sane_start: use fast preview (res=%d dpi)\n", 
 	      s->resolution_code);
 	}
@@ -5407,7 +5404,7 @@ sane_start (SANE_Handle handle)
     
   if (s->hw->flags & MUSTEK_FLAG_SE)
     { 
-      status = set_window_se (s, 1);	
+      status = set_window_se (s, 0);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG(1, "sane_start: set window command failed: %s\n",

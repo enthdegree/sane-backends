@@ -32,7 +32,7 @@
 #include "../include/lalloca.h"
 #include "../include/sys/types.h"
 
-#if defined(HAVE_GETADDRINFO) && defined (HAVE_GETNAMEINFO) && defined (HAVE_POLL)
+#if defined(HAVE_GETADDRINFO) && defined (HAVE_GETNAMEINFO)
 # define SANED_USES_AF_INDEP
 #else
 # undef ENABLE_IPV6
@@ -63,14 +63,70 @@
 
 #include <sys/param.h>
 #include <sys/socket.h>
-#ifdef SANED_USES_AF_INDEP
-# ifdef HAVE_SYS_POLL_H
-#  include <sys/poll.h>
-# endif /* HAVE_SYS_POLL_H */
-#endif /* SANED_USES_AF_INDEP */
+
 #include <sys/time.h>
 #include <sys/types.h>
 #include <arpa/inet.h>
+
+#ifdef SANED_USES_AF_INDEP
+# if defined(HAVE_SYS_POLL_H) && defined(HAVE_POLL)
+#  include <sys/poll.h>
+# else
+/* 
+ * This replacement poll() using select() is only designed to cover
+ * our needs in main(). It should probably be extended...
+ */
+struct pollfd
+{
+  int fd;
+  short events;
+  short revents;
+};
+
+#define POLLIN 0x0001
+
+int
+poll (struct pollfd *ufds, unsigned int nfds, int timeout)
+{
+  struct pollfd *fdp;
+
+  fd_set fds;
+  int maxfd = 0;
+  unsigned int i;
+  int ret;
+
+  /* unused */
+  timeout = timeout;
+
+  FD_ZERO (&fds);
+
+  for (i = 0, fdp = ufds; i < nfds; i++, fdp++)
+    {
+      if (fdp->events & POLLIN)
+	{
+	  FD_SET (fdp->fd, &fds);
+	  maxfd = (fdp->fd > maxfd) ? fdp->fd : maxfd;
+	}
+    }
+  
+  maxfd++;
+
+  ret = select (maxfd, &fds, NULL, NULL, NULL);
+
+  if (ret < 0)
+    return ret;
+
+  for (i = 0, fdp = ufds; i < nfds; i++, fdp++)
+    {
+      if (fdp->events & POLLIN)
+	if (FD_ISSET (fdp->fd, &fds))
+	  fdp->revents = POLLIN;
+    }
+
+  return ret;
+}
+# endif /* HAVE_SYS_POLL_H && HAVE_POLL */
+#endif /* SANED_USES_AF_INDEP */
 
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"

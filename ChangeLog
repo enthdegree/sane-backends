@@ -1,3 +1,22 @@
+2003-10-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/microtek2.h backend/test.c include/sane/saneopts.h:
+	  Fixed some missing or duplicated spaces in option descriptions.
+	* backend/canon630u.c: Option names shouldn't be translated.
+	* backend/mustek.c: Use the same title for brightness as in other
+	  backends.
+	* po/sane-backends.de.po: Fixed minor bugs.
+	* po/sane-backends.sv.po: Updated (from Mattias Ellert
+	  <mattias.ellert@tsl.uu.se>).
+	* po/sane-backends.bg.po po/sane-backends.cs.po
+	  po/sane-backends.es.po po/sane-backends.fr.po
+	  po/sane-backends.it.po po/sane-backends.nl.po
+	  po/sane-backends.no.po po/sane-backends.pt.po
+	  po/sane-backends.ru.po: Regenerated.
+	* doc/descriptions/unsupported.desc: Added Epson Perfection 3170,
+	  Packard Bell Diamond 1200, and Visioneer PaperPort
+	  3100b. Updated Epson Perfection 1670.
+
 2003-10-04  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson.[ch]: Fixed bug 300246 - Use SANE_TITLE_SCAN_SPEED

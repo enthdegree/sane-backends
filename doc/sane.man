@@ -51,10 +51,10 @@ are included in the package
 Both packages can be downloaded from the
 .B SANE
 homepage 
-.RI ( http://www.mostang.com/sane/ ).
+.RI ( http://www.sane\-project.org/ ).
 Information about other frontends and backends can be found on the frontend
 page
-.RI ( http://www.mostang.com/sane/frontends.html ).
+.RI ( http://www.sane\-project.org/sane\-frontends.html ).
 
 .SH "GENERAL INFORMATION"
 The following sections provide short descriptions and links to more
@@ -76,7 +76,7 @@ during installation. Everything else is a URL to a resource on the web.
 .B SANE homepage
 Information on all aspects of SANE including a tutorial and a link to the SANE FAQ
 can be found on the SANE homepage:
-.IR http://www.mostang.com/sane/ .
+.IR http://www.sane\-project.org/ .
 .TP
 .B SANE device lists
 The 
@@ -87,7 +87,7 @@ support for a specific device. If your scanner is not listed there (either
 supported or unsupported), please contact us. See section HOW CAN YOU HELP
 SANE for details. There are lists for specific releases of SANE, for the
 current development version and a search engine:
-.IR http://www.mostang.com/sane/sane-supported-devices.html .
+.IR http://www.sane\-project.org/sane\-supported\-devices.html .
 The lists are also installed on your system at @DOCDIR@/.
 .TP
 .B SANE mailing list
@@ -96,7 +96,7 @@ its implementations: sane-devel.  Despite its name, the list is not only
 intended for developers, but also for users. Since this is currently the only
 mailing list devoted to SANE, it's perfectly OK to ask questions that are not
 strictly related to SANE development. How to subscribe and unsubscribe:
-.IR http://www.mostang.com/sane/mail.html .
+.IR http://www.sane\-project.org/mailing\-lists.html .
 .TP
 .B SANE IRC channel
 The IRC (Internet Relay Chat) channel #sane can be found on the Freenode
@@ -144,7 +144,7 @@ Also, have a look at the
 package (including
 .BR xscanimage ", " xcam ", and " scanadf )
 and the frontend information page at
-.IR http://www.mostang.com/sane/sane-frontends.html .
+.IR http://www.sane\-project.org/sane\-frontends.html .
 
 .SH "BACKENDS FOR SCANNERS"
 .TP 2
@@ -416,7 +416,7 @@ The sane-umax1220u backend supports the UMAX Astra 1220U (USB) flatbed scanner
 for details.
 .PP
 Also, have a look at the backend information page at
-.I http://www.mostang.com/sane/sane-supported-devices.html
+.I http://www.sane\-project.org/sane\-supported\-devices.html
 and the list of projects in
 .IR @DOCDIR@/PROJECTS .
 
@@ -453,7 +453,7 @@ Backend for Connectix QuickCam cameras. See
 .BR sane\-qcam (5).
 .PP
 Also, have a look at the backend information page at
-.I http://www.mostang.com/sane/sane-supported-devices.html
+.I http://www.sane\-project.org/sane\-supported\-devices.html
 and the list of projects in
 .IR @DOCDIR@/PROJECTS .
 
@@ -508,7 +508,7 @@ using the
 .BR sane\-v4l (5) .
 .PP
 Also, have a look at the backend information page at
-.I http://www.mostang.com/sane/sane-supported-devices.html
+.I http://www.sane\-project.org/sane\-supported\-devices.html
 and the list of projects in
 .IR @DOCDIR@/PROJECTS .
 
@@ -531,7 +531,7 @@ in
 .SH "DEVELOPER'S DOCUMENTATION"
 It's not hard to write a
 .B SANE
-backend. It can take some time, however. You should have basic knowledege of C
+backend. It can take some time, however. You should have basic knowledge of C
 and enough patience to work through the documentation and find out how your
 scanner works. Appended is a list of some documents that help to write backends
 and frontends. 
@@ -544,9 +544,9 @@ communicate between frontends and backends. It can be found at
 (if latex is installed on your system) and on the
 .B SANE
 website:
-.I http://www.mostang.com/sane/html/
+.I http://www.sane\-project.org/html/
 (HTML), or
-.I http://www.mostang.com/sane/sane.ps
+.I http://www.sane\-project.org/sane.ps
 (Postscript).
 .PP
 There is some more information for programmers in
@@ -561,8 +561,8 @@ Before a new backend or frontend project is started, have a look at
 .I @DOCDIR@/PROJECTS
 for projects that are planned or not yet included into the
 .B SANE
-distribution and at the todo list:
-.IR @DOCDIR@/TODO .
+distribution and at our bug-tracking system:
+.IR http://www.http://www.sane\-project.org/bugs.html .
 .PP
 There are some links on how to find out about the protocol of a scanner: 
 .IR http://www.meier-geinitz.de/sane/misc/develop.html .
@@ -625,7 +625,7 @@ backends and they aren't available, read the build instructions in the
 file and the individual manual pages of the backends.
 .PP
 
-Another reason for not beeing detected by
+Another reason for not being detected by
 .B scanimage -L
 may be a missing or wrong configuration in the backend's configuration
 file. While
@@ -658,7 +658,7 @@ the available options are listed by running
 .BR "scanimage --help" .
 If scanning aborts with an error message, turn on debugging as mentioned
 above. Maybe the configuration file needs some tuning, e.g. to setup the path
-to a firmware that is needed by some scanners. See the backend's maunal page
+to a firmware that is needed by some scanners. See the backend's manual page
 for details. If you can't find out what's wrong, contact sane-devel.
 .PP
 To check that the
@@ -703,86 +703,26 @@ See also the documentation of the frontends.
 .PP
 
 .SH "HOW CAN YOU HELP SANE"
-We appreciate any help we can get. Here are some topics on which you can work:
-.TP
-.B Writing backends
-Without a backend, a scanner doesn't work. So it's crucial we have backends
-for as much devices as possible. It's not necessary to be an experienced
-programmer to start writing a backend. If you have an unsupported scanner,
-writing a backend yourself is probably the only way to get it supported. See
-DEVELOPER'S DOCUMENTATION for details. But first make sure that you get any
-information about your scanner that is available (see below), and check if
-your scanner can be supported by an already existing backend with only small
-modifications.
-.TP
-.B Writing frontends
-There are already some very capable frontends. So helping with improving the
-existing frontends may make more sense than to write yet another one. On the
-other hand there may be reasons to start writing a completely new frontend,
-like support for a specific widget set, a programming language or a special
-type of devices (e.g. cameras, slide scanners). In any case, keep the
-sane-devel mailinglist informed of your plans.
-.TP
-.B Reporting unsupported scanners
-Even if you can't write a backend for your unsupported scanner, please send us
-all the information you have about it. We need the make and the model name of
-your scanner. Also provide an output of
-.BR "sane-find-scanner -v -v" .
-For Linux: If it's a SCSI scanner, show us the output of
-.BR "cat /proc/scsi/scsi" ,
-for a USB scanner:
-.B "cat /proc/bus/usb/devices" 
-(if the file is not there, do 
-.BR "mount -t usbdevfs /proc/bus/usb /proc/bus/usb" ).
-See CONTACT section.
-.TP
-.B Reporting bugs and missing features
-If you think something in
-.B SANE
-isn't working as it should, please don't hesiate to contact us (see COTACT
-scetion). Please provide as many details as possible. Describe which software
-you are using (operating system + version, distribution, version of
-sane-backends and of the frontend you use). Explain exactly what doesn't work,
-is wrong or missing.
-.TP
-.B Adding and fixing documentation
-If you found a bug in any documentation (man pages, web site, READMEs), please
-contact us (see CONTACT section). Also write us if you think some
-documentation is missing. Please include a patch in this case, if
-possible. Don't hesitate to send spelling and grammar mistakes.
-.TP
-.B Translations
-The options of the backends can be translated. For some languages, the
-translations are almost complete, but some are lacking a lot of words and for
-most languages there is no translation at all. If you want to help to
-translate the options to your native language (or a language you speak
-fluently), contact the sane-devel mailing list and have a look at the
-.I po/
-directory in the source code.
-.TP
-.B Success reports
-If you had success using 
-.B SANE
-we want to know about that, too. Especially if your scanner is not in the
-lists yet or is marked "untested".
+We appreciate any help we can get. Please have alook at our web page about
+contributing to 
+.BR SANE :
+.I http://www.sane\-project.org/contrib.html
+.PP
 
 .SH "CONTACT"
-If you want to comment on a backend-specific problem, contact the author of
-your backend. Usually the email address can be found in the
+For reporting bugs or requesting new features, please use our bug-tracking
+system:
+.IR http://www.sane\-project.org/bugs.html .
+You can also contact the author of your backend directly. Usually the email
+address can be found in the
 .I @DOCDIR@/AUTHORS
-file or the backend's manpage. If the author isn't marked as `active
-maintainer' or doesn't answer, you can also contact the
+file or the backend's manpage. For general discussion about SANE, please use
+the
 .B SANE
 mailing list sane-devel (see
-.I http://www.mostang.com/sane/mail.html
-for details). You must be subscribed to the list, otherwise your mail won't be
-sent to the subscribers.
+.I http://www.sane\-project.org/mailing\-lists.html
+for details).
 .PP
-If you want to report bugs concerning security, compilation, installation,
-porting, and documentation of
-.BR SANE ,
-you can also contact the author of this manual page:
-<henning@meier-geinitz.de>.
 
 .SH "SEE ALSO"
 .BR saned (1),

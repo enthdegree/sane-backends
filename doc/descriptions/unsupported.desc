@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-12-25"		; version of backend
+:version "2003-12-27"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -572,22 +572,28 @@
 :url "http://www.medion.de/"
 
 :model "MD 5345"
-:url "/unsupported/medion-MD5345.html"
+:url "/unsupported/medion-md6228.html"
 :interface "USB"
 :status :unsupported
-:comment "Probably unsupported. Vendor/product 0x0461/0x0377. See link for details."
+:comment "Probably unsupported. GL646 chipset. See link for details."
 
 :model "MD 6190"
 :url "/unsupported/medion-md6190.html"
 :interface "USB"
 :status :unsupported
-:comment "Probably unsupported. See link for details."
+:comment "Probably unsupported. There seem to exist two different scanners with that name. See link for details."
 
 :model "MD 6228"
 :url "/unsupported/medion-md6228.html"
 :interface "USB"
 :status :unsupported
-:comment "Probably unsupported. Vendor/product 0x0461/0x0377. See link for details."
+:comment "Probably unsupported. GL646 chipset. See link for details."
+
+:model "MD 6471"
+:url "/unsupported/medion-md6228.html"
+:interface "USB"
+:status :unsupported
+:comment "Probably unsupported. GL646 chipset. See link for details."
 
 ;********************************************************************************************
 

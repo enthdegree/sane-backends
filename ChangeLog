@@ -1,3 +1,8 @@
+2003-02-25  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* po/sane-backends.fr.po: Updated French translation (from Yann E.
+	  MORIN <yann dot morin dot 1998 at anciens dot enib dot fr>).
+
 2003-02-23   Stéphane Voltz  <svoltz@wanadoo.fr>
 
         * backend/umax_pp_low.c backend/umax_pp_low.h backend/umax_pp_mid.c 

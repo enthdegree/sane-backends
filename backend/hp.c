@@ -43,8 +43,15 @@
    HP Scanner Control Language (SCL).
 */
 
-static char *hp_backend_version = "1.04";
+static char *hp_backend_version = "1.05";
+static char *hp_backend_revision = "$Revision$";
 /* Changes:
+
+   V 1.05:
+   $Log$
+   Revision 1.17  2003/10/06 19:54:07  kig-guest
+   Bug #300248: correct "Negatives" to "Negative" in option description
+
 
    V 1.04, 24-Jul-2003, PK (peter@kirchgessner.net)
       - Add internationalization
@@ -626,8 +633,8 @@ hp_read_config (void)
   is_df_config = 1;
   cu_device[0] = '\0';
 
-  DBG(1, "hp_read_config: hp backend v%s starts reading config file\n",
-      hp_backend_version);
+  DBG(1, "hp_read_config: hp backend v%s/%s starts reading config file\n",
+      hp_backend_version, hp_backend_revision);
 
   if ((fp = sanei_config_open(HP_CONFIG_FILE)) != 0)
     {

@@ -40,6 +40,9 @@
 
    This file implements an interface for the Mustek PP chipset A4S2 */
 
+/*
+ * TODO: add support for libieee1234 (i'll never remember the number...)
+ */
 
 /* debug levels:
    0 - nothing
@@ -823,6 +826,22 @@ sanei_pa4s2_enable (int fd, int enable)
 
       DBG (4, "sanei_pa4s2_enable: enable port 0x%03lx\n",
 	   port[fd].base);
+
+      /* io-permissions are not inherited after fork (at least not on
+         linux 2.2, although they seem to be inherited on linux 2.4),
+         so we should make sure we get the permission */
+      
+      if (ioperm (port[fd].base, 5, 1))
+      {
+          DBG (1, "sanei_pa4s2_enable: cannot get io privilege for port"
+	       " 0x%03lx\n", port[fd].base);
+
+          DBG (5, "sanei_pa4s2_enable:: marking port[%d] as unused\n", fd);
+          port[fd].in_use = SANE_FALSE;
+
+          DBG (5, "sanei_pa4s2_enable:: returning SANE_STATUS_IO_ERROR\n");
+          return SANE_STATUS_IO_ERROR;
+      }
 
       pa4s2_enable (port[fd].base, port[fd].prelock);
 

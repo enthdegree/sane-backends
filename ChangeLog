@@ -1,3 +1,8 @@
+2002-01-11  Jochen Eisinger <jochen.eisinger@gmx.de>
+
+	* sanei/sanei_pa4s2.h: prepared sanei for use with fork()ing
+	  backends
+
 2003-01-11  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/descriptions/plustek.desc: Update to reflect the currently

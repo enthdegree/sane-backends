@@ -1156,7 +1156,8 @@ sanei_scsi_open (const char *dev, int *fdp,
     int ioctl_val;
     int real_buffersize;
     fdparms *fdpa = 0;
-
+    Sg_scsi_id devinfo;
+    
     pdata = fdpa = malloc(sizeof(fdparms));
     if (!pdata)
       {
@@ -1177,7 +1178,22 @@ sanei_scsi_open (const char *dev, int *fdp,
     if (0 == ioctl(fd, SG_GET_VERSION_NUM, &sg_version))
       {
         DBG(1, "sanei_scsi_open: SG driver version: %i\n", sg_version);
-
+        
+        ioctl_val = ioctl(fd, SG_GET_SCSI_ID, &devinfo);
+        if (ioctl_val == EINVAL || ioctl_val == ENOTTY)
+          {
+            DBG(1, "sanei_scsi_open: The file %s is not an SG device file\n", dev);
+            close(fd);
+            return SANE_STATUS_INVAL;
+          }
+        
+        if (devinfo.scsi_type != 6 && devinfo.scsi_type != 3)
+          {
+            DBG(1, "sanei_scsi_open: The device found for %s does not look like a scanner\n", dev);
+            close(fd);
+            return SANE_STATUS_INVAL;
+          }
+        
         /* try to reserve a SG buffer of the size specified by *buffersize
         */
         ioctl(fd, SG_SET_RESERVED_SIZE, buffersize);
@@ -1226,7 +1242,15 @@ sanei_scsi_open (const char *dev, int *fdp,
       }
     else
       {
-        /* we have the old SG driver: */
+        /* we have a really old SG driver version, or we're not opening
+           an SG device file 
+        */
+        if (ioctl(fd, SG_GET_TIMEOUT, &ioctl_val) < 0) 
+          {
+            DBG(1, "sanei_scsi_open: The file %s is not an SG device file\n", dev);
+            close(fd);
+            return SANE_STATUS_INVAL;
+          }
         if (sanei_scsi_max_request_size < *buffersize)
           *buffersize = sanei_scsi_max_request_size;
           fdpa->buffersize = *buffersize;

@@ -45,6 +45,7 @@
 #include <sys/types.h>
 
 #include "sane/sane.h"
+#include "sane/sanei.h"
 
 SANE_Status
 sanei_constrain_value (const SANE_Option_Descriptor * opt, void * value,

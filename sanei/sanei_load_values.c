@@ -70,6 +70,7 @@
 #endif
 
 #include "sane/sane.h"
+#include "sane/sanei.h"
 #include "sane/sanei_wire.h"
 #include "sane/sanei_codec_ascii.h"
 

@@ -2947,7 +2947,10 @@ set_option_dependencies(Microtek2_Scanner *ms, SANE_Option_Descriptor *sod,
         sod[OPT_HIGHLIGHT].cap |= SANE_CAP_INACTIVE;
         sod[OPT_EXPOSURE].cap |= SANE_CAP_INACTIVE;
         sod[OPT_HALFTONE].cap |= SANE_CAP_INACTIVE;
-        sod[OPT_THRESHOLD].cap &= ~SANE_CAP_INACTIVE;
+        if ( val[OPT_AUTOADJUST].w == SANE_FALSE )
+            sod[OPT_THRESHOLD].cap &= ~SANE_CAP_INACTIVE;
+        else
+            sod[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE;
         sod[OPT_BITDEPTH].cap |= SANE_CAP_INACTIVE;
         sod[OPT_AUTOADJUST].cap &= ~SANE_CAP_INACTIVE;
         sod[OPT_BALANCE_R].cap |= SANE_CAP_INACTIVE;

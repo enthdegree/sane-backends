@@ -17,6 +17,10 @@
 	* doc/descriptions/unsupported.desc
 	  doc/descriptions-external/primax.desc: Some Primax scanners (and
 	  clones) are now supported by the primax backend.
+	* backend/microtek.c backend/microtek2.conf backend/microtek2.h:
+	  OPT_THRESHOLD fix. Avoid using "_" in option names. Set more
+	  options in microtek2.conf to on by default. From Karsten Festag
+	  <karsten.festag@gmx.de>.
 
 2003-01-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -90,7 +90,7 @@
 
 #define MICROTEK2_MAJOR         0
 #define MICROTEK2_MINOR	        95
-#define MICROTEK2_BUILD         "200301082330"
+#define MICROTEK2_BUILD         "200301111723"
 #define MICROTEK2_CONFIG_FILE   "microtek2.conf"
 
 
@@ -633,11 +633,11 @@ typedef union {
 #define M_DESC_LIGHTLID35      SANE_I18N("This option turns off the lamp of" \
                                " the flatbed during a scan")
 
-#define M_NAME_QUALITY_SCAN    "quality_scan"
+#define M_NAME_QUALITY_SCAN    "quality-scan"
 #define M_TITLE_QUALITY_SCAN   SANE_I18N("Quality scan")
 #define M_DESC_QUALITY_SCAN    SANE_I18N("Highest quality but lower speed")
 
-#define M_NAME_FAST_SCAN       "fast_scan"
+#define M_NAME_FAST_SCAN       "fast-scan"
 #define M_TITLE_FAST_SCAN      SANE_I18N("Fast scan")
 #define M_DESC_FAST_SCAN       SANE_I18N("Highest speed but lower quality")
 

@@ -1,3 +1,10 @@
+2000-12-04  Oliver Rauch <Oliver.Rauch@Wolfsburg.DE>
+
+	* removed usage of gettext, problem with -lintl should be solved:
+	  - removed usage of gettext from lib/getopt.c
+	  - removed test for libintl/gettext in configure[.in]
+	  - removed intllib from frontend/Makfile.in
+
 2000-12-03  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson.*: Version 0.1.38

@@ -608,7 +608,7 @@ check_v4_in_range (struct in_addr *inaddr, struct in_addr *base, char *netmask)
   int cidr;
   int i;
   char *end;
-  in_addr_t mask; 
+  u_int32_t mask; 
   SANE_Bool ret = SANE_FALSE;
 
   cidr = -1;

@@ -43,9 +43,11 @@
    This file implements a SANE backend for the Ibm 2456 flatbed scanner,
    written by mf <massifr@tiscalinet.it>. It derives from the backend for
    Ricoh flatbed scanners written by Feico W. Dillema.
+
+   Currently maintained by Henning Meier-Geinitz <henning@meier-geinitz.de>.
 */
 
-#define BUILD 4
+#define BUILD 5
 
 #include "../include/sane/config.h"
 
@@ -178,14 +180,22 @@ attach (const char *devnam, Ibm_Device ** devp)
       sanei_scsi_close (fd);
       return (status);
     }
-
-  DBG (3, "attach: sending OBJECT POSITION\n");
-  status = object_position (fd, OBJECT_POSITION_UNLOAD);
-  if (status != SANE_STATUS_GOOD)
+  /*
+   * Causes a problem with RICOH IS420
+   * Ignore this function ... seems to work ok
+   * Suggested to George Murphy george@topfloor.ie by henning
+   */
+  if (strncmp(ibuf.vendor, "RICOH", 5) != 0
+      && strncmp(ibuf.product, "IS420", 5) != 0)
     {
-      DBG (1, "attach: OBJECT POSTITION failed\n");
-      sanei_scsi_close (fd);
-      return (SANE_STATUS_INVAL);
+      DBG (3, "attach: sending OBJECT POSITION\n");
+      status = object_position (fd, OBJECT_POSITION_UNLOAD);
+      if (status != SANE_STATUS_GOOD)
+    	{
+	  DBG (1, "attach: OBJECT POSTITION failed\n");
+	  sanei_scsi_close (fd);
+	  return (SANE_STATUS_INVAL);
+    	}
     }
 
   memset (&mup, 0, sizeof (mup));

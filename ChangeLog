@@ -5,6 +5,8 @@
 	  <jb@jblache.org>).
 	* TODO: Removed obsololete entries.
 	* NEWS: Updated for 1.0.12.
+	* backend/ibm.c backend/ibm-scsi.c: Only disable object position
+	  command for Ricoh IS-420. 
 
 2003-05-04 Oliver Rauch <Oliver.Rauch@XSane.org>
 

@@ -309,7 +309,7 @@ object_position (int fd, int load)
   SANE_Status status;
   DBG (11, ">> object_position\n");
 
-#if 1
+#if 0
   /* At least the Ricoh 420 doesn't like that command */
   DBG (11, "object_position: ignored\n");
   return SANE_STATUS_GOOD;

@@ -5,6 +5,8 @@
 	  Mustek BearPaw 1200F scanners.
 	* doc/Makefile.in doc/descriptions/ma1509.desc doc/sane-ma1509.man
 	  doc/sane.man doc/.cvsignore: Added documentation for ma1509 backend.
+	* doc/descriptions-external/ma1509.desc: Removed.
+	* AUTHORS: Added ma1509.
 
 2003-02-23  Simon Munton <simon@munton.demon.co.uk>
         * backend/pie.c: increment BUILD (was missed in last change)

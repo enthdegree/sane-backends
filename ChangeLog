@@ -1,3 +1,9 @@
+2002-04-26  Peter Fales <peter@fales-lorenz.net>
+
+	* backend/dc240.c backend/gphoto2.c:  Various minor bug fixes for
+	  problems found by tstbackend.  Fix a core dump when debugging
+	  is enabled.
+
 2002-04-26  Jochen Eisinger <jochen.eisinger@gmx.de>
 
 	* backend/mustek_pp.c: fixed a typo, thanks to Henning for

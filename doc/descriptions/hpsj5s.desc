@@ -20,7 +20,7 @@
                                   ; other types:  :stillcam, :vidcam,
                                   ;               :meta, :api
 
-:mfg "HP"                         ; name a manufacturer
+:mfg "Hewlett-Packard"                         ; name a manufacturer
 :url "http://www.hp.com/"
 :model "HP ScanJet 5s"           ; name models for above-specified mfg.
 :interface "Parport (EPP)"

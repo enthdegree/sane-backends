@@ -3,6 +3,7 @@
 	* doc/descriptions-external/gt68xx.desc: Updated Mustek
 	  information. Added Plustek OpticPro 1248U.
 	* backend/mustek.c: Fixed version number.
+	* NEWS: Updated backend list.
 
 2002-09-17  Oliver Schirrmeister <oschirr@abm.de>
         * backend/fujitsu.c fujitsu.h fujitsu-scsi.h:

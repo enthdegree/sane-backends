@@ -49,6 +49,12 @@ static const char RCSid_h[] = "$Header$";
 /* ------------------------------------------------------------------------- */
 /*
  * $Log$
+ * Revision 1.4  2001/10/10 21:50:24  hmg
+ * Update (from Oliver Schirrmeister <oschirr@abm.de>). Added: Support for ipc2/3
+ * and cmp2 options; support for duplex-scanners m3093DG, m4097DG; constraint checking
+ * for m3093; support EVPD (virtual product data); support ADF paper size spezification.
+ * Henning Meier-Geinitz <henning@meier-geinitz.de>
+ *
  * Revision 1.3  2000/08/12 15:09:18  pere
  * Merge devel (v1.0.3) into head branch.
  *
@@ -110,6 +116,38 @@ enum m3096g_Option
     OPT_AVERAGING,
     OPT_BRIGHTNESS,
     OPT_THRESHOLD,
+    OPT_CONTRAST,
+
+    OPT_RIF,
+    OPT_COMPRESSION,
+
+    OPT_DTC_SELECTION,
+    OPT_GAMMA,
+    OPT_OUTLINE_EXTRACTION,
+    OPT_EMPHASIS,
+    OPT_AUTOSEP,
+    OPT_MIRROR_IMAGE,
+    OPT_VARIANCE_RATE,
+    OPT_THRESHOLD_CURVE,
+    OPT_GRADIATION,
+    OPT_SMOOTHING_MODE,
+    OPT_FILTERING, 
+    OPT_BACKGROUND,
+    OPT_NOISE_REMOVAL,
+    OPT_MATRIX2X2,
+    OPT_MATRIX3X3,
+    OPT_MATRIX4X4,
+    OPT_MATRIX5X5,
+    OPT_WHITE_LEVEL_FOLLOW,
+
+    OPT_DUPLEX,
+
+    OPT_PAPER_SIZE,
+    OPT_PAPER_ORIENTATION,
+    OPT_PAPER_WIDTH,
+    OPT_PAPER_HEIGHT,
+
+    OPT_START_BUTTON,
 
     OPT_ADVANCED_GROUP,
     OPT_PREVIEW,
@@ -134,7 +172,56 @@ struct m3096g
     int pipe;
 
     int scanning;		/* "in progress" flag */
+
+    /* detected features of the scanner */
+
     int autofeeder;		/* detected */
+    int flatbed;                /* detected */
+    int ipc;                    /* detected (ipc2/3 option) */
+    int cmp2;                   /* detected (cmp2 option) */
+    int is_duplex;              /* detected */
+    int has_hw_status;          /* true for M409X series */
+    int has_outline;
+    int has_emphasis;
+    int has_autosep;
+    int has_mirroring;
+    int has_white_level_follow;
+    int has_subwindow;
+    SANE_Range adf_width_range;
+    SANE_Range adf_height_range;
+    SANE_Range x_range;
+    SANE_Range y_range;
+
+    SANE_Range x_res_range;      /* ranges are only valid if step != 0 */
+    SANE_Range y_res_range;
+    SANE_Range x_grey_res_range;
+    SANE_Range y_grey_res_range;
+
+    int x_res_min;              /* minimum and maximum resolution */
+    int x_res_max;              /* are only valid if ?_res_step != 0 */
+    int x_res_step;    
+    int y_res_min;
+    int y_res_max;
+    int y_res_step;
+    int x_res_min_grey;
+    int x_res_max_grey;
+    int x_res_step_grey;    
+    int y_res_min_grey;
+    int y_res_max_grey;
+    int y_res_step_grey;
+
+    SANE_Int x_res_list[17];           /* range of x and y resolution */
+    SANE_Int y_res_list[17];           /* if scanner has only fixed resolutions */
+    SANE_Int x_res_list_grey[17];
+    SANE_Int y_res_list_grey[17];
+
+
+    /*******************************/
+
+    int i_num_frames;           /* used for duplex scanning */
+    int i_transfer_length;      /* needed when the scanner returns compressed data */
+                                /* and size of return data is unknown in advance */
+
     int use_adf;		/* requested */
     int reader_pid;		/* child is running */
     int prescan;		/* ??? */
@@ -158,16 +245,32 @@ struct m3096g
     int compress_type;
     int compress_arg;
     int vendor_id_code;
+    int gamma;
     int outline;
     int emphasis;
     int auto_sep;
     int mirroring;
     int var_rate_dyn_thresh;
+    int dtc_threshold_curve;
+    int gradiation;
+    int smoothing_mode;
+    int filtering;
+    int background;
+    int matrix2x2;
+    int matrix3x3;
+    int matrix4x4;
+    int matrix5x5;
+    int noise_removal;
     int white_level_follow;
     int subwindow_list;
     int paper_size;
+    int paper_orientation;
+    int paper_selection;
     int paper_width_X;
     int paper_length_Y;
+    int dtc_selection;
+    int duplex;
+
 /***** end of "set window" terms *****/
 
     /* buffer used for scsi-transfer */
@@ -188,6 +291,12 @@ struct m3096g
 
 static void
   m3096g_do_inquiry (struct m3096g *s);
+
+static SANE_Status
+m3096g_get_vital_product_data(struct m3096g *s);
+
+static SANE_Status
+m3096g_get_hardware_status(struct m3096g *s);
 
 /* ------------------------------------------------------------------------- */
 
@@ -243,13 +352,27 @@ static SANE_Status
 static int
   request_sense_parse (u_char * sensed_data);
 
+static void 
+  m3096g_set_standard_size(SANE_Handle handle);
+
+#if 0
+static void 
+  m3096g_set_binary_res(SANE_Handle handle);
+
+static int 
+  m3096g_valid_x_resolution(SANE_Handle handle);
+
+static int 
+  m3096g_valid_y_resolution(SANE_Handle handle);
+#endif
+
 static int
   m3096g_identify_scanner (struct m3096g *s);
 
 static void
   m3096g_do_inquiry (struct m3096g *s);
 
-static int
+static SANE_Status
   do_scsi_cmd (int fd, char *cmd, int cmd_len, char *out, size_t out_len);
 
 static void
@@ -292,7 +415,7 @@ static int
   m3096g_start_scan (struct m3096g *s);
 
 static int
-  reader_process (struct m3096g *scanner, int pipe_fd);
+  reader_process (struct m3096g *scanner, int pipe_fd, int i_window_id);
 
 static SANE_Status
   do_eof (struct m3096g *scanner);
@@ -309,13 +432,17 @@ static int
 static void
   m3096g_trim_rowbufsize (struct m3096g *s);
 
-static int
-  m3096g_read_data_block (struct m3096g *s, unsigned int length);
+static SANE_Status
+m3096g_read_pixel_size (struct m3096g *s, unsigned int length, int i_window_id);
+
+static SANE_Status
+  m3096g_read_data_block (struct m3096g *s, unsigned int length, int i_window_id);
 
 static SANE_Status
   attach_one (const char *name);
 
 static int
   m3096g_valid_number (int value, const int *acceptable);
+
 
 #endif /* M3096G_H */

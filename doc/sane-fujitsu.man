@@ -1,4 +1,4 @@
-.TH sane-fujitsu 5 "1999/12/06"
+.TH sane-fujitsu 5 "10 Oct 2001"
 .IX sane-fujitsu
 .IX sane-fcpa
 .IX sane-m3096g
@@ -62,6 +62,7 @@ Fujitsu M3096GX/M3093GX/M3093DG OEM Manual, part number C150-E015...03
 .SH AUTHOR
 Randolph Bentson
 <bentson@holmsjoen.com>,
+and Oliver Schirrmeister <oschirr@abm.de>,
 with credit to the unnamed author of the coolscan driver
 
 .SH LIMITATIONS

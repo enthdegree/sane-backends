@@ -49,6 +49,12 @@ static const char RCSid_sh[] = "$Header$";
 /* ------------------------------------------------------------------------- */
 /*
  * $Log$
+ * Revision 1.4  2001/10/10 21:50:21  hmg
+ * Update (from Oliver Schirrmeister <oschirr@abm.de>). Added: Support for ipc2/3
+ * and cmp2 options; support for duplex-scanners m3093DG, m4097DG; constraint checking
+ * for m3093; support EVPD (virtual product data); support ADF paper size spezification.
+ * Henning Meier-Geinitz <henning@meier-geinitz.de>
+ *
  * Revision 1.3  2000/08/12 15:09:17  pere
  * Merge devel (v1.0.3) into head branch.
  *
@@ -156,16 +162,17 @@ scsiblk;
 #define RELEASE_UNIT            0x17
 #define INQUIRY                 0x12
 #define REQUEST_SENSE           0x03
-#define SEND_DIAGNOSTIC			0x1d
+#define SEND_DIAGNOSTIC         0x1d
 #define TEST_UNIT_READY         0x00
 #define SET_WINDOW              0x24
 #define SET_SUBWINDOW           0xc0
 #define OBJECT_POSITION         0x31
 #define SEND                    0x2a
 #define READ                    0x28
-#define MODE_SELECT				0x15
-#define MODE_SENSE				0x1a
+#define MODE_SELECT             0x15
+#define MODE_SENSE              0x1a
 #define SCAN                    0x1b
+#define HW_STATUS               0xc2
 
 /* ==================================================================== */
 
@@ -188,6 +195,8 @@ static unsigned char inquiryC[] =
 static scsiblk inquiryB =
 {inquiryC, sizeof (inquiryC)};
 
+#define set_IN_evpd(icb, val)              setbitfield(icb + 1, 1, 0, val)
+#define set_IN_page_code(icb, val)         icb[0x02]=val
 #define set_IN_return_size(icb,val)        icb[0x04]=val
 #define set_IN_length(out,n)               out[0x04]=n-5
 
@@ -203,6 +212,58 @@ static scsiblk inquiryB =
 #define get_IN_vendor(in, buf)             strncpy(buf, in + 0x08, 0x08)
 #define get_IN_product(in, buf)            strncpy(buf, in + 0x10, 0x010)
 #define get_IN_version(in, buf)            strncpy(buf, in + 0x20, 0x04)
+
+#define get_IN_page_length(in)             getnbyte(in + 0x04, 1)
+#define get_IN_basic_x_res(in)             getnbyte(in + 0x05, 2)
+#define get_IN_basic_y_res(in)             getnbyte(in + 0x07, 2)
+#define get_IN_step_x_res(in)              getbitfield(in+0x09, 1, 0)
+#define get_IN_step_y_res(in)              getbitfield(in+0x09, 1, 4)
+#define get_IN_max_x_res(in)               getnbyte(in + 0x0a, 2)
+#define get_IN_max_y_res(in)               getnbyte(in + 0x0c, 2)
+#define get_IN_min_x_res(in)               getnbyte(in + 0x0e, 2)
+#define get_IN_min_y_res(in)               getnbyte(in + 0x10, 2)
+#define get_IN_std_res_200(in)             getbitfield(in+ 0x12, 1, 0)
+#define get_IN_std_res_180(in)             getbitfield(in+ 0x12, 1, 1)
+#define get_IN_std_res_160(in)             getbitfield(in+ 0x12, 1, 2)
+#define get_IN_std_res_150(in)             getbitfield(in+ 0x12, 1, 3)
+#define get_IN_std_res_120(in)             getbitfield(in+ 0x12, 1, 4)
+#define get_IN_std_res_100(in)             getbitfield(in+ 0x12, 1, 5)
+#define get_IN_std_res_75(in)              getbitfield(in+ 0x12, 1, 6)
+#define get_IN_std_res_60(in)              getbitfield(in+ 0x12, 1, 7)
+#define get_IN_std_res_1200(in)            getbitfield(in+ 0x13, 1, 0)
+#define get_IN_std_res_800(in)             getbitfield(in+ 0x13, 1, 1)
+#define get_IN_std_res_600(in)             getbitfield(in+ 0x13, 1, 2)
+#define get_IN_std_res_480(in)             getbitfield(in+ 0x13, 1, 3)
+#define get_IN_std_res_400(in)             getbitfield(in+ 0x13, 1, 4)
+#define get_IN_std_res_320(in)             getbitfield(in+ 0x13, 1, 5)
+#define get_IN_std_res_300(in)             getbitfield(in+ 0x13, 1, 6)
+#define get_IN_std_res_240(in)             getbitfield(in+ 0x13, 1, 7)
+#define get_IN_window_width(in)            getnbyte(in + 0x14, 4)
+#define get_IN_window_length(in)           getnbyte(in + 0x18, 4)
+#define get_IN_overflow(in)                getbitfield(in+0x1c, 1, 0)
+#define get_IN_monochrome(in)              getbitfield(in+0x1c, 1, 1)
+#define get_IN_half_tone(in)               getbitfield(in+0x1c, 1, 2)
+#define get_IN_multilevel(in)              getbitfield(in+0x1c, 1, 3)
+#define get_IN_monochrome_rgb(in)          getbitfield(in+0x1c, 1, 5)
+#define get_IN_half_tone_rgb(in)           getbitfield(in+0x1c, 1, 6)
+#define get_IN_multilevel_rgb(in)          getbitfield(in+0x1c, 1, 7)
+#define get_IN_operator_panel(in)          getbitfield(in+0x20, 1, 1)
+#define get_IN_barcode(in)                 getbitfield(in+0x20, 1, 2)
+#define get_IN_endorser(in)                getbitfield(in+0x20, 1, 3)
+#define get_IN_duplex(in)                  getbitfield(in+0x20, 1, 4)
+#define get_IN_trancepareny(in)            getbitfield(in+0x20, 1, 5)
+#define get_IN_flatbed(in)                 getbitfield(in+0x20, 1, 6)
+#define get_IN_adf(in)                     getbitfield(in+0x20, 1, 7)
+#define get_IN_has_set_subwindow(in)       (getnbyte(in+0x2a, 2)) & 1
+#define get_IN_has_imprinter(in)           (getnbyte(in+0x2a, 2)) & 2
+#define get_IN_has_hw_status(in)           (getnbyte(in+0x2a, 2)) & 4
+#define get_IN_ipc_outline_extraction(in)  getbitfield(in+0x58, 1, 4)
+#define get_IN_ipc_image_emphasis(in)      getbitfield(in+0x58, 1, 3)
+#define get_IN_ipc_auto_separation(in)     getbitfield(in+0x58, 1, 2)
+#define get_IN_ipc_mirroring(in)           getbitfield(in+0x58, 1, 1)
+#define get_IN_ipc_white_level_follow(in)  getbitfield(in+0x58, 1, 0)
+#define get_IN_ipc_subwindow(in)           getbitfield(in+0x59, 1, 7)
+#define get_IN_ipc_error_diffusion(in)     getbitfield(in+0x59, 1, 6)
 
 /* ==================================================================== */
 
@@ -310,7 +371,11 @@ static scsiblk readB =
 #define set_R_datatype_code(sb, val) sb[0x02] = val
 #define R_datatype_imagedata		0x00
 #define R_pixel_size			0x80
+#define R_paper_information             0x81
+#define set_R_window_id(sb, val) sb[0x05] = val
 #define set_R_xfer_length(sb, val)    putnbyte(sb + 0x06, val, 3)
+#define get_PSIZE_num_x(in)            getnbyte(in + 0x00, 4)
+#define get_PSIZE_num_y(in)            getnbyte(in + 0x04, 4)
 
 /* ==================================================================== */
 
@@ -341,6 +406,29 @@ static scsiblk scanB =
 
 /* ==================================================================== */
 
+static unsigned char hw_statusC[] =
+{HW_STATUS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+static scsiblk hw_statusB =
+{hw_statusC, sizeof (hw_statusC)};
+
+#define set_HW_allocation_length(sb, len) putnbyte(sb + 0x06, len, 2)
+
+#define get_HW_B5_present(in)              getbitfield(in+0x02, 1, 0)
+#define get_HW_A4_present(in)              getbitfield(in+0x02, 1, 1)
+#define get_HW_B4_present(in)              getbitfield(in+0x02, 1, 2)
+#define get_HW_A3_present(in)              getbitfield(in+0x02, 1, 3)
+#define get_HW_adf_empty(in)               getbitfield(in+0x03, 1, 7)
+#define get_HW_omr(in)                     getbitfield(in+0x03, 1, 6)
+#define get_HW_adfc_open(in)               getbitfield(in+0x03, 1, 5)
+#define get_HW_sleep(in)                   getbitfield(in+0x04, 1, 7)
+#define get_HW_manual_feed(in)             getbitfield(in+0x04, 1, 1)
+#define get_HW_start_button(in)            getbitfield(in+0x04, 1, 0)
+#define get_HW_ink_empty(in)               getbitfield(in+0x06, 1, 7)
+#define get_HW_dfeed_detected(in)          getbitfield(in+0x06, 1, 0)
+#define get_HW_skew_angle(in)              getnbyte(in+0x08, 2)
+
+/* ==================================================================== */
+
 /* We use the same structure for both SET WINDOW and GET WINDOW. */
 static unsigned char window_parameter_data_blockC[] =
 {
@@ -355,6 +443,7 @@ static scsiblk window_parameter_data_blockB =
 
 #define STD_WDB_LEN 0x28	/* wdb_len if nothing is set by inquiry */
 #define used_WDB_size 0x40
+/*#define used_WDB_size 0x28*/
 #define max_WDB_size 0xff
 
 /* ==================================================================== */
@@ -363,7 +452,8 @@ static unsigned char window_descriptor_blockC[] =
 {
   0x00,				/* 0x00 *//* Window Identifier */
 #define set_WD_wid(sb, val) sb[0] = val
-#define WD_wid_all 0x00		/* Only one supported */
+#define WD_wid_front 0x00	
+#define WD_wid_back  0x80
   0x00,				/* 0x01 *//* reserved, AUTO */
 #define set_WD_auto(sb, val) setbitfield(sb + 0x01, 1, 0, val)
 #define get_WD_auto(sb)	getbitfield(sb + 0x01, 1, 0)
@@ -424,6 +514,10 @@ static unsigned char window_descriptor_blockC[] =
   0x00,				/* 0x20 *//* compression type */
 #define set_WD_compress_type(sb, val)  sb[0x20] = val
 #define get_WD_compress_type(sb) sb[0x20]
+#define WD_cmp_NONE 0
+#define WD_cmp_MH   1
+#define WD_cmp_MR   2
+#define WD_cmp_MMR  3
   0x00,				/* 0x21 *//* compression argument */
 #define set_WD_compress_arg(sb, val)  sb[0x21] = val
 #define get_WD_compress_arg(sb) sb[0x21]
@@ -434,33 +528,99 @@ static unsigned char window_descriptor_blockC[] =
 #define set_WD_vendor_id_code(sb, val)  sb[0x28] = val
 #define get_WD_vendor_id_code(sb) sb[0x28]
   0x00,				/* 0x29 *//* reserved */
+#define set_WD_gamma(sb, val)  sb[0x29] = val
+#define get_WD_gamma(sb) sb[0x29]
+#define WD_gamma_DEFAULT 0
+#define WD_gamma_NORMAL  1
+#define WD_gamma_SOFT    2 
+#define WD_gamma_SHARP   3
+
   0x00,				/* 0x2a *//* Outline */
-#define set_WD_outline(sb, val)  sb[0x2a] = val
-#define get_WD_outline(sb) sb[0x2a]
+#define set_WD_outline(sb, val)  setbitfield(sb + 0x2a, 1, 7, val)
+#define get_WD_outline(sb) getbitfield(sb + 0x2a, 1, 7)
   0x00,				/* 0x2b *//* Emphasis */
 #define set_WD_emphasis(sb, val)  sb[0x2b] = val
 #define get_WD_emphasis(sb) sb[0x2b]
+#define WD_emphasis_NONE    0x00
+#define WD_emphasis_LOW     0x01
+#define WD_emphasis_MEDIUM  0x30 
+#define WD_emphasis_HIGH    0x50
+#define WD_emphasis_SMOOTH  0x80
+
   0x00,				/* 0x2c *//* Automatic separation */
-#define set_WD_auto_sep(sb, val)  sb[0x2c] = val
-#define get_WD_auto_sep(sb) sb[0x2c]
+#define set_WD_auto_sep(sb, val)  setbitfield(sb + 0x2c, 1, 7, val)
+#define get_WD_auto_sep(sb) getbitfield(sb + 0x2c, 1, 7)
   0x00,				/* 0x2d *//* Mirroring */
-#define set_WD_mirroring(sb, val)  sb[0x2d] = val
-#define get_WD_mirroring(sb) sb[0x2d]
+#define set_WD_mirroring(sb, val)  setbitfield(sb + 0x2d, 1, 7, val)
+#define get_WD_mirroring(sb) getbitfield(sb + 0x2d, 1, 7)
   0x00,				/* 0x2e *//* Variance rate for dynamic threshold */
 #define set_WD_var_rate_dyn_thresh(sb, val)  sb[0x2e] = val
 #define get_WD_var_rate_dyn_thresh(sb) sb[0x2e]
-  0x00,				/* 0x2f *//* reserved */
-  0x00,				/* 0x30 *//* reserved */
+  0x00,				/* 0x2f *//* DTC mode */
+#define set_WD_dtc_threshold_curve(sb, val) setbitfield(sb + 0x2f, 7, 0, val)
+#define get_WD_dtc_threshold_curve(sb) getbitfield(sb + 0x2f, 7, 0)
+#define set_WD_gradiation(sb, val) setbitfield(sb + 0x2f, 3, 3, val)
+#define get_WD_gradiation(sb) getbitfield(sb + 0x2f, 3, 3)
+#define WD_gradiation_ORDINARY 0
+#define WD_gradiation_HIGH     2
+#define set_WD_smoothing_mode(sb, val) setbitfield(sb + 0x2f, 3, 5, val)
+#define get_WD_smoothing_mode(sb) getbitfield(sb + 0x2f, 3, 5)
+#define WD_smoothing_OCR    0
+#define WD_smoothing_IMAGE  1
+#define set_WD_filtering(sb, val) setbitfield(sb + 0x2f, 1, 7, val)
+#define get_WD_filtering(sb) getbitfield(sb + 0x2f, 1, 7)
+#define WD_filtering_BALLPOINT 0
+#define WD_filtering_ORDINARY  1
+
+  0x00,				/* 0x30 *//* DTC mode 2 */
+#define set_WD_background(sb, val) setbitfield(sb + 0x30, 1, 0, val)
+#define get_WD_background(sb) getbitfield(sb + 0x30, 1, 0)
+#define WD_background_WHITE  0
+#define WD_background_BLACK  1
+#define set_WD_matrix2x2(sb, val) setbitfield(sb + 0x30, 1, 1, val)
+#define get_WD_matrix2x2(sb) getbitfield(sb + 0x30, 1, 1)
+#define set_WD_matrix3x3(sb, val) setbitfield(sb + 0x30, 1, 2, val)
+#define get_WD_matrix3x3(sb) getbitfield(sb + 0x30, 1, 2)
+#define set_WD_matrix4x4(sb, val) setbitfield(sb + 0x30, 1, 3, val)
+#define get_WD_matrix4x4(sb) getbitfield(sb + 0x30, 1, 3)
+#define set_WD_matrix5x5(sb, val) setbitfield(sb + 0x30, 1, 4, val)
+#define get_WD_matrix5x5(sb) getbitfield(sb + 0x30, 1, 4)
+#define set_WD_noise_removal(sb, val) setbitfield(sb + 0x30, 1, 5, !val)
+#define get_WD_noise_removal(sb) !getbitfield(sb + 0x30, 1, 5)
+
   0x00,				/* 0x31 *//* reserved */
   0x00,				/* 0x32 *//* white level follower */
 #define set_WD_white_level_follow(sb, val)  sb[0x32] = val
 #define get_WD_white_level_follow(sb) sb[0x32]
+#define WD_white_level_follow_DEFAULT  0x00
+#define WD_white_level_follow_ENABLED  0x80
+#define WD_white_level_follow_DISABLED 0xC0
+
   0x00, 0x00,			/* 0x33 *//* subwindow list */
 #define set_WD_subwindow_list(sb, val) putnbyte(sb + 0x33, val, 2)
 #define get_WD_subwindow_list(sb)	getnbyte(sb + 0x33, 2)
   0x00,				/* 0x35 *//* paper size */
-#define set_WD_paper_size(sb, val)  sb[0x35] = val
-#define get_WD_paper_size(sb) sb[0x35]
+#define set_WD_paper_size(sb, val)  setbitfield(sb + 0x35, 0x0f, 0, val)
+#define get_WD_paper_size(sb)       getbitfield(sb + 0x35, 0x0f, 0)
+#define WD_paper_UNDEFINED 0
+#define WD_paper_A3        3
+#define WD_paper_A4        4
+#define WD_paper_A5        5
+#define WD_paper_DOUBLE    6
+#define WD_paper_LETTER    7
+#define WD_paper_B4       12
+#define WD_paper_B5       13
+#define WD_paper_LEGAL    15
+#define WD_paper_CUSTOM   14
+#define set_WD_paper_orientation(sb, val) setbitfield(sb + 0x35, 1, 4, val)
+#define get_WD_paper_orientation(sb)      getbitfield(sb + 0x35, 1, 4)
+#define WD_paper_PORTRAIT  0
+#define WD_paper_LANDSCAPE 1
+#define set_WD_paper_selection(sb, val) setbitfield(sb + 0x35, 3, 6, val)
+#define get_WD_paper_selection(sb)      getbitfield(sb + 0x35, 3, 6)
+#define WD_paper_SEL_UNDEFINED     0
+#define WD_paper_SEL_STANDARD      2
+#define WD_paper_SEL_NON_STANDARD  3
   0x00, 0x00,
   0x00, 0x00,			/* 0x36 *//* paper width X */
 #define set_WD_paper_width_X(sb, val) putnbyte(sb + 0x36, val, 4)
@@ -469,7 +629,13 @@ static unsigned char window_descriptor_blockC[] =
   0x00, 0x00,			/* 0x3a *//* paper length Y */
 #define set_WD_paper_length_Y(sb, val) putnbyte(sb+0x3a, val, 4)
 #define get_WD_paper_length_Y(sb)	getnbyte(sb+0x3a, 4)
-  0x00,				/* 0x3e *//* reserved */
+  0x00,				/* 0x3e *//* DTC selection */
+#define set_WD_dtc_selection(sb, val) setbitfield(sb + 0x3e, 3, 6, val)
+#define get_WD_dtc_selection(sb) getbitfield(sb + 0x3e, 3, 6)
+#define WD_dtc_selection_DEFAULT    0
+#define WD_dtc_selection_DYNAMIC    1
+#define WD_dtc_selection_SIMPLIFIED 2
+
   0x00,				/* 0x3f *//* reserved */
 		/* 0x40 (last) */
 };
@@ -531,6 +697,7 @@ static scsiblk window_descriptor_blockB =
 #define get_DI_poweron_errors(b,to) memcpy(to, (b + 0xa8), 8)
 
 /* ==================================================================== */
+
 
 static scsiblk *lint_catcher[] =
 {&reserve_unitB,

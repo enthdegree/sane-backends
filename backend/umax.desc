@@ -28,10 +28,12 @@
 :url "http://support.umax.co.uk/"
 :model "parallel scanners"        ; name models for above-specified mfg.
 :interface "Parport"
-:comment "Not supported - will propably never be supported by this backend"
+:comment "Not supported - see backend umax_pp"
 :model "USB scanners"
 :interface "USB"
 :comment "Not supported - will propably never be supported by this backend"
+:interface "Firewire"
+:comment "not tested"
 :model "Vista S6"
 :interface "SCSI"
 :comment "OK"
@@ -167,6 +169,9 @@
 :model "Opal Ultra"
 :interface "SCSI"
 :comment "Not tested"
+:model "Linoscan 1400"
+:interface "SCSI"
+:comment "OK, SCSI-ID=HDM LS4H1S"
 
 :mfg "Vobis/Highscreen"
 :url "http://www.vobis.de/"
@@ -174,16 +179,21 @@
 :interface "SCSI"
 :comment "OK, SCSI-ID=LinoHell Office2"
 
+:mfg "Epson"                      ; another manufacturer...
+:url "http://www.epson.com/"
+:model "Perfection 600"
+:interface "SCSI"
+:comment "OK, SCSI-ID=EPSON Perfection600"
+
 :mfg "Escom"                      ; another manufacturer...
 :model "Image Scanner 256"
 :interface "SCSI"
 :comment "OK, SCSI-ID=UMAX UG 80"
 
-:mfg "Nikon"                      ; another manufacturer...
-:url "http://www.nikon.com/"
-:model "AX-210"
+:mfg "Escort"                      ; another manufacturer...
+:model "Galleria 600"
 :interface "SCSI"
-:comment "OK"
+:comment "untested, SCSI-ID=ESCORT Galleria 600S"
 
 :mfg "Genius"                      ; another manufacturer...
 :url "http://www.genius.kye.de/"
@@ -191,16 +201,11 @@
 :interface "SCSI"
 :comment "OK, SCSI-ID=KYE ColorPage-HR5"
 
-:mfg "Epson"                      ; another manufacturer...
-:url "http://www.epson.com/"
-:model "Perfection 600"
+:mfg "Nikon"                      ; another manufacturer...
+:url "http://www.nikon.com/"
+:model "AX-210"
 :interface "SCSI"
-:comment "OK, SCSI-ID=EPSON Perfection600"
-
-:mfg "Escort"                      ; another manufacturer...
-:model "Galleria 600"
-:interface "SCSI"
-:comment "untested, SCSI-ID=ESCORT Galleria 600S"
+:comment "OK"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

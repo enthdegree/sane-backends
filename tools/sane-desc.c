@@ -21,7 +21,7 @@
    MA 02111-1307, USA.
 */
 
-#define SANE_DESC_VERSION "2.2"
+#define SANE_DESC_VERSION "2.3"
 
 #define MAN_PAGE_LINK "http://www.sane-project.org/man/%s.5.html"
 #define COLOR_MINIMAL      "\"#B00000\""
@@ -1611,15 +1611,31 @@ ascii_print_backends (void)
 
 /* Generate a name used for <a name=...> HTML tags */
 static char *
-html_generate_anchor_name (char *manufacturer_name)
+html_generate_anchor_name (device_type dev_type, char *manufacturer_name)
 {
-  char *name = strdup (manufacturer_name);
+  char *name = malloc (strlen (manufacturer_name) + 1 + 2);
   char *pointer = name;
+  char type_char;
 
   if (!name)
     {
-      DBG_DBG ("html_generate_anchor_name: couldn't strdup\n");
+      DBG_ERR ("html_generate_anchor_name: couldn't malloc\n");
+      return 0;
     }
+
+  switch (dev_type)
+    {
+    case type_scanner: type_char ='S'; break;
+    case type_stillcam: type_char ='C'; break;
+    case type_vidcam: type_char ='V'; break;
+    case type_meta: type_char ='M'; break;
+    case type_api: type_char ='A'; break;
+    default: type_char ='Z'; break;
+    }
+
+  snprintf (name, strlen (manufacturer_name) + 1 + 2, "%c-%s", 
+	    type_char, manufacturer_name);
+
   while (*pointer)
     {
       if (!isalnum (*pointer))
@@ -1658,7 +1674,7 @@ html_backends_split_table (device_type dev_type)
 	    printf (", \n");
 	  first = SANE_FALSE;
 	  printf ("<a href=\"#%s\">%s</a>",
-		  html_generate_anchor_name (be->name), be->name);
+		  html_generate_anchor_name (be->type->type, be->name), be->name);
 	}
       be = be->next;
     }
@@ -1681,7 +1697,7 @@ html_backends_split_table (device_type dev_type)
 	      model_entry *model;
 
 	      printf ("<h3><a name=\"%s\">Backend: %s\n",
-		      html_generate_anchor_name (be->name), be->name);
+		      html_generate_anchor_name (be->type->type, be->name), be->name);
 
 	      if (be->version || be->new)
 		{
@@ -1872,7 +1888,7 @@ html_mfgs_table (device_type dev_type)
       if (mfg_record != first_mfg_record)
 	printf (", \n");
       printf ("<a href=\"#%s\">%s</a>",
-	      html_generate_anchor_name (mfg_record->name), mfg_record->name);
+	      html_generate_anchor_name (type_unknown, mfg_record->name), mfg_record->name);
       mfg_record = mfg_record->next;
     }
   mfg_record = first_mfg_record;
@@ -1884,7 +1900,7 @@ html_mfgs_table (device_type dev_type)
       model_record_entry *model_record = mfg_record->model_record;
 
       printf ("<h3><a name=\"%s\">Manufacturer: %s</a></h3>\n",
-	      html_generate_anchor_name (mfg_record->name), mfg_record->name);
+	      html_generate_anchor_name (type_unknown, mfg_record->name), mfg_record->name);
       printf ("<p>\n");
       if (mfg_record->url && mfg_record->url->name)
 	{

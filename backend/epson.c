@@ -16,8 +16,8 @@
 
 */
 
-#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.34 - 2003-02-15"
-#define SANE_EPSON_BUILD	234
+#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.36 - 2003-03-26"
+#define SANE_EPSON_BUILD	236
 
 /*
    This file is part of the SANE package.
@@ -59,6 +59,8 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
+   2003-03-26	Fixed two warnings reported by der Mouse
+   2003-02-16	Code cleanup, use more descriptive variable names.
    2003-02-15   Move sanei_usb_init() to sane_init(). Thanks to Ron Cemer
    				for providing the patch.
    2003-02-15	Fix problem with "usb <vendor> <product> syntax in config file
@@ -808,11 +810,11 @@ static SANE_Status request_focus_position(SANE_Handle handle,
 		u_char * position);
 static SANE_Bool request_push_button_status(SANE_Handle handle, 
 		SANE_Bool * theButtonStatus);
-static void sane_activate( Epson_Scanner * s, SANE_Int option, 
+static void activateOption(Epson_Scanner * s, SANE_Int option, 
 		SANE_Bool * change);
-static void sane_deactivate( Epson_Scanner * s, SANE_Int option, 
+static void deactivateOption(Epson_Scanner * s, SANE_Int option, 
 		SANE_Bool * change);
-static void sane_optstate( SANE_Bool state, Epson_Scanner * s, 
+static void setOptionState(Epson_Scanner * s, SANE_Bool state,
 		SANE_Int option, SANE_Bool * change);
 static void close_scanner( Epson_Scanner * s);
 static SANE_Status open_scanner( Epson_Scanner * s);
@@ -832,12 +834,12 @@ send(Epson_Scanner * s, void *buf, size_t buf_size, SANE_Status * status)
 
 #if 1
 	{
-		size_t k;
+		unsigned int k;
 		const u_char * s = buf;
 
 		for (k = 0; k < buf_size; k++) 
 		{
-			DBG( 125, "buf[%u] %02x %c\n", k, s[ k], 
+			DBG( 125, "buf[%d] %02x %c\n", k, s[ k], 
 					isprint( s[ k]) ? s[ k] : '.');
 		}
 	}
@@ -905,11 +907,11 @@ receive(Epson_Scanner * s, void *buf, ssize_t buf_size, SANE_Status * status)
 #if 1
 	if (n > 0)
 	{
-		ssize_t k;
+		int k;
 		const u_char * s = buf;
 
 		for( k = 0; k < n; k++) {
-			DBG( 127, "buf[%u] %02x %c\n", k, s[ k], isprint( s[ k]) ? s[ k] : '.');
+			DBG( 127, "buf[%d] %02x %c\n", k, s[ k], isprint( s[ k]) ? s[ k] : '.');
 	 	}
 	}
 #else
@@ -1539,7 +1541,15 @@ command(Epson_Scanner * s, u_char * cmd, size_t cmd_size, SANE_Status * status)
 	send( s, cmd, cmd_size, status);
 
 	if( SANE_STATUS_GOOD != *status)
-		return ( EpsonHdr) 0;
+	{
+		/* this is necessary for the GT-8000. I don't know why, but
+		   it seems to fix the problem. It should not have any
+		   ill effects on other scanners.  */
+		 *status = SANE_STATUS_GOOD;
+		 send( s, cmd, cmd_size, status);
+		 if( SANE_STATUS_GOOD != *status)
+			 return ( EpsonHdr) 0;
+	}
 
 	buf = ( u_char *) head;
 
@@ -2916,7 +2926,7 @@ static SANE_Status init_options ( Epson_Scanner * s) {
 
 		s->val[ OPT_FILM_TYPE].w	= 0;
 
-		sane_deactivate(s, OPT_FILM_TYPE, &dummy);	/* default is inactive */
+		deactivateOption(s, OPT_FILM_TYPE, &dummy);	/* default is inactive */
 
 		/* focus position */
 		s->opt[ OPT_FOCUS].name = SANE_EPSON_FOCUS_NAME;
@@ -2941,7 +2951,7 @@ static SANE_Status init_options ( Epson_Scanner * s) {
 #if 0
 		if( ( ! s->hw->TPU) && ( ! s->hw->cmd->set_bay) ) {		/* Hack: Using set_bay to indicate. */
 			SANE_Bool dummy;
-			sane_deactivate(s, OPT_FILM_TYPE, &dummy);
+			deactivateOption(s, OPT_FILM_TYPE, &dummy);
 			
 		}
 #endif
@@ -3197,7 +3207,7 @@ search_string_list (const SANE_String_Const * list, SANE_String value)
     then the value of the changed flag is not modified.
 */
 
-static void sane_activate( Epson_Scanner * s, SANE_Int option,
+static void activateOption( Epson_Scanner * s, SANE_Int option,
 	SANE_Bool * change )
 
 {
@@ -3207,7 +3217,7 @@ static void sane_activate( Epson_Scanner * s, SANE_Int option,
 	}
 }
 
-static void sane_deactivate( Epson_Scanner * s, SANE_Int option,
+static void deactivateOption( Epson_Scanner * s, SANE_Int option,
 	SANE_Bool * change )
 {
 	if (SANE_OPTION_IS_ACTIVE(s->opt[ option ].cap)) {
@@ -3216,19 +3226,21 @@ static void sane_deactivate( Epson_Scanner * s, SANE_Int option,
 	}
 }
 
-static void sane_optstate( SANE_Bool state, Epson_Scanner * s,
+static void setOptionState(Epson_Scanner * s,  SANE_Bool state,
 	SANE_Int option, SANE_Bool * change )
 
 {
-	if (state) {
-		sane_activate( s, option, change );
-	} else {
-		sane_deactivate( s, option, change );
+	if (state) 
+	{
+		activateOption(s, option, change);
+	} else 
+	{
+		deactivateOption(s, option, change);
 	}
 }
 
 /**
-    End of sane_activate, sane_deactivate, sane_optstate.
+    End of activateOption, deactivateOption, setOptionState.
 **/
 
 static SANE_Status getvalue( SANE_Handle handle,
@@ -3341,8 +3353,8 @@ static void handle_depth_halftone( Epson_Scanner * s, SANE_Bool * reload)
 			thresh = SANE_TRUE;
 		}
 	}
-	sane_optstate( aas, s, OPT_AAS, reload );
-	sane_optstate( thresh, s, OPT_THRESHOLD, reload );
+	setOptionState(s, aas, OPT_AAS, reload);
+	setOptionState(s, thresh, OPT_THRESHOLD, reload);
 }
 
 /**
@@ -3386,7 +3398,7 @@ static void handle_source( Epson_Scanner * s, SANE_Int optindex,
 		s->hw->y_range = &s->hw->adf_y_range;
 		s->hw->use_extension = SANE_TRUE;
 		/* disable film type option */
-		sane_deactivate(s, OPT_FILM_TYPE, &dummy);
+		deactivateOption(s, OPT_FILM_TYPE, &dummy);
 		s->val[ OPT_FOCUS].w = 0;
 	} else if( ! strcmp( TPU_STR, value) ) {
 		s->hw->x_range = &s->hw->tpu_x_range;
@@ -3395,11 +3407,11 @@ static void handle_source( Epson_Scanner * s, SANE_Int optindex,
 		/* enable film type option only if the scanner supports it */
 		if (s->hw->cmd->set_film_type != 0)
 		{
-			sane_activate(s, OPT_FILM_TYPE, &dummy);
+			activateOption(s, OPT_FILM_TYPE, &dummy);
 		}
 		else
 		{
-			sane_deactivate(s, OPT_FILM_TYPE, &dummy);
+			deactivateOption(s, OPT_FILM_TYPE, &dummy);
 		}
 		/* enable focus position if the scanner supports it */
 		if (s->hw->cmd->set_focus_position != 0)
@@ -3412,7 +3424,7 @@ static void handle_source( Epson_Scanner * s, SANE_Int optindex,
 		s->hw->y_range = &s->hw->fbf_y_range;
 		s->hw->use_extension = SANE_FALSE;
 		/* disable film type option */
-		sane_deactivate(s, OPT_FILM_TYPE, &dummy);
+		deactivateOption(s, OPT_FILM_TYPE, &dummy);
 		s->val[ OPT_FOCUS].w = 0;
 	}
 
@@ -3436,18 +3448,18 @@ static void handle_source( Epson_Scanner * s, SANE_Int optindex,
 	if( s->val[ OPT_BR_Y].w > s->hw->y_range->max || force_max)
 		s->val[ OPT_BR_Y].w = s->hw->y_range->max;
 
-	sane_optstate( s->hw->ADF && s->hw->use_extension,
-		s, OPT_AUTO_EJECT, &dummy );
-	sane_optstate( s->hw->ADF && s->hw->use_extension,
-		s, OPT_EJECT, &dummy );
+	setOptionState(s, s->hw->ADF && s->hw->use_extension,
+		OPT_AUTO_EJECT, &dummy);
+	setOptionState(s, s->hw->ADF && s->hw->use_extension,
+		 OPT_EJECT, &dummy);
 
 #if 0
 BAY is part  of the filmscan device.  We are not sure
 if we are really going to support this device in this
 code.  Is there an online manual for it?
 
-	sane_optstate( s->hw->ADF && s->hw->use_extension,
-		s, OPT_BAY, &reload );
+	setOptionState(s, s->hw->ADF && s->hw->use_extension,
+		 OPT_BAY, &reload);
 #endif
 }
 
@@ -3538,31 +3550,30 @@ static SANE_Status setvalue( SANE_Handle handle,
 
 	case OPT_MODE:
 	{
-		SANE_Bool ic = mode_params[ optindex ].color; /* IsColor? */
-		SANE_Bool iccu = 	/* Is color correction a user type? */
-			color_userdefined[ s->val[ OPT_COLOR_CORRECTION ].w ];
+		SANE_Bool isColor = mode_params[ optindex ].color; 
+		SANE_Bool userDefined = color_userdefined[ s->val[ OPT_COLOR_CORRECTION ].w ];
 
 		sval->w = optindex;
 
 		if (s->hw->cmd->set_halftoning != 0) {
-			sane_optstate( mode_params[ optindex ].depth == 1,
-				s, OPT_HALFTONE, &reload );
+			setOptionState(s, mode_params[ optindex ].depth == 1,
+				OPT_HALFTONE, &reload);
 		}
 
-		sane_optstate( !ic, s, OPT_DROPOUT, &reload );
+		setOptionState(s, !isColor,  OPT_DROPOUT, &reload);
 		if (s->hw->cmd->set_color_correction) {
-		    sane_optstate( ic, s, OPT_COLOR_CORRECTION, &reload );
+		    setOptionState(s, isColor, OPT_COLOR_CORRECTION, &reload);
 		}
 		if (s->hw->cmd->set_color_correction_coefficients) {
-			sane_optstate( ic && iccu, s, OPT_CCT_1, &reload );
-			sane_optstate( ic && iccu, s, OPT_CCT_2, &reload );
-			sane_optstate( ic && iccu, s, OPT_CCT_3, &reload );
-			sane_optstate( ic && iccu, s, OPT_CCT_4, &reload );
-			sane_optstate( ic && iccu, s, OPT_CCT_5, &reload );
-			sane_optstate( ic && iccu, s, OPT_CCT_6, &reload );
-			sane_optstate( ic && iccu, s, OPT_CCT_7, &reload );
-			sane_optstate( ic && iccu, s, OPT_CCT_8, &reload );
-			sane_optstate( ic && iccu, s, OPT_CCT_9, &reload );
+			setOptionState(s, isColor && userDefined, OPT_CCT_1, &reload);
+			setOptionState(s, isColor && userDefined, OPT_CCT_2, &reload);
+			setOptionState(s, isColor && userDefined, OPT_CCT_3, &reload);
+			setOptionState(s, isColor && userDefined, OPT_CCT_4, &reload);
+			setOptionState(s, isColor && userDefined, OPT_CCT_5, &reload);
+			setOptionState(s, isColor && userDefined, OPT_CCT_6, &reload);
+			setOptionState(s, isColor && userDefined, OPT_CCT_7, &reload);
+			setOptionState(s, isColor && userDefined, OPT_CCT_8, &reload);
+			setOptionState(s, isColor && userDefined, OPT_CCT_9, &reload);
 		}
 
 		/* if binary, then disable the bit depth selection */
@@ -3603,15 +3614,15 @@ static SANE_Status setvalue( SANE_Handle handle,
 		SANE_Bool f = color_userdefined[ optindex ];
 
 		sval->w = optindex;
-		sane_optstate( f, s, OPT_CCT_1, &reload );
-		sane_optstate( f, s, OPT_CCT_2, &reload );
-		sane_optstate( f, s, OPT_CCT_3, &reload );
-		sane_optstate( f, s, OPT_CCT_4, &reload );
-		sane_optstate( f, s, OPT_CCT_5, &reload );
-		sane_optstate( f, s, OPT_CCT_6, &reload );
-		sane_optstate( f, s, OPT_CCT_7, &reload );
-		sane_optstate( f, s, OPT_CCT_8, &reload );
-		sane_optstate( f, s, OPT_CCT_9, &reload );
+		setOptionState(s, f, OPT_CCT_1, &reload );
+		setOptionState(s, f, OPT_CCT_2, &reload );
+		setOptionState(s, f, OPT_CCT_3, &reload );
+		setOptionState(s, f, OPT_CCT_4, &reload );
+		setOptionState(s, f, OPT_CCT_5, &reload );
+		setOptionState(s, f, OPT_CCT_6, &reload );
+		setOptionState(s, f, OPT_CCT_7, &reload );
+		setOptionState(s, f, OPT_CCT_8, &reload );
+		setOptionState(s, f, OPT_CCT_9, &reload );
 
 		break;
 	}
@@ -3621,11 +3632,11 @@ static SANE_Status setvalue( SANE_Handle handle,
 		SANE_Bool f = gamma_userdefined[ optindex ];
 
 		sval->w = optindex;
-/*		sane_optstate( f, s, OPT_GAMMA_VECTOR, &reload ); */
-		sane_optstate( f, s, OPT_GAMMA_VECTOR_R, &reload );
-		sane_optstate( f, s, OPT_GAMMA_VECTOR_G, &reload );
-		sane_optstate( f, s, OPT_GAMMA_VECTOR_B, &reload );
-		sane_optstate( !f, s, OPT_BRIGHTNESS, &reload ); /* Note... */
+/*		setOptionState(s, f, OPT_GAMMA_VECTOR, &reload ); */
+		setOptionState(s, f, OPT_GAMMA_VECTOR_R, &reload );
+		setOptionState(s, f, OPT_GAMMA_VECTOR_G, &reload );
+		setOptionState(s, f, OPT_GAMMA_VECTOR_B, &reload );
+		setOptionState(s, !f, OPT_BRIGHTNESS, &reload ); /* Note... */
 
 		break;
 	}

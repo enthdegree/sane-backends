@@ -1,3 +1,8 @@
+2003-03-26  Karl Heinz Kremer <khk@khk.net>
+
+	* backend/epson.c: Added workaround for GT-8000 scanners,
+	  fixed two warnings reported by der Mouse.
+
 2003-03-24  Rene Rebe <rene.rebe@gmx.net>
 
 	* backend/Makefile.in backend/avision.c backend/avision.conf

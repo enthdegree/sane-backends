@@ -1,3 +1,8 @@
+2003-10-01  Eddy De Greef <eddy_de_greef at tiscali dot be>
+
+	* doc/sane-mustek_pp.man, doc/descriptions/mustek_pp.desc:
+	  Added Mustek 96 CP to list of supported printers.
+          
 2003-09-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Fixed links to messages in

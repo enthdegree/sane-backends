@@ -53,6 +53,11 @@
 :status :unsupported
 :comment "Please use SANE version 1.0.9 or earlier for this CCD scanner. Since 1.0.10 it's no longer supported."
 
+:model "96 CP"
+:interface "Parport (EPP)"
+:status :good
+:comment "300x600 dpi CIS scanner"
+
 :model "ScanExpress 600 CP"
 :interface "Parport (EPP)"
 :status :good

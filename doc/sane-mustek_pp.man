@@ -62,7 +62,7 @@ Model:                 ASIC ID:   works:
 .br
 ---------------------  ---------  -------
 .br
-Mustek 600 CP          1015        yes (*)
+Mustek 600 CP & 96 CP  1015        yes (*)
 .br
 Mustek 1200 CP         1015        yes
 .br
@@ -168,7 +168,7 @@ port your scanner is connected to, have a look at your /etc/conf.modules,
 .B <driver>
 is the driver to use for this device. Currently available drivers are:
 .IP
-.BR cis600 "   : for 600 CP & OEM versions"
+.BR cis600 "   : for 600 CP, 96 CP & OEM versions"
 .br
 .BR cis1200 "  : for 1200 CP & OEM versions"
 .br  

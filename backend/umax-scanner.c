@@ -117,7 +117,7 @@ static char *scanner_str[] =
   "LinoHell",	"Office2 ",
   "LinoHell",	"SAPHIR ", /* same as UMAX PS-2400X */
   "LinoHell",	"SAPHIR2 ",
-/*  "LinoHell",	"SAPHIR3 ", */
+  "LinoHell",	"SAPHIR3 ", /* 1000x2000 dpi */
 /*  "LinoHell",	"SAPHIR4 ", */
   "Linotype",	"SAPHIR4 ",
 /*  "LinoHell",	"OPAL ", */

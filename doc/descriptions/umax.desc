@@ -271,6 +271,11 @@
 :status :stable
 :comment "OK, SCSI-ID=LinoHell SAPHIR2"
 
+:model "Saphir3"
+:interface "SCSI"
+:status :stable
+:comment "OK, SCSI-ID=LinoHell SAPHIR3"
+
 :model "Saphir Ultra"
 :interface "SCSI"
 :status :untested

@@ -1,4 +1,4 @@
-TODO (2002-05-05)
+TODO (2002-05-09)
 
 ******** todo ********
 
@@ -78,8 +78,8 @@ backends
 
   * Check the return value of wait() and waitpid(). This is important, if
     the status value is checked for e.g. WIFEXITED after the call of wait()
-    or waitpid(). Both functions may fail if the frontend already did a wait for
-    the children.
+    or waitpid(). Both functions may fail if the frontend already did a wait
+    for the children. 
 
 doc
 ---
@@ -112,7 +112,9 @@ frontends
 
   * scanimage: Add i18n (NLS) support?
 
-  * scanimage: Fix pnm 16 bit output (partly patch available).
+  * scanimage: Check range of width and height. scanimage just uses the ranges
+    from br-x and br-y but this is wrong for tl-x and tl-y != 0 and for
+    SANE_UNIT_PIXEL.
 
  [the remaining entries have been moved to the sane-frontends package]
 
@@ -178,6 +180,7 @@ misc
 
 
 ******** done ********
+* scanimage: Fix pnm 16 bit output (partly patch available).
 * Make all symbols that don't start with sane_ or sanei_ static (see
   make libcheck):
 * avision: line 1393: word isn't freed sometimes (maybe if  cp == line?)

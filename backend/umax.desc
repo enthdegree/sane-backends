@@ -82,7 +82,7 @@
 :comment "OK"
 :model "Mirage II"
 :interface "SCSI"
-:comment "Not tested"
+:comment "OK"
 :model "Mirage IIse"
 :interface "SCSI"
 :comment "Not tested"
@@ -196,6 +196,11 @@
 :model "Perfection 600"
 :interface "SCSI"
 :comment "OK, SCSI-ID=EPSON Perfection600"
+
+:mfg "Escort"                      ; another manufacturer...
+:model "Galleria 600"
+:interface "SCSI"
+:comment "untested, SCSI-ID=ESCORT Galleria 600S"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

@@ -1,3 +1,11 @@
+2004-04-08  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan.c backend/snapscan-sources.c 
+	  backend/snapscan.h backend/Makefile.in:
+	  Use sanei_thread functions instead of forking
+	* backend/snapscan-options.c: Change title and description
+	  for OPT_HIGHQUALITY to use existing i18n translations
+
 2004-04-06  Gerard Klaver   <gerard at gkall dot hobby dot nl>
 
 	* backend/test.c changed some option group headers to advanced option
@@ -33,7 +41,8 @@
 
 2004-04-02  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
-	* snapscan.c snapscan-options.c snapscan-scsi.c:
+	* backend/snapscan.c backend/snapscan-options.c 
+	  backend/snapscan-scsi.c:
 	  Various bugfixes for gamma correction (Thanks to Robert Tsien)
 	* po/sane-backends.de.po: Fix translation for "gamma table"
 

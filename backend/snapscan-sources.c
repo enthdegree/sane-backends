@@ -175,7 +175,8 @@ static SANE_Status SCSISource_get (Source *pself,
     DBG (DL_CALL_TRACE, "%s\n", me);
     while (remaining > 0
            && pself->remaining(pself) > 0
-           && status == SANE_STATUS_GOOD)
+           && status == SANE_STATUS_GOOD
+           && !cancelRead)
     {
         SANE_Int ndata = ps->scsi_buf_max - ps->scsi_buf_pos;
         DBG (DL_DATA_TRACE, "%s: ndata %d; remaining %d\n", me, ndata, remaining);
@@ -547,7 +548,8 @@ static SANE_Status Expander_get (Source *pself, SANE_Byte *pbuf, SANE_Int *plen)
 
     while (remaining > 0
            &&
-           pself->remaining(pself) > 0)
+           pself->remaining(pself) > 0 &&
+           !cancelRead)
     {
         if (ps->ch_pos == ps->ch_ndata)
         {
@@ -711,7 +713,7 @@ static SANE_Status RGBRouter_get (Source *pself,
     SANE_Int org_len = *plen;
     char *me = "RGBRouter_get";
 
-    while (remaining > 0  &&  pself->remaining(pself) > 0)
+    while (remaining > 0  &&  pself->remaining(pself) > 0 && !cancelRead)
     {
         DBG(DL_DATA_TRACE, "%s: remaining=%d, pself->remaining=%d, round_req=%d, cb_size=%d\n",
             me, remaining, pself->remaining(pself), ps->round_req, ps->cb_size);
@@ -736,7 +738,7 @@ static SANE_Status RGBRouter_get (Source *pself,
                 }
                 ps->round_read += run_req;
             }
-            while (ps->round_req > ps->round_read);
+            while ((ps->round_req > ps->round_read) && !cancelRead);
 
             /* route RGB */
             ps->cb_start = (ps->cb_start + ps->round_read)%ps->cb_size;
@@ -965,6 +967,9 @@ static SANE_Status create_source_chain (SnapScan_Scanner *pss,
 
 /*
  * $Log$
+ * Revision 1.7  2004/04/08 21:53:10  oliver-guest
+ * Use sanei_thread in snapscan backend
+ *
  * Revision 1.6  2001/12/17 22:51:49  oliverschwartz
  * Update to snapscan-20011212 (snapscan 1.4.3)
  *

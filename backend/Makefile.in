@@ -390,6 +390,7 @@ libsane-snapscan.la: ../sanei/sanei_config2.lo
 libsane-snapscan.la: ../sanei/sanei_constrain_value.lo
 libsane-snapscan.la: ../sanei/sanei_scsi.lo
 libsane-snapscan.la: ../sanei/sanei_usb.lo
+libsane-snapscan.la: ../sanei/sanei_thread.lo
 libsane-sp15c.la: ../sanei/sanei_config2.lo
 libsane-sp15c.la: ../sanei/sanei_constrain_value.lo
 libsane-sp15c.la: ../sanei/sanei_scsi.lo

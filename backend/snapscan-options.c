@@ -307,8 +307,8 @@ static void init_options (SnapScan_Scanner * ps)
     ps->preview = DEFAULT_PREVIEW;
 
     po[OPT_HIGHQUALITY].name = "high-quality";
-    po[OPT_HIGHQUALITY].title = SANE_I18N("High quality");
-    po[OPT_HIGHQUALITY].desc = SANE_I18N("Scan in (slower) high quality mode");
+    po[OPT_HIGHQUALITY].title = SANE_I18N("Quality scan");
+    po[OPT_HIGHQUALITY].desc = SANE_I18N("Highest quality but lower speed");
     po[OPT_HIGHQUALITY].type = SANE_TYPE_BOOL;
     po[OPT_HIGHQUALITY].unit = SANE_UNIT_NONE;
     po[OPT_HIGHQUALITY].size = sizeof (SANE_Word);
@@ -1488,6 +1488,9 @@ SANE_Status sane_control_option (SANE_Handle h,
 
 /*
  * $Log$
+ * Revision 1.16  2004/04/08 21:53:10  oliver-guest
+ * Use sanei_thread in snapscan backend
+ *
  * Revision 1.15  2004/04/02 20:19:23  oliver-guest
  * Various bugfixes for gamma corretion (thanks to Robert Tsien)
  *

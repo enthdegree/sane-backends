@@ -71,6 +71,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/sanei_scsi.h"
 #include "../include/sane/sanei_usb.h"
+#include "../include/sane/sanei_thread.h"
 
 #ifndef PATH_MAX
 #define PATH_MAX        1024
@@ -191,6 +192,7 @@ static inline int calibration_line_length(SnapScan_Scanner *pss)
 static SnapScan_Device *first_device = NULL;        /* device list head */
 static SANE_Int n_devices = 0;                           /* the device count */
 static SANE_Char *default_firmware_filename;
+static SANE_Bool cancelRead;
 
 /* list returned from sane_get_devices() */
 static const SANE_Device **get_devices_list = NULL;
@@ -669,6 +671,7 @@ SANE_Status sane_init (SANE_Int *version_code,
     n_devices = 0;
 
     sanei_usb_init();
+    sanei_thread_init();
 
     /* build a device structure */
     fp = sanei_config_open (SNAPSCAN_CONFIG_FILE);
@@ -1073,14 +1076,6 @@ SANE_Status sane_get_parameters (SANE_Handle h,
 
 /* scan data reader routine for child process */
 
-static void handler (int signo)
-{
-    signal (signo, handler);
-    DBG (DL_MINOR_INFO, "child process: received signal %ld\n", (long) signo);
-    close (STDOUT_FILENO);
-    _exit(0);
-}
-
 #define READER_WRITE_SIZE 4096
 
 static void reader (SnapScan_Scanner *pss)
@@ -1096,28 +1091,27 @@ static void reader (SnapScan_Scanner *pss)
     if (wbuf == NULL)
     {
         DBG (DL_MAJOR_ERROR, "%s: failed to allocate write buffer.\n", me);
-        _exit(1);
+        return;
     }
 
-    while (pss->psrc->remaining(pss->psrc) > 0)
+    while ((pss->preadersrc->remaining(pss->preadersrc) > 0) && !cancelRead)
     {
         SANE_Int ndata = READER_WRITE_SIZE;
-        status = pss->psrc->get(pss->psrc, wbuf, &ndata);
+        status = pss->preadersrc->get(pss->preadersrc, wbuf, &ndata);
         if (status != SANE_STATUS_GOOD)
         {
             DBG (DL_MAJOR_ERROR,
                  "%s: %s on read.\n",
                  me,
                  sane_strstatus (status));
-            close (STDOUT_FILENO);
-            _exit (1);
+            return;
         }
         {
             SANE_Byte *buf = wbuf;
-            DBG (DL_DATA_TRACE, "READ %d BYTES\n", ndata);
+            DBG (DL_DATA_TRACE, "READ %d BYTES (%d)\n", ndata, cancelRead);
             while (ndata > 0)
             {
-                int written = write (STDOUT_FILENO, buf, ndata);
+                int written = write (pss->rpipe[1], buf, ndata);
                 DBG (DL_DATA_TRACE, "WROTE %d BYTES\n", written);
                 if (written == -1)
                 {
@@ -1136,6 +1130,75 @@ static void reader (SnapScan_Scanner *pss)
     }
 }
 
+/** signal handler to kill the child process
+ */
+static RETSIGTYPE usb_reader_process_sigterm_handler( int signo )
+{
+    DBG( DL_INFO, "(SIG) reader_process: terminated by signal %d\n", signo );
+    cancelRead = SANE_TRUE;
+}
+
+static RETSIGTYPE sigalarm_handler( int signo )
+{
+    signo=signo;
+    DBG( DL_INFO, "ALARM!!!\n" );
+}
+
+/** executed as a child process
+ * read the data from the driver and send them to the parent process
+ */
+static int reader_process( void *args )
+{
+    SANE_Status      status;
+    struct SIGACTION act;
+    sigset_t         ignore_set;
+    SnapScan_Scanner *pss = (SnapScan_Scanner *) args;
+
+    if( sanei_thread_is_forked()) {
+        DBG( DL_MINOR_INFO, "reader_process started (forked)\n" );
+        /* child process - close read side, make stdout the write side of the pipe */
+        close( pss->rpipe[0] );            
+        pss->rpipe[0] = -1;
+    } else {
+        DBG( DL_MINOR_INFO, "reader_process started (as thread)\n" );
+    }
+
+    sigfillset ( &ignore_set );
+    sigdelset  ( &ignore_set, SIGUSR1 );
+    sigprocmask( SIG_SETMASK, &ignore_set, 0 );
+
+    memset   ( &act, 0, sizeof (act));
+    sigaction( SIGTERM, &act, 0 );
+
+    cancelRead = SANE_FALSE;
+
+    /* install the signal handler */
+    sigemptyset(&(act.sa_mask));
+    act.sa_flags = 0;
+
+    act.sa_handler = usb_reader_process_sigterm_handler;
+    sigaction( SIGUSR1, &act, 0 );
+
+    status = create_base_source (pss, SCSI_SRC, &(pss->preadersrc));
+    if (status == SANE_STATUS_GOOD)
+    {
+        reader (pss);
+    }
+    else
+    {
+        DBG (DL_MAJOR_ERROR,
+                "Reader process: failed to create SCSISource.\n");
+    }
+    pss->preadersrc->done(pss->preadersrc);
+    free(pss->preadersrc);
+    pss->preadersrc = 0;
+    close( pss->rpipe[1] );            
+    pss->rpipe[1] = -1;        
+    DBG( DL_MINOR_INFO, "reader_process: finished reading data\n" );
+    return SANE_STATUS_GOOD;
+}
+
+
 static SANE_Status start_reader (SnapScan_Scanner *pss)
 {
     SANE_Status status = SANE_STATUS_GOOD;
@@ -1143,71 +1206,38 @@ static SANE_Status start_reader (SnapScan_Scanner *pss)
 
     DBG (DL_CALL_TRACE, "%s\n", me);
 
-    /* We can implement nonblocking mode by forking a separate reader
-       process. It doesn't seem that we can poll the scsi descriptor. */
-
     pss->nonblocking = SANE_FALSE;
     pss->rpipe[0] = pss->rpipe[1] = -1;
     pss->child = -1;
 
-    if (pss->pdev->model == PRISA610
-        ||
-        pss->pdev->model == ACER300F
-        ||
-        pss->pdev->model == SNAPSCAN310
-        ||
-        pss->pdev->model == PRISA310
-        ||
-        pss->pdev->model == SNAPSCANE20
-        ||
-        pss->pdev->model == SNAPSCANE50
-        ||
-        pss->pdev->model == SNAPSCAN1236)
-    {
-        status = SANE_STATUS_UNSUPPORTED;
-    }
-    else if (pipe (pss->rpipe) != -1)
+    if (pipe (pss->rpipe) != -1)
     {
         pss->orig_rpipe_flags = fcntl (pss->rpipe[0], F_GETFL, 0);
-        switch (pss->child = fork ())
+        pss->child =  sanei_thread_begin(reader_process, (void *) pss);
+        
+        cancelRead = SANE_FALSE;
+        
+        if (pss->child < 0)
         {
-        case -1:
             /* we'll have to read in blocking mode */
             DBG (DL_MAJOR_ERROR,
-                 "%s: can't fork; must read in blocking mode.\n",
+                 "%s: Error while calling sanei_thread_begin; must read in blocking mode.\n",
                  me);
             close (pss->rpipe[0]);
             close (pss->rpipe[1]);
             status = SANE_STATUS_UNSUPPORTED;
-            break;
-        case 0:
-            /* child; close read side, make stdout the write side of the pipe */
-            signal (SIGTERM, handler);
-            dup2 (pss->rpipe[1], STDOUT_FILENO);
-            close (pss->rpipe[0]);
-            status = create_base_source (pss, SCSI_SRC, &(pss->psrc));
-            if (status == SANE_STATUS_GOOD)
-            {
-                reader (pss);
-            }
-            else
-            {
-                DBG (DL_MAJOR_ERROR,
-                     "Reader process: failed to create SCSISource.\n");
-            }
-            /* regular exit may cause a SIGPIPE */
-            DBG (DL_MINOR_INFO, "Reader process terminating.\n");
-            _exit (0);
-            break;                /* not reached */
-        default:
+        }
+        if (sanei_thread_is_forked())
+        {
             /* parent; close write side */
             close (pss->rpipe[1]);
-            pss->nonblocking = SANE_TRUE;
-            break;
+            pss->rpipe[1] = -1;
         }
+        pss->nonblocking = SANE_TRUE;
     }
     return status;
 }
+
 static SANE_Status send_gamma_table (SnapScan_Scanner *pss, u_char dtc, u_char dtcq)
 {
     static char me[] = "send_gamma_table";
@@ -1623,8 +1653,8 @@ SANE_Status sane_read (SANE_Handle h,
     {
         if (pss->child > 0)
         {
-            int status;
-            wait (&status);        /* ensure no zombies */
+            sanei_thread_waitpid (pss->child, 0);        /* ensure no zombies */
+            pss->child = -1;
         }
         release_unit (pss);
         close_scanner (pss);
@@ -1668,6 +1698,8 @@ void sane_cancel (SANE_Handle h)
 {
     char *me = "sane_snapscan_cancel";
     SnapScan_Scanner *pss = (SnapScan_Scanner *) h;
+    struct SIGACTION act;
+    pid_t            res;
 
     DBG (DL_CALL_TRACE, "%s\n", me);
     switch (pss->state)
@@ -1681,21 +1713,39 @@ void sane_cancel (SANE_Handle h)
         /* signal the reader, if any */
         if (pss->child > 0)
         {
-            int result;
-            if ((result = kill (pss->child, SIGTERM)) < 0)
+            DBG( DL_INFO, ">>>>>>>> killing reader_process <<<<<<<<\n" );
+
+            cancelRead = SANE_TRUE;
+
+            sigemptyset(&(act.sa_mask));
+            act.sa_flags = 0;
+
+            act.sa_handler = sigalarm_handler;
+            sigaction( SIGALRM, &act, 0 );
+
+            if (sanei_thread_is_forked())
             {
-                DBG (DL_VERBOSE,
-                    "%s: error: kill returns %ld\n",
-                    me,
-                    (long) result);
+                /* use SIGUSR1 to set cancelRead in child process */
+                sanei_thread_sendsig( pss->child, SIGUSR1 );
             }
-            else
-            {
-                int status;
-                DBG (DL_VERBOSE, "%s: waiting on child reader.\n", me);
-                wait (&status);
-                DBG (DL_VERBOSE, "%s: child has terminated.\n", me);
+
+            /* give'em 10 seconds 'til done...*/
+            alarm(10);
+            res = sanei_thread_waitpid( pss->child, 0 );
+            alarm(0);
+
+            if( res != pss->child ) {
+                DBG( DL_MAJOR_ERROR,"sanei_thread_waitpid() failed !\n");
+
+                /* do it the hard way...*/
+#ifdef USE_PTHREAD
+                sanei_thread_kill( pss->child );
+#else
+                sanei_thread_sendsig( pss->child, SIGKILL );
+#endif
             }
+            pss->child = -1;
+            DBG( DL_INFO,"reader_process killed\n");
         }
         release_unit (pss);
         close_scanner (pss);
@@ -1768,8 +1818,8 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
- * Revision 1.38  2004/04/02 20:19:24  oliver-guest
- * Various bugfixes for gamma corretion (thanks to Robert Tsien)
+ * Revision 1.39  2004/04/08 21:53:10  oliver-guest
+ * Use sanei_thread in snapscan backend
  *
  * Revision 1.37  2003/11/27 23:11:32  oliver-guest
  * Send gamma table twice for Epson Perfection 1670

@@ -340,6 +340,7 @@ struct snapscan_scanner
     SANE_Byte chroma_offset[3];   /* chroma offsets */
     SANE_Int chroma;
     Source *psrc;                 /* data source */
+    Source *preadersrc;                 /* data source for reader thread */
     SANE_Option_Descriptor options[NUM_OPTS];  /* the option descriptors */
     Option_Value val[NUM_OPTS];  /* the options themselves... */
     SANE_Int res;                /* resolution */
@@ -378,6 +379,9 @@ struct snapscan_scanner
 
 /*
  * $Log$
+ * Revision 1.28  2004/04/08 21:53:10  oliver-guest
+ * Use sanei_thread in snapscan backend
+ *
  * Revision 1.27  2004/03/22 00:00:40  oliver-guest
  * Added detection for Epson 660 by USB ID since new models use new ID strings
  *

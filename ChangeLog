@@ -1,3 +1,9 @@
+2004-03-01  Frank Zago  <fzago at austin dot rr dot com>
+
+	* doc/descriptions-external/genesys.desc: created list of scanners
+	  that should be supported by the genesys backend.
+	* doc/leo/leo.txt: doc update.
+
 2004-03-01  Karl Heinz Kremer <khk@khk.net>
 
 	* doc/sane-epson.man: Corrected default function level from B5 to B3

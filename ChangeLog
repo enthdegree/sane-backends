@@ -1,3 +1,14 @@
+2003-10-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* acinclude.m4 aclocal.m4 configure configure
+	  include/sane/config.h.in sanei/sanei_thread.c: More verbose help
+	  messages for --enable-fork-process. Print message about pthread
+	  support after all the tests. If libpthread isn't available, try if
+	  libc supports pthreead_*. Use macro USE_PTHREAD to check if
+	  threads are used in the code.
+	* backend/Makefile.in: Added sanei_pthread.lo to list of object
+	  files needed for preloading.
+
 2003-10-07  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* aclocal.m4 acinlcude.m4 configure configure.in: modified checks for

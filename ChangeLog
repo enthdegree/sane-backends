@@ -2,6 +2,8 @@
 
 	* configure configure.in: Don't disable IPv& if poll is not
 	  found.
+	* frontend/saned.c: Use u_int_* instead of uint_*. That fixes
+	  compilation for MacOS X (hopefully).
 
 2003-05-25  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -146,15 +146,15 @@ poll (struct pollfd *ufds, unsigned int nfds, int timeout)
 
 #ifdef ENABLE_IPV6
 # define SANE_IN6_IS_ADDR_LOOPBACK(a) \
-        (((const uint32_t *) (a))[0] == 0                                   \
-         && ((const uint32_t *) (a))[1] == 0                                \
-         && ((const uint32_t *) (a))[2] == 0                                \
-         && ((const uint32_t *) (a))[3] == htonl (1)) 
+        (((const u_int32_t *) (a))[0] == 0                                   \
+         && ((const u_int32_t *) (a))[1] == 0                                \
+         && ((const u_int32_t *) (a))[2] == 0                                \
+         && ((const u_int32_t *) (a))[3] == htonl (1)) 
 
 #define SANE_IN6_IS_ADDR_V4MAPPED(a) \
-((((const uint32_t *) (a))[0] == 0)                                 \
- && (((const uint32_t *) (a))[1] == 0)                              \
- && (((const uint32_t *) (a))[2] == htonl (0xffff))) 
+((((const u_int32_t *) (a))[0] == 0)                                 \
+ && (((const u_int32_t *) (a))[1] == 0)                              \
+ && (((const u_int32_t *) (a))[2] == htonl (0xffff))) 
 #endif /* ENABLE_IPV6 */
 
 #ifndef MAXHOSTNAMELEN

@@ -67,15 +67,15 @@ Backends:
  umax:          Oliver Rauch (*) and Michael K. Johnson
  umax_pp:       Stéphane Voltz (*)
  umax1220u:     Marcio L. Teixeira (*)
- v4l:           Juergen G. Schimmer
+ v4l:           Juergen G. Schimmer, and Henning Meier-Geinitz (*)
 
 (*) Current active maintainer(s).
 
 Frontends:
 
  jscanimage:    Jeff Freedman and Guido Muesch
- saned:		    Andreas Beck and David Mosberger
- scanimage:	    Andreas Beck, David Mosberger, Gordon Matzigkeit
+ saned:         Andreas Beck and David Mosberger
+ scanimage:     Andreas Beck, David Mosberger, Gordon Matzigkeit
  tstbackend:    Frank Zago (*)
 
 (*) Current active maintainer(s).

@@ -1,4 +1,4 @@
-TODO (2002-07-27)
+TODO (2002-07-30)
 
 ******** todo ********
 
@@ -175,9 +175,6 @@ platform-specific
 
   * Add support for Mac OS X in sanei_scsi.c.
 
-  * Don't use "echo -e" in shell scripts. That's not supported by the original 
-    sh (-->sane-config.in).
-
   * Find out why USB on *BSD only works once (at least for Mustek scanners
     and OHCI).
 
@@ -195,13 +192,14 @@ misc
   * Can we link external libraries only to backends that need them?
     See http://fz.eryx.net/sane/#configure.
 
-  * Fix inclusion of saneopts.??.po in po/. Currently, the "" header is
-    defined twice.
-
   * Fix japi to run on current jdks. Swing is now included, and there is
     a segfault in Sane.c.
 
 ******** done ********
+* Fix inclusion of saneopts.??.po in po/. Currently, the "" header is
+  defined twice.
+* Don't use "echo -e" in shell scripts. That's not supported by the original 
+  sh (-->sane-config.in).
 * scanimage: Add i18n (NLS) support? We don't do it (too much trouble with
   options and UTF8 support).
 * Desc files: Don't use :interface if you don't have a hardware device

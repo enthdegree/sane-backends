@@ -652,7 +652,7 @@ do_scan (Wire * w, int h, int data_fd)
 	  i = reader;
 	  reader += 4;
 	  if (reader >= (int) sizeof (buf))
-	    reader = 0;
+	    reader -= sizeof(buf);
 
 	  assert (bytes_in_buf == 0);
 	  nbytes = sizeof (buf) - 4;

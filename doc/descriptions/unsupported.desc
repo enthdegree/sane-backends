@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-12-16"		; version of backend
+:version "2003-12-23"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -100,9 +100,9 @@
 
 :model "640p"
 :status :unsupported
-;:url ""
+:url "/unsupported/benq-640p.html"
 :interface "Parport"
-:comment "Unsupported. No details about the protocol known."
+:comment "Unsupported. Someone is working to ge this scanner supported. See link for details."
 
 ;********************************************************************************************
 
@@ -111,9 +111,9 @@
 
 :model "Sm@rtScan Office"
 :status :unsupported
-;:url ""
+:url "/unsupported/trust-combiscan-19200.html"
 :interface "Parport USB"
-:comment "Unsupported. Vendor/product 0x5cb, 0x1483. According to linux-usb.org that's the same ids as Trust Trust CombiScan 19200. The vendor is PowerVision Technologies, Inc. Maybe also a PV8630 as in the UMAX 1200U?"
+:comment "Unsupported. See link for details."
 
 ;********************************************************************************************
 
@@ -1105,9 +1105,9 @@
 
 :model "CombiScan 19200"
 :status :unsupported
-;:url ""
+:url "/unsupported/trust-combiscan-19200.html"
 :interface "Parport USB"
-:comment "Unsupported. Vendor/product 0x5cb, 0x1483 according to linux-usb.org. Same ids as Boeder Sm@rtScan Office. The vendor is PowerVision Technologies, Inc. Maybe also a PV8630 as in the UMAX 1200U?"
+:comment "Unsupported. See link for details."
 
 ;********************************************************************************************
 

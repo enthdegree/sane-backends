@@ -1,3 +1,9 @@
+2003-12-23  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added more information about
+	  the Benq Scanprisa 640P, Boder SmartSCan Office, and Trust
+	  CombiScan 19200.
+
 2003-12-22  Gerard Klaver <gerard at gkall dot hobby dot nl>
 
 	* tools/check-usb-chip.c: Added patch for test ICM532B.

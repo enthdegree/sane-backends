@@ -1,20 +1,20 @@
-.TH sane-scsi 5 "03 Jan 2002"
+.TH sane-scsi 5 "11 Jun 2002"
 .IX sane-usb
 .SH NAME
 sane-usb - USB configuration tips for SANE
 .SH DESCRIPTION
-This manual page contains tips and tricks on how to access scanners
+This manual page contains information on how to access scanners
 with a USB interface.
 .SH GENERAL INFO
-Sane-backends currently use three methods of communicating with USB scanners: 
+SANE-backends currently use three methods of communicating with USB scanners: 
 .TP 2
 - 
-Using libusb (a library for usb access). This is used by the sm3600 backend
+Using libusb (a library for USB access). This is used by the sm3600 backend
 currently.
 .TP
 -
-Access through sanei_usb, the SANE USB interface. Used by the mustek_usb,
-plustek, snapscan, umax1220u, and coolscan2 backends.
+Access through sanei_usb, the SANE USB interface. Used by the canon630u,
+coolscan2, mustek_usb, plustek, snapscan, umax, and umax1220u  backends.
 .TP
 - 
 Direct access to the USB device files to access kernel scanner drivers. Used
@@ -72,7 +72,7 @@ would have the effect that all USB devices in the system with a vendor id of
 backend. The same config line in decimal format looks like this:
 .PP
 .RS
-usb 0x055f 0x0006
+usb 1375 6
 .RE
 .PP
 When using a USB scanner, ensure that the access permissions for the

@@ -778,6 +778,8 @@ typedef struct Microtek2_Device {
 #define MD_OFFSET_2                  256  /* Image data starts 2 bytes */
                                           /* from the beginning of a */
                                           /* scanline */
+#define MD_X6_SHORT_TRANSFER	     512  /* X6 USB crashes if you read
+					     too much */
 
     u_int32_t n_control_bytes;            /* for read_control_bits; the */
                                           /* number is model dependent */

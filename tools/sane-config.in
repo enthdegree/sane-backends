@@ -92,9 +92,12 @@ if test $# -gt 0; then
       echo "-lsane ${LIBS}"
       ;;
     --cflags)
-      unique_cflags="-I${includedir}"
+      unique_cflags=
+      if test "${includedir}" != "/usr/include"; then
+        unique_cflags="${unique_cflags} -I${includedir}"
+      fi
       for i in $cflags; do
-        if test $i != $includedir; then
+        if test "${i}" != "-I${includedir}"; then
           unique_cflags="${unique_cflags} $i"
         fi
       done

@@ -1,4 +1,4 @@
-TODO (2000-09-24)
+TODO (2000-09-30)
 
 ******** todo ********
 
@@ -16,6 +16,9 @@ backends
       Bindon <martica@martica.org>.
     - Linux Handscanner Ioctl Interface scanner by Harald
       Bauer <hbauer@online.de>
+    - sane-pie (Pacific Image Electronics series of ScanAce SCSI
+      scanners, and the Devcom 9636/9630 BlackWidow)
+      http://www.munton.demon.co.uk/sane
 
   * use DBG(...) instead of fprintf(stderr, ...)
      - microtek
@@ -71,12 +74,22 @@ frontends
 
   * xscanimage/xcam: support depths > 8 bits/channel
 
+  * scanimage: add information about backend:devicename in the man
+    page and scanimage --help.
+
+  * scanimage: check if devicename starts with a / and print a warning
+    message
+ 
+  * scanimage: if no devices are detected print a message
+
   * xscanimage: provide both scale and textentry for ranges (make new widget)
 
   * xcam: provide access to option doc strings
 
   * xscanimage: scanning of images whose heights is not known a priori is not
-    supported yet; this is going to be important for handheld scanners
+    supported yet; this is going to be important for handheld scanners. At
+    least the frontend shouldn't crash or produce invalid pnm files when
+    it gets a length of -1.
 
   * xcam: add dithering and support for SANE depths other than 8 bit (test
     with Mustek backend, for example)
@@ -91,7 +104,12 @@ frontends
   * For 3-pass scanners, xscanimage doesn't update the scan progress
     bar properly between scans; the scanner seems to be faster than 
     xscanimage can write to disk (problem: seek for every byte). This
-    doesn't happen as GIMP-plugin.
+    doesn't happen as GIMP-plugin. It doesn't happen in blocking mode
+    either.
+
+  * Add a check in the frontends if the backend delivers more data than
+    it announced by sane_get_parameters to avoid segfaults with bad 
+    backends?
 
 sanei
 -----

@@ -56,6 +56,7 @@ SECT7   = sane.7
 MANPAGES = $(SECT1) $(SECT5) $(SECT7)
 READMES = README AUTHORS COPYING ChangeLog LICENSE NEWS PROBLEMS \
           PROJECTS README README.aix README.beos README.darwin README.freebsd \
+	  README.djpeg \
           README.hp-ux README.linux README.netbsd README.openbsd README.os2 \
           README.solaris README.unixware2 README.unixware7 TODO
 DOCS    = backend-writing.txt sane.ps sane.dvi

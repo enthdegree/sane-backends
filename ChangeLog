@@ -1,3 +1,9 @@
+2003-07-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* Makefile.in backend/Makefile.in doc/Makefile.in
+	  frontend/Makefile.in include/Makefile.in sanei/Makefile.in: Minor
+	  cleanup from the jpeg move. Reverted frontend link order.
+
 2003-07-26  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan-usb.c backend/snapscan-usb.h:

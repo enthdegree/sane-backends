@@ -303,13 +303,13 @@
 :comment "Probably unsupported. See link for details."
 
 :model "GT-7400U"
-:url "/unsupported/epson-perfection1270.html"
+:url "/unsupported/epson-perfection-1270.html"
 :interface "USB"
 :status :unsupported
 :comment "Probably unsupported. See link for details."
 
 :model "Perfection 1270"
-:url "/unsupported/epson-perfection1270.html"
+:url "/unsupported/epson-perfection-1270.html"
 :interface "USB"
 :status :unsupported
 :comment "Probably unsupported. See link for details."

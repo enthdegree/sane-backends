@@ -1,3 +1,7 @@
+2001-11-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* configure configure.in: Enabled warnings by default.
+
 ******  Release of sane-backends 1.0.6. End of code freeze ******
 
 2001-11-04  Henning Meier-Geinitz <henning@meier-geinitz.de>

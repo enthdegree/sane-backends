@@ -1,3 +1,8 @@
+2003-02-11  Peter Fales <peter@fales-lorenz.net>
+
+	* doc/descriptions/dc210.desc, doc/descriptions/dc240.desc:
+	  Fix broken URLs to the Kodak web pages
+
 2003-03-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/gt68xx.c backend/gt68xx_gt6801.c backend/gt68xx_gt6816.c

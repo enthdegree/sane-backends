@@ -1,3 +1,7 @@
+2001-08-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* PROJECTS TODO: Added UMAX Astra 1220U backend.
+
 2001-08-01  Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* doc/sane-umax_pp.man backend/umax_pp_low.c:

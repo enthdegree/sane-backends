@@ -55,6 +55,7 @@ Backends:
  tamarack:      Roger Wolff
  umax:          Oliver Rauch (*) and Michael K. Johnson
  umax_pp:       Stéphane Voltz (*)
+ umax1220u:     Marcio L. Teixeira (*)
  v4l:           Juergen G. Schimmer
 
 (*) Current active maintainer(s).
@@ -112,6 +113,7 @@ Kazuhiro Sasayama <kaz@hypercore.co.jp>
 Kazuya Fukuda <kazuya@pjs.nevt.nec.co.jp>
 Kevin Charter <charter@cs.rice.edu>
 Manuel Panea <Manuel.Panea@rzg.mpg.de>
+Marcio Teixeira <marciot@users.sourceforge.net>
 Marian Eichholz <eichholz@computer.org>
 Markus Mertinat <Markus.Mertinat@Physik.Uni-Augsburg.DE>
 Matthew Marjanovic <maddog@mir.com>

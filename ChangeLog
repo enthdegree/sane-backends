@@ -1,3 +1,7 @@
+2002-05-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/saned.man: Added explicit path to tcpd example.
+
 2002-05-30  Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c backend/umax_pp.c:  fixed 1600P detection, 

@@ -1,3 +1,8 @@
+2002-12-12  Peter Fales <peter@fales.com>
+
+    * backend/gphoto2.c - Fixed breakage due to gphoto2 API changes
+      (Added context parameter to functions calls)
+	
 2002-01-12  Gerhard Jaeger <g.jaeger@earthling.net>
 
     * doc/sane-plustek.man: Update

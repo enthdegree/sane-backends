@@ -1,5 +1,8 @@
 2001-02-22  Petter Reinholdtsen <pere@td.org.uit.no>
 
+	* configure.in testsuite/*: Started on runtime test suite.
+	Currently only tests if PNM test scanning works.
+
 	* sanei/sanei_constrain_value.c sanei/sanei_load_values.c
 	sanei/sanei_save_values.c: Include "sane/sanei.h" to make sure the
 	prototype match the function.

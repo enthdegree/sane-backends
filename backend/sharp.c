@@ -2490,6 +2490,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   return (SANE_STATUS_GOOD);
 }
 
+static const SANE_Device **devlist = 0;
 void
 sane_exit (void)
 {
@@ -2505,7 +2506,7 @@ sane_exit (void)
     }
   
   if (devlist)
-    free(devlist):
+    free(devlist);
   devlist = 0;
   first_dev = 0;
 
@@ -2515,7 +2516,6 @@ sane_exit (void)
 SANE_Status
 sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 {
-  static const SANE_Device **devlist = 0;
   SHARP_Device *dev;
   int i;
   DBG (10, "<< sane_get_devices ");

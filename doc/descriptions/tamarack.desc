@@ -16,7 +16,8 @@
 :devicetype :scanner
 
 :mfg "Tamarack"                        ; name a manufacturer
-:url "http://www.tamarack.net/"
+;:url "http://www.tamarack.net/"
+; doesn't exist anymore?
 :model "Artiscan 6000C"                ; name models for above-specified mfg.
 :interface "SCSI"
 :comment "3 pass, 300 DPI"

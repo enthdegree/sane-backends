@@ -3,6 +3,8 @@
 	* doc/descriptions/unsupported.desc: Added link for HP 5550c.
 	* doc/descriptions/hp5400.desc doc/descriptions/ma1509.desc:
 	  Removed :new marker.
+	* doc/descriptions/tamarack.desc: Removed link to
+	  www.tamarack.net. Hostname is no longer in DNS.
 
 2003-06-11  Oliver Schirrmeister <oschirr@abm.de>
 

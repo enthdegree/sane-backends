@@ -113,6 +113,7 @@ static SANE_Bool dc240_opt_thumbnails;
 static SANE_Bool dc240_opt_snap;
 static SANE_Bool dc240_opt_lowres;
 static SANE_Bool dc240_opt_erase;
+static SANE_Bool dc240_opt_autoinc;
 static SANE_Bool dumpinquiry;
 
 static struct jpeg_decompress_struct cinfo;
@@ -251,6 +252,22 @@ static SANE_Option_Descriptor sod[] = {
    SANE_CONSTRAINT_NONE,
    {NULL}
    }
+  ,
+
+#define DC240_OPT_AUTOINC 9
+  {
+   "autoinc",
+   "Auto Increment",
+   "Increment image number after each scan",
+   SANE_TYPE_BOOL,
+   SANE_UNIT_NONE,
+   sizeof (SANE_Word),
+   SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED,
+   SANE_CONSTRAINT_NONE,
+   {NULL}
+   }
+  ,
+
 };
 
 static SANE_Parameters parms = {
@@ -589,13 +606,13 @@ read_data (SANE_Int fd, SANE_Byte * buf, SANE_Int sz)
 
       if (r <= 0)
 	{
-	  DBG (1, "read_data: error: read returned -1\n");
+	  DBG (1, "read_data: warning: read returned -1\n");
 	  continue;
 	}
 
       if (n < sz || read (fd, &rcsum, 1) != 1)
 	{
-	  DBG (1, "read_data: error: buffer underrun or no checksum\n");
+	  DBG (1, "read_data: warning: buffer underrun or no checksum\n");
 	  continue;
 	}
 
@@ -867,13 +884,14 @@ static const SANE_Device dev[] = {
    "still camera"},
 };
 
+static const SANE_Device *devlist[] = {
+  dev + 0, 0
+};
+
 SANE_Status
 sane_get_devices (const SANE_Device *** device_list, SANE_Bool
 		  UNUSEDARG local_only)
 {
-  static const SANE_Device *devlist[] = {
-    dev + 0, 0
-  };
 
   DBG (127, "sane_get_devices called\n");
 
@@ -1030,6 +1048,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  dc240_opt_erase = !!*(SANE_Word *) value;
 	  break;
 
+	case DC240_OPT_AUTOINC:
+	  dc240_opt_autoinc = !!*(SANE_Word *) value;
+	  break;
+
 	case DC240_OPT_DEFAULT:
 	  dc240_opt_thumbnails = 0;
 	  dc240_opt_snap = 0;
@@ -1092,6 +1114,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	case DC240_OPT_ERASE:
 	  *(SANE_Word *) value = dc240_opt_erase;
+	  break;
+
+	case DC240_OPT_AUTOINC:
+	  *(SANE_Word *) value = dc240_opt_autoinc;
 	  break;
 
 	default:
@@ -1200,6 +1226,16 @@ sane_start (SANE_Handle handle)
   if (Camera.scanning)
     return SANE_STATUS_EOF;
 
+/*
+ * This shouldn't normally happen, but we allow it as a special case
+ * when batch/autoinc are in effect.  The first illegal picture number
+ * terminates the scan
+ */
+  if (Camera.current_picture_number > Camera.pic_taken)
+    {
+      return SANE_STATUS_INVAL;
+    }
+
   if (dc240_opt_snap)
     {
       /*
@@ -1265,7 +1301,7 @@ sane_start (SANE_Handle handle)
       }
     DBG (9, "%s: pic to read is %d name is %s\n", f, n, e->name);
 
-    strcpy ((char *)&name_buf[1], e->name);
+    strcpy ((char *) &name_buf[1], e->name);
     for (i = 49; i <= 56; i++)
       {
 	name_buf[i] = 0xff;
@@ -1280,7 +1316,11 @@ sane_start (SANE_Handle handle)
     cinfo.err = jpeg_std_error (&jerr);
     jpeg_create_decompress (&cinfo);
 
-    cinfo.src = (struct jpeg_source_mgr *) (*cinfo.mem->alloc_small) ((j_common_ptr) & cinfo, JPOOL_PERMANENT, sizeof (my_source_mgr));
+    cinfo.src =
+      (struct jpeg_source_mgr *) (*cinfo.mem->
+				  alloc_small) ((j_common_ptr) & cinfo,
+						JPOOL_PERMANENT,
+						sizeof (my_source_mgr));
     src = (my_src_ptr) cinfo.src;
 
     src->buffer = (JOCTET *) (*cinfo.mem->alloc_small) ((j_common_ptr) &
@@ -1358,6 +1398,15 @@ sane_read (SANE_Handle UNUSEDARG handle, SANE_Byte * data,
 	  dir_delete ((SANE_String) & name_buf[1]);
 
 	}
+      if (dc240_opt_autoinc)
+	{
+	  if (Camera.current_picture_number <= Camera.pic_taken)
+	    {
+	      Camera.current_picture_number++;
+	    }
+	  DBG (4, "Increment count to %d (total %d)\n",
+	       Camera.current_picture_number, Camera.pic_taken);
+	}
       return SANE_STATUS_EOF;
     }
 
@@ -1384,7 +1433,9 @@ void
 sane_cancel (SANE_Handle UNUSEDARG handle)
 {
   if (Camera.scanning)
-    Camera.scanning = SANE_FALSE;	/* done with scan */
+    {
+      Camera.scanning = SANE_FALSE;	/* done with scan */
+    }
   else
     DBG (4, "sane_cancel: not scanning - nothing to do\n");
 }
@@ -1591,7 +1642,7 @@ read_dir (SANE_String dir)
     }
 
   buf[0] = 0x80;
-  strcpy ((char *)&buf[1], dir);
+  strcpy ((char *) &buf[1], dir);
   for (i = 49; i <= 56; i++)
     {
       buf[i] = 0xff;
@@ -1681,7 +1732,7 @@ read_info (SANE_String fname)
     }
 
   buf[0] = 0x80;
-  strcpy ((char *)&buf[1], fname);
+  strcpy ((char *) &buf[1], fname);
   for (i = 49; i <= 56; i++)
     {
       buf[i] = 0xff;

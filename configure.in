@@ -7,8 +7,8 @@ AC_ARG_PROGRAM
 # version code:
 V_MAJOR=1
 V_MINOR=0
-V_REV=7
-V_EXTRA=-cvs
+V_REV=8
+V_EXTRA=-pre1
 
 PACKAGE=sane-backends
 VERSION=${V_MAJOR}.${V_MINOR}.${V_REV}${V_EXTRA}

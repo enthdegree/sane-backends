@@ -745,8 +745,8 @@ test "$program_transform_name" = "" && program_transform_name="s,x,x,"
 # version code:
 V_MAJOR=1
 V_MINOR=0
-V_REV=7
-V_EXTRA=-cvs
+V_REV=8
+V_EXTRA=-pre1
 
 PACKAGE=sane-backends
 VERSION=${V_MAJOR}.${V_MINOR}.${V_REV}${V_EXTRA}
@@ -4797,7 +4797,7 @@ else
   if { (eval echo configure:4798: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
     for file in conftest.*; do
       case $file in
-      *.$ac_ext | *.c | *.o | *.obj) ;;
+      *.c | *.o | *.obj) ;;
       *) ac_cv_exeext=`echo $file | sed -e s/conftest//` ;;
       esac
     done

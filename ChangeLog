@@ -5,6 +5,7 @@
 2004-10-17  Ullrich Sigwanz <usigwanz@freesurf.ch>
 
         * backend/niash_core.c: rewrote buffer portioning
+        * backend/niash_core.c (2): updated debug info 
         * backend/niash.c: Enabling support of full DIN A4 size
 
 2004-10-16  Oliver Rauch <Oliver.Rauch@Rauch-DOmain.DE>

@@ -746,7 +746,7 @@ XferBufferGetLine (int iHandle, TDataPipe * p, unsigned char *pabLine,
 	{
 	  iLines = p->iLinesLeft;
 	  DBG (DBG_MSG, "\n");
-	  if (p->iLinesLeft < iLines)
+	  if (iLines < p->iLinesPerXferBuf)
 	    {
 	      DBG (DBG_MSG,
 		   "reading reduced number of lines: %d instead of %d\n",

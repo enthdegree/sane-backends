@@ -8,7 +8,10 @@
 	  backend/canon_pp.conf backend/canon_pp.h backend/dll.conf:
 	  Added new canon_pp backend for the CanoScan FB330P, FB630P, N340P,
 	  and N640P scanners. Patch from "Matthew Duggan" <stauff@guarana.org>.
-
+	* AUTHORS doc/Makefile.in doc/sane-canon_pp.man doc/sane.man
+	  doc/descriptions/canon_pp.desc: Updated for canon_pp backend.
+	  Patch from "Matthew Duggan" <stauff@guarana.org>.
+	
 2002-03-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions-external/test.desc: Added description of the test 

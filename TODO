@@ -1,4 +1,4 @@
-TODO (2002-06-02)
+TODO (2002-06-28)
 
 ******** todo ********
 
@@ -34,7 +34,8 @@ backends
      - The result of locking isn't checked --> does it make sense at all?
 
   * dll: 
-     - Rewrite to use libtool ltdl library
+     - Rewrite to use libtool ltdl library. Is this necessary? It seems to
+       work...
 
   * dc210, dc240, gphoto2, and jpeg stuff: move sanei_* functions to sanei/
     (if they are necessary). 
@@ -137,6 +138,9 @@ sanei
     checking for scanners. Ideas: Open/close all the /dev/sg* files in
     sanei_scsi.c, dll.c or in a new backend.
 
+  * sanei_usb.c: Can libusb be used alternatively to the kernel scanner
+    drivers?
+
 platform-specific
 -----------------
   * SCSI access doesn't seem to work on Linux/Sparc. See emails from
@@ -153,6 +157,11 @@ platform-specific
 
   * Add support for Mac OS X in sanei_scsi.c (and, if possible, sanei_usb.c).
 
+  * OS/2 needs a "# define strncasecmp(a, b, c) strnicmp(a, b, c)" in config.h.
+
+  * Don't use "echo -e" in shell scripts. That's not supported by the original 
+    sh (-->sane-config.in).
+
 misc
 ----
   * sane-config: add options "--exec-prefix=...." and "--prefix=..."
@@ -167,14 +176,15 @@ misc
   * Can we link external libraries only to backends that need them?
     See http://fz.eryx.net/sane/#configure.
 
-  * Add support to sane-find-scanner to check whole directories for device
-    files.
-
   * Fix inclusion of saneopts.??.po in po/. Currently, the "" header is
     defined twice.
 
+  * Fix japi to run on current jdks. Swing is now included, and there is
+    a segfault in Sane.c.
 
 ******** done ********
+* Add support to sane-find-scanner to check whole directories for device
+  files. E.g. /dev/scsi/scanner and /dev/scsi/processor for Solaris.
 * Add configure option to enable only the net backend for users without
   local scanners. Install only sane-dll/sane-net (or even only sane-net).
   Maybe something like  --network-client-only or --disable-local-devices.

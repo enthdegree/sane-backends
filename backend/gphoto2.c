@@ -746,18 +746,10 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
       DBG (0, "\nCamera information:\n~~~~~~~~~~~~~~~~~\n\n");
       DBG (0, "Model                            : %s\n", abilities.model);
       DBG (0, "Pictures                         : %d\n", Cam_data.pic_taken);
-#ifdef OLD
       DBG (0, "Serial port support              : %s\n",
-	   SERIAL_SUPPORTED (abilities.port) ? "yes" : "no");
-      DBG (0, "Parallel port support            : %s\n",
-	   PARALLEL_SUPPORTED (abilities.port) ? "yes" : "no");
+	   (abilities.port & GP_PORT_SERIAL) ? "yes" : "no");
       DBG (0, "USB support                      : %s\n",
-	   USB_SUPPORTED (abilities.port) ? "yes" : "no");
-      DBG (0, "IEEE1394 support                 : %s\n",
-	   IEEE1394_SUPPORTED (abilities.port) ? "yes" : "no");
-      DBG (0, "Network support                  : %s\n",
-	   NETWORK_SUPPORTED (abilities.port) ? "yes" : "no");
-#endif
+	   (abilities.port & GP_PORT_USB) ? "yes" : "no");
 
       if (abilities.speed[0] != 0)
 	{

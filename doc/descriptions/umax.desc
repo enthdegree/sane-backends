@@ -100,7 +100,7 @@
 :model "Astra 2200 (SU)"
 :interface "USB"
 :status :stable
-:comment "OK, needs USB control messages => only works on linux"
+:comment "OK, needs USB control messages"
 
 :model "Astra 2400S"
 :interface "SCSI"
@@ -125,7 +125,7 @@
 :model "Astra MX3"
 :interface "USB"
 :status :stable
-:comment "OK, needs USB control messages => only works on linux"
+:comment "OK, needs USB control messages"
 
 :model "Mirage D-16L"
 :interface "SCSI"

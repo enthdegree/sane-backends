@@ -9,6 +9,8 @@
 	  backend/m3096g-scsi.h: Removed, support is now in fujitsu-backend.
 	* backend/Makefile.in backend/dll.conf: Adjusted for new fujitsu
 	  backend.
+	* doc/sane-sp15c.c: Added new manpage for sp15c. Extracted from the old
+	  sane-fujitsu manpage.
 
 2002-04-15  Marian Eichholz <eichholz@computer.org>
 	* sm3600 imported from sm3600.sf.net

@@ -46,7 +46,7 @@
 
 /**************************************************************************/
 /* Mustek backend version                                                 */
-#define BUILD 105
+#define BUILD 106
 /**************************************************************************/
 
 #include "sane/config.h"
@@ -737,6 +737,31 @@ inquiry (Mustek_Scanner *s)
   return SANE_STATUS_GOOD;
 }
 
+static SANE_Bool
+ta_available_pro (Mustek_Scanner *s)
+{
+  SANE_Status status;
+  size_t len;
+  SANE_Byte sense_buffer [4];
+
+  len = sizeof (sense_buffer);
+
+  status = sanei_scsi_cmd (s->fd, scsi_request_sense, 
+			   sizeof (scsi_request_sense), sense_buffer, &len);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG(1, "ta_available_pro: failed: %s\n", sane_strstatus (status));
+      return status;
+    }
+  DBG(5, "ta_available_pro: sense_buffer[2] = %x\n", sense_buffer[2]);
+
+  scsi_unit_wait_ready (s);
+  if (sense_buffer[2] == 0x40)
+    return SANE_TRUE;
+
+  return SANE_FALSE;
+}
+
 static SANE_Status
 attach (SANE_String_Const devname, Mustek_Device **devp, SANE_Bool may_wait)
 {
@@ -897,6 +922,10 @@ attach (SANE_String_Const devname, Mustek_Device **devp, SANE_Bool may_wait)
 	}
       else
 	{
+	  /* Check for Trust scanners an print warning */
+	  if (strncmp ((SANE_String) result + 8, "Trust", 5) == 0)
+	    DBG(1, "attach: this is a real Trust scanner. It is not "
+		" supported by this backend.\n");
 	  DBG(1, "attach: device %s doesn't look like a Mustek scanner\n", 
 	      devname);
 	  return SANE_STATUS_INVAL;
@@ -1389,6 +1418,22 @@ attach (SANE_String_Const devname, Mustek_Device **devp, SANE_Bool may_wait)
 	{
 	  DBG(3, "attach: this is a professional series scanner\n");
 	  dev->flags |= MUSTEK_FLAG_PRO;
+	  status = dev_open (devname, &s, sense_handler);
+	  if (status == SANE_STATUS_GOOD)
+	    {
+	      if (ta_available_pro (&s))
+		{
+		  dev->flags |= MUSTEK_FLAG_TA;
+		  DBG(3, "attach: found transparency adapter (TA)\n");
+		}
+	      dev_close (&s);
+	    }
+	  else
+	    {
+	      DBG(1, "attach: couldn't open device: %s\n",
+		  sane_strstatus (status));
+	      return status;
+	    }
 	}
       if (result[63] & (1 << 2))
 	{
@@ -2358,7 +2403,7 @@ mode_select_paragon (Mustek_Scanner *s, SANE_Int color_code)
 	mode[11] = 0x02;	/* speed */
       mode[12] = 0x00;		/* shadow param not used by Mustek */
       mode[13] = 0x00;		/* highlight param not used by Mustek */
-      mode[14] = 0x9c;		/* paper- */ 
+      mode[14] = 0x5c;		/* paper- */ 
       mode[15] = 0x00;		/* length */
       mode[16] = 0x41;		/* midtone param not used by Mustek */
     }
@@ -4052,9 +4097,7 @@ init_options (Mustek_Scanner *s)
   /* brightness */
   s->opt[OPT_BRIGHTNESS].name = SANE_NAME_BRIGHTNESS;
   s->opt[OPT_BRIGHTNESS].title = SANE_TITLE_BRIGHTNESS;
-  s->opt[OPT_BRIGHTNESS].desc = SANE_DESC_BRIGHTNESS
-    "  For one-pass scanners this option is active for lineart/halftone"
-    " modes only.  For multibit modes (grey/color) use the gamma-table(s).";
+  s->opt[OPT_BRIGHTNESS].desc = SANE_DESC_BRIGHTNESS;
   s->opt[OPT_BRIGHTNESS].type = SANE_TYPE_FIXED;
   s->opt[OPT_BRIGHTNESS].unit = SANE_UNIT_PERCENT;
   s->opt[OPT_BRIGHTNESS].constraint_type = SANE_CONSTRAINT_RANGE;
@@ -4100,9 +4143,7 @@ init_options (Mustek_Scanner *s)
   /* contrast */
   s->opt[OPT_CONTRAST].name = SANE_NAME_CONTRAST;
   s->opt[OPT_CONTRAST].title = SANE_TITLE_CONTRAST;
-  s->opt[OPT_CONTRAST].desc = SANE_DESC_CONTRAST
-    "  For one-pass scanners this option is active for lineart/halftone"
-    " modes only.  For multibit modes (grey/color) use the gamma-table(s).";
+  s->opt[OPT_CONTRAST].desc = SANE_DESC_CONTRAST;
   s->opt[OPT_CONTRAST].type = SANE_TYPE_FIXED;
   s->opt[OPT_CONTRAST].unit = SANE_UNIT_PERCENT;
   s->opt[OPT_CONTRAST].constraint_type = SANE_CONSTRAINT_RANGE;

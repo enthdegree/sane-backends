@@ -40,7 +40,7 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.  */
 
-#define BUILD 5
+#define BUILD 6
 
 #include "../include/sane/config.h"
 
@@ -49,6 +49,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <errno.h>
 
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"
@@ -1179,6 +1180,21 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
     /* Suck in as much of the file as possible, since it's already in the
        correct format. */
     len = fread (data, 1, max_length, infile);
+
+  if (len == 0)
+    {
+      if (feof (infile))
+	{
+	  DBG(2, "sane_read: EOF reached\n");
+	  return SANE_STATUS_EOF;
+	}
+      else
+	{
+	  DBG (1, "sane_read: error while reading file (%s)\n", 
+	       strerror (errno));
+	  return SANE_STATUS_IO_ERROR;
+	}
+    }
   
   if (parms.depth == 8)
     {
@@ -1241,6 +1257,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
 	}
     }
   *length = len;
+  DBG (2, "sane_read: read %d bytes\n", len);
   return SANE_STATUS_GOOD;
 }
 

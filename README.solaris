@@ -1,8 +1,9 @@
 Fri Apr  3 00:45:55 1998
 
 You need a generic SCSI driver to run SANE on Solaris.  There are at
-least two such drivers: the scg driver by Joerg Schillig and the
-sg driver by Kevin Sheehan.
+least three such drivers: the scg driver by Joerg Schillig, the
+sg driver by Kevin Sheehan, and starting with Solaris 8 Sun's own
+sgen(7D) driver.
 
 NOTE: You should install the SCSI generic driver BEFORE you run
 `configure' in the sane directory---otherwise configure won't set up
@@ -75,6 +76,44 @@ device node for each SCSI target:
 	/dev/sg/0, /dev/sg/1, ...
 
 This allows to control device access on a per-device basis.
+
+*** sgen driver
+
+The solaris 8 sgen driver must be configured before it can be used.
+See /kernel/drv/sgen.conf and the manual page sgen(7D).
+
+The minimal config includes defining the correct
+"device-type-config-list" property in /kernel/drv/sgen.conf.  The
+typical SCSI device type for a scanner is either "scanner" or
+"processor". You can optionally restrict the devices sgen attaches to,
+by defining the "inquiry-config-list" property.  You also have to
+uncomment the scanner's "target/lun" entry, so that the sgen driver is
+allowed to attach to the SCSI scanner hardware.
+
+After the configuration file /kernel/drv/sgen.conf is set up for the
+scanner, run the command "devfsadm -v -i sgen" to create sgen device
+nodes for the scanner.  In case you need to rerun devfsadm to
+incorporate changes to the sgen.conf file, make sure the sgen driver
+is unloaded from the kernel before you re-run devfsadm.  The driver is
+unloaded using the "modunload -i {id}" command; the {id} of the sgen
+driver can be determined with the modinfo command.
+
+
+The device nodes use names of the following form:
+
+	/dev/scsi/device-type/cXtXdX
+
+Example:  A HP Scanjet 4c (SCSI device type: "processor") on controller
+#1, target #6, lun #0 uses the device name
+
+	/dev/scsi/processor/c1t6d0
+
+/kernel/drv/sgen.conf contains:
+
+	device-type-config-list="processor";
+	name="sgen" class="scsi" target=6 lun=0;
+
+
 
 If you have questions or problems with the Solaris support in SANE,
 send mail to:

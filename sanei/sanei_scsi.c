@@ -73,8 +73,9 @@
 #define AIX_GSC_INTERFACE	11
 #define DOMAINOS_INTERFACE	12
 #define FREEBSD_CAM_INTERFACE	13
-#define SYSVR4_INTERFACE	14 
-#define SCO_UW71_INTERFACE	15 
+#define SYSVR4_INTERFACE	14
+#define SCO_UW71_INTERFACE	15
+#define SOLARIS_USCSI_INTERFACE	16
 
 #if defined (HAVE_SCSI_SG_H)
 # define USE LINUX_INTERFACE
@@ -158,6 +159,14 @@
 # define USE SOLARIS_INTERFACE
 # define SOL2
 # include <sys/scsi/targets/scgio.h>
+#elif defined (HAVE_SYS_SCSI_SCSI_H)
+  /*
+   * the "offical" solaris uscsi(7I) interface; comes last, so that users
+   * installing the SCG/SG driver can still use these generic scsi interfaces
+   */
+# define USE SOLARIS_USCSI_INTERFACE
+# define SOL2
+# include <sys/scsi/scsi.h>
 #elif defined (HAVE_APOLLO_SCSI_H)
 # define USE DOMAINOS_INTERFACE
 # include <signal.h>	/* Only used for signal name for KillDomainServer */
@@ -186,7 +195,7 @@
 static int cam_fd = -1;		/* used for SCSI CAM based interfaces */
 #endif
 
-#if USE == SOLARIS_INTERFACE
+#if USE == SOLARIS_INTERFACE || USE == SOLARIS_USCSI_INTERFACE
 static int unit_ready (int fd);
 #endif
 
@@ -1277,7 +1286,7 @@ sanei_scsi_open (const char *dev, int *fdp,
   fd_info[fd].lun = lun;
   fd_info[fd].pdata = pdata;
 
-#if USE == SOLARIS_INTERFACE
+#if USE == SOLARIS_INTERFACE || USE == SOLARIS_USCSI_INTERFACE
   /* verify that the device really exists: */
   if (!unit_ready (fd))
     {
@@ -3927,6 +3936,128 @@ unit_ready (int fd)
 }
 
 #endif /* USE == SOLARIS_INTERFACE */
+
+
+#if USE == SOLARIS_USCSI_INTERFACE
+
+#define DEF_TIMEOUT 60;		/* 1 minute */
+
+static int d_errs = 100;
+typedef struct scsi_extended_sense extended_sense_t;
+typedef struct scsi_inquiry scsi_inquiry_t;
+
+static SANE_Status
+scsi_cmd (int fd, 
+          const void *cmd, size_t cmd_size,
+          const void *src, size_t src_size,
+          void *dst, size_t * dst_size, int probing)
+{
+  struct uscsi_cmd  us;
+  scsi_inquiry_t   inquiry, *iq = &inquiry;
+  extended_sense_t sense, *sp = &sense;
+  SANEI_SCSI_Sense_Handler handler;
+
+  memset (&us, 0, sizeof (us));
+  memset (sp, 0, sizeof (*sp));
+  
+  us.uscsi_flags = USCSI_SILENT | USCSI_RQENABLE | USCSI_DIAGNOSE;
+  us.uscsi_timeout = probing ? 2 : DEF_TIMEOUT;
+  us.uscsi_rqbuf = (caddr_t)sp;         /* sense data address */
+  us.uscsi_rqlen = sizeof(extended_sense_t); /* length of sense data */
+
+  if (dst && dst_size && *dst_size)
+    {
+      us.uscsi_flags |= USCSI_READ;
+      us.uscsi_bufaddr = (caddr_t)dst;
+      us.uscsi_buflen = *dst_size;
+    }
+  else
+    {
+      us.uscsi_flags |= USCSI_WRITE;
+      us.uscsi_bufaddr = (caddr_t) src;
+      us.uscsi_buflen = src_size;
+    }
+
+  us.uscsi_cdblen = cmd_size;
+  us.uscsi_cdb = (caddr_t)cmd;
+
+  if (ioctl (fd, USCSICMD, &us) < 0)
+    return SANE_STATUS_IO_ERROR;
+
+  if (dst_size)
+    *dst_size = us.uscsi_buflen - us.uscsi_resid;
+
+  if ((us.uscsi_status & STATUS_MASK) == STATUS_GOOD)
+    return SANE_STATUS_GOOD;
+
+  if (sp->es_key == SUN_KEY_TIMEOUT)
+    DBG (0, "sanei_scsi_cmd %x: timeout\n", *(char *)cmd);
+  else
+    {
+      char errbf[128];
+      int i, rv, lifes;
+
+      handler = fd_info[fd].sense_handler;
+      DBG (3, "cmd=%x, scsi_status=%x\n",
+           *(char *)cmd, us.uscsi_status);
+      *errbf = '\0';
+
+      for (i = 0; i < us.uscsi_rqlen; i++)
+        sprintf (errbf + strlen (errbf), "%x,", *(sp + i));
+
+      DBG (3, "sense=%s\n", errbf);
+
+#if 0
+      if (us.error)
+        {
+          if (sanei_debug_sanei_scsi > 100 &&
+              scmd.cdb.g0_cdb.cmd != SC_TEST_UNIT_READY)
+            {
+              lifes = sanei_debug_sanei_scsi - ++d_errs;
+              DBG (1, "sanei_scsi_cmd: %d lifes left\n", lifes);
+              assert (lifes > 0);
+            }
+          return SANE_STATUS_IO_ERROR;
+        }
+
+      if (scmd.u_scb.cmd_scb[0] == SC_BUSY)
+        return SANE_STATUS_DEVICE_BUSY;
+#endif
+
+      if (handler)
+        {
+          rv = (*handler) (fd, (unsigned char *)sp,
+                           fd_info[fd].sense_handler_arg);
+          DBG (2, "sanei_scsi_cmd: sense-handler returns %d\n", rv);
+          return rv;
+        }
+    }
+
+  return SANE_STATUS_IO_ERROR;
+}
+
+SANE_Status
+sanei_scsi_cmd2 (int fd, 
+                 const void *cmd, size_t cmd_size,
+                 const void *src, size_t src_size,
+                 void *dst, size_t * dst_size)
+{
+  return scsi_cmd (fd, cmd, cmd_size, src, src_size, dst, dst_size, 0);
+}
+
+static int
+unit_ready (int fd)
+{
+  static const u_char test_unit_ready[] =
+  {0, 0, 0, 0, 0, 0};
+  int status;
+
+  status = scsi_cmd (fd, test_unit_ready, sizeof (test_unit_ready), 
+                     0, 0, 0, 0, 1);
+  return (status == SANE_STATUS_GOOD);
+}
+#endif /* USE == SOLARIS_USCSI_INTERFACE */
+
 
 #ifndef WE_HAVE_ASYNC_SCSI
 

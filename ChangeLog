@@ -1,3 +1,8 @@
+2001-11-12  Peter Fales <peter@fales.com>
+
+	* gphoto2.c - Debug message was not getting printed because DBG_INIT
+	  was not called first.
+
 2001-11-12  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/sane-scsi.man: More details and examples for the "scsi * ..."

@@ -1,3 +1,8 @@
+2003-07-28  Andras Major <andras@users.sourceforge.net>
+
+	* doc/descriptions/coolscan2.desc: changed IEEE1394
+	  to IEEE-1394.
+
 2003-07-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* po/Makefile.in po/sane-backends.bg.po: Added Bulgarian

@@ -30,11 +30,11 @@
 :interface "USB"
 
 :model "LS 4000 ED"
-:interface "IEEE1394"
+:interface "IEEE-1394"
 :comment "needs linux kernel 2.4.19 or later"
 
 :model "LS 8000 ED"
-:interface "IEEE1394"
+:interface "IEEE-1394"
 :comment "needs linux kernel 2.4.19 or later"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,

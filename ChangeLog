@@ -1,3 +1,13 @@
+2004-10-06  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* backend/plustek.c backend/u12.c backend/plustek_pp.c: 
+	  Using now the well known MODE definitions.
+	* backend/plustek.h backend/plustek-usb.h: Cleanup.
+	* doc/plustek/Plustek-USB.changes 
+	  doc/plustek/Plustek-Parport.changes doc/u12/U12.changes: 
+	  Update.
+	* po/*.po: Update.
+
 2004-10-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/microtek2.h doc/descriptions/microtek2.desc: New

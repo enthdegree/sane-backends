@@ -21,7 +21,7 @@ appropriate section in this manpage and
 .SH "QUICK START"
 This is a short HOWTO-like section. For the full details, read the following
 sections. The goal of this section is to get the scanner detected by
-.BR sane-find-scanner (5).
+.BR sane-find-scanner (1).
 .PP
 Run sane-find-scanner. If it lists your scanner with the correct vendor and
 product ids, you are done. See section

@@ -13,15 +13,15 @@ Backends:
  apple:         Milon Firikis
  artec:         Chris Pinkham
  artec_eplus48u:Sergey Vlasov, Andreas Nowack, David Stevenson, and
-                Michael Herder (*)
- as6e:          Eugene S. Weiss (*)
- avision:       Meino Christian Cramer, Rene Rebe(*)
- bh:            Tom Martone (*)
+                Michael Herder
+ as6e:          Eugene S. Weiss
+ avision:       Meino Christian Cramer, Rene Rebe (*)
+ bh:            Tom Martone
  canon:         Helmut Koeberle, Manuel Panea, and Markus Mertinat
                 Mitsuru Okaniwa, Ulrich Deiters (*)
- canon630u:     Nathan Rutman (*)
+ canon630u:     Nathan Rutman
  canon_pp:      Matthew Duggan (*), Simon Krix
- coolscan:      Didier Carlier, Andreas Rick (*)
+ coolscan:      Didier Carlier, Andreas Rick
  coolscan2:     Andras Major (*)
  dc25:          Peter Fales (*)
  dc210:         Brian J. Murrell
@@ -29,46 +29,46 @@ Backends:
  dll:           David Mosberger
  dmc:           David F. Skoll
  epson:         Karl Heinz Kremer (*)
- fujitsu:       Randolph Bentson, Frederik Ramm, Oliver Schirrmeister (*)
+ fujitsu:       Randolph Bentson, Frederik Ramm, Oliver Schirrmeister, 
+                m. allan noah (*)
  gphoto2:       Peter Fales (*)
  gt68xx:        Sergey Vlasov, Andreas Nowack, David Stevenson, and
                 Henning Meier-Geinitz (*)
  hp:            Peter Kirchgessner (*)
                 Geoffrey Dairiki
- hpsj5s:        Max Vorobiev (*)
- hp5400:        Martijn van Oosterhout (*), Thomas Soumarmon (*)
+ hpsj5s:        Max Vorobiev
+ hp5400:        Martijn van Oosterhout, Thomas Soumarmon (*)
  ibm:           M.F., Henning Meier-Geinitz (*)
  leo:           Frank Zago (*)
  ma1509:        Henning Meier-Geinitz (*)
  matsushita:    Frank Zago (*)
- microtek:      Matthew Marjanovic (*)
- microtek2:     Bernd Schroeder, Karsten Festag (*)
+ microtek:      Matthew Marjanovic
+ microtek2:     Bernd Schroeder, Karsten Festag
  mustek:        Andreas Bolsch, David Mosberger, Andreas Czechanowski and
                 Henning Meier-Geinitz (*)
  mustek_pp:     Jochen Eisinger (*), Eddy De Greef (*)
  mustek_pp_ccd: Jochen Eisinger (*)
  mustek_usb:    Tom Wang and Henning Meier-Geinitz (*)
- nec:           Kazuya Fukuda (*)
+ nec:           Kazuya Fukuda
  net:           Andreas Beck and David Mosberger
  pie:           Simon Munton (*)
  pint:          Gordon Matzigkeit
  plustek:       Gerhard Jaeger (*)
  plustek_pp:    Rick Bronson (former pp driver-code), Gerhard Jaeger (*)
  pnm:           Andreas Beck, Gordon Matzigkeit, David Mosberger, Michael
-                Herder (*), and Henning Meier-Geinitz (*)
+                Herder, and Henning Meier-Geinitz (*)
  qcam:          Scott Laird (original driver), David Mosberger (SANE backend),
                 despeckling filter by Patrick Reynolds, 
                 B&W fixes by Andrew Kuchling
  ricoh:         Feico W. Dillema
  s9036:         Ingo Schneider
  sceptre:       Frank Zago (*)
- sharp:         Kazuya Fukuda (*) and Abel Deuring (*)
- sm3600:        Marian Eichholz (*) and Glenn Ramsey (*)
+ sharp:         Kazuya Fukuda and Abel Deuring (*)
+ sm3600:        Marian Eichholz and Glenn Ramsey
  snapscan:      Kevin Charter, Franck Schneider, Michel Roelofs, Sebastien
-                Sable (*), Henrik Johansson, Chris Bagwell (*), and Oliver 
-                Schwartz (*)
+                Sable, Henrik Johansson, Chris Bagwell, and Oliver Schwartz (*)
  sp15c:         Randolph Bentson
- st400:         Ingo Wilken (*)
+ st400:         Ingo Wilken
  tamarack:      Rogier Wolff
  teco1:         Frank Zago (*)
  teco2:         Frank Zago (*)
@@ -76,10 +76,8 @@ Backends:
  test:          Henning Meier-Geinitz (*)
  umax:          Oliver Rauch (*) and Michael K. Johnson
  umax_pp:       Stéphane Voltz (*)
- umax1220u:     Marcio L. Teixeira (*)
+ umax1220u:     Marcio L. Teixeira
  v4l:           Juergen G. Schimmer, and Henning Meier-Geinitz (*)
-
-(*) Current active maintainer(s).
 
 Frontends:
 
@@ -88,20 +86,23 @@ Frontends:
  scanimage:     Andreas Beck, David Mosberger, Gordon Matzigkeit
  tstbackend:    Frank Zago (*)
 
-(*) Current active maintainer(s).
-
 Sanei internal code:
 
   Adrian Perez Jorge, Andreas Beck, Andreas Czechanowski, Christian Bucher,
-  David Mosberger-Tang, Frank Zago, Henning Meier-Geinitz, Jeff Freedman,
-  Jochen Eisinger, Marcio Teixeira, Yuri Dario, Gerhard Jaeger
+  David Mosberger-Tang, Frank Zago (*), Henning Meier-Geinitz (*),
+  Jeff Freedman, Jochen Eisinger (*), Marcio Teixeira, Yuri Dario,
+  Gerhard Jaeger (*)
+
+Miscellaneous coding:
+
+  Julien Blache (*), Petter Reinholdtsen (*), 
+
+(*) Maintainer with CVS write access
+
 
 Please also read the file PROJECTS for projects that are planned or
 not yet included into the SANE distribution.
 
-CVS repository maintainer:
-
-  Petter Reinholdtsen
 
 Email addresses:
 
@@ -142,12 +143,14 @@ Ingo Wilken <Ingo.Wilken@informatik.uni-oldenburg.de>
 Jeff Freedman <jsf@hevanet.com>
 Jochen Eisinger <jochen.eisinger@gmx.net>
 Juergen G. Schimmer <schimmi@nbgm.siemens.de>
+Julien Blache <jb@jblache.org>
 Karl Anders Øygard <karlo@opera.no>
 Karl Heinz Kremer <khk@khk.net>
 Karsten Festag <karsten.festag@gmx.de>
 Kazuhiro Sasayama <kaz@hypercore.co.jp>
 Kazuya Fukuda <kaafuu@mug.biglobe.ne.jp>
 Kevin Charter <charter@cs.rice.edu>
+m. allan noah <anoah at pfeiffer dot edu>
 M.F. <massifr@tiscalinet.it>
 Manuel Panea <Manuel.Panea@rzg.mpg.de>
 Marcio Teixeira <marciot@users.sourceforge.net>

@@ -1,7 +1,7 @@
 /* 
    sane-desc.c -- generate list of supported SANE devices
 
-   Copyright (C) 2002, 2003 Henning Meier-Geinitz <henning@meier-geinitz.de>
+   Copyright (C) 2002-2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
 
    This file is part of the SANE package.
 
@@ -21,7 +21,7 @@
    MA 02111-1307, USA.
 */
 
-#define SANE_DESC_VERSION "2.3"
+#define SANE_DESC_VERSION "2.4"
 
 #define MAN_PAGE_LINK "http://www.sane-project.org/man/%s.5.html"
 #define COLOR_MINIMAL      "\"#B00000\""
@@ -65,6 +65,7 @@
 typedef enum output_mode
 {
   output_mode_ascii = 0,
+  output_mode_xml,
   output_mode_html_backends,
   output_mode_html_backends_split,
   output_mode_html_mfgs
@@ -246,7 +247,7 @@ print_usage (char *program_name)
 	  ".desc files\n");
   printf
     ("  -m|--mode mode         Output mode (ascii, html-backends-split,\n"
-     "                         html-mfgs)\n");
+     "                         html-mfgs, xml)\n");
   printf ("  -t|--title \"title\"     The title used for HTML pages\n");
   printf ("  -i|--intro \"intro\"     A short description of the "
 	  "contents of the page\n");
@@ -260,14 +261,14 @@ static void
 print_version (void)
 {
   printf ("sane-desc %s (%s)\n", SANE_DESC_VERSION, PACKAGE_STRING);
-  printf ("Copyright (C) 2002 Henning Meier-Geinitz "
+  printf ("Copyright (C) 2002-2004 Henning Meier-Geinitz "
 	  "<henning@meier-geinitz.de>\n"
 	  "sane-desc comes with NO WARRANTY, to the extent permitted by "
 	  "law.\n"
 	  "You may redistribute copies of sane-desc under the terms of the "
 	  "GNU General\n"
 	  "Public License.\n"
-	  "For more information about these matters, see the files named "
+	  "For more information about these matters, see the file named "
 	  "COPYING.\n");
 }
 
@@ -307,6 +308,11 @@ get_options (int argc, char **argv)
 	    {
 	      DBG_INFO ("Output mode: ascii\n");
 	      mode = output_mode_ascii;
+	    }
+	  else if (strcmp (optarg, "xml") ==0)
+	    {
+	      DBG_INFO ("Output mode: xml\n");
+	      mode = output_mode_xml;
 	    }
 	  else if (strcmp (optarg, "html-backends-split") == 0)
 	    {
@@ -1609,6 +1615,193 @@ ascii_print_backends (void)
     }				/* while (be) */
 }
 
+/* Print an XML list with all the information we have */
+static void 
+xml_print_backends (void)
+{
+  backend_entry *be;
+
+  be = first_backend;
+  while (be) 
+    {
+      url_entry *url = be->url;
+      type_entry *type = be->type;
+
+      if (be->name)
+	printf ("<backend name=\"%s\">\n",be->name);
+      else
+	printf ("<backend name=\"*none\">\n");
+
+      if (be->version)
+	printf ("<version>%s</version> \n", be->version);
+      else
+	printf ("<version>*none*</version>\n");
+
+      if (be->new)
+	printf (" NEW!\n");
+
+      if (be->manpage)
+	printf (" <manpage>%s</manpage>\n", be->manpage);
+      else
+	printf (" <manpage>*none*</manpage>\n");
+
+      if (url)
+	while (url)
+	  {
+	    printf (" <url>%s</url>\n", url->name);
+	    url = url->next;
+	  }
+      else
+	printf (" <url>*none*</url>\n");
+
+      if (be->comment)
+	printf (" <comment>%s</comment>\n", be->comment);
+      else
+	printf (" <comment>*none*</comment>\n");
+
+      if (type)
+	while (type)
+	  {
+	    switch (type->type)
+	      {
+	      case type_scanner:
+		printf (" <type>scanner</type>\n");
+		break;
+	      case type_stillcam:
+		printf (" <type>stillcam</type>\n");
+		break;
+	      case type_vidcam:
+		printf (" <type>vidcam </type>\n");
+		break;
+	      case type_meta:
+		printf (" <type>meta</type>\n");
+		break;
+	      case type_api:
+		printf (" <type>api</type>\n");
+		break;
+	      default:
+		printf (" <type> *unknown* </type>\n");
+		break;
+	      }
+	    if (type->desc)
+	      {
+		url_entry *url = type->desc->url;
+		printf ("  <desc>%s</desc>\n", type->desc->desc);
+		if (url)
+		  while (url)
+		    {
+		      printf ("  <url>%s</url>\n", url->name);
+		      url = url->next;
+		    }
+		else
+		  printf ("   <url>*none*</url>\n");
+
+		if (type->desc->comment)
+		  printf ("   <comment>%s</comment>\n", type->desc->comment);
+		else
+		  printf ("   <comment>*none*</comment>\n");
+	      }
+	    else if (type->type >= type_meta)
+	      printf ("  <desc>*none*</desc>\n");
+
+	    if (type->mfg)
+	      {
+		mfg_entry *mfg = type->mfg;
+		while (mfg)
+		  {
+		    model_entry *model = mfg->model;
+		    url_entry *url = mfg->url;
+
+		    printf (" <mfg name=\"%s\">\n", mfg->name);
+		    if (url)
+		      while (url)
+			{
+			  printf ("  <url>`%s'</url>\n", url->name);
+			  url = url->next;
+			}
+		    else
+		      printf ("  <url>*none*</url>\n");
+
+		    if (mfg->comment)
+		      printf ("  <comment>%s</comment>\n", mfg->comment);
+		    else
+		      printf ("  <comment>*none*</comment>\n");
+
+		    if (model)
+		      while (model)
+			{
+			  url_entry *url = model->url;
+			  printf ("   <model name=\"%s\">\n", model->name);
+			  if (model->interface)
+			    printf ("    <interface>%s</interface>\n", model->interface);
+			  else
+			    printf ("    <interface>*none*</interface>\n");
+
+			  if (model->status == status_unknown)
+			    model->status = be->status;
+			  switch (model->status)
+			    {
+			    case status_minimal:
+			      printf ("    <status>minimal</status>\n");
+			      break;
+			    case status_basic:
+			      printf ("    <status>basic</status>\n");
+			      break;
+			    case status_good:
+			      printf ("    <status>good</status>\n");
+			      break;
+			    case status_complete:
+			      printf ("    <status>complete</status>\n");
+			      break;
+			    case status_untested:
+			      printf ("    <status>untested</status>\n");
+			      break;
+			    case status_unsupported:
+			      printf ("    <status>unsupported</status>\n");
+			      break;
+			    default:
+			      printf ("    <status>*unknown*</status>\n");
+			      break;
+			    }
+
+			  if (url)
+			    while (url)
+			      {
+				printf ("    <url>%s</url>\n", url->name);
+				url = url->next;
+			      }
+			  else
+			    printf ("    <url>*none*</url>\n");
+
+			  if (model->comment)
+			    printf ("    <comment>%s</comment>\n", model->comment);
+			  else
+			    printf ("    <comment>*none*</comment>\n");
+
+			  model = model->next;
+			  printf("   </model>\n");
+			} /* while (model) */
+		    else
+		      printf ("   <model name=\"*none*\" />\n");
+
+		    printf(" </mfg>\n");
+		    mfg = mfg->next;
+		  }		/* while (mfg) */
+	      }
+	    else if (type->type < type_meta)
+	      printf ("  <mfg>*none*</mfg>\n");
+	    type = type->next;
+	  }			/* while (type) */
+      else
+	printf (" <type>*none*</type>\n");
+      printf("</backend>\n");
+      be = be->next;
+
+    }				/* while (be) */
+}
+
+
+
 /* Generate a name used for <a name=...> HTML tags */
 static char *
 html_generate_anchor_name (device_type dev_type, char *manufacturer_name)
@@ -2296,6 +2489,9 @@ main (int argc, char **argv)
     {
     case output_mode_ascii:
       ascii_print_backends ();
+      break;
+    case output_mode_xml:
+      xml_print_backends();
       break;
     case output_mode_html_backends_split:
       html_print_backends_split ();

@@ -1,7 +1,10 @@
 2004-06-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* doc/descriptions/unsupported.desc: Added Microtek and Xerox scanners. 
-
+	* doc/descriptions/unsupported.desc: Added Microtek and Xerox
+	  scanners.
+	* tools/sane-desc.c: Added xml output (patch from 
+	  jose <jgato@lambdaux.com>). Other minor fixes.
+	
 2004-06-28 m. allan noah <anoah at pfeiffer dot edu>
          * backend/fujitsu.c: use model code instead of string compare
            submitted by: stan at saticed.me.uk

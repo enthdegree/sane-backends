@@ -41,7 +41,7 @@
    This backend is for testing frontends.
 */
 
-#define BUILD 18
+#define BUILD 19
 
 #include "../include/sane/config.h"
 
@@ -1246,6 +1246,7 @@ reader_process (Test_Device * test_device, SANE_Int fd)
   free (buffer);
   DBG (4, "(child) reader_process: finished,  wrote %d bytes, expected %d "
        "bytes\n", byte_count, bytes_total);
+  close (fd);
   return SANE_STATUS_GOOD;
 }
 
@@ -2448,8 +2449,10 @@ sane_start (SANE_Handle handle)
 
       close (pipe_descriptor[0]);
       status = reader_process (test_device, pipe_descriptor[1]);
-      DBG (2, "(child) sane_start: reader_process returned %s\n",
+      DBG (2, "(child) sane_start: reader_process waiting ... returned %s\n",
 	   sane_strstatus (status));
+      sleep (1000); /* wait for explicit kill */
+      DBG (2, "(child) sane_start: reader_process timed out\n");
       _exit (status);
     }
   else if (test_device->reader_pid < 0)

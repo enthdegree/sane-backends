@@ -2,6 +2,8 @@
 
 	* configure configure.in: Added a warning if sysconfdir is set to
 	  /usr/etc.
+	* backend/test.c: Explicitely close the pipe and wait until
+	  reader_process is killed.
 
 2002-10-25  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -55,6 +55,8 @@
 #define sanei_lm983x_read_byte(fd, reg, value) \
                                        sanei_lm983x_read (fd, reg, value, 1, 0)
 
+extern void sanei_lm983x_init( void );
+
 extern SANE_Status sanei_lm983x_write_byte( SANE_Int fd,
                                             SANE_Byte reg, SANE_Byte value );
 

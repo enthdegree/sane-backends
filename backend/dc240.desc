@@ -2,9 +2,9 @@
 
 :backend "dc240"		; name of backend
 :version "0.0"                  ; version of backend
-:status :alpha                  ; :alpha, :beta, :stable, :new
+:status :new                  	; :alpha, :beta, :stable, :new
 :manpage "sane-dc240"		; name of manpage (if it exists)
-;:url none			; backend's web page
+:url "mailto:peter@fales.com"   ; backend's web page
 
 :devicetype :stillcam           ; start of a list of devices....
  

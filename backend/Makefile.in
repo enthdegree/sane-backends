@@ -66,7 +66,7 @@ PRELOADABLE_BACKENDS = abaton agfafocus apple artec as6e avision bh canon \
         microtek2 mustek mustek_pp mustek_usb nec @NET@ pie @PINT@ plustek \
         @PNM@ @QCAM@ ricoh s9036 sceptre sharp @SM3600@ @SNAPSCAN@ \
         sp15c st400 tamarack test teco1 teco2 teco3 umax umax_pp umax1220u \
-        @V4L@ artec_eplus48u ma1509
+        @V4L@ artec_eplus48u ma1509 ibm
 ifneq (@SELECTED_BACKENDS@,)
 PRELOADABLE_BACKENDS = @SELECTED_BACKENDS@
 endif
@@ -111,6 +111,7 @@ DISTFILES = abaton.c abaton.conf abaton.h agfafocus.c agfafocus.conf \
   hp-device.c hp-device.h hp.h hp-handle.c hp-handle.h hp-hpmem.c hp-option.c \
   hp-option.h hp.README hp-scl.c hp-scl.h hp-scsi.h hp.TODO \
   hpsj5s.c hpsj5s.conf hpsj5s.h \
+  ibm.c ibm.conf ibm.h ibm-scsi.c \
   jinclude.h \
   leo.c leo.h leo.conf \
   lm9830.h \
@@ -314,6 +315,9 @@ libsane-hp.la: ../sanei/sanei_scsi.lo
 libsane-hp.la: ../sanei/sanei_usb.lo
 libsane-hp.la: $(addsuffix .lo,$(EXTRA_hp))
 libsane-hp.la: ../sanei/sanei_pio.lo
+libsane-ibm.la: ../sanei/sanei_scsi.lo
+libsane-ibm.la: ../sanei/sanei_config2.lo
+libsane-ibm.la: ../sanei/sanei_constrain_value.lo
 libsane-leo.la: ../sanei/sanei_config2.lo
 libsane-leo.la: ../sanei/sanei_constrain_value.lo
 libsane-leo.la: ../sanei/sanei_scsi.lo

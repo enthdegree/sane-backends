@@ -1,3 +1,13 @@
+2003-04-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* AUTHORS backend/Makefile.in backend/dll.conf backend/ibm-scsi.c
+	  backend/ibm.c backend/ibm.conf backend/ibm.h doc/Makefile.in
+	  doc/sane.man doc/sane-ibm.man doc/.cvsignore 
+	  doc/descriptions/ibm.desc: Added IBM backend for the 
+	  IBM 2456, the Ricoh IS-420 and maybe the IS-410 and IS-430 from
+	  mf <massifr@tiscalinet.it>. Added manual page, fixed some
+	  warnings, Added detection for IS-410 and IS-430.
+	
 2003-04-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* tools/sane-desc.c: Fixed some HTML bugs.

@@ -1,4 +1,4 @@
-.TH sane 7 "13 Apr 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane 7 "14 Apr 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane
 
 .SH NAME
@@ -258,6 +258,11 @@ for details.
 .B hpsj5s
 The SANE backend for the Hewlett-Packard ScanJet 5S scanner. See
 .BR sane\-hpsj5s (5)
+for details.
+.TP
+.B ibm
+The SANE backend for some IBM and Ricoh SCSI scanners. See
+.BR sane\-ibm (5)
 for details.
 .TP
 .B leo
@@ -793,6 +798,7 @@ you can also contact the author of this manual page:
 .BR sane\-gt68xx (5),
 .BR sane\-hp (5),
 .BR sane\-hpsj5s (5),
+.BR sane\-ibm (5),
 .BR sane\-leo (5),
 .BR sane\-ma1509 (5),
 .BR sane\-matsushita (5),

@@ -36,6 +36,7 @@ Backends:
  hp:            Peter Kirchgessner (*)
                 Geoffrey Dairiki
  hpsj5s:        Max Vorobiev (*)
+ ibm:           mf, Henning Meier-Geinitz (*)
  leo:           Frank Zago (*)
  ma1509:        Henning Meier-Geinitz (*)
  matsushita:    Frank Zago (*)
@@ -152,6 +153,7 @@ Matthew Duggan <stauff1@users.sourceforge.net>
 Matthew Marjanovic <maddog@mir.com>
 Max Vorobiev <pcwizard@yandex.ru>
 Meino Christian Cramer <mccramer@s.netic.de>
+mf <massifr@tiscalinet.it>
 Michael Herder <crapsite@gmx.net>
 Michael K. Johnson <johnsonm@redhat.com>
 Michel Roelofs <michelr@stack.nl>

@@ -1,8 +1,12 @@
+2001-12-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* frontend/scanimage.c: Fixed endless loop in sighandler.
+
 2001-12-30  Gerhard Jaeger <g.jaeger@earthling.net>
 
 	* backend/plustek_usbmap.c backend/plustek-usbimg.c
 	  backend/plustek_usb.c backend/plustek_usb.h:
-      Fixed bug in lineart scaling and in brightness setting
+	  Fixed bug in lineart scaling and in brightness setting
 
 2001-12-29  Gerhard Jaeger <g.jaeger@earthling.net>
 

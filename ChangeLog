@@ -2,6 +2,7 @@
 	* backend/epson.*: Read information about optical resolution 
 	  and line distance from scanner instead of hardcoded values.
           Add support for color depth > 8 bits per channel. 
+	  (can use 12, 14 and 16 bits per channel)
 	  EPSON backend is now version 0.36 
 
 2000-11-30  Oliver Rauch <Oliver.Rauch@Wolfsburg.DE>

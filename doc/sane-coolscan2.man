@@ -6,7 +6,7 @@ sane-coolscan2 - SANE backend for Nikon Coolscan film scanners
 The
 .sane-coolscan2
 library implements a SANE (Scanner Access Now Easy) backend that
-provides access to Epson flatbed scanners.  Some functions of this 
+provides access to Nikon Coolscan film scanners.  Some functions of this 
 backend should be considered
 .B beta-quality
 software. Most functions have been stable for a long time, but of 
@@ -23,6 +23,8 @@ Model:                       Connection Type
 ---------------------------  -------------------
 .br
 LS-30 (Coolscan III)         SCSI
+.br
+LS-2000                      SCSI
 .br
 LS-40 ED (Coolscan IV)       USB
 .br

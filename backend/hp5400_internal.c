@@ -100,6 +100,7 @@ static TScannerModel Model_HP54xx =
   { "Hewlett-Packard", "HP54xx Flatbed Scanner" };
 
 
+HP5400_SANE_STATIC
 int
 InitHp5400_internal() {
 
@@ -111,6 +112,7 @@ InitHp5400_internal() {
 	return 1;
 }
 
+HP5400_SANE_STATIC
 int
 FreeHp5400_internal() {
 
@@ -121,6 +123,7 @@ FreeHp5400_internal() {
 }
 
 
+HP5400_SANE_STATIC
 int
 WriteByte (int iHandle, int cmd, char data)
 {
@@ -132,6 +135,7 @@ WriteByte (int iHandle, int cmd, char data)
   return 0;
 }
 
+HP5400_SANE_STATIC
 int
 SetLamp (THWParams * pHWParams, int fLampOn)
 {
@@ -143,6 +147,7 @@ SetLamp (THWParams * pHWParams, int fLampOn)
   return -1;
 }
 
+HP5400_SANE_STATIC
 int
 WarmupLamp (int iHandle)
 {
@@ -193,6 +198,7 @@ WarmupLamp (int iHandle)
 
 #define CALPIXBYBLOCK  42
 
+HP5400_SANE_STATIC
 int
 SetCalibration (int iHandle, int numPixels, unsigned int *low_vals[3],
 		unsigned int *high_vals[3], int dpi)
@@ -266,6 +272,7 @@ SetCalibration (int iHandle, int numPixels, unsigned int *low_vals[3],
 }
 
 /* Write a gamma table */
+HP5400_SANE_STATIC
 void
 WriteGammaCalibTable (int iHandle, const int *pabGammaR, const int *pabGammaG,
 		      const int *pabGammaB)
@@ -297,6 +304,7 @@ WriteGammaCalibTable (int iHandle, const int *pabGammaR, const int *pabGammaG,
   return;
 }
 
+HP5400_SANE_STATIC
 void
 SetDefaultGamma (int iHandle)
 {
@@ -316,6 +324,7 @@ FILE *temp;
 #endif
 
 /* Bytes per line is the number of pixels. The actual bytes is one more */
+HP5400_SANE_STATIC
 void
 CircBufferInit (int iHandle, TDataPipe * p, int iBytesPerLine,
 		int bpp, int iMisAlignment, int blksize, int iTransferSize)
@@ -370,6 +379,7 @@ CircBufferInit (int iHandle, TDataPipe * p, int iBytesPerLine,
 }
 
 
+HP5400_SANE_STATIC
 int
 CircBufferGetLine (int iHandle, TDataPipe * p, void *pabLine)
 {
@@ -495,6 +505,7 @@ CircBufferGetLine (int iHandle, TDataPipe * p, void *pabLine)
   return 0;
 }
 
+HP5400_SANE_STATIC
 void
 CircBufferExit (TDataPipe * p)
 {
@@ -509,6 +520,7 @@ CircBufferExit (TDataPipe * p)
 
 
 /* bpp is BYTES per pixel */
+HP5400_SANE_STATIC
 void
 DecodeImage (FILE * file, int planes, int bpp, int xsize, int ysize,
 	     const char *filename)
@@ -566,6 +578,7 @@ DecodeImage (FILE * file, int planes, int bpp, int xsize, int ysize,
 }
 
 
+HP5400_SANE_STATIC
 int
 hp5400_test_scan_response (struct ScanResponse *resp, struct ScanRequest *req)
 {
@@ -587,6 +600,7 @@ hp5400_test_scan_response (struct ScanResponse *resp, struct ScanRequest *req)
  * Note the array argument should point to an array of three NULL. These
  * will be overwritten with allocated pointers. */
 
+HP5400_SANE_STATIC
 int
 DoAverageScan (int iHandle, struct ScanRequest *req, int code,
 	       unsigned int **array)
@@ -636,6 +650,7 @@ DoAverageScan (int iHandle, struct ScanRequest *req, int code,
   return 0;
 }
 
+HP5400_SANE_STATIC
 int
 DoScan (int iHandle, struct ScanRequest *req, const char *filename, int code,
 	struct ScanResponse *res)
@@ -685,6 +700,7 @@ DoScan (int iHandle, struct ScanRequest *req, const char *filename, int code,
   return 0;
 }
 
+HP5400_SANE_STATIC
 int
 Calibrate (int iHandle, int dpi)
 {
@@ -818,6 +834,7 @@ Calibrate (int iHandle, int dpi)
   return 0;
 }
 
+HP5400_SANE_STATIC
 int
 hp5400_scan (int iHandle, TScanParams * params, THWParams * pHWParams,
 	     const char *filename)
@@ -885,6 +902,7 @@ hp5400_scan (int iHandle, TScanParams * params, THWParams * pHWParams,
 }
 
 
+HP5400_SANE_STATIC
 int
 PreviewScan (int iHandle)
 {
@@ -923,6 +941,7 @@ static char UISetup2[] = {
     0x73, 0x00, 0x00,
 };
 
+HP5400_SANE_STATIC
 int
 InitScanner (int iHandle)
 {
@@ -949,6 +968,7 @@ InitScanner (int iHandle)
 }
 
 /* Warning! The caller must have configured the gamma tables at this stage */
+HP5400_SANE_STATIC
 int
 InitScan (enum ScanType scantype, TScanParams * pParams,
 	  THWParams * pHWParams)
@@ -1001,6 +1021,7 @@ InitScan (enum ScanType scantype, TScanParams * pParams,
 }
 
 /* For want of a better name ... */
+HP5400_SANE_STATIC
 int
 InitScan2 (enum ScanType scantype, struct ScanRequest *req,
 	   THWParams * pHWParams, struct ScanResponse *result,
@@ -1185,6 +1206,7 @@ InitScan2 (enum ScanType scantype, struct ScanRequest *req,
   return 0;
 }
 
+HP5400_SANE_STATIC
 void
 FinishScan (THWParams * pHWParams)
 {
@@ -1203,6 +1225,7 @@ FinishScan (THWParams * pHWParams)
   }
 }
 
+HP5400_SANE_STATIC
 int
 HP5400Open (THWParams * params, char *filename)
 {
@@ -1274,12 +1297,14 @@ hp5400_close_exit:
   return -1;
 }
 
+HP5400_SANE_STATIC
 void
 HP5400Close (THWParams * params)
 {
   hp5400_close (params->iXferHandle);
 }
 
+HP5400_SANE_STATIC
 int
 HP5400Detect (char *filename,
 	      int (*_ReportDevice) (TScannerModel * pModel,

@@ -137,98 +137,124 @@ struct ScanResponse
 }
 PACKED;
 
-
+HP5400_SANE_STATIC
 int
 InitScan2 (enum ScanType type, struct ScanRequest *req,
 		      THWParams * pHWParams, struct ScanResponse *res,
 		      int iColourOffset, int code);
 
+HP5400_SANE_STATIC
 void
 FinishScan (THWParams * pHWParams);
 
+HP5400_SANE_STATIC
 int
 WriteByte (int iHandle, int cmd, char data);
 
+HP5400_SANE_STATIC
 int
 SetLamp (THWParams * pHWParams, int fLampOn);
 
+HP5400_SANE_STATIC
 int
 WarmupLamp (int iHandle);
 
+HP5400_SANE_STATIC
 int
 SetCalibration (int iHandle, int numPixels,
 			   unsigned int *low_vals[3],
 			   unsigned int *high_vals[3], int dpi);
 
+HP5400_SANE_STATIC
 void
 WriteGammaCalibTable (int iHandle, const int *pabGammaR,
 				  const int *pabGammaG,
 				  const int *pabGammaB);
 
+HP5400_SANE_STATIC
 void
 SetDefaultGamma (int iHandle);
 
+HP5400_SANE_STATIC
 void
 CircBufferInit (int iHandle, TDataPipe * p, int iBytesPerLine,
 			    int bpp, int iMisAlignment, int blksize,
 			    int iTransferSize);
 
+HP5400_SANE_STATIC
 int
 CircBufferGetLine (int iHandle, TDataPipe * p, void *pabLine);
 
+HP5400_SANE_STATIC
 void
 CircBufferExit (TDataPipe * p);
 
+HP5400_SANE_STATIC
 void
 DecodeImage (FILE * file, int planes, int bpp, int xsize, int ysize,
 			 const char *filename);
+
+HP5400_SANE_STATIC
 int
 hp5400_test_scan_response (struct ScanResponse *resp,
 				      struct ScanRequest *req);
 
+HP5400_SANE_STATIC
 int
 DoAverageScan (int iHandle, struct ScanRequest *req, int code,
 			  unsigned int **array);
 
+HP5400_SANE_STATIC
 int
 DoScan (int iHandle, struct ScanRequest *req, const char *filename, int code,
 		   struct ScanResponse *res);
 
+HP5400_SANE_STATIC
 int
 Calibrate (int iHandle, int dpi);
 
+HP5400_SANE_STATIC
 int
 hp5400_scan (int iHandle, TScanParams * params, THWParams * pHWParams,
 			const char *filename);
 
+HP5400_SANE_STATIC
 int
 PreviewScan (int iHandle);
 
+HP5400_SANE_STATIC
 int
 InitScanner (int iHandle);
 
+HP5400_SANE_STATIC
 int
 InitScan (enum ScanType scantype, TScanParams * pParams,
 		     THWParams * pHWParams);
 
+HP5400_SANE_STATIC
 void
 FinishScan (THWParams * pHWParams);
 
+HP5400_SANE_STATIC
 int
 HP5400Open (THWParams * params, char *filename);
 
+HP5400_SANE_STATIC
 void
 HP5400Close (THWParams * params);
 
+HP5400_SANE_STATIC
 int
 HP5400Detect (char *filename,
 			 int (*_ReportDevice) (TScannerModel * pModel,
 					       char *pszDeviceName));
 
 
+HP5400_SANE_STATIC
 int
 InitHp5400_internal( void );
 
+HP5400_SANE_STATIC
 int
 FreeHp5400_internal( void );
 

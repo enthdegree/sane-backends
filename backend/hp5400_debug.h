@@ -51,12 +51,14 @@
 #ifndef STANDALONE
 
 #define DEBUG_DECLARE_ONLY
-#include <sane/sanei_debug.h>
+#include "../include/sane/sanei_debug.h"
 
 #define DBG_ASSERT  1
 #define DBG_ERR     16
 #define DBG_MSG     32
 #define HP5400_DBG DBG
+#define HP5400_SANE_STATIC static
+
 
 #else
 
@@ -68,6 +70,8 @@ extern FILE *DBG_ERR;
 extern FILE *DBG_MSG;
 
 void  hp5400_dbg_start();
+
+#define HP5400_SANE_STATIC
 
 #endif
 

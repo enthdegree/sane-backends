@@ -65,7 +65,7 @@ void  hp5400_dbg_start() {
 
 #undef DEBUG_DECLARE_ONLY
 #undef _SANEI_DEBUG_H
-#include <sane/sanei_debug.h>
+#include "../include/sane/sanei_debug.h"
 
 #endif
 

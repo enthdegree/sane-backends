@@ -1,3 +1,10 @@
+2003-10-06  Thomas Soumarmon <thomas.soumarmon@cogitae.net>
+
+	* backend/hp5400_*: fixed bug #300252 : added static to all non
+	  SANE specific functions + changed #include <sane/..> into 
+	  #include "../include/sane/..." as mentioned in the
+	  backend-writing.txt file
+
 2003-10-05  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* aclocal.m4 configure configure.in: added checks for pthread.h and

@@ -1,3 +1,8 @@
+2002-04-26  Andras Major <andras@users.sourceforge.net>
+
+	* backend/coolscan2.c doc/descriptions/coolscan2.desc:
+	  update to release 0.1.5, various saned-related problems fixed.
+
 2002-04-25  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* TODO: Updated backend list. Added entry for sanei_scsi/Mac OS X.

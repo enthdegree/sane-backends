@@ -3,7 +3,7 @@
 ;
 
 :backend "plustek"
-:version "0.48"
+:version "0.49"
 :manpage "sane-plustek"
 ; backend's web page
 :url "http://www.gjaeger.de/scanner/plustek/"

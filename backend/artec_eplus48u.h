@@ -11,6 +11,7 @@
 #include <errno.h>
 
 #include "../include/sane/sanei_usb.h"
+#include "../include/sane/sanei_thread.h"
 
 #define _MAX_ID_LEN 20
 
@@ -281,6 +282,7 @@ struct Artec48U_Scanner
   FILE *pipe_handle;
   int reader_pid;
   int pipe;
+  int reader_pipe;
   SANE_Option_Descriptor opt[NUM_OPTIONS];
   Option_Value val[NUM_OPTIONS];
   SANE_Status exit_code;

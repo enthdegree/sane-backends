@@ -1,10 +1,16 @@
-2004-05-15  Stéphane Voltz <svoltz@wanadoo.fr>
+2004-05-15  Michael Herder <crapmail@nurfuerspam.de>
+
+	* backend/artec_eplus48u.c backend/artec_eplus48u.h: 
+	  applied patch from Mattias Ellert (thanks), which adds support
+	  for sanei_thread
+
+2004-05-15  Stï¿½hane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c backend/umax_pp.c tools/umax_pp.c: fixed 
 	  origin shift bug for 610P. Added on guard against configuration
 	  that can put several 'port' option in conf file.
 
-2004-05-13  Stéphane Voltz <svoltz@wanadoo.fr>
+2004-05-13  Stï¿½hane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c backend/umax_pp.c tools/umax_pp.c: fixed 
 	  data lines reordering for 610P
@@ -18,7 +24,7 @@
 	* Makefile.in: Remove autoconf temp files and some japi stuff in
 	  distclean target.
 
-2004-05-10  Stéphane Voltz <svoltz@wanadoo.fr>
+2004-05-10  Stï¿½hane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c : fixed 300x600 dpi scans, direct
           hardware access and timing issues for 610P
@@ -38,7 +44,7 @@
 	* tools/hotplug/libsane.usbmap: removed empty lines, latest
 	  hotplug cannot cope with them
 	
-2004-03-15  Stéphane Voltz <svoltz@wanadoo.fr>
+2004-03-15  Stï¿½hane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c backend/umax_pp_low.h backend/umax_pp_mid.c
 	  backend/umax_pp_mid.h backend/umax_pp.c backend/umax_pp.h 

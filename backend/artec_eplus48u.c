@@ -83,7 +83,6 @@ Updates (C) 2001 by Henning Meier-Geinitz.
 #include <math.h>
 
 #include <sys/time.h>
-#include <sys/wait.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/ioctl.h>
@@ -3388,12 +3387,29 @@ sig_chldhandler (int signo)
   XDBG ((1, "Child is down (signal=%d)\n", signo));
 }
 
-static SANE_Status
-reader_process (Artec48U_Scanner * s, SANE_Int fd)
+static int
+reader_process (void * data)
 {
+  Artec48U_Scanner * s = (Artec48U_Scanner *) data;
+  int fd = s->reader_pipe;
+
   SANE_Status status;
   struct SIGACTION act;
+  sigset_t ignore_set;
   ssize_t bytes_written = 0;
+
+  XDBG ((1, "reader process...\n"));
+
+  if (sanei_thread_is_forked()) close (s->pipe);
+
+  sigfillset (&ignore_set);
+  sigdelset (&ignore_set, SIGTERM);
+  sigdelset (&ignore_set, SIGUSR1);
+  sigprocmask (SIG_SETMASK, &ignore_set, 0);
+
+  memset (&act, 0, sizeof (act));
+  sigaction (SIGTERM, &act, 0);
+  sigaction (SIGUSR1, &act, 0);
 
   cancelRead = SANE_FALSE;
   if (sigemptyset (&(act.sa_mask)) < 0)
@@ -3451,6 +3467,7 @@ reader_process (Artec48U_Scanner * s, SANE_Int fd)
       XDBG ((2, "(child) reader_process: lines to read %i\n", s->lines_to_read));
     }
   s->eof = SANE_TRUE;
+  close (fd);
   return SANE_STATUS_GOOD;
 }
 
@@ -3478,14 +3495,14 @@ do_cancel (Artec48U_Scanner * s, SANE_Bool closepipe)
 
       /* kill our child process and wait until done */
       alarm (10);
-      if (kill (s->reader_pid, SIGKILL) < 0)
-	XDBG ((1, "kill() failed !\n"));
-      res = waitpid (s->reader_pid, 0, 0);
+      if (sanei_thread_kill (s->reader_pid) < 0)
+	XDBG ((1, "sanei_thread_kill() failed !\n"));
+      res = sanei_thread_waitpid (s->reader_pid, 0);
       alarm (0);
 
       if (res != s->reader_pid)
 	{
-	  XDBG ((1, "waitpid() failed !\n"));
+	  XDBG ((1, "sanei_thread_waitpid() failed !\n"));
 	}
       s->reader_pid = 0;
       XDBG ((1, "reader_process killed\n"));
@@ -3547,36 +3564,6 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   XDBG ((5, "sane_get_devices: exit\n"));
 
   return SANE_STATUS_GOOD;
-}
-
-static SANE_Bool
-getReaderProcessExitCode (Artec48U_Scanner * s)
-{
-  int res;
-  int status;
-
-  s->exit_code = SANE_STATUS_IO_ERROR;
-
-  if (s->reader_pid > 0)
-    {
-      res = waitpid (s->reader_pid, &status, WNOHANG);
-      if (res == s->reader_pid)
-	{
-	  XDBG ((2, "res=%i, status=%i\n", res, status));
-	  if (WIFEXITED (status))
-	    {
-	      s->exit_code = WEXITSTATUS (status);
-	      XDBG ((2, "Child WEXITSTATUS = %d\n", s->exit_code));
-	    }
-	  else
-	    {
-	      s->exit_code = SANE_STATUS_GOOD;
-	      XDBG ((2, "Child termination okay\n"));
-	    }
-	  return SANE_TRUE;
-	}
-    }
-  return SANE_FALSE;
 }
 
 static SANE_Status
@@ -4291,43 +4278,19 @@ sane_start (SANE_Handle handle)
       XDBG ((2, "sane_start: could not start scan\n"));
       return status;
     }
-  s->reader_pid = fork ();
+  s->pipe = fds[0];
+  s->reader_pipe = fds[1];
+  s->reader_pid = sanei_thread_begin (reader_process, s);
   cancelRead = SANE_FALSE;
-  if (s->reader_pid == 0)	/* child */
-    {
-      sigset_t ignore_set;
-      struct SIGACTION act;
-
-      XDBG ((1, "reader process...\n"));
-
-      close (fds[0]);
-
-      sigfillset (&ignore_set);
-      sigdelset (&ignore_set, SIGTERM);
-      sigdelset (&ignore_set, SIGUSR1);
-      sigprocmask (SIG_SETMASK, &ignore_set, 0);
-
-      memset (&act, 0, sizeof (act));
-      sigaction (SIGTERM, &act, 0);
-      sigaction (SIGUSR1, &act, 0);
-
-      status = reader_process (s, fds[1]);
-
-      XDBG ((1, "reader process done, status = %i\n", status));
-
-      /* don't use exit() since that would run the atexit() handlers */
-      _exit (status);
-    }
-  else if (s->reader_pid < 0)
+  if (s->reader_pid < 0)
     {
       s->scanning = SANE_FALSE;
-      XDBG ((2, "sane_start: fork failed (%s)\n", strerror (errno)));
+      XDBG ((2, "sane_start: sanei_thread_begin failed (%s)\n", strerror (errno)));
       return SANE_STATUS_NO_MEM;
     }
   signal (SIGCHLD, sig_chldhandler);
 
-  close (fds[1]);
-  s->pipe = fds[0];
+  if (sanei_thread_is_forked()) close (s->reader_pipe);
 
   XDBG ((1, "sane_start done\n"));
 
@@ -4358,7 +4321,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
 	  /* if we already had read the picture, so it's okay and stop */
 	  if (s->eof == SANE_TRUE)
 	    {
-	      waitpid (s->reader_pid, 0, 0);
+	      sanei_thread_waitpid (s->reader_pid, 0);
 	      s->reader_pid = -1;
 	      artec48u_scanner_stop_scan (s);
 	      artec48u_carriage_home (s->dev);
@@ -4383,7 +4346,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
     {
       if (0 == s->byte_cnt)
 	{
-	  getReaderProcessExitCode (s);
+	  s->exit_code = sanei_thread_get_status (s->reader_pid);
 
 	  if (SANE_STATUS_GOOD != s->exit_code)
 	    {
@@ -4476,6 +4439,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   strcpy (model_string, "E+ 48U");
 
   sanei_usb_init ();
+  sanei_thread_init ();
 
   /* do some presettings... */
   auth = authorize;

@@ -32,6 +32,7 @@
  *        - added gamma to struct HWDefault
  * - 0.48 - added DEVCAPSFLAG_LargeTPA
  *        - added min_ffstep to ClkMotorDef
+ *        - added _WAF_BIN_FROM_COLOR and _WAF_GRAY_FROM_COLOR
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -231,7 +232,9 @@ enum _WORKAROUNDS
 	_WAF_BYPASS_CALIBRATION = 0x00000008, /* no calibration,use linear gamma */
 	_WAF_INV_NEGATIVE_MAP   = 0x00000010, /* the backend does the neg. stuff */
 	_WAF_SKIP_FINE          = 0x00000020, /* skip the fine calbration        */
-	_WAF_SKIP_WHITEFINE     = 0x00000040  /* skip the fine white calbration  */
+	_WAF_SKIP_WHITEFINE     = 0x00000040, /* skip the fine white calbration  */
+	_WAF_BIN_FROM_COLOR     = 0x00000080, /* generate binary & gray images   */
+	_WAF_GRAY_FROM_COLOR    = 0x00000100  /* from color scans                */
 };
 
 /** for lamps connected to the misc I/O pins*/
@@ -308,7 +311,6 @@ enum SCANFLAG
 
 	SCANFLAG_bgr            = 0x00004000,
 	SCANFLAG_BottomUp       = 0x00008000,
-	SCANFLAG_Invert         = 0x00010000,
 	SCANFLAG_DWORDBoundary  = 0x00020000,
 	SCANFLAG_RightAlign     = 0x00040000,
 	SCANFLAG_StillModule    = 0x00080000, 
@@ -340,21 +342,21 @@ typedef struct SrcAttr
 
 typedef struct DevCaps
 {
-	SrcAttrDef	Normal;			/**< Reflection                              */
-	SrcAttrDef	Positive;		/**< Positive film                           */
-	SrcAttrDef	Negative;		/**< Negative film                           */
-	SrcAttrDef	Adf;			/**< Adf device                              */
-	XY   		OpticDpi;		/**< Maximum DPI                             */
-	u_short		wFlags;			/**< Flag to indicate what kinds of elements */
+	SrcAttrDef Normal;          /**< Reflection                              */
+	SrcAttrDef Positive;        /**< Positive film                           */
+	SrcAttrDef Negative;        /**< Negative film                           */
+	SrcAttrDef Adf;             /**< Adf device                              */
+	XY         OpticDpi;        /**< Maximum DPI                             */
+	u_short    wFlags;          /**< Flag to indicate what kinds of elements */
                                 /*   are available                           */
-	u_char		bSensorOrder;	/**< CCD color sequences, see _SENSORORDER   */
-	u_char		bSensorDistance;/**< CCD Color distance                      */
-	u_char		bButtons;		/**< Number of buttons                       */
-	u_char		bCCD;			/**< CCD ID                                  */
-	u_char		bPCB;			/**< PCB ID                                  */
-	u_long		workaroundFlag;	/**< Flag to allow special work arounds, see */
+	u_char     bSensorOrder;    /**< CCD color sequences, see _SENSORORDER   */
+	u_char     bSensorDistance; /**< CCD Color distance                      */
+	u_char     bButtons;        /**< Number of buttons                       */
+	u_char     bCCD;            /**< CCD ID                                  */
+	u_char     bPCB;            /**< PCB ID                                  */
+	u_long     workaroundFlag;  /**< Flag to allow special work arounds, see */
 	                            /*   _WORKAROUNDS                            */
-	u_long      lamp;           /**< for lamp: loword: normal, hiword: tpa   */
+	u_long     lamp;            /**< for lamp: loword: normal, hiword: tpa   */
 
 } DCapsDef, *pDCapsDef;
 

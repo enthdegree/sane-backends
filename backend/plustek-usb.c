@@ -705,9 +705,7 @@ static int usbDev_getCropInfo( Plustek_Device *dev, pCropInfo ci )
 
 	DBG( _DBG_INFO, "usbDev_getCropInfo()\n" );
 
-	_VAR_NOT_USED(dev);
-
-	usb_GetImageInfo( &ci->ImgDef, &size );
+	usb_GetImageInfo( dev, &ci->ImgDef, &size );
 
 	ci->dwPixelsPerLine = size.dwPixels;
 	ci->dwLinesPerArea  = size.dwLines;
@@ -726,7 +724,7 @@ static int usbDev_getCropInfo( Plustek_Device *dev, pCropInfo ci )
 /**
  */
 static int usbDev_setMap( Plustek_Device *dev, SANE_Word *map,
-						  SANE_Word length, SANE_Word channel )
+                          SANE_Word length, SANE_Word channel )
 {
 	SANE_Word i, idx;
 
@@ -762,10 +760,12 @@ static int usbDev_setMap( Plustek_Device *dev, SANE_Word *map,
  */
 static int usbDev_setScanEnv( Plustek_Device *dev, pScanInfo si )
 {
+	DCapsDef *caps = &dev->usbDev.Caps;
+
 	DBG( _DBG_INFO, "usbDev_setScanEnv()\n" );
 
-    /* clear all the stuff */
-    memset( &dev->scanning, 0, sizeof(ScanDef));
+	/* clear all the stuff */
+	memset( &dev->scanning, 0, sizeof(ScanDef));
 
 	if((si->ImgDef.dwFlag & SCANDEF_Adf) &&
 	   (si->ImgDef.dwFlag & SCANDEF_ContinuousScan)) {
@@ -781,30 +781,34 @@ static int usbDev_setScanEnv( Plustek_Device *dev, pScanInfo si )
 		  (dev->usbDev.Caps.OpticDpi.x == 1200 && si->ImgDef.xyDpi.x <= 300)) {
 			dev->scanning.fGrayFromColor = 2;
 			si->ImgDef.wDataType = COLOR_TRUE24;
-
 			DBG( _DBG_INFO, "* Gray from color set!\n" );
 		}
 
-		if((dev->usbDev.vendor == 0x04A9) && (dev->usbDev.product == 0x2208)) {
-			DBG( _DBG_INFO, "* Gray(GRAY256) from color set (D660U)!\n" );
+		if( caps->workaroundFlag & _WAF_GRAY_FROM_COLOR ) {
+			DBG( _DBG_INFO, "* Gray(8-bit) from color set!\n" );
 			dev->scanning.fGrayFromColor = 2;
 			si->ImgDef.wDataType = COLOR_TRUE24;
 		}
 
 	} else if ( si->ImgDef.wDataType == COLOR_GRAY16 ) {
-		if((dev->usbDev.vendor == 0x04A9) && (dev->usbDev.product == 0x2208)) {
-			DBG( _DBG_INFO, "* Gray(GRAY16) from color set (D660U)!\n" );
+		if( caps->workaroundFlag & _WAF_GRAY_FROM_COLOR ) {
+			DBG( _DBG_INFO, "* Gray(16-bit) from color set!\n" );
 			dev->scanning.fGrayFromColor = 2;
 			si->ImgDef.wDataType = COLOR_TRUE48;
 		}
+	} else if ( si->ImgDef.wDataType == COLOR_BW ) {
+		if( caps->workaroundFlag & _WAF_BIN_FROM_COLOR ) {
+			DBG( _DBG_INFO, "* Binary from color set!\n" );
+			dev->scanning.fGrayFromColor = 10;
+			si->ImgDef.wDataType = COLOR_TRUE24;
+		}
 	}
-
 	usb_SaveImageInfo( dev, &si->ImgDef );
-	usb_GetImageInfo ( &si->ImgDef, &dev->scanning.sParam.Size );
+	usb_GetImageInfo ( dev, &si->ImgDef, &dev->scanning.sParam.Size );
 
 	/* Flags */
 	dev->scanning.dwFlag = si->ImgDef.dwFlag & 
-	              (SCANFLAG_bgr | SCANFLAG_BottomUp | SCANFLAG_Invert |
+	              (SCANFLAG_bgr | SCANFLAG_BottomUp |
 	               SCANFLAG_DWORDBoundary | SCANFLAG_RightAlign |
 	               SCANFLAG_StillModule | SCANDEF_Adf | SCANDEF_ContinuousScan);
 
@@ -823,14 +827,14 @@ static int usbDev_setScanEnv( Plustek_Device *dev, pScanInfo si )
 		dev->scanning.dwFlag &= ~SCANFLAG_RightAlign;
 
 	if( dev->scanning.dwFlag & SCANFLAG_DWORDBoundary ) {
-		if( dev->scanning.fGrayFromColor )
+		if( dev->scanning.fGrayFromColor && dev->scanning.fGrayFromColor < 10)
 			dev->scanning.dwBytesLine = (dev->scanning.sParam.Size.dwBytes / 3 + 3) & 0xfffffffcUL;
 		else
 			dev->scanning.dwBytesLine = (dev->scanning.sParam.Size.dwBytes + 3UL) & 0xfffffffcUL;
 
 	} else {
 
-		if( dev->scanning.fGrayFromColor )
+		if( dev->scanning.fGrayFromColor && dev->scanning.fGrayFromColor < 10)
 			dev->scanning.dwBytesLine = dev->scanning.sParam.Size.dwBytes / 3;
 		else
 			dev->scanning.dwBytesLine = dev->scanning.sParam.Size.dwBytes;

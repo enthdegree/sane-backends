@@ -661,7 +661,8 @@ static DCapsDef Cap0x04A9_0x2208 =
 	1,
 	kNEC8861,           /* use default settings during calibration */
 	0,
-	_WAF_MISC_IO_LAMPS, _MIO5 + _TPA(_MIO6)
+	(_WAF_MISC_IO_LAMPS | _WAF_BIN_FROM_COLOR | _WAF_GRAY_FROM_COLOR), 
+	_MIO5 + _TPA(_MIO6)
 };
 
 /* Canon N670U/N676U/LiDE20
@@ -2519,7 +2520,7 @@ static ClkMotorDef Motors[] = {
 		{ 6.0, 6.0, 6.0, 6.0, 6.0, 8.0, 9.0, 9.0, 18.0, 18.0 }
 	},
 
-	{ MODEL_CANONCCD1200, 2, 31, 6, 0x0100,
+	{ MODEL_CANONCCD1200, 2, 31, 6, 0x0120,
 		/* Motor settings (PWM and PWM_Duty) */
 		/* <=75dpi       <=100dpi      <=150dpi      <=200dpi      <=300dpi  */
 		{{ 2, 31, 1 }, { 2, 31, 1 }, { 2, 31, 1 }, { 2, 31, 1 }, { 2, 31, 1 },

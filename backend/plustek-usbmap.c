@@ -18,7 +18,7 @@
  * - 0.45 - no changes
  * - 0.46 - no changes
  * - 0.47 - cleanup work
- * - 0.48 - no changes
+ * - 0.48 - added support for binary from color scans
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -126,16 +126,16 @@ static SANE_Bool usb_MapDownload( pPlustek_Device dev, u_char bDataType )
 
 	/* the maps are have been already set */
 	
-	/* do the brightness and contrast adjustment ... */			
-	if( scanning->sParam.bDataType != SCANDATATYPE_BW )	
+	/* do the brightness and contrast adjustment ... */
+	if( scanning->sParam.bDataType != SCANDATATYPE_BW )
 		usb_MapAdjust( dev );
 
 	if( !usbio_WriteReg( dev->fd, 7, 0))
 		return SANE_FALSE;
 
 	/* we download all the time all three color maps, as we run
-     * into trouble elsewhere on CanoScan models using gray mode
-     */
+	 * into trouble elsewhere on CanoScan models using gray mode
+	 */
 #if 0
 	if( bDataType == SCANDATATYPE_Color ) {
 		color    = 0;
@@ -155,17 +155,18 @@ static SANE_Bool usb_MapDownload( pPlustek_Device dev, u_char bDataType )
 	
 		/* select color */
 		value = (color << 2)+2;
-		
+
 		/* set gamma color selector */
 		usbio_WriteReg( dev->fd, 0x03, value );
 		usbio_WriteReg( dev->fd, 0x04, 0 );
 		usbio_WriteReg( dev->fd, 0x05, 0 );
-		
+
 		/* write the gamma table entry to merlin */
-		if( scanning->sParam.bDataType == SCANDATATYPE_BW )	{
-		
+		if((scanning->sParam.bDataType == SCANDATATYPE_BW) ||
+		   (scanning->fGrayFromColor > 7 )) {
+
 			iThreshold = (int)((double)scanning->sParam.siThreshold *
-											(_MAP_SIZE/200.0)) + (_MAP_SIZE/2);
+			                                (_MAP_SIZE/200.0)) + (_MAP_SIZE/2);
 			iThreshold = _MAP_SIZE - iThreshold;
 			if(iThreshold < 0)
 				iThreshold = 0;
@@ -192,11 +193,6 @@ static SANE_Bool usb_MapDownload( pPlustek_Device dev, u_char bDataType )
 			(sc->workaroundFlag &_WAF_INV_NEGATIVE_MAP)) {
 			fInverse ^= 1;
 		}
-		
-		if((scanning->dwFlag & SCANFLAG_Invert) &&
-									!(scanning->dwFlag & SCANFLAG_Pseudo48)) {
-			fInverse ^= 1;
-		}	
 
 		if( fInverse ) {
 		

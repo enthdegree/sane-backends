@@ -8,6 +8,9 @@
 	  problem and Scanmaker X12 problems. New version: 20020127. Code from
 	  karsten.festag@t-online.de (Karsten Festag).
 	* lib/inet_ntop.c: Fixed problem with header include order on Irix.
+	* configure configure.in backend/snapscan-usb.c
+	  include/sane/config.h.in: Only define union semun if not already
+	  defined in <sys/sem.h>. Fixes compilation bugs on Irix and FreeBSD.
 
 2002-01-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

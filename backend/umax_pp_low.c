@@ -484,6 +484,13 @@ sanei_umax_pp_InitPort (int port)
   setregid (mode, mode);
 #endif
 
+#ifdef HAVE_SYS_HW_H
+  /* gainig io perm under OS/2                    */
+  /* IOPL must has been raised to 3 in config.sys */
+  /* for EMX portaccess always succeeds           */
+  _portaccess (port, port + 7);
+#endif
+
 
   /* FreeBSD and NetBSD with compatibility opion 9 */
   /* opening /dev/io raise IOPL to level 3         */
@@ -649,7 +656,11 @@ static void
 Outb (int port, int value)
 {
 #ifndef IO_SUPPORT_MISSING
+#ifdef HAVE_SYS_HW_H
+  _outp8 (port, value) & 0xFF;
+#else
   outb (value, port);
+#endif
 #endif
 }
 
@@ -662,7 +673,11 @@ Inb (int port)
 {
   int res = 0xFF;
 #ifndef IO_SUPPORT_MISSING
+#ifdef HAVE_SYS_HW_H
+  res = _inbp8 (port) & 0xFF;
+#else
   res = inb (port) & 0xFF;
+#endif
 #endif
   return res;
 }
@@ -677,7 +692,11 @@ Insb (int port, unsigned char *dest, int size)
   for (i = 0; i < size; i++)
     dest[i] = Inb (port);
 #else
+#ifdef HAVE_SYS_HW_H
+  _inps8 (port, dest, size);
+#else
   insb (port, dest, size);
+#endif
 #endif
 #endif
 }
@@ -692,7 +711,11 @@ Outsb (int port, unsigned char *source, int size)
   for (i = 0; i < size; i++)
     Outb (port, source[i]);
 #else
+#ifdef HAVE_SYS_HW_H
+  _outps8 (port, source, size);
+#else
   outsb (port, source, size);
+#endif
 #endif
 #endif
 }
@@ -710,7 +733,11 @@ Insw (int port, unsigned char *dest, int size)
   for (i = 0; i < size * 4; i++)
     dest[i] = Inb (port);
 #else
+#ifdef HAVE_SYS_HW_H
+  _inps32 (port, (unsigned long *) dest, size);
+#else
   insl (port, dest, size);
+#endif
 #endif
 #endif
 }
@@ -725,7 +752,11 @@ Outsw (int port, unsigned char *source, int size)
   for (i = 0; i < size * 4; i++)
     Outb (port, source[i]);
 #else
+#ifdef HAVE_SYS_HW_H
+  _outps32 (port, (unsigned long *) source, size);
+#else
   outsw (port, source, size);
+#endif
 #endif
 #endif
 }
@@ -1641,6 +1672,7 @@ EPPRead32Buffer (int size, unsigned char *dest)
 
   Outb (EPPADR, 0x80);
   /* beurk XXX STEF XXX */
+  /* but hides away outb in other functions */
   if (size == 0)
     return;
 

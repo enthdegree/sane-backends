@@ -1705,8 +1705,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 	  s->params.format = SANE_FRAME_RGB;
 	}
     }
-  s->params.last_frame = (s->params.format != SANE_FRAME_RED
-			  && s->params.format != SANE_FRAME_GREEN);
+  s->params.last_frame = SANE_TRUE;
   if (params)
     *params = s->params;
   DBG (4, "sane_get_parameters: frame = %d; last_frame = %s; depth = %d\n",

@@ -4,6 +4,8 @@
 	  doc/mustek_usb/mustek_usb.CHANGES doc/mustek_usb/mustek_usb.TODO:
 	  Minor manpage fixes. Added links to similar backends. More
 	  information about non-Linux OS.
+	* doc/sane-mustek.man: Minor fixes. Added links to ther backends
+	  providing support for Mustek scanners.
 
 2002-11-21  Michael Herder <crapsite at gmx.net>
 

@@ -9,5 +9,7 @@
 :mfg "Kodak"				; Manufacturer
 :url "http://www.kodak.com/US/en/digital/cameras/dc25/";
 :model "DC25"				;
+:interface "Serial port"
 :model "DC20" 				;
+:interface "Serial port"
 :comment "DC-20 untested by author but reported to work"

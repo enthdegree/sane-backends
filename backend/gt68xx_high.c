@@ -1070,24 +1070,27 @@ gt68xx_afe_ccd_calc (GT68xx_Afe_Values * values, unsigned int *buffer)
 static SANE_Bool
 gt68xx_afe_ccd_adjust_offset_gain (GT68xx_Afe_Values * values,  
 				   unsigned int *buffer, SANE_Byte * offset,
-				   SANE_Byte * pga)
+				   SANE_Byte * pga, SANE_Byte * old_offset,
+				   SANE_Byte * old_pga)
 {
   SANE_Int black_low = values->coarse_black, black_high = black_low + 15;
   SANE_Int white_high = values->coarse_white, white_low = white_high - 15; 
   SANE_Bool done = SANE_TRUE;
+  SANE_Byte local_pga = *pga;
+  SANE_Byte local_offset = *offset;
 
   gt68xx_afe_ccd_calc (values, buffer);
 
   if (values->white > white_high)
     {
       if (values->black > black_high)
-	*offset += values->offset_direction;
+	local_offset += values->offset_direction;
       else if (values->black < black_low)
-	(*pga)--;
+	local_pga--;
       else
 	{
-	  *offset += values->offset_direction;
-	  (*pga)--;
+	  local_offset += values->offset_direction;
+	  local_pga--;
 	}
       done = SANE_FALSE;
       goto finish;
@@ -1095,13 +1098,13 @@ gt68xx_afe_ccd_adjust_offset_gain (GT68xx_Afe_Values * values,
   else if (values->white < white_low)
     {
       if (values->black < black_low)
-	*offset -= values->offset_direction;
+	local_offset -= values->offset_direction;
       else if (values->black > black_high)
-	(*pga)++;
+	local_pga++;
       else
 	{
-	  *offset -= values->offset_direction;
-	  (*pga)++;
+	  local_offset -= values->offset_direction;
+	  local_pga++;
 	}
       done = SANE_FALSE;
       goto finish;
@@ -1109,13 +1112,13 @@ gt68xx_afe_ccd_adjust_offset_gain (GT68xx_Afe_Values * values,
   if (values->black > black_high)
     {
       if (values->white > white_high)
-	*offset += values->offset_direction;
+	local_offset += values->offset_direction;
       else if (values->white < white_low)
-	(*pga)++;
+	local_pga++;
       else
 	{
-	  *offset += values->offset_direction;
-	  (*pga)++;
+	  local_offset += values->offset_direction;
+	  local_pga++;
 	}
       done = SANE_FALSE;
       goto finish;
@@ -1123,20 +1126,28 @@ gt68xx_afe_ccd_adjust_offset_gain (GT68xx_Afe_Values * values,
   else if (values->black < black_low)
     {
       if (values->white < white_low)
-	*offset -= values->offset_direction;
+	local_offset -= values->offset_direction;
       else if (values->white > white_high)
-	(*pga)--;
+	local_pga--;
       else
 	{
-	  *offset -= values->offset_direction;
-	  (*pga)--;
+	  local_offset -= values->offset_direction;
+	  local_pga--;
 	}
       done = SANE_FALSE;
       goto finish;
     }
  finish:
-  DBG (5, "%swhite=%d, black=%d, offset=%d, gain=%d, total_white=%d\n",
-       done ? "DONE: " : "", values->white, values->black, *offset, *pga, values->total_white);
+  if ((*old_pga == *pga) && (*old_offset = *offset))
+    done = SANE_TRUE;
+  *old_pga = *pga;
+  *old_offset = *offset;
+  *pga = local_pga;
+  *offset = local_offset;
+
+  DBG (5, "%swhite=%d, black=%d, offset=%d, gain=%d, old offs=%d, old pga=%dtotal_white=%d\n",
+       done ? "DONE: " : "", values->white, values->black, local_offset, local_pga, *old_offset,
+       *old_pga, values->total_white);
   return done;
 
 }
@@ -1165,6 +1176,7 @@ gt68xx_afe_ccd_auto (GT68xx_Scanner * scanner,
   GT68xx_Afe_Values values;
   unsigned int *buffer_pointers[3];
   GT68xx_AFE_Parameters *afe = scanner->dev->afe;
+  GT68xx_AFE_Parameters old_afe = {255, 255, 255, 255, 255, 255};
   SANE_Bool done;
   SANE_Int last_white = 0;
 
@@ -1259,7 +1271,7 @@ gt68xx_afe_ccd_auto (GT68xx_Scanner * scanner,
 
       gt68xx_afe_ccd_calc (&values, buffer_pointers[0]);
 
-      XDBG ((5, "%s: check lamp stable: this white = %d, last white = %d\n",
+      XDBG ((4, "%s: check lamp stable: this white = %d, last white = %d\n",
 	     function_name, values.total_white, last_white));
 
       if (scanner->val[OPT_AUTO_WARMUP].w == SANE_TRUE)
@@ -1308,19 +1320,23 @@ gt68xx_afe_ccd_auto (GT68xx_Scanner * scanner,
 	{
 	  done =
 	    gt68xx_afe_ccd_adjust_offset_gain (&values, buffer_pointers[0],
-						 &afe->r_offset, &afe->r_pga);
+					       &afe->r_offset, &afe->r_pga,
+					       &old_afe.r_offset, &old_afe.r_pga);
 	  done &=
 	    gt68xx_afe_ccd_adjust_offset_gain (&values, buffer_pointers[1],
-						 &afe->g_offset, &afe->g_pga);
+					       &afe->g_offset, &afe->g_pga,
+					       &old_afe.g_offset, &old_afe.g_pga);
 	  done &=
 	    gt68xx_afe_ccd_adjust_offset_gain (&values, buffer_pointers[2],
-						 &afe->b_offset, &afe->b_pga);
+					       &afe->b_offset, &afe->b_pga,
+					       &old_afe.b_offset, &old_afe.b_pga);
 	}
       else
 	{
 	  done =
 	    gt68xx_afe_ccd_adjust_offset_gain (&values, buffer_pointers[0],
-						 &afe->g_offset, &afe->g_pga);
+					       &afe->g_offset, &afe->g_pga,
+					       &old_afe.g_offset, &old_afe.g_pga);
 	}
 
       gt68xx_scanner_stop_scan (scanner);

@@ -53,6 +53,11 @@
 :interface "USB"
 :comment "Works but has limited testing. Color problems? Reports are welcome."
 
+:model "Colorpage Vivid4x"
+:status :untested
+:interface "USB"
+:comment "Should be detecetd but may not work. Please contact me if you have such a scanner."
+
 ; -----------------------------------------------------------------------------
 
 :mfg "Lexmark"
@@ -191,8 +196,8 @@
 
 :model "OpticPro 1248U"
 :interface "USB"
-:status :basic
-:comment "Works up to 600 dpi, but calibration is slow"
+:status :good
+:comment "Works up to 600 dpi."
 
 :model "OpticSlim 1200"
 :interface "USB"

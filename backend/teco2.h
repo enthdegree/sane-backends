@@ -295,7 +295,9 @@ enum Teco_Option
   OPT_DITHER,
   OPT_FILTER_COLOR,		/* which color to filter */
   OPT_THRESHOLD,		/* Threshold */
-  OPT_WHITE_LEVEL,		/*white level correction */
+  OPT_WHITE_LEVEL_R,		/* white level correction RED */
+  OPT_WHITE_LEVEL_G,            /* white level correction GREEN */
+  OPT_WHITE_LEVEL_B,            /* white level correction BLUE */
 
   OPT_PREVIEW,
 

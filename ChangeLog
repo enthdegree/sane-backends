@@ -30,6 +30,7 @@
 	* doc/descriptions-external/scanwit.desc
 	  doc/descriptions-external/viceo.desc: Added description files for
 	  scanwit and viceo backends.
+	* doc/descriptions-external/tevion9693usb.desc: Removed (now included).
 
 
 2002-12-28  Karl Heinz Kremer <khk@khk.net>

@@ -457,7 +457,7 @@ init_options (GT68xx_Scanner * s)
   s->val[OPT_MODE].s = strdup (SANE_VALUE_SCAN_MODE_GRAY);
 
   /* scan mode */
-  s->opt[OPT_GRAY_MODE_COLOR].name = SANE_I18N ("gray-mode-color");
+  s->opt[OPT_GRAY_MODE_COLOR].name = "gray-mode-color";
   s->opt[OPT_GRAY_MODE_COLOR].title = SANE_I18N ("Gray mode color");
   s->opt[OPT_GRAY_MODE_COLOR].desc = SANE_I18N ("Selects which scan color is used "
 						"gray mode (default: green).");
@@ -636,8 +636,8 @@ init_options (GT68xx_Scanner * s)
   s->opt[OPT_BACKTRACK_LINES].desc = 
     SANE_I18N ("Number of lines the scan slider moves back when backtracking "
 	       "occurs. That happens when the scanner scans faster than the "
-	       "computer can receive the data. Low values cause fasetr scans "
-	       "but increase the risk of ommitting lines.");
+	       "computer can receive the data. Low values cause faster scans "
+	       "but increase the risk of omitting lines.");
   s->opt[OPT_BACKTRACK_LINES].type = SANE_TYPE_INT;
   s->opt[OPT_BACKTRACK_LINES].unit = SANE_UNIT_NONE;
   s->opt[OPT_BACKTRACK_LINES].constraint_type = SANE_CONSTRAINT_RANGE;

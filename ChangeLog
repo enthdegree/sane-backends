@@ -1,4 +1,16 @@
 2004-06-19  Mattias Ellert <mattias.ellert@tsl.uu.se>
+	* backend/gt68xx.c po/sane-backends.bg.po po/sane-backends.cs.po
+	  po/sane-backends.da.po po/sane-backends.de.po
+	  po/sane-backends.es.po po/sane-backends.fr.po
+	  po/sane-backends.it.po po/sane-backends.nl.po
+	  po/sane-backends.no.po po/sane-backends.pt.po
+	  po/sane-backends.ru.po po/sane-backends.sv.po
+	* Option names should not be tagged for localization
+	* Fixing some typos
+	* New localizable strings from the gt68xx backend (pofiles regenerated)
+	* Swedish translation updated
+
+2004-06-19  Mattias Ellert <mattias.ellert@tsl.uu.se>
 	* sanei/sanei_scsi.c, tools/sane-find-scanner.c
 	* SCSI scanners can now be selected by LUN on MacOS X
 	* sane-find-scanner now finds SCSI scanners on MacOS X

@@ -13,7 +13,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.12\n"
-"POT-Creation-Date: 2004-04-04 15:13+0200\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2004-06-20 00:36+0200\n"
 "PO-Revision-Date: 2003-05-30 16:34CET\n"
 "Last-Translator: Yann E. MORIN <yann dot morin dot 1998 at anciens dot enib "
 "dot fr>\n"
@@ -21,7 +22,6 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Report-Msgid-Bugs-To: \n"
 "X-Generator: KBabel 0.9.5\n"
 
 # ####################################################
@@ -47,63 +47,63 @@ msgstr ""
 # I'll keep the english there as well.
 # ####################################################
 # sceptre.h:280
-#: .tmp/artec_eplus48u.c:155 .tmp/gt68xx.c:119 .tmp/hp-option.c:2923
-#: .tmp/ma1509.c:101 .tmp/mustek.c:125 .tmp/mustek.c:130 .tmp/mustek_usb.c:270
-#: .tmp/sceptre.h:289 .tmp/snapscan-options.c:78 .tmp/umax.c:186
-#: .tmp/umax_pp.c:133
+#: .tmp/artec_eplus48u.c:154 .tmp/hp-option.c:2923 .tmp/ma1509.c:101
+#: .tmp/mustek.c:125 .tmp/mustek.c:130 .tmp/mustek_usb.c:270
+#: .tmp/saneopts.h:391 .tmp/sceptre.h:289 .tmp/snapscan-options.c:78
+#: .tmp/umax.c:186 .tmp/umax_pp.c:137
 msgid "Lineart"
 msgstr "Trait"
 
-#: .tmp/artec_eplus48u.c:156 .tmp/hp-option.c:2925 .tmp/leo.h:261
-#: .tmp/teco1.h:292 .tmp/teco2.h:351 .tmp/teco3.h:295 .tmp/umax_pp.c:133
+#: .tmp/artec_eplus48u.c:155 .tmp/hp-option.c:2925 .tmp/leo.h:261
+#: .tmp/teco1.h:292 .tmp/teco2.h:351 .tmp/teco3.h:295 .tmp/umax_pp.c:137
 msgid "Grayscale"
 msgstr "Niveaux de gris"
 
 # sceptre.h:280
-#: .tmp/artec_eplus48u.c:157 .tmp/epson.c:502 .tmp/gt68xx.c:117
-#: .tmp/hp-option.c:2926 .tmp/leo.h:262 .tmp/ma1509.c:101 .tmp/mustek.c:126
-#: .tmp/mustek.c:130 .tmp/mustek_usb.c:268 .tmp/plustek.c:214
-#: .tmp/plustek_pp.c:192 .tmp/plustek_pp.c:201 .tmp/sceptre.h:292
+#: .tmp/artec_eplus48u.c:156 .tmp/epson.c:502 .tmp/hp-option.c:2926
+#: .tmp/leo.h:262 .tmp/ma1509.c:101 .tmp/mustek.c:126 .tmp/mustek.c:130
+#: .tmp/mustek_usb.c:268 .tmp/plustek.c:215 .tmp/plustek_pp.c:192
+#: .tmp/plustek_pp.c:201 .tmp/saneopts.h:389 .tmp/sceptre.h:292
 #: .tmp/snapscan-options.c:75 .tmp/teco1.h:293 .tmp/teco2.h:352
-#: .tmp/teco3.h:296 .tmp/test.c:122 .tmp/umax.c:191 .tmp/umax_pp.c:133
+#: .tmp/teco3.h:296 .tmp/test.c:122 .tmp/umax.c:191 .tmp/umax_pp.c:137
 msgid "Color"
 msgstr "Couleur"
 
-#: .tmp/artec_eplus48u.c:2806 .tmp/gt68xx.c:607 .tmp/leo.c:871
+#: .tmp/artec_eplus48u.c:2805 .tmp/gt68xx.c:653 .tmp/leo.c:871
 #: .tmp/ma1509.c:597 .tmp/matsushita.c:1191 .tmp/microtek2.h:602
-#: .tmp/mustek.c:4383 .tmp/mustek_usb.c:353 .tmp/plustek.c:748
+#: .tmp/mustek.c:4382 .tmp/mustek_usb.c:353 .tmp/plustek.c:754
 #: .tmp/plustek_pp.c:797 .tmp/sceptre.c:753 .tmp/snapscan-options.c:488
 #: .tmp/teco1.c:1146 .tmp/teco2.c:1940 .tmp/teco3.c:971 .tmp/umax.c:5214
-#: .tmp/umax_pp.c:519
+#: .tmp/umax_pp.c:542
 msgid "Enhancement"
 msgstr "Réglages fins"
 
-#: .tmp/artec_eplus48u.c:2875 .tmp/pnm.c:276
+#: .tmp/artec_eplus48u.c:2874 .tmp/pnm.c:276
 msgid "Defaults"
 msgstr "Valeurs par défaut"
 
-#: .tmp/artec_eplus48u.c:2877
+#: .tmp/artec_eplus48u.c:2876
 msgid "Set default values for enhancement controls."
 msgstr "Valeurs par défaut pour les réglages fins."
 
-#: .tmp/artec_eplus48u.c:2885 .tmp/epson.c:3234 .tmp/gt68xx.c:663
+#: .tmp/artec_eplus48u.c:2884 .tmp/epson.c:3234 .tmp/gt68xx.c:709
 #: .tmp/leo.c:823 .tmp/ma1509.c:549 .tmp/matsushita.c:1137
-#: .tmp/microtek2.h:601 .tmp/mustek.c:4335 .tmp/mustek_usb.c:305
-#: .tmp/plustek.c:702 .tmp/plustek_pp.c:751 .tmp/sceptre.c:705
+#: .tmp/microtek2.h:601 .tmp/mustek.c:4334 .tmp/mustek_usb.c:305
+#: .tmp/plustek.c:708 .tmp/plustek_pp.c:751 .tmp/sceptre.c:705
 #: .tmp/snapscan-options.c:421 .tmp/teco1.c:1098 .tmp/teco2.c:1892
-#: .tmp/teco3.c:923 .tmp/test.c:618 .tmp/umax.c:5164 .tmp/umax_pp.c:470
+#: .tmp/teco3.c:923 .tmp/test.c:618 .tmp/umax.c:5164 .tmp/umax_pp.c:493
 msgid "Geometry"
 msgstr "Aire de numérisation"
 
-#: .tmp/artec_eplus48u.c:2933
+#: .tmp/artec_eplus48u.c:2932
 msgid "Calibration"
 msgstr "Calibration"
 
-#: .tmp/artec_eplus48u.c:2942
+#: .tmp/artec_eplus48u.c:2941
 msgid "Calibrate before next scan"
 msgstr "Calibrer avant la prochaine numérisation"
 
-#: .tmp/artec_eplus48u.c:2944
+#: .tmp/artec_eplus48u.c:2943
 msgid ""
 "If enabled, the device will be calibrated before the next scan. Otherwise, "
 "calibration is performed only before the first start."
@@ -111,11 +111,11 @@ msgstr ""
 "Si activé, le scanner sera calibré avant la prochaine numérisation. Sinon la "
 "calibration est effectuée seulement avant la première numérisation."
 
-#: .tmp/artec_eplus48u.c:2955
+#: .tmp/artec_eplus48u.c:2954
 msgid "Only perform shading-correction"
 msgstr "Effectuer uniquement la correction des ombres"
 
-#: .tmp/artec_eplus48u.c:2957
+#: .tmp/artec_eplus48u.c:2956
 msgid ""
 "If enabled, only the shading correction is performed during calibration. The "
 "default values for gain, offset and exposure time, either build-in or from "
@@ -126,15 +126,15 @@ msgstr ""
 "d'exposition, internes ou lues dans le fichier de configuration, sont "
 "utilisées."
 
-#: .tmp/artec_eplus48u.c:2968
+#: .tmp/artec_eplus48u.c:2967
 msgid "Button state"
 msgstr "Etat du bouton"
 
-#: .tmp/avision.h:516
+#: .tmp/avision.h:536
 msgid "Number of the frame to scan"
 msgstr "Numéro de la trame à numériser"
 
-#: .tmp/avision.h:517
+#: .tmp/avision.h:537
 msgid "Selects the number of the frame to scan"
 msgstr "Sélectionner le numéro de la trame à numériser"
 
@@ -171,15 +171,15 @@ msgid "Selects the gamma corrected transfer curve"
 msgstr "Sélectionne la courbe de correction gamma"
 
 # sceptre.h:280
-#: .tmp/epson.c:500 .tmp/plustek.c:211 .tmp/plustek_pp.c:189
+#: .tmp/epson.c:500 .tmp/plustek.c:212 .tmp/plustek_pp.c:189
 #: .tmp/plustek_pp.c:198
 msgid "Binary"
 msgstr "Noir et blanc"
 
 # sceptre.h:280
-#: .tmp/epson.c:501 .tmp/gt68xx.c:118 .tmp/ma1509.c:101 .tmp/mustek.c:125
-#: .tmp/mustek.c:130 .tmp/mustek_usb.c:269 .tmp/plustek.c:212
-#: .tmp/plustek_pp.c:191 .tmp/plustek_pp.c:200 .tmp/sceptre.h:291
+#: .tmp/epson.c:501 .tmp/ma1509.c:101 .tmp/mustek.c:125 .tmp/mustek.c:130
+#: .tmp/mustek_usb.c:269 .tmp/plustek.c:213 .tmp/plustek_pp.c:191
+#: .tmp/plustek_pp.c:200 .tmp/saneopts.h:390 .tmp/sceptre.h:291
 #: .tmp/snapscan-options.c:77 .tmp/test.c:122 .tmp/umax.c:188
 msgid "Gray"
 msgstr "Gris"
@@ -193,7 +193,7 @@ msgstr "Recto-verso"
 msgid "Duplex"
 msgstr "Recto-verso"
 
-#: .tmp/epson.c:517 .tmp/gt68xx.c:124 .tmp/ma1509.c:106 .tmp/mustek.c:148
+#: .tmp/epson.c:517 .tmp/gt68xx.c:141 .tmp/ma1509.c:106 .tmp/mustek.c:148
 #: .tmp/mustek.c:152 .tmp/mustek.c:156 .tmp/snapscan-options.c:81
 #: .tmp/umax.c:182
 msgid "Flatbed"
@@ -354,9 +354,9 @@ msgstr "A4"
 msgid "Max"
 msgstr "max"
 
-#: .tmp/epson.c:2749 .tmp/gt68xx.c:433 .tmp/ma1509.c:499
-#: .tmp/matsushita.c:1086 .tmp/microtek2.h:600 .tmp/mustek.c:4198
-#: .tmp/mustek_usb.c:260 .tmp/plustek.c:630 .tmp/plustek_pp.c:662
+#: .tmp/epson.c:2749 .tmp/gt68xx.c:442 .tmp/ma1509.c:499
+#: .tmp/matsushita.c:1086 .tmp/microtek2.h:600 .tmp/mustek.c:4197
+#: .tmp/mustek_usb.c:260 .tmp/plustek.c:636 .tmp/plustek_pp.c:662
 #: .tmp/sceptre.c:676 .tmp/snapscan-options.c:260 .tmp/teco2.c:1864
 #: .tmp/test.c:293 .tmp/umax.c:5042
 msgid "Scan Mode"
@@ -574,40 +574,49 @@ msgstr ""
 "Aprés avoir envoyer la commande de numérisation, attendre l'appui du bouton "
 "avant de commencer la numérisation."
 
-#: .tmp/gt68xx.c:125 .tmp/ma1509.c:106 .tmp/mustek.c:156
+#: .tmp/gt68xx.c:142 .tmp/ma1509.c:106 .tmp/mustek.c:156
 #: .tmp/snapscan-options.c:82 .tmp/umax.c:183
 msgid "Transparency Adapter"
 msgstr "Adaptateur pour transparents"
 
-#: .tmp/gt68xx.c:474
+#: .tmp/gt68xx.c:461
+msgid "Gray mode color"
+msgstr ""
+
+#: .tmp/gt68xx.c:462
+msgid "Selects which scan color is used gray mode (default: green)."
+msgstr ""
+
+#: .tmp/gt68xx.c:494
 msgid "Lamp always on"
 msgstr "Lampe toujours allumée"
 
-#: .tmp/gt68xx.c:476
+#: .tmp/gt68xx.c:496
 msgid "Don't turn off the lamp after leaving the frontend."
 msgstr "Ne pas éteindre la lampe en quittant l'interface."
 
-#: .tmp/gt68xx.c:517
+#: .tmp/gt68xx.c:544
 msgid "Debugging Options"
 msgstr "Options de déboggage"
 
-#: .tmp/gt68xx.c:528
+#: .tmp/gt68xx.c:555
 msgid "Automatic warmup"
 msgstr "Préchauffage automatique"
 
-#: .tmp/gt68xx.c:530
+#: .tmp/gt68xx.c:557
+#, fuzzy
 msgid ""
-"Warm-up until the lamp's brightness is constant instead of insisting on 30 "
+"Warm-up until the lamp's brightness is constant instead of insisting on 60 "
 "seconds warm-up time."
 msgstr ""
 "Préchauffer jusqu'à ce que l'intensité de la lampe soit constante, au lieu "
 "d'attendre 30 secondes."
 
-#: .tmp/gt68xx.c:541
+#: .tmp/gt68xx.c:568
 msgid "Full scan"
 msgstr "Numérisation complète"
 
-#: .tmp/gt68xx.c:543
+#: .tmp/gt68xx.c:570
 msgid ""
 "Scan the complete scanning area including calibration strip. Be carefull. "
 "Don't select the full height. For testing only."
@@ -615,11 +624,11 @@ msgstr ""
 "Numérise la totalité de la surface, en incluant les bandes de calibration. "
 "ATTENTION! Ne pas sélectionner la hauteur complète. Seulement pour tester."
 
-#: .tmp/gt68xx.c:554
+#: .tmp/gt68xx.c:581
 msgid "Coarse calibration"
 msgstr "Calibration grossière"
 
-#: .tmp/gt68xx.c:556
+#: .tmp/gt68xx.c:583
 msgid ""
 "Setup gain and offset for scanning automatically. If this option is "
 "disabled, options for setting the analog frontend parameters manually are "
@@ -630,11 +639,11 @@ msgstr ""
 "les paramètres gain et décalage dans l'application. Activée par défaut. Pour "
 "tester seulement."
 
-#: .tmp/gt68xx.c:570
+#: .tmp/gt68xx.c:597
 msgid "Coarse calibration for first scan only"
 msgstr "Utiliser la calibration grosière seulement à la première numérisation"
 
-#: .tmp/gt68xx.c:572
+#: .tmp/gt68xx.c:599
 msgid ""
 "Coarse calibration is only done for the first scan. Works with most scanners "
 "and can save scanning time. If the image brightness is different with each "
@@ -645,11 +654,11 @@ msgstr ""
 "du temps. Si l'intensité de chaque image est différente, désactiver cette "
 "option. Seulement pour tester."
 
-#: .tmp/gt68xx.c:596 .tmp/mustek.c:4327
+#: .tmp/gt68xx.c:623 .tmp/mustek.c:4326
 msgid "Fast preview"
 msgstr "Aperçu rapide"
 
-#: .tmp/gt68xx.c:598 .tmp/mustek.c:4328
+#: .tmp/gt68xx.c:625 .tmp/mustek.c:4327
 msgid ""
 "Request that all previews are done in in the fastest (low-quality) mode. "
 "This may be a non-color mode or a low resolution mode."
@@ -657,19 +666,30 @@ msgstr ""
 "Les aperçus seront effectués dans le mode le plus rapide (basse qualité). Ce "
 "peut etre en noir et blanc, et/ou dans une basse en résolution."
 
-#: .tmp/gt68xx.c:616
+#: .tmp/gt68xx.c:635
+msgid "Backtrack lines"
+msgstr ""
+
+#: .tmp/gt68xx.c:637
+msgid ""
+"Number of lines the scan slider moves back when backtracking occurs. That "
+"happens when the scanner scans faster than the computer can receive the "
+"data. Low values cause faster scans but increase the risk of omitting lines."
+msgstr ""
+
+#: .tmp/gt68xx.c:662
 msgid "Gamma value"
 msgstr "Valeur de gamma"
 
-#: .tmp/gt68xx.c:617
+#: .tmp/gt68xx.c:663
 msgid "Sets the gamma value of all channels."
 msgstr "Sélectionne la valeur de gamma pour tous les cannaux."
 
-#: .tmp/gt68xx.c:639
+#: .tmp/gt68xx.c:685
 msgid "Gain correction"
 msgstr "Correction de gain"
 
-#: .tmp/gt68xx.c:641
+#: .tmp/gt68xx.c:687
 msgid ""
 "This value is added to the internal gain value. Use for extremely light or "
 "dark images."
@@ -677,11 +697,11 @@ msgstr ""
 "Cette valeur est ajoutée au gain interne. Utilisez pour des images très "
 "claires ou très sombres."
 
-#: .tmp/gt68xx.c:652
+#: .tmp/gt68xx.c:698
 msgid "Offset correction"
 msgstr "Correction de décalage"
 
-#: .tmp/gt68xx.c:654
+#: .tmp/gt68xx.c:700
 msgid ""
 "This value is added to the internal offset value. Use for extremely light or "
 "dark images."
@@ -759,7 +779,7 @@ msgid "Slow"
 msgstr "Plus lent"
 
 #: .tmp/hp-option.c:3141 .tmp/hp-option.c:3248 .tmp/matsushita.c:244
-#: .tmp/mustek.c:141 .tmp/plustek.c:221 .tmp/plustek_pp.c:208
+#: .tmp/mustek.c:141 .tmp/plustek.c:222 .tmp/plustek_pp.c:208
 msgid "Normal"
 msgstr "Normal"
 
@@ -802,7 +822,7 @@ msgstr "Blanc pur"
 msgid "Film-strip"
 msgstr "Type de film"
 
-#: .tmp/hp-option.c:3231 .tmp/plustek.c:223 .tmp/plustek_pp.c:210
+#: .tmp/hp-option.c:3231 .tmp/plustek.c:224 .tmp/plustek_pp.c:210
 #: .tmp/saneopts.h:176
 msgid "Negative"
 msgstr "Négatif"
@@ -1206,11 +1226,11 @@ msgstr "Utiliser l'adaptateur de diapositives"
 msgid "This option turns off the lamp of the flatbed during a scan"
 msgstr "Cette option éteint la lampe pendant la numérisation"
 
-#: .tmp/microtek2.h:628
+#: .tmp/microtek2.h:628 .tmp/snapscan-options.c:310
 msgid "Quality scan"
 msgstr "Numérisation de qualité"
 
-#: .tmp/microtek2.h:629
+#: .tmp/microtek2.h:629 .tmp/snapscan-options.c:311
 msgid "Highest quality but lower speed"
 msgstr "Qualité maximale, mais vitesse réduite"
 
@@ -1452,93 +1472,93 @@ msgstr "3x3 - Personalisé"
 msgid "2x2 custom"
 msgstr "2x2 - Personalisé"
 
-#: .tmp/mustek.c:4230
+#: .tmp/mustek.c:4229
 msgid "Fast gray mode"
 msgstr "Mode gris rapide"
 
-#: .tmp/mustek.c:4231
+#: .tmp/mustek.c:4230
 msgid "Scan in fast gray mode (lower quality)."
 msgstr "Numérise rapidement en mode gris (qualité réduite)."
 
-#: .tmp/mustek.c:4405 .tmp/umax_pp.c:627
+#: .tmp/mustek.c:4404 .tmp/umax_pp.c:650
 msgid "Red brightness"
 msgstr "Luminosité des rouges"
 
-#: .tmp/mustek.c:4406
+#: .tmp/mustek.c:4405
 msgid "Controls the brightness of the red channel of the acquired image."
 msgstr "Contrôle la brillance rouge de l'image à numériser."
 
-#: .tmp/mustek.c:4418 .tmp/umax_pp.c:640
+#: .tmp/mustek.c:4417 .tmp/umax_pp.c:663
 msgid "Green brightness"
 msgstr "Luminosité des verts"
 
-#: .tmp/mustek.c:4419
+#: .tmp/mustek.c:4418
 msgid "Controls the brightness of the green channel of the acquired image."
 msgstr "Contrôle la brillance verte de l'image à numériser."
 
-#: .tmp/mustek.c:4431 .tmp/umax_pp.c:653
+#: .tmp/mustek.c:4430 .tmp/umax_pp.c:676
 msgid "Blue brightness"
 msgstr "Luminosité des bleus"
 
-#: .tmp/mustek.c:4432
+#: .tmp/mustek.c:4431
 msgid "Controls the brightness of the blue channel of the acquired image."
 msgstr "Contrôle la brillance bleue de l'image à numériser."
 
-#: .tmp/mustek.c:4457
+#: .tmp/mustek.c:4456
 msgid "Contrast red channel"
 msgstr "Contraste - rouge"
 
-#: .tmp/mustek.c:4458
+#: .tmp/mustek.c:4457
 msgid "Controls the contrast of the red channel of the acquired image."
 msgstr "Contrôle le constraste rouge de l'image à numériser."
 
-#: .tmp/mustek.c:4470
+#: .tmp/mustek.c:4469
 msgid "Contrast green channel"
 msgstr "Contraste - vert"
 
-#: .tmp/mustek.c:4471
+#: .tmp/mustek.c:4470
 msgid "Controls the contrast of the green channel of the acquired image."
 msgstr "Contrôle le constraste vert de l'image à numériser."
 
-#: .tmp/mustek.c:4483
+#: .tmp/mustek.c:4482
 msgid "Contrast blue channel"
 msgstr "Contraste - bleu"
 
-#: .tmp/mustek.c:4484
+#: .tmp/mustek.c:4483
 msgid "Controls the contrast of the blue channel of the acquired image."
 msgstr "Contrôle le constraste bleu de l'image à numériser."
 
-#: .tmp/plustek.c:213
+#: .tmp/plustek.c:214
 msgid "Gray 14/16"
 msgstr "Gris 14/16 bits"
 
 # sceptre.h:280
-#: .tmp/plustek.c:215
+#: .tmp/plustek.c:216
 msgid "Color 42/48"
 msgstr "Couleur 42/48 bits"
 
-#: .tmp/plustek.c:222 .tmp/plustek_pp.c:209
+#: .tmp/plustek.c:223 .tmp/plustek_pp.c:209
 msgid "Transparency"
 msgstr "Transparence"
 
-#: .tmp/plustek.c:813
+#: .tmp/plustek.c:819
 msgid "Device-Settings"
 msgstr ""
 
-#: .tmp/plustek.c:820
+#: .tmp/plustek.c:826
 msgid "Lampswitch"
 msgstr ""
 
-#: .tmp/plustek.c:821
+#: .tmp/plustek.c:827
 msgid "Manually switching the lamp(s)."
 msgstr ""
 
-#: .tmp/plustek.c:826
+#: .tmp/plustek.c:832
 #, fuzzy
 msgid "Warmup-Time"
 msgstr "Préchauffage de la lampe"
 
-#: .tmp/plustek.c:827
+#: .tmp/plustek.c:833
 #, fuzzy
 msgid "Warmup-Time in seconds."
 msgstr "Préchauffage de la lampe"
@@ -1795,7 +1815,7 @@ msgstr "Intensité verte"
 msgid "Blue intensity"
 msgstr "Intensité bleue"
 
-#: .tmp/saneopts.h:153 .tmp/umax_pp.c:605
+#: .tmp/saneopts.h:153 .tmp/umax_pp.c:628
 msgid "Brightness"
 msgstr "Luminosité"
 
@@ -2333,16 +2353,6 @@ msgstr ""
 "empécher les applications Xwindow de traiter les évènements X, et votre "
 "système pourrait s'écrouler."
 
-#: .tmp/snapscan-options.c:310
-#, fuzzy
-msgid "High quality"
-msgstr "Contraste"
-
-#: .tmp/snapscan-options.c:311
-#, fuzzy
-msgid "Scan in (slower) high quality mode"
-msgstr "Numérise rapidement en mode gris (qualité réduite)."
-
 #: .tmp/snapscan-options.c:364
 msgid "Preview mode"
 msgstr "Aperçu"
@@ -2830,6 +2840,14 @@ msgstr "(1/1) Bouton"
 msgid "(1/1) Button test option. Prints some text..."
 msgstr "(1/1) Bouton de test. Affiche du texte..."
 
+#: .tmp/umax1220u.c:247 .tmp/umax.c:5800
+msgid "Lamp off"
+msgstr "Lampe éteinte"
+
+#: .tmp/umax1220u.c:248 .tmp/umax.c:5801
+msgid "Turn off scanner lamp"
+msgstr "Eteint la lampe du scanner"
+
 #: .tmp/umax.c:189
 msgid "Color Lineart"
 msgstr "Trait couleur"
@@ -2894,21 +2912,13 @@ msgstr "Mise au point au niveau de la vitre"
 msgid "Use 0mm holder focus position instead of 0.6mm"
 msgstr "Effectue la mise au point à 0mm de la vitre au lieu de 0.6mm"
 
-#: .tmp/umax.c:5783 .tmp/umax_pp.c:529
+#: .tmp/umax.c:5783 .tmp/umax_pp.c:552
 msgid "Lamp on"
 msgstr "Lampe allumée"
 
 #: .tmp/umax.c:5784
 msgid "Turn on scanner lamp"
 msgstr "Allume la lampe du scanner"
-
-#: .tmp/umax.c:5800 .tmp/umax1220u.c:247
-msgid "Lamp off"
-msgstr "Lampe éteinte"
-
-#: .tmp/umax.c:5801 .tmp/umax1220u.c:248
-msgid "Turn off scanner lamp"
-msgstr "Eteint la lampe du scanner"
 
 #: .tmp/umax.c:5817
 msgid "Lamp off at exit"
@@ -2926,65 +2936,73 @@ msgstr "Mode de calibration"
 msgid "Define calibration mode"
 msgstr "Définit le mode de calibration"
 
-#: .tmp/umax_pp.c:530
+#: .tmp/umax_pp.c:553
 msgid "Sets lamp on/off"
 msgstr "Allume/éteint la lampe."
 
-#: .tmp/umax_pp.c:539
+#: .tmp/umax_pp.c:562
 msgid "UTA on"
 msgstr "Activer l'UTA"
 
-#: .tmp/umax_pp.c:540
+#: .tmp/umax_pp.c:563
 msgid "Sets UTA on/off"
 msgstr "Activer/déactiver l'adaptateur universel de transparents (UTA)"
 
-#: .tmp/umax_pp.c:607
+#: .tmp/umax_pp.c:630
 msgid "Color channels brightness settings"
 msgstr "Réglages de luminosité des couleurs"
 
-#: .tmp/umax_pp.c:614
+#: .tmp/umax_pp.c:637
 msgid "Gray brightness"
 msgstr "Luminosité des gris"
 
-#: .tmp/umax_pp.c:616
+#: .tmp/umax_pp.c:639
 msgid "Sets gray channel brightness"
 msgstr "Fixe la luminosité pour le gris"
 
-#: .tmp/umax_pp.c:629
+#: .tmp/umax_pp.c:652
 msgid "Sets red channel brightness"
 msgstr "Fixe la luminosité pour le rouge"
 
-#: .tmp/umax_pp.c:642
+#: .tmp/umax_pp.c:665
 msgid "Sets green channel brightness"
 msgstr "Fixe la luminosité pour le vert"
 
-#: .tmp/umax_pp.c:655
+#: .tmp/umax_pp.c:678
 msgid "Sets blue channel brightness"
 msgstr "Fixe la luminosité pour le bleu"
 
-#: .tmp/umax_pp.c:668
+#: .tmp/umax_pp.c:691
 msgid "Color channels contrast settings"
 msgstr "Contraste des couleurs"
 
-#: .tmp/umax_pp.c:675
+#: .tmp/umax_pp.c:698
 msgid "Gray contrast"
 msgstr "Contraste des gris"
 
-#: .tmp/umax_pp.c:676
+#: .tmp/umax_pp.c:699
 msgid "Sets gray channel contrast"
 msgstr "Fixe le contraste pour le gris"
 
-#: .tmp/umax_pp.c:688
+#: .tmp/umax_pp.c:711
 msgid "Sets red channel contrast"
 msgstr "Fixe le contraste pour le rouge"
 
-#: .tmp/umax_pp.c:701
+#: .tmp/umax_pp.c:724
 msgid "Sets green channel contrast"
 msgstr "Fixe le contraste pour le vert"
 
-#: .tmp/umax_pp.c:713
+#: .tmp/umax_pp.c:736
 msgid "Sets blue channel contrast"
 msgstr "Fixe le contraste pour le bleu"
+
+#, fuzzy
+#~ msgid "High quality"
+#~ msgstr "Contraste"
+
+#, fuzzy
+#~ msgid "Scan in (slower) high quality mode"
+#~ msgstr "Numérise rapidement en mode gris (qualité réduite)."
 
 #~ msgid "none"
 #~ msgstr "Aucun(e)"

@@ -1,4 +1,4 @@
-.TH sane 7 "April 22nd, 2002"
+.TH sane 7 "July 4th, 2002"
 .IX sane
 
 .SH NAME
@@ -442,9 +442,9 @@ contact the SANE mailing list sane-devel (see
 http://www.mostang.com/sane/mail.html for details). You must be subscribed to
 the list, otherwise your mail won't be sent to the subscribers.
 .P
-If you want to report bugs concerning compilation, installation, porting, and
-documentation of SANE, you can also contact the author of this manual page:
-<henning@meier-geinitz.de>.
+If you want to report bugs concerning security, compilation, installation,
+porting, and documentation of SANE, you can also contact the author of this
+manual page: <henning@meier-geinitz.de>.
 
 .SH AUTHOR
 David Mosberger-Tang and many many more (see @DOCDIR@/AUTHORS for details).

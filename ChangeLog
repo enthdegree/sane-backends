@@ -5,7 +5,7 @@
 	* doc/sane-agfafocus.man: Fixed some small mistakes.
 	* doc/sane-apple.man: Fixed some small mistakes. Added link
 	  to mostang.com mailing list archive.
-	* doc/sane-artec.man: Fixed spelling mistake.
+	* doc/sane-artec.man: Fixed spelling mistake and formatting issues.
 	* doc/sane-nec.man: Fixed problem with table.
 
 2001-10-09  Oliver Schwartz <Oliver.Schwartz@gmx.de>

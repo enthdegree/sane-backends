@@ -1,12 +1,26 @@
+2002-08-16  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* doc/descriptions/plustek.desc: Update according to the new
+	  entry definitions
+	* po/saneopts.es.po: More complete spanish translation
+	  (Thanks to Gustavo Vranjes)
+	* backend/plustek.c backend/plustek-devs.c backend/plustek-pp.c
+	  backend/plustek-share.h backend/plustek-usb.c backend/plustek-usb.h
+	  backend/plustek-usbhw.c backend/plustek-usbimg.c
+	  backend/plustek-usbmap.c backend/plustek-usbscan.c
+	  backend/plustek-usbshading.c backend/plustek.conf:
+	  Major update to support better control of all LM983x based devices
+	  HP2200C, Mustek Bearpaw 1200 and 2400 are now working correctly
+
 2002-08-15  Peter Fales <peter@fales-lorenz.net>
 
 	* configure, acinclude.m4, aclocal.m4 - Another tweak to the
 	  allowed gphoto2 version numbers
-	
+
 2002-08-15  Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* tools/umax_pp.c: uppded version number
-	* backend/umax_pp_low.c backend/umax_pp.c: corrected ppdev usage, 
+	* backend/umax_pp_low.c backend/umax_pp.c: corrected ppdev usage,
 	  minor option fix
 
 2002-08-14  Henning Meier-Geinitz <henning@meier-geinitz.de>

@@ -106,6 +106,9 @@
 /* Define to 1 if you have the `ioperm' function. */
 #undef HAVE_IOPERM
 
+/* Define to 1 if you have the `iopl' function. */
+#undef HAVE_IOPL
+
 /* Define to 1 if you have the <io/cam/cam.h> header file. */
 #undef HAVE_IO_CAM_CAM_H
 

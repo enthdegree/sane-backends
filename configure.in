@@ -188,7 +188,7 @@ AC_FUNC_MMAP
 AC_CHECK_FUNCS(atexit inet_addr inet_aton inet_ntoa ioperm i386_set_ioperm mkdir \
     scsireq_enter strftime strstr strtod  \
     cfmakeraw tcsendbreak strcasecmp strncasecmp _portaccess \
-    getaddrinfo getnameinfo poll setitimer )
+    getaddrinfo getnameinfo poll setitimer iopl )
 AC_REPLACE_FUNCS(getenv inet_ntop inet_pton isfdtype sigprocmask snprintf \
     strdup strndup strsep usleep vsyslog)
 SANE_PROTOTYPES

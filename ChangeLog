@@ -1,4 +1,4 @@
-2000-11-22  Oliver Rauch <Oliver.Rauch@Wolfsburg.DE>
+2000-11-24  Oliver Rauch <Oliver.Rauch@Wolfsburg.DE>
 
 	* changed configure.in, configure frontend/Makefile.in
 	  and backend/Makfile.in:
@@ -17,7 +17,7 @@
 	* backend/net.c: the net backend now prepends net:host: to the
 	  resource before calling the auth_callback function
 
-2000-11-22  Oliver Rauch <Oliver.Rauch@Wolfsburg.DE>
+2000-11-23  Oliver Rauch <Oliver.Rauch@Wolfsburg.DE>
 
 	* removed doc/xcam.man, doc/xscanimage.man and
 	  updated doc/Makefile.in

@@ -120,6 +120,29 @@ AC_CHECK_HEADERS(fcntl.h unistd.h libc.h sys/dsreq.h sys/select.h \
     apollo/scsi.h sys/sdi_comm.h sys/passthrudef.h linux/ppdev.h usb.h \
     sys/bitypes.h sys/sem.h)
 
+dnl Do some sanity checks. It doesn't make sense to proceed if those headers
+dnl aren't present.
+MISSING_HEADERS=
+if test "${ac_cv_header_fcntl_h}" != "yes" ; then
+  MISSING_HEADERS="${MISSING_HEADERS}\"fcntl.h\" "
+fi
+if test "${ac_cv_header_sys_time_h}" != "yes" ; then
+  MISSING_HEADERS="${MISSING_HEADERS}\"sys/time.h\" "
+fi
+if test "${ac_cv_header_unistd_h}" != "yes" ; then
+  MISSING_HEADERS="${MISSING_HEADERS}\"unistd.h\" "
+fi
+if test "${ac_cv_header_stdc}" != "yes" ; then
+  MISSING_HEADERS="${MISSING_HEADERS}\"ANSI C headers\" "
+fi
+if test "${MISSING_HEADERS}" != "" ; then
+  echo "*** The following essential header files couldn't be found:"
+  echo "*** ${MISSING_HEADERS}"
+  echo "*** Maybe the compiler isn't ANSI C compliant or not properly installed?"
+  echo "*** For details on what went wrong see config.log."
+  AC_MSG_ERROR([Exiting now.])
+fi
+
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
 AC_C_INLINE

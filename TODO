@@ -1,4 +1,4 @@
-TODO (2002-01-28)
+TODO (2002-02-03)
 
 ******** todo ********
 
@@ -85,6 +85,11 @@ backends
 
   * net: add IPv6 support.
 
+  * #include "../include/sane/config.h" should be the first include in every
+    file (see doc/sane-backend-writing.txt for the lalloca exception):
+    - umax_pp_low.c
+
+
 doc
 ---
   * Add doxygen documentation for the remaining sanei files:
@@ -111,6 +116,9 @@ doc
   * sane.tex: Add new sane.type = "film scanner". Check the other well known
     strings for completeness.
 
+  * sane-backends.html should state more clearly which backends are included
+    in the distribution.
+
 
 frontends
 ---------
@@ -128,13 +136,17 @@ frontends
 
 sanei
 -----
-  * sanei_scsi: Think about a completeley new interface. Details are in
+  * sanei_scsi: Think about a completely new interface. Details are in
     http://www.mostang.com/pipermail/sane-devel/2002-January/001995.html .
 
   * create sanei_parport_* and remove all inb, outb,... from all backends;
     use libieee1284 if available (see
     http://people.redhat.com/twaugh/libieee1284/). Or just include this
     library into sane.
+
+  * Check if the device file has the right type before accessing it. E.g.
+    check for major/minor numbers to avoid accessing a USB file as SCSI 
+    device.
 
 platform-specific
 -----------------
@@ -160,6 +172,8 @@ platform-specific
 
   * Check if a new version of libtool can fix the above mentioned issues.
 
+  * Don't use -ansi for HPUX (see sane-devel).
+
 misc
 ----
   * sane-config: add options "--exec-prefix=...." and "--prefix=..."
@@ -173,6 +187,9 @@ misc
 
   * Make output of sane-find-scanner more flexible. See scanimage -f for
     details.
+
+  * make distclean should remove *.orig, *.old, .#*, *.tar.gz, and similar
+    files.
 
 
 ******** done ********

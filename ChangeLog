@@ -1,3 +1,7 @@
+2003-07-29  Matthew Duggan <stauff1@users.sourceforge.net>
+
+	* backend/canon_pp.c: Reset globals in sane_exit.
+
 2003-07-28  Andras Major <andras@users.sourceforge.net>
 
 	* doc/descriptions/coolscan2.desc: changed IEEE1394

@@ -1465,6 +1465,9 @@ sane_exit (void)
 	}
 
 	first_dev = NULL;
+	def_scanner = NULL;
+	read_leftover = NULL;
+	num_devices = 0;
 
 	/* FIXEDME: this created a segfault in DLL code. */
 	/* Bug was fixed in libieee1284 0.1.5 */

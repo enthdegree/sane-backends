@@ -1,4 +1,4 @@
-TODO (2001-10-05)
+TODO (2001-10-09)
 
 ******** todo ********
 
@@ -45,8 +45,6 @@ backends
        name in saned.conf is not fully qualified. See sane-devel
        "saned.conf hostname format".
      - cancel doesn't work over the net at least with pnm and mustek.
-     - don't just ignore the byte-order for the image data (needed to
-       support depths > 8 bits/channel)
      - saned times out after 5 minutes (now 60 minutes). Check if the
        watchdog timer is really necessary (e.g. to avoid blocking scanners
        by one user). Maybe add an command line option to saned to set the
@@ -111,36 +109,6 @@ doc
 
   * Update backend manpages
 
-  * Check .desc files:
-    - sharp.desc: doesn't mention manual page.
-    - sm3600.desc: set status to :alpha, beta, or :stable.
-
-  * Check for logical errors and spelling
-    - agfafocus (CONFIGURATION: Microtek scanners? SANE_DEBUG_AGFAFOCUS:
-                 SANE_DEBUG_UMAX values? Last paragraph of DEBUG)
-    - apple (Compression (AppleScanner), Multiple Windows (AppleScanner),
-             ftpdev.info.apple.com doesn't exist, DEBUG)
-    - artec (BUGS)
-    - mustek_pp (SEE ALSO, there is no sane-musteka4s2(5))
-
-  * Check for formatting bugs in manual pages:
-    - apple (The list of scanners doesn't look like a table)
-    - artec (CONFIGURATION: F<artec.conf> and similar)
-    - nec (DESCRIPTION, list doesn't look like a table)
-    - sharp (table isn't aligned)
-
-  * If you mention sane-devel, also mention the website concerning
-    subscription (http://www.mostang.com/sane/mail.html), because you can't
-    write to sane-devel without subscribing.
-    Or use your own mail address in the manual page.
-    - abaton
-    - agfafocus
-    - apple
-    - bh
-    - microtek
-    - pint
-    - st400
- 
   * Use @LIBDIR@, @CONFIGDIR@ and the other @@ macros to refer to paths.
     These are updated when installing to a non-standard prefix.
     - umax
@@ -192,6 +160,15 @@ misc
   * Add installation procedure for translations of SANE backend's options.
 
 ******** done ********
+* net.c: don't just ignore the byte-order for the image data (needed to
+  support depths > 8 bits/channel)
+* If you mention sane-devel, also mention the website concerning
+  subscription (http://www.mostang.com/sane/mail.html), because you can't
+  write to sane-devel without subscribing.
+  Or use your own mail address in the manual page.
+* Check for logical errors and spelling
+* Check .desc files:
+* Check for formatting bugs in manual pages:
 * Use #include "../include/assert.h" instead of #include <assert.h> to
   avoid problem with shared libraries on AIX.
 * scanimage: Maybe add ADF extensions from Caskey Dickson (or add them to 

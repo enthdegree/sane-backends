@@ -1,3 +1,11 @@
+2003-02-22  Frank Zago  <fzago at austin dot rr dot com>
+
+	* doc/sane.tex: added Relisys and Mitsubishi to the list of
+	  vendors. Bumped the revision date.
+
+	* frontend/tstbackend: added more sane_init/sane_exit tests. Added
+	  Fujistu and Relisys to the list of valid vendor names.
+
 2003-02-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/gt68xx.c backend/gt68xx.conf doc/sane-gt68xx.man

@@ -1,3 +1,9 @@
+2003-07-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/sane-find-scanner.man tools/Makefile.in
+	  tools/check-usb-chip.c tools/sane-find-scanner.c: Added support
+	  for detecting USB chipsets to sane-find-scanner.
+
 2003-07-17  Abel Deuring <a.deuring@satzbau-gmbh.de>
 
 	* sanei/sanei_scsi.c: improved SCSI error handling in

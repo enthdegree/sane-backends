@@ -1,6 +1,6 @@
 /* sane-find-scanner.c
 
-   Copyright (C) 1997-2002 Oliver Rauch, Henning Meier-Geinitz, and others.
+   Copyright (C) 1997-2003 Oliver Rauch, Henning Meier-Geinitz, and others.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
@@ -32,6 +32,7 @@
 
 #ifdef HAVE_LIBUSB
 #include "usb.h"
+extern char * check_usb_chip (struct usb_device *dev, int verbosity);
 #endif
 
 #include "../include/sane/sanei.h"
@@ -445,7 +446,6 @@ check_libusb_device (struct usb_device *dev)
       int config_nr;
       struct usb_device_descriptor *d = &dev->descriptor;
 
-
       printf ("\n");
       printf ("<device descriptor of 0x%04x/0x%04x at %s:%s",
 	      d->idVendor, d->idProduct, dev->bus->dirname, dev->filename);
@@ -602,13 +602,18 @@ check_libusb_device (struct usb_device *dev)
 
   if (is_scanner > 0)
     {
+      char * chipset = check_usb_chip (dev, verbose);
+
       printf ("found USB scanner (vendor=0x%04x", dev->descriptor.idVendor);
       if (vendor)
 	printf (" [%s]", vendor);
       printf (", product=0x%04x", dev->descriptor.idProduct);
       if (product)
 	printf (" [%s]", product);
+      if (chipset)
+	printf (", chip=%s", chipset);
       printf (") at libusb:%s:%s\n", dev->bus->dirname, dev->filename);
+
       libusb_device_found = SANE_TRUE;
       device_found = SANE_TRUE;
     }

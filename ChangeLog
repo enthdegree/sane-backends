@@ -3,6 +3,10 @@
 	* lib/inet_pton.c: Use u_int32_t instead of in in_addr_t which isn't
 	  defined at least for OS/2.
 	* TODO: Added entry about DBG warnings.
+	* doc/sane.tex: Added some vendors (Abaton, Acer, Apple, Avision, 
+	  CANON, Fujitsu, IBM, NEC, Nikon, Plustek, Polaroid, Ricoh, Sharp, 
+	  Siemens, Tamarack) and device types (film scanner, sheetfed scanner)
+	  to the SANE standard. Updated date.
 
 2002-02-16 Abel Deuring <a.deuring@satzbau-gmbh.de>:
 	* frontend/scanimage.c / part for the "-f" command line option:

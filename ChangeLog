@@ -1,3 +1,8 @@
+2003-11-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added PIE Powerslide 3600.
+	* NEWS: Updated for 1.0.13.
+
 2003-10-30  Gerhard Jaeger <gerhard@gjaeger.de>
 	* sanei/lib/sanei_pp.c: Made sanei_pp_set_datadir work in no ieee1284 mode.
 	  Fixed a minor bug in delay calculation.

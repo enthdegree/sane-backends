@@ -198,6 +198,11 @@ AC_DEFUN(SANE_CHECK_U_TYPES,
   ],[AC_MSG_RESULT([no, also in standard headers])],
     [AC_EGREP_HEADER(u_int8_t,netinet/in.h,
        [AC_DEFINE(NEED_SYS_BITYPES_H, 1, [Do we need <sys/bitypes.h>?])
+	AH_VERBATIM([NEED_SYS_BITYPES_H_IF],
+         [/* Make sure that sys/bitypes.h is included on True64 */
+          #ifdef NEED_SYS_BITYPES_H
+          #include <sys/bitypes.h>
+          #endif])
 	AC_MSG_RESULT(yes)],
        [AC_MSG_RESULT([no, not even included with netinet/in.h])])])
 fi

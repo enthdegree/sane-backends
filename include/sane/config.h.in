@@ -126,12 +126,6 @@
 /* Define to 1 if you have the <os2.h> header file. */
 #undef HAVE_OS2_H
 
-/* Is PTAL available? */
-#undef HAVE_PTAL
-
-/* Define to 1 if you have the <ptal.h> header file. */
-#undef HAVE_PTAL_H
-
 /* Define to 1 if you have the `scsireq_enter' function. */
 #undef HAVE_SCSIREQ_ENTER
 
@@ -279,6 +273,11 @@
 
 /* Do we need <sys/bitypes.h>? */
 #undef NEED_SYS_BITYPES_H
+
+/* Make sure that sys/bitypes.h is included on True64 */
+          #ifdef NEED_SYS_BITYPES_H
+          #include <sys/bitypes.h>
+          #endif
 
 /* Define to the name of the distribution. */
 #undef PACKAGE

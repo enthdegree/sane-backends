@@ -1,3 +1,9 @@
+2002-11-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* configure configure.in acinclude.m4 aclocal.m4 
+	  include/sane/config.h.in: Fix compilation on Tru64 by readding
+	  the sys/bitypes.h work-around. Minimum autoconf version is 2.50 now.
+
 2002-11-13  Ulrich Deiters <ukd@xenon.pc.uni-koeln.de>
 
 	* modified the Canon SCSI backend (now version 1.10):

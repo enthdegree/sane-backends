@@ -1,6 +1,9 @@
 #include <sane/sanei_debug.h>
 #include <sane/sanei_scsi.h>
+#include <sane/config.h>
 #include "epson_scsi.h"
+
+#include "../include/lalloca.h"
 
 #ifdef HAVE_STDDEF_H
 #include <stddef.h>

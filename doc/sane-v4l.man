@@ -27,7 +27,7 @@ or
 .IR /dev/bttv0 .
 .SH CONFIGURATION
 The contents of the
-.IR v4l.conf .
+.I v4l.conf
 file is a list of device names that correspond to v4l
 devices.  Empty lines and lines starting with a hash mark (#) are
 ignored.  A sample configuration file is shown below:
@@ -79,9 +79,12 @@ Juergen G. Schimmer
 Man page copied from the pint backend and edited by Henning 
 Meier-Geinitz.
 
-.SH BUGS: ?
-
-Send bug reports to the SANE mailing list: sane-devel@mostang.com.
+.SH BUGS:
+If more than one video card is present, a crash may occur.
+.br
+Send bug reports to the SANE mailing list: sane-devel@mostang.com.  You must
+be subscribed to the list to send mail. See
+http://www.mostang.com/sane/mail.html for details.
 
 .SH SEE ALSO
 sane(7).

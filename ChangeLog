@@ -1,3 +1,8 @@
+2002-12-06  Peter Kirchgessner <peter@kirchgessner.net>
+
+	* backend/hp.h hp.c hp-scl.c: Add option dumb-read to work
+	  around problem with Buslogic SCSI driver
+
 2002-12-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* configure aclocal.m4 acinclude.m4: Fixed MacOS X LD_FLAGS bug.

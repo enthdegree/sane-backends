@@ -149,13 +149,13 @@ static const SANE_Range brightness_range =
     0, 255, 0                   /* 255 is bulb mode! */
   };
 
-SANE_Range x_range = {0,338,2};
+static SANE_Range x_range = {0,338,2};
 
-SANE_Range odd_x_range = {1,339,2};
+static SANE_Range odd_x_range = {1,339,2};
 
-SANE_Range y_range = {0,249,1};
+static SANE_Range y_range = {0,249,1};
 
-SANE_Range odd_y_range ={1,250,1};
+static SANE_Range odd_y_range ={1,250,1};
 
 
 static SANE_Parameters parms =
@@ -1079,8 +1079,9 @@ sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 {
   /* Avoid compile warning */
   handle = 0;
-  non_blocking = 0;
 
+  if (non_blocking == SANE_FALSE)
+    return SANE_STATUS_GOOD;
   return SANE_STATUS_UNSUPPORTED;
 }
 

@@ -1,3 +1,8 @@
+2002-09-29  Karl Heinz Kremer <khk@khk.net>
+
+	* doc/sane-epson.man: Updated information, cleanup
+	* doc/descriptions/epson.desc: Added 1660 and 2400 models
+
 2002-09-28 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 
 	* backend/umax.c:

@@ -226,6 +226,7 @@ SANE_LINKER_RPATH
 
 dnl initialize libtool
 AC_LIBTOOL_WIN32_DLL
+AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 
 
@@ -380,7 +381,7 @@ AC_SUBST(V_MINOR)
 AC_SUBST(V_REV)
 AC_SUBST(DLL_PRELOAD)
 
-DISTCLEAN_FILES="*~ .*~ *.log *.bak *.old *.orig *.out *.rej \#* .\#*"
+DISTCLEAN_FILES="*~ .*~ *.log *.bak *.old *.orig *.out *.rej \"\#*\" \".\\#*\""
 AC_SUBST(DISTCLEAN_FILES)
 
 AC_OUTPUT([Makefile lib/Makefile sanei/Makefile frontend/Makefile

@@ -68,13 +68,16 @@ configure options, there are the following SANE specific options:
  --disable-shared
 	Don't use shared libraries.  Useful for debugging or when there
 	is a problem building shared libraries.  This implicitly turns
-	on --disable-dynamic as well.
+	on --disable-dynamic --enable-static as well.
 
  --disable-dynamic
 	Disable dynamic loading of backends (in the dll backend).
 	configure normally turns on dynamic loading when it
 	can find the appropriate header files and libraries
 	(<dlfcn.h> and -dl).
+
+ --enable-static
+        Use static libraries (turned off by default).
 
  --enable-preload
         Preload backends into DLL backend.  This is useful for debugging,

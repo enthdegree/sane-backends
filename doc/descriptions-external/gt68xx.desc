@@ -1,6 +1,6 @@
 :backend "gt68xx"
 :status :alpha
-:version "1.0-17"
+:version "1.0-26"
 ;:manpage "sane-gt68xx"
 :url "http://www.meier-geinitz.de/sane/gt68xx-backend/"
 :comment "Only the USB scanners mentioned below are supported. For other Mustek BearPaws, look at the Plustek backend."
@@ -13,58 +13,64 @@
 
 :model "BearPaw 1200 CS"
 :interface "USB"
-:status :alpha
+:status :untested
 :comment "is detected, should work, comments are welcome"
 
 :model "BearPaw 1200 CU"
 :interface "USB"
 :comment "works"
-:status :alpha
+:status :beta
 
 :model "BearPaw 1200 CU Plus"
 :interface "USB"
-:comment "should work, comments are welcome"
+:comment "probably works, reports are welcome"
 :status :untested
 
 :model "BearPaw 1200 TA"
 :interface "USB"
-:status :alpha
-:comment "works with minor bugs, TA works"
+:status :beta
+:comment "works, TA supported"
 
 :model "BearPaw 2400 CS"
 :interface "USB"
 :status :untested
-:comment "maybe works, reports are welcome"
+:comment "probably works, reports are welcome"
 
 :model "BearPaw 2400 CS Plus"
 :interface "USB"
 :status :untested
-:comment "maybe works, reports are welcome"
+:comment "probably works, reports are welcome"
 
 :model "BearPaw 2400 CU"
 :interface "USB"
 :status :alpha
-:comment "scans, but with wrong resolution/double images, be careful""
+:comment "works, but is slow""
 
 :model "BearPaw 2400 CU Plus"
 :interface "USB"
 :status :alpha
-:comment "works"
+:comment "works, but calibration is slow"
 
 :model "BearPaw 2400 TA"
 :interface "USB"
-:status :alpha
-:comment "works with minor bugs"
+:status :beta
+:comment "works, TA supported"
 
 :model "BearPaw 2400 TA Plus"
 :interface "USB"
-:status :alpha
-:comment "works"
+:status :beta
+:comment "works, TA supported"
 
 :model "ScanExpress 1200 UB Plus"
 :interface "USB"
 :comment "works"
-:status :alpha
+:status :beta
+
+:model "ScanExpress A3 USB"
+:interface "USB"
+:status :untested
+:comment "is detected, but doesn't seem to scan. Testers welcome."
+
 
 :mfg "Plustek"
 :url "http://www.plustek.de/"
@@ -73,51 +79,59 @@
 :model "OpticPro 1248U"
 :interface "USB"
 :status :untested
-:comment "Contact author if you own such a model"
+:comment "currently working on supporting this scanner"
 
-:mfg "Artec/Ultima"
+:mfg "Artec"
 :url "http://www.artecusa.com/"
 
-:model "2000"
-:status :untested
+:model "Ultima 2000"
+:status :alpha
 :interface "USB"
-:comment "Contact author if you own such a model"
+:comment "works, only product id 0x4002 is supported"
 
 :mfg "Boeder"
 :model "Sm@rtScan Slim Edition"
-:status :untested
+:status :alpha
 :interface "USB"
-:comment "Contact author if you own such a model"
+:comment "works, similar to Artec Ultima 2000"
 
 :mfg "Packard Bell"
 :model "Diamond 1200"
 :status :alpha
 :interface "USB"
-:comment "works (similar to Mustek BearPaw 1200 Plus)"
+:comment "works, similar to Mustek BearPaw 1200 Plus"
 
-:mfg "Tchibo"
-:model "Cytron ?"
-:status :untested
-:interface "USB"
-:comment "Contact author if you own such a model"
+:mfg "Medion/Lifetec/Tevion/Cytron"
+:url "http://www.medion.com"
+:comment "Sold by Aldi and Tchibo"
 
-:mfg "Lifetec"
-:comment "Sold by Aldi"
 :model "LT 9452"
 :status :alpha
 :interface "USB"
 :comment "works"
-:model "LT 9385"
-:status :untested
+
+:model "MD/LT 9385"
+:status :alpha
 :interface "USB"
-:comment "Contact author if you own such a model"
+:comment "works"
+
+:model "MD 9458"
+:status :alpha
+:interface "USB"
+:comment "works"
 
 :mfg "Trust"
 :url "http://www.trust-site.com"
+
 :model "Flat Scan USB 19200"
 :status :untested
 :interface "USB"
 :comment "Contact author if you own such a model"
+
+:model "Compact Scan USB 19200"
+:status :alpha
+:interface "USB"
+:comment "works, if you have vendor id 0x055f and product id 0x0006, use the mustek_usb backend instead "
 
 :mfg "Lexmark"
 :url "http://www.lexmark.com/"

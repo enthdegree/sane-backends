@@ -1,3 +1,7 @@
+2002-10-23  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions-external/gt68xx.conf: Updated status of scanners.
+
 2002-10-23  Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c: added O_NONBLOCK to flags when opening ppdev

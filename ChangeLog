@@ -1,3 +1,7 @@
+2002-07_31  Peter Kirchgessner <peter@kirchgessner.net>
+
+	* doc/descriptions/hp.desc: Use Hewlett-Packard instead of HP
+
 2002-07-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* po/Makefile.in: Use awk to filter out duplicate .po file headers.

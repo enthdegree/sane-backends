@@ -543,7 +543,9 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 	}
       interface = &dev->config[0].interface->altsetting[0];
 
+#if 0
       /* Set alternative setting */
+      /* Seems to break on Max OS X -> disabled */
       DBG (3, "sanei_usb_open: chosing first altsetting (%d) without "
 	   "checking\n", interface->bAlternateSetting);
 
@@ -569,6 +571,7 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 	  usb_close (devices[devcount].libusb_handle);
 	  return status;
 	}
+#endif
 
       /* Now we look for usable endpoints */
       for (num = 0; num < interface->bNumEndpoints; num++)
@@ -670,12 +673,14 @@ sanei_usb_close (SANE_Int dn)
   else
 #ifdef HAVE_LIBUSB
     {
+#if 0
+      /* Should only be done in case of a stall */
       usb_clear_halt (devices[dn].libusb_handle, devices[dn].bulk_in_ep);
       usb_clear_halt (devices[dn].libusb_handle, devices[dn].bulk_out_ep);
-      /* be careful, we don't know if we are in DATA0 stage now
-	 usb_resetep(devices[dn].libusb_handle, devices[dn].bulk_in_ep);
-	 usb_resetep(devices[dn].libusb_handle, devices[dn].bulk_out_ep);
-      */
+      /* be careful, we don't know if we are in DATA0 stage now */
+      usb_resetep(devices[dn].libusb_handle, devices[dn].bulk_in_ep);
+      usb_resetep(devices[dn].libusb_handle, devices[dn].bulk_out_ep);
+#endif
       usb_release_interface (devices[dn].libusb_handle, 
 			     devices[dn].interface_nr);
       usb_close (devices[dn].libusb_handle);

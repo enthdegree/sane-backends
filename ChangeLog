@@ -1,3 +1,8 @@
+2003-01-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* sanei/sanei_usb.c: Don't call usb_clearhalt and usb_set_altinterface
+	  to avoid errors on Mac OS X.
+
 2003-01-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* NEWS: Updated list of backends.

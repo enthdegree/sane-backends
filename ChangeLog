@@ -1,3 +1,11 @@
+2004-01-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/gt68xx.c backend/gt68xx.conf backend/gt68xx_devices.c
+	  backend/gt68xx_gt6801.c doc/sane-gt68xx.man
+	  doc/descriptions/gt68xx.desc doc/gt68xx/gt68xx.CHANGES: Fixed a
+	  bug in the stop scan function for Plustek U16b. Added support
+	  for Genius Vivid4xe.
+	
 2003-12-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
 	
 	* doc/descriptions/unsupported.desc: Added HP and Epson scanners.

@@ -1,5 +1,10 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0-52 (2004-01-01)
+
+* gt68xx_gt6801.c: Fixed a bug in the stop scan function for Plustek U16b.
+* Added support for Genius Vivid4xe.
+
 V 1.0-51 (2003-12-14)
 
 * Changed color order to RGB vor Genius Vivid 4x. Seems to work now. Updated

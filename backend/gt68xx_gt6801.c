@@ -334,7 +334,7 @@ gt6801_u16b_stop_scan (GT68xx_Device * dev)
       req[0] = 0x42;
       req[1] = 0x01;
       RIE (gt68xx_device_req (dev, req, req));
-      if (gt68xx_device_check_result (req, 0x42))
+      if (gt68xx_device_check_result (req, 0x42) == SANE_STATUS_GOOD)
 	break;
       DBG (7, "gt6801_u16b_stop_scan: failed, count = %d\n", count);
     }

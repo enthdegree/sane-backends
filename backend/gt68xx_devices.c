@@ -1041,6 +1041,55 @@ static GT68xx_Model genius_vivid4x_model  = {
   /* Mostly untested, copied from 3x, some values from Claudio Filho <filhocf@openoffice.org> */
 };
 
+static GT68xx_Model genius_vivid4xe_model  = {
+  "genius-colorpage-vivid4xe",  /* Name */
+  "Genius",                     /* Device vendor string */
+  "Colorpage Vivid4xe",         /* Device model name */
+  "ccd548.fw",                  /* Name of the firmware file */
+  SANE_FALSE,                   /* Dynamic allocation flag */
+
+  &mustek_gt6816_command_set,  /* Command set used by this scanner */
+
+  600,                          /* maximum optical sensor resolution */
+  600,                          /* maximum motor resolution */
+  600,                          /* base x-res used to calculate geometry */
+  600,                          /* base y-res used to calculate geometry */
+  50,                           /* if ydpi is equal or higher, use linemode */
+  SANE_TRUE,                    /* Use base_ydpi for all resolutions */
+
+  {600, 300, 150, 75, 0},       /* possible x-resolutions */
+  {600, 300, 150, 75, 0},       /* possible y-resolutions */
+  {12, 8, 0},                   /* possible depths in gray mode */
+  {12, 8, 0},                   /* possible depths in color mode */
+
+  SANE_FIX (3.5),               /* Start of scan area in mm  (x) */
+  SANE_FIX (7.5),               /* Start of scan area in mm (y) */
+  SANE_FIX (218.0),             /* Size of scan area in mm (x) */
+  SANE_FIX (299.0),             /* Size of scan area in mm (y) */
+
+  SANE_FIX (0.0),               /* Start of white strip in mm (y) */
+  SANE_FIX (1.0),               /* Start of black mark in mm (x) */
+
+  SANE_FIX (0.0),               /* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),               /* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (100.0),             /* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (100.0),             /* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0.0),               /* Start of white strip in TA mode in mm (y) */
+
+  0, 8, 16,                     /* RGB CCD Line-distance correction in pixel */
+  0,                            /* CCD distcance for CCD with 6 lines) */
+
+  COLOR_ORDER_BGR,              /* Order of the CCD/CIS colors */
+  {0x1c, 0x29, 0x1c, 0x2c, 0x1c, 0x2b}, /* Default offset/gain */
+  {0x157, 0x157, 0x157},        /* Default exposure parameters */
+  SANE_FIX (2.0),               /* Default gamma value */
+
+  SANE_FALSE,                   /* Is this a CIS scanner? */
+  GT68XX_FLAG_OFFSET_INV /* Which flags are needed for this scanner? */
+  /* mostly untested, based on the Genius Vivid3x */
+};
+
 static GT68xx_Model genius_vivid3xe_model  = {
   "genius-colorpage-vivid3xe",	/* Name */
   "Genius",			/* Device vendor string */
@@ -1158,6 +1207,7 @@ static GT68xx_USB_Device_Entry gt68xx_usb_device_list[] = {
   {0x07b3, 0x0413, &plustek_opticslim1200},
   {0x0458, 0x2011, &genius_vivid3x_model},
   {0x0458, 0x2017, &genius_vivid3xe_model},
+  {0x0458, 0x201a, &genius_vivid4xe_model},
   {0x0458, 0x201b, &genius_vivid4x_model},
   {0, 0, NULL}
 };

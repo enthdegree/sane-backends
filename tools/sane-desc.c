@@ -21,12 +21,13 @@
    MA 02111-1307, USA.
 */
 
-#define SANE_DESC_VERSION "0.4"
+#define SANE_DESC_VERSION "0.5"
 
 #define MAN_PAGE_LINK "http://www.mostang.com/sane/man/%s.5.html"
 #define COLOR_ALPHA    "#B00000"
 #define COLOR_BETA     "#B0B000"
 #define COLOR_STABLE   "#008000"
+#define COLOR_UNTESTED "#0000B0"
 #define COLOR_NEW      "#F00000"
 
 #include <../include/sane/config.h>
@@ -78,7 +79,8 @@ typedef enum status_entry
   status_unknown,
   status_alpha,
   status_beta,
-  status_stable
+  status_stable,
+  status_untested
 }
 status_entry;
 
@@ -116,6 +118,7 @@ typedef struct model_entry
   char *interface;
   struct url_entry *url;
   char *comment;
+  enum status_entry status;
 }
 model_entry;
 
@@ -158,14 +161,20 @@ typedef struct backend_entry
   char *comment;
   struct type_entry *type;
   SANE_Bool new;
-  SANE_Bool printed;
 }
 backend_entry;
 
 typedef struct backend_record_entry
 {
   struct backend_record_entry *next;
-  struct backend_entry *be;
+  char *name;
+  char *version;
+  enum status_entry status;
+  char *manpage;
+  struct url_entry *url;
+  char *comment;
+  SANE_Bool new;
+  struct model_entry *model;
 }
 backend_record_entry;
 
@@ -176,7 +185,6 @@ typedef struct mfg_record_entry
   char *comment;
   struct url_entry *url;
   struct backend_record_entry *be_record;
-
 }
 mfg_record_entry;
 
@@ -535,7 +543,6 @@ read_files (void)
 		  be->next = first_backend;
 		  first_backend = be;
 		  be->name = string_entry;
-		  be->printed = SANE_FALSE;
 		  be->status = status_unknown;
 		  be->new = SANE_FALSE;
 		  current_backend = be;
@@ -567,42 +574,96 @@ read_files (void)
 	      if (read_keyword (line, ":status", param_string, &string_entry)
 		  == SANE_STATUS_GOOD)
 		{
-		  if (current_backend->status != status_unknown)
-		    DBG_WARN ("overwriting status of backend `%s'\n",
-			      current_backend->name);
-		  if (strcmp (string_entry, ":new") == 0)
+		  switch (current_level)
 		    {
-		      DBG_WARN ("ignored `%s' status :new, use keyword "
-				"`:new :yes' instead\n",
-				current_backend->name);
-		      current_backend->status = status_unknown;
-		    }
-		  else if (strcmp (string_entry, ":alpha") == 0)
-		    {
-		      DBG_INFO ("setting status of backend `%s' to `alpha'\n",
-				current_backend->name);
-		      current_backend->status = status_alpha;
-		    }
-		  else if (strcmp (string_entry, ":beta") == 0)
-		    {
-		      DBG_INFO ("setting status of backend `%s' to `beta'\n",
-				current_backend->name);
-		      current_backend->status = status_beta;
-		    }
-		  else if (strcmp (string_entry, ":stable") == 0)
-		    {
-		      DBG_INFO
-			("setting status of backend `%s' to `stable'\n",
-			 current_backend->name);
-		      current_backend->status = status_stable;
-		    }
-		  else
-		    {
-		      DBG_ERR ("unknown status of backend `%s': `%s'\n",
-			       current_backend->name, string_entry);
-		      current_backend->status = status_unknown;
+		    case level_backend:
+		      if (current_backend->status != status_unknown)
+			DBG_WARN ("overwriting status of backend `%s'\n",
+				  current_backend->name);
+		      if (strcmp (string_entry, ":new") == 0)
+			{
+			  DBG_WARN ("ignored `%s' status :new, use keyword "
+				    "`:new :yes' instead\n",
+				    current_backend->name);
+			  current_backend->status = status_unknown;
+			}
+		      else if (strcmp (string_entry, ":alpha") == 0)
+			{
+			  DBG_INFO
+			    ("setting status of backend `%s' to `alpha'\n",
+			     current_backend->name);
+			  current_backend->status = status_alpha;
+			}
+		      else if (strcmp (string_entry, ":beta") == 0)
+			{
+			  DBG_INFO
+			    ("setting status of backend `%s' to `beta'\n",
+			     current_backend->name);
+			  current_backend->status = status_beta;
+			}
+		      else if (strcmp (string_entry, ":stable") == 0)
+			{
+			  DBG_INFO
+			    ("setting status of backend `%s' to `stable'\n",
+			     current_backend->name);
+			  current_backend->status = status_stable;
+			}
+		      else
+			{
+			  DBG_ERR ("unknown status of backend `%s': `%s'\n",
+				   current_backend->name, string_entry);
+			  current_backend->status = status_unknown;
+			  return SANE_FALSE;
+			}
+		      break;
+		    case level_model:
+		      if (current_model->status != status_unknown)
+			DBG_WARN ("overwriting status of model `%s'\n",
+				  current_model->name);
+		      if (strcmp (string_entry, ":alpha") == 0)
+			{
+			  DBG_INFO
+			    ("setting status of model `%s' to `alpha'\n",
+			     current_model->name);
+			  current_model->status = status_alpha;
+			}
+		      else if (strcmp (string_entry, ":beta") == 0)
+			{
+			  DBG_INFO
+			    ("setting status of model `%s' to `beta'\n",
+			     current_model->name);
+			  current_model->status = status_beta;
+			}
+		      else if (strcmp (string_entry, ":stable") == 0)
+			{
+			  DBG_INFO
+			    ("setting status of model `%s' to `stable'\n",
+			     current_model->name);
+			  current_model->status = status_stable;
+			}
+		      else if (strcmp (string_entry, ":untested") == 0)
+			{
+			  DBG_INFO
+			    ("setting status of model `%s' to `untested'\n",
+			     current_model->name);
+			  current_model->status = status_untested;
+			}
+		      else
+			{
+			  DBG_ERR ("unknown status of model `%s': `%s'\n",
+				   current_model->name, string_entry);
+			  current_model->status = status_unknown;
+			  return SANE_FALSE;
+			}
+
+		      break;
+		    default:
+		      DBG_ERR ("level %d not implemented for :status\n",
+			       current_level);
 		      return SANE_FALSE;
 		    }
+
+
 		  continue;
 		}
 	      if (read_keyword (line, ":new", param_string, &string_entry)
@@ -824,6 +885,7 @@ read_files (void)
 		      return SANE_FALSE;
 		    }
 		  model->name = string_entry;
+		  model->status = status_unknown;
 		  DBG_INFO ("adding model entry %s to manufacturer `%s'\n",
 			    string_entry, current_mfg->name);
 		  current_model = model;
@@ -937,144 +999,6 @@ read_files (void)
   return SANE_TRUE;
 }
 
-static mfg_record_entry *
-sort_by_mfg (device_type dev_type)
-{
-  mfg_record_entry *first_mfg_record = 0, *mfg_record = 0;
-  backend_entry *be = first_backend;
-  mfg_record_entry *last_mfg_record = 0;
-  mfg_record_entry *next_mfg_record = first_mfg_record->next;
-
-  SANE_Bool changed = SANE_FALSE;
-
-  while (be)
-    {
-      type_entry *type = be->type;
-      while (type)
-	{
-	  if (type->type == dev_type)
-	    {
-	      mfg_entry *mfg = type->mfg;
-	      while (mfg)
-		{
-		  mfg_record = first_mfg_record;
-		  while (mfg_record)
-		    {
-		      if (strcasecmp (mfg_record->name, mfg->name) == 0)
-			{
-			  backend_record_entry *be_record =
-			    mfg_record->be_record;
-			  if (be_record)
-			    {
-			      while (be_record->next)
-				be_record = be_record->next;
-			      be_record->next =
-				calloc (1, sizeof (backend_record_entry));
-			      if (!be_record->next)
-				{
-				  DBG_ERR ("sort_by_mfg: couldn't calloc "
-					   "backend_record_entry\n");
-				}
-			      be_record = be_record->next;
-			    }
-			  else
-			    {
-			      mfg_record->be_record
-				= calloc (1, sizeof (backend_record_entry));
-			      if (!mfg_record->be_record)
-				{
-				  DBG_ERR ("sort_by_mfg: couldn't calloc "
-					   "backend_record_entry\n");
-				}
-			      be_record = mfg_record->be_record;
-			    }
-			  be_record->be = be;
-			  break;
-			}	/* if (strcmp) */
-		      mfg_record = mfg_record->next;
-		    }		/* while (mfg_record) */
-
-		  if (!first_mfg_record)
-		    {
-		      first_mfg_record
-			= calloc (1, sizeof (mfg_record_entry));
-		      if (!first_mfg_record)
-			{
-			  DBG_ERR ("sort_by_mfg: couldn't calloc "
-				   "mfg_record_entry\n");
-			}
-		      first_mfg_record->name = mfg->name;
-		      first_mfg_record->comment = mfg->comment;
-		      first_mfg_record->url = mfg->url;
-		      first_mfg_record->be_record
-			= calloc (1, sizeof (backend_record_entry));
-		      if (!first_mfg_record->be_record)
-			{
-			  DBG_ERR ("sort_by_mfg: couldn't calloc "
-				   "backend_record_entry\n");
-			}
-		      first_mfg_record->be_record->be = be;
-		    }
-		  else if (!mfg_record)
-		    {
-		      mfg_record = calloc (1, sizeof (mfg_record_entry));
-		      if (!mfg_record)
-			{
-			  DBG_ERR ("sort_by_mfg: couldn't calloc "
-				   "mfg_record_entry\n");
-			}
-		      mfg_record->name = mfg->name;
-		      mfg_record->comment = mfg->comment;
-		      mfg_record->url = mfg->url;
-		      mfg_record->be_record
-			= calloc (1, sizeof (backend_record_entry));
-		      if (!mfg_record->be_record)
-			{
-			  DBG_ERR ("sort_by_mfg: couldn't calloc "
-				   "backend_record_entry\n");
-			}
-		      mfg_record->next = first_mfg_record;
-		      first_mfg_record = mfg_record;
-		      mfg_record->be_record->be = be;
-		    }
-		  mfg = mfg->next;
-		}		/* while (mfg) */
-	    }			/* if (type) */
-	  type = type->next;
-	}			/* while (type) */
-      be = be->next;
-    }				/* while (be) */
-
-  do
-    {				/* bubblesort */
-      changed = SANE_FALSE;
-      last_mfg_record = 0;
-      mfg_record = first_mfg_record;
-      next_mfg_record = first_mfg_record->next;
-      while (mfg_record->next)
-	{
-	  if (strcasecmp (mfg_record->name, mfg_record->next->name) > 0)
-	    {
-	      mfg_record_entry *a = mfg_record, *b = mfg_record->next,
-		*c = mfg_record->next->next;
-	      mfg_record = b;
-	      if (last_mfg_record)
-		last_mfg_record->next = b;
-	      else
-		first_mfg_record = b;
-	      mfg_record->next = a;
-	      a->next = c;
-	      changed = SANE_TRUE;
-	    }
-	  last_mfg_record = mfg_record;
-	  mfg_record = mfg_record->next;
-	}
-    }
-  while (changed);
-
-  return first_mfg_record;
-}
-
 static void
 sort_by_backend (void)
 {
@@ -1109,6 +1033,207 @@ sort_by_backend (void)
   while (changed);
 }
 
+static mfg_record_entry *
+sort_by_mfg (device_type dev_type)
+{
+  mfg_record_entry *first_mfg_record = 0, *mfg_record = 0;
+  backend_entry *be = first_backend;
+  mfg_record_entry *last_mfg_record = 0;
+  mfg_record_entry *next_mfg_record = first_mfg_record->next;
+  backend_record_entry *be_record = 0;
+  SANE_Bool changed = SANE_FALSE;
+
+  DBG_DBG ("sort_by_mfg: start\n");
+  while (be)
+    {
+      type_entry *type = be->type;
+      while (type)
+	{
+	  if (type->type == dev_type)
+	    {
+	      mfg_entry *mfg = type->mfg;
+	      while (mfg)
+		{
+		  mfg_record = first_mfg_record;
+		  while (mfg_record)
+		    {
+		      if (strcasecmp (mfg_record->name, mfg->name) == 0)
+			{
+			  url_entry *mfg_url = mfg->url;
+
+			  be_record = mfg_record->be_record;
+			  if (be_record)
+			    {
+			      while (be_record->next)
+				be_record = be_record->next;
+			      be_record->next
+				= calloc (1, sizeof (backend_record_entry));
+			      be_record = be_record->next;
+			    }
+			  else
+			    {
+			      mfg_record->be_record
+				= calloc (1, sizeof (backend_record_entry));
+			      be_record = mfg_record->be_record;
+			    }
+			  if (!be_record)
+			    {
+			      DBG_ERR ("sort_by_mfg: couldn't calloc "
+				       "backend_record_entry\n");
+			    }
+			  /* manufacturer comments and (additional) URLs? */
+			  if (!mfg_record->comment)
+			    mfg_record->comment = mfg->comment;
+			  while (mfg_url && mfg_url->name)
+			    {
+			      url_entry *mfg_record_url = mfg_record->url;
+			      SANE_Bool found = SANE_FALSE;
+
+			      while (mfg_record_url && mfg_record_url->name)
+				{
+				  if (strcasecmp
+				      (mfg_url->name,
+				       mfg_record_url->name) == 0)
+				    found = SANE_TRUE;
+				  mfg_record_url = mfg_record_url->next;
+				}
+			      if (!found)
+				{
+				  mfg_record_url = mfg_record->url;
+				  if (mfg_record_url)
+				    {
+				      while (mfg_record_url->next)
+					mfg_record_url = mfg_record_url->next;
+				      mfg_record_url->next =
+					calloc (1, sizeof (url_entry));
+				      mfg_record_url = mfg_record_url->next;
+				    }
+				  else
+				    {
+				      mfg_record->url =
+					calloc (1, sizeof (url_entry));
+				      mfg_record_url = mfg_record->url;
+				    }
+				  if (!mfg_record_url)
+				    {
+				      DBG_ERR ("sort_by_mfg: couldn't calloc "
+					       "url_entry\n");
+				    }
+				  mfg_record_url->name = mfg_url->name;
+				}
+			      mfg_url = mfg_url->next;
+			    }
+			  break;
+			}	/* if (strcmp) */
+		      mfg_record = mfg_record->next;
+		    }		/* while (mfg_record) */
+
+		  if (!mfg_record)
+		    {
+		      url_entry *url = mfg->url;
+		      url_entry *current_url = 0;
+
+		      mfg_record = calloc (1, sizeof (mfg_record_entry));
+		      if (!mfg_record)
+			{
+			  DBG_ERR ("sort_by_mfg: couldn't calloc "
+				   "mfg_record_entry\n");
+			}
+		      mfg_record->name = mfg->name;
+		      mfg_record->comment = mfg->comment;
+		      while (url)
+			{
+			  if (!mfg_record->url)
+			    {
+			      mfg_record->url =
+				calloc (1, sizeof (url_entry));
+			      current_url = mfg_record->url;
+			    }
+			  else
+			    {
+			      current_url->next =
+				calloc (1, sizeof (url_entry));
+			      current_url = current_url->next;
+			    }
+			  if (!current_url)
+			    {
+			      DBG_ERR ("sort_by_mfg: couldn't calloc "
+				       "url_entry\n");
+			    }
+			  current_url->name = url->name;
+			  url = url->next;
+			}
+		      mfg_record->be_record
+			= calloc (1, sizeof (backend_record_entry));
+		      if (!mfg_record->be_record)
+			{
+			  DBG_ERR ("sort_by_mfg: couldn't calloc "
+				   "backend_record_entry\n");
+			}
+		      be_record = mfg_record->be_record;
+		      if (first_mfg_record)
+			{
+			  mfg_record_entry *tmp_mfg_record = first_mfg_record;
+			  while (tmp_mfg_record->next)
+			    tmp_mfg_record = tmp_mfg_record->next;
+			  tmp_mfg_record->next = mfg_record;
+			}
+		      else
+			first_mfg_record = mfg_record;
+		      DBG_DBG ("sort_by_mfg: created mfg %s\n",
+			       mfg_record->name);
+		    }		/* if (!mfg_record) */
+
+		  /* create be entries */
+		  be_record->name = be->name;
+		  be_record->version = be->version;
+		  be_record->status = be->status;
+		  be_record->manpage = be->manpage;
+		  be_record->url = be->url;
+		  be_record->comment = be->comment;
+		  be_record->new = be->new;
+		  be_record->model = mfg->model;
+		  DBG_DBG ("sort_by_mfg: added be %s to mfg %s\n",
+			   be_record->name, mfg->name);
+
+		  mfg = mfg->next;
+		}		/* while (mfg) */
+	    }			/* if (type) */
+	  type = type->next;
+	}			/* while (type) */
+      be = be->next;
+    }				/* while (be) */
+
+  DBG_DBG ("sort_by_mfg: Sorting manufacturers\n");
+  do
+    {				/* bubblesort for manufacturers */
+      changed = SANE_FALSE;
+      last_mfg_record = 0;
+      mfg_record = first_mfg_record;
+      next_mfg_record = first_mfg_record->next;
+      while (mfg_record->next)
+	{
+	  if (strcasecmp (mfg_record->name, mfg_record->next->name) > 0)
+	    {
+	      mfg_record_entry *a = mfg_record, *b = mfg_record->next,
+		*c = mfg_record->next->next;
+	      mfg_record = b;
+	      if (last_mfg_record)
+		last_mfg_record->next = b;
+	      else
+		first_mfg_record = b;
+	      mfg_record->next = a;
+	      a->next = c;
+	      changed = SANE_TRUE;
+	    }
+	  last_mfg_record = mfg_record;
+	  mfg_record = mfg_record->next;
+	}
+    }
+  while (changed);
+  DBG_DBG ("sort_by_mfg: exit\n");
+  return first_mfg_record;
+}
 
 static void
 ascii_print_backends (void)
@@ -1247,6 +1372,25 @@ ascii_print_backends (void)
 			    printf ("    interface `%s'\n", model->interface);
 			  else
 			    printf ("    interface *none*\n");
+			  switch (model->status)
+			    {
+			    case status_alpha:
+			      printf ("    status alpha\n");
+			      break;
+			    case status_beta:
+			      printf ("    status beta\n");
+			      break;
+			    case status_stable:
+			      printf ("    status stable\n");
+			      break;
+			    case status_untested:
+			      printf ("    status untested\n");
+			      break;
+			    default:
+			      printf ("    status *unknown*\n");
+			      break;
+			    }
+
 			  if (url)
 			    while (url)
 			      {
@@ -1280,6 +1424,27 @@ ascii_print_backends (void)
 }
 
 
+static char *
+html_generate_anchor_name (char *manufacturer_name)
+{
+  char *name = strdup (manufacturer_name);
+  char *pointer = name;
+
+  if (!name)
+    {
+      DBG_DBG ("html_generate_anchor_name: couldn't strdup\n");
+    }
+  while (*pointer)
+    {
+      if (!isalnum (*pointer))
+	*pointer = '-';
+      else
+	*pointer = toupper (*pointer);
+      pointer++;
+    }
+  return name;
+}
+
 static void
 html_backends_table (device_type dev_type)
 {
@@ -1295,12 +1460,13 @@ html_backends_table (device_type dev_type)
     case type_vidcam:
       printf ("<th align=center rowspan=2>Backend</th>\n");
       printf ("<th align=center rowspan=2>Manual Page</th>\n");
-      printf ("<th align=center colspan=4>Supported Devices</th>\n");
+      printf ("<th align=center colspan=5>Supported Devices</th>\n");
       printf ("</tr>\n");
       printf ("<tr bgcolor=E0E0FF>\n");
       printf ("<th align=center>Manufacturer</th>\n");
       printf ("<th align=center>Model</th>\n");
       printf ("<th align=center>Interface</th>\n");
+      printf ("<th align=center>Status</th>\n");
       printf ("<th align=center>Comment</th>\n");
       break;
     case type_meta:
@@ -1349,27 +1515,30 @@ html_backends_table (device_type dev_type)
 		printf ("<a href=\"%s\">%s</a>\n", be->url->name, be->name);
 	      else
 		printf ("%s", be->name);
+
 	      if (be->version)
-		printf ("<br>(v%s, ", be->version);
+		printf ("<br>(v%s", be->version);
 	      else
-		printf ("<br>(");
-	      switch (be->status)
-		{
-		case status_alpha:
-		  printf ("<font color=" COLOR_ALPHA ">alpha</font>");
-		  break;
-		case status_beta:
-		  printf ("<font color=" COLOR_BETA ">beta</font>");
-		  break;
-		case status_stable:
-		  printf ("<font color=" COLOR_STABLE ">stable</font>");
-		  break;
-		default:
-		  printf ("?");
-		  break;
-		}
+		printf ("<br>(v?");
+	      /*
+	         switch (be->status)
+	         {
+	         case status_alpha:
+	         printf ("<font color=" COLOR_ALPHA ">alpha</font>");
+	         break;
+	         case status_beta:
+	         printf ("<font color=" COLOR_BETA ">beta</font>");
+	         break;
+	         case status_stable:
+	         printf ("<font color=" COLOR_STABLE ">stable</font>");
+	         break;
+	         default:
+	         printf ("?");
+	         break;
+	         }
+	       */
 	      if (be->new)
-		printf ("<font color=" COLOR_NEW ">, NEW!</font>)");
+		printf (", <font color=" COLOR_NEW ">NEW!</font>)");
 	      else
 		printf (")");
 	      printf ("</td>\n");
@@ -1419,6 +1588,8 @@ html_backends_table (device_type dev_type)
 
 		      while (model)
 			{
+			  enum status_entry status = model->status;
+
 			  if (model != mfg->model)
 			    printf ("<tr>\n");
 
@@ -1435,6 +1606,33 @@ html_backends_table (device_type dev_type)
 				    model->interface);
 			  else
 			    printf ("<td align=center>?</td>\n");
+
+			  printf ("<td align=center>");
+			  if (status == status_unknown)
+			    status = be->status;
+			  switch (status)
+			    {
+			    case status_alpha:
+			      printf ("<font color=" COLOR_ALPHA
+				      ">alpha</font>");
+			      break;
+			    case status_beta:
+			      printf ("<font color=" COLOR_BETA
+				      ">beta</font>");
+			      break;
+			    case status_stable:
+			      printf ("<font color=" COLOR_STABLE
+				      ">stable</font>");
+			      break;
+			    case status_untested:
+			      printf ("<font color=" COLOR_UNTESTED
+				      ">untested</font>");
+			      break;
+			    default:
+			      printf ("?");
+			      break;
+			    }
+			  printf ("</td>\n");
 
 			  if (model->comment && model->comment[0] != 0)
 			    printf ("<td>%s</td>\n", model->comment);
@@ -1459,18 +1657,28 @@ html_backends_table (device_type dev_type)
 static void
 html_mfgs_table (device_type dev_type)
 {
-  backend_entry *be = first_backend;
   mfg_record_entry *mfg_record = 0, *first_mfg_record = 0;
 
   first_mfg_record = sort_by_mfg (dev_type);
   mfg_record = first_mfg_record;
 
-
+  printf ("<p><b>Manufacturers</b>: \n");
+  while (mfg_record)
+    {
+      if (mfg_record != first_mfg_record)
+	printf (", \n");
+      printf ("<a href=\"#%s\">%s</a>",
+	      html_generate_anchor_name (mfg_record->name), mfg_record->name);
+      mfg_record = mfg_record->next;
+    }
+  printf ("</p>\n");
+  mfg_record = first_mfg_record;
   while (mfg_record)
     {
       backend_record_entry *be_record = mfg_record->be_record;
 
-      printf ("<h3>Manufacturer: %s</h3>\n", mfg_record->name);
+      printf ("<h3><a name=\"%s\">Manufacturer: %s</a></h3>\n",
+	      html_generate_anchor_name (mfg_record->name), mfg_record->name);
       if (mfg_record->comment)
 	printf ("<p><b>Comment:</b> %s</p>\n", mfg_record->comment);
       if (mfg_record->url && mfg_record->url->name)
@@ -1492,6 +1700,7 @@ html_mfgs_table (device_type dev_type)
 
       printf ("<th align=center>Model</th>\n");
       printf ("<th align=center>Interface</th>\n");
+      printf ("<th align=center>Status</th>\n");
       printf ("<th align=center>Comment</th>\n");
       printf ("<th align=center>Backend</th>\n");
       printf ("<th align=center>Manpage</th>\n");
@@ -1499,102 +1708,94 @@ html_mfgs_table (device_type dev_type)
 
       while (be_record)
 	{
-	  type_entry *type;
-	  be = be_record->be;
+	  model_entry *model = be_record->model;
 
-	  type = be->type;
-
-	  while (type)
+	  while (model)
 	    {
-	      if (type->type == dev_type)
+	      enum status_entry status = model->status;
+
+	      if (model->url && model->url->name)
+		printf ("<tr><td align=center><a "
+			"href=\"%s\">%s</a></td>\n",
+			model->url->name, model->name);
+	      else
+		printf ("<td align=center>%s</td>\n", model->name);
+
+	      if (model->interface)
+		printf ("<td align=center>%s</td>\n", model->interface);
+	      else
+		printf ("<td align=center>?</td>\n");
+
+	      printf ("<td align=center>");
+	      if (status == status_unknown)
+		status = be_record->status;
+	      switch (status)
 		{
-		  mfg_entry *mfg = type->mfg;
-		  model_entry *model = mfg->model;
+		case status_alpha:
+		  printf ("<font color=" COLOR_ALPHA ">alpha</font>");
+		  break;
+		case status_beta:
+		  printf ("<font color=" COLOR_BETA ">beta</font>");
+		  break;
+		case status_stable:
+		  printf ("<font color=" COLOR_STABLE ">stable</font>");
+		  break;
+		case status_untested:
+		  printf ("<font color=" COLOR_UNTESTED ">untested</font>");
+		  break;
+		default:
+		  printf ("?");
+		  break;
+		}
+	      printf ("</td>\n");
 
-		  mfg = type->mfg;
-		  while (mfg)
-		    {
-		      model = mfg->model;
-		      if (strcasecmp (mfg->name, mfg_record->name) == 0)
-			{
-			  while (model)
-			    {
-			      /*
-			         printf ("<tr><td align=center>\n");
+	      if (model->comment && model->comment[0] != 0)
+		printf ("<td>%s</td>\n", model->comment);
+	      else
+		printf ("<td>&nbsp;</td>\n");
 
-			         if (mfg->url && mfg->url->name)
-			         printf ("<a href=\"%s\">%s</a>\n",
-			         mfg->url->name, mfg->name);
-			         else
-			         printf ("%s\n", mfg->name);
-			         printf ("</td>\n");
-			       */
-			      if (model->url && model->url->name)
-				printf ("<tr><td align=center><a "
-					"href=\"%s\">%s</a></td>\n",
-					model->url->name, model->name);
-			      else
-				printf ("<td align=center>%s</td>\n",
-					model->name);
+	      printf ("<td align=center>\n");
+	      if (be_record->url && be_record->url->name)
+		printf ("<a href=\"%s\">%s</a>\n",
+			be_record->url->name, be_record->name);
+	      else
+		printf ("%s", be_record->name);
+	      if (be_record->version)
+		printf ("<br>(v%s", be_record->version);
+	      else
+		printf ("<br>(?");
+	      /*
+	         switch (be_record->status)
+	         {
+	         case status_alpha:
+	         printf ("<font color=" COLOR_ALPHA
+	         ">alpha</font>");
+	         break;
+	         case status_beta:
+	         printf ("<font color=" COLOR_BETA
+	         ">beta</font>");
+	         break;
+	         case status_stable:
+	         printf ("<font color=" COLOR_STABLE
+	         ">stable</font>");
+	         break;
+	         default:
+	         printf ("?");
+	         break;
+	         }
+	       */
+	      if (be_record->new)
+		printf (", <font color=" COLOR_NEW ">NEW!</font>)");
+	      else
+		printf (")");
+	      printf ("</td>\n");
+	      printf ("<td align=center><a href=\""
+		      MAN_PAGE_LINK "\">%s</a></td>\n",
+		      be_record->manpage, be_record->manpage);
 
-			      if (model->interface)
-				printf ("<td align=center>%s</td>\n",
-					model->interface);
-			      else
-				printf ("<td align=center>?</td>\n");
-
-			      if (model->comment && model->comment[0] != 0)
-				printf ("<td>%s</td>\n", model->comment);
-			      else
-				printf ("<td>&nbsp;</td>\n");
-
-			      printf ("<td align=center>\n");
-			      if (be->url && be->url->name)
-				printf ("<a href=\"%s\">%s</a>\n",
-					be->url->name, be->name);
-			      else
-				printf ("%s", be->name);
-			      if (be->version)
-				printf ("<br>(v%s, ", be->version);
-			      else
-				printf ("<br>(");
-			      switch (be->status)
-				{
-				case status_alpha:
-				  printf ("<font color=" COLOR_ALPHA
-					  ">alpha</font>");
-				  break;
-				case status_beta:
-				  printf ("<font color=" COLOR_BETA
-					  ">beta</font>");
-				  break;
-				case status_stable:
-				  printf ("<font color=" COLOR_STABLE
-					  ">stable</font>");
-				  break;
-				default:
-				  printf ("?");
-				  break;
-				}
-			      if (be->new)
-				printf ("<font color=" COLOR_NEW
-					">, NEW!</font>)");
-			      else
-				printf (")");
-			      printf ("</td>\n");
-			      printf ("<td align=center><a href=\""
-				      MAN_PAGE_LINK "\">%s</a></td>\n",
-				      be->manpage, be->manpage);
-
-			      printf ("</tr>\n");
-			      model = model->next;
-			    }	/* while model */
-			}	/* if strcasecmp */
-		      mfg = mfg->next;
-		    }		/* while mfg */
-		}		/* if type */
-	      type = type->next;
-	    }			/* while type */
+	      printf ("</tr>\n");
+	      model = model->next;
+	    }			/* while model */
 	  be_record = be_record->next;
 	}			/* while be_record */
       printf ("</table>\n");
@@ -1751,8 +1952,9 @@ html_print_mfgs (void)
     intro = "<p> The following table summarizes the devices supported "
       "by the latest version of sane-backends. </p>";
 
-  html_print_header ();
+  sort_by_backend ();
 
+  html_print_header ();
 
   /*  printf ("<p><div align=center>\n"); */
 

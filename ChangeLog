@@ -1,9 +1,13 @@
 2001-05-04  Gerhard Jaeger <g.jaeger@earthling.net>
-    * backend/plustek.c: Applied Petters' patch to avoid an
-      illegal memory access
+	* backend/plustek.c: Applied Petters' patch to avoid an
+	  illegal memory access
 
 2001-05-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* TODO: Removed entry about umax_pp and comment about testing
+	  for existing sane installations and plustek memory access violation.
+	  Added Canon FB620S and FS2710 backend and entries about Tru64
+	  compilation problems and installation procedure for translations.
 	* doc/backend-writing.txt: Added entries about SANE_I18N() and
 	  documentation directories.
 

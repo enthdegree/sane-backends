@@ -5,6 +5,14 @@
 	  doxygen documentation.
 	* backend/mustek.c doc/mustek/mustek.CHANGES: Fixed some option
 	  name issues.
+	* doc/sane-mustek-usb.man: Fixed typo.
+	* po/Makefile.in po/README po/epson.de.po po/mustek.de.po
+	  po/mustek_usb.de.po po/plustek.de.po po/pnm.de.po po/saneopts.de.po
+	  po/umax.de.po: Moved the options contained in saneopts.h into a
+	  seperate file. So the backend po files are much smaller and easier to
+	  read and the saneopts translations are consistent through backends.
+	* backend/microtek2.c backend/microtek2.h: Update to backend 
+	  0.95-20020112 (from karsten.festag@t-online.de (Karsten Festag)).
 
 2002-01-18  Karl Heinz Kremer <khk@khk.net>
 

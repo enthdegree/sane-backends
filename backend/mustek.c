@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 1996, 1997 David Mosberger-Tang and Andreas Czechanowski,
    1998 Andreas Bolsch for extension to ScanExpress models version 0.6,
-   2000-2002 Henning Meier-Geinitz.
+   2000-2003 Henning Meier-Geinitz.
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -46,7 +46,7 @@
 
 /**************************************************************************/
 /* Mustek backend version                                                 */
-#define BUILD 131
+#define BUILD 132
 /**************************************************************************/
 
 #include "../include/sane/config.h"
@@ -784,6 +784,31 @@ inquiry (Mustek_Scanner * s)
   if (!result[0])
     return SANE_STATUS_DEVICE_BUSY;
   return SANE_STATUS_GOOD;
+}
+
+static SANE_Status
+paragon_2_get_adf_status (Mustek_Scanner * s)
+{
+  SANE_Status status;
+  size_t len;
+  SANE_Byte sense_buffer[4];
+
+  len = sizeof (sense_buffer);
+
+  status = sanei_scsi_cmd (s->fd, scsi_request_sense,
+			   sizeof (scsi_request_sense), sense_buffer, &len);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (1, "paragon_2_get_adf_status: %s\n", sane_strstatus (status));
+      return status;
+    }
+  DBG (5, "paragon_2_get_adf_status: sense_buffer: %x %x %x %x\n", sense_buffer[0],
+       sense_buffer[1], sense_buffer[3], sense_buffer[3]);
+
+  if (sense_buffer[0] == 0x00 && sense_buffer[1] == 0x00)
+    return SANE_STATUS_GOOD;
+
+  return SANE_STATUS_NO_DOCS;
 }
 
 static SANE_Bool
@@ -4687,8 +4712,9 @@ output_data (Mustek_Scanner * s, FILE * fp,
 static RETSIGTYPE
 sigterm_handler (int signal)
 {
+  DBG (5, "sigterm_handler: started, signal is %d, starting sanei_scsi_req_flush_all()\n", signal);
   sanei_scsi_req_flush_all ();	/* flush SCSI queue */
-  DBG (5, "sigterm_handler: signal %d\n", signal);
+  DBG (5, "sigterm_handler: sanei_scsi_req_flush_all() finisheshed, _exiting()\n");
   _exit (SANE_STATUS_GOOD);
 }
 
@@ -4853,9 +4879,7 @@ reader_process (Mustek_Scanner * s, SANE_Int fd)
 	    {
 	      DBG (4, "reader_process: buffer %d: waiting for request to be "
 		   "ready\n", buffernumber + 1);
-	      sigprocmask (SIG_BLOCK, &sigterm_set, 0);
 	      status = dev_req_wait (bstat[buffernumber].id);
-	      sigprocmask (SIG_UNBLOCK, &sigterm_set, 0);
 	      if (status == SANE_STATUS_GOOD)
 		{
 		  DBG (4, "reader_process: buffer %d is ready, wanted %d, "
@@ -5245,7 +5269,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
 	      if (end == word)
 		{
-		  DBG (3, "sane-init: config file line %d:: buffersize must "
+		  DBG (3, "sane-init: config file line %d: buffersize must "
 		       "have a parameter; using default (%d kb)\n",
 		       linenumber, new_dev[new_dev_len - 1]->max_buffer_size);
 		}
@@ -5328,7 +5352,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	  else
 	    {
 	      DBG (3, "sane_init: config file line %d: ignoring unknown "
-		   "option `%s'\n", linenumber, cp);
+		   "option `%s'\n", linenumber, word);
 	      if (word)
 		free (word);
 	      word = 0;
@@ -5739,7 +5763,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		  s->opt[OPT_GAMMA_VECTOR_G].cap &= ~SANE_CAP_INACTIVE;
 		  s->opt[OPT_GAMMA_VECTOR_B].cap &= ~SANE_CAP_INACTIVE;
 		}
-	      else if ((strcmp (val, "Lineart") == 0)
+	      else if ((strcmp (mode, "Lineart") == 0)
 		       && (s->hw->flags & MUSTEK_FLAG_PRO))
 		{
 		  s->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
@@ -6299,6 +6323,14 @@ sane_start (SANE_Handle handle)
 				 &s->params.lines);
       if (status != SANE_STATUS_GOOD)
 	goto stop_scanner_and_return;
+
+      if ((strcmp (s->val[OPT_SOURCE].s, "Automatic Document Feeder") == 0)
+	  && (s->hw->flags & MUSTEK_FLAG_PARAGON_2))
+	{
+	  status = paragon_2_get_adf_status (s);
+	  if (status != SANE_STATUS_GOOD)
+	    goto stop_scanner_and_return;
+	}
     }
 
   s->params.pixels_per_line = s->params.bytes_per_line;

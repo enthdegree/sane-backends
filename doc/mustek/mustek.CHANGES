@@ -1,5 +1,19 @@
 CHANGES for the SANE Mustek backend
 
+2003-03-07
+  * Released Mustek backend 1.0-132
+
+2003-03-07
+  * Minor debug message updates.
+
+2003-02-27
+  * Fixed a little bug in sane_control_option (gamma control).
+  * Removed the signal blocking again. That only hides the segfault in sanei_scsi.
+  * Check if there are documents in ADF for Paragon 2. Otherwise return error.
+
+2003-02-25
+  * Fix some minor issues in reading the config file.
+
 2003-02-22
   * Initialize global variables in sane_init.
 

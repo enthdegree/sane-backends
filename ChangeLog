@@ -1,4 +1,13 @@
-2003-02-11  Peter Fales <peter@fales-lorenz.net>
+2003-03-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/mustek.c doc/descriptions/mustek.desc
+	  doc/mustek/mustek.CHANGES: Minor debug message updates. Fixed a
+	  little bug in sane_control_option (gamma control). Removed the
+	  signal blocking again. That only hides the segfault in sanei_scsi.
+	  Check if there are documents in ADF for Paragon 2. Otherwise return
+	  error. Fix some minor issues in reading the config file.
+
+2003-03-07  Peter Fales <peter@fales-lorenz.net>
 
 	* doc/descriptions/dc210.desc, doc/descriptions/dc240.desc:
 	  Fix broken URLs to the Kodak web pages

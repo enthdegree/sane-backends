@@ -1,6 +1,9 @@
 2003-06-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions.txt: Changed unmaintained tag to lowercase.
+	* doc/descriptions/template.desc. 
+	  doc/descriptions-external/template.desc.: Updated according to 
+	  descriptions.txt.
 
 2003-06-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

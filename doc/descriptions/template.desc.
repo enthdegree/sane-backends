@@ -11,8 +11,7 @@
 ; See doc/descriptions.txt for details.
 
 :backend "template"               ; name of backend
-:version "0.42"                   ; version of backend
-:status :alpha                    ; :alpha, :beta, :stable
+:version "0.42"                   ; version of backend (or "unmaintained")
 :new :yes                         ; Is the backend new to this SANE release?
                                   ; :yes or :no
 :manpage "sane-template"          ; name of manpage (if it exists)
@@ -32,12 +31,13 @@
                                   ; comment about the manufacturer
 
 :model "Templ Z"                  ; name models for above-specified mfg.
-:status :untested                 ; :alpha, :beta, :stable, :untested, 
-                                  ; or :unsupported
+:status :untested                 ; :minimal, :basic, :good, :complete
+                                  ; :untested, or :unsupported
 :interface "SCSI"                 ; interface type of the device:
                                   ; "SCSI", "USB", "Parport (EPP)",
                                   ; "Parport (SPP)", "Parport (ECP)",
-                                  ; "Serial port" or "Proprietary".
+                                  ; "Serial port", "IEEE-1394", "JetDirect",
+                                  ; or "Proprietary".
 :url "http://www.tmp.com/z.html"  ; model's URL
 :comment "With Z-Axis scrolling"  ; comment about the model
 
@@ -48,21 +48,22 @@
 
 :model "Templ ZQ"
 :interface "USB"
-:status :alpha
+:status :minimal
 
 :model "Templ ZY"
 :interface "SCSI"
-:status :beta
+:status :basic
 
 :model "Templ ZZ"
 :interface "SCSI"
-:status :stable
+:status :good
 
 :mfg "ArmorPlate"                 ; another manufacturer...
 :url "http://www.armorplate.com/"
 
 :model "AmplScan II"
 :interface "SCSI"
+:status :complete
 :comment "AmplScan *II*, not AmplScan!"
 
 :devicetype :api                  ; specify a different type

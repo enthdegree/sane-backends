@@ -6,15 +6,20 @@
 :manpage "sane-sharp"
 :devicetype :scanner
 
-:mfg "SHARP"                    ; name a manufacturer
+:mfg "Sharp"                    ; name a manufacturer
 :url "http://sharp-world.com/"
 :model "JX-610"                 ; name models for above-specified mfg.
+:interface "SCSI"
 :comment ""
 :model "JX-250"                 ; name models for above-specified mfg.
+:interface "SCSI"
 :comment ""
 :model "JX-320"                 ; name models for above-specified mfg.
+:interface "SCSI"
 :comment ""
 :model "JX-330"                 ; name models for above-specified mfg.
+:interface "SCSI"
 :comment ""
 :model "JX-350"                 ; name models for above-specified mfg.
+:interface "SCSI"
 :comment ""

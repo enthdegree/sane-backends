@@ -7870,12 +7870,14 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
     {
     case 1200:
       opsc53[6] = 0x60;
-      opsc53[8] = 0x5F;
+      opsc53[8] = 0x5E;	/* *WORKING* value */
+      opsc53[8] = 0x5F;	/* 5F gives wrong colors ? */
+      opsc53[8] = 0x58;	
       opsc53[9] = 0x05;
-      /*opsc53[14] = opsc53[14] & 0xF0;  ~ 0x08 -> scan AND move */
-      /*opsc53[14] = (opsc53[14] & 0xF0) | 0x04;         -> 600 dpi ? */
-      /*opsc53[14] = (opsc53[14] & 0xF0) | 0x0C; */
-      opsc53[14] = (opsc53[14] & 0xF0) | 0x0C;
+      /* XXX test value XXX opsc53[14] = opsc53[14] & 0xF0;  ~ 0x08 -> scan AND move */
+      /* XXX test value XXX opsc53[14] = (opsc53[14] & 0xF0) | 0x04;         -> 600 dpi ? */
+      /* XXX test value XXX opsc53[14] = (opsc53[14] & 0xF0) | 0x0C; */
+      opsc53[14] = opsc53[14] & 0xF0;	/* *WORKING* 1200 dpi */
       break;
 
     case 600:

@@ -346,7 +346,7 @@ init_options (Umax_PP_Device * dev)
 
   /* "Mode" group: */
 
-  dev->opt[OPT_MODE_GROUP].title = "Scan Mode";
+  dev->opt[OPT_MODE_GROUP].title = SANE_I18N("Scan Mode");
   dev->opt[OPT_MODE_GROUP].name = "";
   dev->opt[OPT_MODE_GROUP].desc = "";
   dev->opt[OPT_MODE_GROUP].type = SANE_TYPE_GROUP;
@@ -393,7 +393,7 @@ init_options (Umax_PP_Device * dev)
 
   /* "Geometry" group: */
 
-  dev->opt[OPT_GEOMETRY_GROUP].title = "Geometry";
+  dev->opt[OPT_GEOMETRY_GROUP].title = SANE_I18N("Geometry");
   dev->opt[OPT_GEOMETRY_GROUP].desc = "";
   dev->opt[OPT_GEOMETRY_GROUP].name = "";
   dev->opt[OPT_GEOMETRY_GROUP].type = SANE_TYPE_GROUP;
@@ -441,7 +441,7 @@ init_options (Umax_PP_Device * dev)
 
   /* "Enhancement" group: */
 
-  dev->opt[OPT_ENHANCEMENT_GROUP].title = "Enhancement";
+  dev->opt[OPT_ENHANCEMENT_GROUP].title = SANE_I18N("Enhancement");
   dev->opt[OPT_ENHANCEMENT_GROUP].desc = "";
   dev->opt[OPT_ENHANCEMENT_GROUP].name = "";
   dev->opt[OPT_ENHANCEMENT_GROUP].type = SANE_TYPE_GROUP;
@@ -449,9 +449,9 @@ init_options (Umax_PP_Device * dev)
   dev->opt[OPT_ENHANCEMENT_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
   /* lamp control */
-  dev->opt[OPT_LAMP_CONTROL].name = "lamp-control";
-  dev->opt[OPT_LAMP_CONTROL].title = "Lamp on";
-  dev->opt[OPT_LAMP_CONTROL].desc = "Sets lamp on/off";
+  dev->opt[OPT_LAMP_CONTROL].name = SANE_I18N("lamp-control");
+  dev->opt[OPT_LAMP_CONTROL].title = SANE_I18N("Lamp on");
+  dev->opt[OPT_LAMP_CONTROL].desc = SANE_I18N("Sets lamp on/off");
   dev->opt[OPT_LAMP_CONTROL].type = SANE_TYPE_BOOL;
   dev->opt[OPT_LAMP_CONTROL].size = sizeof (SANE_Word);
   dev->opt[OPT_LAMP_CONTROL].unit = SANE_UNIT_NONE;
@@ -516,16 +516,16 @@ init_options (Umax_PP_Device * dev)
 
   /*  gain group */
   dev->opt[OPT_MANUAL_GAIN].name = "manual-channel-gain";
-  dev->opt[OPT_MANUAL_GAIN].title = "Gain";
-  dev->opt[OPT_MANUAL_GAIN].desc = "Color channels gain settings";
+  dev->opt[OPT_MANUAL_GAIN].title = SANE_I18N("Gain");
+  dev->opt[OPT_MANUAL_GAIN].desc = SANE_I18N("Color channels gain settings");
   dev->opt[OPT_MANUAL_GAIN].type = SANE_TYPE_BOOL;
   dev->opt[OPT_MANUAL_GAIN].cap |= SANE_CAP_ADVANCED;
   dev->val[OPT_MANUAL_GAIN].w = SANE_FALSE;
 
   /* gray gain */
   dev->opt[OPT_GRAY_GAIN].name = "gray-gain";
-  dev->opt[OPT_GRAY_GAIN].title = "Gray gain";
-  dev->opt[OPT_GRAY_GAIN].desc = "Sets gray channel gain";
+  dev->opt[OPT_GRAY_GAIN].title = SANE_I18N("Gray gain");
+  dev->opt[OPT_GRAY_GAIN].desc = SANE_I18N("Sets gray channel gain");
   dev->opt[OPT_GRAY_GAIN].type = SANE_TYPE_INT;
   dev->opt[OPT_GRAY_GAIN].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
   dev->opt[OPT_GRAY_GAIN].unit = SANE_UNIT_NONE;
@@ -536,8 +536,8 @@ init_options (Umax_PP_Device * dev)
 
   /* red gain */
   dev->opt[OPT_RED_GAIN].name = "red-gain";
-  dev->opt[OPT_RED_GAIN].title = "Red gain";
-  dev->opt[OPT_RED_GAIN].desc = "Sets red channel gain";
+  dev->opt[OPT_RED_GAIN].title = SANE_I18N("Red gain");
+  dev->opt[OPT_RED_GAIN].desc = SANE_I18N("Sets red channel gain");
   dev->opt[OPT_RED_GAIN].type = SANE_TYPE_INT;
   dev->opt[OPT_RED_GAIN].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
   dev->opt[OPT_RED_GAIN].unit = SANE_UNIT_NONE;
@@ -548,8 +548,8 @@ init_options (Umax_PP_Device * dev)
 
   /* green gain */
   dev->opt[OPT_GREEN_GAIN].name = "green-gain";
-  dev->opt[OPT_GREEN_GAIN].title = "Green gain";
-  dev->opt[OPT_GREEN_GAIN].desc = "Sets green channel gain";
+  dev->opt[OPT_GREEN_GAIN].title = SANE_I18N("Green gain");
+  dev->opt[OPT_GREEN_GAIN].desc = SANE_I18N("Sets green channel gain");
   dev->opt[OPT_GREEN_GAIN].type = SANE_TYPE_INT;
   dev->opt[OPT_GREEN_GAIN].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
   dev->opt[OPT_GREEN_GAIN].unit = SANE_UNIT_NONE;
@@ -560,8 +560,8 @@ init_options (Umax_PP_Device * dev)
 
   /* blue gain */
   dev->opt[OPT_BLUE_GAIN].name = "blue-gain";
-  dev->opt[OPT_BLUE_GAIN].title = "Blue gain";
-  dev->opt[OPT_BLUE_GAIN].desc = "Sets blue channel gain";
+  dev->opt[OPT_BLUE_GAIN].title = SANE_I18N("Blue gain");
+  dev->opt[OPT_BLUE_GAIN].desc = SANE_I18N("Sets blue channel gain");
   dev->opt[OPT_BLUE_GAIN].type = SANE_TYPE_INT;
   dev->opt[OPT_BLUE_GAIN].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
   dev->opt[OPT_BLUE_GAIN].unit = SANE_UNIT_NONE;
@@ -572,16 +572,16 @@ init_options (Umax_PP_Device * dev)
 
   /*  highlight group */
   dev->opt[OPT_MANUAL_HIGHLIGHT].name = "manual-highlight";
-  dev->opt[OPT_MANUAL_HIGHLIGHT].title = "Highlight";
-  dev->opt[OPT_MANUAL_HIGHLIGHT].desc = "Color channels highlight settings";
+  dev->opt[OPT_MANUAL_HIGHLIGHT].title = SANE_I18N("Highlight");
+  dev->opt[OPT_MANUAL_HIGHLIGHT].desc = SANE_I18N("Color channels highlight settings");
   dev->opt[OPT_MANUAL_HIGHLIGHT].type = SANE_TYPE_BOOL;
   dev->opt[OPT_MANUAL_HIGHLIGHT].cap |= SANE_CAP_ADVANCED;
   dev->val[OPT_MANUAL_HIGHLIGHT].w = SANE_FALSE;
 
   /* gray highlight */
   dev->opt[OPT_GRAY_HIGHLIGHT].name = "gray-highlight";
-  dev->opt[OPT_GRAY_HIGHLIGHT].title = "Gray highlight";
-  dev->opt[OPT_GRAY_HIGHLIGHT].desc = "Sets gray channel highlight";
+  dev->opt[OPT_GRAY_HIGHLIGHT].title = SANE_I18N("Gray highlight");
+  dev->opt[OPT_GRAY_HIGHLIGHT].desc = SANE_I18N("Sets gray channel highlight");
   dev->opt[OPT_GRAY_HIGHLIGHT].type = SANE_TYPE_INT;
   dev->opt[OPT_GRAY_HIGHLIGHT].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
   dev->opt[OPT_GRAY_HIGHLIGHT].unit = SANE_UNIT_NONE;
@@ -592,8 +592,8 @@ init_options (Umax_PP_Device * dev)
 
   /* red highlight */
   dev->opt[OPT_RED_HIGHLIGHT].name = "red-highlight";
-  dev->opt[OPT_RED_HIGHLIGHT].title = "Red highlight";
-  dev->opt[OPT_RED_HIGHLIGHT].desc = "Sets red channel highlight";
+  dev->opt[OPT_RED_HIGHLIGHT].title = SANE_I18N("Red highlight");
+  dev->opt[OPT_RED_HIGHLIGHT].desc = SANE_I18N("Sets red channel highlight");
   dev->opt[OPT_RED_HIGHLIGHT].type = SANE_TYPE_INT;
   dev->opt[OPT_RED_HIGHLIGHT].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
   dev->opt[OPT_RED_HIGHLIGHT].unit = SANE_UNIT_NONE;
@@ -604,8 +604,8 @@ init_options (Umax_PP_Device * dev)
 
   /* green highlight */
   dev->opt[OPT_GREEN_HIGHLIGHT].name = "green-highlight";
-  dev->opt[OPT_GREEN_HIGHLIGHT].title = "Green highlight";
-  dev->opt[OPT_GREEN_HIGHLIGHT].desc = "Sets green channel highlight";
+  dev->opt[OPT_GREEN_HIGHLIGHT].title = SANE_I18N("Green highlight");
+  dev->opt[OPT_GREEN_HIGHLIGHT].desc = SANE_I18N("Sets green channel highlight");
   dev->opt[OPT_GREEN_HIGHLIGHT].type = SANE_TYPE_INT;
   dev->opt[OPT_GREEN_HIGHLIGHT].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
   dev->opt[OPT_GREEN_HIGHLIGHT].unit = SANE_UNIT_NONE;
@@ -616,8 +616,8 @@ init_options (Umax_PP_Device * dev)
 
   /* blue highlight */
   dev->opt[OPT_BLUE_HIGHLIGHT].name = "blue-highlight";
-  dev->opt[OPT_BLUE_HIGHLIGHT].title = "Blue highlight";
-  dev->opt[OPT_BLUE_HIGHLIGHT].desc = "Sets blue channel highlight";
+  dev->opt[OPT_BLUE_HIGHLIGHT].title = SANE_I18N("Blue highlight");
+  dev->opt[OPT_BLUE_HIGHLIGHT].desc = SANE_I18N("Sets blue channel highlight");
   dev->opt[OPT_BLUE_HIGHLIGHT].type = SANE_TYPE_INT;
   dev->opt[OPT_BLUE_HIGHLIGHT].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
   dev->opt[OPT_BLUE_HIGHLIGHT].unit = SANE_UNIT_NONE;

@@ -1,5 +1,8 @@
 2001-05-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* README: Added "man sane" to quick install. Added paragraph about
+	  old versions. Added paragraph about "make clean" and "make
+	  distclean". Added section about removing SANE.
 	* Makefile.in backend/Makefile.in doc/Makefile.in lib/Makefile.in
 	  sanei/Makefile.in tools/Makefile.in: Added target "uninstall".
 

@@ -7,7 +7,7 @@
  *  @brief Calibration routines for CanoScan CIS devices.
  *
  * Based on sources acquired from Plustek Inc.<br>
- * Copyright (C) 2001-2004 Gerhard Jaeger <gerhard@gjaeger.de><br>
+ * Copyright (C) 2001-2005 Gerhard Jaeger <gerhard@gjaeger.de><br>
  * Large parts Copyright (C) 2003 Christopher Montgomery <monty@xiph.org>
  *
  * Montys' comment:

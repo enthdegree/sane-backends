@@ -7,7 +7,7 @@
  *  @brief Functions to control the scanner hardware.
  *
  * Based on sources acquired from Plustek Inc.<br>
- * Copyright (C) 2001-2004 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2005 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.40 - starting version of the USB support

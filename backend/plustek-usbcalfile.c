@@ -6,7 +6,7 @@
 /** @file plustek-usbcalfile.c
  *  @brief Functions for saving/restoring calibration settings
  *
- * Copyright (C) 2001-2004 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2005 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.46 - first version

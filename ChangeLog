@@ -1,4 +1,7 @@
 2003-07-28  Thomas Soumarmon <thomas.soumarmon@cogitae.net>
+	* doc/descriptions/hp5400.desc : changed status to basic
+
+2003-07-28  Thomas Soumarmon <thomas.soumarmon@cogitae.net>
 	* backend/hp5400_* : moved constant initialization to sane_init
 	  and sane_exit + removed some compilation warnings.
 

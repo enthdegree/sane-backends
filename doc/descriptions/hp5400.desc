@@ -32,13 +32,13 @@
 
 :model "ScanJet 5470c"		; name models for above-specified mfg.
 :interface "USB"		; interface type of the device:
-:status :alpha
+:status :basic
 
 :model "ScanJet 5490c"		; name models for above-specified mfg.
 :interface "USB"		; interface type of the device:
-:status :untested
+:status :basic
 
-				
+
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ; and at the top-level.
 

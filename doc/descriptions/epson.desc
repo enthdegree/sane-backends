@@ -172,3 +172,8 @@
 :model "CX-6400"
 :interface "USB"
 :status :good
+
+:model "RX-600"
+:interface "USB"
+:status :good
+

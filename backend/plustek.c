@@ -758,11 +758,7 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 		return attach("/dev/pt_drv", 0);
 	}
 
-#if V_REV >= 3
 	while (sanei_config_read( dev_name, sizeof(dev_name), fp)) {
-#else
-	while (fgets(dev_name, sizeof(dev_name), fp)) {
-#endif
 
 		DBG( _DBG_SANE_INIT, "sane_init, >%s<\n", dev_name);
 		if( dev_name[0] == '#')		/* ignore line comments */

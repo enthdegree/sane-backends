@@ -46,7 +46,7 @@
    This file implements a SANE backend for Mustek 1200UB and similar 
    USB flatbed scanners.  */
 
-#define BUILD 11
+#define BUILD 12
 
 #include "../include/sane/config.h"
 
@@ -251,7 +251,7 @@ init_options (Mustek_Usb_Scanner * s)
       s->opt[option].size = sizeof (SANE_Word);
       s->opt[option].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     }
-
+  s->opt[OPT_NUM_OPTS].name = SANE_NAME_NUM_OPTIONS;
   s->opt[OPT_NUM_OPTS].title = SANE_TITLE_NUM_OPTIONS;
   s->opt[OPT_NUM_OPTS].desc = SANE_DESC_NUM_OPTIONS;
   s->opt[OPT_NUM_OPTS].type = SANE_TYPE_INT;
@@ -262,15 +262,16 @@ init_options (Mustek_Usb_Scanner * s)
   s->opt[OPT_MODE_GROUP].title = SANE_I18N("Scan Mode");
   s->opt[OPT_MODE_GROUP].desc = "";
   s->opt[OPT_MODE_GROUP].type = SANE_TYPE_GROUP;
+  s->opt[OPT_MODE_GROUP].size = 0;
   s->opt[OPT_MODE_GROUP].cap = 0;
   s->opt[OPT_MODE_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
   
+  /* scan mode */
   mode_list[0]=SANE_I18N("Color");
   mode_list[1]=SANE_I18N("Gray");
   mode_list[2]=SANE_I18N("Lineart");
   mode_list[3]=NULL;
   
-  /* scan mode */
   s->opt[OPT_MODE].name = SANE_NAME_SCAN_MODE;
   s->opt[OPT_MODE].title = SANE_TITLE_SCAN_MODE;
   s->opt[OPT_MODE].desc = SANE_DESC_SCAN_MODE;
@@ -293,6 +294,7 @@ init_options (Mustek_Usb_Scanner * s)
     s->hw->dpi_range.max = SANE_FIX(600);
   else
     s->hw->dpi_range.max = SANE_FIX(1200);
+
   /* preview */
   s->opt[OPT_PREVIEW].name = SANE_NAME_PREVIEW;
   s->opt[OPT_PREVIEW].title = SANE_TITLE_PREVIEW;
@@ -306,6 +308,7 @@ init_options (Mustek_Usb_Scanner * s)
   s->opt[OPT_GEOMETRY_GROUP].desc = "";
   s->opt[OPT_GEOMETRY_GROUP].type = SANE_TYPE_GROUP;
   s->opt[OPT_GEOMETRY_GROUP].cap = SANE_CAP_ADVANCED;
+  s->opt[OPT_GEOMETRY_GROUP].size = 0;
   s->opt[OPT_GEOMETRY_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
   
   /* top-left x */
@@ -352,6 +355,7 @@ init_options (Mustek_Usb_Scanner * s)
   s->opt[OPT_ENHANCEMENT_GROUP].title = SANE_I18N("Enhancement");
   s->opt[OPT_ENHANCEMENT_GROUP].desc = "";
   s->opt[OPT_ENHANCEMENT_GROUP].type = SANE_TYPE_GROUP;
+  s->opt[OPT_ENHANCEMENT_GROUP].size = 0;
   s->opt[OPT_ENHANCEMENT_GROUP].cap = 0;
   s->opt[OPT_ENHANCEMENT_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
   
@@ -1154,43 +1158,34 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   SANE_Word cap;
 
   DBG (5, "sane_control_option: start: action = %s, option = %s (%d)\n",
-       (action == SANE_ACTION_GET_VALUE) ? "get" : "set",
+       (action == SANE_ACTION_GET_VALUE) ? "get" : 
+       (action == SANE_ACTION_SET_VALUE) ? "set" :
+       (action == SANE_ACTION_SET_AUTO) ? "set_auto" : "unknown",
        s->opt[option].name, option);
-  
-  if (val || action == SANE_ACTION_GET_VALUE)
-    switch (s->opt[option].type)
-      {
-      case SANE_TYPE_STRING:
-	DBG (5, "sane_control_option: Value %s\n", s->val[option].s);
-	break;
-      case SANE_TYPE_FIXED:
-	{
-	  double v1, v2;
-	  SANE_Fixed f;
-	  v1 = SANE_UNFIX (s->val[option].w);
-	  f = *(SANE_Fixed *) val;
-	  v2 = SANE_UNFIX (f);
-	  DBG (5, "sane_control_option: Value %g (Fixed)\n", v1);
-	}
-	break;
-      default:
-	DBG (5, "sane_control_option: Value %u (Int)\n", s->val[option].w);
-	break;
-      }
   
   if (info)
     *info = 0;
   
   if (s->scanning)
-    return SANE_STATUS_DEVICE_BUSY;
+    {
+      DBG (1, "sane_control_option: don't call this function while "
+	   "scanning\n");
+      return SANE_STATUS_DEVICE_BUSY;
+    }
   
-  if (option >= NUM_OPTIONS)
-    return SANE_STATUS_INVAL;
+  if (option >= NUM_OPTIONS || option < 0)
+    {
+      DBG (1, "sane_control_option: option >= NUM_OPTIONS || option < 0\n");
+      return SANE_STATUS_INVAL;
+    }
   
   cap = s->opt[option].cap;
   
   if (!SANE_OPTION_IS_ACTIVE (cap))
-    return SANE_STATUS_INVAL;
+    {
+      DBG (2, "sane_control_option: option is inactive\n");
+      return SANE_STATUS_INVAL;
+    }
   
   if (action == SANE_ACTION_GET_VALUE)
     {
@@ -1226,7 +1221,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   else if (action == SANE_ACTION_SET_VALUE)
     {
       if (!SANE_OPTION_IS_SETTABLE (cap))
-	return SANE_STATUS_INVAL;
+	{
+	  DBG (2, "sane_control_option: option is not settable\n");
+	  return SANE_STATUS_INVAL;
+	}
       
       status = sanei_constrain_value (s->opt + option, val, info);
       

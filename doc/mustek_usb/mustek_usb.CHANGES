@@ -1,5 +1,15 @@
 CHANGES for the SANE Mustek USB backend
 
+2002-03-20:
+  * Release of version 1.0-12. 
+
+2002-03-19:
+  * Option 0 has an empty name now.
+  * Group options have size 0 now.
+  * Checked also for SANE_ACTION_SET_AUTO.
+  * Removed buggy output in sane_control_option.
+  * Added more debug output in sane_control_option.
+
 2002-03-17:
   * Release of version 1.0-11. 
 

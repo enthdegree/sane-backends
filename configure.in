@@ -143,6 +143,8 @@ AC_TRY_COMPILE([
 
 AC_MSG_CHECKING([for union semun in <sys/sem.h>])
 AC_TRY_COMPILE([
+#include <sys/types.h>
+#include <sys/ipc.h>
 #include <sys/sem.h>
 ],[union semun test_semun],[AC_MSG_RESULT(yes);
 AC_DEFINE(HAVE_UNION_SEMUN,1,[Define if union semun is available.])],

@@ -724,10 +724,14 @@ InitScan (TScanParams * pParams, THWParams * pHWParams)
 /************************************************************************/
 
 static SANE_Bool
-XferBufferGetLine (int iHandle, TDataPipe * p, unsigned char *pabLine)
+XferBufferGetLine (int iHandle, TDataPipe * p, unsigned char *pabLine,
+		   SANE_Bool * pfJustDone)
 {
   unsigned char bData;
-
+  if (pfJustDone)
+    {
+      *pfJustDone = SANE_FALSE;
+    }
   /* all calculated transfers done ? */
   if (p->iLinesLeft == 0)
     return SANE_FALSE;
@@ -735,13 +739,28 @@ XferBufferGetLine (int iHandle, TDataPipe * p, unsigned char *pabLine)
   /* time for a fresh read? */
   if (p->iCurLine == 0)
     {
-      /*    DBG(DBG_MSG, "Reading buffer %d unsigned chars\n", _iLinesPerXferBuf
-       * _iBytesPerLine); */
+      int iLines;
+      iLines = p->iLinesPerXferBuf;
+      /* read only as many lines as needed */
+      if (p->iLinesLeft > 0 && p->iLinesLeft <= iLines)
+	{
+	  iLines = p->iLinesLeft;
+	  DBG (DBG_MSG, "\n");
+	  if (p->iLinesLeft < iLines)
+	    {
+	      DBG (DBG_MSG,
+		   "reading reduced number of lines: %d instead of %d\n",
+		   iLines, p->iLinesPerXferBuf);
+	    }
+	  if (pfJustDone)
+	    {
+	      *pfJustDone = SANE_TRUE;
+	    }
+	}
       NiashReadReg (iHandle, 0x20, &bData);
       DBG (DBG_MSG, "buffer level = %3d, <reading %5d unsigned chars>, ",
-	   (int) bData, p->iLinesPerXferBuf * p->iBytesPerLine);
-      NiashReadBulk (iHandle, p->pabXferBuf,
-		     p->iLinesPerXferBuf * p->iBytesPerLine);
+	   (int) bData, iLines * p->iBytesPerLine);
+      NiashReadBulk (iHandle, p->pabXferBuf, iLines * p->iBytesPerLine);
       NiashReadReg (iHandle, 0x20, &bData);
       DBG (DBG_MSG, "buffer level = %3d\r", bData);
       fflush (stdout);
@@ -773,7 +792,7 @@ XferBufferInit (int iHandle, TDataPipe * p)
   /* skip garbage lines */
   for (i = 0; i < p->iSkipLines; i++)
     {
-      XferBufferGetLine (iHandle, p, NULL);
+      XferBufferGetLine (iHandle, p, NULL, NULL);
     }
 }
 
@@ -788,12 +807,14 @@ CircBufferFill (int iHandle, TDataPipe * p, SANE_Bool iReversedHead)
       if (iReversedHead)
 	{
 	  XferBufferGetLine (iHandle, p,
-			     &p->pabCircBuf[p->iRedLine * p->iBytesPerLine]);
+			     &p->pabCircBuf[p->iRedLine * p->iBytesPerLine],
+			     NULL);
 	}
       else
 	{
 	  XferBufferGetLine (iHandle, p,
-			     &p->pabCircBuf[p->iBluLine * p->iBytesPerLine]);
+			     &p->pabCircBuf[p->iBluLine * p->iBytesPerLine],
+			     NULL);
 	}
       /* advance pointers */
       p->iRedLine = (p->iRedLine + 1) % p->iLinesPerCircBuf;
@@ -902,10 +923,11 @@ _UnscrambleLine (unsigned char *pabLine,
 }
 
 
-/* gets an unscrambled line from the circular buffer. the first couple of lines contain garbage */
+/* gets an unscrambled line from the circular buffer. the first couple of lines contain garbage,
+   if  pfJustDone!=NULL this element will be set SANE_TRUE, when the last scan was done*/
 STATIC SANE_Bool
-CircBufferGetLine (int iHandle, TDataPipe * p, unsigned char *pabLine,
-		   SANE_Bool iReversedHead)
+CircBufferGetLineEx (int iHandle, TDataPipe * p, unsigned char *pabLine,
+		     SANE_Bool iReversedHead, SANE_Bool * pfJustDone)
 {
   int iLineCount;
   for (iLineCount = 0; iLineCount < p->iScaleDownLpi; ++iLineCount)
@@ -914,17 +936,18 @@ CircBufferGetLine (int iHandle, TDataPipe * p, unsigned char *pabLine,
 	{
 	  if (!XferBufferGetLine (iHandle, p,
 				  &p->pabCircBuf[p->iRedLine *
-						 p->iBytesPerLine]))
+						 p->iBytesPerLine],
+				  pfJustDone))
 	    return SANE_FALSE;
 	}
       else
 	{
 	  if (!XferBufferGetLine (iHandle, p,
 				  &p->pabCircBuf[p->iBluLine *
-						 p->iBytesPerLine]))
+						 p->iBytesPerLine],
+				  pfJustDone))
 	    return SANE_FALSE;
 	}
-
       if (pabLine != NULL)
 	{
 	  _UnscrambleLine (pabLine,
@@ -944,6 +967,15 @@ CircBufferGetLine (int iHandle, TDataPipe * p, unsigned char *pabLine,
 }
 
 
+/* gets an unscrambled line from the circular buffer. the first couple of lines contain garbage */
+STATIC SANE_Bool
+CircBufferGetLine (int iHandle, TDataPipe * p, unsigned char *pabLine,
+		   SANE_Bool iReversedHead)
+{
+  return CircBufferGetLineEx (iHandle, p, pabLine, iReversedHead, NULL);
+}
+
+
 STATIC void
 CircBufferInit (int iHandle, TDataPipe * p,
 		int iWidth, int iHeight,
@@ -951,7 +983,6 @@ CircBufferInit (int iHandle, TDataPipe * p,
 		int iScaleDownDpi, int iScaleDownLpi)
 {
 
-  long iXFerSize;
   /* relevant for internal read and write functions */
   p->iScaleDownLpi = iScaleDownLpi;
   p->iScaleDownDpi = iScaleDownDpi;
@@ -1007,41 +1038,22 @@ CircBufferInit (int iHandle, TDataPipe * p,
     }
   else
     {
+#define SAFETY_LINES 2
+#define MAX_LINES_PER_XFERBUF 800
       /* estimate of number of unsigned chars to transfer at all via the USB */
-      /* add 20 lines for securtiy */
-      int iTransfers = 1;
+      /* add some lines for securtiy */
 
-      p->iLinesLeft = p->iLinesPerXferBuf = (iHeight + p->iSkipLines + 20);
-      iXFerSize = p->iBytesPerLine * p->iLinesLeft;
-
-      /* is the buffersize too big ? */
-      /* or ... 800 vertical dots to be scanned in one pass are too many */
-      while (iXFerSize > XFER_BUF_SIZE || p->iLinesPerXferBuf > 800)
+      p->iLinesLeft =
+	iHeight + p->iSkipLines + p->iLinesPerCircBuf + SAFETY_LINES;
+      p->iLinesPerXferBuf = XFER_BUF_SIZE / p->iBytesPerLine;
+      /* with more than 800 lines the timing is spoiled */
+      if (p->iLinesPerXferBuf > MAX_LINES_PER_XFERBUF)
 	{
-	  if (iTransfers == 1 && iXFerSize > XFER_BUF_SIZE)
-	    {
-	      /* get the number of optimized transfers for a needed size */
-	      iTransfers = (iXFerSize + (XFER_BUF_SIZE - 1)) / XFER_BUF_SIZE;
-	    }
-	  else
-	    {
-	      /* either size is still too big */
-	      /* or height to be scanned in one pass is too big */
-	      /* try with more transfers, to get a smaller size of buffer */
-	      iXFerSize = p->iBytesPerLine * p->iLinesLeft;
-	      ++iTransfers;
-	    }
-
-	  /* get the new buffer size */
-	  iXFerSize = (iXFerSize + (iTransfers - 1)) / iTransfers;
-	  /* make sure that it is dividable by the number of unsigned chars per line */
-	  iXFerSize =
-	    ((iXFerSize +
-	      (p->iBytesPerLine - 1)) / p->iBytesPerLine) * p->iBytesPerLine;
-	  p->iLinesPerXferBuf = (int) iXFerSize / p->iBytesPerLine;
+	  p->iLinesPerXferBuf = MAX_LINES_PER_XFERBUF;
 	}
-      DBG (DBG_MSG, "_iXFerSize = %d for %d transfer(s)\n", (int) iXFerSize,
-	   iTransfers);
+      DBG (DBG_MSG, "_iXFerSize = %d for %d transfer(s)\n",
+	   (int) p->iLinesPerXferBuf * p->iBytesPerLine,
+	   (p->iLinesLeft + p->iLinesPerXferBuf - 1) / p->iLinesPerXferBuf);
     }
   DBG (DBG_MSG, "_iLinesPerXferBuf = %d\n", p->iLinesPerXferBuf);
 
@@ -1330,4 +1342,3 @@ FinishScan (THWParams * pHWParams)
 {
   NiashWriteReg (pHWParams->iXferHandle, 0x02, 0x80);
 }
-

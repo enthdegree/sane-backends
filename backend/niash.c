@@ -197,7 +197,7 @@ _UnityGammaTable (unsigned char *hwGamma)
 }
 
 static const SANE_Range rangeXmm = { 0, 220, 1 };
-static const SANE_Range rangeYmm = { 0, 290, 1 };
+static const SANE_Range rangeYmm = { 0, 297, 1 };
 static const SANE_Int startUpGamma = SANE_FIX (1.6);
 
 static const char colorStr[] = { "Color" };
@@ -654,7 +654,7 @@ _InitOptions (TScanner * s)
 	  pDesc->constraint_type = SANE_CONSTRAINT_RANGE;
 	  pDesc->constraint.range = &rangeXmm;
 	  pDesc->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-	  pVal->w = rangeXmm.max;
+	  pVal->w = 210 /* A4 width instead of rangeXmm.max */ ;
 	  break;
 
 	case optBRY:
@@ -665,7 +665,7 @@ _InitOptions (TScanner * s)
 	  pDesc->constraint_type = SANE_CONSTRAINT_RANGE;
 	  pDesc->constraint.range = &rangeYmm;
 	  pDesc->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-	  pVal->w = rangeYmm.max;
+	  pVal->w = 290 /* have a bit reserve instaed of rangeYmm.max */ ;
 	  break;
 
 	case optDPI:
@@ -1394,10 +1394,17 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
   /* time to read the next line? */
   if (s->iBytesLeft == 0)
     {
+      SANE_Bool fJustDone = SANE_FALSE;
       /* read a line from the transfer buffer */
-      if (CircBufferGetLine (s->HWParams.iXferHandle, p, p->pabLineBuf,
-			     s->HWParams.iReversedHead))
+      if (CircBufferGetLineEx (s->HWParams.iXferHandle, p, p->pabLineBuf,
+			       s->HWParams.iReversedHead, &fJustDone))
 	{
+	  if (fJustDone)
+	    {
+	      DBG (DBG_MSG, "\n");
+	      DBG (DBG_MSG, "sane_read: returning cartridge\n");
+	      FinishScan (&s->HWParams);
+	    }
 	  pMode->adaptFormat (p->pabLineBuf, s->iPixelsPerLine,
 			      s->aValues[optThreshold].w);
 	  s->iBytesLeft = pMode->bytesPerLine (s->iPixelsPerLine);

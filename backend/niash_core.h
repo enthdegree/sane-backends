@@ -47,10 +47,10 @@ typedef struct
   int iTopLeftY;		/* in mm */
   int iSensorSkew;		/* in units of 1/1200 inch */
   int iSkipLines;		/* lines of garbage to skip */
-  SANE_Bool fReg07;			/* NIASH00019 */
+  SANE_Bool fReg07;		/* NIASH00019 */
   SANE_Bool fGamma16;		/* if TRUE, gamma entries are 16 bit */
   int iExpTime;
-  SANE_Bool iReversedHead;		/* Head is reversed */
+  SANE_Bool iReversedHead;	/* Head is reversed */
   int iBufferSize;		/* Size of internal scan buffer */
   EScannerModel eModel;
 } THWParams;
@@ -94,8 +94,9 @@ STATIC int NiashOpen (THWParams * pHWParams, const char *pszName);
 STATIC void NiashClose (THWParams * pHWParams);
 
 /* more sof. method that also returns the values of the white (RGB) value */
-STATIC SANE_Bool SimpleCalibExt (THWParams * pHWPar, unsigned char *pabCalibTable,
-			    unsigned char *pabCalWhite);
+STATIC SANE_Bool SimpleCalibExt (THWParams * pHWPar,
+				 unsigned char *pabCalibTable,
+				 unsigned char *pabCalWhite);
 
 STATIC SANE_Bool GetLamp (THWParams * pHWParams, SANE_Bool * pfLampIsOn);
 STATIC SANE_Bool SetLamp (THWParams * pHWParams, SANE_Bool fLampOn);
@@ -120,7 +121,15 @@ STATIC void CircBufferInit (int iHandle, TDataPipe * p,
 
 /* returns false, when trying to read after end of buffer */
 STATIC SANE_Bool CircBufferGetLine (int iHandle, TDataPipe * p,
-			       unsigned char *pabLine, SANE_Bool iReversedHead);
+				    unsigned char *pabLine,
+				    SANE_Bool iReversedHead);
+
+/* returns false, when trying to read after end of buffer 
+   if  pfJustDone!=NULL this element will be set SANE_TRUE, when the last scan was done*/
+STATIC SANE_Bool
+CircBufferGetLineEx (int iHandle, TDataPipe * p, unsigned char *pabLine,
+		     SANE_Bool iReversedHead, SANE_Bool * pfJustDone);
+
 STATIC void CircBufferExit (TDataPipe * p);
 
 #endif /* _NIASH_CORE_H_ */

@@ -90,6 +90,6 @@ STATIC void NiashReadBulk (int iXferHandle, unsigned char *pabBuf, int iSize);
 STATIC void NiashWakeup (int iXferHandle);
 
 STATIC SANE_Bool MatchUsbDevice (int iVendor, int iProduct,
-			    TScannerModel ** ppeModel);
+				 TScannerModel ** ppeModel);
 
 #endif /* _NIASH_XFER_H_ */

@@ -21,7 +21,7 @@
    MA 02111-1307, USA.
 */
 
-#define SANE_DESC_VERSION "2.1"
+#define SANE_DESC_VERSION "2.2"
 
 #define MAN_PAGE_LINK "http://www.sane-project.org/man/%s.5.html"
 #define COLOR_MINIMAL      "\"#B00000\""
@@ -201,6 +201,7 @@ static backend_entry *first_backend = 0;
 static enum output_mode mode = output_mode_ascii;
 static char *title = 0;
 static char *intro = 0;
+static SANE_String desc_name = 0;
 
 static void
 debug_call (const char *fmt, ...)
@@ -227,7 +228,10 @@ debug_call (const char *fmt, ...)
 	  level_txt = "";
 	  break;
 	}
-      fprintf (stderr, "[%s] %8s ", program_name, level_txt);
+      if (desc_name)
+	fprintf (stderr, "%s: %8s ", desc_name, level_txt);
+      else
+	fprintf (stderr, "[%s] %8s ", program_name, level_txt);
       vfprintf (stderr, fmt, ap);
     }
   va_end (ap);
@@ -579,6 +583,37 @@ read_files (void)
 		       strerror (errno));
 	      return SANE_FALSE;
 	    }
+	  /* now we check if everything is ok with the previous backend 
+	     before we read the new one */
+	  if (current_backend)
+	    {
+	      type_entry *current_type = current_backend->type;
+	      while (current_type)
+		{
+		  if (current_type->type == type_scanner || 
+		      current_type->type == type_stillcam ||
+		      current_type->type == type_vidcam)
+		    {
+		      mfg_entry *current_mfg = current_type->mfg;
+		      
+		      while (current_mfg)
+			{
+			  model_entry *current_model = current_mfg->model;
+			  
+			  while (current_model)
+			    {
+			      if (current_model->status == status_unknown)
+				DBG_WARN ("`%s' `%s' does not have a status\n", current_mfg->name,
+					  current_model->name);
+			      current_model = current_model->next;
+			    }
+			  current_mfg = current_mfg->next;
+			}
+		    }
+		  current_type = current_type->next;
+		}
+	    }
+	  desc_name = dir_entry->d_name;
 	  current_backend = 0;
 	  current_type = 0;
 	  current_mfg = 0;
@@ -1154,6 +1189,8 @@ read_files (void)
 	  fclose (fp);
 	}			/* if (strlen) */
     }				/* while (direntry) */
+
+  desc_name = 0;
   if (!first_backend)
     {
       DBG_ERR ("Couldn't find any .desc file\n");

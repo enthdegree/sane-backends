@@ -8,9 +8,11 @@ AC_ARG_PROGRAM
 V_MAJOR=1
 V_MINOR=0
 V_REV=6
+V_EXTRA=-cvs
 
 PACKAGE=sane-backends
-VERSION=${V_MAJOR}.${V_MINOR}.${V_REV}
+VERSION=${V_MAJOR}.${V_MINOR}.${V_REV}${V_EXTRA}
+NUMBER_VERSION=${V_MAJOR}.${V_MINOR}.${V_REV}
 PACKAGE_VERSION="$PACKAGE-$VERSION"
 AC_DEFINE_UNQUOTED(PACKAGE, "$PACKAGE",
                    [Define to the name of the distribution.])
@@ -23,6 +25,7 @@ AC_DEFINE_UNQUOTED(SANE_DLL_V_MINOR, $V_MINOR, [SANE DLL minor number])
 AC_DEFINE_UNQUOTED(SANE_DLL_V_BUILD, $V_REV, [SANE DLL revision number])
 AC_SUBST(PACKAGE)
 AC_SUBST(VERSION)
+AC_SUBST(NUMBER_VERSION)
 AC_SUBST(PACKAGE_VERSION)
 
 dnl Checks for programs.
@@ -329,8 +332,8 @@ AC_ARG_ENABLE(scsi-directio,
 AC_ARG_ENABLE(parport-directio,
   [  --enable-parport-directio  enable parallel port direct IO, the backend will
                           do direct hardware access to use parallel port, so 
-			  frontends will require special permission level. [default=no]
-                          This option is in no way related to 
+			  frontends will require special permission level.
+                          [default=no] This option is in no way related to 
                           --enable-scsi-directio],
   [
     if eval "test x$enable_parport_directio = xyes"; then

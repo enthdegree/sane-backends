@@ -1,10 +1,11 @@
-# Enter additional backends and backend files with translatable
-# text here
+# po/Makefile.in
+INSTALL_TRANSLATIONS = @INSTALL_TRANSLATIONS@
+all: $(if $(INSTALL_TRANSLATIONS),update-mo)
 
+# Add backends to ALL_BACKENDS:
 ALL_BACKENDS = epson mustek mustek_usb umax
 
-all:
-
+# Create one line per backend with all files containing translatable text:
 epson.pot:  ../backend/epson.c ../backend/epson.h 
 mustek.pot: ../backend/mustek.c
 mustek_usb.pot: ../backend/mustek_usb.c
@@ -69,18 +70,18 @@ update-po: $(ALL_POTS)
 	  rm $${po_file}.old ; \
 	done
 
-update-mo: 
+update-mo: update-po
 	@for po_file in *.po ; do \
 	  mo_file=`echo $${po_file} | sed -e "s/\.po$$/.mo/"` ; \
 	  $(MAKE) $${mo_file} ; \
 	done
 
-install-translations: update-mo
+install-translations:
 	@for mo_file in *.mo ; do \
 	  lang=`echo $${mo_file} | sed -e "s/\.mo$$//" -e "s/^.*\.//" ` ; \
 	  backend=`echo $${mo_file} | sed -e "s/\..*$$//"` ; \
           dir=$(gnulocaledir)/$${lang}/LC_MESSAGES ; \
-	  echo installing sane-$${backend}.mo from $${mo_file} in $${dir} ; \
+	  echo installing  $${mo_file} to $${dir}/sane-$${backend}.mo ; \
 	  $(MKDIR) $${dir} ; \
 	  $(INSTALL_DATA) $${mo_file} $${dir}/sane-$${backend}.mo ; \
 	done

@@ -125,12 +125,26 @@ static SANE_Status atomic_usb_cmd(int fd, const void *src, size_t src_size,
 
 static SANE_Status snapscani_usb_open(const char *dev, int *fdp)
 {
-    return usb_open(dev,fdp);
+    static const char me[] = "snapscani_usb_open";
+
+    DBG (DL_CALL_TRACE, "%s(%s)\n", me, dev);
+
+    if((sem_id = semget( ftok(dev,0x1234), 1, IPC_CREAT | 0660 )) == -1) {
+        DBG (DL_MAJOR_ERROR, "%s: Can't get semaphore\n", me);
+        return SANE_STATUS_INVAL;
+    }
+    semop(sem_id, &sem_signal, 1);
+    sanei_usb_init();
+    return sanei_usb_open(dev, fdp);
 }
 
 
 static void snapscani_usb_close(int fd) {
-    usb_close(fd);
+    static const char me[] = "snapscani_usb_close";
+
+    DBG (DL_CALL_TRACE, "%s(%d)\n", me, fd);
+    semctl(sem_id, 0, IPC_RMID, 0);
+    sanei_usb_close(fd);
 }
 
 
@@ -168,33 +182,6 @@ static char *usb_debug_data(char *str,const char *data, int len) {
     if(i < len)
         strcat(str," ...");
     return str;
-}
-
-
-static SANE_Status usb_open(const char *dev, int *fdp)
-{
-static const char me[] = "usb_open";
-
-DBG (DL_CALL_TRACE, "%s(%s)\n", me, dev);
-
-    if((sem_id = semget( ftok(dev,0x1234), 1, IPC_CREAT | 0660 )) == -1) {
-        DBG (DL_MAJOR_ERROR, "%s: Can't get semaphore\n", me);
-        return SANE_STATUS_INVAL;
-    }
-    semop(sem_id, &sem_signal, 1);
-
-    *fdp = open(dev, O_RDWR);
-    if( *fdp < 0)
-        return SANE_STATUS_INVAL;
-    return SANE_STATUS_GOOD;
-}
-
-static void usb_close(int fd) {
-    static const char me[] = "usb_close";
-
-    DBG (DL_CALL_TRACE, "%s(%d)\n", me, fd);
-    semctl(sem_id, 0, IPC_RMID, 0);
-    close(fd);
 }
 
 /*
@@ -419,6 +406,9 @@ static void dequeue_bq()
 }
 /*
  * $Log$
+ * Revision 1.4  2001/10/27 09:08:13  oliverschwartz
+ * Check USB vendor IDs to avoid hanging scanners, fix bug in dither matrix computation
+ *
  * Revision 1.3  2001/10/10 07:30:06  oliverschwartz
  * fix compiler warnings
  *

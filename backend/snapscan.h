@@ -142,6 +142,15 @@ static char *vendors[] =
 };
 #define known_vendors ((int) (sizeof(vendors)/sizeof(vendors[0])))
 
+static SANE_Word usb_vendor_ids[] =
+{
+    /* USB Vendor IDs */
+    0x06bd,     /* Agfa */
+    0x04a5      /* Acer */
+};
+#define known_usb_vendor_ids ((int) (sizeof(usb_vendor_ids)/sizeof(usb_vendor_ids[0])))
+
+
 typedef enum
 {
     OPT_COUNT = 0,        /* option count */
@@ -312,6 +321,9 @@ struct snapscan_scanner
 
 /*
  * $Log$
+ * Revision 1.7  2001/10/27 09:08:17  oliverschwartz
+ * Check USB vendor IDs to avoid hanging scanners, fix bug in dither matrix computation
+ *
  * Revision 1.6  2001/10/12 21:19:16  oliverschwartz
  * update to snapscan-20011012
  *

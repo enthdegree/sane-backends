@@ -70,6 +70,7 @@
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"
 #include "../include/sane/sanei_scsi.h"
+#include "../include/sane/sanei_usb.h"
 
 #ifndef PATH_MAX
 #define PATH_MAX        1024
@@ -941,8 +942,15 @@ static void mkDn (u_char *Dn, u_char *Dn2, unsigned n)
     unsigned f;
 
     /* compute 4*D(n/2) */
+    /* Oliver Schwartz, 27 Oct. 2001: Changed code from
+          tmp[i] = (u_char) (4 * Dn2[i]);
+       to
+          tmp[i] = (u_char) (4 * Dn2[i/4]);
+       to avoid illegal indices in Dn2. Don't know if this
+       is the desired algorithm.
+    */
     for (i = 0;  i < nsq;  i++)
-        tmp[i] = (u_char) (4 * Dn2[i]);
+        tmp[i] = (u_char) (4 * Dn2[i/4]);
 
     /* now the dither matrix */
     for (r = 0, imin = 0, f = 0;  r < 2;  r++, imin += n2)
@@ -993,8 +1001,10 @@ static SANE_Status add_device (SANE_String_Const name)
     SnapScan_Device *pd;
     SnapScan_Model model_num = UNKNOWN;
     SnapScan_Bus bus_type = UNKNOWN_BUS;
+    SANE_Word vendor_id, product_id;
     int i;
     int supported_vendor = 0;
+    int supported_usb_vendor = 0;
     char vendor[8];
     char model[17];
 
@@ -1007,7 +1017,7 @@ static SANE_Status add_device (SANE_String_Const name)
     vendor[0] = model[0] = '\0';
 
     if((strstr (name, "usb")) || (strstr (name, "USB")))
-      {
+    {
         DBG (DL_VERBOSE, "%s: Detected (kind of) an USB device\n", me);
 
         bus_type = USB;
@@ -1018,31 +1028,52 @@ static SANE_Status add_device (SANE_String_Const name)
         }
         status = snapscani_usb_open (name, &fd);
         if (status != SANE_STATUS_GOOD)
-          {
+        {
             DBG (DL_MAJOR_ERROR,
                  "%s: error opening device %s: %s\n",
                  me,
                  name,
                  sane_strstatus (status));
             return status;
-          }
-      }
+        }
+        if (sanei_usb_get_vendor_product(fd, &vendor_id, &product_id) ==
+            SANE_STATUS_GOOD)
+        {
+            /* check for known USB vendors to avoid hanging scanners by
+               inquiry-command.
+            */
+            DBG(DL_INFO, "%s: Checking if 0x%04x is a supported USB vendor ID\n",
+                me, vendor_id);
+            for (i = 0; i < known_usb_vendor_ids; i++) {
+                if (vendor_id == usb_vendor_ids[i]) {
+                    supported_usb_vendor = 1;
+                }
+            }
+            if (!supported_usb_vendor) {
+                DBG(DL_MINOR_ERROR,
+                    "%s: USB vendor ID 0x%04x is currently NOT supported by the snapscan backend.\n",
+                    me, vendor_id);
+                snapscani_usb_close (fd);
+                return SANE_STATUS_INVAL;
+            }
+        }
+    }
     else
-      {
+    {
         DBG (DL_VERBOSE, "%s: Detected (kind of) a SCSI device\n", me);
         bus_type = SCSI;
 
         status = sanei_scsi_open (name, &fd, sense_handler, NULL);
         if (status != SANE_STATUS_GOOD)
-          {
+        {
             DBG (DL_MAJOR_ERROR,
                  "%s: error opening device %s: %s\n",
                  me,
                  name,
                  sane_strstatus (status));
             return status;
-          }
-      }
+        }
+    }
 
     /* check that the device is legitimate */
     if ((status = mini_inquiry (bus_type, fd, vendor, model)) != SANE_STATUS_GOOD)
@@ -1053,13 +1084,13 @@ static SANE_Status add_device (SANE_String_Const name)
              sane_strstatus (status));
 
         if(bus_type == SCSI)
-          {
+        {
             sanei_scsi_close (fd);
-          }
+        }
         else if(bus_type == USB)
-          {
+        {
             snapscani_usb_close (fd);
-          }
+        }
 
         return status;
     }
@@ -3092,6 +3123,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.10  2001/10/27 09:08:14  oliverschwartz
+ * Check USB vendor IDs to avoid hanging scanners, fix bug in dither matrix computation
+ *
  * Revision 1.9  2001/10/25 10:56:39  oliverschwartz
  * Change snapscan backend version number to 1.4.0
  *

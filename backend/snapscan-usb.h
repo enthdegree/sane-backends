@@ -75,10 +75,6 @@ static int is_queueable(const char *src);
 
 static SANE_Status atomic_usb_cmd(int fd, const void *src, size_t src_size,
                     void *dst, size_t * dst_size);
-static SANE_Status usb_open(const char *dev, int *fdp);
-
-static void usb_close(int fd);
-
 static SANE_Status usb_cmd(int fd, const void *src, size_t src_size,
                     void *dst, size_t * dst_size);
 
@@ -86,6 +82,9 @@ static SANE_Status usb_cmd(int fd, const void *src, size_t src_size,
 
 /*
  * $Log$
+ * Revision 1.3  2001/10/27 09:08:14  oliverschwartz
+ * Check USB vendor IDs to avoid hanging scanners, fix bug in dither matrix computation
+ *
  * Revision 1.2  2001/10/09 09:45:15  oliverschwartz
  * update snapscan to snapshot 20011008
  *

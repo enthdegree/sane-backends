@@ -346,7 +346,7 @@ init_options (Umax_PP_Device * dev)
 
   /* "Mode" group: */
 
-  dev->opt[OPT_MODE_GROUP].title = SANE_I18N ("Scan Mode");
+  dev->opt[OPT_MODE_GROUP].title = SANE_TITLE_SCAN_MODE;
   dev->opt[OPT_MODE_GROUP].name = "";
   dev->opt[OPT_MODE_GROUP].desc = "";
   dev->opt[OPT_MODE_GROUP].type = SANE_TYPE_GROUP;
@@ -575,7 +575,7 @@ init_options (Umax_PP_Device * dev)
 
   /*  highlight group */
   dev->opt[OPT_MANUAL_HIGHLIGHT].name = "manual-highlight";
-  dev->opt[OPT_MANUAL_HIGHLIGHT].title = SANE_I18N ("Highlight");
+  dev->opt[OPT_MANUAL_HIGHLIGHT].title = SANE_TITLE_HIGHLIGHT;
   dev->opt[OPT_MANUAL_HIGHLIGHT].desc =
     SANE_I18N ("Color channels highlight settings");
   dev->opt[OPT_MANUAL_HIGHLIGHT].type = SANE_TYPE_BOOL;
@@ -597,7 +597,7 @@ init_options (Umax_PP_Device * dev)
 
   /* red highlight */
   dev->opt[OPT_RED_HIGHLIGHT].name = "red-highlight";
-  dev->opt[OPT_RED_HIGHLIGHT].title = SANE_I18N ("Red highlight");
+  dev->opt[OPT_RED_HIGHLIGHT].title = SANE_TITLE_HIGHLIGHT_R;
   dev->opt[OPT_RED_HIGHLIGHT].desc = SANE_I18N ("Sets red channel highlight");
   dev->opt[OPT_RED_HIGHLIGHT].type = SANE_TYPE_INT;
   dev->opt[OPT_RED_HIGHLIGHT].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
@@ -609,7 +609,7 @@ init_options (Umax_PP_Device * dev)
 
   /* green highlight */
   dev->opt[OPT_GREEN_HIGHLIGHT].name = "green-highlight";
-  dev->opt[OPT_GREEN_HIGHLIGHT].title = SANE_I18N ("Green highlight");
+  dev->opt[OPT_GREEN_HIGHLIGHT].title = SANE_TITLE_HIGHLIGHT_G;
   dev->opt[OPT_GREEN_HIGHLIGHT].desc =
     SANE_I18N ("Sets green channel highlight");
   dev->opt[OPT_GREEN_HIGHLIGHT].type = SANE_TYPE_INT;
@@ -622,7 +622,7 @@ init_options (Umax_PP_Device * dev)
 
   /* blue highlight */
   dev->opt[OPT_BLUE_HIGHLIGHT].name = "blue-highlight";
-  dev->opt[OPT_BLUE_HIGHLIGHT].title = SANE_I18N ("Blue highlight");
+  dev->opt[OPT_BLUE_HIGHLIGHT].title = SANE_TITLE_HIGHLIGHT_B;
   dev->opt[OPT_BLUE_HIGHLIGHT].desc =
     SANE_I18N ("Sets blue channel highlight");
   dev->opt[OPT_BLUE_HIGHLIGHT].type = SANE_TYPE_INT;

@@ -1,4 +1,4 @@
-.TH sane-plustek 5 "22 Mar 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-plustek 5 "02 July 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-plustek
 .SH NAME
 sane-plustek \- SANE backend for LM983[1/2/3] based
@@ -105,6 +105,8 @@ USB Model:         ASIC:  Properties:              Prod-ID
 .br
 ----------------------------------------------------------
 .br
+UMAX 3400          LM9832  600x1200dpi 42bit 512Kb 0x0050
+.br
 UMAX 3400/3450     LM9832  600x1200dpi 42bit 512Kb 0x0060
 .br
 UMAX 5400          LM9832 1200x2400dpi 42bit 512Kb 0x0160
@@ -170,19 +172,23 @@ Only the National Semiconductor LM983[1/2/] based devices of Plustek
 are supported by this backend. Older versions of the U12, the UT12,
 the U1212 and U1248 (GrandTech chipset) are not supported.
 .PP
-Model    Chipset    backend
+Model             Chipset    backend
 .br
----------------------------
+------------------------------------
 .br
-U1248    GrandTech  gt68xx
+U1248             GrandTech  gt68xx
 .br
-UT16B    GrandTech  gt68xx
+UT16B             GrandTech  gt68xx
 .br
-U12      P98003     u12
+OpticSlim 1200    GrandTech  gt68xx
 .br
-UT12     P98003     u12
+OpticSlim 2400    GrandTech  gt68xx
 .br
-1212U    P98003     u21
+U12                P98003     u12
+.br
+UT12               P98003     u12
+.br
+1212U              P98003     u12
 .br
 For a more complete and up to date list see:
 .B http://www.sane-project.org/sane-supported-devices.html
@@ -204,7 +210,11 @@ tells the backend, that the following devicename (here
 product-id has not been specified, the backend tries to
 detect this by its own. If device ist set to
 .I auto
- then the next matching device is used.
+then the next matching device is used.
+.br
+The following options can be used for a default setup of
+your device. Most of them are also availaby through
+the frontend.
 .PP
 .B
 The Options:
@@ -212,7 +222,8 @@ The Options:
 option warmup t
 .RS
 .I t
-specifies the warmup period in seconds
+specifies the warmup period in seconds, if set to -1, the 
+automatic warmup function will be used
 .RE
 .PP
 option lampOff t
@@ -294,7 +305,7 @@ option enableTPA b
 .RS
 .I b
 0 --> default behaviour, specified by the internal tables,
-1 --> override internal tables and allow TPA mode (EPSON only)
+1 --> override internal tables and allow TPA mode (EPSON/UMAX only)
 .RE
 
 .PP
@@ -344,13 +355,20 @@ can be adjusted.
 .PP
 option red_gain r
 .br
+option red_offset ro
+.br
 option green_gain g
 .br
+option green_offset go
+.br
 option blue_gain b
+.br
+option blue_offset bo
 .RS
-.I r g b
-These values can be used to adjust the internally detected gain values of
-the AFE for each channel. The range is between 0 and 63.
+.I r g b ro go bo
+These values can be used to set the gain and offset values of
+the AFE for each channel. The range is between 0 and 63. -1
+means autocalibration.
 .RE
 
 .PP
@@ -410,30 +428,27 @@ export SANE_DEBUG_PLUSTEK=10
 .SH "SEE ALSO"
 .BR sane (7),
 .BR sane\-usb (5),
-.BR sane\-plustek (5),
+.BR sane\-u12 (5),
+.BR sane\-gt68xx (5),
 .br
 .I @DOCDIR@/plustek/Plustek-USB.changes
 .br
-.I http://www.gjaeger.de/scanner/plustek.html
+.I http://www.gjaeger.de/scanner/plustek/
 
 .SH "CONTACT AND BUG-REPORTS"
 Please send any information and bug-reports to:
 .br
-.B Plustek Driver Mailing List <plustek@linuxhacker.org>
-.br
-or directly to:
-.br
-.B Gerhard Jaeger <gerhard@gjaeger.de>
+.B SANE Mailing List
 .PP
 Additional info and hints can be obtained from our
 .br
 Mailing-List archive at:
 .br
-.B http://www.linuxhacker.org/cgi-bin/ezmlm-cgi/3
+.B http://www.sane-project.org/mailing-lists.html
 .PP
 or directly from the projects' homepage at:
 .br
-.B http://www.gjaeger.de/scanner/plustek.html
+.B http://www.gjaeger.de/scanner/plustek/
 .PP
 To obtain debug messages from the backend, please set the
 environment-variable
@@ -443,7 +458,7 @@ before calling your favorite scan-frontend (i.e. xscanimage).
 .B i.e.: export SANE_DEBUG_PLUSTEK=20 ; xscanimage
 .PP
 The value controls the verbosity of the backend. Please note, that
-values greater than 19 force the backend to output raw data files,
+values greater than 24 force the backend to output raw data files,
 which could be rather large. The ending of these files is ".raw".
 For problem reports it should be enough the set the verbosity to
 13.
@@ -461,7 +476,9 @@ For problem reports it should be enough the set the verbosity to
 .br
   so scaling is necesary, because the sensor only delivers
 .br
-  600dpi but the motor is capable to perform 1200dpi steps.
+  600dpi but the motor is capable to perform 1200dpi 
+.br
+  steps.
 .br
 * Plusteks' model policy is somewhat inconsistent. This
 .br

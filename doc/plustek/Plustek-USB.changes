@@ -1,5 +1,19 @@
-Plustek.changes (2004-21-04) Gerhard Jäger <gerhard@gjaeger.de>
+Plustek.changes (2004-02-07) Gerhard Jäger <gerhard@gjaeger.de>
 ===============================================================
+
+Note: All other not mentioned builds have been never released.
+
+V 0.48-1 (2004-02-07)
+---------------------
+- added more options to the frontend interface
+- added UMAX 3400 with product ID 0x0050
+- added support for the UMAX 3450
+- added autowarmup for CFL (most CCD-scanner)
+- added speedup for sensor for some devices
+- fixed lamp switching problem for D660U
+- fixed negative scanning lamp problem
+- fixed Gray 16 mode for D660U
+- code cleanup
 
 V 0.47-11 (2004-21-04)
 ----------------------
@@ -8,7 +22,7 @@ V 0.47-11 (2004-21-04)
 
 V 0.47-8 - 0.47-10
 ------------------
--never released
+- never released
 
 V 0.47-7 (2004-08-02)
 ---------------------
@@ -26,8 +40,12 @@ V 0.47-5 (2004-09-01)
 - Added mov (model override) to support various devices using
   the same product ID (namely Mustek BearPaw 1200)
 - Added per-model gamma values
-- Fixed a but in the coarse CIS-lamp calibration
+- Fixed a bug in the coarse CIS-lamp calibration
 - Cleanup work
+
+V 0.47-1 - 0.47-4
+-----------------
+- never released
 
 V 0.46-9 (2003-03-11)
 ---------------------
@@ -36,6 +54,10 @@ V 0.46-9 (2003-03-11)
 - Moved parallelport code to extra backend file plustek_pp
 - Fixed some minor bugs
 - Fixed problem with CIS devices using FreeBSD
+
+V 0.46-1 - 0.46-8
+-----------------
+- never released
 
 V 0.45 (2003-05-08)
 -------------------

@@ -1,50 +1,75 @@
 /*.............................................................................
- * Project : linux driver for Plustek parallel-port scanners
+ * Project : SANE library for Plustek parallelport flatbed scanners.
  *.............................................................................
- * File:	 plustek-pp_dac.c - all the shading function formerly found in
- *                              shading.c.
- *                              don't ask me why I called this file dac.c...
- *.............................................................................
+ */
+
+/* @file plustek-pp_dac.c -
+ * @brief all the shading function formerly found in shading.c.
+ *        don't ask me why I called this file dac.c...
  *
  * based on sources acquired from Plustek Inc.
  * Copyright (C) 1998 Plustek Inc.
  * Copyright (C) 2000-2003 Gerhard Jaeger <gerhard@gjaeger.de>
  * also based on the work done by Rick Bronson
- *.............................................................................
+ *
  * History:
- * 0.30 - initial version
- * 0.31 - no changes
- * 0.32 - no changes
- * 0.33 - added some comments
- * 0.34 - slight changes
- * 0.35 - removed SetInitialGainRAM from structure pScanData
- * 0.36 - added dacP96001WaitForShading and changed dacP96WaitForShading to
- *        dacP96003WaitForShading
- *        changes, due to define renaming
- * 0.37 - removed dacP98FillShadingDarkToShadingRegister()
- *        removed // comments
- *        some code cleanup
- * 0.38 - added P12 stuff
- * 0.39 - no changes
- * 0.40 - disabled the A3I stuff
- * 0.41 - no changes
- * 0.42 - changed include names
+ * - 0.30 - initial version
+ * - 0.31 - no changes
+ * - 0.32 - no changes
+ * - 0.33 - added some comments
+ * - 0.34 - slight changes
+ * - 0.35 - removed SetInitialGainRAM from structure pScanData
+ * - 0.36 - added dacP96001WaitForShading and changed dacP96WaitForShading to
+ *          dacP96003WaitForShading
+ *        - changes, due to define renaming
+ * - 0.37 - removed dacP98FillShadingDarkToShadingRegister()
+ *        - removed // comments
+ *        - some code cleanup
+ * - 0.38 - added P12 stuff
+ * - 0.39 - no changes
+ * - 0.40 - disabled the A3I stuff
+ * - 0.41 - no changes
+ * - 0.42 - changed include names
+ * .
+ * <hr>
+ * This file is part of the SANE package.
  *
- *.............................................................................
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston,
+ * MA 02111-1307, USA.
+ *
+ * As a special exception, the authors of SANE give permission for
+ * additional uses of the libraries contained in this release of SANE.
+ *
+ * The exception is that, if you link a SANE library with other files
+ * to produce an executable, this does not by itself cause the
+ * resulting executable to be covered by the GNU General Public
+ * License.  Your use of that executable is in no way restricted on
+ * account of linking the SANE library code into it.
+ *
+ * This exception does not, however, invalidate any other reasons why
+ * the executable file might be covered by the GNU General Public
+ * License.
+ *
+ * If you submit changes to SANE to the maintainers to be included in
+ * a subsequent release, you agree by submitting the changes that
+ * those changes may be distributed with this exception intact.
+ *
+ * If you write modifications of your own for SANE, it is your choice
+ * whether to permit this exception to apply to your modifications.
+ * If you do not wish that, delete this exception notice.
+ * <hr>
  */
 #include "plustek-pp_scan.h"
 
@@ -2416,7 +2441,7 @@ static Bool dacP98003WaitForShading( pScanData ps )
 
 /**
  */
-int DacInitialize( pScanData ps )
+_LOC int DacInitialize( pScanData ps )
 {
 	DBG( DBG_HIGH, "DacInitialize()\n" );
 
@@ -2452,7 +2477,7 @@ int DacInitialize( pScanData ps )
 
 /** Fill out the R/G/B GainOut value
  */
-void DacP98FillGainOutDirectPort( pScanData ps )
+_LOC void DacP98FillGainOutDirectPort( pScanData ps )
 {
 	ps->OpenScanPath( ps );
 
@@ -2465,7 +2490,7 @@ void DacP98FillGainOutDirectPort( pScanData ps )
 
 /**
  */
-void DacP98FillShadingDarkToShadingRegister( pScanData ps )
+_LOC void DacP98FillShadingDarkToShadingRegister( pScanData ps )
 {
 	pUChar pValue;
 	Byte   bReg;
@@ -2486,7 +2511,7 @@ void DacP98FillShadingDarkToShadingRegister( pScanData ps )
 
 /**
  */
-void DacP98AdjustDark( pScanData ps )
+_LOC void DacP98AdjustDark( pScanData ps )
 {
 	Byte bCorrectTimes;		/* used to be a global var !*/
 
@@ -2542,7 +2567,7 @@ void DacP98AdjustDark( pScanData ps )
 
 /**
  */
-void DacP96WriteBackToGammaShadingRAM( pScanData ps )
+_LOC void DacP96WriteBackToGammaShadingRAM( pScanData ps )
 {
 	/* ModifyGammaShadingOffset(ps) */
     ps->OpenScanPath( ps);
@@ -2566,7 +2591,7 @@ void DacP96WriteBackToGammaShadingRAM( pScanData ps )
 
 /**
  */
-void DacP98003FillToDAC( pScanData ps, pRGBByteDef regs, pColorByte data )
+_LOC void DacP98003FillToDAC( pScanData ps, pRGBByteDef regs, pColorByte data )
 {
    	if ( ps->DataInf.wPhyDataType > COLOR_256GRAY ) {
 
@@ -2583,7 +2608,7 @@ void DacP98003FillToDAC( pScanData ps, pRGBByteDef regs, pColorByte data )
 
 /**
  */
-void DacP98003AdjustGain( pScanData ps, ULong color, Byte hilight )
+_LOC void DacP98003AdjustGain( pScanData ps, ULong color, Byte hilight )
 {
     if( hilight < ps->Shade.bGainLow ) {
 
@@ -2613,7 +2638,7 @@ void DacP98003AdjustGain( pScanData ps, ULong color, Byte hilight )
 
 /**
  */
-Byte DacP98003SumGains( pUChar pb, ULong pixelsLine )
+_LOC Byte DacP98003SumGains( pUChar pb, ULong pixelsLine )
 {
     Byte   bHilight, tmp;
     ULong  dwPixels, dwAve;

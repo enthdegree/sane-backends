@@ -61,7 +61,7 @@
  * - 0.46 - added plustek-usbcal.c for extra CIS device calibration
  *          based in Montys' great work
  *        - added altCalibration option
- *        - removed parallelport support
+ *        - removed parallelport support --> new backend: plustek_pp
  *.
  * <hr>
  * This file is part of the SANE package.
@@ -135,7 +135,7 @@
 #include "sane/sanei.h"
 #include "sane/saneopts.h"
 
-#define BACKEND_VERSION "0.46-TEST2"
+#define BACKEND_VERSION "0.46-1"
 #define BACKEND_NAME	plustek
 #include "sane/sanei_backend.h"
 #include "sane/sanei_config.h"
@@ -166,7 +166,7 @@
 /*****************************************************************************/
 
 #define _SECTION        "[merlin-device]"
-#define _DEFAULT_DEVICE "/dev/usb/scanner0"
+#define _DEFAULT_DEVICE "auto"
 
 /* declare it here, as it's used in plustek-usbscan.c too :-( */
 static SANE_Bool cancelRead;
@@ -208,7 +208,6 @@ static const SANE_String_Const mode_list[] =
 	SANE_I18N("Halftone"),
 	SANE_I18N("Gray"),
 	SANE_I18N("Color"),
-/*	SANE_I18N("Color30"), */
 	NULL
 };
 
@@ -1220,12 +1219,9 @@ static SANE_Status attach( const char *dev_name, pCnfDef cnf,
 /** function to preset a configuration structure
  * @param cnf - pointer to the structure that should be initialized
  */
-static void init_config_struct( pCnfDef cnf, SANE_Bool is_usb )
+static void init_config_struct( pCnfDef cnf )
 {
     memset( cnf, 0, sizeof(CnfDef));
-
-	if( is_usb )
-		strcpy( cnf->devName, "auto" );
 
 	cnf->adj.warmup       = -1;
 	cnf->adj.lampOff      = -1;
@@ -1274,7 +1270,7 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 	num_devices  = 0;
 
 	/* initialize the configuration structure */
-	init_config_struct( &config, SANE_FALSE );
+	init_config_struct( &config );
 
 	if( version_code != NULL )
 		*version_code = SANE_VERSION_CODE(V_MAJOR, V_MINOR, 0);
@@ -1283,7 +1279,7 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 
 	/* default to _DEFAULT_DEVICE instead of insisting on config file */
 	if( NULL == fp ) {
-		return attach(_DEFAULT_DEVICE, &config, 0);
+		return attach( _DEFAULT_DEVICE, &config, 0 );
 	}
 
 	while( sanei_config_read( str, sizeof(str), fp)) {
@@ -1350,16 +1346,20 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 		    char *tmp;
 		
 		    /* new section, try and attach previous device */
-		    if( config.devName[0] != '\0' )
+		    if( config.devName[0] != '\0' ) {
 				attach( config.devName, &config, 0 );
+			} else {
+				DBG( _DBG_WARNING, "section contains no device name,"
+				                   " ignored!\n" );
+			}
 		
 			/* re-initialize the configuration structure */
-			init_config_struct( &config, SANE_TRUE );
+			init_config_struct( &config );
 		
 		    tmp = config.usbId;
 			decodeUsbIDs( str, &tmp );
 		
-			DBG( _DBG_SANE_INIT, "next device is an USB device\n" );
+			DBG( _DBG_SANE_INIT, "... next device\n" );
 			continue;				
 
 		} else if( SANE_TRUE == decodeDevName( str, config.devName )) {

@@ -1,47 +1,73 @@
 /*.............................................................................
- * Project : linux driver for Plustek parallel-port scanners
+ * Project : SANE library for Plustek parallelport flatbed scanners.
  *.............................................................................
- * File:     plustek-pp_detect.c - automatic scanner detection
- *.............................................................................
+ */
+
+/* @file plustek-pp_detect.c
+ * @brief automatic scanner detection
  *
  * based on sources acquired from Plustek Inc.
  * Copyright (C) 1998 Plustek Inc.
  * Copyright (C) 2000-2003 Gerhard Jaeger <gerhard@gjaeger.de>
  * also based on the work done by Rick Bronson
- *.............................................................................
+ *
  * History:
- * 0.30 - initial version
- * 0.31 - no changes
- * 0.32 - no changes
- * 0.33 - added portmode check
- * 0.34 - no changes
- * 0.35 - no changes
- * 0.36 - added some debug messages
- *        replace the old _OUTB/_INB macros
- * 0.37 - cosmetic changes
- *        added speed-test for the parallel-port
- * 0.38 - added P12 stuff - replaced detectP9636 by detectAsic9800x
- *        added detectResetPort() function
- * 0.39 - fixed problem in ASIC9800x detection
- * 0.40 - no changes
- * 0.41 - no changes
- * 0.42 - changed include names
+ * - 0.30 - initial version
+ * - 0.31 - no changes
+ * - 0.32 - no changes
+ * - 0.33 - added portmode check
+ * - 0.34 - no changes
+ * - 0.35 - no changes
+ * - 0.36 - added some debug messages
+ *        - replace the old _OUTB/_INB macros
+ * - 0.37 - cosmetic changes
+ *        - added speed-test for the parallel-port
+ * - 0.38 - added P12 stuff - replaced detectP9636 by detectAsic9800x
+ *        - added detectResetPort() function
+ * - 0.39 - fixed problem in ASIC9800x detection
+ * - 0.40 - no changes
+ * - 0.41 - no changes
+ * - 0.42 - changed include names
+ * .
+ * <hr>
+ * This file is part of the SANE package.
  *
- *.............................................................................
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston,
+ * MA 02111-1307, USA.
+ *
+ * As a special exception, the authors of SANE give permission for
+ * additional uses of the libraries contained in this release of SANE.
+ *
+ * The exception is that, if you link a SANE library with other files
+ * to produce an executable, this does not by itself cause the
+ * resulting executable to be covered by the GNU General Public
+ * License.  Your use of that executable is in no way restricted on
+ * account of linking the SANE library code into it.
+ *
+ * This exception does not, however, invalidate any other reasons why
+ * the executable file might be covered by the GNU General Public
+ * License.
+ *
+ * If you submit changes to SANE to the maintainers to be included in
+ * a subsequent release, you agree by submitting the changes that
+ * those changes may be distributed with this exception intact.
+ *
+ * If you write modifications of your own for SANE, it is your choice
+ * whether to permit this exception to apply to your modifications.
+ * If you do not wish that, delete this exception notice.
+ * <hr>
  */
 #include "plustek-pp_scan.h"
 
@@ -377,7 +403,7 @@ static int detectAsic98001( pScanData ps )
 /*.............................................................................
  * here we try to find the scanner, depending on the mode
  */
-int DetectScanner( pScanData ps, int mode )
+_LOC int DetectScanner( pScanData ps, int mode )
 {
     Byte asic;
 	int  result = _E_INTERNAL;

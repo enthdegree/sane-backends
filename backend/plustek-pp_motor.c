@@ -38,22 +38,46 @@
  * 0.40 - changed back to build 0.39-3 (disabled A3I stuff)
  * 0.41 - no changes
  * 0.42 - changed include names
+ * .
+ * <hr>
+ * This file is part of the SANE package.
  *
- *.............................................................................
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston,
+ * MA 02111-1307, USA.
+ *
+ * As a special exception, the authors of SANE give permission for
+ * additional uses of the libraries contained in this release of SANE.
+ *
+ * The exception is that, if you link a SANE library with other files
+ * to produce an executable, this does not by itself cause the
+ * resulting executable to be covered by the GNU General Public
+ * License.  Your use of that executable is in no way restricted on
+ * account of linking the SANE library code into it.
+ *
+ * This exception does not, however, invalidate any other reasons why
+ * the executable file might be covered by the GNU General Public
+ * License.
+ *
+ * If you submit changes to SANE to the maintainers to be included in
+ * a subsequent release, you agree by submitting the changes that
+ * those changes may be distributed with this exception intact.
+ *
+ * If you write modifications of your own for SANE, it is your choice
+ * whether to permit this exception to apply to your modifications.
+ * If you do not wish that, delete this exception notice.
+ * <hr>
  */
 #include "plustek-pp_scan.h"
 
@@ -2731,7 +2755,7 @@ static void motorP98003PositionModuleToHome( pScanData ps )
  * initialize this module and setup the correct function pointer according
  * to the ASIC
  */
-int MotorInitialize( pScanData ps )
+_LOC int MotorInitialize( pScanData ps )
 {
 	DBG( DBG_HIGH, "MotorInitialize()\n" );
 
@@ -2782,7 +2806,7 @@ int MotorInitialize( pScanData ps )
 /*.............................................................................
  *
  */
-void MotorSetConstantMove( pScanData ps, Byte bMovePerStep )
+_LOC void MotorSetConstantMove( pScanData ps, Byte bMovePerStep )
 {
 	DataPointer p;
     ULong	    dw;
@@ -2847,7 +2871,7 @@ void MotorSetConstantMove( pScanData ps, Byte bMovePerStep )
 /*.............................................................................
  * function to bring the sensor back home
  */
-void MotorToHomePosition( pScanData ps )
+_LOC void MotorToHomePosition( pScanData ps )
 {
     TimerDef    timer;
     ScanState	StateStatus;
@@ -2920,7 +2944,7 @@ void MotorToHomePosition( pScanData ps )
 /*.............................................................................
  *
  */
-void MotorP98GoFullStep( pScanData ps, ULong dwStep )
+_LOC void MotorP98GoFullStep( pScanData ps, ULong dwStep )
 {
 	memset( ps->pColorRunTable, 1, dwStep );
     memset( ps->pColorRunTable + dwStep, 0xff, 0x40);
@@ -2938,7 +2962,7 @@ void MotorP98GoFullStep( pScanData ps, ULong dwStep )
 /*.............................................................................
  *
  */
-void MotorP96SetSpeedToStopProc( pScanData ps )
+_LOC void MotorP96SetSpeedToStopProc( pScanData ps )
 {
 	Byte	 bData;
     TimerDef timer;
@@ -2974,7 +2998,7 @@ void MotorP96SetSpeedToStopProc( pScanData ps )
  * Position Scan Module to specified line number (Forward or Backward & wait
  * for paper flag ON)
  */
-void MotorP96ConstantMoveProc( pScanData ps, ULong dwLines )
+_LOC void MotorP96ConstantMoveProc( pScanData ps, ULong dwLines )
 {
 	Byte		bRemainder, bLastState;
     UShort		wQuotient;
@@ -3051,7 +3075,7 @@ void MotorP96ConstantMoveProc( pScanData ps, ULong dwLines )
 /*.............................................................................
  *
  */
-Bool MotorP96AheadToDarkArea( pScanData ps )
+_LOC Bool MotorP96AheadToDarkArea( pScanData ps )
 {
 	Byte	 bDark;
 	UShort   wTL;
@@ -3137,7 +3161,7 @@ Bool MotorP96AheadToDarkArea( pScanData ps )
 /*.............................................................................
  * limit the speed settings for 96001/3 based models
  */
-void MotorP96AdjustCurrentSpeed( pScanData ps, Byte bSpeed )
+_LOC void MotorP96AdjustCurrentSpeed( pScanData ps, Byte bSpeed )
 {
     if (bSpeed != 1) {
 
@@ -3151,7 +3175,7 @@ void MotorP96AdjustCurrentSpeed( pScanData ps, Byte bSpeed )
 /*.............................................................................
  *
  */
-void MotorP98003ForceToLeaveHomePos( pScanData ps )
+_LOC void MotorP98003ForceToLeaveHomePos( pScanData ps )
 {
     TimerDef timer;
 
@@ -3175,7 +3199,7 @@ void MotorP98003ForceToLeaveHomePos( pScanData ps )
 /*.............................................................................
  *
  */
-void MotorP98003BackToHomeSensor( pScanData ps )
+_LOC void MotorP98003BackToHomeSensor( pScanData ps )
 {
     TimerDef timer;
 
@@ -3236,7 +3260,7 @@ void MotorP98003BackToHomeSensor( pScanData ps )
 /*.............................................................................
  *
  */
-void MotorP98003ModuleForwardBackward( pScanData ps )
+_LOC void MotorP98003ModuleForwardBackward( pScanData ps )
 {
     switch( ps->Scan.bModuleState ) {
 
@@ -3290,7 +3314,7 @@ void MotorP98003ModuleForwardBackward( pScanData ps )
 /*.............................................................................
  *
  */
-void MotorP98003PositionYProc( pScanData ps, ULong steps)
+_LOC void MotorP98003PositionYProc( pScanData ps, ULong steps)
 {
     TimerDef timer;
 

@@ -1,43 +1,69 @@
 /*.............................................................................
- * Project : linux driver for Plustek parallel-port scanners
+ * Project : SANE library for Plustek parallelport flatbed scanners.
  *.............................................................................
- * File:	plustekpp-io.c - as the name says, here we have all the I/O
- *                           functions according to the parallel port hardware
- *.............................................................................
+ */
+
+/* @file plustekpp-io.c
+ * @brief as the name says, here we have all the I/O
+ *        functions according to the parallel port hardware
  *
  * based on sources acquired from Plustek Inc.
  * Copyright (C) 1998 Plustek Inc.
  * Copyright (C) 2000-2003 Gerhard Jaeger <gerhard@gjaeger.de>
- *.............................................................................
+ *
  * History:
- * 0.37 - initial version
- *        added Kevins' suggestions
- * 0.38 - added Asic 98003 stuff and ioP98ReadWriteTest()
- *        added IODataRegisterToDAC()
- *        replaced function IOSPPWrite by IOMoveDataToScanner
- *        modified ioP98OpenScanPath again and reuse V0.36 stuff again
- *        added IO functions
- * 0.39 - added IO functions
- *        added f97003 stuff from A3I code
- * 0.40 - no changes
- * 0.41 - no changes
- * 0.42 - changed include names
+ * - 0.37 - initial version
+ *        - added Kevins' suggestions
+ * - 0.38 - added Asic 98003 stuff and ioP98ReadWriteTest()
+ *        - added IODataRegisterToDAC()
+ *        - replaced function IOSPPWrite by IOMoveDataToScanner
+ *        - modified ioP98OpenScanPath again and reuse V0.36 stuff again
+ *        - added IO functions
+ * - 0.39 - added IO functions
+ *        - added f97003 stuff from A3I code
+ * - 0.40 - no changes
+ * - 0.41 - no changes
+ * - 0.42 - changed include names
+ * .
+ * <hr>
+ * This file is part of the SANE package.
  *
- *.............................................................................
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston,
+ * MA 02111-1307, USA.
+ *
+ * As a special exception, the authors of SANE give permission for
+ * additional uses of the libraries contained in this release of SANE.
+ *
+ * The exception is that, if you link a SANE library with other files
+ * to produce an executable, this does not by itself cause the
+ * resulting executable to be covered by the GNU General Public
+ * License.  Your use of that executable is in no way restricted on
+ * account of linking the SANE library code into it.
+ *
+ * This exception does not, however, invalidate any other reasons why
+ * the executable file might be covered by the GNU General Public
+ * License.
+ *
+ * If you submit changes to SANE to the maintainers to be included in
+ * a subsequent release, you agree by submitting the changes that
+ * those changes may be distributed with this exception intact.
+ *
+ * If you write modifications of your own for SANE, it is your choice
+ * whether to permit this exception to apply to your modifications.
+ * If you do not wish that, delete this exception notice.
+ * <hr>
  */
 #include "plustek-pp_scan.h"
 
@@ -617,7 +643,7 @@ static void ioEnterReadMode( pScanData ps )
 /*.............................................................................
  * here we do some init work
  */
-int IOInitialize( pScanData ps )
+_LOC int IOInitialize( pScanData ps )
 {
 	DBG( DBG_HIGH, "IOInitialize()\n" );
 
@@ -649,7 +675,7 @@ int IOInitialize( pScanData ps )
  * Write specific length buffer to scanner
  * The scan path is already established
  */
-void IOMoveDataToScanner( pScanData ps, pUChar pBuffer, ULong size )
+_LOC void IOMoveDataToScanner( pScanData ps, pUChar pBuffer, ULong size )
 {
 #ifdef DEBUG
     if( 0 == ps->IO.bOpenCount )
@@ -666,7 +692,7 @@ void IOMoveDataToScanner( pScanData ps, pUChar pBuffer, ULong size )
  * Calling SITUATION: Scanner path is established.
  * download a scanstate-table
  */
-void IODownloadScanStates( pScanData ps )
+_LOC void IODownloadScanStates( pScanData ps )
 {
     TimerDef timer;
 #ifdef DEBUG
@@ -696,7 +722,7 @@ void IODownloadScanStates( pScanData ps )
  * Calling SITUATION: Scanner path is established.
  * Write a data to asic
  */
-void IODataToScanner( pScanData ps, Byte bValue )
+_LOC void IODataToScanner( pScanData ps, Byte bValue )
 {
 	ULong deltime = 4;
 
@@ -725,7 +751,7 @@ void IODataToScanner( pScanData ps, Byte bValue )
  * Calling SITUATION: Scanner path is established.
  * Write a data to specific asic's register
  */
-void IODataToRegister( pScanData ps, Byte bReg, Byte bData )
+_LOC void IODataToRegister( pScanData ps, Byte bReg, Byte bData )
 {
 #ifdef DEBUG
     if( 0 == ps->IO.bOpenCount )
@@ -743,7 +769,7 @@ void IODataToRegister( pScanData ps, Byte bReg, Byte bData )
  * Calling SITUATION: Scanner path is established.
  * Read the content of specific asic's register
  */
-Byte IODataFromRegister( pScanData ps, Byte bReg )
+_LOC Byte IODataFromRegister( pScanData ps, Byte bReg )
 {
     IORegisterToScanner( ps, bReg );
 
@@ -761,7 +787,7 @@ Byte IODataFromRegister( pScanData ps, Byte bReg )
  * Calling SITUATION: Scanner path is established.
  * Write a register to asic (used for a command without parameter)
  */
-void IORegisterToScanner( pScanData ps, Byte bReg )
+_LOC void IORegisterToScanner( pScanData ps, Byte bReg )
 {
 #ifdef DEBUG
     if( 0 == ps->IO.bOpenCount )
@@ -812,7 +838,7 @@ void IORegisterToScanner( pScanData ps, Byte bReg )
 /*.............................................................................
  * write data to the DAC - ASIC 98001/3 only
  */
-void IODataRegisterToDAC( pScanData ps, Byte bReg, Byte bData )
+_LOC void IODataRegisterToDAC( pScanData ps, Byte bReg, Byte bData )
 {
     ULong i;
 
@@ -836,7 +862,7 @@ void IODataRegisterToDAC( pScanData ps, Byte bReg, Byte bData )
  * Calling SITUATION: Scanner path was not established.
  * Read the content of specific asics' register
  */
-Byte IODataRegisterFromScanner( pScanData ps, Byte bReg )
+_LOC Byte IODataRegisterFromScanner( pScanData ps, Byte bReg )
 {
     Byte bData;
 
@@ -851,7 +877,7 @@ Byte IODataRegisterFromScanner( pScanData ps, Byte bReg )
  * Calling SITUATION: Scanner path not established.
  * Write a value of register to asic
  */
-void IOCmdRegisterToScanner( pScanData ps, Byte bReg, Byte bData )
+_LOC void IOCmdRegisterToScanner( pScanData ps, Byte bReg, Byte bData )
 {
     ps->OpenScanPath( ps );
     IODataToRegister( ps, bReg, bData );
@@ -862,7 +888,7 @@ void IOCmdRegisterToScanner( pScanData ps, Byte bReg, Byte bData )
  * Calling SITUATION: Scanner path not established.
  * Write a register to asic (used for a command without parameter)
  */
-void IORegisterDirectToScanner( pScanData ps, Byte bReg )
+_LOC void IORegisterDirectToScanner( pScanData ps, Byte bReg )
 {
     ps->OpenScanPath( ps );				/* establish the connection */
     IORegisterToScanner( ps, bReg );	/* write register to asic	*/
@@ -872,7 +898,7 @@ void IORegisterDirectToScanner( pScanData ps, Byte bReg )
 /*.............................................................................
  * perform a SW reset of ASIC 98003 models
  */
-void IOSoftwareReset( pScanData ps )
+_LOC void IOSoftwareReset( pScanData ps )
 {
     if( _ASIC_IS_98003 != ps->sCaps.AsicID )
         return;
@@ -908,7 +934,7 @@ void IOSoftwareReset( pScanData ps )
  * Read specific length data from scanner and the method depends on the
  * mode defined in registry.
  */
-void IOReadScannerImageData( pScanData ps, pUChar pBuf, ULong size )
+_LOC void IOReadScannerImageData( pScanData ps, pUChar pBuf, ULong size )
 {
     if( _ASIC_IS_98003 != ps->sCaps.AsicID )
         ps->OpenScanPath( ps);
@@ -930,30 +956,21 @@ void IOReadScannerImageData( pScanData ps, pUChar pBuf, ULong size )
 }
 
 /*.............................................................................
- * to program the ASIC 97003 on some scanner devices
- */
-void IOFill97003Register( pScanData ps, Byte bDecode1, Byte bDecode2 )
-{
-    IODataToRegister( ps, ps->RegWriteIOBusDecode2, bDecode2 );
-    IODataToRegister( ps, ps->RegWriteIOBusDecode1, bDecode1 );
-}
-
-/*.............................................................................
  * the wrapper functions to support delayed and non-delayed I/O
  */
-void IOOut( Byte data, UShort port )
+_LOC void IOOut( Byte data, UShort port )
 {
 	DBG( DBG_IOF, "outb(0x%04x, 0x%02x)\n", port, data );
 	outb( data, port );
 }
 
-void IOOutDelayed( Byte data, UShort port )
+_LOC void IOOutDelayed( Byte data, UShort port )
 {
 	DBG( DBG_IOF, "outb_p(0x%04x, 0x%02x)\n", port, data );
 	outb_p( data, port );
 }
 
-Byte IOIn( UShort port )
+_LOC Byte IOIn( UShort port )
 {
 #ifdef DEBUG
 	Byte data = inb( port );
@@ -965,7 +982,7 @@ Byte IOIn( UShort port )
 #endif
 }
 
-Byte IOInDelayed( UShort port )
+_LOC Byte IOInDelayed( UShort port )
 {
 #ifdef DEBUG
 	Byte data = inb_p( port );

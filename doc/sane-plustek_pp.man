@@ -1,26 +1,24 @@
-.TH sane-plustek 5 "17 September 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-plustek
+.TH sane-plustek_pp 5 "24 September 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane-plustek_pp
 .SH NAME
-sane-plustek \- SANE backend for Plustek parallel port and
-LM983[1/2/3] based USB flatbed scanners
+sane-plustek_pp \- SANE backend for Plustek parallel port
+flatbed scanners
 .SH DESCRIPTION
 The
-.B sane-plustek
+.B sane-plustek_pp
 library implements a SANE (Scanner Access Now Easy) backend that
-provides access to Plustek parallel port and USB flatbed scanners.
-The USB support is part of the SANE package but for usage with
-parallel port scanners you will need a kernel module, called
-pt_drv which currently can be downloaded from
-.br
-.B http://www.gjaeger.de/scanner/plustek.html
-.PP
-.B !!!Please note that you need the kernel module only for
-.B parallel port scanners!!!
+provides access to Plustek ASIC 9600[1/3] and P9800[1/3] based
+parallel port flatbed scanners.
+The access of the scanner is either done directly by the backend
+or via kernel module, called pt_drv which can be created out of
+the plustek_pp backend code - see also section
+.B "BUILDING THE KERNEL MODULE"
+for further information.
 
-.SH "PARALLEL PORT SUPPORT"
+.SH "SUPPORTED DEVICES"
 
 At present, the following scanners should work with this backend
-and the corresponding kernel module:
+and/or the kernel module:
 .PP
 .B "PLUSTEK SCANNERS"
 .PP
@@ -112,7 +110,7 @@ Scan-It 4800                OpticPro 600    mov=2
 .B "BrightScan SCANNERS"
 
 There's one scanner sold as BrightScan OpticPro Scanner, this is also
-rebadged Plustek device.
+a rebadged Plustek device.
 The following table will show the relationship:
 .PP
 Model:                      Remarks:
@@ -121,225 +119,54 @@ Model:                      Remarks:
 .br
 BrightScan OpticPro         OpticPro P12
 
-.SH "USB SUPPORT"
-
-The Backend is able to support USB scanner based on the National
-Semiconductor chipset LM9831, LM9832 and LM9833. The following tables
-show various devices which are currently reported to work. If your
-Plustek scanner has another Product ID, then the device is
-.B NOT
-supported, as it contains unsupported ASICs inside.
-.br
-
-Vendor Plustek - ID: 0x07B3
-.br
-----------------------------------------------------------
-.br
-USB Model:         ASIC:  Properties:              Prod-ID
-.br
-----------------------------------------------------------
-.br
-OpticPro U12       LM9831  600x1200dpi 42bit 512Kb 0x0010
-.br
-OpticPro UT12      LM9831  600x1200dpi 42bit 512Kb 0x0013
-.br
-OpticPro UT12      LM9832  600x1200dpi 42bit 512Kb 0x0017
-.br
-OpticPro UT16      LM9832  600x1200dpi 42bit 512Kb 0x0017
-.br
-OpticPro U24       LM9831 1200x2400dpi 42bit   2Mb 0x0011
-.br
-OpticPro U24       LM9832 1200x2400dpi 42bit   2Mb 0x0015
-.br
-OpticPro UT24      LM9832 1200x2400dpi 42bit   2Mb 0x0017
-.PP
-
-Vendor KYE/Genius - ID: 0x0458
-.br
-----------------------------------------------------------
-.br
-USB Model:         ASIC:  Properties:              Prod-ID
-.br
-----------------------------------------------------------
-.br
-Colorpage HR6 V2   LM9832  600x1200dpi 42bit 512Kb 0x2007
-.br
-Colorpage HR6 V2   LM9832  600x1200dpi 42bit 512Kb 0x2008
-.br
-Colorpage HR6A     LM9832  600x1200dpi 42bit 512Kb 0x2009
-.br
-Colorpage HR7      LM9832  600x1200dpi 42bit 512Kb 0x2013
-.br
-Colorpage HR7LE    LM9832  600x1200dpi 42bit 512Kb 0x2015
-.br
-Colorpage HR6X     LM9832  600x1200dpi 42bit 512Kb 0x2016
-.PP
-
-Vendor Hewlett-Packard - ID: 0x03F0
-.br
-----------------------------------------------------------
-.br
-USB Model:         ASIC:  Properties:              Prod-ID
-.br
-----------------------------------------------------------
-.br
-ScanJet 2100C      LM9831  600x1200dpi 42bit 512Kb 0x0505
-.br
-ScanJet 2200C      LM9832  600x1200dpi 42bit 512Kb 0x0605
-.PP
-
-Vendor Mustek - ID: 0x0400
-.br
-----------------------------------------------------------
-.br
-USB Model:         ASIC:  Properties:              Prod-ID
-.br
-----------------------------------------------------------
-.br
-BearPaw 1200       LM9831  600x1200dpi 42bit 512Kb 0x1000
-.br
-BearPaw 2400       LM9832 1200x2400dpi 42bit   2Mb 0x1001
-.PP
-
-Vendor UMAX - ID: 0x1606
-.br
-----------------------------------------------------------
-.br
-USB Model:         ASIC:  Properties:              Prod-ID
-.br
-----------------------------------------------------------
-.br
-UMAX 3400/3450     LM9832  600x1200dpi 42bit 512Kb 0x0060
-.br
-UMAX 5400          LM9832 1200x2400dpi 42bit 512Kb 0x0160
-.PP
-
-Vendor COMPAQ - ID: 0x049F
-.br
-----------------------------------------------------------
-.br
-USB Model:         ASIC:  Properties:              Prod-ID
-.br
-----------------------------------------------------------
-.br
-S4-100             LM9832  600x1200dpi 42bit 512Kb 0x001A
-.PP
-
-Vendor Epson - ID: 0x04B8
-.br
-----------------------------------------------------------
-.br
-USB Model:         ASIC:  Properties:              Prod-ID
-.br
-----------------------------------------------------------
-.br
-Perfection 1250    LM9832 1200x2400dpi 42bit 512Kb 0x010F
-.br
-Perfection 1260    LM9832 1200x2400dpi 42bit 512Kb 0x011D
-.PP
-
-Vendor CANON - ID: 0x04A9
-.br
-----------------------------------------------------------
-.br
-USB Model:         ASIC:  Properties:              Prod-ID
-.br
-----------------------------------------------------------
-.br
-CanoScan N650/656U LM9832  600x1200dpi 42bit 512Kb 0x2206
-.br
-CanoScan N1220U    LM9832 1200x2400dpi 42bit 512Kb 0x2207
-.br
-CanoScan N670/676U LM9833  600x1200dpi 48bit 512Kb 0x220D
-.br
-CanoScan N1240U    LM9833 1200x2400dpi 48bit 512Kb 0x220E
-.br
-CanoScan LIDE20    LM9833  600x1200dpi 48bit 512Kb 0x220D
-.br
-CanoScan LIDE30    LM9833 1200x2400dpi 48bit 512Kb 0x220E
-.PP
-
-.SH "OTHER PLUSTEK SCANNERS"
-
-The SCSI scanner OpticPro 19200S is a rebadged Artec AM12S scanner
-and is supported by the
-.B Artec
-backend.
-.br
-Only the National Semiconductor LM9831/2 based devices of Plustek
-are supported by this driver. Older versions of the U12, the UT12,
-the U1212 and U1248 (GrandTech chipset) are not supported.
-.PP
-Model    Chipset    backend
-.br
----------------------------
-.br
-U1248    GrandTech  gt68xx
-.br
-UT16B    GrandTech  gt68xx
-.PP
-
 .SH "DEVICE NAMES"
-This backend expects a default device called:
+This backend works in two modes, the so called "direct-mode"
+and the "kernel-mode". In direct-mode, the user-space backend is
+used, in kernel-mode, you should have a kernel-module named pt_drv
+loaded.
+This backends default device is:
 .PP
 .RS
-.I /dev/pt_drv
+.I 0x378
 .RE
 .PP
-This default device will be used, if no configuration
-file can be found.
+This "default device" will be used, if no configuration
+file can be found. It is rather the base address of the parallel port
+on i386 machines.
 .PP
-The device-driver is currently not part of the SANE distribution.
-It has to be downloaded from:
-.br
-.B http://www.gjaeger.de/scanner/plustek.html
-.br
-See the INSTALL file there for a proper setup. Currently only Linux
-is supported by this driver (Kernel 2.2.x and higher).
-.PP
-As the backend and the driver support up to four devices
-per system, it is possible to specify them in the configuration
-file
+As the backend supports up to four devices, it is possible to
+specify them in the configuration file
 .PP
 .RS
-.I @CONFIGDIR@/plustek.conf
+.I @CONFIGDIR@/plustek_pp.conf
 .RE
 .PP
-See the plustek.conf file for examples.
+See the plustek_pp.conf file for examples.
 .PP
 
 .SH "CONFIGURATION"
-.PP
-The configuration of this backend can be divided into two sections:
-.br
-.PP
-.B "CONFIGURATION - parallel port scanner"
-.PP
-.br
-.B "CONFIGURATION - USB scanner"
-.PP
-.br
-Please make sure, that the configuration matches the real world,
-namely your configuration. And note again, .I pt_drv is only needed
-.PP
-
-.SH "CONFIGURATION - PARALLEL PORT SCANNER"
 .PP
 Beside the kernel-module options, which are described below, you
 need to enable the parallel port device in the configuration file
 .PP
 .RS
-.I @CONFIGDIR@/plustek.conf
+.I @CONFIGDIR@/plustek_pp.conf
 .RE
 .PP
 For a proper setup, you will need at least two entries:
 
 .TP
-.I [parport]
+.I [direct]
+.TP
+.I device 0x378
+.PP
+or
+.TP
+.I [kernel]
 .TP
 .I device /dev/pt_drv
 .PP
-.I parport
+.I direct
 tells the backend, that the following devicename (here
 .I /dev/pt_drv
 ) has to be interpreted as parallel port scanner device.
@@ -485,160 +312,23 @@ images (parts duplicated or shifted horizontally) kill all
 other applications before scanning and (if sufficient
 memory available) disable swapping.
 .PP
+See the plustek_pp.conf file for examples.
+.PP
 
-.SH "CONFIGURATION - USB SCANNER"
-.PP
-To use the USB device with this backend, you need at least
-two entries in the configuration file
-.br
-.I @CONFIGDIR@/plustek.conf
-.TP
-.I [usb] vendor-id product-id
-.TP
-.I device /dev/usbscanner
-.PP
-.I usb
-tells the backend, that the following devicename (here
-.I /dev/usbscanner
-) has to be interpreted as USB scanner device. If vendor- and
-product-id has not been specified, the backend tries to
-detect this by its own. If device ist set to
-.I auto
- then the next matching device is used.
-.PP
-.B
-The Options:
-.PP
-option warmup t
-.RS
-.I t
-specifies the warmup period in seconds
-.RE
-.PP
-option lampOff t
-.RS
-.I t
-is the time in seconds for switching off the lamps in
-standby mode
-.RE
-.PP
-option lOffonEnd b
-.RS
-.I b
-specifies the behaviour when closing the backend, 1 --> switch
-lamps off, 0 --> do not change lamp status
-.RE
-.PP
-option invertNegatives b
-.RS
-.I b
-0 --> do not invert the picture during negativ scans,
-1 --> invert picture
-.RE
-.PP
-option skipCalibration b
-.RS
-.I b
-0 --> perform calibration,
-1 --> skip calibration (only non Plustek devices)
-.RE
-.PP
-option enableTPA b
-.RS
-.I b
-0 --> default behaviour, specified by the internal tables,
-1 --> override internal tables and allow TPA mode (EPSON only)
-.RE
-
-.PP
-option posOffX x
-.br
-option posOffY y
-.br
-option tpaOffX x
-.br
-option tpaOffY y
-.br
-option negOffX x
-.br
-option negOffY y
-.RS
-.I x y
-By using this settings, the user can adjust the given image
-positions.
-.B Please note, that there's no internal range checking for
-.B this feature.
-.RE
-.PP
-option posShadingY p
-.br
-option tpaShadingY p
-.br
-option negShadingY p
-.RS
-.I p
-overrides the internal shading position. The values are in steps.
-.B Please note, that there's no internal range checking for
-.B this feature.
-.RE
-.PP
-option redGamma r
-.br
-option greenGamma g
-.br
-option blueGamma b
-.br
-option grayGamma gr
-.RS
-.I r g b gr
-.RE
-By using these values, the internal linear gamma table (r,g,b,gr = 1.0)
-can be adjusted.
-.PP
-option red_gain r
-.br
-option green_gain g
-.br
-option blue_gain b
-.RS
-.I r g b
-These values can be used to adjust the internally detected gain values of
-the AFE for each channel. The range is between 0 and 63.
-.RE
-
-.PP
-See the plustek.conf file for examples.
-.PP
-.B Note:
-.br
-You have to make sure, that the USB subsystem is loaded
-correctly and the module
-.I scanner
-has been loaded too. To make this module recognize your
-scanner, you might have to add the following line to
-your
-.B "/etc/modules.conf"
-:
-.br
-.I options scanner vendor=0x7b3 product=0x17
-.PP
-.br
-If you're not sure about the vendor and product id of your
-device, simply load the USB subsystem and plug in your
-scanner. Then do a
-.I cat /proc/bus/usb/devices
-and look for the scanner.
+.SH "BUILDING THE KERNEL MODULE"
+As mentioned before, the plustek_pp backend code can also
+be compiled and installed as linux kernel module...
 .PP
 
 .SH FILES
 .TP
-.I @CONFIGDIR@/plustek.conf
+.I @CONFIGDIR@/plustek_pp.conf
 The backend configuration file
 .TP
-.I @LIBDIR@/libsane-plustek.a
+.I @LIBDIR@/libsane-plustek_pp.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-plustek.so
+.I @LIBDIR@/libsane-plustek_pp.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 .TP
@@ -671,13 +361,9 @@ environment-variable
 .I SANE_DEBUG_PLUSTEK
 before calling your favorite scan-frontend (i.e. xscanimage).
 .br
-.B i.e.: export SANE_DEBUG_PLUSTEK=20 ; xscanimage
+.B i.e.: export SANE_DEBUG_PLUSTEK_PP=20 ; xscanimage
 .PP
-The value controls the verbosity of the backend. Please note, that
-values greater than 19 force the backend to output raw data files,
-which could be rather large. The ending of these files is ".raw".
-For problem reports it should be enough the set the verbosity to
-13.
+The value controls the verbosity of the backend.
 .PP
 
 .SH "KNOWN BUGS & RESTRICTIONS"
@@ -727,7 +413,7 @@ ASIC 96003/1 based models:
 .br
 * On low-end systems and under heavy system load, the
 .br
-  driver will loosing data, this might causes the sensor
+  driver will loose data, this might causes the sensor
 .br
   to hit the scan-bed and/or the picture is corrupted.
 .br
@@ -735,19 +421,3 @@ ASIC 96003/1 based models:
 .br
 * The scanquality of the A3I is poor
 .br
-.PP
-USB models:
-.br
-* Plusteks' model policy is somewhat inconsistent. This
-.br
-  means, they sell technical different devices under the
-.br
-  same product name. Therefore it is possible that some
-.br
-  devices like the UT12 or U12 won't work - please check
-.br
-  the model list above and compare the product-id to
-.br
-  the one your device has.
-.br
-* Negative scanning quality is poor.

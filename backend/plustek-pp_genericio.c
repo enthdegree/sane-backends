@@ -1,54 +1,80 @@
 /*.............................................................................
- * Project : linux driver for Plustek parallel-port scanners
+ * Project : SANE library for Plustek parallelport flatbed scanners.
  *.............................................................................
- * File:     plustek-pp_genericio.c - all i/o functions
- *.............................................................................
+ */
+
+/* @file plustek-pp_genericio.c
+ * @brief all i/o functions
  *
  * based on sources acquired from Plustek Inc.
  * Copyright (C) 1998 Plustek Inc.
  * Copyright (C) 2000-2003 Gerhard Jaeger <gerhard@gjaeger.de>
  * also based on the work done by Rick Bronson
- *.............................................................................
+ *
  * History:
- * 0.30 - initial version
- * 0.31 - moved ioP96ReadScannerImageData and ioP98ReadScannerImageData
- *		  into this file
- *		  added SPP-read functions
- * 0.32 - changes in function ioControlLampOnOff()
- *		  made IOReadingImage a local function -> ioP98ReadingImage()
- *		  rewritten function ioP96ReadScannerImageData()
- *		  moved function IOSetStartStopRegister to p9636.c
- * 0.33 - added debug messages to IOPutOnAllRegisters
- *		  fixed a bug in ioP96InitialSetCurrentSpeed
- * 0.34 - no changes
- * 0.35 - no changes
- * 0.36 - removed some warning conditions
- * 0.37 - moved functions IOSPPWrite(), IODataToScanner(), IODataToRegister(),
- *        IODataFromRegister() to io.c
- *		  moved the data read functions to io.c
- *		  renamed IOInitialize to IOFuncInitialize
- * 0.38 - moved some functions to io.c
- *        added P12 stuff
- * 0.39 - no changes
- * 0.40 - no changes
- * 0.41 - no changes
- * 0.42 - changed include names
+ * - 0.30 - initial version
+ * - 0.31 - moved ioP96ReadScannerImageData and ioP98ReadScannerImageData
+ *          into this file
+ *        - added SPP-read functions
+ * - 0.32 - changes in function ioControlLampOnOff()
+ *        - made IOReadingImage a local function -> ioP98ReadingImage()
+ *        - rewritten function ioP96ReadScannerImageData()
+ *        - moved function IOSetStartStopRegister to p9636.c
+ * - 0.33 - added debug messages to IOPutOnAllRegisters
+ *        - fixed a bug in ioP96InitialSetCurrentSpeed
+ * - 0.34 - no changes
+ * - 0.35 - no changes
+ * - 0.36 - removed some warning conditions
+ * - 0.37 - moved functions IOSPPWrite(), IODataToScanner(), IODataToRegister(),
+ *          IODataFromRegister() to io.c
+ *        - moved the data read functions to io.c
+ *        - renamed IOInitialize to IOFuncInitialize
+ * - 0.38 - moved some functions to io.c
+ *        - added P12 stuff
+ * - 0.39 - no changes
+ * - 0.40 - no changes
+ * - 0.41 - no changes
+ * - 0.42 - changed include names
+ * .
+ * <hr>
+ * This file is part of the SANE package.
  *
- *.............................................................................
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston,
+ * MA 02111-1307, USA.
+ *
+ * As a special exception, the authors of SANE give permission for
+ * additional uses of the libraries contained in this release of SANE.
+ *
+ * The exception is that, if you link a SANE library with other files
+ * to produce an executable, this does not by itself cause the
+ * resulting executable to be covered by the GNU General Public
+ * License.  Your use of that executable is in no way restricted on
+ * account of linking the SANE library code into it.
+ *
+ * This exception does not, however, invalidate any other reasons why
+ * the executable file might be covered by the GNU General Public
+ * License.
+ *
+ * If you submit changes to SANE to the maintainers to be included in
+ * a subsequent release, you agree by submitting the changes that
+ * those changes may be distributed with this exception intact.
+ *
+ * If you write modifications of your own for SANE, it is your choice
+ * whether to permit this exception to apply to your modifications.
+ * If you do not wish that, delete this exception notice.
+ * <hr>
  */
 #include "plustek-pp_scan.h"
 
@@ -1005,7 +1031,7 @@ static void ioP98InitialSetCurrentSpeed( pScanData ps )
 /*.............................................................................
  * here we do some init work
  */
-int IOFuncInitialize( pScanData ps )
+_LOC int IOFuncInitialize( pScanData ps )
 {
 	DBG( DBG_HIGH, "IOFuncInitialize()\n" );
 
@@ -1044,7 +1070,7 @@ int IOFuncInitialize( pScanData ps )
  * 2) Refresh the scan states if necessary
  * 3) Wait for motor running within half-second period.
  */
-Byte IOSetToMotorRegister( pScanData ps )
+_LOC Byte IOSetToMotorRegister( pScanData ps )
 {
     ps->OpenScanPath( ps );
 
@@ -1068,7 +1094,7 @@ Byte IOSetToMotorRegister( pScanData ps )
  * 2) Read the recent state count
  * 3) Disconnect the path if necessary
  */
-Byte IOGetScanState( pScanData ps, Bool fOpenned )
+_LOC Byte IOGetScanState( pScanData ps, Bool fOpenned )
 {
     Byte bScanState, bScanStateNow;
 
@@ -1092,7 +1118,7 @@ Byte IOGetScanState( pScanData ps, Bool fOpenned )
 /*.............................................................................
  * ASIC 98003 specific function to read status 2 regiser
  */
-Byte IOGetExtendedStatus( pScanData ps )
+_LOC Byte IOGetExtendedStatus( pScanData ps )
 {
     Byte b;
 
@@ -1106,7 +1132,7 @@ Byte IOGetExtendedStatus( pScanData ps )
 /*.............................................................................
  * Read the scan state. Return the count with status bit, and count.
  */
-void IOGetCurrentStateCount( pScanData ps, pScanState pScanStep )
+_LOC void IOGetCurrentStateCount( pScanData ps, pScanState pScanStep )
 {
     pScanStep->bStatus = IOGetScanState( ps, _FALSE );
     pScanStep->bStep   = pScanStep->bStatus & _SCANSTATE_MASK;
@@ -1122,7 +1148,7 @@ void IOGetCurrentStateCount( pScanData ps, pScanState pScanStep )
  *	This routine combines from SetupAsicDependentVariables & IsReadyForScan
  *	routines in assembly source.
  */
-int IOIsReadyForScan( pScanData ps )
+_LOC int IOIsReadyForScan( pScanData ps )
 {
 	ULong  dw;
 	pULong pdwTable;
@@ -1186,7 +1212,7 @@ int IOIsReadyForScan( pScanData ps )
 /*.............................................................................
  *
  */
-void IOSetXStepLineScanTime( pScanData ps, Byte b )
+_LOC void IOSetXStepLineScanTime( pScanData ps, Byte b )
 {
     ps->AsicReg.RD_LineControl = b;
     ps->bSpeed1  = b;
@@ -1206,7 +1232,7 @@ void IOSetXStepLineScanTime( pScanData ps, Byte b )
  * 2) Refresh scan state
  * 3) Wait for motor running within half second.
  */
-void IOSetToMotorStepCount( pScanData ps )
+_LOC void IOSetToMotorStepCount( pScanData ps )
 {
 	ULong	 dw;
     pUChar	 pb;
@@ -1246,7 +1272,7 @@ void IOSetToMotorStepCount( pScanData ps )
 /*.............................................................................
  *
  */
-void IOSelectLampSource( pScanData ps )
+_LOC void IOSelectLampSource( pScanData ps )
 {
  	ps->AsicReg.RD_ScanControl &= (~_SCAN_LAMPS_ON);
 
@@ -1260,7 +1286,7 @@ void IOSelectLampSource( pScanData ps )
 /*.............................................................................
  *
  */
-Bool IOReadOneShadingLine( pScanData ps, pUChar pBuf, ULong len )
+_LOC Bool IOReadOneShadingLine( pScanData ps, pUChar pBuf, ULong len )
 {
 	TimerDef timer;
 
@@ -1283,7 +1309,7 @@ Bool IOReadOneShadingLine( pScanData ps, pUChar pBuf, ULong len )
 /*.............................................................................
  *
  */
-ULong IOReadFifoLength( pScanData ps )
+_LOC ULong IOReadFifoLength( pScanData ps )
 {
 	DataType Data;
 
@@ -1313,7 +1339,7 @@ ULong IOReadFifoLength( pScanData ps )
  *    ps->RegGreenGainOutDirect (P9363) or from ps->RegModeControl to
  *	  ps->RegModeControl2 (48xx)
  */
-void IOPutOnAllRegisters( pScanData ps )
+_LOC void IOPutOnAllRegisters( pScanData ps )
 {
 	pUChar	pValue;
     Byte	bReg;
@@ -1429,7 +1455,7 @@ void IOPutOnAllRegisters( pScanData ps )
 /*.............................................................................
  *
  */
-void IOReadColorData( pScanData ps, pUChar pBuf, ULong len )
+_LOC void IOReadColorData( pScanData ps, pUChar pBuf, ULong len )
 {
    	ps->AsicReg.RD_ModeControl = _ModeFifoRSel;
     IOReadScannerImageData( ps, pBuf, len );

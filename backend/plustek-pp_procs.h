@@ -32,189 +32,217 @@
  * 0.40 - no changes
  * 0.41 - no changes
  * 0.42 - added MapAdjust
+ * .
+ * <hr>
+ * This file is part of the SANE package.
  *
- *.............................................................................
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston,
+ * MA 02111-1307, USA.
+ *
+ * As a special exception, the authors of SANE give permission for
+ * additional uses of the libraries contained in this release of SANE.
+ *
+ * The exception is that, if you link a SANE library with other files
+ * to produce an executable, this does not by itself cause the
+ * resulting executable to be covered by the GNU General Public
+ * License.  Your use of that executable is in no way restricted on
+ * account of linking the SANE library code into it.
+ *
+ * This exception does not, however, invalidate any other reasons why
+ * the executable file might be covered by the GNU General Public
+ * License.
+ *
+ * If you submit changes to SANE to the maintainers to be included in
+ * a subsequent release, you agree by submitting the changes that
+ * those changes may be distributed with this exception intact.
+ *
+ * If you write modifications of your own for SANE, it is your choice
+ * whether to permit this exception to apply to your modifications.
+ * If you do not wish that, delete this exception notice.
+ * <hr>
  */
 #ifndef __PROCS_H__
 #define __PROCS_H__
 
-/*
- * implementation in plustekpp-misc.c
- */
-pScanData 	MiscAllocAndInitStruct( void );
-int			MiscReinitStruct	  ( pScanData ps );
-
-int		  	MiscInitPorts   ( pScanData ps, int port );
-void	  	MiscRestorePort ( pScanData ps );
-inline void MiscStartTimer  ( pTimerDef timer, unsigned long us );
-inline int  MiscCheckTimer  ( pTimerDef timer );
-
-int  MiscRegisterPort       ( pScanData ps, int portAddr );
-void MiscUnregisterPort     ( pScanData ps );
-int  MiscClaimPort	        ( pScanData ps );
-void MiscReleasePort        ( pScanData ps );
-Long MiscLongRand	        ( void );
-const char *MiscGetModelName( UShort id );
-
-#ifdef DEBUG
-Bool MiscAllPointersSet( pScanData ps );
+#ifdef _BACKEND_ENABLED
+# define _LOC	static
+#else
+# define _LOC
 #endif
 
 /*
- * implementation in plustekpp-detect.c
+ * implementation in plustek-pp_misc.c
  */
-int DetectScanner( pScanData ps, int mode );
+_LOC pScanData MiscAllocAndInitStruct( void );
+_LOC int       MiscReinitStruct      ( pScanData ps );
+
+_LOC int    MiscInitPorts   ( pScanData ps, int port );
+_LOC void   MiscRestorePort ( pScanData ps );
+_LOC inline void MiscStartTimer  ( pTimerDef timer, unsigned long us );
+_LOC inline int  MiscCheckTimer  ( pTimerDef timer );
+
+_LOC int  MiscRegisterPort       ( pScanData ps, int portAddr );
+_LOC void MiscUnregisterPort     ( pScanData ps );
+_LOC int  MiscClaimPort          ( pScanData ps );
+_LOC void MiscReleasePort        ( pScanData ps );
+_LOC Long MiscLongRand           ( void );
+_LOC const char *MiscGetModelName( UShort id );
+
+#ifdef DEBUG
+_LOC Bool MiscAllPointersSet( pScanData ps );
+#endif
 
 /*
- * implementation in plustekpp-p48xx.c
+ * implementation in plustek-pp_detect.c
  */
-int P48xxInitAsic( pScanData ps );
+_LOC int DetectScanner( pScanData ps, int mode );
 
 /*
- * implementation in plustekpp-p9636.c
+ * implementation in plustek-pp_p48xx.c
  */
-int P9636InitAsic( pScanData ps );
+_LOC int P48xxInitAsic( pScanData ps );
 
 /*
- * implementation in plustekpp-p12.c
+ * implementation in plustek-pp_p9636.c
  */
-int  P12InitAsic          ( pScanData ps );
-void P12SetGeneralRegister( pScanData ps );
+_LOC int P9636InitAsic( pScanData ps );
 
 /*
- * implementation in plustekpp-p12ccd.c
+ * implementation in plustek-pp_p12.c
  */
-void P12InitCCDandDAC( pScanData ps, Bool shading );
+_LOC int  P12InitAsic          ( pScanData ps );
+_LOC void P12SetGeneralRegister( pScanData ps );
 
 /*
- * implementation in plustekpp-models.c
+ * implementation in plustek-pp_p12ccd.c
  */
-void ModelSet4800 ( pScanData ps );
-void ModelSet4830 ( pScanData ps );
-void ModelSet600  ( pScanData ps );
-void ModelSet12000( pScanData ps );
-void ModelSetA3I  ( pScanData ps );
-void ModelSet9630 ( pScanData ps );
-void ModelSet9636 ( pScanData ps );
-void ModelSetP12  ( pScanData ps );
+_LOC void P12InitCCDandDAC( pScanData ps, Bool shading );
 
 /*
- * implementation in plustekpp-dac.c
+ * implementation in plustek-pp_models.c
  */
-int  DacInitialize( pScanData ps );
-
-void DacP98AdjustDark					   ( pScanData ps );
-void DacP98FillGainOutDirectPort		   ( pScanData ps );
-void DacP98FillShadingDarkToShadingRegister( pScanData ps );
-
-void DacP96WriteBackToGammaShadingRAM( pScanData ps );
-
-void DacP98003FillToDAC ( pScanData ps, pRGBByteDef regs, pColorByte data );
-void DacP98003AdjustGain( pScanData ps, ULong color, Byte hilight );
-Byte DacP98003SumGains  ( pUChar pb, ULong pixelsLine );
+_LOC void ModelSet4800 ( pScanData ps );
+_LOC void ModelSet4830 ( pScanData ps );
+_LOC void ModelSet600  ( pScanData ps );
+_LOC void ModelSet12000( pScanData ps );
+_LOC void ModelSetA3I  ( pScanData ps );
+_LOC void ModelSet9630 ( pScanData ps );
+_LOC void ModelSet9636 ( pScanData ps );
+_LOC void ModelSetP12  ( pScanData ps );
 
 /*
- * implementation in plustekpp-motor.c
+ * implementation in plustek-pp_dac.c
  */
-int  MotorInitialize	 ( pScanData ps );
-void MotorSetConstantMove( pScanData ps, Byte bMovePerStep );
-void MotorToHomePosition ( pScanData ps );
+_LOC int  DacInitialize( pScanData ps );
 
-void MotorP98GoFullStep  ( pScanData ps, ULong dwStep );
+_LOC void DacP98AdjustDark					   ( pScanData ps );
+_LOC void DacP98FillGainOutDirectPort		   ( pScanData ps );
+_LOC void DacP98FillShadingDarkToShadingRegister( pScanData ps );
 
-void MotorP96SetSpeedToStopProc( pScanData ps );
-void MotorP96ConstantMoveProc  ( pScanData ps, ULong dwLines );
-Bool MotorP96AheadToDarkArea   ( pScanData ps );
-void MotorP96AdjustCurrentSpeed( pScanData ps, Byte bSpeed );
+_LOC void DacP96WriteBackToGammaShadingRAM( pScanData ps );
 
-void MotorP98003BackToHomeSensor     ( pScanData ps );
-void MotorP98003ModuleForwardBackward( pScanData ps );
-void MotorP98003ForceToLeaveHomePos  ( pScanData ps );
-void MotorP98003PositionYProc        ( pScanData ps, ULong steps);
+_LOC void DacP98003FillToDAC (pScanData ps, pRGBByteDef regs, pColorByte data);
+_LOC void DacP98003AdjustGain(pScanData ps, ULong color, Byte hilight );
+_LOC Byte DacP98003SumGains  ( pUChar pb, ULong pixelsLine );
 
 /*
- * implementation in plustekpp-map.c
+ * implementation in plustek-pp_motor.c
  */
-void MapInitialize ( pScanData ps );
-void MapSetupDither( pScanData ps );
-void MapAdjust     ( pScanData ps, int which );
+_LOC int  MotorInitialize	 ( pScanData ps );
+_LOC void MotorSetConstantMove( pScanData ps, Byte bMovePerStep );
+_LOC void MotorToHomePosition ( pScanData ps );
+
+_LOC void MotorP98GoFullStep  ( pScanData ps, ULong dwStep );
+
+_LOC void MotorP96SetSpeedToStopProc( pScanData ps );
+_LOC void MotorP96ConstantMoveProc  ( pScanData ps, ULong dwLines );
+_LOC Bool MotorP96AheadToDarkArea   ( pScanData ps );
+_LOC void MotorP96AdjustCurrentSpeed( pScanData ps, Byte bSpeed );
+
+_LOC void MotorP98003BackToHomeSensor     ( pScanData ps );
+_LOC void MotorP98003ModuleForwardBackward( pScanData ps );
+_LOC void MotorP98003ForceToLeaveHomePos  ( pScanData ps );
+_LOC void MotorP98003PositionYProc        ( pScanData ps, ULong steps);
 
 /*
- * implementation in plustekpp-image.c
+ * implementation in plustek-pp_map.c
  */
-int ImageInitialize( pScanData ps );
+_LOC void MapInitialize ( pScanData ps );
+_LOC void MapSetupDither( pScanData ps );
+_LOC void MapAdjust     ( pScanData ps, int which );
 
 /*
- * implementation in plustekpp-genericio.c
+ * implementation in plustek-pp_image.c
  */
-int  IOFuncInitialize	   ( pScanData ps );
-Byte IOSetToMotorRegister  ( pScanData ps );
-Byte IOGetScanState		   ( pScanData ps, Bool fOpenned );
-Byte IOGetExtendedStatus   ( pScanData ps );
-void IOGetCurrentStateCount( pScanData, pScanState pScanStep);
-int  IOIsReadyForScan	   ( pScanData ps );
-
-void  IOSetXStepLineScanTime( pScanData ps, Byte b );
-void  IOSetToMotorStepCount ( pScanData ps );
-void  IOSelectLampSource	( pScanData ps );
-Bool  IOReadOneShadingLine  ( pScanData ps, pUChar pBuf, ULong len );
-ULong IOReadFifoLength	    ( pScanData ps );
-void  IOPutOnAllRegisters   ( pScanData ps );
-void  IOReadColorData       ( pScanData ps, pUChar pBuf, ULong len );
+_LOC int ImageInitialize( pScanData ps );
 
 /*
- * implementation in plustekpp-io.c
+ * implementation in plustek-pp_genericio.c
  */
-int  IOInitialize		 ( pScanData ps );
-void IOMoveDataToScanner ( pScanData ps, pUChar pBuffer, ULong size );
-void IODownloadScanStates( pScanData ps );
-void IODataToScanner     ( pScanData, Byte bValue );
-void IODataToRegister    ( pScanData ps, Byte bReg, Byte bData );
-Byte IODataFromRegister  ( pScanData ps, Byte bReg );
-void IORegisterToScanner ( pScanData ps, Byte bReg );
-void IODataRegisterToDAC ( pScanData ps, Byte bReg, Byte bData );
+_LOC int  IOFuncInitialize      ( pScanData ps );
+_LOC Byte IOSetToMotorRegister  ( pScanData ps );
+_LOC Byte IOGetScanState        ( pScanData ps, Bool fOpenned );
+_LOC Byte IOGetExtendedStatus   ( pScanData ps );
+_LOC void IOGetCurrentStateCount( pScanData, pScanState pScanStep);
+_LOC int  IOIsReadyForScan      ( pScanData ps );
 
-Byte IODataRegisterFromScanner( pScanData ps, Byte bReg );
-void IOCmdRegisterToScanner   ( pScanData ps, Byte bReg, Byte bData );
-void IORegisterDirectToScanner( pScanData, Byte bReg );
-void IOSoftwareReset          ( pScanData ps );
-void IOReadScannerImageData   ( pScanData ps, pUChar pBuf, ULong size );
-void IOFill97003Register      ( pScanData ps, Byte bDecode1, Byte bDecode2 );
-
-void IOOut       ( Byte data, UShort port );
-void IOOutDelayed( Byte data, UShort port );
-Byte IOIn        ( UShort port );
-Byte IOInDelayed ( UShort port );
-
+_LOC void  IOSetXStepLineScanTime( pScanData ps, Byte b );
+_LOC void  IOSetToMotorStepCount ( pScanData ps );
+_LOC void  IOSelectLampSource    ( pScanData ps );
+_LOC Bool  IOReadOneShadingLine  ( pScanData ps, pUChar pBuf, ULong len );
+_LOC ULong IOReadFifoLength      ( pScanData ps );
+_LOC void  IOPutOnAllRegisters   ( pScanData ps );
+_LOC void  IOReadColorData       ( pScanData ps, pUChar pBuf, ULong len );
 
 /*
- * implementation in plustekpp-tpa.c
+ * implementation in plustek-pp_io.c
  */
-void TPAP98001AverageShadingData( pScanData ps );
-void TPAP98003FindCenterPointer ( pScanData ps );
-void TPAP98003Reshading         ( pScanData ps );
+_LOC int  IOInitialize        ( pScanData ps );
+_LOC void IOMoveDataToScanner ( pScanData ps, pUChar pBuffer, ULong size );
+_LOC void IODownloadScanStates( pScanData ps );
+_LOC void IODataToScanner     ( pScanData, Byte bValue );
+_LOC void IODataToRegister    ( pScanData ps, Byte bReg, Byte bData );
+_LOC Byte IODataFromRegister  ( pScanData ps, Byte bReg );
+_LOC void IORegisterToScanner ( pScanData ps, Byte bReg );
+_LOC void IODataRegisterToDAC ( pScanData ps, Byte bReg, Byte bData );
+
+_LOC Byte IODataRegisterFromScanner( pScanData ps, Byte bReg );
+_LOC void IOCmdRegisterToScanner   ( pScanData ps, Byte bReg, Byte bData );
+_LOC void IORegisterDirectToScanner( pScanData, Byte bReg );
+_LOC void IOSoftwareReset          ( pScanData ps );
+_LOC void IOReadScannerImageData   ( pScanData ps, pUChar pBuf, ULong size );
+
+_LOC void IOOut       ( Byte data, UShort port );
+_LOC void IOOutDelayed( Byte data, UShort port );
+_LOC Byte IOIn        ( UShort port );
+_LOC Byte IOInDelayed ( UShort port );
 
 /*
- * implementation in plustekpp-scale.c
+ * implementation in plustek-pp_tpa.c
  */
-void ScaleX( pScanData ps, pUChar inBuf, pUChar outBuf );
+_LOC void TPAP98001AverageShadingData( pScanData ps );
+_LOC void TPAP98003FindCenterPointer ( pScanData ps );
+_LOC void TPAP98003Reshading         ( pScanData ps );
 
 /*
- * implementation in plustekpp-procfs.c (Kernel-mode only)
+ * implementation in plustek-pp_scale.c
+ */
+_LOC void ScaleX( pScanData ps, pUChar inBuf, pUChar outBuf );
+
+/*
+ * implementation in plustek-pp_procfs.c (Kernel-mode only)
  */
 #ifdef __KERNEL__
 int  ProcFsInitialize	   ( void );

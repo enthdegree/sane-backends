@@ -88,14 +88,13 @@
 #include "sane/sanei.h"
 #include "sane/saneopts.h"
 
-#define BACKEND_VERSION "0.01"
+#define BACKEND_VERSION "0.01-1"
 #define BACKEND_NAME	plustek_pp
 #include "sane/sanei_backend.h"
 #include "sane/sanei_config.h"
 
-#define _BACKEND_ENABLED
-
-#ifdef _BACKEND_ENABLED
+#ifdef HAVE_IOPERM
+# define _BACKEND_ENABLED
 # define _USER_MODE
 #endif
 
@@ -121,8 +120,6 @@
  */
 MODELSTR;
 
-#define _DEFAULT_DEVICE "0x378"
-
 #ifdef _BACKEND_ENABLED
 
 /* needed to statisfy the module code ... */
@@ -146,13 +143,18 @@ MODELSTR;
 # include "plustek-pp_procfs.c"
 # include "plustek-pp_scale.c"
 # include "plustek-pp_tpa.c"
-#endif
 
-#include "plustek-pp_wrapper.c"
+#define _DEFAULT_DEVICE "0x378"
+#else
+#define _DEFAULT_DEVICE "/dev/pt_drv"
+#endif
 
 #ifdef _BACKEND_ENABLED
 # include "plustek-pp_ptdrv.c"
 #endif
+
+#include "plustek-pp_wrapper.c"
+
 
 /************************** global vars **************************************/
 
@@ -1179,7 +1181,11 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 	num_devices  = 0;
 
 	/* initialize the configuration structure */
+#ifdef _BACKEND_ENABLED
+	init_config_struct( &config, SANE_TRUE );
+#else
 	init_config_struct( &config, SANE_FALSE );
+#endif
 
 	if( version_code != NULL )
 		*version_code = SANE_VERSION_CODE(V_MAJOR, V_MINOR, 0);
@@ -1188,7 +1194,7 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 
 	/* default to _DEFAULT_DEVICE instead of insisting on config file */
 	if( NULL == fp ) {
-		return attach(_DEFAULT_DEVICE, &config, 0);
+		return attach( _DEFAULT_DEVICE, &config, 0 );
 	}
 
 	while( sanei_config_read( str, sizeof(str), fp)) {

@@ -275,7 +275,6 @@ In sane-backends/backend/
   to DISTFILES in Makefile.in
 
 In sane-backends/doc/
-* Add the name of the man page to doc/.cvsignore
 * Add an entry for the man page in sane.man
 * Add the man page file in doc/Makefile.in
 * Move the description file from descriptions-external/ to doc/descriptions/

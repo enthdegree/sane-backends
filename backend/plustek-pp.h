@@ -97,8 +97,6 @@
 #define _NEG_X			((double)_NegativePageWidth/300.0 * MM_PER_INCH)
 #define _NEG_Y			((double)_NegativePageHeight/300.0 * MM_PER_INCH)
 
-#define _MAX_ID_LEN	20
-
 /******************** from former plustek-share.h ***************************/
 
 /*

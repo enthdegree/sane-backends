@@ -1,6 +1,12 @@
 2003-09-24  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/sane.man, AUTHORS: added plustek_pp information
+	* doc/backend-writing.txt: Updated CHECKLIST information
+	* doc/sane-plustek.man: removed parport sections
+	* doc/sane-plustek_pp.man: removed usb sections
+	* backend/plustek.c: changed version number
+	* backend/plustek-pp.*: changed file headers and copyright info
+	  applied some minor fixes
 
 2003-09-23  Frank Zago  <fzago at austin dot rr dot com>
 

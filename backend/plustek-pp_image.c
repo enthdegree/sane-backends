@@ -1,56 +1,82 @@
 /*.............................................................................
- * Project : linux driver for Plustek parallel-port scanners
+ * Project : SANE library for Plustek parallelport flatbed scanners.
  *.............................................................................
- * File:	plustek-pp_image.c - functions to convert scanner data into image
- *                              data
- *.............................................................................
+ */
+
+/* @file plustek-pp_image.c
+ * @brief functions to convert scanner data into image data
  *
  * based on sources acquired from Plustek Inc.
  * Copyright (C) 1998 Plustek Inc.
  * Copyright (C) 2000-2003 Gerhard Jaeger <gerhard@gjaeger.de>
  * also based on the work done by Rick Bronson
- *.............................................................................
+ *
  * History:
- * 0.30 - initial version
- * 0.31 - no changes
- * 0.32 - no changes
- * 0.33 - no changes
- * 0.34 - reactivated code in imageP96WaitLineData() to recover from
- *		  loosing data
- * 0.35 - no changes
- * 0.36 - removed comment
- *		  added wDither exchange to imageP9xSetupScanSettings
- *		  added fnHalftoneDirect1 which provides dithering by using random
- *		  thresholds
- *		  removed the swapping behaviour for model OP_600 in fnP96ColorDirect()
- *		  according to the Primax 4800 Direct tests
- *		  changes, due to define renaming
- *		  removed _ASIC_96001 specific stuff to invert colors
- * 0.37 - removed // comments
- *        corrected output of 12bit/pixel
- * 0.38 - added P12 stuff
- *        renamed WaitLineData functions to ReadOneImageLine
- * 0.39 - fixed a problem in imageP98003ReadOneImageLine, that causes
- *        these I/O timeouts...
- * 0.40 - no changes
- * 0.41 - no changes
- * 0.42 - fixed a problem for the 12bit modes fo ASIC9800x based devices
- *        changed include names
- *.............................................................................
+ * - 0.30 - initial version
+ * - 0.31 - no changes
+ * - 0.32 - no changes
+ * - 0.33 - no changes
+ * - 0.34 - reactivated code in imageP96WaitLineData() to recover from
+ *          loosing data
+ * - 0.35 - no changes
+ * - 0.36 - removed comment
+ *        - added wDither exchange to imageP9xSetupScanSettings
+ *        - added fnHalftoneDirect1 which provides dithering by using random
+ *          thresholds
+ *        - removed the swapping behaviour for model OP_600 in
+ *          fnP96ColorDirect() according to the Primax 4800 Direct tests
+ *        - changes, due to define renaming
+ *        - removed _ASIC_96001 specific stuff to invert colors
+ * - 0.37 - removed // comments
+ *        - corrected output of 12bit/pixel
+ * - 0.38 - added P12 stuff
+ *        - renamed WaitLineData functions to ReadOneImageLine
+ * - 0.39 - fixed a problem in imageP98003ReadOneImageLine, that causes
+ *          these I/O timeouts...
+ * - 0.40 - no changes
+ * - 0.41 - no changes
+ * - 0.42 - fixed a problem for the 12bit modes fo ASIC9800x based devices
+ *        - changed include names
+ * .
+ * <hr>
+ * This file is part of the SANE package.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston,
+ * MA 02111-1307, USA.
+ *
+ * As a special exception, the authors of SANE give permission for
+ * additional uses of the libraries contained in this release of SANE.
+ *
+ * The exception is that, if you link a SANE library with other files
+ * to produce an executable, this does not by itself cause the
+ * resulting executable to be covered by the GNU General Public
+ * License.  Your use of that executable is in no way restricted on
+ * account of linking the SANE library code into it.
+ *
+ * This exception does not, however, invalidate any other reasons why
+ * the executable file might be covered by the GNU General Public
+ * License.
+ *
+ * If you submit changes to SANE to the maintainers to be included in
+ * a subsequent release, you agree by submitting the changes that
+ * those changes may be distributed with this exception intact.
+ *
+ * If you write modifications of your own for SANE, it is your choice
+ * whether to permit this exception to apply to your modifications.
+ * If you do not wish that, delete this exception notice.
+ * <hr>
  */
 #include "plustek-pp_scan.h"
 
@@ -1604,10 +1630,9 @@ static int imageP98003SetupScanSettings( pScanData ps, pScanInfo pInf )
 
 /************************ exported functions *********************************/
 
-/*.............................................................................
- *
+/**
  */
-int ImageInitialize( pScanData ps )
+_LOC int ImageInitialize( pScanData ps )
 {
 	DBG( DBG_HIGH, "ImageInitialize()\n" );
 

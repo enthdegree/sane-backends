@@ -62,26 +62,62 @@
 
 /******************* wrapper functions for parport device ********************/
 
-/*
- * stuff needed for user space stuff
+/** stuff needed for user space stuff
  */
-int PtDrvInit     ( int portAddr, unsigned short model_override );
-int PtDrvShutdown ( void );
-int PtDrvOpen	  ( void );
-int PtDrvClose	  ( void );
-int PtDrvIoctl	  ( unsigned int cmd, void *arg );
-int PtDrvRead	  ( unsigned char *buffer, int count );
-
-#ifdef _USER_MODE
-
-
-#define _IOCTL(hd,cmd,arg)	PtDrvIoctl(cmd,arg)
-
-#else
-
-#define _IOCTL(hd,cmd,arg)  ioctl(hd,cmd,arg)
+#if 0
+int PtDrvInit    ( int portAddr, unsigned short model_override );
+int PtDrvShutdown( void );
+int PtDrvOpen    ( void );
+int PtDrvClose   ( void );
+int PtDrvIoctl   ( unsigned int cmd, void *arg );
+int PtDrvRead    ( unsigned char *buffer, int count );
 #endif
 
+#ifndef _BACKEND_ENABLED
+  
+static int PtDrvInit( int portAddr, unsigned short model_override )
+{
+	_VAR_NOT_USED( portAddr );
+	_VAR_NOT_USED( model_override );
+	DBG( _DBG_ERROR, "Backend does not support direct I/O!\n" );
+	return -1;
+}
+
+static int PtDrvShutdown( void )
+{
+	return 0;
+}
+
+static int PtDrvOpen( void )
+{
+	DBG( _DBG_ERROR, "Backend does not support direct I/O!\n" );
+	return -1;
+}
+
+static int PtDrvClose( void )
+{
+	DBG( _DBG_ERROR, "Backend does not support direct I/O!\n" );
+	return 0;
+}
+
+static int PtDrvIoctl( unsigned int cmd, void *arg )
+{
+	DBG( _DBG_ERROR, "Backend does not support direct I/O!\n" );
+	_VAR_NOT_USED( cmd );
+	if( arg == NULL )
+		return -2;
+	return -1;
+}
+
+static int PtDrvRead( unsigned char *buffer, int count )
+{
+	DBG( _DBG_ERROR, "Backend does not support direct I/O!\n" );
+	_VAR_NOT_USED( count );
+	if( buffer == NULL )
+		return -2;
+	return -1;
+}
+#endif /* _BACKEND_ENABLED */
 
 /**
  */
@@ -93,7 +129,6 @@ static int ppDev_open( const char *dev_name, void *misc )
 	PPAdjDef        adj;
 	unsigned short  version = _PTDRV_IOCTL_VERSION;
 	Plustek_Device *dev     = (Plustek_Device *)misc;
-
 
 	if( dev->adj.direct_io ) {
 
@@ -207,58 +242,60 @@ static int ppDev_close( Plustek_Device *dev )
  */
 static int ppDev_getCaps( Plustek_Device *dev )
 {
-	return _IOCTL( dev->fd, _PTDRV_GET_CAPABILITIES, &dev->caps );
+	if( dev->adj.direct_io )
+		return PtDrvIoctl( _PTDRV_GET_CAPABILITIES, &dev->caps );
+	else
+		return ioctl( dev->fd, _PTDRV_GET_CAPABILITIES, &dev->caps );
 }
 
 /**
  */
 static int ppDev_getLensInfo( Plustek_Device *dev, pLensInfo lens )
 {
-#ifdef _USER_MODE
-	_VAR_NOT_USED( dev );
-#endif
-	return _IOCTL( dev->fd, _PTDRV_GET_LENSINFO, lens );
+	if( dev->adj.direct_io )
+		return  PtDrvIoctl( _PTDRV_GET_LENSINFO, lens );
+	else
+		return ioctl( dev->fd, _PTDRV_GET_LENSINFO, lens );
 }
 
 /**
  */
 static int ppDev_getCropInfo( Plustek_Device *dev, pCropInfo crop )
 {
-#ifdef _USER_MODE
-	_VAR_NOT_USED( dev );
-#endif
-	return _IOCTL( dev->fd, _PTDRV_GET_CROPINFO, crop );
+	if( dev->adj.direct_io )
+		return PtDrvIoctl( _PTDRV_GET_CROPINFO, crop );
+	else
+		return ioctl( dev->fd, _PTDRV_GET_CROPINFO, crop );
 }
 
 /**
  */
 static int ppDev_putImgInfo( Plustek_Device *dev, pImgDef img )
 {
-#ifdef _USER_MODE
-	_VAR_NOT_USED( dev );
-#endif
-	return _IOCTL( dev->fd, _PTDRV_PUT_IMAGEINFO, img );
+	if( dev->adj.direct_io )
+		return PtDrvIoctl( _PTDRV_PUT_IMAGEINFO, img );
+	else
+		return ioctl( dev->fd, _PTDRV_PUT_IMAGEINFO, img );
 }
 
 /**
- *
  */
 static int ppDev_setScanEnv( Plustek_Device *dev, pScanInfo sinfo )
 {
-#ifdef _USER_MODE
-	_VAR_NOT_USED( dev );
-#endif
-	return _IOCTL( dev->fd, _PTDRV_SET_ENV, sinfo );
+	if( dev->adj.direct_io )
+		return PtDrvIoctl( _PTDRV_SET_ENV, sinfo );
+	else
+		return ioctl( dev->fd, _PTDRV_SET_ENV, sinfo );
 }
 
 /**
  */
 static int ppDev_startScan( Plustek_Device *dev, pStartScan start )
 {
-#ifdef _USER_MODE
-	_VAR_NOT_USED( dev );
-#endif
-	return _IOCTL( dev->fd, _PTDRV_START_SCAN, start );
+	if( dev->adj.direct_io )
+		return PtDrvIoctl( _PTDRV_START_SCAN, start );
+	else
+		return ioctl( dev->fd, _PTDRV_START_SCAN, start );
 }
 
 /** function to send a gamma table to the kernel module. As the default table

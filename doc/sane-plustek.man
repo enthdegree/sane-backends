@@ -1,4 +1,4 @@
-.TH sane-plustek 5 "17 September 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-plustek 5 "24 September 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-plustek
 .SH NAME
 sane-plustek \- SANE backend for Plustek parallel port and
@@ -7,128 +7,20 @@ LM983[1/2/3] based USB flatbed scanners
 The
 .B sane-plustek
 library implements a SANE (Scanner Access Now Easy) backend that
-provides access to Plustek parallel port and USB flatbed scanners.
-The USB support is part of the SANE package but for usage with
-parallel port scanners you will need a kernel module, called
-pt_drv which currently can be downloaded from
-.br
-.B http://www.gjaeger.de/scanner/plustek.html
-.PP
-.B !!!Please note that you need the kernel module only for
-.B parallel port scanners!!!
+provides access to USB flatbed scanners based on National Semiconductor
+Merlin chipsets (LM9831, 9832 and 9833).
+If you're looking for parallel-port support for Plustek scanner
+please refer to the
+.B sane-plustek_pp
+backend.
 
-.SH "PARALLEL PORT SUPPORT"
-
-At present, the following scanners should work with this backend
-and the corresponding kernel module:
-.PP
-.B "PLUSTEK SCANNERS"
-.PP
-Parallelport Model:    ASIC: Properties:
-.br
----------------------- ----- ------------------------
-.br
-OpticPro PT12          98003 600x1200 dpi 36bit 512Kb
-.br
-OpticPro P12           98003 600x1200 dpi 36bit 512Kb
-.br
-OpticPro 9636T/12000T  98001 600x1200 dpi 36bit 512Kb
-.br
-OpticPro 12000P Turbo  98001 600x1200 dpi 36bit 512Kb
-.br
-OpticPro 9636P+/Turbo  98001 600x1200 dpi 36bit 512Kb
-.br
-OpticPro 9636P         96003 600x1200 dpi 36bit 128Kb
-.br
-OpticPro 12000P/96000P 96003 600x1200 dpi 36bit 128Kb
-.br
-OpticPro 1236P         96003 600x1200 dpi 30bit 128Kb
-.br
-OpticPro 9600P         96003 600x1200 dpi 30bit 128Kb
-.br
-OpticPro 9630P/FBIV    96003 600x1200 dpi 30bit 128Kb
-.br
-OpticPro 9630PL (14")  96003 600x1200 dpi 30bit 128Kb
-.br
-OpticPro A3I           96003  400x800 dpi 36bit 128Kb
-.br
-OpticPro 600P/6000P    96003  300x600 dpi 30bit  32Kb
-.br
-OpticPro 4831P         96003  300x600 dpi 30bit  32Kb
-.br
-OpticPro 4830P/FBIII   96003  300x600 dpi 30bit  32Kb
-.br
-OpticPro 4800P/FBII    96001  300x600 dpi 24bit  32Kb
-.br
-.PP
-
-.B "PRIMAX SCANNERS"
-
-There are some scanners sold by Primax, but they are in fact
-Plustek devices. These scanners are also supported.
-The following table will show the relationship:
-.PP
-Model:                      Plustek Model:  Remarks:
-.br
---------------------------- --------------  ------------
-.br
-Colorado 4800               OpticPro 4800   not tested
-.br
-Compact 4800 Direct         OpticPro 600    mov=2
-.br
-Compact 4800 Direct 30bit   OpticPro 4830   mov=7
-.br
-Compact 9600 Direct 30bit   OpticPro 9630   works
-.PP
-
-.B "GENIUS SCANNERS"
-
-The following devices are sold as Genius Scanners, but are in fact
-Plustek devices.
-The table will show the relationship:
-.PP
-Model:                      Remarks:
-.br
---------------------------- ----------------------------
-.br
-Colorpage Vivid III V2      Like P12 but has two buttons
-.br
-                            and Wolfson DAC
-.PP
-
-.B "ARIES SCANNERS"
-
-There's one scanner sold as Aries Scanner, but is in fact a
-Plustek device.
-The following table will show the relationship:
-.PP
-Model:                      Plustek Model:  Remarks:
-.br
---------------------------- --------------  ------------
-.br
-Scan-It 4800                OpticPro 600    mov=2
-.PP
-
-.B "BrightScan SCANNERS"
-
-There's one scanner sold as BrightScan OpticPro Scanner, this is also
-rebadged Plustek device.
-The following table will show the relationship:
-.PP
-Model:                      Remarks:
-.br
---------------------------- ----------------------------
-.br
-BrightScan OpticPro         OpticPro P12
-
-.SH "USB SUPPORT"
-
+.SH "SUPPORTED DEVICES"
 The Backend is able to support USB scanner based on the National
-Semiconductor chipset LM9831, LM9832 and LM9833. The following tables
+Semiconductor chipsets LM9831, LM9832 and LM9833. The following tables
 show various devices which are currently reported to work. If your
 Plustek scanner has another Product ID, then the device is
 .B NOT
-supported, as it contains unsupported ASICs inside.
+supported, as it contains an unsupported ASIC inside.
 .br
 
 Vendor Plustek - ID: 0x07B3
@@ -257,16 +149,18 @@ CanoScan N1240U    LM9833 1200x2400dpi 48bit 512Kb 0x220E
 CanoScan LIDE20    LM9833  600x1200dpi 48bit 512Kb 0x220D
 .br
 CanoScan LIDE30    LM9833 1200x2400dpi 48bit 512Kb 0x220E
-.PP
 
 .SH "OTHER PLUSTEK SCANNERS"
-
+For parallelport device support see the
+.B plustek_pp
+backend.
+.br
 The SCSI scanner OpticPro 19200S is a rebadged Artec AM12S scanner
 and is supported by the
 .B Artec
 backend.
 .br
-Only the National Semiconductor LM9831/2 based devices of Plustek
+Only the National Semiconductor LM983[1/2/] based devices of Plustek
 are supported by this driver. Older versions of the U12, the UT12,
 the U1212 and U1248 (GrandTech chipset) are not supported.
 .PP
@@ -277,227 +171,18 @@ Model    Chipset    backend
 U1248    GrandTech  gt68xx
 .br
 UT16B    GrandTech  gt68xx
-.PP
-
-.SH "DEVICE NAMES"
-This backend expects a default device called:
-.PP
-.RS
-.I /dev/pt_drv
-.RE
-.PP
-This default device will be used, if no configuration
-file can be found.
-.PP
-The device-driver is currently not part of the SANE distribution.
-It has to be downloaded from:
-.br
-.B http://www.gjaeger.de/scanner/plustek.html
-.br
-See the INSTALL file there for a proper setup. Currently only Linux
-is supported by this driver (Kernel 2.2.x and higher).
-.PP
-As the backend and the driver support up to four devices
-per system, it is possible to specify them in the configuration
-file
-.PP
-.RS
-.I @CONFIGDIR@/plustek.conf
-.RE
-.PP
-See the plustek.conf file for examples.
-.PP
 
 .SH "CONFIGURATION"
-.PP
-The configuration of this backend can be divided into two sections:
-.br
-.PP
-.B "CONFIGURATION - parallel port scanner"
-.PP
-.br
-.B "CONFIGURATION - USB scanner"
-.PP
-.br
-Please make sure, that the configuration matches the real world,
-namely your configuration. And note again, .I pt_drv is only needed
-.PP
-
-.SH "CONFIGURATION - PARALLEL PORT SCANNER"
-.PP
-Beside the kernel-module options, which are described below, you
-need to enable the parallel port device in the configuration file
-.PP
-.RS
-.I @CONFIGDIR@/plustek.conf
-.RE
-.PP
-For a proper setup, you will need at least two entries:
-
-.TP
-.I [parport]
-.TP
-.I device /dev/pt_drv
-.PP
-.I parport
-tells the backend, that the following devicename (here
-.I /dev/pt_drv
-) has to be interpreted as parallel port scanner device.
-.PP
-To have this device, you will need to setup the kernel module.
-As the driver is a loadable kernel module, it is configured
-by invoking insmod with the appropriate parameters or
-appending the options to the file
-.B /etc/conf.modules
-.PP
-.B
-The Options:
-.br
-lampoff=lll
-.RS
-The value
-.I lll
-tells the driver, after how many seconds to
-switch-off the lamp(s). The default value is 180.
-0 will disable this feature.
-.br
-.B HINT:
-Do not use a value that is too small, because often
-switching on/off the lamps will reduce their lifetime.
-.RE
-.PP
-port=ppp
-.RS
-.I ppp
-specifies the port base address, where the scanner
-is connected to. The default value is 0x378 which
-normaly is standard.
-.RE
-.PP
-warmup=www
-.RS
-.I www
-specifies the time in seconds, how long a lamp has to be on,
-until the driver will start to scan. The default value is 30.
-.RE
-.PP
-lOffonEnd=e
-.RS
-.I e
-specifies the behaviour when unloading the driver, 1 --> switch
-lamps off, 0 --> do not change lamp status
-.RE
-.PP
-slowIO=s
-.RS
-.I s
-specifies which I/O functions the driver should use, 1 --> use
-delayed functions, 0 --> use the non-delayed ones
-.RE
-.PP
-forceMode=fm
-.RS
-.I fm
-specifies port mode which should be used, 0 --> autodetection,
-1 --> use SPP mode and 2 --> use EPP mode
-.RE
-.PP
-mov=m
-.RS
-.I m
-=0 - default: no override
-.br
-.I m
-=1 - OpticPro 9630PL override (works if OP9630
-.br
-       has been detected) forces legal size (14")
-.br
-.I m
-=2 - Primax 4800Direct override (works if OP600
-.br
-       has been detected) swaps red/green color
-.br
-.I m
-=3 - OpticPro 9636 override (works if OP9636 has
-.br
-       been detected) disables backends
-.br
-       transparency/negativ capabilities
-.br
-.I m
-=4 - OpticPro 9636P override (works if OP9636 has
-.br
-       been detected) disables backends
-.br
-       transparency/negativ capabilities
-.br
-.I m
-=5 - OpticPro A3I override (works if OP12000 has
-.br
-       been detected) enables A3 scanning
-.br
-.I m
-=6 - OpticPro 4800P override (works if OP600
-.br
-       has been detected) swaps red/green color
-.br
-.I m
-=7 - Primax 4800Direct 30bit override (works if OP4830
-.br
-       has been detected)
-.br
-.RE
-.PP
-Sample entry for file
-.B "/etc/modules.conf"
-:
-.br
-.I alias char-major-40 pt_drv
-.br
-.I pre-install pt_drv modprobe -k parport
-.br
-.I options pt_drv lampoff=180 warmup=15 port=0x378 lOffonEnd=0 mov=0 slowIO=0 forceMode=0
-.PP
-For multidevice support, simply add values separated by commas to
-the different options
-.br
-.I options pt_drv port=0x378,0x278 mov=0,4 slowIO=0,1 forceMode=0,1
-.PP
-Remember to call depmod after changing /etc/conf.modules.
-.PP
-.B "PARALLEL PORT MODES"
-.PP
-The current driver works best, when the parallel port
-has been set to EPP-mode. When detecting any other
-mode such as ECP or PS/2 the driver tries to set to a
-faster, supported mode. If this fails, it will use the
-SPP mode, as this mode should work with all Linux supported
-parallel ports.
-.PP
-Former Plustek scanner models (4830, 9630) supplied a
-ISA parallel port adapter card. This card is
-.BR not
-supported by the driver.
-.PP
-The ASIC 96001/3 based models have sometimes trouble with
-high resolution modes. If you encounter sporadic corrupted
-images (parts duplicated or shifted horizontally) kill all
-other applications before scanning and (if sufficient
-memory available) disable swapping.
-.PP
-
-.SH "CONFIGURATION - USB SCANNER"
-.PP
-To use the USB device with this backend, you need at least
-two entries in the configuration file
+To use your scanner with this backend, you need at least two
+entries in the configuration file
 .br
 .I @CONFIGDIR@/plustek.conf
 .TP
-.I [usb] vendor-id product-id
+.I [merlin-device] vendor-id product-id
 .TP
 .I device /dev/usbscanner
 .PP
-.I usb
+.I merlin-device
 tells the backend, that the following devicename (here
 .I /dev/usbscanner
 ) has to be interpreted as USB scanner device. If vendor- and
@@ -534,6 +219,36 @@ option invertNegatives b
 .I b
 0 --> do not invert the picture during negativ scans,
 1 --> invert picture
+.RE
+.PP
+option cacheCalData b
+.RS
+.I b
+0 --> do not save coarse calibration results,
+1 --> save results of coarse calibration in ~/.sane/ directory
+.RE
+.PP
+option altCalibrate b
+.RS
+.I b
+0 --> use standard calibration routines,
+1 --> use alternate calibration (only non Plustek
+.br
+      devices, standard for CIS devices)
+.RE
+.PP
+option skipFine b
+.RS
+.I b
+0 --> perform fine calibration,
+1 --> skip fine calibration (only non Plustek devices)
+.RE
+.PP
+option skipFineWhite b
+.RS
+.I b
+0 --> perform white fine calibration,
+1 --> skip white fine calibration (only non Plustek devices)
 .RE
 .PP
 option skipCalibration b
@@ -628,7 +343,17 @@ device, simply load the USB subsystem and plug in your
 scanner. Then do a
 .I cat /proc/bus/usb/devices
 and look for the scanner.
+.br
+Alternatively, the backend is able to access your scanner via
+libusb. You might use
+.B sane-find-scanner
+to check that you have access to your device.
 .PP
+.B Note:
+.br
+If there's no configuration file, the backend defaults to
+.B device auto
+. So it
 
 .SH FILES
 .TP
@@ -641,13 +366,8 @@ The static library implementing this backend.
 .I @LIBDIR@/libsane-plustek.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
-.TP
-.I /lib/modules/<Kernel-Version>/misc/pt_drv.o
-The Linux Kernelmodule.
-.PP
 
 .SH "CONTACT AND BUG-REPORTS"
-.PP
 Please send any information and bug-reports to:
 .br
 .B Plustek Driver Mailing List <plustek@linuxhacker.org>
@@ -678,21 +398,8 @@ values greater than 19 force the backend to output raw data files,
 which could be rather large. The ending of these files is ".raw".
 For problem reports it should be enough the set the verbosity to
 13.
-.PP
 
 .SH "KNOWN BUGS & RESTRICTIONS"
-.PP
-.br
-* The Halftoning works, but the quality is poor
-.br
-* Printers (especially HP models) will start to
-.br
-  print during scanning. This in fact is a problem
-.br
-  to other printers too, using bidirectional protocol
-.br
-  (see www.plustek.com (TAIWAN) page for further details)
-.br
 * The driver does not support these manic scalings up
 .br
   to 16 times the physical resolution. The only scaling
@@ -707,37 +414,6 @@ For problem reports it should be enough the set the verbosity to
 .br
   600dpi but the motor is capable to perform 800dpi steps.
 .br
-* On some devices, the pictures seems to be bluished
-.PP
-ASIC 98001 based models:
-.br
-* The 300dpi transparency and negative mode does not work
-.br
-  correctly.
-.br
-* There is currently no way to distinguish a model with
-.br
-  and without transpareny unit.
-.br
-* The scanned images seem to be too dark (P9636T)
-.PP
-ASIC 96003/1 based models:
-.br
-* 30bit mode is currently not supported.
-.br
-* On low-end systems and under heavy system load, the
-.br
-  driver will loosing data, this might causes the sensor
-.br
-  to hit the scan-bed and/or the picture is corrupted.
-.br
-* The scanspeed on 600x1200 dpi models is slow.
-.br
-* The scanquality of the A3I is poor
-.br
-.PP
-USB models:
-.br
 * Plusteks' model policy is somewhat inconsistent. This
 .br
   means, they sell technical different devices under the
@@ -750,4 +426,4 @@ USB models:
 .br
   the one your device has.
 .br
-* Negative scanning quality is poor.
+* Negative/Slide scanning quality is poor.

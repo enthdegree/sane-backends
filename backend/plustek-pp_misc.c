@@ -1,53 +1,79 @@
 /*.............................................................................
- * Project : linux driver for Plustek parallel-port scanners
+ * Project : SANE library for Plustek parallelport flatbed scanners.
  *.............................................................................
- * File:	plustek-pp_misc.c - here we have some helpful functions
- *.............................................................................
- *
+ */
+
+/* @file plustek-pp_misc.c
+ * @brief here we have some helpful functions
+*
  * based on sources acquired from Plustek Inc.
  * Copyright (C) 1998 Plustek Inc.
  * Copyright (C) 2000-2003 Gerhard Jaeger <gerhard@gjaeger.de>
  * also based on the work done by Rick Bronson
- *.............................................................................
+ *
  * History:
- * 0.30 - initial version
- * 0.31 - no changes
- * 0.32 - moved the parport functions inside this module
- *		  now using the information, the parport-driver provides
- *		  for selecting the port-mode this driver uses
- * 0.33 - added code to use faster portmodes
- * 0.34 - added sample code for changing from ECP to PS/2 bidi mode
- * 0.35 - added Kevins´ changes (new function miscSetFastMode())
- *		  moved function initPageSettings() to module models.c
- * 0.36 - added random generator
- *		  added additional debug messages
- *		  changed prototype of MiscInitPorts()
- *        added miscPreemptionCallback()
- * 0.37 - changed inb_p/outb_p to macro calls (kernel-mode)
- *        added MiscGetModelName()
- *        added miscShowPortModes()
- * 0.38 - fixed a small bug in MiscGetModelName()
- * 0.39 - added forceMode support
- * 0.40 - no changes
- * 0.41 - merged Kevins' patch to make EPP(ECP) work
- * 0.42 - changed get_fast_time to _GET_TIME
- *        changed include names
+ * - 0.30 - initial version
+ * - 0.31 - no changes
+ * - 0.32 - moved the parport functions inside this module
+ *        - now using the information, the parport-driver provides
+ *        - for selecting the port-mode this driver uses
+ * - 0.33 - added code to use faster portmodes
+ * - 0.34 - added sample code for changing from ECP to PS/2 bidi mode
+ * - 0.35 - added Kevins´ changes (new function miscSetFastMode())
+ *        - moved function initPageSettings() to module models.c
+ * - 0.36 - added random generator
+ *        - added additional debug messages
+ *        - changed prototype of MiscInitPorts()
+ *        - added miscPreemptionCallback()
+ * - 0.37 - changed inb_p/outb_p to macro calls (kernel-mode)
+ *        - added MiscGetModelName()
+ *        - added miscShowPortModes()
+ * - 0.38 - fixed a small bug in MiscGetModelName()
+ * - 0.39 - added forceMode support
+ * - 0.40 - no changes
+ * - 0.41 - merged Kevins' patch to make EPP(ECP) work
+ * - 0.42 - changed get_fast_time to _GET_TIME
+ *        - changed include names
+ * .
+ * <hr>
+ * This file is part of the SANE package.
  *
- *.............................................................................
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston,
+ * MA 02111-1307, USA.
+ *
+ * As a special exception, the authors of SANE give permission for
+ * additional uses of the libraries contained in this release of SANE.
+ *
+ * The exception is that, if you link a SANE library with other files
+ * to produce an executable, this does not by itself cause the
+ * resulting executable to be covered by the GNU General Public
+ * License.  Your use of that executable is in no way restricted on
+ * account of linking the SANE library code into it.
+ *
+ * This exception does not, however, invalidate any other reasons why
+ * the executable file might be covered by the GNU General Public
+ * License.
+ *
+ * If you submit changes to SANE to the maintainers to be included in
+ * a subsequent release, you agree by submitting the changes that
+ * those changes may be distributed with this exception intact.
+ *
+ * If you write modifications of your own for SANE, it is your choice
+ * whether to permit this exception to apply to your modifications.
+ * If you do not wish that, delete this exception notice.
+ * <hr>
  */
 #include "plustek-pp_scan.h"
 
@@ -86,10 +112,13 @@
 static int  port_feature;
 static long randomnum = 1;
 
+#ifdef __KERNEL__
 static int portIsClaimed[_MAX_PTDEVS] = { [0 ... (_MAX_PTDEVS-1)] = 0 };
 
-#ifdef __KERNEL__
 MODELSTR;	/* is a static char array (see plustek-share.h) */
+
+#else
+static int portIsClaimed[_MAX_PTDEVS] = { 0, 0, 0, 0 };
 #endif
 
 /*************************** local functions *********************************/
@@ -618,7 +647,7 @@ static void miscSeedLongRand( ULong seed )
 
 /** allocate and initialize some memory for the scanner structure
  */
-pScanData MiscAllocAndInitStruct( void )
+_LOC pScanData MiscAllocAndInitStruct( void )
 {
 	pScanData ps;
 
@@ -635,7 +664,7 @@ pScanData MiscAllocAndInitStruct( void )
 
 /** re-initialize the memory for the scanner structure
  */
-int MiscReinitStruct( pScanData ps )
+_LOC int MiscReinitStruct( pScanData ps )
 {
 	if( NULL == ps )
 		return _E_NULLPTR;
@@ -666,7 +695,7 @@ int MiscReinitStruct( pScanData ps )
 /** in USER-Mode:   probe the specified port and try to get the port-mode
  *  in KERNEL-Mode: only use the modes, the driver returns
  */
-int MiscInitPorts( pScanData ps, int port )
+_LOC int MiscInitPorts( pScanData ps, int port )
 {
 	int status;
 
@@ -699,7 +728,7 @@ int MiscInitPorts( pScanData ps, int port )
 
 /** here we restore the port
  */
-void MiscRestorePort( pScanData ps )
+_LOC void MiscRestorePort( pScanData ps )
 {
 	if( 0 == ps->IO.pbSppDataPort )
 		return;
@@ -730,7 +759,7 @@ void MiscRestorePort( pScanData ps )
 
 /** starts a timer
  */
-inline void MiscStartTimer( pTimerDef timer , unsigned long us)
+_LOC inline void MiscStartTimer( pTimerDef timer , unsigned long us)
 {
     struct timeval start_time;
 
@@ -745,7 +774,7 @@ inline void MiscStartTimer( pTimerDef timer , unsigned long us)
 
 /** checks for timeout
  */
-inline int MiscCheckTimer( pTimerDef timer )
+_LOC inline int MiscCheckTimer( pTimerDef timer )
 {
     struct timeval current_time;
 
@@ -770,7 +799,7 @@ inline int MiscCheckTimer( pTimerDef timer )
 /** checks the function pointers
  */
 #ifdef DEBUG
-Bool MiscAllPointersSet( pScanData ps )
+_LOC Bool MiscAllPointersSet( pScanData ps )
 {
 	ULong  i;
 	pULong ptr;
@@ -790,7 +819,7 @@ Bool MiscAllPointersSet( pScanData ps )
 
 /** registers this driver to use port "portAddr" (KERNEL-Mode only)
  */
-int MiscRegisterPort( pScanData ps, int portAddr )
+_LOC int MiscRegisterPort( pScanData ps, int portAddr )
 {
 #ifndef __KERNEL__
 	int   i;
@@ -865,7 +894,7 @@ int MiscRegisterPort( pScanData ps, int portAddr )
 
 /** unregisters the port from driver (KERNEL-Mode only)
  */
-void MiscUnregisterPort( pScanData ps )
+_LOC void MiscUnregisterPort( pScanData ps )
 {
 #ifdef __KERNEL__
 	if( NULL != ps->pardev ) {
@@ -880,7 +909,7 @@ void MiscUnregisterPort( pScanData ps )
 /*.............................................................................
  * try to claim the port (KERNEL-Mode only)
  */
-int MiscClaimPort( pScanData ps )
+_LOC int MiscClaimPort( pScanData ps )
 {
 #ifdef __KERNEL__
 	if( 0 == portIsClaimed[ps->devno] ) {
@@ -898,7 +927,7 @@ int MiscClaimPort( pScanData ps )
 /*.............................................................................
  * release previously claimed port (KERNEL-Mode only)
  */
-void MiscReleasePort( pScanData ps )
+_LOC void MiscReleasePort( pScanData ps )
 {
 	if( portIsClaimed[ps->devno] > 0 ) {
 		portIsClaimed[ps->devno]--;
@@ -915,7 +944,7 @@ void MiscReleasePort( pScanData ps )
 /*.............................................................................
  * get random number
  */
-Long MiscLongRand( void )
+_LOC Long MiscLongRand( void )
 {
 	randomnum = miscNextLongRand( randomnum );
 
@@ -925,7 +954,7 @@ Long MiscLongRand( void )
 /*.............................................................................
  * according to the id, the function returns a pointer to the model name
  */
-const char *MiscGetModelName( UShort id )
+_LOC const char *MiscGetModelName( UShort id )
 {
 	DBG( DBG_HIGH, "MiscGetModelName - id = %i\n", id );
 

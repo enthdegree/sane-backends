@@ -38,7 +38,7 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.  */
 
-#include "sane/config.h"
+#include "../include/sane/config.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -48,7 +48,7 @@
 #endif
 #include <string.h>
 #include <stdarg.h>
-#include <sys/syslog.h>
+#include <syslog.h>
 #ifdef HAVE_OS2_H
 #include <sys/types.h>
 #endif
@@ -63,7 +63,7 @@
 #endif
 
 #define BACKEND_NAME sanei_debug
-#include "sane/sanei_debug.h"
+#include "../include/sane/sanei_debug.h"
 
 void
 sanei_init_debug (const char * backend, int * var)

@@ -1,3 +1,8 @@
+2001-10-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/canon_pp.desc: New file (from Matthew Duggan
+	  <stauff@guarana.org>.
+
 2001-10-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* TODO: Removed entries about hp and plustek backends.

@@ -1,4 +1,4 @@
-TODO (2002-08-10)
+TODO (2002-08-29)
 
 ******** todo ********
 
@@ -37,8 +37,11 @@ backends
   * dc210, dc240, gphoto2, and jpeg stuff: move sanei_* functions to sanei/
     (if they are necessary). That's probably for SANE2. 
 
-  * v4l: Problems (crash) with more than one video card. It looks like 
-    the two different cards are identified as the same card.
+  * v4l:
+     - Problems (crash) with more than one video card. It looks like 
+       the two different cards are identified as the same card.
+     - Geometry support is missing
+     - Frequency setting is missing
 
   * Fix backends where sane_exit() does not release memory allocated by
     sane_get_devices().
@@ -96,36 +99,24 @@ doc
     - Define, how to handle SANE_CAP_ADVANCED for groups.
 
   * desc files:
-    - Don't use ":status :new"
-      - canon630u
     - Make sure, that the manufacturer (and model) names use the same spelling:
       - umax, plustek (Genius, KYE-Genius)
       - plustek, umax_pp, avision, hp, hpsj5s (Hewlett-Packard instead of HP)
     - Check URLs:
-      - dmc (dmc link)
-      - sm3600 (Add a slash after the microtek URL to avoid creating
-        duplicate links in the manufacturers listing)
       - umax (http://www.heidelberg-cps.com/ , http://support.umax.com/ ,
         http://www.umaxweb.com.tw/ )
 
     - Mark scanners with ":status :untested" if they are untested by the author
       or users:
-      - bh
       - canon630u (add 636 as :untested (from manpage)?)
-      - coolscan2 (LS 4000 ED)
-      - plustek
 
     - Remove unsupported scanners from the list or at least mark them with
       ":status :unsupported":
       - mustek_pp
-      - plustek
-      - umax1220u
 
-    - Other problems/comments:
-      - bh (use backend comment instead of manufacturer comment, don't use
-        model name for comments or status indication)
-      - coolscan2 (LS-200 only mentioned in manpage?)
-      - umax1220u (status for Astra 2000U should be adjusted)
+  * scanimage: 
+      - Add doku for --icc-profile
+      - Add link to gamma4scanimage
 
 frontends
 ---------
@@ -141,6 +132,8 @@ frontends
   * scanimage: Check range of width and height. scanimage just uses the ranges
     from br-x and br-y but this is wrong for tl-x and tl-y != 0 and for
     SANE_UNIT_PIXEL.
+
+  * scanimage: add option to avoid scanning (for setting options only)
 
 sanei
 -----
@@ -197,7 +190,9 @@ misc
   * Fix japi to run on current jdks. Swing is now included, and there is
     a segfault in Sane.c.
 
+
 ******** done ********
+* tools/Makefile.in: -lm dependency doesn't work on OS/2.
 * Fix inclusion of saneopts.??.po in po/. Currently, the "" header is
   defined twice.
 * Don't use "echo -e" in shell scripts. That's not supported by the original 

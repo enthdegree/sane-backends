@@ -114,7 +114,6 @@ backends
   * Don't export any other symbols than sane_* and sanei_*
     - artec
     - coolscan
-    - mustek_pp
 
 doc
 ---

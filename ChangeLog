@@ -15,6 +15,8 @@
 	  doc/descriptions/gt68xx.desc doc/descriptions-external/gt68xx.desc
 	  doc/gt68xx/gt68xx.CHANGES: Added documentation for gt68xx backend.
 	* AUTHORS PROJECTS TODO: Updated concerning gt68xx.
+	* Makefile.in backend/Makefile.in doc/Makefile.in: Added some missing
+	  files to DISTFILES.
 
 2002-10-24  Peter Fales  <peter@fales-lorenz.net>
 

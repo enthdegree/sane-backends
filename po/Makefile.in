@@ -141,5 +141,3 @@ dist: $(DISTFILES)
 	  ln $$file $(distdir)/po 2> /dev/null \
 	    || cp -p $$file $(distdir)/po ; \
 	done
-
-

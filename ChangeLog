@@ -1,3 +1,7 @@
+2002-08-17 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
+	* tools/gamma4scanimage.c: NEW: tool to create gamma table for scanimage
+	* tools/Makefile.in: changed file to compile and install gamma4scanimage
+
 2002-08-16  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/descriptions/plustek.desc: Update according to the new

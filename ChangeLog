@@ -1,3 +1,8 @@
+2004-06-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* tools/hotplug/libsane.usermap: Added Mustek BearPaw 2448 Plus
+	  and Plustek OpticPro U16B.
+
 2004-06-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* tools/README tools/RenSaneDlls.cmd: Added REXX script to convert

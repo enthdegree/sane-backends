@@ -1,3 +1,6 @@
+2003-11-04  m. allan noah <anoah at pfeiffer dot edu>
+	* doc/descriptions/fujitsu.desc: added model "fi-4110EOX2"
+
 2003-11-04  Gerhard Jaeger <gerhard@gjaeger.de>
 	* backend/Makefile.in: Linking coolscan now against sanei_thread lib.
 	* backend/coolscan.c backend/coolscan.h: Switch backend over to
@@ -192,7 +195,6 @@
 	  fixed urls.
 
 2003-10-19  m. allan noah <anoah at pfeiffer dot edu>
-
 	* backend/fujitsu.c: reverse previous patch. Dont blindly trust
           code from the backend maintainer :)
 

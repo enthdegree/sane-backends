@@ -1,3 +1,8 @@
+2001-10-24  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+  * doc/sane-snapscan.man
+    Documentation update.
+
 2001-10-23  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
   * backend/snapscan-scsi.c

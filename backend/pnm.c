@@ -40,7 +40,7 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.  */
 
-#define BUILD 6
+#define BUILD 7
 
 #include "../include/sane/config.h"
 
@@ -613,7 +613,11 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   switch (action)
     {
     case SANE_ACTION_SET_AUTO:
-      
+      if (!SANE_OPTION_IS_SETTABLE (sod[option].cap))
+	{
+	  DBG(4, "sane_control_option: option is not settable\n");
+	  return SANE_STATUS_INVAL;
+	}
       status = sanei_constrain_value (sod + option, (void*)&v, &myinfo);
       if (status != SANE_STATUS_GOOD)
 	return status;
@@ -630,7 +634,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
     case SANE_ACTION_SET_VALUE:
       if (!SANE_OPTION_IS_SETTABLE (sod[option].cap))
 	{
-	  DBG(4, "sane_control_option: option is not setable\n");
+	  DBG(4, "sane_control_option: option is not settable\n");
 	  return SANE_STATUS_INVAL;
 	}
       status = sanei_constrain_value (sod + option, value, &myinfo);

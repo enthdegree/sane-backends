@@ -268,6 +268,14 @@ struct scanners_supported
 {
   int scsi_type;
   char scsi_teco_name[12];	/* real name of the scanner */
+  enum
+  {
+	TECO_VM3510,
+	TECO_VM3520,
+	TECO_VM353A,
+	TECO_VM4542
+  }
+  tecoref;
   char *real_vendor;		/* brand on the box */
   char *real_product;		/* name on the box */
 
@@ -279,6 +287,8 @@ struct scanners_supported
   int pass;			/* number of passes in color mode */
 	
 	size_t num_gamma_color; /* number of value per color */
+
+	int window_size;			/* size of the SCAN window */
 
 };
 

@@ -48,7 +48,7 @@
 
 /*--------------------------------------------------------------------------*/
 
-#define BUILD 6			/* 2002/08/22 */
+#define BUILD 7			/* 2002/08/30 */
 #define BACKEND_NAME teco1
 #define TECO_CONFIG_FILE "teco1.conf"
 
@@ -142,28 +142,44 @@ static const int dither_val[] = {
 
 /* Define the supported scanners and their characteristics. */
 static const struct scanners_supported scanners[] = {
+  {6, "TECO VM3510",		/* *fake id*, see teco_identify_scanner */
+   TECO_VM3510,
+   "Dextra", "DF-600P",
+   {1, 600, 1},			/* resolution */
+   300, 600,			/* max x and Y res */
+   3,				/* color 3 pass */
+   256,				/* number of bytes per gamma color */
+   80				/* number of bytes in a window */
+   },
+
   {6, "TECO VM353A",
+   TECO_VM353A,
    "Relisys", "RELI 2412",
    {1, 1200, 1},		/* resolution */
    300, 1200,			/* max x and Y resolution */
    1,				/* color 1 pass */
-   256							/* number of bytes per gamma color */
+   256,				/* number of bytes per gamma color */
+   99				/* number of bytes in a window */
    },
 
   {6, "TECO VM3520",
+   TECO_VM3520,
    "Relisys", "AVEC Colour Office 2400",
    {1, 600, 1},			/* resolution */
    300, 600,			/* max x and Y resolution */
    3,				/* color 3 pass */
-   256							/* number of bytes per gamma color */
+   256,				/* number of bytes per gamma color */
+   99				/* number of bytes in a window */
    },
 
   {6, "TECO VM4542",
+   TECO_VM4542,
    "Relisys", "RELI 4830",
    {1, 400, 1},			/* resolution */
    400, 400,			/* max x and Y resolution */
    1,				/* color 1 pass */
-   1024							/* number of bytes per gamma color */
+   1024,			/* number of bytes per gamma color */
+   99				/* number of bytes in a window */
    }
 };
 
@@ -386,16 +402,34 @@ teco_identify_scanner (Teco_Scanner * dev)
       return (SANE_FALSE);
     }
 
-  size = dev->buffer[4] + 5;	/* total length of the inquiry data */
-
-#ifndef sim
-  if (size < 53)
-    {
-      DBG (DBG_error,
-	   "teco_identify_scanner: not enough data to identify device\n");
-      return (SANE_FALSE);
-    }
+#ifdef sim
+  {
+#if 1
+    /* vm3510 / Dextra DF-600P */
+    unsigned char table[] = {
+      0x06, 0x00, 0x02, 0x02, 0x24, 0x00, 0x00, 0x10, 0x44, 0x46,
+      0x2D, 0x36, 0x30, 0x30, 0x4D, 0x20, 0x20, 0x20, 0x20, 0x20,
+      0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+      0x20, 0x20, 0x31, 0x2E, 0x31, 0x37, 0x31, 0x2E, 0x31, 0x37,
+      0x02
+    };
 #endif
+
+#if 0
+    /* vm4542 */
+    unsigned char table[] = {
+      0x06, 0x00, 0x02, 0x02, 0x30, 0x00, 0x00, 0x10, 0x52, 0x45, 0x4c, 0x49,
+      0x53, 0x59, 0x53, 0x20, 0x52, 0x45, 0x4c, 0x49, 0x20, 0x34, 0x38,
+      0x33, 0x30, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x31, 0x2e,
+      0x30, 0x33, 0x31, 0x2e, 0x30, 0x33, 0x02, 0x00, 0x54, 0x45, 0x43,
+      0x4f, 0x20, 0x56, 0x4d, 0x34, 0x35, 0x34, 0x32
+    };
+#endif
+    memcpy (dev->buffer, table, sizeof (table));
+  }
+#endif
+
+  size = dev->buffer[4] + 5;	/* total length of the inquiry data */
 
   MKSCSI_INQUIRY (cdb, size);
   status = sanei_scsi_cmd2 (dev->sfd, cdb.data, cdb.len,
@@ -409,15 +443,20 @@ teco_identify_scanner (Teco_Scanner * dev)
       return (SANE_FALSE);
     }
 
-#ifdef sim
-	{
-		/* vm4542 */
-		unsigned char table[] = {
-			0x06, 0x00, 0x02, 0x02, 0x30, 0x00, 0x00, 0x10, 0x52, 0x45, 0x4c, 0x49, 0x53, 0x59, 0x53, 0x20, 0x52, 0x45, 0x4c, 0x49, 0x20, 0x34, 0x38, 0x33, 0x30, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x31, 0x2e, 0x30, 0x33, 0x31, 0x2e, 0x30, 0x33, 0x02, 0x00, 0x54, 0x45, 0x43, 0x4f, 0x20, 0x56, 0x4d, 0x34, 0x35, 0x34, 0x32                                
-		};
-		memcpy (dev->buffer, table, sizeof (table));
-	}
-#endif
+  /* Hack to recognize the dextra as a TECO scanner. */
+  if (memcmp (dev->buffer + 0x08, "DF-600M ", 8) == 0)
+    {
+      memcpy (dev->buffer + 0x29, "\0TECO VM3510", 12);
+      dev->buffer[4] = 0x30;	/* change length */
+      size = 0x35;
+    }
+
+  if (size < 53)
+    {
+      DBG (DBG_error,
+	   "teco_identify_scanner: not enough data to identify device\n");
+      return (SANE_FALSE);
+    }
 
   hexdump (DBG_info2, "inquiry", dev->buffer, size);
 
@@ -580,7 +619,7 @@ teco_mode_select (Teco_Scanner * dev)
 static SANE_Status
 teco_set_window (Teco_Scanner * dev)
 {
-  size_t size;
+  size_t size;			/* significant size of window */
   CDB cdb;
   unsigned char window[99];
   SANE_Status status;
@@ -588,13 +627,14 @@ teco_set_window (Teco_Scanner * dev)
 
   DBG (DBG_proc, "teco_set_window: enter\n");
 
-  size = sizeof (window);
+  size = dev->def->window_size;
+
   MKSCSI_SET_WINDOW (cdb, size);
 
   memset (window, 0, size);
 
   /* size of the windows descriptor block */
-  window[7] = sizeof (window) - 8;
+  window[7] = size - 8;
 
   /* X and Y resolution */
   Ito16 (dev->x_resolution, &window[10]);
@@ -647,10 +687,10 @@ teco_set_window (Teco_Scanner * dev)
   window[93] = 0xff;
   window[97] = 0xff;
 
-  hexdump (DBG_info2, "windows", window, sizeof (window));
+  hexdump (DBG_info2, "windows", window, size);
 
   status = sanei_scsi_cmd2 (dev->sfd, cdb.data, cdb.len,
-			    window, sizeof (window), NULL, NULL);
+			    window, size, NULL, NULL);
 
   DBG (DBG_proc, "teco_set_window: exit, status=%d\n", status);
 
@@ -798,7 +838,7 @@ teco_send_gamma (Teco_Scanner * dev)
   SANE_Status status;
   struct
   {
-    unsigned char gamma[4* MAX_GAMMA_LENGTH];
+    unsigned char gamma[4 * MAX_GAMMA_LENGTH];
   }
   param;
   size_t i;
@@ -837,11 +877,11 @@ teco_send_gamma (Teco_Scanner * dev)
     }
   else
     {
-		/*
-		 * Shift is 1 for GAMMA_LENGTH == 256
-		 *  and 4 for GAMMA_LENGTH == 1024
-		 */
-		int shift = GAMMA_LENGTH >> 8;
+      /*
+       * Shift is 1 for GAMMA_LENGTH == 256
+       *  and 4 for GAMMA_LENGTH == 1024
+       */
+      int shift = GAMMA_LENGTH >> 8;
 
       for (i = 0; i < GAMMA_LENGTH; i++)
 	{
@@ -1449,70 +1489,71 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 SANE_Status
 sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 {
-	Teco_Scanner *dev;
-	SANE_Status status;
+  Teco_Scanner *dev;
+  SANE_Status status;
 
-	DBG (DBG_proc, "sane_open: enter\n");
+  DBG (DBG_proc, "sane_open: enter\n");
 
-	/* search for devicename */
-	if (devicename[0])
-		{
-			DBG (DBG_info, "sane_open: devicename=%s\n", devicename);
+  /* search for devicename */
+  if (devicename[0])
+    {
+      DBG (DBG_info, "sane_open: devicename=%s\n", devicename);
 
-			for (dev = first_dev; dev; dev = dev->next)
-				{
-					if (strcmp (dev->sane.name, devicename) == 0)
-						{
-							break;
-						}
-				}
-
-			if (!dev)
-				{
-					status = attach_scanner (devicename, &dev);
-					if (status != SANE_STATUS_GOOD)
-						{
-							return status;
-						}
-				}
-		}
-	else
-		{
-			DBG (DBG_sane_info, "sane_open: no devicename, opening first device\n");
-			dev = first_dev;		/* empty devicename -> use first device */
-		}
-
-	if (!dev)
-		{
-			DBG (DBG_error, "No scanner found\n");
-
-			return SANE_STATUS_INVAL;
-		}
-
-	teco_init_options (dev);
-
-	/* Initialize the gamma table. */
+      for (dev = first_dev; dev; dev = dev->next)
 	{
-		/*
-		 * Shift is 1 for GAMMA_LENGTH == 256
-		 *  and 4 for GAMMA_LENGTH == 1024
-		 */
-		int shift = GAMMA_LENGTH >> 8;
-		size_t i;
-	  
-		for (i = 0; i < GAMMA_LENGTH; i++) {
-			dev->gamma_R[i] = i / shift;
-			dev->gamma_G[i] = i / shift;
-			dev->gamma_B[i] = i / shift;
-			dev->gamma_GRAY[i] = i / shift;
-		}
+	  if (strcmp (dev->sane.name, devicename) == 0)
+	    {
+	      break;
+	    }
 	}
 
-	*handle = dev;
+      if (!dev)
+	{
+	  status = attach_scanner (devicename, &dev);
+	  if (status != SANE_STATUS_GOOD)
+	    {
+	      return status;
+	    }
+	}
+    }
+  else
+    {
+      DBG (DBG_sane_info, "sane_open: no devicename, opening first device\n");
+      dev = first_dev;		/* empty devicename -> use first device */
+    }
 
-	DBG (DBG_proc, "sane_open: exit\n");
+  if (!dev)
+    {
+      DBG (DBG_error, "No scanner found\n");
 
-	return SANE_STATUS_GOOD;
+      return SANE_STATUS_INVAL;
+    }
+
+  teco_init_options (dev);
+
+  /* Initialize the gamma table. */
+  {
+    /*
+     * Shift is 1 for GAMMA_LENGTH == 256
+     *  and 4 for GAMMA_LENGTH == 1024
+     */
+    int shift = GAMMA_LENGTH >> 8;
+    size_t i;
+
+    for (i = 0; i < GAMMA_LENGTH; i++)
+      {
+	dev->gamma_R[i] = i / shift;
+	dev->gamma_G[i] = i / shift;
+	dev->gamma_B[i] = i / shift;
+	dev->gamma_GRAY[i] = i / shift;
+      }
+  }
+
+  *handle = dev;
+
+  DBG (DBG_proc, "sane_open: exit\n");
+
+  return SANE_STATUS_GOOD;
 }
 
 const SANE_Option_Descriptor *
@@ -1885,19 +1926,31 @@ sane_start (SANE_Handle handle)
 	  return status;
 	}
 
-      status = teco_set_window (dev);
-      if (status)
+      if (dev->scan_mode == TECO_COLOR)
 	{
-	  teco_close (dev);
-	  return status;
+	  dev->pass = dev->def->pass;
+	}
+      else
+	{
+	  dev->pass = 1;
 	}
 
-      dev->real_bytes_left = 0;
-      status = get_filled_data_length (dev, &size);
-      if (status)
+      if (dev->def->tecoref != TECO_VM3510)
 	{
-	  teco_close (dev);
-	  return status;
+	  status = teco_set_window (dev);
+	  if (status)
+	    {
+	      teco_close (dev);
+	      return status;
+	    }
+
+	  dev->real_bytes_left = 0;
+	  status = get_filled_data_length (dev, &size);
+	  if (status)
+	    {
+	      teco_close (dev);
+	      return status;
+	    }
 	}
 
 #if 0
@@ -1931,13 +1984,15 @@ sane_start (SANE_Handle handle)
 	  return status;
 	}
 
-      if (dev->scan_mode == TECO_COLOR)
+      if (dev->def->tecoref == TECO_VM3510)
 	{
-	  dev->pass = dev->def->pass;
-	}
-      else
-	{
-	  dev->pass = 1;
+	  dev->real_bytes_left = 0;
+	  status = get_filled_data_length (dev, &size);
+	  if (status)
+	    {
+	      teco_close (dev);
+	      return status;
+	    }
 	}
     }
   else

@@ -233,6 +233,16 @@ DOCUMENTATION
 * Please keep your manpages and .desc files up-to-date especially regarding
   version numbers.
 
+SUBMITTING CHECKLIST
+--------------------
+
+* Use the command "indent -gnu" to reformat your code according to the standard.
+* Add the backend name to dll.conf
+* Add the author(s) name(s) to AUTHORS
+* Remove the backend name from PROJECT
+* Correct any related entries in TODO
+* 
+
 INCLUDING INTO CVS
 ------------------
 

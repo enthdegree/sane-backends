@@ -353,18 +353,22 @@ AC_DEFUN([SANE_CHECK_GPHOTO2],
 	])
 
 	# If --with-gphoto2=yes (or not supplied), then enable it
-	# if gphoto2-config can be found
+	# if pkg-config can be found and libgphoto2 is present
 	if test "$with_gphoto2" != "no" ; then 
 
-		AC_CHECK_TOOL(HAVE_GPHOTO2, gphoto2-config, false)
+		AC_CHECK_TOOL(HAVE_GPHOTO2, pkg-config, false)
 	
-		if test $HAVE_GPHOTO2 != "false"
-		then
-			with_gphoto2=`gphoto2-config --prefix`
-			CPPFLAGS="${CPPFLAGS} `gphoto2-config --cflags`"
-			GPHOTO2_LIBS="`gphoto2-config --libs`"
-			SANE_EXTRACT_LDFLAGS(LDFLAGS, GPHOTO2_LIBS)
-			LIBS="${LIBS} ${GPHOTO2_LIBS}"
+		if test $HAVE_GPHOTO2 != "false" ; then
+			if pkg-config --exists libgphoto2 ; then
+				with_gphoto2=`pkg-config --modversion libgphoto2`
+				CPPFLAGS="${CPPFLAGS} `pkg-config --cflags libgphoto2`"
+				GPHOTO2_LIBS="`pkg-config --libs libgphoto2`"
+				SANE_EXTRACT_LDFLAGS(LDFLAGS, GPHOTO2_LIBS)
+				LIBS="${LIBS} ${GPHOTO2_LIBS}"
+				HAVE_GPHOTO2=true
+			else
+				HAVE_GPHOTO2=false
+			fi
 		fi
 	fi
 

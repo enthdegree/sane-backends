@@ -310,9 +310,9 @@ else
     BACKENDS="${BACKENDS} canon_pp hpsj5s"
   fi
 
-  if test "${HAVE_GPHOTO2}" != "gphoto2-config" \
+  if test "${HAVE_GPHOTO2}" != "true" \
         -o "${sane_cv_use_libjpeg}" != "yes"; then
-    echo "*** disabling GPHOTO2 backend (not requested, or failed to find gphoto2-config or JPEG library)"
+    echo "*** disabling GPHOTO2 backend (not requested, or failed to find gphoto2-config or JPEG library) (${HAVE_GPHOTO2})"
   else
     BACKENDS="${BACKENDS} gphoto2"
   fi

@@ -1,3 +1,8 @@
+2004-05-30  Peter Fales <peter@fales-lorenz.net>
+	* acinclude.m4, aclocal.m4, configure.in, configure
+	Use pkg-config rather than gphoto2-config to get gphoto
+	build parameters (bug #300686)
+
 2004-05-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/v4l.c: Used SANE_VALUE_SCAN_MODE_* constants.

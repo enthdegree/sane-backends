@@ -66,6 +66,18 @@ sort-cvsignore:
 		$(PERL) -e 'print sort <>;' < $$f > $$f.tmptmp; \
 		mv $$f.tmptmp $$f; \
 	done
+#
+# Check to make sure only sane_ and sanei_ symbols are exported from
+# the libraries
+#
+libcheck:
+	echo "Libraries exporting 'illegal' symbols:"
+	@for lib in backend/.libs/*.a; do \
+	  if nm -g $$lib|grep ' T '|egrep -v ' sane_| sanei_' > /dev/null; \
+	  then \
+	    echo "  $$lib"; \
+	  fi \
+	done
 
 clean: clean-recursive
 

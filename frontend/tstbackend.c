@@ -22,7 +22,7 @@
    MA 02111-1307, USA.
 */
 
-#define BUILD 16				/* 2002-04-19 */
+#define BUILD 17				/* 2002-05-28 */
 
 #include "../include/sane/config.h"
 
@@ -63,7 +63,12 @@ enum message_level {
 
 int message_number_wrn = 0;
 int message_number_err = 0;
+#ifdef HAVE_LONG_LONG
 long long checks_done = 0;
+#else
+/* It may overflow, but it's no big deal. */
+long int checks_done = 0;
+#endif
 
 int test_level;
 
@@ -75,8 +80,13 @@ int test_level;
 /* Display the message error statistics. */
 static void display_stats(void)
 {
+#ifdef HAVE_LONG_LONG
 	printf("warnings: %d  error: %d  checks: %lld\n", 
 		   message_number_wrn, message_number_err, checks_done);
+#else
+	printf("warnings: %d  error: %d  checks: %ld\n", 
+		   message_number_wrn, message_number_err, checks_done);
+#endif
 }
 
 /* 

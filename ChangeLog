@@ -1,3 +1,15 @@
+2002-07-22  Matto Marjanovic  <maddog@mir.com>
+
+	* doc/descriptions/microtek.desc: 
+	  Updated (status keywords, mostly).
+	* backend/microtek.c:
+	* backend/microtek.h:
+	  Replaced fprintf()/printf() with various DBG() statements.
+	  Removed #include <stdio.h>!
+	  Eliminated a few "unused parameter" compiler warnings.
+	  Updated the copyright date.
+	  Bumped version up to lucky 0.13.0
+
 2002-07-23  Matthew Duggan <stauff1@users.sourceforge.net>
 
 	* doc/sane-canon_pp.man: Added N640Pex to the man page too..

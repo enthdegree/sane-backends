@@ -14,7 +14,7 @@
 
 #include "../backend/umax_pp_low.h"
 
-void
+static void
 Usage (char *name)
 {
   fprintf (stderr,
@@ -348,7 +348,7 @@ main (int argc, char **argv)
       return (0);
     }
   if (trace)
-    printf ("UMAX 1220P scanning program version 2.1 starting ...\n");
+    printf ("UMAX 1220P scanning program version 2.3 starting ...\n");
 
 
   /* scanning is the default behaviour */

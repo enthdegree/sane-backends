@@ -2,7 +2,10 @@
 
 	* backend/pnm.c backend/pnm.desc po/pnm.de.po: Removed descripions
 	  of options of type SANE_TYPE_GROUP. Fixed some translations.
-	  New version: 1.0.4.
+	  Fixed header. New version: 1.0.4.
+	* backend/plustek.c backend/plustek.h po/Makefile.in po/plusetk.de.po:
+	  Added German translation of Plustek backend options. Marked
+	  translatable text in backend sources.
 
 2002-01-14  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 	

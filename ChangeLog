@@ -2,6 +2,7 @@
 
 	* backend/dll.conf: Added commented out entries for hpoj and gt68xx.
 	* NEWS: Updated release date and backend list.
+	* TODO: Added scanimage short string-list options problem.
 
 2002-10-17  Gerhard Jaeger <gerhard@gjaeger.de>
 

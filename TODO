@@ -1,4 +1,4 @@
-TODO (2002-10-15)
+TODO (2002-10-16)
 
 ******** todo ********
 
@@ -104,6 +104,8 @@ frontends
   
   * scanimage: Reduce range of width and length if tlx or tly is different 
     from 0 to avoid warnings.
+
+  * scanimage: Check handling of short string-list options.
 
 sanei
 -----

@@ -541,6 +541,9 @@ sanei_w_set_dir (Wire * w, WireDirection dir)
   DBG (3, "sanei_w_set_dir: wire %d, old direction WIRE_%s\n", w->io.fd, 
        w->direction == WIRE_ENCODE ? "ENCODE" : 
        (w->direction == WIRE_DECODE ? "DECODE" : "FREE"));
+  if (w->direction == WIRE_DECODE && w->buffer.curr != w->buffer.end)
+    DBG (1, "sanei_w_set_dir: WARNING: will delete %d bytes from buffer\n",
+	 w->buffer.end - w->buffer.curr);
   flush (w);
   w->direction = dir;
   DBG (4, "sanei_w_set_dir: direction changed\n");

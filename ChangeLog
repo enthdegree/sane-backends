@@ -1,3 +1,11 @@
+2000-08-24 Gerhard Jaeger <g.jaeger@earthling.net>
+
+	* Updated plustek backend to support multiple devices and 12bit color-depth
+	  affected files: backend/plustek.c backend/plustek.h 
+	                  backend/plustek-share.h backend/plustek.conf
+	* backend/plustek.desc: updated information about supported scanner
+	* doc/sane-plustek.man: updated manpage according to the changes
+
 2000-08-23 Abel Deuring <a.deuring@satzbau-gmbh.de>
 	* sanei/sanei_scsi.c: Second attempt to fix the errno bug
 	  in the Linux command queue handling. 

@@ -1,3 +1,8 @@
+2001-09-05  Jochen Eisinger <jochen.eisinger@gmx.de>
+
+        * backend/net.c: ignoring size of parameter value for
+          SANE_ACTION_SET_AUTO (as described in the SANE standard)
+
 2001-09-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* sanei/sanei_ab306.c: Added FreeBSD support.

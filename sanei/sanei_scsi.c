@@ -1912,8 +1912,8 @@ sanei_scsi_req_enter2 (int fd,
         }
       (const void*) req->sgdata.sg3.hdr.cmdp = cmd;
       req->sgdata.sg3.hdr.sbp = &(req->sgdata.sg3.sense_buffer[0]);
-      /* 10 seconds should be ok even for slow scanners */
-      req->sgdata.sg3.hdr.timeout = 10000;
+      /* 10 minutes should be ok even for slow scanners */
+      req->sgdata.sg3.hdr.timeout = 10000 * 600;
       req->sgdata.sg3.hdr.flags = SG_FLAG_DIRECT_IO;
       req->sgdata.sg3.hdr.pack_id = pack_id++;
       req->sgdata.sg3.hdr.usr_ptr = 0;
@@ -2019,6 +2019,29 @@ sanei_scsi_req_wait (void *id)
 
                   DBG (1, "sanei_scsi_req_wait: SCSI command complained: %s\n",
                        strerror (req->sgdata.cdb.hdr.result));
+                  DBG(10, "sense buffer: %02x %02x 02x %02x %02x %02 %02x %02x"
+                          "%02x %02x %02x %02x %02x %02x %02x %02x\n",
+                          req->sgdata.cdb.hdr.sense_buffer[0],
+                          req->sgdata.cdb.hdr.sense_buffer[1],
+                          req->sgdata.cdb.hdr.sense_buffer[2],
+                          req->sgdata.cdb.hdr.sense_buffer[3],
+                          req->sgdata.cdb.hdr.sense_buffer[4],
+                          req->sgdata.cdb.hdr.sense_buffer[5],
+                          req->sgdata.cdb.hdr.sense_buffer[6],
+                          req->sgdata.cdb.hdr.sense_buffer[7],
+                          req->sgdata.cdb.hdr.sense_buffer[8],
+                          req->sgdata.cdb.hdr.sense_buffer[9],
+                          req->sgdata.cdb.hdr.sense_buffer[10],
+                          req->sgdata.cdb.hdr.sense_buffer[11],
+                          req->sgdata.cdb.hdr.sense_buffer[12],
+                          req->sgdata.cdb.hdr.sense_buffer[13],
+                          req->sgdata.cdb.hdr.sense_buffer[14],
+                          req->sgdata.cdb.hdr.sense_buffer[15]);
+                  DBG(10, "target status: %02x host status: %02x"
+                          " driver status: %02x\n",
+                          req->sgdata.cdb.hdr.target_status,
+                          req->sgdata.cdb.hdr.host_status,
+                          req->sgdata.cdb.hdr.driver_status);
 
                  if (req->sgdata.cdb.hdr.result == EBUSY)
                    status = SANE_STATUS_DEVICE_BUSY;
@@ -2055,6 +2078,29 @@ sanei_scsi_req_wait (void *id)
 
                  DBG (1, "sanei_scsi_req_wait: SCSI command complained: %s\n",
                       strerror(errno));
+                 DBG(10, "sense buffer: %02x %02x 02x %02x %02x %02 %02x %02x"
+                         " %02x %02x %02x %02x %02x %02x %02x %02x\n",
+                         req->sgdata.sg3.sense_buffer[0],
+                         req->sgdata.sg3.sense_buffer[1],
+                         req->sgdata.sg3.sense_buffer[2],
+                         req->sgdata.sg3.sense_buffer[3],
+                         req->sgdata.sg3.sense_buffer[4],
+                         req->sgdata.sg3.sense_buffer[5],
+                         req->sgdata.sg3.sense_buffer[6],
+                         req->sgdata.sg3.sense_buffer[7],
+                         req->sgdata.sg3.sense_buffer[8],
+                         req->sgdata.sg3.sense_buffer[9],
+                         req->sgdata.sg3.sense_buffer[10],
+                         req->sgdata.sg3.sense_buffer[11],
+                         req->sgdata.sg3.sense_buffer[12],
+                         req->sgdata.sg3.sense_buffer[13],
+                         req->sgdata.sg3.sense_buffer[14],
+                         req->sgdata.sg3.sense_buffer[15]);
+                 DBG(10, "target status: %02x host status: %04x"
+                         " driver status: %04x\n",
+                         req->sgdata.sg3.hdr.status,
+                         req->sgdata.sg3.hdr.host_status,
+                         req->sgdata.sg3.hdr.driver_status);
 
                  /* the first three tests below are an replacement of the
                     error "classification" as it was with the old SG driver,

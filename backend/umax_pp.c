@@ -132,7 +132,7 @@ static int blue_highlight = 0;
 
 
 static const SANE_String_Const mode_list[] = {
-  SANE_I18N("Lineart"), SANE_I18N("Gray"), SANE_I18N("Color"), 0
+  SANE_I18N ("Lineart"), SANE_I18N ("Gray"), SANE_I18N ("Color"), 0
 };
 
 static const SANE_Range u4_range = {
@@ -1753,12 +1753,12 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 
   /* color/gray */
   if (strcmp (dev->val[OPT_MODE].s, "Color") != 0)
-  {
-  	if (strcmp (dev->val[OPT_MODE].s, "Gray") != 0)
-    		dev->color = UMAX_PP_MODE_LINEART;
-	else
-    		dev->color = UMAX_PP_MODE_GRAYSCALE;
-  }
+    {
+      if (strcmp (dev->val[OPT_MODE].s, "Gray") != 0)
+	dev->color = UMAX_PP_MODE_LINEART;
+      else
+	dev->color = UMAX_PP_MODE_GRAYSCALE;
+    }
   else
     dev->color = UMAX_PP_MODE_COLOR;
 
@@ -2129,7 +2129,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
       if (dev->color == UMAX_PP_MODE_LINEART)
 	{
 	  DBG (64, "sane_read: software lineart\n");
-	     
+
 	  for (y = 0; y < length; y++)
 	    {
 	      if (dev->buf[dev->bufread + y] > max)

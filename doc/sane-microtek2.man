@@ -1,7 +1,7 @@
 . .IX sane-microtek2
 ." Process this file with
 ." man -l sane-microtek2.man
-.TH sane-microtek2 5 "23 Oct 2001"
+.TH sane-microtek2 5 "27 Oct 2001"
 .SH NAME
 sane-microtek2 - SANE backend for Microtek scanners with SCSI-2 command set
 .SH DESCRIPTION
@@ -9,8 +9,9 @@ The
 .B sane-microtek2
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to some Microtek scanners with a SCSI-2 command set.
-This backend can be considered alpha. Some scanner models are reported to work
-well, others not. New development versions of this backend can be obtained from
+This backend can be considered alpha to beta. Some scanner models are reported
+to work well, others not. New development versions of this backend can be
+obtained from
 .B http://home.t-online.de/home/karsten.festag
 .PP
 There exists a different backend for Microtek scanners with SCSI-1 command
@@ -188,9 +189,10 @@ option colorbalance-adjust <on/off>
 .RE
 .PP
 .I option dump <n>
-enables printing of additional information about the SCSI commands that are sent to
-the scanner to stderr. This option is primarily useful for debugging purpose.
-This option has to be a global option and is best placed at the top of the
+enables printing of additional information about the SCSI commands that are
+sent to the scanner to stderr. This option is primarily useful for debugging
+purpose. This option has to be a global option and is best placed at the top
+of the
 .I microtek2.conf
 file.
 .PP
@@ -221,8 +223,7 @@ option is set to <on> an appropriate option will appear in the frontend.
 .PP
 .I option no-backtrack-option <on/off>
 prevents the scanner head from moving backwards between the read commands.
-This
-speeds up scanning. Try it.
+This speeds up scanning. Try it.
 .PP
 .I option lightlid-35 <on/off>
 If you use the LightLid-35 transparency adapter you get an advanced

@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2004-03-08"		; version of backend
+:version "2004-03-13"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -865,10 +865,12 @@
 
 :model "OpticPro S28"
 :interface "USB"
+:url "/unsupported/plustek-opticpro-s28.html"
 :status :unsupported
 :comment "Uses Plustek ASIC."
 
 :model "OpticPro ST28"
+:url "/unsupported/plustek-opticpro-s28.html"
 :interface "USB"
 :status :unsupported
 :comment "Uses Plustek ASIC."
@@ -901,10 +903,10 @@
 :comment "Not supported. Some information is available."
 
 :model "Colorado 2400U"
-:url "http://viceo.orcon.net.nz/"
+:url "/unsupported/primax-colorado-2400u.html"
 :interface "USB"
 :status :unsupported
-:comment "Probably unsupported. ASIC EICI 10440A. Vendor/product 0x461/0x346. May work with viceo backend(?), see link."
+:comment "Probably unsupported. See link for details."
 
 :model "Primascan Colorado 2600u"
 :url "/unsupported/visioneer-onetouch4400.html"
@@ -1160,6 +1162,16 @@
 :interface "USB"
 :status :unsupported
 :comment "Probably not supported. No further information available."
+
+;********************************************************************************************
+
+:mfg "Vantas"
+
+:model "3000"
+:url "/unsupported/visioneer-onetouch4800.html"
+:interface "USB"
+:status :unsupported
+:comment "Not supported. See link for more details."
 
 ;********************************************************************************************
 

@@ -1,3 +1,9 @@
+2004-11-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions-external/brother.desc: One more report about a
+	  working scanner. Added link.
+	* doc/descriptions/unsupported.desc: Added some scanners.
+
 2004-11-07  Giuseppe Sacco <eppesuig@debian.org>
 
 	* New italian translation update

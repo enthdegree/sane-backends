@@ -546,6 +546,10 @@ static SANE_Status add_scsi_device (SANE_String_Const full_name)
     DBG (DL_CALL_TRACE, "%s(%s)\n", me, full_name);
 
     sanei_config_get_string(full_name, &name);
+    if (!name)
+    {
+    	return SANE_STATUS_INVAL;
+    }
     /* Avoid adding the same device more then once */
     if (device_already_in_list (first_device, name)) {
         free(name);
@@ -600,6 +604,10 @@ static SANE_Status add_usb_device (SANE_String_Const full_name) {
 
     DBG (DL_CALL_TRACE, "%s(%s)\n", me, full_name);
     sanei_config_get_string(full_name, &name);
+    if (!name)
+    {
+    	return SANE_STATUS_INVAL;
+    }
     /* Avoid adding the same device more then once */
     if (device_already_in_list (first_device, name)) {
         free(name);
@@ -1762,6 +1770,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.32  2003/09/24 18:05:39  oliver-guest
+ * Bug #300198: Check second argument of sanei_config_get_string
+ *
  * Revision 1.31  2003/09/12 16:10:33  hmg-guest
  * Moved union Option_Value from backend header files to sanei_backend.h. No need
  * to copy it over and over again. Changed header inclusion order in backend

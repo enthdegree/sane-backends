@@ -1,3 +1,8 @@
+2003-09-24  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backends/snapscan.c: check second argument of sanei_config_get_string
+	  (Bug #300198)
+
 2003-09-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Changed links to point to

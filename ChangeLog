@@ -22,11 +22,11 @@
 
 2002-12-01  Rene Rebe <rene.rebe@gmx.net>
 	 * backend/avision.h backend/avision.c backend/avision.conf
-	   doc/descriptions/avision.desc: updated the Avisin backend - 
+	   doc/descriptions/avision.desc: updated the Avision backend - 
 	   including auto-generated .desc file listing all devices
-	   also present in the avisino.c device-list.
+	   also present in the avision.c device-list.
 	*  doc/descriptions/avision.desc: syntax fix
-	*  doc/sane-avision.man: updated to relect the current backend
+	*  doc/sane-avision.man: updated to reflect the current backend
 	   development.
 
 2002-12-01  Henning Meier-Geinitz <henning@meier-geinitz.de>

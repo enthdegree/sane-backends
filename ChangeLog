@@ -20,6 +20,7 @@
 	  doc/descriptions/v4l.desc: Updated to new status system.
 	  Added "unmaintained" where appropriate. The status values are
 	  sometimes guessed from the documentation.
+	* doc/descriptions/unsupported.desc: Added Benq parport scanners.
 
 2003-06-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

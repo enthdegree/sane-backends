@@ -9,9 +9,8 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-06-13"		; version of backend
+:version "2003-06-19"		; version of backend
 :url "http://www.meier-geinitz.de/sane/misc/unsupported.html"
-;:status :stable			; :alpha, :beta, :stable, :new
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 ;:url "http://www.meier-geinitz.de/sane/mustek-backend/"
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -69,6 +68,36 @@
 :interface "USB"
 :status :unsupported
 :comment "Not supported. No chipset information available. Same as UMAX Astra 6700."
+
+;********************************************************************************************
+
+:mfg "Benq"
+:url "http://www.benq.com"
+:comment "Formerly Acer Peripherals"
+
+:model "310p"
+:status :unsupported
+;:url ""
+:interface "Parport"
+:comment "Unsupported. No details about the protocol known."
+
+:model "610p"
+:status :unsupported
+;:url ""
+:interface "Parport"
+:comment "Unsupported. No details about the protocol known."
+
+:model "620p"
+:status :unsupported
+;:url ""
+:interface "Parport"
+:comment "Unsupported. No details about the protocol known."
+
+:model "620pt"
+:status :unsupported
+;:url ""
+:interface "Parport"
+:comment "Unsupported. No details about the protocol known."
 
 ;********************************************************************************************
 

@@ -1,3 +1,10 @@
+2002-02-12  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* tools/sane-config.in: Avoid printing "-I/usr/include" as this
+	  changes the default include order (from Tim Waugh
+	  <twaugh@redhat.com>). Really check for entries in $cflags that
+	  are also in $includedir.
+
 2002-02-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* configure configure.in: Link to functions in lib/ only

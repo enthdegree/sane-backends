@@ -221,7 +221,7 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_MODE].type = SANE_TYPE_STRING;
     po[OPT_MODE].unit = SANE_UNIT_NONE;
     po[OPT_MODE].size = 32;
-    po[OPT_MODE].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    po[OPT_MODE].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_AUTOMATIC;
     po[OPT_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
     switch (ps->pdev->model)
     {
@@ -244,7 +244,10 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_PREVIEW_MODE].type = SANE_TYPE_STRING;
     po[OPT_PREVIEW_MODE].unit = SANE_UNIT_NONE;
     po[OPT_PREVIEW_MODE].size = 32;
-    po[OPT_PREVIEW_MODE].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_ADVANCED;
+    po[OPT_PREVIEW_MODE].cap = SANE_CAP_SOFT_SELECT 
+                               | SANE_CAP_SOFT_DETECT
+                               | SANE_CAP_ADVANCED 
+                               | SANE_CAP_AUTOMATIC;
     po[OPT_PREVIEW_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
     switch (ps->pdev->model)
     {
@@ -264,7 +267,10 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_SOURCE].title = SANE_TITLE_SCAN_SOURCE;
     po[OPT_SOURCE].desc  = SANE_DESC_SCAN_SOURCE;
     po[OPT_SOURCE].type  = SANE_TYPE_STRING;
-    po[OPT_SOURCE].cap   = SANE_CAP_SOFT_SELECT | SANE_CAP_INACTIVE;
+    po[OPT_SOURCE].cap   = SANE_CAP_SOFT_SELECT 
+                           | SANE_CAP_SOFT_DETECT
+                           | SANE_CAP_INACTIVE
+                           | SANE_CAP_AUTOMATIC;
     po[OPT_SOURCE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
     {
         static SANE_String_Const source_list[3];
@@ -295,7 +301,7 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_TLX].type = SANE_TYPE_FIXED;
     po[OPT_TLX].unit = SANE_UNIT_MM;
     po[OPT_TLX].size = sizeof (SANE_Word);
-    po[OPT_TLX].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    po[OPT_TLX].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_AUTOMATIC;
     po[OPT_TLX].constraint_type = SANE_CONSTRAINT_RANGE;
     po[OPT_TLX].constraint.range = &(ps->pdev->x_range);
     ps->tlx = ps->pdev->x_range.min;
@@ -306,7 +312,7 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_TLY].type = SANE_TYPE_FIXED;
     po[OPT_TLY].unit = SANE_UNIT_MM;
     po[OPT_TLY].size = sizeof (SANE_Word);
-    po[OPT_TLY].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    po[OPT_TLY].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_AUTOMATIC;
     po[OPT_TLY].constraint_type = SANE_CONSTRAINT_RANGE;
     po[OPT_TLY].constraint.range = &(ps->pdev->y_range);
     ps->tly = ps->pdev->y_range.min;
@@ -317,7 +323,7 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_BRX].type = SANE_TYPE_FIXED;
     po[OPT_BRX].unit = SANE_UNIT_MM;
     po[OPT_BRX].size = sizeof (SANE_Word);
-    po[OPT_BRX].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    po[OPT_BRX].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_AUTOMATIC;
     po[OPT_BRX].constraint_type = SANE_CONSTRAINT_RANGE;
     po[OPT_BRX].constraint.range = &(ps->pdev->x_range);
     ps->brx = ps->pdev->x_range.max;
@@ -328,7 +334,7 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_BRY].type = SANE_TYPE_FIXED;
     po[OPT_BRY].unit = SANE_UNIT_MM;
     po[OPT_BRY].size = sizeof (SANE_Word);
-    po[OPT_BRY].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    po[OPT_BRY].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_AUTOMATIC;
     po[OPT_BRY].constraint_type = SANE_CONSTRAINT_RANGE;
     po[OPT_BRY].constraint.range = &(ps->pdev->y_range);
     ps->bry = ps->pdev->y_range.max;
@@ -555,7 +561,7 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_NEGATIVE].unit = SANE_UNIT_NONE;
     po[OPT_NEGATIVE].size = sizeof (SANE_Bool);
     po[OPT_NEGATIVE].cap =
-        SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE;
+        SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE | SANE_CAP_AUTOMATIC;
     po[OPT_NEGATIVE].constraint_type = SANE_CONSTRAINT_NONE;
     ps->negative = DEFAULT_NEGATIVE;
 
@@ -584,7 +590,7 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_RGB_LPR].unit = SANE_UNIT_NONE;
     po[OPT_RGB_LPR].size = sizeof (SANE_Word);
     po[OPT_RGB_LPR].cap =
-        SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+        SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED | SANE_CAP_AUTOMATIC;
     po[OPT_RGB_LPR].constraint_type = SANE_CONSTRAINT_RANGE;
     po[OPT_RGB_LPR].constraint.range = &lpr_range;
     ps->rgb_lpr = def_rgb_lpr;
@@ -598,50 +604,11 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_GS_LPR].cap = SANE_CAP_SOFT_SELECT
                        | SANE_CAP_SOFT_DETECT
                        | SANE_CAP_ADVANCED
-                       | SANE_CAP_INACTIVE;
+                       | SANE_CAP_INACTIVE
+                       | SANE_CAP_AUTOMATIC;
     po[OPT_GS_LPR].constraint_type = SANE_CONSTRAINT_RANGE;
     po[OPT_GS_LPR].constraint.range = &lpr_range;
     ps->gs_lpr = def_gs_lpr;
-
-    po[OPT_SCSI_CMDS].title = SANE_I18N("SCSI commands (for debugging)");
-    po[OPT_SCSI_CMDS].desc = "";
-    po[OPT_SCSI_CMDS].type = SANE_TYPE_GROUP;
-    po[OPT_SCSI_CMDS].cap = SANE_CAP_ADVANCED;
-
-    po[OPT_INQUIRY].name = "do-inquiry";
-    po[OPT_INQUIRY].title = SANE_I18N("Inquiry");
-    po[OPT_INQUIRY].desc = SANE_I18N(
-        "Send an Inquiry command to the scanner and dump out some of "
-        "the current settings.");
-    po[OPT_INQUIRY].type = SANE_TYPE_BUTTON;
-    po[OPT_INQUIRY].cap = SANE_CAP_ADVANCED | SANE_CAP_SOFT_SELECT;
-    po[OPT_INQUIRY].constraint_type = SANE_CONSTRAINT_NONE;
-
-    po[OPT_SELF_TEST].name = "do-self-test";
-    po[OPT_SELF_TEST].title = SANE_I18N("Self test");
-    po[OPT_SELF_TEST].desc = SANE_I18N(
-        "Send a Self Test command to the scanner and report the result.");
-    po[OPT_SELF_TEST].type = SANE_TYPE_BUTTON;
-    po[OPT_SELF_TEST].cap = SANE_CAP_ADVANCED | SANE_CAP_SOFT_SELECT;
-    po[OPT_SELF_TEST].constraint_type = SANE_CONSTRAINT_NONE;
-
-    po[OPT_REQ_SENSE].name = "do-req-sense";
-    po[OPT_REQ_SENSE].title = SANE_I18N("Request sense");
-    po[OPT_REQ_SENSE].desc = SANE_I18N(
-        "Send a Request Sense command to the scanner, and print out the sense "
-        "report.");
-    po[OPT_REQ_SENSE].type = SANE_TYPE_BUTTON;
-    po[OPT_REQ_SENSE].cap = SANE_CAP_ADVANCED | SANE_CAP_SOFT_SELECT;
-    po[OPT_REQ_SENSE].constraint_type = SANE_CONSTRAINT_NONE;
-
-    po[OPT_REL_UNIT].name = "do-rel-unit";
-    po[OPT_REL_UNIT].title = SANE_I18N("Release unit (cancel)");
-    po[OPT_REL_UNIT].desc = SANE_I18N(
-        "Send a Release Unit command to the scanner. This is the same as "
-        "a cancel command.");
-    po[OPT_REL_UNIT].type = SANE_TYPE_BUTTON;
-    po[OPT_REL_UNIT].cap = SANE_CAP_ADVANCED | SANE_CAP_SOFT_SELECT;
-    po[OPT_REL_UNIT].constraint_type = SANE_CONSTRAINT_NONE;
 }
 
 const SANE_Option_Descriptor *sane_get_option_descriptor (SANE_Handle h,
@@ -747,11 +714,6 @@ SANE_Status sane_control_option (SANE_Handle h,
         (long) a,
         v,
         (void *) i);
-
-    status = open_scanner (pss);
-    CHECK_STATUS (status, me, "open_scanner");
-
-    /* possible authorization required */
 
     switch (a)
     {
@@ -879,6 +841,14 @@ SANE_Status sane_control_option (SANE_Handle h,
             (!SANE_OPTION_IS_ACTIVE(pss->options[n].cap))) {
             return SANE_STATUS_INVAL;
         }
+        /* prevent setting of options during a scan */
+        if (pss->state!=ST_IDLE) {
+            DBG(DL_INFO, 
+                "set value for option %s ignored: scanner is still scanning\n",
+                pss->options[n].name
+            );
+            return SANE_STATUS_DEVICE_BUSY;
+        }
         status = sanei_constrain_value(&pss->options[n], v, i);
         if (status != SANE_STATUS_GOOD) {
             return status;
@@ -890,12 +860,12 @@ SANE_Status sane_control_option (SANE_Handle h,
         case OPT_SCANRES:
             pss->res = *(SANE_Int *) v;
             if (i)
-                *i = SANE_INFO_RELOAD_PARAMS;
+                *i |= SANE_INFO_RELOAD_PARAMS;
             break;
         case OPT_PREVIEW:
             pss->preview = *(SANE_Bool *) v;
             if (i)
-                *i = SANE_INFO_RELOAD_PARAMS;
+                *i |= SANE_INFO_RELOAD_PARAMS;
             break;
         case OPT_MODE:
             {
@@ -986,7 +956,7 @@ SANE_Status sane_control_option (SANE_Handle h,
             }
             control_options (pss);
             if (i)
-                *i = SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+                *i |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
             break;
         case OPT_PREVIEW_MODE:
             {
@@ -1024,8 +994,6 @@ SANE_Status sane_control_option (SANE_Handle h,
                         me,
                         s);
                 }
-                if (i)
-                    *i = 0;
                 break;
             }
         case OPT_SOURCE:
@@ -1059,7 +1027,7 @@ SANE_Status sane_control_option (SANE_Handle h,
                 free (pss->source_s);
             pss->source_s = (SANE_Char *) strdup(v);
             if (i)
-                *i = SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+                *i |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
             break;
         case OPT_TLX:
             pss->tlx = *(SANE_Fixed *) v;
@@ -1071,7 +1039,7 @@ SANE_Status sane_control_option (SANE_Handle h,
                 pss->brx = pss->tlx;
             }
             if (i)
-                *i = SANE_INFO_RELOAD_PARAMS;
+                *i |= SANE_INFO_RELOAD_PARAMS;
             break;
         case OPT_TLY:
             pss->tly = *(SANE_Fixed *) v;
@@ -1083,7 +1051,7 @@ SANE_Status sane_control_option (SANE_Handle h,
                 pss->bry = pss->tly;
             }
             if (i)
-                *i = SANE_INFO_RELOAD_PARAMS;
+                *i |= SANE_INFO_RELOAD_PARAMS;
             break;
         case OPT_BRX:
             pss->brx = *(SANE_Fixed *) v;
@@ -1095,7 +1063,7 @@ SANE_Status sane_control_option (SANE_Handle h,
                 pss->tlx = pss->brx;
             }
             if (i)
-                *i = SANE_INFO_RELOAD_PARAMS;
+                *i |= SANE_INFO_RELOAD_PARAMS;
             break;
         case OPT_BRY:
             pss->bry = *(SANE_Fixed *) v;
@@ -1107,17 +1075,13 @@ SANE_Status sane_control_option (SANE_Handle h,
                 pss->tly = pss->bry;
             }
             if (i)
-                *i = SANE_INFO_RELOAD_PARAMS;
+                *i |= SANE_INFO_RELOAD_PARAMS;
             break;
         case OPT_BRIGHTNESS:
             pss->bright = *(SANE_Int *) v >> SANE_FIXED_SCALE_SHIFT;
-            if (i)
-                *i = 0;
             break;
         case OPT_CONTRAST:
             pss->contrast = *(SANE_Int *) v >> SANE_FIXED_SCALE_SHIFT;
-            if (i)
-                *i = 0;
             break;
         case OPT_PREDEF_WINDOW:
             {
@@ -1161,32 +1125,22 @@ SANE_Status sane_control_option (SANE_Handle h,
                 }
             }
             if (i)
-                *i = SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+                *i |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
             break;
         case OPT_GAMMA_GS:
             pss->gamma_gs = *(SANE_Fixed *) v;
-            if (i)
-                *i = 0;
             break;
         case OPT_GAMMA_R:
             pss->gamma_r = *(SANE_Fixed *) v;
-            if (i)
-                *i = 0;
             break;
         case OPT_GAMMA_G:
             pss->gamma_g = *(SANE_Fixed *) v;
-            if (i)
-                *i = 0;
             break;
         case OPT_GAMMA_B:
             pss->gamma_b = *(SANE_Fixed *) v;
-            if (i)
-                *i = 0;
             break;
         case OPT_QUALITY_CAL:
             pss->val[n].b = *(SANE_Bool *)v;
-            if (i)
-                *i = 0;
             break;
 
         case OPT_CUSTOM_GAMMA:
@@ -1208,8 +1162,6 @@ SANE_Status sane_control_option (SANE_Handle h,
         case OPT_GAMMA_VECTOR_G:
         case OPT_GAMMA_VECTOR_B:
             memcpy(pss->val[n].wa, v, pss->options[n].size);
-            if (i)
-                *i = 0;
             break;
         case OPT_HALFTONE:
             pss->halftone = *(SANE_Bool *) v;
@@ -1257,93 +1209,18 @@ SANE_Status sane_control_option (SANE_Handle h,
                          s);
                 }
             }
-            if (i)
-                *i = 0;
             break;
         case OPT_NEGATIVE:
             pss->negative = *(SANE_Bool *) v;
-            if (i)
-                *i = 0;
             break;
         case OPT_THRESHOLD:
             pss->threshold = *(SANE_Int *) v >> SANE_FIXED_SCALE_SHIFT;
-            if (i)
-                *i = 0;
-            break;
-        case OPT_INQUIRY:
-            status = inquiry (pss);
-            CHECK_STATUS (status, me, "inquiry");
-            DBG (0,
-                 "\nInquiry results:\n"
-                 "\tScanner:                       %s\n"
-                 "\thardware config:               0x%x\n"
-                 "\tA/D converter:                 %s\n"
-                 "\tAuto-document feeder:          %s\n"
-                 "\tTransparency option:           %s\n"
-                 "\tRing buffer:                   %s\n"
-                 "\t16x16 halftone matrix support: %s\n"
-                 "\t8x8 halftone matrix support:   %s\n"
-                 "\tCalibration allowed:           %s\n"
-                 "\toptical resolution:            %lu\n"
-                 "\tscan resolution:               %lu\n"
-                 "\tnumber of lines:               %lu\n"
-                 "\tbytes per line:                %lu\n"
-                 "\tpixels per line:               %lu\n"
-                 "\tms per line:                   %f\n"
-                 "\texposure time:                 %c.%c ms\n"
-                 "\tred offset:                    %ld\n"
-                 "\tgreen offset:                  %ld\n"
-                 "\tblue offset:                   %ld\n"
-                 "\tfirmware:                      %s\n\n",
-                 pss->buf + INQUIRY_VENDOR,
-                 pss->hconfig,
-                 (pss->hconfig & HCFG_ADC)  ?  "10-bit"  :  "8-bit",
-                 (pss->hconfig & HCFG_ADF)  ?  "Yes"  :  "No",
-                 (pss->hconfig & HCFG_TPO) ?   "Yes"  :  "No",
-                 (pss->hconfig & HCFG_RB)  ?  "Yes" : "No",
-                 (pss->hconfig & HCFG_HT16)  ?  "Yes"  :  "No",
-                 (pss->hconfig & HCFG_HT8)  ?  "Yes"  :  "No",
-                 (pss->hconfig & HCFG_CAL_ALLOWED)  ?  "Yes"  :  "No",
-                 (u_long) pss->actual_res,
-                 (u_long) pss->res,
-                 (u_long) pss->lines,
-                 (u_long) pss->bytes_per_line,
-                 (u_long) pss->pixels_per_line,
-                 (double) pss->ms_per_line,
-                 pss->buf[INQUIRY_EXPTIME1] + '0',
-                 pss->buf[INQUIRY_EXPTIME2] + '0',
-                 (long) pss->chroma_offset[R_CHAN],
-                 (long) pss->chroma_offset[G_CHAN],
-                 (long) pss->chroma_offset[B_CHAN],
-                 pss->buf + INQUIRY_FIRMWARE);
-            break;
-        case OPT_SELF_TEST:
-            status = send_diagnostic (pss);
-            if (status == SANE_STATUS_GOOD)
-                DBG (0, "Passes self-test.\n");
-            CHECK_STATUS (status, me, "self_test");
-            break;
-        case OPT_REQ_SENSE:
-            status = request_sense (pss);
-            CHECK_STATUS (status, me, "request_sense");
-            if (pss->sense_str)
-                DBG (0, "Scanner sense: %s\n", pss->sense_str);
-            if (pss->as_str)
-                DBG (0, "Scanner ASC/ASCQ: %s\n", pss->as_str);
-            break;
-        case OPT_REL_UNIT:
-            release_unit (pss);
-            DBG (0, "Release unit sent.\n");
             break;
         case OPT_RGB_LPR:
             pss->rgb_lpr = *(SANE_Int *) v;
-            if (i)
-                *i = 0;
             break;
         case OPT_GS_LPR:
             pss->gs_lpr = *(SANE_Int *) v;
-            if (i)
-                *i = 0;
             break;
         default:
             DBG (DL_MAJOR_ERROR,
@@ -1352,7 +1229,7 @@ SANE_Status sane_control_option (SANE_Handle h,
                  (long) n);
             return SANE_STATUS_UNSUPPORTED;
         }
-        DBG (DL_VERBOSE, "%s: option %s set to value ",
+        DBG (DL_DATA_TRACE, "%s: option %s set to value ",
              me, pss->options[n].name);
         switch (pss->options[n].type)
         {
@@ -1362,28 +1239,28 @@ SANE_Status sane_control_option (SANE_Handle h,
         case SANE_TYPE_BOOL:
             {
                 char *valstr = (*(SANE_Bool *) v == SANE_TRUE)  ?  "TRUE"  :  "FALSE";
-                DBG (DL_VERBOSE, "%s\n", valstr);
+                DBG (DL_DATA_TRACE, "%s\n", valstr);
             }
             break;
         default:
-            DBG (DL_VERBOSE, "other than an integer or boolean.\n");
+            DBG (DL_DATA_TRACE, "other than an integer or boolean.\n");
             break;
         }
         break;
     case SANE_ACTION_SET_AUTO:
+        if (i)
+            *i = 0;
         switch (n)
         {
-        case OPT_COUNT:
-            break;
         case OPT_SCANRES:
             pss->res = 300;
             if (i)
-                *i = SANE_INFO_RELOAD_PARAMS;
+                *i |= SANE_INFO_RELOAD_PARAMS;
             break;
         case OPT_PREVIEW:
             pss->preview = SANE_FALSE;
             if (i)
-                *i = SANE_INFO_RELOAD_PARAMS;
+                *i |= SANE_INFO_RELOAD_PARAMS;
             break;
         case OPT_MODE:
             pss->mode_s = md_colour;
@@ -1401,92 +1278,46 @@ SANE_Status sane_control_option (SANE_Handle h,
         case OPT_PREVIEW_MODE:
             pss->preview_mode_s = md_greyscale;
             pss->preview_mode = MD_GREYSCALE;
+            break;
+        case OPT_SOURCE:
+            pss->source = SRC_FLATBED;
+            pss->pdev->x_range.max = x_range_fb.max;
+            pss->pdev->y_range.max = y_range_fb.max;
+            pss->predef_window = pdw_none;
+            if (pss->source_s)
+                free (pss->source_s);
+            pss->source_s = (SANE_Char *) strdup(src_flatbed);
             if (i)
-                *i = 0;
+                *i |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
             break;
         case OPT_TLX:
             pss->tlx = pss->pdev->x_range.min;
             if (i)
-                *i = SANE_INFO_RELOAD_PARAMS;
+                *i |= SANE_INFO_RELOAD_PARAMS;
             break;
         case OPT_TLY:
             pss->tly = pss->pdev->y_range.min;
             if (i)
-                *i = SANE_INFO_RELOAD_PARAMS;
+                *i |= SANE_INFO_RELOAD_PARAMS;
             break;
         case OPT_BRX:
             pss->brx = pss->pdev->x_range.max;
             if (i)
-                *i = SANE_INFO_RELOAD_PARAMS;
+                *i |= SANE_INFO_RELOAD_PARAMS;
             break;
         case OPT_BRY:
             pss->bry = pss->pdev->y_range.max;
             if (i)
-                *i = SANE_INFO_RELOAD_PARAMS;
-            break;
-        case OPT_PREDEF_WINDOW:
-            pss->predef_window = pdw_none;
-            if (i)
-                *i = SANE_INFO_RELOAD_PARAMS;
-            break;
-        case OPT_GAMMA_GS:
-            pss->gamma_gs = DEFAULT_GAMMA;
-            if (i)
-                *i = 0;
-            break;
-        case OPT_GAMMA_R:
-            pss->gamma_r = DEFAULT_GAMMA;
-            if (i)
-                *i = 0;
-            break;
-        case OPT_GAMMA_G:
-            pss->gamma_g = DEFAULT_GAMMA;
-            if (i)
-                *i = 0;
-            break;
-        case OPT_GAMMA_B:
-            pss->gamma_b = DEFAULT_GAMMA;
-            if (i)
-                *i = 0;
-            break;
-        case OPT_HALFTONE:
-            pss->halftone = DEFAULT_HALFTONE;
-            if (pss->halftone)
-            {
-                pss->options[OPT_HALFTONE_PATTERN].cap &= ~SANE_CAP_INACTIVE;
-            }
-            else
-            {
-                pss->options[OPT_HALFTONE_PATTERN].cap |= SANE_CAP_INACTIVE;
-            }
-            control_options (pss);
-            if (i)
-                *i = SANE_INFO_RELOAD_OPTIONS;
-            break;
-        case OPT_HALFTONE_PATTERN:
-            pss->dither_matrix = dm_dd8x8;
-            if (i)
-                *i = 0;
+                *i |= SANE_INFO_RELOAD_PARAMS;
             break;
         case OPT_NEGATIVE:
             pss->negative = DEFAULT_NEGATIVE;
-            if (i)
-                *i = 0;
-            break;
-        case OPT_THRESHOLD:
-            pss->threshold = DEFAULT_THRESHOLD;
-            if (i)
-                *i = 0;
             break;
         case OPT_RGB_LPR:
             pss->rgb_lpr = def_rgb_lpr;
-            if (i)
-                *i = 0;
             break;
         case OPT_GS_LPR:
             pss->gs_lpr = def_gs_lpr;
-            if (i)
-                *i = 0;
             break;
         default:
             DBG (DL_MAJOR_ERROR,
@@ -1500,14 +1331,20 @@ SANE_Status sane_control_option (SANE_Handle h,
         DBG (DL_MAJOR_ERROR, "%s: invalid action code %ld\n", me, (long) a);
         return SANE_STATUS_UNSUPPORTED;
     }
-    close_scanner (pss);
     return SANE_STATUS_GOOD;
 }
 
 /*
  * $Log$
- * Revision 1.2  2002/04/23 22:37:51  oliverschwartz
- * SnapScan backend version 1.4.11
+ * Revision 1.3  2002/04/27 15:35:16  oliverschwartz
+ * SnapScan backend 1.4.12: Fix option handling
+ *
+ * Revision 1.3  2002/04/27 14:43:59  oliverschwartz
+ * - Remove SCSI debug options
+ * - Fix option handling (errors detected by tstbackend)
+ *
+ * Revision 1.2  2002/04/23 22:50:24  oliverschwartz
+ * Improve handling of scan area options
  *
  * Revision 1.1  2002/03/24 12:07:15  oliverschwartz
  * Moved option functions from snapscan.c to snapscan-options.c

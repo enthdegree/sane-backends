@@ -78,7 +78,7 @@
 
 #define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
-#define BUILD               11
+#define BUILD               12
 
 #include "snapscan.h"
 
@@ -757,13 +757,13 @@ SANE_Status sane_init (SANE_Int *version_code,
 
             else if (strncmp(dev_name, "usb", 3) == 0) {
                 sanei_usb_attach_matching_devices (dev_name, add_usb_device);
-            } 
+            }
             else if (strncmp(dev_name, "scsi", 4) == 0) {
                 sanei_config_attach_matching_devices (dev_name, add_scsi_device);
-            } 
+            }
             else if (strstr (dev_name, "usb")) {
                 add_usb_device(dev_name);
-            } 
+            }
             else {
                 add_scsi_device(dev_name);
             }
@@ -1148,11 +1148,11 @@ static void reader (SnapScan_Scanner *pss)
         }
         {
             SANE_Byte *buf = wbuf;
-            DBG (1, "READ %d BYTES\n", ndata);
+            DBG (DL_DATA_TRACE, "READ %d BYTES\n", ndata);
             while (ndata > 0)
             {
                 int written = write (STDOUT_FILENO, buf, ndata);
-                DBG (1, "WROTE %d BYTES\n", written);
+                DBG (DL_DATA_TRACE, "WROTE %d BYTES\n", written);
                 if (written == -1)
                 {
                     DBG (DL_MAJOR_ERROR,
@@ -1757,8 +1757,14 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
- * Revision 1.21  2002/04/23 22:37:53  oliverschwartz
- * SnapScan backend version 1.4.11
+ * Revision 1.22  2002/04/27 15:35:18  oliverschwartz
+ * SnapScan backend 1.4.12: Fix option handling
+ *
+ * Revision 1.44  2002/04/27 14:42:30  oliverschwartz
+ * Cleanup of debug logging
+ *
+ * Revision 1.43  2002/04/23 22:40:33  oliverschwartz
+ * Improve config file reading
  *
  * Revision 1.42  2002/04/10 21:00:09  oliverschwartz
  * Check for NULL pointer before deleting device list

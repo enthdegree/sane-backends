@@ -239,7 +239,9 @@ static SANE_Status open_scanner (SnapScan_Scanner *pss)
 
 static void close_scanner (SnapScan_Scanner *pss)
 {
-    DBG (DL_CALL_TRACE, "close_scanner\n");
+    static char me[] = "close_scanner";
+
+    DBG (DL_CALL_TRACE, "%s\n", me);
     if (pss->opens)
     {
         pss->opens--;
@@ -253,6 +255,8 @@ static void close_scanner (SnapScan_Scanner *pss)
             {
                 snapscani_usb_close (pss->fd);
             }
+        } else {
+            DBG(DL_INFO, "%s: handles left: %d\n,",me, pss->opens);
         }
     }
 }
@@ -913,6 +917,7 @@ static SANE_Status scsi_read (SnapScan_Scanner *pss, u_char read_type)
     return status;
 }
 
+/*
 static SANE_Status request_sense (SnapScan_Scanner *pss)
 {
     static const char *me = "request_sense";
@@ -937,6 +942,7 @@ static SANE_Status request_sense (SnapScan_Scanner *pss)
     }
     return status;
 }
+*/
 
 static SANE_Status send_diagnostic (SnapScan_Scanner *pss)
 {
@@ -967,7 +973,10 @@ static SANE_Status wait_scanner_ready (SnapScan_Scanner *pss)
 
     DBG (DL_CALL_TRACE, "%s\n", me);
 
-    for (retries = 5; retries; retries--)
+    /* if the tray is returning to the start position 
+       no time to wait is returned by the scanner. We'll 
+       try several times and sleep 1 second between each try. */
+    for (retries = 20; retries; retries--)
     {
         status = test_unit_ready (pss);
         switch (status)
@@ -1169,8 +1178,11 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
- * Revision 1.15  2002/04/23 22:37:52  oliverschwartz
- * SnapScan backend version 1.4.11
+ * Revision 1.16  2002/04/27 15:35:17  oliverschwartz
+ * SnapScan backend 1.4.12: Fix option handling
+ *
+ * Revision 1.30  2002/04/27 14:41:22  oliverschwartz
+ * Print number of open handles in close_scanner()
  *
  * Revision 1.29  2002/04/10 21:46:48  oliverschwartz
  * Removed illegal character

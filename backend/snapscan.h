@@ -236,11 +236,6 @@ typedef enum
     OPT_ADVANCED_GROUP,    /* advanced group */
     OPT_RGB_LPR,           /* lines per scsi read (RGB) */
     OPT_GS_LPR,            /* lines per scsi read (GS) */
-    OPT_SCSI_CMDS,         /* a group */
-    OPT_INQUIRY,           /* inquiry command (button) */
-    OPT_SELF_TEST,         /* self test command (button) */
-    OPT_REQ_SENSE,         /* request sense command (button) */
-    OPT_REL_UNIT,          /* release unit command (button) */
     NUM_OPTS               /* dummy (gives number of options) */
 } SnapScan_Options;
 
@@ -367,8 +362,14 @@ struct snapscan_scanner
 
 /*
  * $Log$
- * Revision 1.14  2002/04/23 22:37:54  oliverschwartz
- * SnapScan backend version 1.4.11
+ * Revision 1.15  2002/04/27 15:35:19  oliverschwartz
+ * SnapScan backend 1.4.12: Fix option handling
+ *
+ * Revision 1.31  2002/04/27 14:44:27  oliverschwartz
+ * - Remove SCSI debug options
+ *
+ * Revision 1.30  2002/04/23 22:51:00  oliverschwartz
+ * Cleanup, support for ADF
  *
  * Revision 1.29  2002/03/24 12:14:34  oliverschwartz
  * Add Snapcan_Driver_desc

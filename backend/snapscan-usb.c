@@ -148,7 +148,7 @@ static SANE_Status snapscani_usb_open(const char *dev, int *fdp,
 
     DBG (DL_CALL_TRACE, "%s(%s)\n", me, dev);
 
-    if((sem_id = semget( ftok(dev,0x1234), 1, IPC_CREAT | 0660 )) == -1) {
+    if((sem_id = semget( ftok(dev,0x12), 1, IPC_CREAT | 0660 )) == -1) {
         DBG (DL_MAJOR_ERROR, "%s: Can't get semaphore\n", me);
         return SANE_STATUS_INVAL;
     }
@@ -452,8 +452,11 @@ static SANE_Status usb_request_sense(SnapScan_Scanner *pss) {
 
 /*
  * $Log$
- * Revision 1.9  2002/04/10 21:27:31  oliverschwartz
- * make bqelements static, don't send diagnostic cmd to Snapscan1236
+ * Revision 1.10  2002/04/27 15:35:17  oliverschwartz
+ * SnapScan backend 1.4.12: Fix option handling
+ *
+ * Revision 1.20  2002/04/27 14:36:25  oliverschwartz
+ * Pass a char as 'proj' argument for ftok()
  *
  * Revision 1.19  2002/04/10 21:00:33  oliverschwartz
  * Make bqelements static

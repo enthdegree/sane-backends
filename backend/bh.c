@@ -1856,11 +1856,15 @@ start_scan (BH_Scanner *s)
 	       */
 	      if (!BH_HAS_IMAGE_DATA(itemtype))
 		{
+		  int fd;
 		  FILE *fp;
-		  /*!!!need a real tmpname*/
-		  strcpy(s->barfname, "/tmp/sane.bh.000001");
 
-		  if ((fp = fopen(s->barfname, "w")) != NULL)
+		  strncpy(s->barfname, "/tmp/bhXXXXXX", sizeof(s->barfname));
+		  s->barfname[sizeof(s->barfname)-1] = '\0';
+
+		  if ((mktemp(s->barfname) == NULL) &&
+		      ((fd = open(s->barfname, O_CREAT | O_EXCL | O_WRONLY, 0600)) != -1) &&
+		      ((fp = fdopen(fd, "w")) != NULL))
 		    {
 		      fprintf(fp, "<xml-stream>\n");
 

@@ -1,3 +1,8 @@
+2001-11-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/mustek.desc doc/sane-mustek.man doc/mustek/mustek.CHANGES:
+	  Added enries for Primax Compact 4800.
+
 2001-11-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/mustek_usb.c backend/mustek_usb.conf backend/mustek_usb.desc

@@ -1,5 +1,13 @@
 2001-09-12  Peter Fales <peter@fales.com>
 
+	* acinclude.m4 aclocal.m4 configure configure.in: Changes to
+	  start using gphoto2 libraries in gphoto2 backend
+
+	  backend/gphoto2.c backend/gphoto2.h: Use gphoto2 headers and
+          library functions for list management
+
+2001-09-12  Peter Fales <peter@fales.com>
+
 	* backend/doc/.cvsignore:  Added gphoto2 man page to .cvsignore
 
 2001-09-11  Peter Fales <peter@fales.com>

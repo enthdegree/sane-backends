@@ -401,9 +401,8 @@ init_dc20 (char *device, speed_t speed)
 	struct termios tty_new;
 	int speed_index;
 
-/*
-	DBG(0, "DC-20/25 Backend 05/07/01\n");
-*/
+	DBG(1, "DC-20/25 Backend 05/07/01\n");
+
 	for (speed_index = 0; speed_index < NUM_OF_SPEEDS; speed_index++) {
 		if (speeds[speed_index].baud == speed) {
 			init_pck[2] = speeds[speed_index].pkt_code[0];

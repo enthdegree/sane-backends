@@ -326,6 +326,8 @@ init_dc240 (DC240 * camera)
   SANE_Int speed_index;
   SANE_Char buf[5], n;
 
+  DBG(1, "DC-240 Backend 05/16/01\n");
+
   for (speed_index = 0; speed_index < NELEMS (speeds); speed_index++)
     {
       if (speeds[speed_index].baud == camera->baud)

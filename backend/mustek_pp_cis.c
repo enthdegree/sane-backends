@@ -399,7 +399,7 @@ Mustek_PP_1015_display_reg(const char* info, int val)
  *   3: bank count info
  *
  *****************************************************************************/
-SANE_Byte
+static SANE_Byte
 Mustek_PP_1015_read_reg(Mustek_PP_CIS_dev * dev, Mustek_PP_1015R_reg reg)
 {
    SANE_Byte tmp;
@@ -427,7 +427,7 @@ Mustek_PP_1015_read_reg(Mustek_PP_CIS_dev * dev, Mustek_PP_1015R_reg reg)
  * controlled through the sleep parameter (microseconds).
  *
  *****************************************************************************/
-SANE_Bool
+static SANE_Bool
 Mustek_PP_1015_wait_bit(Mustek_PP_CIS_dev * dev, Mustek_PP_1015R_reg reg,
                         Mustek_PP_1015R_bit bit, SANE_Bool on, unsigned period)
 {
@@ -505,7 +505,7 @@ Mustek_PP_1015_wait_bit(Mustek_PP_CIS_dev * dev, Mustek_PP_1015R_reg reg,
  *
  *****************************************************************************/
   
-void
+static void
 Mustek_PP_1015_write_reg(Mustek_PP_CIS_dev * dev, Mustek_PP_1015W_reg reg, SANE_Byte val)
 {
    
@@ -538,7 +538,7 @@ Mustek_PP_1015_write_reg(Mustek_PP_CIS_dev * dev, Mustek_PP_1015W_reg reg, SANE_
  *   val2 is written to register[regNo+1]
  *
  *****************************************************************************/
-void
+static void
 Mustek_PP_1015_write_reg2(Mustek_PP_CIS_dev * dev, Mustek_PP_1015W_reg reg, 
                SANE_Byte val1, SANE_Byte val2)
 {
@@ -575,7 +575,7 @@ Mustek_PP_1015_write_reg2(Mustek_PP_CIS_dev * dev, Mustek_PP_1015W_reg reg,
  *   val3 is written to register[regNo+2]
  *
  *****************************************************************************/
-void
+static void
 Mustek_PP_1015_write_reg3(Mustek_PP_CIS_dev * dev, Mustek_PP_1015W_reg reg, 
                SANE_Byte val1, SANE_Byte val2, SANE_Byte val3)
 {
@@ -608,7 +608,7 @@ Mustek_PP_1015_write_reg3(Mustek_PP_CIS_dev * dev, Mustek_PP_1015W_reg reg,
 /******************************************************************************
  * Opens a register for a (series of) write operation(s).
  *****************************************************************************/ 
-void
+static void
 Mustek_PP_1015_write_reg_start(Mustek_PP_CIS_dev * dev, Mustek_PP_1015W_reg reg)
 {
    SANE_Byte regBank = (reg & 0xF0) >> 4;
@@ -629,7 +629,7 @@ Mustek_PP_1015_write_reg_start(Mustek_PP_CIS_dev * dev, Mustek_PP_1015W_reg reg)
 /******************************************************************************
  * Writes a value to the currently open register.
  *****************************************************************************/ 
-void
+static void
 Mustek_PP_1015_write_reg_val(Mustek_PP_CIS_dev * dev, SANE_Byte val)
 {
 #ifdef M1015_TRACE_REGS   
@@ -652,7 +652,7 @@ Mustek_PP_1015_write_reg_val(Mustek_PP_CIS_dev * dev, SANE_Byte val)
 /******************************************************************************
  * Closes a register after a (series of) write operation(s).
  *****************************************************************************/ 
-void
+static void
 Mustek_PP_1015_write_reg_stop(Mustek_PP_CIS_dev * dev)
 {
    SANE_Byte regBank = (dev->CIS.regs.current_write_reg & 0xF0) >> 4;

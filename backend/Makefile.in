@@ -242,7 +242,6 @@ EXTRA_canon_pp = canon_pp-io canon_pp-dev
 EXTRA_hp = hp-accessor hp-device hp-handle hp-hpmem hp-option hp-scl
 EXTRA_umax_pp = umax_pp_low umax_pp_mid
 EXTRA_epson = epson_scsi epson_usb
-EXTRA_mustek_pp = mustek_pp_null mustek_pp_cis mustek_pp_ccd300
 # EXTRA_dc210 = djpeg
 # EXTRA_dc240 = djpeg
 
@@ -328,7 +327,6 @@ libsane-mustek.la: ../sanei/sanei_config2.lo
 libsane-mustek.la: ../sanei/sanei_constrain_value.lo
 libsane-mustek.la: ../sanei/sanei_scsi.lo
 libsane-mustek.la: ../sanei/sanei_ab306.lo
-libsane-mustek_pp.la: $(addsuffix .lo,$(EXTRA_mustek_pp))
 libsane-mustek_pp.la: ../sanei/sanei_constrain_value.lo
 libsane-mustek_pp.la: ../sanei/sanei_pa4s2.lo
 libsane-mustek_usb.la: ../sanei/sanei_constrain_value.lo

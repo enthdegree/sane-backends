@@ -1,3 +1,8 @@
+2003-01-13  Jochen Eisinger <jochen.eisinger@gmx.de>
+
+	* backend/mustek_pp*, backend/Makefile: merged all mustek_pp
+	  related files into one compile unit and removed illegal symbols
+
 2003-01-13  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/descriptions/unsupported.desc: Added HP ScanJet 2300C and various chipset

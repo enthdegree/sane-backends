@@ -5,7 +5,7 @@
 #include "mustek_pp.h"
 #include "mustek_pp_decl.h"
 
-Mustek_pp_Functions Mustek_pp_Drivers[] = {
+static Mustek_pp_Functions Mustek_pp_Drivers[] = {
 	{
 		"debug", "Jochen Eisinger", "0.11-devel",
 		debug_drv_init,

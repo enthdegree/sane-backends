@@ -67,13 +67,13 @@
 
 /* A4SII300 driver */
 
-unsigned char ChannelCode[] = { 0x82, 0x42, 0xc2 };
-unsigned char ChannelCode_1015[] = { 0x80, 0x40, 0xc0 };
-unsigned char MotorPhase[] = { 0x09, 0x0c, 0x06, 0x03 };
-unsigned char MotorPhase_HalfStep[]
+static unsigned char ChannelCode[] = { 0x82, 0x42, 0xc2 };
+static unsigned char ChannelCode_1015[] = { 0x80, 0x40, 0xc0 };
+static unsigned char MotorPhase[] = { 0x09, 0x0c, 0x06, 0x03 };
+static unsigned char MotorPhase_HalfStep[]
   = { 0x01, 0x09, 0x08, 0x0c, 0x04, 0x06, 0x02, 0x03 };
 
-SANE_Status
+static SANE_Status
 ParRead (mustek_pp_ccd300_priv * dev)
 {
   unsigned char ASICId;
@@ -87,25 +87,25 @@ ParRead (mustek_pp_ccd300_priv * dev)
     return SANE_STATUS_GOOD;
 }
 
-void
+static void
 Switch_To_Scanner (mustek_pp_ccd300_priv * dev)
 {
   sanei_pa4s2_enable (dev->fd, SANE_TRUE);
 }
 
-void
+static void
 Switch_To_Printer (mustek_pp_ccd300_priv * dev)
 {
   sanei_pa4s2_enable (dev->fd, SANE_FALSE);
 }
 
-void
+static void
 LampPowerOn (mustek_pp_ccd300_priv * dev)
 {
   LampOnOP (dev);
 }
 
-void
+static void
 LampOnOP (mustek_pp_ccd300_priv * dev)
 {
   int btLoop;
@@ -120,13 +120,13 @@ LampOnOP (mustek_pp_ccd300_priv * dev)
 
 }
 
-void
+static void
 LampPowerOff (mustek_pp_ccd300_priv * dev)
 {
   LampOffOP (dev);
 }
 
-void
+static void
 LampOffOP (mustek_pp_ccd300_priv * dev)
 {
   int btLoop;
@@ -140,7 +140,7 @@ LampOffOP (mustek_pp_ccd300_priv * dev)
     }
 }
 
-void
+static void
 SetCCDInfo (mustek_pp_ccd300_priv * dev)
 {
   dev->CCD_Type = CheckCCD_Kind (dev);
@@ -196,7 +196,7 @@ SetCCDInfo (mustek_pp_ccd300_priv * dev)
   SetScanByte (dev);
 }
 
-void
+static void
 SetCCDDPI (mustek_pp_ccd300_priv * dev)
 {
   unsigned char ucRes = 0x00;
@@ -232,7 +232,7 @@ SetCCDDPI (mustek_pp_ccd300_priv * dev)
   OutChar (6, 0x00, dev);
 }
 
-void
+static void
 SetCCDMode (mustek_pp_ccd300_priv * dev)
 {
   unsigned char ucMode = 0x00;
@@ -255,7 +255,7 @@ SetCCDMode (mustek_pp_ccd300_priv * dev)
   SetCCD_Channel (dev);
 }
 
-void
+static void
 SetCCDMode_1015 (mustek_pp_ccd300_priv * dev)
 {
   switch (dev->ScanMode)
@@ -277,7 +277,7 @@ SetCCDMode_1015 (mustek_pp_ccd300_priv * dev)
   SetCCD_Channel (dev);
 }
 
-void
+static void
 SetCCDInvert_1015 (mustek_pp_ccd300_priv * dev)
 {
   dev->ImageCtrl &= 0xe4;
@@ -288,13 +288,13 @@ SetCCDInvert_1015 (mustek_pp_ccd300_priv * dev)
   OutChar (6, dev->ImageCtrl, dev);
 }
 
-void
+static void
 SetPixelAverage (mustek_pp_ccd300_priv * dev)
 {
   OutChar (6, 0x15, dev);
 }
 
-void
+static void
 SetCCD_Channel_WriteSRAM (mustek_pp_ccd300_priv * dev)
 {
   unsigned char ucChannelCode;
@@ -303,7 +303,7 @@ SetCCD_Channel_WriteSRAM (mustek_pp_ccd300_priv * dev)
   OutChar (6, ucChannelCode, dev);
 }
 
-void
+static void
 SetCCD_Channel (mustek_pp_ccd300_priv * dev)
 {
   unsigned char ucChannelCode;
@@ -324,7 +324,7 @@ SetCCD_Channel (mustek_pp_ccd300_priv * dev)
     }
 }
 
-void
+static void
 SetCCDInvert (mustek_pp_ccd300_priv * dev)
 {
   if (dev->PixelFlavor == 1)
@@ -333,13 +333,13 @@ SetCCDInvert (mustek_pp_ccd300_priv * dev)
     OutChar (6, 0x04, dev);
 }
 
-void
+static void
 ClearBankCount (mustek_pp_ccd300_priv * dev)
 {
   OutChar (6, 0x07, dev);
 }
 
-void
+static void
 SetDummyCount (mustek_pp_ccd300_priv * dev)
 {
   unsigned char ucTotalDummy;
@@ -369,7 +369,7 @@ SetDummyCount (mustek_pp_ccd300_priv * dev)
   OutChar (6, 0x01, dev);
 }
 
-void
+static void
 SetScanByte (mustek_pp_ccd300_priv * dev)
 {
   unsigned int wASICScanBytes, wTmp;
@@ -387,7 +387,7 @@ SetScanByte (mustek_pp_ccd300_priv * dev)
   OutChar (6, 0x01, dev);
 }
 
-void
+static void
 SetRGBRefVoltage (mustek_pp_ccd300_priv * dev)
 {
   dev->CCD_Type = CheckCCD_Kind (dev);
@@ -430,7 +430,7 @@ SetRGBRefVoltage (mustek_pp_ccd300_priv * dev)
   OutChar (6, 0x00, dev);
 }
 
-void
+static void
 SetLed_OnOff (mustek_pp_ccd300_priv * dev)
 {
   unsigned int wModNo;
@@ -1136,7 +1136,7 @@ FindVerBlackPos (mustek_pp_ccd300_priv * dev)
   dev->SkipCount = wSkipTmp;
 }
 
-void
+static void
 AllocBuffer (mustek_pp_ccd300_priv * dev)
 {
   unsigned long wBufSize;
@@ -1158,7 +1158,7 @@ AllocBuffer (mustek_pp_ccd300_priv * dev)
   memset (dev->Calib_Gray_Buf, 0, wBufSize);
 }
 
-void
+static void
 FreeBuf (mustek_pp_ccd300_priv * dev)
 {
   free (dev->lpTmpBuf_R);
@@ -1169,7 +1169,7 @@ FreeBuf (mustek_pp_ccd300_priv * dev)
   free (dev->Calib_Gray_Buf);
 }
 
-void
+static void
 IO_GetGrayData (mustek_pp_ccd300_priv * dev)
 {
   unsigned int wLineCount;
@@ -1216,7 +1216,7 @@ IO_GetGrayData (mustek_pp_ccd300_priv * dev)
   dev->CatchDataFirst = 0;
 }
 
-void
+static void
 IO_GetGrayData_100 (mustek_pp_ccd300_priv * dev)
 {
   unsigned int wLineCount;
@@ -1254,7 +1254,7 @@ IO_GetGrayData_100 (mustek_pp_ccd300_priv * dev)
   dev->CatchDataFirst = 0;
 }
 
-void
+static void
 IO_GetColorData (mustek_pp_ccd300_priv * dev)
 {
   unsigned int wLineCount;
@@ -1312,7 +1312,7 @@ IO_GetColorData (mustek_pp_ccd300_priv * dev)
   dev->CatchDataFirst = 0;
 }
 
-void
+static void
 IO_GetColorData_100 (mustek_pp_ccd300_priv * dev)
 {
   unsigned int wLineCount;
@@ -1371,7 +1371,7 @@ IO_GetColorData_100 (mustek_pp_ccd300_priv * dev)
   dev->CatchDataFirst = 0;
 }
 
-void
+static void
 Res50_Go_3_step (mustek_pp_ccd300_priv * dev)
 {
   unsigned int wLoop;
@@ -1384,7 +1384,7 @@ Res50_Go_3_step (mustek_pp_ccd300_priv * dev)
       WaitBankCountChange (dev);
     }
 }
-void
+static void
 MoveR_Tmp_Image_Buffer (mustek_pp_ccd300_priv * dev,
 			unsigned char * pImagePtr, unsigned char * pBufferPtr)
 {
@@ -1405,7 +1405,7 @@ MoveR_Tmp_Image_Buffer (mustek_pp_ccd300_priv * dev,
   dev->Catch_R_TmpC = 0;
 }
 
-void
+static void
 MoveB_Tmp_Image_Buffer (mustek_pp_ccd300_priv * dev,
 			unsigned char * pImagePtr, unsigned char * pBufferPtr)
 {
@@ -1426,7 +1426,7 @@ MoveB_Tmp_Image_Buffer (mustek_pp_ccd300_priv * dev,
   dev->Catch_B_TmpC = 0;
 }
 
-void
+static void
 Catch_Red_Line (mustek_pp_ccd300_priv * dev)
 {
   unsigned int wBuf_Lines;
@@ -1463,7 +1463,7 @@ Catch_Red_Line (mustek_pp_ccd300_priv * dev)
     }
 }
 
-void
+static void
 Catch_Blue_Line (mustek_pp_ccd300_priv * dev)
 {
   unsigned int wCatch_Count, wBuf_Lines;
@@ -1520,7 +1520,7 @@ Catch_Blue_Line (mustek_pp_ccd300_priv * dev)
       dev->Catch_B_TmpC++;
     }
 }
-void
+static void
 Catch_Green_Line (mustek_pp_ccd300_priv * dev)
 {
   unsigned int wCatch_Count;
@@ -1563,7 +1563,7 @@ Catch_Green_Line (mustek_pp_ccd300_priv * dev)
   dev->Catch_G_Count++;
 }
 
-void
+static void
 IO_GetData (mustek_pp_ccd300_priv * dev, unsigned char * pImagePtr)
 {
   unsigned int wByteCount;
@@ -1580,7 +1580,7 @@ IO_GetData (mustek_pp_ccd300_priv * dev, unsigned char * pImagePtr)
   InChar_End_Dispatch (dev->PM, dev);
 }
 
-void
+static void
 IO_GetData_SPEC (mustek_pp_ccd300_priv * dev, unsigned char *pImagePtr)
 {
   unsigned int wByteCount;
@@ -1600,7 +1600,7 @@ IO_GetData_SPEC (mustek_pp_ccd300_priv * dev, unsigned char *pImagePtr)
   InChar_End_Dispatch (dev->PM, dev);
 }
 
-void
+static void
 IO_Color_Line (mustek_pp_ccd300_priv * dev, unsigned char * pImagePtr)
 {
   unsigned int wLoop;
@@ -1631,7 +1631,7 @@ IO_Color_Line (mustek_pp_ccd300_priv * dev, unsigned char * pImagePtr)
   InChar_End_Dispatch (dev->PM, dev);
 }
 
-void
+static void
 IO_Color_Line_SPEC (mustek_pp_ccd300_priv * dev, unsigned char * pImagePtr)
 {
   unsigned int wByteCount;
@@ -1665,7 +1665,7 @@ IO_Color_Line_SPEC (mustek_pp_ccd300_priv * dev, unsigned char * pImagePtr)
   InChar_End_Dispatch (dev->PM, dev);
 }
 
-void
+static void
 IO_SkipData (mustek_pp_ccd300_priv * dev)
 {
   unsigned int wLoop, wSkipCount;
@@ -1676,7 +1676,7 @@ IO_SkipData (mustek_pp_ccd300_priv * dev)
     }
 }
 
-void
+static void
 Check_DataPar (mustek_pp_ccd300_priv * dev)
 {
   dev->ASICRes = 1;
@@ -1699,7 +1699,7 @@ Check_DataPar (mustek_pp_ccd300_priv * dev)
     }
 }
 
-void
+static void
 Whether_Skip_One_Line (mustek_pp_ccd300_priv * dev, int wCatch_Count)
 {
   switch (dev->ScanResolution)
@@ -1737,7 +1737,7 @@ Whether_Skip_One_Line (mustek_pp_ccd300_priv * dev, int wCatch_Count)
     }
 }
 
-void
+static void
 Chk_Color_100_Abort (mustek_pp_ccd300_priv * dev, int wCatch_Count)
 {
   unsigned int wModNo;
@@ -1775,7 +1775,7 @@ Chk_Color_100_Abort (mustek_pp_ccd300_priv * dev, int wCatch_Count)
     }
 }
 
-void
+static void
 Chk_Color_100_Abort_3794 (mustek_pp_ccd300_priv * dev, int wCatch_Count)
 {
   unsigned int wModNo;
@@ -1814,7 +1814,7 @@ Chk_Color_100_Abort_3794 (mustek_pp_ccd300_priv * dev, int wCatch_Count)
 }
 
 /*ARGSUSED*/
-void
+static void
 Delay_Motor_Times (mustek_pp_ccd300_priv * dev __UNUSED__, 
 		   unsigned long lgScanTime)
 {
@@ -1837,7 +1837,7 @@ Delay_Motor_Times (mustek_pp_ccd300_priv * dev __UNUSED__,
     }
 }
 
-void
+static void
 GetCalibData (mustek_pp_ccd300_priv * dev)
 {
   unsigned long dwLoop;
@@ -1891,7 +1891,7 @@ GetCalibData (mustek_pp_ccd300_priv * dev)
     }
 }
 
-void
+static void
 GetChannelData (mustek_pp_ccd300_priv * dev, unsigned char * pucBuf)
 {
   SetCCD_Channel (dev);
@@ -1904,7 +1904,7 @@ GetChannelData (mustek_pp_ccd300_priv * dev, unsigned char * pucBuf)
   ClearBankCount (dev);
 }
 
-void
+static void
 GetMaxData (mustek_pp_ccd300_priv * dev, unsigned char * pImagePtr)
 {
   unsigned int wLoop, wLoop1;
@@ -1930,7 +1930,7 @@ GetMaxData (mustek_pp_ccd300_priv * dev, unsigned char * pImagePtr)
     }
 }
 
-void
+static void
 Get_Line_ntimes (mustek_pp_ccd300_priv * dev, unsigned char * pImagePtr)
 {
   unsigned char *pucCalib_Buf, *pCalibPtr;
@@ -1956,7 +1956,7 @@ Get_Line_ntimes (mustek_pp_ccd300_priv * dev, unsigned char * pImagePtr)
   free (pucCalib_Buf);
 }
 
-void
+static void
 Average_Data (mustek_pp_ccd300_priv * dev, unsigned char * pInImagePtr,
 	      unsigned char * pOutImagePtr)
 {
@@ -1979,7 +1979,7 @@ Average_Data (mustek_pp_ccd300_priv * dev, unsigned char * pInImagePtr,
     }
 }
 
-void
+static void
 FindHBlackPos (mustek_pp_ccd300_priv * dev, unsigned char * pImagePtr)
 {
   unsigned char *pImagePtrTmp;
@@ -2001,7 +2001,7 @@ FindHBlackPos (mustek_pp_ccd300_priv * dev, unsigned char * pImagePtr)
   pImagePtr = pImagePtrTmp;
 }
 
-int
+static int
 FindVBlackPos (mustek_pp_ccd300_priv * dev, unsigned char * pImagePtr)
 {
   unsigned int wBkPos, wFindBkCount;
@@ -2019,7 +2019,7 @@ FindVBlackPos (mustek_pp_ccd300_priv * dev, unsigned char * pImagePtr)
     return 0;
 }
 
-unsigned char
+static unsigned char
 ABSCompute (unsigned char ucData1, unsigned char ucData2)
 {
   unsigned char ucData;
@@ -2030,7 +2030,7 @@ ABSCompute (unsigned char ucData1, unsigned char ucData2)
   return ucData;
 }
 
-unsigned char
+static unsigned char
 SubRefBlack (mustek_pp_ccd300_priv * dev, unsigned char ucData)
 {
 
@@ -2041,7 +2041,7 @@ SubRefBlack (mustek_pp_ccd300_priv * dev, unsigned char ucData)
   return ucData;
 }
 
-void
+static void
 Bubble_Sort_Arg (mustek_pp_ccd300_priv * dev, unsigned int wCount)
 {
   unsigned int wLoop, wLoop1;
@@ -2060,7 +2060,7 @@ Bubble_Sort_Arg (mustek_pp_ccd300_priv * dev, unsigned int wCount)
     }
 }
 
-void
+static void
 CalibrationData_Gray (mustek_pp_ccd300_priv * dev, unsigned char * pImagePtr)
 {
   unsigned int wLoop;
@@ -2076,7 +2076,8 @@ CalibrationData_Gray (mustek_pp_ccd300_priv * dev, unsigned char * pImagePtr)
     }
 }
 
-void CalibrationData_Color (mustek_pp_ccd300_priv * dev, 
+static void 
+CalibrationData_Color (mustek_pp_ccd300_priv * dev, 
 			    unsigned char * pImagePtr)
 {
   unsigned char *lpImageTmp;
@@ -2096,7 +2097,7 @@ void CalibrationData_Color (mustek_pp_ccd300_priv * dev,
     CalibrationData_B (dev, lpImageTmp);
 }
 
-void
+static void
 CalibrationData_R (mustek_pp_ccd300_priv * dev, unsigned char * pImagePtr)
 {
   unsigned int wLoop;
@@ -2112,7 +2113,7 @@ CalibrationData_R (mustek_pp_ccd300_priv * dev, unsigned char * pImagePtr)
     }
 }
 
-void
+static void
 CalibrationData_G (mustek_pp_ccd300_priv * dev, unsigned char * pImagePtr)
 {
   unsigned int wLoop;
@@ -2128,7 +2129,7 @@ CalibrationData_G (mustek_pp_ccd300_priv * dev, unsigned char * pImagePtr)
     }
 }
 
-void
+static void
 CalibrationData_B (mustek_pp_ccd300_priv * dev, unsigned char * pImagePtr)
 {
   unsigned int wLoop;
@@ -2144,7 +2145,7 @@ CalibrationData_B (mustek_pp_ccd300_priv * dev, unsigned char * pImagePtr)
     }
 }
 
-void
+static void
 CalibrationData (mustek_pp_ccd300_priv * dev, unsigned char * pImagePtr,
 		 unsigned char * pCaliBufPtr)
 {
@@ -2180,7 +2181,7 @@ CalibrationData (mustek_pp_ccd300_priv * dev, unsigned char * pImagePtr,
 
 #define MUSTEK_PP_CCD300	4
 
-SANE_Status
+static SANE_Status
 ccd300_init (SANE_Int options, SANE_String_Const port,
 	     SANE_String_Const name, SANE_Attach_Callback attach)
 {
@@ -2231,7 +2232,7 @@ ccd300_init (SANE_Int options, SANE_String_Const port,
 }
 
 
-void
+static void
 ccd300_capabilities (SANE_Int info, SANE_String * model,
 		     SANE_String * vendor, SANE_String * type,
 		     SANE_Int * maxres, SANE_Int * minres,
@@ -2260,7 +2261,7 @@ ccd300_capabilities (SANE_Int info, SANE_String * model,
 
 }
 
-SANE_Status
+static SANE_Status
 ccd300_open (SANE_String port, SANE_Int caps, SANE_Int * fd)
 {
   SANE_Status status;
@@ -2282,7 +2283,7 @@ ccd300_open (SANE_String port, SANE_Int caps, SANE_Int * fd)
   return status;
 }
 
-void
+static void
 ccd300_setup (SANE_Handle hndl)
 {
 
@@ -2315,7 +2316,7 @@ ccd300_setup (SANE_Handle hndl)
   dev->LampOnTime = time(NULL);
 }
 
-SANE_Status
+static SANE_Status
 ccd300_config (SANE_Handle handle, SANE_String_Const optname,
 		SANE_String_Const optval)
 {
@@ -2350,7 +2351,8 @@ ccd300_config (SANE_Handle handle, SANE_String_Const optname,
 			
 }
 
-void ccd300_close(SANE_Handle handle)
+static void 
+ccd300_close(SANE_Handle handle)
 {
 	Mustek_pp_Handle *hndl = handle;
 	mustek_pp_ccd300_priv *dev = hndl->priv;
@@ -2362,7 +2364,8 @@ void ccd300_close(SANE_Handle handle)
 
 }
 
-SANE_Status ccd300_start (SANE_Handle handle)
+static SANE_Status
+ccd300_start (SANE_Handle handle)
 {
   Mustek_pp_Handle *hndl = handle;
   mustek_pp_ccd300_priv *dev = hndl->priv;
@@ -2399,4 +2402,16 @@ SANE_Status ccd300_start (SANE_Handle handle)
   Switch_To_Printer(dev);
 
   return SANE_STATUS_GOOD;
+}
+
+
+/*ARGSUSED*/
+static void
+ccd300_read (SANE_Handle hndl __UNUSED__, SANE_Byte *buffer __UNUSED__)
+{
+}
+/*ARGSUSED*/
+static void
+ccd300_stop (SANE_Handle hndl __UNUSED__)
+{
 }

@@ -133,122 +133,122 @@ typedef struct
 mustek_pp_ccd300_priv;
 
 /* prototypes */
-SANE_Status ParRead (mustek_pp_ccd300_priv * dev);
-void Switch_To_Scanner (mustek_pp_ccd300_priv * dev);
-void Switch_To_Printer (mustek_pp_ccd300_priv * dev);
-void LampPowerOn (mustek_pp_ccd300_priv * dev);
-void LampOnOP (mustek_pp_ccd300_priv * dev);
-void LampPowerOff (mustek_pp_ccd300_priv * dev);
-void LampOffOP (mustek_pp_ccd300_priv * dev);
-void SetCCDInfo (mustek_pp_ccd300_priv * dev);
-void SetCCDDPI (mustek_pp_ccd300_priv * dev);
-void SetCCDMode (mustek_pp_ccd300_priv * dev);
-void SetCCDMode_1015 (mustek_pp_ccd300_priv * dev);
-void SetCCDInvert_1015 (mustek_pp_ccd300_priv * dev);
-void SetPixelAverage (mustek_pp_ccd300_priv * dev);
-void SetCCD_Channel_WriteSRAM (mustek_pp_ccd300_priv * dev);
-void SetCCD_Channel (mustek_pp_ccd300_priv * dev);
-void SetCCDInvert (mustek_pp_ccd300_priv * dev);
-void ClearBankCount (mustek_pp_ccd300_priv * dev);
-void SetDummyCount (mustek_pp_ccd300_priv * dev);
-void SetScanByte (mustek_pp_ccd300_priv * dev);
-void SetRGBRefVoltage (mustek_pp_ccd300_priv * dev);
-void SetLed_OnOff (mustek_pp_ccd300_priv * dev);
-void OutChar (unsigned char RegNo,
-	      unsigned char OutData, mustek_pp_ccd300_priv * dev);
-unsigned char Read_a_Byte (mustek_pp_ccd300_priv * dev, unsigned char RegNo);
-void InChar_Begin_Dispatch (unsigned char Mode, mustek_pp_ccd300_priv * dev, 
-			    unsigned char RegNo);
-unsigned char InChar_Do_Dispatch (unsigned char Mode, 
-				  mustek_pp_ccd300_priv * dev);
-void InChar_End_Dispatch (unsigned char Mode, mustek_pp_ccd300_priv * dev);
-unsigned char Change_Mode (mustek_pp_ccd300_priv * dev);
-unsigned char ReadID1 (unsigned char Mode, mustek_pp_ccd300_priv * dev);
-void CheckMotorSatus (mustek_pp_ccd300_priv * dev);
-void CheckPIPStatus (mustek_pp_ccd300_priv * dev);
-unsigned char GetBankCount (mustek_pp_ccd300_priv * dev);
-unsigned char CheckCCDBit (mustek_pp_ccd300_priv * dev);
-unsigned char CheckCCD_Kind (mustek_pp_ccd300_priv * dev);
-void WaitBankCountChange (mustek_pp_ccd300_priv * dev);
-void GetDeviceInfo (mustek_pp_ccd300_priv * dev);
-void SetScanParameter (int DeviceObject, int Irp, mustek_pp_ccd300_priv * dev);
-void GetScanParameter (int DeviceObject, int Irp, mustek_pp_ccd300_priv * dev);
-void A4StartScan (int DeviceObject, int Irp, mustek_pp_ccd300_priv * dev);
-void A4StopScan (int DeviceObject, int Irp, mustek_pp_ccd300_priv * dev);
-void A4CheckScanner_HomeSensor (int DeviceObject, int Irp,
-			        mustek_pp_ccd300_priv * dev);
-void A4CarriageTo_Home (int DeviceObject, int Irp, 
-			mustek_pp_ccd300_priv * dev);
-void PullCarriage_ToHome (mustek_pp_ccd300_priv * dev);
-void Motor_BackHome (mustek_pp_ccd300_priv * dev);
-void A4GetImage (int DeviceObject, int Irp, mustek_pp_ccd300_priv * dev);
-void SetASICRes (mustek_pp_ccd300_priv * dev);
-int CalScanParameter (int wResolution, int wPar);
-void Forward_onestep (mustek_pp_ccd300_priv * dev);
-void Backward_onestep (mustek_pp_ccd300_priv * dev);
-void Asic1015_Motor_Ctrl (mustek_pp_ccd300_priv * dev,
-			  unsigned char ucMotorCtrl);
-void Delay_nTimes_mSec (unsigned int wTimes);
-void SetSTI (mustek_pp_ccd300_priv * dev);
-void Motor_StepLoop (mustek_pp_ccd300_priv * dev,
-		     unsigned char ucForBackFlag, unsigned int wStepNo);
-void Motor_Off (mustek_pp_ccd300_priv * dev);
-void Store_Tmp_Data (mustek_pp_ccd300_priv * dev);
-void Restore_Tmp_Data (mustek_pp_ccd300_priv * dev);
-void IO_FindBlack_Data (mustek_pp_ccd300_priv * dev);
-void CalRefBlack (mustek_pp_ccd300_priv * dev);
-void GetRefBlack (mustek_pp_ccd300_priv * dev);
-void RestoreCCDInfo_Set (mustek_pp_ccd300_priv * dev);
-void FindHorBlackPos (mustek_pp_ccd300_priv * dev);
-void FindVerBlackPos (mustek_pp_ccd300_priv * dev);
-void AllocBuffer (mustek_pp_ccd300_priv * dev);
-void FreeBuf (mustek_pp_ccd300_priv * dev);
-void IO_GetGrayData (mustek_pp_ccd300_priv * dev);
-void IO_GetGrayData_100 (mustek_pp_ccd300_priv * dev);
-void IO_GetColorData (mustek_pp_ccd300_priv * dev);
-void IO_GetColorData_100 (mustek_pp_ccd300_priv * dev);
-void Res50_Go_3_step (mustek_pp_ccd300_priv * dev);
-void MoveR_Tmp_Image_Buffer (mustek_pp_ccd300_priv * dev,
-			     unsigned char * pImagePtr, 
-			     unsigned char * pBufferPtr);
-void MoveB_Tmp_Image_Buffer (mustek_pp_ccd300_priv * dev,
-			     unsigned char * pImagePtr, 
-			     unsigned char * pBufferPtr);
-void Catch_Red_Line (mustek_pp_ccd300_priv * dev);
-void Catch_Blue_Line (mustek_pp_ccd300_priv * dev);
-void Catch_Green_Line (mustek_pp_ccd300_priv * dev);
-void IO_GetData (mustek_pp_ccd300_priv * dev, unsigned char * pImagePtr);
-void IO_GetData_SPEC (mustek_pp_ccd300_priv * dev, unsigned char *pImagePtr);
-void IO_Color_Line (mustek_pp_ccd300_priv * dev, unsigned char * pImagePtr);
-void IO_Color_Line_SPEC (mustek_pp_ccd300_priv * dev, 
-			 unsigned char * pImagePtr);
-void IO_SkipData (mustek_pp_ccd300_priv * dev);
-void Check_DataPar (mustek_pp_ccd300_priv * dev);
-void Whether_Skip_One_Line (mustek_pp_ccd300_priv * dev, int wCatch_Count);
-void Chk_Color_100_Abort (mustek_pp_ccd300_priv * dev, int wCatch_Count);
-void Chk_Color_100_Abort_3794 (mustek_pp_ccd300_priv * dev, int wCatch_Count);
-void Delay_Motor_Times (mustek_pp_ccd300_priv * dev, unsigned long lgScanTime);
-void GetCalibData (mustek_pp_ccd300_priv * dev);
-void GetChannelData (mustek_pp_ccd300_priv * dev, unsigned char * pucBuf);
-void GetMaxData (mustek_pp_ccd300_priv * dev, unsigned char * pImagePtr);
-void Get_Line_ntimes (mustek_pp_ccd300_priv * dev, unsigned char * pImagePtr);
-void Average_Data (mustek_pp_ccd300_priv * dev, unsigned char * pInImagePtr,
-		   unsigned char * pOutImagePtr);
-void FindHBlackPos (mustek_pp_ccd300_priv * dev, unsigned char * pImagePtr);
-int FindVBlackPos (mustek_pp_ccd300_priv * dev, unsigned char * pImagePtr);
-unsigned char ABSCompute (unsigned char ucData1, unsigned char ucData2);
-unsigned char SubRefBlack (mustek_pp_ccd300_priv * dev, unsigned char ucData);
-void Bubble_Sort_Arg (mustek_pp_ccd300_priv * dev, unsigned int wCount);
-void CalibrationData_Gray (mustek_pp_ccd300_priv * dev, 
-			   unsigned char * pImagePtr);
-void CalibrationData_Color (mustek_pp_ccd300_priv * dev, 
-			    unsigned char * pImagePtr);
-void CalibrationData_R (mustek_pp_ccd300_priv * dev, 
-			unsigned char * pImagePtr);
-void CalibrationData_G (mustek_pp_ccd300_priv * dev, 
-			unsigned char * pImagePtr);
-void CalibrationData_B (mustek_pp_ccd300_priv * dev, 
-			unsigned char * pImagePtr);
-void CalibrationData (mustek_pp_ccd300_priv * dev, unsigned char * pImagePtr,
-		      unsigned char * pCaliBufPtr);
+static SANE_Status ParRead (mustek_pp_ccd300_priv * dev);
+static void Switch_To_Scanner (mustek_pp_ccd300_priv * dev);
+static void Switch_To_Printer (mustek_pp_ccd300_priv * dev);
+static void LampPowerOn (mustek_pp_ccd300_priv * dev);
+static void LampOnOP (mustek_pp_ccd300_priv * dev);
+static void LampPowerOff (mustek_pp_ccd300_priv * dev);
+static void LampOffOP (mustek_pp_ccd300_priv * dev);
+static void SetCCDInfo (mustek_pp_ccd300_priv * dev);
+static void SetCCDDPI (mustek_pp_ccd300_priv * dev);
+static void SetCCDMode (mustek_pp_ccd300_priv * dev);
+static void SetCCDMode_1015 (mustek_pp_ccd300_priv * dev);
+static void SetCCDInvert_1015 (mustek_pp_ccd300_priv * dev);
+static void SetPixelAverage (mustek_pp_ccd300_priv * dev);
+static void SetCCD_Channel_WriteSRAM (mustek_pp_ccd300_priv * dev);
+static void SetCCD_Channel (mustek_pp_ccd300_priv * dev);
+static void SetCCDInvert (mustek_pp_ccd300_priv * dev);
+static void ClearBankCount (mustek_pp_ccd300_priv * dev);
+static void SetDummyCount (mustek_pp_ccd300_priv * dev);
+static void SetScanByte (mustek_pp_ccd300_priv * dev);
+static void SetRGBRefVoltage (mustek_pp_ccd300_priv * dev);
+static void SetLed_OnOff (mustek_pp_ccd300_priv * dev);
+static void OutChar (unsigned char RegNo,
+ 	      unsigned char OutData, mustek_pp_ccd300_priv * dev);
+static unsigned char Read_a_Byte (mustek_pp_ccd300_priv * dev, unsigned char RegNo);
+static void InChar_Begin_Dispatch (unsigned char Mode, mustek_pp_ccd300_priv * dev, 
+ 			    unsigned char RegNo);
+static unsigned char InChar_Do_Dispatch (unsigned char Mode, 
+ 				  mustek_pp_ccd300_priv * dev);
+static void InChar_End_Dispatch (unsigned char Mode, mustek_pp_ccd300_priv * dev);
+static unsigned char Change_Mode (mustek_pp_ccd300_priv * dev);
+static unsigned char ReadID1 (unsigned char Mode, mustek_pp_ccd300_priv * dev);
+static void CheckMotorSatus (mustek_pp_ccd300_priv * dev);
+static void CheckPIPStatus (mustek_pp_ccd300_priv * dev);
+static unsigned char GetBankCount (mustek_pp_ccd300_priv * dev);
+static unsigned char CheckCCDBit (mustek_pp_ccd300_priv * dev);
+static unsigned char CheckCCD_Kind (mustek_pp_ccd300_priv * dev);
+static void WaitBankCountChange (mustek_pp_ccd300_priv * dev);
+static void GetDeviceInfo (mustek_pp_ccd300_priv * dev);
+static void SetScanParameter (int DeviceObject, int Irp, mustek_pp_ccd300_priv * dev);
+static void GetScanParameter (int DeviceObject, int Irp, mustek_pp_ccd300_priv * dev);
+static void A4StartScan (int DeviceObject, int Irp, mustek_pp_ccd300_priv * dev);
+static void A4StopScan (int DeviceObject, int Irp, mustek_pp_ccd300_priv * dev);
+static void A4CheckScanner_HomeSensor (int DeviceObject, int Irp,
+ 			        mustek_pp_ccd300_priv * dev);
+static void A4CarriageTo_Home (int DeviceObject, int Irp, 
+ 			mustek_pp_ccd300_priv * dev);
+static void PullCarriage_ToHome (mustek_pp_ccd300_priv * dev);
+static void Motor_BackHome (mustek_pp_ccd300_priv * dev);
+static void A4GetImage (int DeviceObject, int Irp, mustek_pp_ccd300_priv * dev);
+static void SetASICRes (mustek_pp_ccd300_priv * dev);
+static int CalScanParameter (int wResolution, int wPar);
+static void Forward_onestep (mustek_pp_ccd300_priv * dev);
+static void Backward_onestep (mustek_pp_ccd300_priv * dev);
+static void Asic1015_Motor_Ctrl (mustek_pp_ccd300_priv * dev,
+ 			  unsigned char ucMotorCtrl);
+static void Delay_nTimes_mSec (unsigned int wTimes);
+static void SetSTI (mustek_pp_ccd300_priv * dev);
+static void Motor_StepLoop (mustek_pp_ccd300_priv * dev,
+ 		     unsigned char ucForBackFlag, unsigned int wStepNo);
+static void Motor_Off (mustek_pp_ccd300_priv * dev);
+static void Store_Tmp_Data (mustek_pp_ccd300_priv * dev);
+static void Restore_Tmp_Data (mustek_pp_ccd300_priv * dev);
+static void IO_FindBlack_Data (mustek_pp_ccd300_priv * dev);
+static void CalRefBlack (mustek_pp_ccd300_priv * dev);
+static void GetRefBlack (mustek_pp_ccd300_priv * dev);
+static void RestoreCCDInfo_Set (mustek_pp_ccd300_priv * dev);
+static void FindHorBlackPos (mustek_pp_ccd300_priv * dev);
+static void FindVerBlackPos (mustek_pp_ccd300_priv * dev);
+static void AllocBuffer (mustek_pp_ccd300_priv * dev);
+static void FreeBuf (mustek_pp_ccd300_priv * dev);
+static void IO_GetGrayData (mustek_pp_ccd300_priv * dev);
+static void IO_GetGrayData_100 (mustek_pp_ccd300_priv * dev);
+static void IO_GetColorData (mustek_pp_ccd300_priv * dev);
+static void IO_GetColorData_100 (mustek_pp_ccd300_priv * dev);
+static void Res50_Go_3_step (mustek_pp_ccd300_priv * dev);
+static void MoveR_Tmp_Image_Buffer (mustek_pp_ccd300_priv * dev,
+ 			     unsigned char * pImagePtr, 
+ 			     unsigned char * pBufferPtr);
+static void MoveB_Tmp_Image_Buffer (mustek_pp_ccd300_priv * dev,
+ 			     unsigned char * pImagePtr, 
+ 			     unsigned char * pBufferPtr);
+static void Catch_Red_Line (mustek_pp_ccd300_priv * dev);
+static void Catch_Blue_Line (mustek_pp_ccd300_priv * dev);
+static void Catch_Green_Line (mustek_pp_ccd300_priv * dev);
+static void IO_GetData (mustek_pp_ccd300_priv * dev, unsigned char * pImagePtr);
+static void IO_GetData_SPEC (mustek_pp_ccd300_priv * dev, unsigned char *pImagePtr);
+static void IO_Color_Line (mustek_pp_ccd300_priv * dev, unsigned char * pImagePtr);
+static void IO_Color_Line_SPEC (mustek_pp_ccd300_priv * dev, 
+ 			 unsigned char * pImagePtr);
+static void IO_SkipData (mustek_pp_ccd300_priv * dev);
+static void Check_DataPar (mustek_pp_ccd300_priv * dev);
+static void Whether_Skip_One_Line (mustek_pp_ccd300_priv * dev, int wCatch_Count);
+static void Chk_Color_100_Abort (mustek_pp_ccd300_priv * dev, int wCatch_Count);
+static void Chk_Color_100_Abort_3794 (mustek_pp_ccd300_priv * dev, int wCatch_Count);
+static void Delay_Motor_Times (mustek_pp_ccd300_priv * dev, unsigned long lgScanTime);
+static void GetCalibData (mustek_pp_ccd300_priv * dev);
+static void GetChannelData (mustek_pp_ccd300_priv * dev, unsigned char * pucBuf);
+static void GetMaxData (mustek_pp_ccd300_priv * dev, unsigned char * pImagePtr);
+static void Get_Line_ntimes (mustek_pp_ccd300_priv * dev, unsigned char * pImagePtr);
+static void Average_Data (mustek_pp_ccd300_priv * dev, unsigned char * pInImagePtr,
+ 		   unsigned char * pOutImagePtr);
+static void FindHBlackPos (mustek_pp_ccd300_priv * dev, unsigned char * pImagePtr);
+static int FindVBlackPos (mustek_pp_ccd300_priv * dev, unsigned char * pImagePtr);
+static unsigned char ABSCompute (unsigned char ucData1, unsigned char ucData2);
+static unsigned char SubRefBlack (mustek_pp_ccd300_priv * dev, unsigned char ucData);
+static void Bubble_Sort_Arg (mustek_pp_ccd300_priv * dev, unsigned int wCount);
+static void CalibrationData_Gray (mustek_pp_ccd300_priv * dev, 
+ 			   unsigned char * pImagePtr);
+static void CalibrationData_Color (mustek_pp_ccd300_priv * dev, 
+ 			    unsigned char * pImagePtr);
+static void CalibrationData_R (mustek_pp_ccd300_priv * dev, 
+ 			unsigned char * pImagePtr);
+static void CalibrationData_G (mustek_pp_ccd300_priv * dev, 
+ 			unsigned char * pImagePtr);
+static void CalibrationData_B (mustek_pp_ccd300_priv * dev, 
+ 			unsigned char * pImagePtr);
+static void CalibrationData (mustek_pp_ccd300_priv * dev, unsigned char * pImagePtr,
+ 		      unsigned char * pCaliBufPtr);
 #endif

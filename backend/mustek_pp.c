@@ -116,29 +116,29 @@ static SANE_Device **devarray = NULL;
 /* currently active Handles */
 static Mustek_pp_Handle *first_hndl = NULL;
 
-SANE_String_Const       mustek_pp_modes[4] = {"Lineart", "Grayscale", "Color", NULL};
-SANE_Word               mustek_pp_modes_size = 10;
+static SANE_String_Const       mustek_pp_modes[4] = {"Lineart", "Grayscale", "Color", NULL};
+static SANE_Word               mustek_pp_modes_size = 10;
  
-SANE_String_Const       mustek_pp_speeds[6] = {"Slowest", "Slower", "Normal", "Faster", "Fastest", NULL};
-SANE_Word               mustek_pp_speeds_size = 8;
-SANE_Word               mustek_pp_depths[5] = {4, 8, 10, 12, 16};   
+static SANE_String_Const       mustek_pp_speeds[6] = {"Slowest", "Slower", "Normal", "Faster", "Fastest", NULL};
+static SANE_Word               mustek_pp_speeds_size = 8;
+static SANE_Word               mustek_pp_depths[5] = {4, 8, 10, 12, 16};   
 
 /* prototypes */
-void free_cfg_options(int *numoptions, Mustek_pp_config_option** options);
-SANE_Status do_eof(Mustek_pp_Handle *hndl);
-SANE_Status do_stop(Mustek_pp_Handle *hndl);
-int reader_process (Mustek_pp_Handle * hndl, int pipe);
-SANE_Status sane_attach(SANE_String_Const port, SANE_String_Const name, 
+static void free_cfg_options(int *numoptions, Mustek_pp_config_option** options);
+static SANE_Status do_eof(Mustek_pp_Handle *hndl);
+static SANE_Status do_stop(Mustek_pp_Handle *hndl);
+static int reader_process (Mustek_pp_Handle * hndl, int pipe);
+static SANE_Status sane_attach(SANE_String_Const port, SANE_String_Const name, 
 			SANE_Int driver, SANE_Int info);
-void init_options(Mustek_pp_Handle *hndl);
-void attach_device(SANE_String *driver, SANE_String *name, 
+static void init_options(Mustek_pp_Handle *hndl);
+static void attach_device(SANE_String *driver, SANE_String *name, 
 		   SANE_String *port, SANE_String *option_ta);
 
 
 /*
  * Auxiliary function for freeing arrays of configuration options, 
  */
-void 
+static void 
 free_cfg_options(int *numoptions, Mustek_pp_config_option** options)
 {
    int i;
@@ -163,7 +163,7 @@ free_cfg_options(int *numoptions, Mustek_pp_config_option** options)
  * Description:
  * 	closes the pipe (read-only end)
  */
-SANE_Status
+static SANE_Status
 do_eof (Mustek_pp_Handle *hndl)
 {
 	if (hndl->pipe >= 0) {
@@ -183,7 +183,7 @@ do_eof (Mustek_pp_Handle *hndl)
  * Description:
  * 	kills the reader process with a SIGTERM and cancels the scanner
  */
-SANE_Status
+static SANE_Status
 do_stop(Mustek_pp_Handle *hndl)
 {
 
@@ -237,7 +237,7 @@ sigterm_handler (int signal __UNUSED__)
  * 	The signal handle for SIGTERM is initialized.
  *
  */
-int
+static int
 reader_process (Mustek_pp_Handle * hndl, int pipe)
 {
 	sigset_t	sigterm_set;
@@ -312,7 +312,7 @@ reader_process (Mustek_pp_Handle * hndl, int pipe)
  * 	devlist
  *
  */
-SANE_Status
+static SANE_Status
 sane_attach (SANE_String_Const port, SANE_String_Const name, SANE_Int driver, SANE_Int info)
 {
 	Mustek_pp_Device	*dev;
@@ -369,7 +369,7 @@ sane_attach (SANE_String_Const port, SANE_String_Const name, SANE_Int driver, SA
  *
  * Description:
  */
-void
+static void
 init_options(Mustek_pp_Handle *hndl)
 {
   int i;
@@ -612,7 +612,7 @@ init_options(Mustek_pp_Handle *hndl)
  *      is called to look for a driver with a matching name. When found,
  *      this driver is called to initialize the device.
  */
-void
+static void
 attach_device(SANE_String *driver, SANE_String *name, 
               SANE_String *port, SANE_String *option_ta)
 {
@@ -1877,3 +1877,11 @@ sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
 
 	return SANE_STATUS_GOOD;
 }
+
+/* include drivers */
+#include "mustek_pp_decl.h"
+#include "mustek_pp_null.c"
+#include "mustek_pp_cis.h"
+#include "mustek_pp_cis.c"
+#include "mustek_pp_ccd300.h"
+#include "mustek_pp_ccd300.c"

@@ -36,7 +36,7 @@ DISTCLEAN_FILES = @DISTCLEAN_FILES@
 
 @SET_MAKE@
 
-SECT1	= saned.1 scanimage.1 sane-find-scanner.1 gamma4scanimage.1
+SECT1	= saned.1 scanimage.1 sane-config.1 sane-find-scanner.1 gamma4scanimage.1
 SECT5	= sane-abaton.5 sane-agfafocus.5 sane-apple.5 sane-as6e.5 sane-dll.5 \
           sane-dc25.5 sane-dmc.5 sane-epson.5 sane-hp.5 sane-gphoto2.5 \
           sane-leo.5 sane-matsushita.5 sane-microtek.5 \
@@ -73,8 +73,8 @@ DISTFILES = Makefile.in backend-writing.txt descriptions.txt \
   doxygen-sanei.conf html.sty net.tex \
   releases.txt sane-abaton.man sane-agfafocus.man sane-apple.man \
   sane-artec.man sane-as6e.man sane-avision.man sane-bh.man \
-  sane-canon.man sane-canon630u.man sane-coolscan.man sane-coolscan2.man \
-  sane-dc210.man sane-dc240.man \
+  sane-canon.man sane-canon630u.man sane-config.man sane-coolscan.man \
+  sane-coolscan2.man sane-dc210.man sane-dc240.man \
   sane-dc25.man sane-dll.man sane-dmc.man sane-epson.man \
   sane-find-scanner.man sane-fujitsu.man sane-gphoto2.man sane-hp.man \
   sane-logo.png sane-logo2.jpg sane-matsushita.man sane-microtek.man \

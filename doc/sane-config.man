@@ -1,0 +1,43 @@
+.TH sane-config 1 "15 October 2002"
+.SH NAME
+sane-config - get information about the installed version of libsane
+.SH SYNOPSIS
+.B  sane-config [\-\-prefix] [\-\-exec\-prefix] [\-\-libs] [\-\-cflags] [\-\-ldflags] [\-\-version] [\-\-help \fI[OPTION]\fP]
+.SH DESCRIPTION
+.PP
+\fIsane-config\fP is a tool that is used to determine the compiler and linker
+flags that should be used to compile and link \fISANE\fP frontends to a
+\fISANE\fP backend library (libsane).
+.
+.SH OPTIONS
+.l
+\fIsane-config\fP accepts the following options:
+.TP 8
+.B  \-\-version
+Print the currently installed version of libsane on the standard output.
+.TP 8
+.B  \-\-help OPTION
+Print a short usage message. If OPTION is specified, help for that option
+(e.g. --libs) is printed (if available).
+.TP 8
+.B  \-\-libs
+Print the additional libraries that are necessary to link a \fISANE\fP
+frontend to libsane.
+.TP 8
+.B  \-\-ldflags
+Print the linker flags that are necessary to link a \fISANE\fP frontend to
+libsane.
+.TP 8
+.B  \-\-cflags
+Print the compiler flags that are necessary to compile a \fISANE\fP frontend. 
+.TP 8
+.B  \-\-prefix
+Print the prefix used during compilation of libsane.
+.TP 8
+.B  \-\-exec\-prefix
+Print the exec-prefix used during compilation of libsane.
+.SH "SEE ALSO"
+sane(7)
+.SH AUTHOR
+This manual page was written by Julien BLACHE <jblache@debian.org>, for the
+Debian GNU/Linux system (but may be used by others).

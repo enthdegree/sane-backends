@@ -1,3 +1,11 @@
+2003-02-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/mustek.c doc/descriptions/mustek.desc
+	  doc/mustek/mustek.CHANGES: Make sure that the result of the
+	  reader_process is interpreted correctly. Block signals when waiting
+	  for a SCSI request to finish. Otherwise we may get a segfault if the
+	  reader_process is terminated while waiting.
+
 2003-02-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/doxygen-sanei.conf: Updated version.

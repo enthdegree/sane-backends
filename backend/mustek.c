@@ -46,7 +46,7 @@
 
 /**************************************************************************/
 /* Mustek backend version                                                 */
-#define BUILD 130
+#define BUILD 131
 /**************************************************************************/
 
 #include "../include/sane/config.h"
@@ -2843,17 +2843,31 @@ do_stop (Mustek_Scanner * s)
       /* ensure child knows it's time to stop: */
       DBG (5, "do_stop: terminating reader process\n");
       kill (s->reader_pid, SIGTERM);
+
       pid = waitpid (s->reader_pid, &exit_status, 0);
+      if (pid < 0)
+	{
+	  DBG (1, "do_stop: waitpid failed, already terminated? (%s)\n",
+	       strerror (errno));
+	}
+      else if (WIFEXITED (exit_status))
+	{
+	  DBG (2, "do_stop: reader process terminated with status %s\n",
+	       sane_strstatus (WEXITSTATUS (exit_status)));
+	  if (status != SANE_STATUS_CANCELLED 
+	      && WEXITSTATUS (exit_status) != SANE_STATUS_GOOD)
+	    status = WEXITSTATUS (exit_status);
+	}
+      else if (WIFSIGNALED (status))
+	{
+	  DBG (2, "do_stop: reader process was terminated by signal %d\n",
+	       WTERMSIG (exit_status));
+	  if (WTERMSIG (exit_status) != 15)
+	    status = SANE_STATUS_IO_ERROR;
+	}
+      else
+	DBG (1, "do_stop: reader process terminated by unknown reason\n");
 
-      if (status != SANE_STATUS_CANCELLED && pid > 0
-	  && WIFEXITED (exit_status))
-	status = WEXITSTATUS (exit_status);
-
-      DBG (5, "do_stop: reader process terminated: %s\n",
-	   sane_strstatus (status));
-      if (pid <= 0)
-	DBG (5, "do_stop: reader process already terminated (%s)\n",
-	     strerror (errno));
       s->reader_pid = 0;
     }
 
@@ -4839,7 +4853,9 @@ reader_process (Mustek_Scanner * s, SANE_Int fd)
 	    {
 	      DBG (4, "reader_process: buffer %d: waiting for request to be "
 		   "ready\n", buffernumber + 1);
+	      sigprocmask (SIG_BLOCK, &sigterm_set, 0);
 	      status = dev_req_wait (bstat[buffernumber].id);
+	      sigprocmask (SIG_UNBLOCK, &sigterm_set, 0);
 	      if (status == SANE_STATUS_GOOD)
 		{
 		  DBG (4, "reader_process: buffer %d is ready, wanted %d, "

@@ -308,7 +308,7 @@ for details.
 .TP
 .B mustek_pp
 The mustek_pp backend provides access to Mustek parallel port flatbed
-scannersr. See
+scanners. See
 .BR sane\-mustek_pp (5)
 for details.
 .TP

@@ -1,3 +1,6 @@
+2005-04-02  Julien Blache <jb@jblache.org>
+	* doc/sane.man: typo fix from A Costa.
+
 2005-04-01  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* README: Added some info about the --enable-locking switch.

@@ -3,6 +3,7 @@
 	* doc/sane-artec.man doc/sane-coolscan.man doc/sane-umax.man:
 	  Fixed whatis/apropos output (don't put an empty line after
 	  the NAME section). Added SEE ALSO entry to sane(7).
+	* doc/sane-dll.man: Fixed output bug and added SEE ALSO entry.
 
 2001-06-09  Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 

@@ -1,6 +1,8 @@
 2005-01-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added UMAX Astraslim 6000.
+	* tools/hotplug/libsane.usermap: Added Epson Stylus RX425 based on
+	  bug report #301114.
 
 2005-01-12  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

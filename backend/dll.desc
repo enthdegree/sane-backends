@@ -1,5 +1,5 @@
 :backend "dll"               ; name of backend
-:version "1.0.2"
+:version "1.0.3"
 :status :beta
 :manpage "sane-dll"
 :url "mailto:henning@meier-geinitz.de"

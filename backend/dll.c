@@ -44,7 +44,7 @@
 
 /* Please increase version number with every change 
    (don't forget to update dll.desc) */
-#define DLL_VERSION "1.0.2"
+#define DLL_VERSION "1.0.3"
 
 #ifdef _AIX
 # include "lalloca.h"   /* MUST come first for AIX! */
@@ -537,8 +537,6 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
       if (backend_name[0] == '#')       /* ignore line comments */
         continue;
       len = strlen (backend_name);
-      if (backend_name[len - 1] == '\n')
-        backend_name[--len] = '\0';
 
       if (!len)
         continue;               /* ignore empty lines */

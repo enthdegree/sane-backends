@@ -4,6 +4,9 @@
 	  gcc doesn't like it.
 	* backend/ibm.c backend/ibm-scsi.c doc/descriptions/ibm.desc:
 	  Disabled object_position. That should fix the Ricoh IS-420.
+	* frontend/saned.c: Try to get the correct port number when
+	  /etc/services doesn't list "sane" by asking for "6566". Check
+	  result of socket(). Print ip faimily and port.
 
 2003-05-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

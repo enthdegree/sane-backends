@@ -1,6 +1,6 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 1997 Andreas Beck
-   Copyright (C) 2001, 2002 Henning Meier-Geinitz
+   Copyright (C) 2001 - 2003 Henning Meier-Geinitz
    Copyright (C) 2003 Julien BLACHE <jb@jblache.org>
        AF-independent + IPv6 code
 
@@ -36,7 +36,7 @@
 # define SANED_USES_AF_INDEP
 #else
 # undef ENABLE_IPV6
-#endif /* HAVE_GETADDRINFO && HAVE_GETNAMEINFO */
+#endif /* HAVE_GETADDRINFO && HAVE_GETNAMEINFO && HAVE_POLL */
 
 #include <assert.h>
 #include <errno.h>
@@ -1678,16 +1678,13 @@ main (int argc, char *argv[])
       struct addrinfo *res;
       struct addrinfo *resp;
       struct addrinfo hints;
-      struct sockaddr_in *sin;
-#ifdef ENABLE_IPV6
-      struct sockaddr_in6 *sin6;
-#endif /* ENABLE_IPV6 */
       struct pollfd *fds = NULL;
       struct pollfd *fdp = NULL;
       int nfds;
       int err;
       int i;
-      short sane_port = htons (6566);
+      short sane_port;
+      int family;
 
       if (argv[1][2])
 	debug = atoi (argv[1] + 2);
@@ -1708,39 +1705,15 @@ main (int argc, char *argv[])
       err = getaddrinfo (NULL, "sane", &hints, &res);
       if (err)
 	{
-	  /*
-	   * You cannot pass (NULL, NULL, &hints, &res) to getaddrinfo,
-	   * so request a good-old well known service, and change the port
-	   * afterwards as a workaround
-	   */
-	  err = getaddrinfo (NULL, "telnet", &hints, &res);
+	  DBG (DBG_WARN, "main: \"sane\" service unknown on your host; you should add\n");
+	  DBG (DBG_WARN, "main:      sane 6566/tcp saned # SANE network scanner daemon\n");
+	  DBG (DBG_WARN, "main: to your /etc/services file (or equivalent). Proceeding anyway.\n");
+	  err = getaddrinfo (NULL, "6566", &hints, &res);
 	  if (err)
 	    {
-	      DBG (DBG_ERR, "main: getaddrinfo() failed: %s\n", gai_strerror (err));
+	      DBG (DBG_ERR, "main: getaddrinfo() failed even with numeric port: %s\n",
+		   gai_strerror (err));
 	      exit (1);
-	    }
-	  else
-	    {
-	      DBG (DBG_WARN, "main: \"sane\" service unknown on your host; you should add\n");
-	      DBG (DBG_WARN, "main:      sane 6566/tcp saned # SANE network scanner daemon\n");
-	      DBG (DBG_WARN, "main: to your /etc/services file (or equivalent). Proceeding anyway.\n");
-
-              for (resp = res; resp != NULL; resp = resp->ai_next) 
-                { 
-                  switch (resp->ai_family) 
-                    { 
-                      case AF_INET: 
-                        sin = (struct sockaddr_in *) resp->ai_addr; 
-                        sin->sin_port = sane_port; 
-                        break; 
-#ifdef ENABLE_IPV6 
-                      case AF_INET6: 
-                        sin6 = (struct sockaddr_in6 *) resp->ai_addr; 
-                        sin6->sin6_port = sane_port; 
-                        break; 
-#endif /* ENABLE_IPV6 */ 
-                    } 
-                } 
 	    }
 	}
 
@@ -1758,26 +1731,43 @@ main (int argc, char *argv[])
 
       for (resp = res, i = 0, fdp = fds; resp != NULL; resp = resp->ai_next, i++, fdp++)
 	{
+	  if (resp->ai_family == AF_INET)
+	    {
+	      family = 4;
+	      sane_port = ntohs (((struct sockaddr_in *) resp->ai_addr)->sin_port);
+	    }
 #ifdef ENABLE_IPV6
-	  if ((resp->ai_family != AF_INET) && (resp->ai_family != AF_INET6))
-#else
-	  if (resp->ai_family != AF_INET)
+	  else if (resp->ai_family == AF_INET6)
+	    {
+	      family = 6;
+	      sane_port = ntohs (((struct sockaddr_in6 *) resp->ai_addr)->sin6_port);
+	    }
 #endif /* ENABLE_IPV6 */
+	  else
 	    {
 	      fdp--;
 	      nfds--;
 	      continue;
 	    }
 
-	  DBG (DBG_DBG, "main: [%d] socket ()\n", i);
-	  fd = socket (resp->ai_family, SOCK_STREAM, 0);
+	  DBG (DBG_DBG, "main: [%d] socket () using IPv%d\n", i, family);
+	  if ((fd = socket (resp->ai_family, SOCK_STREAM, 0)) < 0)
+	    {
+	      DBG (DBG_ERR, "main: [%d] socket failed: %s\n", i,
+		   strerror (errno));
+	      
+	      nfds--;
+	      fdp--;
+	      continue;
+	    }
 	  
 	  DBG (DBG_DBG, "main: [%d] setsockopt ()\n", i);
 	  if (setsockopt (fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof (on)))
 	    DBG (DBG_ERR, "main: [%d] failed to put socket in SO_REUSEADDR mode (%s)\n",
 		 i, strerror (errno));
+
 	  
-	  DBG (DBG_DBG, "main: [%d] bind ()\n", i);
+	  DBG (DBG_DBG, "main: [%d] bind () to port %d\n", i, sane_port);
 	  if (bind (fd, resp->ai_addr, resp->ai_addrlen) < 0)
 	    {
 	      /*

@@ -4,6 +4,9 @@
 	  http://savannah.gnu.org/projects/config.
 	* mkinstalldirs: Updated for OS/2 (from "Franz Bakan" 
 	  <fbakan@gmx.net>).
+	* backend/mustek.c backend/mustek.desc backend/mustek.h
+	  doc/mustek/mustek.CHANGES: Added OS/2 compatibility fixes
+	  (from "Franz Bakan" <fbakan@gmx.net>). New version: 1.0-114.
 	
 2001-11-22  Stéphane Voltz  <svoltz@wanadoo.fr>
 

@@ -68,6 +68,7 @@
  *        - removed drvOpen
  *        - added call to usb_StartLampTimer, when we're using
  *          SIGALRM for lamp timer
+ *        - closing now writer pipe, when reader_process is done
  *.
  * <hr>
  * This file is part of the SANE package.
@@ -143,7 +144,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.47-10"
+#define BACKEND_VERSION "0.47-11"
 #define BACKEND_NAME    plustek
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
@@ -375,7 +376,7 @@ static RETSIGTYPE sigalarm_handler( int signo )
  */
 static int reader_process( void *args )
 {
-	int              line;
+	int              line, lerrn;
 	unsigned char   *buf;
 	unsigned long    status;
 	unsigned long    data_length;
@@ -439,13 +440,18 @@ static int reader_process( void *args )
 	}
 
 	/* on error, there's no need to clean up, as this is done by the parent */
+	lerrn = errno;
+
+	close( scanner->w_pipe );
+	scanner->w_pipe = -1;
+
 	if((int)status < 0 ) {
 		DBG( _DBG_ERROR, "read failed, status = %i, errno %i\n",
-                                                          (int)status, errno );
+                                                          (int)status, lerrn );
 		if( -9009 == (int)status )
 			return SANE_STATUS_CANCELLED;
 		
-		if( errno == EBUSY )
+		if( lerrn == EBUSY )
 			return SANE_STATUS_DEVICE_BUSY;
 
 		return SANE_STATUS_IO_ERROR;

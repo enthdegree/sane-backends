@@ -150,7 +150,10 @@ DISTFILES = abaton.c abaton.conf abaton.h agfafocus.c agfafocus.conf \
   umax_pp_low.c umax_pp_low.h umax_pp_mid.c umax_pp_mid.h umax-scanner.c \
   umax-scanner.h umax-scsidef.h umax-uc1200s.c umax-uc1200se.c umax-uc1260.c \
   umax-uc630.c umax-uc840.c umax-ug630.c umax-ug80.c umax-usb.c v4l.c \
-  v4l.conf v4l-frequencies.h v4l.h
+  v4l.conf v4l-frequencies.h v4l.h \
+  sm3840.c sm3840_lib.c sm3840_params.h sm3840_scan.c sm3840.h \
+  sm3840_lib.h sm3840-s.c
+
 
 
 .PHONY: all clean depend dist distclean install uninstall
@@ -394,6 +397,9 @@ libsane-sharp.la: ../sanei/sanei_config2.lo
 libsane-sharp.la: ../sanei/sanei_constrain_value.lo
 libsane-sharp.la: ../sanei/sanei_scsi.lo
 libsane-sm3600.la: ../sanei/sanei_constrain_value.lo
+libsane-sm3840.la: ../sanei/sanei_config2.lo
+libsane-sm3840.la: ../sanei/sanei_constrain_value.lo
+libsane-sm3840.la: ../sanei/sanei_usb.lo
 libsane-snapscan.la: ../sanei/sanei_config2.lo
 libsane-snapscan.la: ../sanei/sanei_constrain_value.lo
 libsane-snapscan.la: ../sanei/sanei_scsi.lo

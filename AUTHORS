@@ -65,6 +65,7 @@ Backends:
  sceptre:       Frank Zago (*)
  sharp:         Kazuya Fukuda and Abel Deuring (*)
  sm3600:        Marian Eichholz (*) and Glenn Ramsey
+ sm3840:        Earle F. Philhower III
  snapscan:      Kevin Charter, Franck Schneider, Michel Roelofs, Sebastien
                 Sable, Henrik Johansson, Chris Bagwell, and Oliver Schwartz (*)
  sp15c:         Randolph Bentson
@@ -131,6 +132,7 @@ David Huggins-Daines <bn711@freenet.carleton.ca>
 David Mosberger <David.Mosberger@acm.org>
 David Stevenson <david.stevenson@zoom.co.uk>
 Didier Carlier <didier@sema.be>
+Earle F. Philhower III <earle@ziplabel.com>
 Eddy De Greef <eddy_de_greef at tiscali dot be>
 Eugene S. Weiss <yossarian@users.sourceforge.net>
 Feico W. Dillema <dillema@acm.org>

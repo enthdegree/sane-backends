@@ -9639,9 +9639,9 @@ fi;
 
 if test "${ac_cv_header_usb_h}" = "yes" && test "$USE_LIBUSB" = "yes" ; then
 
-echo "$as_me:$LINENO: checking for usb_get_busses in -lusb" >&5
-echo $ECHO_N "checking for usb_get_busses in -lusb... $ECHO_C" >&6
-if test "${ac_cv_lib_usb_usb_get_busses+set}" = set; then
+echo "$as_me:$LINENO: checking for usb_interrupt_read in -lusb" >&5
+echo $ECHO_N "checking for usb_interrupt_read in -lusb... $ECHO_C" >&6
+if test "${ac_cv_lib_usb_usb_interrupt_read+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   ac_check_lib_save_LIBS=$LIBS
@@ -9659,11 +9659,11 @@ extern "C"
 #endif
 /* We use char because int might match the return type of a gcc2
    builtin and then its argument prototype would still apply.  */
-char usb_get_busses ();
+char usb_interrupt_read ();
 int
 main ()
 {
-usb_get_busses ();
+usb_interrupt_read ();
   ;
   return 0;
 }
@@ -9689,20 +9689,20 @@ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
-  ac_cv_lib_usb_usb_get_busses=yes
+  ac_cv_lib_usb_usb_interrupt_read=yes
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-ac_cv_lib_usb_usb_get_busses=no
+ac_cv_lib_usb_usb_interrupt_read=no
 fi
 rm -f conftest.err conftest.$ac_objext \
       conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-echo "$as_me:$LINENO: result: $ac_cv_lib_usb_usb_get_busses" >&5
-echo "${ECHO_T}$ac_cv_lib_usb_usb_get_busses" >&6
-if test $ac_cv_lib_usb_usb_get_busses = yes; then
+echo "$as_me:$LINENO: result: $ac_cv_lib_usb_usb_interrupt_read" >&5
+echo "${ECHO_T}$ac_cv_lib_usb_usb_interrupt_read" >&6
+if test $ac_cv_lib_usb_usb_interrupt_read = yes; then
   cat >>confdefs.h <<_ACEOF
 #define HAVE_LIBUSB 1
 _ACEOF
@@ -9711,7 +9711,7 @@ _ACEOF
 
 fi
 
-  if test "${ac_cv_lib_usb_usb_get_busses}" = "yes" ; then
+  if test "${ac_cv_lib_usb_usb_interrupt_read}" = "yes" ; then
     HAVE_LIBUSB="yes"
   fi
 fi
@@ -25618,7 +25618,7 @@ echo "$as_me: Manually selected backends: ${BACKENDS}" >&6;}
           microtek2 mustek mustek_usb nec pie plustek \
           plustek_pp ricoh s9036 sceptre sharp \
           sp15c st400 tamarack test teco1 teco2 teco3 umax umax_pp umax1220u \
-          artec_eplus48u ma1509 ibm hp5400 u12 snapscan niash"
+          artec_eplus48u ma1509 ibm hp5400 u12 snapscan niash sm3840"
 
   if test "${sane_cv_use_libjpeg}" != "yes"; then
     echo "*** disabling DC210 backend (failed to find JPEG library)"

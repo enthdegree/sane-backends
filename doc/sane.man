@@ -1,4 +1,4 @@
-.TH sane 7 "03 Aug 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane 7 "20 Feb 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane
 
 .SH NAME
@@ -374,6 +374,11 @@ for details.
 .B sm3600
 The SANE sm3600 backend supports the Microtek ScanMaker 3600 USB scanner. See
 .BR sane\-sm3600 (5)
+for details.
+.TP
+.B sm3840
+The SANE sm3840 backend suppoert the Microtek ScanMaker 3840 USB scanner.  See
+.BR sane\-sm3840 (5)
 for details.
 .TP
 .B snapscan

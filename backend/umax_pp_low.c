@@ -42,8 +42,12 @@
 
 
 
+
+
+
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -79,6 +83,10 @@
 
 
 #include "umax_pp_low.h"
+
+#ifdef DMALLOC
+#include "dmalloc.h"
+#endif
 
 #ifndef __IO__
 #define __IO__
@@ -290,6 +298,7 @@ static int *ggBlue = ggamma;
 static int *ggRed = ggamma;
 static int gParport = 0;
 static int gCancel = 0;
+static int gAutoSettings = 1;
 
 
 /*****************************************************************************/
@@ -524,11 +533,13 @@ sanei_umax_pp_InitPort (int port)
 		}
 	    }
 
+	  /* allways start in compat mode (for probe) */
+	  mode = IEEE1284_MODE_COMPAT;
+	  ioctl (fd, PPSETMODE, &mode);
+
 	  /* release port */
 	  if (!found)
 	    {
-	      mode = IEEE1284_MODE_COMPAT;
-	      ioctl (fd, PPSETMODE, &mode);
 	      ioctl (fd, PPRELEASE);
 	    }
 	}
@@ -892,6 +903,18 @@ void
 sanei_umax_pp_setastra (int mod)
 {
   astra = mod;
+}
+
+int
+sanei_umax_pp_getauto (void)
+{
+  return gAutoSettings;
+}
+
+void
+sanei_umax_pp_setauto (int autoset)
+{
+  gAutoSettings = autoset;
 }
 
 static int
@@ -5299,7 +5322,7 @@ CmdSet (int cmd, int len, int *val)
 	{
 	  char *str = NULL;
 
-	  str = malloc (3 * len);
+	  str = malloc (3 * len + 1);
 	  if (str != NULL)
 	    {
 	      for (i = 0; i < len; i++)
@@ -5387,7 +5410,7 @@ CmdGet (int cmd, int len, int *val)
     {
       char *str = NULL;
 
-      str = malloc (3 * len);
+      str = malloc (3 * len + 1);
       if (str != NULL)
 	{
 	  for (i = 0; i < len; i++)
@@ -6191,20 +6214,29 @@ DumpRGB (int width, int height, unsigned char *data, char *name)
   fclose (fic);
 }
 
+static int EvalGain(int sum,int count)
+{
+int gn;
 
-
+	  /* 19000 is a little to bright */
+	  gn = (int) ((double) (18500 * count) / sum - 100 + 0.5);
+	  if (gn < 0)
+	    gn = 0;
+	  else if (gn > 255)
+	    gn = 255;
+	  return(gn);
+}
 
 static void
 ComputeCalibrationData (int color, int dpi, int width, unsigned char *source,
 			int *data)
 {
   int p, i, l;
-  int sum, gn, count;
-  float coeff = 102.547;
+  int sum;
 
 
   memset (data, 0, (3 * 5100 + 768 + 3) * sizeof (int));
-  /* 102.547 */
+
 
   /* 0 -> 5099 */
   for (i = 0; i < width; i++)
@@ -6213,21 +6245,9 @@ ComputeCalibrationData (int color, int dpi, int width, unsigned char *source,
 	{
 	  /* compute average */
 	  sum = 0;
-	  count = 0;
 	  for (l = 0; l < 66; l++)
-	    {
-	      if (source[i + l * 5100 * 3] > 30)
-		{
-		  sum += source[i + l * 5100 * 3];
-		  count++;
-		}
-	    }
-	  gn = (int) (((double) (250 * count) / sum - 0.984) * coeff + 0.5);
-	  if (gn < 0)
-	    gn = 0;
-	  else if (gn > 255)
-	    gn = 255;
-	  data[i] = gn;
+	    sum += source[i + l * 5100 * 3];
+	  data[i] = EvalGain(sum,l);
 	}
       else
 	data[i] = 0x00;
@@ -6240,21 +6260,9 @@ ComputeCalibrationData (int color, int dpi, int width, unsigned char *source,
     {
       /* compute average */
       sum = 0;
-      count = 0;
       for (l = 0; l < 66; l++)
-	{
-	  if (source[i + l * 5100 * 3 + 5100] > 30)
-	    {
-	      sum += source[i + l * 5100 * 3 + 5100];
-	      count++;
-	    }
-	}
-      gn = (int) (((double) (250 * count) / sum - 0.984) * coeff + 0.5);
-      if (gn < 0)
-	gn = 0;
-      else if (gn > 255)
-	gn = 255;
-      data[p + i] = gn;
+	sum += source[i + l * 5100 * 3 + 5100];
+      data[p + i] = EvalGain(sum,l);
     }
 
 
@@ -6266,21 +6274,9 @@ ComputeCalibrationData (int color, int dpi, int width, unsigned char *source,
 	{
 	  /* compute average */
 	  sum = 0;
-	  count = 0;
 	  for (l = 0; l < 66; l++)
-	    {
-	      if (source[i + l * 5100 * 3 + 5100 * 2] > 30)
-		{
-		  sum += source[i + l * 5100 * 3 + 5100 * 2];
-		  count++;
-		}
-	    }
-	  gn = (int) (((double) (250 * count) / sum - 0.984) * coeff + 0.5);
-	  if (gn < 0)
-	    gn = 0;
-	  else if (gn > 255)
-	    gn = 255;
-	  data[p + i] = gn;
+	    sum += source[i + l * 5100 * 3 + 5100 * 2];
+	  data[p + i] = EvalGain(sum,l);
 	}
       else
 	data[p + i] = 0x00;
@@ -6347,6 +6343,8 @@ ComputeCalibrationData (int color, int dpi, int width, unsigned char *source,
 
   data[16070] = -1;
 }
+
+
 
 /* move head by the distance given using precision or not */
 /* 0: failed  
@@ -6636,11 +6634,12 @@ MoveToOrigin (void)
 
    returns if OK, else 0
 */
+
 static int
 WarmUp (int color, int *gain)
 {
   unsigned char buffer[5300];
-  int i, val;
+  int i, val, min, max;
   int opsc02[9] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, -1 };
   int opsc04[9] = { 0x06, 0xF4, 0xFF, 0x81, 0x1B, 0x00, 0x00, 0x00, -1 };
   int opsc10[9] = { 0x06, 0xF4, 0xFF, 0x81, 0x1B, 0x00, 0x08, 0x00, -1 };
@@ -6675,7 +6674,6 @@ WarmUp (int color, int *gain)
     0x00, 0x40, 0xA4, 0x00, -1
   };
   float offsetX, offsetY, offsetZ;
-  float avgX, avgY, avgZ;
 
 
   /* really dirty hack: somethig is buggy in BW mode    */
@@ -6836,9 +6834,9 @@ WarmUp (int color, int *gain)
   /* auto gain computing */
 	/***********************/
 
-  /* color correction set to 63 06 */
+  /* color correction set to 53 05 */
   /* for a start                   */
-  *gain = 0x636;
+  *gain = 0x535;
   CMDSETGET (2, 0x10, opsc18);
   CMDSETGET (8, 0x24, opsc39);
   opsc04[7] = opsc04[7] & 0x20;
@@ -6884,13 +6882,16 @@ WarmUp (int color, int *gain)
       CMDGETBUF (4, 0x14B4, buffer);
       if (DBG_LEVEL >= 128)
 	Dump (0x14B4, buffer, NULL);
-      avgX = 0;
+      min = 255;
+      max = 0;
       for (i = 0; i < 0x14B4; i++)
-	avgX += buffer[i];
-      avgX = avgX / i;
-      DBG (64, "Somme(X:%02X)=%d, moyenne=%8.4f(%f)\n", opsc04[6],
-	   (int) (avgX * i), avgX, avgX - offsetX);
-      while ((opsc04[6] < 0x0F) && (avgX - offsetX < 180.0))
+	{
+	  if (buffer[i] < min)
+	    min = buffer[i];
+	  if (buffer[i] > max)
+	    max = buffer[i];
+	}
+      while ((opsc04[6] < 0x0F) && (max < 250))
 	{
 	  CMDSYNC (0x00);
 	  opsc04[6]++;
@@ -6899,12 +6900,15 @@ WarmUp (int color, int *gain)
 	  CMDGETBUF (4, 0x0014B4, buffer);
 	  if (DBG_LEVEL >= 128)
 	    Dump (0x14B4, buffer, NULL);
-	  avgX = 0;
+	  min = 255;
+	  max = 0;
 	  for (i = 0; i < 0x14B4; i++)
-	    avgX += buffer[i];
-	  avgX = avgX / i;
-	  DBG (16, "Somme(X:%02X)=%d, moyenne=%8.4f(%f)\n", opsc04[6],
-	       (int) (avgX * i), avgX, avgX - offsetX);
+	    {
+	      if (buffer[i] < min)
+		min = buffer[i];
+	      if (buffer[i] > max)
+		max = buffer[i];
+	    }
 	}
 
       *gain = (*gain & 0xFF) + 256 * (opsc04[6] - 1);
@@ -6931,14 +6935,17 @@ WarmUp (int color, int *gain)
       CMDGETBUF (4, 0x14B4, buffer);
       if (DBG_LEVEL >= 128)
 	Dump (0x14B4, buffer, NULL);
-      avgY = 0;
+      min = 255;
+      max = 0;
       for (i = 0; i < 0x14B4; i++)
-	avgY += buffer[i];
-      avgY = avgY / i;
-      DBG (64, "Somme(Y:%02X)=%d, moyenne=%8.4f(%f)\n", opsc04[6],
-	   (int) (avgY * i), avgY, avgY - offsetY);
+	{
+	  if (buffer[i] < min)
+	    min = buffer[i];
+	  if (buffer[i] > max)
+	    max = buffer[i];
+	}
 
-      while ((opsc04[6] < 0x0F) && (avgY - offsetY < 180.0))
+      while ((opsc04[6] < 0x0F) && (max < 250))
 	{
 	  CMDSYNC (0x00);
 	  opsc04[6]++;
@@ -6947,12 +6954,15 @@ WarmUp (int color, int *gain)
 	  CMDGETBUF (4, 0x0014B4, buffer);
 	  if (DBG_LEVEL >= 128)
 	    Dump (0x14B4, buffer, NULL);
-	  avgY = 0;
+	  min = 255;
+	  max = 0;
 	  for (i = 0; i < 0x14B4; i++)
-	    avgY += buffer[i];
-	  avgY = avgY / i;
-	  DBG (64, "Somme(Y:%02X)=%d, moyenne=%8.4f(%f)\n", opsc04[6],
-	       (int) (avgY * i), avgY, avgY - offsetY);
+	    {
+	      if (buffer[i] < min)
+		min = buffer[i];
+	      if (buffer[i] > max)
+		max = buffer[i];
+	    }
 	}
       *gain = (*gain & 0xFF0) + (opsc04[6] - 1);
     }
@@ -6992,13 +7002,16 @@ WarmUp (int color, int *gain)
   CMDGETBUF (4, 0x14B4, buffer);
   if (DBG_LEVEL >= 128)
     Dump (0x14B4, buffer, NULL);
-  avgZ = 0;
+  min = 255;
+  max = 0;
   for (i = 0; i < 0x14B4; i++)
-    avgZ += buffer[i];
-  avgZ = avgZ / i;
-  DBG (64, "Somme(Z:%02X)=%d, moyenne=%8.4f(%f)\n", opsc04[6],
-       (int) (avgZ * i), avgZ, avgZ - offsetZ);
-  while ((opsc04[6] < 0x07) && (avgZ - offsetZ < 180.0))
+    {
+      if (buffer[i] < min)
+	min = buffer[i];
+      if (buffer[i] > max)
+	max = buffer[i];
+    }
+  while ((opsc04[6] < 0x07) && (max < 250))
     {
       CMDSYNC (0x00);
       opsc04[6]++;
@@ -7007,14 +7020,17 @@ WarmUp (int color, int *gain)
       CMDGETBUF (4, 0x0014B4, buffer);
       if (DBG_LEVEL >= 128)
 	Dump (0x14B4, buffer, NULL);
-      avgZ = 0;
+      min = 255;
+      max = 0;
       for (i = 0; i < 0x14B4; i++)
-	avgZ += buffer[i];
-      avgZ = avgZ / i;
-      DBG (64, "Somme(Z:%02X)=%d, moyenne=%8.4f(%f)\n", opsc04[6],
-	   (int) (avgZ * i), avgZ, avgZ - offsetZ);
+	{
+	  if (buffer[i] < min)
+	    min = buffer[i];
+	  if (buffer[i] > max)
+	    max = buffer[i];
+	}
     }
-  *gain = (*gain & 0xF0F) + opsc04[6] * 16;
+  *gain = (*gain & 0xF0F) + (opsc04[6] - 1) * 16;
   DBG (1, "Warm-up done ...\n");
   return (1);
 }
@@ -7088,7 +7104,7 @@ ColorCalibration (int color, int dpi, int gain, int highlight, int width,
       opsc41[30] = 0xEE;
     }
 
-  /* step back by 66 ticks:                     */
+  /* step back by 67 ticks:                     */
   /* since we're going to scan 66 lines of data */
   /* which are going to be used as calibration  */
   /* data                                       */
@@ -7100,14 +7116,19 @@ ColorCalibration (int color, int dpi, int gain, int highlight, int width,
   CMDSYNC (0x00);
 
   /* get calibration data */
-  /*opsc32[10] = gain / 16;
-     opsc32[11] = ((highlight / 16) & 0xF0) | (gain % 16);
-     opsc32[12] = highlight % 256; */
-  /* add there behaviour based on manual/auto setting */
-  /* fixed limit for manual settings */
-  opsc32[10] = 0x77;
-  opsc32[11] = 0x07;
-  opsc32[12] = 0x00;
+  if (sanei_umax_pp_getauto ())
+    {				/* auto settings doesn't use highlight */
+      highlight = 0x000;
+    }
+  else
+    {				/* manual settings */
+      gain = 0x777;
+      highlight = 0x000;
+    }
+  opsc32[10] = gain / 16;
+  opsc32[11] = gain % 16 | ((highlight / 16) & 0xF0);
+  opsc32[12] = highlight % 256;
+  DBG (8, "USING 0x%03X gain, 0x%03X highlight\n", gain, highlight);
   if (sanei_umax_pp_getastra () == 1600)
     {
       opsc32[13] = 0x03;
@@ -7172,7 +7193,7 @@ ColorCalibration (int color, int dpi, int gain, int highlight, int width,
       Dump (size, buffer, NULL);
       if (color >= RGB_MODE)
 	{
-	  DumpRVB (5100, 70, buffer, NULL);
+	  DumpRVB (5100, 66, buffer, NULL);
 	}
       else
 	{
@@ -7180,6 +7201,7 @@ ColorCalibration (int color, int dpi, int gain, int highlight, int width,
 	}
     }
   ComputeCalibrationData (color, dpi, width, buffer, calibration);
+
   DBG (1, "Color calibration done ...\n");
   return (1);
 }
@@ -7472,6 +7494,7 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
   int max = 0;
 #endif
 
+
   DBG (8, "StartScan(%d,%d,%d,%d,%d,%d,%X);\n", x, y, width, height, dpi,
        color, gain);
   buffer = (unsigned char *) malloc (2096100);
@@ -7624,7 +7647,7 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
 
   /* adjust gain and color offset */
   /* red*256+green*16+blue        */
-  if (gain == 0x0)
+  if (sanei_umax_pp_getauto ())
     {
       if (WarmUp (color, &gain) == 0)
 	{
@@ -7668,7 +7691,7 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
     /* than scan & move at high resolution               */
     distance = 0;
 
-  /* work around a bug which has yet to be solved */
+  /* work around some strange unresolved bug */
   y += 8;
 
   /* move fast to scan target if possible */
@@ -7861,26 +7884,20 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
 	      max = 36;
 	      break;
 	    default:
-	      printf ("WARNING: unknown channel %d\n", channel);
 	      channel = 0;
 	    }
 	  if (channel > 0)
 	    {
-	      printf ("Channel %d:", channel);
 	      ptr = line + 6;
 	      for (i = 0; (i < max) && ((ptr - line) < strlen (line)); i++)
 		{
 		  if (ptr[0] != '-')
 		    {
 		      sscanf (ptr, "%02X", base + i);
-		      printf ("*");
 		    }
 		  else
-		    printf (" ");
-		  ptr += 3;
-		  printf ("0x%02X ", base[i]);
+		    ptr += 3;
 		}
-	      printf ("\n");
 	    }
 	}
       fclose (f);

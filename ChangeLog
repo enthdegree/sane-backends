@@ -1,3 +1,7 @@
+2004-02-28  Frank Zago  <fzago at austin dot rr dot com>
+
+	* tools/check-usb-chip.c: Added test for GL646 used in HP scanners.
+
 2004-02-28  Julien Blache <jb@jblache.org>
 	* tools/hotplug: added the hotplug script used by the Debian
 	package, with a quick README.

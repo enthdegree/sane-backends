@@ -1,3 +1,12 @@
+2001-05-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/Makefile.in backend/dll.c backend/sm3600-color.c
+	  backend/sm3600-homerun.c backend/sm3600-scantool.h
+	  backend/sm3600-scanutil.c backend/sm3600.desc
+	  backend/sm3600-gray.c backend/sm3600-scanmtek.c
+	  backend/sm3600-scanusb.c backend/sm3600.c backend/sm3600.h:
+	  Added sm3600 backend (from Marian Eichholz <eichholz@computer.org>).
+
 2001-05-16  Chris Pinkham <cpinkham@infi.net>
 
 	* backend/artec.c: changed #include to use "../include/sane/config.h"

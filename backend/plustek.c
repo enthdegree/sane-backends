@@ -146,7 +146,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.48-8"
+#define BACKEND_VERSION "0.48-9"
 #define BACKEND_NAME    plustek
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
@@ -877,48 +877,48 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	s->opt[OPT_AFE_GROUP].cap   = 0;
 	
 	s->opt[OPT_OVR_REDGAIN].name  = "red-gain";
-	s->opt[OPT_OVR_REDGAIN].title = SANE_I18N("Red-gain");
-	s->opt[OPT_OVR_REDGAIN].desc  = SANE_I18N("Red-gain value of the AFE");
+	s->opt[OPT_OVR_REDGAIN].title = SANE_I18N("Red gain");
+	s->opt[OPT_OVR_REDGAIN].desc  = SANE_I18N("Red gain value of the AFE");
 	s->opt[OPT_OVR_REDGAIN].type  = SANE_TYPE_INT;
 	s->opt[OPT_OVR_REDGAIN].constraint_type = SANE_CONSTRAINT_RANGE;
 	s->opt[OPT_OVR_REDGAIN].constraint.range = &gain_range;
 	s->val[OPT_OVR_REDGAIN].w     = adj->rgain;
 
 	s->opt[OPT_OVR_REDOFS].name  = "red-offset";
-	s->opt[OPT_OVR_REDOFS].title = SANE_I18N("Red-offset");
-	s->opt[OPT_OVR_REDOFS].desc  = SANE_I18N("Red-offset value of the AFE");
+	s->opt[OPT_OVR_REDOFS].title = SANE_I18N("Red offset");
+	s->opt[OPT_OVR_REDOFS].desc  = SANE_I18N("Red offset value of the AFE");
 	s->opt[OPT_OVR_REDOFS].type  = SANE_TYPE_INT;
 	s->opt[OPT_OVR_REDOFS].constraint_type = SANE_CONSTRAINT_RANGE;
 	s->opt[OPT_OVR_REDOFS].constraint.range = &gain_range;
 	s->val[OPT_OVR_REDOFS].w     = adj->rofs;
 
 	s->opt[OPT_OVR_GREENGAIN].name  = "green-gain";
-	s->opt[OPT_OVR_GREENGAIN].title = SANE_I18N("Green-gain");
-	s->opt[OPT_OVR_GREENGAIN].desc  = SANE_I18N("Green-gain value of the AFE");
+	s->opt[OPT_OVR_GREENGAIN].title = SANE_I18N("Green gain");
+	s->opt[OPT_OVR_GREENGAIN].desc  = SANE_I18N("Green gain value of the AFE");
 	s->opt[OPT_OVR_GREENGAIN].type  = SANE_TYPE_INT;
 	s->opt[OPT_OVR_GREENGAIN].constraint_type = SANE_CONSTRAINT_RANGE;
 	s->opt[OPT_OVR_GREENGAIN].constraint.range = &gain_range;
 	s->val[OPT_OVR_GREENGAIN].w     = adj->ggain;
 
 	s->opt[OPT_OVR_GREENOFS].name  = "green-offset";
-	s->opt[OPT_OVR_GREENOFS].title = SANE_I18N("Green-offset");
-	s->opt[OPT_OVR_GREENOFS].desc  = SANE_I18N("Green-offset value of the AFE");
+	s->opt[OPT_OVR_GREENOFS].title = SANE_I18N("Green offset");
+	s->opt[OPT_OVR_GREENOFS].desc  = SANE_I18N("Green offset value of the AFE");
 	s->opt[OPT_OVR_GREENOFS].type  = SANE_TYPE_INT;
 	s->opt[OPT_OVR_GREENOFS].constraint_type = SANE_CONSTRAINT_RANGE;
 	s->opt[OPT_OVR_GREENOFS].constraint.range = &gain_range;
 	s->val[OPT_OVR_GREENOFS].w     = adj->gofs;
 
 	s->opt[OPT_OVR_BLUEGAIN].name  = "blue-gain";
-	s->opt[OPT_OVR_BLUEGAIN].title = SANE_I18N("Blue-gain");
-	s->opt[OPT_OVR_BLUEGAIN].desc  = SANE_I18N("Blue-gain value of the AFE");
+	s->opt[OPT_OVR_BLUEGAIN].title = SANE_I18N("Blue gain");
+	s->opt[OPT_OVR_BLUEGAIN].desc  = SANE_I18N("Blue gain value of the AFE");
 	s->opt[OPT_OVR_BLUEGAIN].type  = SANE_TYPE_INT;
 	s->opt[OPT_OVR_BLUEGAIN].constraint_type = SANE_CONSTRAINT_RANGE;
 	s->opt[OPT_OVR_BLUEGAIN].constraint.range = &gain_range;
 	s->val[OPT_OVR_BLUEGAIN].w     = adj->bgain;
 
 	s->opt[OPT_OVR_BLUEOFS].name  = "blue-offset";
-	s->opt[OPT_OVR_BLUEOFS].title = SANE_I18N("Blue-offset");
-	s->opt[OPT_OVR_BLUEOFS].desc  = SANE_I18N("Blue-offset value of the AFE");
+	s->opt[OPT_OVR_BLUEOFS].title = SANE_I18N("Blue offset");
+	s->opt[OPT_OVR_BLUEOFS].desc  = SANE_I18N("Blue offset value of the AFE");
 	s->opt[OPT_OVR_BLUEOFS].type  = SANE_TYPE_INT;
 	s->opt[OPT_OVR_BLUEOFS].constraint_type = SANE_CONSTRAINT_RANGE;
 	s->opt[OPT_OVR_BLUEOFS].constraint.range = &gain_range;

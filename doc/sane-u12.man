@@ -1,0 +1,145 @@
+.TH sane-u12 5 "05 January 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane-u12
+.SH NAME
+sane-u12 \- SANE backend for Plustek USB flatbed scanners,
+based on older parport designs
+.SH DESCRIPTION
+The
+.B sane-u12
+library implements a SANE (Scanner Access Now Easy) backend that
+provides access to USB flatbed scanners based on ...
+
+.SH "SUPPORTED DEVICES"
+The backend is able to support USB scanner based on...
+
+If your Plustek scanner has another Product ID, then the device is
+.B NOT
+supported by this backend.
+.br
+
+Vendor Plustek - ID: 0x07B3
+.br
+----------------------------------------------------------
+.br
+USB Model:         Properties:              Prod-ID
+.br
+----------------------------------------------------------
+.br
+OpticPro U12       600x1200dpi 42bit 512Kb  0x0001
+.br
+OpticPro U1212     600x1200dpi 42bit 512Kb  0x0001
+.br
+OpticPro UT12      600x1200dpi 42bit 512Kb  0x0001
+.PP
+
+Vendor KYE/Genius - ID: 0x0458
+.br
+------------------------------------------------------------
+.br
+USB Model:                  Properties:              Prod-ID
+.br
+------------------------------------------------------------
+.br
+ColorPage Vivid III V2 USB  600x1200dpi 42bit 512Kb  0x????
+.br
+ColorPage HR6 V1            600x1200dpi 42bit 512Kb  0x2004
+.PP
+
+.SH "CONFIGURATION"
+To use your scanner with this backend, you need at least two
+entries in the configuration file
+.br
+.I @CONFIGDIR@/u12.conf
+.TP
+.I [usb] vendor-id product-id
+.TP
+.I device /dev/usbscanner
+.PP
+.I [usb]
+tells the backend, that the following devicename (here
+.I /dev/usbscanner
+) has to be interpreted as USB scanner device. If vendor- and
+product-id has not been specified, the backend tries to
+detect this by its own. If device ist set to
+.I auto
+ then the next matching device is used.
+.PP
+.B
+The Options:
+.PP
+option warmup t
+.RS
+.I t
+specifies the warmup period in seconds
+.RE
+.PP
+option lampOff t
+.RS
+.I t
+is the time in seconds for switching off the lamps in
+standby mode
+.RE
+.PP
+option lOffonEnd b
+.RS
+.I b
+specifies the behaviour when closing the backend, 1 --> switch
+lamps off, 0 --> do not change lamp status
+.RE
+
+.PP
+See the u12.conf file for examples.
+.PP
+.B Note:
+.br
+You have to make sure, that the USB subsystem is loaded
+correctly and you have access to the device-node. For
+more details see
+.B sane-usb (5)
+manpage. You might use
+.B sane-find-scanner
+to check that you have access to your device.
+.PP
+.B Note:
+.br
+If there's no configuration file, the backend defaults to
+.B device auto
+
+.SH FILES
+.TP
+.I @CONFIGDIR@/u12.conf
+The backend configuration file
+.TP
+.I @LIBDIR@/libsane-u12.a
+The static library implementing this backend.
+.TP
+.I @LIBDIR@/libsane-u12.so
+The shared library implementing this backend (present on systems that
+support dynamic loading).
+
+.SH "CONTACT AND BUG-REPORTS"
+Please send any information and bug-reports to:
+.br
+.B SANE Mailing List
+.PP
+Additional info and hints can be obtained from our
+.br
+Mailing-List archive at:
+.br
+.B http://www.sane-project.org/mailing-lists.html
+.PP
+or directly from the projects' homepage at:
+.br
+.B http://www.gjaeger.de/scanner/u12.html
+.PP
+To obtain debug messages from the backend, please set the
+environment-variable
+.I SANE_DEBUG_U12
+before calling your favorite scan-frontend (i.e. xscanimage).
+.br
+.B i.e.: export SANE_DEBUG_U12=20 ; xscanimage
+.PP
+The value controls the verbosity of the backend.
+
+.SH "KNOWN BUGS & RESTRICTIONS"
+* The driver is in alpha state, so please don't expect too much!!!

@@ -1,0 +1,45 @@
+;
+; SANE Backend description file for U12 backend
+;
+
+:backend "u12"
+:version "0.01"
+:manpage "sane-plustek"
+; backend's web page
+:url "http://www.gjaeger.de/scanner/u12.html"
+
+:devicetype :scanner
+
+;* Plustek **********************************************************************************
+
+:mfg "Plustek"
+:url "http://www.plustek.de/"
+:url "http://www.plustek.com/"
+
+;name models for above-specified mfg.
+:model "OpticPro U12"
+:interface "USB"
+:status :minimal
+:comment "NOTE: Only devices with product ID 0x0001 are supported!"
+
+:model "OpticPro UT12"
+:interface "USB"
+:status :untested
+:comment "NOTE: Only devices with product ID 0x0001 are supported!"
+
+:model "OpticPro 1212U"
+:interface "USB"
+:status :untested
+
+;* Genius/KYE *******************************************************************************************
+
+:mfg "Genius"
+:url "http://www.geniusnet.com.tw/"
+
+:model "ColorPage HR6 V1"
+:interface "USB"
+:status :untested
+
+:model "ColorPage Vivid III V2 USB"
+:interface "USB"
+:status :untested

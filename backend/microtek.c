@@ -3,7 +3,7 @@
 
    microtek.c 
 
-   This file (C) 1999 Matthew Marjanovic
+   This file Copyright 2002 Matthew Marjanovic
 
    This file is part of the SANE package.
 
@@ -54,14 +54,13 @@
 
 
 #define MICROTEK_MAJOR 0
-#define MICROTEK_MINOR 12
-#define MICROTEK_PATCH 3
+#define MICROTEK_MINOR 13
+#define MICROTEK_PATCH 0
 
 #include "sane/config.h"
 
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
 
@@ -154,6 +153,34 @@ static SANE_Range brightness_range = {-100, 100, 1};
 static SANE_Range u8_range = {0, 255, 1};
 static SANE_Range analog_gamma_range = 
 { SANE_FIX(0.1), SANE_FIX(4.0), SANE_FIX(0) };
+
+
+
+
+#define MAX_MDBG_LENGTH 1024
+static char _mdebug_string[MAX_MDBG_LENGTH];
+
+static void MDBG_INIT(const char *format, ...)
+{
+  va_list ap;
+  va_start(ap, format);
+  vsnprintf(_mdebug_string, MAX_MDBG_LENGTH, format, ap);
+  va_end(ap);
+}
+
+static void MDBG_ADD(const char *format, ...)
+{
+  int len = strlen(_mdebug_string);
+  va_list ap;
+  va_start(ap, format);
+  vsnprintf(_mdebug_string+len, MAX_MDBG_LENGTH-len, format, ap);
+  va_end(ap);
+}
+
+static void MDBG_FINISH(int dbglvl)
+{
+  DBG(dbglvl, "%s\n", _mdebug_string);
+}
 
 
 
@@ -418,9 +445,14 @@ scanning_frame(Microtek_Scanner *ms)
   data[8] = (y2 >> 8) & 0xFF;
   if (DBG_LEVEL >= 192) {
     int i;  
+#if 0
     fprintf(stderr, "SF: ");
     for (i=0;i<6+0x09;i++) fprintf(stderr, "%2x ", comm[i]);
     fprintf(stderr, "\n");
+#endif
+    MDBG_INIT("SF: ");
+    for (i=0;i<6+0x09;i++) MDBG_ADD("%2x ", comm[i]);
+    MDBG_FINISH(192);
   }
   return sanei_scsi_cmd(ms->sfd, comm, 6 + 0x09, 0, 0);
 }
@@ -456,10 +488,15 @@ mode_select(Microtek_Scanner *ms)
   comm[4] = (ms->midtone_support) ? 0x0B : 0x0A;
 
   if (DBG_LEVEL >= 192) {
-    int i;  
+    int i; 
+#if 0 
     fprintf(stderr, "MSL: ");
     for (i=0;i<6+comm[4];i++) fprintf(stderr, "%2x ", comm[i]);
     fprintf(stderr, "\n");
+#endif
+    MDBG_INIT("MSL: ");
+    for (i=0;i<6+comm[4];i++) MDBG_ADD("%2x ", comm[i]);
+    MDBG_FINISH(192);
   }
   return sanei_scsi_cmd(ms->sfd, comm, 6 + comm[4], 0, 0);
 }
@@ -481,10 +518,15 @@ mode_select_1(Microtek_Scanner *ms)
   data[3] = ((ms->allow_calibrate) ? 0 : 0x02); /* | 0x01; */
 
   if (DBG_LEVEL >= 192) {
-    int i;  
+    int i; 
+#if 0 
     fprintf(stderr, "MSL1: ");
     for (i=0;i<6+0x0A;i++) fprintf(stderr, "%2x ", comm[i]);
     fprintf(stderr, "\n");
+#endif
+    MDBG_INIT("MSL1: ");
+    for (i=0;i<6+0x0A;i++) MDBG_ADD("%2x ", comm[i]);
+    MDBG_FINISH(192);
   }
   return sanei_scsi_cmd(ms->sfd, comm, 6 + 0x0A, 0, 0);
 }
@@ -515,9 +557,14 @@ save_mode_sense(Microtek_Scanner *ms)
 
   if (DBG_LEVEL >= 192) {
     unsigned int i;  
+#if 0
     fprintf(stderr, "SMS: ");
     for (i=0;i<lenp;i++) fprintf(stderr, "%2x ", data[i]);
     fprintf(stderr, "\n");
+#endif
+    MDBG_INIT("SMS: ");
+    for (i=0;i<lenp;i++) MDBG_ADD("%2x ", data[i]);
+    MDBG_FINISH(192);
   }
 
   return status;
@@ -548,11 +595,18 @@ compare_mode_sense(Microtek_Scanner *ms, int *match)
 
   if (DBG_LEVEL >= 192) {
     unsigned int i;  
+#if 0
     fprintf(stderr, "CMS: ");
     for (i=0;i<lenp;i++) fprintf(stderr, "%2x(%2x) ", 
 				 data[i],
 				 ms->mode_sense_cache[i]);
     fprintf(stderr, "\n");
+#endif
+    MDBG_INIT("CMS: ");
+    for (i=0;i<lenp;i++) MDBG_ADD("%2x(%2x) ", 
+				  data[i],
+				  ms->mode_sense_cache[i]);
+    MDBG_FINISH(192);
   }
 
   return status;
@@ -602,9 +656,14 @@ accessory(Microtek_Scanner *ms)
 
   if (DBG_LEVEL >= 192) {
     int i;  
+#if 0
     fprintf(stderr, "AC: ");
     for (i=0;i<6;i++) fprintf(stderr, "%2x ", comm[i]);
     fprintf(stderr, "\n");
+#endif
+    MDBG_INIT("AC: ");
+    for (i=0;i<6;i++) MDBG_ADD("%2x ", comm[i]);
+    MDBG_FINISH(192);
   }
   return sanei_scsi_cmd(ms->sfd, comm, 6, 0, 0);
 }
@@ -633,9 +692,14 @@ start_scan(Microtek_Scanner *ms)
 
   if (DBG_LEVEL >= 192) {
     int i;  
+#if 0
     fprintf(stderr, "SS: ");
     for (i=0;i<6;i++) fprintf(stderr, "%2x ", comm[i]);
     fprintf(stderr, "\n");
+#endif
+    MDBG_INIT("SS: ");
+    for (i=0;i<6;i++) MDBG_ADD("%2x ", comm[i]);
+    MDBG_FINISH(192);
   }
   return sanei_scsi_cmd(ms->sfd, comm, 6, 0, 0);
 }
@@ -652,10 +716,15 @@ stop_scan(Microtek_Scanner *ms)
 
   DBG(23, ".stop_scan...\n");
   if (DBG_LEVEL >= 192) {
-    int i;  
+    int i; 
+#if 0 
     fprintf(stderr, "SPS:");
     for (i=0;i<6;i++) fprintf(stderr, "%2x ", comm[i]);
     fprintf(stderr, "\n");
+#endif
+    MDBG_INIT("SPS:");
+    for (i=0;i<6;i++) MDBG_ADD("%2x ", comm[i]);
+    MDBG_FINISH(192);
   }
   return sanei_scsi_cmd(ms->sfd, comm, 6, 0, 0);
 }
@@ -906,7 +975,6 @@ download_gamma(Microtek_Scanner *ms)
 }
 
 
-
 /********************************************************************/  
 /* magic command to start calibration                               */
 /********************************************************************/  
@@ -918,9 +986,14 @@ start_calibration(Microtek_Scanner *ms)
   DBG(23, ".start_calibrate...\n");
   if (DBG_LEVEL >= 192) {
     int i;  
+#if 0
     fprintf(stderr, "STCal:");
     for (i=0;i<8;i++) fprintf(stderr, "%2x ", comm[i]);
     fprintf(stderr, "\n");
+#endif
+    MDBG_INIT("STCal:");
+    for (i=0;i<8;i++) MDBG_ADD("%2x ", comm[i]);
+    MDBG_FINISH(192);
   }
   return sanei_scsi_cmd(ms->sfd, comm, 8, 0, 0);   
 }
@@ -1703,31 +1776,30 @@ dump_inquiry(Microtek_Info *mi, unsigned char *result)
   int i;
 
   DBG(15, "dump_inquiry...\n");
-  fprintf(stderr, " === SANE/Microtek backend v%d.%d.%d ===\n",
+  DBG(1, " === SANE/Microtek backend v%d.%d.%d ===\n",
 	  MICROTEK_MAJOR, MICROTEK_MINOR, MICROTEK_PATCH);
-  fprintf(stderr, "========== Scanner Inquiry Block ========mm\n");
-  for (i=0; i<96; i++) {
-    if (!(i % 16) && (i)) fprintf(stderr, "\n");
-    fprintf(stderr, "%02x ", (int)result[i]);
+  DBG(1, "========== Scanner Inquiry Block ========mm\n");
+  for (i=0; i<96; ) {
+    if (!(i % 16)) MDBG_INIT("");
+    MDBG_ADD("%02x ", (int)result[i++]);
+    if (!(i % 16)) MDBG_FINISH(1);
   }
-  fprintf(stderr, "\n\n");
-
-  fprintf(stderr, "========== Scanner Inquiry Report ==========\n");
-  fprintf(stderr, "===== Scanner ID...\n");
-  fprintf(stderr, "Device Type Code: 0x%02x\n", mi->device_type);
-  fprintf(stderr, "Model Code: 0x%02x\n", mi->model_code);
-  fprintf(stderr, "Vendor Name: '%s'   Model Name: '%s'\n",
+  DBG(1, "========== Scanner Inquiry Report ==========\n");
+  DBG(1, "===== Scanner ID...\n");
+  DBG(1, "Device Type Code: 0x%02x\n", mi->device_type);
+  DBG(1, "Model Code: 0x%02x\n", mi->model_code);
+  DBG(1, "Vendor Name: '%s'   Model Name: '%s'\n",
 	  mi->vendor_id, mi->model_name);
-  fprintf(stderr, "Vendor Specific String: '%s'\n", mi->vendor_string);
-  fprintf(stderr, "Firmware Rev: '%s'\n", mi->revision_num);
-  fprintf(stderr, 
+  DBG(1, "Vendor Specific String: '%s'\n", mi->vendor_string);
+  DBG(1, "Firmware Rev: '%s'\n", mi->revision_num);
+  DBG(1, 
 	  "SCSI F/W version: %1d.%1d     Scanner F/W version: %1d.%1d\n",
 	  mi->SCSI_firmware_ver_major, mi->SCSI_firmware_ver_minor,
 	  mi->scanner_firmware_ver_major, mi->scanner_firmware_ver_minor);
-  fprintf(stderr, "Response data format: 0x%02x\n", mi->response_data_format);
+  DBG(1, "Response data format: 0x%02x\n", mi->response_data_format);
   
-  fprintf(stderr, "===== Imaging Capabilities...\n");
-  fprintf(stderr, "Modes:  %s%s%s%s%s%s%s\n",
+  DBG(1, "===== Imaging Capabilities...\n");
+  DBG(1, "Modes:  %s%s%s%s%s%s%s\n",
 	  (mi->modes & MI_MODES_LINEART) ? "Lineart " : "",
 	  (mi->modes & MI_MODES_HALFTONE) ? "Halftone " : "",
 	  (mi->modes & MI_MODES_GRAY) ? "Gray " : "",
@@ -1735,58 +1807,58 @@ dump_inquiry(Microtek_Info *mi, unsigned char *result)
 	  (mi->modes & MI_MODES_TRANSMSV) ? "(X-msv) " : "",
 	  (mi->modes & MI_MODES_ONEPASS) ? "(OnePass) " : "",
 	  (mi->modes & MI_MODES_NEGATIVE) ? "(Negative) " : "");
-  fprintf(stderr, 
+  DBG(1, 
 	  "Resolution Step Sizes: %s%s    Expanded Resolution Support? %s%s\n",
 	  (mi->res_step & MI_RESSTEP_1PER) ? "1% " : "",
 	  (mi->res_step & MI_RESSTEP_5PER) ? "5%" : "",
 	  (mi->expanded_resolution) ? "yes" : "no",
 	  (mi->expanded_resolution == 0xFF) ? "(but says no)" : "");
-  fprintf(stderr, "Supported Bits Per Sample: %s8 %s%s%s\n",
+  DBG(1, "Supported Bits Per Sample: %s8 %s%s%s\n",
 	  (mi->bit_formats & MI_FMT_CAP_4BPP) ? "4 " : "",
 	  (mi->bit_formats & MI_FMT_CAP_10BPP) ? "10 " : "",
 	  (mi->bit_formats & MI_FMT_CAP_12BPP) ? "12 " : "",
 	  (mi->bit_formats & MI_FMT_CAP_16BPP) ? "16 " : "");
-  fprintf(stderr, "Max. document size code: 0x%02x\n",
+  DBG(1, "Max. document size code: 0x%02x\n",
 	  mi->doc_size_code);
-  fprintf(stderr, "Max. document size:  %d x %d pixels\n",
+  DBG(1, "Max. document size:  %d x %d pixels\n",
 	  mi->max_x, mi->max_y);
-  fprintf(stderr, "Frame units:  %s%s\n",
+  DBG(1, "Frame units:  %s%s\n",
 	  (mi->unit_type & MI_UNIT_PIXELS) ? "pixels  " : "",
 	  (mi->unit_type & MI_UNIT_8TH_INCH) ? "1/8\"'s " : "");
-  fprintf(stderr, "# of built-in halftones: %d   Downloadable patterns? %s\n",
+  DBG(1, "# of built-in halftones: %d   Downloadable patterns? %s\n",
 	  mi->pattern_count, (mi->pattern_dwnld) ? "Yes" : "No");
 
-  fprintf(stderr, "Data Compression: %s%s\n",
+  DBG(1, "Data Compression: %s%s\n",
 	  (mi->compress_type & MI_COMPRSS_HUFF) ? "huffman " : "",
 	  (mi->compress_type & MI_COMPRSS_RD) ? "read-data " : "");
-  fprintf(stderr, "Contrast Settings: %d   Exposure Settings: %d\n",
+  DBG(1, "Contrast Settings: %d   Exposure Settings: %d\n",
 	  mi->cont_settings, mi->exp_settings);
-  fprintf(stderr, "Adjustable Shadow/Highlight? %s   Adjustable Midtone? %s\n",
+  DBG(1, "Adjustable Shadow/Highlight? %s   Adjustable Midtone? %s\n",
 	  (mi->enhance_cap & MI_ENH_CAP_SHADOW) ? "yes" : "no ",
 	  (mi->enhance_cap & MI_ENH_CAP_MIDTONE) ? "yes" : "no ");
-  fprintf(stderr, "Digital brightness/offset? %s\n",
+  DBG(1, "Digital brightness/offset? %s\n",
 	  (mi->extra_cap & MI_EXCAP_OFF_CTL) ? "yes" : "no");
   /*
   fprintf(stderr, 
 	  "Gamma Table Size: %d entries of %d bytes (max. value: %d)\n",
 	  mi->max_lookup_size, mi->gamma_size, mi->max_gamma_val);
   */
-  fprintf(stderr, 
+  DBG(1, 
 	  "Gamma Table Size: %d entries of %d bytes (max. depth: %d)\n",
 	  mi->max_lookup_size, mi->gamma_size, mi->max_gamma_bit_depth);
 
-  fprintf(stderr, "===== Source Options...\n");
-  fprintf(stderr, "Feed type:  %s%s   ADF support? %s\n",
+  DBG(1, "===== Source Options...\n");
+  DBG(1, "Feed type:  %s%s   ADF support? %s\n",
 	  (mi->feed_type & MI_FEED_FLATBED) ? "flatbed " : "",
 	  (mi->feed_type & MI_FEED_EDGEFEED) ? "edge-feed " : "",
 	  (mi->feed_type & MI_FEED_AUTOSUPP) ? "yes" : "no");  
-  fprintf(stderr, "Document Feeder Support? %s   Feeder Backtracking? %s\n",
+  DBG(1, "Document Feeder Support? %s   Feeder Backtracking? %s\n",
 	  (mi->source_options & MI_SRC_FEED_SUPP) ? "yes" : "no ",
 	  (mi->source_options & MI_SRC_FEED_BT) ? "yes" : "no ");
-  fprintf(stderr, "Feeder Installed? %s          Feeder Ready? %s\n",
+  DBG(1, "Feeder Installed? %s          Feeder Ready? %s\n",
 	  (mi->source_options & MI_SRC_HAS_FEED) ? "yes" : "no ",
 	  (mi->source_options & MI_SRC_FEED_RDY) ? "yes" : "no ");
-  fprintf(stderr, "Transparency Adapter Installed? %s\n",
+  DBG(1, "Transparency Adapter Installed? %s\n",
 	  (mi->source_options & MI_SRC_HAS_TRANS) ? "yes" : "no ");
   /* GET_TRANS GET_FEED XXXXXXXXX */
   /* mt_SWslct ???? XXXXXXXXXXX */
@@ -1794,36 +1866,37 @@ dump_inquiry(Microtek_Info *mi, unsigned char *result)
     #define DOC_IN_FEEDER  0x01
     #define TRANSPARENCY   0x10
     */
-  fprintf(stderr, "Fast Color Prescan? %s\n",
+  DBG(1, "Fast Color Prescan? %s\n",
 	  (mi->fast_color_preview) ? "yes" : "no");
-  fprintf(stderr, "Selectable Transfer Format? %s\n",
+  DBG(1, "Selectable Transfer Format? %s\n",
 	  (mi->xfer_format_select) ? "yes" : "no");
-  fprintf(stderr, "Color Transfer Sequence: ");
+  MDBG_INIT("Color Transfer Sequence: ");
   switch (mi->color_sequence) {
   case MI_COLSEQ_PLANE: 
-    fprintf(stderr, "plane-by-plane (3-pass)\n"); break;
+    MDBG_ADD("plane-by-plane (3-pass)"); break;
   case MI_COLSEQ_PIXEL: 
-    fprintf(stderr, "pixel-by-pixel RGB\n"); break;
+    MDBG_ADD("pixel-by-pixel RGB"); break;
   case MI_COLSEQ_RGB:
-    fprintf(stderr, "line-by-line, R-G-B sequence\n"); break;
+    MDBG_ADD("line-by-line, R-G-B sequence"); break;
   case MI_COLSEQ_NONRGB:
-    fprintf(stderr, "line-by-line, non-sequential with headers\n"); break;
+    MDBG_ADD("line-by-line, non-sequential with headers"); break;
   case MI_COLSEQ_2PIXEL: 
-    fprintf(stderr, "2pixel-by-2pixel RRGGBB\n"); break;
+    MDBG_ADD("2pixel-by-2pixel RRGGBB"); break;
   default:
-    fprintf(stderr, "UNKNOWN CODE (0x%02x)\n", mi->color_sequence);
+    MDBG_ADD("UNKNOWN CODE (0x%02x)", mi->color_sequence);
   }
+  MDBG_FINISH(1);
   /*  if (mi->modes & MI_MODES_ONEPASS) XXXXXXXXXXX */
-  fprintf(stderr, "Three pass scan support? %s\n",
+  DBG(1, "Three pass scan support? %s\n",
 	  (mi->does_3pass ? "yes" : "no"));
-  fprintf(stderr, "ModeSelect-1 and ModeSense-1 Support? %s\n",
+  DBG(1, "ModeSelect-1 and ModeSense-1 Support? %s\n",
 	  (mi->does_mode1) ? "yes" : "no");
-  fprintf(stderr, "Can Disable Linearization Table? %s\n",
+  DBG(1, "Can Disable Linearization Table? %s\n",
 	  (mi->extra_cap & MI_EXCAP_DIS_LNTBL) ? "yes" : "no");
-  fprintf(stderr, "Can Disable Start-of-Scan Recalibration? %s\n",
+  DBG(1, "Can Disable Start-of-Scan Recalibration? %s\n",
 	  (mi->extra_cap & MI_EXCAP_DIS_RECAL) ? "yes" : "no");
   
-  fprintf(stderr, "Internal expanded expansion? %s\n",
+  DBG(1, "Internal expanded expansion? %s\n",
 	  mi->does_expansion ? "yes" : "no");
   /*
     fprintf(stderr, "cntr_vals = %d, min_cntr = %d, max_cntr = %d\n",
@@ -1831,7 +1904,7 @@ dump_inquiry(Microtek_Info *mi, unsigned char *result)
     fprintf(stderr, "exp_vals = %d, min_exp = %d, max_exp = %d\n",
     exp_vals, min_exp, max_exp);
     */
-  fprintf(stderr, "\n\n");  
+  DBG(1, "====== End of Scanner Inquiry Report =======\n");
   return SANE_STATUS_GOOD;
 }
 
@@ -1850,15 +1923,21 @@ dump_suspect_inquiry(unsigned char *result)
   SANE_Byte response_data_format;
 
   DBG(15, "dump_suspect_inquiry...\n");
-  fprintf(stderr, " === SANE/Microtek backend v%d.%d.%d ===\n",
+  DBG(1, " === SANE/Microtek backend v%d.%d.%d ===\n",
 	  MICROTEK_MAJOR, MICROTEK_MINOR, MICROTEK_PATCH);
-  fprintf(stderr, "========== Scanner Inquiry Block ========mm\n");
+  DBG(1, "========== Scanner Inquiry Block ========mm\n");
+  for (i=0; i<96; ) {
+    if (!(i % 16)) MDBG_INIT("");
+    MDBG_ADD("%02x ", (int)result[i++]);
+    if (!(i % 16)) MDBG_FINISH(1);
+  }
+#if 0
   for (i=0; i<96; i++) {
     if (!(i % 16) && (i)) fprintf(stderr, "\n");
     fprintf(stderr, "%02x ", (int)result[i]);
   }
   fprintf(stderr, "\n\n");
-
+#endif
   strncpy(vendor_id, &result[8], 8);
   strncpy(model_name, &result[16], 16);
   strncpy(revision_num, &result[32], 4);
@@ -1873,20 +1952,19 @@ dump_suspect_inquiry(unsigned char *result)
   response_data_format       = (SANE_Byte)(result[3]);
   model_code                 = (SANE_Byte)(result[62]);
 
-  fprintf(stderr, "========== Scanner Inquiry Report ==========\n");
-  fprintf(stderr, "===== Scanner ID...\n");
-  fprintf(stderr, "Device Type Code: 0x%02x\n", device_type);
-  fprintf(stderr, "Model Code: 0x%02x\n", model_code);
-  fprintf(stderr, "Vendor Name: '%s'   Model Name: '%s'\n",
+  DBG(1, "========== Scanner Inquiry Report ==========\n");
+  DBG(1, "===== Scanner ID...\n");
+  DBG(1, "Device Type Code: 0x%02x\n", device_type);
+  DBG(1, "Model Code: 0x%02x\n", model_code);
+  DBG(1, "Vendor Name: '%s'   Model Name: '%s'\n",
 	  vendor_id, model_name);
-  fprintf(stderr, "Firmware Rev: '%s'\n", revision_num);
-  fprintf(stderr, 
+  DBG(1, "Firmware Rev: '%s'\n", revision_num);
+  DBG(1, 
 	  "SCSI F/W version: %1d.%1d     Scanner F/W version: %1d.%1d\n",
 	  SCSI_firmware_ver_major, SCSI_firmware_ver_minor,
 	  scanner_firmware_ver_major, scanner_firmware_ver_minor);
-  fprintf(stderr, "Response data format: 0x%02x\n", response_data_format);
-  fprintf(stderr, "\n\n");
-
+  DBG(1, "Response data format: 0x%02x\n", response_data_format);
+  DBG(1, "====== End of Scanner Inquiry Report =======\n");
   return SANE_STATUS_GOOD;
 }
 
@@ -1979,14 +2057,18 @@ id_microtek(u_int8_t *result, char **model_string)
       if (response_data_format == 0x02) {
 	DBG(15, "id_microtek:  (uses new SCSI II command set)\n");
 	if (DBG_LEVEL >= 15) {
-	  fprintf(stderr, "\n\n\n");
-	  fprintf(stderr, "========== Congratulations! ==========\n");
-	  fprintf(stderr, "You appear to be the proud owner of a \n");
-	  fprintf(stderr, "brand-new Microtek scanner, which uses\n");
-	  fprintf(stderr, "a new SCSI II command set.            \n");
-	  fprintf(stderr, "\n");
-	  fprintf(stderr, "Try the `microtek2' backend instead.  \n");
-	  fprintf(stderr, "\n\n\n");
+	  DBG(1, "\n");
+	  DBG(1, "\n");
+	  DBG(1, "\n");
+	  DBG(1, "========== Congratulations! ==========\n");
+	  DBG(1, "You appear to be the proud owner of a \n");
+	  DBG(1, "brand-new Microtek scanner, which uses\n");
+	  DBG(1, "a new SCSI II command set.            \n");
+	  DBG(1, "\n");
+	  DBG(1, "Try the `microtek2' backend instead.  \n");
+	  DBG(1, "\n");
+	  DBG(1, "\n");
+	  DBG(1, "\n");
 	}
       }
       return SANE_STATUS_INVAL;
@@ -1996,22 +2078,26 @@ id_microtek(u_int8_t *result, char **model_string)
 #ifndef NDEBUG
       DBG_LEVEL = 1;
 #endif
-      fprintf(stderr, "\n\n\n");
-      fprintf(stderr, "========== Congratulations! ==========\n");
-      fprintf(stderr, "Your scanner appears to be supported  \n");
-      fprintf(stderr, "by the microtek backend.  However, it \n");
-      fprintf(stderr, "has never been tried before, and some \n");
-      fprintf(stderr, "parameters are bound to be wrong.     \n");
-      fprintf(stderr, "\n");
-      fprintf(stderr, "Please send the scanner inquiry log in\n");
-      fprintf(stderr, "its entirety to mtek-bugs@mir.com and \n");
-      fprintf(stderr, "include a description of the scanner, \n");
-      fprintf(stderr, "including the base optical resolution.\n");
-      fprintf(stderr, "\n");
-      fprintf(stderr, "You'll find complete instructions for \n");
-      fprintf(stderr, "submitting an error/debug log in the  \n");
-      fprintf(stderr, "'sane-microtek' man-page.             \n");
-      fprintf(stderr, "\n\n\n");
+      DBG(1, "\n");
+      DBG(1, "\n");
+      DBG(1, "\n");
+      DBG(1, "========== Congratulations! ==========\n");
+      DBG(1, "Your scanner appears to be supported  \n");
+      DBG(1, "by the microtek backend.  However, it \n");
+      DBG(1, "has never been tried before, and some \n");
+      DBG(1, "parameters are bound to be wrong.     \n");
+      DBG(1, "\n");
+      DBG(1, "Please send the scanner inquiry log in\n");
+      DBG(1, "its entirety to mtek-bugs@mir.com and \n");
+      DBG(1, "include a description of the scanner, \n");
+      DBG(1, "including the base optical resolution.\n");
+      DBG(1, "\n");
+      DBG(1, "You'll find complete instructions for \n");
+      DBG(1, "submitting an error/debug log in the  \n");
+      DBG(1, "'sane-microtek' man-page.             \n");
+      DBG(1, "\n");
+      DBG(1, "\n");
+      DBG(1, "\n");
     }
     return SANE_STATUS_GOOD;
   }
@@ -2219,8 +2305,9 @@ static void calc_calibration(u_int8_t *caldata, u_int8_t *scanline[],
     else {
       DBG(23, "zero: i=%d b/t=%d/%d ", i, bot, top);
       if (DBG_LEVEL >= 23) {
-	for (j=0; j<STRIPS; j++) fprintf(stderr, " %3d", sorted[j]);
-	fprintf(stderr, "\n");
+	MDBG_INIT("");
+	for (j=0; j<STRIPS; j++) MDBG_ADD(" %3d", sorted[j]);
+	MDBG_FINISH(23);
       }
       caldata[i] = 0;
     }
@@ -2572,7 +2659,7 @@ static SANE_Status pack_flat_data(Microtek_Scanner *s, size_t nlines)
 
 
 /********************************************************************/
-/* Process sequential R-G-B scan lines (who uses this???)           */
+/* Process sequential R-G-B scan lines (who uses this??? )          */
 /********************************************************************/
 static SANE_Status
 pack_seqrgb_data (Microtek_Scanner *s, size_t nlines)
@@ -2961,6 +3048,7 @@ sane_init(SANE_Int *version_code, SANE_Auth_Callback authorize)
   size_t len;
   FILE *fp;
 
+  authorize = authorize;
   DBG_INIT();
   DBG(1, "sane_init:  MICROTEK says hello! (v%d.%d.%d)\n",
       MICROTEK_MAJOR, MICROTEK_MINOR, MICROTEK_PATCH);
@@ -2977,7 +3065,7 @@ sane_init(SANE_Int *version_code, SANE_Auth_Callback authorize)
     return SANE_STATUS_GOOD;
   }
   while (sanei_config_read(dev_name, sizeof (dev_name), fp)) {
-    DBG(23, "sane_init:  config- %s", dev_name);
+    DBG(23, "sane_init:  config-> %s\n", dev_name);
     if (dev_name[0] == '#') continue;	/* ignore comments */
     if (!(strncmp("noprecal", dev_name, 8))) {
       DBG(23, 
@@ -3011,6 +3099,7 @@ sane_get_devices(const SANE_Device ***device_list,
   Microtek_Device *dev;
   int i;
 
+  local_only = local_only;
   DBG(10, "sane_get_devices\n");
   /* we keep an internal copy */
   if (devlist)
@@ -4062,6 +4151,7 @@ SANE_Status
 sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 {
   DBG(10, "sane_set_io_mode...\n");
+  handle = handle, non_blocking = non_blocking;
   return SANE_STATUS_UNSUPPORTED;
 }
 
@@ -4074,5 +4164,6 @@ SANE_Status
 sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
 {
   DBG(10, "sane_get_select_fd...\n");
+  handle = handle, fd = fd;
   return SANE_STATUS_UNSUPPORTED;
 }

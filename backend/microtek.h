@@ -3,7 +3,7 @@
 
    microtek.h 
 
-   This file (C) 1999 Matthew Marjanovic
+   This file Copyright 2002 Matthew Marjanovic
 
    This file is part of the SANE package.
 

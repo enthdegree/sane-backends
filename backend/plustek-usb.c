@@ -575,7 +575,7 @@ static int usbDev_open( const char *dev_name, void *misc )
 
 	} else {
 
-		DBG( _DBG_INFO, "Can't get vendor ID from driver...\n" );
+		DBG( _DBG_INFO, "Can't get vendor & product ID from driver...\n" );
 
 		/* if the ioctl stuff is not supported by the kernel and we have
          * nothing specified, we have to give up...
@@ -587,8 +587,10 @@ static int usbDev_open( const char *dev_name, void *misc )
 	        return -1;
 		}
 		
-		vendor = strtol( dev->usbId, 0, 0 );
-		DBG( _DBG_INFO, "... using the specified: 0x%04x\n", vendor );
+		vendor  = strtol( &dev->usbId[0], 0, 0 );
+		product = strtol( &dev->usbId[7], 0, 0 );
+		DBG( _DBG_INFO, "... using the specified: "
+		                "0x%04x-0x%04x\n", vendor, product );
 	}
 
     /*
@@ -618,6 +620,9 @@ static int usbDev_open( const char *dev_name, void *misc )
 
 	dev->usbDev.vendor  = vendor;
 	dev->usbDev.product = product;
+
+	DBG( _DBG_INFO, "Detected vendor & product ID: "
+		                "0x%04x-0x%04x\n", vendor, product );
 
 	/*
 	 * Plustek uses the misc IO 1/2 to get the PCB ID

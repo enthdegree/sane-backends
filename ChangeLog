@@ -1,3 +1,12 @@
+2000-11-22  Oliver Rauch <Oliver.Rauch@Wolfsburg.DE>
+
+	* removed xcam.c xscanimage.c sane-style.rc progress.c progress.h
+                  preview.c preview.h preferences.c preferences.h gtkglue.c gtkglue.h 
+          from frontend/
+
+	* removed parts for xcam and xscanimage from frontend/Makefile.in,
+          configure.in and updated confiugre
+
 2000-11-23  Henning Meier-Geinitz <hmg@gmx.de>
 
 	* NEWS: Updated for SANE 1.0.4. Please check.

@@ -11,7 +11,7 @@
 
 :backend "hpsj5s"                 ; name of backend
 :version "0.03"                   ; version of backend
-:status :alpha                     ; :alpha, :beta, :stable, :new
+;:status :alpha                     ; :alpha, :beta, :stable, :new
 :manpage "sane-hpsj5s"                ; name of manpage (if it exists)
 :url "http://hpsj5s.sourceforge.net/" ; backend's web page
 
@@ -21,9 +21,11 @@
 
 :mfg "Hewlett-Packard"                         ; name a manufacturer
 :url "http://www.hp.com/"
+
 :model "ScanJet 5s"           ; name models for above-specified mfg.
 :interface "Parport (EPP)"
-:comment "Requires libieee1284 library"
+:comment "Requires libieee1284 library. Only gray mode."
+:status :minimal
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

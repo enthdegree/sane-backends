@@ -1,3 +1,8 @@
+2003-10-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/Makefile.in: Remove doxygen-sanei.conf in clean target.
+	* sanei/sanei_pa4s2.c: Made some internal functions static.
+
 2003-10-06  Thomas Soumarmon <thomas.soumarmon@cogitae.net>
 
 	* backend/hp5400_*: fixed bug #300252 : added static to all non

@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-05-27"		; version of backend
+:version "2003-06-06"		; version of backend
 :url "http://www.meier-geinitz.de/sane/misc/unsupported.html"
 ;:status :stable			; :alpha, :beta, :stable, :new
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
@@ -368,6 +368,12 @@
 
 :mfg "Microtek"
 :url "http://www.microtek.com/"
+
+:model "ScanMaker 336 CX"
+;:url ""
+:interface "SCSI"
+:status :unsupported
+:comment "Probably unsupported. Seems to be similar to the Microtek 330 CX and is detected by the microtek2 backend. Scanning doesn't seem to work however."
 
 :model "ScanMaker 3630"
 :url "http://sm3600.sourceforge.net/"

@@ -1,4 +1,4 @@
-TODO (2001-10-24)
+TODO (2001-10-26)
 
 ******** todo ********
 
@@ -123,6 +123,9 @@ sanei
 -----
   * SCSI access doesn't seem to work on Linux/Sparc. See emails from
     Tomislav Renic on sane-devel (2001-09-21).
+
+  * sanei_usb: Add sanei_usb_write_control or similar. At least the Linux
+    USB scanner driver allows to send control messages since kernel 2.4.13.
 
   * create sanei_parport_* and remove all inb, outb,... from all backends;
     use libieee1284 if available (see

@@ -1,3 +1,26 @@
+2000-10-03  Henning Meier-Geinitz <hmg@gmx.de>
+
+	* tools/find-scanner.c: Explicitly state that find-scanner won't
+ 	  find non-SCSI scanners.
+	* doc/scanimage.man: Add examples for SANE device names.
+	* frontend/scanimage.c: Output message when no devices are found.
+	  Add example for devicename to --help message. Print warning
+	  when a Unix devicename is used instead of a SANE device. Removed
+	  compiler warning.
+	* TODO: Removed entries about the fgets and include issues in
+ 	  umax. Removed entries about scanimage device name
+ 	  documentation. Added a point about xscanimage problems with the
+ 	  new GIMP API.
+	* backend/mustek.* doc/sane-mustek.man: Update to Mustek backend
+ 	  1.0-98. Fixed segmentation fault in sane_init. Enabled double
+ 	  buffering. Clear inquiry buffer before using. Paragon 1200 SP now
+ 	  uses LD_BLOCK color correction. Removed LD MFS (wasn't used
+ 	  anymore). Fix sane_cancel for Paragon series II scanners. Fix
+ 	  halftone and grain for Paragon series II scanners. Backtracking is
+ 	  used automaticly by all scanners now. Some safety checks, code
+ 	  cleanup and more debug output. Details are in 
+	  backend/mustek.CHANGES.
+
 2000-10-02  Oliver Rauch <Oliver.Rauch@Wolfsburg.DE>
 
 	* Updated umax backend to sane-umax-1.0.3-build-24

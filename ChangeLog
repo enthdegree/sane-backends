@@ -1,3 +1,8 @@
+2001-04-30  Jochen Eisinger <jochen.eisinger@informatik.uni-freiburg.de>
+
+	* doc/sane-mustek_pp.man: Added information about CIS patches
+	  by Eddy De Greef
+
 2001-04-29  Chris Pinkham <cpinkham@infi.net>
 
 	* backend/artec.c: Fixed bug causing possible dereference of a NULL

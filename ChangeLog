@@ -18,6 +18,12 @@
 	  improvements.
 	* doc/sane-find-scanner.man: Documentation for the new options.
 	  Splitted USB and SCSI parts. 
+	* doc/descriptions/hpsj5s.desc: Added missing space in ":new :yes"
+	  line.
+	* TODO: Added entry about desc files. Removed entries about
+	  sane-backends.html, sanei_usb.c libusb support, and the OS/2
+	  strncasecmp problem. Updated entries about checking device file
+	  types and OS X in sanei_scsi.c.
 
 2002-07-13  Simon Munton <simon@munton.demon.co.uk>
 	* doc/descriptions/pie.desc: removed unsupported scanner types, 

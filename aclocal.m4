@@ -10,6 +10,16 @@ dnl but WITHOUT ANY WARRANTY, to the extent permitted by law; without
 dnl even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 dnl PARTICULAR PURPOSE.
 
+dnl
+dnl Contains the following macros
+dnl   SANE_EXTRACT_LDFLAGS(LDFLAGS, LIBS)
+dnl   SANE_V4L_VERSION
+dnl   SANE_CHECK_PTAL
+dnl   SANE_CHECK_JPEG
+dnl   JAPHAR_GREP_CFLAGS(flag, cmd_if_missing, cmd_if_present)
+dnl   SANE_LINKER_RPATH
+dnl
+
 #
 # Separate LIBS from LDFLAGS to link correctly on HP/UX (and other
 # platforms who care about the order of params to ld.  It removes all
@@ -79,7 +89,7 @@ AC_DEFUN(SANE_CHECK_PTAL,
 
 		AC_CHECK_HEADERS(ptal.h,
 			AC_CHECK_LIB(ptal,ptalInit,
-				AC_DEFINE(HAVE_PTAL)
+				AC_DEFINE(HAVE_PTAL, 1, [Is PTAL available?])
 				LDFLAGS="${LDFLAGS} -lptal"
 				PTAL_TMP_HAVE_PTAL=yes))
 
@@ -113,6 +123,47 @@ AC_DEFUN(SANE_CHECK_JPEG,
       AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
     ],)
   ],)
+])
+
+dnl
+dnl JAPHAR_GREP_CFLAGS(flag, cmd_if_missing, cmd_if_present)
+dnl
+dnl From Japhar.  Report changes to japhar@hungry.com
+dnl
+AC_DEFUN(JAPHAR_GREP_CFLAGS,
+[case "$CFLAGS" in
+"$1" | "$1 "* | *" $1" | *" $1 "* )
+  ifelse($#, 3, [$3], [:])
+  ;;
+*)
+  $2
+  ;;
+esac
+])
+
+dnl
+dnl SANE_LINKER_RPATH
+dnl
+dnl Detect how to set runtime link path (rpath).  Set variable
+dnl LINKER_RPATH.  Typical content will be '-Wl,-rpath,' or '-R '.  If
+dnl set, add '${LINKER_RPATH}${libdir}' to $LDFLAGS
+dnl
+
+AC_DEFUN(SANE_LINKER_RPATH,
+[dnl AC_REQUIRE([AC_SUBST])dnl This line resulted in an empty AC_SUBST() !!
+  AC_CACHE_CHECK([linker parameter to set runtime link path], LINKER_RPATH,
+    [LINKER_RPATH=
+    case "$host_os" in
+    linux* | freebsd* | netbsd* | openbsd*)
+      # I believe this only works with GNU ld [pere 2001-04-16]
+      LINKER_RPATH="-Wl,-rpath,"
+      ;;
+    solaris*)
+      LINKER_RPATH="-R "
+      ;;
+    esac
+    ])
+  AC_SUBST(LINKER_RPATH)dnl
 ])
 
 

@@ -1,4 +1,4 @@
-TODO (2001-11-29)
+TODO (2001-12-25)
 
 ******** todo ********
 
@@ -32,23 +32,20 @@ backends
 
   * Update backends
     - Combine all the Fujitsu backends into one single backend
-
+    
   * Check all backends which use fork/kill for the kill (-1,...) bug
     first found in the microtek2 backend.
 
   * All backends should check for TL_X < BR_X and TL_Y < BR_Y to
     avoid segfaults or even scanner damage.
 
-  * Really fix all the parport/inb/outb compilation issues which break
-    porting to some non-i386 platforms.
-
   * Use DBG(...) instead of fprintf(stderr, ...) or printf
      - microtek
 
   * Check net/saned
-     - saned times out after 5 minutes (now 60 minutes). Check if the
+     - saned times out after 60 minutes. Check if the
        watchdog timer is really necessary (e.g. to avoid blocking scanners
-       by one user). Maybe add an command line option to saned to set the
+       by one user). Maybe add a command line option to saned to set the
        timeout. Otherwise turn on TCP keep alive (where available) and
        (maybe) check the connection from server side.
 
@@ -90,7 +87,7 @@ backends
       
       - etc?
 
-  * as6e: attach: memory (dev + dev-sane.name) isn't freed if diver isn't
+  * as6e: attach: memory (dev + dev-sane.name) isn't freed if driver isn't
     found.
 
   * avision: line 1393: word isn't freed sometimes (maybe if  cp == line?)
@@ -107,10 +104,11 @@ doc
 
   * sane.tex: Define the return values for sane_init?  Define the
     consequences if sane_init do not return SANE_STATUS_GOOD.
-    Add a warning/explanation about problems with sane_get_select_fd,
-    Unix select() calls and sane_cancel.
 
-  * Update backend manpages
+  * sane.tex: Add a warning/explanation about problems with 
+    sane_get_select_fd, Unix select() calls and sane_cancel.
+
+  * Update backend manpages.
 
 frontends
 ---------
@@ -124,27 +122,46 @@ frontends
 
 sanei
 -----
-  * SCSI access doesn't seem to work on Linux/Sparc. See emails from
-    Tomislav Renic on sane-devel (2001-09-21).
-
   * sanei_scsi: Check return values of req_wait and cmd in case of
     SCSI DEVICE BUSY. Better specification of the behaviour of sanei_scsi
     functions (e.g. return values, timeout 10 min versus 1 min)?
 
-  * sanei_usb: Add sanei_usb_write_control or similar. At least the Linux
+  * sanei_usb: Add sanei_usb_control_msg. At least the Linux
     USB scanner driver allows to send control messages since kernel 2.4.13.
+    See http://umax1220u-sane.sourceforge.net/sanei/ .
+
+  * Add support for PV8630 USB chipset (as sanei interface):
+    http://umax1220u-sane.sourceforge.net/sanei/
 
   * create sanei_parport_* and remove all inb, outb,... from all backends;
     use libieee1284 if available (see
     http://people.redhat.com/twaugh/libieee1284/). Or just include this
     library into sane.
 
+platform-specific
+-----------------
+  * Keep config.guess and config.sub up-to-date.
+
+  * SCSI access doesn't seem to work on Linux/Sparc. See emails from
+    Tomislav Renic on sane-devel (2001-09-21).
+
+  * Really fix all the parport/inb/outb compilation issues which break
+    porting to some non-i386 platforms.
+
+  * Add AC_OBJEXT and AC_EXEEXT to configure.in for automatically adding
+    the correct extensions (e.g. for OS/2). Also update the Makefiles
+    accordingly.
+
+  * Fix libsocket problem (OS/2). libsocket must be linked when testing for
+    libsyslog.
+
   * Add support for semaphores also for OS/2 (currently used in snapscan).
 
-misc
-----
-  * Remove compiler warnings (>300 warnings even in disable-warnings mode,
-    >700 with --enable-warnings))
+  * Fix shared lib problem with NetBSD. Starting scanimage results in:
+    "Cannot open "../backend/.libs/libsane.so".
+
+  * Shared libs work with OpenBSD. However, they are named libsane.so.1.6
+    instead of 1.0.6. Is this correct?
 
   * Test SANE on different os/platforms, fix possible compilation problems 
      Test methods: scanimage -d pnm:0 --filename=file.pnm -T
@@ -153,7 +170,10 @@ misc
                    xscanimage / gimp with xscanimage plugin (where available)
      All the above with shared and static libraries.
 
-  * Keep config.guess and config.sub uptodate.
+misc
+----
+  * Remove compiler warnings (>300 warnings even in disable-warnings mode,
+    >700 with --enable-warnings))
 
   * Use #include "../include/sane/..." instead of #include <sane...>
 
@@ -168,10 +188,6 @@ misc
   * check memory leaks (checked with purify and mtrace (from glibc)):
 
   * Add installation procedure for translations of SANE backend's options.
- 
-  * Add AC_OBJEXT and AC_EXEEXT to configure.in for automatically adding
-    the correct extensions (e.g. for OS/2). Also update the Makefiles
-     accordingly.
 
 ******** done ********
 * Add bearpaw backend (Mustek BearPaw 1200 + maybe 2400)

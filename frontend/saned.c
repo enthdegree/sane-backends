@@ -150,6 +150,11 @@ poll (struct pollfd *ufds, unsigned int nfds, int timeout)
          && ((const uint32_t *) (a))[1] == 0                                \
          && ((const uint32_t *) (a))[2] == 0                                \
          && ((const uint32_t *) (a))[3] == htonl (1)) 
+
+#define SANE_IN6_IS_ADDR_V4MAPPED(a) \
+((((const uint32_t *) (a))[0] == 0)                                 \
+ && (((const uint32_t *) (a))[1] == 0)                              \
+ && (((const uint32_t *) (a))[2] == htonl (0xffff))) 
 #endif /* ENABLE_IPV6 */
 
 #ifndef MAXHOSTNAMELEN
@@ -503,8 +508,10 @@ check_host (int fd)
   else
     remote_ip = strdup (hostname);
 
-#ifdef ENABLE_IPV6  
-  if (strncmp (remote_ip, "::ffff:", 7) == 0)
+#ifdef ENABLE_IPV6
+  sin6 = (struct sockaddr_in6 *) &remote_address;
+
+  if (SANE_IN6_IS_ADDR_V4MAPPED (sin6->sin6_addr.s6_addr))
     {
       DBG (DBG_DBG, "check_host: detected an IPv4-mapped address\n");
       remote_ipv4 = remote_ip + 7;
@@ -548,9 +555,6 @@ check_host (int fd)
 #endif /* ENABLE_IPV6 */
 
   sin = (struct sockaddr_in *) &remote_address;
-#ifdef ENABLE_IPV6
-  sin6 = (struct sockaddr_in6 *) &remote_address;
-#endif /* ENABLE_IPV6 */
 
   switch (remote_address.ss_family)
     {

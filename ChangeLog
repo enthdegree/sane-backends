@@ -2,6 +2,9 @@
 
 	* po/sane-backends.fr.po: Updated french translation (from Yann
 	  E. MORIN <yann dot morin dot 1998 at anciens dot enib dot fr>).
+	* frontends/saned.c: Replaces a strncmp() call by a macro detecting
+	  V4-mapped address. This is a lot safer than the strncmp, and doesn't
+	  break anything. Patch from Julien BLACHE <jb@jblache.org>.
 
 2003-05-11  Eddy De Greef <eddy_de_greef at tiscali dot be>
 

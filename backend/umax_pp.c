@@ -99,6 +99,7 @@
 
 static int num_devices = 0;
 static Umax_PP_Descriptor *devlist = NULL;
+static const SANE_Device **devarray = NULL;
 
 static Umax_PP_Device *first_dev = NULL;
 
@@ -926,6 +927,9 @@ sane_exit (void)
   if (devlist != NULL)
     free (devlist);
 
+  if (devarray != NULL)
+    free (devarray);
+
   DBG (3, "exit: (...)\n");
 
   num_devices = 0;
@@ -934,7 +938,6 @@ sane_exit (void)
 SANE_Status
 sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 {
-  static const SANE_Device **devarray = NULL;
   int i;
 
   DBG (3, "get_devices\n");

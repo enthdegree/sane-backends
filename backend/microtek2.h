@@ -90,12 +90,12 @@
 
 #define MICROTEK2_MAJOR         0
 #define MICROTEK2_MINOR	        9
-#define MICROTEK2_BUILD         "20010517"
+#define MICROTEK2_BUILD         "20010828"
 #define MICROTEK2_CONFIG_FILE   "microtek2.conf"
 
 
 /******************************************************************************/
-/* defines that ar common to all devices                                      */
+/* defines that are common to all devices                                      */
 /******************************************************************************/
 
 #define MD_RESOLUTION_DEFAULT   72 << SANE_FIXED_SCALE_SHIFT
@@ -193,7 +193,7 @@
                                 d[4]=0x00; d[5]=0x00; d[6]=0x00; d[7]=0x00; \
                                 d[8]=0x28; d[9]=0x00
 #define RSA_CMD_L               10
-#define RSA_SETMEDIA(d,p)       d[5] |= ((p) & 0x77)             
+#define RSA_SETMEDIA(d,p)       d[5] |= ((p) & 0x77)
 #define RSA_TRANSFERLENGTH      40
 
 #define RSA_COLOR(d,s)          d = (((s)[0] >> 7) & 0x01)
@@ -207,8 +207,9 @@
                                    d[1] = (((s)[1] >> 4) & 0x03); \
                                    d[2] = (((s)[1] >> 2) & 0x03); \
                                 }
+#define RSA_NIS(d,s)            d = ((s)[1] & 0x02)
 #define RSA_DATSEQ(d,s)         d = ((s)[1] & 0x01)
-#define RSA_CCDGAP(d,s)         d = (s)[2]               
+#define RSA_CCDGAP(d,s)         d = (s)[2]
 #define RSA_MAX_XRESOLUTION(d,s)    d = ((s)[3] << 8) + (s)[4]
 #define RSA_MAX_YRESOLUTION(d,s)    d = ((s)[5] << 8) + (s)[6]
 #define RSA_GEOWIDTH(d,s)       d = ((s)[7] << 8) + (s)[8]
@@ -218,16 +219,16 @@
 #define RSA_SCANMODE(d,s)       d = (s)[13] & 0x0f
 #define RSA_CCDPIXELS(d,s)      d = ((s)[14] << 8) + (s)[15]
 #define RSA_LUTCAP(d,s)         d = (s)[16] & 0x1f
-#define RSA_DNLDPTRN(d,s)       d = (((s)[17] >> 7) & 0x01)           
-#define RSA_GRAINSLCT(d,s)      d = (s)[17] & 0x7f           
-#define RSA_SUPPOPT(d,s)        d = (s)[18] & 0xf3           
+#define RSA_DNLDPTRN(d,s)       d = (((s)[17] >> 7) & 0x01)
+#define RSA_GRAINSLCT(d,s)      d = (s)[17] & 0x7f
+#define RSA_SUPPOPT(d,s)        d = (s)[18] & 0xf3
 #define RSA_CALIBWHITE(d,s)     d = ((s)[19] << 24) + ((s)[20] << 16) \
                                   + ((s)[21] << 8) + (s)[22]
 #define RSA_CALIBSPACE(d,s)     d = ((s)[23] << 24) + ((s)[24] << 16) \
                                   + ((s)[25] << 8) + (s)[26]
 #define RSA_NLENS(d,s)          d = (s)[27]
 #define RSA_NWINDOWS(d,s)       d = (s)[28]
-#define RSA_SHTRNSFEREQU(d,s)   d = (((s)[29] >> 2) & 0x3f) 
+#define RSA_SHTRNSFEREQU(d,s)   d = (((s)[29] >> 2) & 0x3f)
 #define RSA_SCNBTTN(d,s)        d = (((s)[29] >> 1) & 0x01)
 #define RSA_BUFTYPE(d,s)        d = (s)[29] & 0x01
 #define RSA_REDBALANCE(d,s)     d = ((s)[30] << 8) | (s)[31]
@@ -472,7 +473,7 @@
 /* READ IMAGE STATUS */
 #define RIS_SET_CMD(d)          (d)[0] = 0x28; (d)[1] = 0x00; (d)[2] = 0x83; \
                                 (d)[3] = 0x00; (d)[4] = 0x00; (d)[5] = 0x00; \
-                                (d)[6] = 0x00; (d)[7] = 0x00; (d)[8] = 0x01; \
+                                (d)[6] = 0x00; (d)[7] = 0x00; (d)[8] = 0x00; \
                                 (d)[9] = 0x00
 #define RIS_CMD_L               10
 #define RIS_SET_PCORMAC(d,p)    (d)[4] |= (((p) << 7) & 0x80)
@@ -558,32 +559,38 @@ enum Microtek2_Option
   /* these options must appear in exactly this order, */
   /* sane_control_option relies on it */
   OPT_CHANNEL,
-  OPT_SHADOW,   
-  OPT_MIDTONE, 
-  OPT_HIGHLIGHT,  
-  OPT_SHADOW_R,   
+  OPT_SHADOW,
+  OPT_MIDTONE,
+  OPT_HIGHLIGHT,
+  OPT_SHADOW_R,
   OPT_MIDTONE_R,
-  OPT_HIGHLIGHT_R,  
-  OPT_SHADOW_G,   
-  OPT_MIDTONE_G, 
-  OPT_HIGHLIGHT_G,  
-  OPT_SHADOW_B,  
-  OPT_MIDTONE_B, 
-  OPT_HIGHLIGHT_B,  
+  OPT_HIGHLIGHT_R,
+  OPT_SHADOW_G,
+  OPT_MIDTONE_G,
+  OPT_HIGHLIGHT_G,
+  OPT_SHADOW_B,
+  OPT_MIDTONE_B,
+  OPT_HIGHLIGHT_B,
   OPT_EXPOSURE,
   OPT_EXPOSURE_R,
   OPT_EXPOSURE_G,
   OPT_EXPOSURE_B,
 
-  /*48*/ OPT_SPECIAL,
+  /*49*/ OPT_SPECIAL,
   OPT_RESOLUTION_BIND,
   OPT_DISABLE_BACKTRACK,
   OPT_CALIB_BACKEND,
   OPT_LIGHTLID35,
   OPT_TOGGLELAMP,
-  /*54*/ NUM_OPTIONS
-};
 
+  /*55*/ OPT_COLORBALANCE,
+  OPT_BALANCE_R,
+  OPT_BALANCE_G,
+  OPT_BALANCE_B,
+  OPT_BALANCE_FW,
+
+  /*60*/ NUM_OPTIONS
+};
 
 /******************************************************************************/
 /* value structure for scanner options                                        */
@@ -595,13 +602,124 @@ typedef union {
   SANE_String s;
 } Microtek2_Option_Value;
 
+/******************************************************************************/
+/* Description of options not included in saneopts.h                          */
+/******************************************************************************/
+
+#define M_NAME_NOBACKTRACK     "no-backtracking"
+#define M_TITLE_NOBACKTRACK    "Disable backtracking"
+#define M_DESC_NOBACKTRACK     "If checked the scanner does not perform" \
+                               " backtracking."
+
+#define M_NAME_TOGGLELAMP      "toggle-lamp"
+#define M_TITLE_TOGGLELAMP     "Toggle lamp of flatbed"
+#define M_DESC_TOGGLELAMP      "Toggles the lamp of the flatbed"
+
+#define M_NAME_CALIBBACKEND    "backend-calibration"
+#define M_TITLE_CALIBBACKEND   "Calibration by backend"
+#define M_DESC_CALIBBACKEND    "If checked the color calibration before" \
+                               " a scan is done by the backend. Uncheck" \
+                               " this option if you experience any problem."
+
+#define M_NAME_LIGHTLID35      "lightlid35"
+#define M_TITLE_LIGHTLID35     "Use the lightlid-35mm adapter"
+#define M_DESC_LIGHTLID35      "This option turns off the lamp of the" \
+                               " flatbed during a scan. Do not expect" \
+                               " excellent results. Maybe this option will" \
+                               " be removed in the future."
+
+#define M_NAME_QUALITY_SCAN    "quality_scan"
+#define M_TITLE_QUALITY_SCAN   "Quality scan"
+#define M_DESC_QUALITY_SCAN    "Highest quality but lower speed"
+
+#define M_NAME_FAST_SCAN       "fast_scan"
+#define M_TITLE_FAST_SCAN      "Fast scan"
+#define M_DESC_FAST_SCAN       "Highest speed but lower quality"
+
+#define M_NAME_AUTOADJUST      "lineart-auto-adjust"
+#define M_TITLE_AUTOADJUST     "Automatic adjustment of threshold value"
+#define M_DESC_AUTOADJUST      "If checked the backend automatically tries" \
+                               " to determine an optimal value for the" \
+                               " threshold."
+
+#define M_NAME_GAMMA_MODE      "gamma-correction"
+#define M_TITLE_GAMMA_MODE     "Gamma correction"
+#define M_DESC_GAMMA_MODE      "Selects the gamma correction mode."
+
+#define M_NAME_GAMMA_BIND      "bind-gamma"
+#define M_TITLE_GAMMA_BIND     "Bind gamma"
+#define M_DESC_GAMMA_BIND      "Use same gamma values for all colour channels."
+
+#define M_NAME_GAMMA_SCALAR    "scalar-gamma"
+#define M_TITLE_GAMMA_SCALAR   "Scalar gamma"
+#define M_DESC_GAMMA_SCALAR    "Selects a value for scalar gamma correction."
+
+#define M_NAME_GAMMA_SCALAR_R  "scalar-gamma-r"
+#define M_TITLE_GAMMA_SCALAR_R "Scalar gamma red"
+#define M_DESC_GAMMA_SCALAR_R  "Selects a value for scalar gamma correction" \
+                               " (red channel)"
+
+#define M_NAME_GAMMA_SCALAR_G  "scalar-gamma-g"
+#define M_TITLE_GAMMA_SCALAR_G "Scalar gamma green"
+#define M_DESC_GAMMA_SCALAR_G  "Selects a value for scalar gamma correction" \
+                               " (green channel)"
+
+#define M_NAME_GAMMA_SCALAR_B  "scalar-gamma-b"
+#define M_TITLE_GAMMA_SCALAR_B "Scalar gamma blue"
+#define M_DESC_GAMMA_SCALAR_B  "Selects a value for scalar gamma correction" \
+                               " (blue channel)"
+
+#define M_NAME_CHANNEL         "channel"
+#define M_TITLE_CHANNEL        "Channel"
+#define M_DESC_CHANNEL         "Selects the colour band, \"Master\" means," \
+                               " that all colours are affected."
+
+#define M_NAME_MIDTONE         "midtone"
+#define M_TITLE_MIDTONE        "Midtone"
+#define M_DESC_MIDTONE         "Selects which radiance level should be" \
+                               " considered \"50 % gray\"."
+
+#define M_NAME_MIDTONE_R       "midtone-r"
+#define M_TITLE_MIDTONE_R      "Midtone for red"
+#define M_DESC_MIDTONE_R       "Selects which radiance level should be" \
+                               " considered \"50 % red\"."
+
+#define M_NAME_MIDTONE_G       "midtone-g"
+#define M_TITLE_MIDTONE_G      "Midtone for green"
+#define M_DESC_MIDTONE_G       "Selects which radiance level should be" \
+                               " considered \"50 % green\"."
+
+#define M_NAME_MIDTONE_B       "midtone-b"
+#define M_TITLE_MIDTONE_B      "Midtone for blue"
+#define M_DESC_MIDTONE_B       "Selects which radiance level should be" \
+                               " considered \"50 % blue\"."
+
+#define M_NAME_BALANCE_R       "balance-r"
+#define M_TITLE_BALANCE_R      "Red balance"
+#define M_DESC_BALANCE_R       "Balance factor for red. A value of 100% means " \
+                               "no correction."
+
+#define M_NAME_BALANCE_G       "balance-g"
+#define M_TITLE_BALANCE_G      "Green balance"
+#define M_DESC_BALANCE_G       "Balance factor for green. A value of 100% "\
+                               "means no correction."
+
+#define M_NAME_BALANCE_B       "balance-b"
+#define M_TITLE_BALANCE_B      "Blue balance"
+#define M_DESC_BALANCE_B       "Balance factor for blue. A value of 100% means " \
+                               "no correction. "
+
+#define M_NAME_BALANCE_FW      "balance-fw"
+#define M_TITLE_BALANCE_FW     "Firmware balance"
+#define M_DESC_BALANCE_FW      "Sets the color balance values to the "\
+                               "firmware provided values. "\
 
 /******************************************************************************/
 /* Structure that contains global options                                     */
 /******************************************************************************/
 
 typedef struct Config_Options
-{ 
+{
     double strip_height;                /* inch */
     char *no_backtracking;              /* enable/disable option for */
                                         /* backtracking */
@@ -609,6 +727,7 @@ typedef struct Config_Options
     char *toggle_lamp;                  /* enable/disable lightlid35 option */
     char *backend_calibration;          /* calibration by backend */
     char *auto_adjust;                  /* automatically choose threshold */
+    char *colorbalance_adjust;          /* color balance can be modified */
 } Config_Options;
 
 
@@ -621,7 +740,7 @@ typedef struct Config_Temp
 {
     struct Config_Temp *next;
     char *device;                  /* possible device name */
-    Config_Options opts;           /* options belonging to this device name */ 
+    Config_Options opts;           /* options belonging to this device name */
 
 } Config_Temp;
 
@@ -641,9 +760,7 @@ typedef struct Microtek2_Info {
     SANE_Char model[INQ_MODEL_L + 1];
     SANE_Char revision[INQ_REV_L + 1];
     SANE_Byte model_code;
-
     /* from read scanner attributes */
-    /* #define MI_HAS_COLOR            SANE_TRUE */
     SANE_Bool color;
 #define MI_HAS_ONEPASS                 SANE_TRUE
     SANE_Bool onepass;
@@ -654,7 +771,7 @@ typedef struct Microtek2_Info {
     SANE_Byte scanner_type;
 #define MI_HAS_FEPROM                  SANE_TRUE
     SANE_Bool feprom;
-    /* MI_DATA_FORMAT_X must correspond to Byte 0 in READ SCANNER ATTRIBUTE */
+    /* MI_DATAFMT_X must correspond to Byte 0 in READ SCANNER ATTRIBUTE */
 #define MI_DATAFMT_CHUNKY              1
 #define MI_DATAFMT_LPLCONCAT           2
 #define MI_DATAFMT_LPLSEGREG           3
@@ -665,6 +782,7 @@ typedef struct Microtek2_Info {
 #define MI_COLSEQ_BLUE                 2
 #define MI_COLSEQ_ILLEGAL              3
     u_int8_t color_sequence[RSA_COLORSEQUENCE_L];
+    SANE_Bool new_image_status;
 #define MI_DATSEQ_RTOL                 1
     u_int8_t direction;
     SANE_Byte ccd_gap;
@@ -692,7 +810,7 @@ typedef struct Microtek2_Info {
 #define MI_LUTCAP_4096W                16
     SANE_Byte lut_cap;
 #define MI_HAS_DNLDPTRN                SANE_TRUE
-    SANE_Bool has_dnldptrn;         
+    SANE_Bool has_dnldptrn;
     SANE_Byte grain_slct;
 #define MI_OPTDEV_ADF                  0x01
 #define MI_OPTDEV_TMA                  0x02
@@ -716,11 +834,6 @@ typedef struct Microtek2_Info {
     u_int16_t aps_maxframes;
 } Microtek2_Info;
 
-
-
-
-
-
 /******************************************************************************/
 /* device structure (one for each device in config file)                      */
 /******************************************************************************/
@@ -735,14 +848,14 @@ typedef struct Microtek2_Device {
 #define MD_SOURCE_STRIPE              4
     Microtek2_Info info[5];               /* detailed scanner spec */
     SANE_Device sane;                     /* SANE generic device block */
-    char name[PATH_MAX];                  /* name from config file */  
+    char name[PATH_MAX];                  /* name from config file */
 
     SANE_Int *custom_gamma_table[4];      /* used for the custom gamma */
                                           /* values before a scan starts */
     /* the following two are derived from lut_cap */
     int max_lut_size;                     /* in bytes */
     int lut_entry_size;                   /* word or byte transfer in LUT */
-    u_int8_t scan_source;    
+    u_int8_t scan_source;
     double revision;
 
     /* basically the following two variables should go into the */
@@ -757,13 +870,13 @@ typedef struct Microtek2_Device {
 #define MD_FLAMP_ON                   1
 #define MD_NCALIB_ON                  4
 #define MD_NTRACK_ON                  8
-#define MD_STICK_ON                  16 
+#define MD_STICK_ON                  16
 #define MD_RESERVED17_ON            128
 #define MD_CURRENT_MODE_FLATBED       0
     struct {
-      u_int8_t sskip;        
+      u_int8_t sskip;
       u_int8_t stick;
-      u_int8_t ntrack;        
+      u_int8_t ntrack;
       u_int8_t ncalib;
       u_int8_t tlamp;
       u_int8_t flamp;
@@ -789,7 +902,7 @@ typedef struct Microtek2_Device {
     /* by these defines */
     u_int32_t model_flags;
 #define MD_NO_SLIDE_MODE               1  /* indicates that it has slide */
-                                          /* mode, but it does not */ 
+                                          /* mode, but it does not */
 #define MD_DATA_FORMAT_WRONG           2  /* X6 indicates wrong mode for TMA */
 #define MD_NO_ENHANCEMENTS             4  /* image enhancements do not work */
                                           /* (Brightness, contrast, .....)  */
@@ -837,7 +950,7 @@ typedef struct Microtek2_Device {
 #define MD_SOURCESTRING_SLIDE         "Slide"
     SANE_String_Const scansource_list[MD_SOURCESTRING_NUMS + 1];
 
-#define MD_HALFTONE_NUMS              12 
+#define MD_HALFTONE_NUMS              12
 #define MD_HALFTONE0                  "53-dot screen (53 gray levels)"
 #define MD_HALFTONE1                  "Horiz. screen (65 gray levels)"
 #define MD_HALFTONE2                  "Vert. screen (65 gray levels)"
@@ -858,15 +971,15 @@ typedef struct Microtek2_Device {
 #define MD_CHANNEL_GREEN              "Green"
 #define MD_CHANNEL_BLUE               "Blue"
     SANE_String_Const channel_list[MD_CHANNEL_NUMS + 1];
-    
+
 #define MD_GAMMAMODE_NUMS             3
 #define MD_GAMMAMODE_LINEAR           "None"
 #define MD_GAMMAMODE_SCALAR           "Scalar"
 #define MD_GAMMAMODE_CUSTOM           "Custom"
     SANE_String_Const gammamode_list[MD_GAMMAMODE_NUMS + 1];
 
-    SANE_Range x_res_range_dpi;           /* X resolution in dpi */ 
-    SANE_Range y_res_range_dpi;           /* Y resolution in dpi */ 
+    SANE_Range x_res_range_dpi;           /* X resolution in dpi */
+    SANE_Range y_res_range_dpi;           /* Y resolution in dpi */
     SANE_Range x_range_mm;                /* scan width in mm */
     SANE_Range y_range_mm;                /* scan height in mm */
     SANE_Range percentage_range;          /* for brightness, shadow, ... */
@@ -877,7 +990,8 @@ typedef struct Microtek2_Device {
     SANE_Range exposure_range;            /* for lengthening exposure time */
     SANE_Range highlight_range;           /* highlight of master channel */
     SANE_Range threshold_range;           /* 1 - 255 */
-    Config_Options opts;                  /* options from the config file */ 
+    SANE_Range balance_range;             /* for user provided color balance */
+    Config_Options opts;                  /* options from the config file */
 } Microtek2_Device;
 
 
@@ -893,7 +1007,7 @@ typedef struct Microtek2_Scanner {
     Microtek2_Option_Value val[NUM_OPTIONS + 1]; /* option values for session */
     SANE_Parameters params;   /* format, lastframe, lines, depth, ppl, bpl */
     SANE_Option_Descriptor sod[NUM_OPTIONS + 1]; /* option list for session */
-    
+
     u_int8_t *gamma_table;
     u_int8_t *shading_image;           /* used for shading image */
     u_int8_t *condensed_shading_w;     /* used when a model uses "read */
@@ -902,9 +1016,6 @@ typedef struct Microtek2_Scanner {
     u_int8_t *temporary_buffer;        /* used when automatic adjustment */
                                        /* is selected */
     char *gamma_mode;                  /* none, linear or custom */
-    
-
-
 
 /* the following defines must correspond to byte 25 of SET WINDOW body */
 #define MS_MODE_LINEART                0x00
@@ -965,11 +1076,12 @@ typedef struct Microtek2_Scanner {
     u_int8_t lightlid35;
     u_int8_t auto_adjust;
     u_int8_t calib_backend;
-    int current_pass;              /* current pass if 3-pass scan */ 
+    u_int8_t colorbalance_adjust;
+    int current_pass;              /* current pass if 3-pass scan */
     int lut_size;                  /* size of gamma lookup table */
     int lut_entry_size;            /* size of one entry in lookup table */
     u_int16_t lut_size_bytes;      /* size of LUT in bytes */
-    u_int8_t word;                 /* word transfer, used in some read cmds */ 
+    u_int8_t word;                 /* word transfer, used in some read cmds */
     /* MS_COLOR_X must correspond to color field in READ IMAGE STATUS */
 #define MS_COLOR_RED                   0
 #define MS_COLOR_GREEN                 1
@@ -977,7 +1089,7 @@ typedef struct Microtek2_Scanner {
 #define MS_COLOR_ALL                   3
     u_int8_t current_color;        /* for gamma calc. and 3-pass scanners */
     u_int8_t current_read_color;   /* dto, for RI and RIS */
-    u_int8_t dark;                 /* (KF) for dark shading */
+    u_int8_t dark;                 /* is 1 for reading dark shading */
     u_int32_t ppl;                 /* pixels per line as returned by RII */
     u_int32_t bpl;                 /* bytes per line as returned by RII */
     u_int32_t remaining_bytes;     /* remaining bytes as returned by RII */
@@ -992,6 +1104,8 @@ typedef struct Microtek2_Scanner {
     int bits_per_pixel_out;        /* bits per pixel transf. to frontend */
     u_int32_t src_buffer_size;     /* size of the buffer */
     int transfer_length;           /* transfer length for RI command */
+    u_int8_t balance[3];           /* user provided balance factor for */
+                                   /* red, green and blue data */
     struct {
       u_int8_t *src_buffer[2];     /* two buffers because of CCD gap */
       u_int8_t *src_buf;
@@ -1017,99 +1131,6 @@ typedef struct Microtek2_Scanner {
     FILE *fp;
 
 } Microtek2_Scanner;
-
-
-/******************************************************************************/
-/* Description of options not included in saneopts.h                          */
-/******************************************************************************/
-
-#define M_NAME_NOBACKTRACK     "no-backtracking"
-#define M_TITLE_NOBACKTRACK    "Disable backtracking"
-#define M_DESC_NOBACKTRACK     "If checked the scanner does not perform" \
-                               " backtracking."
-
-#define M_NAME_TOGGLELAMP      "toggle-lamp"
-#define M_TITLE_TOGGLELAMP     "Toggle lamp of flatbed"
-#define M_DESC_TOGGLELAMP      "Toggles the lamp of the flatbed"
-
-#define M_NAME_CALIBBACKEND    "backend-calibration"
-#define M_TITLE_CALIBBACKEND   "Calibration by backend"
-#define M_DESC_CALIBBACKEND    "If checked the color calibration before" \
-                               " a scan is done by the backend. Uncheck" \
-                               " this option if you experience any problem."
-
-#define M_NAME_LIGHTLID35      "lightlid35"
-#define M_TITLE_LIGHTLID35     "Use the lightlid-35mm adapter"
-#define M_DESC_LIGHTLID35      "This option turns off the lamp of the" \
-                               " flatbed during a scan. Do not expect" \
-                               " excellent results. Maybe this option will" \
-                               " be removed in the future."
-
-#define M_NAME_QUALITY_SCAN    "quality_scan"
-#define M_TITLE_QUALITY_SCAN   "Quality scan"
-#define M_DESC_QUALITY_SCAN    "Highest quality but lower speed"
-
-#define M_NAME_FAST_SCAN       "fast_scan"
-#define M_TITLE_FAST_SCAN      "Fast scan"
-#define M_DESC_FAST_SCAN       "Highest speed but lower quality"
-
-#define M_NAME_AUTOADJUST      "lineart-auto-adjust"
-#define M_TITLE_AUTOADJUST     "Automatic adjustment of threshold value"
-#define M_DESC_AUTOADJUST      "If checked the backend automatically tries" \
-                               " to determine an optimal value for the" \
-                               " threshold."
-   
-#define M_NAME_GAMMA_MODE      "gamma-correction"
-#define M_TITLE_GAMMA_MODE     "Gamma correction"
-#define M_DESC_GAMMA_MODE      "Selects the gamma correction mode."
-   
-#define M_NAME_GAMMA_BIND      "bind-gamma"
-#define M_TITLE_GAMMA_BIND     "Bind gamma"
-#define M_DESC_GAMMA_BIND      "Use same gamma values for all colour channels."
-
-#define M_NAME_GAMMA_SCALAR    "scalar-gamma"
-#define M_TITLE_GAMMA_SCALAR   "Scalar gamma"
-#define M_DESC_GAMMA_SCALAR    "Selects a value for scalar gamma correction."
-
-#define M_NAME_GAMMA_SCALAR_R  "scalar-gamma-r"
-#define M_TITLE_GAMMA_SCALAR_R "Scalar gamma red"
-#define M_DESC_GAMMA_SCALAR_R  "Selects a value for scalar gamma correction" \
-                               " (red channel)"
-
-#define M_NAME_GAMMA_SCALAR_G  "scalar-gamma-g"
-#define M_TITLE_GAMMA_SCALAR_G "Scalar gamma green"
-#define M_DESC_GAMMA_SCALAR_G  "Selects a value for scalar gamma correction" \
-                               " (green channel)"
-
-#define M_NAME_GAMMA_SCALAR_B  "scalar-gamma-b"
-#define M_TITLE_GAMMA_SCALAR_B "Scalar gamma blue"
-#define M_DESC_GAMMA_SCALAR_B  "Selects a value for scalar gamma correction" \
-                               " (blue channel)"
-
-#define M_NAME_CHANNEL         "channel"
-#define M_TITLE_CHANNEL        "Channel"
-#define M_DESC_CHANNEL         "Selects the colour band, \"Master\" means," \
-                               " that all colours are affected."
-
-#define M_NAME_MIDTONE         "midtone"
-#define M_TITLE_MIDTONE        "Midtone"
-#define M_DESC_MIDTONE         "Selects which radiance level should be" \
-                               " considered \"50 % gray\"."
-
-#define M_NAME_MIDTONE_R       "midtone-r"
-#define M_TITLE_MIDTONE_R      "Midtone for red"
-#define M_DESC_MIDTONE_R       "Selects which radiance level should be" \
-                               " considered \"50 % red\"."
-
-#define M_NAME_MIDTONE_G       "midtone-g"
-#define M_TITLE_MIDTONE_G      "Midtone for green"
-#define M_DESC_MIDTONE_G       "Selects which radiance level should be" \
-                               " considered \"50 % green\"."
-
-#define M_NAME_MIDTONE_B       "midtone-b"
-#define M_TITLE_MIDTONE_B      "Midtone for blue"
-#define M_DESC_MIDTONE_B       "Selects which radiance level should be" \
-                               " considered \"50 % blue\"."
 
 /******************************************************************************/
 /* Function prototypes                                                        */
@@ -1215,15 +1236,16 @@ static SANE_Status
 init_options(Microtek2_Scanner *, u_int8_t);
 
 static SANE_Status                
-lineartfake_copy_pixels(Microtek2_Scanner *, u_int8_t *, u_int32_t, u_int8_t, int, FILE *);
+lineartfake_copy_pixels(Microtek2_Scanner *, u_int8_t *, u_int32_t, u_int8_t,
+                        int, FILE *);
 
-static SANE_Status                
+static SANE_Status
 lineartfake_proc_data(Microtek2_Scanner *);
 
 static SANE_Status
 lplconcat_copy_pixels(Microtek2_Scanner *, u_int8_t **, int, int);
 
-static SANE_Status                
+static SANE_Status
 lplconcat_proc_data(Microtek2_Scanner *ms);
 
 static size_t
@@ -1235,38 +1257,38 @@ parse_config_file(FILE *, Config_Temp **);
 static SANE_Status
 prepare_buffers(Microtek2_Scanner *);
 
-static SANE_Status         
+static SANE_Status
 prepare_shading_data(Microtek2_Scanner *, u_int32_t, u_int8_t **);
 
-static SANE_Status                
+static SANE_Status
 proc_onebit_data(Microtek2_Scanner *);
 
 static SANE_Status
-read_cx_shading_image(Microtek2_Scanner *);   /* (KF) new */
+read_cx_shading_image(Microtek2_Scanner *);
 
 static SANE_Status
-read_cx_shading(Microtek2_Scanner *);   /* (KF) new */
+read_cx_shading(Microtek2_Scanner *);
 
-static SANE_Status 
+static SANE_Status
 reader_process(Microtek2_Scanner *);
 
-static SANE_Status                
+static SANE_Status
 restore_gamma_options(SANE_Option_Descriptor *, Microtek2_Option_Value *);
 
 static SANE_Status
-segreg_copy_pixels(Microtek2_Scanner *); /* (KF) */
-/* parameter list modified */
+segreg_copy_pixels(Microtek2_Scanner *);
 
-static SANE_Status                
+static SANE_Status
 segreg_proc_data(Microtek2_Scanner *ms);
 
 static void
 set_exposure(Microtek2_Scanner *);
 
-static SANE_Status                
-set_option_dependencies(SANE_Option_Descriptor *, Microtek2_Option_Value *);
+static SANE_Status
+set_option_dependencies(Microtek2_Scanner *,
+                        SANE_Option_Descriptor *, Microtek2_Option_Value *);
 
-static SANE_Status         
+static SANE_Status
 shading_function(Microtek2_Scanner *, u_int8_t *);
 
 static RETSIGTYPE
@@ -1277,7 +1299,7 @@ wordchunky_copy_pixels(u_int8_t *, u_int32_t, int, FILE *);
 
 static SANE_Status
 wordchunky_proc_data(Microtek2_Scanner *);
-              
+
 
 
 /******************************************************************************/
@@ -1291,7 +1313,7 @@ static SANE_Status
 scsi_read_attributes(Microtek2_Info *, char *, u_int8_t);
 
 static SANE_Status
-scsi_read_control_bits(Microtek2_Scanner *, int); 
+scsi_read_control_bits(Microtek2_Scanner *, int);
 
 /* currently not used */
 #if 0
@@ -1322,7 +1344,7 @@ static SANE_Status
 scsi_send_shading(Microtek2_Scanner *, u_int8_t *, u_int32_t, u_int8_t);
 
 static SANE_Status
-scsi_read_shading(Microtek2_Scanner *, u_int8_t *, u_int32_t); /* (KF) new */
+scsi_read_shading(Microtek2_Scanner *, u_int8_t *, u_int32_t);
 
 static SANE_Status
 scsi_send_system_status(Microtek2_Device *, int);

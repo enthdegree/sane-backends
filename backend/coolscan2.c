@@ -96,7 +96,7 @@
 
 #define CS2_VERSION_MAJOR 0
 #define CS2_VERSION_MINOR 1
-#define CS2_REVISION 7
+#define CS2_REVISION 8
 #define CS2_CONFIG_FILE "coolscan2.conf"
 
 #define WSIZE (sizeof (SANE_Word))

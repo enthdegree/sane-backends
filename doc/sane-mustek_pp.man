@@ -503,6 +503,8 @@ Jochen Eisinger <jochen.eisinger@gmx.net>
 .SH BUGS
 Too many... please send bug reports to 
 .I sane\-devel@mostang.com
+(note that you have to subscribe first to the list before you can send
+emails... see http://www.mostang.com/sane/mail.html)
 .PP
 .RS
 * 1013 support isn't bullet proofed

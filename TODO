@@ -1,4 +1,4 @@
-TODO (2003-06-13)
+TODO (2003-07-16)
 
 ******** todo ********
 
@@ -62,6 +62,8 @@ backends
     - microtek
     - hp5400
 
+  * fujitsu: option names shouldn't contain "_"
+
 doc
 ---
   * Add doxygen documentation for the remaining sanei files:
@@ -71,15 +73,10 @@ doc
 
   * desc files:
     - Add keywords "vendor-id" and "product-id" for SCSI and USB ids.
-    - Change the usage of :status? Maybe for the backend, use 
-      "development, maintained, unmaintained" as there are not too many stability
-      issues (as in crashing) with the backends. For the scanners use something like:
-      "perfectly, mostly, partially, unsupported, untested" (from linuxprinting.org).
-      That explains how much the scanner can do instead of the release status of 
-      a scanner (alpha/beta...).
     - umax: genius.kye.de times out?
     - umax, artec_eplus48u: http://www.umax.com.tw/ times out?
     - plustek: add Genius ColorPage HR6X EPP as supported
+    - Change all description files to use the new status keyword
 
   * manpages:
     - html manpages have broken links to other man pages if link is wrapped at
@@ -163,13 +160,21 @@ misc
     a segfault in Sane.c. Silvio Vogt <blackhol at web.de> is working on this
     topic.
 
-  * There is a misterious problem with string list options that occurs
+  * There is a mysterious problem with string list options that occurs
     with (at least) the epson backend, saned and xsane. See
     http://www.mostang.com/pipermail/sane-devel/2003-May/018755.html.
 
+  * configure/libtool: find a simple way to avoid all the unneccessary tests
+    for c++ and fortran.
 
 
 ******** done ********
+* Change the usage of :status? Maybe for the backend, use 
+  "development, maintained, unmaintained" as there are not too many stability
+  issues (as in crashing) with the backends. For the scanners use something like:
+  "perfectly, mostly, partially, unsupported, untested" (from linuxprinting.org).
+  That explains how much the scanner can do instead of the release status of 
+  a scanner (alpha/beta...).
 * sm3600 is reported to crash with MacOS X. Actually, the crash is in
   libusb::usb_find_devices().
 * In configure, print a list of backends that are build.

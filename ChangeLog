@@ -12,6 +12,9 @@
 	  Group options have size 0 now. Check also for SANE_ACTION_SET_AUTO.
 	  Removed buggy output in sane_control_option. Added more debug output
 	  in sane_control_option.
+	* backend/net.c backend/net.desc backend/net.h: Use copies of option
+	  descriptors to make sure their addresses aren't changed until
+	  sane_close. New version: 1.0.7.
 
 2002-03-19  Frank Zago <fzago@greshamstorage.com>
 

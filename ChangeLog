@@ -1,3 +1,8 @@
+2002-03-26  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* AUTHORS, sanei_lm983x.[ch], entire Plustek backend:
+	  Updated to new mail-address and backend URL
+
 2002-03-24  Oliver Schwartz <oliver.schwartz@gmx.de>
  
 	* backend/snapscan.c: Fix segfault in sane_exit if no devices were 

@@ -5,6 +5,8 @@
 	* doc/sane.tex: Added explanation of bit order for 1 bit modes. Added
 	  comment about 1 bit color modes. Fixed missing \code command. New 
 	  version: 1.03.
+	* doc/backend-writing.txt: Added paragraph about checking geometry
+	  (from TODO).
 
 2002-09-30  Peter Fales <peter@fales-lorenz.net>
 

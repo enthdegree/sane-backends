@@ -12,6 +12,7 @@
 	* doc/descriptions/unsupported.desc: Added Mustek P 3600 A3 Pro.
 	* TODO: Removed license issue. Updated desc files and global
 	  variables entries. Updated v4l entry.
+	* doc/scanimage.man: --batch format doesn't work, only --batch=format.
 	
 2003-04-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

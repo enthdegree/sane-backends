@@ -1,4 +1,4 @@
-.TH scanimage 1 "22 Nov 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH scanimage 1 "11 Apr 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX scanimage
 .SH NAME
 scanimage \- scan an image
@@ -14,7 +14,7 @@ scanimage \- scan an image
 .RB [ \-f | \-\-formatted-device-list 
 .IR format ]
 .RB [ \-\-batch 
-.RI [ format ]]
+.RI [= format ]]
 .RB [ \-\-batch-start
 .IR start ]
 .RB [ \-\-batch-count

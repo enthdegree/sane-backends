@@ -87,17 +87,15 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.01-3"
+#define BACKEND_VERSION "0.01-4"
 #define BACKEND_NAME	plustek_pp
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
 #include "../include/sane/sanei_thread.h"
 #include "../include/sane/sanei_pp.h"
 
-#ifdef HAVE_IOPERM
-# define _BACKEND_ENABLED
-# define _USER_MODE
-#endif
+#define _BACKEND_ENABLED
+#define _USER_MODE
 
 #include "plustek-pp.h"
 

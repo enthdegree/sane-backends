@@ -318,7 +318,7 @@ static int miscSetFastMode( pScanData ps )
     }
 
 	/*
-	 * reaching this point, we´re back in SPP mode and there´s no need
+	 * reaching this point, we're back in SPP mode and there's no need
  	 * to restore at shutdown...
 	 */
 	ps->IO.lastPortMode = 0xFFFF;
@@ -494,16 +494,35 @@ _LOC int MiscInitPorts( pScanData ps, int port )
     ps->IO.pbEppDataPort = (UShort)port+4;
     
 #else
-
+	int mode;
+	
 	if( NULL == ps )
 		return _E_NULLPTR;
 
-	DBG(DBG_LOW, "Using EPP-mode\n" );
-	ps->IO.portMode = _PORT_EPP;
+	if( SANE_STATUS_GOOD != sanei_pp_getmode( ps->pardev, &mode )) {
+		DBG(DBG_HIGH, "Cannot get port mode!\n" );
+		return _E_NO_PORT;
+	}
+
+	if( mode & SANEI_PP_MODE_SPP ) {
+		DBG(DBG_LOW, "Setting SPP-mode\n" );
+		ps->IO.portMode = _PORT_SPP;
+	}
+	if( mode & SANEI_PP_MODE_BIDI ) {
+		DBG(DBG_LOW, "Setting PS/2-mode\n" );
+		ps->IO.portMode = _PORT_BIDI;
+	}
+	if( mode & SANEI_PP_MODE_EPP ) {
+		DBG(DBG_LOW, "Setting EPP-mode\n" );
+		ps->IO.portMode = _PORT_EPP;
+	}
+	if( mode & SANEI_PP_MODE_ECP ) {
+		DBG(DBG_HIGH, "ECP detected --> not supported\n" );
+		return _E_NOSUPP;
+	}
 
 	_VAR_NOT_USED( port );
 #endif
-
 	return _OK;
 }
 

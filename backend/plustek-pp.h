@@ -231,7 +231,7 @@ typedef const struct mode_param
 #define _E_INTERNAL	  (_FIRST_ERR-7)	/* internal error					*/
 #define _E_BUSY		  (_FIRST_ERR-8)	/* device is already in use			*/
 #define _E_ABORT	  (_FIRST_ERR-9)	/* operation aborted				*/
-#define	_E_LOCK		  (_FIRST_ERR-10)	/* can´t lock resource				*/
+#define	_E_LOCK		  (_FIRST_ERR-10)	/* can't lock resource				*/
 #define _E_NOSUPP	  (_FIRST_ERR-11)	/* feature or device not supported  */
 #define _E_NORESOURCE (_FIRST_ERR-12)	/* out of memo, resource busy...    */
 #define _E_VERSION	  (_FIRST_ERR-19)	/* version conflict					*/
@@ -241,7 +241,7 @@ typedef const struct mode_param
 #define _E_NO_PORT	  (_FIRST_ERR-23)	/* requested port does not exist	*/
 #define _E_REGISTER	  (_FIRST_ERR-24)	/* cannot register this device		*/
 #define _E_SEQUENCE	  (_FIRST_ERR-30)	/* caller sequence does not match	*/
-#define _E_NO_ASIC	  (_FIRST_ERR-31)	/* can´t detect ASIC            	*/
+#define _E_NO_ASIC	  (_FIRST_ERR-31)	/* can't detect ASIC            	*/
 
 #define _E_LAMP_NOT_IN_POS	(_FIRST_ERR-40)
 #define _E_LAMP_NOT_STABLE	(_FIRST_ERR-41)

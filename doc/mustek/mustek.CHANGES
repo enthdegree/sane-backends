@@ -1,5 +1,11 @@
 CHANGES for the SANE Mustek backend
 
+2002-05-28
+  * Released Mustek backend 1.0-124.
+
+2002-05-28
+  * Set X minimum value to 0 for Paragon 6000SP.
+
 2002-04-24:
   * Released Mustek backend 1.0-122.
 

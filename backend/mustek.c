@@ -46,7 +46,7 @@
 
 /**************************************************************************/
 /* Mustek backend version                                                 */
-#define BUILD 123
+#define BUILD 124
 /**************************************************************************/
 
 #include "../include/sane/config.h"
@@ -1165,7 +1165,7 @@ attach (SANE_String_Const devname, Mustek_Device ** devp, SANE_Bool may_wait)
          driver. Tested with a Paragon MFS-6000SP v3.12 */
       dev->x_range.min = SANE_FIX (0.0);
       dev->x_range.max = SANE_FIX (8.5 * MM_PER_INCH);
-      dev->y_range.min = SANE_FIX (4.0);
+      dev->y_range.min = SANE_FIX (0.0);
       dev->y_range.max = SANE_FIX (355.6);
       dev->x_trans_range.min = SANE_FIX (1.0);
       dev->y_trans_range.min = SANE_FIX (1.0);

@@ -1,5 +1,9 @@
 2001-05-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* doc/.cvsignore: Added sane-sm3600.5.
+	
+	* PROJECTS: Removed sm3600.
+
 	* TODO: Updates concerning memory leaks and access violations.
 
 	* AUTHORS doc/Makefile.in: doc/sane-sm3600.man doc/sane.man: Updated

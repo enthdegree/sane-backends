@@ -1,3 +1,7 @@
+2003-02-08  Peter Fales <peter@fales-lorenz.net>
+	* backend/dc210.c, backend/dc240.c:  Fixes for Irix from
+	  Andrea Suatoni.
+
 2003-02-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* Makefile.in: Added ChangeLog-1.0.10 to DISTFILES.

@@ -1,3 +1,12 @@
+2002-04-08  Frank Zago <fzago@greshamstorage.com>
+
+	* backend/teco1.c backend/teco1.conf backend/teco1.h
+	doc/sane-teco1.man doc/descriptions/teco1.desc doc/teco/teco1.txt
+	doc/.cvsignore doc/Makefile.in doc/sane.man po/Makefile.in
+	po/teco1.fr.po backend/Makefile.in backend/dll.conf
+	sane-backends/AUTHORS sane-backends/ChangeLog
+	sane-backends/PROJECTS: added teco1 backend
+
 2002-04-08  Rene Rebe <rene.rebe@gmx.net>
 	* doc/descriptions/avision.desc: fixed syntax
 

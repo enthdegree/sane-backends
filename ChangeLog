@@ -1,5 +1,8 @@
 2001-02-22  Petter Reinholdtsen <pere@td.org.uit.no>
 
+	* configure.in include/sane/config.h.in: Really move definition of
+	SCSIBUFFERSIZE from CFLAGS to config.h.
+
 	* configure.in testsuite/*: Started on runtime test suite.
 	Currently only tests if PNM test scanning works.
 

@@ -25,6 +25,9 @@
  *        - made 16-bit gray mode work
  *        - added special handling for Genius devices
  *        - added TPA autodetection for EPSON Photo
+ *        - fixed bug that causes warmup each time autodetected<br>
+ *          TPA on EPSON is used
+ *        - removed Genius from PCB-Id check
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -73,8 +76,8 @@
 static TabDef usbVendors[] = {
 
 	{ 0x07B3, "Plustek"         },
-	{ 0x0400, "Mustek"          },  /* this in fact is not correct */
-                                    /* but used for the BearPaws   */
+	{ 0x0400, "Mustek"          },  /* this in fact is not correct  */
+                                    /* but is used for the BearPaws */
 	{ 0x0458, "KYE/Genius"      },
 	{ 0x03F0, "Hewlett-Packard" },
 	{ 0x04B8, "Epson"           },
@@ -99,13 +102,23 @@ static void usb_initDev( pPlustek_Device dev, int idx, int handle, int vendor )
 {
 	int       i;
 	ScanParam sParam;
+	u_short   tmp = 0;
 
 	DBG( _DBG_INFO, "usb_initDev(%d,0x%04x,%u)\n",
 											idx, vendor, dev->initialized );
+	/* save capability flags... */
+	if( dev->initialized ) {
+  		tmp = DEVCAPSFLAG_TPA;
+	}
 
 	/* copy the original values... */											
 	memcpy( &dev->usbDev.Caps, Settings[idx].pDevCaps, sizeof(DCapsDef));
 	memcpy( &dev->usbDev.HwSetting, Settings[idx].pHwDef, sizeof(HWDef));
+
+	/* restore capability flags... */
+	if( dev->initialized ) {
+		dev->usbDev.Caps.wFlags |= tmp;
+	}
 
 	if( dev->adj.warmup >= 0 )
         dev->usbDev.dwWarmup = dev->adj.warmup;
@@ -544,7 +557,7 @@ static int usbDev_open( const char *dev_name, void *misc )
 	 * (PCB = printed circuit board), so it's possible to have one
 	 * product ID and up to 7 different devices...
 	 */
-	if((0x07B3 == vendor) || (0x0458 == vendor)) {
+	if( 0x07B3 == vendor ) {
 	
 		handle = usb_CheckForPlustekDevice( handle, dev );
 	
@@ -1227,6 +1240,7 @@ static int usbDev_readLine( struct Plustek_Device *dev )
 	 */
 	while( cur == scanning->dwLinesUser ) {
 
+		DBG( _DBG_READ, "usbDev_readline() - line %lu\n", cur );
 
         if( usb_IsEscPressed()) {
         	DBG( _DBG_INFO, "readLine() - Cancel detected...\n" );

@@ -471,17 +471,17 @@ static DCapsDef Cap0x07B3_0x0017_3 =
 	8, 4, kNEC8861,	0x07, _WAF_NONE, _NO_MIO				
 };
 
-/* Model: HP Scanjet 2100C */
+/* Model: HP Scanjet 2100c */
 static DCapsDef Cap0x03F0_0x0505 =
 {
-	{{ 0, 208}, 0, -1, {2550, 3508}, { 50,  50}, COLOR_BW },
-    {{ 0,   0}, 0, -1, {0, 0}, { 0, 0 }, 0 }, /* No film scanner module    */
-    {{ 0,   0}, 0, -1, {0, 0}, { 0, 0 }, 0 }, /* No film scanner module    */
-    {{ 0,   0}, 0, -1, {0, 0}, { 0, 0 }, 0 }, /* No ADF                    */
+	{{ 0,  65}, 10, -1, {2550, 3508}, { 50,  50}, COLOR_BW },
+    {{ 0,   0},  0, -1, {0, 0}, { 0, 0 }, 0 }, /* No film scanner module    */
+    {{ 0,   0},  0, -1, {0, 0}, { 0, 0 }, 0 }, /* No film scanner module    */
+    {{ 0,   0},  0, -1, {0, 0}, { 0, 0 }, 0 }, /* No ADF                    */
  	{600, 600},
  	0,
  	SENSORORDER_rgb,
- 	4, 0, kNEC3799, 0x02, _WAF_NONE, _NO_MIO					
+ 	4, 0, kNECSLIM, 0x00, _WAF_NONE, _NO_MIO					
 };
 
 /* Model: HP Scanjet 2200c (thanks to Stefan Nilsen)
@@ -490,7 +490,7 @@ static DCapsDef Cap0x03F0_0x0505 =
 static DCapsDef Cap0x03F0_0x0605 =
 {
 	/* DataOrigin (x, y), ShadingOriginY */
-	{{ 0, 209},  0, -1, {2550, 3508 }, { 50,  50}, COLOR_BW },
+	{{ 0, 209},  0, -1, {2550, 3508}, { 50,  50}, COLOR_BW },
     {{ 0,   0},  0, -1, {0, 0}, { 0, 0 }, 0 }, /* No film scanner module    */
     {{ 0,   0},  0, -1, {0, 0}, { 0, 0 }, 0 }, /* No film scanner module    */
     {{ 0,   0},  0, -1, {0, 0}, { 0, 0 }, 0 }, /* No ADF                    */
@@ -1328,9 +1328,9 @@ static HWDef Hw0x03F0_0x0505 =
 	0,	    /* wGreenPWMDutyCycleLow                    */
 	0,	    /* wGreenPWMDutyCycleHigh                   */
 	0x02,	/* bSensorConfiguration (0x0b)              */
-	0x04,	/* bReg_0x0c                                */
+	0x00,	/* bReg_0x0c                                */
 	0x2F,	/* bReg_0x0d                                */
-	0x1F,	/* bReg_0x0e                                */
+	0x13,	/* bReg_0x0e                                */
 		    /* bReg_0x0f_Mono[10] (0x0f to 0x18)        */
 
 	{ 0x02, 0x07, 0x01, 0x02, 0x02, 0x03, 0x00, 0x00, 0x04, 0x07 },
@@ -1348,10 +1348,10 @@ static HWDef Hw0x03F0_0x0505 =
 	{ 0, 0, 0, 0, 0, 0, 0 },
 
 	1,		/* StepperPhaseCorrection (0x1a & 0x1b)     */
-	14,		/* bOpticBlackStart (0x1c)             		*/
-	63,		/* bOpticBlackEnd (0x1d)               		*/
+	15,		/* bOpticBlackStart (0x1c)             		*/
+	50,		/* bOpticBlackEnd (0x1d)               		*/
 	140,	/* wActivePixelsStart (0x1e & 0x1f)    		*/
-	5367, 	/* wLineEnd=(0x20 & 0x21)       			*/
+	5414, 	/* wLineEnd=(0x20 & 0x21)       			*/
 
     1,      /* red lamp on    (reg 0x2c + 0x2d)         */
     16383,  /* red lamp off   (reg 0x2e + 0x2f)         */
@@ -1370,8 +1370,8 @@ static HWDef Hw0x03F0_0x0505 =
 	8,		/* bReg_0x56                                */
 	60,		/* bReg_0x57                                */
 	0x0d,	/* bReg_0x58                                */
-	0xcc,	/* bReg_0x59                                */
-	0xbc,	/* bReg_0x5a                                */
+	0xaa,	/* bReg_0x59                                */
+	0xba,	/* bReg_0x5a                                */
 	0xbb,	/* bReg_0x5b                                */
 	0,		/* bReg_0x5c                                */
 	0,		/* bReg_0x5d                                */
@@ -2261,6 +2261,7 @@ static ClkMotorDef Motors[] = {
 		/* Motor settings (PWM and PWM_Duty) */
 	    {{ 8, 60, 1 }, { 8, 60, 1 }, { 8, 60, 1 }, { 8, 60, 1 }, { 8, 60, 1 },
 		 { 8, 60, 1 }, { 8, 60, 1 }, { 8, 60, 1 }, { 8, 60, 1 }, { 8, 60, 1 }},
+
         /* Color mode MCLK settings */
 	    { 4.0, 4.0, 4.0, 4.0, 3.0, 4.0, 6.0, 6.0, 6.0, 6.0 },
 	    { 4.0, 4.0, 4.0, 4.0, 3.0, 4.0, 6.0, 6.0, 6.0, 6.0 },

@@ -366,8 +366,13 @@ static void usb_GetScanRect( pPlustek_Device dev, pScanParam pParam )
 
 	a_bRegs[0x22] = _HIBYTE( wDataPixelStart );
 	a_bRegs[0x23] = _LOBYTE( wDataPixelStart );
+
+	/* should match: wLineEnd-wDataPixelStart%(m_dHDPIDivider*2) = 0!! */
 	a_bRegs[0x24] = _HIBYTE( wLineEnd );
 	a_bRegs[0x25] = _LOBYTE( wLineEnd );
+
+	DBG( _DBG_INFO, ">> End-Start=%u, HDPI=%.2f\n",
+					wLineEnd-wDataPixelStart, m_dHDPIDivider);
 
 	/* Y origin */
 	if( pParam->bCalibration == PARAM_Scan ) {

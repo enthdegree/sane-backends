@@ -1,3 +1,11 @@
+2003-03-03  Gerhard Jaeger <gerhard@gjaeger.de>
+	* doc/plustek/Plustek-USB-TODO.txt: update
+	* backend/plustek-devs.c backend/plustek-usb.c backend/plustek-usbhw.c
+	  backend/plustek-usbimg.c backend/plustek-usbscan.c backend/plustek.c: 
+	  Fixed some bugs, that avoid proper function of Genius devices and
+	  the HP2100c. Fixed also a problem, that causes permanent warmup cylces
+	  on EPSON Photo devices.
+
 2003-03-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/gt68xx.c backend/gt68xx_devices.c backend/gt68xx_gt6801.c

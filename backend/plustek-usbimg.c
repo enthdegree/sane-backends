@@ -18,6 +18,9 @@
  * - 0.45 - added gray scaling functions for CIS devices
  *        - fixed usb_GrayScale16 function
  *        - fixed a bug in usb_ColorScale16_2 function
+ *        - fixed endless loop bug
+ *        - fixed a bug in usb_GrayScalePseudo16 function
+ *        - fixed a bug in usb_GrayDuplicatePseudo16 function
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -709,7 +712,7 @@ static void usb_ColorScale16_2( struct Plustek_Device *dev )
 	}
 }
 
-/*.............................................................................
+/**
  *
  */
 static void usb_ColorScalePseudo16( struct Plustek_Device *dev )
@@ -911,7 +914,7 @@ static void usb_ColorDuplicate16_2( struct Plustek_Device *dev )
 	}
 }
 
-/*.............................................................................
+/**
  *
  */
 static void usb_ColorDuplicatePseudo16( struct Plustek_Device *dev )
@@ -938,9 +941,13 @@ static void usb_ColorDuplicatePseudo16( struct Plustek_Device *dev )
 
 	for (dw = 0; dw < scanning->sParam.Size.dwPixels; dw++, dwPixels = dwPixels + iNext)
 	{
-		scanning->UserBuf.pw_rgb[dwPixels].Red = (wR + scanning->Red.pcb[dw].a_bColor[0]) << bShift;
-		scanning->UserBuf.pw_rgb[dwPixels].Green = (wG + scanning->Green.pcb[dw].a_bColor[0]) << bShift;
-		scanning->UserBuf.pw_rgb[dwPixels].Blue = (wB + scanning->Blue.pcb[dw].a_bColor[0]) << bShift;
+		scanning->UserBuf.pw_rgb[dwPixels].Red   =
+						(wR + scanning->Red.pcb[dw].a_bColor[0])   << bShift;
+		scanning->UserBuf.pw_rgb[dwPixels].Green =
+						(wG + scanning->Green.pcb[dw].a_bColor[0]) << bShift;
+		scanning->UserBuf.pw_rgb[dwPixels].Blue  =
+						(wB + scanning->Blue.pcb[dw].a_bColor[0])  << bShift;
+
 		wR = (u_short)scanning->Red.pcb[dw].a_bColor[0];
 		wG = (u_short)scanning->Green.pcb[dw].a_bColor[0];
 		wB = (u_short)scanning->Blue.pcb[dw].a_bColor[0];
@@ -1111,9 +1118,10 @@ static void usb_GrayScale8( struct Plustek_Device *dev )
 		iNext = 1;
 	}
 	
-	izoom = usb_GetScaler( scanning );			
+	izoom = usb_GetScaler( scanning );
+	ddax  = 0;
 
-	for( dwPixels = scanning->sParam.Size.dwPixels, ddax = 0; dwPixels; pbSrce++ ) {
+	for( dwPixels = scanning->sParam.Size.dwPixels; dwPixels; pbSrce++ ) {
 
 		ddax -= _SCALER;
 
@@ -1193,9 +1201,6 @@ static void usb_GrayScalePseudo16( struct Plustek_Device *dev )
 
 	usb_AverageGrayByte( dev );
 
-	pbSrce = scanning->Green.pb;
-	wSum = scanning->sParam.PhyDpi.x;
-	wG = (u_short) *pbSrce;
 	if( scanning->sParam.bSource == SOURCE_ADF ) {
 		iNext  = -1;
 		pwDest = scanning->UserBuf.pw + scanning->sParam.Size.dwPixels - 1;
@@ -1204,17 +1209,20 @@ static void usb_GrayScalePseudo16( struct Plustek_Device *dev )
 		pwDest = scanning->UserBuf.pw;
 	}
 
+	pbSrce = scanning->Green.pb;
+	wG     = (u_short)*pbSrce;
+
 	izoom = usb_GetScaler( scanning );			
 	ddax  = 0;
 
-	for( dwPixels = scanning->sParam.Size.dwPixels, ddax = 0; dwPixels; pbSrce++ ) {
+	for( dwPixels = scanning->sParam.Size.dwPixels; dwPixels; pbSrce++ ) {
 
 		ddax -= _SCALER;
 
 		while((ddax < 0) && (dwPixels > 0)) {
 
 			*pwDest = (wG + *pbSrce) << bShift;
-			pbDest  = pbDest + iNext;
+			pwDest  = pwDest + iNext;
 			ddax   += izoom;
 			dwPixels--;
 		} 			
@@ -1282,21 +1290,23 @@ static void usb_GrayDuplicatePseudo16( struct Plustek_Device *dev )
 
 	usb_AverageGrayByte( dev );
 
-	pbSrce = scanning->UserBuf.pb;
 	if (scanning->sParam.bSource == SOURCE_ADF)
 	{
 		iNext = -1;
-		pwDest = scanning->Green.pw + scanning->sParam.Size.dwPixels - 1;
+		pwDest = scanning->UserBuf.pw + scanning->sParam.Size.dwPixels - 1;
 	}
 	else
 	{
 		iNext = 1;
-		pwDest = scanning->Green.pw;
+		pwDest = scanning->UserBuf.pw;
 	}
+
+	pbSrce = scanning->Green.pb;
 	wG = (u_short)*pbSrce;
 
 	for( dwPixels = scanning->sParam.Size.dwPixels;
-		 dwPixels++; pbSrce++, pwDest = pwDest + iNext ) {
+							 dwPixels--; pbSrce++, pwDest = pwDest + iNext ) {
+
 		*pwDest = (wG + *pbSrce) << bShift;
 		wG = (u_short)*pbSrce;
 	}
@@ -1527,7 +1537,8 @@ static SANE_Int usb_ReadData( struct Plustek_Device *dev )
    				scanning->bLinesToSkip = 0;
    			}						
 					
-   			usb_ScanReadImage( dev, scanning->pbGetDataBuf, dwBytes );
+   			if( !usb_ScanReadImage( dev, scanning->pbGetDataBuf, dwBytes ))
+				return 0;
    		}
 		
    	    if( usb_ScanReadImage( dev, scanning->pbGetDataBuf, dw )) {

@@ -25,6 +25,7 @@
  *        - added usb_switchLampX
  *        - do now not reinitialized MISC I/O pins upon reset registers
  * - 0.45 - added function usb_AdjustLamps() to tweak CIS lamp settings
+ * - 0.46 - fixed NULL pointer problem in lamp-off ISR
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -1125,7 +1126,7 @@ static SANE_Bool usb_ModuleStatus( pPlustek_Device dev )
 }
 
 /* HEINER: replace!!! */
-static pPlustek_Device dev_xxx;
+static pPlustek_Device dev_xxx = NULL;
 
 /**
  * ISR to switch lamp off after time has elapsed
@@ -1133,6 +1134,9 @@ static pPlustek_Device dev_xxx;
 static void usb_LampTimerIrq( int sig )
 {
 	int handle = -1;
+
+	if( NULL == dev_xxx )
+		return;
 
 	_VAR_NOT_USED( sig );
 	DBG( _DBG_INFO, "LAMP OFF!!!\n" );
@@ -1211,6 +1215,8 @@ static void usb_StopLampTimer( pPlustek_Device dev )
 	
 	if( 0 != dev->usbDev.dwLampOnPeriod )
 		setitimer( ITIMER_REAL, &dev->saveSettings, NULL );
+
+	dev_xxx = NULL;
 
 	DBG( _DBG_INFO, "Lamp-Timer stopped\n" );
 }

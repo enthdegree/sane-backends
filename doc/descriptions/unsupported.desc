@@ -280,7 +280,7 @@
 :comment "Unsupported. Doesn't seem to be compatible to 3600 series, see link."
 
 :model "ScanMaker 3800"
-:url "http://www.sq.com.tw/products/spec/scan08Spec.PDF"
+:url "http://www.meier-geinitz.de/sane/misc/microtek-scanmaker-3800.txt"
 :interface "USB"
 :status :unsupported
 :comment "Unsupported. Vendor/Product ids: 0x05da/0x30ce. Seems to be based on the SQ Scan08 chip. See link to spec sheet."
@@ -289,7 +289,7 @@
 :url "http://www.meier-geinitz.de/sane/misc/microtek-scanmaker-4800.txt"
 :interface "USB"
 :status :unsupported
-:comment "Unsupported. Vendor/Product ids: 0x05da/0x30cf."
+:comment "Unsupported. Vendor/Product ids: 0x05da/0x30cf. Looks very similar to the ScanMaker 3800. Maybe the same chip is used?"
 
 ;********************************************************************************************
 
@@ -447,6 +447,12 @@
 :interface "USB"
 :status :unsupported
 :comment "Not supported. No chipset information available. Same as Avision iVina FB2400."
+
+:model "AstraSlim SE"
+:url "http://www.meier-geinitz.de/sane/misc/umax-astraslim.txt"
+:interface "USB"
+:status :unsupported
+:comment "Not supported out of the box but should work with the artec_eplus48u backend. See link for details."
 
 ;********************************************************************************************
 

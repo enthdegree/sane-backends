@@ -1,6 +1,8 @@
 2003-03-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions-external/ibm.desc: Added Ricoh IS-430.
+	* doc/descriptions/unsupported.desc: Updated Microtek scanners. Added
+	  Umax AstraSlim SE.
 
 2003-02-28  Ulrich Deiters <ukd@xenon.pc.uni-koeln.de>
 

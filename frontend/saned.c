@@ -32,6 +32,12 @@
 #include "../include/lalloca.h"
 #include "../include/sys/types.h"
 
+#if defined(HAVE_GETADDRINFO) && defined (HAVE_GETNAMEINFO)
+# define SANED_USES_AF_INDEP
+#else
+# undef ENABLE_IPV6
+#endif /* HAVE_GETADDRINFO && HAVE_GETNAMEINFO */
+
 #include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -57,7 +63,9 @@
 
 #include <sys/param.h>
 #include <sys/socket.h>
-#include <sys/poll.h>
+#ifdef SANED_USES_AF_INDEP
+# include <sys/poll.h>
+#endif /* SANED_USES_AF_INDEP */
 #include <sys/time.h>
 #include <sys/types.h>
 #include <arpa/inet.h>
@@ -91,12 +99,6 @@
 #endif
 
 #define SANED_CONFIG_FILE "saned.conf"
-
-#if defined(HAVE_GETADDRINFO) && defined (HAVE_GETNAMEINFO)
-# define SANED_USES_AF_INDEP
-#else
-# undef ENABLE_IPV6
-#endif /* HAVE_GETADDRINFO && HAVE_GETNAMEINFO */
 
 typedef struct
 {

@@ -1,3 +1,10 @@
+-- snapshot 1.0.13-pre3
+---- CODE FREEZE FOR SANE 1.0.13 ---
+2003-11-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* NEWS: Updated.
+	* configure configure.in: Disabled warnings for release.
+
 2003-11-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Brother DCP 8020 and

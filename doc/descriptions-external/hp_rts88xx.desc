@@ -1,0 +1,37 @@
+;
+; SANE Backend specification file
+;
+:backend "hp_rts88xx"                                ; name of backend
+;:version "(0.12)"                                   ; version of backend
+;:manpage "sane-hp_rts"                              ; name of manpage (if it exists)
+:url "http://home.foni.net/~johanneshub/rts88xx-sane.html" ; backend's web page
+
+:devicetype :scanner                                  ; start of a list of devices....
+
+:mfg "Hewlett-Packard"                                ; name a manufacturer
+:url "http://www.hp.com/"
+
+:model "HP4400C"                            ; name models for above-specified mfg.
+:interface "USB"
+:status :minimal
+:comment "grayscale 300DPI only"
+
+:model "HP4470C"                            ; name models for above-specified mfg.
+:interface "USB"
+:status :minimal
+:comment "grayscale 300DPI only"
+
+;:model "HP3500C"                            ; name models for above-specified mfg.
+;:interface "USB"
+;:status :not suported
+;:comment "none"
+
+;:model "HP3530C"                            ; name models for above-specified mfg.
+;:interface "USB"
+;:status :not suported
+;:comment "none"
+
+;:model "HP3570C"                            ; name models for above-specified mfg.
+;:interface "USB"
+;:status :not suported
+;:comment "none"

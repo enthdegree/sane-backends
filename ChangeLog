@@ -1,3 +1,7 @@
+2003-07-28  Thomas Soumarmon <thomas.soumarmon@cogitae.net>
+	* backend/hp5400_* : moved constant initialization to sane_init
+	  and sane_exit + removed some compilation warnings.
+
 2003-07-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* Makefile.in backend/Makefile.in doc/Makefile.in

@@ -63,7 +63,7 @@ int hp5400_command_read_noverify (int iHandle, int iCmd, int iLen,
 int hp5400_command_write (int iHandle, int iCmd, int iLen, void *pbData);
 void hp5400_command_write_noverify (int fd, int iValue, void *pabData,
 					   int iSize);
-int hp5400_bulk_read (int iHandle, int size, int block, FILE * file);
+int hp5400_bulk_read (int iHandle, size_t size, int block, FILE * file);
 int hp5400_bulk_read_block (int iHandle, int iCmd, void *cmd, int cmdlen,
 				   void *buffer, int len);
 int hp5400_bulk_command_write (int iHandle, int iCmd, void *cmd, int cmdlen,

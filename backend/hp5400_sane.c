@@ -60,6 +60,7 @@
 #include "sane/sanei_config.h"
 #include "sane/saneopts.h"
 #include "sane/config.h"
+#include "sane/sanei_usb.h"
 
 #include <stdlib.h>         /* malloc, free */
 #include <string.h>         /* memcpy */
@@ -179,10 +180,12 @@ TDevListEntry;
 
 
 /* Device filename for USB access */
-char * usb_devfile = "/dev/usb/scanner0";
+char usb_devfile[128];
 
 static TDevListEntry *_pFirstSaneDev = 0;
 static int iNumSaneDev = 0;
+
+
 static const SANE_Device **_pSaneDevList = 0;
 
 /* option constraints */
@@ -463,6 +466,13 @@ sane_init (SANE_Int * piVersion, SANE_Auth_Callback pfnAuth)
   /* prevent compiler from complaing about unused parameters */
   pfnAuth = pfnAuth;
 
+  strcpy(usb_devfile, "/dev/usb/scanner0");
+  _pFirstSaneDev = 0;
+  iNumSaneDev = 0;
+
+  InitHp5400_internal();
+
+
   DBG_INIT ();
 
   HP5400_DBG (DBG_MSG, "sane_init: SANE hp5400 backend version %d.%d-%d (from %s)\n",
@@ -542,6 +552,9 @@ sane_exit (void)
       free (_pSaneDevList);
       _pSaneDevList = 0;
     }
+
+
+	FreeHp5400_internal();
 }
 
 
@@ -919,7 +932,7 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
   /* Note: this is already color corrected, though some work still needs to be done
      to deal with the colour offsetting */
   TScanner *s;
-  char *buffer = buf;
+  char *buffer = (char*)buf;
 
   HP5400_DBG (DBG_MSG, "sane_read: request %d bytes \n", maxlen);
 

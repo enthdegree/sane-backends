@@ -226,6 +226,12 @@ HP5400Detect (char *filename,
 					       char *pszDeviceName));
 
 
+int
+InitHp5400_internal( void );
+
+int
+FreeHp5400_internal( void );
+
 
 #ifdef STANDALONE
 int

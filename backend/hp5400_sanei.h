@@ -86,7 +86,7 @@ int hp5400_command_read (int iHandle, int iCmd, int iLen, void *pbData);
 int hp5400_command_write (int iHandle, int iCmd, int iLen, void *pbData);
 
 /* returns >0 if command OK */
-int hp5400_bulk_read (int iHandle, int len, int block, FILE * file);
+int hp5400_bulk_read (int iHandle, size_t len, int block, FILE * file);
 
 /* returns >0 if command OK */
 int hp5400_bulk_read_block (int iHandle, int iCmd, void *cmd, int cmdlen,

@@ -89,20 +89,36 @@
 
 
 typedef struct versionString {
-	const char strVersion[128];
+	char strVersion[128];
 } versionString;
 
-versionString MatchVersions[] = {
-	{ "SilitekIBlizd C3 ScannerV0.84" } ,
-	{ "SilitekIBlizd C3 ScannerV0.86" } ,
-	{ "SilitekIBlizd C3 ScannerV0.87" }
-	};
-
 const int numVersions = 3;
+versionString *MatchVersions;
 
 
 static TScannerModel Model_HP54xx =
   { "Hewlett-Packard", "HP54xx Flatbed Scanner" };
+
+
+int
+InitHp5400_internal() {
+
+	MatchVersions = malloc( sizeof(versionString) * numVersions );
+	strcpy( MatchVersions[0].strVersion, "SilitekIBlizd C3 ScannerV0.84");
+	strcpy( MatchVersions[1].strVersion, "SilitekIBlizd C3 ScannerV0.86");
+	strcpy( MatchVersions[2].strVersion, "SilitekIBlizd C3 ScannerV0.87");
+
+	return 1;
+}
+
+int
+FreeHp5400_internal() {
+
+	free(MatchVersions);
+	MatchVersions = NULL;
+
+	return 1;
+}
 
 
 int
@@ -1223,7 +1239,7 @@ HP5400Open (THWParams * params, char *filename)
   i = 0;
   versionMatched = 0;
   while ( !versionMatched && (i < numVersions) ) {
-	if (!memcmp (szVersion + 1, MatchVersions[i] .strVersion, strlen(MatchVersions[i] .strVersion) - 4)) {
+	if (!strncmp (szVersion + 1, MatchVersions[i] .strVersion, strlen(MatchVersions[i] .strVersion) - 4)) {
 		versionMatched = 1;
 	}
   	i++;

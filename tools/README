@@ -1,4 +1,4 @@
-2004-02-28
+2004-06-05
 
 This directory contains various tools that may be useful:
 
@@ -29,9 +29,12 @@ This directory contains various tools that may be useful:
 	1600P and 2000P, without using the backend. So that
 	scanner protocol can be tested directly.
 
- gamma4scanimage: creates a gamma table in the format expected by scanimage.
+ gamma4scanimage: Creates a gamma table in the format expected by scanimage.
 	You can define a gamma value, shadow and highlight. 
-	Take a look at manual page  gamma4scanimage for further information.
+	Take a look at manual page gamma4scanimage for further information.
+
+ RenSaneDlls.cmd: Convert backend-DLL-filenames according to 8.3 naming
+        convention necessary for DLLs on OS/2.
 
 Maybe useful for SANE developers:
 

@@ -10,9 +10,9 @@
 ;
 
 :backend "test"               ; name of backend
-:version "1.0-2"                    ; version of backend
-:status :alpha                    ; :alpha, :beta, :stable, :new
-; :manpage "sane-hp4200"           ; name of manpage (if it exists)
+:version "1.0-12"                    ; version of backend
+:status :beta                    ; :alpha, :beta, :stable, :new
+:manpage "sane-test"           ; name of manpage (if it exists)
 :url "http://www.meier-geinitz.de/sane/test-backend/" ; backend's web page
 
 :devicetype :api              ; start of a list of devices....
@@ -20,11 +20,5 @@
                                   ;               :meta, :api
 
 :desc "Frontend-tester"
-;:mfg "Noname"                         ; name a manufacturer
-;:url "http://www.hp.com/"
-;:model "HP4200"                   ; name models for above-specified mfg.
-;:interface "USB"
 :comment "Backend for testing frontends"
 
-; :comment and :url specifiers are optional after :mfg, :model, :desc,
-;  and at the top-level.

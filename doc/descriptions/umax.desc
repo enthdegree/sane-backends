@@ -10,7 +10,7 @@
 ;
 
 :backend "umax"                   ; name of backend
-:version "1.0-36"                 ; version of backend
+:version "1.0-37"                 ; version of backend
 :status :stable                   ; :alpha, :beta, :stable
 :manpage "sane-umax"              ; name of manpage (if it exists)
 :url "http://www.rauch-domain.de/sane-umax/index.html" ; backend's web page
@@ -21,11 +21,11 @@
 
 :mfg "UMAX"                       ; name a manufacturer
 :url "http://www.umax.com/"
-:url "http://support.umax.com/"
 :url "http://www.umax.com.tw/"
-:url "http://www.umaxweb.com.tw/"
-:url "http://support.umax.co.uk/"
 :url "http://www.umax.de/en"
+:url "http://www.umax-europe.com"
+:url "http://www.umaxjapan.co.jp"
+:url "http://www.umax.com.cn"
 
 :model "Vista S6"
 :interface "SCSI"
@@ -244,7 +244,7 @@
 
 
 :mfg "Linotype Hell"              ; another manufacturer...
-:url "http://www.heidelberg-cps.com/"
+:url "http://www.heidelberg.com/"
 
 :model "Jade"
 :interface "SCSI"

@@ -1,4 +1,4 @@
-TODO (2002-12-30)
+TODO (2003-01-05)
 
 ******** todo ********
 
@@ -55,6 +55,16 @@ backends
   * Check if sp15c backend (Fujitsu ScanPartner 15C) can be included in
     fujitsu or avision backends.
 
+  * Check the Irix patches from
+    http://www.mostang.com/pipermail/sane-devel/2002-December/017010.html
+    - gphoto2 (?)
+    - bh
+    - canon
+    - coolscan
+    - dc210
+    - dc240
+    - dc25
+
 doc
 ---
   * Add doxygen documentation for the remaining sanei files:
@@ -70,11 +80,15 @@ doc
     - Add Epson Stylus cx3200 MFP to epson.desc (supported only with
       patch to Linux USB scanner driver)
     - Add keywords "vendor-id" and "product-id" for SCSI and USB ids.
-    - add unsupported.desc with links to information about unsupported scanners
+    - hp.desc, umax_pp.desc: Use "ScanJet number" instead of "HP ScanJet number"
+      or "HP number" for better sorting of the lists
+    - avision.desc: Is the removal of the HP 7450 intended?
+ 
 
   * manpages:
     - html manpages have broken links to other man pages if link is wrapped at
       the end of the line (e.g. sane-pint points to pint.5.html).
+    - umax_pp.man: Don't use "'" at the beginning of lines.
 
 frontends
 ---------
@@ -167,6 +181,7 @@ misc
   * Remove backend-specific .po files when they are no longer needed.
 
 ******** done ********
+* add unsupported.desc with links to information about unsupported scanners
 * MacOS X: Check libtool glitches. Does an update make sense?
 * sane.tex (->sane2):
  - Add a warning/explanation about problems with sane_get_select_fd, Unix

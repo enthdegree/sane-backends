@@ -1,0 +1,373 @@
+#nls translation file for backend epson
+#language: german (de)
+
+msgid "A4"
+msgstr "A4"
+
+msgid "A5 landscape"
+msgstr "A5 quer"
+
+msgid "A5 portrait"
+msgstr "A5 hoch"
+
+msgid "Adds to blue based on green level"
+msgstr ""
+
+msgid "Adds to blue based on red level"
+msgstr ""
+
+msgid "Adds to green based on blue level"
+msgstr ""
+
+msgid "Adds to green based on red level"
+msgstr ""
+
+msgid "Adds to red based on blue level"
+msgstr ""
+
+msgid "Adds to red based on green level"
+msgstr ""
+
+msgid "Advanced"
+msgstr "Erweitert"
+
+msgid "Auto area segmentation"
+msgstr "Automatische Auswahl des Scanbereichs"
+
+msgid "Auto eject"
+msgstr "Automatischer Auswurf"
+
+msgid "Automatic Document Feeder"
+msgstr "Autom. Dokumenteneinzug"
+
+msgid "Bay"
+msgstr "Schacht"
+
+msgid "Binary"
+msgstr "Schwarzweiss"
+
+msgid "Bit depth"
+msgstr "Bittiefe"
+
+msgid "Blue"
+msgstr "Blau"
+
+msgid "Blue intensity"
+msgstr "Intensität Blau"
+
+msgid "Bottom-right x"
+msgstr "rechts"
+
+msgid "Bottom-right x position of scan area."
+msgstr "rechte Kante des zu scannenden Bereichs"
+
+msgid "Bottom-right y"
+msgstr "unten"
+
+msgid "Bottom-right y position of scan area."
+msgstr "untere Kante des zu scannenden Bereichs"
+
+msgid "Brightness"
+msgstr "Helligkeit"
+
+msgid "CD"
+msgstr "CD"
+
+msgid "CRT monitors"
+msgstr "CRT Monitore"
+
+msgid "Color"
+msgstr "Farbe"
+
+msgid "Color correction"
+msgstr "Farbkorrektur"
+
+msgid "Color correction coefficients"
+msgstr "Farbkorrekturkoeffizienten"
+
+msgid "Control blue level"
+msgstr "Kontrolliert den Blauanteil"
+
+msgid "Controls green level"
+msgstr "Kontrolliert den Grünanteil"
+
+msgid "Controls red level"
+msgstr "Kontrolliert den Rotanteil"
+
+msgid "Default"
+msgstr "Standardeinstellung"
+
+msgid "Defines the zoom factor the scanner will use"
+msgstr "Definiert den Vergrösserungsfaktor, der vom Scanner benutzt wird"
+
+msgid "Dither A (4x4 Bayer)"
+msgstr "Dithering A (4x4 Bayer)"
+
+msgid "Dither B (4x4 Spiral)"
+msgstr "Dithering B (4x4 Spiral)"
+
+msgid "Dither C (4x4 Net Screen)"
+msgstr "Dithering C (4x4 Net Screen)"
+
+msgid "Dither D (8x4 Net Screen)"
+msgstr "Dithering D (8x4 Net Screen)"
+
+
+msgid "Download pattern A"
+msgstr "Übertrage Muster A"
+
+msgid "Download pattern B"
+msgstr "Übertrage Muster B"
+
+msgid "Dropout"
+msgstr "Blindfarbe"
+
+msgid "Eject"
+msgstr "auswerfen"
+
+msgid "Eject document after scanning"
+msgstr "Auswurf des Dokuments nach dem Scannen"
+
+msgid "Eject the sheet in the ADF"
+msgstr "Wirft das Blatt aus dem automatischen Dokumenteinzug aus"
+
+msgid "Film type"
+msgstr "Filmtyp"
+
+msgid "Flatbed"
+msgstr "Flachbett"
+
+msgid "Focus 2.5mm above glass"
+msgstr "Fokus 2.5mm über dem Glas"
+
+msgid "Focus Position"
+msgstr "Fokus Position"
+
+msgid "Focus on glass"
+msgstr "Fokus auf dem Glas"
+
+msgid "Gamma Correction"
+msgstr "Gammakorrektur"
+
+msgid "Gamma-correction table for the blue band."
+msgstr "Gamma Tabelle für blaue Komponente"
+
+msgid "Gamma-correction table for the green band."
+msgstr "Gamma Tabelle für grüne Komponente"
+
+msgid "Gamma-correction table for the red band."
+msgstr "Gamma Tabelle für rote Komponente"
+
+msgid ""
+"Gamma-correction table.  In color mode this option equally affects the red, "
+"green, and blue channels simultaneously (i.e., it is an intensity gamma "
+"table)."
+msgstr "Gamma Tabelle"
+
+msgid "Geometry"
+msgstr "Geometrie"
+
+msgid "Gray"
+msgstr "Graustufen"
+
+msgid "Green"
+msgstr "Grün"
+
+msgid "Green intensity"
+msgstr "Intensität Grün"
+
+msgid "Halftone A (Hard Tone)"
+msgstr "Halbton A (hart)"
+
+msgid "Halftone B (Soft Tone)"
+msgstr "Halbton B (weich)"
+
+msgid "Halftone C (Net Screen)"
+msgstr "Halbton C"
+
+msgid "Halftoning"
+msgstr "Halbton"
+
+msgid "High contrast printing"
+msgstr "Drucken mit hohem Kontrast"
+
+msgid "High density printing"
+msgstr "Drucken mit hoher Auflösung"
+
+msgid "Image intensity"
+msgstr "Bildintensität"
+
+msgid "Impact-dot printers"
+msgstr "Nadeldrucker"
+
+msgid "Ink-jet printers"
+msgstr "Tintenstrahldrucker"
+
+msgid "Letter"
+msgstr "Letter"
+
+msgid "Low density printing"
+msgstr "Drucken mit geringer Auflösung"
+
+msgid "Matrix multiplication of RGB"
+msgstr ""
+
+msgid "Mirror image"
+msgstr "Bild spiegeln"
+
+msgid "Mirror the image."
+msgstr "Das Bild spiegeln"
+
+msgid "Negative Film"
+msgstr "Filmnegativ"
+
+msgid "No Correction"
+msgstr "Keine Korrektur"
+
+msgid "None"
+msgstr "Kein"
+
+msgid ""
+"Number of bits per sample, typical values are 1 for \"line-art\" and 8 for "
+"multibit scans."
+msgstr ""
+"Anzahl der Bits pro Farbwert, typische Werte seind 1 für lineart- und 8 für "
+"multibit-Scans"
+
+msgid "Number of options"
+msgstr "Anzahl der Optionen"
+
+msgid "Optional equipment"
+msgstr "Optionales Zubehör"
+
+msgid "Positive Film"
+msgstr "Filmpositiv"
+
+msgid "Preview"
+msgstr "Vorschau"
+
+msgid "Quick format"
+msgstr "Schnellformat"
+
+msgid ""
+"Read-only option that specifies how many options a specific devices supports."
+msgstr "Nicht veränderbare Einstellung, welche angibt wieviele Einstellungen ein spezieller Treiber unterstützt."
+
+msgid "Red"
+msgstr "Rot"
+
+msgid "Red intensity"
+msgstr "Intensität Rot"
+
+msgid "Request a preview-quality scan."
+msgstr "Erbitte Scan in Vorschauqualität"
+
+msgid "Scan Mode"
+msgstr "Scan Modus"
+
+msgid "Scan mode"
+msgstr "Scan Modus"
+
+msgid "Scan resolution"
+msgstr "Scanauflösung"
+
+msgid "Scan source"
+msgstr "Scanquelle"
+
+msgid "Select minimum-brightness to get a white point"
+msgstr "Wähle die minimale Helligkeit, die als Weiß betrachtet werden soll"
+
+msgid ""
+"Selectes the gamma correction value from a list of pre-defined devices or "
+"the user defined table, which can be downloaded to the scanner"
+msgstr ""
+"Wählt die Gammakorrektur aus einer Liste von vordefinierten Geräten oder "
+"einer benutzerdefinierten Tabelle, die in den Scanner geladen werden kann"
+
+msgid "Selects the brightness."
+msgstr "Wählt die Helligkeit."
+
+msgid "Selects the dropout."
+msgstr "Wählt die Blindfarbe."
+
+msgid "Selects the halftone."
+msgstr "Wählt den Halbton aus."
+
+msgid "Selects the scan mode (e.g., lineart,monochrome, or color)."
+msgstr "Wählt den Scanmode (z.B. Lineart, Grau oder Farbe)"
+
+msgid "Selects the scan source (such as a document-feeder)."
+msgstr "Bestimmt die Scanquelle (wie Dokumenteneinzug)"
+
+msgid "Sets the color correction table for the selected output device."
+msgstr "Setzt die Farbkorrekturtabelle für das ausgewählte Ausgabegerät"
+
+msgid "Sets the focus position to either the glass or 2.5mm above the glass"
+msgstr "Setzt den Fokus entweder auf das Glas oder 2.5mm darüber"
+
+msgid "Sets the resolution of the scanned image."
+msgstr "Bestimmt die Auflösung des Bildes"
+
+msgid "Sharpness"
+msgstr "Schärfe"
+
+msgid "Shift blue to green"
+msgstr "Verschiebt Blau nach Grün"
+
+msgid "Shift blue to red"
+msgstr "Verschiebt Blau nach Rot"
+
+msgid "Shift green to blue"
+msgstr "Verschiebt Grün nach Blau"
+
+msgid "Shift green to red"
+msgstr "Verschiebt Grün nach Rot"
+
+msgid "Shift red to blue"
+msgstr "Verschiebt Rot nach Blau"
+
+msgid "Shift red to green"
+msgstr "Verschiebt Rot nach Grün"
+
+msgid "Speed"
+msgstr "Geschwindigkeit"
+
+msgid "Text Enhanced Technology"
+msgstr "Technik zur Textverbesserung"
+
+msgid "Thermal printers"
+msgstr "Thermische Drucker"
+
+msgid "Threshold"
+msgstr "Grenzwert"
+
+msgid "Top-left x"
+msgstr "links"
+
+msgid "Top-left x position of scan area."
+msgstr "linke Kante des zu scannenden Bereichs"
+
+msgid "Top-left y"
+msgstr "oben"
+
+msgid "Top-left y position of scan area."
+msgstr "Obere Kante des zu scannenden Bereichs"
+
+msgid "Transparency Unit"
+msgstr "Durchlichtaufsatz"
+
+msgid "User defined"
+msgstr "Benutzerdefiniert"
+
+msgid "User defined (Gamma=1.0)"
+msgstr "Benutzerdefiniert (Gamma=1.0)"
+
+msgid "User defined (Gamma=1.8)"
+msgstr "Benutzerdefiniert (Gamma=1.8)"
+
+msgid "Zoom"
+msgstr "Vergrösserung"
+
+msgid "max"
+msgstr "maximal"
+

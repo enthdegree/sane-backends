@@ -1,3 +1,9 @@
+2002-09-19  Frank Zago  <fzago at austin dot rr dot com>
+
+	* backend/leo.c backend/leo.conf doc/sane-leo.man
+	  doc/descriptions/leo.desc: added support for the leoscan S3.
+	* backend/teco2.c backend/teco2.h: added some stuff.
+
 2002-09-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/hpsj5s.desc: Used "Hewlett-Packard" instead
@@ -15,6 +21,7 @@
           added m3092 support
         * doc/descriptions/fujitsu doc/sane-fujitsu
           added description 
+
 2002-09-17  Matthew Duggan <stauff1@users.sourceforge.net>
 	* backend/canon_pp.c backend/canon_pp.h backend/canon_pp.conf:
 	  Added init_mode option to conf file for faster starts.

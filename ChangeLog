@@ -1,3 +1,8 @@
+2003-10-23  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* backend/plustek.c backend/plustek-usb.c:
+	  fixed bug, that causes CanoScan devices to use the wrong calibration
+	  functions, sanei_usb_get_vendor_product() fails.
 
 2003-10-22  Peter Kirchgessner <peter@kirchgessner.net>
 	* backend/hp.c, backend/hp-handle.c, backend/Makefile.in:

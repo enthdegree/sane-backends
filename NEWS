@@ -1,6 +1,6 @@
 -*-Mode: outline-*-
 
-New with 1.0.4, released ????-??-??:
+New with 1.0.4, released 2000-12-21:
 
 * New backends: as6e, nec, pie.
 * Updated backends: artec (v0.5.15), avision (v0.2.1), epson (v0.1.39),

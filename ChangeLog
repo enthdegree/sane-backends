@@ -1,3 +1,15 @@
+2000-09-18  Henning Meier-Geinitz <hmg@gmx.de>
+
+        * README: Removed comment about xscanimage error message. Added
+          comment about find-scanner (may find scanners not supported by
+          SANE).
+	* tools/README: Added comment about find-scanner and some lines
+ 	  about sane-desc.el and sane-config.
+	* tools/find-scanner.c: Added comment about scanners not supported
+ 	  by SANE. Removed some warnings.
+	* TODO LEVEL2: Removed xscanimage error comment from TODO and moved
+ 	  ideas for SANE 2.0 from TODO to LEVEL2.
+
 2000-09-18  Petter Reinholdtsen <pere@td.org.uit.no>
 
 	* backend/v4l.c: Remove X11 dependency.

@@ -834,7 +834,7 @@ build-23 -> build-24 (sane-1.0.4)
 
     * Added Astra 2100S as supported scanner
 
-    * enabled lamp control for Astra 2100S (don`t know if this works, is a test)
+    * enabled lamp control for Astra 2100S
 
     * Added warning in sane_control_option if option could not be set
  
@@ -906,4 +906,26 @@ build-24 -> build-25
    * added #define SANE_I18N(text) text to umax.c. This is to mark the backend
      specific texts that shall be translated by the frontend
 
+    
+build-25 -> build-26
+--------------------
+
+   * added umax.conf option handle-bad-sense-error #
+
+   * added Mirage II as supported scanner
+
+   * added routine umax_set_max_geometry that defines available surface
+     and resolution in dependance of scansource and double optical resolution
+     (before this bugfix the change of dor mode overwrote the settings of
+      scansource and vice versa)
+
+   * added ESCORT Galleria 600S as supported scanner, is an Astra 600S
+
+   * removed if (config_line[len - 1] == '\n')... while reading config file
+
+   * changed some static unsigned int to static int
+
+   * sane_exit does free vendor/product/version strings in device list
+
+   * added some options for Powerlook 3000 - still is not completly supported
 

@@ -1,3 +1,7 @@
+2002-01-10  Tom Martone <tom@martoneconsulting.com>
+        * backend/bh.c
+          addressed security issue with tempfile
+
 2002-01-10  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 	
 	* backend/snapscan.c   backend/snapscan.h  backend/snapscan.desc:

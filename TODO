@@ -1,4 +1,4 @@
-TODO (2000-11-19)
+TODO (2000-11-21)
 
 ******** todo ********
 
@@ -25,9 +25,6 @@ backends
   * use DBG(...) instead of fprintf(stderr, ...)
      - microtek
      - microtek2
-
-  * make authorization_callback work in net-backend and saned. Try to 
-    avoid plain text passwords?
 
   * check net/saned
      - net backend segfaults if saned isn't started (or timed out)
@@ -74,7 +71,6 @@ frontends
 
 sanei
 -----
-  * add sanei_authorize (function for all backends)
 
 misc
 ----
@@ -132,6 +128,9 @@ misc
   * libdl is used in dll backend but -ldl is not added to LDFLAGS?
 
 ******** done ********
+* add sanei_authorize (function for all backends)
+* make authorization_callback work in net-backend and saned. Try to 
+  avoid plain text passwords?
 * Add as6e http://as6edriver.sourceforge.net/
 * stiff.c: Tiff header not written correctly: "Jaeger, Gerhard"
   <gjaeger@sysgo.de> writes: When writing the TIFF header, you have to

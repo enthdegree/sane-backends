@@ -6,6 +6,10 @@
 	  HELP" section. Added paragraph about SANE device lists. Updated
 	  CONTACT section. Minor additions to the gt68xx and plustek
 	  entries. Minor spelling fixes.
+	* backend/sm3600-color.c backend/sm3600-gray.c backend/sm3600-homerun.c
+	  backend/sm3600-scanmtek.c backend/sm3600-scantool.h backend/sm3600-scanusb.c
+	  backend/sm3600-scanutil.c backend/sm3600.c backend/sm3600.h:
+	  Fixed comment headers. They were copied verbatim from the dll backend.
 
 2003-03-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

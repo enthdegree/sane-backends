@@ -1,5 +1,6 @@
 /* sane - Scanner Access Now Easy.
-   Copyright (C) 1996, 1997 David Mosberger-Tang
+   (C) Marian Matthias Eichholz 2001
+
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -38,9 +39,8 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
 
-   This file implements a dynamic linking based SANE meta backend.  It
-   allows managing an arbitrary number of SANE backends by using
-   dynamic linking to load backends on demand.  */
+   This file implements SANE backend for Microtek scanners with M011 USB
+   chip like the Microtek ScanMaker 3600, 3700 and 3750. */
 
 
 /* ======================================================================

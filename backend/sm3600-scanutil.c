@@ -1,5 +1,5 @@
-/*
-   Copyright (C) 1996, 1997 David Mosberger-Tang
+/* sane - Scanner Access Now Easy.
+   Copyright (C) Marian Eichholz 2001
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -37,10 +37,8 @@
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
+*/
 
-   This file implements a dynamic linking based SANE meta backend.  It
-   allows managing an arbitrary number of SANE backends by using
-   dynamic linking to load backends on demand.  */
 /* ======================================================================
 
 Userspace scan tool for the Microtek 3600 scanner

@@ -152,10 +152,10 @@ static void usb_initDev( pPlustek_Device dev, int idx, int handle, int vendor )
 	u_short   tmp = 0;
 
 	DBG( _DBG_INFO, "usb_initDev(%d,0x%04x,%i)\n",
-											idx, vendor, dev->initialized );
+	                idx, vendor, dev->initialized );
 	/* save capability flags... */
 	if( dev->initialized >= 0 ) {
-  		tmp = DEVCAPSFLAG_TPA;
+		tmp = DEVCAPSFLAG_TPA;
 	}
 
 	/* copy the original values... */
@@ -189,7 +189,7 @@ static void usb_initDev( pPlustek_Device dev, int idx, int handle, int vendor )
 		dev->usbDev.Caps.workaroundFlag |= _WAF_INV_NEGATIVE_MAP;
 
 	DBG( _DBG_INFO, "Device WAF: 0x%08lx\n", dev->usbDev.Caps.workaroundFlag );
-	
+
 	/* adjust data origin
 	 */
 	dev->usbDev.Caps.Positive.DataOrigin.x -= dev->adj.tpa.x;	
@@ -222,6 +222,18 @@ static void usb_initDev( pPlustek_Device dev, int idx, int handle, int vendor )
 	if( dev->adj.graygamma == 1.0 )
 		dev->adj.graygamma = dev->usbDev.HwSetting.gamma;
 
+/* FIXME: not needed here??? */
+#if 0
+	if( dev->adj.rlampoff > 0 )
+		dev->usbDev.HwSetting.red_lamp_off = dev->adj.rlampoff;
+
+	if( dev->adj.glampoff > 0 )
+		dev->usbDev.HwSetting.green_lamp_off = dev->adj.glampoff;
+
+	if( dev->adj.blampoff > 0 )
+		dev->usbDev.HwSetting.blue_lamp_off = dev->adj.blampoff;
+#endif
+
 	/* the following you normally get from the registry...
 	 */
 	bMaxITA = 0;     /* Maximum integration time adjust */
@@ -247,20 +259,19 @@ static void usb_initDev( pPlustek_Device dev, int idx, int handle, int vendor )
 
 		if( t & 0x02 ) {
 			DBG( _DBG_INFO, "TPA detected\n" );
-  			dev->usbDev.Caps.wFlags |= DEVCAPSFLAG_TPA;
+			dev->usbDev.Caps.wFlags |= DEVCAPSFLAG_TPA;
 		} else
 			DBG( _DBG_INFO, "TPA NOT detected\n" );
 
 		if( dev->adj.enableTpa ) {
 			DBG( _DBG_INFO, "Enabled TPA for EPSON (override)\n" );
-  			dev->usbDev.Caps.wFlags |= DEVCAPSFLAG_TPA;
-     	}
-    }
+			dev->usbDev.Caps.wFlags |= DEVCAPSFLAG_TPA;
+		}
+	}
 
-	/*
-     * well now we patch the vendor string...
-     * if not found, the default vendor will be Plustek
-     */
+	/* well now we patch the vendor string...
+	 * if not found, the default vendor will be Plustek
+	 */
 	for( i = 0; usbVendors[i].desc != NULL; i++ ) {
 
 		if( usbVendors[i].id == vendor ) {
@@ -285,10 +296,10 @@ static void usb_initDev( pPlustek_Device dev, int idx, int handle, int vendor )
 	sParam.bDataType     = SCANDATATYPE_Color;
 	sParam.bSource       = SOURCE_Reflection;
 	sParam.Origin.x      = 0;
-    sParam.Origin.y      = 0;
+	sParam.Origin.y      = 0;
 	sParam.siThreshold   = 0;
 	sParam.UserDpi.x     = 150;
-    sParam.UserDpi.y     = 150;
+	sParam.UserDpi.y     = 150;
 	sParam.dMCLK         = 4;
 	sParam.Size.dwPixels = 0;
 
@@ -416,9 +427,9 @@ static void usbDev_shutdown( Plustek_Device *dev  )
 	
 		if( 0 != dev->usbDev.bLampOffOnEnd ) {
 
-    		DBG( _DBG_INFO, "Switching lamp off...\n" );
+			DBG( _DBG_INFO, "Switching lamp off...\n" );
 			usb_LampOn( dev, SANE_FALSE, SANE_FALSE );
-		}		
+		}
 		
 		dev->fd = -1;
 		sanei_usb_close( handle );
@@ -782,8 +793,10 @@ static int usbDev_setScanEnv( Plustek_Device *dev, pScanInfo si )
     /* clear all the stuff */
     memset( &dev->scanning, 0, sizeof(ScanDef));
 
-	if( si->ImgDef.dwFlag & SCANDEF_Adf && si->ImgDef.dwFlag & SCANDEF_ContinuousScan)
+	if((si->ImgDef.dwFlag & SCANDEF_Adf) &&
+	   (si->ImgDef.dwFlag & SCANDEF_ContinuousScan)) {
 		dev->scanning.sParam.dMCLK = dMCLK_ADF;
+	}
 
     /* Save necessary informations */
 	dev->scanning.fGrayFromColor = 0;
@@ -791,11 +804,24 @@ static int usbDev_setScanEnv( Plustek_Device *dev, pScanInfo si )
 	if( si->ImgDef.wDataType == COLOR_256GRAY ) {
 
 		if( !(si->ImgDef.dwFlag & SCANDEF_Adf ) &&
- 		  (dev->usbDev.Caps.OpticDpi.x == 1200 && si->ImgDef.xyDpi.x <= 300)) {
+		  (dev->usbDev.Caps.OpticDpi.x == 1200 && si->ImgDef.xyDpi.x <= 300)) {
 			dev->scanning.fGrayFromColor = 2;
 			si->ImgDef.wDataType = COLOR_TRUE24;
 
 			DBG( _DBG_INFO, "* Gray from color set!\n" );
+		}
+
+		if((dev->usbDev.vendor == 0x04A9) && (dev->usbDev.product == 0x2208)) {
+			DBG( _DBG_INFO, "* Gray(GRAY256) from color set (D660U)!\n" );
+			dev->scanning.fGrayFromColor = 2;
+			si->ImgDef.wDataType = COLOR_TRUE24;
+		}
+
+	} else if ( si->ImgDef.wDataType == COLOR_GRAY16 ) {
+		if((dev->usbDev.vendor == 0x04A9) && (dev->usbDev.product == 0x2208)) {
+			DBG( _DBG_INFO, "* Gray(GRAY16) from color set (D660U)!\n" );
+			dev->scanning.fGrayFromColor = 2;
+			si->ImgDef.wDataType = COLOR_TRUE48;
 		}
 	}
 
@@ -920,15 +946,14 @@ static int usbDev_stopScan( Plustek_Device *dev )
 		dev->scanning.pScanBuffer = NULL;
 		usb_StartLampTimer( dev );
 	}
-
-    return 0;
+	return 0;
 }
 
 /**
  */
 static int usbDev_startScan( Plustek_Device *dev )
 {
-    pScanDef   scanning = &dev->scanning;
+	pScanDef   scanning = &dev->scanning;
 	static int iSkipLinesForADF = 0;
 
 	DBG( _DBG_INFO, "usbDev_startScan()\n" );
@@ -944,7 +969,7 @@ static int usbDev_startScan( Plustek_Device *dev )
 
 	/* Allocate shading buffer */
 	if((dev->scanning.dwFlag & SCANDEF_Adf) &&
-	   (dev->scanning.dwFlag & SCANDEF_ContinuousScan)) {
+		(dev->scanning.dwFlag & SCANDEF_ContinuousScan)) {
 		dev->scanning.fCalibrated = SANE_TRUE;
 	} else {
 
@@ -968,7 +993,6 @@ static int usbDev_startScan( Plustek_Device *dev )
 		usb_StopLampTimer( dev );
 		return 0;
 	}
-
 	return _E_ALLOC;
 }
 
@@ -979,10 +1003,11 @@ static int usbDev_startScan( Plustek_Device *dev )
  */
 static int usbDev_Prepare( struct Plustek_Device *dev, SANE_Byte *buf )
 {
-    int       result;
-    pScanDef  scanning = &dev->scanning;
-	pDCapsDef scaps    = &dev->usbDev.Caps;
-	pHWDef    hw       = &dev->usbDev.HwSetting;
+	int       result;
+	SANE_Bool use_alt_cal = SANE_FALSE;
+	pScanDef  scanning    = &dev->scanning;
+	pDCapsDef scaps       = &dev->usbDev.Caps;
+	pHWDef    hw          = &dev->usbDev.HwSetting;
 
 	DBG( _DBG_INFO, "usbDev_PrepareScan()\n" );
 
@@ -995,20 +1020,28 @@ static int usbDev_Prepare( struct Plustek_Device *dev, SANE_Byte *buf )
 	if((dev->usbDev.vendor == 0x04A9) &&    
 		(dev->usbDev.product==0x2206 || dev->usbDev.product==0x2207 ||
 		 dev->usbDev.product==0x220D || dev->usbDev.product==0x220E)) {
-		result = cano_DoCalibration( dev );
+		use_alt_cal = SANE_TRUE;
 		
 	} else {
 
-		if( dev->adj.altCalibrate ) {
-			result = cano_DoCalibration( dev );
-		} else {
-			result = usb_DoCalibration( dev );
-		}
+		if( dev->adj.altCalibrate ) 
+			use_alt_cal = SANE_TRUE;
 	}
 
-    if( SANE_TRUE != result ) {
+	/* for the skip functionality use the "old" calibration functions */
+	if( dev->usbDev.Caps.workaroundFlag & _WAF_BYPASS_CALIBRATION ) {
+		use_alt_cal = SANE_FALSE;
+	}
+
+	if( use_alt_cal ) {
+		result = cano_DoCalibration( dev );
+	} else {
+		result = usb_DoCalibration( dev );
+	}
+
+	if( SANE_TRUE != result ) {
 		DBG( _DBG_INFO, "calibration failed!!!\n" );
-        return result;
+		return result;
 	}
 
 	if( dev->adj.cacheCalData )
@@ -1025,22 +1058,22 @@ static int usbDev_Prepare( struct Plustek_Device *dev, SANE_Byte *buf )
 			return 0;
 		}
 
-   		/*
-   		 * if we bypass the calibration step, we wait on lamp warmup here...
-   		 */
-   		if( scaps->workaroundFlag & _WAF_BYPASS_CALIBRATION ) {
-       		if( !usb_Wait4Warmup( dev )) {
-   				DBG( _DBG_INFO, "ReadImage() - Cancel detected...\n" );
-   				return 0;
-   			}
-   		}
+		/*
+		 * if we bypass the calibration step, we wait on lamp warmup here...
+		 */
+		if( scaps->workaroundFlag & _WAF_BYPASS_CALIBRATION ) {
+    		if( !usb_Wait4Warmup( dev )) {
+				DBG( _DBG_INFO, "usbDev_Prepare() - Cancel detected...\n" );
+				return 0;
+			}
+		}
 
-   		scanning->pbScanBufBegin = scanning->pScanBuffer;
+		scanning->pbScanBufBegin = scanning->pScanBuffer;
 
-   		if((dev->caps.dwFlag & SFLAG_ADF) && (scaps->OpticDpi.x == 600))
-   			scanning->dwLinesScanBuf = 8;
-   		else
-   			scanning->dwLinesScanBuf = 32;
+		if((dev->caps.dwFlag & SFLAG_ADF) && (scaps->OpticDpi.x == 600))
+			scanning->dwLinesScanBuf = 8;
+		else
+			scanning->dwLinesScanBuf = 32;
 
 		/* gives faster feedback to the frontend ! */
 		scanning->dwLinesScanBuf = 2;

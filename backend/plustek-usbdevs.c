@@ -44,6 +44,7 @@
  * - 0.47 - added BearPaw 1200 settings for PID 0x4001 (LM9832)
  *        - tweaked the LiDE20 MCLK setting for 75DPI grayscale
  *        - enlarged the scan-area of the UMAX3400 to 11.7"
+ *        - added CanoScan D660U
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -343,7 +344,7 @@ static DCapsDef Cap0x07B3_0x0010_4 =
 	12, 0, kNEC3778, 0x00, _WAF_NONE, _NO_MIO
 };
 
-/* Plustek Model: ???
+/* Plustek Model: UA18?
  * KH: NS9831 + TPA + Button + NEC3778
  */
 static DCapsDef Cap0x07B3_0x000F_4 =
@@ -385,7 +386,7 @@ static DCapsDef Cap0x07B3_0x0017_4 =
 	{1200, 1200},		
 	DEVCAPSFLAG_Positive + DEVCAPSFLAG_Negative,
 	SENSORORDER_rgb,
-	12,	4, kNEC3778, 0x07, _WAF_NONE, _NO_MIO			
+	12, 4, kNEC3778, 0x07, _WAF_NONE, _NO_MIO
 };
 
 /* Plustek Model: ???
@@ -607,18 +608,18 @@ static DCapsDef Cap0x1606_0x0160 =
  */
 static DCapsDef Cap0x04A9_0x2206 =
 {
- 	{{ 0, 90}, 35, 10, {2550, 3508}, {75, 75}, COLOR_GRAY16 },
- 	{{ 0,  0},  0,  0, {0, 0}, { 0, 0 }, 0 },
- 	{{ 0,  0},  0,  0, {0, 0}, { 0, 0 }, 0 },
- 	{{ 0,  0},  0,  0, {0, 0}, { 0, 0 }, 0 },
- 	{600, 600},
- 	0,
- 	SENSORORDER_rgb,
- 	8,			        /* sensor distance                         */
- 	1,		      	    /* number of buttons                       */
- 	kCIS650,            /* use default settings during calibration */
- 	0,                  /* not used here...                        */
-    _WAF_MISC_IO_LAMPS | _WAF_BLACKFINE, _NO_MIO
+	{{ 0, 90}, 35, 10, {2550, 3508}, {75, 75}, COLOR_GRAY16 },
+	{{ 0,  0},  0,  0, {0, 0}, { 0, 0 }, 0 },
+	{{ 0,  0},  0,  0, {0, 0}, { 0, 0 }, 0 },
+	{{ 0,  0},  0,  0, {0, 0}, { 0, 0 }, 0 },
+	{600, 600},
+	0,
+	SENSORORDER_rgb,
+	8,                  /* sensor distance                         */
+	1,                  /* number of buttons                       */
+	kCIS650,            /* use default settings during calibration */
+	0,                  /* not used here...                        */
+	_WAF_MISC_IO_LAMPS | _WAF_BLACKFINE, _NO_MIO
 };
 
 /* Canon N1220U
@@ -626,17 +627,35 @@ static DCapsDef Cap0x04A9_0x2206 =
 static DCapsDef Cap0x04A9_0x2207 =
 {
 	{{ 0, 85}, 35, 10, {2550, 3508}, {75, 75}, COLOR_BW },
-    {{ 0,  0},  0,  0, {0, 0}, { 0, 0 }, 0 },
-    {{ 0,  0},  0,  0, {0, 0}, { 0, 0 }, 0 },
-    {{ 0,  0},  0,  0, {0, 0}, { 0, 0 }, 0 },
-    {1200, 1200},
-    0,
-    SENSORORDER_rgb,
-    16,                 /* sensor distance                         */
-    1,                  /* number of buttons                       */
-    kCIS1220,           /* use default settings during calibration */
-    0,                  /* not used here...                        */
-    _WAF_MISC_IO_LAMPS | _WAF_BLACKFINE, _NO_MIO
+	{{ 0,  0},  0,  0, {0, 0}, { 0, 0 }, 0 },
+	{{ 0,  0},  0,  0, {0, 0}, { 0, 0 }, 0 },
+	{{ 0,  0},  0,  0, {0, 0}, { 0, 0 }, 0 },
+	{1200, 1200},
+	0,
+	SENSORORDER_rgb,
+	16,                 /* sensor distance                         */
+	1,                  /* number of buttons                       */
+	kCIS1220,           /* use default settings during calibration */
+	0,                  /* not used here...                        */
+	_WAF_MISC_IO_LAMPS | _WAF_BLACKFINE, _NO_MIO
+};
+
+/* Canon D660U
+ */
+static DCapsDef Cap0x04A9_0x2208 =
+{
+	{{  45, 125},  15, -1, {2550, 3508}, { 50,  50}, COLOR_BW     },
+	{{1060, 744}, 510, -1, { 473,  414}, {150, 150}, COLOR_GRAY16 },
+	{{1082, 842}, 610, -1, { 567,  414}, {150, 150}, COLOR_GRAY16 },
+	{{   0,   0},   0,  0, {   0,    0}, {  0,   0},            0 },
+	{600, 600},
+	DEVCAPSFLAG_Positive + DEVCAPSFLAG_Negative,
+	SENSORORDER_rgb,
+	4,
+	1,
+	kNEC8861,           /* use default settings during calibration */
+	0,
+	_WAF_MISC_IO_LAMPS, _MIO5 + _TPA(_MIO6)
 };
 
 /* Canon N670U/N676U/LiDE20
@@ -662,17 +681,17 @@ static DCapsDef Cap0x04A9_0x220D =
 static DCapsDef Cap0x04A9_0x220E =
 {
 	{{ 0, 100}, 50, 10, {2550, 3508}, {75, 75}, COLOR_BW },
-    {{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
-    {{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
-    {{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
-    {1200, 1200},
-    0,
-    SENSORORDER_rgb,
-    16,                 /* sensor distance                         */
-    3,                  /* number of buttons                       */
-    kCIS1240,           /* use default settings during calibration */
-    0,                  /* not used here...                        */
-    _WAF_MISC_IO_LAMPS | _WAF_BLACKFINE, _NO_MIO
+	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
+	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
+	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
+	{1200, 1200},
+	0,
+	SENSORORDER_rgb,
+	16,                 /* sensor distance                         */
+	3,                  /* number of buttons                       */
+	kCIS1240,           /* use default settings during calibration */
+	0,                  /* not used here...                        */
+	_WAF_MISC_IO_LAMPS | _WAF_BLACKFINE, _NO_MIO
 };
 
 /******************* additional Hardware descriptions ************************/
@@ -1728,14 +1747,14 @@ static HWDef Hw0x04B8_0x011D =
 
     {0x02, 0x07, 0x00, 0x01, 0x04, 0x07, 0x00, 0x00, 0x03, 0x07},
             /* ok mono (reg 0x0f to 0x18) */
-	{0x06, 0x0b, 0x00, 0x05, 0x0c, 0x17, 0x00, 0x00, 0x0a, 0x17},
+    {0x06, 0x0b, 0x00, 0x05, 0x0c, 0x17, 0x00, 0x00, 0x0a, 0x17},
             /* ok color (reg 0x0f to 0x18)                  */
-	_GREEN_CH,	/* ok bReg_0x26 color mode - bits 4 and 5   */
-	0x42,       /* ok bReg 0x27 color mode                  */
-	3,          /* bReg 0x29 illumination mode              */
-	/* illumination mode settings (not used for CCD devices)*/
-	{ 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0 },
+    _GREEN_CH,	/* ok bReg_0x26 color mode - bits 4 and 5   */
+    0x42,       /* ok bReg 0x27 color mode                  */
+    3,          /* bReg 0x29 illumination mode              */
+    /* illumination mode settings (not used for CCD devices)*/
+    { 0, 0, 0, 0, 0, 0, 0 },
+    { 0, 0, 0, 0, 0, 0, 0 },
 
     1,      /* ok StepperPhaseCorrection (reg 0x1a + 0x1b)  */
     0x00,   /* ok bOpticBlackStart (reg 0x1c)               */
@@ -1796,12 +1815,12 @@ static HWDef Hw0x1606_0x0060 =
 
     {0x01, 0x0c, 0x0e, 0x10, 0x00, 0x00, 0x00, 0x00, 0x16, 0x0c},
                 /* color (reg 0x0f to 0x18)              */
- 	_GREEN_CH,	/* bReg_0x26 color mode - bits 4 and 5   */
- 	0x40,       /* bReg 0x27 color mode                  */
-	1,          /* bReg 0x29 illumination mode           */
-	/* illumination mode settings (not used for CCD devices) */
-	{ 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0 },
+    _GREEN_CH,	/* bReg_0x26 color mode - bits 4 and 5   */
+    0x40,       /* bReg 0x27 color mode                  */
+    1,          /* bReg 0x29 illumination mode           */
+    /* illumination mode settings (not used for CCD devices) */
+    { 0, 0, 0, 0, 0, 0, 0 },
+    { 0, 0, 0, 0, 0, 0, 0 },
 
     1,      /* StepperPhaseCorrection (reg 0x1a + 0x1b)  */
     0x2f,   /* bOpticBlackStart (reg 0x1c)               */
@@ -1834,8 +1853,8 @@ static HWDef Hw0x1606_0x0060 =
     0,      /* test mode ADC Output CODE LSB (reg 0x5d)  */
     0,      /* test mode (reg 0x5e)                      */
     _LM9832, /* might be LM9831 on UMAX 3450! */
-	MODEL_UMAX,
-	1.0
+    MODEL_UMAX,
+    1.0
 };
 
 /** Umax 5400 */
@@ -1862,12 +1881,12 @@ static HWDef Hw0x1606_0x0160 =
 
     {0x01, 0x0c, 0x0e, 0x10, 0x00, 0x00, 0x00, 0x00, 0x16, 0x0c},
                 /* color (reg 0x0f to 0x18)              */
- 	_GREEN_CH,	/* bReg_0x26 color mode - bits 4 and 5   */
- 	0x40,       /* bReg 0x27 color mode                  */
-	1,          /* bReg 0x29 illumination mode           */
-	/* illumination mode settings (not used for CCD devices) */
-	{ 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0 },
+    _GREEN_CH,	/* bReg_0x26 color mode - bits 4 and 5   */
+    0x40,       /* bReg 0x27 color mode                  */
+    1,          /* bReg 0x29 illumination mode           */
+    /* illumination mode settings (not used for CCD devices) */
+    { 0, 0, 0, 0, 0, 0, 0 },
+    { 0, 0, 0, 0, 0, 0, 0 },
 
     1,      /* StepperPhaseCorrection (reg 0x1a + 0x1b)  */
     20,     /* bOpticBlackStart (reg 0x1c)               */
@@ -1900,8 +1919,8 @@ static HWDef Hw0x1606_0x0160 =
     0,      /* test mode ADC Output CODE LSB (reg 0x5d)  */
     0,      /* test mode (reg 0x5e)                      */
     _LM9832,
-	MODEL_UMAX1200,
-	1.0
+    MODEL_UMAX1200,
+    1.0
 };
 
 /** Canon 650/656 */
@@ -1924,18 +1943,18 @@ static HWDef Hw0x04A9_0x2206 =
     0x00,   /* sensor control settings (reg 0x0e)            */
 
             /* mono & color (reg 0x0f to 0x18) the
-			   same for CIS devices                          */
+               same for CIS devices                          */
 
-	{0x00, 0x00, 0x04, 0x05, 0x06, 0x07, 0x00, 0x00, 0x00, 0x05},
-	{0x00, 0x00, 0x04, 0x05, 0x06, 0x07, 0x00, 0x00, 0x00, 0x05},
+    {0x00, 0x00, 0x04, 0x05, 0x06, 0x07, 0x00, 0x00, 0x00, 0x05},
+    {0x00, 0x00, 0x04, 0x05, 0x06, 0x07, 0x00, 0x00, 0x00, 0x05},
 
- 	(_BLUE_CH | _ONE_CH_COLOR),	/* bReg_0x26 color mode       */
+    (_BLUE_CH | _ONE_CH_COLOR), /* bReg_0x26 color mode       */
 
- 	0x00,   /* bReg 0x27 color mode                           */
-	2,      /* bReg 0x29 illumination mode (runtime)          */
-			/* illumination mode settings 				      */
-	{ 3,  0,    0, 23, 1300,  0,   0 },
-	{ 2, 23, 4000, 23, 2600, 23, 850 },
+    0x00,   /* bReg 0x27 color mode                           */
+    2,      /* bReg 0x29 illumination mode (runtime)          */
+            /* illumination mode settings                     */
+    { 3,  0,    0, 23, 1300,  0,   0 },
+    { 2, 23, 4000, 23, 2600, 23, 850 },
 
     1,      /* StepperPhaseCorrection (reg 0x1a + 0x1b)       */
     0,      /* bOpticBlackStart (reg 0x1c)                    */
@@ -1968,8 +1987,8 @@ static HWDef Hw0x04A9_0x2206 =
     0,      /* test mode ADC Output CODE LSB (reg 0x5d)       */
     0,      /* test mode (reg 0x5e)                           */
     _LM9832,
-	MODEL_CANON600,
-	2.0
+    MODEL_CANON600,
+    2.0
 };
 
 /** Canon N1220U */
@@ -2001,8 +2020,8 @@ static HWDef Hw0x04A9_0x2207 =
 
     0x00,   /* bReg 0x27 color mode                           */
     2,      /* bReg 0x29 illumination mode                    */
-	{ 3,  0,     0, 23,  4950,  0,    0 },
-	{ 2, 23, 16383, 23, 15000, 23, 6600 },
+    { 3,  0,     0, 23,  4950,  0,    0 },
+    { 2, 23, 16383, 23, 15000, 23, 6600 },
 
     1,      /* StepperPhaseCorrection (reg 0x1a + 0x1b)       */
     0,      /* bOpticBlackStart (reg 0x1c)                    */
@@ -2036,7 +2055,72 @@ static HWDef Hw0x04A9_0x2207 =
     0,      /* test mode (reg 0x5e)                           */
     _LM9832,
     MODEL_CANON1200,
-	2.0
+    2.0
+};
+
+/** Canon D660U */
+static HWDef Hw0x04A9_0x2208 =
+{
+    1.2,    /* dMaxMotorSpeed (Max_Speed)                     */
+    1.1,    /* dMaxMoveSpeed (Max_Speed)                      */
+    9,      /* dIntegrationTimeLowLamp                        */
+    9,      /* dIntegrationTimeHighLamp                       */
+    300,    /* wMotorDpi (Full step DPI)                      */
+    512,    /* wRAMSize (KB)                                  */
+    8,      /* dMinIntegrationTimeLowres (ms)                 */
+    8,      /* dMinIntegrationTimeHighres (ms)                */
+    4095,   /* wGreenPWMDutyCycleLow (reg 0x2a + 0x2b)        */
+    4095,   /* wGreenPWMDutyCycleHigh (reg 0x2a + 0x2b)       */
+
+    0x02,   /* bSensorConfiguration (0x0b)                    */
+    0x60,   /* sensor control settings (reg 0x0c)             */
+    0x2f,   /* sensor control settings (reg 0x0d)             */
+    0x13,   /* sensor control settings (reg 0x0e)             */
+
+#if 0
+    {0x02, 0x07, 0x00, 0x02, 0x00, 0x00, 0x00, 0x04, 0x0b },
+#endif
+    {0x06, 0x17, 0x01, 0x03, 0x05, 0x07, 0x00, 0x00, 0x0b },
+    {0x06, 0x17, 0x01, 0x03, 0x05, 0x07, 0x00, 0x00, 0x0b },
+    _GREEN_CH,
+    0,      /* bReg 0x27 color mode                           */
+    1,      /* bReg 0x29 illumination mode                    */
+    
+    /* illumination mode settings (not used for CCD devices)  */
+    { 0, 0, 0, 0, 0, 0, 0 },
+    { 0, 0, 0, 0, 0, 0, 0 },
+
+    0,      /* StepperPhaseCorrection (reg 0x1a + 0x1b)       */
+    13,     /* bOpticBlackStart (reg 0x1c)                    */
+    33,     /* bOpticBlackEnd (reg 0x1d)                      */
+    64,     /* wActivePixelsStart (reg 0x1e + 0x1f)           */
+    5440,   /* wLineEnd (reg 0x20 + 0x21)                     */
+
+    16383,  /* red lamp on    (reg 0x2c + 0x2d)               */
+    1,      /* red lamp off   (reg 0x2e + 0x2f)               */
+    0,      /* green lamp on  (reg 0x30 + 0x31)               */
+    0,      /* green lamp off (reg 0x32 + 0x33)               */
+    0,      /* blue lamp on   (reg 0x34 + 0x35)               */
+    0,      /* blue lamp off  (reg 0x36 + 0x37)               */
+
+    3,      /* stepper motor control (reg 0x45)               */
+    0,      /* wStepsAfterPaperSensor2 (reg 0x4c + 0x4d)      */
+    0x20,   /* steps to reverse when buffer is full reg 0x50) */
+    0xfc,   /* acceleration profile (reg 0x51)                */
+    0,      /* lines to process (reg 0x54)                    */
+    0,      /* kickstart (reg 0x55)                           */
+    0x02,   /* pwm freq (reg 0x56)                            */
+    0x1f,   /* pwm duty cycle (reg 0x57)                      */
+    0x05,   /* Paper sense (reg 0x58)                         */
+    0x44,   /* misc io12 (reg 0x59)                           */
+    0x14,   /* misc io34 (reg 0x5a)                           */
+    0x11,   /* misc io56 (reg 0x5b)                           */
+    0,      /* test mode ADC Output CODE MSB (reg 0x5c)       */
+    0,      /* test mode ADC Output CODE LSB (reg 0x5d)       */
+    0,      /* test mode (reg 0x5e)                           */
+    _LM9832,
+    MODEL_CANONCCD1200,
+    1.0
 };
 
 /** Canon 670/676/LiDE20 */
@@ -2058,19 +2142,19 @@ static HWDef Hw0x04A9_0x220D =
     0x2f,   /* sensor control settings (reg 0x0d)             */
     0x00,   /* sensor control settings (reg 0x0e)             */
 
-	{0x00, 0x00, 0x04, 0x05, 0x06, 0x07, 0x00, 0x00, 0x00, 0x05},
+    {0x00, 0x00, 0x04, 0x05, 0x06, 0x07, 0x00, 0x00, 0x00, 0x05},
             /* mono (reg 0x0f to 0x18)                        */
 
-	{0x00, 0x00, 0x04, 0x05, 0x06, 0x07, 0x00, 0x00, 0x00, 0x05},
+    {0x00, 0x00, 0x04, 0x05, 0x06, 0x07, 0x00, 0x00, 0x00, 0x05},
             /* color (reg 0x0f to 0x18)                       */
 
- 	(_BLUE_CH | _ONE_CH_COLOR),	/* bReg_0x26 color mode       */
+    (_BLUE_CH | _ONE_CH_COLOR), /* bReg_0x26 color mode       */
 
- 	0x00,   /* bReg 0x27 color mode                           */
-	2,      /* bReg 0x29 illumination mode (runtime)          */
+    0x00,   /* bReg 0x27 color mode                           */
+    2,      /* bReg 0x29 illumination mode (runtime)          */
 
-	{ 3,  0,    0, 23, 1800,  0,    0 },
-	{ 2, 23, 3800, 23, 3300, 23, 2700 },
+    { 3,  0,    0, 23, 1800,  0,    0 },
+    { 2, 23, 3800, 23, 3300, 23, 2700 },
 
     1,      /* StepperPhaseCorrection (reg 0x1a + 0x1b)       */
     0,      /* bOpticBlackStart (reg 0x1c)                    */
@@ -2103,8 +2187,8 @@ static HWDef Hw0x04A9_0x220D =
     0,      /* test mode ADC Output CODE LSB (reg 0x5d)       */
     0,      /* test mode (reg 0x5e)                           */
     _LM9833,
-	MODEL_CANON600,
-	2.0
+    MODEL_CANON600,
+    2.0
 };
 
 /** Canon N1240U */
@@ -2172,7 +2256,7 @@ static HWDef Hw0x04A9_0x220E =
     0,      /* test mode (reg 0x5e)                           */
     _LM9833,
     MODEL_CANON1200,
-	2.0
+    2.0
 };
 
 /******************** all available combinations *****************************/
@@ -2240,6 +2324,7 @@ static SetDef Settings[] =
 	/* CANON... */
 	{"0x04A9-0x2206",   &Cap0x04A9_0x2206, &Hw0x04A9_0x2206, "N650U/N656U" },
 	{"0x04A9-0x2207",   &Cap0x04A9_0x2207, &Hw0x04A9_0x2207, "N1220U"      },
+	{"0x04A9-0x2208",   &Cap0x04A9_0x2208, &Hw0x04A9_0x2208, "D660U"       },
 	{"0x04A9-0x220D",   &Cap0x04A9_0x220D, &Hw0x04A9_0x220D, "N670U/N676U/LiDE20" },
 	{"0x04A9-0x220E",   &Cap0x04A9_0x220E, &Hw0x04A9_0x220E, "N1240U/LiDE30"      },
 
@@ -2426,6 +2511,26 @@ static ClkMotorDef Motors[] = {
 	    { 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 9.0, 9.0, 18.0, 18.0 },
 	    { 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 9.0, 9.0, 18.0, 18.0 }
 	},
+
+	{ MODEL_CANONCCD1200, 2, 31, 6,
+		/* Motor settings (PWM and PWM_Duty) */
+		/* <=75dpi       <=100dpi      <=150dpi      <=200dpi      <=300dpi  */
+	    {{ 2, 31, 1 }, { 2, 31, 1 }, { 2, 31, 1 }, { 2, 31, 1 }, { 2, 31, 1 },
+
+		/* <=400dpi      <=600dpi      <=800dpi      <=1200dpi     <=2400dpi */
+		 { 2, 31, 1 }, { 2, 31, 1 }, { 2, 31, 1 }, { 2, 31, 1 }, { 2, 31, 1 }},
+		/* Color mode MCLK settings */
+#if 1
+	    { 2.0, 2.0, 2.0, 2.0, 2.0, 2.5, 3.0, 4.0, 6.0, 6.0 },
+	    { 2.0, 2.0, 2.0, 2.0, 3.0, 2.5, 3.0, 4.0, 6.0, 6.0 },
+#else
+	    { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
+	    { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 5.0, 6.0, 6.0, 6.0 },
+#endif
+		/* Gray mode MCLK settings */
+	    { 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,  6.0,  6.0,  6.0 },
+	    { 6.5, 6.5, 6.0, 6.0, 6.0, 6.0, 8.0, 12.0, 12.0, 12.0 }
+	}
 };
 
 /* END PLUSTEK-USBDEVS.C ....................................................*/

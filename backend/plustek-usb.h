@@ -222,7 +222,7 @@ enum _DEVCAPSFLAG
 enum _WORKAROUNDS
 {
 	_WAF_NONE               = 0x00000000, /* no fix anywhere needed          */
-	_WAF_BSHIFT7_BUG		= 0x00000001, /* to fix U12 bug in 14bit mode    */
+	_WAF_BSHIFT7_BUG        = 0x00000001, /* to fix U12 bug in 14bit mode    */
 	_WAF_MISC_IO_LAMPS      = 0x00000002, /* special lamp switching          */
 	_WAF_BLACKFINE          = 0x00000004, /* use black calibration strip     */
 	_WAF_BYPASS_CALIBRATION = 0x00000008, /* no calibration,use linear gamma */
@@ -258,14 +258,15 @@ typedef enum
 	MODEL_KaoHsiung = 0,
 	MODEL_HuaLien,
 	MODEL_Tokyo600,
-	MODEL_EPSON,          /**< for EPSON1250/1260         */
-	MODEL_MUSTEK600,      /**< for BearPaw 1200           */
-	MODEL_MUSTEK1200,     /**< for BearPaw 2400           */
-	MODEL_HP,             /**< for HP2x00                 */
-	MODEL_CANON600 ,      /**< for CanoScan 600dpi models */
-	MODEL_CANON1200,      /**< for Canon 1200dpi models   */
-	MODEL_UMAX,           /**< for UMAX 3400/3450         */
-	MODEL_UMAX1200,       /**< for UMAX 5400              */
+	MODEL_EPSON,          /**< for EPSON1250/1260           */
+	MODEL_MUSTEK600,      /**< for BearPaw 1200             */
+	MODEL_MUSTEK1200,     /**< for BearPaw 2400             */
+	MODEL_HP,             /**< for HP2x00                   */
+	MODEL_CANON600 ,      /**< for CanoScan 600dpi models   */
+	MODEL_CANON1200,      /**< for Canon 1200dpi models     */
+	MODEL_CANONCCD1200,   /**< for Canon CCD 1200dpi models */
+	MODEL_UMAX,           /**< for UMAX 3400/3450           */
+	MODEL_UMAX1200,       /**< for UMAX 5400                */
 	MODEL_LAST
 } eModelDef;
 

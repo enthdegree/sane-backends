@@ -66,6 +66,8 @@
  *        - added sanei_thread support
  * - 0.47 - added mov-option (model override)
  *        - removed drvOpen
+ *        - added call to usb_StartLampTimer, when we're using
+ *          SIGALRM for lamp timer
  *.
  * <hr>
  * This file is part of the SANE package.
@@ -141,7 +143,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.47-5"
+#define BACKEND_VERSION "0.47-10"
 #define BACKEND_NAME    plustek
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
@@ -197,11 +199,11 @@ static unsigned long       tsecs   = 0;
 
 static ModeParam mode_params[] =
 {
-  {0, 1,  COLOR_BW},
-  {0, 8,  COLOR_256GRAY},
-  {0, 16, COLOR_GRAY16},
-  {1, 8,  COLOR_TRUE24},
-  {1, 16, COLOR_TRUE48}
+	{0, 1,  COLOR_BW},
+	{0, 8,  COLOR_256GRAY},
+	{0, 16, COLOR_GRAY16},
+	{1, 8,  COLOR_TRUE24},
+	{1, 16, COLOR_TRUE48}
 };
 
 static const SANE_String_Const mode_usb_list[] =
@@ -224,9 +226,16 @@ static const SANE_String_Const ext_mode_list[] =
 
 static const SANE_Range percentage_range =
 {
-	-100 << SANE_FIXED_SCALE_SHIFT, /* minimum 		*/
-	 100 << SANE_FIXED_SCALE_SHIFT, /* maximum 		*/
+	-100 << SANE_FIXED_SCALE_SHIFT, /* minimum      */
+	 100 << SANE_FIXED_SCALE_SHIFT, /* maximum      */
 	   1 << SANE_FIXED_SCALE_SHIFT  /* quantization */
+};
+
+static const SANE_Range warmup_range =
+{
+	  0, /* minimum      */
+	999, /* maximum      */
+	  1  /* quantization */
 };
 
 /* authorization stuff */
@@ -236,8 +245,7 @@ static SANE_Auth_Callback auth = NULL;
 
 #define _YN(x) (x?"yes":"no")
 
-/**
- * function to display the configuration options for the current device
+/** function to display the configuration options for the current device
  * @param cnf - pointer to the configuration structure whose content should be
  *              displayed
  */
@@ -268,6 +276,9 @@ static void show_cnf( pCnfDef cnf )
 	DBG( _DBG_SANE_INIT,"red gain     : %d\n",  cnf->adj.rgain               );
 	DBG( _DBG_SANE_INIT,"green gain   : %d\n",  cnf->adj.ggain               );
 	DBG( _DBG_SANE_INIT,"blue gain    : %d\n",  cnf->adj.bgain               );
+	DBG( _DBG_SANE_INIT,"red lampoff  : %d\n",  cnf->adj.rlampoff            );
+	DBG( _DBG_SANE_INIT,"green lampoff: %d\n",  cnf->adj.glampoff            );
+	DBG( _DBG_SANE_INIT,"blue lampoff : %d\n",  cnf->adj.blampoff            );
 	DBG( _DBG_SANE_INIT,"red Gamma    : %.2f\n",cnf->adj.rgamma              );
 	DBG( _DBG_SANE_INIT,"green Gamma  : %.2f\n",cnf->adj.ggamma              );
 	DBG( _DBG_SANE_INIT,"blue Gamma   : %.2f\n",cnf->adj.bgamma              );
@@ -304,8 +315,7 @@ static pModeParam getModeList( Plustek_Scanner *scanner )
 {
 	pModeParam mp= mode_params;
 
-	/*
-	 * the transparency/negative mode supports only GRAY/COLOR/COLOR32/COLOR48
+	/* the transparency/negative mode supports only GRAY/COLOR/COLOR32/COLOR48
 	 */
 	if( 0 != scanner->val[OPT_EXT_MODE].w ) {
 		mp = &mp[_TPAModeSupportMin];
@@ -314,7 +324,7 @@ static pModeParam getModeList( Plustek_Scanner *scanner )
 	return mp;
 }
 
-/**
+/** shutdown open pipes
  */
 static SANE_Status close_pipe( Plustek_Scanner *scanner )
 {
@@ -330,11 +340,10 @@ static SANE_Status close_pipe( Plustek_Scanner *scanner )
 		close( scanner->w_pipe );
 		scanner->w_pipe = -1;
 	}
-
 	return SANE_STATUS_EOF;
 }
 
-/**
+/** will be called when a child is going down
  */
 static void sig_chldhandler( int signo )
 {
@@ -392,8 +401,8 @@ static int reader_process( void *args )
 	cancelRead = SANE_FALSE;
 
 	/* install the signal handler */
-    sigemptyset(&(act.sa_mask));
-    act.sa_flags = 0;
+	sigemptyset(&(act.sa_mask));
+	act.sa_flags = 0;
 
 	act.sa_handler = reader_process_sigterm_handler;
 	sigaction( SIGTERM, &act, 0 );
@@ -411,11 +420,11 @@ static int reader_process( void *args )
 		DBG( _DBG_FATAL, "NULL Pointer !!!!\n" );
 		return SANE_STATUS_IO_ERROR;
 	}
-	
+
 	/* here we read all data from the driver... */
 	buf    = scanner->buf;
 	status = scanner->hw->prepare( scanner->hw, buf );
-	
+
 	if( 0 == status ) {
 
 		for( line = 0; line < scanner->params.lines; line++ ) {
@@ -424,9 +433,8 @@ static int reader_process( void *args )
 			if((int)status < 0 ) {
 				break;
 			}
-
 			write( scanner->w_pipe, buf, scanner->params.bytes_per_line );
-    		buf += scanner->params.bytes_per_line;
+			buf += scanner->params.bytes_per_line;
 		}
 	}
 
@@ -464,8 +472,8 @@ static SANE_Status do_cancel( Plustek_Scanner *scanner, SANE_Bool closepipe  )
 
 		cancelRead = SANE_TRUE;
 
-	    sigemptyset(&(act.sa_mask));
-    	act.sa_flags = 0;
+		sigemptyset(&(act.sa_mask));
+		act.sa_flags = 0;
 
 		act.sa_handler = sigalarm_handler;
 		sigaction( SIGALRM, &act, 0 );
@@ -477,10 +485,10 @@ static SANE_Status do_cancel( Plustek_Scanner *scanner, SANE_Bool closepipe  )
 		alarm(10);
 		res = sanei_thread_waitpid( scanner->reader_pid, 0 );
 		alarm(0);
-		
+
 		if( res != scanner->reader_pid ) {
 			DBG( _DBG_PROC,"sanei_thread_waitpid() failed !\n");
-			
+
 			/* do it the hard way...*/
 #ifdef USE_PTHREAD
 			sanei_thread_kill( scanner->reader_pid );
@@ -490,6 +498,9 @@ static SANE_Status do_cancel( Plustek_Scanner *scanner, SANE_Bool closepipe  )
 		}
 		scanner->reader_pid = 0;
 		DBG( _DBG_PROC,"reader_process killed\n");
+#ifndef HAVE_SETITIMER
+		usb_StartLampTimer( scanner->hw );
+#endif
 	}
 
 	if( SANE_TRUE == closepipe ) {
@@ -559,8 +570,8 @@ static SANE_Status initGammaSettings( Plustek_Scanner *s )
 		for( j = 0; j < s->gamma_length; j++ ) {
 
 			val = (s->gamma_range.max *
-					    pow((double) j / ((double)s->gamma_length - 1.0),
-						1.0 / gamma ));
+			            pow((double) j / ((double)s->gamma_length - 1.0),
+			            1.0 / gamma ));
 
 			if( val > s->gamma_range.max )
 				val = s->gamma_range.max;
@@ -569,7 +580,6 @@ static SANE_Status initGammaSettings( Plustek_Scanner *s )
 		}
 	}
 	DBG( _DBG_INFO, "----------------------------------\n" );
-
 	return SANE_STATUS_GOOD;
 }
 
@@ -596,6 +606,8 @@ static void checkGammaSettings( Plustek_Scanner *s )
 static SANE_Status init_options( Plustek_Scanner *s )
 {
 	int i;
+	Plustek_Device *dev = s->hw;
+	AdjDef         *adj = &dev->adj;
 
 	memset( s->opt, 0, sizeof(s->opt));
 
@@ -628,7 +640,7 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	s->opt[OPT_MODE].size  = 32;
 	s->opt[OPT_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
 	s->opt[OPT_MODE].constraint.string_list = mode_usb_list;
-	s->val[OPT_MODE].w = 3;		/* Color */
+	s->val[OPT_MODE].w = 3; /* Color */
 
 	/* scan source */
 	s->opt[OPT_EXT_MODE].name  = SANE_NAME_SCAN_SOURCE;
@@ -638,7 +650,7 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	s->opt[OPT_EXT_MODE].size  = 32;
 	s->opt[OPT_EXT_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
 	s->opt[OPT_EXT_MODE].constraint.string_list = ext_mode_list;
-	s->val[OPT_EXT_MODE].w = 0; /* Normal */
+	s->val[OPT_EXT_MODE].w     = 0; /* Normal */
 
 	/* brightness */
 	s->opt[OPT_BRIGHTNESS].name  = SANE_NAME_BRIGHTNESS;
@@ -679,11 +691,11 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	s->val[OPT_CUSTOM_GAMMA].w     = SANE_FALSE;
 
 	/* preview */
-	s->opt[OPT_PREVIEW].name = SANE_NAME_PREVIEW;
+	s->opt[OPT_PREVIEW].name  = SANE_NAME_PREVIEW;
 	s->opt[OPT_PREVIEW].title = SANE_TITLE_PREVIEW;
-	s->opt[OPT_PREVIEW].desc = SANE_DESC_PREVIEW;
-	s->opt[OPT_PREVIEW].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
-	s->val[OPT_PREVIEW].w = 0;
+	s->opt[OPT_PREVIEW].desc  = SANE_DESC_PREVIEW;
+	s->opt[OPT_PREVIEW].cap   = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
+	s->val[OPT_PREVIEW].w     = 0;
 
 	/* "Geometry" group: */
 	s->opt[OPT_GEOMETRY_GROUP].name  = "geometry-group";
@@ -698,7 +710,7 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	s->opt[OPT_TL_X].desc  = SANE_DESC_SCAN_TL_X;
 	s->opt[OPT_TL_X].type  = SANE_TYPE_FIXED;
 	s->opt[OPT_TL_X].unit  = SANE_UNIT_MM;
-	s->opt[OPT_TL_X].constraint_type = SANE_CONSTRAINT_RANGE;
+	s->opt[OPT_TL_X].constraint_type  = SANE_CONSTRAINT_RANGE;
 	s->opt[OPT_TL_X].constraint.range = &s->hw->x_range;
 	s->val[OPT_TL_X].w = SANE_FIX(_DEFAULT_TLX);
 
@@ -708,7 +720,7 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	s->opt[OPT_TL_Y].desc  = SANE_DESC_SCAN_TL_Y;
 	s->opt[OPT_TL_Y].type  = SANE_TYPE_FIXED;
 	s->opt[OPT_TL_Y].unit  = SANE_UNIT_MM;
-	s->opt[OPT_TL_Y].constraint_type = SANE_CONSTRAINT_RANGE;
+	s->opt[OPT_TL_Y].constraint_type  = SANE_CONSTRAINT_RANGE;
 	s->opt[OPT_TL_Y].constraint.range = &s->hw->y_range;
 	s->val[OPT_TL_Y].w = SANE_FIX(_DEFAULT_TLY);
 
@@ -718,7 +730,7 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	s->opt[OPT_BR_X].desc  = SANE_DESC_SCAN_BR_X;
 	s->opt[OPT_BR_X].type  = SANE_TYPE_FIXED;
 	s->opt[OPT_BR_X].unit  = SANE_UNIT_MM;
-	s->opt[OPT_BR_X].constraint_type = SANE_CONSTRAINT_RANGE;
+	s->opt[OPT_BR_X].constraint_type  = SANE_CONSTRAINT_RANGE;
 	s->opt[OPT_BR_X].constraint.range = &s->hw->x_range;
 	s->val[OPT_BR_X].w = SANE_FIX(_DEFAULT_BRX);
 
@@ -728,73 +740,95 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	s->opt[OPT_BR_Y].desc  = SANE_DESC_SCAN_BR_Y;
 	s->opt[OPT_BR_Y].type  = SANE_TYPE_FIXED;
 	s->opt[OPT_BR_Y].unit  = SANE_UNIT_MM;
-	s->opt[OPT_BR_Y].constraint_type = SANE_CONSTRAINT_RANGE;
+	s->opt[OPT_BR_Y].constraint_type  = SANE_CONSTRAINT_RANGE;
 	s->opt[OPT_BR_Y].constraint.range = &s->hw->y_range;
 	s->val[OPT_BR_Y].w = SANE_FIX(_DEFAULT_BRY);
 
 	/* "Enhancement" group: */
 	s->opt[OPT_ENHANCEMENT_GROUP].title = SANE_I18N("Enhancement");	
-	s->opt[OPT_ENHANCEMENT_GROUP].desc = "";
-	s->opt[OPT_ENHANCEMENT_GROUP].type = SANE_TYPE_GROUP;
-	s->opt[OPT_ENHANCEMENT_GROUP].cap = 0;
+	s->opt[OPT_ENHANCEMENT_GROUP].desc  = "";
+	s->opt[OPT_ENHANCEMENT_GROUP].type  = SANE_TYPE_GROUP;
+	s->opt[OPT_ENHANCEMENT_GROUP].cap   = 0;
 	s->opt[OPT_ENHANCEMENT_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
-	
+
 	initGammaSettings( s );
-	
- 	/* grayscale gamma vector */
-  	s->opt[OPT_GAMMA_VECTOR].name  = SANE_NAME_GAMMA_VECTOR;
-  	s->opt[OPT_GAMMA_VECTOR].title = SANE_TITLE_GAMMA_VECTOR;
-  	s->opt[OPT_GAMMA_VECTOR].desc  = SANE_DESC_GAMMA_VECTOR;
-  	s->opt[OPT_GAMMA_VECTOR].type  = SANE_TYPE_INT;
-  	s->opt[OPT_GAMMA_VECTOR].unit  = SANE_UNIT_NONE;
-  	s->opt[OPT_GAMMA_VECTOR].constraint_type = SANE_CONSTRAINT_RANGE;
-  	s->val[OPT_GAMMA_VECTOR].wa = &(s->gamma_table[0][0]);
-  	s->opt[OPT_GAMMA_VECTOR].constraint.range = &(s->gamma_range);
-  	s->opt[OPT_GAMMA_VECTOR].size = s->gamma_length * sizeof(SANE_Word);
+
+	/* grayscale gamma vector */
+	s->opt[OPT_GAMMA_VECTOR].name  = SANE_NAME_GAMMA_VECTOR;
+	s->opt[OPT_GAMMA_VECTOR].title = SANE_TITLE_GAMMA_VECTOR;
+	s->opt[OPT_GAMMA_VECTOR].desc  = SANE_DESC_GAMMA_VECTOR;
+	s->opt[OPT_GAMMA_VECTOR].type  = SANE_TYPE_INT;
+	s->opt[OPT_GAMMA_VECTOR].unit  = SANE_UNIT_NONE;
+	s->opt[OPT_GAMMA_VECTOR].constraint_type = SANE_CONSTRAINT_RANGE;
+	s->val[OPT_GAMMA_VECTOR].wa   = &(s->gamma_table[0][0]);
+	s->opt[OPT_GAMMA_VECTOR].constraint.range = &(s->gamma_range);
+	s->opt[OPT_GAMMA_VECTOR].size = s->gamma_length * sizeof(SANE_Word);
 
 	/* red gamma vector */
-  	s->opt[OPT_GAMMA_VECTOR_R].name  = SANE_NAME_GAMMA_VECTOR_R;
-  	s->opt[OPT_GAMMA_VECTOR_R].title = SANE_TITLE_GAMMA_VECTOR_R;
-  	s->opt[OPT_GAMMA_VECTOR_R].desc  = SANE_DESC_GAMMA_VECTOR_R;
-  	s->opt[OPT_GAMMA_VECTOR_R].type  = SANE_TYPE_INT;
-  	s->opt[OPT_GAMMA_VECTOR_R].unit  = SANE_UNIT_NONE;
-  	s->opt[OPT_GAMMA_VECTOR_R].constraint_type = SANE_CONSTRAINT_RANGE;
-  	s->val[OPT_GAMMA_VECTOR_R].wa = &(s->gamma_table[1][0]);
-  	s->opt[OPT_GAMMA_VECTOR_R].constraint.range = &(s->gamma_range);
-  	s->opt[OPT_GAMMA_VECTOR_R].size = s->gamma_length * sizeof(SANE_Word);
+	s->opt[OPT_GAMMA_VECTOR_R].name  = SANE_NAME_GAMMA_VECTOR_R;
+	s->opt[OPT_GAMMA_VECTOR_R].title = SANE_TITLE_GAMMA_VECTOR_R;
+	s->opt[OPT_GAMMA_VECTOR_R].desc  = SANE_DESC_GAMMA_VECTOR_R;
+	s->opt[OPT_GAMMA_VECTOR_R].type  = SANE_TYPE_INT;
+	s->opt[OPT_GAMMA_VECTOR_R].unit  = SANE_UNIT_NONE;
+	s->opt[OPT_GAMMA_VECTOR_R].constraint_type = SANE_CONSTRAINT_RANGE;
+	s->val[OPT_GAMMA_VECTOR_R].wa   = &(s->gamma_table[1][0]);
+	s->opt[OPT_GAMMA_VECTOR_R].constraint.range = &(s->gamma_range);
+	s->opt[OPT_GAMMA_VECTOR_R].size = s->gamma_length * sizeof(SANE_Word);
 
-  	/* green gamma vector */
-  	s->opt[OPT_GAMMA_VECTOR_G].name  = SANE_NAME_GAMMA_VECTOR_G;
-  	s->opt[OPT_GAMMA_VECTOR_G].title = SANE_TITLE_GAMMA_VECTOR_G;
-  	s->opt[OPT_GAMMA_VECTOR_G].desc  = SANE_DESC_GAMMA_VECTOR_G;
-  	s->opt[OPT_GAMMA_VECTOR_G].type  = SANE_TYPE_INT;
-  	s->opt[OPT_GAMMA_VECTOR_G].unit  = SANE_UNIT_NONE;
-  	s->opt[OPT_GAMMA_VECTOR_G].constraint_type = SANE_CONSTRAINT_RANGE;
-  	s->val[OPT_GAMMA_VECTOR_G].wa = &(s->gamma_table[2][0]);
-  	s->opt[OPT_GAMMA_VECTOR_G].constraint.range = &(s->gamma_range);
-  	s->opt[OPT_GAMMA_VECTOR_G].size = s->gamma_length * sizeof(SANE_Word);
+	/* green gamma vector */
+	s->opt[OPT_GAMMA_VECTOR_G].name  = SANE_NAME_GAMMA_VECTOR_G;
+	s->opt[OPT_GAMMA_VECTOR_G].title = SANE_TITLE_GAMMA_VECTOR_G;
+	s->opt[OPT_GAMMA_VECTOR_G].desc  = SANE_DESC_GAMMA_VECTOR_G;
+	s->opt[OPT_GAMMA_VECTOR_G].type  = SANE_TYPE_INT;
+	s->opt[OPT_GAMMA_VECTOR_G].unit  = SANE_UNIT_NONE;
+	s->opt[OPT_GAMMA_VECTOR_G].constraint_type = SANE_CONSTRAINT_RANGE;
+	s->val[OPT_GAMMA_VECTOR_G].wa   = &(s->gamma_table[2][0]);
+	s->opt[OPT_GAMMA_VECTOR_G].constraint.range = &(s->gamma_range);
+	s->opt[OPT_GAMMA_VECTOR_G].size = s->gamma_length * sizeof(SANE_Word);
 
-  	/* blue gamma vector */
-  	s->opt[OPT_GAMMA_VECTOR_B].name  = SANE_NAME_GAMMA_VECTOR_B;
-  	s->opt[OPT_GAMMA_VECTOR_B].title = SANE_TITLE_GAMMA_VECTOR_B;
-  	s->opt[OPT_GAMMA_VECTOR_B].desc  = SANE_DESC_GAMMA_VECTOR_B;
-  	s->opt[OPT_GAMMA_VECTOR_B].type  = SANE_TYPE_INT;
-  	s->opt[OPT_GAMMA_VECTOR_B].unit  = SANE_UNIT_NONE;
-  	s->opt[OPT_GAMMA_VECTOR_B].constraint_type = SANE_CONSTRAINT_RANGE;
-  	s->val[OPT_GAMMA_VECTOR_B].wa = &(s->gamma_table[3][0]);
-  	s->opt[OPT_GAMMA_VECTOR_B].constraint.range = &(s->gamma_range);
-  	s->opt[OPT_GAMMA_VECTOR_B].size = s->gamma_length * sizeof(SANE_Word);
+	/* blue gamma vector */
+	s->opt[OPT_GAMMA_VECTOR_B].name  = SANE_NAME_GAMMA_VECTOR_B;
+	s->opt[OPT_GAMMA_VECTOR_B].title = SANE_TITLE_GAMMA_VECTOR_B;
+	s->opt[OPT_GAMMA_VECTOR_B].desc  = SANE_DESC_GAMMA_VECTOR_B;
+	s->opt[OPT_GAMMA_VECTOR_B].type  = SANE_TYPE_INT;
+	s->opt[OPT_GAMMA_VECTOR_B].unit  = SANE_UNIT_NONE;
+	s->opt[OPT_GAMMA_VECTOR_B].constraint_type = SANE_CONSTRAINT_RANGE;
+	s->val[OPT_GAMMA_VECTOR_B].wa   = &(s->gamma_table[3][0]);
+	s->opt[OPT_GAMMA_VECTOR_B].constraint.range = &(s->gamma_range);
+	s->opt[OPT_GAMMA_VECTOR_B].size = s->gamma_length * sizeof(SANE_Word);
 
 	/* GAMMA stuff is disabled per default */	
-    s->opt[OPT_GAMMA_VECTOR].cap   |= SANE_CAP_INACTIVE;
-    s->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
-    s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
-    s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
-	
+	s->opt[OPT_GAMMA_VECTOR].cap   |= SANE_CAP_INACTIVE;
+	s->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
+	s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
+	s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
+
 	/* disable extended mode list for devices without TPA */
 	if( 0 == (s->hw->caps.dwFlag & SFLAG_TPA)) {
 		s->opt[OPT_EXT_MODE].cap |= SANE_CAP_INACTIVE;
 	}
+
+	/* "Enhancement" group: */
+	s->opt[OPT_DEVICE_GROUP].name  = "device-settings";
+	s->opt[OPT_DEVICE_GROUP].title = SANE_I18N("Device-Settings");
+	s->opt[OPT_DEVICE_GROUP].desc  = "";
+	s->opt[OPT_DEVICE_GROUP].type  = SANE_TYPE_GROUP;
+	s->opt[OPT_DEVICE_GROUP].cap   = 0;
+	s->opt[OPT_DEVICE_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
+
+	s->opt[OPT_LAMPSWITCH].name  = "lamp-switch";
+	s->opt[OPT_LAMPSWITCH].title = SANE_I18N("Lampswitch");;
+	s->opt[OPT_LAMPSWITCH].desc  = SANE_I18N("Manually switching the lamp(s).");
+	s->opt[OPT_LAMPSWITCH].type  = SANE_TYPE_BOOL;
+	s->val[OPT_LAMPSWITCH].w     = SANE_FALSE;
+
+	s->opt[OPT_WARMUPTIME].name  = "warmup-time";
+	s->opt[OPT_WARMUPTIME].title = SANE_I18N("Warmup-Time");;
+	s->opt[OPT_WARMUPTIME].desc  = SANE_I18N("Warmup-Time in seconds.");
+	s->opt[OPT_WARMUPTIME].type  = SANE_TYPE_INT;
+	s->opt[OPT_WARMUPTIME].constraint_type = SANE_CONSTRAINT_RANGE;
+	s->opt[OPT_WARMUPTIME].constraint.range = &warmup_range;
+	s->val[OPT_WARMUPTIME].w     = adj->warmup;
 
 	return SANE_STATUS_GOOD;
 }
@@ -815,7 +849,7 @@ static void decodeUsbIDs( char *src, char **dest )
 	}
 
 	name = tmp;
-   	name = sanei_config_skip_whitespace( name );
+	name = sanei_config_skip_whitespace( name );
 
 	if( '\0' == name[0] ) {
 		DBG( _DBG_SANE_INIT, "next device uses autodetection\n" );
@@ -831,22 +865,22 @@ static void decodeUsbIDs( char *src, char **dest )
 			    free( tmp );
 			}
 	    }
-				
+
 		name = sanei_config_skip_whitespace( name );
-     	if( *name ) {
-		
+		if( *name ) {
+
 			name = sanei_config_get_string( name, &tmp );
 			if( tmp ) {
-	      		pi = strtol( tmp, 0, 0 );
-		    	free( tmp );
-		    }
+				pi = strtol( tmp, 0, 0 );
+				free( tmp );
+			}
 		}
 
-		/* create what we need to go through our device list...*/			
+		/* create what we need to go through our device list...*/
 		sprintf( *dest, "0x%04X-0x%04X", vi, pi );
 		DBG( _DBG_SANE_INIT, "next device is a USB device (%s)\n", *dest );
-	}	
-}				
+	}
+}
 
 #define _INT   0
 #define _FLOAT 1
@@ -861,7 +895,7 @@ static void decodeUsbIDs( char *src, char **dest )
  *         if not, it returns SANE_FALSE
  */
 static SANE_Bool decodeVal( char *src, char *opt,
-							int what, void *result, void *def )
+                            int what, void *result, void *def )
 {
 	char       *tmp, *tmp2;
 	const char *name;
@@ -872,54 +906,53 @@ static SANE_Bool decodeVal( char *src, char *opt,
 	/* get the name of the option */
 	name = sanei_config_get_string( name, &tmp );
 
-	if( tmp ) {	
+	if( tmp ) {
 
 		/* on success, compare wiht the given one */
 		if( 0 == strcmp( tmp, opt )) {
-	
+
 			DBG( _DBG_SANE_INIT, "Decoding option >%s<\n", opt );
 
 			if( _INT == what ) {
-			
+
 				/* assign the default value for this option... */
 				*((int*)result) = *((int*)def);
-	
+
 				if( *name ) {
 
 					/* get the configuration value and decode it */
 					name = sanei_config_get_string( name, &tmp2 );
 
 					if( tmp2 ) {
-		      			*((int*)result) = strtol( tmp2, 0, 0 );
-				    	free( tmp2 );
+						*((int*)result) = strtol( tmp2, 0, 0 );
+						free( tmp2 );
 					}
 				}
 				free( tmp );	
 				return SANE_TRUE;
-				
+
 			} else if( _FLOAT == what ) {
-			
+
 				/* assign the default value for this option... */
 				*((double*)result) = *((double*)def);
-	
+
 				if( *name ) {
 
 					/* get the configuration value and decode it */
 					name = sanei_config_get_string( name, &tmp2 );
 
 					if( tmp2 ) {
-		      			*((double*)result) = strtod( tmp2, 0 );
-				    	free( tmp2 );
+						*((double*)result) = strtod( tmp2, 0 );
+						free( tmp2 );
 					}
 				}
 				free( tmp );	
 				return SANE_TRUE;
 			}
-		}	
+		}
 		free( tmp );
 	}
-	
-   	return SANE_FALSE;
+	return SANE_FALSE;
 }
 
 /** function to retrive the device name of a given string
@@ -938,47 +971,45 @@ static SANE_Bool decodeDevName( char *src, char *dest )
 
 		name = (const char*)&src[strlen("device")];
 		name = sanei_config_skip_whitespace( name );
-	
+
 		DBG( _DBG_SANE_INIT, "Decoding device name >%s<\n", name );
-		
+
 		if( *name ) {
 			name = sanei_config_get_string( name, &tmp );
 			if( tmp ) {
-	      		
+
 				strcpy( dest, tmp );
-		    	free( tmp );
-		    	return SANE_TRUE;
-		    }
-		}	
+				free( tmp );
+				return SANE_TRUE;
+			}
+		}
 	}
-	
-   	return SANE_FALSE;
+	return SANE_FALSE;
 }
 
 /** attach a device to the backend
  */
-static SANE_Status attach( const char *dev_name, pCnfDef cnf,
-										                Plustek_Device **devp )
+static SANE_Status attach( const char *dev_name,
+                           pCnfDef cnf, Plustek_Device **devp )
 {
-	int 		    cntr;
-	int			    result;
-	int			    handle;
-	SANE_Status	    status;
+	int             cntr;
+	int             result;
+	int             handle;
+	SANE_Status     status;
 	Plustek_Device *dev;
 
 	DBG( _DBG_SANE_INIT, "attach (%s, %p, %p)\n",
 	                                      dev_name, (void *)cnf, (void *)devp);
-
 	/* already attached ?*/
 	for( dev = first_dev; dev; dev = dev->next ) {
 
 		if( 0 == strcmp( dev->sane.name, dev_name )) {
 			if( devp )
-        		*devp = dev;
+				*devp = dev;
 
-    		return SANE_STATUS_GOOD;
-        }
-    }
+			return SANE_STATUS_GOOD;
+		}
+	}
 
 	/* allocate some memory for the device */
 	dev = malloc( sizeof (*dev));
@@ -988,10 +1019,10 @@ static SANE_Status attach( const char *dev_name, pCnfDef cnf,
 	/* assign all the stuff we need fo this device... */
 
 	memset(dev, 0, sizeof (*dev));
-	
-	dev->fd			 = -1;
-    dev->name        = strdup(dev_name);    /* hold it double to avoid  */
-	dev->sane.name   = dev->name;           /* compiler warnings        */
+
+	dev->fd          = -1;
+	dev->name        = strdup(dev_name);    /* hold it double to avoid   */
+	dev->sane.name   = dev->name;           /* compiler warnings         */
 	dev->sane.vendor = "Plustek";
 	dev->initialized = -1;                  /* will be used as index too */
 	dev->calFile     = NULL;
@@ -1015,10 +1046,10 @@ static SANE_Status attach( const char *dev_name, pCnfDef cnf,
 	dev->shutdown    = usbDev_shutdown;
 
 	strncpy( dev->usbId, cnf->usbId, _MAX_ID_LEN );
-		
+
 	if( cnf->adj.warmup >= 0 )
 		dev->usbDev.dwWarmup = cnf->adj.warmup;
-	
+
 	if( cnf->adj.lampOff >= 0 )
 		dev->usbDev.dwLampOnPeriod = cnf->adj.lampOff;
 
@@ -1036,23 +1067,23 @@ static SANE_Status attach( const char *dev_name, pCnfDef cnf,
 	if( handle < 0 ) {
 		DBG( _DBG_ERROR,"open failed: %d\n", handle );
 		return SANE_STATUS_IO_ERROR;
-    }
+	}
 
 	/* okay, so assign the handle... */
 	dev->fd = handle;
 
- 	result = dev->getCaps( dev );
+	result = dev->getCaps( dev );
 	if( result < 0 ) {
 		DBG( _DBG_ERROR, "dev->getCaps() failed(%d)\n", result);
 		dev->close(dev);
 		return SANE_STATUS_IO_ERROR;
-    }
+	}
 
 	/* save the info we got from the driver */
 	DBG( _DBG_INFO, "Scanner information:\n" );
 #ifdef _PLUSTEK_USB
-    if( NULL != dev->usbDev.ModelStr )
-    	dev->sane.model = dev->usbDev.ModelStr;
+	if( NULL != dev->usbDev.ModelStr )
+		dev->sane.model = dev->usbDev.ModelStr;
 	else
 #endif
 		dev->sane.model = "USB-Device";
@@ -1106,7 +1137,7 @@ static SANE_Status attach( const char *dev_name, pCnfDef cnf,
  */
 static void init_config_struct( pCnfDef cnf )
 {
-    memset( cnf, 0, sizeof(CnfDef));
+	memset( cnf, 0, sizeof(CnfDef));
 
 	cnf->adj.warmup       = -1;
 	cnf->adj.lampOff      = -1;
@@ -1118,6 +1149,9 @@ static void init_config_struct( pCnfDef cnf )
 	cnf->adj.rgain        = -1;
 	cnf->adj.ggain        = -1;
 	cnf->adj.bgain        = -1;
+	cnf->adj.rlampoff     = -1;
+	cnf->adj.glampoff     = -1;
+	cnf->adj.blampoff     = -1;
 
 	cnf->adj.graygamma = 1.0;
 	cnf->adj.rgamma    = 1.0;
@@ -1127,10 +1161,11 @@ static void init_config_struct( pCnfDef cnf )
 
 /** intialize the backend
  */
-SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
+SANE_Status
+sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 {
 	char     str[PATH_MAX] = _DEFAULT_DEVICE;
-    CnfDef   config;
+	CnfDef   config;
 	size_t   len;
 	FILE    *fp;
 
@@ -1144,7 +1179,7 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 
 #if defined PACKAGE && defined VERSION
 	DBG( _DBG_INFO, "Plustek backend V"BACKEND_VERSION", part of "
-												 PACKAGE " " VERSION "\n");
+	                                      PACKAGE " " VERSION "\n");
 #else
 	DBG( _DBG_INFO, "Plustek backend V"BACKEND_VERSION"\n" );
 #endif
@@ -1172,15 +1207,15 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 		
 		DBG( _DBG_SANE_INIT, ">%s<\n", str );
 		if( str[0] == '#')		/* ignore line comments */
-    		continue;
-			
+			continue;
+
 		len = strlen(str);
 		if( 0 == len )
-           	continue;			    /* ignore empty lines */
+			continue;     /* ignore empty lines */
 
 		/* check for options */
 		if( 0 == strncmp(str, "option", 6)) {
-		
+
 			int    ival;
 			double dval;
 		
@@ -1194,6 +1229,9 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 			decodeVal( str, "red_gain",   _INT, &config.adj.rgain,      &ival);
 			decodeVal( str, "green_gain", _INT, &config.adj.ggain,      &ival);
 			decodeVal( str, "blue_gain",  _INT, &config.adj.bgain,      &ival);
+			decodeVal( str, "red_lampoff",   _INT, &config.adj.rlampoff,&ival);
+			decodeVal( str, "green_lampoff", _INT, &config.adj.glampoff,&ival);
+			decodeVal( str, "blue_lampoff",  _INT, &config.adj.blampoff,&ival);
 			
 			ival = 0;
 			decodeVal( str, "enableTPA", _INT, &config.adj.enableTpa, &ival);
@@ -1261,7 +1299,7 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 	}
 	fclose (fp);
 
-    /* try to attach the last device in the config file... */
+	/* try to attach the last device in the config file... */
 	if( config.devName[0] != '\0' )
 		attach( config.devName, &config, 0 );
 
@@ -1270,7 +1308,8 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 
 /** cleanup the backend...
  */
-void sane_exit( void )
+void
+sane_exit( void )
 {
 	Plustek_Device *dev, *next;
 
@@ -1278,16 +1317,15 @@ void sane_exit( void )
 
 	for( dev = first_dev; dev; ) {
 
-    	next = dev->next;
+		next = dev->next;
 
 		/* call the shutdown function of each device... */
 		if( dev->shutdown )
 			dev->shutdown( dev );
 
-        /*
-         * we're doin' this to avoid compiler warnings as dev->sane.name
-         * is defined as const char*
-         */
+		/* we're doin' this to avoid compiler warnings as dev->sane.name
+		 * is defined as const char*
+		 */
 		if( dev->sane.name )
 			free( dev->name );
 
@@ -1302,9 +1340,9 @@ void sane_exit( void )
 	}
 
 	if( devlist )
-    	free( devlist );
+		free( devlist );
 
-    devlist      = NULL;
+	devlist      = NULL;
 	auth         = NULL;
 	first_dev    = NULL;
 	first_handle = NULL;
@@ -1312,8 +1350,8 @@ void sane_exit( void )
 
 /** return a list of all devices
  */
-SANE_Status sane_get_devices(const SANE_Device ***device_list,
-														SANE_Bool local_only )
+SANE_Status
+sane_get_devices(const SANE_Device ***device_list, SANE_Bool local_only )
 {
 	int             i;
 	Plustek_Device *dev;
@@ -1340,7 +1378,8 @@ SANE_Status sane_get_devices(const SANE_Device ***device_list,
 
 /** open the sane device
  */
-SANE_Status sane_open( SANE_String_Const devicename, SANE_Handle* handle )
+SANE_Status
+sane_open( SANE_String_Const devicename, SANE_Handle* handle )
 {
 	SANE_Status      status;
 	Plustek_Device  *dev;
@@ -1394,7 +1433,8 @@ SANE_Status sane_open( SANE_String_Const devicename, SANE_Handle* handle )
 
 /**
  */
-void sane_close (SANE_Handle handle)
+void
+sane_close( SANE_Handle handle )
 {
 	Plustek_Scanner *prev, *s;
 
@@ -1410,8 +1450,8 @@ void sane_close (SANE_Handle handle)
 	}
 
 	if (!s) {
-    	DBG( _DBG_ERROR, "close: invalid handle %p\n", handle);
-		return;		
+		DBG( _DBG_ERROR, "close: invalid handle %p\n", handle);
+		return;
 	}
 
 	close_pipe( s );
@@ -1422,9 +1462,9 @@ void sane_close (SANE_Handle handle)
 	drvclose( s->hw );
 
 	if (prev)
-    	prev->next = s->next;
+		prev->next = s->next;
 	else
-    	first_handle = s->next;
+		first_handle = s->next;
 
 	free(s);
 }
@@ -1432,8 +1472,8 @@ void sane_close (SANE_Handle handle)
 /** goes through a string list and returns the start-address of the string
  * that has been found, or NULL on error
  */
-static const SANE_String_Const *search_string_list(
-                            const SANE_String_Const *list, SANE_String value )
+static const SANE_String_Const*
+search_string_list( const SANE_String_Const *list, SANE_String value )
 {
 	while( *list != NULL && strcmp(value, *list) != 0 )
 		++list;
@@ -1446,11 +1486,13 @@ static const SANE_String_Const *search_string_list(
 
 /** return or set the parameter values, also do some checks
  */
-SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
-							     SANE_Action action, void *value,
-							     SANE_Int * info)
+SANE_Status
+sane_control_option( SANE_Handle handle, SANE_Int option,
+                     SANE_Action action, void *value, SANE_Int * info )
 {
 	Plustek_Scanner         *s = (Plustek_Scanner *)handle;
+	Plustek_Device          *dev = s->hw;
+	AdjDef                  *adj = &dev->adj;
 	SANE_Status              status;
 	const SANE_String_Const *optval;
 	pModeParam               mp;
@@ -1460,7 +1502,7 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 		return SANE_STATUS_DEVICE_BUSY;
 
 	if((option < 0) || (option >= NUM_OPTIONS))
-    	return SANE_STATUS_INVAL;
+		return SANE_STATUS_INVAL;
 
 	if( NULL != info )
 		*info = 0;
@@ -1476,14 +1518,19 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 			case OPT_TL_Y:
 			case OPT_BR_X:
 			case OPT_BR_Y:
+			case OPT_LAMPSWITCH:
 			case OPT_CUSTOM_GAMMA:
 			  *(SANE_Word *)value = s->val[option].w;
 			  break;
 
+			case OPT_WARMUPTIME:
+				*(SANE_Word *)value = s->val[option].w;
+				break;
+
 			case OPT_CONTRAST:
 			case OPT_BRIGHTNESS:
 				*(SANE_Word *)value =
-								(s->val[option].w << SANE_FIXED_SCALE_SHIFT);
+				                  (s->val[option].w << SANE_FIXED_SCALE_SHIFT);
 				break;
 
 			case OPT_MODE:
@@ -1492,8 +1539,8 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 					  s->opt[option].constraint.string_list[s->val[option].w]);
 				break;
 	
-	  		/* word array options: */
-	  		case OPT_GAMMA_VECTOR:
+			/* word array options: */
+			case OPT_GAMMA_VECTOR:
 				DBG( _DBG_INFO, "Reading MASTER gamma.\n" );
 				memcpy( value, s->val[option].wa, s->opt[option].size );
 				break;
@@ -1518,61 +1565,65 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 		}
 		break;
 
-    	case SANE_ACTION_SET_VALUE:
-        	status = sanei_constrain_value( s->opt + option, value, info );
-		    if( SANE_STATUS_GOOD != status )
-			    return status;
+		case SANE_ACTION_SET_VALUE:
+			status = sanei_constrain_value( s->opt + option, value, info );
+			if( SANE_STATUS_GOOD != status )
+				return status;
 
-    		optval = NULL;
-	    	if( SANE_CONSTRAINT_STRING_LIST == s->opt[option].constraint_type ) {
+			optval = NULL;
+			if( SANE_CONSTRAINT_STRING_LIST == s->opt[option].constraint_type ) {
 
-		    	optval = search_string_list( s->opt[option].constraint.string_list,
+				optval = search_string_list( s->opt[option].constraint.string_list,
 								         (char *) value);
-    			if( NULL == optval )
-	        		return SANE_STATUS_INVAL;
-		    }
+				if( NULL == optval )
+					return SANE_STATUS_INVAL;
+			}
 
-          	switch (option) {
+			switch (option) {
 
-	    		case OPT_RESOLUTION: {
-		    	    int n;
-	    	    	int min_d = s->hw->res_list[s->hw->res_list_size - 1];
-			        int v     = *(SANE_Word *)value;
-    	    		int best  = v;
+				case OPT_RESOLUTION: {
+					int n;
+					int min_d = s->hw->res_list[s->hw->res_list_size - 1];
+					int v     = *(SANE_Word *)value;
+					int best  = v;
 
-	    		    for( n = 0; n < s->hw->res_list_size; n++ ) {
-		    			int d = abs(v - s->hw->res_list[n]);
+					for( n = 0; n < s->hw->res_list_size; n++ ) {
+						int d = abs(v - s->hw->res_list[n]);
 
-					    if( d < min_d ) {
-				    	    min_d = d;
-				    	    best  = s->hw->res_list[n];
-    					}
-	    			}
+						if( d < min_d ) {
+							min_d = d;
+							best  = s->hw->res_list[n];
+						}
+					}
 
-	        		s->val[option].w = (SANE_Word)best;
+					s->val[option].w = (SANE_Word)best;
 
-                    if( v != best )
-                        *(SANE_Word *)value = best;
+					if( v != best )
+						*(SANE_Word *)value = best;
 
-	    			if( NULL != info ) {
-		    			if( v != best )	
-                            *info |= SANE_INFO_INEXACT;
-				    	*info |= SANE_INFO_RELOAD_PARAMS;
-         		  	}
-	    		    break;
-
-		      	}
+					if( NULL != info ) {
+						if( v != best )	
+							*info |= SANE_INFO_INEXACT;
+						*info |= SANE_INFO_RELOAD_PARAMS;
+					}
+					break;
+				}
 
 				case OPT_PREVIEW:
-    			case OPT_TL_X:
-	    		case OPT_TL_Y:
-		    	case OPT_BR_X:
+				case OPT_TL_X:
+				case OPT_TL_Y:
+				case OPT_BR_X:
 			    case OPT_BR_Y:
-    				s->val[option].w = *(SANE_Word *)value;
-	    			if( NULL != info )
-    					*info |= SANE_INFO_RELOAD_PARAMS;
-	    			break;
-				
+					s->val[option].w = *(SANE_Word *)value;
+					if( NULL != info )
+						*info |= SANE_INFO_RELOAD_PARAMS;
+					break;
+
+				case OPT_LAMPSWITCH:
+					s->val[option].w = *(SANE_Word *)value;
+					usb_LampSwitch( dev, s->val[option].w );
+					break;
+
 				case OPT_CUSTOM_GAMMA:
 					s->val[option].w = *(SANE_Word *)value;
 	    			if( NULL != info )
@@ -1600,23 +1651,27 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 
 						DBG( _DBG_INFO, "NOT using custom gamma settings.\n" );
 						initGammaSettings( s );
-    				
-    					if((scanmode == COLOR_256GRAY) ||
-						   (scanmode == COLOR_GRAY16)) {
-						    s->opt[OPT_GAMMA_VECTOR].cap |= SANE_CAP_INACTIVE;
-						} else {						
-						    s->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
-						    s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
-						    s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
-						}						
-    				}
-	    			break;
 
-		    	case OPT_CONTRAST:
-			    case OPT_BRIGHTNESS:
-        			s->val[option].w =
+						if((scanmode == COLOR_256GRAY) ||
+						   (scanmode == COLOR_GRAY16)) {
+							s->opt[OPT_GAMMA_VECTOR].cap |= SANE_CAP_INACTIVE;
+						} else {						
+							s->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
+							s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
+							s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
+						}
+					}
+					break;
+
+				case OPT_WARMUPTIME:
+					s->val[option].w = (*(SANE_Word *)value);
+					adj->warmup      = (*(SANE_Word *)value);
+					break;
+				case OPT_CONTRAST:
+				case OPT_BRIGHTNESS:
+					s->val[option].w =
 							((*(SANE_Word *)value) >> SANE_FIXED_SCALE_SHIFT);
-	    			break;
+					break;
 
 		    	case OPT_MODE: 
                     idx = (optval - mode_usb_list);
@@ -1739,12 +1794,11 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 
 			    default:
 				    return SANE_STATUS_INVAL;
-    		}
-	    	break;
-	    	
+			}
+			break;
 
-    	default:
-        	return SANE_STATUS_INVAL;
+		default:
+			return SANE_STATUS_INVAL;
 	}
 
 	return SANE_STATUS_GOOD;
@@ -1753,7 +1807,7 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 /** according to the option number, return a pointer to a descriptor
  */
 const SANE_Option_Descriptor *
-   			 sane_get_option_descriptor( SANE_Handle handle, SANE_Int option )
+sane_get_option_descriptor( SANE_Handle handle, SANE_Int option )
 {
 	Plustek_Scanner *s = (Plustek_Scanner *)handle;
 
@@ -1765,10 +1819,11 @@ const SANE_Option_Descriptor *
 
 /** return the current parameter settings
  */
-SANE_Status sane_get_parameters( SANE_Handle handle, SANE_Parameters *params )
+SANE_Status
+sane_get_parameters( SANE_Handle handle, SANE_Parameters *params )
 {
-	int    			 ndpi;
-	pModeParam  	 mp;
+	int              ndpi;
+	pModeParam       mp;
 	Plustek_Scanner *s = (Plustek_Scanner *)handle;
 
 	/* if we're calling from within, calc best guess
@@ -1819,7 +1874,8 @@ SANE_Status sane_get_parameters( SANE_Handle handle, SANE_Parameters *params )
 
 /** initiate the scan process
  */
-SANE_Status sane_start( SANE_Handle handle )
+SANE_Status
+sane_start( SANE_Handle handle )
 {
 	Plustek_Scanner *s = (Plustek_Scanner *)handle;
 	pPlustek_Device  dev;
@@ -1851,8 +1907,7 @@ SANE_Status sane_start( SANE_Handle handle )
 
 	dev = s->hw;
 
-	/*
-	 * open the driver and get some information about the scanner
+	/* open the driver and get some information about the scanner
 	 */
 	dev->fd = usbDev_open( dev );
 	if( dev->fd < 0 ) {
@@ -1876,20 +1931,21 @@ SANE_Status sane_start( SANE_Handle handle )
 	 */
 	ndpi = s->val[OPT_RESOLUTION].w;
 
-    /* exchange the values as we can't deal with negative heights and so on...*/
-    tmp = s->val[OPT_TL_X].w;
-    if( tmp > s->val[OPT_BR_X].w ) {
+	/* exchange the values as we can't deal with
+	 * negative heights and so on...*/
+	tmp = s->val[OPT_TL_X].w;
+	if( tmp > s->val[OPT_BR_X].w ) {
 		DBG( _DBG_INFO, "exchanging BR-X - TL-X\n" );
-        s->val[OPT_TL_X].w = s->val[OPT_BR_X].w;
-        s->val[OPT_BR_X].w = tmp;
-    }
+		s->val[OPT_TL_X].w = s->val[OPT_BR_X].w;
+		s->val[OPT_BR_X].w = tmp;
+	}
 
-    tmp = s->val[OPT_TL_Y].w;
-    if( tmp > s->val[OPT_BR_Y].w ) {
+	tmp = s->val[OPT_TL_Y].w;
+	if( tmp > s->val[OPT_BR_Y].w ) {
 		DBG( _DBG_INFO, "exchanging BR-Y - TL-Y\n" );
-        s->val[OPT_TL_Y].w = s->val[OPT_BR_Y].w;
-        s->val[OPT_BR_Y].w = tmp;
-    }
+		s->val[OPT_TL_Y].w = s->val[OPT_BR_Y].w;
+		s->val[OPT_BR_Y].w = tmp;
+	}
 
 	/* position and extent are always relative to 300 dpi */
 	dpi_x = (double)dev->usbDev.Caps.OpticDpi.x; 
@@ -1903,8 +1959,8 @@ SANE_Status sane_start( SANE_Handle handle )
 										dpi_x / (MM_PER_INCH *(dpi_x/300.0)));
 	height = (int)(SANE_UNFIX (s->val[OPT_BR_Y].w - s->val[OPT_TL_Y].w) *
 										dpi_y / (MM_PER_INCH *(dpi_y/300.0)));
-	/*
-	 * adjust mode list according to the model we use and the
+
+	/* adjust mode list according to the model we use and the
 	 * source we have
 	 */
 	mp = getModeList( s );
@@ -1917,7 +1973,7 @@ SANE_Status sane_start( SANE_Handle handle )
 	crop.ImgDef.xyDpi.x   = ndpi;
 	crop.ImgDef.xyDpi.y   = ndpi;
 	crop.ImgDef.crArea.x  = left;  /* offset from left edge to area you want to scan */
-	crop.ImgDef.crArea.y  = top;  	/* offset from top edge to area you want to scan  */
+	crop.ImgDef.crArea.y  = top;   /* offset from top edge to area you want to scan  */
 	crop.ImgDef.crArea.cx = width; /* always relative to 300 dpi */
 	crop.ImgDef.crArea.cy = height;
 	crop.ImgDef.wDataType = scanmode;
@@ -1931,10 +1987,10 @@ SANE_Status sane_start( SANE_Handle handle )
 
 	result = dev->getCropInfo( dev, &crop );
 	if( result < 0 ) {
-	    DBG( _DBG_ERROR, "dev->getCropInfo() failed(%d)\n", result );
+		DBG( _DBG_ERROR, "dev->getCropInfo() failed(%d)\n", result );
 		dev->close( dev );
-    	return SANE_STATUS_IO_ERROR;
-    }
+		return SANE_STATUS_IO_ERROR;
+	}
 
 	/* DataInf.dwAppPixelsPerLine = crop.dwPixelsPerLine;  */
 	s->params.pixels_per_line = crop.dwPixelsPerLine;
@@ -1948,11 +2004,11 @@ SANE_Status sane_start( SANE_Handle handle )
 	if( s->val[OPT_PREVIEW].w )
 		crop.ImgDef.dwFlag &= (~SCANDEF_QualityScan);
 
-    /* set adjustments for brightness and contrast */
+	/* set adjustments for brightness and contrast */
 	sinfo.siBrightness = s->val[OPT_BRIGHTNESS].w;
 	sinfo.siContrast   = s->val[OPT_CONTRAST].w;
 
-    memcpy( &sinfo.ImgDef, &crop.ImgDef, sizeof(ImgDef));
+	memcpy( &sinfo.ImgDef, &crop.ImgDef, sizeof(ImgDef));
 	
 	DBG( _DBG_SANE_INIT, "brightness %i, contrast %i\n",
 						sinfo.siBrightness, sinfo.siContrast );
@@ -1964,7 +2020,7 @@ SANE_Status sane_start( SANE_Handle handle )
 		return SANE_STATUS_IO_ERROR;
 	}
 
-    /* download gamma correction tables... */
+	/* download gamma correction tables... */
 	if( scanmode <= COLOR_GRAY16 ) {
 	   	dev->setMap( dev, s->gamma_table[0], s->gamma_length, _MAP_MASTER);
 	} else {
@@ -2036,8 +2092,9 @@ SANE_Status sane_start( SANE_Handle handle )
 
 /** function to read the data from our child process
  */
-SANE_Status sane_read( SANE_Handle handle, SANE_Byte *data,
-									   SANE_Int max_length, SANE_Int *length )
+SANE_Status
+sane_read( SANE_Handle handle, SANE_Byte *data,
+           SANE_Int max_length, SANE_Int *length )
 {
 	Plustek_Scanner *s = (Plustek_Scanner*)handle;
 	ssize_t          nread;
@@ -2055,7 +2112,7 @@ SANE_Status sane_read( SANE_Handle handle, SANE_Byte *data,
 
 		if( EAGAIN == errno ) {
 
-            /* if we already had red the picture, so it's okay and stop */
+			/* if we already had red the picture, so it's okay and stop */
 			if( s->bytes_read ==
 				(unsigned long)(s->params.lines * s->params.bytes_per_line)) {
 				sanei_thread_waitpid( s->reader_pid, 0 );
@@ -2064,7 +2121,7 @@ SANE_Status sane_read( SANE_Handle handle, SANE_Byte *data,
 				return close_pipe(s);
 			}
 
-            /* else force the frontend to try again*/
+			/* else force the frontend to try again*/
 			return SANE_STATUS_GOOD;
 
 		} else {
@@ -2077,25 +2134,26 @@ SANE_Status sane_read( SANE_Handle handle, SANE_Byte *data,
 	*length        = nread;
 	s->bytes_read += nread;
 
-    /* nothing red means that we're finished OR we had a problem...*/
+	/* nothing red means that we're finished OR we had a problem... */
 	if( 0 == nread ) {
 
 		drvclose( s->hw );
-        s->exit_code = sanei_thread_get_status( s->reader_pid );
+		s->exit_code = sanei_thread_get_status( s->reader_pid );
 
-        if( SANE_STATUS_GOOD != s->exit_code ) {
-            close_pipe(s);
-      		return s->exit_code;
-        }
+		if( SANE_STATUS_GOOD != s->exit_code ) {
+			close_pipe(s);
+			return s->exit_code;
+		}
+		s->reader_pid = -1;
 		return close_pipe(s);
 	}
-
 	return SANE_STATUS_GOOD;
 }
 
 /** cancel the scanning process
  */
-void sane_cancel (SANE_Handle handle)
+void
+sane_cancel( SANE_Handle handle )
 {
 	Plustek_Scanner *s = (Plustek_Scanner *)handle;
 
@@ -2107,7 +2165,8 @@ void sane_cancel (SANE_Handle handle)
 
 /** set the pipe to blocking/non blocking mode
  */
-SANE_Status sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
+SANE_Status
+sane_set_io_mode( SANE_Handle handle, SANE_Bool non_blocking )
 {
 	Plustek_Scanner *s = (Plustek_Scanner *)handle;
 
@@ -2134,7 +2193,8 @@ SANE_Status sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 
 /** return the descriptor if available
  */
-SANE_Status sane_get_select_fd( SANE_Handle handle, SANE_Int * fd )
+SANE_Status
+sane_get_select_fd( SANE_Handle handle, SANE_Int * fd )
 {
 	Plustek_Scanner *s = (Plustek_Scanner *)handle;
 

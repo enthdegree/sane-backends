@@ -2695,10 +2695,10 @@ static SANE_Bool usb_DownloadShadingData( pPlustek_Device dev, u_char bJobID )
 				}
 				
 				/* set RAM configuration AND
-	             * Gain = Multiplier Coefficient/16384
-                 * External DRAM for Multiplier Coefficient Source
-                 * External DRAM for Offset Coefficient Source
-                 */
+				 * Gain = Multiplier Coefficient/16384
+				 * External DRAM for Multiplier Coefficient Source
+				 * External DRAM for Offset Coefficient Source
+				 */
 				a_bRegs[0x42] = (u_char)((hw->wDRAMSize > 512)? 0x66: 0x26);
 
 				if( scaps->workaroundFlag & _WAF_SKIP_WHITEFINE ) {
@@ -2719,10 +2719,10 @@ static SANE_Bool usb_DownloadShadingData( pPlustek_Device dev, u_char bJobID )
 			a_bRegs[0x41] = 0x00;
 
 			/* set RAM configuration AND
-             * GAIN = Multiplier Coefficient/16384
-             * CFG Register 0x40/0x41 for Multiplier Coefficient Source
-             * CFG Register 0x3e/0x3f for Offset Coefficient Source
-             */
+			 * GAIN = Multiplier Coefficient/16384
+			 * CFG Register 0x40/0x41 for Multiplier Coefficient Source
+			 * CFG Register 0x3e/0x3f for Offset Coefficient Source
+			 */
 			a_bRegs[0x42] = (u_char)((hw->wDRAMSize > 512)? 0x60: 0x20);
 
 			_UIO(sanei_lm983x_write( dev->fd, 0x3e, &a_bRegs[0x3e],

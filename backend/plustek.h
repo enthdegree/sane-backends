@@ -20,11 +20,11 @@
  * - 0.33 - no changes
  * - 0.34 - moved some definitions and typedefs from plustek.c
  * - 0.35 - removed OPT_MODEL from options list
- *		  - added max_y to struct Plustek_Scan
+ *        - added max_y to struct Plustek_Scan
  * - 0.36 - added reader_pid, pipe and bytes_read to struct Plustek_Scanner
- *		  - removed unused variables from struct Plustek_Scanner
+ *        - removed unused variables from struct Plustek_Scanner
  *        - moved fd from struct Plustek_Scanner to Plustek_Device
- *		  - added next members to struct Plustek_Scanner and Plustek_Device
+ *        - added next members to struct Plustek_Scanner and Plustek_Device
  * - 0.37 - added max_x to struct Plustek_Device
  * - 0.38 - added caps to struct Plustek_Device
  *        - added exit code to struct Plustek_Scanner
@@ -36,7 +36,7 @@
  * - 0.41 - added configuration stuff
  * - 0.42 - added custom gamma tables
  *        - changed usbId to static array
- *		  - added _MAX_ID_LEN
+ *        - added _MAX_ID_LEN
  * - 0.43 - no changes
  * - 0.44 - added flag initialized
  * - 0.45 - added readLine function
@@ -191,7 +191,6 @@
 #define _E_BUFFER_TOO_SMALL (_FIRST_ERR-13)
 #define _E_DATAREAD         (_FIRST_ERR-14)
 
-
 /************************ some structures ************************************/
 
 enum {
@@ -214,6 +213,9 @@ enum {
 	OPT_GAMMA_VECTOR_R,
 	OPT_GAMMA_VECTOR_G,
 	OPT_GAMMA_VECTOR_B,
+	OPT_DEVICE_GROUP,
+	OPT_LAMPSWITCH,
+	OPT_WARMUPTIME,
 	NUM_OPTIONS
 };
 
@@ -237,13 +239,15 @@ typedef struct {
 	int     skipFineWhite;
 	int     invertNegatives;
 	int     cacheCalData;
-	int     altCalibrate;  /* force use of the alternate canoscan
-                                  autocal; perhaps other Canon
-                                  scanners require the alternate
-                                  autocalibration as well */
+	int     altCalibrate;  /* force use of the alternate canoscan autocal;
+	                          perhaps other Canon scanners require the
+	                          alternate autocalibration as well */
 	int rgain;
 	int ggain;
 	int bgain;
+	int rlampoff;   /* for red lamp off setting (CIS-scanner)   */
+	int glampoff;   /* for green lamp off setting (CIS-scanner) */
+	int blampoff;   /* for blue lamp off setting (CIS-scanner)  */
 
 	OffsDef pos; 	/* for adjusting normal scan area       */
 	OffsDef tpa; 	/* for adjusting transparency scan area */
@@ -264,9 +268,9 @@ typedef struct {
 
 typedef struct {
 	unsigned short x;
-    unsigned short y;
-    unsigned short cx;
-    unsigned short cy;
+	unsigned short y;
+	unsigned short cx;
+	unsigned short cy;
 } CropRect, *pCropRect;
 
 typedef struct image {
@@ -290,9 +294,9 @@ typedef struct {
 } ScanInfo, *pScanInfo;
 
 typedef struct {
-    unsigned long	dwFlag;
-    unsigned short	wMaxExtentX;	/**< scanarea width					*/
-    unsigned short	wMaxExtentY;	/**< scanarea height				*/
+	unsigned long	dwFlag;
+	unsigned short	wMaxExtentX;	/**< scanarea width					*/
+	unsigned short	wMaxExtentY;	/**< scanarea height				*/
 } ScannerCaps, *pScannerCaps;
 
 /** for defining the scanmodes
@@ -308,43 +312,42 @@ typedef struct Plustek_Device
 {
 	SANE_Int               initialized;      /* device already initialized?  */
 	struct Plustek_Device *next;             /* pointer to next dev in list  */
-	int 				   fd;				 /* device handle                */
-    char                  *name;             /* (to avoid compiler warnings!)*/
+	int                    fd;               /* device handle                */
+	char                  *name;             /* (to avoid compiler warnings!)*/
 	char                  *calFile;          /* for saving calibration data  */
-    SANE_Device 		   sane;             /* info struct                  */
-	SANE_Int			   max_x;            /* max XY-extension of the scan-*/
-	SANE_Int			   max_y;            /* area                         */
-    SANE_Range 			   dpi_range;        /* resolution range             */
-    SANE_Range 			   x_range;          /* x-range of the scan-area     */
-    SANE_Range 			   y_range;          /* y-range of the scan-area     */
-    SANE_Int  		 	  *res_list;         /* to hold the available phys.  */
-    SANE_Int 			   res_list_size;    /* resolution values            */
-    ScannerCaps            caps;             /* caps reported by the driver  */
+	SANE_Device            sane;             /* info struct                  */
+	SANE_Int               max_x;            /* max XY-extension of the scan-*/
+	SANE_Int               max_y;            /* area                         */
+	SANE_Range             dpi_range;        /* resolution range             */
+	SANE_Range             x_range;          /* x-range of the scan-area     */
+	SANE_Range             y_range;          /* y-range of the scan-area     */
+	SANE_Int              *res_list;         /* to hold the available phys.  */
+	SANE_Int               res_list_size;    /* resolution values            */
+	ScannerCaps            caps;             /* caps reported by the driver  */
 	AdjDef                 adj;	             /* for driver adjustment        */
 	
-    /**************************** USB-stuff **********************************/
-    char                   usbId[_MAX_ID_LEN];/* to keep Vendor and product  */
-                                             /* ID string (from conf) file   */
-    struct ScanDef         scanning;         /* here we hold all stuff for   */
-                                             /* the USB-scanner              */
+	/**************************** USB-stuff **********************************/
+	char                   usbId[_MAX_ID_LEN];/* to keep Vendor and product  */
+	                                         /* ID string (from conf) file   */
+	struct ScanDef         scanning;         /* here we hold all stuff for   */
+	                                         /* the USB-scanner              */
 	struct DeviceDef       usbDev;
 #ifdef HAVE_SETITIMER
 	struct itimerval       saveSettings;     /* for lamp timer               */
 #endif
-    /*
-     * each device we support may need other access functions...
-     */
-    int  (*close)      ( struct Plustek_Device* );
-    void (*shutdown)   ( struct Plustek_Device* );
-    int  (*getCaps)    ( struct Plustek_Device* );
-    int  (*getCropInfo)( struct Plustek_Device*, pCropInfo  );
-    int  (*setScanEnv) ( struct Plustek_Device*, pScanInfo  );
-    int  (*setMap)     ( struct Plustek_Device*, SANE_Word*,
-												 SANE_Word, SANE_Word );
-    int  (*startScan)  ( struct Plustek_Device* );
-    int  (*stopScan)   ( struct Plustek_Device* );
-    int  (*prepare)    ( struct Plustek_Device*, SANE_Byte* );
-    int  (*readLine)   ( struct Plustek_Device* );
+	/* each device we support may need other access functions...
+	 */
+	int  (*close)      ( struct Plustek_Device* );
+	void (*shutdown)   ( struct Plustek_Device* );
+	int  (*getCaps)    ( struct Plustek_Device* );
+	int  (*getCropInfo)( struct Plustek_Device*, pCropInfo  );
+	int  (*setScanEnv) ( struct Plustek_Device*, pScanInfo  );
+	int  (*setMap)     ( struct Plustek_Device*, SANE_Word*,
+	                                             SANE_Word, SANE_Word );
+	int  (*startScan)  ( struct Plustek_Device* );
+	int  (*stopScan)   ( struct Plustek_Device* );
+	int  (*prepare)    ( struct Plustek_Device*, SANE_Byte* );
+	int  (*readLine)   ( struct Plustek_Device* );
 
 } Plustek_Device, *pPlustek_Device;
 

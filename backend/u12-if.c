@@ -483,8 +483,11 @@ static SANE_Status u12if_stopScan( U12_Device *dev )
 #if 0
 	u12motor_ToHomePosition( dev, SANE_FALSE );
 #else
+#if 0
 	u12motor_ToHomePosition( dev, SANE_TRUE );
 	u12io_SoftwareReset( dev );
+#endif
+	u12hw_CancelSequence( dev );
 #endif
 	u12hw_StartLampTimer( dev );
 	dev->DataInf.dwAppLinesPerArea = 0;

@@ -80,7 +80,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.02-6"
+#define BACKEND_VERSION "0.02-8"
 #define BACKEND_NAME    u12
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
@@ -322,14 +322,12 @@ static int reader_process( void *args )
 	sigdelset  ( &ignore_set, SIGTERM );
 	sigprocmask( SIG_SETMASK, &ignore_set, 0 );
 
-	memset   ( &act, 0, sizeof (act));
-	sigaction( SIGTERM, &act, 0 );
-
 	cancelRead = SANE_FALSE;
 
 	/* install the signal handler */
-    sigemptyset(&(act.sa_mask));
-    act.sa_flags = 0;
+	memset( &act, 0, sizeof (act));
+	sigemptyset(&(act.sa_mask));
+	act.sa_flags = 0;
 
 	act.sa_handler = reader_process_sigterm_handler;
 	sigaction( SIGTERM, &act, 0 );
@@ -365,6 +363,9 @@ static int reader_process( void *args )
     		buf += scanner->params.bytes_per_line;
 		}
 	}
+
+	close( scanner->w_pipe );
+	scanner->w_pipe = -1;
 
 	/* on error, there's no need to clean up, as this is done by the parent */
 	if( SANE_STATUS_GOOD != status ) {
@@ -406,7 +407,7 @@ static SANE_Status do_cancel( U12_Scanner *scanner, SANE_Bool closepipe )
 		alarm(10);
 		res = sanei_thread_waitpid( scanner->reader_pid, 0 );
 		alarm(0);
-		
+
 		if( res != scanner->reader_pid ) {
 			DBG( _DBG_PROC,"sanei_thread_waitpid() failed !\n");
 			
@@ -423,6 +424,9 @@ static SANE_Status do_cancel( U12_Scanner *scanner, SANE_Bool closepipe )
 		if( scanner->hw->fd >= 0 ) {
 			u12hw_CancelSequence( scanner->hw );
 		}
+#ifndef HAVE_SETITIMER
+		u12hw_StartLampTimer( scanner->hw );
+#endif
 	}
 
 	if( SANE_TRUE == closepipe ) {
@@ -1771,7 +1775,7 @@ SANE_Status sane_read( SANE_Handle handle, SANE_Byte *data,
 				return drvClosePipes(s);
 			}
 
-            /* else force the frontend to try again*/
+			/* else force the frontend to try again*/
 			return SANE_STATUS_GOOD;
 
 		} else {
@@ -1788,12 +1792,13 @@ SANE_Status sane_read( SANE_Handle handle, SANE_Byte *data,
 	if( 0 == nread ) {
 
 		drvClose( s->hw );
-        s->exit_code = sanei_thread_get_status( s->reader_pid );
+		s->exit_code = sanei_thread_get_status( s->reader_pid );
 
-        if( SANE_STATUS_GOOD != s->exit_code ) {
-            drvClosePipes(s);
-      		return s->exit_code;
-        }
+		if( SANE_STATUS_GOOD != s->exit_code ) {
+			drvClosePipes(s);
+			return s->exit_code;
+		}
+		s->reader_pid = -1;
 		return drvClosePipes(s);
 	}
 

@@ -920,7 +920,7 @@ static void u12hw_StartLampTimer( U12_Device *dev )
 	s.sa_flags   = 0;
 	s.sa_handler = usb_LampTimerIrq;
 
-	if(	sigaction( SIGALRM, &s, NULL ) < 0 )
+	if( sigaction( SIGALRM, &s, NULL ) < 0 )
 		DBG( _DBG_ERROR, "Can't setup timer-irq handler\n" );
 
 	sigprocmask( SIG_UNBLOCK, &block, &pause_mask );
@@ -940,10 +940,11 @@ static void u12hw_StartLampTimer( U12_Device *dev )
 		DBG( _DBG_INFO, "Lamp-Timer started (using ITIMER)\n" );
 	}
 #else
-	dev_xxx = dev;
-
-	alarm( dev->adj.lampOff );
-	DBG( _DBG_INFO, "Lamp-Timer started (using ALARM)\n" );
+	if( 0 != dev->adj.lampOff ) {
+		dev_xxx = dev;
+		alarm( dev->adj.lampOff );
+		DBG( _DBG_INFO, "Lamp-Timer started (using ALARM)\n" );
+	}
 #endif
 }
 
@@ -965,7 +966,6 @@ static void u12hw_StopLampTimer( U12_Device *dev )
 		setitimer( ITIMER_REAL, &dev->saveSettings, NULL );
 #else
 	_VAR_NOT_USED( dev );
-
 	alarm( 0 );
 #endif
 	DBG( _DBG_INFO, "Lamp-Timer stopped\n" );

@@ -1,3 +1,11 @@
+2001-05-30  Oliver Rauch <Oliver.Rauch@rauch-domain.de>
+
+	* Problem with SOLARIS_INTERFACE (change from 2001-05-27)
+	  had an other reason than the scsi buffer size (MAX_DATA).
+	  Changed scsi buffer size for solaris sg driver
+	  (USE == SOLARIS_INTERFACE in sanei_scsi.c) again from 32 KB
+	  to 128KB.
+
 2001-05-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* tools/Makefile.in: Fixed umax_pp compilation problem with Solaris

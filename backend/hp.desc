@@ -10,8 +10,8 @@
 ;
 
 :backend "hp"                     ; name of backend
-:version "0.88"                   ; version of backend
-:status :beta                    ; :alpha, :beta, :stable, :new
+:version "0.92"                   ; version of backend
+:status :beta                     ; :alpha, :beta, :stable, :new
 :manpage "sane-hp"                ; name of manpage (if it exists)
 :url "http://www.kirchgessner.net/" ; backend's web page
 
@@ -60,6 +60,24 @@
 :interface "SCSI USB"
 :model "HP PhotoSmart PhotoScanner"
 :interface "SCSI"
+
+:model "HP OfficeJet Pro 1150C"
+:interface "Parport(ECP) JetDirect"
+:url "http://hpoj.sourceforge.net"
+:model "HP OfficeJet Pro 1170C/1175C"
+:interface "Parport(ECP) JetDirect"
+:url "http://hpoj.sourceforge.net"
+:model "HP OfficeJet R series/PSC500"
+:interface "Parport(ECP) JetDirect"
+:url "http://hpoj.sourceforge.net"
+:model "HP OfficeJet G series"
+:interface "Parport(ECP) JetDirect"
+:url "http://hpoj.sourceforge.net"
+:model "HP OfficeJet K series"
+:interface "Parport(ECP) JetDirect"
+:url "http://hpoj.sourceforge.net"
+:comment "partial support -- requires extra steps to scan successfully"
+
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.
 

@@ -1,4 +1,4 @@
-.TH sane-hp 5 "09-July 2000"
+.TH sane-hp 5 "26 November 2000"
 .IX sane-hp
 .SH NAME
 sane-hp - SANE backend for HP ScanJet scanners
@@ -6,7 +6,9 @@ sane-hp - SANE backend for HP ScanJet scanners
 The
 .B sane-hp
 library implements a SANE (Scanner Access Now Easy) backend that
-provides access to HP ScanJet scanners.  At present, the following
+provides access to HP ScanJet scanners and OfficeJet multi-function
+peripherals (MFPs) which support SCL (Scanner Control Language by HP).
+At present, the following
 scanners are known positively to work with this backend:
 .PP
 .RS
@@ -49,6 +51,16 @@ ScanJet 6300C  C7670A          SCSI/USB
 ScanJet 6350C  C7670A          SCSI/USB
 .br
 PhotoSmart     C5100A R029,R030,R032    SCSI
+.br
+OfficeJet Pro 1150C            PTAL
+.br
+OfficeJet Pro 1170C/1175C      PTAL
+.br
+OfficeJet R series/PSC500      PTAL
+.br
+OfficeJet G series             PTAL
+.br
+OfficeJet K series             PTAL
 .RE
 .PP
 Support for models 5100C/5200C connected to the parallel port requires
@@ -58,6 +70,14 @@ the ppSCSI driver available at http://www.torque.net/parport/ppscsi.html
 Support for models 5200C/6200C/6250C/6300C/6350C connected to the USB requires
 an USB driver available at http://www.jump.net/~dnelson/linux/usb
 (under development)
+.PP
+Support for OfficeJet MFPs requires the "HP OfficeJet driver for Linux",
+available at "http://hpoj.sourceforge.net".  The "PTAL" (peripheral
+transport abstraction library) interface supports peripherals
+connected to a parallel port (using special Linux kernel drivers)
+or to a LAN with an HP JetDirect 70X/170X/300X/500X external print
+server (firmware x.07.xx or later; x.08.xx or later required for
+the G and K series).
 .PP
 If you own a ScanJet scanner other than the ones listed above, please
 let us know if your model works with this backend.  To do this, send a
@@ -77,14 +97,42 @@ scanner.  For SCSI scanners the special device name must be a generic SCSI
 device or a symlink to such a device.  Under Linux, such a device name could be
 .I /dev/sga
 or
-.IR /dev/sge ,
-for example. For the Hp ScanJet Plus the special device name must be the device
+.IR /dev/sg2 ,
+for example. For the HP ScanJet Plus the special device name must be the device
 that corresponds to the parallel interface card that was shipped with the
 scanner. That is
 .I /dev/hpscan
 A special driver is required for this card.
 See ftp://rvs.ctrl-c.liu.se/pub/wingel/hpscan for details. If the link
 does not work, try ftp://sunsite.unc.edu/pub/Linux/kernel/patches/scanners.
+.PP
+For OfficeJets connected to the parallel port, the format of
+.I special
+is one of
+.RS
+.I mlc:mlcpp0
+.RE
+.RS
+.I mlc:mlcpp1
+.RE
+depending on whether the device is serviced by parport0 or parport1.
+.PP
+For OfficeJets connected to an HP JetDirect print server, the format of
+.I special
+is
+.RS
+.I hpjd:HOSTNAME_OR_IP_ADDRESS[:PORT_NUMBER]
+.RE
+where
+.RS
+.I HOSTNAME_OR_IP_ADDRESS
+.RE
+is the hostname or dotted-decimal IP address of the JetDirect, and
+.RS
+.I PORT_NUMBER
+.RE
+is either 1, 2, or 3 to select the port number on a three-port
+JetDirect 500X.  The default is port 1.
 .SH CONFIGURATION
 The contents of the
 .I hp.conf
@@ -99,7 +147,8 @@ keeps a device name apply just to the most recently mentioned device.
 .PP
 Supported options are
 .BR connect-scsi ,
-.BR connect-device
+.BR connect-device ,
+.BR connect-ptal
 and
 .BR enable-image-buffering .
 
@@ -113,12 +162,23 @@ Option
 .B connect-device
 specifies that the scanner is connected to the system by a special
 device. Input/output is performed by read()/write()-operations
-on the device. This option must be used for HP ScanJet Plus.
+on the device. This option must be used for HP ScanJet Plus and
+scanners connected to the USB. However if the scanner requires an USB
+driver that simulates a SCSI device, connect-scsi might be used.
+
+Option
+.B connect-ptal
+specifies that the scanner uses the PTAL interface via the libptal
+shared library.  This option must be used for the OfficeJet MFPs.
+Support for OfficeJet MFPs is added to the backend on compile time.
+If you get an error message "hp-backend not compiled with PTAL support",
+you need to install PTAL (see above) and rebuild SANE (running configure
+and make).
 
 Option
 .B enable-image-buffering
 stores the scanned image in memory before passing it to the frontend. Could be
-used in case of forward/backward moving scanner.
+used in case of forward/backward moving scanner lamp.
 .PP
   A sample configuration file is shown below:
 .PP
@@ -130,6 +190,36 @@ used in case of forward/backward moving scanner.
 /dev/hpscan
 .br
   option connect-device
+.RE
+.PP
+/dev/scanner is typically a symlink to the actual scanner device.
+.PP
+  A sample configuration file for OfficeJets is shown below:
+.PP
+.RS
+# SCSI scanner:
+.br
+/dev/scanner
+.PP
+# Parallel port connected MFP:
+.br
+mlc:mlcpp0
+.br
+option connect-ptal
+.PP
+# JetDirect-connected MFPs:
+.br
+hpjd:my-jdex.my-domain.com
+.br
+option connect-ptal
+.br
+hpjd:my-500x.my-domain.com:3
+.br
+option connect-ptal
+.br
+hpjd:10.10.10.35:2
+.br
+option connect-ptal
 .RE
 .SH FILES
 .TP
@@ -189,12 +279,47 @@ to load a sheet. Then press 'scan' to start a scan.
 Maybe it is sufficient to press 'scan' without 'change document'
 for repeated scans. The use of the preview window is not recommended
 when working with the ADF.
-
 .TP
 .B Immediate actions
 Some actions in xscanimage(1) (i.e. unload, select media, calibrate)
 have an immediate effect on the scanner without starting a scan.
 These options can not be used with scanimage.
+.TP
+.B Advertised but unsupported commands
+Some actions, such as mirror, are advertised by the OfficeJets but actually
+have no effect.  Contrast and brightness are simulated by the backend
+for these devices.  >8-bit scans, which require xsane(1) anyway, may
+not work.
+.TP
+.B OfficeJet ADF issues
+The OfficeJet R and G series are capable of scanning 8.5"x14" documents
+in the ADF using a two-pass scanning method, but this is not currently
+supported in the backend.  The OfficeJet 1175 and R series refuse to
+unload an ADF-loaded document after scanning, and instead display a
+message on the front panel prompting the user to remove the document
+from the glass and press a button to continue; the OfficeJet G series
+doesn't have this problem, however.  The OfficeJet G and K series automatically
+unload an ADF-loaded document when the scan channel is closed, particularly
+after an idle timeout when connected to an HP JetDirect.
+.TP
+.B OfficeJet K series
+The K series features a "scrollfed" scanner, where the paper is fed
+across a stationary scanhead, as opposed to flatbed, where the scanhead
+moves across the page.  A consequence of this difference is that the
+document length is not known in advance; the scan stops when the end
+of the document is reached.  To perform a scan, you must first click
+on "Change document", and then start your preview or regular scan.
+If necessary, click on "Cancel" when the scan stops.  If there are more
+documents to scan, click on "Change document" again to advance to the
+next page and repeat the procedure; otherwise, click on "Unload" to
+completely unload the page.  An alternative for non-preview scans is
+to set the page length (option "br-y") to slightly less than the known
+page length, for example, 10.5 inches for an 8.5"x11" page.  This will
+eliminate the need to cancel the scan, but you still need to click on
+"Change document" before each scan and "Unload" after the last page.
+Note that due to the use of the "Change document" and "Unload" options,
+you will probably not be able to use the command-line "scanimage" program
+with the K series, not even the "-T" or "--test" parameters.
 
 .SH TODO
 .TP
@@ -204,14 +329,27 @@ no firmware support for contrast/brightness/gamma table. In the current
 backend this is simulated by software on 24 bits data.
 Simulation on 30 bits should give better results.
 .TP
+.B Data widths greater than 8 bits
+Custom gamma table does not work.
+.TP
 .B Parallel scanner support
 Beside the ScanJet Plus which came with its own parallel interface card,
 currently only the HP ScanJet 5100C/5200C are supported.
 These scanners are using an internal parallel-to-SCSI converter which
 is supported by the ppSCSI-driver (see above).
+.TP
+.B Scrollfed MFP support
+A separate backend is planned to properly support the OfficeJet K series,
+as well as other non-SCL HP MFPs, such as the OfficeJet 300/500/600/700
+and T series and the LaserJet 1100A and 3200.  Support for the LaserJet
+3100/3150 is NOT planned, because programming information for these models
+is not expected to ever become available.  However, if you have a LaserJet
+3150 connected to a JetDirect 70X/170X/300X/500X with firmware x.08.xx or
+later, you can scan using the JetDirect's embedded web server.
 
 .SH "SEE ALSO"
 sane\-scsi(5)
 .SH AUTHOR
 The sane-hp backend was written by Geoffrey T. Dairiki. HP PhotoSmart
 PhotoScanner support by Peter Kirchgessner.
+HP OfficeJet support by David Paschal.

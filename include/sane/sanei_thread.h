@@ -71,43 +71,45 @@ extern void sanei_thread_init( void );
  */
 extern SANE_Bool sanei_thread_is_forked( void );
   
-/** <b>Do not use in backends</b>
- *
- * Wrapper for @c fork. 
+/** function to start
  */
-extern int sanei_thread_begin( void (*start)(void *arg), void* args );
+extern int sanei_thread_begin( int (func)(void *args), void* args );
 
-/** <b>Do not use in backends</b>
- *
- * Wrapper for @c kill.
+/** function to terminate spawned process/thread. In pthread
+ * context, pthread_cancel is used, in process contect, SIGTERM is send
+ * @param pid - the id of the task
  */
-extern int sanei_thread_kill( int pid, int sig);
+extern int sanei_thread_kill( int pid );
 
-/** <b>Do not use in backends</b>
- *
- * Wrapper for @c waitpid.
+/** function to send signals to the thread/process
+ * @param pid - the id of the task
+ * @param sig - the signal to send
  */
-extern int sanei_thread_waitpid( int pid, int *stat_loc, int options);
+extern int sanei_thread_sendsig( int pid, int sig );
 
-/** <b>Do not use in backends</b>
- *
- * Wrapper for @c wait.
+/**
  */
-extern int sanei_thread_wait( int *stat_loc);
+extern int sanei_thread_waitpid( int pid, int *status );
+
+/** function to return the current status of the spawned function
+ * @param pid - the id of the task
+ */
+extern SANE_Status sanei_thread_get_status( int pid );
+
 /* @} */
 
 /** Reader process function.
  *
  * This wrapper is necessary if a backend's reader process need more than one
- * argument. Add a function to you backend with this name and let it call your
+ * argument. Add a function to your backend with this name and let it call your
  * own reader process. See mustek.c for an example.
  */
 #ifdef HAVE_OS2_H
 static void os2_reader_process( void* data);
 
-#define fork() 			sanei_thread_begin( os2_reader_process)
-#define kill( a, b)		sanei_thread_kill( a,b)
-#define waitpid( a, b, c)	sanei_thread_waitpid( a, b, c)
+#define fork()            sanei_thread_begin(os2_reader_process)
+#define kill(a, b)        sanei_thread_kill( a )
+#define waitpid(a, b, c)  sanei_thread_waitpid( a, b )
 #endif
 
 #endif /* sanei_thread_h */

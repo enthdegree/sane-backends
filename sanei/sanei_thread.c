@@ -1,6 +1,6 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 1998-2001 Yuri Dario
-   Copyright (C) 2003 Gerhard Jaeger
+   Copyright (C) 2003 Gerhard Jaeger (pthread/process support)
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -39,17 +39,22 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
 
+   OS/2
    Helper functions for the OS/2 port (using threads instead of forked
    processes). Don't use them in the backends, they are used automatically by
    macros.
 
-   Added pthread support (as found in hp-handle.c) - Gerhard Jaeger
+   Other OS:
+   use this lib, if you intend to let run your reader function within its own
+   task (thread or process). Depending on the OS and/or the configure settings
+   pthread or fork is used to achieve this goal.
 */
 
 #include "../include/sane/config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
 #ifdef HAVE_UNISTD_H
 # include <unistd.h>
 #endif
@@ -85,48 +90,112 @@ sanei_thread_init( void )
  *
 */
 int
-sanei_thread_begin( void (*start)(void *arg), void* args )
+sanei_thread_begin( void (*func)(void *args), void* args )
 {
-   return _beginthread( start, NULL, 1024*1024, args );
+   return _beginthread( func, NULL, 1024*1024, args );
 }
 
 int
-sanei_thread_kill( int pid, int sig)
+sanei_thread_kill( int pid )
 {
-   return DosKillThread( pid);
+   return DosKillThread(pid);
 }
 
 int
-sanei_thread_waitpid( int pid, int *stat_loc, int options)
+sanei_thread_waitpid( int pid, int *status )
 {
-  if (stat_loc)
-    *stat_loc = 0;
+  if (status
+    *status = 0;
   return pid; /* DosWaitThread( (TID*) &pid, DCWW_WAIT);*/
 }
 
 int
-sanei_thread_wait( int *stat_loc)
+sanei_thread_sendsig( int pid, int sig )
 {
-   *stat_loc = 0;
-   return -1;  /* return error because I don't know child pid */
+	return 0;
+}
+
+int
+sanei_thread_get_status( int pid )
+{
+	return 0;
 }
 
 #else /* HAVE_OS2_H */
 
 #ifdef USE_PTHREAD
+# include <signal.h>
 # include <pthread.h>
 #else
 # include <sys/wait.h>
 #endif
 
+#ifdef USE_PTHREAD
+
+typedef struct {
+
+    int  (*func)( void* );
+    void *func_data;
+
+} ThreadDataDef, *pThreadDataDef;
+
+static void*
+local_thread( void *arg )
+{
+	static int     status;
+	int            old;
+	pThreadDataDef td = (pThreadDataDef)arg;
+
+	DBG( 2, "thread started, calling func() now...\n" );
+	pthread_setcancelstate( PTHREAD_CANCEL_ENABLE, &old );
+	pthread_setcanceltype( PTHREAD_CANCEL_ASYNCHRONOUS, &old );
+	
+	status = td->func( td->func_data );
+
+	DBG( 2, "func() done - status = %d\n", status );
+
+	/* return the status, so pthread_join is able to get it*/
+	pthread_exit((void*)&status );
+}
+
+#else /* the process stuff */
+
+static int
+eval_wp_result( int pid, int wpres, int pf )
+{
+	int retval = SANE_STATUS_IO_ERROR;
+
+	if( wpres == pid ) {
+
+		if( WIFEXITED(pf)) {
+			retval = WEXITSTATUS(pf);
+		} else {
+
+			if( !WIFSIGNALED(pf)) {
+				retval = SANE_STATUS_GOOD;
+			} else {
+				DBG( 1, "Child terminated by signal %d\n", WTERMSIG(pf));
+				if( WTERMSIG(pf) == SIGTERM )
+					retval = SANE_STATUS_GOOD;
+			}
+		}
+	}
+	return retval;
+}
+#endif
+
 int
-sanei_thread_begin( void (*start)(void *arg), void* args )
+sanei_thread_begin( int (func)(void *args), void* args )
 {
 	int       pid;
 #ifdef USE_PTHREAD
-	pthread_t thread;
+	pthread_t     thread;
+	ThreadDataDef td;
 
-	pid = pthread_create( &thread, NULL, start, args );
+    td.func      = func;
+    td.func_data = args;
+	
+	pid = pthread_create( &thread, NULL, local_thread, &td );
 
 	if ( pid != 0 ) {
 		DBG( 1, "pthread_create() failed with %d\n", pid );
@@ -137,7 +206,6 @@ sanei_thread_begin( void (*start)(void *arg), void* args )
 	return (int)thread;
 #else
 	pid = fork();
-
 	if( pid < 0 ) {
 		DBG( 1, "fork() failed\n" );
 		return -1;
@@ -146,9 +214,7 @@ sanei_thread_begin( void (*start)(void *arg), void* args )
 	if( pid == 0 ) {
 
     	/* run in child context... */
-	    int status = 0;
-	    
-        start( args );
+	    int status = func( args );
 		
 		/* don't use exit() since that would run the atexit() handlers */
 		_exit( status );
@@ -160,31 +226,93 @@ sanei_thread_begin( void (*start)(void *arg), void* args )
 }
 
 int
-sanei_thread_kill( int pid, int sig)
+sanei_thread_kill( int pid )
 {
 	DBG(2, "sanei_thread_kill() will kill %d\n", (int)pid);
 #ifdef USE_PTHREAD
+	return pthread_cancel((pthread_t)pid);
+#else
+	return kill( pid, SIGTERM );
+#endif
+}
+
+int
+sanei_thread_sendsig( int pid, int sig )
+{
+#ifdef USE_PTHREAD
+	DBG(2, "sanei_thread_sendsig() %d to thread(id=%d)\n", sig, pid);
 	return pthread_kill((pthread_t)pid, sig );
 #else
+	DBG(2, "sanei_thread_sendsig() %d to process (id=%d)\n", sig, pid);
 	return kill( pid, sig );
 #endif
 }
 
 int
-sanei_thread_waitpid( int pid, int *stat_loc, int options )
+sanei_thread_waitpid( int pid, int *status )
 {
-	if (stat_loc)
-		*stat_loc = 0;
-
 #ifdef USE_PTHREAD
+	int *ls;
+#else
+	int ls;
+#endif
+	int  result;
+	
+	if (status)
+		*status = 0;
 
-	_VAR_NOT_USED( options );
+	DBG(2, "sanei_thread_waitpid() - %d\n", (int)pid);
+#ifdef USE_PTHREAD
+	result = pthread_join((pthread_t)pid, (void*)&ls );
 
-	if( 0 == pthread_join((pthread_t)pid, (void*)stat_loc ))
+	if( 0 == result ) {
+		DBG(2, "* detaching thread\n" );
 		pthread_detach((pthread_t)pid );
+		
+		if( PTHREAD_CANCELED == ls ) {
+			DBG(2, "* thread has been canceled!\n" );
+			* status = SANE_STATUS_GOOD;
+		} else {
+			*status = *ls;
+		}
+		DBG(2, "* result = %d\n", *status );
+	}
+
+	/* should return */
 	return pid;
 #else
-	return waitpid( pid, stat_loc, options );
+	result = waitpid( pid, &ls, 0 );
+	if((result < 0) && (errno == ECHILD)) {
+		if( status )
+			* status = SANE_STATUS_GOOD;
+		result = pid;
+	} else {
+		if (status) {
+			*status = eval_wp_result( pid, result, ls );
+		}
+	}
+	return result;
+#endif
+}
+
+SANE_Status
+sanei_thread_get_status( int pid )
+{
+#ifdef USE_PTHREAD
+	_VAR_NOT_USED( pid );
+
+	return SANE_STATUS_GOOD;
+#else
+	int ls, stat, result;
+
+	stat = SANE_STATUS_IO_ERROR;
+	if( pid > 0 ) {
+
+		result = waitpid( pid, &ls, WNOHANG );
+		
+		stat = eval_wp_result( pid, result, ls );
+	}
+	return stat;
 #endif
 }
 
@@ -199,4 +327,3 @@ sanei_thread_is_forked( void )
 }
 
 #endif /* HAVE_OS2_H */
-

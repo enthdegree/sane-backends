@@ -1,6 +1,9 @@
 2002-01-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* README.os2: Updated URL of Franz Bakan's web site.
+	* include/sane/sanei_usb.h sanei/sanei_usb.c: Added support for USB
+	  control messages (patch from Marcio Luis Teixeira
+	  <marciot@holly.colostate.edu>).
 
 2001-12-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -1,3 +1,10 @@
+2001-01-07  Abel Deuring <a.deuring@satzbau-gmbh.de>
+
+	* sanei/sanei_scsi-c: (Linux part) timeout for SCSI commands
+	  sent with the SG driver version increased; debug output of
+	  device status, host status, driver status and sense buffer 
+	  added.
+
 2001-01-09  Henning Meier-Geinitz <hmg@gmx.de>
 
 	* PROJECTS TODO: Added/updated entries about backends for Mustek

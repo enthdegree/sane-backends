@@ -52,6 +52,9 @@ backends
 
   * nec: Remove references to sharp backend (grep for "JX").
 
+  * nec + sharp: Check for HAVE_SYS_SHM_H before including sys/shm.h and
+    disable shared memory support if necessary.
+
 doc
 ---
   * add sane manpage
@@ -76,9 +79,6 @@ frontends
 
 sanei
 -----
-
-  * sanei_scsi.c: Add patch from FreeBSD ports (sanei_scsi_find_devices)
-    (after 1.0.4).
 
   * sanei_scsi.c: OS/2: struct param breaks compilation with --enable-warnings.
 
@@ -117,13 +117,15 @@ misc
     local scanners. Install only sane-dll/sane-net (or even only sane-net).
     Maybe something like  --network-client-only or --disable-local-devices.
 
-  * Add a global PATH_MAX macro somewhere (config.h ?) if it's not defined
-    by the system.
-
-  * Check for shm.h in configure and update backends using it (if necessary
-    disable them)
-
 ******** done ********
+
+* compilation of most backends break with OS/2 and gcc because the
+  option -ansi doesn't seem to like sigset_t ?
+* Check for shm.h in configure
+* Add a global PATH_MAX macro somewhere (config.h ?) if it's not defined
+  by the system.
+* sanei_scsi.c: Add patch from FreeBSD ports (sanei_scsi_find_devices)
+  (after 1.0.4).
 * update libtool versioning system
   - in /usr/local/lib/libsane.la "installed=no" is set, isn't 
     "installed=yes" the correct entry?

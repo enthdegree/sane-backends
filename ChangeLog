@@ -1,3 +1,8 @@
+2003-10-15  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* include/sanei/config.h.in configure.in configure:
+	  Added test for setitimer.
+
 2003-10-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Pentax, Sicos, Syscan,

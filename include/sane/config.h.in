@@ -196,6 +196,9 @@
 /* Define to 1 if you have the <scsi/sg.h> header file. */
 #undef HAVE_SCSI_SG_H
 
+/* Define to 1 if you have the `setitimer' function. */
+#undef HAVE_SETITIMER
+
 /* Define if sg_header.target_status is available. */
 #undef HAVE_SG_TARGET_STATUS
 

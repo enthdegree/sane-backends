@@ -1,5 +1,6 @@
 2002-07-08  Karl Heinz Kremer <khk@khk.net>
 	* doc/descriptions/epson.desc: fixed typo in URL
+	  added :status lines to the scanner entries
 
 2002-07-09  Abel Deuring <a.deuring@satzbau-gmbh.de>
 	* doc/descriptions/sharp.desc: Added ":status" lines

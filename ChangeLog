@@ -1,3 +1,8 @@
+2001-05-15  Peter Fales <peter@fales.com>
+
+	* backend/dc25.c, backend/dc240.c - Added DBG(1,..) to print
+	  version string
+
 2001-05-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/.cvsignore: Added sane-sm3600.5.

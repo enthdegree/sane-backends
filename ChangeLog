@@ -1,3 +1,8 @@
+2002-12-04  Matthew Duggan <stauff1@users.sourceforge.net>
+	* backend/canon_pp-dev.c: Don't compare firmware version numbers - 
+	  multiple versions do actually exist.
+	* doc/descriptions/canon_pp.desc: Bump version number.
+
 2002-12-03  Peter Fales  <peter@fales-lorenz.net>
 
         * backend/gphoto2.c:  Don't display the "low resolution" option when

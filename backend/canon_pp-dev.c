@@ -92,14 +92,14 @@ static void DBG(int level, const char *format, ...)
 
 
 /* Constants */
-#define ID_FB320P "CANON   IX-03055C       1.00"
-#define ID_FB620P "CANON   IX-06025C       1.00"
+#define ID_FB320P "CANON   IX-03055C"
+#define ID_FB620P "CANON   IX-06025C"
 
-#define ID_FB330P "CANON   IX-03075E       1.00"
-#define ID_FB630P "CANON   IX-06075E       1.00"
+#define ID_FB330P "CANON   IX-03075E"
+#define ID_FB630P "CANON   IX-06075E"
 
-#define ID_N340P "CANON   IX-03095G       1.00"
-#define ID_N640P "CANON   IX-06115G       1.00"
+#define ID_N340P "CANON   IX-03095G"
+#define ID_N640P "CANON   IX-06115G"
 
 /*const int scanline_count = 6;*/
 static const char *header = "#CANONPP";
@@ -369,7 +369,7 @@ int sanei_canon_pp_initialise(scanner_parameters *sp, int mode)
 	sp->scanheadwidth = (scanner_info[2] << 8) | scanner_info[3];
 
 	/* Set up various known values */
-	if (strncmp(&(sp->id_string[8]), ID_FB320P, sizeof(ID_FB320P)) == 0)
+	if (strncmp(&(sp->id_string[8]), ID_FB320P, sizeof(ID_FB320P)-3) == 0)
 	{
 		strcpy(sp->name, "FB320P");
 		sp->natural_xresolution = 2;	
@@ -379,7 +379,7 @@ int sanei_canon_pp_initialise(scanner_parameters *sp, int mode)
 		sp->scanheadwidth = 2552;
 		sp->type = 0;
 	}
-	else if (strncmp(&(sp->id_string[8]), ID_FB330P, sizeof(ID_FB330P))==0)
+	else if (strncmp(&(sp->id_string[8]), ID_FB330P, sizeof(ID_FB330P)-3)==0)
 	{
 		strcpy(sp->name, "FB330P");
 		sp->natural_xresolution = 2;	
@@ -387,7 +387,7 @@ int sanei_canon_pp_initialise(scanner_parameters *sp, int mode)
 		sp->scanbedlength = 3508;
 		sp->type = 1;
 	}
-	else if (strncmp(&(sp->id_string[8]), ID_FB620P, sizeof(ID_FB620P))==0)
+	else if (strncmp(&(sp->id_string[8]), ID_FB620P, sizeof(ID_FB620P)-3)==0)
 	{
 		strcpy(sp->name, "FB620P");
 		sp->natural_xresolution = 3;	
@@ -397,7 +397,7 @@ int sanei_canon_pp_initialise(scanner_parameters *sp, int mode)
 		sp->scanheadwidth = 5104;
 		sp->type = 0;
 	}
-	else if (strncmp(&(sp->id_string[8]), ID_FB630P, sizeof(ID_FB630P))==0)
+	else if (strncmp(&(sp->id_string[8]), ID_FB630P, sizeof(ID_FB630P)-3)==0)
 	{
 		strcpy(sp->name, "FB630P");
 		sp->natural_xresolution = 3;
@@ -405,7 +405,7 @@ int sanei_canon_pp_initialise(scanner_parameters *sp, int mode)
 		sp->scanbedlength = 7016;
 		sp->type = 1;
 	}
-	else if (strncmp(&(sp->id_string[8]), ID_N640P, sizeof(ID_N640P)) == 0)
+	else if (strncmp(&(sp->id_string[8]), ID_N640P, sizeof(ID_N640P)-3) == 0)
 	{
 		strcpy(sp->name, "N640P");
 		sp->natural_xresolution = 3;	
@@ -413,7 +413,7 @@ int sanei_canon_pp_initialise(scanner_parameters *sp, int mode)
 		sp->scanbedlength = 7016;
 		sp->type = 1;
 	}
-	else if (strncmp(&(sp->id_string[8]), ID_N340P, sizeof(ID_N340P)) == 0)
+	else if (strncmp(&(sp->id_string[8]), ID_N340P, sizeof(ID_N340P)-3) == 0)
 	{
 		strcpy(sp->name, "N340P");
 		sp->natural_xresolution = 2;	

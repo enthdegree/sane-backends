@@ -24,6 +24,7 @@
 	* doc/saned.man: The path in the xinetd example pinted to /usr/local
 	  unconditionally.
 	* backend/canon630u-common.c: Fixed compilation on non-Linux systems.
+	* configure configure.in: Added work-around for asm/io.h problems.
 
 2002-04-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

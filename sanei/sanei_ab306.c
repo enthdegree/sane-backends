@@ -99,7 +99,9 @@ inb (u_long port)
 #define PORT_DEV	"/dev/port"
 #define AB306_CIO	0x379		/* control i/o port */
 
+#if defined(__FreeBSD__)	
 static int dev_io_fd = 0;
+#endif
 
 typedef struct port
   {

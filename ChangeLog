@@ -13,6 +13,9 @@
 	  with odd pixel numbers. Bugfix for lamp switching when using
 	  LightLid35 Transparency Adaptor.
 
+	* tools/check-usb-chip.c: Added test for interface 1 and
+	  altsetting 2 for GT-8911. Unified ouitput. Formatting updates.
+
 2004-10-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/sane-find-scanner.man tools/check-usb-chip.c

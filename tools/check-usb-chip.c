@@ -40,7 +40,8 @@ static SANE_Bool no_chipset_access;
 #ifdef HAVE_LIBUSB
 #include <usb.h>
 
-extern char *check_usb_chip (struct usb_device *dev, int verbosity, SANE_Bool from_file);
+extern char *check_usb_chip (struct usb_device *dev, int verbosity,
+			     SANE_Bool from_file);
 
 
 static int
@@ -370,7 +371,7 @@ check_gt8911 (struct usb_device *dev)
     {
       if (verbose > 2)
 	printf
-	  ("    check 1, this is not a GT-8911 (bDeviceClass = %d, bInterfaceClass = %d)\n",
+	  ("    this is not a GT-8911 (check 1, bDeviceClass = %d, bInterfaceClass = %d)\n",
 	   dev->descriptor.bDeviceClass,
 	   dev->config[0].interface[0].altsetting[0].bInterfaceClass);
       return 0;
@@ -378,22 +379,24 @@ check_gt8911 (struct usb_device *dev)
   if (dev->descriptor.bcdUSB != 0x110)
     {
       if (verbose > 2)
-	printf ("    check 2, this is not a GT-8911 (bcdUSB = 0x%x)\n",
+	printf ("    this is not a GT-8911 (check 2, bcdUSB = 0x%x)\n",
 		dev->descriptor.bcdUSB);
       return 0;
     }
   if (dev->descriptor.bDeviceSubClass != 0x00)
     {
       if (verbose > 2)
-	printf ("    check 3, this is not a GT-8911 (bDeviceSubClass = 0x%x)\n",
-		dev->descriptor.bDeviceSubClass);
+	printf
+	  ("    this is not a GT-8911 (check 3, bDeviceSubClass = 0x%x)\n",
+	   dev->descriptor.bDeviceSubClass);
       return 0;
     }
   if (dev->descriptor.bDeviceProtocol != 0x00)
     {
       if (verbose > 2)
-	printf ("    check 4, this is not a GT-8911 (bDeviceProtocol = 0x%x)\n",
-		dev->descriptor.bDeviceProtocol);
+	printf
+	  ("    this is not a GT-8911 (check 4, bDeviceProtocol = 0x%x)\n",
+	   dev->descriptor.bDeviceProtocol);
       return 0;
     }
 
@@ -401,7 +404,7 @@ check_gt8911 (struct usb_device *dev)
   if (dev->config[0].interface[0].altsetting[0].bNumEndpoints != 2)
     {
       if (verbose > 2)
-	printf ("    check 5, this is not a GT-8911 (bNumEndpoints = %d)\n",
+	printf ("    this is not a GT-8911 (check 5, bNumEndpoints = %d)\n",
 		dev->config[0].interface[0].altsetting[0].bNumEndpoints);
       return 0;
     }
@@ -417,7 +420,7 @@ check_gt8911 (struct usb_device *dev)
     {
       if (verbose > 2)
 	printf
-	  ("    check 6, this is not a GT-8911 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	  ("    this is not a GT-8911 (check 6, bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
 	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
 	   dev->config[0].interface[0].altsetting[0].endpoint[0].
 	   bEndpointAddress,
@@ -438,7 +441,7 @@ check_gt8911 (struct usb_device *dev)
     {
       if (verbose > 2)
 	printf
-	  ("    check 7, this is not a GT-8911 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	  ("    this is not a GT-8911 (check 7, bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
 	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
 	   dev->config[0].interface[0].altsetting[0].endpoint[1].
 	   bEndpointAddress,
@@ -449,9 +452,23 @@ check_gt8911 (struct usb_device *dev)
       return 0;
 
     }
+  if (dev->config[0].bNumInterfaces < 2)
+    {
+      if (verbose > 2)
+	printf ("    this is not a GT-8911 (check 8, bNumInterfaces = %d)\n",
+		dev->config[0].bNumInterfaces);
+      return 0;
+    }
+  if (dev->config[0].interface[1].num_altsetting < 3)
+    {
+      if (verbose > 2)
+	printf ("    this is not a GT-8911 (check 9, num_altsetting = %d)\n",
+		dev->config[0].interface[1].num_altsetting);
+      return 0;
+    }
 
   /* Check fourth endpoint descriptor block */
-if ((dev->config[0].interface[1].altsetting[2].endpoint[0].
+  if ((dev->config[0].interface[1].altsetting[2].endpoint[0].
        bEndpointAddress != 0x83)
       || (dev->config[0].interface[1].altsetting[2].endpoint[0].
 	  bmAttributes != 0x01)
@@ -462,7 +479,7 @@ if ((dev->config[0].interface[1].altsetting[2].endpoint[0].
     {
       if (verbose > 2)
 	printf
-	  ("    check 8, this is not a GT-8911 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	  ("    this is not a GT-8911 (check 10, bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
 	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
 	   dev->config[0].interface[1].altsetting[2].endpoint[0].
 	   bEndpointAddress,
@@ -483,7 +500,7 @@ if ((dev->config[0].interface[1].altsetting[2].endpoint[0].
     {
       if (verbose > 2)
 	printf
-	  ("    check 9, this is not a GT-8911 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	  ("    this is not a GT-8911 (check 11, bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
 	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
 	   dev->config[0].interface[1].altsetting[2].endpoint[1].
 	   bEndpointAddress,
@@ -499,17 +516,19 @@ if ((dev->config[0].interface[1].altsetting[2].endpoint[0].
   result = prepare_interface (dev, &handle);
   if (!result)
     return "GT-8911?";
-  
+
   memset (req, 0, 8);
   req[0] = 0x55;
   req[1] = 0x66;
 
+  result =
     usb_control_msg (handle, 0xc0, 0x10, 0x41, 0x0000, req, 64, TIMEOUT);
   if (result <= 0)
     {
       if (verbose > 2)
-	printf ("    Check 10, Couldn't send read control message (%s)\n",
-		strerror (errno));
+	printf
+	  ("    this is not a GT-8911 (check 12, couldn't send read control message (%s))\n",
+	   strerror (errno));
       finish_interface (handle);
       return 0;
     }
@@ -518,15 +537,17 @@ if ((dev->config[0].interface[1].altsetting[2].endpoint[0].
   if (result <= 0)
     {
       if (verbose > 2)
-	printf ("    Check 11, Couldn't send read control message (%s)\n",
-		strerror (errno));
+	printf
+	  ("    this is not a GT-8911 (check 13, couldn't send read control message (%s)\n",
+	   strerror (errno));
       finish_interface (handle);
       return 0;
     }
   /* tested on model hardware version 0xffffffc0, firmware version 0x10)) */
   if (verbose > 2)
-    printf ("    Check 12, control message (hardware version %0x / firmware version %0x)\n",
-		req[0], req[1]);
+    printf
+      ("    Check 14, control message (hardware version %0x / firmware version %0x)\n",
+       req[0], req[1]);
 
   finish_interface (handle);
   return "GT-8911";
@@ -1542,7 +1563,8 @@ check_gl660_gl646 (struct usb_device *dev)
 
   /* Check device descriptor */
   if ((dev->descriptor.bDeviceClass != USB_CLASS_VENDOR_SPEC)
-      || (dev->config[0].interface[0].altsetting[0].bInterfaceClass != USB_CLASS_PER_INTERFACE))
+      || (dev->config[0].interface[0].altsetting[0].bInterfaceClass !=
+	  USB_CLASS_PER_INTERFACE))
     {
       if (verbose > 2)
 	printf
@@ -1582,10 +1604,15 @@ check_gl660_gl646 (struct usb_device *dev)
       return 0;
     }
 
-  if ((dev->config[0].interface[0].altsetting[0].endpoint[0].bEndpointAddress != 0x81)
-      || (dev->config[0].interface[0].altsetting[0].endpoint[0].bmAttributes != 0x02)
-      || ((dev->config[0].interface[0].altsetting[0].endpoint[0].wMaxPacketSize != 0x40) &&
-	  (dev->config[0].interface[0].altsetting[0].endpoint[0].wMaxPacketSize != 0x200))
+  if ((dev->config[0].interface[0].altsetting[0].endpoint[0].
+       bEndpointAddress != 0x81)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[0].
+	  bmAttributes != 0x02)
+      ||
+      ((dev->config[0].interface[0].altsetting[0].endpoint[0].
+	wMaxPacketSize != 0x40)
+       && (dev->config[0].interface[0].altsetting[0].endpoint[0].
+	   wMaxPacketSize != 0x200))
       || (dev->config[0].interface[0].altsetting[0].endpoint[0].bInterval !=
 	  0x0))
     {
@@ -1593,17 +1620,24 @@ check_gl660_gl646 (struct usb_device *dev)
 	printf
 	  ("    this is not a GL660+GL646 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
 	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
-	   dev->config[0].interface[0].altsetting[0].endpoint[0].bEndpointAddress,
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].
+	   bEndpointAddress,
 	   dev->config[0].interface[0].altsetting[0].endpoint[0].bmAttributes,
-	   dev->config[0].interface[0].altsetting[0].endpoint[0].wMaxPacketSize,
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].
+	   wMaxPacketSize,
 	   dev->config[0].interface[0].altsetting[0].endpoint[0].bInterval);
       return 0;
     }
 
-  if ((dev->config[0].interface[0].altsetting[0].endpoint[1].bEndpointAddress != 0x02)
-      || (dev->config[0].interface[0].altsetting[0].endpoint[1].bmAttributes != 0x02)
-      || ((dev->config[0].interface[0].altsetting[0].endpoint[1].wMaxPacketSize != 0x40) &&
-	  (dev->config[0].interface[0].altsetting[0].endpoint[0].wMaxPacketSize != 0x200))
+  if ((dev->config[0].interface[0].altsetting[0].endpoint[1].
+       bEndpointAddress != 0x02)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[1].
+	  bmAttributes != 0x02)
+      ||
+      ((dev->config[0].interface[0].altsetting[0].endpoint[1].
+	wMaxPacketSize != 0x40)
+       && (dev->config[0].interface[0].altsetting[0].endpoint[0].
+	   wMaxPacketSize != 0x200))
       || (dev->config[0].interface[0].altsetting[0].endpoint[1].bInterval !=
 	  0))
     {
@@ -1611,17 +1645,24 @@ check_gl660_gl646 (struct usb_device *dev)
 	printf
 	  ("    this is not a GL660+GL646 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
 	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
-	   dev->config[0].interface[0].altsetting[0].endpoint[1].bEndpointAddress,
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].
+	   bEndpointAddress,
 	   dev->config[0].interface[0].altsetting[0].endpoint[1].bmAttributes,
-	   dev->config[0].interface[0].altsetting[0].endpoint[1].wMaxPacketSize,
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].
+	   wMaxPacketSize,
 	   dev->config[0].interface[0].altsetting[0].endpoint[1].bInterval);
       return 0;
     }
 
-  if ((dev->config[0].interface[0].altsetting[0].endpoint[2].bEndpointAddress != 0x83)
-      || (dev->config[0].interface[0].altsetting[0].endpoint[2].bmAttributes != 0x03)
-      || ((dev->config[0].interface[0].altsetting[0].endpoint[2].wMaxPacketSize != 0x1) &&
-	  (dev->config[0].interface[0].altsetting[0].endpoint[0].wMaxPacketSize != 0x200))
+  if ((dev->config[0].interface[0].altsetting[0].endpoint[2].
+       bEndpointAddress != 0x83)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[2].
+	  bmAttributes != 0x03)
+      ||
+      ((dev->config[0].interface[0].altsetting[0].endpoint[2].
+	wMaxPacketSize != 0x1)
+       && (dev->config[0].interface[0].altsetting[0].endpoint[0].
+	   wMaxPacketSize != 0x200))
       || (dev->config[0].interface[0].altsetting[0].endpoint[2].bInterval !=
 	  8))
     {
@@ -1629,9 +1670,11 @@ check_gl660_gl646 (struct usb_device *dev)
 	printf
 	  ("    this is not a GL660+GL646 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
 	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
-	   dev->config[0].interface[0].altsetting[0].endpoint[2].bEndpointAddress,
+	   dev->config[0].interface[0].altsetting[0].endpoint[2].
+	   bEndpointAddress,
 	   dev->config[0].interface[0].altsetting[0].endpoint[2].bmAttributes,
-	   dev->config[0].interface[0].altsetting[0].endpoint[2].wMaxPacketSize,
+	   dev->config[0].interface[0].altsetting[0].endpoint[2].
+	   wMaxPacketSize,
 	   dev->config[0].interface[0].altsetting[0].endpoint[2].bInterval);
       return 0;
     }
@@ -1684,7 +1727,8 @@ check_gl841 (struct usb_device *dev)
 
   /* Check device descriptor */
   if ((dev->descriptor.bDeviceClass != USB_CLASS_VENDOR_SPEC)
-      || (dev->config[0].interface[0].altsetting[0].bInterfaceClass != USB_CLASS_VENDOR_SPEC))
+      || (dev->config[0].interface[0].altsetting[0].bInterfaceClass !=
+	  USB_CLASS_VENDOR_SPEC))
     {
       if (verbose > 2)
 	printf
@@ -1729,7 +1773,7 @@ check_gl841 (struct usb_device *dev)
       || (dev->config[0].interface[0].altsetting[0].endpoint[0].
 	  bmAttributes != 0x02)
       || ((dev->config[0].interface[0].altsetting[0].endpoint[0].
-	  wMaxPacketSize != 0x40) &&
+	   wMaxPacketSize != 0x40) &&
 	  (dev->config[0].interface[0].altsetting[0].endpoint[0].
 	   wMaxPacketSize != 0x200))
       || (dev->config[0].interface[0].altsetting[0].endpoint[0].bInterval !=
@@ -1753,7 +1797,7 @@ check_gl841 (struct usb_device *dev)
       || (dev->config[0].interface[0].altsetting[0].endpoint[1].
 	  bmAttributes != 0x02)
       || ((dev->config[0].interface[0].altsetting[0].endpoint[1].
-	  wMaxPacketSize != 0x40) &&
+	   wMaxPacketSize != 0x40) &&
 	  (dev->config[0].interface[0].altsetting[0].endpoint[1].
 	   wMaxPacketSize != 0x200))
       || (dev->config[0].interface[0].altsetting[0].endpoint[1].bInterval !=
@@ -1778,8 +1822,10 @@ check_gl841 (struct usb_device *dev)
 	  bmAttributes != 0x03)
       || (dev->config[0].interface[0].altsetting[0].endpoint[2].
 	  wMaxPacketSize != 0x1)
-      || ((dev->config[0].interface[0].altsetting[0].endpoint[2].bInterval != 8)
-	  && (dev->config[0].interface[0].altsetting[0].endpoint[2].bInterval != 16)))
+      ||
+      ((dev->config[0].interface[0].altsetting[0].endpoint[2].bInterval != 8)
+       && (dev->config[0].interface[0].altsetting[0].endpoint[2].bInterval !=
+	   16)))
     {
       if (verbose > 2)
 	printf
@@ -1846,7 +1892,7 @@ check_icm532b (struct usb_device *dev)
     {
       if (verbose > 2)
 	printf
-	  ("  check 1, this is not a ICM532B (bDeviceClass = %d, bInterfaceClass = %d)\n",
+	  ("    this is not a ICM532B (check 1, bDeviceClass = %d, bInterfaceClass = %d)\n",
 	   dev->descriptor.bDeviceClass,
 	   dev->config[0].interface[0].altsetting[0].bInterfaceClass);
       return 0;
@@ -1854,22 +1900,24 @@ check_icm532b (struct usb_device *dev)
   if (dev->descriptor.bcdUSB != 0x110)
     {
       if (verbose > 2)
-	printf ("  check 2, this is not a ICM532B (bcdUSB = 0x%x)\n",
+	printf ("    this is not a ICM532B (check 2, bcdUSB = 0x%x)\n",
 		dev->descriptor.bcdUSB);
       return 0;
     }
   if (dev->descriptor.bDeviceSubClass != 0xff)
     {
       if (verbose > 2)
-	printf ("  check 3, this is not a ICM532B (bDeviceSubClass = 0x%x)\n",
-		dev->descriptor.bDeviceSubClass);
+	printf
+	  ("    this is not a ICM532B (check 3, bDeviceSubClass = 0x%x)\n",
+	   dev->descriptor.bDeviceSubClass);
       return 0;
     }
   if (dev->descriptor.bDeviceProtocol != 0xff)
     {
       if (verbose > 2)
-	printf ("  check 4, this is not a ICM532B (bDeviceProtocol = 0x%x)\n",
-		dev->descriptor.bDeviceProtocol);
+	printf
+	  ("    this is not a ICM532B (check 4, bDeviceProtocol = 0x%x)\n",
+	   dev->descriptor.bDeviceProtocol);
       return 0;
     }
 
@@ -1877,7 +1925,7 @@ check_icm532b (struct usb_device *dev)
   if (dev->config[0].interface[0].altsetting[0].bNumEndpoints != 0x01)
     {
       if (verbose > 2)
-	printf ("  check 5, this is not a ICM532B (bNumEndpoints = %d)\n",
+	printf ("    this is not a ICM532B (check 5, bNumEndpoints = %d)\n",
 		dev->config[0].interface[0].altsetting[0].bNumEndpoints);
       return 0;
     }
@@ -1886,8 +1934,10 @@ check_icm532b (struct usb_device *dev)
       bEndpointAddress != 0x81)
     {
       if (verbose > 2)
-	printf ("  check 6, this is not a ICM532B (bEndpointAddress = %d)\n",
-		dev->config[0].interface[0].altsetting[0].endpoint[0].bEndpointAddress);
+	printf
+	  ("    this is not a ICM532B (check 6, bEndpointAddress = %d)\n",
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].
+	   bEndpointAddress);
       return 0;
     }
   /* Check bmAttributes */
@@ -1895,8 +1945,10 @@ check_icm532b (struct usb_device *dev)
       bmAttributes != 0x01)
     {
       if (verbose > 2)
-	printf ("  check , this is not a ICM532B (bEndpointAddress = %d)\n",
-		dev->config[0].interface[0].altsetting[0].endpoint[0].bmAttributes);
+	printf
+	  ("    this is not a ICM532B (check 7, bEndpointAddress = %d)\n",
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].
+	   bmAttributes);
       return 0;
     }
   if ((dev->config[0].interface[0].altsetting[0].bAlternateSetting != 0x00)
@@ -1905,7 +1957,7 @@ check_icm532b (struct usb_device *dev)
     {
       if (verbose > 2)
 	printf
-	  ("  check 8, this is not a ICM532B (bAlternateSetting = 0x%x, wMaxPacketSize = 0x%x)\n",
+	  ("    this is not a ICM532B (check 8, bAlternateSetting = 0x%x, wMaxPacketSize = 0x%x)\n",
 	   dev->config[0].interface[0].altsetting[0].bAlternateSetting,
 	   dev->config[0].interface[0].altsetting[0].endpoint[0].
 	   wMaxPacketSize);
@@ -1918,84 +1970,84 @@ check_icm532b (struct usb_device *dev)
     {
       if (verbose > 2)
 	printf
-	  ("  check 9, this is not a ICM532B (bAlternatesetting = 0x%x, wMaxPacketSize = 0x%x)\n",
+	  ("    this is not a ICM532B (check 9, bAlternatesetting = 0x%x, wMaxPacketSize = 0x%x)\n",
 	   dev->config[0].interface[0].altsetting[1].bAlternateSetting,
 	   dev->config[0].interface[0].altsetting[1].endpoint[0].
 	   wMaxPacketSize);
       return 0;
-    } 
+    }
   if ((dev->config[0].interface[0].altsetting[2].bAlternateSetting != 0x02)
       || (dev->config[0].interface[0].altsetting[2].endpoint[0].
 	  wMaxPacketSize != 0x180))
     {
       if (verbose > 2)
 	printf
-	  ("  check 10, this is not a ICM532B (bAlternatesetting = 0x%x, wMaxPacketSize = 0x%x)\n",
+	  ("    this is not a ICM532B (check 10, bAlternatesetting = 0x%x, wMaxPacketSize = 0x%x)\n",
 	   dev->config[0].interface[0].altsetting[2].bAlternateSetting,
 	   dev->config[0].interface[0].altsetting[2].endpoint[0].
 	   wMaxPacketSize);
       return 0;
-    } 
+    }
   if ((dev->config[0].interface[0].altsetting[3].bAlternateSetting != 0x03)
       || (dev->config[0].interface[0].altsetting[3].endpoint[0].
 	  wMaxPacketSize != 0x200))
     {
       if (verbose > 2)
 	printf
-	  ("  check 11, this is not a ICM532B (bAlternatesetting = 0x%x, wMaxPacketSize = 0x%x)\n",
+	  ("    this is not a ICM532B (check 11, bAlternatesetting = 0x%x, wMaxPacketSize = 0x%x)\n",
 	   dev->config[0].interface[0].altsetting[3].bAlternateSetting,
 	   dev->config[0].interface[0].altsetting[3].endpoint[0].
 	   wMaxPacketSize);
       return 0;
-    } 
+    }
   if ((dev->config[0].interface[0].altsetting[4].bAlternateSetting != 0x04)
       || (dev->config[0].interface[0].altsetting[4].endpoint[0].
 	  wMaxPacketSize != 0x280))
     {
       if (verbose > 2)
 	printf
-	  ("  check 12, this is not a ICM532B (bAlternatesetting = 0x%x, wMaxPacketSize = 0x%x)\n",
+	  ("    this is not a ICM532B (check 12, bAlternatesetting = 0x%x, wMaxPacketSize = 0x%x)\n",
 	   dev->config[0].interface[0].altsetting[4].bAlternateSetting,
 	   dev->config[0].interface[0].altsetting[4].endpoint[0].
 	   wMaxPacketSize);
       return 0;
-    } 
+    }
   if ((dev->config[0].interface[0].altsetting[5].bAlternateSetting != 0x05)
       || (dev->config[0].interface[0].altsetting[5].endpoint[0].
 	  wMaxPacketSize != 0x300))
     {
       if (verbose > 2)
 	printf
-	  ("  check 13, this is not a ICM532B (bAlternatesetting = 0x%x, wMaxPacketSize = 0x%x)\n",
+	  ("    this is not a ICM532B (check 13, bAlternatesetting = 0x%x, wMaxPacketSize = 0x%x)\n",
 	   dev->config[0].interface[0].altsetting[5].bAlternateSetting,
 	   dev->config[0].interface[0].altsetting[5].endpoint[0].
 	   wMaxPacketSize);
       return 0;
-    } 
+    }
   if ((dev->config[0].interface[0].altsetting[6].bAlternateSetting != 0x06)
       || (dev->config[0].interface[0].altsetting[6].endpoint[0].
 	  wMaxPacketSize != 0x380))
     {
       if (verbose > 2)
 	printf
-	  ("  check 14, this is not a ICM532B (bAlternatesetting = 0x%x, wMaxPacketSize = 0x%x)\n",
+	  ("    this is not a ICM532B (check 14, bAlternatesetting = 0x%x, wMaxPacketSize = 0x%x)\n",
 	   dev->config[0].interface[0].altsetting[6].bAlternateSetting,
 	   dev->config[0].interface[0].altsetting[6].endpoint[0].
 	   wMaxPacketSize);
       return 0;
-    } 
+    }
   if ((dev->config[0].interface[0].altsetting[7].bAlternateSetting != 0x07)
       || (dev->config[0].interface[0].altsetting[7].endpoint[0].
 	  wMaxPacketSize != 0x3ff))
     {
       if (verbose > 2)
 	printf
-	  ("  check 15, this is not a ICM532B (bAlternatesetting = 0x%x, wMaxPacketSize = 0x%x)\n",
+	  ("    this is not a ICM532B (check 15, bAlternatesetting = 0x%x, wMaxPacketSize = 0x%x)\n",
 	   dev->config[0].interface[0].altsetting[7].bAlternateSetting,
 	   dev->config[0].interface[0].altsetting[7].endpoint[0].
 	   wMaxPacketSize);
       return 0;
-    } 
+    }
 
   result = prepare_interface (dev, &handle);
   if (!result)
@@ -2004,6 +2056,7 @@ check_icm532b (struct usb_device *dev)
   finish_interface (handle);
   return "ICM532B";
 }
+
 /* ====================================== end of icm532b ==================*/
 
 char *

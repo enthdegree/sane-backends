@@ -17,8 +17,8 @@ SRC_FILES = ../include/sane/saneopts.h ../backend/artec_eplus48u.c \
   ../backend/teco3.h ../backend/test.c ../backend/umax1220u.c \
   ../backend/umax.c ../backend/umax_pp.c
 
-DISTFILES = Makefile.in README sane-backends.de.po sane-backends.pt.po \
-  sane-backends.es.po sane-backends.fr.po sane-backends.ru.po sane-backends.sv.po
+DISTFILES = Makefile.in README template.po \
+  $(foreach lang,$(ALL_LINGUAS),sane-backends.$(lang).po)
 
 # End of configuration section
 
@@ -55,7 +55,7 @@ TMP_FILE_DIR = .tmp
 DISTCLEAN_FILES = @DISTCLEAN_FILES@
 
 .PHONY: all clean depend dist distclean install install-translations \
-  uninstall uninstall-translations all-mos
+  uninstall uninstall-translations all-mos update
 
 all: $(ALL)
 
@@ -76,11 +76,18 @@ sane-backends.pot: $(SRC_FILES)
 	@$(XGETTEXT) -dsane-backends -kSANE_I18N $(TMP_FILE_DIR)/*.*
 	@mv sane-backends.po sane-backends.pot
 
-sane-backends.%.po: sane-backends.pot
-	@echo "updating $@"
-	@cp $@ $@.old 
-	@$(MSGMERGE) $@.old $< -o $@ 
-	@rm -f $@.old 
+update: sane-backends.pot
+	@for lang in $(ALL_LINGUAS) ; do \
+	   pofile=sane-backends.$${lang}.po ; \
+	   if test ! -f $${pofile} ; then \
+	     echo "creating $${pofile}" ; \
+	     cp template.po $${pofile} ; \
+	   fi ; \
+	   echo "updating $${pofile}" ; \
+	   cp $${pofile} $${pofile}.old  ; \
+	   $(MSGMERGE) $${pofile}.old $< -o $${pofile} ; \
+	   rm -f $${pofile}.old ; \
+	 done 
 
 install-translations:
 	@for lang in $(ALL_LINGUAS) ; do \

@@ -1,6 +1,11 @@
 2003-02-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* Makefile.in: Added ChangeLog-1.0.10 to DISTFILES.
+	* po/Makefile.in po/template.desc po/README: Don't generate po files
+	  with every make. That avoids recreation just because of date changes.
+	  Automatically create new languages on make update. Automatically
+	  generate list of DISTFILES. Added template for header used in new
+	  po files. Updated documentation.
 
 2003-02-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

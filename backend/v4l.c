@@ -986,7 +986,7 @@ sane_start (SANE_Handle handle)
 	   s->mbuf.size, s->mbuf.frames, s->mbuf.offsets[0]);
       buffer =
 	mmap (0, s->mbuf.size, PROT_READ | PROT_WRITE, MAP_SHARED, s->fd, 0);
-      if ((int) buffer == -1)
+      if (buffer == (void *)-1)
 	{
 	  DBG (1, "sane_start: mmap failed: %s\n", strerror (errno));
 	  return SANE_STATUS_IO_ERROR;

@@ -1,3 +1,8 @@
+2004-11-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/v4l.c: 64 bit fix from Frank Zago <fzago at austin dot
+	  rr dot com>.
+
 2004-11-13  Julien Blache <jb@jblache.org>
 	* tools/hotplug/libsane.usermap: Added Epson Stylus Photo RX500,
 	Epson Stylus Photo RX600 and Minolta Scan Dual II.

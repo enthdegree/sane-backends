@@ -54,7 +54,7 @@
    This file implements a SANE backend for the Kodak DC-240
    digital camera.  THIS IS EXTREMELY ALPHA CODE!  USE AT YOUR OWN RISK!! 
 
-   (feedback to:  peter@fales.com
+   (feedback to:  gphoto2-devel@fales-lorenz.net)
 
    This backend is based somewhat on the dc25 backend included in this
    package by Peter Fales, and the dc210 backend by Brian J. Murrell

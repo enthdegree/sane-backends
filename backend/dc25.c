@@ -51,7 +51,7 @@
    probably the DC-20) digital cameras.  THIS IS EXTREMELY ALPHA CODE!
    USE AT YOUR OWN RISK!! 
 
-   (feedback to:  psfales@earthling.net)
+   (feedback to:  dc25-devel@fales-lorenz.net)
 
    This backend is based heavily on the dc20ctrl package by Ugo
    Paternostro <paterno@dsi.unifi.it>.  I've attached his header below:

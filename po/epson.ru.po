@@ -1,0 +1,386 @@
+# Translation file for the SANE Epson backend.
+# Copyright (C) 2002, The Free Software Foundation
+# Vitaly Lipatov <lav@altlinux.ru>, 2002
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: sane-backends 1.0.9\n"
+"POT-Creation-Date: 2002-01-19 19:47+0100\n"
+"PO-Revision-Date: 2002-10-28 12:14MSK\n"
+"Last-Translator: Vitaly Lipatov <lav@altlinux.ru>\n"
+"Language-Team: Russian <ru@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=KOI8-R\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 0.9.6\n"
+
+#: .tmp/epson.c:520
+msgid "Binary"
+msgstr "Одноцветный"
+
+#: .tmp/epson.c:521
+msgid "Gray"
+msgstr "Чёрно-белый"
+
+#: .tmp/epson.c:522
+msgid "Color"
+msgstr "Цветной"
+
+#: .tmp/epson.c:531
+msgid "Flatbed"
+msgstr "Планшетный"
+
+#: .tmp/epson.c:532
+msgid "Transparency Unit"
+msgstr "Модуль для слайдов"
+
+#: .tmp/epson.c:533
+msgid "Automatic Document Feeder"
+msgstr "Автоматический податчик документов"
+
+#: .tmp/epson.c:553
+msgid "Positive Film"
+msgstr "Позитив"
+
+#: .tmp/epson.c:554
+msgid "Negative Film"
+msgstr "Негатив"
+
+#: .tmp/epson.c:560
+msgid "Focus on glass"
+msgstr "Фокус на стекле"
+
+#: .tmp/epson.c:561
+msgid "Focus 2.5mm above glass"
+msgstr "Фокус 2.5мм над стеклом"
+
+#: .tmp/epson.c:587 .tmp/epson.c:595 .tmp/epson.c:607 .tmp/epson.c:629
+msgid "None"
+msgstr "Ничего"
+
+#: .tmp/epson.c:588 .tmp/epson.c:596 .tmp/epson.c:608
+msgid "Halftone A (Hard Tone)"
+msgstr "Чёрно-белый A (Резкие тона)"
+
+#: .tmp/epson.c:589 .tmp/epson.c:597 .tmp/epson.c:609
+msgid "Halftone B (Soft Tone)"
+msgstr "Чёрно-белый B (Мягкие тона)"
+
+#: .tmp/epson.c:590 .tmp/epson.c:598 .tmp/epson.c:610
+msgid "Halftone C (Net Screen)"
+msgstr "Чёрно-белый C (Net Screen)"
+
+#: .tmp/epson.c:599 .tmp/epson.c:611
+msgid "Dither A (4x4 Bayer)"
+msgstr ""
+
+#: .tmp/epson.c:600 .tmp/epson.c:612
+msgid "Dither B (4x4 Spiral)"
+msgstr ""
+
+#: .tmp/epson.c:601 .tmp/epson.c:613
+msgid "Dither C (4x4 Net Screen)"
+msgstr ""
+
+#: .tmp/epson.c:602 .tmp/epson.c:614
+msgid "Dither D (8x4 Net Screen)"
+msgstr ""
+
+#: .tmp/epson.c:615
+msgid "Text Enhanced Technology"
+msgstr ""
+
+#: .tmp/epson.c:616
+msgid "Download pattern A"
+msgstr "Загрузить шаблон A"
+
+#: .tmp/epson.c:617
+msgid "Download pattern B"
+msgstr "Загрузить шаблон B"
+
+#: .tmp/epson.c:630 .tmp/epson.c:2624
+msgid "Red"
+msgstr "Красный"
+
+#: .tmp/epson.c:631 .tmp/epson.c:2620
+msgid "Green"
+msgstr "Зелёный"
+
+#: .tmp/epson.c:632 .tmp/epson.c:2628
+msgid "Blue"
+msgstr "Синий"
+
+#: .tmp/epson.c:662
+msgid "No Correction"
+msgstr "Без коррекции"
+
+#: .tmp/epson.c:663 .tmp/epson.c:688
+msgid "User defined"
+msgstr "Определяемое пользователем"
+
+#: .tmp/epson.c:664
+msgid "Impact-dot printers"
+msgstr "Матричные принтеры"
+
+#: .tmp/epson.c:665
+msgid "Thermal printers"
+msgstr "Термические принтеры"
+
+#: .tmp/epson.c:666
+msgid "Ink-jet printers"
+msgstr "Струйные принтеры"
+
+#: .tmp/epson.c:667
+msgid "CRT monitors"
+msgstr "Мониторы с ЭЛТ"
+
+#: .tmp/epson.c:687
+msgid "Default"
+msgstr "По умолчанию"
+
+#: .tmp/epson.c:689
+msgid "High density printing"
+msgstr "Печать высокой плотности"
+
+#: .tmp/epson.c:690
+msgid "Low density printing"
+msgstr "Печать высокой плотности"
+
+#: .tmp/epson.c:691
+msgid "High contrast printing"
+msgstr "Печать высокой контрастности"
+
+#: .tmp/epson.c:710
+msgid "User defined (Gamma=1.0)"
+msgstr "Определённое пользователем (Gamma=1.0)"
+
+#: .tmp/epson.c:711
+msgid "User defined (Gamma=1.8)"
+msgstr "Определённое пользователем (Gamma=1.8)"
+
+#: .tmp/epson.c:781
+msgid "CD"
+msgstr "CD"
+
+#: .tmp/epson.c:782
+msgid "A5 portrait"
+msgstr "A5 портрет"
+
+#: .tmp/epson.c:783
+msgid "A5 landscape"
+msgstr "A5 ландшафт"
+
+#: .tmp/epson.c:784
+msgid "Letter"
+msgstr "Letter"
+
+# nls translation file for backend epson
+# language: german (de)
+#: .tmp/epson.c:785
+msgid "A4"
+msgstr "A4"
+
+#: .tmp/epson.c:786
+msgid "max"
+msgstr "макс"
+
+#: .tmp/epson.c:2350
+msgid "Scan Mode"
+msgstr "Режим сканирования"
+
+#: .tmp/epson.c:2383
+msgid "Selects the halftone."
+msgstr ""
+
+#: .tmp/epson.c:2404
+msgid "Dropout"
+msgstr ""
+
+#: .tmp/epson.c:2405
+msgid "Selects the dropout."
+msgstr ""
+
+#: .tmp/epson.c:2417
+msgid "Selects the brightness."
+msgstr "Выбирает яркость."
+
+#: .tmp/epson.c:2431
+msgid "Sharpness"
+msgstr ""
+
+#: .tmp/epson.c:2563
+msgid "Color correction"
+msgstr "Коррекция цветов"
+
+#: .tmp/epson.c:2564
+msgid "Sets the color correction table for the selected output device."
+msgstr "Устанавливает таблицу коррекции цветов для выбранного выходного устройства."
+
+#: .tmp/epson.c:2603
+msgid "Color correction coefficients"
+msgstr "Коэффициенты цветовой коррекции"
+
+#: .tmp/epson.c:2604
+msgid "Matrix multiplication of RGB"
+msgstr "Матричный множитель RGB"
+
+#: .tmp/epson.c:2621
+msgid "Shift green to red"
+msgstr "Сдвиг зелёного к красному"
+
+#: .tmp/epson.c:2622
+msgid "Shift green to blue"
+msgstr "Сдвиг зелёного к синему"
+
+#: .tmp/epson.c:2623
+msgid "Shift red to green"
+msgstr "Сдвиг красного к зелёному"
+
+#: .tmp/epson.c:2625
+msgid "Shift red to blue"
+msgstr "Сдвиг красного к синему"
+
+#: .tmp/epson.c:2626
+msgid "Shift blue to green"
+msgstr "Сдвиг синего к зелёному"
+
+#: .tmp/epson.c:2627
+msgid "Shift blue to red"
+msgstr "Сдвиг синего к красному"
+
+#: .tmp/epson.c:2630
+msgid "Controls green level"
+msgstr "Управляет уровнем зелёного"
+
+#: .tmp/epson.c:2631
+msgid "Adds to red based on green level"
+msgstr "Добавляет к красному, основанному на уровне зелёного"
+
+#: .tmp/epson.c:2632
+msgid "Adds to blue based on green level"
+msgstr "Добавляет к синему, основанному на уровне зелёного"
+
+#: .tmp/epson.c:2633
+msgid "Adds to green based on red level"
+msgstr "Добавляет к зелёному, основанному на уровне красного"
+
+#: .tmp/epson.c:2634
+msgid "Controls red level"
+msgstr "Управляет уровнем красного"
+
+#: .tmp/epson.c:2635
+msgid "Adds to blue based on red level"
+msgstr "Добавляет к синему, основанному на уровне красного"
+
+#: .tmp/epson.c:2636
+msgid "Adds to green based on blue level"
+msgstr "Добавляет к зелёному, основанному на уровне синего"
+
+#: .tmp/epson.c:2637
+msgid "Adds to red based on blue level"
+msgstr "Добавляет к красному, основанному на уровне синего"
+
+#: .tmp/epson.c:2638
+msgid "Control blue level"
+msgstr "Управляет уровнем синего"
+
+#: .tmp/epson.c:2725
+msgid "Advanced"
+msgstr "Дополнительно"
+
+#: .tmp/epson.c:2733
+msgid "Mirror image"
+msgstr "Зеркальное изображение"
+
+#: .tmp/epson.c:2734
+msgid "Mirror the image."
+msgstr "Сделать изображение зеркальным."
+
+#: .tmp/epson.c:2746 .tmp/epson.c:2758
+msgid "Speed"
+msgstr "Скорость"
+
+#: .tmp/epson.c:2770
+msgid "Auto area segmentation"
+msgstr "Автоматически разделять на области"
+
+#: .tmp/epson.c:2783
+msgid "Zoom"
+msgstr "Масштаб"
+
+#: .tmp/epson.c:2784
+msgid "Defines the zoom factor the scanner will use"
+msgstr "Определяет коэффициент масштабирования, который будет использоваться сканером"
+
+#: .tmp/epson.c:2812
+msgid "Geometry"
+msgstr "Расположение"
+
+#: .tmp/epson.c:2863
+msgid "Quick format"
+msgstr ""
+
+#: .tmp/epson.c:2874
+msgid "Optional equipment"
+msgstr "Дополнительное оборудование"
+
+#: .tmp/epson.c:2899
+msgid "Film type"
+msgstr "Тип плёнки"
+
+#: .tmp/epson.c:2943
+msgid "Eject"
+msgstr "Извлечь"
+
+#: .tmp/epson.c:2944
+msgid "Eject the sheet in the ADF"
+msgstr ""
+
+#: .tmp/epson.c:2955
+msgid "Auto eject"
+msgstr "Автоизвлечение"
+
+#: .tmp/epson.c:2956
+msgid "Eject document after scanning"
+msgstr "Извлечь документ после сканирования"
+
+#: .tmp/epson.c:2968
+msgid "Bay"
+msgstr ""
+
+#: .tmp/epson.c:2969
+msgid "select bay to scan"
+msgstr ""
+
+#: .tmp/epson.h:85
+msgid "Gamma Correction"
+msgstr "Коррекция гаммы"
+
+#: .tmp/epson.h:86
+msgid ""
+"Selectes the gamma correction value from a list of pre-defined devices or "
+"the user defined table, which can be downloaded to the scanner"
+msgstr ""
+"Выбирает значение коррекции гаммы из списка предопределённых устройств или "
+"заданной пользователем таблицы, которая может быть загружена в сканер"
+
+#: .tmp/epson.h:89
+msgid "Focus Position"
+msgstr "Расположение фокуса"
+
+#: .tmp/epson.h:90
+msgid "Sets the focus position to either the glass or 2.5mm above the glass"
+msgstr "Устанавливает расположение фокуса либо на стекле, либо на 2.5мм выше стекла"
+
+#: .tmp/epson.h:92
+msgid "Wait for Button"
+msgstr "Ожидать нажатия кнопки"
+
+#: .tmp/epson.h:93
+msgid ""
+"After sending the scan command, wait until the button on the scanner is "
+"pressed to actually start the scan process."
+msgstr ""
+"После подачи команды \"сканировать\", будет ожидать пока не будет нажата кнопка на сканере,\n"
+"чтобы действительно начать процесс сканирования. "
+

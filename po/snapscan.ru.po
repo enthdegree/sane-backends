@@ -1,0 +1,139 @@
+# Translation file for SANE Snapscan backend
+# Copyright (C) 2002, The Free Software Foundation
+# Vitaly Lipatov <lav@altlinux.ru>, 2002
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: sane-backends 1.0.9\n"
+"POT-Creation-Date: 2002-02-09 14:00+0100\n"
+"PO-Revision-Date: 2002-10-28 03:46MSK\n"
+"Last-Translator: Vitaly Lipatov <lav@altlinux.ru>\n"
+"Language-Team: Russian <ru@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=KOI8-R\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 0.9.6\n"
+
+#snapscan.c:217
+msgid "Color"
+msgstr "Цветное"
+
+#snapscan.c:218
+msgid "Halftone"
+msgstr "Полутоновое"
+
+#snapscan.c:219
+msgid "Gray"
+msgstr "Чёрно-белое"
+
+#snapscan.c:220
+msgid "Lineart"
+msgstr "Штриховое"
+
+#snapscan.c:223
+msgid "Flatbed"
+msgstr "Планшетный"
+
+#snapscan.c:224
+msgid "Transparency Adapter"
+msgstr "Слайд-модуль"
+
+#snapscan.c:166
+msgid "Document Feeder"
+msgstr "Податчик листов"
+
+#snapscan.c:227
+msgid "none"
+msgstr "нет"
+
+#snapscan.c:228
+msgid "6x4 (inch)"
+msgstr "6x4 (дюймов)"
+
+#snapscan.c:229
+msgid "8x10 (inch)"
+msgstr "8x10 (дюймов)"
+
+#snapscan.c:230
+msgid "8.5x11 (inch)"
+msgstr "8.5x11 (дюймов)"
+
+#snapscan.c:233
+msgid "Halftoning Unsupported"
+msgstr "Полутоновое сканирование не поддерживается"
+
+#snapscan.c:234
+msgid "DispersedDot8x8"
+msgstr "Точка размытия 8x8"
+
+#snapscan.c:235
+msgid "DispersedDot16x16"
+msgstr "Точка размытия 16x16"
+
+#snapscan.c:238
+msgid ""
+"Number of scan lines to request in a SCSI read. "
+"Changing this parameter allows you to tune the speed at which "
+"data is read from the scanner during scans. If this is set too "
+"low, the scanner will have to stop periodically in the middle of "
+"a scan; if it's set too high, X-based frontends may stop responding "
+"to X events and your system could bog down."
+msgstr ""
+"Количество строк сканирования в запросе чтения по SCSI."
+"Изменение этого параметра позволит вам настроить скорость, "
+"с которой данный будут передаваться со сканера во время "
+"сканирования. Если он установлен очень низким, сканер "
+"будет периодически останавливаться во время сканирования, "
+"если же этот параметр будет установлен очень высоким, "
+"графическая оболочка может перестать принимать события от "
+"системы X Window и не будет реагировать на ваши команды "
+"до окончания сканирования."
+
+#snapscan.c:380
+msgid "Scan Mode"
+msgstr "Режим сканирования"
+
+#snapscan.c:468
+msgid "Preview mode"
+msgstr "Режим предварительного просмотра"
+
+#snapscan.c:469
+msgid ""
+"Select the mode for previews. Greyscale previews usually give "
+"the best combination of speed and detail."
+msgstr ""
+"Выберите режим для предварительного просмотра. Чёрно-белый предварительный "
+"просмотр обычно даёт лучшее сочетание скорости и детализации."
+
+#snapscan.c:514
+msgid "Geometry"
+msgstr "Расположение"
+
+#snapscan.c:565
+msgid "Predefined settings"
+msgstr "Заранее настроенные параметры"
+
+#snapscan.c:566
+msgid ""
+"Provides standard scanning areas for photographs, printed pages "
+"and the like."
+msgstr ""
+"Предоставляют стандартные области сканирования для фотографий, распечатанных "
+"страниц и прочего."
+
+#snapscan.c:581
+msgid "Enhancement"
+msgstr "Дополнительно"
+
+#snapscan.c:802
+msgid "Advanced"
+msgstr "Дополнительно"
+
+#snapscan.c:809
+msgid "Colour lines per read"
+msgstr "Цветных строк за запрос на чтение"
+
+#snapscan.c:821
+msgid "Greyscale lines per read"
+msgstr "Чёрно-белых строк за запрос на чтение"
+

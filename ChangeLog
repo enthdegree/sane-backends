@@ -1,3 +1,9 @@
+2002-11-12 Oliver Rauch <Oliver.Rauch@Rauch-Domain.DE>
+
+	* added several russion translations to directory po.
+	  The translations have been created by
+          Vitaly Lipatov <LAV@VL3143.spb.edu>
+
 2002-11-07   Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* backend/umax_pp.c: revert a experimental change that went into

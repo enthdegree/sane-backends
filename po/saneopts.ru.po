@@ -1,0 +1,583 @@
+# Translation file for common options from the file saneopts.h
+# Copyright (C) 2002, The Free Software Foundation
+# Vitaly Lipatov <lav@altlinux.ru>, 2002
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: sane-backends 1.0.9\n"
+"POT-Creation-Date: 2002-01-18 22:49+0100\n"
+"PO-Revision-Date: 2002-10-28 12:13MSK\n"
+"Last-Translator: Vitaly Lipatov <lav@altlinux.ru>\n"
+"Language-Team: Russian <ru@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=KOI8-R\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 0.9.6\n"
+
+#: .tmp/saneopts.h:105
+msgid "Number of options"
+msgstr "Количество параметров"
+
+#: .tmp/saneopts.h:106
+msgid "Preview"
+msgstr "Предварительный просмотр"
+
+#: .tmp/saneopts.h:107
+msgid "Force monochrome preview"
+msgstr "Принудительный одноцветный предварительный просмотр"
+
+#: .tmp/saneopts.h:108
+msgid "Bit depth"
+msgstr "Бит на цвет"
+
+# Scanmodus
+#: .tmp/saneopts.h:109
+msgid "Scan mode"
+msgstr "Режим сканирования"
+
+#: .tmp/saneopts.h:110
+msgid "Scan speed"
+msgstr "Скорость сканирования"
+
+#: .tmp/saneopts.h:111
+msgid "Scan source"
+msgstr "Источник сканирования"
+
+#: .tmp/saneopts.h:112
+msgid "Force backtracking"
+msgstr ""
+
+#: .tmp/saneopts.h:113
+msgid "Top-left x"
+msgstr "Левая верхняя координата X"
+
+#: .tmp/saneopts.h:114
+msgid "Top-left y"
+msgstr "Левая верхняя координата Y"
+
+#: .tmp/saneopts.h:115
+msgid "Bottom-right x"
+msgstr "Правая нижняя координата X"
+
+#: .tmp/saneopts.h:116
+msgid "Bottom-right y"
+msgstr "Правая нижняя координата Y"
+
+#: .tmp/saneopts.h:117
+msgid "Scan resolution"
+msgstr "Разрешение сканирования"
+
+#: .tmp/saneopts.h:118
+msgid "X-resolution"
+msgstr "Разрешение по X"
+
+#: .tmp/saneopts.h:119
+msgid "Y-resolution"
+msgstr "Разрешение по Y"
+
+#: .tmp/saneopts.h:120
+msgid "Use custom gamma table"
+msgstr "Использовать нестандартную гамму"
+
+#: .tmp/saneopts.h:121
+msgid "Image intensity"
+msgstr "Интенсивность изображения"
+
+#: .tmp/saneopts.h:122
+msgid "Red intensity"
+msgstr "Интенсивность красного"
+
+#: .tmp/saneopts.h:123
+msgid "Green intensity"
+msgstr "Интенсивность зелёного"
+
+#: .tmp/saneopts.h:124
+msgid "Blue intensity"
+msgstr "Интенсивность синего"
+
+#: .tmp/saneopts.h:125
+msgid "Brightness"
+msgstr "Яркость"
+
+#: .tmp/saneopts.h:126
+msgid "Contrast"
+msgstr "Контрастность"
+
+#: .tmp/saneopts.h:127
+msgid "Grain size"
+msgstr ""
+
+#: .tmp/saneopts.h:128
+msgid "Halftoning"
+msgstr ""
+
+#: .tmp/saneopts.h:129
+msgid "Black level"
+msgstr "Уровень чёрного"
+
+#: .tmp/saneopts.h:130
+msgid "White level"
+msgstr "Уровень белого"
+
+#: .tmp/saneopts.h:131
+msgid "Shadow"
+msgstr "Затенённость"
+
+#: .tmp/saneopts.h:132
+msgid "Shadow for red"
+msgstr "Затенённость для красного"
+
+#: .tmp/saneopts.h:133
+msgid "Shadow for green"
+msgstr "Затенённость для зелёного"
+
+#: .tmp/saneopts.h:134
+msgid "Shadow for blue"
+msgstr "Затенённость для синего"
+
+#: .tmp/saneopts.h:135
+msgid "Highlight"
+msgstr "Подсветка"
+
+#: .tmp/saneopts.h:136
+msgid "Highlight for red"
+msgstr "Подсветка для красного"
+
+#: .tmp/saneopts.h:137
+msgid "Highlight for green"
+msgstr "Подсветка для зелёного"
+
+#: .tmp/saneopts.h:138
+msgid "Highlight for blue"
+msgstr "Подсветка для синего"
+
+#: .tmp/saneopts.h:139
+msgid "Hue"
+msgstr "Тон"
+
+#: .tmp/saneopts.h:140
+msgid "Saturation"
+msgstr "Насыщенность"
+
+#: .tmp/saneopts.h:141
+msgid "Filename"
+msgstr "Название файла"
+
+#: .tmp/saneopts.h:142
+msgid "Halftone pattern size"
+msgstr "Размер чёрно-белого шаблона"
+
+#: .tmp/saneopts.h:143
+msgid "Halftone pattern"
+msgstr "Чёрно-белый шаблон"
+
+#: .tmp/saneopts.h:144
+msgid "Bind X and Y resolution"
+msgstr "Согласовывать разрешение по X и по Y"
+
+#: .tmp/saneopts.h:145
+msgid "Negative"
+msgstr "Негатив"
+
+#: .tmp/saneopts.h:146
+msgid "Quality calibration"
+msgstr "Калибровка качества"
+
+#: .tmp/saneopts.h:147
+msgid "Double Optical Resolution"
+msgstr "Удваивать оптическое разрешение"
+
+#: .tmp/saneopts.h:148
+msgid "Bind RGB"
+msgstr "Связывать RGB"
+
+#: .tmp/saneopts.h:149
+msgid "Threshold"
+msgstr "Порог"
+
+#: .tmp/saneopts.h:150
+msgid "Analog gamma correction"
+msgstr "Аналоговая коррекция гаммы"
+
+#: .tmp/saneopts.h:151
+msgid "Analog gamma red"
+msgstr "Аналоговая гамма красного"
+
+#: .tmp/saneopts.h:152
+msgid "Analog gamma green"
+msgstr "Аналоговая гамма зелёного"
+
+#: .tmp/saneopts.h:153
+msgid "Analog gamma blue"
+msgstr "Аналоговая гамма синего"
+
+#: .tmp/saneopts.h:154
+msgid "Bind analog gamma"
+msgstr "Связывать аналоговые гаммы"
+
+#: .tmp/saneopts.h:155
+msgid "Smear"
+msgstr ""
+
+#: .tmp/saneopts.h:156
+msgid "10 bit-mode"
+msgstr "режим 10 бит"
+
+#: .tmp/saneopts.h:157
+msgid "12 bit-mode"
+msgstr "режим 12 бит"
+
+#: .tmp/saneopts.h:158
+msgid "Warmup lamp"
+msgstr "Прогрев лампы"
+
+#: .tmp/saneopts.h:159
+msgid "Preview patch"
+msgstr ""
+
+#: .tmp/saneopts.h:160
+msgid "Start-scan patch"
+msgstr ""
+
+#: .tmp/saneopts.h:161
+msgid "Cal. exposure-time"
+msgstr "Калибровать время экспозиции"
+
+#: .tmp/saneopts.h:162
+msgid "Cal. exposure-time for red"
+msgstr "Калибровать время экспозиции для красного"
+
+#: .tmp/saneopts.h:163
+msgid "Cal. exposure-time for green"
+msgstr "Калибровать время экспозиции для зелёного"
+
+#: .tmp/saneopts.h:165
+msgid "Cal. exposure-time for blue"
+msgstr "Калибровать время экспозиции для синего"
+
+#: .tmp/saneopts.h:166
+msgid "Scan exposure-time"
+msgstr "Сканировать время экспозиции "
+
+#: .tmp/saneopts.h:167
+msgid "Scan exposure-time for red"
+msgstr "Сканировать время экспозиции для красного"
+
+#: .tmp/saneopts.h:168
+msgid "Scan exposure-time for green"
+msgstr "Сканировать время экспозиции для зелёного"
+
+#: .tmp/saneopts.h:170
+msgid "Scan exposure-time for blue"
+msgstr "Сканировать время экспозиции для синего"
+
+#: .tmp/saneopts.h:171
+msgid "Set exposure-time"
+msgstr "Установить время экспозиции"
+
+#: .tmp/saneopts.h:172
+msgid "Cal. lamp density"
+msgstr "Калибровать плотность лампы"
+
+#: .tmp/saneopts.h:173
+msgid "Scan lamp density"
+msgstr "Сканировать плотность лампы"
+
+#: .tmp/saneopts.h:174
+msgid "Set lamp density"
+msgstr "Установить плотность лампы"
+
+#: .tmp/saneopts.h:178
+msgid "Read-only option that specifies how many options a specific devices supports."
+msgstr ""
+"Параметр только для чтения, указывающий как много параметров указанное устройство "
+"поддерживает."
+
+#: .tmp/saneopts.h:182
+msgid "Request a preview-quality scan."
+msgstr "Запросить сканирование качества как у предварительного просмотра"
+
+#: .tmp/saneopts.h:185
+msgid ""
+"Request that all previews are done in monochrome mode.  On a three-pass "
+"scanner this cuts down the number of passes to one and on a one-pass "
+"scanner, it reduces the memory requirements and scan-time of the preview."
+msgstr ""
+"Запросить, чтобы все предварительные просмотры были в одноцветном режиме. "
+"На трёхпроходных сканерах это уменьшит количество проходов до одного, "
+"а на однопроходных сканерах сократит требования к памяти и время предварительного "
+"сканирования."
+
+#: .tmp/saneopts.h:191
+msgid ""
+"Number of bits per sample, typical values are 1 for \"line-art\" and 8 for "
+"multibit scans."
+msgstr ""
+"Количество бит на цвет, обычным значением является 1 для штрихового и 8 "
+"для полутонового режима сканирования."
+
+#: .tmp/saneopts.h:195
+msgid "Selects the scan mode (e.g., lineart,monochrome, or color)."
+msgstr "Выберите режим сканирования (например, штриховой, чёрно-белый или цветной)."
+
+#: .tmp/saneopts.h:198
+msgid "Determines the speed at which the scan proceeds."
+msgstr "Определяет скорость, с которой производится сканирование."
+
+#: .tmp/saneopts.h:201
+msgid "Selects the scan source (such as a document-feeder)."
+msgstr "Выберите источник сканирование (такой как устройство автоматической подачи документов)"
+
+#: .tmp/saneopts.h:204
+msgid "Controls whether backtracking is forced."
+msgstr ""
+
+#: .tmp/saneopts.h:207
+msgid "Top-left x position of scan area."
+msgstr "Координата Х левого верхнего угла области сканирования."
+
+#: .tmp/saneopts.h:210
+msgid "Top-left y position of scan area."
+msgstr "Координата Y левого верхнего угла области сканирования."
+
+#: .tmp/saneopts.h:213
+msgid "Bottom-right x position of scan area."
+msgstr "Координата Х правого нижнего угла области сканирования."
+
+#: .tmp/saneopts.h:216
+msgid "Bottom-right y position of scan area."
+msgstr "Координата Y правого нижнего угла области сканирования."
+
+#: .tmp/saneopts.h:219
+msgid "Sets the resolution of the scanned image."
+msgstr "Устанавливает разрешение сканируемого изображения."
+
+#: .tmp/saneopts.h:222
+msgid "Sets the horizontal resolution of the scanned image."
+msgstr "Устанавливает горизонтальное разрешение сканируемого изображения."
+
+#: .tmp/saneopts.h:225
+msgid "Sets the vertical resolution of the scanned image."
+msgstr "Устанавливает вертикальное разрешение сканируемого изображения."
+
+#: .tmp/saneopts.h:228
+msgid "Determines whether a builtin or a custom gamma-table should be used."
+msgstr ""
+"Определяет, будет ли использоваться встроенная или "
+"нестандартная таблица гамма-коррекции."
+
+#: .tmp/saneopts.h:232
+msgid ""
+"Gamma-correction table.  In color mode this option equally affects the red, "
+"green, and blue channels simultaneously (i.e., it is an intensity gamma "
+"table)."
+msgstr ""
+"Таблица коррекции гаммы. В цветном режиме этот параметр действует "
+"одинаково на красный, зелёный и синий каналы (то есть это интенсивность "
+"коррекции гаммы)."
+
+#: .tmp/saneopts.h:237
+msgid "Gamma-correction table for the red band."
+msgstr "Таблица коррекции гаммы для красной компоненты."
+
+#: .tmp/saneopts.h:240
+msgid "Gamma-correction table for the green band."
+msgstr "Таблица коррекции гаммы для зелёной компоненты."
+
+#: .tmp/saneopts.h:243
+msgid "Gamma-correction table for the blue band."
+msgstr "Таблица коррекции гаммы для синей компоненты."
+
+#: .tmp/saneopts.h:246
+msgid "Controls the brightness of the acquired image."
+msgstr "Управление яркостью полученного изображения."
+
+#: .tmp/saneopts.h:249
+msgid "Controls the contrast of the acquired image."
+msgstr "Управление контрастностью полученного изображения."
+
+#: .tmp/saneopts.h:252
+msgid ""
+"Selects the \"graininess\" of the acquired image.  Smaller values result in "
+"sharper images."
+msgstr ""
+
+#: .tmp/saneopts.h:256
+msgid "Selects whether the acquired image should be halftoned (dithered)."
+msgstr "Определяет, должно ли полученное изображение быть превращено в полутоновое (размытием)."
+
+#: .tmp/saneopts.h:259 .tmp/saneopts.h:265
+msgid "Selects what radiance level should be considered \"black\"."
+msgstr ""
+
+#: .tmp/saneopts.h:262 .tmp/saneopts.h:274
+msgid "Selects what radiance level should be considered \"white\"."
+msgstr ""
+
+#: .tmp/saneopts.h:267
+msgid "Selects what red radiance level should be considered \"black\"."
+msgstr ""
+
+#: .tmp/saneopts.h:269
+msgid "Selects what green radiance level should be considered \"black\"."
+msgstr ""
+
+#: .tmp/saneopts.h:271
+msgid "Selects what blue radiance level should be considered \"black\"."
+msgstr ""
+
+#: .tmp/saneopts.h:276
+msgid "Selects what red radiance level should be considered \"full red\"."
+msgstr ""
+
+#: .tmp/saneopts.h:278
+msgid "Selects what green radiance level should be considered \"full green\"."
+msgstr ""
+
+#: .tmp/saneopts.h:281
+msgid "Selects what blue radiance level should be considered \"full blue\"."
+msgstr ""
+
+#: .tmp/saneopts.h:285
+msgid "Controls the \"hue\" (blue-level) of the acquired image."
+msgstr "Управляет \"Тоном\" (уровнем синего) полученного изображения."
+
+#: .tmp/saneopts.h:288
+msgid ""
+"The saturation level controls the amount of \"blooming\" that occurs when "
+"acquiring an image with a camera. Larger values cause more blooming."
+msgstr ""
+"Уровень насыщенности управляет количеством \"booming\", который "
+"получается при получении изображения с камеры. Большие значения "
+"вызывают больше blooming."
+
+#: .tmp/saneopts.h:293
+msgid "The filename of the image to be loaded."
+msgstr "Название файла изображения, которое должно быть загружено."
+
+#: .tmp/saneopts.h:296
+msgid ""
+"Sets the size of the halftoning (dithering) pattern used when scanning "
+"halftoned images."
+msgstr ""
+"Устанавливает размер полутонового (dithering) шаблона, используемого при "
+"сканировании полутоновых изображений."
+
+#: .tmp/saneopts.h:300
+msgid "Defines the halftoning (dithering) pattern for scanning halftoned images."
+msgstr ""
+"Устанавливает полутонового (dithering) шаблон, используемый при "
+"сканировании полутоновых изображений."
+
+#: .tmp/saneopts.h:304
+msgid "Use same values for X and Y resolution"
+msgstr "Использовать одинаковые значения для разрешений по горизонтали и вертикали."
+
+#: .tmp/saneopts.h:306
+msgid "Swap black and white"
+msgstr "Поменять местами чёрный и белый"
+
+#: .tmp/saneopts.h:308
+msgid "Do a quality white-calibration"
+msgstr "Выполнить качественную калибровку белого"
+
+#: .tmp/saneopts.h:310
+msgid "Use lens that doubles optical resolution"
+msgstr "Использовать lens, которое удваивает оптическое разрешение"
+
+#: .tmp/saneopts.h:312 .tmp/saneopts.h:324
+msgid "In RGB-mode use same values for each color"
+msgstr "В режиме RGB использовать одинаковые значения для каждого цвета"
+
+#: .tmp/saneopts.h:314
+msgid "Select minimum-brightness to get a white point"
+msgstr "Выберите минимальную яркость для получения белой точки"
+
+#: .tmp/saneopts.h:316
+msgid "Analog gamma-correction"
+msgstr "Аналоговая коррекция гаммы"
+
+#: .tmp/saneopts.h:318
+msgid "Analog gamma-correction for red"
+msgstr "Аналоговая коррекция гаммы для красного"
+
+#: .tmp/saneopts.h:320
+msgid "Analog gamma-correction for green"
+msgstr "Аналоговая коррекция гаммы для зелёного"
+
+#: .tmp/saneopts.h:322
+msgid "Analog gamma-correction for blue"
+msgstr "Аналоговая коррекция гаммы для синего"
+
+#: .tmp/saneopts.h:326
+msgid "Don't care about image smearing problem"
+msgstr ""
+
+#: .tmp/saneopts.h:328
+msgid "Output with 10 bits instead of 8 bits"
+msgstr "Вывод с 10-ю битами вместо 8-ми"
+
+#: .tmp/saneopts.h:330
+msgid "Output with 12 bits instead of 8 bits"
+msgstr "Вывод с 12-ю битами вместо 8-ми"
+
+#: .tmp/saneopts.h:332
+msgid "Warmup lamp before scanning"
+msgstr "Прогревать лампу перед сканированием"
+
+#: .tmp/saneopts.h:334
+msgid "Set preview-bit in rgb-mode"
+msgstr ""
+
+#: .tmp/saneopts.h:336
+msgid "Use special start-scan bits"
+msgstr ""
+
+#: .tmp/saneopts.h:338
+msgid "Define exposure-time for calibration"
+msgstr "Установить время выдержки для калибровки"
+
+#: .tmp/saneopts.h:340
+msgid "Define exposure-time for red calibration"
+msgstr "Установить время выдержки для калибровки красного"
+
+#: .tmp/saneopts.h:342
+msgid "Define exposure-time for green calibration"
+msgstr "Установить время выдержки для калибровки зелёного"
+
+#: .tmp/saneopts.h:344
+msgid "Define exposure-time for blue calibration"
+msgstr "Установить время выдержки для калибровки синего"
+
+#: .tmp/saneopts.h:346
+msgid "Define exposure-time for scan"
+msgstr "Установить время выдержки для сканирования"
+
+#: .tmp/saneopts.h:348
+msgid "Define exposure-time for red scan"
+msgstr "Установить время выдержки для сканирования красного"
+
+#: .tmp/saneopts.h:350
+msgid "Define exposure-time for green scan"
+msgstr "Установить время выдержки для сканирования зелёного"
+
+#: .tmp/saneopts.h:352
+msgid "Define exposure-time for blue scan"
+msgstr "Установить время выдержки для сканирования синего"
+
+#: .tmp/saneopts.h:354
+msgid "Enable selection of exposure-time"
+msgstr "Включить выбор времени выдержки"
+
+#: .tmp/saneopts.h:356
+msgid "Define lamp density for calibration"
+msgstr "Определить плотность лампы для калибровки"
+
+#: .tmp/saneopts.h:358
+msgid "Define lamp density for scan"
+msgstr "Определить плотность лампы для сканирования"
+
+#: .tmp/saneopts.h:360
+msgid "Enable selection of lamp density"
+msgstr "Включить выбор плотности лампы"
+

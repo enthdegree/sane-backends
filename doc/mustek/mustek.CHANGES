@@ -1,5 +1,16 @@
 CHANGES for the SANE Mustek backend
 
+2001-08-26
+  * Released Mustek backend 1.0-112.
+
+2001-08-10
+  * Don't close fds[1] in case of OS/2.
+
+2001-08-01
+
+  * Send stop_scan only for ScanExpress scanners when the scan
+    wasn't cancelled.
+
 2001-07-18
   * Released Mustek backend 1.0-111.
 

@@ -46,7 +46,7 @@
 
 /**************************************************************************/
 /* Mustek backend version                                                 */
-#define BUILD 111
+#define BUILD 112
 /**************************************************************************/
 
 #include "../include/sane/config.h"
@@ -2782,21 +2782,13 @@ do_stop (Mustek_Scanner *s)
       if (s->hw->flags & MUSTEK_FLAG_PRO)
 	dev_wait_ready (s);
       if ((s->hw->flags & MUSTEK_FLAG_PARAGON_1) 
-	  || (s->hw->flags & MUSTEK_FLAG_PARAGON_2))
+	  || (s->hw->flags & MUSTEK_FLAG_PARAGON_2) 
+	  || (s->hw->flags & MUSTEK_FLAG_PRO)
+	  || (s->hw->flags & MUSTEK_FLAG_THREE_PASS))
 	{
-	  /* scsi_inquiry_wait_ready (s);
-	     return sanei_scsi_cmd (s->fd, scsi_test_unit_ready, 
-	     sizeof (scsi_test_unit_ready), 0, 0); */
 	  if (s->cancelled && 
 	      (s->total_bytes < s->params.lines * s->params.bytes_per_line))
 	    status = dev_cmd (s, scsi_start_stop, sizeof (scsi_start_stop), 
-			      0, 0);
-	}
-      else if (s->hw->flags & MUSTEK_FLAG_THREE_PASS)
-	{
-	  if (s->cancelled && 
-	      (s->total_bytes < s->params.lines * s->params.bytes_per_line))
-	    status = dev_cmd (s, scsi_start_stop, sizeof (scsi_start_stop),
 			      0, 0);
 	}
       else
@@ -6128,7 +6120,9 @@ sane_start (SANE_Handle handle)
       /* don't use exit() since that would run the atexit() handlers... */
       _exit (status);
     }
+#ifndef HAVE_OS2_H
   close (fds[1]);
+#endif
   s->pipe = fds[0];
 
   return SANE_STATUS_GOOD;

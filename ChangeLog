@@ -1,5 +1,6 @@
 2001-05-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
-
+	
+	* doc/Makefile.in doc/sane.man: Added SANE manual page.
 	* doc/sane.tex: Clarified the paragraph concerning sane_read. If
 	  *len != 0 the status must be SANE_STATUS_GOOD.
 	

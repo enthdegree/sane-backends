@@ -117,7 +117,7 @@ The backend configuration file (see also description of
 below).
 .TP
 .I @LIBDIR@/libsane-avision.a
-The static library bimplementing this backend.
+The static library implementing this backend.
 .TP
 .I @LIBDIR@/libsane-avision.so
 The shared library implementing this backend (present on systems that

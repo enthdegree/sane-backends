@@ -1,11 +1,14 @@
 
+2003-05-09  Rene Rebe <rene.rebe@gmx.net>
+
+	* doc/sane-avision.man: fix tiny typo
+
 2003-05-08  Rene Rebe <rene.rebe@gmx.net>
 
 	* backend/avision.c doc/sane-avision.man
 	  doc/descriptions/avision.desc: update to the latest avision
 	  backend including the fix for segmentation fault when no config
 	  file is present.
-
 
 2003-05-08  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -84,14 +84,14 @@ static u_char cdb_sizes[8] = {
 static SANE_Status sanei_umaxusb_cmd(int fd, const void *src, size_t src_size, void *dst, size_t * dst_size)
 {
 	unsigned char result;
-	size_t cmd_size = CDB_SIZE (*(char *) src);
+	size_t cmd_size = CDB_SIZE (*(const char *) src);
 	size_t param_size = src_size - cmd_size;
-	char * param_ptr = ((char *) src) + cmd_size;
+	const char * param_ptr = ((const char *) src) + cmd_size;
 	size_t tmp_len;
 	
-	DBG(DBG_info, "Sending SCSI cmd 0x%02x cdb len %ld, param len %ld, result len %ld\n", ((unsigned char *)src)[0], (long)cmd_size, (long)param_size, dst_size? (long)*dst_size:(long)0);
+	DBG(DBG_info, "Sending SCSI cmd 0x%02x cdb len %ld, param len %ld, result len %ld\n", ((const unsigned char *)src)[0], (long)cmd_size, (long)param_size, dst_size? (long)*dst_size:(long)0);
 
-	/* This looks like some kinf of pre-initialization. */
+	/* This looks like some kind of pre-initialization. */
 	sanei_pv8630_write_byte(fd, PV8630_UNKNOWN, 0x0c);
 	sanei_pv8630_wait_byte(fd, PV8630_RSTATUS, 0xf0, 0xff, 1000);
 	sanei_pv8630_write_byte(fd, PV8630_UNKNOWN, 0x04);
@@ -261,18 +261,15 @@ static SANE_Status
 sanei_umaxusb_open (const char *dev, int *fdp,
 					SANEI_SCSI_Sense_Handler handler, void *handler_arg)
 {
+	SANE_Status status;
+
 	handler = handler;			/* silence gcc */
 	handler_arg = handler_arg;	/* silence gcc */
 
-	*fdp = open (dev, O_RDWR | O_EXCL);
-	if (*fdp == -1) {
-		SANE_Status status = SANE_STATUS_INVAL;
-
-		if (errno == EACCES)
-			status = SANE_STATUS_ACCESS_DENIED;
-		
+	status = sanei_usb_open (dev, fdp);
+	if (status != SANE_STATUS_GOOD) {
 		DBG (1, "sanei_umaxusb_open: open of `%s' failed: %s\n",
-			 dev, strerror (errno));
+			 dev, sane_strstatus(status));
 		return status;
     } else {
 		SANE_Word vendor;
@@ -281,7 +278,7 @@ sanei_umaxusb_open (const char *dev, int *fdp,
 		/* We have openned the device. Check that it is a USB scanner. */
 		if (sanei_usb_get_vendor_product (*fdp, &vendor, &product) != SANE_STATUS_GOOD) {
 			/* This is not a USB scanner, or SANE or the OS doesn't support it. */
-			close(*fdp);
+			sanei_usb_close(*fdp);
 			*fdp = -1;
 			return SANE_STATUS_UNSUPPORTED;
 		}
@@ -289,7 +286,7 @@ sanei_umaxusb_open (const char *dev, int *fdp,
 		/* So it's a scanner. Does this backend support it?
 		 * Only the UMAX 2200 USB is currently supported. */
 		if ((vendor != 0x1606) || (product != 0x0230)) {
-			close(*fdp);
+			sanei_usb_close(*fdp);
 			*fdp = -1;
 			return SANE_STATUS_UNSUPPORTED;
 		}
@@ -319,7 +316,7 @@ sanei_umaxusb_open_extended (const char *dev, int *fdp,
 static void
 sanei_umaxusb_close (int fd)
 {
-	close(fd);
+	sanei_usb_close(fd);
 }
 
 

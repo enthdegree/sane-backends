@@ -1,3 +1,27 @@
+2001-04-13  Henning Meier-Geinitz <hmg@gmx.de>
+
+	* PROJECTS TODO: Added entry about E3 USB chipset.
+	* backend/dll.c backend/dll.desc: New version is 1.0.5. Version and
+	  PACKAGE_VERSION is printed with debug level set to 1 or higher.
+	  The version numbers of all backends that are loaded are printed
+	  at debug level 3 or higher. Print error if backend with wrong
+	  major version number is loaded. Some standardization changes
+	  concerning the DBG messages.
+	* backend/net.c backend/net.desc: New version is 1.0.5. Version and
+	  PACKAGE_VERSION is printed with debug level set to 1 or higher.
+	  Some standardization changes concerning the DBG messages.
+	* backend/pnm.c: Return SANE_INFO_RELOAD_PARAMS even if the pnm
+	  file doesn't exist or can't be loaded (from mh <crapsite@gmx.net>).
+	* doc/backend-writing.txt: Added AUTHORS to the list of things that
+	  should be updated when including a new backend. Added points about
+	  avoiding printf and exit in backends.
+	* doc/releases.txt: New file. This text summarizes some points to
+	  pay attention to when a new release of sane-backends is made.
+	  Additions and corrections are appreciated.
+	* doc/scanimage.man: Add some more information about the -V option.
+	* frontend/scanimage.c: The option -V now also prints the version of
+	  the backend (ususally dll).
+	
 2001-04-11  Abel Deuring <a.deuring@satzbau-gmbh.de>
 	* sanei/sanei_scsi.c: fixed a bug in error handling for the
 	  Linux SG driver verison 3.x

@@ -6,6 +6,9 @@
 	  tools/sane-desc.c: Fixed PACKAGE_VERSION breakage. PACKAGE_VERSION was
 	  redefined by autoconf 2.5 with a different meaning. Use PACKAGE_STRING
 	  instead.
+	* backend/mustek.c doc/descriptions/mustek.desc doc/mustek/mustek.CHANGES:
+	  PACKAGE_VERSION fix. Fixed debug message in do_stop: really print exit
+	  status of reader process.
 
 2002-11-29 Oliver Rauch <Oliver.Rauch@Rauch-Domain.DE>
 

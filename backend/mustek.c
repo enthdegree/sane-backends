@@ -46,7 +46,7 @@
 
 /**************************************************************************/
 /* Mustek backend version                                                 */
-#define BUILD 129
+#define BUILD 130
 /**************************************************************************/
 
 #include "../include/sane/config.h"
@@ -2844,14 +2844,16 @@ do_stop (Mustek_Scanner * s)
       DBG (5, "do_stop: terminating reader process\n");
       kill (s->reader_pid, SIGTERM);
       pid = waitpid (s->reader_pid, &exit_status, 0);
+
+      if (status != SANE_STATUS_CANCELLED && pid > 0
+	  && WIFEXITED (exit_status))
+	status = WEXITSTATUS (exit_status);
+
       DBG (5, "do_stop: reader process terminated: %s\n",
 	   sane_strstatus (status));
       if (pid <= 0)
 	DBG (5, "do_stop: reader process already terminated (%s)\n",
 	     strerror (errno));
-      if (status != SANE_STATUS_CANCELLED && pid > 0
-	  && WIFEXITED (exit_status))
-	status = WEXITSTATUS (exit_status);
       s->reader_pid = 0;
     }
 
@@ -5009,7 +5011,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 #endif
 
   DBG (2, "SANE mustek backend version %d.%d build %d from %s\n", V_MAJOR,
-       V_MINOR, BUILD, PACKAGE_VERSION);
+       V_MINOR, BUILD, PACKAGE_STRING);
 
   if (version_code)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BUILD);

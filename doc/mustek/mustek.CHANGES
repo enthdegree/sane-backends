@@ -1,5 +1,20 @@
 CHANGES for the SANE Mustek backend
 
+2002-11-29
+  * Released Mustek backend 1.0-130
+
+2002-11-29
+  * PACKAGE_VERSION fix.
+
+2002-11-18
+  * Fixed debug message in do_stop: really print exit status of reader process.
+
+2002-11-17
+  * Fixed minor issues in mapage. Added links to plustek and gt68xx backends.
+
+2002-11-09
+  * Added link to SCSI documentation to manpage.
+
 2002-11-07
   * Released Mustek backend 1.0-129
 

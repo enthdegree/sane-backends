@@ -1,6 +1,6 @@
 :backend "gt68xx"
 :status :beta
-:version "1.0-46"
+:version "1.0-47"
 :manpage "sane-gt68xx"
 :url "http://www.meier-geinitz.de/sane/gt68xx-backend/"
 :comment "Only the USB scanners mentioned below are supported. For other Mustek BearPaws, look at the Plustek and the MA-1509 backend."

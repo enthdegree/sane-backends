@@ -1,5 +1,10 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0-47 (2003-06-05)
+
+* Don't check if the firmware is loaded. The check seems to confuse the USB
+  system on some UHCI chips.
+
 V 1.0-46 (2003-04-27)
 
 - Added Genius 3x as working scanner, removed testing flag.

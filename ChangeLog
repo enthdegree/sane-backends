@@ -1,3 +1,10 @@
+2003-06-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/gt68xx.c doc/descriptions/gt68xx.desc
+	  doc/gt68xx/gt68xx.CHANGES: Don't check if the firmware is
+	  loaded. The check seems to confuse the USB system on some UHCI
+	  chips.
+
 2003-06-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* sanei/sanei_scsi.c: Fixed C++-like code for MacOS X (patch from

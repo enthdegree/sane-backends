@@ -129,6 +129,7 @@
 #define SANE_NAME_CAL_LAMP_DEN		"cal-lamp-density"
 #define SANE_NAME_SCAN_LAMP_DEN		"scan-lamp-density"
 #define SANE_NAME_SELECT_LAMP_DENSITY	"select-lamp-density"
+#define SANE_NAME_LAMP_OFF_AT_EXIT	"lamp-off-at-exit"
 
 #define SANE_TITLE_NUM_OPTIONS		SANE_I18N("Number of options")
 #define SANE_TITLE_PREVIEW		SANE_I18N("Preview")
@@ -198,6 +199,7 @@
 #define SANE_TITLE_CAL_LAMP_DEN		SANE_I18N("Cal. lamp density")
 #define SANE_TITLE_SCAN_LAMP_DEN	SANE_I18N("Scan lamp density")
 #define SANE_TITLE_SELECT_LAMP_DENSITY	SANE_I18N("Set lamp density")
+#define SANE_TITLE_LAMP_OFF_AT_EXIT	SANE_I18N("Lamp off at exit")
 
 /* Descriptive/help strings for above options: */
 #define SANE_DESC_NUM_OPTIONS \
@@ -383,6 +385,8 @@ SANE_I18N("Define lamp density for calibration")
 SANE_I18N("Define lamp density for scan")
 #define SANE_DESC_SELECT_LAMP_DENSITY \
 SANE_I18N("Enable selection of lamp density")
+#define SANE_DESC_LAMP_OFF_AT_EXIT \
+SANE_I18N("Turn off lamp when program exits")
 
 /* Typical values for stringlists (to keep the backends consistent) */
 

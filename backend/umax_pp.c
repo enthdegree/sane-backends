@@ -2096,9 +2096,9 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 		      lbuf[x * dev->bpp + y * ll] =
 			dev->buf[dev->bufread + x + y * ll + 2 * dev->tw];
 		      lbuf[x * dev->bpp + y * ll + 1] =
-			dev->buf[dev->bufread + x + y * ll];
-		      lbuf[x * dev->bpp + y * ll + 2] =
 			dev->buf[dev->bufread + x + y * ll + dev->tw];
+		      lbuf[x * dev->bpp + y * ll + 2] =
+			dev->buf[dev->bufread + x + y * ll];
 		    }
 		}
 	    }

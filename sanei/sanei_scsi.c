@@ -77,6 +77,9 @@
 #define SCO_UW71_INTERFACE	15
 #define SOLARIS_USCSI_INTERFACE	16
 
+/* time out for SCSI commands in seconds */
+#define SANE_SCSICMD_TIMEOUT 60
+
 #if defined (HAVE_SCSI_SG_H)
 # define USE LINUX_INTERFACE
 # include <scsi/sg.h>
@@ -1128,7 +1131,7 @@ sanei_scsi_open (const char *dev, int *fdp,
      disconnect... ;-( */
   {
     int timeout;
-    timeout = 10 * 60 * HZ;	/* how about 10 minutes? ;-) */
+    timeout = SANE_SCSICMD_TIMEOUT * HZ;	/* how about 1 minute? ;-) */
     ioctl (fd, SG_SET_TIMEOUT, &timeout);
   }
 #endif
@@ -1929,8 +1932,8 @@ sanei_scsi_req_enter2 (int fd,
       memcpy(req->sgdata.sg3.data, cmd, cmd_size);
       (const void*) req->sgdata.sg3.hdr.cmdp = req->sgdata.sg3.data;
       req->sgdata.sg3.hdr.sbp = &(req->sgdata.sg3.sense_buffer[0]);
-      /* 10 minutes should be ok even for slow scanners */
-      req->sgdata.sg3.hdr.timeout = 1000 * 60 * 10;
+      /* 1 minute should be ok even for slow scanners */
+      req->sgdata.sg3.hdr.timeout = 1000 * SANE_SCSICMD_TIMEOUT;
 #ifdef ENABLE_SCSI_DIRECTIO
       /* for the adventurous: If direct IO is used,
          the kernel locks the buffer. This can lead to conflicts,
@@ -2618,7 +2621,7 @@ sanei_scsi_cmd2 (int fd,
       hdr.databuf = (char *) src;
       hdr.datalen = src_size;
     }
-  hdr.timeout = 60000;		/* 1 minute timeout */
+  hdr.timeout = SANE_SCSICMD_TIMEOUT * 1000;		/* 1 minute timeout */
   hdr.cmdlen = cmd_size;
   hdr.senselen = sizeof (hdr.sense);
 
@@ -2717,7 +2720,7 @@ SANE_Status sanei_scsi_cmd2(int fd,
 		 /* dxfer_len */ data_len,
 		 /* sense_len */ SSD_FULL_SIZE,
 		 /* cdb_len */ cmd_size,
-		 /* timeout */ 60 * 1000);
+		 /* timeout */ SANE_SCSICMD_TIMEOUT * 1000);
 
    /* Run the command */
    errno = 0;
@@ -2948,7 +2951,7 @@ sanei_scsi_cmd2 (int fd,
       hdr.data_length = src_size;
     }
   hdr.cdb_length = cmd_size;
-  hdr.max_msecs = 60000;	/* 1 minute timeout */
+  hdr.max_msecs = SANE_SCSICMD_TIMEOUT * 1000;	/* 1 minute timeout */
   if (ioctl (fd, SIOC_IO, &hdr) < 0)
     {
       DBG (1, "sanei_scsi_cmd: ioctl(SIOC_IO) failed: %s\n",
@@ -3000,7 +3003,7 @@ sanei_scsi_cmd2 (int fd,
       hdr.sr_addr = (char *) src;
       hdr.sr_dma_max = src_size;
     }
-  hdr.sr_ioto = 60;		/* I/O timeout in seconds */
+  hdr.sr_ioto = SANE_SCSICMD_TIMEOUT;		/* I/O timeout in seconds */
 
   if (ioctl (fd, SGIOCREQ, &hdr) == -1)
     {
@@ -3064,7 +3067,7 @@ sanei_scsi_cmd2 (int fd,
       ccb.cam_data_ptr = (u_char *) src;
       ccb.cam_dxfer_len = src_size;
     }
-  ccb.cam_timeout = 60;		/* set timeout in seconds */
+  ccb.cam_timeout = SANE_SCSICMD_TIMEOUT;		/* set timeout in seconds */
   ccb.cam_cdb_len = cmd_size;
   memcpy (&ccb.cam_cdb_io.cam_cdb_bytes[0], cmd, cmd_size);
 
@@ -3246,7 +3249,7 @@ sanei_scsi_cmd2 (int fd,
 	sb_ptr->SCB.sc_mode = SCB_READ;
       }
     }
-  sb_ptr->SCB.sc_time = 60000; /* 1 min timeout */
+  sb_ptr->SCB.sc_time = SANE_SCSICMD_TIMEOUT * 1000; /* 1 min timeout */
   DBG(1, "sanei_scsi_cmd: sc_mode = %d, sc_cmdsz = %d, sc_datasz = %d\n",
       sb_ptr->SCB.sc_mode, sb_ptr->SCB.sc_cmdsz, sb_ptr->SCB.sc_datasz);
   {
@@ -3915,7 +3918,7 @@ sanei_scsi_cmd2 (int fd,
     }
   scmd.cdb = (char *) cmd;
   scmd.cdblen = cmd_size;
-  scmd.timeval = 60;		/* 1 minute timeout */
+  scmd.timeval = SANE_SCSICMD_TIMEOUT;		/* 1 minute timeout */
   scmd.sense_buf = sense_buf;
   scmd.senselen = sizeof (sense_buf);
   scmd.statusp = &status;
@@ -4005,7 +4008,7 @@ sanei_scsi_cmd2 (int fd,
 #ifndef SC_BUSY
 # define SC_BUSY		0x08
 #endif
-#define DEF_TIMEOUT 60;		/* 1 minute */
+#define DEF_TIMEOUT SANE_SCSICMD_TIMEOUT;		/* 1 minute */
 
 /* Choosing one of the following DEF_SCG_FLG's SCG_DISRE_ENA allows
    the SCSI driver to disconnect/reconnect.  SCG_CMD_RETRY allows a
@@ -4155,7 +4158,7 @@ unit_ready (int fd)
 
 #if USE == SOLARIS_USCSI_INTERFACE
 
-#define DEF_TIMEOUT 60;		/* 1 minute */
+#define DEF_TIMEOUT SANE_SCSICMD_TIMEOUT;		/* 1 minute */
 
 static int d_errs = 100;
 typedef struct scsi_extended_sense extended_sense_t;

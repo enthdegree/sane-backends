@@ -37,7 +37,7 @@ main (int argc, char **argv)
   int found;
   int recover = 0;
   int trace = 0;
-  int maxw,maxh;
+  int maxw, maxh;
 
 /* scanning parameters : defaults to preview (75 dpi color, full scan area) */
   int brightness = 0x0;
@@ -336,7 +336,8 @@ main (int argc, char **argv)
     }
   if (trace)
     {
-      printf ("UMAX 610P/1220P/2000P scanning program version 6.1 starting ...\n");
+      printf
+	("UMAX 610P/1220P/2000P scanning program version 6.1 starting ...\n");
 #ifdef HAVE_LINUX_PPDEV_H
       printf ("ppdev character device built-in.\n");
 #endif
@@ -479,7 +480,7 @@ main (int argc, char **argv)
 	}
 
       /* set x origin left to right */
-      x = sanei_umax_pp_getLeft() + (maxw - x) - width;
+      x = sanei_umax_pp_getLeft () + (maxw - x) - width;
 
       /* init transport layer */
       /* 0: failed

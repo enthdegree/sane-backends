@@ -1,3 +1,9 @@
+2004-05-15  Stéphane Voltz <svoltz@wanadoo.fr>
+
+	* backend/umax_pp_low.c backend/umax_pp.c tools/umax_pp.c: fixed 
+	  origin shift bug for 610P. Added on guard against configuration
+	  that can put several 'port' option in conf file.
+
 2004-05-13  Stéphane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c backend/umax_pp.c tools/umax_pp.c: fixed 

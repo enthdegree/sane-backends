@@ -755,6 +755,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   size_t len;
   FILE *fp;
   SANE_Status ret;
+  int portdone = 0;
 
   DBG_INIT ();
 
@@ -1003,9 +1004,18 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	}
       else if ((strncmp (cp, "port", 4) == 0) && isspace (cp[4]))
 	{
+	  /* protect ourself from buggy configuration tool such as
+	   * mandrake's 9.2 control panel */
+	  if (portdone)
+	    {
+	      DBG (2,
+		   "'port' option given more than once, check your umax_pp.conf file!!\n");
+	      return SANE_STATUS_INVAL;
+	    }
 
 	  cp += 5;
 	  cp = sanei_config_skip_whitespace (cp);
+	  portdone = 1;
 
 	  if (*cp)
 	    {
@@ -2170,8 +2180,8 @@ sane_start (SANE_Handle handle)
       delta = umax_pp_get_sync (dev->dpi);
       points = 2 * delta;
       /* first lines are 'garbage' for 610P */
-      if(sanei_umax_pp_getastra()<1210)
-	      points*=2;
+      if (sanei_umax_pp_getastra () < 1210)
+	points *= 2;
       DBG (64, "sane_start:umax_pp_start(%d,%d,%d,%d,%d,1,%X,%X)\n",
 	   dev->TopX,
 	   dev->TopY - points,
@@ -2240,9 +2250,10 @@ sane_start (SANE_Handle handle)
   dev->read = 0;
 
   /* leading lines for 610P aren't complete in color mode */
-  /* and should be discarded				  */
-  if((sanei_umax_pp_getastra()<1210)&&(dev->color == UMAX_PP_MODE_COLOR))
-  {
+  /* and should be discarded                              */
+  if ((sanei_umax_pp_getastra () < 1210)
+      && (dev->color == UMAX_PP_MODE_COLOR))
+    {
       rc =
 	sanei_umax_pp_read (2 * delta * dev->tw * dev->bpp, dev->tw, dev->dpi,
 			    0,
@@ -2253,7 +2264,7 @@ sane_start (SANE_Handle handle)
 	  DBG (2, "sane_start: first lines discarding failed\n");
 	  return SANE_STATUS_IO_ERROR;
 	}
-  }
+    }
 
   /* in case of color, we have to preload blue and green */
   /* data to allow reordering while later read           */

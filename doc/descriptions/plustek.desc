@@ -1,17 +1,16 @@
 ;
-; SANE Backend specification file
-; for Plustek backend
+; SANE Backend description file for Plustek backend
 ;
 
 :backend "plustek"
 :version "0.45"
-:status :stable
 :manpage "sane-plustek"
-
 ; backend's web page
-:url "http://www.gjaeger.de/scanner/plustek.html"	
+:url "http://www.gjaeger.de/scanner/plustek.html"
 
 :devicetype :scanner
+
+;* Plustek **********************************************************************************
 
 :mfg "Plustek"
 :url "http://www.plustek.de/"
@@ -20,63 +19,63 @@
 ;name models for above-specified mfg.
 :model "OpticPro 4800P"
 :interface "Parport (SPP, EPP)"
-:status :stable
+:status :complete
 
 :model "OpticPro 4830P"
 :interface "Parport (SPP, EPP)"
-:status :stable
+:status :complete
 
 :model "OpticPro 600P/6000P"
 :interface "Parport (SPP, EPP)"
-:status :stable
+:status :complete
 
 :model "OpticPro 4831P"
 :interface "Parport (SPP, EPP)"
-:status :stable
+:status :complete
 
 :model "OpticPro 9630P"
 :interface "Parport (SPP, EPP)"
-:status :stable
+:status :complete
 
 :model "OpticPro 9630PL"
 :interface "Parport (SPP, EPP)"
-:status :stable
+:status :complete
 :comment "use driver-switch mov=1"
 
 :model "OpticPro 9600P"
 :interface "Parport (SPP, EPP)"
-:status :stable
+:status :complete
 
 :model "OpticPro 1236P"
 :interface "Parport (SPP, EPP)"
-:status :stable
+:status :complete
 :comment "reported as OpticPro 12000P/96000P"
 
 :model "OpticPro 12000P/96000P"
 :interface "Parport (SPP, EPP)"
-:status :stable
+:status :complete
 
 :model "OpticPro 9636P"
 :interface "Parport (SPP, EPP)"
-:status :stable
+:status :complete
 :comment "use driver-switch mov=4"
 
 :model "OpticPro 9636P+/Turbo"
 :interface "Parport (SPP, EPP)"
-:status :stable
+:status :complete
 :comment "use driver-switch mov=3"
 
 :model "OpticPro 9636T"
 :interface "Parport (SPP, EPP)"
-:status :stable
+:status :complete
 
 :model "OpticPro 12000T"
 :interface "Parport (SPP, EPP)"
-:status :stable
+:status :complete
 
 :model "OpticPro AI3"
 :interface "Parport (SPP, EPP)"
-:status :beta
+:status :basic
 :comment "use driver-switch mov=5, poor picture quality"
 
 :model "OpticPro P8"
@@ -85,33 +84,33 @@
 
 :model "OpticPro P12"
 :interface "Parport (SPP, EPP)"
-:status :stable
+:status :complete
 
 :model "OpticPro PT12"
 :interface "Parport (SPP, EPP)"
-:status :stable
+:status :complete
 
 :model "OpticPro U12"
 :interface "USB"
-:status :stable
+:status :complete
 :comment "NOTE: Devices with product ID 0x0001 are not supported!"
 
 :model "OpticPro UT12"
 :interface "USB"
-:status :stable
+:status :complete
 :comment "Note: Devices with product ID 0x0001 are not supported!"
 
 :model "OpticPro UT16"
 :interface "USB"
-:status :stable
+:status :complete
 
 :model "OpticPro U24"
 :interface "USB"
-:status :stable
+:status :complete
 
 :model "OpticPro UT24"
 :interface "USB"
-:status :stable
+:status :complete
 
 ;* The unsupported ones :-( *****************************************************************
 
@@ -133,7 +132,7 @@
 
 :model "Compact 4800 Direct"
 :interface "Parport (SPP, EPP)"
-:status :stable
+:status :complete
 :comment "use driver-switch mov=2"
 
 :model "Compact 4800 Direct-30"
@@ -153,21 +152,25 @@
 
 :model "Colorpage Vivid III V2"
 :interface "Parport (SPP, EPP)"
-:status :stable
+:status :complete
 :comment "Reported as PT12"
 
 :model "Colorpage Vivid Pro II Film"
 :interface "Parport (SPP, EPP)"
-:status :stable
+:status :complete
 :comment "Reported as OP9636T/12000T"
+
+:model "Colorpage HR6X EPP"
+:interface "Parport (SPP, EPP)"
+:status :untested
 
 :model "Colorpage HR6 V2"
 :interface "USB"
-:status :stable
+:status :complete
 
 :model "Colorpage HR7"
 :interface "USB"
-:status :stable
+:status :complete
 
 :model "Colorpage HR6A"
 :interface "USB"
@@ -187,7 +190,7 @@
 
 :model "Scan-It Pro 4800"
 :interface "Parport (SPP, EPP)"
-:status :stable
+:status :complete
 :comment "use driver-switch mov=2"
 
 ;********************************************************************************************
@@ -196,7 +199,7 @@
 
 :model "BrighScan OpticPro"
 :interface "Parport (SPP, EPP)"
-:status :stable
+:status :complete
 :comment "Reported as P12"
 
 ;* MUSTEK ***********************************************************************************
@@ -206,12 +209,11 @@
 
 :model "BearPaw 1200"
 :interface "USB"
-:status :stable
+:status :complete
 
 :model "BearPaw 2400"
 :interface "USB"
-:status :stable
-:comment "Mostly OK"
+:status :complete
 
 ;* Hewlett-Packard **************************************************************************
 
@@ -220,11 +222,11 @@
 
 :model "ScanJet 2100C"
 :interface "USB"
-:status :stable
+:status :complete
 
 :model "ScanJet 2200C"
 :interface "USB"
-:status :stable
+:status :complete
 
 ;* EPSON *******************************************************************************************
 
@@ -233,19 +235,21 @@
 
 :model "Perfection 1250"
 :interface "USB"
-:status :stable
+:status :complete
 
 :model "Perfection 1250Photo"
 :interface "USB"
-:status :stable
+:status :good
+:comment "TPA scans not perfect"
 
 :model "Perfection 1260"
 :interface "USB"
-:status :stable
+:status :complete
 
 :model "Perfection 1260Photo"
 :interface "USB"
-:status :stable
+:status :good
+:comment "TPA scans not perfect"
 
 ;* UMAX *************************************************************************************
 
@@ -254,16 +258,16 @@
 
 :model "UMAX 3400"
 :interface "USB"
-:status :stable
+:status :complete
 
 :model "UMAX 3450"
 :interface "USB"
-:status :stable
+:status :good
 :comment "TPA not supported"
 
 :model "UMAX 5400"
 :interface "USB"
-:status :stable
+:status :complete
 
 ;* COMPAQ ******************************************************************************************
 
@@ -272,7 +276,7 @@
 
 :model "S4-100"
 :interface "USB"
-:status :stable
+:status :complete
 :comment "Identical to UMAX 3400"
 
 ;* CANON *******************************************************************************************
@@ -282,30 +286,30 @@
 
 :model "CanoScan N650U/N656U"
 :interface "USB"
-:status :stable
+:status :basic
 
 :model "CanoScan N1220U"
 :interface "USB"
-:status :beta
+:status :basic
 :comment "Poor color picture quality"
 
 :model "CanoScan N670U/N676U" 
 :interface "USB"
-:status :beta
+:status :basic
 :comment "Poor color picture quality"
 
 :model "CanoScan N1240U"
 :interface "USB"
-:status :beta
+:status :basic
 :comment "Poor color picture quality"
 
 :model "CanoScan LiDE20"
 :interface "USB"
-:status :beta
+:status :basic
 :comment "Poor color picture quality"
 
 :model "CanoScan LiDE30"
 :interface "USB"
-:status :beta
+:status :basic
 :comment "Poor color picture quality"
 

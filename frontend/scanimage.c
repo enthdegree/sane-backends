@@ -1735,5 +1735,9 @@ List of available devices:", prog_name);
 
   sane_close (device);
 
+  if (all_options)
+    free (all_options);
+  if (option_number)
+    free (option_number);
   return status;
 }

@@ -1,6 +1,12 @@
+2002-06-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* tools/sane-find-scanner.c: For HP-UX, check the complete 
+	  /dev/rscsi/ directory for SCSI sscanners, not only the device
+	  files for the first two host adapters.
+
 2002-06-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* doc/sane-fujitsu.man doc/sane-tamarcak.man: Added newline at 
+	* doc/sane-fujitsu.man doc/sane-tamarack.man: Added newline at 
 	  the end to keep Solaris' sed happy.
 	* sanei/sanei_scsi.c: Set buffer size to 64 kB for 
 	  SOLARIS_USCSI_INTERFACE (reported by Ed Randall 

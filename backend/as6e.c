@@ -1,21 +1,50 @@
- /***************************************************************************
-                          as6e.c  -  description
-                             -------------------
-    begin                : Mon Feb 21 20:27:05 EST 2000
-    copyright            : (C) 2000 by Eugene Weiss
-    email                : eweiss@sas.upenn.edu
- ***************************************************************************/
+/* sane - Scanner Access Now Easy.
+   Artec AS6E backend.
+   Copyright (C) 2000 Eugene S. Weiss
+   This file is part of the SANE package.
 
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
+   This program is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public License as
+   published by the Free Software Foundation; either version 2 of the
+   License, or (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 59 Temple Place - Suite 330, Boston,
+   MA 02111-1307, USA.
+
+   As a special exception, the authors of SANE give permission for
+   additional uses of the libraries contained in this release of SANE.
+
+   The exception is that, if you link a SANE library with other files
+   to produce an executable, this does not by itself cause the
+   resulting executable to be covered by the GNU General Public
+   License.  Your use of that executable is in no way restricted on
+   account of linking the SANE library code into it.
+
+   This exception does not, however, invalidate any other reasons why
+   the executable file might be covered by the GNU General Public
+   License.
+
+   If you submit changes to SANE to the maintainers to be included in
+   a subsequent release, you agree by submitting the changes that
+   those changes may be distributed with this exception intact.
+
+   If you write modifications of your own for SANE, it is your choice
+   whether to permit this exception to apply to your modifications.
+   If you do not wish that, delete this exception notice.
+
+   This file implements a backend for the Artec AS6E by making a bridge
+   to the as6edriver program.  The as6edriver program can be found at
+   http://as6edriver.sourceforge.net .  */
 
 
- *                                                                         *
- ***************************************************************************/
+
 
 #include "../include/sane/config.h"
 #include <string.h>
@@ -104,7 +133,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   SANE_Word bytecounter, linebufcounter, ctlbytes;
   SANE_Byte *linebuffer;
 
-  DBG (3, "\nreading %d bytes, %d bytes in carryover buffer", max_len,
+  DBG (3, "reading %d bytes, %d bytes in carryover buffer\n", max_len,
        s->scan_buffer_count);
 
   if (s->image_counter >= s->bytes_to_read)
@@ -114,11 +143,11 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	{
 	  read (s->as6e_params.ctlinpipe, &written, sizeof (written));
 	  if (written != -1)
-	    printf ("\npipe error");
-	  DBG (3, "\ntrying  to read -1 ...written = %d", written);
+	    DBG(3, "pipe error\n");
+	  DBG (3, "trying  to read -1 ...written = %d\n", written);
 	}
       s->scanning = SANE_FALSE;
-      DBG (1, "\nimage data complete, sending EOF...");
+      DBG (1, "image data complete, sending EOF...\n");
       return SANE_STATUS_EOF;
     }				/*image complete */
 
@@ -137,7 +166,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	    {
 	      s->scan_buffer_count = 0;
 	      s->image_counter += max_len;
-	      DBG (3, "\nreturning %d bytes from the carryover buffer", *len);
+	      DBG (3, "returning %d bytes from the carryover buffer\n", *len);
 	      return SANE_STATUS_GOOD;
 	    }
 	}
@@ -153,7 +182,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 
 	  s->scan_buffer_count -= max_len;
 	  s->image_counter += max_len;
-	  DBG (3, "\nreturning %d bytes from the carryover buffer", *len);
+	  DBG (3, "returning %d bytes from the carryover buffer\n", *len);
 	  return SANE_STATUS_GOOD;
 	}
     }
@@ -162,7 +191,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
       *len = 0;			/*no bytes in the buffer */
       if (!s->scanning)
 	{
-	  DBG (1, "\nscan over returning %d", *len);
+	  DBG (1, "scan over returning %d\n", *len);
 	  if (s->scan_buffer_count)
 	    return SANE_STATUS_GOOD;
 	  else
@@ -171,40 +200,40 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
     }
   while (*len < max_len)
     {
-      DBG (3, "\ntrying to read number of bytes...");
+      DBG (3, "trying to read number of bytes...\n");
       ctlbytes = read (s->as6e_params.ctlinpipe, &written, sizeof (written));
-      DBG (3, "\nbytes written = %d, ctlbytes =%d", written, ctlbytes);
+      DBG (3, "bytes written = %d, ctlbytes =%d\n", written, ctlbytes);
       fflush (stdout);
       if ((s->cancelled) && (written == 0))
 	{			/*first clear -1 from pipe */
-	  DBG (1, "\nsending SANE_STATUS_CANCELLED");
+	  DBG (1, "sending SANE_STATUS_CANCELLED\n");
 	  read (s->as6e_params.ctlinpipe, &written, sizeof (written));
 	  s->scanning = SANE_FALSE;
 	  return SANE_STATUS_CANCELLED;
 	}
       if (written == -1)
 	{
-	  DBG (1, "\n-1READ Scanner through. returning %d bytes", *len);
+	  DBG (1, "-1READ Scanner through. returning %d bytes\n", *len);
 	  s->image_counter += *len;
 	  s->scanning = SANE_FALSE;
 	  return SANE_STATUS_GOOD;
 	}
       linebufcounter = 0;
       DBG (3,
-	   "\nlinebufctr reset, len =%d written =%d bytes_read =%d, max = %d",
+	   "linebufctr reset, len =%d written =%d bytes_read =%d, max = %d\n",
 	   *len, written, bytes_read, max_len);
       maxbytes = written;
       while (linebufcounter < written)
 	{
-	  DBG (4, "\ntrying to read data pipe");
+	  DBG (4, "trying to read data pipe\n");
 	  bytes_read =
 	    read (s->as6e_params.datapipe, linebuffer + linebufcounter,
 		  maxbytes);
 	  linebufcounter += bytes_read;
 	  maxbytes -= bytes_read;
-	  DBG (3, "\nbytes_read = %d linebufcounter = %d", bytes_read,
+	  DBG (3, "bytes_read = %d linebufcounter = %d\n", bytes_read,
 	       linebufcounter);}
-      DBG (3, "\nwritten =%d max_len =%d  len =%d", written, max_len, *len);
+      DBG (3, "written =%d max_len =%d  len =%d\n", written, max_len, *len);
       if (written <= (max_len - *len))
 	{
 	  for (bytecounter = 0; bytecounter < written; bytecounter++)
@@ -213,13 +242,13 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	      (*len)++;
 	    }
 	  buffer_offset += written;
-	  DBG (3, "\nbuffer offset = %d", buffer_offset);
+	  DBG (3, "buffer offset = %d\n", buffer_offset);
 	}
       else if (max_len > *len)
 	{			/*there's still room to send data */
 	  for (bytecounter = 0; bytecounter < (max_len - *len); bytecounter++)
 	    buf[bytecounter + buffer_offset] = linebuffer[bytecounter];
-	  DBG (3, "\ntopping off buffer");
+	  DBG (3, "topping off buffer\n");
 	  for (bytecounter = (max_len - *len); bytecounter < written;
 	       bytecounter++)
 	    {
@@ -238,7 +267,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	}
     }				/*while there's space in the buffer */
   s->image_counter += *len;
-  DBG (3, "\nimage ctr = %d bytes_to_read = %d returning %d",
+  DBG (3, "image ctr = %d bytes_to_read = %d returning %d\n",
        s->image_counter, s->bytes_to_read, *len);
 
   return SANE_STATUS_GOOD;
@@ -250,7 +279,7 @@ sane_cancel (SANE_Handle h)
 {
   AS6E_Scan *s = h;
   SANE_Word test;
-  DBG (2, "\ntrying to cancel...");
+  DBG (2, "trying to cancel...\n");
   if (s->scanning)
     {
       test = kill (s->child_pid, SIGUSR1);
@@ -271,15 +300,15 @@ sane_start (SANE_Handle handle)
   int scan_params[8];
   /* First make sure we have a current parameter set.  Some of the
    * parameters will be overwritten below, but that's OK.  */
-  DBG (2, "\nsane_start");
+  DBG (2, "sane_start\n");
   status = sane_get_parameters (s, 0);
   if (status != SANE_STATUS_GOOD)
     return status;
-  DBG (1, "\nGot params again...");
+  DBG (1, "Got params again...\n");
   numbytes = write (s->as6e_params.ctloutpipe, &repeat, sizeof (repeat));
   if (numbytes != sizeof (repeat))
     return (SANE_STATUS_IO_ERROR);
-  DBG (1, "\nsending start_scan signal");
+  DBG (1, "sending start_scan signal\n");
   scan_params[0] = s->as6e_params.resolution;
   if (strcmp (s->value[OPT_MODE].s, "Color") == 0)
     scan_params[1] = 0;
@@ -295,7 +324,7 @@ sane_start (SANE_Handle handle)
   scan_params[5] = s->as6e_params.stopline;
   scan_params[6] = s->value[OPT_BRIGHTNESS].w;
   scan_params[7] = s->value[OPT_CONTRAST].w;
-  DBG (1, "\nscan params = %d %d %d %d %d %d %d %d", scan_params[0],
+  DBG (1, "scan params = %d %d %d %d %d %d %d %d\n", scan_params[0],
        scan_params[1], scan_params[2], scan_params[3],
        scan_params[4], scan_params[5], scan_params[6], scan_params[7]);
   numbytes =
@@ -317,7 +346,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   AS6E_Scan *s = handle;
   SANE_String mode;
   SANE_Word divisor = 1;
-  DBG (2, "\nsane_get_parameters");
+  DBG (2, "sane_get_parameters\n");
   if (!s->scanning)
     {
       memset (&s->sane_params, 0, sizeof (s->sane_params));
@@ -379,7 +408,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   AS6E_Scan *s = handle;
   SANE_Status status = 0;
   SANE_Word cap;
-  DBG (2, "\nsane_control_option");
+  DBG (2, "sane_control_option\n");
   if (info)
     *info = 0;
   if (s->scanning)
@@ -434,7 +463,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_CONTRAST:
 	case OPT_BRIGHTNESS:
 	  s->value[option].w = *(SANE_Word *) val;
-	  DBG (1, "\nset brightness to");
+	  DBG (1, "set brightness to\n");
 	  return (SANE_STATUS_GOOD);
 	case OPT_MODE:
 	  if (s->value[option].s)
@@ -451,7 +480,7 @@ const SANE_Option_Descriptor *
 sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 {
   AS6E_Scan *s = handle;
-  DBG (2, "\nsane_get_option_descriptor");
+  DBG (2, "sane_get_option_descriptor\n");
   if ((unsigned) option >= NUM_OPTIONS)
     return (0);
   return (&s->options_list[option]);
@@ -464,7 +493,7 @@ sane_close (SANE_Handle handle)
 {
   AS6E_Scan *prev, *s;
   SANE_Word repeat = 0;
-  DBG (2, "\nsane_close");
+  DBG (2, "sane_close\n");
   /* remove handle from list of open handles: */
   prev = 0;
   for (s = first_handle; s; s = s->next)
@@ -497,7 +526,7 @@ void
 sane_exit (void)
 {
   AS6E_Device *next;
-  DBG (2, "\nsane_exit");
+  DBG (2, "sane_exit\n");
   while (first_dev != NULL)
     {
       next = first_dev->next;
@@ -517,7 +546,7 @@ as6e_open (AS6E_Scan * s)
   int ctloutpipe[2], ctlinpipe[2], datapipe[2];
   char inpipe_desc[32], outpipe_desc[32], datapipe_desc[32];
   pid_t fork_result;
-  DBG (1, "\nas6e_open");
+  DBG (1, "as6e_open\n");
   memset (inpipe_desc, '\0', sizeof (inpipe_desc));
   memset (outpipe_desc, '\0', sizeof (outpipe_desc));
   memset (datapipe_desc, '\0', sizeof (datapipe_desc));
@@ -527,7 +556,7 @@ as6e_open (AS6E_Scan * s)
       fork_result = fork ();
       if (fork_result == (pid_t) - 1)
 	{
-	  fprintf (stderr, "Fork failure");
+	  DBG(1, "Fork failure");
 	  return (SANE_STATUS_IO_ERROR);
 	}
 
@@ -539,10 +568,10 @@ as6e_open (AS6E_Scan * s)
 	  exec_result =
 	    execlp ("as6edriver", "as6edriver", "-s", inpipe_desc,
 		    outpipe_desc, datapipe_desc, (char *) 0);
-	  printf ("\nThe SANE backend was unable to start \"as6edriver\".");
-	  printf ("\nThis must be installed in a driectory in your PATH.\n");
-	  printf ("\nTo aquire the as6edriver program,");
-	  printf ("\ngo to http://as6edriver.sourceforge.net.");
+	  DBG (1,"The SANE backend was unable to start \"as6edriver\".\n");
+	  DBG (1,"This must be installed in a driectory in your PATH.\n");
+	  DBG (1,"To aquire the as6edriver program,\n");
+	  DBG (1,"go to http://as6edriver.sourceforge.net.\n");
 	  write (ctlinpipe[WRITEPIPE], &exec_result, sizeof (exec_result));
 	  exit (-1);
 	}
@@ -553,21 +582,21 @@ as6e_open (AS6E_Scan * s)
 	  DBG (1, "%d - read %d status = %d\n", getpid (), data_processed,
 	       as6e_status); if (as6e_status == -2)
 	    {
-	      printf ("\nPort access denied.");
+	      DBG (1,"Port access denied.\n");
 	      return (SANE_STATUS_IO_ERROR);
 	    }
 	  if (as6e_status == -1)
 	    {
-	      printf ("\nCould not contact scanner.");
+	      DBG (1,"Could not contact scanner.\n");
 	      return (SANE_STATUS_IO_ERROR);
 	    }
 
 	  if (as6e_status == 1)
-	    printf ("\nUsing nibble mode.");
+	    DBG (1,"Using nibble mode.\n");
 	  if (as6e_status == 2)
-	    printf ("\nUsing byte mode.");
+	    DBG (1,"Using byte mode.\n");
 	  if (as6e_status == 3)
-	    printf ("\nUsing EPP mode.");
+	    DBG (1,"Using EPP mode.\n");
 	  s->as6e_params.ctlinpipe = ctlinpipe[READPIPE];
 	  s->as6e_params.ctloutpipe = ctloutpipe[WRITEPIPE];
 	  s->as6e_params.datapipe = datapipe[READPIPE];
@@ -589,13 +618,12 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   FILE *fp = NULL;
 
   DBG_INIT();
-  DBG (2, "\nsane_init");
+  DBG (2, "sane_init\n");
   if (version_code)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, 0);
 /*  fp = sanei_config_open (AS6E_CONFIG_FILE);*/
   if (!fp)
     {
-      /*      attach ("as6edriver", 0);*/
       return (attach ("as6edriver", 0));
     }
 
@@ -631,7 +659,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   static const SANE_Device **devlist = 0;
   AS6E_Device *dev;
   int i;
-  DBG (3, "\nsane_get_devices");
+  DBG (3, "sane_get_devices\n");
   if (devlist)
     free (devlist);
   devlist = malloc ((num_devices + 1) * sizeof (devlist[0]));
@@ -670,7 +698,7 @@ initialize_options_list (AS6E_Scan * s)
 {
 
   SANE_Int option;
-  DBG (2, "\ninitialize_options_list");
+  DBG (2, "initialize_options_list\n");
   for (option = 0; option < NUM_OPTIONS; ++option)
     {
       s->options_list[option].size = sizeof (SANE_Word);
@@ -777,12 +805,14 @@ check_for_driver (const char *devname)
       strncpy (fullname, dir, NAMESIZE);
       strncat (fullname, "/", NAMESIZE);
       strncat (fullname, devname, NAMESIZE);
-      stat (fullname, &statbuf);
-      modes = statbuf.st_mode;
-      if (S_ISREG (modes))
-	return (1);		/* found as6edriver */
+      if ( !stat (fullname, &statbuf))
+        {
+          modes = statbuf.st_mode;
+          if (S_ISREG (modes))
+	    return (1);		/* found as6edriver */
+        }
       if (path[count] == '\0')
-	return (0);		/* end of path --no driver found */
+	return (0);         /* end of path --no driver found */
       count++;
       offset = count;
     }
@@ -798,7 +828,7 @@ attach (const char *devname, AS6E_Device ** devp)
   AS6E_Device *dev;
 
 /*  SANE_Status status;  */
-  DBG (2, "\nattach");
+  DBG (2, "attach\n");
   for (dev = first_dev; dev; dev = dev->next)
     {
       if (strcmp (dev->sane.name, devname) == 0)
@@ -835,7 +865,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   SANE_Status status;
   AS6E_Device *dev;
   AS6E_Scan *s;
-  DBG (2, "\nsane_open");
+  DBG (2, "sane_open\n");
   if (devicename[0])
     {
       for (dev = first_dev; dev; dev = dev->next)

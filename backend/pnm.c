@@ -53,13 +53,17 @@
 #define BACKEND_NAME	pnm
 #include "sane/sanei_backend.h"
 
+#ifndef PATH_MAX
+# define PATH_MAX	1024
+#endif
+
 #define MAGIC	(void *)0xab730324
 
 static int is_open = 0;
 static int three_pass = 0;
 static int hand_scanner = 0;
 static int pass = 0;
-static char filename[128] = "/tmp/input.ppm";
+static char filename[PATH_MAX] = "/tmp/input.ppm";
 static SANE_Fixed bright = 0;
 static SANE_Fixed contr = 0;
 static SANE_Bool gray = SANE_FALSE;
@@ -107,7 +111,7 @@ static const SANE_Option_Descriptor sod[] =
       SANE_NAME_FILE,
       SANE_TITLE_FILE,
       SANE_DESC_FILE,
-    SANE_TYPE_STRING,
+      SANE_TYPE_STRING,
       SANE_UNIT_NONE,
       sizeof (filename),
       SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
@@ -212,7 +216,8 @@ SANE_Status
 sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
   DBG_INIT();
-
+  DBG(2, "sane_init: version_code %s 0, authorize %s 0\n",
+      version_code == 0 ? "=" : "!=", authorize == 0 ? "=" : "!="); 
   if (version_code)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, 0);
   return SANE_STATUS_GOOD;
@@ -221,6 +226,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 void
 sane_exit (void)
 {
+  DBG(2, "sane_exit\n");
 }
 
 /* Device select/open/close */
@@ -249,6 +255,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
     dev + 0, dev + 1, 0
   };
 
+  DBG(2, "sane_get_devices: local_only = %d\n", local_only);
   *device_list = devlist;
   return SANE_STATUS_GOOD;
 }
@@ -257,6 +264,10 @@ SANE_Status
 sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 {
   int i;
+
+  if (!devicename)
+    return SANE_STATUS_INVAL;
+  DBG(2, "sane_open: devicename = \"%s\"\n", devicename);  
 
   if (!devicename[0])
     i = 0;
@@ -278,6 +289,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 void
 sane_close (SANE_Handle handle)
 {
+  DBG(2, "sane_close\n");
   if (handle == MAGIC)
     is_open = 0;
 }
@@ -285,6 +297,7 @@ sane_close (SANE_Handle handle)
 const SANE_Option_Descriptor *
 sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 {
+  DBG(2, "sane_get_option_descriptor: option = %d\n", option);
   if (handle != MAGIC || !is_open)
     return NULL;		/* wrong device */
   if (option < 0 || option >= NELEMS(sod))
@@ -300,7 +313,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   SANE_Int myinfo = 0;
   SANE_Status status;
 
-  DBG(2, "control_option(handle=%p,opt=%d,act=%d,val=%p,info=%p)\n",
+  DBG(2, "sane_control_option: handle=%p, opt=%d, act=%d, val=%p, info=%p\n",
       handle, option, action, value, info);
 
   if (handle != MAGIC || !is_open)
@@ -319,6 +332,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       switch (option)
 	{
 	case 2:
+	  if ((strlen (value) + 1) > sizeof (filename))
+	    return SANE_STATUS_NO_MEM;
 	  strcpy (filename, value);
 	  if (access (filename, R_OK) == 0)
 	    myinfo |= SANE_INFO_RELOAD_PARAMS;
@@ -414,19 +429,23 @@ getparmfromfile (void)
     {
       /* Binary monochrome. */
       parms.depth = 1;
-      gray = SANE_TRUE;
-
       ppm_type = ppm_bitmap;
     }
   else if (!strncmp (buf, "P5", 2))
     {
       /* Grayscale. */
-      gray = SANE_TRUE;
+      parms.depth = 8;
       ppm_type = ppm_greyscale;
     }
-  else if (strncmp (buf, "P6", 2))
+  else if (!strncmp (buf, "P6", 2))
     {
-      DBG(2, "%s is not a recognized PPM\n", filename);
+      /* Color. */
+      parms.depth = 8;
+      ppm_type = ppm_color;
+    }
+  else
+    {
+      DBG(1, "getparmfromfile: %s is not a recognized PPM\n", filename);
       fclose (fn);
       return -1;
     }
@@ -444,7 +463,7 @@ getparmfromfile (void)
     parms.lines = -1;
   else
     parms.lines = y;
-  if (gray)
+  if ((ppm_type == ppm_greyscale) || (ppm_type == ppm_bitmap) || gray)
     parms.format = SANE_FRAME_GRAY;
   else
     {
@@ -468,6 +487,7 @@ sane_get_parameters (SANE_Handle handle,
 		     SANE_Parameters * params)
 {
   int rc = SANE_STATUS_GOOD;
+  DBG(2, "sane_get_parameters\n");
   if (handle != MAGIC || !is_open)
     rc = SANE_STATUS_INVAL;	/* Unknown handle ... */
   else if (getparmfromfile ())
@@ -481,7 +501,8 @@ sane_start (SANE_Handle handle)
 {
   char buf[1024];
   int nlines;
-
+  
+  DBG(2, "sane_start\n");
   if (handle != MAGIC || !is_open)
     return SANE_STATUS_INVAL;	/* Unknown handle ... */
 
@@ -522,9 +543,11 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
 {
   int len, x, hlp;
 
-  if (handle != MAGIC || !is_open || !infile)
+  DBG(2,"sane_read: max_length = %d, rgbleftover = {%d, %d, %d}\n",
+      max_length, rgbleftover[0], rgbleftover[1], rgbleftover[2]);
+  if (handle != MAGIC || !is_open || !infile || !data || !length)
     return SANE_STATUS_INVAL;	/* Unknown handle or no file to read... */
-
+    
   if (feof (infile))
     return SANE_STATUS_EOF;
 
@@ -542,6 +565,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
 	  if (rgbbuf == 0)
 	    return SANE_STATUS_NO_MEM;
 	}
+      else rgblength = 3 * max_length;
 
       /* Copy any leftovers into the buffer. */
       q = rgbbuf;
@@ -603,6 +627,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
 void
 sane_cancel (SANE_Handle handle)
 {
+  DBG(2, "sane_cancel: handle = %p\n", handle);
   pass = 0;
   if (infile != NULL)
     {
@@ -614,11 +639,15 @@ sane_cancel (SANE_Handle handle)
 SANE_Status
 sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 {
+  DBG(2, "sane_set_io_mode: handle = %p, non_blocking = %d\n", handle,
+      non_blocking);
   return SANE_STATUS_UNSUPPORTED;
 }
 
 SANE_Status
 sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
 {
+  DBG(2, "sane_get_select_fd: handle = %p, fd %s 0\n", handle,
+      fd ? "!=" : "=");
   return SANE_STATUS_UNSUPPORTED;
 }

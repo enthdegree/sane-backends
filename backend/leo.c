@@ -48,7 +48,7 @@
 
 /*--------------------------------------------------------------------------*/
 
-#define BUILD 3			/* 2002/04/21 */
+#define BUILD 8			/* 2002/05/29 */
 #define BACKEND_NAME leo
 #define LEO_CONFIG_FILE "leo.conf"
 

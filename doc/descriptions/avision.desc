@@ -15,8 +15,7 @@
 
 ; version of backend
 :version "Build: 70"
-;status: alpha, beta, stable, new
-:status :stable
+;:status :stable
 
 ; backend's web page
 :url "http://drocklinux.dyndns.org/rene/avision/index.html"
@@ -28,123 +27,156 @@
 
 :mfg "Avision"
 :url "http://www.avision.com"
+
 :model "AV100CS"
 :interface "SCSI"
 :status :untested
+
 :model "AV100IIICS"
 :interface "SCSI"
 :status :untested
+
 :model "AV100S"
 :interface "SCSI"
 :status :untested
+
 :model "AV210"
 :interface "USB"
 :status :untested
+
 :model "AV220"
 :interface "USB"
 :status :untested
+
 :model "AV240SC"
 :interface "SCSI"
 :status :untested
+
 :model "AV260CS"
 :interface "SCSI"
 :status :untested
+
 :model "AV360CS"
 :interface "SCSI"
 :status :untested
+
 :model "AV363CS"
 :interface "SCSI"
 :status :untested
+
 :model "AV420CS"
 :interface "SCSI"
 :status :untested
+
 :model "AV6120"
 :interface "SCSI"
 :status :untested
+
 :model "AV610CU Scancopier"
 :interface "USB"
 :comment "1 pass, 600 dpi"
 :status :untested
+
 :model "AV620CS"
 :interface "SCSI"
 :comment "1 pass, 600 dpi"
-:status :stable
+:status :complete
+
 :model "AV620CS Plus"
 :interface "SCSI"
 :comment "1 pass, 1200 dpi"
-:status :stable
+:status :complete
+
 :model "AV630CS"
 :interface "SCSI"
 :comment "1 pass, 1200 dpi - regularly tested"
-:status :stable
+:status :complete
+
 :model "AV630CSL"
 :interface "SCSI"
 :comment "1 pass, 1200 dpi"
 :status :untested
+
 :model "AV6240"
 :interface "SCSI"
 :comment "1 pass, ??? dpi"
-:status :stable
+:status :complete
+
 :model "AV600U"
 :interface "USB"
 :comment "1 pass, 1200 dpi"
 :status :untested
+
 :model "AV600U Plus"
 :interface "USB"
 :comment "1 pass, 1200 dpi"
 :status :untested
+
 :model "AV660S"
 :interface "USB"
 :comment "1 pass, 1200 dpi"
 :status :untested
+
 :model "AV680S"
 :interface "USB"
 :comment "1 pass, 1200 dpi"
 :status :untested
+
 :model "AV690U"
 :interface "USB"
 :comment "1 pass, 2400 dpi"
 :status :untested
+
 :model "AV800S"
 :interface "SCSI"
 :comment "1 pass, 1200 dpi"
 :status :untested
+
 :model "AV810C"
 :interface "SCSI"
 :comment "1 pass, 1200 dpi"
 :status :untested
+
 :model "AV820"
 :interface "SCSI"
 :comment "1 pass, 1200 dpi"
 :status :untested
+
 :model "AV820C"
 :interface "SCSI"
 :comment "1 pass, 1200 dpi"
 :status :untested
+
 :model "AV820C Plus"
 :interface "SCSI"
 :comment "1 pass, 1200 dpi"
 :status :untested
+
 :model "AV830C"
 :interface "SCSI"
 :comment "1 pass, 1200 dpi"
 :status :untested
+
 :model "AV830C Plus"
 :interface "SCSI"
 :comment "1 pass, 1200 dpi"
 :status :untested
+
 :model "AV880"
 :interface "SCSI"
 :comment "1 pass, 1200 dpi"
 :status :untested
+
 :model "AV880C"
 :interface "SCSI"
 :comment "1 pass, 1200 dpi"
 :status :untested
+
 :model "AV8000S"
 :interface "SCSI"
 :comment "1 pass, 1200 dpi, A3 - regularly tested"
-:status :stable
+:status :complete
+
 :model "AVA3"
 :interface "SCSI"
 :comment "1 pass, 600 dpi, A3"
@@ -152,75 +184,94 @@
 
 :mfg "Hewlett-Packard"
 :url "http://www.hp.com"
+
 :model "ScanJet 5300C"
 :interface "USB"
 :comment "1 pass, 1200 dpi - regularly tested"
-:status :stable
+:status :complete
+
 :model "ScanJet 5370C"
 :interface "USB"
 :comment "1 pass, 2400 dpi"
-:status :alpha
+:status :basic
+
 :model "ScanJet 7400c"
 :interface "USB"
 :comment "1 pass, 1200 dpi - dual USB/SCSI interface"
-:status :beta
+:status :good
+
 :model "ScanJet 7450c"
 :interface "USB"
 :comment "1 pass, 1200 dpi - dual USB/SCSI interface"
-:status :beta
+:status :good
+
 :model "ScanJet 7490c"
 :interface "USB"
 :comment "1 pass, 1200 dpi - dual USB/SCSI interface"
-:status :beta
+:status :good
 
 :mfg "Minolta"
 :url "http://www.minolta.com"
+
 :model "FS-V1"
 :interface "USB"
 :comment "1 pass, film-scanner"
-:status :alpha
+:status :basic
+
 :model "Elite II"
 :interface "USB"
 :comment "1 pass, film-scanner"
 :status :untested
 
 :mfg "Mitsubishi"
+
 :model "MCA-ADFC"
 :interface "SCSI"
 :status :untested
+
 :model "S1200C"
 :interface "SCSI"
 :status :untested
+
 :model "S600C"
 :interface "SCSI"
 :status :untested
+
 :model "SS600"
 :interface "SCSI"
-:status :beta
+:status :good
 
 :mfg "Fujitsu"
 :url "http://www.fujitsu.com/"
+
 :model "ScanPartner"
 :interface "SCSI"
 :status :untested
+
 :model "ScanPartner 10"
 :interface "SCSI"
 :status :untested
+
 :model "ScanPartner 10C"
 :interface "SCSI"
 :status :untested
+
 :model "ScanPartner 15C"
 :interface "SCSI"
 :status :untested
+
 :model "ScanPartner 300C"
 :interface "SCSI"
 :status :untested
+
 :model "ScanPartner 600C"
 :interface "SCSI"
 :status :untested
+
 :model "ScanPartner Jr"
 :interface "SCSI"
 :status :untested
+
 :model "ScanStation"
 :interface "SCSI"
 :status :untested

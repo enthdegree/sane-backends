@@ -1,6 +1,6 @@
 :backend "sharp"                ; name of backend
 :version "0.32"                 ; version of backend
-:status :beta                   ; :alpha, :beta, :stable, :new
+;:status :beta                   ; :alpha, :beta, :stable, :new
 :url "http://www.satzbau-gmbh.de/staff/abel/sane-sharp.html" 
 				; backend's homepage
 :manpage "sane-sharp"
@@ -11,17 +11,17 @@
 
 :model "JX-610"                 ; name models for above-specified mfg.
 :interface "SCSI"
-:status :beta
+:status :good
 :comment ""
 
 :model "JX-250"                 ; name models for above-specified mfg.
 :interface "SCSI"
-:status :beta
+:status :good
 :comment ""
 
 :model "JX-320"                 ; name models for above-specified mfg.
 :interface "SCSI"
-:status :beta
+:status :good
 :comment ""
 
 :model "JX-325"                 ; name models for above-specified mfg.
@@ -31,10 +31,10 @@
 
 :model "JX-330"                 ; name models for above-specified mfg.
 :interface "SCSI"
-:status :beta
+:status :good
 :comment ""
 
 :model "JX-350"                 ; name models for above-specified mfg.
 :interface "SCSI"
-:status :beta
+:status :good
 :comment ""

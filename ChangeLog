@@ -1,3 +1,8 @@
+2001-01-24  Stéphane Voltz  <svoltz@wanadoo.fr>
+
+	* backend/umax_pp_low.c: corrected 2000P mis-detection by adding
+	  pauses in epat wake-up.
+
 2002-01-23  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan.c backend/snapscan-scsi.c backend/snapscan.h

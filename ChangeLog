@@ -1,3 +1,8 @@
+2000-12-07  Henning Meier-Geinitz <hmg@gmx.de>
+	
+	* TODO: Updated. Removed entries about plustek comment problembelm
+	  and libsane.la. Added entry about disabling local scanning.
+
 2000-12-07 Gerhard Jaeger <g.jaeger@earthling.net>
 	
     * backend/plustek-share.h backend/plustek.h backend/plustek.c

@@ -31,6 +31,7 @@
  * - 0.46 - fixed problem in usb_GetLampStatus for CIS devices, as we
  *          read back reg[0x29] to wrong position
  *          made it compile without itimer definitions
+ *          moved usb_HostSwap() to this file.
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -89,6 +90,24 @@ static u_long dwCrystalFrequency = 48000000UL;
 static SANE_Bool fModuleFirstHome;  /* HEINER: this has to be initialized */
 static SANE_Bool fLastScanIsAdf;
 static u_char    a_bRegs[0x80];     /**< our global register file */
+
+
+/** the NatSemi 983x is a big endian chip, and the line protocol data all
+ *  arrives big-endian.  This determines if we need to swap to host-order
+ */
+static SANE_Bool usb_HostSwap( void )
+{
+	u_short        pattern  = 0xfeed; /* deadbeef */
+	unsigned char *bytewise = (unsigned char *)&pattern;
+
+	if ( bytewise[0] == 0xfe ) {
+		DBG( _DBG_READ, "We're big-endian!  No need to swap!\n" );
+		return 0;
+	}
+	DBG( _DBG_READ, "We're little-endian!  NatSemi LM983x is big!"
+	                "Must swap calibration data!\n" );
+	return 1;
+}
 
 
 /** usb_GetMotorSet

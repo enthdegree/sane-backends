@@ -78,23 +78,6 @@
 /** 0 for not ready,  1 pos white lamp on,  2 lamp off */ 
 static int strip_state=0; 
   
-/** the NatSemi 983x is a big endian chip, and the line protocol data all
- *  arrives big-endian.  This determines if we need to swap to host-order
- */
-static SANE_Bool cano_HostSwap_p( void )
-{
-	u_short        pattern  = 0xfeed; /* deadbeef */
-	unsigned char *bytewise = (unsigned char *)&pattern;
-	
-	if ( bytewise[0] == 0xfe ) {
-		DBG( _DBG_READ, "We're big-endian!  No need to swap!\n" );
-		return 0;
-	}
-	DBG( _DBG_READ, "We're little-endian!  NatSemi LM9833 is big!"
-	                "Must swap calibration data!\n" );
-	return 1;
-}
-
 /** depending on the strip state, the sensor is moved to the shading position
  *  and the lamp ist switched on
  */
@@ -299,7 +282,7 @@ static int cano_AdjustLightsource( pPlustek_Device dev)
 		dumpPicInit( &m_ScanParam, tmp );
 		dumpPic( tmp, pScanBuffer, m_ScanParam.Size.dwPhyBytes );
     
-		if(cano_HostSwap_p())
+		if(usb_HostSwap())
 			usb_Swap((u_short *)pScanBuffer, m_ScanParam.Size.dwPhyBytes );
 
 		sprintf( tmp, "coarse-lamp-swap%u.raw", i );
@@ -525,7 +508,7 @@ static SANE_Bool cano_AdjustGain( pPlustek_Device dev )
 		dumpPicInit( &m_ScanParam, tmp );
 		dumpPic( tmp, pScanBuffer, m_ScanParam.Size.dwPhyBytes );
     
-		if(cano_HostSwap_p())
+		if(usb_HostSwap())
       		usb_Swap((u_short *)pScanBuffer, m_ScanParam.Size.dwPhyBytes );
     
 		if( m_ScanParam.bDataType == SCANDATATYPE_Color ) {
@@ -707,7 +690,7 @@ static int cano_AdjustOffset( pPlustek_Device dev )
 		dumpPicInit( &m_ScanParam, tmp );
 		dumpPic( tmp, pScanBuffer, m_ScanParam.Size.dwPhyBytes );
     
-		if(cano_HostSwap_p())
+		if(usb_HostSwap())
 			usb_Swap((u_short *)pScanBuffer, m_ScanParam.Size.dwPhyBytes );
     
 		if( m_ScanParam.bDataType == SCANDATATYPE_Color ) {
@@ -842,7 +825,7 @@ static SANE_Bool cano_AdjustDarkShading( pPlustek_Device dev )
     
 		dumpPic( tmp, pScanBuffer, m_ScanParam.Size.dwTotalBytes );
     
-		if(cano_HostSwap_p())
+		if(usb_HostSwap())
 			usb_Swap((u_short *)pScanBuffer, m_ScanParam.Size.dwTotalBytes);
 	}
 	if (!usb_ScanEnd( dev )){
@@ -884,7 +867,7 @@ static SANE_Bool cano_AdjustDarkShading( pPlustek_Device dev )
 			a_wDarkShading[i+stepW*2] = blue/j  + pParam->swOffset[2];
 		}
     
-		if(cano_HostSwap_p())
+		if(usb_HostSwap())
 			usb_Swap(a_wDarkShading, m_ScanParam.Size.dwPhyPixels * 2 * 3 );
 
 	} else {
@@ -900,7 +883,7 @@ static SANE_Bool cano_AdjustDarkShading( pPlustek_Device dev )
 			}
 			a_wDarkShading[i]= gray/j + pParam->swOffset[0];
 		}
-		if(cano_HostSwap_p())
+		if(usb_HostSwap())
 			usb_Swap(a_wDarkShading, m_ScanParam.Size.dwPhyPixels * 2 );
 			
 		memcpy( a_wDarkShading+ m_ScanParam.Size.dwPhyPixels * 2,
@@ -962,7 +945,7 @@ static SANE_Bool cano_AdjustWhiteShading( pPlustek_Device dev )
     
 		dumpPic( tmp, pScanBuffer, m_ScanParam.Size.dwTotalBytes );
     
-		if(cano_HostSwap_p())
+		if(usb_HostSwap())
 			usb_Swap((u_short *)pScanBuffer, m_ScanParam.Size.dwTotalBytes);
 
 		if (!usb_ScanEnd( dev )){
@@ -1013,7 +996,7 @@ static SANE_Bool cano_AdjustWhiteShading( pPlustek_Device dev )
 			a_wWhiteShading[i+stepW*2] = (blue  > 65535? 65535:blue );
 	    }
 
-		if(cano_HostSwap_p())
+		if(usb_HostSwap())
 			usb_Swap(a_wWhiteShading, m_ScanParam.Size.dwPhyPixels * 2 * 3 );
 	} else {
 
@@ -1030,7 +1013,7 @@ static SANE_Bool cano_AdjustWhiteShading( pPlustek_Device dev )
 			
 			a_wWhiteShading[i]= (gray > 65535? 65535:gray);
 		}
-		if(cano_HostSwap_p())
+		if(usb_HostSwap())
 			usb_Swap(a_wWhiteShading, m_ScanParam.Size.dwPhyPixels * 2 );
 
 		memcpy(a_wWhiteShading+ m_ScanParam.Size.dwPhyPixels * 2,

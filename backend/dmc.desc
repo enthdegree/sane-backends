@@ -22,8 +22,7 @@
 :url "http://www.polaroid.com/"
 :model "DMC"                  ; name models for above-specified mfg.
 :interface "SCSI"
-:url "http://digitalimage.polaroid.com/products/digital_cameras/dmc/"
-
+:url "http://digitalimage.polaroid.com/products/digital_imaging/digital_cameras/dmcsuite/dmc/"
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.
 

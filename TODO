@@ -1,4 +1,4 @@
-TODO (2002-07-23)
+TODO (2002-07-27)
 
 ******** todo ********
 
@@ -110,13 +110,12 @@ doc
       or users:
       - bh
       - canon630u (add 636 as :untested (from manpage)?)
-      - coolscan2 (LS 400 ED)
+      - coolscan2 (LS 4000 ED)
       - plustek
 
     - Remove unsupported scanners from the list or at least mark them with
       ":status :unsupported":
       - mustek_pp
-      - nec
       - plustek
       - umax1220u
 
@@ -136,8 +135,6 @@ frontends
        (maybe) check the connection from server side.
      - Add IPv6 support.
      - Add support for IP ranges in saned.conf (like 10.0.0.0/8)?
-
-  * scanimage: Add i18n (NLS) support?
 
   * scanimage: Check range of width and height. scanimage just uses the ranges
     from br-x and br-y but this is wrong for tl-x and tl-y != 0 and for
@@ -205,6 +202,8 @@ misc
     a segfault in Sane.c.
 
 ******** done ********
+* scanimage: Add i18n (NLS) support? We don't do it (too much trouble with
+  options and UTF8 support).
 * Desc files: Don't use :interface if you don't have a hardware device
 * Use DBG(...) instead of fprintf(stderr, ...) or printf
 * OS/2 needs a "# define strncasecmp(a, b, c) strnicmp(a, b, c)" in config.h.

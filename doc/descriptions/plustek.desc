@@ -1,0 +1,216 @@
+;
+; SANE Backend specification file
+;
+; It's basically emacs-lisp --- so ";" indicates comment to end of line.
+; All syntactic elements are keyword tokens, followed by a string or
+;  keyword argument, as specified.
+;
+; ":backend" *must* be specified.
+; All other information is optional (but what good is the file without it?).
+;
+
+:backend "plustek"              ; name of backend
+:version "0.42"                 ; version of backend
+:status :stable                 ; :alpha, :beta, :stable, :new
+:manpage "sane-plustek"         ; name of manpage (if it exists)
+
+; backend's web page
+:url "http://home.t-online.de/home/g-jaeger/plustek.html"	
+
+:devicetype :scanner            ; start of a list of devices....
+                                ; other types:  :stillcam, :vidcam,
+                                ;               :meta, :api
+
+
+:mfg "Plustek"                  ; name of manufacturer
+:url "http://www.plustek.de/"
+:url "http://www.plustek.com/"
+
+;name models for above-specified mfg.
+:model "OpticPro 4800P"
+:interface "Parport (SPP, EPP)"
+:comment "OK"
+
+:model "OpticPro 4830P"
+:interface "Parport (SPP, EPP)"
+:comment "OK"
+
+:model "OpticPro 600P/6000P"
+:interface "Parport (SPP, EPP)"
+:comment "OK"
+
+:model "OpticPro 4831P"
+:interface "Parport (SPP, EPP)"
+:comment "OK"
+
+:model "OpticPro 9630P"
+:interface "Parport (SPP, EPP)"
+:comment "OK"
+
+:model "OpticPro 9630PL"
+:interface "Parport (SPP, EPP)"
+:comment "OK - use driver-switch mov=1"
+
+:model "OpticPro 9600P"
+:interface "Parport (SPP, EPP)"
+:comment "OK"
+
+:model "OpticPro 1236P"
+:interface "Parport (SPP, EPP)"
+:comment "OK - reported as OpticPro 12000P/96000P"
+
+:model "OpticPro 12000P/96000P"
+:interface "Parport (SPP, EPP)"
+:comment "OK"
+
+:model "OpticPro 9636P"
+:interface "Parport (SPP, EPP)"
+:comment "OK - use driver-switch mov=4"
+
+:model "OpticPro 9636P+/Turbo"
+:interface "Parport (SPP, EPP)"
+:comment "OK - use driver-switch mov=3"
+
+:model "OpticPro 9636T"
+:interface "Parport (SPP, EPP)"
+:comment "OK"
+
+:model "OpticPro 12000T"
+:interface "Parport (SPP, EPP)"
+:comment "OK"
+
+:model "OpticPro AI3"
+:interface "Parport (SPP, EPP)"
+:comment "OK - use driver-switch mov=5"
+
+:model "OpticPro P8"
+:interface "Parport"
+:comment "Not tested."
+
+:model "OpticPro P12"
+:interface "Parport (SPP, EPP)"
+:comment "OK"
+
+:model "OpticPro PT12"
+:interface "Parport (SPP, EPP)"
+:comment "OK."
+
+:model "OpticPro 19200S"
+:interface "SCSI"
+:comment "rebadged Artec AM12S (supported by Artec Backend)"
+
+:model "OpticPro 1212U"
+:interface "USB"
+:comment "not supported."
+
+:model "OpticPro U12"
+:interface "USB"
+:comment "OK."
+
+:model "OpticPro UT12"
+:interface "USB"
+:comment "OK."
+
+:model "OpticPro UT16"
+:interface "USB"
+:comment "OK."
+
+:model "OpticPro U24"
+:interface "USB"
+:comment "OK."
+
+:model "OpticPro UT24"
+:interface "USB"
+:comment "OK."
+
+
+:mfg "Primax"                  ; name of manufacturer
+:url "http://www.primax.nl/"
+
+;name models for above-specified mfg.
+:model "Colorado 4800"
+:interface "Parport (SPP, EPP)"
+:comment "Not tested, (same as OP4800P)"
+
+:model "Compact 4800 Direct"
+:interface "Parport (SPP, EPP)"
+:comment "OK - use driver-switch mov=2"
+
+:model "Compact 4800 Direct-30"
+:interface "Parport (SPP, EPP)"
+:comment "Not tested, (same as OP4830P)"
+
+:model "Compact 9600 Direct-30"
+:interface "Parport (SPP, EPP)"
+:comment "OK - (same as OP9630P)"
+
+:mfg "Aries"                  ; name of manufacturer
+
+:model "Scan-It Pro 4800"
+:interface "Parport (SPP, EPP)"
+:comment "OK - use driver-switch mov=2"
+
+:mfg "KYE - Genius"           ; name of manufacturer
+:url "http://www.geniusnet.com.tw/"
+
+:model "Colorpage Vivid III V2"
+:interface "Parport (SPP, EPP)"
+:comment "OK - Reported as PT12"
+
+:model "Colorpage Vivid Pro II Film"
+:interface "Parport (SPP, EPP)"
+:comment "OK - Reported as OP9636T/12000T"
+
+:model "Colorpage HR6 V2"
+:interface "USB"
+:comment "OK"
+
+:mfg "BrightScan"
+
+:model "BrighScan OpticPro"
+:interface "Parport (SPP, EPP)"
+:comment "OK - Reported as P12"
+
+:mfg "Mustek"                  ; name of manufacturer
+:url "http://www.mustek.com/"
+
+;name models for above-specified mfg.
+:model "BearPaw 1200"
+:interface "USB"
+:comment "Mostly OK"
+
+:model "BearPaw 2400"
+:interface "USB"
+:comment "Mostly OK"
+
+:mfg "Hewlett-Packard"                  ; name of manufacturer
+:url "http://www.hp.com/"
+
+:model "HP ScanJet 2100C"
+:interface "USB"
+:comment "Mostly OK"
+
+:model "HP ScanJet 2200C"
+:interface "USB"
+:comment "Mostly OK"
+
+:mfg "Epson"                  ; name of manufacturer
+:url "http://www.epson.com/"
+
+:model "Perfection 1250"
+:interface "USB"
+:comment "Mostly OK"
+
+:model "Perfection 1250Photo"
+:interface "USB"
+:comment "Mostly OK - TPU not supported"
+
+:mfg "Umax"                  ; name of manufacturer
+:url "http://www.umax.com/"
+
+:model "UMAX 3400"
+:interface "USB"
+:comment "Mostly OK"
+
+; :comment and :url specifiers are optional after :mfg, :model, :desc,
+;  and at the top-level.

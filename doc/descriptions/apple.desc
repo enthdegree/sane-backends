@@ -1,0 +1,21 @@
+;Apple backend .desc file by Milon Firikis.
+
+:backend "apple"		; name of backend
+:version "0.31"                  ; version of backend
+:status :alpha                  ; :alpha, :beta, :stable, :new
+:manpage "sane-apple"		; name of manpage (if it exists)
+;:url "http://no.www.page.yet/" ; backend's web page
+
+:devicetype :scanner              ; start of a list of devices....
+ 
+:mfg "Apple"
+:url "http://developer.apple.com/"	
+:model "Apple Scanner"
+:interface "SCSI"
+:comment "4bit, 16 shades of gray"
+:model "OneScanner"
+:interface "SCSI"
+:comment "8bit, 256 shades of gray. The backend needs work especially in the quantization code but it may work."
+:model "ColorOneScanner"
+:interface "SCSI"
+:comment "truecolor (needs much work) but it scans in non color modes."

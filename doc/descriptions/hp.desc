@@ -1,0 +1,98 @@
+;
+; SANE Backend specification file
+;
+; It's basically emacs-lisp --- so ";" indicates comment to end of line.
+; All syntactic elements are keyword tokens, followed by a string or
+;  keyword argument, as specified.
+;
+; ":backend" *must* be specified.
+; All other information is optional (but what good is the file without it?).
+;
+
+:backend "hp"                     ; name of backend
+:version "0.95"                   ; version of backend
+:status :beta                     ; :alpha, :beta, :stable, :new
+:manpage "sane-hp"                ; name of manpage (if it exists)
+:url "http://www.kirchgessner.net/" ; backend's web page
+
+:devicetype :scanner              ; start of a list of devices....
+                                  ; other types:  :stillcam, :vidcam,
+                                  ;               :meta, :api
+
+:mfg "HP"                         ; name a manufacturer
+:url "http://www.hp.com/"
+:model "HP ScanJet Plus"           ; name models for above-specified mfg.
+:interface "Propietary"
+:comment "Driver for HP parallel interface card required"
+:model "HP ScanJet IIc"
+:interface "SCSI"
+:model "HP ScanJet IIp"
+:interface "SCSI"
+:model "HP ScanJet IIcx"
+:interface "SCSI"
+:model "HP ScanJet 3c"
+:interface "SCSI"
+:model "HP ScanJet 3p"
+:interface "SCSI"
+:model "HP ScanJet 4c"
+:interface "SCSI"
+:model "HP ScanJet 4p"
+:interface "SCSI"
+:model "HP ScanJet 4100C"
+:interface "USB"
+:model "HP ScanJet 5p"
+:interface "SCSI"
+:model "HP ScanJet 5100C"
+:interface "Parport"
+:comment "Requires ppscsi driver and epst module"
+:model "HP ScanJet 5200C"
+:interface "Parport USB"
+:comment "Parallel interface requires ppscsi driver and epst module"
+:model "HP ScanJet 6100C"
+:interface "SCSI"
+:model "HP ScanJet 6200C"
+:interface "SCSI USB"
+:model "HP ScanJet 6250C"
+:interface "SCSI USB"
+:model "HP ScanJet 6300C"
+:interface "SCSI USB"
+:model "HP ScanJet 6350C"
+:interface "SCSI USB"
+:model "HP ScanJet 6390C"
+:interface "SCSI USB"
+:model "HP PhotoSmart PhotoScanner"
+:interface "SCSI"
+
+:model "HP OfficeJet Pro 1150C"
+:interface "Parport(ECP) JetDirect"
+:url "http://hpoj.sourceforge.net"
+:model "HP OfficeJet Pro 1170C/1175C"
+:interface "Parport(ECP) JetDirect"
+:url "http://hpoj.sourceforge.net"
+:model "HP OfficeJet R series"
+:interface "Parport(ECP) JetDirect"
+:url "http://hpoj.sourceforge.net"
+:model "HP PSC 500 series"
+:interface "Parport(ECP) JetDirect"
+:url "http://hpoj.sourceforge.net"
+:model "HP OfficeJet G series"
+:interface "Parport(ECP) USB JetDirect"
+:url "http://hpoj.sourceforge.net"
+:model "HP PSC 700 series"
+:interface "USB JetDirect"
+:url "http://hpoj.sourceforge.net"
+:model "HP PSC 900 series"
+:interface "USB JetDirect"
+:url "http://hpoj.sourceforge.net"
+:model "HP OfficeJet K series"
+:interface "Parport(ECP) USB JetDirect"
+:url "http://hpoj.sourceforge.net"
+:comment "partial support -- requires extra steps to scan successfully"
+:model "HP OfficeJet V series"
+:interface "USB JetDirect"
+:url "http://hpoj.sourceforge.net"
+:comment "partial support -- requires extra steps to scan successfully"
+
+; :comment and :url specifiers are optional after :mfg, :model, :desc,
+;  and at the top-level.
+

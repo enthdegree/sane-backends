@@ -1,0 +1,16 @@
+:backend "qcam"               ; name of backend
+; :version "0.?"                    ; version of backend
+:status :alpha                      ; :alpha, :beta, :stable, :new
+; :url ""                           ; backend's homepage
+:manpage "sane-qcam"
+
+:devicetype :vidcam
+
+:mfg "Connectix"                    ; name a manufacturer
+:url "http://www.connectix.com/"
+:model "Color QuickCam"             ; name models for above-specified mfg.
+:interface "Parport"
+:comment "Require root privileges."
+:model "Greyscale QuickCam"         ; name models for above-specified mfg.
+:interface "Parport"
+:comment "Require root privileges.  Partly working."

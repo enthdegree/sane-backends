@@ -21,6 +21,7 @@ SANE_Word sanei_epson_usb_product_ids [] =
 	0x11e, 	/* Perfection 1660 */
 	0x801,	/* CX-5200 */
 	0x802,	/* CX-3200 */
+	0x807,	/* RX-500 */
 	0	/* last entry - this is used for devices that are specified 
 		   in the config file as "usb <vendor> <product>" */
 };

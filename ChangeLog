@@ -6,6 +6,8 @@
 	* doc/descriptions/unsupported.desc: Added HP ScanJet 3500c, 3530c,
 	  3570c, 3570cxi, 5500C and Microtek ScanMaker 3800. Updated link for
 	  ScanJet 4470C.
+	* TODO: Added links to hp4200 backend. Removed libusb entry, parport
+	  compilation problems, SCSI on sparc64 issue, USB on BSD problems.
 
 2003-01-16  Frank Zago  <fzago at austin dot rr dot com>
 

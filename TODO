@@ -1,4 +1,4 @@
-TODO (2003-01-10)
+TODO (2003-01-17)
 
 ******** todo ********
 
@@ -7,6 +7,10 @@ backends
   * Add new backends (+ means scheduled for SANE 1.0.10)
     - Hewlett-Packard ScanJet 3300C / 3400C and 4300C (wip)
       http://sourceforge.net/projects/hp3300backend
+    - Hewlett-Packard 4200c
+      http://hp4200-backend.sourceforge.net/
+      http://www.linuxprinting.org/till/tmp/sane-backends-1.0.9-hp4200-0.3.patch.bz2
+      http://fz.eryx.net/sane/#hp4200
 
   * qcam:
      - implement auto mode for brightness and black-level (don't
@@ -44,10 +48,6 @@ backends
     - coolscan: Lots of compilation warnings (e.g.
       "backend/coolscan-scsidef.h", line 160: warning: initialization
       type mismatch; empty declarations), see sane-devel.
-
-  * Make sure that USB backends don't depend on the kernel USB scanner
-    driver but also work with libusb. The linux kernel scanner driver may be
-    gone in Linux 2.6.0.
 
   * Check if sp15c backend (Fujitsu ScanPartner 15C) can be included in
     fujitsu or avision backends.
@@ -127,15 +127,6 @@ sanei
 
 platform-specific
 -----------------
-  * SCSI access doesn't seem to work on Linux/Sparc. See emails from
-    Tomislav Renic on sane-devel (2001-09-21). Looks like it only happens
-    on 64 bit systems. SANE is compiled as 32 bit program there but
-    the kernel expects 64 bit structures.
-
-  * Really fix all the parport/inb/outb compilation issues which break
-    porting to some non-i386 platforms.
-
-  * Find out why USB on *BSD only works once (at least for Mustek scanners).
 
   * Fix MacOS X issues: 
     - Add support in sanei_scsi.c.
@@ -167,6 +158,16 @@ misc
     a segfault in Sane.c.
 
 ******** done ********
+* SCSI access doesn't seem to work on Linux/Sparc. See emails from
+  Tomislav Renic on sane-devel (2001-09-21). Looks like it only happens
+  on 64 bit systems. SANE is compiled as 32 bit program there but
+  the kernel expects 64 bit structures.
+* Find out why USB on *BSD only works once (at least for Mustek scanners).
+* Really fix all the parport/inb/outb compilation issues which break
+  porting to some non-i386 platforms.
+* Make sure that USB backends don't depend on the kernel USB scanner
+  driver but also work with libusb. The linux kernel scanner driver may be
+  gone in Linux 2.6.0.
 * plustek: will need some work to autodetect all supported scanners (libusb)
 * Remove backend-specific .po files when they are no longer needed.
 * hp.desc, umax_pp.desc: Use "ScanJet number" instead of "HP ScanJet number"

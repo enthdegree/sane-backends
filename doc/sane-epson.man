@@ -236,7 +236,7 @@ This is the default, and if nothing else is specified the backend software will
 open a given patch as SCSI device. More information about valid syntax for SCSI
 devices can be found in sane-scsi(5).
 .TP
-.I PIP - Parallel Interface
+.I PIO - Parallel Interface
 The parallel interface can be configured in two ways: An integer number starting
 at the beginning of a line will be interpreted as the IO address of the parallel
 port. To make it clearer that a configured IO address is a parallel port the 

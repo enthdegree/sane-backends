@@ -1,3 +1,8 @@
+2001-06-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* tools/umax_pp.c: Also use sanei_umax_pp_SetLamp() (patch from 
+	  Tim Waugh <twaugh@redhat.com>).
+
 2001-06-11  Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c backend/umax_pp_low.h backend/umax_pp_mid.c: 

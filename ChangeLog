@@ -1,7 +1,7 @@
-2000-09-18  Petter Reinholdtsen <pere@td.org.uit.no>
+2000-09-19  Gerhard Jaeger <g.jaeger@earthling.net>
 
-	* backend/v4l.c backend/v4l.h backend/v4l-grab.h: Remove some
-	compiler warnings.
+	* backend/plustek.desc doc/sane-plustek.man:
+	  updated information about supported scanners	  
 
 2000-09-18  Henning Meier-Geinitz <hmg@gmx.de>
 

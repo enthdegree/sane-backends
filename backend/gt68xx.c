@@ -932,6 +932,14 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
   sanei_usb_init ();
 
+  num_devices = 0;
+  first_dev = 0;
+  first_handle = 0;
+  devlist = 0;
+  new_dev = 0;
+  new_dev_len = 0;
+  new_dev_alloced = 0;
+
   fp = sanei_config_open (GT68XX_CONFIG_FILE);
   if (!fp)
     {
@@ -1139,6 +1147,7 @@ sane_exit (void)
       gt68xx_device_free (dev);
     }
   first_dev = 0;
+  first_handle = 0;
   if (devlist)
     free (devlist);
   devlist = 0;

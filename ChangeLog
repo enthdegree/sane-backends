@@ -2,6 +2,7 @@
 
 	* doc/sane-gphoto2.man doc/sane-microtek2.man: Fixed minor
 	  glitches based on patch from Eric S. Raymond <esr@thyrsus.com>.
+	* doc/descriptions/unsupported.desc: Added Benq 320p.
 
 2004-12-04  Julien Blache <jb@jblache.org>
 	* tools/hotplug/libsane.usermap: Added Epson Perfection 4870

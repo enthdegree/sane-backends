@@ -1,6 +1,8 @@
 2002-02-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* PROJECTS: Added matsushita backend.
+	* backend/matsushita.desc: New file. Description for the matsushita
+	  backend.
 
 2002-02-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

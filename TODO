@@ -125,6 +125,8 @@ doc
     - artec (BUGS)
     - mustek_pp (SEE ALSO, there is no sane-musteka4s2(5))
     - plustek: (http://www.linuxhacker.org/listscgi-bin/ezmlm-cgi/3: not found!)
+    - umax_pp (DESCRIPTION: "sticky" bit --> isn't this the "setuid" bit?;
+               DEVICE NAMES: "...only one parallel port  this  port...")
 
   * Check for formatting bugs in manual pages:
     - apple (The list of scanners doesn't look like a table)
@@ -142,13 +144,9 @@ doc
     - agfafocus
     - apple
     - bh
-    - dc210
-    - dc240
-    - dc25
     - epson
     - hp
     - microtek
-    - mustek_pp
     - pint
     - st400
  

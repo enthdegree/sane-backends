@@ -107,7 +107,9 @@
 */
 
 #ifdef HAVE_SYS_SHM_H
+#ifndef HAVE_OS2_H
 #define USE_FORK
+#endif
 #endif
 
 #ifdef USE_FORK

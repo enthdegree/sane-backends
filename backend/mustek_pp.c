@@ -199,7 +199,7 @@ do_stop(Mustek_pp_Handle *hndl)
 		while (wait (&exit_status) != hndl->reader);
 
 		DBG ((exit_status == SANE_STATUS_GOOD ? 3 : 1),
-			       "do_stop: reader_process terminated with status ``%s创\n",
+			       "do_stop: reader_process terminated with status ``%s''\n",
 			       sane_strstatus(exit_status));
 		hndl->reader = 0;
 		hndl->dev->func->stop (hndl);
@@ -317,7 +317,7 @@ sane_attach (SANE_String_Const port, SANE_String_Const name, SANE_Int driver, SA
 {
 	Mustek_pp_Device	*dev;
 
-	DBG (3, "sane_attach: attaching device ``%s创 to port %s (driver %s v%s by %s)\n", 
+	DBG (3, "sane_attach: attaching device ``%s'' to port %s (driver %s v%s by %s)\n", 
 			name, port, Mustek_pp_Drivers[driver].driver,
 				Mustek_pp_Drivers[driver].version,
 				Mustek_pp_Drivers[driver].author);
@@ -738,7 +738,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	  config_line_ptr = sanei_config_skip_whitespace (config_line_ptr);
 	  if (!*config_line_ptr)
 	    {
-	      DBG (1, "sane_init: parse error in line %d after ``scanner创\n",
+	      DBG (1, "sane_init: parse error in line %d after ``scanner''\n",
 		line);
 	      continue;
 	    }
@@ -746,7 +746,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	  config_line_ptr = sanei_config_get_string (config_line_ptr, &name);
 	  if ((name == NULL) || (!*name))
 	    {
-	      DBG (1, "sane_init: parse error in line %d after ``scanner创\n",
+	      DBG (1, "sane_init: parse error in line %d after ``scanner''\n",
 		line);
 	      if (name != NULL)
 		free (name);
@@ -758,7 +758,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	  if (!*config_line_ptr)
 	    {
 	      DBG (1, "sane_init: parse error in line %d after "
-		"``scanner %s创\n", line, name);
+		"``scanner %s''\n", line, name);
 	      free (name);
 	      name = 0;
 	      continue;
@@ -768,7 +768,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	  if ((port == NULL) || (!*port))
 	    {
 	      DBG (1, "sane_init: parse error in line %d after "
-		"``scanner %s创\n", line, name);
+		"``scanner %s''\n", line, name);
 	      free (name);
 	      name = 0;
 	      if (port != NULL)
@@ -781,7 +781,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	  if (!*config_line_ptr)
 	    {
 	      DBG (1, "sane_init: parse error in line %d after "
-		"``scanner %s %s创\n", line, name, port);
+		"``scanner %s %s''\n", line, name, port);
 	      free (name);
 	      free (port);
 	      name = 0;
@@ -793,7 +793,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	  if ((driver == NULL) || (!*driver))
 	    {
 	      DBG (1, "sane_init: parse error in line %d after "
-		"``scanner %s %s创\n", line, name, port);
+		"``scanner %s %s''\n", line, name, port);
 	      free (name);
 	      name = 0;
 	      free (port);
@@ -815,7 +815,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 		  (strcasecmp (option_ta, "use_ta") != 0))
 		{
 		  DBG (1, "sane_init: parse error in line %d after "
-			"``scanner %s %s %s创\n", line, name, port, driver);
+			"``scanner %s %s %s''\n", line, name, port, driver);
 		  free (name);
 		  free (port);
 		  free (driver);
@@ -850,7 +850,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
           if (!name)
 	    {
 	      DBG (1, "sane_init: parse error in line %d: unexpected "
-                      " ``option创\n", line);
+                      " ``option''\n", line);
 	      continue;
 	    }
 
@@ -858,7 +858,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
           config_line_ptr = sanei_config_skip_whitespace (config_line_ptr);
           if (!*config_line_ptr)
 	    {
-	      DBG (1, "sane_init: parse error in line %d after ``option创\n",
+	      DBG (1, "sane_init: parse error in line %d after ``option''\n",
 	        line);
 	      continue;
 	    }
@@ -866,7 +866,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
           config_line_ptr = sanei_config_get_string (config_line_ptr, &optname);
           if ((optname == NULL) || (!*optname))
 	    {
-	      DBG (1, "sane_init: parse error in line %d after ``option创\n",
+	      DBG (1, "sane_init: parse error in line %d after ``option''\n",
 	        line);
 	      if (optname != NULL)
 	        free (optname);
@@ -887,7 +887,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
           if (*config_line_ptr)
 	    {
 	      DBG (1, "sane_init: parse error in line %d after "
-		        "``option %s %s创\n", line, optname, 
+		        "``option %s %s''\n", line, optname, 
 		        (optval == 0 ? "" : optval));
 	      free (optname);
 	      if (optval) 
@@ -1025,7 +1025,7 @@ sane_get_devices (const SANE_Device *** device_list,
  * ChangeLog:
  *
  * Description:
- * 	The device identified by ``devicename创 is looked
+ * 	The device identified by ``devicename'' is looked
  * 	up in the list, or if devicename is zero, the
  * 	first device from the list is taken.
  *
@@ -1059,7 +1059,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 
 		if (!dev) {
 
-			DBG (1, "sane_open: unknown devicename ``%s创\n", devicename);
+			DBG (1, "sane_open: unknown devicename ``%s''\n", devicename);
 			return SANE_STATUS_INVAL;
 
 		}
@@ -1071,7 +1071,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 		return SANE_STATUS_INVAL;
 	}
 
-	DBG (3, "sane_open: Using device ``%s创 (driver %s v%s by %s)\n", 
+	DBG (3, "sane_open: Using device ``%s'' (driver %s v%s by %s)\n", 
 			dev->name, dev->func->driver, dev->func->version, dev->func->author);
 
 	if ((hndl = malloc (sizeof (Mustek_pp_Handle))) == NULL) {
@@ -1221,7 +1221,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
  *	while scanning options cannot be read or written. next a basic
  *	check whether the request is valid is done.
  *
- *	Depending on ``action创 the value of the option is either read
+ *	Depending on ``action'' the value of the option is either read
  *	(in the first block) or written (in the second block). auto
  *	values aren't supported.
  *

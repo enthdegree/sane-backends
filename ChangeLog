@@ -3,6 +3,8 @@
 	* sanei/sanei_pa4s2.c: added some #ifdefs to make it compile with
 	  the Intel C++ Compiler (icc). The icc cannot expand assembler
 	  inline macros (at least not with -ip)
+	* backend/mustek_pp.c: fixed some character encoding issues in
+	  debug messages
 	  
 2003-01-24  Jochen Eisinger <jochen.eisinger@gmx.de>
 

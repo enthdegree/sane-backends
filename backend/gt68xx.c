@@ -48,7 +48,7 @@
 
 #include "../include/sane/config.h"
 
-#define BUILD 38
+#define BUILD 39
 #define MAX_DEBUG
 #define WARMUP_TIME 30
 #define CALIBRATION_HEIGHT 2.5
@@ -588,7 +588,7 @@ init_options (GT68xx_Scanner * s)
 	       "(low-quality) mode. This may be a non-color mode or a low "
 	       "resolution mode.");
   s->opt[OPT_FAST_PREVIEW].type = SANE_TYPE_BOOL;
-  s->val[OPT_FAST_PREVIEW].w = SANE_FALSE;
+  s->val[OPT_FAST_PREVIEW].w = SANE_TRUE;
 
   /* "Enhancement" group: */
   s->opt[OPT_ENHANCEMENT_GROUP].title = SANE_I18N ("Enhancement");

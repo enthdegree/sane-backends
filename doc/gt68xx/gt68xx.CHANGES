@@ -1,5 +1,13 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0-39 (2003-02-16)
+
+- Added BearPaw 2400 CS Plus as supported.
+- Make fast preview the default (otherwise BP 2400 TA Plus wouldn't work with
+  12/16 bits).
+- Added vid/pid 0x07b3/0x0400, that's another Plustek OpticPro 1248U.
+
+
 V 1.0-38 (2003-02-05)
 
 - Fixed resolutions for BearPaw 1200 TA (75 instead of 100).

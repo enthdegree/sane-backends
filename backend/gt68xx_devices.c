@@ -859,7 +859,8 @@ static GT68xx_USB_Device_Entry gt68xx_usb_device_list[] = {
   {0x05d8, 0x4002, &mustek_scanexpress2400usb_model}, /* manual override */
   {0x055f, 0x0210, &mustek_a3usb_model},
   {0x043d, 0x002d, &lexmark_x73_model},
-  {0x07b3, 0x0401, &plustek_op1248u_model},
+  {0x07b3, 0x0400, &plustek_op1248u_model},
+  {0x07b3, 0x0401, &plustek_op1248u_model}, /* Same scanner, different id? */
   {0x0458, 0x2011, &genius_vivid3x_model},
   {0, 0, NULL}
 };

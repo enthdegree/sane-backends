@@ -4,6 +4,11 @@
 	* include/sane/sanei_usb.h: Fixed link to USB spec.
 	* doc/descriptions/unsupported.desc: Added Artec scanners.
 	* TODO: Updated desc file entry.
+	* backend/gt68xx.c backend/gt68xx_devices.c doc/sane-gt68xx.man
+	  doc/descriptions/gt68xx.desc doc/gt68xx/gt68xx.CHANGES:
+	  List BearPaw 2400 CS Plus as supported. Make fast preview the default
+	  (otherwise BP 2400 TA Plus wouldn't work with 12/16 bits). Added
+	  vid/pid 0x07b3/0x0400, that's another Plustek OpticPro 1248U.
 
 2003-02-16  René Rebe <rene@rocklinux.org>
 

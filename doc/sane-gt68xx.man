@@ -31,6 +31,8 @@ Mustek BearPaw 1200 CU (Plus)
 .br
 Mustek BearPaw 1200 TA
 .br
+Mustek BearPaw 2400 CS (Plus)
+.br
 Mustek BearPaw 2400 CU (Plus)
 .br
 Mustek BearPaw 2400 TA (Plus)

@@ -1,5 +1,13 @@
 2000-12-23  Henning Meier-Geinitz <hmg@gmx.de>
 
+	* TODO: Removed entry about net/saned crashes.
+	* backend/net.c: Fixed segfault when using SANE_TYPE_STRING options
+	  (e.g. scanimage on localhost). Added checks to prevent other
+	  segfaults. Fixed some warnings.
+	* backend/snapscan.desc: Changed to use new homepage.
+
+2000-12-23  Henning Meier-Geinitz <hmg@gmx.de>
+
 	* NEWS: Added date of release.
 	* TODO: Removed entries about PATH_MAX, sanei_scsi_find_devices, and
 	  shm.h. Added entry about the necessity to check HAVE_SYS_SHM_H.

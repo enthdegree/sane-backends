@@ -123,131 +123,137 @@ static int total_bytes_read;
 
 static DC210 Camera;
 
-static SANE_Range image_range =
-{
+static SANE_Range image_range = {
   0,
   14,
   0
 };
 
-static SANE_Option_Descriptor sod[] =
-{
+static SANE_Option_Descriptor sod[] = {
   {
-    SANE_NAME_NUM_OPTIONS,
-    SANE_TITLE_NUM_OPTIONS,
-    SANE_DESC_NUM_OPTIONS,
-    SANE_TYPE_INT,
-    SANE_UNIT_NONE,
-    sizeof (SANE_Word),
-    SANE_CAP_SOFT_DETECT,
-    SANE_CONSTRAINT_NONE,
-    {NULL}
-  },
+   SANE_NAME_NUM_OPTIONS,
+   SANE_TITLE_NUM_OPTIONS,
+   SANE_DESC_NUM_OPTIONS,
+   SANE_TYPE_INT,
+   SANE_UNIT_NONE,
+   sizeof (SANE_Word),
+   SANE_CAP_SOFT_DETECT,
+   SANE_CONSTRAINT_NONE,
+   {NULL}
+   }
+  ,
 
 #define D25_OPT_IMAGE_SELECTION 1
   {
-    "",
-    "Image Selection",
-    "Selection of the image to load.",
-    SANE_TYPE_GROUP,
-    SANE_UNIT_NONE,
-    0,
-    0,
-    SANE_CONSTRAINT_NONE,
-    {NULL}
-  },
+   "",
+   "Image Selection",
+   "Selection of the image to load.",
+   SANE_TYPE_GROUP,
+   SANE_UNIT_NONE,
+   0,
+   0,
+   SANE_CONSTRAINT_NONE,
+   {NULL}
+   }
+  ,
 
 #define DC210_OPT_IMAGE_NUMBER 2
   {
-    "image",
-    "Image Number",
-    "Select Image Number to load from camera",
-    SANE_TYPE_INT,
-    SANE_UNIT_NONE,
-    4,
-    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
-    SANE_CONSTRAINT_RANGE,
-    {(SANE_String_Const *) & image_range}	/* this is ANSI conformant! */
-  },
+   "image",
+   "Image Number",
+   "Select Image Number to load from camera",
+   SANE_TYPE_INT,
+   SANE_UNIT_NONE,
+   4,
+   SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+   SANE_CONSTRAINT_RANGE,
+   {(SANE_String_Const *) & image_range}	/* this is ANSI conformant! */
+   }
+  ,
 
 #define DC210_OPT_THUMBS 3
   {
-    "thumbs",
-    "Load Thumbnail",
-    "Load the image as thumbnail.",
-    SANE_TYPE_BOOL,
-    SANE_UNIT_NONE,
-    sizeof (SANE_Word),
-    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
-    SANE_CONSTRAINT_NONE,
-    {NULL}
-  },
+   "thumbs",
+   "Load Thumbnail",
+   "Load the image as thumbnail.",
+   SANE_TYPE_BOOL,
+   SANE_UNIT_NONE,
+   sizeof (SANE_Word),
+   SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+   SANE_CONSTRAINT_NONE,
+   {NULL}
+   }
+  ,
 #define DC210_OPT_SNAP 4
   {
-    "snap",
-    "Snap new picture",
-    "Take new picture and download it",
-    SANE_TYPE_BOOL,
-    SANE_UNIT_NONE,
-    sizeof (SANE_Word),
-    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT /* | SANE_CAP_ADVANCED */ ,
-    SANE_CONSTRAINT_NONE,
-    {NULL}
-  },
+   "snap",
+   "Snap new picture",
+   "Take new picture and download it",
+   SANE_TYPE_BOOL,
+   SANE_UNIT_NONE,
+   sizeof (SANE_Word),
+   SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT /* | SANE_CAP_ADVANCED */ ,
+   SANE_CONSTRAINT_NONE,
+   {NULL}
+   }
+  ,
 #define DC210_OPT_LOWRES 5
   {
-    "lowres",
-    "Low Resolution",
-    "Resolution of new pictures",
-    SANE_TYPE_BOOL,
-    SANE_UNIT_NONE,
-    sizeof (SANE_Word),
-    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE /* | SANE_CAP_ADVANCED */ ,
-    SANE_CONSTRAINT_NONE,
-    {NULL}
-  },
+   "lowres",
+   "Low Resolution",
+   "Resolution of new pictures",
+   SANE_TYPE_BOOL,
+   SANE_UNIT_NONE,
+   sizeof (SANE_Word),
+   SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE
+   /* | SANE_CAP_ADVANCED */ ,
+   SANE_CONSTRAINT_NONE,
+   {NULL}
+   }
+  ,
 
 #define DC210_OPT_ERASE 6
   {
-    "erase",
-    "Erase",
-    "Erase the picture after downloading",
-    SANE_TYPE_BOOL,
-    SANE_UNIT_NONE,
-    sizeof (SANE_Word),
-    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
-    SANE_CONSTRAINT_NONE,
-    {NULL}
-  },
+   "erase",
+   "Erase",
+   "Erase the picture after downloading",
+   SANE_TYPE_BOOL,
+   SANE_UNIT_NONE,
+   sizeof (SANE_Word),
+   SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+   SANE_CONSTRAINT_NONE,
+   {NULL}
+   }
+  ,
 
 #define DC210_OPT_DEFAULT 7
   {
-    "default-enhancements",
-    "Defaults",
-    "Set default values for enhancement controls.",
-    SANE_TYPE_BUTTON,
-    SANE_UNIT_NONE,
-    0,
-    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
-    SANE_CONSTRAINT_NONE,
-    {NULL}
-  },
+   "default-enhancements",
+   "Defaults",
+   "Set default values for enhancement controls.",
+   SANE_TYPE_BUTTON,
+   SANE_UNIT_NONE,
+   0,
+   SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+   SANE_CONSTRAINT_NONE,
+   {NULL}
+   }
+  ,
 #define DC210_OPT_INIT_DC210 8
   {
-    "camera-init",
-    "Re-establish Communications",
-    "Re-establish communications with camera (in case of timeout, etc.)",
-    SANE_TYPE_BUTTON,
-    SANE_UNIT_NONE,
-    0,
-    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
-    SANE_CONSTRAINT_NONE,
-    {NULL}
-  }
+   "camera-init",
+   "Re-establish Communications",
+   "Re-establish communications with camera (in case of timeout, etc.)",
+   SANE_TYPE_BUTTON,
+   SANE_UNIT_NONE,
+   0,
+   SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+   SANE_CONSTRAINT_NONE,
+   {NULL}
+   }
 };
 
-static SANE_Parameters parms =
-{
+static SANE_Parameters parms = {
   SANE_FRAME_RGB,
   0,
   0,				/* Number of bytes returned per scan line: */
@@ -311,7 +317,7 @@ init_dc210 (DC210 * camera)
   struct termios tty_new;
   int speed_index;
 
-  for (speed_index = 0; speed_index < NELEMS(speeds); speed_index++)
+  for (speed_index = 0; speed_index < NELEMS (speeds); speed_index++)
     {
       if (speeds[speed_index].baud == camera->baud)
 	{
@@ -372,9 +378,9 @@ init_dc210 (DC210 * camera)
   tcsendbreak (camera->fd, 4);
 #else
 # if defined(TCSBRKP)
-   ioctl (camera->fd, TCSBRKP, 4);
+  ioctl (camera->fd, TCSBRKP, 4);
 # elif defined(TCSBRK)
-   ioctl (camera->fd, TCSBRK, 4);
+  ioctl (camera->fd, TCSBRK, 4);
 # endif
 #endif
   /* and wait for it to recover from the break */
@@ -388,10 +394,11 @@ init_dc210 (DC210 * camera)
        *      a different speed.  Try the entries in the table:
        */
 
-      for (speed_index = NELEMS(speeds) - 1; speed_index > 0; speed_index--)
+      for (speed_index = NELEMS (speeds) - 1; speed_index > 0; speed_index--)
 	{
 	  int x;
-	  DBG (3, "init_dc210: changing speed to %d\n", (int) speeds[speed_index].baud);
+	  DBG (3, "init_dc210: changing speed to %d\n",
+	       (int) speeds[speed_index].baud);
 
 	  cfsetospeed (&tty_new, speeds[speed_index].baud);
 	  cfsetispeed (&tty_new, speeds[speed_index].baud);
@@ -492,7 +499,8 @@ read_data (int fd, unsigned char *buf, int sz)
 /* read the control byte */
   if (read (fd, &c, 1) != 1)
     {
-      DBG (2, "read_data: error: read for packet control byte returned bad status\n");
+      DBG (2,
+	   "read_data: error: read for packet control byte returned bad status\n");
       return -1;
     }
   if (c != 1)
@@ -556,7 +564,8 @@ end_of_data (int fd)
   /* Accck!  Not busy, but not a good end of data either */
   if (c != 0)
     {
-      DBG (2, "end_of_data: error: bad EOD from camera (%02x)\n", (unsigned) c);
+      DBG (2, "end_of_data: error: bad EOD from camera (%02x)\n",
+	   (unsigned) c);
       return -1;
     }
   return 0;			/* should never get here but shut gcc -Wall up */
@@ -610,7 +619,7 @@ change_res (int fd, unsigned char res)
 }
 
 SANE_Status
-sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
+sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
 {
 
   char f[] = "sane_init";
@@ -643,7 +652,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	  DBG (20, "%s:  config- %s\n", f, dev_name);
 
 	  if (dev_name[0] == '#')
-	      continue;		/* ignore line comments */
+	    continue;		/* ignore line comments */
 	  len = strlen (dev_name);
 	  if (!len)
 	    continue;		/* ignore empty lines */
@@ -652,8 +661,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	      p = strchr (dev_name, '/');
 	      if (p)
 		Camera.tty_name = strdup (p);
-	      DBG (20, "Config file port=%s\n",
-		   Camera.tty_name);
+	      DBG (20, "Config file port=%s\n", Camera.tty_name);
 	    }
 	  else if (strncmp (dev_name, "baud=", 5) == 0)
 	    {
@@ -680,8 +688,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 		  break;
 #endif
 		}
-	      DBG (20, "Config file baud=%d\n",
-		   Camera.baud);
+	      DBG (20, "Config file baud=%d\n", Camera.baud);
 	    }
 	  else if (strcmp (dev_name, "dumpinquiry") == 0)
 	    {
@@ -690,14 +697,12 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	  else if (strncmp (dev_name, "cmdrespause=", 12) == 0)
 	    {
 	      cmdrespause = atoi (&dev_name[12]);
-	      DBG (20, "Config file cmdrespause=%lu\n",
-		   cmdrespause);
+	      DBG (20, "Config file cmdrespause=%lu\n", cmdrespause);
 	    }
 	  else if (strncmp (dev_name, "breakpause=", 11) == 0)
 	    {
 	      breakpause = atoi (&dev_name[11]);
-	      DBG (20, "Config file breakpause=%lu\n",
-		   breakpause);
+	      DBG (20, "Config file breakpause=%lu\n", breakpause);
 	    }
 	}
       fclose (fp);
@@ -727,7 +732,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
 
   /* load the current images array */
-  Camera.Pictures = get_pictures_info (Camera.fd);
+  Camera.Pictures = get_pictures_info ();
 
   if (Camera.pic_taken == 0)
     {
@@ -758,13 +763,13 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
       DBG (0, "\nCamera information:\n~~~~~~~~~~~~~~~~~\n\n");
       DBG (0, "Model...........: DC%x\n", Camera.model);
       DBG (0, "Firmware version: %d.%d\n", Camera.ver_major,
-	       Camera.ver_minor);
+	   Camera.ver_minor);
       DBG (0, "Pictures........: %d/%d\n", Camera.pic_taken,
-	       Camera.pic_taken + Camera.pic_left);
+	   Camera.pic_taken + Camera.pic_left);
       DBG (0, "Resolution......: %s\n",
-	       Camera.flags.low_res ? "low" : "high");
+	   Camera.flags.low_res ? "low" : "high");
       DBG (0, "Battery state...: %s\n",
-	       Camera.flags.low_batt ? "low" : "good");
+	   Camera.flags.low_batt ? "low" : "good");
     }
 
   return SANE_STATUS_GOOD;
@@ -777,21 +782,19 @@ sane_exit (void)
 
 /* Device select/open/close */
 
-static const SANE_Device dev[] =
-{
+static const SANE_Device dev[] = {
   {
-    "0",
-    "Kodak",
-    "DC-210",
-    "still camera"
-  },
+   "0",
+   "Kodak",
+   "DC-210",
+   "still camera"},
 };
 
 SANE_Status
-sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
+sane_get_devices (const SANE_Device *** device_list,
+		  SANE_Bool UNUSEDARG local_only)
 {
-  static const SANE_Device *devlist[] =
-  {
+  static const SANE_Device *devlist[] = {
     dev + 0, 0
   };
 
@@ -862,16 +865,17 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
 SANE_Status
 sane_control_option (SANE_Handle handle, SANE_Int option,
-		     SANE_Action action, void *value,
-		     SANE_Int * info)
+		     SANE_Action action, void *value, SANE_Int * info)
 {
   SANE_Int myinfo = 0;
   SANE_Status status;
 
   DBG (127, "control_option(handle=%p,opt=%s,act=%s,val=%p,info=%p)\n",
        handle, sod[option].title,
-       (action == SANE_ACTION_SET_VALUE ? "SET" : (action == SANE_ACTION_GET_VALUE ? "GET" : "SETAUTO")),
-       value, info);
+       (action ==
+	SANE_ACTION_SET_VALUE ? "SET" : (action ==
+					 SANE_ACTION_GET_VALUE ? "GET" :
+					 "SETAUTO")), value, info);
 
   if (handle != MAGIC || !is_open)
     return SANE_STATUS_INVAL;	/* Unknown handle ... */
@@ -949,16 +953,14 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	      /* activate the resolution setting */
 	      sod[DC210_OPT_LOWRES].cap &= ~SANE_CAP_INACTIVE;
 	      /* and de-activate the image number selector */
-	      sod[DC210_OPT_IMAGE_NUMBER].cap |=
-		SANE_CAP_INACTIVE;
+	      sod[DC210_OPT_IMAGE_NUMBER].cap |= SANE_CAP_INACTIVE;
 	    }
 	  else
 	    {
 	      /* deactivate the resolution setting */
 	      sod[DC210_OPT_LOWRES].cap |= SANE_CAP_INACTIVE;
 	      /* and activate the image number selector */
-	      sod[DC210_OPT_IMAGE_NUMBER].cap &=
-		~SANE_CAP_INACTIVE;
+	      sod[DC210_OPT_IMAGE_NUMBER].cap &= ~SANE_CAP_INACTIVE;
 	    }
 	  /* set params according to resolution settings */
 	  if (dc210_opt_lowres)
@@ -1067,8 +1069,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 }
 
 SANE_Status
-sane_get_parameters (SANE_Handle handle,
-		     SANE_Parameters * params)
+sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 {
   int rc = SANE_STATUS_GOOD;
 
@@ -1092,13 +1093,12 @@ my_source_mgr;
 typedef my_source_mgr *my_src_ptr;
 
 METHODDEF (void)
-sanei_jpeg_init_source (j_decompress_ptr cinfo)
+sanei_jpeg_init_source (j_decompress_ptr UNUSEDARG cinfo)
 {
   /* nothing to do */
 }
 
-METHODDEF (boolean)
-sanei_jpeg_fill_input_buffer (j_decompress_ptr cinfo)
+METHODDEF (boolean) sanei_jpeg_fill_input_buffer (j_decompress_ptr cinfo)
 {
 
   my_src_ptr src = (my_src_ptr) cinfo->src;
@@ -1135,7 +1135,7 @@ sanei_jpeg_skip_input_data (j_decompress_ptr cinfo, long num_bytes)
 }
 
 METHODDEF (void)
-sanei_jpeg_term_source (j_decompress_ptr cinfo)
+sanei_jpeg_term_source (j_decompress_ptr UNUSEDARG cinfo)
 {
   /* no work necessary here */
 }
@@ -1166,7 +1166,7 @@ sane_start (SANE_Handle handle)
 	}
 
 
-      if (snap_pic (Camera.fd) == -1)
+      if (snap_pic (Camera.fd) != SANE_STATUS_GOOD)
 	{
 	  DBG (1, "Failed to snap new picture\n");
 	  return SANE_STATUS_INVAL;
@@ -1210,12 +1210,14 @@ sane_start (SANE_Handle handle)
       cinfo.err = jpeg_std_error (&jerr);
       jpeg_create_decompress (&cinfo);
 
-      cinfo.src = (struct jpeg_source_mgr *) (*cinfo.mem->alloc_small) (
-	   (j_common_ptr) & cinfo, JPOOL_PERMANENT, sizeof (my_source_mgr));
+      cinfo.src = (struct jpeg_source_mgr *) (*cinfo.mem->alloc_small) ((j_common_ptr) & cinfo, JPOOL_PERMANENT, sizeof (my_source_mgr));
       src = (my_src_ptr) cinfo.src;
 
-      src->buffer = (JOCTET *) (*cinfo.mem->alloc_small) (
-	   (j_common_ptr) & cinfo, JPOOL_PERMANENT, 1024 * sizeof (JOCTET));
+      src->buffer = (JOCTET *) (*cinfo.mem->alloc_small) ((j_common_ptr) &
+							  cinfo,
+							  JPOOL_PERMANENT,
+							  1024 *
+							  sizeof (JOCTET));
       src->pub.init_source = sanei_jpeg_init_source;
       src->pub.fill_input_buffer = sanei_jpeg_fill_input_buffer;
       src->pub.skip_input_data = sanei_jpeg_skip_input_data;
@@ -1238,7 +1240,7 @@ sane_start (SANE_Handle handle)
 }
 
 SANE_Status
-sane_read (SANE_Handle handle, SANE_Byte * data,
+sane_read (SANE_Handle UNUSEDARG handle, SANE_Byte * data,
 	   SANE_Int max_length, SANE_Int * length)
 {
 
@@ -1266,7 +1268,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
       *length = 0;
       if (!(bytes_in_buffer - bytes_read_from_buffer))
 	{
-	  if (read_data (Camera.fd, buffer, 1024) == -1)
+	  if (read_data (Camera.fd, (unsigned char *) buffer, 1024) == -1)
 	    {
 	      DBG (5, "sane_read: read_data failed\n");
 	      return SANE_STATUS_INVAL;
@@ -1276,8 +1278,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
 	}
 
       while (bytes_read_from_buffer < bytes_in_buffer &&
-	     max_length &&
-	     total_bytes_read < THUMBSIZE)
+	     max_length && total_bytes_read < THUMBSIZE)
 	{
 	  *data++ = buffer[bytes_read_from_buffer++];
 	  (*length)++;
@@ -1333,7 +1334,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
 /* XXX - we should read more than 1 line at a time here */
       lines = 1;
       (void) jpeg_read_scanlines (&cinfo, dest_mgr->buffer, lines);
-      (*dest_mgr->put_pixel_rows) (&cinfo, dest_mgr, lines, data);
+      (*dest_mgr->put_pixel_rows) (&cinfo, dest_mgr, lines, (char *) data);
       *length = cinfo.output_width * cinfo.output_components * lines;
 
       return SANE_STATUS_GOOD;
@@ -1342,7 +1343,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
 }
 
 void
-sane_cancel (SANE_Handle handle)
+sane_cancel (SANE_Handle UNUSEDARG handle)
 {
   DBG (127, "sane_cancel() called\n");
   if (Camera.scanning)
@@ -1352,19 +1353,20 @@ sane_cancel (SANE_Handle handle)
 }
 
 SANE_Status
-sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
+sane_set_io_mode (SANE_Handle UNUSEDARG handle,
+		  SANE_Bool UNUSEDARG non_blocking)
 {
   return SANE_STATUS_UNSUPPORTED;
 }
 
 SANE_Status
-sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
+sane_get_select_fd (SANE_Handle UNUSEDARG handle, SANE_Int * UNUSEDARG fd)
 {
   return SANE_STATUS_UNSUPPORTED;
 }
 
 static PictureInfo *
-get_pictures_info (int fd)
+get_pictures_info (void)
 {
 
   char f[] = "get_pictures_info";
@@ -1378,9 +1380,9 @@ get_pictures_info (int fd)
       return NULL;
     }
 
-  for (p = 0; p < Camera.pic_taken; p++)
+  for (p = 0; p < (unsigned int) Camera.pic_taken; p++)
     {
-      if (get_picture_info (fd, pics + p, p) == -1)
+      if (get_picture_info (pics + p, p) == -1)
 	{
 	  free (pics);
 	  return NULL;
@@ -1391,7 +1393,7 @@ get_pictures_info (int fd)
 }
 
 static int
-get_picture_info (int fd, PictureInfo * pic, int p)
+get_picture_info (PictureInfo * pic, int p)
 {
 
   char f[] = "get_picture_info";
@@ -1407,7 +1409,7 @@ get_picture_info (int fd, PictureInfo * pic, int p)
       return -1;
     }
 
-  if (read_data (Camera.fd, buffer, 256) == -1)
+  if (read_data (Camera.fd, (unsigned char *) buffer, 256) == -1)
     {
       DBG (2, "%s: error: read_data returned -1\n", f);
       return -1;
@@ -1429,8 +1431,7 @@ get_picture_info (int fd, PictureInfo * pic, int p)
     }
   else
     {
-      DBG (2, "%s: error: unknown resolution code %u\n", f,
-	   buffer[3]);
+      DBG (2, "%s: error: unknown resolution code %u\n", f, buffer[3]);
       return -1;
     }
   pic->size = (buffer[8] & 0xFF) << 24;
@@ -1475,14 +1476,16 @@ snap_pic (int fd)
   sod[DC210_OPT_IMAGE_NUMBER].cap &= ~SANE_CAP_INACTIVE;
 
   /* add this one to the Pictures array */
-  if ((Camera.Pictures = (PictureInfo *) realloc (Camera.Pictures, Camera.pic_taken *
-					     sizeof (PictureInfo))) == NULL)
+  if ((Camera.Pictures =
+       (PictureInfo *) realloc (Camera.Pictures,
+				Camera.pic_taken * sizeof (PictureInfo))) ==
+      NULL)
     {
       DBG (4, "%s: error: allocate memory for pictures array\n", f);
       return SANE_STATUS_INVAL;
     }
 
-  if (get_picture_info (fd, Camera.Pictures + Camera.pic_taken,
+  if (get_picture_info (Camera.Pictures + Camera.pic_taken,
 			Camera.pic_taken) == -1)
     {
       DBG (1, "%s: Failed to get new picture info\n", f);

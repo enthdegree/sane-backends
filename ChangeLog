@@ -1,3 +1,22 @@
+2001-04-07  Henning Meier-Geinitz <hmg@gmx.de>
+
+	* backend/sc240.c backend/dc240.h backend/dc240.conf
+	  backend/dc240.desc backend/dll.conf doc/sane-dc240.man:
+	  Added dc240 backend for the Kodak DC240 Digital camera (from
+	  Peter Fales <peter@fales.com>).
+	* doc/Makefile.in: Added sane-dc240 in section 5.
+	* backend/Makefile.in: Added dc240.
+	* configure configure.in: If the jpeg libs are not available,
+	  dc240 is also disabled.
+	* AUTHORS: Added entry for dc240 and updated email address of
+	  Peter Fales.
+	* NEWS: First version of the news entry for 1.0.5.
+	* PROJECTS: Removed dc240. Added Microrec ScanMaker 3600.
+	* README: Added dc240.
+	* TODO: Removed dc240. Added entry about keep-alive mechanism in saned.
+	* sane-backends.lsm: Added dc240.
+	* testsuite/.cvsignore: New file. Added entry for Makefile.
+
 2001-03-31  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson.*: Next attempt to get the reported number of 

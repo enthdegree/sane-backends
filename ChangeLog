@@ -1,3 +1,8 @@
+2002-03-10 Abel Deuring <a.dering@satzbau-gmbh.de>
+	* configure.in, configure, include/sanei/config.h.in,
+	  sanei/sanei_scsi.c: Added HAVE_SG_TARGET_STATUS for compatibility
+	  with old Linux sg.h versions
+
 2002-03-10  Gerhard Jaeger  <g.jaeger@earthling.net>
 
 	* po/plustek.de.po:  Update

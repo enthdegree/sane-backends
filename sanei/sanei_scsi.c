@@ -1913,7 +1913,7 @@ sanei_scsi_req_enter2 (int fd,
       (const void*) req->sgdata.sg3.hdr.cmdp = cmd;
       req->sgdata.sg3.hdr.sbp = &(req->sgdata.sg3.sense_buffer[0]);
       /* 10 minutes should be ok even for slow scanners */
-      req->sgdata.sg3.hdr.timeout = 10000 * 600;
+      req->sgdata.sg3.hdr.timeout = 1000 * 60 * 10;
       req->sgdata.sg3.hdr.flags = SG_FLAG_DIRECT_IO;
       req->sgdata.sg3.hdr.pack_id = pack_id++;
       req->sgdata.sg3.hdr.usr_ptr = 0;

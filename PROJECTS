@@ -1,4 +1,4 @@
-PROJECTS (2002-04-17)
+PROJECTS (2002-04-21)
 
 Here is a list of projects that various people have expressed interest
 in.  Before starting working on one of these projects, it may be a
@@ -22,10 +22,6 @@ ftp://mccme.ru/users/ushakov/scanwit
 
 Canon 1220U USB scanner (wip)
 http://sourceforge.net/projects/canonscanner/
-
-Canon FB620S flatbed scanner and FS2710 film scanner (wip)
-ftp://stthd0.pc.uni-koeln.de/pub/canon-1.09.tar.gz
-Ulrich Deiters <ukd@xenon.pc.Uni-Koeln.DE>
 
 Canon N650U USB scanner support (command line program) (wip)
 http://homepage.ntlworld.com/millwardjp

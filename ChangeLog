@@ -6,6 +6,9 @@
 2001-09-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* sanei/sanei_ab306.c: Added FreeBSD support.
+	* include/sane/sanei_usb.h sanei/sanei_config2.c sanei/sanei_usb.c:
+	  Moved the function to check the "usb VENDOR PRODUCT" config
+	  lines to sanei_usb to avoid linking problems.
 
 2001-09-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

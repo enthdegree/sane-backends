@@ -50,6 +50,10 @@
 
 #include "sys/types.h"
 
+#ifdef HAVE_SANEI_IPC
+# include "sane/sanei_ipc.h"
+#endif
+
 
 /* --------------------------------------------------------------------------------------------------------- */
 /* COMPILER OPTIONS: */
@@ -64,6 +68,10 @@
 /* #define UMAX_CALIBRATION_MODE_SELECTABLE */
 
                                          
+/* --------------------------------------------------------------------------------------------------------- */
+
+#define SANE_UMAX_SCSI_MAXQUEUE 		8
+
 /* --------------------------------------------------------------------------------------------------------- */
 
 
@@ -148,6 +156,10 @@ enum Umax_Option
     OPT_SELECT_EXPOSURE_TIME,
     OPT_SELECT_LAMP_DENSITY,
 
+    OPT_LAMP_ON,
+    OPT_LAMP_OFF,
+    OPT_LAMP_OFF_AT_EXIT,
+
 #ifdef UMAX_SPEED_SELECTABLE
     OPT_SLOW,
     OPT_SMEAR,
@@ -185,6 +197,7 @@ typedef union
 /* LIST OF AVAILABLE SCANNERS, THE VALUES LISTED HERE ARE THE SAME FOR DIFFERENT APPLICATIONS
    THAT USE THE SAME DEVICE */
    
+/* Umax_Device contains values relevant for the device that are not intersting for the sane interface */
 
 typedef struct Umax_Device
 {
@@ -197,9 +210,12 @@ typedef struct Umax_Device
   SANE_Range		analog_gamma_range;
   unsigned		flags;
 
-  unsigned char		*buffer;					    /* buffer used for scsi-transfer */
+  unsigned char		*buffer[SANE_UMAX_SCSI_MAXQUEUE];		    /* buffer used for scsi-transfer */
+  void                  *queue_id[SANE_UMAX_SCSI_MAXQUEUE];				    /* scsi queue id */
   unsigned int		bufsize;
   unsigned int		row_bufsize;
+  int			request_scsi_maxqueue;
+  int			scsi_maxqueue;
 
   unsigned char		*pixelbuffer;					   /* buffer used for pixel ordering */
   unsigned int		pixelline_max;				/* number of lines that fit into pixelbuffer */
@@ -409,17 +425,25 @@ typedef struct Umax_Device
   int			do_calibration;					      /* 1: do calibration by driver */
   int			do_color_ordering;				 /* 1: order line-mode to pixel-mode */
 
-  int			button_pressed;				   /* scan-button on scanner is pressed => 1 */
+  int			button0_pressed;			 /* scan-button 0 on scanner is pressed => 1 */
+  int			button1_pressed;			 /* scan-button 1 on scanner is pressed => 1 */
+  int			button2_pressed;			 /* scan-button 2 on scanner is pressed => 1 */
 
   int			calibration_area;		      /* define calibration area if no area is given */
   int                   calibration_width_offset;  /* some scanners do calibrate with some additional pixels */
+  int                   calibration_bytespp;		   /* correction of bytespp if driver knows about it */
+  int                   common_xy_resolutions;			/* do not allow different x and y resolution */
   int			pause_for_color_calibration;	/* pause between start_scan and do_calibration in ms */
   int			pause_for_gray_calibration;	/* pause between start_scan and do_calibration in ms */
   int			pause_after_calibration;	 /* pause between do_calibration and read data in ms */
   int			pause_after_reposition;				    /* pause for repositioning in ms */
   int			pause_for_moving;	       /* pause for moving scanhead over full scanarea in ms */
+  int			lamp_control_available;		       /* is set when scanner supportes lamp control */
 
   int                   RGB_PREVIEW_FIX;
+#ifdef HAVE_SANEI_IPC
+  sanei_ipc			*ipc;
+#endif
 } Umax_Device;
 
 
@@ -428,6 +452,8 @@ typedef struct Umax_Device
 
 /* LIST OF OPEND DEVICES, A DEVICE MAY BE OPEND TWICE, ALL VALUES LISTED HERE MAY BE
    DIFFERENT FOR DIFFERENT APPLICATIONS */
+
+/* Umax_Scanner contains values relevant for the sane interface */
 
 typedef struct Umax_Scanner
 {
@@ -448,7 +474,9 @@ typedef struct Umax_Scanner
   SANE_Parameters		params;
 
   pid_t				reader_pid;
+#ifndef HAVE_SANEI_IPC
   int				pipe;
+#endif
 } Umax_Scanner;
 
 

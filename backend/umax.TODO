@@ -1,7 +1,8 @@
 TODO UMAX BACKEND FOR SANE
 ==========================
 
- * add backend internal callibration support for Astra 2200
+ * Astra 2200: enable option resolution bind for grayscale/lineart
+   it must be disabled and set "true" for color mode
 
  * change set_window if (dev->do_color_ordering != 0) {..}
    one of the settings makes an error for Astra 6X0S scanners
@@ -14,4 +15,5 @@ TODO UMAX BACKEND FOR SANE
 
 
  - I will NOT add support for parallel-port and USB scanners to this backend!
+   Don`t ask for it.
 

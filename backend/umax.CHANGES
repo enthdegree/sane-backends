@@ -695,8 +695,8 @@ build-16 -> build-17
     * added support for sanei_scsi_open_extended and variable scsi buffer size
 
 
-build-17 -> build-18
---------------------
+build-17 -> build-18 (sane-1.0.2)
+---------------------------------
 
     * some cosmetic changes of the form
         if (..) {...}
@@ -755,11 +755,90 @@ build-19 -> build-20
       - Astra 2200
 
 
-build-20 -> build-21
---------------------
+build-20 -> build-21 (sane-1.0.3)
+---------------------------------
 
     * Added Linotype "JADE" as supported scanner
 
     * Removed bug in sane_close that caused segfault when
       sane_close was called twice with the same scanner handle
+
+build-21 -> build-22
+--------------------
+
+    * replaced fgets() by sanei_config_read()
+
+    * added command queueing for scsi read commands
+      - removed WAIT_SCANNER scsi command call after read command
+      - the additional buffers are allocated in the reader process
+      - the number of buffers can be defined in umax.conf
+        with option scsi-maxqueue [1..8] default:2
+      (did some tests with Supervista S12 and PowerLook III
+       on the same scsi controller (ncr53c810):
+       command queueing works, it is possible to start
+       both scanners at the same time. The scanner with the
+       higher scsi-ID (=priority) does scan without stops,
+       the other scanner has to wait long time between the
+       scsi-read commands, it also is possible to give
+       bothe scanners different scsi command queueing depth).
+
+    * prepared replacement of pipe by sanei_ipc_* routines 
+
+    * added routines umax_get_lamp_status and umax_set_lamp_status
+
+    * updated inquiry output (new bits from powerlook scsi protocol 1.0 X101)
+
+    * added new (powerlook scsi protocol 1.0 X101) window descriptor block entries to umax-scsidef.h
+
+    * added button protocol (3 buttons, from powerlook scsi protocol 1.0 X101)
+
+    * added button "lamp off" to turn off scanner lamp
+      (this option may be remoeved again in later version, may be
+       it will be replaced by an autmatic lamp turn off function)
+
+    * added options to umax.conf
+      lamp-off-at-exit [01] default:0
+      lamp-off-time [10..720] (in minutes) default:30
+
+    * if  lamp_off_at_exit == 1 and lamp_control_available == 1
+      the scanner lamp is turned off in sane_close
+
+    * renamed umax-scanner.h and umax-"scannername".h to umax*.c
+      because these files create data code
+
+
+build-22 -> build-23
+--------------------
+
+    * scsi commands set/get lamp control are send with a command length of
+      10 bytes instead of 6 bytes and control bit #7 is in byte 0x03
+      and not in byte 0x04 (it is described incorrect in the umax doc)
+
+    * enabled lamp control for Astra 2200
+
+    * removed umax.conf options lamp-off-at-exit and lamp-off-time
+
+    * added frontend option lamp-off-at-exit
+
+    * added frontend option lamp-on
+
+    * forcing calibration_bytespp = 1 for Astra 2200 - quality calibration does work now
+
+    * for Astra 2200 selection for different x/y resolutions is disabled
+
+    
+build-23 -> build-24
+--------------------
+
+    * forcing calibration_bytespp = 1 for Astra 2100S
+
+    * Added Astra 2100S as supported scanner
+
+    * enabled lamp control for Astra 2100S (don`t know if this works, is a test)
+
+    * Added warning in sane_control_option if option could not be set
+ 
+    
+build-24 -> build-25
+--------------------
 

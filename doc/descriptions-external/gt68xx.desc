@@ -1,6 +1,6 @@
 :backend "gt68xx"
 :status :alpha
-:version "1.0-7"
+:version "1.0-9"
 ;:manpage "sane-gt68xx"
 :url "http://www.meier-geinitz.de/sane/gt68xx-backend/"
 ;:comment "Only the USB scanners mentioned below are supported. For other BearPaws, look at the Plustek backend."
@@ -13,26 +13,39 @@
 
 :model "ScanExpress 1200 UB Plus"
 :interface "USB"
-:comment "should work like the BearPaw 1200 CU"
-:status :untested
+:comment "similar results as the BearPaw 1200 CU"
+:status :alpha
 
 :model "BearPaw 1200 CU"
 :interface "USB"
-:comment "Gray 8 bit 150 and 300 dpi work, color 300 dpi works somewhat"
+:comment "Gray 8 bit 150 and 300 dpi work, color 50, 150, 300 dpi work"
 :status :alpha
 
-:model "BearPaw 1200 CU Plus"
-:interface "USB"
-:status :untested
-
 :model "BearPaw 1200 TA"
+:interface "USB"
+:status :alpha
+:comment "basically works"
+
+:model "BearPaw 2400 CU"
 :interface "USB"
 :status :untested
 
 :model "BearPaw 2400 TA"
 :interface "USB"
-:status :untested
+:status :alpha
+:comment "At least color 300 dpi works"
 
 :model "BearPaw 2400 TA Plus"
 :interface "USB"
+:status :alpha
+:comment "Similar to the BearPaw 2400 TA"
+
+:mfg "Plustek"
+:url "http://www.plustek.de/"
+:url "http://www.plustek.com/"
+
+:model "OpticPro 1248U"
+:interface "USB"
 :status :untested
+:comment "Uses the GT-6801 chip, maybe supported in future"
+

@@ -1,6 +1,6 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 2003 Rene Rebe (sanei_read_int)
-   Copyright (C) 2001, 2002 Henning Meier-Geinitz
+   Copyright (C) 2001 - 2003 Henning Meier-Geinitz
    Copyright (C) 2001 Frank Zago (sanei_usb_control_msg)
    This file is part of the SANE package.
 
@@ -485,8 +485,8 @@ sanei_usb_find_devices (SANE_Int vendor, SANE_Int product,
   SANE_Int dn = 0;
 
   DBG (3,
-       "sanei_usb_find_devices: vendor=0x%04x, product=0x%04x, attach=%p\n",
-       vendor, product, attach);
+       "sanei_usb_find_devices: vendor=0x%04x, product=0x%04x\n",
+       vendor, product);
 
   while (devices[dn].devname && dn < MAX_DEVICES)
     {
@@ -623,36 +623,6 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 	}
       interface = &dev->config[0].interface->altsetting[0];
 
-#if 0
-      /* Set alternative setting */
-      /* Seems to break on Max OS X -> disabled */
-      DBG (3, "sanei_usb_open: chosing first altsetting (%d) without "
-	   "checking\n", interface->bAlternateSetting);
-
-      result = usb_set_altinterface (devices[devcount].libusb_handle, 
-				     interface->bAlternateSetting);
-      if (result < 0)
-	{
-	  SANE_Status status = SANE_STATUS_INVAL;
-
-	  DBG (1, "sanei_usb_open: libusb complained: %s\n", usb_strerror ());
-	  if (errno == EPERM)
-	    {
-	      DBG (1, "Make sure you run as root or set appropriate "
-		   "permissions\n");
-	      status = SANE_STATUS_ACCESS_DENIED;
-	    }
-	  else if (errno == EBUSY)
-	    {
-	      DBG (1, "Maybe the kernel scanner driver claims the "
-		   "scanner's interface?\n");
-	      status = SANE_STATUS_DEVICE_BUSY;
-	    }
-	  usb_close (devices[devcount].libusb_handle);
-	  return status;
-	}
-#endif
-
       /* Now we look for usable endpoints */
       for (num = 0; num < interface->bNumEndpoints; num++)
 	{
@@ -728,6 +698,7 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
     }
   else if (devices[devcount].method == sanei_usb_method_scanner_driver)
     {
+      long int flag;
       /* Using kernel scanner driver */
       devices[devcount].fd = open (devname, O_RDWR);
       if (devices[devcount].fd < 0)
@@ -745,6 +716,13 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 	  DBG (1, "sanei_usb_open: open of `%s' failed: %s\n",
 	       devname, strerror (errno));
 	  return status;
+	}
+      flag = fcntl (devices[devcount].fd, F_GETFD);
+      if (flag >= 0)
+	{
+	  if (fcntl (devices[devcount].fd, F_SETFD, flag | FD_CLOEXEC) < 0)
+	    DBG (1, "sanei_usb_open: fcntl of `%s' failed: %s\n",
+		 devname, strerror (errno));
 	}
     }
   else

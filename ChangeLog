@@ -14,6 +14,9 @@
 	* TODO: Added dll init/exit problem. Added non-static symbol problem.
 	  Added info about missing definition of 1-bit modes in sane.tex.
 	  Added entry about sane-find-scanner searching directories.
+	* backend/mustek.c backend/mustek.h doc/desacriptions/mustek.desc
+	  doc/mustek/mustek.CHANGES: Set freed variables to 0 in sane_exit.
+	  Fixed coding style. New version: 1.0-121.
 
 2002-04-09  Petter Reinholdtsen <pere@td.org.uit.no>
 

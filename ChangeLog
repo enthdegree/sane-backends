@@ -17,6 +17,10 @@
 	* AUTHORS: Added myself as active maintainer of v4l.
 	* doc/sane-v4l.man: Added warning about ALPHA software and bugs.
 	  Minor updates.
+	* doc/descriptions/bh.desc doc/descriptions/canon630u.desc 
+	  doc/descriptions/dmc.desc doc/descriptions/sm3600.desc
+	  doc/descriptions/umax1220u.desc: Minor fixes and updates for the new
+	  .desc file format.
 
 2002-08-18 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 

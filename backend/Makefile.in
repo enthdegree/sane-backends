@@ -187,11 +187,9 @@ install:
 	@dllend=`../tools/libtool-get-dll-ext libsane-dll.la`; \
 	rm -f $(DESTDIR)$(libdir)/libsane.a $(DESTDIR)$(libdir)/libsane.$$dllend \
 		$(DESTDIR)$(libdir)/libsane.$$dllend.$(V_MAJOR)*; \
-	$(LN_S) sane/libsane-dll.a $(DESTDIR)$(libdir)/libsane.a; \
-	$(LN_S) sane/libsane-dll.$$dllend $(DESTDIR)$(libdir)/libsane.$$dllend ; \
 	cd $(DESTDIR)$(libsanedir) && for n in libsane-dll.$$dllend.$(V_MAJOR)*; do \
 	  nn=`echo $$n | sed 's,^libsane-dll,libsane,'`; \
-	  (cd ..; $(LN_S) sane/$$n $$nn); \
+	  (cd ..; if test -f sane/$$n ; then $(LN_S) sane/$$n $$nn; fi; ); \
 	done || exit 1
 	$(LIBTOOL) $(MINST) $(INSTALL_PROGRAM) libsane.la \
           $(DESTDIR)$(libdir)/libsane.la

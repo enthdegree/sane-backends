@@ -1,3 +1,9 @@
+2002-11-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/Makefile.in: Don't generate symlinks for libsane.so/.a, the files
+	  are installed anyway. Fix symlink creation when only static libraries
+	  are created.
+
 2002-11-20  Michael Herder <crapsite at gmx.net>
 
 	  Added artec_eplus48u backend for the scanner Artec E+ 48U and

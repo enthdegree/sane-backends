@@ -57,6 +57,9 @@ init_picture_buffer (Test_Device * test_device, SANE_Byte ** buffer,
   SANE_Byte *b;
   SANE_Bool is_little_endian = little_endian ();
 
+  if (test_device->val[opt_invert_endianess].w)
+    is_little_endian ^= 1;
+
   DBG (2, "(child) init_picture_buffer test_device=%p, buffer=%p, "
        "buffer_size=%p\n", test_device, buffer, buffer_size);
 

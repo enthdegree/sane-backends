@@ -1,4 +1,4 @@
-.TH sane-test 5 "9 Jun 2002"
+.TH sane-test 5 "24 Jul 2002"
 .IX sane-test
 .SH NAME
 sane-test - SANE backend for testing frontends
@@ -68,6 +68,12 @@ explanation.  Color patterns are used to determine if all modes and their
 colors are reprented correctly by the frontend.  The grid should look like the
 same in every mode and resolution.  A table of all the test pictures can be
 found at: http://www.meier-geinitz.de/sane/test-backend/test-pictures.html.
+.PP
+If option
+.B invert-endianess
+is set, the upper and lower bytes of image data in 16 bit modes are exchanged.
+This option can be used to test the 16 bit modes of frontends, e.g. if the
+frontend uses the correct endianess.
 .PP
 If option
 .B read-limit

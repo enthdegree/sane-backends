@@ -25,7 +25,8 @@ typedef enum
   opt_resolution,
   opt_special_group,
   opt_test_picture,
-  opt_read_limit,		/* 10 */
+  opt_invert_endianess,
+  opt_read_limit,
   opt_read_limit_size,
   opt_read_delay,
   opt_read_delay_duration,

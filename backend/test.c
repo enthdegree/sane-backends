@@ -41,7 +41,7 @@
    This backend is for testing frontends.
 */
 
-#define BUILD 16
+#define BUILD 17
 
 #include "../include/sane/config.h"
 
@@ -194,6 +194,7 @@ static SANE_Bool init_hand_scanner = SANE_FALSE;
 static SANE_Bool init_three_pass = SANE_FALSE;
 static SANE_String init_three_pass_order = "RGB";
 static SANE_String init_test_picture = "Solid black";
+static SANE_Bool init_invert_endianess = SANE_FALSE;
 static SANE_Bool init_read_limit = SANE_FALSE;
 static SANE_Word init_read_limit_size = 1;
 static SANE_Bool init_read_delay = SANE_FALSE;
@@ -426,6 +427,23 @@ init_options (Test_Device * test_device)
   if (!test_device->val[opt_test_picture].s)
     return SANE_STATUS_NO_MEM;
   strcpy (test_device->val[opt_test_picture].s, init_test_picture);
+
+  /* opt_invert_endianess */
+  od = &test_device->opt[opt_invert_endianess];
+  od->name = "invert-endianess";
+  od->title = SANE_I18N ("Invert endianess");
+  od->desc = SANE_I18N ("Exchange upper and lower byte of image data in 16 "
+			"bit modes. This option can be used to test the 16 "
+			"bit modes of frontends, e.g. if the frontend uses "
+			"the correct endianess.");
+  od->type = SANE_TYPE_BOOL;
+  od->unit = SANE_UNIT_NONE;
+  od->size = sizeof (SANE_Word);
+  od->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
+  od->cap |= SANE_CAP_INACTIVE;
+  od->constraint_type = SANE_CONSTRAINT_NONE;
+  od->constraint.range = 0;
+  test_device->val[opt_invert_endianess].w = init_invert_endianess;
 
   /* opt_read_limit */
   od = &test_device->opt[opt_read_limit];
@@ -1433,6 +1451,9 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	  if (read_option (line, "test-picture", param_string,
 			   &init_test_picture) == SANE_STATUS_GOOD)
 	    continue;
+	  if (read_option (line, "invert-endianess", param_bool,
+			   &init_invert_endianess) == SANE_STATUS_GOOD)
+	    continue;
 	  if (read_option (line, "read-limit", param_bool,
 			   &init_read_limit) == SANE_STATUS_GOOD)
 	    continue;
@@ -1869,7 +1890,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option, SANE_Action action,
 	       option, test_device->opt[option].name,
 	       *(SANE_Bool *) value == SANE_TRUE ? "true" : "false");
 	  break;
-	case opt_non_blocking:	/* Bool */
+	case opt_invert_endianess:	/* Bool */
+	case opt_non_blocking:
 	case opt_select_fd:
 	case opt_bool_soft_select_soft_detect:
 	case opt_bool_soft_select_soft_detect_auto:
@@ -1885,7 +1907,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option, SANE_Action action,
 	       option, test_device->opt[option].name,
 	       *(SANE_Bool *) value == SANE_TRUE ? "true" : "false");
 	  break;
-	case opt_depth:	/* Word list with parameter reloading */
+	case opt_depth:	/* Word list with parameter and options reloading */
 	  if (test_device->val[option].w == *(SANE_Int *) value)
 	    {
 	      DBG (4, "sane_control_option: option %d (%s) not changed\n",
@@ -1893,11 +1915,17 @@ sane_control_option (SANE_Handle handle, SANE_Int option, SANE_Action action,
 	      break;
 	    }
 	  test_device->val[option].w = *(SANE_Int *) value;
+	  if (test_device->val[option].w == 16)
+	    test_device->opt[opt_invert_endianess].cap &= ~ SANE_CAP_INACTIVE;
+	  else
+	    test_device->opt[opt_invert_endianess].cap |= SANE_CAP_INACTIVE;
+	  
 	  myinfo |= SANE_INFO_RELOAD_PARAMS;
+	  myinfo |= SANE_INFO_RELOAD_OPTIONS;
 	  DBG (4, "sane_control_option: set option %d (%s) to %d\n",
 	       option, test_device->opt[option].name, *(SANE_Int *) value);
 	  break;
-	case opt_three_pass_order:	/* String list with parameter reloading */
+	case opt_three_pass_order:	/* String list with parameter reload */
 	  if (strcmp (test_device->val[option].s, value) == 0)
 	    {
 	      DBG (4, "sane_control_option: option %d (%s) not changed\n",
@@ -2122,6 +2150,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option, SANE_Action action,
 	  }
 	case opt_hand_scanner:	/* Bool options */
 	case opt_three_pass:
+	case opt_invert_endianess:
 	case opt_read_limit:
 	case opt_read_delay:
 	case opt_fuzzy_parameters:

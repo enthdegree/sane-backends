@@ -1510,7 +1510,6 @@ void sane_close (SANE_Handle h)
         break;
     }
     close_scanner (pss);
-    free (pss->tmpfname);
     free (pss->gamma_tables);
     free (pss->buf);
     free (pss);
@@ -3101,8 +3100,11 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
- * Revision 1.12  2001/12/18 18:34:16  oliverschwartz
- * Update to snapscan-20011218 (snapscan 1.4.3)
+ * Revision 1.13  2001/12/20 23:22:50  oliverschwartz
+ * Update to snapscan-20011221 (snapscan 1.4.3)
+ *
+ * Revision 1.35  2001/12/20 23:18:01  oliverschwartz
+ * Remove tmpfname
  *
  * Revision 1.34  2001/12/18 18:28:35  oliverschwartz
  * Removed temporary file

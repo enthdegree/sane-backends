@@ -2,7 +2,9 @@
 
 	* doc/descriptions-external/brother.desc: New file. Added the
 	  scanners listed on the brother backend page. Used "untested"
-	  status as we don't have confirmation that the backend actually works.
+	  status as we don't have confirmation that the backend actually
+	  works.
+	* tools/hotplug/libsane.usermap: Added Mustek ScanExpress 1248UB.
 
 2004-07-05  Gerhard Jaeger <gerhard@gjaeger.de>
 	* doc/descriptions/plustek.desc: Changed status of CanoScan D660U.

@@ -14,6 +14,9 @@
 /* Define to 1 if the system supports IPv6 */
 #undef ENABLE_IPV6
 
+/* Define to 1 if device locking should be enabled. */
+#undef ENABLE_LOCKING
+
 /* Define to 1 if struct sockaddr_storage has an ss_family member */
 #undef HAS_SS_FAMILY
 

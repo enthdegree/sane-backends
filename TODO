@@ -1,4 +1,4 @@
-TODO (2001-10-15)
+TODO (2001-10-24)
 
 ******** todo ********
 
@@ -39,7 +39,6 @@ backends
      - microtek
 
   * Check net/saned
-     - cancel doesn't work over the net at least with pnm and mustek.
      - saned times out after 5 minutes (now 60 minutes). Check if the
        watchdog timer is really necessary (e.g. to avoid blocking scanners
        by one user). Maybe add an command line option to saned to set the
@@ -101,6 +100,8 @@ doc
 
   * sane.tex: Define the return values for sane_init?  Define the
     consequences if sane_init do not return SANE_STATUS_GOOD.
+    Add a warning/explanation about problems with sane_get_select_fd,
+    Unix select() calls and sane_cancel.
 
   * Update backend manpages
 
@@ -155,6 +156,7 @@ misc
   * Add installation procedure for translations of SANE backend's options.
 
 ******** done ********
+* net: cancel doesn't work over the net at least with pnm and mustek.
 * add Jochen Eisinger's net.c and sanei_wire.c fixes/additions.
 * net.c: don't just ignore the byte-order for the image data (needed to
   support depths > 8 bits/channel)

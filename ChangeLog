@@ -4,6 +4,7 @@
 	  #define. Check for usb_get_busses to make sure, we have at least 
 	  version 0.1.6. Added OS/2 substitution for strncasecmp.
 	* include/sane/sanei_usb.h sanei/sanei_usb.c: Added support for libusb.
+	* README.netbsd: Removed. Shared libraries are supported since 1.0.8.
 
 2002-06-29  Matthew Duggan <stauff1@users.sourceforge.net>
 

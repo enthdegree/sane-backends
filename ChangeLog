@@ -1,3 +1,8 @@
+2002-09-07  Frank Zago  <fzago at austin dot rr dot com>
+
+	* backend/teco1.c backend/teco1.h teco1.desc: added threshold
+	  option
+
 2002-09-07 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 
 	* backend/umax.c, umax.h, umax-scanner.c, umax.conf

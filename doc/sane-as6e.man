@@ -1,4 +1,4 @@
-.TH sane-as6e 5 "Apr 2nd, 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-as6e 5 "Dec 14th, 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 
 .SH NAME
 sane-as6e \- SANE backend for using the Artec AS6E parallel port interface scanner.
@@ -13,7 +13,7 @@ The as6edriver program is
 .B not
 included with the SANE package.  
 It can be found at 
-.BR http://as6edriver.sourceforge.net .
+.BR http://as6edriver.sourceforge.net.
 See the as6edriver documentation for technical information.
 .PP
 The

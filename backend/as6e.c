@@ -70,6 +70,7 @@
 static int num_devices;
 static AS6E_Device *first_dev;
 static AS6E_Scan *first_handle;
+static const SANE_Device **devlist = 0;
 
 static SANE_Status attach (const char *devname, AS6E_Device ** devp);
 /* static SANE_Status attach_one (const char *dev);  */
@@ -109,7 +110,8 @@ static const SANE_Range contrast_range = {
 };
 
 /*--------------------------------------------------------------------------*/
-static SANE_Int as6e_unit_convert (SANE_Fixed value)
+static SANE_Int
+as6e_unit_convert (SANE_Fixed value)
 {
 
   double precise;
@@ -143,7 +145,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	{
 	  read (s->as6e_params.ctlinpipe, &written, sizeof (written));
 	  if (written != -1)
-	    DBG(3, "pipe error\n");
+	    DBG (3, "pipe error\n");
 	  DBG (3, "trying  to read -1 ...written = %d\n", written);
 	}
       s->scanning = SANE_FALSE;
@@ -232,7 +234,8 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	  linebufcounter += bytes_read;
 	  maxbytes -= bytes_read;
 	  DBG (3, "bytes_read = %d linebufcounter = %d\n", bytes_read,
-	       linebufcounter);}
+	       linebufcounter);
+	}
       DBG (3, "written =%d max_len =%d  len =%d\n", written, max_len, *len);
       if (written <= (max_len - *len))
 	{
@@ -263,7 +266,8 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	{			/*everything goes into the carryover buffer */
 	  for (bytecounter = 0; bytecounter < written; bytecounter++)
 	    s->scan_buffer[s->scan_buffer_count + bytecounter]
-	      = linebuffer[bytecounter]; s->scan_buffer_count += written;
+	      = linebuffer[bytecounter];
+	  s->scan_buffer_count += written;
 	}
     }				/*while there's space in the buffer */
   s->image_counter += *len;
@@ -356,7 +360,8 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
       s->as6e_params.startline = as6e_unit_convert (s->value[OPT_TL_Y].w);
       s->as6e_params.stopline = as6e_unit_convert (s->value[OPT_BR_Y].w);
       if ((s->as6e_params.resolution == 200)
-	  || (s->as6e_params.resolution == 100)) divisor = 3;
+	  || (s->as6e_params.resolution == 100))
+	divisor = 3;
       else if (s->as6e_params.resolution == 50)
 	divisor = 6;		/*get legal values for 200 dpi */
       s->as6e_params.startpos = (s->as6e_params.startpos / divisor) * divisor;
@@ -530,11 +535,11 @@ sane_exit (void)
   while (first_dev != NULL)
     {
       next = first_dev->next;
-/*          free((void *) first_dev->sane.name);*/
-/*          free((void *) first_dev->sane.model);*/
       free (first_dev);
       first_dev = next;
     }
+  if (devlist)
+    free (devlist);
 }
 
 /*--------------------------------------------------------------------------*/
@@ -556,7 +561,7 @@ as6e_open (AS6E_Scan * s)
       fork_result = fork ();
       if (fork_result == (pid_t) - 1)
 	{
-	  DBG(1, "Fork failure");
+	  DBG (1, "Fork failure");
 	  return (SANE_STATUS_IO_ERROR);
 	}
 
@@ -568,10 +573,10 @@ as6e_open (AS6E_Scan * s)
 	  exec_result =
 	    execlp ("as6edriver", "as6edriver", "-s", inpipe_desc,
 		    outpipe_desc, datapipe_desc, (char *) 0);
-	  DBG (1,"The SANE backend was unable to start \"as6edriver\".\n");
-	  DBG (1,"This must be installed in a driectory in your PATH.\n");
-	  DBG (1,"To aquire the as6edriver program,\n");
-	  DBG (1,"go to http://as6edriver.sourceforge.net.\n");
+	  DBG (1, "The SANE backend was unable to start \"as6edriver\".\n");
+	  DBG (1, "This must be installed in a driectory in your PATH.\n");
+	  DBG (1, "To aquire the as6edriver program,\n");
+	  DBG (1, "go to http://as6edriver.sourceforge.net.\n");
 	  write (ctlinpipe[WRITEPIPE], &exec_result, sizeof (exec_result));
 	  exit (-1);
 	}
@@ -580,23 +585,24 @@ as6e_open (AS6E_Scan * s)
 	  data_processed =
 	    read (ctlinpipe[READPIPE], &as6e_status, sizeof (as6e_status));
 	  DBG (1, "%d - read %d status = %d\n", getpid (), data_processed,
-	       as6e_status); if (as6e_status == -2)
+	       as6e_status);
+	  if (as6e_status == -2)
 	    {
-	      DBG (1,"Port access denied.\n");
+	      DBG (1, "Port access denied.\n");
 	      return (SANE_STATUS_IO_ERROR);
 	    }
 	  if (as6e_status == -1)
 	    {
-	      DBG (1,"Could not contact scanner.\n");
+	      DBG (1, "Could not contact scanner.\n");
 	      return (SANE_STATUS_IO_ERROR);
 	    }
 
 	  if (as6e_status == 1)
-	    DBG (1,"Using nibble mode.\n");
+	    DBG (1, "Using nibble mode.\n");
 	  if (as6e_status == 2)
-	    DBG (1,"Using byte mode.\n");
+	    DBG (1, "Using byte mode.\n");
 	  if (as6e_status == 3)
-	    DBG (1,"Using EPP mode.\n");
+	    DBG (1, "Using EPP mode.\n");
 	  s->as6e_params.ctlinpipe = ctlinpipe[READPIPE];
 	  s->as6e_params.ctloutpipe = ctloutpipe[WRITEPIPE];
 	  s->as6e_params.datapipe = datapipe[READPIPE];
@@ -617,7 +623,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   size_t len;
   FILE *fp = NULL;
 
-  DBG_INIT();
+  DBG_INIT ();
   DBG (2, "sane_init (authorize = %p)\n", authorize);
   if (version_code)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, 0);
@@ -703,7 +709,8 @@ initialize_options_list (AS6E_Scan * s)
     {
       s->options_list[option].size = sizeof (SANE_Word);
       s->options_list[option].cap =
-	SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;}
+	SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    }
 
   s->options_list[OPT_NUM_OPTS].name = SANE_NAME_NUM_OPTIONS;
   s->options_list[OPT_NUM_OPTS].title = SANE_TITLE_NUM_OPTIONS;
@@ -807,14 +814,14 @@ check_for_driver (const char *devname)
       strncpy (fullname, dir, NAMESIZE);
       strncat (fullname, "/", NAMESIZE);
       strncat (fullname, devname, NAMESIZE);
-      if ( !stat (fullname, &statbuf))
-        {
-          modes = statbuf.st_mode;
-          if (S_ISREG (modes))
+      if (!stat (fullname, &statbuf))
+	{
+	  modes = statbuf.st_mode;
+	  if (S_ISREG (modes))
 	    return (1);		/* found as6edriver */
-        }
+	}
       if (path[count] == '\0')
-	return (0);         /* end of path --no driver found */
+	return (0);		/* end of path --no driver found */
       count++;
       offset = count;
     }
@@ -846,7 +853,10 @@ attach (const char *devname, AS6E_Device ** devp)
   memset (dev, 0, sizeof (*dev));
   dev->sane.name = strdup (devname);
   if (!check_for_driver (devname))
-    return (SANE_STATUS_INVAL);
+    {
+      free (dev);
+      return (SANE_STATUS_INVAL);
+    }
 
   dev->sane.model = "AS6E";
   dev->sane.vendor = "Artec";

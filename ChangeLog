@@ -1,3 +1,8 @@
+2003-01-05  Peter Fales  <peter@fales-lorenz.net>
+
+        * backend/dc25.c:  Mailing list fix.  Change = to == 
+	  dc25/dc20 tests.
+
 2003-01-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* TODO: Added link to Irix patches. Updated .desc section.

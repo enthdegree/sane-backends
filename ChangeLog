@@ -1,6 +1,9 @@
 2003-04-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* tools/sane-desc.c: Fixed some HTML bugs.
+	* doc/desccriptions/unsupported.desc: Updated HP Scanjet 35XX,
+	  Medion MD 6228, and Umax Astra 4700 entries. Added some Mustek
+	  and Primax scanners.
 
 2003-04-14  Peter Kirchgessner <peter@kirchgessner.net>
 

@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-04-11"		; version of backend
+:version "2003-04-14"		; version of backend
 :url "http://www.meier-geinitz.de/sane/misc/unsupported.html"
 ;:status :stable			; :alpha, :beta, :stable, :new
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
@@ -231,19 +231,19 @@
 :url "http://www.meier-geinitz.de/sane/misc/hp-scanjet-3500c.txt"
 :interface "USB"
 :status :unsupported
-:comment "Unsupported. Seems to use RealTek RTS8801C2-6, see link. Vendor/Product ID 0x03F0/0x2205."
+:comment "Unsupported. Seems to use RealTek RTS8801C2-6. Vendor/Product ID 0x03F0/0x2205. See link and other Scanjet 35x0c entries."
 
 :model "ScanJet 3530c"
 :url "http://www.meier-geinitz.de/sane/misc/hp-scanjet-3530c.txt"
 :interface "USB"
 :status :unsupported
-:comment "Unsupported. Chipset is Realtek RTS8801C2-6, see ScanJet 3500c. Vendor/Product ID 0x03F0/0x2005."
+:comment "Unsupported. Chipset is Realtek RTS8801C2-6. Vendor/Product ID 0x03F0/0x2005. See link and other Scanjet 35x0c entries."
 
 :model "ScanJet 3570c"
-;:url "http://www.realtek.com.tw/products/products1-2.aspx?modelid=37"
+:url "http://www.cscs.ch/~tack/hp3530.html"
 :interface "USB"
 :status :unsupported
-:comment "Unsupported. Probably Realtek RTS8801C2-6, same ids as Scanjet 3530c. Has a TA. Vendor/product id 0x03F0/0x2005."
+:comment "Unsupported. Probably Realtek RTS8801C2-6, same ids as Scanjet 3530c. Has a TA. Vendor/product id 0x03F0/0x2005. See link and other Scanjet 35x0c entries."
 
 :model "ScanJet 3570cxi"
 ;:url "http://www.realtek.com.tw/products/products1-2.aspx?modelid=37"
@@ -307,13 +307,13 @@
 :url "http://www.meier-geinitz.de/sane/misc/medion-MD5345.txt"
 :interface "USB"
 :status :unsupported
-:comment "Probably unsupported. Vendor/product 0x0461/0x0377. The vendor id is Primax. Same as MD 6228"
+:comment "Probably unsupported. Vendor/product 0x0461/0x0377. The vendor id is Primax. Same as MD 6228. Maybe the same as Primax Slim-Line 1200."
 
 :model "MD 6228"
 :url "http://www.meier-geinitz.de/sane/misc/medion-MD6228.txt"
 :interface "USB"
 :status :unsupported
-:comment "Probably unsupported. Vendor/product 0x0461/0x0377. The vendor id is Primax. Same as MD 5345."
+:comment "Probably unsupported. Vendor/product 0x0461/0x0377. The vendor id is Primax. Same as MD 5345. Maybe the same as Primax Slim-Line 1200."
 
 ;********************************************************************************************
 
@@ -376,11 +376,35 @@
 :status :unsupported
 :comment "Not supported. SCSI over Parport."
 
+:model "1800 A3 Pro-1"
+:interface "USB"
+:url "http://www.mostang.com/pipermail/sane-devel/2003-April/018456.html"
+:status :unsupported
+:comment "Not supported but someone wants to start writing a backend. See link. Vendor/Product ids: 0x055f/0x0401. No information about this scanner on any Mustek website."
+
 :model "P 3600 A3 Pro"
 :interface "USB"
 :url "http://www.mostang.com/pipermail/sane-devel/2003-April/018456.html"
 :status :unsupported
-:comment "Not supported but someone wants to start writing a backend. See link. Vendor/Product ids: 0x055f/0x0401"
+:comment "Not supported. Maybe similar to the 1800 A3 Pro-1?. See link."
+
+:model "ScanExpress CardSmart"
+:interface "USB"
+:url "http://www.meier-geinitz.de/sane/misc/mustek-scanners.html#UNSUPPORTED"
+:status :unsupported
+:comment "Probably unsupported. USB business card scanner. Maybe works as USB storage device?"
+
+:model "BearPaw 1248CU"
+:interface "USB"
+:url "http://www.meier-geinitz.de/sane/misc/mustek-scanners.html#UNSUPPORTED"
+:status :unsupported
+:comment "Probably unsupported. No details known."
+
+:model "2400 M"
+:interface "USB"
+:url "http://www.meier-geinitz.de/sane/misc/mustek-scanners.html#UNSUPPORTED"
+:status :unsupported
+:comment "Probably unsupported. No details known."
 
 ;********************************************************************************************
 
@@ -474,6 +498,13 @@
 :status :unsupported
 :comment "Not supported. However, a patch for the teco2 backend and some information is available. Model VM3564."
 
+:model "Slim-Line 1200"
+;:url ""
+:interface "USB"
+:status :unsupported
+:comment "Probably unsupported. Vendor/product maybe 0x0461/0x0377. Maybe the same as Medion MD 6228/MD 5345"
+
+
 ;********************************************************************************************
 
 :mfg "Prolink"
@@ -527,10 +558,10 @@
 :comment "Not supported. Vendor/product 0x0638/0x0a10. Is reported to use GeneScan II GL646 chipset. Same as Avision iVina FB1600."
 
 :model "Astra 4700"
-;:url ""
+:url "http://www.genesyslogic.com/GL660.htm"
 :interface "USB"
 :status :unsupported
-:comment "Not supported. No chipset information available. Same as Avision iVina FB1800."
+:comment "Not supported. Is reported to use a Genesys Logic GL660USB chip (Parport to USB converter, see link) and the Avision B2 chipset. Same as Avision iVina FB1800."
 
 :model "Astra 6700"
 ;:url ""

@@ -25,6 +25,8 @@ Genius Colorpage Vivid3 V2
 .br
 Genius Colorpage Vivid3xe
 .br
+Genius Colorpage Vivid4
+.br
 Genius Colorpage Vivid4x
 .br
 Genius Colorpage Vivid4xe
@@ -54,6 +56,10 @@ Mustek BearPaw 2400 CS (Plus)
 Mustek BearPaw 2400 CU (Plus)
 .br
 Mustek BearPaw 2400 TA (Plus)
+.br
+Mustek BearPaw 2448 CS Plus
+.br
+Mustek BearPaw 2448 TA Plus
 .br
 Mustek ScanExpress A3 USB
 .br

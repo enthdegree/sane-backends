@@ -1,5 +1,16 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0-59 (2004-04-10)
+
+* Used 0, 4, 4 as linedistance for Mustek A3 USB.
+* Other mionor fixes for A3 USB.
+* Removed "unsupported scanner warning" from Mustek A3 USB.
+* Added Genius Colorpage Vivid4 to .conf file. Changed status to good. Added
+  to man page.
+* Fixed black mark for Mustek BearPaw 2448 TA Plus. This one and the Mustek A3
+  fixes are from Jakub Dvo?ák <xdvorak@chello.cz>.
+* Status of BearPaw 2448 TA/CS Plus is "basic" now.
+
 V 1.0-58 (2004-04-04)
 
 * Added BGR color order for pixel mode. Until now, only line mode worked in

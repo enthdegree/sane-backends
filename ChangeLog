@@ -4,6 +4,10 @@
 	* japi/Jscanimage.java japi/Sane.c: Fixes from  David Neary
 	  <David@phenix.fr> to make japi work with current jdks. More
 	  work and documentation is still needed.
+	* backend/gt68xx.c backend/gt68xx.conf backend/gt68xx_devices.c
+	  doc/sane-gt68xx.man doc/descriptions/gt68xx.desc
+	  doc/gt68xx/gt68xx.CHANGES: Minor fixes for Mustek A3 USB,
+	  Genius ColorPage Vivid4 and Mustek BearPaw 2448 CS/TA Plus.
 
 2004-04-10  Jochen Eisinger <jochen@penguin-breeder.org>
 

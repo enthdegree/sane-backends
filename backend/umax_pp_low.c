@@ -58,7 +58,7 @@
 #include <linux/ppdev.h>
 #endif
 
-#if defined HAVE_SYS_IO_H && defined HAVE_IOPERM
+#ifdef HAVE_SYS_IO_H 
 # include <sys/io.h>		/* GNU libc based Linux */
 #elif HAVE_ASM_IO_H
 # include <asm/io.h>		/* older Linux */
@@ -7494,6 +7494,7 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
 	}
 
       /* init some buffer : default calibration data ? */
+      /* looks like a standard gamma table             */
       dest[0] = 0x00;
       dest[1] = 0x00;
       dest[2] = 0x00;
@@ -7552,7 +7553,7 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
   for (i = 0; i < 256; i++)
     {
       if ((dest[2 * i] != i)
-	  || ((dest[2 * i + 1] != 0x04) && (dest[2 * i + 1] != 0x00)))
+	  || ((dest[2 * i + 1] != 0xFF) && (dest[2 * i + 1] != 0x00)))
 	{
 	  DBG
 	    (0,

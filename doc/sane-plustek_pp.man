@@ -1,4 +1,4 @@
-.TH sane-plustek_pp 5 "27 November 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-plustek_pp 5 "09 Jan 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-plustek_pp
 .SH NAME
 sane-plustek_pp \- SANE backend for Plustek parallel port
@@ -444,6 +444,39 @@ support dynamic loading).
 The Linux Kernelmodule.
 .PP
 
+.SH ENVIRONMENT
+.TP
+.B SANE_CONFIG_DIR
+This environment variable specifies the list of directories that may
+contain the configuration file.  Under UNIX, the directories are
+separated by a colon (`:'), under OS/2, they are separated by a
+semi-colon (`;').  If this variable is not set, the configuration file
+is searched in two default directories: first, the current working
+directory (".") and then in @CONFIGDIR@.  If the value of the
+environment variable ends with the directory separator character, then
+the default directories are searched after the explicitly specified
+directories.  For example, setting
+.B SANE_CONFIG_DIR
+to "/tmp/config:" would result in directories "tmp/config", ".", and
+"@CONFIGDIR@" being searched (in this order).
+.TP
+.B SANE_DEBUG_PLUSTEK_PP
+If the library was compiled with debug support enabled, this
+environment variable controls the debug level for this backend.  Higher
+debug levels increase the verbosity of the output.
+
+Example:
+export SANE_DEBUG_PLUSTEK_PP=10
+
+.SH "SEE ALSO"
+.BR sane (7),
+.BR sane\-usb (5),
+.BR sane\-plustek_pp (5),
+.br
+.I @DOCDIR@/plustek/Plustek-PAPPORT.changes
+.br
+.I http://www.gjaeger.de/scanner/plustek.html
+
 .SH "CONTACT AND BUG-REPORTS"
 .PP
 Please send any information and bug-reports to:
@@ -466,7 +499,7 @@ or directly from the projects' homepage at:
 .PP
 To obtain debug messages from the backend, please set the
 environment-variable
-.I SANE_DEBUG_PLUSTEK
+.I SANE_DEBUG_PLUSTEK_PP
 before calling your favorite scan-frontend (i.e. xscanimage).
 .br
 .B i.e.: export SANE_DEBUG_PLUSTEK_PP=20 ; xscanimage

@@ -1,4 +1,4 @@
-.TH sane-u12 5 "06 Jan 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-u12 5 "09 Jan 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-u12
 .SH NAME
 sane-u12 \- SANE backend for Plustek USB flatbed scanners,
@@ -21,28 +21,28 @@ Vendor Plustek - ID: 0x07B3
 .br
 ----------------------------------------------------------
 .br
-USB Model:         Properties:              Prod-ID
+Model:                   Vendor-ID:       Product-ID:
 .br
 ----------------------------------------------------------
 .br
-OpticPro U12       600x1200dpi 42bit 512Kb  0x0001
+OpticPro U12             0x07B3           0x0001
 .br
-OpticPro U1212     600x1200dpi 42bit 512Kb  0x0001
+OpticPro U1212           0x07B3           0x0001
 .br
-OpticPro UT12      600x1200dpi 42bit 512Kb  0x0001
+OpticPro UT12            0x07B3           0x0001
 .PP
 
-Vendor KYE/Genius - ID: 0x0458 (Vivid III = 0x07B3)
+Vendor KYE/Genius
 .br
-------------------------------------------------------------
+--------------------------------------------------------
 .br
-USB Model:                  Properties:              Prod-ID
+USB Model:               Vendor-ID:       Product-ID:
 .br
-------------------------------------------------------------
+--------------------------------------------------------
 .br
-ColorPage Vivid III USB     600x1200dpi 42bit 512Kb  0x0001
+ColorPage Vivid III USB  0x07B3           0x0001
 .br
-ColorPage HR6 V1            600x1200dpi 42bit 512Kb  0x2004
+ColorPage HR6 V1         0x0458           0x2004
 .PP
 
 .SH "CONFIGURATION"
@@ -116,6 +116,39 @@ The static library implementing this backend.
 .I @LIBDIR@/libsane-u12.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
+
+.SH ENVIRONMENT
+.TP
+.B SANE_CONFIG_DIR
+This environment variable specifies the list of directories that may
+contain the configuration file.  Under UNIX, the directories are
+separated by a colon (`:'), under OS/2, they are separated by a
+semi-colon (`;').  If this variable is not set, the configuration file
+is searched in two default directories: first, the current working
+directory (".") and then in @CONFIGDIR@.  If the value of the
+environment variable ends with the directory separator character, then
+the default directories are searched after the explicitly specified
+directories.  For example, setting
+.B SANE_CONFIG_DIR
+to "/tmp/config:" would result in directories "tmp/config", ".", and
+"@CONFIGDIR@" being searched (in this order).
+.TP
+.B SANE_DEBUG_U12
+If the library was compiled with debug support enabled, this
+environment variable controls the debug level for this backend.  Higher
+debug levels increase the verbosity of the output.
+
+Example:
+export SANE_DEBUG_U12=10
+
+.SH "SEE ALSO"
+.BR sane (7),
+.BR sane\-usb (5),
+.BR sane\-plustek (5),
+.br
+.I @DOCDIR@/u12/U12.changes
+.br
+.I http://www.gjaeger.de/scanner/u12.html
 
 .SH "CONTACT AND BUG-REPORTS"
 Please send any information and bug-reports to:

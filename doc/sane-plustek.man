@@ -1,4 +1,4 @@
-.TH sane-plustek 5 "5 December 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-plustek 5 "9 Jan 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-plustek
 .SH NAME
 sane-plustek \- SANE backend for LM983[1/2/3] based
@@ -175,6 +175,12 @@ Model    Chipset    backend
 U1248    GrandTech  gt68xx
 .br
 UT16B    GrandTech  gt68xx
+.br
+U12      P98003     u12
+.br
+UT12     P98003     u12
+.br
+1212U    P98003     u21
 .br
 For a more complete and up to date list see:
 .B http://www.sane-project.org/sane-supported-devices.html
@@ -374,6 +380,39 @@ The static library implementing this backend.
 .I @LIBDIR@/libsane-plustek.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
+
+.SH ENVIRONMENT
+.TP
+.B SANE_CONFIG_DIR
+This environment variable specifies the list of directories that may
+contain the configuration file.  Under UNIX, the directories are
+separated by a colon (`:'), under OS/2, they are separated by a
+semi-colon (`;').  If this variable is not set, the configuration file
+is searched in two default directories: first, the current working
+directory (".") and then in @CONFIGDIR@.  If the value of the
+environment variable ends with the directory separator character, then
+the default directories are searched after the explicitly specified
+directories.  For example, setting
+.B SANE_CONFIG_DIR
+to "/tmp/config:" would result in directories "tmp/config", ".", and
+"@CONFIGDIR@" being searched (in this order).
+.TP
+.B SANE_DEBUG_PLUSTEK
+If the library was compiled with debug support enabled, this
+environment variable controls the debug level for this backend.  Higher
+debug levels increase the verbosity of the output.
+
+Example:
+export SANE_DEBUG_PLUSTEK=10
+
+.SH "SEE ALSO"
+.BR sane (7),
+.BR sane\-usb (5),
+.BR sane\-plustek (5),
+.br
+.I @DOCDIR@/plustek/Plustek-USB.changes
+.br
+.I http://www.gjaeger.de/scanner/plustek.html
 
 .SH "CONTACT AND BUG-REPORTS"
 Please send any information and bug-reports to:

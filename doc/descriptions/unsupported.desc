@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-07-01"		; version of backend
+:version "2003-07-10"		; version of backend
 :url "http://www.meier-geinitz.de/sane/misc/unsupported.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 ;:url "http://www.meier-geinitz.de/sane/mustek-backend/"
@@ -163,10 +163,10 @@
 :comment "Not supported. However, someone started working on this scanner and some information is available (see link)."
 
 :model "CanoScan D2400UF"
-;:url ""
+:url "http://www.meier-geinitz.de/sane/misc/canon-d2400uf.txt"
 :interface "USB"
 :status :unsupported
-:comment "Probably not supported."
+:comment "Not supported. See link."
 
 :model "LiDE 50"
 :url "http://www.meier-geinitz.de/sane/misc/canon-lide-50.txt"
@@ -221,6 +221,17 @@
 :interface "USB"
 :status :unsupported
 :comment "Not supported. Vendor=0x049f, Product=0x001a."
+
+;********************************************************************************************
+
+:mfg "Corex"
+:url "http://www.cardscan.com/"
+
+:model "Cardscan 500"
+;:url ""
+:interface "USB"
+:status :unsupported
+:comment "Probably not supported. Businesscard reader. Vendor/product: 0x08f0/0x0001."
 
 ;********************************************************************************************
 
@@ -324,13 +335,13 @@
 :comment "Unsupported. See 3570c."
 
 :model "ScanJet 4400C"
-:url "http://home.foni.net/~johanneshub/"
+:url "http://www.meier-geinitz.de/sane/misc/hp-scanjet-4470c.txt"
 :interface "USB"
 :comment "Not supported. Seems to use the same chip as the 4470C. A stand-alone program for that scanner is available."
 :status :unsupported
 
 :model "ScanJet 4470C"
-:url "http://home.foni.net/~johanneshub/"
+:url "http://www.meier-geinitz.de/sane/misc/hp-scanjet-4470c.txt"
 :interface "USB"
 :comment "Not supported. However, a stand-alone program is available."
 :status :unsupported
@@ -668,6 +679,16 @@
 :interface "USB IEEE-1394"
 :status :unsupported
 :comment "Probably unsupported. Film scanner that can scan directly from the magazine."
+
+;********************************************************************************************
+
+:mfg "Relisys"
+
+:model "Scorpio Ultra 3"
+:url "http://www.meier-geinitz.de/sane/misc/relisys-scorpio-ultra3.txt"
+:interface "USB"
+:status :unsupported
+:comment "Probably unsupported. See link for details."
 
 ;********************************************************************************************
 

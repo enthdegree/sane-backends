@@ -1,3 +1,8 @@
+2003-07-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added Corex and Relisys
+	  scanners. Updated Canon and HP scanners.
+
 2003-07-02  Thomas Soumarmon <thomas.soumarmon@cogitae.net>
 
 	* backend/hp5400_internal.c: Added version string for v0.87

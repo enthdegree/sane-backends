@@ -1,4 +1,4 @@
-.TH sane-scsi 5 "16 Aug 2001"
+.TH sane-scsi 5 "03 Jan 2002"
 .IX sane-usb
 .SH NAME
 sane-usb - USB configuration tips for SANE
@@ -12,18 +12,20 @@ Sane-backends currently use three methods of communicating with USB scanners:
 Using libusb (a library for usb access). This is used by the sm3600 backend
 currently.
 .TP
-- 
-Access through sanei_usb, the SANE USB interface. Used by the mustek_usb
-backend.
+-
+Access through sanei_usb, the SANE USB interface. Used by the mustek_usb,
+plustek, snapscan, and umax1220u backends.
 .TP
 - 
-Direct access to the USB device files to access kernel scanner drivers
+Direct access to the USB device files to access kernel scanner drivers. Used
+by the epson backend.
 .PP
 This manual page describes the access of USB scanners over the sanei_usb
-interface. For point 1 and three of this list have a look at the backend's
-manual page for details.
+interface. For point one and three of this list have a look at the backends'
+manual pages for details.
 .PP
-Currently USB access is only tested for Linux and FreeBSD.
+Currently USB access is only tested for Linux, FreeBSD and OpenBSD. For
+installation, also check the @DOCDIR@/README.platform files.
 .PP
 For scanners with a USB interface, it may be necessary to edit the
 appropriate backend configuration file before using SANE for the first time.
@@ -41,7 +43,7 @@ create a symlink from
 to the USB device because this link is used by the SCSI backends. The scanner
 may be confused if it receives SCSI commands.  For a detailed description of
 each backend's configuration file, please refer to the relevant backend manual
-page (e.g. sane-mustek_usb Mustek USB scanners).
+page (e.g. sane-mustek_usb for Mustek USB scanners).
 .PP
 For Linux, there is an alternate way of specifying scanner devices.  This
 alternate allows to identify scanners by the USB vendor and product numbers.
@@ -73,8 +75,8 @@ backend. The same config line in decimal format looks like this:
 usb 0x055f 0x0006
 .RE
 .PP
-When using a USB scanner, ensure that the access permission for the
-USB device is set appropriately.  We recommend to add a group
+When using a USB scanner, ensure that the access permissions for the
+USB device are set appropriately.  We recommend to add a group
 "scanner" to /etc/group which contains all users that should have
 access to the scanner.  The permission of the device should then be
 set to allow group read and write access.  For example, if the scanner

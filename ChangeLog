@@ -13,7 +13,8 @@
 	  Added mustek_usb documentation.
 	* doc/sane.man: Updated concerning mustek_usb.
 	* PROJECTS TODO: Updated concerning mustek_usb.
-	
+	* doc/.cvsignore: Added sane-mustek_usb.5.
+
 2001-09-08 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 
 	* added information for device filesystem permissions

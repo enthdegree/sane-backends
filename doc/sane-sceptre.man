@@ -1,4 +1,4 @@
-.TH sane-sceptre 5 "13-Feb-2002"
+.TH sane-sceptre 5 "03 March 2002"
 .IX sane-sceptre
 .SH NAME
 sane-sceptre - SANE backend for SCEPTRE scanners
@@ -15,7 +15,7 @@ backend or to the SANE mailing list.
 At present, only one scanner is known to work with this backend:
 .PP
 .RS
-Model:                       Connection Type
+Model                        Connection Type
 .br
 ---------------------------  -------------------
 .br
@@ -31,8 +31,7 @@ Valid command line options and their syntax can be listed by using
 .RS
 scanimage --help -d sceptre
 .RE
-.TP
-.I Scan Mode
+
 The 
 .I --mode 
 switch selects the basic mode of operation of the scanner valid choices are 
@@ -45,7 +44,7 @@ switch selects the pattern mode that is used in Halftone mode. Valid options are
 
 The 
 .I --gamma-correction
-switch controls the scanne internal gamma correction. Valid options are "Default", "User
+switch controls the scanner internal gamma correction. Valid options are "Default", "User
 defined", "High density printing" "Low density printing" and "High contrast printing".
 
 The 
@@ -54,19 +53,19 @@ switch selects the resolution for a scan. The scanner can do several resolutions
 
 The 
 .I --custom-gamma
-parameter allows the user to specify a gamma table (see the next 3 parameters).
+parameter (color mode only) allows the user to specify a gamma table (see the next 3 parameters).
 
 The 
 .I --red-gamma-table 
-parameter can be used to download a user defined gamma table for the red channel. The table must be 256 bytes long.
+parameter (color mode only) can be used to download a user defined gamma table for the red channel. The table must be 256 bytes long.
 
 The 
 .I --green-gamma-table 
-parameter can be used to download a user defined gamma table for the green channel. The table must be 256 bytes long.
+parameter (color mode only) can be used to download a user defined gamma table for the green channel. The table must be 256 bytes long.
 
 The 
 .I --blue-gamma-table 
-parameter can be used to download a user defined gamma table for the blue channel. The table must be 256 bytes long.
+parameter (color mode only) can be used to download a user defined gamma table for the blue channel. The table must be 256 bytes long.
 
 The
 .I --threshold
@@ -74,7 +73,7 @@ sets the threshold for black and white pixels in lineart mode. Possible values a
 
 The 
 .I --preview
-option requests a preview scan. The resolution used for that scan is 50 dpi. The default is "no".
+option requests a preview scan. The resolution used for that scan is 30 dpi. The default is "no".
 
 The geometry options
 .I -l -t -x -y 

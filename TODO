@@ -1,4 +1,4 @@
-TODO (2002-01-25)
+TODO (2002-01-26)
 
 ******** todo ********
 
@@ -150,7 +150,7 @@ platform-specific
   * Add support for semaphores also for OS/2 (currently used in snapscan).
 
   * Fix shared lib problem with NetBSD. Starting scanimage results in:
-    "Cannot open "../backend/.libs/libsane.so".
+    "Cannot open "../backend/.libs/libsane.so". However, scanadf works.
 
   * Shared libs work with OpenBSD. However, they are named libsane.so.1.6
     instead of 1.0.6. Is this correct?

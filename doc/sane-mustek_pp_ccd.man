@@ -74,7 +74,9 @@ is the base address of the port your scanner is attached to. Known ports are
 parallel port this port is named lp0 regardless of the base address. However,
 this backend requires the base address of your port. If you are not sure which
 port your scanner is connected to, have a look at your /etc/modules.conf.
-
+.PP
+If libieee1284 is available, its naming scheme can be used. Example: "port parport0".
+.PP
 You can rename any device using the
 .PP
 .RS

@@ -1,3 +1,10 @@
+2000-11-10 Gerhard Jaeger <g.jaeger@earthling.net>
+	
+	* backend/plustek.c backend/plustek.desc backend/plustek-share.h
+      backend/plustek.h doc/sane-plustek.man:
+	  updated to version 0.37 - support for xsane, new models
+      document update, minor bugfixes
+
 2000-11-08  Henning Meier-Geinitz <hmg@gmx.de>
 
 	* TODO: Updated. Added entries for viceo backend and addition to hp
@@ -10,7 +17,7 @@
 	  Removed entry about image polarity.
 
 	* backend/mustek.c backend/mustek.h backend/mustek.CHANGES 
-	  backend/mustek.desc: Update to Mustek backend 1.0-99. Better 
+      backend/mustek.desc: Update to Mustek backend 1.0-99. Better
 	  transparency adapter support for ScanExpress scanners. Changed
 	  color support for ScanExpress scanners (faster at some resolutions
 	  now). Paragon 1200 SP color mode should work now without garbage at

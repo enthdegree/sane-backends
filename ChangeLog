@@ -1,3 +1,7 @@
+2003-12-13  Julien BLACHE <jb@jblache.org>
+	* fronted/saned.c: use strcasecmp() instead of strcmp() when
+	matching IPv6 addresses.
+
 2003-12-12  Michael Herder  <crapsite at gmx.net>
 	* backend/artec_eplus48u.c  backend/artec_eplus48u.h
 	  backend/artec_eplus48u.conf: added experimental

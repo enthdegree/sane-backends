@@ -820,7 +820,7 @@ check_host (int fd)
 		strncpy (text_addr, "[error]", 8);
 
 #ifdef ENABLE_IPV6	  
-	  if ((strcmp (text_addr, remote_ip) == 0) ||
+	  if ((strcasecmp (text_addr, remote_ip) == 0) ||
 	      ((IPv4map == SANE_TRUE) && (strcmp (text_addr, remote_ipv4) == 0)))
 #else
 	  if (strcmp (text_addr, remote_ip) == 0)
@@ -906,7 +906,7 @@ check_host (int fd)
 		   "check_host: access granted from any host (`+')\n");
 	    }
 	  /* compare remote_ip (remote IP address) to the config_line */
-	  else if (strcmp (config_line, remote_ip) == 0)
+	  else if (strcasecmp (config_line, remote_ip) == 0)
 	    {
 	      access_ok = 1;
 	      DBG (DBG_DBG,
@@ -1020,7 +1020,7 @@ check_host (int fd)
 			   text_addr); 
 		      
 #ifdef ENABLE_IPV6			  
-		      if ((strcmp (text_addr, remote_ip) == 0) ||
+		      if ((strcasecmp (text_addr, remote_ip) == 0) ||
 			  ((IPv4map == SANE_TRUE) && (strcmp (text_addr, remote_ipv4) == 0)))
 #else
 		      if (strcmp (text_addr, remote_ip) == 0)

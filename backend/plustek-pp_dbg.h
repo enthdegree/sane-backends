@@ -4,7 +4,7 @@
  * File:	 plustek-pp_dbg.h - definition of some debug macros
  *.............................................................................
  *
- * Copyright (C) 2000-2003 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2000-2004 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  *.............................................................................
  *

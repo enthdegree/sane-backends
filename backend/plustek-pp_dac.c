@@ -9,7 +9,7 @@
  *
  * based on sources acquired from Plustek Inc.
  * Copyright (C) 1998 Plustek Inc.
- * Copyright (C) 2000-2003 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2000-2004 Gerhard Jaeger <gerhard@gjaeger.de>
  * also based on the work done by Rick Bronson
  *
  * History:
@@ -2410,8 +2410,8 @@ static Bool dacP98003WaitForShading( pScanData ps )
     	ps->Bufs.b1.Buf.pdw[i+3] = tmp;
     }
 
-    memcpy( ps->Bufs.b1.pShadingMap, ps->Bufs.b1.pShadingMap + 4096, 4096 );
-    memcpy( ps->Bufs.b1.pShadingMap, ps->Bufs.b1.pShadingMap + 8192, 4096 );
+    memcpy( ps->Bufs.b1.pShadingMap + 4096, ps->Bufs.b1.pShadingMap, 4096 );
+    memcpy( ps->Bufs.b1.pShadingMap + 8192, ps->Bufs.b1.pShadingMap, 4096 );
     dacP98DownloadMapTable( ps, ps->Bufs.b1.pShadingMap );
 
     DBG( DBG_LOW, "wExposure = %u\n", ps->Shade.wExposure);

@@ -4,7 +4,7 @@
  * File:	 plustek-pp_scan.h - the global header for the plustek driver
  *.............................................................................
  *
- * Copyright (C) 2000-2003 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2000-2004 Gerhard Jaeger <gerhard@gjaeger.de>
  *.............................................................................
  * History:
  * 0.30 - initial version

@@ -8,7 +8,7 @@
 *
  * based on sources acquired from Plustek Inc.
  * Copyright (C) 1998 Plustek Inc.
- * Copyright (C) 2000-2003 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2000-2004 Gerhard Jaeger <gerhard@gjaeger.de>
  * also based on the work done by Rick Bronson
  *
  * History:

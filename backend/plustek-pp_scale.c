@@ -6,7 +6,7 @@
 /* @file plustek-pp_scale.c
  * @brief Scaling functionality
  *
- * Copyright (C) 2000-2003 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2000-2004 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.32 - initial version

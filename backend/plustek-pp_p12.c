@@ -8,7 +8,7 @@
  *
  * based on sources acquired from Plustek Inc.
  * Copyright (C) 2000 Plustek Inc.
- * Copyright (C) 2001-2003 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2004 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.38 - initial version
@@ -80,7 +80,6 @@ static void p12ButtonSetup( pScanData ps, Byte nrOfButtons )
 
     ps->AsicReg.RD_MotorDriverType |= _BUTTON_DISABLE;
     ps->Scan.motorPower            |= _BUTTON_DISABLE;
-    ps->sCaps.dwFlag               |= (SFLAG_MULTIFUNC | SFLAG_BUTTONOPT);
 }
 
 /** According to what we have detected, set the other stuff

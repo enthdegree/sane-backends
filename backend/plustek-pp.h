@@ -11,7 +11,7 @@
  *
  * original code taken from sane-0.71<br>
  * Copyright (C) 1997 Hypercore Software Design, Ltd.<br>
- * Copyright (C) 2001-2003 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2004 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.01 - initial version
@@ -122,18 +122,11 @@ typedef const struct mode_param
 
 /**
  */
-#define SFLAG_MULTIFUNC         0x00000001  /* is multifunction device      */
-#define SFLAG_SCANNERDEV        0x00000002  /* is scannerdevice             */
-#define SFLAG_FLATBED           0x00000004  /* is flatbed scanner           */
-#define SFLAG_PRINTEROPT        0x00000008  /* has printer option           */
-
-#define SFLAG_ADF		    	0x00000010  /* Automatic document feeder    */
-#define SFLAG_MFP       	    0x00000020	/* MF-Keypad support		    */
-#define SFLAG_SheetFed		    0x00000040  /* Sheetfed support             */
-#define SFLAG_TPA       	    0x00000080	/* has transparency	adapter     */
-#define SFLAG_BUTTONOPT         0x00000100  /* has buttons                  */
-
-#define SFLAG_CUSTOM_GAMMA		0x00000200  /* driver supports custom gamma */
+#define SFLAG_ADF               0x00000010  /* Automatic document feeder    */
+#define SFLAG_MFP               0x00000020  /* MF-Keypad support            */
+#define SFLAG_SheetFed          0x00000040  /* Sheetfed support             */
+#define SFLAG_TPA               0x00000080  /* has transparency adapter     */
+#define SFLAG_CUSTOM_GAMMA      0x00000200  /* driver supports custom gamma */
 
 /**
  */
@@ -334,15 +327,15 @@ typedef const struct mode_param
 #endif
 
 #ifndef _IOR
-#define _IOR(type,nr,size)	_IOC(2U,(type),(nr),sizeof(size))
+#define _IOR(type,nr,size)	_IOC(2U,(type),(nr),((UInt)sizeof(size)))
 #endif
 
 #ifndef _IOW
-#define _IOW(type,nr,size)	_IOC(_IOC_WRITE,(type),(nr),sizeof(size))
+#define _IOW(type,nr,size)	_IOC(_IOC_WRITE,(type),(nr),((UInt)sizeof(size)))
 #endif
 
 #ifndef _IOWR
-#define _IOWR(type,nr,size)	_IOC(3U,(type),(nr),sizeof(size))
+#define _IOWR(type,nr,size)	_IOC(3U,(type),(nr),((UInt)sizeof(size)))
 #endif
 
 /*.............................................................................
@@ -505,15 +498,12 @@ typedef struct {
 #define _DEFAULT_NEG_BRX	37.5	/* 0..38.9 mm */
 #define _DEFAULT_NEG_BRY	25.5	/* 0..29.6 mm */
 
-/*
- * image sizes for normal, transparent and negative modes
+/** image sizes for normal, transparent and negative modes
  */
-#define _NORMAL_X		216.0
-#define _NORMAL_Y		297.0
-#define _TP_X			((double)_TPAPageWidth/300.0 * MM_PER_INCH)
-#define _TP_Y			((double)_TPAPageHeight/300.0 * MM_PER_INCH)
-#define _NEG_X			((double)_NegativePageWidth/300.0 * MM_PER_INCH)
-#define _NEG_Y			((double)_NegativePageHeight/300.0 * MM_PER_INCH)
+#define _TP_X  ((double)_TPAPageWidth/300.0 * MM_PER_INCH)
+#define _TP_Y  ((double)_TPAPageHeight/300.0 * MM_PER_INCH)
+#define _NEG_X ((double)_NegativePageWidth/300.0 * MM_PER_INCH)
+#define _NEG_Y ((double)_NegativePageHeight/300.0 * MM_PER_INCH)
 
 /************************ some structures ************************************/
 

@@ -4,7 +4,7 @@
  * File:     plustek-pp_types.h - some typedefs and error codes
  *.............................................................................
  *
- * Copyright (C) 2000-2003 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2000-2004 Gerhard Jaeger <gerhard@gjaeger.de>
  *.............................................................................
  * History:
  * 0.30 - initial version

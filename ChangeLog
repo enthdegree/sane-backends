@@ -1,4 +1,12 @@
 
+2004-10-21  Rene Rebe <rene@exactcode.de>
+
+	* backend/avision.h backend/avision.c: update of the scanner ID table,
+	  wait_4_light bugfixes, fixed color packing, fixed 16bit modes
+	  (especially for big-endian systems), avoid 16bit modes for default
+	  modes, fixed gamma-table for some models as well as spelling on the
+	  way
+
 2004-10-20  Rene Rebe <rene@exactcode.de>
 
 	* backend/avision.c doc/descriptions/avision.desc doc/sane-avision.man:

@@ -73,18 +73,39 @@
                    OS/2 threading support
    
    Many additinoal special thanks to:
-                Avision INC for the documentation we got! ;-)
-                Roberto Di Cosmo who sponsored a HP 5370 scanner !!! ;-)
-                Oliver Neukum who sponsored a HP 5300 USB scanner
-                              and wrote the hpusbscsi kernel module !!! ;-)
-                Matthias Wiedemann for lending his HP 7450C for some weeks ;-)
-                Avision INC for sponsoring an AV 8000S with ADF !!! ;-)
+                Avision INC for providing protocol documentation.
+                Avision INC for sponsoring an AV 8000S with ADF.
+                Avision Europ and BHS Binkert for sponsoring several scanners.
+                Roberto Di Cosmo who sponsored a HP 5370 scanner.
+                Oliver Neukum who sponsored a HP 5300 USB scanner.
+                Matthias Wiedemann for lending his HP 7450C for some weeks.
                 Compusoft, C.A. Caracas / Venezuela for sponsoring a
-                           HP 7450 scanner and so enhanced ADF support !!! ;-)
-                Chris Komatsu for the nice ADF scanning observartion! ;-)
-                All the many other beta-tester and debug-log sender ;-)
+                           HP 7450 scanner and so enhanced ADF support.
+                Chris Komatsu for the nice ADF scanning observartion.
+
+                All the many other beta-tester and debug-log sender!
+
+                Thanks to all the people and companies above. Without you
+                the Avision backend would not be in the shape it is today! ;-)
    
    ChangeLog:
+
+   2004-10-20: René Rebe
+         * work in the ID table
+         * fixed send_gamma for ASIC_OA980
+         * removed the use of physical_connection
+   
+   2004-07-08: René Rebe
+         * implemented botton status readout
+         * cleaned wait_4_light code path
+   
+   2004-06-25: René Rebe
+         * removed AV_LIGHTCHECK_BOGUS from HP 74xx - it does work with todays
+           code-path
+         * fixed color packing
+         * fixed more code pathes for 16bit channels
+         * improved the default mode choosing to avoid 16bit modes
+   
    2004-06-22: René Rebe
          * merged SANE/CVS thread changes and fixed compilation warnings
            (Bug #300399)
@@ -603,7 +624,7 @@
 #endif
 
 #define BACKEND_NAME avision
-#define BACKEND_BUILD 94  /* avision backend BUILD version */
+#define BACKEND_BUILD 99  /* avision backend BUILD version */
 
 /* Attention: The comments must be stay as they are - they are
    automatially parsed to generate the SANE avision.desc file, as well
@@ -685,7 +706,7 @@ static Avision_HWEntry Avision_Device_List [] =
       AV_SCSI, AV_FLATBED, 0},
     /* comment="test at CeBIT 2004 USB 2.0 problems with my laptop used" */
     /* status="basic" */
-    
+      
     /* { "AVISION", "AVA6", 
       0x638, 0xa22,
       "Avision", "AVA6",
@@ -846,8 +867,15 @@ static Avision_HWEntry Avision_Device_List [] =
       AV_SCSI, AV_FLATBED, AV_FORCE_A3},
     /* comment="1 pass, 600 dpi, A3" */
     /* status="beta" */
+
+    { "AVision", "DS610CU",
+      0x638, 0xa16,
+      "Avision", "DS610CU",
+      AV_SCSI, AV_FLATBED, AV_NO_GAMMA},
+    /* comment="1 pass, 600 dpi, A4 - works with gamma table disabled" */
+    /* status="basic" */
     
-    /* and possibly more avisions */
+    /* and possibly more avisions ;-) */
     
     { "HP",      "ScanJet 5300C",
       0x03f0, 0x0701,
@@ -866,7 +894,7 @@ static Avision_HWEntry Avision_Device_List [] =
     { "hp",      "scanjet 7400c",
       0x03f0, 0x0801,
       "Hewlett-Packard", "ScanJet 7400c",
-      AV_USB, AV_FLATBED, AV_LIGHT_CHECK_BOGUS | AV_FIRMWARE | AV_RES_HACK},
+      AV_USB, AV_FLATBED, AV_FIRMWARE | AV_RES_HACK},
     /* comment="1 pass, 2400 dpi - dual USB/SCSI interface" */
     /* status="good" */
     
@@ -874,17 +902,24 @@ static Avision_HWEntry Avision_Device_List [] =
     { "hp",      "scanjet 7450c",
       0, 0,
       "Hewlett-Packard", "ScanJet 7450c",
-      AV_USB, AV_FLATBED, AV_LIGHT_CHECK_BOGUS | AV_FIRMWARE | AV_RES_HACK},
+      AV_USB, AV_FLATBED, AV_FIRMWARE | AV_RES_HACK},
     /* comment="1 pass, 2400 dpi - dual USB/SCSI interface - regularly tested" */
     /* status="good" */
     
     { "hp",      "scanjet 7490c",
       0, 0,
       "Hewlett-Packard", "ScanJet 7490c",
-      AV_USB, AV_FLATBED, AV_LIGHT_CHECK_BOGUS | AV_FIRMWARE | AV_RES_HACK},
+      AV_USB, AV_FLATBED, AV_FIRMWARE | AV_RES_HACK},
     /* comment="1 pass, 1200 dpi - dual USB/SCSI interface" */
     /* status="good" */
 #endif
+    
+    { "HP",      "C9930",
+      0, 0,
+      "Hewlett-Packard", "ScanJet 8200",
+      AV_USB, AV_FLATBED, AV_FIRMWARE | AV_RES_HACK},
+    /* comment="1 pass, 4800 (?) dpi - USB 2.0 - not yet tested" */
+    /* status="untested" */
     
     { "MINOLTA", "FS-V1",
       0x0638, 0x026a,
@@ -1357,7 +1392,7 @@ sense_handler (int fd, u_char* sense, void* arg)
   switch (sense_key)
     {
     case 0x00:
-      /*status = SANE_STATUS_GOOD;*/
+      status = SANE_STATUS_GOOD;
       text = "ok ?!?";
       break;
     case 0x02:
@@ -1449,6 +1484,8 @@ sense_handler (int fd, u_char* sense, void* arg)
 	text = "Unknown sense code asc: , ascq: "; /* TODO: sprint code here */
       }
     
+#undef ADDITIONAL_SENSE
+    
     DBG (1, "sense_handler: sese code: %s\n", text);
     
     /* sense code specific for invalid request
@@ -1489,11 +1526,11 @@ avision_usb_status (Avision_Connection* av_con)
   
   DBG (1, "avision_usb_status:\n");
   
-  DBG (3, "*** (pseudo interrupt) URB  going down ...\n");
+  DBG (3, "==> (pseudo interrupt) going down ...\n");
   status = sanei_usb_read_int (av_con->usb_dn, &usb_status,
 			       &count);
-  
-  DBG (3, "(pseudo interrupt) got: %lu, status: %d\n", (u_long) count, usb_status);
+  DBG (3, "<== (pseudo interrupt) got: %ld, status: %d\n",
+       (u_long)count, usb_status);
   
   if (status != SANE_STATUS_GOOD)
     return status;
@@ -1504,6 +1541,7 @@ avision_usb_status (Avision_Connection* av_con)
     case AVISION_SCSI_CONDITION_GOOD:
     case AVISION_SCSI_INTERMEDIATE_GOOD:
     case AVISION_SCSI_INTERMEDIATE_C_GOOD:
+    case AVISION_SCSI_UNKNOWN_GOOD:
       return SANE_STATUS_GOOD;
     default:
       return SANE_STATUS_IO_ERROR;
@@ -1622,7 +1660,7 @@ static SANE_Status avision_cmd (Avision_Connection* av_con,
     }
     
     if (status != SANE_STATUS_GOOD) {
-      DBG (3, "*** Got error %d trying to write\n", status);
+      DBG (3, "=== Got error %d trying to write. ===\n", status);
     }
     
     /* 2nd send command data (if any) */
@@ -1653,7 +1691,7 @@ static SANE_Status avision_cmd (Avision_Connection* av_con,
 	DBG (8, "read %lu bytes\n", (u_long) count);
 	
 	if (status != SANE_STATUS_GOOD) {
-	  DBG(3, "*** Got error %d trying to read\n", status);
+	  DBG(3, "=== Got error %d trying to read. ===\n", status);
 	}
 	
 	if (status != SANE_STATUS_GOOD)
@@ -1669,8 +1707,8 @@ static SANE_Status avision_cmd (Avision_Connection* av_con,
       command_header sense_header;
       u_int8_t sense_buffer[22];
       
-      DBG(3, "Error during interrupt endpoint status read.\n");
-      DBG(3, "*** Try to request sense:\n");
+      DBG(3, "Error during interrupt endpoint status read!\n");
+      DBG(3, "=== Try to request sense ===\n");
       
       /* we can not call avision_cmd recursively - we might ending in
 	 an endless recursion requesting sense for failing request
@@ -1688,7 +1726,7 @@ static SANE_Status avision_cmd (Avision_Connection* av_con,
       DBG (8, "wrote %lu bytes\n", (u_long) count);
       
       if (status != SANE_STATUS_GOOD) {
-	DBG (3, "*** Got error %d trying to request sense!\n", status);
+	DBG (3, "=== Got error %d trying to request sense! ===\n", status);
       }
       else {
 	count = sizeof (sense_buffer);
@@ -1698,7 +1736,7 @@ static SANE_Status avision_cmd (Avision_Connection* av_con,
 	DBG (8, "read %lu bytes sense data\n", (u_long) count);
 	
 	if (status != SANE_STATUS_GOOD)
-	  DBG (3, "*** Got error %d trying to read sense!\n", status);
+	  DBG (3, "=== Got error %d trying to read sense! ===\n", status);
 	else {
 	  /* read complete -> call our sense handler */
 	  status = sense_handler (-1, sense_buffer, 0);
@@ -1860,10 +1898,12 @@ get_pixel_boundary (Avision_Scanner* s)
   int boundary;
   
   switch (s->c_mode) {
+  case AV_TRUECOLOR16:
   case AV_TRUECOLOR:
     boundary = dev->inquiry_color_boundary;
     break;
   case AV_GRAYSCALE:
+  case AV_GRAYSCALE16:
     boundary = dev->inquiry_gray_boundary;
     break;
   case AV_DITHERED:
@@ -1933,11 +1973,6 @@ wait_4_light (Avision_Scanner* s)
   int try;
   size_t size = 1;
   
-  if (!dev->inquiry_light_control) {
-    DBG (3, "wait_4_light: scanner doesn't support light control.\n");
-    return SANE_STATUS_GOOD;
-  }
-
   DBG (3, "wait_4_light: getting light status.\n");
   
   memset (&rcmd, 0, sizeof (rcmd));
@@ -1947,7 +1982,7 @@ wait_4_light (Avision_Scanner* s)
   set_double (rcmd.datatypequal, dev->data_dq);
   set_triple (rcmd.transferlen, size);
   
-  for (try = 0; try < 18; ++ try) {
+  for (try = 0; try < 90; ++ try) {
     
     DBG (5, "wait_4_light: read bytes %lu\n", (u_long) size);
     status = avision_cmd (&s->av_con, &rcmd, sizeof (rcmd), 0, 0, &result, &size);
@@ -2731,7 +2766,7 @@ get_double ( &(result[48] ) ));
   else if (BIT(result[61],7))
     dev->inquiry_bits_per_channel = 1;
 
-  DBG (1, "attach: max channels per pixel: %d, max bits per channel%d\n",
+  DBG (1, "attach: max channels per pixel: %d, max bits per channel: %d\n",
        dev->inquiry_channels_per_pixel, dev->inquiry_bits_per_channel);
  
   /* get max x/y ranges for the different modes */
@@ -2808,7 +2843,7 @@ get_double ( &(result[48] ) ));
   /* We need a bigger buffer for USB devices, since they seem to have
      a firmware bug and do not support reading the calibration data in
      tiny chunks */
-  if (dev->hw->physical_connection == AV_USB)
+  if (av_con.logical_connection == AV_USB) /* Was: dev->hw->physical_connection */
     dev->scsi_buffer_size = 1024 * 1024; /* 1 MB for now */
   else
     dev->scsi_buffer_size = sanei_scsi_max_request_size;
@@ -2860,7 +2895,7 @@ additinal_probe (Avision_Scanner* s)
   }
   
   /* create dynamic *-mode entries */
-
+  
   if (dev->inquiry_bits_per_channel > 0) {
     add_color_mode (dev, AV_THRESHOLDED, "Line Art");
     add_color_mode (dev, AV_DITHERED, "Dithered");
@@ -2868,16 +2903,23 @@ additinal_probe (Avision_Scanner* s)
 
   if (dev->inquiry_bits_per_channel >= 8)
     add_color_mode (dev, AV_GRAYSCALE, "Gray");
+  
   if (dev->inquiry_bits_per_channel > 8)
     add_color_mode (dev, AV_GRAYSCALE16, "16bit Gray");
   
   if (dev->inquiry_channels_per_pixel > 1) {
     add_color_mode (dev, AV_TRUECOLOR, "Color");
-   
+    
     if (dev->inquiry_bits_per_channel > 8)
       add_color_mode (dev, AV_TRUECOLOR16, "16bit Color");
   }
   
+  /* now choose the default mode - avoiding the 16 bit modes */
+  dev->color_list_default = last_color_mode (dev);
+  if (dev->inquiry_bits_per_channel > 8 && dev->color_list_default > 0) {
+    dev->color_list_default--;
+  }
+   
   add_source_mode (dev, AV_NORMAL, "Normal");
   if (dev->acc_light_box)
     add_source_mode (dev, AV_TRANSPARENT, "Transparency");
@@ -3432,7 +3474,7 @@ normal_calibration (Avision_Scanner* s)
 static double 
 brightness_contrast_func (double brightness, double contrast, double value)
 {
-  double  nvalue;
+  double nvalue;
   double power;
   
   /* apply brightness */
@@ -3509,6 +3551,7 @@ send_gamma (Avision_Scanner* s)
       gamma_table_size = 2048;
       break;
     case AV_ASIC_C5:
+    case AV_ASIC_OA980:/* ReneR: still not sure which values are right, scanner hangs */
       gamma_table_raw_size = 256;
       gamma_table_size = 256;
       break;
@@ -3542,7 +3585,7 @@ send_gamma (Avision_Scanner* s)
   memset (&scmd, 0, sizeof (scmd) );
   
   scmd.opc = AVISION_SCSI_SEND;
-  scmd.datatypecode = 0x81; /* 0x81 for download gama table */
+  scmd.datatypecode = 0x81; /* 0x81 for download gamma table */
   set_triple (scmd.transferlen, gamma_table_raw_size);
   
   for (color = 0; color < 3; ++ color)
@@ -3559,6 +3602,7 @@ send_gamma (Avision_Scanner* s)
 	  switch (s->c_mode)
 	    {
 	    case AV_TRUECOLOR:
+	    case AV_TRUECOLOR16:
 	      {
 		v1 = (double) (s->gamma_table [0][j] +
 			       s->gamma_table [1 + color][j] ) / 2;
@@ -3580,10 +3624,10 @@ send_gamma (Avision_Scanner* s)
 	      }
 	    } /*end switch */
 	  
-	  /* emulate brightness, contrast (at least the Avision AV6[2,3]0 are not
-	   * able to do this in hardware ... --EUR - taken from the GIMP source -
-	   * I'll optimize it when it is known to work (and I have time)
-	   */
+	  /* Emulate brightness and contrast (at least the Avision AV6[2,3]0
+	   * as well as many others do not have a hardware implementation,
+	   * --$. The function was taken from the GIMP source - maybe I'll
+	   * optimize it in the future (when I have spare time). */
 	  
 	  v1 /= 255;
 	  v2 /= 255;
@@ -4031,7 +4075,7 @@ init_options (Avision_Scanner* s)
   s->opt[OPT_MODE].size = max_string_size (dev->color_list);
   s->opt[OPT_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
   s->opt[OPT_MODE].constraint.string_list = dev->color_list;
-  s->val[OPT_MODE].s = strdup (dev->color_list[last_color_mode(dev)]);
+  s->val[OPT_MODE].s = strdup (dev->color_list[dev->color_list_default]);
   
   s->c_mode = make_color_mode (dev, s->val[OPT_MODE].s);
 
@@ -4307,6 +4351,7 @@ reader_process (void *data)
     return 1;
   
   bytes_per_line = s->params.bytes_per_line;
+  /* TODO: review for TRUECOLOR16 ! */
   pixels_per_line =
     (s->c_mode == AV_TRUECOLOR) ? bytes_per_line / 3 : bytes_per_line;
   
@@ -4850,7 +4895,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
   int i, j;
 
   DBG (3, "sane_open:\n");
-
+  
   if (devicename[0]) {
     for (dev = first_dev; dev; dev = dev->next)
       if (strcmp (dev->sane.name, devicename) == 0)
@@ -5002,7 +5047,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   Avision_Device* dev = s->hw;
   SANE_Status status;
   SANE_Word cap;
-
+  unsigned int i;
+  
   DBG (3, "sane_control_option:\n");
 
   if (info)
@@ -5133,7 +5179,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    /* the gamma table related */
 	    if (!disable_gamma_table)
 	      {
-		if (s->c_mode == AV_TRUECOLOR) {
+		if (color_mode_is_color (s->c_mode) ) {
 		  s->opt[OPT_GAMMA_VECTOR].cap   &= ~SANE_CAP_INACTIVE;
 		  s->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
 		  s->opt[OPT_GAMMA_VECTOR_G].cap &= ~SANE_CAP_INACTIVE;
@@ -5212,17 +5258,20 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters* params)
       /* TODO: limit to real scan boundaries */
       
       /* line difference */
-      if (s->c_mode == AV_TRUECOLOR && dev->inquiry_needs_software_colorpack)
+      if (color_mode_is_color (s->c_mode) && dev->inquiry_needs_software_colorpack)
 	{
 	  if (dev->hw->feature_type & AV_NO_LINE_DIFFERENCE) {
 	    DBG (1, "sane_get_parameters: Line difference ignored due to device-list!!\n");
 	  }
 	  else {
-	    s->avdimen.line_difference
-	      = (dev->inquiry_line_difference * s->avdimen.yres) /
-	      dev->inquiry_optical_res;
+	    /*  R² TODO: I made a mistake some months ago. line_difference should
+		be difference per color, unfortunately I'm out of time to review
+		all occurances of line_difference. At some point in the future
+		however this should be corrected thruout the backend ... */
 	    
-	    s->avdimen.line_difference -= s->avdimen.line_difference % 3;
+	    s->avdimen.line_difference =
+	      (dev->inquiry_line_difference * s->avdimen.yres) /
+	      dev->inquiry_max_res * 3; /* *3 should be in the other places */
 	  }
 	  
 	  s->avdimen.bry += s->avdimen.line_difference;
@@ -5344,10 +5393,9 @@ sane_start (SANE_Handle handle)
       DBG (1, "sane_start: media_check ok\n");
   }
   
-  if (dev->inquiry_new_protocol) {
+  if (dev->inquiry_light_control)
     wait_4_light (s);
-  }
-  
+
   status = set_window (s);
   if (status != SANE_STATUS_GOOD) {
     DBG (1, "sane_start: set scan window command failed: %s\n",
@@ -5416,8 +5464,8 @@ sane_start (SANE_Handle handle)
   }
   
  calib_end:
-  
-  /* check whether gamma-taable is disabled by the user? */
+
+  /* check whether gamma-table is disabled by the user? */
   if (disable_gamma_table) {
     DBG (1, "sane_start: gamma-table disabled in config - skipped!\n");
     goto gamma_end;

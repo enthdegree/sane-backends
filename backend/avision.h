@@ -75,7 +75,7 @@ typedef struct Avision_HWEntry {
   const char* real_model;
   
   /* the one of the device - not what we see via the OS' kernel */
-  Avision_ConnectionType physical_connection;
+  Avision_ConnectionType physical_connection; /* ReneR: OBSOLETE? */
   
   enum {AV_FLATBED,
 	AV_FILM,
@@ -229,6 +229,7 @@ typedef struct Avision_Device
   /* the list of available color modes */
   SANE_String_Const color_list[AV_COLOR_MODE_LAST];
   color_mode color_list_num[AV_COLOR_MODE_LAST];
+  color_mode color_list_default;
   
   /* the list of available source modes */
   SANE_String_Const source_list[AV_SOURCE_MODE_LAST];
@@ -312,6 +313,7 @@ typedef struct Avision_Scanner
 #define AVISION_SCSI_GOOD                   0x00
 #define AVISION_SCSI_CONDITION_GOOD         0x02
 #define AVISION_SCSI_INTERMEDIATE_GOOD      0x08
+#define AVISION_SCSI_UNKNOWN_GOOD           0x09
 #define AVISION_SCSI_INTERMEDIATE_C_GOOD    0x0a
 
 /* SCSI commands that the Avision scanners understand: */

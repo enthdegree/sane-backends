@@ -1,3 +1,12 @@
+2001-08-05  Peter Fales <peter@fales.com>
+
+	* backend/dc240.c - Previously, the backend always assumed that
+          the images were stored in the 100DC240 directory in the
+	  camera.  It now determines the directory automatically.  If
+          multiple directories are present, it will eventually let you 
+	  pick the directory, but that feature hasn't been completed
+	  yet.
+
 2001-08-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/mustek_usb.desc: New file. This backend supports

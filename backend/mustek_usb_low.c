@@ -292,7 +292,7 @@ usb_low_start_cmt_table (ma1017 * chip)
   if (status != SANE_STATUS_GOOD || n != 2)
     {
       DBG (3, "usb_low_start_cmt_table: can't write, wanted 2 bytes, "
-	   "wrote %ul bytes\n", (unsigned long) n);
+	   "wrote %lu bytes\n", (unsigned long int) n);
       return SANE_STATUS_IO_ERROR;
     }
   chip->is_rowing = SANE_TRUE;
@@ -330,7 +330,7 @@ usb_low_stop_cmt_table (ma1017 * chip)
   if (status != SANE_STATUS_GOOD || n != 2)
     {
       DBG (3, "usb_low_stop_cmt_table: couldn't write, wanted 2 bytes, wrote "
-	   "%ul bytes\n", (unsigned long) n);
+	   "%lu bytes\n", (unsigned long int) n);
       return SANE_STATUS_IO_ERROR;
     }
 
@@ -338,8 +338,8 @@ usb_low_stop_cmt_table (ma1017 * chip)
   status = sanei_usb_read_bulk (chip->fd, &read_byte, &n);
   if (status != SANE_STATUS_GOOD || n != 1)
     {
-      DBG (3, "usb_low_stop_cmt_table: couldn't read, wanted 1 byte, got %ul "
-	   "bytes\n", (unsigned long) n);
+      DBG (3, "usb_low_stop_cmt_table: couldn't read, wanted 1 byte, got %lu "
+	   "bytes\n", (unsigned long int) n);
       return SANE_STATUS_IO_ERROR;
     }
   chip->is_rowing = SANE_FALSE;
@@ -2686,7 +2686,8 @@ usb_low_write_reg (ma1017 * chip, SANE_Byte reg_no, SANE_Byte data)
   if (status != SANE_STATUS_GOOD || n != 2)
     {
       DBG (3, "usb_low_write_reg: couldn't write, tried to write %d, "
-	   "wrote %ul: %s\n", 2, (unsigned long) n, sane_strstatus (status));
+	   "wrote %lu: %s\n", 2, (unsigned long int) n,
+	   sane_strstatus (status));
       return SANE_STATUS_IO_ERROR;
     }
   DBG (7, "usb_low_write_reg: reg: 0x%02x, value: 0x%02x\n",
@@ -2726,16 +2727,17 @@ usb_low_read_reg (ma1017 * chip, SANE_Byte reg_no, SANE_Byte *data)
   if (status != SANE_STATUS_GOOD || n != 2)
     {
       DBG (3, "usb_low_read_reg: couldn't write, tried to write %d, "
-	   "wrote %ul: %s\n", 2, (unsigned long) n, sane_strstatus (status));
+	   "wrote %lu: %s\n", 2, (unsigned long int) n,
+	   sane_strstatus (status));
       return SANE_STATUS_IO_ERROR;
     }
   n = 1;
   status = sanei_usb_read_bulk (chip->fd, (SANE_Byte *) &read_byte, &n);
   if (status != SANE_STATUS_GOOD || n != 1)
     {
-      DBG (3, "usb_low_read_reg: couldn't read, tried to read %ul, "
-	   "wrote %ul: %s\n", (unsigned long) 1, 
-	   (unsigned long) n, sane_strstatus (status));
+      DBG (3, "usb_low_read_reg: couldn't read, tried to read %lu, "
+	   "read %lu: %s\n", (unsigned long int) 1, 
+	   (unsigned long int) n, sane_strstatus (status));
       return SANE_STATUS_IO_ERROR;
     }
   if (data)

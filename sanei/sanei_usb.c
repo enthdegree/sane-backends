@@ -260,7 +260,7 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int *fd)
 {
   if (!fd)
     {
-      DBG (1, "sanei_usb_open: fd == NULL\n", fd);
+      DBG (1, "sanei_usb_open: fd == NULL\n");
       return SANE_STATUS_INVAL;
     }
   *fd = open (devname, O_RDWR);

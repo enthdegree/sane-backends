@@ -1,5 +1,11 @@
 CHANGES for the SANE Mustek USB backend
 
+2002-02-14:
+  * Fixed some problems with wrong formats in DBG statements.
+
+2002-02-09
+  * Fixed wrong output in usb_low_read_reg().
+
 2002-01-23:
   * Fixed undefined operation warnings.
 

@@ -756,7 +756,8 @@ sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
   if (!dev)
     {
       DBG (1,
-	   "sane_open: device %s not found, trying to register it anyway\n");
+	   "sane_open: device %s not found, trying to register it anyway\n",
+	   nd_name);
       status = add_device (nd_name, &dev);
       if (status != SANE_STATUS_GOOD)
 	{

@@ -992,7 +992,7 @@ usb_high_scan_set_threshold (Mustek_Usb_Device * dev, SANE_Byte threshold)
 SANE_Status
 usb_high_scan_embed_gamma (Mustek_Usb_Device * dev, SANE_Word * gamma_table)
 {
-  DBG (5, "usb_high_scan_embed_gamma: start, dev=%p, gamma_table=%d\n",
+  DBG (5, "usb_high_scan_embed_gamma: start, dev=%p, gamma_table=%p\n",
        dev, gamma_table);
   if (!dev->is_prepared)
     {

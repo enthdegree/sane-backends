@@ -46,6 +46,7 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+#include <string.h>
 #include <stdarg.h>
 #include <sys/syslog.h>
 #ifdef HAVE_OS2_H
@@ -63,9 +64,6 @@
 
 #define BACKEND_NAME sanei_debug
 #include "sane/sanei_debug.h"
-
-static int global_max_level = 0;
-
 
 void
 sanei_init_debug (const char * backend, int * var)
@@ -91,38 +89,45 @@ sanei_init_debug (const char * backend, int * var)
 
   *var = atoi (val);
 
-  if (*var > global_max_level)
-    global_max_level = *var;
-
   DBG (0, "Setting debug level of %s to %d.\n", backend, *var);
 }
 
-static void
-debug_msg (int level, int max_level, const char *fmt, va_list ap)
+void
+sanei_debug_msg
+  (int level, int max_level, const char *be, const char *fmt, va_list ap)
 {
+  char *msg;
+	
   if (max_level >= level)
     {
       if ( 1 == isfdtype(fileno(stderr), S_IFSOCK) )
-        vsyslog(LOG_DEBUG, fmt, ap);
+	{
+	  msg = (char *)malloc (sizeof(char) * (strlen(be) + strlen(fmt) + 4));
+	  if (msg == NULL)
+	    {
+	      syslog (LOG_DEBUG, "[sanei_debug] malloc() failed\n");
+	      vsyslog (LOG_DEBUG, fmt, ap);
+	    }
+	  else
+	    {
+	      sprintf (msg, "[%s] %s", be, fmt);
+              vsyslog(LOG_DEBUG, msg, ap);
+	      free (msg);
+	    }
+	}
       else
-        vfprintf (stderr, fmt, ap);
+	{
+	  fprintf (stderr, "[%s] ", be);
+          vfprintf (stderr, fmt, ap);
+	}
+	 
     }
 }
 
+#ifdef NDEBUG
 void
-sanei_debug (int level, const char *fmt, ...)
+sanei_debug_ndebug (int level, const char *fmt, ...)
 {
-  va_list ap;
-  va_start (ap, fmt);
-  debug_msg (level, global_max_level, fmt, ap);
-  va_end (ap);
+  /* this function is never called */
 }
-
-void
-sanei_debug_max (int level, int max_level, const char *fmt, ...)
-{
-  va_list ap;
-  va_start (ap, fmt);
-  debug_msg (level, max_level, fmt, ap);
-  va_end (ap);
-}
+#endif

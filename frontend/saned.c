@@ -49,6 +49,8 @@
 
 #include <netinet/in.h>
 
+#include <stdarg.h>
+
 #include <sys/param.h>
 #include <sys/socket.h>
 #include <sys/time.h>
@@ -74,27 +76,7 @@
 
 #define SANED_CONFIG_FILE "saned.conf"
 
-/* The cpp that comes with GNU C 2.5 seems to have troubles understanding
-   vararg macros.  */
-#if __GNUC__ - 0 > 2 || (__GNUC__ - 0 == 2 && __GNUC_MINOR__ > 5)
-# define HAVE_VARARG_MACROS
-#endif
 
-#ifdef HAVE_VARARG_MACROS
-# ifdef NDEBUG
-#  define DBG(level, msg, args...)
-# else
-#  define DBG(level, msg, args...)              \
-  do                                            \
-    {                                           \
-      if ((debug) >= (level))                   \
-        syslog (LOG_DEBUG, msg, ##args);        \
-    }                                           \
-  while (0)
-# endif
-#else /* !HAVE_VARARG_MACROS */
-#  define DBG   if (0) sanei_debug
-#endif
 
 typedef struct
   {
@@ -137,6 +119,20 @@ static const char *config_file_names[] =
 
 /* forward declarations: */
 static void process_request (Wire *w);
+
+#define DBG	saned_debug_call
+
+static void saned_debug_call(int level, const char *fmt, ...)
+{
+#ifndef NDEBUG
+  va_list ap;
+  va_start (ap, fmt);
+  if (debug >= level)
+    vsyslog (LOG_DEBUG, fmt, ap);
+  va_end (ap);
+#endif
+}
+
 
 static void
 reset_watchdog (void)

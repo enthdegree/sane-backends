@@ -1,3 +1,8 @@
+2003-11-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* README.openbsd: Added info about setting permissions (Bug #300311).
+	* doc/descriptions/unsupported.desc: Added Genius and Lexmark scanners.
+
 2003-11-07  Oliver Schirrmeister <oschirr@abm.de>
 
 	* backend/fujitsu.c: Bugfix. If a scanner returned a color image

@@ -1,6 +1,8 @@
 2001-12-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* frontend/scanimage.c: Fixed endless loop in sighandler.
+	* frontend/saned.c: Fixed sigpipe race in connection with
+	  select_fd. Added debug output.
 
 2001-12-30  Gerhard Jaeger <g.jaeger@earthling.net>
 

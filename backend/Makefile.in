@@ -88,6 +88,7 @@ DISTFILES = abaton.c abaton.conf abaton.h agfafocus.c agfafocus.conf \
   gphoto2.c gphoto2.conf gphoto2.h hp-accessor.c hp-accessor.h hp.c hp.conf \
   hp-device.c hp-device.h hp.h hp-handle.c hp-handle.h hp-hpmem.c hp-option.c \
   hp-option.h hp.README hp-scl.c hp-scl.h hp-scsi.h hp.TODO jinclude.h \
+  lm9830.h \
   m3096g.c m3096g.conf m3096g.h m3096g-scsi.h Makefile.in matsushita.c \
   matsushita.conf matsushita.h microtek2.c microtek2.conf microtek2.h \
   microtek.c microtek.conf microtek.h mustek.c mustek.conf mustek.h \

@@ -1,3 +1,13 @@
+2001-10-13 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
+
+	* backend/umax.c, bachend/umax-scanner.c, backend/umax.desc,
+	  doc/umax/sane-umax-config-doc.html, doc/umax/umax.CHANGES,
+	  doc/sane-umax.man:
+	  update to sane-umax-1.0 build 30:
+	  - added EDGE KTX-9600US as supported scanner
+	  - Changing scansource does not change lower left selection
+            edge if not necessary
+
 2001-10-12  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan-scsi.c    backend/snapscan.h

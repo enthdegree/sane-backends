@@ -1,3 +1,6 @@
+2004-08-04  Julien Blache <jb at jblache dot org>
+	* tools/hotplug/libsane.usermap: added HP ScanJet 5300C.
+
 2004-08-04  Gerard Klaver <gerard at gkall dot hobby dot nl>
 
 	* AUTHORS: corrrection for teco2

@@ -1,3 +1,8 @@
+2002-03-24  Oliver Schwartz <oliver.schwartz@gmx.de>
+ 
+	* backend/snapscan.c: Fix segfault in sane_exit if no devices were 
+          found.
+
 2002-03-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* acinclude.m4 aclocal.m4 configure configure.in ltmain.sh:

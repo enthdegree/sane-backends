@@ -4,6 +4,7 @@ SHELL = /bin/sh
 all: check-mo
 
 # Create one line per backend with all files containing translatable text:
+artec_eplus48u.*.po: ../backend/artec_eplus48u.c
 epson.*.po: ../backend/epson.c ../backend/epson.h
 gt68xx.*.po: ../backend/gt68xx.c
 matsushita.*.po: ../backend/matsushita.c ../backend/matsushita.h
@@ -65,7 +66,7 @@ DISTFILES = Makefile.in README epson.de.po epson.ru.po gt68xx.de.po \
   saneopts.de.po saneopts.ru.po saneopts.fr.po saneopts.es.po \
   sceptre.fr.po sceptre.ru.po teco1.fr.po teco1.ru.po \
   umax.de.po umax.fr.po umax.ru.po umax_pp.fr.po umax_pp.ru.po umax_pp.de.po \
-  snapscan.de.po snapscan.ru.po
+  snapscan.de.po snapscan.ru.po artec_eplus48u.de.po
 
 .PHONY: all clean depend dist distclean install install-translations \
   uninstall update-mo update-po generate-%

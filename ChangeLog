@@ -1,186 +1,192 @@
+2002-11-21  Michael Herder <crapsite at gmx.net>
+
+          Added german translation for artec_eplus48u backend.
+          *po/artec_eplus48u.de.po
+          *po/Makefile.in
+
 2002-11-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* doc/Makefile.in: Don't generate symlinks for libsane.so/.a, the files
-	  are installed anyway. Fix symlink creation when only static libraries
-	  are created.
+        * doc/Makefile.in: Don't generate symlinks for libsane.so/.a, the files
+          are installed anyway. Fix symlink creation when only static libraries
+          are created.
 
 2002-11-20  Michael Herder <crapsite at gmx.net>
 
-	  Added artec_eplus48u backend for the scanner Artec E+ 48U and
-	  re-badged models like Tevion/Medion MD 9693, Medion MD 9705 and
+          Added artec_eplus48u backend for the scanner Artec E+ 48U and
+          re-badged models like Tevion/Medion MD 9693, Medion MD 9705 and
           Trust Easy Webscan 19200.
         * backend/Makefile.in backend/dll.conf backend/artec_eplus48u.c
-	  backend/artec_eplus48u.conf backend/artec_eplus48u.h
-	* doc/.cvsignore doc/Makefile.in doc/sane-artec_eplus48u.man doc/sane.man
-	  doc/descriptions/artec_eplus48u.desc
-	* AUTHORS: Updated concerning artec_eplus48u.
+          backend/artec_eplus48u.conf backend/artec_eplus48u.h
+        * doc/.cvsignore doc/Makefile.in doc/sane-artec_eplus48u.man doc/sane.man
+          doc/descriptions/artec_eplus48u.desc
+        * AUTHORS: Updated concerning artec_eplus48u.
 
 2002-11-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* doc/sane-usb.man: Added quick start section. New structure/order.
-	  Added list of backends that don't use sanei_usb. Added headers
-	  and fixed \- bug.
-	* doc/sane-find-scanner.man: Minor adjustments, added headers, fixed
-	  \- bug.
+        * doc/sane-usb.man: Added quick start section. New structure/order.
+          Added list of backends that don't use sanei_usb. Added headers
+          and fixed \- bug.
+        * doc/sane-find-scanner.man: Minor adjustments, added headers, fixed
+          \- bug.
 
 2002-11-18  Frank Zago  <fzago at austin dot rr dot com>
 
-	* backend/umax-usb.c: the usb support for the umax 2200 wasn't
-	  using the correct sanei USB API, which broke the support for that
-	  scanner. Also fixed a couple warnings and a typo.
-	* backend/sceptre.c backend/teco1.c backend/teco3.c
-	  backend/matsushita.c backend/leo.c: fixed hexdump() declaration.
-	* backend/dll.c: fixed some warnings.
+        * backend/umax-usb.c: the usb support for the umax 2200 wasn't
+          using the correct sanei USB API, which broke the support for that
+          scanner. Also fixed a couple warnings and a typo.
+        * backend/sceptre.c backend/teco1.c backend/teco3.c
+          backend/matsushita.c backend/leo.c: fixed hexdump() declaration.
+        * backend/dll.c: fixed some warnings.
 
 2002-11-07   Stéphane Voltz  <svoltz@wanadoo.fr>
 
-	* backend/umax_pp_low.c: disable test facility
-	  
+        * backend/umax_pp_low.c: disable test facility
+
 2002-11-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* TODO: Added manpage issues and hpsj5s freeze problem. Removed canon.c
-	  model problem.
-	* doc/Makefile.in: Added variable @PACKAGEVERSION@ for usage in
-	  manpages.
+        * TODO: Added manpage issues and hpsj5s freeze problem. Removed canon.c
+          model problem.
+        * doc/Makefile.in: Added variable @PACKAGEVERSION@ for usage in
+          manpages.
 
 2002-11-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* doc/sane-mustek_usb.man doc/sane-usb.man: Fixed wrong .TH headers.
+        * doc/sane-mustek_usb.man doc/sane-usb.man: Fixed wrong .TH headers.
 
 2002-11-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* configure configure.in acinclude.m4 aclocal.m4 
-	  include/sane/config.h.in: Fix compilation on Tru64 by readding
-	  the sys/bitypes.h work-around. Minimum autoconf version is 2.50 now.
-	* backend/gt68xx.c backend/gt68xx.conf backend/gt68xx_devices.c
-	  backend/gt68xx_gt6801.c backend/gt68xx_gt6801.h doc/sane-gt68xx.man
-	  doc/descriptions/gt68xx.desc doc/gt68xx/gt68xx.CHANGES po/gt68xx.de.po:
-	  Added basic support for Plustek OpticPro 1248U (from Gerhard Jaeger
-	  <gerhard@gjaeger.de>). Removed 50 and 1200 dpi from Lexmark X73.
-	  Backend status is BETA now.
+        * configure configure.in acinclude.m4 aclocal.m4
+          include/sane/config.h.in: Fix compilation on Tru64 by readding
+          the sys/bitypes.h work-around. Minimum autoconf version is 2.50 now.
+        * backend/gt68xx.c backend/gt68xx.conf backend/gt68xx_devices.c
+          backend/gt68xx_gt6801.c backend/gt68xx_gt6801.h doc/sane-gt68xx.man
+          doc/descriptions/gt68xx.desc doc/gt68xx/gt68xx.CHANGES po/gt68xx.de.po:
+          Added basic support for Plustek OpticPro 1248U (from Gerhard Jaeger
+          <gerhard@gjaeger.de>). Removed 50 and 1200 dpi from Lexmark X73.
+          Backend status is BETA now.
 
 2002-11-13  Ulrich Deiters <ukd@xenon.pc.uni-koeln.de>
 
-	* modified the Canon SCSI backend (now version 1.10):
-	* backend/canon.c, canon-scsi.c: Added support of focus control for
-	  the FS2710 film scanner.
-	  backend/canon-sane.c: Set handler_arg in sanei_scsi_open() calls
-	  to zero to avoid crashes with Mandrake Linux 9.0
+        * modified the Canon SCSI backend (now version 1.10):
+        * backend/canon.c, canon-scsi.c: Added support of focus control for
+          the FS2710 film scanner.
+          backend/canon-sane.c: Set handler_arg in sanei_scsi_open() calls
+          to zero to avoid crashes with Mandrake Linux 9.0
 
 2002-11-12 Oliver Rauch <Oliver.Rauch@Rauch-Domain.DE>
 
-	* added several russion translations to directory po.
-	  The translations have been created by
+        * added several russion translations to directory po.
+          The translations have been created by
           Vitaly Lipatov <LAV@VL3143.spb.edu>
 
 2002-11-07   Stéphane Voltz  <svoltz@wanadoo.fr>
 
-	* backend/umax_pp.c: revert a experimental change that went into
-	  cvs by mistake.
-	* po/umax_pp.de.po: switch to iso-8858-1
-	  
+        * backend/umax_pp.c: revert a experimental change that went into
+          cvs by mistake.
+        * po/umax_pp.de.po: switch to iso-8858-1
+          
 2002-11-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* backend/gt68xx.c backend/gt68xx_devices.c backend/gt68xx_high.h
-	  backend/gt68xx_low.h doc/sane-gt68xx.man doc/descriptions/gt68xx.desc
-	  doc/gt68xx/gt68xx.CHANGES po/Makefile.in po/gt68xx.de.po: Changed
-	  option titles and descriptions to make them better readable. Added
-	  translation markers for all options. Added German translation for
-	  backend options. Updated manpage and .desc file concerning scanner
-	  status. Added untested flag for Mustek ScanEpress A3 USB and Lexmark
-	  X73.
-	* backend/mustek.c doc/sane-mustek.man doc/descriptions/mustek.desc
-	  doc/mustek/mustek.CHANGES: Upload linear gamma table for Pro models
-	  if custom gamma is off instead of uploading the composed gamma table.
-	  That avoids applying gamm twice. Minor man page update.
+        * backend/gt68xx.c backend/gt68xx_devices.c backend/gt68xx_high.h
+          backend/gt68xx_low.h doc/sane-gt68xx.man doc/descriptions/gt68xx.desc
+          doc/gt68xx/gt68xx.CHANGES po/Makefile.in po/gt68xx.de.po: Changed
+          option titles and descriptions to make them better readable. Added
+          translation markers for all options. Added German translation for
+          backend options. Updated manpage and .desc file concerning scanner
+          status. Added untested flag for Mustek ScanEpress A3 USB and Lexmark
+          X73.
+        * backend/mustek.c doc/sane-mustek.man doc/descriptions/mustek.desc
+          doc/mustek/mustek.CHANGES: Upload linear gamma table for Pro models
+          if custom gamma is off instead of uploading the composed gamma table.
+          That avoids applying gamm twice. Minor man page update.
 
 2002-11-05   Stéphane Voltz  <svoltz@wanadoo.fr>
 
-	* backend/umax_pp.c  backend/umax_pp_mid.c : OS/2 compile fix, indent
-	  correction
-	  
+        * backend/umax_pp.c  backend/umax_pp_mid.c : OS/2 compile fix, indent
+          correction
+          
 2002-11-03  Karl Heinz Kremer <khk@khk.net>
 
-	* sanei/sanei_usb.c: Use endpoint address with direction information
-	  instead of the pipe reference. This caused problems with Darwin
-	  systems.
+        * sanei/sanei_usb.c: Use endpoint address with direction information
+          instead of the pipe reference. This caused problems with Darwin
+          systems.
 
 2002-11-03  Karl Heinz Kremer <khk@khk.net>
 
-	* backend/epson.c: Full support for libusb
+        * backend/epson.c: Full support for libusb
 
 2002-11-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* README configure.in configure po/Makefile.in po/README:
-	  Translations are now enabled by default if the gettext tools are
-	  found. Use msgcat if available. Don't update the .po files
-	  automatically.
-	* TODO: Added entries about canon.c model extraction bug, and sanei_usb
-	  issue. Updated entries about MAcOS X support. Removed po files entry. 
+        * README configure.in configure po/Makefile.in po/README:
+          Translations are now enabled by default if the gettext tools are
+          found. Use msgcat if available. Don't update the .po files
+          automatically.
+        * TODO: Added entries about canon.c model extraction bug, and sanei_usb
+          issue. Updated entries about MAcOS X support. Removed po files entry. 
 
 2002-10-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* configure configure.in: Print installation directories.
-	* backend/gt68xx.c backend/gt68xx_devices.c backend/gt68xx_high.c
-	  backend/gt68xx_low.c backend/gt68xx_low.h doc/gt68xx/gt68xx.CHANGES:
-	  Faster AFE calibration. Minor fixes. New version: 1.0-28.
+        * configure configure.in: Print installation directories.
+        * backend/gt68xx.c backend/gt68xx_devices.c backend/gt68xx_high.c
+          backend/gt68xx_low.c backend/gt68xx_low.h doc/gt68xx/gt68xx.CHANGES:
+          Faster AFE calibration. Minor fixes. New version: 1.0-28.
 
 2002-10-31   Stéphane Voltz  <svoltz@wanadoo.fr>
 
-	* backend/umax_pp.c  backend/umax_pp.h  backend/umax_pp_low.h 
-	  backend/umax_pp_low.c tools/umax_pp.c: add UTA detection,
-	  version number updates
-	
+        * backend/umax_pp.c  backend/umax_pp.h  backend/umax_pp_low.h 
+          backend/umax_pp_low.c tools/umax_pp.c: add UTA detection,
+          version number updates
+        
 
 2002-10-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* backend/dll.conf: Removed commented out gt68xx entry.
-	* PROJECTS: Updated viceo entry.
+        * backend/dll.conf: Removed commented out gt68xx entry.
+        * PROJECTS: Updated viceo entry.
 
 2002-10-27  Peter Fales <peter@fales-lorenz.net>
 
-	* configure, acinclude.m4, aclocal.m4 - Remove checks for 
-	  specific version numbers of gphoto2 - that's not good for long 
-	  term maintenance, and the API has settled down enough that all 
-	  recent versions (both releases and CVS) are workable for SANE.
-	  It is still necessary to specify --with-gphoto2 if you want to
-	  use the gphoto2 backend.
+        * configure, acinclude.m4, aclocal.m4 - Remove checks for 
+          specific version numbers of gphoto2 - that's not good for long 
+          term maintenance, and the API has settled down enough that all 
+          recent versions (both releases and CVS) are workable for SANE.
+          It is still necessary to specify --with-gphoto2 if you want to
+          use the gphoto2 backend.
 
 2002-10-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* configure configure.in: Added a warning if sysconfdir is set to
-	  /usr/etc.
-	* backend/test.c: Explicitely close the pipe and wait until
-	  reader_process is killed.
+        * configure configure.in: Added a warning if sysconfdir is set to
+          /usr/etc.
+        * backend/test.c: Explicitely close the pipe and wait until
+          reader_process is killed.
 
 2002-10-25  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* backend/Makefile.in backend/dll.conf backend/gt68xx.c
-	  backend/gt68xx.conf backend/gt68xx.h backend/gt68xx_devices.c
-	  backend/gt68xx_generic.c backend/gt68xx_generic.h
-	  backend/gt68xx_gt6801.c backend/gt68xx_gt6801.h
-	  backend/gt68xx_gt6816.c backend/gt68xx_gt6816.h backend/gt68xx_high.c
-	  backend/gt68xx_high.h	backend/gt68xx_low.c backend/gt68xx_low.h
-	  backend/gt68xx_mid.c backend/gt68xx_mid.h
-	  backend/gt68xx_shm_channel.c backend/gt68xx_shm_channel.h:
-	  Added gt68xx backend for scanners based on the Grandtech GT-6801
-	  and GT-8616 chips like The Mustek BearPaw CU, and TA scanners
-	  and some Artec Ultima 2000 clones.
-	* doc/.cvsignore doc/Makefile.in doc/sane-gt68xx.man doc/sane.man
-	  doc/descriptions/gt68xx.desc doc/descriptions-external/gt68xx.desc
-	  doc/gt68xx/gt68xx.CHANGES: Added documentation for gt68xx backend.
-	* AUTHORS PROJECTS TODO: Updated concerning gt68xx.
-	* Makefile.in backend/Makefile.in doc/Makefile.in: Added some missing
-	  files to DISTFILES.
+        * backend/Makefile.in backend/dll.conf backend/gt68xx.c
+          backend/gt68xx.conf backend/gt68xx.h backend/gt68xx_devices.c
+          backend/gt68xx_generic.c backend/gt68xx_generic.h
+          backend/gt68xx_gt6801.c backend/gt68xx_gt6801.h
+          backend/gt68xx_gt6816.c backend/gt68xx_gt6816.h backend/gt68xx_high.c
+          backend/gt68xx_high.h        backend/gt68xx_low.c backend/gt68xx_low.h
+          backend/gt68xx_mid.c backend/gt68xx_mid.h
+          backend/gt68xx_shm_channel.c backend/gt68xx_shm_channel.h:
+          Added gt68xx backend for scanners based on the Grandtech GT-6801
+          and GT-8616 chips like The Mustek BearPaw CU, and TA scanners
+          and some Artec Ultima 2000 clones.
+        * doc/.cvsignore doc/Makefile.in doc/sane-gt68xx.man doc/sane.man
+          doc/descriptions/gt68xx.desc doc/descriptions-external/gt68xx.desc
+          doc/gt68xx/gt68xx.CHANGES: Added documentation for gt68xx backend.
+        * AUTHORS PROJECTS TODO: Updated concerning gt68xx.
+        * Makefile.in backend/Makefile.in doc/Makefile.in: Added some missing
+          files to DISTFILES.
 
 2002-10-24  Peter Fales  <peter@fales-lorenz.net>
 
-	* backend/gphoto2.c: Improve checks for values specified in config
-	  file and generate errors when invalid values are specified.
+        * backend/gphoto2.c: Improve checks for values specified in config
+          file and generate errors when invalid values are specified.
 
 2002-10-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* configure configure.in: Warnings enabled again. Used extra version
-	  -cvs.
+        * configure configure.in: Warnings enabled again. Used extra version
+          -cvs.
 
 Older entries can be found in ChangeLog-1.0.9.

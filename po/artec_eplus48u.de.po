@@ -1,0 +1,78 @@
+# German translation of SANE backend artec_eplus48u.
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# Michael Herder <crapsite@gmx.net>, 2002.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2002-11-21 21:33+0100\n"
+"PO-Revision-Date: 2002-11-21 21:37GMT\n"
+"Last-Translator: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 0.9.5\n"
+"Language-Team:  <de@li.org>\n"
+
+#: .tmp/artec_eplus48u.c:153
+msgid "Lineart"
+msgstr "Strichzeichnung"
+
+#: .tmp/artec_eplus48u.c:154
+msgid "Grayscale"
+msgstr "Graustufen"
+
+#: .tmp/artec_eplus48u.c:155
+msgid "Color"
+msgstr "Farbe"
+
+#: .tmp/artec_eplus48u.c:2809
+msgid "Enhancement"
+msgstr "Farbverbesserung"
+
+#: .tmp/artec_eplus48u.c:2878
+msgid "Defaults"
+msgstr "Defaulteinstellungen"
+
+#: .tmp/artec_eplus48u.c:2880
+msgid "Set default values for enhancement controls."
+msgstr "Auf Voreinstellungen für Verbesserungen zurücksetzen. "
+
+#: .tmp/artec_eplus48u.c:2888
+msgid "Geometry"
+msgstr "Scanbereich"
+
+#: .tmp/artec_eplus48u.c:2936
+msgid "Calibration"
+msgstr "Kalibrierung"
+
+#: .tmp/artec_eplus48u.c:2945
+msgid "Calibrate before next scan"
+msgstr "Vor dem nächsten Scan kalibrieren"
+
+#: .tmp/artec_eplus48u.c:2947
+msgid ""
+"If enabled, the device will be calibrated before the next scan. Otherwise, "
+"calibration is performed only before the first start."
+msgstr ""
+"Wenn diese Option eingeschaltet ist, wird vor dem nächsten Scan eine Kalibrierung durchgeführt. "
+"Ansonsten findet die Kalibrierung nur vor dem ersten Scan statt."
+
+#: .tmp/artec_eplus48u.c:2958
+msgid "Only perform shading-correction"
+msgstr "Nur Shading-Korrektur durchführen"
+
+#: .tmp/artec_eplus48u.c:2960
+msgid ""
+"If enabled, only the shading correction is performed during calibration. The "
+"default values for gain, offset and exposure time, either build-in or from "
+"the configuration file, are used."
+msgstr ""
+"Ist diese Option eingeschaltet, dann wird während der Kalibrierung nur die Shading-Korrektur durchgeführt. "
+"Andere Kalibrierungswerte werden aus der Konfigurationsdatei oder aus den Voreinstellungen des Backends "
+"übernommen."
+
+#: .tmp/artec_eplus48u.c:2971
+msgid "Button state"
+msgstr "Schalter Status"
+

@@ -9,6 +9,8 @@
 	  to the SANE standard. Updated date.
 	* doc/Makefile.in: Remove sanei-html in make distclean.
 	* PROJECTS: Added Acer ScanWit 2720S.
+	* backend/template.desc.: Added explanation for backend version, fixed
+	  typo.	
 
 2002-02-16 Abel Deuring <a.deuring@satzbau-gmbh.de>:
 	* frontend/scanimage.c / part for the "-f" command line option:

@@ -1,0 +1,118 @@
+;
+; SANE Backend specification file
+;
+; It's basically emacs-lisp --- so ";" indicates comment to end of line.
+; All syntactic elements are keyword tokens, followed by a string or
+;  keyword argument, as specified.
+;
+; ":backend" *must* be specified.
+; All other information is optional (but what good is the file without it?).
+;
+
+:backend "epkowa"                 ; name of backend
+:version "1.5.2"                  ; version of backend
+;:manpage "sane-epkowa"            ; name of manpage (if it exists)
+:url "http://www.epkowa.co.jp/english/linux_e/lsd_e.html"  ; backend's web page
+:comment "This backend is not included in the sane-backends distribution because it uses code that is not open-source."
+
+:devicetype :scanner
+
+:mfg "Epson"
+:url "http://www.epson.com/"
+
+:model "Expression 1600"
+:interface "SCSI USB IEEE-1394"
+:status :complete
+
+:model "Expression 1640XL"
+:interface "SCSI USB IEEE-1394"
+:status :complete
+
+:model "Expression 1680"
+:interface "SCSI USB IEEE-1394"
+:status :complete
+
+:model "GT-10000"
+:interface "SCSI IEEE-1394"
+:status :complete
+
+:model "GT-10000+"
+:interface "SCSI IEEE-1394"
+:status :complete
+
+:model "GT-30000"
+:interface "SCSI IEEE-1394"
+:status :complete
+
+:model "Perfection 610"
+:interface "USB"
+:status :complete
+
+:model "Perfection 640U"
+:interface "USB"
+:status :complete
+
+:model Perfection 1200S"
+:interface "SCSI"
+:status :complete
+
+:model "Perfection 1200U"
+:interface "USB"
+:status :complete
+
+:model "Perfection 1200U PHOTO"
+:interface "USB"
+:status :complete
+
+:model "Perfection 1240U"
+:interface "USB"
+:status :complete
+
+:model "Perfection 1250"
+:interface "USB"
+:status :complete
+
+:model "Perfection 1250 PHOTO"
+:interface "USB"
+:status :complete
+
+:model "Perfection 1260"
+:interface "USB"
+:status :complete
+
+:model "Perfection 1260 PHOTO"
+:interface "USB"
+:status :complete
+
+:model "Perfection 1640SU"
+:interface "SCSI USB"
+:status :complete
+
+:model "Perfection 1640SU PHOTO"
+:interface "SCSI USB"
+:status :complete
+
+:model "Perfection 1650"
+:interface "USB"
+:status :complete
+
+:model "Perfection 1650 PHOTO"
+:interface "USB"
+:status :complete
+
+:model "Perfection 1660 PHOTO"
+:interface "USB"
+:status :complete
+
+:model "Perfection 2400 PHOTO"
+:interface "USB"
+:status :complete
+
+:model "Perfection 2450 PHOTO"
+:interface "USB"
+:status :complete
+
+:model "Perfection 3200 PHOTO"
+:interface "USB IEEE-1394"
+:status :complete
+

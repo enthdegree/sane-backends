@@ -42,6 +42,9 @@
    HP Scanner Control Language (SCL).
 */
 
+/*
+   $Id$
+*/
 #ifndef HP_OPTION_H_INCLUDED
 #define HP_OPTION_H_INCLUDED
 #include "hp.h"
@@ -107,7 +110,7 @@
 # define SANE_DESC_PS_EXPOSURE_TIME \
     SANE_I18N("A longer exposure time lets the scanner\
  collect more light. Suggested use is 175% for prints,\
- 150% for normal slides and \"Negatives\" for\
+ 150% for normal slides and \"Negative\" for\
  negative film. For dark (underexposed) images you can increase this value.")
 #endif
 

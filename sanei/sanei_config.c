@@ -86,6 +86,7 @@ sanei_config_open (const char *filename)
   char *copy, *next, *dir, result[PATH_MAX];
   FILE *fp = 0;
   size_t len;
+  void *mem = 0;
 
   if (!dir_list)
     {
@@ -98,7 +99,7 @@ sanei_config_open (const char *filename)
 	  if (dir_list[len - 1] == DIR_SEP[0])
 	    {
 	      /* append default search directories: */
-	      void *mem = malloc (len + sizeof (DEFAULT_DIRS));
+	      mem = malloc (len + sizeof (DEFAULT_DIRS));
 
 	      memcpy (mem, dir_list, len);
 	      memcpy ((char *) mem + len, DEFAULT_DIRS, sizeof (DEFAULT_DIRS));
@@ -110,6 +111,10 @@ sanei_config_open (const char *filename)
     }
 
   copy = strdup (dir_list);
+
+  if (mem)
+    free(mem);
+
   for (next = copy; (dir = strsep (&next, DIR_SEP)) != 0; )
     {
       snprintf (result, sizeof (result), "%s%c%s", dir, PATH_SEP, filename);

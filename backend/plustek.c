@@ -145,7 +145,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.48-6"
+#define BACKEND_VERSION "0.48-7"
 #define BACKEND_NAME    plustek
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
@@ -820,9 +820,9 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	s->opt[OPT_CACHECAL].type  = SANE_TYPE_BOOL;
 	s->val[OPT_CACHECAL].w     = adj->cacheCalData;
 
-	s->opt[OPT_LAMPOFF_ONEND].name  = "lampoff_onend";
-	s->opt[OPT_LAMPOFF_ONEND].title = SANE_I18N("Lamp off on shutdown");;
-	s->opt[OPT_LAMPOFF_ONEND].desc  = SANE_I18N("Switch lamp off when leaving the backend.");
+	s->opt[OPT_LAMPOFF_ONEND].name  = SANE_NAME_LAMP_OFF_AT_EXIT;
+	s->opt[OPT_LAMPOFF_ONEND].title = SANE_TITLE_LAMP_OFF_AT_EXIT;
+	s->opt[OPT_LAMPOFF_ONEND].desc  = SANE_DESC_LAMP_OFF_AT_EXIT;
 	s->opt[OPT_LAMPOFF_ONEND].type  = SANE_TYPE_BOOL;
 	s->val[OPT_LAMPOFF_ONEND].w     = adj->lampOffOnEnd;
 

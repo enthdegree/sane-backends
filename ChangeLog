@@ -1,3 +1,9 @@
+2001-11-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/dll.c backend/dll.desc doc/sane-dll.man: Added some debug
+	  messages (e.g. if dll.conf isn't found). Some adjustments concerning
+	  debug levels. Removed some compilation warnings. New version: 1.0.5.
+
 2001-11-11 Abel Deuring <a.deuring@satzbau-gmbh.de>
 	* sanei/sanei_scsi.c (Linux part): 
           - improved handling of status codes returned by the SG driver. 

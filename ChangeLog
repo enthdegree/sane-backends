@@ -5,6 +5,8 @@
 	  Use sanei_thread functions instead of forking
 	* backend/snapscan-options.c: Change title and description
 	  for OPT_HIGHQUALITY to use existing i18n translations
+	* backend/snapscan-usb.c: Use urb counting 
+	  (thanks to Jose Alberto Reguero)
 
 2004-04-06  Gerard Klaver   <gerard at gkall dot hobby dot nl>
 

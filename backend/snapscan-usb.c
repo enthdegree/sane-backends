@@ -96,6 +96,8 @@ static struct sembuf sem_wait = { 0, -1, 0 };
 static struct sembuf sem_signal = { 0, 1, 0 };
 static sense_handler_type usb_sense_handler;
 static void* usb_pss;
+static unsigned long read_urbs = 0;
+static unsigned long write_urbs = 0;
 
 /* Forward declarations */
 static SANE_Status usb_request_sense(SnapScan_Scanner *pss);
@@ -176,6 +178,8 @@ static SANE_Status snapscani_usb_open(const char *dev, int *fdp,
     semop(sem_id, &sem_signal, 1);
     usb_sense_handler=sense_handler;
     usb_pss = pss;
+    read_urbs = 0;
+    write_urbs = 0;    
     return sanei_usb_open(dev, fdp);
 }
 
@@ -185,6 +189,36 @@ static void snapscani_usb_close(int fd) {
     static union semun dummy_semun_arg;
 
     DBG (DL_CALL_TRACE, "%s(%d)\n", me, fd);
+    DBG (DL_DATA_TRACE,"1st read %ld write %ld\n", read_urbs, write_urbs);
+    if ((read_urbs & 0x01) && (write_urbs & 0x01))
+    {
+        char cmd[] = {TEST_UNIT_READY, 0, 0, 0, 0, 0};
+
+        usb_cmd (fd, cmd, sizeof (cmd), NULL, 0);
+    }
+    else if (read_urbs & 0x01)
+    {
+        size_t read_bytes;
+        char cmd[] = {TEST_UNIT_READY, 0, 0, 0, 0, 0};
+        char cmd2[] = {INQUIRY, 0, 0, 0, 120, 0};
+        char data[120];
+
+        read_bytes = 120;
+        snapscani_usb_cmd (fd, cmd2, sizeof (cmd2), data, &read_bytes);
+        usb_cmd (fd, cmd, sizeof (cmd), NULL, 0);
+    }
+    else if (write_urbs & 0x01)
+    {
+        size_t read_bytes;
+        char cmd[] = {INQUIRY, 0, 0, 0, 120, 0};
+        char data[120];
+
+        read_bytes = 120;
+        usb_cmd (fd, cmd, sizeof (cmd), data, &read_bytes);
+    }
+    DBG (DL_DATA_TRACE,"2nd read %ld write %ld\n", read_urbs, write_urbs);
+    read_urbs = 0;
+    write_urbs = 0;
     semctl(sem_id, 0, IPC_RMID, dummy_semun_arg);
     sanei_usb_close(fd);
 }
@@ -241,6 +275,8 @@ static SANE_Status usb_write(int fd, const void *buf, size_t n) {
         DBG (DL_MAJOR_ERROR, "%s Only %d bytes written\n",me,bytes_written);
         status = SANE_STATUS_IO_ERROR;
     }
+    write_urbs += (bytes_written + 7) / 8;
+    DBG (DL_DATA_TRACE, "Written %d bytes\n", bytes_written);
     return status;
 }
 
@@ -255,8 +291,9 @@ static SANE_Status usb_read(SANE_Int fd, void *buf, size_t n) {
         DBG (DL_MAJOR_ERROR, "%s Only %d bytes read\n",me,bytes_read);
         status = SANE_STATUS_IO_ERROR;
     }
-
+    read_urbs += ((63 + bytes_read) / 64); 
     DBG(DL_DATA_TRACE, "%s: reading: %s\n",me,usb_debug_data(dbgmsg,buf,n));
+    DBG(DL_DATA_TRACE, "Read %d bytes\n", bytes_read);
     return status;
 }
 
@@ -456,6 +493,9 @@ static SANE_Status usb_request_sense(SnapScan_Scanner *pss) {
 
 /*
  * $Log$
+ * Revision 1.14  2004/04/08 22:48:13  oliver-guest
+ * Use URB counting in snapscan-usb.c (thanks to Jose Alberto Reguero)
+ *
  * Revision 1.13  2003/11/08 09:50:27  oliver-guest
  * Fix TPO scanning range for Epson 1670
  *

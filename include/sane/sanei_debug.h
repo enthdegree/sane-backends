@@ -45,11 +45,12 @@ extern void sanei_debug_max (int level, int max_level, const char *msg, ...);
                         "[" STRINGIFY(BACKEND_NAME) "] " msg, ##args);  \
   } while (0)
 
-  extern void sanei_init_debug (const char * backend, int * debug_level_var);
 #else
 # define DBG            sanei_debug
 #endif /* HAVE_VARARG_MACROS */
 
+extern void sanei_init_debug (const char * backend, int * debug_level_var);
+  
 # define IF_DBG(x)      x
 #endif /* NDEBUG */
 

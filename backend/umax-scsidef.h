@@ -396,6 +396,7 @@ static scsiblk inquiry = { inquiryC, sizeof(inquiryC) };
 #define get_inquiry_adf_line_arrangement_mode(in)		in[0x9c]
 #define get_inquiry_CCD_line_distance(in)			in[0x9d]
 
+#define set_inquiry_max_calibration_data_lines(out,val)		out[0x9a]=val
 #define set_inquiry_fb_uta_line_arrangement_mode(out,val)	out[0x9b]=val
 #define set_inquiry_adf_line_arrangement_mode(out,val)		out[0x9c]=val
 #define set_inquiry_CCD_line_distance(out,val)			out[0x9d]=val

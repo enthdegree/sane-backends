@@ -108,8 +108,8 @@ static char *scanner_str[] =
   "UMAX ",	"PowerLook III ",
   "UMAX ",	"PowerLook 3000 ",
   "UMAX ",	"Gemini D-16 ",
-  "LinoHell",	"JADE ",
-  "LinoHell",	"Office ",
+  "LinoHell",	"JADE ",   /* is a Supervista S-12 */
+  "LinoHell",	"Office ", /* is a Supervista S-12 */
   "LinoHell",	"Office2 ",
   "LinoHell",	"SAPHIR2 ",
 /*  "LinoHell",	"SAPHIR3 ", */

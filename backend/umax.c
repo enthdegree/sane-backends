@@ -49,7 +49,7 @@
 
 /* --------------------------------------------------------------------------------------------------------- */
 
-#define BUILD 30
+#define BUILD 31
 
 /* --------------------------------------------------------------------------------------------------------- */
 
@@ -198,7 +198,7 @@ static int umax_slow  = -1; /* don`t use slow scanning speed */
 static int umax_smear = -1; /* don`t care about image smearing problem */
 
 static int umax_calibration_area = -1;         /* -1=auto, 0=calibration on image, 1=calibration for full ccd */
-static int umax_calibration_width_offset = -1; /* -1=auto */
+static int umax_calibration_width_offset = -99999; /* -99999=auto */
 static int umax_calibration_bytespp = -1;      /* -1=auto */
 static int umax_invert_shading_data = -1;      /* -1=auto */
 static int umax_lamp_control_available = 0;    /* 0=disabled */
@@ -1872,7 +1872,7 @@ static SANE_Status umax_set_window_param(Umax_Device *dev)
   set_WD_color_sequence(buffer_r, WD_color_sequence_RGB);				     /* sequence RGB */
   set_WD_color_ordering(buffer_r, WD_color_ordering_pixel);	      /* set to pixel for pbm, pgm, pnm-file */
   set_WD_analog_gamma(buffer_r, dev->analog_gamma_r );					     /* analog gamma */
-  set_WD_lamp_c_density(buffer_r, dev->c_density);				    /* calirat. lamp density */
+  set_WD_lamp_c_density(buffer_r, dev->c_density);				   /* calibrat. lamp density */
   set_WD_lamp_s_density(buffer_r, dev->s_density);					/* scan lamp density */
   set_WD_pixel_count(buffer_r, dev->width_in_pixels);					      /* pixel count */
   set_WD_line_count(buffer_r, dev->length_in_pixels);					       /* line count */
@@ -2183,7 +2183,7 @@ static SANE_Status umax_do_calibration(Umax_Device *dev)
         DBG(DBG_warning,"         Calibration is done with selected image geometry and depth!\n");
 
         width = dev->scanwidth * dev->relevant_optical_res / dev->x_coordinate_base;
-        if (dev->calibration_width_offset > 0) /* driver or user (umax.conf) define an offset */
+        if (dev->calibration_width_offset > -99999) /* driver or user (umax.conf) define an offset */
         {
           width = width + dev->calibration_width_offset; 
           DBG(DBG_warning,"         Using calibration width offset of %d\n", dev->calibration_width_offset);
@@ -2208,13 +2208,13 @@ static SANE_Status umax_do_calibration(Umax_Device *dev)
           bytespp = 2; /* 16 bit mode */
         }
       }
-      else /*  caliration is done with full scanarea and full depth */
+      else /*  calibration is done with full scanarea and full depth */
       {
         DBG(DBG_warning,"         Calibration is done for each CCD pixel with full depth!\n");
 
         width = (int)(dev->inquiry_fb_width * dev->inquiry_optical_res);
 
-        if (dev->calibration_width_offset > 0) /* driver or user (umax.conf) define an offset */
+        if (dev->calibration_width_offset > -99999) /* driver or user (umax.conf) define an offset */
         {
           width = width + dev->calibration_width_offset; 
           DBG(DBG_warning,"         Using calibration width offset of %d\n", dev->calibration_width_offset);
@@ -2497,14 +2497,6 @@ static void umax_correct_inquiry(Umax_Device *dev, char *vendor, char *product, 
         dev->calibration_bytespp = 2;
       }
 
-#if 0
-      if (dev->calibration_width_offset == -1) /* no calibration-width-offset defined in umax.conf */
-      {
-        dev->calibration_width_offset = 5100; /* calibration is done for 1200 dpi instead of 600 dpi */
-        DBG(DBG_warning," - adding calibration width offset of %d pixels\n", dev->calibration_width_offset);
-      }
-#endif
-
       DBG(DBG_warning,"- common x and y resolution\n");
       dev->common_xy_resolutions = 1;
     }
@@ -2565,7 +2557,22 @@ static void umax_correct_inquiry(Umax_Device *dev, char *vendor, char *product, 
               (!strncmp(product, "UMAX S-12 ", 10)) ||
               (!strncmp(product, "SuperVista S-12 ", 16)) )
     {
-      DBG(DBG_warning,"using standard options for %s\n", product);
+      DBG(DBG_warning,"setting up special options for %s\n", product);
+
+      DBG(DBG_warning,"setting maximum calibration data lines to 66\n");
+      set_inquiry_max_calibration_data_lines(dev->buffer[0], 66);
+
+      if (dev->calibration_width_offset == -99999) /* no calibration-width-offset defined in umax.conf */
+      {
+        dev->calibration_width_offset = -1;
+        DBG(DBG_warning," - adding calibration width offset of %d pixels\n", dev->calibration_width_offset);
+      }
+
+      if (dev->calibration_area == -1) /* no calibration area defined in umax.conf */
+      {
+        DBG(DBG_warning," - calibration by driver is done for each CCD pixel\n");
+        dev->calibration_area = UMAX_CALIBRATION_AREA_CCD;
+      }
     }
     else if (!strncmp(product, "Mirage D-16L ", 13))
     {
@@ -2576,7 +2583,7 @@ static void umax_correct_inquiry(Umax_Device *dev, char *vendor, char *product, 
         dev->calibration_area = UMAX_CALIBRATION_AREA_CCD;
       }
 
-      if (dev->calibration_width_offset == -1) /* no calibration-width-offset defined in umax.conf */
+      if (dev->calibration_width_offset == -99999) /* no calibration-width-offset defined in umax.conf */
       {
         dev->calibration_width_offset = 308;
         DBG(DBG_warning," - adding calibration width offset of %d pixels\n", dev->calibration_width_offset);
@@ -2586,7 +2593,7 @@ static void umax_correct_inquiry(Umax_Device *dev, char *vendor, char *product, 
     {
       DBG(DBG_warning,"setting up special options for %s\n", product);
 
-      if (dev->calibration_width_offset == -1) /* no calibration-width-offset defined in umax.conf */
+      if (dev->calibration_width_offset == -99999) /* no calibration-width-offset defined in umax.conf */
       {
         dev->calibration_width_offset = 28;
         DBG(DBG_warning," - adding calibration width offset of %d pixels\n", dev->calibration_width_offset);
@@ -2597,7 +2604,7 @@ static void umax_correct_inquiry(Umax_Device *dev, char *vendor, char *product, 
     {
       DBG(DBG_warning,"setting up special options for %s\n", product);
 
-      if (dev->calibration_width_offset == -1) /* no calibration-width-offset defined in umax.conf */
+      if (dev->calibration_width_offset == -99999) /* no calibration-width-offset defined in umax.conf */
       {
         dev->calibration_width_offset = 52;
         DBG(DBG_warning," - adding calibration width offset of %d pixels\n", dev->calibration_width_offset);
@@ -2608,13 +2615,35 @@ static void umax_correct_inquiry(Umax_Device *dev, char *vendor, char *product, 
       DBG(DBG_warning,"using standard options for %s\n", product);
     }
   }
+  else if (!strncmp(vendor, "LinoHell ", 9))
+  {
+    if ( (!strncmp(product, "Office ", 7)) || (!strncmp(product, "JADE ", 5)) ) /* is a Supervista S-12 */
+    {
+      DBG(DBG_warning,"setting up special options for %s\n", product);
+
+      DBG(DBG_warning,"setting maximum calibration data lines to 66\n");
+      set_inquiry_max_calibration_data_lines(dev->buffer[0], 66);
+
+      if (dev->calibration_width_offset == -99999) /* no calibration-width-offset defined in umax.conf */
+      {
+        dev->calibration_width_offset = -1;
+        DBG(DBG_warning," - adding calibration width offset of %d pixels\n", dev->calibration_width_offset);
+      }
+
+      if (dev->calibration_area == -1) /* no calibration area defined in umax.conf */
+      {
+        DBG(DBG_warning," - calibration by driver is done for each CCD pixel\n");
+        dev->calibration_area = UMAX_CALIBRATION_AREA_CCD;
+      }
+    }
+  }
   else if (!strncmp(vendor, "Linotype ", 9))
   {
     if (!strncmp(product, "SAPHIR4 ", 8)) /* is a Powerlook III */
     {
       DBG(DBG_warning,"setting up special options for %s\n", product);
 
-      if (dev->calibration_width_offset == -1) /* no calibration-width-offset defined in umax.conf */
+      if (dev->calibration_width_offset == -99999) /* no calibration-width-offset defined in umax.conf */
       {
         dev->calibration_width_offset = 28;
         DBG(DBG_warning," - adding calibration width offset of %d pixels\n", dev->calibration_width_offset);
@@ -2628,7 +2657,7 @@ static void umax_correct_inquiry(Umax_Device *dev, char *vendor, char *product, 
     {
       DBG(DBG_warning,"setting up special options for %s\n", product);
 
-      if (dev->calibration_width_offset == -1) /* no calibration-width-offset defined in umax.conf */
+      if (dev->calibration_width_offset == -99999) /* no calibration-width-offset defined in umax.conf */
       {
         dev->calibration_width_offset = 28;
         DBG(DBG_warning," - adding calibration width offset of %d pixels\n", dev->calibration_width_offset);

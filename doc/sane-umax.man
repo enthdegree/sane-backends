@@ -21,7 +21,7 @@ parallel- and USB-scanners are not (and propably will never be) supported!
 .SH CONFIGURATION
 
 The configuration file for this backend resides in 
-	/usr/local/etc/sane.d/umax.conf. 
+	@CONFIGDIR@/umax.conf. 
 
 Its contents is a list of device names that correspond to UMAX and UMAX compatible scanners. Empty lines
 and lines starting with a hash mark (#) are ignored. A sample configuration file is
@@ -90,7 +90,7 @@ shown below:
    selected image
  
  - calibration-width-offset:
-   values: -1=disabled, >=0 set value
+   values: -99999=auto, >-99999 set value
    add an offset width to the calculated with for
    image/ccd
  
@@ -148,13 +148,13 @@ See also: sane-scsi(5)
 .SH FILES
 
 The backend configuration file:
- /usr/local/etc/sane.d/umax.conf
+ @CONFIGDIR@/umax.conf
 
 The static library implementing this backend:
- /usr/local/lib/sane/libsane-umax.a
+ @LIBDIR@/libsane-umax.a
 
 The shared library implementing this backend :
- /usr/local/lib/sane/libsane-umax.so
+ @LIBDIR@/libsane-umax.so
  (present on systems that support dynamic loading)
 
 .SH ENVIRONMENT
@@ -198,4 +198,4 @@ sane(7)
 Oliver Rauch
 
 .SH EMAIL-CONTACT
-Oliver.Rauch@Wolfsburg.DE
+Oliver.Rauch@Rauch-Domain.DE

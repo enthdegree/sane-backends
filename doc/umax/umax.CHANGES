@@ -985,11 +985,26 @@ build-28 -> build-29
    * set minimum resolution to 5 (was 1 before what could make problems)
 
 
-build-29 -> build-30
---------------------
+build-29 -> build-30 (sane-1.0.6)
+---------------------------------
 
   * added EDGE KTX-9600US as supported scanner
 
   * Changing scansource does not change lower left selection edge
     if not necessary
+
+
+build-30 -> build-31
+--------------------
+
+  * sane-umax.man uses @LIBDIR@ and @CONFIGFIR@
+
+  * changed automatic calibration_width_offset marker from -1 to -99999
+
+  * changed
+      dev->calibration_area to 1 and
+      calibration_width_offset to -1 and
+      inquiry_max_calibration_data_lines to 66
+   for UMAX Supervista S-12, LinoHell Office and LinHell JADE
+
 

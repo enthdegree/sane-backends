@@ -5043,6 +5043,12 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   num_devices = 0;
   force_wait = SANE_FALSE;
   disable_double_buffering = SANE_FALSE;
+  first_dev = 0;
+  first_handle = 0;
+  devlist = 0;
+  new_dev = 0;
+  new_dev_len = 0;
+  new_dev_alloced = 0;
 
   fp = sanei_config_open (MUSTEK_CONFIG_FILE);
   if (!fp)

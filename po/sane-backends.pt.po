@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.10\n"
-"POT-Creation-Date: 2003-01-26 15:59+0100\n"
+"POT-Creation-Date: 2003-02-01 12:04+0100\n"
 "PO-Revision-Date: 2003-01-10 13:51+0000\n"
 "Last-Translator: Pedro Morais <morais@inocam.com>\n"
 "Language-Team: pt <morais@inocam.com>\n"
@@ -536,7 +536,7 @@ msgid ""
 "Scan the complete scanning area including calibration strip. Be carefull. "
 "Don't select the full height. For testing only."
 msgstr ""
-"Digitalizar toda a área de digitalização, incluindo a faixa de calibraç�o. "
+"Digitalizar toda a área de digitalização, incluindo a faixa de calibração. "
 "Cuidado: não seleccione toda a altura. Apenas para testes."
 
 #: .tmp/gt68xx.c:549

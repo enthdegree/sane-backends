@@ -1,3 +1,7 @@
+2003-02-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/sane-backends.pt.po: Fixed UTF character.
+
 2003-02-02  Peter Kirchgessner <peter@kirchgessner.de>
 
 	* backend/hp.c backend/hp-handle.c: Add support for OS/2

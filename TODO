@@ -1,4 +1,4 @@
-TODO (2002-02-24)
+TODO (2002-03-15)
 
 ******** todo ********
 
@@ -143,6 +143,10 @@ sanei
     check for major/minor numbers to avoid accessing a USB file as SCSI 
     device. This is finished for sanei_scsi.c/Linux. Patches for other
     platforms are welcome.
+
+  * sanei_scsi (Linux): Make sure that the SCSI driver is loaded when
+    checking for scanners. Ideas: Open/close all the /dev/sg* files in
+    sanei_scsi.c, dll.c or in a new backend.
 
 platform-specific
 -----------------

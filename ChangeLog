@@ -1,4 +1,6 @@
+2001-10-15  Peter Fales <peter@fales.com>
 
+	* backend/gphoto2.c, backend/gphoto2.h: Cosmetic cleanup
 
 ******    Feature freeze for sane-1.0.6 is active    *****
 ******    snapshot 2001-10-15                        *****

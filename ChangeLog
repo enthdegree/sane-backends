@@ -1,5 +1,7 @@
 2001-05-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
-	
+
+	* backend/canon.conf doc/sane-canon.man: Added config file and some
+	  documentation for it.
 	* AUTHORS: Added Chris Bagwell and Oliver Schwartz for snapscan.
 	* TODO: Added entry about possible sanei_usb.*.
 

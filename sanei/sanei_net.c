@@ -38,13 +38,13 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.  */
 
-#include "sane/config.h"
+#include "../include/sane/config.h"
 
 #include <errno.h>
 #include <stdlib.h>
 
-#include "sane/sane.h"
-#include "sane/sanei_net.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei_net.h"
 
 void
 sanei_w_init_req (Wire *w, SANE_Init_Req *req)
@@ -65,7 +65,7 @@ sanei_w_get_devices_reply (Wire *w, SANE_Get_Devices_Reply *reply)
 {
   SANE_Word len;
 
-  if (w->direction == WIRE_ENCODE)
+  if (w->direction != WIRE_DECODE)
     {
       if (reply->device_list)
 	{

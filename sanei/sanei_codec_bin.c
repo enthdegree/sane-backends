@@ -38,15 +38,15 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.  */
 
-#include "sane/config.h"
+#include "../include/sane/config.h"
 
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "sane/sane.h"
-#include "sane/sanei_wire.h"
-#include "sane/sanei_codec_bin.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei_wire.h"
+#include "../include/sane/sanei_codec_bin.h"
 
 static void
 bin_w_byte (Wire *w, void *v)
@@ -75,7 +75,7 @@ bin_w_string (Wire *w, void *v)
   SANE_Word len;
   SANE_String *s = v;
 
-  if (w->direction == WIRE_ENCODE)
+  if (w->direction != WIRE_DECODE)
     {
       len = 0;
       if (*s)

@@ -38,7 +38,7 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.  */
 
-#include "sane/config.h"
+#include "../include/sane/config.h"
 
 #include <errno.h>
 #include <stdlib.h>
@@ -46,8 +46,8 @@
 
 #include <sys/types.h>
 
-#include "sane/sane.h"
-#include "sane/sanei_wire.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei_wire.h"
 
 void
 sanei_w_space (Wire *w, size_t howmuch)
@@ -128,8 +128,16 @@ sanei_w_array (Wire *w, SANE_Word *len_ptr, void **v, WireCodecFunc w_element,
 
   if (w->direction == WIRE_FREE)
     {
-      if (*v)
-	free (*v);
+      if (*len_ptr && *v)
+	{
+	  val = *v;
+	  for (i = 0; i < *len_ptr; ++i)
+	    {
+	      (*w_element) (w, val);
+	      val += element_size;
+	    }
+	  free (*v);
+	}
       return;
     }
 
@@ -170,8 +178,11 @@ sanei_w_ptr (Wire *w, void **v, WireCodecFunc w_value, size_t value_size)
 
   if (w->direction == WIRE_FREE)
     {
-      if (*v)
-	free (*v);
+      if (*v && value_size)
+	{
+	  (*w_value) (w, *v);
+	  free (*v);
+	}
       return;
     }
   if (w->direction == WIRE_ENCODE)
@@ -328,6 +339,7 @@ sanei_w_option_descriptor (Wire *w, SANE_Option_Descriptor *v)
   sanei_w_word (w, &v->size);
   sanei_w_word (w, &v->cap);
   sanei_w_constraint_type (w, &v->constraint_type);
+  
   switch (v->constraint_type)
     {
     case SANE_CONSTRAINT_NONE:
@@ -339,14 +351,14 @@ sanei_w_option_descriptor (Wire *w, SANE_Option_Descriptor *v)
       break;
 
     case SANE_CONSTRAINT_WORD_LIST:
-      if (w->direction == WIRE_ENCODE)
+      if (w->direction != WIRE_DECODE)
 	len = v->constraint.word_list[0] + 1;
       sanei_w_array (w, &len, (void **) &v->constraint.word_list,
 		     w->codec.w_word, sizeof(SANE_Word));
       break;
 
     case SANE_CONSTRAINT_STRING_LIST:
-      if (w->direction == WIRE_ENCODE)
+      if (w->direction != WIRE_DECODE)
 	{
 	  for (len = 0; v->constraint.string_list[len]; ++len);
 	  ++len;	/* send NULL string, too */

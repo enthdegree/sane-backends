@@ -15,6 +15,7 @@
 	* doc/descriptions-external/test.desc doc/descriptions/test.desc:
 	  Moved test.desc to doc/descriptions and updated this file.
 	* PROJECTS: Removed test backend.
+	* AUTHORS: Added myself for test backend.
 
 2002-04-12  Frank Zago <fzago@greshamstorage.com>
 

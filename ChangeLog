@@ -1,8 +1,23 @@
+2001-04-16  Henning Meier-Geinitz <hmg@gmx.de>
+
+	* README: Updated xsane link.
+	* configure configure.in backend/dll.c backend/dll.desc 
+	  backend/net.c backend/net.desc include/sane/config.h.in
+	  Yet another change in the version system for dll and net.
+	  For sane_init return the version of the package but use
+	  own internal version number in the source (printed with
+	  debugging enabled) and in *.desc. The internal versions
+	  of both net and dll are set to 1.0.1. Please increase the
+	  build number with every change on the source files.
+	* doc/realeases.txt -> doc/releases.txt. Fixed spelling error.
+	  Added entries about sane-backends.html, sane.ps, man pages,
+	  platforms page.
+	
 2001-04-14  Gerhard Jaeger <g.jaeger@earthling.net>
 	* backend/plustek.c backend/plustek.desc backend/plustek.h
-      backend/plustek-share.h
-      minor fixes and additional scanner models
-    * doc/sane-plustek.man added info about slowIO switch
+	  backend/plustek-share.h
+	  minor fixes and additional scanner models
+	* doc/sane-plustek.man added info about slowIO switch
 
 2001-04-13  Oliver Rauch <Oliver.Rauch@Rauch-domain.de>
 	* changed my email address in AUTHORS

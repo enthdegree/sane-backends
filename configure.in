@@ -186,7 +186,7 @@ AC_FUNC_MMAP
 AC_CHECK_FUNCS(atexit inet_addr inet_aton inet_ntoa ioperm mkdir \
     scsireq_enter strftime strstr strtod  \
     cfmakeraw tcsendbreak strcasecmp strncasecmp _portaccess \
-    getaddrinfo getnameinfo)
+    getaddrinfo getnameinfo poll)
 AC_REPLACE_FUNCS(getenv inet_ntop inet_pton isfdtype sigprocmask snprintf \
     strdup strndup strsep usleep vsyslog)
 SANE_PROTOTYPES
@@ -227,7 +227,9 @@ if sparc64 -q > /dev/null 2>&1 ; then
 fi
 
 dnl check for IPv6 (can be overriden by --enable-ipv6)
-if test "$ac_cv_func_getnameinfo" = "yes" && test "$ac_cv_func_getaddrinfo" = "yes" ; then
+if test "$ac_cv_func_getnameinfo" = "yes" \
+  && test "$ac_cv_func_getaddrinfo" = "yes" \
+  && test "$ac_cv_func_poll" = "yes" ; then
   SANE_CHECK_IPV6
 else
   ipv6="no"

@@ -32,7 +32,7 @@
 #include "../include/lalloca.h"
 #include "../include/sys/types.h"
 
-#if defined(HAVE_GETADDRINFO) && defined (HAVE_GETNAMEINFO)
+#if defined(HAVE_GETADDRINFO) && defined (HAVE_GETNAMEINFO) && defined (HAVE_POLL)
 # define SANED_USES_AF_INDEP
 #else
 # undef ENABLE_IPV6

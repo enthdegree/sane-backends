@@ -1,3 +1,9 @@
+2003-05-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* configure configure.in frontend/saned.c
+	  include/sane/config.h.in: Test for poll() and disable IPV6 if
+	  not found.
+
 2003-05-01 Oliver Rauch <Oliver.Rauch@XSane.org>
 
 	* backend/

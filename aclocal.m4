@@ -12,9 +12,12 @@ dnl PARTICULAR PURPOSE.
 
 dnl
 dnl Contains the following macros
+dnl   SANE_SET_CFLAGS(is_release)
+dnl   SANE_CHECK_MISSING_HEADERS
+dnl   SANE_SET_LDFLAGS
+dnl   SANE_CHECK_DLL_LIB
 dnl   SANE_EXTRACT_LDFLAGS(LDFLAGS, LIBS)
 dnl   SANE_V4L_VERSION
-dnl   SANE_CHECK_PTAL
 dnl   SANE_CHECK_JPEG
 dnl   SANE_CHECK_IEEE1284
 dnl   JAPHAR_GREP_CFLAGS(flag, cmd_if_missing, cmd_if_present)
@@ -24,13 +27,149 @@ dnl   SANE_CHECK_GPHOTO2
 dnl   AC_PROG_LIBTOOL
 dnl
 
+# SANE_SET_CFLAGS(is_release)
+# Set CFLAGS. Enable/disable compilation warnings if we gcc is used.
+# Warnings are enabled by default when in development cycle but disabled
+# when a release is made. The argument is_release is either yes or no.
+AC_DEFUN([SANE_SET_CFLAGS],
+[
+if test "${ac_cv_c_compiler_gnu}" = "yes"; then
+  NORMAL_CFLAGS="\
+      -W \
+      -Wall"
+  WARN_CFLAGS="\
+      -W \
+      -Wall \
+      -Wcast-align \
+      -Wcast-qual \
+      -Wmissing-declarations \
+      -Wmissing-prototypes \
+      -Wpointer-arith \
+      -Wreturn-type \
+      -Wstrict-prototypes \
+      -pedantic"
+
+  # OS/2 and others don't include some headers with -ansi enabled
+  ANSI_FLAG=-ansi
+  case "${host_os}" in  
+    solaris* | hpux* | os2* )
+      ANSI_FLAG=
+      ;;
+  esac
+  WARN_CFLAGS="${WARN_CFLAGS} ${ANSI_FLAG}"
+
+  AC_ARG_ENABLE(warnings,
+    AC_HELP_STRING([--enable-warnings],
+                   [turn on tons of compiler warnings (GCC only)]),
+    [
+      if eval "test x$enable_warnings = xyes"; then 
+        for flag in $WARN_CFLAGS; do
+          JAPHAR_GREP_CFLAGS($flag, [ CFLAGS="$CFLAGS $flag" ])
+        done
+      else
+        for flag in $NORMAL_CFLAGS; do
+          JAPHAR_GREP_CFLAGS($flag, [ CFLAGS="$CFLAGS $flag" ])
+        done
+      fi
+    ],
+    [if test x$1 = xno; then
+       # Warnings enabled by default (development)
+       for flag in $WARN_CFLAGS; do
+         JAPHAR_GREP_CFLAGS($flag, [ CFLAGS="$CFLAGS $flag" ])
+       done
+    else
+       # Warnings disabled by default (release)
+       for flag in $NORMAL_CFLAGS; do
+         JAPHAR_GREP_CFLAGS($flag, [ CFLAGS="$CFLAGS $flag" ])
+       done
+    fi])
+fi # ac_cv_c_compiler_gnu
+])
+
+dnl SANE_CHECK_MISSING_HEADERS
+dnl Do some sanity checks. It doesn't make sense to proceed if those headers
+dnl aren't present.
+AC_DEFUN([SANE_CHECK_MISSING_HEADERS],
+[
+  MISSING_HEADERS=
+  if test "${ac_cv_header_fcntl_h}" != "yes" ; then
+    MISSING_HEADERS="${MISSING_HEADERS}\"fcntl.h\" "
+  fi
+  if test "${ac_cv_header_sys_time_h}" != "yes" ; then
+    MISSING_HEADERS="${MISSING_HEADERS}\"sys/time.h\" "
+  fi
+  if test "${ac_cv_header_unistd_h}" != "yes" ; then
+    MISSING_HEADERS="${MISSING_HEADERS}\"unistd.h\" "
+  fi
+  if test "${ac_cv_header_stdc}" != "yes" ; then
+    MISSING_HEADERS="${MISSING_HEADERS}\"ANSI C headers\" "
+  fi
+  if test "${MISSING_HEADERS}" != "" ; then
+    echo "*** The following essential header files couldn't be found:"
+    echo "*** ${MISSING_HEADERS}"
+    echo "*** Maybe the compiler isn't ANSI C compliant or not properly installed?"
+    echo "*** For details on what went wrong see config.log."
+    AC_MSG_ERROR([Exiting now.])
+  fi
+])
+
+# SANE_SET_LDFLAGS
+# Add special LDFLAGS
+AC_DEFUN([SANE_SET_LDFLAGS],
+[
+  case "${host_os}" in  
+    aix*) #enable .so libraries, disable archives
+      LDFLAGS="$LDFLAGS -Wl,-brtl"
+      ;;
+  esac
+])
+
+# SANE_CHECK_DLL_LIB
+# Find dll library
+AC_DEFUN([SANE_CHECK_DLL_LIB],
+[
+  dnl Checks for dll libraries: dl
+  if test "${enable_dynamic}" != "no"; then
+    AC_CHECK_HEADERS(dlfcn.h,
+    [AC_CHECK_LIB(dl,dlopen, DL_LIB=-ldl)
+     saved_LIBS="${LIBS}"
+     LIBS="${LIBS} ${DL_LIB}"
+     AC_CHECK_FUNCS(dlopen, enable_dynamic=yes,)
+     LIBS="${saved_LIBS}"
+    ],)
+
+    # HP/UX DLL handling
+    AC_CHECK_HEADERS(dl.h,
+    [AC_CHECK_LIB(dld,shl_load, DL_LIB=-ldld)
+     saved_LIBS="${LIBS}"
+     LIBS="${LIBS} ${DL_LIB}"
+     AC_CHECK_FUNCS(shl_load, enable_dynamic=yes,)
+     LIBS="${saved_LIBS}"
+    ],)
+  
+    #Mac OS X/Darwin
+    AC_CHECK_HEADERS(mach-o/dyld.h,
+    [AC_CHECK_FUNCS(NSLinkModule, enable_dynamic=yes,)
+     LDFLAGS="$LDFLAGS -module"
+     DL_LIB=""
+    ],)
+  fi
+  AC_SUBST(DL_LIB)
+
+  DYNAMIC_FLAG=
+  if test "${enable_dynamic}" = yes ; then
+    DYNAMIC_FLAG=-module
+  fi
+  AC_SUBST(DYNAMIC_FLAG)
+])
+
 #
 # Separate LIBS from LDFLAGS to link correctly on HP/UX (and other
 # platforms who care about the order of params to ld.  It removes all
 # non '-l..'-params from $2(LIBS), and appends them to $1(LDFLAGS)
 #
 # Use like this: SANE_EXTRACT_LDFLAGS(LDFLAGS, LIBS)
-AC_DEFUN(SANE_EXTRACT_LDFLAGS,
+AC_DEFUN([SANE_EXTRACT_LDFLAGS],
 [tmp_LIBS=""
 for param in ${$2}; do
   case "${param}" in
@@ -53,7 +192,7 @@ unset param
 # depending on the detected version.
 # Test by Petter Reinholdtsen <pere@td.org.uit.no>, 2000-07-07
 #
-AC_DEFUN(SANE_V4L_VERSION,
+AC_DEFUN([SANE_V4L_VERSION],
 [
   AC_CHECK_HEADER(linux/videodev.h)
   if test "${ac_cv_header_linux_videodev_h}" = "yes"
@@ -72,46 +211,8 @@ AC_DEFUN(SANE_V4L_VERSION,
 ])
 
 #
-# Checks for PTAL, needed for MFP support in HP backend.
-AC_DEFUN(SANE_CHECK_PTAL,
-[
-	PTAL_TMP_HAVE_PTAL=no
-	AC_ARG_WITH(ptal,
-	  [  --with-ptal[=DIR]       specify the top-level PTAL directory 
-                          [default=/usr/local]])
-	if test "$with_ptal" = "no" ; then
-		echo disabling PTAL
-	else
-		PTAL_OLD_CPPFLAGS=${CPPFLAGS}
-		PTAL_OLD_LDFLAGS=${LDFLAGS}
-
-		if test "$with_ptal" = "yes" ; then
-			with_ptal=/usr/local
-		fi
-		CPPFLAGS="${CPPFLAGS} -I$with_ptal/include"
-		LDFLAGS="${LDFLAGS} -L$with_ptal/lib"
-
-		AC_CHECK_HEADERS(ptal.h,
-			AC_CHECK_LIB(ptal,ptalInit,
-				AC_DEFINE(HAVE_PTAL, 1, [Is PTAL available?])
-				LDFLAGS="${LDFLAGS} -lptal"
-				PTAL_TMP_HAVE_PTAL=yes))
-
-		if test "${PTAL_TMP_HAVE_PTAL}" != "yes" ; then
-			CPPFLAGS=${PTAL_OLD_CPPFLAGS}
-			LDFLAGS=${PTAL_OLD_LDFLAGS}
-		fi
-	fi
-
-	unset PTAL_TMP_HAVE_PTAL
-	unset PTAL_OLD_CPPFLAGS
-	unset PTAL_OLD_LDFLAGS
-])
-
-
-#
 # Checks for ieee1284 library, needed for canon_pp backend.
-AC_DEFUN(SANE_CHECK_IEEE1284,
+AC_DEFUN([SANE_CHECK_IEEE1284],
 [
   AC_CHECK_HEADER(ieee1284.h, [
     AC_CACHE_CHECK([for libieee1284 >= 0.1.5], sane_cv_use_libieee1284, [
@@ -129,7 +230,7 @@ AC_DEFUN(SANE_CHECK_IEEE1284,
 #
 # Checks for jpeg library >= v6B (61), needed for DC210,  DC240, and 
 # GPHOTO2 backends.
-AC_DEFUN(SANE_CHECK_JPEG,
+AC_DEFUN([SANE_CHECK_JPEG],
 [
   AC_CHECK_LIB(jpeg,jpeg_start_decompress, 
   [
@@ -153,7 +254,7 @@ dnl JAPHAR_GREP_CFLAGS(flag, cmd_if_missing, cmd_if_present)
 dnl
 dnl From Japhar.  Report changes to japhar@hungry.com
 dnl
-AC_DEFUN(JAPHAR_GREP_CFLAGS,
+AC_DEFUN([JAPHAR_GREP_CFLAGS],
 [case "$CFLAGS" in
 "$1" | "$1 "* | *" $1" | *" $1 "* )
   ifelse($#, 3, [$3], [:])
@@ -172,7 +273,7 @@ dnl LINKER_RPATH.  Typical content will be '-Wl,-rpath,' or '-R '.  If
 dnl set, add '${LINKER_RPATH}${libdir}' to $LDFLAGS
 dnl
 
-AC_DEFUN(SANE_LINKER_RPATH,
+AC_DEFUN([SANE_LINKER_RPATH],
 [dnl AC_REQUIRE([AC_SUBST])dnl This line resulted in an empty AC_SUBST() !!
   AC_CACHE_CHECK([linker parameter to set runtime link path], LINKER_RPATH,
     [LINKER_RPATH=
@@ -196,7 +297,7 @@ dnl Some of the following  types seem to be defined only in sys/bitypes.h on
 dnl some systems (e.g. Tru64 Unix). This is a problem for files that include
 dnl sys/bitypes.h indirectly (e.g. net.c). If this is true, we add
 dnl sys/bitypes.h to CPPFLAGS.
-AC_DEFUN(SANE_CHECK_U_TYPES,
+AC_DEFUN([SANE_CHECK_U_TYPES],
 [if test "$ac_cv_header_sys_bitypes_h" = "yes" ; then
   AC_MSG_CHECKING([for u_int8_t only in sys/bitypes.h])
   AC_EGREP_CPP(u_int8_t,
@@ -228,10 +329,11 @@ AC_CHECK_TYPE(u_long, unsigned long)
 
 #
 # Checks for gphoto2 libs, needed by gphoto2 backend
-AC_DEFUN(SANE_CHECK_GPHOTO2,
+AC_DEFUN([SANE_CHECK_GPHOTO2],
 [
 	AC_ARG_WITH(gphoto2,
-	  [  --with-gphoto2          Include the gphoto2 backend],
+	  AC_HELP_STRING([--with-gphoto2],
+                         [include the gphoto2 backend]),
 [
 	
 	if test "$with_gphoto2" = "no" ; then
@@ -3766,92 +3868,4 @@ AC_DEFUN([AC_ISC_POSIX],
     AC_CHECK_LIB(cposix, strerror, [LIBS="$LIBS -lcposix"])
   ]
 )
-
-
-# serial 1
-
-# @defmac AC_PROG_CC_STDC
-# @maindex PROG_CC_STDC
-# @ovindex CC
-# If the C compiler in not in ANSI C mode by default, try to add an option
-# to output variable @code{CC} to make it so.  This macro tries various
-# options that select ANSI C on some system or another.  It considers the
-# compiler to be in ANSI C mode if it handles function prototypes correctly.
-#
-# If you use this macro, you should check after calling it whether the C
-# compiler has been set to accept ANSI C; if not, the shell variable
-# @code{am_cv_prog_cc_stdc} is set to @samp{no}.  If you wrote your source
-# code in ANSI C, you can make an un-ANSIfied copy of it by using the
-# program @code{ansi2knr}, which comes with Ghostscript.
-# @end defmac
-
-AC_DEFUN([AM_PROG_CC_STDC],
-[AC_REQUIRE([AC_PROG_CC])
-AC_BEFORE([$0], [AC_C_INLINE])
-AC_BEFORE([$0], [AC_C_CONST])
-dnl Force this before AC_PROG_CPP.  Some cpp's, eg on HPUX, require
-dnl a magic option to avoid problems with ANSI preprocessor commands
-dnl like #elif.
-dnl FIXME: can't do this because then AC_AIX won't work due to a
-dnl circular dependency.
-dnl AC_BEFORE([$0], [AC_PROG_CPP])
-AC_MSG_CHECKING(for ${CC-cc} option to accept ANSI C)
-AC_CACHE_VAL(am_cv_prog_cc_stdc,
-[am_cv_prog_cc_stdc=no
-ac_save_CC="$CC"
-# Don't try gcc -ansi; that turns off useful extensions and
-# breaks some systems' header files.
-# AIX			-qlanglvl=ansi
-# Ultrix and OSF/1	-std1
-# HP-UX			-Aa -D_HPUX_SOURCE
-# SVR4			-Xc -D__EXTENSIONS__
-for ac_arg in "" -qlanglvl=ansi -std1 "-Aa -D_HPUX_SOURCE" "-Xc -D__EXTENSIONS__"
-do
-  CC="$ac_save_CC $ac_arg"
-  AC_TRY_COMPILE(
-[#include <stdarg.h>
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-/* Most of the following tests are stolen from RCS 5.7's src/conf.sh.  */
-struct buf { int x; };
-FILE * (*rcsopen) (struct buf *, struct stat *, int);
-static char *e (p, i)
-     char **p;
-     int i;
-{
-  return p[i];
-}
-static char *f (char * (*g) (char **, int), char **p, ...)
-{
-  char *s;
-  va_list v;
-  va_start (v,p);
-  s = g (p, va_arg (v,int));
-  va_end (v);
-  return s;
-}
-int test (int i, double x);
-struct s1 {int (*f) (int a);};
-struct s2 {int (*f) (double a);};
-int pairnames (int, char **, FILE *(*)(struct buf *, struct stat *, int), int, int);
-int argc;
-char **argv;
-], [
-return f (e, argv, 0) != argv[0]  ||  f (e, argv, 1) != argv[1];
-],
-[am_cv_prog_cc_stdc="$ac_arg"; break])
-done
-CC="$ac_save_CC"
-])
-if test -z "$am_cv_prog_cc_stdc"; then
-  AC_MSG_RESULT([none needed])
-else
-  AC_MSG_RESULT($am_cv_prog_cc_stdc)
-fi
-case "x$am_cv_prog_cc_stdc" in
-  x|xno) ;;
-  *) CC="$CC $am_cv_prog_cc_stdc" ;;
-esac
-])
 

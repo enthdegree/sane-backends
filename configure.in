@@ -1,15 +1,19 @@
 dnl Process this file with autoconf to produce a configure script. -*-m4-*-
-AC_INIT(sane-backends, 1.0.9-cvs, sane-devel@mostang.com)
-AC_CONFIG_HEADER(include/sane/config.h)
-AC_PREREQ(2.50)dnl		dnl Minimum Autoconf version required.
-AC_ARG_PROGRAM
 
+dnl ***********************************************************************
+dnl When preparing a release, increase the numeric and string version numbers,
+dnl remove the "-cvs" suffix, and set is_release=yes
+AC_INIT([sane-backends],[1.0.9-cvs],[sane-devel@mostang.com])
 V_MAJOR=1
 V_MINOR=0
 V_REV=9
-AC_SUBST(V_MAJOR)
-AC_SUBST(V_MINOR)
-AC_SUBST(V_REV)
+is_release=no
+dnl ***********************************************************************
+
+AC_CONFIG_HEADERS([include/sane/config.h])
+AC_PREREQ(2.50)dnl		dnl Minimum Autoconf version required.
+AC_ARG_PROGRAM
+
 PACKAGE=AC_PACKAGE_NAME
 VERSION=AC_PACKAGE_VERSION
 NUMBER_VERSION=${V_MAJOR}.${V_MINOR}.${V_REV}
@@ -20,88 +24,76 @@ AC_DEFINE_UNQUOTED(VERSION, "$VERSION",
 AC_DEFINE_UNQUOTED(SANE_DLL_V_MAJOR, $V_MAJOR, [SANE DLL major number])
 AC_DEFINE_UNQUOTED(SANE_DLL_V_MINOR, $V_MINOR, [SANE DLL minor number])
 AC_DEFINE_UNQUOTED(SANE_DLL_V_BUILD, $V_REV, [SANE DLL revision number])
+AC_SUBST(V_MAJOR)
+AC_SUBST(V_MINOR)
+AC_SUBST(V_REV)
 AC_SUBST(PACKAGE)
 AC_SUBST(VERSION)
 AC_SUBST(NUMBER_VERSION)
+AC_CANONICAL_BUILD
+AC_CANONICAL_HOST 
 
+dnl ***********************************************************************
 dnl Checks for programs.
+dnl ***********************************************************************
 AC_PROG_CC
-AC_PROG_LD
+AC_PROG_RANLIB
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 AC_PROG_CPP
 AC_PROG_GCC_TRADITIONAL
+AC_PATH_PROG(SANE_CONFIG_PATH, sane-config, no)
+AC_PATH_PROG(MSGFMT, msgfmt$EXEEXT, no)
+AC_PATH_PROG(XGETTEXT, xgettext$EXEEXT, no)
+AC_PATH_PROG(MSGMERGE, msgmerge$EXEEXT, no)
+AC_SUBST(MSGFMT)
+AC_SUBST(XGETTEXT)
+AC_SUBST(MSGMERGE)
+
+dnl ***********************************************************************
+dnl set compiler/linker flags
+dnl ***********************************************************************
+INCLUDES="${INCLUDES} -I/usr/local/include"
+AC_SUBST(INCLUDES)
+SANE_SET_CFLAGS([$is_release])
+SANE_SET_LDFLAGS
+SANE_LINKER_RPATH
+CPPFLAGS="${CPPFLAGS} -DPATH_SANE_CONFIG_DIR=\$(configdir) \
+	  -DPATH_SANE_DATA_DIR=\$(datadir) \
+	  -DV_MAJOR=${V_MAJOR} -DV_MINOR=${V_MINOR}"
+
+dnl ***********************************************************************
+dnl Checks for unix variants
+dnl ***********************************************************************
+AC_GNU_SOURCE
 AC_AIX
 AC_MINIX
 AC_ISC_POSIX
-AM_PROG_CC_STDC
-AC_C_BIGENDIAN
 
-INCLUDES="${INCLUDES} -I/usr/local/include"
-CPPFLAGS="${CPPFLAGS} -D_GNU_SOURCE"
+dnl ***********************************************************************
+dnl Checks for libraries
+dnl ***********************************************************************
+SANE_CHECK_DLL_LIB
+dnl Checks for Backend libraries.
+AC_CHECK_LIB(m,sqrt)
+AC_CHECK_LIB(scsi, scsireq_enter)	# FreeBSD needs this
+AC_CHECK_LIB(cam, cam_open_device)      # FreeBSD 3+ needs this
+dnl IRIX sometimes has SYSVR3/4 network DSOs, but we do not need or want
+dnl to use them!
+if test "`uname`" != "IRIX" -a "`uname`" != "IRIX64"; then
+    AC_CHECK_LIB(nsl, gethostbyaddr)
+    AC_CHECK_LIB(socket, socket)
+    AC_CHECK_LIB(syslog, syslog)            # OS/2 needs this
+fi
+SANE_CHECK_JPEG
+SANE_CHECK_IEEE1284
+SANE_CHECK_GPHOTO2
+dnl check sane to make sure we don't have two installations
+AC_CHECK_LIB(sane, sane_init, LIBSANE_EXISTS="yes")
 
-if test "${ac_cv_prog_gcc}" = "yes"; then
-  NORMAL_CFLAGS="\
-      -W \
-      -Wall"
-  WARN_CFLAGS="\
-      -W \
-      -Wall \
-      -Wcast-align \
-      -Wcast-qual \
-      -Wmissing-declarations \
-      -Wmissing-prototypes \
-      -Wpointer-arith \
-      -Wreturn-type \
-      -Wstrict-prototypes \
-      -pedantic"
-
-  # OS/2 and others don't include some headers with -ansi enabled
-  ANSI_FLAG=-ansi
-  AC_CHECK_HEADER(os2.h,[ANSI_FLAG=],)
-  case "${host_os}" in  
-    solaris* | hpux*)
-      ANSI_FLAG=
-      ;;
-  esac
-  WARN_CFLAGS="${WARN_CFLAGS} ${ANSI_FLAG}"
-
-  # Warnings enabled by default (development)
-  AC_ARG_ENABLE(warnings,
-    [  --enable-warnings       turn on tons of compiler warnings (GCC only) 
-                          [default=yes]],
-    [
-      if eval "test x$enable_warnings = xyes"; then 
-        for flag in $WARN_CFLAGS; do
-          JAPHAR_GREP_CFLAGS($flag, [ CFLAGS="$CFLAGS $flag" ])
-        done
-      else
-        for flag in $NORMAL_CFLAGS; do
-          JAPHAR_GREP_CFLAGS($flag, [ CFLAGS="$CFLAGS $flag" ])
-        done
-      fi
-    ],
-    [if true; then # release (false) or development (true)
-       # Warnings enabled by default (development)
-       for flag in $WARN_CFLAGS; do
-         JAPHAR_GREP_CFLAGS($flag, [ CFLAGS="$CFLAGS $flag" ])
-       done
-    else
-       # Warnings disabled by default (release)
-       for flag in $NORMAL_CFLAGS; do
-         JAPHAR_GREP_CFLAGS($flag, [ CFLAGS="$CFLAGS $flag" ])
-       done
-    fi])
-fi # ac_cv_prog_gcc
-
-dnl special LDFLAGS
-case "${host_os}" in  
-  aix*) #enable .so libraries, disable archives
-    LDFLAGS="$LDFLAGS -Wl,-brtl"
-    ;;
-esac
-
+dnl ***********************************************************************
 dnl Checks for header files.
+dnl ***********************************************************************
 AC_HEADER_STDC
 AC_CHECK_HEADERS(fcntl.h unistd.h libc.h sys/dsreq.h sys/select.h \
     sys/time.h sys/shm.h \
@@ -111,33 +103,13 @@ AC_CHECK_HEADERS(fcntl.h unistd.h libc.h sys/dsreq.h sys/select.h \
     sys/types.h sys/scsi/scsi.h sys/scsi/sgdefs.h sys/scsi/targets/scgio.h \
     apollo/scsi.h sys/sdi_comm.h sys/passthrudef.h linux/ppdev.h usb.h \
     sys/bitypes.h sys/sem.h)
+AC_CHECK_HEADERS([asm/io.h],,,[#include <sys/types.h>])
+SANE_CHECK_MISSING_HEADERS
+SANE_V4L_VERSION
 
-dnl Do some sanity checks. It doesn't make sense to proceed if those headers
-dnl aren't present.
-MISSING_HEADERS=
-if test "${ac_cv_header_fcntl_h}" != "yes" ; then
-  MISSING_HEADERS="${MISSING_HEADERS}\"fcntl.h\" "
-fi
-if test "${ac_cv_header_sys_time_h}" != "yes" ; then
-  MISSING_HEADERS="${MISSING_HEADERS}\"sys/time.h\" "
-fi
-if test "${ac_cv_header_unistd_h}" != "yes" ; then
-  MISSING_HEADERS="${MISSING_HEADERS}\"unistd.h\" "
-fi
-if test "${ac_cv_header_stdc}" != "yes" ; then
-  MISSING_HEADERS="${MISSING_HEADERS}\"ANSI C headers\" "
-fi
-if test "${MISSING_HEADERS}" != "" ; then
-  echo "*** The following essential header files couldn't be found:"
-  echo "*** ${MISSING_HEADERS}"
-  echo "*** Maybe the compiler isn't ANSI C compliant or not properly installed?"
-  echo "*** For details on what went wrong see config.log."
-  AC_MSG_ERROR([Exiting now.])
-fi
-
-dnl Checks for typedefs, structures, and compiler characteristics.
-AC_C_CONST
-AC_C_INLINE
+dnl ***********************************************************************
+dnl Checks for types and structures
+dnl ***********************************************************************
 AC_TYPE_SIGNAL
 AC_TYPE_SIZE_T
 AC_TYPE_PID_T
@@ -149,19 +121,6 @@ AC_MSG_CHECKING(for long long support)
 have_long_long=no
 AC_TRY_COMPILE([], [long long x; x = (long long)0;], AC_DEFINE(HAVE_LONG_LONG, 1, [Define if the long long type is available.]) have_long_long=yes)
 AC_MSG_RESULT($have_long_long)
-
-AC_CHECK_HEADER([asm/io.h],[
- AC_MSG_CHECKING([whether asm/io.h can be included]);
- AC_TRY_COMPILE([
- #include <sys/types.h>
- #include <asm/io.h>
- ],[outb (0, 0l)],
-   [AC_DEFINE(HAVE_ASM_IO_H, 1, [Define if you have the <asm/io.h> header file.]) AC_MSG_RESULT(yes)],AC_MSG_RESULT(no))],)
-
-AC_MSG_CHECKING([for struct flock in fcntl.h])
-AC_EGREP_HEADER([struct flock], fcntl.h, [AC_MSG_RESULT(yes) ;
-                AC_DEFINE(HAVE_STRUCT_FLOCK, 1,
-                [Define if struct flock is available.])], AC_MSG_RESULT(no))
 
 if test "$ac_cv_header_sys_scsiio_h" = "yes" \
      -a "$ac_cv_header_scsi_h" = "yes";
@@ -203,47 +162,40 @@ AC_DEFINE(HAVE_SG_TARGET_STATUS,1,[Define if sg_header.target_status is
 available.])],
 AC_MSG_RESULT(no))
 
-SANE_V4L_VERSION
+AC_MSG_CHECKING([for struct flock in fcntl.h])
+AC_EGREP_HEADER([struct flock], fcntl.h, [AC_MSG_RESULT(yes) ;
+                AC_DEFINE(HAVE_STRUCT_FLOCK, 1,
+                [Define if struct flock is available.])], AC_MSG_RESULT(no))
 
-dnl Checks for dll libraries: dl
-if test "${enable_dynamic}" != "no"; then
-  AC_CHECK_HEADERS(dlfcn.h,
-  [AC_CHECK_LIB(dl,dlopen, DL_LIB=-ldl)
-   saved_LIBS="${LIBS}"
-   LIBS="${LIBS} ${DL_LIB}"
-   AC_CHECK_FUNCS(dlopen, enable_dynamic=yes,)
-   LIBS="${saved_LIBS}"
-  ],)
+dnl ***********************************************************************
+dnl Checks for compiler characteristics
+dnl ***********************************************************************
+AC_C_BIGENDIAN
+AC_C_CONST
+AC_C_INLINE
 
-  # HP/UX DLL handling
-  AC_CHECK_HEADERS(dl.h,
-  [AC_CHECK_LIB(dld,shl_load, DL_LIB=-ldld)
-   saved_LIBS="${LIBS}"
-   LIBS="${LIBS} ${DL_LIB}"
-   AC_CHECK_FUNCS(shl_load, enable_dynamic=yes,)
-   LIBS="${saved_LIBS}"
-  ],)
-  
-  #Mac OS X/Darwin
-  AC_CHECK_HEADERS(mach-o/dyld.h,
-  [AC_CHECK_FUNCS(NSLinkModule, enable_dynamic=yes,)
-   LDFLAGS="$LDFLAGS -module"
-   DL_LIB=""
-  ],)
+dnl ***********************************************************************
+dnl Checks for library functions
+dnl ***********************************************************************
+AC_FUNC_ALLOCA
+AC_FUNC_MMAP
+AC_CHECK_FUNCS(atexit inet_addr inet_aton inet_ntoa ioperm mkdir \
+    scsireq_enter strftime strstr strtod  \
+    cfmakeraw tcsendbreak strcasecmp strncasecmp _portaccess)
+AC_REPLACE_FUNCS(getenv inet_ntop inet_pton isfdtype sigprocmask snprintf \
+    strdup strndup strsep usleep vsyslog)
+if test "$ac_cv_header_os2_h" = "yes" ; then
+  AC_DEFINE(strncasecmp, strnicmp, [Define for OS/2 only])
+  AC_DEFINE(strcasecmp, stricmp, [Define for OS/2 only])
 fi
-AC_SUBST(DL_LIB)
 
-DYNAMIC_FLAG=
-if test "${enable_dynamic}" = yes ; then
-  DYNAMIC_FLAG=-module
+dnl ***********************************************************************
+dnl checks for system services
+dnl ***********************************************************************
+if test -c /dev/urandom ; then
+    AC_DEFINE(HAVE_DEV_URANDOM, 1, [Is /dev/urandom available?])
 fi
-AC_SUBST(DYNAMIC_FLAG)
-
-dnl Checks for Backend libraries.
-AC_CHECK_LIB(m,sqrt)
-AC_CHECK_LIB(scsi, scsireq_enter)	# FreeBSD needs this
-AC_CHECK_LIB(cam, cam_open_device)      # FreeBSD 3+ needs this
-
+dnl we need both libusb header and a libusb providing usb_get_busses
 if test "${ac_cv_header_usb_h}" = "yes" ; then
   AC_CHECK_LIB(usb, usb_get_busses)
   if test "${ac_cv_lib_usb_usb_get_busses}" = "yes" ; then
@@ -251,56 +203,17 @@ if test "${ac_cv_header_usb_h}" = "yes" ; then
   fi
 fi
 
-SANE_CHECK_JPEG
-
-SANE_CHECK_IEEE1284
-
-SANE_CHECK_GPHOTO2
-
-dnl IRIX sometimes has SYSVR3/4 network DSOs, but we do not need or want
-dnl to use them!
-if test "`uname`" != "IRIX" -a "`uname`" != "IRIX64"; then
-    AC_CHECK_LIB(nsl,gethostbyaddr)
-    AC_CHECK_LIB(socket,socket)
-	AC_CHECK_LIB(syslog, syslog)            # OS/2 needs this
-fi
-
-dnl Don't check for PTAL library anymore.
-dnl Support for HP OfficeJets is now in the external "hpoj" backend.
-dnl SANE_CHECK_PTAL
-
-dnl look for /dev/urandom
-if test -c /dev/urandom ; then
-    AC_DEFINE(HAVE_DEV_URANDOM, 1, [Is /dev/urandom available?])
-fi
-
-dnl Checks for library functions.
-AC_FUNC_ALLOCA
-AC_FUNC_MMAP
-AC_CHECK_FUNCS(atexit inet_addr inet_aton inet_ntoa ioperm mkdir \
-    scsireq_enter strftime strstr strtod  \
-    cfmakeraw tcsendbreak strcasecmp strncasecmp _portaccess)
-
-AC_REPLACE_FUNCS(getenv inet_ntop inet_pton isfdtype sigprocmask snprintf \
-    strdup strndup strsep usleep vsyslog)
-
-if test "$ac_cv_header_os2_h" = "yes" ; then
-  AC_DEFINE(strncasecmp,strnicmp,[Define for OS/2 only])
-  AC_DEFINE(strcasecmp,stricmp,[Define for OS/2 only])
-fi
-
-SANE_LINKER_RPATH
-
+dnl ***********************************************************************
 dnl initialize libtool
+dnl ***********************************************************************
 AC_LIBTOOL_WIN32_DLL
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 
-
-AC_SUBST(INCLUDES)
-CPPFLAGS="${CPPFLAGS} -DPATH_SANE_CONFIG_DIR=\$(configdir) \
-	  -DPATH_SANE_DATA_DIR=\$(datadir) \
-	  -DV_MAJOR=${V_MAJOR} -DV_MINOR=${V_MINOR}"
+dnl ***********************************************************************
+dnl enable/disable backends and features based on previous tests and user's
+dnl choice
+dnl ***********************************************************************
 
 if test "${sane_cv_use_libjpeg}" != "yes"; then
   echo "disabling DC210/DC240 backends (failed to find JPEG library)"
@@ -414,26 +327,25 @@ fi
 AC_SUBST(DLL_PRELOAD)
 
 AC_ARG_ENABLE(pnm-backend, 
-  [  --enable-pnm-backend    enable the pnm backend for testing frontends. Warning:
-                          This will be a security risk if used together with
-                          saned. See PROBLEMS file for details. [default=no]],
+  AC_HELP_STRING([--enable-pnm-backend],
+                 [enable the pnm backend for testing frontends (possible
+                  security risk, see PROBLEMS file)]),
   [PNM="pnm"], [PNM=""])
 AC_SUBST(PNM)
 
 AC_ARG_ENABLE(scsibuffersize, 
-  [  --enable-scsibuffersize=N  specify the default size (in bytes) of the buffer
-                          for SCSI commands [default=131072]],
+  AC_HELP_STRING([--enable-scsibuffersize=N],
+                 [specify the default size in bytes of the buffer for SCSI
+                  commands [[default=131072]]]),
   [set_scsibuffersize="$enableval"], [set_scsibuffersize=131072])
 AC_DEFINE_UNQUOTED(SCSIBUFFERSIZE, $set_scsibuffersize,
                    [SCSI command buffer size])
 echo "scsi buffersize: $set_scsibuffersize"
 
 AC_ARG_ENABLE(scsi-directio,
-  [  --enable-scsi-directio  enable SCSI direct IO (Linux only; can lead to crashes
-                          with backends using shared memory). [default=no]
-                          This option is in no way related to
-                          --enable-parport-directio. See README.linux for more
-                          information.],
+  AC_HELP_STRING([--enable-scsi-directio],
+                 [enable SCSI direct IO (Linux only, dangerous, see
+                  README.linux)]),
   [
     if eval "test x$enable_scsi_directio = xyes"; then
       CFLAGS="$CFLAGS -DENABLE_SCSI_DIRECTIO"
@@ -441,11 +353,9 @@ AC_ARG_ENABLE(scsi-directio,
   ])
 
 AC_ARG_ENABLE(parport-directio,
-  [  --enable-parport-directio  enable parallel port direct IO, the backend will
-                          do direct hardware access to use parallel port, so 
-			  frontends will require special permission level.
-                          [default=no] This option is in no way related to 
-                          --enable-scsi-directio],
+  AC_HELP_STRING([--enable-parport-directio],
+                 [enable direct hardware access to the parallel port, so 
+                  frontends will require special permission level]),
   [
     if eval "test x$enable_parport_directio = xyes"; then
       CFLAGS="$CFLAGS -DENABLE_PARPORT_DIRECTIO"
@@ -453,9 +363,10 @@ AC_ARG_ENABLE(parport-directio,
   ])
 
 AC_ARG_ENABLE(translations,
-  [  --disable-translations  don't install translations of backend options],
+  AC_HELP_STRING([--disable-translations],
+                 [don't install translations of backend options]),
   [
-      if eval "test x$enable_translation = xno"; then 
+      if eval "test x$enable_translations = xno"; then 
         INSTALL_TRANSLATIONS=
       else
         INSTALL_TRANSLATIONS=install-translations
@@ -463,55 +374,55 @@ AC_ARG_ENABLE(translations,
   ],
   INSTALL_TRANSLATIONS=install-translations
 )
-AC_SUBST(INSTALL_TRANSLATIONS)
-
 if eval "test x$INSTALL_TRANSLATIONS = xinstall-translations" ; then
-  AC_PATH_PROG(MSGFMT, msgfmt, no)
-  AC_PATH_PROG(XGETTEXT, xgettext, no)
-  AC_PATH_PROG(MSGMERGE, msgmerge, no)
-  AC_PATH_PROG(MSGCAT, msgcat, no)
-  AC_SUBST(MSGFMT)
-  AC_SUBST(XGETTEXT)
-  AC_SUBST(MSGMERGE)
-  AC_SUBST(MSGCAT)
   if test x$MSGFMT = xno || test x$XGETTEXT = xno || test $MSGMERGE = no ; then
     INSTALL_TRANSLATIONS=
-    echo "disabling translations"
+    echo "disabling translations (missing msgfmt, xgettext or msgmerge)"
   else
     echo "enabling translations"
   fi
 else
   echo "disabling translations"
 fi  
+AC_SUBST(INSTALL_TRANSLATIONS)
 
 
 AC_ARG_ENABLE(local-backends,
-    [  --disable-local-backends turns off compilation of all backends but net],
-    [
-      if eval "test x$enable_local_backends = xno"; then 
-        SELECTED_BACKENDS="net"
-      fi
-    ],
+  AC_HELP_STRING([--disable-local-backends],
+                 [turn off compilation of all backends but net]),
+  [
+    if eval "test x$enable_local_backends = xno"; then 
+      SELECTED_BACKENDS="net"
+    fi
+  ],
 ,
 )
 AC_SUBST(SELECTED_BACKENDS)
 
-AC_PATH_PROG(SANE_CONFIG_PATH, sane-config, no)
-AC_CHECK_LIB(sane, sane_init, LIBSANE_EXISTS="yes")
+
+dnl ***********************************************************************
+dnl Write output files
+dnl ***********************************************************************
 
 DISTCLEAN_FILES="*~ .*~ *.log *.bak *.old *.orig *.out *.rej \"\#\"* \".\\#\"*"
 AC_SUBST(DISTCLEAN_FILES)
 
+AC_CONFIG_FILES([Makefile lib/Makefile sanei/Makefile frontend/Makefile
+  japi/Makefile backend/Makefile include/Makefile doc/Makefile
+  po/Makefile testsuite/Makefile tools/Makefile])
+AC_CONFIG_FILES([tools/sane-desc.el])
+AC_CONFIG_FILES([tools/sane-config], [chmod a+x tools/sane-config])
+AC_OUTPUT
+
+dnl ***********************************************************************
+dnl print configuration information
+dnl ***********************************************************************
+
+echo "Variables used for compilation/linking:"
 echo using CPPFLAGS=\"${CPPFLAGS}\"
 echo using CFLAGS=\"${CFLAGS}\"
 echo using LDFLAGS=\"${LDFLAGS}\"
 echo using LIBS=\"${LIBS}\"
-
-AC_OUTPUT([Makefile lib/Makefile sanei/Makefile frontend/Makefile
-	   japi/Makefile backend/Makefile include/Makefile doc/Makefile
-	   po/Makefile testsuite/Makefile
-	   tools/sane-desc.el tools/Makefile tools/sane-config],)
-
 echo "Installation directories:"
 echo "Configuration: `eval eval echo ${sysconfdir}`"
 echo "Libraries:     `eval eval echo ${libdir}`"

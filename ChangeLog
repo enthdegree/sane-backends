@@ -3,6 +3,19 @@
 	* backend/epson_scsi.c backend/sm3600.c: Move config.h include to the
 	  top of the include list to avoid compilation errors on platforms
 	  not defining u_char. Added AIX lalloca check.
+	* aclocal.m4 acinclude.m4 configure configure.in
+	  include/sane/config.h.in: Cleanup. Added some missing quotes. Better
+	  structure and comments. Tried to keep similar tests in one group.
+	  Moved more complicated tests to acinclude.m4. Added explicit test for
+	  build and host system type. When checking for programs, used $EXEEXT
+	  (hopefully fixes  OS/2 gettext misdetection). Removed obsolete
+	  macros. Removed PTAL check. Used autoconf for asm/io.h check.
+	  Shortened --enable-foo output and formatted it correctly. Trans-
+	  lations were installed even if --disable-translations was set. Don't
+	  test for msgcat anymore. Tell why translations aren't installed. Used
+	  autoconf 2.5 syntax for AC_OUTPUT and AC_CONFIG_FILES. Make
+	  sane-config executable. Print flags and installation directories
+	  near the end of configure output.
 
 2002-12-04  Matthew Duggan <stauff1@users.sourceforge.net>
 	* backend/canon_pp-dev.c: Don't compare firmware version numbers - 

@@ -1010,18 +1010,19 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 {
   SANE_Status status;
 
+  if (option < 0 || option >= NELEMS (sod))
+    return SANE_STATUS_INVAL;	/* Unknown option ... */
+
+  /* Need to put this DBG line after the range check on option */
   DBG (127, "control_option(handle=%p,opt=%s,act=%s,val=%p,info=%p)\n",
        handle, sod[option].title,
        (action ==
 	SANE_ACTION_SET_VALUE ? "SET" : (action ==
 					 SANE_ACTION_GET_VALUE ? "GET" :
-					 "SETAUTO")), value, (void *)info);
+					 "SETAUTO")), value, (void *) info);
 
   if (handle != MAGIC || !is_open)
     return SANE_STATUS_INVAL;	/* Unknown handle ... */
-
-  if (option < 0 || option >= NELEMS (sod))
-    return SANE_STATUS_INVAL;	/* Unknown option ... */
 
   switch (action)
     {
@@ -1047,7 +1048,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       switch (option)
 	{
 	case DC240_OPT_IMAGE_NUMBER:
-	  if (*(SANE_Word *) value <= Camera.pic_taken)		
+	  if (*(SANE_Word *) value <= Camera.pic_taken)
 	    Camera.current_picture_number = *(SANE_Word *) value;
 	  else
 	    Camera.current_picture_number = Camera.pic_taken;
@@ -1078,16 +1079,17 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  break;
 
 	case DC240_OPT_SNAP:
-	  switch (  *(SANE_Bool *) value ) {
-	  case SANE_TRUE:
-	    dc240_opt_snap = SANE_TRUE;
-	    break;
-	  case SANE_FALSE:
-	    dc240_opt_snap = SANE_FALSE;
-	    break;
-	  default:
-	    return SANE_STATUS_INVAL;
-	  }
+	  switch (*(SANE_Bool *) value)
+	    {
+	    case SANE_TRUE:
+	      dc240_opt_snap = SANE_TRUE;
+	      break;
+	    case SANE_FALSE:
+	      dc240_opt_snap = SANE_FALSE;
+	      break;
+	    default:
+	      return SANE_STATUS_INVAL;
+	    }
 
 	  /* Snap forces new image size and changes image range */
 
@@ -1226,7 +1228,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	}
     }
 
-  if (info  &&  action == SANE_ACTION_SET_VALUE)
+  if (info && action == SANE_ACTION_SET_VALUE)
     {
       *info = myinfo;
       myinfo = 0;
@@ -1299,6 +1301,11 @@ METHODDEF (void) jpeg_skip_input_data (j_decompress_ptr cinfo, long num_bytes)
   src->pub.next_input_byte += (size_t) num_bytes;
   src->pub.bytes_in_buffer -= (size_t) num_bytes;
 }
+
+static SANE_Byte linebuffer[HIGHRES_WIDTH * 3];
+static SANE_Int linebuffer_size = 0;
+static SANE_Int linebuffer_index = 0;
+
 
 METHODDEF (void)
 jpeg_term_source (j_decompress_ptr UNUSEDARG cinfo)
@@ -1443,16 +1450,14 @@ sane_start (SANE_Handle handle)
     (void) jpeg_start_decompress (&cinfo);
     row_stride = cinfo.output_width * cinfo.output_components;
 
+    linebuffer_size = 0;
+    linebuffer_index = 0;
   }
 
   Camera.scanning = SANE_TRUE;	/* don't overlap scan requests */
 
   return SANE_STATUS_GOOD;
 }
-
-static SANE_Byte linebuffer[HIGHRES_WIDTH * 3];
-static SANE_Int linebuffer_size = 0;
-static SANE_Int linebuffer_index = 0;
 
 SANE_Status
 sane_read (SANE_Handle UNUSEDARG handle, SANE_Byte * data,
@@ -1461,7 +1466,7 @@ sane_read (SANE_Handle UNUSEDARG handle, SANE_Byte * data,
   SANE_Int lines = 0;
   SANE_Char filename_buf[256];
 
-  if ( Camera.scanning == SANE_FALSE ) 
+  if (Camera.scanning == SANE_FALSE)
     {
       return SANE_STATUS_INVAL;
     }
@@ -1483,6 +1488,8 @@ sane_read (SANE_Handle UNUSEDARG handle, SANE_Byte * data,
 
   if (cinfo.output_scanline >= cinfo.output_height)
     {
+      *length = 0;
+
       /* clean up comms with the camera */
       if (end_of_data (Camera.fd) == -1)
 	{
@@ -1503,9 +1510,10 @@ sane_read (SANE_Handle UNUSEDARG handle, SANE_Byte * data,
 	  image_range.max--;
 
 	  myinfo |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
-	  strcpy((char *)filename_buf, strrchr((char *)name_buf+1,'\\')+1 );
-	  strcpy(strrchr((char *)filename_buf,'.'),"JPG");
-	  dir_delete ((SANE_String) filename_buf );
+	  strcpy ((char *) filename_buf,
+		  strrchr ((char *) name_buf + 1, '\\') + 1);
+	  strcpy (strrchr ((char *) filename_buf, '.'), "JPG");
+	  dir_delete ((SANE_String) filename_buf);
 
 	}
       if (dc240_opt_autoinc)
@@ -1548,8 +1556,36 @@ sane_read (SANE_Handle UNUSEDARG handle, SANE_Byte * data,
 void
 sane_cancel (SANE_Handle UNUSEDARG handle)
 {
+  unsigned char cancel_byte[] = { 0xe4 };
+
   if (Camera.scanning)
     {
+
+      /* Flush any pending data from the camera before continuing */
+      {
+	SANE_Int n;
+	SANE_Char flush[1024];
+	do
+	  {
+	    sleep (1);
+	    n = read (Camera.fd, flush, 1024);
+	    if (n > 0)
+	      {
+		DBG (127, "%s: flushed %d bytes\n", "sane_cancel", n);
+	      }
+	    else
+	      {
+		DBG (127, "%s: nothing to flush\n", "sane_cancel");
+	      }
+	  }
+	while (n > 0);
+      }
+
+      if (cinfo.output_scanline < cinfo.output_height)
+	{
+	  write (Camera.fd, cancel_byte, 1);
+	}
+
       Camera.scanning = SANE_FALSE;	/* done with scan */
     }
   else
@@ -1563,16 +1599,16 @@ sane_set_io_mode (SANE_Handle UNUSEDARG handle, SANE_Bool
   /* sane_set_io_mode() is only valid during a scan */
   if (Camera.scanning)
     {
-      if ( non_blocking == SANE_FALSE )
-        {
+      if (non_blocking == SANE_FALSE)
+	{
 	  return SANE_STATUS_GOOD;
 	}
       else
-        {
+	{
 	  return SANE_STATUS_UNSUPPORTED;
-        }
+	}
     }
-  else 
+  else
     {
       /* We aren't currently scanning */
       return SANE_STATUS_INVAL;

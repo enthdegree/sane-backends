@@ -1014,6 +1014,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 {
   SANE_Status status;
 
+  if (option < 0 || option >= NELEMS (sod))
+    return SANE_STATUS_INVAL;	/* Unknown option ... */
+
+  /* Need to put this DBG line after the range check on option */
   DBG (127, "control_option(handle=%p,opt=%s,act=%s,val=%p,info=%p)\n",
        handle, sod[option].title,
        (action ==
@@ -1092,16 +1096,17 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  break;
 
 	case GPHOTO2_OPT_SNAP:
-	  switch (  *(SANE_Bool *) value ) {
-	  case SANE_TRUE:
-	    gphoto2_opt_snap = SANE_TRUE;
-	    break;
-	  case SANE_FALSE:
-	    gphoto2_opt_snap = SANE_FALSE;
-	    break;
-	  default:
-	    return SANE_STATUS_INVAL;
-	  }
+	  switch (*(SANE_Bool *) value)
+	    {
+	    case SANE_TRUE:
+	      gphoto2_opt_snap = SANE_TRUE;
+	      break;
+	    case SANE_FALSE:
+	      gphoto2_opt_snap = SANE_FALSE;
+	      break;
+	    default:
+	      return SANE_STATUS_INVAL;
+	    }
 
 	  /* Snap forces new image size and changes image range */
 
@@ -1413,7 +1418,9 @@ sane_start (SANE_Handle handle)
   CHECK_RET (gp_file_get_mime_type (data_file, &mime_type));
   if (strcmp (GP_MIME_JPEG, mime_type) != 0)
     {
-      DBG (0, "FIXME - Only jpeg files currently supported, can't do %s for file %s/%s\n",mime_type, cmdbuf, filename );
+      DBG (0,
+	   "FIXME - Only jpeg files currently supported, can't do %s for file %s/%s\n",
+	   mime_type, cmdbuf, filename);
       return SANE_STATUS_INVAL;
     }
 
@@ -1452,7 +1459,7 @@ SANE_Status
 sane_read (SANE_Handle UNUSEDARG handle, SANE_Byte * data,
 	   SANE_Int max_length, SANE_Int * length)
 {
-  if ( Cam_data.scanning == SANE_FALSE ) 
+  if (Cam_data.scanning == SANE_FALSE)
     {
       return SANE_STATUS_INVAL;
     }
@@ -1523,16 +1530,16 @@ sane_set_io_mode (SANE_Handle UNUSEDARG handle, SANE_Bool
   /* sane_set_io_mode() is only valid during a scan */
   if (Cam_data.scanning)
     {
-      if ( non_blocking == SANE_FALSE )
-        {
+      if (non_blocking == SANE_FALSE)
+	{
 	  return SANE_STATUS_GOOD;
 	}
       else
-        {
+	{
 	  return SANE_STATUS_UNSUPPORTED;
-        }
+	}
     }
-  else 
+  else
     {
       /* We aren't currently scanning */
       return SANE_STATUS_INVAL;
@@ -1954,6 +1961,6 @@ converter_init (void)
   parms.pixels_per_line = cinfo.output_width;
   parms.lines = cinfo.output_height;
 
-  linebuffer_size=0;
-  linebuffer_index=0;
+  linebuffer_size = 0;
+  linebuffer_index = 0;
 }

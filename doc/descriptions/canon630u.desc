@@ -12,7 +12,7 @@
 :backend "canon630u"                ; name of backend
 :manpage "sane-canon630u"
 :version "0.1"                  ; version of backend
-:status :beta
+;:status :beta
 :url "http://canon-fb630u.sourceforge.net/" ; backend home page
 
 :devicetype :scanner              ; start of a list of devices....
@@ -24,6 +24,7 @@
 :model "CanoScan fb630u"           ; name models for above-specified mfg.
 :interface "USB"
 :comment "OK"
+:status :good
 
 :model "CanoScan fb636u"           ; name models for above-specified mfg.
 :interface "USB"

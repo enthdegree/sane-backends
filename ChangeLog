@@ -1,3 +1,12 @@
+2001-09-04  Peter Kirchgessner <peter@kirchgessner.net>
+
+        * backend/hp-device.[hc] hp-handle.c hp-scl.[hc]
+            hp-option.[hc] hp.[hc]
+          Add support for active XPA
+          Check if paper in ADF for ADF scan
+          Add option lamp off
+          Remove some really unused parameters
+
 2001-09-04  Peter Fales <peter@fales.com>
 
 	* backend/PROJECTS:  Added gphoto2 project to provide support

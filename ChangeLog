@@ -1,3 +1,16 @@
+2001-04-22 Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* PROBLEMS: Point to pnm/saned security risks.
+	* TODO: Removed the entries about epson usb mis-detection and check
+	  for installed sane versions.
+	* configure configure.in backend/Makefile.in: Added detection of older
+	  versions of SANE. The pnm backend is now disabled by default.
+	* backend/dll.c backend/dll.desc: Fixed file descriptor leak (found by
+	  Douglas Gilbert). New version: 1.0.2.
+	* backend/net.desc: Added Jochen Eisinger's email address as contact
+	  for the net backend.
+	* doc/sane-pnm.man: Point to pnm/saned security risks.
+	
 2001-04-21 Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson.conf: Commented out the usb config entry, this can

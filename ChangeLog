@@ -1,3 +1,8 @@
+2002-05-30  Stéphane Voltz  <svoltz@wanadoo.fr>
+
+	* backend/umax_pp_low.c backend/umax_pp.c:  fixed 1600P detection, 
+	  IRIX compile fixes, final bits of software lineart
+
 2002-05-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* AUTHORS backend/Makefile.in backend/dll.conf backend/hpsj5s.c

@@ -408,7 +408,7 @@ init_options (Umax_PP_Device * dev)
   dev->opt[OPT_ENHANCEMENT_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
   /* preview */
-  dev->opt[OPT_LAMP_CONTROL].name = "Lamp control";
+  dev->opt[OPT_LAMP_CONTROL].name = "lamp-control";
   dev->opt[OPT_LAMP_CONTROL].title = "Lamp on";
   dev->opt[OPT_LAMP_CONTROL].desc = "Sets lamp on/off";
   dev->opt[OPT_LAMP_CONTROL].type = SANE_TYPE_BOOL;
@@ -473,7 +473,7 @@ init_options (Umax_PP_Device * dev)
   dev->val[OPT_GAMMA_VECTOR_B].wa = &dev->gamma_table[3][0];
 
   /*  gain group */
-  dev->opt[OPT_MANUAL_GAIN].name = "Manual channel gain";
+  dev->opt[OPT_MANUAL_GAIN].name = "manual-channel-gain";
   dev->opt[OPT_MANUAL_GAIN].title = "Gain";
   dev->opt[OPT_MANUAL_GAIN].desc = "Color channels gain settings";
   dev->opt[OPT_MANUAL_GAIN].type = SANE_TYPE_BOOL;
@@ -481,7 +481,7 @@ init_options (Umax_PP_Device * dev)
   dev->val[OPT_MANUAL_GAIN].w = SANE_FALSE;
 
   /* gray gain */
-  dev->opt[OPT_GRAY_GAIN].name = "Gray gain";
+  dev->opt[OPT_GRAY_GAIN].name = "gray-gain";
   dev->opt[OPT_GRAY_GAIN].title = "Gray gain";
   dev->opt[OPT_GRAY_GAIN].desc = "Sets gray channel gain";
   dev->opt[OPT_GRAY_GAIN].type = SANE_TYPE_INT;
@@ -493,7 +493,7 @@ init_options (Umax_PP_Device * dev)
   dev->val[OPT_GRAY_GAIN].w = dev->gray_gain;
 
   /* red gain */
-  dev->opt[OPT_RED_GAIN].name = "Red gain";
+  dev->opt[OPT_RED_GAIN].name = "red-gain";
   dev->opt[OPT_RED_GAIN].title = "Red gain";
   dev->opt[OPT_RED_GAIN].desc = "Sets red channel gain";
   dev->opt[OPT_RED_GAIN].type = SANE_TYPE_INT;
@@ -505,7 +505,7 @@ init_options (Umax_PP_Device * dev)
   dev->val[OPT_RED_GAIN].w = dev->red_gain;
 
   /* green gain */
-  dev->opt[OPT_GREEN_GAIN].name = "Green gain";
+  dev->opt[OPT_GREEN_GAIN].name = "green-gain";
   dev->opt[OPT_GREEN_GAIN].title = "Green gain";
   dev->opt[OPT_GREEN_GAIN].desc = "Sets green channel gain";
   dev->opt[OPT_GREEN_GAIN].type = SANE_TYPE_INT;
@@ -517,7 +517,7 @@ init_options (Umax_PP_Device * dev)
   dev->val[OPT_GREEN_GAIN].w = dev->green_gain;
 
   /* blue gain */
-  dev->opt[OPT_BLUE_GAIN].name = "Blue gain";
+  dev->opt[OPT_BLUE_GAIN].name = "blue-gain";
   dev->opt[OPT_BLUE_GAIN].title = "Blue gain";
   dev->opt[OPT_BLUE_GAIN].desc = "Sets blue channel gain";
   dev->opt[OPT_BLUE_GAIN].type = SANE_TYPE_INT;
@@ -529,7 +529,7 @@ init_options (Umax_PP_Device * dev)
   dev->val[OPT_BLUE_GAIN].w = dev->blue_gain;
 
   /*  highlight group */
-  dev->opt[OPT_MANUAL_HIGHLIGHT].name = "Manual channel highlight";
+  dev->opt[OPT_MANUAL_HIGHLIGHT].name = "manual-highlight";
   dev->opt[OPT_MANUAL_HIGHLIGHT].title = "Highlight";
   dev->opt[OPT_MANUAL_HIGHLIGHT].desc = "Color channels highlight settings";
   dev->opt[OPT_MANUAL_HIGHLIGHT].type = SANE_TYPE_BOOL;
@@ -537,7 +537,7 @@ init_options (Umax_PP_Device * dev)
   dev->val[OPT_MANUAL_HIGHLIGHT].w = SANE_FALSE;
 
   /* gray highlight */
-  dev->opt[OPT_GRAY_HIGHLIGHT].name = "Gray highlight";
+  dev->opt[OPT_GRAY_HIGHLIGHT].name = "gray-highlight";
   dev->opt[OPT_GRAY_HIGHLIGHT].title = "Gray highlight";
   dev->opt[OPT_GRAY_HIGHLIGHT].desc = "Sets gray channel highlight";
   dev->opt[OPT_GRAY_HIGHLIGHT].type = SANE_TYPE_INT;
@@ -549,7 +549,7 @@ init_options (Umax_PP_Device * dev)
   dev->val[OPT_GRAY_HIGHLIGHT].w = dev->gray_highlight;
 
   /* red highlight */
-  dev->opt[OPT_RED_HIGHLIGHT].name = "Red highlight";
+  dev->opt[OPT_RED_HIGHLIGHT].name = "red-highlight";
   dev->opt[OPT_RED_HIGHLIGHT].title = "Red highlight";
   dev->opt[OPT_RED_HIGHLIGHT].desc = "Sets red channel highlight";
   dev->opt[OPT_RED_HIGHLIGHT].type = SANE_TYPE_INT;
@@ -561,7 +561,7 @@ init_options (Umax_PP_Device * dev)
   dev->val[OPT_RED_HIGHLIGHT].w = dev->red_highlight;
 
   /* green highlight */
-  dev->opt[OPT_GREEN_HIGHLIGHT].name = "Green highlight";
+  dev->opt[OPT_GREEN_HIGHLIGHT].name = "green-highlight";
   dev->opt[OPT_GREEN_HIGHLIGHT].title = "Green highlight";
   dev->opt[OPT_GREEN_HIGHLIGHT].desc = "Sets green channel highlight";
   dev->opt[OPT_GREEN_HIGHLIGHT].type = SANE_TYPE_INT;
@@ -573,7 +573,7 @@ init_options (Umax_PP_Device * dev)
   dev->val[OPT_GREEN_HIGHLIGHT].w = dev->green_highlight;
 
   /* blue highlight */
-  dev->opt[OPT_BLUE_HIGHLIGHT].name = "Blue highlight";
+  dev->opt[OPT_BLUE_HIGHLIGHT].name = "blue-highlight";
   dev->opt[OPT_BLUE_HIGHLIGHT].title = "Blue highlight";
   dev->opt[OPT_BLUE_HIGHLIGHT].desc = "Sets blue channel highlight";
   dev->opt[OPT_BLUE_HIGHLIGHT].type = SANE_TYPE_INT;

@@ -49,9 +49,14 @@ static char *hp_backend_revision = "$Revision$";
 
    V 1.05:
    $Log$
+   Revision 1.18  2003/10/09 19:37:29  kig-guest
+   Redo when TEST UNIT READY failed
+   Redo when read returns with 0 bytes (non-SCSI only)
+   Bug #300241: fix invers image on 3c/4c/6100C at 10 bit depth
+
    Revision 1.17  2003/10/06 19:54:07  kig-guest
    Bug #300248: correct "Negatives" to "Negative" in option description
-
+ 
 
    V 1.04, 24-Jul-2003, PK (peter@kirchgessner.net)
       - Add internationalization

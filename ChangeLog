@@ -1,4 +1,18 @@
-2001-04-22 Henning Meier-Geinitz <henning@meier-geinitz.de>
+2001-04-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/agfafogus.c: Moved PATH_MAX after sanei_backend.h include
+	  to avoid warning. Changed printf to DBG.
+	* backend/mustek.c backend/mustek.CHANGES backend/mustek.desc: Added
+	  support for translating options. Used only PACKAGE_VERSION for
+	  output. Updated email address. New version: 1.0-107.
+	* include/sane/sanei_backend.h include/sane/saneopts.h: Added macro
+	  SANE_I18N. It's used to mark strings that can be translated and
+	  used by a frontend. Usually these are option titles and descriptions
+	  as well as the contents of string lists. Used this macro to mark
+	  the translatable strings in saneopts.h. More translation support
+	  will follow.
+
+2001-04-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* PROBLEMS: Point to pnm/saned security risks.
 	* TODO: Removed the entries about epson usb mis-detection and check
@@ -11,12 +25,12 @@
 	  for the net backend.
 	* doc/sane-pnm.man: Point to pnm/saned security risks.
 	
-2001-04-21 Karl Heinz Kremer <khk@khk.net>
+2001-04-21  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson.conf: Commented out the usb config entry, this can
 	  block other USB scanners from being recognized.
 
-2001-04-19 Henning Meier-Geinitz <henning@meier-geinitz.de>
+2001-04-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* AUTHORS: Added Michael Herder and me for pnm. Updated my email
 	  address.
@@ -123,7 +137,7 @@
 	* backend/mustek.c backend/mustek.desc backend/mustek.CHANGES
 	  Added detection of the TA for the Paragon 1200 SP Pro. Added
 	  warning about not supported Trust scanners. Changed description
-	  of contarst and brightness settings. Backend status is "stable" 
+	  of contrast and brightness settings. Backend status is "stable" 
 	  now. New version: 1.0-106.
 	* acinclude.m4 aclocal.m4: Fixed comment concerning dc240.
 	* configure configure.in include/sane/config.h.in: Added test for

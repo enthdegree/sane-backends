@@ -2,6 +2,7 @@
 
 	* doc/saned.man doc/sane-net.man: Removed comment about saned port not
 	  officially assigned.
+	* po/plustek.de.po po/umax_pp.fr.po: Fixed double msgids.
 
 2002-10-05  Karl Heinz Kremer <khk@khk.net>
 

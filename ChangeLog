@@ -1,3 +1,8 @@
+2000-11-19  Peter Kirchgessner <peter@kirchgessner.net>
+
+        * frontend/stiff.c: Fix problem with writing Tag bits per sample
+          for color tiff files.
+
 2000-11-18  Jochen Eisinger <jochen.eisinger@gmx.net>
 
 	* doc/sane-mustek_pp.man backend/mustek_pp.*: updated mustek_pp

@@ -14,7 +14,7 @@
 :status :alpha                    ; :alpha, :beta, :stable, :new
 :manpage "sane-mustek_pp"         ; name of manpage (if it exists)
                                   ; backend's web page
-:url "http://home.germany.net/freestyle/sane/"
+:url "http://home.nexgo.de/jochen.eisinger/sane/"
 
 :devicetype :scanner              ; start of a list of devices....
                                   ; other types:  :stillcam, :vidcam,

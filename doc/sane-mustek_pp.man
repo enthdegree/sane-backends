@@ -495,7 +495,7 @@ Patches for CIS scanner
 
 .TP
 For latest bug fixes and information see
-.I http://home.germany.net/freestyle/sane/
+.I http://home.nexgo.de/jochen.eisinger/sane/
 
 .SH AUTHOR
 Jochen Eisinger <jochen.eisinger@gmx.net>

@@ -6,10 +6,13 @@ sane-epson - SANE backend for EPSON scanners
 The
 .B sane-epson
 library implements a SANE (Scanner Access Now Easy) backend that
-provides access to Epson flatbed scanners.  This backend should be
-considered
-.B alpha-quality
-software!  
+provides access to Epson flatbed scanners.  Some functions of this 
+backend should be considered
+.B beta-quality
+software! Most functions have been stable for a long time, but of 
+course new development can not and will not function properly from
+the very first day. Please report any strange behavior to the 
+maintainer of the backend.
 .PP
 At present, the following scanners are known to work with this backend:
 .PP
@@ -64,8 +67,9 @@ The
 .I --mode 
 switch selects the basic mode of operation of the scanner valid choices are 
 .I Binary, Gray and Color. 
-The Binary mode is black and white only, Gray will produce up to 256 levels of gray
-and Color means 24 bit color mode. Some scanners will internally use 36 bit color, 
+The Binary mode is black and white only, Gray will produce 256 levels of gray 
+or more depending on the scanner and Color means 24 bit color mode or more 
+depending on the scanner.  Some scanners will internally use 36 bit color, 
 the external interface however does only support 24 bits.
 
 The
@@ -270,12 +274,8 @@ only if you know what you are doing!
 sane\-scsi(5), scanimage(1), xscanimage(1), xsane(1)
 
 .SH BUGS
-When used with "scanimage -T" the backend hangs after sucessfully 
-completing the tests. It is necessary to powercycle the scanner to
-re-establish the communication between backend and scanner again.
 
-Sometimes the scanner is not initialized correctly. The problem can be
-resolved by killing the program and restarting it again. 
+None :-) At least none are currently known.
 
 .SH UNSUPPORTED DEVICES
 The backend may be used with Epson scanners that are not yet listed 
@@ -286,9 +286,10 @@ functions that the scanner may be capable of are accessible.
 If the scanner is not even recognized as an Epson scanner this is
 probably because the device name reported by the scanner is not in the
 correct format. Please send this information to the backend maintainer
-(email address is in the AUTHORS file). 
+(email address is in the AUTHOR section of this man page or in the
+AUTHORS file of the SANE distribution). 
 
 .SH AUTHOR
 
-Christian Bucher based on work by Kazuhiro Sasayama with addons by
-Karl Heinz Kemer (khk@khk.net)
+The package is actively maintained by Karl Heinz Kremer (khk@khk.net). The
+software is based on work by Christian Bucher and Kazuhiro Sasayama

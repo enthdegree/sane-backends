@@ -1,3 +1,11 @@
+2003-11-07  Oliver Schirrmeister <oschirr@abm.de>
+
+	* backend/fujitsu.c: Bugfix. If a scanner returned a color image
+	  in format rr...r gg.g bb...b the reader process crashed.
+	* backend/fujitsu.[ch] Bugfix. The option gamma was enabled for
+	  the fi-4120. The result was an 'invalid field in parm list'-error.
+	* doc/descriptions/fujitsu.desc: added model "fi-4530C"
+
 2003-11-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Microtek and Visioneer

@@ -107,6 +107,11 @@
       V 1.12 06-Oct-2003
          - added code to support color modes of more recent scanners
             (anoah@pfeiffer.edu)
+      V 1.13 07-Nov-2003 (oschirr@abm.de)
+	 - Bugfix. If a scanner returned a color image
+	   in format rr...r gg.g bb...b the reader process crashed.
+	 - Bugfix. The option gamma was enabled for
+	   the fi-4120. The result was an 'invalid field in parm list'-error.
 
    SANE FLOW DIAGRAM
 
@@ -3721,7 +3726,7 @@ reader_generic_passthrough (struct fujitsu *scanner, FILE * fp, int i_window_id)
       fflush (fp);
 
       i_data_left -= data_to_read;
-      DBG (10, "reader_process: buffer of %d bytes read; %d bytes to go\n",
+      DBG (10, "reader_process(generic): buffer of %d bytes read; %d bytes to go\n",
            data_to_read, i_data_left);
     }
   while (i_data_left);
@@ -4050,6 +4055,11 @@ identify_scanner (struct fujitsu *s)
         {
           s->has_dropout_color = SANE_TRUE;
         }
+
+      if (!strncmp (product, "fi-4530C", 8))
+	{
+	  s->read_mode = READ_MODE_BGR;
+	}
     }
   else
     {
@@ -4360,6 +4370,8 @@ identify_scanner (struct fujitsu *s)
           s->cmp_present = (i > 1);
 
           s->has_imprinter = get_IN_imprinter(s->buffer);
+
+	  s->has_gamma = get_IN_num_gamma(s->buffer);
         }
     }
 
@@ -5480,7 +5492,8 @@ init_options (struct fujitsu *scanner)
   scanner->opt[OPT_GAMMA].size = maxStringSize (gamma_mode_list);
   scanner->opt[OPT_GAMMA].constraint_type = SANE_CONSTRAINT_STRING_LIST;
   scanner->opt[OPT_GAMMA].constraint.string_list = gamma_mode_list;
-  scanner->opt[OPT_GAMMA].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+  if (scanner -> has_gamma)
+    scanner->opt[OPT_GAMMA].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
 
   scanner->opt[OPT_EMPHASIS].name = "emphasis";
   scanner->opt[OPT_EMPHASIS].title = "emphasis";
@@ -5879,12 +5892,21 @@ convert_rrggbb_to_rgb(struct fujitsu *scanner, unsigned char * buffptr, unsigned
     /* only byteswap for full lines*/
     for (i=0; i < i_num_lines; i++){
      for (j=0; j < pix_per_line; j++){
-        memcpy (outptr,&scanner->buffer[(i*bytes_per_line)+(j*pix_per_line)], 1); /*r*/
-        outptr++;
-        memcpy (outptr,&scanner->buffer[(i*bytes_per_line)+(j*pix_per_line)+pix_per_line], 1); /*g*/
-        outptr++;
-        memcpy (outptr,&scanner->buffer[(i*bytes_per_line)+(j*pix_per_line)+2*pix_per_line], 1);   /*b*/
-        outptr++;
+
+       /* r */
+       memcpy (outptr,
+	       &scanner->buffer[(i*bytes_per_line)+j], 1); 
+       outptr++;
+
+       /* g */
+       memcpy (outptr,
+	       &scanner->buffer[(i*bytes_per_line)+j+pix_per_line], 1);
+       outptr++;
+       
+       /* b */
+       memcpy (outptr,
+	       &scanner->buffer[(i*bytes_per_line)+j+2*pix_per_line], 1);
+       outptr++;
      }
     }
 
@@ -6589,7 +6611,7 @@ reader3091ColorSimplex (struct fujitsu *scanner, FILE * fp)
       fflush (fp);
 
       data_left -= data_to_read;
-      DBG (10, "reader_process: buffer of %d bytes read; %d bytes to go\n",
+      DBG (10, "reader_process(color, simplex): buffer of %d bytes read; %d bytes to go\n",
            data_to_read, data_left);
       memcpy (largeBuffer, largeBuffer + dataToProcess, lookAheadSize);
       readOffset = lookAheadSize;
@@ -6909,7 +6931,7 @@ reader3091ColorDuplex (struct fujitsu *scanner, FILE * fp_front, FILE * fp_back)
       fflush (fp_front);
 
       data_left -= data_to_read;
-      DBG (10, "reader_process: buffer of %d bytes read; %d bytes to go\n",
+      DBG (10, "reader_process(color, duplex): buffer of %d bytes read; %d bytes to go\n",
            data_to_read, data_left);
       /* FIXME: simon lai reported an overflow here! */
       memcpy (largeBuffer, largeBuffer + dataToProcess, lookAheadSize);
@@ -7058,7 +7080,7 @@ reader3091GrayDuplex (struct fujitsu *scanner, FILE * fp_front, FILE * fp_back)
       fflush (fp_front);
 
       data_left -= data_to_read;
-      DBG (10, "reader_process: buffer of %d bytes read; %d bytes to go\n",
+      DBG (10, "reader_process(gray duplex): buffer of %d bytes read; %d bytes to go\n",
            data_to_read, data_left);
     }
   while (data_left);

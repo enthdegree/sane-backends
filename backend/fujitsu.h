@@ -152,6 +152,7 @@ struct fujitsu
   int has_threshold;
   int has_brightness;
   int has_contrast;
+  int has_gamma;
 
   SANE_Range adf_width_range;
   SANE_Range adf_height_range;

@@ -69,3 +69,9 @@
 :interface "SCSI"
 :status :good
 
+:model "fi-4530C"
+:interface "SCSI"
+:status :basic
+:comment "color scan returns inverted image, Flatbed option is enabled"
+
+

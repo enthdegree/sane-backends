@@ -388,6 +388,7 @@
 #define	 EPSON_LEVEL_F5		10
 #define  EPSON_LEVEL_D1		11
 #define  EPSON_LEVEL_D7		12
+#define  EPSON_LEVEL_D7		13
 
 /* there is also a function level "A5", which I'm igoring here until somebody can 
    convince me that this is still needed. The A5 level was for the GT-300, which
@@ -467,6 +468,8 @@ static EpsonCmdRec epson_cmd[] = {
   {"D1", 'I', 'i', 'F', 0, 'C', 'G', 'D', 'R', 0, 'A', 0, {0, 0, 0}, 'Z', 0,
    0, '@', 'g', 'd', 0, 'z', 0, 0, 0, 'f', 0, 0, 0, '!', 0, 0, 0, 0, 0, 0, 0},
   {"D7", 'I', 'i', 'F', 0, 'C', 'G', 'D', 'R', 0, 'A', 0, {0, 0, 0}, 'Z', 0,
+   0, '@', 'g', 'd', 0, 'z', 0, 0, 0, 'f', 0, 0, 0, '!', 0, 0, 0, 0, 0, 0, 0},
+  {"D8", 'I', 'i', 'F', 0, 'C', 'G', 'D', 'R', 0, 'A', 0, {0, 0, 0}, 'Z', 0,
    0, '@', 'g', 'd', 0, 'z', 0, 0, 0, 'f', 0, 0, 0, '!', 0, 0, 0, 0, 0, 0, 0},
 };
 

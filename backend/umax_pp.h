@@ -97,6 +97,7 @@ typedef union
 {
   SANE_Word w;
   SANE_Word *wa;		/* word array */
+  SANE_Int  *ia;		/* int array */
   SANE_String s;
 }
 Option_Value;
@@ -191,18 +192,5 @@ Umax_PP_Device;
 #define DEBUG()		DBG(4, "%s(v%d.%d.%d-%s): line %d: debug exception\n", \
 			  __PRETTY_FUNCTION__, V_MAJOR, V_MINOR,	\
 			  UMAX_PP_BUILD, UMAX_PP_STATE, __LINE__)
-
-#define ASSERT(cond)	if (!(cond))					\
-			  {						\
-                            DEBUG();					\
-			    DBG(1, "ASSERT(%s) failed\n", STRINGIFY(cond)); \
-			    DBG(1, "expect disaster...\n");\
-			  }
-
-/* Please note: ASSERT won't go away if you define NDEBUG, it just won't
- * output a message when ASSERT failes. So if "cond" does anything, it will
- * be executed, even if NDEBUG is defined... 
- */
-
 
 #endif /* umax_pp_h */

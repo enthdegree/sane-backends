@@ -1,3 +1,9 @@
+2003-08-15  Stéphane Voltz <svoltz@wanadoo.fr>
+
+	* backend/umax_pp.c backend/umax_pp.h: added a check of values passed
+	  in gamma table. Fixed a bug which prevented custom gamm and UTA to be
+	  active
+	  
 2003-08-14  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/sane-plustek.man: Added debug description

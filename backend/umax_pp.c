@@ -102,8 +102,8 @@
  *  see Changelog
  */
 
-#define UMAX_PP_BUILD	12
-#define UMAX_PP_STATE	"beta"
+#define UMAX_PP_BUILD	13
+#define UMAX_PP_STATE	"stable"
 
 static int num_devices = 0;
 static Umax_PP_Descriptor *devlist = NULL;
@@ -484,14 +484,14 @@ init_options (Umax_PP_Device * dev)
   dev->opt[OPT_UTA_CONTROL].size = sizeof (SANE_Word);
   dev->opt[OPT_UTA_CONTROL].unit = SANE_UNIT_NONE;
   dev->val[OPT_UTA_CONTROL].w = SANE_TRUE;
-  dev->opt[OPT_UTA_CONTROL].cap |= SANE_CAP_ADVANCED | SANE_CAP_INACTIVE;
+  dev->opt[OPT_UTA_CONTROL].cap |= SANE_CAP_ADVANCED;
 
   /* custom-gamma table */
   dev->opt[OPT_CUSTOM_GAMMA].name = SANE_NAME_CUSTOM_GAMMA;
   dev->opt[OPT_CUSTOM_GAMMA].title = SANE_TITLE_CUSTOM_GAMMA;
   dev->opt[OPT_CUSTOM_GAMMA].desc = SANE_DESC_CUSTOM_GAMMA;
   dev->opt[OPT_CUSTOM_GAMMA].type = SANE_TYPE_BOOL;
-  dev->opt[OPT_CUSTOM_GAMMA].cap |= SANE_CAP_ADVANCED | SANE_CAP_INACTIVE;
+  dev->opt[OPT_CUSTOM_GAMMA].cap |= SANE_CAP_ADVANCED;
   dev->val[OPT_CUSTOM_GAMMA].w = SANE_FALSE;
 
   /* grayscale gamma vector */
@@ -1339,6 +1339,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   SANE_Status status;
   SANE_Word w, cap, tmpw;
   int dpi, rc;
+  unsigned int i;
 
   DBG (6, "control_option: option %d, action %d\n", option, action);
 
@@ -1409,6 +1410,14 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_GAMMA_VECTOR_G:
 	case OPT_GAMMA_VECTOR_B:
 
+	  for(i=0;i<dev->opt[option].size/sizeof(SANE_Word);i++)
+	  {
+	  	if(((SANE_Int *)val)[i]<0 || ((SANE_Int *)val)[i]>255) 
+		{
+	  		DBG (2, "Value at index %d out of range\n",i);
+	  		return SANE_STATUS_INVAL;
+		}
+	  }
 	  memcpy (val, dev->val[option].wa, dev->opt[option].size);
 	  return SANE_STATUS_GOOD;
 

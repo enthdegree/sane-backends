@@ -1,3 +1,8 @@
+2002-04-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* include/sane/sanei_pa4s2.h include/sane/sanei_scsi.h: Added/adjusted
+	  documentation for doxygen.
+
 2002-04-11  Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c:  fixed 8 bits I/O support

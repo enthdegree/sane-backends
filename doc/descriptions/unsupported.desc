@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2005-12-10"		; version of backend
+:version "2005-01-12"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -473,8 +473,12 @@
 
 ;********************************************************************************************
 
-;:mfg "Genius"
-;:url "http://www.geniusnet.com.tw/"
+:mfg "Genius"
+:url "http://www.geniusnet.com.tw/"
+:model "ColorPage-Slim 1200 USB2"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. See link for details."
 
 ;********************************************************************************************
 

@@ -1,0 +1,111 @@
+.TH sane-umax1220u 5 "6 Jan 2002"
+.IX sane-umax
+.SH NAME
+sane-umax1220u - SANE backend for the UMAX Astra 1220U scanner
+
+.SH DESCRIPTION
+
+The
+.B sane-umax1220
+library implements a SANE (Scanner Access Now Easy) backend for the
+the UMAX Astra 1220U scanner.
+
+For the latest information on this backend, please visit
+.IR http://umax1220u-sane.sourceforge.net/ .
+
+.SH UMAX ASTRA 2000U EXPERIMENTAL SUPPORT
+
+This backend can also drive the UMAX Astra 2000U (sort of). You
+will be able to scan, but the colors will be horrible. From
+Stephane (the author of sane-umax_pp), I learned that there are
+differences in the way the color calibration is performed. It may
+be possible to use ideas from that backend to add complete support
+for the 2000U to this backend. Since I do not have access to an
+Astra 2000U, I do not plan to work on this -- any volunteers?
+
+.SH CONFIGURATION
+
+The configuration file for this backend resides in 
+	@CONFIGDIR@/umax1220u.conf. 
+
+Its contents is a list of device names that correspond to UMAX Astra 1220U scanners.
+Empty lines and lines starting with a hash mark (#) are ignored. A sample
+configuration file is shown below: 
+
+ #usb vendor product
+ usb 0x1606 0x0010
+ # Device list for non-linux systems
+ /dev/scanner 
+ /dev/usb/scanner0
+
+When driving a Astra 2000U, use the product number 0x0030. See sane-usb(5) for
+information on how to set the access permissions on the usb device files.
+
+.SH FILES
+
+The backend configuration file:
+ @CONFIGDIR@/umax1220u.conf
+
+The static library implementing this backend:
+ @LIBDIR@/libsane-umax1220u.a
+
+The shared library implementing this backend :
+ @LIBDIR@/libsane-umax1220u.so
+ (present on systems that support dynamic loading)
+
+.SH ENVIRONMENT
+
+.B SANE_DEBUG_UMAX1220U
+ If the library was compiled with debug support enabled, this environment
+variable controls the debug level for this backend. E.g., a value of 128
+requests all debug output to be printed. Smaller levels reduce verbosity:
+
+SANE_DEBUG_UMAX1220U values
+
+.DS
+.sp 
+.ft CR
+.nf
+ Number  Remark
+ 1       print failures
+ 2       print information
+ 3       print high-level function calls
+ 4       print high-level function checkpoints
+ 9       print mid-level function calls
+ 10      print mid-level function checkpoints
+ 80      print protocol-level function entry
+ 90      print protocol-level function exit
+
+Example:
+  export SANE_DEBUG_UMAX1220U=10
+
+.SH KNOWN BUGS
+
+600 dpi scanning may fail for large image sizes.
+
+If you keep getting I/O errors, try cycling the power on your scanner to reset it.
+
+There is no way to cancel a scan, since the driver ignores sane_cancel().
+
+If you try scanning an image which is too small, you will get I/O errors. Be
+sure to adjust the scan area before doing a scan, since by default, the scan
+area is zero.
+
+.SH SEE ALSO
+sane(7), sane\-usb(5)
+
+.TP
+For latest bug fixes and information see
+.I http://umax1220u-sane.sourceforge.net/
+
+.SH AUTHOR
+
+Marcio Luis Teixeira <marciot@users.sourceforge.net>
+
+.SH EMAIL-CONTACT
+umax1220u-sane-devel@lists.sourceforge.net
+
+.SH REPORTING BUGS
+
+When reporting bugs, please run the backend with SANE_DEBUG_UMAX1220U
+set to 10 and attach a copy of the log messages.

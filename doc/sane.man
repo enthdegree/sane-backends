@@ -239,6 +239,10 @@ Linotype Hell SCSI-scanners. See sane-umax(5) for details.
 .B umax_pp
 The sane-umax_pp backend provides access to Umax parallel port flatbed scanners
 and the HP 3200C. See sane-umax_pp(5) for details.
+.TP
+.B umax1200u
+The sane-umax1220u backend supports the UMAX Astra 1220U (USB) flatbed scanner
+(and also the UMAX Astra 2000U, sort of). See sane-umax1220u(5) for details.
 
 .P
 Also, have a look at the backend information page at

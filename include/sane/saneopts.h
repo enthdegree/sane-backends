@@ -89,6 +89,9 @@
 #define SANE_NAME_HALFTONE		"halftoning"
 #define SANE_NAME_BLACK_LEVEL           "black-level"
 #define SANE_NAME_WHITE_LEVEL           "white-level"
+#define SANE_NAME_WHITE_LEVEL_R         "white-level-r"
+#define SANE_NAME_WHITE_LEVEL_G         "white-level-g"
+#define SANE_NAME_WHITE_LEVEL_B         "white-level-b"
 #define SANE_NAME_SHADOW		"shadow"
 #define SANE_NAME_SHADOW_R		"shadow-r"
 #define SANE_NAME_SHADOW_G		"shadow-g"
@@ -153,6 +156,9 @@
 #define SANE_TITLE_HALFTONE		SANE_I18N("Halftoning")
 #define SANE_TITLE_BLACK_LEVEL          SANE_I18N("Black level")
 #define SANE_TITLE_WHITE_LEVEL          SANE_I18N("White level")
+#define SANE_TITLE_WHITE_LEVEL_R        SANE_I18N("White level for red")
+#define SANE_TITLE_WHITE_LEVEL_G        SANE_I18N("White level for green")
+#define SANE_TITLE_WHITE_LEVEL_B        SANE_I18N("White level for blue")
 #define SANE_TITLE_SHADOW		SANE_I18N("Shadow")
 #define SANE_TITLE_SHADOW_R		SANE_I18N("Shadow for red")
 #define SANE_TITLE_SHADOW_G		SANE_I18N("Shadow for green")
@@ -280,6 +286,15 @@ SANE_I18N("Selects what radiance level should be considered \"black\".")
 
 #define SANE_DESC_WHITE_LEVEL \
 SANE_I18N("Selects what radiance level should be considered \"white\".")
+
+#define SANE_DESC_WHITE_LEVEL_R \
+SANE_I18N("Selects what red radiance level should be considered \"white\".")
+
+#define SANE_DESC_WHITE_LEVEL_G \
+SANE_I18N("Selects what green radiance level should be considered \"white\".")
+
+#define SANE_DESC_WHITE_LEVEL_B \
+SANE_I18N("Selects what blue radiance level should be considered \"white\".")
 
 #define SANE_DESC_SHADOW \
 SANE_I18N("Selects what radiance level should be considered \"black\".")

@@ -130,7 +130,7 @@ static int blue_highlight = 0;
 
 
 static const SANE_String_Const mode_list[] = {
-  SANE_I18N ("Lineart"), SANE_I18N ("Gray"), SANE_I18N ("Color"), 0
+  SANE_I18N ("Lineart"), SANE_I18N ("Grayscale"), SANE_I18N ("Color"), 0
 };
 
 static const SANE_Range u4_range = {
@@ -1003,13 +1003,29 @@ sane_exit (void)
     }
 
   if (devlist != NULL)
-    free (devlist);
+    {
+      free (devlist);
+      devlist = NULL;
+    }
 
   if (devarray != NULL)
-    free (devarray);
+    {
+      free (devarray);
+      devarray = NULL;
+    }
 
-
+  /* reset values */
   num_devices = 0;
+  first_dev = NULL;
+
+  red_gain = 0;
+  green_gain = 0;
+  blue_gain = 0;
+
+  red_highlight = 0;
+  green_highlight = 0;
+  blue_highlight = 0;
+
 }
 
 SANE_Status
@@ -1021,7 +1037,10 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   DBG (129, "unused arg: local_only = %d\n", (int) local_only);
 
   if (devarray != NULL)
-    free (devarray);
+    {
+      free (devarray);
+      devarray = NULL;
+    }
 
   devarray = malloc ((num_devices + 1) * sizeof (devarray[0]));
 
@@ -1102,8 +1121,10 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 
       DBG (3, "open: trying default device %s, port=%s\n",
 	   devlist[0].sane.name, devlist[0].port);
-
-      rc = sanei_umax_pp_open (atoi (devlist[0].port), NULL);
+      if (devlist[0].port != NULL)
+	rc = sanei_umax_pp_open (atoi (devlist[0].port), NULL);
+      else
+	rc = sanei_umax_pp_open (0, devlist[0].sane.name);
 
       desc = &devlist[0];
     }
@@ -1598,7 +1619,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    {
 	      const char *mode = dev->val[OPT_MODE].s;
 
-	      if ((strcmp (mode, "Gray") == 0)
+	      if ((strcmp (mode, "Grayscale") == 0)
 		  || (strcmp (mode, "Lineart") == 0))
 		dev->opt[OPT_GRAY_HIGHLIGHT].cap &= ~SANE_CAP_INACTIVE;
 	      else if (strcmp (mode, "Color") == 0)
@@ -1635,7 +1656,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    {
 	      const char *mode = dev->val[OPT_MODE].s;
 
-	      if ((strcmp (mode, "Gray") == 0)
+	      if ((strcmp (mode, "Grayscale") == 0)
 		  || (strcmp (mode, "Lineart") == 0))
 		dev->opt[OPT_GRAY_GAIN].cap &= ~SANE_CAP_INACTIVE;
 	      else if (strcmp (mode, "Color") == 0)
@@ -1673,7 +1694,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    {
 	      const char *mode = dev->val[OPT_MODE].s;
 
-	      if ((strcmp (mode, "Gray") == 0)
+	      if ((strcmp (mode, "Grayscale") == 0)
 		  || (strcmp (mode, "Lineart") == 0))
 		{
 		  dev->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
@@ -1742,7 +1763,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	    if (dev->val[OPT_CUSTOM_GAMMA].w == SANE_TRUE)
 	      {
-		if ((strcmp (val, "Gray") == 0)
+		if ((strcmp (val, "Grayscale") == 0)
 		    || (strcmp (val, "Lineart") == 0))
 		  {
 		    dev->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
@@ -1770,7 +1791,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	    if (dev->val[OPT_MANUAL_HIGHLIGHT].w == SANE_TRUE)
 	      {
-		if ((strcmp (val, "Gray") == 0)
+		if ((strcmp (val, "Grayscale") == 0)
 		    || (strcmp (val, "Lineart") == 0))
 		  dev->opt[OPT_GRAY_HIGHLIGHT].cap &= ~SANE_CAP_INACTIVE;
 		else if (strcmp (val, "Color") == 0)
@@ -1790,7 +1811,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	    if (dev->val[OPT_MANUAL_GAIN].w == SANE_TRUE)
 	      {
-		if ((strcmp (val, "Gray") == 0)
+		if ((strcmp (val, "Grayscale") == 0)
 		    || (strcmp (val, "Lineart") == 0))
 		  dev->opt[OPT_GRAY_GAIN].cap &= ~SANE_CAP_INACTIVE;
 		else if (strcmp (val, "Color") == 0)
@@ -1825,7 +1846,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   /* color/gray */
   if (strcmp (dev->val[OPT_MODE].s, "Color") != 0)
     {
-      if (strcmp (dev->val[OPT_MODE].s, "Gray") != 0)
+      if (strcmp (dev->val[OPT_MODE].s, "Grayscale") != 0)
 	dev->color = UMAX_PP_MODE_LINEART;
       else
 	dev->color = UMAX_PP_MODE_GRAYSCALE;

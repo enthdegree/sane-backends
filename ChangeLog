@@ -1,3 +1,8 @@
+2003-02-23   Stéphane Voltz  <svoltz@wanadoo.fr>
+
+        * backend/umax_pp_low.c backend/umax_pp_low.c: Added global vars reset.
+	  Fixed a segmentation bug when using "" as opened device name.
+
 2003-02-22  Frank Zago  <fzago at austin dot rr dot com>
 
 	* doc/sane.tex: added Relisys and Mitsubishi to the list of

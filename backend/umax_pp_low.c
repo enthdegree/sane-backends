@@ -462,6 +462,23 @@ sanei_umax_pp_InitPort (int port, char *name)
   /* any other, we put debug init here         */
   DBG_INIT ();
 
+  /* sets global vars */
+  ggGreen = ggamma;
+  ggBlue = ggamma;
+  ggRed = ggamma;
+  gParport = 0;
+  gCancel = 0;
+  gAutoSettings = 1;
+  gControl = 0;
+  gData = 0;
+  g674 = 0;
+  g67D = 0;
+  g67E = 0;
+  gEPAT = 0;
+  g6FE = 0;
+  sanei_umax_pp_setparport (0);
+
+
   DBG (1, "sanei_umax_pp_InitPort(0x%X,%s)\n", port, name);
 
 

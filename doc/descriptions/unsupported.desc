@@ -378,13 +378,6 @@
 :status :unsupported
 :comment "Probably unsupported. May work with snapscan backend after some modification. See link for details."
 
-:model "Stylus Photo RX500"
-:url "/unsupported/epson-stylus-photo-rx500.html"
-:interface "USB"
-:status :unsupported
-:comment "Probably unsupported. See link for details."
-
-
 ;********************************************************************************************
 
 :mfg "E-Lux"

@@ -173,6 +173,10 @@
 :interface "USB"
 :status :good
 
+:model "RX-500"
+:interface "USB"
+:status :good
+
 :model "RX-600"
 :interface "USB"
 :status :good

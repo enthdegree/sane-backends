@@ -1,3 +1,8 @@
+2002-07-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* README.darwin: New file. Added some basic information for
+	  Darwin (Mac OS X) users.
+
 2002-07-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* include/sane/sanei_usb.h: Made buffer const SANE_Byte * in

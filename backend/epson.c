@@ -13,11 +13,11 @@
    Copyright (C) 1999 Norihiko Sawa <sawa@yb3.so-net.ne.jp>
    Copyright (C) 2000 Mike Porter <mike@udel.edu> (mjp)
    Copyright (C) 2003 EPSON KOWA Corporation
-   Copyright (C) 1999-2004 Karl Heinz Kremer <khk@khk.net>
+   Copyright (C) 1999-2005 Karl Heinz Kremer <khk@khk.net>
 */
 
-#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.44 - 2004-12-18"
-#define SANE_EPSON_BUILD	243
+#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.45 - 2000-01-09"
+#define SANE_EPSON_BUILD	245
 
 /*
    This file is part of the SANE package.
@@ -59,6 +59,8 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
+   2005-01-09   "flaming hack to get USB scanners working without timeouts under linux" 
+		submitted by "Steve" (in comment to bug #300830)
    2004-12-18   Added USB IDs for CX-4600 and CX-3650
    2004-10-16   Added USB ID for Expression 10000XL
    2004-05-08   Disable feed() for Perfection1640
@@ -686,6 +688,14 @@ static SANE_Bool gamma_userdefined_d[] = {
 static SANE_Bool *gamma_userdefined;
 static int *gamma_params;
 
+/* flaming hack to get USB scanners
+   working without timeouts under linux */
+/* (cribbed from fujitsu.c) */
+static unsigned int r_cmd_count = 0;
+static unsigned int w_cmd_count = 0;
+
+
+
 
 /* Bay list:
  * this is used for the FilmScan
@@ -902,6 +912,10 @@ send (Epson_Scanner * s, void *buf, size_t buf_size, SANE_Status * status)
     size_t n;
     n = buf_size;
     *status = sanei_usb_write_bulk (s->fd, buf, &n);
+    w_cmd_count++;
+    DBG (5, "w_cmd_count = %d\n",w_cmd_count);
+    DBG (5, "r_cmd_count = %d\n",r_cmd_count);
+
     return n;
   }
 
@@ -935,6 +949,10 @@ receive (Epson_Scanner * s, void *buf, ssize_t buf_size, SANE_Status * status)
     /* !!! only report an error if we don't read anything */
     n = buf_size;		/* buf_size gets overwritten */
     *status = sanei_usb_read_bulk (s->fd, (SANE_Byte *) buf, (size_t *) & n);
+    r_cmd_count += (n+63)/64; /* add # of packets, rounding up */
+    DBG (5, "w_cmd_count = %d\n",w_cmd_count);
+    DBG (5, "r_cmd_count = %d\n",r_cmd_count);
+
     if (n > 0)
       *status = SANE_STATUS_GOOD;
   }
@@ -1626,6 +1644,36 @@ close_scanner (Epson_Scanner * s)
   if (s->fd == -1)
     return;
 
+  if (r_cmd_count % 2) 
+  {
+    /* send a request_status. This toggles w_cmd_count and r_cmd_count */
+    u_char param[3];
+    u_char result[5];
+    SANE_Status status;
+
+    param[0] = ESC;
+    param[1] = s->hw->cmd->request_status;
+    param[2]='\0';
+    send(s,param,2,&status);
+    receive(s,result,4,&status);
+  }
+
+
+  DBG (5, "w_cmd_count = %d\n",w_cmd_count);
+  DBG (5, "r_cmd_count = %d\n",r_cmd_count);
+
+  if (w_cmd_count % 2) 
+  {
+    int junk1,junk2;
+
+    /* check extended status. This toggles w_cmd_count%2 only */
+    check_ext_status (s,&junk1,&junk2);
+  }
+
+  DBG (5, "w_cmd_count = %d\n",w_cmd_count);
+  DBG (5, "r_cmd_count = %d\n",r_cmd_count);
+
+
   if (s->hw->connection == SANE_EPSON_SCSI)
   {
     sanei_scsi_close (s->fd);
@@ -2150,6 +2198,7 @@ attach (const char *dev_name, Epson_Device * *devp, int type)
    * Initialize the scanner (ESC @).
    */
   reset (s);
+
 
 
   /*

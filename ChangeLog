@@ -1,3 +1,8 @@
+2005-01-09  Karl Heinz Kremer <khk@khk.net>
+
+	* backend/epson.c: "flaming hack to get USB scanners working without timeouts 
+	  under linux" submitted by "Steve" (in comment to bug #300830)
+
 2004-12-29  Julien Blache <jb@jblache.org>
 	* tools/sane-find-scanner.c: Added a hint about switching the
 	scanner on and connecting it to the computer before doing

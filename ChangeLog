@@ -1,9 +1,14 @@
-2002-10-15  Gerhard Jaeger <gerhard@gjaeger.de>
+2003-01-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* po/sane-backends.pt.po: Even more Portuguese translations from
+	  Pedro Morais <morais@inocam.com>.
+
+2003-01-10  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* TODO: Plustek backend now supports libusb, moved appropriate line
 	  to done section.
 
-2002-10-15  Gerhard Jaeger <gerhard@gjaeger.de>
+2003-01-10  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/sane-plustek.man: update to reflect version change
 	* doc/descriptions/plustek.desc: Added some Canon entries, status updates

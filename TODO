@@ -1,4 +1,4 @@
-TODO (2002-07-22)
+TODO (2002-07-23)
 
 ******** todo ********
 
@@ -22,9 +22,6 @@ backends
     TL_X > BR_X or TL_ > BR, otherwise it is hard for a frontend to
     set the correct values.
 
-  * Use DBG(...) instead of fprintf(stderr, ...) or printf
-     - microtek
-
   * qcam:
      - implement auto mode for brightness and black-level (don't
        just advertise it!) Actually, implement an auto "backend" instead
@@ -40,7 +37,7 @@ backends
        work...
 
   * dc210, dc240, gphoto2, and jpeg stuff: move sanei_* functions to sanei/
-    (if they are necessary). 
+    (if they are necessary). That's probably for SANE2. 
 
   * v4l: Problems (crash) with more than one video card. It looks like 
     the two different cards are identified as the same card.
@@ -55,7 +52,6 @@ backends
       - canon
       - coolscan
       - dmc
-      - fujitsu
       - qcam
       - ricoh
       - s9036
@@ -102,13 +98,10 @@ doc
   * desc files:
     - Don't use ":status :new"
       - canon630u
-    - Don't use :interface if you don't have a hardware device
-      - gphoto2
     - Make sure, that the manufacturer (and model) names use the same spelling:
       - umax, plustek (Genius, KYE-Genius)
       - plustek, umax_pp, avision, hp, hpsj5s (Hewlett-Packard, HP)
     - Check URLs:
-      - abaton (http://www.everex.com/)
       - dmc (dmc link)
       - sm3600 (Add a slash after the microtek URL to avoid creating
         duplicate links in the manufacturers listing)
@@ -120,9 +113,7 @@ doc
       - bh
       - canon630u (add 636 as :untested (from manpage)?)
       - coolscan2 (LS 400 ED)
-      - microtek (Scanmaker 600Z(S))
       - plustek
-      - sharp (Maybe add JX-325 as :untested (from manpage)?)
 
     - Remove unsupported scanners from the list or at least mark them with
       ":status :unsupported":
@@ -130,14 +121,11 @@ doc
       - nec
       - plustek
       - umax1220u
-      - umax_pp
 
     - Other problems/comments:
       - bh (use backend comment instead of manufacturer comment, don't use
         model name for comments or status indication)
       - coolscan2 (LS-200 only mentioned in manpage?)
-      - epson (if the support for the FilmScan 200 isn't that good, maybe
-        its status should be beta or alpha)
       - umax1220u (status for Astra 2000U should be adjusted)
 
 frontends
@@ -219,6 +207,8 @@ misc
     a segfault in Sane.c.
 
 ******** done ********
+* Desc files: Don't use :interface if you don't have a hardware device
+* Use DBG(...) instead of fprintf(stderr, ...) or printf
 * OS/2 needs a "# define strncasecmp(a, b, c) strnicmp(a, b, c)" in config.h.
 * sanei_usb.c: Can libusb be used alternatively to the kernel scanner
   drivers?

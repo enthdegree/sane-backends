@@ -12,7 +12,8 @@ SANE only supports the generic /dev/uk? devices. /dev/ss? won't work. If your
 scanner is detected by the ss driver, disable the driver with the "config"
 utility or compile a new kernel without ss. Set a link /dev/scanner to
 /dev/uk0 (or whatever you use) and/or edit your backend's config file
-appropriately.
+appropriately. Don't forget to set up permissions to the device file correctly
+for access by a non-root user (read/write).
 
 USB-scanners:
 -------------
@@ -41,4 +42,4 @@ Parport-scanners:
 I don't have any information about these. Please contact me or the SANE mailing
 list if you succeded in using one of these.
 
-2002-07-14 Henning Meier-Geinitz <henning@meier-geinitz.de>
+2003-11-07 Henning Meier-Geinitz <henning@meier-geinitz.de>

@@ -223,27 +223,29 @@ sanei_hp_device_support_probe (HpScsi scsi)
 }
 
 SANE_Status
-sanei_hp_device_probe (enum hp_device_compat_e *compat, HpScsi scsi)
+sanei_hp_device_probe_model (enum hp_device_compat_e *compat, HpScsi scsi,
+                             int *model_num)
 {
   static struct {
       HpScl		cmd;
+      int               model_num;
       const char *	model;
       enum hp_device_compat_e	flag;
   }	probes[] = {
-      { SCL_HP_MODEL_1, "ScanJet Plus",             HP_COMPAT_PLUS },
-      { SCL_HP_MODEL_2, "ScanJet IIc",              HP_COMPAT_2C },
-      { SCL_HP_MODEL_3, "ScanJet IIp",              HP_COMPAT_2P },
-      { SCL_HP_MODEL_4, "ScanJet IIcx",             HP_COMPAT_2CX },
-      { SCL_HP_MODEL_5, "ScanJet 3c/4c/6100C",      HP_COMPAT_4C },
-      { SCL_HP_MODEL_6, "ScanJet 3p",               HP_COMPAT_3P },
-      { SCL_HP_MODEL_8, "ScanJet 4p",               HP_COMPAT_4P },
-      { SCL_HP_MODEL_9, "ScanJet 5p/4100C/5100C",   HP_COMPAT_5P },
-      { SCL_HP_MODEL_10,"PhotoSmart Photo Scanner", HP_COMPAT_PS },
-      { SCL_HP_MODEL_11,"OfficeJet 1150C",          HP_COMPAT_OJ_1150C },
-      { SCL_HP_MODEL_12,"OfficeJet 1170C or later", HP_COMPAT_OJ_1170C },
-      { SCL_HP_MODEL_14,"ScanJet 6200C/6250C",      HP_COMPAT_6200C },
-      { SCL_HP_MODEL_16,"ScanJet 5200C",            HP_COMPAT_5200C },
-      { SCL_HP_MODEL_17,"ScanJet 6300C/6350C",      HP_COMPAT_6300C }
+      { SCL_HP_MODEL_1, 1, "ScanJet Plus",             HP_COMPAT_PLUS },
+      { SCL_HP_MODEL_2, 2, "ScanJet IIc",              HP_COMPAT_2C },
+      { SCL_HP_MODEL_3, 3, "ScanJet IIp",              HP_COMPAT_2P },
+      { SCL_HP_MODEL_4, 4, "ScanJet IIcx",             HP_COMPAT_2CX },
+      { SCL_HP_MODEL_5, 5, "ScanJet 3c/4c/6100C",      HP_COMPAT_4C },
+      { SCL_HP_MODEL_6, 6, "ScanJet 3p",               HP_COMPAT_3P },
+      { SCL_HP_MODEL_8, 8, "ScanJet 4p",               HP_COMPAT_4P },
+      { SCL_HP_MODEL_9, 9, "ScanJet 5p/4100C/5100C",   HP_COMPAT_5P },
+      { SCL_HP_MODEL_10,10,"PhotoSmart Photo Scanner", HP_COMPAT_PS },
+      { SCL_HP_MODEL_11,11,"OfficeJet 1150C",          HP_COMPAT_OJ_1150C },
+      { SCL_HP_MODEL_12,12,"OfficeJet 1170C or later", HP_COMPAT_OJ_1170C },
+      { SCL_HP_MODEL_14,14,"ScanJet 6200C/6250C",      HP_COMPAT_6200C },
+      { SCL_HP_MODEL_16,15,"ScanJet 5200C",            HP_COMPAT_5200C },
+      { SCL_HP_MODEL_17,17,"ScanJet 6300C/6350C",      HP_COMPAT_6300C }
   };
   int		i;
   char		buf[8];
@@ -251,6 +253,7 @@ sanei_hp_device_probe (enum hp_device_compat_e *compat, HpScsi scsi)
   SANE_Status	status;
   static char	*last_device = NULL;
   static enum hp_device_compat_e last_compat;
+  static int    last_model_num = -1;
 
   assert(scsi);
   DBG(1, "probe_scanner: Probing %s\n", sanei_hp_scsi_devicename (scsi));
@@ -261,12 +264,14 @@ sanei_hp_device_probe (enum hp_device_compat_e *compat, HpScsi scsi)
     {
       DBG(3, "probe_scanner: use cached compatibility flags\n");
       *compat = last_compat;
+      if (model_num) *model_num = last_model_num;
       return SANE_STATUS_GOOD;
     }
     sanei_hp_free (last_device);
     last_device = NULL;
   }
   *compat = 0;
+  last_model_num = -1;
   for (i = 0; i < (int)(sizeof(probes)/sizeof(probes[0])); i++)
     {
       DBG(1,"probing %s\n",probes[i].model);
@@ -277,6 +282,7 @@ sanei_hp_device_probe (enum hp_device_compat_e *compat, HpScsi scsi)
 	{
 	  DBG(1, "probe_scanner: %s compatible\n", probes[i].model);
 	  *compat |= probes[i].flag;
+          last_model_num = probes[i].model_num;
 	}
       else if (!UNSUPPORTED( status ))
 	  return status;	/* SCL inquiry failed */
@@ -284,8 +290,15 @@ sanei_hp_device_probe (enum hp_device_compat_e *compat, HpScsi scsi)
   /* Save values for next call */
   last_device = sanei_hp_strdup (sanei_hp_scsi_devicename (scsi));
   last_compat = *compat;
+  if (model_num) *model_num = last_model_num;
 
   return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+sanei_hp_device_probe (enum hp_device_compat_e *compat, HpScsi scsi)
+{
+  return sanei_hp_device_probe_model (compat, scsi, 0);
 }
 
 hp_bool_t

@@ -57,7 +57,7 @@ extern int sanei_debug_hp; */
 #include <fcntl.h>
 #include <sys/wait.h>
 
-#include "hp.h"
+#include "hp-handle.h"
 
 #include "sane/sanei_backend.h"
 
@@ -165,7 +165,6 @@ hp_handle_stopScan (HpHandle this)
 	  */
 	  sanei_hp_scl_reset(scsi);
         }
-        sanei_hp_scl_set(scsi, SCL_LAMPTEST, 0); /* Switch off lamp */
 	sanei_hp_scsi_destroy(scsi,0);
       }
     }
@@ -425,12 +424,23 @@ sanei_hp_handle_startScan (HpHandle this)
   /* For ADF scan we should check if there is paper available */
   if ( adfscan )
   {int adfstat = 0;
+   int can_check_paper = 0;
+   int is_flatbed = 0;
    int minval, maxval;
 
-    /* HP ScanJet IIp does not support commands ADF scan window */
-    /* and unload document. We have to use the usual scan window. */
-    /* It turned out that other scanners also do not support unload */
-    /* document, but change document (which is not supported by IIp too) */
+    /* For ADF-support, we have three different types of scanners:
+     * ScanJet, ScanJet+, IIp, 3p:
+     *   scroll feed, no support for inquire paper in ADF, unload document
+     *   and preload document
+     * IIc, IIcx, 3c, 4c, 6100C, 4p:
+     *   flatbed, no support for preload document
+     * 5100C, 5200C, 6200C, 6300C:
+     *   scroll feed.
+     * For all scroll feed types, we use the usual scan window command.
+     * For flatbed types, use a sequence of special commands.
+     */
+
+    /* Check the IIp group */
     if (   (sanei_hp_device_support_get (this->dev->sanedev.name,
                                        SCL_UNLOAD, &minval, &maxval)
               != SANE_STATUS_GOOD )
@@ -438,12 +448,37 @@ sanei_hp_handle_startScan (HpHandle this)
                                        SCL_CHANGE_DOC, &minval, &maxval)
               != SANE_STATUS_GOOD ) )
     {
-
-      DBG(1, "start: Request for ADF scan without support of unload doc\n");
-      DBG(1, "       and change doc. Seems to be a IIp.\n");
-      DBG(1, "       Use standard scan window command.\n");
+      DBG(3, "start: Request for ADF scan without support of unload doc\n");
+      DBG(3, "       and change doc. Seems to be something like a IIp.\n");
+      DBG(3, "       Use standard scan window command.\n");
 
       scl = SCL_START_SCAN;
+      can_check_paper = 0;
+      is_flatbed = 0;
+    }
+/*
+    else if ( sanei_hp_device_support_get (this->dev->sanedev.name,
+                                       SCL_PRELOAD_ADF, &minval, &maxval)
+              != SANE_STATUS_GOOD )
+*/
+    else if ( sanei_hp_is_flatbed_adf (scsi) )
+    {
+      DBG(3, "start: Request for ADF scan without support of preload doc.\n");
+      DBG(3, "       Seems to be a flatbed ADF.\n");
+      DBG(3, "       Use ADF scan window command.\n");
+
+      can_check_paper = 1;
+      is_flatbed = 1;
+    }
+    else
+    {
+      DBG(3, "start: Request for ADF scan with support of preload doc.\n");
+      DBG(3, "       Seems to be a scroll feed ADF.\n");
+      DBG(3, "       Use standard scan window command.\n");
+
+      scl = SCL_START_SCAN;
+      can_check_paper = 1;
+      is_flatbed = 0;
     }
 
     /* Check if the ADF is ready */
@@ -457,9 +492,38 @@ sanei_hp_handle_startScan (HpHandle this)
 
     if ( adfstat != 1 )
     {
-      DBG(1, "start: ADF scan requested without paper. Finished.\n");
+      DBG(1, "start: ADF is not ready. Finished.\n");
       sanei_hp_scsi_destroy(scsi,0);
       return SANE_STATUS_NO_DOCS;
+    }
+
+    /* Check paper in ADF */
+    if ( can_check_paper )
+    {
+      if (  sanei_hp_scl_inquire(scsi, SCL_ADF_BIN, &adfstat, 0, 0)
+              != SANE_STATUS_GOOD )
+      {
+        DBG(1, "start: Error checking if paper in ADF\n");
+        sanei_hp_scsi_destroy(scsi,0);
+        return SANE_STATUS_UNSUPPORTED;
+      }
+
+      if ( adfstat != 1 )
+      {
+        DBG(1, "start: No paper in ADF bin. Finished.\n");
+        sanei_hp_scsi_destroy(scsi,0);
+        return SANE_STATUS_NO_DOCS;
+      }
+
+      if ( is_flatbed )
+      {
+        if ( sanei_hp_scl_set(scsi, SCL_CHANGE_DOC, 0) != SANE_STATUS_GOOD )
+        {
+          DBG(1, "start: Error changing document\n");
+          sanei_hp_scsi_destroy(scsi,0);
+          return SANE_STATUS_UNSUPPORTED;
+        }
+      }
     }
   }
 
@@ -482,7 +546,7 @@ sanei_hp_handle_startScan (HpHandle this)
   procdata.lines = this->scan_params.lines;
 
   /* Wait for front-panel button push ? */
-  status = sanei_hp_optset_start_wait(this->dev->options, this->data, scsi);
+  status = sanei_hp_optset_start_wait(this->dev->options, this->data);
 
   if (status)   /* Wait for front button push ? Start scan in reader process */
   {
@@ -565,11 +629,13 @@ sanei_hp_handle_read (HpHandle this, void * buf, size_t *lengthp)
 
     if ( sanei_hp_scsi_new(&scsi, this->dev->sanedev.name) == SANE_STATUS_GOOD )
     {
-      sanei_hp_scl_set(scsi, SCL_LAMPTEST, 0);
-
       hpinfo = sanei_hp_device_info_get ( this->dev->sanedev.name );
-      if ( hpinfo && hpinfo->unload_after_scan )
-        sanei_hp_scl_set(scsi, SCL_UNLOAD, 0);
+
+      if ( hpinfo )
+      {
+        if ( hpinfo->unload_after_scan )
+          sanei_hp_scl_set(scsi, SCL_UNLOAD, 0);
+      }
 
       sanei_hp_scsi_destroy(scsi,0);
     }

@@ -144,6 +144,8 @@ typedef struct
   HpSimulate simulate;         /* Info about simulations */
 
   hp_bool_t  unload_after_scan;
+  int        active_xpa;
+  int        max_model;
 } HpDeviceInfo;
 
 HpDeviceInfo *sanei_hp_device_info_get (const char *dev_name);
@@ -193,6 +195,9 @@ typedef struct hp_handle_s *	HpHandle;
 typedef struct hp_scsi_s * 	HpScsi;
 
 /* hp-scl.c */
+hp_bool_t sanei_hp_is_active_xpa (HpScsi scsi);
+int sanei_hp_get_max_model (HpScsi scsi);
+int sanei_hp_is_flatbed_adf (HpScsi scsi);
 HpConnect sanei_hp_get_connect (const char *devname);
 HpConnect sanei_hp_scsi_get_connect (HpScsi this);
 

@@ -162,6 +162,14 @@
 # define HP_BUTTON_WAIT_YES      1
 #endif
 
+#ifndef SANE_NAME_LAMP_OFF
+# define SANE_NAME_LAMP_OFF      "lamp-off"
+# define SANE_TITLE_LAMP_OFF     "Shut off lamp"
+# define SANE_DESC_LAMP_OFF      "Shut off scanner lamp."
+# define HP_LAMP_OFF_NO          0
+# define HP_LAMP_OFF_YES         1
+#endif
+
 /* Some test stuff to see what undocumented SCL-commands do */
 # define SANE_NAME_10470 "10470"
 # define SANE_TITLE_10470 "10470"
@@ -207,6 +215,13 @@ enum hp_scanmode_e
     HP_SCANMODE_HALFTONE	= 3,
     HP_SCANMODE_GRAYSCALE	= 4,
     HP_SCANMODE_COLOR	= 5
+};
+
+enum hp_scantype_e
+{
+    HP_SCANTYPE_NORMAL   = 0,
+    HP_SCANTYPE_ADF      = 1,
+    HP_SCANTYPE_XPA      = 2
 };
 
 enum hp_dither_type_e {
@@ -266,7 +281,7 @@ hp_bool_t sanei_hp_optset_output_8bit (HpOptSet this, HpData data);
 int sanei_hp_optset_data_width (HpOptSet this, HpData data);
 hp_bool_t sanei_hp_optset_isImmediate (HpOptSet this, int optnum);
 hp_bool_t sanei_hp_optset_mirror_vert (HpOptSet this, HpData data, HpScsi scsi);
-hp_bool_t sanei_hp_optset_start_wait(HpOptSet this, HpData data, HpScsi scsi);
+hp_bool_t sanei_hp_optset_start_wait(HpOptSet this, HpData data);
 HpScl sanei_hp_optset_scan_type (HpOptSet this, HpData data);
 const SANE_Option_Descriptor * sanei_hp_optset_saneoption (HpOptSet this,
                                HpData data, int optnum);

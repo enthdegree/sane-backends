@@ -82,6 +82,8 @@ SANE_Status     sanei_hp_device_simulate_set (const char *devname, HpScl scl,
 SANE_Status     sanei_hp_device_support_get (const char *devname, HpScl scl,
                                              int *minval, int *maxval);
 SANE_Status     sanei_hp_device_support_probe (HpScsi scsi);
+SANE_Status     sanei_hp_device_probe_model (enum hp_device_compat_e *compat,
+                                             HpScsi scsi, int *model_num);
 SANE_Status     sanei_hp_device_probe (enum hp_device_compat_e *compat,
                                        HpScsi scsi);
 hp_bool_t	sanei_hp_device_compat (HpDevice this,

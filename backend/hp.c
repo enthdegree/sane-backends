@@ -43,8 +43,14 @@
    HP Scanner Control Language (SCL).
 */
 
-static char *hp_backend_version = "0.94";
+static char *hp_backend_version = "0.95";
 /* Changes:
+
+   V 0.95, 07-Jul-2001, PK (peter@kirchgessner.net)
+      - add support for active XPA
+      - check if paper in ADF for ADF scan
+      - add option lamp off
+      - remove some really unused parameters
 
    V 0.94, 31-Dec-2000, PK (peter@kirchgessner.net)
       - always switch off lamp after scan
@@ -303,6 +309,8 @@ hp_device_info_create (const char *devname)
  k = sizeof (info->devname);
  strncpy (info->devname, devname, k);
  info->devname[k-1] = '\0';
+ info->max_model = -1;
+ info->active_xpa = -1;
 
  return info;
 }

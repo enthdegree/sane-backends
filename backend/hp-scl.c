@@ -71,6 +71,7 @@ extern int sanei_debug_hp;*/
 #include "hp-option.h"
 #include "hp-scsi.h"
 #include "hp-scl.h"
+#include "hp-device.h"
 
 #ifdef HAVE_PTAL
 #include <ptal.h>
@@ -399,7 +400,7 @@ sanei_hp_nonscsi_new (HpScsi * newp, const char * devname, HpConnect connect)
 #endif
 
   /* For SCSI-devices we would have the inquire command here */
-  strncpy (new->inq_data, "\003zzzzzzzHP      MODELx          R000",
+  strncpy ((char *)new->inq_data, "\003zzzzzzzHP      MODELx          R000",
            sizeof (new->inq_data));
 
   new->bufp = new->buf + HP_SCSI_CMD_LEN;
@@ -549,6 +550,49 @@ sanei_hp_scsi_devicename (HpScsi this)
 {
   return this->devname;
 }
+
+hp_bool_t
+sanei_hp_is_active_xpa (HpScsi scsi)
+{HpDeviceInfo *info;
+ int model_num;
+
+ info = sanei_hp_device_info_get ( sanei_hp_scsi_devicename  (scsi) );
+ if (info->active_xpa < 0)
+ {
+   model_num = sanei_hp_get_max_model (scsi);
+   info->active_xpa = (model_num >= 17);
+   DBG(5,"sanei_hp_is_active_xpa: model=%d, active_xpa=%d\n",
+       model_num, info->active_xpa);
+ }
+ return info->active_xpa;
+}
+
+int
+sanei_hp_get_max_model (HpScsi scsi)
+
+{HpDeviceInfo *info;
+
+ info = sanei_hp_device_info_get ( sanei_hp_scsi_devicename  (scsi) );
+ if (info->max_model < 0)
+ {enum hp_device_compat_e compat;
+  int model_num;
+
+   if ( sanei_hp_device_probe_model ( &compat, scsi, &model_num)
+            == SANE_STATUS_GOOD )
+     info->max_model = model_num;
+ }
+ return info->max_model;
+}
+
+
+int
+sanei_hp_is_flatbed_adf (HpScsi scsi)
+
+{int model = sanei_hp_get_max_model (scsi);
+
+ return ((model == 2) || (model == 4) || (model == 5) || (model == 8));
+}
+
 
 HpConnect
 sanei_hp_get_connect (const char *devname)
@@ -1729,6 +1773,13 @@ sanei_hp_scl_startScan(HpScsi scsi, HpScl scl)
   else scl = SCL_START_SCAN;
 
   DBG(1, "sanei_hp_scl_startScan: Start scan%s\n", msg);
+
+  /* For active XPA we must not use XPA scan */
+  if ((scl == SCL_XPA_SCAN) && sanei_hp_is_active_xpa (scsi))
+  {
+    DBG(3,"Map XPA scan to scan because of active XPA\n");
+    scl = SCL_START_SCAN;
+  }
 
   RETURN_IF_FAIL( hp_scsi_scl(scsi, scl, 0) );
   return hp_scsi_flush(scsi);

@@ -112,7 +112,7 @@ int main(int argc, char **argv)
     exit(-1);
   }
 
-  f = (highlight - shadow) / 255 + shadow;
+  f = (highlight - shadow) / 255.0 + shadow;
 
   printf("[%d]%d-", 0, 0);
 

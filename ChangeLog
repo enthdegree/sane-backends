@@ -1,3 +1,8 @@
+2004-08-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* aclocal.m4 configure include/sane/config.h.in: Regenerated to
+	  include updates from niash and resource manager inclusion.
+
 2004-08-03  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* AUTHORS: Added niash backend maintainer and author.

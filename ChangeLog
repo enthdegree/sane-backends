@@ -1,3 +1,7 @@
+2003-12-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* README.darwin: Mentioned libusb problems. Updated fork section.
+
 2003-12-25  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions-external/niash.desc: Added information that

@@ -1,4 +1,4 @@
-TODO (2003-01-24)
+TODO (2003-01-26)
 
 ******** todo ********
 
@@ -134,6 +134,9 @@ platform-specific
   * OS/2 issues: 
     - Add $EXEEXT or sed expression to Makefiles to get the .exe extension?
     - Add support for semaphores also for OS/2 (currently used in snapscan).
+
+  * icc on ia32 + ia64:
+    - fix sys/io.h problems (see README.linux)
 
 misc
 ----

@@ -3,6 +3,7 @@
 	* po/sane-backends.de.po po/sane-backends.es.po po/sane-backends.fr.po
 	  po/sane-backends.pt.po po/sane-backends.ru.po po/sane-backends.sv.po:
 	  Minor updates due to backend changes.
+	* TODO: Added icc problem.
 
 2003-01-25  Jochen Eisinger <jochen.eisinger@gmx.de>
 

@@ -1,3 +1,7 @@
+2003-02-11  Peter Kirchgessner <peter@kirchgessner.net>
+
+	* backend/hp-handle.c: Fix problem with ifdef/ifndef for threads
+
 2003-02-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* aclocal.m4 acinclude.m4 configure configure.in: Check for MacOS X

@@ -1,5 +1,11 @@
 CHANGES for the SANE Mustek backend
 
+2002-01-16
+  * Changed option names to use only "-" not "_".
+
+2002-01-10
+  * OPT_CONTRAST_R is red, not blue.
+
 2002-01-07
   * Released Mustek backend 1.0-117.
 

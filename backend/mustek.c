@@ -4214,7 +4214,7 @@ init_options (Mustek_Scanner *s)
   s->val[OPT_BRIGHTNESS].w = 0;
 
   /* brightness red */
-  s->opt[OPT_BRIGHTNESS_R].name = "brightness_r";
+  s->opt[OPT_BRIGHTNESS_R].name = "brightness-r";
   s->opt[OPT_BRIGHTNESS_R].title = SANE_I18N("Brightness red channel");
   s->opt[OPT_BRIGHTNESS_R].desc = SANE_I18N("Controls the brightness of " \
 					    "the red channel of the " \
@@ -4227,7 +4227,7 @@ init_options (Mustek_Scanner *s)
   s->val[OPT_BRIGHTNESS_R].w = 0;
 
   /* brightness green */
-  s->opt[OPT_BRIGHTNESS_G].name = "brightness_g";
+  s->opt[OPT_BRIGHTNESS_G].name = "brightness-g";
   s->opt[OPT_BRIGHTNESS_G].title = SANE_I18N("Brightness green channel");
   s->opt[OPT_BRIGHTNESS_G].desc = SANE_I18N("Controls the brightness of " \
 					    "the green channel of the " \
@@ -4240,7 +4240,7 @@ init_options (Mustek_Scanner *s)
   s->val[OPT_BRIGHTNESS_G].w = 0;
 
   /* brightness blue */
-  s->opt[OPT_BRIGHTNESS_B].name = "brightness_b";
+  s->opt[OPT_BRIGHTNESS_B].name = "brightness-b";
   s->opt[OPT_BRIGHTNESS_B].title = SANE_I18N("Brightness blue channel");
   s->opt[OPT_BRIGHTNESS_B].desc = SANE_I18N("Controls the brightness of " \
 					    "the blue channel of the " \
@@ -4266,7 +4266,7 @@ init_options (Mustek_Scanner *s)
   s->val[OPT_CONTRAST].w = 0;
 
   /* contrast red */
-  s->opt[OPT_CONTRAST_R].name = "contrast_r";
+  s->opt[OPT_CONTRAST_R].name = "contrast-r";
   s->opt[OPT_CONTRAST_R].title = SANE_I18N("Contrast red channel");
   s->opt[OPT_CONTRAST_R].desc = SANE_I18N("Controls the contrast of " \
 					  "the red channel of the " \
@@ -4279,7 +4279,7 @@ init_options (Mustek_Scanner *s)
   s->val[OPT_CONTRAST_R].w = 0;
 
   /* contrast green */
-  s->opt[OPT_CONTRAST_G].name = "contrast_g";
+  s->opt[OPT_CONTRAST_G].name = "contrast-g";
   s->opt[OPT_CONTRAST_G].title = SANE_I18N("Contrast green channel");
   s->opt[OPT_CONTRAST_G].desc = SANE_I18N("Controls the contrast of " \
 					  "the green channel of the " \
@@ -4292,7 +4292,7 @@ init_options (Mustek_Scanner *s)
   s->val[OPT_CONTRAST_G].w = 0;
 
   /* contrast blue */
-  s->opt[OPT_CONTRAST_B].name = "contrast_b";
+  s->opt[OPT_CONTRAST_B].name = "contrast-b";
   s->opt[OPT_CONTRAST_B].title = SANE_I18N("Contrast blue channel");
   s->opt[OPT_CONTRAST_B].desc = SANE_I18N("Controls the contrast of " \
 					  "the blue channel of the " \

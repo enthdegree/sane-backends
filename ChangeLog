@@ -14,6 +14,7 @@
 	  Lots of minor fixes and cleanup. Added version number: 1.0-2.
 	* backend/v4l-grab.h: Deleted (unused).
 	* backend/Makefile.in: Removed v4l-grab.h. 
+	* AUTHORS: Added myself as active maintainer of v4l.
 
 2002-08-18 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 

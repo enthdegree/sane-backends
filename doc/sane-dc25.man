@@ -82,7 +82,7 @@ levels reduce verbosity.
 sane(7)
 
 .SH AUTHOR
-Peter Fales, psfales@earthling.net
+Peter Fales, dc25-devel@fales-lorenz.net
 
 .SH BUGS
 Known bugs/limitations are:

@@ -16,7 +16,7 @@
 
 */
 
-#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.07 - 2001-06-09"
+#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.08 - 2001-06-09"
 #define SANE_EPSON_BUILD	208
 
 /*

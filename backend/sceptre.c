@@ -49,7 +49,7 @@
 
 /*--------------------------------------------------------------------------*/
 
-#define BUILD 6			/* 2002-02-14 */
+#define BUILD 7			/* 2002-03-02 */
 #define BACKEND_NAME sceptre
 #define SCEPTRE_CONFIG_FILE "sceptre.conf"
 
@@ -82,7 +82,7 @@
 
 /*--------------------------------------------------------------------------*/
 
-static SANE_String scan_mode_list[] = { LINEART_STR, HALFTONE_STR,
+static const SANE_String scan_mode_list[] = { LINEART_STR, HALFTONE_STR,
   GRAY_STR, COLOR_STR, NULL
 };
 
@@ -106,21 +106,22 @@ static const SANE_Range halftone_range = {
 
 /*--------------------------------------------------------------------------*/
 
-#define NUM_OF_RES 12
+#define NUM_OF_RES 15
 /* Table of supported resolution and number of lines of color shifting. */
-static SANE_Word resolutions_list[NUM_OF_RES + 1] = {
-  NUM_OF_RES, 50, 75, 90, 150, 300, 450, 600, 750, 900, 1050, 1125, 1200
+static const SANE_Word resolutions_list[NUM_OF_RES + 1] = {
+  NUM_OF_RES, 10, 25, 30, 45, 75, 90, 150, 300, 450, 600, 750, 900, 1050,
+  1125, 1200
 };
 
-static SANE_Word color_shift_list[NUM_OF_RES + 1] = {
-  NUM_OF_RES, 0, 1, 1, 2, 4, 6, 8, 10, 12, 14, 15, 16
+static const SANE_Word color_shift_list[NUM_OF_RES + 1] = {
+  NUM_OF_RES, 0, 0, 0, 0, 1, 1, 2, 0, 6, 8, 10, 12, 14, 15, 16
 };
 
 /*--------------------------------------------------------------------------*/
 
 /* List of scanner attached. */
 static Sceptre_Scanner *first_dev = NULL;
-static int num_devices;
+static int num_devices = 0;
 static const SANE_Device **devlist = NULL;
 
 
@@ -175,8 +176,8 @@ sceptre_init (void)
   memset (dev, 0, sizeof (Sceptre_Scanner));
 
   /* Allocate the buffer used to transfer the SCSI data. */
-  dev->bufsize = 512 * 1024;
-  dev->buffer = malloc (dev->bufsize);
+  dev->buffer_size = 64 * 1024;
+  dev->buffer = malloc (dev->buffer_size);
   if (dev->buffer == NULL)
     {
       free (dev);
@@ -219,8 +220,6 @@ sceptre_free (Sceptre_Scanner * dev)
     free (dev->devicename);
   if (dev->buffer)
     free (dev->buffer);
-  if (dev->shift_buffer)
-    free (dev->shift_buffer);
   if (dev->image == NULL)
     {
       free (dev->image);
@@ -276,8 +275,7 @@ sceptre_identify_scanner (Sceptre_Scanner * dev)
       strcmp (dev->scsi_product, "Vividscan S120  ") == 0)
     {
 
-      DBG (DBG_error,
-	   "sceptre_identify_scanner: found a supported scanner\n");
+      DBG (DBG_info, "sceptre_identify_scanner: found a supported scanner\n");
 
       return (SANE_TRUE);
     }
@@ -317,6 +315,15 @@ sceptre_get_status (Sceptre_Scanner * dev, size_t * data_left)
     (dev->buffer[8] << 24) |
     (dev->buffer[9] << 16) | (dev->buffer[10] << 8) | (dev->buffer[11] << 0);
 
+  assert (dev->params.lines <= ((dev->buffer[12] << 8) | dev->buffer[13]));
+  assert (dev->params.pixels_per_line ==
+	  ((dev->buffer[14] << 8) | dev->buffer[15]));
+
+  if (dev->raster_real == 0)
+    {
+      dev->raster_real = ((dev->buffer[12] << 8) | dev->buffer[13]) * 3;
+    }
+
   DBG (DBG_proc, "sceptre_get_status: exit, data_left=%ld\n",
        (long) *data_left);
 
@@ -344,8 +351,8 @@ sceptre_read (Sceptre_Scanner * dev, SANE_Byte * buf, size_t * size)
 
       /* Limit the size to read in one shot because, under linux,
        * either the scanner or the sg driver cannot handle it. */
-      if (to_read > 32 * 1024)
-	to_read = 32 * 1024;
+      if (to_read > 64 * 1024)
+	to_read = 64 * 1024;
       to_read = to_read - (to_read % dev->params.bytes_per_line);
 
       MKSCSI_SCSI_READ_10 (cdb, 0, 0, to_read);
@@ -366,6 +373,183 @@ sceptre_read (Sceptre_Scanner * dev, SANE_Byte * buf, size_t * size)
   *size = total_read;
 
   return (SANE_STATUS_GOOD);
+}
+
+/* 
+ * Adjust the rasters. This function is used during a color scan,
+ * because the scanner does not present a format sane can interpret
+ * directly.
+ *
+ * The scanner sends the colors by rasters (R then G then B), whereas
+ * sane is waiting for a group of 3 bytes per color. To make things
+ * funnier, the rasters are shifted. This shift factor depends on the
+ * resolution used. The format of those raster is: 
+ *   R...R RG...RG RGB...RGB BG...GB B...B
+ * 
+ * So this function reorders all that mess. It gets the input from
+ * dev->buffer and write the output in dev->image. size_in the the
+ * length of the valid data in dev->buffer.
+ */
+static SANE_Status
+sceptre_adjust_raster (Sceptre_Scanner * dev, size_t size_in)
+{
+  int nb_rasters;		/* number of rasters in dev->buffer */
+
+  int raster;			/* current raster number in buffer */
+  int line;			/* line number for that raster */
+  int colour;			/* colour for that raster */
+  size_t offset;
+
+  assert (dev->scan_mode == SCEPTRE_COLOR);
+  assert ((size_in % dev->params.bytes_per_line) == 0);
+
+  if (size_in == 0)
+    {
+      return SANE_STATUS_GOOD;
+    }
+
+  /* 
+   * The color coding is one line for each color (in the RGB order).
+   * Recombine that stuff to create a RGB value for each pixel.
+   */
+
+
+  nb_rasters = size_in / dev->raster_size;
+
+  for (raster = 0; raster < nb_rasters; raster++)
+    {
+
+      /* 
+       * Find the color to which this raster belongs to.
+       *   0 = red
+       *   1 = green
+       *   2 = blue
+       *
+       * When blue comes, it always finishes the current line;
+       */
+      line = 0;
+      if (dev->raster_num < dev->color_shift)
+	{
+	  colour = 0;		/* Red */
+	  line = dev->raster_num;
+	}
+      else if (dev->raster_num < (3 * dev->color_shift))
+	{
+	  /* even = red, odd = green */
+	  colour = (dev->raster_num - dev->color_shift) % 2;
+	  if (colour)
+	    {
+	      /* Green */
+	      line = (dev->raster_num - dev->color_shift) / 2;
+	    }
+	  else
+	    {
+	      /* Red */
+	      line = (dev->raster_num + dev->color_shift) / 2;
+	    }
+	}
+      else if (dev->raster_num >= dev->raster_real - dev->color_shift)
+	{
+	  /* Blue */
+	  colour = 2;
+	  line = dev->line;
+	}
+      else if (dev->raster_num >= dev->raster_real - 3 * dev->color_shift)
+	{
+	  /* Green or Blue */
+	  colour =
+	    (dev->raster_real - dev->raster_num - dev->color_shift) % 2 + 1;
+	  if (colour == 1)
+	    {
+	      /* Green */
+	      line = dev->line + dev->color_shift;
+	    }
+	  else
+	    {
+	      /* Blue */
+	      line = dev->line;
+	    }
+	}
+      else
+	{
+	  colour = (dev->raster_num - 3 * dev->color_shift) % 3;
+	  switch (colour)
+	    {
+	    case 0:
+	      /* Red */
+	      line = (dev->raster_num + 3 * dev->color_shift) / 3;
+	      break;
+	    case 1:
+	      /* Green */
+	      line = dev->raster_num / 3;
+	      break;
+	    case 2:
+	      /* Blue */
+	      line = (dev->raster_num - 3 * dev->color_shift) / 3;
+	      break;
+	    }
+	}
+
+      /* Adjust the line number relative to the image. */
+      line -= dev->line;
+
+      /* Is there enough room to store that raster? */
+      offset = dev->image_end + line * dev->params.bytes_per_line;
+      if (offset > (dev->image_size - dev->params.bytes_per_line))
+	{
+	  /* We are going to overflow the image buffer. The
+	   * begining of it should be free by now, so move
+	   * the whole thing down, and readjust. */
+	  int sz;
+
+	  assert (dev->image_begin > 0);
+
+	  /* Copy the complete lines, plus the imcompletes
+	   * ones. We don't keep the real end of data used
+	   * in image, so we copy the biggest possible. 
+	   */
+	  sz =
+	    dev->image_end +
+	    6 * dev->color_shift * dev->params.bytes_per_line -
+	    dev->image_begin;
+	  if (dev->image_begin + sz > dev->image_size)
+	    sz = dev->image_size - dev->image_begin;
+
+	  memmove (dev->image, dev->image + dev->image_begin, sz);
+	  dev->image_end = dev->image_end - dev->image_begin;
+	  dev->image_begin = 0;
+
+	  /* Re-compute offset with the new values */
+	  offset = dev->image_end + line * dev->params.bytes_per_line;
+	}
+
+      assert (offset <= (dev->image_size - dev->raster_size));
+
+      /* Copy the raster to the temporary image. */
+      {
+	int i;
+	unsigned char *src = dev->buffer + raster * dev->raster_size;
+	unsigned char *dest = dev->image + offset + colour;
+
+	for (i = 0; i < dev->raster_size; i++)
+	  {
+	    *dest = *src;
+	    src++;
+	    dest += 3;
+	  }
+      }
+
+      if (colour == 2)
+	{
+	  /* This blue raster completes a new line */
+	  dev->line++;
+	  dev->image_end += dev->params.bytes_per_line;
+	}
+
+      dev->raster_num++;
+    }
+
+  return SANE_STATUS_GOOD;
 }
 
 /* SCSI sense handler. Callback for SANE. 
@@ -447,13 +631,9 @@ attach_scanner (const char *devicename, Sceptre_Scanner ** devp)
   dev->sane.model = dev->scsi_product;
   dev->sane.type = SANE_I18N ("flatbed scanner");
 
-  dev->x_dpi_range.min = SANE_FIX (50);
-  dev->x_dpi_range.max = SANE_FIX (1200);
-  dev->x_dpi_range.quant = SANE_FIX (1);
-
-  dev->y_dpi_range.min = SANE_FIX (50);
-  dev->y_dpi_range.max = SANE_FIX (1200);
-  dev->y_dpi_range.quant = SANE_FIX (1);
+  dev->resolution_range.min = SANE_FIX (50);
+  dev->resolution_range.max = SANE_FIX (1200);
+  dev->resolution_range.quant = SANE_FIX (1);
 
   /* 
    * The S1200 has an area of 8.5 inches / 11.7 inches. (A4 like)
@@ -478,7 +658,6 @@ attach_scanner (const char *devicename, Sceptre_Scanner ** devp)
   dev->y_range.min = SANE_FIX (0);
   dev->y_range.max = SANE_FIX (297.14);	/* in mm */
   dev->y_range.quant = SANE_FIX (0);
-
 
   /* Link the scanner with the others. */
   dev->next = first_dev;
@@ -520,6 +699,7 @@ sceptre_init_options (Sceptre_Scanner * dev)
     }
 
   /* Number of options. */
+  dev->opt[OPT_NUM_OPTS].name = "";
   dev->opt[OPT_NUM_OPTS].title = SANE_TITLE_NUM_OPTIONS;
   dev->opt[OPT_NUM_OPTS].desc = SANE_DESC_NUM_OPTIONS;
   dev->opt[OPT_NUM_OPTS].type = SANE_TYPE_INT;
@@ -527,6 +707,7 @@ sceptre_init_options (Sceptre_Scanner * dev)
   dev->val[OPT_NUM_OPTS].w = NUM_OPTIONS;
 
   /* Mode group */
+  dev->opt[OPT_MODE_GROUP].name = "";
   dev->opt[OPT_MODE_GROUP].title = SANE_I18N ("Scan Mode");
   dev->opt[OPT_MODE_GROUP].desc = "";	/* not valid for a group */
   dev->opt[OPT_MODE_GROUP].type = SANE_TYPE_GROUP;
@@ -552,9 +733,10 @@ sceptre_init_options (Sceptre_Scanner * dev)
   dev->opt[OPT_RESOLUTION].unit = SANE_UNIT_DPI;
   dev->opt[OPT_RESOLUTION].constraint_type = SANE_CONSTRAINT_WORD_LIST;
   dev->opt[OPT_RESOLUTION].constraint.word_list = resolutions_list;
-  dev->val[OPT_RESOLUTION].w = resolutions_list[1];
+  dev->val[OPT_RESOLUTION].w = 150;
 
   /* Geometry group */
+  dev->opt[OPT_GEOMETRY_GROUP].name = "";
   dev->opt[OPT_GEOMETRY_GROUP].title = SANE_I18N ("Geometry");
   dev->opt[OPT_GEOMETRY_GROUP].desc = "";	/* not valid for a group */
   dev->opt[OPT_GEOMETRY_GROUP].type = SANE_TYPE_GROUP;
@@ -602,6 +784,7 @@ sceptre_init_options (Sceptre_Scanner * dev)
   dev->val[OPT_BR_Y].w = dev->y_range.max;
 
   /* Enhancement group */
+  dev->opt[OPT_ENHANCEMENT_GROUP].name = "";
   dev->opt[OPT_ENHANCEMENT_GROUP].title = SANE_I18N ("Enhancement");
   dev->opt[OPT_ENHANCEMENT_GROUP].desc = "";	/* not valid for a group */
   dev->opt[OPT_ENHANCEMENT_GROUP].type = SANE_TYPE_GROUP;
@@ -720,7 +903,7 @@ sceptre_wait_scanner (Sceptre_Scanner * dev)
 
       if (status != SANE_STATUS_GOOD || size != 1)
 	{
-	  DBG (DBG_warning, "sceptre_wait_scanner: TUR failed\n");
+	  DBG (DBG_error, "sceptre_wait_scanner: TUR failed\n");
 	  return (SANE_STATUS_IO_ERROR);
 	}
 
@@ -803,7 +986,7 @@ sceptre_set_mode (Sceptre_Scanner * dev)
 
   status = sanei_scsi_cmd (dev->sfd, cdb.data, cdb.len, NULL, NULL);
 
-  DBG (DBG_error, "sceptre_set_mode: exit, status=%d\n", status);
+  DBG (DBG_proc, "sceptre_set_mode: exit, status=%d\n", status);
 
   return (status);
 }
@@ -851,11 +1034,9 @@ sceptre_set_window (Sceptre_Scanner * dev)
   /* size of the parameters (74 = 0x4a bytes) */
   param.window[7] = 0x4a;
 
-  /* X-resolution */
-  Ito16 (dev->x_dpi, &param.window[10]);
-
-  /* Y-resolution */
-  Ito16 (dev->y_dpi, &param.window[12]);
+  /* X and Y resolution */
+  Ito16 (dev->resolution, &param.window[10]);
+  Ito16 (dev->resolution, &param.window[12]);
 
   /* Upper Left (X,Y) */
   Ito32 (dev->x_tl, &param.window[14]);
@@ -866,33 +1047,32 @@ sceptre_set_window (Sceptre_Scanner * dev)
   Ito32 (dev->length, &param.window[26]);
 
   /* Image Composition, Halftone and Depth */
-  if (strcmp (dev->val[OPT_MODE].s, LINEART_STR) == 0)
+  switch (dev->scan_mode)
     {
+    case SCEPTRE_LINEART:
       param.window[31] = dev->val[OPT_THRESHOLD].w;
       param.window[33] = 0;
       param.window[34] = 1;
       param.window[36] = 0;
-    }
-  else if (strcmp (dev->val[OPT_MODE].s, HALFTONE_STR) == 0)
-    {
+      break;
+    case SCEPTRE_HALFTONE:
       param.window[31] = 0x80;
       param.window[33] = 0;
       param.window[34] = 1;
       param.window[36] = dev->val[OPT_HALFTONE_PATTERN].w;
-    }
-  else if (strcmp (dev->val[OPT_MODE].s, GRAY_STR) == 0)
-    {
+      break;
+    case SCEPTRE_GRAYSCALE:
       param.window[31] = 0x80;
       param.window[33] = 2;
       param.window[34] = 8;
       param.window[36] = 0;
-    }
-  else if (strcmp (dev->val[OPT_MODE].s, COLOR_STR) == 0)
-    {
+      break;
+    case SCEPTRE_COLOR:
       param.window[31] = 0x80;
       param.window[33] = 5;
       param.window[34] = 24;
       param.window[36] = 0;
+      break;
     }
 
   /* Unknown parameters. They look constant in the windows driver. */
@@ -937,7 +1117,7 @@ do_cancel (Sceptre_Scanner * dev)
 }
 
 /* Start a scan. */
-static SANE_Word gamma_init[GAMMA_LENGTH] = {
+static const SANE_Word gamma_init[GAMMA_LENGTH] = {
   0x00, 0x06, 0x0A, 0x0D, 0x10, 0x13, 0x15, 0x17, 0x19, 0x1B, 0x1D, 0x1F,
   0x21, 0x23, 0x25, 0x27,
   0x28, 0x2A, 0x2C, 0x2D, 0x2F, 0x30, 0x32, 0x33, 0x35, 0x36, 0x38, 0x39,
@@ -1006,12 +1186,15 @@ sceptre_send_gamma (Sceptre_Scanner * dev)
     }
   else
     {
-      memcpy (param.gamma_B, gamma_init, GAMMA_LENGTH);
-      memcpy (param.gamma_G, gamma_init, GAMMA_LENGTH);
-      memcpy (param.gamma_R, gamma_init, GAMMA_LENGTH);
+      for (i = 0; i < GAMMA_LENGTH; i++)
+	{
+	  param.gamma_R[i] = gamma_init[i];
+	  param.gamma_G[i] = gamma_init[i];
+	  param.gamma_B[i] = gamma_init[i];
+	}
     }
 
-  hexdump (DBG_info2, "gamma", param.gamma_B, 3 * GAMMA_LENGTH);
+  hexdump (DBG_info2, "gamma", param.gamma_R, 3 * GAMMA_LENGTH);
 
   status = sanei_scsi_cmd (dev->sfd, &param, sizeof (param), NULL, NULL);
 
@@ -1033,7 +1216,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
   DBG_INIT ();
 
-  DBG (DBG_sane_init, "sane_init\n");
+  DBG (DBG_proc, "sane_init: enter\n");
 
   authorize = authorize;	/* silence gcc */
 
@@ -1065,6 +1248,8 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
       sanei_config_attach_matching_devices (dev_name, attach_one);
     }
+
+  DBG (DBG_proc, "sane_init: leave\n");
 
   return SANE_STATUS_GOOD;
 }
@@ -1109,7 +1294,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   /* search for devicename */
   if (devicename[0])
     {
-      DBG (DBG_sane_info, "sane_open: devicename=%s\n", devicename);
+      DBG (DBG_info, "sane_open: devicename=%s\n", devicename);
 
       for (dev = first_dev; dev; dev = dev->next)
 	{
@@ -1179,7 +1364,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   Sceptre_Scanner *dev = handle;
   SANE_Status status;
   SANE_Word cap;
-  SANE_String_Const name;
 
   DBG (DBG_proc, "sane_control_option: enter, option %d, action %d\n",
        option, action);
@@ -1205,11 +1389,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       return SANE_STATUS_INVAL;
     }
 
-  name = dev->opt[option].name;
-  if (!name)
-    {
-      name = "(no name)";
-    }
+  assert (dev->opt[option].name);
 
   if (action == SANE_ACTION_GET_VALUE)
     {
@@ -1299,14 +1479,21 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	  if (strcmp (dev->val[OPT_MODE].s, LINEART_STR) == 0)
 	    {
+	      dev->scan_mode = SCEPTRE_LINEART;
 	      dev->opt[OPT_THRESHOLD].cap &= ~SANE_CAP_INACTIVE;
 	    }
 	  else if (strcmp (dev->val[OPT_MODE].s, HALFTONE_STR) == 0)
 	    {
+	      dev->scan_mode = SCEPTRE_HALFTONE;
 	      dev->opt[OPT_HALFTONE_PATTERN].cap &= ~SANE_CAP_INACTIVE;
+	    }
+	  else if (strcmp (dev->val[OPT_MODE].s, GRAY_STR) == 0)
+	    {
+	      dev->scan_mode = SCEPTRE_GRAYSCALE;
 	    }
 	  else if (strcmp (dev->val[OPT_MODE].s, COLOR_STR) == 0)
 	    {
+	      dev->scan_mode = SCEPTRE_COLOR;
 	      dev->opt[OPT_CUSTOM_GAMMA].cap &= ~SANE_CAP_INACTIVE;
 	      if (dev->val[OPT_CUSTOM_GAMMA].w)
 		{
@@ -1345,7 +1532,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    }
 	  if (info)
 	    {
-	      *info |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
+	      *info |= SANE_INFO_RELOAD_OPTIONS;
 	    }
 	  return SANE_STATUS_GOOD;
 
@@ -1363,6 +1550,7 @@ SANE_Status
 sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 {
   Sceptre_Scanner *dev = handle;
+  int x_dpi;			/* X-Resolution */
 
   DBG (DBG_proc, "sane_get_parameters: enter\n");
 
@@ -1371,31 +1559,25 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 
       if (dev->val[OPT_PREVIEW].w == SANE_TRUE)
 	{
-	  dev->x_dpi = 50;
-	  dev->y_dpi = 50;
+	  dev->resolution = 30;	/* Windows TWAIN does 32 */
 	  dev->x_tl = 0;
 	  dev->y_tl = 0;
-	  dev->x_br = (SANE_UNFIX (dev->x_range.max) * 600) / MM_PER_INCH;
-	  dev->y_br = (SANE_UNFIX (dev->y_range.max) * 600) / MM_PER_INCH;
+	  dev->x_br = mmToIlu (SANE_UNFIX (dev->x_range.max));
+	  dev->y_br = mmToIlu (SANE_UNFIX (dev->y_range.max));
 	}
       else
 	{
 	  /* Setup the parameters for the scan. These values will be re-used
 	   * in the SET WINDOWS command. */
-	  dev->x_dpi = dev->val[OPT_RESOLUTION].w;
-	  dev->y_dpi = dev->val[OPT_RESOLUTION].w;
-	  dev->x_tl = (SANE_UNFIX (dev->val[OPT_TL_X].w) * 600) / MM_PER_INCH;
-	  dev->y_tl = (SANE_UNFIX (dev->val[OPT_TL_Y].w) * 600) / MM_PER_INCH;
-	  dev->x_br = (SANE_UNFIX (dev->val[OPT_BR_X].w) * 600) / MM_PER_INCH;
-	  dev->y_br = (SANE_UNFIX (dev->val[OPT_BR_Y].w) * 600) / MM_PER_INCH;
+	  dev->resolution = dev->val[OPT_RESOLUTION].w;
+
+	  dev->x_tl = mmToIlu (SANE_UNFIX (dev->val[OPT_TL_X].w));
+	  dev->y_tl = mmToIlu (SANE_UNFIX (dev->val[OPT_TL_Y].w));
+	  dev->x_br = mmToIlu (SANE_UNFIX (dev->val[OPT_BR_X].w));
+	  dev->y_br = mmToIlu (SANE_UNFIX (dev->val[OPT_BR_Y].w));
 	}
 
-      dev->x_tl &= ~0x07;
-      dev->y_tl &= ~0x07;
-      dev->x_br &= ~0x07;
-      dev->y_br &= ~0x07;
-
-      /* Check the corner are OK. */
+      /* Check the corners are OK. */
       if (dev->x_tl > dev->x_br)
 	{
 	  int s;
@@ -1414,105 +1596,107 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
       dev->width = dev->x_br - dev->x_tl;
       dev->length = dev->y_br - dev->y_tl;
 
-      /* Time to do some sanity checks. */
-      if (dev->width < 0)
-	dev->width = 0;
-      if (dev->width > 5100)
-	dev->width = 5100;
-      if (dev->length < 0)
-	dev->length = 0;
-      if (dev->length > 7020)
-	dev->length = 7020;
-      if (dev->x_tl < 0)
-	dev->x_tl = 0;
-      if (dev->y_tl < 0)
-	dev->y_tl = 0;
-      if ((dev->x_tl + dev->width) > 5100)
-	dev->width = 5100 - dev->x_tl;
-      if ((dev->y_tl + dev->length) > 7020)
-	dev->length = 7020 - dev->y_tl;
+      /* 
+       * Adjust the "X Resolution".  The sceptre S1200 ignores the
+       * Y-Resolution parameter in the windows block. X-Resolution
+       * is used instead. However the limits are not the same for X
+       * (600 dpi) and Y (1200 dpi).  
+       */
+      x_dpi = dev->resolution;
+      if (x_dpi > 600)
+	{
+	  x_dpi = 600;
+	}
 
-      /* Set Image Composition, Depth and Halftone. */
-      if (strcmp (dev->val[OPT_MODE].s, LINEART_STR) == 0)
+      /* Set depth */
+      switch (dev->scan_mode)
 	{
-	  dev->image_composition = SCEPTRE_LINEART;
+	case SCEPTRE_LINEART:
+	  dev->params.format = SANE_FRAME_GRAY;
 	  dev->depth = 1;
-	  dev->halftone_param = 0;
-	}
-      else if (strcmp (dev->val[OPT_MODE].s, HALFTONE_STR) == 0)
-	{
-	  dev->image_composition = SCEPTRE_HALFTONE;
+	  break;
+	case SCEPTRE_HALFTONE:
+	  dev->params.format = SANE_FRAME_GRAY;
 	  dev->depth = 1;
-	  dev->halftone_param = 1;	/* defaults to 1. can be 1 to 4 */
-	}
-      else if (strcmp (dev->val[OPT_MODE].s, GRAY_STR) == 0)
-	{
-	  dev->image_composition = SCEPTRE_GRAYSCALE;
+	  break;
+	case SCEPTRE_GRAYSCALE:
+	  dev->params.format = SANE_FRAME_GRAY;
 	  dev->depth = 8;
-	  dev->halftone_param = 0;
-	}
-      else if (strcmp (dev->val[OPT_MODE].s, COLOR_STR) == 0)
-	{
-	  dev->image_composition = SCEPTRE_COLOR;
+	  break;
+	case SCEPTRE_COLOR:
+	  dev->params.format = SANE_FRAME_RGB;
 	  dev->depth = 8;
-	  dev->halftone_param = 0;
+	  break;
 	}
 
       /* Prepare the parameters for the caller. */
       memset (&dev->params, 0, sizeof (SANE_Parameters));
 
-      /* The adjustment of "X Resolution" is necessary because the
-       * scanner is a 600*1200 dpi optical. However only the "X
-       * Resolution" is used. */
-      if (dev->x_dpi > 600)
-	{
-	  dev->params.pixels_per_line = (dev->width * 600) / 600;
-	}
-      else
-	{
-	  dev->params.pixels_per_line = (dev->width * dev->x_dpi) / 600;
-	}
-      if (dev->params.pixels_per_line & 1)
-	{
-	  dev->params.pixels_per_line++;
-	}
-
-      /* Compute the number of lines. */
-      dev->params.lines = ((dev->length * dev->y_dpi) / 600);
-      if (dev->params.lines & 1)
-	{
-	  dev->params.lines++;
-	}
-
       /* this scanner does only one pass */
       dev->params.last_frame = SANE_TRUE;
-
       dev->params.depth = dev->depth;
 
-      switch (dev->image_composition)
+      /* Compute the number of pixels, bytes per lines and lines. */
+      switch (dev->scan_mode)
 	{
-	case SCEPTRE_LINEART:	/* also SCEPTRE_HALFTONE */
-	  dev->params.format = SANE_FRAME_GRAY;
-	  dev->params.pixels_per_line = (dev->params.pixels_per_line) & ~0x7;
+	case SCEPTRE_LINEART:
+	case SCEPTRE_HALFTONE:
+	  dev->params.pixels_per_line = (dev->width * x_dpi) / 600;
+	  dev->params.pixels_per_line &= ~0x7;	/* round down to 8 */
+
 	  dev->params.bytes_per_line = (dev->params.pixels_per_line) / 8;
+
+	  dev->params.lines = ((dev->length * dev->resolution) / 600);
+	  if ((dev->params.lines) * 600 != (dev->length * dev->resolution))
+	    {
+	      /* Round up lines to 2. */
+	      dev->params.lines &= ~1;
+	      dev->params.lines += 2;
+	    }
+
 	  break;
 
 	case SCEPTRE_GRAYSCALE:
-	  dev->params.format = SANE_FRAME_GRAY;
-	  dev->params.bytes_per_line = dev->params.pixels_per_line;
-	  break;
-
 	case SCEPTRE_COLOR:
-	  dev->params.format = SANE_FRAME_RGB;
-	  dev->params.bytes_per_line = dev->params.pixels_per_line * 3;
+	  /* pixels_per_line rounding rules:
+	   *  2n + [0.0 .. 1.0]  -> round to 2n
+	   *  2n + ]1.0 .. 2.0]  -> round to 2n + 2
+	   */
+	  dev->params.pixels_per_line = (dev->width * x_dpi) / 600;
+	  if (dev->params.pixels_per_line & 1)
+	    {
+	      if ((dev->params.pixels_per_line * 600) == (dev->width * x_dpi))
+		{
+		  /* 2n */
+		  dev->params.pixels_per_line--;
+		}
+	      else
+		{
+		  /* 2n+2 */
+		  dev->params.pixels_per_line++;
+		}
+	    }
+
+	  dev->params.bytes_per_line =
+	    dev->params.pixels_per_line * (dev->depth / 8);
+
+	  /* lines number rounding rules:
+	   *   2n + [0.0 .. 2.0[  -> round to 2n
+	   *
+	   * Note: the rounding is often incorrect at high
+	   * resolution (ag more than 300dpi) 
+	   */
+	  dev->params.lines = (dev->length * dev->resolution) / 600;
+	  dev->params.lines &= ~1;
+
 	  break;
 	}
 
       /* Find the proper color shifting parameter. */
-      if (dev->image_composition == SCEPTRE_COLOR)
+      if (dev->scan_mode == SCEPTRE_COLOR)
 	{
 	  int i = 1;
-	  while (resolutions_list[i] != dev->x_dpi)
+	  while (resolutions_list[i] != dev->resolution)
 	    {
 	      i++;
 	    }
@@ -1523,12 +1707,12 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 	  dev->color_shift = 0;
 	}
 
-      /* Because of the color shift, we have to read more lines. */
-      dev->params.lines -= 2 * dev->color_shift;
+      DBG (DBG_proc, "color_shift = %d\n", dev->color_shift);
+
       dev->bytes_left = dev->params.lines * dev->params.bytes_per_line;
     }
 
-  /* Currently scanning. Return the current values. */
+  /* Return the current values. */
   if (params)
     {
       *params = (dev->params);
@@ -1550,23 +1734,22 @@ sane_start (SANE_Handle handle)
   /* Refresh the parameters. This is necessary. */
   sane_get_parameters (handle, NULL);
 
-  /* If this is a color scan, get a temporary buffer. */
-  if (dev->image_composition == SCEPTRE_COLOR)
-    {
-      if (dev->shift_buffer == NULL)
-	{
-	  dev->shift_buffer =
-	    malloc (2 * dev->color_shift * dev->params.bytes_per_line);
-	}
-    }
-  dev->shift_buffer_size = 0;
-
   if (dev->image == NULL)
     {
-      dev->image = malloc (dev->bufsize);
+      dev->image_size = 3 * dev->buffer_size;
+      dev->image = malloc (dev->image_size);
+      if (dev->image == NULL)
+	{
+	  return SANE_STATUS_NO_MEM;
+	}
     }
   dev->image_end = 0;
   dev->image_begin = 0;
+
+  dev->raster_size = dev->params.bytes_per_line / 3;
+  dev->raster_num = 0;
+  dev->raster_real = 0;
+  dev->line = 0;
 
   /* Open again the scanner. */
   if (sanei_scsi_open
@@ -1607,10 +1790,8 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 {
   SANE_Status status;
   Sceptre_Scanner *dev = handle;
-  int nb_lines;
   size_t size;
   size_t data_left;
-  int nb_lines_real;
 
   DBG (DBG_proc, "sane_read: enter\n");
 
@@ -1627,151 +1808,90 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
       return (SANE_STATUS_EOF);
     }
 
-  assert (dev->image_end >= dev->image_begin);
-
-  size = dev->image_end - dev->image_begin;
-
-  if (size == 0)
+  if (dev->scan_mode == SCEPTRE_COLOR)
     {
-
-      /* The image buffer is empty. Fill it. */
-      if ((status = sceptre_get_status (dev, &data_left)) != SANE_STATUS_GOOD)
+      size = dev->image_end - dev->image_begin;
+      if (size > 0)
 	{
-	  return (status);
-	}
-
-      /* 
-       * Try to read the maximum number of bytes.
-       *
-       * The windows driver reads no more than 0xffff byte, I've tried 
-       * some bigger values, but the scanner is losing data!!!
-       */
-      size = data_left;
-      if (size > dev->bufsize - dev->shift_buffer_size)
-	size = dev->bufsize - dev->shift_buffer_size;
-
-      /* Unless it's a color image, read only what we have been asked for. */
-      if (dev->image_composition != SCEPTRE_COLOR)
-	{
-	  if (size > (size_t)max_len)
-	    size = max_len;
-	}
-
-      /* Always read a multiple of a line else the scanner will
-       * discard the remaining data. */
-      size = size - (size % dev->params.bytes_per_line);
-
-      DBG (DBG_info, "sane_read: to read   = %ld bytes (bpl=%d)\n",
-	   (long) size, dev->params.bytes_per_line);
-
-      if (size == 0)
-	{
-	  /* The size is 0. Humm, may be we can read at least one line. */
-	  if (data_left >= (size_t)dev->params.bytes_per_line)
-	    {
-	      size = dev->params.bytes_per_line;
-	    }
-	  else
-	    {
-	      DBG (DBG_proc, "sane_read: done\n");
-	      return (SANE_STATUS_EOF);
-	    }
-	}
-
-      status =
-	sceptre_read (dev, dev->buffer + dev->shift_buffer_size, &size);
-
-      if (dev->shift_buffer_size)
-	{
-	  /* Add the remaining of the previous read. */
-	  memcpy (dev->buffer, dev->shift_buffer, dev->shift_buffer_size);
-	  size += dev->shift_buffer_size;
-	  dev->shift_buffer_size = 0;
-	}
-
-      nb_lines_real = size / dev->params.bytes_per_line;
-      nb_lines = nb_lines_real - 2 * dev->color_shift;
-
-      DBG (DBG_info, "sane_read: size read = %d\n", size);
-      DBG (DBG_info, "sane_read: lines = %d\n", nb_lines);
-
-      /* Humm, may be we should check if size == 0. */
-      DBG (DBG_info, "sane_read: read %ld bytes (status was %d)\n",
-	   (long) size, status);
-
-      assert (nb_lines > 0);
-
-      /* Now comes the tricky part if it is a color scan. */
-      /* 
-       * The color coding is one line for each color (in the BRG order).
-       * Recombine that stuff to create a RGB value for each pixel.
-       */
-
-      if (dev->image_composition == SCEPTRE_COLOR)
-	{
-	  int bytes_per_line;	/* bytes per line (RGB) */
-	  int i, j;
-	  unsigned char *p;
-	  int offset;
-
-	  bytes_per_line = dev->params.bytes_per_line;
-
-	  for (i = 0; i < nb_lines; i++)
-	    {
-	      offset = i * bytes_per_line;
-	      p = dev->buffer + offset;
-
-	      for (j = 0; j < dev->params.pixels_per_line; j++)
-		{
-
-		  dev->image[offset + 3 * j + 0] =
-		    *(p + 0 * dev->color_shift * bytes_per_line +
-		      (0 * dev->params.pixels_per_line + j));
-
-		  dev->image[offset + 3 * j + 1] =
-		    *(p + 1 * dev->color_shift * bytes_per_line +
-		      (1 * dev->params.pixels_per_line + j));
-
-		  dev->image[offset + 3 * j + 2] =
-		    *(p + 2 * dev->color_shift * bytes_per_line +
-		      (2 * dev->params.pixels_per_line + j));
-		}
-	    }
-
-	  dev->shift_buffer_size = 2 * dev->color_shift * bytes_per_line;
-	  memcpy (dev->shift_buffer,
-		  dev->buffer + (nb_lines * bytes_per_line),
-		  dev->shift_buffer_size);
-	  dev->image_begin = 0;
-	  dev->image_end = nb_lines * bytes_per_line;
-	}
-      else
-	{
-	  dev->image_begin = 0;
-	  dev->image_end = nb_lines * dev->params.bytes_per_line;
-	  memcpy (dev->image, dev->buffer, dev->image_end);
+	  goto copy_color_buffer;
 	}
     }
 
-  size = dev->image_end - dev->image_begin;
-
-  if (size)
+  if ((status = sceptre_get_status (dev, &data_left)) != SANE_STATUS_GOOD)
     {
-      /* Still got some data. Send it. */
-      if (size > (size_t)max_len)
+      return (status);
+    }
+
+  /* 
+   * Try to read the maximum number of bytes.
+   *
+   * The windows driver reads no more than 0xffff byte, I've tried 
+   * some bigger values, but the scanner is losing data!!!
+   */
+  size = data_left;
+  if (size > dev->buffer_size)
+    {
+      size = dev->buffer_size;
+    }
+
+  /* If it is a preview, read only what we have been asked
+   * for. Else, try to maximize the throughput. 
+   */
+  if (dev->scan_mode != SCEPTRE_COLOR || dev->val[OPT_PREVIEW].w == SANE_TRUE)
+    {
+      if (size > (size_t) max_len)
 	size = max_len;
-      if (size > (size_t)dev->bytes_left)
-	size = dev->bytes_left;
-
-      dev->bytes_left -= size;
-      memcpy (buf, dev->image + dev->image_begin, size);
-      dev->image_begin += size;
     }
 
-  *len = size;
-  DBG (DBG_info, "bytes_left=%d\n", dev->bytes_left);
+  /* Always read a multiple of a line else the scanner will
+   * discard the remaining data. */
+  size = size - (size % dev->params.bytes_per_line);
 
-  return (SANE_STATUS_GOOD);
+  if (dev->scan_mode == SCEPTRE_COLOR)
+    {
+      /* Since we do some more treatment, use a temporary buffer. */
+      status = sceptre_read (dev, dev->buffer, &size);
+    }
+  else
+    {
+      /* Direct read to the frontend's buffer. */
+      status = sceptre_read (dev, buf, &size);
+    }
+
+  if (status != SANE_STATUS_GOOD)
+    {
+      return (status);
+    }
+
+  if (dev->scan_mode == SCEPTRE_COLOR)
+    {
+
+      assert (dev->image_end >= dev->image_begin);
+
+      sceptre_adjust_raster (dev, size);
+
+      size = dev->image_end - dev->image_begin;
+
+    copy_color_buffer:
+      if (size)
+	{
+	  /* Still got some data. Send it. */
+	  if (size > (size_t) max_len)
+	    size = max_len;
+	  if (size > (size_t) dev->bytes_left)
+	    size = dev->bytes_left;
+
+	  memcpy (buf, dev->image + dev->image_begin, size);
+	  dev->image_begin += size;
+	}
+    }
+
+  dev->bytes_left -= size;
+  *len = size;
+
+  DBG (DBG_info, "sane_read: leave (bytes_left=%d)\n", dev->bytes_left);
+
+  return SANE_STATUS_GOOD;
 }
 
 SANE_Status

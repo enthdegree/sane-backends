@@ -44,7 +44,7 @@
 	$Id$
 */
 
-/* Commands supported by the Sceptre S120 scanner. */
+/* Commands supported by the Sceptre S1200 scanner. */
 #define SCSI_TEST_UNIT_READY			0x00
 #define SCSI_GET_STATUS					0x02
 #define SCSI_INQUIRY					0x12
@@ -230,6 +230,9 @@ CDB;
 /*--------------------------------------------------------------------------*/
 
 #define MM_PER_INCH     25.4
+#define length_quant SANE_UNFIX(SANE_FIX(MM_PER_INCH / 600))
+#define mmToIlu(mm) ((mm) / length_quant)
+#define iluToMm(ilu) ((ilu) * length_quant)
 
 /*--------------------------------------------------------------------------*/
 
@@ -300,24 +303,29 @@ typedef struct Sceptre_Scanner
   /* Scanner infos. */
   SANE_Range x_range;
   SANE_Range y_range;
-  SANE_Range x_dpi_range;
-  SANE_Range y_dpi_range;
+  SANE_Range resolution_range;
 
   /* SCSI handling */
-  size_t bufsize;		/* usable size of the buffer, not the
-				   * real size */
   SANE_Byte *buffer;		/* for SCSI transfer. */
-  SANE_Byte *shift_buffer;	/* for color shift */
-  int shift_buffer_size;	/* valid size in shift_buffer */
+  size_t buffer_size;		/* allocated size of buffer */
 
   SANE_Byte *image;		/* keep the current image there */
+  size_t image_size;		/* allocated size of image */
   size_t image_begin;		/* first significant byte in image */
   size_t image_end;		/* first free byte in image */
 
+  int raster_size;		/* size of a raster */
+  int raster_num;		/* for colour scan, current raster read */
+  int raster_real;		/* real number of raster in the
+				   * scan. This is necessary since I
+				   * don't know how to reliably compute
+				   * the number of lines */
+
+  int line;			/* current line of the scan */
+
   /* Scanning handling. */
   int scanning;			/* TRUE is a scan is running. */
-  int x_dpi;
-  int y_dpi;
+  int resolution;		/* scan resolution */
   int x_tl;			/* X top left */
   int y_tl;			/* Y top left */
   int x_br;			/* X bottom right */
@@ -326,13 +334,13 @@ typedef struct Sceptre_Scanner
   int length;			/* length of the scan area in mm */
 
   enum
-  {				/* as per SCSI spec */
-    SCEPTRE_LINEART = 0,
-    SCEPTRE_HALFTONE = 0,
-    SCEPTRE_GRAYSCALE = 2,
-    SCEPTRE_COLOR = 5
+  {
+    SCEPTRE_LINEART,
+    SCEPTRE_HALFTONE,
+    SCEPTRE_GRAYSCALE,
+    SCEPTRE_COLOR
   }
-  image_composition;
+  scan_mode;
 
   int depth;			/* depth per color */
   int halftone_param;		/* haltone number, valid for SCEPTRE_HALFTONE */

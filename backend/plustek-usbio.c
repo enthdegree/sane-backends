@@ -7,7 +7,7 @@
  *  @brief Some I/O stuff.
  *
  * Based on sources acquired from Plustek Inc.<br>
- * Copyright (C) 2001-2003 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2004 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * History:

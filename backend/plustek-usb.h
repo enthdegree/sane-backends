@@ -7,7 +7,7 @@
  *  @brief Main defines for the USB devices.
  *
  * Based on sources acquired from Plustek Inc.<br>
- * Copyright (C) 2001-2003 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2004 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.40 - starting version of the USB support
@@ -28,7 +28,8 @@
  *        - removed _WAF_FIX_GAIN and _WAF_FIX_OFS
  *        - added skipCoarseCalib to ScanDef
  *        - added additional defines for cis and epson-ccd sensor
- * - 0.47 - no changes
+ * - 0.47 - cleanup work
+ *        - added gamma to struct HWDefault
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -368,26 +369,24 @@ typedef struct
  */
 typedef struct HWDefault
 {
-	double				dMaxMotorSpeed;			/* Inches/second, max. scan speed */
-	double				dMaxMoveSpeed;			/* Inches/second, max. move speed */
-	double				dIntegrationTimeLowLamp;
-	double				dIntegrationTimeHighLamp;
-	u_short				wMotorDpi;				/* Full step DPI */
-	u_short				wDRAMSize;				/* in KB         */
-	double				dMinIntegrationTimeLowres;
-												/* in ms.        */
-	double				dMinIntegrationTimeHighres;
-												/* in ms.        */
-	u_short				wGreenPWMDutyCycleLow;
-	u_short				wGreenPWMDutyCycleHigh;
+	double              dMaxMotorSpeed;    /* Inches/second, max. scan speed */
+	double              dMaxMoveSpeed;     /* Inches/second, max. move speed */
+	double              dIntegrationTimeLowLamp;
+	double              dIntegrationTimeHighLamp;
+	u_short             wMotorDpi;                      /* Full step DPI */
+	u_short             wDRAMSize;                      /* in KB         */
+	double              dMinIntegrationTimeLowres;      /*in ms.     */
+	double              dMinIntegrationTimeHighres;     /* in ms.    */
+	u_short             wGreenPWMDutyCycleLow;
+	u_short             wGreenPWMDutyCycleHigh;
 	/* Registers */
-	u_char				bSensorConfiguration;	/* 0x0b */
+	u_char              bSensorConfiguration;	/* 0x0b */
 	/* Sensor control settings */
-	u_char				bReg_0x0c;
-	u_char				bReg_0x0d;
-	u_char				bReg_0x0e;
-	u_char				bReg_0x0f_Mono [10];	/* 0x0f to 0x18 */
-	u_char				bReg_0x0f_Color [10];	/* 0x0f to 0x18 */
+	u_char              bReg_0x0c;
+	u_char              bReg_0x0d;
+	u_char              bReg_0x0e;
+	u_char              bReg_0x0f_Mono [10];	/* 0x0f to 0x18 */
+	u_char              bReg_0x0f_Color [10];	/* 0x0f to 0x18 */
 
 	/* color mode settings */	
 	u_char              bReg_0x26;
@@ -404,46 +403,46 @@ typedef struct HWDefault
 	 * format, you have to pay your attention when you
 	 * write this value to register.
 	 */
-	u_short				StepperPhaseCorrection;	
+	u_short             StepperPhaseCorrection;	
 	
 	/* Sensor Pixel Configuration
 	 * Actually, the wActivePixelsStart will be set to 0 for shading purpose.
      * We have to keep these values to adjust the origins when user does the
      * scan. These settings are based on optic resolution.
      */
-	u_char				bOpticBlackStart;		/* 0x1c        */
-	u_char				bOpticBlackEnd;			/* 0x1d        */
-	u_short				wActivePixelsStart;		/* 0x1e & 0x1f */
-	u_short				wLineEnd;				/* 0x20 & 0x21 */
+	u_char              bOpticBlackStart;       /* 0x1c        */
+	u_char              bOpticBlackEnd;         /* 0x1d        */
+	u_short             wActivePixelsStart;     /* 0x1e & 0x1f */
+	u_short             wLineEnd;               /* 0x20 & 0x21 */
 	
 	/* illumination settings (runtime) */
-	u_short             red_lamp_on;			/* 0x2c & 0x2d */
-	u_short             red_lamp_off;			/* 0x2e & 0x2f */
-	u_short             green_lamp_on;			/* 0x30 & 0x31 */
-	u_short             green_lamp_off;			/* 0x32 & 0x33 */
-	u_short             blue_lamp_on;			/* 0x34 & 0x35 */
-	u_short             blue_lamp_off;			/* 0x36 & 0x37 */
+	u_short             red_lamp_on;            /* 0x2c & 0x2d */
+	u_short             red_lamp_off;           /* 0x2e & 0x2f */
+	u_short             green_lamp_on;          /* 0x30 & 0x31 */
+	u_short             green_lamp_off;         /* 0x32 & 0x33 */
+	u_short             blue_lamp_on;           /* 0x34 & 0x35 */
+	u_short             blue_lamp_off;          /* 0x36 & 0x37 */
 	
 	/* Misc */
-	u_char				bReg_0x45;
-	u_short				wStepsAfterPaperSensor2;/* 0x4c & 0x4d */
+	u_char              bReg_0x45;
+	u_short             wStepsAfterPaperSensor2;/* 0x4c & 0x4d */
 	u_char              bStepsToReverse;        /* 0x50        */
-	u_char				bReg_0x51;
-	u_char				bReg_0x54;
-	u_char				bReg_0x55;
-	u_char				bReg_0x56;
-	u_char				bReg_0x57;
-	u_char				bReg_0x58;
-	u_char				bReg_0x59;
-	u_char				bReg_0x5a;
-	u_char				bReg_0x5b;
-	u_char				bReg_0x5c;
-	u_char				bReg_0x5d;
-	u_char				bReg_0x5e;
+	u_char              bReg_0x51;
+	u_char              bReg_0x54;
+	u_char              bReg_0x55;
+	u_char              bReg_0x56;
+	u_char              bReg_0x57;
+	u_char              bReg_0x58;
+	u_char              bReg_0x59;
+	u_char              bReg_0x5a;
+	u_char              bReg_0x5b;
+	u_char              bReg_0x5c;
+	u_char              bReg_0x5d;
+	u_char              bReg_0x5e;
 	
 	eChipDef            chip;           /* chiptype               */
-    eModelDef			motorModel; 	/* to identify used motor */
-
+	eModelDef           motorModel;     /* to identify used motor */
+	double              gamma;          /* gamma setting          */
 } HWDef, *pHWDef;
 
 /** device description during runtime

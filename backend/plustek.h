@@ -11,7 +11,7 @@
  *
  * original code taken from sane-0.71<br>
  * Copyright (C) 1997 Hypercore Software Design, Ltd.<br>
- * Copyright (C) 2001-2003 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2004 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.30 - initial version
@@ -122,20 +122,18 @@
 
 /** image sizes for normal, transparent and negative modes
  */
-#define _TPAPageWidth		500U
-#define _TPAPageHeight		510U
-#define _TPAMinDpi		    150
-#define _TPAModeSupportMin	COLOR_TRUE24
+#define _TPAPageWidth       500U
+#define _TPAPageHeight      510U
+#define _TPAMinDpi          150
+#define _TPAModeSupportMin  COLOR_TRUE24
 
 #define _NegativePageWidth  460UL
 #define _NegativePageHeight 350UL
 
-#define _NORMAL_X		216.0
-#define _NORMAL_Y		297.0
-#define _TP_X			((double)_TPAPageWidth/300.0 * MM_PER_INCH)
-#define _TP_Y			((double)_TPAPageHeight/300.0 * MM_PER_INCH)
-#define _NEG_X			((double)_NegativePageWidth/300.0 * MM_PER_INCH)
-#define _NEG_Y			((double)_NegativePageHeight/300.0 * MM_PER_INCH)
+#define _TP_X   ((double)_TPAPageWidth/300.0 * MM_PER_INCH)
+#define _TP_Y   ((double)_TPAPageHeight/300.0 * MM_PER_INCH)
+#define _NEG_X  ((double)_NegativePageWidth/300.0 * MM_PER_INCH)
+#define _NEG_Y  ((double)_NegativePageHeight/300.0 * MM_PER_INCH)
 
 /** scan modes
  */
@@ -149,17 +147,10 @@
  */
 #define _MAX_ID_LEN	20
 
-
 /**
  */
-#define SFLAG_SCANNERDEV        0x00000002  /* is scannerdevice             */
-#define SFLAG_FLATBED           0x00000004  /* is flatbed scanner           */
-
-#define SFLAG_ADF		    	0x00000010  /* Automatic document feeder    */
-#define SFLAG_TPA       	    0x00000080	/* has transparency	adapter     */
-#define SFLAG_BUTTONOPT         0x00000100  /* has buttons                  */
-
-#define SFLAG_CUSTOM_GAMMA		0x00000200  /* driver supports custom gamma */
+#define SFLAG_ADF   0x00000010  /* Automatic document feeder    */
+#define SFLAG_TPA   0x00000080  /* has transparency adapter     */
 
 /**
  */

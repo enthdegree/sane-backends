@@ -7,7 +7,7 @@
  *  @brief Creating and manipulating lookup tables.
  *
  * Based on sources acquired from Plustek Inc.<br>
- * Copyright (C) 2001-2003 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2004 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.40 - starting version of the USB support
@@ -17,7 +17,7 @@
  * - 0.44 - map inversion for negatatives now only upon user request
  * - 0.45 - no changes
  * - 0.46 - no changes
- * - 0.47 - no changes
+ * - 0.47 - cleanup work
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -64,8 +64,7 @@
 
 static SANE_Byte a_bMap[_MAP_SIZE * 3];
 
-/*.............................................................................
- * adjust acording to brightness and contrast
+/** adjust acording to brightness and contrast
  */
 static void usb_MapAdjust( pPlustek_Device dev )
 {
@@ -74,25 +73,23 @@ static void usb_MapAdjust( pPlustek_Device dev )
 	
 	tabLen = _MAP_SIZE;
 
-	/*
-	 * adjust brightness (b) and contrast (c) using the function:
+	/* adjust brightness (b) and contrast (c) using the function:
 	 *
 	 * s(x,y) = (s(x,y) + b) * c
 	 * b = [-127, 127]
 	 * c = [0,2]
 	 */
-
-	/*
-	 * scale brightness and contrast...
-	 */
 	b = ((double)dev->scanning.sParam.brightness * 192.0)/100.0;
 	c = ((double)dev->scanning.sParam.contrast   + 100.0)/100.0;
 
-	DBG( _DBG_INFO, "brightness   = %i -> %i\n",
-					dev->scanning.sParam.brightness, (u_char)b);
-	DBG( _DBG_INFO, "contrast*100 = %i -> %i\n",
-					dev->scanning.sParam.contrast, (int)(c*100));
+	DBG( _DBG_INFO, "* brightness = %i -> %i\n",
+	                dev->scanning.sParam.brightness, (u_char)b);
+	DBG( _DBG_INFO, "* contrast   = %i -> %.3f\n",
+	                dev->scanning.sParam.contrast, c);
 
+	if( dev->scanning.sParam.brightness == 0 && dev->scanning.sParam.contrast )
+		return;
+	                
 	for( i = 0; i < tabLen; i++ ) {
 
 		tmp = ((double)(a_bMap[i] + b)) * c;
@@ -112,17 +109,16 @@ static void usb_MapAdjust( pPlustek_Device dev )
 	}
 }
 
-/*.............................................................................
- *
+/**
  */
 static SANE_Bool usb_MapDownload( pPlustek_Device dev, u_char bDataType )
 {
-    pScanDef  scanning = &dev->scanning;
+	pScanDef  scanning = &dev->scanning;
 	pDCapsDef sc       = &dev->usbDev.Caps;
 
-	int       color, maxColor;			/* loop counters             */
+	int       color, maxColor;
 	int       i, iThreshold;
-	SANE_Byte value;					/* value transmitted to port */
+	SANE_Byte value;
 	SANE_Bool fInverse = 0;
 	
 	DBG( _DBG_INFO, "usb_MapDownload()\n" );
@@ -132,7 +128,7 @@ static SANE_Bool usb_MapDownload( pPlustek_Device dev, u_char bDataType )
 	/* do the brightness and contrast adjustment ... */			
 	if( scanning->sParam.bDataType != SCANDATATYPE_BW )	
 		usb_MapAdjust( dev );
-			
+
 	if( !usbio_WriteReg( dev->fd, 7, 0))
 		return SANE_FALSE;
 
@@ -175,7 +171,7 @@ static SANE_Bool usb_MapDownload( pPlustek_Device dev, u_char bDataType )
 			if(iThreshold > (int)_MAP_SIZE)
 				iThreshold = _MAP_SIZE;
 	
-			DBG(_DBG_INFO, "Threshold is at %u siThresh=%i\n",
+			DBG(_DBG_INFO, "* Threshold is at %u siThresh=%i\n",
 								iThreshold, scanning->sParam.siThreshold );
 
 			for(i = 0; i < iThreshold; i++)
@@ -185,7 +181,7 @@ static SANE_Bool usb_MapDownload( pPlustek_Device dev, u_char bDataType )
 				a_bMap[color*_MAP_SIZE + i] = 255;
 
 			fInverse = 1;
-			
+
 		} else {
 			fInverse = 0;
 		}
@@ -206,7 +202,7 @@ static SANE_Bool usb_MapDownload( pPlustek_Device dev, u_char bDataType )
 			u_char  map[_MAP_SIZE];
 			u_char *pMap = a_bMap+color*_MAP_SIZE;
 			
-			DBG( _DBG_INFO, "Inverting Map\n" );
+			DBG( _DBG_INFO, "* Inverting Map\n" );
 			
 			for( i = 0; i < (int)_MAP_SIZE; i++, pMap++ )
 				map[i] = ~*pMap;
@@ -214,6 +210,7 @@ static SANE_Bool usb_MapDownload( pPlustek_Device dev, u_char bDataType )
 			sanei_lm983x_write( dev->fd,  0x06, map, _MAP_SIZE, SANE_FALSE );
 			
 		} else {
+			DBG( _DBG_INFO, "* downloading map %u...\n", color );
 			sanei_lm983x_write( dev->fd,  0x06, a_bMap+color*_MAP_SIZE,
 								 _MAP_SIZE, SANE_FALSE );
 		}								

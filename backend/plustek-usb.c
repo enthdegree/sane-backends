@@ -7,7 +7,7 @@
  *  @brief The interface functions to the USB driver stuff.
  *
  * Based on sources acquired from Plustek Inc.<br>
- * Copyright (C) 2001-2003 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2004 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.40 - starting version of the USB support
@@ -210,6 +210,16 @@ static void usb_initDev( pPlustek_Device dev, int idx, int handle, int vendor )
 
 	if( dev->adj.negShadingY >= 0 )
 		dev->usbDev.Caps.Negative.ShadingOriginY = dev->adj.negShadingY;
+
+	/* adjust the gamma settings... */
+	if( dev->adj.rgamma == 1.0 )
+		dev->adj.rgamma = dev->usbDev.HwSetting.gamma;
+	if( dev->adj.ggamma == 1.0 )
+		dev->adj.ggamma = dev->usbDev.HwSetting.gamma;
+	if( dev->adj.bgamma == 1.0 )
+		dev->adj.bgamma = dev->usbDev.HwSetting.gamma;
+	if( dev->adj.graygamma == 1.0 )
+		dev->adj.graygamma = dev->usbDev.HwSetting.gamma;
 
 	/* the following you normally get from the registry...
 	 */
@@ -641,7 +651,7 @@ static int usbDev_open( Plustek_Device *dev )
 
 		if( 0x400 == vendor ) {
 			if((dev->adj.mov < 0) || (dev->adj.mov > 1)) {
-				DBG( _DBG_INFO, "BearPaw MOV ot of range: %d\n", dev->adj.mov );
+				DBG(_DBG_INFO, "BearPaw MOV out of range: %d\n", dev->adj.mov);
 				dev->adj.mov = 0;
 			}
 			sprintf( devStr, "%s-%d", dev->usbId, dev->adj.mov );
@@ -673,10 +683,10 @@ static int usbDev_open( Plustek_Device *dev )
  */
 static int usbDev_close( Plustek_Device *dev )
 {
-    DBG( _DBG_INFO, "usbDev_close()\n" );
+	DBG( _DBG_INFO, "usbDev_close()\n" );
 	sanei_usb_close( dev->fd );
 	dev->fd = -1;
-    return 0;
+	return 0;
 }
 
 /** convert the stuff
@@ -687,7 +697,7 @@ static int usbDev_getCaps( Plustek_Device *dev )
 
 	DBG( _DBG_INFO, "usbDev_getCaps()\n" );
 
-	dev->caps.dwFlag = (SFLAG_SCANNERDEV + SFLAG_FLATBED + SFLAG_CUSTOM_GAMMA);
+	dev->caps.dwFlag = 0;
 
 	if(((DEVCAPSFLAG_Positive == scaps->wFlags)  &&
 	    (DEVCAPSFLAG_Negative == scaps->wFlags)) ||
@@ -697,7 +707,7 @@ static int usbDev_getCaps( Plustek_Device *dev )
 
 	dev->caps.wMaxExtentX = scaps->Normal.Size.x;
 	dev->caps.wMaxExtentY = scaps->Normal.Size.y;
-    return 0;
+	return 0;
 }
 
 /** usbDev_getCropInfo
@@ -709,7 +719,7 @@ static int usbDev_getCropInfo( Plustek_Device *dev, pCropInfo ci )
 
 	DBG( _DBG_INFO, "usbDev_getCropInfo()\n" );
 
-    _VAR_NOT_USED(dev);
+	_VAR_NOT_USED(dev);
 
 	usb_GetImageInfo( &ci->ImgDef, &size );
 
@@ -744,19 +754,19 @@ static int usbDev_setMap( Plustek_Device *dev, SANE_Word *map,
 			a_bMap[i]            = (SANE_Byte)map[i];
 			a_bMap[length +i]    = (SANE_Byte)map[i];
 			a_bMap[(length*2)+i] = (SANE_Byte)map[i];
-		}			
-	
+		}
+
 	} else {
-	
+
 		idx = 0;
 		if( channel == _MAP_GREEN )
 			idx = 1;
 		if( channel == _MAP_BLUE )
 			idx = 2;
-			
+
 		for( i = 0; i < length; i++ ) {
 			a_bMap[(length * idx)+i] = (SANE_Byte)map[i];
-		}			
+		}
 	}
 
 	return 0;

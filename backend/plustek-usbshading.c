@@ -7,7 +7,7 @@
  *  @brief Calibration routines.
  *
  * Based on sources acquired from Plustek Inc.<br>
- * Copyright (C) 2001-2003 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2004 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.40 - starting version of the USB support
@@ -351,10 +351,11 @@ static void usb_GetSoftwareOffsetGain( pPlustek_Device dev )
 	case kNEC8861:
 		DBG( _DBG_INFO2, "kNEC8861 adjustments\n" );
 		break;
-
+#if 0
 	case kCIS650:
 	case kCIS670:
 	case kCIS1220:
+
 		DBG( _DBG_INFO2, "kCIS adjustments\n" );
 		if(pParam->bDataType == SCANDATATYPE_Color) {
 
@@ -367,7 +368,6 @@ static void usb_GetSoftwareOffsetGain( pPlustek_Device dev )
 			pParam->swOffset[2] = 1000;
 		}
 		break;
-		
 	case kCIS1240:
 		DBG( _DBG_INFO2, "kCIS1240 adjustments\n" );
 		if(pParam->bDataType == SCANDATATYPE_Color) {
@@ -381,7 +381,8 @@ static void usb_GetSoftwareOffsetGain( pPlustek_Device dev )
 			pParam->swOffset[2] = 0; /*1000;*/
 		}
 		break;
-		
+#endif
+
 	case kNEC3799:
 		DBG( _DBG_INFO2, "kNEC3799 adjustments\n" );
 		if( sCaps->bPCB == 2 ) {

@@ -7,7 +7,7 @@
  *  @brief Here we have our USB device definitions.
  *
  * Based on sources acquired from Plustek Inc.<br>
- * Copyright (C) 2001-2003 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2004 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.40 - starting version of the USB support
@@ -643,17 +643,17 @@ static DCapsDef Cap0x04A9_0x2207 =
  */
 static DCapsDef Cap0x04A9_0x220D =
 {
- 	{{ 0, 110}, 35, 10, {2550, 3508}, {75, 75}, COLOR_GRAY16 },
- 	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
- 	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
- 	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
- 	{600, 600},
- 	0,
- 	SENSORORDER_rgb,
- 	8,			        /* sensor distance                         */
- 	3,		      	    /* number of buttons                       */
- 	kCIS670,            
- 	0,                  /* not used here...                        */
+	{{ 0, 110}, 35, 10, {2550, 3508}, {75, 75}, COLOR_GRAY16 },
+	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
+	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
+	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
+	{600, 600},
+	0,
+	SENSORORDER_rgb,
+	8,                  /* sensor distance                         */
+	3,                  /* number of buttons                       */
+	kCIS670,            
+	0,                  /* not used here...                        */
 	_WAF_MISC_IO_LAMPS | _WAF_BLACKFINE, _NO_MIO
 };
 
@@ -739,7 +739,8 @@ static HWDef Hw0x07B3_0x0017_0 =
 	0,		        /* bReg_0x5d                                */
 	0,		        /* bReg_0x5e                                */
 	_LM9832,        /* chip type                                */
-	MODEL_KaoHsiung /* motorModel                               */
+	MODEL_KaoHsiung,/* motorModel                               */
+	1.0
 };
 
 /** Genius ColorPage-HR6 V2 and ColorPage-HR6X
@@ -783,7 +784,8 @@ static HWDef Hw0x07B3_0x0007_0 =
 	0x0d, 0x88, 0x28, 0x3b,
 	0, 0, 0,	
 	_LM9832,
-	MODEL_HuaLien
+	MODEL_HuaLien,
+	1.0
 };
 
 /** unknown
@@ -827,7 +829,8 @@ static HWDef Hw0x07B3_0x0007_2 =
 	0x0d, 0x88, 0x28, 0x3b,
 	0, 0, 0,
 	_LM9832,
-	MODEL_Tokyo600
+	MODEL_Tokyo600,
+	1.0
 };
 
 /** Genius ColorPage-HR7 and ColorPage-HR7LE
@@ -871,7 +874,8 @@ static HWDef Hw0x07B3_0x0007_4 =
 	0x0d, 0x88, 0x28, 0x3b,
 	0, 0, 0,
 	_LM9832,
-	MODEL_HuaLien
+	MODEL_HuaLien,
+	1.0
 };
 
 /** Genius ColorPage-HR6A
@@ -915,7 +919,8 @@ static HWDef Hw0x07B3_0x000F_0 =
 	0x05, 0x88,	0x08, 0x3b,
 	0, 0, 0,
 	_LM9832,
-	MODEL_HuaLien
+	MODEL_HuaLien,
+	1.0
 };
 
 /** U12 and U24
@@ -959,7 +964,8 @@ static HWDef Hw0x07B3_0x0013_0 =
 	0x0d, 0x22,	0x82, 0x88,
 	0, 0, 0,
 	_LM9831,
-	MODEL_KaoHsiung
+	MODEL_KaoHsiung,
+	1.0
 };
 
 /** unknown
@@ -1003,7 +1009,8 @@ static HWDef Hw0x07B3_0x0013_4 =
 	0x0d, 0x22,	0x82, 0x88,
 	0, 0, 0,
 	_LM9831,
-	MODEL_KaoHsiung
+	MODEL_KaoHsiung,
+	1.0
 };
 
 /** unknown
@@ -1047,7 +1054,8 @@ static HWDef Hw0x07B3_0x000F_4 =
 	0x05, 0x88, 0x08, 0x3b,
 	0, 0, 0,
 	_LM9832,
-	MODEL_HuaLien
+	MODEL_HuaLien,
+	1.0
 };
 
 /** unknown
@@ -1091,7 +1099,8 @@ static HWDef Hw0x07B3_0x0016_4 =
 	0x0d, 0x22,	0x82, 0x88,
 	0, 0, 0,
 	_LM9832,
-	MODEL_KaoHsiung
+	MODEL_KaoHsiung,
+	1.0
 };
 
 /** Plustek OpticPro UT24 and others...
@@ -1135,7 +1144,8 @@ static HWDef Hw0x07B3_0x0017_4 =
 	0x0d, 0x22, 0x82, 0x88,	
 	0, 0, 0,
 	_LM9832,
-	MODEL_KaoHsiung
+	MODEL_KaoHsiung,
+	1.0
 };
 
 /** unknown
@@ -1179,7 +1189,8 @@ static HWDef Hw0x07B3_0x0017_1 =
 	0x0d, 0x22,	0x82, 0x88,
 	0, 0, 0,
 	_LM9832,
-	MODEL_KaoHsiung
+	MODEL_KaoHsiung,
+	1.0
 };
 
 /** unknown
@@ -1223,7 +1234,8 @@ static HWDef Hw0x07B3_0x0012_0 =
 	0x0d, 0x22, 0x82, 0x88,	
 	0, 0, 0,		
 	_LM9832,
-	MODEL_KaoHsiung
+	MODEL_KaoHsiung,
+	1.0
 };
 
 /** unknown
@@ -1267,7 +1279,8 @@ static HWDef Hw0x07B3_0x0017_2 =
 	0x0d, 0x22,	0x82, 0x88,	
 	0, 0, 0,		
 	_LM9832,
-	MODEL_KaoHsiung
+	MODEL_KaoHsiung,
+	1.0
 };
 
 /** unknown
@@ -1311,7 +1324,8 @@ static HWDef Hw0x07B3_0x0017_3 =
 	0x0d, 0x22,	0x82, 0x88,	
 	0, 0, 0,		
 	_LM9832,
-	MODEL_KaoHsiung
+	MODEL_KaoHsiung,
+	1.0
 };
 
 /** HP Scanjet 2100C
@@ -1378,7 +1392,8 @@ static HWDef Hw0x03F0_0x0505 =
 	0,		/* bReg_0x5d                                */
 	0,		/* bReg_0x5e                                */
 	_LM9831,                /* chiptype                 */
-	MODEL_HP                /* motorModel               */
+	MODEL_HP,               /* motorModel               */
+	1.0
 };
 
 /** HP Scanjet 2200C */
@@ -1444,7 +1459,8 @@ static HWDef Hw0x03F0_0x0605 =
 	0,		/* bReg_0x5d                            	    */
 	0,		/* bReg_0x5e                                	*/
 	_LM9832,                /* chiptype                		*/
-	MODEL_HP                /* motorModel               	*/
+	MODEL_HP,               /* motorModel               	*/
+	1.0
 };
 
 /** Mustek BearPaw 1200 */
@@ -1501,7 +1517,8 @@ static HWDef Hw0x0400_0x1000_0 =
 	0,      /* ok test mode ADC Output CODE LSB (reg 0x5d)  */
 	0,      /* ok test mode (reg 0x5e)                      */
 	_LM9831,
-	MODEL_MUSTEK600
+	MODEL_MUSTEK600,
+	1.0
 };
 
 /** Mustek BearPaw 1200 (LM9832) */
@@ -1558,7 +1575,8 @@ static HWDef Hw0x0400_0x1001_1 =
 	0,      /* ok test mode ADC Output CODE LSB (reg 0x5d)  */
 	0,      /* ok test mode (reg 0x5e)                      */
 	_LM9832,
-	MODEL_MUSTEK600
+	MODEL_MUSTEK600,
+	1.0
 };
 
 /** BearPaw 2400 */
@@ -1620,7 +1638,8 @@ static HWDef Hw0x0400_0x1001_0 =
     0x46,	/* misc I/O 0x5b                   				*/
     0, 0, 0,/* test registers, set to 0 (0x5c, 0x5d, 0x5e)	*/
 	_LM9832,
-    MODEL_MUSTEK1200
+    MODEL_MUSTEK1200,
+	1.0
 };
 
 /** EPSON Perfection/Photo 1250 */
@@ -1684,7 +1703,8 @@ static HWDef Hw0x04B8_0x010F =
     0,      /* ok test mode ADC Output CODE LSB (reg 0x5d)  */
     0,      /* ok test mode (reg 0x5e)                      */
 	_LM9832,
-    MODEL_EPSON
+    MODEL_EPSON,
+	1.0
 };
 
 /** EPSON Perfection/Photo 1260 */
@@ -1748,7 +1768,8 @@ static HWDef Hw0x04B8_0x011D =
     0,      /* ok test mode ADC Output CODE LSB (reg 0x5d)  */
     0,      /* ok test mode (reg 0x5e)                      */
 	_LM9832,
-    MODEL_EPSON
+    MODEL_EPSON,
+	1.0
 };
 
 /** Umax 3400/3450 */
@@ -1813,7 +1834,8 @@ static HWDef Hw0x1606_0x0060 =
     0,      /* test mode ADC Output CODE LSB (reg 0x5d)  */
     0,      /* test mode (reg 0x5e)                      */
     _LM9832, /* might be LM9831 on UMAX 3450! */
-	MODEL_UMAX
+	MODEL_UMAX,
+	1.0
 };
 
 /** Umax 5400 */
@@ -1878,7 +1900,8 @@ static HWDef Hw0x1606_0x0160 =
     0,      /* test mode ADC Output CODE LSB (reg 0x5d)  */
     0,      /* test mode (reg 0x5e)                      */
     _LM9832,
-	MODEL_UMAX1200
+	MODEL_UMAX1200,
+	1.0
 };
 
 /** Canon 650/656 */
@@ -1945,7 +1968,8 @@ static HWDef Hw0x04A9_0x2206 =
     0,      /* test mode ADC Output CODE LSB (reg 0x5d)       */
     0,      /* test mode (reg 0x5e)                           */
     _LM9832,
-	MODEL_CANON600
+	MODEL_CANON600,
+	2.0
 };
 
 /** Canon N1220U */
@@ -2011,7 +2035,8 @@ static HWDef Hw0x04A9_0x2207 =
     0,      /* test mode ADC Output CODE LSB (reg 0x5d)       */
     0,      /* test mode (reg 0x5e)                           */
     _LM9832,
-    MODEL_CANON1200
+    MODEL_CANON1200,
+	2.0
 };
 
 /** Canon 670/676/LiDE20 */
@@ -2078,7 +2103,8 @@ static HWDef Hw0x04A9_0x220D =
     0,      /* test mode ADC Output CODE LSB (reg 0x5d)       */
     0,      /* test mode (reg 0x5e)                           */
     _LM9833,
-	MODEL_CANON600
+	MODEL_CANON600,
+	2.0
 };
 
 /** Canon N1240U */
@@ -2145,7 +2171,8 @@ static HWDef Hw0x04A9_0x220E =
     0,      /* test mode ADC Output CODE LSB (reg 0x5d)       */
     0,      /* test mode (reg 0x5e)                           */
     _LM9833,
-    MODEL_CANON1200
+    MODEL_CANON1200,
+	2.0
 };
 
 /******************** all available combinations *****************************/

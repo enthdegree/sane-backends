@@ -7,7 +7,7 @@
  *  @brief Calibration routines for CanoScan CIS devices.
  *
  * Based on sources acquired from Plustek Inc.<br>
- * Copyright (C) 2001-2003 Gerhard Jaeger <gerhard@gjaeger.de><br>
+ * Copyright (C) 2001-2004 Gerhard Jaeger <gerhard@gjaeger.de><br>
  * Large parts Copyright (C) 2003 Christopher Montgomery <monty@xiph.org>
  *
  * Montys' comment:
@@ -35,6 +35,8 @@
  *         - added the usage of the swGain and swOffset values, to allow
  *           tweaking the calibration results on a sensor base
  * - 0.47  - moved usb_HostSwap() to plustek_usbhw.c
+ *         - fixed problem in cano_AdjustLightsource(), so that it won't
+ *           stop too early.
  * 
  * This file is part of the SANE package.
  *
@@ -164,9 +166,12 @@ static int cano_LampOnAfterCalibration( pPlustek_Device dev )
 	return 0;
 }
 
-/** function to adjust the...
- * returns 0 if the value is fine, 1, if we need to adjust and 2 if we ran
- * against a limit...
+/** function to adjust the CIS lamp-off setting for a given channel.
+ * @param min - pointer to the ON point of the CIS-channel
+ * @param max - pointer to the max OFF point of the CIS-channel
+ * @param off - pointer to the current OFF point of the CIS-channel
+ * @param val - current value to check
+ * @return returns 0 if the value is fine, 1, if we need to adjust 
  */
 static int cano_adjLampSetting( u_short *min,
                                 u_short *max, u_short *off, u_short val )
@@ -176,28 +181,31 @@ static int cano_adjLampSetting( u_short *min,
 	/* perfect value, no need to adjust
 	 * val ¤ [53440..61440] is perfect
 	 */  
-	if((val < IDEAL_GainNormal) && (val > (IDEAL_GainNormal-8000)))
+	if((val < (IDEAL_GainNormal-6000)) && (val > (IDEAL_GainNormal-8000)))
 		return 0;
 
-	if(val > (IDEAL_GainNormal-4000)) {
+	if(val > (IDEAL_GainNormal-6000)) {
 
-		DBG(_DBG_INFO2, "TOO BRIGHT --> reduce\n" );
+		DBG(_DBG_INFO2, "* TOO BRIGHT --> reduce\n" );
 		*max   = newoff;
 		*off = ((newoff + *min)>>1);
-		
+
 	} else {
 
 		u_short bisect = (newoff + *max)>>1;
 		u_short twice  =  newoff*2;
 
-		DBG(_DBG_INFO2, "TOO DARK --> up\n" );
+		DBG(_DBG_INFO2, "* TOO DARK --> up\n" );
 		*min = newoff;
 		*off = twice<bisect?twice:bisect;
 
+		/* as we have already set the maximum value, there's no need
+		 * for this channel to recalibrate.
+		 */
 		if( *off > 0x3FFF ) {
-			DBG( _DBG_INFO2, "lamp off limited (0x%04x --> 0x3FFF)\n", *off );
+			DBG( _DBG_INFO2, "* lamp off limited (0x%04x --> 0x3FFF)\n", *off);
 			*off = 0x3FFF;
-			return 2;
+			return 0;
 		}
 	}
 
@@ -215,10 +223,11 @@ static int cano_adjLampSetting( u_short *min,
  * where the lamp_off parameter is adjustable; I'd make it more general, 
  * but I only have the CIS hardware to test.
  */
-static int cano_AdjustLightsource( pPlustek_Device dev)
+static int cano_AdjustLightsource( pPlustek_Device dev )
 {
 	char         tmp[40];
-	int          i, adj, warmup_limit, limit;
+	int          i;
+	int          res_r, res_g, res_b;
 	u_long       dw, dwR, dwG, dwB, dwDiv, dwLoop1, dwLoop2;
 	RGBUShortDef max_rgb, min_rgb, tmp_rgb;
 	
@@ -254,11 +263,11 @@ static int cano_AdjustLightsource( pPlustek_Device dev)
 													300UL / scaps->OpticDpi.x);
 	m_ScanParam.bCalibration = PARAM_Gain;
   
-	DBG( _DBG_INFO2, "Coarse Calibration Strip:\n" );
-	DBG( _DBG_INFO2, "Lines    = %lu\n", m_ScanParam.Size.dwLines  );
-	DBG( _DBG_INFO2, "Pixels   = %lu\n", m_ScanParam.Size.dwPixels );
-	DBG( _DBG_INFO2, "Bytes    = %lu\n", m_ScanParam.Size.dwBytes  );
-	DBG( _DBG_INFO2, "Origin.X = %u\n",  m_ScanParam.Origin.x );
+	DBG( _DBG_INFO2, "* Coarse Calibration Strip:\n" );
+	DBG( _DBG_INFO2, "* Lines    = %lu\n", m_ScanParam.Size.dwLines  );
+	DBG( _DBG_INFO2, "* Pixels   = %lu\n", m_ScanParam.Size.dwPixels );
+	DBG( _DBG_INFO2, "* Bytes    = %lu\n", m_ScanParam.Size.dwBytes  );
+	DBG( _DBG_INFO2, "* Origin.X = %u\n",  m_ScanParam.Origin.x );
 
 	max_rgb.Red   = max_rgb.Green = max_rgb.Blue = 0xffff;
 	min_rgb.Red   = hw->red_lamp_on;
@@ -273,14 +282,14 @@ static int cano_AdjustLightsource( pPlustek_Device dev)
 		}
     
 		if(	!usb_ScanBegin( dev, SANE_FALSE) ||
-			!usb_ScanReadImage( dev, pScanBuffer, m_ScanParam.Size.dwPhyBytes ) ||
+			!usb_ScanReadImage( dev,pScanBuffer,m_ScanParam.Size.dwPhyBytes ) ||
 			!usb_ScanEnd( dev )) {
-				DBG( _DBG_ERROR, "cano_AdjustLightsource() failed\n" );
+				DBG( _DBG_ERROR, "* cano_AdjustLightsource() failed\n" );
 				return SANE_FALSE;
 		}
     
-		DBG( _DBG_INFO2, "PhyBytes  = %lu\n",  m_ScanParam.Size.dwPhyBytes  );
-		DBG( _DBG_INFO2, "PhyPixels = %lu\n",  m_ScanParam.Size.dwPhyPixels );
+		DBG( _DBG_INFO2, "* PhyBytes  = %lu\n",  m_ScanParam.Size.dwPhyBytes );
+		DBG( _DBG_INFO2, "* PhyPixels = %lu\n",  m_ScanParam.Size.dwPhyPixels);
     
 		sprintf( tmp, "coarse-lamp-%u.raw", i );
     
@@ -297,7 +306,6 @@ static int cano_AdjustLightsource( pPlustek_Device dev)
     
 		dwDiv   = 10;
 		dwLoop1 = m_ScanParam.Size.dwPhyPixels/dwDiv;
-		adj     = 0;
       
 		tmp_rgb.Red = tmp_rgb.Green = tmp_rgb.Blue = 0;
       
@@ -352,66 +360,57 @@ static int cano_AdjustLightsource( pPlustek_Device dev)
 		DBG(_DBG_INFO2, "CUR(R,G,B)= 0x%04x(%u), 0x%04x(%u), 0x%04x(%u)\n",
 			 				tmp_rgb.Red, tmp_rgb.Red, tmp_rgb.Green,
 							 tmp_rgb.Green, tmp_rgb.Blue, tmp_rgb.Blue );
+		res_r = 0;
+		res_g = 0;
+		res_b = 0;
       
 		/* bisect */
-		adj          = 0;
-		warmup_limit = 2;
-		limit        = 2;
-
 		if( m_ScanParam.bDataType == SCANDATATYPE_Color ) {
-			adj += cano_adjLampSetting( &min_rgb.Red, &max_rgb.Red,
+			res_r = cano_adjLampSetting( &min_rgb.Red, &max_rgb.Red,
 											  &hw->red_lamp_off, tmp_rgb.Red );
-			adj += cano_adjLampSetting( &min_rgb.Blue, &max_rgb.Blue,
+			res_b = cano_adjLampSetting( &min_rgb.Blue, &max_rgb.Blue,
 											 &hw->blue_lamp_off,tmp_rgb.Blue );
-			warmup_limit = 6;
-			limit        = 10;
 		}
 
-		adj += cano_adjLampSetting( &min_rgb.Green, &max_rgb.Green,
+		res_g = cano_adjLampSetting( &min_rgb.Green, &max_rgb.Green,
 										  &hw->green_lamp_off, tmp_rgb.Green );
-		if( 0 == adj )
+
+		/* nothing adjusted, so stop here */
+		if((res_r == 0) && (res_g == 0) && (res_b == 0))
 			break;
 
-		/* it might be, that we need some warmup, if every adjustment
-		 * rans agaist the limit (cano_adjLampSetting returns 2!
-		 * allow at least 10 loops... */
-		if( adj == warmup_limit ) {
-			if( i >= limit ) {
-				DBG(_DBG_INFO, "10 times limit reached, still too dark!!!\n" );
-				break;
-			} else {
-				DBG(_DBG_INFO2, "CIS-Warmup, 1s!!!\n" );
-				sleep( 1 );
-			}
+		/* now decide what to do:
+		 * if we were too bright, we have to rerun the loop in any
+		 * case
+		 * if we're too dark, we should rerun it too, but we can
+		 * compensate that using higher gain values later
+		 */
+		if( i >= 10 ) {
+			DBG(_DBG_INFO, "* 10 times limit reached, still too dark!!!\n");
+			break;
 		} else {
-
-			/* not all channels ran against the limit... */
-			if((adj % 2) == 0 ) {
-				DBG( _DBG_INFO2,
-					"Still %u channel(s) too dark, but proceeding\n", adj/2 );
-				break;
-			}
+			DBG(_DBG_INFO2, "* CIS-Warmup, 1s!!!\n" );
+			sleep( 1 );
 		}
-			
+
 		usb_AdjustLamps(dev);
 	}
 
-	DBG( _DBG_INFO2, "red_lamp_on    = %u\n", hw->red_lamp_on  );
-	DBG( _DBG_INFO2, "red_lamp_off   = %u\n", hw->red_lamp_off );
-	DBG( _DBG_INFO2, "green_lamp_on  = %u\n", hw->green_lamp_on  );
-	DBG( _DBG_INFO2, "green_lamp_off = %u\n", hw->green_lamp_off );
-	DBG( _DBG_INFO2, "blue_lamp_on   = %u\n", hw->blue_lamp_on   );
-	DBG( _DBG_INFO2, "blue_lamp_off  = %u\n", hw->blue_lamp_off  );
+	DBG( _DBG_INFO2, "* red_lamp_on    = %u\n", hw->red_lamp_on  );
+	DBG( _DBG_INFO2, "* red_lamp_off   = %u\n", hw->red_lamp_off );
+	DBG( _DBG_INFO2, "* green_lamp_on  = %u\n", hw->green_lamp_on  );
+	DBG( _DBG_INFO2, "* green_lamp_off = %u\n", hw->green_lamp_off );
+	DBG( _DBG_INFO2, "* blue_lamp_on   = %u\n", hw->blue_lamp_on   );
+	DBG( _DBG_INFO2, "* blue_lamp_off  = %u\n", hw->blue_lamp_off  );
     
 	DBG( _DBG_INFO2, "cano_AdjustLightsource() done.\n" );
-
 	return SANE_TRUE;
 }
 
 /**
  */
-static int cano_adjGainSetting( u_char *min, u_char *max, 
-								u_char *gain,u_long val )
+static int
+cano_adjGainSetting( u_char *min, u_char *max, u_char *gain,u_long val )
 {
 	u_long newgain = *gain;
 
@@ -595,17 +594,17 @@ static int cano_GetNewOffset( u_long *val, int channel, signed char *low,
 							  signed char *now, signed char *high )
 {
 	/* if we're too black, we're likely off the low end */
-	if(val[channel]<=16) {
-		low[channel]=now[channel];
-		now[channel]=(now[channel]+high[channel])/2;
+	if( val[channel] <= 16 ) {
+		low[channel] =  now[channel];
+		now[channel] = (now[channel]+high[channel])/2;
 
 		a_bRegs[0x38+channel]= (now[channel]&0x3f);
 
-		if(low[channel]+1>=high[channel])
+		if( low[channel]+1 >= high[channel] )
 			return 0;
 		return 1;
 		
-	} else if (val[channel]>=2048) {
+	} else if ( val[channel]>=2048 ) {
 		high[channel]=now[channel];
 		now[channel]=(now[channel]+low[channel])/2;
 
@@ -793,7 +792,7 @@ static SANE_Bool cano_AdjustDarkShading( pPlustek_Device dev )
 	pHWDef       hw       = &dev->usbDev.HwSetting;
 	u_short     *bufp;
 	unsigned int i, j;
-	int          step, stepW;
+	int          step, stepW, val;
 	u_long       red, green, blue, gray;
   
 	DBG( _DBG_INFO2, "cano_AdjustDarkShading()\n" );
@@ -802,9 +801,11 @@ static SANE_Bool cano_AdjustDarkShading( pPlustek_Device dev )
    
 	m_ScanParam = scanning->sParam;
 
+#if 0
 	if( m_ScanParam.PhyDpi.x > 75)
 		m_ScanParam.Size.dwLines = 64;
 	else
+#endif
 		m_ScanParam.Size.dwLines = 32;
 
 	m_ScanParam.Origin.y  = 0;
@@ -867,9 +868,26 @@ static SANE_Bool cano_AdjustDarkShading( pPlustek_Device dev )
 				}
 			}
 
-			a_wDarkShading[i]         = red/m_ScanParam.Size.dwPhyLines   + pParam->swOffset[0];
-			a_wDarkShading[i+stepW]   = green/m_ScanParam.Size.dwPhyLines + pParam->swOffset[1];
-			a_wDarkShading[i+stepW*2] = blue/m_ScanParam.Size.dwPhyLines  + pParam->swOffset[2];
+			val = ((int)(red/m_ScanParam.Size.dwPhyLines) + pParam->swOffset[0]);
+			if( val < 0 ) {
+				DBG( _DBG_INFO, "val < 0!!!!\n" );
+				val = 0;
+			}
+			a_wDarkShading[i] = (u_short)val;
+
+			val = ((int)(green/m_ScanParam.Size.dwPhyLines) + pParam->swOffset[1]);
+			if( val < 0 ) {
+				DBG( _DBG_INFO, "val < 0!!!!\n" );
+				val = 0;
+			}
+			a_wDarkShading[i+stepW] = (u_short)val;
+
+			val = ((int)(blue/m_ScanParam.Size.dwPhyLines) + pParam->swOffset[2]);
+			if( val < 0 ) {
+				DBG( _DBG_INFO, "val < 0!!!!\n" );
+				val = 0;
+			}
+			a_wDarkShading[i+stepW*2] = (u_short)val;
 		}
     
 		if(usb_HostSwap())
@@ -891,10 +909,10 @@ static SANE_Bool cano_AdjustDarkShading( pPlustek_Device dev )
 		if(usb_HostSwap())
 			usb_Swap(a_wDarkShading, m_ScanParam.Size.dwPhyPixels * 2 );
 			
-		memcpy( a_wDarkShading+ m_ScanParam.Size.dwPhyPixels * 2,
-				   			a_wDarkShading, m_ScanParam.Size.dwPhyPixels * 2);
-		memcpy(a_wDarkShading+ m_ScanParam.Size.dwPhyPixels * 4,
-							a_wDarkShading, m_ScanParam.Size.dwPhyPixels * 2);
+		memcpy( a_wDarkShading + m_ScanParam.Size.dwPhyPixels * 2,
+		        a_wDarkShading, m_ScanParam.Size.dwPhyPixels * 2);
+		memcpy( a_wDarkShading + m_ScanParam.Size.dwPhyPixels * 4,
+		        a_wDarkShading, m_ScanParam.Size.dwPhyPixels * 2);
 	}
     
 	DBG( _DBG_INFO2, "cano_AdjustDarkShading() done\n" );
@@ -922,9 +940,11 @@ static SANE_Bool cano_AdjustWhiteShading( pPlustek_Device dev )
 		return SANE_FALSE;
 
 	m_ScanParam = scanning->sParam;
+#if 0
 	if( m_ScanParam.PhyDpi.x > 75)
 		m_ScanParam.Size.dwLines = 64;
 	else
+#endif
 		m_ScanParam.Size.dwLines = 32;
 
 	m_ScanParam.Origin.y  = 0;

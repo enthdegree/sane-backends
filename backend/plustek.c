@@ -11,7 +11,7 @@
  * Original code taken from sane-0.71<br>
  * Copyright (C) 1997 Hypercore Software Design, Ltd.<br>
  * Also based on the work done by Rick Bronson<br>
- * Copyright (C) 2000-2003 Gerhard Jaeger <gerhard@gjaeger.de><br>
+ * Copyright (C) 2000-2004 Gerhard Jaeger <gerhard@gjaeger.de><br>
  *
  * History:
  * - 0.30 - initial version
@@ -20,7 +20,7 @@
  * - 0.33 - no changes
  * - 0.34 - moved some definitions and typedefs to plustek.h
  * - 0.35 - removed Y-correction for 12000P model<br>
- *        -  getting Y-size of scan area from driver
+ *        - getting Y-size of scan area from driver
  * - 0.36 - disabled Dropout, as this does currently not work<br>
  *        - enabled Halftone selection only for Halftone-mode<br>
  *        - made the cancel button work by using a child process during read<br>
@@ -141,7 +141,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.47-2"
+#define BACKEND_VERSION "0.47-5"
 #define BACKEND_NAME    plustek
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
@@ -283,7 +283,7 @@ static SANE_Status drvclose( Plustek_Device *dev )
 {
 	if( dev->fd >= 0 ) {
 
-	    DBG( _DBG_INFO, "drvclose()\n" );
+		DBG( _DBG_INFO, "drvclose()\n" );
 
 		if( 0 != tsecs ) {
 			DBG( _DBG_INFO, "TIME END 1: %lus\n", time(NULL)-tsecs);
@@ -309,7 +309,7 @@ static pModeParam getModeList( Plustek_Scanner *scanner )
 	 */
 	if( 0 != scanner->val[OPT_EXT_MODE].w ) {
 		mp = &mp[_TPAModeSupportMin];
-	}		
+	}
 
 	return mp;
 }
@@ -514,19 +514,16 @@ static SANE_Status do_cancel( Plustek_Scanner *scanner, SANE_Bool closepipe  )
  */
 static SANE_Status limitResolution( Plustek_Device *dev )
 {
-	dev->dpi_range.min = _DEF_DPI;
- 	if( dev->dpi_range.min < _DEF_DPI )
-		dev->dpi_range.min = _DEF_DPI;
-
+	dev->dpi_range.min   = _DEF_DPI;
 	dev->dpi_range.max   = dev->usbDev.Caps.OpticDpi.x * 2;
 	dev->dpi_range.quant = 0;
-	dev->x_range.min 	 = 0;
-	dev->x_range.max 	 = SANE_FIX(dev->max_x);
-	dev->x_range.quant 	 = 0;
-	dev->y_range.min 	 = 0;
-	dev->y_range.max 	 = SANE_FIX(dev->max_y);
-	dev->y_range.quant 	 = 0;
-	
+	dev->x_range.min     = 0;
+	dev->x_range.max     = SANE_FIX(dev->max_x);
+	dev->x_range.quant   = 0;
+	dev->y_range.min     = 0;
+	dev->y_range.max     = SANE_FIX(dev->max_y);
+	dev->y_range.quant   = 0;
+
 	return SANE_STATUS_GOOD;
 }
 
@@ -540,46 +537,41 @@ static SANE_Status initGammaSettings( Plustek_Scanner *s )
 	int    i, j, val;
 	double gamma;
 
-	/*
-     * this setting is common to the ASIC98001/3 and
-     * LM9831/2/3 based devices
-     * older parallelport devices use 256 entries
-     */
 	s->gamma_length      = 4096;
-  	s->gamma_range.min   = 0;
-  	s->gamma_range.max   = 255;
-  	s->gamma_range.quant = 0;
+	s->gamma_range.min   = 0;
+	s->gamma_range.max   = 255;
+	s->gamma_range.quant = 0;
 
-  	DBG( _DBG_INFO, "Presetting Gamma tables (len=%u)\n", s->gamma_length );
-  	DBG( _DBG_INFO, "----------------------------------\n" );
-  	
-  	/*
-  	 * preset the gamma maps
-  	 */
-  	for( i = 0; i < 4; i++ ) {
-			
+	DBG( _DBG_INFO, "Presetting Gamma tables (len=%u)\n", s->gamma_length );
+
+	/* preset the gamma maps
+	 */
+	for( i = 0; i < 4; i++ ) {
+
 		switch( i ) {
 			case 1:  gamma = s->hw->adj.rgamma;    break;
 			case 2:  gamma = s->hw->adj.ggamma;    break;
 			case 3:  gamma = s->hw->adj.bgamma;    break;
 			default: gamma = s->hw->adj.graygamma; break;
-		}			
-  	
+		}
+		DBG( _DBG_INFO, "* Channel[%u], gamma %.3f\n", i, gamma );
+
 		for( j = 0; j < s->gamma_length; j++ ) {
-		
+
 			val = (s->gamma_range.max *
 					    pow((double) j / ((double)s->gamma_length - 1.0),
 						1.0 / gamma ));
-			
+
 			if( val > s->gamma_range.max )
 				val = s->gamma_range.max;
-												
-			s->gamma_table[i][j] = val;					
-		}			
-	}			
-	
+
+			s->gamma_table[i][j] = val;
+		}
+	}
+	DBG( _DBG_INFO, "----------------------------------\n" );
+
 	return SANE_STATUS_GOOD;
-}  	
+}
 
 /** Check the gamma vectors we got back and limit if necessary
  * @param  s - pointer to the scanner specific structure
@@ -588,14 +580,15 @@ static SANE_Status initGammaSettings( Plustek_Scanner *s )
 static void checkGammaSettings( Plustek_Scanner *s )
 {
 	int i, j;
-  	
-  	for( i = 0; i < 4 ; i++ ) {
+
+	DBG( _DBG_INFO, "Maps changed...\n" );
+	for( i = 0; i < 4 ; i++ ) {
 		for( j = 0; j < s->gamma_length; j++ ) {
 			if( s->gamma_table[i][j] > s->gamma_range.max ) {
 				s->gamma_table[i][j] = s->gamma_range.max;
 			}
-		}	
-	}	
+		}
+	}
 }
 
 /** initialize the options for the backend according to the device we have
@@ -609,7 +602,7 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	for( i = 0; i < NUM_OPTIONS; ++i ) {
 		s->opt[i].size = sizeof (SANE_Word);
 		s->opt[i].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-    }
+	}
 
 	s->opt[OPT_NUM_OPTS].name  = SANE_NAME_NUM_OPTIONS;
 	s->opt[OPT_NUM_OPTS].title = SANE_TITLE_NUM_OPTIONS;
@@ -646,7 +639,7 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	s->opt[OPT_EXT_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
 	s->opt[OPT_EXT_MODE].constraint.string_list = ext_mode_list;
 	s->val[OPT_EXT_MODE].w = 0; /* Normal */
-	
+
 	/* brightness */
 	s->opt[OPT_BRIGHTNESS].name  = SANE_NAME_BRIGHTNESS;
 	s->opt[OPT_BRIGHTNESS].title = SANE_TITLE_BRIGHTNESS;
@@ -679,11 +672,11 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	s->val[OPT_RESOLUTION].w = s->hw->dpi_range.min;
 
 	/* custom-gamma table */
-  	s->opt[OPT_CUSTOM_GAMMA].name  = SANE_NAME_CUSTOM_GAMMA;
-  	s->opt[OPT_CUSTOM_GAMMA].title = SANE_TITLE_CUSTOM_GAMMA;
-  	s->opt[OPT_CUSTOM_GAMMA].desc  = SANE_DESC_CUSTOM_GAMMA;
-  	s->opt[OPT_CUSTOM_GAMMA].type  = SANE_TYPE_BOOL;
-  	s->val[OPT_CUSTOM_GAMMA].w     = SANE_FALSE;
+	s->opt[OPT_CUSTOM_GAMMA].name  = SANE_NAME_CUSTOM_GAMMA;
+	s->opt[OPT_CUSTOM_GAMMA].title = SANE_TITLE_CUSTOM_GAMMA;
+	s->opt[OPT_CUSTOM_GAMMA].desc  = SANE_DESC_CUSTOM_GAMMA;
+	s->opt[OPT_CUSTOM_GAMMA].type  = SANE_TYPE_BOOL;
+	s->val[OPT_CUSTOM_GAMMA].w     = SANE_FALSE;
 
 	/* preview */
 	s->opt[OPT_PREVIEW].name = SANE_NAME_PREVIEW;
@@ -802,11 +795,6 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	if( 0 == (s->hw->caps.dwFlag & SFLAG_TPA)) {
 		s->opt[OPT_EXT_MODE].cap |= SANE_CAP_INACTIVE;
 	}
-
-  	/* disable custom gamma, if not supported by the driver... */
-	if( 0 == (s->hw->caps.dwFlag & SFLAG_CUSTOM_GAMMA)) {
-	  	s->opt[OPT_CUSTOM_GAMMA].cap |= SANE_CAP_INACTIVE;
-	}  		
 
 	return SANE_STATUS_GOOD;
 }
@@ -995,7 +983,7 @@ static SANE_Status attach( const char *dev_name, pCnfDef cnf,
 	/* allocate some memory for the device */
 	dev = malloc( sizeof (*dev));
 	if( NULL == dev )
-    	return SANE_STATUS_NO_MEM;
+		return SANE_STATUS_NO_MEM;
 
 	/* assign all the stuff we need fo this device... */
 
@@ -1043,9 +1031,7 @@ static SANE_Status attach( const char *dev_name, pCnfDef cnf,
 	return SANE_STATUS_INVAL;
 #endif
 
-	/*
-	 * go ahead and open the scanner device
-	 */
+	/* go ahead and open the scanner device */
 	handle = usbDev_open( dev );
 	if( handle < 0 ) {
 		DBG( _DBG_ERROR,"open failed: %d\n", handle );
@@ -1069,10 +1055,10 @@ static SANE_Status attach( const char *dev_name, pCnfDef cnf,
     	dev->sane.model = dev->usbDev.ModelStr;
 	else
 #endif
-    	dev->sane.model = "USB-Device";
-   	
-   	DBG( _DBG_INFO, "Vendor : %s\n",      dev->sane.vendor  );
-   	DBG( _DBG_INFO, "Model  : %s\n",      dev->sane.model   );
+		dev->sane.model = "USB-Device";
+
+	DBG( _DBG_INFO, "Vendor : %s\n",      dev->sane.vendor  );
+	DBG( _DBG_INFO, "Model  : %s\n",      dev->sane.model   );
 	DBG( _DBG_INFO, "Flags  : 0x%08lx\n", dev->caps.dwFlag  );
 
 	dev->max_x = dev->caps.wMaxExtentX*MM_PER_INCH/_MEASURE_BASE;
@@ -1082,8 +1068,8 @@ static SANE_Status attach( const char *dev_name, pCnfDef cnf,
 	 * one more to avoid a buffer overflow, then allocate it...
 	 */
 	dev->res_list = (SANE_Int *)
-					calloc((((dev->usbDev.Caps.OpticDpi.x*16)-_DEF_DPI)/25+1),
-						sizeof (SANE_Int));  
+	                 calloc((((dev->usbDev.Caps.OpticDpi.x*16)-_DEF_DPI)/25+1),
+	                 sizeof (SANE_Int));  
 
 	if (NULL == dev->res_list) {
 		DBG( _DBG_ERROR, "alloc fail, resolution problem\n" );
@@ -1091,9 +1077,9 @@ static SANE_Status attach( const char *dev_name, pCnfDef cnf,
 		return SANE_STATUS_INVAL;
 	}
 
-    /* build up the resolution table */
+	/* build up the resolution table */
 	dev->res_list_size = 0;
-	for( cntr = _DEF_DPI; cntr <= (dev->usbDev.Caps.OpticDpi.x*16); cntr += 25 ) {
+	for(cntr = _DEF_DPI; cntr <= (dev->usbDev.Caps.OpticDpi.x*16); cntr += 25){
 		dev->res_list_size++;
 		dev->res_list[dev->res_list_size - 1] = (SANE_Int)cntr;
 	}
@@ -1110,7 +1096,7 @@ static SANE_Status attach( const char *dev_name, pCnfDef cnf,
 	first_dev = dev;
 
 	if (devp)
-    	*devp = dev;
+		*devp = dev;
 
 	return SANE_STATUS_GOOD;
 }
@@ -1508,12 +1494,25 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 	
 	  		/* word array options: */
 	  		case OPT_GAMMA_VECTOR:
-			case OPT_GAMMA_VECTOR_R:
-			case OPT_GAMMA_VECTOR_G:
-			case OPT_GAMMA_VECTOR_B:
+				DBG( _DBG_INFO, "Reading MASTER gamma.\n" );
 				memcpy( value, s->val[option].wa, s->opt[option].size );
 				break;
-								
+
+			case OPT_GAMMA_VECTOR_R:
+				DBG( _DBG_INFO, "Reading RED gamma.\n" );
+				memcpy( value, s->val[option].wa, s->opt[option].size );
+				break;
+
+			case OPT_GAMMA_VECTOR_G:
+				DBG( _DBG_INFO, "Reading GREEN gamma.\n" );
+				memcpy( value, s->val[option].wa, s->opt[option].size );
+				break;
+
+			case OPT_GAMMA_VECTOR_B:
+				DBG( _DBG_INFO, "Reading BLUE gamma.\n" );
+				memcpy( value, s->val[option].wa, s->opt[option].size );
+				break;
+
 			default:
 				return SANE_STATUS_INVAL;
 		}
@@ -1575,9 +1574,9 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 	    			break;
 				
 				case OPT_CUSTOM_GAMMA:
-    				s->val[option].w = *(SANE_Word *)value;
+					s->val[option].w = *(SANE_Word *)value;
 	    			if( NULL != info )
-    					*info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+						*info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
 
 					mp       = getModeList( s );
 					scanmode = mp[s->val[OPT_MODE].w].scanmode;
@@ -1587,8 +1586,8 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 				    s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
 				    s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
 					    					    					
-    				if( SANE_TRUE == s->val[option].w ) {
-    				
+					if( SANE_TRUE == s->val[option].w ) {
+						DBG( _DBG_INFO, "Using custom gamma settings.\n" );
     					if((scanmode == COLOR_256GRAY) ||
 						   (scanmode == COLOR_GRAY16)) {
 						    s->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
@@ -1596,10 +1595,10 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 						    s->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
 						    s->opt[OPT_GAMMA_VECTOR_G].cap &= ~SANE_CAP_INACTIVE;
 						    s->opt[OPT_GAMMA_VECTOR_B].cap &= ~SANE_CAP_INACTIVE;
-						}		
-										
-    				} else {
-	
+						}
+					} else {
+
+						DBG( _DBG_INFO, "NOT using custom gamma settings.\n" );
 						initGammaSettings( s );
     				
     					if((scanmode == COLOR_256GRAY) ||
@@ -1707,9 +1706,31 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 		    		break;
 	            }
 				case OPT_GAMMA_VECTOR:
+					DBG( _DBG_INFO, "Setting MASTER gamma.\n" );
+					memcpy( s->val[option].wa, value, s->opt[option].size );
+					checkGammaSettings(s);
+	    			if( NULL != info )
+		    			*info |= SANE_INFO_RELOAD_PARAMS;
+					break;
+
 				case OPT_GAMMA_VECTOR_R:
+					DBG( _DBG_INFO, "Setting RED gamma.\n" );
+					memcpy( s->val[option].wa, value, s->opt[option].size );
+					checkGammaSettings(s);
+	    			if( NULL != info )
+		    			*info |= SANE_INFO_RELOAD_PARAMS;
+					break;
+
 				case OPT_GAMMA_VECTOR_G:
+					DBG( _DBG_INFO, "Setting GREEN gamma.\n" );
+					memcpy( s->val[option].wa, value, s->opt[option].size );
+					checkGammaSettings(s);
+	    			if( NULL != info )
+		    			*info |= SANE_INFO_RELOAD_PARAMS;
+					break;
+
 				case OPT_GAMMA_VECTOR_B:
+					DBG( _DBG_INFO, "Setting BLUE gamma.\n" );
 					memcpy( s->val[option].wa, value, s->opt[option].size );
 					checkGammaSettings(s);
 	    			if( NULL != info )

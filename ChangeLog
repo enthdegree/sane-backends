@@ -2,6 +2,11 @@
 
 	* sanei/Makefile.in: Fixed regeneration of libsanei.a when the object
 	  files were changed.
+	* sanei/sanei_usb.c: Scanning for devices is now done in
+	  sanei_usb_init instead of every time when sanei_usb_find_devices is
+	  called. Also only devices that really exist are opened. These
+	  changes fixe the slow detection of devices on systems using devfs or
+	  old scanner drivers.
 
 2003-01-21  Karl Heinz Kremer <khk@khk.net>
 

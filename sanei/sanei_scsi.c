@@ -1644,6 +1644,7 @@ issue (struct req *req)
       retries = 20;
       while (retries)
         {
+          errno = 0;
 #ifdef SG_IO
           if (sg_version < 30000)
             {

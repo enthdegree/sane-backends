@@ -1,3 +1,9 @@
+2001-10-12  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan-scsi.c    backend/snapscan.h
+	  backend/snapscan.c
+	  Update to snapscan-20011012
+
 2001-10-12  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* sanei/sanei_wire.c: Added debug output (based on patch
@@ -8,7 +14,7 @@
 	  patch. Increased version number to 1.0.5.
 	* frontend/saned.c: More debug output. Used DBG instead of
 	  fprintf/perror. Fixed some formatting issues.
-	
+
 2001-10-10  Jochen Eisinger <jochen.eisinger@gmx.de>
 
 	* sanei/sanei_wire.c: replaced memcpy with memmove
@@ -20,7 +26,7 @@
 2001-10-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/m3096g-scsi.h backend/m3096g.c backend/m3096g.h
-	  doc/sane-fujitsu.man: Update (from Oliver Schirrmeister 
+	  doc/sane-fujitsu.man: Update (from Oliver Schirrmeister
 	  <oschirr@abm.de>). Added: Support for ipc2/3 and cmp2 options;
  	  support for duplex-scanners m3093DG, m4097DG; constraint checking
 	  for m3093; support EVPD (virtual product data); support ADF paper

@@ -116,7 +116,7 @@ static void SetEPPMode (int mode);
 static int GetEPPMode (void);
 static void SetModel (int model);
 static int GetModel (void);
-static int RingScanner (void);
+static int RingScanner (int count, unsigned long delay);
 static int TestVersion (int no);
 
 static int SendCommand (int cmd);
@@ -2537,10 +2537,14 @@ SendWord (int *cmd)
 /******************************************************************************/
 /* RingScanner: returns 1 if scanner present, else 0                          */
 /******************************************************************************/
-#define UMAX_PP_PAUSE 100
+/* 
+ * in fact this function is really close to CPP macro in
+ * /usr/src/linux/drivers/block/paride/epat.c .....
+ * we have almost CPP(8)
+ */
 
 static int
-RingScanner (void)
+RingScanner (int count, unsigned long delay)
 {
   int status;
   int data;
@@ -2563,29 +2567,74 @@ RingScanner (void)
 
   /* send ring string */
   Outb (DATA, 0x22);
-  usleep (UMAX_PP_PAUSE);
+  usleep (delay);
   Outb (DATA, 0x22);
-  usleep (UMAX_PP_PAUSE);
+  usleep (delay);
+  if (count == 5)
+    {
+      Outb (DATA, 0x22);
+      usleep (delay);
+      Outb (DATA, 0x22);
+      usleep (delay);
+      Outb (DATA, 0x22);
+      usleep (delay);
+    }
   Outb (DATA, 0xAA);
-  usleep (UMAX_PP_PAUSE);
+  usleep (delay);
   Outb (DATA, 0xAA);
-  usleep (UMAX_PP_PAUSE);
+  usleep (delay);
+  if (count == 5)
+    {
+      Outb (DATA, 0xAA);
+      usleep (delay);
+      Outb (DATA, 0xAA);
+      usleep (delay);
+      Outb (DATA, 0xAA);
+      usleep (delay);
+    }
   Outb (DATA, 0x55);
-  usleep (UMAX_PP_PAUSE);
+  usleep (delay);
   Outb (DATA, 0x55);
-  usleep (UMAX_PP_PAUSE);
+  usleep (delay);
+  if (count == 5)
+    {
+      Outb (DATA, 0x55);
+      usleep (delay);
+      Outb (DATA, 0x55);
+      usleep (delay);
+      Outb (DATA, 0x55);
+      usleep (delay);
+    }
   Outb (DATA, 0x00);
-  usleep (UMAX_PP_PAUSE);
+  usleep (delay);
   Outb (DATA, 0x00);
-  usleep (UMAX_PP_PAUSE);
+  usleep (delay);
+  if (count == 5)
+    {
+      Outb (DATA, 0x00);
+      usleep (delay);
+      Outb (DATA, 0x00);
+      usleep (delay);
+      Outb (DATA, 0x00);
+      usleep (delay);
+    }
   Outb (DATA, 0xFF);
-  usleep (UMAX_PP_PAUSE);
+  usleep (delay);
   Outb (DATA, 0xFF);
-  usleep (UMAX_PP_PAUSE);
+  usleep (delay);
+  if (count == 5)
+    {
+      Outb (DATA, 0xFF);
+      usleep (delay);
+      Outb (DATA, 0xFF);
+      usleep (delay);
+      Outb (DATA, 0xFF);
+      usleep (delay);
+    }
 
   /* OK ? */
   status = Inb (STATUS);
-  usleep (UMAX_PP_PAUSE);
+  usleep (delay);
   if ((status & 0xB8) != 0xB8)
     {
       DBG (1, "status %d doesn't match! %s:%d\n", status, __FILE__, __LINE__);
@@ -2596,11 +2645,19 @@ RingScanner (void)
   if (ret)
     {
       Outb (DATA, 0x87);
-      usleep (UMAX_PP_PAUSE);
+      usleep (delay);
       Outb (DATA, 0x87);
-      usleep (UMAX_PP_PAUSE);
+      usleep (delay);
+      if (count == 5)
+	{
+	  Outb (DATA, 0x87);
+	  usleep (delay);
+	  Outb (DATA, 0x87);
+	  usleep (delay);
+	  Outb (DATA, 0x87);
+	  usleep (delay);
+	}
       status = Inb (STATUS);
-      usleep (UMAX_PP_PAUSE);
       /* status = 126 when scanner not connected .... */
       if ((status & 0xB8) != 0x18)
 	{
@@ -2614,9 +2671,18 @@ RingScanner (void)
   if (ret)
     {
       Outb (DATA, 0x78);
-      usleep (UMAX_PP_PAUSE);
+      usleep (delay);
       Outb (DATA, 0x78);
-      usleep (UMAX_PP_PAUSE);
+      usleep (delay);
+      if (count == 5)
+	{
+	  Outb (DATA, 0x78);
+	  usleep (delay);
+	  Outb (DATA, 0x78);
+	  usleep (delay);
+	  Outb (DATA, 0x78);
+	  usleep (delay);
+	}
       status = Inb (STATUS);
       if ((status & 0x30) != 0x30)
 	{
@@ -2630,13 +2696,31 @@ RingScanner (void)
   if (ret)
     {
       Outb (DATA, 0x08);
-      usleep (UMAX_PP_PAUSE);
+      usleep (delay);
       Outb (DATA, 0x08);
-      usleep (UMAX_PP_PAUSE);
+      usleep (delay);
+      if (count == 5)
+	{
+	  Outb (DATA, 0x08);
+	  usleep (delay);
+	  Outb (DATA, 0x08);
+	  usleep (delay);
+	  Outb (DATA, 0x08);
+	  usleep (delay);
+	}
       Outb (DATA, 0xFF);
-      usleep (UMAX_PP_PAUSE);
+      usleep (delay);
       Outb (DATA, 0xFF);
-      usleep (UMAX_PP_PAUSE);
+      usleep (delay);
+      if (count == 5)
+	{
+	  Outb (DATA, 0xFF);
+	  usleep (delay);
+	  Outb (DATA, 0xFF);
+	  usleep (delay);
+	  Outb (DATA, 0xFF);
+	  usleep (delay);
+	}
     }
 
   /* restore state */
@@ -4176,12 +4260,12 @@ Probe610P (int recover)
     sanei_umax_pp_setastra (610);
   if (!Test610P (0x87))
     {
-      DBG (1, "Ring610P(0x87) failed (%s:%d)\n", __FILE__, __LINE__);
+      DBG (1, "Test610P(0x87) failed (%s:%d)\n", __FILE__, __LINE__);
       return (0);
     }
   else
     {
-      DBG (16, "Ring610P(0x87) passed...\n");
+      DBG (16, "Test610P(0x87) passed...\n");
     }
   if (!In256 ())
     {
@@ -4263,14 +4347,27 @@ sanei_umax_pp_ProbeScanner (int recover)
   tmp = Inb (DATA);
 
   /*  any scanner ? */
-  tmp = RingScanner ();
-  if (tmp)
+  /* fast detect */
+  tmp = RingScanner (2, 0);
+  if (!tmp)
     {
-      i = 0;
-      while ((i < 50) && (tmp))
+      DBG (1, "No scanner detected by 'RingScanner(2,0)'...\n");
+      tmp = RingScanner (5, 0);
+      if (!tmp)
 	{
-	  tmp = RingScanner ();
-	  i++;
+	  DBG (1, "No scanner detected by 'RingScanner(5,0)'...\n");
+	  tmp = RingScanner (5, 10000);
+	  if (!tmp)
+	    {
+	      DBG (1, "No scanner detected by 'RingScanner(5,10000)'...\n");
+	      tmp = RingScanner (5, 10000);
+	      if (!tmp)
+		{
+		  DBG (1,
+		       "No scanner detected by 'RingScanner(5,10000)'...\n");
+		  tmp = Test610P (0x87);
+		}
+	    }
 	}
     }
   if (!tmp)
@@ -6228,13 +6325,28 @@ static int
 EvalGain (int sum, int count)
 {
   int gn;
+  float pct;
+  float avg;
+
+
+  /*if(getenv("CORRECTION"))                    
+     return(atoi(getenv("CORRECTION"))); */
 
   /* 19000 is a little too bright */
-  gn = (int) ((double) (18500 * count) / sum - 100 + 0.5);
+  /* gn = (int) ((double) (18500 * count) / sum - 100 + 0.5); */
+
+  /* after ~ 60 * 10 scans , it looks like 1 step is a 0.57% increase   */
+  /* so we take the value and compute the percent increase to reach 250 */
+  /* no 255, because we want some room inaccuracy                       */
+  /* pct=100-(value*100)/250                                            */
+  /* then correction is pct/0.57                                        */
+  avg = (float) (sum) / (float) (count);
+  pct = 100.0 - (avg * 100.0) / 250.0;
+  gn = (int) (pct / 0.57);
   if (gn < 0)
     gn = 0;
-  else if (gn > 255)
-    gn = 255;
+  else if (gn > 127)
+    gn = 127;
   return (gn);
 }
 

@@ -1,3 +1,10 @@
+2000-12-09  Karl Heinz Kremer <khk@khk.net>
+
+	* backend/epson.c: Fixed user defined gamma curve for
+	  inverted images. When scanning negatives the gamma curve
+	  was applied incorrectly. Fixed debug output for user defined
+	  gamma curves - no [epson] in between values anymore.
+
 2000-12-09  Peter Kirchgessner <peter@kirchgessner.net>
 
         * doc/sane-hp.man, backend/hp.desc

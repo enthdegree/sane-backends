@@ -81,7 +81,9 @@ sanei_thread_kill( int pid, int sig)
 int
 sanei_thread_waitpid( int pid, int *stat_loc, int options)
 {
-   return pid; /* DosWaitThread( (TID*) &pid, DCWW_WAIT);*/
+  if (stat_loc)
+    *stat_loc = 0;
+  return pid; /* DosWaitThread( (TID*) &pid, DCWW_WAIT);*/
 }
 
 int

@@ -1,4 +1,4 @@
-.TH sane-hp 5 "10 Sep 2002"
+.TH sane-hp 5 "20 Nov 2002"
 .IX sane-hp
 .SH NAME
 sane-hp - SANE backend for HP ScanJet scanners
@@ -7,7 +7,7 @@ The
 .B sane-hp
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to HP ScanJet scanners which support SCL (Scanner
-Control Language by HP).  At present, the following
+Control Language by HP).  The following
 scanners are known positively to work with this backend:
 .PP
 .RS
@@ -58,20 +58,22 @@ Support for models 5100C/5200C connected to the parallel port requires
 the ppSCSI driver available at http://www.torque.net/parport/ppscsi.html
 (under development)
 .PP
-Support for models 5200C/6200C/6250C/6300C/6350C connected to the USB requires
-an USB driver available at http://www.jump.net/~dnelson/linux/usb
-(under development)
+Support for models 5200C/62X0C/63X0C connected to the USB require
+the kernel scanner driver or libusb. See
+.BR sane-usb (5)
+for more details.
 .PP
 The "hp" backend no longer supports OfficeJet multi-function peripherals.
 For these devices use the external "hpoj" backend in version 0.90 and later of
 the "HP OfficeJet Linux driver", available at "http://hpoj.sourceforge.net".
 .PP
-If you own a ScanJet scanner other than the ones listed above, please
-let us know if your model works with this backend.  To do this, please
-subscribe to the sane-devel mailing list and send a
-mail with the relevant information for your scanner to
-.IR sane\-devel@mostang.com .
-For instructions how to subscribe see
+Because Hewlett-Packard does no longer produce scanners that support
+SCL (beside the OfficeJets), the above list is of supported scanners is
+complete.
+Other HP scanners are not supported by the "hp" backend, but might be supported
+by another one. See
+.IR http://www.mostang.com/sane .
+You can also watch the sane-devel mailinglist at
 .IR http://www.mostang.com/sane/mail.html .
 .SH "DEVICE NAMES"
 This backend expects device names of the form:
@@ -102,8 +104,11 @@ The contents of the
 .I hp.conf
 file is a list of options and device names that correspond to HP ScanJet
 scanners.  Empty lines and lines starting with a hash mark
-(#) are ignored. See sane-scsi(5) on details of what constitutes
-a valid device name.
+(#) are ignored. See
+.BR sane-scsi (5)
+and
+.BR sane-usb (5)
+on details of what constitutes a valid device name.
 .PP
 Options specified in front of the first line that contains a device name 
 are defaults for all devices. Options specified below a line that
@@ -127,9 +132,9 @@ Option
 .B connect-device
 specifies that the scanner is connected to the system by a special
 device. Input/output is performed by read()/write()-operations
-on the device. This option must be used for HP ScanJet Plus and
-scanners connected to the USB. However if the scanner requires an USB
-driver that simulates a SCSI device, connect-scsi might be used.
+on the device. This option must be used for HP ScanJet Plus
+or scanners connected to USB which are accessed through a named device
+(e.g. /dev/usb/scanner0).
 For device names that contain "usb", "uscanner" or "ugen", it is not
 necessary to specify option connect-device.
 
@@ -236,7 +241,7 @@ These scanners are using an internal parallel-to-SCSI converter which
 is supported by the ppSCSI-driver (see above).
 
 .SH "SEE ALSO"
-sane(7), sane\-scsi(5)
+sane(7), sane\-scsi(5), sane\-usb(5)
 .SH AUTHOR
 The sane-hp backend was written by Geoffrey T. Dairiki. HP PhotoSmart
 PhotoScanner support by Peter Kirchgessner.

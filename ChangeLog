@@ -1,3 +1,7 @@
+2000-11-08  Jochen Eisinger <jochen.eisinger@gmx.net>
+
+	* include/sane/sanei_debug.h: fixed typo
+
 2000-10-30  Henning Meier-Geinitz <hmg@gmx.de>
 
 	* TODO: Updated. Added points about --without-x and the 

@@ -545,7 +545,7 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
          "%s: effective buffer size = %lu bytes, %lu lines\n",
          me,
         (u_long) pss->buf_sz,
-        (u_long) (pss->buf_sz ? pss->buf_sz / pss->lines : 0));
+        (u_long) (pss->lines ? pss->buf_sz / pss->lines : 0));
     DBG (DL_DATA_TRACE,
         "%s: expected total scan data: %lu bytes\n",
         me,
@@ -772,30 +772,23 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
             (int) (pss->actual_res*IN_PER_MM*SANE_UNFIX(pss->brx));
         int bryp =
             (int) (pss->actual_res*IN_PER_MM*SANE_UNFIX(pss->bry));
-        int tmp;
 
-        /* we don't guard against brx < tlx and bry < tly in the options */
-        if (brxp < tlxp)
-        {
-            tmp = tlxp;
-            tlxp = brxp;
-            brxp = tmp;
+        /* Check for brx > tlx and bry > tly */
+        if (brxp <= tlxp) {
+            tlxp = MAX (0, brxp - 75);
+        }
+        if (bryp <= tlyp) {
+            tlyp = MAX (0, bryp - 75);
         }
 
-        if (bryp < tlyp)
-        {
-            tmp = tlyp;
-            tlyp = bryp;
-            bryp = tmp;
-        }
         u_int_to_u_char4p (tlxp, pc + SET_WINDOW_P_TLX);
         u_int_to_u_char4p (tlyp, pc + SET_WINDOW_P_TLY);
         u_int_to_u_char4p (MAX (((unsigned) (brxp - tlxp)), 75),
                            pc + SET_WINDOW_P_WIDTH);
         u_int_to_u_char4p (MAX (((unsigned) (bryp - tlyp)), 75),
                            pc + SET_WINDOW_P_LENGTH);
-        DBG (DL_CALL_TRACE, "%s Width:  %d\n", me, brxp-tlxp);
-        DBG (DL_CALL_TRACE, "%s Length: %d\n", me, bryp-tlyp);
+        DBG (DL_INFO, "%s Width:  %d\n", me, brxp-tlxp);
+        DBG (DL_INFO, "%s Length: %d\n", me, bryp-tlyp);
     }
     pc[SET_WINDOW_P_BRIGHTNESS] = 128;
     pc[SET_WINDOW_P_THRESHOLD] =
@@ -809,7 +802,7 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
             mode = pss->preview_mode;
 
         bpp = pss->pdev->depths[mode];
-        DBG (DL_CALL_TRACE, "%s Mode: %d\n", me, mode);
+        DBG (DL_MINOR_INFO, "%s Mode: %d\n", me, mode);
         switch (mode)
         {
         case MD_COLOUR:
@@ -835,7 +828,7 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
         }
 
         pc[SET_WINDOW_P_BITS_PER_PIX] = bpp;
-        DBG (DL_DATA_TRACE, "%s: bits-per-pixel set to %d\n", me, (int) bpp);
+        DBG (DL_INFO, "%s: bits-per-pixel set to %d\n", me, (int) bpp);
     }
     /* the RIF bit is the high bit of the padding type */
     pc[SET_WINDOW_P_PADDING_TYPE] = 0x00 /*| (pss->negative ? 0x00 : 0x80) */ ;
@@ -871,12 +864,11 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
         source |= 0x08;
     }
     pc[SET_WINDOW_P_OPERATION_MODE] = source;
-    DBG (DL_DATA_TRACE, "%s: operation mode set to %d\n", me, (int) source);
+    DBG (DL_MINOR_INFO, "%s: operation mode set to %d\n", me, (int) source);
     pc[SET_WINDOW_P_RED_UNDER_COLOR] = 0xff;    /* defaults */
     pc[SET_WINDOW_P_BLUE_UNDER_COLOR] = 0xff;
     pc[SET_WINDOW_P_GREEN_UNDER_COLOR] = 0xff;
 
-    DBG (DL_CALL_TRACE, "%s\n", me);
     status = snapscan_cmd (pss->pdev->bus, pss->fd, pss->cmd,
                SET_WINDOW_TOTAL_LEN, NULL, NULL);
     CHECK_STATUS (status, me, "snapscan_cmd");
@@ -1046,7 +1038,7 @@ static SANE_Status calibrate (SnapScan_Scanner *pss)
     SANE_Status status;
     int line_length = calibration_line_length(pss);
 
-    if (pss->hconfig & HCFG_CAL_ALLOWED) {
+    if ((pss->hconfig & HCFG_CAL_ALLOWED) && line_length) {
         int num_lines = pss->phys_buf_sz / line_length;
         if (num_lines > NUM_CALIBRATION_LINES)
         {
@@ -1177,8 +1169,11 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
- * Revision 1.14  2002/04/10 21:45:52  oliverschwartz
- * Removed illegal character / removed declaration of bqelements
+ * Revision 1.15  2002/04/23 22:37:52  oliverschwartz
+ * SnapScan backend version 1.4.11
+ *
+ * Revision 1.29  2002/04/10 21:46:48  oliverschwartz
+ * Removed illegal character
  *
  * Revision 1.28  2002/04/10 21:01:02  oliverschwartz
  * Disable send_diagnostic() for 1236s

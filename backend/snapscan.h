@@ -92,7 +92,7 @@ typedef enum
     PRISA620S,          /* Acer ScanPrisa 620 - 600 DPI */
     PRISA640,           /* Acer ScanPrisa 640 - 600 DPI */
     PRISA4300,          /* Acer ScanPrisa 3300/4300 - 600 DPI */
-    PRISA4300_2,        /* Acer ScanPrisa 3300/4300 - 600 DPI */
+    PRISA4300_2,        /* Acer ScanPrisa 3300/4300 - 600 DPI, 42 bit*/
     PRISA1240,          /* Acer ScanPrisa 1240 - 1200 DPI */
     PRISA5300           /* Acer ScanPrisa 5300 - 1200 DPI */
 } SnapScan_Model;
@@ -120,7 +120,7 @@ static struct SnapScan_Driver_desc drivers[] =
     {PRISA620S,      "Acer620"},
     {PRISA640,       "Acer640"},
     {PRISA4300,      "Acer4300"},
-    {PRISA4300_2,    "Acer4300-2"},
+    {PRISA4300,      "Acer4300 (42 bit)"},
     {PRISA1240,      "Acer1240"},
     {PRISA5300,      "Acer5300"}
 };
@@ -202,46 +202,46 @@ static struct SnapScan_USB_Model_desc usb_scanners[] =
 
 typedef enum
 {
-    OPT_COUNT = 0,        /* option count */
+    OPT_COUNT = 0,         /* option count */
     OPT_MODE_GROUP,        /* scan mode group */
-    OPT_SCANRES,        /* scan resolution */
-    OPT_PREVIEW,        /* preview mode toggle */
-    OPT_MODE,            /* scan mode */
-    OPT_PREVIEW_MODE,    /* preview mode */
+    OPT_SCANRES,           /* scan resolution */
+    OPT_PREVIEW,           /* preview mode toggle */
+    OPT_MODE,              /* scan mode */
+    OPT_PREVIEW_MODE,      /* preview mode */
     OPT_SOURCE,            /* scan source (flatbed / TPO) */
     OPT_GEOMETRY_GROUP,    /* geometry group */
-    OPT_TLX,            /* top left x */
-    OPT_TLY,            /* top left y */
-    OPT_BRX,            /* bottom right x */
-    OPT_BRY,            /* bottom right y */
-    OPT_PREDEF_WINDOW,    /* predefined window configuration */
-    OPT_ENHANCEMENT_GROUP,    /* enhancement group */
-    OPT_QUALITY_CAL,    /* quality calibration */
-    OPT_HALFTONE,        /* halftone flag */
-    OPT_HALFTONE_PATTERN,    /* halftone matrix */
-    OPT_CUSTOM_GAMMA,    /* use custom gamma tables */
-    OPT_GAMMA_BIND,
-    OPT_GAMMA_GS,        /* gamma correction (greyscale) */
-    OPT_GAMMA_R,        /* gamma correction (red) */
-    OPT_GAMMA_G,        /* gamma correction (green) */
-    OPT_GAMMA_B,        /* gamma correction (blue) */
-    OPT_GAMMA_VECTOR_GS,    /* gamma correction vector (greyscale) */
+    OPT_TLX,               /* top left x */
+    OPT_TLY,               /* top left y */
+    OPT_BRX,               /* bottom right x */
+    OPT_BRY,               /* bottom right y */
+    OPT_PREDEF_WINDOW,     /* predefined window configuration */
+    OPT_ENHANCEMENT_GROUP, /* enhancement group */
+    OPT_QUALITY_CAL,       /* quality calibration */
+    OPT_HALFTONE,          /* halftone flag */
+    OPT_HALFTONE_PATTERN,  /* halftone matrix */
+    OPT_CUSTOM_GAMMA,      /* use custom gamma tables */
+    OPT_GAMMA_BIND,        /* use same gamma value for all colors */
+    OPT_GAMMA_GS,          /* gamma correction (greyscale) */
+    OPT_GAMMA_R,           /* gamma correction (red) */
+    OPT_GAMMA_G,           /* gamma correction (green) */
+    OPT_GAMMA_B,           /* gamma correction (blue) */
+    OPT_GAMMA_VECTOR_GS,   /* gamma correction vector (greyscale) */
     OPT_GAMMA_VECTOR_R,    /* gamma correction vector (red) */
     OPT_GAMMA_VECTOR_G,    /* gamma correction vector (green) */
     OPT_GAMMA_VECTOR_B,    /* gamma correction vector (blue) */
-    OPT_NEGATIVE,        /* swap black and white */
-    OPT_THRESHOLD,        /* threshold for line art */
+    OPT_NEGATIVE,          /* swap black and white */
+    OPT_THRESHOLD,         /* threshold for line art */
     OPT_BRIGHTNESS,        /* brightness */
-    OPT_CONTRAST,        /* contrast */
+    OPT_CONTRAST,          /* contrast */
     OPT_ADVANCED_GROUP,    /* advanced group */
-    OPT_RGB_LPR,        /* lines per scsi read (RGB) */
+    OPT_RGB_LPR,           /* lines per scsi read (RGB) */
     OPT_GS_LPR,            /* lines per scsi read (GS) */
-    OPT_SCSI_CMDS,        /* a group */
-    OPT_INQUIRY,        /* inquiry command (button) */
-    OPT_SELF_TEST,        /* self test command (button) */
-    OPT_REQ_SENSE,        /* request sense command (button) */
-    OPT_REL_UNIT,        /* release unit command (button) */
-    NUM_OPTS            /* dummy (gives number of options) */
+    OPT_SCSI_CMDS,         /* a group */
+    OPT_INQUIRY,           /* inquiry command (button) */
+    OPT_SELF_TEST,         /* self test command (button) */
+    OPT_REQ_SENSE,         /* request sense command (button) */
+    OPT_REL_UNIT,          /* release unit command (button) */
+    NUM_OPTS               /* dummy (gives number of options) */
 } SnapScan_Options;
 
 typedef union
@@ -255,17 +255,18 @@ Option_Value;
 
 typedef enum
 {
-    MD_COLOUR = 0,        /* full colour */
+    MD_COLOUR = 0,       /* full colour */
     MD_BILEVELCOLOUR,    /* 1-bit per channel colour */
     MD_GREYSCALE,        /* grey scale */
-    MD_LINEART,            /* black and white */
+    MD_LINEART,          /* black and white */
     MD_NUM_MODES
 } SnapScan_Mode;
 
 typedef enum
 {
     SRC_FLATBED = 0,    /* Flatbed (normal) */
-    SRC_TPO                /* Transparency unit */
+    SRC_TPO,            /* Transparency unit */
+    SRC_ADF
 } SnapScan_Source;
 
 typedef enum
@@ -366,8 +367,8 @@ struct snapscan_scanner
 
 /*
  * $Log$
- * Revision 1.13  2002/03/24 12:32:38  oliverschwartz
- * Snapscan backend version 1.4.9
+ * Revision 1.14  2002/04/23 22:37:54  oliverschwartz
+ * SnapScan backend version 1.4.11
  *
  * Revision 1.29  2002/03/24 12:14:34  oliverschwartz
  * Add Snapcan_Driver_desc

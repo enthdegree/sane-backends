@@ -49,6 +49,67 @@
 /* $Id$
    SANE SnapScan backend */
 
+/* ranges */
+static const SANE_Range x_range_fb =
+{
+    SANE_FIX (0.0), SANE_FIX (216.0), 0
+};        /* mm */
+static const SANE_Range y_range_fb =
+{
+    SANE_FIX (0.0), SANE_FIX (297.0), 0
+};        /* mm */
+static const SANE_Range x_range_tpo_default =
+{
+    SANE_FIX (0.0), SANE_FIX (129.0), 0
+};        /* mm */
+static const SANE_Range y_range_tpo_default =
+{
+    SANE_FIX (0.0), SANE_FIX (180.0), 0
+};        /* mm */
+static const SANE_Range x_range_tpo_1236 =
+{
+    SANE_FIX (0.0), SANE_FIX (203.0), 0
+};        /* mm */
+static const SANE_Range y_range_tpo_1236 =
+{
+    SANE_FIX (0.0), SANE_FIX (254.0), 0
+};        /* mm */
+static SANE_Range x_range_tpo;
+static SANE_Range y_range_tpo;
+static const SANE_Range gamma_range =
+{
+    SANE_FIX (0.0), SANE_FIX (4.0), 0
+};
+static const SANE_Range gamma_vrange =
+{
+    0, 255, 1
+};
+static const SANE_Range lpr_range =
+{
+    1, 50, 1
+};
+
+static const SANE_Range brightness_range =
+{
+    -400 << SANE_FIXED_SCALE_SHIFT,
+    400 << SANE_FIXED_SCALE_SHIFT,
+    1 << SANE_FIXED_SCALE_SHIFT
+};
+
+static const SANE_Range contrast_range =
+{
+    -100 << SANE_FIXED_SCALE_SHIFT,
+    400 << SANE_FIXED_SCALE_SHIFT,
+    1 << SANE_FIXED_SCALE_SHIFT
+};
+
+static const SANE_Range positive_percent_range =
+{
+    0 << SANE_FIXED_SCALE_SHIFT,
+    100 << SANE_FIXED_SCALE_SHIFT,
+    1 << SANE_FIXED_SCALE_SHIFT
+};
+
 /* init_options -- initialize the option set for a scanner; expects the
    scanner structure's hardware configuration byte (hconfig) to be valid.
 
@@ -213,7 +274,7 @@ static void init_options (SnapScan_Scanner * ps)
         if (ps->hconfig & HCFG_TPO)
         {
             source_list[i++] = src_tpo;
-            po[OPT_SOURCE].cap ^= SANE_CAP_INACTIVE;
+            po[OPT_SOURCE].cap &= ~SANE_CAP_INACTIVE;
         }
         source_list[i] = 0;
         po[OPT_SOURCE].size = max_string_size(source_list);
@@ -553,7 +614,7 @@ static void init_options (SnapScan_Scanner * ps)
         "Send an Inquiry command to the scanner and dump out some of "
         "the current settings.");
     po[OPT_INQUIRY].type = SANE_TYPE_BUTTON;
-    po[OPT_INQUIRY].cap = SANE_CAP_ADVANCED;
+    po[OPT_INQUIRY].cap = SANE_CAP_ADVANCED | SANE_CAP_SOFT_SELECT;
     po[OPT_INQUIRY].constraint_type = SANE_CONSTRAINT_NONE;
 
     po[OPT_SELF_TEST].name = "do-self-test";
@@ -561,7 +622,7 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_SELF_TEST].desc = SANE_I18N(
         "Send a Self Test command to the scanner and report the result.");
     po[OPT_SELF_TEST].type = SANE_TYPE_BUTTON;
-    po[OPT_SELF_TEST].cap = SANE_CAP_ADVANCED;
+    po[OPT_SELF_TEST].cap = SANE_CAP_ADVANCED | SANE_CAP_SOFT_SELECT;
     po[OPT_SELF_TEST].constraint_type = SANE_CONSTRAINT_NONE;
 
     po[OPT_REQ_SENSE].name = "do-req-sense";
@@ -570,7 +631,7 @@ static void init_options (SnapScan_Scanner * ps)
         "Send a Request Sense command to the scanner, and print out the sense "
         "report.");
     po[OPT_REQ_SENSE].type = SANE_TYPE_BUTTON;
-    po[OPT_REQ_SENSE].cap = SANE_CAP_ADVANCED;
+    po[OPT_REQ_SENSE].cap = SANE_CAP_ADVANCED | SANE_CAP_SOFT_SELECT;
     po[OPT_REQ_SENSE].constraint_type = SANE_CONSTRAINT_NONE;
 
     po[OPT_REL_UNIT].name = "do-rel-unit";
@@ -579,7 +640,7 @@ static void init_options (SnapScan_Scanner * ps)
         "Send a Release Unit command to the scanner. This is the same as "
         "a cancel command.");
     po[OPT_REL_UNIT].type = SANE_TYPE_BUTTON;
-    po[OPT_REL_UNIT].cap = SANE_CAP_ADVANCED;
+    po[OPT_REL_UNIT].cap = SANE_CAP_ADVANCED | SANE_CAP_SOFT_SELECT;
     po[OPT_REL_UNIT].constraint_type = SANE_CONSTRAINT_NONE;
 }
 
@@ -990,9 +1051,9 @@ SANE_Status sane_control_option (SANE_Handle h,
             }
             /* Adjust actual range values to new max values */
             if (pss->brx > pss->pdev->x_range.max)
-                pss->brx = pss->pdev->x_range.max - pdev->x_range.quant;
+                pss->brx = pss->pdev->x_range.max;
             if (pss->bry > pss->pdev->y_range.max)
-                pss->bry = pss->pdev->y_range.max - pdev->y_range.quant;
+                pss->bry = pss->pdev->y_range.max;
             pss->predef_window = pdw_none;
             if (pss->source_s)
                 free (pss->source_s);
@@ -1003,48 +1064,48 @@ SANE_Status sane_control_option (SANE_Handle h,
         case OPT_TLX:
             pss->tlx = *(SANE_Fixed *) v;
             pss->predef_window = pdw_none;
-            if (fabs(pss->tlx - pdev->x_range.max) < pdev->x_range.quant) {
-                pss->tlx -= pdev->x_range.quant;
+            if (pss->tlx > pdev->x_range.max) {
+                pss->tlx = pdev->x_range.max;
             }
             if (pss->brx < pss->tlx) {
-                pss->brx = pss->tlx + pdev->x_range.quant;
+                pss->brx = pss->tlx;
             }
             if (i)
                 *i = SANE_INFO_RELOAD_PARAMS;
             break;
         case OPT_TLY:
             pss->tly = *(SANE_Fixed *) v;
-            if (fabs(pss->tly - pdev->y_range.max) < pdev->y_range.quant) {
-                pss->tly -= pdev->y_range.quant;
-            }
             pss->predef_window = pdw_none;
+            if (pss->tly > pdev->y_range.max){
+                pss->tly = pdev->y_range.max;
+            }
             if (pss->bry < pss->tly) {
-                pss->bry = pss->tly + pdev->y_range.quant;
+                pss->bry = pss->tly;
             }
             if (i)
                 *i = SANE_INFO_RELOAD_PARAMS;
             break;
         case OPT_BRX:
             pss->brx = *(SANE_Fixed *) v;
-            if (fabs(pss->brx - pdev->x_range.min) < pdev->x_range.quant) {
-                pss->brx += pdev->x_range.quant;
+            pss->predef_window = pdw_none;
+            if (pss->brx < pdev->x_range.min) {
+                pss->brx = pdev->x_range.min;
             }
             if (pss->brx < pss->tlx) {
-                pss->tlx = pss->brx - pdev->x_range.quant;
+                pss->tlx = pss->brx;
             }
-            pss->predef_window = pdw_none;
             if (i)
                 *i = SANE_INFO_RELOAD_PARAMS;
             break;
         case OPT_BRY:
             pss->bry = *(SANE_Fixed *) v;
-            if (fabs(pss->bry - pdev->y_range.min) < pdev->y_range.quant) {
-                pss->bry += pdev->y_range.quant;
+            pss->predef_window = pdw_none;
+            if (pss->bry < pdev->y_range.min) {
+                pss->bry = pdev->y_range.min;
             }
             if (pss->bry < pss->tly) {
-                pss->tly = pss->bry - pdev->y_range.quant;
+                pss->tly = pss->bry;
             }
-            pss->predef_window = pdw_none;
             if (i)
                 *i = SANE_INFO_RELOAD_PARAMS;
             break;
@@ -1445,8 +1506,8 @@ SANE_Status sane_control_option (SANE_Handle h,
 
 /*
  * $Log$
- * Revision 1.1  2002/03/24 12:32:26  oliverschwartz
- * Snapscan backend version 1.4.9
+ * Revision 1.2  2002/04/23 22:37:51  oliverschwartz
+ * SnapScan backend version 1.4.11
  *
  * Revision 1.1  2002/03/24 12:07:15  oliverschwartz
  * Moved option functions from snapscan.c to snapscan-options.c

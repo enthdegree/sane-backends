@@ -4,9 +4,9 @@
    Emmanuel Blot, Mikko Tyolajarvi, David Mosberger-Tang, Wolfgang Goeller,
    Petter Reinholdtsen, Gary Plewa, Sebastien Sable, Mikael Magnusson,
    Oliver Schwartz and Kevin Charter
- 
+
    This file is part of the SANE package.
- 
+
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
    published by the Free Software Foundation; either version 2 of the
@@ -21,7 +21,7 @@
    along with this program; if not, write to the Free Software
    Foundation, Inc., 59 Temple Place - Suite 330, Boston,
    MA 02111-1307, USA.
- 
+
    As a special exception, the authors of SANE give permission for
    additional uses of the libraries contained in this release of SANE.
  
@@ -34,11 +34,11 @@
    This exception does not, however, invalidate any other reasons why
    the executable file might be covered by the GNU General Public
    License.
- 
+
    If you submit changes to SANE to the maintainers to be included in
    a subsequent release, you agree by submitting the changes that
    those changes may be distributed with this exception intact.
- 
+
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
@@ -78,7 +78,7 @@
 
 #define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
-#define BUILD                9
+#define BUILD               11
 
 #include "snapscan.h"
 
@@ -98,13 +98,13 @@
 #include "../include/sane/sanei_config.h"
 
 /* debug levels */
-#define DL_INFO        1
-#define DL_MINOR_INFO  2
+#define DL_INFO        10
+#define DL_MINOR_INFO  15
 #define DL_MAJOR_ERROR 1
 #define DL_MINOR_ERROR 2
-#define DL_DATA_TRACE  5
-#define DL_CALL_TRACE  10
-#define DL_VERBOSE     30
+#define DL_DATA_TRACE  50
+#define DL_CALL_TRACE  30
+#define DL_VERBOSE     20
 
 #define CHECK_STATUS(s,caller,cmd) \
 if ((s) != SANE_STATUS_GOOD) { DBG(DL_MAJOR_ERROR, "%s: %s command failed: %s\n", caller, (cmd), sane_strstatus(s)); return s; }
@@ -149,66 +149,6 @@ if ((s) != SANE_STATUS_GOOD) { DBG(DL_MAJOR_ERROR, "%s: %s command failed: %s\n"
 static SANE_Int def_rgb_lpr = 4;
 static SANE_Int def_gs_lpr = 12;
 
-/* ranges */
-static const SANE_Range x_range_fb =
-{
-    SANE_FIX (0.0), SANE_FIX (216.0), 0
-};        /* mm */
-static const SANE_Range y_range_fb =
-{
-    SANE_FIX (0.0), SANE_FIX (297.0), 0
-};        /* mm */
-static const SANE_Range x_range_tpo_default =
-{
-    SANE_FIX (0.0), SANE_FIX (129.0), 0
-};        /* mm */
-static const SANE_Range y_range_tpo_default =
-{
-    SANE_FIX (0.0), SANE_FIX (180.0), 0
-};        /* mm */
-static const SANE_Range x_range_tpo_1236 =
-{
-    SANE_FIX (0.0), SANE_FIX (203.0), 0
-};        /* mm */
-static const SANE_Range y_range_tpo_1236 =
-{
-    SANE_FIX (0.0), SANE_FIX (254.0), 0
-};        /* mm */
-static SANE_Range x_range_tpo;
-static SANE_Range y_range_tpo;
-static const SANE_Range gamma_range =
-{
-    SANE_FIX (0.0), SANE_FIX (4.0), 0
-};
-static const SANE_Range gamma_vrange =
-{
-    0, 255, 1
-};
-static const SANE_Range lpr_range =
-{
-    1, 50, 1
-};
-
-static const SANE_Range brightness_range =
-{
-    -400 << SANE_FIXED_SCALE_SHIFT,
-    400 << SANE_FIXED_SCALE_SHIFT,
-    1 << SANE_FIXED_SCALE_SHIFT
-};
-
-static const SANE_Range contrast_range =
-{
-    -100 << SANE_FIXED_SCALE_SHIFT,
-    400 << SANE_FIXED_SCALE_SHIFT,
-    1 << SANE_FIXED_SCALE_SHIFT
-};
-
-static const SANE_Range positive_percent_range =
-{
-    0 << SANE_FIXED_SCALE_SHIFT,
-    100 << SANE_FIXED_SCALE_SHIFT,
-    1 << SANE_FIXED_SCALE_SHIFT
-};
 
 /* predefined preview mode name */
 static char md_auto[] = "Auto";
@@ -812,16 +752,19 @@ SANE_Status sane_init (SANE_Int *version_code,
                     }
                 }
             }
-            if (strncasecmp(dev_name, OPTIONS_KW, strlen(OPTIONS_KW)) == 0)
+            else if (strncasecmp(dev_name, OPTIONS_KW, strlen(OPTIONS_KW)) == 0)
                 continue;                   /* ignore options lines */
 
-            if (strncmp(dev_name, "usb", 3) == 0) {
+            else if (strncmp(dev_name, "usb", 3) == 0) {
                 sanei_usb_attach_matching_devices (dev_name, add_usb_device);
-            } else if (strncmp(dev_name, "scsi", 4) == 0) {
+            } 
+            else if (strncmp(dev_name, "scsi", 4) == 0) {
                 sanei_config_attach_matching_devices (dev_name, add_scsi_device);
-            } else if (strstr (dev_name, "usb")) {
+            } 
+            else if (strstr (dev_name, "usb")) {
                 add_usb_device(dev_name);
-            } else {
+            } 
+            else {
                 add_scsi_device(dev_name);
             }
         }
@@ -1814,8 +1757,11 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
- * Revision 1.20  2002/03/24 16:42:04  oliverschwartz
- * Fix segfault in snapscan.c
+ * Revision 1.21  2002/04/23 22:37:53  oliverschwartz
+ * SnapScan backend version 1.4.11
+ *
+ * Revision 1.42  2002/04/10 21:00:09  oliverschwartz
+ * Check for NULL pointer before deleting device list
  *
  * Revision 1.41  2002/03/24 12:12:36  oliverschwartz
  * - Moved option functions to snapscan-options.c

@@ -13,6 +13,8 @@
 	  the physical scan area" problem as it applies to most flatbed
 	  scanners. Added info about test backend. Added info about saned
 	  security issues.
+	* README.linux: Moved "memory exhausted" and missing scsi headers
+	  problems from PROBLEMS.
 
 2003-02-09   Stéphane Voltz  <svoltz@wanadoo.fr>
 

@@ -70,6 +70,15 @@ SCSI Direct IO: Recent versions of the Linux SG driver for the 2.4 kernels
 
 	configure --enable-scsi-directio=yes
 
+Very old Linux distributions are missing the /usr/include/scsi directory.  In
+such a case, it is necessary to copy the relevant files from the kernel
+distribution.  Normally, the command:
+
+  cp -a /usr/src/linux/include/scsi /usr/include
+
+should fix this problem. Don't do this if you don't get compilation errors
+about missing SCSI headers.
+
 
 Other Information
 =================
@@ -82,6 +91,10 @@ Excessive warnings "pointer of type `void *' used in arithmetic":
 
   and rerun configure.
 
+Older gcc compilers may abort with error "virtual memory exhausted",
+  usually in canon.c. Try to compile with lower optimization levels:
+  make CFLAGS="-g -Wall -O1", make CFLAGS="-g -Wall -O", or
+  make CFLAGS="-g -Wall".
 
 If you use DEC cc on Linux Alpha, you may need to set LDFLAGS="-N" to
   be able to build sane-backends.

@@ -65,8 +65,10 @@
 
  ***************************************************************************
 
-   This file implements a SANE backend for the Kodak DC-240
-   digital camera.  THIS IS EXTREMELY ALPHA CODE!  USE AT YOUR OWN RISK!! 
+   This file implements a SANE backend for digital cameras 
+   supported by the gphoto2 libraries.
+ 
+   THIS IS EXTREMELY ALPHA CODE!  USE AT YOUR OWN RISK!! 
 
    (feedback to:  peter@fales.com
 
@@ -97,8 +99,10 @@
 
 #include <gphoto2-core.h>
 #include <gphoto2-camera.h>
+#include <gphoto2-debug.h>
 
-#define CHECK(f) {int res = f; if (res < 0) {DBG (0,"ERROR: %s\n", gp_result_as_string (res)); exit (1);}}
+#define CHECK_EXIT(f) {int res = f; if (res < 0) {DBG (0,"ERROR: %s\n", gp_result_as_string (res)); exit (1);}}
+#define CHECK_RET(f) {int res = f; if (res < 0) {DBG (0,"ERROR: %s\n", gp_result_as_string (res)); return (SANE_STATUS_INVAL);}}
 
 #ifndef PATH_MAX
 # define PATH_MAX	1024
@@ -107,27 +111,25 @@
 #define MAGIC			(void *)0xab730324
 #define GPHOTO2_CONFIG_FILE 	"gphoto2.conf"
 
-# define DEFAULT_TTY		"usb:"
-
 static SANE_Bool is_open = 0;
 
-static SANE_Bool gphoto2_opt_thumbnails;
-static SANE_Bool gphoto2_opt_snap;
-static SANE_Bool gphoto2_opt_lowres;
-static SANE_Bool gphoto2_opt_erase;
-static SANE_Bool gphoto2_opt_autoinc;
-static SANE_Bool dumpinquiry;
+/* Options selected by frontend: */
+static SANE_Bool gphoto2_opt_thumbnails;	/* Read thumbnails */
+static SANE_Bool gphoto2_opt_snap;	/* Take new picture */
+static SANE_Bool gphoto2_opt_lowres;	/* Set low resolution */
+static SANE_Bool gphoto2_opt_erase;	/* Erase after downloading */
+static SANE_Bool gphoto2_opt_autoinc;	/* Increment image number */
+static SANE_Bool dumpinquiry;	/* Dump status info */
 
+/* Used for jpeg decompression */
 static struct jpeg_decompress_struct cinfo;
 static djpeg_dest_ptr dest_mgr = NULL;
 
 static SANE_Int highres_height = 960, highres_width = 1280;
-static SANE_Int lowres_height = 480, lowres_width = 640;
 static SANE_Int thumb_height = 120, thumb_width = 160;
-static SANE_String TopFolder;
-static SANE_String Gphoto2Path = "gphoto2";
+static SANE_String TopFolder;	/* Fixed part of path strings */
 
-static GPHOTO2 Cam_data;
+static GPHOTO2 Cam_data;	/* Other camera data */
 
 static SANE_Range image_range = {
   0,
@@ -317,6 +319,8 @@ static SANE_Int linebuffer_index = 0;
 /* used for setting up commands */
 static SANE_Char cmdbuf[256];
 
+/* Structures used by gphoto2 API */
+static CameraAbilities *abilities;
 static CameraFile *data_file;
 static const char *data_ptr;
 static long data_size, data_cur;
@@ -324,42 +328,96 @@ static long data_size, data_cur;
 #include <sys/time.h>
 #include <unistd.h>
 
+/*
+ * init_gphoto2() - Initialize interface to camera using gphoto2 API
+ */
 static SANE_Int
 init_gphoto2 (void)
 {
-  SANE_Int n;
+  SANE_Int n, entries;
   CameraList *list;
 
   DBG (1, "GPHOTO2 Backend 05/16/01\n");
 
-  CHECK (gp_camera_new (&camera));
-  CHECK (gp_camera_set_model (camera, (char *) Cam_data.camera_name));
-  CHECK (gp_camera_set_port_path (camera, (char *) Cam_data.tty_name));
-  CHECK (gp_camera_init (camera));
-  CHECK (gp_list_new (&list));
-  CHECK (gp_camera_folder_list_folders (camera, "/PCCARD/DCIM", list));
+  CHECK_RET (gp_camera_new (&camera));
+
+  if (!Cam_data.camera_name)
+    {
+      DBG (0, "Camera name not specified in config file\n");
+      exit (1);
+    }
+  CHECK_RET (gp_camera_set_model (camera, (char *) Cam_data.camera_name));
+
+  if (!Cam_data.port)
+    {
+      DBG (0, "Camera port not specified in config file\n");
+      exit (1);
+    }
+  CHECK_RET (gp_camera_set_port_path (camera, (char *) Cam_data.port));
+  if (Cam_data.speed)
+    {
+      CHECK_RET (gp_camera_set_port_speed (camera, Cam_data.speed));
+    }
+  CHECK_RET (gp_camera_init (camera));
+  CHECK_RET (gp_list_new (&list));
+
+  CHECK_RET (gp_abilities_new (&abilities));
+  CHECK_RET (gp_camera_abilities_by_name (Cam_data.camera_name, abilities));
+
+  if (!(abilities->operations & GP_OPERATION_CAPTURE_IMAGE))
+    {
+      DBG (0, "Camera does not support image capture\n");
+      return SANE_STATUS_INVAL;
+    }
+
+  for (n = 0; abilities->speed[n]; n++)
+    {
+      if (abilities->speed[n] == Cam_data.speed)
+	{
+	  break;
+	}
+      if (abilities->speed[n] == 0)
+	{
+	  DBG (0,
+	       "%s: error: %d is not a valid speed for this camers.  Use \"gphoto2 --camera \"%s\" --abilities\" for list.\n",
+	       "init_gphoto2", Cam_data.camera_name, Cam_data.speed);
+	  return SANE_STATUS_INVAL;
+	}
+    }
+
+  CHECK_RET (gp_camera_folder_list_folders (camera, "/PCCARD/DCIM", list));
   n = gp_list_count (list);
   if (n < 0)
     {
-      return -1;
+      DBG (0, "Unable to get file list\n");
+      return SANE_STATUS_INVAL;
     }
+
+
   return SANE_STATUS_GOOD;
 }
 
+/*
+ * close_gphoto2() - Shutdown camera interface 
+ */
 static void
-close_gphoto2 (SANE_Int fd)
+close_gphoto2 (void)
 {
   /*
    *    Put the camera back to 9600 baud
    */
 
-  if (close (fd) == -1)
+  if (gp_camera_unref (camera))
     {
       DBG (1, "close_gphoto2: error: could not close device\n");
     }
 }
 
-int
+/*
+ * get_info() - Get overall information about camera: folder names,
+ *	number of pictures, etc.
+ */
+SANE_Int
 get_info (void)
 {
   SANE_String_Const val;
@@ -416,10 +474,15 @@ get_info (void)
   Cam_data.pic_taken = 0;
   Cam_data.pic_left = 1;	/* Just a guess! */
 
-  return 0;
+  return SANE_STATUS_GOOD;
 
 }
 
+/* 
+ * erase() - erase file from camera corresponding to 
+ *	current picture number.  Does not update any of the other
+ *	backend data structures.
+ */
 static SANE_Int
 erase (void)
 {
@@ -427,14 +490,18 @@ erase (void)
 
   sprintf (cmdbuf, "%s/%s", (char *) TopFolder,
 	   (const char *) folder_list[current_folder]);
-  CHECK (gp_list_get_name
-	 (dir_list, Cam_data.current_picture_number - 1, &filename));
+  CHECK_RET (gp_list_get_name
+	     (dir_list, Cam_data.current_picture_number - 1, &filename));
 
-  CHECK (gp_camera_file_delete (camera, cmdbuf, filename));
+  CHECK_RET (gp_camera_file_delete (camera, cmdbuf, filename));
 
   return SANE_STATUS_GOOD;
 }
 
+/*
+ * change_res() - FIXME:  Would like to set resolution, but haven't figure
+ * 	out how to control that yet.
+ */
 static SANE_Int
 change_res (SANE_Byte res)
 {
@@ -443,10 +510,15 @@ change_res (SANE_Byte res)
 
 }
 
+/*
+ * sane_init() - Initialization function from SANE API.  Initialize some
+ *	data structures, verify that all the necessary config information
+ *	is present, and initialize gphoto2
+ */
 SANE_Status
 sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
 {
-
+  SANE_Int n, entries;
   SANE_Char f[] = "sane_init";
   SANE_Char dev_name[PATH_MAX], *p;
   SANE_Char buf[256];
@@ -457,20 +529,20 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
 
   if (getenv ("GP_DEBUG"))
     {
-      CHECK (gp_init (atoi (getenv ("GP_DEBUG"))));
+      gp_debug_set_level (atoi (getenv ("GP_DEBUG")));
     }
   else
     {
-      CHECK (gp_init (GP_DEBUG_NONE));
+      /* NOTE:  One side effect of gp_debug_set_level() is that
+       * it initializes the gphoto2 library, so we need it even
+       * when the level is 0.
+       */
+      gp_debug_set_level (0);
     }
-
   if (version_code)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, 0);
 
   fp = sanei_config_open (GPHOTO2_CONFIG_FILE);
-
-  /* defaults */
-  Cam_data.tty_name = DEFAULT_TTY;
 
   if (!fp)
     {
@@ -492,19 +564,18 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
 	    continue;		/* ignore empty lines */
 	  if (strncmp (dev_name, "port=", 5) == 0)
 	    {
-	      SANE_Int n, entries;
-
 	      p = dev_name + 5;
 	      if (p)
-		Cam_data.tty_name = strdup (p);
-	      DBG (20, "Config file port=%s\n", Cam_data.tty_name);
+		Cam_data.port = strdup (p);
+	      DBG (20, "Config file port=%s\n", Cam_data.port);
 
-	      CHECK (entries = gp_port_count_get ());
+	      /* Validate port */
+	      CHECK_RET (entries = gp_port_count_get ());
 	      for (n = 0; n < entries; n++)
 		{
 		  gp_port_info info;
-		  CHECK (gp_port_info_get (n, &info));
-		  if (strcmp (Cam_data.tty_name, info.path) == 0)
+		  CHECK_RET (gp_port_info_get (n, &info));
+		  if (strcmp (Cam_data.port, info.path) == 0)
 		    {
 		      break;
 		    }
@@ -513,22 +584,21 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
 		{
 		  DBG (0,
 		       "%s: error: %s is not a valid gphoto2 port.  Use \"gphoto2 --list-ports\" for list.\n",
-		       f, Cam_data.tty_name);
+		       "init_gphoto2", Cam_data.port);
 		  exit (1);
 		}
 	    }
 	  else if (strncmp (dev_name, "camera=", 7) == 0)
 	    {
-	      SANE_Int n, entries;
 	      Cam_data.camera_name = strdup (dev_name + 7);
 	      DBG (20, "Config file camera=%s\n", Cam_data.camera_name);
 	      sprintf (buf, "Image selection - %s", Cam_data.camera_name);
 
-	      CHECK (entries = gp_camera_count ());
+	      CHECK_RET (entries = gp_camera_count ());
 	      for (n = 0; n < entries; n++)
 		{
 		  const char *buf;
-		  CHECK (gp_camera_name (n, &buf));
+		  CHECK_RET (gp_camera_name (n, &buf));
 		  if (strcmp (Cam_data.camera_name, buf) == 0)
 		    {
 		      break;
@@ -548,18 +618,19 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
 	    {
 	      dumpinquiry = SANE_TRUE;
 	    }
-	  else if (strncmp (dev_name, "high_resolution=", 16) == 0)
+	  else if (strncmp (dev_name, "speed=", 6) == 0)
 	    {
-	      sscanf (&dev_name[16], "%dx%d", &highres_width,
-		      &highres_height);
-	      DBG (20, "Config file high_resolution=%ux%u\n", highres_width,
-		   highres_height);
+	      sscanf (&dev_name[6], "%d", &Cam_data.speed);
+
+	      DBG (20, "Config file speed=%u\n", Cam_data.speed);
+
 	    }
-	  else if (strncmp (dev_name, "low_resolution=", 15) == 0)
+	  else if (strncmp (dev_name, "resolution=", 11) == 0)
 	    {
-	      sscanf (&dev_name[15], "%dx%d", &lowres_width, &lowres_height);
-	      DBG (20, "Config file low_resolution=%ux%u\n", lowres_width,
-		   lowres_height);
+	      sscanf (&dev_name[11], "%dx%d", &highres_width,
+		      &highres_height);
+	      DBG (20, "Config file resolution=%ux%u\n", highres_width,
+		   highres_height);
 	    }
 	  else if (strncmp (dev_name, "thumb_resolution=", 17) == 0)
 	    {
@@ -572,22 +643,17 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
 	      TopFolder = strdup (&dev_name[10]);
 	      DBG (20, "Config file topfolder=%s\n", TopFolder);
 	    }
-	  else if (strncmp (dev_name, "gphoto2path=", 12) == 0)
-	    {
-	      Gphoto2Path = strdup (&dev_name[12]);
-	      DBG (20, "Config file gphoto2path=%s\n", Gphoto2Path);
-	    }
 	}
       fclose (fp);
     }
 
-  if (init_gphoto2 () == -1)
+  if (init_gphoto2 () != SANE_STATUS_GOOD)
     return SANE_STATUS_INVAL;
 
-  if (get_info () == -1)
+  if (get_info () != SANE_STATUS_GOOD)
     {
       DBG (1, "error: could not get info\n");
-      close_gphoto2 (Cam_data.fd);
+      close_gphoto2 ();
       return SANE_STATUS_INVAL;
     }
 
@@ -612,20 +678,63 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
 
   if (dumpinquiry)
     {
+      SANE_Int x = 0;
       DBG (0, "\nCamera information:\n~~~~~~~~~~~~~~~~~\n\n");
-      DBG (0, "Model...........: DC%s\n", "240");
-      DBG (0, "Firmware version: %d.%d\n", Cam_data.ver_major,
-	   Cam_data.ver_minor);
-      DBG (0, "Pictures........: %d/%d\n", Cam_data.pic_taken,
-	   Cam_data.pic_taken + Cam_data.pic_left);
-      DBG (0, "Battery state...: %s\n",
-	   Cam_data.flags.low_batt == 0 ? "good" : (Cam_data.flags.low_batt ==
-						    1 ? "weak" : "empty"));
+      DBG (0, "Model                            : %s\n", abilities->model);
+      DBG (0, "Pictures                         : %d\n", Cam_data.pic_taken);
+      DBG (0, "Serial port support              : %s\n",
+	   SERIAL_SUPPORTED (abilities->port) ? "yes" : "no");
+      DBG (0, "Parallel port support            : %s\n",
+	   PARALLEL_SUPPORTED (abilities->port) ? "yes" : "no");
+      DBG (0, "USB support                      : %s\n",
+	   USB_SUPPORTED (abilities->port) ? "yes" : "no");
+      DBG (0, "IEEE1394 support                 : %s\n",
+	   IEEE1394_SUPPORTED (abilities->port) ? "yes" : "no");
+      DBG (0, "Network support                  : %s\n",
+	   NETWORK_SUPPORTED (abilities->port) ? "yes" : "no");
+
+      if (abilities->speed[0] != 0)
+	{
+	  DBG (0, "Transfer speeds supported        :\n");
+	  do
+	    {
+	      DBG (0, "                                 : %i\n",
+		   abilities->speed[x]);
+	      x++;
+	    }
+	  while (abilities->speed[x] != 0);
+	}
+      DBG (0, "Capture choices                  :\n");
+      if (abilities->operations & GP_OPERATION_CAPTURE_IMAGE)
+	DBG (0, "                                 : Image\n");
+      if (abilities->operations & GP_OPERATION_CAPTURE_VIDEO)
+	DBG (0, "                                 : Video\n");
+      if (abilities->operations & GP_OPERATION_CAPTURE_AUDIO)
+	DBG (0, "                                 : Audio\n");
+      if (abilities->operations & GP_OPERATION_CAPTURE_PREVIEW)
+	DBG (0, "                                 : Preview\n");
+      DBG (0, "Configuration support            : %s\n",
+	   abilities->operations & GP_OPERATION_CONFIG ? "yes" : "no");
+
+      DBG (0, "Delete files on camera support   : %s\n",
+	   abilities->
+	   file_operations & GP_FILE_OPERATION_DELETE ? "yes" : "no");
+      DBG (0, "File preview (thumbnail) support : %s\n",
+	   abilities->
+	   file_operations & GP_FILE_OPERATION_PREVIEW ? "yes" : "no");
+      DBG (0, "File upload support              : %s\n",
+	   abilities->
+	   folder_operations & GP_FOLDER_OPERATION_PUT_FILE ? "yes" : "no");
+
+
     }
 
   return SANE_STATUS_GOOD;
 }
 
+/*
+ * sane_exit() - Required by SANE API, but otherwise not used
+ */
 void
 sane_exit (void)
 {
@@ -645,6 +754,9 @@ static const SANE_Device *devlist[] = {
   dev + 0, 0
 };
 
+/*
+ * sane_get_devices() - From SANE API
+ */
 SANE_Status
 sane_get_devices (const SANE_Device *** device_list, SANE_Bool
 		  UNUSEDARG local_only)
@@ -655,6 +767,10 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool
   *device_list = devlist;
   return SANE_STATUS_GOOD;
 }
+
+/*
+ * sane_open() - From SANE API
+ */
 
 SANE_Status
 sane_open (SANE_String_Const devicename, SANE_Handle * handle)
@@ -695,6 +811,10 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   return SANE_STATUS_GOOD;
 }
 
+/*
+ * sane_close() - From SANE API
+ */
+
 void
 sane_close (SANE_Handle handle)
 {
@@ -704,6 +824,10 @@ sane_close (SANE_Handle handle)
 
   DBG (127, "sane_close returning\n");
 }
+
+/*
+ * sane_get_option_descriptor() - From SANE API
+ */
 
 const SANE_Option_Descriptor *
 sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
@@ -716,6 +840,10 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 }
 
 static SANE_Int myinfo = 0;
+
+/*
+ * sane_control_option() - From SANE API
+ */
 
 SANE_Status
 sane_control_option (SANE_Handle handle, SANE_Int option,
@@ -797,7 +925,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  else
 	    {
 	      /* deactivate the resolution setting */
-	      /*  sod [GPHOTO2_OPT_LOWRES].cap |= SANE_CAP_INACTIVE; */
+	      sod[GPHOTO2_OPT_LOWRES].cap |= SANE_CAP_INACTIVE;
 	      /* and activate the image number selector, if there are 
 	       * pictures available */
 	      if (Cam_data.current_picture_number)
@@ -814,7 +942,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  gphoto2_opt_lowres = !!*(SANE_Word *) value;
 	  myinfo |= SANE_INFO_RELOAD_PARAMS;
 
-/* XXX - change the number of pictures left depending on resolution
+/* FIXME - change the number of pictures left depending on resolution
    perhaps just call get_info again?
 */
 	  set_res (gphoto2_opt_lowres);
@@ -838,24 +966,24 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  gphoto2_opt_snap = 0;
 
 	  /* deactivate the resolution setting */
-/*	  sod[GPHOTO2_OPT_LOWRES].cap |= SANE_CAP_INACTIVE; */
+	  sod[GPHOTO2_OPT_LOWRES].cap |= SANE_CAP_INACTIVE;
 	  /* and activate the image number selector */
 	  sod[GPHOTO2_OPT_IMAGE_NUMBER].cap &= ~SANE_CAP_INACTIVE;
 
 	  myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
 
-	  DBG (1, "Fixme: Set all defaults here!\n");
+	  DBG (1, "FIXME: Set all defaults here!\n");
 	  break;
 
 	case GPHOTO2_OPT_INIT_GPHOTO2:
-	  if ((Cam_data.fd = init_gphoto2 ()) == -1)
+	  if (init_gphoto2 () != SANE_STATUS_GOOD)
 	    {
 	      return SANE_STATUS_INVAL;
 	    }
-	  if (get_info () == -1)
+	  if (get_info () != SANE_STATUS_GOOD)
 	    {
 	      DBG (1, "error: could not get info\n");
-	      close_gphoto2 (Cam_data.fd);
+	      close_gphoto2 ();
 	      return SANE_STATUS_INVAL;
 	    }
 
@@ -932,6 +1060,9 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   return SANE_STATUS_GOOD;
 }
 
+/*
+ * sane_get_parameters() - From SANE API
+ */
 SANE_Status
 sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 {
@@ -1010,6 +1141,9 @@ jpeg_term_source (j_decompress_ptr UNUSEDARG cinfo)
   /* no work necessary here */
 }
 
+/*
+ * sane_start() - From SANE API
+ */
 SANE_Status
 sane_start (SANE_Handle handle)
 {
@@ -1057,24 +1191,24 @@ sane_start (SANE_Handle handle)
 	}
     }
 
-  CHECK (gp_file_new (&data_file));
+  CHECK_RET (gp_file_new (&data_file));
   sprintf (cmdbuf, "%s/%s", (char *) TopFolder,
 	   (const char *) folder_list[current_folder]);
-  CHECK (gp_list_get_name
-	 (dir_list, Cam_data.current_picture_number - 1, &filename));
+  CHECK_RET (gp_list_get_name
+	     (dir_list, Cam_data.current_picture_number - 1, &filename));
 
-  CHECK (gp_camera_file_get (camera, cmdbuf, filename,
-			     gphoto2_opt_thumbnails ? GP_FILE_TYPE_PREVIEW :
-			     GP_FILE_TYPE_NORMAL, data_file));
+  CHECK_RET (gp_camera_file_get (camera, cmdbuf, filename,
+				 gphoto2_opt_thumbnails ? GP_FILE_TYPE_PREVIEW
+				 : GP_FILE_TYPE_NORMAL, data_file));
 
-  CHECK (gp_file_get_mime_type (data_file, &mime_type));
+  CHECK_RET (gp_file_get_mime_type (data_file, &mime_type));
   if (strcmp (GP_MIME_JPEG, mime_type) != 0)
     {
       DBG (0, "FIXME - Only jpeg files currently supported\n");
       exit (1);
     }
 
-  CHECK (gp_file_get_data_and_size (data_file, &data_ptr, &data_size));
+  CHECK_RET (gp_file_get_data_and_size (data_file, &data_ptr, &data_size));
 
   data_cur = 0;
 
@@ -1127,6 +1261,9 @@ sane_start (SANE_Handle handle)
   return SANE_STATUS_GOOD;
 }
 
+/*
+ * sane_read() - From SANE API
+ */
 SANE_Status
 sane_read (SANE_Handle UNUSEDARG handle, SANE_Byte * data,
 	   SANE_Int max_length, SANE_Int * length)
@@ -1167,12 +1304,15 @@ sane_read (SANE_Handle UNUSEDARG handle, SANE_Byte * data,
 
 	  sprintf (cmdbuf, "%s/%s", (char *) TopFolder,
 		   (const char *) folder_list[current_folder]);
-	  CHECK (gp_list_get_name
-		 (dir_list, Cam_data.current_picture_number - 1, &filename));
+	  CHECK_RET (gp_list_get_name
+		     (dir_list, Cam_data.current_picture_number - 1,
+		      &filename));
 
 	  Cam_data.pic_taken--;
 	  Cam_data.pic_left++;
-	  Cam_data.current_picture_number = Cam_data.pic_taken;
+	  if ( Cam_data.current_picture_number > Cam_data.pic_taken ) {
+		  Cam_data.current_picture_number = Cam_data.pic_taken;
+	  }
 	  image_range.max--;
 	  if (image_range.max == 0)
 	    {
@@ -1191,11 +1331,11 @@ sane_read (SANE_Handle UNUSEDARG handle, SANE_Byte * data,
 	    {
 	      SANE_String_Const tfilename;
 
-	      CHECK (gp_list_get_name (dir_list, i, &tfilename));
+	      CHECK_RET (gp_list_get_name (dir_list, i, &tfilename));
 	      /* If not the one to delete, copy to the new list */
 	      if (strcmp (tfilename, filename) != 0)
 		{
-		  CHECK (gp_list_append (tmp_list, tfilename, NULL));
+		  CHECK_RET (gp_list_append (tmp_list, tfilename, NULL));
 		}
 	    }
 	  gp_list_free (dir_list);
@@ -1223,7 +1363,14 @@ sane_read (SANE_Handle UNUSEDARG handle, SANE_Byte * data,
       return SANE_STATUS_EOF;
     }
 
-/* XXX - we should read more than 1 line at a time here */
+/* 
+ * FIXME:  Current implementation reads one scan line at a time.  Part
+ * of the reason for this is in the original code is to give the frontend 
+ * a chance to update  * the progress marker periodically.  Since the gphoto2
+ * driver sucks in the whole image before decoding it, perhaps we could
+ * come up with a simpler implementation.
+ */
+
   lines = 1;
   (void) jpeg_read_scanlines (&cinfo, dest_mgr->buffer, lines);
   (*dest_mgr->put_pixel_rows) (&cinfo, dest_mgr, lines, (char *) linebuffer);
@@ -1242,6 +1389,9 @@ sane_read (SANE_Handle UNUSEDARG handle, SANE_Byte * data,
   return SANE_STATUS_GOOD;
 }
 
+/*
+ * sane_cancel() - From SANE API
+ */
 void
 sane_cancel (SANE_Handle UNUSEDARG handle)
 {
@@ -1253,6 +1403,9 @@ sane_cancel (SANE_Handle UNUSEDARG handle)
     DBG (4, "sane_cancel: not scanning - nothing to do\n");
 }
 
+/*
+ * sane_set_io_mode() - From SANE API
+ */
 SANE_Status
 sane_set_io_mode (SANE_Handle UNUSEDARG handle, SANE_Bool
 		  UNUSEDARG non_blocking)
@@ -1260,6 +1413,9 @@ sane_set_io_mode (SANE_Handle UNUSEDARG handle, SANE_Bool
   return SANE_STATUS_UNSUPPORTED;
 }
 
+/*
+ * sane_get_select_fd() - From SANE API
+ */
 SANE_Status
 sane_get_select_fd (SANE_Handle UNUSEDARG handle, SANE_Int * UNUSEDARG fd)
 {
@@ -1322,6 +1478,9 @@ get_pictures_info (void)
   return pics;
 }
 
+/*
+ * sane_picture_info() - get info about picture p
+ */
 static SANE_Int
 get_picture_info (PictureInfo * pic, SANE_Int p)
 {
@@ -1358,23 +1517,23 @@ snap_pic (void)
       return SANE_STATUS_INVAL;
     }
 
-  CHECK (gp_camera_capture (camera, GP_OPERATION_CAPTURE_IMAGE, &path));
+  CHECK_RET (gp_camera_capture (camera, GP_OPERATION_CAPTURE_IMAGE, &path));
 
   /* Can't just increment picture count, because if the camera has
    * zero pictures we may not know the folder name.  Start over
    * with get_info and get_pictures_info
    */
-  if (get_info () == -1)
+  if (get_info () != SANE_STATUS_GOOD)
     {
       DBG (1, "error: could not get info\n");
-      close_gphoto2 (Cam_data.fd);
+      close_gphoto2 ();
       return SANE_STATUS_INVAL;
     }
 
   if (get_pictures_info () == NULL)
     {
       DBG (1, "%s: Failed to get new picture info\n", f);
-      /* XXX - I guess we should try to erase the image here */
+      /* FIXME - I guess we should try to erase the image here */
       return SANE_STATUS_INVAL;
     }
 
@@ -1414,11 +1573,11 @@ read_dir (SANE_String dir, SANE_Bool read_files)
 
   if (read_files)
     {
-      CHECK (gp_camera_folder_list_files (camera, dir, dir_list));
+      CHECK_RET (gp_camera_folder_list_files (camera, dir, dir_list));
     }
   else
     {
-      CHECK (gp_camera_folder_list_folders (camera, dir, dir_list));
+      CHECK_RET (gp_camera_folder_list_folders (camera, dir, dir_list));
     }
 
   retval = gp_list_count (dir_list);
@@ -1439,8 +1598,6 @@ read_info (SANE_String_Const fname)
   strcat (path, "\\");
   strcat (path, fname);
 
-
-
   return 0;
 }
 
@@ -1450,17 +1607,13 @@ read_info (SANE_String_Const fname)
 static void
 set_res (SANE_Int lowres)
 {
+  lowres - lowres;
+
   if (gphoto2_opt_thumbnails)
     {
       parms.bytes_per_line = THUMB_WIDTH * 3;
       parms.pixels_per_line = THUMB_WIDTH;
       parms.lines = THUMB_HEIGHT;
-    }
-  else if (lowres)
-    {
-      parms.bytes_per_line = LOWRES_WIDTH * 3;
-      parms.pixels_per_line = LOWRES_WIDTH;
-      parms.lines = LOWRES_HEIGHT;
     }
   else
     {

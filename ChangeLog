@@ -1,3 +1,7 @@
+2005-01-18  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan.h: Added ID for Benq 5250C
+
 2005-01-16  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson_usb.c: Added IDs for RX-425 (from bug report #301114)

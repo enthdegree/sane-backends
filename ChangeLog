@@ -6,6 +6,8 @@
 	  lists from the backends' .desc files.
 	* doc/sane.man: Added security to the list of topics that can be
 	  reported to me.
+	* doc/descripions/template.desc. 
+	  doc/descriptions-external/template.desc.: Updated concerning ":new".
 
 2002-07-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

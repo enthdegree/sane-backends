@@ -1,3 +1,12 @@
+2003-02-11  Peter Fales <peter@fales-lorenz.net>
+
+	* backend/dll.conf, doc/sane-gphoto2.man:  Added a commented out
+	  gphoto2 entry in dll.conf, and mentioned it in the man page.
+
+	* backend/gphoto2.c: Bug fixes.  Don't coredump if the 
+	  gphoto2.conf file is missing, and don't require a speed to
+	  be set if the usb port is used.
+	  
 2003-02-11  Peter Kirchgessner <peter@kirchgessner.net>
 
 	* backend/hp-handle.c: Fix problem with ifdef/ifndef for threads

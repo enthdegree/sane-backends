@@ -1,9 +1,12 @@
 2001-08-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/dll.c doc/sane.man frontend/scanimage.c sanei/sanei_usb.c
-	  tools/sane-find-scanner.c : Fixed minor bugs in debug  output and
+	  tools/sane-find-scanner.c : Fixed minor bugs in debug output and
 	  documentation.
-
+	* backend/mustek.c backend/mustek.desc doc/sane-mustek.man
+	  doc/mustek/mustek.CHANGES: Update to backend version 1.0-112.
+	  Some minor fixes for returning the scan slider and OS/2.
+	  
 2001-08-26 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 
 	* backend/umax.c backend/umax.desc doc/umax/umax.CHANGES:

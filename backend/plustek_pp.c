@@ -83,7 +83,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.43-4"
+#define BACKEND_VERSION "0.43-5"
 #define BACKEND_NAME	plustek_pp
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
@@ -178,19 +178,19 @@ static ModeParam mode_9800x_params[] =
 
 static const SANE_String_Const mode_list[] =
 {
-	SANE_I18N("Binary"),
+	SANE_VALUE_SCAN_MODE_LINEART,
 	SANE_I18N("Halftone"),
-	SANE_I18N("Gray"),
-	SANE_I18N("Color"),
+	SANE_VALUE_SCAN_MODE_GRAY,
+	SANE_VALUE_SCAN_MODE_COLOR,
 	NULL
 };
 
 static const SANE_String_Const mode_9800x_list[] =
 {
-	SANE_I18N("Binary"),
+	SANE_VALUE_SCAN_MODE_LINEART,
 	SANE_I18N("Halftone"),
-	SANE_I18N("Gray"),
-	SANE_I18N("Color"),
+	SANE_VALUE_SCAN_MODE_GRAY,
+	SANE_VALUE_SCAN_MODE_COLOR,
 	SANE_I18N("Color36"),
 	NULL
 };

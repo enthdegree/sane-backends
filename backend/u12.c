@@ -80,7 +80,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.02-8"
+#define BACKEND_VERSION "0.02-9"
 #define BACKEND_NAME    u12
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
@@ -143,9 +143,9 @@ static ModeParam mode_params[] =
 
 static const SANE_String_Const mode_list[] =
 {
-	SANE_I18N("Binary"),
-	SANE_I18N("Gray"),
-	SANE_I18N("Color"),
+	SANE_VALUE_SCAN_MODE_LINEART,
+	SANE_VALUE_SCAN_MODE_GRAY,
+	SANE_VALUE_SCAN_MODE_COLOR,
 	SANE_I18N("Color 36"),
 	NULL
 };

@@ -70,6 +70,7 @@
  *          SIGALRM for lamp timer
  *        - closing now writer pipe, when reader_process is done
  * - 0.48 - added additional options
+ *          split scanmode and bit-depth
  *.
  * <hr>
  * This file is part of the SANE package.
@@ -145,7 +146,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.48-7"
+#define BACKEND_VERSION "0.48-8"
 #define BACKEND_NAME    plustek
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
@@ -200,22 +201,14 @@ static Plustek_Scanner    *first_handle;
 static const SANE_Device **devlist = 0;
 static unsigned long       tsecs   = 0;
 
-static ModeParam mode_params[] =
-{
-	{0, 1,  COLOR_BW},
-	{0, 8,  COLOR_256GRAY},
-	{0, 16, COLOR_GRAY16},
-	{1, 8,  COLOR_TRUE24},
-	{1, 16, COLOR_TRUE48}
-};
+static const SANE_Int bpp_lm9832_list [] = { 2, 8, 14 };
+static const SANE_Int bpp_lm9833_list [] = { 2, 8, 16 };
 
 static const SANE_String_Const mode_usb_list[] =
 {
-	SANE_I18N("Binary"),
-	SANE_I18N("Gray"),
-	SANE_I18N("Gray 14/16"),
-	SANE_I18N("Color"),
-	SANE_I18N("Color 42/48"),
+	SANE_VALUE_SCAN_MODE_LINEART,
+	SANE_VALUE_SCAN_MODE_GRAY,
+	SANE_VALUE_SCAN_MODE_COLOR,
 	NULL
 };
 
@@ -295,7 +288,8 @@ static void show_cnf( pCnfDef cnf )
  * @param  dev - pointer to the device specific structure
  * @return The function always returns SANE_STATUS_GOOD
  */
-static SANE_Status drvclose( Plustek_Device *dev )
+static SANE_Status 
+drvclose( Plustek_Device *dev )
 {
 	if( dev->fd >= 0 ) {
 
@@ -314,24 +308,45 @@ static SANE_Status drvclose( Plustek_Device *dev )
 	return SANE_STATUS_GOOD;
 }
 
-/** according to the mode and source we return the corresponding mode list
+/** according to the mode and source we return the corresponding scanmode and
+ *  bit-depth per pixel
  */
-static pModeParam getModeList( Plustek_Scanner *scanner )
+static int
+getScanMode( Plustek_Scanner *scanner )
 {
-	pModeParam mp= mode_params;
+	int mode;
+	int scanmode;
+	
+	/* are we in TPA-mode? */
+	mode = scanner->val[OPT_MODE].w;
+	if( scanner->val[OPT_EXT_MODE].w != 0 )
+		mode += 2; 
+	
+	scanner->params.depth = scanner->val[OPT_BIT_DEPTH].w;
+	
+	if( mode == 0 ) {
+		scanmode = COLOR_BW;
+		scanner->params.depth = 1;
+	} else if( scanner->params.depth == 8 ) {
 
-	/* the transparency/negative mode supports only COLOR_TRUE24 & COLOR_TRUE48
-	 */
-	if( 0 != scanner->val[OPT_EXT_MODE].w ) {
-		mp = &mp[scanner->hw->usbDev.Caps.Positive.bMinDataType];
-	}
-
-	return mp;
+		if( mode == 1 )
+			scanmode = COLOR_256GRAY;
+		else
+			scanmode = COLOR_TRUE24;
+	} else {
+		scanner->params.depth = 16;
+		if( mode == 1 )
+			scanmode =  COLOR_GRAY16;
+		else
+			scanmode = COLOR_TRUE48;
+	} 
+	return scanmode;
 }
 
 /** shutdown open pipes
  */
-static SANE_Status close_pipe( Plustek_Scanner *scanner )
+static SANE_Status 
+close_pipe( Plustek_Scanner *scanner )
 {
 	if( scanner->r_pipe >= 0 ) {
 
@@ -632,8 +647,21 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	s->opt[OPT_MODE].size  = 32;
 	s->opt[OPT_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
 	s->opt[OPT_MODE].constraint.string_list = mode_usb_list;
-	s->val[OPT_MODE].w = 3; /* Color */
-
+	s->val[OPT_MODE].w = 2; /* Color */
+  
+	/* bit depth */
+	s->opt[OPT_BIT_DEPTH].name  = SANE_NAME_BIT_DEPTH;
+	s->opt[OPT_BIT_DEPTH].title = SANE_TITLE_BIT_DEPTH;
+	s->opt[OPT_BIT_DEPTH].desc  = SANE_DESC_BIT_DEPTH;
+	s->opt[OPT_BIT_DEPTH].type  = SANE_TYPE_INT;
+	s->opt[OPT_BIT_DEPTH].size  = sizeof (SANE_Word);
+	s->opt[OPT_BIT_DEPTH].constraint_type = SANE_CONSTRAINT_WORD_LIST;
+	if( _LM9833 == dev->usbDev.HwSetting.chip )
+		s->opt[OPT_BIT_DEPTH].constraint.word_list = bpp_lm9833_list;
+	else
+		s->opt[OPT_BIT_DEPTH].constraint.word_list = bpp_lm9832_list;
+	s->val[OPT_BIT_DEPTH].w = 8;
+	
 	/* scan source */
 	s->opt[OPT_EXT_MODE].name  = SANE_NAME_SCAN_SOURCE;
 	s->opt[OPT_EXT_MODE].title = SANE_TITLE_SCAN_SOURCE;
@@ -796,9 +824,8 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
 
 	/* disable extended mode list for devices without TPA */
-	if( 0 == (s->hw->caps.dwFlag & SFLAG_TPA)) {
+	if( 0 == (s->hw->caps.dwFlag & SFLAG_TPA))
 		s->opt[OPT_EXT_MODE].cap |= SANE_CAP_INACTIVE;
-	}
 
 	/* "Device settings" group: */
 	s->opt[OPT_DEVICE_GROUP].name  = "device-settings";
@@ -1589,7 +1616,6 @@ sane_control_option( SANE_Handle handle, SANE_Int option,
 	AdjDef                  *adj = &dev->adj;
 	SANE_Status              status;
 	const SANE_String_Const *optval;
-	pModeParam               mp;
 	int                      scanmode, idx;
 
 	if ( s->scanning )
@@ -1608,6 +1634,7 @@ sane_control_option( SANE_Handle handle, SANE_Int option,
 			case OPT_PREVIEW:
 			case OPT_NUM_OPTS:
 			case OPT_RESOLUTION:
+			case OPT_BIT_DEPTH:
 			case OPT_TL_X:
 			case OPT_TL_Y:
 			case OPT_BR_X:
@@ -1713,10 +1740,11 @@ sane_control_option( SANE_Handle handle, SANE_Int option,
 				}
 
 				case OPT_PREVIEW:
+				case OPT_BIT_DEPTH:
 				case OPT_TL_X:
 				case OPT_TL_Y:
 				case OPT_BR_X:
-			    case OPT_BR_Y:
+				case OPT_BR_Y:
 					s->val[option].w = *(SANE_Word *)value;
 					if( NULL != info )
 						*info |= SANE_INFO_RELOAD_PARAMS;
@@ -1744,26 +1772,25 @@ sane_control_option( SANE_Handle handle, SANE_Int option,
 
 				case OPT_CUSTOM_GAMMA:
 					s->val[option].w = *(SANE_Word *)value;
-	    			if( NULL != info )
+					if( NULL != info )
 						*info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
 
-					mp       = getModeList( s );
-					scanmode = mp[s->val[OPT_MODE].w].scanmode;
+					scanmode = getScanMode( s );
 
-				    s->opt[OPT_GAMMA_VECTOR].cap   |= SANE_CAP_INACTIVE;
-				    s->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
-				    s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
-				    s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
-					    					    					
+					s->opt[OPT_GAMMA_VECTOR].cap   |= SANE_CAP_INACTIVE;
+					s->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
+					s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
+					s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
+
 					if( SANE_TRUE == s->val[option].w ) {
 						DBG( _DBG_INFO, "Using custom gamma settings.\n" );
-    					if((scanmode == COLOR_256GRAY) ||
+						if((scanmode == COLOR_256GRAY) ||
 						   (scanmode == COLOR_GRAY16)) {
-						    s->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
+							s->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
 						} else {
-						    s->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
-						    s->opt[OPT_GAMMA_VECTOR_G].cap &= ~SANE_CAP_INACTIVE;
-						    s->opt[OPT_GAMMA_VECTOR_B].cap &= ~SANE_CAP_INACTIVE;
+							s->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
+							s->opt[OPT_GAMMA_VECTOR_G].cap &= ~SANE_CAP_INACTIVE;
+							s->opt[OPT_GAMMA_VECTOR_B].cap &= ~SANE_CAP_INACTIVE;
 						}
 					} else {
 
@@ -1773,7 +1800,7 @@ sane_control_option( SANE_Handle handle, SANE_Int option,
 						if((scanmode == COLOR_256GRAY) ||
 						   (scanmode == COLOR_GRAY16)) {
 							s->opt[OPT_GAMMA_VECTOR].cap |= SANE_CAP_INACTIVE;
-						} else {						
+						} else {
 							s->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
 							s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
 							s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
@@ -1833,19 +1860,21 @@ sane_control_option( SANE_Handle handle, SANE_Int option,
 				case OPT_CONTRAST:
 				case OPT_BRIGHTNESS:
 					s->val[option].w =
-							((*(SANE_Word *)value) >> SANE_FIXED_SCALE_SHIFT);
+					     ((*(SANE_Word *)value) >> SANE_FIXED_SCALE_SHIFT);
 					break;
 
 				case OPT_MODE: 
-					idx = (optval - mode_usb_list);
-					mp  = getModeList( s );
+					s->val[option].w = optval - s->opt[option].constraint.string_list;
+					scanmode = getScanMode( s );
 					
 					s->opt[OPT_CONTRAST].cap     &= ~SANE_CAP_INACTIVE;
 					s->opt[OPT_CUSTOM_GAMMA].cap &= ~SANE_CAP_INACTIVE;
+					s->opt[OPT_BIT_DEPTH].cap    &= ~SANE_CAP_INACTIVE;
 
-					if( mp[idx].scanmode == COLOR_BW ) {
+					if( scanmode == COLOR_BW ) {
 						s->opt[OPT_CONTRAST].cap     |= SANE_CAP_INACTIVE;
 						s->opt[OPT_CUSTOM_GAMMA].cap |= SANE_CAP_INACTIVE;
+						s->opt[OPT_BIT_DEPTH].cap    |= SANE_CAP_INACTIVE;
 					}
 
 					s->opt[OPT_GAMMA_VECTOR].cap   |= SANE_CAP_INACTIVE;
@@ -1855,9 +1884,9 @@ sane_control_option( SANE_Handle handle, SANE_Int option,
 
 					if( s->val[OPT_CUSTOM_GAMMA].w &&
 						!(s->opt[OPT_CUSTOM_GAMMA].cap & SANE_CAP_INACTIVE)) {
-						
-    					if((mp[idx].scanmode == COLOR_256GRAY) ||
-						   (mp[idx].scanmode == COLOR_GRAY16)) {
+
+						if((scanmode == COLOR_256GRAY) ||
+						   (scanmode == COLOR_GRAY16)) {
 							s->opt[OPT_GAMMA_VECTOR].cap   &= ~SANE_CAP_INACTIVE;
 						} else {
 							s->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
@@ -1868,8 +1897,6 @@ sane_control_option( SANE_Handle handle, SANE_Int option,
 
 					if( NULL != info )
 						*info |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
-
-					s->val[option].w = optval - s->opt[option].constraint.string_list;
 					break;
 
 				case OPT_EXT_MODE: {
@@ -1890,7 +1917,7 @@ sane_control_option( SANE_Handle handle, SANE_Int option,
 						s->val[OPT_BR_Y].w = SANE_FIX(_DEFAULT_BRY);
 
 						s->opt[OPT_MODE].constraint.string_list = mode_usb_list;
-						s->val[OPT_MODE].w = COLOR_TRUE24;
+						s->val[OPT_MODE].w = 2; /* HEINER COLOR_TRUE24;*/
 
 					} else {
 
@@ -1925,8 +1952,7 @@ sane_control_option( SANE_Handle handle, SANE_Int option,
 							s->val[OPT_BR_X].w = SANE_FIX(_DEFAULT_NEG_BRX);
 							s->val[OPT_BR_Y].w = SANE_FIX(_DEFAULT_NEG_BRY);
 						}
-						s->opt[OPT_MODE].constraint.string_list =
-						&mode_usb_list[dev->usbDev.Caps.Positive.bMinDataType];
+						s->opt[OPT_MODE].constraint.string_list = &mode_usb_list[2];
 						s->val[OPT_MODE].w = 0;  /* COLOR_24 is the default */
 					}
 					if( s->val[OPT_LAMPSWITCH].w != 0 ) {
@@ -1938,7 +1964,6 @@ sane_control_option( SANE_Handle handle, SANE_Int option,
 					}
 
 					s->opt[OPT_CONTRAST].cap &= ~SANE_CAP_INACTIVE;
-
 					if( NULL != info )
 						*info |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
 					break;
@@ -2006,34 +2031,32 @@ SANE_Status
 sane_get_parameters( SANE_Handle handle, SANE_Parameters *params )
 {
 	int              ndpi;
-	pModeParam       mp;
+	int              scanmode;
 	Plustek_Scanner *s = (Plustek_Scanner *)handle;
 
 	/* if we're calling from within, calc best guess
-     * do the same, if sane_get_parameters() is called
-     * by a frontend before sane_start() is called
-     */
-    if((NULL == params) || (s->scanning != SANE_TRUE)) {
-
-		mp = getModeList( s );
+	 * do the same, if sane_get_parameters() is called
+	 * by a frontend before sane_start() is called
+	 */
+	if((NULL == params) || (s->scanning != SANE_TRUE)) {
 
 		memset( &s->params, 0, sizeof (SANE_Parameters));
 
 		ndpi = s->val[OPT_RESOLUTION].w;
 
-	    s->params.pixels_per_line =	SANE_UNFIX(s->val[OPT_BR_X].w -
-									  s->val[OPT_TL_X].w) / MM_PER_INCH * ndpi;
+		s->params.pixels_per_line = SANE_UNFIX(s->val[OPT_BR_X].w -
+		                      s->val[OPT_TL_X].w) / MM_PER_INCH * ndpi;
 
-    	s->params.lines = SANE_UNFIX( s->val[OPT_BR_Y].w -
-									  s->val[OPT_TL_Y].w) / MM_PER_INCH * ndpi;
+		s->params.lines = SANE_UNFIX( s->val[OPT_BR_Y].w -
+		                      s->val[OPT_TL_Y].w) / MM_PER_INCH * ndpi;
 
 		/* pixels_per_line seems to be 8 * n.  */
 		/* s->params.pixels_per_line = s->params.pixels_per_line & ~7; debug only */
 
-	    s->params.last_frame = SANE_TRUE;
-    	s->params.depth      = mp[s->val[OPT_MODE].w].depth;
+		s->params.last_frame = SANE_TRUE;
+		scanmode = getScanMode( s );
 
-		if( mp[s->val[OPT_MODE].w].color ) {
+		if( scanmode == COLOR_TRUE24 || scanmode == COLOR_TRUE48 ) {
 			s->params.format = SANE_FRAME_RGB;
 			s->params.bytes_per_line = 3 * s->params.pixels_per_line;
 		} else {
@@ -2042,16 +2065,16 @@ sane_get_parameters( SANE_Handle handle, SANE_Parameters *params )
 				s->params.bytes_per_line = (s->params.pixels_per_line + 7) / 8;
 			else
 				s->params.bytes_per_line = s->params.pixels_per_line *
-														   s->params.depth / 8;
+				                                           s->params.depth / 8;
 		}
 
-        /* if sane_get_parameters() was called before sane_start() */
-	    /* pass new values to the caller                           */
-    	if ((NULL != params) &&	(s->scanning != SANE_TRUE))
-	    	*params = s->params;
-	} else
+		/* if sane_get_parameters() was called before sane_start() */
+		/* pass new values to the caller                           */
+		if ((NULL != params) &&	(s->scanning != SANE_TRUE))
+			*params = s->params;
+	} else {
 		*params = s->params;
-
+	}
 	return SANE_STATUS_GOOD;
 }
 
@@ -2062,7 +2085,6 @@ sane_start( SANE_Handle handle )
 {
 	Plustek_Scanner *s = (Plustek_Scanner *)handle;
 	Plustek_Device  *dev;
-	pModeParam       mp;
 
 	int         result;
 	int         ndpi;
@@ -2146,9 +2168,7 @@ sane_start( SANE_Handle handle )
 	/* adjust mode list according to the model we use and the
 	 * source we have
 	 */
-	mp = getModeList( s );
-
-	scanmode = mp[s->val[OPT_MODE].w].scanmode;
+	scanmode = getScanMode( s );
 	DBG( _DBG_INFO, "scanmode = %u\n", scanmode );
 
 	/* clear it out just in case */
@@ -2194,7 +2214,7 @@ sane_start( SANE_Handle handle )
 	memcpy( &sinfo.ImgDef, &crop.ImgDef, sizeof(ImgDef));
 	
 	DBG( _DBG_SANE_INIT, "brightness %i, contrast %i\n",
-						sinfo.siBrightness, sinfo.siContrast );
+	                      sinfo.siBrightness, sinfo.siContrast );
 
 	result = usbDev_setScanEnv( dev, &sinfo );
 	if( result < 0 ) {
@@ -2219,7 +2239,7 @@ sane_start( SANE_Handle handle )
 		DBG( _DBG_ERROR, "usbDev_startScan() failed(%d)\n", result );
 		usbDev_close( dev );
 		return SANE_STATUS_IO_ERROR;
-    }
+	}
 
 	DBG( _DBG_SANE_INIT, "dwflag = 0x%lx dwBytesPerLine = %ld \n",
 	                      dev->scanning.dwFlag, dev->scanning.dwBytesLine );
@@ -2252,7 +2272,7 @@ sane_start( SANE_Handle handle )
 	s->r_pipe     = fds[0];
 	s->w_pipe     = fds[1];
 	s->reader_pid = sanei_thread_begin( reader_process, s );
-	
+
 	cancelRead = SANE_FALSE;
 	
 	if( s->reader_pid < 0 ) {

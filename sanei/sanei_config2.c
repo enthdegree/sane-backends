@@ -69,7 +69,7 @@ sanei_config_attach_matching_devices (const char *name,
       if (*name)
 	{
 	  name = sanei_config_get_string (name, &vendor);
-	  if (strcmp (vendor, "*") == 0)
+	  if (vendor && strcmp (vendor, "*") == 0)
 	    {
 	      free (vendor);
 	      vendor = 0;
@@ -81,7 +81,7 @@ sanei_config_attach_matching_devices (const char *name,
       if (*name)
 	{
 	  name = sanei_config_get_string (name, &model);
-	  if (strcmp (model, "*") == 0)
+	  if (model && strcmp (model, "*") == 0)
 	    {
 	      free (model);
 	      model = 0;
@@ -93,7 +93,7 @@ sanei_config_attach_matching_devices (const char *name,
       if (*name)
 	{
 	  name = sanei_config_get_string (name, &type);
-	  if (strcmp (type, "*") == 0)
+	  if (type && strcmp (type, "*") == 0)
 	    {
 	      free (type);
 	      type = 0;

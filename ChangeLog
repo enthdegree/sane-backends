@@ -1,3 +1,7 @@
+2002-10-08  Karl Heinz Kremer <khk@khk.net>
+
+	* backend/epson.c: force color channel re-order for GT-2200 scanner
+
 2002-10-08  Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* backend/umax_pp.c: use macros from saneopts.h to fix translations

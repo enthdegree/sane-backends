@@ -19,6 +19,7 @@ dnl   SANE_CHECK_JPEG
 dnl   JAPHAR_GREP_CFLAGS(flag, cmd_if_missing, cmd_if_present)
 dnl   SANE_LINKER_RPATH
 dnl   SANE_CHECK_U_TYPES
+dnl   SANE_CHECK_GPHOTO2
 dnl
 
 #
@@ -201,10 +202,49 @@ AC_CHECK_TYPE(u_long, unsigned long)
 ])
 
 #
-# Checks for gphoto2 - needed by the gphoto2 backend.
+# Checks for gphoto2 libs, needed by gphoto2 backend
 AC_DEFUN(SANE_CHECK_GPHOTO2,
 [
-  AC_CHECK_PROG(GPHOTO2_BIN, gphoto2, gphoto2)
+
+	GPHOTO2_TMP_HAVE_GPHOTO2=no
+	AC_ARG_WITH(gphoto2,
+	  [  --with-gphoto2=DIR      specify the top-level GPHOTO2 directory 
+                          [default=/usr/local]])
+
+
+	
+	if test "$with_gphoto2" = "no" ; then
+		echo disabling GPHOTO2
+	else
+		AC_CHECK_TOOL(HAVE_GPHOTO2, gphoto2, false)
+		
+
+		GPHOTO2_OLD_CPPFLAGS=${CPPFLAGS}
+		GPHOTO2_OLD_LDFLAGS=${LDFLAGS}
+
+		if test "$with_gphoto2" = "yes" ; then
+			with_gphoto2=/usr/local
+		fi
+
+
+		CPPFLAGS="${CPPFLAGS} -I$with_gphoto2/include/gphoto2"
+		LDFLAGS="${LDFLAGS} -L$with_gphoto2/lib -L$with_gphoto2/lib/gphoto2"
+
+		AC_CHECK_HEADERS(gphoto2-core.h,
+			AC_CHECK_LIB(gphoto2,gp_init,
+				LDFLAGS="${LDFLAGS} -lgphoto2"
+				GPHOTO2_TMP_HAVE_GPHOTO2=yes))
+
+		if test "${GPHOTO2_TMP_HAVE_GPHOTO2}" != "yes" ; then
+			CPPFLAGS=${GPHOTO2_OLD_CPPFLAGS}
+			LDFLAGS=${GPHOTO2_OLD_LDFLAGS}
+			HAVE_GPHOTO2="false"
+		fi
+	fi
+
+	unset GPHOTO2_TMP_HAVE_GPHOTO2
+	unset GPHOTO2_OLD_CPPFLAGS
+	unset GPHOTO2_OLD_LDFLAGS
 ])
 
 

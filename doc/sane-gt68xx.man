@@ -1,4 +1,4 @@
-.TH sane-gt68xx 5 "30 Sept 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-gt68xx 5 "14 Dec 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-gt68xx
 .SH NAME
 sane-gt68xx \- SANE backend for GT-68XX based USB flatbed scanners
@@ -21,7 +21,13 @@ Fujitsu 1200CUS
 .br
 Genius Colorpage Vivid3x
 .br
+Genius Colorpage Vivid3 V2
+.br
 Genius Colorpage Vivid3xe
+.br
+Genius Colorpage Vivid4x
+.br
+Googlegear 2000
 .br
 Lexmark X70
 .br

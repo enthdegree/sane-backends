@@ -1,5 +1,5 @@
 :backend "gt68xx"
-:version "1.0-50"
+:version "1.0-51"
 :manpage "sane-gt68xx"
 :url "http://www.meier-geinitz.de/sane/gt68xx-backend/"
 :comment "Only the USB scanners mentioned below are supported. For other Mustek BearPaws, look at the Plustek and the MA-1509 backend."
@@ -46,18 +46,30 @@
 :model "Colorpage Vivid3x"
 :status :good
 :interface "USB"
-:comment "Works but has limited testing"
+;:comment ""
+
+:model "Colorpage Vivid3 V2"
+:status :good
+:interface "USB"
+:comment "Same as Colorpage Vivid3x"
 
 :model "Colorpage Vivid3xe"
-:status :basic
+:status :good
 :interface "USB"
-:comment "Works but has limited testing. Color problems? Reports are welcome."
+;:comment ""
 
 :model "Colorpage Vivid4x"
-:status :untested
+:status :basic
 :interface "USB"
-:comment "Should be detecetd but may not work. Please contact me if you have such a scanner."
+:comment "Should work but has limited testing. Please contact me if you own such a device."
 
+; -----------------------------------------------------------------------------
+
+:mfg "Googlegear"
+:model "2000"
+:status :good
+:interface "USB"
+:comment "Same as Artec Ultima 2000."
 ; -----------------------------------------------------------------------------
 
 :mfg "Lexmark"
@@ -158,8 +170,8 @@
 
 :model "BearPaw 2448 TA Plus"
 :interface "USB"
-:status :untested
-:comment "Untested. Please test and report success or failure to me."
+:status :minimal
+:comment "Very limited testing. Images don't seem to be ok. Please contact me if you own such a device."
 
 :model "Plug-n-Scan 2400 MT"
 :interface "USB"
@@ -178,7 +190,7 @@
 :model "ScanExpress A3 USB"
 :interface "USB"
 :status :good
-:comment "Should work. I've only few reports so please contact me, if you own such a device and tell me, if you find any problems"
+:comment "Should work but colors may not be perfect yet. I've only few reports so please contact me, if you own such a device and tell me, if you find any problems"
 
 :model "ScanExpress 2400 USB"
 :interface "USB"

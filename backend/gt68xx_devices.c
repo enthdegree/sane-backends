@@ -779,7 +779,7 @@ static GT68xx_Model mustek_a3usb_model = {
 
   SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
 
-  0, 0, 0,			/* RGB CCD Line-distance correction in pixel */
+  0, 4, 2,			/* RGB CCD Line-distance correction in pixel */
   0,				/* CCD distcance for CCD with 6 lines) */
 
   COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
@@ -1031,14 +1031,14 @@ static GT68xx_Model genius_vivid4x_model  = {
   0, 8, 16,			/* RGB CCD Line-distance correction in pixel */
   0,				/* CCD distcance for CCD with 6 lines) */
 
-  COLOR_ORDER_BGR,		/* Order of the CCD/CIS colors */
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
   {0x1c, 0x29, 0x1c, 0x2c, 0x1c, 0x2b},	/* Default offset/gain */
   {0x157, 0x157, 0x157},	/* Default exposure parameters */
   SANE_FIX (2.0),		/* Default gamma value */
 
   SANE_FALSE,			/* Is this a CIS scanner? */
   GT68XX_FLAG_OFFSET_INV | GT68XX_FLAG_UNTESTED 	/* Which flags are needed for this scanner? */
-  /* Completely unmtested, copied from 3x */
+  /* Mostly untested, copied from 3x, some values from Claudio Filho <filhocf@openoffice.org> */
 };
 
 static GT68xx_Model genius_vivid3xe_model  = {

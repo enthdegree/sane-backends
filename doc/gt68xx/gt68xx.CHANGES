@@ -1,5 +1,17 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0-51 (2003-12-14)
+
+* Changed color order to RGB vor Genius Vivid 4x. Seems to work now. Updated
+  manpage and .desc.
+* Set linedistance correction to 0, 4, 2 for ScanExpress A3 USB. Not perfect
+  yet but better than before.
+* Added Genius Colorpage Vivid3 V2 and Googlegear 2000 as supported deviced
+  to manpage and .desc.
+* Changed Genius Colorpage Vivid3x status to good as it seems to work now.
+* Changed status of Mustek BearPaw 2448 TA Plus to minimal as it seems to at
+  least scan something.
+
 V 1.0-50 (2003-11-23)
 
 * Added Mustek BearPaw 2448 TA Plus. It's completely untested.

@@ -49,7 +49,7 @@
 
 /* --------------------------------------------------------------------------------------------------------- */
 
-#define BUILD 33
+#define BUILD 34
 
 /* --------------------------------------------------------------------------------------------------------- */
 
@@ -1829,12 +1829,15 @@ static SANE_Status umax_queue_read_image_data_req(Umax_Device *dev, unsigned int
 {
  SANE_Status status;
 
-  DBG(DBG_proc, "umax_queue_read_image_data_req for buffer[%d]\n", bufnr);
+  DBG(DBG_proc, "umax_queue_read_image_data_req for buffer[%d], length = %d\n", bufnr, length);
 
   set_R_xfer_length(sread.cmd, length);							       /* set length */
   set_R_datatype_code(sread.cmd, R_datatype_imagedata);					     /* set datatype */
 
-  status = umax_scsi_req_enter(dev, sread.cmd, sread.size, dev->buffer[bufnr], &length, &(dev->queue_id[bufnr]));
+  dev->length_queued[bufnr] = length; /* set length request */
+  dev->length_read[bufnr]   = length; /* set length request, can be changed asyncronous by umax_scsi_req_enter */
+
+  status = umax_scsi_req_enter(dev, sread.cmd, sread.size, dev->buffer[bufnr], &(dev->length_read[bufnr]), &(dev->queue_id[bufnr]));
   if (status)
   {
     DBG(DBG_error, "umax_queue_read_image_data_req: command returned status %s\n", sane_strstatus(status));
@@ -2672,6 +2675,8 @@ static void umax_correct_inquiry(Umax_Device *dev, char *vendor, char *product, 
       DBG(DBG_warning,"setting up special options for %s\n", product);
       DBG(DBG_warning," - setting gamma download curve format to type 1\n");
       dev->inquiry_gamma_DCF = 1;				       /* define gamma download curve format */
+      DBG(DBG_warning," - reposition_scanner waits until move of scan head has finished\n");
+      dev->pause_after_reposition = 0;     /* call wait_scanner */
     }
     else if (!strncmp(product, "UC1200S ", 8))
     {
@@ -3998,12 +4003,12 @@ static int umax_reader_process(Umax_Device *dev, FILE *fp, unsigned int image_si
 
       status = umax_queue_read_image_data_req(dev, data_to_queue, bufnr_queue);
 
-      if (status == 0)
+      if (status == 0) /* no error but nothing queued */
       {
         continue;
       }
 
-      if (status == -1)
+      if (status == -1) /* error */
       {
         DBG(DBG_error,"ERROR: umax_reader_process: unable to queue read image data request!\n");
         free(dev->pixelbuffer);
@@ -4039,11 +4044,17 @@ static int umax_reader_process(Umax_Device *dev, FILE *fp, unsigned int image_si
         return(-1);
       }
 
-      data_to_read = (data_left_to_read < dev->row_bufsize) ? data_left_to_read : dev->row_bufsize;
+      data_to_read = dev->length_read[bufnr_read]; /* number of bytes in buffer */
       umax_output_image_data(dev, fp, data_to_read, bufnr_read);
 
       data_left_to_read -= data_to_read;
       DBG(DBG_read, "umax_reader_process: buffer of %d bytes read; %d bytes to go\n", data_to_read, data_left_to_read);
+
+      /* if we did not get all requested data increase data_left_to_queue so that we get all needed data */
+      if (dev->length_read[bufnr_read] != dev->length_queued[bufnr_read])
+      {
+        data_left_to_queue += dev->length_queued[bufnr_read] - dev->length_read[bufnr_read];
+      }
 
       bufnr_read++;
       if (bufnr_read >= dev->scsi_maxqueue)
@@ -4562,8 +4573,8 @@ static SANE_Status attach_scanner(const char *devicename, Umax_Device **devp, in
   dev->y_dpi_range.min           = SANE_FIX(dev->inquiry_optical_res/100);
   dev->y_dpi_range.quant         = SANE_FIX(dev->inquiry_optical_res/100);
 #else
-  dev->y_dpi_range.min           = SANE_FIX(1);
-  dev->y_dpi_range.quant         = SANE_FIX(1);
+  dev->y_dpi_range.min           = SANE_FIX(5);
+  dev->y_dpi_range.quant         = SANE_FIX(5);
 #endif
   dev->y_dpi_range.max           = SANE_FIX(dev->inquiry_y_res);
 
@@ -4709,6 +4720,7 @@ static SANE_Status init_options(Umax_Scanner *scanner)
     scanner->opt[i].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
   }
 
+  scanner->opt[OPT_NUM_OPTS].name  = SANE_NAME_NUM_OPTIONS; /* empty string */
   scanner->opt[OPT_NUM_OPTS].title = SANE_TITLE_NUM_OPTIONS;
   scanner->opt[OPT_NUM_OPTS].desc  = SANE_DESC_NUM_OPTIONS;
   scanner->opt[OPT_NUM_OPTS].type  = SANE_TYPE_INT;

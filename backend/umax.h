@@ -65,7 +65,6 @@
 
 /* --------------------------------------------------------------------------------------------------------- */
 
-
 enum Umax_Option
 {
     OPT_NUM_OPTS = 0,
@@ -206,6 +205,8 @@ typedef struct Umax_Device
 
   unsigned char		*buffer[SANE_UMAX_SCSI_MAXQUEUE];		    /* buffer used for scsi-transfer */
   void                  *queue_id[SANE_UMAX_SCSI_MAXQUEUE];				    /* scsi queue id */
+  size_t		length_queued[SANE_UMAX_SCSI_MAXQUEUE];			    /* length of queued data */
+  size_t		length_read[SANE_UMAX_SCSI_MAXQUEUE];			  /* length of returned data */
   unsigned int		bufsize;
   unsigned int		row_bufsize;
   unsigned int		request_scsi_maxqueue;

@@ -49,7 +49,6 @@ selects the number of pages to scan (one or until the tray is empty).
 .TP
 .B --paper_size A4|...|Legal|Letter [A4]
 options selects the area to scan. It adjust the 
-.TP
 .B -l -t -x -y
 options accordingly. It does not need to be the real size of the paper.
 
@@ -67,16 +66,16 @@ instead.
 
 .TP
 .B --brightness
-controls the brightness of the acquired image. It steps varies from 1 to 255, or less, depending on the scanner model.
+controls the brightness of the acquired image. The value varies from 1 to 255, or less, depending on the scanner model.
 .TP
 .B --contrast
 controls the contrast of the acquired image. Some models do not support that option.
 .TP
 .B --automatic-threshold
-automatically sets brightness, contrast, white level, gamma, noise reduction and image emphasis. These option are not available when automatic-threshold is in use.
+automatically sets brightness, contrast, white level, gamma, noise reduction and image emphasis. These options are not available when automatic-threshold is in use.
 .TP
 .B --halftone-pattern
-option sets the tonal gradation for the halftone mode. The pattern downloading is not implemented by the backend.
+option sets the tonal gradation for the halftone mode. Pattern downloading is not implemented by the backend.
 .TP
 .B --autoseparation
 provides automatic separation of text and images. 
@@ -85,13 +84,13 @@ provides automatic separation of text and images.
 option indicate the source of the white base.
 .TP
 .B --noise-reduction
-reduce the isolated dot noise. This option is not supported by all scanners.
+reduces the isolated dot noise. This option is not supported by all scanners.
 .TP
 .B --image-emphasis
 option sets the image emphasis. Some selection are not available on all scanners.
 .TP
 .B --gamma
-options set the gamma curve. It is only valid for Gray modes, and is not available on all scanners. The gamma downloading is not implemented by the backend.
+options set the gamma curve. It is only valid for Gray modes, and is not available on all scanners. Gamma downloading is not implemented by the backend.
 
 
 .SH CONFIGURATION FILE

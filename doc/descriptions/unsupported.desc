@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-01-03"		; version of backend
+:version "2003-01-08"		; version of backend
 ;:status :stable			; :alpha, :beta, :stable, :new
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 ;:url "http://www.meier-geinitz.de/sane/mustek-backend/"
@@ -22,17 +22,23 @@
 :mfg "Canon"
 :url "http://www.canon.com/"
 
-:model "1210U"
+:model "CanoScan FB1210U"
 :url "http://sourceforge.net/projects/canonscanner/"
 :interface "USB"
 :status :unsupported
 :comment "Not supported. However, a stand-alone program is available."
 
-:model "1220U"
+:model "CanoScan 1220U"
 :url "http://sourceforge.net/projects/canonscanner/"
 :interface "USB"
 :status :unsupported
 :comment "Not supported. However, a stand-alone program is available"
+
+:model "CanoScan D1250U2"
+:url "http://www.mostang.com/pipermail/sane-devel/2003-January/017146.html"
+:interface "USB"
+:status :unsupported
+:comment "Not supported. However, some information is available."
 
 ;********************************************************************************************
 
@@ -56,6 +62,12 @@
 
 :mfg "Hewlett-Packard"			; name a manufacturer
 :url "http://www.hp.com/"
+
+:model "ScanJet 4400C"
+:url "http://reapoff.sourceforge.net/hpscanner/Default.htm"
+:interface "USB"
+:comment "Not supported. Seems to use the same chip as the 4470C. A stand-alone program for that scanner is available."
+:status :unsupported
 
 :model "ScanJet 4470C"
 :url "http://reapoff.sourceforge.net/hpscanner/Default.htm"

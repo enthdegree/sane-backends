@@ -2,6 +2,8 @@
 
 	* doc/descriptions/hpsj5s.desc doc/descriptions-external/hp4200.desc:
 	  Use uniform model names for HP scanners.
+	* doc/descriptions/unsupported.desc: Added Canon CanoScan D1250U2 
+	  and HP ScanJet 4400C.
 
 2003-01-07  Peter Fales  <peter@fales-lorenz.net>
 

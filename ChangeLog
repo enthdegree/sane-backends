@@ -1,8 +1,11 @@
 2001-05-26  Petter Reinholdtsen <pere@td.org.uit.no>
 
+	* TODO: Updated entry on library search path, sanei API
+	  documentation and sane_init() return value.
+	
 	* Makefile.in:New target 'libcheck' making sure libraries export
 	  only sane_* and sanei_* symbols.
-	
+
 2001-05-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* TODO: Removed snapscan and microtek2 updates. Removed status change of

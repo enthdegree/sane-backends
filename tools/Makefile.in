@@ -112,7 +112,7 @@ clean:
 	rm -rf .libs
 
 distclean: clean
-	rm -f Makefile $(DESTINATIONS) mustek600iin-off sane-desc.el
+	rm -f Makefile $(DESTINATIONS) mustek600iin-off sane-desc.el sane-desc
 	rm -f $(DISTCLEAN_FILES)
 
 dist: $(DISTFILES)

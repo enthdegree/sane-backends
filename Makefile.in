@@ -99,6 +99,7 @@ distclean: clean distclean-recursive
 	rm -f $(addprefix japi/,$(DISTCLEAN_FILES))
 	rm -f $(addprefix testsuite/,$(DISTCLEAN_FILES))
 	rm -rf $(distdir)
+	rm -f TAGS
 
 depend: depend-recursive
 

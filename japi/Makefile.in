@@ -100,7 +100,7 @@ libsanej.la: Sane.lo
 Sane.lo: Sane.h
 
 clean:
-	rm -f *.class *.lo *.o *.la
+	rm -f *.class *.lo *.o *.la *.so
 	rm -f Sane.h
 	rm -rf .libs
 

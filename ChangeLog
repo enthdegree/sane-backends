@@ -5,6 +5,8 @@
 	  msgids. Made sure that header is not marked fuzzy.
 	* Makefile.in doc/Makefile.in japi/Makefile.in tools/Makefile.in:
 	  Minor DISTFILES and distclean updates.
+	* backend/mustek.c doc/descriptions/mustek.desc 
+	  doc/mustek/mustek.CHANGES: Fixed some warnings.
 
 2002-07-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

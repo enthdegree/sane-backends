@@ -89,9 +89,12 @@ Supported parallel-port JetDirects include the 70X, 170X, 300X, and 500X
 the G and K series).  The JetDirect 175X is supported for USB peripherals.
 .PP
 If you own a ScanJet scanner other than the ones listed above, please
-let us know if your model works with this backend.  To do this, send a
+let us know if your model works with this backend.  To do this, please
+subscribe to the sane-devel mailing list and send a
 mail with the relevant information for your scanner to
 .IR sane\-devel@mostang.com .
+For instructions how to subscribe see
+.IR http://www.mostang.com/sane/mail.html .
 .SH "DEVICE NAMES"
 This backend expects device names of the form:
 .PP

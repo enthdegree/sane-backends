@@ -1,4 +1,4 @@
-TODO (2001-01-21)
+TODO (2001-03-31)
 
 ******** todo ********
 
@@ -31,6 +31,10 @@ backends
       ftp://ftp.mustek.com.tw/pub/driver/1200UB/Linux/
     - bearpaw (Mustek BearPaw 1200 + maybe 2400)
       Henning Meier-Geinitz <hmg@gmx.de>
+    - UMAX 1220P/2000P & HP 320C
+      http://umax1220p.sourceforge.net
+    - Kodak DC-240
+      Peter Fales <psfales@lucent.com>
 
   * Update backends
     - add additions/bug fixes to microtek2 from Karsten Festag
@@ -44,6 +48,7 @@ backends
      - sometimes saned+net freezes right after a scan
      - don't just ignore the byte-order for the image data (needed to
        support depths > 8 bits/channel)
+     - net.c doesn't compile on Irix because socklen_t isn't known
 
   * qcam: implement auto mode for brightness and black-level (don't
     just advertise it!) Actually, implement an auto "backend" instead

@@ -114,22 +114,31 @@ sanei_usb_get_vendor_product (SANE_Int fd, SANE_Word * vendor,
   SANE_Word vendorID, productID;
 
 #if defined (__linux__)
-#define IOCTL_SCANNER_VENDOR _IOR('u', 0xa0, int)
-#define IOCTL_SCANNER_PRODUCT _IOR('u', 0xa1, int)
+#define IOCTL_SCANNER_VENDOR _IOR('U', 0x20, int)
+#define IOCTL_SCANNER_PRODUCT _IOR('U', 0x21, int)
+  /* Older (unofficial) IOCTL numbers for Linux < v2.4.13 */
+#define IOCTL_SCANNER_VENDOR_OLD _IOR('u', 0xa0, int)
+#define IOCTL_SCANNER_PRODUCT_OLD _IOR('u', 0xa1, int)
   /* read the vendor and product IDs via the IOCTLs */
   if (ioctl (fd, IOCTL_SCANNER_VENDOR , &vendorID) == -1)
     {
-      DBG (3, "sanei_usb_get_vendor_product: ioctl (vendor) of fd %d failed: "
-	   "%s\n", fd, strerror (errno));
-      /* just set the vendor ID to 0 */
-      vendorID = 0;
+      if (ioctl (fd, IOCTL_SCANNER_VENDOR_OLD , &vendorID) == -1)
+	{
+	  DBG (3, "sanei_usb_get_vendor_product: ioctl (vendor) of fd %d "
+	       "failed: %s\n", fd, strerror (errno));
+	  /* just set the vendor ID to 0 */
+	  vendorID = 0;
+	}
     }
   if (ioctl (fd, IOCTL_SCANNER_PRODUCT , &productID) == -1)
     {
-      DBG (3, "sanei_usb_get_vendor_product: ioctl (product) of ds %d failed: "
-	   "%s\n", fd, strerror (errno));
-      /* just set the product ID to 0 */
-      productID = 0;
+      if (ioctl (fd, IOCTL_SCANNER_PRODUCT_OLD , &productID) == -1)
+	{
+	  DBG (3, "sanei_usb_get_vendor_product: ioctl (product) of ds %d "
+	       "failed: %s\n", fd, strerror (errno));
+	  /* just set the product ID to 0 */
+	  productID = 0;
+	}
     }
   if (vendor)
     *vendor = vendorID;

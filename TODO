@@ -1,4 +1,4 @@
-TODO (2002-04-01)
+TODO (2002-04-10)
 
 ******** todo ********
 
@@ -49,7 +49,10 @@ backends
        access.
      - The result of locking isn't checked --> does it make sense at all?
 
-  * dll: Rewrite to use libtool ltdl library
+  * dll: 
+     - Rewrite to use libtool ltdl library
+     - Check what happens when calling sane_init/sane_open and sane_exit
+       more than once.
 
   * dc210, dc240, gphoto2, and jpeg stuff: move sanei_* functions to sanei/
     (if they are necessary). 
@@ -92,6 +95,14 @@ backends
     - sm3600
     - umax1220u
     - v4l
+ 
+  * Make all symbols that don't start with sane_ or sanei_ static (see
+    make libcheck):
+    - artec: cap_data
+    - avision: Avision_Device_List
+    - canon: option_name
+    - sm3600: aidProduct
+    - snapscan: bqelements
 
 doc
 ---
@@ -107,6 +118,8 @@ doc
 
   * sane.tex: Add a warning/explanation about problems with 
     sane_get_select_fd, Unix select() calls and sane_cancel.
+
+  * sane.tex: Add some text about the meaning of bits in 1-bit modes.
 
   * sane-backends.html should be sorted by manufacturer, not by backend.
 
@@ -157,7 +170,7 @@ platform-specific
 
   * Add support for semaphores also for OS/2 (currently used in snapscan).
 
-  * The plustek backend doesn't compile on OS/2 beacuse 
+  * The plustek backend doesn't compile on OS/2 because 
     in plustek-usbhw.c itimerval is unknown.
 
 misc
@@ -178,6 +191,9 @@ misc
     if they are used in backends, their SANE exception will be void.
 
   * Can we link external libraries only to backends that need them?
+
+  * Add support to sane-find-scanner to check whole directories for device
+    files.
 
 
 ******** done ********

@@ -108,7 +108,7 @@
 
 :model "Compact 4800 Direct-30"
 :interface "Parport (SPP, EPP)"
-:status :untested
+:status :complete
 :comment "same as OpticPro 4830P, use driver-switch mov=7"
 
 :model "Compact 9600 Direct-30"

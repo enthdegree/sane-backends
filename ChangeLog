@@ -1,3 +1,10 @@
+2003-03-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* sanei/sanei_scsi.c: Wait for the completion of all SCSI commands in
+	  sanei_scsi_flush_all_extended (Linux). Without this fix, especially
+	  long running commands and command queuing would cause memory
+	  corruption if the buffer was invalid after the flush command.
+
 2003-03-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/mustek.c doc/descriptions/mustek.desc

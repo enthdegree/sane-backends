@@ -1824,20 +1824,30 @@ sanei_scsi_req_flush_all_extended (int fd)
 {
   fdparms *fdp;
   struct req *req, *next_req;
+  int len, count;
 
   fdp = (fdparms*) fd_info[fd].pdata;
   for (req = fdp->sane_qhead; req; req = next_req)
     {
       if (req->running && !req->done)
         {
+	  count = sane_scsicmd_timeout * 10;
+	  while (count)
+	    {
+	      errno = 0;
 #ifdef SG_IO
-          if (sg_version < 30000)
+	      if (sg_version < 30000)
 #endif
-            read (fd, &req->sgdata.cdb, req->sgdata.cdb.hdr.reply_len);
+		len = read (fd, &req->sgdata.cdb, req->sgdata.cdb.hdr.reply_len);
 #ifdef SG_IO
-          else
-            read (fd, &req->sgdata.sg3.hdr, sizeof(Sg_io_hdr));
+	      else
+		len = read (fd, &req->sgdata.sg3.hdr, sizeof(Sg_io_hdr));
 #endif
+	      if (len >= 0 || (len < 0 && errno != EAGAIN))
+		break;
+	      usleep (100000);
+	      count--;
+	    }
           ((fdparms*) fd_info[req->fd].pdata)->sg_queue_used--;
         }
       next_req = req->next;

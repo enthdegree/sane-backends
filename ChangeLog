@@ -1,3 +1,10 @@
+
+2003-10-22  Gerard Klaver <gerard at gkall dot hobby dot nl>
+        * doc/descriptions/teco2.desc backend/teco2.conf doc/sane-teco2.man:
+	  Mustek ScanMagic 4830S added.
+	* doc/sane-teco2.man: maintainer Gerard Klaver added.
+	* doc/teco/teco2.txt: data VM3564 Relisys AVEC II S3 added.
+
 2003-10-22  Julien Blache <jb@jblache.org>
 	* frontend/saned.c: replaced in_addr_t mask; by u_int32_t mask; in
 	check_v4_in_range(). in_addr_t doesn't seem to exist on OS/2, and

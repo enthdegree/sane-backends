@@ -406,10 +406,13 @@ init_gphoto2 (void)
   CHECK_RET (gp_port_info_list_load (il));
 
 
-  port = gp_port_info_list_lookup_path (il, Cam_data.port);
-  CHECK_RET (gp_port_info_list_get_info (il, port, &info));
-  CHECK_RET (gp_camera_set_port_info (camera, info));
-  gp_port_info_list_free (il);
+  if ( strcmp (Cam_data.port, "Browse") != 0 )
+  {
+    port = gp_port_info_list_lookup_path (il, Cam_data.port);
+    CHECK_RET (gp_port_info_list_get_info (il, port, &info));
+    CHECK_RET (gp_camera_set_port_info (camera, info));
+    gp_port_info_list_free (il);
+  }
 
   DBG (4, "init_gphoto2: about to initialize port\n");
   /*
@@ -710,6 +713,17 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
 		       f, Cam_data.camera_name);
 		  return SANE_STATUS_INVAL;
 		}
+
+	      /* Special case: Force port to special value for the
+	       * "Directory Browse" camera - overriding anything in
+	       * the config file - or more likely when not specified
+	       * in the config file. 
+	       */
+
+	     if ( strcmp(Cam_data.camera_name, "Directory Browse") == 0 ) 
+	       {
+		 Cam_data.port = "Browse";
+	       }
 
 	      sod[GPHOTO2_OPT_IMAGE_SELECTION].title = strdup (buf);
 	    }
@@ -1297,13 +1311,18 @@ sane_start (SANE_Handle handle)
 
   converter_init ();
 
-  /* Check if a linebuffer has been allocated.  Assumes that highres_width
-   * is also large enough to hold a lowres or thumbnail image 
+  /* Check if a linebuffer has been allocated.  If we had one 
+   * previously, free it up and allocate one for (possibly) new
+   * size.  parms.bytes_per_line is set by converter_init()
    */
   if (linebuffer == NULL)
     {
-      linebuffer = malloc (highres_width * 3);
+      linebuffer = malloc (parms.bytes_per_line);
     }
+  else {
+      free(linebuffer);
+      linebuffer = malloc (parms.bytes_per_line);
+  }
   if (linebuffer == NULL)
     {
       return SANE_STATUS_INVAL;

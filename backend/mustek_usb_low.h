@@ -56,6 +56,12 @@
 
 
 /* calculate the minimum/maximum values */
+#if defined(MIN)
+#undef MIN
+#endif
+#if defined(MAX)
+#undef MAX
+#endif
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 /* return the lower/upper 8 bits of a 16 bit word */

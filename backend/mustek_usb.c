@@ -46,7 +46,7 @@
    This file implements a SANE backend for Mustek 1200UB and similar 
    USB flatbed scanners.  */
 
-#define BUILD 13
+#define BUILD 14
 
 #include "../include/sane/config.h"
 
@@ -84,6 +84,7 @@
 static SANE_Int num_devices;
 static Mustek_Usb_Device *first_dev;
 static Mustek_Usb_Scanner *first_handle;
+static const SANE_Device **devlist = 0;
 
 /* Maximum amount of data read in one turn from USB */
 static SANE_Word max_block_size = 8 * 1024;
@@ -938,13 +939,16 @@ sane_exit (void)
       free (dev);
     }
   first_dev = 0;
+  if (devlist)
+    free (devlist);
+  devlist = 0;
+
   DBG (5, "sane_exit: exit\n");
 }
 
 SANE_Status
 sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 {
-  static const SANE_Device **devlist = 0;
   Mustek_Usb_Device *dev;
   SANE_Int dev_num;
 

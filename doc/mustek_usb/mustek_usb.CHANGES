@@ -1,5 +1,15 @@
 CHANGES for the SANE Mustek USB backend
 
+2002-04-24:
+  * Release of version 1.0-14. 
+
+2002-04-24:
+  * Undef MIN and MAX if they are defined in mustek_usb_low.h to avoid
+    warnings.
+
+2002-04-23:
+  * Free devlist in sane_exit.
+
 2002-04-10:
   * Release of version 1.0-13. 
 

@@ -1,3 +1,9 @@
+2002-01-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/pnm.c backend/pnm.desc po/pnm.de.po: Removed descripions
+	  of options of type SANE_TYPE_GROUP. Fixed some translations.
+	  New version: 1.0.4.
+
 2002-01-14  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 	
 	* backend/snapscan.c   backend/snapscan-usb.c:

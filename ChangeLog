@@ -1,3 +1,9 @@
+2001-10-23  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+  * backend/snapscan-scsi.c
+    Limit number of scan lines for quality calibration to fit in
+    SCSI buffer.
+
 2001-10-21  Peter Kirchgessner <peter@kirchgessner.net>
 
   * backend/hp.desc, doc/sane-hp.man
@@ -5,7 +11,7 @@
 
 2001-10-20  Karl Heinz Kremer <khk@khk.net>
 
-  * backend/epson.[ch]: Fix for older Perfection 1650 scanners - 
+  * backend/epson.[ch]: Fix for older Perfection 1650 scanners -
     their firmware only reports half of the vertical scanning
     area and they need to swap two color channels.
 
@@ -23,7 +29,7 @@
 2001-10-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* TODO: Removed some entries about net/saned.
-	* doc/saned.man: Clear up that a FQDN must be used in 
+	* doc/saned.man: Clear up that a FQDN must be used in
 	  saned.conf and that localhost is allways granted acces.
 	* NEWS: Updated.
 
@@ -132,7 +138,7 @@
 
 	* backend/ibm.desc: New file. Backend for the IBM 2456 and the
 	  Ricoh IS-410.
-	* PROJECTS: Added IBM backend. Removed gphoto2 (now included in 
+	* PROJECTS: Added IBM backend. Removed gphoto2 (now included in
 	  distribution).
 
 2001-10-07  Peter Fales <peter@fales.com>
@@ -173,11 +179,11 @@
 	  Updated Microtek2 backend to version 0.9 build 20010828 (from
 	  Karsten Festag <karsten.festag@t-online.de>).
 	* NEWS: Updated.
-	
+
 2001-10-04  Peter Kirchgessner <peter@kirchgessner.net>
 
         * backend/hp-accessor.c hp-device.c hp-handle.c hp-hpmem.c
-                  hp-option.c  hp-scl.c            
+                  hp-option.c  hp-scl.c
             Use include "../include/assert.h"
           doc/sane-hp.man
             Tell about subscribing to sane-devel
@@ -201,7 +207,7 @@
 2001-09-29  Peter Fales <peter@fales.com>
 
 	* backend/gphoto2.c, backend/gphoto2.h, backend/gphoto2.desc:
-	  Cosmetic cleanup and minor fixes.  Added list of gphoto2 
+	  Cosmetic cleanup and minor fixes.  Added list of gphoto2
 	  supported cameras to gphoto2.desc, even though most of them
 	  are not tested and probably not working yet.
 
@@ -218,7 +224,7 @@
 2001-09-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* sanei/sanei_scsi.c: Fixed detection of SCSI devices that return
-	  device strings (vendor, product) consisting of spaces. 
+	  device strings (vendor, product) consisting of spaces.
 	  sanei_scsi_req_enter2 was changed to copy the CDB and data before
 	  sending it to the device. Both patches are from Abel Deuring.
 	* sanei/sanei_config2.c: Removed some remainings of the USB merge.

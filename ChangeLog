@@ -1,3 +1,9 @@
+
+2001-07-01 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
+************************  end of code freeze ***********************************
+************************  Release of sane-backends 1.0.5 **********************
+
+
 2001-06-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* configure configure.in: Disabled warnings by default.

@@ -1,3 +1,10 @@
+2002-05-29  Frank Zago  <fzago at austin dot rr dot com>
+
+	* configure.in: Added test for long long. Fixed declaration for
+	  HAVE_ASM_IO_H
+	* configure include/sane/config.h.in: regenerated
+	* frontend/tstbackend: add test for long long.
+
 2002-05-28  Frank Zago  <fzago at austin dot rr dot com>
 
 	* po/matsushita.fr.po po/saneopts.fr.po po/sceptre.fr.po

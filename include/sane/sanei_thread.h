@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 1998-2001 Yuri Dario
    Copyright (C) 2002-2003 Henning Meier-Geinitz (documentation)
-   Copyright (C) 2003 Gerhard Jaeger (pthread/process support)
+   Copyright (C) 2003-2004 Gerhard Jaeger (pthread/process support)
    This file is part of the SANE package.
 
    SANE is free software; you can redistribute it and/or modify it under

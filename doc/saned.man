@@ -1,4 +1,4 @@
-.TH saned 1 "30 May 2002"
+.TH saned 1 "8 Oct 2002"
 .IX saned
 .SH NAME
 saned - SANE network daemon
@@ -131,9 +131,6 @@ Finally, it is also necessary to add a line of the following form to
 .RS
 sane 6566/tcp # SANE network scanner daemon
 .RE
-.PP
-Note that port number 6566 has not been officially assigned to the
-SANE network protocol and may thus change in the future.
 .PP
 
 .SH "RESTRICTIONS"

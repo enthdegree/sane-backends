@@ -1,4 +1,4 @@
-.TH sane-net 5 "10 Jun 2001"
+.TH sane-net 5 "8 Oct 2002"
 .IX sane-net
 .SH NAME
 sane-net - SANE network backend
@@ -73,8 +73,6 @@ service should be defined using a line of the following form:
 sane 6566/tcp # SANE network scanner daemon
 .RE
 .PP
-Note that port number 6566 has not been officially assigned to the
-SANE service and may change in the future.
 .SH FILES
 .TP
 .I @CONFIGDIR@/net.conf

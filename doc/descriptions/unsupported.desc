@@ -1434,6 +1434,12 @@
 :interface "Parport USB"
 :comment "Unsupported. See link for details."
 
+:model "SCSI Scan 19200 -Excellence Series-"
+:status :unsupported
+:url "/unsupported/trust-scsi-scan-19200.html"
+:interface "SCSI"
+:comment "Unsupported. See link for details."
+
 ;********************************************************************************************
 
 :mfg "UMAX"

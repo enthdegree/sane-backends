@@ -1,3 +1,9 @@
+******  Release of sane-backends 1.0.13. End of code freeze ******
+
+2003-11-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* configure configure.in: New version: 1.0.13.
+
 2003-11-20  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* doc/descriptions/snapscan.desc: Added model "SnapScan"

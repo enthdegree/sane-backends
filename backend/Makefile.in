@@ -58,6 +58,8 @@ COMPILE = $(CC) -c $(CFLAGS) $(DEFS) $(INCLUDES) $(CPPFLAGS)
 
 DISTCLEAN_FILES = @DISTCLEAN_FILES@
 
+FIRMWARE_DIRS = gt68xx
+
 @SET_MAKE@
 
 PRELOADABLE_BACKENDS = abaton agfafocus apple artec as6e avision bh canon \
@@ -209,10 +211,16 @@ install:
               || exit 1; \
 	  fi; \
 	done
+	for dir in $(FIRMWARE_DIRS) ; do \
+	   $(MKDIR) $(datadir)/sane/$${dir} ; \
+	 done
 
 uninstall:
 	rm -rf $(libsanedir) $(configdir)
 	rm -f $(libdir)/libsane.*
+	-for dir in $(FIRMWARE_DIRS) ; do \
+	   rmdir $(datadir)/sane/$${dir} ; \
+	 done
 
 dll.lo: dll-preload.c
 

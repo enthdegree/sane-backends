@@ -401,6 +401,11 @@ write_tiff_grey_header (FILE *fptr, int width, int height, int depth,
       }
     }
 
+    if (icc_file)
+    {
+      fclose(icc_file);
+    }
+
     free_ifd (ifd);
 }
 
@@ -568,6 +573,11 @@ write_tiff_color_header (FILE *fptr, int width, int height, int depth,
           break;
         }
       }
+    }
+
+    if (icc_file)
+    {
+      fclose(icc_file);
     }
 
     free_ifd (ifd);

@@ -1,3 +1,7 @@
+2002-11-29 Oliver Rauch <Oliver.Rauch@Rauch-Domain.DE>
+
+	* frontend/stiff.c: added fclose(icc_file)
+
 2002-11-25  Peter Kirchgessner <peter@kirchgessner.net>
 
 	* backend/hp-device.h backend/hp-accessor.c backend/hp-scl.c

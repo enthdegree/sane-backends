@@ -92,7 +92,6 @@ static char *scanner_str[] =
   "UMAX ",	"UMAX S-12G ",
   "UMAX ",	"SuperVista S-12 ",
   "UMAX ",	"PSD ",
-  "UMAX ",	"PL-II ",
   "UMAX ",	"Astra 600S ",
   "UMAX ",	"Astra 610S ",
   "UMAX ",	"Astra 1200S ",
@@ -100,10 +99,12 @@ static char *scanner_str[] =
   "UMAX ",	"Astra 2100S ", 
   "UMAX ",	"Astra 2200 ", 
   "UMAX ",	"Astra 2400S ",
+/*  "UMAX ",	"Astra 6400 ", */ /* this is a firewire scanner */
+/*  "UMAX ",	"Astra 6450 ", */ /* this is a firewire scanner */
   "UMAX ",	"Mirage D-16L ",
   "UMAX ",	"Mirage II ",
   "UMAX ",	"Mirage IIse ",
-/*  "UMAX ",	"PL-II ", */
+  "UMAX ",	"PL-II ",
 /*  "UMAX ",	"PowerLook 2000 ", */
   "UMAX ",	"PowerLook III ",
   "UMAX ",	"PowerLook 3000 ",
@@ -117,7 +118,8 @@ static char *scanner_str[] =
   "Linotype",	"SAPHIR4 ",
 /*  "LinoHell",	"OPAL ", */
   "HDM ",	"LS4H1S  ", /* Linoscan 1400 */
-  "Nikon ",	"AX-210 ",
+  "Nikon ",	"AX-110 ", /* is a Vista S6E */
+  "Nikon ",	"AX-210 ", /* is a Supervista S12 */
   "KYE ",	"ColorPage-HR5 ", 
   "EPSON ",	"Perfection600 ", 
   "ESCORT ",    "Galleria 600S ", /* is an Astra 600S */

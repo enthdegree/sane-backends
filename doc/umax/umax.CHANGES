@@ -985,8 +985,8 @@ build-28 -> build-29
    * set minimum resolution to 5 (was 1 before what could make problems)
 
 
-build-29 -> build-30 (sane-1.0.6)
----------------------------------
+build-29 -> build-30
+--------------------
 
   * added EDGE KTX-9600US as supported scanner
 
@@ -994,8 +994,8 @@ build-29 -> build-30 (sane-1.0.6)
     if not necessary
 
 
-build-30 -> build-31
---------------------
+build-30 -> build-31 (sane-1.0.6)
+---------------------------------
 
   * sane-umax.man uses @LIBDIR@ and @CONFIGFIR@
 
@@ -1007,4 +1007,16 @@ build-30 -> build-31
       inquiry_max_calibration_data_lines to 66
    for UMAX Supervista S-12, LinoHell Office and LinHell JADE
 
+
+
+build-31 -> build-32
+--------------------
+
+  * added Nikon AX-110 as supported scanner (Vista S6E)
+
+  * added umax.conf option "gamma-lsb-padded" with options:
+    -1 = auto
+    0 = inactive (msb padded)
+    1 = active (lsb padded)
+    activated for astra 1220s, internal 12 bit gamma correction does work now
 

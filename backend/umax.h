@@ -451,6 +451,7 @@ typedef struct Umax_Device
   int			pause_after_reposition;				    /* pause for repositioning in ms */
   int			pause_for_moving;	       /* pause for moving scanhead over full scanarea in ms */
   int			lamp_control_available;		       /* is set when scanner supportes lamp control */
+  int			gamma_lsb_padded;                              /* 16 bit gamma data is padded to lsb */
 
 #ifdef HAVE_SANEI_IPC
   sanei_ipc			*ipc;

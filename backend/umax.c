@@ -49,7 +49,7 @@
 
 /* --------------------------------------------------------------------------------------------------------- */
 
-#define BUILD 31
+#define BUILD 32
 
 /* --------------------------------------------------------------------------------------------------------- */
 
@@ -192,16 +192,14 @@ static int umax_scsi_maxqueue = 2; /* use command queueing depth 2 as default */
 static int umax_handle_bad_sense_error = 0; /* default: handle bad sense error code as device busy */
 static int umax_execute_request_sense  = 0; /* default: do not use request sense in do_calibration */
 static int umax_force_preview_bit_rgb  = 0; /* default: do not force preview bit in real color scan */
-
-/* predefine fast scan, used by most scanners */
 static int umax_slow  = -1; /* don`t use slow scanning speed */
 static int umax_smear = -1; /* don`t care about image smearing problem */
-
 static int umax_calibration_area = -1;         /* -1=auto, 0=calibration on image, 1=calibration for full ccd */
 static int umax_calibration_width_offset = -99999; /* -99999=auto */
 static int umax_calibration_bytespp = -1;      /* -1=auto */
 static int umax_invert_shading_data = -1;      /* -1=auto */
 static int umax_lamp_control_available = 0;    /* 0=disabled */
+static int umax_gamma_lsb_padded = -1;         /* -1=auto */
 
 /* ------------------------------------------------------------ CALIBRATION MODE --------------------------- */
 
@@ -2465,7 +2463,13 @@ static void umax_correct_inquiry(Umax_Device *dev, char *vendor, char *product, 
     }
     else if (!strncmp(product, "Astra 1220S ", 12))
     {
-      DBG(DBG_warning,"using standard options for %s\n", product);
+      DBG(DBG_warning,"setting up special options for %s\n", product);
+
+      if (dev->gamma_lsb_padded == -1) /* nothing defined in umax.conf and not by backend */
+      {
+        DBG(DBG_warning," - 16 bit gamma table is created lsb padded\n");
+        dev->gamma_lsb_padded = 1;
+      }
     }
     else if (!strncmp(product, "Astra 2100S ", 12))
     {
@@ -2955,7 +2959,7 @@ static int umax_check_values(Umax_Device *dev)
   if (dev->y_resolution > dev->relevant_optical_res)
   {
     dev->scale_y = 2;
-   }
+  }
   else if (dev->y_resolution > dev->relevant_optical_res/2)
   {
     dev->scale_y = 1;
@@ -4071,6 +4075,7 @@ static void umax_init(Umax_Device *dev)		     /* umax_init is called once while 
   dev->calibration_bytespp      = umax_calibration_bytespp;
   dev->invert_shading_data      = umax_invert_shading_data;
   dev->lamp_control_available   = umax_lamp_control_available;
+  dev->gamma_lsb_padded         = umax_gamma_lsb_padded;
 
   DBG(DBG_info, "request_scsi_maxqueue    = %d\n", dev->request_scsi_maxqueue);
   DBG(DBG_info, "request_preview_lines    = %d\n", dev->request_preview_lines);
@@ -4357,6 +4362,11 @@ static SANE_Status attach_scanner(const char *devicename, Umax_Device **devp)
   if (dev->invert_shading_data == -1) /* nothing defined in umax.conf and not by backend */
   {
     dev->invert_shading_data = 0;
+  }
+
+  if (dev->gamma_lsb_padded == -1) /* nothing defined in umax.conf and not by backend */
+  {
+    dev->gamma_lsb_padded = 0;
   }
 
   umax_get_inquiry_values(dev);
@@ -5486,6 +5496,7 @@ SANE_Status sane_init(SANE_Int *version_code, SANE_Auth_Callback authorize)
       else if (umax_test_configure_option(option_str, "calibration-bytes-pixel",  &umax_calibration_bytespp,      -1,   2));
       else if (umax_test_configure_option(option_str, "invert-shading-data",      &umax_invert_shading_data,      -1,   1));
       else if (umax_test_configure_option(option_str, "lamp-control-available",   &umax_lamp_control_available,    0,   1));
+      else if (umax_test_configure_option(option_str, "gamma-lsb-padded",         &umax_gamma_lsb_padded,         -1,   1));
       else
       {
         DBG(DBG_error,"ERROR: unknown option \"%s\" in %s\n", option_str, UMAX_CONFIG_FILE);
@@ -6088,7 +6099,6 @@ SANE_Status sane_control_option(SANE_Handle handle, SANE_Int option, SANE_Action
           }
 
           scanner->output_range.min   = 0;
-          scanner->output_range.max   = (int) pow(2, scanner->val[option].w) - 1;
           scanner->output_range.quant = 0;
 
           if (scanner->val[option].w == 8)						       /* 8 bit mode */
@@ -6099,8 +6109,17 @@ SANE_Status sane_control_option(SANE_Handle handle, SANE_Int option, SANE_Action
           else										      /* > 8 bit mode */
           {
             scanner->output_bytes  = 2;							    /* 2 bytes output */
-            scanner->output_range.max = 65535;
+
+            if (scanner->device->gamma_lsb_padded) /* e.g. astra 1220s need lsb padded data */
+            {
+              scanner->output_range.max   = (int) pow(2, scanner->val[option].w) - 1;
+            }
+            else
+            {
+              scanner->output_range.max = 65535; /* define maxval for msb padded data */
+            }
           }
+
 
           if (info)
           {

@@ -1,3 +1,26 @@
+2000-11-20  Jochen Eisinger <jochen.eisinger@gmx.net>
+
+	* configure configure.in: Added test for /dev/urandom and
+	  index() in string.h or strings.h
+	* backend/net.c: Fixed SANE_NET_AUTHORIZE call handling
+	* doc/net.tex: Clarified definition of SANE_NET_AUTHORIZE, added
+	  definition of MD5 authorization
+	* doc/sane.tex: Upgraded to version 1.0.2, changed definition of
+	  SANE_MAX_USERNAME_LEN & SANE_MAX_PASSWORD_LEN to 128 chars
+	* doc/saned.man: added description of SANE_CONFIG_DIR/saned.users
+	* doc/scanimage.man: added description of ~/.sane/pass and
+	  --accept-md5-only
+	* frontend/saned.c: implemented user authorization on a per backend
+	  basis
+	* frontend/scanimage.c: fixed bug (option -b wasn't present)
+	  implemented auth_callback
+	* lib/md5.c include/md5.h: added md5 functions from GNU textutils
+	* include/sane/sane.h: changed definition of SANE_MAX_USERNAME_LEN &
+	  SANE_MAX_PASSWORD_LEN to 128 chars
+	* include/sane/sanei_auth.h sanei/sanei_auth.c: implemented new
+	  SANE interface for user authorization using MD5 digest
+	* lib/Makefile.in sanei/Makefile.in: updated Makefiles
+
 2000-11-19  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson.c: Removed one debug output statement.

@@ -45,15 +45,13 @@ msgstr "Graustufen"
 
 # original text: "Lineart"
 #: .tmp/umax.c:162
-#, fuzzy
 msgid "Color Lineart"
-msgstr "Strichzeichnung"
+msgstr "Farb-Strichzeichnung"
 
 # original text: "Halftone"
 #: .tmp/umax.c:163
-#, fuzzy
 msgid "Color Halftone"
-msgstr "Halbton"
+msgstr "Farb-Halbton"
 
 # original text: "Color"
 #: .tmp/umax.c:164
@@ -62,29 +60,28 @@ msgstr "Farbe"
 
 #: .tmp/umax.c:208
 msgid "Use Image Composition"
-msgstr ""
+msgstr "Benutze Bildzusammensetzung"
 
 #: .tmp/umax.c:209
 msgid "Bi-level black and white (lineart mode)"
-msgstr ""
+msgstr "2 Level schwarz/weiss (Strichzeichnungs Modus)"
 
 #: .tmp/umax.c:210
 msgid "Dithered/halftone black & white (halftone mode)"
-msgstr ""
+msgstr "Halbton schwarz/weiss (Halbton Modus)"
 
 #: .tmp/umax.c:211
 msgid "Multi-level black & white (grayscale mode)"
-msgstr ""
+msgstr "Multi-Level schwarz&weiss (Graustufen Modus)"
 
 #: .tmp/umax.c:212
 msgid "Multi-level RGB color (one pass color)"
-msgstr ""
+msgstr "Multi-Level RGB Farbe (ein-Pass-Farbe)"
 
 # original text: "Quality calibration" 
 #: .tmp/umax.c:213
-#, fuzzy
 msgid "Ignore calibration"
-msgstr "Qualit‰ts Weiﬂabgleich"
+msgstr "Kalibrierung ignorieren"
 
 # original text: "Scan Mode"
 #: .tmp/umax.c:4579
@@ -103,70 +100,69 @@ msgstr "Farbverbesserung"
 
 #: .tmp/umax.c:5086
 msgid "Advanced"
-msgstr ""
+msgstr "Erweitert"
 
 #: .tmp/umax.c:5246
 msgid "Disable pre focus"
-msgstr ""
+msgstr "Pre-Focus ausschalten"
 
 #: .tmp/umax.c:5247
 msgid "Do not calibrate focus"
-msgstr ""
+msgstr "Focus nicht kalibrieren"
 
 #: .tmp/umax.c:5258
 msgid "Manual pre focus"
-msgstr ""
+msgstr "Manueller Pre-Focus"
 
 #: .tmp/umax.c:5270
 msgid "Fix focus position"
-msgstr ""
+msgstr "Feste Focus-Position"
 
 #: .tmp/umax.c:5282
 msgid "Lens calibration in doc position"
-msgstr ""
+msgstr "Linse auf Dokument kalibrieren"
 
 #: .tmp/umax.c:5283
 msgid "Calibrate lens focus in document position"
-msgstr ""
+msgstr "Focus der Linse auf dem Dokument kalibrieren"
 
 #: .tmp/umax.c:5294
 msgid "Holder focus position 0mm"
-msgstr ""
+msgstr "Halter Focus Position 0mm"
 
 #: .tmp/umax.c:5295
 msgid "Use 0mm holder focus position instead of 0.6mm"
-msgstr ""
+msgstr "Benutze 0mm Halter Focus Position anstatt 0.6mm"
 
 #: .tmp/umax.c:5308
 msgid "Lamp on"
-msgstr ""
+msgstr "Lampe an"
 
 #: .tmp/umax.c:5309
 msgid "Turn on scanner lamp"
-msgstr ""
+msgstr "Schalte Scannerlampe ein"
 
 #: .tmp/umax.c:5325
 msgid "Lamp off"
-msgstr ""
+msgstr "Lampe aus"
 
 #: .tmp/umax.c:5326
 msgid "Turn off scanner lamp"
-msgstr ""
+msgstr "Schalte Scannerlampe aus"
 
 #: .tmp/umax.c:5342
 msgid "Lamp off at exit"
-msgstr ""
+msgstr "Lampe bei Ende ausschalten"
 
 #: .tmp/umax.c:5343
 msgid "Turn off lamp when program exits"
-msgstr ""
+msgstr "Schalte Lampe beim Beenden des Programms aus"
 
 #: .tmp/umax.c:5357
 msgid "Calibration mode"
-msgstr ""
+msgstr "Kalibrierungs Modus"
 
 # original text: "Define lamp density for calibration" 
 #: .tmp/umax.c:5358
-#, fuzzy
 msgid "Define calibration mode"
-msgstr "Definiere die Lichtwerte beim Kalibrieren"
+msgstr "Kalibriermodus definieren"

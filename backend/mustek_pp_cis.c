@@ -1384,12 +1384,13 @@ cis_read_line_low_level (Mustek_PP_CIS_dev * dev, SANE_Byte * buf,
            hi_val = calib_hi[calctr] ;
          }
          
-         if (++calctr >= dev->desc->dev->maxhsize/2) {
+         if (++calctr >= dev->calib_pixels) {
             /* Avoid array boundary violations due to rounding errors 
                (due to the incremental calculation, the current position
                may be inaccurate to up to two pixels, so we may need to 
                read a few extra bytes -> use the last calibration value) */
-            calctr = dev->desc->dev->maxhsize/2 - 1;
+            calctr = dev->calib_pixels - 1;
+            DBG (3, "cis_read_line_low_level: calibration overshoot\n");
          }
 
          cval  -= low_val ;
@@ -1578,13 +1579,9 @@ cis_maximize_dynamic_range(Mustek_PP_CIS_dev * dev)
    int i, j, pixel, channel, minExposeTime, first, last;
    SANE_Byte powerOnDelayLower[3], powerOnDelayUpper[3], exposeTime[3];
    SANE_Byte buf[3][MUSTEK_PP_CIS_MAX_H_PIXEL];
-   SANE_Int pixels = dev->desc->params.pixels_per_line;
+   SANE_Int pixels = dev->calib_pixels;
    
    DBG(3, "cis_maximize_dynamic_range: starting\n");
-   
-   /* Calibrating interpolated pixels makes no sense */
-   if (pixels > (dev->desc->dev->maxhsize >> 1)) 
-      pixels = (dev->desc->dev->maxhsize >> 1);
    
    for (channel = 0; channel < 3; ++channel)
    {
@@ -1774,12 +1771,8 @@ cis_normalize_ranges(Mustek_PP_CIS_dev * dev)
 {
    SANE_Byte cal_low, cal_hi ;
    SANE_Byte powerOnDelay[3] ;
-   SANE_Int pixels = dev->desc->params.pixels_per_line;
+   SANE_Int pixels = dev->calib_pixels;
    SANE_Int channel, p, first, last;
-   
-   /* Calibrating interpolated pixels makes no sense */
-   if (pixels > (dev->desc->dev->maxhsize >> 1)) 
-      pixels = (dev->desc->dev->maxhsize >> 1);
    
    if (dev->desc->mode == MODE_COLOR)
    {
@@ -2037,7 +2030,15 @@ cis_calibrate (Mustek_PP_CIS_dev * dev)
     *
     *  - reset the device
     *
-    *  - move the motor 90 steps forward
+    *  - move the motor 110 steps forward. The TWAIN driver moves 90 steps,
+    *    and I've used 90 steps for a long time too, but occasionally, 
+    *    90 steps is a fraction to short to reach the start of the 
+    *    calibration strip (the motor movements are not very accurate;
+    *    an offset of 1 mm is not unusual). Therefore, I've increased it to
+    *    110 steps. This gives us an additional 1.6 mm slack, which should
+    *    prevent calibration errors. 
+    *    (Note that the MUSTEK_PP_CIS_????CP_DEFAULT_SKIP constants have to 
+    *    be adjusted if the number of steps is altered.)
     *
     *  - configure the CIS : actual resolution + set parameters
     * 
@@ -2064,9 +2065,9 @@ cis_calibrate (Mustek_PP_CIS_dev * dev)
    
    cis_reset_device (dev);
 
-   /* Move motor 90 steps @ 300 DPI */
+   /* Move motor 110 steps @ 300 DPI */
    Mustek_PP_1015_write_reg_start(dev, MA1015W_MOTOR_CONTROL);
-   for (i=0; i<90; ++i)
+   for (i=0; i<110; ++i)
    {
       if (dev->model == MUSTEK_PP_CIS600)
       {
@@ -2099,6 +2100,8 @@ cis_calibrate (Mustek_PP_CIS_dev * dev)
 /*   dev->CIS.skipsToOrigin = hw2max_vres(dev, dev->CIS.skipsToOrigin); */
    
    /* Move to the origin */
+   DBG(3, "cis_calibrate: remaining skips to origin @maxres: %d\n", 
+          dev->CIS.skipsToOrigin);
    cis_move_motor(dev, dev->CIS.skipsToOrigin);
    
    return dev->desc->state != STATE_CANCELLED ? SANE_TRUE : SANE_FALSE;
@@ -2487,6 +2490,14 @@ SANE_Status cis_drv_start (SANE_Handle hndl)
    else
      cisdev->CIS.cisRes = 600;         
 
+   /* Calibration only makes sense for hardware pixels, not for interpolated
+      pixels, so we limit the number of calibration pixels to the maximum
+      number of hardware pixels corresponding to the selected area */
+   if (dev->res > cisdev->CIS.hw_hres)
+      cisdev->calib_pixels = (pixels * cisdev->CIS.hw_hres) / dev->res;
+   else
+      cisdev->calib_pixels = pixels;
+   
    DBG (3, "cis_drv_start: hres: %d vres: %d cisres: %d\n", 
             cisdev->CIS.hw_hres, cisdev->CIS.hw_vres, cisdev->CIS.cisRes);
    

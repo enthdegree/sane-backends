@@ -231,6 +231,9 @@ typedef struct Mustek_PP_CIS_dev
   /* calibration buffers (low cut, high cut) */
   SANE_Byte *calib_low[3];
   SANE_Byte *calib_hi[3];
+  
+  /* Number of pixels in calibration buffers (<= number of pixels to scan) */
+  int calib_pixels;
 
 } Mustek_PP_CIS_dev;
 

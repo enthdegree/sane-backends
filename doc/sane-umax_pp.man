@@ -1,0 +1,260 @@
+.TH sane-umax_pp 5 "28 April 2001"
+.IX sane-umax_pp
+.SH NAME
+sane-umax_pp - SANE backend for Umax parallel port flatbed scanners
+.SH DESCRIPTION
+The
+.B sane-umax_pp
+library implements a SANE (Scanner Access Now Easy) backend that
+provides access to Umax parallel port flatbed scanners.  The
+following scanners work with this backend:
+.PP
+.RS
+Model:                
+.br
+-------------------- 
+.br
+Astra 1220P         
+.br
+HP3200C            
+.br
+Astra 1600P       
+.br
+Astra 2000P      
+.br
+.RE
+.PP
+This backend handles 75x75, 150x150, 300x300, 600x600 and 600x1200 dpi scan
+resolutions, in color and gray levels. There is no lineart mode.
+.PP
+These scanners share the same ASIC. Only parts such as CCD and ADC change from
+one to another. They even all reports being UMAX Astra 1220P via IEEE1284.
+There isn't direct way to recognize them properly. Under windows, model is
+set by the driver, regardless of the hardware. 
+.PP
+The current version of the backend use only EPP mode to communicate with the 
+scanner. PS/2 and SPP mode aren't implemented. It is recommended that you set
+your parallel port to EPP in BIOS with the current version of this backend. 
+ECPEPP will only work if you use a 2.4 kernel with ppdev support.
+.PP
+This backend does support parport sharing only 
+.I 
+if you have a kernel with ppdev support.
+.I 
+.PP
+Note that the backend needs to run as root. To allow user access to the scanner
+run the backend through the network interface (See saned(1) and sane\-net(5)).
+A more relaxed solution (security wise) is to add sticky bit to the frontend
+(See chmod(1)).
+The backend drop root priviledges as soon as it can, right after gaining direct
+access to IO ports.
+
+.SH "DEVICE NAMES"
+This backend expects device names of the form:
+.PP
+.RS
+.I port addr
+.RE
+.PP
+Where
+.B addr
+is the base address of the port your scanner is attached to. Known ports are
+.B 0x378
+(lp1)
+.B 0x278
+(lp2) and
+.B 0x3BC
+(lp0). Note that if you are using a Kernel 2.2.x or better and you have only one
+parallel port this port is named lp0 regardless of the base address. However,
+this backend requires the base address of your port. If you are not sure which
+port your scanner is connected to, have a look at your /etc/conf.modules.
+
+You can rename any device using the
+.PP
+.RS
+.I name devname
+.br
+.I model model
+.br
+.I vendor vendor
+.RE
+.PP
+options. These options aply to the last port option.
+
+.SH CONFIGURATION
+Please make sure to edit umax_pp.conf
+.B before
+you use the backend.
+.PP
+The contents of the
+.B umax_pp.conf
+file is a list of options and device names that correspond to Umax
+scanners.  Empty lines and lines starting with a hash mark (#) are
+ignored.
+.PP
+The height options supported are
+.BR red-gain ,
+.BR green-gain ,
+.BR blue-gain ,
+.BR red-highlight ,
+.BR green-highlight ,
+.BR blue-highlight ,
+.BR astra ,
+and
+.BR buffer .
+
+Options
+.B red-gain
+,
+.B green-gain
+and
+.B blue-gain
+allow you to adjust the sensitivy of your scanner for the given color. Values
+range from 0 (lowest gain) to 15 (highest). When all three gains are set to
+0, the backend does auto gain tuning.
+.PP
+
+Options
+.B red-highlight
+,
+.B green-highlight
+and
+.B blue-highlight
+allow you to adjust the highlight of your scanner for the given color. Values
+range from 0 (lowest highlight) to 15 (highest). 
+.PP
+
+Option
+.B astra
+allows you to change the model of your scanner. Current auto detection is based
+on side effects on scanning when using 1220P command set on other models, so
+it may fail on unkown hardware combination. Valid values are 1220, 1600 
+and 2000.
+.PP
+
+Option
+.B buffer
+allows you to change the size of the scan buffer. The size must be specified in
+bytes. The default value is 2 megabytes. 
+.PP
+
+
+
+.SH FILES
+.TP
+.I @CONFIGDIR@/umax_pp.conf
+The backend configuration file (see also description of
+.B SANE_CONFIG_DIR
+below).
+.TP
+.I @LIBDIR@/libsane\-umax_pp.a
+The static library implementing this backend.
+.TP
+.I @LIBDIR@/libsane\-umax_pp.so
+The shared library implementing this backend (present on systems that
+support dynamic loading).
+
+.SH ENVIRONMENT
+.TP
+.B SANE_CONFIG_DIR
+This environment variable specifies the list of directories that may
+contain the configuration file.  Under UNIX, the directories are
+separated by a colon (`:'), under OS/2, they are separated by a
+semi-colon (`;').  If this variable is not set, the configuration file
+is searched in two default directories: first, the current working
+directory (".") and then in @CONFIGDIR@.  If the value of the
+environment variable ends with the directory separator character, then
+the default directories are searched after the explicitly specified
+directories.  For example, setting
+.B SANE_CONFIG_DIR
+to "/tmp/config:" would result in directories "tmp/config", ".", and
+"@CONFIGDIR@" being searched (in this order).
+.TP
+.B SANE_DEBUG_UMAX_PP
+If the library was compiled with debug support enabled, this
+environment variable controls the debug level for this backend.  E.g.,
+a value of 128 requests all debug output to be printed.  Smaller
+levels reduce verbosity.
+
+.PP
+.RS
+level   debug output
+.br
+------- ------------------------------
+.br
+ 0       nothing
+.br
+ 1       errors
+.br
+ 2       warnings & minor errors
+.br
+ 3       additional information
+.br
+ 4       debug information
+.br
+ 5       code flow (not supported yet)
+.br
+ 6       special debug information
+.RE
+.PP
+.TP
+.B SANE_DEBUG_UMAX_PP_LOW
+This variable sets the debug level for the SANE interface for the Umax
+ASIC. Note that enabling this will spam your terminal with some
+million lines of debug output.
+
+.PP
+.RS
+level   debug output
+.br
+------- -------------------------------
+.br
+ 0       nothing
+.br
+ 1       errors
+.br
+ 8       command blocks
+.br
+ 16      detailed code flow
+.br
+ 32      dump datafiles      
+.br
+ 255     everything
+.RE
+.PP
+ 
+.PP
+.SH "SEE ALSO"
+sane\-net(5), saned(1)
+
+.TP
+For latest bug fixes and information see
+.I http://umax1220p.sourceforge.net/
+
+.SH AUTHOR
+Stéphane VOLTZ <svoltz@wanadoo.fr>, man page derived from mustek_pp man page
+by Jochen Eisinger <jochen.eisinger@gmx.net>
+
+
+
+.SH BUG REPORTS
+If something doesn't work, please contact me. But I need some information about
+your scanner to be able to help you...
+
+.TP
+.I SANE version
+run "scanimage -V" to determine this
+.TP
+.I the backend version and your scanner hardware
+run "SANE_DEBUG_UMAX=255 scanimage -L 2>log" as root. If you don't get any output
+from the umax_pp backend, make sure a line "umax_pp" is included into
+your @CONFIGDIR@/dll.conf.
+If your scanner isn't detected, make sure you've defined the right port address
+in your umax_pp.conf.
+.TP
+.I the name of your scanner/vendor
+also a worthy information. Please also include the optical resolution and lamp type of your scanner, both can be found in the manual of your scanner.
+.TP
+.I any further comments
+if you have comments about the documentation (what could be done better), or you
+think I should know something, please include it.

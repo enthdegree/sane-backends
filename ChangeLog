@@ -1,3 +1,10 @@
+2002-03-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* acinclude.m4 aclocal.m4 configure configure.in ltmain.sh:
+	  Update to libtool 1.4.2. Included local changes: use soname "libsane"
+	  for all os but AIX. Use "normal" shared libs (.so) instead of archives
+	  on AIX. Use 1 instead of 2 as major number with Irix.
+
 2002-03-24  Oliver Schwartz <oliver.schwartz@gmx.de>
 
 	* backend/snapscan-options.c: New file (option functions moved from 

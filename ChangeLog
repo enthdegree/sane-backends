@@ -1,3 +1,7 @@
+2004-07-31  Julien Blache <jb at jblache dot org>
+	* frontend/scanimage.c: Added the possibility to cleanly stop a
+	batch by pressing Ctrl+D when using --batch-prompt.
+
 2004-07-28  Gerard Klaver <gerard at gkall dot hobby dot nl>
 
 	* doc/descriptions/unsupported.desc: Added Logitech PageScan USB and

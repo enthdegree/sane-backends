@@ -1983,7 +1983,16 @@ List of available devices:", prog_name);
                 {
                   fprintf (stderr, "Place document no. %d on the scanner.\n", n);
                   fprintf (stderr, "Press <RETURN> to continue.\n");
+                  fprintf (stderr, "Press Ctrl + D to terminate.\n");
                   readbuf2=fgets(readbuf, 2, stdin);
+
+		  if (readbuf2 == NULL)
+		    {
+		      fprintf (stderr, "Batch terminated, %d pages scanned\n", (n - batch_increment));
+		      fclose (stdout);
+		      unlink (path);
+		      break; /* get out of this loop */
+		    }
                 }
 	      fprintf (stderr, "Scanning page %d\n", n);
 	    }

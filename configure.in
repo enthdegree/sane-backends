@@ -108,7 +108,7 @@ AC_CHECK_HEADERS(fcntl.h unistd.h libc.h sys/dsreq.h sys/select.h \
     sys/types.h sys/scsi/scsi.h sys/scsi/sgdefs.h sys/scsi/targets/scgio.h \
     apollo/scsi.h sys/sdi_comm.h sys/passthrudef.h linux/ppdev.h \
     dev/ppbus/ppi.h machine/cpufunc.h usb.h sys/bitypes.h sys/sem.h sys/poll.h \
-    IOKit/IOKitLib.h windows.h )
+    IOKit/IOKitLib.h windows.h limits.h )
 AC_CHECK_HEADERS([asm/io.h],,,[#include <sys/types.h>])
 SANE_CHECK_MISSING_HEADERS
 SANE_V4L_VERSION

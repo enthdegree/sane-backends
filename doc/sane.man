@@ -1,0 +1,340 @@
+.TH sane 7 "09 May 2001"
+.IX sane
+
+.SH NAME
+sane \- Scanner Access Now Easy: API for accessing scanners
+
+.SH DESCRIPTION
+.B SANE
+is an application programming interface (API) that provides standardized
+access to any raster image scanner hardware. The standardized interface makes
+it possible to write just one driver for each scanner device instead of one
+driver for each scanner and application.
+
+While
+.B SANE
+is primarily targeted at a UNIX environment, the standard has been carefully
+designed to make it possible to implement the API on virtually any hardware or
+operating system.
+.PP
+This manual page provides a summary of the information available about SANE.
+
+.SH TERMINOLOGY
+
+An application that uses the 
+.B SANE
+interface is called a 
+.B SANE frontend.
+A driver that implements the 
+.B SANE
+interface is called a
+.B SANE backend.
+A 
+.B meta backend
+provides some means to manage one or more other backends.
+
+.SH SANE STANDARD
+The 
+.B SANE
+standard defines the application programming interface (API) that is used to
+communicate between frontends and backends. It can be found at
+@DOCDIR@/sane.tex and net.tex and on the SANE website:
+http://www.mostang.com/sane/html/ (HTML), or
+http://www.mostang.com/sane/sane.ps (Postscript).
+.P
+There is some more information for programmers in
+@DOCDIR@/backend-writing.txt. Before a new backend or frontend project is started,
+have a look at @DOCDIR@/PROJECTS for projects that are planned or not yet included
+into the SANE distribution.
+
+.SH SOFTWARE PACKAGES
+The package 
+.B `sane-backends'
+contains a lot of backends, documentation (including the 
+.B SANE
+standard), networking support, and the command line frontend `scanimage'.  The
+frontends `xscanimage´ and `xcam´ are included in the package
+.B `sane-frontends'. 
+Both packages can be downloaded from the
+.B SANE
+homepage (http://www.mostang.com/sane/). Information about other frontends
+and backends can be found on the frontend page 
+(http://www.mostang.com/sane/frontends.html).
+
+.SH GENERAL INFORMATION
+The following sections provide short descriptions and links to more
+information about several aspects of
+.B SANE.
+A name with a number in parenthesis (e.g. `sane-dll(5)') points to a manual
+page, in this case `man 5 sane-dll'. Entries like `@DOCDIR@/sane.tex' are
+references to text files that were copied to the SANE documentation directory
+(@DOCDIR@) during installation. Everything else is an URL to a resource on the
+web.
+
+.TP 2
+.B SANE homepage
+Information on all aspects of SANE including a tutorial and a link to the SANE FAQ
+can be found on the SANE homepage: http://www.mostang.com/sane/.
+.TP
+.B SANE mailing list
+There is a mailing list for the purpose of discussing the SANE standard and
+its implementations: sane-devel.  Since this is currently the only mailing
+list devoted to SANE, it's perfectly OK to ask questions that are not strictly
+related to SANE development. How to subscribe and unsubscribe:
+http://www.mostang.com/sane/mail.html
+.TP
+.B Compiling and installing SANE
+Look at @DOCDIR@/README and the os-dependent README files for information about
+compiling and installing SANE.
+.TP
+.B SCSI configuration
+For information about various systems and SCSI controllers see sane-scsi(5).
+
+.SH FRONTENDS AND MISCELLANEOUS PROGRAMS
+.TP 2
+.B scanimage
+Command-line frontend. See scanimage(1).
+.TP
+.B saned
+.B SANE
+network daemon that allows remote clients to access image acquisition devices
+available on the local host. See saned(1).
+.TP
+.B sane-find-scanner
+sane-find-scanner is a command-line tool to find SCSI scanners and determine
+their Unix device files. See sane-find-scanner(1).
+.P
+Also, have a look at the sane-frontends package (including xscanimage and xcam)
+and the frontend information page at
+http://www.mostang.com/sane/sane-frontends.html.
+
+.SH BACKENDS FOR SCANNERS
+.TP 2
+.B abaton
+The SANE backend for Abaton flatbed scanners supports the Scan 300/GS (8bit,
+256 levels of gray) and the Scan 300/S (black and white, untested). See
+sane-abaton(5) for details.
+.TP
+.B agfafocus
+This backend supports AGFA Focus scanners and the Siemens S9036 (untested).
+See sane-agfafocus(5) for details.
+.TP
+.B apple
+The SANE backend for Apple flatbed scanners supports the following scanners:
+AppleScanner, OneScanner and ColorOneScanner. See sane-apple(5) for details.
+.TP
+.B artec
+The SANE Artec backend supports several Artex/Ultima SCSI flatbed scanners as
+well as the BlackWidow BW4800SP and the Plustek 19200S. See sane-artec(5) for
+details.
+.TP
+.B as6e
+This is a SANE backend for using the Artec AS6E parallel port interface
+scanner. See sane-as6e(5) for details.
+.TP
+.B avision
+This backend supports Avision AV 630 CS flatbed scanners. See sane-avision(5)
+for details.
+.TP
+.B bh
+The bh backend provides access to Bell+Howell Copiscan II series document
+scanners. See sane-bh(5) for details.
+.TP
+.B canon
+The canon backend supports the CanoScan 300, CanoScan 600, and CanoScan
+2700F SCSI flatbed scanners. See sane-canon(5) for details.
+.TP
+.B coolscan
+This is a SANE backend for Nikon Coolscan film-scanners. See sane-coolscan(5)
+for details.
+.TP
+.B epson
+The SANE epson backend provides support for Epson SCSI, parallel port and USB
+flatbed scanners. See sane-epson(5) for details.
+.TP
+.B hp
+The SANE hp backend provides access to HP ScanJet scanners and OfficeJet
+multi-function peripherals (MFPs) which support SCL (Scanner Control Language
+by HP). See sane-hp(5) for details.
+.TP
+.B m3096g
+This backend supports the Fujitsu M3096Gm flatbed scanner. See sane-fujitsu(5)
+for details.
+.TP
+.B microtek
+The microtek backend provides access to the "second generation" Microtek
+scanners with SCSI-1 command set. See sane-microtek(5) for details.
+.TP
+.B microtek2
+The microtek2 backend provides access to some Microtek scanners with a
+SCSI-2 command set. See sane-microtek2(5) for details.
+.TP
+.B mustek
+The SANE mustek backend supports most Mustek SCSI flatbed scanners including
+the Paragon and ScanExpress series and the 600 II N (non.SCSI). Some Trust
+scanners are also supported. See sane-mustek(5) for details.
+.TP
+.B mustek_pp
+The mustek_pp backend provides access to Mustek parallel port flatbed
+scanners. See sane-mustek_pp(5) for details.
+.TP
+.B nec
+The SANE nec backend supports the NEC PC-IN500/4C SCSI scanner. See
+sane-nec(5) for details.
+.TP
+.B pie
+The pie backend provides access to PIE and Devcom SCSI flatbed
+scanners. See sane-pie(5) for details.
+.TP
+.B plustek
+The SANE plustek backend supports Plustek parallel port scanners. See
+sane-plustek(5) for details.
+.TP
+.B ricoh
+The ricoh backend provides access to the following Ricoh flatbed
+scanners: IS50 and IS60. See sane-ricoh(5) for details.
+.TP
+.B s9036
+The s9036 backend provides access to Siemens 9036 flatbed scanners. See
+sane-s9036(5) for details.
+.TP
+.B sharp
+The SANE sharp backend supports Sharp SCSI scanners. See sane-sharp(5) for details.
+.TP
+.B snapscan
+The snapscan backend supports AGFA SnapScan flatbed scanners. See
+sane-snapscan(5) for details.
+.TP
+.B sp15c
+This backend supports the FCPA ScanPartner 15C flatbed scanner. See
+sane-fujitsu(5) for details.
+.TP
+.B st400
+The sane-st400 backend provides access to Siemens ST400 and ST800. See
+sane-st400(5) for details.
+.TP
+.B tamarack
+The SANE tamarack backend supports Tamarack Artiscan flatbed scanners. See
+sane-tamarack(5) for details.
+.TP
+.B umax
+The sane-umax backend provides access to several UMAX-SCSI-scanners and some
+Linotype Hell SCSI-scanners. See sane-umax(5) for details.
+.TP
+.B umax_pp
+The sane-umax_pp backend provides access to Umax parallel port flatbed scanners
+and the HP 3200C. See sane-umax_pp(5) for details.
+
+.P
+Also, have a look at the backend information page at
+http://www.mostang.com/sane/sane-backends.html and the list of projects in
+@DOCDIR@/PROJECTS.
+
+.SH BACKENDS FOR DIGITAL CAMERAS
+.TP 2
+.B sane-dc210
+Backend for Kodak DC210 Digital Camera. See sane-dc210(5).
+.TP
+.B sane-dc240
+Backend for Kodak DC240 Digital Camera. See sane-dc240(5).
+.TP
+.B sane-dc25
+Backend for Kodak DC20/DC25 Digital Cameras. See sane-dc25(5).
+.TP
+.B sane-dmc
+Backend for the Polaroid Digital Microscope Camera. See sane-dmc(5).
+.TP
+.B sane-qcam
+Backend for Connectix QuickCam cameras. See sane-qcam(5).
+
+.P
+Also, have a look at the backend information page at
+http://www.mostang.com/sane/sane-backends.html and the list of projects in
+@DOCDIR@/PROJECTS.
+
+.SH MISCELLANEOUS BACKENDS
+.TP 2
+.B sane-dll
+The sane-dll library implements a SANE backend that provides access to an
+arbitrary number of other SANE backends by dynamic loading. See sane-dll(5).
+.TP
+.B sane-net
+The 
+.B SANE
+network daemon saned provides access to scanners located on different
+computers in connection with the net backend. See sane-net(5) and saned(1).
+.TP
+.B sane-pnm
+PNM image reader pseudo-backend. The purpose of this backend is primarily to
+aid in debugging of SANE frontends. See sane-pnm(5).
+.TP
+.B sane-pint
+Backend for scanners that use the PINT (Pint Is Not Twain) device driver.  The
+PINT driver is being actively developed on the OpenBSD platform, and has been
+ported to a few other *nix-like operating systems. See sane-pint(5),
+.TP
+.B sane-v4l
+The sane-v4l library implements a
+.B SANE
+backend that provides generic access to video cameras and similar equipment
+using the V4L (Video for Linux) API. See sane-v4l(5).
+.P
+Also, have a look at the backend information page at
+http://www.mostang.com/sane/sane-backends.html and the list of projects in
+@DOCDIR@/PROJECTS.
+
+.SH PROBLEMS
+Please note that the default configuration uses sane-dll as the top-level
+backend.  Hence it is probably a good idea to start with reading sane-dll(5).
+The top-level backend is determined by the libsane.* symlinks in
+@LIBDIR@.
+.P
+For SCSI scanners reading of sane-scsi(5) is recommended.
+.P
+If you encounter any problems with getting your device(s) recognized, try
+setting the various environment variables that are available to assist in
+debugging such problems.  The environment variables are documented in the
+relevant manual pages.  For example, to get the maximum amount of debug
+information when testing a Mustek SCSI scanner, set environment variables
+SANE_DEBUG_DLL, SANE_DEBUG_MUSTEK, and SANE_DEBUG_SANEI_SCSI to 128 and then
+invoke scanimage or whatever program you're trying to debug.  For a Mustek
+scanner at /dev/scanner, you might want to invoke scanimage as follows:
+.IP
+scanimage -d mustek:/dev/scanner -h
+.TP
+If this works, you could try to acquire an image with:
+.IP
+scanimage -d mustek:/dev/scanner >t.pnm
+.PP
+If you are not sure what generic SCSI device your scanner is connected to, try
+the command sane-find-scanner.  Usually, It's sufficient to invoke the program
+without any arguments.  Invoking this command should produce output similar to
+this:
+.IP
+$\ sane-find-scanner
+.IP
+sane-find-scanner:\ found\ "MUSTEK\ MFC-06000CZ\ 1.01" at device /dev/scanner
+.br
+sane-find-scanner:\ found\ "MUSTEK\ MFC-06000CZ\ 1.01" at device /dev/sge
+.PP
+Note that sane-find-scanner will find any scanner that is connected to a SCSI
+bus.  It will even find scanners that are not supported at all by SANE.
+
+There may be several causes for the following messages from the frontends:
+"scanimage: no SANE devices found" or "xscanimage: no devices available.".
+.TP 2
+*
+Your scanner is not recognized by any backend. It is not supported. You may
+ask the maintainer of your backend (see @DOCDIR@/AUTHORS) or the SANE mailing
+list (see above) if support is planned.
+.TP
+*
+SANE can't access the device files (e.g /dev/sga). Check the permissions.
+.TP
+*
+Your backend is not listed in @CONFIGDIR@/dll.conf (or commented out).
+
+.SH AUTHOR
+David Mosberger-Tang and many more (see @DOCDIR@/AUTHORS for details).  This
+man page was written by Henning Meier-Geinitz. Quite a lot of text was taken
+from the SANE standard, several man pages, and README files.

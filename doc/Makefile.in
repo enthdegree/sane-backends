@@ -40,7 +40,8 @@ SECT5	= sane-abaton.5 sane-agfafocus.5 sane-apple.5 sane-as6e.5 sane-dll.5 \
           sane-st400.5 sane-mustek_pp.5 sane-dc210.5 sane-v4l.5 \
           sane-snapscan.5 sane-canon.5 sane-coolscan.5 sane-bh.5 sane-dc240.5 \
 	  sane-umax_pp.5
-MANPAGES = $(SECT1) $(SECT5)
+SECT7   = sane.7
+MANPAGES = $(SECT1) $(SECT5) $(SECT7)
 READMES = README AUTHORS COPYING ChangeLog LEVEL2 LICENSE NEWS PROBLEMS \
           PROJECTS README README.aix README.hp-ux README.linux README.os2 \
           README.solaris README.unixware2 README.unixware7 TODO
@@ -56,7 +57,7 @@ WWW_PATH= /home/httpd/html/sane/
 
 all: sane.ps $(MANPAGES) 
 
-%.1 %.5: %.man
+%.1 %.5 %.7: %.man
 	@sed -e 's|@DATADIR@|$(datadir)|g' \
 	     -e 's|@CONFIGDIR@|$(configdir)|g' \
 	     -e 's|@DOCDIR@|$(docdir)|g' \
@@ -66,7 +67,7 @@ all: sane.ps $(MANPAGES)
 	@echo Generating manpage $@...
 
 install: all
-	$(MKDIR) $(mandir)/man1 $(mandir)/man5
+	$(MKDIR) $(mandir)/man1 $(mandir)/man5 $(mandir)/man7
 	@for page in $(SECT1); do \
 	  echo installing $${page} in $(mandir)/man1/$${page}...; \
 	  $(INSTALL_DATA) $${page} $(mandir)/man1/$${page} || exit 1; \
@@ -74,6 +75,10 @@ install: all
 	@for page in $(SECT5); do \
 	  echo installing $${page} in $(mandir)/man5/$${page}...; \
 	  $(INSTALL_DATA) $${page} $(mandir)/man5/$${page} || exit 1; \
+	done
+	@for page in $(SECT7); do \
+	  echo installing $${page} in $(mandir)/man7/$${page}...; \
+	  $(INSTALL_DATA) $${page} $(mandir)/man7/$${page} || exit 1; \
 	done
 	$(MKDIR) $(docdir)
 	@for readme in $(READMES); do \

@@ -20,6 +20,7 @@ Backends:
  canon630u:     Nathan Rutman (*)
  canon_pp:      Matthew Duggan (*), Simon Krix
  coolscan:      Didier Carlier, Andreas Rick (*)
+ coolscan2:     Andras Major (*)
  dc25:          Peter Fales (*)
  dc210:         Brian J. Murrell
  dc240:         Peter Fales (*)
@@ -93,6 +94,7 @@ CVS repository maintainer:
 Email addresses:
 
 Abel Deuring <a.deuring@satzbau-gmbh.de>
+Andras Major <andras@users.sourceforge.net>
 Andreas Beck <becka@sunserver1.rz.uni-duesseldorf.de>
 Andreas Bolsch <ab@maths.nott.ac.uk>
 Andreas Czechanowski <m075@ins.uni-stuttgart.de>

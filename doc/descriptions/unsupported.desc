@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2004-10-30"		; version of backend
+:version "2004-11-07"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -622,6 +622,12 @@
 :status :unsupported
 :comment "Unsupported."
 
+:model "X1185"
+:url "/unsupported/lexmark-x1150.html"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported."
+
 :model "X5130"
 :url "/unsupported/lexmark-x5130.html"
 :interface "USB"
@@ -778,6 +784,12 @@
 :status :unsupported
 :comment "Unsupported. See link for more details."
 
+:model "ScanMaker 5"
+:url "/unsupported/microtek-scanmaker-5600.html"
+:interface "SCSI"
+:status :unsupported
+:comment "Probably unsupported. See link for more details."
+
 :model "ScanMaker 5600"
 :url "/unsupported/microtek-scanmaker-5600.html"
 :interface "USB"
@@ -828,6 +840,12 @@
 
 :model "ScanMaker i320"
 :url "/unsupported/microtek-scanmaker-i320.html"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. See link."
+
+:model "ScanMaker s400"
+:url "/unsupported/microtek-scanmaker-s400.html"
 :interface "USB"
 :status :unsupported
 :comment "Unsupported. See link."

@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2004-03-01"		; version of backend
+:version "2004-03-08"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -17,6 +17,16 @@
 :devicetype :scanner
 
 ;********************************************************************************************
+
+:mfg "Agfa"
+
+:model "1212 P"
+:status :unsupported
+:interface "Parport"
+:comment "Most probably unsupported."
+
+;********************************************************************************************
+
 
 :mfg "Artec/Ultima"
 :url "http://www.artecusa.com/"
@@ -51,18 +61,6 @@
 
 :mfg "Avision"
 :url "http://www.avision.com/"
-
-:model "iVina FB1600"
-:url "/unsupported/umax-astra-4500.html"
-:interface "USB"
-:status :unsupported
-:comment "Not supported. GL646. Same as UMAX Astra 4500. A backend is currenly beeing developed."
-
-:model "iVina FB1800"
-:url "/unsupported/umax-astra-4700.html"
-:interface "USB"
-:status :unsupported
-:comment "Not supported. GL660 + GL646. Same as UMAX Astra 4700. A backend is currenly beeing developed."
 
 :model "iVina FB2400"
 ;:url ""
@@ -283,18 +281,6 @@
 :status :unsupported
 :comment "Probably not supported. This scanner is used in a number of Canon portable printers (BJC-80 for one). No further information available."
 
-:model "CanoScan LiDE 50"
-:url "/unsupported/canon-lide-50.html"
-:interface "USB"
-:status :unsupported
-:comment "Not supported yet. GL841. More information is available."
-
-:model "CanoScan LiDE 80"
-:url "/unsupported/canon-lide-80.html"
-:interface "USB"
-:status :unsupported
-:comment "Probably not supported yet. Some information is available."
-
 ;********************************************************************************************
 
 :mfg "Compaq"
@@ -413,24 +399,6 @@
 :status :unsupported
 :comment "Not supported. No details known."
 
-:model "ColorPage HR6X Slim"
-:url "/unsupported/genius-colorpage-hr6x.html"
-:interface "USB"
-:status :unsupported
-:comment "Not supported. Vendor/product: 0x0458/0x2019. GL646. See link for more details."
-
-:model "ColorPage HR7X Slim"
-:url "/unsupported/genius-colorpage-hr7x.html"
-:interface "USB"
-:status :unsupported
-:comment "Not supported. Vendor/product: 0x0458/0x2018. GL646. See link for more details."
-
-:model "ColorPage HR8"
-:url "/unsupported/genius-colorpage-hr8.html"
-:interface "USB"
-:status :unsupported
-:comment "Not supported. See link for some more details."
-
 :model "Colorpage Vivid III"
 :url "/unsupported/genius-colorpage-vivid-III.html"
 :interface "USB"
@@ -503,65 +471,11 @@
 :status :unsupported
 :comment "Unsupported. See link for details."
 
-:model "ScanJet 2400C"
-:interface "USB"
-:url "/unsupported/hp-scanjet-2400c.html"
-:status :unsupported
-:comment "Probably unsupported. See link for details."
-
-:model "ScanJet 3500c"
-:url "/unsupported/hp-scanjet-3500c.html"
-:interface "USB"
-:status :unsupported
-:comment "Unsupported. Seems to use RealTek RTS8801C2-6. Vendor/Product ID 0x03F0/0x2205. See link and other Scanjet 35x0c entries."
-
-:model "ScanJet 3530c"
-:url "/unsupported/hp-scanjet-3530c.html"
-:interface "USB"
-:status :unsupported
-:comment "Unsupported. Chipset is Realtek RTS8801C2-6. Vendor/Product ID 0x03F0/0x2005. See link and other Scanjet 35x0c entries."
-
-:model "ScanJet 3570c"
-:interface "USB"
-:url "/unsupported/hp-scanjet-3570c.html"
-:status :unsupported
-:comment "Unsupported. Probably Realtek RTS8801C2-6, same ids as Scanjet 3530c. Has a TA. Vendor/product id 0x03F0/0x2005. See link and other Scanjet 35x0c entries."
-
-:model "ScanJet 3570cxi"
-;:url "http://www.realtek.com.tw/products/products1-2.aspx?modelid=37"
-:interface "USB"
-:status :unsupported
-:comment "Unsupported. See 3570c."
-
-:model "ScanJet 3670c"
-:interface "USB"
-:url "/unsupported/hp-scanjet-3670c.html"
-:status :unsupported
-:comment "Probably unsupported. See link for more details."
-
-:model "ScanJet 3690c"
-:interface "USB"
-:url "/unsupported/hp-scanjet-3690.html"
-:status :unsupported
-:comment "Probably unsupported. No details available."
-
 :model "ScanJet 3970c"
 :interface "USB"
 :url "/unsupported/hp-scanjet-3970c.html"
 :status :unsupported
 :comment "Unsupported. See link for details."
-
-:model "ScanJet 4500C"
-:url "/unsupported/hp-scanjet-4500c.html"
-:interface "USB"
-:comment "Not supported. Landscape scanner. Same as 5500C, but without ADF. Same ID as 5550c."
-:status :unsupported
-
-:model "ScanJet 4570C"
-:url "/unsupported/hp-scanjet-4570c.html"
-:interface "USB"
-:comment "Not supported. See link for details."
-:status :unsupported
 
 :model "ScanJet 4600"
 :url "/unsupported/hp-scanjet-4600.html"
@@ -573,24 +487,6 @@
 :url "/unsupported/hp-scanjet-4600.html"
 :interface "USB"
 :comment "Not supported. See link for details."
-:status :unsupported
-
-:model "ScanJet 5500C"
-:url "/unsupported/hp-scanjet-5500c.html"
-:interface "USB"
-:comment "Not supported. See link for details."
-:status :unsupported
-
-:model "ScanJet 5530C Photosmart"
-:url "/unsupported/hp-scanjet-5530.html"
-:interface "USB"
-:comment "Not supported. See link for details."
-:status :unsupported
-
-:model "ScanJet 5550C"
-:url "/unsupported/hp-scanjet-5550c.html"
-:interface "USB"
-:comment "Not supported. Same as 4570C, but with ADF. See link for details."
 :status :unsupported
 
 :model "ScanJet 8200C"
@@ -645,6 +541,12 @@
 :status :unsupported
 :comment "Unsupported. Vendor/product 0x043d/0x003d. GL640."
 
+:model "X1150"
+:url "/unsupported/lexmark-x1150.html"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported."
+
 ;********************************************************************************************
 
 :mfg "Logitec"
@@ -661,29 +563,12 @@
 :url "http://www.medion.com/"
 :url "http://www.medion.de/"
 
-:model "MD 5345"
-:url "/unsupported/medion-md6228.html"
-:interface "USB"
-:status :unsupported
-:comment "Probably unsupported. GL646 chipset. See link for details."
-
 :model "MD 6190"
 :url "/unsupported/medion-md6190.html"
 :interface "USB"
 :status :unsupported
 :comment "Probably unsupported. There seem to exist two different scanners with that name. See link for details."
 
-:model "MD 6228"
-:url "/unsupported/medion-md6228.html"
-:interface "USB"
-:status :unsupported
-:comment "Probably unsupported. GL646 chipset. See link for details."
-
-:model "MD 6471"
-:url "/unsupported/medion-md6228.html"
-:interface "USB"
-:status :unsupported
-:comment "Probably unsupported. GL646 chipset. See link for details."
 
 ;********************************************************************************************
 
@@ -978,36 +863,6 @@
 :status :unsupported
 :comment "Uses RealTek chipset (RTL8801D)"
 
-:model "OpticPro S12"
-:url "/unsupported/plustek-opticpro-st12.html"
-:interface "USB"
-:status :unsupported
-:comment "Not supported yet. GL646. May be supported later, see link for details."
-
-:model "OpticPro ST12"
-:url "/unsupported/plustek-opticpro-st12.html"
-:interface "USB"
-:status :unsupported
-:comment "Not supported yet. GL646. May be supported later, see link for details."
-
-:model "OpticPro ST16"
-:url "/unsupported/plustek-opticpro-st16.html"
-:interface "USB"
-:status :unsupported
-:comment "Not supported yet. GL646. May be supported later."
-
-:model "OpticPro S24"
-:url "/unsupported/plustek-opticpro-st24.html"
-:interface "USB"
-:status :unsupported
-:comment "Not supported yet. GL646. May be supported later, see link for details."
-
-:model "OpticPro ST24"
-:url "/unsupported/plustek-opticpro-st24.html"
-:interface "USB"
-:status :unsupported
-:comment "Not supported yet. GL646. May be supported later, see link for details."
-
 :model "OpticPro S28"
 :interface "USB"
 :status :unsupported
@@ -1068,12 +923,6 @@
 :interface "Parport"
 :status :unsupported
 :comment "Not supported. However, a stand-alone program is available."
-
-:model "Slim-Line 1200"
-;:url ""
-:interface "USB"
-:status :unsupported
-:comment "Probably unsupported. Vendor/product maybe 0x0461/0x0377. Maybe the same as Medion MD 6228/MD 5345"
 
 
 ;********************************************************************************************
@@ -1288,18 +1137,6 @@
 :status :unsupported
 :comment "Probably not supported. See link for details."
 
-:model "Astra 4500"
-:url "/unsupported/umax-astra-4500.html"
-:interface "USB"
-:status :unsupported
-:comment "Not supported. Vendor/product 0x0638/0x0a10. GL646. Same as Avision iVina FB1600. A backend is currenly beeing developed. See link for more details."
-
-:model "Astra 4700"
-:url "/unsupported/umax-astra-4700.html"
-:interface "USB"
-:status :unsupported
-:comment "Not supported. GL660 + GL646. Same as Avision iVina FB1800. A backend is currenly beeing developed. See link for more details."
-
 :model "Astra 6700"
 ;:url ""
 :interface "USB"
@@ -1358,12 +1195,6 @@
 :interface "USB"
 :status :unsupported
 :comment "Unsupported. 48 bit scanner, doesn't work with viceo backend. RTS8801C. Vendor/product 0x04a7/0x0226."
-
-:model "OneTouch 7100"
-:url "/unsupported/visioneer-onetouch7100.html"
-:interface "USB"
-:status :unsupported
-:comment "Unsupported. See link for details."
 
 :model "OneTouch 8100"
 :url "/unsupported/visioneer-onetouch8100.html"

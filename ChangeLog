@@ -2,6 +2,12 @@
 
 	* tools/check-usb-scanner.c: GL841 max packet size can be 512
 	  bytes on USB 2.0.
+	* doc/sane-usb.man: The Linux scanner module was removed. The
+	  devmode trick in fstab doesn't work anymore. We now have a
+	  hotplug script.
+	* doc/descriptions/unsupported.desc: Moved all scanners that may
+	  be supported by the genesys backend to genesys.desc. Added Agfa
+	  1212 P.
 
 2004-03-04  Oliver Schirrmeister <oschirr@abm.de>
 	* backend/fujitsu.c 

@@ -188,20 +188,19 @@ unset param
 #
 AC_DEFUN([SANE_V4L_VERSION],
 [
-  AC_CHECK_HEADER(linux/videodev.h)
-  if test "${ac_cv_header_linux_videodev_h}" = "yes"
-  then
+  AC_CHECK_HEADER([linux/videodev.h],
+  [
     AC_CACHE_CHECK([Video4Linux version 1 or 2], sane_v4l_version,
-    [AC_EGREP_CPP(v4l2_yes,
-      [#include <linux/videodev.h>
-#ifdef V4L2_MAJOR_VERSION
-      v4l2_yes
-#endif
-      ],[sane_v4l_version=v4l2],
-
-      [sane_v4l_version=v4l]
-    )])
-  fi
+    [
+      AC_EGREP_CPP(v4l2_yes,
+      [
+        #include <linux/videodev.h>
+        #ifdef V4L2_MAJOR_VERSION
+          v4l2_yes
+        #endif
+      ],[sane_v4l_version=v4l2],[sane_v4l_version=v4l])
+    ])
+  ],,[ ])
 ])
 
 #

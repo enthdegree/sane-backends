@@ -324,7 +324,7 @@ else
 
   if test "${sane_v4l_version}" != "v4l"
   then
-    echo "*** disabling v4l (Video for Linux) backend (linux/videodev.h not found)"
+    echo "*** disabling v4l (Video for Linux) backend (linux/videodev.h not found or unusable)"
   else
     BACKENDS="${BACKENDS} v4l"
   fi

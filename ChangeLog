@@ -1,3 +1,10 @@
+2003-11-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* configure configure.in acinclude.m4 aclocal.m4: Changed check for
+	  linux/videodev.h. If that file is not compilable, we don't build
+	  the v4l backend. That's to avoid compilation errors if videov.h
+	  from Linux kernel 2.6.* is used.
+
 -- snapshot 1.0.13-pre3
 ---- CODE FREEZE FOR SANE 1.0.13 ---
 2003-11-16  Henning Meier-Geinitz <henning@meier-geinitz.de>

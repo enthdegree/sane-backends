@@ -1,3 +1,16 @@
+2001-01-07  Abel Deuring <a.deuring@satzbau-gmbh.de>
+
+	* sanei/sanei_scsi-c: (Linux part) improved detection of
+	  sanei_scsi_max_request_size. Setting SANE_SG_BUFFERSIZE for
+	  low drivers which don't support scatter-gather should
+	  no longer be necessary.
+	* sanei/sanei_scsi-c: (Linux part) Added support for the new
+	  devfs in sanei_scsi_find_devices-
+	* backend/sharp.c: Test for existence of shm.h added.
+	* TODO: Removed entry about missing detection of shm.h in sharp
+	  backend.
+	  
+
 2001-01-03  Henning Meier-Geinitz <hmg@gmx.de>
 
 	* PROJECTS: Added Umax 1220P / HP3200C.

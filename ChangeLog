@@ -1,3 +1,7 @@
+2003-05-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* include/md5.h: Check for __attribute__ explicitely.
+
 2003-05-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* configure configure.in frontend/saned.c
@@ -7,6 +11,7 @@
 	  MacOS X systems.
 	* configure configure.in frontend/Makefile.in tools/Makefile.in:
 	  Add -all_load to linker flags on MacOS X to avoid linker errors.
+	* backend/Makefile.in: Create directory for gt68xx firmware.
 
 2003-05-01 Oliver Rauch <Oliver.Rauch@XSane.org>
 

@@ -50,6 +50,8 @@ backends
   * dc210 and jpeg stuff: move sanei_* functions to sanei/ (if they are 
     necssary).
 
+  * nec: Remove references to sharp backend (grep for "JX").
+
 doc
 ---
   * add sane manpage
@@ -77,6 +79,8 @@ sanei
 
   * sanei_scsi.c: Add patch from FreeBSD ports (sanei_scsi_find_devices)
     (after 1.0.4).
+
+  * sanei_scsi.c: OS/2: struct param breaks compilation with --enable-warnings.
 
 misc
 ----
@@ -112,6 +116,12 @@ misc
   * add configure option to enable only the net backend for users without
     local scanners. Install only sane-dll/sane-net (or even only sane-net).
     Maybe something like  --network-client-only or --disable-local-devices.
+
+  * Add a global PATH_MAX macro somewhere (config.h ?) if it's not defined
+    by the system.
+
+  * Check for shm.h in configure and update backends using it (if necessary
+    disable them)
 
 ******** done ********
 * update libtool versioning system

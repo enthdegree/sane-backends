@@ -1,4 +1,4 @@
-TODO (2002-01-26)
+TODO (2002-01-28)
 
 ******** todo ********
 
@@ -107,6 +107,9 @@ doc
 
   * sane.tex: Add a warning/explanation about problems with 
     sane_get_select_fd, Unix select() calls and sane_cancel.
+
+  * sane.tex: Add new sane.type = "film scanner". Check the other well known
+    strings for completeness.
 
 
 frontends

@@ -56,6 +56,7 @@ sanei_constrain_value (const SANE_Option_Descriptor * opt, void * value,
   int i, num_matches, match;
   const SANE_Range * range;
   SANE_Word w, v;
+  SANE_Bool b;
   size_t len;
 
   switch (opt->constraint_type)
@@ -139,7 +140,18 @@ sanei_constrain_value (const SANE_Option_Descriptor * opt, void * value,
 	  return SANE_STATUS_GOOD;
 	}
       return SANE_STATUS_INVAL;
-
+      
+    case SANE_CONSTRAINT_NONE:
+      switch (opt->type)
+	{
+	case SANE_TYPE_BOOL:
+	  b = *(SANE_Bool *) value;
+	  if (b != SANE_TRUE && b != SANE_FALSE)
+	    return SANE_STATUS_INVAL;
+	  break;
+	default:
+	  break;
+	}
     default:
       break;
     }

@@ -1,6 +1,7 @@
 2003-05-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/Makefile.in: Added missing $(DESTDIR).
+	* TODO: Minor updates.
 
 2003-05-12  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

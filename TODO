@@ -1,4 +1,4 @@
-TODO (2003-05-04)
+TODO (2003-05-09)
 
 ******** todo ********
 
@@ -41,14 +41,14 @@ backends
       found.
 
   * suspicious warnings or type mismatchs:
-    - bh: backend/bh.c", line 1923: warning: end-of-loop code not reached
+    - bh: backend/bh.c, line 1923: warning: end-of-loop code not reached
       see sane-devel. Also don't use mktemp.
     - coolscan: Lots of compilation warnings (e.g.
       "backend/coolscan-scsidef.h", line 160: warning: initialization
       type mismatch; empty declarations), see sane-devel.
 
   * Check if sp15c backend (Fujitsu ScanPartner 15C) can be included in
-    fujitsu or avision backends.
+    fujitsu or avision backends. Latest feedback point to the avision backend.
 
   * artec
     - Fix email address of Chris Pinkham. cpinkham@infi.net bounces.
@@ -61,8 +61,6 @@ backends
     - microtek
     - hp5400
 
-  * hp5400: Use GPL + SANE addition license.
-
 doc
 ---
   * Add doxygen documentation for the remaining sanei files:
@@ -72,6 +70,12 @@ doc
 
   * desc files:
     - Add keywords "vendor-id" and "product-id" for SCSI and USB ids.
+    - Change the usage of :status? Maybe for the backend, use 
+      "development, maintained, unmaintained" as there are not too many stability
+      issues (as in crashing) with the backends. For the scanners use something like:
+      "perfectly, mostly, partially, unsupported, untested" (from linuxprinting.org).
+      That explains how much the scanner can do instead of the release status of 
+      a scanner (alpha/beta...).
     - plustek:  check status of Umax 3450 USB scanner (same as 3400?)
     - umax: genius.kye.de times out?
 
@@ -79,7 +83,6 @@ doc
     - html manpages have broken links to other man pages if link is wrapped at
       the end of the line (e.g. sane-pint points to pint.5.html). Escaping the
       "-" with a backslash seems to work.
-    - avision: mention that hpusbscsi is no longer necessary.
 
 frontends
 ---------
@@ -161,8 +164,12 @@ misc
     a segfault in Sane.c. Silvio Vogt <blackhol at web.de> is working on this
     topic.
 
+  * In configure, print a list of backends that's build.
 
 ******** done ********
+* avision: mention that hpusbscsi is no longer necessary.
+* avision: don't crash if there is no config file.
+* hp5400: Use GPL + SANE addition license.
 * Update Dutch translation from Martin Kho (see sane-devel).
 * sanei_scsi: Add patches for MacOS X support from Mattias Ellert
   <mattias.ellert@tsl.uu.se>.

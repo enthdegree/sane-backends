@@ -208,7 +208,7 @@ AC_DEFUN(SANE_CHECK_GPHOTO2,
 		fi
 		GPVERSION=`gphoto2-config --version`
 
-		if test "$GPVERSION" != "gphoto2 2.0beta4dev8" && test "$GPVERSION" != "gphoto2 2.0beta4dev9" ; then 
+		if test "$GPVERSION" != "gphoto2 2.0beta4dev8" && test "$GPVERSION" != "gphoto2 2.0beta4dev9" && "$GPVERSION" != "gphoto2 2.0beta5dev1" ; then 
 			echo 
 			echo "Sorry, can't use GPHOTO2"
 			echo "GPHOTO2 APIs have been changing rapidly. Only"

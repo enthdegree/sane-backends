@@ -1,3 +1,8 @@
+2004-02-01 Karl Heinz Kremer <khk@khk.net>
+
+	* backend/epson.c: Added D7 function level as copy of D1 for CX-6400
+	* backend/epson_usb.c: Added IDs for CX-6400 and Perfection 4870
+
 2004-02-01 Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan-options.c: Remove non-working resolutions

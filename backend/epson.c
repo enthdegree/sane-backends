@@ -384,6 +384,7 @@
 #define	 EPSON_LEVEL_B8		 9
 #define	 EPSON_LEVEL_F5		10
 #define  EPSON_LEVEL_D1		11
+#define  EPSON_LEVEL_D7		12
 
 /* there is also a function level "A5", which I'm igoring here until somebody can 
    convince me that this is still needed. The A5 level was for the GT-300, which
@@ -444,6 +445,7 @@ static EpsonCmdRec epson_cmd [ ] =
   {"B8",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-4,3,0},'Z','B','M','@','g','d','K','z','Q','b','m','f','e','\f',0x19, '!','s','N', 0 , 0 , 0 ,'p','q'},
   {"F5",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-3,3,0},'Z', 0 ,'M','@','g','d','K','z','Q', 0 ,'m','f','e','\f', 0,    0 , 0 ,'N','T','P', 0 , 0 , 0 },
   {"D1",'I','i','F', 0 ,'C','G','D','R', 0 ,'A', 0 ,{ 0,0,0},'Z', 0 , 0 ,'@','g','d', 0 ,'z', 0 , 0 , 0 ,'f', 0 ,  0 , 0,   '!', 0 , 0 , 0 , 0 , 0 , 0 , 0 },
+  {"D7",'I','i','F', 0 ,'C','G','D','R', 0 ,'A', 0 ,{ 0,0,0},'Z', 0 , 0 ,'@','g','d', 0 ,'z', 0 , 0 , 0 ,'f', 0 ,  0 , 0,   '!', 0 , 0 , 0 , 0 , 0 , 0 , 0 },
 };
 
 

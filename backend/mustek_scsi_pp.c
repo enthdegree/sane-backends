@@ -57,9 +57,10 @@
 #include <unistd.h>
 
 #include <sys/time.h>
-#include <sys/timeb.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+
+#include <time.h>
 
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"
@@ -81,11 +82,13 @@ static int mustek_scsi_pp_timeout = 5000;
 static int
 mustek_scsi_pp_get_time ()
 {
-  struct timeb tp;
+  struct timeval tv;
   int retval;
 
-  ftime (&tp);
-  retval = tp.time * 1000 + tp.millitm;
+  gettimeofday (&tv, 0);
+
+  retval = tv.tv_sec * 1000 + tv.tv_usec / 1000;
+
   return retval;
 }
 

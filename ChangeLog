@@ -1,3 +1,8 @@
+2004-01-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/mustek_scsi_pp.c: Use gettimeofday() instead of
+	ftime(). Bug #300482.
+
 2004-01-21  Gerhard Jaeger <gerhard@gjaeger.de>
 	* backend/test.c: reader_process terminates now, when running as
 	  thread.

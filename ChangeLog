@@ -2,6 +2,8 @@
 
 	* doc/descriptions-external/epkowa.desc: Added Epson Perfection
 	  3170 Photo as it's reported to work with that backend.
+	* doc/descriptions/unsupported.desc: Added some scanners. Removed
+	  Epson Perfection 3170 (now in epkowa).
 
 2004-07-16  Gerhard Jaeger <gerhard@gjaeger.de>
 	* doc/plustek/Makefile.module doc/plustek/BUILD 

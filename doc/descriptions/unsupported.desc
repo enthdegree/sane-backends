@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2004-06-28"		; version of backend
+:version "2004-07-16"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -224,10 +224,10 @@
 :comment "Probably not supported. USB Vendor/product 0x04a9/0x220b. See link for more information and test program."
 
 :model "CanoScan D646U ex"
-;:url "/unsupported/canon-d646u.html"
+:url "/unsupported/canon-d646u.html"
 :interface "USB"
 :status :unsupported
-:comment "Probably not supported. No further details known."
+:comment "Probably not supported. See D646."
 
 :model "CanoScan D1250U2"
 :url "/unsupported/canon-d1250u2.html"
@@ -320,6 +320,15 @@
 :comment "Probably not supported. Scanner cardridge for Canon inkjet printers."
 
 ;********************************************************************************************
+:mfg "Chinon"
+
+:model "DS-3000"
+:url "/unsupported/chinon-ds3000.html"
+:interface "Parport Serial Port"
+:status :unsupported
+:comment "Unsupported at the moment, but a backend is in preparation. See link."
+
+;********************************************************************************************
 
 :mfg "Compaq"
 :url "http://www.compaq.com/"
@@ -368,12 +377,6 @@
 :interface "USB"
 :status :unsupported
 :comment "Probably unsupported. May work with snapscan backend after some modification. See link for details."
-
-:model "Perfection 3170"
-;:url ""
-:interface "USB"
-:status :unsupported
-:comment "Probably unsupported. Support is planned by the (external) epkowa backend. Seems to neither use Epson nor Benq protocol. Details appreciated."
 
 :model "Stylus Photo RX500"
 :url "/unsupported/epson-stylus-photo-rx500.html"
@@ -784,6 +787,11 @@
 :url "http://www.mustek.de/"
 :url "http://www.mustek.com.tw/"
 
+:model "1200 III EP"
+:interface "Parport"
+:status :unsupported
+:comment "Probably not supported. quarlewm at jmu dot edu offers to temporarily loan such a scanner to anyone who is interested in writing a driver."
+
 :model "1800 A3 Pro-1"
 :interface "USB"
 :url "http://lists.alioth.debian.org/pipermail/sane-devel/2003-April/007338.html"
@@ -1124,6 +1132,17 @@
 
 ;********************************************************************************************
 
+:mfg "Samsung"
+
+:model "SCX-4216F"
+:url "/unsupported/xerox-workcentre-pe16.html"
+:interface "USB Parport"
+:status :unsupported
+:comment "Not supported. See link for more details."
+
+
+;********************************************************************************************
+
 :mfg "Sicos"
 ;:comment ""
 
@@ -1410,6 +1429,12 @@
 
 :mfg "Xerox"
 :url "http://www.xerox.com/"
+
+:model "2400 Onetouch"
+:url "/unsupported/xerox-2400-onetouch.html"
+:interface "USB"
+:status :unsupported
+:comment "Not supported. See link for more details."
 
 :model "WorkCentre XK35c"
 :url "/unsupported/xerox-workcentre-xk35c.html"

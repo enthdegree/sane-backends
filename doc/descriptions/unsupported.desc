@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-11-23"		; version of backend
+:version "2003-11-24"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -37,7 +37,7 @@
 :status :unsupported
 :url "/unsupported/artec_epluspro.html"
 :interface "USB"
-:comment "Not supported. Vendor/product 0x05d8/0x4004. /proc/bus/usb/devices output is available. Chipset is GT6816. May work with the gt68xx backend after some work in the source code."
+:comment "Not supported. Work is ongoing to support it by the artec_eplus48u backend. See link for details.."
 
 :model "Ultima 2000 (0x4001)"
 :status :unsupported
@@ -372,12 +372,17 @@
 :status :unsupported
 :comment "Probably not supported by SANE. No details known. 10x15 cm. Maybe similar to Photo Scanner 1000?"
 
-:model "Photosmart S20xi (C5101A)"
+:model "Photosmart S20 (C5101A)"
 :interface "USB"
 :url "/unsupported/hp-photosmart-s20xi.html"
 :status :unsupported
 :comment "Not supported yet by SANE, but a backend is under development. See link for details."
 
+:model "Photosmart S20xi (C7150A)"
+:interface "USB"
+:url "/unsupported/hp-photosmart-s20xi.html"
+:status :unsupported
+:comment "Not supported yet by SANE, but a backend is under development. See link for details."
 
 :model "ScanJet 2300C"
 :interface "USB"
@@ -668,12 +673,6 @@
 :url "/unsupported/mustek-bearpaw-2448-cu-pro.html"
 :interface "USB"
 :comment "Not supported. See link for some information."
-:status :unsupported
-
-:model "BearPaw 2448 TA Plus"
-:url "/unsupported/mustek-bearpaw-2448-ta-plus.html"
-:interface "USB"
-:comment "Not supported. May be supported by the gt68xx backend in future. See link for some information."
 :status :unsupported
 
 :model "BearPaw 2448 TA Pro"
@@ -1162,6 +1161,22 @@
 
 
 ;********************************************************************************************
+;********************************************************************************************
+;********************************************************************************************
+
+:devicetype :vidcam
+
+:mfg "Biolux"
+:url "http://www.xerox.com/"
+
+:model "654 (micrOcular)"
+:url "/unsupported/biolux-654.html"
+:interface "USB"
+:status :unsupported
+:comment "Not supported yet. See link for more details."
+
+;********************************************************************************************
+
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

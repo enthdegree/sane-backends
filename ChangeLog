@@ -1,6 +1,9 @@
 2003-11-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* AUTHORS: Michael Herder has CVS access now.
+	* doc/descriptions/unsupported.desc: Added Biolux 654. Updated HP
+	  Photosmart entries. Removed Mustek BearPaw 2448 TA Plus (now
+	  listed by gt68xx.desc).
 
 2003-11-23  Jochen Eisinger <jochen@penguin-breeder.org>
 

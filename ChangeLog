@@ -20,6 +20,7 @@
 	  doc/descriptions/gt68xx.desc doc/gt68xx/gt68xx.CHANGES: Fixed a
 	  bug in the stop scan function for Plustek U16b. Added support
 	  for Genius Vivid4xe.
+	* doc/descriptions/unsupported.desc: Added Visioneer 8820 and TCE S450.
 	
 2003-12-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
 	

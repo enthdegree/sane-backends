@@ -57,9 +57,13 @@
 #include <string.h>
 #include <unistd.h>		/* usleep */
 #include <time.h>
-#include <linux/usb.h>		/* for USB_ defs */
+/*#include <linux/usb.h>*/		/* for USB_ defs */
 #include "lm9830.h"
 
+#define USB_TYPE_VENDOR                 (0x02 << 5)
+#define USB_RECIP_DEVICE                0x00
+#define USB_DIR_OUT                     0
+#define USB_DIR_IN                      0x80
 
 /* Assign status and verify a good return code */
 #define CHK(A) {if( (status = A) != SANE_STATUS_GOOD ) { \
@@ -132,13 +136,13 @@ gl640ReadControl (int fd, GL640_Request req, byte * data, unsigned int size)
 
 
 /* Wrappers to read or write a single byte to the bridge */
-static __inline__ SANE_Status
+static inline SANE_Status
 gl640WriteReq (int fd, GL640_Request req, byte data)
 {
   return gl640WriteControl (fd, req, &data, 1);
 }
 
-static __inline__ SANE_Status
+static inline SANE_Status
 gl640ReadReq (int fd, GL640_Request req, byte * data)
 {
   return gl640ReadControl (fd, req, data, 1);

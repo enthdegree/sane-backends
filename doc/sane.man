@@ -1,4 +1,4 @@
-.TH sane 7 "July 4th, 2002"
+.TH sane 7 "July 25th, 2002"
 .IX sane
 
 .SH NAME
@@ -262,9 +262,9 @@ sane-st400(5) for details.
 The SANE tamarack backend supports Tamarack Artiscan flatbed scanners. See
 sane-tamarack(5) for details.
 .TP
-.B teco1
-The SANE teco1 backend supports some TECO scanners, usually sold under the
-RELISYS name. See sane-teco1(5) for details.
+.B teco1 teco3
+The SANE teco1 and teco3 backends support some TECO scanners, usually
+sold under the RELISYS name. See sane-teco1(5) and sane-teco3(5) for details.
 .TP
 .B umax
 The sane-umax backend provides access to several UMAX-SCSI-scanners and some

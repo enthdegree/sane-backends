@@ -1,3 +1,10 @@
+2003-07-22  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan.c backend/snapscan.h backend/snapscan-scsi.c
+	  backend/snapscan-options.c backend/snapscan.conf: Backend version
+	  1.4.27 (ID cleanup, fix for firmware download of Acer 310/320,
+	  new USB ID for Acer 310)
+
 2003-08-17  Stéphane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp.c backend/umax_pp.h: revert change for UTA

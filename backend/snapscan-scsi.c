@@ -866,9 +866,9 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
        &&
        pss->pdev->model != SNAPSCAN310
        &&
-       pss->pdev->model != VUEGO310S
+       pss->pdev->model != PRISA310
        &&
-       pss->pdev->model != VUEGO610S
+       pss->pdev->model != PRISA610
     ) {
         pc[SET_WINDOW_P_DEBUG_MODE] = 2;        /* use full 128k buffer */
         pc[SET_WINDOW_P_GAMMA_NO] = 0x01;        /* downloaded table */
@@ -976,9 +976,9 @@ static SANE_Status send_diagnostic (SnapScan_Scanner *pss)
     u_char cmd[] = {SEND_DIAGNOSTIC, 0x04, 0, 0, 0, 0};    /* self-test */
     SANE_Status status;
 
-    if (pss->pdev->model == PRISA620S
+    if (pss->pdev->model == PRISA620
         ||
-	pss->pdev->model == VUEGO610S
+	pss->pdev->model == PRISA610
 	||
 	pss->pdev->model == SNAPSCAN1236
         ||
@@ -1157,9 +1157,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
         {
             switch (pss->pdev->model)
             {
-            case VUEGO610S:
-            case VUEGO310S:
-            case PRISA620S:
+            case PRISA610:
+            case PRISA310:
+            case PRISA620:
             case PRISA1240:
             case PRISA640:
             case PRISA4300:
@@ -1211,6 +1211,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
+ * Revision 1.23  2003/08/19 21:05:08  oliverschwartz
+ * Scanner ID cleanup
+ *
  * Revision 1.22  2003/04/30 20:49:39  oliverschwartz
  * SnapScan backend 1.4.26
  *

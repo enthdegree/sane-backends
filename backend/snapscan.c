@@ -78,7 +78,7 @@
 
 #define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
-#define BUILD               26
+#define BUILD               27
 
 #include "snapscan.h"
 
@@ -497,7 +497,7 @@ static SANE_Status snapscani_init_device_structure(
     case SNAPSCAN300:
         (*pd)->depths = depths8;
         break;
-    case PRISA620S:
+    case PRISA620:
         (*pd)->depths = depths12;
         break;
     case PRISA4300_2:
@@ -1178,13 +1178,13 @@ static SANE_Status start_reader (SnapScan_Scanner *pss)
     pss->rpipe[0] = pss->rpipe[1] = -1;
     pss->child = -1;
 
-    if (pss->pdev->model == VUEGO610S
+    if (pss->pdev->model == PRISA610
         ||
         pss->pdev->model == ACER300F
         ||
         pss->pdev->model == SNAPSCAN310
         ||
-        pss->pdev->model == VUEGO310S
+        pss->pdev->model == PRISA310
         ||
         pss->pdev->model == SNAPSCANE20
         ||
@@ -1762,6 +1762,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.30  2003/08/19 21:05:08  oliverschwartz
+ * Scanner ID cleanup
+ *
  * Revision 1.29  2003/04/30 20:49:40  oliverschwartz
  * SnapScan backend 1.4.26
  *

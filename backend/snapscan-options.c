@@ -204,7 +204,7 @@ static void init_options (SnapScan_Scanner * ps)
     switch (ps->pdev->model)
     {
     case SNAPSCAN310:
-    case VUEGO310S:                /* WG changed */
+    case PRISA310:                /* WG changed */
         po[OPT_SCANRES].constraint.word_list = resolutions_300;
         break;
     case SNAPSCANE50:
@@ -265,7 +265,7 @@ static void init_options (SnapScan_Scanner * ps)
     switch (ps->pdev->model)
     {
     case SNAPSCAN310:
-    case VUEGO310S:
+    case PRISA310:
         po[OPT_MODE].constraint.string_list = names_basic;
         break;
     default:
@@ -291,7 +291,7 @@ static void init_options (SnapScan_Scanner * ps)
     switch (ps->pdev->model)
     {
     case SNAPSCAN310:
-    case VUEGO310S:
+    case PRISA310:
         po[OPT_PREVIEW_MODE].constraint.string_list = preview_names_basic;
         break;
     default:
@@ -1388,6 +1388,9 @@ SANE_Status sane_control_option (SANE_Handle h,
 
 /*
  * $Log$
+ * Revision 1.8  2003/08/19 21:05:08  oliverschwartz
+ * Scanner ID cleanup
+ *
  * Revision 1.7  2003/04/30 20:49:39  oliverschwartz
  * SnapScan backend 1.4.26
  *

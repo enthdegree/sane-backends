@@ -38,7 +38,7 @@
    If you submit changes to SANE to the maintainers to be included in
    a subsequent release, you agree by submitting the changes that
    those changes may be distributed with this exception intact.
- 
+
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
@@ -88,9 +88,9 @@ typedef enum
     SNAPSCANE50,        /* SnapScan e40/e50, 1200 DPI */
     SNAPSCANE52,        /* SnapScan e52, 1200 DPI, no quality calibration */
     ACER300F,
-    VUEGO310S,          /* Vuego-Version of SnapScan 310 WG changed */
-    VUEGO610S,          /* Vuego 610S and 610plus SJU changed */
-    PRISA620S,          /* Acer ScanPrisa 620 - 600 DPI */
+    PRISA310,           /* Acer ScanPrisa 310 - 300 DPI */
+    PRISA610,           /* Acer ScanPrisa 610 - 600 DPI */
+    PRISA620,           /* Acer ScanPrisa 620 - 600 DPI */
     PRISA640,           /* Acer ScanPrisa 640 - 600 DPI */
     PRISA1240,          /* Acer ScanPrisa 1240 - 1200 DPI */
     PRISA4300,          /* Acer ScanPrisa 3300/4300 - 600 DPI */
@@ -120,9 +120,9 @@ static struct SnapScan_Driver_desc drivers[] =
     {SNAPSCANE50,    "SnapScanE50"},
     {SNAPSCANE52,    "SnapScanE52"},
     {ACER300F,       "Acer300"},
-    {VUEGO310S,      "Acer310"},
-    {VUEGO610S,      "Acer610"},
-    {PRISA620S,      "Acer620"},
+    {PRISA310,       "Acer310"},
+    {PRISA610,       "Acer610"},
+    {PRISA620,       "Acer620"},
     {PRISA640,       "Acer640"},
     {PRISA4300,      "Acer4300"},
     {PRISA4300_2,    "Acer4300 (42 bit)"},
@@ -144,14 +144,15 @@ struct SnapScan_Model_desc
 static struct SnapScan_Model_desc scanners[] =
 {
     /* SCSI model name -> enum value */
-    {"FlatbedScanner_2",    VUEGO310S},
-    {"FlatbedScanner_4",    VUEGO610S},
-    {"FlatbedScanner_5",    PRISA620S},
-    {"FlatbedScanner_9",    PRISA620S},
-    {"FlatbedScanner13",    PRISA620S},
-    {"FlatbedScanner16",    PRISA620S},
-    {"FlatbedScanner17",    PRISA620S},
-    {"FlatbedScanner18",    PRISA620S},
+    {"FlatbedScanner_2",    PRISA310},
+    {"FlatbedScanner_4",    PRISA610},
+    {"FlatbedScanner_5",    PRISA620},
+    {"FlatbedScanner_7",    PRISA310},
+    {"FlatbedScanner_9",    PRISA620},
+    {"FlatbedScanner13",    PRISA620},
+    {"FlatbedScanner16",    PRISA620},
+    {"FlatbedScanner17",    PRISA620},
+    {"FlatbedScanner18",    PRISA620},
     {"FlatbedScanner19",    PRISA1240},
     {"FlatbedScanner20",    PRISA640},
     {"FlatbedScanner21",    PRISA4300},
@@ -210,8 +211,8 @@ struct SnapScan_USB_Model_desc
 
 static struct SnapScan_USB_Model_desc usb_scanners[] =
 {
-    {0x04a5, 0x1a20, SNAPSCAN310},  /* Acer 310U */
-    {0x04a5, 0x2022, SNAPSCAN310}   /* Acer 320U */
+    {0x04a5, 0x1a20, PRISA310},  /* Acer 310U */
+    {0x04a5, 0x2022, PRISA310}   /* Acer 320U */
 };
 #define known_usb_scanners ((int) (sizeof(usb_scanners)/sizeof(usb_scanners[0])))
 
@@ -377,6 +378,9 @@ struct snapscan_scanner
 
 /*
  * $Log$
+ * Revision 1.22  2003/08/19 21:05:08  oliverschwartz
+ * Scanner ID cleanup
+ *
  * Revision 1.21  2003/04/30 20:49:40  oliverschwartz
  * SnapScan backend 1.4.26
  *

@@ -1,23 +1,34 @@
-Version 0.42-11
+Plustek-PARPORT-TODO.txt (2003-28-10) Gerhard Jäger <gerhard@gjaeger.de>
+========================================================================
 
 TODO (in general):
-	- more documentation/comments on the different functions
-	- remove/check the CHECK marks
-	- add additional button handler
-    - Move documents to its correct SANE place
-
-    - ADD: Adjustment of the scan area	
-	- checking timeout conditions (MiscCheckTimer !) and handle them correctly
-	- test concurrency between scanner and printer on the same port
-    - test interaction with CUPS
-	- better dither maps
-	- let the 96001/3 based models work with the highest available
+    - more documentation/comments on the different functions
+    - remove/check the CHECK marks
+    - add additional button handler
+    - adding adjustment of the scan area
+    - checking timeout conditions (MiscCheckTimer !) and handle them correctly
+    - let the 96001/3 based models work with the highest available
       phys. resolution
-	- make the backtrace work for ASIC 96001/3 based models
-    - Update the IOCTL interface and remove some old structs (CmdBlk)
     - Create the modes out of the capability list of each device
-    - FIX: P9636 problem (detected as OP12000)
-    - FIX: Genius VividPro II Film, Halftone/Gray > 450 dpi didn't work
-    - make A3I work correctly
 
-    	
+
+KNOWN BUGS/Limitations:
+
+Model             Description                           Workaround
+------------------------------------------------------------------------------
+
+OpticPro P9636    detected as OP12000                   none
+Genius VividPro   Halftone/Gray > 450 dpi didn't work   none
+II Film
+OpticPro P4830    binary scanning does not work         none
+OpticPro A3I      bad picture quality                   none
+
+********************************* DONE ***************************************
+
+Update the IOCTL interface and remove some old structs (CmdBlk) done
+
+******************************** SKIPPED *************************************
+
+better dither maps                             nobody needs halftone scanning
+make the backtrace work for ASIC 96001/3       not possible due to ASIC limits
+based models

@@ -1,10 +1,8 @@
-Plustek-USB-TODO.txt (2003-24-09) Gerhard Jäger <gerhard@gjaeger.de>
+Plustek-USB-TODO.txt (2003-28-10) Gerhard Jäger <gerhard@gjaeger.de>
 ====================================================================
 
 TODO (in general):
 	- more documentation/comments on the different functions
-	- Move documents to its correct SANE place
-	- improve calibration
 	- auto-warmup
 	- sensor movement speedup ffw/rev
 	- add plustek.conf presettings to interface for frontends
@@ -16,11 +14,11 @@ Model             Description                           Workaround
 
 HP 2100c          Straight Line Bug                     none
 EPSON Photo       Negative Scanning quality bad         none
-Canon  650        color modes >=600 dpi too dark        change gamma settings
 
 ********************************* DONE ***************************************
 
 Canon             fine calibration does not work                fixed
+Canon  650        color modes >=600 dpi too dark                fixed
 Canon 1220        image quality not very good                   fixed
 Canon 1240        gray mode too bright                          fixed
 
@@ -42,4 +40,5 @@ Make the color modes > 8bit work correctly                      done
 make mono/gray modes work on Canon scanners                     done
 copy picture line by line to backend                            done
 cancel function does not work correctly in large resolutions    fixed
+Move documents to its correct SANE place                        done
 

@@ -1,343 +1,41 @@
-Plustek-PARPRORT.txt (2003-09-24) Gerhard Jäger <gerhard@gjaeger.de>
+Plustek-PARPRORT.txt (2003-10-27) Gerhard Jäger <gerhard@gjaeger.de>
 ====================================================================
 
 
-NOTE:
------
+Beginning with SANE-1.0.13, there's a backend called plustek_pp.
+This is for controlling Plustek parallel-port scanner and compatible
+devices. For a full listing, see plustek_pp.desc.
 
-THE DRIVER CODE FOUND IN THIS DIRECTORY IS NOT NEEDED TO RUN THE
-USB DEVICES. IT IS ONLY NEEDED FOR THE PARALLEL PORT DEVICES.
-
-
-If you already have installed SANE-1.0.3 or higher,
-proceed with section SANE-1.0.3.
+This code formerly was available for creating the Linux kernelmodule
+pt_drv. This should no longer be necessary. You should be able to use
+the backend out of the box.
 
 
-Preparations
-------------
-
-What do we need ?
-
-a SANE backends archive   (i.e. sane-backends-1.0.9.tar.gz)
-a driver archive (i.e. plustek-sane-0.45-1.tar.gz)
-
-The latest SANE archive can be obtained at:
-http://www.sane-project.org
-and the latest backend at:
-http://www.gjaeger.de/scanner/plustek.html
-
-
-Assumptions
------------
-
-Our starting point is your home-directory:
-
-:~>
-
-The packages (here sane-backends-1.0.9.tar.gz und plustek-sane-0.45-1.tar.gz)
-are in the /tmp directory.
-
-
-Let's go:
----------
-
-Change to your home directory and create a sane directory
-cd ~
-mkdir sane
-
-unpack your sane tar-ball (here "sane-backends-1.0.9.tar.gz")
-to this "sane" directory
-
-cd sane
-tar xvzf /tmp/sane-backends-1.0.9.tar.gz
-
-Now unpack your plustek-sane tarball (here "plustek-sane-0.45-1.tar.gz")
-to the backends directory:
-
-cd sane-backends-1.0.9
-tar xvzf /tmp/plustek-sane-0.45-1.tar.gz
-
-Configuration
--------------
-
-If you already have a previous SANE version installed on your system,
-I recommend to remove it. On RPM bases systems (SuSE, Redhat, Mandrake, etc)
-you first try and find the SANE rpm-package:
-
-:~> rpm -qa | grep sane
-
-as result you might get (if installed):
-
-:~> sane-1.0.1-94
-
-by using the previous result, you can remove SANE:
-
-:~> rpm -e sane-1.0.1-94
-
-
-If you don't have installed with RPM, you should try the following lines:
-
-rm -rf /usr/lib/sane
-rm -rf /usr/lib/libsane*
-rm -rf /usr/include/sane
-rm -rf /etc/sane.d
-rm -rf /usr/etc/sane.d
-rm -rf /usr/share/sane*
-rm -rf /usr/local/lib/sane
-rm -rf /usr/local/lib/libsane*
-rm -rf /usr/local/include/sane
-rm -rf /usr/local/etc/sane.d
-rm -rf /usr/local/share/sane*
-
-If you want to keep the old SANE stuff, you have to find out excatly
-where this version is, because you must replace all older stuff
-excatly with the new one to avoid conflicts.
-
-Now find out where a previous installation is placed.
-Look in /usr/lib and/or /usr/local/lib for a sane directory.
-If it is in /usr/lib, you should remember /usr else /usr/local.
-The other directory we need is the sane configuration directory sane.d.
-Have a look at /etc, /usr/etc or /usr/local/etc. If it is in /etc, remember that,
-else use /usr or /usr/local.
-
-We now call the configure script in the sane source directory (depending on the
-info we already got (I assume a previous installation at /usr and /etc which is
-usual for a SuSE distribution, RedHat uses /usr/local and /usr/local/etc)
-
-Especially for SuSE with a preinstalled SANE-RPM:
-./configure --prefix=/usr --sysconfdir=/etc
-
-
-Building the show
+The kernel module
 -----------------
 
-now we build sane and the backends (here only the Plustek backend)
+As it might be helpful to create and use the kernel-module, this way still
+exists. It's possible to create this module out of the backend sources
+in sane-backends/backend and the makefile (Makefile.module) in this
+directory. Simply do
 
-make
+make -f Makefile.module all
 
-The next step (sane installation) can only be done as root:
+Then the module should be compiled. To install and load it, make sure you
+are root user, then do:
 
-su
-make install
+make -f Makefile.module install
 
-Leave root account
-
-exit
-
-and dive into the backend/plustek_driver directory
-
-cd backend/plustek_driver
-
-and make the driver
-
-make all
-
-now enter again the root account and install the driver
-
-su
-make install
-
-After this step, add the following three lines to file /etc/conf.modules
-(or /etc/modules.conf)
-
-alias char-major-40	pt_drv
-pre-install pt_drv modprobe -k parport
-options pt_drv lampoff=180 warmup=15 port=0x378 lOffonEnd=0 mov=0 slowIO=0 forceMode=0
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!! Of course you should adjust the port address if the scanner !!!
-!!! uses another port (see section below)                       !!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-If you have more than one scanner connected to your computer, set
-the options like here:
-
-options pt_drv lampoff=180,240 warmup=15,30 port=0x378,0x278 lOffonEnd=0 mov=0,4
-
-After modifiying /etc/modules.conf (or /etc/conf.modules) always call depmod:
-
-depmod -av
-
-
-OPTIONS
---------
-
-There's no need to specify the options, the default values are
-lampoff=180, warmup=30, port=0x378, lOffonEnd=0, mov=0, slowIO=0 and forceMode=0
-lampoff specifies the time in seconds to switch off the lamps after use
-warmup specifies the time in seconds to wait after switching on the lamps
-port defines the base address of the parallelport to use
-lOffonEnd specifies the behaviour on unload, 1 --> switch lamps off, 0 -->
-don't change lamp status
-mov is the model override:
- 0 - default: no override
- 1 - OpticPro 9630PL override (works if OP9630 has been detected)
-     replaces legal switch
- 2 - Primax 4800Direct override (works if OP600 has been detected)
- 3 - OpticPro 9636 override (works if OP9636 has been detected)
- 4 - OpticPro 9636P override (works if OP9636 has been detected)
- 5 - OpticPro A3I override (works if OP12000 has been detected)
- 6 - OpticPro 4800P override (works if OP600 has been detected)
-slowIO specifies which I/O functions the driver should use. 0 means
-fast I/O which may causes some trouble, 1 means delayed I/O.
-forceMode lets you the module to use a specific parport mode, 0 means
-autodetection, 1 means SPP and 2 means EPP. Note: If your PC doesn't
-support EPP, it makes no sense to force this mode!!!
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!! After modifying the options, call depmod AND don't forget to reload      !!!
-!!! the driver else the new options are not used.                            !!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-Loading the driver
-------------------
-
-Now dive into the sane-1.0.1/backend/plustek_driver directory
-and load the driver (as root !)
-
-:~/sane-1.0.1/backend/plustek_driver > su -m
-:~/sane-1.0.1/backend/plustek_driver # make load
-make -f MakeKernel load
-make[1]: Entering directory `/home/gj/dev/sane-1.0.1/backend/plustek_driver'
-/sbin/modprobe pt_drv || exit 1
-rm -f /dev/pt_drv
-mknod /dev/pt_drv c `cat /proc/devices | sed -ne "s/\([0-9]*\) pt_drv/\1/p"` 0
-chgrp "root" /dev/pt_drv
-chmod "664"  /dev/pt_drv
-make[1]: Leaving directory `/home/gj/dev/sane-1.0.1/backend/plustek_driver'
-
-Now your scanner-driver should have been loaded (lamp on !)
-
-You can also check your proc Filesystem, if the driver is loaded
-correctly and the proc-filesystem is enabled, you will find the following
-entries:
-
-/proc/pt_drv
-/proc/pt_drv/info
-/proc/pt_drv/device0
-/proc/pt_drv/device0/info
-/proc/pt_drv/device0/button0
-
-button is only available, if your scanner has a button (OP4830 and OP9630).
-Try
-cat /proc/pt_drv/info
-cat /proc/pt_drv/device0/info
-
-If you have problems, please have a look at the mailing list at
-http://www.linuxhacker.org/lists.phtml
-
-After successful installation, it should be possibly for root to
-load the driver with
-modprobe pt_drv
-and to unload with
-modprobe -r pt_drv
-
-To get information about the driver, use:
-:~> cat /prov/pt_drv
-
-You should also have these devices:
-:~> ls -l /dev/pt_*
-
-crw-rw-r--   1 root     root      40,   0 Aug 29 15:18 /dev/pt_drv
-crw-rw-r--   1 root     root      40,   0 Aug 29 15:18 /dev/pt_drv0
-crw-rw-r--   1 root     root      40,   1 Aug 29 15:18 /dev/pt_drv1
-crw-rw-r--   1 root     root      40,   2 Aug 29 15:18 /dev/pt_drv2
-crw-rw-r--   1 root     root      40,   3 Aug 29 15:18 /dev/pt_drv3
-
-Have a look at the permissions!
-
-
-Checking SANE
--------------
-
-Leave the root account and go to your home directory
-
-exit
-cd ~
-
-try a call to scanimage and you should get something like the following
-
-scanimage -L
-device `plustek:/dev/pt_drv' is a Plustek 9630P flatbed scanner
-
-It is possible to activate the SANE debug facility to see what
-happens:
-export SANE_DEBUG_PLUSTEK=12
-
-
-
-Debugmessages
--------------
-
-To activate the debug messages, uncomment the line
-#DEBUG=y in the file backend/plustek_driver/Makefile
-Then recompile the driver and reinstall it.
-The messages can be seen at the system console or via
-tail -f /var/log/messages	(as superuser !)
-As normal user, use
-dmesg
-If you encounter severe trouble, always sent the debug
-output with your request.
-
-
-
-NO Backend-Update needed?
--------------------------
-
-From SANE-1.0.3 on SANE already contains the Plustek backend, so you only
-need to install the scanner driver module. Please remind, that you need
-parts of the SANE source-code (header file: plustek-share.h)
-From SANE-1.0.5 on the directory structure slightly changed. We now have two
-tar-balls, the sane-frontend.tgz and the sane-backend.tgz. We need the
-sane-backend.tgz. Unpack this one and browse through the directory structure.
-It should look like that:
-sane-1.0.4/sane-backends/backend
-etc...
-Unpack the module tarball in the "backend" directory.
-
-
-Assumptions
------------
-
-Our starting point is your home-directory:
-
-:~>
-
-The package (plustek-module-0_XX_YY.tar.gz) is in the /tmp directory.
-
-
-What to do:
-----------
-
-- Extract the module archive plustek-module-0_XX_YY.tar.gz in the
-  sane backend directory.
-  NOTE: Since SANE-1.0.5 there are two packages, the SANE-backends and
-        the SANE-frontends. We need the Backend package!
-
-:~> cd ~/sane-1.0.3/backend
-:~/sane-1.0.3/backend> tar -xzf /tmp/plustek-module-0_XX_YY.tar.gz
-
-- Make and install the kernel module:
-
-:~/sane-1.0.3/backend> cd plustek_driver
-:~/sane-1.0.3/backend/plustek_driver> make
-:~/sane-1.0.3/backend/plustek_driver> su
-:~/sane-1.0.3/backend/plustek_driver# make install
-
-- add the following three lines to file /etc/conf.modules (or /etc/modules.conf)
+add the following three lines to file /etc/conf.modules (or /etc/modules.conf)
 
 alias char-major-40	pt_drv
 pre-install pt_drv modprobe -k parport
 options pt_drv lampoff=180 warmup=15 port=0x378 lOffonEnd=0 mov=0 slowIO=1
 
-- See man page for sane-plustek ("man sane-plustek") for explanation of these
-  options.
+See man page for sane-plustek_pp ("man sane-plustek_pp") for explanation of
+these options.
 
-- load the driver
-
-:~/sane-1.0.3/backend/plustek_driver# make load
-:~/sane-1.0.3/backend/plustek_driver# exit
+make -f Makefile.module load
 
 Now "scanimage -L" should show something like this:
 device `plustek:/dev/pt_drv' is a Plustek 9630P flatbed scanner

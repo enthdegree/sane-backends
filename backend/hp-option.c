@@ -3910,7 +3910,7 @@ sanei_hp_optset_control (HpOptSet this, HpData data,
                          hp_bool_t immediate)
 {
   HpOption	opt  = hp_optset_getByIndex(this, optnum);
-  SANE_Int	my_info = 0;
+  SANE_Int	my_info = 0, my_val = 0;
 
   DBG(3,"sanei_hp_optset_control: %s\n", opt ? opt->descriptor->name : "");
 
@@ -3921,6 +3921,23 @@ sanei_hp_optset_control (HpOptSet this, HpData data,
 
   if (!opt)
       return SANE_STATUS_INVAL;
+
+  /* There are problems with SANE_ACTION_GET_VALUE and valp == 0. */
+  /* Check if we really need valp. */
+  if ((action == SANE_ACTION_GET_VALUE) && (!valp))
+  {
+    /* Options without a value ? */
+    if (   (opt->descriptor->type == SANE_TYPE_BUTTON)
+        || (opt->descriptor->type == SANE_TYPE_GROUP))
+    {
+      valp = &my_val; /* Just simulate a return value locally. */
+    }
+    else /* Others must return a value. So this is invalid */
+    {
+      DBG(1, "sanei_hp_optset_control: get value, but valp == 0\n");
+      return SANE_STATUS_INVAL;
+    }
+  }
 
   if (immediate)
     RETURN_IF_FAIL( hp_option_imm_control(this, opt, data, action, valp, infop,

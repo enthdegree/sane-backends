@@ -883,29 +883,6 @@ sane_control_option (SANE_Handle handle, SANE_Int optnum,
 
   DBG(10, "sane_control_option called\n");
 
-  status = SANE_STATUS_GOOD;
-  switch (action)
-  {
-    case SANE_ACTION_GET_VALUE:
-    case SANE_ACTION_SET_VALUE:
-           if (!valp)
-           {
-             DBG (1,"sane_control_option: valp is NULL\n");
-             status = SANE_STATUS_INVAL;
-           }
-           break;
-
-    case SANE_ACTION_SET_AUTO:
-           break;
-
-    default:
-           DBG (1,"sane_control_option: action unknown\n");
-           status = SANE_STATUS_INVAL;
-           break;
-  }
-
-  if (status != SANE_STATUS_GOOD) return status;
-
   status = sanei_hp_handle_control(h, optnum, action, valp, info);
 
   DBG(10, "sane_control_option will finish with %s\n",

@@ -16,8 +16,8 @@
 
 */
 
-#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.07 - 2001-05-25"
-#define SANE_EPSON_BUILD	207
+#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.07 - 2001-06-09"
+#define SANE_EPSON_BUILD	208
 
 /*
    This file is part of the SANE package.
@@ -59,6 +59,8 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
+   2001-06-09   Version 0.2.09
+		Changed debug level for sense handler from 0 to 2
    2001-05-25	Version 0.2.07
 		Allow more than 8 bit color depth even for preview mode 
 		since Xsane can handle this. Some code cleanup. 
@@ -281,7 +283,7 @@ static SANE_Status sense_handler (int scsi_fd, u_char *result, void *arg)
 
   if (result[0] && result[0]!=0x70)
     {
-      DBG (0, "sense_handler() : sense code = 0x%02x\n", result[0]);
+      DBG (2, "sense_handler() : sense code = 0x%02x\n", result[0]);
       return SANE_STATUS_IO_ERROR;
     }
   else

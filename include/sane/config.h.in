@@ -14,6 +14,13 @@
 /* Define to 1 if the system supports IPv6 */
 #undef ENABLE_IPV6
 
+/* Define to 1 if struct sockaddr_storage has an ss_family member */
+#undef HAS_SS_FAMILY
+
+/* Define to 1 if struct sockaddr_storage has __ss_family instead of ss_family
+   */
+#undef HAS___SS_FAMILY
+
 /* Define to 1 if you have `alloca', as a function or macro. */
 #undef HAVE_ALLOCA
 

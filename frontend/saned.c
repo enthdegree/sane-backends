@@ -34,6 +34,14 @@
 
 #if defined(HAVE_GETADDRINFO) && defined (HAVE_GETNAMEINFO)
 # define SANED_USES_AF_INDEP
+# ifdef HAS_SS_FAMILY
+#  define SS_FAMILY(ss) ss.ss_family
+# elif defined(HAS___SS_FAMILY)
+#  define SS_FAMILY(ss) ss.__ss_family
+# else /* fallback to the old, IPv4-only code */
+#  undef SANED_USES_AF_INDEP
+#  undef ENABLE_IPV6
+# endif
 #else
 # undef ENABLE_IPV6
 #endif /* HAVE_GETADDRINFO && HAVE_GETNAMEINFO && HAVE_POLL */
@@ -556,7 +564,7 @@ check_host (int fd)
 
   sin = (struct sockaddr_in *) &remote_address;
 
-  switch (remote_address.ss_family)
+  switch (SS_FAMILY(remote_address))
     {
       case AF_INET:
 	if (IN_LOOPBACK (ntohl (sin->sin_addr.s_addr)))
@@ -1022,7 +1030,7 @@ start_scan (Wire * w, int h, SANE_Start_Reply * reply)
       return -1;
     }
 
-  fd = socket (ss.ss_family, SOCK_STREAM, 0);
+  fd = socket (SS_FAMILY(ss), SOCK_STREAM, 0);
   if (fd < 0)
     {
       DBG (DBG_ERR, "start_scan: failed to obtain data socket (%s)\n",
@@ -1031,7 +1039,7 @@ start_scan (Wire * w, int h, SANE_Start_Reply * reply)
       return -1;
     }
 
-  switch (ss.ss_family)
+  switch (SS_FAMILY(ss))
     {
       case AF_INET:
 	sin = (struct sockaddr_in *) &ss;
@@ -1071,7 +1079,7 @@ start_scan (Wire * w, int h, SANE_Start_Reply * reply)
       return -1;
     }
 
-  switch (ss.ss_family)
+  switch (SS_FAMILY(ss))
     {
       case AF_INET:
 	sin = (struct sockaddr_in *) &ss;

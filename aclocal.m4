@@ -1,6 +1,6 @@
-dnl aclocal.m4 generated automatically by aclocal 1.4-p6
+dnl aclocal.m4 generated automatically by aclocal 1.4-p4
 
-dnl Copyright (C) 1994, 1995-8, 1999, 2001 Free Software Foundation, Inc.
+dnl Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -365,6 +365,7 @@ AC_DEFUN([SANE_CHECK_GPHOTO2],
 
 #
 # Check for AF_INET6, determines whether or not to enable IPv6 support
+# Check for ss_family member in struct sockaddr_storage
 AC_DEFUN([SANE_CHECK_IPV6],
 [
   AC_MSG_CHECKING([whether to enable IPv6]) 
@@ -395,6 +396,38 @@ AC_DEFUN([SANE_CHECK_IPV6],
         ipv6=no
       ])
   fi
+
+  if test "$ipv6" != "no" ; then
+    AC_MSG_CHECKING([whether struct sockaddr_storage has an ss_family member])
+    AC_TRY_COMPILE([
+	#define INET6
+	#include <sys/types.h>
+	#include <sys/socket.h> ], [
+	/* test if the ss_family member exists in struct sockaddr_storage */
+	struct sockaddr_storage ss;
+	ss.ss_family = AF_INET;
+	exit (0);
+    ], [
+	AC_MSG_RESULT(yes)
+	AC_DEFINE([HAS_SS_FAMILY], 1, [Define to 1 if struct sockaddr_storage has an ss_family member])
+    ], [
+		AC_TRY_COMPILE([
+		#define INET6
+		#include <sys/types.h>
+		#include <sys/socket.h> ], [
+		/* test if the __ss_family member exists in struct sockaddr_storage */
+		struct sockaddr_storage ss;
+		ss.__ss_family = AF_INET;
+		exit (0);
+	  ], [
+		AC_MSG_RESULT([no, but __ss_family exists])
+		AC_DEFINE([HAS___SS_FAMILY], 1, [Define to 1 if struct sockaddr_storage has __ss_family instead of ss_family])
+	  ], [
+		AC_MSG_RESULT([no])
+		ipv6=no
+    	  ])
+    ])
+  fi	
 ])
 
 #

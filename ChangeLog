@@ -1,7 +1,11 @@
 2003-06-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* sanei/sanei_scsi.c: Fixed C++ like code for MacOS X (patch from
+	* sanei/sanei_scsi.c: Fixed C++-like code for MacOS X (patch from
 	  Mattias Ellert <mattias.ellert@tsl.uu.se>).
+	* acinclude.m4 aclocal.m4 configure frontend/saned.c
+	  include/sane/config.h.in: Check if ss_family or __ss_family is
+	  in struct sockaddr_storage. Otherwise diasbale ipv6. Patch from
+	  Julien BLACHE <jb@jblache.org>.
 
 2003-06-03  Oliver Schirrmeister <oschirr@abm.de>
 

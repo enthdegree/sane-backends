@@ -1,19 +1,18 @@
 -*-Mode: outline-*-
 
-New with 1.0.6, released 2001-??-??:
+New with 1.0.6, released 2001-11-05:
 
 * New backends: gphoto2 (backend for gphoto2 supported cameras), mustek_usb
   (for Mustek USB scanners 600CU, 1200CU(+), 1200UB).
-* Updated backends: dc240 (v 0.0), hp (0.95), m3096g (v 1.11?),
-  microtek2 (v 0.9-20010828), mustek (v1.0-113), net (v 1.0.5), pie (1.0-7),
-  pnm (1.0-2), snapscan (v 1.4.0), umax (1.0-30), umax_pp (1).
+* Updated backends: dc240 (v 0.0), epson (v 0.2.12), hp (0.95), 
+  m3096g (v 1.11), microtek2 (v 0.95), mustek (v1.0-113), net (v 1.0.5),
+  pie (1.0-7), pnm (1.0-2), snapscan (v 1.4.0), umax (1.0-31), umax_pp (1).
 * Added generic support for USB devices.
 * Added USB support to sane-find-scanner.
 * Code and documentation updates for HP UX compatibility.
 * Documentation updates.
 * Bugfixes.
-
-
+
 New with 1.0.5, released 2001-07-01:
 
 * New backends: bh (Bell+Howell Copiscan II series), dc240 (Kodak DC240

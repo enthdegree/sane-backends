@@ -1,13 +1,15 @@
 2001-05-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* configure configure.in include/sane/config.h.in backend/qcam.c:
+	  Check for struct flock and define it if necessary. 
 	* tools/Makefile.in: Make sure that backend/umax_pp_low.o exists
 	  when umax_pp.o is linked.
 	* backend/bh.c backend/m3096g.c backend/sp15c.c: Fixed 
 	  config_line[len-1] bug which could generate an access violation 
 	  if len==0.
-	* lib/alloca.c lib(getnev.c lib/getopt.c lib/getopt1.c
+	* lib/alloca.c lib/getnev.c lib/getopt.c lib/getopt1.c
 	  lib/isfdtype.c lib/md5.c lib sigprocmask.c lib/snprintf.c lib
-	  strdup.c lib strndup.c lib strsep.c lib usleep.c lib/vsyslog.c:
+	  strdup.c lib/strndup.c lib/strsep.c lib/usleep.c lib/vsyslog.c:
 	  Used #include "../include/sane/config.h".
 	* sanei/sanei_scsi.c: Fixed compilation issue for OS/2 in
 	  sanei_scsi_find_devices.

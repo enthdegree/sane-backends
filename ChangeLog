@@ -1,3 +1,7 @@
+2004-04-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* NEWS: Updated for sane-backends 1.0.14.
+
 2004-03-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* sanei/sanei_scsi.c: Increased SCSI buffer size on MacOS X.

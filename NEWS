@@ -1,4 +1,18 @@
 -*-Mode: outline-*-
+New with 1.0.14, released 2004-05-01:
+
+* New backends: u12
+* Updated backends: artec, artec_eplus48u, as6e, avision, canon630u,
+  canon_pp, epson, fujitsu, gphoto2, gt68xx, hp, matsushita, mustek,
+  mustek_pp, mustek_usb, plustek, plustek_pp, snapscan, teco1, teco2, umax,
+  umax_pp, v4l
+* Added scripts for USB hotplugging (Linux)
+* sane-find-scanner knows about more chipsets now.
+* Portability fixes (especially for MAcOS X, NetBSD, and OpenBSD).
+* Documentation updates.
+* Bugfixes.
+
+
 New with 1.0.13, released 2003-11-22:
 
 * New backends: mustek_pp_ccd (for Mustek parport CCD scanners),

@@ -1,3 +1,9 @@
+2003-04-18   Stéphane Voltz  <svoltz@wanadoo.fr>
+
+        * backend/umax_pp_low.c backend/umax_pp_low.h backend/umax_pp.conf:
+	  added support for /dev/ppi0 on *BSD, and a
+	* backend/umax_pp.c: configuration parsing fix
+
 2003-04-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* AUTHORS backend/Makefile.in backend/dll.conf backend/hp5400.c

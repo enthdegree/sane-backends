@@ -1,6 +1,8 @@
 2002-01-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
 	
 	* po/pnm.de.po: Added German translation for pnm backend.
+	* po/mustek.de.po po/mustek_usb.de.po: Updated German translations.
+	  They should be complete now.
 
 2002-01-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

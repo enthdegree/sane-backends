@@ -1,4 +1,4 @@
-TODO (2002-04-23)
+TODO (2002-05-05)
 
 ******** todo ********
 
@@ -75,6 +75,11 @@ backends
   * coolscan: Lots of compilation warnings (e.g.
     "../../backend/coolscan-scsidef.h", line 160: warning: initialization
     type mismatch; empty declarations), see sane-devel.
+
+  * Check the return value of wait() and waitpid(). This is important, if
+    the status value is checked for e.g. WIFEXITED after the call of wait()
+    or waitpid(). Both functions may fail if the frontend already did a wait for
+    the children.
 
 doc
 ---

@@ -1,4 +1,4 @@
-2002-04-22
+2002-05-05
 
 Here are a few rules and tips that should help writing a
 SANE-conformant backend and including it into the SANE package:
@@ -139,6 +139,11 @@ PROGRAMMING
 
 * Don't use exit() in your backend. You will exit the whole program, not only
   your backend.
+
+* If you use wait() or waitpid() in your backend, check its return value. This
+  is important, if the status value is checked for e.g. WIFEXITED after the
+  call of wait() or waitpid(). Both functions may fail if the frontend already
+  did a wait for the children.
 
 * Please try to avoid compilation warnings. At least with "--disable-warnings"
   there shouldn't be warnings when compiling backends. It's not necessary to

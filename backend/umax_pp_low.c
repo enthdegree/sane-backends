@@ -491,16 +491,16 @@ sanei_outsl (unsigned int port, const unsigned char *addr,
 #ifndef __IO__
 #define __IO__
 
-#define DATA   		gPort+0x00
-#define STATUS 		gPort+0x01
-#define CONTROL		gPort+0x02
-#define EPPADR 		gPort+0x03
-#define EPPDATA		gPort+0x04
+#define DATA                   gPort+0x00
+#define STATUS                 gPort+0x01
+#define CONTROL                gPort+0x02
+#define EPPADR                 gPort+0x03
+#define EPPDATA                gPort+0x04
 
-#define ECPDATA		gPort+0x400
-#define ECPCONTROL	gPort+0x402
+#define ECPDATA                gPort+0x400
+#define ECR		       gPort+0x402
 
-
+#define FIFO_WAIT	      1000
 #endif
 
 static int Fonc001 (void);
@@ -513,6 +513,10 @@ static int GetModel (void);
 static int RingScanner (int count, unsigned long delay);
 static int TestVersion (int no);
 
+static int ProbePS2 (unsigned char *dest);
+static int ProbeEPP (unsigned char *dest);
+static int ProbeECP (unsigned char *dest);
+
 static int SendCommand (int cmd);
 static void SPPResetLPT (void);
 static int SendWord (int *cmd);
@@ -520,31 +524,55 @@ static int SendData (int *cmd, int len);
 static int ReceiveData (int *cmd, int len);
 static int SendLength (int *cmd, int len);
 
-
+static int WaitAck (void);
 static void Init001 (void);
 static int Init002 (int arg);
 static int Init005 (int arg);
-static int Init021 (void);
-static int Init022 (void);
 
-static void NibbleReadBuffer (int size, unsigned char *dest);
-static void WriteBuffer (int size, unsigned char *source);
-static void EPPReadBuffer (int size, unsigned char *dest);
-static void EPPWriteBuffer (int size, unsigned char *source);
+/* parport mode setting */
+static void ECPCompatMode (void);
+static void ECPByteMode (void);
+
+/* block transfer init */
+static void ECPSetBuffer (int size);
+
+/* mode dependant operations */
+static int PS2Something (int reg);
+static void PS2BufferRead (int size, unsigned char *dest);
+static void PS2BufferWrite (int size, unsigned char *source);
+static int PS2RegisterRead (int reg);
+static void PS2RegisterWrite (int reg, int value);
+
+static int EPPConnect (void);
+static int EPPRegisterRead (int reg);
+static void EPPRegisterWrite (int reg, int value);
+static void EPPBufferRead (int size, unsigned char *dest);
+static void EPPBufferWrite (int size, unsigned char *source);
 static void EPPRead32Buffer (int size, unsigned char *dest);
-static int PausedReadBuffer (int size, unsigned char *dest);
 static void EPPWrite32Buffer (int size, unsigned char *source);
 
-
-static int SlowNibbleRegisterRead (int reg);
-static int EPPRegisterRead (int reg);
+static int ECPConnect (void);
+static void ECPDisconnect (void);
 static int ECPRegisterRead (int reg);
-static void ClearRegister (int reg);
-static void WriteSlow (int reg, int value);
-static void EPPRegisterWrite (int reg, int value);
 static void ECPRegisterWrite (int reg, int value);
+static int ECPBufferRead (int size, unsigned char *dest);
+static void ECPBufferWrite (int size, unsigned char *source);
+static int WaitFifoEmpty (void);
+static int WaitFifoNotEmpty (void);
+static int WaitFifoFull (void);
 
-static int Prologue (void);
+/* generic operations */
+static int Connect (void);
+static void Disconnect (void);
+static void BufferRead (int size, unsigned char *dest);
+static void BufferWrite (int size, unsigned char *source);
+static int PausedBufferRead (int size, unsigned char *dest);
+
+
+static void ClearRegister (int reg);
+
+static int connect_epat (int r08);
+static int Prologue (int r08);
 static int Epilogue (void);
 
 static int CmdSet (int cmd, int len, int *buffer);
@@ -563,97 +591,97 @@ void sanei_umax_pp_gamma (int *red, int *green, int *blue);
 
 
 #define WRITESLOW(x,y) \
-	WriteSlow((x),(y)); \
-	DBG(16,"WriteSlow(0x%X,0x%X) passed...   (%s:%d)\n",(x),(y),__FILE__,__LINE__);
+        PS2RegisterWrite((x),(y)); \
+        DBG(16,"PS2RegisterWrite(0x%X,0x%X) passed...   (%s:%d)\n",(x),(y),__FILE__,__LINE__);
 
-#define SLOWNIBBLEREGISTEREAD(x,y) \
-	tmp=SlowNibbleRegisterRead(x);\
-	if(tmp!=y)\
-	{\
-		DBG(0,"SlowNibbleRegisterRead: found 0x%X expected 0x%X (%s:%d)\n",tmp,y,__FILE__,__LINE__);\
-		/*return 0;*/ \
-	}\
-	DBG(16,"SlowNibbleRegisterRead(0x%X)=0x%X passed... (%s:%d)\n",x,y,__FILE__,__LINE__);
+#define SLOWNIBBLEREGISTERREAD(x,y) \
+        tmp=PS2RegisterRead(x);\
+        if(tmp!=y)\
+        {\
+                DBG(0,"PS2RegisterRead: found 0x%X expected 0x%X (%s:%d)\n",tmp,y,__FILE__,__LINE__);\
+                /*return 0;*/ \
+        }\
+        DBG(16,"PS2RegisterRead(0x%X)=0x%X passed... (%s:%d)\n",x,y,__FILE__,__LINE__);
 
 
 #define REGISTERWRITE(x,y) \
-	RegisterWrite((x),(y)); \
-	DBG(16,"RegisterWrite(0x%X,0x%X) passed...   (%s:%d)\n",(x),(y),__FILE__,__LINE__);
+        RegisterWrite((x),(y)); \
+        DBG(16,"RegisterWrite(0x%X,0x%X) passed...   (%s:%d)\n",(x),(y),__FILE__,__LINE__);
 
 #define REGISTERREAD(x,y) \
-	tmp=RegisterRead(x);\
-	if(tmp!=y)\
-	{\
-		DBG(0,"RegisterRead, found 0x%X expected 0x%X (%s:%d)\n",tmp,y,__FILE__,__LINE__);\
-		return 0;\
-	}\
-	DBG(16,"RegisterRead(0x%X)=0x%X passed... (%s:%d)\n",x,y,__FILE__,__LINE__);
+        tmp=RegisterRead(x);\
+        if(tmp!=y)\
+        {\
+                DBG(0,"RegisterRead, found 0x%X expected 0x%X (%s:%d)\n",tmp,y,__FILE__,__LINE__);\
+                return 0;\
+        }\
+        DBG(16,"RegisterRead(0x%X)=0x%X passed... (%s:%d)\n",x,y,__FILE__,__LINE__);
 
 
-#define TRACE(level,msg)	DBG(level, msg"  (%s:%d)\n",__FILE__,__LINE__);
+#define TRACE(level,msg)        DBG(level, msg"  (%s:%d)\n",__FILE__,__LINE__);
 
 
-#define CMDSYNC(x)	if(sanei_umax_pp_CmdSync(x)!=1)\
-			{\
-				DBG(0,"CmdSync(0x%02X) failed (%s:%d)\n",x,__FILE__,__LINE__);\
-				return(0);\
-			}\
-			TRACE(16,"CmdSync() passed ...")
+#define CMDSYNC(x)        if(sanei_umax_pp_CmdSync(x)!=1)\
+                        {\
+                                DBG(0,"CmdSync(0x%02X) failed (%s:%d)\n",x,__FILE__,__LINE__);\
+                                return 0;\
+                        }\
+                        TRACE(16,"CmdSync() passed ...")
 
 #define CMDSETGET(cmd,len,sent) if(CmdSetGet(cmd,len,sent)!=1)\
-				{\
-					DBG(0,"CmdSetGet(0x%02X,%d,sent) failed (%s:%d)\n",cmd,len,__FILE__,__LINE__);\
-					return(0);\
-				}\
-				TRACE(16,"CmdSetGet() passed ...")
+                                {\
+                                        DBG(0,"CmdSetGet(0x%02X,%d,sent) failed (%s:%d)\n",cmd,len,__FILE__,__LINE__);\
+                                        return 0;\
+                                }\
+                                TRACE(16,"CmdSetGet() passed ...")
 
-#define YOFFSET		40
-#define YOFFSET1220P	40
-#define YOFFSET2000P	40
+#define YOFFSET                40
+#define YOFFSET1220P        40
+#define YOFFSET2000P        40
 
 
 
-#define COMPLETIONWAIT	if(CompletionWait()==0)\
-			{\
-				DBG(0,"CompletionWait() failed (%s:%d)\n",__FILE__,__LINE__);\
-				return(0);\
-			}\
-			TRACE(16,"CompletionWait() passed ...")
+#define COMPLETIONWAIT        if(CompletionWait()==0)\
+                        {\
+                                DBG(0,"CompletionWait() failed (%s:%d)\n",__FILE__,__LINE__);\
+                                return 0;\
+                        }\
+                        TRACE(16,"CompletionWait() passed ...")
 
-#define MOVE(x,y,t)	if(Move(x,y,t)==0)\
-			{\
-				DBG(0,"Move(%d,%d,buffer) failed (%s:%d)\n",x,y,__FILE__,__LINE__);\
-				return(0);\
-			}\
-			TRACE(16,"Move() passed ...")
+#define MOVE(x,y,t)        if(Move(x,y,t)==0)\
+                        {\
+                                DBG(0,"Move(%d,%d,buffer) failed (%s:%d)\n",x,y,__FILE__,__LINE__);\
+                                return 0;\
+                        }\
+                        TRACE(16,"Move() passed ...")
 
 #define CMDGETBUF(cmd,len,sent) if(CmdGetBuffer(cmd,len,sent)!=1)\
-				{\
-					DBG(0,"CmdGetBuffer(0x%02X,%ld,buffer) failed (%s:%d)\n",cmd,(long)len,__FILE__,__LINE__);\
-					return(0);\
-				}\
-				TRACE(16,"CmdGetBuffer() passed ...")
+                                {\
+                                        DBG(0,"CmdGetBuffer(0x%02X,%ld,buffer) failed (%s:%d)\n",cmd,(long)len,__FILE__,__LINE__);\
+                                        return 0;\
+                                }\
+                                TRACE(16,"CmdGetBuffer() passed ...")
 
 #define CMDGETBUF32(cmd,len,sent) if(CmdGetBuffer32(cmd,len,sent)!=1)\
-				{\
-					DBG(0,"CmdGetBuffer32(0x%02X,%ld,buffer) failed (%s:%d)\n",cmd,(long)len,__FILE__,__LINE__);\
-					return(0);\
-				}\
-				TRACE(16,"CmdGetBuffer32() passed ...")
+                                {\
+                                        DBG(0,"CmdGetBuffer32(0x%02X,%ld,buffer) failed (%s:%d)\n",cmd,(long)len,__FILE__,__LINE__);\
+                                        return 0;\
+                                }\
+                                TRACE(16,"CmdGetBuffer32() passed ...")
 
 #define CMDSET(cmd,len,sent) if(CmdSet(cmd,len,sent)!=1)\
-				{\
-					DBG(0,"CmdSet(0x%02X,%d,sent) failed (%s:%d)\n",cmd,len,__FILE__,__LINE__);\
-					return(0);\
-				}\
-				TRACE(16,"CmdSet() passed ...")
+                                {\
+                                        DBG(0,"CmdSet(0x%02X,%d,sent) failed (%s:%d)\n",cmd,len,__FILE__,__LINE__);\
+                                        return 0;\
+                                }\
+                                TRACE(16,"CmdSet() passed ...")
 
 #define CMDGET(cmd,len,sent) if(CmdGet(cmd,len,sent)!=1)\
-				{\
-					DBG(0,"CmdGet(0x%02X,%d,read) failed (%s:%d)\n",cmd,len,__FILE__,__LINE__);\
-					return(0);\
-				}\
-				TRACE(16,"CmdGet() passed ...")
+                                {\
+                                        DBG(0,"CmdGet(0x%02X,%d,read) failed (%s:%d)\n",cmd,len,__FILE__,__LINE__);\
+                                        return 0;\
+                                }\
+                                TRACE(16,"CmdGet() passed ...")
 
 
 
@@ -667,6 +695,7 @@ static int g67D = 0;
 static int g67E = 0;
 static int gEPAT = 0;		/* signals fast mode ? */
 static int g6FE = 0;
+static int gECP = 0;
 
 /* default gamma translation table */
 static int ggamma[256] =
@@ -819,7 +848,7 @@ sanei_parport_find_device (void)
 	      break;
 	    case EACCES:
 	      DBG (16, "current user cannot use existing %s device ...\n",
-		      devices[i]);
+		   devices[i]);
 	      break;
 	    default:
 	      perror (devices[i]);
@@ -848,7 +877,7 @@ sanei_parport_find_device (void)
 		  break;
 		case EACCES:
 		  DBG (16, "current user cannot use existing %s device ...\n",
-			  devices[i]);
+		       devices[i]);
 		  break;
 		default:
 		  DBG (16, "errno=%d\n", errno);
@@ -892,7 +921,7 @@ sanei_umax_pp_InitPort (int port, char *name)
   int fd, ectr;
   int found = 0, ecp = 1;
 #if ((defined HAVE_IOPERM)||(defined HAVE_MACHINE_CPUFUNC_H)||(defined HAVE_LINUX_PPDEV_H))
-  int mode;
+  int mode, modes, rc;
 #endif
 #ifdef HAVE_LINUX_PPDEV_H
   char strmodes[160];
@@ -973,7 +1002,7 @@ sanei_umax_pp_InitPort (int port, char *name)
 	    {
 	      /* we check if parport does EPP or ECP */
 #ifdef PPGETMODES
-	      if (ioctl (fd, PPGETMODES, &mode))
+	      if (ioctl (fd, PPGETMODES, &modes))
 		{
 		  DBG (16,
 		       "umax_pp: ppdev couldn't gave modes for port '%s'\n",
@@ -982,25 +1011,25 @@ sanei_umax_pp_InitPort (int port, char *name)
 	      else
 		{
 		  sprintf (strmodes, "\n");
-		  if (mode & PARPORT_MODE_PCSPP)
+		  if (modes & PARPORT_MODE_PCSPP)
 		    sprintf (strmodes, "%s\t\tPARPORT_MODE_PCSPP\n",
 			     strmodes);
-		  if (mode & PARPORT_MODE_TRISTATE)
+		  if (modes & PARPORT_MODE_TRISTATE)
 		    sprintf (strmodes, "%s\t\tPARPORT_MODE_TRISTATE\n",
 			     strmodes);
-		  if (mode & PARPORT_MODE_EPP)
+		  if (modes & PARPORT_MODE_EPP)
 		    sprintf (strmodes, "%s\t\tPARPORT_MODE_EPP\n", strmodes);
-		  if (mode & PARPORT_MODE_ECP)
+		  if (modes & PARPORT_MODE_ECP)
 		    sprintf (strmodes, "%s\t\tPARPORT_MODE_ECP\n", strmodes);
-		  if (mode & PARPORT_MODE_COMPAT)
+		  if (modes & PARPORT_MODE_COMPAT)
 		    sprintf (strmodes, "%s\t\tPARPORT_MODE_COMPAT\n",
 			     strmodes);
-		  if (mode & PARPORT_MODE_DMA)
+		  if (modes & PARPORT_MODE_DMA)
 		    sprintf (strmodes, "%s\t\tPARPORT_MODE_DMA\n", strmodes);
-		  DBG (32, "parport modes: %X\n", mode);
+		  DBG (32, "parport modes: %X\n", modes);
 		  DBG (32, "parport modes: %s\n", strmodes);
-		  if (!(mode & PARPORT_MODE_EPP)
-		      && !(mode & PARPORT_MODE_ECP))
+		  if (!(modes & PARPORT_MODE_EPP)
+		      && !(modes & PARPORT_MODE_ECP))
 		    {
 		      DBG (1,
 			   "port 0x%X does not have EPP or ECP, giving up ...\n",
@@ -1016,23 +1045,48 @@ sanei_umax_pp_InitPort (int port, char *name)
 #else
 	      DBG (16,
 		   "umax_pp: ppdev used to build SANE doesn't have PPGETMODES.\n");
+	      /* faking result */
+	      modes = 0xFFFFFFFF;
 #endif
 	      /* prefered mode is EPP */
-	      mode = IEEE1284_MODE_EPP;
-	      mode = ioctl (fd, PPNEGOT, &mode);
-	      if (mode)
+	      if (modes & PARPORT_MODE_EPP)
 		{
-		  DBG (16,
-		       "umax_pp: ppdev couldn't negociate mode IEEE1284_MODE_EPP for '%s'\n",
-		       name);
-		}
-	      if (ioctl (fd, PPSETMODE, &mode))
-		{
-		  DBG (16,
-		       "umax_pp: ppdev couldn't set mode to IEEE1284_MODE_EPP for '%s'\n",
-		       name);
+		  mode = IEEE1284_MODE_EPP;
 
+		  /* negot allways fail here ... */
+		  rc = ioctl (fd, PPNEGOT, &mode);
+		  if (rc)
+		    {
+		      DBG (16,
+			   "umax_pp: ppdev couldn't negociate mode IEEE1284_MODE_EPP for '%s' (ignored)\n",
+			   name);
+		    }
+		  if (ioctl (fd, PPSETMODE, &mode))
+		    {
+		      DBG (16,
+			   "umax_pp: ppdev couldn't set mode to IEEE1284_MODE_EPP for '%s'\n",
+			   name);
+		      /* signal failure for ECP test */
+		      mode = 0;
+		    }
+		  else
+		    {
+		      DBG (16,
+			   "umax_pp: mode set to PARPORT_MODE_EPP for '%s'\n",
+			   name);
+		    }
+		}
+
+	      if ((modes & PARPORT_MODE_ECP) && (mode == 0))
+		{
 		  mode = IEEE1284_MODE_ECP;
+		  rc = ioctl (fd, PPNEGOT, &mode);
+		  if (rc)
+		    {
+		      DBG (16,
+			   "umax_pp: ppdev couldn't negociate mode IEEE1284_MODE_ECP for '%s' (ignored)\n",
+			   name);
+		    }
 		  if (ioctl (fd, PPSETMODE, &mode))
 		    {
 		      DBG (16,
@@ -1050,18 +1104,11 @@ sanei_umax_pp_InitPort (int port, char *name)
 		    }
 		  else
 		    {
-		      ecp = 1;
+		      gECP = 1;
 		      DBG (16,
 			   "umax_pp: mode set to PARPORT_MODE_ECP for '%s'\n",
 			   name);
 		    }
-		}
-	      else
-		{
-		  DBG (16,
-		       "umax_pp: mode set to PARPORT_MODE_EPP for '%s'\n",
-		       name);
-		  ecp = 0;
 		}
 
 
@@ -1115,17 +1162,6 @@ sanei_umax_pp_InitPort (int port, char *name)
 	    {
 	      DBG (1, "Using %s ...\n", name);
 	      sanei_umax_pp_setparport (fd);
-	      /* set up ECPEPP the hard way ... */
-	      /* frob_econtrol (port, 0xe0, 4 << 5);
-	         unsigned char ectr = inb (ECONTROL (pb));
-	         outb ((ectr & ~m) ^ v, ECONTROL (pb));     */
-	      ectr = Inb (ECPCONTROL);
-	      if (ectr != 0xFF)
-		{
-		  ectr = (ectr & ~(0xE0)) ^ (4 << 5);
-		  Outb (ECPCONTROL, ectr);
-		  DBG (1, "Setting ECPEPP  ...\n");
-		}
 	      return 1;
 	    }
 	}
@@ -1139,7 +1175,7 @@ sanei_umax_pp_InitPort (int port, char *name)
 	  DBG (1, "sanei_ioperm() could not gain access to 0x%X\n", port);
 	  return 0;
 	}
-      DBG (1, "sanei_ioperm( 0x%X,8,1) OK ...\n", port);
+      DBG (1, "sanei_ioperm(0x%X, 8, 1) OK ...\n", port);
     }
 
 #ifdef HAVE_IOPERM
@@ -1149,20 +1185,16 @@ sanei_umax_pp_InitPort (int port, char *name)
       DBG (1, "iopl could not raise IO permission to level 3\n");
       DBG (1, "*NO* ECP support\n");
       ecp = 0;
-    }
 
-  /* set up ECPEPP the hard way ... */
-  /* frob_econtrol (port, 0xe0, 4 << 5);
-     unsigned char ectr = inb (ECONTROL (pb));
-     outb ((ectr & ~m) ^ v, ECONTROL (pb));     */
-  if (ecp)
+    }
+  else
     {
-      ectr = Inb (ECPCONTROL);
+      /* any ECP out there ? */
+      ectr = Inb (ECR);
       if (ectr != 0xFF)
 	{
-	  DBG (1, "Setting mode to ECPEPP\n");
-	  ectr = (ectr & ~(0xE0)) ^ (4 << 5);
-	  Outb (ECPCONTROL, ectr);
+	  gECP = 1;
+
 	}
     }
 #else
@@ -1194,7 +1226,7 @@ Outb (int port, int value)
   val = (unsigned char) value;
   if (fd > 0)
     {
-      /* there should be ECPCONTROL that doesn't go through ppdev */
+      /* there should be ECR that doesn't go through ppdev */
       /* it will leave when all the I/O will be done with ppdev   */
       switch (port - gPort)
 	{
@@ -1306,7 +1338,7 @@ Inb (int port)
   fd = sanei_umax_pp_getparport ();
   if (fd > 0)
     {
-      /* there should be ECPCONTROL that doesn't go through ppdev */
+      /* there should be ECR that doesn't go through ppdev */
       /* it will leave when all the I/O will be done with ppdev   */
       switch (port - gPort)
 	{
@@ -1336,8 +1368,6 @@ Inb (int port)
 
 	case 0x400:
 	case 0x402:
-	  break;
-
 	default:
 	  DBG (16, "Inb(0x%03X) escaped ppdev\n", port);
 	}
@@ -1501,7 +1531,8 @@ Outsw (int port, unsigned char *source, int size)
 /* and published it through an easy interface              */
 static int scannerStatus = 0;
 static int epp32 = 1;
-static int gMode = UMAX_PP_PARPORT_SPP;
+static int gMode = 0;
+static int gProbed = 0;
 static int model = 0x15;
 static int astra = 0;
 static int hasUTA = 0;
@@ -1598,9 +1629,168 @@ sanei_umax_pp_setauto (int autoset)
   gAutoSettings = autoset;
 }
 
+/* set parallel port mode to 'compatible'*/
+static void
+ECPCompatMode (void)
+{
+  Outb (ECR, 0x00);
+  Outb (CONTROL, 0x04);		/* reset ? */
+}
+
+/* set parallel port mode to 'bidirectionel'*/
+static void
+ECPByteMode (void)
+{
+  Outb (CONTROL, 0x04);
+  Outb (ECR, 0x20);
+}
+
+/* wait for ack bit */
+/* return 1 on success, 0 on error */
+static int
+WaitAck ()
+{
+  unsigned char breg = 0;
+  int i = 0;
+
+  Outb (CONTROL, 0x0C);		/* select printer + initialize printer */
+  Outb (CONTROL, 0x0C);
+  Outb (CONTROL, 0x0C);
+  breg = Inb (STATUS);
+  while ((i < 1024) && ((breg & 0x04) == 0))
+    {
+      Outb (CONTROL, 0x0E);	/* autolinefeed ?.. */
+      Outb (CONTROL, 0x0E);
+      Outb (CONTROL, 0x0E);
+      breg = Inb (STATUS);
+      i++;
+      usleep (1000);
+    }
+  if (i == 1024)
+    {
+      DBG (1, "WaitAck failed, time-out waiting for Ack (%s:%d)\n",
+	   __FILE__, __LINE__);
+      /* return 0; seems to be non-blocking ...*/
+    }
+  Outb (CONTROL, 0x04);		/* printer reset */
+  Outb (CONTROL, 0x04);
+  Outb (CONTROL, 0x04);
+  return 1;
+}
 
 static int
-NibbleRead (void)
+WaitFifoEmpty (void)
+{
+  int i;
+  unsigned char breg;
+
+  breg = Inb (ECR);
+  i = 0;
+  while ((i < FIFO_WAIT) && ((breg & 0x01) == 0))
+    {
+      breg = Inb (ECR);
+      i++;
+      usleep (2000);
+    }
+  if (i == FIFO_WAIT)
+    {
+      DBG (0, "WaitFifoEmpty failed, time-out waiting for FIFO (%s:%d)\n",
+	   __FILE__, __LINE__);
+      return 0;
+    }
+  return 1;
+}
+
+static int
+WaitFifoNotEmpty (void)
+{
+  int i;
+  unsigned char breg;
+
+  breg = Inb (ECR);
+  i = 0;
+  while ((i < FIFO_WAIT) && ((breg & 0x01) != 0))
+    {
+      breg = Inb (ECR);
+      i++;
+      usleep (2000);
+    }
+  if (i == FIFO_WAIT)
+    {
+      DBG (0, "WaitFifoNotEmpty failed, time-out waiting for FIFO (%s:%d)\n",
+	   __FILE__, __LINE__);
+      return 0;
+    }
+  return 1;
+}
+
+
+static int
+WaitFifoFull (void)
+{
+  int i;
+  unsigned char breg;
+
+  breg = Inb (ECR);
+  i = 0;
+  while ((i < FIFO_WAIT) && ((breg & 0x02) == 0))
+    {
+      breg = Inb (ECR);
+      i++;
+      usleep (2000);
+    }
+  if (i == FIFO_WAIT)
+    {
+      DBG (0, "WaitFifoFull failed, time-out waiting for FIFO (%s:%d)\n",
+	   __FILE__, __LINE__);
+      return 0;
+    }
+  return 1;
+}
+
+/*
+ * surely some register reading in PS2 mode
+ * only one nibble is accessed, may be
+ * PS2RegisterLowNibbleRead(reg)
+ */
+static int
+PS2Something (int reg)
+{
+  unsigned char breg, low, high = 0;
+
+  Outb (CONTROL, 0x04);
+  Outb (DATA, reg);		/* register number ? */
+  Outb (CONTROL, 0x06);
+  Outb (CONTROL, 0x06);
+  Outb (CONTROL, 0x06);
+  breg = Inb (STATUS);
+  low = breg;
+  breg = breg & 0x08;
+  /* surely means register(0x10)=0x0B */
+  /* since reg & 0x08 != 0, high and low nibble
+   * differ, but we don't care, since we surely expect it
+   * to be 0
+   */
+  if (breg != 0x08)
+    {
+      DBG (0, "PS2Something failed, expecting 0x08, got 0x%02X (%s:%d)\n",
+	   breg, __FILE__, __LINE__);
+    }
+  Outb (CONTROL, 0x07);
+  Outb (CONTROL, 0x07);
+  Outb (CONTROL, 0x07);
+  Outb (CONTROL, 0x07);
+  Outb (CONTROL, 0x07);
+  Outb (CONTROL, 0x04);
+  Outb (CONTROL, 0x04);
+  Outb (CONTROL, 0x04);
+  if (breg != 0x08)
+    high = Inb (STATUS) & 0xF0;
+  return high + ((low & 0xF0) >> 4);
+}
+
+static int
+PS2Read (void)
 {
   int res;
   int tmp;
@@ -1643,10 +1833,10 @@ NibbleRead (void)
 
 
 /******************************************************************************/
-/* WriteSlow: write value in register, slow method                            */
+/* PS2RegisterWrite: write value in register, slow method                            */
 /******************************************************************************/
 static void
-WriteSlow (int reg, int value)
+PS2RegisterWrite (int reg, int value)
 {
   /* select register */
   Outb (DATA, reg | 0x60);
@@ -1675,7 +1865,7 @@ SendCommand (int cmd)
   int tmp;
   int val;
   int i;
-  int gReadBuffer[256];		/* read buffer for command 0x10 */
+  int gBufferRead[256];		/* read buffer for command 0x10 */
 
 
   if (g674 != 0)
@@ -1748,8 +1938,8 @@ SendCommand (int cmd)
 
   if (cmd == 0x10)
     {
-      tmp = NibbleRead ();
-      tmp = tmp * 256 + NibbleRead ();
+      tmp = PS2Read ();
+      tmp = tmp * 256 + PS2Read ();
       goto SendCommandEnd;
     }
 
@@ -1765,7 +1955,7 @@ SendCommand (int cmd)
 	      tmp = (tmp & 0x1E) | 0x1;
 	      Outb (CONTROL, tmp);
 	      Outb (CONTROL, tmp);
-	      gReadBuffer[i] = Inb (STATUS);
+	      gBufferRead[i] = Inb (STATUS);
 	      tmp = tmp & 0x1E;
 	      Outb (CONTROL, tmp);
 	      Outb (CONTROL, tmp);
@@ -1897,7 +2087,7 @@ SPPResetLPT (void)
 
 
 static int
-SlowNibbleRegisterRead (int reg)
+PS2RegisterRead (int reg)
 {
   int low, high;
 
@@ -1929,7 +2119,7 @@ SlowNibbleRegisterRead (int reg)
 
 
 static void
-NibbleReadBuffer (int size, unsigned char *dest)
+PS2BufferRead (int size, unsigned char *dest)
 {
   int high;
   int low;
@@ -2091,7 +2281,7 @@ NibbleReadBuffer (int size, unsigned char *dest)
 }
 
 static void
-WriteBuffer (int size, unsigned char *source)
+PS2BufferWrite (int size, unsigned char *source)
 {
   int i;
   int count;
@@ -2263,14 +2453,140 @@ Init002 (int arg)
   return 0;
 }
 
+/*
+ * connecct to the EPAT chip, and
+ * prepare command sending
+ */
+static int
+ECPConnect (void)
+{
+  int ret, control, data;
 
+  /* these 3 lines set to 'inital mode' */
+  Outb (ECR, 0x20);
+  Outb (DATA, 0x04);		/* gData */
+  Outb (CONTROL, 0x0C);		/* gControl */
+
+  Inb (ECR);			/* 0x35 */
+  Outb (ECR, 0x20);
+  Outb (ECR, 0x20);
+
+  gData = Inb (DATA);
+  gControl = Inb (CONTROL);
+
+  data = Inb (DATA);
+  control = Inb (CONTROL);
+  Outb (CONTROL, control & 0x1F);
+  control = Inb (CONTROL);
+  Outb (CONTROL, control & 0x1F);
+  SendCommand (0xE0);
+
+  Outb (DATA, 0xFF);
+  Outb (DATA, 0xFF);
+  ClearRegister (0);
+  Outb (CONTROL, 0x0C);
+  Outb (CONTROL, 0x04);
+  ClearRegister (0);
+  ret = PS2Something (0x10);
+  if (ret != 0x0B)
+    {
+      DBG (0,
+	   "PS2Something returned 0x%02X, 0x0B expected (%s:%d)\n", ret,
+	   __FILE__, __LINE__);
+      /*return 0; */
+    }
+  return 1;
+}
+
+static void
+EPPDisconnect (void)
+{
+  if (GetModel () != 0x07)
+    SendCommand (40);
+  SendCommand (30);
+  Outb (DATA, gData);
+  Outb (CONTROL, gControl);
+}
+
+static void
+ECPDisconnect (void)
+{
+  int control;
+
+  if (GetModel () != 0x07)	/* guessed */
+    SendCommand (40);		/* guessed */
+  SendCommand (0x30);
+  control = Inb (CONTROL) | 0x01;
+  Outb (CONTROL, control);
+  Outb (CONTROL, control);
+  control = control & 0x04;
+  Outb (CONTROL, control);
+  Outb (CONTROL, control);
+  control = control | 0x08;
+  Outb (CONTROL, control);
+  Outb (DATA, 0xFF);
+  Outb (DATA, 0xFF);
+  Outb (CONTROL, control);
+}
 
 static int
 ECPRegisterRead (int reg)
 {
-  if (reg)
-    return 0xFF;
-  return 0xFF;
+  unsigned char breg, value;
+
+  if (sanei_umax_pp_getparport () > 0)
+    {
+      DBG (0,
+	   "ECPRegisterRead works only with direct hardware access(%s:%d)\n",
+	   __FILE__, __LINE__);
+      return 0xFF;
+    }
+
+  Outb (CONTROL, 0x4);
+
+  /* ECP FIFO mode, interrupt bit, dma disabled, 
+     service bit, fifo full=0, fifo empty=0 */
+  Outb (ECR, 0x60);
+  if (WaitFifoEmpty () == 0)
+    {
+      DBG (0, "ECPRegisterRead failed, FIFO time-out (%s:%d)\n",
+	   __FILE__, __LINE__);
+    }
+  breg = Inb (ECR);
+
+  Outb (DATA, reg);
+  if (WaitFifoEmpty () == 0)
+    {
+      DBG (0, "ECPRegisterRead failed, FIFO time-out (%s:%d)\n",
+	   __FILE__, __LINE__);
+    }
+  breg = Inb (ECR);
+
+  /* byte mode, interrupt bit, dma disabled, 
+     service bit, fifo full=0, fifo empty=0 */
+  Outb (ECR, 0x20);
+  Outb (CONTROL, 0x20);		/* data reverse */
+
+  /* ECP FIFO mode, interrupt bit, dma disabled, 
+     service bit, fifo full=0, fifo empty=0 */
+  Outb (ECR, 0x60);
+  if (WaitFifoNotEmpty () == 0)
+    {
+      DBG (0, "ECPRegisterRead failed, FIFO time-out (%s:%d)\n",
+	   __FILE__, __LINE__);
+    }
+  breg = Inb (ECR);
+  value = Inb (ECPDATA);
+
+  /* according to the spec bit 7 and 6 are unused */
+  breg = (Inb (CONTROL) & 0x3F);
+  if (breg != 0x20)
+    {
+      DBG (0, "ECPRegisterRead failed, expecting 0x20, got 0x%02X (%s:%d)\n",
+	   breg, __FILE__, __LINE__);
+    }
+  ECPByteMode ();
+  return value;
 }
 
 static int
@@ -2341,9 +2657,15 @@ RegisterRead (int reg)
     {
     case UMAX_PP_PARPORT_ECP:
       return ECPRegisterRead (reg);
+    case UMAX_PP_PARPORT_EPP_HALF:
     case UMAX_PP_PARPORT_EPP:
-    default:
       return EPPRegisterRead (reg);
+    case UMAX_PP_PARPORT_PS2:
+      DBG (0, "STEF: gMode PS2 in RegisterRead !!\n");
+      return PS2RegisterRead (reg);
+    default:
+      DBG (0, "STEF: gMode unset in RegisterRead !!\n");
+      return 0xFF;
     }
 }
 
@@ -2351,8 +2673,50 @@ RegisterRead (int reg)
 static void
 ECPRegisterWrite (int reg, int value)
 {
-  if ((reg) || (value))
-    return;
+  unsigned char breg;
+
+  if (sanei_umax_pp_getparport () > 0)
+    {
+      DBG (0,
+	   "ECPRegisterWrite works only with direct hardware access(%s:%d)\n",
+	   __FILE__, __LINE__);
+      return;
+    }
+
+  /* standard mode, interrupt bit, dma disabled, 
+     service bit, fifo full=0, fifo empty=0 */
+  ECPCompatMode ();
+
+  /* ECP FIFO mode, interrupt bit, dma disabled, 
+     service bit, fifo full=0, fifo empty=0 */
+  Outb (ECR, 0x60);
+  if (WaitFifoEmpty () == 0)
+    {
+      DBG (0, "ECPRegisterWrite failed, time-out waiting for FIFO (%s:%d)\n",
+	   __FILE__, __LINE__);
+      return;
+    }
+  breg = Inb (ECR);
+
+  Outb (DATA, reg);
+  if (WaitFifoEmpty () == 0)
+    {
+      DBG (0, "ECPRegisterWrite failed, time-out waiting for FIFO (%s:%d)\n",
+	   __FILE__, __LINE__);
+      return;
+    }
+  breg = Inb (ECR);
+
+  Outb (ECPDATA, value);
+  if (WaitFifoEmpty () == 0)
+    {
+      DBG (0, "ECPRegisterWrite failed, time-out waiting for FIFO (%s:%d)\n",
+	   __FILE__, __LINE__);
+      return;
+    }
+  breg = Inb (ECR);
+  ECPByteMode ();
+  return;
 }
 
 static void
@@ -2399,12 +2763,19 @@ RegisterWrite (int reg, int value)
 {
   switch (gMode)
     {
+    case UMAX_PP_PARPORT_PS2:
+      PS2RegisterWrite (reg, value);
+      DBG (0, "STEF: gMode PS2 in RegisterWrite !!\n");
+      break;
     case UMAX_PP_PARPORT_ECP:
       ECPRegisterWrite (reg, value);
       break;
+    case UMAX_PP_PARPORT_EPP_HALF:
     case UMAX_PP_PARPORT_EPP:
-    default:
       EPPRegisterWrite (reg, value);
+      break;
+    default:
+      DBG (0, "STEF: gMode unset in RegisterWrite !!\n");
       break;
     }
 }
@@ -2434,7 +2805,7 @@ EPPBlockMode (int flag)
 }
 
 static void
-EPPReadBuffer (int size, unsigned char *dest)
+EPPBufferRead (int size, unsigned char *dest)
 {
 #ifdef HAVE_LINUX_PPDEV_H
   int fd, mode, rc, nb;
@@ -2534,8 +2905,159 @@ EPPReadBuffer (int size, unsigned char *dest)
 }
 
 
+/* block transfer init */
 static void
-EPPWriteBuffer (int size, unsigned char *source)
+ECPSetBuffer (int size)
+{
+  static int last = 0;
+  unsigned char breg;
+
+  /* routine XX */
+  ECPCompatMode ();
+
+  /* we set size only if it has changed */
+  /* from last time        */
+  if (size == last)
+    return;
+  last = size;
+
+  /* mode and size setting */
+  Outb (ECR, 0x60);		/* fifo mode */
+  if (WaitFifoEmpty () == 0)
+    {
+      DBG (0, "ECPSetBuffer failed, time-out waiting for FIFO (%s:%d)\n",
+	   __FILE__, __LINE__);
+      return;
+    }
+  breg = Inb (ECR);
+
+  Outb (DATA, 0x0E);
+  if (WaitFifoEmpty () == 0)
+    {
+      DBG (0, "ECPSetBuffer failed, time-out waiting for FIFO (%s:%d)\n",
+	   __FILE__, __LINE__);
+      return;
+    }
+  breg = Inb (ECR);
+
+  Outb (ECPDATA, 0x0B);		/* R0E=0x0B */
+  if (WaitFifoEmpty () == 0)
+    {
+      DBG (0, "ECPSetBuffer failed, time-out waiting for FIFO (%s:%d)\n",
+	   __FILE__, __LINE__);
+      return;
+    }
+  breg = Inb (ECR);
+
+  Outb (DATA, 0x0F);		/* R0F=size MSB */
+  if (WaitFifoEmpty () == 0)
+    {
+      DBG (0, "ECPSetBuffer failed, time-out waiting for FIFO (%s:%d)\n",
+	   __FILE__, __LINE__);
+      return;
+    }
+  breg = Inb (ECR);
+
+  Outb (ECPDATA, size / 256);
+  if (WaitFifoEmpty () == 0)
+    {
+      DBG (0, "ECPSetBuffer failed, time-out waiting for FIFO (%s:%d)\n",
+	   __FILE__, __LINE__);
+      return;
+    }
+  breg = Inb (ECR);
+
+  Outb (DATA, 0x0B);		/* R0B=size LSB */
+  if (WaitFifoEmpty () == 0)
+    {
+      DBG (0, "ECPSetBuffer failed, time-out waiting for FIFO (%s:%d)\n",
+	   __FILE__, __LINE__);
+      return;
+    }
+  breg = Inb (ECR);
+
+  Outb (ECPDATA, size % 256);
+  if (WaitFifoEmpty () == 0)
+    {
+      DBG (0, "ECPSetBuffer failed, time-out waiting for FIFO (%s:%d)\n",
+	   __FILE__, __LINE__);
+      return;
+    }
+  breg = Inb (ECR);
+  DBG (16, "ECPSetBuffer(%d) passed ...\n",size);
+}
+
+
+
+static int
+ECPBufferRead (int size, unsigned char *dest)
+{
+  int breg, n, idx, remain;
+
+  idx = 0;
+  n = size / 16;
+  remain = size - 16 * n;
+
+  /* block transfer */
+  breg = Inb (ECR);		/* 0x15,0x75 expected: fifo empty */
+
+  Outb (ECR, 0x20);		/* byte mode */
+  Outb (CONTROL, 0x04);
+
+  Outb (ECR, 0x60);		/* FIFO mode */
+  if (WaitFifoEmpty () == 0)
+    {
+      DBG (0, "ECPBufferRead failed, time-out waiting for FIFO (%s:%d)\n",
+	   __FILE__, __LINE__);
+      return idx;
+    }
+  breg = Inb (ECR);
+
+  Outb (DATA, 0x80);
+  if (WaitFifoEmpty () == 0)
+    {
+      DBG (0, "ECPBufferRead failed, time-out waiting for FIFO (%s:%d)\n",
+	   __FILE__, __LINE__);
+      return idx;
+    }
+  breg = Inb (ECR);		/* 0x75 expected */
+
+  Outb (ECR, 0x20);		/* byte mode */
+  Outb (CONTROL, 0x20);		/* data reverse */
+  Outb (ECR, 0x60);		/* fifo mode */
+
+  while (n > 0)
+    {
+      if (WaitFifoFull () == 0)
+	{
+	  DBG (0,
+	       "ECPBufferRead failed, time-out waiting for FIFO idx=%d (%s:%d)\n",
+	       idx, __FILE__, __LINE__);
+	  return idx;
+	}
+      Insb (ECPDATA, dest + idx, 16);
+      idx += 16;
+      n--;
+    }
+
+  /* reading trailing bytes */
+  while (remain > 0)
+    {
+      if (WaitFifoNotEmpty () == 0)
+	{
+	  DBG (0, "ECPBufferRead failed, FIFO time-out (%s:%d)\n",
+	       __FILE__, __LINE__);
+	}
+      dest[idx] = Inb (ECPDATA);
+      idx++;
+      remain--;
+    }
+
+  return idx;
+}
+
+static void
+EPPBufferWrite (int size, unsigned char *source)
 {
 #ifdef HAVE_LINUX_PPDEV_H
   int fd, mode, rc;
@@ -2568,6 +3090,202 @@ EPPWriteBuffer (int size, unsigned char *source)
 #endif
   EPPBlockMode (0xC0);
   Outsb (EPPDATA, source, size);
+}
+
+static void
+ECPBufferWrite (int size, unsigned char *source)
+{
+  unsigned char breg;
+  int n, idx;
+
+  /* until we know to handle that case, fail */
+  if (size % 16 != 0)
+    {
+      DBG (0, "ECPBufferWrite failed, size %%16 !=0 (%s:%d)\n",
+	   __FILE__, __LINE__);
+      return;
+    }
+
+  /* prepare actual transfer */
+  Outb (ECR, 0x04);		/* compat mode */
+  Outb (CONTROL, 0x04);
+  breg = Inb (CONTROL);
+  Outb (CONTROL, 0x04);		/* data forward */
+  Outb (ECR, 0x60);		/* ECP FIFO mode */
+  if (WaitFifoEmpty () == 0)
+    {
+      DBG (0, "ECPWriteBuffer failed, time-out waiting for FIFO (%s:%d)\n",
+	   __FILE__, __LINE__);
+      return;
+    }
+  breg = Inb (ECR);
+  breg = (Inb (STATUS)) & 0xF8;
+  n = 0;
+  while ((n < 1024) && (breg != 0xF8))
+    {
+      breg = (Inb (STATUS)) & 0xF8;
+      n++;
+    }
+  if (breg != 0xF8)
+    {
+      DBG (0,
+	   "ECPBufferWrite failed, expected status=0xF8, got 0x%02X (%s:%d)\n",
+	   breg, __FILE__, __LINE__);
+      return;
+    }
+
+  /* wait for FIFO empty (bit 0) */
+  if (WaitFifoEmpty () == 0)
+    {
+      DBG (0, "ECPBufferWrite failed, time-out waiting for FIFO (%s:%d)\n",
+	   __FILE__, __LINE__);
+      return;
+    }
+  breg = Inb (ECR);
+
+  /* block transfer direction 
+   * 0x80 means from scanner to PC, 0xC0 means PC to scanner 
+   */
+  Outb (DATA, 0xC0);
+
+  n = size / 16;
+  idx = 0;
+  while (n > 0)
+    {
+      /* wait for FIFO empty */
+      if (WaitFifoEmpty () == 0)
+	{
+	  DBG (0,
+	       "ECPBufferWrite failed, time-out waiting for FIFO (%s:%d)\n",
+	       __FILE__, __LINE__);
+	  return;
+	}
+      breg = Inb (ECR);
+
+      Outsb (ECPDATA, source + idx * 16, 16);
+      idx++;
+      n--;
+    }
+
+
+  /* final FIFO check and go to Byte mode */
+  if (WaitFifoEmpty () == 0)
+    {
+      DBG (0, "ECPBufferWrite failed, time-out waiting for FIFO (%s:%d)\n",
+	   __FILE__, __LINE__);
+      return;
+    }
+  breg = Inb (ECR);
+  ECPByteMode ();
+}
+
+static void
+BufferWrite (int size, unsigned char *source)
+{
+  switch (gMode)
+    {
+    case UMAX_PP_PARPORT_PS2:
+      PS2BufferWrite (size, source);
+      DBG (0, "STEF: gMode PS2 in BufferWrite !!\n");
+      break;
+    case UMAX_PP_PARPORT_ECP:
+      ECPBufferWrite (size, source);
+      break;
+    case UMAX_PP_PARPORT_EPP:
+      switch (GetEPPMode ())
+	{
+	case 32:
+	  EPPWrite32Buffer (size, source);
+	  break;
+	default:
+	  EPPBufferWrite (size, source);
+	  break;
+	}
+      break;
+    default:
+      DBG (0, "STEF: gMode PS2 in BufferWrite !!\n");
+      break;
+    }
+  return;
+}
+
+static void
+BufferRead (int size, unsigned char *dest)
+{
+  switch (gMode)
+    {
+    case UMAX_PP_PARPORT_PS2:
+      PS2BufferRead (size, dest);
+      DBG (0, "STEF: gMode PS2 in BufferRead !!\n");
+      break;
+    case UMAX_PP_PARPORT_ECP:
+      ECPBufferRead (size, dest);
+      break;
+    case UMAX_PP_PARPORT_EPP:
+      switch (GetEPPMode ())
+	{
+	case 32:
+	  EPPRead32Buffer (size, dest);
+	  break;
+	default:
+	  EPPBufferRead (size, dest);
+	  break;
+	}
+      break;
+    default:
+      DBG (0, "STEF: gMode unset in BufferRead !!\n");
+      break;
+    }
+  return;
+}
+
+static int
+Connect (void)
+{
+  switch (gMode)
+    {
+    case UMAX_PP_PARPORT_PS2:
+      DBG (0, "STEF: unimplemented gMode PS2 in Connect() !!\n");
+      return 0;
+      break;
+    case UMAX_PP_PARPORT_ECP:
+      return ECPConnect ();
+      break;
+    case UMAX_PP_PARPORT_EPP_HALF:
+      DBG (0, "STEF: unimplemented gMode EPP_HALF in Connect() !!\n");
+      return 0;
+      break;
+    case UMAX_PP_PARPORT_EPP:
+      return EPPConnect ();
+    default:
+      DBG (0, "STEF: gMode unset in Connect() !!\n");
+      break;
+    }
+  return 0;
+}
+
+
+static void
+Disconnect (void)
+{
+  switch (gMode)
+    {
+    case UMAX_PP_PARPORT_PS2:
+      DBG (0, "STEF: unimplemented gMode PS2 in Disconnect() !!\n");
+      break;
+    case UMAX_PP_PARPORT_ECP:
+      ECPDisconnect ();
+      break;
+    case UMAX_PP_PARPORT_EPP_HALF:
+      DBG (0, "STEF: unimplemented gMode EPP_HALF in Disconnect() !!\n");
+      break;
+    case UMAX_PP_PARPORT_EPP:
+      EPPDisconnect ();
+      break;
+    default:
+      DBG (0, "STEF: gMode unset in Disconnect() !!\n");
+      break;
+    }
 }
 
 
@@ -2614,47 +3332,31 @@ Init005 (int arg)
   return 0;
 }
 
-
-static void
-Init020 (void)
+/* 1 OK, 0 failure */
+static int
+EPPConnect (void)
 {
   int control;
   int data;
 
+  /* initial values, don't hardcode */
   Outb (DATA, 0x04);
   Outb (CONTROL, 0x0C);
+
   data = Inb (DATA);
   control = Inb (CONTROL);
   Outb (CONTROL, control & 0x1F);
   control = Inb (CONTROL);
   Outb (CONTROL, control & 0x1F);
-}
 
-/* 1 OK, 0 failure */
-static int
-Init021 (void)
-{
-  Init020 ();
   if (SendCommand (0xE0) != 1)
     {
-      DBG (0, "Init021: SendCommand(0xE0) failed! (%s:%d)\n", __FILE__,
+      DBG (0, "EPPConnect: SendCommand(0xE0) failed! (%s:%d)\n", __FILE__,
 	   __LINE__);
       return 0;
     }
   ClearRegister (0);
   Init001 ();
-  return 1;
-}
-
-/* 1 OK, 0 failure */
-static int
-Init022 (void)
-{
-  if (Init021 () != 1)
-    {
-      DBG (0, "Init022: Init021() failed! (%s:%d)\n", __FILE__, __LINE__);
-      return 0;
-    }
   return 1;
 }
 
@@ -2668,12 +3370,6 @@ EPPRead32Buffer (int size, unsigned char *dest)
   unsigned char bval;
 #endif
   int control;
-
-  if (GetEPPMode () == 8)
-    {
-      EPPReadBuffer (size, dest);
-      return;
-    }
 
 #ifdef HAVE_LINUX_PPDEV_H
   /* check we have ppdev working */
@@ -2778,12 +3474,6 @@ EPPWrite32Buffer (int size, unsigned char *source)
   unsigned char bval;
 #endif
 
-  if (GetEPPMode () == 8)
-    {
-      EPPWriteBuffer (size, source);
-      return;
-    }
-
   if ((size % 4) != 0)
     {
       DBG (0, "EPPWrite32Buffer: size %% 4 != 0!! (%s:%d)\n", __FILE__,
@@ -2867,7 +3557,7 @@ WaitOnError (void)
 #ifdef HAVE_LINUX_PPDEV_H
 /* read up to size bytes, returns bytes read */
 static int
-ParportPausedReadBuffer (int size, unsigned char *dest)
+ParportPausedBufferRead (int size, unsigned char *dest)
 {
   unsigned char status, bval;
   int error;
@@ -2875,6 +3565,13 @@ ParportPausedReadBuffer (int size, unsigned char *dest)
   int bread;
   int c;
   int fd, rc, mode;
+
+  /* WIP check */
+  if (gMode == UMAX_PP_PARPORT_ECP)
+    {
+      DBG (0, "ECP access not implemented yet (WIP) ! (%s:%d)\n",
+	   __FILE__, __LINE__);
+    }
 
   /* init */
   bread = 0;
@@ -3061,7 +3758,7 @@ ParportPausedReadBuffer (int size, unsigned char *dest)
 
 /* read up to size bytes, returns bytes read */
 static int
-DirectPausedReadBuffer (int size, unsigned char *dest)
+DirectPausedBufferRead (int size, unsigned char *dest)
 {
   int control;
   int status;
@@ -3197,13 +3894,17 @@ DirectPausedReadBuffer (int size, unsigned char *dest)
 
 
 int
-PausedReadBuffer (int size, unsigned char *dest)
+PausedBufferRead (int size, unsigned char *dest)
 {
+  EPPBlockMode (0x80);
 #ifdef HAVE_LINUX_PPDEV_H
   if (sanei_umax_pp_getparport () > 0)
-    return ParportPausedReadBuffer (size, dest);
+    return ParportPausedBufferRead (size, dest);
 #endif
-  return DirectPausedReadBuffer (size, dest);
+  /* only EPP hardware access for now */
+  if (gMode == UMAX_PP_PARPORT_EPP)
+    return DirectPausedBufferRead (size, dest);
+  return 0;
 }
 
 
@@ -3767,7 +4468,7 @@ retry:
 	    }
 	  /* resend */
 	  Epilogue ();
-	  Prologue ();
+	  Prologue (0x10);
 	  try++;
 	  goto retry;
 	}
@@ -3798,7 +4499,7 @@ retry:
 		  Outb (CONTROL, 0x04);
 		  SendCommand (0x30);
 
-		  Prologue ();
+		  Prologue (0x10);
 		  goto retry;
 		}
 	    }
@@ -3826,7 +4527,7 @@ retry:
 	      Outb (CONTROL, 0x04);
 	      SendCommand (0x30);
 
-	      Prologue ();
+	      Prologue (0x10);
 	      goto retry;
 	    }
 	  reg = RegisterRead (0x19) & 0xF8;
@@ -3963,7 +4664,7 @@ SendData (int *cmd, int len)
 /* receive data bytes from scanner   */
 /* needs data channel to be set up   */
 /* returns 1 on success, 0 otherwise */
-/* uses PausedReadBuffer             */
+/* uses PausedBufferRead             */
 static int
 PausedReadData (int size, unsigned char *dest)
 {
@@ -3980,18 +4681,33 @@ PausedReadData (int size, unsigned char *dest)
 	   reg, __FILE__, __LINE__);
       return 0;
     }
+  if (gMode == UMAX_PP_PARPORT_ECP)
+    {
+      REGISTERWRITE (0x1A, 0x44);
+    }
   REGISTERREAD (0x0C, 0x04);
   REGISTERWRITE (0x0C, 0x44);	/* sets data direction ? */
-  EPPBlockMode (0x80);
-  read = PausedReadBuffer (size, dest);
+  if (gMode == UMAX_PP_PARPORT_ECP)
+    {
+      ECPCompatMode ();
+      ECPSetBuffer (size);
+      read = ECPBufferRead (size, dest);
+      DBG (16, "ECPBufferRead(%d,dest) passed (%s:%d)\n", size, __FILE__,
+	   __LINE__);
+      REGISTERWRITE (0x1A, 0x84);
+    }
+  else
+    {
+      read = PausedBufferRead (size, dest);
+    }
   if (read < size)
     {
       DBG (16,
-	   "PausedReadBuffer(%d,dest) failed, only got %d bytes (%s:%d)\n",
+	   "PausedBufferRead(%d,dest) failed, only got %d bytes (%s:%d)\n",
 	   size, read, __FILE__, __LINE__);
       return 0;
     }
-  DBG (16, "PausedReadBuffer(%d,dest) passed (%s:%d)\n", size, __FILE__,
+  DBG (16, "PausedBufferRead(%d,dest) passed (%s:%d)\n", size, __FILE__,
        __LINE__);
   REGISTERWRITE (0x0E, 0x0D);
   REGISTERWRITE (0x0F, 0x00);
@@ -4147,49 +4863,14 @@ Fonc001 (void)
 static int
 FoncSendWord (int *cmd)
 {
-  int reg, tmp;
-
-  Init022 ();
-  reg = RegisterRead (0x0B);
-  if (reg != gEPAT)
-    {
-      /* return -1 */
-      DBG (0, "Error! expected reg0B=0x%02X, found 0x%02X! (%s:%d) \n", gEPAT,
-	   reg, __FILE__, __LINE__);
-      return 0;
-    }
-  reg = RegisterRead (0x0D);
-  reg = (reg & 0xE8) | 0x43;
-  RegisterWrite (0x0D, reg);
-  REGISTERWRITE (0x0C, 0x04);
-  reg = RegisterRead (0x0A);
-  if (reg != 0x00)
-    {
-      DBG (16, "Warning! expected reg0A=0x00, found 0x%02X! (%s:%d) \n", reg,
-	   __FILE__, __LINE__);
-    }
-  REGISTERWRITE (0x0A, 0x1C);
-  REGISTERWRITE (0x08, 0x21);
-  REGISTERWRITE (0x0E, 0x0F);
-  REGISTERWRITE (0x0F, 0x0C);
-  REGISTERWRITE (0x0A, 0x1C);
-  REGISTERWRITE (0x0E, 0x10);
-  REGISTERWRITE (0x0F, 0x1C);
+  Prologue (0x10);
   if (SendWord (cmd) == 0)
     {
       DBG (0, "SendWord(cmd) failed (%s:%d)\n", __FILE__, __LINE__);
+      return 0;
     }
+  Epilogue ();
 
-  /* termination sequence */
-  REGISTERWRITE (0x0A, 0x00);
-  REGISTERREAD (0x0D, 0x40);
-  REGISTERWRITE (0x0D, 0x00);
-  if (GetModel () != 0x07)
-    SendCommand (40);
-  SendCommand (30);
-  Outb (DATA, 0x04);
-  tmp = Inb (CONTROL) & 0x1F;
-  Outb (CONTROL, tmp);
   return 1;
 }
 
@@ -4245,7 +4926,7 @@ CmdSetDataBuffer (int *data)
     }
   DBG (16, "PausedReadData(2048,dest) passed (%s:%d)\n", __FILE__, __LINE__);
 
-  /* dest should hold the same datas than donnees */
+  /* dest should hold the same data than donnees */
   for (i = 0; i < 2047; i++)
     {
       if (data[i] != (int) (dest[i]))
@@ -4275,6 +4956,8 @@ sanei_umax_pp_ReleaseScanner (void)
   reg = RegisterRead (0x0D);
   reg = (reg & 0xBF);
   RegisterWrite (0x0D, reg);
+  if (gMode == UMAX_PP_PARPORT_ECP)
+    return 1;
   if (GetModel () != 0x07)
     {
       if (SendCommand (0x40) == 0)
@@ -4299,75 +4982,24 @@ sanei_umax_pp_ReleaseScanner (void)
 /* 1: OK
    0: end session failed */
 
+/* 1: OK
+   0: end session failed */
+
 int
 sanei_umax_pp_EndSession (void)
 {
-  int tmp;
-  int control;
-  int data;
-  int reg;
   int zero[5] = { 0, 0, 0, 0, -1 };
 
-
-  data = Inb (DATA);
-  control = Inb (CONTROL) & 0x1F;
-  Outb (CONTROL, control);
-  control = Inb (CONTROL) & 0x1F;
-  Outb (CONTROL, control);
-
-  g67D = 1;
-
-  if (SendCommand (0xE0) == 0)
-    {
-      DBG (0, "SendCommand(0xE0) (%s:%d) failed ...\n", __FILE__, __LINE__);
-      return 0;
-    }
-  DBG (16, "SendCommand(0xE0) passed... (%s:%d)\n", __FILE__, __LINE__);
-
-  g6FE = 1;
-  g674 = 0;
-  ClearRegister (0);
-  Init001 ();
-  DBG (16, "Init001() passed... (%s:%d)\n", __FILE__, __LINE__);
-
-  REGISTERREAD (0x0B, 0xC7);
-  reg = RegisterRead (0x0D);
-  reg = (reg | 0x43);
-  RegisterWrite (0x0D, reg);
-  REGISTERWRITE (0x0C, 0x04);
-  reg = RegisterRead (0x0A);
-  if (reg != 0x00)
-    {
-      if (reg != 0x1C)
-	DBG (0, "Expected 0x00 found 0x%02X .... (%s:%d)\n", reg, __FILE__,
-	     __LINE__);
-      else
-	{
-	  DBG (16, "Previous probe detected .... (%s:%d)\n", __FILE__,
-	       __LINE__);
-	}
-    }
-  REGISTERWRITE (0x0A, 0x1C);
-  REGISTERWRITE (0x08, 0x21);
-  REGISTERWRITE (0x0E, 0x0F);
-  REGISTERWRITE (0x0F, 0x0C);
-  REGISTERWRITE (0x0A, 0x1C);
-  REGISTERWRITE (0x0E, 0x10);
-  REGISTERWRITE (0x0F, 0x1C);
-
-  if (SendWord (zero) == 0)
-    {
-      DBG (16, "SendWord(zero) failed (%s:%d)\n", __FILE__, __LINE__);
-    }
+  Prologue (0x00);
+  SendWord (zero);
   Epilogue ();
-
   sanei_umax_pp_CmdSync (0xC2);
   sanei_umax_pp_CmdSync (0x00);	/* cancels any pending operation */
   sanei_umax_pp_CmdSync (0x00);	/* cancels any pending operation */
   sanei_umax_pp_ReleaseScanner ();
 
   /* restore port state */
-  Outb (DATA, 0x04);
+  Outb (DATA, gData);
   Outb (CONTROL, gControl);
 
   /* OUF */
@@ -4391,114 +5023,41 @@ sanei_umax_pp_InitScanner (int recover)
   int i, j;
   int status;
   int readcmd[64];
-  int sentcmd[64];
-
-
-
-
-
   /* in umax1220u, this buffer is opc[16] */
-  j = 0;
-  sentcmd[j] = 0x02;
-  j++;
-  sentcmd[j] = 0x80;
-  j++;
-  sentcmd[j] = 0x00;
-  j++;
-  sentcmd[j] = 0x70;
-  j++;
-  sentcmd[j] = 0x00;
-  j++;
-  sentcmd[j] = 0x00;
-  j++;
-  sentcmd[j] = 0x00;
-  j++;
-  sentcmd[j] = 0x2F;
-  j++;
-  sentcmd[j] = 0x2F;
-  j++;
-  sentcmd[j] = 0x07;
-  j++;
-  sentcmd[j] = 0x00;
-  j++;
-  sentcmd[j] = 0x00;
-  j++;
-  sentcmd[j] = 0x00;
-  j++;
-  sentcmd[j] = 0x80;
-  j++;
-  sentcmd[j] = 0xF0;
-  j++;				/* F0 means brightness on, 90 brightness off */
+  int sentcmd[17] =
+    { 0x02, 0x80, 0x00, 0x70, 0x00, 0x00, 0x00, 0x2F, 0x2F, 0x07, 0x00,
+    0x00, 0x00, 0x80, 0xF0, 0x00, -1
+  };
+  int cmdA7[9] = { 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, -1 };
+
+
   if (GetModel () == 0x07)
     {
-      sentcmd[j] = 0x00;
+      sentcmd[15] = 0x00;
       j++;
     }
   else
     {
-      sentcmd[j] = 0x18;
+      sentcmd[15] = 0x18;
       j++;
     }
-  sentcmd[j] = -1;
+
   /* fails here if there is an unfinished previous scan */
-  if (CmdSetGet (0x02, j, sentcmd) != 1)
-    {
-      DBG (0, "CmdSetGet(0x02,j,sentcmd) failed (%s:%d)\n", __FILE__,
-	   __LINE__);
-      return 0;
-    }
-  DBG (16, "CmdSetGet(0x02,j,sentcmd) passed ... (%s:%d)\n", __FILE__,
-       __LINE__);
+  CMDSETGET (0x02, 16, sentcmd);
 
   /* needs some init */
   if (sentcmd[15] == 0x18)
     {
       sentcmd[15] = 0x00;	/* was 0x18 */
-      if (CmdSetGet (0x02, j, sentcmd) != 1)
-	{
-	  DBG (0, "CmdSetGet(0x02,j,sentcmd) failed (%s:%d)\n", __FILE__,
-	       __LINE__);
-	  return 0;
-	}
-      DBG (16, "CmdSetGet(0x02,j,sentcmd) passed ... (%s:%d)\n", __FILE__,
-	   __LINE__);
+      CMDSETGET (0x02, 16, sentcmd);
 
       /* in umax1220u, this buffer does not exist */
-      j = 0;
-      sentcmd[j] = 0xA0;
-      j++;
-      sentcmd[j] = 0xA1;
-      j++;
-      sentcmd[j] = 0xA2;
-      j++;
-      sentcmd[j] = 0xA3;
-      j++;
-      sentcmd[j] = 0xA4;
-      j++;
-      sentcmd[j] = 0xA5;
-      j++;
-      sentcmd[j] = 0xA6;
-      j++;
-      sentcmd[j] = 0xA7;
-      j++;
-      sentcmd[j] = -1;
-      if (CmdSetGet (0x01, j, sentcmd) != 1)
-	{
-	  DBG (0, "CmdSetGet(0x02,j,sentcmd) failed (%s:%d)\n", __FILE__,
-	       __LINE__);
-	  return 0;
-	}
-      DBG (16, "CmdSetGet(0x01,j,sentcmd) passed ... (%s:%d)\n", __FILE__,
-	   __LINE__);
+      CMDSETGET (0x01, 8, cmdA7);
     }
 
 
   /* ~ opb3: inquire status */
-  if (CmdGet (0x08, 36, readcmd) == 0)
-    {
-      DBG (0, "CmdGet(0x08,36,readcmd) failed (%s:%d)\n", __FILE__, __LINE__);
-      return 0;
-    }
+  CMDGET (0x08, 36, readcmd);
   if (DBG_LEVEL >= 32)
     {
       Bloc8Decode (readcmd);
@@ -4540,7 +5099,7 @@ sanei_umax_pp_InitScanner (int recover)
 	0x0B, 0x1A, 0x00, -1
       };
       int op03[9] = { 0x00, 0x00, 0x00, 0xAA, 0xCC, 0xEE, 0xFF, 0xFF, -1 };
-
+      /* ECP ICI */
       CMDSYNC (0xC2);
       CMDSETGET (0x02, 16, op01);
       CMDSETGET (0x08, 36, op02);
@@ -4669,11 +5228,11 @@ sanei_umax_pp_InitScanner (int recover)
 
 
 /* 
-	1: OK
-   	2: failed, try again
-   	0: init failed 
+        1: OK
+           2: failed, try again
+           0: init failed 
 
-	initialize the transport layer
+        initialize the transport layer
    
    */
 
@@ -4708,7 +5267,7 @@ InitTransport610P (int recover)
   DBG (16, "ClearRegister(0) passed...\n");
 
   /* sync */
-  Prologue ();
+  Prologue (0x10);
   if (SendWord (zero) == 0)
     {
       DBG (0, "SendWord(zero) failed (%s:%d)\n", __FILE__, __LINE__);
@@ -4724,24 +5283,22 @@ InitTransport610P (int recover)
 }
 
 /* 
-	1: OK
-   	2: failed, try again
-   	0: init failed 
+        1: OK
+           2: failed, try again
+           0: init failed 
 
-	initialize the transport layer
+        initialize the transport layer
    
    */
 
 static int
-InitTransport1220P (int recover)
+InitTransport1220P (int recover)	/* ECP OK !! */
 {
   int i, j;
-  int control;
-  int data;
-  int reg;
+  int reg, tmp;
   unsigned char *dest = NULL;
   int zero[5] = { 0, 0, 0, 0, -1 };
-  int model;
+  int model, nb;
 
   /* init cancel handling */
   /* InitCancel(); */
@@ -4749,26 +5306,8 @@ InitTransport1220P (int recover)
   /* recover is not used yet, but will */
   recover = 0;			/* quit compiler quiet .. */
 
-  /* set port state */
-  data = Inb (DATA);
-  control = Inb (CONTROL) & 0x0C;
-  Outb (CONTROL, control);
-  control = Inb (CONTROL) & 0x0C;
-  Outb (CONTROL, control);
-  gControl = 0x0C;
-
-  g67D = 1;
-  if (SendCommand (0xE0) == 0)
-    {
-      DBG (0, "SendCommand(0xE0) (%s:%d) failed ...\n", __FILE__, __LINE__);
-      return 0;
-    }
-  DBG (16, "SendCommand(0xE0) passed...\n");
-  g6FE = 1;
-  ClearRegister (0);
-  DBG (16, "ClearRegister(0) passed...\n");
-  Init001 ();
-  DBG (16, "Init001() passed... (%s:%d)\n", __FILE__, __LINE__);
+  Connect ();
+  DBG (16, "Connect() passed... (%s:%d)\n", __FILE__, __LINE__);
   gEPAT = 0xC7;
   reg = RegisterRead (0x0B);
   if (reg != gEPAT)
@@ -4809,21 +5348,35 @@ InitTransport1220P (int recover)
 
   /* model detection: redone since we might not be probing each time ... */
   /* write addr in 0x0E, read value at 0x0F                              */
-  REGISTERWRITE (0x0E, 0x01);
-  model = RegisterRead (0x0F);
-  SetModel (model);
+  if (gMode != UMAX_PP_PARPORT_ECP)
+    {				/* XXX try to do it in all modes XXX */
+      REGISTERWRITE (0x0E, 0x01);
+      model = RegisterRead (0x0F);
+      SetModel (model);
+    }
 
   REGISTERWRITE (0x0A, 0x1C);
-  REGISTERWRITE (0x08, 0x21);
+  if (gMode == UMAX_PP_PARPORT_ECP)
+    {
+      REGISTERWRITE (0x08, 0x10);
+    }
+  else
+    {
+      REGISTERWRITE (0x08, 0x21);
+    }
   REGISTERWRITE (0x0E, 0x0F);
   REGISTERWRITE (0x0F, 0x0C);
 
   REGISTERWRITE (0x0A, 0x1C);
   REGISTERWRITE (0x0E, 0x10);
   REGISTERWRITE (0x0F, 0x1C);
+  if (gMode == UMAX_PP_PARPORT_ECP)
+    {
+      REGISTERWRITE (0x0F, 0x00);
+    }
   REGISTERWRITE (0x0A, 0x11);
 
-
+  /* XXX ICI XXX */
   dest = (unsigned char *) (malloc (65536));
   if (dest == NULL)
     {
@@ -4837,34 +5390,30 @@ InitTransport1220P (int recover)
       dest[512 + i * 2] = i;
       dest[512 + i * 2 + 1] = 0xFF - i;
     }
-  for (i = 0; i < 150; i++)
+  if (gMode == UMAX_PP_PARPORT_ECP)
     {
-      if (GetEPPMode () == 32)
-	{
-	  EPPWrite32Buffer (0x400, dest);
-	  DBG (16,
-	       "Loop %d: EPPWrite32Buffer(0x400,dest) passed... (%s:%d)\n", i,
-	       __FILE__, __LINE__);
-	}
-      else
-	{
-	  EPPWriteBuffer (0x400, dest);
-	  DBG (16, "Loop %d: EPPWriteBuffer(0x400,dest) passed... (%s:%d)\n",
-	       i, __FILE__, __LINE__);
-	}
+      nb = 300;
+      nb = 150;
     }
+  else
+    {
+      nb = 150;
+    }
+  for (i = 0; i < nb; i++)
+    {
+      BufferWrite (0x400, dest);
+      DBG (16,
+	   "Loop %d: BufferWrite(0x400,dest) passed... (%s:%d)\n", i,
+	   __FILE__, __LINE__);
+    }
+
   REGISTERWRITE (0x0A, 0x18);
   REGISTERWRITE (0x0A, 0x11);
-  for (i = 0; i < 150; i++)
+
+  for (i = 0; i < nb; i++)
     {
-      if (GetEPPMode () == 32)
-	{
-	  EPPRead32Buffer (0x400, dest);
-	}
-      else
-	{
-	  EPPReadBuffer (0x400, dest);
-	}
+      /* XXX Compat/Byte ??? XXX */
+      BufferRead (0x400, dest);
       for (j = 0; j < 256; j++)
 	{
 	  if (dest[j * 2] != j)
@@ -4898,14 +5447,40 @@ InitTransport1220P (int recover)
 	      return 0;
 	    }
 	}
-      if (GetEPPMode () == 32)
-	DBG (16, "Loop %d: EPPRead32Buffer(0x400,dest) passed... (%s:%d)\n",
-	     i, __FILE__, __LINE__);
-      else
-	DBG (16, "Loop %d: EPPReadBuffer(0x400,dest) passed... (%s:%d)\n", i,
-	     __FILE__, __LINE__);
+      DBG (16, "Loop %d: BufferRead(0x400,dest) passed... (%s:%d)\n",
+	   i, __FILE__, __LINE__);
     }
   REGISTERWRITE (0x0A, 0x18);
+  /* ECP: "HEAVY" reconnect here */
+  if (gMode == UMAX_PP_PARPORT_ECP)
+    {
+      Epilogue ();
+      /* 3 line: set to initial parport state ? */
+      Outb (ECR, 0x20);
+      Outb (DATA, 0x04);
+      Outb (CONTROL, 0x0C);
+
+      /* the following is a variant of Connect(); */
+      Inb (ECR);
+      Inb (ECR);
+      Outb (ECR, 0x20);
+      Outb (ECR, 0x20);
+      Inb (CONTROL);
+      Outb (CONTROL, 0x0C);
+      Inb (DATA);
+      SendCommand (0xE0);
+      Outb (DATA, 0XFF);
+      Outb (DATA, 0XFF);
+      ClearRegister (0);
+      WRITESLOW (0x0E, 0x0A);
+      SLOWNIBBLEREGISTERREAD (0x0F, 0x08);
+      /* resend value OR'ed 0x08 ? */
+      WRITESLOW (0x0F, 0x08);
+      WRITESLOW (0x08, 0x10);
+      Disconnect ();
+      Prologue (0x10);
+    }
+
   if (Fonc001 () != 1)
     {
       DBG (0, "Fonc001() failed ! (%s:%d) \n", __FILE__, __LINE__);
@@ -4929,11 +5504,11 @@ InitTransport1220P (int recover)
 }
 
 /* 
-	1: OK
-   	2: failed, try again
-   	0: init failed 
+        1: OK
+           2: failed, try again
+           0: init failed 
 
-	initialize the transport layer
+        initialize the transport layer
    
    */
 
@@ -5089,6 +5664,8 @@ In256 (void)
   usleep (10000);
   Outb (CONTROL, 0x0C);
   usleep (10000);
+  Outb (CONTROL, 0x0C);
+  usleep (10000);
   val = Inb (STATUS);
   Outb (CONTROL, 0x0E);
   usleep (10000);
@@ -5154,7 +5731,7 @@ Probe610P (int recover)
 
   /* test PS2 mode */
 
-  tmp = SlowNibbleRegisterRead (0x0B);
+  tmp = PS2RegisterRead (0x0B);
   if (tmp != 0x88)
     {				/* tmp = 0x88 for 610P */
       DBG (1, "Found 0x%X expected 0x88  (%s:%d)\n", tmp, __FILE__, __LINE__);
@@ -5190,6 +5767,602 @@ Probe610P (int recover)
 }
 
 
+  /* 
+   * try PS2 mode
+   * returns 1 on success, 0 on failure
+   */
+int
+ProbePS2 (unsigned char *dest)
+{
+  int i, tmp;
+
+  /* write/read full buffer */
+  for (i = 0; i < 256; i++)
+    {
+      WRITESLOW (0x0A, i);
+      SLOWNIBBLEREGISTERREAD (0x0A, i);
+      WRITESLOW (0x0A, 0xFF - i);
+      SLOWNIBBLEREGISTERREAD (0x0A, 0xFF - i);
+    }
+
+  /* end test for nibble byte/byte mode */
+
+  /* now we try nibble buffered mode */
+  WRITESLOW (0x13, 0x01);
+  WRITESLOW (0x13, 0x00);	/*reset something */
+  WRITESLOW (0x0A, 0x11);
+  for (i = 0; i < 10; i++)	/* 10 ~ 11 ? */
+    {
+      PS2BufferRead (0x400, dest);
+      DBG (16, "Loop %d: PS2BufferRead passed ... (%s:%d)\n", i, __FILE__,
+	   __LINE__);
+    }
+
+  /* write buffer */
+  for (i = 0; i < 10; i++)
+    {
+      PS2BufferWrite (0x400, dest);
+      DBG (16, "Loop %d: PS2BufferWrite passed ... (%s:%d)\n", i, __FILE__,
+	   __LINE__);
+    }
+
+  SLOWNIBBLEREGISTERREAD (0x0C, 0x04);
+  WRITESLOW (0x13, 0x01);
+  WRITESLOW (0x13, 0x00);
+  WRITESLOW (0x0A, 0x18);
+
+  return 1;
+}
+
+  /*
+   * try EPP 8 then 32 bits
+   * returns 1 on success, 0 on failure
+   */
+int
+ProbeEPP (unsigned char *dest)
+{
+  int tmp, i, j;
+  int reg;
+
+  /* test EPP MODE */
+  SetEPPMode (8);
+  gMode = UMAX_PP_PARPORT_EPP;
+  ClearRegister (0);
+  DBG (16, "ClearRegister(0) passed... (%s:%d)\n", __FILE__, __LINE__);
+  WRITESLOW (0x08, 0x22);
+  Init001 ();
+  DBG (16, "Init001() passed... (%s:%d)\n", __FILE__, __LINE__);
+  gEPAT = 0xC7;
+  Init002 (0);
+  DBG (16, "Init002(0) passed... (%s:%d)\n", __FILE__, __LINE__);
+
+  REGISTERWRITE (0x0A, 0);
+
+  /* catch any failure to read back data in EPP mode */
+  reg = RegisterRead (0x0A);
+  if (reg != 0)
+    {
+      DBG (0, "RegisterRead, found 0x%X expected 0x00 (%s:%d)\n", reg,
+	   __FILE__, __LINE__);
+      if (reg == 0xFF)
+	{
+	  DBG (0,
+	       "*** It appears that EPP data transfer doesn't work    ***\n");
+	  DBG (0,
+	       "*** Please read SETTING EPP section in sane-umax_pp.5 ***\n");
+	}
+      return 0;
+    }
+  else
+    {
+      DBG (16, "RegisterRead(0x0A)=0x00 passed... (%s:%d)\n", __FILE__,
+	   __LINE__);
+    }
+  RegisterWrite (0x0A, 0xFF);
+  DBG (16, "RegisterWrite(0x%X,0x%X) passed...   (%s:%d)\n", 0x0A, 0xFF,
+       __FILE__, __LINE__);
+  REGISTERREAD (0x0A, 0xFF);
+  for (i = 1; i < 256; i++)
+    {
+      REGISTERWRITE (0x0A, i);
+      REGISTERREAD (0x0A, i);
+      REGISTERWRITE (0x0A, 0xFF - i);
+      REGISTERREAD (0x0A, 0xFF - i);
+    }
+
+  REGISTERWRITE (0x13, 0x01);
+  REGISTERWRITE (0x13, 0x00);
+  REGISTERWRITE (0x0A, 0x11);
+
+  for (i = 0; i < 10; i++)
+    {
+      BufferRead (0x400, dest);
+      for (j = 0; j < 512; j++)
+	{
+	  if (dest[2 * j] != (j % 256))
+	    {
+	      DBG (0, "Loop %d, char %d BufferRead failed! (%s:%d)\n", i,
+		   j * 2, __FILE__, __LINE__);
+	      return 0;
+	    }
+	  if (dest[2 * j + 1] != (0xFF - (j % 256)))
+	    {
+	      DBG (0, "Loop %d, char %d BufferRead failed! (%s:%d)\n", i,
+		   j * 2 + 1, __FILE__, __LINE__);
+	      return 0;
+	    }
+	}
+      DBG (16, "Loop %d: BufferRead(0x400,dest) passed... (%s:%d)\n", i,
+	   __FILE__, __LINE__);
+    }
+
+  for (i = 0; i < 10; i++)
+    {
+      BufferWrite (0x400, dest);
+      DBG (16, "Loop %d: BufferWrite(0x400,dest) passed... (%s:%d)\n", i,
+	   __FILE__, __LINE__);
+    }
+
+
+  REGISTERREAD (0x0C, 4);
+  REGISTERWRITE (0x13, 0x01);
+  REGISTERWRITE (0x13, 0x00);
+  REGISTERWRITE (0x0A, 0x18);
+
+  Outb (DATA, 0x0);
+  ClearRegister (0);
+  Init001 ();
+
+  if (CheckEPAT () != 0)
+    return 0;
+  DBG (16, "CheckEPAT() passed... (%s:%d)\n", __FILE__, __LINE__);
+
+  tmp = Inb (CONTROL) & 0x1F;
+  Outb (CONTROL, tmp);
+  Outb (CONTROL, tmp);
+
+  WRITESLOW (0x08, 0x21);
+  Init001 ();
+  DBG (16, "Init001() passed... (%s:%d)\n", __FILE__, __LINE__);
+  WRITESLOW (0x08, 0x21);
+  Init001 ();
+  DBG (16, "Init001() passed... (%s:%d)\n", __FILE__, __LINE__);
+  SPPResetLPT ();
+
+
+  if (Init005 (0x80))
+    {
+      DBG (0, "Init005(0x80) failed... (%s:%d)\n", __FILE__, __LINE__);
+    }
+  DBG (16, "Init005(0x80) passed... (%s:%d)\n", __FILE__, __LINE__);
+  if (Init005 (0xEC))
+    {
+      DBG (0, "Init005(0xEC) failed... (%s:%d)\n", __FILE__, __LINE__);
+    }
+  DBG (16, "Init005(0xEC) passed... (%s:%d)\n", __FILE__, __LINE__);
+
+
+  /* write/read buffer loop */
+  for (i = 0; i < 256; i++)
+    {
+      REGISTERWRITE (0x0A, i);
+      REGISTERREAD (0x0A, i);
+      REGISTERWRITE (0x0A, 0xFF - i);
+      REGISTERREAD (0x0A, 0xFF - i);
+    }
+  DBG (16, "EPP write/read buffer loop passed... (%s:%d)\n", __FILE__,
+       __LINE__);
+
+  REGISTERWRITE (0x13, 0x01);
+  REGISTERWRITE (0x13, 0x00);
+  REGISTERWRITE (0x0A, 0x11);
+
+  /* test EPP32 mode */
+  /* we set 32 bits I/O mode first, then step back to */
+  /* 8bits if tests fail                              */
+  SetEPPMode (32);
+  for (i = 0; (i < 10) && (GetEPPMode () == 32); i++)
+    {
+      BufferRead (0x400, dest);
+      /* if 32 bit I/O work, we should have a buffer */
+      /* filled by 00 FF 01 FE 02 FD 03 FC .....     */
+      for (j = 0; j < 0x200; j++)
+	{
+	  if ((dest[j * 2] != j % 256)
+	      || (dest[j * 2 + 1] != 0xFF - (j % 256)))
+	    {
+	      DBG (1, "Setting EPP I/O to 8 bits ... (%s:%d)\n", __FILE__,
+		   __LINE__);
+	      SetEPPMode (8);
+	      /* leave out current loop since an error was detected */
+	      break;
+	    }
+	}
+      DBG (16, "Loop %d: BufferRead(0x400) passed... (%s:%d)\n", i,
+	   __FILE__, __LINE__);
+    }
+  DBG (1, "%d bits EPP data transfer\n", GetEPPMode ());
+
+
+  for (i = 0; i < 10; i++)
+    {
+      BufferWrite (0x400, dest);
+      DBG (16, "Loop %d: BufferWrite(0x400,dest) passed... (%s:%d)\n", i,
+	   __FILE__, __LINE__);
+    }
+
+
+
+  REGISTERREAD (0x0C, 0x04);
+  REGISTERWRITE (0x13, 0x01);
+  REGISTERWRITE (0x13, 0x00);
+  REGISTERWRITE (0x0A, 0x18);
+
+  WRITESLOW (0x08, 0x21);
+  Init001 ();
+  DBG (16, "Init001() passed... (%s:%d)\n", __FILE__, __LINE__);
+  SPPResetLPT ();
+
+  if (Init005 (0x80))
+    {
+      DBG (0, "Init005(0x80) failed... (%s:%d)\n", __FILE__, __LINE__);
+    }
+  DBG (16, "Init005(0x80) passed... (%s:%d)\n", __FILE__, __LINE__);
+  if (Init005 (0xEC))
+    {
+      DBG (0, "Init005(0xEC) failed... (%s:%d)\n", __FILE__, __LINE__);
+    }
+  DBG (16, "Init005(0xEC) passed... (%s:%d)\n", __FILE__, __LINE__);
+
+
+  /* write/read buffer loop */
+  for (i = 0; i < 256; i++)
+    {
+      REGISTERWRITE (0x0A, i);
+      REGISTERREAD (0x0A, i);
+      REGISTERWRITE (0x0A, 0xFF - i);
+      REGISTERREAD (0x0A, 0xFF - i);
+    }
+  DBG (16, "EPP write/read buffer loop passed... (%s:%d)\n", __FILE__,
+       __LINE__);
+
+  REGISTERWRITE (0x13, 0x01);
+  REGISTERWRITE (0x13, 0x00);
+  REGISTERWRITE (0x0A, 0x11);
+
+
+  for (i = 0; i < 10; i++)
+    {
+      BufferRead (0x400, dest);
+      DBG (16, "Loop %d: BufferRead(0x400) passed... (%s:%d)\n", i,
+	   __FILE__, __LINE__);
+    }
+
+  for (i = 0; i < 10; i++)
+    {
+      BufferWrite (0x400, dest);
+      DBG (16, "Loop %d: BufferWrite(0x400,dest) passed... (%s:%d)\n", i,
+	   __FILE__, __LINE__);
+    }
+  REGISTERREAD (0x0C, 0x04);
+  REGISTERWRITE (0x13, 0x01);
+  REGISTERWRITE (0x13, 0x00);
+  REGISTERWRITE (0x0A, 0x18);
+  gMode=UMAX_PP_PARPORT_EPP;
+  return 1;
+}
+
+  /*
+   * try ECP mode
+   * returns 1 on success, 0 on failure
+   */
+int
+ProbeECP (unsigned char *dest)
+{
+  int i, j, tmp;
+  unsigned char breg;
+
+  /* if ECP not available, fail */
+  if (gECP != 1)
+    {
+      DBG (1, "Hardware can't do ECP, giving up (%s:%d) ...\n", __FILE__,
+	   __LINE__);
+      return 0;
+    }
+  gMode = UMAX_PP_PARPORT_ECP;
+
+/* clean from EPP failure */
+  breg = Inb (CONTROL);
+  Outb (CONTROL, breg & 0x04);
+
+/* reset sequence */
+  Outb (ECR, 0x20);		/* byte mode */
+  Outb (CONTROL, 0x04);
+  Outb (CONTROL, 0x0C);
+  Outb (CONTROL, 0x0C);
+  Outb (CONTROL, 0x0C);
+  Outb (CONTROL, 0x0C);
+  for (i = 0; i < 256; i++)
+    {
+      breg = (Inb (STATUS)) & 0xF8;
+      if (breg != 0x48)
+	{
+	  DBG (0,
+	       "ProbeECP() failed at sync step %d, status=0x%02X, expected 0x48 (%s:%d)\n",
+	       i, breg, __FILE__, __LINE__);
+	  return 0;
+	}
+    }
+  Outb (CONTROL, 0x0E);
+  Outb (CONTROL, 0x0E);
+  Outb (CONTROL, 0x0E);
+  breg = (Inb (STATUS)) & 0xF8;
+  if (breg != 0x48)
+    {
+      DBG (0, "ProbeECP() failed, status=0x%02X, expected 0x48 (%s:%d)\n",
+	   breg, __FILE__, __LINE__);
+      return 0;
+    }
+  Outb (CONTROL, 0x04);
+  Outb (CONTROL, 0x04);
+  Outb (CONTROL, 0x04);
+  breg = Inb (STATUS);
+  breg = (Inb (STATUS)) & 0xF8;
+  if (breg != 0xC8)
+    {
+      DBG (0, "ProbeECP() failed, status=0x%02X, expected 0xC8 (%s:%d)\n",
+	   breg, __FILE__, __LINE__);
+      return 0;
+    }
+/* end of reset sequence */
+
+  Outb (DATA, 0x00);
+  ClearRegister (0);
+
+/* utile ? semble tester le registre de configuration
+ * inb ECR,35
+ * inb 77B,FF
+ * inb ECR,35
+ */
+/* routine A */
+  breg = Inb (CONTROL);		/* 0x04 évidemment! */
+  breg = Inb (ECR);
+  breg = Inb (ECR);
+  breg = Inb (ECR);
+  breg = Inb (ECR);
+  breg = Inb (CONTROL);		/* 0x04 évidemment! */
+  Outb (ECR, 0x20);		/* byte mode */
+  Outb (ECR, 0x20);		/* byte mode */
+  breg = Inb (CONTROL);		/* 0x04 évidemment! */
+  Outb (CONTROL, 0x04);
+  Outb (CONTROL, 0x04);
+  breg = Inb (ECR);		/* 35 expected */
+  breg = Inb (ECR);		/* 35 expected */
+  breg = Inb (ECR);		/* 35 expected */
+  breg = Inb (ECR);		/* 35 expected */
+  Outb (CONTROL, 0x04);
+  Outb (CONTROL, 0x04);
+  Outb (ECR, 0x20);
+  Outb (ECR, 0x20);
+
+  ClearRegister (0);
+
+/* routine C */
+  PS2RegisterWrite (0x08, 0x01);
+
+  Outb (CONTROL, 0x0C);
+  Outb (CONTROL, 0x04);
+
+  ClearRegister (0);
+
+  breg = PS2Something (0x10);
+  if (breg != 0x0B)
+    {
+      DBG (0, "ProbeECP() failed, reg10=0x%02X, expected 0x0B (%s:%d)\n",
+	   breg, __FILE__, __LINE__);
+      /* return 0; */
+    }
+
+
+  for (i = 0; i < 256; i++)
+    {
+      ECPRegisterWrite (0x0A, i);
+      breg = ECPRegisterRead (0x0A);
+      if (breg != i)
+	{
+	  DBG (0, "ECPProbe(), loop %d failed (%s:%d)\n", i, __FILE__,
+	       __LINE__);
+	  return 0;
+	}
+      ECPRegisterWrite (0x0A, 0xFF - i);
+      breg = ECPRegisterRead (0x0A);
+      if (breg != 0xFF - i)
+	{
+	  DBG (0, "ECPProbe(), loop %d failed (%s:%d)\n", i, __FILE__,
+	       __LINE__);
+	  return 0;
+	}
+    }
+  DBG (16, "ECPProbe(), loop passed (%s:%d)\n", __FILE__, __LINE__);
+
+  ECPRegisterWrite (0x13, 0x01);
+  ECPRegisterWrite (0x13, 0x00);
+  ECPRegisterWrite (0x0A, 0x11);
+
+  /* there is one buffer transfer size set up */
+  /* subsequent reads are done in a row       */
+  ECPSetBuffer (0x400);
+  for (i = 0; i < 10; i++)
+    {
+      /* if (i > 0) */
+      ECPCompatMode ();
+
+      ECPBufferRead (1024, dest);
+      /* check content of the returned buffer */
+      for (j = 0; j < 256; j++)
+	{
+	  if (dest[j * 2] != j)
+	    {
+	      DBG (0,
+		   "Altered buffer value at %03X, expected %02X, found %02X\n",
+		   j * 2, j, dest[j * 2]);
+	      return 0;
+	    }
+	  if (dest[j * 2 + 1] != 0xFF - j)
+	    {
+	      DBG
+		(0,
+		 "Altered buffer value at %03X, expected %02X, found %02X\n",
+		 j * 2 + 1, 0xFF - j, dest[j * 2 + 1]);
+	      return 0;
+	    }
+	  if (dest[512 + j * 2] != j)
+	    {
+	      DBG (0,
+		   "Altered buffer value at %03X, expected %02X, found %02X\n",
+		   512 + j * 2, j, dest[512 + j * 2]);
+	      return 0;
+	    }
+	  if (dest[512 + j * 2 + 1] != 0xFF - j)
+	    {
+	      DBG
+		(0,
+		 "Altered buffer value at %03X, expected 0x%02X, found 0x%02X\n",
+		 512 + j * 2 + 1, 0xFF - j, dest[512 + j * 2 + 1]);
+	      return 0;
+	    }
+	}
+      ECPByteMode ();
+    }
+
+  for (i = 0; i < 10; i++)
+    ECPBufferWrite (1024, dest);
+
+  breg = ECPRegisterRead (0x0C);
+  if (breg != 0x04)
+    {
+      DBG (0, "Warning! expected reg0C=0x04, found 0x%02X! (%s:%d) \n", breg,
+	   __FILE__, __LINE__);
+    }
+
+  ECPRegisterWrite (0x13, 0x01);
+  ECPRegisterWrite (0x13, 0x00);
+  ECPRegisterWrite (0x0A, 0x18);
+
+  /* reset printer ? */
+  Outb (DATA, 0x00);
+  Outb (CONTROL, 0x00);
+  Outb (CONTROL, 0x04);
+
+  for (i = 0; i < 3; i++)
+    {				/* will go in a function */
+      ClearRegister (0);
+      if (WaitAck () != 1)
+	{
+	  DBG (0, "ProbeECP failed because of WaitAck() (%s:%d) \n", __FILE__,
+	       __LINE__);
+	  /* return 0; may fail without harm ... ??? */
+	}
+      /* are these 2 out really needed ? */
+      PS2RegisterWrite (0x08, 0x01);
+      Outb (CONTROL, 0x0C);	/* select + reset */
+      Outb (CONTROL, 0x04);	/* reset */
+    }
+
+  /* prologue of the 'rotate test' */
+  ClearRegister (0);
+  breg = PS2Something (0x10);
+  if (breg != 0x0B)
+    {
+      DBG (0,
+	   "PS2Something returned 0x%02X, 0x0B expected (%s:%d)\n", breg,
+	   __FILE__, __LINE__);
+    }
+  Outb (CONTROL, 0x04);		/* reset */
+
+  if (Init005 (0x80))
+    {
+      DBG (0, "Init005(0x80) failed... (%s:%d)\n", __FILE__, __LINE__);
+    }
+  DBG (16, "Init005(0x80) passed... (%s:%d)\n", __FILE__, __LINE__);
+  if (Init005 (0xEC))
+    {
+      DBG (0, "Init005(0xEC) failed... (%s:%d)\n", __FILE__, __LINE__);
+    }
+  DBG (16, "Init005(0xEC) passed... (%s:%d)\n", __FILE__, __LINE__);
+
+  for (i = 0; i < 256; i++)
+    {
+      REGISTERWRITE (0x0A, i);
+      REGISTERREAD (0x0A, i);
+      REGISTERWRITE (0x0A, 0xFF - i);
+      REGISTERREAD (0x0A, 0xFF - i);
+    }
+  DBG (16, "ECPProbe(), write/read buffer loop passed (%s:%d)\n", __FILE__,
+       __LINE__);
+
+  REGISTERWRITE (0x13, 0x01);
+  REGISTERWRITE (0x13, 0x00);
+  REGISTERWRITE (0x0A, 0x11);
+
+  /* should be a function */
+  /* in ProbeEPP(), we begin 32 bit mode test here */
+  for (i = 0; i < 10; i++)
+    {
+      ECPCompatMode ();
+
+      ECPBufferRead (0x400, dest);
+      /* check content of the returned buffer */
+      for (j = 0; j < 256; j++)
+	{
+	  if (dest[j * 2] != j)
+	    {
+	      DBG (0,
+		   "Altered buffer value at %03X, expected %02X, found %02X\n",
+		   j * 2, j, dest[j * 2]);
+	      return 0;
+	    }
+	  if (dest[j * 2 + 1] != 0xFF - j)
+	    {
+	      DBG
+		(0,
+		 "Altered buffer value at %03X, expected %02X, found %02X\n",
+		 j * 2 + 1, 0xFF - j, dest[j * 2 + 1]);
+	      return 0;
+	    }
+	  if (dest[512 + j * 2] != j)
+	    {
+	      DBG (0,
+		   "Altered buffer value at %03X, expected %02X, found %02X\n",
+		   512 + j * 2, j, dest[512 + j * 2]);
+	      return 0;
+	    }
+	  if (dest[512 + j * 2 + 1] != 0xFF - j)
+	    {
+	      DBG
+		(0,
+		 "Altered buffer value at %03X, expected 0x%02X, found 0x%02X\n",
+		 512 + j * 2 + 1, 0xFF - j, dest[512 + j * 2 + 1]);
+	      return 0;
+	    }
+	}
+      ECPByteMode ();
+    }
+
+  for (i = 0; i < 10; i++)
+    ECPBufferWrite (1024, dest);
+
+  REGISTERREAD (0x0C, 0x04);
+  REGISTERWRITE (0x13, 0x01);
+  REGISTERWRITE (0x13, 0x00);
+  REGISTERWRITE (0x0A, 0x18);
+  WaitAck ();
+
+  return 1;
+}
+
+
+
 /* 1: OK
    0: probe failed */
 
@@ -5197,7 +6370,7 @@ int
 sanei_umax_pp_ProbeScanner (int recover)
 {
   int tmp, i, j;
-  int reg;
+  int reg, nb;
   unsigned char *dest = NULL;
   int initbuf[2049];
   int voidbuf[2049];
@@ -5336,16 +6509,17 @@ sanei_umax_pp_ProbeScanner (int recover)
 
   /* test PS2 mode */
 
-  tmp = SlowNibbleRegisterRead (0x0B);
+  tmp = PS2RegisterRead (0x0B);
   if (tmp == 0xC7)
     {
       /* epat C7 detected */
-      DBG (16, "SlowNibbleRegisterRead(0x0B)=0x%X passed...\n", tmp);
+      DBG (16, "PS2RegisterRead(0x0B)=0x%X passed...\n", tmp);
 
-      WriteSlow (8, 0);
-      DBG (16, "WriteSlow(8,0) passed...   (%s:%d)\n", __FILE__, __LINE__);
+      PS2RegisterWrite (8, 0);
+      DBG (16, "PS2RegisterWrite(8,0) passed...   (%s:%d)\n", __FILE__,
+	   __LINE__);
 
-      tmp = SlowNibbleRegisterRead (0x0A);
+      tmp = PS2RegisterRead (0x0A);
       if (tmp != 0x00)
 	{
 	  if (tmp == 0x1C)
@@ -5359,7 +6533,7 @@ sanei_umax_pp_ProbeScanner (int recover)
 		   __LINE__);
 	    }
 	}
-      DBG (16, "SlowNibbleRegisterRead(0x0A)=0x%X passed ...(%s:%d)\n", tmp,
+      DBG (16, "PS2RegisterRead(0x0A)=0x%X passed ...(%s:%d)\n", tmp,
 	   __FILE__, __LINE__);
 
     }
@@ -5367,6 +6541,12 @@ sanei_umax_pp_ProbeScanner (int recover)
     {
       DBG (0, "Found 0x%X expected 0xC7 or 0x88  (%s:%d)\n", tmp, __FILE__,
 	   __LINE__);
+      if (tmp == 0xFF)
+	{
+	  DBG (0,
+	       "It is likely that the hardware adress (0x%X) you specified is wrong\n",
+	       gPort);
+	}
       return 0;
     }
 
@@ -5393,11 +6573,10 @@ sanei_umax_pp_ProbeScanner (int recover)
 
   /* register 0x0F used only once: model number ? Or ASIC revision ? */
   /* comm mode ?                                                     */
-  model = SlowNibbleRegisterRead (0x0F);
+  model = PS2RegisterRead (0x0F);
   DBG (1, "UMAX Astra 1220/1600/2000 P ASIC detected (mode=%d)\n", model);
   SetModel (model);
-  DBG (16, "SlowNibbleRegisterRead(0x0F) passed... (%s:%d)\n", __FILE__,
-       __LINE__);
+  DBG (16, "PS2RegisterRead(0x0F) passed... (%s:%d)\n", __FILE__, __LINE__);
 
   /* scanner powered off */
   if (model == 0x1B)
@@ -5421,7 +6600,7 @@ sanei_umax_pp_ProbeScanner (int recover)
   WRITESLOW (0x0E, 0x0F);
   WRITESLOW (0x0F, 0x0C);
   WRITESLOW (0x0C, 0x04);
-  tmp = SlowNibbleRegisterRead (0x0D);
+  tmp = PS2RegisterRead (0x0D);
   if ((tmp != 0x00) && (tmp != 0x40))
     {
       DBG
@@ -5434,299 +6613,96 @@ sanei_umax_pp_ProbeScanner (int recover)
     {
     case 0x1F:
       WRITESLOW (0x12, 0x14);
-      SLOWNIBBLEREGISTEREAD (0x12, 0x10);
+      SLOWNIBBLEREGISTERREAD (0x12, 0x10);
       break;
     case 0x07:
       WRITESLOW (0x12, 0x00);
-      SLOWNIBBLEREGISTEREAD (0x12, 0x00);
+      SLOWNIBBLEREGISTERREAD (0x12, 0x00);
       /* we may get 0x20, in this case some color aberration may occur */
       /* must depend on the parport */
       /* model 0x07 + 0x00=>0x20=2000P */
       break;
     default:
       WRITESLOW (0x12, 0x00);
-      SLOWNIBBLEREGISTEREAD (0x12, 0x20);
+      SLOWNIBBLEREGISTERREAD (0x12, 0x20);
       break;
     }
-  SLOWNIBBLEREGISTEREAD (0x0D, 0x18);
-  SLOWNIBBLEREGISTEREAD (0x0C, 0x04);
-  SLOWNIBBLEREGISTEREAD (0x0A, 0x00);
+  SLOWNIBBLEREGISTERREAD (0x0D, 0x18);
+  SLOWNIBBLEREGISTERREAD (0x0C, 0x04);
+  SLOWNIBBLEREGISTERREAD (0x0A, 0x00);
   WRITESLOW (0x0E, 0x0A);
   WRITESLOW (0x0F, 0x00);
   WRITESLOW (0x0E, 0x0D);
   WRITESLOW (0x0F, 0x00);
-
-  /* write/read full buffer */
-  for (i = 0; i < 256; i++)
+  dest = (unsigned char *) malloc (65536);
+  if (dest == NULL)
     {
-      WRITESLOW (0x0A, i);
-      SLOWNIBBLEREGISTEREAD (0x0A, i);
-      WRITESLOW (0x0A, 0xFF - i);
-      SLOWNIBBLEREGISTEREAD (0x0A, 0xFF - i);
+      DBG (0, "Failed to allocate 64K (%s:%d)\n", __FILE__, __LINE__);
+      return 0;
     }
 
-  /* end test for nibble byte/byte mode */
-
-  /* now we try nibble buffered mode */
-  WRITESLOW (0x13, 0x01);
-  WRITESLOW (0x13, 0x00);	/*reset something */
-  WRITESLOW (0x0A, 0x11);
-
-  /* read buffer */
-  dest = (unsigned char *) (malloc (65536));
-  for (i = 0; i < 10; i++)	/* 10 ~ 11 ? */
-    {
-      NibbleReadBuffer (0x400, dest);
-      DBG (16, "Loop %d: NibbleReadBuffer passed ... (%s:%d)\n", i, __FILE__,
-	   __LINE__);
+  gMode = UMAX_PP_PARPORT_PS2;
+  if (ProbePS2 (dest))
+    {				/* PS2 mode works */
+      DBG (16, "ProbePS2 passed ... (%s:%d)\n", __FILE__, __LINE__);
+      gProbed = UMAX_PP_PARPORT_PS2;
     }
 
-  /* write buffer */
-  for (i = 0; i < 10; i++)
-    {
-      WriteBuffer (0x400, dest);
-      DBG (16, "Loop %d: WriteBuffer passed ... (%s:%d)\n", i, __FILE__,
-	   __LINE__);
-    }
-
-  SLOWNIBBLEREGISTEREAD (0x0C, 0x04);
-  WRITESLOW (0x13, 0x01);
-  WRITESLOW (0x13, 0x00);
-  WRITESLOW (0x0A, 0x18);
   Outb (CONTROL, 4);
-  SLOWNIBBLEREGISTEREAD (0x0A, 0x18);
+  SLOWNIBBLEREGISTERREAD (0x0A, 0x18);
   WRITESLOW (0x08, 0x40);
   WRITESLOW (0x08, 0x60);
   WRITESLOW (0x08, 0x22);
 
+  gMode = UMAX_PP_PARPORT_EPP;
+  if (ProbeEPP (dest))
+    {				/* EPP mode works */
+      gProbed = UMAX_PP_PARPORT_EPP;
+      gMode = UMAX_PP_PARPORT_EPP;
+      DBG (16, "ProbeEPP passed ... (%s:%d)\n", __FILE__, __LINE__);
+    }
+  else
+    {				/* EPP fails, try ECP */
+      DBG (16, "ProbeEPP failed ... (%s:%d)\n", __FILE__, __LINE__);
+      gMode = UMAX_PP_PARPORT_ECP;
+      if (ProbeECP (dest))
+	{			/* ECP mode works */
+	  DBG (16, "ProbeECP passed ... (%s:%d)\n", __FILE__, __LINE__);
+	  gProbed = UMAX_PP_PARPORT_ECP;
+	}
+      else
+	{			/* ECP and EPP fail, give up */
+	  /* PS2 could be used */
+	  DBG (16, "ProbeECP failed ... (%s:%d)\n", __FILE__, __LINE__);
+	  DBG (1, "No EPP or ECP mode working, giving up ... (%s:%d)\n",
+	       __FILE__, __LINE__);
+	  free (dest);
+	  return 0;
+	}
+    }
 
-  /* test EPP MODE */
-  SetEPPMode (8);
-  ClearRegister (0);
-  DBG (16, "ClearRegister(0) passed... (%s:%d)\n", __FILE__, __LINE__);
-  WRITESLOW (0x08, 0x22);
-  Init001 ();
-  DBG (16, "Init001() passed... (%s:%d)\n", __FILE__, __LINE__);
-  gEPAT = 0xC7;
-  Init002 (0);
-  DBG (16, "Init002(0) passed... (%s:%d)\n", __FILE__, __LINE__);
-
-  REGISTERWRITE (0x0A, 0);
-
-  /* catch any failure to read back data in EPP mode */
-  reg = RegisterRead (0x0A);
-  if (reg != 0)
+  /* some operations here may have to go into ProbeEPP/ProbeECP */
+  g6FE = 1;
+  if (gMode == UMAX_PP_PARPORT_ECP)
     {
-      DBG (0, "RegisterRead, found 0x%X expected 0x00 (%s:%d)\n", reg,
-	   __FILE__, __LINE__);
-      if (reg == 0xFF)
+      WRITESLOW (0x08, 0x01);
+      Outb (CONTROL, 0x0C);
+      Outb (CONTROL, 0x04);
+      ClearRegister (0);
+      tmp = PS2Something (0x10);
+      if (tmp != 0x0B)
 	{
 	  DBG (0,
-	       "*** It appears that EPP data transfer doesn't work    ***\n");
-	  DBG (0,
-	       "*** Please read SETTING EPP section in sane-umax_pp.5 ***\n");
+	       "PS2Something returned 0x%02X, 0x0B expected (%s:%d)\n", tmp,
+	       __FILE__, __LINE__);
 	}
-      return 0;
     }
   else
     {
-      gMode = UMAX_PP_PARPORT_EPP;
-      DBG (16, "RegisterRead(0x0A)=0x00 passed... (%s:%d)\n", __FILE__,
-	   __LINE__);
+      WRITESLOW (0x08, 0x21);
+      Init001 ();
+      DBG (16, "Init001() passed... (%s:%d)\n", __FILE__, __LINE__);
     }
-  RegisterWrite (0x0A, 0xFF);
-  DBG (16, "RegisterWrite(0x%X,0x%X) passed...   (%s:%d)\n", 0x0A, 0xFF,
-       __FILE__, __LINE__);
-  REGISTERREAD (0x0A, 0xFF);
-  for (i = 1; i < 256; i++)
-    {
-      REGISTERWRITE (0x0A, i);
-      REGISTERREAD (0x0A, i);
-      REGISTERWRITE (0x0A, 0xFF - i);
-      REGISTERREAD (0x0A, 0xFF - i);
-    }
-
-  REGISTERWRITE (0x13, 0x01);
-  REGISTERWRITE (0x13, 0x00);
-  REGISTERWRITE (0x0A, 0x11);
-
-  for (i = 0; i < 10; i++)
-    {
-      EPPReadBuffer (0x400, dest);
-      for (j = 0; j < 512; j++)
-	{
-	  if (dest[2 * j] != (j % 256))
-	    {
-	      DBG (0, "Loop %d, char %d EPPReadBuffer failed! (%s:%d)\n", i,
-		   j * 2, __FILE__, __LINE__);
-	      return 0;
-	    }
-	  if (dest[2 * j + 1] != (0xFF - (j % 256)))
-	    {
-	      DBG (0, "Loop %d, char %d EPPReadBuffer failed! (%s:%d)\n", i,
-		   j * 2 + 1, __FILE__, __LINE__);
-	      return 0;
-	    }
-	}
-      DBG (16, "Loop %d: EPPReadBuffer(0x400,dest) passed... (%s:%d)\n", i,
-	   __FILE__, __LINE__);
-    }
-
-  for (i = 0; i < 10; i++)
-    {
-      EPPWriteBuffer (0x400, dest);
-      DBG (16, "Loop %d: EPPWriteBuffer(0x400,dest) passed... (%s:%d)\n", i,
-	   __FILE__, __LINE__);
-    }
-
-
-  REGISTERREAD (0x0C, 4);
-  REGISTERWRITE (0x13, 0x01);
-  REGISTERWRITE (0x13, 0x00);
-  REGISTERWRITE (0x0A, 0x18);
-
-  Outb (DATA, 0x0);
-  ClearRegister (0);
-  Init001 ();
-
-  if (CheckEPAT () != 0)
-    return 0;
-  DBG (16, "CheckEPAT() passed... (%s:%d)\n", __FILE__, __LINE__);
-
-  tmp = Inb (CONTROL) & 0x1F;
-  Outb (CONTROL, tmp);
-  Outb (CONTROL, tmp);
-
-  WRITESLOW (0x68, 0x21);
-  Init001 ();
-  DBG (16, "Init001() passed... (%s:%d)\n", __FILE__, __LINE__);
-  WRITESLOW (0x68, 0x21);
-  Init001 ();
-  DBG (16, "Init001() passed... (%s:%d)\n", __FILE__, __LINE__);
-  SPPResetLPT ();
-
-
-  if (Init005 (0x80))
-    {
-      DBG (0, "Init005(0x80) failed... (%s:%d)\n", __FILE__, __LINE__);
-    }
-  DBG (16, "Init005(0x80) passed... (%s:%d)\n", __FILE__, __LINE__);
-  if (Init005 (0xEC))
-    {
-      DBG (0, "Init005(0xEC) failed... (%s:%d)\n", __FILE__, __LINE__);
-    }
-  DBG (16, "Init005(0xEC) passed... (%s:%d)\n", __FILE__, __LINE__);
-
-
-  /* write/read buffer loop */
-  for (i = 0; i < 256; i++)
-    {
-      REGISTERWRITE (0x0A, i);
-      REGISTERREAD (0x0A, i);
-      REGISTERWRITE (0x0A, 0xFF - i);
-      REGISTERREAD (0x0A, 0xFF - i);
-    }
-  DBG (16, "EPP write/read buffer loop passed... (%s:%d)\n", __FILE__,
-       __LINE__);
-
-  REGISTERWRITE (0x13, 0x01);
-  REGISTERWRITE (0x13, 0x00);
-  REGISTERWRITE (0x0A, 0x11);
-
-  /* test EPP32 mode */
-  /* we set 32 bits I/O mode first, then step back to */
-  /* 8bits if tests fail                              */
-  SetEPPMode (32);
-  for (i = 0; (i < 10) && (GetEPPMode () == 32); i++)
-    {
-      EPPRead32Buffer (0x400, dest);
-      /* if 32 bit I/O work, we should have a buffer */
-      /* filled by 00 FF 01 FE 02 FD 03 FC .....     */
-      for (j = 0; j < 0x200; j++)
-	{
-	  if ((dest[j * 2] != j % 256)
-	      || (dest[j * 2 + 1] != 0xFF - (j % 256)))
-	    {
-	      DBG (1, "Setting EPP I/O to 8 bits ... (%s:%d)\n", __FILE__,
-		   __LINE__);
-	      SetEPPMode (8);
-	      /* leave out current loop since an error was detected */
-	      break;
-	    }
-	}
-      DBG (16, "Loop %d: EPPRead32Buffer(0x400) passed... (%s:%d)\n", i,
-	   __FILE__, __LINE__);
-    }
-  DBG (1, "%d bits EPP data transfer\n", GetEPPMode ());
-
-
-  for (i = 0; i < 10; i++)
-    {
-      EPPWrite32Buffer (0x400, dest);
-      DBG (16, "Loop %d: EPPWrite32Buffer(0x400,dest) passed... (%s:%d)\n", i,
-	   __FILE__, __LINE__);
-    }
-
-
-
-  REGISTERREAD (0x0C, 0x04);
-  REGISTERWRITE (0x13, 0x01);
-  REGISTERWRITE (0x13, 0x00);
-  REGISTERWRITE (0x0A, 0x18);
-  WRITESLOW (0x68, 0x21);
-  Init001 ();
-  DBG (16, "Init001() passed... (%s:%d)\n", __FILE__, __LINE__);
-  SPPResetLPT ();
-
-  if (Init005 (0x80))
-    {
-      DBG (0, "Init005(0x80) failed... (%s:%d)\n", __FILE__, __LINE__);
-    }
-  DBG (16, "Init005(0x80) passed... (%s:%d)\n", __FILE__, __LINE__);
-  if (Init005 (0xEC))
-    {
-      DBG (0, "Init005(0xEC) failed... (%s:%d)\n", __FILE__, __LINE__);
-    }
-  DBG (16, "Init005(0xEC) passed... (%s:%d)\n", __FILE__, __LINE__);
-
-
-  /* write/read buffer loop */
-  for (i = 0; i < 256; i++)
-    {
-      REGISTERWRITE (0x0A, i);
-      REGISTERREAD (0x0A, i);
-      REGISTERWRITE (0x0A, 0xFF - i);
-      REGISTERREAD (0x0A, 0xFF - i);
-    }
-  DBG (16, "EPP write/read buffer loop passed... (%s:%d)\n", __FILE__,
-       __LINE__);
-
-  REGISTERWRITE (0x13, 0x01);
-  REGISTERWRITE (0x13, 0x00);
-  REGISTERWRITE (0x0A, 0x11);
-
-
-  for (i = 0; i < 10; i++)
-    {
-      EPPRead32Buffer (0x400, dest);
-      DBG (16, "Loop %d: EPPRead32Buffer(0x400) passed... (%s:%d)\n", i,
-	   __FILE__, __LINE__);
-    }
-
-  for (i = 0; i < 10; i++)
-    {
-      EPPWrite32Buffer (0x400, dest);
-      DBG (16, "Loop %d: EPPWrite32Buffer(0x400,dest) passed... (%s:%d)\n", i,
-	   __FILE__, __LINE__);
-    }
-  REGISTERREAD (0x0C, 0x04);
-  REGISTERWRITE (0x13, 0x01);
-  REGISTERWRITE (0x13, 0x00);
-  REGISTERWRITE (0x0A, 0x18);
-  WRITESLOW (0x68, 0x21);
-  g6FE = 1;
-  Init001 ();
-  DBG (16, "Init001() passed... (%s:%d)\n", __FILE__, __LINE__);
 
 
   reg = RegisterRead (0x0D);
@@ -5742,7 +6718,7 @@ sanei_umax_pp_ProbeScanner (int recover)
   REGISTERWRITE (0x0F, 0x1C);
 
 
-  reg = RegisterRead (0x0D);
+  reg = RegisterRead (0x0D);	/* 0x48 expected */
   reg = RegisterRead (0x0D);
   reg = RegisterRead (0x0D);
   reg = (reg & 0xB7) | 0x03;
@@ -5750,6 +6726,7 @@ sanei_umax_pp_ProbeScanner (int recover)
   DBG (16, "(%s:%d) passed \n", __FILE__, __LINE__);
 
   reg = RegisterRead (0x12);	/* 0x10 for model 0x0F, 0x20 for model 0x07 */
+  /* 0x00 when in ECP mode ... */
   reg = reg & 0xEF;
   RegisterWrite (0x12, reg);
   DBG (16, "(%s:%d) passed \n", __FILE__, __LINE__);
@@ -5761,49 +6738,26 @@ sanei_umax_pp_ProbeScanner (int recover)
 	   __FILE__, __LINE__);
     }
   DBG (16, "(%s:%d) passed \n", __FILE__, __LINE__);
-  Init021 ();
-  DBG (16, "Init021() passed... (%s:%d)\n", __FILE__, __LINE__);
+
+  /*Inb(CONTROL);       ECP 0x04 expected */
+  Disconnect ();
+  DBG (16, "Disconnect() passed... (%s:%d)\n", __FILE__, __LINE__);
+  Connect ();
+  DBG (16, "Connect() passed... (%s:%d)\n", __FILE__, __LINE__);
 
 
   /* some sort of countdown, some warming-up ? */
   /* maybe some pauses are needed              */
   /* if (model == 0x07) */
   {
-    REGISTERWRITE (0x0A, 0x00);
-    reg = RegisterRead (0x0D);
-    reg = (reg & 0xE8);
-    RegisterWrite (0x0D, reg);
-    DBG (16, "(%s:%d) passed \n", __FILE__, __LINE__);
-    Init022 ();
-    DBG (16, "Init022() passed... (%s:%d)\n", __FILE__, __LINE__);
-    reg = RegisterRead (0x0B);
-    if (reg != gEPAT)
-      {
-	DBG (0, "Error! expected reg0B=0x%02X, found 0x%02X! (%s:%d) \n",
-	     gEPAT, reg, __FILE__, __LINE__);
-	return 0;
-      }
+    /* REGISTERWRITE (0x0A, 0x00);
+       reg = RegisterRead (0x0D);
+       reg = (reg & 0xE8);
+       RegisterWrite (0x0D, reg);
+       DBG (16, "(%s:%d) passed \n", __FILE__, __LINE__); */
+    Epilogue ();
+    Prologue (0x10);
 
-    reg = RegisterRead (0x0D);
-    reg = (reg & 0xE8) | 0x43;
-    RegisterWrite (0x0D, reg);
-    REGISTERWRITE (0x0C, 0x04);
-    reg = RegisterRead (0x0A);
-    if (reg != 0x00)
-      {
-	DBG (0, "Warning! expected reg0A=0x00, found 0x%02X! (%s:%d) \n",
-	     reg, __FILE__, __LINE__);
-      }
-
-    REGISTERWRITE (0x0A, 0x1C);
-    REGISTERWRITE (0x08, 0x21);
-    REGISTERWRITE (0x0E, 0x0F);
-    REGISTERWRITE (0x0F, 0x0C);
-    usleep (10000);
-
-    REGISTERWRITE (0x0A, 0x1C);
-    REGISTERWRITE (0x0E, 0x10);
-    REGISTERWRITE (0x0F, 0x1C);
     reg = RegisterRead (0x13);
     if (reg != 0x00)
       {
@@ -5813,39 +6767,39 @@ sanei_umax_pp_ProbeScanner (int recover)
     REGISTERWRITE (0x13, 0x81);
     usleep (10000);
     REGISTERWRITE (0x13, 0x80);
-
-    REGISTERWRITE (0x0E, 0x04);
+    /* could it be step-motor values ? */
+    REGISTERWRITE (0x0E, 0x04);	/* FF->R04 */
     REGISTERWRITE (0x0F, 0xFF);
-    REGISTERWRITE (0x0E, 0x05);
+    REGISTERWRITE (0x0E, 0x05);	/* 03->R05 */
     REGISTERWRITE (0x0F, 0x03);
     REGISTERWRITE (0x10, 0x66);
     usleep (10000);
 
-    REGISTERWRITE (0x0E, 0x04);
+    REGISTERWRITE (0x0E, 0x04);	/* FF->R04 */
     REGISTERWRITE (0x0F, 0xFF);
-    REGISTERWRITE (0x0E, 0x05);
+    REGISTERWRITE (0x0E, 0x05);	/* 01 ->R05 */
     REGISTERWRITE (0x0F, 0x01);
     REGISTERWRITE (0x10, 0x55);
     usleep (10000);
 
-    REGISTERWRITE (0x0E, 0x04);
+    REGISTERWRITE (0x0E, 0x04);	/* FF -> R04 */
     REGISTERWRITE (0x0F, 0xFF);
-    REGISTERWRITE (0x0E, 0x05);
+    REGISTERWRITE (0x0E, 0x05);	/* 00 -> R05 */
     REGISTERWRITE (0x0F, 0x00);
     REGISTERWRITE (0x10, 0x44);
     usleep (10000);
 
-    REGISTERWRITE (0x0E, 0x04);
+    REGISTERWRITE (0x0E, 0x04);	/* 7F -> R04 */
     REGISTERWRITE (0x0F, 0x7F);
-    REGISTERWRITE (0x0E, 0x05);
+    REGISTERWRITE (0x0E, 0x05);	/* 00 -> R05 */
     REGISTERWRITE (0x0F, 0x00);
     REGISTERWRITE (0x10, 0x33);
     usleep (10000);
 
-    REGISTERWRITE (0x0E, 0x04);
+    REGISTERWRITE (0x0E, 0x04);	/* 3F -> R04 */
     REGISTERWRITE (0x0F, 0x3F);
     REGISTERWRITE (0x0E, 0x05);
-    REGISTERWRITE (0x0F, 0x00);
+    REGISTERWRITE (0x0F, 0x00);	/* 00 -> R05 */
     REGISTERWRITE (0x10, 0x22);
     usleep (10000);
 
@@ -5878,40 +6832,14 @@ sanei_umax_pp_ProbeScanner (int recover)
        } */
     REGISTERWRITE (0x13, 0x00);
   }
-
-  REGISTERWRITE (0x0A, 0x00);
-  reg = RegisterRead (0x0D);
-  reg = (reg & 0xE8);
-  RegisterWrite (0x0D, reg);
+/* end of countdown */
   DBG (16, "(%s:%d) passed \n", __FILE__, __LINE__);
-  Init022 ();
-  DBG (16, "Init022() passed... (%s:%d)\n", __FILE__, __LINE__);
-  reg = RegisterRead (0x0B);
-  if (reg != gEPAT)
-    {
-      DBG (0, "Error! expected reg0B=0x%02X, found 0x%02X! (%s:%d) \n", gEPAT,
-	   reg, __FILE__, __LINE__);
-      return 0;
-    }
-
-  reg = RegisterRead (0x0D);
-  reg = (reg & 0xE8) | 0x43;
-  RegisterWrite (0x0D, reg);
-  REGISTERWRITE (0x0C, 0x04);
-  reg = RegisterRead (0x0A);
-  if (reg != 0x00)
-    {
-      DBG (0, "Warning! expected reg0A=0x00, found 0x%02X! (%s:%d) \n", reg,
-	   __FILE__, __LINE__);
-    }
-
-  REGISTERWRITE (0x0A, 0x1C);
-  REGISTERWRITE (0x08, 0x21);
-  REGISTERWRITE (0x0E, 0x0F);
-  REGISTERWRITE (0x0F, 0x0C);
-  REGISTERWRITE (0x0A, 0x1C);
-  REGISTERWRITE (0x0E, 0x10);
-  REGISTERWRITE (0x0F, 0x1C);
+  /* *NOT* Epilogue(); (when EPP) */
+  /*REGISTERWRITE (0x0A, 0x00);
+     REGISTERREAD (0x0D, 0x40);
+     REGISTERWRITE (0x0D, 0x00); */
+  Epilogue ();
+  Prologue (0x10);
   REGISTERWRITE (0x0E, 0x0D);
   REGISTERWRITE (0x0F, 0x00);
   REGISTERWRITE (0x0A, 0x1C);
@@ -5922,7 +6850,7 @@ sanei_umax_pp_ProbeScanner (int recover)
       DBG (0, "Fonc001() failed ! (%s:%d) \n", __FILE__, __LINE__);
       return 0;
     }
-  DBG (16, "Fct001() passed (%s:%d) \n", __FILE__, __LINE__);
+  DBG (16, "Fonc001() passed (%s:%d) \n", __FILE__, __LINE__);
   reg = RegisterRead (0x19) & 0xC8;
   /* if reg=E8 or D8 , we have a 'messed' scanner */
 
@@ -5993,25 +6921,54 @@ sanei_umax_pp_ProbeScanner (int recover)
   REGISTERWRITE (0x1A, 0x00);
   REGISTERWRITE (0x1A, 0x0C);
 
+
   REGISTERWRITE (0x0A, 0x11);	/* start */
-  for (i = 0; i < 150; i++)
+  if (gMode == UMAX_PP_PARPORT_ECP)
     {
-      EPPWrite32Buffer (0x400, dest);
-      DBG (16, "Loop %d: EPPWrite32Buffer(0x400,dest) passed... (%s:%d)\n", i,
+      nb = 300;
+      nb = 150;
+    }
+  else
+    {
+      nb = 150;
+    }
+  for (i = 0; i < nb; i++)	/* 300 for ECP ??? */
+    {
+      BufferWrite (0x400, dest);
+      DBG (16, "Loop %d: BufferWrite(0x400,dest) passed... (%s:%d)\n", i,
 	   __FILE__, __LINE__);
     }
   REGISTERWRITE (0x0A, 0x18);	/* end */
 
   /* read them back */
   REGISTERWRITE (0x0A, 0x11);	/*start transfert */
-  for (i = 0; i < 150; i++)
+  if (gMode == UMAX_PP_PARPORT_ECP)
     {
-      EPPRead32Buffer (0x400, dest);
-      DBG (16, "Loop %d: EPPRead32Buffer(0x400,dest) passed... (%s:%d)\n", i,
+      ECPSetBuffer (0x400); /* XXX ??? XXX */
+    }
+
+  for (i = 0; i < nb; i++)	/* 300 for ECP ??? */
+    {
+      BufferRead (0x400, dest);
+      DBG (16, "Loop %d: BufferRead(0x400,dest) passed... (%s:%d)\n", i,
 	   __FILE__, __LINE__);
     }
   REGISTERWRITE (0x0A, 0x18);	/*end transfer */
 
+  /* fully disconnect, then reconnect */
+  if (gMode == UMAX_PP_PARPORT_ECP)
+    {
+      Epilogue ();
+      SendCommand (0xE0);
+      Outb (DATA, 0xFF);
+      Outb (DATA, 0xFF);
+      ClearRegister (0);
+      WRITESLOW (0x0E, 0x0A);
+      SLOWNIBBLEREGISTERREAD (0x0F, 0x00);
+      WRITESLOW (0x0F, 0x08);
+      WRITESLOW (0x08, 0x10);	/* 0x10 ?? */
+      Prologue (0x10);
+    }
 
 
   /* almost CmdSync(0x00) which halts any pending operation */
@@ -6049,8 +7006,8 @@ sanei_umax_pp_ProbeScanner (int recover)
     }
 
   /* set port to its initial state */
-  Outb (DATA, 0x04);
-  Outb (CONTROL, 0x0C);
+  Outb (DATA, gData);
+  Outb (CONTROL, gControl);
 
   free (dest);
   DBG (1, "Probe done ...\n");
@@ -6066,39 +7023,23 @@ deconnect_epat (void)
   REGISTERWRITE (0x0A, 0x00);
   REGISTERREAD (0x0D, 0x40);
   REGISTERWRITE (0x0D, 0x00);
-  if (GetModel () != 0x07)
-    SendCommand (40);
-  SendCommand (30);
-  Outb (DATA, gData);
-  Outb (CONTROL, gControl);
+  Disconnect ();
   return 1;
 }
 
 
 static int
-connect_epat (void)
+connect_epat (int r08)
 {
   int reg;
 
-
-  gData = Inb (DATA);
-  gControl = Inb (CONTROL) & 0x1F;
-  Outb (CONTROL, gControl);
-  gControl = Inb (CONTROL) & 0x1F;
-  Outb (CONTROL, gControl);
-  if (SendCommand (0xE0) != 1)
+  if (Connect () != 1)
     {
-      DBG (0, "connect_epat: SendCommand(0xE0) failed! (%s:%d)\n", __FILE__,
+      DBG (0, "connect_epat: Connect() failed! (%s:%d)\n", __FILE__,
 	   __LINE__);
-      /* we try to clean all */
-      Epilogue ();
       return 0;
     }
-  Outb (DATA, 0x00);
-  Outb (CONTROL, 0x01);
-  Outb (CONTROL, 0x04);
-  ClearRegister (0);
-  Init001 ();
+
   reg = RegisterRead (0x0B);
   if (reg != gEPAT)
     {
@@ -6107,12 +7048,12 @@ connect_epat (void)
       DBG (0, "Error! expected reg0B=0x%02X, found 0x%02X! (%s:%d) \n", gEPAT,
 	   reg, __FILE__, __LINE__);
       /* we try to clean all */
-      Epilogue ();
+      Disconnect ();
       return 0;
     }
   reg = RegisterRead (0x0D);
   reg = (reg | 0x43) & 0xEB;
-  RegisterWrite (0x0D, reg);
+  REGISTERWRITE (0x0D, reg);
   REGISTERWRITE (0x0C, 0x04);
   reg = RegisterRead (0x0A);
   if (reg != 0x00)
@@ -6123,12 +7064,26 @@ connect_epat (void)
 	   __FILE__, __LINE__);
     }
   REGISTERWRITE (0x0A, 0x1C);
-  REGISTERWRITE (0x08, 0x21);
+  if (r08 != 0)
+    {
+      if (gMode == UMAX_PP_PARPORT_ECP)
+	{
+	  REGISTERWRITE (0x08, r08);	/* 0x01 or 0x10 ??? */
+	}
+      else
+	{
+	  REGISTERWRITE (0x08, 0x21);
+	}
+    }
   REGISTERWRITE (0x0E, 0x0F);
   REGISTERWRITE (0x0F, 0x0C);
   REGISTERWRITE (0x0A, 0x1C);
   REGISTERWRITE (0x0E, 0x10);
   REGISTERWRITE (0x0F, 0x1C);
+  if (gMode == UMAX_PP_PARPORT_ECP)
+    {
+      REGISTERWRITE (0x0F, 0x00);
+    }
   return 1;
 }
 
@@ -6213,7 +7168,7 @@ deconnect_610P (void)
 }
 
 static int
-Prologue (void)
+Prologue (int r08)
 {
   switch (sanei_umax_pp_getastra ())
     {
@@ -6223,7 +7178,7 @@ Prologue (void)
     case 1600:
     case 2000:
     default:
-      return connect_epat ();
+      return connect_epat (r08);
     }
 }
 
@@ -6264,7 +7219,7 @@ CmdSet (int cmd, int len, int *val)
   word[2] = len % 256;
   word[3] = (cmd & 0x3F) | 0x80;
 
-  if (!Prologue ())
+  if (!Prologue (0x10))
     {
       DBG (0, "CmdSet: Prologue failed !   (%s:%d)\n", __FILE__, __LINE__);
       return 0;
@@ -6284,7 +7239,7 @@ CmdSet (int cmd, int len, int *val)
   if (len > 0)
     {
       /* send body */
-      if (!Prologue ())
+      if (!Prologue (0x10))
 	{
 	  DBG (0, "CmdSet: Prologue failed !   (%s:%d)\n", __FILE__,
 	       __LINE__);
@@ -6345,7 +7300,7 @@ CmdGet (int cmd, int len, int *val)
   word[4] = -1;
 
   /* send header */
-  if (!Prologue ())
+  if (!Prologue (0x10))
     {
       DBG (0, "CmdGet: Prologue failed !   (%s:%d)\n", __FILE__, __LINE__);
       return 0;
@@ -6364,7 +7319,7 @@ CmdGet (int cmd, int len, int *val)
 
 
   /* send header */
-  if (!Prologue ())
+  if (!Prologue (0x10))
     {
       DBG (0, "CmdGet: Prologue failed !   (%s:%d)\n", __FILE__, __LINE__);
       return 0;
@@ -6464,7 +7419,7 @@ CmdSetGet (int cmd, int len, int *val)
 
 /* 1 OK, 0 failed */
 static int
-CmdGetBuffer (int cmd, int len, unsigned char *buffer)
+CmdGetBuffer (int cmd, int len, unsigned char *buffer)	/* ECP OK */
 {
   int reg, tmp, i;
   int word[5], read;
@@ -6484,33 +7439,9 @@ CmdGetBuffer (int cmd, int len, unsigned char *buffer)
       return 0;
     }
   DBG (16, "(%s:%d) passed \n", __FILE__, __LINE__);
-  Init022 ();
-  DBG (16, "Init022() passed... (%s:%d)\n", __FILE__, __LINE__);
-  reg = RegisterRead (0x0B);
-  if (reg != gEPAT)
-    {
-      /* return -1 */
-      DBG (0, "Error! expected reg0B=0x%02X, found 0x%02X! (%s:%d) \n", gEPAT,
-	   reg, __FILE__, __LINE__);
-      return 0;
-    }
-  reg = RegisterRead (0x0D);
-  reg = (reg & 0xE8) | 0x43;
-  RegisterWrite (0x0D, reg);
-  REGISTERWRITE (0x0C, 0x04);
-  reg = RegisterRead (0x0A);
-  if (reg != 0x00)
-    {
-      DBG (0, "Warning! expected reg0A=0x00, found 0x%02X! (%s:%d) \n", reg,
-	   __FILE__, __LINE__);
-    }
-  REGISTERWRITE (0x0A, 0x1C);
-  REGISTERWRITE (0x08, 0x21);
-  REGISTERWRITE (0x0E, 0x0F);
-  REGISTERWRITE (0x0F, 0x0C);
-  REGISTERWRITE (0x0A, 0x1C);
-  REGISTERWRITE (0x0E, 0x10);
-  REGISTERWRITE (0x0F, 0x1C);
+
+  Prologue (0x10);
+
   REGISTERWRITE (0x0E, 0x0D);
   REGISTERWRITE (0x0F, 0x00);
 
@@ -6524,6 +7455,11 @@ CmdGetBuffer (int cmd, int len, unsigned char *buffer)
     {
       DBG (0, "CmdGetBuffer failed (%s:%d)\n", __FILE__, __LINE__);
       return 0;
+    }
+
+  if (gMode == UMAX_PP_PARPORT_ECP)
+    {
+      REGISTERWRITE (0x1A, 0x44);
     }
 
   read = 0;
@@ -6543,8 +7479,19 @@ CmdGetBuffer (int cmd, int len, unsigned char *buffer)
       needed = len - read;
       if (needed > 32768)
 	needed = 32768;
-      EPPBlockMode (0x80);
-      tmp = PausedReadBuffer (needed, buffer + read);
+      if (gMode == UMAX_PP_PARPORT_ECP)
+	{
+	  ECPCompatMode ();
+	  ECPSetBuffer (needed);
+	  tmp = ECPBufferRead (needed, buffer + read);
+	  DBG (16, "ECPBufferRead(%d,buffer+read) passed (%s:%d)\n", needed,
+	       __FILE__, __LINE__);
+	  REGISTERWRITE (0x1A, 0x84);
+	}
+      else
+	{
+	  tmp = PausedBufferRead (needed, buffer + read);
+	}
       if (tmp < needed)
 	{
 	  DBG (64, "CmdGetBuffer only got %d bytes out of %d ...(%s:%d)\n",
@@ -6588,6 +7535,10 @@ CmdGetBuffer (int cmd, int len, unsigned char *buffer)
 	    }
 
 	  /* signal we want next data chunk */
+	  if (gMode == UMAX_PP_PARPORT_ECP)
+	    {
+	      REGISTERWRITE (0x1A, 0x44);
+	    }
 	  reg = RegisterRead (0x0C);
 	  RegisterWrite (0x0C, reg | 0x40);
 	}
@@ -6615,7 +7566,7 @@ CmdGetBuffer32 (int cmd, int len, unsigned char *buffer)
   word[2] = len % 256;
   word[3] = (cmd & 0x3F) | 0x80 | 0x40;
 
-  if (!Prologue ())
+  if (!Prologue (0x10))
     {
       DBG (0, "CmdSet: Prologue failed !   (%s:%d)\n", __FILE__, __LINE__);
       return 0;
@@ -6632,7 +7583,7 @@ CmdGetBuffer32 (int cmd, int len, unsigned char *buffer)
   /* head end */
   Epilogue ();
 
-  Prologue ();
+  Prologue (0x10);
   REGISTERWRITE (0x0E, 0x0D);
   REGISTERWRITE (0x0F, 0x00);
 
@@ -6663,7 +7614,7 @@ CmdGetBuffer32 (int cmd, int len, unsigned char *buffer)
       if (read + 1700 < len)
 	{
 	  tmp = 1700;
-	  EPPRead32Buffer (tmp, buffer + read);
+	  BufferRead (tmp, buffer + read);
 	  reg = RegisterRead (0x19) & 0xF8;
 	  if ((read + tmp < len) && (reg & 0x08) == 0x08)
 	    {
@@ -6687,7 +7638,7 @@ CmdGetBuffer32 (int cmd, int len, unsigned char *buffer)
       else
 	{
 	  tmp = len - read;
-	  EPPRead32Buffer (tmp, buffer + read);
+	  BufferRead (tmp, buffer + read);
 	  read += tmp;
 	  if ((read < len))
 	    {
@@ -6710,17 +7661,16 @@ sanei_umax_pp_CmdSync (int cmd)
 {
   int word[5];
 
-  if (!Prologue ())
-    {
-      DBG (0, "CmdSync: Prologue failed !   (%s:%d)\n", __FILE__, __LINE__);
-    }
-
   /* compute word */
   word[0] = 0x00;
   word[1] = 0x00;
   word[2] = 0x00;
   word[3] = cmd;
 
+  if (!Prologue (0x10))
+    {
+      DBG (0, "CmdSync: Prologue failed !   (%s:%d)\n", __FILE__, __LINE__);
+    }
 
   /* send data */
   if (SendLength (word, 4) == 0)
@@ -6732,6 +7682,7 @@ sanei_umax_pp_CmdSync (int cmd)
 
   /* end OK */
   Epilogue ();
+
   return 1;
 }
 
@@ -6740,7 +7691,7 @@ sanei_umax_pp_CmdSync (int cmd)
 /* read data by chunk EXACTLY the width of the scan area in the given */
 /* resolution . If a valid file descriptor is given, we write data    */
 /* in it according to the color mode, before polling the scanner      */
-/* len should not be bigger than 2 Megs				      */
+/* len should not be bigger than 2 Megs                                      */
 
 int
 CmdGetBlockBuffer (int cmd, int len, int window, unsigned char *buffer)
@@ -6758,7 +7709,7 @@ CmdGetBlockBuffer (int cmd, int len, int window, unsigned char *buffer)
   word[2] = len % 256;
   word[3] = (cmd & 0x3F) | 0x80 | 0x40;
 
-  if (!Prologue ())
+  if (!Prologue (0x10))
     {
       DBG (0, "CmdGetBlockBuffer: Prologue failed !   (%s:%d)\n", __FILE__,
 	   __LINE__);
@@ -6776,7 +7727,7 @@ CmdGetBlockBuffer (int cmd, int len, int window, unsigned char *buffer)
 
 
 
-  if (!Prologue ())
+  if (!Prologue (0x10))
     {
       DBG (0, "CmdGetBlockBuffer: Prologue failed !   (%s:%d)\n", __FILE__,
 	   __LINE__);
@@ -6843,11 +7794,9 @@ CmdGetBlockBuffer (int cmd, int len, int window, unsigned char *buffer)
 
       /* there is always a full block ready when scanner is ready */
       /* 32 bits I/O read , window must match the width of scan   */
-      if (GetEPPMode () == 32)
-	EPPRead32Buffer (window, buffer + read);
-      else
-	EPPReadBuffer (window, buffer + read);
-      /* sum bytes read */
+      BufferRead (window, buffer + read);
+
+      /* add bytes read */
       read += window;
 
 
@@ -7013,7 +7962,7 @@ Bloc8Decode (int *op)
 }
 
 static int
-CompletionWait (void)
+CompletionWait (void)		/* ECP OK */
 {
   CMDSYNC (0x40);
   do
@@ -7349,9 +8298,9 @@ ComputeCalibrationData (int color, int dpi, int width, unsigned char *source,
 
 /* move head by the distance given using precision or not */
 /* 0: failed  
-   1: success					  */
+   1: success                                          */
 static int
-Move (int distance, int precision, unsigned char *buffer)
+Move (int distance, int precision, unsigned char *buffer)	/* ECP OK */
 {
   int header[17] =
     { 0x01, 0x00, 0x00, 0x20, 0x00, 0x00, 0x60, 0x2F, 0x2F, 0x01, 0x00, 0x00,
@@ -7460,7 +8409,7 @@ Move (int distance, int precision, unsigned char *buffer)
 
 
 /* for each column, finds the row where white/black transition occurs
-	then returns the average */
+        then returns the average */
 static float
 EdgePosition (int width, int height, unsigned char *data)
 {
@@ -7603,7 +8552,7 @@ MoveToOrigin (void)
   for (val = 0; val < 54000; val++)
     if (buffer[val] > edge)
       edge = buffer[val];
-  DBG (32, "MAX VALUE=%f	(%s:%d)\n", edge, __FILE__, __LINE__);
+  DBG (32, "MAX VALUE=%f        (%s:%d)\n", edge, __FILE__, __LINE__);
   if ((edge <= 30) && (sanei_umax_pp_getastra () != 1600))
     {
       DBG (2, "MoveToOrigin() detected a 1600P");
@@ -8672,7 +9621,7 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
     xdpi = dpi;
 
 
-  /* havent't yet found a way to make EPPRead32Buffer work */
+  /* EPPRead32Buffer does not work                         */
   /* with length not multiple of four bytes, so we enlarge */
   /* width to meet this criteria ...                       */
   if ((GetEPPMode () == 32) && (xdpi >= 600) && (width & 0x03))

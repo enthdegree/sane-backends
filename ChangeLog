@@ -1,3 +1,10 @@
+2004-02-20  Stéphane Voltz <svoltz@wanadoo.fr>
+
+	* backend/umax_pp_low.h backend/umax_pp_low.c backend/umax_pp.conf
+	  backend/umax_pp.c tools/umax_pp.c: added initial ECP support for
+	   scanner, laid groundwork for 610P support.
+
+	* backend/mustek_pp_ccd300.c: forgot parameters to wait_bank_change
 2004-02-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added HP ScanJet 4670 and

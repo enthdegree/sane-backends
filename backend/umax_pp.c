@@ -102,8 +102,8 @@
  *  see Changelog
  */
 
-#define UMAX_PP_BUILD	13
-#define UMAX_PP_STATE	"stable"
+#define UMAX_PP_BUILD	14
+#define UMAX_PP_STATE	"dev"
 
 static int num_devices = 0;
 static Umax_PP_Descriptor *devlist = NULL;

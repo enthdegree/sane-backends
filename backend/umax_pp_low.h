@@ -88,9 +88,10 @@ extern void sanei_umax_pp_setauto (int mode);
 
 #define MOTOR_BIT     0x40
 
-#define UMAX_PP_PARPORT_SPP 0x01
-#define UMAX_PP_PARPORT_EPP 0x02
-#define UMAX_PP_PARPORT_ECP 0x04
+#define UMAX_PP_PARPORT_PS2      0x01
+#define UMAX_PP_PARPORT_EPP      0x02
+#define UMAX_PP_PARPORT_EPP_HALF 0x04
+#define UMAX_PP_PARPORT_ECP      0x08
 
 #endif
 

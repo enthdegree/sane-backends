@@ -102,6 +102,30 @@ then
    AC_DEFINE(scsireq_t, struct scsireq_t))
 fi
 
+AC_MSG_CHECKING([for string.h containing index])
+AC_TRY_COMPILE([
+#include <string.h>
+],[char a[] = "a";
+int c = index(" ", ' ') - a;],
+ac_need_strings_h="no";
+[AC_MSG_RESULT([yes])],
+ac_need_strings_h="yes";
+[AC_MSG_RESULT([no])])
+
+if test "$ac_need_strings_h" = "yes" ; then
+
+AC_MSG_CHECKING([for strings.h containing index])
+AC_TRY_COMPILE([
+#include <strings.h>
+],[char a[] = "a";
+int c = index(" ", ' ') - a;],
+CPPFLAGS="${CPPFLAGS} -DNEED_STRINGS_H";
+[AC_MSG_RESULT([yes])],
+[AC_MSG_ERROR([index () is neither in string.h nor in strings.h])])
+
+fi
+
+
 SANE_V4L_VERSION
 
 dnl Checks for libraries.
@@ -118,6 +142,11 @@ dnl to use them!
 if test "`uname`" != "IRIX" -a "`uname`" != "IRIX64"; then
     AC_CHECK_LIB(nsl,gethostbyaddr)
     AC_CHECK_LIB(socket,socket)
+fi
+
+dnl look for /dev/urandom
+if test -c /dev/urandom ; then
+    CFLAGS="${CFLAGS} -DHAVE_DEV_URANDOM"
 fi
 
 dnl Checks for library functions.

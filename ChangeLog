@@ -1,3 +1,7 @@
+2003-07-31  Peter Kirchgessner <peter@kirchgessner.net>
+
+	* doc/descriptions/hp.desc: Add status by model
+
 2003-07-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: All the unsupported entries

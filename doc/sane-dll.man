@@ -1,4 +1,4 @@
-.TH sane-dll 5 "10 Jun 2001"
+.TH sane-dll 5 "11 Nov 2001"
 .IX sane-dll
 .SH NAME
 sane-dll - SANE dynamic backend loader
@@ -140,7 +140,20 @@ to "/tmp/config:" would result in directories "tmp/config", ".", and
 If the library was compiled with debug support enabled, this
 environment variable controls the debug level for this backend.  E.g.,
 a value of 128 requests all debug output to be printed.  Smaller
-levels reduce verbosity.
+levels reduce verbosity. 
+
+.nf                                                                            
+Value  Descsription
+0      print severe errors only
+1      print normal errors and important messages
+2      print normal messages
+3      print debugging messages
+4      print everything
+
+Example: 
+export SANE_DEBUG_DLL=3
+
+
 .SH "SEE ALSO"
 sane(7), scanimage(1), sane\-"backendname"(5)
 .SH AUTHOR

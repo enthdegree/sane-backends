@@ -44,7 +44,7 @@
 
 /* Please increase version number with every change 
    (don't forget to update dll.desc) */
-#define DLL_VERSION "1.0.4"
+#define DLL_VERSION "1.0.5"
 
 #ifdef _AIX
 # include "lalloca.h"   /* MUST come first for AIX! */
@@ -212,11 +212,11 @@ add_backend (const char *name, struct backend **bep)
 {
   struct backend *be, *prev;
 
-  DBG(1, "add_backend: adding backend %s\n", name);
+  DBG(3, "add_backend: adding backend %s\n", name);
 
   if (strcmp(name,"dll") == 0)
     {
-      DBG( 0, "add_backend: remove the dll-backend from your dll.conf!!!\n");
+      DBG(0, "add_backend: remove the dll-backend from your dll.conf!\n");
       return SANE_STATUS_GOOD;
     }
 
@@ -277,7 +277,7 @@ load (struct backend *be)
 # error "Tried to compile unsupported DLL."
 #endif /* HAVE_DLOPEN */
 
-  DBG(1, "load: loading backend %s\n", be->name);
+  DBG(3, "load: loading backend %s\n", be->name);
 
   /* initialize all ops to "unsupported" so we can "use" the backend
      even if the stuff later in this function fails */
@@ -316,12 +316,12 @@ load (struct backend *be)
     free (path);
   if (!fp)
     {
-      DBG(2, "load: couldn't find %s (%s)\n",
+      DBG(1, "load: couldn't find %s (%s)\n",
           libname, strerror (errno));
       return SANE_STATUS_INVAL;
     }
   fclose (fp);
-  DBG(2, "load: dlopen()ing `%s'\n", libname);
+  DBG(3, "load: dlopen()ing `%s'\n", libname);
 
 #ifdef HAVE_DLOPEN
   be->handle = dlopen (libname, mode);
@@ -333,9 +333,9 @@ load (struct backend *be)
   if (!be->handle)
     {
 #ifdef HAVE_DLOPEN
-      DBG(2, "load: dlopen() failed (%s)\n", dlerror());
+      DBG(1, "load: dlopen() failed (%s)\n", dlerror());
 #else
-      DBG(2, "load: dlopen() failed (%s)\n", strerror (errno));
+      DBG(1, "load: dlopen() failed (%s)\n", strerror (errno));
 #endif
       return SANE_STATUS_INVAL;
     }
@@ -344,13 +344,13 @@ load (struct backend *be)
   funcname = alloca (strlen (be->name) + 64);
   for (i = 0; i < NUM_OPS; ++i)
     {
-      void *(*op) ();
+      void *(*op) (void);
 
       sprintf (funcname, "_sane_%s_%s", be->name, op_name[i]);
 
       /* First try looking up the symbol without a leading underscore. */
 #ifdef HAVE_DLOPEN
-      op = (void *(*)()) dlsym (be->handle, funcname + 1);
+      op = (void *(*)(void)) dlsym (be->handle, funcname + 1);
 #elif defined(HAVE_SHL_LOAD)
       shl_findsym ((shl_t*)&(be->handle), funcname + 1, TYPE_UNDEFINED, &op);
 #else
@@ -372,7 +372,7 @@ load (struct backend *be)
             be->op[i] = op;
         }
       if (NULL == op)
-        DBG(2, "load: unable to find %s\n", funcname);
+        DBG(1, "load: unable to find %s\n", funcname);
     }
 
   return SANE_STATUS_GOOD;
@@ -411,7 +411,7 @@ init (struct backend *be)
 	  be->name,  SANE_VERSION_MAJOR (version), V_MAJOR); 
       return SANE_STATUS_INVAL;
     }
-  DBG(3, "init: backend `%s' is version %d.%d.%d\n", be->name,
+  DBG(4, "init: backend `%s' is version %d.%d.%d\n", be->name,
       SANE_VERSION_MAJOR(version), SANE_VERSION_MINOR(version),
       SANE_VERSION_BUILD(version));
 
@@ -534,7 +534,11 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
   fp = sanei_config_open (DLL_CONFIG_FILE);
   if (!fp)
-    return SANE_STATUS_GOOD;    /* don't insist on config file */
+    {
+      DBG(1, "sane_init: Couldn't open config file (%s): %s\n", 
+	  DLL_CONFIG_FILE, strerror (errno));
+      return SANE_STATUS_GOOD;    /* don't insist on config file */
+    }
 
   while (sanei_config_read (backend_name, sizeof (backend_name), fp))
     {
@@ -574,14 +578,14 @@ sane_exit (void)
   struct backend *be, *next;
   struct alias *alias;
 
-  DBG(1, "sane_exit: exiting\n");
+  DBG(2, "sane_exit: exiting\n");
 
   for (be = first_backend; be; be = next)
     {
       next = be->next;
       if (be->loaded)
         {
-          DBG(2, "sane_exit: calling backend `%s's exit function\n", be->name);
+          DBG(3, "sane_exit: calling backend `%s's exit function\n", be->name);
           (*be->op[OP_EXIT]) ();
 #ifdef HAVE_DLL
 
@@ -624,6 +628,7 @@ sane_exit (void)
       devlist_size = 0;
       devlist_len = 0;
     }
+  DBG(3, "sane_exit: finished\n");
 }
 
 /* Note that a call to get_devices() implies that we'll have to load

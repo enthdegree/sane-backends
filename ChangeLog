@@ -58,6 +58,7 @@
 	* tools/sane-desc.el: Removed.
 	* configure configure.in: Added tools/sane-desc.el to output files.
 	* backend/Makefile.in: Updated DISTFILES.
+	* backend/*.desc backend/template.desc.: Removed (now in doc/).
 	
 2002-03-19  Frank Zago <fzago@greshamstorage.com>
 

@@ -1,3 +1,7 @@
+2004-06-08  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* tools/RenSaneDlls.cmd: Fixed newlines.
+
 2004-06-06  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson_usb.c: remove product IDs for Perfection 1250 and 1260

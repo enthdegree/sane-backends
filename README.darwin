@@ -11,8 +11,10 @@ try to reduce optimization (e.g. CFLAGS="-O1" ./configure). Another
 work-around: Disable the canon backend in backend/Makefile.in (look at
 PRELOADABLE_BACKENDS) and rerun configure.
 
-Building with dynamic loading enabled seems to need a patch to libtool. See
-http://www.mostang.com/pipermail/sane-devel/2002-November/005361.html
+General:
+--------
+If scanimage -L (or any other frontend) stops with a segmentation fault in the
+sm3600 backend, disable sm3600 in dll.conf if you don't need it.
 
 SCSI-scanners:
 --------------
@@ -23,11 +25,11 @@ USB-scanners:
 -------------
 Works with libusb. Very limited testing until now. Try 
 "sane-find-scanner -v -v" and report success or failure to the SANE mailing
-list.
+list. Backends that use fork to create separate reader processes seem to fail.
 
 Parport-scanners:
 -----------------
 I don't have any information about these. Please contact me or the SANE mailing
 list if you succeeded in using one of these.
 
-2002-12-08 Henning Meier-Geinitz <henning@meier-geinitz.de>
+2002-12-30 Henning Meier-Geinitz <henning@meier-geinitz.de>

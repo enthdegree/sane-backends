@@ -3,6 +3,8 @@
 	* Makefile.in: Removed configure.os2.
 	* PROJECTS: Removed HP 2200c project (now supported by plustek
 	  backend). Added "NIASH" keyword to hp3300backend.
+	* README.darwin: Removed comment about dynamic loading. Added
+	  sm3600 and fork problems.
 
 2002-12-28  Karl Heinz Kremer <khk@khk.net>
 

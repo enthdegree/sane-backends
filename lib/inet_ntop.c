@@ -2,11 +2,11 @@
 
 #ifndef HAVE_INET_NTOP
 
-#include <arpa/inet.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <string.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <arpa/inet.h>
 
 const char *
 inet_ntop (int af, const void *src, char *dst, size_t cnt)

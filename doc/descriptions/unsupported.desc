@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2004-03-14"		; version of backend
+:version "2004-03-21"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -24,6 +24,23 @@
 :status :unsupported
 :interface "Parport"
 :comment "Most probably unsupported."
+
+:model "DuoScan f40"
+:status :unsupported
+:url "/unsupported/microtek-scanmaker-8700.html"
+:interface "USB IEEE-1394"
+:comment "Unsupported. See link for details."
+
+:model "DuoScan T2000XL"
+:interface "SCSI"
+:status :unsupported
+:comment "Unsupported. Same as Microtek ArtixScan 2020?"
+
+:model "DuoScan T2500"
+:interface "SCSI IEEE-1384"
+:status :unsupported
+:comment "Unsupported. Same as Microtek Artixscan 2500f"
+
 
 ;********************************************************************************************
 
@@ -586,6 +603,16 @@
 :mfg "Microtek"
 :url "http://www.microtek.com/"
 
+:model "ArtixScan 2020"
+:interface "SCSI"
+:status :unsupported
+:comment "Unsupported. Same as Agfa DuoScan T2000XL?"
+
+:model "Artixscan 2500f"
+:interface "SCSI IEEE-1384"
+:status :unsupported
+:comment "Unsupported. Same as Agfa DuoScan T2500?"
+
 :model "ScanMaker 336 CX"
 ;:url ""
 :interface "SCSI"
@@ -628,6 +655,12 @@
 :status :unsupported
 :comment "Unsupported. Vendor/Product ids: 0x05da/0x30cf. SQ Scan08? See link for more details."
 
+:model "ScanMaker 4850"
+;:url "/unsupported/microtek-scanmaker-4800.html"
+:interface "USB"
+:status :unsupported
+:comment "Probably unsupported. "
+
 :model "ScanMaker 4900"
 :url "/unsupported/microtek-scanmaker-4900.html"
 :interface "USB"
@@ -651,6 +684,12 @@
 :interface "USB IEEE-1394"
 :status :unsupported
 :comment "Unsupported. See link."
+
+:model "ScanMaker 8700"
+:status :unsupported
+:url "/unsupported/microtek-scanmaker-8700.html"
+:interface "USB IEEE-1394"
+:comment "Unsupported. See link for details."
 
 :model "ScanMaker 9600XL"
 ;:url "/unsupported/microtek-scanmaker-9800.html"

@@ -3,6 +3,8 @@
 	* backend/mustek.c doc/descriptions/mustek.desc
 	  doc/mustek/mustek.CHANGES: Added detection of Mustek ScanExpress
 	  1200 FS.
+	* doc/descriptions/unsupported.desc: Added some Microtek and Agfa
+	  scanners.
 
 2004-03-19  Karl Heinz Kremer <khk@khk.net>
 

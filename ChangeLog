@@ -11,6 +11,8 @@
 	* doc/descriptions/mustek.desc: Fixed Mustek URL. Added Trust comment
 	  about similar names. Added comments about compatible scanners.
 	  Fixed Primax URL.
+	* doc/descriptions/sp15c.desc: Fixed manpage link. Use "Fujitsu"
+	  consistently. Updated manufacturer links.
 
 2002-07-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

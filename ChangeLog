@@ -1,3 +1,7 @@
+2001-05-13  Peter Fales <peter@fales.com>
+	* backend/dc25.c: Remove DBG(0,...) line that was getting printed
+	  for non-dc25 users.
+
 2001-05-13  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson.c: Removed check for '\n' before end of line

@@ -25,7 +25,7 @@ Backends:
  dll:           David Mosberger
  dmc:           David F. Skoll
  epson:         Karl Heinz Kremer(*)
- gphoto2:	Peter Fales (*)
+ gphoto2:       Peter Fales (*)
  hp:            Peter Kirchgessner (*)
                 Geoffrey Dairiki
  m3096g:        Randolph Bentson, Oliver Schirrmeister (*)
@@ -57,6 +57,7 @@ Backends:
  sp15c:         Randolph Bentson
  st400:         Ingo Wilken (*)
  tamarack:      Roger Wolff
+ teco1:         Frank Zago (*)
  umax:          Oliver Rauch (*) and Michael K. Johnson
  umax_pp:       Stéphane Voltz (*)
  umax1220u:     Marcio L. Teixeira (*)

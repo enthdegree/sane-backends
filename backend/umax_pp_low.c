@@ -2550,18 +2550,29 @@ RingScanner (void)
 
   /* send ring string */
   Outb (DATA, 0x22);
+  usleep (10000);
   Outb (DATA, 0x22);
+  usleep (10000);
   Outb (DATA, 0xAA);
+  usleep (10000);
   Outb (DATA, 0xAA);
+  usleep (10000);
   Outb (DATA, 0x55);
+  usleep (10000);
   Outb (DATA, 0x55);
+  usleep (10000);
   Outb (DATA, 0x00);
+  usleep (10000);
   Outb (DATA, 0x00);
+  usleep (10000);
   Outb (DATA, 0xFF);
+  usleep (10000);
   Outb (DATA, 0xFF);
+  usleep (10000);
 
   /* OK ? */
   status = Inb (STATUS);
+  usleep (10000);
   if ((status & 0xB8) != 0xB8)
     {
       DBG (1, "status %d doesn't match! %s:%d\n", status, __FILE__, __LINE__);
@@ -2572,8 +2583,11 @@ RingScanner (void)
   if (ret)
     {
       Outb (DATA, 0x87);
+      usleep (10000);
       Outb (DATA, 0x87);
+      usleep (10000);
       status = Inb (STATUS);
+      usleep (10000);
       if ((status & 0xB8) != 0x18)
 	{
 	  DBG (1, "status %d doesn't match! %s:%d\n", status, __FILE__,
@@ -2586,7 +2600,9 @@ RingScanner (void)
   if (ret)
     {
       Outb (DATA, 0x78);
+      usleep (10000);
       Outb (DATA, 0x78);
+      usleep (10000);
       status = Inb (STATUS);
       if ((status & 0x30) != 0x30)
 	{
@@ -2600,9 +2616,13 @@ RingScanner (void)
   if (ret)
     {
       Outb (DATA, 0x08);
+      usleep (10000);
       Outb (DATA, 0x08);
+      usleep (10000);
       Outb (DATA, 0xFF);
+      usleep (10000);
       Outb (DATA, 0xFF);
+      usleep (10000);
     }
 
   /* restore state */
@@ -6214,17 +6234,18 @@ DumpRGB (int width, int height, unsigned char *data, char *name)
   fclose (fic);
 }
 
-static int EvalGain(int sum,int count)
+static int
+EvalGain (int sum, int count)
 {
-int gn;
+  int gn;
 
-	  /* 19000 is a little to bright */
-	  gn = (int) ((double) (18500 * count) / sum - 100 + 0.5);
-	  if (gn < 0)
-	    gn = 0;
-	  else if (gn > 255)
-	    gn = 255;
-	  return(gn);
+  /* 19000 is a little to bright */
+  gn = (int) ((double) (18500 * count) / sum - 100 + 0.5);
+  if (gn < 0)
+    gn = 0;
+  else if (gn > 255)
+    gn = 255;
+  return (gn);
 }
 
 static void
@@ -6247,7 +6268,7 @@ ComputeCalibrationData (int color, int dpi, int width, unsigned char *source,
 	  sum = 0;
 	  for (l = 0; l < 66; l++)
 	    sum += source[i + l * 5100 * 3];
-	  data[i] = EvalGain(sum,l);
+	  data[i] = EvalGain (sum, l);
 	}
       else
 	data[i] = 0x00;
@@ -6262,7 +6283,7 @@ ComputeCalibrationData (int color, int dpi, int width, unsigned char *source,
       sum = 0;
       for (l = 0; l < 66; l++)
 	sum += source[i + l * 5100 * 3 + 5100];
-      data[p + i] = EvalGain(sum,l);
+      data[p + i] = EvalGain (sum, l);
     }
 
 
@@ -6276,7 +6297,7 @@ ComputeCalibrationData (int color, int dpi, int width, unsigned char *source,
 	  sum = 0;
 	  for (l = 0; l < 66; l++)
 	    sum += source[i + l * 5100 * 3 + 5100 * 2];
-	  data[p + i] = EvalGain(sum,l);
+	  data[p + i] = EvalGain (sum, l);
 	}
       else
 	data[p + i] = 0x00;

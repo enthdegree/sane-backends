@@ -1,4 +1,4 @@
-TODO (2002-10-16)
+TODO (2002-10-24)
 
 ******** todo ********
 
@@ -7,8 +7,6 @@ backends
   * Add new backends (+ means scheduled for SANE 1.0.10)
     - Hewlett-Packard ScanJet 3300C / 3400C and 4300C (wip)
       http://sourceforge.net/projects/hp3300backend
-    + gt68xx backend
-      http://www.meier-geinitz.de/sane/gt68xx-backend/
     + tevion9693usb backend
       http://www.angelfire.com/linux/crapsite/
 

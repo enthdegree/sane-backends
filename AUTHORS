@@ -29,6 +29,8 @@ Backends:
  epson:         Karl Heinz Kremer (*)
  fujitsu:       Randolph Bentson, Frederik Ramm, Oliver Schirrmeister (*)
  gphoto2:       Peter Fales (*)
+ gt68xx:        Sergey Vlasov, Andreas Nowack, David Stevenson, and 
+                Henning Meier-Geinitz (*)
  hp:            Peter Kirchgessner (*)
                 Geoffrey Dairiki
  hpsj5s:        Max Vorobiev (*)
@@ -101,6 +103,7 @@ Andras Major <andras@users.sourceforge.net>
 Andreas Beck <becka@sunserver1.rz.uni-duesseldorf.de>
 Andreas Bolsch <ab@maths.nott.ac.uk>
 Andreas Czechanowski <m075@ins.uni-stuttgart.de>
+Andreas Nowack <nowack.andreas@gmx.de>
 Andreas Rick <andreas.rick@free.fr>
 Andrew Kuchling <amk@magnet.com>
 Bernd Schroeder <bernd@aquila.muc.de>
@@ -112,6 +115,7 @@ David Etherton <etherton@netcom.com>
 David F. Skoll <dskoll@iname.com>
 David Huggins-Daines <bn711@freenet.carleton.ca>
 David Mosberger <David.Mosberger@acm.org>
+David Stevenson <david.stevenson@zoom.co.uk>
 Didier Carlier <didier@sema.be>
 Eugene S. Weiss <yossarian@users.sourceforge.net>
 Feico W. Dillema <dillema@acm.org>
@@ -161,6 +165,7 @@ Randolph Bentson <bentson@grieg.holmsjoen.com>
 Rene Rebe <rene.rebe@gmx.net>
 Roger Wolff <R.E.Wolff@BitWizard.nl>
 Sebastien Sable <Sebastien.Sable@snv.jussieu.fr>
+Sergey Vlasov <vsu@altlinux.ru>
 Simon Krix <kinsei@users.sourceforge.net>
 Simon Munton <simon@munton.demon.co.uk>
 Stéphane Voltz <svoltz@wanadoo.fr>

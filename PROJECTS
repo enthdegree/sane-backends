@@ -1,4 +1,4 @@
-PROJECTS (2002-08-20)
+PROJECTS (2002-10-24)
 
 Here is a list of projects that various people have expressed interest
 in.  Before starting working on one of these projects, it may be a
@@ -33,10 +33,6 @@ Gunther Mayer <Gunther.Mayer@t-online.de>
 E3 USB chipset support (e.g. Genius Vivid Pro USB, Colorado USB 19200,
 Visioneer OneTouch 7600, IBM IdeaScan 2000 USB) (wip)
 http://homepages.paradise.net.nz/stevenel/scanner/
-
-GT-68xx SANE Backend e.g. for Mustek BearPaw 1200TA and 2400TA (wip)
-http://www.mivlgu.murom.ru/~vsu/gt68xx/ (driver)
-http://www.meier-geinitz.de/sane/gt68xx-backend/ (backend)
 
 Handheld scanner support: e.g. for Mustek CG-6000 (wip)
 ftp://www.cs.ubishops.ca/pub/lhii/

@@ -11,6 +11,10 @@
 	  Added gt68xx backend for scanners based on the Grandtech GT-6801
 	  and GT-8616 chips like The Mustek BearPaw CU, and TA scanners
 	  and some Artec Ultima 2000 clones.
+	* doc/.cvsignore doc/Makefile.in doc/sane-gt68xx.man doc/sane.man
+	  doc/descriptions/gt68xx.desc doc/descriptions-external/gt68xx.desc
+	  doc/gt68xx/gt68xx.CHANGES: Added documentation for gt68xx backend.
+	* AUTHORS PROJECTS TODO: Updated concerning gt68xx.
 
 2002-10-24  Peter Fales  <peter@fales-lorenz.net>
 

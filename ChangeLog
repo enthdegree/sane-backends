@@ -1,3 +1,8 @@
+2001-11-10  Stéphane Voltz  <svoltz@wanadoo.fr>
+
+	* backend/umax_pp_low.c: correct PPC compile problem by removing
+	  buggy extra ifdef
+
 2001-11-11  Peter Fales <peter@fales.com>
 
 	* gphoto2.c - Number of images was not getting updated after

@@ -145,8 +145,8 @@ inb( u_long port )
 #endif
 
 /** our global init flag... */
-static int first_time = SANE_TRUE;
-static unsigned long pp_thresh = 0;
+static int           first_time = SANE_TRUE;
+static unsigned long pp_thresh  = 0;
 
 #if (defined (HAVE_IOPERM) || defined (HAVE_LIBIEEE1284)) && !defined (IO_SUPPORT_MISSING)
 
@@ -839,9 +839,6 @@ sanei_pp_open( const char *dev, int *fd )
 {
 	SANE_Status status;
 
-	if( first_time )
-	    DBG_INIT();
-
 	DBG( 4, "sanei_pp_open: called for device '%s'\n", dev);
 
 	*fd = pp_open( dev, &status );
@@ -1108,15 +1105,18 @@ sanei_pp_udelay( unsigned long usec )
 #else /* !HAVE_IOPERM */
 
 SANE_Status
+sanei_pp_init( void )
+{
+	DBG_INIT();
+	_VAR_NOT_USED( first_time );
+	return SANE_STATUS_GOOD;
+}
+
+SANE_Status
 sanei_pp_open( const char *dev, int *fd )
 {
 	if (fd)
 		*fd = -1;
-
-	if( first_time ) {
-	    DBG_INIT();
-		first_time = SANE_FALSE;
-	}
 
 	DBG( 4, "sanei_pp_open: called for device `%s`\n", dev );
 	DBG( 3, "sanei_pp_open: support not compiled\n" );
@@ -1220,7 +1220,8 @@ sanei_pp_getmode( int fd, int *mode )
 void
 sanei_pp_udelay( unsigned long usec )
 {
-	_VAR_NOT_USED( usesc );
+	_VAR_NOT_USED( usec );
+	_VAR_NOT_USED( pp_thresh );
 	DBG( 2, "sanei_pp_udelay: not supported\n" );
 }
 #endif /* !HAVE_IOPERM */

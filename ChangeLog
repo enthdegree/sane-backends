@@ -1,3 +1,7 @@
+2004-04-11  Karl Heinz Kremer <khk@khk.net>
+
+	* backend/epson_usb.c: Added missing device IDs for current MFDs
+
 ---- FEATURE FREEZE FOR SANE 1.0.14 ---
 -- snapshot 1.0.14-pre1
 

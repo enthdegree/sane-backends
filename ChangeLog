@@ -1,4 +1,10 @@
-2004-10-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
+2004-10-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* tools/sane-find-scanner.c: Fixed compilation problem when
+	  compiled without libusb support. Print sane-backends version
+	  number. Print if built without libusb.
+
+2004-10-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/sane-find-scanner.man tools/check-usb-chip.c
 	  tools/sane-find-scanner.c: sane-find-scanner can now load USB

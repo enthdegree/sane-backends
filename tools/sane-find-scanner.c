@@ -1,6 +1,6 @@
 /* sane-find-scanner.c
 
-   Copyright (C) 1997-2003 Oliver Rauch, Henning Meier-Geinitz, and others.
+   Copyright (C) 1997-2004 Oliver Rauch, Henning Meier-Geinitz, and others.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
@@ -890,6 +890,7 @@ check_mustek_pp_device (void)
   return (found > 0 || scsi > 0);
 }
 
+#ifdef HAVE_LIBUSB
 static SANE_Bool
 parse_num (char* search, const char* line, int base, long int * number)
 {
@@ -1088,6 +1089,7 @@ parse_file (char *filename)
   fclose (parsefile);
   return;
 }
+#endif
 
 int
 main (int argc, char **argv)
@@ -1129,7 +1131,11 @@ main (int argc, char **argv)
 	  break;
 
 	case 'F':
+#ifdef HAVE_LIBUSB
 	  parse_file ((char *) (*(++ap)));
+#else
+	  printf ("libusb not available: option -F can't be used\n");
+#endif
 	  exit (0);
 
 	default:
@@ -1404,7 +1410,8 @@ main (int argc, char **argv)
 
       usb_dev_list = usb_default_dev_list;
     }
-
+  if (verbose > 1)
+    printf ("This is sane-find-scanner from %s\n", PACKAGE_STRING);
   if (verbose > 0)
     printf ("\n");
   if (verbose > 1)
@@ -1514,6 +1521,9 @@ main (int argc, char **argv)
 	  }			/* for (bus) */
       }				/* if (usb_dev_list == ap) */
   }
+#else
+  if (verbose > 1)
+    printf ("libusb not available\n");
 #endif /* HAVE_LIBUSB */
 
   if (device_found)

@@ -51,7 +51,8 @@ Backends:
  net:           Andreas Beck and David Mosberger
  pie:           Simon Munton (*)
  pint:          Gordon Matzigkeit
- plustek:       Rick Bronson, Gerhard Jaeger (*)
+ plustek:       Gerhard Jaeger (*)
+ plustek_pp:    Rick Bronson (former pp driver-code), Gerhard Jaeger (*)
  pnm:           Andreas Beck, Gordon Matzigkeit, David Mosberger, Michael
                 Herder (*), and Henning Meier-Geinitz (*)
  qcam:          Scott Laird (original driver), David Mosberger (SANE backend),

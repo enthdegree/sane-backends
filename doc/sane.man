@@ -1,4 +1,4 @@
-.TH sane 7 "19 Apr 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane 7 "24 Sept 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane
 
 .SH NAME
@@ -330,10 +330,18 @@ SCSI flatbed scanners. See
 for details.
 .TP
 .B plustek
-The SANE plustek backend supports Plustek parallel port and LM983[1/2/3] based
-USB flatbed scanners. Scanners using the LM983x chips include some models from
-Plustek, KYE/Genius, Hewlett-Packard, Mustek, Umax, Epson, and Canon. See
+The SANE plustek backend supports USB flatbed scanners that use the National
+Semiconductor LM983[1/2/3]-chipset aka Merlin. Scanners using this LM983x chips
+include some models from Plustek, KYE/Genius, Hewlett-Packard, Mustek, Umax,
+Epson, and Canon. See
 .BR sane\-plustek (5)
+for details.
+.TP
+.B plustek_pp
+The SANE plustek_pp backend supports Plustek parallel port flatbed scanners.
+Scanners using the Plustek ASIC P96001, P96003, P98001 and P98003 include some
+models from Plustek, KYE/Genius, Primax. See
+.BR sane\-plustek_pp (5)
 for details.
 .TP
 .B ricoh
@@ -819,6 +827,7 @@ you can also contact the author of this manual page:
 .BR sane\-pie (5),
 .BR sane\-pint (5),
 .BR sane\-plustek (5),
+.BR sane\-plustek_pp (5),
 .BR sane\-pnm (5),
 .BR sane\-qcam (5),
 .BR sane\-ricoh (5),

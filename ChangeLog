@@ -1,3 +1,7 @@
+2003-09-24  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* doc/sane.man, AUTHORS: added plustek_pp information
+
 2003-09-23  Frank Zago  <fzago at austin dot rr dot com>
 
 	* Makefile.in NEWS configure configure.in backend/Makefile.in 

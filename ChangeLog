@@ -1,3 +1,11 @@
+2001-02-26 Abel Deuring <a.deuring@satzbau-gmbh.de>
+
+	* sanei/sanei_scsi.c: removed a possible null pointer 
+	  dereference in the Solaris/Schilling driver part. (Bug was 
+	  found and fixed by William L. Sebok)
+
+	* backend/tamarack.c: inconsistent call to sanei_scsi_cmd fixed
+
 2001-02-22  Petter Reinholdtsen <pere@td.org.uit.no>
 
 	* TODO: Add comment on how link problems should really be fixed.

@@ -72,7 +72,7 @@ dnl   [CFLAGS="${NORMAL_CFLAGS}"])
 fi
 dnl Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS(fcntl.h unistd.h libintl.h libc.h sys/dsreq.h sys/select.h \
+AC_CHECK_HEADERS(fcntl.h unistd.h libc.h sys/dsreq.h sys/select.h \
     sys/time.h \
     sys/scanio.h scsi.h sys/scsi.h sys/scsicmd.h sys/scsiio.h \
     bsd/dev/scsireg.h scsi/sg.h /usr/src/linux/include/scsi/sg.h io/cam/cam.h \
@@ -106,10 +106,6 @@ fi
 
 
 SANE_V4L_VERSION
-
-dnl Checks for Frontend libraries: intl
-AC_CHECK_LIB(intl, gettext, INTLLIBS=-lintl)
-AC_SUBST(INTLLIBS)
 
 dnl Checks for dll libraries: dl
 if test "${enable_dynamic}" != "no"; then

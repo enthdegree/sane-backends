@@ -1,5 +1,8 @@
 2001-05-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* doc/backend-writing.txt: Reformated. Added point about headers
+	  and libraries that are not available on every system and inclusion
+	  of backends into CVS. Some minor fixes and clarifications.
 	* NEWS: Updated concerning sane man page and new backends.
 	
 2001-05-17  Oliver Rauch <Oliver.Rauch@rauch-domain.de>

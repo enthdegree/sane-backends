@@ -11,6 +11,9 @@
 	  po/sane-backends.nl.po po/sane-backends.no.po po/sane-backends.pt.po
 	  po/sane-backends.ru.po po/sane-backends.sv.po: Regenerated to include
 	  recent changes in the backends.
+	* include/sane/sanei_scsi.h include/sane/sanei_wire.h:  Changed
+	  license to GPL + SANE exception.
+
 	
 2003-07-24  Peter Kirchgessner <peter@kirchgessner.net>
 

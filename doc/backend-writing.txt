@@ -1,4 +1,4 @@
-2002-07-17
+2002-10-01
 
 Here are a few rules and tips that should help writing a
 SANE-conformant backend and including it into the SANE package:
@@ -153,6 +153,11 @@ PROGRAMMING
 
 * To support translation of SANE options, please mark the descriptions (desc)
   and title of options with SANE_I18N(). See po/README for details.
+
+* Please check for TL_X < BR_X and TL_Y < BR_Y to avoid segfaults or even
+  scanner damage. This should NOT be done in sane_control_option, it should
+  be possible to temporary set TL_X > BR_X or TL_ > BR, otherwise it is hard
+  for a frontend to set the correct values.
 
 
 TESTING

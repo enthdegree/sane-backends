@@ -1,5 +1,10 @@
 2001-05-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* AUTHORS README: Updated concerning umax_pp.
+	
+	* doc/Makefile.in doc/sane-umax_pp.man .cvsignore: Added manpage for
+	  umax_pp (patch from Stéphane Voltz <svoltz@wanadoo.fr>).
+	
 	* tools/README tools/Makefile.in tools/umax_pp.c tools/.cvsignore:
 	  Added umax_pp test program (patch from Stéphane Voltz 
 	  <svoltz@wanadoo.fr>).

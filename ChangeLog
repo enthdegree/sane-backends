@@ -1,3 +1,10 @@
+2002-09-01  Karl Henz Kremer <khk@khk.net>
+
+        * backend/epson.[ch] backend/epson_scsi.[ch] backend/epson_usb.[ch]
+          backend/Makefile.in: USB scanners are now using sanei_usb_ functions,
+          split out SCSI related functions to their own source/header file,
+          added source/header file for USB interface
+
 2002-09-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* TODO: Updated desc and SANE standard sections. Removed ptal entry.

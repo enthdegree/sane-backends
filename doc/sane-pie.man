@@ -45,9 +45,9 @@ ScanAce 630S            Untested
 .br
 ScanAce 636S            Untested
 .br
-JetScan 630		Untested
+JetScan 630             Untested
 .br
-JetScan 636PRO		Untested
+JetScan 636PRO          Untested
 .PP
 
 .SH FILES
@@ -70,4 +70,3 @@ sane(7)
 Please send any information and bug-reports to:
 .br
 .B Simon Munton <simon@munton.demon.co.uk>
-.PP

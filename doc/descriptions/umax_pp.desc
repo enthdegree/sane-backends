@@ -40,6 +40,7 @@
 
 :model "Astra 610P"
 :interface "Parport (EPP)"
+:status :unsupported      
 :comment "don't work (yet)"
 
 

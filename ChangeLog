@@ -1,3 +1,11 @@
+2002-05-28  Frank Zago  <fzago at austin dot rr dot com>
+
+	* po/matsushita.fr.po po/saneopts.fr.po po/sceptre.fr.po
+	  po/teco1.fr.po po/umax.fr.po backend/leo.c backend/leo.h
+	  backend/matsushita.c backend/matsushita.h backend/sceptre.c
+	  backend/sceptre.h backend/teco1.c backend/teco1.h
+	  frontend/tstbackend.c: new email address.
+
 2002-05-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* configure configure.in: Warnings enabled by default.

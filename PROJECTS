@@ -1,4 +1,4 @@
-PROJECTS (2002-05-29)
+PROJECTS (2002-08-20)
 
 Here is a list of projects that various people have expressed interest
 in.  Before starting working on one of these projects, it may be a
@@ -49,6 +49,9 @@ http://www.xs4all.nl/~stwerff/
 
 Hewlett-Packard ScanJet 3300C / 3400C and 4300C (wip)
 http://sourceforge.net/projects/hp3300backend
+
+Hewlett-Packard ScanJet 4470C based on RealTek RTS8891 (wip)
+http://reapoff.sourceforge.net/hpscanner/
 
 IBM 2456 and Ricoh IS-410 support (wip)
 http://www.meier-geinitz.de/sane/ibm-backend/

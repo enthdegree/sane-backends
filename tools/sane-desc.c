@@ -1,7 +1,7 @@
 /* 
    sane-desc.c -- generate list of supported SANE devices
 
-   Copyright (C) 2002 Henning Meier-Geinitz <henning@meier-geinitz.de>
+   Copyright (C) 2002, 2003 Henning Meier-Geinitz <henning@meier-geinitz.de>
 
    This file is part of the SANE package.
 
@@ -21,7 +21,7 @@
    MA 02111-1307, USA.
 */
 
-#define SANE_DESC_VERSION "0.9"
+#define SANE_DESC_VERSION "1.0"
 
 #define MAN_PAGE_LINK "http://www.mostang.com/sane/man/%s.5.html"
 #define COLOR_ALPHA       "\"#B00000\""
@@ -662,12 +662,14 @@ read_files (void)
 		  == SANE_STATUS_GOOD)
 		{
 		  if (current_backend->version)
-		    DBG_WARN ("overwriting version of backend `%s' to `%s`"
-			      "(was: `%s')\n",
-			      current_backend->name, string_entry,
-			      current_backend->version);
+		    {
+		      DBG_WARN ("overwriting version of backend `%s' to `%s'"
+				"(was: `%s')\n",
+				current_backend->name, string_entry,
+				current_backend->version, current_backend->version);
+		    }
 
-		  DBG_INFO ("setting version of backend `%s' to `%s`\n",
+		  DBG_INFO ("setting version of backend `%s' to `%s'\n",
 			    current_backend->name, string_entry);
 		  current_backend->version = string_entry;
 		  continue;
@@ -679,8 +681,10 @@ read_files (void)
 		    {
 		    case level_backend:
 		      if (current_backend->status != status_unknown)
-			DBG_WARN ("overwriting status of backend `%s'\n",
-				  current_backend->name);
+			{
+			  DBG_WARN ("overwriting status of backend `%s'\n",
+				    current_backend->name);
+			}
 		      if (strcmp (string_entry, ":new") == 0)
 			{
 			  DBG_WARN ("ignored `%s' status :new, use keyword "
@@ -719,8 +723,10 @@ read_files (void)
 		      break;
 		    case level_model:
 		      if (current_model->status != status_unknown)
-			DBG_WARN ("overwriting status of model `%s'\n",
-				  current_model->name);
+			{
+			  DBG_WARN ("overwriting status of model `%s'\n",
+				    current_model->name);
+			}
 		      if (strcmp (string_entry, ":alpha") == 0)
 			{
 			  DBG_INFO
@@ -803,12 +809,14 @@ read_files (void)
 		  == SANE_STATUS_GOOD)
 		{
 		  if (current_backend->manpage)
-		    DBG_WARN ("overwriting manpage of backend `%s' to `%s`"
-			      "(was: `%s')\n",
-			      current_backend->name, string_entry,
-			      current_backend->manpage);
+		    {
+		      DBG_WARN ("overwriting manpage of backend `%s' to `%s'"
+				"(was: `%s')\n",
+				current_backend->name, string_entry,
+				current_backend->manpage);
+		    }
 
-		  DBG_INFO ("setting manpage of backend `%s' to `%s`\n",
+		  DBG_INFO ("setting manpage of backend `%s' to `%s'\n",
 			    current_backend->name, string_entry);
 		  current_backend->manpage = string_entry;
 		  continue;
@@ -895,12 +903,14 @@ read_files (void)
 		    }
 
 		  if (current_type->desc)
-		    DBG_WARN ("overwriting description of  device type of "
-			      "backend `%s' to `%s` (was: `%s')\n",
-			      current_backend->name, string_entry,
-			      current_type->desc);
+		    {
+		      DBG_WARN ("overwriting description of  device type of "
+				"backend `%s' to `%s' (was: `%s')\n",
+				current_backend->name, string_entry,
+				current_type->desc);
+		    }
 
-		  DBG_INFO ("setting description of backend `%s' to `%s`\n",
+		  DBG_INFO ("setting description of backend `%s' to `%s'\n",
 			    current_backend->name, string_entry);
 		  current_type->desc = calloc (1, sizeof (desc_entry));
 		  if (!current_type->desc)
@@ -1012,12 +1022,14 @@ read_files (void)
 		    }
 
 		  if (current_model->interface)
-		    DBG_WARN ("overwriting interface of model "
-			      "`%s' to `%s` (was: `%s')\n",
-			      current_model->name, string_entry,
-			      current_type->desc);
+		    {
+		      DBG_WARN ("overwriting interface of model "
+				"`%s' to `%s' (was: `%s')\n",
+				current_model->name, string_entry,
+				current_model->interface);
+		    }
 
-		  DBG_INFO ("setting interface of model `%s' to `%s`\n",
+		  DBG_INFO ("setting interface of model `%s' to `%s'\n",
 			    current_model->name, string_entry);
 		  current_model->interface = string_entry;
 		  continue;
@@ -1172,15 +1184,21 @@ update_model_record_list (model_record_entry * first_model_record,
 		  string_compare (model->interface, model_record->interface)
 		  == 0)
 		{
-		  /* Two entries for the same backend */
+		  /* Two entries for the same model */
 		  int new_priority = calc_priority (model->status);
 		  int old_priority = calc_priority (model_record->status);
 		  if (new_priority < old_priority)
-		    /* ignore new entry */
-		    break;
+		    {
+		        DBG_DBG ("update_model_record_list: model %s ignored, backend %s has "
+				 "higher priority\n", model->name, model_record->be->name);
+			return first_model_record;
+		    }
 		  if (new_priority > old_priority)
-		    /* overwrite old entry */
-		    tmp_model_record = model_record->next;
+		    {
+		      DBG_DBG ("update_model_record_list: model %s overrides the one from backend %s\n",
+			       model->name, model_record->be->name);
+		      tmp_model_record = model_record->next;
+		    }
 		}
 	      /* correct position */
 	      model_record = create_model_record (model);

@@ -21,6 +21,9 @@
 	  OPT_THRESHOLD fix. Avoid using "_" in option names. Set more
 	  options in microtek2.conf to on by default. From Karsten Festag
 	  <karsten.festag@gmx.de>.
+	* tools/sane-desc.c: Fixed overwrite warnings. Minor DBG message fixes.
+	  Fixed priority handling (backend and manpage were overwritten even if
+	  a model had a lower priority).
 
 2003-01-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

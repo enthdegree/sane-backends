@@ -1,5 +1,8 @@
 2001-04-16  Petter Reinholdtsen <pere@td.org.uit.no>
 
+	* Makefile.in: New target 'sort-cvsignore' to keep all .cvsignore
+	files sorted.
+
 	* acinclude.m4 configure.in tools/sane-config.in: Try to guess how
 	to set runtime link path, and make it easier to extend.
 

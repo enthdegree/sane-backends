@@ -45,7 +45,8 @@ Backends:
  s9036:         Ingo Schneider
  sharp:         FUKUDA Kazuya (*) and Abel Deuring (*)
  sm3600:        Marian Eichholz (*) and Glenn Ramsey (*)
- snapscan:      Kevin Charter, Franck Schneider, and Michel Roelofs
+ snapscan:      Kevin Charter, Franck Schneider, Michel Roelofs, Sebastien Sable (*),
+                and Henrik Johansson
  sp15c:         Randolph Bentson (*)
  st400:         Ingo Wilken (*)
  tamarack:      Roger Wolff
@@ -96,6 +97,7 @@ Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
 Guido Muesch <odiug@faho.rwth-aachen.de>
 Helmut Koeberle <helmut.koeberle@bytec.de>
 Henning Meier-Geinitz <henning@meier-geinitz.de>
+Henrik Johansson <henrikjo@post.urfors.se>
 Ingo Schneider <schneidi@informatik.tu-muenchen.de>
 Ingo Wilken <Ingo.Wilken@informatik.uni-oldenburg.de>
 Jeff Freedman <jsf@hevanet.com>
@@ -122,6 +124,7 @@ Petter Reinholdtsen <pere@td.org.uit.no>
 Randolph Bentson <bentson@grieg.holmsjoen.com>
 Rene Rebe <rene.rebe@gmx.net>
 Roger Wolff <R.E.Wolff@BitWizard.nl>
+Sebastien Sable <Sebastien.Sable@snv.jussieu.fr>
 Simon Munton <simon@munton.demon.co.uk>
 Stéphane Voltz <svoltz@wanadoo.fr>
 Tom Martone <tom@martoneconsulting.com>

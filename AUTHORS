@@ -16,6 +16,7 @@ Backends:
  avision:       Meino Christian Cramer, Rene Rebe(*)
  bh:            Tom Martone (*)
  canon:         Helmut Koeberle, Manuel Panea (*), and Markus Mertinat
+		Mitsuru Okaniwa, Ulrich Deiters
  canon630u:     Nathan Rutman (*)
  canon_pp:      Matthew Duggan (*), Simon Krix
  coolscan:      Didier Carlier, Andreas Rick (*)
@@ -140,6 +141,7 @@ Michael Herder <crapsite@gmx.net>
 Michael K. Johnson <johnsonm@redhat.com>
 Michel Roelofs <michelr@stack.nl>
 Milon Firikis <milonf@ariadne-t.gr>
+Mitsuru Okaniwa <m-okaniwa@bea.hi-ho.ne.jp>
 Nathan Rutman <nathan@gordian.com>
 Oliver Rauch <Oliver.Rauch@Rauch-domain.de>
 Oliver Schirrmeister <oschirr@abm.de>
@@ -158,3 +160,4 @@ Stéphane Voltz <svoltz@wanadoo.fr>
 Tom Martone <tom@martoneconsulting.com>
 Tom Wang <tom.wang@mustek.com.tw>
 Tristan Tarrant <ttarrant@etnoteam.it>
+Ulrich Deiters <ukd@xenon.pc.Uni-Koeln.DE>

@@ -31,6 +31,7 @@ a hash mark (#) are ignored. A sample configuration file is shown below:
  # this is a comment
   
  option force-a4
+ option force-a3
  option disable-gamma-table
  option disable-calibration
  option one-calib-only
@@ -44,10 +45,17 @@ a hash mark (#) are ignored. A sample configuration file is shown below:
  
  - force-a4:
    Forces the backend to overwrite the scanable area
-   returned by the scanner. This might be needed for
-   the AV 630 which returns no area - or newer scanners
-   which retun the area in a unkown format our backend
-   doesn't recongize yet.
+   returned by the scanner to ISO A4. Scanner that are
+   known to return bogus data are marked in the backend
+   so if you need this option please report this to the
+   backend maintainer. USE WITH CARE!
+
+ - force-a3:
+   Forces the backend to overwrite the scanable area
+   returned by the scanner to ISO A3. Scanner that are
+   known to return bogus data are marked in the backend
+   so if you need this option please report this to the
+   backend maintainer. USE WITH CARE!
  
  - disable-gamma-table:
    Disables the usage of the scanner's gamma-table. You

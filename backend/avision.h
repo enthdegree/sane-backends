@@ -65,8 +65,8 @@ typedef struct Avision_Connection {
 } Avision_Connection;
 
 typedef struct Avision_HWEntry {
-  char* scsi_mfg;
-  char* scsi_model;
+  const char* scsi_mfg;
+  const char* scsi_model;
 
   int   usb_vendor;
   int   usb_product;
@@ -102,14 +102,17 @@ typedef struct Avision_HWEntry {
     /* do not use line packing even if line_difference */
     AV_NO_LINE_DIFFERENCE = (1<<5),
     
+    /* if the scan area needs to be forced - for to A3 */
+    AV_FORCE_A3 = (1<<6),
+    
     /* limit the available resolutions */
-    AV_RES_HACK = (1<<6),
+    AV_RES_HACK = (1<<7),
     
     /* some (?) USB devices like firmware */
-    AV_FIRMWARE = (1<<7),
+    AV_FIRMWARE = (1<<8),
     
     /* fujitsu adaption */
-    AV_FUJITSU = (1<<8)
+    AV_FUJITSU = (1<<9)
     
     /* maybe more ...*/
   } feature_type;

@@ -85,6 +85,13 @@
                 All the many other beta-tester and debug-log sender ;-)
    
    ChangeLog:
+   2004-06-22: René Rebe
+         * merged SANE/CVS thread changes and fixed compilation warnings
+           (Bug #300399)
+
+   2004-05-05: René Rebe
+         * added a AV_FORCE_A3 overwrite (for AVA3)
+
    2004-03-13: René Rebe
          * removed old unneeded old_r_calibration
          * fixed get_calib_format for 16 bit color mode
@@ -596,7 +603,7 @@
 #endif
 
 #define BACKEND_NAME avision
-#define BACKEND_BUILD 92  /* avision backend BUILD version */
+#define BACKEND_BUILD 94  /* avision backend BUILD version */
 
 /* Attention: The comments must be stay as they are - they are
    automatially parsed to generate the SANE avision.desc file, as well
@@ -836,9 +843,9 @@ static Avision_HWEntry Avision_Device_List [] =
     { "AVISION", "AVA3",
       0, 0,
       "Avision", "AVA3",
-      AV_SCSI, AV_FLATBED, 0},
+      AV_SCSI, AV_FLATBED, AV_FORCE_A3},
     /* comment="1 pass, 600 dpi, A3" */
-    /* status="untested" */
+    /* status="beta" */
     
     /* and possibly more avisions */
     
@@ -1046,8 +1053,10 @@ static Avision_HWEntry Avision_Device_List [] =
   0x03, 0x02, 0x2c, 0x37, 0x04, 0x02, 0x9f, 0x7d}; */
 
 /* used when scanner returns invalid range fields ... */
-#define A4_X_RANGE 8.5
+#define A4_X_RANGE 8.5 /* or 8.25 ? */
 #define A4_Y_RANGE 11.8
+#define A3_X_RANGE 11.8
+#define A3_Y_RANGE 16.5 /* or 17 ? */
 #define SHEETFEED_Y_RANGE 14.0
 
 #ifndef PATH_MAX
@@ -1087,8 +1096,9 @@ static SANE_Bool disable_calibration = SANE_FALSE;
 /* do only one claibration per backend initialization */
 static SANE_Bool one_calib_only = SANE_FALSE;
 
-/* force scanable areas to ISO(DIN) A4 */
+/* force scanable areas to ISO(DIN) A4/A3 */
 static SANE_Bool force_a4 = SANE_FALSE;
+static SANE_Bool force_a3 = SANE_FALSE;
 
 static SANE_Bool static_calib_list[3] =
   {
@@ -1578,7 +1588,7 @@ static SANE_Status avision_cmd (Avision_Connection* av_con,
     /* simply to allow nicer code below */
     const u_int8_t* m_cmd = (const u_int8_t*)cmd;
     const u_int8_t* m_src = (const u_int8_t*)src;
-    const u_int8_t* m_dst = (const u_int8_t*)dst;
+    u_int8_t* m_dst = (u_int8_t*)dst;
     
     /* may I vote for the possibility to use C99 ... */
 #define min_usb_size 10
@@ -1674,7 +1684,7 @@ static SANE_Status avision_cmd (Avision_Connection* av_con,
       count = sizeof(sense_header);
       
       DBG (8, "try to write %u bytes\n", count);
-      status = sanei_usb_write_bulk (av_con->usb_dn, &sense_header, &count);
+      status = sanei_usb_write_bulk (av_con->usb_dn, (u_int8_t*) &sense_header, &count);
       DBG (8, "wrote %u bytes\n", count);
       
       if (status != SANE_STATUS_GOOD) {
@@ -2767,18 +2777,27 @@ get_double ( &(result[48] ) ));
 	      DBG (1, "attach: \"force_a4\" found! Using defauld (ISO A4).\n");
 	      dev->inquiry_x_ranges [mode] = A4_X_RANGE * MM_PER_INCH;
 	      dev->inquiry_y_ranges [mode] = A4_Y_RANGE * MM_PER_INCH;
+	    } else if (force_a3) {
+	      DBG (1, "attach: \"force_a3\" found! Using defauld (ISO A3).\n");
+	      dev->inquiry_x_ranges [mode] = A3_X_RANGE * MM_PER_INCH;
+	      dev->inquiry_y_ranges [mode] = A3_Y_RANGE * MM_PER_INCH;
 	    }
 	  }
 	else /* mode is invaild */
 	  {
-	    DBG (1, "attach: x/y-range for mode %d is invalid! Using default.\n", mode);
-	    
-	    dev->inquiry_x_ranges [mode] = A4_X_RANGE * MM_PER_INCH;
-	    
-	    if (dev->hw->scanner_type == AV_SHEETFEED)
-	      dev->inquiry_y_ranges [mode] = SHEETFEED_Y_RANGE * MM_PER_INCH;
-	    else
-	      dev->inquiry_y_ranges [mode] = A4_Y_RANGE * MM_PER_INCH;
+	    DBG (1, "attach: x/y-range for mode %d is invalid! Using a default.\n", mode);
+	    if (dev->hw->feature_type & AV_FORCE_A3) {
+	      dev->inquiry_x_ranges [mode] = A3_X_RANGE * MM_PER_INCH;
+	      dev->inquiry_y_ranges [mode] = A3_Y_RANGE * MM_PER_INCH;
+	    }
+	    else {
+	      dev->inquiry_x_ranges [mode] = A4_X_RANGE * MM_PER_INCH;
+	      
+	      if (dev->hw->scanner_type == AV_SHEETFEED)
+		dev->inquiry_y_ranges [mode] = SHEETFEED_Y_RANGE * MM_PER_INCH;
+	      else
+		dev->inquiry_y_ranges [mode] = A4_Y_RANGE * MM_PER_INCH;
+	    }
 	  }
 	DBG (1, "attach: Mode %d range is now: %f x %f mm.\n",
 	     mode,
@@ -3239,7 +3258,7 @@ compute_white_shading_data (Avision_Scanner* s,
   mst[2] = format->b_shading_target;
   
   for (i = 0; i < 3; ++i) {
-    if (mst[i] == INVALID_WHITE_SHADING || mst[i] > MAX_WHITE_SHADING) {
+    if (mst[i] == INVALID_WHITE_SHADING) /* mst[i] > MAX_WHITE_SHADING) */  {
       DBG (3, "compute_white_shading_data: target %d invaild (%x) using inquiry (%x)\n",
 	   i, mst[i], inquiry_mst);
       mst[i] = inquiry_mst;
@@ -3903,7 +3922,7 @@ do_eof (Avision_Scanner *s)
   }
   
   /* join our processes - without a wait() you will produce defunct
-     children */
+     childs */
   sanei_thread_waitpid (s->reader_pid, &exit_status);
 
   s->reader_pid = 0;
@@ -4692,6 +4711,11 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
 		    linenumber);
 		force_a4 = SANE_TRUE;
 	      }
+	      else if (strcmp (word, "force-a3") == 0) {
+		DBG(3, "sane_init: config file line %d: enabling force-a3\n",
+		    linenumber);
+		force_a3 = SANE_TRUE;
+	      }
 	      else if (strcmp (word, "static-red-calib") == 0) {
 		DBG(3, "sane_init: config file line %d: static red calibration\n",
 		    linenumber);
@@ -4781,7 +4805,7 @@ sane_exit (void)
 
   for (dev = first_dev; dev; dev = next) {
     next = dev->next;
-    free (dev->sane.name);
+    free ((void*) dev->sane.name);
     free (dev);
   }
   first_dev = NULL;

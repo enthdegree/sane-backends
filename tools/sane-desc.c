@@ -21,7 +21,7 @@
    MA 02111-1307, USA.
 */
 
-#define SANE_DESC_VERSION "0.5"
+#define SANE_DESC_VERSION "0.6"
 
 #define MAN_PAGE_LINK "http://www.mostang.com/sane/man/%s.5.html"
 #define COLOR_ALPHA    "#B00000"
@@ -236,7 +236,7 @@ print_usage (char *program_name)
 	  program_name);
   printf ("  -s|--search-dir dir    Specify the directory that contains "
 	  ".desc files\n");
-  printf ("  -m|--mode mode         Output mode (ascii, hmtl-backends, "
+  printf ("  -m|--mode mode         Output mode (ascii, html-backends, "
 	  "html-mfgs)\n");
   printf ("  -t|--title \"title\"     The title used for HTML pages\n");
   printf ("  -i|--intro \"intro\"     A short description of the "
@@ -1474,6 +1474,7 @@ html_backends_table (device_type dev_type)
       printf ("<th align=center>Backend</th>\n");
       printf ("<th align=center>Manual Page</th>\n");
       printf ("<th align=center>Description</th>\n");
+      printf ("<th align=center>Status</th>\n");
       printf ("<th align=center>Comment</th>\n");
       break;
     default:
@@ -1516,34 +1517,26 @@ html_backends_table (device_type dev_type)
 	      else
 		printf ("%s", be->name);
 
-	      if (be->version)
-		printf ("<br>(v%s", be->version);
-	      else
-		printf ("<br>(v?");
-	      /*
-	         switch (be->status)
-	         {
-	         case status_alpha:
-	         printf ("<font color=" COLOR_ALPHA ">alpha</font>");
-	         break;
-	         case status_beta:
-	         printf ("<font color=" COLOR_BETA ">beta</font>");
-	         break;
-	         case status_stable:
-	         printf ("<font color=" COLOR_STABLE ">stable</font>");
-	         break;
-	         default:
-	         printf ("?");
-	         break;
-	         }
-	       */
-	      if (be->new)
-		printf (", <font color=" COLOR_NEW ">NEW!</font>)");
-	      else
-		printf (")");
+	      if (be->version || be->new)
+		{
+		  printf ("<br>(");
+		  if (be->version)
+		    {
+		      printf ("v%s", be->version);
+		      if (be->new)
+			printf (", <font color=" COLOR_NEW ">NEW!</font>");
+		    }
+		  else
+		    printf ("<font color=" COLOR_NEW ">NEW!</font>");
+		  printf (")\n");
+		}
 	      printf ("</td>\n");
-	      printf ("<td align=center rowspan=%d><a href=\"" MAN_PAGE_LINK
-		      "\">%s</a></td>\n", row_num, be->manpage, be->manpage);
+	      if (be->manpage)
+		printf ("<td align=center rowspan=%d><a href=\"" MAN_PAGE_LINK
+			"\">%s</a></td>\n", row_num, be->manpage,
+			be->manpage);
+	      else
+		printf ("<td align=center rowspan=%d>?</td>\n", row_num);
 
 	      mfg = type->mfg;
 	      if (!mfg && type->desc)
@@ -1558,6 +1551,24 @@ html_backends_table (device_type dev_type)
 		    }
 		  else
 		    printf ("<td>&nbsp;</td>\n");
+		  printf ("<td>");
+		  switch (be->status)
+		    {
+		    case status_alpha:
+		      printf ("<font color=" COLOR_ALPHA ">alpha</font>");
+		      break;
+		    case status_beta:
+		      printf ("<font color=" COLOR_BETA ">beta</font>");
+		      break;
+		    case status_stable:
+		      printf ("<font color=" COLOR_STABLE ">stable</font>");
+		      break;
+		    default:
+		      printf ("?");
+		      break;
+		    }
+		  printf ("</td>\n");
+
 		  if (type->desc->comment)
 		    printf ("<td>%s</td>\n", type->desc->comment);
 		  else
@@ -1760,38 +1771,29 @@ html_mfgs_table (device_type dev_type)
 			be_record->url->name, be_record->name);
 	      else
 		printf ("%s", be_record->name);
-	      if (be_record->version)
-		printf ("<br>(v%s", be_record->version);
-	      else
-		printf ("<br>(?");
-	      /*
-	         switch (be_record->status)
-	         {
-	         case status_alpha:
-	         printf ("<font color=" COLOR_ALPHA
-	         ">alpha</font>");
-	         break;
-	         case status_beta:
-	         printf ("<font color=" COLOR_BETA
-	         ">beta</font>");
-	         break;
-	         case status_stable:
-	         printf ("<font color=" COLOR_STABLE
-	         ">stable</font>");
-	         break;
-	         default:
-	         printf ("?");
-	         break;
-	         }
-	       */
-	      if (be_record->new)
-		printf (", <font color=" COLOR_NEW ">NEW!</font>)");
-	      else
-		printf (")");
+
+	      if (be_record->version || be_record->new)
+		{
+		  printf ("<br>(");
+		  if (be_record->version)
+		    {
+		      printf ("v%s", be_record->version);
+		      if (be_record->new)
+			printf (", <font color=" COLOR_NEW ">NEW!</font>");
+		    }
+		  else
+		    printf ("<font color=" COLOR_NEW ">NEW!</font>");
+		  printf (")\n");
+		}
+
 	      printf ("</td>\n");
-	      printf ("<td align=center><a href=\""
-		      MAN_PAGE_LINK "\">%s</a></td>\n",
-		      be_record->manpage, be_record->manpage);
+	      if (be_record->manpage)
+
+		printf ("<td align=center><a href=\""
+			MAN_PAGE_LINK "\">%s</a></td>\n",
+			be_record->manpage, be_record->manpage);
+	      else
+		printf ("<td align=center>?</td>\n");
 
 	      printf ("</tr>\n");
 	      model = model->next;
@@ -1836,8 +1838,8 @@ html_print_header (void)
      "e-mail to sane-devel, the <a\n"
      "href=\"http://www.mostang.com/sane/mail.html\">SANE mailing\n"
      "list</a>.</p>\n"
-     "<p>(For an explanation of the tables, see the\n"
-     "<a href=\"#legend\">legend</a>.)\n"
+     "<p>For an explanation of the tables, see the\n"
+     "<a href=\"#legend\">legend</a>.\n"
      "<p>There are tables for <a href=\"#SCANNERS\">scanners</a>,\n"
      "<a href=\"#STILL\">still cameras</a>,\n"
      "<a href=\"#VIDEO\">video cameras</a>,\n"
@@ -1908,17 +1910,7 @@ html_print_backends (void)
      "      detailed information, if it exists, or the email address\n"
      "      of the author or maintainer. In parentheses if available:\n"
      "      Version of backend/driver; newer versions may be\n"
-     "      available from their home sites. Status of the backend:\n"
-     "      A vague indication of robustness and reliability.\n"
-     "      <ul><li><font color=" COLOR_ALPHA ">alpha</font> means it must\n"
-     "        do something, but is not very well tested, probably has\n"
-     "        bugs, and may even crash your system, etc., etc.\n"
-     "      <li><font color=" COLOR_BETA ">beta</font> means it works\n"
-     "        pretty well, and looks stable and functional, but not\n"
-     "        bullet-proof.\n"
-     "      <li><font color=" COLOR_STABLE ">stable</font> means someone is\n"
-     "        pulling your leg.\n"
-     "      </ul>\n"
+     "      available from their home sites.<br>"
      "      <font color=" COLOR_NEW ">NEW!</font> means brand-new to the\n"
      "      current release of SANE.\n"
      "  </dd>\n"
@@ -1932,6 +1924,20 @@ html_print_backends (void)
      "  <dd>Name of the the device.</dd>\n"
      "  <dt><b>Interface:</b></dt>\n"
      "  <dd>How the device is connected to the computer.</dd>\n"
+     "  <dt><b>Status</b>:</dt>\n"
+     "  <dd>A vague indication of robustness and reliability.\n"
+     "      <ul><li><font color=" COLOR_UNTESTED ">untested</font> means the "
+     "        device may be supported but couldn't be tested. Be very "
+     "        careful.\n"
+     "      <li><font color=" COLOR_ALPHA ">alpha</font> means it must\n"
+     "        do something, but is not very well tested, probably has\n"
+     "        bugs, and may even crash your system, etc., etc.\n"
+     "      <li><font color=" COLOR_BETA ">beta</font> means it works\n"
+     "        pretty well, and looks stable and functional, but not\n"
+     "        bullet-proof.\n"
+     "      <li><font color=" COLOR_STABLE ">stable</font> means someone is\n"
+     "        pulling your leg.\n"
+     "      </ul></dd>\n"
      "  <dt><b>Comment:</b></dt>\n"
      "  <dd>More information about the level of support and\n"
      "      possible problems.</dd>\n"
@@ -1956,8 +1962,6 @@ html_print_mfgs (void)
 
   html_print_header ();
 
-  /*  printf ("<p><div align=center>\n"); */
-
   printf ("<h2><a name=\"SCANNERS\">Scanners</a></h2>\n");
   html_mfgs_table (type_scanner);
 
@@ -1973,29 +1977,20 @@ html_print_mfgs (void)
   printf ("<h2><a name=\"META\">Meta Backends</a></h2>\n");
   html_backends_table (type_meta);
 
-  /*  printf ("</div>\n"); */
-
   printf
     ("<h3><a name=\"legend\">Legend:</a></h3>\n"
      "<blockquote>\n"
      "<dl>\n"
-     "  <dt><b>Manufacturer:</b></dt>\n"
-     "  <dd>Manufacturer, Vendor or brand name of the device.</dd>\n"
-     "  <dt><b>Model:</b></dt>\n"
+     "  <dt><b>Model</b>:</dt>\n"
      "  <dd>Name of the the device.</dd>\n"
-     "  <dt><b>Interface:</b></dt>\n"
+     "  <dt><b>Interface</b>:</dt>\n"
      "  <dd>How the device is connected to the computer.</dd>\n"
-     "  <dt><b>Comment:</b></dt>\n"
-     "  <dd>More information about the level of support and\n"
-     "      possible problems.</dd>\n"
-     "  <dt><b>Backend:</b></dt>\n"
-     "  <dd>Name of the backend, with a link to more extensive and\n"
-     "      detailed information, if it exists, or the email address\n"
-     "      of the author or maintainer. In parentheses if available:\n"
-     "      Version of backend/driver; newer versions may be\n"
-     "      available from their home sites. Status of the backend:\n"
-     "      A vague indication of robustness and reliability.\n"
-     "      <ul><li><font color=" COLOR_ALPHA ">alpha</font> means it must\n"
+     "  <dt><b>Status</b>:</dt>\n"
+     "  <dd>A vague indication of robustness and reliability.\n"
+     "      <ul><li><font color=" COLOR_UNTESTED ">untested</font> means the "
+     "        device may be supported but couldn't be tested. Be very "
+     "        careful.\n"
+     "      <li><font color=" COLOR_ALPHA ">alpha</font> means it must\n"
      "        do something, but is not very well tested, probably has\n"
      "        bugs, and may even crash your system, etc., etc.\n"
      "      <li><font color=" COLOR_BETA ">beta</font> means it works\n"
@@ -2003,13 +1998,22 @@ html_print_mfgs (void)
      "        bullet-proof.\n"
      "      <li><font color=" COLOR_STABLE ">stable</font> means someone is\n"
      "        pulling your leg.\n"
-     "      </ul>\n"
+     "      </ul></dd>\n"
+     "  <dt><b>Comment</b>:</dt>\n"
+     "  <dd>More information about the level of support and\n"
+     "      possible problems.</dd>\n"
+     "  <dt><b>Backend</b>:</dt>\n"
+     "  <dd>Name of the backend, with a link to more extensive and\n"
+     "      detailed information, if it exists, or the email address\n"
+     "      of the author or maintainer. In parentheses if available:\n"
+     "      Version of backend/driver; newer versions may be\n"
+     "      available from their home sites.<br>\n"
      "      <font color=" COLOR_NEW ">NEW!</font> means brand-new to the\n"
      "      current release of SANE.\n"
      "  </dd>\n"
-     "  <dt><b>Manual Page:</b></dt>\n"
+     "  <dt><b>Manual Page</b>:</dt>\n"
      "  <dd>A link to the man-page on-line, if it exists.</dd>\n"
-     "  <dt><b>Description</b> (for API and meta backends):</dt>\n"
+     "  <dt><b>Description</b>:</dt>\n"
      "  <dd>The scope of application of the backend.\n"
      "</dl>\n" "</blockquote>\n");
 

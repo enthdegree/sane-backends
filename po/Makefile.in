@@ -106,9 +106,9 @@ $(addprefix install-,$(ALL_MOS)):
 	 backend=$(basename $(basename $(subst install-,,$@))) ; \
 	 lang=$(subst .,,$(suffix $(basename $(subst install-,,$@)))) ; \
 	 dir=$(gnulocaledir)/$${lang}/LC_MESSAGES ; \
-	 echo installing  $${mo_file} to $${dir}/sane-$${backend}.mo ; \
-	 $(MKDIR) $${dir} && \
-	 $(INSTALL_DATA) $${mo_file} $${dir}/sane-$${backend}.mo ;
+	 echo installing  $${mo_file} to $${dir}/sane-$${backend}.mo... ; \
+	 $(MKDIR) $(DESTDIR)$${dir} && \
+	 $(INSTALL_DATA) $${mo_file} $(DESTDIR)$${dir}/sane-$${backend}.mo ;
 
 install-translations: $(addprefix install-,$(ALL_MOS))
 

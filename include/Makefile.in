@@ -34,10 +34,9 @@ DISTCLEAN_FILES = @DISTCLEAN_FILES@
 
 @SET_MAKE@
 
-INSTALLED_INCLUDES = $(addprefix $(top_srcdir)/include/sane/,sane.h \
-	saneopts.h)
+INSTALLED_INCLUDES = sane.h saneopts.h
 
-SANE_INCLUDES = $(INSTALLED_INCLUDES) \
+SANE_INCLUDES = $(addprefix $(top_srcdir)/include/sane/,$(INSTALLED_INCLUDES)) \
                 $(addprefix $(top_srcdir)/include/sane/,config.h.in sanei.h \
                 sanei_ab306.h sanei_auth.h sanei_backend.h \
                 sanei_codec_ascii.h sanei_codec_bin.h sanei_config.h \
@@ -63,10 +62,11 @@ distclean: clean
 	rm -f sane/config.h
 
 install:
-	$(MKDIR) $(includedir)/sane
+	$(MKDIR) $(DESTDIR)$(includedir)/sane
 	@list="$(INSTALLED_INCLUDES)"; for file in $$list; do \
-	  echo installing $${file} in $(includedir)/sane...; \
-	  $(INSTALL_DATA) $${file} $(includedir)/sane || exit 1; \
+	  echo installing sane/$${file} in $(includedir)/sane/$${file}...; \
+	  $(INSTALL_DATA) sane/$${file} $(DESTDIR)$(includedir)/sane/$${file} \
+            || exit 1; \
 	done
 
 uninstall:

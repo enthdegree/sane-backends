@@ -98,37 +98,39 @@ all: sane.ps $(MANPAGES)
 	@echo Generating manpage $@...
 
 install: all
-	$(MKDIR) $(mandir)/man1 $(mandir)/man5 $(mandir)/man7
+	$(MKDIR) $(DESTDIR)$(mandir)/man1 $(DESTDIR)$(mandir)/man5 \
+           $(DESTDIR)$(mandir)/man7
 	@for page in $(SECT1); do \
 	  echo installing $${page} in $(mandir)/man1/$${page}...; \
-	  $(INSTALL_DATA) $${page} $(mandir)/man1/$${page} || exit 1; \
+	  $(INSTALL_DATA) $${page} $(DESTDIR)$(mandir)/man1/$${page} || exit 1; \
 	done
 	@for page in $(SECT5); do \
 	  echo installing $${page} in $(mandir)/man5/$${page}...; \
-	  $(INSTALL_DATA) $${page} $(mandir)/man5/$${page} || exit 1; \
+	  $(INSTALL_DATA) $${page} $(DESTDIR)$(mandir)/man5/$${page} || exit 1; \
 	done
 	@for page in $(SECT7); do \
 	  echo installing $${page} in $(mandir)/man7/$${page}...; \
-	  $(INSTALL_DATA) $${page} $(mandir)/man7/$${page} || exit 1; \
+	  $(INSTALL_DATA) $${page} $(DESTDIR)$(mandir)/man7/$${page} || exit 1; \
 	done
-	$(MKDIR) $(docdir)
+	$(MKDIR) $(DESTDIR)$(docdir)
 	@for readme in $(READMES); do \
 	  echo installing $${readme} in $(docdir)/$${readme}...; \
-	  $(INSTALL_DATA) $(top_srcdir)/$${readme} $(docdir)/$${readme} \
+	  $(INSTALL_DATA) $(top_srcdir)/$${readme} $(DESTDIR)$(docdir)/$${readme} \
 	    || exit 1; \
 	done
 	@for backdir in $(BACKDIRS); do \
-	  echo installing $${backdir} in $(docdir)/$${backdir}...; \
-	  $(MKDIR) $(docdir)/$${backdir} ; \
+	  $(MKDIR) $(DESTDIR)$(docdir)/$${backdir} ; \
 	  for doc in $${backdir}/* ; do \
 	    if test -f $${doc} ; then \
-	      $(INSTALL_DATA) $${doc} $(docdir)/$${backdir} || exit 1; \
+	      echo installing $${doc} in $(docdir)/$${doc}...; \
+	      $(INSTALL_DATA) $${doc} $(DESTDIR)$(docdir)/$${doc} \
+                || exit 1; \
 	    fi \
 	  done \
 	done
 	@-for doc in $(DOCS); do \
 	    echo installing $${doc} in $(docdir)/$${doc}...; \
-	    $(INSTALL_DATA) $${doc} $(docdir)/$${doc}; \
+	    $(INSTALL_DATA) $${doc} $(DESTDIR)$(docdir)/$${doc}; \
 	  done
 
 uninstall:

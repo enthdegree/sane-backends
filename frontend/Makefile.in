@@ -71,14 +71,14 @@ DISTFILES = Makefile.in saned.c scanimage.c stiff.c stiff.h test.c
 all: $(PROGRAMS)
 
 install: $(PROGRAMS)
-	$(MKDIR) $(bindir) $(sbindir) $(datadir)
+	$(MKDIR) $(DESTDIR)$(bindir) $(DESTDIR)$(sbindir) $(DESTDIR)$(datadir)
 	@for program in $(BINPROGS); do \
 	  $(LIBTOOL) $(MINST) $(INSTALL_PROGRAM) $${program} \
-	    $(bindir)/$${program}; \
+	    $(DESTDIR)$(bindir)/$${program}; \
 	done
 	@for program in $(SBINPROGS); do \
 	  $(LIBTOOL) $(MINST) $(INSTALL_PROGRAM) $${program} \
-	    $(sbindir)/$${program}; \
+	    $(DESTDIR)$(sbindir)/$${program}; \
 	done
 
 uninstall:

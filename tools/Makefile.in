@@ -78,8 +78,8 @@ DISTFILES = Makefile.in README libtool-get-dll-ext mustek600iin-off.c \
 all:	$(DESTINATIONS)
 
 install: sane-config sane-find-scanner
-	$(INSTALL_SCRIPT) sane-config $(bindir)/sane-config
-	$(INSTALL_PROGRAM) sane-find-scanner $(bindir)/sane-find-scanner
+	$(INSTALL_SCRIPT) sane-config $(DESTDIR)$(bindir)/sane-config
+	$(INSTALL_PROGRAM) sane-find-scanner $(DESTDIR)$(bindir)/sane-find-scanner
 
 uninstall: 
 	rm -f $(bindir)/sane-config $(bindir)/sane-find-scanner

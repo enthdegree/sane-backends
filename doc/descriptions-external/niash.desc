@@ -11,7 +11,6 @@
 
 :backend "niash"		; name of backend
 ;:version "(0.1)"			; version of backend
-:status :alpha			; :alpha, :beta, :stable, :new
 ;:manpage "sane-niash"		; name of manpage (if it exists)
 :url "http://sourceforge.net/projects/hp3300backend"  ; backend's web page
 :comment "This backend is not included yet because the author wants to do some code clean-up and bug fixes before adding the backend to SANE. See the hp3300 website for the latest information."
@@ -28,10 +27,12 @@
 				; "SCSI", "USB", "Parport (EPP)",
 				; "Parport (SPP)", "Parport (ECP)",
 				; "Serial port" or "Propretiary".
+:status :basic
 :comment "NIASH00014 chip. Prototype backend available"				
 				
 :model "ScanJet 3400c"
 :interface "USB"
+:status :minimal
 :comment "NIASH00019 chip. Partially works."
 
 :model "ScanJet 3400c"
@@ -41,6 +42,7 @@
 
 :model "ScanJet 4300c"
 :interface "USB"
+:status :basic
 :comment "NIASH00019 chip. Partially works."
 
 :model "ScanJet 4300c"
@@ -54,8 +56,8 @@
 
 :model "Snapscan Touch"
 :interface "USB"
-:status :untested
-:comment "NIASH00014 chip. Untested"
+:status :basic
+:comment "NIASH00014 chip"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ; and at the top-level.

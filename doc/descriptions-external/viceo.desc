@@ -10,7 +10,6 @@
 
 :backend "viceo"                    ; name of backend
 :version "0.6"                      ; version of backend
-:status :alpha                      ; :alpha, :beta, :stable, :new
 ;:manpage "sane-viceo"               ; name of manpage (if it exists)
 :url "mailto:viceo@stevencherie.net" ; backend's web page
 :url "http://viceo.orcon.net.nz/"
@@ -22,31 +21,31 @@
 :url "http://www.genius-kye.com/"
 :model "Vivid Pro USB"                  ; name models for above-specified mfg.
 :interface "USB"
-:status :alpha
+:status :basic
 ;:comment "?"
 
 :mfg "Primax"
 :url "http://www.primax.nl/"
 :model "Colorado USB 19200"
 :interface "USB"
-:status :alpha
+:status :basic
 ;:comment "?"
 
 :mfg "Visioneer"
 
 :model "OneTouch 6100"
 :interface "USB"
-:status :alpha
+:status :basic
 ;:comment "?"
 
 :model "OneTouch 7600"
 :interface "USB"
-:status :alpha
+:status :basic
 ;:comment "?"
 
 :model "OneTouch 8600"
 :interface "USB"
-:status :alpha
+:status :basic
 ;:comment "?"
 
 
@@ -54,11 +53,11 @@
 :url "http://www.ibm.com/"
 :model "IdeaScan 2000 USB"
 :interface "USB"
-:status :alpha
+:status :basic
 ;:comment "?"
 
 :mfg "LG Electronics"
 :model "Scanworks 600U"
 :interface "USB"
-:status :alpha
+:status :basic
 ;:comment "?"

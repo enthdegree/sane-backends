@@ -11,7 +11,6 @@
 :backend "scanwit"                 ; name of backend
 :url "ftp://ftp.mccme.ru/users/ushakov/scanwit"
 ;:version "(2001-10-10)"          ; version of backend
-:status :alpha                 ; :alpha, :beta, :stable, :new
 ;
 ;:manpage "sane-ibm"            ; name of manpage (if it exists)
 :comment "The backend is not included because it lacks code for safe detection of the scanner and documentation."
@@ -24,5 +23,5 @@
 
 :model "ScanWit 2720S"                  ; name models for above-specified mfg.
 :interface "SCSI"
-:status :alpha
+:status :basic
 :comment "Usable, but not complete"

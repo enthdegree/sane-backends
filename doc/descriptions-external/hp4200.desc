@@ -11,7 +11,7 @@
 
 :backend "hp4200"               ; name of backend
 ;:version "0.1"                    ; version of backend
-:status :alpha                    ; :alpha, :beta, :stable, :new
+;:status :alpha                    ; :alpha, :beta, :stable, :new
 ; :manpage "sane-hp4200"           ; name of manpage (if it exists)
 :url "http://hp4200-backend.sourceforge.net" ; backend's web page
 :comment "Patches for newer versions of SANE are available from <a href=\"http://fz.eryx.net/sane/#hp4200\">http://fz.eryx.net/sane/#hp4200</a>. This backend is not yet included because nobody who owns such a scanner wants to maintain it."
@@ -22,8 +22,10 @@
 
 :mfg "Hewlett-Packard"                         ; name a manufacturer
 :url "http://www.hp.com/"
+
 :model "ScanJet 4200c"                   ; name models for above-specified mfg.
 :interface "USB"
+:status :minimal
 :comment "8bpp, 150/300/600 dpi only, and scanned image needs postprocessing"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,

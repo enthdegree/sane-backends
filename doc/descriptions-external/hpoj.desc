@@ -11,7 +11,6 @@
 
 :backend "hpoj"                   ; name of backend
 ;:version "(external)"             ; version of backend
-:status :beta                     ; :alpha, :beta, :stable, :new
 :url "http://hpoj.sourceforge.net/" ; backend's web page
 :comment "This backend isn't included because the authors of hpoj want to keep the backend together with the rest of the hpoj project. See the hpoj website for the latest releases."
 
@@ -28,6 +27,7 @@
 :model "Most HP OfficeJet, LaserJet, and PSC (Printer/Scanner/Copier) multi-function peripherals"
 :url "http://hpoj.sourceforge.net/suplist.shtml"
 :interface "Parport(ECP) USB JetDirect"
+:status :good
 :comment "Distributed with the HP OfficeJet Linux driver (hpoj)"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,

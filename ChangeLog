@@ -21,6 +21,15 @@
 	  Added "unmaintained" where appropriate. The status values are
 	  sometimes guessed from the documentation.
 	* doc/descriptions/unsupported.desc: Added Benq parport scanners.
+	* doc/descriptions-external/hp4200.desc
+	  doc/descriptions-external/hpoj.desc
+	  doc/descriptions-external/niash.desc
+	  doc/descriptions-external/primax.desc
+	  doc/descriptions-external/scanwit.desc
+	  doc/descriptions-external/v4l2.desc
+	  doc/descriptions-external/viceo.desc: Updated to new status
+	  system. The status values are sometimes guessed from the
+	  documentation.
 
 2003-06-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.10\n"
-"POT-Creation-Date: 2003-01-10 17:36+0100\n"
+"POT-Creation-Date: 2003-01-18 12:45+0100\n"
 "PO-Revision-Date: 2003-01-10 13:51+0000\n"
 "Last-Translator: Pedro Morais <morais@inocam.com>\n"
 "Language-Team: pt <morais@inocam.com>\n"
@@ -31,7 +31,7 @@ msgstr "Cinzento"
 msgid "Color"
 msgstr "Cor"
 
-#: .tmp/artec_eplus48u.c:2809 .tmp/gt68xx.c:584 .tmp/leo.c:869
+#: .tmp/artec_eplus48u.c:2809 .tmp/gt68xx.c:584 .tmp/leo.c:871
 #: .tmp/matsushita.c:1149 .tmp/microtek2.h:611 .tmp/mustek.c:4255
 #: .tmp/mustek_usb.c:353 .tmp/plustek.c:891 .tmp/sceptre.c:753
 #: .tmp/snapscan-options.c:401 .tmp/teco1.c:1136 .tmp/teco2.c:1445
@@ -48,7 +48,7 @@ msgid "Set default values for enhancement controls."
 msgstr ""
 
 #: .tmp/artec_eplus48u.c:2888 .tmp/epson.c:2810 .tmp/gt68xx.c:614
-#: .tmp/leo.c:821 .tmp/matsushita.c:1095 .tmp/microtek2.h:610
+#: .tmp/leo.c:823 .tmp/matsushita.c:1095 .tmp/microtek2.h:610
 #: .tmp/mustek.c:4207 .tmp/mustek_usb.c:305 .tmp/plustek.c:845
 #: .tmp/sceptre.c:705 .tmp/snapscan-options.c:334 .tmp/teco1.c:1088
 #: .tmp/teco2.c:1397 .tmp/teco3.c:923 .tmp/test.c:616 .tmp/umax.c:5112
@@ -110,11 +110,24 @@ msgid "gain"
 msgstr "ganho"
 
 #: .tmp/canon630u.c:255
-msgid "Analog gain"
+#, fuzzy
+msgid "Analog Gain"
 msgstr "Ganho analógico"
 
 #: .tmp/canon630u.c:256
 msgid "Increase or decrease the analog gain of the CCD array"
+msgstr ""
+
+#: .tmp/canon630u.c:293
+msgid "gamma"
+msgstr ""
+
+#: .tmp/canon630u.c:294 .tmp/epson.h:68
+msgid "Gamma Correction"
+msgstr ""
+
+#: .tmp/canon630u.c:295
+msgid "Selects the gamma corrected transfer curve"
 msgstr ""
 
 #: .tmp/epson.c:448 .tmp/plustek.c:220 .tmp/plustek.c:230 .tmp/plustek.c:240
@@ -462,10 +475,6 @@ msgstr ""
 msgid "select bay to scan"
 msgstr ""
 
-#: .tmp/epson.h:68
-msgid "Gamma Correction"
-msgstr ""
-
 #: .tmp/epson.h:69
 msgid ""
 "Selectes the gamma correction value from a list of pre-defined devices or "
@@ -587,7 +596,7 @@ msgstr ""
 msgid "8x8 Vertical Line"
 msgstr ""
 
-#: .tmp/leo.c:779 .tmp/saneopts.h:113
+#: .tmp/leo.c:781 .tmp/saneopts.h:113
 msgid "Scan mode"
 msgstr "Modo de digitalização"
 

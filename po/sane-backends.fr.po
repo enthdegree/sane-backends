@@ -12,7 +12,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.7\n"
-"POT-Creation-Date: 2003-01-09 01:56+0100\n"
+"POT-Creation-Date: 2003-01-18 12:45+0100\n"
 "PO-Revision-Date: 2002-02-08 20:00-0600\n"
 "Last-Translator: Frank Zago <fzago at austin dot rr dot com>\n"
 "Language-Team: \n"
@@ -35,15 +35,15 @@ msgstr "Niveaux de gris"
 # sceptre.h:280
 #: .tmp/artec_eplus48u.c:155 .tmp/epson.c:450 .tmp/gt68xx.c:116 .tmp/leo.h:270
 #: .tmp/mustek.c:126 .tmp/mustek.c:130 .tmp/mustek_usb.c:268
-#: .tmp/plustek.c:213 .tmp/plustek.c:223 .tmp/plustek.c:232 .tmp/sceptre.h:300
+#: .tmp/plustek.c:223 .tmp/plustek.c:233 .tmp/plustek.c:243 .tmp/sceptre.h:300
 #: .tmp/snapscan.c:157 .tmp/teco1.h:300 .tmp/teco2.h:354 .tmp/teco3.h:304
 #: .tmp/test.c:120 .tmp/umax.c:190 .tmp/umax_pp.c:135
 msgid "Color"
 msgstr "Couleur"
 
-#: .tmp/artec_eplus48u.c:2809 .tmp/gt68xx.c:584 .tmp/leo.c:869
+#: .tmp/artec_eplus48u.c:2809 .tmp/gt68xx.c:584 .tmp/leo.c:871
 #: .tmp/matsushita.c:1149 .tmp/microtek2.h:611 .tmp/mustek.c:4255
-#: .tmp/mustek_usb.c:353 .tmp/plustek.c:880 .tmp/sceptre.c:753
+#: .tmp/mustek_usb.c:353 .tmp/plustek.c:891 .tmp/sceptre.c:753
 #: .tmp/snapscan-options.c:401 .tmp/teco1.c:1136 .tmp/teco2.c:1445
 #: .tmp/teco3.c:971 .tmp/umax.c:5162 .tmp/umax_pp.c:446
 msgid "Enhancement"
@@ -58,8 +58,8 @@ msgid "Set default values for enhancement controls."
 msgstr ""
 
 #: .tmp/artec_eplus48u.c:2888 .tmp/epson.c:2810 .tmp/gt68xx.c:614
-#: .tmp/leo.c:821 .tmp/matsushita.c:1095 .tmp/microtek2.h:610
-#: .tmp/mustek.c:4207 .tmp/mustek_usb.c:305 .tmp/plustek.c:834
+#: .tmp/leo.c:823 .tmp/matsushita.c:1095 .tmp/microtek2.h:610
+#: .tmp/mustek.c:4207 .tmp/mustek_usb.c:305 .tmp/plustek.c:845
 #: .tmp/sceptre.c:705 .tmp/snapscan-options.c:334 .tmp/teco1.c:1088
 #: .tmp/teco2.c:1397 .tmp/teco3.c:923 .tmp/test.c:616 .tmp/umax.c:5112
 #: .tmp/umax_pp.c:397
@@ -125,23 +125,38 @@ msgstr ""
 
 #: .tmp/canon630u.c:255
 #, fuzzy
-msgid "Analog gain"
+msgid "Analog Gain"
 msgstr "Gamma analogique vert"
 
 #: .tmp/canon630u.c:256
 msgid "Increase or decrease the analog gain of the CCD array"
 msgstr ""
 
+#: .tmp/canon630u.c:293
+#, fuzzy
+msgid "gamma"
+msgstr "Gamma"
+
+#: .tmp/canon630u.c:294 .tmp/epson.h:68
+#, fuzzy
+msgid "Gamma Correction"
+msgstr "Correction gamma analogique"
+
+#: .tmp/canon630u.c:295
+#, fuzzy
+msgid "Selects the gamma corrected transfer curve"
+msgstr "Correction gamma analogique"
+
 # sceptre.h:280
-#: .tmp/epson.c:448 .tmp/plustek.c:210 .tmp/plustek.c:220 .tmp/plustek.c:230
+#: .tmp/epson.c:448 .tmp/plustek.c:220 .tmp/plustek.c:230 .tmp/plustek.c:240
 #, fuzzy
 msgid "Binary"
 msgstr "Noir et blanc"
 
 # sceptre.h:280
 #: .tmp/epson.c:449 .tmp/gt68xx.c:117 .tmp/mustek.c:125 .tmp/mustek.c:130
-#: .tmp/mustek_usb.c:269 .tmp/plustek.c:212 .tmp/plustek.c:222
-#: .tmp/plustek.c:231 .tmp/sceptre.h:299 .tmp/snapscan.c:159 .tmp/test.c:120
+#: .tmp/mustek_usb.c:269 .tmp/plustek.c:222 .tmp/plustek.c:232
+#: .tmp/plustek.c:241 .tmp/sceptre.h:299 .tmp/snapscan.c:159 .tmp/test.c:120
 #: .tmp/umax.c:187 .tmp/umax_pp.c:135
 msgid "Gray"
 msgstr "Gris"
@@ -313,7 +328,7 @@ msgstr ""
 
 #: .tmp/epson.c:2341 .tmp/gt68xx.c:432 .tmp/matsushita.c:1044
 #: .tmp/microtek2.h:609 .tmp/mustek.c:4070 .tmp/mustek_usb.c:260
-#: .tmp/plustek.c:739 .tmp/sceptre.c:676 .tmp/snapscan-options.c:189
+#: .tmp/plustek.c:750 .tmp/sceptre.c:676 .tmp/snapscan-options.c:189
 #: .tmp/teco2.c:1369 .tmp/test.c:291 .tmp/umax.c:4990
 msgid "Scan Mode"
 msgstr "Mode de numérisation"
@@ -492,11 +507,6 @@ msgstr ""
 msgid "select bay to scan"
 msgstr ""
 
-#: .tmp/epson.h:68
-#, fuzzy
-msgid "Gamma Correction"
-msgstr "Correction gamma analogique"
-
 #: .tmp/epson.h:69
 msgid ""
 "Selectes the gamma correction value from a list of pre-defined devices or "
@@ -611,7 +621,7 @@ msgstr ""
 msgid "8x8 Vertical Line"
 msgstr ""
 
-#: .tmp/leo.c:779 .tmp/saneopts.h:113
+#: .tmp/leo.c:781 .tmp/saneopts.h:113
 msgid "Scan mode"
 msgstr "Mode de numérisation"
 
@@ -680,7 +690,7 @@ msgstr "Moyen"
 msgid "High"
 msgstr "Haut"
 
-#: .tmp/matsushita.c:244 .tmp/mustek.c:141 .tmp/plustek.c:239
+#: .tmp/matsushita.c:244 .tmp/mustek.c:141 .tmp/plustek.c:250
 msgid "Normal"
 msgstr "Normal"
 
@@ -982,7 +992,7 @@ msgid "Sets the color balance values to the firmware provided values."
 msgstr ""
 
 # sceptre.h:280
-#: .tmp/mustek.c:125 .tmp/plustek.c:211 .tmp/plustek.c:221 .tmp/sceptre.h:298
+#: .tmp/mustek.c:125 .tmp/plustek.c:221 .tmp/plustek.c:231 .tmp/sceptre.h:298
 #: .tmp/snapscan.c:158 .tmp/umax.c:186
 msgid "Halftone"
 msgstr "Demi-ton"
@@ -1157,31 +1167,39 @@ msgid "Controls the contrast of the blue channel of the acquired image."
 msgstr "Controle le constraste de l'image à numériser."
 
 # sceptre.h:280
-#: .tmp/plustek.c:224
+#: .tmp/plustek.c:234
 #, fuzzy
 msgid "Color36"
 msgstr "Couleur"
 
+#: .tmp/plustek.c:242
+msgid "Gray 14/16"
+msgstr ""
+
 # sceptre.h:280
-#: .tmp/plustek.c:233
+#: .tmp/plustek.c:244
 #, fuzzy
-msgid "Color42"
+msgid "Color 42/48"
 msgstr "Couleur"
 
-#: .tmp/plustek.c:240
+#: .tmp/plustek.c:251
 #, fuzzy
 msgid "Transparency"
 msgstr "Transparent"
 
-#: .tmp/plustek.c:248
+#: .tmp/plustek.c:252 .tmp/saneopts.h:149
+msgid "Negative"
+msgstr "Negatif"
+
+#: .tmp/plustek.c:258
 msgid "Dithermap 1"
 msgstr ""
 
-#: .tmp/plustek.c:249
+#: .tmp/plustek.c:259
 msgid "Dithermap 2"
 msgstr ""
 
-#: .tmp/plustek.c:250
+#: .tmp/plustek.c:260
 msgid "Randomize"
 msgstr ""
 
@@ -1478,10 +1496,6 @@ msgstr "Motif demi-teinte"
 #: .tmp/saneopts.h:148
 msgid "Bind X and Y resolution"
 msgstr "Lie les échantillonage X et Y"
-
-#: .tmp/saneopts.h:149
-msgid "Negative"
-msgstr "Negatif"
 
 #: .tmp/saneopts.h:150
 msgid "Quality calibration"

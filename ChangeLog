@@ -1,4 +1,11 @@
+2005-02-08  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* sanei/sanei_pp.c: Cleanup, uses now static array for parport
+	  management instead of dynamically allocated. Fixes at least a
+	  potential memory leak.
+
 2005-02-06  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
 	* doc/descriptions/unsupported.desc doc/descriptions/snapscan.desc:
 	  Renamed "Benq" to "Benq (Acer)" for better access through the
 	  scanner search engine. Fixes bug #301158

@@ -10,9 +10,9 @@
 ;
 
 :backend "template"               ; name of backend
-:version "0.n"                    ; version of backend, use brackets (x.y) if
-                                  ; the backend is not included in SANE yet
-:status :alpha                    ; :alpha, :beta, :stable, :new
+:version "0.n"                    ; version of backend
+:status :alpha                    ; :alpha, :beta, :stable
+:new :yes                         ; Is the backend new? :yes or :no
 :manpage "sane-template"          ; name of manpage (if it exists)
 :url "http://www.luser.com/temp/" ; backend's web page
 

@@ -11,7 +11,7 @@
 
 :backend "template"               ; name of backend
 :version "0.n"                    ; version of backend
-:status :alpha                    ; :alpha, :beta, :stable, :new
+:status :alpha                    ; :alpha, :beta, :stable
 :manpage "sane-template"          ; name of manpage (if it exists)
 :url "http://www.luser.com/temp/" ; backend's web page
 

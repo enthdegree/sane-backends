@@ -21,7 +21,9 @@ Vendor     Product id:     Remark:
 --------   --------------  -----------
 .br
 Microtek   ScanMaker 3600  all modes ok
+.br
 Microtek   ScanMaker 3700  reported to work
+.br
 Microtek   ScanMaker 3750  reported to work
 .RE
 .PP
@@ -57,7 +59,10 @@ support dynamic loading).
 .SH PERMISSIONS AND INTERFACES
 
 The backend uses \fBlibusb\fR and it's pseudo files in
-\fI/proc/bus/usb/*\fR.
+\fI/proc/bus/usb/*\fR. Since \fBlibusb\fR versions 0.1.3b and 0.1.4 have
+incompatible binary data structures, You must be shure not to have obsolete
+header files. When You mix wrong versions, the scanner detection code will
+raise a "segment violation".
 
 These files are normally owned by \fBroot\fR and You are responsible
 to get access to these files, for example \fBchown\fR-ing them to

@@ -1,3 +1,4 @@
+
 /* sane - Scanner Access Now Easy.
    Copyright (C) 1996, 1997 David Mosberger-Tang
    This file is part of the SANE package.
@@ -215,11 +216,13 @@ static TLineType GetLineType(TInstance *this)
   return ltUnknown;
 }
 
+#ifdef INSANE_VERSION
+
 /* **********************************************************************
 
 FakeCalibration()
 
-If DoIriginate() and this Calibration code is skipped,
+If DoOriginate() and this Calibration code is skipped,
 we should at least provide for some fake measurements.
 Thus a test scan of the scanner's inside is possible.
 
@@ -242,6 +245,8 @@ TState FakeCalibration(TInstance *this)
   this->calibration.xMargin=this->calibration.yMargin=0;
   return SANE_STATUS_GOOD;
 }
+
+#endif
 
 /* **********************************************************************
 

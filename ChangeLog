@@ -1,3 +1,7 @@
+2001-05-08  Simon Munton <simon@munton.demon.co.uk>
+	* backend/pie.c: Free devlist in sane_exit. Removed redundant check for
+	trailing newline in config file.
+
 2001-05-07  Peter Fales <peter@fales.com>
 	* backend/dc25.[ch]: Cleaned up compiler warnings and fixed (very
 	  minor) memory leak.

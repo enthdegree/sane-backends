@@ -119,6 +119,13 @@
 :interface "USB"
 :status :stable
 
+;* The unsupported ones :-( *****************************************************************
+
+:model "OpticPro 19200S"
+:interface "SCSI"
+:status :unsupported
+:comment "rebadged Artec AM12S (supported by Artec Backend)"
+
 ;* Primax ***********************************************************************************
 
 :mfg "Primax"                  ; name of manufacturer
@@ -292,40 +299,4 @@
 :interface "USB"
 :status :stable
 :comment "Poor color picture quality"
-
-;* The unsupported ones :-( *****************************************************************
-
-:model "OpticPro 19200S"
-:interface "SCSI"
-:status :unsupported
-:comment "rebadged Artec AM12S (supported by Artec Backend)"
-
-:model "OpticPro 1212U"
-:interface "USB"
-:status :unsupported
-
-:model "OpticPro 1248U"
-:interface "USB"
-:status :unsupported
-:comment "Contains GrandTech 68xx chipset - see gt68xx Backend"
-
-:model "OpticPro UT16B"
-:interface "USB"
-:status :unsupported
-:comment "Contains GrandTech 68xx chipset - see gt68xx Backend"
-
-:model "OpticPro S6"
-:interface "USB"
-:status :unsupported
-:comment "Uses RealTek chipset"
-
-:model "OpticPro S12"
-:interface "USB"
-:status :unsupported
-:comment "Not supported. Uses the GL646 chipset."
-
-:model "OpticPro S24"
-:interface "USB"
-:status :unsupported
-:comment "Not supported. Uses the GL646 chipset."
 

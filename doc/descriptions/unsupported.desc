@@ -60,11 +60,6 @@
 :status :unsupported
 :comment "All devices using product ID 0x0001 are not supported, for others see Plustek backend."
 
-:model "OpticPro UT16B"
-:interface "USB"
-:status :unsupported
-:comment "Uses GrandTech 68xx chipset - see gt68xx Backend"
-
 :model "OpticPro S6"
 :interface "USB"
 :status :unsupported

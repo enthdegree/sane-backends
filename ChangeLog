@@ -1,3 +1,7 @@
+2001-10-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/ibm.desc: Removed old entry.
+
 2001-10-09  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan-scsi.c    backend/snapscan-sources.c

@@ -3,6 +3,7 @@
 	* doc/descriptions-external/hp5400.desc: Added description for hp5400
 	  backend. It supports the Hewlett-Packard 5400, 5470 and (maybe) 5490
 	  scanners.
+	* doc/descriptions-external/viceo.desc: Added Visioneer OneTouch 8600.
 
 2003-02-26  Ulrich Deiters <ukd@xenon.pc.uni-koeln.de>
 

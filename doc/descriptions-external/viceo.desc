@@ -33,15 +33,22 @@
 ;:comment "?"
 
 :mfg "Visioneer"
-:model "OneTouch 7600"
-:interface "USB"
-:status :alpha
-;:comment "?"
 
 :model "OneTouch 6100"
 :interface "USB"
 :status :alpha
 ;:comment "?"
+
+:model "OneTouch 7600"
+:interface "USB"
+:status :alpha
+;:comment "?"
+
+:model "OneTouch 8600"
+:interface "USB"
+:status :alpha
+;:comment "?"
+
 
 :mfg "IBM"
 :url "http://www.ibm.com/"

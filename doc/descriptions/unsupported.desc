@@ -164,11 +164,6 @@
 :status :unsupported
 :comment "Unsupported. Vendor/product unknown. Maybe similar to fi-4220C?"
 
-:model "fi-4120C"
-:interface "USB SCSI"
-:status :unsupported
-:comment "Unsupported. Vendor/product: 0x04c5/0x1042. Maybe similar to fi-4220C?"
-
 
 ;********************************************************************************************
 

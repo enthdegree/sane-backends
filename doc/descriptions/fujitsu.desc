@@ -37,8 +37,14 @@
 :interface "SCSI"
 :model "M4097"
 :interface "SCSI"
+:model "fi-4120C"
+:interface "USB SCSI"
+:status :untested
+:comment "Probably similar to fi-4220C?"
 :model "fi-4220C"
 :interface "SCSI USB"
 :model "fi-4340C"
 :interface "SCSI USB"
+:model "ScanPartner 93GX"
+:interface "SCSI"
 

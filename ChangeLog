@@ -1,3 +1,10 @@
+2003-03-05  Oliver Schirrmeister <oschirr@abm.de>
+	* backend/fujitsu.c, backend/fujitsu.h: renamed some variables
+	* backend/fujitsu.c: gray duplex scanning now works with the 4097D
+	  when disconnect is enabled in the scsi-controller
+	* doc/descriptions/unsupported.desc: remove fujitsu fi4120C
+	* doc/descriptions/fujitsu.desc added fi4120C, ScanParter 93GX
+
 2003-03-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* include/sane/sanei.h sanei/sanei_constrain_value.c: Added function
@@ -158,14 +165,13 @@
 	  HP scanners.
 
 2003-02-20  Oliver Schirrmeister <oschirr@abm.de>
-        * make option RIF available for 3091 and 3092, bugfix
-	* set availability of options THRESHOLD und VARIANCE
+        * backend/fujitsu.c: make option RIF available for 3091 and 3092, bugfix
+	* backend/fujitsu.c: set availability of options THRESHOLD und VARIANCE
 	
 2003-02-20  Oliver Schirrmeister <oschirr@abm.de>
-	* patch from <ron@roncemer.com>:
+	* backend/fujitsu.c, backend/fujitsu.h: patch from <ron@roncemer.com>:
 	  fi4220 support
 	  USB support for scanners which send SCSI commands over usb
-	
 
 2003-02-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

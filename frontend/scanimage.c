@@ -32,6 +32,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdarg.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -1496,14 +1497,14 @@ main (int argc, char **argv)
 	        const char **arglist = malloc(8 * sizeof(char**));
 	        if (arglist == 0)
 	          {
-	            printf("no enough memory\n");
+	            fprintf(stderr, "%s: not enough memory\n", prog_name);
 	            exit(1);
 	          }
 	        
 	        fmt = malloc(strlen(optarg));
 	        if (fmt == 0)
 	          {
-	            printf("no enough memory\n");
+	            fprintf(stderr, "%s: not enough memory\n", prog_name);
 	            exit(1);
 	          }
 	        
@@ -1523,7 +1524,8 @@ main (int argc, char **argv)
 	                        arglist = realloc(arglist, maxarg * sizeof(char**));
 	                        if (arglist == 0)
 	                          {
-	  	                    printf("no enough memory\n");
+				    fprintf(stderr, "%s: not enough memory\n", 
+					    prog_name);
 		                    exit(1);
 	                          } 
 	                      }
@@ -1551,13 +1553,15 @@ main (int argc, char **argv)
 	                        case '%':
 	                          break;
 	                        default:
-	                          printf("unkonwn format specifier %%%c\n", *percent);
+	                          fprintf(stderr, "%s: unknown format specifier %%%c\n",
+					  prog_name, *percent);
 	                      }
 	                    percent++;
 	                  }
 	                start = percent;
 	              }
 	            vprintf(fmt, arglist);
+		    va_end(arglist);
 	          }
 	      }
 	        
@@ -1602,6 +1606,9 @@ standard output.\n\
 -d, --device-name=DEVICE   use a given scanner device (e.g. hp:/dev/scanner)\n\
 -h, --help                 display this help message and exit\n\
 -L, --list-devices         show available scanner devices\n\
+-f, --formatted-device-list=FORMAT similar to -L, but the FORMAT of the output\n\
+                           can be specified: %%d (device name), %%v (vendor),\n\
+                           %%m (model), %%t (type), and %%i (index number)\n\
 -T, --test                 test backend thoroughly\n\
 -v, --verbose              give even more status messages\n\
 -V, --version              print version information\n\

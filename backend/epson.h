@@ -61,10 +61,15 @@
 #define SANE_NAME_GAMMA_CORRECTION "gamma-correction"
 #define SANE_TITLE_GAMMA_CORRECTION "Gamma Correction"
 #define SANE_DESC_GAMMA_CORRECTION "Selectes the gamma correction value from a list of pre-defined devices or the user defined table, which can be downloaded to the scanner"
-#define LINES_SHUFFLE_MAX	(17)
+
+#define SANE_EPSON_FOCUS_NAME "focus-position"
+#define SANE_EPSON_FOCUS_TITLE "Focus Position"
+#define SANE_EPSON_FOCUS_DESC "Sets the focus position to either the glass or 2.5mm above the glass"
+
+#define LINES_SHUFFLE_MAX	(17)	/* 2 x 8 lines plus 1 */
 
 typedef struct {
-	unsigned char * level;
+	char * level;
 
 	unsigned char	request_identity;
 	unsigned char	request_identity2;		/* new request identity command for Dx command level */
@@ -98,6 +103,8 @@ typedef struct {
 	unsigned char	set_exposure_time;			/* F5 */
 	unsigned char	set_bay;				/* F5 */
 	unsigned char	set_threshold;
+	unsigned char	set_focus_position;			/* B8 */
+	unsigned char	request_focus_position;			/* B8 */
 } EpsonCmdRec, * EpsonCmd;
 
 enum
@@ -144,6 +151,7 @@ enum
 		, OPT_SOURCE
 		, OPT_AUTO_EJECT
 		, OPT_FILM_TYPE
+		, OPT_FOCUS
 		, OPT_BAY
 		, OPT_EJECT
 	, NUM_OPTIONS
@@ -212,6 +220,7 @@ struct Epson_Device {
 	SANE_Bool use_extension;	/* use the installed extension */
 	SANE_Bool TPU;			/* TPU is installed */
 	SANE_Bool ADF;			/* ADF is installed */
+	SANE_Bool focusSupport;		/* does this scanner have support for "set focus position" ? */
 	SANE_Bool color_shuffle;	/* does this scanner need color shuffling */
 
 	SANE_Int  optical_res;		/* optical resolution */
@@ -242,6 +251,8 @@ struct Epson_Scanner {
 	SANE_Byte * buf, * end, * ptr;
 	SANE_Bool canceling;
 	SANE_Bool invert_image;
+	SANE_Bool focusOnGlass;
+	SANE_Byte currentFocusPosition;
 	SANE_Word gamma_table [ 4] [ 256];
 	SANE_Int retry_count;
 	SANE_Byte *line_buffer[LINES_SHUFFLE_MAX];	

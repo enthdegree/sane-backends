@@ -1,5 +1,8 @@
 2001-06-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* backend/umax_pp_low.c: Fixed the FreeBSD problems by checking
+	  /dev/io before accessing io ports (patch from Stéphane Voltz
+	  <svoltz@wanadoo.fr>).
 	* backend/snapscan.c: Fixed two bugs: pss->devname must be checked
 	  for 0. Return total number of lines in sane_get_parameters (patch
 	  from Ben Stanley <bds02@uow.edu.au>).

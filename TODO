@@ -140,6 +140,8 @@ frontends
 
 sanei
 -----
+  * create sanei_parport_* and remove all inb, outb,... from all backends
+   (for sane-1.0.6)
 
 
 misc

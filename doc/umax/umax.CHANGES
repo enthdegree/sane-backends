@@ -925,7 +925,8 @@ build-25 -> build-26
 
    * changed some static unsigned int to static int
 
-   * sane_exit does free vendor/product/version strings in device list
+   * sane_exit does free devlist 
 
    * added some options for Powerlook 3000 - still is not completly supported
 
+    

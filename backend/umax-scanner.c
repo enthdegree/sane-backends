@@ -113,7 +113,7 @@ static char *scanner_str[] =
   "LinoHell",	"Office2 ",
   "LinoHell",	"SAPHIR2 ",
 /*  "LinoHell",	"SAPHIR4 ", */
-/*  "Linotype",	"SAPHIR4 ", */
+  "Linotype",	"SAPHIR4 ",
 /*  "LinoHell",	"OPAL ", */
   "Nikon ",	"AX-210 ",
   "KYE ",	"ColorPage-HR5 ", 

@@ -1,41 +1,17 @@
 -------------------------------------------------------------------------------
 
-Q: compiling sane aborts with error "virtual memory exhausted"
-   on slackware linux with gcc. What goes wrong?
+Q: What scsi controller shall I use for UMAX scsi scanners?
 
-A: The optimization set by "-O2" makes problems, try which one of the following
-   calls work:
+A: The controller cards that come with UMAX scanners are very simple ones
+   and I suggest not to use this cards.
 
-   make CFLAGS="-g -Wall -O1"
-   make CFLAGS="-g -Wall -O"
-   make CFLAGS="-g -Wall"
+   I like the ncr53c8xx (=symbios-loigc53c8xx = lsi53c8xx) controllers because
+   they are not too expensive and I had very good results with these cards.
+   Especially the ncr53c810 is very interesting for scanning because this
+   are fast scsi controllers which allow long scsi cables.
 
--------------------------------------------------------------------------------
-
-Q: Will there be a support for the UMAX-parallel-port-scanners?
-Q: Will there be a support for the UMAX-USB-scanners?
-
-A: UMAX published their SCSI-protocol for scanners. However they
-   have not so far published parallel port and USB protocols. Without
-   the protocol documentation I will not work on a driver.
-
-   Martin Mevald <martinmv@penguin.cz> has worked on a parallel-port-driver
-   but stopped the development.
-
-   The Astra 2200W does work when connected via SCSI.
-   It could work with SCSI-via-USB-driver and connected via USB, but that
-   is not tested.
-
--------------------------------------------------------------------------------
-
-Q: I get a black area at the top of the image. What's wrong?
-
-A: This is a problem of some scsi-drivers.
-   Update the driver for your scsi-adapter or update the operating system/kernel.
-
-   For advansys-scsi-cards update to a new kernel which includes at least
-   the driver version 3.1E of the advansys-scsi-driver. Take a look at:
-   http://www.advansys.com/linux.htm
+   The Adaptec 2904 controllers seem to make problems with UMAX scanners on
+   linux.
 
 -------------------------------------------------------------------------------
 
@@ -84,6 +60,46 @@ A: There are two differen drivers in the linux Kernel/modules.
 
 -------------------------------------------------------------------------------
 
+Q: I am using an AM53C974 based scsi card with a umax scanner, the system
+   freezes when I start a scan, what can I do?
+
+A: Try the recent driver for the scsi card, take a look at:
+   http://www.garloff.de/kurt/linux/dc390/index.html
+
+-------------------------------------------------------------------------------
+
+Q: Will there be a support for the UMAX-parallel-port-scanners?
+
+A: Since sane-1.0.5 there is a separate sane-umax-pp backend that does
+   support (some) umax parallel port scanners.
+
+-------------------------------------------------------------------------------
+
+Q: Will there be a support for the UMAX-USB-scanners?
+
+A: UMAX published their SCSI-protocol for scanners. However they have not so far
+   published USB protocols. This seems to be because they are using an ASIC that
+   is produced by someone else and they had to subscribe an NDA.
+   Without the protocol documentation it really is hard to write a driver.
+   I will not work on a driver.
+
+   The Astra 2200W does work when connected via SCSI.
+   It could work with SCSI-via-USB-driver and connected via USB, but that
+   is not tested.
+
+-------------------------------------------------------------------------------
+
+Q: I get a black area at the top of the image. What's wrong?
+
+A: This is a problem of some scsi-drivers.
+   Update the driver for your scsi-adapter or update the operating system/kernel.
+
+   For advansys-scsi-cards update to a new kernel which includes at least
+   the driver version 3.1E of the advansys-scsi-driver. Take a look at:
+   http://www.advansys.com/linux.htm
+
+-------------------------------------------------------------------------------
+
 Q: Does SANE and the umax backend work on LinuxPPC / big endian machine ?
 
 A: There are people using the sane-umax on a LinuxPPC (big endian) machine.
@@ -96,19 +112,23 @@ A: There are people using the sane-umax on a LinuxPPC (big endian) machine.
 
 -------------------------------------------------------------------------------
 
-Q: I am using an AM53C974 based scsi card with a umax scanner, the system
-   freezes when I start a scan, what can I do?
-
-A: Try the recent driver for the scsi card, take a look at:
-   http://www.garloff.de/kurt/linux/dc390/index.html
-
--------------------------------------------------------------------------------
-
-Q: Sane hangs or crashes when I start a frontend for sane, what can I do?
+Q: SANE hangs or crashes when I start a frontend for sane, what can I do?
 
 A: Sometimes the backends that are not used make problems.
    Edit /usr/(local)/etc/sane.d/dll.conf
    and comment out everything but the backend you need.
+
+-------------------------------------------------------------------------------
+
+Q: compiling sane aborts with error "virtual memory exhausted"
+   on slackware linux with gcc. What goes wrong?
+
+A: The optimization set by "-O2" makes problems, try which one of the following
+   calls work:
+
+   make CFLAGS="-g -Wall -O1"
+   make CFLAGS="-g -Wall -O"
+   make CFLAGS="-g -Wall"
 
 -------------------------------------------------------------------------------
 

@@ -49,7 +49,7 @@
 
 /* --------------------------------------------------------------------------------------------------------- */
 
-#define BUILD 26
+#define BUILD 27
 
 /* --------------------------------------------------------------------------------------------------------- */
 
@@ -264,8 +264,9 @@ static const SANE_Range percentage_range_100 =
 };
 
 static int num_devices = 0;
-static Umax_Device *first_dev     = NULL;
-static Umax_Scanner *first_handle = NULL;
+static const SANE_Device **devlist = NULL;
+static Umax_Device *first_dev      = NULL;
+static Umax_Scanner *first_handle  = NULL;
 
 
 /* ------------------------------------------------------------ MATH-HELPERS ------------------------------- */
@@ -2588,6 +2589,20 @@ static void umax_correct_inquiry(Umax_Device *dev, char *vendor, char *product, 
       DBG(DBG_warning,"using standard options for %s\n", product);
     }
   }
+  else if (!strncmp(vendor, "Linotype ", 9))
+  {
+    if (!strncmp(product, "SAPHIR4 ", 8)) /* is a Powerlook III */
+    {
+      DBG(DBG_warning,"setting up special options for %s\n", product);
+
+      if (dev->calibration_width_offset == -1) /* no calibration-width-offset defined in umax.conf */
+      {
+        dev->calibration_width_offset = 28;
+        DBG(DBG_warning," - adding calibration width offset of %d pixels\n", dev->calibration_width_offset);
+      }
+      /* calibration_area = image */
+    }
+  }
   else if (!strncmp(vendor, "ESCORT ", 7))
   {
     if (!strncmp(product, "Galleria 600S ", 14)) /* this is an Astra 600S */
@@ -2623,35 +2638,32 @@ static void umax_correct_inquiry(Umax_Device *dev, char *vendor, char *product, 
 
 static int umax_identify_scanner(Umax_Device *dev)
 {
- char vendor[9];
- char product[0x11];
- char version[5];
+ char vendor[10];
+ char product[0x12];
+ char version[6];
  char *pp;
 
   DBG(DBG_proc,"identify_scanner\n");
   umax_do_inquiry(dev);									      /* get inquiry */
   if (get_inquiry_periph_devtype(dev->buffer[0]) != IN_periph_devtype_scanner) { return 1; }      /* no scanner */
 
-  get_inquiry_vendor( (char *)dev->buffer[0], vendor);  vendor[8]   = '\0';
-  get_inquiry_product((char *)dev->buffer[0], product); product[16] = '\0';
-  get_inquiry_version((char *)dev->buffer[0], version); version[4]  = '\0';
+  get_inquiry_vendor( (char *)dev->buffer[0], vendor);  vendor[8]   = ' '; vendor[9]   = '\0';
+  get_inquiry_product((char *)dev->buffer[0], product); product[16] = ' '; product[17] = '\0';
+  get_inquiry_version((char *)dev->buffer[0], version); version[4]  = ' '; version[5]  = '\0';
 
   pp = &vendor[8];
-  vendor[8] = ' ';							      /* leave one blank at the end! */
   while (*(pp-1) == ' ')
   {
     *pp-- = '\0';
   }
 
   pp = &product[0x10];
-  product[0x10] = ' ';							      /* leave one blank at the end! */
   while (*(pp-1) == ' ')
   {
     *pp-- = '\0';
   }
   
   pp = &version[4];
-  version[4] = ' ';
   while (*pp == ' ')
   {
     *pp-- = '\0';
@@ -5415,7 +5427,6 @@ SANE_Status sane_init(SANE_Int *version_code, SANE_Auth_Callback authorize)
 
 /* ------------------------------------------------------------ SANE EXIT ---------------------------------- */
 
-static const SANE_Device **devlist = 0;
 
 void sane_exit(void)
 {

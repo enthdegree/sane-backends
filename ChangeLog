@@ -1,5 +1,11 @@
 2002-11-03  Karl Heinz Kremer <khk@khk.net>
 
+	* sanei/sanei_usb.c: Use endpoint address with direction information
+	  instead of the pipe reference. This caused problems with Darwin
+	  systems.
+
+2002-11-03  Karl Heinz Kremer <khk@khk.net>
+
 	* backend/epson.c: Full support for libusb
 
 2002-11-03  Henning Meier-Geinitz <henning@meier-geinitz.de>

@@ -542,7 +542,7 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 		     "(address: %d), ignoring the new one\n",
 		     devices[devcount].bulk_in_ep);
 	      else
-		devices[devcount].bulk_in_ep = address;
+		devices[devcount].bulk_in_ep = endpoint->bEndpointAddress;
 	    }
 	  else
 	    {
@@ -551,7 +551,7 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 		     "(address: %d), ignoring the new one\n",
 		     devices[devcount].bulk_out_ep);
 	      else
-		devices[devcount].bulk_out_ep = address;
+		devices[devcount].bulk_out_ep = endpoint->bEndpointAddress;
 	    }
 	}
 #else /* not HAVE_LIBUSB */

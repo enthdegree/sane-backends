@@ -56,6 +56,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <signal.h>
 #ifdef HAVE_UNISTD_H
 # include <unistd.h>
 #endif
@@ -64,7 +65,7 @@
 # include <os2.h>
 #endif
 #if !defined USE_PTHREAD && !defined HAVE_OS2_H
-# include <signal.h>
+# include <sys/wait.h>
 #endif
 #if defined USE_PTHREAD
 # include <pthread.h>
@@ -124,27 +125,6 @@ sanei_thread_kill( int pid )
 #endif
 }
 
-SANE_Status
-sanei_thread_get_status( int pid )
-{
-#if defined USE_PTHREAD || defined HAVE_OS2_H
-	_VAR_NOT_USED( pid );
-
-	return td.status;
-#else
-	int ls, stat, result;
-
-	stat = SANE_STATUS_IO_ERROR;
-	if( pid > 0 ) {
-
-		result = waitpid( pid, &ls, WNOHANG );
-
-		stat = eval_wp_result( pid, result, ls );
-	}
-	return stat;
-#endif
-}
-
 #ifdef HAVE_OS2_H
 
 static void
@@ -199,13 +179,6 @@ sanei_thread_sendsig( int pid, int sig )
 }
 
 #else /* HAVE_OS2_H */
-
-#ifdef USE_PTHREAD
-# include <signal.h>
-# include <pthread.h>
-#else
-# include <sys/wait.h>
-#endif
 
 #ifdef USE_PTHREAD
 
@@ -396,5 +369,26 @@ sanei_thread_waitpid( int pid, int *status )
 }
 
 #endif /* HAVE_OS2_H */
+
+SANE_Status
+sanei_thread_get_status( int pid )
+{
+#if defined USE_PTHREAD || defined HAVE_OS2_H
+	_VAR_NOT_USED( pid );
+
+	return td.status;
+#else
+	int ls, stat, result;
+
+	stat = SANE_STATUS_IO_ERROR;
+	if( pid > 0 ) {
+
+		result = waitpid( pid, &ls, WNOHANG );
+
+		stat = eval_wp_result( pid, result, ls );
+	}
+	return stat;
+#endif
+}
 
 /* END sanei_thread.c .......................................................*/

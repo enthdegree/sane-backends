@@ -1,5 +1,8 @@
 2001-05-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* configure configure.in include/sane/config.h.in: Detect presence
+	  of libusb and enable sm3600 backend.
+	
 	* backend/Makefile.in backend/dll.c backend/sm3600-color.c
 	  backend/sm3600-homerun.c backend/sm3600-scantool.h
 	  backend/sm3600-scanutil.c backend/sm3600.desc

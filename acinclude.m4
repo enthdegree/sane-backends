@@ -218,7 +218,7 @@ AC_DEFUN(SANE_CHECK_GPHOTO2,
 		CPPFLAGS="${CPPFLAGS} -I$with_gphoto2/include/gphoto2"
 		LDFLAGS="${LDFLAGS} -L$with_gphoto2/lib -L$with_gphoto2/lib/gphoto2"
 
-		AC_CHECK_HEADERS(gphoto2-core.h,
+		AC_CHECK_HEADERS(gphoto2.h,
 			AC_CHECK_LIB(gphoto2,gp_camera_init,
 				LDFLAGS="${LDFLAGS} -lgphoto2"
 				GPHOTO2_TMP_HAVE_GPHOTO2=yes))

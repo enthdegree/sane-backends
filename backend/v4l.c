@@ -1,6 +1,7 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 1999 Juergen G. Schimmer
-   This file will (hopefully) become part of the SANE package.
+
+   This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as

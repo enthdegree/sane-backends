@@ -14,6 +14,7 @@ Backends:
  artec:         Chris Pinkham (*)
  as6e:          Eugene S. Weiss (*)
  avision:       Meino Christian Cramer, Rene Rebe(*)
+ bh:            Tom Martone (*)
  canon:         Helmut Koeberle, Manuel Panea (*), and Markus Mertinat
  coolscan:      Didier Carlier, Andreas Rick (*)
  dc25:          Peter Fales (*)
@@ -115,4 +116,5 @@ Randolph Bentson <bentson@grieg.holmsjoen.com>
 Rene Rebe <rene.rebe@gmx.net>
 Roger Wolff <R.E.Wolff@BitWizard.nl>
 Simon Munton <simon@munton.demon.co.uk>
+Tom Martone <tom@martoneconsulting.com>
 Tristan Tarrant <ttarrant@etnoteam.it>

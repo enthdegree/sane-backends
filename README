@@ -122,6 +122,7 @@ below:
     Artec                  sane-artec(5)
     Artec AS6E parport     sane-as6e(5)
     Avision                sane-avision(5)
+    Bell+Howell CopiscanII sane-bh(5)
     Canon                  sane-canon(5)
     Nikon Coolscan         sane-coolscan(5)
     Epson                  sane-epson(5)

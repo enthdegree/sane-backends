@@ -1,4 +1,4 @@
-PROJECTS (2001-01-09)
+PROJECTS (2001-01-19)
 
 Here is a list of projects that various people have expressed interest
 in.  Before starting working on one of these projects, it may be a
@@ -19,8 +19,8 @@ Backends:
 Autobrightness/contrast for cameras etc. (planned?)
 David Mosberger
 
-Bell and Howell Copiscan (wip)
-http://www.martoneconsulting.com/sane-bh.html
+Canon 1220U USB scanner (wip)
+Vladimir Dergachev <volodya@mindspring.com>
 
 ePhoto (wip?)
 Matthew K. Gray <mkgray@mit.edu>
@@ -56,7 +56,7 @@ Umax 1220P / HP3200C parport scanner (wip)
 Stéphane VOLTZ <svoltz@wanadoo.fr>
 
 Visioneer OneTouch 8600: viceo (wip)
-http://www.abaforum.es/martim/bird/otlinux.htm
+http://www.littlecms.com/iphoto/otlinux.htm
 
 Video for Linux 2 (wip)
 http://sane-v4l2.inodes.org/

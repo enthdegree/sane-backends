@@ -1,3 +1,7 @@
+2002-01-12  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/sane.man doc/scanimage.man: Added link to scanadf.
+
 2002-01-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/qcam.c: Create lockfile with O_EXCL even when using fcntl

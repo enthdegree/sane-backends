@@ -138,7 +138,8 @@ static char tty_name[PATH_MAX];
 #define DEF_TTY_NAME "/dev/ttyS0"
 
 static speed_t tty_baud = DEFAULT_TTY_BAUD;
-static char tmpdir[]  = "/tmp/dc25.XXXXXX";
+static char *tmpname;
+static char tmpnamebuf[]  = "/tmp/dc25.XXXXXX";
 
 static Dc20Info *dc20_info;
 static Dc20Info CameraInfo;
@@ -1869,10 +1870,10 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 		DBG (1,"No device info\n");
 	}
 
-	if ( strstr (tmpdir, "XXXXXX") ) {
-		if (!mkdtemp (tmpdir) ) {
-			perror (tmpdir);	
-			DBG (1,"Unable to make temp file name\n");
+	if ( tmpname == NULL ) {
+		tmpname = tmpnamebuf;
+		if ( mktemp(tmpname) == NULL ) {
+			DBG (1,"Unable to make temp file %s\n",tmpname);
 			return SANE_STATUS_INVAL;
 		}
 	}
@@ -2259,10 +2260,6 @@ sane_start (SANE_Handle handle)
 		 * to set the "-u1" flag on the system drives.
 		 */
 
-		char tmpname[100];
-		size_t tmpdirlen = strlen (tmpdir);
-		memcpy (tmpname, tmpdir, tmpdirlen);
-		strcpy (tmpname + tmpdirlen, "comet");
 		f = fopen (tmpname,"wb");
 		if ( f == NULL ) {
 			DBG (4,"Unable to open tmp file\n");

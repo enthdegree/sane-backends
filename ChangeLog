@@ -1,3 +1,9 @@
+2000-10-30  Petter Reinholdtsen <pere@td.org.uit.no>
+
+	* frontend/xscanimage.c: Define GIMP_ENABLE_COMPAT_CRUFT when
+	including gimp.h to use the old API.  Eventually we should convert
+	the frontends to use the new Gimp API.  Patch from Kevin Dalley.
+
 2000-10-29  Henning Meier-Geinitz <hmg@gmx.de>
 
 	* TODO: Updated.

@@ -89,7 +89,7 @@ static SANE_Int debug_level;
    disconnect while scanning is in progress, which confuses some
    drivers that expect no reasonable SCSI request would take more than
    10 seconds.  That's not really true for Mustek scanners operating
-   in certain modes, hence this limit.  */
+   in certain modes, hence this limit. Usually you don't need to set it. */
 static double strip_height;
 
 /* Should we wait for the scan slider to return after each scan? */
@@ -1926,7 +1926,7 @@ set_window_pro (Mustek_Scanner *s)
   return dev_cmd (s, cmd, (cp - cmd), 0, 0);
 }
 
-/* Pro series calibration (just a dummy at the moment) */
+/* Pro series calibration */
 static SANE_Status
 get_calibration_size_pro (Mustek_Scanner *s)
 {
@@ -2504,7 +2504,7 @@ gamma_correction (Mustek_Scanner *s, SANE_Int color_code)
 {
   SANE_Int i, j, table = 0, len = 0, bytes_per_channel, num_channels = 1;
   SANE_Byte gamma[4096+10], val, *cp;  /* for Paragon models 3 x 256 is the
-					 maximum. Pro needs 4096 bytes */
+					  maximum. Pro needs 4096 bytes */
 
   if ((s->hw->flags & MUSTEK_FLAG_N)
       && ((s->mode & MUSTEK_MODE_LINEART) || (s->mode & MUSTEK_MODE_HALFTONE)))
@@ -2828,11 +2828,12 @@ line_distance (Mustek_Scanner *s)
 	{
 	  if (s->hw->flags & MUSTEK_FLAG_N)
 	    {
-	      /* According to Andreas Czechanowski, the line-distance
-		 values returned for the AB306N scanners are
-		 garbage, so we have to fix things up manually.  Not
-		 good. This is true for firmware 2.00. AB306N scanners
-		 with firmware 1.01 don't need this fix. */
+	      /* According to Andreas Czechanowski, the line-distance values
+                 returned for the AB306N scanners are garbage, so we have to
+                 fix things up manually.  Not good.
+                 This seems to be true only for firmware 2.00 which is
+                 extremely seldom.. AB306N scanners with firmware 1.01 don't
+                 need this fix. <henning@meier-geinitz.de> */
 	      if (peak_res == 600)
 		{
 		  if (res < 51)
@@ -2956,7 +2957,7 @@ get_image_status (Mustek_Scanner *s, SANE_Int *bpl, SANE_Int *lines)
   SANE_Int busy, offset;
   long res, half_res;
 
-  /* The 600 II N v1.01 and Paragon 12000SP need a larger scanarea for
+  /* The 600 II N v1.01 and Paragon 12000SP need a larger scan-area for
      line-distance correction in color mode */
   offset = 0;
   if ((s->hw->flags & MUSTEK_FLAG_LD_N1) && (s->mode & MUSTEK_MODE_COLOR))
@@ -3912,7 +3913,6 @@ init_options (Mustek_Scanner *s)
   s->val[OPT_NUM_OPTS].w = NUM_OPTIONS;
 
   /* "Mode" group: */
-
   s->opt[OPT_MODE_GROUP].title = SANE_I18N("Scan Mode");
   s->opt[OPT_MODE_GROUP].desc = "";
   s->opt[OPT_MODE_GROUP].type = SANE_TYPE_GROUP;
@@ -4049,7 +4049,6 @@ init_options (Mustek_Scanner *s)
   s->val[OPT_FAST_PREVIEW].w = SANE_FALSE;
 
   /* "Geometry" group: */
-
   s->opt[OPT_GEOMETRY_GROUP].title = SANE_I18N("Geometry");
   s->opt[OPT_GEOMETRY_GROUP].desc = "";
   s->opt[OPT_GEOMETRY_GROUP].type = SANE_TYPE_GROUP;
@@ -4097,7 +4096,6 @@ init_options (Mustek_Scanner *s)
   s->val[OPT_BR_Y].w = s->hw->y_range.max;
 
   /* "Enhancement" group: */
-
   s->opt[OPT_ENHANCEMENT_GROUP].title = SANE_I18N("Enhancement");
   s->opt[OPT_ENHANCEMENT_GROUP].desc = "";
   s->opt[OPT_ENHANCEMENT_GROUP].type = SANE_TYPE_GROUP;

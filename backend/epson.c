@@ -16,7 +16,7 @@
 
 */
 
-#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.1.35 - 2000-11-23"
+#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.1.36 - 2000-12-02"
 
 /*
    This file is part of the SANE package.
@@ -58,6 +58,9 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
+   2000-12-02   Read information about optical resolution and line
+   		distance from scanner instead of hardcoded values.
+		Add support for color depth > 8 bits per channel.
    2000-11-23   Display "Set Focus" control only for scanners that
                 can actually handle the command.
    2000-11-19   Added support for the "set focus position" command,
@@ -382,52 +385,10 @@ static EpsonCmdRec epson_cmd [ ] =
 
 
 /*
-
-.) exposure time
-
-- no docs found
-
-- from epson_31101999.c
-
-u_char default_tval[4] = {2, 0x80, 0x80, 0x80};
-u_char     neg_tval[4] = {2, 0x8e, 0x86, 0x92};
-
-ESC T + 4 byte
-
-- there are defs in include/sane/saneopts.h
-
-#define SANE_NAME_CAL_EXPOS_TIME	"cal-exposure-time"
-#define SANE_NAME_CAL_EXPOS_TIME_R	"cal-exposure-time-r"
-#define SANE_NAME_CAL_EXPOS_TIME_G	"cal-exposure-time-g"
-#define SANE_NAME_CAL_EXPOS_TIME_B	"cal-exposure-time-b"
-#define SANE_NAME_SCAN_EXPOS_TIME	"scan-exposure-time"
-#define SANE_NAME_SCAN_EXPOS_TIME_R	"scan-exposure-time-r"
-#define SANE_NAME_SCAN_EXPOS_TIME_G	"scan-exposure-time-g"
-#define SANE_NAME_SCAN_EXPOS_TIME_B	"scan-exposure-time-b"
-#define SANE_NAME_SELECT_EXPOSURE_TIME	"select-exposure-time"
-
-Einmal für Calibrierung, andere für Scan. lamp-density gibt es auch noch.
-One for calibration, other one for scan. There is also lamp-density defined.
-
-- da war noch mal die blöde mail wo ganz genau drinsteht wie das geht.
-
-.) 12 bit
-
-- there are defs in include/sane/saneopts.h
-
-#define SANE_NAME_TEN_BIT_MODE		"ten-bit-mode"
-#define SANE_NAME_TWELVE_BIT_MODE	"twelve-bit-mode"
-
-- not used by other backends.
-
-
-
-
-*/
-
-/*
- *
- *
+ * Definition of the mode_param struct, that is used to 
+ * specify the valid parameters for the different scan modes.
+ * Depending on the capabilities of the scanner three different
+ * param sets are used: 8 bit, 12 bit and 16 bit per color channel
  */
 
 struct mode_param {
@@ -437,31 +398,60 @@ struct mode_param {
 	int depth;
 };
 
-static const struct mode_param mode_params [ ] =
+static const struct mode_param mode_params_8 [ ] =
 	{ { 0, 0x00, 0x30,  1}
 	, { 0, 0x00, 0x30,  8}
 	, { 1, 0x02, 0x00,  8}
 	};
 
-static const struct mode_param mode_params_5 [ ] =
+static const struct mode_param mode_params_12 [ ] =
 	{ { 0, 0x00, 0x30,  1}
 	, { 0, 0x00, 0x30,  8}
+	, { 0, 0x00, 0x30,  12}
 	, { 1, 0x03, 0x10,  8}
+	, { 1, 0x03, 0x10,  12}
 	};
 
-static const SANE_String_Const mode_list [ ] =
+static const struct mode_param mode_params_16 [ ] =
+	{ { 0, 0x00, 0x30,  1}
+	, { 0, 0x00, 0x30,  8}
+	, { 0, 0x00, 0x30,  16}
+	, { 1, 0x03, 0x10,  8}
+	, { 1, 0x03, 0x10,  16}
+	};
+
+static const SANE_String_Const mode_list_8 [ ] =
 	{ "Binary"
 	, "Gray"
 	, "Color"
 	, NULL
 	};
 
-static const SANE_String_Const mode_list_5 [ ] =
+static const SANE_String_Const mode_list_12 [ ] =
 	{ "Binary"
-	, "Gray"
-	, "Color"
+	, "Gray (8 bit)"
+	, "Gray (12 bit)"
+	, "Color (24 bit)"
+	, "Color (36 bit)"
 	, NULL
 	};
+
+static const SANE_String_Const mode_list_16 [ ] =
+	{ "Binary"
+	, "Gray (8 bit)"
+	, "Gray (16 bit)"
+	, "Color (24 bit)"
+	, "Color (42 bit)"
+	, NULL
+	};
+
+static const SANE_String_Const * mode_list = NULL;
+static const struct mode_param * mode_params = NULL;
+
+
+/*
+ * Define the different scan sources:
+ */
 
 #define  FBF_STR	"Flatbed"
 #define  TPU_STR	"Transparency Unit"
@@ -469,7 +459,8 @@ static const SANE_String_Const mode_list_5 [ ] =
 
 /*
  * source list need one dummy entry (save device settings is crashing).
- * NOTE: no const.
+ * NOTE: no const - this list gets created while exploring the capabilities
+ * of the scanner.
  */
 
 static SANE_String_Const source_list [ ] =
@@ -479,6 +470,7 @@ static SANE_String_Const source_list [ ] =
 	, NULL
 	};
 
+/* some defines to make handling the TPU easier: */
 #define FILM_TYPE_POSITIVE	(0)
 #define FILM_TYPE_NEGATIVE	(1)
 
@@ -552,10 +544,10 @@ static const SANE_String_Const halftone_list_7 [ ] =
 	};
 
 static int dropout_params [ ] =
-	{ 0x00
-	, 0x10
-	, 0x20
-	, 0x30
+	{ 0x00		/* none */
+	, 0x10		/* red */
+	, 0x20		/* green */
+	, 0x30		/* blue */
 	};
 
 static const SANE_String_Const dropout_list [ ] =
@@ -567,7 +559,10 @@ static const SANE_String_Const dropout_list [ ] =
 	};
 
 /*
- * NOTE: if enable "User defined" change also default from 4 to 5.
+ * Color correction:
+ * One array for the actual parameters that get sent to the scanner (color_params[]),
+ * one array for the strings that get displayed in the user interface (color_list[])
+ * and one array to mark the user defined color correction (dolor_userdefined[]). 
  */
 
 static int color_params [ ] =
@@ -597,6 +592,13 @@ static const SANE_String_Const color_list [ ] =
 	, "CRT monitors"
 	, NULL
 	};
+
+/*
+ * Gamma correction:
+ * The A and B level scanners work differently than the D level scanners, therefore
+ * I define two different sets of arrays, plus one set of variables that get set to
+ * the actally used params and list arrays at runtime.
+ */
 
 static int gamma_params_ab [ ] =
 	{ 0x01
@@ -644,6 +646,11 @@ static SANE_Bool gamma_userdefined_d [ ] =
 static SANE_Bool * gamma_userdefined;
 static int * gamma_params;
 
+
+/* Bay list:
+ * this is used for the FilmScan
+ */
+
 static const SANE_String_Const bay_list [ ] =
 	{ " 1 "
 	, " 2 "
@@ -662,13 +669,18 @@ static const SANE_Range u8_range = { 0, 255, 0};
 static const SANE_Range s8_range = { -127, 127, 0};
 static const SANE_Range zoom_range = { 50, 200, 0};
 
-static int mirror_params [ ] =
-	{ 0
-	, 1
-	};
+/*
+ * The "switch_params" are used for several boolean choices
+ */
+static int switch_params [ ] =	
+{ 
+	0,
+	1
+};
 
-#define  speed_params	mirror_params
-#define  film_params	mirror_params
+#define  mirror_params  switch_params
+#define  speed_params	switch_params
+#define  film_params	switch_params
 
 static const SANE_Range outline_emphasis_range = { -2, 2, 0 };
 /* static const SANE_Range gamma_range = { -2, 2, 0 }; */
@@ -1110,7 +1122,7 @@ static SANE_Status set_gamma_table ( Epson_Scanner * s) {
 	Print the gamma tables before sending them to the scanner.
 */
 
-	if (DBG_LEVEL > 0) {
+	if (DBG_LEVEL > 10) {
 		int	c, i, j;
 
 		DBG (1, "set_gamma_table()\n");
@@ -1718,6 +1730,35 @@ static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
 		if (status != SANE_STATUS_GOOD)
 			return status;
 	}	/* request identity 2 */
+
+
+	/*
+	 * Check for the max. supported color depth. 
+	 */
+
+	if (set_data_format(s, 16) == SANE_STATUS_GOOD)
+	{
+		s->hw->maxDepth = 16;
+
+		mode_list = mode_list_16;
+		mode_params = mode_params_16;
+	}
+	else if (set_data_format(s, 12) == SANE_STATUS_GOOD)
+	{
+		s->hw->maxDepth = 12;
+
+		mode_list = mode_list_12;
+		mode_params = mode_params_12;
+	}
+	else
+	{
+		s->hw->maxDepth = 8;
+
+		mode_list = mode_list_8;
+		mode_params = mode_params_8;
+	}
+
+	DBG( 5, "Max. supported color depth = %d\n", s->hw->maxDepth);
 
 
 	/*
@@ -3309,6 +3350,7 @@ static SANE_Status setvalue( SANE_Handle handle,
 		}
 
 		handle_depth_halftone( s, &reload );
+		reload = SANE_TRUE;
 		break;
 	}
 
@@ -3428,13 +3470,20 @@ SANE_Status sane_control_option ( SANE_Handle handle,
 }
 
 /*
+ * sane_get_parameters()
  *
+ * This function is part of the SANE API and gets called when the front end
+ * requests information aobut the scan configuration (e.g. color depth, mode,
+ * bytes and pixels per line, number of lines. This information is returned
+ * in the SANE_Parameters structure.
  *
  */
 
-SANE_Status sane_get_parameters ( SANE_Handle handle, SANE_Parameters * params) {
+SANE_Status sane_get_parameters ( SANE_Handle handle, SANE_Parameters * params) 
+{
 	Epson_Scanner * s = ( Epson_Scanner *) handle;
 	int ndpi;
+	int bytes_per_pixel;
 
 	DBG(5, "sane_get_parameters()\n");
 
@@ -3457,15 +3506,36 @@ SANE_Status sane_get_parameters ( SANE_Handle handle, SANE_Parameters * params) 
 			, SANE_UNFIX( s->val[ OPT_BR_Y].w)
 			);
 
-	/* pixels_per_line seems to be 8 * n.  */
+	/* Calculate bytes_per_pixel and bytes_per_line for 
+	 * any color depths.
+	 * 
+	 * The color depth is stored in mode_params.depth:
+	 */
+
+	s->params.depth = mode_params[ s->val[ OPT_MODE].w].depth;
+
+	if (s->params.depth > 8)
+	{
+		if (s->val[OPT_PREVIEW].w)	/* for preview the frontends can only handle 8 bits */
+			s->params.depth = 8;
+		else
+			s->params.depth = 16;	/* the frontends can only handle 8 or 16 bits for gray or color */
+	}
+
+	bytes_per_pixel = s->params.depth / 8;
+	if (s->params.depth % 8)	/* just in case ... */
+	{
+		bytes_per_pixel++;
+	}
+
+	/* pixels_per_line seems to be rounded to the next 8bit boundary */
 	s->params.pixels_per_line = s->params.pixels_per_line & ~7;
 
 	s->params.last_frame = SANE_TRUE;
-	s->params.depth = mode_params[ s->val[ OPT_MODE].w].depth;
 
 	if( mode_params[ s->val[ OPT_MODE].w].color) {
 		s->params.format = SANE_FRAME_RGB;
-		s->params.bytes_per_line = 3 * s->params.pixels_per_line;
+		s->params.bytes_per_line = 3 * s->params.pixels_per_line * bytes_per_pixel;
 	} else {
 		s->params.format = SANE_FRAME_GRAY;
 		s->params.bytes_per_line = s->params.pixels_per_line * s->params.depth / 8;
@@ -3478,11 +3548,15 @@ SANE_Status sane_get_parameters ( SANE_Handle handle, SANE_Parameters * params) 
 }
 
 /*
+ * sane_start()
  *
+ * This function is part of the SANE API and gets called from the front end to 
+ * start the scan process.
  *
  */
 
-SANE_Status sane_start ( SANE_Handle handle) {
+SANE_Status sane_start ( SANE_Handle handle) 
+{
 	Epson_Scanner * s = ( Epson_Scanner *) handle;
 	SANE_Status status;
 	const struct mode_param * mparam;
@@ -3492,25 +3566,7 @@ SANE_Status sane_start ( SANE_Handle handle) {
 	int lcount;
 	int i, j;	/* loop counter */
 
-	DBG( 1, "preview %d\n", s->val[ OPT_PREVIEW].w);
-
-#if 0
-	status = sane_get_parameters( handle, NULL);
-	if( status != SANE_STATUS_GOOD)
-		return status;
-#endif
-
 	open_scanner( s);
-/*
- * NOTE: added cause there was error reported for some scanner.
- * NOTE: disabled cause of batch use scanimage and ADF.
- *	reset( s);
- */
-
-/*
- *
- */
-
 /*
  *  There is some undocumented special with TPU enable/disable.
  *      TPU power	ESC e		status
@@ -3521,11 +3577,6 @@ SANE_Status sane_start ( SANE_Handle handle) {
  *
  * probably it make no sense to scan with TPU powered on and source flatbed, cause light
  * will come from both sides.
- */
-
-
-/*
- *
  */
 
 	if( s->hw->extension) {
@@ -3624,11 +3675,21 @@ SANE_Status sane_start ( SANE_Handle handle) {
 	}
 
 /*
- *
+ * Set the color depth. If a preview is requested, then always
+ * scan in 8bit mode if grayscale or color mode was selected. We
+ * are not testing for any of these modes, if preview is selected,
+ * and the color depth was more than 8 bits, then we just reset it
+ * to 8 bits.
  */
 
 	mparam = mode_params + s->val[ OPT_MODE].w;
-	status = set_data_format( s, mparam->depth);
+
+
+	if (s->val[OPT_PREVIEW].w && mparam->depth > 8)
+		status = set_data_format( s, 8);
+	else
+		status = set_data_format( s, mparam->depth);
+
 
 	if( SANE_STATUS_GOOD != status) {
 		DBG( 1, "sane_start: set_data_format failed: %s\n", sane_strstatus( status));
@@ -3637,7 +3698,6 @@ SANE_Status sane_start ( SANE_Handle handle) {
 
 	/*
 	 * The byte sequence mode was introduced in B5, for B34 we need line sequence mode 
-	 
 	 */
 
 	if( (s->hw->cmd->level[0] == 'D' || 
@@ -3691,7 +3751,6 @@ SANE_Status sane_start ( SANE_Handle handle) {
 
 	}
 
-#if 1
 	if( SANE_OPTION_IS_ACTIVE( s->opt[ OPT_SPEED].cap) ) {
 
 		if( s->val[ OPT_PREVIEW].w)
@@ -3705,9 +3764,6 @@ SANE_Status sane_start ( SANE_Handle handle) {
 		}
 
 	}
-#else
-	status = set_speed( s, mode_params[ s->val[ OPT_MODE]].depth == 1 ? 1 : 0);
-#endif
 
 /*
  *  use of speed_params is ok here since they are false and true.
@@ -3802,14 +3858,6 @@ SANE_Status sane_start ( SANE_Handle handle) {
 		}
 	}
 
-#if 0
-	status = set_color_correction( s, 0x80);
-
-	if( SANE_STATUS_GOOD != status) {
-		DBG( 1, "sane_start: set_color_correction failed: %s\n", sane_strstatus (status));
-		return status;
-	}
-#else
 /*
  * TODO: think about if SANE_OPTION_IS_ACTIVE is a good criteria to send commands.
  */
@@ -3833,7 +3881,7 @@ SANE_Status sane_start ( SANE_Handle handle) {
 			return status;
 		}
 	}
-#endif
+
 
 	if (s->hw->cmd->set_threshold != 0 && SANE_OPTION_IS_ACTIVE( s->opt[ OPT_THRESHOLD].cap))
 	{
@@ -4168,15 +4216,7 @@ static SANE_Status read_data_block ( Epson_Scanner * s, EpsonDataRec * result) {
 	if( result->status & STATUS_FER) {
 		DBG( 1, "fatal error - Status = %02x\n", result->status);
 
-#if 0
-		/* check extended status if the option bit in status is set */
-		if( result->status & STATUS_OPTION) {
-			status = check_ext_status( s);
-		} else
-			status = SANE_STATUS_INVAL;
-#else
 		status = check_ext_status( s);
-#endif
 
 		/*
 		 * Hack Alert!!!
@@ -4463,14 +4503,28 @@ START_READ:
 
 			for (ptr = s->buf; ptr < s->end; ptr++)
 			{
-				/* R->G G->R */
-				SANE_Byte tmp;
-
-				tmp = *ptr;
-				*ptr = *(ptr+1);	/* G */
-				*(ptr+1) = tmp;		/* R */
-							/* B stays the same */
-				ptr += 3;		/* go to next */
+				if (s->params.depth > 8)
+				{
+					/* R->G G->R */
+					SANE_Word tmp;
+	
+					tmp = (SANE_Word) *ptr;
+					(SANE_Word) *ptr = (SANE_Word) *(ptr+2); /* G */
+					(SANE_Word) *(ptr+2) = tmp;		/* R */
+								/* B stays the same */
+					ptr += 6;		/* go to next */
+				}
+				else
+				{
+					/* R->G G->R */
+					SANE_Byte tmp;
+	
+					tmp = *ptr;
+					*ptr = *(ptr+1);	/* G */
+					*(ptr+1) = tmp;		/* R */
+								/* B stays the same */
+					ptr += 3;		/* go to next */
+				}
 			}
 		}
 
@@ -4991,9 +5045,19 @@ get_identity2_information(SANE_Handle handle)
 		return SANE_STATUS_INVAL;
 	}
 
-	/* replace this with the values from the scanner !!! */
-	s->hw->max_line_distance = 8;
-	s->hw->optical_res = 600;
+	/* the first two bytes of the buffer contain the optical resolution */
+	s->hw->optical_res = buf[1] << 8 | buf[0];
+
+	/*
+	 * the 4th and 5th byte contain the line distance. Both values have to
+	 * be identical, otherwise this software can not handle this scanner.
+	 */
+	if (buf[4] != buf[5])
+	{
+		close_scanner(s);
+		return SANE_STATUS_INVAL;
+	}
+	s->hw->max_line_distance = buf[4];
 
 	return SANE_STATUS_GOOD;
 }

@@ -414,6 +414,9 @@ sanei_umax_pp_InitPort (int port, char *name)
   /* any other, we put debug init here         */
   DBG_INIT ();
 
+  DBG (1, "sanei_umax_pp_InitPort(0x%X,%s)\n", port, name);
+
+
   /* init global var holding port value */
   gPort = port;
 
@@ -604,10 +607,13 @@ sanei_umax_pp_InitPort (int port, char *name)
     return (1);
 
 #ifdef HAVE_IOPERM
+  if (port < 0x400)
+    {
   if (ioperm (port, 8, 1) != 0)
     {
       DBG (1, "ioperm could not gain access to 0x%X\n", port);
       return (0);
+    }
     }
   /* ECP i/o range */
   if (iopl (3) != 0)
@@ -662,12 +668,25 @@ Outb (int port, int value)
 	{
 	case 0:
 	  rc = ioctl (fd, PPWDATA, &val);
+	  if (rc)
+	    DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+		 __FILE__, __LINE__);
 	  return;
 	case 2:
 	  if (val & 0x20)
+	    {
 	    rc = ioctl (fd, PPDATADIR, &val);
+	      if (rc)
+		DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n",
+		     strerror (errno), __FILE__, __LINE__);
+	    }
 	  else
+	    {
 	    rc = ioctl (fd, PPWCONTROL, &val);
+	      if (rc)
+		DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n",
+		     strerror (errno), __FILE__, __LINE__);
+	    }
 	  return;
 	case 0x402:
 	  break;
@@ -712,16 +731,25 @@ Inb (int port)
 	{
 	case 0:
 	  rc = ioctl (fd, PPRDATA, &val);
+	  if (rc)
+	    DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+		 __FILE__, __LINE__);
 	  res = val;
 	  return res;
 
 	case 1:
 	  rc = ioctl (fd, PPRSTATUS, &val);
+	  if (rc)
+	    DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+		 __FILE__, __LINE__);
 	  res = val;
 	  return res;
 
 	case 2:
 	  rc = ioctl (fd, PPRCONTROL, &val);
+	  if (rc)
+	    DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+		 __FILE__, __LINE__);
 	  res = val;
 	  return res;
 
@@ -1612,6 +1640,9 @@ EPPRegisterRead (int reg)
       breg = (unsigned char) (reg);
       mode = IEEE1284_MODE_EPP | IEEE1284_ADDR;
       rc = ioctl (fd, PPSETMODE, &mode);
+      if (rc)
+	DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	     __FILE__, __LINE__);
       rc = write (fd, &breg, 1);
 
       mode = 1;			/* data_reverse */
@@ -1619,11 +1650,17 @@ EPPRegisterRead (int reg)
 
       mode = IEEE1284_MODE_EPP | IEEE1284_DATA;
       rc = ioctl (fd, PPSETMODE, &mode);
+      if (rc)
+	DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	     __FILE__, __LINE__);
       rc = read (fd, &bval, 1);
       value = bval;
 
       mode = 0;			/* forward */
       rc = ioctl (fd, PPDATADIR, &mode);
+      if (rc)
+	DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	     __FILE__, __LINE__);
 
       return value;
     }
@@ -1660,11 +1697,17 @@ EPPRegisterWrite (int reg, int value)
       breg = (unsigned char) (reg);
       mode = IEEE1284_MODE_EPP | IEEE1284_ADDR;
       rc = ioctl (fd, PPSETMODE, &mode);
+      if (rc)
+	DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	     __FILE__, __LINE__);
       rc = write (fd, &breg, 1);
 
       bval = (unsigned char) (value);
       mode = IEEE1284_MODE_EPP | IEEE1284_DATA;
       rc = ioctl (fd, PPSETMODE, &mode);
+      if (rc)
+	DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	     __FILE__, __LINE__);
       rc = write (fd, &bval, 1);
 
       return;
@@ -1689,6 +1732,9 @@ EPPBlockMode (int flag)
       bval = (unsigned char) (flag);
       mode = IEEE1284_MODE_EPP | IEEE1284_ADDR;
       rc = ioctl (fd, PPSETMODE, &mode);
+      if (rc)
+	DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	     __FILE__, __LINE__);
       rc = write (fd, &bval, 1);
       return;
     }
@@ -1714,16 +1760,28 @@ EPPReadBuffer (int size, unsigned char *dest)
       bval = 0x80;
       mode = IEEE1284_MODE_EPP | IEEE1284_ADDR;
       rc = ioctl (fd, PPSETMODE, &mode);
+      if (rc)
+	DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	     __FILE__, __LINE__);
       rc = write (fd, &bval, 1);
 
       mode = 1;			/* data_reverse */
       rc = ioctl (fd, PPDATADIR, &mode);
+      if (rc)
+	DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	     __FILE__, __LINE__);
 #ifdef PPSETFLAGS
       mode = PP_FASTREAD;
       rc = ioctl (fd, PPSETFLAGS, &mode);
+      if (rc)
+	DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	     __FILE__, __LINE__);
 #endif
       mode = IEEE1284_MODE_EPP | IEEE1284_DATA;
       rc = ioctl (fd, PPSETMODE, &mode);
+      if (rc)
+	DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	     __FILE__, __LINE__);
       nb = 0;
       while (nb < size - 1)
 	{
@@ -1733,19 +1791,34 @@ EPPReadBuffer (int size, unsigned char *dest)
 
       mode = 0;			/* forward */
       rc = ioctl (fd, PPDATADIR, &mode);
+      if (rc)
+	DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	     __FILE__, __LINE__);
       bval = 0xA0;
       mode = IEEE1284_MODE_EPP | IEEE1284_ADDR;
       rc = ioctl (fd, PPSETMODE, &mode);
+      if (rc)
+	DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	     __FILE__, __LINE__);
       rc = write (fd, &bval, 1);
 
       mode = 1;			/* data_reverse */
       rc = ioctl (fd, PPDATADIR, &mode);
+      if (rc)
+	DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	     __FILE__, __LINE__);
       mode = IEEE1284_MODE_EPP | IEEE1284_DATA;
       rc = ioctl (fd, PPSETMODE, &mode);
+      if (rc)
+	DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	     __FILE__, __LINE__);
       rc = read (fd, dest + size - 1, 1);
 
       mode = 0;			/* forward */
       rc = ioctl (fd, PPDATADIR, &mode);
+      if (rc)
+	DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	     __FILE__, __LINE__);
 
       return;
     }
@@ -1787,10 +1860,16 @@ EPPWriteBuffer (int size, unsigned char *source)
       bval = 0xC0;
       mode = IEEE1284_MODE_EPP | IEEE1284_ADDR;
       rc = ioctl (fd, PPSETMODE, &mode);
+      if (rc)
+	DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	     __FILE__, __LINE__);
       rc = write (fd, &bval, 1);
 
       mode = IEEE1284_MODE_EPP | IEEE1284_DATA;
       rc = ioctl (fd, PPSETMODE, &mode);
+      if (rc)
+	DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	     __FILE__, __LINE__);
       rc = write (fd, source, size);
       return;
     }
@@ -1894,7 +1973,7 @@ static void
 EPPRead32Buffer (int size, unsigned char *dest)
 {
 #ifdef HAVE_LINUX_PPDEV_H
-  int fd, mode, rc,nb;
+  int fd, mode, rc, nb;
   unsigned char bval;
 #endif
   int control;
@@ -1914,40 +1993,67 @@ EPPRead32Buffer (int size, unsigned char *dest)
       bval = 0x80;
       mode = IEEE1284_MODE_EPP | IEEE1284_ADDR;
       rc = ioctl (fd, PPSETMODE, &mode);
+      if (rc)
+	DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	     __FILE__, __LINE__);
       rc = write (fd, &bval, 1);
 
       mode = 1;			/* data_reverse */
       rc = ioctl (fd, PPDATADIR, &mode);
+      if (rc)
+	DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	     __FILE__, __LINE__);
 #ifdef PPSETFLAGS
       mode = PP_FASTREAD;
       rc = ioctl (fd, PPSETFLAGS, &mode);
+      if (rc)
+	DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	     __FILE__, __LINE__);
 #endif
       mode = IEEE1284_MODE_EPP | IEEE1284_DATA;
       rc = ioctl (fd, PPSETMODE, &mode);
-      nb=0;
-      while(nb<size-4)
-      {
-      rc = read (fd, dest+nb, size - 4-nb);
-      nb+=rc;
-      }
+      if (rc)
+	DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	     __FILE__, __LINE__);
+      nb = 0;
+      while (nb < size - 4)
+	{
+	  rc = read (fd, dest + nb, size - 4 - nb);
+	  nb += rc;
+	}
 
       rc = read (fd, dest + size - 4, 3);
 
       mode = 0;			/* forward */
       rc = ioctl (fd, PPDATADIR, &mode);
+      if (rc)
+	DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	     __FILE__, __LINE__);
       bval = 0xA0;
       mode = IEEE1284_MODE_EPP | IEEE1284_ADDR;
       rc = ioctl (fd, PPSETMODE, &mode);
+      if (rc)
+	DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	     __FILE__, __LINE__);
       rc = write (fd, &bval, 1);
 
       mode = 1;			/* data_reverse */
       rc = ioctl (fd, PPDATADIR, &mode);
+      if (rc)
+	DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	     __FILE__, __LINE__);
       mode = IEEE1284_MODE_EPP | IEEE1284_DATA;
       rc = ioctl (fd, PPSETMODE, &mode);
+      if (rc)
+	DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	     __FILE__, __LINE__);
       rc = read (fd, dest + size - 1, 1);
 
       mode = 0;			/* forward */
       rc = ioctl (fd, PPDATADIR, &mode);
+      if (rc)
+	DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	     __FILE__, __LINE__);
 
       return;
     }
@@ -2001,14 +2107,23 @@ EPPWrite32Buffer (int size, unsigned char *source)
       bval = 0xC0;
       mode = IEEE1284_MODE_EPP | IEEE1284_ADDR;
       rc = ioctl (fd, PPSETMODE, &mode);
+      if (rc)
+	DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	     __FILE__, __LINE__);
       rc = write (fd, &bval, 1);
 
 #ifdef PPSETFLAGS
       mode = PP_FASTWRITE;
       rc = ioctl (fd, PPSETFLAGS, &mode);
+      if (rc)
+	DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	     __FILE__, __LINE__);
 #endif
       mode = IEEE1284_MODE_EPP | IEEE1284_DATA;
       rc = ioctl (fd, PPSETMODE, &mode);
+      if (rc)
+	DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	     __FILE__, __LINE__);
       rc = write (fd, source, size);
 
       return;
@@ -2077,12 +2192,21 @@ ParportPausedReadBuffer (int size, unsigned char *dest)
 
   mode = 1;			/* data_reverse */
   rc = ioctl (fd, PPDATADIR, &mode);
+  if (rc)
+    DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	 __FILE__, __LINE__);
 #ifdef PPSETFLAGS
   mode = PP_FASTREAD;
   rc = ioctl (fd, PPSETFLAGS, &mode);
+  if (rc)
+    DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	 __FILE__, __LINE__);
 #endif
   mode = IEEE1284_MODE_EPP | IEEE1284_DATA;
   rc = ioctl (fd, PPSETMODE, &mode);
+  if (rc)
+    DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	 __FILE__, __LINE__);
 
   if ((size & 0x03) != 0)
     {
@@ -2093,6 +2217,9 @@ ParportPausedReadBuffer (int size, unsigned char *dest)
 	  dest++;
 	  bread++;
 	  rc = ioctl (fd, PPRSTATUS, &status);
+	  if (rc)
+	    DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+		 __FILE__, __LINE__);
 	  error = status & 0x08;
 	}
       if (error)
@@ -2127,6 +2254,9 @@ ParportPausedReadBuffer (int size, unsigned char *dest)
 	  if (size > 0)
 	    {
 	      rc = ioctl (fd, PPRSTATUS, &status);
+	      if (rc)
+		DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n",
+		     strerror (errno), __FILE__, __LINE__);
 	      word = status & 0x10;
 	      error = status & 0x08;
 	    }
@@ -2148,6 +2278,9 @@ ParportPausedReadBuffer (int size, unsigned char *dest)
     {
       c = 0;
       rc = ioctl (fd, PPRSTATUS, &status);
+      if (rc)
+	DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	     __FILE__, __LINE__);
       error = status & 0x08;
       if (error)
 	c = WaitOnError ();
@@ -2176,10 +2309,16 @@ ParportPausedReadBuffer (int size, unsigned char *dest)
 	      if (size)
 		{
 		  rc = ioctl (fd, PPRSTATUS, &status);
+		  if (rc)
+		    DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n",
+			 strerror (errno), __FILE__, __LINE__);
 		  error = status & 0x08;
 		  if (!error)
 		    {
 		      rc = ioctl (fd, PPRSTATUS, &status);
+		      if (rc)
+			DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n",
+			     strerror (errno), __FILE__, __LINE__);
 		      error = status & 0x08;
 		    }
 		}
@@ -2195,20 +2334,35 @@ ParportPausedReadBuffer (int size, unsigned char *dest)
   /* end reading */
   mode = 0;			/* forward */
   rc = ioctl (fd, PPDATADIR, &mode);
+  if (rc)
+    DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	 __FILE__, __LINE__);
   bval = 0xA0;
   mode = IEEE1284_MODE_EPP | IEEE1284_ADDR;
   rc = ioctl (fd, PPSETMODE, &mode);
+  if (rc)
+    DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	 __FILE__, __LINE__);
   rc = write (fd, &bval, 1);
 
   mode = 1;			/* data_reverse */
   rc = ioctl (fd, PPDATADIR, &mode);
+  if (rc)
+    DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	 __FILE__, __LINE__);
   mode = IEEE1284_MODE_EPP | IEEE1284_DATA;
   rc = ioctl (fd, PPSETMODE, &mode);
+  if (rc)
+    DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	 __FILE__, __LINE__);
   rc = read (fd, dest, 1);
   bread++;
 
   mode = 0;			/* forward */
   rc = ioctl (fd, PPDATADIR, &mode);
+  if (rc)
+    DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	 __FILE__, __LINE__);
   return (bread);
 }
 #endif
@@ -2442,7 +2596,9 @@ retry:
   reg = EPPRegisterRead (0x1C);
   DBG (16, "SendWord, reg1C=0x%02X (%s:%d)\n", reg, __FILE__, __LINE__);
   /* model 0x07 has always the last bit set to 1, and even bit 1 */
+  /* when UTA is present, we get 0x6B there */
   scannerStatus = reg & 0xFC;
+
   reg = reg & 0x10;
   if (reg != 0x10)
     {
@@ -7635,6 +7791,7 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
     0x41, 0xA0, 0x0A, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x33, 0x1A, 0x00,
     -1
   };
+#define UMAX_PP_DANGEROUS_EXPERIMENT 666
 #ifdef UMAX_PP_DANGEROUS_EXPERIMENT
   FILE *f = NULL;
   char line[1024], *ptr;
@@ -8009,12 +8166,12 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
   /*opsc53[13] = 0x10;           blue bit */
   /* with cmd 01, may be use to do 3 pass scanning ? */
   /* bits 0 to 3 seem related to sharpness */
-  f = fopen ("dangerous.params", "rb");
+  f = fopen ("/tmp/dangerous.params", "rb");
   if (f != NULL)
     {
+      fgets (line, 1024, f);
       while (!feof (f))
 	{
-	  fgets (line, 1024, f);
 	  channel = 0;
 	  if (sscanf (line, "CMD%1d", &channel) != 1)
 	    channel = 0;
@@ -8037,19 +8194,27 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
 	    default:
 	      channel = 0;
 	    }
+	  printf ("CMD%d BEFORE: ", channel);
+	  for (i = 0; i < max; i++)
+	    printf ("%02x ", base[i]);
+	  printf ("\n");
 	  if (channel > 0)
 	    {
 	      ptr = line + 6;
 	      for (i = 0; (i < max) && ((ptr - line) < strlen (line)); i++)
 		{
 		  if (ptr[0] != '-')
-		    {
-		      sscanf (ptr, "%02X", base + i);
-		    }
-		  else
-		    ptr += 3;
+		  {
+		    sscanf (ptr, "%X", base + i);
+		  }
+		  ptr += 3;
 		}
 	    }
+	  printf ("CMD%d AFTER : ", channel);
+	  for (i = 0; i < max; i++)
+	    printf ("%02X ", base[i]);
+	  printf ("\n");
+	  fgets (line, 1024, f);
 	}
       fclose (f);
     }

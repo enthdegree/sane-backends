@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.8\n"
-"POT-Creation-Date: 2002-06-04 19:13+0200\n"
+"POT-Creation-Date: 2002-08-17 16:38+0200\n"
 "PO-Revision-Date: 2002-06-04 19:30GMT\n"
 "Last-Translator: Heiko Schaefer <heiko@burmagroup.de>\n"
 "Language-Team:  <de@li.org>\n"
@@ -30,104 +30,112 @@ msgstr "Farbe"
 msgid "Scan Mode"
 msgstr "Scanmodus"
 
-#: .tmp/umax_pp.c:396
+#: .tmp/umax_pp.c:397
 msgid "Geometry"
 msgstr "Geometrie"
 
-#: .tmp/umax_pp.c:444
+#: .tmp/umax_pp.c:446
 msgid "Enhancement"
 msgstr "Verbesserung"
 
-#: .tmp/umax_pp.c:452
+#: .tmp/umax_pp.c:455
 msgid "lamp-control"
 msgstr "Lampenkontrolle"
 
-#: .tmp/umax_pp.c:453
+#: .tmp/umax_pp.c:456
 msgid "Lamp on"
 msgstr "Lampe an"
 
-#: .tmp/umax_pp.c:454
+#: .tmp/umax_pp.c:457
 msgid "Sets lamp on/off"
 msgstr "Schaltet die Lampe an/aus"
 
-#: .tmp/umax_pp.c:519
+#: .tmp/umax_pp.c:465
+#, fuzzy
+msgid "UTA-control"
+msgstr "Lampenkontrolle"
+
+#: .tmp/umax_pp.c:466
+msgid "UTA on"
+msgstr ""
+
+#: .tmp/umax_pp.c:467
+#, fuzzy
+msgid "Sets UTA on/off"
+msgstr "Schaltet die Lampe an/aus"
+
+#: .tmp/umax_pp.c:532
 msgid "Gain"
 msgstr "Gewinne"
 
-#: .tmp/umax_pp.c:520
+#: .tmp/umax_pp.c:533
 msgid "Color channels gain settings"
 msgstr "Farbkanalgewinneinstellungen"
 
-#: .tmp/umax_pp.c:527
+#: .tmp/umax_pp.c:540
 msgid "Gray gain"
 msgstr "Graugewinn"
 
-#: .tmp/umax_pp.c:528
+#: .tmp/umax_pp.c:541
 msgid "Sets gray channel gain"
 msgstr "Setzt Graukanalgewinn"
 
-#: .tmp/umax_pp.c:539
+#: .tmp/umax_pp.c:552
 msgid "Red gain"
 msgstr "Rotgewinn"
 
-#: .tmp/umax_pp.c:540
+#: .tmp/umax_pp.c:553
 msgid "Sets red channel gain"
 msgstr "Setzt den Rotkanalgewinn"
 
-#: .tmp/umax_pp.c:551
+#: .tmp/umax_pp.c:564
 msgid "Green gain"
 msgstr "Grüngewinn"
 
-#: .tmp/umax_pp.c:552
+#: .tmp/umax_pp.c:565
 msgid "Sets green channel gain"
 msgstr "Setzt den Grünkanalgewinn"
 
-#: .tmp/umax_pp.c:563
+#: .tmp/umax_pp.c:576
 msgid "Blue gain"
 msgstr "Blaugewinn"
 
-#: .tmp/umax_pp.c:564
+#: .tmp/umax_pp.c:577
 msgid "Sets blue channel gain"
 msgstr "Setzt den Blaukanalgewinn"
 
-#: .tmp/umax_pp.c:575
-#, fuzzy
-msgid "Highlight"
-msgstr "Belichtung"
-
-#: .tmp/umax_pp.c:577
+#: .tmp/umax_pp.c:590
 msgid "Color channels highlight settings"
 msgstr "Farbkanalbelichtungseinstellungen"
 
-#: .tmp/umax_pp.c:584
+#: .tmp/umax_pp.c:597
 msgid "Gray highlight"
 msgstr "Graubelichtung"
 
-#: .tmp/umax_pp.c:586
+#: .tmp/umax_pp.c:599
 msgid "Sets gray channel highlight"
 msgstr "Setzt die Graukanalbelichtung"
 
-#: .tmp/umax_pp.c:597
+#: .tmp/umax_pp.c:610
 msgid "Red highlight"
 msgstr "Rotbelichtung"
 
-#: .tmp/umax_pp.c:598
+#: .tmp/umax_pp.c:611
 msgid "Sets red channel highlight"
 msgstr "Setzt die Rotkanalbelichtung"
 
-#: .tmp/umax_pp.c:609
+#: .tmp/umax_pp.c:622
 msgid "Green highlight"
 msgstr "Grünbelichtung"
 
-#: .tmp/umax_pp.c:611
+#: .tmp/umax_pp.c:624
 msgid "Sets green channel highlight"
 msgstr "Setzt die Grünkanalbelichtung"
 
-#: .tmp/umax_pp.c:622
+#: .tmp/umax_pp.c:635
 msgid "Blue highlight"
 msgstr "Blaubelichtung"
 
-#: .tmp/umax_pp.c:624
+#: .tmp/umax_pp.c:637
 msgid "Sets blue channel highlight"
 msgstr "Setzt die Blaukanalbelichtung"
-

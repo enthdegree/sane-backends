@@ -466,7 +466,7 @@ init_options (Umax_PP_Device * dev)
   dev->opt[OPT_CUSTOM_GAMMA].title = SANE_TITLE_CUSTOM_GAMMA;
   dev->opt[OPT_CUSTOM_GAMMA].desc = SANE_DESC_CUSTOM_GAMMA;
   dev->opt[OPT_CUSTOM_GAMMA].type = SANE_TYPE_BOOL;
-  dev->opt[OPT_CUSTOM_GAMMA].cap |= SANE_CAP_ADVANCED;
+  dev->opt[OPT_CUSTOM_GAMMA].cap |= SANE_CAP_ADVANCED | SANE_CAP_INACTIVE;
   dev->val[OPT_CUSTOM_GAMMA].w = SANE_FALSE;
 
   /* grayscale gamma vector */
@@ -1177,7 +1177,6 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   dev->next = first_dev;
   first_dev = dev;
 
-
   *handle = dev;
 
   DBG (3, "open: success\n");
@@ -1299,6 +1298,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       DEBUG ();
       return SANE_STATUS_INVAL;
     }
+
 
   cap = dev->opt[option].cap;
 

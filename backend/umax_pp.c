@@ -350,6 +350,7 @@ init_options (Umax_PP_Device * dev)
   dev->opt[OPT_MODE_GROUP].name = "";
   dev->opt[OPT_MODE_GROUP].desc = "";
   dev->opt[OPT_MODE_GROUP].type = SANE_TYPE_GROUP;
+  dev->opt[OPT_MODE_GROUP].size = 0;
   dev->opt[OPT_MODE_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
   /* scan mode */
@@ -397,6 +398,7 @@ init_options (Umax_PP_Device * dev)
   dev->opt[OPT_GEOMETRY_GROUP].desc = "";
   dev->opt[OPT_GEOMETRY_GROUP].name = "";
   dev->opt[OPT_GEOMETRY_GROUP].type = SANE_TYPE_GROUP;
+  dev->opt[OPT_GEOMETRY_GROUP].size = 0;
   dev->opt[OPT_GEOMETRY_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
   /* top-left x */
@@ -445,6 +447,7 @@ init_options (Umax_PP_Device * dev)
   dev->opt[OPT_ENHANCEMENT_GROUP].desc = "";
   dev->opt[OPT_ENHANCEMENT_GROUP].name = "";
   dev->opt[OPT_ENHANCEMENT_GROUP].type = SANE_TYPE_GROUP;
+  dev->opt[OPT_ENHANCEMENT_GROUP].size = 0;
   dev->opt[OPT_ENHANCEMENT_GROUP].cap |= SANE_CAP_ADVANCED;
   dev->opt[OPT_ENHANCEMENT_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 

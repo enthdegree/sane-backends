@@ -1700,7 +1700,7 @@ static void
 EPPReadBuffer (int size, unsigned char *dest)
 {
 #ifdef HAVE_LINUX_PPDEV_H
-  int fd, mode, rc;
+  int fd, mode, rc, nb;
   unsigned char bval;
 #endif
   int control;
@@ -1724,7 +1724,12 @@ EPPReadBuffer (int size, unsigned char *dest)
 #endif
       mode = IEEE1284_MODE_EPP | IEEE1284_DATA;
       rc = ioctl (fd, PPSETMODE, &mode);
-      rc = read (fd, dest, size - 1);
+      nb = 0;
+      while (nb < size - 1)
+	{
+	  rc = read (fd, dest + nb, size - 1 - nb);
+	  nb += rc;
+	}
 
       mode = 0;			/* forward */
       rc = ioctl (fd, PPDATADIR, &mode);
@@ -1889,7 +1894,7 @@ static void
 EPPRead32Buffer (int size, unsigned char *dest)
 {
 #ifdef HAVE_LINUX_PPDEV_H
-  int fd, mode, rc;
+  int fd, mode, rc,nb;
   unsigned char bval;
 #endif
   int control;
@@ -1919,7 +1924,12 @@ EPPRead32Buffer (int size, unsigned char *dest)
 #endif
       mode = IEEE1284_MODE_EPP | IEEE1284_DATA;
       rc = ioctl (fd, PPSETMODE, &mode);
-      rc = read (fd, dest, size - 4);
+      nb=0;
+      while(nb<size-4)
+      {
+      rc = read (fd, dest+nb, size - 4-nb);
+      nb+=rc;
+      }
 
       rc = read (fd, dest + size - 4, 3);
 

@@ -16,6 +16,10 @@
 #ifndef sane_h
 #define sane_h
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define SANE_CURRENT_MAJOR	1
 
 #define SANE_VERSION_CODE(major, minor, build)	\
@@ -209,5 +213,9 @@ extern SANE_Status sane_set_io_mode (SANE_Handle handle,
 extern SANE_Status sane_get_select_fd (SANE_Handle handle,
 				       SANE_Int * fd);
 extern SANE_String_Const sane_strstatus (SANE_Status status);
+
+#ifdef __cplusplus
+}
+#endif 
 
 #endif /* sane_h */

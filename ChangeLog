@@ -1,3 +1,8 @@
+2004-07-15  Rene Rebe <rene@rocklinux.org>
+
+	* include/sane/sane.h: added extern "C" for compilation with a C++
+	  compiler
+
 2004-07-10  Gerard Klaver <gerard at gkall dot hobby dot nl>
 
 	* tools/check-usb-chip.c: Added check for the GT-8911.

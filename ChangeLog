@@ -1,6 +1,8 @@
 2002-07-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* sanei/sanei_usb.c: Made libusb_timeout static.
+	* TODO: Updated .desc entries. Removed entry about scanimage i18n
+	  support.
 
 2002-07-25  Matthew Duggan <stauff1@users.sourceforge.net>
 

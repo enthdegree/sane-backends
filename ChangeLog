@@ -1,3 +1,11 @@
+2001-05-23  Stéphane Voltz <svoltz@wanadoo.fr>
+
+	* backend/umax_pp.c: changed option names to use lower case characters
+		and dashes instead of spaces.
+
+	* backend/umax_pp_low.c: commented out a useless command sequence.
+		Added 55 AA pattern escaping in data block sending.
+
 2001-05-22  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson.c: Added sense handler to support the GT-8000 scanner.

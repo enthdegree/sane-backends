@@ -7,6 +7,11 @@
 	  buffer was way too small. Option 0 has an empty name. Better debug
 	  output for dev_cmd. Set size for group options to 0. Set size of
 	  halftone pattern to non 0.
+	* backend/mustek_usb.c backend/mustek_usb.desc 
+	  doc/mustek_usb/mustek_usb.CHANGES: Option 0 has an empty name now.
+	  Group options have size 0 now. Check also for SANE_ACTION_SET_AUTO.
+	  Removed buggy output in sane_control_option. Added more debug output
+	  in sane_control_option.
 
 2002-03-19  Frank Zago <fzago@greshamstorage.com>
 

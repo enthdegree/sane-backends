@@ -1,3 +1,7 @@
+2004-11-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Updated/added several scanners.
+
 2004-11-21  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* backend/plustek-usb.c: Fixed problem, when builing supported

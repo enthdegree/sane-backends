@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2004-11-07"		; version of backend
+:version "2004-11-21"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -295,7 +295,7 @@
 
 :model "DR-6080"
 :url "/unsupported/canon-dr6080.html"
-:interface "SCSI"
+:interface "USB SCSI"
 :status :unsupported
 :comment "Probably not supported. High-speed pass-trough (ADF) scanner."
 
@@ -382,10 +382,10 @@
 :url "http://www.dell.com/"
 
 :model "A920"
-;:url ""
+:url "/unsupported/dell-a920.html"
 :interface "USB"
 :status :unsupported
-:comment "Probably not supported. Probably a relabelled Lexmark X1150."
+:comment "Probably not supported. See link for details."
 
 :model "1600n"
 :url "/unsupported/dell-1600n.html"
@@ -662,6 +662,12 @@
 :status :unsupported
 :comment "Probably unsupported. See link for details."
 
+:model "MD 42666"
+:url "/unsupported/tevion-md40420.html"
+:interface "USB"
+:status :unsupported
+:comment "Probably unsupported. See link for details."
+
 ;********************************************************************************************
 
 :mfg "Memorex"
@@ -755,10 +761,10 @@
 :comment "Unsupported. Vendor/Product ids: 0x05da/0x30cf. SQ Scan08? See link for more details."
 
 :model "ScanMaker 4850"
-;:url "/unsupported/microtek-scanmaker-4800.html"
+:url "/unsupported/microtek-scanmaker-4900.html"
 :interface "USB"
 :status :unsupported
-:comment "Probably unsupported. "
+:comment "Probably unsupported. See link for details."
 
 :model "ScanMaker 4900"
 :url "/unsupported/microtek-scanmaker-4900.html"

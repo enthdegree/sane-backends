@@ -364,7 +364,7 @@ main (int argc, char **argv)
 	  printf ("InitTransport() failed (%s:%d)\n", __FILE__, __LINE__);
 	  return (0);
 	}
-      if (sanei_umax_pp_Lamp (lamp) == 0)
+      if (sanei_umax_pp_SetLamp (lamp) == 0)
 	{
 	  fprintf (stderr, "Setting lamp state failed!\n");
 	  return (0);

@@ -2128,7 +2128,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	       * thumbnails are color.
 	       */
 	      parms.format =
-		(CameraInfo.model = 0x25) ? SANE_FRAME_RGB : SANE_FRAME_GRAY;
+		(CameraInfo.model == 0x25) ? SANE_FRAME_RGB : SANE_FRAME_GRAY;
 	      parms.bytes_per_line = 80 * 3;
 	      parms.pixels_per_line = 80;
 	      parms.lines = 60;
@@ -2428,7 +2428,7 @@ sane_start (SANE_Handle handle)
        * thumbnails are color.
        */
       parms.format =
-	(CameraInfo.model = 0x25) ? SANE_FRAME_RGB : SANE_FRAME_GRAY;
+	(CameraInfo.model == 0x25) ? SANE_FRAME_RGB : SANE_FRAME_GRAY;
       parms.bytes_per_line = 80 * 3;	/* 80 pixels, 3 colors */
       parms.pixels_per_line = 80;
       parms.lines = 60;

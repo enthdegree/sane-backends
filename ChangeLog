@@ -1,3 +1,6 @@
+---- CODE FREEZE FOR SANE 1.0.15 ---
+-- snapshot 1.0.15-pre2
+
 2004-10-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/gt68xx.c backend/gt68xx_high.h doc/descriptions/gt68xx.desc

@@ -1,3 +1,13 @@
+2002-07-06  Max Vorobiev <pcwizard@yandex.ru>
+
+	* backend/hpsj5s.c: Rewrote to depend on libieee1284.
+	* backend/hpsj5s.h: Added register description defines
+	* backend/hpsj5s.conf: Default config setted for parport0
+	* backend/hpsj5s_int.h: Removed. All important stuff moved to hpsj5s.h
+	* backend/Makefile.in: hpsj5s backend build depend on libieee1284 present
+	* doc/hpsj5s.man: Comments about libieee1284 added
+	* configure.in: hpsj5s backend will be compiled if libieee1284 detected
+
 2002-07-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* tools/.cvsignore tools/Makefile.in rools/README tools/sane-desc.c:

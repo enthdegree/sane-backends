@@ -16,6 +16,11 @@
 	  Moved test.desc to doc/descriptions and updated this file.
 	* PROJECTS: Removed test backend.
 	* AUTHORS: Added myself for test backend.
+	* TODO: Added entries about SANE_CAP_ADVANCED in groups, a wip marker
+	  for sorted sane-backends.html, and saneopts.??.po problem.
+	  Removed backends from list of inclusion beacuse of lack of response:
+	  v4l2, lhii, viceo (they stay in PROJECTS). Removed snapscan from
+	  exported symbols bug list. Updated doxygen list. 
 
 2002-04-12  Frank Zago <fzago@greshamstorage.com>
 

@@ -3,7 +3,7 @@
 :version "1.0-15"
 :manpage "sane-mustek_usb"
 :url "http://www.meier-geinitz.de/sane/"
-:comment "Only the USB scanners mentioned below are supported. For BearPaws, look at the Plustek backend."
+:comment "Only the USB scanners mentioned below are supported. For BearPaws, look at the Plustek and gt68xx backends."
 :devicetype :scanner
 
 :mfg "Mustek"
@@ -11,24 +11,24 @@
 :url "http://www.mustek.com.tw/"
 :url "http://www.mustek.de/"
 
-:model "600 CU"
+:model "ScanExpress 600 CU"
 :interface "USB"
 :status :stable
 
-:model "1200 CU"
+:model "ScanExpress 1200 CU"
 :interface "USB"
 :status :stable
 
-:model "1200 CU Plus"
+:model "ScanExpress 1200 CU Plus"
 :interface "USB"
 :status :stable
 
-:model "1200 UB"
+:model "ScanExpress 1200 UB"
 :interface "USB"
 :status :stable
 :comment "Only 1200 UB is supported, NOT UB Plus!"
 
-;:model "1200 USB"
+;:model "ScanExpress 1200 USB"
 ;:interface "USB"
 ;:comment "CCD not yet supported"
 ;:status :untested

@@ -1,3 +1,9 @@
+2001-06-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/sane-artec.man doc/sane-coolscan.man doc/sane-umax.man:
+	  Fixed whatis/apropos output (don't put an empty line after
+	  the NAME section). Added SEE ALSO entry to sane(7).
+
 2001-06-09  Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 
 	* sanei/sanei_scsi.c:

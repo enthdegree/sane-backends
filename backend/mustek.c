@@ -46,7 +46,7 @@
 
 /**************************************************************************/
 /* Mustek backend version                                                 */
-#define BUILD 112
+#define BUILD 113
 /**************************************************************************/
 
 #include "../include/sane/config.h"
@@ -2599,6 +2599,7 @@ gamma_correction (Mustek_Scanner *s, SANE_Int color_code)
   else
     {
       bytes_per_channel = 256;
+      len = num_channels * bytes_per_channel;
       gamma[2] = 0x27;		/* indicate user-selected gamma table */
       if (s->hw->flags & MUSTEK_FLAG_N)
 	{
@@ -2613,7 +2614,6 @@ gamma_correction (Mustek_Scanner *s, SANE_Int color_code)
 	  gamma[8] = (len >> 0) & 0xff;
 	  gamma[9] = (color_code << 6);
 	}
-      len = num_channels * bytes_per_channel;
     }
 
   if (len > 0)

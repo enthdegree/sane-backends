@@ -1,5 +1,12 @@
 CHANGES for the SANE Mustek backend
 
+2001-09-10
+  * Released Mustek backend 1.0-113.
+
+2001-09-10
+  * Fixed bug in gamma correction code that broke at least custom gamma
+    for the Paragon 12000SP.
+
 2001-08-26
   * Released Mustek backend 1.0-112.
 

@@ -51,6 +51,7 @@
  *          OPT_LAMPOFF_ONEND, also did some cleanup
  *        - moved SCANDEF definitions to plustek-usb.h
  *        - removed function pointer
+ *        - added OPT_BIT_DEPTH
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -192,6 +193,7 @@ enum {
 	OPT_NUM_OPTS = 0,
 	OPT_MODE_GROUP,
 	OPT_MODE,
+	OPT_BIT_DEPTH,
 	OPT_EXT_MODE,
 	OPT_RESOLUTION,
 	OPT_PREVIEW,
@@ -312,15 +314,6 @@ typedef struct {
 	unsigned short wMaxExtentX; /**< scanarea width  */
 	unsigned short wMaxExtentY; /**< scanarea height */
 } ScannerCaps, *pScannerCaps;
-
-/** for defining the scanmodes
- */
-typedef const struct mode_param
-{
-	int color;
-	int depth;
-	int scanmode;
-} ModeParam, *pModeParam;
 
 typedef struct Plustek_Device
 {

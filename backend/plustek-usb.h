@@ -329,9 +329,9 @@ typedef	struct Origins
 typedef struct SrcAttr
 {
 	XY     DataOrigin;      /**< The origin x is from visible pixel not CCD  */
-                            /*   pixel 0, in 300 DPI base.                   */
+	                        /*   pixel 0, in 300 DPI base.                   */
 	                        /*   The origin y is from visible top            */
-                            /*  (glass area), in 300 DPI                     */
+	                        /*  (glass area), in 300 DPI                     */
 	short  ShadingOriginY;  /**< The origin y is from top of scanner body    */
 	short  DarkShadOrgY;    /**< if the device has a dark calibration strip  */
 	XY     Size;            /**< Scanning width/height, in 300 DPI base.     */
@@ -348,7 +348,7 @@ typedef struct DevCaps
 	SrcAttrDef Adf;             /**< Adf device                              */
 	XY         OpticDpi;        /**< Maximum DPI                             */
 	u_short    wFlags;          /**< Flag to indicate what kinds of elements */
-                                /*   are available                           */
+	                            /*   are available                           */
 	u_char     bSensorOrder;    /**< CCD color sequences, see _SENSORORDER   */
 	u_char     bSensorDistance; /**< CCD Color distance                      */
 	u_char     bButtons;        /**< Number of buttons                       */
@@ -420,9 +420,9 @@ typedef struct HWDefault
 	
 	/* Sensor Pixel Configuration
 	 * Actually, the wActivePixelsStart will be set to 0 for shading purpose.
-     * We have to keep these values to adjust the origins when user does the
-     * scan. These settings are based on optic resolution.
-     */
+	 * We have to keep these values to adjust the origins when user does the
+	 * scan. These settings are based on optic resolution.
+	 */
 	u_char              bOpticBlackStart;       /* 0x1c        */
 	u_char              bOpticBlackEnd;         /* 0x1d        */
 	u_short             wActivePixelsStart;     /* 0x1e & 0x1f */
@@ -501,10 +501,10 @@ typedef struct
 
 	/** Driver Info */
 	u_long dwValidPixels; /**< only valid pixels, not incl. pad pix(B/W,Gray)*/
-	u_long dwPhyPixels;	  /**< inlcude pad pixels for ASIC (B/W, Gray)       */
+	u_long dwPhyPixels;   /**< inlcude pad pixels for ASIC (B/W, Gray)       */
 	u_long dwPhyBytes;    /**< bytes to read from ASIC                       */
-	u_long dwPhyLines;	  /**< should include the extra lines accord to the  */
-                          /*   request dpi (CCD lines distance)              */
+	u_long dwPhyLines;    /**< should include the extra lines accord to the  */
+	                      /*   request dpi (CCD lines distance)              */
 	u_long dwTotalBytes;  /**< Total bytes per scan                          */
 
 } WinInfo, *pWinInfo;
@@ -514,40 +514,36 @@ typedef struct
 typedef struct
 {
 	/* OUTPUT - Driver returned area. All are based on physical
-     * scanning conditions.
-     */
-	WinInfo	Size;			/* i/p:
-							 * dwPixels, dwBytes(without u_long boundary factor)
-                             * dwLines in user specified dpi
-							 * o/p:
-							 * dwPhyPixels, dwPhyBytes, dwPhyLines
-							 * so after called, caller have to change i
-                             */
-	XY      PhyDpi;			/* Driver DPI */
+	 * scanning conditions. */
+	WinInfo Size;                   /* i/p:
+	                                 * dwPixels, dwBytes(without u_long boundary factor)
+                                         * dwLines in user specified dpi
+	                                 * o/p:
+	                                 * dwPhyPixels, dwPhyBytes, dwPhyLines
+	                                 * so after called, caller have to change it */
+	XY      PhyDpi;                 /* Driver DPI */
 
 	/* INPUT - User info. All sizes and coordinates are specified in the
-     * unit based on 300 DPI
-     */
-	XY      UserDpi;		/**< User specified DPI                          */
-	XY   	Origin;			/**< Scanning origin in optic dpi                */
-	double	dMCLK;			/**< for positive & negative & Adf               */
-	short	brightness;		
-	short	contrast;		
-	short	siThreshold;	/**< only for B/W output                         */
-	u_char	bSource;		/**< Reflection/Positive/Negative/Adf(SOURCE_xxx)*/
-	u_char	bDataType;		/**< Bw, Gray or Color (see _SCANDATATYPE)       */
-	u_char	bBitDepth;		/**< 1/8/14                                      */
-	u_char	bChannels;		/**< Color or Gray                               */
-	u_char  bCalibration;	/**< 1 or 2: the origin.x is from CCD pixel 0 and
-							 *		   the origin.y is from Top of scanner.
-							 * 		   In this case, the WININFO.dwPhyLines
-                             *         will not included the extra lines for
-                             *         color distance factor.
-							 * 0: normal scan, the both directions have to
-                             *    add the distance
-                             */
-	int		swOffset[3];	/**< for calibration adjustment                  */
-	int	    swGain[3];      /**< for calibration adjustment                  */
+	 * unit based on 300 DPI */
+	XY      UserDpi;      /**< User specified DPI                          */
+	XY      Origin;	      /**< Scanning origin in optic dpi                */
+	double  dMCLK;        /**< for positive & negative & Adf               */
+	short   brightness;
+	short   contrast;
+	short   siThreshold;  /**< only for B/W output                         */
+	u_char  bSource;      /**< Reflection/Positive/Negative/Adf(SOURCE_xxx)*/
+	u_char  bDataType;    /**< Bw, Gray or Color (see _SCANDATATYPE)       */
+	u_char  bBitDepth;    /**< 1/8/14                                      */
+	u_char  bChannels;    /**< Color or Gray                               */
+	u_char  bCalibration; /**< 1 or 2: the origin.x is from CCD pixel 0 and
+	                       *           the origin.y is from Top of scanner.
+	                       *           In this case, the WININFO.dwPhyLines
+	                       *         will not included the extra lines for
+	                       *         color distance factor.
+	                       * 0: normal scan, the both directions have to
+	                       *    add the distance */
+	int     swOffset[3];  /**< for calibration adjustment                  */
+	int     swGain[3];    /**< for calibration adjustment                  */
 
 } ScanParam, *pScanParam;
 
@@ -557,48 +553,48 @@ struct Plustek_Device;
  */
 typedef struct ScanDef
 {
-    SANE_Bool           fCalibrated;    /**< calibrated or not              */
-    SANE_Bool           skipCoarseCalib;/**< skip coarse calibration or not */
-	u_long				dwFlag;         /**< scan attributes                */
+	SANE_Bool fCalibrated;    /**< calibrated or not              */
+	SANE_Bool skipCoarseCalib;/**< skip coarse calibration or not */
+	u_long    dwFlag;         /**< scan attributes                */
 
-	ScanParam			sParam;         /**< all we need to scan            */
+	ScanParam sParam;         /**< all we need to scan            */
 
-	AnyPtr 				UserBuf;        /**< pointer to the user buffer     */
-	u_long				dwLinesUser;	/**< Number of lines of user buffer */
-	u_long				dwBytesLine;	/**< Bytes per line of user buffer. */
-	u_long				dwLinesToProcess;
+	AnyPtr    UserBuf;        /**< pointer to the user buffer     */
+	u_long    dwLinesUser;    /**< Number of lines of user buffer */
+	u_long    dwBytesLine;    /**< Bytes per line of user buffer. */
+	u_long    dwLinesToProcess;
 
 	/** Image processing routine according to the scan mode  */
 	void (*pfnProcess)(struct Plustek_Device*);
 
-	u_char*				pScanBuffer;	/**< our scan buffer */
+	u_char* pScanBuffer;      /**< our scan buffer */
 
-	u_long				dwLinesPerScanBufs;
-	u_long				dwNumberOfScanBufs;
-	u_long				dwLinesScanBuf;
+	u_long  dwLinesPerScanBufs;
+	u_long  dwNumberOfScanBufs;
+	u_long  dwLinesScanBuf;
 
-	u_char*				pbScanBufBegin;
-	u_char*				pbScanBufEnd;
-	u_char*             pbGetDataBuf;
-	u_long				dwBytesScanBuf;
-	u_long				dwLinesDiscard;
+	u_char* pbScanBufBegin;
+	u_char* pbScanBufEnd;
+	u_char* pbGetDataBuf;
+	u_long  dwBytesScanBuf;
+	u_long  dwLinesDiscard;
 
-	u_long				dwRedShift;
-	u_long				dwGreenShift;
-	u_long				dwBlueShift;
+	u_long  dwRedShift;
+	u_long  dwGreenShift;
+	u_long  dwBlueShift;
 
-	AnyPtr				Green;
-	AnyPtr				Red;
-	AnyPtr				Blue;
+	AnyPtr  Green;
+	AnyPtr  Red;
+	AnyPtr  Blue;
 	
-	long				lBufAdjust;		/**< bytes to adjust buffer pointer  */
-										/*   after a image line processed    */
-	u_short				wSumY;			/**<  for line sampling              */
+	long    lBufAdjust;       /**< bytes to adjust buffer pointer  */
+	                          /*   after a image line processed    */
+	u_short wSumY;            /**<  for line sampling              */
 	
-	u_char				bLineDistance;	/**< Color offset in specific dpi y  */
-	int					fGrayFromColor; /**< channel to use for gray mode    */
+	u_char  bLineDistance;    /**< Color offset in specific dpi y  */
+	int     fGrayFromColor;   /**< channel to use for gray mode    */
 
-	u_char				bLinesToSkip;	/**< how many lines to skip at start */
+	u_char  bLinesToSkip;     /**< how many lines to skip at start */
 
 } ScanDef, *pScanDef;
 
@@ -611,8 +607,8 @@ typedef struct ScanDef
 typedef struct
 {
 	u_char pwm;                 /**< PWM             */
-	u_char pwm_duty;			/**< PWM duty cycles */
-	u_char scan_lines_per_line;	/**< lines to scan to obtain 1 real line
+	u_char pwm_duty;            /**< PWM duty cycles */
+	u_char scan_lines_per_line; /**< lines to scan to obtain 1 real line
                                       will be used in 16bit color modes only */
 } MDef, *pMDef;
 

@@ -1,4 +1,4 @@
-TODO (2002-02-17)
+TODO (2002-02-24)
 
 ******** todo ********
 
@@ -179,6 +179,9 @@ misc
 
   * Make output of sane-find-scanner more flexible. See scanimage -f for
     details.
+
+  * Check licence issues with getopt*.c and md5.c. These files are GPLed, so
+    if they are used in backends, their SANE exception will be void.
 
 
 ******** done ********

@@ -1,3 +1,6 @@
+2004-06-21  Gerhard Jaeger <gerhard@gjaeger.de>
+	* po/*.po: Updated according to upcomming changes in the plustek backend.
+
 2004-06-20  Mattias Ellert <mattias.ellert@tsl.uu.se>
 	* aclocal.m4, configure, sane/config.h.in, backend/Makefile.in, 
 	  backend/agfafocus.c, backend/artec_eplus48u.c, backend/avision.c,

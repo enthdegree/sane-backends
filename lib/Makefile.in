@@ -48,12 +48,10 @@ DISTCLEAN_FILES = @DISTCLEAN_FILES@
 
 @SET_MAKE@
 
-
 LIBLIB_OBJS      = @LIBOBJS@ @ALLOCA@ getopt.o getopt1.o md5.o
 LIBLIB_LTOBJS    = $(addsuffix .lo,$(basename $(LIBLIB_OBJS)))
 
-TARGETS = $(LIBLIB_OBJS)
-TARGETS = liblib.a
+TARGETS = liblib.a $(LIBLIB_LTOBJS)
 
 DISTFILES = Makefile.in alloca.c getenv.c getopt.c getopt1.c \
   inet_ntop.c inet_pton.c isfdtype.c md5.c sigprocmask.c snprintf.c strdup.c \
@@ -62,10 +60,12 @@ DISTFILES = Makefile.in alloca.c getenv.c getopt.c getopt1.c \
 .PHONY: all check clean depend dist distclean install uninstall
 
 .SUFFIXES:
-.SUFFIXES: .c .o
+.SUFFIXES: .c .o .lo
 .c.o:
+	$(COMPILE) $<
+
+.c.lo:
 	@$(LIBTOOL) $(MCOMP) $(COMPILE) $<
-	@test -f $@ || $(COMPILE) $<
 
 all:	$(TARGETS)
 

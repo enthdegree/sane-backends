@@ -16,7 +16,8 @@
                                   ; :yes or :no
 ;:manpage "sane-template"          ; name of manpage (if it exists)
 :url "http://solutions.brother.com/Library/sol/printer/linux/sane_drivers.html" ; backend's web page
-:comment "Supports only USB models. External backend made by brother. As this software contains non-free parts, it can't be included into SANE. Several reports about this backend tell us that it doesn't seem to work at least in older versions. Please tell us if your scanner works with that backend." 
+:url "http://home.arcor.de/matthus/20041104.html"
+:comment "Supports only USB models. External backend made by brother. As this software contains non-free parts, it can't be included into SANE. Several reports about this backend tell us that it doesn't seem to work at least in older versions. The second link has some more information about this backend. Please tell us if your scanner works with that backend." 
                                   ; comment about the backend
 
 :devicetype :scanner              ; start of a list of devices....
@@ -119,10 +120,10 @@
 :comment "Nobody has reported any success with any scanner supported by this backend. If the backend works for you, please tell us."
 
 :model "MFC3420C"
-:status :untested
+:status :good
 :interface "USB"
 ;:url ""  ; model's URL
-:comment "Nobody has reported any success with any scanner supported by this backend. If the backend works for you, please tell us."
+:comment "Is reported to work well with the bother backend."
 
 :model "MFC3820CN"
 :status :untested

@@ -1,3 +1,9 @@
+2000-09-17  Henning Meier-Geinitz <hmg@gmx.de>
+	
+	* frontend/xscanimage.c: Fixed gtk_main_quit bug (based on patch
+ 	  from <moloch@nikocity.de>). An error message was printed when 
+	  no sane device was found.
+
 2000-09-17  Petter Reinholdtsen <pere@td.org.uit.no>
 
 	* config.guess config.sub : Upgraded to latest version from

@@ -5,6 +5,9 @@
 	
 2001-05-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* TODO: Removed snapscan and microtek2 updates. Removed status change of
+	  as6e. Removed True64 Unix and HP/UX compilation problems. Added entry
+	  about exporting symbols. Reformatted some entries. 
 	* backend/microtek2.c backend/microtek2.desc backend/microtek2.h:
 	  Updated to version 0.9 (from Karsten Festag 
 	  <karsten.festag@t-online.de>).

@@ -131,6 +131,7 @@ add_device (const char *name, Net_Device ** ndp)
   first_device = nd;
   if (ndp)
     *ndp = nd;
+  DBG (2, "add_device: backend %s added\n", name);
   return SANE_STATUS_GOOD;
 }
 
@@ -373,6 +374,9 @@ SANE_Status sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	}
       fclose (fp);
     }
+  else
+    DBG(1, "sane_init: could not open config file (%s): %s\n", NET_CONFIG_FILE,
+	strerror (errno));
 
   env = getenv ("SANE_NET_HOSTS");
   if (env)
@@ -481,6 +485,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 
   if (devlist)
     {
+      DBG (2, "sane_get_devices: freeing devlist\n");
       for (i = 0; devlist[i]; ++i)
 	{
 	  if (devlist[i]->vendor)
@@ -492,8 +497,10 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 	  free ((void *) devlist[i]);
 	}
       free (devlist);
+      devlist = 0;
     }
   devlist_len = 0;
+  devlist_size = 0;
 
   for (dev = first_device; dev; dev = dev->next)
     {
@@ -560,6 +567,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   devlist[devlist_len++] = 0;
 
   *device_list = devlist;
+  DBG (2, "sane_get_devices: finished\n");
   return SANE_STATUS_GOOD;
 }
 

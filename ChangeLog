@@ -1,3 +1,7 @@
+2001-09-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* sanei/sanei_ab306.c: Added FreeBSD support.
+
 2001-09-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* PROJECTS: Added m3096g updates and website. Added 600CU to list

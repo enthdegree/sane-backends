@@ -44,7 +44,7 @@ if you have a kernel with ppdev support.
 .PP
 Note that the backend needs to run as root. To allow user access to the scanner
 run the backend through the network interface (See saned(1) and sane\-net(5)).
-A more relaxed solution (security wise) is to add sticky bit to the frontend
+A more relaxed solution (security wise) is to add suid bit to the frontend
 (See chmod(1)).
 The backend drop root priviledges as soon as it can, right after gaining direct
 access to IO ports.
@@ -64,8 +64,8 @@ is the base address of the port your scanner is attached to. Known ports are
 .B 0x278
 (lp2) and
 .B 0x3BC
-(lp0). Note that if you are using a Kernel 2.2.x or better and you have only one
-parallel port this port is named lp0 regardless of the base address. However,
+(lp0). Note that if you are using a Kernel 2.2.x or better , the first
+parallel port is named lp0 regardless of the base address. However,
 this backend requires the base address of your port. If you are not sure which
 port your scanner is connected to, have a look at your /etc/conf.modules.
 
@@ -79,7 +79,7 @@ You can rename any device using the
 .I vendor vendor
 .RE
 .PP
-options. These options aply to the last port option.
+options. These options apply to the last port option.
 
 .SH CONFIGURATION
 Please make sure to edit umax_pp.conf

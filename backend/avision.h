@@ -53,7 +53,7 @@
                 "Martin Jelínek" <mates@sirrah.troja.mff.cuni.cz>
                    nice attach debug output
                 "Marcin Siennicki" <m.siennicki@cloos.pl>
-                   found some typos
+                   found some typos and contributed fixes for the HP 7400
                 "Frank Zago" <fzago@greshamstorage.com>
                    Mitsubishi IDs and report
    
@@ -84,6 +84,13 @@ typedef struct Avision_HWEntry {
 	AV_FILM,
 	AV_SHEETFEED
   } scanner_type;
+  
+  /* feature overwrites */
+  enum {AV_CALIB2 = 1, /* use single command calibraion send (i.e. all new scanners) */
+	AV_GAMMA2 = 2, /* use 512 bytes gamma table (i.e. Minolta film-scanner) */
+	AV_GAMMA3 = 4  /* use 256 bytes gamma table (i.e. HP 5370C) */
+	/* more to come ... */
+  } feature_type;
   
 } Avision_HWEntry;
 
@@ -390,7 +397,7 @@ struct command_set_window_window_descriptor
   u_int8_t yres [2];
   u_int8_t ulx [4];
   u_int8_t uly [4];
-  u_int8_t width [4];  
+  u_int8_t width [4];
   u_int8_t length [4];
   u_int8_t brightness;
   u_int8_t thresh;

@@ -40,9 +40,9 @@
 
    This file implements a SANE network-based meta backend.  */
 
-/* Please increase version number with every change 
+/* Please increase version number with every change
    (don't forget to update net.desc) */
-#define NET_VERSION "1.0.7"
+#define NET_VERSION "1.0.8"
 
 #ifdef _AIX
 # include "../include/lalloca.h" /* MUST come first for AIX! */
@@ -91,8 +91,24 @@ static int saned_port;
 static int client_big_endian; /* 1 == big endian; 0 == little endian */
 static int server_big_endian; /* 1 == big endian; 0 == little endian */
 static int depth; /* bits per pixel */
-static int hang_over; /* -1 == no hangover; otherwise cast value to 
-                         unsigned char */
+
+/* This variable is only needed, if the depth is 16bit/channel and
+   client/server have different endianness.  A value of -1 means, that there's
+   no hang over; otherwise the value has to be casted to SANE_Byte.  hang_over
+   means, that there is a remaining byte from a previous call to sane_read,
+   which could not be byte-swapped, e.g. because the frontend requested an odd
+   number of bytes.
+*/
+static int hang_over;
+
+/* This variable is only needed, if the depth is 16bit/channel and
+   client/server have different endianness.  A value of -1 means, that there's
+   no left over; otherwise the value has to be casted to SANE_Byte.  left_over
+   means, that there is a remaining byte from a previous call to sane_read,
+   which already is in the the correct byte order, but could not be returned,
+   e.g.  because the frontend requested only one byte per call.
+*/
+static int left_over;
 
 static SANE_Status
 add_device (const char *name, Net_Device ** ndp)
@@ -1131,6 +1147,7 @@ sane_start (SANE_Handle handle)
   DBG (3, "sane_start\n");
 
   hang_over = -1;
+  left_over = -1;
 
   if (s->data >= 0)
     {
@@ -1173,6 +1190,7 @@ sane_start (SANE_Handle handle)
 	  server_big_endian = 1;
 	  DBG (1, "sane_start: server has big endian byte order\n");
 	}
+
       need_auth = (reply.resource_to_authorize != 0);
       if (need_auth)
 	{
@@ -1226,17 +1244,38 @@ sane_read (SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
   Net_Scanner *s = handle;
   ssize_t nread;
   SANE_Int cnt;
+  SANE_Int start_cnt;
+  SANE_Int end_cnt;
   SANE_Byte swap_buf;
+  SANE_Byte temp_hang_over;
+  int is_even;
 
-  DBG (3, "sane_read: max_length = %d\n", max_length);
-
+  DBG (3, "sane_read: handle=%p, data=%p, max_length=%d, length=%p\n",
+       handle, data, max_length, length);
   if (!length)
     {
       DBG (1, "sane_read: length == NULL\n");
       return SANE_STATUS_INVAL;
     }
 
+  is_even = 1;
   *length = 0;
+
+  /* If there's a left over, i.e. a byte already in the correct byte order,
+     return it immediately; otherwise read may fail with a SANE_STATUS_EOF and
+     the caller never can read the last byte */
+  if ((depth == 16) && (server_big_endian != client_big_endian))
+    {
+      if (left_over > -1)
+	{
+	  DBG (3, "sane_read: left_over from previous call, return immediately\n");
+	  /* return the byte, we've currently scanned; hang_over becomes left_over */
+	  *data = (SANE_Byte) left_over;
+	  left_over = -1;
+	  *length = 1;
+	  return SANE_STATUS_GOOD;
+	}
+    }
 
   if (s->data < 0)
     {
@@ -1247,7 +1286,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
   if (s->bytes_remaining == 0)
     {
       /* boy, is this painful or what? */
-
+      
       DBG (4, "sane_read: reading paket length\n");
       nread = read (s->data, s->reclen_buf + s->reclen_buf_offset,
 		    4 - s->reclen_buf_offset);
@@ -1307,44 +1346,8 @@ sane_read (SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
   if (max_length > (SANE_Int) s->bytes_remaining)
     max_length = s->bytes_remaining;
 
-  /* If we are scanning with 16 bits/pixel, we must be sure to scan complete
-     pixels. Otherwise it's impossible to swap the bytes, since we don't have
-     access to the previous data if sane_read is called the next
-     time. Therefore we check, whether an odd number ob bytes was read. If
-     this is true, the last byte is stored in hang_over and length is
-     decreased by 1.
-  */
-
-  /* Check whether we are scanning with a depth of 16 bits/pixel and whether
-     server and client have different byte order. If this is true, then it's
-     neccessary to check whether there's a hang_over from a previous call to
-     sane_read.
-  */
-
-  if ((depth == 16) && (server_big_endian != client_big_endian))
-    {
-      DBG (4, "sane_read: client/server have different byte order\n");
-      
-      if (hang_over > -1)
-	{
-	  DBG (4, "sane_read: hang_over from previous call to sane_read()\n");
-	  *(data) = (unsigned char) hang_over;
-	  DBG (4, "sane_read: reading image data now\n");
-	  nread = read (s->data, data + 1, max_length - 1);
-	}
-      else
-	{
-	  DBG (4, "sane_read: no hang_over from previous call to "
-	       "sane_read()\n");
-	  DBG (4, "sane_read: reading image data now\n");
-	  nread = read (s->data, data, max_length);
-	}
-    }
-  else
-    {
-      DBG (4, "sane_read: reading image data now\n");
-      nread = read (s->data, data, max_length);
-    }
+  nread = read (s->data, data, max_length);
+  s->bytes_remaining -= nread;
 
   if (nread < 0)
     {
@@ -1359,6 +1362,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
 	}
     }
 
+  *length = nread;
   /* Check whether we are scanning with a depth of 16 bits/pixel and whether
      server and client have different byte order. If this is true, then it's
      neccessary to check whether read returned an odd number. If an odd number
@@ -1368,30 +1372,79 @@ sane_read (SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
     {
       DBG (1,"sane_read: client/server have different byte order; "
 	   "must swap\n");
-      s->bytes_remaining -= nread;
-      if (0 != nread % 2)
+      /* special case: 1 byte scanned and hang_over */
+      if ((nread == 1) && (hang_over > -1))
 	{
-	  DBG (1, "sane_read: number of bytes read is odd; store hang_over\n");
-	  *length = nread - 1;
-	  hang_over = *(data + nread);
+	  /* return the byte, we've currently scanned; hang_over becomes left_over */
+	  left_over = hang_over;
+	  hang_over = -1;
+	  return SANE_STATUS_GOOD;
+	}
+      /* check whether an even or an odd number of bytes has been scanned */
+      if ((nread % 2) == 0)
+        is_even = 1;
+      else
+        is_even = 0;
+      /* check, whether there's a hang over from a previous call;
+	 in this case we memcopy the data up one byte */
+      if ((nread > 1) && (hang_over > -1))
+	{
+	  /* store last byte */
+	  temp_hang_over = *(data + nread - 1);
+	  memmove (data + 1, data, nread - 1);
+	  *data = (SANE_Byte) hang_over;
+	  /* what happens with the last byte depends on whether the number of bytes
+	     is even or odd */
+	  if (is_even == 1)
+	    {
+	      /* number of bytes is even; no new hang_over, exchange last byte with
+		 hang over; last byte becomes left_over */
+	      left_over = *(data + nread - 1);
+	      *(data + nread - 1) = temp_hang_over;
+	      hang_over = -1;
+	      start_cnt = 0;
+	      /* last byte already swapped */
+	      end_cnt = nread - 2;
+	    }
+	  else
+	    {
+	      /* number of bytes is odd; last byte becomes new hang_over */
+	      hang_over = temp_hang_over;
+	      left_over = -1;
+	      start_cnt = 0;
+	      end_cnt = nread - 1;
+	    }
+	}
+      else if (nread == 1)
+	{
+	  /* if only one byte has been read, save it as hang_over and return length=0 */
+	  hang_over = (int) *data;
+	  *length = 0;
+	  return SANE_STATUS_GOOD;
 	}
       else
 	{
-	  *length = nread;
-	  hang_over = -1;
+	  /* no hang_over; test for even or odd byte number */
+	  if(is_even == 1)
+	    {
+	      start_cnt = 0;
+	      end_cnt = *length;
+	    }
+	  else
+	    {
+	      start_cnt = 0;
+	      hang_over = *(data + *length - 1);
+	      *length -= 1;
+	      end_cnt = *length;
+	    }
 	}
-      /* Finally step through the buffer and swap bytes */
-      for (cnt = 0; cnt < *length - 1; cnt += 2)
+      /* swap the bytes */
+      for (cnt = start_cnt; cnt < end_cnt - 1; cnt += 2)
 	{
-	  swap_buf = *(data +cnt);
+	  swap_buf = *(data + cnt);
 	  *(data + cnt) = *(data + cnt + 1);
 	  *(data + cnt + 1) = swap_buf;
 	}
-    }
-  else
-    {
-      s->bytes_remaining -= nread;
-      *length = nread;
     }
   DBG (3, "sane_read: %d bytes read, %d remaining\n", nread,
        s->bytes_remaining);

@@ -3827,49 +3827,54 @@ get_scan_parameters(Microtek2_Scanner *ms)
              ms->bits_per_pixel_out);
 
     /* calculate positions, width and height in dots */
+    /* check for impossible values */
+    /* ensure a minimum scan area of 10 x 10 pixels */
     dpm = (double) mi->opt_resolution / MM_PER_INCH;
     ms->x1_dots = (SANE_Int) ( SANE_UNFIX(ms->val[OPT_TL_X].w) * dpm + 0.5 );
+    if ( ms->x1_dots > ( mi->geo_width - 10 ) )
+        ms->x1_dots = ( mi->geo_width - 10 );
     ms->y1_dots = (SANE_Int) ( SANE_UNFIX(ms->val[OPT_TL_Y].w) * dpm + 0.5 );
+    if ( ms->y1_dots > ( mi->geo_height - 10 ) )
+        ms->y1_dots = ( mi->geo_height - 10 );
     x2_dots = (int) ( SANE_UNFIX(ms->val[OPT_BR_X].w) * dpm + 0.5 );
+    if ( x2_dots > mi->geo_width )
+        x2_dots = mi->geo_width;
     y2_dots = (int) ( SANE_UNFIX(ms->val[OPT_BR_Y].w) * dpm + 0.5 );
-    ms->width_dots = abs(x2_dots - ms->x1_dots);
-    ms->height_dots = abs(y2_dots - ms->y1_dots);
-    /* ensure minimum and maximum scan area */
-    if ( ms->height_dots < 10 )
-        ms->height_dots = 10;
-    if ( ms->height_dots > mi->geo_height )
-        ms->height_dots = mi->geo_height;
+    if ( y2_dots > mi->geo_height )
+        y2_dots = mi->geo_height;
+    ms->width_dots = x2_dots - ms->x1_dots;
     if ( ms->width_dots < 10 )
         ms->width_dots = 10;
-    if ( ms->width_dots > mi->geo_width )
-        ms->width_dots = mi->geo_width;
+    ms->height_dots = y2_dots - ms->y1_dots;
+    if ( ms->height_dots < 10 )
+        ms->height_dots = 10;
 
-    /* (KF) take scanning direction into account  */
+    /* take scanning direction into account */
     if ((mi->direction & MI_DATSEQ_RTOL) == 1)
         ms->x1_dots = mi->geo_width - ms->x1_dots - ms->width_dots;
 
     if ( ms->val[OPT_RESOLUTION_BIND].w == SANE_TRUE )
       {
-        ms->x_resolution_dpi = 
+        ms->x_resolution_dpi =
                     (SANE_Int) (SANE_UNFIX(ms->val[OPT_RESOLUTION].w) + 0.5);
-        ms->y_resolution_dpi = 
+        ms->y_resolution_dpi =
                     (SANE_Int) (SANE_UNFIX(ms->val[OPT_RESOLUTION].w) + 0.5);
       }
     else
       {
-        ms->x_resolution_dpi = 
+        ms->x_resolution_dpi =
                     (SANE_Int) (SANE_UNFIX(ms->val[OPT_X_RESOLUTION].w) + 0.5);
-        ms->y_resolution_dpi = 
+        ms->y_resolution_dpi =
                     (SANE_Int) (SANE_UNFIX(ms->val[OPT_Y_RESOLUTION].w) + 0.5);
       }
 
-    if ( ms->x_resolution_dpi < 10 ) 
-        ms->x_resolution_dpi = 10; 
-    if ( ms->y_resolution_dpi < 10 ) 
+    if ( ms->x_resolution_dpi < 10 )
+        ms->x_resolution_dpi = 10;
+    if ( ms->y_resolution_dpi < 10 )
         ms->y_resolution_dpi = 10;
 
     DBG(30, "get_scan_parameters: yres=%d, x1=%d, width=%d, y1=%d, height=%d\n",
-             ms->y_resolution_dpi, ms->x1_dots, ms->width_dots, 
+             ms->y_resolution_dpi, ms->x1_dots, ms->width_dots,
              ms->y1_dots, ms->height_dots);
 
     /* Preview mode */
@@ -5201,16 +5206,19 @@ sane_start(SANE_Handle handle)
             DBG(30, "sane_start: backend calibration off\n");
 
         if ( ( ms->val[OPT_CALIB_BACKEND].w == SANE_TRUE )
-             && ! ( md->model_flags & MD_PHANTOM336CX_TYPE_SHADING )
-             && ( md->shading_table_w == NULL ) )
+             && !( md->model_flags & MD_PHANTOM336CX_TYPE_SHADING ) )
           {
-            status = get_scan_parameters(ms);
-            if ( status != SANE_STATUS_GOOD )
-                goto cleanup;
+            if ( ( md->shading_table_w == NULL )
+                 || !( md->model_flags & MD_READ_CONTROL_BIT ) )
+              {
+                status = get_scan_parameters(ms);
+                if ( status != SANE_STATUS_GOOD )
+                        goto cleanup;
 
-            status = read_shading_image(ms);
-            if ( status != SANE_STATUS_GOOD )
-                goto cleanup;
+                status = read_shading_image(ms);
+                if ( status != SANE_STATUS_GOOD )
+                        goto cleanup;
+              }
           }
 
         status = get_scan_parameters(ms);
@@ -5230,7 +5238,7 @@ sane_start(SANE_Handle handle)
             md->status.flamp |= MD_FLAMP_ON;
             md->status.tlamp &= ~MD_TLAMP_ON;
           }
-        else 
+        else
           {
             md->status.flamp &= ~MD_FLAMP_ON;
             md->status.tlamp |= MD_TLAMP_ON;
@@ -5935,15 +5943,15 @@ read_shading_image(Microtek2_Scanner *ms)
         if ( status != SANE_STATUS_GOOD )
             return status;
 
-        status = scsi_wait_for_image(ms);
-        if ( status != SANE_STATUS_GOOD )
-            return status;
-
 #ifdef TESTBACKEND
         status = scsi_read_sh_image_info(ms);
 #else
         status = scsi_read_image_info(ms);
 #endif
+        if ( status != SANE_STATUS_GOOD )
+            return status;
+
+        status = scsi_wait_for_image(ms);
         if ( status != SANE_STATUS_GOOD )
             return status;
 
@@ -6036,8 +6044,14 @@ read_shading_image(Microtek2_Scanner *ms)
     DBG(30, "read_shading_image: reading white data\n");
 
     /* According to the doc NCalib must be set for white shading data */
-    /* if we have a black and a white shading correction ?? */
-    md->status.ncalib |= MD_NCALIB_ON;
+    /* if we have a black and a white shading correction and must be */
+    /* cleared if we have only a white shading collection */
+    if ( ! MI_WHITE_SHADING_ONLY(mi->shtrnsferequ)
+        || ( md->model_flags & MD_PHANTOM_C6 ) )
+      md->status.ncalib |= MD_NCALIB_ON;
+    else
+      md->status.ncalib &= ~MD_NCALIB_ON;
+
     md->status.flamp |= MD_FLAMP_ON;
     md->status.ntrack |= MD_NTRACK_ON;
 
@@ -6057,15 +6071,15 @@ read_shading_image(Microtek2_Scanner *ms)
     if ( status != SANE_STATUS_GOOD )
         return status;
 
-    status = scsi_wait_for_image(ms);
-    if ( status != SANE_STATUS_GOOD )
-        return status;
-
 #ifdef TESTBACKEND
     status = scsi_read_sh_image_info(ms);
 #else
     status = scsi_read_image_info(ms);
 #endif
+    if ( status != SANE_STATUS_GOOD )
+        return status;
+
+    status = scsi_wait_for_image(ms);
     if ( status != SANE_STATUS_GOOD )
         return status;
 
@@ -6144,7 +6158,7 @@ read_shading_image(Microtek2_Scanner *ms)
 
     ms->rawdat = 0;
     ms->stay = 0;
-    md->status.ncalib &= ~MD_NCALIB_ON;
+    md->status.ncalib |= MD_NCALIB_ON;
 
     if ( md->model_flags & MD_PHANTOM_C6 )
       {
@@ -8051,7 +8065,7 @@ lineartfake_copy_pixels(Microtek2_Scanner *ms,
 
         if ( (u_int8_t)grayval < threshold ) val = 1; else val = 0;
         dest = ( dest << 1 ) | val;
-        bit = ++bit % 8;
+        bit = ( bit + 1 ) % 8;
         if ( bit == 0 )                   /* 8 input bytes processed */
           {
             fputc((char) dest, fp);

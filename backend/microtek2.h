@@ -90,7 +90,7 @@
 
 #define MICROTEK2_MAJOR         0
 #define MICROTEK2_MINOR	        95
-#define MICROTEK2_BUILD         "20020112"
+#define MICROTEK2_BUILD         "20020127"
 #define MICROTEK2_CONFIG_FILE   "microtek2.conf"
 
 

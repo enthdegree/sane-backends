@@ -1,3 +1,8 @@
+2003-11-02  Julien Blache <jb@jblache.org>
+	* frontend/saned.c: fixed endianness issues in
+	check_v{4,6}_in_range(), also fixed portability issues to other
+	UNIX platforms due to different representations of IPv6 addresses.
+
 2003-11-02  Gerhard Jaeger <gerhard@gjaeger.de>
 	* doc/descriptions/unsupported.desc: Added Plustek OpticSlim 2400.
 	* include/sanei/sanei_thread.h: Removed OS/2 porting section.

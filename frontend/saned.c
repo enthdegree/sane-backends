@@ -470,8 +470,8 @@ decode_handle (Wire * w, const char *op)
 
 
 /* Convert a number of bits to an 8-bit bitmask */
-static unsigned int cidrtomask4[9] = { 0x00, 0x80, 0xC0, 0xE0, 0xF0,
-				       0xF8, 0xFC, 0xFE, 0xFF };
+static unsigned int cidrtomask[9] = { 0x00, 0x80, 0xC0, 0xE0, 0xF0,
+				      0xF8, 0xFC, 0xFE, 0xFF };
 
 #ifdef SANED_USES_AF_INDEP
 static SANE_Bool
@@ -489,7 +489,7 @@ check_v4_in_range (struct sockaddr_in *sin, char *base_ip, char *netmask)
   cidr = -1;
   cidr = strtol (netmask, &end, 10);
   
-  /* sanity check the cidr value */
+  /* Sanity check on the cidr value */
   if ((cidr < 0) || (cidr > 32) || (end == netmask))
     {
       DBG (DBG_ERR, "check_v4_in_range: invalid CIDR value (%s) !\n", netmask);
@@ -498,15 +498,18 @@ check_v4_in_range (struct sockaddr_in *sin, char *base_ip, char *netmask)
 
   mask = 0;
   cidr -= 8;
-  
+
+  /* Build a bitmask out of the CIDR value */  
   for (i = 3; cidr >= 0; i--)
     {
-      mask |= (htonl (0xff) << (8 * i));
+      mask |= (0xff << (8 * i));
       cidr -= 8;
     }
   
   if (cidr < 0)
-    mask |= (htonl (cidrtomask4[cidr + 8]) << (8 * i));
+    mask |= (cidrtomask[cidr + 8] << (8 * i));
+
+  mask = htonl (mask);
 
   /* get a sockaddr_in representing the base IP address */
   memset (&hints, 0, sizeof (struct addrinfo));
@@ -520,8 +523,12 @@ check_v4_in_range (struct sockaddr_in *sin, char *base_ip, char *netmask)
       return SANE_FALSE;
     }
 
-  base = (struct sockaddr_in *)res->ai_addr;
+  base = (struct sockaddr_in *) res->ai_addr;
 
+  /*
+   * Check that the address belongs to the specified subnet, using the bitmask.
+   * The address is represented by a 32bit integer.
+   */
   if ((base->sin_addr.s_addr & mask) == (sin->sin_addr.s_addr & mask))
     ret = SANE_TRUE;
   
@@ -532,19 +539,13 @@ check_v4_in_range (struct sockaddr_in *sin, char *base_ip, char *netmask)
 
 
 # ifdef ENABLE_IPV6
-/* Convert a number of bits to a 16-bit bitmask */
-static unsigned int cidrtomask6[17] = { 0x0000, 0x8000, 0xC000, 0xE000,
-					0xF000, 0xF800, 0xFC00, 0xFE00,
-					0xFF00, 0xFF80, 0xFFC0, 0xFFE0,
-					0xFFF0, 0xFFF8, 0xFFFC, 0xFFFE,
-					0xFFFF };
 
 static SANE_Bool
 check_v6_in_range (struct sockaddr_in6 *sin6, char *base_ip, char *netmask)
 {
   int cidr;
   int i, err;
-  unsigned int mask[8];
+  unsigned int mask[16];
   char *end;
   struct sockaddr_in6 *base;
   struct addrinfo hints;
@@ -554,24 +555,25 @@ check_v6_in_range (struct sockaddr_in6 *sin6, char *base_ip, char *netmask)
   cidr = -1;
   cidr = strtol (netmask, &end, 10);
 
-  /* sanity check the cidr value */
+  /* Sanity check on the cidr value */
   if ((cidr < 0) || (cidr > 128) || (end == netmask))
     {
       DBG (DBG_ERR, "check_v6_in_range: invalid CIDR value (%s) !\n", netmask);
       return SANE_FALSE;
     }
 
-  memset (mask, 0, (8 * sizeof (unsigned int)));
+  memset (mask, 0, (16 * sizeof (unsigned int)));
   cidr -= 8;
   
+  /* Build a bitmask out of the CIDR value */
   for (i = 0; cidr >= 0; i++)
     {
-      mask[i] = htonl (0xffff);
-      cidr -= 16;
+      mask[i] = 0xff;
+      cidr -= 8;
     }
   
   if (cidr < 0)
-    mask[i] = htonl (cidrtomask6[cidr + 16]);
+    mask[i] = cidrtomask[cidr + 8];
   
   /* get a sockaddr_in6 representing the base IP address */
   memset (&hints, 0, sizeof (struct addrinfo));
@@ -585,11 +587,15 @@ check_v6_in_range (struct sockaddr_in6 *sin6, char *base_ip, char *netmask)
       return SANE_FALSE;
     }
 
-  base = (struct sockaddr_in6 *)res->ai_addr;
+  base = (struct sockaddr_in6 *) res->ai_addr;
 
-  for (i = 0; i < 8; i++)
+  /*
+   * Check that the address belongs to the specified subnet.
+   * The address is reprensented by an array of 16 8bit integers.
+   */
+  for (i = 0; i < 16; i++)
     {
-      if ((base->sin6_addr.s6_addr16[i] & mask[i]) != (sin6->sin6_addr.s6_addr16[i] & mask[i]))
+      if ((base->sin6_addr.s6_addr[i] & mask[i]) != (sin6->sin6_addr.s6_addr[i] & mask[i]))
 	{
 	  ret = SANE_FALSE;
 	  break;
@@ -614,7 +620,7 @@ check_v4_in_range (struct in_addr *inaddr, struct in_addr *base, char *netmask)
   cidr = -1;
   cidr = strtol (netmask, &end, 10);
   
-  /* sanity check the cidr value */
+  /* sanity check on the cidr value */
   if ((cidr < 0) || (cidr > 32) || (end == netmask))
     {
       DBG (DBG_ERR, "check_v4_in_range: invalid CIDR value (%s) !\n", netmask);
@@ -624,15 +630,22 @@ check_v4_in_range (struct in_addr *inaddr, struct in_addr *base, char *netmask)
   mask = 0;
   cidr -= 8;
   
+  /* Build a bitmask out of the CIDR value */
   for (i = 3; cidr >= 0; i--)
     {
-      mask |= (htonl (0xff) << (8 * i));
+      mask |= (0xff << (8 * i));
       cidr -= 8;
     }
   
   if (cidr < 0)
-    mask |= (htonl (cidrtomask4[cidr + 8]) << (8 * i));
+    mask |= (cidrtomask[cidr + 8] << (8 * i));
 
+  mask = htonl (mask);
+
+  /*
+   * Check that the address belongs to the specified subnet, using the bitmask.
+   * The address is represented by a 32bit integer.
+   */
   if ((base->s_addr & mask) == (inaddr->s_addr & mask))
     ret = SANE_TRUE;
   

@@ -1,3 +1,19 @@
+2002-01-10  Gerhard Jaeger <g.jaeger@earthling.net>
+
+    * include/sane/sanei_lm983x.h sanei/sanei_lm983x.c sanei/Makefile.in:
+      Added to support for the National Semiconductor LM9831/2/3 chipsets
+      (read/write functions)
+    * backend/plustek.desc: Updated, added missing, now supported devices
+    * backend/plustek.c backend/plustek-share.h backend/plustek.h
+      backend/plustek.conf backend/plustek-usb.c backend/plustek-devs.c
+      backend/plustek-pp.c backend/plustek-usbhw.c backend/plustek-usbimg.c
+      backend/plustek-usbio.c backend/plustek-usbmap.c
+      backend/plustek-usbscan.c backend/plustek-usbshading.c
+      backend/plustek-usb.h:
+      Major changes to use the new sanei_lm983x functions
+      Changed the configuration file to reflect all the possible config-options
+    * backend/Makefile.in: Changed to compile the Plustek backend
+
 2002-01-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
 	
 	* po/pnm.de.po: Added German translation for pnm backend.
@@ -196,19 +212,19 @@
 
 2001-12-29  Gerhard Jaeger <g.jaeger@earthling.net>
 
-	* backend/plustek.c backend/plustek-share.h backend/plustek.h
-	  backend/plustek.conf: 
-	  Changed to support the LM983x based USB scanner
-	* backend/plustek.desc: Updated, added missing, now supported devices
-	* backend/plustek-usb.c backend/plustek-devs.c backend/plustek-pp.c
-	  backend/plustek-usbhw.c backend/plustek-usbimg.c 
-	  backend/plustek-usbio.c backend/plustek-usbmap.c
-	  backend/plustek-usbscan.c backend/plustek-usbshading.c
-	  backend/plustek-usb.h: New files - added to support the Plustek
-	  USB devices (LM9831/2 based) and other devices based on this
-	  chipset
-	* backend/Makefile.in: Changed to compile the Plustek backend 
-	* doc/sane-plustek.man: Added some USB information
+    * backend/plustek.c backend/plustek-share.h backend/plustek.h
+      backend/plustek.conf:
+      Changed to support the LM983x based USB scanner
+    * backend/plustek.desc: Updated, added missing, now supported devices
+    * backend/plustek-usb.c backend/plustek-devs.c backend/plustek-pp.c
+      backend/plustek-usbhw.c backend/plustek-usbimg.c
+      backend/plustek-usbio.c backend/plustek-usbmap.c
+      backend/plustek-usbscan.c backend/plustek-usbshading.c
+      backend/plustek-usb.h: New files - added to support the Plustek
+      USB devices (LM9831/2 based) and other devices based on this
+      chipset
+    * backend/Makefile.in: Changed to compile the Plustek backend
+    * doc/sane-plustek.man: Added some USB information
 
 2001-12-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

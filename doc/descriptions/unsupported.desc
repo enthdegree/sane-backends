@@ -200,6 +200,18 @@
 :comment "Not supported. See link for some information."
 :status :unsupported
 
+:model "ScanExpress 12000 P"
+:url "http://penguin-breeder.org/?page=mustek_pp"
+:interface "Parport"
+:status :unsupported
+:comment "Not supported. Asic 1505/05."
+
+:model "Paragon 600 II ED/EP"
+:interface "Parport"
+:url "http://www.meier-geinitz.de/sane/misc/mustek-scanners.html"
+:status :unsupported
+:comment "Not supported. SCSI over Parport."
+
 ;********************************************************************************************
 
 :mfg "Plustek"
@@ -302,10 +314,10 @@
 :comment "Not supported. Same as 8700 and 8900 but includes a TA. Uses a Primax ID. See link for output of /proc/bus/usb/devices."
 
 :model "Primascan Colorado 2600u"
-;:url ""
+:url "http://groups.google.com/groups?as_umsgid=%3Cb0pvfg%24oa1%241%40newsg2.svr.pol.co.uk%3E"
 :interface "USB"
 :status :unsupported
-:comment "Not supported. Chipset unknown. Vendor/product 0x0461/0x0347 (Primax!). One bulk-in and one bulk-out ep."
+:comment "Not supported. Chipset unknown, maybe `E1'. Vendor/product 0x0461/0x0347 (Primax!). One bulk-in and one bulk-out ep. See link to usenet posting for some more details."
 
 ;********************************************************************************************
 

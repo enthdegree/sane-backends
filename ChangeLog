@@ -10,6 +10,8 @@
 	* acinclude.m4 aclocal.m4 configure configure.in 
 	  include/sane/config.h.in: Declare prototypes for all functions that
 	  may miss on some platforms.
+	* doc/descriptions/unsupported.desc: Added Mustek parport scanners.
+	  Added more information for Primascan Colorado 2600u.
 
 2003-01-24  Gerhard Jaeger <gerhard@gjaeger.de>
 	* doc/plustek/Plustek-USB-TODO.txt

@@ -7,6 +7,7 @@
 	  CANON, Fujitsu, IBM, NEC, Nikon, Plustek, Polaroid, Ricoh, Sharp, 
 	  Siemens, Tamarack) and device types (film scanner, sheetfed scanner)
 	  to the SANE standard. Updated date.
+	* doc/Makefile.in: Remove sanei-html in make distclean.
 
 2002-02-16 Abel Deuring <a.deuring@satzbau-gmbh.de>:
 	* frontend/scanimage.c / part for the "-f" command line option:

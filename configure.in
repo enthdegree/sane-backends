@@ -101,7 +101,8 @@ then
 #include <sys/scsiio.h>
 #include <scsi.h>
 ],[scsireq_t req],,
-   AC_DEFINE(scsireq_t, struct scsireq_t))
+   AC_DEFINE(scsireq_t, struct scsireq_t,
+             [Define scsireq_t as `struct scsireq' if necessary.]))
 fi
 
 SANE_V4L_VERSION
@@ -147,7 +148,7 @@ SANE_CHECK_PTAL
 
 dnl look for /dev/urandom
 if test -c /dev/urandom ; then
-    CFLAGS="${CFLAGS} -DHAVE_DEV_URANDOM"
+    AC_DEFINE(HAVE_DEV_URANDOM, 1, [Is /dev/urandom available?])
 fi
 
 dnl Checks for library functions.

@@ -90,7 +90,7 @@
 
 #define MICROTEK2_MAJOR         0
 #define MICROTEK2_MINOR	        95
-#define MICROTEK2_BUILD         "200301111723"
+#define MICROTEK2_BUILD         "200301152155"
 #define MICROTEK2_CONFIG_FILE   "microtek2.conf"
 
 
@@ -939,6 +939,8 @@ typedef struct Microtek2_Device {
 #define MD_NO_RIS_COMMAND           1024  /* doesn't like read_image_status */
 #define MD_16BIT_TRANSFER           2048  /* transfers 10/12/14bit scans as */
                                           /* 16bit data */
+#define MD_CALIB_DIVISOR_600        4096  /* uses mi->calib_divisor=2 below
+                                             600dpi */
 
     size_t n_control_bytes;               /* for read_control_bits; the */
                                           /* number is model dependent */

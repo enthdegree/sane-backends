@@ -1181,6 +1181,7 @@ check_inquiry(Microtek2_Device *md, SANE_String *model_string)
           break;
         case 0x87:
           *model_string = "ScanMaker 5";
+          md->model_flags |= MD_NO_GAMMA;
           break;
         case 0x89:
           *model_string = "ScanMaker 6400XL";
@@ -1296,7 +1297,8 @@ check_inquiry(Microtek2_Device *md, SANE_String *model_string)
         case 0xb0:
           *model_string = "ScanMaker X12USL";
           md->opt_backend_calib_default = SANE_TRUE;
-          md->model_flags |= MD_16BIT_TRANSFER;
+          md->model_flags |= MD_16BIT_TRANSFER
+                          | MD_CALIB_DIVISOR_600;
           break;
         case 0xb3:
            *model_string = "ScanMaker 3600";
@@ -1851,7 +1853,6 @@ dump_attributes(Microtek2_Info *mi)
   DBG(1, "  Calib white stripe location%4s: %d\n",
                   " ",  mi->calib_white);
   DBG(1, "  Max calib space%16s: %d\n", " ", mi->calib_space);
-  DBG(1, "  Calib Divisor%18s: %d\n", " ", mi->calib_divisor);
   DBG(1, "  Number of lens%17s: %d\n", " ", mi->nlens);
   DBG(1, "  Max number of windows%10s: %d\n", " ", mi->nwindows);
   DBG(1, "  Shading transfer function%6s: 0x%02x\n", " ",mi->shtrnsferequ);
@@ -3766,6 +3767,16 @@ get_calib_params(Microtek2_Scanner *ms)
 
     md = ms->dev;
     mi = &md->info[md->scan_source];
+    
+    if ( md->model_flags & MD_CALIB_DIVISOR_600 )
+      {
+        if ( ms->x_resolution_dpi <= 600 )
+            mi->calib_divisor = 2;
+        else
+            mi->calib_divisor = 1;
+      }
+    DBG(30, "Calib Divisor: %d\n", mi->calib_divisor);
+
 
     ms->x_resolution_dpi = mi->opt_resolution / mi->calib_divisor;
     ms->y_resolution_dpi = mi->opt_resolution / 5; /* ignore dust particles */
@@ -4393,12 +4404,14 @@ scsi_read_attributes(Microtek2_Info *pmi, char *device, u_int8_t scan_source)
     /* The X6 appears to lie about the data format for a TMA */
     if ( (&pmi[0])->model_code == 0x91 )
         result[0] &= 0xfd;
-    /* calib_divisor is bit49 which isn't read yet */
+    /* default value for calib_divisor ... bit49?? */
     mi->calib_divisor = 1;
     /* 9600XL */
     if ( (&pmi[0])->model_code == 0xde )
         mi->calib_divisor = 2;
-
+    /* 6400XL has problems in lineart mode*/
+    if ( (&pmi[0])->model_code == 0x89 )
+        result[13] &= 0xfe; /* simulate no lineart */
 #if 0
     result[13] &= 0xfe; /* simulate no lineart */
 #endif
@@ -4421,11 +4434,7 @@ scsi_read_attributes(Microtek2_Info *pmi, char *device, u_int8_t scan_source)
     RSA_DEPTH(mi->depth, result);
     /* The X12USL doesn't say that it has 14bit */
     if ( (&pmi[0])->model_code == 0xb0 )
-      {
         mi->depth |= MI_HASDEPTH_14;
-        if ( scan_source == MD_SOURCE_FLATBED )
-            mi->calib_divisor = 2;
-      }
     RSA_SCANMODE(mi->scanmode, result);
     RSA_CCDPIXELS(mi->ccd_pixels, result);
     RSA_LUTCAP(mi->lut_cap, result);

@@ -1,3 +1,10 @@
+2003-01-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/microtek2.c backend/microtek2.h: Bugfix for the X12USL
+	  (solved problems >600dpi), one for lineart mode with a 6400XL
+	  and one for Scanmaker 5 (crashes at sendgamma). From Karsten Festag
+	  <karsten.festag@gmx.de>.
+
 2003-01-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* sanei/sanei_usb.c: Don't call usb_clearhalt and usb_set_altinterface

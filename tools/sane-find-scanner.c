@@ -79,7 +79,7 @@ usage (char *msg)
    that SCSI generic was found, return 1. If SCSI generic is always
    available in your OS, return 1 */
 
-int
+static int
 check_sg (void)
 {
 #if defined(__linux__)
@@ -106,7 +106,7 @@ check_sg (void)
   return 1; /* Give up, and assume yes to avoid false negatives */
 }
 
-void 
+static void 
 scanner_do_inquiry (unsigned char *buffer, int sfd)
 {
   size_t size;
@@ -126,7 +126,7 @@ scanner_do_inquiry (unsigned char *buffer, int sfd)
 }
 
 
-void 
+static void 
 scanner_identify_scanner (unsigned char *buffer, int sfd, char *devicename)
 {
   unsigned char vendor[9];

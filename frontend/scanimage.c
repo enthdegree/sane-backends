@@ -101,6 +101,7 @@ static SANE_Word window_val[2];
 static int window_val_user[2];	/* is width/height user-specified? */
 static int accept_only_md5_auth = 0;
 
+static void fetch_options (SANE_Device * device);
 
 static void
 auth_callback (SANE_String_Const resource,
@@ -692,7 +693,7 @@ parse_vector (const SANE_Option_Descriptor * opt, const char *str,
     }
 }
 
-void
+static void
 fetch_options (SANE_Device * device)
 {
   const SANE_Option_Descriptor *opt;

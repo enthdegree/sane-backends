@@ -1,4 +1,4 @@
-TODO (2002-01-20)
+TODO (2002-01-25)
 
 ******** todo ********
 
@@ -167,6 +167,9 @@ misc
   * Add configure option to enable only the net backend for users without
     local scanners. Install only sane-dll/sane-net (or even only sane-net).
     Maybe something like  --network-client-only or --disable-local-devices.
+
+  * Make output of sane-find-scanner more flexible. See scanimage -f for
+    details.
 
 
 ******** done ********

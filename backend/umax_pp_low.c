@@ -553,6 +553,7 @@ sanei_umax_pp_InitPort (int port)
       else
 	{
 	  /* we check if parport is does ECP */
+	  #ifdef PPGETMODES
 	  if (ioctl (fd, PPGETMODES, &mode))
 	    {
 	      DBG (16, "umax_pp: ppdev couldn't gave modes for port '%s'\n",
@@ -581,9 +582,11 @@ sanei_umax_pp_InitPort (int port)
 		  return (0);
 		}
 	    }
+	  #else
+	      DBG (16, "umax_pp: ppdev used to build SANE doesn't have PPGETMODES.\n");
+	  #endif
 
-	  /* write to DATA via direct io and read DATA via parport */
-	  /* if values match, we found the right parport           */
+	  /* find the base addr of ppdev */
 	  if (sanei_parport_info (i, &addr))
 	    {
 	      if (gPort == addr)
@@ -594,6 +597,8 @@ sanei_umax_pp_InitPort (int port)
 	    }
 	  else
 	    {
+	      /* write to DATA via direct io and read DATA via parport */
+	      /* if values match, we found the right parport           */
 	      Outb (DATA, 0x5A);
 	      if (ioctl (fd, PPRDATA, &value))
 		{
@@ -648,7 +653,7 @@ Outb (int port, int value)
 {
 #ifndef IO_SUPPORT_MISSING
 #ifdef HAVE_SYS_HW_H
-  _outp8 (port, value) & 0xFF;
+  _outp8 (port, value);
 #else
   outb (value, port);
 #endif
@@ -5735,7 +5740,7 @@ CompletionWait (void)
 }
 
 int
-sanei_umax_pp_Lamp (int on)
+sanei_umax_pp_SetLamp (int on)
 {
   int buffer[17];
   int state;

@@ -91,7 +91,7 @@ extern int sanei_umax_pp_Scan (int x, int y, int width, int height, int dpi,
 			       int color, int gain, int highlight);
 extern int sanei_umax_pp_Move (int distance, int precision,
 			       unsigned char *buffer);
-extern int sanei_umax_pp_Lamp (int on);
+extern int sanei_umax_pp_SetLamp (int on);
 extern int sanei_umax_pp_CompletionWait (void);
 extern int sanei_umax_pp_CommitScan (void);
 extern int sanei_umax_pp_Park (void);

@@ -313,7 +313,7 @@ sanei_umax_pp_lamp (int on)
       sanei_umax_pp_EndSession ();
       return (UMAX1220P_TRANSPORT_FAILED);
     }
-  if (sanei_umax_pp_Lamp (on) == 0)
+  if (sanei_umax_pp_SetLamp (on) == 0)
     {
       DBG (0, "Setting lamp state failed!\n");
     }

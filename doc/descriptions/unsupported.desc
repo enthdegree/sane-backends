@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2005-01-12"		; version of backend
+:version "2005-01-16"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -1496,6 +1496,12 @@
 :interface "USB"
 :status :unsupported
 :comment "Probably not supported currently. May be supported in future. See link for more details."
+
+:model "AstraSlim 6000"
+:url "/unsupported/umax-astraslim-6000.html"
+:interface "USB"
+:status :unsupported
+:comment "Probably not supported currently. See link for more details."
 
 :model "Powerlook 1000 USB"
 ;:url ""

@@ -54,6 +54,16 @@ install: install-recursive
 	  $(INSTALL_DATA) $${file} $(includedir)/sane || exit 1; \
 	done
 
+#
+# Keep the .cvsignore files sorted, and use this target to do it.
+#
+PERL=perl
+sort-cvsignore:
+	for f in `find . -name .cvsignore`; do \
+		$(PERL) -e 'print sort <>;' < $$f > $$f.tmptmp; \
+		mv $$f.tmptmp $$f; \
+	done
+
 clean: clean-recursive
 
 distclean: clean distclean-recursive

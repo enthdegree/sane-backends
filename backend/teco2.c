@@ -243,8 +243,11 @@ static const struct dpi_color_adjust vm656a_dpi_color_adjust[1] = {
   {0, 0, 1, 2, 0, 0}
 };
 
-static const struct dpi_color_adjust vm6575_dpi_color_adjust[1] = {
-  {0, 1, 0, 2, 0, 0}
+static const struct dpi_color_adjust vm6575_dpi_color_adjust[] = {
+  {75, 1, 0, 2, 1, 1},
+  {150, 1, 0, 2, 1, 2},
+  {300, 1, 0, 2, 1, 4},
+  {600, 1, 0, 2, 1, 8},
 };
 
 static const struct dpi_color_adjust vm6586_dpi_color_adjust[] = {

@@ -1,3 +1,10 @@
+2003-01-31  Gerhard Jaeger <gerhard@gjaeger.de>
+	* doc/plustek/Plustek-USB.txt: Added comment about scanner.o
+	* backend/plustek.c backend/plustek-devs.c backend/plustek-usb.h
+	  backend/plustek-usbshading.c: Fixed major bug, that avoid proper
+	  shading on CCD-devices like HP 2200C. Fixed also CanoScan 1220
+	  settings, as the current ones didn't work
+
 2003-01-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Canon, Fijitsu and Prolink
@@ -27,7 +34,7 @@
 	* backend/mustek_pp.c: fixed some character encoding issues in
 	  debug messages
 	* README.linux: added a note about the Intel C++ Compiler
-	  
+
 2003-01-24  Jochen Eisinger <jochen.eisinger@gmx.de>
 
 	* backend/mustek_pp_ccd300.c: continued on the CCD low-level driver.
@@ -43,7 +50,7 @@
 	* backend/bh.c backend/coolscan.c: Minor conversion fixes (from
 	  Andrea Suatoni <a.suatoni@telefonica.net>).
 	* backend/test.c: Use "Color pattern" consistantly.
-	* acinclude.m4 aclocal.m4 configure configure.in 
+	* acinclude.m4 aclocal.m4 configure configure.in
 	  include/sane/config.h.in: Declare prototypes for all functions that
 	  may miss on some platforms.
 	* doc/descriptions/unsupported.desc: Added Mustek parport scanners.

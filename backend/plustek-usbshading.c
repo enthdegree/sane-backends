@@ -764,8 +764,10 @@ TOGAIN:
 				  	tmp.Red, tmp.Red, tmp.Green, tmp.Green, tmp.Blue, tmp.Blue);
 
 			m_dwIdealGain = IDEAL_GainNormal;
-			m_dwIdealGain = 0xff00;
 						 /* min(min(rgb.wRed, rgb.wGreen), rgb.wBlue) */
+
+			if( hw->bReg_0x26 & _ONE_CH_COLOR )
+				m_dwIdealGain = 0xff00;
 
 			a_bRegs[0x3b] = usb_GetNewGain( tmp.Red   );
 			a_bRegs[0x3c] = usb_GetNewGain( tmp.Green );
@@ -778,7 +780,7 @@ TOGAIN:
 				/* on CIS devices, we can control the lamp off settings */
 				if( hw->bReg_0x26 & _ONE_CH_COLOR ) {
 
-			m_dwIdealGain = IDEAL_GainNormal;
+					m_dwIdealGain = IDEAL_GainNormal;
 
 					if( adjLampSetting( CHANNEL_red, min_rgb.Red, m_dwIdealGain,
 									    hw->red_lamp_on, &hw->red_lamp_off )) {

@@ -184,7 +184,11 @@ This is it...
 Autoloading scanner.o
 ---------------------
 
-boot.local
+To perform an automatic load of the scanner module, you might add the modprobe
+line to your boot.local file.
+i.e. on SuSE system > 7.x
+/etc/init.d/boot.local
+An alternative way is to use the hotplug utilities.
 
 
 Debugging your USB scanner (written by Kev Green)

@@ -244,8 +244,7 @@ typedef enum
 	MODEL_MUSTEK1200,     /**< for BearPaw 2400           */
 	MODEL_HP,             /**< for HP2x00                 */
 	MODEL_CANON600 ,      /**< for CanoScan 600dpi models */
-	MODEL_CANON1220,      /**< for Canon N1220U           */
-	MODEL_CANON1240,      /**< for Canon N1240U           */
+	MODEL_CANON1200,      /**< for Canon 1200dpi models   */
 	MODEL_UMAX,           /**< for UMAX 3400/3450         */
 	MODEL_LAST
 } eModelDef;

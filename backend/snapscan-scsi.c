@@ -619,8 +619,8 @@ static SANE_Status send (SnapScan_Scanner *pss, u_char dtc, u_char dtcq)
         tl = 2;
         break;
     case DTC_CALIBRATION:
-    tl = calibration_line_length(pss);
-    break;
+        tl = calibration_line_length(pss);
+        break;
     default:
         DBG (DL_MAJOR_ERROR, "%s: unsupported data type code 0x%x\n",
              me, (unsigned) dtc);
@@ -896,7 +896,7 @@ static SANE_Status send_diagnostic (SnapScan_Scanner *pss)
 
     if (pss->pdev->model == PRISA620S    /* GP added */
         ||
-    pss->pdev->model == VUEGO610S)    /* SJU added */
+        pss->pdev->model == VUEGO610S)    /* SJU added */
     {
         return SANE_STATUS_GOOD;
     }
@@ -930,7 +930,7 @@ static SANE_Status wait_scanner_ready (SnapScan_Scanner *pss)
                 {
                     int delay = pss->asi1 + 1;
                     DBG (DL_INFO,
-                 "%s: scanner warming up. Waiting %ld seconds.\n",
+                        "%s: scanner warming up. Waiting %ld seconds.\n",
                          me, (long) delay);
                     sleep (delay);
                 }
@@ -991,27 +991,37 @@ static SANE_Status calibrate (SnapScan_Scanner *pss)
     int line_length = calibration_line_length(pss);
 
     if (pss->hconfig & HCFG_CAL_ALLOWED) {
-        buf = (u_char *) malloc(NUM_CALIBRATION_LINES * line_length);
+        int num_lines = pss->phys_buf_sz / line_length;
+        if (num_lines > NUM_CALIBRATION_LINES)
+        {
+            num_lines = NUM_CALIBRATION_LINES;
+        } else if (num_lines == 0)
+        {
+            DBG(DL_MAJOR_ERROR, "%s: scsi request size underflow (< %d bytes)", me, line_length);
+            return SANE_STATUS_IO_ERROR;
+        }
+        buf = (u_char *) malloc(num_lines * line_length);
         if (!buf)
         {
-                DBG (DL_MAJOR_ERROR, "%s: out of memory allocating calibration, %d bytes.", me, NUM_CALIBRATION_LINES * line_length);
-                return SANE_STATUS_NO_MEM;
+            DBG (DL_MAJOR_ERROR, "%s: out of memory allocating calibration, %d bytes.", me, num_lines * line_length);
+            return SANE_STATUS_NO_MEM;
         }
 
-        DBG (DL_MAJOR_ERROR, "%s: reading calibration data\n", me);
-        status = read_calibration_data(pss, buf, NUM_CALIBRATION_LINES);
+        DBG (DL_MAJOR_ERROR, "%s: reading calibration data (%d lines)\n", me, num_lines);
+        status = read_calibration_data(pss, buf, num_lines);
         CHECK_STATUS(status, me, "read_calibration_data");
 
         for(c=0; c < line_length; c++) {
-        u_int sum = 0;
-        for(r=0; r < NUM_CALIBRATION_LINES; r++) {
+            u_int sum = 0;
+            for(r=0; r < num_lines; r++) {
                 sum += buf[c + r * line_length];
-        }
-        pss->buf[c + SEND_LENGTH] = sum / NUM_CALIBRATION_LINES;
+            }
+            pss->buf[c + SEND_LENGTH] = sum / num_lines;
         }
 
         status = send (pss, DTC_CALIBRATION, 1);
         CHECK_STATUS(status, me, "send calibration");
+        free(buf);
     }
     return SANE_STATUS_GOOD;
 }
@@ -1149,6 +1159,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
+ * Revision 1.8  2001/10/22 22:14:20  oliverschwartz
+ * Limit number of scan lines for quality calibration to fit in SCSI buffer (thanks to Mikko Työläjärvi)
+ *
  * Revision 1.7  2001/10/12 21:19:13  oliverschwartz
  * update to snapscan-20011012
  *

@@ -1,5 +1,12 @@
 2002-04-10  Oliver Schwartz <oliver.schwartz@gmx.de>
  
+	* backend/snapscan-scsi.c
+          Removed illegal character
+        * backend/snapscan-usb.h
+          Removed declaration of bqelements
+
+2002-04-10  Oliver Schwartz <oliver.schwartz@gmx.de>
+ 
 	* backend/snapscan-usb.c
           make bqelements static
         * backend/snapscan-scsi.c

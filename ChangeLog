@@ -1,3 +1,8 @@
+2004-04-09  Gerhard Jaeger <gerhard@gjaeger.de>
+	* backend/plustek.c: Fixes bug #300620.
+	* sanei_thread.c: Fixes bug-reports #300617 & #300618,
+	  all reports and patches or patch-ideas by Mattias Ellert.
+
 2004-04-09  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan-usb.c backend/snapscan-mutex.c

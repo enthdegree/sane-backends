@@ -1,5 +1,7 @@
 2001-05-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* frontend/saned.c: Fixed some memory leaks. Fixed some warnings.
+	  Some reformating. Used #include "../include/sane/...".
 	* README.hp-ux: Use gmake if make doesn't work.
 	* LEVEL2: Added point about sane_init results != SANE_STATUS_GOOD.
 	* TODO: Added entries about memory leaks, sane_init return values, and

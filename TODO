@@ -1,4 +1,4 @@
-TODO (2001-08-04)
+TODO (2001-08-11)
 
 ******** todo ********
 
@@ -7,14 +7,6 @@ backends
   * Configuration problems:
     - add options "--exec-prefix=...." and "--prefix=..." compareable
       to gtk-config
-
-    - add warning when prefix dir is not listed in /etc/ld.so.conf on
-      linux systems may be there is a general way to test this if the
-      destination library directory is in the search path of the
-      linker. [The correct fix is to use -R (on Solaris) and -rpath
-      (on the rest?) to include the dynamic link path in the binaries
-      / libraries. pere 2001-02-09 -- I believe this is partly fixed
-      in tools/sane-config.in 2001-05-18]
 
   * Add new backends (?)
     - primax http://primax.sourceforge.net/
@@ -50,8 +42,6 @@ backends
      - microtek
 
   * Check net/saned
-     - sometimes saned+net freezes right after a scan (is this still
-       occuring 2001-06-04?)
      - don't just ignore the byte-order for the image data (needed to
        support depths > 8 bits/channel)
      - saned times out after 5 minutes (now 60 minutes). Check if the
@@ -107,8 +97,6 @@ backends
 
 doc
 ---
-  * Add sane-usb manpage
-
   * Documentation for sanei API
     - any ideas for this?
     - Options:
@@ -169,10 +157,8 @@ sanei
 -----
   * create sanei_parport_* and remove all inb, outb,... from all backends;
     use libieee1284 if available (see
-    http://people.redhat.com/twaugh/libieee1284/). (for sane-1.0.6)
-
-  * create sanei_usb.* (maybe containing access for libusb and direct access
-    for usb device files)? (sane-1.0.6)
+    http://people.redhat.com/twaugh/libieee1284/). Or just include this
+    library into sane.
 
 misc
 ----
@@ -186,9 +172,6 @@ misc
                    xscanimage / gimp with xscanimage plugin (where available)
      All the above with shared and static libraries.
 
-  * move .desc files for backends that are not included in SANE to
-    different directory (e.g. backends and external-backends)?
-
   * Use #include "../include/sane/..." instead of #include <sane...>
 
   * Use #include "../include/lalloca.h" instead of #include <lalloca.h>
@@ -199,8 +182,6 @@ misc
     local scanners. Install only sane-dll/sane-net (or even only sane-net).
     Maybe something like  --network-client-only or --disable-local-devices.
 
-  * Add USB support for sane-find-scanner.
-
   * check memory leaks (checked with purify and mtrace (from glibc)):
 
   * Use #include "../include/assert.h" instead of #include <assert.h> to
@@ -209,6 +190,23 @@ misc
   * Add installation procedure for translations of SANE backend's options.
 
 ******** done ********
+
+* Add USB support for sane-find-scanner.
+* move .desc files for backends that are not included in SANE to
+  different directory (e.g. backends and external-backends)?
+* create sanei_usb.* (maybe containing access for libusb and direct access
+  for usb device files)? (sane-1.0.6)
+* Add sane-usb manpage
+* Check net/saned
+   - sometimes saned+net freezes right after a scan (is this still
+     occuring 2001-06-04?)
+* add warning when prefix dir is not listed in /etc/ld.so.conf on 
+  linux systems may be there is a general way to test this if the
+  destination library directory is in the search path of the
+  linker. [The correct fix is to use -R (on Solaris) and -rpath
+  (on the rest?) to include the dynamic link path in the binaries
+  / libraries. pere 2001-02-09 -- I believe this is partly fixed
+  in tools/sane-config.in 2001-05-18]
 * Add links to sane(7) in all maual pages
 * Check AIX/gcc shared lib loading problem: When starting scanimage,
     only dll is loaded.

@@ -44,7 +44,7 @@
 
 /* Please increase version number with every change 
    (don't forget to update dll.desc) */
-#define DLL_VERSION "1.0.5"
+#define DLL_VERSION "1.0.6"
 
 #ifdef _AIX
 # include "lalloca.h"   /* MUST come first for AIX! */
@@ -212,7 +212,7 @@ add_backend (const char *name, struct backend **bep)
 {
   struct backend *be, *prev;
 
-  DBG(3, "add_backend: adding backend %s\n", name);
+  DBG(3, "add_backend: adding backend `%s'\n", name);
 
   if (strcmp(name,"dll") == 0)
     {
@@ -223,7 +223,7 @@ add_backend (const char *name, struct backend **bep)
   for (prev = 0, be = first_backend; be; prev = be, be = be->next)
     if (strcmp (be->name, name) == 0)
       {
-        DBG(1, "add_backend: %s is already there\n", name);
+        DBG(1, "add_backend: `%s' is already there\n", name);
         /* move to front so we preserve order that we'd get with
            dynamic loading: */
         if (prev)
@@ -256,9 +256,10 @@ load (struct backend *be)
 {
 #ifdef HAVE_DLL
   int mode = 0;
-  char *funcname, *src, *dir, *path = 0;
+  char *funcname, *src, *orig_src = 0, *dir, *path = 0;
   char libname[PATH_MAX];
   int i;
+  int src_len;
   FILE *fp = 0;
 
 #if defined(HAVE_DLOPEN)
@@ -277,8 +278,6 @@ load (struct backend *be)
 # error "Tried to compile unsupported DLL."
 #endif /* HAVE_DLOPEN */
 
-  DBG(3, "load: loading backend %s\n", be->name);
-
   /* initialize all ops to "unsupported" so we can "use" the backend
      even if the stuff later in this function fails */
   be->loaded = 1;
@@ -286,38 +285,56 @@ load (struct backend *be)
   for (i = 0; i < NUM_OPS; ++i)
     be->op[i] = op_unsupported;
 
-  dir = STRINGIFY(LIBDIR);
+  path = getenv ("LD_LIBRARY_PATH");
+  if (!path)
+    path = getenv ("SHLIB_PATH");   /* for HP-UX */
+  if (!path)
+    path = getenv ("LIBPATH");      /* for AIX */
+
+  if (path)
+    {
+      src_len = strlen (path) + strlen (STRINGIFY(LIBDIR)) + 1 + 1;
+      src = malloc (src_len);
+      if (!src)
+	{
+	  DBG(1, "load: malloc failed: %s\n", strerror(errno));
+	  return SANE_STATUS_NO_MEM;
+	}
+      orig_src = src;
+      snprintf (src, src_len, "%s:%s", path, STRINGIFY(LIBDIR));
+    }
+  else
+    {
+      src = STRINGIFY(LIBDIR);
+      src = strdup (src);
+      if (!src)
+	{
+	  DBG(1, "load: strdup failed: %s\n", strerror(errno));
+	  return SANE_STATUS_NO_MEM;
+	}
+    }
+  DBG(3, "load: searching backend `%s' in `%s'\n", be->name, src);
+
+  dir = strsep (&src, ":");
+
   while (dir)
     {
       snprintf (libname, sizeof (libname), "%s/"PREFIX"%s"POSTFIX,
                 dir, be->name, V_MAJOR);
+      DBG(4, "load: trying to load `%s'\n", libname);
       fp = fopen (libname, "r");
       if (fp)
         break;
+      DBG(4, "load: couldn't open `%s' (%s)\n", libname, strerror (errno));
 
-      if (!path)
-        {
-          path = getenv ("LD_LIBRARY_PATH");
-          if (!path)
-            {
-              path = getenv ("SHLIB_PATH");     /* for HP-UX */
-              if (!path)
-                path = getenv ("LIBPATH");      /* for AIX */
-            }
-          if (!path)
-            break;
-
-          path = strdup (path);
-          src = path;
-        }
       dir = strsep (&src, ":");
     }
-  if (path)
-    free (path);
+  if (orig_src)
+    free (orig_src);
   if (!fp)
     {
-      DBG(1, "load: couldn't find %s (%s)\n",
-          libname, strerror (errno));
+      DBG(1, "load: couldn't find backend `%s' (%s)\n",
+          be->name, strerror (errno));
       return SANE_STATUS_INVAL;
     }
   fclose (fp);
@@ -585,8 +602,12 @@ sane_exit (void)
       next = be->next;
       if (be->loaded)
         {
-          DBG(3, "sane_exit: calling backend `%s's exit function\n", be->name);
-          (*be->op[OP_EXIT]) ();
+	  if (be->inited)
+	    {
+	      DBG(3, "sane_exit: calling backend `%s's exit function\n",
+		  be->name);
+	      (*be->op[OP_EXIT]) ();
+	    }
 #ifdef HAVE_DLL
 
 #ifdef HAVE_DLOPEN
@@ -607,6 +628,10 @@ sane_exit (void)
             free ((void *) be->name);
           free (be);
         }
+      else
+	{
+	  be->inited = 0;
+	}
     }
   first_backend = 0;
 

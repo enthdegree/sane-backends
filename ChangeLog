@@ -14,6 +14,9 @@
 	  sane-desc.c. Commented out version numbers and manpages. Added
 	  :status :untested if the comment suggests this. Fixed double
 	  and bad device types.
+	* tools/sane-find-scanner.c: Added support for libusb. Made comments
+	  better readable and positioned after the output of the devices.
+	  Shorter output to fit into 80 chars.
 
 2002-07-08  Karl Heinz Kremer <khk@khk.net>
 	* doc/descriptions/epson.desc: fixed typo in URL

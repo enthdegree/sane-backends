@@ -44,7 +44,7 @@
 
 /* Please increase version number with every change 
    (don't forget to update dll.desc) */
-#define DLL_VERSION "1.0.1"
+#define DLL_VERSION "1.0.2"
 
 #ifdef _AIX
 # include "lalloca.h"   /* MUST come first for AIX! */
@@ -316,6 +316,7 @@ load (struct backend *be)
           libname, strerror (errno));
       return SANE_STATUS_INVAL;
     }
+  fclose (fp);
   DBG(2, "load: dlopen()ing `%s'\n", libname);
 
 #ifdef HAVE_DLOPEN
@@ -520,6 +521,9 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
       first_backend = &preloaded_backends[i];
     }
 
+  /* Return the version number of the sane-backends package to allow
+     the frontend to print them. This is done only for net and dll,
+     because these backends are usually called by the frontend. */
   if (version_code)
     *version_code = SANE_VERSION_CODE (SANE_DLL_V_MAJOR, SANE_DLL_V_MINOR,
 				       SANE_DLL_V_BUILD);

@@ -57,3 +57,13 @@ Last update: Sun Nov 12 16:47:01 CET 2000
 		cp -a /usr/src/linux/include/scsi /usr/include
 
 	should fix this problem.
+
+- Security problems with pnm
+        If the pnm backend is installed and saned is used to allow users on
+        remote computers to scan on the local machine, pnm files can be read by
+	the remote user. This is limited to the files saned can access (usually
+        it's running as user "sane"). All pnm files can be read if saned runs
+        as root which isn't recommended anyway. The pnm backend is disabled
+        by default. If you want to use it, enable it with configure (see 
+        configure --help for details). Be sure that only trusted users can
+	access the pnm backend over saned.

@@ -2,6 +2,7 @@
 :version "1.0.1"
 :status :beta
 :manpage "sane-net"
+:url "mailto:jochen.eisinger@gmx.net"
 
 :devicetype :meta
 :desc "Network access to saned servers"

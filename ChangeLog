@@ -1,3 +1,12 @@
+2003-04-18  Frank Zago  <fzago at austin dot rr dot com>
+
+	* backend/teco2.c backend/teco2.conf backend/teco2.h
+	  doc/sane-teco2.man doc/descriptions/teco2.desc: added support for
+	  Relisys AVEC II S3 (VM3564) and Primax Jewel 4800 (VM356A). Patch
+	  from Gerard Klaver.
+	* sanei/sanei_usb.c: fixed a memleak.
+	* sanei/sanei_pv8630.c: added some debug traces.
+
 2003-04-18   Stéphane Voltz  <svoltz@wanadoo.fr>
 
         * configure configure.in include/sane/config.h.in:

@@ -1,4 +1,9 @@
 -*-Mode: outline-*-
+New with 1.0.12, released 2003-xx-xx:
+
+* Security fixes for saned.
+* Updated backends: teco2 (Relisys AVEC II S3, Relisys APOLLO Express 3 and Primax Jewel 4800)
+
 New with 1.0.11, released 2003-02-09:
 
 * Security fixes for saned.

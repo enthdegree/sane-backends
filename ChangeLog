@@ -1,6 +1,7 @@
-2002-03-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
+2002-03-07  Henning Meier-Geinitz <henning@meier-geinitz.d>
 
 	* include/sane/config.h.in: Fix comment for HAVE_USB_H.
+	* TODO: Added entry about md5/getopt license issues.
 	
 2002-03-07 Abel Deuring <a.deuring@satzbau-gmbh.de>
 	* sanei/sanei_scsi.c: fixed a typo (Sg_scsi_id -> SG_scsi_id)

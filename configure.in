@@ -257,7 +257,8 @@ else
 fi
 AC_SUBST(NET)
 AC_SUBST(SANED)
-if test "${ac_cv_header_usb_h}" = "no" -o "${ac_cv_lib_usb}" = "no"; then
+if test "${ac_cv_header_usb_h}" = "no" \
+         -o "${ac_cv_lib_usb_usb_open}" = "no"; then
   echo "disabling SM3600 backend"
   SM3600=
 else

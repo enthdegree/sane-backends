@@ -4313,7 +4313,8 @@ else
 fi
 
 
-if test "${ac_cv_header_usb_h}" = "no" -o "${ac_cv_lib_usb}" = "no"; then
+if test "${ac_cv_header_usb_h}" = "no" \
+         -o "${ac_cv_lib_usb_usb_open}" = "no"; then
   echo "disabling SM3600 backend"
   SM3600=
 else
@@ -4378,7 +4379,7 @@ fi
 # Extract the first word of "sane-config", so it can be a program name with args.
 set dummy sane-config; ac_word=$2
 echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
-echo "configure:4382: checking for $ac_word" >&5
+echo "configure:4383: checking for $ac_word" >&5
 if eval "test \"`echo '$''{'ac_cv_path_SANE_CONFIG_PATH'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -4412,7 +4413,7 @@ else
 fi
 
 echo $ac_n "checking for sane_init in -lsane""... $ac_c" 1>&6
-echo "configure:4416: checking for sane_init in -lsane" >&5
+echo "configure:4417: checking for sane_init in -lsane" >&5
 ac_lib_var=`echo sane'_'sane_init | sed 'y%./+-%__p_%'`
 if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
@@ -4420,7 +4421,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lsane  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 4424 "configure"
+#line 4425 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 /* We use char because int might match the return type of a gcc2
@@ -4431,7 +4432,7 @@ int main() {
 sane_init()
 ; return 0; }
 EOF
-if { (eval echo configure:4435: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+if { (eval echo configure:4436: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else

@@ -433,7 +433,7 @@ init_gphoto2 (void)
 	}
     }
 
-  if (abilities.speed[n] == 0)
+  if (abilities.speed[n] == 0 && !strncmp (Cam_data.port, "serial:", 7) )
     {
       DBG (0,
 	   "%s: error: %d is not a valid speed for this camers.  Use \"gphoto2 --camera \"%s\" --abilities\" for list.\n",
@@ -678,9 +678,17 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
 
   if (!fp)
     {
-      /* default to /dev/whatever instead of insisting on config file */
-      DBG (1, "warning: %s:  missing config file '%s'\n", f,
-	   GPHOTO2_CONFIG_FILE);
+      /* Earlier versions why would try to keep going with compiled in
+       * defaults if the config file is missing.  But, now we have so
+       * options and combinations of options, that success without a config
+       * file is unlikely.  So, give and return failure 
+       */
+      DBG (0, "warning: %s:  missing config file '%s'\n"
+	"If you aren't using gphoto2, you should disable it in dll.conf.\n"
+	"If you do want to use gphoto2, you'll need to install the config\n"
+	"file in %s.\n", f, GPHOTO2_CONFIG_FILE,GPHOTO2_CONFIG_FILE);
+
+      return SANE_STATUS_INVAL;
     }
   else
     {

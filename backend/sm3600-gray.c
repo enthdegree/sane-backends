@@ -41,6 +41,7 @@
    This file implements a dynamic linking based SANE meta backend.  It
    allows managing an arbitrary number of SANE backends by using
    dynamic linking to load backends on demand.  */
+
 /* ======================================================================
 
 Userspace scan tool for the Microtek 3600 scanner
@@ -310,7 +311,8 @@ StartScanGray()
 
 ====================================================================== */
 
-static TState StartScanGray(TInstance *this)
+__SM3600EXPORT__
+TState StartScanGray(TInstance *this)
 {
   unsigned char  *puchRegs;
   int             i;
@@ -343,11 +345,30 @@ static TState StartScanGray(TInstance *this)
 	   this->param.x/2+this->calibration.xMargin); INST_ASSERT();
   RegWrite(this,R_SLEN, 2, this->state.cyWindow); INST_ASSERT();
   RegWrite(this,R_SWID, 2, this->state.cxWindow); INST_ASSERT();
+  RegWrite(this,R_STPS, 2, 0); INST_ASSERT();
 
   /* upload gamma table */
   RegWrite(this,0x41,1,0x01); /* gamma, gray */
-  RegWrite(this,0x40,1,0x08); /* offset FIFO 8 KB spared */
-  UploadGammaTable(this,0,this->agammaGray); INST_ASSERT();
+  RegWrite(this,0x40,1,0x20); /* FIFO at   0x08000 */
+  UploadGammaTable(this,0,this->agammaY); INST_ASSERT();
+
+#ifndef SM3600_NO_GAIN_CORRECTION
+  RegWrite(this,0x3D,1,0x0F | 0x80); /* 10XXXXXX : one offset table */
+  RegWrite(this,0x3F,1,0x08); /* 16KB gain at 0x02000 */
+  {
+    unsigned short uwGain[8192];
+    int i,iOff;
+
+    /*
+      Oopsi: correction data starts at the left of the scanning window!
+    */
+    iOff=this->param.x/2+this->calibration.xMargin;
+    for (i=iOff; i<MAX_PIXEL_PER_SCANLINE; i++)
+      uwGain[i-iOff]=this->calibration.achStripeY[i]<<4;
+    for (i=0; i<0x4000; i+=0x1000)
+      MemWriteArray(this,(0x2000+i)>>1,0x1000,(unsigned char*)&uwGain[i>>1]);
+  }
+#endif
 
   /* for halftone dithering we need one history line */
   this->state.pchBuf=malloc(USB_CHUNK_SIZE);

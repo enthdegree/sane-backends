@@ -41,6 +41,7 @@
    This file implements a dynamic linking based SANE meta backend.  It
    allows managing an arbitrary number of SANE backends by using
    dynamic linking to load backends on demand.  */
+
 /* ======================================================================
 
 Userspace scan tool for the Microtek 3600 scanner
@@ -65,7 +66,8 @@ Replay the first initialisation block (no slider movement).
 
 ********************************************************************** */
 
-static TState DoInit(TInstance *this)
+__SM3600EXPORT__
+TState DoInit(TInstance *this)
 {
   unsigned char uchRegs2466[]={
       0x00 /*0x01*/, 0x00 /*0x02*/, 0x3F /*0x03*/,
@@ -105,7 +107,8 @@ Resets Scanner after CANCEL in current scan job.
 
 ********************************************************************** */
 
-static TState DoReset(TInstance *this)
+__SM3600EXPORT__
+TState DoReset(TInstance *this)
 {
   RegWrite(this,0x43, 1, 0x03);    /* #1533[038.1] */
   RegWrite(this,0x43, 1, 0x03);    /* #1534[038.1] */
@@ -165,7 +168,8 @@ NOTE: Semantics changed: 0 on success, -1 else
 
 ********************************************************************** */
 
-static TState WaitWhileBusy(TInstance *this, int cSecs)
+__SM3600EXPORT__
+TState WaitWhileBusy(TInstance *this, int cSecs)
 {
   int cTimeOut=cSecs*10;
   int value;
@@ -188,7 +192,8 @@ NOTE: Semantics changed: 0 on success, -1 else
 
 ********************************************************************** */
 
-static TState WaitWhileScanning(TInstance *this, int cSecs)
+__SM3600EXPORT__
+TState WaitWhileScanning(TInstance *this, int cSecs)
 {
   int cTimeOut=cSecs*10;
   int value;
@@ -203,6 +208,8 @@ static TState WaitWhileScanning(TInstance *this, int cSecs)
   return SetError(this,SANE_STATUS_IO_ERROR,"Timeout while waiting for CSTAT");
 }
 
+#ifdef INSANE_VERSION
+
 /* **********************************************************************
 
 DoLampSwitch(nRegister)
@@ -212,21 +219,13 @@ DoLampSwitch(nRegister)
 
 ********************************************************************** */
 
-static TState DoLampSwitch(TInstance *this, int nPattern)
+__SM3600EXPORT__
+TState DoLampSwitch(TInstance *this, int nPattern)
 {
   return RegWrite(this, R_LMP, 1, nPattern);
 }
 
-/* **********************************************************************
-
-DoCalibration
-
-********************************************************************** */
-
-static TState DoCalibration(TInstance *this)
-{
-  return WaitWhileBusy(this,1);
-}
+#endif
 
 /* **********************************************************************
 
@@ -234,7 +233,8 @@ UploadGammaTable()
 
 ********************************************************************** */
 
-static TState UploadGammaTable(TInstance *this, int iByteAddress, SANE_Int *pnGamma)
+__SM3600EXPORT__
+TState UploadGammaTable(TInstance *this, int iByteAddress, SANE_Int *pnGamma)
 {
   unsigned char *puchGamma;
   TState         rc;

@@ -61,7 +61,7 @@ Start: 2.4.2001
 
 #include <usb.h>
 
-#define BUILD	1
+#define BUILD	3
 
 #ifndef BACKEND_NAME
 #define BACKEND_NAME sm3600
@@ -71,15 +71,18 @@ Start: 2.4.2001
 #define PATH_MAX       1024
 #endif
 
-#include "../include/sane/sane.h"
-#include "../include/sane/config.h"
-#include "../include/sane/sanei.h"
-#include "../include/sane/sanei_backend.h"
-#include "../include/sane/sanei_config.h"
-#include "../include/sane/saneopts.h"
+#include "sane/sane.h"
+#include "sane/config.h"
+#include "sane/sanei.h"
+#include "sane/sanei_backend.h"
+#include "sane/sanei_config.h"
+#include "sane/saneopts.h"
 
 /* prevent inclusion of scantool.h */
 #define SCANTOOL_H
+/* make no real function export, since we include the modules */
+#define __SM3600EXPORT__ static
+
 
 #include "sm3600.h"
 
@@ -110,7 +113,7 @@ typedef enum { optCount,
 	       optPreview, optGrayPreview,
 	       optGroupGeometry,optTLX, optTLY, optBRX, optBRY,
 	       optGroupEnhancement,
-	       optGammaGray, optGammaR,optGammaG,optGammaB,
+	       optGammaY, optGammaR,optGammaG,optGammaB,
 	       optLast } TOptionIndex;
 
 static const SANE_String_Const aScanModes[]= {  "color", "gray", "lineart",
@@ -135,7 +138,7 @@ static const SANE_Range rangeGamma = { 0, 4095, 1 };
 
 static const SANE_Int setResolutions[] = { 5, 75,100,200,300,600 };
 
-static SANE_Status
+SANE_Status
 InitOptions(TInstance *this)
 {
   TOptionIndex iOpt;
@@ -158,7 +161,7 @@ InitOptions(TInstance *this)
       static char *achDescXY[]= {
 	SANE_DESC_SCAN_TL_X,	SANE_DESC_SCAN_TL_Y,
 	SANE_DESC_SCAN_BR_X,	SANE_DESC_SCAN_BR_Y };
-      static double afFullBed[] = { 20.0,30.0, 50.0, 80.0 }; /* TODO: calculate exactly! */
+      static double afFullBed[] = { 22.0,30.0, 50.0, 80.0 }; /* TODO: calculate exactly! */
       static const SANE_Range *aRangesXY[] = { &rangeXmm,&rangeYmm,&rangeXmm,&rangeYmm };
       SANE_Option_Descriptor *pdesc;
       TOptionValue           *pval;
@@ -266,7 +269,7 @@ InitOptions(TInstance *this)
 	  pdesc->constraint_type=SANE_CONSTRAINT_NONE;
 	  pdesc->cap  = SANE_CAP_ADVANCED;
 	  break;
-	case optGammaGray:
+	case optGammaY:
 	  pdesc->name     = SANE_NAME_GAMMA_VECTOR;
 	  pdesc->title    = SANE_TITLE_GAMMA_VECTOR;
 	  pdesc->desc     = SANE_DESC_GAMMA_VECTOR;
@@ -275,7 +278,7 @@ InitOptions(TInstance *this)
 	  pdesc->size     = 4096*sizeof(SANE_Int);
 	  pdesc->constraint_type = SANE_CONSTRAINT_RANGE;
 	  pdesc->constraint.range = &rangeGamma;
-	  pval->wa        = this->agammaGray;
+	  pval->wa        = this->agammaY;
 	  break;
 	case optGammaR:
 	  pdesc->name     = SANE_NAME_GAMMA_VECTOR_R;
@@ -351,7 +354,9 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback authCB)
 
   DBG_INIT();
 
-  DBG(DEBUG_VERBOSE,"SM3600 init (authCB %s NULL)\n", authCB ? "!=" : "=");
+  authCB++; /* compiler */
+
+  DBG(DEBUG_VERBOSE,"SM3600 init\n");
   if (version_code)
    {
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BUILD);
@@ -396,6 +401,8 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback authCB)
   return SANE_STATUS_GOOD;
 }
 
+static const SANE_Device ** devlist = 0; /* only pseudo-statical */
+
 void
 sane_exit (void)
 {
@@ -412,20 +419,20 @@ sane_exit (void)
       free ((void *) dev->sane.name);
       free (dev);
     }
+  if (devlist) free(devlist);
+  devlist=NULL;
 }
 
 SANE_Status
 sane_get_devices (const SANE_Device *** device_list,
 		  SANE_Bool local_only)
 {
-  static const SANE_Device ** devlist = 0;
   TDevice *dev;
   int i;
 
   local_only = TRUE; /* Avoid compile warning */
 
-  if (devlist)
-    free (devlist);
+  if (devlist) free (devlist);
 
   devlist = malloc ((num_devices + 1) * sizeof (devlist[0]));
   if (!devlist)
@@ -460,8 +467,10 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
       return SANE_STATUS_INVAL;
   this = (TInstance*) calloc(1,sizeof(TInstance));
   if (!this) return SANE_STATUS_NO_MEM;
+
   *handle = (SANE_Handle)this;
-  
+
+  ResetCalibration(this); /* do not release memory */
   this->pNext=pinstFirst; /* register open handle */
   pinstFirst=this;
   /* open and prepare USB scanner handle */
@@ -474,13 +483,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
   if (usb_set_configuration(this->hScanner, 1))
     return SetError(this,SANE_STATUS_IO_ERROR, "cannot set USB config 1");
 
-  this->calibration.xMargin=200;
-  this->calibration.yMargin=0x019D;
-  this->calibration.nHoleGray=10;
-  this->calibration.rgbBias=0x888884;
-  this->calibration.nBarGray=0xC0;
   this->quality=fast;
-
   return InitOptions(this);
 }
 
@@ -497,6 +500,7 @@ sane_close (SANE_Handle handle)
       usb_close(this->hScanner);
       this->hScanner=NULL;
     }
+  ResetCalibration(this); /* release calibration data */
   /* unlink active device entry */
   pParent=NULL;
   for (p=pinstFirst; p; p=p->pNext)
@@ -574,7 +578,7 @@ sane_control_option (SANE_Handle handle, SANE_Int iOpt,
 	case optMode:
 	  strcpy(pVal,this->aoptVal[iOpt].s);
 	  break;
-	case optGammaGray:
+	case optGammaY:
 	case optGammaR:
 	case optGammaG:
 	case optGammaB:
@@ -612,7 +616,7 @@ sane_control_option (SANE_Handle handle, SANE_Int iOpt,
 	      | SANE_INFO_RELOAD_OPTIONS;
 	  strcpy(this->aoptVal[iOpt].s,pVal);
 	  break;
-	case optGammaGray:
+	case optGammaY:
 	case optGammaR:	case optGammaG:	case optGammaB:
 	  DBG(DEBUG_INFO,"setting gamma #%d\n",iOpt);
 	  memcpy(this->aoptVal[iOpt].wa, pVal, this->aoptDesc[iOpt].size);
@@ -696,6 +700,7 @@ sane_start (SANE_Handle handle)
   if (this->state.bScanning) return SANE_STATUS_DEVICE_BUSY;
   rc=SetupInternalParameters(this);
   this->state.bCanceled=false;
+  if (!rc) rc=DoInit(this); /* oopsi, we should initalise :-) */
   if (!rc) rc=DoOriginate(this,true);
   if (!rc) rc=DoJog(this,this->calibration.yMargin);
   if (rc) return rc;
@@ -766,9 +771,7 @@ sane_cancel (SANE_Handle handle)
 SANE_Status
 sane_set_io_mode(SANE_Handle h, SANE_Bool m)
 {
-  SANE_Handle h_tmp;
-
-  h_tmp = h;
+  h++;
   if (m==SANE_TRUE) /* no non-blocking-mode */
     return SANE_STATUS_UNSUPPORTED;
   return SANE_STATUS_GOOD;
@@ -777,11 +780,6 @@ sane_set_io_mode(SANE_Handle h, SANE_Bool m)
 SANE_Status
 sane_get_select_fd(SANE_Handle handle, SANE_Int *fd)
 {
-  SANE_Handle handle_tmp;
-  SANE_Int *fd_tmp;
-
-  handle_tmp = handle;
-  fd_tmp = fd;
-
+  handle++; fd++;
   return SANE_STATUS_UNSUPPORTED; /* we have no file IO */
 }

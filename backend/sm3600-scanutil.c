@@ -68,7 +68,8 @@ void DBG(int nLevel, const char *szFormat, ...)
 }
 #endif
 
-static void debug_printf(unsigned long ulType, const char *szFormat, ...)
+__SM3600EXPORT__
+void debug_printf(unsigned long ulType, const char *szFormat, ...)
 {
   va_list ap;
   if ((ulDebugMask & ulType)!=ulType) return;
@@ -90,7 +91,8 @@ being global) and the user gets a nice panic screen :-)
 
 ********************************************************************** */
 
-static int SetError(TInstance *this, int nError, const char *szFormat, ...)
+__SM3600EXPORT__
+int SetError(TInstance *this, int nError, const char *szFormat, ...)
 {
   va_list ap;
   if (this->nErrorState) return 0; /* do not overwrite error state */
@@ -107,13 +109,16 @@ static int SetError(TInstance *this, int nError, const char *szFormat, ...)
   return nError;
 }
 
+#ifdef INSANE_VERSION
+
 /* **********************************************************************
 
 DumpBuffer(fh,pch,cch)
 
 ********************************************************************** */
 
-static void DumpBuffer(FILE *fh, const char *pch, int cch)
+__SM3600EXPORT__
+void DumpBuffer(FILE *fh, const char *pch, int cch)
 {
   int i=0;
   while (i<cch)
@@ -129,6 +134,8 @@ static void DumpBuffer(FILE *fh, const char *pch, int cch)
   fprintf(fh,"\n");
 }
 
+#endif
+
 /* **********************************************************************
 
 FixExposure()
@@ -138,7 +145,8 @@ augmenting the result around the middle value of 128.
 
 ********************************************************************** */
 
-static void FixExposure(unsigned char *pchBuf,
+__SM3600EXPORT__
+void FixExposure(unsigned char *pchBuf,
 		 int cchBulk,
 		 int nBrightness,
 		 int nContrast)
@@ -166,7 +174,8 @@ Frees all dynamical memory for scan buffering.
 
 ********************************************************************** */
 
-static TState FreeState(TInstance *this, TState nReturn)
+__SM3600EXPORT__
+TState FreeState(TInstance *this, TState nReturn)
 {
   if (this->state.ppchLines)
     {
@@ -192,7 +201,8 @@ EndScan()
 
 ====================================================================== */
 
-static TState EndScan(TInstance *this)
+__SM3600EXPORT__
+TState EndScan(TInstance *this)
 {
   if (!this->state.bScanning) return SANE_STATUS_GOOD;
   /* move slider back to start */
@@ -208,7 +218,8 @@ TState CancelScan(TInstance *this)
 
 ====================================================================== */
 
-static TState CancelScan(TInstance *this)
+__SM3600EXPORT__
+TState CancelScan(TInstance *this)
 {
   TBool bCanceled;
   DBG(DEBUG_INFO,"CancelScan() called\n");
@@ -239,7 +250,8 @@ ReadChunk()
 
 ====================================================================== */
 
-static TState ReadChunk(TInstance *this, unsigned char *achOut,
+__SM3600EXPORT__
+TState ReadChunk(TInstance *this, unsigned char *achOut,
 		 int cchMax, int *pcchRead)
 {
   /* have we to copy more than we have? */
@@ -298,7 +310,8 @@ GetAreaSize()
 
 ====================================================================== */
 
-static void GetAreaSize(TInstance *this)
+__SM3600EXPORT__
+void GetAreaSize(TInstance *this)
 {
   /* this->state.cxPixel : pixels, we *want* (after interpolation)
      this->state.cxMax   : pixels, we *need* (before interpolation) */
@@ -320,18 +333,47 @@ static void GetAreaSize(TInstance *this)
 
 /* ======================================================================
 
+ResetCalibration()
+
+Free calibration data. The Instance can be safely released afterwards.
+
+====================================================================== */
+
+__SM3600EXPORT__
+void ResetCalibration(TInstance *this)
+{
+  if (this->calibration.achStripeY)
+    free(this->calibration.achStripeY);
+  if (this->calibration.achStripeR)
+    free(this->calibration.achStripeR);
+  if (this->calibration.achStripeG)
+    free(this->calibration.achStripeG);
+  if (this->calibration.achStripeB)
+    free(this->calibration.achStripeB);
+  /* reset all handles, pointers, flags */
+  memset(&(this->calibration),0,sizeof(this->calibration));
+  this->calibration.xMargin=200;
+  this->calibration.yMargin=0x019D;
+  this->calibration.nHoleGray=10;
+  this->calibration.rgbBias=0x888884;
+  this->calibration.nBarGray=0xC0;
+}
+
+/* ======================================================================
+
 InitGammaTables()
 
 Init gammy tables and gain tables within controller memory.
 
 ====================================================================== */
 
-static TState InitGammaTables(TInstance *this)
+__SM3600EXPORT__
+TState InitGammaTables(TInstance *this)
 {
   int           i;
   for (i=0; i<4096; i++)
     {
-      this->agammaGray[i]=i;
+      this->agammaY[i]=i;
       this->agammaR[i]=i;
       this->agammaG[i]=i;
       this->agammaB[i]=i;
@@ -351,7 +393,8 @@ Top level caller for scantool.
 
 #define APP_CHUNK_SIZE   8192
 
-static TState DoScanFile(TInstance *this)
+__SM3600EXPORT__
+TState DoScanFile(TInstance *this)
 {
   int    cx,cy;
   long   lcchRead;

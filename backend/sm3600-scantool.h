@@ -41,6 +41,7 @@
    This file implements a dynamic linking based SANE meta backend.  It
    allows managing an arbitrary number of SANE backends by using
    dynamic linking to load backends on demand.  */
+
 #ifndef SCANTOOL_H
 #define SCANTOOL_H
 
@@ -66,6 +67,9 @@
 #include <usb.h>
 
 #ifdef INSANE_VERSION
+
+/* make real exports */
+#define __SM3600EXPORT__
 
 typedef enum { SANE_STATUS_GOOD,
 	       SANE_STATUS_CANCELLED,
@@ -118,7 +122,9 @@ GLOBAL char              *szScanFile;
 
 GLOBAL TInstance          devInstance;
 
-#endif
+/* ====================================================================== */
+
+#endif /* INSANE_VERSION */
 
 /* ====================================================================== */
 

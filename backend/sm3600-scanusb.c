@@ -41,6 +41,7 @@
    This file implements a dynamic linking based SANE meta backend.  It
    allows managing an arbitrary number of SANE backends by using
    dynamic linking to load backends on demand.  */
+
 /* ======================================================================
 
 Userspace scan tool for the Microtek 3600 scanner
@@ -106,7 +107,8 @@ RegWriteArray(iRegister, cb, unsigned char uchValues)
 
 ********************************************************************** */
 
-static TState RegWrite(TInstance *this, int iRegister, int cb, unsigned long ulValue)
+__SM3600EXPORT__
+TState RegWrite(TInstance *this, int iRegister, int cb, unsigned long ulValue)
 {
   char *pchBuffer;
   int   i;
@@ -141,7 +143,8 @@ static TState RegWrite(TInstance *this, int iRegister, int cb, unsigned long ulV
   return SANE_STATUS_GOOD;
 }
 
-static TState RegWriteArray(TInstance *this, int iRegister, int cb, unsigned char *pchBuffer)
+__SM3600EXPORT__
+TState RegWriteArray(TInstance *this, int iRegister, int cb, unsigned char *pchBuffer)
 {
   int   i;
   INST_ASSERT();
@@ -164,7 +167,8 @@ MemWriteArray(iAddress, cb, ulValue)
 
 ********************************************************************** */
 
-static TState MemWriteArray(TInstance *this, int iAddress,
+__SM3600EXPORT__
+TState MemWriteArray(TInstance *this, int iAddress,
 		     int cb, unsigned char *pchBuffer)
 {
   int   i;
@@ -188,7 +192,10 @@ MemReadArray(iRegister, cb, ulValue)
 
 ********************************************************************** */
 
-static TState MemReadArray(TInstance *this, int iAddress, int cb, unsigned char *pchBuffer)
+#ifdef INSANE_VERSION
+
+__SM3600EXPORT__
+TState MemReadArray(TInstance *this, int iAddress, int cb, unsigned char *pchBuffer)
 {
   int   i;
   INST_ASSERT();
@@ -211,7 +218,8 @@ RegCheck(iRegister, cb, ulValue)
 
 ********************************************************************** */
 
-static TState RegCheck(TInstance *this, int iRegister, int cch, unsigned long ulValue)
+__SM3600EXPORT__
+TState RegCheck(TInstance *this, int iRegister, int cch, unsigned long ulValue)
 {
   char *pchBuffer,*pchTransfer;
   int   i,rcCode;
@@ -270,7 +278,8 @@ cchRead=BulkRead(fh,cchBulk)
 
 ********************************************************************** */
 
-static int BulkRead(TInstance *this, FILE *fhOut, unsigned int cchBulk)
+__SM3600EXPORT__
+int BulkRead(TInstance *this, FILE *fhOut, unsigned int cchBulk)
 {
   int   cchRead,rc;
   char *pchBuffer;
@@ -321,13 +330,16 @@ static int BulkRead(TInstance *this, FILE *fhOut, unsigned int cchBulk)
   return rc ? -1 : cchRead;
 }
 
+#endif
+
 /* **********************************************************************
 
 cchRead=BulkReadBuffer(puchBuffer, cchBulk)
 
 ********************************************************************** */
 
-static int BulkReadBuffer(TInstance *this,
+__SM3600EXPORT__
+int BulkReadBuffer(TInstance *this,
 		   unsigned char *puchBufferOut,
 		   unsigned int cchBulk)
 {
@@ -380,7 +392,8 @@ Read register in big endian (INTEL-) format.
 
 ********************************************************************** */
 
-static unsigned int RegRead(TInstance *this, int iRegister, int cch)
+__SM3600EXPORT__
+unsigned int RegRead(TInstance *this, int iRegister, int cch)
 {
   char        *pchTransfer;
   int          i;

@@ -41,6 +41,7 @@
    This file implements a dynamic linking based SANE meta backend.  It
    allows managing an arbitrary number of SANE backends by using
    dynamic linking to load backends on demand.  */
+
 /* ======================================================================
 
 Userspace scan tool for the Microtek 3600 scanner
@@ -53,25 +54,55 @@ slider movement
 
 #include "sm3600-scantool.h"
 
+#include <math.h>
+
 /* tuning constants for DoOriginate */
 #define CCH_BONSAI              60
-#define MAX_PIXEL_PER_SCANLINE  5100
 #define BLACK_HOLE_GRAY         30
 #define CHASSIS_GRAY_LEVEL      100
 #define BLACK_BED_LEVEL         10
 
-/* **********************************************************************
-
-DoOriginate()
-
-*shall* one time move the slider safely back to its origin.
-No idea, hoiw to achieve this, for now...
-
-********************************************************************** */
-
 typedef enum { ltHome, ltUnknown, ltBed, ltError } TLineType;
 
 #define INST_ASSERT2() { if (this->nErrorState) return ltError; }
+
+static unsigned char auchRegsSingleLine[]={
+  0x00 /*0x01*/, 0x00 /*0x02*/, 0x3F /*0x03*/,
+  0xB4 /*!!0x04!!*/, 0x14 /*!!0x05!!*/, 0,0, 
+  0x00 /*0x08*/, 0x3F /*!!0x09!!*/,
+  1,0,
+  0x6D /*0x0C*/,
+  0x70 /*0x0D*/, 0x69 /*0x0E*/, 0xD0 /*0x0F*/,
+  0x00 /*0x10*/, 0x00 /*0x11*/, 0x40 /*0x12*/,
+  0x15 /*0x13*/, 0x80 /*0x14*/, 0x2A /*0x15*/,
+  0xC0 /*0x16*/, 0x40 /*0x17*/, 0xC0 /*0x18*/,
+  0x40 /*0x19*/, 0xFF /*0x1A*/, 0x01 /*0x1B*/,
+  0x88 /*0x1C*/, 0x40 /*0x1D*/, 0x4C /*0x1E*/,
+  0x50 /*0x1F*/, 0x00 /*0x20*/, 0x0C /*0x21*/,
+  0x21 /*0x22*/, 0xF0 /*0x23*/, 0x40 /*0x24*/,
+  0x00 /*0x25*/, 0x0A /*0x26*/, 0xF0 /*0x27*/,
+  0x00 /*0x28*/, 0x00 /*0x29*/, 0x4E /*0x2A*/,
+  0xF0 /*0x2B*/, 0x00 /*0x2C*/, 0x00 /*0x2D*/,
+  0x4E /*0x2E*/, 0x88 /*R_CCAL*/, 0x88 /*R_CCAL2*/,
+  0x84 /*R_CCAL3*/, 0xEA /*R_LEN*/, 0x24 /*R_LENH*/,
+  0x63 /*0x34*/, 0x29 /*0x35*/, 0x00 /*0x36*/,
+  0x00 /*0x37*/, 0x00 /*0x38*/, 0x00 /*0x39*/,
+  0x00 /*0x3A*/, 0x00 /*0x3B*/, 0xFF /*0x3C*/,
+  0x0F /*0x3D*/, 0x00 /*0x3E*/, 0x00 /*0x3F*/,
+  0x01 /*0x40*/, 0x00 /*0x41*/, 0x00 /*R_CSTAT*/,
+  0x03 /*R_SPD*/, 0x01 /*0x44*/, 0x00 /*0x45*/,
+  0x59 /*!!R_CTL!!*/, 0xC0 /*0x47*/, 0x40 /*0x48*/,
+  0x96 /*!!0x49!!*/, 0xD8 /*0x4A*/ };
+
+/* ======================================================================
+
+GetLineType()
+
+Reads a scan line at the actual position and classifies it as
+"on the flatbed area" or "at home position" or "elsewhere".
+This can be used to calculate the proper stepping width
+
+====================================================================== */
 
 static TLineType GetLineType(TInstance *this)
 {
@@ -83,43 +114,14 @@ static TLineType GetLineType(TInstance *this)
   TBool          bHolesOk;
   int            lMedian;
   bHolesOk=false;
-  {
-    unsigned char uchRegs2495[]={
-      0x00 /*0x01*/, 0x00 /*0x02*/, 0x3F /*0x03*/,
-      0xEC /*!!0x04!!*/, 0x13 /*!!0x05!!*/, 0,0, 
-      0x00 /*0x08*/, 0x3F /*!!0x09!!*/,
-      1,0,
-      0x6D /*0x0C*/,
-      0x70 /*0x0D*/, 0x69 /*0x0E*/, 0xD0 /*0x0F*/,
-      0x00 /*0x10*/, 0x00 /*0x11*/, 0x40 /*0x12*/,
-      0x15 /*0x13*/, 0x80 /*0x14*/, 0x2A /*0x15*/,
-      0xC0 /*0x16*/, 0x40 /*0x17*/, 0xC0 /*0x18*/,
-      0x40 /*0x19*/, 0xFF /*0x1A*/, 0x01 /*0x1B*/,
-      0x88 /*0x1C*/, 0x40 /*0x1D*/, 0x4C /*0x1E*/,
-      0x50 /*0x1F*/, 0x00 /*0x20*/, 0x0C /*0x21*/,
-      0x21 /*0x22*/, 0xF0 /*0x23*/, 0x40 /*0x24*/,
-      0x00 /*0x25*/, 0x0A /*0x26*/, 0xF0 /*0x27*/,
-      0x00 /*0x28*/, 0x00 /*0x29*/, 0x4E /*0x2A*/,
-      0xF0 /*0x2B*/, 0x00 /*0x2C*/, 0x00 /*0x2D*/,
-      0x4E /*0x2E*/, 0x88 /*R_CCAL*/, 0x88 /*R_CCAL2*/,
-      0x84 /*R_CCAL3*/, 0xEA /*R_LEN*/, 0x24 /*R_LENH*/,
-      0x63 /*0x34*/, 0x29 /*0x35*/, 0x00 /*0x36*/,
-      0x00 /*0x37*/, 0x00 /*0x38*/, 0x00 /*0x39*/,
-      0x00 /*0x3A*/, 0x00 /*0x3B*/, 0xFF /*0x3C*/,
-      0x0F /*0x3D*/, 0x00 /*0x3E*/, 0x00 /*0x3F*/,
-      0x01 /*0x40*/, 0x00 /*0x41*/, 0x00 /*R_CSTAT*/,
-      0x03 /*R_SPD*/, 0x01 /*0x44*/, 0x00 /*0x45*/,
-      0x59 /*!!R_CTL!!*/, 0xC0 /*0x47*/, 0x40 /*0x48*/,
-      0x96 /*!!0x49!!*/, 0xD8 /*0x4A*/ };
-    RegWriteArray(this,R_ALL, 74, uchRegs2495);
-  }    /* #2495[062.5] */
+  RegWriteArray(this,R_ALL, 74, auchRegsSingleLine);
   INST_ASSERT2();
   /*     dprintf(DEBUG_SCAN,"originate-%d...",iStripe); */
   RegWrite(this,R_CTL, 1, 0x59);    /* #2496[062.5] */
   RegWrite(this,R_CTL, 1, 0xD9);    /* #2497[062.5] */
   i=WaitWhileScanning(this,5); if (i) return i;
     
-  cchBulk=5100;
+  cchBulk=MAX_PIXEL_PER_SCANLINE;
   /*
   cchBulk=RegRead(this,R_STAT, 2);
   if (cchBulk!=MAX_PIXEL_PER_SCANLINE)
@@ -180,6 +182,8 @@ static TLineType GetLineType(TInstance *this)
   else
     bHolesOk=false;
   lMedian=lSum/cchBulk;
+  /* this is *definitly* dirty style. We should pass the information
+     by other means... */
   if (bHolesOk)
     {
       this->calibration.xMargin=axHoles[0]-480;           /* left bed corner */
@@ -197,7 +201,73 @@ static TLineType GetLineType(TInstance *this)
   return ltUnknown;
 }
 
-static TState DoOriginate(TInstance *this, TBool bStepOut)
+/* **********************************************************************
+
+DoCalibration
+
+********************************************************************** */
+
+#define INST_ASSERT_CALIB() { if (this->nErrorState) \
+  { free(pulSum); return ltError; } }
+
+__SM3600EXPORT__
+TState DoCalibration(TInstance *this)
+{
+  long   *pulSum;
+  int    iLine,i;
+  TState rc;
+  if (this->calibration.bCalibrated)
+    return SANE_STATUS_GOOD;
+  DoJog(this,220);
+  /* scan a gray line at 600 DPI */
+  if (!this->calibration.achStripeY)
+    {
+      this->calibration.achStripeY=calloc(1,MAX_PIXEL_PER_SCANLINE);
+      if (!this->calibration.achStripeY)
+	return SetError(this,SANE_STATUS_NO_MEM,"no memory for calib Y");
+    }
+  pulSum=calloc(MAX_PIXEL_PER_SCANLINE,sizeof(long));
+  if (!pulSum) return SetError(this,SANE_STATUS_NO_MEM,"no memory for calib sum");
+  for (iLine=0; iLine<10; iLine++)
+    {
+      dprintf(DEBUG_CALIB,"calibrating %i...",iLine);
+      RegWriteArray(this,R_ALL, 74, auchRegsSingleLine);
+      INST_ASSERT_CALIB();
+      RegWrite(this,R_CTL, 1, 0x59);    /* #2496[062.5] */
+      RegWrite(this,R_CTL, 1, 0xD9);    /* #2497[062.5] */
+      rc=WaitWhileScanning(this,5); if (rc) { free(pulSum); return rc; }
+      if (BulkReadBuffer(this,this->calibration.achStripeY,
+			 MAX_PIXEL_PER_SCANLINE)
+	  !=MAX_PIXEL_PER_SCANLINE)
+	{
+	  free(pulSum);
+	  return SetError(this,SANE_STATUS_IO_ERROR,"truncated bulk");
+	}
+      for (i=0; i<MAX_PIXEL_PER_SCANLINE; i++)
+	pulSum[i]+=(long)this->calibration.achStripeY[i]*
+	  (long)this->calibration.achStripeY[i];
+    }
+  for (i=0; i<MAX_PIXEL_PER_SCANLINE; i++)
+    this->calibration.achStripeY[i]=(unsigned char)(int)sqrt(pulSum[i]/10);
+  free(pulSum);
+      /* scan a color line at 600 DPI */
+  DoJog(this,-220-10);
+  INST_ASSERT();
+  this->calibration.bCalibrated=true;
+  return SANE_STATUS_GOOD;
+}
+
+/* **********************************************************************
+
+DoOriginate()
+
+*shall* one time move the slider safely back to its origin.
+No idea, hoiw to achieve this, for now...
+
+********************************************************************** */
+
+__SM3600EXPORT__
+TState DoOriginate(TInstance *this, TBool bStepOut)
 {
   TLineType lt;
   if (this->bVerbose)
@@ -207,7 +277,7 @@ static TState DoOriginate(TInstance *this, TBool bStepOut)
   lt=GetLineType(this);
   /* if we are already at home, fine. If not, first jump a bit forward */
   DBG(DEBUG_JUNK,"lt1=%d\n",(int)lt);
-  if (lt!=ltHome && bStepOut) DoJog(this,200);
+  if (lt!=ltHome && bStepOut) DoJog(this,150);
   while (lt!=ltHome && !this->state.bCanceled)
     {
       lt=GetLineType(this);
@@ -217,12 +287,14 @@ static TState DoOriginate(TInstance *this, TBool bStepOut)
 	{
 	case ltHome: continue;
 	case ltBed:  DoJog(this,-240); break; /* worst case: 1 cm */
-	default:     DoJog(this,-24); break; /* 1 mm */
+	default:     DoJog(this,-15); break; /* 0.X mm */
 	}
     }
   DoJog(this,1); INST_ASSERT(); /* Correction for 1 check line */
   DBG(DEBUG_JUNK,"lt3=%d\n",(int)lt);
-  return (this->state.bCanceled ? SANE_STATUS_CANCELLED : SANE_STATUS_GOOD);
+  if (this->state.bCanceled)
+    return SANE_STATUS_CANCELLED;
+  return DoCalibration(this);
 }
 
 /* **********************************************************************
@@ -233,7 +305,8 @@ The distance is given in 600 DPI.
 
 ********************************************************************** */
 
-static TState DoJog(TInstance *this, int nDistance)
+__SM3600EXPORT__
+TState DoJog(TInstance *this, int nDistance)
 {
   int cSteps;
   int nSpeed,nRest;

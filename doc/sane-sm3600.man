@@ -9,7 +9,7 @@ library implements a SANE (Scanner Access Now Easy) backend that
 provides access to some Microtek scanners with the Toshiba M011 custom
 USB chip.  This backend should be considered alpha.
 .PP 
-There exists a backend for Microtek scanners with SCSI command set.
+There exist a backends for Microtek scanners with SCSI command set.
 Refer to sane-microtek(5) and sane-microtek2(5) for details.
 .PP
 At present, the following

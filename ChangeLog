@@ -1,3 +1,10 @@
+2004-08-08  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/gt68xx.c backend/gt68xx.conf backend/gt68xx_devices.c doc/descriptions/gt68xx.desc
+	  doc/gt68xx/gt68xx.CHANGES tools/hotplug/libsane.usermap:
+	  Added Mustek ScanExpress 1248 UB and new version of Mustek
+	  BearPaw 1200 CU Plus.
+
 2004-08-05  Gerard Klaver <gerard at gkall dot hobby dot nl>
 
 	* backend/teco2.c backend/teco2.h: changed to SANE_VALUE_SCAN_MODE_LINEART, _GRAY, and _COLOR,

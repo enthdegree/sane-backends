@@ -1,5 +1,11 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0.62 (2004-08-08)
+
+* Added detection for Mustek ScanExpress 1248 UB. It's untested however and I
+  don't even know the name of the firmware.
+* Added new id for Mustek BearPaw 1200 CU Plus (0x021b). It's completely untested.
+
 V 1.0-61 (2004-06-18)
 
 * General:

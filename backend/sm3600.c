@@ -133,7 +133,7 @@ static const SANE_Range rangeLumi = {
 
 static const SANE_Range rangeGamma = { 0, 4095, 1 };
 
-static const SANE_Int setResolutions[] = { 6, 75,100,200,300,600 };
+static const SANE_Int setResolutions[] = { 5, 75,100,200,300,600 };
 
 static SANE_Status
 InitOptions(TInstance *this)

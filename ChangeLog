@@ -8,6 +8,7 @@
 	  segfault when opening device again after closing and possible
 	  segfault when name="". Type for option 0 must be set to
 	  SANE_TYPE_INT explicitely. Updated GPL/SANE headers.
+	* TODO: Added entry about auto-loading SCSI drivers.
 
 2002-03-17  Peter Fales <peter@fales.com>
 

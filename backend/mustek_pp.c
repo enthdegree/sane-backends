@@ -222,11 +222,25 @@ do_stop(Mustek_pp_Handle *hndl)
  *
  * Description:
  *	just exit... reader_process takes care that nothing bad will happen
+ *
+ * EDG - Jan 14, 2004:
+ *      Make sure that the parport is released again by the child process
+ *      under all circumstances, because otherwise the parent process may no 
+ *      longer be able to claim it (they share the same file descriptor, and
+ *      the kernel doesn't release the child's claim because the file
+ *      descriptor isn't cleaned up). If that would happen, the lamp may stay
+ *      on and may not return to its home position, unless the scanner
+ *      frontend is restarted.
+ *      (This happens only when sanei_pa4s2 uses libieee1284 AND
+ *      libieee1284 goes via /dev/parportX).
+ *
  */
+static int fd_to_release = 0;
 /*ARGSUSED*/
 static RETSIGTYPE
 sigterm_handler (int signal __UNUSED__)
 {
+	sanei_pa4s2_enable(fd_to_release, SANE_FALSE);
 	_exit (SANE_STATUS_GOOD);
 }
 
@@ -259,13 +273,14 @@ reader_process (Mustek_pp_Handle * hndl, int pipe)
 	
 	if (!(fp = fdopen(pipe, "w")))
 		return SANE_STATUS_IO_ERROR;
-
-	if ((status = hndl->dev->func->start (hndl)) != SANE_STATUS_GOOD)
-		return status;
-
+        
+	fd_to_release = hndl->fd;
 	memset (&act, 0, sizeof(act));
 	act.sa_handler = sigterm_handler;
 	sigaction (SIGTERM, &act, NULL);
+
+	if ((status = hndl->dev->func->start (hndl)) != SANE_STATUS_GOOD)
+		return status;
 
         size = hndl->params.bytes_per_line;
   	elem = 1;

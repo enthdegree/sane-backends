@@ -1035,6 +1035,7 @@ cis_config_ccd (Mustek_PP_CIS_dev * dev)
                              byteCount >> 8, byteCount & 0xFF); 
    
    cis_get_bank_count (dev);
+   DBG(5, "cis_config_ccd: done\n");
 }
 
 static SANE_Bool
@@ -2398,7 +2399,7 @@ SANE_Status cis_drv_config(SANE_Handle hndl, SANE_String_Const optname,
          DBG (1, "cis_drv_config: unexpected value for option slow_skip\n");
          return SANE_STATUS_INVAL;
       }
-      DBG (3, "cis_drv_config: disabling fast skipping");
+      DBG (3, "cis_drv_config: disabling fast skipping\n");
       cisdev->fast_skip = SANE_FALSE;
    }
    else if (!strcmp(optname, "bw"))
@@ -2442,13 +2443,16 @@ void cis_drv_close (SANE_Handle hndl)
 {
    Mustek_pp_Handle *dev = hndl;
    Mustek_PP_CIS_dev *cisdev = dev->priv;
-   DBG (3, "cis_close: resetting device.");
+   DBG (3, "cis_close: resetting device.\n");
    sanei_pa4s2_enable (dev->fd, SANE_TRUE); 
    cis_reset_device (cisdev);
+   DBG (3, "cis_close: returning home.\n");
    cis_return_home (cisdev, SANE_TRUE); /* Don't wait */
+   DBG (3, "cis_close: disabling fd.\n");
    sanei_pa4s2_enable (dev->fd, SANE_FALSE);
+   DBG (3, "cis_close: closing fd.\n");
    sanei_pa4s2_close (dev->fd);
-   DBG (3, "cis_close: done.");
+   DBG (3, "cis_close: done.\n");
    DBG (6, "cis_close: lamp_on: %d\n", (int)dev->lamp_on);
    M1015_STOP_LL;
    M1015_STOP_HL;
@@ -2680,7 +2684,7 @@ SANE_Status cis_drv_start (SANE_Handle hndl)
    cis_config_ccd(cisdev);
    cis_wait_read_ready(cisdev);
 
-/*&   sanei_pa4s2_enable (dev->fd, SANE_FALSE); */
+   sanei_pa4s2_enable (dev->fd, SANE_FALSE); 
 
    cisdev->CIS.line_step =
      SANE_FIX ((float) cisdev->CIS.hw_vres / (float) cisdev->CIS.res);
@@ -2710,6 +2714,7 @@ void cis_drv_read (SANE_Handle hndl, SANE_Byte *buffer)
    Mustek_pp_Handle *dev = hndl;
    Mustek_PP_CIS_dev *cisdev = dev->priv;
    DBG(6, "cis_drv_read: Reading line\n");
+   sanei_pa4s2_enable (dev->fd, SANE_TRUE); 
    switch (dev->mode)
    {
       case MODE_BW:
@@ -2723,7 +2728,8 @@ void cis_drv_read (SANE_Handle hndl, SANE_Byte *buffer)
       case MODE_COLOR:
          cis_get_color_line(cisdev, buffer);
          break;
-    }
+   }
+   sanei_pa4s2_enable (dev->fd, SANE_FALSE);
 }
 
 /******************************************************************************
@@ -2738,12 +2744,18 @@ void cis_drv_stop (SANE_Handle hndl)
    DBG (3, "cis_drv_stop: stopping current scan\n");
    dev->state = STATE_CANCELLED;
 
+   DBG (9, "cis_drv_stop: enabling fd\n");
    sanei_pa4s2_enable (dev->fd, SANE_TRUE); 
    Mustek_PP_1015_write_reg(cisdev, MA1015W_MOTOR_CONTROL, 0); /* stop */
+   DBG (9, "cis_drv_stop: resetting device (1)\n");
    cis_reset_device (cisdev);
+   DBG (9, "cis_drv_stop: returning home\n");
    cis_return_home (cisdev, SANE_TRUE); /* don't wait */
+   DBG (9, "cis_drv_stop: resetting device (2)\n");
    cis_reset_device (cisdev);
+   DBG (9, "cis_drv_stop: disabling fd\n");
    sanei_pa4s2_enable (dev->fd, SANE_FALSE); 
+   DBG (9, "cis_drv_stop: freeing buffers\n");
 
    /* This is no good: canceling while the device is scanning and
       freeing the data buffers can result in illegal memory accesses if
@@ -2751,6 +2763,7 @@ void cis_drv_stop (SANE_Handle hndl)
    free (cisdev->calib_low[1]); cisdev->calib_low[1] = NULL;
    free (cisdev->calib_hi[1]); cisdev->calib_hi[1] = NULL;
    free (cisdev->tmpbuf); cisdev->tmpbuf = NULL;
+   DBG (3, "cis_drv_stop: freed green and temporary buffers\n");
 
    if (cisdev->CIS.mode == MODE_COLOR)
    {

@@ -9,6 +9,7 @@
 #endif
 
 #ifndef HAVE_OS2_H
+#include <fcntl.h>
 #ifndef O_NONBLOCK
 # ifdef O_NDELAY
 #  define O_NONBLOCK O_NDELAY
@@ -18,6 +19,7 @@
 #endif
 #endif /* HAVE_OS2_H */
 
+#include <limits.h>
 #ifndef PATH_MAX
 # define PATH_MAX 1024
 #endif

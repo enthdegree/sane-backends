@@ -57,6 +57,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 
 #define LINES_TO_FEED	480	/*Default feed length */

@@ -1,7 +1,7 @@
 . .IX sane-microtek2
 ." Process this file with
 ." man -l sane-microtek2.man
-.TH sane-microtek2 5 "14 Aug 2001"
+.TH sane-microtek2 5 "23 Oct 2001"
 .SH NAME
 sane-microtek2 - SANE backend for Microtek scanners with SCSI-2 command set
 .SH DESCRIPTION
@@ -10,14 +10,16 @@ The
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to some Microtek scanners with a SCSI-2 command set.
 This backend can be considered alpha. Some scanner models are reported to work
-well, others not.
+well, others not. New development versions of this backend can be obtained from
+.B http://home.t-online.de/home/karsten.festag
 .PP
 There exists a different backend for Microtek scanners with SCSI-1 command
 set.
 Refer to sane-microtek(5) for details.
 .PP
 And there is work in progress for the ScanMaker 3600.
-See http://sourceforge.net/projects/sm3600
+See
+.B http://sourceforge.net/projects/sm3600
 .PP
 At present, the following scanners are known positively to work with this
 backend:
@@ -52,30 +54,37 @@ Microtek   Phantom 330CX      Parport
 .br
 Microtek   SlimScan C3        Parport
 .br
+Microtek   SlimScan C6        USB
+.br
 Microtek   Phantom 636        SCSI
 .br
 Microtek   Phantom 636CX      Parport
 .br
 Microtek   V6USL              SCSI (and USB ???)
 .br
+Microtek   V6UPL              USB; not stable
+.br
 Vobis      HighScan           SCSI (E3+ based models)
 .br
-Scanport?  SQ300              Parport?
+Scanport   SQ300              Parport?
+.br
+Scanport   SQ4836             SCSI
 .br
 Scanpaq    SQ2030             Parport
 .PP
 Additional information can be found at
-.B www.mostang.com/sane/
-.
-If you own a Microtek scanner with SCSI-2 interface other than the ones
-listed
-above, it may or may not work with SANE! Because equal scanners are sold under
+.B http://www.mostang.com/sane/ .
+.PP
+If you own a Microtek scanner other than the ones listed above,
+it may or may not work with SANE! Because equal scanners are sold under
 different names in different countries your model may be equivalent to one of
 the above.
 .PP
-The parport scanners work with the ppscsi + onscsi kernel modules.
+The parport scanners work with the ppscsi + onscsi kernel modules. See
+.B http://www.torque.net/parport/ppscsi.html
 .PP
-The USB scanners work with the microtek kernel module.
+The USB scanners work with the microtek kernel module. You may have to add the
+vendor and model codes to microtek.c if they aren't yet listed there.
 .PP
 Both parport and USB scanners need the generic SCSI support, so check if you
 have loaded the scsi_mod and sg modules!

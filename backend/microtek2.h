@@ -90,7 +90,7 @@
 
 #define MICROTEK2_MAJOR         0
 #define MICROTEK2_MINOR	        9
-#define MICROTEK2_BUILD         "20010828"
+#define MICROTEK2_BUILD         "20011023"
 #define MICROTEK2_CONFIG_FILE   "microtek2.conf"
 
 
@@ -1224,7 +1224,7 @@ get_lut_size(Microtek2_Info *, int *, int *);
 static SANE_Status
 gray_copy_pixels(Microtek2_Scanner *ms, u_int8_t *, int, int);
 
-static SANE_Status                
+static SANE_Status
 gray_proc_data(Microtek2_Scanner *);
 
 #if 0
@@ -1313,13 +1313,11 @@ static SANE_Status
 scsi_read_attributes(Microtek2_Info *, char *, u_int8_t);
 
 static SANE_Status
-scsi_read_control_bits(Microtek2_Scanner *, int);
+scsi_read_control_bits(Microtek2_Scanner *);
 
 /* currently not used */
-#if 0
-static SANE_Status
-scsi_read_gamma(Microtek2_Scanner *, int);
-#endif
+/* static SANE_Status
+scsi_read_gamma(Microtek2_Scanner *); */
 
 static SANE_Status
 scsi_read_image(Microtek2_Scanner *, u_int8_t *);

@@ -10,10 +10,10 @@
 ;
 
 :backend "microtek2"              ; name of backend
-:url "http://home.t-online.de/home/karsten.festag"
 :version "0.9"                    ; version of backend
 :status :alpha                    ; :alpha, :beta, :stable, :new
 :manpage "sane-microtek2"         ; name of manpage (if it exists)
+:url "http://home.t-online.de/home/karsten.festag/"
 
 :devicetype :scanner              ; start of a list of devices....
 
@@ -66,5 +66,6 @@
 :model "HighScan"                 ; name models for above-specified mfg.
 :interface "SCSI"
 :comment "only E3plus based models"
+
 
 

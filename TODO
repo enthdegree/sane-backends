@@ -1,4 +1,4 @@
-TODO (2002-04-10)
+TODO (2002-04-13)
 
 ******** todo ********
 
@@ -7,21 +7,16 @@ backends
   * Add new backends (+ means: scheduled for version 1.0.8, (+) means: 
     still maintained and/or updates will come)
    (+)hp4200 http://hp4200-backend.sourceforge.net/
-    - v4l2 http://video.inodes.org/sane-v4l2/
    (+)Relisys Scorpio Super 3 SCSI II
       Mark Plowman <sane-devel@plowman.xs4all.nl>
       http://www.xs4all.nl/~plowman/
-    - Linux Handscanner Ioctl Interface scanner by Harald
-      Bauer <bauer-h@web.de>
-    - viceo (Visioneer OneTouch 8600)
-      http://www.littlecms.com/iphoto/otlinux.htm
    (+)Genius Vivid Pro USB, Colorado USB 19200, Visioneer OneTouch 7600 
       IBM IdeaScan 2000 USB 
       http://homepages.paradise.net.nz/stevenel/scanner/
     + Fujitsu M3091DCd support
       Frederik Ramm <frederik@remote.org>
       http://www.remote.org/frederik/projects/software/sane/
-    - Hewlett-Packard ScanJet 3300C / 3400C and 4300C (wip)
+   (+)Hewlett-Packard ScanJet 3300C / 3400C and 4300C (wip)
       http://sourceforge.net/projects/hp3300backend
 
   * Update backends
@@ -102,26 +97,24 @@ backends
     - avision: Avision_Device_List
     - canon: option_name
     - sm3600: aidProduct
-    - snapscan: bqelements
 
 doc
 ---
   * Add doxygen documentation for the remaining sanei files:
-    - sanei_pa4s2.h
     - sanei_pio.h
     - sanei_pv8630.h
-    - sanei_scsi.h
     - sanei_wire.h
 
-  * sane.tex: Define the return values for sane_init?  Define the
-    consequences if sane_init doesn't return SANE_STATUS_GOOD.
-
-  * sane.tex: Add a warning/explanation about problems with 
-    sane_get_select_fd, Unix select() calls and sane_cancel.
-
-  * sane.tex: Add some text about the meaning of bits in 1-bit modes.
+  * sane.tex:
+    - Define the return values for sane_init?  Define the consequences if
+      sane_init doesn't return SANE_STATUS_GOOD.
+    - Add a warning/explanation about problems with sane_get_select_fd, Unix
+      select() calls and sane_cancel.
+    - Add some text about the meaning of bits in 1-bit modes.
+    - Define, how to handle SANE_CAP_ADVANCED for groups.
 
   * sane-backends.html should be sorted by manufacturer, not by backend.
+    (wip by Henning Meier-Geinitz).
 
 frontends
 ---------
@@ -195,8 +188,17 @@ misc
   * Add support to sane-find-scanner to check whole directories for device
     files.
 
+  * Fix inclusion of saneopts.??.po in po/. Currently, the "" header is
+    defined twice.
+
 
 ******** done ********
+* Add backends (no response from author and unchanged for some time)
+    - Linux Handscanner Ioctl Interface scanner by Harald
+      Bauer <bauer-h@web.de>
+    - viceo (Visioneer OneTouch 8600)
+      http://www.littlecms.com/iphoto/otlinux.htm
+    - v4l2 http://video.inodes.org/sane-v4l2/
 * Fix shared lib problem with NetBSD. Starting scanimage results in:
   "Cannot open "../backend/.libs/libsane.so". However, scanadf works.
 * Check if a new version of libtool can fix the above mentioned issues.

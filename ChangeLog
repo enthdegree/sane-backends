@@ -1,3 +1,8 @@
+2002-07-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* frontend/scanimage.c: Fail if there are arguments without a preceding
+	  option on the command line. Fixed indenting.
+
 2002-07-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/template.desc.

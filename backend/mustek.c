@@ -4267,7 +4267,7 @@ init_options (Mustek_Scanner *s)
 
   /* contrast red */
   s->opt[OPT_CONTRAST_R].name = "contrast_r";
-  s->opt[OPT_CONTRAST_R].title = SANE_I18N("Contrast blue channel");
+  s->opt[OPT_CONTRAST_R].title = SANE_I18N("Contrast red channel");
   s->opt[OPT_CONTRAST_R].desc = SANE_I18N("Controls the contrast of " \
 					  "the red channel of the " \
 					  "acquired image.");

@@ -1183,6 +1183,160 @@ check_gl646 (struct usb_device *dev)
   return "GL646";
 }
 
+/* Same as check_gl646, except that sanity check are different. */
+static char *
+check_gl646_hp (struct usb_device *dev)
+{
+  unsigned char val;
+  int result;
+  usb_dev_handle *handle;
+
+  if (verbose > 2)
+    printf ("    checking for GL646_HP ...\n");
+
+  /* Check device descriptor */
+  if ((dev->descriptor.bDeviceClass != 0xff)
+      || (dev->config[0].interface[0].altsetting[0].bInterfaceClass != 0xff))
+    {
+      if (verbose > 2)
+	printf
+	  ("    this is not a GL646_HP (bDeviceClass = %d, bInterfaceClass = %d)\n",
+	   dev->descriptor.bDeviceClass,
+	   dev->config[0].interface[0].altsetting[0].bInterfaceClass);
+      return 0;
+    }
+  if (dev->descriptor.bcdUSB != 0x110)
+    {
+      if (verbose > 2)
+	printf ("    this is not a GL646_HP (bcdUSB = 0x%x)\n",
+		dev->descriptor.bcdUSB);
+      return 0;
+    }
+  if (dev->descriptor.bDeviceSubClass != 0xff)
+    {
+      if (verbose > 2)
+	printf ("    this is not a GL646_HP (bDeviceSubClass = 0x%x)\n",
+		dev->descriptor.bDeviceSubClass);
+      return 0;
+    }
+  if (dev->descriptor.bDeviceProtocol != 0xff)
+    {
+      if (verbose > 2)
+	printf ("    this is not a GL646_HP (bDeviceProtocol = 0x%x)\n",
+		dev->descriptor.bDeviceProtocol);
+      return 0;
+    }
+
+  /* Check endpoints */
+  if (dev->config[0].interface[0].altsetting[0].bNumEndpoints != 3)
+    {
+      if (verbose > 2)
+	printf ("    this is not a GL646_HP (bNumEndpoints = %d)\n",
+		dev->config[0].interface[0].altsetting[0].bNumEndpoints);
+      return 0;
+    }
+
+  if ((dev->config[0].interface[0].altsetting[0].endpoint[0].
+       bEndpointAddress != 0x81)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[0].
+	  bmAttributes != 0x02)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[0].
+	  wMaxPacketSize != 0x40)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[0].bInterval !=
+	  0x0))
+    {
+      if (verbose > 2)
+	printf
+	  ("    this is not a GL646_HP (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].
+	   bEndpointAddress,
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].bmAttributes,
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].
+	   wMaxPacketSize,
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].bInterval);
+      return 0;
+    }
+
+  if ((dev->config[0].interface[0].altsetting[0].endpoint[1].
+       bEndpointAddress != 0x02)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[1].
+	  bmAttributes != 0x02)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[1].
+	  wMaxPacketSize != 0x40)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[1].bInterval !=
+	  0))
+    {
+      if (verbose > 2)
+	printf
+	  ("    this is not a GL646_HP (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].
+	   bEndpointAddress,
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].bmAttributes,
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].
+	   wMaxPacketSize,
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].bInterval);
+      return 0;
+    }
+
+  if ((dev->config[0].interface[0].altsetting[0].endpoint[2].
+       bEndpointAddress != 0x83)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[2].
+	  bmAttributes != 0x03)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[2].
+	  wMaxPacketSize != 0x1)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[2].bInterval !=
+	  8))
+    {
+      if (verbose > 2)
+	printf
+	  ("    this is not a GL646_HP (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
+	   dev->config[0].interface[0].altsetting[0].endpoint[2].
+	   bEndpointAddress,
+	   dev->config[0].interface[0].altsetting[0].endpoint[2].bmAttributes,
+	   dev->config[0].interface[0].altsetting[0].endpoint[2].
+	   wMaxPacketSize,
+	   dev->config[0].interface[0].altsetting[0].endpoint[2].bInterval);
+      return 0;
+    }
+
+  result = prepare_interface (dev, &handle);
+  if (!result)
+    return "GL646_HP?";
+
+  result = gl646_write_reg (handle, 0x38, 0x15);
+  if (!result)
+    {
+      if (verbose > 2)
+	printf ("    this is not a GL646_HP (writing register failed)\n");
+      finish_interface (handle);
+      return 0;
+    }
+
+  result = gl646_read_reg (handle, 0x4e, &val);
+  if (!result)
+    {
+      if (verbose > 2)
+	printf ("    this is not a GL646_HP (reading register failed)\n");
+      finish_interface (handle);
+      return 0;
+    }
+
+  if (val != 0x15)
+    {
+      if (verbose > 2)
+	printf ("    this is not a GL646_HP (reg 0x4e != reg 0x38)\n");
+      finish_interface (handle);
+      return 0;
+    }
+
+  finish_interface (handle);
+
+  return "GL646_HP";
+}
+
 /* check for the combination of gl660 and gl646 */
 static char *
 check_gl660_gl646 (struct usb_device *dev)
@@ -1697,6 +1851,9 @@ check_usb_chip (struct usb_device *dev, int verbosity)
 
   if (!chip_name)
     chip_name = check_gl646 (dev);
+
+  if (!chip_name)
+    chip_name = check_gl646_hp (dev);
 
   if (!chip_name)
     chip_name = check_gl660_gl646 (dev);

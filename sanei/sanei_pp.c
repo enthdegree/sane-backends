@@ -1,6 +1,6 @@
 /* sane - Scanner Access Now Easy.
- * Copyright (C) 2003 Gerhard Jaeger <gerhard@gjaeger.de>
- * based work done by Eisinger <jochen.eisinger@gmx.net>
+ * Copyright (C) 2003-2005 Gerhard Jaeger <gerhard@gjaeger.de>
+ * based on work done by Jochen Eisinger <jochen.eisinger@gmx.net>
  * also parts from libieee1284 by Tim Waugh <tim@cyberelk.net>
  * This file is part of the SANE package.
  *
@@ -61,6 +61,7 @@
 #define BACKEND_NAME sanei_pp
 
 #define _TEST_LOOPS 1000
+#define _MAX_PORTS    20
 
 #ifndef _VAR_NOT_USED
 # define _VAR_NOT_USED(x)	((x)=(x))
@@ -172,7 +173,7 @@ typedef struct {
 #if defined (HAVE_LIBIEEE1284)
 
 static struct parport_list  pplist;
-static PortRec             *port;
+static PortRec              port[_MAX_PORTS];
 
 #else
 
@@ -599,121 +600,6 @@ pp_setmode( int fd, int mode )
 	}
 
 	return ret;
-
-#if 0
-	DBG(DBG_LOW, "Trying faster mode...\n" );
-
-	/*
-	 * ECP mode usually has sub-modes of EPP and/or PS2.
-	 * First we try to set EPP
-	 */
-    if((port_feature & PARPORT_MODE_PCECR) &&
-									(port_feature & PARPORT_MODE_PCECPEPP)){
-
-        DBG(DBG_LOW, "Attempting to set EPP from ECP mode.\n" );
-
-        a = _INB_ECTL(ps);  				/* get current ECR				*/
-		ps->IO.lastPortMode = a;	     	/* save it for restoring later	*/
-        a = (a & 0x1F) | 0x80;  	     	/* set to EPP					*/
-        _OUTB_ECTL(ps, a);					/* write it back				*/
-		_DO_UDELAY(1);
-
-		/*
-		 * It is probably unnecessary to
-		 * do this check but it makes me feel better
-		 */
-        b = _INB_ECTL(ps);					/* check to see if port set */
-        if( a == b ) {
-            DBG( DBG_LOW, "Port is set to (ECP) EPP mode.\n" );
-            ps->IO.portMode = _PORT_EPP;
-			return _OK;
-
-        } else {
-            DBG( DBG_LOW, "Port could not be set to (ECP) EPP mode. "
-														"Using SPP mode.\n" );
-            _OUTB_ECTL(ps,(Byte)ps->IO.lastPortMode); 		/* restore */
-			_DO_UDELAY(1);
-		    ps->IO.portMode = _PORT_SPP;
-
-			/* go ahead and try with other settings...*/
-        }
-    }
-
-	/* If port cannot be set to EPP, try PS2 */
-    if((port_feature & PARPORT_MODE_PCECR) &&
-									(port_feature & PARPORT_MODE_PCECPPS2)) {
-
-        DBG(DBG_LOW, "Attempting to set PS2 from ECPPS2 mode.\n" );
-
-        a = _INB_ECTL(ps);  				/* get current ECR				*/
-		ps->IO.lastPortMode = a;	     	/* save it for restoring later 	*/
-
-		/* set to Fast Centronics/bi-directional/PS2 */
-        a = (a & 0x1F) | 0x20;
-        _OUTB_ECTL(ps,a);					/* write it back */
-		_DO_UDELAY(1);
-
-		/*
-		 * It is probably unnecessary to do this check
-		 * but it makes me feel better
-		 */
-        b = _INB_ECTL(ps);					/* check to see if port set */
-        if (a == b) {
-            DBG(DBG_LOW, "Port is set to (ECP) PS2 bidirectional mode.\n");
-            ps->IO.portMode = _PORT_BIDI;
-			return _OK;
-        } else {
-        	DBG(DBG_LOW, "Port could not be set to (ECP) PS2 mode. "
-														"Using SPP mode.\n");
-			a = ps->IO.lastPortMode & 0x1F;
-            _OUTB_ECTL(ps, a);					/* set ECP ctrl to SPP */
-			_DO_UDELAY(1);
-		    ps->IO.portMode = _PORT_SPP;
-
-			/* next mode, last attempt... */
-        }
-	}
-
-	/*
-	 * Some BIOS/cards have only a Bi-directional/PS2 mode (no EPP).
-	 * Make one last attemp to set to PS2 mode.
-	 */
-	if ( port_feature & PARPORT_MODE_PCPS2 ){
-
-		DBG(DBG_LOW, "Attempting to set PS2 mode.\n" );
-
-		a = _INB_CTRL(ps); 		    /* get current setting of control register*/
-		ps->IO.lastPortMode = a;	/* save it for restoring later            */
-		a = a | 0x20;  			    /* set bit 5 of control reg              */
-		_OUTB_CTRL(ps,a); 		/* set to Fast Centronics/bi-directional/PS2 */
-		_DO_UDELAY(1);
-		a = 0;
-
-		_OUTB_DATA(ps,0x55);
-		_DO_UDELAY(1);
-		if ((inb(ps->IO.portBase)) != 0x55)	/* read data */
-			a++;
-
-		_OUTB_DATA(ps,0xAA);
-		_DO_UDELAY(1);
-
-		if (_INB_DATA(ps) != 0xAA)   /* read data */
-			a++;
-
-		if( 2 == a ) {
-			DBG(DBG_LOW, "Port is set to PS2 bidirectional mode.\n");
-			ps->IO.portMode = _PORT_BIDI;
-			return _OK;
-
-		} else {
-			DBG(DBG_LOW, "Port could not be set to PS2 mode. "
-														"Using SPP mode.\n");
-            _OUTB_CTRL(ps,(Byte)ps->IO.lastPortMode);		/* restore */
-			_DO_UDELAY(1);
-			ps->IO.portMode = _PORT_SPP;
-		}
-	}
-#endif
 }
 
 #endif
@@ -826,13 +712,16 @@ pp_init( void )
 	for( i = 0; i < pplist.portc; i++ )
 		DBG( 6, "pp_init: port %d is `%s`\n", i, pplist.portv[i]->name);
 
-	if((port = calloc(pplist.portc, sizeof(PortRec))) == NULL) {
-		DBG( 1, "pp_init: not enough free memory\n");
-		ieee1284_free_ports(&pplist);
+	/* we support only up to _MAX_PORTS... */
+	if( pplist.portc > _MAX_PORTS ) {
+		DBG (1, "pp_init: Lib IEEE 1284 reports too much ports: %d\n", 
+		        pplist.portc );
+
+		ieee1284_free_ports( &pplist );
 		first_time = SANE_TRUE;
-		
-		return SANE_STATUS_NO_MEM;
-    }
+		return SANE_STATUS_UNSUPPORTED;
+	}
+	memset( port, 0, sizeof(port));
 
 #else
 

@@ -11,13 +11,13 @@
    Copyright (C) 1998-1999 Christian Bucher <bucher@vernetzt.at>
    Copyright (C) 1998-1999 Kling & Hautzinger GmbH
    Copyright (C) 1999 Norihiko Sawa <sawa@yb3.so-net.ne.jp>
-   Copyright (C) 1999-2000 Karl Heinz Kremer <khk@khk.net>
    Copyright (C) 2000 Mike Porter <mike@udel.edu> (mjp)
+   Copyright (C) 1999-2001 Karl Heinz Kremer <khk@khk.net>
 
 */
 
-#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.05 - 2001-05-19"
-#define SANE_EPSON_BUILD	205
+#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.06 - 2001-05-22"
+#define SANE_EPSON_BUILD	206
 
 /*
    This file is part of the SANE package.
@@ -59,7 +59,11 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
-   2001-05-19   Version  0.2.05
+   2001-05-22   Version 0.2.06
+		Added sense_handler to support the GT-8000 scanner. Also added
+		experimental code to use USB scanner probing. Need kernel patch
+		for this.
+   2001-05-19   Version 0.2.05
 		fixed the year in the recent change log entries - I now that it's
 		2001...
 		Finally fixed the TPU problem with B4 level scanners
@@ -738,6 +742,22 @@ static SANE_Word * resolution_list = NULL;
  */
 
 
+
+static SANE_Status
+sense_handler (int scsi_fd, u_char *result, void *arg)
+{
+  if (result[0] && result[0]!=0x70)
+    {
+      DBG (0, "sense_handler() : sense code = 0x%02x\n", result[0]);
+      return SANE_STATUS_IO_ERROR;
+    }
+  else
+    {
+      return SANE_STATUS_GOOD;
+    }
+}
+
+
 /*
  * List of pointers to devices - will be dynamically allocated depending
  * on the number of devices found. 
@@ -1338,7 +1358,7 @@ static SANE_Status open_scanner ( Epson_Scanner * s) {
 	DBG(5, "open_scanner()\n");
 
 	if( s->hw->connection == SANE_EPSON_SCSI) {
-		if( SANE_STATUS_GOOD != ( status = sanei_scsi_open( s->hw->sane.name, &s->fd, NULL, NULL))) {
+		if( SANE_STATUS_GOOD != ( status = sanei_scsi_open( s->hw->sane.name, &s->fd, sense_handler, NULL))) {
 			DBG( 1, "sane_start: %s open failed: %s\n", s->hw->sane.name, sane_strstatus( status));
 			return status;
 		}
@@ -1638,11 +1658,11 @@ static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
 		u_char buf[ INQUIRY_BUF_SIZE + 1];
 		size_t buf_size = INQUIRY_BUF_SIZE;
 
-		if( SANE_STATUS_GOOD != ( status = sanei_scsi_open( dev_name, &s->fd, NULL, NULL))) {
+		if( SANE_STATUS_GOOD != ( status = sanei_scsi_open( dev_name, &s->fd, sense_handler, NULL))) {
 			DBG( 1, "attach: open failed: %s\n", sane_strstatus( status));
 			return status;
 		}
-
+		reset(s);
 		DBG( 3, "attach: sending INQUIRY\n");
 /*		buf_size = sizeof buf; */
 
@@ -1685,6 +1705,10 @@ static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
 		}
 	} else if (s->hw->connection == SANE_EPSON_USB) {
 		int flags;
+#ifdef TEST_IOCTL
+		unsigned int vendorID, productID;
+		SANE_Bool do_check;
+#endif
 
 #ifdef _O_RDWR
 		flags = _O_RDWR;
@@ -1711,6 +1735,49 @@ static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
 				: SANE_STATUS_INVAL;
 			return status;
 		}
+
+#ifdef TEST_IOCTL
+		/* read the vendor and product IDs via the IOCTLs */
+		if (ioctl(s->fd, IOCTL_SCANNER_VENDOR , &vendorID) == -1)
+  		{
+			/* just set the vendor ID to 0 */
+			vendorID = 0;
+  		}
+  		if (ioctl(s->fd, IOCTL_SCANNER_PRODUCT , &productID) == -1)
+		{
+			/* just set the product ID to 0 */
+			productID = 0;
+		}
+
+		do_check = (getenv("SANE_EPSON_NO_IOCTL") == NULL);
+		if (do_check && (vendorID != 0) && (productID != 0))
+		{
+			/* see if the device is actually an EPSON scanner */
+			if (vendorID != SANE_EPSON_VENDOR_ID)
+			{
+				DBG(0, "The device at %s is not an EPSON scanner (vendor id=0x%x)\n",
+					dev_name, vendorID);
+				return SANE_STATUS_INVAL;
+			}
+
+			/* see if we support the scanner */
+
+			if (productID != PRODUCT_PERFECTION_636 &&
+			    productID != PRODUCT_PERFECTION_610 &&
+			    productID != PRODUCT_PERFECTION_640 &&
+			    productID != PRODUCT_PERFECTION_1200 &&
+			    productID != PRODUCT_PERFECTION_1240 &&
+			    productID != PRODUCT_STYLUS_SCAN_2500 &&
+			    productID != PRODUCT_PERFECTION_1640 &&
+			    productID != PRODUCT_EXPRESSION_1600 &&
+			    productID != PRODUCT_EXPRESSION_1680)
+			{
+				DBG(0, "The device at %s is not a supported EPSON scanner (product id=0x%x)\n",
+					dev_name, productID);
+				return SANE_STATUS_INVAL;
+			}
+		}
+#endif
 	}
 
 /*

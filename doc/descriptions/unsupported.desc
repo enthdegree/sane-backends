@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2005-03-13"		; version of backend
+:version "2005-03-16"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -794,12 +794,6 @@
 :interface "USB"
 :status :unsupported
 :comment "Unsupported. See link for more details."
-
-:model "ScanMaker 4800"
-:url "/unsupported/microtek-scanmaker-4800.html"
-:interface "USB"
-:status :unsupported
-:comment "Unsupported. Vendor/Product ids: 0x05da/0x30cf. SQ Scan08? See link for more details."
 
 :model "ScanMaker 4850"
 :url "/unsupported/microtek-scanmaker-4900.html"

@@ -1,3 +1,8 @@
+2005-03-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Removed Microtek ScanMaker
+	  4800 (supported by sm3840 now).
+
 2005-03-16  Earle F. Philhower III <earle@ziplabel.com>
 	* backend/sm3840.c backend/sm3840_scan.c backend/sm3840.conf
 	  backend/Makefile.in doc/descriptions/sm3840.desc

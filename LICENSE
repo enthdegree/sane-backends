@@ -1,4 +1,4 @@
-Mon Nov 30 22:41:58 1998
+Sat Jul 26 2003
 
 This files attempts to clarify the licensing situation for the SANE
 distribution.  In case of doubt, the copyright information contained
@@ -14,15 +14,15 @@ terms:
 
   * The backend libraries.
 
-    Backend libraries are protected by the GNU General Public License (see
-    file COPYING), but as an exception, it is permissible to link against
+    Most backend libraries are protected by the GNU General Public License
+    (see file COPYING), but as an exception, it is permissible to link against
     such a library without affecting the licensing status of the program
     that uses the libraries.  For details, see the copyright notice at the
     head of the backend files (e.g., backend/dll.c).
 
-    Note that some of the backends have additional licensing constraints.
-    E.g., the DC210 backend uses JPG code that is licensed as described
-    in backend/djpeg.README.gz.
+    Note that not all of the backends apply the exception and that some have
+    additional licensing constraints.  E.g., the DC210 backend uses JPG code
+    that is licensed as described in README.djpeg.
 
   * The SANE API and network protocol as put forth in the standard document.
 

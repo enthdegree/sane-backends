@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-04-30"		; version of backend
+:version "2003-05-14"		; version of backend
 :url "http://www.meier-geinitz.de/sane/misc/unsupported.html"
 ;:status :stable			; :alpha, :beta, :stable, :new
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
@@ -122,10 +122,10 @@
 :comment "Unsupported. Vendor/product 0x04a9/0x2208. See link for more information."
 
 :model "CanoScan D1250U2"
-:url "http://www.mostang.com/pipermail/sane-devel/2003-January/017146.html"
+:url "http://www.meier-geinitz.de/sane/misc/canon-d1250u2.txt"
 :interface "USB"
 :status :unsupported
-:comment "Not supported. However, some information is available."
+:comment "Not supported. However, someone started working on this scanner and some information is available (see link)."
 
 :model "LiDE 50"
 :url "http://www.meier-geinitz.de/sane/misc/canon-lide-50.txt"
@@ -149,7 +149,7 @@
 :url "http://www.meier-geinitz.de/sane/misc/canon-fs4000.txt"
 :interface "USB SCSI"
 :status :unsupported
-:comment "Not supported. USB Vendor/product 0x04a9/0x3042. May work with Vuescan (SCSI only)? Maybe SCSI over USB."
+:comment "Not supported. USB Vendor/product 0x04a9/0x3042. May work with Vuescan. Maybe SCSI over USB."
 
 
 ;********************************************************************************************
@@ -588,6 +588,29 @@
 :interface "USB"
 :status :unsupported
 :comment "Not supported. Some information is available. May work with the Plustek backend in future."
+
+;********************************************************************************************
+
+:mfg "Spot"
+:comment "Spot seems have gone out of business."
+
+:model "Maxiscan A4"
+:url "http://www.mostang.com/pipermail/sane-devel/2003-May/018730.html"
+:interface "proprietary"
+:status :unsupported
+:comment "Not supported until now. Work on a backend has started, see link for more information."
+
+:model "ScanTek 2c"
+:url "http://www.mostang.com/pipermail/sane-devel/2003-May/018749.html"
+:interface "SCSI"
+:status :unsupported
+:comment "Not supported. See link for more information."
+
+:model "ScanTek 3c"
+:url "http://www.mostang.com/pipermail/sane-devel/2003-May/018749.html"
+:interface "SCSI"
+:status :unsupported
+:comment "Not supported. See link for more information."
 
 ;********************************************************************************************
 

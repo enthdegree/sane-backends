@@ -18,8 +18,7 @@ Author:         David.Mosberger@acm.org (David Mosberger-Tang)
                 (see AUTHORS for complete list)
 Maintained-by:  henning@meier-geinitz.de (Henning Meier-Geinitz)
                 Oliver.Rauch@rauch-domain.de (Oliver Rauch)
-                David.Mosberger@acm.org (David Mosberger-Tang)
-Primary-site:   ftp.mostang.com /pub/sane/sane-backends-_VERSION_
+Primary-site:   ftp.sane-project.org /pub/sane/sane-backends-_VERSION_
                 _T_S_ kB sane-backends-_VERSION_.tar.gz
                 _L_S_ kB sane-backends-_VERSION_.lsm
 Alternate-site: sunsite.unc.edu /pub/Linux/apps/graphics/capture

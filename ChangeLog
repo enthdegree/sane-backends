@@ -35,6 +35,7 @@
 	  Moved some entries to more appropriate paragraphs. Added entry about
 	  missing or defective links in the .desc files. Removed entry about
 	  translations.
+	* lib/inet_ntop.c: Changed order of includes for OS/2 compatibility.
 
 2002-01-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

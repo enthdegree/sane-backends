@@ -233,7 +233,8 @@ DOCUMENTATION
 * Please keep your manpages and .desc files up-to-date especially regarding
   version numbers.
 
-SUBMITTING CHECKLIST
+
+CHECKLIST: SUBMITTING A NEW BACKEND 
 --------------------
 
 * Use the command "indent -gnu" to reformat your code according to the standard.
@@ -241,7 +242,16 @@ SUBMITTING CHECKLIST
 * Add the author(s) name(s) to AUTHORS
 * Remove the backend name from PROJECT
 * Correct any related entries in TODO
-* 
+* Add the name of the man page (if any) to doc/.cvsignore
+* Move the description file from doc/descriptions-external/ to doc/descriptions/
+* Check that the description file is correct: cd doc; make html-pages
+* Check that the backend version is the same in the source and in the 
+  description file.
+* Check that the SANE license is in the backend source files.
+* In backend/Makefile.in, add the source file names and the .conf file
+  to DISTFILES.
+
+
 
 INCLUDING INTO CVS
 ------------------

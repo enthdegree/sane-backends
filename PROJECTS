@@ -1,4 +1,4 @@
-PROJECTS (2002-10-24)
+PROJECTS (2002-11-25)
 
 Here is a list of projects that various people have expressed interest
 in.  Before starting working on one of these projects, it may be a
@@ -16,53 +16,45 @@ wip       Work in progress. There is (more or less) working code. For details,
 Backends:
 ---------
 
-Acer ScanWit 2720S film scanner (wip)
+Acer ScanWit 2720S film scanner (backend, wip)
 Max Ushakov <ushakov@mccme.ru>
 ftp://mccme.ru/users/ushakov/scanwit
 
-Canon 1220U USB scanner (wip)
+Canon 1210U and 1220U USB scanner (stand-alone program, wip)
 http://sourceforge.net/projects/canonscanner/
 
-Canon N650U USB scanner support (command line program) (wip)
-http://homepage.ntlworld.com/millwardjp
-
-Canon N670U USB scanner support [alpha/developers only] (wip)
-http://home.t-online.de/home/gunther.mayer/ (look for merlin* files)
-Gunther Mayer <Gunther.Mayer@t-online.de>
-
-E3 and E4 USB chipset support (e.g. Genius Vivid Pro USB, Colorado USB 19200,
-Visioneer OneTouch 7600, IBM IdeaScan 2000 USB) (wip)
+E3 and E4 USB chipset support (e.g. Genius Vivid Pro USB, Primax Colorado
+USB 19200, Visioneer OneTouch 7600+6100, IBM IdeaScan 2000 USB,
+LG Electronics Scanworks 600U) (backend, wip)
 http://viceo.orcon.net.nz
 
-Handheld scanner support: e.g. for Mustek CG-6000 (wip)
-ftp://www.cs.ubishops.ca/pub/lhii/
-
-Hewlett-Packard ScanJet 2200c (wip)
+Hewlett-Packard ScanJet 2200c (stand-alone program, wip)
 http://scanjet2200c.sourceforge.net/
 
-Hewlett-Packard ScanJet 2200c, Epson 1250 (wip)
-"Ludo Stellingwerff" <ludo@jonkers.nl>
-http://www.xs4all.nl/~stwerff/
-
-Hewlett-Packard ScanJet 3300C / 3400C and 4300C (wip)
+Hewlett-Packard ScanJet 3300C / 3400C and 4300C (backend, wip)
 http://sourceforge.net/projects/hp3300backend
 
-Hewlett-Packard ScanJet 4470C based on RealTek RTS8891 (wip)
+Hewlett-Packard ScanJet 4470C based on RealTek RTS8891 
+(stand-alone program, wip)
 http://reapoff.sourceforge.net/hpscanner/
 
-IBM 2456 and Ricoh IS-410 support (wip)
+Hewlett-Packard ScanJet 5400C / 5470C (test program, wip)
+http://home.kabelfoon.nl/~bertrik/hp5400/index.html
+
+IBM 2456 and Ricoh IS-410 support (backend, wip)
 http://www.meier-geinitz.de/sane/ibm-backend/
 
-Primax parallel port scanners (wip)
+Primax parallel port scanners (stand-alone program, wip)
 http://primax.sourceforge.net/
 
 Primax Jewel 4800 (aka Relisys AVEC II S3, model VM3564)
+(patch for teco2 backend, wip)
 http://gkall.hobby.nl/notes2.html
 
-Video for Linux 2 (wip)
+Video for Linux 2 (backend, wip)
 http://sane-v4l2.inodes.org/
 
-Visioneer OneTouch 8600: viceo (wip)
+Visioneer OneTouch 8600: viceo (backend, wip)
 http://www.littlecms.com/iphoto/otlinux.htm
 
 
@@ -86,10 +78,6 @@ Misc:
 SaneTwain: TWAIN compliant datasource which is able to connect to a SANE
            scanner backend.
 http://sanetwain.ozuzo.net/
-
-WinSANE: Win32 TWAIN DLL to interface with scanners supported by SANE over the
-         network. (old)
-http://www.integramicro.com/winsane/
 
 TWAIN interface for xsane-win32 (planned)
 Oliver Rauch <oliver.rauch@Wolfsburg.DE>

@@ -1,3 +1,8 @@
+2002-11-25  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* PROJECTS: Removed projects for scanners that are now supported
+	  by the plustek backend. Removed lhii backend (dead?).  Added more
+	  details for other projects. Added 5400C / 5470C project.
 
 2002-11-23  Rene Rebe <rene.rebe@gmx.net>
 

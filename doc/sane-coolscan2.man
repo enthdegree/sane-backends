@@ -25,6 +25,8 @@ Model:                       Connection Type
 LS-30 (Coolscan III)         SCSI
 .br
 LS-40 ED (Coolscan IV)       USB
+.br
+LS-8000 ED                   IEEE 1394
 .RE
 
 .PP
@@ -36,8 +38,6 @@ Model:                       Connection Type
 ---------------------------  -------------------
 .br
 LS-4000 ED                   IEEE 1394
-.br
-LS-8000 ED                   IEEE 1394
 .RE
 
 Please send mail to the backend author (andras@users.sourceforge.net) to

@@ -1,7 +1,7 @@
 /* ========================================================================= */
 /*
    SANE - Scanner Access Now Easy.
-   coolscan2.c , version 0.1.5
+   coolscan2.c , version 0.1.6
 
    This file is part of the SANE package.
 
@@ -56,6 +56,7 @@
 /*
    Revision log:
 
+   0.1.6, 14/06/2002, andras: types etc. fixed, fixes for LS-8000
    0.1.5, 26/04/2002, andras: lots of minor fixes related to saned
    0.1.4, 22/04/2002, andras: first version to be included in SANE CVS
 
@@ -92,7 +93,7 @@
 
 #define CS2_VERSION_MAJOR 0
 #define CS2_VERSION_MINOR 1
-#define CS2_REVISION 5
+#define CS2_REVISION 6
 #define CS2_CONFIG_FILE "coolscan2.conf"
 
 #define WSIZE (sizeof (SANE_Word))
@@ -529,8 +530,8 @@ sane_open (SANE_String_Const name, SANE_Handle * h)
 	  else
 	    {
 	      range->min = SANE_FIX (50.);
-	      range->max = SANE_FIX (1000.);
-	      range->quant = SANE_FIX (1.);
+	      range->max = SANE_FIX (20000.);
+	      range->quant = SANE_FIX (10.);
 	      o.constraint.range = range;
 	    }
 	  break;
@@ -549,8 +550,8 @@ sane_open (SANE_String_Const name, SANE_Handle * h)
 	  else
 	    {
 	      range->min = SANE_FIX (50.);
-	      range->max = SANE_FIX (1000.);
-	      range->quant = SANE_FIX (1.);
+	      range->max = SANE_FIX (20000.);
+	      range->quant = SANE_FIX (10.);
 	      o.constraint.range = range;
 	    }
 	  break;
@@ -569,8 +570,8 @@ sane_open (SANE_String_Const name, SANE_Handle * h)
 	  else
 	    {
 	      range->min = SANE_FIX (50.);
-	      range->max = SANE_FIX (1000.);
-	      range->quant = SANE_FIX (1.);
+	      range->max = SANE_FIX (20000.);
+	      range->quant = SANE_FIX (10.);
 	      o.constraint.range = range;
 	    }
 	  break;
@@ -962,6 +963,8 @@ sane_open (SANE_String_Const name, SANE_Handle * h)
   s->resy = s->resy_max;
   s->res_independent = SANE_FALSE;
   s->res_preview = s->resx_max / 10;
+  if (s->res_preview < s->resx_min)
+    s->res_preview = s->resx_min;
   s->xmin = 0;
   s->xmax = s->boundaryx - 1;
   s->ymin = 0;
@@ -1463,7 +1466,7 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
   xfer_len_line = s->n_colour_out * s->logical_width * s->bytes_per_pixel;
   xfer_len_in =
     s->n_colour_in * s->logical_width * s->bytes_per_pixel +
-    s->n_colour_out * s->odd_padding;
+    s->n_colour_in * s->odd_padding;
 
   if (s->xfer_position + xfer_len_line > s->xfer_bytes_total)
     xfer_len_line = s->xfer_bytes_total - s->xfer_position; /* just in case */
@@ -2161,8 +2164,8 @@ cs2_scanner_ready (cs2_t * s, int flags)
       if (status)
 	if (--retry < 0)
 	  return status;
-      if (++count > 60)
-	{			/* 30s timeout */
+      if (++count > 240)
+	{			/* 120s timeout */
 	  DBG (4, "Error: cs2_scanner_ready(): Timeout expired.\n");
 	  status = SANE_STATUS_IO_ERROR;
 	  break;
@@ -2302,7 +2305,7 @@ cs2_full_inquiry (cs2_t * s)
     s->resx_list[pitch - 1] = s->resx_max / pitch;
 
   /* generate resolution list for y */
-  s->resx_n_list = pitch_max = floor (s->resy_max / (double) s->resy_min);
+  s->resy_n_list = pitch_max = floor (s->resy_max / (double) s->resy_min);
   s->resy_list =
     (unsigned int *) cs2_xrealloc (s->resy_list,
 				   pitch_max * sizeof (unsigned int));
@@ -2432,7 +2435,7 @@ cs2_get_exposure (cs2_t * s)
   SANE_Status status;
   int i_colour;
 
-  for (i_colour = 0; i_colour < 4; i_colour++)
+  for (i_colour = 0; i_colour < 3; i_colour++)
     {				/* XXXXXXXXXXXXX CCCCCCCCCCCCC */
       cs2_scanner_ready (s, CS2_STATUS_NO_DOCS);
 
@@ -2448,6 +2451,8 @@ cs2_get_exposure (cs2_t * s)
       s->real_exposure[cs2_colour_list[i_colour]] =
 	65536 * (256 * s->recv_buf[54] + s->recv_buf[55]) +
 	256 * s->recv_buf[56] + s->recv_buf[57];
+
+      DBG (6, "cs2_get_exposure(): exposure for colour %i: %li * 10ns\n", cs2_colour_list[i_colour], s->real_exposure[cs2_colour_list[i_colour]]);
     }
 
   return SANE_STATUS_GOOD;
@@ -2518,7 +2523,7 @@ cs2_convert_options (cs2_t * s)
   s->real_height = s->logical_height * s->real_pitchy;
 
   s->odd_padding = 0;
-  if ((s->bytes_per_pixel > 1) && (s->logical_width & 0x01)
+  if ((s->bytes_per_pixel == 1) && (s->logical_width & 0x01)
       && (s->type != CS2_TYPE_LS30))
     s->odd_padding = 1;
 

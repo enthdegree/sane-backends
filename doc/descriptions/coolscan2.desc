@@ -10,8 +10,8 @@
 ;
 
 :backend "coolscan2"
-:version "0.1.5"
-:status :new
+:version "0.1.6"
+:status :beta
 :manpage "sane-coolscan2"
 :url "http://coolscan2.sourceforge.net/"
 
@@ -21,9 +21,11 @@
 
 :model "LS 30"
 :interface "SCSI"
+:comment "working -- model available to developer"
 
 :model "LS 40 ED"
 :interface "USB"
+:comment "linux kernel problems might cause trouble"
 
 :model "LS 4000 ED"
 :interface "IEEE1394"
@@ -31,7 +33,7 @@
 
 :model "LS 8000 ED"
 :interface "IEEE1394"
-:comment "untested -- feedback needed"
+:comment "needs linux kernel patch for versions around 2.4.18"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

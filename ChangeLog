@@ -1,3 +1,9 @@
+2003-07-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* po/Makefile.in po/sane-backends.bg.po: Added Bulgarian
+	  translation (from Pavel Constantinov 
+	  <pavelconstantinov@bigfoot.com>).
+
 2003-07-28  Thomas Soumarmon <thomas.soumarmon@cogitae.net>
 	* doc/descriptions/hp5400.desc : changed status to basic
 

@@ -1,5 +1,8 @@
 2000-09-17  Petter Reinholdtsen <pere@td.org.uit.no>
 
+	* doc/Makefile.in: New target 'install-docs' to install
+	documentation in $(prefix)/doc/sane-<version>/.
+
 	* japi/Makefile.in: Move javac and javah to make variables.
 
 2000-09-16  Henning Meier-Geinitz <hmg@gmx.de>

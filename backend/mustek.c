@@ -46,7 +46,7 @@
 
 /**************************************************************************/
 /* Mustek backend version                                                 */
-#define BUILD 119
+#define BUILD 120
 /**************************************************************************/
 
 #include "../include/sane/config.h"
@@ -470,7 +470,15 @@ dev_wait_ready (Mustek_Scanner *s)
   if (s->hw->flags & MUSTEK_FLAG_N)
     return n_wait_ready (s);
   else if (s->hw->flags & MUSTEK_FLAG_THREE_PASS)
-    return scsi_area_wait_ready (s);
+    {
+      SANE_Status status;
+      
+      /* some 3-pass scanners seem to need the inquiry wait, too */
+      status = scsi_area_wait_ready (s);
+      if (status != SANE_STATUS_GOOD)
+	return status;
+      return scsi_inquiry_wait_ready (s);
+    }
   else if ((s->hw->flags & MUSTEK_FLAG_PARAGON_1) 
 	   || (s->hw->flags & MUSTEK_FLAG_PARAGON_2))
     return scsi_inquiry_wait_ready (s);
@@ -982,12 +990,16 @@ attach (SANE_String_Const devname, Mustek_Device **devp, SANE_Bool may_wait)
 	}
       else
 	{
-	  /* Check for Trust scanners an print warning */
+	  /* Check for some non-Mustek scanners an print warning */
 	  if (strncmp ((SANE_String) result + 8, "Trust", 5) == 0)
 	    DBG(1, "attach: this is a real Trust scanner. It is not "
 		" supported by this backend.\n");
 	  if (strncmp ((SANE_String) result + 8, "Aashima", 7) == 0)
 	    DBG(1, "attach: this is an Aashima/Teco scanner. It is not "
+		" supported by this backend.\n");
+	  if (strncmp ((SANE_String) result + 16, "Flatbed Scanner", 15) == 0
+	      && strncmp ((SANE_String) result + 42, "TECO", 4) == 0)
+	    DBG(1, "attach: this is a Relysis/Teco scanner. It is not "
 		" supported by this backend.\n");
 	  DBG(1, "attach: device %s doesn't look like a Mustek scanner\n", 
 	      devname);

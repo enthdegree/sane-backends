@@ -1,5 +1,12 @@
 CHANGES for the SANE Mustek backend
 
+2002-04-06:
+  * Released Mustek backend 1.0-120.
+
+2002-04-05:
+  * For 3-pass scanners use area_wait_ready and inquiry_wait_ready. The first
+    wait doesn't seem to be enough for some scanners.
+
 2002-03-20:
   * Released Mustek backend 1.0-119.
 

@@ -1,4 +1,4 @@
-.TH sane-scsi 5 "1 Sep 2002"
+.TH sane-scsi 5 "15 Sep 2002"
 .IX sane-usb
 .SH NAME
 sane-usb - USB configuration tips for SANE
@@ -112,7 +112,10 @@ product=0x0002. Use the appropriate vendor and product ids (e.g. from syslog
 or cat /proc/bus/usb/devices). For OpenBSD the kernel must be recompiled. For
 details look at @DOCDIR@/README.openbsd. Similar approaches should be used for
 the other BSDs.
-
+.PP
+Linux kernel messages in syslog like "kernel: scanner.c: open_scanner(1):
+Unable to access minor data" can be ignored. They are generated when SANE
+scans all available USB devices for scanners.
 .SH LIBUSB ACCESS TIPS
 Libusb can only access your scanner if it's not claimed by the kernel scanner
 driver. If you want to use libusb, unload the kernel driver (e.g. rmmod

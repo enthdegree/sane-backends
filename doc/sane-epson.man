@@ -17,41 +17,41 @@ maintainer of the backend.
 At present, the following scanners are known to work with this backend:
 .PP
 .RS
-Model:           Connection Type
+Model:                       Connection Type
 .br
----------------- -------------------
+---------------------------  -------------------
 .br
-GT-5000          parallel
+GT-5000                      parallel
 .br
-GT-6000          parallel
+GT-6000                      parallel
 .br
-ActionScanner II parallel
+ActionScanner II             parallel
 .br
-GT-7000          SCSI
+GT-7000                      SCSI
 .br
-Perfection 636   SCSI
+Perfection 636               SCSI
 .br
-Perfection 636U  USB
+Perfection 636U              USB
 .br
-Perfection 610   USB
+Perfection 610               USB
 .br
-Perfection 640   USB
+Perfection 640               USB
 .br
-Perfection 1200S SCSI
+Perfection 1200S             SCSI
 .br
-Perfection 1200U USB
+Perfection 1200U             USB
 .br
-Perfection 1240  USB, SCSI
+Perfection 1240              USB, SCSI
 .br
-Perfection 1640  USB, SCSI
+Perfection 1640              USB, SCSI
 .br
-Expression 636   SCSI
+Expression 636 / GT-9500     SCSI
 .br
-Expression 1600  USB, SCSI, IEEE-1394
+Expression 1600              USB, SCSI, IEEE-1394
 .RE
 
 For other scanners the software  may or may not work.  Please send mail to 
-sane\-devel@mostang.com to report successes or failures.
+the backend author (khk@khk.net) to report successes or failures.
 .SH OPTIONS
 The options the backend supports can either be selected through command line
 options to programs like scanimage or through GUI elements in xscanimage or xsane.
@@ -271,7 +271,7 @@ only if you know what you are doing!
 
 .SH "SEE ALSO"
 
-sane(7), sane\-scsi(5), scanimage(1), xscanimage(1), xsane(1)
+sane\-scsi(5), scanimage(1), xscanimage(1), xsane(1)
 
 .SH BUGS
 

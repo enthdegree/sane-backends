@@ -93,16 +93,17 @@ test: test.o $(LIBSANE) $(LIBLIB)
 	@$(LIBTOOL) $(MLINK) $(LINK) test.o $(LIBLIB) $(LIBSANE) $(LIBS)
 
 saned: saned.o $(LIBSANEI) $(LIBSANE) $(LIBLIB)
-	@$(LIBTOOL) $(MLINK) $(LINK) saned.o $(LIBSANEI) $(LIBLIB) $(LIBSANE)  \
-		$(LIBS)
+	@$(LIBTOOL) $(MLINK) $(LINK) saned.o \
+		$(LIBS) $(LIBSANE) $(LIBSANEI) $(LIBLIB)
 
-scanimage: $(SCAN_OBJS) $(LIBSANE) $(LIBLIB)
-	@$(LIBTOOL) $(MLINK) $(LINK) $(SCAN_OBJS) $(LIBLIB) $(LIBSANE)  $(LIBS)
+scanimage: $(SCAN_OBJS) $(LIBSANEI) $(LIBSANE) $(LIBLIB) 
+	@$(LIBTOOL) $(MLINK) $(LINK) $(SCAN_OBJS) \
+		$(LIBS) $(LIBSANE) $(LIBSANEI) $(LIBLIB)
 
 # tstbackend is not compiled by default. 
 # To compile it, add tstbackend to BINPROGS.
-tstbackend: tstbackend.o $(LIBSANE) $(LIBLIB)
-	@$(LIBTOOL) $(MLINK) $(LINK) tstbackend.o $(LIBLIB) $(LIBSANE) $(LIBS)
+tstbackend: tstbackend.o $(LIBSANE) $(LIBLIB) $(LIBSANEI)
+	@$(LIBTOOL) $(MLINK) $(LINK) tstbackend.o $(LIBLIB) $(LIBSANE) $(LIBSANEI) $(LIBS)
 
 clean:
 	rm -f *.o tstbackend

@@ -1,3 +1,14 @@
+2002-08-07  Matthew Duggan <stauff1@users.sourceforge.net>
+
+	* backend/canon_pp.c backend/canon_pp-dev.c backend/caon_pp-io.c
+	  backend/canon_pp-dev.h: Many changes: Bug fixes, less memory leaks 
+	  (none left now?), more relaible, faster.  Biggest changes are 
+	  speculative reads (ask scanner to read more while data processing 
+	  occurs) and more reliable sending of commands.  Slight performance
+	  increase over previous version.
+	* doc/sane-canon_pp.man: Added discussion noting that scanning 
+	  greyscale in green is bad for colour.
+
 2002-08-07  Peter Kirchgessner <peter@kirchgessner.net>
 
 	* backend/hp.h: Add missing structure member got_connect_type

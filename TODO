@@ -1,4 +1,4 @@
-TODO (2001-04-07)
+TODO (2001-04-08)
 
 ******** todo ********
 
@@ -46,7 +46,6 @@ backends
      - sometimes saned+net freezes right after a scan
      - don't just ignore the byte-order for the image data (needed to
        support depths > 8 bits/channel)
-     - net.c doesn't compile on Irix because socklen_t isn't known
      - Add keep-alive mechanism to avoid timeouts
 
   * qcam: implement auto mode for brightness and black-level (don't
@@ -108,8 +107,8 @@ sanei
 
 misc
 ----
-  * Remove compiler warnings (>400 warnings even in disable-warnings mode,
-    >800 with --enable-warnings))
+  * Remove compiler warnings (>300 warnings even in disable-warnings mode,
+    >700 with --enable-warnings))
 
   * Test SANE on different os/platforms, fix possible compilation problems 
      Test methods: scanimage -d pnm:0 --filename=file.pnm -T
@@ -143,9 +142,10 @@ misc
 
   * Add USB support for sane-find-scanner.
 
-  * Check all manpages for references to find-scanner (->sane-find-scanner).
-
 ******** done ********
+
+* Check all manpages for references to find-scanner (->sane-find-scanner).
+* net.c doesn't compile on Irix because socklen_t isn't known
 * Add new backends: bh http://www.martoneconsulting.com/sane-bh.html
 * Add manpage for find-scanner.
 * Should find-scanner be installed?

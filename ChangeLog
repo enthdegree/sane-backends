@@ -2,6 +2,8 @@
 
 	* doc/descriptions/unsupported.desc: Added several scanners. Minor
 	  fixes.
+	* doc/descriptions-external/sm3840.desc: Added new external
+	  backend sm3840.
 	   
 2005-02-04  Gerhard Jaeger <gerhard@gjaeger.de>
 

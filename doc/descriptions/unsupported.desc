@@ -795,12 +795,6 @@
 :status :unsupported
 :comment "Unsupported. See link for more details."
 
-:model "ScanMaker 3840"
-:url "/unsupported/microtek-scanmaker-3840.html"
-:interface "USB"
-:status :unsupported
-:comment "Unsupported. See link for more details."
-
 :model "ScanMaker 4700"
 :url "/unsupported/microtek-scanmaker-4700.html"
 :interface "USB"

@@ -46,7 +46,7 @@
    This file implements a SANE backend for Mustek 1200UB and similar 
    USB flatbed scanners.  */
 
-#define BUILD 16
+#define BUILD 17
 
 #include "../include/sane/config.h"
 
@@ -764,11 +764,25 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	  word = 0;
 	  cp = sanei_config_get_string (cp, &word);
 
+	  if (!word)
+	    {
+	      DBG (1, "sane_init: config file line %d: missing quotation mark?\n",
+		   linenumber);
+	      continue;
+	    }
+
 	  if (strcmp (word, "max_block_size") == 0)
 	    {
 	      free (word);
 	      word = 0;
 	      cp = sanei_config_get_string (cp, &word);
+	      if (!word)
+		{
+		  DBG (1, "sane_init: config file line %d: missing quotation mark?\n",
+		       linenumber);
+		  continue;
+		}
+
 	      errno = 0;
 	      max_block_size = strtol (word, &end, 0);
 	      if (end == word)

@@ -46,7 +46,7 @@
 
 /**************************************************************************/
 /* Mustek backend version                                                 */
-#define BUILD 132
+#define BUILD 133
 /**************************************************************************/
 
 #include "../include/sane/config.h"
@@ -5112,12 +5112,25 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	  free (word);
 	  word = 0;
 	  cp = sanei_config_get_string (cp, &word);
+	  if (!word)
+	    {
+	      DBG (1, "sane_init: config file line %d: missing quotation mark?\n",
+		   linenumber);
+	      continue;
+	    }
 
 	  if (strcmp (word, "strip-height") == 0)
 	    {
 	      free (word);
 	      word = 0;
 	      cp = sanei_config_get_string (cp, &word);
+	      if (!word)
+		{
+		  DBG (1, "sane_init: config file line %d: missing quotation mark?\n",
+		       linenumber);
+		  continue;
+		}
+
 	      errno = 0;
 	      strip_height = strtod (word, &end);
 	      if (end == word)
@@ -5264,6 +5277,13 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	      free (word);
 	      word = 0;
 	      cp = sanei_config_get_string (cp, &word);
+	      if (!word)
+		{
+		  DBG (1, "sane_init: config file line %d: missing quotation mark?\n",
+		       linenumber);
+		  continue;
+		}
+
 	      errno = 0;
 	      buffer_size = strtol (word, &end, 0);
 
@@ -5311,6 +5331,13 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	      free (word);
 	      word = 0;
 	      cp = sanei_config_get_string (cp, &word);
+	      if (!word)
+		{
+		  DBG (1, "sane_init: config file line %d: missing quotation mark?\n",
+		       linenumber);
+		  continue;
+		}
+
 	      errno = 0;
 	      block_size = strtol (word, &end, 0);
 

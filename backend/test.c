@@ -41,7 +41,7 @@
    This backend is for testing frontends.
 */
 
-#define BUILD 21
+#define BUILD 22
 
 #include "../include/sane/config.h"
 
@@ -1088,6 +1088,9 @@ read_option (SANE_String line, SANE_String option_string,
 
   cp = sanei_config_get_string (line, &word);
 
+  if (!word)
+    return SANE_STATUS_INVAL;
+
   if (strcmp (word, option_string) != 0)
     return SANE_STATUS_INVAL;
 
@@ -1101,6 +1104,8 @@ read_option (SANE_String line, SANE_String option_string,
     case param_bool:
       {
 	cp = sanei_config_get_string (cp, &word);
+	if (!word)
+	  return SANE_STATUS_INVAL;
 	if (strlen (word) == 0)
 	  {
 	    DBG (3, "read_option: option `%s' requires parameter\n",
@@ -1126,6 +1131,8 @@ read_option (SANE_String line, SANE_String option_string,
 	SANE_Int int_value;
 
 	cp = sanei_config_get_string (cp, &word);
+	if (!word)
+	  return SANE_STATUS_INVAL;
 	errno = 0;
 	int_value = (SANE_Int) strtol (word, &end, 0);
 	if (end == word)
@@ -1154,6 +1161,8 @@ read_option (SANE_String line, SANE_String option_string,
 	SANE_Fixed fixed_value;
 
 	cp = sanei_config_get_string (cp, &word);
+	if (!word)
+	  return SANE_STATUS_INVAL;
 	errno = 0;
 	double_value = strtod (word, &end);
 	if (end == word)
@@ -1180,6 +1189,8 @@ read_option (SANE_String line, SANE_String option_string,
     case param_string:
       {
 	cp = sanei_config_get_string (cp, &word);
+	if (!word)
+	  return SANE_STATUS_INVAL;
 	if (strlen (word) == 0)
 	  {
 	    DBG (3, "read_option: option `%s' requires parameter\n",

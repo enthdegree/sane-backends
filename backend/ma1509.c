@@ -48,7 +48,7 @@
 
 /**************************************************************************/
 /* ma1509 backend version                                                 */
-#define BUILD 2
+#define BUILD 3
 /**************************************************************************/
 
 #include "../include/sane/config.h"
@@ -1165,6 +1165,12 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	  word = 0;
 	  cp = sanei_config_get_string (cp, &word);
 
+	  if (!word)
+	    {
+	      DBG (1, "sane_init: config file line %d: missing quotation mark?\n",
+		   linenumber);
+	      continue;
+	    }
 
 	  if (strcmp (word, "warmup-time") == 0)
 	    {
@@ -1173,6 +1179,14 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	      free (word);
 	      word = 0;
 	      cp = sanei_config_get_string (cp, &word);
+
+	      if (!word)
+		{
+		  DBG (1, "sane_init: config file line %d: missing quotation mark?\n",
+		       linenumber);
+		  continue;
+		}
+
 	      errno = 0;
 	      local_warmup_time = strtol (word, &end, 0);
 

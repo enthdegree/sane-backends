@@ -257,6 +257,7 @@ AC_DEFUN([SANE_CHECK_PTHREAD],
   if test $use_pthread = yes ; then
     AC_DEFINE_UNQUOTED(USE_PTHREAD, "$use_pthread",
                    [Define if pthreads should be used instead of forked processes.])
+    CPPFLAGS="${CPPFLAGS} -D_REENTRANT"
   fi
   AC_MSG_CHECKING([whether to enable pthread support])
   AC_MSG_RESULT([$use_pthread])

@@ -1,3 +1,7 @@
+2000-09-18  Petter Reinholdtsen <pere@td.org.uit.no>
+
+	* backend/v4l.c: Remove X11 dependency.
+
 2000-09-17  Henning Meier-Geinitz <hmg@gmx.de>
 	
 	* frontend/xscanimage.c: Fixed gtk_main_quit bug (based on patch

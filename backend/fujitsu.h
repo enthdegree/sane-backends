@@ -12,13 +12,6 @@
 static int num_devices;
 static struct fujitsu *first_dev;
 
-typedef union
-  {
-    SANE_Word w;
-    SANE_String s;
-  }
-Option_Value;
-
 /* ------------------------------------------------------------------------- 
  * This option list has to contain all options for all scanners supported by
  * this driver. If a certain scanner cannot handle a certain option, there's

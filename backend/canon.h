@@ -216,14 +216,6 @@ typedef enum
 CANON_Option;
 
 
-typedef union
-{
-  SANE_Word w;
-  SANE_Word *wa;		/* word array */
-  SANE_String s;
-}
-Option_Value;
-
 typedef struct CANON_Info
 {
   int model;

@@ -217,14 +217,6 @@ enum GT68xx_Option
   NUM_OPTIONS
 };
 
-typedef union
-{
-  SANE_Word w;
-  SANE_Word *wa;		/* word array */
-  SANE_String s;
-}
-Option_Value;
-
 /** Scanner object.
  */
 struct GT68xx_Scanner

@@ -71,14 +71,6 @@ typedef enum
 }
 test_opts;
 
-typedef union
-{
-  SANE_Word w;
-  SANE_Word *wa;		/* word array */
-  SANE_String s;
-}
-Option_Value;
-
 
 typedef struct Test_Device
 {

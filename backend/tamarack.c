@@ -56,7 +56,6 @@
 #include "sane/saneopts.h"
 #include "sane/sanei_scsi.h"
 #include "sane/sanei_config.h"
-#include "tamarack.h"
 
 /* For timeval... */
 #ifdef DEBUG
@@ -66,6 +65,8 @@
 
 #define BACKEND_NAME	tamarack
 #include "sane/sanei_backend.h"
+
+#include "tamarack.h"
 
 #ifndef PATH_MAX
 # define PATH_MAX	1024

@@ -92,7 +92,6 @@
 #include "sane/sanei.h"
 #include "sane/saneopts.h"
 
-#include "qcam.h"
 
 #define BACKEND_NAME qcam
 #include "sane/sanei_backend.h"
@@ -103,6 +102,8 @@
 
 #include "sane/sanei_config.h"
 #define QCAM_CONFIG_FILE "qcam.conf"
+
+#include "qcam.h"
 
 /* status bits */
 #define NeedRamTable		(1 << 1)

@@ -1047,7 +1047,7 @@ init_options(Microtek_Scanner *ms)
 {
   int i;
   SANE_Option_Descriptor *sod = ms->sod;
-  Microtek_Option_Value *val = ms->val;
+  Option_Value *val = ms->val;
 
   DBG(15, "init_options...\n");
 
@@ -3353,7 +3353,7 @@ sane_control_option (SANE_Handle handle,
 {
   Microtek_Scanner *scanner = handle;
   SANE_Option_Descriptor *sod;
-  Microtek_Option_Value  *val;
+  Option_Value  *val;
   SANE_Status status;
 
   DBG(96, "sane_control_option (opt=%d,act=%d,val=%p,info=%p)\n",

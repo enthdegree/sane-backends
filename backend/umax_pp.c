@@ -71,12 +71,12 @@
 #include "../include/sane/saneopts.h"
 #include "../include/sane/sanei_config.h"
 
-#include "umax_pp_mid.h"
-#include "umax_pp.h"
 
 #define BACKEND_NAME	umax_pp
 #include "../include/sane/sanei_backend.h"
 
+#include "umax_pp_mid.h"
+#include "umax_pp.h"
 
 #ifdef DMALLOC
 #include "dmalloc.h"

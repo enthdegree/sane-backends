@@ -56,11 +56,12 @@
 #include "sane/saneopts.h"
 #include "sane/sanei_scsi.h"
 #include "sane/sanei_config.h"
-#include "bh.h"
 
 #define BACKEND_NAME bh
 #include "sane/sanei_backend.h"
 #define BUILD 4
+
+#include "bh.h"
 
 #define MIN(x,y) ((x)<(y) ? (x) : (y))
 #define MAX(x,y) ((x)>(y) ? (x) : (y))

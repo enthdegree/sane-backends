@@ -312,7 +312,7 @@ sane_get_parameters(SANE_Handle handle, SANE_Parameters *params)
 {
     Microtek2_Scanner *ms = handle;
     Microtek2_Device *md;
-    Microtek2_Option_Value *val;
+    Option_Value *val;
     Microtek2_Info *mi;
     int mode;
     int depth;
@@ -2002,7 +2002,7 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
 
     SANE_Option_Descriptor *sod;
     SANE_Status status;
-    Microtek2_Option_Value *val;
+    Option_Value *val;
     Microtek2_Device *md;
     Microtek2_Info *mi;
     int tablesize;
@@ -2842,7 +2842,7 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
 
 static SANE_Status
 set_option_dependencies(Microtek2_Scanner *ms, SANE_Option_Descriptor *sod,
-                        Microtek2_Option_Value *val)
+                        Option_Value *val)
 {
 
     Microtek2_Device *md;
@@ -3019,7 +3019,7 @@ sane_control_option(SANE_Handle handle, SANE_Int option,
     Microtek2_Scanner *ms = handle;
     Microtek2_Device *md;
     Microtek2_Info *mi;
-    Microtek2_Option_Value *val;
+    Option_Value *val;
     SANE_Option_Descriptor *sod;
     SANE_Status status;
 
@@ -3577,7 +3577,7 @@ sane_get_option_descriptor(SANE_Handle handle, SANE_Int n)
 /*---------- restore_gamma_options() -----------------------------------------*/
 
 static SANE_Status
-restore_gamma_options(SANE_Option_Descriptor *sod, Microtek2_Option_Value *val)
+restore_gamma_options(SANE_Option_Descriptor *sod, Option_Value *val)
 {
 
     DBG(40, "restore_gamma_options: val=%p, sod=%p\n", val, sod);

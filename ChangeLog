@@ -8,6 +8,31 @@
 	* doc/.cvsignore sanei/.cvsignore: Added .libs. Sorted.
 	* doc/descriptions/unsupported.desc: Updated HP ScanJet 2300c
 	  and 2400c.
+	* backend/abaton.c backend/abaton.h backend/agfafocus.c
+	  backend/agfafocus.h backend/apple.c backend/apple.h
+	  backend/artec.h backend/artec_eplus48u.h backend/as6e.c
+	  backend/as6e.h backend/avision.h backend/bh.c backend/bh.h
+	  backend/canon.c backend/canon.h backend/coolscan.h backend/dmc.c
+	  backend/dmc.h backend/epson.c backend/epson.h backend/fujitsu.h
+	  backend/gt68xx.c backend/gt68xx_high.h backend/ibm.c backend/ibm.h
+	  backend/leo.h backend/ma1509.c backend/ma1509.h
+	  backend/matsushita.h backend/microtek.c backend/microtek.h
+	  backend/microtek2.c backend/microtek2.h backend/mustek.c
+	  backend/mustek.h backend/mustek_pp.c backend/mustek_pp.h
+	  backend/mustek_usb.c backend/mustek_usb_high.h backend/nec.c
+	  backend/nec.h backend/pie.c backend/pint.c backend/pint.h
+	  backend/plustek.h backend/qcam.c backend/qcam.h backend/ricoh.c
+	  backend/ricoh.h backend/sceptre.h backend/sharp.c backend/sharp.h
+	  backend/sm3600.c backend/sm3600.h backend/snapscan.c
+	  backend/snapscan.h backend/tamarack.c backend/tamarack.h
+	  backend/teco1.h backend/teco2.h backend/teco3.h backend/test.h
+	  backend/umax.c backend/umax.h backend/umax_pp.c backend/umax_pp.h
+	  backend/v4l.c backend/v4l.h include/sane/sanei_backend.h:
+	  Moved union Option_Value from backend header files to
+	  sanei_backend.h. No need to copy it over and over again.
+	  Changed header inclusion order in backend files to include
+	  backend.h after sanei_backend.h. Based on a patch from stef
+	  <stef-listes@wanadoo.fr>.
 
 2003-09-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -164,14 +164,6 @@ enum Mustek_Usb_Option
   NUM_OPTIONS
 };
 
-typedef union
-{
-  SANE_Word w;
-  SANE_Word *wa;		/* word array */
-  SANE_String s;
-}
-Option_Value;
-
 typedef struct Mustek_Usb_Device
 {
   struct Mustek_Usb_Device *next;

@@ -63,7 +63,6 @@
 #include "sane/sanei.h"
 #include "sane/saneopts.h"
 #include "sane/sanei_scsi.h"
-#include "apple.h"
 
 
 /* SCSI commands that the Apple scanners understand: */
@@ -131,6 +130,8 @@
 
 #include "sane/sanei_config.h"
 #define APPLE_CONFIG_FILE "apple.conf"
+
+#include "apple.h"
 
 #define MM_PER_INCH	25.4
 

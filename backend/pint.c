@@ -49,8 +49,6 @@ extern int errno;
 #include "sane/sane.h"
 #include "sane/saneopts.h"
 
-#include "pint.h"
-
 #include <unistd.h>
 #include <fcntl.h>
 
@@ -62,6 +60,8 @@ extern int errno;
 
 #include "sane/sanei_config.h"
 #define PINT_CONFIG_FILE "pint.conf"
+
+#include "pint.h"
 
 #define MM_PER_INCH		25.4
 #define DECIPOINTS_PER_MM	(720.0 / MM_PER_INCH)

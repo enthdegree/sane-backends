@@ -68,11 +68,11 @@
 #include "../include/sane/saneopts.h"
 #include "../include/sane/sanei_usb.h"
 
-#include "ma1509.h"
-
 #define BACKEND_NAME	ma1509
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
+
+#include "ma1509.h"
 
 #ifndef SANE_I18N
 #define SANE_I18N(text) text

@@ -157,13 +157,6 @@ typedef struct TScanState {
 #define NUM_OPTIONS 16
 #endif
 
-typedef union
-  {  
-    SANE_Word w;
-    SANE_Word *wa;              /* word array */
-    SANE_String s;
-  }
-TOptionValue;
 
 typedef struct TDevice {
   struct TDevice        *pNext;
@@ -179,7 +172,7 @@ typedef struct TInstance {
 #ifndef INSANE_VERSION
   struct TInstance         *pNext;
   SANE_Option_Descriptor    aoptDesc[NUM_OPTIONS];
-  TOptionValue              aoptVal[NUM_OPTIONS];
+  Option_Value              aoptVal[NUM_OPTIONS];
 #endif
   SANE_Int           agammaY[4096];
   SANE_Int           agammaR[4096];

@@ -75,13 +75,13 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#include "mustek_pp.h"
-#include "mustek_pp_drivers.h"
-
 #include "../include/sane/sanei_backend.h"
 
 #include "../include/sane/sanei_config.h"
 #define MUSTEK_PP_CONFIG_FILE "mustek_pp.conf"
+
+#include "mustek_pp.h"
+#include "mustek_pp_drivers.h"
 
 #define MIN(a,b)	((a) < (b) ? (a) : (b))
    

@@ -262,12 +262,6 @@ struct Epson_Device {
 
 typedef struct Epson_Device Epson_Device;
 
-typedef union {
-	SANE_Word w;
-	SANE_Word * wa;		/* word array */
-	SANE_String s;
-} Option_Value;
-
 
 
 struct Epson_Scanner {

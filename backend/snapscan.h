@@ -255,15 +255,6 @@ typedef enum
     NUM_OPTS               /* dummy (gives number of options) */
 } SnapScan_Options;
 
-typedef union
-  {
-    SANE_Bool b;
-    SANE_Word w;
-    SANE_Word *wa;              /* word array */
-    SANE_String s;
-  }
-Option_Value;
-
 typedef enum
 {
     MD_COLOUR = 0,       /* full colour */
@@ -378,6 +369,12 @@ struct snapscan_scanner
 
 /*
  * $Log$
+ * Revision 1.23  2003/09/12 16:10:33  hmg-guest
+ * Moved union Option_Value from backend header files to sanei_backend.h. No need
+ * to copy it over and over again. Changed header inclusion order in backend
+ * files to include backend.h after sanei_backend.h. Based on a patch from stef
+ * <stef-listes@wanadoo.fr>.
+ *
  * Revision 1.22  2003/08/19 21:05:08  oliverschwartz
  * Scanner ID cleanup
  *

@@ -592,15 +592,6 @@ enum Microtek2_Option
   /*60*/ NUM_OPTIONS
 };
 
-/******************************************************************************/
-/* value structure for scanner options                                        */
-/******************************************************************************/
-
-typedef union {
-  SANE_Word w;
-  SANE_Word *wa;		/* word array */
-  SANE_String s;
-} Microtek2_Option_Value;
 
 /******************************************************************************/
 /* Description of options not included in saneopts.h                          */
@@ -1031,7 +1022,7 @@ typedef struct Microtek2_Device {
 typedef struct Microtek2_Scanner {
     struct Microtek2_Scanner *next;             /* for linked list */
     Microtek2_Device *dev;                      /* raw device info */
-    Microtek2_Option_Value val[NUM_OPTIONS + 1]; /* option values for session */
+    Option_Value val[NUM_OPTIONS + 1]; /* option values for session */
     SANE_Parameters params;   /* format, lastframe, lines, depth, ppl, bpl */
     SANE_Option_Descriptor sod[NUM_OPTIONS + 1]; /* option list for session */
 
@@ -1300,7 +1291,7 @@ static SANE_Status
 reader_process(Microtek2_Scanner *);
 
 static SANE_Status
-restore_gamma_options(SANE_Option_Descriptor *, Microtek2_Option_Value *);
+restore_gamma_options(SANE_Option_Descriptor *, Option_Value *);
 
 static SANE_Status
 segreg_copy_pixels(Microtek2_Scanner *);
@@ -1313,7 +1304,7 @@ set_exposure(Microtek2_Scanner *);
 
 static SANE_Status
 set_option_dependencies(Microtek2_Scanner *,
-                        SANE_Option_Descriptor *, Microtek2_Option_Value *);
+                        SANE_Option_Descriptor *, Option_Value *);
 
 static SANE_Status
 shading_function(Microtek2_Scanner *, u_int8_t *);

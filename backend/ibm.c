@@ -62,7 +62,6 @@
 #include "../include/sane/sane.h"
 #include "../include/sane/saneopts.h"
 #include "../include/sane/sanei_scsi.h"
-#include "ibm.h"
 
 #define BACKEND_NAME ibm
 #include "../include/sane/sanei_backend.h"
@@ -74,6 +73,9 @@
 #include "../include/sane/sanei_config.h"
 #define IBM_CONFIG_FILE "ibm.conf"
 
+#include "ibm.h"
+#include "ibm-scsi.c"
+
 #define MM_PER_INCH	25.4
 #define MAX(a,b)	((a) > (b) ? (a) : (b))
 
@@ -82,7 +84,6 @@ static Ibm_Device *first_dev = NULL;
 static Ibm_Scanner *first_handle = NULL;
 /* static int is50 = 0; */
 
-#include "ibm-scsi.c"
 
 static size_t
 max_string_size (const SANE_String_Const strings[])

@@ -65,8 +65,6 @@
 #include "sane/sanei.h"
 #include "sane/saneopts.h"
 #include "sane/sanei_scsi.h"
-#include "abaton.h"
-
 
 #define BACKEND_NAME	abaton
 #include "sane/sanei_backend.h"
@@ -77,6 +75,9 @@
 
 #include "sane/sanei_config.h"
 #define ABATON_CONFIG_FILE "abaton.conf"
+
+#include "abaton.h"
+
 
 #define MM_PER_INCH	25.4
 

@@ -259,14 +259,6 @@ struct Artec48U_Line_Reader
 			 unsigned int **buffer_pointers_return);
 };
 
-typedef union
-{
-  SANE_Word w;
-  SANE_Word *wa;		/* word array */
-  SANE_String s;
-}
-Option_Value;
-
 struct Artec48U_Scanner
 {
   Artec48U_Scanner *next;

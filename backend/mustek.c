@@ -74,11 +74,11 @@
 #include "../include/sane/sanei_thread.h"
 #endif
 
-#include "mustek.h"
-
 #define BACKEND_NAME	mustek
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
+
+#include "mustek.h"
 
 #ifndef SANE_I18N
 #define SANE_I18N(text) text

@@ -146,10 +146,11 @@
 */
 /* #define USE_SEPARATE_Y_RESOLUTION */
 
-#include <sharp.h>
 
 #define BACKEND_NAME sharp
 #include <sane/sanei_backend.h>
+
+#include <sharp.h>
 
 #ifndef PATH_MAX
 #define PATH_MAX	1024

@@ -106,14 +106,6 @@ enum Coolscan_Option
   };
 
 
-typedef union
-  {
-    SANE_Word w;
-    SANE_Word *wa;		/* word array */
-    SANE_String s;
-  }
-Option_Value;
-
 typedef struct Image_Pos
 { int start;           /* start position of image on film strip */
   int end;             /* end position of image on film strip */

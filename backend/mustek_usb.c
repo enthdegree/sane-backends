@@ -67,7 +67,6 @@
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
-#include "mustek_usb.h"
 
 #define BACKEND_NAME mustek_usb
 
@@ -75,6 +74,7 @@
 #include "../include/sane/sanei_config.h"
 #include "../include/sane/sanei_usb.h"
 
+#include "mustek_usb.h"
 #include "mustek_usb_high.c"
 
 #ifndef SANE_I18N

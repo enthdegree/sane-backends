@@ -75,8 +75,6 @@
 #include <asm/types.h>		/* XXX glibc */
 #include <linux/videodev.h>
 
-#include "v4l.h"
-
 #define BACKEND_NAME v4l
 #include "../include/sane/sanei_backend.h"
 
@@ -86,6 +84,8 @@
 
 #include "../include/sane/sanei_config.h"
 #define V4L_CONFIG_FILE "v4l.conf"
+
+#include "v4l.h"
 
 static const SANE_Device **devlist = NULL;
 static int num_devices;

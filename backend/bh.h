@@ -205,13 +205,6 @@ typedef enum
 
 } BH_Option;
 
-typedef union
-{
-  SANE_Word w;		/* word */
-  SANE_Word *wa;	/* word array */
-  SANE_String s;	/* string */
-} Option_Value;
-
 /* macros for accessing the value for an option within a scanning context */
 #define MM_PER_INCH 25.4
 #define _OPT_VAL_WORD(s, o) ((s)->val[(o)].w)

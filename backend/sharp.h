@@ -121,14 +121,6 @@ typedef enum
   }
 SHARP_Option;
 
-typedef union
-  {
-    SANE_Word w;
-    SANE_Word *wa;		/* word array */
-    SANE_String s;
-  }
-Option_Value;
-
 #ifdef USE_FORK
 
 /* status defines for a buffer: 

@@ -240,14 +240,6 @@ enum Leo_Option
   OPT_NUM_OPTIONS
 };
 
-typedef union
-{
-  SANE_Word w;			/* word */
-  SANE_Word *wa;		/* word array */
-  SANE_String s;		/* string */
-}
-Option_Value;
-
 /*--------------------------------------------------------------------------*/
 
 /* 

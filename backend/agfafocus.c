@@ -37,10 +37,11 @@
 #include "sane/sanei_config.h"
 #include "sane/saneopts.h"
 #include "sane/sanei_scsi.h"
-#include "agfafocus.h"
 
 #define BACKEND_NAME	agfafocus
 #include "sane/sanei_backend.h"
+
+#include "agfafocus.h"
 
 #ifndef PATH_MAX
 # define PATH_MAX	1024

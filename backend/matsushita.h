@@ -204,14 +204,6 @@ enum Matsushita_Option
   OPT_NUM_OPTIONS
 };
 
-typedef union
-{
-  SANE_Word w;			/* word */
-  SANE_Word *wa;		/* word array */
-  SANE_String s;		/* string */
-}
-Option_Value;
-
 /*--------------------------------------------------------------------------*/
 
 #define BLACK_WHITE_STR		SANE_I18N("Black & White")

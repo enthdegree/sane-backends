@@ -130,6 +130,9 @@ in ADF mode this is done often:
 #include "sane/sanei_scsi.h"
 #include "sane/sanei_debug.h"
 
+#include "sane/sanei_backend.h"
+#include "sane/sanei_config.h"
+
 #ifdef HAVE_OS2_H
 # include "../include/sane/sanei_thread.h"
 #endif
@@ -149,8 +152,6 @@ in ADF mode this is done often:
 #endif
 
 #include "umax.h"
-#include "sane/sanei_backend.h"
-#include "sane/sanei_config.h"
 
 /* ------------------------------------------------------------ SANE DEFINES ------------------------------- */
 

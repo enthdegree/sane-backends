@@ -72,14 +72,6 @@ enum AgfaFocus_Option
     NUM_OPTIONS
   };
 
-typedef union
-  {
-    SANE_Bool b;
-    SANE_Word w;
-    SANE_Word *wa;              /* word array */
-    SANE_String s;
-  }
-Option_Value;
 
 typedef struct AgfaFocus_Device
   {

@@ -238,15 +238,6 @@ typedef enum
   }
 Ibm_Option;
 
-typedef union
-  {
-    SANE_Bool b;
-    SANE_Word w;
-    SANE_Word *wa;		/* word array */
-    SANE_String s;
-  }
-Option_Value;
-
 typedef struct Ibm_Info
   {
     SANE_Range xres_range;

@@ -115,17 +115,6 @@ enum Mtek_Option
 
 
 /*******************************************************************/
-/***** value structure for scanner options                     *****/ 
-/*******************************************************************/
-
-typedef union {
-  SANE_Word w;
-  SANE_Word *wa;		/* word array */
-  SANE_String s;
-} Microtek_Option_Value;
-
-
-/*******************************************************************/
 /***** scanner hardware information (as discovered by INQUIRY) *****/ 
 /*******************************************************************/
 
@@ -269,7 +258,7 @@ typedef struct Microtek_Scanner {
   Microtek_Device *dev;           /* raw device info */
   
   SANE_Option_Descriptor sod[RNUM_OPTIONS]; /* option list for session   */
-  Microtek_Option_Value val[RNUM_OPTIONS];  /* option values for session */
+  Option_Value val[RNUM_OPTIONS];  /* option values for session */
 
   /*  SANE_Int gamma_table[4][256];*/
   SANE_Int *gray_lut;

@@ -85,7 +85,6 @@
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
-#include "gt68xx.h"
 
 #define BACKEND_NAME gt68xx
 
@@ -96,6 +95,7 @@
 #define SANE_I18N(text) text
 #endif
 
+#include "gt68xx.h"
 #include "gt68xx_high.c"
 #include "gt68xx_devices.c"
 

@@ -58,14 +58,14 @@
 #include <signal.h>
 #include <sys/stat.h>
 
-#include "as6e.h"
-
 #include "../include/sane/sane.h"
 #include "../include/sane/saneopts.h"
 
 #define BACKENDNAME as6e
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
+
+#include "as6e.h"
 
 static int num_devices;
 static AS6E_Device *first_dev;

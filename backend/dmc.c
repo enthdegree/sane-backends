@@ -56,7 +56,6 @@
 #include "sane/sane.h"
 #include "sane/saneopts.h"
 #include "sane/sanei_scsi.h"
-#include "dmc.h"
 
 #define BACKEND_NAME	dmc
 #include "sane/sanei_backend.h"
@@ -67,6 +66,8 @@
 
 #include "sane/sanei_config.h"
 #define DMC_CONFIG_FILE "dmc.conf"
+
+#include "dmc.h"
 
 /* A linked-list of attached devices and handles */
 static DMC_Device *FirstDevice = NULL;

@@ -109,7 +109,6 @@
 #include <sane/sane.h>
 #include <sane/saneopts.h>
 #include <sane/sanei_scsi.h>
-#include <canon.h>
 
 #define BACKEND_NAME canon
 
@@ -121,6 +120,8 @@
 
 #include <sane/sanei_config.h>
 #define CANON_CONFIG_FILE "canon.conf"
+
+#include <canon.h>
 
 #define MM_PER_INCH	 25.4
 

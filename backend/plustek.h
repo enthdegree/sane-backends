@@ -208,13 +208,6 @@ typedef struct Plustek_Device
 
 } Plustek_Device, *pPlustek_Device;
 
-typedef union
-{
-	SANE_Word w;
-	SANE_Word *wa;		/* word array */
-	SANE_String s;
-} Option_Value;
-
 typedef struct Plustek_Scanner
 {
     struct Plustek_Scanner *next;

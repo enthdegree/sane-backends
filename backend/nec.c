@@ -121,8 +121,6 @@
 */
 /* #define USE_RESOLUTION_LIST */ 
 
-#include "nec.h"
-
 #define BACKEND_NAME nec
 #include "sane/sanei_backend.h"
 
@@ -137,6 +135,8 @@
 
 #include "sane/sanei_config.h"
 #define NEC_CONFIG_FILE "nec.conf"
+
+#include "nec.h"
 
 static int num_devices = 0;
 static NEC_Device *first_dev = NULL;

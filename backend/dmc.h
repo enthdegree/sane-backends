@@ -66,12 +66,6 @@ typedef enum {
     NUM_OPTIONS
 } DMC_Option;
 
-typedef union {
-    SANE_Word w;
-    SANE_Word *wa;		/* word array */
-    SANE_String s;
-} Option_Value;
-
 typedef struct DMC_Device {
     struct DMC_Device *next;
     SANE_Device sane;

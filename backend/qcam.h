@@ -132,14 +132,6 @@ typedef enum
   }
 QC_Option;
 
-typedef union
-  {
-    SANE_Word w;
-    SANE_Word *wa;		/* word array */
-    SANE_String s;
-  }
-Option_Value;
-
 typedef enum
   {
     QC_UNIDIR,

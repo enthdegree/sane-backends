@@ -167,7 +167,7 @@ InitOptions(TInstance *this)
       static double afFullBed[] = { 22.0,30.0, 50.0, 80.0 }; /* TODO: calculate exactly! */
       static const SANE_Range *aRangesXY[] = { &rangeXmm,&rangeYmm,&rangeXmm,&rangeYmm };
       SANE_Option_Descriptor *pdesc;
-      TOptionValue           *pval;
+      Option_Value           *pval;
       /* shorthands */
       pdesc=this->aoptDesc+iOpt;
       pval=this->aoptVal+iOpt;

@@ -58,7 +58,6 @@
 #include "sane/sane.h"
 #include "sane/saneopts.h"
 #include "sane/sanei_scsi.h"
-#include "ricoh.h"
 
 #define BACKEND_NAME ricoh
 #include "sane/sanei_backend.h"
@@ -69,6 +68,8 @@
 
 #include "sane/sanei_config.h"
 #define RICOH_CONFIG_FILE "ricoh.conf"
+
+#include "ricoh.h"
 
 #define MM_PER_INCH	25.4
 #define MAX(a,b)	((a) > (b) ? (a) : (b))

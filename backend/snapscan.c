@@ -80,12 +80,12 @@
 #define MINOR_VERSION        4
 #define BUILD               27
 
-#include "snapscan.h"
-
 #define BACKEND_NAME snapscan
 
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/saneopts.h"
+
+#include "snapscan.h"
 
 #define MIN(x,y) ((x)<(y) ? (x) : (y))
 #define MAX(x,y) ((x)>(y) ? (x) : (y))
@@ -1762,6 +1762,12 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.31  2003/09/12 16:10:33  hmg-guest
+ * Moved union Option_Value from backend header files to sanei_backend.h. No need
+ * to copy it over and over again. Changed header inclusion order in backend
+ * files to include backend.h after sanei_backend.h. Based on a patch from stef
+ * <stef-listes@wanadoo.fr>.
+ *
  * Revision 1.30  2003/08/19 21:05:08  oliverschwartz
  * Scanner ID cleanup
  *

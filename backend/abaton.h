@@ -84,13 +84,6 @@ enum Abaton_Option
     NUM_OPTIONS
   };
 
-typedef union
-  {
-    SANE_Word w;
-    SANE_String s;
-  }
-Option_Value;
-
 enum ScannerModels
 {
   ABATON_300GS,

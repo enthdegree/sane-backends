@@ -51,13 +51,6 @@
 #include <sane/sane.h>
 
 
-typedef union
-{
-	SANE_Word	w;										     /* word */
-	SANE_Word	*wa;									       /* word array */
-	SANE_String	s;										   /* string */
-} Option_Value;
-
 typedef enum
 {
 	OPT_NUM_OPTS = 0,

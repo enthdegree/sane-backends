@@ -80,6 +80,7 @@
 #define SCL_PRELOAD_ADF         HP_SCL_CONTROL(10468, 'f', 'C')
 #define SCL_MEDIA               HP_SCL_CONTROL(10469, 'f', 'D')
 #define SCL_10470               HP_SCL_CONTROL(10470, 'f', 'E')
+#define SCL_LAMPTEST            HP_SCL_CONTROL(10477, 'f', 'L')
 #define SCL_X_EXTENT		HP_SCL_CONTROL(10481, 'f', 'P')
 #define SCL_Y_EXTENT		HP_SCL_CONTROL(10482, 'f', 'Q')
 #define SCL_START_SCAN		HP_SCL_COMMAND('f', 'S')

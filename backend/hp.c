@@ -43,8 +43,11 @@
    HP Scanner Control Language (SCL).
 */
 
-static char *hp_backend_version = "0.93";
+static char *hp_backend_version = "0.94";
 /* Changes:
+
+   V 0.94, 31-Dec-2000, PK (peter@kirchgessner.net)
+      - always switch off lamp after scan
 
    V 0.93, 04-Dec-2000, PK (peter@kirchgessner.net)
       - fix problem with ADF-support on ScanJet 6350 (and maybe others)

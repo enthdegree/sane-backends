@@ -155,16 +155,19 @@ hp_handle_stopScan (HpHandle this)
       close(this->pipefd);
       this->reader_pid = 0;
 
-      if (WIFSIGNALED(info)
-	  && !FAILED( sanei_hp_scsi_new(&scsi, this->dev->sanedev.name) ))
+      if ( !FAILED( sanei_hp_scsi_new(&scsi, this->dev->sanedev.name)) )
+      {
+        if (WIFSIGNALED(info))
 	{
 	  /*
 	  sanei_hp_scl_set(scsi, SCL_CLEAR_ERRORS, 0);
 	  sanei_hp_scl_errcheck(scsi);
 	  */
 	  sanei_hp_scl_reset(scsi);
-	  sanei_hp_scsi_destroy(scsi,0);
-	}
+        }
+        sanei_hp_scl_set(scsi, SCL_LAMPTEST, 0); /* Switch off lamp */
+	sanei_hp_scsi_destroy(scsi,0);
+      }
     }
     else
     {
@@ -554,20 +557,21 @@ sanei_hp_handle_read (HpHandle this, void * buf, size_t *lengthp)
   status = this->bytes_left ? SANE_STATUS_IO_ERROR : SANE_STATUS_EOF;
   RETURN_IF_FAIL( hp_handle_stopScan(this) );
 
-  /* Check unload after scan */
+  /* Switch off lamp and check unload after scan */
   if (status == SANE_STATUS_EOF)
   {
     const HpDeviceInfo *hpinfo;
-    hpinfo = sanei_hp_device_info_get ( this->dev->sanedev.name );
-    if ( hpinfo && hpinfo->unload_after_scan )
+    HpScsi scsi;
+
+    if ( sanei_hp_scsi_new(&scsi, this->dev->sanedev.name) == SANE_STATUS_GOOD )
     {
-      HpScsi scsi;
-      if (    sanei_hp_scsi_new(&scsi, this->dev->sanedev.name)
-           == SANE_STATUS_GOOD )
-      {
+      sanei_hp_scl_set(scsi, SCL_LAMPTEST, 0);
+
+      hpinfo = sanei_hp_device_info_get ( this->dev->sanedev.name );
+      if ( hpinfo && hpinfo->unload_after_scan )
         sanei_hp_scl_set(scsi, SCL_UNLOAD, 0);
-        sanei_hp_scsi_destroy(scsi,0);
-      }
+
+      sanei_hp_scsi_destroy(scsi,0);
     }
   }
   return status;

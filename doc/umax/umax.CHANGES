@@ -1008,8 +1008,8 @@ build-30 -> build-31 (sane-1.0.6)
    for UMAX Supervista S-12, LinoHell Office and LinHell JADE
 
 
-build-31 -> build-32
---------------------
+build-31 -> build-32 (sane-1.0.7)
+---------------------------------
 
   * added Nikon AX-110 as supported scanner (Vista S6E)
 
@@ -1033,4 +1033,19 @@ build-32 -> build-33
 
   * removed #ifdef HAVE_SANEI_IPC parts (SANEI_IPC was never defined)
 
+
+build-33 -> build-34
+--------------------
+
+  * removed bug in reader_process / umax_queue_read_image_data:
+    - the integer value that keeps the length information is kept valid
+      as long a queued scsi command is still running now
+    - when the scsi command returns with less data than requested
+      then the routine does handle this correct now
+      (before the routine handled this as if the requested amount of
+       data was returned)
+
+  * backend waits until scanhead has repositioned after scan for UMAX UC1260
+
+  * y_dpi quanitsation is set to 5 (same as x_dpi quantisation - was 1)
 

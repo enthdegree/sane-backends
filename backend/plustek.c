@@ -18,13 +18,15 @@
  * 0.33 - no changes
  * 0.34 - moved some definitions and typedefs to plustek.h
  * 0.35 - removed Y-correction for 12000P model
- *		  getting Y-size of scan area from driver
+ *        getting Y-size of scan area from driver
  * 0.36 - disabled Dropout, as this does currently not work
  *        enabled Halftone selection only for Halftone-mode
  *        made the cancel button work by using a child process during read
- *		  added version code to driver interface
- *        cleaned up the code a bit
- *		  fixed sane compatibility problems
+ *        added version code to driver interface
+ *        cleaned up the code
+ *        fixed sane compatibility problems
+ *        added multiple device support
+ *        12bit color-depth are now available for scanimage
  *
  *.............................................................................
  *
@@ -98,13 +100,13 @@
 
 /*********************** the debug levels ************************************/
 
-#define _DBG_FATAL  		 0
-#define _DBG_ERROR   		 1
-#define _DBG_WARNING		 3
-#define _DBG_INFO    		 5
-#define _DBG_PROC		 	 7
-#define _DBG_SANE_INIT		10
-#define _DBG_READ    		15
+#define _DBG_FATAL      0
+#define _DBG_ERROR      1
+#define _DBG_WARNING    3
+#define _DBG_INFO       5
+#define _DBG_PROC       7
+#define _DBG_SANE_INIT 10
+#define _DBG_READ      15
 
 /*********************** other definitions ***********************************/
 
@@ -112,14 +114,19 @@
 
 /************************** global vars **************************************/
 
+static int num_devices;
+static Plustek_Device  *first_dev;
+static Plustek_Scanner *first_handle;
+
+
 static ModeParam mode_params[] =
 {
   {0, 1, COLOR_BW},
   {0, 1, COLOR_HALFTONE},
   {0, 8, COLOR_256GRAY},
   {1, 8, COLOR_TRUE24},
-  {1, 10, COLOR_TRUE32},
-  {1, 12, COLOR_TRUE36},
+  {1, 16, COLOR_TRUE32},
+  {1, 16, COLOR_TRUE36},
 };
 
 static ModeParam mode_9636_params[] =
@@ -128,7 +135,7 @@ static ModeParam mode_9636_params[] =
   {0, 1,  COLOR_HALFTONE},
   {0, 8,  COLOR_256GRAY},
   {1, 8,  COLOR_TRUE24},
-  {1, 12, COLOR_TRUE48},
+  {1, 16, COLOR_TRUE48},
 };
 
 static const SANE_String_Const mode_list[] =
@@ -137,7 +144,7 @@ static const SANE_String_Const mode_list[] =
 	"Halftone",
 	"Gray",
 	"Color",
-	"Color32",
+/*	"Color30", */
 	NULL
 };
 
@@ -147,7 +154,7 @@ static const SANE_String_Const mode_9636_list[] =
 	"Halftone",
 	"Gray",
 	"Color",
-	"Color48",
+	"Color36",
 	NULL
 };
 
@@ -189,19 +196,6 @@ static const SANE_Range percentage_range =
 static LensInfo lens = {{0,0,0,0,},{0,0,0,0,},{0,0,0,0,},{0,0,0,0,},0,0};
 
 /*
- * FIXME: currently only one device is supported !
- */
-static Plustek_Device dummy_dev = {
-	{ NULL, "Plustek", NULL, "flatbed scanner" },
-	0, 0, 0, 0,
-	{ 0, 0, 0 },
-	{ 0, 0, 0 },
-	{ 0, 0, 0 },
-	NULL,
- 	0
-};
-
-/*
  * see plustek-share.h
  */
 MODELSTR;
@@ -212,46 +206,47 @@ static SANE_Auth_Callback auth = NULL;
 /*.............................................................................
  * open the driver
  */
-static SANE_Status drvopen(Plustek_Scanner * s, const char *dev_name)
+static int drvopen( const char *dev_name )
 {
 	int 		   result;
+	int			   handle;
 	unsigned short version = _PTDRV_IOCTL_VERSION;
 
     DBG( _DBG_INFO, "drvopen()\n" );
 
-	if ((s->fd = open(dev_name, O_RDONLY)) < 0) {
+	if ((handle = open(dev_name, O_RDONLY)) < 0) {
 	    DBG(_DBG_ERROR, "open: can't open %s as a device\n", dev_name);
-    	return SANE_STATUS_IO_ERROR;
+    	return handle;
 	}
 	
-	result = ioctl(s->fd, _PTDRV_OPEN_DEVICE, &version );
+	result = ioctl(handle, _PTDRV_OPEN_DEVICE, &version );
 	if( result < 0 ) {
+		close( handle );
 		DBG( _DBG_ERROR,"ioctl PT_DRV_OPEN_DEVICE failed(%d)\n", result );
-		return SANE_STATUS_IO_ERROR;
+		return result;
     }
 
-	return SANE_STATUS_GOOD;
+	return handle;
 }
 
 /*.............................................................................
  * close the driver
  */
-static SANE_Status drvclose(Plustek_Scanner * s)
+static SANE_Status drvclose( int handle )
 {
 	int int_cnt;
 
-	if( s->fd >= 0 ) {
+	if( handle >= 0 ) {
 
 	    DBG( _DBG_INFO, "drvclose()\n" );
 		/*
 		 * don't check the return values, simply do it and close the driver
 		 */
 		int_cnt = 0;
-		ioctl(s->fd, _PTDRV_STOP_SCAN, &int_cnt );
-		ioctl(s->fd, _PTDRV_CLOSE_DEVICE, 0);
+		ioctl( handle, _PTDRV_STOP_SCAN, &int_cnt );
+		ioctl( handle, _PTDRV_CLOSE_DEVICE, 0);
 
-		close(s->fd);
-		s->fd = -1;
+		close( handle );
 	}
 
 	return SANE_STATUS_GOOD;
@@ -260,12 +255,13 @@ static SANE_Status drvclose(Plustek_Scanner * s)
 /*.............................................................................
  * according to the mode and source we return the corresponding mode list
  */
-static pModeParam getModeList( Plustek_Scanner *handle )
+static pModeParam getModeList( Plustek_Scanner *scanner )
 {
 	pModeParam mp;
 
-	if((MODEL_OP_9636T  == handle->hw->model) ||
-	   (MODEL_OP_9636PP == handle->hw->model)) {
+	if((MODEL_OP_9636T  == scanner->hw->model) ||
+	   (MODEL_OP_9636P  == scanner->hw->model) ||
+	   (MODEL_OP_9636PP == scanner->hw->model)) {
 		mp = mode_9636_params;	
 	} else {
 		mp = mode_params;	
@@ -274,7 +270,7 @@ static pModeParam getModeList( Plustek_Scanner *handle )
 	/*
 	 * the transparency/negative mode supports only GRAY/COLOR/COLOR32/COLOR48
 	 */
-	if( 0 != handle->val[OPT_EXT_MODE].w )
+	if( 0 != scanner->val[OPT_EXT_MODE].w )
 		mp = &mp[_TPAModeSupportMin];
 
 	return mp;
@@ -342,11 +338,14 @@ static int reader_process( Plustek_Scanner *scanner, int pipe_fd )
 	}
 	
 	/* here we read all data from the driver... */
-	status = (unsigned long)read( scanner->fd, scanner->buf, data_length );
+	status = (unsigned long)read( scanner->hw->fd, scanner->buf, data_length );
 
 	/* on error, there's no need to clean up, as this is done by the parent */
 	if((int)status < 0 ) {
-		DBG( _DBG_ERROR, "read failed, error %i\n", (int)status );
+		DBG( _DBG_ERROR, "read failed, error %i\n", errno );
+		if( errno == EBUSY )
+			return SANE_STATUS_DEVICE_BUSY;
+
 		return SANE_STATUS_IO_ERROR;
     }
 
@@ -378,9 +377,9 @@ static SANE_Status do_cancel( Plustek_Scanner *scanner, SANE_Bool closepipe  )
 		DBG( _DBG_PROC,"killing reader_process\n" );
 
 		/* tell the driver to stop scanning */
-		if( -1 != scanner->fd ) {
+		if( -1 != scanner->hw->fd ) {
 			int_cnt = 1;
-			ioctl(scanner->fd, _PTDRV_STOP_SCAN, &int_cnt );
+			ioctl(scanner->hw->fd, _PTDRV_STOP_SCAN, &int_cnt );
 		}
 
 		/* kill our child process and wait until done */
@@ -399,7 +398,9 @@ static SANE_Status do_cancel( Plustek_Scanner *scanner, SANE_Bool closepipe  )
 		close_pipe( scanner );
 	}
 
-	drvclose( scanner );
+	drvclose( scanner->hw->fd );
+	scanner->hw->fd = -1;
+
 	return SANE_STATUS_CANCELLED;
 }
 
@@ -471,6 +472,7 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	s->opt[OPT_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
 
 	if((MODEL_OP_9636T  == s->hw->model) ||
+	   (MODEL_OP_9636P  == s->hw->model) ||
 	   (MODEL_OP_9636PP == s->hw->model)) {
 		s->opt[OPT_MODE].constraint.string_list = mode_9636_list;
 	} else {
@@ -602,84 +604,88 @@ static SANE_Status init_options( Plustek_Scanner *s )
  */
 static SANE_Status attach( const char *dev_name, Plustek_Device **devp )
 {
-	char 	    	 *str;
-	int 			 cntr;
-	int				 result;
-	SANE_Status 	 status;
-	ScannerCaps 	 scaps;
-	Plustek_Scanner *s = walloca(Plustek_Scanner);
-
-	/* we currently support only one device !!! */
-	s->hw = &dummy_dev;
+	char 	       *str;
+	int 		    cntr;
+	int			    result;
+	int			    handle;
+	SANE_Status	    status;
+	Plustek_Device *dev;
+	ScannerCaps	    scaps;
 
 	DBG(_DBG_SANE_INIT, "attach (%s, %p)\n", dev_name, (void *)devp);
+
+	/* already attached ?*/
+	for( dev = first_dev; dev; dev = dev->next )
+		if (strcmp (dev->sane.name, dev_name) == 0) {
+			if (devp)
+		*devp = dev;
+		return SANE_STATUS_GOOD;
+    }
 
 	/*
 	 * go ahead and open the scanner device
 	 */
-	status = drvopen( s, dev_name );
-	if (SANE_STATUS_GOOD != status ) {
-		return status;
-    }
-
-	result = ioctl(s->fd, _PTDRV_GET_CAPABILITIES, &scaps);
-	if( result < 0 ) {
-		DBG( _DBG_ERROR, "ioctl _PTDRV_GET_CAPABILITIES failed(%d)\n", result);
-		close(s->fd);
+	handle = drvopen( dev_name );
+	if( handle < 0 ) {
 		return SANE_STATUS_IO_ERROR;
     }
 
-	result = ioctl(s->fd, _PTDRV_GET_LENSINFO, &lens);
+	result = ioctl( handle, _PTDRV_GET_CAPABILITIES, &scaps);
+	if( result < 0 ) {
+		DBG( _DBG_ERROR, "ioctl _PTDRV_GET_CAPABILITIES failed(%d)\n", result);
+		close(handle);
+		return SANE_STATUS_IO_ERROR;
+    }
+
+	result = ioctl( handle, _PTDRV_GET_LENSINFO, &lens);
 	if( result < 0 ) {
 		DBG( _DBG_ERROR, "ioctl _PTDRV_GET_LENSINFO failed(%d)\n", result );
-		close(s->fd);
+		close(handle);
 		return SANE_STATUS_IO_ERROR;
 	}
 
 	/* did we fail on connection? */
 	if (scaps.wIOBase == _NO_BASE ) {
 		DBG( _DBG_ERROR, "failed to find Plustek scanner\n" );
-		close(s->fd);
+		close(handle);
 		return SANE_STATUS_INVAL;
     }
 
+	/* allocate some memory for the device */
+	dev = malloc( sizeof (*dev));
+	if (!dev)
+    	return SANE_STATUS_NO_MEM;
+
+	memset (dev, 0, sizeof (*dev));
+
+	dev->fd			 = -1;
+	dev->sane.name   = strdup (dev_name);
+	dev->sane.vendor = "Plustek";
+	dev->sane.type   = "flatbed scanner";
+
+
 	/* save the info we got from the driver */
-	s->hw->model  = scaps.Model;
-	s->hw->asic   = scaps.AsicID;
-	s->hw->max_y  = scaps.wMaxExtentY*MM_PER_INCH/_MEASURE_BASE;
+	dev->model  = scaps.Model;
+	dev->asic   = scaps.AsicID;
+	dev->max_y  = scaps.wMaxExtentY*MM_PER_INCH/_MEASURE_BASE;
 
-	init_options( s );
+	dev->res_list = (SANE_Int *) calloc(((lens.rDpiX.wMax -_DEF_DPI)/25 + 1),
+			     sizeof (SANE_Int));  /* one more to avoid a buffer overflow */
 
-	s->hw->res_list = (SANE_Int *) calloc(((lens.rDpiX.wMax -_DEF_DPI)/25 + 1),
-				sizeof (SANE_Int));  /* one more to avoid a buffer overflow */
-
-	if (NULL == s->hw->res_list) {
+	if (NULL == dev->res_list) {
 		DBG( _DBG_ERROR, "alloc fail, resolution problem\n" );
-		close(s->fd);
+		close(handle);
 		return SANE_STATUS_INVAL;
 	}
 
-	s->hw->res_list_size = 0;
+	dev->res_list_size = 0;
 	for (cntr = _DEF_DPI; cntr <= lens.rDpiX.wMax; cntr += 25) {
-		s->hw->res_list_size++;
-		s->hw->res_list[s->hw->res_list_size - 1] = (SANE_Int) cntr;
+		dev->res_list_size++;
+		dev->res_list[dev->res_list_size - 1] = (SANE_Int) cntr;
 	}
 
-	status = limitResolution( &dummy_dev );
-	drvclose( s );
-	if (status != SANE_STATUS_GOOD) {
-		DBG( _DBG_ERROR,"attach: device doesn't look like a Plustek scanner\n");
-		close(s->fd);
-		return SANE_STATUS_INVAL;
-	}
-
-	str = malloc(strlen (dev_name) + 1);
-	if( NULL == str ) {
-		close(s->fd);
-		return SANE_STATUS_NO_MEM;
-	}
-
-	dummy_dev.sane.name = strcpy (str, dev_name);
+	status = limitResolution( dev );
+	drvclose( handle );
 
 	str = malloc(_MODEL_STR_LEN);
 	if( NULL == str ) {
@@ -697,13 +703,17 @@ static SANE_Status attach( const char *dev_name, Plustek_Device **devp )
 		sprintf (str, ModelStr[scaps.Model]);  /* lookup model string */
 	}
 
-	/* put version in */
-	sprintf (str + strlen(str), " Driver-Version %d.%d",
-								scaps.Version >> 8, scaps.Version & 0xff);
+	dev->sane.model = str;
+	dev->fd			= handle;
 
-	dummy_dev.sane.model = str;
+	DBG( _DBG_SANE_INIT, "attach: model = >%s<\n", dev->sane.model );
 
-	DBG( _DBG_SANE_INIT, "attach: model = >%s<\n", dummy_dev.sane.model );
+	++num_devices;
+	dev->next = first_dev;
+	first_dev = dev;
+
+	if (devp)
+    	*devp = dev;
 
 	return SANE_STATUS_GOOD;
 }
@@ -724,7 +734,6 @@ static SANE_Status attach_one( const char *dev )
 SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 {
 	char   dev_name[PATH_MAX] = "/dev/pt_drv";
-	char   line[PATH_MAX];
 	size_t len;
 	FILE  *fp;
 
@@ -734,34 +743,42 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 	DBG( _DBG_SANE_INIT, "sane_init: " PACKAGE " " VERSION "\n");
 #endif
 
-	auth = authorize;
+	auth         = authorize;
+	first_dev    = NULL;
+	first_handle = NULL;
+	num_devices  = 0;
 
 	if( version_code != NULL )
 		*version_code = SANE_VERSION_CODE(V_MAJOR, V_MINOR, 0);
 
+	fp = sanei_config_open( PLUSTEK_CONFIG_FILE );
+
 	/* default to /dev/pt_drv instead of insisting on config file */
-	if ((fp = sanei_config_open( PLUSTEK_CONFIG_FILE ))) {
-
-		while (sanei_config_read (line, sizeof (line), fp)) {
-
-			DBG( _DBG_SANE_INIT, "sane_init, >%s<\n", line);
-			if( line[0] == '#')		/* ignore line comments */
-	    		continue;
-			
-			len = strlen (line);
-			if( line[len - 1] == '\n' )
-            	line[--len] = '\0';
-			if( !len)
-            	continue;			/* ignore empty lines */
-
-			DBG( _DBG_SANE_INIT, "sane_init, >%s<\n", line);
-
-		}
-      	fclose (fp);
+	if( NULL == fp ) {
+		return attach("/dev/pt_drv", 0);
 	}
 
-/* FIXME: Use this to attach each device ! --> next release */
-	sanei_config_attach_matching_devices( dev_name, attach_one );
+#if V_REV >= 3
+	while (sanei_config_read( dev_name, sizeof(dev_name), fp)) {
+#else
+	while (fgets(dev_name, sizeof(dev_name), fp)) {
+#endif
+
+		DBG( _DBG_SANE_INIT, "sane_init, >%s<\n", dev_name);
+		if( dev_name[0] == '#')		/* ignore line comments */
+    		continue;
+			
+		len = strlen(dev_name);
+		if( dev_name[len - 1] == '\n' )
+           	dev_name[--len] = '\0';
+		if( !len)
+           	continue;			/* ignore empty lines */
+
+		DBG( _DBG_SANE_INIT, "sane_init, >%s<\n", dev_name);
+
+		sanei_config_attach_matching_devices( dev_name, attach_one );
+	}
+   	fclose (fp);
 
 	return SANE_STATUS_GOOD;
 }
@@ -771,18 +788,26 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
  */
 void sane_exit( void )
 {
+	Plustek_Device *dev, *next;
+
 	DBG( _DBG_SANE_INIT, "sane_exit\n" );
 
-	/*
-	 * check pointer, because they're might be NULL
-	 */
-	if( NULL != dummy_dev.sane.model )
-  		free((char *)dummy_dev.sane.model);
 
-	if( NULL != dummy_dev.sane.name )
-		free((char *)dummy_dev.sane.name);
+	for( dev = first_dev; dev; dev = next ) {
+    	next = dev->next;
 
-	auth = NULL;
+		if( dev->sane.name )
+			free ((void *) dev->sane.name);
+
+		if( dev->sane.model )
+			free ((void *) dev->sane.model);
+
+		free (dev);
+	}
+
+	auth         = NULL;
+	first_dev    = NULL;
+	first_handle = NULL;
 }
 
 /*.............................................................................
@@ -791,17 +816,25 @@ void sane_exit( void )
 SANE_Status sane_get_devices (const SANE_Device ***device_list,
 														SANE_Bool local_only )
 {
-	static const SANE_Device *devlist[2];
-  	int i;
+	static const SANE_Device **devlist = 0;
+	Plustek_Device            *dev;
+	int                        i;
 
 	DBG(_DBG_SANE_INIT, "sane_get_devices (%p, %ld)\n", (void *) device_list,
 				       (long) local_only);
-	i = 0;
 
-	if (dummy_dev.sane.name != NULL)
-		devlist[i++] = &dummy_dev.sane;
-	
-	devlist[i] = NULL;
+	/* already called, so cleanup */
+	if( devlist )
+    	free( devlist );
+
+	devlist = malloc((num_devices + 1) * sizeof (devlist[0]));
+	if ( NULL == devlist )
+    	return SANE_STATUS_NO_MEM;
+
+	i = 0;
+	for (dev = first_dev; i < num_devices; dev = dev->next)
+    	devlist[i++] = &dev->sane;
+	devlist[i++] = 0;
 
 	*device_list = devlist;
 	return SANE_STATUS_GOOD;
@@ -812,39 +845,47 @@ SANE_Status sane_get_devices (const SANE_Device ***device_list,
  */
 SANE_Status sane_open( SANE_String_Const devicename, SANE_Handle * handle )
 {
+	SANE_Status      status;
+	Plustek_Device  *dev;
 	Plustek_Scanner *s;
 
 	DBG( _DBG_SANE_INIT, "sane_open\n" );
 
-	/*
-	 * this might happens, when there´s no scanner at the port...
-	 */	
-	if( NULL == dummy_dev.sane.name )
-		return SANE_STATUS_INVAL;
+	if (devicename[0]) {
+    	for (dev = first_dev; dev; dev = dev->next)
+			if (strcmp (dev->sane.name, devicename) == 0)
+				break;
 
-	if (devicename[0] == '\0')
-    	devicename = dummy_dev.sane.name;
+		if (!dev) {
+			status = attach (devicename, &dev);
 
-	if (strcmp (devicename, dummy_dev.sane.name) != 0)
-		return SANE_STATUS_INVAL;
+			if (status != SANE_STATUS_GOOD)
+				return status;
+		}
+	} else {
+		/* empty devicename -> use first device */
+		dev = first_dev;
+	}
 
-	s = calloc( 1, sizeof(Plustek_Scanner));
-	if (s == NULL)
+	if (!dev)
+    	return SANE_STATUS_INVAL;
+
+	s = malloc (sizeof (*s));
+	if (!s)
     	return SANE_STATUS_NO_MEM;
 
-	/*
-	 * preset the scanner struct
-	 */
-	memset( s, 0, sizeof(Plustek_Scanner));
-
-	s->fd 	    = -1;
-	s->pipe	    = -1;
-	s->hw 		= &dummy_dev;
+	memset(s, 0, sizeof (*s));
+	s->pipe     = -1;
+	s->hw       = dev;
 	s->scanning = SANE_FALSE;
 
 	init_options(s);
 
-	*handle = (SANE_Handle)s;
+	/* insert newly opened handle into list of open handles: */
+	s->next      = first_handle;
+	first_handle = s;
+
+	*handle = s;
 	return SANE_STATUS_GOOD;
 }
 
@@ -853,19 +894,37 @@ SANE_Status sane_open( SANE_String_Const devicename, SANE_Handle * handle )
  */
 void sane_close (SANE_Handle handle)
 {
-	Plustek_Scanner *s;
+	Plustek_Scanner *prev, *s;
 
 	DBG( _DBG_SANE_INIT, "sane_close\n" );
 
-	s = (Plustek_Scanner *)handle;
+	/* remove handle from list of open handles: */
+	prev = 0;
+
+	for( s = first_handle; s; s = s->next ) {
+		if( s == handle )
+			break;
+		prev = s;
+	}
+
+	if (!s) {
+    	DBG( _DBG_ERROR, "close: invalid handle %p\n", handle);
+		return;		
+	}
 
 	close_pipe( s );
 
 	if( NULL != s->buf )
 		free(s->buf);
 
-	drvclose( s );
-	
+	drvclose( s->hw->fd );
+	s->hw->fd = -1;
+
+	if (prev)
+    	prev->next = s->next;
+	else
+    	first_handle = s->next;
+
 	free(s);
 }
 
@@ -1069,6 +1128,7 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 					s->val[OPT_BR_Y].w = SANE_FIX(_DEFAULT_BRY);
 
 					if((MODEL_OP_9636T  == s->hw->model) ||
+					   (MODEL_OP_9636P  == s->hw->model) ||
 					   (MODEL_OP_9636PP == s->hw->model)) {
 						s->opt[OPT_MODE].constraint.string_list = mode_9636_list;
 					} else {
@@ -1209,29 +1269,34 @@ SANE_Status sane_start( SANE_Handle handle )
 	/*
 	 * open the driver and get some information about the scanner
 	 */
-	if (SANE_STATUS_GOOD != (status = drvopen (s, s->hw->sane.name))) {
-		DBG( _DBG_ERROR,"sane_start: open failed: %s\n",sane_strstatus(status));
-		return status;
+	s->hw->fd = drvopen ( s->hw->sane.name );
+	if( s->hw->fd < 0 ) {
+		DBG( _DBG_ERROR,"sane_start: open failed: %d\n", errno );
+
+		if( errno == EBUSY )
+			return SANE_STATUS_DEVICE_BUSY;
+
+		return SANE_STATUS_IO_ERROR;
 	}
 
-	result = ioctl(s->fd, _PTDRV_GET_CAPABILITIES, &scaps);
+	result = ioctl( s->hw->fd, _PTDRV_GET_CAPABILITIES, &scaps);
 	if( result < 0 ) {
 		DBG( _DBG_ERROR, "ioctl _PTDRV_GET_CAPABILITIES failed(%d)\n", result);
-		close(s->fd);
+		close( s->hw->fd );
 		return SANE_STATUS_IO_ERROR;
     }
 	
-	result = ioctl(s->fd, _PTDRV_GET_LENSINFO, &lens);
+	result = ioctl( s->hw->fd, _PTDRV_GET_LENSINFO, &lens);
 	if( result < 0 ) {
 		DBG( _DBG_ERROR, "ioctl _PTDRV_GET_LENSINFO failed(%d)\n", result );
-		close(s->fd);
+		close(s->hw->fd);
 		return SANE_STATUS_IO_ERROR;
     }
 
 	/* did we fail on connection? */
 	if (scaps.wIOBase == _NO_BASE ) {
 		DBG( _DBG_ERROR, "failed to find Plustek scanner\n" );
-		close(s->fd);
+		close(s->hw->fd);
 		return SANE_STATUS_INVAL;
 	}
 
@@ -1275,6 +1340,8 @@ SANE_Status sane_start( SANE_Handle handle )
  */
 	if( COLOR_TRUE48 == scanmode )
 		cb.ucmd.cInf.ImgDef.wBits = OUTPUT_12Bits;
+	else if( COLOR_TRUE32 == scanmode )
+		cb.ucmd.cInf.ImgDef.wBits = OUTPUT_10Bits;
 	else
 		cb.ucmd.cInf.ImgDef.wBits = OUTPUT_8Bits;
 
@@ -1288,17 +1355,17 @@ SANE_Status sane_start( SANE_Handle handle )
 
 	cb.ucmd.cInf.ImgDef.wLens = scaps.wLens;
 
-	result = ioctl(s->fd, _PTDRV_PUT_IMAGEINFO, &cb);
+	result = ioctl( s->hw->fd, _PTDRV_PUT_IMAGEINFO, &cb);
 	if( result < 0 ) {
 		DBG( _DBG_ERROR, "ioctl _PTDRV_PUT_IMAGEINFO failed(%d)\n", result );
-		close(s->fd);
+		close(s->hw->fd);
 		return SANE_STATUS_IO_ERROR;
 	}
 
-	result = ioctl(s->fd, _PTDRV_GET_CROPINFO, &crop);
+	result = ioctl(s->hw->fd, _PTDRV_GET_CROPINFO, &crop);
 	if( result < 0 ) {
 	    DBG( _DBG_ERROR, "ioctl _PTDRV_GET_CROPINFO failed(%d)\n", result );
-	    close(s->fd);
+	    close(s->hw->fd);
     	return SANE_STATUS_IO_ERROR;
     }
 
@@ -1318,6 +1385,8 @@ SANE_Status sane_start( SANE_Handle handle )
 
 	if( COLOR_TRUE48 == scanmode )
 		cb.ucmd.sInf.ImgDef.wBits = OUTPUT_12Bits;
+	else if( COLOR_TRUE32 == scanmode )
+		cb.ucmd.sInf.ImgDef.wBits = OUTPUT_10Bits;
 	else
 		cb.ucmd.sInf.ImgDef.wBits = OUTPUT_8Bits;
 
@@ -1341,17 +1410,17 @@ SANE_Status sane_start( SANE_Handle handle )
 	DBG( _DBG_SANE_INIT, "bright %i contrast %i\n", cb.ucmd.sInf.siBrightness,
 			 									      cb.ucmd.sInf.siContrast);
 
-	result = ioctl(s->fd, _PTDRV_SET_ENV, &cb.ucmd.sInf);
+	result = ioctl(s->hw->fd, _PTDRV_SET_ENV, &cb.ucmd.sInf);
 	if( result < 0 ) {
 		DBG( _DBG_ERROR, "ioctl _PTDRV_SET_ENV failed(%d)\n", result );
-		close(s->fd);
+		close(s->hw->fd);
 		return SANE_STATUS_IO_ERROR;
     }
 
-	result = ioctl(s->fd, _PTDRV_START_SCAN, &start);
+	result = ioctl(s->hw->fd, _PTDRV_START_SCAN, &start);
 	if( result < 0 ) {
 		DBG( _DBG_ERROR, "ioctl _PTDRV_START_SCAN failed(%d)\n", result );
-		close(s->fd);
+		close(s->hw->fd);
 		return SANE_STATUS_IO_ERROR;
     }
 
@@ -1362,7 +1431,7 @@ SANE_Status sane_start( SANE_Handle handle )
 	s->buf = realloc( s->buf, (s->params.lines) * s->params.bytes_per_line );
 	if( NULL == s->buf ) {
 		DBG( _DBG_ERROR, "realloc failed\n" );
-		close(s->fd);
+		close(s->hw->fd);
 		return SANE_STATUS_NO_MEM;
 	}
 
@@ -1375,7 +1444,7 @@ SANE_Status sane_start( SANE_Handle handle )
 	if( pipe(fds) < 0 ) {
 		DBG( _DBG_ERROR, "ERROR: could not create pipe\n" );
 	    s->scanning = SANE_FALSE;
-		close(s->fd);
+		close(s->hw->fd);
 		return SANE_STATUS_IO_ERROR;
 	}
 
@@ -1386,7 +1455,7 @@ SANE_Status sane_start( SANE_Handle handle )
 	if( s->reader_pid < 0 ) {
 		DBG( _DBG_ERROR, "ERROR: could not create child process\n" );
 	    s->scanning = SANE_FALSE;
-		close(s->fd);
+		close(s->hw->fd);
 		return SANE_STATUS_IO_ERROR;
 	}
 
@@ -1450,7 +1519,8 @@ SANE_Status sane_read( SANE_Handle handle, SANE_Byte *data,
 				(unsigned long)(s->params.lines * s->params.bytes_per_line)) {
 				waitpid( s->reader_pid, 0, 0 );
 				s->reader_pid = -1;
-				drvclose(s);
+				drvclose( s->hw->fd );
+				s->hw->fd = -1;
 				return close_pipe(s);
 			}
 
@@ -1467,7 +1537,8 @@ SANE_Status sane_read( SANE_Handle handle, SANE_Byte *data,
 	s->bytes_read += nread;
 
 	if (0 == nread) {
-		drvclose(s);
+		drvclose( s->hw->fd );
+		s->hw->fd = -1;
 		return close_pipe(s);
 	}
 

@@ -1,4 +1,4 @@
-.TH sane-plustek 5 "22 July 2000"
+.TH sane-plustek 5 "23 August 2000"
 .IX sane-plustek
 .SH NAME
 sane-plustek - SANE backend for Plustek parallel port flatbed scanners
@@ -18,15 +18,15 @@ Model:                 ASIC: Properties:
 .br
 ---------------------- ----- ------------------------
 .br
-OpticPro 12000P Turbo  98001 600x1200 dpi 36bit 512Kb
-.br
 OpticPro 9636T/12000T  98001 600x1200 dpi 36bit 512Kb
+.br
+OpticPro 12000P Turbo  98001 600x1200 dpi 36bit 512Kb
 .br
 OpticPro 9636P+/Turbo  98001 600x1200 dpi 36bit 512Kb
 .br
 OpticPro 9636P         98001 600x1200 dpi 36bit 512Kb
 .br
-OpticPro 12000P/96000P 96003 600x1200 dpi 36bit 128Kb
+OpticPro 12000P/96000P 96003 600x1200 dpi 30bit 128Kb
 .br
 OpticPro 9630P/FBIV    96003 600x1200 dpi 30bit 128Kb
 .br
@@ -70,24 +70,38 @@ Colorado 4800               OpticPro 4800   not tested
 .br
 Colorado 4800 Direct        OpticPro 600    mov=2
 .br
-Colorado 4800 Direct 30Bit  OpticPro 4830   not tested
+Colorado 4800 Direct 30bit  OpticPro 4830   not tested
 .br
-Colorado 9600 Direct 30Bit  OpticPro 9630   not tested
+Colorado 9600 Direct 30bit  OpticPro 9630   not tested
 .PP
 
 .SH "DEVICE NAMES"
-This backend expects a device called:
+This backend expects a default device called:
 .PP
 .RS
 .I /dev/pt_drv
 .RE
-This device is currently not part of the SANE distribution. It has to
-be downloaded from:
+.PP
+This default device will be used, if no configuration
+file can be found.
+.PP
+The device-driver is currently not part of the SANE distribution.
+It has to be downloaded from:
 .br
 .B http://home.t-online.de/home/g-jaeger/plustek.html
 .br
 See the INSTALL file there for a proper setup. Currently only Linux
 is supported by this driver (Kernel 2.2.x and higher).
+.PP
+As the backend and the driver support up to four devices
+per system, it is possible to specify them in the configuration
+file
+.PP
+.RS
+.I @CONFIGDIR@/plustek.conf
+.RE
+.PP
+See the plustek.conf file for examples.
 .PP
 
 .SH CONFIGURATION
@@ -157,6 +171,15 @@ mov=m
 .br
        transparency/negativ capabilities
 .br
+.I m
+=4 - OpticPro 9636P override (works if OP9636 has
+.br
+       been detected) disables backends
+.br
+       transparency/negativ capabilities
+.br
+       and R/W test during startup
+.br
 .RE
 .PP
 Sample entry for file
@@ -168,6 +191,13 @@ Sample entry for file
 .I post-install pt_drv modprobe -k parport
 .br
 .I options pt_drv lampoff=180 warmup=15 port=0x378 lOffonEnd=0 mov=0
+.PP
+For multidevice support, simply add values separated by commas to
+the different options
+.br
+.I options pt_drv port=0x378,0x278 mov=0,4
+.PP
+Remember to call depmod after changing /etc/conf.modules.
 .PP
 
 .SH "PARALLEL PORT MODES"
@@ -213,10 +243,15 @@ Please send any information and bug-reports to:
 .br
 .B Gerhard Jaeger <g.jaeger@earthling.net>
 .PP
+Additional info and hints can be obtained in our
+.br
+Mailing-List archive at:
+.br
+.B http://www.linuxhacker.org/listscgi-bin/ezmlm-cgi/3
+.PP
 
 .SH "BUGS & RESTRICTIONS"
 .PP
-* The Color36/48-modes are not tested
 .br
 * The Halftoning works, but the quality is poor
 .br
@@ -241,6 +276,8 @@ Please send any information and bug-reports to:
   so scaling is necesary, because the sensor only delivers
 .br
   600dpi but the motor is capable to perform 800dpi steps.
+.br
+* On some devices, the pictures seems to be bluished
 .PP
 ASIC 98001 based models:
 .br
@@ -260,21 +297,15 @@ ASIC 98001 based models:
 .PP
 ASIC 96003/1 based models:
 .br
+  30bit mode is currently not supported.
+.br
 * On low-end systems and under heavy system load, the
 .br
   driver will loosing data, this might causes the sensor
 .br
-  to hit the scan-bed.
+  to hit the scan-bed and/or the picture is corrupted.
 .br
 * The scanspeed on 600x1200 dpi models is slow.
-.br
-* The scan area of 600dpi 96003 based models will be
-.br
-  limited by the driver in binary mode for resolutions
-.br
-  below 100 dpi to avoid moving the sensor against the
-.br
-  bed.
 .br
 
 

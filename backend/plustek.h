@@ -26,6 +26,8 @@
  *		  added max_y in struct Plustek_Scan
  * 0.36 - added reader_pid, pipe and bytes_read to struct Plustek_Scanner
  *		  removed unused variables from struct Plustek_Scanner
+ *        moved fd from struct Plustek_Scanner to Plustek_Device
+ *		  added next members to struct Plustek_Scanner and Plustek_Device
  *
  *.............................................................................
  *
@@ -137,18 +139,20 @@ enum {
 #define PLUSTEK_DESC_SCAN_SOURCE \
 "Selects the picture mode."
 
-typedef struct
+typedef struct Plustek_Device
 {
-    SANE_Device sane;
-	SANE_Int	model;
-	SANE_Int	asic;
-	SANE_Int	max_y;
-    SANE_Int 	level;
-    SANE_Range 	dpi_range;
-    SANE_Range 	x_range;
-    SANE_Range 	y_range;
-    SANE_Int   *res_list;
-    SANE_Int 	res_list_size;
+	struct Plustek_Device *next;
+	int 				   fd;				/* device handle */
+    SANE_Device 		   sane;
+	SANE_Int			   model;
+	SANE_Int			   asic;
+	SANE_Int			   max_y;
+    SANE_Int 			   level;
+    SANE_Range 			   dpi_range;
+    SANE_Range 			   x_range;
+    SANE_Range 			   y_range;
+    SANE_Int  		 	  *res_list;
+    SANE_Int 			   res_list_size;
 } Plustek_Device;
 
 typedef union
@@ -158,9 +162,9 @@ typedef union
 	SANE_String s;
 } Option_Value;
 
-typedef struct
+typedef struct Plustek_Scanner
 {
-	int 					fd;
+    struct Plustek_Scanner *next;
     pid_t 					reader_pid;		/* process id of reader          */
     int 					pipe;			/* pipe to reader process        */
 	unsigned long			bytes_read;		/* number of bytes currently read*/

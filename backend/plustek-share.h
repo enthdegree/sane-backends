@@ -402,7 +402,8 @@ typedef struct {
 #define _OVR_NONE				0
 #define _OVR_PLUSTEK_9630PL		1	/* for legal version of the OP9630	*/
 #define _OVR_PRIMAX_4800D		2	/* for the Primax 4800 Direct		*/
-#define _OVR_PLUSTEK_9636		3	/* for 9636T/P						*/
+#define _OVR_PLUSTEK_9636		3	/* for 9636T/P+/Turbo				*/
+#define _OVR_PLUSTEK_9636P		4	/* for 9636P						*/
 
 #endif	/* guard __PLUSTEK_SHARE_H__ */
 

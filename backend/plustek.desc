@@ -56,7 +56,7 @@
 
 :model "OpticPro 9636P"
 :interface "Parport (SPP, EPP)"
-:comment "Not tested, but should work."
+:comment "OK - use driver-switch mov=4"
 
 :model "OpticPro 9636P+/Turbo"
 :interface "Parport (SPP, EPP)"
@@ -68,7 +68,7 @@
 
 :model "OpticPro 12000T"
 :interface "Parport (SPP, EPP)"
-:comment "Not tested, but should work."
+:comment "OK"
 
 :model "OpticPro AI3"
 :interface "Parport"

@@ -8,6 +8,8 @@
 ifeq ($(LINUXVERSION),)
  LINUXVERSION = $(shell uname -r)
 endif
+LINUXRELEASE = $(shell uname -r | cut -d'.' -f3)
+
 VERSION0 = $(shell cat $(SUBDIRS)/../VERSION0)
 VERSION1 = $(shell cat $(SUBDIRS)/../VERSION1)
 BUILD    = $(shell cat $(SUBDIRS)/../BUILD)
@@ -19,6 +21,10 @@ EXTRA_CFLAGS += -D_PTDRV_V1=$(VERSION1) -D_PTDRV_V0=$(VERSION0) -D_PTDRV_BUILD=$
 
 ifeq ($(DEBUG),y)
 	EXTRA_CFLAGS += -DDEBUG
+endif
+
+ifeq ($(shell test `uname -r | cut -d'.' -f3` -lt 6 && echo 1),1)
+	EXTRA_CFLAGS += -mhard-float
 endif
 
 #
@@ -48,7 +54,7 @@ KDIR := /lib/modules/$(shell uname -r)/build
 PWD  := $(shell pwd)
 
 default:
-	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) modules
+	$(MAKE) -C $(KDIR) M=$(PWD) modules
 endif
 
 #

@@ -1,3 +1,7 @@
+2001-10-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* PROJECTS: Added Coolscan2 backend.
+
 2001-10-15  Peter Fales <peter@fales.com>
 
 	* backend/gphoto2.c, backend/gphoto2.h: Cosmetic cleanup

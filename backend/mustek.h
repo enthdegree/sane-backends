@@ -1,6 +1,7 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 1996, 1997 David Mosberger-Tang, 1998 Andreas Bolsch for
-   extension to ScanExpress models version 0.5, 2000 Henning Meier-Geinitz
+   extension to ScanExpress models version 0.5,
+   2000, 2001 Henning Meier-Geinitz.
    This file is part of the SANE package.
    
    This program is free software; you can redistribute it and/or

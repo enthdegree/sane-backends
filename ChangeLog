@@ -1,3 +1,8 @@
+2002-04-12  Frank Zago <fzago@greshamstorage.com>
+
+	* doc/descriptions-external/leo.desc PROJECTS: Added leo backend
+	  info.
+
 2002-04-12  Matthew Duggan <stauff1@users.sourceforge.net>
 	
 	* backend/canon_pp-io.c: Updated for new libieee1284 interface 

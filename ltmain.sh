@@ -28,7 +28,8 @@
 # 2003-04-30: Henning Meier-Geinitz
 #   * soname changed to "libsane" for every backend (all systems but AIX)
 #   * fix version number for Irix
-
+#   * -framework addition for MacOS X (from Mattias Ellert 
+#      <mattias.ellert@tsl.uu.se>)
 
 # Check that we have a working $echo.
 if test "X$1" = X--no-reexec; then
@@ -996,6 +997,11 @@ EOF
 	  prev=
 	  continue
 	  ;;
+	framework)
+	  deplibs="$deplibs -framework $arg"
+	  prev=
+	  continue
+	  ;;
 	release)
 	  release="-$arg"
 	  prev=
@@ -1214,6 +1220,11 @@ EOF
 
       -inst-prefix-dir)
 	prev=inst_prefix
+	continue
+	;;
+
+      -framework)
+	prev=framework
 	continue
 	;;
 
@@ -1804,10 +1815,37 @@ EOF
 	save_deplibs="$deplibs"
 	deplibs=
       fi
+      prev=
       for deplib in $libs; do
+	case $prev in
+	"") ;;
+	framework)
+	  prev=
+	  if test $linkmode = oldlib && test $linkmode = obj; then
+	    $echo "$modename: warning: \`-framework' is ignored for archives/objects: $deplib" 1>&2
+	    continue
+	  fi
+	  if test $pass = conv; then
+	    deplibs="-framework $deplib $deplibs"
+	    continue
+	  fi
+	  if test "$linkmode,$pass" = "prog,link"; then
+	    compile_deplibs="-framework $deplib $compile_deplibs"
+	    finalize_deplibs="-framework $deplib $finalize_deplibs"
+	  else
+	    deplibs="-framework $deplib $deplibs"
+	    test $linkmode = lib && newdependency_libs="-framework $deplib $newdependency_libs"
+	  fi
+	  continue
+	  ;;
+	esac
 	lib=
 	found=no
 	case $deplib in
+	-framework)
+	  prev=framework
+	  continue
+	  ;;
 	-l*)
 	  if test "$linkmode" != lib && test "$linkmode" != prog; then
 	    $echo "$modename: warning: \`-l' is ignored for archives/objects" 1>&2
@@ -2021,14 +2059,39 @@ EOF
 	    convenience="$convenience $ladir/$objdir/$old_library"
 	    old_convenience="$old_convenience $ladir/$objdir/$old_library"
 	    tmp_libs=
+	    prev=
 	    for deplib in $dependency_libs; do
-	      deplibs="$deplib $deplibs"
-              if test "X$duplicate_deps" = "Xyes" ; then
-	        case "$tmp_libs " in
-	        *" $deplib "*) specialdeplibs="$specialdeplibs $deplib" ;;
-	        esac
-              fi
-	      tmp_libs="$tmp_libs $deplib"
+	      case $deplib in
+	      -framework)
+		prev=framework
+		continue
+		;;
+	      *)
+		case $prev in
+		framework)
+		  deplibs="-framework $deplib $deplibs"
+		  if test "X$duplicate_deps" = "Xyes" ; then
+		    case "$tmp_libs " in
+		    *" $deplib "*)
+		      specialdeplibs="$specialdeplibs -framework $deplib" ;;
+		    esac
+		  fi
+		  tmp_libs="$tmp_libs -framework $deplib"
+		  ;;
+		*)
+		  deplibs="$deplib $deplibs"
+		  if test "X$duplicate_deps" = "Xyes" ; then
+		    case "$tmp_libs " in
+		    *" $deplib "*)
+		      specialdeplibs="$specialdeplibs $deplib" ;;
+		    esac
+		  fi
+		  tmp_libs="$tmp_libs $deplib"
+		  ;;
+		esac
+		;;
+	      esac
+	      prev=
 	    done
 	  elif test "$linkmode" != prog && test "$linkmode" != lib; then
 	    $echo "$modename: \`$lib' is not a convenience library" 1>&2
@@ -2142,17 +2205,28 @@ EOF
 	  fi
 
 	  tmp_libs=
+          prev=
 	  for deplib in $dependency_libs; do
 	    case $deplib in
+            -framework)
+              prev=framework
+              continue
+              ;;
 	    -L*) newlib_search_path="$newlib_search_path "`$echo "X$deplib" | $Xsed -e 's/^-L//'`;; ### testsuite: skip nested quoting test
 	    esac
 	    # Need to link against all dependency_libs?
 	    if test "$linkalldeplibs" = yes; then
-	      deplibs="$deplib $deplibs"
+              case $prev in
+              framework) deplibs="-framework $deplib $deplibs" ;;
+              *)         deplibs="$deplib $deplibs" ;;
+              esac
 	    else
 	      # Need to hardcode shared library paths
 	      # or/and link against static libraries
-	      newdependency_libs="$deplib $newdependency_libs"
+              case $prev in
+              framework) newdependency_libs="-framework $deplib $newdependency_libs" ;;
+              *)         newdependency_libs="$deplib $newdependency_libs" ;;
+              esac
 	    fi
 	    if test "X$duplicate_deps" = "Xyes" ; then
 	      case "$tmp_libs " in
@@ -2160,6 +2234,7 @@ EOF
 	      esac
 	    fi
 	    tmp_libs="$tmp_libs $deplib"
+	    prev=
 	  done # for deplib
 	  continue
 	fi # $linkmode = prog...
@@ -2520,14 +2595,39 @@ EOF
 	  test "$link_static" = no && newdependency_libs="$abs_ladir/$laname $newdependency_libs"
 	  # ... and its dependency_libs
 	  tmp_libs=
+	  prev=
 	  for deplib in $dependency_libs; do
-	    newdependency_libs="$deplib $newdependency_libs"
-	    if test "X$duplicate_deps" = "Xyes" ; then
-	      case "$tmp_libs " in
-	      *" $deplib "*) specialdeplibs="$specialdeplibs $deplib" ;;
+	    case $deplib in
+	    -framework)
+	      prev=framework
+	      continue
+	      ;;
+	    *)
+	      case $prev in
+	      framework)
+		newdependency_libs="-framework $deplib $newdependency_libs"
+		if test "X$duplicate_deps" = "Xyes" ; then
+		  case "$tmp_libs " in
+		  *" $deplib "*)
+		    specialdeplibs="$specialdeplibs -framework $deplib" ;;
+		  esac
+		fi
+		tmp_libs="$tmp_libs -framework $deplib"
+		;;
+	      *)
+		newdependency_libs="$deplib $newdependency_libs"
+		if test "X$duplicate_deps" = "Xyes" ; then
+		  case "$tmp_libs " in
+		  *" $deplib "*)
+		    specialdeplibs="$specialdeplibs $deplib" ;;
+		  esac
+		fi
+		tmp_libs="$tmp_libs $deplib"
+		;;
 	      esac
-	    fi
-	    tmp_libs="$tmp_libs $deplib"
+	      ;;
+	    esac
+	    prev=
 	  done
 
 	  if test "$link_all_deplibs" != no; then
@@ -2617,8 +2717,21 @@ EOF
       dependency_libs="$newdependency_libs"
       if test "$pass" = dlpreopen; then
 	# Link the dlpreopened libraries before other libraries
+	prev=
 	for deplib in $save_deplibs; do
-	  deplibs="$deplib $deplibs"
+	  case $deplib in
+	  -framework)
+	    prev=framework
+	    continue
+	    ;;
+	  *)
+	    case $prev in
+	    framework) deplibs="-framework $deplib $deplibs" ;;
+	    *)         deplibs="$deplib $deplibs" ;;
+	    esac
+	    ;;
+	  esac
+	  prev=
 	done
       fi
       if test "$pass" != dlopen; then
@@ -2643,6 +2756,7 @@ EOF
 	  # Add libraries to $var in reverse order
 	  eval tmp_libs=\"\$$var\"
 	  new_libs=
+          prev=
 	  for deplib in $tmp_libs; do
 	    # FIXME: Pedantically, this is the right thing to do, so
 	    #        that some nasty dependency loop isn't accidentally
@@ -2651,6 +2765,10 @@ EOF
 	    # Pragmatically, this seems to cause very few problems in
 	    # practice:
 	    case $deplib in
+            -framework)
+              prev=framework
+              continue
+              ;;
 	    -L*) new_libs="$deplib $new_libs" ;;
 	    -R*) ;;
 	    *)
@@ -2669,16 +2787,27 @@ EOF
 	      # using -Wl,-lname, so that libtool does not consider it
 	      # for duplicate removal.
 	      case " $specialdeplibs " in
-	      *" $deplib "*) new_libs="$deplib $new_libs" ;;
+              *" $deplib "*)
+                case $prev in
+                  framework) new_libs="-framework $deplib $new_libs" ;;
+                  *)         new_libs="$deplib $new_libs" ;;
+                 esac
+                ;;
 	      *)
 		case " $new_libs " in
-		*" $deplib "*) ;;
-		*) new_libs="$deplib $new_libs" ;;
+		  *" $deplib "*) ;;
+                  *)
+                    case $prev in
+                      framework) new_libs="-framework $deplib $new_libs" ;;
+                      *)         new_libs="$deplib $new_libs" ;;
+                    esac
+                    ;;
 		esac
 		;;
 	      esac
 	      ;;
 	    esac
+            prev=
 	  done
 	  tmp_libs=
 	  for deplib in $new_libs; do

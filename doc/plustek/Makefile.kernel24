@@ -5,7 +5,7 @@
 # define the directories
 #
 HOME_DIR := .
-SRC_DIR  := $(HOME_DIR)/../../backend
+SRC_DIR  := $(HOME_DIR)
 INC_DIR  := $(SRC_DIR)
 OBJ_DIR  := $(HOME_DIR)/obj
 DOC_DIR  := $(HOME_DIR)/doc
@@ -47,16 +47,14 @@ REFOPT = -xref-all -index-all -html32
 # -Wa,-alh,-L -g 
 
 #
-#
+# get some version numbers
 #
 ifeq ($(LINUXVERSION),)
  LINUXVERSION = $(shell uname -r)
 endif
-OSMINOR  = $(shell uname -r | cut -b 3 )
-OSMAJOR  = $(shell uname -r | cut -b 1 )
-VERSION0 = $(shell cat VERSION0)
-VERSION1 = $(shell cat VERSION1)
-BUILD    = $(shell cat BUILD)
+VERSION0 = $(shell cat ./../VERSION0)
+VERSION1 = $(shell cat ./../VERSION1)
+BUILD    = $(shell cat ./../BUILD)
 
 # Change it here or specify it on the "make" commandline
 ifeq ($(HEADER_PATH),)
@@ -146,7 +144,7 @@ BACKINCS := $(addprefix $(BACKEND)/, $(BACKINCS))
 
 group = "root"
 mode  = "644"
-
+INST_DIR = /lib/modules/$(LINUXVERSION)/kernel/drivers/char
 
 info:
 	@clear
@@ -173,7 +171,7 @@ chkdir:
 $(OBJ): $(OBJS)
 	$(LD) -r $^ -o $@
 
-$(OBJS): Makefile.module $(HDRS) $(BACKINCS)
+$(OBJS): Makefile $(HDRS) $(BACKINCS)
 
 $(OBJ_DIR)/%.o : $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -184,21 +182,21 @@ $(OBJ_DIR)/$(OBJ): VERSION1 VERSION0
 # copy the driver to the modules directory
 #
 install:
-	mkdir -p /lib/modules/$(LINUXVERSION)/misc
-	install -c -m $(mode) $(OBJ) /lib/modules/$(LINUXVERSION)/misc
+	mkdir -p $(INST_DIR)
+	install -c -m $(mode) $(OBJ) $(INST_DIR)
 	/sbin/depmod -a
 
 #
 # remove it
 #
 uninstall:
-	rm -f /lib/modules/$(LINUXVERSION)/misc/$(OBJ)
+	rm -f $(INST_DIR)/$(OBJ)
 
 #
 # use modprobe to load the driver, remember to set the
 # parameter in /etc/modules.conf (see sane-plustek_pp.man for more details)
 #
-load:   /lib/modules/$(LINUXVERSION)/misc/$(OBJ)
+load:   $(INST_DIR)/$(OBJ)
 # invoke modprobe with all arguments we got
 	/sbin/modprobe $(TARGET) || exit 1
 
@@ -242,7 +240,7 @@ doc: chkdir
     -D_PTDRV_V1=$(VERSION1) -D_PTDRV_V0=$(VERSION0) -D_PTDRV_BUILD=$(BUILD) -O$(DOC_DIR)
 
 clean:
-	@-rm -f $(OBJ_DIR)/*.o .depend depend dep $(REF).* *.html $(TARGET).ko $(TARGET).o
+	@-rm -f $(OBJ_DIR)/*.o .depend depend dep $(REF).* *.html $(TARGET).o
 	@-rm -rf $(OBJ_DIR)
 	@-rm -rf $(DOC_DIR)
 

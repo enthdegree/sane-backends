@@ -1,3 +1,22 @@
+2001-05-23  Matto Marjanovic  <maddog@yoo-hoo.ai.mit.edu>
+
+	* backend/microtek.c backend/microtek.h:
+	   o Added support for Agfa StudioStar (weird pixel packing)
+           o A couple of small fixes (missing 'static' declarations)
+           o Upped version to 0.12.3
+	
+2001-05-23  Matto Marjanovic  <maddog@yoo-hoo.ai.mit.edu>
+
+	* backend/microtek.c backend/microtek.h:  Small fixes:
+           o Use 'expanded contrast/exposure settings' inquiry data to
+	     dynamically set ranges for those options.
+           o Patches for Polaroid SprintScan 35LE (from Dick Bruijn)
+              - added "Polaroid" vendor string
+              - screwed around with 'brightness' setting
+              - attached 'negative scan' button
+           o sane_exit() now frees the devlist allocated by sane_get_devices()
+           o upped version to 0.12.2
+
 2001-05-23  Stéphane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp.c: changed option names to use lower case characters

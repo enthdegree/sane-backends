@@ -110,9 +110,8 @@ Misc:
 -----
 
 WinSANE: Win32 TWAIN DLL to interface with scanners supported by SANE over the
-         network. There are two different projects. (wip)
-http://www.sunshinecomputing.com/winsane/
-http://integramicro.com/winsane
+         network. (wip?)
+http://www.integramicro.com/winsane/
 
 TWAIN interface for xsane-win32 (planned)
 Oliver Rauch <oliver.rauch@Wolfsburg.DE>

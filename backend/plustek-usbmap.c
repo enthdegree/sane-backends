@@ -5,11 +5,12 @@
  *.............................................................................
  *
  * based on sources acquired from Plustek Inc.
- * Copyright (C) 2001 Gerhard Jaeger <g.jaeger@earthling.net>
+ * Copyright (C) 2001-2002 Gerhard Jaeger <g.jaeger@earthling.net>
  *.............................................................................
  * History:
  * 0.40 - starting version of the USB support
  * 0.41 - fixed brightness problem for lineart mode
+ * 0.42 - removed preset of linear gamma tables
  *
  *.............................................................................
  *
@@ -56,62 +57,6 @@
 
 static SANE_Byte a_bMap[_MAP_SIZE * 3];
 
-#if 0
-/*.............................................................................
- * HEINER
- */
-static SANE_Bool usb_LinearMapDownload( pPlustek_Device dev )
-{
-	int       i, j;
-	SANE_Byte value;
-	
-	if( !usbio_WriteReg( dev->fd, 7, 0))
-		return SANE_FALSE;
-	
-	for( i = 0; i < 3; i++ )
-		for( j = 0; j < 4096; j++ )
-			a_bMap[i*4096 + j] = (j / 16);
-
-	for( i = 0; i < 3; i++ ) {
-	
-		/* select color */
-		value = (i << 2)+2;
-		
-		usbio_WriteReg( dev->fd, 0x03, value );
-		usbio_WriteReg( dev->fd, 0x04, 0 );
-		usbio_WriteReg( dev->fd, 0x05, 0 );
-		
-		/* write the gamma table entry to merlin */
-		sanei_lm983x_write( dev->fd,  0x06,
-							a_bMap+i*_MAP_SIZE, _MAP_SIZE, SANE_FALSE );
-	}
-	
-	return SANE_TRUE;
-}
-
-/*.............................................................................
- * HEINER
- */
-static void usb_SetMap( SANE_Word *pwMap, SANE_Word wChannel )
-{
-	u_long dw;
-	
-    if (wChannel == CHANNEL_Master) {
-
-		for( dw = 0; dw < _MAP_SIZE; dw++ )
-			a_bMap[dw] = (SANE_Byte)(pwMap[dw * 4UL] >> 6);
-			
-		memcpy( &a_bMap[kMapSize],     a_bMap, _MAP_SIZE );
-		memcpy( &a_bMap[kMapSize * 2], a_bMap, _MAP_SIZE );
-
-    } else {
-
-		for( dw = 0; dw < _MAP_SIZE * 3UL; dw++ )
-			a_bMap[dw] = (SANE_Byte)(pwMap[dw * 4UL] >> 6);
-	}
-}
-#endif
-
 /*.............................................................................
  * adjust acording to brightness and contrast
  */
@@ -120,7 +65,7 @@ static void usb_MapAdjust( pPlustek_Device dev )
 	u_long i, tabLen;
 	double b, c, tmp;
 	
-	tabLen = 4096;
+	tabLen = _MAP_SIZE;
 
 	/*
 	 * adjust brightness (b) and contrast (c) using the function:
@@ -168,17 +113,14 @@ static SANE_Bool usb_MapDownload( pPlustek_Device dev, u_char bDataType )
     pScanDef  scanning = &dev->scanning;
 
 	int       color, maxColor;			/* loop counters             */
-	int       i, j, iThreshold;
+	int       i, iThreshold;
 	SANE_Byte value;					/* value transmitted to port */
 	SANE_Bool fInverse = 0;
 	
 	DBG( _DBG_INFO, "usb_MapDownload()\n" );
 
-	/* simply create a standard table ... */
-	for( i = 0; i < 3; i++ )
-		for( j = 0; j < 4096; j++ )
-			a_bMap[i*4096 + j] = (j / 16);
-
+	/* the maps are have been already set */
+	
 	/* do the brightness and contrast adjustment ... */			
 	if( scanning->sParam.bDataType != SCANDATATYPE_BW )	
 		usb_MapAdjust( dev );

@@ -9,11 +9,13 @@
  * original code taken from sane-0.71
  * Copyright (C) 1997 Hypercore Software Design, Ltd.
  * also based on the work done by Rick Bronson
- * Copyright (C) 2000/2001 Gerhard Jaeger <g.jaeger@earthling.net>
+ * Copyright (C) 2000-2002 Gerhard Jaeger <g.jaeger@earthling.net>
  *.............................................................................
  * History:
  * 0.40 - initial version
  * 0.41 - added _PTDRV_ADJUST call
+ * 0.42 - added setmap function
+ *        fixed the stopscan problem, that causes a crash in the kernel module
  *
  *.............................................................................
  *
@@ -65,6 +67,7 @@ static int ppDev_open( const char *dev_name, void *misc )
 {
 	int 		    result;
 	int			    handle;
+	CompatAdjDef    compatAdj;
 	unsigned short  version = _PTDRV_IOCTL_VERSION;
 	Plustek_Device *dev     = (Plustek_Device *)misc;
 
@@ -77,10 +80,41 @@ static int ppDev_open( const char *dev_name, void *misc )
 	
 	result = _IOCTL( handle, _PTDRV_OPEN_DEVICE, &version );
 	if( result < 0 ) {
-		_CLOSE( handle );
-		DBG( _DBG_ERROR, "ioctl PT_DRV_OPEN_DEVICE failed(%d)\n", result );
-        if( -9019 == result )
-    		DBG( _DBG_ERROR,"Version problem, please recompile driver!\n" );
+
+        if( -9019 == result ) {
+
+			DBG( _DBG_INFO, "Version 0x%04x not supported, trying "
+                            "compatibility version 0x%04x\n",
+                            _PTDRV_IOCTL_VERSION, _PTDRV_COMPAT_IOCTL_VERSION);
+
+			version = _PTDRV_COMPAT_IOCTL_VERSION;
+
+			result = _IOCTL( handle, _PTDRV_OPEN_DEVICE, &version );
+			if( result < 0 ) {
+				_CLOSE( handle );
+				DBG( _DBG_ERROR,
+					 "ioctl PT_DRV_OPEN_DEVICE failed(%d)\n", result );
+
+		        if( -9019 == result ) {
+	    			DBG( _DBG_ERROR,
+						 "Version problem, please recompile driver!\n" );
+				}
+			} else {
+
+				DBG( _DBG_INFO, "Using compatibility version\n" );
+
+				compatAdj.lampOff      = dev->adj.lampOff;
+				compatAdj.lampOffOnEnd = dev->adj.lampOffOnEnd;
+				compatAdj.warmup       = dev->adj.warmup;
+
+				memcpy( &compatAdj.pos, &dev->adj.pos, sizeof(OffsDef));
+				memcpy( &compatAdj.neg, &dev->adj.neg, sizeof(OffsDef));
+				memcpy( &compatAdj.tpa, &dev->adj.tpa, sizeof(OffsDef));
+
+				_IOCTL( handle, _PTDRV_ADJUST, &compatAdj );
+				return handle;
+			}
+		}
 		return result;
     }
 
@@ -145,17 +179,63 @@ static int ppDev_startScan( Plustek_Device *dev, pStartScan start )
 	return _IOCTL( dev->fd, _PTDRV_START_SCAN, start );
 }
 
+/**
+ * function to send a gamma table to the kernel module. As the default table
+ * entry is 16-bit, but the maps are 8-bit, we have to copy the values...
+ */
+static int ppDev_setMap( Plustek_Device *dev, SANE_Word *map,
+						 SANE_Word length, SANE_Word channel )
+{
+	SANE_Byte *buf;
+	SANE_Word  i;
+	MapDef     m;
+
+	m.len    = length;
+	m.map_id = channel;
+
+	m.map = (void *)map;
+		
+	DBG(_DBG_INFO,"Setting map[%u] at 0x%08lx\n", channel, (unsigned long)map);
+
+	buf = (SANE_Byte*)malloc( m.len );
+	
+	if( !buf )
+		return _E_ALLOC;
+	
+	for( i = 0; i < m.len; i++ ) {
+		buf[i] = (SANE_Byte)map[i];
+		
+		if( map[i] > 0xFF )
+			buf[i] = 0xFF;
+	}	
+	
+	m.map = buf;
+	
+	_IOCTL( dev->fd, _PTDRV_SETMAP, &m );
+	/* we ignore the return values */
+
+	free( buf );
+	
+	return 0;
+}
+
 /*.............................................................................
  *
  */
 static int ppDev_stopScan( Plustek_Device *dev, int *mode )
 {
-	int retval;
+	int retval, tmp;
+
+	/* save this one... */
+	tmp = *mode;
 
 	retval = _IOCTL( dev->fd, _PTDRV_STOP_SCAN, mode );
 
-	if( 0 == *mode )
+	/* ... and use it here */
+	if( 0 == tmp )
 		_IOCTL( dev->fd, _PTDRV_CLOSE_DEVICE, 0);
+	else
+		sleep( 1 );		
 
 	return retval;
 }

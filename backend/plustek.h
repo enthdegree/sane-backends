@@ -9,7 +9,7 @@
  *
  * original code taken from sane-0.71
  * Copyright (C) 1997 Hypercore Software Design, Ltd.
- * Copyright (C) 2000/2001 Gerhard Jaeger <g.jaeger@earthling.net>
+ * Copyright (C) 2000-2002 Gerhard Jaeger <g.jaeger@earthling.net>
  * Last Update:
  *		Gerhard Jaeger <g.jaeger@earthling.net>
  *.............................................................................
@@ -34,6 +34,7 @@
  *        (Parport and USB)
  * 0.40 - added USB stuff
  * 0.41 - added configuration stuff
+ * 0.42 - added custom gamma tables
  *
  *.............................................................................
  *
@@ -88,9 +89,6 @@
 # define PATH_MAX 1024
 #endif
 
-#define  walloc(x)	( x *) malloc( sizeof( x) )
-#define  walloca(x)	( x *) alloca( sizeof( x) )
-
 /*
  * the default image size
  */
@@ -126,15 +124,21 @@ enum {
     OPT_MODE_GROUP,
     OPT_MODE,
 	OPT_EXT_MODE,
-    OPT_HALFTONE,
-    OPT_BRIGHTNESS,
-    OPT_CONTRAST,
     OPT_RESOLUTION,
     OPT_GEOMETRY_GROUP,
     OPT_TL_X,
     OPT_TL_Y,
     OPT_BR_X,
     OPT_BR_Y,
+	OPT_ENHANCEMENT_GROUP,
+    OPT_HALFTONE,
+    OPT_BRIGHTNESS,
+    OPT_CONTRAST,
+    OPT_CUSTOM_GAMMA,
+    OPT_GAMMA_VECTOR,
+    OPT_GAMMA_VECTOR_R,
+    OPT_GAMMA_VECTOR_G,
+    OPT_GAMMA_VECTOR_B,
     NUM_OPTIONS
 };
 
@@ -161,8 +165,9 @@ typedef struct Plustek_Device
     SANE_Int  		 	  *res_list;         /* to hold the available phys.  */
     SANE_Int 			   res_list_size;    /* resolution values            */
     ScannerCaps            caps;             /* caps reported by the driver  */
-	AdjDef                 adj;              /* for driver adjustment        */
-
+	AdjDef                 adj;	             /* for driver adjustment        */
+	struct itimerval       saveSettings;     /* for lamp timer               */
+	
     /**************************** USB-stuff **********************************/
     char                  *usbId;            /* pointer to Vendor and product*/
                                              /* ID string (from conf) file   */
@@ -183,6 +188,8 @@ typedef struct Plustek_Device
     int  (*getCropInfo)( struct Plustek_Device*, pCropInfo  );
     int  (*putImgInfo) ( struct Plustek_Device*, pImgDef    );
     int  (*setScanEnv) ( struct Plustek_Device*, pScanInfo  );
+    int  (*setMap)     ( struct Plustek_Device*, SANE_Word*,
+												 SANE_Word, SANE_Word );
     int  (*startScan)  ( struct Plustek_Device*, pStartScan );
     int  (*stopScan)   ( struct Plustek_Device*, int* );
     int  (*readImage)  ( struct Plustek_Device*, SANE_Byte*, unsigned long );
@@ -208,8 +215,16 @@ typedef struct Plustek_Scanner
     SANE_Byte 			   *buf;            /* the image buffer              */
     SANE_Bool 				scanning;       /* TRUE during scan-process      */
     SANE_Parameters 		params;         /* for keeping the parameter     */
+	
+	/************************** gamma tables *********************************/
+	
+	SANE_Word	gamma_table[4][4096];
+	SANE_Range	gamma_range;
+	int 		gamma_length;
+
     SANE_Option_Descriptor	opt[NUM_OPTIONS];
-} Plustek_Scanner;
+
+} Plustek_Scanner, *pPlustek_Scanner;
 
 
 typedef const struct mode_param {

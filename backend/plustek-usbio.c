@@ -5,11 +5,12 @@
  *.............................................................................
  *
  * based on sources acquired from Plustek Inc.
- * Copyright (C) 2001 Gerhard Jaeger <g.jaeger@earthling.net>
+ * Copyright (C) 2001-2002 Gerhard Jaeger <g.jaeger@earthling.net>
  *.............................................................................
  * History:
  * 0.40 - starting version of the USB support
  * 0.41 - moved some functions to a sane library (sanei_lm983x.c)
+ * 0.42 - no changes
  *
  *.............................................................................
  *
@@ -153,7 +154,7 @@ static SANE_Status usbio_ResetLM983x( pPlustek_Device dev )
 	SANE_Byte value;
 	pHWDef    hw = &dev->usbDev.HwSetting;
 
-	if( hw->fLM9831 ) {
+	if( _LM9831 == hw->chip ) {
 
 		_UIO( sanei_lm983x_write_byte( dev->fd, 0x07, 0));
 		_UIO( sanei_lm983x_write_byte( dev->fd, 0x07,0x20));

@@ -4,7 +4,7 @@
  * File:	 plustek-share.h - definitions for the backend and the driver
  *.............................................................................
  *
- * Copyright (C) 2000/2001 Gerhard Jaeger <g.jaeger@earthling.net>
+ * Copyright (C) 2000-2002 Gerhard Jaeger <g.jaeger@earthling.net>
  * Last Update:
  *		Gerhard Jaeger <g.jaeger@earthling.net>
  *.............................................................................
@@ -21,6 +21,8 @@
  * 0.40 - added stuff to share with USB and Parport
  * 0.41 - changed the IOCTL version number
  *        added adjustment stuff
+ * 0.42 - added FLAG_CUSTOM_GAMMA and _MAP_ definitions
+ *        changed IOCTL interface to allow downloadable MAPS
  *
  *.............................................................................
  *
@@ -106,13 +108,15 @@
 #define _PTDRV_CLOSE_DEVICE 	_IO('x',  9)				/* close 		 */
 #define _PTDRV_ACTION_BUTTON	_IOR('x', 10, int)	 		/* rd act. button*/
 #define _PTDRV_ADJUST           _IOR('x', 11, AdjDef)		/* adjust driver */
+#define _PTDRV_SETMAP           _IOR('x', 12, MapDef)		/* download gamma*/
 
 /*
  * this version MUST match the one inside the driver to make sure, that
  * both sides use the same structures. This version changes each time
  * the ioctl interface changes
  */
-#define _PTDRV_IOCTL_VERSION	0x0102
+#define _PTDRV_COMPAT_IOCTL_VERSION	0x0102
+#define _PTDRV_IOCTL_VERSION		0x0103
 
 /*.............................................................................
  * the structures for driver communication
@@ -190,10 +194,39 @@ typedef struct {
     unsigned short	wBeginY;		/* offset from top	*/
 } LensInfo, *pLensInfo;
 
+/**
+ * definition of gamma maps
+ */
+typedef struct {
+
+	int len;  		/**< gamma table len  */
+	int depth;  	/**< entry bit depth  */
+	int map_id;     /**< what map         */
+
+	void *map;      /**< pointer for map  */
+		
+} MapDef, *pMapDef;
+
+
 typedef struct {
 	int x;
 	int y;
 } OffsDef, *pOffsDef;
+
+/*
+ * for compatiblitiy to version 0x0102 drivers
+ */
+typedef struct {
+
+	int     lampOff;
+	int     lampOffOnEnd;
+	int     warmup;
+
+	OffsDef pos; 	/* for adjusting normal scan area       */
+	OffsDef tpa; 	/* for adjusting transparency scan area */
+	OffsDef neg; 	/* for adjusting negative scan area     */
+
+} CompatAdjDef, *pCompatAdjDef;
 
 /*
  * for adjusting the drivers
@@ -203,9 +236,16 @@ typedef struct {
 	int     lampOffOnEnd;
 	int     warmup;
 
-	OffsDef pos; /* for adjusting normal scan area       */
-	OffsDef tpa; /* for adjusting transparency scan area */
-	OffsDef neg; /* for adjusting negative scan area     */
+	OffsDef pos; 	/* for adjusting normal scan area       */
+	OffsDef tpa; 	/* for adjusting transparency scan area */
+	OffsDef neg; 	/* for adjusting negative scan area     */
+	
+	/* for adjusting the default gamma settings */
+	double  rgamma;
+	double  ggamma;
+	double  bgamma;
+	
+	double  graygamma;
 
 } AdjDef, *pAdjDef;
 
@@ -286,6 +326,8 @@ typedef struct {
 #define SFLAG_SheetFed		    0x00000040  /* Sheetfed support             */
 #define SFLAG_TPA       	    0x00000080	/* has transparency	adapter     */
 #define SFLAG_BUTTONOPT         0x00000100  /* has buttons                  */
+
+#define SFLAG_CUSTOM_GAMMA		0x00000200  /* driver supports custom gamma */
 
 /*
  * (1.2.1) Provide the scanner ID. This field is valid when the wIOBase
@@ -413,7 +455,7 @@ typedef struct {
 #define COLOR_GRAY16		COLOR_HALFTONE
 
 
-/* IDs the ASIC return */
+/* IDs the ASIC returns */
 #define _ASIC_IS_96001		0x0f	/* value for 96001	*/
 #define _ASIC_IS_96003		0x10	/* value for 96003  */
 #define _ASIC_IS_98001		0x81	/* value for 98001	*/
@@ -446,6 +488,13 @@ typedef struct {
  */
 #define _VAR_NOT_USED(x)	((x)=(x))
 
+/*
+ * for Gamma tables
+ */
+#define _MAP_RED    0
+#define _MAP_GREEN  1
+#define _MAP_BLUE   2
+#define _MAP_MASTER 3
 
 /*
  * stuff needed for user space stuff

@@ -5,12 +5,14 @@
  *.............................................................................
  *
  * based on sources acquired from Plustek Inc.
- * Copyright (C) 2001 Gerhard Jaeger <g.jaeger@earthling.net>
+ * Copyright (C) 2001-2002 Gerhard Jaeger <g.jaeger@earthling.net>
  *.............................................................................
  * History:
  * 0.40 - starting version of the USB support
  * 0.41 - minor fixes
  *      - added workaround stuff for EPSON1250
+ * 0.42 - added workaround stuff for UMAX 3400
+ *
  *.............................................................................
  *
  * This file is part of the SANE package.
@@ -310,7 +312,7 @@ static void usb_GetSoftwareOffsetGain( pPlustek_Device dev )
 		break;
 
 	case kNEC3778:
-		if( hw->fLM9831 && pParam->PhyDpi.x <= 300)
+		if((_LM9831 == hw->chip) && (pParam->PhyDpi.x <= 300))
 		{
 			pParam->swOffset[0] = 0;
 			pParam->swOffset[1] = 0;
@@ -808,7 +810,7 @@ static Bool usb_AdjustDarkShading( pPlustek_Device dev )
 	m_ScanParam.bCalibration = PARAM_DarkShading;
 	m_ScanParam.dMCLK        = dMCLK;
 
-	if( hw->fLM9831 ) {
+	if( _LM9831 == hw->chip ) {
 		m_ScanParam.UserDpi.x = usb_SetAsicDpiX( dev, m_ScanParam.UserDpi.x);
 	 	if( m_ScanParam.UserDpi.x < 100)
 			m_ScanParam.UserDpi.x = 150;
@@ -838,11 +840,18 @@ static Bool usb_AdjustDarkShading( pPlustek_Device dev )
 		if(_WAF_MISC_IO6_LAMP==(_WAF_MISC_IO6_LAMP & scaps->workaroundFlag)) {
 			a_bRegs[0x29] = 3;
 			a_bRegs[0x5b] = 0x94;
-			usbio_WriteReg( dev->fd, 0x5b, 0x94);
+			usbio_WriteReg( dev->fd, 0x5b, a_bRegs[0x5b] );
+			
+ 		} else if( _WAF_MISC_IO3_LAMP ==
+ 								(_WAF_MISC_IO3_LAMP & scaps->workaroundFlag)) {
+ 			a_bRegs[0x29] = 3;
+ 			a_bRegs[0x5a] |= 0x08;
+ 			usbio_WriteReg( dev->fd, 0x5a, a_bRegs[0x5a] );
+		
 		} else {
 			a_bRegs[0x29] = 1;
 		}			
-		usbio_WriteReg( dev->fd, 0x29, a_bRegs[0x29]);
+		usbio_WriteReg( dev->fd, 0x29, a_bRegs[0x29] );
 		
 		DBG( _DBG_ERROR, "usb_AdjustDarkShading() failed\n" );
 		return SANE_FALSE;
@@ -851,10 +860,18 @@ static Bool usb_AdjustDarkShading( pPlustek_Device dev )
 	/*
 	 * set illumination mode to 1 or 3 on EPSON
 	 */
-	if(_WAF_MISC_IO6_LAMP==(_WAF_MISC_IO6_LAMP & scaps->workaroundFlag)) {
+	if( _WAF_MISC_IO6_LAMP == (_WAF_MISC_IO6_LAMP & scaps->workaroundFlag)) {
+		
 		a_bRegs[0x29] = 3;
 		a_bRegs[0x5b] = 0x94;
-		usbio_WriteReg( dev->fd, 0x5b, 0x94 );
+		usbio_WriteReg( dev->fd, 0x5b, a_bRegs[0x5b] );
+
+ 	} else if( _WAF_MISC_IO3_LAMP ==
+	 							(_WAF_MISC_IO3_LAMP & scaps->workaroundFlag)) {
+ 		a_bRegs[0x29] = 3;
+ 		a_bRegs[0x5a] |= 0x08;
+ 		usbio_WriteReg( dev->fd, 0x5a, a_bRegs[0x5a] );
+ 		
 	} else {
 		a_bRegs[0x29] = 1;
 	}		
@@ -937,7 +954,7 @@ static Bool usb_AdjustWhiteShading( pPlustek_Device dev )
 	m_ScanParam.dMCLK        = dMCLK;
 
 
-	if( hw->fLM9831 ) {
+	if( _LM9831 == hw->chip ) {
 
 		m_ScanParam.UserDpi.x = usb_SetAsicDpiX( dev, m_ScanParam.UserDpi.x);
 	 	if( m_ScanParam.UserDpi.x < 100 )
@@ -965,7 +982,7 @@ static Bool usb_AdjustWhiteShading( pPlustek_Device dev )
 		if( usb_SetScanParameters( dev, &m_ScanParam) &&
 			usb_ScanBegin( dev, SANE_FALSE )) {
 
-			if( hw->fLM9831 ) {
+			if( _LM9831 == hw->chip ) {
 				/* Delay for white shading hold for 9831-1200 scanner */
 				usleep(250 * 10000);	
 			}
@@ -973,7 +990,7 @@ static Bool usb_AdjustWhiteShading( pPlustek_Device dev )
 			if( usb_ScanReadImage( dev, pBuf + dwRead,
 								   m_ScanParam.Size.dwTotalBytes)) {
 
-				if( hw->fLM9831 ) {
+				if( _LM9831 == hw->chip ) {
 					/* Delay for white shading hold for 9831-1200 scanner */
 					usleep(10 * 1000);	
 				}
@@ -993,7 +1010,7 @@ static Bool usb_AdjustWhiteShading( pPlustek_Device dev )
 	m_pSum = (u_long*)(pBuf + m_ScanParam.Size.dwPhyBytes *
 											dwShadingLines/*SHADING_Lines*/);
 
-	if( hw->fLM9831 ) {
+	if( _LM9831 == hw->chip ) {
 		
 		u_short *pwDest = (u_short*)pBuf;
 		pHiLoDef pwSrce = (pHiLoDef)pBuf;
@@ -1300,11 +1317,14 @@ static int usb_DoCalibration( pPlustek_Device dev )
      */
 	DBG( _DBG_INFO, "goto shading position\n" );
 
+	/* HEINER: Currently not clear why Plustek didn't use the ShadingOriginY
+	 *         for all modes
+	 */	
+#if 1	
 	if( scanning->sParam.bSource == SOURCE_Negative ) {
 
 		DBG( _DBG_INFO, "DataOrigin.x=%u, DataOrigin.y=%u\n",
 		 dev->usbDev.pSource->DataOrigin.x, dev->usbDev.pSource->DataOrigin.y);
-
 		if(!usb_ModuleMove( dev, MOVE_Forward,
 							              (dev->usbDev.pSource->DataOrigin.y +
   										   dev->usbDev.pSource->Size.y / 2))) {
@@ -1312,8 +1332,8 @@ static int usb_DoCalibration( pPlustek_Device dev )
 		}
 
 	} else {
-
-		DBG( _DBG_INFO, "ShadingOriginY=%u\n",
+#endif
+		DBG( _DBG_INFO, "ShadingOriginY=%lu\n",
 					(u_long)dev->usbDev.pSource->ShadingOriginY );
 
 		if((hw->ScannerModel == MODEL_HuaLien) && (scaps->OpticDpi.x == 600)) {
@@ -1358,14 +1378,14 @@ static int usb_DoCalibration( pPlustek_Device dev )
 			Gain_Reg.Green  = a_bRegs[0x3c];
 			Gain_Reg.Blue   = a_bRegs[0x3d];
 			Gain_NegHilight = Gain_Hilight;
-
+#if 1
 			if( !usb_ModuleMove( dev, MOVE_Backward,
 								 dev->usbDev.pSource->DataOrigin.y +
 								 dev->usbDev.pSource->Size.y / 2 -
 								 dev->usbDev.pSource->ShadingOriginY)) {
 				return _E_LAMP_NOT_IN_POS;
 			}
-
+#endif
 			a_bRegs[0x45] &= ~0x10;
 		
 			a_bRegs[0x3b] = a_bRegs[0x3c] = a_bRegs[0x3d] = 1;
@@ -1466,7 +1486,16 @@ static int usb_DoCalibration( pPlustek_Device dev )
 		default:
 			if( dev->usbDev.Caps.OpticDpi.x == 600 ) {
 				DBG( _DBG_INFO, "Default Shading (600dpi)\n" );
-				if( dev->usbDev.Caps.bCCD == kSONY548 )	{
+				
+				if( MODEL_NOPLUSTEK == hw->ScannerModel ) {
+					DBG( _DBG_INFO, "No Plustek model\n" );
+					
+					if( scanning->sParam.PhyDpi.x > 300 )
+						scanning->sParam.dMCLK = dMCLK = ((scanning->sParam.bDataType == SCANDATATYPE_Color)? 3: 9);
+					else
+						scanning->sParam.dMCLK = dMCLK = ((scanning->sParam.bDataType == SCANDATATYPE_Color)? 2: 6);
+						
+				} else if( dev->usbDev.Caps.bCCD == kSONY548 )	{
 
 					DBG( _DBG_INFO, "CCD - SONY548\n" );
 					if( scanning->sParam.PhyDpi.x <= 75 ) {
@@ -1635,7 +1664,7 @@ static Bool usb_DownloadShadingData( pPlustek_Device dev, u_char bJobID )
 
 		case PARAM_Scan:
 			{
-				if(!hw->fLM9831)
+				if( _LM9831 != hw->chip )
 					m_dwPixels = m_ScanParam.Size.dwPhyPixels;
 
 				/* Download the dark & white shadings to LM9831 */

@@ -10,7 +10,7 @@
 ;
 
 :backend "plustek"              ; name of backend
-:version "0.41"                 ; version of backend
+:version "0.42"                 ; version of backend
 :status :stable                 ; :alpha, :beta, :stable, :new
 :manpage "sane-plustek"         ; name of manpage (if it exists)
 
@@ -24,6 +24,7 @@
 
 :mfg "Plustek"                  ; name of manufacturer
 :url "http://www.plustek.de/"
+:url "http://www.plustek.com/"
 
 ;name models for above-specified mfg.
 :model "OpticPro 4800P"
@@ -182,11 +183,32 @@
 :interface "USB"
 :comment "Mostly OK"
 
-
 :mfg "Hewlett-Packard"                  ; name of manufacturer
 :url "http://www.hp.com/"
 
+:model "HP ScanJet 2100C"
+:interface "USB"
+:comment "Mostly OK"
+
 :model "HP ScanJet 2200C"
+:interface "USB"
+:comment "Mostly OK"
+
+:mfg "Epson"                  ; name of manufacturer
+:url "http://www.epson.com/"
+
+:model "Perfection 1250"
+:interface "USB"
+:comment "Mostly OK"
+
+:model "Perfection 1250Photo"
+:interface "USB"
+:comment "Mostly OK - TPU not supported"
+
+:mfg "Umax"                  ; name of manufacturer
+:url "http://www.umax.com/"
+
+:model "UMAX 3400"
 :interface "USB"
 :comment "Mostly OK"
 

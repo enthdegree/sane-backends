@@ -6,13 +6,16 @@
  *.............................................................................
  *
  * based on sources acquired from Plustek Inc.
- * Copyright (C) 2001 Gerhard Jaeger <g.jaeger@earthling.net>
+ * Copyright (C) 2001-2002 Gerhard Jaeger <g.jaeger@earthling.net>
  * Last Update:
  *		Gerhard Jaeger <g.jaeger@earthling.net>
  *.............................................................................
  * History:
  * 0.40 - starting version of the USB support
  * 0.41 - added workaround flag to struct DevCaps
+ * 0.42 - added MODEL_NOPLUSTEK
+ *        replaced fLM9831 by chip (valid entries: _LM9831, _LM9832, _LM9833)
+ *        added _WAF_MISC_IO3_LAMP for UMAX 3400
  *
  *.............................................................................
  *
@@ -119,6 +122,22 @@ typedef union {
 #define DRAM_UsedByAsic8BitMode			216				/* in KB */
 #define DRAM_UsedByAsic16BitMode		196 /*192*/		/* in KB */
 
+/* Chip-types */
+typedef enum _CHIPSET
+{
+	_LM9831,
+	_LM9832,
+	_LM9833
+} eChipDef;
+
+typedef enum
+{
+	MODEL_KaoHsiung,
+	MODEL_HuaLien,
+	MODEL_Tokyo600,
+	MODEL_NOPLUSTEK
+} eModelDef;
+
 
 /* ScanParam.bCalibration */
 enum _SHADINGID
@@ -163,7 +182,8 @@ enum _WORKAROUNDS
 {
 	_WAF_NONE               = 0x00000000,   /* no fix anywhere needed        */
 	_WAF_BSHIFT7_BUG		= 0x00000001,	/* to fix U12 bug in 14bit mode  */
-	_WAF_MISC_IO6_LAMP      = 0x00000002    /* to make EPSON1250 lamp work   */
+	_WAF_MISC_IO6_LAMP      = 0x00000002,   /* to make EPSON1250 lamp work   */
+	_WAF_MISC_IO3_LAMP      = 0x00000004    /* to make Umax 3400 lamp work   */
 };
 
 /* Generic usage */
@@ -245,24 +265,17 @@ typedef struct DevCaps
 /*
  * TODO: strip down non-used stuff
  */
-typedef enum
-{
-	MODEL_KaoHsiung,
-	MODEL_HuaLien,
-	MODEL_Tokyo600
-} eModelDef;
-
 typedef struct HWDefault
 {
 	double				dMaxMotorSpeed;			/* Inches/second, max. scan speed */
 	double				dMaxMoveSpeed;			/* Inches/second, max. move speed */
-	u_short				wIntegrationTimeLowLamp;
-	u_short				wIntegrationTimeHighLamp;
+	double				dIntegrationTimeLowLamp;
+	double				dIntegrationTimeHighLamp;
 	u_short				wMotorDpi;				/* Full step DPI */
 	u_short				wDRAMSize;				/* in KB         */
-	u_short				wMinIntegrationTimeLowres;
+	double				dMinIntegrationTimeLowres;
 												/* in ms.        */
-	u_short				wMinIntegrationTimeHighres;
+	double				dMinIntegrationTimeHighres;
 												/* in ms.        */
 	u_short				wGreenPWMDutyCycleLow;
 	u_short				wGreenPWMDutyCycleHigh;
@@ -274,6 +287,10 @@ typedef struct HWDefault
 	u_char				bReg_0x0e;
 	u_char				bReg_0x0f_Mono [10];	/* 0x0f to 0x18 */
 	u_char				bReg_0x0f_Color [10];	/* 0x0f to 0x18 */
+
+	/* color mode settings */	
+	u_char              bReg_0x26;
+	u_char              bReg_0x27;
 	
 	/* 0x1a & 0x1b, remember the u_char order is not Intel
 	 * format, you have to pay your attention when you
@@ -290,6 +307,15 @@ typedef struct HWDefault
 	u_char				bOpticBlackEnd;			/* 0x1d        */
 	u_short				wActivePixelsStart;		/* 0x1e & 0x1f */
 	u_short				wLineEnd;				/* 0x20 & 0x21 */
+	
+	/* illumination settings */
+	u_short             red_lamp_on;			/* 0x2c & 0x2d */
+	u_short             red_lamp_off;			/* 0x2e & 0x2f */
+	u_short             green_lamp_on;			/* 0x30 & 0x31 */
+	u_short             green_lamp_off;			/* 0x32 & 0x33 */
+	u_short             blue_lamp_on;			/* 0x34 & 0x35 */
+	u_short             blue_lamp_off;			/* 0x36 & 0x37 */
+	
 	/* Misc */
 	u_char				bReg_0x45;
 	u_short				wStepsAfterPaperSensor2;/* 0x4c & 0x4d */
@@ -306,10 +332,9 @@ typedef struct HWDefault
 	u_char				bReg_0x5d;
 	u_char				bReg_0x5e;
 	
-	/* To identify LM9831 */
-	Bool				fLM9831;
-	/* To identify Model */
-    eModelDef			ScannerModel;
+	eChipDef            chip;           /* chiptype          */
+    eModelDef			ScannerModel; 	/* to identify Model */
+
 } HWDef, *pHWDef;
 
 /*
@@ -330,8 +355,11 @@ typedef struct DeviceDef
 	u_long	    dwTicksLampOn;   /* The ticks when lamp turns on             */
 	u_long	    dwLampOnPeriod;  /* How many seconds to keep lamp on         */
 	SANE_Bool	bLampOffOnEnd;   /* switch lamp off on end or keep cur. state*/
-	u_char	    bCurrentLamp;	 /* The lamp ID                              */
+/* HEINER: REMOVE */	
+	int		    currentLamp;	 /* The lamp ID                              */
+#if 0	
 	u_char	    bLastColor;	     /* The last color channel comes from CCD    */
+#endif	
 	u_char	    bStepsToReverse; /* reg 0x50, this value is from registry    */
 	u_long      dwBufferSize;    /*                                          */
 
@@ -476,4 +504,4 @@ typedef struct ScanDef
 
 #endif	/* guard __PLUSTEK_USB_H__ */
 
-/* END PLUSTEK_USB.H ........................................................*/
+/* END PLUSTEK-USB.H ........................................................*/

@@ -5,13 +5,20 @@
  *.............................................................................
  *
  * based on sources acquired from Plustek Inc.
- * Copyright (C) 2001 Gerhard Jaeger <g.jaeger@earthling.net>
+ * Copyright (C) 2001-2002 Gerhard Jaeger <g.jaeger@earthling.net>
  *.............................................................................
  * History:
  * 0.40 - starting version of the USB support
  * 0.41 - added EPSON1250 entries
  *      - changed reg 0x58 of EPSON Hw0x04B8_0x010F_0 to 0x0d
  *      - reduced memory size of EPSON to 512
+ *      - adjusted tpa origin of UT24
+ * 0.42 - added register 0x27, 0x2c-0x37
+ *        tweaked EPSON1250 settings according to Gene and Reinhard
+ *        tweaked HP2200 settings according to Stefan
+ *        added UMAX 3400 entries
+ *        added HP2100 settings according to Craig Smoothey
+ *        added LM9832 based U24
  *.............................................................................
  *
  * This file is part of the SANE package.
@@ -55,6 +62,14 @@
 
 /* the other stuff is included by plustek.c ...*/
 #include "plustek-usb.h"
+
+/*
+ * for Register 0x26
+ */
+#define _RED_CH	  0x00
+#define _GREEN_CH 0x08
+#define _BLUE_CH  0x10
+
 
 /* Plustek Model: UT12/UT16
  * KH: NS9831 + TPA + Button + NEC3799
@@ -331,14 +346,14 @@ static DCapsDef Cap0x07B3_0x0016_4 =
 };
 
 /* Plustek Model: UT24
- * KH: NS9831 + TPA + Button + NEC3799
+ * KH: NS9832 + TPA + Button + NEC3799
  */
 static DCapsDef Cap0x07B3_0x0017_4 =
 {
-	{{             0,  99 - 6},	  0, {2550, 3508}, { 50,  50}, COLOR_BW     },
-	{{1055 /*1060*/, 744 - 84}, 543, { 473,  414}, {150, 150}, COLOR_GRAY16	},
-	{{    1004 + 20, 744 - 20}, 543, { 567,  414}, {150, 150}, COLOR_GRAY16	},
-	{{            0,       95},   0, {2550, 3508}, { 50,  50}, COLOR_BW		},
+	{{             0,  99 - 6},	    0, {2550, 3508}, { 50,  50}, COLOR_BW     },
+	{{1025 /*1055*/, 744 - 84},   543, { 473,  414}, {150, 150}, COLOR_GRAY16 },
+	{{1048 /*1024*/, 754/*724*/}, 543, { 567,  414}, {150, 150}, COLOR_GRAY16 },
+	{{            0,       95},     0, {2550, 3508}, { 50,  50}, COLOR_BW     },
 	{1200, 1200},		
 	DEVCAPSFLAG_Positive + DEVCAPSFLAG_Negative,
 	SENSORORDER_rgb,
@@ -495,19 +510,39 @@ static DCapsDef Cap0x07B3_0x0014_2 =
 
 #endif
 
+/* Model: HP Scanjet 2100C */
+static DCapsDef Cap0x03F0_0x0505 =
+{
+	{{        0,       93},   0, {2550, 3508}, { 50,  50}, COLOR_BW     },
+ 	{{1040 + 15, 744 - 32},	543, { 473,  414}, {150, 150}, COLOR_GRAY16 },
+ 	{{1004 + 20, 744 + 32}, 543, { 567,  414}, {150, 150}, COLOR_GRAY16 },
+ 	{{        0,       95},   0, {2550, 3508}, { 50,  50}, COLOR_BW     },
+ 	{600, 600},
+ 	0,
+ 	SENSORORDER_rgb,
+ 	4, 0, 0, 0x02, _WAF_NONE
+};
+
 /* Model: HP Scanjet 2200c (thanks to Stefan Nilsen)
- * KH: NS9832 + NEC3799 + 600 DPI Motor
+ * KH: NS9832 + 2 Buttons + NEC3799(?) + 600 DPI Motor
  */
 static DCapsDef Cap0x03F0_0x0605 =
 {
-	{{        0,       93},   0, {2550, 3508}, { 50,  50}, COLOR_BW     },
-	{{1040 + 15, 744 - 32},	543, { 473,  414}, {150, 150}, COLOR_GRAY16 },
-	{{1004 + 20, 744 + 32}, 543, { 567,  414}, {150, 150}, COLOR_GRAY16 },
-	{{        0,       95},   0, {2550, 3508}, { 50,  50}, COLOR_BW     },
-	{600, 600},
-	0,	
-	SENSORORDER_rgb,	
-	4, 0, 0, 0x02, _WAF_NONE				
+	{{ 0, 180 },  /* OK */
+	135,          /* OK, most values between 80 and 150 works, Might need
+	                 tweaking on different hardware                       */
+	{2550, 3508}, /* OK */
+	{ 50,  50},   /* OK */
+	COLOR_BW },   /* OK */
+	
+    {{ 0,  0}, 0, {0, 0}, { 0, 0 }, 0 }, /* No film scanner module    */
+    {{ 0,  0}, 0, {0, 0}, { 0, 0 }, 0 }, /* No film scanner module    */
+    {{ 0,  0}, 0, {0, 0}, { 0, 0 }, 0 }, /* No ADF                    */
+	
+	{600, 600},                          /* Motor can handle 1200 DPI */
+	0,	                                 /* OK */
+	SENSORORDER_rgb,	                 /* OK */
+	4, 2, 0, 0x02, _WAF_NONE             /* OK */				
 };
 
 /* Mustek BearPaw 1200 (thanks to Henning Meier-Geinitz)
@@ -540,23 +575,46 @@ static DCapsDef Cap0x0400_0x1001_0 =
     6, 5, 2, 0x05, _WAF_NONE
 };
 
-/* Epson Perfection/Photo1250
- * NS9832 + Button + CCD????
+/* Epson Perfection/Photo1250 (thanks to Gene Heskett and Reinhard Max)
+ * NS9832 + 4 Buttons + CCD????
  */
 static DCapsDef Cap0x04B8_0x010F_0 =
 {
-	{{ 0, 168}, 0, {2550, 3508}, { 100, 100 }, COLOR_BW },
-	{{ 0,  0}, 0, {0, 0}, { 0, 0 }, 0 },
-	{{ 0,  0}, 0, {0, 0}, { 0, 0 }, 0 },
-	{{ 0,  0}, 0, {0, 0}, { 0, 0 }, 0 },
+	{{ 25, 80}, 10, {2550, 3508}, { 100, 100 }, COLOR_BW },
+	{{ 0,  0},   0, {0, 0}, { 0, 0 }, 0 },
+	{{ 0,  0},   0, {0, 0}, { 0, 0 }, 0 },
+	{{ 0,  0},   0, {0, 0}, { 0, 0 }, 0 },
 	{1200, 1200},
 	0,
-	SENSORORDER_bgr,
-	4,			        /* sensor distance                         */
-	2,      	        /* number of buttons                       */
+	SENSORORDER_rgb,
+	8,			        /* sensor distance                         */
+	4,      	        /* number of buttons                       */
 	kNEC8861,           /* use default settings during calibration */
 	0,                  /* not used here...                        */
 	_WAF_MISC_IO6_LAMP  /* use miscio 6 for lamp switching         */
+};
+
+/* Umax 3400
+ */
+static DCapsDef Cap0x1606_0x0060_0 =
+{
+	/* the ini file provided by umax says the scanner bed is 11.7", but
+	   setting the value below to 3510 (11.7 * 300) results in the head
+	   hitting the end at the end of the scan.  so i'm just guessing that
+ 	   the scanner bed area in the .ini file includes the dead area at
+ 	   the beginning, and the number below does not. */
+ 	{{ 0, 165}, 0, {2550, 3510 - 165}, {100, 100}, COLOR_BW },
+ 	{{ 0,  0}, 0, {0, 0}, { 0, 0 }, 0 },
+ 	{{ 0,  0}, 0, {0, 0}, { 0, 0 }, 0 },
+ 	{{ 0,  0}, 0, {0, 0}, { 0, 0 }, 0 },
+ 	{600, 600},
+ 	0,
+ 	SENSORORDER_bgr,
+ 	8,			        /* sensor distance                         */
+ 	4,		      	    /* number of buttons                       */
+ 	kNEC8861,           /* use default settings during calibration */
+ 	0,                  /* not used here...                        */
+ 	_WAF_MISC_IO3_LAMP  /* use miscio 3 for lamp switching         */
 };
 
 /******************* additional Hardware descriptions ************************/
@@ -582,11 +640,22 @@ static HWDef Hw0x07B3_0x0017_0 =
 	{2, 7, 0, 1, 0, 0, 0, 0, 4, 0},		
     /* bReg_0x0f_Color [10]	(0x0f to 0x18)                      */
 	{5, 23, 1, 3, 0, 0, 0, 12, 10, 22},	
+	
+	_GREEN_CH,      /* bReg_0x26 color mode - bits 4 and 5      */
+	0,              /* bReg 0x27 color mode                     */
+	
 	1,		        /* StepperPhaseCorrection (0x1a & 0x1b)     */
 	14,		        /* 15,	bOpticBlackStart (0x1c)             */
 	62,		        /* 60,	bOpticBlackEnd (0x1d)               */
 	110,	        /* 65,	wActivePixelsStart (0x1e & 0x1f)    */
 	5400,	        /* 5384 ,wLineEnd	(0x20 & 0x21)           */
+
+    0,              /* red lamp on    (reg 0x2c + 0x2d)         */
+    16383,          /* red lamp off   (reg 0x2e + 0x2f)         */
+    0,              /* green lamp on  (reg 0x30 + 0x31)         */
+    0,              /* green lamp off (reg 0x32 + 0x33)         */
+    0,              /* blue lamp on   (reg 0x34 + 0x35)         */
+    16383,          /* blue lamp off  (reg 0x36 + 0x37)         */
 
 	/* Misc                                                     */
 	3,		        /* bReg_0x45                                */
@@ -603,7 +672,7 @@ static HWDef Hw0x07B3_0x0017_0 =
 	0,		        /* bReg_0x5c                                */
 	0,		        /* bReg_0x5d                                */
 	0,		        /* bReg_0x5e                                */
-	SANE_FALSE,	    /* fLM9831                                  */
+	_LM9832,        /* chip type                                */
 	MODEL_KaoHsiung	/* ScannerModel                             */
 };
 
@@ -618,11 +687,19 @@ static HWDef Hw0x07B3_0x0007_0 =
 	0x02, 0x14,	0x27, 0x13,
 	{2, 7, 0, 1, 0, 0, 0, 0, 4, 0},
 	{5, 23, 1, 3, 0, 0, 0, 6, 10, 22},
+	_GREEN_CH,
+	0,
 	1,		
 	14,		
 	62,		
 	110,	
 	5384,	
+    0,
+    16383,
+    0,
+    0,
+    0,
+    16383,
 	3,	
 	0,	
 	0xa8,
@@ -632,7 +709,7 @@ static HWDef Hw0x07B3_0x0007_0 =
 	20,	
 	0x0d, 0x88, 0x28, 0x3b,
 	0, 0, 0,	
-	SANE_FALSE,
+	_LM9832,
 	MODEL_HuaLien
 };
 
@@ -647,11 +724,19 @@ static HWDef Hw0x07B3_0x0007_2 =
 	0x02, 0x3f,	0x2f, 0x36,
 	{2, 7, 0, 1, 0, 0, 0, 0, 4, 0},
 	{7, 20, 1, 4, 7, 10, 0, 6, 12, 0},
+	_GREEN_CH,
+	0,
 	1,
 	16,
 	64,
 	152,
 	5416,
+    0,
+    16383,
+    0,
+    0,
+    0,
+    16383,
 	3,
 	0,
 	0xfc,
@@ -661,7 +746,7 @@ static HWDef Hw0x07B3_0x0007_2 =
 	20,
 	0x0d, 0x88, 0x28, 0x3b,
 	0, 0, 0,
-	SANE_FALSE,
+	_LM9832,
 	MODEL_Tokyo600
 };
 
@@ -676,11 +761,19 @@ static HWDef Hw0x07B3_0x0007_4 =
 	0x06, 0x30,	0x2f, 0x2a,
 	{2, 7, 5, 6, 6, 7, 0, 0, 0, 5},
 	{20, 4, 13, 16, 19, 22, 0, 6, 23, 11},
+	_GREEN_CH,
+	0,
 	1,
 	13,
 	62,
 	304,
 	10684,
+    0,
+    16383,
+    0,
+    0,
+    0,
+    16383,
 	3,
 	0,
 	0xa8,
@@ -690,7 +783,7 @@ static HWDef Hw0x07B3_0x0007_4 =
 	40,
 	0x0d, 0x88, 0x28, 0x3b,
 	0, 0, 0,
-    SANE_FALSE,
+	_LM9832,
 	MODEL_HuaLien
 };
 
@@ -705,11 +798,19 @@ static HWDef Hw0x07B3_0x000F_0 =
 	0x02, 0x14,	0x27, 0x13,
 	{2, 7, 0, 1, 0, 0, 0, 0, 4, 0},
 	{5, 23, 1, 3, 0, 0, 0, 6, 10, 22},
+	_GREEN_CH,
+	0,
 	1,
 	14,
 	62,
 	110,
 	5384,
+    0,
+    16383,
+    0,
+    0,
+    0,
+    16383,
 	3,
 	0,
 	0xa8,
@@ -719,7 +820,7 @@ static HWDef Hw0x07B3_0x000F_0 =
 	20,
 	0x05, 0x88,	0x08, 0x3b,
 	0, 0, 0,
-	SANE_FALSE,
+	_LM9832,
 	MODEL_HuaLien
 };
 
@@ -734,11 +835,19 @@ static HWDef Hw0x07B3_0x0013_0 =
 	0x02, 0x04, 0x37, 0x13,
 	{2, 7, 0, 1, 0, 0, 0, 0, 4, 0},
 	{5, 23, 1, 3, 0, 0, 0, 12, 10, 22},
+	_GREEN_CH,
+	0,
 	1,
 	14,
 	62,
 	110,
 	5400,
+    0,
+    16383,
+    0,
+    0,
+    0,
+    16383,
 	3,
 	0,
 	0xa8,
@@ -748,7 +857,7 @@ static HWDef Hw0x07B3_0x0013_0 =
 	20,
 	0x0d, 0x22,	0x82, 0x88,
 	0, 0, 0,
-	SANE_TRUE,
+	_LM9831,
 	MODEL_KaoHsiung
 };
 
@@ -763,11 +872,19 @@ static HWDef Hw0x07B3_0x0013_4 =
 	0x06, 0x20, 0x2f, 0x2a,
 	{2, 7, 5, 6, 6, 7, 0, 0, 0, 5},
 	{20, 4, 13, 16, 19, 22, 0, 0, 23, 11},
+	_GREEN_CH,
+	0,
 	1,		
 	13,
 	62,	
 	320,	
 	10684,	
+    0,
+    16383,
+    0,
+    0,
+    0,
+    16383,
 	3,		
 	0,		
 	0xa8,	
@@ -777,7 +894,7 @@ static HWDef Hw0x07B3_0x0013_4 =
 	48,		
 	0x0d, 0x22,	0x82, 0x88,
 	0, 0, 0,
-	SANE_TRUE,
+	_LM9831,
 	MODEL_KaoHsiung
 };
 
@@ -792,11 +909,19 @@ static HWDef Hw0x07B3_0x000F_4 =
 	0x06, 0x30,	0x2f, 0x2a,
 	{2, 7, 5, 6, 6, 7, 0, 0, 0, 5},
 	{20, 4, 13, 16, 19, 22, 0, 6, 23, 11},
+	_GREEN_CH,
+	0,
 	1,
 	13,
 	62,
 	304,
 	10684,
+    0,
+    16383,
+    0,
+    0,
+    0,
+    16383,
 	3,
 	0,
 	0xa8,
@@ -806,7 +931,7 @@ static HWDef Hw0x07B3_0x000F_4 =
 	40,
 	0x05, 0x88, 0x08, 0x3b,
 	0, 0, 0,
-	SANE_FALSE,
+	_LM9832,
 	MODEL_HuaLien
 };
 
@@ -821,11 +946,19 @@ static HWDef Hw0x07B3_0x0016_4 =
 	0x06, 0x20,	0x2f, 0x2a,
 	{2, 7, 5, 6, 6, 7, 0, 0, 0, 5},
 	{20, 4, 13, 16, 19, 22, 0, 0, 23, 11},
+	_GREEN_CH,
+	0,
 	1,		
 	13,		
 	62,		
 	320,
 	10684,
+    0,
+    16383,
+    0,
+    0,
+    0,
+    16383,
 	3,
 	0,
 	0xa8,
@@ -835,7 +968,7 @@ static HWDef Hw0x07B3_0x0016_4 =
 	48,	
 	0x0d, 0x22,	0x82, 0x88,
 	0, 0, 0,
-	SANE_FALSE,
+	_LM9832,
 	MODEL_KaoHsiung
 };
 
@@ -853,11 +986,19 @@ static HWDef Hw0x07B3_0x0017_4 =
 	0x06, 0x20,	0x2f, 0x2a,
 	{2, 7, 5, 6, 6, 7, 0, 0, 0, 5},	
 	{20, 4, 13, 16, 19, 22, 0, 0, 23, 11},
+	_GREEN_CH,
+	0,
 	1,		
 	13,		
 	62,		
 	320,	
 	10684,	
+    0,
+    16383,
+    0,
+    0,
+    0,
+    16383,
 	3,		
 	0,		
 	0xa8,	
@@ -867,7 +1008,7 @@ static HWDef Hw0x07B3_0x0017_4 =
 	48,		
 	0x0d, 0x22, 0x82, 0x88,	
 	0, 0, 0,
-	SANE_FALSE,
+	_LM9832,
 	MODEL_KaoHsiung	
 };
 
@@ -882,11 +1023,19 @@ static HWDef Hw0x07B3_0x0017_1 =
 	0x02, 0x08, 0x2f, 0x36,
 	{2, 7, 0, 1, 0, 0, 0, 0, 4, 0},
 	{5, 23, 1, 4, 7, 10, 0, 0, 10, 12},
+	_GREEN_CH,
+	0,
 	1,
 	15,
 	60,
 	110,
 	5415,
+    0,
+    16383,
+    0,
+    0,
+    0,
+    16383,
 	3,	
 	0,	
 	0xa8,
@@ -896,7 +1045,7 @@ static HWDef Hw0x07B3_0x0017_1 =
 	20,		
 	0x0d, 0x22,	0x82, 0x88,
 	0, 0, 0,
-	SANE_FALSE,
+	_LM9832,
 	MODEL_KaoHsiung
 };
 
@@ -911,11 +1060,19 @@ static HWDef Hw0x07B3_0x0012_0 =
 	0x02, 0x04, 0x37, 0x13,	
 	{2, 7, 0, 1, 0, 0, 0, 0, 4, 0},		
 	{5, 23, 1, 3, 0, 0, 0, 12, 10, 22},	
+	_GREEN_CH,
+	0,
 	1,		
 	14,		
 	62,		
 	110,	
 	5400,	
+    0,
+    16383,
+    0,
+    0,
+    0,
+    16383,
     3,		
 	0,		
 	0xa8,	
@@ -925,7 +1082,7 @@ static HWDef Hw0x07B3_0x0012_0 =
 	20,		
 	0x0d, 0x22, 0x82, 0x88,	
 	0, 0, 0,		
-	SANE_FALSE,	
+	_LM9832,
 	MODEL_KaoHsiung	
 };
 
@@ -940,11 +1097,19 @@ static HWDef Hw0x07B3_0x0017_2 =
 	0x02, 0, 0x2f, 0x36,	
 	{2, 7, 0, 1, 0, 0, 0, 0, 4, 0},
 	{5, 0, 1, 4, 7, 10, 0, 0, 12, 0},
+	_GREEN_CH,
+	0,
 	1,		
 	16,		
 	64,		
 	110,	
 	5416,	
+    0,
+    16383,
+    0,
+    0,
+    0,
+    16383,
 	3,		
 	0,		
 	0xa8,	
@@ -954,7 +1119,7 @@ static HWDef Hw0x07B3_0x0017_2 =
 	20,		
 	0x0d, 0x22,	0x82, 0x88,	
 	0, 0, 0,		
-	SANE_FALSE,	
+	_LM9832,
 	MODEL_KaoHsiung
 };
 
@@ -969,11 +1134,19 @@ static HWDef Hw0x07B3_0x0017_3 =
 	0x02, 0x04, 0x37, 0x13,	
 	{2, 7, 0, 1, 0, 0, 0, 0, 4, 0},		
 	{5, 23, 1, 4, 7, 10, 0, 0, 11, 23},	
+	_GREEN_CH,
+	0,
 	1,		
 	14,		
 	62,		
 	110,	
 	5400,	
+    0,
+    16383,
+    0,
+    0,
+    0,
+    16383,
 	3,		
 	0,		
 	0xa8,	
@@ -983,23 +1156,80 @@ static HWDef Hw0x07B3_0x0017_3 =
 	20,		
 	0x0d, 0x22,	0x82, 0x88,	
 	0, 0, 0,		
-	SANE_FALSE,	
+	_LM9832,
 	MODEL_KaoHsiung	
+};
+
+/* HP Scanjet 2100C */
+static HWDef Hw0x03F0_0x0505 =
+{
+ 	1.5,	/* dMaxMotorSpeed (Max_Speed)               */
+ 	1.2,	/* dMaxMoveSpeed (Max_Speed)                */
+ 	9,		/* wIntegrationTimeLowLamp                  */
+ 	9,		/* wIntegrationTimeHighLamp                 */
+ 	600,	/* ok wMotorDpi (Full step DPI)             */
+ 	512,	/* wRAMSize (KB)                            */
+ 	4,		/* wMinIntegrationTimeLowres (ms)           */
+ 	5,		/* wMinIntegrationTimeHighres (ms)          */
+ 	3000,	/* wGreenPWMDutyCycleLow                    */
+ 	4095,	/* wGreenPWMDutyCycleHigh                   */
+ 	0x02,	/* bSensorConfiguration (0x0b)              */
+ 	0x04,	/* bReg_0x0c                                */
+ 	0x37,	/* bReg_0x0d                                */
+ 	0x13,	/* bReg_0x0e                                */
+ 		    /* bReg_0x0f_Mono[10] (0x0f to 0x18)        */
+ 	{2, 7, 0, 1, 0, 0, 0, 0, 4, 0},
+     		/* bReg_0x0f_Color[10] (0x0f to 0x18)       */
+  	{5, 23, 1, 3, 0, 0, 0, 12, 10, 22},
+
+	_GREEN_CH,	/* bReg_0x26 color mode - bits 4 and 5  */
+	0,          /* bReg 0x27 color mode                 */
+  	
+ 	1,		/* StepperPhaseCorrection (0x1a & 0x1b)     */
+ 	14,		/* 15,= bOpticBlackStart (0x1c)             */
+ 	62,		/* 60,= bOpticBlackEnd (0x1d)               */
+ 	110,	/* 65,= wActivePixelsStart (0x1e & 0x1f)    */
+ 	5400,	/* 5384 ,wLineEnd=(0x20 & 0x21)         	*/
+
+    0,      /* red lamp on    (reg 0x2c + 0x2d)         */
+    16383,  /* red lamp off   (reg 0x2e + 0x2f)         */
+    0,      /* green lamp on  (reg 0x30 + 0x31)         */
+    0,      /* green lamp off (reg 0x32 + 0x33)         */
+    0,      /* blue lamp on   (reg 0x34 + 0x35)         */
+    16383,  /* blue lamp off  (reg 0x36 + 0x37)         */
+ 	
+ 	/* Misc                                             */
+ 	3,		/* bReg_0x45                                */
+ 	0,		/* wStepsAfterPaperSensor2 (0x4c & 0x4d)    */
+ 	0xa8,	/* 0xfc -bReg_0x51                          */
+ 	0,		/* bReg_0x54                                */
+ 	0xff,	/* 0xa3 - bReg_0x55                         */
+ 	64,		/* bReg_0x56                                */
+ 	20,		/* bReg_0x57                                */
+ 	0x0d,	/* bReg_0x58                                */
+ 	0x22,	/* bReg_0x59                                */
+ 	0x82,	/* bReg_0x5a                                */
+ 	0x88,	/* bReg_0x5b                                */
+ 	0,		/* bReg_0x5c                                */
+ 	0,		/* bReg_0x5d                                */
+ 	0,		/* bReg_0x5e                                */
+	_LM9832,                /* chiptype                 */
+	MODEL_NOPLUSTEK			/* ScannerModel             */
 };
 
 /* HP 2200C */
 static HWDef Hw0x03F0_0x0605 =
 {
-	1.5,	/* dMaxMotorSpeed (Max_Speed)               */
-	1.2,	/* dMaxMoveSpeed (Max_Speed)                */
-	9,		/* wIntegrationTimeLowLamp                  */
-	9,		/* wIntegrationTimeHighLamp                 */
+	1.05,	/* dMaxMotorSpeed (Max_Speed)               */
+	1.05,	/* dMaxMoveSpeed (Max_Speed)                */
+	12,		/* wIntegrationTimeLowLamp                  */
+	12,		/* wIntegrationTimeHighLamp                 */
 	600,	/* ok wMotorDpi (Full step DPI)             */
 	512,	/* wRAMSize (KB)                            */
-	4,		/* wMinIntegrationTimeLowres (ms)           */
-	5,		/* wMinIntegrationTimeHighres (ms)          */
-	3000,	/* wGreenPWMDutyCycleLow                    */
-	4095,	/* wGreenPWMDutyCycleHigh                   */
+	9,		/* wMinIntegrationTimeLowres (ms)           */
+	9,		/* wMinIntegrationTimeHighres (ms)          */
+	0,	    /* wGreenPWMDutyCycleLow                    */
+	0,	    /* wGreenPWMDutyCycleHigh                   */
 	0x02,	/* bSensorConfiguration (0x0b)              */
 	0x04,	/* bReg_0x0c                                */
 	0x37,	/* bReg_0x0d                                */
@@ -1008,13 +1238,23 @@ static HWDef Hw0x03F0_0x0605 =
 	{2, 7, 0, 1, 0, 0, 0, 0, 4, 0},
     		/* bReg_0x0f_Color[10] (0x0f to 0x18)       */
  	{5, 23, 1, 3, 0, 0, 0, 12, 10, 22},
+	
+	_GREEN_CH,	/* bReg_0x26 color mode - bits 4 and 5  */
+	0,          /* bReg 0x27 color mode                 */
 
 	1,		/* StepperPhaseCorrection (0x1a & 0x1b)     */
 	14,		/* 15,= bOpticBlackStart (0x1c)             */
 	62,		/* 60,= bOpticBlackEnd (0x1d)               */
 	110,	/* 65,= wActivePixelsStart (0x1e & 0x1f)    */
-	5400,	/* 5384 ,wLineEnd=(0x20 & 0x21)         	*/
+	5384,	/* 5400 (?) ,wLineEnd=(0x20 & 0x21)       	*/
 
+    0,      /* red lamp on    (reg 0x2c + 0x2d)         */
+    16383,  /* red lamp off   (reg 0x2e + 0x2f)         */
+    0,      /* green lamp on  (reg 0x30 + 0x31)         */
+    0,      /* green lamp off (reg 0x32 + 0x33)         */
+    0,      /* blue lamp on   (reg 0x34 + 0x35)         */
+    16383,  /* blue lamp off  (reg 0x36 + 0x37)         */
+	
 	/* Misc                                             */
 	3,		/* bReg_0x45                                */
 	0,		/* wStepsAfterPaperSensor2 (0x4c & 0x4d)    */
@@ -1030,8 +1270,8 @@ static HWDef Hw0x03F0_0x0605 =
 	0,		/* bReg_0x5c                                */
 	0,		/* bReg_0x5d                                */
 	0,		/* bReg_0x5e                                */
-	SANE_FALSE, /* fLM9831                              */
-	MODEL_KaoHsiung	/* ScannerModel                     */
+	_LM9832,                /* chiptype                 */
+	MODEL_NOPLUSTEK			/* ScannerModel             */
 };
 
 /* Mustek BearPaw 1200 */
@@ -1055,11 +1295,19 @@ static HWDef Hw0x0400_0x1000_0 =
              /* ok  mono (reg 0x0f to 0x18) */
      {0x04, 0x16, 0x01, 0x02, 0x05, 0x06, 0x00, 0x00, 0x0a, 0x16},
              /* ok color (reg 0x0f to 0x18)                  */
+	 _GREEN_CH,	 /* bReg_0x26 color mode - bits 4 and 5      */
+	 0,          /* bReg 0x27 color mode                     */
      257,    /* ok StepperPhaseCorrection (reg 0x1a + 0x1b)  */
      0x0e,   /* ok bOpticBlackStart (reg 0x1c)               */
      0x1d,   /* ok bOpticBlackEnd (reg 0x1d)                 */
      0,      /* ok wActivePixelsStart (reg 0x1e + 0x1f)      */
      5369,   /* ok wLineEnd (reg 0x20 + 0x21)                */
+     0,      /* red lamp on    (reg 0x2c + 0x2d)             */
+     16383,  /* red lamp off   (reg 0x2e + 0x2f)             */
+     0,      /* green lamp on  (reg 0x30 + 0x31)             */
+     0,      /* green lamp off (reg 0x32 + 0x33)             */
+     0,      /* blue lamp on   (reg 0x34 + 0x35)             */
+     16383,  /* blue lamp off  (reg 0x36 + 0x37)             */
      0x13,   /* ok stepper motor control (reg 0x45)          */
      0,      /* ?  wStepsAfterPaperSensor2 (reg 0x4c + 0x4d) */
      0xfc,   /* ok acceleration profile (reg 0x51)           */
@@ -1074,7 +1322,7 @@ static HWDef Hw0x0400_0x1000_0 =
      0,      /* ok test mode ADC Output CODE MSB (reg 0x5c)  */
      0,      /* ok test mode ADC Output CODE LSB (reg 0x5d)  */
      0,      /* ok test mode (reg 0x5e)                      */
-     SANE_TRUE,                             /* has a lm9831? */
+	_LM9831,
      MODEL_Tokyo600
 };
 
@@ -1090,11 +1338,19 @@ static HWDef Hw0x0400_0x1001_0 =
     0x02, 0x3f,     0x2f, 0x36,
     {2, 7, 0, 1, 0, 0, 0, 0, 4, 0},
     {7, 20, 1, 4, 7, 10, 0, 6, 12, 0},
+    _GREEN_CH,
+    0,
     1,
     16,
     64,
     152,
     5416,
+    0,
+    16383,
+    0,
+    0,
+    0,
+    16383,
     3,
     0,
     0xfc,
@@ -1104,7 +1360,7 @@ static HWDef Hw0x0400_0x1001_0 =
     20,
     0x0d, 0x88, 0x28, 0x3b,
     0, 0, 0,
-    SANE_FALSE,
+	_LM9832,
     MODEL_Tokyo600
 };
 
@@ -1132,12 +1388,21 @@ static HWDef Hw0x04B8_0x010F_0 =
 
     {0x06, 0x16, 0x00, 0x05, 0x0c, 0x17, 0x00, 0x00, 0x08, 0x14},
             /* ok color (reg 0x0f to 0x18)                  */
+	_GREEN_CH,	/* ok bReg_0x26 color mode - bits 4 and 5   */
+	0x40,       /* ok bReg 0x27 color mode                  */
 
     1,      /* ok StepperPhaseCorrection (reg 0x1a + 0x1b)  */
     0x00,   /* ok bOpticBlackStart (reg 0x1c)               */
     0x42,   /* ok bOpticBlackEnd (reg 0x1d)                 */
     69,     /* ok wActivePixelsStart (reg 0x1e + 0x1f)      */
     10766,  /* ok wLineEnd (reg 0x20 + 0x21)                */
+
+    16383,  /* ok red lamp on    (reg 0x2c + 0x2d)          */
+    0,      /* ok red lamp off   (reg 0x2e + 0x2f)          */
+    16383,  /* ok green lamp on  (reg 0x30 + 0x31)          */
+    0,      /* ok green lamp off (reg 0x32 + 0x33)          */
+    16383,  /* ok blue lamp on   (reg 0x34 + 0x35)          */
+    0,      /* ok blue lamp off  (reg 0x36 + 0x37)          */
 
     3,      /* ok stepper motor control (reg 0x45)          */
     0,      /* ok wStepsAfterPaperSensor2 (reg 0x4c + 0x4d) */
@@ -1152,11 +1417,71 @@ static HWDef Hw0x04B8_0x010F_0 =
     0x41,   /* ok misc io12 (reg 0x59)                      */
     0x44,   /* ok misc io34 (reg 0x5a)                      */
     0x49,   /* ok misc io56 (reg 0x5b)                      */
+    0,      /* ok test mode ADC Output CODE MSB (reg 0x5c)  */
+    0,      /* ok test mode ADC Output CODE LSB (reg 0x5d)  */
+    0,      /* ok test mode (reg 0x5e)                      */
+	_LM9832,
+    MODEL_NOPLUSTEK
+};
+
+/* Umax 3400 */
+static HWDef Hw0x1606_0x0060_0 =
+{
+    1.7,    /* dMaxMotorSpeed (Max_Speed)                */
+    0.8,    /* dMaxMoveSpeed (Max_Speed)                 */
+    9,      /* wIntegrationTimeLowLamp                   */
+    9,      /* wIntegrationTimeHighLamp                  */
+    600,    /* wMotorDpi (Full step DPI)                 */
+    512,    /* wRAMSize (KB)                             */
+    8,      /* wMinIntegrationTimeLowres (ms)            */
+    8,      /* wMinIntegrationTimeHighres (ms)           */
+    4095,   /* wGreenPWMDutyCycleLow (reg 0x2a + 0x2b)   */
+    4095,   /* wGreenPWMDutyCycleHigh (reg 0x2a + 0x2b)  */
+
+    0x06,   /* bSensorConfiguration (0x0b)               */
+    0x73,   /* sensor control settings (reg 0x0c)        */
+    0x77,   /* sensor control settings (reg 0x0d)        */
+    0x15,   /* sensor control settings (reg 0x0e)        */
+
+    {0x00, 0x03, 0x04, 0x05, 0x00, 0x00, 0x00, 0x00, 0x07, 0x03},
+                /* mono (reg 0x0f to 0x18) */
+
+     {0x01, 0x0c, 0x0e, 0x10, 0x00, 0x00, 0x00, 0x00, 0x16, 0x0c},
+                /* color (reg 0x0f to 0x18)              */
+ 	_GREEN_CH,	/* bReg_0x26 color mode - bits 4 and 5   */
+ 	0x40,       /* bReg 0x27 color mode                  */
+
+    1,      /* StepperPhaseCorrection (reg 0x1a + 0x1b)  */
+    0x2f,   /* bOpticBlackStart (reg 0x1c)               */
+    0x3e,   /* bOpticBlackEnd (reg 0x1d)                 */
+    110,    /* ? wActivePixelsStart (reg 0x1e + 0x1f)    */
+    5469,   /* wLineEnd (reg 0x20 + 0x21)                */
+
+    1,      /* red lamp on    (reg 0x2c + 0x2d)          */
+    16383,  /* red lamp off   (reg 0x2e + 0x2f)          */
+    0,      /* green lamp on  (reg 0x30 + 0x31)          */
+    0,      /* green lamp off (reg 0x32 + 0x33)          */
+    32,     /* blue lamp on   (reg 0x34 + 0x35)          */
+    48,     /* blue lamp off  (reg 0x36 + 0x37)          */
+
+    3,      /* stepper motor control (reg 0x45)          */
+    0,      /* wStepsAfterPaperSensor2 (reg 0x4c + 0x4d) */
+    0xf4,   /* acceleration profile (reg 0x51)           */
+    0,      /* lines to process (reg 0x54)               */
+    0xcb,   /* kickstart (reg 0x55)                      */
+    0x05,   /* pwm freq (reg 0x56)                       */
+    5,      /* pwm duty cycle (reg 0x57)                 */
+
+    0x0d,   /* Paper sense (reg 0x58)                    */
+
+    0x44,   /* misc io12 (reg 0x59)                      */
+    0x45,   /* misc io34 (reg 0x5a)                      */
+    0x7c,   /* misc io56 (reg 0x5b)                      */
     0,      /* test mode ADC Output CODE MSB (reg 0x5c)  */
     0,      /* test mode ADC Output CODE LSB (reg 0x5d)  */
     0,      /* test mode (reg 0x5e)                      */
-    SANE_FALSE,                         /* has a lm9831? */
-    MODEL_Tokyo600
+    _LM9832,
+	MODEL_NOPLUSTEK
 };
 
 /******************** all available combinations *****************************/
@@ -1168,16 +1493,16 @@ static SetDef Settings[] =
 {
 	/* Plustek devices... */
 	{"0x07B3-0x0013-0", &Cap0x07B3_0x0013_0, &Hw0x07B3_0x0013_0, "Unknown device" },
-	{"0x07B3-0x0011-0", &Cap0x07B3_0x0011_0, &Hw0x07B3_0x0013_0, "OpticPro U24" },
-	{"0x07B3-0x0010-0", &Cap0x07B3_0x0010_0, &Hw0x07B3_0x0013_0, "OpticPro U12" },
+	{"0x07B3-0x0011-0", &Cap0x07B3_0x0011_0, &Hw0x07B3_0x0013_0, "OpticPro U24"   },
+	{"0x07B3-0x0010-0", &Cap0x07B3_0x0010_0, &Hw0x07B3_0x0013_0, "OpticPro U12"   },
 	{"0x07B3-0x0013-4", &Cap0x07B3_0x0013_4, &Hw0x07B3_0x0013_4, "Unknown device" },
 	{"0x07B3-0x0011-4", &Cap0x07B3_0x0011_4, &Hw0x07B3_0x0013_4, "Unknown device" },
 	{"0x07B3-0x0010-4", &Cap0x07B3_0x0010_4, &Hw0x07B3_0x0013_4, "Unknown device" },
 
 	{"0x07B3-0x0017-0", &Cap0x07B3_0x0017_0, &Hw0x07B3_0x0017_0, "OpticPro UT12/UT16" },
-	{"0x07B3-0x0015-0", &Cap0x07B3_0x0015_0, &Hw0x07B3_0x0017_0, "Unknown device" },
+	{"0x07B3-0x0015-0", &Cap0x07B3_0x0015_0, &Hw0x07B3_0x0017_0, "OpticPro U24"   },
 	{"0x07B3-0x0014-0", &Cap0x07B3_0x0014_0, &Hw0x07B3_0x0017_0, "Unknown device" },
-	{"0x07B3-0x0017-4", &Cap0x07B3_0x0017_4, &Hw0x07B3_0x0017_4, "OpticPro UT24" },
+	{"0x07B3-0x0017-4", &Cap0x07B3_0x0017_4, &Hw0x07B3_0x0017_4, "OpticPro UT24"  },
 	{"0x07B3-0x0015-4", &Cap0x07B3_0x0015_4, &Hw0x07B3_0x0017_4, "Unknown device" },
 	{"0x07B3-0x0014-4", &Cap0x07B3_0x0014_4, &Hw0x07B3_0x0017_4, "Unknown device" },
 	{"0x07B3-0x0016-4", &Cap0x07B3_0x0016_4, &Hw0x07B3_0x0016_4, "Unknown device" },
@@ -1204,16 +1529,17 @@ static SetDef Settings[] =
 	{"0x0458-0x2016",	&Cap0x07B3_0x0005_4, &Hw0x07B3_0x0007_0, "Unknown device" },
 
 	/* Hewlett Packard... */
+ 	{"0x03F0-0x0505",	&Cap0x03F0_0x0505, &Hw0x03F0_0x0505, "Scanjet 2100c" },
 	{"0x03F0-0x0605",	&Cap0x03F0_0x0605, &Hw0x03F0_0x0605, "Scanjet 2200c" },
 
 	/* EPSON... */
 	{"0x04B8-0x010F",	&Cap0x04B8_0x010F_0, &Hw0x04B8_0x010F_0, "Perfection 1250/Photo" },
 
+	/* UMAX... */
+ 	{"0x1606-0x0060",	&Cap0x1606_0x0060_0, &Hw0x1606_0x0060_0, "UMAX 3400" },
+		
 	/* CANON... */
 /*	{"0x04A9-0x220D", ,, "N670U" }, */
-		
-	/* UMAX... */
-/*	{"0x1606-0x0060",	&Cap..., &HW..., "UMAX 3400" }, */
 		
 	/* Please add other devices here...
 	 * The first entry is a string, composed out of the vendor and product id,

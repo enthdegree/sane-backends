@@ -145,6 +145,8 @@ OpticPro UT16      LM9832  600x1200dpi 42bit 512Kb 0x0017
 .br
 OpticPro U24       LM9831 1200x2400dpi 42bit   2Mb 0x0011
 .br
+OpticPro U24       LM9832 1200x2400dpi 42bit   2Mb 0x0015
+.br
 OpticPro UT24      LM9832 1200x2400dpi 42bit   2Mb 0x0017
 .PP
 
@@ -167,7 +169,9 @@ USB Model:         ASIC:  Properties:              Prod-ID
 .br
 ----------------------------------------------------------
 .br
-ScanJet 2200c      LM9832  600x1200dpi 42bit 512Kb 0x0605
+ScanJet 2100C      LM9831  600x1200dpi 42bit 512Kb 0x0505
+.br
+ScanJet 2200C      LM9832  600x1200dpi 42bit 512Kb 0x0605
 .PP
 
 Vendor Mustek - ID: 0x0400
@@ -181,6 +185,17 @@ USB Model:         ASIC:  Properties:              Prod-ID
 BearPaw 1200       LM9831  600x1200dpi 42bit 512Kb 0x1000
 .br
 BearPaw 2400       LM9832 1200x2400dpi 42bit   2Mb 0x1001
+.PP
+
+Vendor UMAX - ID: 0x1606
+.br
+----------------------------------------------------------
+.br
+USB Model:         ASIC:  Properties:              Prod-ID
+.br
+----------------------------------------------------------
+.br
+UMAX 3400          LM9832 1200x2400dpi 42bit   2Mb 0x0060
 .PP
 
 .SH "OTHER PLUSTEK SCANNERS"

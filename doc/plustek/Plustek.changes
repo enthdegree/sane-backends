@@ -1,0 +1,13 @@
+Plustek.changes (2003-01-11) Gerhard Jäger <gerhard@gjaeger.de>
+===============================================================
+
+V 0.45 (2003-01-10)
+
+- Starting this changelog
+- Updates since V 0.44:
+  * better CIS device support
+  * added CanoScan N1220U, N1240U
+  * made CanoScan N650U and N670U work
+  * fixed EPSON 1260 motor killer-bug
+  * improved TPA scanning
+

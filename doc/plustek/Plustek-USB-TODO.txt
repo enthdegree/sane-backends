@@ -1,0 +1,33 @@
+Plustek-USB-TODO.txt (2003-01-11) Gerhard Jäger <gerhard@gjaeger.de>
+====================================================================
+
+TODO (in general):
+	- more documentation/comments on the different functions
+    - Move documents to its correct SANE place
+	- improve calibration
+
+KNOWN BUGS/Limitations:
+
+Model             Description                           Workaround
+------------------------------------------------------------------------------
+Canon             fine calibration does not work        none
+Canon  650        color modes >=600 dpi too dark        change gamma settings
+Canon 1220        image quality not very good           none
+Canon 1240        gray mode too bright                  none
+all but Plustek   improve motor settings for 42bit      none
+                  modes
+
+********************************* DONE ***************************************
+
+EPSON Photo       Transparency mode does not work       fixed
+                  correctly
+all               binary mode does not work correctly   done
+Canon             16bit gray mode does not work         done
+EPSON 1250/60     Motor control settings are wrong      fixed
+CanoScan 1240                                           added
+EPSON + HP        vertical line bug                     fixed
+HP                blooming on 42bit >=400dpi            fixed
+
+Make the color modes > 8bit work correctly              done
+make mono/gray modes work on Canon scanners             done
+

@@ -1,3 +1,12 @@
+2003-01-11  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* doc/descriptions/plustek.desc: Update to reflect the currently
+	  supported decvices.
+	* doc/descriptions/unsupported.desc: Added some Plustek devices.
+	  CanoScan N1220U is now supported by the Plustek backend.
+	* doc/plustek: Added this directory to store various Plustek
+	  information files.
+
 2003-01-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc

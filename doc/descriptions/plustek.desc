@@ -9,20 +9,17 @@
 ; All other information is optional (but what good is the file without it?).
 ;
 
-:backend "plustek"              ; name of backend
-:version "0.45"                 ; version of backend
-:status :stable                 ; :alpha, :beta, :stable, :new
-:manpage "sane-plustek"         ; name of manpage (if it exists)
+:backend "plustek"
+:version "0.45"
+:status :stable
+:manpage "sane-plustek"
 
 ; backend's web page
 :url "http://www.gjaeger.de/scanner/plustek.html"	
 
-:devicetype :scanner            ; start of a list of devices....
-                                ; other types:  :stillcam, :vidcam,
-                                ;               :meta, :api
+:devicetype :scanner
 
-
-:mfg "Plustek"                  ; name of manufacturer
+:mfg "Plustek"
 :url "http://www.plustek.de/"
 :url "http://www.plustek.com/"
 
@@ -100,22 +97,15 @@
 :interface "Parport (SPP, EPP)"
 :status :stable
 
-:model "OpticPro 19200S"
-:interface "SCSI"
-:status :unsupported
-:comment "rebadged Artec AM12S (supported by Artec Backend)"
-
-:model "OpticPro 1212U"
-:interface "USB"
-:status :unsupported
-
 :model "OpticPro U12"
 :interface "USB"
 :status :stable
+:comment "NOTE: Devices with product ID 0x0001 are not supported!"
 
 :model "OpticPro UT12"
 :interface "USB"
 :status :stable
+:comment "Note: Devices with product ID 0x0001 are not supported!"
 
 :model "OpticPro UT16"
 :interface "USB"
@@ -129,6 +119,7 @@
 :interface "USB"
 :status :stable
 
+;* Primax ***********************************************************************************
 
 :mfg "Primax"                  ; name of manufacturer
 :url "http://www.primax.nl/"
@@ -154,14 +145,9 @@
 :status :stable
 :comment "same as OpticPro 9630P"
 
-:mfg "Aries"                  ; name of manufacturer
+;* Genius/KYE *******************************************************************************************
 
-:model "Scan-It Pro 4800"
-:interface "Parport (SPP, EPP)"
-:status :stable
-:comment "use driver-switch mov=2"
-
-:mfg "Genius"           ; name of manufacturer
+:mfg "Genius"
 :url "http://www.geniusnet.com.tw/"
 
 :model "Colorpage Vivid III V2"
@@ -178,6 +164,33 @@
 :interface "USB"
 :status :stable
 
+:model "Colorpage HR7"
+:interface "USB"
+:status :stable
+
+:model "Colorpage HR6A"
+:interface "USB"
+:status :untested
+
+:model "Colorpage HR7LE"
+:interface "USB"
+:status :untested
+
+:model "Colorpage HR6X"
+:interface "USB"
+:status :untested
+
+;********************************************************************************************
+
+:mfg "Aries"
+
+:model "Scan-It Pro 4800"
+:interface "Parport (SPP, EPP)"
+:status :stable
+:comment "use driver-switch mov=2"
+
+;********************************************************************************************
+
 :mfg "BrightScan"
 
 :model "BrighScan OpticPro"
@@ -185,10 +198,11 @@
 :status :stable
 :comment "Reported as P12"
 
-:mfg "Mustek"                  ; name of manufacturer
+;* MUSTEK ***********************************************************************************
+
+:mfg "Mustek"
 :url "http://www.mustek.com/"
 
-;name models for above-specified mfg.
 :model "BearPaw 1200"
 :interface "USB"
 :status :stable
@@ -198,7 +212,9 @@
 :status :stable
 :comment "Mostly OK"
 
-:mfg "Hewlett-Packard"                  ; name of manufacturer
+;* Hewlett-Packard **************************************************************************
+
+:mfg "Hewlett-Packard"
 :url "http://www.hp.com/"
 
 :model "ScanJet 2100C"
@@ -209,7 +225,9 @@
 :interface "USB"
 :status :stable
 
-:mfg "Epson"                  ; name of manufacturer
+;* EPSON *******************************************************************************************
+
+:mfg "Epson"
 :url "http://www.epson.com/"
 
 :model "Perfection 1250"
@@ -228,7 +246,9 @@
 :interface "USB"
 :status :stable
 
-:mfg "Umax"                  ; name of manufacturer
+;* UMAX *************************************************************************************
+
+:mfg "Umax"
 :url "http://www.umax.com/"
 
 :model "UMAX 3400"
@@ -239,13 +259,14 @@
 :interface "USB"
 :status :untested
 
-:mfg "Canon"                    ; name a manufacturer
+;* CANON *******************************************************************************************
+
+:mfg "Canon"
 :url "http://www.canon.com/"
 
 :model "CanoScan N650U/N656U"
 :interface "USB"
 :status :stable
-:comment "Poor color picture quality"
 
 :model "CanoScan N1220U"
 :interface "USB"
@@ -272,5 +293,39 @@
 :status :stable
 :comment "Poor color picture quality"
 
-; :comment and :url specifiers are optional after :mfg, :model, :desc,
-;  and at the top-level.
+;* The unsupported ones :-( *****************************************************************
+
+:model "OpticPro 19200S"
+:interface "SCSI"
+:status :unsupported
+:comment "rebadged Artec AM12S (supported by Artec Backend)"
+
+:model "OpticPro 1212U"
+:interface "USB"
+:status :unsupported
+
+:model "OpticPro 1248U"
+:interface "USB"
+:status :unsupported
+:comment "Contains GrandTech 68xx chipset - see gt68xx Backend"
+
+:model "OpticPro UT16B"
+:interface "USB"
+:status :unsupported
+:comment "Contains GrandTech 68xx chipset - see gt68xx Backend"
+
+:model "OpticPro S6"
+:interface "USB"
+:status :unsupported
+:comment "Uses RealTek chipset"
+
+:model "OpticPro S12"
+:interface "USB"
+:status :unsupported
+:comment "Not supported. Uses the GL646 chipset."
+
+:model "OpticPro S24"
+:interface "USB"
+:status :unsupported
+:comment "Not supported. Uses the GL646 chipset."
+

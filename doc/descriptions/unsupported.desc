@@ -28,12 +28,6 @@
 :status :unsupported
 :comment "Not supported. However, a stand-alone program is available."
 
-:model "CanoScan 1220U"
-:url "http://sourceforge.net/projects/canonscanner/"
-:interface "USB"
-:status :unsupported
-:comment "Not supported. However, a stand-alone program is available"
-
 :model "CanoScan D1250U2"
 :url "http://www.mostang.com/pipermail/sane-devel/2003-January/017146.html"
 :interface "USB"
@@ -51,6 +45,40 @@
 :status :unsupported
 :comment "Not supported. Is reported to use the GL646 chipset (see link)."
 
+;********************************************************************************************
+
+:mfg "Plustek"
+:url "http://www.plustek.de/"
+:url "http://www.plustek.com/"
+
+:model "OpticPro 1212U"
+:interface "USB"
+:status :unsupported
+
+:model "OpticPro U12/UT12"
+:interface "USB"
+:status :unsupported
+:comment "All devices using product ID 0x0001 are not supported, for others see Plustek backend."
+
+:model "OpticPro UT16B"
+:interface "USB"
+:status :unsupported
+:comment "Uses GrandTech 68xx chipset - see gt68xx Backend"
+
+:model "OpticPro S6"
+:interface "USB"
+:status :unsupported
+:comment "Uses RealTek chipset"
+
+:model "OpticPro S12"
+:interface "USB"
+:status :unsupported
+:comment "Uses the GL646 chipset."
+
+:model "OpticPro S24"
+:interface "USB"
+:status :unsupported
+:comment "Uses the GL646 chipset."
 
 ;********************************************************************************************
 

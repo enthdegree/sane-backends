@@ -358,6 +358,8 @@ struct fujitsu
 /** fi-???? */
 #define MODEL_FI   6
 #define MODEL_3097 7
+/** Fujitsu M3092DCd (300x600dpi, color, duplex, FB and ADF) */
+#define MODEL_3092 8
 
 /* A note regarding the MODEL... constants. There's a place in
  * identifyScanner() where the INQUIRY data is parsed and the model
@@ -482,11 +484,13 @@ static int grabScanner (struct fujitsu *s);
 
 static int freeScanner (struct fujitsu *s);
 
-static int waitScanner (struct fujitsu *s);
+static int wait_scanner (struct fujitsu *s);
 
 static int object_position (struct fujitsu *s, int i_load);
 
 static SANE_Status doCancel (struct fujitsu *scanner);
+
+static SANE_Status do_reset (struct fujitsu *scanner);
 
 /*static int objectDischarge (struct fujitsu *s);*/
 
@@ -512,6 +516,12 @@ static unsigned int reader3091ColorSimplex (struct fujitsu *scanner,
 					    FILE * fd);
 static unsigned int reader3091GrayDuplex (struct fujitsu *scanner, FILE * fd,
 					  FILE * fd2);
+static unsigned int reader3092ColorDuplex (struct fujitsu *scanner, FILE * fd,
+                                          FILE * fd2);
+static unsigned int reader3092ColorSimplex (struct fujitsu *scanner,
+                                           FILE * fd);
+static unsigned int reader3092GrayDuplex (struct fujitsu *scanner, FILE * fd,
+                                         FILE * fd2);
 static unsigned int reader_gray_duplex_sequential (struct fujitsu *scanner,
 						   FILE * fd, FILE * fd2);
 static unsigned int reader_gray_duplex_alternate (struct fujitsu *scanner,
@@ -530,10 +540,12 @@ static SANE_Status attachOne (const char *name);
 static int modelMatch (const char *product);
 
 static void setDefaults3091 (struct fujitsu *scanner);
+static void setDefaults3092 (struct fujitsu *scanner);
 static void setDefaults3096 (struct fujitsu *scanner);
 static void setDefaultsSP15 (struct fujitsu *scanner);
 
 static SANE_Status setMode3091 (struct fujitsu *scanner, int mode);
+static SANE_Status setMode3092 (struct fujitsu *scanner, int mode);
 static SANE_Status setMode3096 (struct fujitsu *scanner, int mode);
 static SANE_Status setModeSP15 (struct fujitsu *scanner, int mode);
 

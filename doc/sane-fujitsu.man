@@ -29,9 +29,11 @@ FUJITSU  fi-4340C
 .br
 FUJITSU  M3091DCd         BF21
 .RE
+FUJITSU  M3092DCd
+.RE
 .P
 The driver supports lineart, halftone, grayscale, and color
-scanning depending on hardware capabiliites.
+(3091 and 3092) scanning depending on hardware capabiliites.
 
 The "Fujitsu" driver is a first attempt at integrating support
 for all Fujitsu scanners - previously available as different
@@ -167,6 +169,7 @@ with credit to the unnamed author of the coolscan driver
 .br
 3091 driver: Frederik Ramm <frederik@remote.org>
 3093GD,fi-4340C, ipc and cmp options: Oliver Schirrmeister <oschirr@abm.de>
+3092 patch: Mario Goppold <mgoppold@tbzpariv.tcc-chemnitz.de>
 
 .SH LIMITATIONS
 Only tested with Linux 2.4 
@@ -176,3 +179,4 @@ I'm sure there are plenty, and not too well hidden,
 but I haven't seen them yet.
 I don't know if the ScanPartner 15C still works, because I'm not able
 to test it.
+3091/3092 don't support halftone

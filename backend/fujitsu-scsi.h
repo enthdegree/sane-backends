@@ -99,6 +99,7 @@ scsiblk;
 #define SCAN                    0x1b
 #define IMPRINTER               0xc1
 #define HW_STATUS               0xc2
+#define RESET_UNIT              0xf1
 
 
 /* ==================================================================== */
@@ -112,6 +113,12 @@ static scsiblk reserve_unitB = { reserve_unitC, sizeof (reserve_unitC) };
 static unsigned char release_unitC[] =
   { RELEASE_UNIT, 0x00, 0x00, 0x00, 0x00, 0x00 };
 static scsiblk release_unitB = { release_unitC, sizeof (release_unitC) };
+
+/* ==================================================================== */
+
+static unsigned char reset_unitC[] =
+  { RESET_UNIT, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+static scsiblk reset_unitB = { reset_unitC, sizeof (reset_unitC) };
 
 /* ==================================================================== */
 
@@ -180,14 +187,15 @@ static scsiblk inquiryB = { inquiryC, sizeof (inquiryC) };
 #define get_IN_trancepareny(in)            getbitfield(in+0x20, 1, 5)
 #define get_IN_flatbed(in)                 getbitfield(in+0x20, 1, 6)
 #define get_IN_adf(in)                     getbitfield(in+0x20, 1, 7)
+#define get_IN_buffer_bytes(in)            getnbyte(in + 0x22, 4)
 #define get_IN_has_set_subwindow(in)       (getnbyte(in+0x2a, 2)) & 1
 #define get_IN_has_imprinter(in)           (getnbyte(in+0x2a, 2)) & 2
 #define get_IN_has_hw_status(in)           (getnbyte(in+0x2a, 2)) & 4
 #define get_IN_brightness_steps(in)        getnbyte(in+0x52, 1)
 #define get_IN_threshold_steps(in)         getnbyte(in+0x53, 1)
 #define get_IN_contrast_steps(in)          getnbyte(in+0x54, 1)
-#define get_IN_ipc_bw_reverse(in)          getbitfield(in+0x58, 1, 6)
-#define get_IN_ipc_auto1(in)               getbitfield(in+0x58, 1, 5)
+#define get_IN_ipc_bw_reverse(in)          getbitfield(in+0x58, 1, 7)
+#define get_IN_ipc_auto1(in)               getbitfield(in+0x58, 1, 6)
 #define get_IN_ipc_auto2(in)               getbitfield(in+0x58, 1, 5)
 #define get_IN_ipc_outline_extraction(in)  getbitfield(in+0x58, 1, 4)
 #define get_IN_ipc_image_emphasis(in)      getbitfield(in+0x58, 1, 3)

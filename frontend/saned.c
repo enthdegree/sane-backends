@@ -55,6 +55,7 @@
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <arpa/inet.h>
 
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"
@@ -77,8 +78,6 @@
 #endif
 
 #define SANED_CONFIG_FILE "saned.conf"
-
-
 
 typedef struct
 {
@@ -139,7 +138,7 @@ saned_debug_call (int level, const char *fmt, ...)
   va_start (ap, fmt);
   if (debug >= level)
     {
-      if (log_to_syslog || isfdtype(fileno(stderr), S_IFSOCK) == 1)
+      if (log_to_syslog)
 	{
 	  /* print to syslog */
 	  vsyslog (LOG_DEBUG, fmt, ap);
@@ -178,7 +177,7 @@ auth_callback (SANE_String_Const res,
   if (!can_authorize)
     {
       DBG (DBG_WARN,
-	   "auth_callback (resource=%s) during non-authorizable RPC\n",
+	   "auth_callback: called during non-authorizable RPC (resource=%s)\n",
 	   res);
       return;
     }
@@ -218,8 +217,8 @@ auth_callback (SANE_String_Const res,
 
     default:
       DBG (DBG_WARN, 
-	   "auth_callback (resource=%s) for unexpected request %d\n",
-	   res, current_request);
+	   "auth_callback: called for unexpected request %d (resource=%s)\n",
+	   current_request, res);
       break;
     }
   reset_watchdog ();
@@ -230,8 +229,9 @@ auth_callback (SANE_String_Const res,
   if (procnum != SANE_NET_AUTHORIZE)
     {
       DBG (DBG_WARN,
-	   "auth_callback (resource=%s): bad procedure number %d\n", res,
-	   procnum);
+	   "auth_callback: bad procedure number %d "
+	   "(expected: %d, resource=%s)\n", procnum, SANE_NET_AUTHORIZE, 
+	   res);
       return;
     }
 
@@ -243,7 +243,7 @@ auth_callback (SANE_String_Const res,
   if (!req.resource || strcmp (req.resource, res) != 0)
     {
       DBG (DBG_MSG,
-	   "auth_callback (resource=%s): got auth for resource %s\n",
+	   "auth_callback: got auth for resource %s (expected resource=%s)\n",
 	   res, req.resource);
     }
   sanei_w_free (&wire, (WireCodecFunc) sanei_w_authorization_req, &req);
@@ -257,11 +257,11 @@ quit (int signum)
   int i;
 
   if (signum)
-    DBG (DBG_ERR, "received signal %d\n", signum);
+    DBG (DBG_ERR, "quit: received signal %d\n", signum);
 
   if (running)
     {
-      DBG (DBG_ERR, "quit is already active, returning\n");
+      DBG (DBG_ERR, "quit: already active, returning\n");
       return;
     }
   running = 1;
@@ -274,7 +274,7 @@ quit (int signum)
   sanei_w_exit (&wire);
   if (handle)
     free (handle);
-  DBG (DBG_WARN, "exiting\n");
+  DBG (DBG_WARN, "quit: exiting\n");
   closelog ();
   exit (EXIT_SUCCESS);		/* This is a nowait-daemon. */
 }
@@ -336,8 +336,8 @@ decode_handle (Wire * w, const char *op)
   if (w->status || (unsigned) h >= (unsigned) num_handles || !handle[h].inuse)
     {
       DBG (DBG_ERR,
-	   "%s: error while decoding handle argument (h=%d, %s)\n",
-	   op, h, strerror (w->status));
+	   "decode_handle: %s: error while decoding handle argument "
+	   "(h=%d, %s)\n", op, h, strerror (w->status));
       return -1;
     }
   return h;
@@ -348,67 +348,124 @@ static SANE_Status
 check_host (int fd)
 {
   struct sockaddr_in sin;
-  int i, j, access_ok = 0;
+  int j, access_ok = 0;
   struct hostent *he;
+  char r_addr[16]; /* 16 = make sure there is room for IPv6 addr */
+  char l_addr[16];
+  char text_addr[64];
+  unsigned int r_length;
+  unsigned int l_length;
   char rhost[1024];
   int len;
   FILE *fp;
 
-  DBG (DBG_DBG, "checking hostname\n");
-  if (gethostname (hostname, sizeof (hostname)) < 0)
-    {
-      DBG (DBG_ERR, "gethostname failed: %s\n", strerror (errno));
-      return SANE_STATUS_INVAL;
-    }
-
-  /* first, check whether we allow connections from the peer-host: */
+  /* Get address of remote host */
   len = sizeof (sin);
   if (getpeername (fd, (struct sockaddr *) &sin, (socklen_t *) &len) < 0)
     {
-      DBG (DBG_ERR, "getpeername failed: %s\n", strerror (errno));
+      DBG (DBG_ERR, "check_host: getpeername failed: %s\n", strerror (errno));
       return SANE_STATUS_INVAL;
     }
+  DBG (DBG_WARN, "check_host: access by remote host: %s\n", 
+       inet_ntoa (sin.sin_addr));
+
+  /* Always allow access from local host. Do it here to avoid DNS lookups. */
+  if (IN_LOOPBACK (ntohl (sin.sin_addr.s_addr)))
+    {
+      DBG (DBG_MSG,
+	   "check_host: remote host is IN_LOOPBACK: access accepted\n");
+      remote_hostname = "localhost";
+      return SANE_STATUS_GOOD;
+    }
+  DBG (DBG_DBG, "check_host: remote host is not IN_LOOPBACK\n");
+
+  /* Get remote name and store primary address */
   he = gethostbyaddr ((const char *) &sin.sin_addr,
 		      sizeof (sin.sin_addr), sin.sin_family);
   if (!he)
     {
-      DBG (DBG_ERR, "gethostbyaddr failed: %s\n", strerror (errno));
+      DBG (DBG_ERR, "check_host: gethostbyaddr failed: %s\n",
+	   strerror (errno));
       return SANE_STATUS_INVAL;
     }
-
   remote_hostname = strdup (he->h_name);
-
-  /* always allow access from local host: */
-
-  if (IN_LOOPBACK (ntohl (sin.sin_addr.s_addr)))
+  DBG (DBG_DBG, "check_host: remote hostname (from DNS): %s\n",
+       remote_hostname);
+  r_length = he->h_length;
+  if (r_length > sizeof(r_addr))
     {
-      DBG (DBG_MSG,
-	   "host is local (IN_LOOPBACK): access accepted\n");
-      return SANE_STATUS_GOOD;
+      DBG (DBG_ERR, "check_host: remote address length too long: %d > %d\n",
+	   r_length,
+           sizeof(r_addr));
+      return SANE_STATUS_INVAL;
     }
+  memcpy(&r_addr[0], he->h_addr_list[0], r_length);
+  if (!inet_ntop (he->h_addrtype, he->h_addr_list[0], text_addr,
+		  sizeof (text_addr)))
+    strcpy (text_addr, "[error]");
+  DBG (DBG_DBG, "check_host: remote host address (from DNS): %s\n",
+       text_addr);
 
-  if (strcasecmp (hostname, he->h_name) == 0)
+  /* Get name of local host */
+  if (gethostname (hostname, sizeof (hostname)) < 0)
     {
-      DBG (DBG_MSG,
-	   "host is local (name == local hostname): access accepted\n");
-      return SANE_STATUS_GOOD;
+      DBG (DBG_ERR, "check_host: gethostname failed: %s\n", strerror (errno));
+      return SANE_STATUS_INVAL;
     }
+  DBG (DBG_DBG, "check_host: local hostname: %s\n", hostname);
 
-  /* check alias list: */
-  for (i = 0; he->h_aliases[i]; ++i)
-    if (strcasecmp (hostname, he->h_aliases[i]) == 0)
-      {
-	DBG (DBG_MSG,
-	     "host is local (alias == local hostname): access accepted\n");
-	return SANE_STATUS_GOOD;
-      }
+  /* Get local address */
+  he = gethostbyname (hostname);
+  if (!he)
+    {
+      DBG (DBG_ERR, "check_host: gethostbyname failed: %s\n",
+	   strerror (errno));
+      return SANE_STATUS_INVAL;
+    }
+  DBG (DBG_DBG, "check_host: local hostname (from DNS): %s\n",
+       he->h_name);
+  l_length = he->h_length;
+  if (l_length > sizeof(l_addr))
+    {
+      DBG (DBG_ERR, "check_host: local address length too long: %d > %d\n",
+	   l_length,
+           sizeof(l_addr));
+      return SANE_STATUS_INVAL;
+     }
+  memcpy(&l_addr[0], he->h_addr_list[0], l_length);
+  if (!inet_ntop (he->h_addrtype, he->h_addr_list[0], text_addr,
+		  sizeof (text_addr)))
+    strcpy (text_addr, "[error]");
+  DBG (DBG_DBG, "check_host: local host address (from DNS): %s\n",
+       text_addr);
+
+  if (r_length == l_length)
+    {
+      if (memcmp(l_addr, r_addr, r_length) == 0)   
+	{
+	  DBG (DBG_MSG, 
+	       "check_host: remote host has same addr as local: "
+	       "access accepted\n");
+	  return SANE_STATUS_GOOD;
+	}
+    }
+  else
+    {
+      /* Ignoring localhost address */
+      DBG (DBG_DBG, 
+	   "check_host: remote and local addresses have different "
+	   "length %d != %d\n", r_length, l_length);
+    }
+  DBG (DBG_DBG, 
+       "check_host: remote host doesn't have same addr as local\n");
 
   /* must be a remote host: check contents of PATH_NET_CONFIG or
      /etc/hosts.equiv if former doesn't exist: */
 
   for (j = 0; j < NELEMS (config_file_names); ++j)
     {
-      DBG (DBG_DBG, "opening config file: %s\n", config_file_names[j]);
+      DBG (DBG_DBG, "check_host: opening config file: %s\n",
+	   config_file_names[j]);
       if (config_file_names[j][0] == '/')
 	fp = fopen (config_file_names[j], "r");
       else
@@ -416,8 +473,8 @@ check_host (int fd)
       if (!fp)
 	{
 	  DBG (DBG_MSG,
-	       "can't open config file: %s (%s)\n", config_file_names[j],
-	       strerror (errno));
+	       "check_host: can't open config file: %s (%s)\n",
+	       config_file_names[j], strerror (errno));
 	  continue;
 	}
 
@@ -426,32 +483,45 @@ check_host (int fd)
 	  if (rhost[0] == '#')	/* ignore line comments */
 	    continue;
 	  len = strlen (rhost);
-	  if (rhost[len - 1] == '\n')
-	    rhost[--len] = '\0';
 
 	  if (!len)
 	    continue;		/* ignore empty lines */
 
-	  DBG (DBG_MSG, "config file host name entry: %s\n", rhost);
+	  DBG (DBG_DBG, "check_host: config file line: `%s'\n", rhost);
 
-	  if (strcasecmp (rhost, he->h_name) == 0 || strcmp (rhost, "+") == 0)
-	    access_ok = 1;
-	  DBG (DBG_MSG, "peer name: %s\n", he->h_name);
-	  for (i = 0; he->h_aliases[i]; ++i)
+          if (strcmp (rhost, "+") == 0)
 	    {
-	      DBG (DBG_MSG, "peer name alias: %s\n", he->h_aliases[i]);
-	      if (strcasecmp (rhost, he->h_aliases[i]) == 0)
+	      access_ok = 1;
+	      DBG (DBG_DBG, 
+		   "check_host: access accepted from every host (`+')\n");
+	    }
+	  else
+	    {
+	      he = gethostbyname (rhost);
+	      if (!he)
 		{
-		  access_ok = 1;
-		  break;
+		  DBG (DBG_WARN, 
+		       "check_host: gethostbyname for `%s' failed: %s\n",
+		       rhost, strerror (errno));
+		  continue;
 		}
+	      
+	      if (!inet_ntop (he->h_addrtype, he->h_addr_list[0], text_addr,
+			      sizeof (text_addr)))
+		strcpy (text_addr, "[error]");
+	      DBG (DBG_MSG, 
+		   "check_host: checking for `%s' (%s) (from DNS)\n",
+		   he->h_name, text_addr);
+	      if (r_length == (unsigned int) he->h_length
+		  && memcmp (&r_addr[0], he->h_addr_list[0], r_length) == 0)
+		  access_ok = 1;
 	    }
 	}
       fclose (fp);
       if (access_ok)
 	return SANE_STATUS_GOOD;
     }
-  return SANE_STATUS_INVAL;
+  return SANE_STATUS_ACCESS_DENIED;
 }
 
 static int
@@ -485,7 +555,7 @@ init (Wire * w)
 
   status = check_host (w->io.fd);
 
-  DBG (DBG_WARN, "access by %s@%s %s\n",
+  DBG (DBG_WARN, "init: access by %s@%s %s\n",
        default_username, remote_hostname,
        (status == SANE_STATUS_GOOD) ? "accepted" : "rejected");
 
@@ -493,13 +563,13 @@ init (Wire * w)
     {
       status = sane_init (&be_version_code, auth_callback);
       if (status != SANE_STATUS_GOOD)
-	DBG (DBG_ERR, "failed to initialize backend (%s)\n",
+	DBG (DBG_ERR, "init: failed to initialize backend (%s)\n",
 	     sane_strstatus (status));
 
       if (SANE_VERSION_MAJOR (be_version_code) != V_MAJOR)
 	{
 	  DBG (DBG_ERR,
-	       "unexpected backend major version %d (expected %d)\n",
+	       "init: unexpected backend major version %d (expected %d)\n",
 	       SANE_VERSION_MAJOR (be_version_code), V_MAJOR);
 	  status = SANE_STATUS_INVAL;
 	}
@@ -799,7 +869,8 @@ process_request (Wire * w)
 	sanei_w_string (w, &name);
 	if (w->status)
 	  {
-	    DBG (DBG_ERR, "open: error while decoding args (%s)\n",
+	    DBG (DBG_ERR, 
+		 "process_request: (open) error while decoding args (%s)\n",
 		 strerror (w->status));
 	    return;
 	  }
@@ -810,7 +881,7 @@ process_request (Wire * w)
 	
 	if (strlen(resource) == 0) {
 
-	  SANE_Device **device_list;
+	  const SANE_Device **device_list;
 	  
 	  free (resource);
 
@@ -916,8 +987,9 @@ process_request (Wire * w)
 	    || !handle[req.handle].inuse)
 	  {
 	    DBG (DBG_ERR,
-		 "control_option: error while decoding args h=%d "
-		 "(%s)\n", req.handle, strerror (w->status));
+		 "process_rquest: (control_option) "
+		 "error while decoding args h=%d (%s)\n"
+		 , req.handle, strerror (w->status));
 	    return;
 	  }
 
@@ -1031,7 +1103,6 @@ main (int argc, char *argv[])
   int level = -1;
 #endif
 
-
   debug = DBG_WARN;
   openlog ("saned", LOG_PID | LOG_CONS, LOG_DAEMON);
 
@@ -1061,53 +1132,54 @@ main (int argc, char *argv[])
       if (strncmp (argv[1], "-d", 2) == 0)
 	log_to_syslog = SANE_FALSE;
 
-      DBG (DBG_WARN, "starting debug mode (level %d)\n", debug);
+      DBG (DBG_WARN, "main: starting debug mode (level %d)\n", debug);
 
       memset (&sin, 0, sizeof (sin));
 
-      DBG (DBG_DBG, "trying to get port for service `sane' (getservbyname)\n");
+      DBG (DBG_DBG, 
+	   "main: trying to get port for service `sane' (getservbyname)\n");
       serv = getservbyname ("sane", "tcp");
       if (serv)
 	{
 	  port = serv->s_port;
-	  DBG (DBG_DBG, "port is %d\n", ntohs (port));
+	  DBG (DBG_DBG, "main: port is %d\n", ntohs (port));
 	}
       else
 	{
 	  port = htons (6566);
-	  DBG (DBG_WARN, "%s: could not find `sane' service (%s)\n"
-	       "%s: using default port %d\n", prog_name, strerror (errno),
-	       prog_name, ntohs (port));
+	  DBG (DBG_WARN, "main: could not find `sane' service (%s)\n", 
+	       strerror (errno));
+	  DBG (DBG_WARN, "main: using default port %d\n", ntohs (port));
 	}
       sin.sin_family = AF_INET;
       sin.sin_addr.s_addr = INADDR_ANY;
       sin.sin_port = port;
 
-      DBG (DBG_DBG, "socket ()\n");
+      DBG (DBG_DBG, "main: socket ()\n");
       fd = socket (AF_INET, SOCK_STREAM, 0);
 
-      DBG (DBG_DBG, "setsockopt ()\n");
+      DBG (DBG_DBG, "main: setsockopt ()\n");
       if (setsockopt (fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof (on)))
 	DBG (DBG_ERR, "failed to put socket in SO_REUSEADDR mode (%s)",
 		strerror (errno));
 
-      DBG (DBG_DBG, "bind ()\n");
+      DBG (DBG_DBG, "main: bind ()\n");
       if (bind (fd, (struct sockaddr *) &sin, sizeof (sin)) < 0)
 	{
-	  DBG (DBG_ERR, "bind failed: %s", strerror (errno));
+	  DBG (DBG_ERR, "main: bind failed: %s", strerror (errno));
 	  exit (1);
 	}
-      DBG (DBG_DBG, "listen ()\n");
+      DBG (DBG_DBG, "main: listen ()\n");
       if (listen (fd, 1) < 0)
 	{
-	  DBG (DBG_ERR, "listen failed: %s", strerror (errno));
+	  DBG (DBG_ERR, "main: listen failed: %s", strerror (errno));
 	  exit (1);
 	}
-      DBG (DBG_DBG, "accept ()\n");
+      DBG (DBG_DBG, "main: accept ()\n");
       wire.io.fd = accept (fd, 0, 0);
       if (wire.io.fd < 0)
 	{
-	  DBG (DBG_ERR, "accept failed: %s", strerror (errno));
+	  DBG (DBG_ERR, "main: accept failed: %s", strerror (errno));
 	  exit (1);
 	}
       close (fd);
@@ -1141,7 +1213,7 @@ main (int argc, char *argv[])
     p = getprotobyname ("tcp");
     if (p == 0)
       {
-	DBG (DBG_WARN, "connect_dev: cannot look up `tcp' protocol number");
+	DBG (DBG_WARN, "main:: cannot look up `tcp' protocol number");
       }
     else
       level = p->p_proto;
@@ -1149,7 +1221,7 @@ main (int argc, char *argv[])
 # endif	/* SOL_TCP */
   if (level == -1
       || setsockopt (wire.io.fd, level, TCP_NODELAY, &on, sizeof (on)))
-    DBG (DBG_WARN, "failed to put socket in TCP_NODELAY mode (%s)",
+    DBG (DBG_WARN, "main: failed to put socket in TCP_NODELAY mode (%s)",
 	 strerror (errno));
 #endif /* !TCP_NODELAY */
 

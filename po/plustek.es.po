@@ -1,6 +1,6 @@
 # Translation file for SANE Plustek backend
 # Copyright (C) 2002 Henning Meier-Geinitz <henning@meier-geinitz.de>
-#                    Gerhard Jaeger <g.jaeger@earthling.net>
+#                    Gerhard Jaeger <gerhard@gjaeger.de>
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.7\n"

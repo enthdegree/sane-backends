@@ -15,7 +15,7 @@
 :manpage "sane-plustek"         ; name of manpage (if it exists)
 
 ; backend's web page
-:url "http://home.t-online.de/home/g-jaeger/plustek.html"	
+:url "http://www.gjaeger.de/scanner/plustek.html"	
 
 :devicetype :scanner            ; start of a list of devices....
                                 ; other types:  :stillcam, :vidcam,

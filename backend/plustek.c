@@ -9,7 +9,7 @@
  * original code taken from sane-0.71
  * Copyright (C) 1997 Hypercore Software Design, Ltd.
  * also based on the work done by Rick Bronson
- * Copyright (C) 2000-2002 Gerhard Jaeger <g.jaeger@earthling.net>
+ * Copyright (C) 2000-2002 Gerhard Jaeger <gerhard@gjaeger.de>
  *.............................................................................
  * History:
  * 0.30 - initial version

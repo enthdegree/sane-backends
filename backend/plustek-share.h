@@ -4,9 +4,7 @@
  * File:	 plustek-share.h - definitions for the backend and the driver
  *.............................................................................
  *
- * Copyright (C) 2000-2002 Gerhard Jaeger <g.jaeger@earthling.net>
- * Last Update:
- *		Gerhard Jaeger <g.jaeger@earthling.net>
+ * Copyright (C) 2000-2002 Gerhard Jaeger <gerhard@gjaeger.de>
  *.............................................................................
  * History:
  * 0.36 - initial version

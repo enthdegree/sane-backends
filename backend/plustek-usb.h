@@ -6,9 +6,7 @@
  *.............................................................................
  *
  * based on sources acquired from Plustek Inc.
- * Copyright (C) 2001-2002 Gerhard Jaeger <g.jaeger@earthling.net>
- * Last Update:
- *		Gerhard Jaeger <g.jaeger@earthling.net>
+ * Copyright (C) 2001-2002 Gerhard Jaeger <gerhard@gjaeger.de>
  *.............................................................................
  * History:
  * 0.40 - starting version of the USB support

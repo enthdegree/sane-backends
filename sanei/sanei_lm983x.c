@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
 
    based on sources acquired from Plustek Inc.
-   Copyright (C) 2002 Gerhard Jaeger <g.jaeger@earthling.net>
+   Copyright (C) 2002 Gerhard Jaeger <gerhard@gjaeger.de>
 
    This file is part of the SANE package.
  

@@ -23,6 +23,7 @@ Backends:
  dll:           David Mosberger
  dmc:           David F. Skoll
  epson:         Karl Heinz Kremer(*)
+ gphoto2:	Peter Fales (*)
  hp:            Peter Kirchgessner (*)
                 Geoffrey Dairiki
  m3096g:        Randolph Bentson (*)

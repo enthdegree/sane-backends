@@ -78,7 +78,6 @@ backends
       - abaton
       - agfafocus
       - apple
-      - artec
       - as6e
       - avision
       - bh
@@ -108,7 +107,6 @@ backends
   * lines like "if (config_line[len - 1] == '\n')" can cause segfaults and
     should be removed (removing "\n" is already done in sanei_config_read).
     This ist just a fast grep. Check all backends!
-    - artec
     - bh
     - m3096g
     - sp15c

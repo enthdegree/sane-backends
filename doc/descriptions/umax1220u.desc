@@ -36,10 +36,5 @@
 :status :unsupported
 :comment "Incompatible."
 
-:model "Astra 2200US"
-:interface "USB"
-:status :unsupported
-:comment "Incompatible."
-
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

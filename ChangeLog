@@ -1,3 +1,11 @@
+2002-01-08  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* configure configure.in: Added V_EXTRA version number to mark
+	  CVS versions (-cvs) and snapshots/betas (e.g. -beta1). 
+	  V_EXTRA=-pre1 would result in "sane-backends-1.0.7-pre1(.tar.gz)".
+	  For release, V_EXTRA is empty. Added NUMBER_VERSION to avoid
+	  confusing sane-config and frontends that rely on numbered versions.
+
 2001-01-08  Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* configure.in: added help text for --enable-parport-directio

@@ -1,3 +1,7 @@
+2002-06-21  Max Vorobiev <pcwizard@yandex.ru>
+
+	* backend/hpsj5s.c: added fcntl.h include directive.
+	
 2002-06-15  Andras Major <andras@users.sourceforge.net>
 
 	* doc/sane-coolscan2.man: corrected stupid mistake.

@@ -3,6 +3,7 @@
 	* doc/backend-writing.txt: More details for the exported symbols
 	  issue. Used test.c instead of pnm.c as example. Fixed paths for
 	  .desc files.
+	* doc/sane.man: Added paragraph about testing with the test backend.
 
 2002-04-21  Frank Zago <fzago@greshamstorage.com>
 

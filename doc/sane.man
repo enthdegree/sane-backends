@@ -1,4 +1,4 @@
-.TH sane 7 "11 Aug 2001"
+.TH sane 7 "9 Sep 2001"
 .IX sane
 
 .SH NAME
@@ -178,12 +178,16 @@ SCSI-2 command set. See sane-microtek2(5) for details.
 .TP
 .B mustek
 The SANE mustek backend supports most Mustek SCSI flatbed scanners including
-the Paragon and ScanExpress series and the 600 II N (non.SCSI). Some Trust
+the Paragon and ScanExpress series and the 600 II N (non-SCSI). Some Trust
 scanners are also supported. See sane-mustek(5) for details.
 .TP
 .B mustek_pp
 The mustek_pp backend provides access to Mustek parallel port flatbed
 scanners. See sane-mustek_pp(5) for details.
+.TP
+.B mustek_usb
+The mustek_usb backend provides access to some Mustek USB flatbed
+scanners. See sane-mustek_usb(5) for details.
 .TP
 .B nec
 The SANE nec backend supports the NEC PC-IN500/4C SCSI scanner. See

@@ -1,4 +1,4 @@
-PROJECTS (2001-09-04)
+PROJECTS (2001-09-09)
 
 Here is a list of projects that various people have expressed interest
 in.  Before starting working on one of these projects, it may be a
@@ -93,10 +93,6 @@ http://www.abm.de/sane/
 
 Mustek BearPaw USB scanner (wip)
 Henning Meier-Geinitz <henning@meier-geinitz.de> et. al.
-
-Mustek USB backend for 600CU, 1200UB, 1200CU, 1200CU Plus (wip)
-Henning Meier-Geinitz <henning@meier-geinitz.de> et. al.
-http://www.meier-geinitz.de/sane/
 
 Primax parallel port scanners (wip)
 http://primax.sourceforge.net/

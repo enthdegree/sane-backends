@@ -10,10 +10,10 @@
 ;
 
 :backend "epson"                  ; name of backend
-:version "0.1.34"                 ; version of backend
+:version "0.1.35"                 ; version of backend
 :status :beta                     ; :alpha, :beta, :stable, :new
 :manpage "sane-epson"             ; name of manpage (if it exists)
-:url "http://www.khk.net/"        ; backend's web page
+:url "http://www.freecolormanagement.com/sane"        ; backend's web page
 
 :devicetype :scanner              ; start of a list of devices....
                                   ; other types:  :stillcam, :vidcam,

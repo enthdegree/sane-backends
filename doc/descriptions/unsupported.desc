@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-08-07"		; version of backend
+:version "2003-08-21"		; version of backend
 :url "http://www.meier-geinitz.de/sane/misc/unsupported.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 ;:url "http://www.meier-geinitz.de/sane/mustek-backend/"
@@ -145,16 +145,16 @@
 :url "http://www.canon.com/"
 
 :model "CanoScan 3000"
-;:url "http://www.meier-geinitz.de/sane/misc/canon-8000f.html"
+:url "http://www.meier-geinitz.de/sane/misc/canon-3000.html"
 :interface "USB"
 :status :unsupported
-:comment "Probably unsupported, no details known. 1200x2400dpi USB2"
+:comment "Probably unsupported. See link."
 
 :model "CanoScan 3000F"
-;:url "http://www.meier-geinitz.de/sane/misc/canon-8000f.html"
+:url "http://www.meier-geinitz.de/sane/misc/canon-3000.html"
 :interface "USB"
 :status :unsupported
-:comment "Probably unsupported, no details known. 1200x2400dpi USB2. Same as 3000, but with transparency adapter (?)"
+:comment "Probably unsupported. See link."
 
 :model "CanoScan 5000F"
 ;:url "http://www.meier-geinitz.de/sane/misc/canon-8000f.html"
@@ -257,8 +257,14 @@
 
 ;********************************************************************************************
 
-;:mfg "Epson"
-;:url "http://www.epson.com/"
+:mfg "Epson"
+:url "http://www.epson.com/"
+
+:model "Perfection 1670"
+:url "http://server2.clover.com.au/~tpw/scanner/main.html"
+:interface "USB"
+:status :unsupported
+:comment "Currently not supported. See link for details."
 
 ;********************************************************************************************
 
@@ -387,9 +393,9 @@
 :status :unsupported
 
 :model "ScanJet 4570C"
-;:url ""
+:url "http://www.meier-geinitz.de/sane/misc/hp-scanjet-4570c.html"
 :interface "USB"
-:comment "Not supported. Portrait scanner with TA, similar to 4500C. Same as 5550C, but without ADF. Vendor/product: 0x03f0/0x1305. Not much is known about this scanner. The manual says:  4500c and 5500c series."
+:comment "Not supported. See link for details."
 :status :unsupported
 
 :model "ScanJet 5500C"
@@ -454,13 +460,13 @@
 :url "http://www.meier-geinitz.de/sane/misc/medion-MD5345.html"
 :interface "USB"
 :status :unsupported
-:comment "Probably unsupported. Vendor/product 0x0461/0x0377. Maybe GL646 or GL640? See link for details."
+:comment "Probably unsupported. Vendor/product 0x0461/0x0377. See link for details."
 
 :model "MD 6228"
-:url "http://www.meier-geinitz.de/sane/misc/medion-MD6228.html"
+:url "http://www.meier-geinitz.de/sane/misc/medion-md6228.html"
 :interface "USB"
 :status :unsupported
-:comment "Probably unsupported. Vendor/product 0x0461/0x0377. Maybe GL646 or GL640? See link for details."
+:comment "Probably unsupported. Vendor/product 0x0461/0x0377. See link for details."
 
 ;********************************************************************************************
 
@@ -494,13 +500,25 @@
 :url "http://www.meier-geinitz.de/sane/misc/microtek-scanmaker-3800.html"
 :interface "USB"
 :status :unsupported
-:comment "Unsupported. Vendor/Product ids: 0x05da/0x30ce. SQ Scan08?. See link for more details."
+:comment "Unsupported. See link for more details."
+
+:model "ScanMaker 3830"
+:url "http://www.meier-geinitz.de/sane/misc/microtek-scanmaker-3830.html"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. See link for more details."
 
 :model "ScanMaker 4800"
 :url "http://www.meier-geinitz.de/sane/misc/microtek-scanmaker-4800.html"
 :interface "USB"
 :status :unsupported
 :comment "Unsupported. Vendor/Product ids: 0x05da/0x30cf. SQ Scan08? See link for more details."
+
+:model "ScanMaker 5600"
+:url "http://www.meier-geinitz.de/sane/misc/microtek-scanmaker-5600.html"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. See link for more details."
 
 :model "ScanMaker 6700"
 :url "http://www.meier-geinitz.de/sane/misc/microtek-scanmaker-6700.html"
@@ -622,7 +640,7 @@
 :url "http://www.meier-geinitz.de/sane/misc/pie-1800u.html"
 :interface "USB"
 :status :unsupported
-:comment "Not supported. Vendor/product 0x05e3/0x0120. GeneScan II GL841??? See link for details."
+:comment "Not supported. Vendor/product 0x05e3/0x0120. See link for details."
 
 ;********************************************************************************************
 
@@ -887,6 +905,13 @@
 :interface "USB Parport"
 :status :unsupported
 :comment "Not supported. See link for more details."
+
+:model "WorkCentre Pro 412"
+:url "http://www.meier-geinitz.de/sane/misc/xerox-workcentre-pro412.html"
+:interface "USB Parport"
+:status :unsupported
+:comment "Not supported. See link for more details."
+
 
 ;********************************************************************************************
 

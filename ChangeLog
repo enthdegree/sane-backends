@@ -5,6 +5,8 @@
 	  Firewire scanners. Patch from Guy Brooker <guy_brooker@mac.com>.
 	* TODO: Added entries for mustek patch, sanei_usb devfs trouble,
 	  and moving of Option_Value. Updated .desc file section.
+	* doc/descriptions/unsupported.desc: Updated sections about
+	  Canon, Epson, HP, Medion, Microtek, Mustek, and Xerox scanners.
 
 2003-07-22  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

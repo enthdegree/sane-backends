@@ -237,10 +237,6 @@ static char lastrcmd[16]; /* hold command block of last read command */
 # define MAX_DATA	(128*1024)
 #endif
 
-#if USE == IRIX_INTERFACE
-# define MAX_DATA	(128*1024)
-#endif
-
 
 #ifndef MAX_DATA
 # define MAX_DATA	(32*1024)
@@ -3619,7 +3615,7 @@ sanei_scsi_cmd2 (int fd,
   if (cmdbuf == NULL)
     {
       cmdbuf   = malloc(64);
-      sensebuf = malloc(1024);
+      sensebuf = malloc(1024); /* may be can reduced to 128 */
       databuf  = malloc(MAX_DATA);
 
       if (cmdbuf == NULL || sensebuf == NULL || databuf == NULL)
@@ -3646,7 +3642,7 @@ sanei_scsi_cmd2 (int fd,
       scsi_req.ds_databuf  = (caddr_t) databuf;
       scsi_req.ds_datalen  = *dst_size;
       scsi_req.ds_sensebuf = (caddr_t) sensebuf;
-      scsi_req.ds_senselen = sizeof (sensebuf);
+      scsi_req.ds_senselen = 128; /* 1024 does not work, 128 is tested (O.Rauch) */
 
       /*
        * Copy command to cmdbuf to assure 32-bit alignment.
@@ -3665,7 +3661,7 @@ sanei_scsi_cmd2 (int fd,
       scsi_req.ds_databuf  = (caddr_t) databuf;
       scsi_req.ds_datalen  = src_size;
       scsi_req.ds_sensebuf = (caddr_t) sensebuf;
-      scsi_req.ds_senselen = sizeof (sensebuf);
+      scsi_req.ds_senselen = 128;
 
       /*
        * Copy command and data to local buffers to ensure 32-bit alignment...
@@ -3673,6 +3669,8 @@ sanei_scsi_cmd2 (int fd,
       memcpy (cmdbuf, (u_char *) cmd, cmd_size);
       memcpy (databuf, (u_char *) src, src_size);
     }
+
+  bzero(sensebuf, 128);
 
   /*
    * Do SCSI request...
@@ -3705,9 +3703,8 @@ sanei_scsi_cmd2 (int fd,
     {
       if (scsi_req.ds_status == STA_BUSY)
 	return SANE_STATUS_DEVICE_BUSY;
-      else if ((sensebuf[0] & 0x80) && fd_info[fd].sense_handler)
-	return (*fd_info[fd].sense_handler) (fd, sensebuf,
-					     fd_info[fd].sense_handler_arg);
+      else if (fd_info[fd].sense_handler)
+	return (*fd_info[fd].sense_handler) (fd, sensebuf, fd_info[fd].sense_handler_arg);
       else
 	return SANE_STATUS_IO_ERROR;
     }

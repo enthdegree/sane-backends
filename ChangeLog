@@ -1,3 +1,8 @@
+2003-02-02  Peter Kirchgessner <peter@kirchgessner.de>
+
+	* backend/hp.c backend/hp-handle.c: Add support for OS/2
+	  doc/descriptions/hp.desc: Version number changed
+
 2003-02-02  Jochen Eisinger <jochen.eisinger@gmx.de>
 
 	* doc/descriptions/mustek_pp.desc: cleaned up the file a little

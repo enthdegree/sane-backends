@@ -1,4 +1,4 @@
-TODO (2001-05-04)
+TODO (2001-05-06)
 
 ******** todo ********
 
@@ -89,9 +89,17 @@ backends
 
   * add a contact address for each backend (in backend.desc).
 
-  * lines like "if (config_line[len - 1] == '\n')"  can cause segfaults and
-    should be removed (this is done in sanei_config_read)
+  * lines like "if (config_line[len - 1] == '\n')" can cause segfaults and
+    should be removed (removing "\n" is already done in sanei_config_read).
+    This ist just a fast grep. Check all backends!
     - artec
+    - bh
+    - epson
+    - m3096g
+    - microtek2
+    - mustek_pp
+    - pie
+    - sp15c
     - umax
 
 doc

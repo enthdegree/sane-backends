@@ -233,6 +233,12 @@ if test "${enable_dynamic}" != "no"; then
 fi
 AC_SUBST(DL_LIB)
 
+DYNAMIC_FLAG=
+if test "${enable_dynamic}" = yes ; then
+  DYNAMIC_FLAG=-module
+fi
+AC_SUBST(DYNAMIC_FLAG)
+
 dnl Checks for Backend libraries.
 AC_CHECK_LIB(m,sqrt)
 AC_CHECK_LIB(scsi, scsireq_enter)	# FreeBSD needs this

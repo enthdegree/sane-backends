@@ -1,4 +1,3 @@
-
 2002-12-01  Rene Rebe <rene.rebe@gmx.net>
 	 * backend/avision.h backend/avision.c backend/avision.conf
 	   doc/descriptions/avision.desc: updated the Avisin backend - 
@@ -12,6 +11,8 @@
 	* TODO: Added sp15c inclusion and low-level buffer prints. Removed
 	  avision warning, hpsj5s freeze, hp/libusb, and manpages issues.
 	  Updated MacOS X list.
+	* configure configure.in backend/Makefile.in: Use libtool -module
+	  when linking shared libs that will be loaded dynamically.
 
 2002-11-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

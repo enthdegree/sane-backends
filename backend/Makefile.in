@@ -47,6 +47,7 @@ CFLAGS = @CFLAGS@
 LDFLAGS = @LDFLAGS@
 BACKENDLIBS = @LIBS@ @DL_LIB@
 DEFS = @DEFS@
+DYNAMIC_FLAG=@DYNAMIC_FLAG@
 
 LIBTOOL = ../libtool
 MCOMP	= --mode=compile
@@ -148,7 +149,7 @@ DISTFILES = abaton.c abaton.conf abaton.h agfafocus.c agfafocus.conf \
 libsane-%.la: %.lo %-s.lo $(EXTRA) $(LIBOBJS)
 	@$(LIBTOOL) $(MLINK) $(CC) -export-dynamic -o $@ $($*_LIBS) \
 	$(LDFLAGS) $(BACKENDLIBS) $^ -rpath $(libsanedir) \
-	-version-info $(V_MAJOR):$(V_REV):$(V_MINOR)
+	-version-info $(V_MAJOR):$(V_REV):$(V_MINOR) $(DYNAMIC_FLAG)
 
 %-s.lo:	%-s.c
 	@$(LIBTOOL) $(MCOMP) $(COMPILE) -DSTUBS -DBACKEND_NAME=$* $<

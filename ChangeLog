@@ -24,6 +24,9 @@
 	  GT-6801 scanners. Added "afe" option for gt68xx.conf for selecting
 	  default afe values. Removed AFE and exposure SANE options. Added
 	  documentation for afe option in gt68xx.conf. New version: 1.0-35.
+	* doc/descriptions-external/hp4200.desc 
+	  doc/descriptions-external/hpoj.desc: Use Hewlett-Packard consitantly 
+	  (instead of HP).
 
 2002-12-28  Karl Heinz Kremer <khk@khk.net>
 

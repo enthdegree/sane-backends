@@ -42,7 +42,7 @@
 
 /* Please increase version number with every change 
    (don't forget to update net.desc) */
-#define NET_VERSION "1.0.5"
+#define NET_VERSION "1.0.6"
 
 #ifdef _AIX
 # include "../include/lalloca.h" /* MUST come first for AIX! */
@@ -800,11 +800,11 @@ sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
 	  sanei_w_free (&dev->wire, (WireCodecFunc) sanei_w_open_reply,
 			&reply);
 
-	  sanei_w_set_dir (&dev->wire, WIRE_DECODE);
+	  if (dev->wire.direction != WIRE_DECODE)
+	    sanei_w_set_dir (&dev->wire, WIRE_DECODE);
 	  sanei_w_open_reply (&dev->wire, &reply);
 
 	  continue;
-
 	}
       else
 	sanei_w_free (&dev->wire, (WireCodecFunc) sanei_w_open_reply, &reply);

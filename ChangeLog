@@ -1,3 +1,9 @@
+2002-01-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/microtek.c backend/microtek2.h: Fixed undefined behaviour
+	  problem and Scanmaker X12 problems. New version: 20020127. Code from
+	  karsten.festag@t-online.de (Karsten Festag).
+
 2002-01-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* NEWS: Updated for sane-backends 1.0.7.

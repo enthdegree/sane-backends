@@ -1,3 +1,7 @@
+2001-04-19  Petter Reinholdtsen <pere@td.org.uit.no>
+
+	* tools/sane-config.in: Fix typo in previous commit.
+
 2001-04-17  Karl Heinz Kremer <khk@khk.net>
 
 	* doc/sane-epson.man: Fixed types, some reformatting and got rid

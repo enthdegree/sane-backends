@@ -1,6 +1,14 @@
+2003-11-14  Eddy De Greef <eddy_de_greef at tiscali dot be>
+	* doc/sane-mustek_pp.man: added the new libieee1284 style parport
+	  names.
+
 2003-11-14  Gerhard Jaeger <gerhard@gjaeger.de>
 	* backend/plustek.c backend/plustek-usb.cal backend/plustek-usbshading.c
 	  backend/plustek-usbhw.c: Endianess fixes.
+
+2003-11-13  Eddy De Greef <eddy_de_greef at tiscali dot be>
+	* backend/mustek_pp_cis.c: accept old style parport names to
+	  ensure backward compatibility with existing mustek_pp.conf files.
 
 2003-11-13  Peter Fales <peter@fales-lorenz.net>
 	* backend/gphoto2.h:  Line beginning with "static static" was breaking

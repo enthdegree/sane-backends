@@ -143,7 +143,7 @@ you use the backend.
 A device can be defined as follows:
 .PP
 .RS
-.I scanner <name> <address> <driver>
+.I scanner <name> <port name> <driver>
 .RE
 .PP
 where
@@ -153,11 +153,24 @@ is an arbitrary name for the device, optionally enclosed by double quotes,
 for instance "LifeTec 9350".
 .PP
 .HP
-.B <address>
-is the port address of the parallel port to which the device is connected.
-Known ports are
-.B 0x378, 0x278, 
+.B <port name>
+is the name of the parallel port to which the device is connected. In case
+libieee1284 is used for communication with the port
+.I (default 
+.IR setup) , 
+valid port names are 
+.BR parport0 , 
+.BR parport1 , 
 and
+.BR parport2 .
+
+In case the backend is configured for raw IO
+.I (old 
+.IR setup) ,
+port addresses have to be used instead of port names:
+.BR 0x378 ,
+.BR 0x278 , 
+or
 .BR 0x3BC .
 The mapping of parallel ports (lp0, lp1, and lp2) to these addresses 
 can be different for different Linux kernel versions. For instance,

@@ -1,3 +1,9 @@
+2004-12-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/umax1220u.desc doc/descriptions/unsupported.desc
+	  doc/descriptions-external/genesys.desc: Added several scanners. Moved
+	  UMAX 2100U to umax1220u.desc. Moved Plustek S(T)12 to unsupported.desc.
+
 2004-11-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions-external/brother.desc. Updated comments. 9160 works.

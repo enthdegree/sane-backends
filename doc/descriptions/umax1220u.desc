@@ -37,10 +37,12 @@
 :status :minimal
 :comment "Sort of scans, but colors all messed up."
 
-;:model "Astra 2200U"
-;:interface "USB"
-;:status :unsupported
-;:comment "Incompatible."
+:model "Astra 2100 U"
+:url "/unsupported/umax-astra-2100u.html"
+:interface "USB"
+:status :minimal
+:comment "Colours are distorted, there are vertical colour stripes, and the image is shadowed inches to its left."
+
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

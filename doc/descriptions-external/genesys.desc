@@ -158,16 +158,6 @@
 :interface "USB"
 :status :unsupported
 
-:model "OpticPro S12"
-:url "/unsupported/plustek-opticpro-st12.html"
-:interface "USB"
-:status :unsupported
-
-:model "OpticPro ST12"
-:url "/unsupported/plustek-opticpro-st12.html"
-:interface "USB"
-:status :unsupported
-
 :model "OpticPro ST16"
 :url "/unsupported/plustek-opticpro-st16.html"
 :interface "USB"

@@ -52,11 +52,11 @@
    WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.  */
 
 #ifdef _AIX
-# include "lalloca.h"   /* MUST come first for AIX! */
+# include "../include/lalloca.h"		/* MUST come first for AIX! */
 #endif
 
-#include "sane/config.h"
-#include "lalloca.h"
+#include "../include/sane/config.h"
+#include "../include/lalloca.h"
 
 #include <assert.h>
 #include <ctype.h>
@@ -79,16 +79,16 @@
 #include <sys/stat.h>
 
 
-#include "sane/sane.h"
-#include "sane/sanei.h"
-#include "sane/saneopts.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei.h"
+#include "../include/sane/saneopts.h"
 
 #include "v4l-grab.h"
 #if what_is_this
-#  include "colorspace.h"
+#  include "colorspace.h" /* ??? */
 #endif
 #include <sys/ioctl.h>
-#include <asm/types.h>          /* XXX glibc */
+#include <asm/types.h>		/* XXX glibc */
 #include <linux/videodev.h>
 
 #define SYNC_TIMEOUT 1
@@ -99,86 +99,80 @@
 #include "v4l.h"
 
 #define BACKEND_NAME v4l
-#include "sane/sanei_backend.h"
+#include "../include/sane/sanei_backend.h"
 
 #ifndef PATH_MAX
 # define PATH_MAX       1024
 #endif
 
-#include "sane/sanei_config.h"
+#include "../include/sane/sanei_config.h"
 #define V4L_CONFIG_FILE "v4l.conf"
 
-static const SANE_Device ** devlist = NULL;
+static const SANE_Device **devlist = NULL;
 static int num_devices;
-static V4L_Device * first_dev;
-static V4L_Scanner * first_handle;
+static V4L_Device *first_dev;
+static V4L_Scanner *first_handle;
 static int v4ldev;
 static char *buffer;
 static int buffercount;
 
 
-static const SANE_String_Const resolution_list[] =
-  {
-    "Low",      /* million-mode */
-    "High",     /* billion-mode */
-    0
-  };
+static const SANE_String_Const resolution_list[] = {
+  "Low",			/* million-mode */
+  "High",			/* billion-mode */
+  0
+};
 
 
-static const SANE_Int color_depth_list[] =
-  {
-    3 ,                 /* # of elements */
-    6, 8, 24            /* "thousand" mode not implemented yet */
-  };
+static const SANE_Int color_depth_list[] = {
+  3,				/* # of elements */
+  6, 8, 24			/* "thousand" mode not implemented yet */
+};
 
-static const SANE_Int xfer_scale_list[] =
-  {
-    4,                          /* # of elements */
-    1, 2, 4 , 8
-  };
+static const SANE_Int xfer_scale_list[] = {
+  4,				/* # of elements */
+  1, 2, 4, 8
+};
 
-static const SANE_Range u8_range =
-  {
-    /* min, max, quantization */
-    0, 255, 0
-  };
+static const SANE_Range u8_range = {
+  /* min, max, quantization */
+  0, 255, 0
+};
 
-static const SANE_Range brightness_range =
-  {
-    /* min, max, quantization */
-    0, 255, 0                   /* 255 is bulb mode! */
-  };
+static const SANE_Range brightness_range = {
+  /* min, max, quantization */
+  0, 255, 0			/* 255 is bulb mode! */
+};
 
-static SANE_Range x_range = {0,338,2};
+static SANE_Range x_range = { 0, 338, 2 };
 
-static SANE_Range odd_x_range = {1,339,2};
+static SANE_Range odd_x_range = { 1, 339, 2 };
 
-static SANE_Range y_range = {0,249,1};
+static SANE_Range y_range = { 0, 249, 1 };
 
-static SANE_Range odd_y_range ={1,250,1};
+static SANE_Range odd_y_range = { 1, 250, 1 };
 
 
-static SANE_Parameters parms =
-  {
-     SANE_FRAME_RGB,
-     1,                          /* 1 = Last Frame , 0 = More Frames to come */
-     0,                          /* Number of bytes returned per scan line: */
-     0,                          /* Number of pixels per scan line.  */
-     0,                          /* Number of lines for the current scan.  */
-     8,                          /* Number of bits per sample. */
-   };
+static SANE_Parameters parms = {
+  SANE_FRAME_RGB,
+  1,				/* 1 = Last Frame , 0 = More Frames to come */
+  0,				/* Number of bytes returned per scan line: */
+  0,				/* Number of pixels per scan line.  */
+  0,				/* Number of lines for the current scan.  */
+  8,				/* Number of bits per sample. */
+};
 
 
-static struct video_capability  capability;
-static struct video_picture     pict;
-static struct video_window      window;
-static struct video_mbuf        ov_mbuf;
-static struct video_mmap        gb;
+static struct video_capability capability;
+static struct video_picture pict;
+static struct video_window window;
+static struct video_mbuf ov_mbuf;
+static struct video_mmap gb;
 
 static SANE_Status
-attach (const char *devname, V4L_Device **devp)
+attach (const char *devname, V4L_Device ** devp)
 {
-  V4L_Device * q;
+  V4L_Device *q;
 
   errno = 0;
 
@@ -190,10 +184,10 @@ attach (const char *devname, V4L_Device **devp)
   q->lock_fd = -1;
   q->version = V4L_COLOR;
 
-  q->sane.name   = strdup (devname);
+  q->sane.name = strdup (devname);
   q->sane.vendor = "V4L";
-  q->sane.model  = capability.name;
-  q->sane.type   = "virtual device";
+  q->sane.model = capability.name;
+  q->sane.type = "virtual device";
 
   ++num_devices;
   q->next = first_dev;
@@ -206,156 +200,156 @@ attach (const char *devname, V4L_Device **devp)
 
 
 static SANE_Status
-init_options (V4L_Scanner *s)
+init_options (V4L_Scanner * s)
 {
   int i;
 
   memset (s->opt, 0, sizeof (s->opt));
   memset (s->val, 0, sizeof (s->val));
 
-  x_range.min   =       0;
-  x_range.max   =       capability.maxwidth - capability.minwidth;
-  x_range.quant =       1;
+  x_range.min = 0;
+  x_range.max = capability.maxwidth - capability.minwidth;
+  x_range.quant = 1;
 
-  y_range.min   =       0;
-  y_range.max   =       capability.maxheight - capability.minheight;
-  y_range.quant =       1;
+  y_range.min = 0;
+  y_range.max = capability.maxheight - capability.minheight;
+  y_range.quant = 1;
 
-  odd_x_range.min =     capability.minwidth;
-  odd_x_range.max =     capability.maxwidth;
+  odd_x_range.min = capability.minwidth;
+  odd_x_range.max = capability.maxwidth;
   if (odd_x_range.max > 767)
     {
-        odd_x_range.max = 767;
-        x_range.max     = 767 - capability.minwidth;
+      odd_x_range.max = 767;
+      x_range.max = 767 - capability.minwidth;
     };
-  odd_x_range.quant =   1;
+  odd_x_range.quant = 1;
 
-  odd_y_range.min =     capability.minheight;
-  odd_y_range.max =     capability.maxheight;
+  odd_y_range.min = capability.minheight;
+  odd_y_range.max = capability.maxheight;
   if (odd_y_range.max > 511)
     {
-        odd_y_range.max = 511;
-        y_range.max     = 511 - capability.minheight;
+      odd_y_range.max = 511;
+      y_range.max = 511 - capability.minheight;
     };
-  odd_y_range.quant =   1;
+  odd_y_range.quant = 1;
 
-  parms.depth   =       pict.depth;
+  parms.depth = pict.depth;
   if (pict.depth < 8)
-     parms.depth        =       8;
-  parms.depth   =       8; /* ??? */
-  parms.lines           = window.height;
+    parms.depth = 8;
+  parms.depth = 8;		/* ??? */
+  parms.lines = window.height;
   parms.pixels_per_line = window.width;
   switch (pict.palette)
-     {
-       case VIDEO_PALETTE_GREY:        /* Linear greyscale */
-           {
-                parms.format    =       SANE_FRAME_GRAY;
-                parms.bytes_per_line  = window.width;
-                break;
-           }
-        case VIDEO_PALETTE_HI240:       /* High 240 cube (BT848) */
-           {
-                parms.format    =       SANE_FRAME_RGB;
-                parms.bytes_per_line  = window.width * 3;
-                break;
-           }
-        case VIDEO_PALETTE_RGB565:      /* 565 16 bit RGB */
-           {
-                parms.format    =       SANE_FRAME_RGB;
-                parms.bytes_per_line  = window.width * 3;
-                break;
-           }
-        case VIDEO_PALETTE_RGB24:       /* 24bit RGB */
-           {
-                parms.format    =       SANE_FRAME_RGB;
-                parms.bytes_per_line  = window.width * 3;
-                break;
-           }
-        case VIDEO_PALETTE_RGB32:       /* 32bit RGB */
-           {
-                parms.format    =       SANE_FRAME_RGB;
-                parms.bytes_per_line  = window.width * 3;
-                break;
-           }
-        case VIDEO_PALETTE_RGB555:      /* 555 15bit RGB */
-           {
-                parms.format    =       SANE_FRAME_RGB;
-                parms.bytes_per_line  = window.width * 3;
-                break;
-           }
-        case VIDEO_PALETTE_YUV422:      /* YUV422 capture */
-           {
-                parms.format    =       SANE_FRAME_RGB;
-                parms.bytes_per_line  = window.width * 3;
-                break;
-           }
-        case VIDEO_PALETTE_YUYV:
-           {
-                parms.format    =       SANE_FRAME_RGB;
-                parms.bytes_per_line  = window.width * 3;
-                break;
-           }
-        case VIDEO_PALETTE_UYVY:        /*The great thing about standards is..*/
-           {
-                parms.format    =       SANE_FRAME_RGB;
-                parms.bytes_per_line  = window.width * 3;
-                break;
-           }
-        case VIDEO_PALETTE_YUV420:
-           {
-                parms.format    =       SANE_FRAME_RGB;
-                parms.bytes_per_line  = window.width * 3;
-                break;
-           }
-        case VIDEO_PALETTE_YUV411:      /* YUV411 capture */
-           {
-                parms.format    =       SANE_FRAME_RGB;
-                parms.bytes_per_line  = window.width * 3;
-                break;
-           }
-        case VIDEO_PALETTE_RAW:         /* RAW capture (BT848) */
-           {
-                parms.format    =       SANE_FRAME_RGB;
-                parms.bytes_per_line  = window.width * 3;
-                break;
-           }
-        case VIDEO_PALETTE_YUV422P:     /* YUV 4:2:2 Planar */
-           {
-                parms.format    =       SANE_FRAME_RGB;
-                parms.bytes_per_line  = window.width * 3;
-                break;
-           }
-        case VIDEO_PALETTE_YUV411P:     /* YUV 4:1:1 Planar */
-           {
-                parms.format    =       SANE_FRAME_RGB;
-                parms.bytes_per_line  = window.width * 3;
-                break;
-           }
-        case VIDEO_PALETTE_YUV420P:     /* YUV 4:2:0 Planar */
-           {
-                parms.format    =       SANE_FRAME_RGB;
-                parms.bytes_per_line  = window.width * 3;
-                break;
-           }
-        case VIDEO_PALETTE_YUV410P:     /* YUV 4:1:0 Planar */
-           {
-                parms.format    =       SANE_FRAME_RGB;
-                parms.bytes_per_line  = window.width * 3;
-                break;
-           }
-        default:
-           {
-                parms.format    =       SANE_FRAME_GRAY;
-                parms.bytes_per_line  = window.width;
-                break;
-           }
-     }
+    {
+    case VIDEO_PALETTE_GREY:	/* Linear greyscale */
+      {
+	parms.format = SANE_FRAME_GRAY;
+	parms.bytes_per_line = window.width;
+	break;
+      }
+    case VIDEO_PALETTE_HI240:	/* High 240 cube (BT848) */
+      {
+	parms.format = SANE_FRAME_RGB;
+	parms.bytes_per_line = window.width * 3;
+	break;
+      }
+    case VIDEO_PALETTE_RGB565:	/* 565 16 bit RGB */
+      {
+	parms.format = SANE_FRAME_RGB;
+	parms.bytes_per_line = window.width * 3;
+	break;
+      }
+    case VIDEO_PALETTE_RGB24:	/* 24bit RGB */
+      {
+	parms.format = SANE_FRAME_RGB;
+	parms.bytes_per_line = window.width * 3;
+	break;
+      }
+    case VIDEO_PALETTE_RGB32:	/* 32bit RGB */
+      {
+	parms.format = SANE_FRAME_RGB;
+	parms.bytes_per_line = window.width * 3;
+	break;
+      }
+    case VIDEO_PALETTE_RGB555:	/* 555 15bit RGB */
+      {
+	parms.format = SANE_FRAME_RGB;
+	parms.bytes_per_line = window.width * 3;
+	break;
+      }
+    case VIDEO_PALETTE_YUV422:	/* YUV422 capture */
+      {
+	parms.format = SANE_FRAME_RGB;
+	parms.bytes_per_line = window.width * 3;
+	break;
+      }
+    case VIDEO_PALETTE_YUYV:
+      {
+	parms.format = SANE_FRAME_RGB;
+	parms.bytes_per_line = window.width * 3;
+	break;
+      }
+    case VIDEO_PALETTE_UYVY:	/*The great thing about standards is.. */
+      {
+	parms.format = SANE_FRAME_RGB;
+	parms.bytes_per_line = window.width * 3;
+	break;
+      }
+    case VIDEO_PALETTE_YUV420:
+      {
+	parms.format = SANE_FRAME_RGB;
+	parms.bytes_per_line = window.width * 3;
+	break;
+      }
+    case VIDEO_PALETTE_YUV411:	/* YUV411 capture */
+      {
+	parms.format = SANE_FRAME_RGB;
+	parms.bytes_per_line = window.width * 3;
+	break;
+      }
+    case VIDEO_PALETTE_RAW:	/* RAW capture (BT848) */
+      {
+	parms.format = SANE_FRAME_RGB;
+	parms.bytes_per_line = window.width * 3;
+	break;
+      }
+    case VIDEO_PALETTE_YUV422P:	/* YUV 4:2:2 Planar */
+      {
+	parms.format = SANE_FRAME_RGB;
+	parms.bytes_per_line = window.width * 3;
+	break;
+      }
+    case VIDEO_PALETTE_YUV411P:	/* YUV 4:1:1 Planar */
+      {
+	parms.format = SANE_FRAME_RGB;
+	parms.bytes_per_line = window.width * 3;
+	break;
+      }
+    case VIDEO_PALETTE_YUV420P:	/* YUV 4:2:0 Planar */
+      {
+	parms.format = SANE_FRAME_RGB;
+	parms.bytes_per_line = window.width * 3;
+	break;
+      }
+    case VIDEO_PALETTE_YUV410P:	/* YUV 4:1:0 Planar */
+      {
+	parms.format = SANE_FRAME_RGB;
+	parms.bytes_per_line = window.width * 3;
+	break;
+      }
+    default:
+      {
+	parms.format = SANE_FRAME_GRAY;
+	parms.bytes_per_line = window.width;
+	break;
+      }
+    }
 
   for (i = 0; i < NUM_OPTIONS; ++i)
     {
       s->opt[i].size = sizeof (SANE_Word);
       s->opt[i].cap = (SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT
-                       | SANE_CAP_ALWAYS_SETTABLE);
+		       | SANE_CAP_ALWAYS_SETTABLE);
     }
 
   /* Number of options */
@@ -391,14 +385,14 @@ init_options (V4L_Scanner *s)
   s->opt[OPT_RESOLUTION].desc = SANE_DESC_SCAN_RESOLUTION;
   s->opt[OPT_RESOLUTION].type = SANE_TYPE_STRING;
   s->opt[OPT_RESOLUTION].cap |= SANE_CAP_INACTIVE;
-  s->opt[OPT_RESOLUTION].size = 5;      /* sizeof("High") */
+  s->opt[OPT_RESOLUTION].size = 5;	/* sizeof("High") */
   s->opt[OPT_RESOLUTION].unit = SANE_UNIT_NONE;
   s->opt[OPT_RESOLUTION].constraint_type = SANE_CONSTRAINT_STRING_LIST;
   s->opt[OPT_RESOLUTION].constraint.string_list = resolution_list;
-  s->val[OPT_RESOLUTION].s = strdup (resolution_list[V4L_RES_LOW]); /* ??? result untested, strdup
-								       repeated with every call to
-								       sane_control_option */
-  s->val[OPT_RESOLUTION].w = 1; /* ??? */
+  s->val[OPT_RESOLUTION].s = strdup (resolution_list[V4L_RES_LOW]);	/* ??? result untested, strdup
+									   repeated with every call to
+									   sane_control_option */
+  s->val[OPT_RESOLUTION].w = 1;	/* ??? */
 
   /* xfer-scale */
   s->opt[OPT_XFER_SCALE].name = "transfer-scale";
@@ -515,7 +509,7 @@ init_options (V4L_Scanner *s)
   s->opt[OPT_CONTRAST].type = SANE_TYPE_INT;
   s->opt[OPT_CONTRAST].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_CONTRAST].constraint.range = &u8_range;
-  s->val[OPT_CONTRAST].w = pict.contrast /256;
+  s->val[OPT_CONTRAST].w = pict.contrast / 256;
 
   /* black-level */
   s->opt[OPT_BLACK_LEVEL].name = SANE_NAME_BLACK_LEVEL;
@@ -537,7 +531,7 @@ init_options (V4L_Scanner *s)
   s->opt[OPT_WHITE_LEVEL].type = SANE_TYPE_INT;
   s->opt[OPT_WHITE_LEVEL].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_WHITE_LEVEL].constraint.range = &u8_range;
-  s->val[OPT_WHITE_LEVEL].w = pict.whiteness /256;
+  s->val[OPT_WHITE_LEVEL].w = pict.whiteness / 256;
 
   /* hue */
   s->opt[OPT_HUE].name = SANE_NAME_HUE;
@@ -558,20 +552,20 @@ init_options (V4L_Scanner *s)
   s->opt[OPT_SATURATION].type = SANE_TYPE_INT;
   s->opt[OPT_SATURATION].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_SATURATION].constraint.range = &u8_range;
-  s->val[OPT_SATURATION].w = pict.colour / 256 ;
+  s->val[OPT_SATURATION].w = pict.colour / 256;
 
   return SANE_STATUS_GOOD;
 }
 
 SANE_Status
-sane_init (SANE_Int *version_code, SANE_Auth_Callback authorize)
+sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
-  char dev_name[PATH_MAX], * str;
+  char dev_name[PATH_MAX], *str;
   size_t len;
   FILE *fp;
 
-  authorize = authorize; /* stop gcc from complaining */
-  DBG_INIT();
+  authorize = authorize;	/* stop gcc from complaining */
+  DBG_INIT ();
 
   if (version_code)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, 0);
@@ -583,33 +577,35 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback authorize)
       return SANE_STATUS_INVAL;
     }
 
-  while (sanei_config_read(dev_name, sizeof (dev_name), fp))
+  while (sanei_config_read (dev_name, sizeof (dev_name), fp))
     {
-      if (dev_name[0] == '#')           /* ignore line comments */
-        continue;
+      if (dev_name[0] == '#')	/* ignore line comments */
+	continue;
       len = strlen (dev_name);
 
       if (!len)
-        continue;                       /* ignore empty lines */
+	continue;		/* ignore empty lines */
 
       /* Remove trailing space and trailing comments */
       for (str = dev_name; *str && !isspace (*str) && *str != '#'; ++str);
       *str = '\0';
       v4ldev = open (dev_name, O_RDWR);
       if (-1 != v4ldev)
-        {
-          if (-1 != ioctl (v4ldev, VIDIOCGCAP, &capability))
-            {
-              DBG (1, "sane_init: found videodev on `%s'\n", dev_name);
-              attach (dev_name, 0);
-            }
-          else
-            DBG (1, "sane_init: ioctl (%d, VIDIOCGCAP,..) failed on `%s': %s\n",
-                v4ldev, dev_name, strerror (errno));
-          close (v4ldev);
-        }
+	{
+	  if (-1 != ioctl (v4ldev, VIDIOCGCAP, &capability))
+	    {
+	      DBG (1, "sane_init: found videodev on `%s'\n", dev_name);
+	      attach (dev_name, 0);
+	    }
+	  else
+	    DBG (1,
+		 "sane_init: ioctl (%d, VIDIOCGCAP,..) failed on `%s': %s\n",
+		 v4ldev, dev_name, strerror (errno));
+	  close (v4ldev);
+	}
       else
-        DBG (1, "sane_init: failed to open device `%s': %s\n", dev_name, strerror (errno));
+	DBG (1, "sane_init: failed to open device `%s': %s\n", dev_name,
+	     strerror (errno));
     }
   fclose (fp);
   return SANE_STATUS_GOOD;
@@ -629,7 +625,7 @@ sane_exit (void)
 
   if (NULL != devlist)
     {
-      free(devlist);
+      free (devlist);
       devlist = NULL;
     }
 }
@@ -640,7 +636,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   V4L_Device *dev;
   int i;
 
-  local_only = TRUE; /* Avoid compile warning */
+  local_only = TRUE;		/* Avoid compile warning */
 
   if (devlist)
     free (devlist);
@@ -659,7 +655,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 }
 
 SANE_Status
-sane_open (SANE_String_Const devicename, SANE_Handle *handle)
+sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 {
   SANE_Status status;
   V4L_Device *dev;
@@ -669,43 +665,43 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
 
   if (devicename[0])
     {
-      v4ldev = open ( devicename,O_RDWR);
+      v4ldev = open (devicename, O_RDWR);
       if (-1 == v4ldev)
-        return SANE_STATUS_DEVICE_BUSY;
-      if (-1 == ioctl(v4ldev,VIDIOCGCAP,&capability))
-        return SANE_STATUS_INVAL;
+	return SANE_STATUS_DEVICE_BUSY;
+      if (-1 == ioctl (v4ldev, VIDIOCGCAP, &capability))
+	return SANE_STATUS_INVAL;
       status = attach (devicename, &dev);
       if (status != SANE_STATUS_GOOD)
-        return status;
+	return status;
       /*if (VID_TYPE_CAPTURE & capability.type)
-        syslog (LOG_NOTICE,"V4L Device can Capture");
-      if (VID_TYPE_TUNER & capability.type)
-        syslog (LOG_NOTICE,"V4L Device has a Tuner");
-      if (VID_TYPE_TELETEXT & capability.type)
-        syslog (LOG_NOTICE,"V4L Device supports Teletext");
-      if (VID_TYPE_OVERLAY & capability.type)
-        syslog (LOG_NOTICE,"V4L Device supports Overlay");
-      if (VID_TYPE_CHROMAKEY & capability.type)
-        syslog (LOG_NOTICE,"V4L Device uses Chromakey");
-      if (VID_TYPE_CLIPPING & capability.type)
-        syslog (LOG_NOTICE,"V4L Device supports Clipping");
-      if (VID_TYPE_FRAMERAM & capability.type)
-        syslog (LOG_NOTICE,"V4L Device overwrites Framebuffermemory");
-      if (VID_TYPE_SCALES & capability.type)
-        syslog (LOG_NOTICE,"V4L Device supports Hardware-scalling");
-      if (VID_TYPE_MONOCHROME & capability.type)
-        syslog (LOG_NOTICE,"V4L Device is Monochrome");
-      if (VID_TYPE_SUBCAPTURE & capability.type)
-        syslog (LOG_NOTICE,"V4L Device can capture parts of the Image");
-*/
-      if (-1 == ioctl(v4ldev,VIDIOCGPICT,&pict))
-        return SANE_STATUS_INVAL;
+         syslog (LOG_NOTICE,"V4L Device can Capture");
+         if (VID_TYPE_TUNER & capability.type)
+         syslog (LOG_NOTICE,"V4L Device has a Tuner");
+         if (VID_TYPE_TELETEXT & capability.type)
+         syslog (LOG_NOTICE,"V4L Device supports Teletext");
+         if (VID_TYPE_OVERLAY & capability.type)
+         syslog (LOG_NOTICE,"V4L Device supports Overlay");
+         if (VID_TYPE_CHROMAKEY & capability.type)
+         syslog (LOG_NOTICE,"V4L Device uses Chromakey");
+         if (VID_TYPE_CLIPPING & capability.type)
+         syslog (LOG_NOTICE,"V4L Device supports Clipping");
+         if (VID_TYPE_FRAMERAM & capability.type)
+         syslog (LOG_NOTICE,"V4L Device overwrites Framebuffermemory");
+         if (VID_TYPE_SCALES & capability.type)
+         syslog (LOG_NOTICE,"V4L Device supports Hardware-scalling");
+         if (VID_TYPE_MONOCHROME & capability.type)
+         syslog (LOG_NOTICE,"V4L Device is Monochrome");
+         if (VID_TYPE_SUBCAPTURE & capability.type)
+         syslog (LOG_NOTICE,"V4L Device can capture parts of the Image");
+       */
+      if (-1 == ioctl (v4ldev, VIDIOCGPICT, &pict))
+	return SANE_STATUS_INVAL;
 
-      if (-1 == ioctl(v4ldev,VIDIOCGWIN,&window))
-        return SANE_STATUS_INVAL;
+      if (-1 == ioctl (v4ldev, VIDIOCGWIN, &window))
+	return SANE_STATUS_INVAL;
 
-      if (-1 == ioctl(v4ldev,VIDIOCGMBUF,&ov_mbuf))
-        DBG (1, "sane_open: no Fbuffer\n");
+      if (-1 == ioctl (v4ldev, VIDIOCGMBUF, &ov_mbuf))
+	DBG (1, "sane_open: no Fbuffer\n");
     }
   else
     /* empty devicname -> use first device */
@@ -719,7 +715,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
     return SANE_STATUS_NO_MEM;
   memset (s, 0, sizeof (*s));
   s->user_corner = 0;
-  s->value_changed = ~0;        /* ensure all options get updated */
+  s->value_changed = ~0;	/* ensure all options get updated */
   s->devicename = devicename;
   s->fd = v4ldev;
   init_options (s);
@@ -743,13 +739,13 @@ sane_close (SANE_Handle handle)
   for (s = first_handle; s; s = s->next)
     {
       if (s == handle)
-        break;
+	break;
       prev = s;
     }
   if (!s)
     {
       DBG (1, "sane_close: bad handle %p\n", handle);
-      return;           /* oops, not a handle we know about */
+      return;			/* oops, not a handle we know about */
     }
   if (prev)
     prev->next = s->next;
@@ -758,7 +754,7 @@ sane_close (SANE_Handle handle)
 
   if (s->scanning)
     sane_cancel (handle);
-  close(s->fd);
+  close (s->fd);
   free (s);
 }
 
@@ -774,7 +770,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
 SANE_Status
 sane_control_option (SANE_Handle handle, SANE_Int option,
-                     SANE_Action action, void *val, SANE_Int *info)
+		     SANE_Action action, void *val, SANE_Int * info)
 {
   V4L_Scanner *s = handle;
   SANE_Status status;
@@ -793,155 +789,155 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
   if (action == SANE_ACTION_GET_VALUE)
     {
-      init_options(s);
+      init_options (s);
       switch (option)
-        {
-          /* word options: */
-        case OPT_NUM_OPTS:
-        case OPT_DEPTH:
-        case OPT_DESPECKLE:
-        case OPT_TEST:
-        case OPT_TL_X:
-        case OPT_TL_Y:
-        case OPT_BR_X:
-        case OPT_BR_Y:
-        case OPT_XFER_SCALE:
-        case OPT_BRIGHTNESS:
-        case OPT_CONTRAST:
-        case OPT_BLACK_LEVEL:
-        case OPT_WHITE_LEVEL:
-        case OPT_HUE:
-        case OPT_SATURATION:
-          *(SANE_Word *) val = s->val[option].w;
-          return SANE_STATUS_GOOD;
-        default:
-          DBG (1, "sane_control_option: option %d unknown\n", option);
-        }
+	{
+	  /* word options: */
+	case OPT_NUM_OPTS:
+	case OPT_DEPTH:
+	case OPT_DESPECKLE:
+	case OPT_TEST:
+	case OPT_TL_X:
+	case OPT_TL_Y:
+	case OPT_BR_X:
+	case OPT_BR_Y:
+	case OPT_XFER_SCALE:
+	case OPT_BRIGHTNESS:
+	case OPT_CONTRAST:
+	case OPT_BLACK_LEVEL:
+	case OPT_WHITE_LEVEL:
+	case OPT_HUE:
+	case OPT_SATURATION:
+	  *(SANE_Word *) val = s->val[option].w;
+	  return SANE_STATUS_GOOD;
+	default:
+	  DBG (1, "sane_control_option: option %d unknown\n", option);
+	}
     }
   else if (action == SANE_ACTION_SET_VALUE)
     {
       if (!SANE_OPTION_IS_SETTABLE (cap))
-        {
-        return SANE_STATUS_INVAL;
-        }
+	{
+	  return SANE_STATUS_INVAL;
+	}
       status = sanei_constrain_value (s->opt + option, val, info);
       if (status != SANE_STATUS_GOOD)
-        return status;
+	return status;
 
-      if (-1 == ioctl(s->fd,VIDIOCGWIN,&window))
-        {
-          DBG (1, "sane_control_option: can not get window geometry\n");
-          /*return SANE_STATUS_INVAL;*/
-        }
-      window.clipcount  = 0;
-      window.clips      = 0;
-      window.height     = parms.lines;
-      window.width      = parms.pixels_per_line;
+      if (-1 == ioctl (s->fd, VIDIOCGWIN, &window))
+	{
+	  DBG (1, "sane_control_option: can not get window geometry\n");
+	  /*return SANE_STATUS_INVAL; */
+	}
+      window.clipcount = 0;
+      window.clips = 0;
+      window.height = parms.lines;
+      window.width = parms.pixels_per_line;
 
       if (option >= OPT_TL_X && option <= OPT_BR_Y)
-        {
-        s->user_corner |= 1 << (option - OPT_TL_X);
-        }
+	{
+	  s->user_corner |= 1 << (option - OPT_TL_X);
+	}
       assert (option <= 31);
       s->value_changed |= 1 << option;
 
       switch (option)
-        {
-          /* (mostly) side-effect-free word options: */
-        case OPT_TL_X:
-                break;
-        case OPT_TL_Y:
-                break;
-        case OPT_BR_X:
-                window.width    = *(SANE_Word *)val;
-                parms.pixels_per_line   = *(SANE_Word *)val;
-                if (info)
-                  *info         |= SANE_INFO_RELOAD_PARAMS;
-                break;
-        case OPT_BR_Y:
-                window.height   = *(SANE_Word *)val;
-                parms.lines     = *(SANE_Word *)val;
-                if (info)
-                  *info         |= SANE_INFO_RELOAD_PARAMS;
-                break;
-        case OPT_XFER_SCALE:
-                break;
-        case OPT_DEPTH:
-                pict.depth      = *(SANE_Word *)val;
-                if (info)
-                  *info         |= SANE_INFO_RELOAD_PARAMS;
-                break;
-          if (!s->scanning && info && s->val[option].w != *(SANE_Word *) val)
-            /* only signal the reload params if we're not scanning---no point
-               in creating the frontend useless work */
-            if (info)
-              *info |= SANE_INFO_RELOAD_PARAMS;
-          /* fall through */
-        case OPT_NUM_OPTS:
-        case OPT_TEST:
-        case OPT_DESPECKLE:
-        case OPT_BRIGHTNESS:
-                pict.brightness = *(SANE_Word *)val * 256;
-                if (info)
-                  *info         |= SANE_INFO_RELOAD_PARAMS;
-                break;
-        case OPT_CONTRAST:
-                pict.contrast   = *(SANE_Word *)val * 256;
-                /* if (info) *info         |= SANE_INFO_RELOAD_PARAMS;*/
-                break;
-        case OPT_BLACK_LEVEL:
-        case OPT_WHITE_LEVEL:
-                pict.whiteness  = *(SANE_Word *)val * 256;
-                if (info)
-                  *info         |= SANE_INFO_RELOAD_PARAMS;
-                break;
-        case OPT_HUE:
-        case OPT_SATURATION:
-          s->val[option].w = *(SANE_Word *) val;
-        }
-      if (-1 == ioctl(s->fd,VIDIOCSWIN,&window))
-        {
-          DBG (1, "sane_control_option: can not set window geometry\n");
-          /*return SANE_STATUS_INVAL;*/
-        }
-      if (-1 == ioctl(s->fd,VIDIOCGWIN,&window))
-        {
-          DBG (1, "sane_control_option: can not get window geometry\n");
-        }
-      if (-1 == ioctl(s->fd,VIDIOCSPICT,&pict))
-        {
-          DBG (1, "sane_control_option: can not set picture parameters\n");
-          /*return SANE_STATUS_INVAL;*/
-        }
+	{
+	  /* (mostly) side-effect-free word options: */
+	case OPT_TL_X:
+	  break;
+	case OPT_TL_Y:
+	  break;
+	case OPT_BR_X:
+	  window.width = *(SANE_Word *) val;
+	  parms.pixels_per_line = *(SANE_Word *) val;
+	  if (info)
+	    *info |= SANE_INFO_RELOAD_PARAMS;
+	  break;
+	case OPT_BR_Y:
+	  window.height = *(SANE_Word *) val;
+	  parms.lines = *(SANE_Word *) val;
+	  if (info)
+	    *info |= SANE_INFO_RELOAD_PARAMS;
+	  break;
+	case OPT_XFER_SCALE:
+	  break;
+	case OPT_DEPTH:
+	  pict.depth = *(SANE_Word *) val;
+	  if (info)
+	    *info |= SANE_INFO_RELOAD_PARAMS;
+	  break;
+	  if (!s->scanning && info && s->val[option].w != *(SANE_Word *) val)
+	    /* only signal the reload params if we're not scanning---no point
+	       in creating the frontend useless work */
+	    if (info)
+	      *info |= SANE_INFO_RELOAD_PARAMS;
+	  /* fall through */
+	case OPT_NUM_OPTS:
+	case OPT_TEST:
+	case OPT_DESPECKLE:
+	case OPT_BRIGHTNESS:
+	  pict.brightness = *(SANE_Word *) val *256;
+	  if (info)
+	    *info |= SANE_INFO_RELOAD_PARAMS;
+	  break;
+	case OPT_CONTRAST:
+	  pict.contrast = *(SANE_Word *) val *256;
+	  /* if (info) *info         |= SANE_INFO_RELOAD_PARAMS; */
+	  break;
+	case OPT_BLACK_LEVEL:
+	case OPT_WHITE_LEVEL:
+	  pict.whiteness = *(SANE_Word *) val *256;
+	  if (info)
+	    *info |= SANE_INFO_RELOAD_PARAMS;
+	  break;
+	case OPT_HUE:
+	case OPT_SATURATION:
+	  s->val[option].w = *(SANE_Word *) val;
+	}
+      if (-1 == ioctl (s->fd, VIDIOCSWIN, &window))
+	{
+	  DBG (1, "sane_control_option: can not set window geometry\n");
+	  /*return SANE_STATUS_INVAL; */
+	}
+      if (-1 == ioctl (s->fd, VIDIOCGWIN, &window))
+	{
+	  DBG (1, "sane_control_option: can not get window geometry\n");
+	}
+      if (-1 == ioctl (s->fd, VIDIOCSPICT, &pict))
+	{
+	  DBG (1, "sane_control_option: can not set picture parameters\n");
+	  /*return SANE_STATUS_INVAL; */
+	}
       return SANE_STATUS_GOOD;
     }
   else if (action == SANE_ACTION_SET_AUTO)
     {
       switch (option)
-        {
-        case OPT_BRIGHTNESS:
-          /* not implemented yet */
-          return SANE_STATUS_GOOD;
+	{
+	case OPT_BRIGHTNESS:
+	  /* not implemented yet */
+	  return SANE_STATUS_GOOD;
 
-        default:
-          break;
-        }
+	default:
+	  break;
+	}
     }
   return SANE_STATUS_INVAL;
 }
 
 SANE_Status
-sane_get_parameters (SANE_Handle handle, SANE_Parameters *params)
+sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 {
   V4L_Scanner *s = handle;
 
-  if (-1 == ioctl(s->fd,VIDIOCGWIN,&window))
-     return SANE_STATUS_INVAL;
+  if (-1 == ioctl (s->fd, VIDIOCGWIN, &window))
+    return SANE_STATUS_INVAL;
   parms.pixels_per_line = window.width;
-  parms.bytes_per_line  = window.width;
+  parms.bytes_per_line = window.width;
   if (parms.format == SANE_FRAME_RGB)
     parms.bytes_per_line = window.width * 3;
-  parms.lines           = window.height;
+  parms.lines = window.height;
   *params = parms;
   return SANE_STATUS_GOOD;
 
@@ -953,113 +949,116 @@ sane_start (SANE_Handle handle)
   int len;
   V4L_Scanner *s;
 
-  DBG(2, "sane_start\n");
+  DBG (2, "sane_start\n");
   for (s = first_handle; s; s = s->next)
     {
       if (s == handle)
-        break;
+	break;
     }
   if (!s)
     {
       DBG (1, "sane_start: bad handle %p\n", handle);
-      return SANE_STATUS_INVAL;         /* oops, not a handle we know about */
+      return SANE_STATUS_INVAL;	/* oops, not a handle we know about */
     }
-  len = ioctl(v4ldev,VIDIOCGCAP,&capability);
+  len = ioctl (v4ldev, VIDIOCGCAP, &capability);
   if (-1 == len)
     DBG (1, "sane_start: can not get capabilities\n");
   buffercount = 0;
-  if (-1 == ioctl(s->fd,VIDIOCGMBUF,&ov_mbuf))
-     {
-        s->mmap = FALSE;
-        buffer = malloc(capability.maxwidth * capability.maxheight * pict.depth);
-        if (0 == buffer)
-          return SANE_STATUS_NO_MEM;
-        DBG (2, "sane_start: V4L READING Frame\n");
-        len = read (s->fd,buffer,parms.bytes_per_line * parms.lines);
-        DBG (2, "sane_start: V4L Frame read\n");
-     }
+  if (-1 == ioctl (s->fd, VIDIOCGMBUF, &ov_mbuf))
+    {
+      s->mmap = FALSE;
+      buffer =
+	malloc (capability.maxwidth * capability.maxheight * pict.depth);
+      if (0 == buffer)
+	return SANE_STATUS_NO_MEM;
+      DBG (2, "sane_start: V4L READING Frame\n");
+      len = read (s->fd, buffer, parms.bytes_per_line * parms.lines);
+      DBG (2, "sane_start: V4L Frame read\n");
+    }
   else
-     {
-        s->mmap = TRUE;
-        DBG (2, "sane_start: MMAP Frame\n");
-        DBG (2, "sane_start: Buffersize %d , Buffers %d , Offset %p\n",
-            ov_mbuf.size, ov_mbuf.frames, ov_mbuf.offsets);
-        buffer = mmap (0,ov_mbuf.size,PROT_READ|PROT_WRITE,MAP_SHARED,s->fd,0);
-        DBG (2, "sane_start: MMAPed Frame, Capture 1 Pict into %p\n", buffer);
-        gb.frame = 0;
-        gb.width = window.width;
-        gb.width = parms.pixels_per_line;
-        gb.height = window.height;
-        gb.height = parms.lines;
-        gb.format = pict.palette;
-        DBG (2,"sane_start: MMAPed Frame %d x %d with Palette %d\n",
-            gb.width,gb.height,gb.format);
-        len = ioctl(v4ldev,VIDIOCMCAPTURE,&gb);
-        DBG (2, "sane_start: mmap-result %d\n",len);
-        DBG (2, "sane_start: Frame %x\n",gb.frame);
+    {
+      s->mmap = TRUE;
+      DBG (2, "sane_start: MMAP Frame\n");
+      DBG (2, "sane_start: Buffersize %d , Buffers %d , Offset %p\n",
+	   ov_mbuf.size, ov_mbuf.frames, ov_mbuf.offsets);
+      buffer =
+	mmap (0, ov_mbuf.size, PROT_READ | PROT_WRITE, MAP_SHARED, s->fd, 0);
+      DBG (2, "sane_start: MMAPed Frame, Capture 1 Pict into %p\n", buffer);
+      gb.frame = 0;
+      gb.width = window.width;
+      gb.width = parms.pixels_per_line;
+      gb.height = window.height;
+      gb.height = parms.lines;
+      gb.format = pict.palette;
+      DBG (2, "sane_start: MMAPed Frame %d x %d with Palette %d\n",
+	   gb.width, gb.height, gb.format);
+      len = ioctl (v4ldev, VIDIOCMCAPTURE, &gb);
+      DBG (2, "sane_start: mmap-result %d\n", len);
+      DBG (2, "sane_start: Frame %x\n", gb.frame);
 #if 0
-        len = ioctl(v4ldev,VIDIOCSYNC,&(gb.frame));
-        if (-1 == len)
-          {
-            DBG (1, "sane_start: Call to ioctl(%d, VIDIOCSYNC, ..) failed\n", v4ldev);
-            return SANE_STATUS_INVAL;
-          }
+      len = ioctl (v4ldev, VIDIOCSYNC, &(gb.frame));
+      if (-1 == len)
+	{
+	  DBG (1, "sane_start: Call to ioctl(%d, VIDIOCSYNC, ..) failed\n",
+	       v4ldev);
+	  return SANE_STATUS_INVAL;
+	}
 #endif
-     }
+    }
   DBG (2, "sane_start: done\n");
   return SANE_STATUS_GOOD;
 }
 
 SANE_Status
-sane_read (SANE_Handle handle, SANE_Byte *buf, SANE_Int max_len,
-           SANE_Int *lenp)
+sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
+	   SANE_Int * lenp)
 {
-  int i,min;
+  int i, min;
   V4L_Scanner *s = handle;
 
   if ((buffercount + 1) > (parms.lines * parms.bytes_per_line))
-     {
-        *lenp = 0;
-        return SANE_STATUS_EOF;
-     };
+    {
+      *lenp = 0;
+      return SANE_STATUS_EOF;
+    };
   min = parms.lines * parms.bytes_per_line;
   if (min > (max_len + buffercount))
-     min = (max_len + buffercount);
+    min = (max_len + buffercount);
   if (s->mmap == FALSE)
-     {
-          for (i=buffercount;i<(min+0);i++)
-             {
-                *(buf + i - buffercount) = *(buffer +i);
-             };
-          *lenp = (parms.lines * parms.bytes_per_line - buffercount);
-          if (max_len < *lenp)
-             *lenp = max_len;
-          buffercount = i ;
-     }
+    {
+      for (i = buffercount; i < (min + 0); i++)
+	{
+	  *(buf + i - buffercount) = *(buffer + i);
+	};
+      *lenp = (parms.lines * parms.bytes_per_line - buffercount);
+      if (max_len < *lenp)
+	*lenp = max_len;
+      buffercount = i;
+    }
   else
-     {
-          for (i=buffercount;i<(min+0);i++)
-             {
-                *(buf + i - buffercount) = *(buffer +i);
-                /*switch (i % 3)
-                  {
-                    case 0:
-                        *(buf + i - buffercount) = *(buffer + i + 0);
-                        break;
-                    case 1:
-                        *(buf + i - buffercount) = *(buffer + i);
-                        break;
-                    case 2:
-                        *(buf + i - buffercount) = *(buffer + i - 0);
-                  };*/
-             };
-          *lenp = (parms.lines * parms.bytes_per_line - buffercount);
-          if ((i - buffercount) < *lenp)
-             *lenp = (i-buffercount);
-         /* syslog(LOG_NOTICE,"Transfering %d Bytes",*lenp);
-          syslog(LOG_NOTICE,"Transfering from Byte %d to Byte %d",buffercount,i);*/
-          buffercount = i;
-     }
+    {
+      for (i = buffercount; i < (min + 0); i++)
+	{
+	  *(buf + i - buffercount) = *(buffer + i);
+	  /*switch (i % 3)
+	     {
+	     case 0:
+	     *(buf + i - buffercount) = *(buffer + i + 0);
+	     break;
+	     case 1:
+	     *(buf + i - buffercount) = *(buffer + i);
+	     break;
+	     case 2:
+	     *(buf + i - buffercount) = *(buffer + i - 0);
+	     }; */
+	};
+      *lenp = (parms.lines * parms.bytes_per_line - buffercount);
+      if ((i - buffercount) < *lenp)
+	*lenp = (i - buffercount);
+      /* syslog(LOG_NOTICE,"Transfering %d Bytes",*lenp);
+         syslog(LOG_NOTICE,"Transfering from Byte %d to Byte %d",buffercount,i); */
+      buffercount = i;
+    }
   return SANE_STATUS_GOOD;
 }
 
@@ -1069,7 +1068,7 @@ sane_cancel (SANE_Handle handle)
   V4L_Scanner *s = handle;
 
   if ((buffer != 0) && (s->mmap == FALSE))
-     free(buffer);
+    free (buffer);
   buffer = 0;
 }
 

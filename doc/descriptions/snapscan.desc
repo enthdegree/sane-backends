@@ -237,15 +237,17 @@
 :model "Perfection 1670"
 :interface "USB"
 :status :good
+:comment "Scanning with 1600dpi does not work correctly."
 
 :model "Perfection 2480"
 :interface "USB"
-:status :good
+:status :basic
+:comment "Some people reported problems after firmware upload, scanning with 2400dpi does not work correctly."
 
 :model "Perfection 2580"
 :interface "USB"
-:status :basic
-:comment "Film feeder untested"
+:status :minimal
+:comment "Problems after firmware upload reported"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

@@ -1,5 +1,8 @@
 2001-01-14  Petter Reinholdtsen <pere@td.org.uit.no>
 
+	* sanei/sanei_scsi.c: Make sure to initialize uninitialized
+	variable 'defined' to zero.
+
 	* include/sane/sanei_wire.h: Add missing prototype for
 	sanei_w_ptr() and sanei_w_bool().
 

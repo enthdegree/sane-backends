@@ -10,6 +10,9 @@
 	  Added support for the PowerVision 8630 chip, a USB to parallel
 	  converter used in many scanners (patch from from Marcio Luis Teixeira
 	  <marciot@holly.colostate.edu>). Fixed sanei_thread Makefile.in entry.
+	* TODO: Added entries about saned/net freezes and parport-directio doc.
+	  Removed entries about sanei_usb control msg, sanei_pv8630 inclusion,
+	  OS/2 libsocket problem, and splitting --enable-directio.
 
 2001-12-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -97,9 +97,10 @@
 
 #include "gphoto2.h"
 
-#include <gphoto2-core.h>
+
 #include <gphoto2-camera.h>
 #include <gphoto2-debug.h>
+#include <gphoto2-port-log.h>
 
 #define CHECK_EXIT(f) {int res = f; if (res < 0) {DBG (0,"ERROR: %s\n", gp_result_as_string (res)); exit (1);}}
 #define CHECK_RET(f) {int res = f; if (res < 0) {DBG (0,"ERROR: %s\n", gp_result_as_string (res)); return (SANE_STATUS_INVAL);}}
@@ -320,7 +321,7 @@ static SANE_Int linebuffer_index = 0;
 static SANE_Char cmdbuf[256];
 
 /* Structures used by gphoto2 API */
-static CameraAbilities *abilities;
+static CameraAbilities abilities;
 static CameraFile *data_file;
 static const char *data_ptr;
 static long data_file_total_size, data_file_current_index;
@@ -328,18 +329,36 @@ static long data_file_total_size, data_file_current_index;
 #include <sys/time.h>
 #include <unistd.h>
 
+/* 
+ * debug_func - called for gphoto2 debugging output (if enabled)
+ */
+static void
+debug_func (int level, const char *domain, const char *format,
+	    va_list args, void UNUSEDARG * data)
+{
+  if (level == GP_LOG_ERROR)
+    DBG (0, "%s(ERROR): ", domain);
+  else
+    DBG (0, "%s(%i): ", domain, level);
+  sanei_debug_msg (0, DBG_LEVEL, STRINGIFY (BACKEND_NAME), format, args);
+  DBG (0, "\n");
+}
+
 /*
  * init_gphoto2() - Initialize interface to camera using gphoto2 API
  */
 static SANE_Int
 init_gphoto2 (void)
 {
-  SANE_Int n;
+  GPPortInfoList *il;
+  GPPortInfo info;
+  SANE_Int n, m, port;
   CameraList *list;
+  CameraAbilitiesList *al;
 
   DBG (1, "GPHOTO2 Backend 05/16/01\n");
 
-  gp_debug_printf(GP_DEBUG_HIGH,"SANE","Initializing\n");
+  gp_debug_printf (GP_DEBUG_HIGH, "SANE", "Initializing\n");
 
   CHECK_RET (gp_camera_new (&camera));
 
@@ -348,37 +367,63 @@ init_gphoto2 (void)
       DBG (0, "Camera name not specified in config file\n");
       exit (1);
     }
-  CHECK_RET (gp_camera_set_model (camera, (char *) Cam_data.camera_name));
+
+  CHECK_RET (gp_abilities_list_new (&al));
+  CHECK_RET (gp_abilities_list_load (al));
+  CHECK_RET (m =
+	     gp_abilities_list_lookup_model (al,
+					     (char *) Cam_data.camera_name));
+  CHECK_RET (gp_abilities_list_get_abilities (al, m, &abilities));
+  CHECK_RET (gp_abilities_list_free (al));
+  CHECK_RET (gp_camera_set_abilities (camera, abilities));
 
   if (!Cam_data.port)
     {
       DBG (0, "Camera port not specified in config file\n");
       exit (1);
     }
-  CHECK_RET (gp_camera_set_port_path (camera, (char *) Cam_data.port));
-  if (Cam_data.speed)
+
+  CHECK_RET (gp_port_info_list_new (&il));
+  CHECK_RET (gp_port_info_list_load (il));
+
+
+  port = gp_port_info_list_lookup_path (il, Cam_data.port);
+  CHECK_RET (gp_port_info_list_get_info (il, port, &info));
+  CHECK_RET (gp_camera_set_port_info (camera, info));
+  gp_port_info_list_free (il);
+
+  /*
+   * Setting of speed only makes sense for serial ports. gphoto2
+   * knows that and will complain if we try to set the speed for
+   * ports other than serial ones. Because we are paranoid here and
+   * check every single error message returned by gphoto2, we need
+   * to make sure that we have a serial port.                
+   */
+  if (Cam_data.speed && !strncmp (Cam_data.port, "serial:", 7))
     {
       CHECK_RET (gp_camera_set_port_speed (camera, Cam_data.speed));
     }
   CHECK_RET (gp_camera_init (camera));
   CHECK_RET (gp_list_new (&list));
 
-  CHECK_RET (gp_abilities_new (&abilities));
-  CHECK_RET (gp_camera_abilities_by_name (Cam_data.camera_name, abilities));
+  CHECK_RET (gp_abilities_list_new (&al));
+  CHECK_RET (gp_abilities_list_load (al));
+  CHECK_RET (m = gp_abilities_list_lookup_model (al, Cam_data.camera_name));
+  CHECK_RET (gp_abilities_list_get_abilities (al, m, &abilities));
 
-  if (!(abilities->operations & GP_OPERATION_CAPTURE_IMAGE))
+  if (!(abilities.operations & GP_OPERATION_CAPTURE_IMAGE))
     {
       DBG (0, "Camera does not support image capture\n");
       return SANE_STATUS_INVAL;
     }
 
-  for (n = 0; abilities->speed[n]; n++)
+  for (n = 0; abilities.speed[n]; n++)
     {
-      if (abilities->speed[n] == Cam_data.speed)
+      if (abilities.speed[n] == Cam_data.speed)
 	{
 	  break;
 	}
-      if (abilities->speed[n] == 0)
+      if (abilities.speed[n] == 0)
 	{
 	  DBG (0,
 	       "%s: error: %d is not a valid speed for this camers.  Use \"gphoto2 --camera \"%s\" --abilities\" for list.\n",
@@ -387,7 +432,7 @@ init_gphoto2 (void)
 	}
     }
 
-  CHECK_RET (gp_camera_folder_list_folders (camera, "/PCCARD/DCIM", list));
+  CHECK_RET (gp_camera_folder_list_folders (camera, TopFolder, list));
   n = gp_list_count (list);
   if (n < 0)
     {
@@ -524,6 +569,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
   SANE_Char f[] = "sane_init";
   SANE_Char dev_name[PATH_MAX], *p;
   SANE_Char buf[256];
+  CameraAbilitiesList *al;
   size_t len;
   FILE *fp;
 
@@ -531,16 +577,9 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
 
   if (getenv ("GP_DEBUG"))
     {
-      gp_debug_set_level (atoi (getenv ("GP_DEBUG")));
+      gp_log_add_func (atoi (getenv ("GP_DEBUG")), debug_func, NULL);
     }
-  else
-    {
-      /* NOTE:  One side effect of gp_debug_set_level() is that
-       * it initializes the gphoto2 library, so we need it even
-       * when the level is 0.
-       */
-      gp_debug_set_level (0);
-    }
+
   if (version_code)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, 0);
 
@@ -566,17 +605,37 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
 	    continue;		/* ignore empty lines */
 	  if (strncmp (dev_name, "port=", 5) == 0)
 	    {
+	      GPPortInfoList *list;
+	      GPPortInfo info;
+	      int result;
+
 	      p = dev_name + 5;
 	      if (p)
 		Cam_data.port = strdup (p);
 	      DBG (20, "Config file port=%s\n", Cam_data.port);
 
 	      /* Validate port */
-	      CHECK_RET (entries = gp_port_count_get ());
+	      CHECK_RET (gp_port_info_list_new (&list));
+	      result = gp_port_info_list_load (list);
+	      if (result < 0)
+		{
+		  gp_port_info_list_free (list);
+		  return SANE_STATUS_INVAL;
+		}
+	      entries = gp_port_info_list_count (list);
+	      if (entries < 0)
+		{
+		  gp_port_info_list_free (list);
+		  return SANE_STATUS_INVAL;
+		}
 	      for (n = 0; n < entries; n++)
 		{
-		  gp_port_info info;
-		  CHECK_RET (gp_port_info_get (n, &info));
+		  result = gp_port_info_list_get_info (list, n, &info);
+		  if (result < 0)
+		    {
+		      gp_port_info_list_free (list);
+		      return SANE_STATUS_INVAL;
+		    }
 		  if (strcmp (Cam_data.port, info.path) == 0)
 		    {
 		      break;
@@ -596,12 +655,15 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
 	      DBG (20, "Config file camera=%s\n", Cam_data.camera_name);
 	      sprintf (buf, "Image selection - %s", Cam_data.camera_name);
 
-	      CHECK_RET (entries = gp_camera_count ());
+	      CHECK_RET (gp_abilities_list_new (&al));
+	      CHECK_RET (gp_abilities_list_load (al));
+	      CHECK_RET (entries = gp_abilities_list_count (al));
+
 	      for (n = 0; n < entries; n++)
 		{
-		  const char *buf;
-		  CHECK_RET (gp_camera_name (n, &buf));
-		  if (strcmp (Cam_data.camera_name, buf) == 0)
+		  CHECK_RET (gp_abilities_list_get_abilities
+			     (al, n, &abilities));
+		  if (strcmp (Cam_data.camera_name, abilities.model) == 0)
 		    {
 		      break;
 		    }
@@ -682,50 +744,52 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
     {
       SANE_Int x = 0;
       DBG (0, "\nCamera information:\n~~~~~~~~~~~~~~~~~\n\n");
-      DBG (0, "Model                            : %s\n", abilities->model);
+      DBG (0, "Model                            : %s\n", abilities.model);
       DBG (0, "Pictures                         : %d\n", Cam_data.pic_taken);
+#ifdef OLD
       DBG (0, "Serial port support              : %s\n",
-	   SERIAL_SUPPORTED (abilities->port) ? "yes" : "no");
+	   SERIAL_SUPPORTED (abilities.port) ? "yes" : "no");
       DBG (0, "Parallel port support            : %s\n",
-	   PARALLEL_SUPPORTED (abilities->port) ? "yes" : "no");
+	   PARALLEL_SUPPORTED (abilities.port) ? "yes" : "no");
       DBG (0, "USB support                      : %s\n",
-	   USB_SUPPORTED (abilities->port) ? "yes" : "no");
+	   USB_SUPPORTED (abilities.port) ? "yes" : "no");
       DBG (0, "IEEE1394 support                 : %s\n",
-	   IEEE1394_SUPPORTED (abilities->port) ? "yes" : "no");
+	   IEEE1394_SUPPORTED (abilities.port) ? "yes" : "no");
       DBG (0, "Network support                  : %s\n",
-	   NETWORK_SUPPORTED (abilities->port) ? "yes" : "no");
+	   NETWORK_SUPPORTED (abilities.port) ? "yes" : "no");
+#endif
 
-      if (abilities->speed[0] != 0)
+      if (abilities.speed[0] != 0)
 	{
 	  DBG (0, "Transfer speeds supported        :\n");
 	  do
 	    {
 	      DBG (0, "                                 : %i\n",
-		   abilities->speed[x]);
+		   abilities.speed[x]);
 	      x++;
 	    }
-	  while (abilities->speed[x] != 0);
+	  while (abilities.speed[x] != 0);
 	}
       DBG (0, "Capture choices                  :\n");
-      if (abilities->operations & GP_OPERATION_CAPTURE_IMAGE)
+      if (abilities.operations & GP_OPERATION_CAPTURE_IMAGE)
 	DBG (0, "                                 : Image\n");
-      if (abilities->operations & GP_OPERATION_CAPTURE_VIDEO)
+      if (abilities.operations & GP_OPERATION_CAPTURE_VIDEO)
 	DBG (0, "                                 : Video\n");
-      if (abilities->operations & GP_OPERATION_CAPTURE_AUDIO)
+      if (abilities.operations & GP_OPERATION_CAPTURE_AUDIO)
 	DBG (0, "                                 : Audio\n");
-      if (abilities->operations & GP_OPERATION_CAPTURE_PREVIEW)
+      if (abilities.operations & GP_OPERATION_CAPTURE_PREVIEW)
 	DBG (0, "                                 : Preview\n");
       DBG (0, "Configuration support            : %s\n",
-	   abilities->operations & GP_OPERATION_CONFIG ? "yes" : "no");
+	   abilities.operations & GP_OPERATION_CONFIG ? "yes" : "no");
 
       DBG (0, "Delete files on camera support   : %s\n",
-	   abilities->
+	   abilities.
 	   file_operations & GP_FILE_OPERATION_DELETE ? "yes" : "no");
       DBG (0, "File preview (thumbnail) support : %s\n",
-	   abilities->
+	   abilities.
 	   file_operations & GP_FILE_OPERATION_PREVIEW ? "yes" : "no");
       DBG (0, "File upload support              : %s\n",
-	   abilities->
+	   abilities.
 	   folder_operations & GP_FOLDER_OPERATION_PUT_FILE ? "yes" : "no");
 
 
@@ -1483,7 +1547,7 @@ read_info (SANE_String_Const fname)
 {
   SANE_Char path[256];
 
-  strcpy (path, "\\PCCARD\\DCIM\\");
+  strcpy (path, "\\DCIM\\");
   strcat (path, (const char *) folder_list[current_folder]);
   strcat (path, "\\");
   strcat (path, fname);

@@ -683,7 +683,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 	return 0;
     }
 
-  if ((unsigned) option >= s->opt.num_options)
+  if (((SANE_Word) option >= s->opt.num_options) || (option < 0))
     return 0;
   return s->opt.desc[option];
 }
@@ -705,7 +705,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       if (status != SANE_STATUS_GOOD)
 	return status;
     }
-  if ((unsigned) option >= s->opt.num_options)
+  if (((SANE_Word) option >= s->opt.num_options) || (option < 0))
     return SANE_STATUS_INVAL;
 
   switch (s->opt.desc[option]->type)
@@ -716,7 +716,13 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
          GROUP is IGNORED.  */
       value_size = 0;
       break;
-
+    case SANE_TYPE_STRING: /* strings can be smaller than size */
+      value_size = s->opt.desc[option]->size;
+      if ((action == SANE_ACTION_SET_VALUE) 
+	  && (((SANE_Int) strlen ((SANE_String) value) + 1)
+	      < s->opt.desc[option]->size))
+	value_size = strlen ((SANE_String) value) + 1;
+      break;
     default:
       value_size = s->opt.desc[option]->size;
       break;
@@ -755,7 +761,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    *info = reply.info;
 	  if (value_size > 0)
 	    {
-	      if (value_size == reply.value_size)
+	      if ((SANE_Word) value_size == reply.value_size)
 		memcpy (value, reply.value, reply.value_size);
 	      else
 		DBG (1, "control_option: size changed from %d to %d\n",
@@ -802,7 +808,7 @@ SANE_Status sane_start (SANE_Handle handle)
   struct sockaddr_in sin;
   SANE_Status status;
   int fd, need_auth;
-  int len;
+  socklen_t len;
   short port;			/* Internet-specific */
 
   if (s->data >= 0)
@@ -931,7 +937,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
 	}
     }
 
-  if (max_length > s->bytes_remaining)
+  if (max_length > (SANE_Int) s->bytes_remaining)
     max_length = s->bytes_remaining;
 #if 0
   /* Make sure to get only complete pixel */

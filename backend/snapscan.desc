@@ -14,7 +14,7 @@
 :version "0.7"                    ; version of backend
 :status :alpha                    ; :alpha, :beta, :stable, :new
 :manpage "sane-snapscan"          ; name of manpage (if it exists)
-:url "http://www.cs.ualberta.ca/~charter/SnapScan/snapscan.html" ; backend's web page
+:url "http://snapscan.sourceforge.net" ; backend's web page
 
 :devicetype :scanner              ; start of a list of devices....
                                   ; other types:  :stillcam, :vidcam,

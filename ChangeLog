@@ -1,4 +1,8 @@
-2995-02-10  Karl Heinz Kremer <khk@khk.net>
+2005-02-14  Gerhard Jaeger <gerhard@gjaeger.de>
+
+*	doc/descriptions-external: Added new external backend geniusvp2.
+
+2005-02-10  Karl Heinz Kremer <khk@khk.net>
 
 	* doc/descriptions/epson.desc: Added CX-3600 and 3650
 	  doc/sane-epson.man, backend/epson.conf: Added information about

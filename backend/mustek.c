@@ -46,7 +46,7 @@
 
 /**************************************************************************/
 /* Mustek backend version                                                 */
-#define BUILD 99
+#define BUILD 100
 /**************************************************************************/
 
 #include "sane/config.h"
@@ -65,34 +65,20 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-#include "sane/sane.h"
-#include "sane/sanei.h"
-#include "sane/saneopts.h"
-#include "sane/sanei_scsi.h"
-#include "sane/sanei_ab306.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei.h"
+#include "../include/sane/saneopts.h"
+#include "../include/sane/sanei_scsi.h"
+#include "../include/sane/sanei_ab306.h"
+
 #include "mustek.h"
 
 #define BACKEND_NAME	mustek
-#include "sane/sanei_backend.h"
+#include "../include/sane/sanei_backend.h"
+#include "../include/sane/sanei_config.h"
 
-#ifndef PATH_MAX
-# define PATH_MAX	1024
-#endif
-
-#include "sane/sanei_config.h"
-#define MUSTEK_CONFIG_FILE "mustek.conf"
-
-#define MM_PER_INCH	25.4
-#define MIN(a,b)	((a) < (b) ? (a) : (b))
-#define MAX(a,b)	((a) > (b) ? (a) : (b))
-
-/* Maximum time to wait for scanner to become ready.  */
-#define MAX_WAITING_TIME	60
-/* Some Paragon and the ScanExpress scanners require this for
-   line-distance correction */
-#define MAX_LINE_DIST		40
-
-static unsigned int debug_level;
+/* Debug level from sanei_init_debug */
+static SANE_Int debug_level;
 
 /* Maximum # of inches to scan in one swoop.  0 means "unlimited."
    This is here to be nice on the SCSI bus---Mustek scanners don't
@@ -105,82 +91,88 @@ static double strip_height;
 /* Should we wait for the scan slider to return after each scan? */
 static SANE_Bool force_wait;
 
-static int num_devices;
+static SANE_Int num_devices;
 static Mustek_Device *first_dev;
 static Mustek_Scanner *first_handle;
 
-static Mustek_Device **new_dev;	/* array of newly attached devices */
-static int new_dev_len;		/* length of new_dev array */
-static int new_dev_alloced;	/* number of entries alloced for new_dev */
+/* Array of newly attached devices */
+static Mustek_Device **new_dev;	
+
+/* Length of new_dev array */
+static SANE_Int new_dev_len;
+
+/* Number of entries alloced for new_dev */
+static SANE_Int new_dev_alloced;
 
 /* Used for line-distance correction: */
-static const int color_seq[] =
+static const SANE_Int color_seq[] =
   {
     1, 2, 0			/* green, blue, red */
   };
 
-static const SANE_String_Const mode_list_paragon[] =
+/* Which modes are supported? */
+static SANE_String_Const mode_list_paragon[] =
   {
     "Lineart", "Halftone", "Gray", "Color",
     0
   };
-
-static const SANE_String_Const mode_list_pro[] =
+static SANE_String_Const mode_list_pro[] =
   {
     "Lineart", "Gray", "Gray fast", "Color",
     0
   };
-
-static const SANE_String_Const mode_list_se[] =
+static SANE_String_Const mode_list_se[] =
   {
     "Lineart", "Gray", "Color",
     0
   };
 /*
-static const SANE_String_Const mode_list_se_plus[] =
+static SANE_String_Const mode_list_se_plus[] =
   {
     "Lineart", "Gray", "Color", "Color 48 bit",
     0
   };
 */
-static const SANE_String_Const mode_list_se_plus[] =
+static SANE_String_Const mode_list_se_plus[] =
   {
     "Lineart", "Gray", "Color",
     0
   };
 
-static const SANE_String_Const speed_list[] =
+/* Some scanners support setting speed manually */
+static SANE_String_Const speed_list[] =
   {
     "Slowest", "Slower", "Normal", "Faster", "Fastest",
     0
   };
 
+/* Which scan-sources are supported? */
 static const SANE_String_Const source_list[] =
   {
     "Flatbed", 
     0
   };
-
-static const SANE_String_Const adf_source_list[] =
+static SANE_String_Const adf_source_list[] =
   {
     "Flatbed", "Automatic Document Feeder",
     0
   };
-
-static const SANE_String_Const ta_source_list[] =
+static SANE_String_Const ta_source_list[] =
   {
     "Flatbed", "Transparency Adapter",
     0
   };
 
+/* Range used for gamma and halftone pattern */
 static const SANE_Range u8_range =
   {
-      0,				/* minimum */
-    255,				/* maximum */
-      0				/* quantization */
+      0, /* minimum */
+    255, /* maximum */
+      0	 /* quantization */
   };
 
-static const SANE_String_Const halftone_list[] =
+/* Which kind of halftone patterns are available? */
+static SANE_String_Const halftone_list[] =
   {
     "8x8 coarse", "8x8 normal", "8x8 fine", "8x8 very fine", "6x6 normal",
     "5x5 coarse", "5x5 fine", "4x4 coarse", "4x4 normal", "4x4 fine",
@@ -189,6 +181,7 @@ static const SANE_String_Const halftone_list[] =
     0
   };
 
+/* Range used for brightness and contrast */
 static const SANE_Range percentage_range =
   {
     -100 << SANE_FIXED_SCALE_SHIFT,	/* minimum */
@@ -196,125 +189,58 @@ static const SANE_Range percentage_range =
        1 << SANE_FIXED_SCALE_SHIFT	/* quantization */
   };
 
-static const u_int se_resolution_list[] =
-  {
-    75, 100, 150, 200, 250, 300, 400, 500, 600, 900, 1200, 0
-  };
-
-/* Color band codes: */
-#define MUSTEK_CODE_GRAY		0
-#define MUSTEK_CODE_RED			1
-#define MUSTEK_CODE_GREEN		2
-#define MUSTEK_CODE_BLUE		3
-
-/* SCSI commands that the Mustek scanners understand (or not): */
-#define MUSTEK_SCSI_TEST_UNIT_READY	0x00
-#define MUSTEK_SCSI_REQUEST_SENSE       0x03
-#define MUSTEK_SCSI_AREA_AND_WINDOWS	0x04
-#define MUSTEK_SCSI_READ_SCANNED_DATA	0x08
-#define MUSTEK_SCSI_GET_IMAGE_STATUS	0x0f
-#define MUSTEK_SCSI_ADF_AND_BACKTRACK	0x10
-#define MUSTEK_SCSI_CCD_DISTANCE	0x11
-#define MUSTEK_SCSI_INQUIRY		0x12
-#define MUSTEK_SCSI_MODE_SELECT 	0x15
-#define MUSTEK_SCSI_START_STOP		0x1b
-#define MUSTEK_SCSI_SET_WINDOW		0x24
-#define MUSTEK_SCSI_GET_WINDOW		0x25
-#define MUSTEK_SCSI_READ_DATA		0x28
-#define MUSTEK_SCSI_SEND_DATA		0x2a
-#define MUSTEK_SCSI_LOOKUP_TABLE	0x55
-
-
-#define INQ_LEN	0x60
-static const u_int8_t scsi_inquiry[] =
+/* SCSI command buffers used by the backend */
+static const SANE_Byte scsi_inquiry[] =
 {
   MUSTEK_SCSI_INQUIRY, 0x00, 0x00, 0x00, INQ_LEN, 0x00
 };
-
-static const u_int8_t scsi_test_unit_ready[] =
+static const SANE_Byte scsi_test_unit_ready[] =
 {
   MUSTEK_SCSI_TEST_UNIT_READY, 0x00, 0x00, 0x00, 0x00, 0x00
 };
-
-static const u_int8_t scsi_area_and_windows[] =
+static const SANE_Byte scsi_area_and_windows[] =
 {
   MUSTEK_SCSI_AREA_AND_WINDOWS, 0x00, 0x00, 0x00, 0x09, 0x00
 };
-
-static const u_int8_t scsi_request_sense[] =
+static const SANE_Byte scsi_request_sense[] =
 {
   MUSTEK_SCSI_REQUEST_SENSE, 0x00, 0x00, 0x00, 0x04, 0x00
 };
-
-static const u_int8_t scsi_start_stop[] =
+static const SANE_Byte scsi_start_stop[] =
 {
   MUSTEK_SCSI_START_STOP, 0x00, 0x00, 0x00, 0x00, 0x00
 };
-
-static const u_int8_t scsi_ccd_distance[] =
+static const SANE_Byte scsi_ccd_distance[] =
 {
   MUSTEK_SCSI_CCD_DISTANCE, 0x00, 0x00, 0x00, 0x05, 0x00
 };
-
-static const u_int8_t scsi_get_image_status[] =
+static const SANE_Byte scsi_get_image_status[] =
 {
   MUSTEK_SCSI_GET_IMAGE_STATUS, 0x00, 0x00, 0x00, 0x06, 0x00
 };
-
-static const u_int8_t scsi_set_window[] =
+static const SANE_Byte scsi_set_window[] =
 {
   MUSTEK_SCSI_SET_WINDOW, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x30, 0x00
 };
-
-static const u_int8_t scsi_get_window[] =
+static const SANE_Byte scsi_get_window[] =
 {
   MUSTEK_SCSI_GET_WINDOW, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x30, 0x00
 };
-
-static const u_int8_t scsi_read_data[] =
+static const SANE_Byte scsi_read_data[] =
 {
   MUSTEK_SCSI_READ_DATA, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
-
-static const u_int8_t scsi_send_data[] =
+static const SANE_Byte scsi_send_data[] =
 {
   MUSTEK_SCSI_SEND_DATA, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
-
-static const u_int8_t scsi_lookup_table[] =
+static const SANE_Byte scsi_lookup_table[] =
 {
-  MUSTEK_SCSI_LOOKUP_TABLE, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+  MUSTEK_SCSI_LOOKUP_TABLE, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00
 };
 
-
-/* For the next macros suffix 'L' means little endian, 'B' big endian */
-#define STORE16L(cp,v)				\
-do {						\
-    int value = (v);				\
-						\
-    *(cp)++ = (value >> 0) & 0xff;		\
-    *(cp)++ = (value >> 8) & 0xff;		\
-} while (0)
-
-#define STORE16B(cp,v)				\
-do {						\
-    int value = (v);				\
-						\
-    *(cp)++ = (value >> 8) & 0xff;		\
-    *(cp)++ = (value >> 0) & 0xff;		\
-} while (0)
-
-#define STORE32B(cp,v)				\
-do {						\
-    long int value = (v);			\
-						\
-    *(cp)++ = (value >> 24) & 0xff;		\
-    *(cp)++ = (value >> 16) & 0xff;		\
-    *(cp)++ = (value >>  8) & 0xff;		\
-    *(cp)++ = (value >>  0) & 0xff;		\
-} while (0)
-
-static SANE_Status adf_and_backtrack (Mustek_Scanner *s);
+/* prototypes */
 static SANE_Status area_and_windows (Mustek_Scanner *s);
 static SANE_Status inquiry (Mustek_Scanner *s);
 
@@ -326,8 +252,8 @@ scsi_sense_wait_ready (Mustek_Scanner *s)
   struct timeval now, start;
   SANE_Status status;
   size_t len;
-  u_int8_t sense_buffer [4];
-  u_int8_t bytetxt[300], dbgtxt[300], *pp;
+  SANE_Byte sense_buffer [4];
+  SANE_Byte bytetxt[300], dbgtxt[300], *pp;
 
   gettimeofday (&start, 0);
 
@@ -350,8 +276,8 @@ scsi_sense_wait_ready (Mustek_Scanner *s)
       dbgtxt[0] = '\0';
       for (pp = sense_buffer; pp < (sense_buffer + 4); pp++)
 	{
-	  sprintf ((char *) bytetxt, " %02x", *pp);
-	  strcat ((char *) dbgtxt, (char *) bytetxt);
+	  sprintf ((SANE_String) bytetxt, " %02x", *pp);
+	  strcat ((SANE_String) dbgtxt, (SANE_String) bytetxt);
 	}
       DBG(5, "scsi_sense_wait_ready: sensebuffer: %s\n", dbgtxt);
 
@@ -504,6 +430,7 @@ n_wait_ready (Mustek_Scanner *s)
 
   gettimeofday (&start, 0);
 
+  DBG(5, "n_wait_ready\n");
   while (1)
     {
       status = sanei_ab306_test_ready (s->fd);
@@ -537,7 +464,7 @@ dev_wait_ready (Mustek_Scanner *s)
 }
 
 static SANE_Status
-dev_open (const char * devname, Mustek_Scanner * s,
+dev_open (SANE_String_Const devname, Mustek_Scanner * s,
 	  SANEI_SCSI_Sense_Handler handler)
 {
   SANE_Status status;
@@ -547,7 +474,7 @@ dev_open (const char * devname, Mustek_Scanner * s,
 #ifdef HAVE_SANEI_SCSI_OPEN_EXTENDED
   s->hw->buffer_size = s->hw->max_buffer_size;
   status = sanei_scsi_open_extended (devname, &s->fd, handler, 0, 
-				     &s->hw->buffer_size);
+				     & s->hw->buffer_size);
 #else
   s->hw->buffer_size = MIN(sanei_scsi_max_request_size,
 			   s->hw->max_buffer_size);
@@ -608,12 +535,12 @@ dev_req_wait (void *id)
 }
 
 static SANE_Status
-dev_block_read_start (Mustek_Scanner *s, int lines)
+dev_block_read_start (Mustek_Scanner *s,SANE_Int lines)
 {
   DBG(4, "dev_block_read_start: entering block for %d lines\n", lines);
   if (s->hw->flags & MUSTEK_FLAG_N)
     {
-      u_int8_t readlines[6];
+      SANE_Byte readlines[6];
       
       memset (readlines, 0, sizeof (readlines));
       readlines[0] = MUSTEK_SCSI_READ_SCANNED_DATA;
@@ -624,9 +551,9 @@ dev_block_read_start (Mustek_Scanner *s, int lines)
     }
   else if (s->hw->flags & MUSTEK_FLAG_PARAGON_2)
     {
-      u_int8_t buffer[6];
+      SANE_Byte buffer[6];
       size_t len;
-      int color;
+      SANE_Int color;
       SANE_Status status;
 
       /* reset line-distance values */
@@ -661,14 +588,14 @@ dev_block_read_start (Mustek_Scanner *s, int lines)
 }
 
 static SANE_Status
-dev_read_req_enter (Mustek_Scanner *s, SANE_Byte *buf, int lines, int bpl,
-		    size_t *lenp, void **idp, int bank)
+dev_read_req_enter (Mustek_Scanner *s, SANE_Byte *buf, SANE_Int lines,
+		    SANE_Int bpl, size_t *lenp, void **idp, SANE_Int bank)
 {
   *lenp = lines * bpl;
 
   if (s->hw->flags & MUSTEK_FLAG_N)
     {
-      int planes;
+      SANE_Int planes;
 
       *idp = 0;
       planes = (s->mode & MUSTEK_MODE_COLOR) ? 3 : 1;
@@ -679,7 +606,7 @@ dev_read_req_enter (Mustek_Scanner *s, SANE_Byte *buf, int lines, int bpl,
     {
       if (s->hw->flags & MUSTEK_FLAG_SE)
 	{
-	  u_int8_t readlines[10];
+	  SANE_Byte readlines[10];
 	  if (s->mode & MUSTEK_MODE_COLOR)
 	    lines *= 3;
 	  else if (s->mode & MUSTEK_MODE_COLOR_48)
@@ -695,7 +622,7 @@ dev_read_req_enter (Mustek_Scanner *s, SANE_Byte *buf, int lines, int bpl,
 	}
       else if (s->hw->flags & MUSTEK_FLAG_PRO)
 	{
-	  u_int8_t readlines[6];
+	  SANE_Byte readlines[6];
 
 	  DBG(5, "enter read request\n");	  			
 	  memset (readlines, 0, sizeof (readlines));
@@ -708,7 +635,7 @@ dev_read_req_enter (Mustek_Scanner *s, SANE_Byte *buf, int lines, int bpl,
 	}
       else /* Paragon series */
       	{	    
-	  u_int8_t readlines[6];
+	  SANE_Byte readlines[6];
 
 	  memset (readlines, 0, sizeof (readlines));
 	  readlines[0] = MUSTEK_SCSI_READ_SCANNED_DATA;
@@ -731,7 +658,7 @@ dev_close (Mustek_Scanner * s)
 }
 
 static SANE_Status
-sense_handler (int scsi_fd, u_char *result, void *arg)
+sense_handler (SANE_Int scsi_fd, SANE_Byte *result, void *arg)
 {
   if (!result)
     {
@@ -743,7 +670,7 @@ sense_handler (int scsi_fd, u_char *result, void *arg)
 	result[0], scsi_fd);
   else
     DBG(5, "sense_handler: got sense code %02x for fd %d (arg = %uc)\n",
-	result[0], scsi_fd, *(unsigned char*) arg);
+	result[0], scsi_fd, *(SANE_Byte *) arg);
   switch (result[0])
     {
     case 0x00:
@@ -784,7 +711,7 @@ sense_handler (int scsi_fd, u_char *result, void *arg)
 static SANE_Status
 inquiry (Mustek_Scanner *s)
 {
-  char result[INQ_LEN];
+  SANE_Byte result[INQ_LEN];
   size_t size;
   SANE_Status status;
 
@@ -813,30 +740,30 @@ inquiry (Mustek_Scanner *s)
 }
 
 static SANE_Status
-attach (const char *devname, Mustek_Device **devp, int may_wait)
+attach (SANE_String_Const devname, Mustek_Device **devp, SANE_Bool may_wait)
 {
-  int mustek_scanner, fw_revision;
-  u_int8_t result[INQ_LEN];
-  u_int8_t inquiry_byte_list [50], inquiry_text_list [17];
-  u_int8_t inquiry_byte [5], inquiry_text [5];
-  u_int8_t *model_name = result + 44;
+  SANE_Int mustek_scanner, fw_revision;
+  SANE_Byte result[INQ_LEN];
+  SANE_Byte inquiry_byte_list [50], inquiry_text_list [17];
+  SANE_Byte inquiry_byte [5], inquiry_text [5];
+  SANE_Byte *model_name = result + 44;
   Mustek_Scanner s;
   Mustek_Device *dev, new_dev;
   SANE_Status status;
   size_t size;
-  char *scsi_device_type[] = 
+  SANE_String scsi_device_type[] = 
     {
       "Direct-Access", "Sequential-Access", "Printer", "Processor", 
       "Write-Once", "CD-ROM", "Scanner", "Optical Memory", "Medium Changer",
       "Communications"
     };
-  u_int8_t scsi_vendor[9];
-  u_int8_t scsi_product[17];
-  u_int8_t scsi_revision[5];
-  u_int8_t *pp;
+  SANE_Byte scsi_vendor[9];
+  SANE_Byte scsi_product[17];
+  SANE_Byte scsi_revision[5];
+  SANE_Byte *pp;
   SANE_Bool warning = SANE_FALSE;
-  int firmware_format = 0;
-  int firmware_revision_system = 0;
+  SANE_Int firmware_format = 0;
+  SANE_Int firmware_revision_system = 0;
 
   if (devp)
     *devp = 0;
@@ -860,7 +787,7 @@ attach (const char *devname, Mustek_Device **devp, int may_wait)
   if (status != SANE_STATUS_GOOD)
     return status;
 
-  if (may_wait)
+  if (may_wait || force_wait)
     dev_wait_ready (&s);
 
   DBG(5, "attach: sending INQUIRY\n");
@@ -891,17 +818,17 @@ attach (const char *devname, Mustek_Device **devp, int may_wait)
   if (debug_level >= 3)
     {
       /* clear spaces and special chars */
-      strncpy ((char *) scsi_vendor, (char *) result + 8, 8);
+      strncpy ((SANE_String) scsi_vendor, (SANE_String) result + 8, 8);
       scsi_vendor[8] = '\0';
       pp = scsi_vendor + 7;
       while (pp >= scsi_vendor && (*pp == ' ' || *pp >= 127))
 	*pp-- = '\0';
-      strncpy ((char *) scsi_product, (char *) result + 16, 16);
+      strncpy ((SANE_String) scsi_product, (SANE_String) result + 16, 16);
       scsi_product[16] = '\0';
       pp = scsi_product + 15;
       while (pp >= scsi_product && (*pp == ' ' || *pp >= 127))
 	*pp-- = '\0';
-      strncpy ((char *) scsi_revision, (char *) result + 32, 4);
+      strncpy ((SANE_String) scsi_revision, (SANE_String) result + 32, 4);
       scsi_revision[4] = '\0';
       pp = scsi_revision + 3;
       while (pp >= scsi_revision && (*pp == ' ' || *pp >= 127))
@@ -929,11 +856,11 @@ attach (const char *devname, Mustek_Device **devp, int may_wait)
       inquiry_text_list [0] = '\0';
       for (pp = result; pp < (result + INQ_LEN); pp++)
 	{
-	  sprintf ((char *) inquiry_text, "%c", 
+	  sprintf ((SANE_String) inquiry_text, "%c", 
 		   (*pp < 127) && (*pp > 31) ? *pp : '.');
-	  strcat ((char *) inquiry_text_list, (char *) inquiry_text);
-	  sprintf ((char *) inquiry_byte, " %02x", *pp);
-	  strcat ((char *) inquiry_byte_list, (char *) inquiry_byte);
+	  strcat ((SANE_String) inquiry_text_list, (SANE_String) inquiry_text);
+	  sprintf ((SANE_String) inquiry_byte, " %02x", *pp);
+	  strcat ((SANE_String) inquiry_byte_list, (SANE_String) inquiry_byte);
 	  if ((pp - result) % 0x10 == 0x0f)
 	    {
 	      DBG(4, "%s  %s\n", inquiry_byte_list, inquiry_text_list);
@@ -944,7 +871,7 @@ attach (const char *devname, Mustek_Device **devp, int may_wait)
     }
 
   /* first check for new firmware format: */
-  mustek_scanner = (strncmp ((char *) result + 36, "MUSTEK", 6) == 0);
+  mustek_scanner = (strncmp ((SANE_String) result + 36, "MUSTEK", 6) == 0);
   if (mustek_scanner)
     {
       if (result[43] == 'M')
@@ -963,7 +890,7 @@ attach (const char *devname, Mustek_Device **devp, int may_wait)
   else
     {
       /* check for old format: */
-      mustek_scanner = (strncmp ((char *) result + 8, "MUSTEK", 6) == 0);
+      mustek_scanner = (strncmp ((SANE_String) result + 8, "MUSTEK", 6) == 0);
       if (mustek_scanner)
 	{
 	  model_name = result + 16;
@@ -1020,11 +947,7 @@ attach (const char *devname, Mustek_Device **devp, int may_wait)
   dev->y_trans_range.max = SANE_FIX (5.0 * MM_PER_INCH);
   dev->x_trans_range.quant = 0;
   dev->y_trans_range.quant = 0;
-  if (dev->flags & MUSTEK_FLAG_N)
-    /* ab306 N scanners make unhealthy noises below 51 dpi... */
-    dev->dpi_range.min = SANE_FIX (51);
-  else
-    dev->dpi_range.min = SANE_FIX (30); /* some scanners don't like low dpi */
+  dev->dpi_range.min = SANE_FIX (72); /* some scanners don't like low dpi */
   dev->dpi_range.quant = SANE_FIX (1);
   /* default to 128 kB */
   dev->max_buffer_size = 128 * 1024; /* SCSI buffer -> use 64 k per buffer */
@@ -1033,23 +956,23 @@ attach (const char *devname, Mustek_Device **devp, int may_wait)
   dev->firmware_revision_system = firmware_revision_system;
   
   DBG(3, "attach: scanner id: %.11s\n", model_name);
-  if (strncmp ((char *) model_name + 10, "PRO", 3) == 0)
+  if (strncmp ((SANE_String) model_name + 10, "PRO", 3) == 0)
     DBG(3, "attach: this is probably a Paragon Pro series scanner\n");
-  else if (strncmp ((char *) model_name, "MFC", 3) == 0)
+  else if (strncmp ((SANE_String) model_name, "MFC", 3) == 0)
     DBG(3, "attach: this is probably a Paragon series II scanner\n");
-  else if (strncmp ((char *) model_name, "M", 1) == 0)
+  else if (strncmp ((SANE_String) model_name, "M", 1) == 0)
     DBG(3, "attach: this is probably a Paragon series I or 3-pass scanner\n");
-  else if (strncmp ((char *) model_name, " C", 2) == 0)
+  else if (strncmp ((SANE_String) model_name, " C", 2) == 0)
     DBG(3, "attach: this is probably a ScanExpress series A4 scanner\n");
-  else if (strncmp ((char *) model_name, " L", 2) == 0)
+  else if (strncmp ((SANE_String) model_name, " L", 2) == 0)
     DBG(3, "attach: this is probably a ScanExpress series A3 scanner\n");
-  else if (strncmp ((char *) model_name, "XC", 2) == 0)
+  else if (strncmp ((SANE_String) model_name, "XC", 2) == 0)
     DBG(3, "attach: this is probably a ScanExpress Plus series A4 scanner\n");
   else
     DBG(3, "attach: I am not sure what type of scanner this is\n");
 
   /* Paragon 3-pass series */
-  if (strncmp ((char *) model_name, "MFS-12000CX", 11) == 0)
+  if (strncmp ((SANE_String) model_name, "MFS-12000CX", 11) == 0)
     {
       /* These values were measured and compared to those from the Windows
 	 driver. Tested with a Paragon MFS-12000CX v4.00 */
@@ -1066,7 +989,7 @@ attach (const char *devname, Mustek_Device **devp, int may_wait)
     }
   /* There are two different versions of the MFS-6000CX, one has the model
      name "MFS-06000CX", the other one is "MSF-06000CZ"   */
-  else if (strncmp ((char *) model_name, "MFS-06000CX", 11) == 0)
+  else if (strncmp ((SANE_String) model_name, "MFS-06000CX", 11) == 0)
     {
       /* These values were measured and tested with a Paragon MFS-6000CX
 	 v4.06 */
@@ -1082,7 +1005,7 @@ attach (const char *devname, Mustek_Device **devp, int may_wait)
       dev->dpi_range.max = SANE_FIX (600);
       dev->sane.model = "MFS-6000CX";
     }
-  else if (strncmp((char *) model_name, "MSF-06000CZ", 11) == 0)
+  else if (strncmp((SANE_String) model_name, "MSF-06000CZ", 11) == 0)
     {
       /* These values were measured and compared to those from the Windows
 	 driver. Tested with a Paragon MFS-6000CX v4.00 */
@@ -1104,7 +1027,7 @@ attach (const char *devname, Mustek_Device **devp, int may_wait)
   /* I haven't seen a single report for this, but it is mentioned in
      the old man page. All reported Paragon 1200SP had a model name 
      "MFS-12000SP" */
-  else if (strncmp ((char *) model_name, "MSF-12000SP", 11) == 0)
+  else if (strncmp ((SANE_String) model_name, "MSF-12000SP", 11) == 0)
     {
       /* These values are not tested. */
       dev->x_range.max = SANE_FIX (8.5 * MM_PER_INCH);  
@@ -1120,18 +1043,19 @@ attach (const char *devname, Mustek_Device **devp, int may_wait)
 	 guessing this is true for all firmware revisions and for
 	 MSF-12000SP and MSF-06000SP. */
       dev->flags |= MUSTEK_FLAG_LD_NONE;
-      dev->sane.model = "MFS-12000SP";
       dev->flags |= MUSTEK_FLAG_PARAGON_1;
+      dev->flags |= MUSTEK_FLAG_USE_BLOCK;
+      dev->sane.model = "MFS-12000SP";
       warning = SANE_TRUE;      
     }
   /* MFS-8000 SP v 1.x */
-  else if (strncmp ((char *) model_name, "MSF-08000SP", 11) == 0)
+  else if (strncmp ((SANE_String) model_name, "MSF-08000SP", 11) == 0)
     {
       /* These values were measured and compared to those from the Windows
 	 driver. Tested with a Paragon MFS-8000SP v1.20 */
       dev->x_range.min = SANE_FIX (0.0);
       dev->x_range.max = SANE_FIX (8.5 * MM_PER_INCH);
-      dev->y_range.min = SANE_FIX (2.5);
+      dev->y_range.min = SANE_FIX (0);
       dev->y_range.max = SANE_FIX (355.6);
       dev->x_trans_range.min = SANE_FIX (1.0);
       dev->y_trans_range.min = SANE_FIX (1.0);
@@ -1143,12 +1067,11 @@ attach (const char *devname, Mustek_Device **devp, int may_wait)
 	 in color mode, otherwise the image is red */
       if (fw_revision == 0x120)
 	dev->flags |= MUSTEK_FLAG_FORCE_GAMMA;
-      
-      dev->sane.model = "MFS-8000SP";
       dev->flags |= MUSTEK_FLAG_PARAGON_1;
+      dev->sane.model = "MFS-8000SP";
     }
   /* This model name exists */
-  else if (strncmp ((char *) model_name, "MSF-06000SP", 11) == 0)
+  else if (strncmp ((SANE_String) model_name, "MSF-06000SP", 11) == 0)
     {
       /* These values were measured and compared to those from the Windows
 	 driver. Tested with a Paragon MFS-6000SP v3.12 */
@@ -1161,12 +1084,12 @@ attach (const char *devname, Mustek_Device **devp, int may_wait)
       dev->x_trans_range.max = SANE_FIX (205.0);
       dev->y_trans_range.max = SANE_FIX (255.0);
       dev->dpi_range.max = SANE_FIX (600);
-      dev->sane.model = "MFS-6000SP";
       dev->flags |= MUSTEK_FLAG_PARAGON_1;
+      dev->sane.model = "MFS-6000SP";
     }
 
   /* This one was reported multiple times */
-  else if (strncmp ((char *) model_name, "MFS-12000SP", 11) == 0)
+  else if (strncmp ((SANE_String) model_name, "MFS-12000SP", 11) == 0)
     {
       /* These values were measured and compared to those from the Windows
 	 driver. Tested with a Paragon MFS-12000SP v1.02 and v1.00 */
@@ -1185,18 +1108,18 @@ attach (const char *devname, Mustek_Device **devp, int may_wait)
 	 didn't work for my scanners.  1.00 doesn't need any LD
 	 correction, 1.02, 1.07 and 1.11 do need normal LD
 	 corrections.  Maybe all != 1.00 need normal LD */
-
-      dev->sane.model = "MFS-12000SP";
       dev->flags |= MUSTEK_FLAG_PARAGON_1;
       dev->flags |= MUSTEK_FLAG_LD_BLOCK;
+      dev->flags |= MUSTEK_FLAG_USE_BLOCK;
+      dev->sane.model = "MFS-12000SP";
     }
   /* MFS-8000 SP v2.x */
-  else if (strncmp ((char *) model_name, "MFS-08000SP", 11) == 0)
+  else if (strncmp ((SANE_String) model_name, "MFS-08000SP", 11) == 0)
     {
       /* These values are tested with a MFS-08000SP v 2.04 */
       dev->x_range.min = SANE_FIX (0.0);
       dev->x_range.max = SANE_FIX (8.5 * MM_PER_INCH);
-      dev->y_range.min = SANE_FIX (2.5);
+      dev->y_range.min = SANE_FIX (0);
       dev->y_range.max = SANE_FIX (355.6);
       dev->x_trans_range.min = SANE_FIX (1.0);
       dev->y_trans_range.min = SANE_FIX (1.0);
@@ -1208,11 +1131,11 @@ attach (const char *devname, Mustek_Device **devp, int may_wait)
 	 in color mode, otherwise the image is red */
       if (fw_revision == 0x120)
 	dev->flags |= MUSTEK_FLAG_FORCE_GAMMA;
-      dev->sane.model = "MFS-8000SP";
       dev->flags |= MUSTEK_FLAG_PARAGON_1;
+      dev->sane.model = "MFS-8000SP";
     }
   /* I have never seen one of those */
-  else if (strncmp ((char *) model_name, "MFS-06000SP", 11) == 0)
+  else if (strncmp ((SANE_String) model_name, "MFS-06000SP", 11) == 0)
     {
       /* These values are not tested. */
       dev->x_range.max = SANE_FIX (8.5 * MM_PER_INCH);  
@@ -1223,13 +1146,13 @@ attach (const char *devname, Mustek_Device **devp, int may_wait)
       dev->x_trans_range.max = SANE_FIX (205.0);
       dev->y_trans_range.max = SANE_FIX (255.0);
       dev->dpi_range.max = SANE_FIX (600);
-      dev->sane.model = "MFS-6000SP";
       dev->flags |= MUSTEK_FLAG_PARAGON_1;
+      dev->sane.model = "MFS-6000SP";
       warning = SANE_TRUE;      
     }
 
   /* Paragon 1-pass A4 series II */
-  else if (strncmp ((char *) model_name, "MFC-08000CZ", 11) == 0)
+  else if (strncmp ((SANE_String) model_name, "MFC-08000CZ", 11) == 0)
     {
       /* These values were measured and compared to those from the Windows
 	 driver. Tested with a Paragon 800 II SP v1.06. */
@@ -1243,12 +1166,14 @@ attach (const char *devname, Mustek_Device **devp, int may_wait)
       dev->y_trans_range.max = SANE_FIX (254.0);
 
       dev->dpi_range.max = SANE_FIX (800);
-      dev->sane.model = "800S/800 II SP";
+      dev->max_block_buffer_size = 2 * 1024 * 1024;
+
       dev->flags |= MUSTEK_FLAG_PARAGON_2;
       dev->flags |= MUSTEK_FLAG_LD_BLOCK;
-      dev->max_block_buffer_size = 2 * 1024 * 1024;
+      dev->flags |= MUSTEK_FLAG_USE_BLOCK;
+      dev->sane.model = "800S/800 II SP";
     }
-  else if (strncmp ((char *) model_name, "MFC-06000CZ", 11) == 0)
+  else if (strncmp ((SANE_String) model_name, "MFC-06000CZ", 11) == 0)
     {
       /* These values were measured and compared to those from the
 	 Windows driver. Tested with a Paragon 600 II CD, a Paragon
@@ -1285,12 +1210,13 @@ attach (const char *devname, Mustek_Device **devp, int may_wait)
 	  dev->sane.model = "600S/600 II CD";
 	  dev->flags |= MUSTEK_FLAG_PARAGON_2;
 	  dev->flags |= MUSTEK_FLAG_LD_BLOCK;
+	  dev->flags |= MUSTEK_FLAG_USE_BLOCK;
 	  dev->max_block_buffer_size = 2 * 1024 * 1024;
 	}
     }
 
   /* ScanExpress and ScanMagic series */
-  else if (strncmp((char *) model_name, " C03", 4) == 0)
+  else if (strncmp((SANE_String) model_name, " C03", 4) == 0)
     {
       /* These values were measured and compared to those from the Windows
 	 driver. Tested with a ScannExpress 6000SP 1.00 */
@@ -1305,7 +1231,6 @@ attach (const char *devname, Mustek_Device **devp, int may_wait)
 
       dev->dpi_range.max = SANE_FIX (600);
       dev->dpi_range.min = SANE_FIX (60);
-      dev->resolution_list = se_resolution_list;
       dev->flags |= MUSTEK_FLAG_SE;
       /* At least the SE 6000SP with firmware 1.00 limits its
 	 x-resolution to 300 dpi and does *no* interpolation at higher
@@ -1316,14 +1241,14 @@ attach (const char *devname, Mustek_Device **devp, int may_wait)
   /* There are two different versions of the ScanExpress 12000SP, one
      has the model name " C06", the other one is "XC06". The latter
      seems to be used in the newer "Plus" models */
-  else if (strncmp((char *) model_name, " C06", 4) == 0)
+  else if (strncmp((SANE_String) model_name, " C06", 4) == 0)
     {
       /* These values were measured and compared to those from the Windows
 	 driver. Tested with a ScaneExpress 12000SP 2.02 and a ScanMagic
          9636S v 1.01 */
-      dev->x_range.max = SANE_FIX (216);
+      dev->x_range.max = SANE_FIX (215.9);
       dev->y_range.min = SANE_FIX (0);
-      dev->y_range.max = SANE_FIX (294.5);
+      dev->y_range.max = SANE_FIX (291.2);
 
       dev->x_trans_range.min = SANE_FIX (0);
       dev->y_trans_range.min = SANE_FIX (0);
@@ -1332,7 +1257,6 @@ attach (const char *devname, Mustek_Device **devp, int may_wait)
 
       dev->dpi_range.max = SANE_FIX (1200);
       dev->dpi_range.min = SANE_FIX (60);
-      dev->resolution_list = se_resolution_list;
       dev->flags |= MUSTEK_FLAG_SE;
       /* The ScanExpress models limit their x-resolution to 600 dpi
 	 and do *no* interpolation at higher resolutions. So this has
@@ -1341,7 +1265,7 @@ attach (const char *devname, Mustek_Device **devp, int may_wait)
       dev->flags |= MUSTEK_FLAG_COVER_SENSOR;
       dev->sane.model = "ScanExpress 12000SP";
     }
-  else if (strncmp((char *) model_name, "XC06", 4) == 0)
+  else if (strncmp((SANE_String) model_name, "XC06", 4) == 0)
     {
       /* These values are tested with a SE 12000 SP Plus v 1.01 */
       dev->x_range.max = SANE_FIX (216);
@@ -1356,7 +1280,6 @@ attach (const char *devname, Mustek_Device **devp, int may_wait)
       dev->dpi_range.max = SANE_FIX (1200);
       dev->dpi_range.min = SANE_FIX (60);
 
-      dev->resolution_list = se_resolution_list;
       dev->flags |= MUSTEK_FLAG_SE;
       dev->flags |= MUSTEK_FLAG_SE_PLUS;
       /* The ScanExpress models limit their x-resolution to 600 dpi
@@ -1367,7 +1290,7 @@ attach (const char *devname, Mustek_Device **devp, int may_wait)
       dev->sane.model = "ScanExpress 12000SP Plus";
     }
   /* ScanExpress A3 SP */
-  else if (strncmp((char *) model_name, " L03", 4) == 0)
+  else if (strncmp((SANE_String) model_name, " L03", 4) == 0)
     {
       /* These values were measured with a ScannExpress A3 SP 2.00 */
       dev->x_range.max = SANE_FIX (297);
@@ -1383,7 +1306,6 @@ attach (const char *devname, Mustek_Device **devp, int may_wait)
 
       dev->dpi_range.max = SANE_FIX (600);
       dev->dpi_range.min = SANE_FIX (60);
-      dev->resolution_list = se_resolution_list;
       dev->flags |= MUSTEK_FLAG_SE;
       /* The ScanExpress models limit their x-resolution to 300 dpi
 	 and do *no* interpolation at higher resolutions. So this has
@@ -1393,7 +1315,7 @@ attach (const char *devname, Mustek_Device **devp, int may_wait)
       dev->sane.model = "ScanExpress A3 SP";
     }
   /* Paragon 1200 SP Pro */
-  else if (strncmp((char *) model_name, "MFS-1200SPPRO", 13) == 0)
+  else if (strncmp((SANE_String) model_name, "MFS-1200SPPRO", 13) == 0)
     {
       /* These values were measured with a Paragon 1200 SP Pro v2.01 */
       dev->x_range.max = SANE_FIX (8 * MM_PER_INCH);
@@ -1405,7 +1327,7 @@ attach (const char *devname, Mustek_Device **devp, int may_wait)
       warning = SANE_TRUE;
     }
   /* No documentation, but it works: Paragon 1200 A3 PRO  */
-  else if (strncmp((char *) model_name, "MFS-1200A3PRO", 13) == 0)
+  else if (strncmp((SANE_String) model_name, "MFS-1200A3PRO", 13) == 0)
     {
       /* These values were measured and compared to those from the Windows
 	 driver. Tested with a Paragon 1200 A3 Pro v1.10 */
@@ -1531,7 +1453,7 @@ static size_t
 max_string_size (const SANE_String_Const strings[])
 {
   size_t size, max_size = 0;
-  int i;
+  SANE_Int i;
 
   for (i = 0; strings[i]; ++i)
     {
@@ -1547,6 +1469,12 @@ constrain_value (Mustek_Scanner *s, SANE_Int option, void *value,
 		 SANE_Int *info)
 {
   SANE_Fixed w, dpi;
+  SANE_Status status;
+  
+  if (value) 
+    w = *(SANE_Fixed *) value;  
+  else
+    w = 0;
 
   if (option == OPT_RESOLUTION)
     {
@@ -1562,7 +1490,7 @@ constrain_value (Mustek_Scanner *s, SANE_Int option, void *value,
 	     if necessary.  */
 	  SANE_Fixed max_dpi, quant, half_res;
 	  
-	  w = *(SANE_Word *) value;
+	  /*w = *(SANE_Word *) value;*/
 	  max_dpi = s->hw->dpi_range.max;
 	  half_res = max_dpi / 2;
 	  
@@ -1581,52 +1509,24 @@ constrain_value (Mustek_Scanner *s, SANE_Int option, void *value,
 		}
 	    }
 	  
-	  DBG(5, "constrain_value: resolution = %.2f (was %.2f)\n", 
-	      SANE_UNFIX(*(SANE_Word *) value), SANE_UNFIX(w)); 
-	}
-      else if ((s->hw->flags & MUSTEK_FLAG_SE)
-	       && ((strcmp (s->val[OPT_MODE].s, "Color") == 0) 
-		   || (strcmp (s->val[OPT_MODE].s, "Color 48 bit") == 0)))
-
-	{
-	  /* The SE scanners seem to be limited to some fixed resolutions
-	     in color mode. */
-	  unsigned int count = 0;
-	  unsigned int res = 0;
-	  
-	  while (s->hw->resolution_list[count] != 0) 
-	    {
-	      res = s->hw->resolution_list[count];
-	      if (s->hw->resolution_list[count] 
-		  >= (unsigned int) SANE_UNFIX(*(SANE_Word *) value))
-		break;
-	      count++;
-	    }
-
-	  DBG(5, "constrain_value: wanted resolution %d dpi; got %d dpi\n", 
-	      (unsigned int) SANE_UNFIX(*(SANE_Word *) value), res);
-
-	  if (res != (unsigned int) SANE_UNFIX(*(SANE_Word *) value))
-	    {
-	      *(SANE_Word *) value = SANE_FIX(res);
-	      if (info)
-		*info |= SANE_INFO_INEXACT;
-	    }
-
 	}
     }
-  
-  return sanei_constrain_value (s->opt + option, value, info);
+
+  status = sanei_constrain_value (s->opt + option, value, info);
+  if (s->opt[option].type == SANE_TYPE_FIXED)
+    DBG(5, "constrain_value: %s = %.2f (was %.2f)\n", s->opt[option].name,
+	SANE_UNFIX(*(SANE_Word *) value), SANE_UNFIX(w));
+  return status;
 }
 
 /* Quantize s->req.resolution and return the resolution code for the
    quantized resolution.  Quantization depends on scanner type (single
    pass vs. three-pass) and resolution */
-static int
+static SANE_Int
 encode_resolution (Mustek_Scanner *s)
 {
   SANE_Fixed max_dpi, dpi;
-  int code, mode = 0;
+  SANE_Int code, mode = 0;
 
   dpi = s->val[OPT_RESOLUTION].w;
 
@@ -1663,10 +1563,10 @@ encode_resolution (Mustek_Scanner *s)
   return code | mode;
 }
 
-static int
+static SANE_Int
 encode_percentage (Mustek_Scanner *s, double value)
 {
-  int max, code, sign = 0;
+  SANE_Int max, code, sign = 0;
 
   if (s->hw->flags & MUSTEK_FLAG_THREE_PASS)
     {
@@ -1696,7 +1596,7 @@ static SANE_Status
 encode_halftone (Mustek_Scanner *s)
 {
   SANE_String selection = s->val[OPT_HALFTONE_DIMENSION].s;
-  int i = 0;
+  SANE_Int i = 0;
 
   while ((halftone_list != 0) 
 	 && (strcmp (selection, halftone_list[i]) != 0))
@@ -1732,10 +1632,9 @@ encode_halftone (Mustek_Scanner *s)
 static SANE_Status
 area_and_windows (Mustek_Scanner *s)
 {
-  u_int8_t cmd[117], *cp;
-  int i, offset;
+  SANE_Byte cmd[117], *cp;
+  SANE_Int i, offset;
 
-  DBG(5, "area_and_windows\n");
   /* setup SCSI command (except length): */
   memset (cmd, 0, sizeof (cmd));
   cmd[0] = MUSTEK_SCSI_AREA_AND_WINDOWS;
@@ -1755,20 +1654,30 @@ area_and_windows (Mustek_Scanner *s)
   if (s->hw->flags & MUSTEK_FLAG_USE_EIGHTS)
     {
       double eights_per_mm = 8 / MM_PER_INCH;
-
+      SANE_Int tlx, tly, brx, bry;
       /*
        * The MSF-06000CZ seems to lock-up if the pixel-unit is used.
        * Using 1/8" works.
        */
       *cp++ = ((s->mode & MUSTEK_MODE_LINEART) ? 0x00 : 0x01);
-      STORE16L(cp, SANE_UNFIX(s->val[OPT_TL_X].w) * eights_per_mm + 0.5);
-      STORE16L(cp, SANE_UNFIX(s->val[OPT_TL_Y].w) * eights_per_mm + 0.5);
-      STORE16L(cp, SANE_UNFIX(s->val[OPT_BR_X].w) * eights_per_mm + 0.5);
-      STORE16L(cp, SANE_UNFIX(s->val[OPT_BR_Y].w) * eights_per_mm + 0.5);
+
+      tlx = SANE_UNFIX(s->val[OPT_TL_X].w) * eights_per_mm + 0.5;
+      tly = SANE_UNFIX(s->val[OPT_TL_Y].w) * eights_per_mm + 0.5;
+      brx = SANE_UNFIX(s->val[OPT_BR_X].w) * eights_per_mm + 0.5;
+      bry = SANE_UNFIX(s->val[OPT_BR_Y].w) * eights_per_mm + 0.5;
+      STORE16L(cp, tlx);
+      STORE16L(cp, tly);
+      STORE16L(cp, brx);
+      STORE16L(cp, bry);
+      DBG(5, "area_and_windows: tlx=%d (%d mm); tly=%d (%d mm); "
+	  "brx=%d (%d mm); bry=%d (%d mm)\n", tlx, (int) (tlx / eights_per_mm),
+	  tly, (int) (tly / eights_per_mm), brx, (int) (brx / eights_per_mm),
+	  bry, (int) (bry / eights_per_mm));
     }
   else
     {
       double pixels_per_mm = SANE_UNFIX (s->hw->dpi_range.max) / MM_PER_INCH;
+      SANE_Int tlx, tly, brx, bry;
 
       if (s->hw->flags & MUSTEK_FLAG_THREE_PASS)
 	/* 3pass scanners use 1/2 of the max resolution as base */
@@ -1778,11 +1687,18 @@ area_and_windows (Mustek_Scanner *s)
       *cp++ = 0x8 | ((s->mode & MUSTEK_MODE_LINEART) ? 0x00 : 0x01);
 
       /* fill in scanning area: */
-      STORE16L(cp, SANE_UNFIX (s->val[OPT_TL_X].w) * pixels_per_mm + 0.5);
-      STORE16L(cp, SANE_UNFIX (s->val[OPT_TL_Y].w) * pixels_per_mm + 0.5);
-      STORE16L(cp, SANE_UNFIX (s->val[OPT_BR_X].w) * pixels_per_mm + 0.5);
-      STORE16L(cp, SANE_UNFIX (s->val[OPT_BR_Y].w) * pixels_per_mm + 0.5 +
-	       offset);
+      tlx = SANE_UNFIX (s->val[OPT_TL_X].w) * pixels_per_mm + 0.5;
+      tly = SANE_UNFIX (s->val[OPT_TL_Y].w) * pixels_per_mm + 0.5;
+      brx = SANE_UNFIX (s->val[OPT_BR_X].w) * pixels_per_mm + 0.5;
+      bry = SANE_UNFIX (s->val[OPT_BR_Y].w) * pixels_per_mm + 0.5 + offset;
+      STORE16L(cp, tlx);
+      STORE16L(cp, tly);
+      STORE16L(cp, brx);
+      STORE16L(cp, bry);
+      DBG(5, "area_and_windows: tlx=%d (%d mm); tly=%d (%d mm); "
+	  "brx=%d (%d mm); bry=%d (%d mm)\n", tlx, (int) (tlx / pixels_per_mm),
+	  tly, (int) (tly / pixels_per_mm), brx, (int) (brx / pixels_per_mm),
+	  bry, (int) (bry / pixels_per_mm));
     }
   
   if (s->custom_halftone_pattern)
@@ -1801,12 +1717,12 @@ area_and_windows (Mustek_Scanner *s)
 
 /* ScanExpress */
 static SANE_Status
-set_window_se (Mustek_Scanner *s, int lamp)
+set_window_se (Mustek_Scanner *s, SANE_Int lamp)
 {
-  u_int8_t cmd[58], *cp;
+  SANE_Byte cmd[58], *cp;
   double pixels_per_mm;
-  unsigned int offset;
-  unsigned int tlx, tly, width, height;
+  SANE_Int offset;
+  SANE_Int tlx, tly, width, height;
 
   /* setup SCSI command (except length): */
   memset (cmd, 0, sizeof (cmd));
@@ -1815,22 +1731,33 @@ set_window_se (Mustek_Scanner *s, int lamp)
 
   if (s->mode & MUSTEK_MODE_COLOR)
     {
-      /* We must increase the window length slightly to    */
-      /* compensate for different line counts for r/g/b    */
-
+      /* We have to increase the specified resolution to the next	*/
+      /* "standard" resolution due to a firmware bug(?) in color mode	*/
+      /* It's possible to scan in 36, 75, 100, 150, 200, 250, 300,      */
+      /* 400, 500, 600, 900, 1200 dpi but the speed is only different   */
+      /* with 36, 150, 300, 600, 1200 dpi.                              */
+      /* Additionally we must increase the window length slightly to    */
+      /* compensate for different line counts for r/g/b                 */
+      const SANE_Int resolution_list[] = {36, 150, 300, 600, 1200, 0};
+      SANE_Int entry = 0;
+      
+      while (resolution_list[entry] < s->resolution_code)
+	    entry++;
+      s->ld.peak_res = resolution_list[entry];
+  
       offset = MAX_LINE_DIST;           /* distance r/b lines		*/
-      DBG(5, "set_window_se: resolution is %d dpi; offset is %d\n", 
-	  (int) SANE_UNFIX (s->val[OPT_RESOLUTION].w), offset);
     }
   else  
     {
+      /* In gray and lineart modes all resolutions are possible         */
+      s->ld.peak_res = s->resolution_code;
       offset = 0;
-      DBG(5, "set_window_se: resolution is %d dpi; offset is %d\n", 
-	  (int) SANE_UNFIX (s->val[OPT_RESOLUTION].w), offset);
     }
+  DBG(5, "set_window_se: hardware resolution is %d dpi; offset is %d\n", 
+      s->ld.peak_res, offset);
 
   STORE16B(cp, 0);			/* window identifier		*/
-  STORE16B(cp, SANE_UNFIX (s->val[OPT_RESOLUTION].w));
+  STORE16B(cp, s->ld.peak_res);
                                         /* x and y resolution		*/
   STORE16B(cp, 0);			/* not used acc. to specs       */
 
@@ -1847,14 +1774,21 @@ set_window_se (Mustek_Scanner *s, int lamp)
     }
   else
     {
-      /* no tramsparency adapter selected or calculation done in firmware */
+      /* no transparency adapter selected or calculation done in firmware */
       tlx = SANE_UNFIX (s->val[OPT_TL_X].w) * pixels_per_mm + 0.5;
       tly = SANE_UNFIX (s->val[OPT_TL_Y].w) * pixels_per_mm + 0.5;
     }
-  width = SANE_UNFIX (s->val[OPT_BR_X].w - s->val[OPT_TL_X].w) 
+  width = (SANE_UNFIX (s->val[OPT_BR_X].w) - SANE_UNFIX (s->val[OPT_TL_X].w))
     * pixels_per_mm + 0.5; 
-  height = SANE_UNFIX (s->val[OPT_BR_Y].w - s->val[OPT_TL_Y].w)
+  height = (SANE_UNFIX (s->val[OPT_BR_Y].w) - SANE_UNFIX (s->val[OPT_TL_Y].w))
     * pixels_per_mm + 0.5 + offset;
+
+  DBG(5, "set_window_se: tlx=%d (%d mm); tly=%d (%d mm); width=%d (%d mm); "
+      "height=%d (%d mm)\n", tlx, (int) (tlx / pixels_per_mm), tly, 
+      (int) (tly / pixels_per_mm), width, (int) (width / pixels_per_mm), height,
+      (int) (height / pixels_per_mm));
+
+
   STORE32B(cp, tlx);
   STORE32B(cp, tly);
   STORE32B(cp, width); 
@@ -1905,7 +1839,7 @@ set_window_se (Mustek_Scanner *s, int lamp)
 static SANE_Status
 set_window_pro (Mustek_Scanner *s)
 {
-  u_int8_t cmd[20], *cp;
+  SANE_Byte cmd[20], *cp;
   double pixels_per_mm;
 
   memset (cmd, 0, sizeof (cmd));
@@ -1935,7 +1869,7 @@ static SANE_Status
 calibration (Mustek_Scanner *s)
 {
   SANE_Status status;
-  u_int8_t cmd[10 + 100000];
+  SANE_Byte cmd[10 + 100000];
   size_t num;
 
   num = s->hw->cal.bytes * s->hw->cal.lines;
@@ -1981,8 +1915,8 @@ static SANE_Status
 get_calibration_size_pro (Mustek_Scanner *s)
 {
   SANE_Status status;
-  u_int8_t cmd [6];
-  u_int8_t result[6];
+  SANE_Byte cmd [6];
+  SANE_Byte result[6];
   size_t len;
 
   memset (cmd, 0, sizeof (cmd));
@@ -2008,9 +1942,9 @@ static SANE_Status
 get_calibration_lines_pro (Mustek_Scanner *s)
 {
   SANE_Status status;
-  u_int8_t cmd[10];
+  SANE_Byte cmd[10];
   size_t len;
-  int line;
+  SANE_Int line;
 
   DBG(2, "read_calibration_lines_pro: please wait for warmup\n");
   memset (cmd, 0, sizeof (cmd));
@@ -2026,7 +1960,8 @@ get_calibration_lines_pro (Mustek_Scanner *s)
       status = dev_cmd (s, cmd, sizeof (scsi_read_data), 
 			s->hw->cal.buffer + line * len, &len); 
 
-      if ((status != SANE_STATUS_GOOD) || (len != (unsigned) s->hw->cal.bytes))
+      if ((status != SANE_STATUS_GOOD) 
+	  || (len != (unsigned int) s->hw->cal.bytes))
 	{
 	  DBG(1, "get_calibration_lines_pro: read failed\n");
 	  return status;
@@ -2040,13 +1975,13 @@ static SANE_Status
 send_calibration_lines_pro (Mustek_Scanner *s)
 {
   SANE_Status status;
-  u_int8_t *cmd;
+  SANE_Byte *cmd;
   size_t buf_size;
 
   DBG(5, "send_calibration_lines_pro\n");
 
   buf_size = s->hw->cal.bytes / 2;
-  cmd = (u_int8_t *) malloc (buf_size + sizeof (scsi_send_data));
+  cmd = (SANE_Byte *) malloc (buf_size + sizeof (scsi_send_data));
   if (!cmd)
     {
       DBG(1, "send_calibration_lines_pro: failed to malloc %d bytes for "
@@ -2096,8 +2031,8 @@ calibration_pro (Mustek_Scanner *s)
   if (status != SANE_STATUS_GOOD)
     return status;
 
-  s->hw->cal.buffer = (unsigned char *) malloc (s->hw->cal.bytes *
-						s->hw->cal.lines);
+  s->hw->cal.buffer = (SANE_Byte *) malloc (s->hw->cal.bytes * 
+					    s->hw->cal.lines);
   if (!s->hw->cal.buffer)
     {
       DBG(1, "calibration_pro: failed to malloc %d bytes for buffer\n",
@@ -2122,9 +2057,9 @@ static SANE_Status
 send_gamma_table_se (Mustek_Scanner *s)
 {
   SANE_Status status;
-  u_int8_t gamma[10 + 4096], *cp;
-  int color, factor, val_a, val_b;
-  int i, j;
+  SANE_Byte gamma[10 + 4096], *cp;
+  SANE_Int color, factor, val_a, val_b;
+  SANE_Int i, j;
 # define CLIP(x)	((x) < 0 ? 0 : ((x) > 255 ? 255 : (x)))
 
   memset (gamma, 0, sizeof (scsi_send_data));
@@ -2212,10 +2147,10 @@ send_gamma_table_se (Mustek_Scanner *s)
 
 /* Paragon series */
 static SANE_Status
-mode_select_paragon (Mustek_Scanner *s, int color_code)
+mode_select_paragon (Mustek_Scanner *s, SANE_Int color_code)
 {
-  int speed_code;
-  u_int8_t mode[19], *cp;
+  SANE_Int speed_code;
+  SANE_Byte mode[19], *cp;
 
   /* calculate funky speed code: */
   for (speed_code = 0; speed_list[speed_code]; ++speed_code)
@@ -2263,7 +2198,10 @@ mode_select_paragon (Mustek_Scanner *s, int color_code)
       mode[9] = 
 	encode_percentage (s, SANE_UNFIX (s->val[OPT_CONTRAST].w));
       mode[10] = 2;             /* grain */
-      if ((s->mode == MUSTEK_MODE_COLOR) || (s->mode == MUSTEK_MODE_HALFTONE))
+      if (s->val[OPT_PREVIEW].w && s->val[OPT_FAST_PREVIEW].w)
+	mode[11] = 0x01;
+      else if ((s->mode == MUSTEK_MODE_COLOR) 
+	       || (s->mode == MUSTEK_MODE_HALFTONE))
 	mode[11] = 0x00;	/* speed */
       else
 	mode[11] = 0x02;	/* speed */
@@ -2327,6 +2265,8 @@ mode_select_paragon (Mustek_Scanner *s, int color_code)
       mode[16] = 0;		/* midtone param not used by Mustek */
     }
 
+  DBG(5, "mode_select: resolution_code=%d (0x%x)\n", s->resolution_code,
+      s->resolution_code);
   return dev_cmd (s, mode, 6 + mode[4], 0, 0);
 }
 
@@ -2334,7 +2274,7 @@ mode_select_paragon (Mustek_Scanner *s, int color_code)
 static SANE_Status
 mode_select_pro (Mustek_Scanner *s)
 {
-  u_int8_t mode[19], *cp;
+  SANE_Byte mode[19], *cp;
 
   memset (mode, 0, sizeof (mode));
 
@@ -2362,10 +2302,10 @@ mode_select_pro (Mustek_Scanner *s)
    table is a linear table, so all we support here is user-defined
    gamma tables.  */
 static SANE_Status
-gamma_correction (Mustek_Scanner *s, int color_code)
+gamma_correction (Mustek_Scanner *s, SANE_Int color_code)
 {
-  int i, j, table = 0, len, bytes_per_channel, num_channels = 1;
-  u_int8_t gamma[4096+10], val, *cp;  /* for Paragon models 3 x 256 is the
+  SANE_Int i, j, table = 0, len, bytes_per_channel, num_channels = 1;
+  SANE_Byte gamma[4096+10], val, *cp;  /* for Paragon models 3 x 256 is the
 					 maximum. Pro needs 4096 bytes */
 
   if ((s->hw->flags & MUSTEK_FLAG_N)
@@ -2497,7 +2437,7 @@ send_gamma_table (Mustek_Scanner * s)
 static SANE_Status
 start_scan (Mustek_Scanner *s)
 {
-  u_int8_t start[6];
+  SANE_Byte start[6];
   SANE_Status status;
 
   memset (start, 0, sizeof (start));
@@ -2527,9 +2467,11 @@ start_scan (Mustek_Scanner *s)
 	start[4] |= 1 << 7;
 
       /* block mode (or whatever) */
-      if ((s->hw->flags & MUSTEK_FLAG_PARAGON_1) 
-	  || (s->hw->flags & MUSTEK_FLAG_PARAGON_2))
-	start[5] = 0x08; 
+      if (s->hw->flags & MUSTEK_FLAG_USE_BLOCK) 
+	{
+	  start[5] = 0x08; 
+	  DBG(1, "start_scan: using block mode\n");
+	}
     }
     
   status = dev_cmd (s, start, sizeof (start), 0, 0);
@@ -2565,7 +2507,7 @@ do_stop (Mustek_Scanner *s)
 
   if (s->reader_pid > 0)
     {
-      int exit_status;
+      SANE_Int exit_status;
       struct timeval now;
       long int scan_time;
       long int scan_size;
@@ -2631,9 +2573,9 @@ do_stop (Mustek_Scanner *s)
 static SANE_Status
 line_distance (Mustek_Scanner *s)
 {
-  int factor, color, res, peak_res;
+  SANE_Int factor, color, res, peak_res;
   SANE_Status status;
-  u_int8_t result[5];
+  SANE_Byte result[5];
   size_t len;
 
   res = SANE_UNFIX (s->val[OPT_RESOLUTION].w) + 0.5;
@@ -2780,10 +2722,10 @@ line_distance (Mustek_Scanner *s)
 static SANE_Status
 get_image_status (Mustek_Scanner *s, SANE_Int *bpl, SANE_Int *lines)
 {
-  u_int8_t result[6];
+  SANE_Byte result[6];
   SANE_Status status;
   size_t len;
-  int busy, offset;
+  SANE_Int busy, offset;
   long res, half_res;
 
   /* The 600 II N v1.01 and Paragon 12000SP need a larger scanarea for
@@ -2843,13 +2785,13 @@ static SANE_Status
 get_window (Mustek_Scanner *s, SANE_Int *bpl, SANE_Int *lines,
 	       SANE_Int *pixels)
 {
-  u_int8_t result[48];
+  SANE_Byte result[48];
   SANE_Status status;
   size_t len;
-  int color;
+  SANE_Int color;
   long res, half_res;
 
-  res = SANE_UNFIX (s->val[OPT_RESOLUTION].w);
+  res = s->resolution_code;
   half_res = SANE_UNFIX (s->hw->dpi_range.max) / 2;
 
   len = sizeof (result);
@@ -2898,31 +2840,29 @@ get_window (Mustek_Scanner *s, SANE_Int *bpl, SANE_Int *lines,
 	  s->ld.dist[color] = result[42 + color];
 	}
     
-      DBG(4, "line_distance: got res=%d, (r/g/b)=(%d/%d/%d)\n",
+      DBG(4, "get_window: LD res=%d, (r/g/b)=(%d/%d/%d)\n",
 	  (result[40] << 8) | result[41], s->ld.dist[0], 
 	  s->ld.dist[1], s->ld.dist[2]);
       s->ld.max_value = (result[40] << 8) | result[41];
-      /* We must interpolate resolutions > max x-resolution */
       if ((s->hw->flags & MUSTEK_FLAG_ENLARGE_X) &&  (res > half_res))
 	{
+	  /* We must interpolate resolutions > max x-resolution */
 	  *bpl = *pixels = (((s->hw->bpl / 3) * res) / half_res) * 3;
-	  DBG(4, "get_window: resolution > x-max/2; enlarge %d bpl to "
-	      "%d bpl\n", s->hw->bpl, *bpl);
 	}
       else
 	{
-	  *bpl = *pixels = s->hw->bpl;
+	  /* Scale down the image according to desired resolution */
+	  *bpl = *pixels = 
+	    (((s->hw->bpl / 3 ) * res) / s->ld.peak_res) * 3;
 	}
-      *lines = s->hw->lines - s->ld.dist[2];
+      *lines = (s->hw->lines - s->ld.dist[2]) * res / s->ld.peak_res;
     }
   else
     {
-      /* We must interpolate resolutions > max x-resolution */
       if ((s->hw->flags & MUSTEK_FLAG_ENLARGE_X) &&  (res > half_res))
 	{
+	  /* We must interpolate resolutions > max x-resolution */
 	  *bpl = s->hw->bpl * res / half_res; 
-	  DBG(4, "get_window: resolution > x-max/2; enlarge %d bpl to %d "
-	      "bpl\n", s->hw->bpl, *bpl);
 	}
       else
 	{
@@ -2930,14 +2870,16 @@ get_window (Mustek_Scanner *s, SANE_Int *bpl, SANE_Int *lines,
 	}
       *lines = s->hw->lines;
     }   
+  DBG(4, "get_window: bpl = %d (hardware: %d), lines = %d (hardware: %d)\n",
+      *bpl, s->hw->bpl, *lines, s->hw->lines);
   return SANE_STATUS_GOOD;
 }
 
 static SANE_Status
 adf_and_backtrack (Mustek_Scanner *s)
 {
-  u_int8_t backtrack[6];
-  int code = 0x82; /* enable backtracking */
+  SANE_Byte backtrack[6];
+  SANE_Int code = 0x82; /* enable backtracking */
 
   if (strcmp (s->val[OPT_SOURCE].s, "Automatic Document Feeder") == 0)
     code |= 0x01;
@@ -2954,12 +2896,12 @@ adf_and_backtrack (Mustek_Scanner *s)
 }
 
 /* 600 II N firmware 2.x */
-static int
-fix_line_distance_n_2 (Mustek_Scanner *s, int num_lines, int bpl,
-			u_int8_t *raw, u_int8_t *out)
+static SANE_Int
+fix_line_distance_n_2 (Mustek_Scanner *s, SANE_Int num_lines, SANE_Int bpl,
+			SANE_Byte *raw, SANE_Byte *out)
 {
-  u_int8_t *out_end, *out_ptr, *raw_end = raw + num_lines * bpl;
-  int c, num_saved_lines, line;
+  SANE_Byte *out_end, *out_ptr, *raw_end = raw + num_lines * bpl;
+  SANE_Int c, num_saved_lines, line;
 
   if (!s->ld.buf[0])
     {
@@ -3029,12 +2971,12 @@ fix_line_distance_n_2 (Mustek_Scanner *s, int num_lines, int bpl,
 }
 
 /* 600 II N firmware 1.x */
-static int
-fix_line_distance_n_1 (Mustek_Scanner *s, int num_lines, int bpl,
-			  u_int8_t *raw, u_int8_t *out)
+static SANE_Int
+fix_line_distance_n_1 (Mustek_Scanner *s, SANE_Int num_lines, SANE_Int bpl,
+			  SANE_Byte *raw, SANE_Byte *out)
 {
-  u_int8_t *out_end, *out_ptr, *raw_end = raw + num_lines * bpl;
-  int c, num_saved_lines, line;
+  SANE_Byte *out_end, *out_ptr, *raw_end = raw + num_lines * bpl;
+  SANE_Int c, num_saved_lines, line;
 
   /* For firmware 1.x the scanarea must be soemwhat bigger than needed
      because of the linedistance correction */
@@ -3119,19 +3061,37 @@ fix_line_distance_n_1 (Mustek_Scanner *s, int num_lines, int bpl,
 }
 
 /* For ScanExpress models */
-static int
-fix_line_distance_se (Mustek_Scanner *s, int num_lines, int bpl,
-		      u_int8_t *raw, u_int8_t *out)
+static SANE_Int
+fix_line_distance_se (Mustek_Scanner *s, SANE_Int num_lines, SANE_Int bpl,
+		      SANE_Byte *raw, SANE_Byte *out)
 {
-  u_int8_t *raw_end = raw + num_lines * bpl;
-  u_int8_t *out_ptr[3], *ptr;
-  int index[3], lines[3], quant[3];
-  int color, pixel, res, half_res, scale;
-  int bpc = bpl / 3; 		/* bytes per color (per line) */
-
-  res = SANE_UNFIX (s->val[OPT_RESOLUTION].w);
-  half_res = SANE_UNFIX (s->hw->dpi_range.max) / 2;
+  SANE_Byte *raw_end = raw + num_lines * bpl;
+  SANE_Byte *out_ptr[3], *ptr;
+  SANE_Int index[3], lines[3], quant[3], dist[3];
+  SANE_Int max_value;
+  SANE_Int color, pixel, res, half_res, scale;
+  SANE_Int bpc = bpl / 3; 		/* bytes per color (per line) */
+  SANE_Bool preview = SANE_FALSE;
   
+  res = s->resolution_code;
+  half_res = SANE_UNFIX (s->hw->dpi_range.max) / 2;
+  max_value = s->ld.max_value;
+  if ((s->val[OPT_PREVIEW].w == SANE_TRUE) 
+      && (s->val[OPT_FAST_PREVIEW].w == SANE_TRUE))
+    {
+      preview = SANE_TRUE;
+      /*max_value = 75;*/
+      dist[0] = s->ld.dist[0];
+      dist[1] = s->ld.dist[1];
+      dist[2] = s->ld.dist[2];
+    }
+  else
+    {
+      dist[0] = s->ld.dist[0];
+      dist[1] = s->ld.dist[1];
+      dist[2] = s->ld.dist[2];
+    }
+
   if (!s->ld.buf[0])
     {
       /* This buffer must be big enough to hold maximum line distance times
@@ -3160,7 +3120,7 @@ fix_line_distance_se (Mustek_Scanner *s, int num_lines, int bpl,
       
       for (color = 0; color < 3; ++color)
 	{
-	  s->ld.index[color] = - s->ld.dist[color];
+	  s->ld.index[color] = - dist[color];
 	  s->ld.quant[color] = 0;
 	  s->ld.saved[color] = 0;
 	}
@@ -3188,15 +3148,19 @@ fix_line_distance_se (Mustek_Scanner *s, int num_lines, int bpl,
       else
 	{
 	  quant[color] += res;
-	  if (quant[color] >= s->ld.max_value)
+	  if (quant[color] >= max_value)
 	    {
 	      /* This line must be processed, not dropped. */
-	      quant[color] -= s->ld.max_value;
+	      quant[color] -= max_value;
 	      ++lines[color];
 	      --num_lines;
 	    }	      
+	  else if (!preview)
+	    --num_lines;
+	  
 	}
-      if (++color > 2) color = 0;
+      if (++color > 2)
+	color = 0;
      }		                                                    
       
   /* Calculate how many triples of color lines we can output now. 
@@ -3220,10 +3184,10 @@ fix_line_distance_se (Mustek_Scanner *s, int num_lines, int bpl,
       while ((s->ld.saved[color] > 0) && (lines[color] > 0)) 
 	{
 	  scale = 0;
-	  /* need to enlarge x-resolution? */
 	  if ((s->hw->flags & MUSTEK_FLAG_ENLARGE_X) && (res > half_res))
 	    {
-	      u_int8_t *ptr_start = ptr;
+	      /* Need to enlarge x-resolution */
+	      SANE_Byte *ptr_start = ptr;
 	      for (pixel = 0; pixel < s->params.pixels_per_line; ++pixel)
 		{
 		  *out_ptr[color] = *ptr;
@@ -3243,10 +3207,27 @@ fix_line_distance_se (Mustek_Scanner *s, int num_lines, int bpl,
 	    }
 	  else
 	    {
-	      for (pixel = 0; pixel < bpc; ++pixel)
+	      if (preview)
 		{
+		  for (pixel = 0; pixel < bpc; ++pixel)
+		    {
 		      *out_ptr[color] = *ptr++;
 		      out_ptr[color] += 3;
+		    }
+		}
+	      else
+		{
+		  for (pixel = 0; pixel < bpc; ++pixel)
+		    {
+		      scale += res;
+		      if (scale >= max_value)
+			{
+			  scale -= max_value;
+			  *out_ptr[color] = *ptr;
+			  out_ptr[color] += 3;
+			}
+		      ++ptr;	
+		    }			 
 		}			 
 	      DBG(5, "fix_line_distance_se: got saved line: %d; line: %d; "
 		  "color: %d\n",
@@ -3266,10 +3247,10 @@ fix_line_distance_se (Mustek_Scanner *s, int num_lines, int bpl,
       else
 	{
 	  s->ld.quant[s->ld.color] += res;
-	  if (s->ld.quant[s->ld.color] >= s->ld.max_value)
+	  if (s->ld.quant[s->ld.color] >= max_value)
 	    {
 	      /* This line must be processed, not dropped. */
-	      s->ld.quant[s->ld.color] -= s->ld.max_value;
+	      s->ld.quant[s->ld.color] -= max_value;
 
 	      if (lines[s->ld.color] > 0)
 		{
@@ -3280,7 +3261,7 @@ fix_line_distance_se (Mustek_Scanner *s, int num_lines, int bpl,
 		  if ((s->hw->flags & MUSTEK_FLAG_ENLARGE_X)
 		      && (res > half_res))
 		    {
-		      u_int8_t *raw_start = raw;
+		      SANE_Byte *raw_start = raw;
 		      for (pixel = 0; pixel < s->params.pixels_per_line;
 			   ++pixel)
 			{
@@ -3302,10 +3283,27 @@ fix_line_distance_se (Mustek_Scanner *s, int num_lines, int bpl,
 		    }
 		  else
 		    {
-		      for (pixel = 0; pixel < bpc; ++pixel)
+		      if (preview)
 			{
-			  *out_ptr[s->ld.color] = *raw++;
-			  out_ptr[s->ld.color] += 3;
+			  for (pixel = 0; pixel < bpc; ++pixel)
+			    {
+			      *out_ptr[s->ld.color] = *raw++;
+			      out_ptr[s->ld.color] += 3;
+			    }
+			}
+		      else
+			{
+			  for (pixel = 0; pixel < bpc; ++pixel)
+			    {
+			      scale += res;
+			      if (scale >= max_value)
+				{
+				  scale -= max_value;
+				  *out_ptr[s->ld.color] = *raw;
+				  out_ptr[s->ld.color] += 3;
+				}
+			      ++raw;				 
+			    }
 			}
 
 		      DBG(5, "fix_line_distance_se: got line: %d; color: "
@@ -3326,7 +3324,8 @@ fix_line_distance_se (Mustek_Scanner *s, int num_lines, int bpl,
 	    }
 	  else
 	    {
-	      /* raw += bpc;*/
+	      if (!preview)
+		raw += bpc;
 	      DBG(5, "fix_line_distance_se: ignored line; color: %d\n",
 		  s->ld.color);
 	    }
@@ -3338,11 +3337,13 @@ fix_line_distance_se (Mustek_Scanner *s, int num_lines, int bpl,
 	        num_lines = s->ld.ld_line;
 	      s->ld.ld_line -= num_lines;
 
-	      if (++s->ld.color > 2) s->ld.color = 0;
+	      if (++s->ld.color > 2) 
+		s->ld.color = 0;
 	      return num_lines; 
 	    }
 	}
-      if (++s->ld.color > 2) s->ld.color = 0;
+      if (++s->ld.color > 2) 
+	s->ld.color = 0;
     }
 }
 
@@ -3350,11 +3351,11 @@ fix_line_distance_se (Mustek_Scanner *s, int num_lines, int bpl,
 /* For Pro models. Not really a linedistance correction (they don't need one)
    only enlarging x-res here */
 static void
-fix_line_distance_pro (Mustek_Scanner *s, int num_lines, int bpl,
-		       u_int8_t *raw, u_int8_t *out)
+fix_line_distance_pro (Mustek_Scanner *s, SANE_Int num_lines, SANE_Int bpl,
+		       SANE_Byte *raw, SANE_Byte *out)
 {
-  u_int8_t *out_addr, *in_addr;
-  int res, half_res, y, x_out, x_in;
+  SANE_Byte *out_addr, *in_addr;
+  SANE_Int res, half_res, y, x_out, x_in;
 
   res = SANE_UNFIX (s->val[OPT_RESOLUTION].w);
   half_res = SANE_UNFIX (s->hw->dpi_range.max) / 2;
@@ -3387,12 +3388,12 @@ fix_line_distance_pro (Mustek_Scanner *s, int num_lines, int bpl,
 
 /* For MFS-08000SP, MFS-06000SP. MFC-08000CZ, MFC-06000CZ */
 static void
-fix_line_distance_normal (Mustek_Scanner *s, int num_lines, int bpl,
-			  u_int8_t *raw, u_int8_t *out)
+fix_line_distance_normal (Mustek_Scanner *s, SANE_Int num_lines, SANE_Int bpl,
+			  SANE_Byte *raw, SANE_Byte *out)
 {
-  u_int8_t *out_end, *out_ptr, *raw_end = raw + num_lines * bpl;
-  int index[3];	/* index of the next output line for color C */
-  int i, color;
+  SANE_Byte *out_end, *out_ptr, *raw_end = raw + num_lines * bpl;
+  SANE_Int index[3];	/* index of the next output line for color C */
+  SANE_Int i, color;
 
   /* Initialize the indices with the line distances that were returned
      by the CCD linedistance command or set manually (option
@@ -3435,12 +3436,12 @@ fix_line_distance_normal (Mustek_Scanner *s, int num_lines, int bpl,
 }
 
 /* Paragon series I + II. */
-static int
-fix_line_distance_block (Mustek_Scanner *s, int num_lines, int bpl,
-			 u_int8_t *raw, u_int8_t *out, int num_lines_total)
+static SANE_Int
+fix_line_distance_block (Mustek_Scanner *s, SANE_Int num_lines, SANE_Int bpl,
+			 SANE_Byte *raw, SANE_Byte *out, SANE_Int num_lines_total)
 {
-  u_int8_t *out_end, *out_ptr, *raw_end = raw + num_lines * bpl;
-  int c, num_saved_lines, line;
+  SANE_Byte *out_end, *out_ptr, *raw_end = raw + num_lines * bpl;
+  SANE_Int c, num_saved_lines, line;
   
   if (!s->ld.buf[0])
     {
@@ -3536,7 +3537,7 @@ fix_line_distance_block (Mustek_Scanner *s, int num_lines, int bpl,
 static SANE_Status
 init_options (Mustek_Scanner *s)
 {
-  int i, j, gammasize;
+  SANE_Int i, j, gammasize;
 
   memset (s->opt, 0, sizeof (s->opt));
   memset (s->val, 0, sizeof (s->val));
@@ -3600,7 +3601,7 @@ init_options (Mustek_Scanner *s)
   s->opt[OPT_RESOLUTION].unit = SANE_UNIT_DPI;
   s->opt[OPT_RESOLUTION].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_RESOLUTION].constraint.range = &s->hw->dpi_range;
-  s->val[OPT_RESOLUTION].w = MAX(SANE_FIX(18), s->hw->dpi_range.min);
+  s->val[OPT_RESOLUTION].w = MAX(SANE_FIX(72), s->hw->dpi_range.min);
 
   /* speed */
   s->opt[OPT_SPEED].name = SANE_NAME_SCAN_SPEED;
@@ -3649,12 +3650,14 @@ init_options (Mustek_Scanner *s)
   s->opt[OPT_PREVIEW].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
   s->val[OPT_PREVIEW].w = 0;
 
-  /* gray preview */
-  s->opt[OPT_GRAY_PREVIEW].name = SANE_NAME_GRAY_PREVIEW;
-  s->opt[OPT_GRAY_PREVIEW].title = SANE_TITLE_GRAY_PREVIEW;
-  s->opt[OPT_GRAY_PREVIEW].desc = SANE_DESC_GRAY_PREVIEW;
-  s->opt[OPT_GRAY_PREVIEW].type = SANE_TYPE_BOOL;
-  s->val[OPT_GRAY_PREVIEW].w = SANE_FALSE;
+  /* fast preview */
+  s->opt[OPT_FAST_PREVIEW].name = "fast-preview";
+  s->opt[OPT_FAST_PREVIEW].title = "Fast preview";
+  s->opt[OPT_FAST_PREVIEW].desc = "Request that all previews are done in "
+    "in the fastest (low-quality) mode. This may be a non-color mode or a "
+    "low resolution mode.";
+  s->opt[OPT_FAST_PREVIEW].type = SANE_TYPE_BOOL;
+  s->val[OPT_FAST_PREVIEW].w = SANE_FALSE;
 
   /* "Geometry" group: */
 
@@ -3931,11 +3934,11 @@ init_options (Mustek_Scanner *s)
 
 static void
 output_data (Mustek_Scanner *s, FILE *fp,
-	     SANE_Byte *data, int lines_per_buffer, int bpl,
+	     SANE_Byte *data, SANE_Int lines_per_buffer, SANE_Int bpl,
 	     SANE_Byte *extra)
 {
   SANE_Byte *ptr, *ptr_end;
-  int y, num_lines;
+  SANE_Int y, num_lines;
 
   DBG(5, "output_data: data=%p, lpb=%d, bpl=%d, extra=%p\n",
       data, lines_per_buffer, bpl, extra);
@@ -4000,8 +4003,8 @@ output_data (Mustek_Scanner *s, FILE *fp,
       if (strcmp (s->val[OPT_SOURCE].s, "Automatic Document Feeder") == 0)
 	{
 	  /* need to revert line direction */
-	  int line_number;
-	  int byte_number;
+	  SANE_Int line_number;
+	  SANE_Int byte_number;
 	  
 	  DBG(5, "output_data: ADF found, mirroring lines\n");
 	  for (line_number = 0; line_number < num_lines;
@@ -4027,18 +4030,18 @@ output_data (Mustek_Scanner *s, FILE *fp,
       if ((s->hw->flags & MUSTEK_FLAG_ENLARGE_X) && 
 	  (s->val[OPT_RESOLUTION].w > (s->hw->dpi_range.max / 2)))
 	{
-	  int x;
-	  int half_res = SANE_UNFIX (s->hw->dpi_range.max) / 2;
-	  int res = SANE_UNFIX (s->val[OPT_RESOLUTION].w);
-	  int res_counter;
-	  int enlarged_x;
+	  SANE_Int x;
+	  SANE_Int half_res = SANE_UNFIX (s->hw->dpi_range.max) / 2;
+	  SANE_Int res = SANE_UNFIX (s->val[OPT_RESOLUTION].w);
+	  SANE_Int res_counter;
+	  SANE_Int enlarged_x;
 	  
 	  DBG(5, "output_data: enlarge lines from %d bpl to %d bpl\n", 
 	      s->hw->bpl, s->params.bytes_per_line);
 
 	  for (y = 0; y < lines_per_buffer; y++)
 	    {
-	      unsigned char byte = 0;
+	      SANE_Byte byte = 0;
 
 	      x = 0;
 	      res_counter = 0;
@@ -4111,8 +4114,8 @@ output_data (Mustek_Scanner *s, FILE *fp,
 	  if (strcmp (s->val[OPT_SOURCE].s, "Automatic Document Feeder") == 0)
 	    {
 	      /* need to revert line direction */
-	      int line_number;
-	      int byte_number;
+	      SANE_Int line_number;
+	      SANE_Int byte_number;
 	      
 	      DBG(5, "output_data: ADF found, mirroring lines\n");
 	      for (line_number = 0; line_number < lines_per_buffer;
@@ -4142,24 +4145,24 @@ sigterm_handler (int signal)
   _exit (SANE_STATUS_GOOD);
 }
 
-static int
-reader_process (Mustek_Scanner *s, int fd)
+static SANE_Int
+reader_process (Mustek_Scanner *s, SANE_Int fd)
 {
-  int lines_per_buffer, bpl;
+  SANE_Int lines_per_buffer, bpl;
   SANE_Byte *extra = 0, *ptr;
   sigset_t sigterm_set;
   struct SIGACTION act;
   SANE_Status status;
   FILE *fp;
-  int buffernumber = 0;                                                         
-  int buffer_count, max_buffers;
+  SANE_Int buffernumber = 0;                                                         
+  SANE_Int buffer_count, max_buffers;
   struct  
     {
       void *id;	          /* scsi queue id */
       SANE_Byte *data;    /* data buffer */
-      int lines;          /* # lines in buffer */
+      SANE_Int lines;          /* # lines in buffer */
       size_t num_read;    /* # of bytes read (return value) */
-      int bank;           /* needed by SE models */
+      SANE_Int bank;           /* needed by SE models */
       SANE_Bool ready;    /* ready to send to application? */
       SANE_Bool finished; /* block is finished */                               
     } bstat [2];
@@ -4178,7 +4181,7 @@ reader_process (Mustek_Scanner *s, int fd)
     
   if (strip_height > 0.0) 
     {
-      int max_lines;
+      SANE_Int max_lines;
       double dpi;
 
       dpi = SANE_UNFIX (s->val[OPT_RESOLUTION].w);
@@ -4383,7 +4386,7 @@ reader_process (Mustek_Scanner *s, int fd)
 }
 
 static SANE_Status
-attach_one_device (const char *devname)
+attach_one_device (SANE_String_Const devname)
 {
   Mustek_Device *dev;
 
@@ -4417,9 +4420,9 @@ attach_one_device (const char *devname)
 SANE_Status
 sane_init (SANE_Int *version_code, SANE_Auth_Callback authorize)
 {
-  char line[PATH_MAX], *word, *end;
-  const char *cp;
-  int linenumber;
+  SANE_Char line[PATH_MAX], *word, *end;
+  SANE_String_Const cp;
+  SANE_Int linenumber;
   FILE *fp;
   
   DBG_INIT();
@@ -4711,7 +4714,7 @@ sane_get_devices (const SANE_Device ***device_list, SANE_Bool local_only)
 {
   static const SANE_Device **devlist = 0;
   Mustek_Device *dev;
-  int i;
+  SANE_Int i;
 
   DBG(4, "sane_get_devices: %d devices %s\n", num_devices, 
       local_only ? "(local only)" : "");
@@ -4906,7 +4909,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	{
 	  /* word options: */
 	case OPT_PREVIEW:
-	case OPT_GRAY_PREVIEW:
+	case OPT_FAST_PREVIEW:
 	case OPT_RESOLUTION:
 	case OPT_TL_X:
 	case OPT_TL_Y:
@@ -4973,7 +4976,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    *info |= SANE_INFO_RELOAD_PARAMS;
 	  /* fall through */
 	case OPT_PREVIEW:
-	case OPT_GRAY_PREVIEW:
+	case OPT_FAST_PREVIEW:
 	case OPT_BRIGHTNESS:
 	case OPT_BRIGHTNESS_R:
 	case OPT_BRIGHTNESS_G:
@@ -5016,7 +5019,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  s->val[OPT_CUSTOM_GAMMA].w = w;
 	  if (w)
 	    {
-	      const char *mode = s->val[OPT_MODE].s;
+	      SANE_String_Const mode = s->val[OPT_MODE].s;
 
 	      if ((strcmp (mode, "Gray") == 0) 
 		  || (strcmp (mode, "Gray fast") == 0))
@@ -5046,8 +5049,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	case OPT_MODE:
 	  {
-	    char *old_val = s->val[option].s;
-	    int halftoning, binary;
+	    SANE_Char *old_val = s->val[option].s;
+	    SANE_Int halftoning, binary;
 
 	    if (old_val)
 	      {
@@ -5199,7 +5202,7 @@ SANE_Status
 sane_get_parameters (SANE_Handle handle, SANE_Parameters *params)
 {
   Mustek_Scanner *s = handle;
-  const char *mode;
+  SANE_String_Const mode;
 
   if (!s)
     {
@@ -5279,7 +5282,10 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters *params)
 			  && s->params.format != SANE_FRAME_GREEN);
   if (params)
     *params = s->params;
-  DBG(5, "sane_get_parameters: lines = %d; ppl = %d; bpl = %d\n",
+  DBG(4, "sane_get_parameters: frame = %d; last_frame = %s; depth = %d\n",
+      s->params.format,  s->params.last_frame ? "true" : "false",  
+      s->params.depth);
+  DBG(4, "sane_get_parameters: lines = %d; ppl = %d; bpl = %d\n",
       s->params.lines, s->params.pixels_per_line, s->params.bytes_per_line);
 
   return SANE_STATUS_GOOD;
@@ -5308,7 +5314,7 @@ sane_start (SANE_Handle handle)
   if (s->fd < 0)
     {
       /* this is the first (and maybe only) pass... */
-      const char *mode;
+      SANE_String_Const mode;
       struct timeval start;
 
       /* save start time */
@@ -5329,21 +5335,47 @@ sane_start (SANE_Handle handle)
       else if (strcmp (mode, "Color 48 bit") == 0)
 	s->mode = MUSTEK_MODE_COLOR_48;
 
-      s->one_pass_color_scan = 0;
-      if ((s->mode & MUSTEK_MODE_COLOR) || (s->mode & MUSTEK_MODE_COLOR_48))
+      s->one_pass_color_scan = SANE_FALSE;
+      if (((s->mode & MUSTEK_MODE_COLOR) || (s->mode & MUSTEK_MODE_COLOR_48)) 
+	  && !(s->hw->flags & MUSTEK_FLAG_THREE_PASS))
 	{
-	  if (s->val[OPT_PREVIEW].w && s->val[OPT_GRAY_PREVIEW].w)
-	    {
-	      /* Force gray-scale mode when previewing.  */
-	      s->mode = MUSTEK_MODE_GRAY;
-	      s->params.format = SANE_FRAME_GRAY;
-	      s->params.bytes_per_line = s->params.pixels_per_line;
-	      s->params.last_frame = SANE_TRUE;
-	    }
-	  else if (!(s->hw->flags & MUSTEK_FLAG_THREE_PASS))
-	    s->one_pass_color_scan = 1;
+	  s->one_pass_color_scan = SANE_TRUE;
 	}
+       
       s->resolution_code = encode_resolution (s);
+
+      if (s->val[OPT_PREVIEW].w && s->val[OPT_FAST_PREVIEW].w)
+	{
+	  if (s->hw->flags & MUSTEK_FLAG_THREE_PASS)
+	    {
+	      if (s->mode & MUSTEK_MODE_COLOR)
+		{
+		  /* Force gray-scale mode when previewing.  */
+		  s->mode = MUSTEK_MODE_GRAY;
+		  s->params.format = SANE_FRAME_GRAY;
+		  s->params.bytes_per_line = s->params.pixels_per_line;
+		  s->params.last_frame = SANE_TRUE;
+		}
+	    }
+	  else if (s->hw->flags & MUSTEK_FLAG_SE)
+	    {
+	      /* use 36 dpi color in any case */
+	      s->mode = MUSTEK_MODE_COLOR;
+	      s->params.format = SANE_FRAME_RGB;
+	      s->params.depth = 8;
+	      s->one_pass_color_scan = SANE_TRUE;
+	      s->resolution_code = 36;
+	    }
+#if 0
+	  else if (s->hw->flags & MUSTEK_FLAG_PARAGON_1)
+	    {
+	      /* use 36 dpi */
+	      s->resolution_code = 36;
+	    }
+#endif
+	  DBG(4, "sane_start: use fast preview (res=%d dpi)\n", 
+	      s->resolution_code);
+	}
 
       status = dev_open (s->hw->sane.name, s, sense_handler);
       if (status != SANE_STATUS_GOOD)
@@ -5523,7 +5555,7 @@ sane_start (SANE_Handle handle)
   s->reader_pid = fork ();
   if (s->reader_pid == 0)
     {
-      int status;
+      SANE_Int status;
       sigset_t ignore_set;
       struct SIGACTION act;
 

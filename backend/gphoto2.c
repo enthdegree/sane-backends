@@ -5,7 +5,7 @@
  * which happens to be the only camera I  have.  I'm very interested 
  * in learning what it would take to support more cameras.  In 
  * particular, the current incarnation will only support cameras
- * the generate jpeg files.
+ * that directly generate jpeg files.
  *  
  * However, having said that, I've already found it to be quite useful
  * even in its current form - one reason is that gphoto2 provides access
@@ -323,7 +323,7 @@ static SANE_Char cmdbuf[256];
 static CameraAbilities *abilities;
 static CameraFile *data_file;
 static const char *data_ptr;
-static long data_size, data_cur;
+static long data_file_total_size, data_file_current_index;
 
 #include <sys/time.h>
 #include <unistd.h>
@@ -334,7 +334,7 @@ static long data_size, data_cur;
 static SANE_Int
 init_gphoto2 (void)
 {
-  SANE_Int n, entries;
+  SANE_Int n;
   CameraList *list;
 
   DBG (1, "GPHOTO2 Backend 05/16/01\n");
@@ -745,8 +745,8 @@ sane_exit (void)
 static const SANE_Device dev[] = {
   {
    "0",
-   "Kodak",
-   "DC-240",
+   "Gphoto2",
+   "Supported",
    "still camera"},
 };
 
@@ -1100,17 +1100,17 @@ METHODDEF (boolean) jpeg_fill_input_buffer (j_decompress_ptr cinfo)
 
   my_src_ptr src = (my_src_ptr) cinfo->src;
 
-  if (data_cur + 512 > data_size)
+  if (data_file_current_index + 512 > data_file_total_size)
     {
-      n = data_size - data_cur;
+      n = data_file_total_size - data_file_current_index;
     }
   else
     {
       n = 512;
     }
 
-  memcpy (src->buffer, data_ptr + data_cur, n);
-  data_cur += n;
+  memcpy (src->buffer, data_ptr + data_file_current_index, n);
+  data_file_current_index += n;
 
   src->pub.next_input_byte = src->buffer;
   src->pub.bytes_in_buffer = n;
@@ -1147,10 +1147,7 @@ jpeg_term_source (j_decompress_ptr UNUSEDARG cinfo)
 SANE_Status
 sane_start (SANE_Handle handle)
 {
-  my_src_ptr src;
   SANE_String_Const filename, mime_type;
-  struct jpeg_error_mgr jerr;
-  SANE_Int row_stride;
 
   DBG (127, "sane_start called\n");
   if (handle != MAGIC || !is_open ||
@@ -1208,41 +1205,10 @@ sane_start (SANE_Handle handle)
       exit (1);
     }
 
-  CHECK_RET (gp_file_get_data_and_size (data_file, &data_ptr, &data_size));
+  CHECK_RET (gp_file_get_data_and_size
+	     (data_file, &data_ptr, &data_file_total_size));
 
-  data_cur = 0;
-
-  cinfo.err = jpeg_std_error (&jerr);
-  jpeg_create_decompress (&cinfo);
-
-  cinfo.src =
-    (struct jpeg_source_mgr *) (*cinfo.mem->
-				alloc_small) ((j_common_ptr) & cinfo,
-					      JPOOL_PERMANENT,
-					      sizeof (my_source_mgr));
-  src = (my_src_ptr) cinfo.src;
-
-  src->buffer = (JOCTET *) (*cinfo.mem->alloc_small) ((j_common_ptr) &
-						      cinfo,
-						      JPOOL_PERMANENT,
-						      1024 * sizeof (JOCTET));
-  src->pub.init_source = jpeg_init_source;
-  src->pub.fill_input_buffer = jpeg_fill_input_buffer;
-  src->pub.skip_input_data = jpeg_skip_input_data;
-  src->pub.resync_to_restart = jpeg_resync_to_restart;	/* default */
-  src->pub.term_source = jpeg_term_source;
-  src->pub.bytes_in_buffer = 0;
-  src->pub.next_input_byte = NULL;
-
-  (void) jpeg_read_header (&cinfo, TRUE);
-  dest_mgr = sanei_jpeg_jinit_write_ppm (&cinfo);
-  (void) jpeg_start_decompress (&cinfo);
-
-  row_stride = cinfo.output_width * cinfo.output_components;
-
-  parms.bytes_per_line = cinfo.output_width * 3;	/* 3 colors */
-  parms.pixels_per_line = cinfo.output_width;
-  parms.lines = cinfo.output_height;
+  converter_init ();
 
   /* Check if a linebuffer has been allocated.  Assumes that highres_width
    * is also large enough to hold a lowres or thumbnail image 
@@ -1268,11 +1234,6 @@ SANE_Status
 sane_read (SANE_Handle UNUSEDARG handle, SANE_Byte * data,
 	   SANE_Int max_length, SANE_Int * length)
 {
-  SANE_Int lines = 0;
-  SANE_String_Const filename;
-  CameraList *tmp_list;
-  SANE_Int i;
-
   /* If there is anything in the buffer, satisfy the read from there */
   if (linebuffer_size && linebuffer_index < linebuffer_size)
     {
@@ -1288,94 +1249,16 @@ sane_read (SANE_Handle UNUSEDARG handle, SANE_Byte * data,
       return SANE_STATUS_GOOD;
     }
 
-  if (cinfo.output_scanline >= cinfo.output_height)
+  if (converter_scan_complete ())
     {
-      gp_file_unref (data_file);
-
-      if (gphoto2_opt_erase)
+      SANE_Status retval = converter_do_scan_complete_cleanup ();
+      if (retval != SANE_STATUS_GOOD)
 	{
-	  DBG (127, "sane_read bp%d, erase image\n", __LINE__);
-	  if (erase () == -1)
-	    {
-	      DBG (1, "Failed to erase memory\n");
-	      return SANE_STATUS_INVAL;
-	    }
-
-
-	  sprintf (cmdbuf, "%s/%s", (char *) TopFolder,
-		   (const char *) folder_list[current_folder]);
-	  CHECK_RET (gp_list_get_name
-		     (dir_list, Cam_data.current_picture_number - 1,
-		      &filename));
-
-	  Cam_data.pic_taken--;
-	  Cam_data.pic_left++;
-	  if ( Cam_data.current_picture_number > Cam_data.pic_taken ) {
-		  Cam_data.current_picture_number = Cam_data.pic_taken;
-	  }
-	  image_range.max--;
-	  if (image_range.max == 0)
-	    {
-	      sod[GPHOTO2_OPT_IMAGE_NUMBER].cap |= SANE_CAP_INACTIVE;
-	    }
-	  myinfo |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
-
-	  /* Too bad we don't have an API function for deleting a
-	   * list item.  Instead, we copy all the entries in the
-	   * current list, skipping over the deleted entry, and then
-	   * replace the current list with the new list.
-	   */
-	  gp_list_new (&tmp_list);
-
-	  for (i = 0; i < gp_list_count (dir_list); i++)
-	    {
-	      SANE_String_Const tfilename;
-
-	      CHECK_RET (gp_list_get_name (dir_list, i, &tfilename));
-	      /* If not the one to delete, copy to the new list */
-	      if (strcmp (tfilename, filename) != 0)
-		{
-		  CHECK_RET (gp_list_append (tmp_list, tfilename, NULL));
-		}
-	    }
-	  gp_list_free (dir_list);
-	  dir_list = tmp_list;
-
+	  return retval;
 	}
-      if (gphoto2_opt_autoinc)
-	{
-	  if (Cam_data.current_picture_number <= Cam_data.pic_taken)
-	    {
-	      Cam_data.current_picture_number++;
-
-	      myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
-
-	      /* get the image's resolution */
-/* OLD:
-	      set_res (Cam_data.Pictures[Cam_data.current_picture_number - 1].
-		       low_res);
-*/
-	      set_res (gphoto2_opt_lowres);
-	    }
-	  DBG (4, "Increment count to %d (total %d)\n",
-	       Cam_data.current_picture_number, Cam_data.pic_taken);
-	}
-      return SANE_STATUS_EOF;
     }
 
-/* 
- * FIXME:  Current implementation reads one scan line at a time.  Part
- * of the reason for this is in the original code is to give the frontend 
- * a chance to update  * the progress marker periodically.  Since the gphoto2
- * driver sucks in the whole image before decoding it, perhaps we could
- * come up with a simpler implementation.
- */
-
-  lines = 1;
-  (void) jpeg_read_scanlines (&cinfo, dest_mgr->buffer, lines);
-  (*dest_mgr->put_pixel_rows) (&cinfo, dest_mgr, lines, (char *) linebuffer);
-
-  *length = cinfo.output_width * cinfo.output_components * lines;
+  *length = converter_fill_buffer ();
   linebuffer_size = *length;
   linebuffer_index = 0;
 
@@ -1425,7 +1308,9 @@ sane_get_select_fd (SANE_Handle UNUSEDARG handle, SANE_Int * UNUSEDARG fd)
 /*
  * get_pictures_info - load information about all pictures currently in
  *			camera:  Mainly the mapping of picture number
- *			to picture name, and the resolution of each picture.
+ *			to picture name.  We'ld like to get other
+ *			information such as image size, but the API 
+ *			doesn't provide any support for that.
  */
 static PictureInfo *
 get_pictures_info (void)
@@ -1479,7 +1364,8 @@ get_pictures_info (void)
 }
 
 /*
- * sane_picture_info() - get info about picture p
+ * sane_picture_info() - get info about picture p.  Currently we have no
+ *	way to get information about a picture beyond it's name.
  */
 static SANE_Int
 get_picture_info (PictureInfo * pic, SANE_Int p)
@@ -1587,6 +1473,8 @@ read_dir (SANE_String dir, SANE_Bool read_files)
 
 /*
  * read_info - read the info block from camera for the specified file
+ *	NOT YET SUPPORTED - If it were we could use it to do things 
+ *	like update the image size parameters displayed by the GUI
  */
 static SANE_Int
 read_info (SANE_String_Const fname)
@@ -1621,4 +1509,180 @@ set_res (SANE_Int lowres)
       parms.pixels_per_line = HIGHRES_WIDTH;
       parms.lines = HIGHRES_HEIGHT;
     }
+}
+
+/*
+ * converter_do_scan_complete_cleanup - do everything that needs to be 
+ *      once a "scan" has been completed:  Unref the file, Erase the image, 
+ *      and increment image number to point to next picture.
+ */
+static SANE_Status
+converter_do_scan_complete_cleanup (void)
+{
+  CameraList *tmp_list;
+  SANE_Int i;
+  SANE_String_Const filename;
+
+  gp_file_unref (data_file);
+
+  if (gphoto2_opt_erase)
+    {
+      DBG (127, "sane_read bp%d, erase image\n", __LINE__);
+      if (erase () == -1)
+	{
+	  DBG (1, "Failed to erase memory\n");
+	  return SANE_STATUS_INVAL;
+	}
+
+
+      sprintf (cmdbuf, "%s/%s", (char *) TopFolder,
+	       (const char *) folder_list[current_folder]);
+      CHECK_RET (gp_list_get_name
+		 (dir_list, Cam_data.current_picture_number - 1, &filename));
+
+      Cam_data.pic_taken--;
+      Cam_data.pic_left++;
+      if (Cam_data.current_picture_number > Cam_data.pic_taken)
+	{
+	  Cam_data.current_picture_number = Cam_data.pic_taken;
+	}
+      image_range.max--;
+      if (image_range.max == 0)
+	{
+	  sod[GPHOTO2_OPT_IMAGE_NUMBER].cap |= SANE_CAP_INACTIVE;
+	}
+      myinfo |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
+
+      /* Too bad we don't have an API function for deleting a
+       * list item.  Instead, we copy all the entries in the
+       * current list, skipping over the deleted entry, and then
+       * replace the current list with the new list.
+       */
+      gp_list_new (&tmp_list);
+
+      for (i = 0; i < gp_list_count (dir_list); i++)
+	{
+	  SANE_String_Const tfilename;
+
+	  CHECK_RET (gp_list_get_name (dir_list, i, &tfilename));
+	  /* If not the one to delete, copy to the new list */
+	  if (strcmp (tfilename, filename) != 0)
+	    {
+	      CHECK_RET (gp_list_append (tmp_list, tfilename, NULL));
+	    }
+	}
+      gp_list_free (dir_list);
+      dir_list = tmp_list;
+
+    }
+  if (gphoto2_opt_autoinc)
+    {
+      if (Cam_data.current_picture_number <= Cam_data.pic_taken)
+	{
+	  Cam_data.current_picture_number++;
+
+	  myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+
+	  /* get the image's resolution */
+/* OLD:
+	      set_res (Cam_data.Pictures[Cam_data.current_picture_number - 1].
+		       low_res);
+*/
+	  set_res (gphoto2_opt_lowres);
+	}
+      DBG (4, "Increment count to %d (total %d)\n",
+	   Cam_data.current_picture_number, Cam_data.pic_taken);
+    }
+  return SANE_STATUS_EOF;
+}
+
+/*
+ * converter_fill_buffer - Fill line buffer with next input line from image.  
+ * 	Currently assumes jpeg, but this is where we would put the switch 
+ * 	to handle other image types.
+ */
+static SANE_Int
+converter_fill_buffer (void)
+{
+
+/* 
+ * FIXME:  Current implementation reads one scan line at a time.  Part
+ * of the reason for this is in the original code is to give the frontend 
+ * a chance to update  * the progress marker periodically.  Since the gphoto2
+ * driver sucks in the whole image before decoding it, perhaps we could
+ * come up with a simpler implementation.
+ */
+
+  SANE_Int lines = 1;
+
+  (void) jpeg_read_scanlines (&cinfo, dest_mgr->buffer, lines);
+  (*dest_mgr->put_pixel_rows) (&cinfo, dest_mgr, lines, (char *) linebuffer);
+
+  return cinfo.output_width * cinfo.output_components * lines;
+}
+
+/*
+ * converter_scan_complete  - Check if all the data for the image has been read. 
+ *	Currently assumes jpeg, but this is where we would put the 
+ *	switch to handle other image types.
+ */
+static SANE_Bool
+converter_scan_complete (void)
+{
+  if (cinfo.output_scanline >= cinfo.output_height)
+    {
+      return SANE_TRUE;
+    }
+  else
+    {
+      return SANE_FALSE;
+    }
+}
+
+/*
+ * converter_init  - Initialize image conversion data.
+ *	Currently assumes jpeg, but this is where we would put the 
+ *	switch to handle other image types.
+ */
+static void
+converter_init (void)
+{
+  SANE_Int row_stride;
+  struct jpeg_error_mgr jerr;
+  my_src_ptr src;
+
+  data_file_current_index = 0;
+
+  cinfo.err = jpeg_std_error (&jerr);
+  jpeg_create_decompress (&cinfo);
+
+  cinfo.src =
+    (struct jpeg_source_mgr *) (*cinfo.mem->
+				alloc_small) ((j_common_ptr) & cinfo,
+					      JPOOL_PERMANENT,
+					      sizeof (my_source_mgr));
+  src = (my_src_ptr) cinfo.src;
+
+  src->buffer = (JOCTET *) (*cinfo.mem->alloc_small) ((j_common_ptr) &
+						      cinfo,
+						      JPOOL_PERMANENT,
+						      1024 * sizeof (JOCTET));
+  src->pub.init_source = jpeg_init_source;
+  src->pub.fill_input_buffer = jpeg_fill_input_buffer;
+  src->pub.skip_input_data = jpeg_skip_input_data;
+  src->pub.resync_to_restart = jpeg_resync_to_restart;	/* default */
+  src->pub.term_source = jpeg_term_source;
+  src->pub.bytes_in_buffer = 0;
+  src->pub.next_input_byte = NULL;
+
+  (void) jpeg_read_header (&cinfo, TRUE);
+  dest_mgr = sanei_jpeg_jinit_write_ppm (&cinfo);
+  (void) jpeg_start_decompress (&cinfo);
+
+  row_stride = cinfo.output_width * cinfo.output_components;
+
+  parms.bytes_per_line = cinfo.output_width * 3;	/* 3 colors */
+  parms.pixels_per_line = cinfo.output_width;
+  parms.lines = cinfo.output_height;
+
 }

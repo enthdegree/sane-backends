@@ -1,3 +1,11 @@
+2004-04-09  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan-usb.c backend/snapscan-mutex.c
+	  backend/Makefile.in: Use own file for mutex implementation
+	  to allow for easier porting to other platforms
+	  backend/snapscan-sources.c backend/snapscan.c:
+	  Bugfixes for pthread implementation
+
 2004-04-08  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan.c backend/snapscan-sources.c 

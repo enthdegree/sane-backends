@@ -182,17 +182,7 @@ static SANE_Status SCSISource_get (Source *pself,
         DBG (DL_DATA_TRACE, "%s: ndata %d; remaining %d\n", me, ndata, remaining);
         if (ndata == 0)
         {
-            ps->pss->expected_read_bytes = ps->absolute_max;
-/*
-                SANE_Int lines;
-
-                if (is_colour_mode(actual_mode(ps->pss)) == SANE_TRUE)
-                    lines = ps->pss->rgb_lpr;
-                else
-                    lines = ps->pss->gs_lpr;
-                ps->pss->expected_read_bytes = lines * ps->pss->bytes_per_line;
-*/
-            ps->pss->expected_read_bytes = MIN(ps->pss->expected_read_bytes,
+            ps->pss->expected_read_bytes = MIN((size_t)ps->absolute_max,
                                            ps->pss->bytes_remaining);
             ps->scsi_buf_pos = 0;
             ps->scsi_buf_max = 0;
@@ -247,11 +237,13 @@ typedef struct
 {
     SOURCE_GUTS;
     int fd;
+    SANE_Int bytes_remaining;
 } FDSource;
 
 static SANE_Int FDSource_remaining (Source *pself)
 {
-    return pself->pss->bytes_remaining;
+    FDSource *ps = (FDSource *) pself;    
+    return ps->bytes_remaining;
 }
 
 static SANE_Status FDSource_get (Source *pself, SANE_Byte *pbuf, SANE_Int *plen)
@@ -283,7 +275,7 @@ static SANE_Status FDSource_get (Source *pself, SANE_Byte *pbuf, SANE_Int *plen)
             DBG(DL_DATA_TRACE, "%s: EOF\n",__FUNCTION__);
             break;
         }
-        ps->pss->bytes_remaining -= bytes_read;
+        ps->bytes_remaining -= bytes_read;
         remaining -= bytes_read;
         pbuf += bytes_read;
     }
@@ -309,7 +301,10 @@ static SANE_Status FDSource_init (FDSource *pself,
                                       FDSource_get,
                                       FDSource_done);
     if (status == SANE_STATUS_GOOD)
+    {
         pself->fd = fd;
+        pself->bytes_remaining = pss->bytes_remaining;
+    }
     return status;
 }
 
@@ -967,6 +962,9 @@ static SANE_Status create_source_chain (SnapScan_Scanner *pss,
 
 /*
  * $Log$
+ * Revision 1.8  2004/04/09 11:59:02  oliver-guest
+ * Fixes for pthread implementation
+ *
  * Revision 1.7  2004/04/08 21:53:10  oliver-guest
  * Use sanei_thread in snapscan backend
  *

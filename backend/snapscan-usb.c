@@ -71,29 +71,12 @@
 /* $Id$
    SnapScan backend scan data sources */
 
-#include <sys/ipc.h>
-#include <sys/sem.h>
-
 #include "snapscan-usb.h"
-
-/* check for union semun */
-#if defined(HAVE_UNION_SEMUN)
-/* union semun is defined by including <sys/sem.h> */
-#else
-/* according to X/OPEN we have to define it ourselves */
-union semun {
-   int val;                    /* value for SETVAL */
-   struct semid_ds *buf;       /* buffer for IPC_STAT, IPC_SET */
-   unsigned short int *array;  /* array for GETALL, SETALL */
-   struct seminfo *__buf;      /* buffer for IPC_INFO */
-};
-#endif
+#include "snapscan-mutex.c"
 
 /* Global variables */
 
-static int sem_id;
-static struct sembuf sem_wait = { 0, -1, 0 };
-static struct sembuf sem_signal = { 0, 1, 0 };
+static snapscan_mutex_t sem_id;
 static sense_handler_type usb_sense_handler;
 static void* usb_pss;
 static unsigned long read_urbs = 0;
@@ -151,11 +134,11 @@ static SANE_Status atomic_usb_cmd(int fd, const void *src, size_t src_size,
     sigprocmask(SIG_BLOCK, &all, &oldset);
 
     /* Make sure we are alone */
-    semop(sem_id, &sem_wait, 1);
+    snapscani_mutex_lock(&sem_id);
 
     status = usb_cmd(fd,src,src_size,dst,dst_size);
 
-    semop(sem_id, &sem_signal, 1);
+    snapscani_mutex_unlock(&sem_id);
 
     /* Now it is ok to be killed */
     sigprocmask(SIG_SETMASK, &oldset, NULL);
@@ -171,11 +154,10 @@ static SANE_Status snapscani_usb_open(const char *dev, int *fdp,
 
     DBG (DL_CALL_TRACE, "%s(%s)\n", me, dev);
 
-    if((sem_id = semget( ftok(dev,0x12), 1, IPC_CREAT | 0660 )) == -1) {
+    if(!snapscani_mutex_open(&sem_id, dev)) {
         DBG (DL_MAJOR_ERROR, "%s: Can't get semaphore\n", me);
         return SANE_STATUS_INVAL;
     }
-    semop(sem_id, &sem_signal, 1);
     usb_sense_handler=sense_handler;
     usb_pss = pss;
     read_urbs = 0;
@@ -186,7 +168,6 @@ static SANE_Status snapscani_usb_open(const char *dev, int *fdp,
 
 static void snapscani_usb_close(int fd) {
     static const char me[] = "snapscani_usb_close";
-    static union semun dummy_semun_arg;
 
     DBG (DL_CALL_TRACE, "%s(%d)\n", me, fd);
     DBG (DL_DATA_TRACE,"1st read %ld write %ld\n", read_urbs, write_urbs);
@@ -219,10 +200,9 @@ static void snapscani_usb_close(int fd) {
     DBG (DL_DATA_TRACE,"2nd read %ld write %ld\n", read_urbs, write_urbs);
     read_urbs = 0;
     write_urbs = 0;
-    semctl(sem_id, 0, IPC_RMID, dummy_semun_arg);
+    snapscani_mutex_close(&sem_id);
     sanei_usb_close(fd);
 }
-
 
 static int usb_cmdlen(int cmd)
 {
@@ -493,6 +473,9 @@ static SANE_Status usb_request_sense(SnapScan_Scanner *pss) {
 
 /*
  * $Log$
+ * Revision 1.15  2004/04/09 11:59:02  oliver-guest
+ * Fixes for pthread implementation
+ *
  * Revision 1.14  2004/04/08 22:48:13  oliver-guest
  * Use URB counting in snapscan-usb.c (thanks to Jose Alberto Reguero)
  *

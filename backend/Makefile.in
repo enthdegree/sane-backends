@@ -135,7 +135,7 @@ DISTFILES = abaton.c abaton.conf abaton.h agfafocus.c agfafocus.conf \
   sceptre.c sceptre.conf sceptre.h sharp.c sharp.conf sharp.h sm3600.c \
   sm3600-color.c sm3600-gray.c sm3600.h sm3600-homerun.c sm3600-scanmtek.c \
   sm3600-scantool.h sm3600-scanusb.c sm3600-scanutil.c snapscan.c \
-  snapscan.conf snapscan.h snapscan-scsi.c snapscan-sources.c \
+  snapscan.conf snapscan.h snapscan-scsi.c snapscan-sources.c snapscan-mutex.c \
   snapscan-sources.h snapscan-usb.c snapscan-usb.h snapscan-options.c sp15c.c \
   sp15c.conf sp15c.h sp15c-scsi.h st400.c st400.conf st400.h stubs.c \
   tamarack.c tamarack.conf tamarack.h teco1.c teco1.h teco1.conf \

@@ -79,9 +79,11 @@
 
 #define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
-#define BUILD               36
+#define BUILD               37
 
 #define BACKEND_NAME snapscan
+
+#define UNUSEDARG __attribute__ ((unused))
 
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/saneopts.h"
@@ -1138,9 +1140,8 @@ static RETSIGTYPE usb_reader_process_sigterm_handler( int signo )
     cancelRead = SANE_TRUE;
 }
 
-static RETSIGTYPE sigalarm_handler( int signo )
+static RETSIGTYPE sigalarm_handler( int signo UNUSEDARG)
 {
-    signo=signo;
     DBG( DL_INFO, "ALARM!!!\n" );
 }
 
@@ -1715,8 +1716,6 @@ void sane_cancel (SANE_Handle h)
         {
             DBG( DL_INFO, ">>>>>>>> killing reader_process <<<<<<<<\n" );
 
-            cancelRead = SANE_TRUE;
-
             sigemptyset(&(act.sa_mask));
             act.sa_flags = 0;
 
@@ -1728,14 +1727,18 @@ void sane_cancel (SANE_Handle h)
                 /* use SIGUSR1 to set cancelRead in child process */
                 sanei_thread_sendsig( pss->child, SIGUSR1 );
             }
-
+            else
+            {
+                cancelRead = SANE_TRUE;
+            }
+               
             /* give'em 10 seconds 'til done...*/
             alarm(10);
             res = sanei_thread_waitpid( pss->child, 0 );
             alarm(0);
 
             if( res != pss->child ) {
-                DBG( DL_MAJOR_ERROR,"sanei_thread_waitpid() failed !\n");
+                DBG( DL_MINOR_ERROR,"sanei_thread_waitpid() failed !\n");
 
                 /* do it the hard way...*/
 #ifdef USE_PTHREAD
@@ -1818,6 +1821,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.40  2004/04/09 11:59:02  oliver-guest
+ * Fixes for pthread implementation
+ *
  * Revision 1.39  2004/04/08 21:53:10  oliver-guest
  * Use sanei_thread in snapscan backend
  *

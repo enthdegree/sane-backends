@@ -142,7 +142,8 @@ UMAX_Cmd;
 typedef enum
 {
   ASTRA_1220U = 0x0010,
-  ASTRA_2000U = 0x0030
+  ASTRA_2000U = 0x0030,
+  ASTRA_2100U = 0x0130
 }
 UMAX_Model;
 
@@ -1654,6 +1655,14 @@ UMAX_open_device (UMAX_Handle * scan, const char *dev)
            "UMAX_open_device: Scanner is a 2000U. Expect color problems :)\n");
       scan->model = ASTRA_2000U;
       break;
+     case ASTRA_2100U:
+      /* The UMAX Astra 2100U is only partially supported by
+         this driver. Expect severe color problems! :) [???]
+       */
+      DBG (1,
+           "UMAX_open_device: Scanner is a 2100U. Expect color problems :)\n");
+      scan->model = ASTRA_2100U;
+      break;
     case ASTRA_1220U:
       scan->model = ASTRA_1220U;
       break;
@@ -1687,6 +1696,8 @@ UMAX_get_device_name (UMAX_Handle * scan)
       return "Astra 1220U";
     case ASTRA_2000U:
       return "Astra 2000U";
+    case ASTRA_2100U:
+      return "Astra 2100U";
     }
   return "Unknown";
 }

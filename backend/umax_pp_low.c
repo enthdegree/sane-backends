@@ -7812,7 +7812,7 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
     0x41, 0xA0, 0x0A, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x33, 0x1A, 0x00,
     -1
   };
-#define UMAX_PP_DANGEROUS_EXPERIMENT 666
+
 #ifdef UMAX_PP_DANGEROUS_EXPERIMENT
   FILE *f = NULL;
   char line[1024], *ptr;

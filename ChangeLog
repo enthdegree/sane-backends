@@ -1,3 +1,7 @@
+2002-11-07   Stéphane Voltz  <svoltz@wanadoo.fr>
+
+	* backend/umax_pp_low.c: disable test facility
+	  
 2002-11-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* TODO: Added manpage issues and hpsj5s freeze problem. Removed canon.c

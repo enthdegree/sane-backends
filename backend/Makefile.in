@@ -60,10 +60,11 @@ DISTCLEAN_FILES = @DISTCLEAN_FILES@
 @SET_MAKE@
 
 PRELOADABLE_BACKENDS = abaton agfafocus apple artec as6e avision bh canon \
-        @CANON_PP@ coolscan dc25 @DC210@ @DC240@ dmc epson @GPHOTO2@ hp \
-	m3096g matsushita microtek microtek2 mustek mustek_pp mustek_usb nec \
-	@NET@ pie @PINT@ plustek @PNM@ @QCAM@ ricoh s9036 sceptre sharp \
-	@SM3600@ @SNAPSCAN@ sp15c st400 tamarack umax umax_pp umax1220u @V4L@
+        canon630u @CANON_PP@ coolscan dc25 @DC210@ @DC240@ dmc epson \
+        @GPHOTO2@ hp m3096g matsushita microtek microtek2 mustek mustek_pp \
+        mustek_usb nec @NET@ pie @PINT@ plustek @PNM@ @QCAM@ ricoh s9036 \
+        sceptre sharp @SM3600@ @SNAPSCAN@ sp15c st400 tamarack umax umax_pp \
+        umax1220u @V4L@
 ALL_BACKENDS = $(PRELOADABLE_BACKENDS) dll
 
 LIBS = $(addprefix libsane-,$(addsuffix .la,$(ALL_BACKENDS)))
@@ -78,10 +79,10 @@ LIBOBJS = $(addprefix ../lib/,$(addsuffix .lo,$(LIBLIB_FUNCS)))
 DISTFILES = abaton.c abaton.conf abaton.h agfafocus.c agfafocus.conf \
   agfafocus.h apple.c apple.conf apple.h artec.c artec.conf artec.h as6e.c \
   as6e.h avision.c avision.conf avision.h bh.c bh.conf bh.h canon.c \
-  canon.conf canon.h canon-sane.c canon-scsi.c cderror.h cdjpeg.h coolscan.c \
-  canon_pp.conf canon_pp.h canon_pp.c canon_pp-dev.c canon_pp-dev.h \
-  canon_pp-io.c canon_pp-io.h \
-  coolscan.conf coolscan.h coolscan-scsidef.h CVS dc210.c dc210.conf dc210.h \
+  canon.conf canon.h canon-sane.c canon-scsi.c canon630u.c canon630u-common.c \
+  canon630u.conf canon_pp.conf canon_pp.h canon_pp.c canon_pp-dev.c \
+  canon_pp-dev.h canon_pp-io.c canon_pp-io.h cderror.h cdjpeg.h coolscan.c \
+  coolscan.conf coolscan.h coolscan-scsidef.h dc210.c dc210.conf dc210.h \
   dc240.c dc240.conf dc240.h dc25.c dc25.conf dc25.h djpeg.c djpeg.README \
   dll.aliases dll.c dll.conf dmc.c dmc.conf dmc.h epson.c epson.conf epson.h \
   gphoto2.c gphoto2.conf gphoto2.h hp-accessor.c hp-accessor.h hp.c hp.conf \
@@ -244,6 +245,8 @@ libsane-bh.la: ../sanei/sanei_scsi.lo
 libsane-canon.la: ../sanei/sanei_config2.lo
 libsane-canon.la: ../sanei/sanei_constrain_value.lo
 libsane-canon.la: ../sanei/sanei_scsi.lo
+libsane-canon630u.la: ../sanei/sanei_constrain_value.lo
+libsane-canon630u.la: ../sanei/sanei_usb.lo
 libsane-canon_pp.la: ../sanei/sanei_config2.lo
 libsane-canon_pp.la: $(addsuffix .lo,$(EXTRA_canon_pp))
 libsane-coolscan.la: ../sanei/sanei_config2.lo

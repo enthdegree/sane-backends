@@ -129,6 +129,7 @@ struct ctrlmsg_ioctl
 cmsg;
 #endif /* __linux__ */
 
+static SANE_Bool inited = SANE_FALSE;
 
 static void
 kernel_get_vendor_product (int fd, int *vendorID, int *productID)
@@ -173,6 +174,11 @@ sanei_usb_init (void)
   struct usb_device *dev;
 #endif /* HAVE_LIBUSB */
 
+  if (inited)
+    return SANE_STATUS_GOOD;
+
+  inited = SANE_TRUE;
+
   DBG_INIT ();
   memset (devices, 0, sizeof (devices));
 
@@ -213,7 +219,7 @@ sanei_usb_init (void)
 	      fd = open (devname, O_RDWR);
 	      if (fd < 0)
 		{
-		  DBG(5, "sanei_usb_init: couldn't open %s: %s\n", devname,
+		  DBG (5, "sanei_usb_init: couldn't open %s: %s\n", devname,
 		      strerror (errno));
 		  continue;
 		}

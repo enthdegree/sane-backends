@@ -9,6 +9,7 @@
 	  in sane_init to avoid segmentation faults when sane_init/sane_exit is
 	  run more than once.
 	* doc/descriptions-external/ibm.desc: Add Ricoh IS-420.
+	* sanei/sanei_usb.c: Call sanei_usb_init only once.
 
 2003-02-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

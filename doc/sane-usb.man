@@ -1,4 +1,4 @@
-.TH sane-scsi 5 "15 Sep 2002"
+.TH sane-usb 5 "15 Sep 2002"
 .IX sane-usb
 .SH NAME
 sane-usb - USB configuration tips for SANE

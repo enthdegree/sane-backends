@@ -1,3 +1,7 @@
+2002-11-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/sane-mustek_usb.man doc/sane-usb.man: Fixed wrong .TH headers.
+
 2002-11-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* configure configure.in acinclude.m4 aclocal.m4 

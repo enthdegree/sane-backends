@@ -7,6 +7,7 @@ dnl   SANE_CHECK_JPEG
 dnl   JAPHAR_GREP_CFLAGS(flag, cmd_if_missing, cmd_if_present)
 dnl   SANE_LINKER_RPATH
 dnl   SANE_CHECK_U_TYPES
+dnl   SANE_CHECK_GPHOTO2
 dnl
 
 #
@@ -94,7 +95,8 @@ AC_DEFUN(SANE_CHECK_PTAL,
 ])
 
 #
-# Checks for jpeg library >= v6B (61), needed for DC210 and DC240 backends.
+# Checks for jpeg library >= v6B (61), needed for DC210,  DC240, and 
+# GPHOTO2 backends.
 AC_DEFUN(SANE_CHECK_JPEG,
 [
   AC_CHECK_LIB(jpeg,jpeg_start_decompress, 
@@ -186,3 +188,11 @@ AC_CHECK_TYPE(u_char, unsigned char)
 AC_CHECK_TYPE(u_int, unsigned int)
 AC_CHECK_TYPE(u_long, unsigned long)
 ])
+
+#
+# Checks for gphoto2 - needed by the gphoto2 backend.
+AC_DEFUN(SANE_CHECK_GPHOTO2,
+[
+  AC_CHECK_PROG(GPHOTO2_BIN, gphoto2, gphoto2)
+])
+

@@ -1978,6 +1978,7 @@ static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
 		u_char * buf;
 		u_char params[2];
 		EpsonHdr head;
+DBG(0, "Requesting extended status\n");		
 
 		params[0] = ESC;
 		params[1] = s->hw->cmd->request_extended_status;
@@ -1990,9 +1991,13 @@ static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
 		{
 			buf = &head->buf[ 0];
 
+DBG(0, "No error\n");			
+
 /*
  *  ADF
  */
+
+DBG(0, "Checking for ADF: (%02x)\n", buf[1]);
 
 			if( buf[ 1] & EXT_STATUS_IST) {
 				DBG( 1, "ADF detected\n");
@@ -2027,6 +2032,7 @@ static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
 /*
  *  TPU
  */
+DBG(0, "Checking for TPU: (%02x)\n", buf[6]);
 
 			if( buf[ 6] & EXT_STATUS_IST) {
 				DBG( 1, "TPU detected\n");
@@ -2085,6 +2091,7 @@ static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
 
 				/* finally copy the device name to the structure */
 				dev->sane.model = ( char *) memcpy( str, device_name, len);
+DBG(0, "Device name = %s\n", dev->sane.model);				
 			}
 		}
 	}
@@ -4739,9 +4746,11 @@ START_READ:
 		 */
 
 		needStrangeReorder = 
+			(strstr(s->hw->sane.model, "GT-2200") &&
+			 s->params.format == SANE_FRAME_RGB) || 
 			((strstr(s->hw->sane.model, "1640") &&
-			strstr(s->hw->sane.model, "Perfection")) ||
-			strstr(s->hw->sane.model, "GT-8700")) &&
+			  strstr(s->hw->sane.model, "Perfection")) ||
+			 strstr(s->hw->sane.model, "GT-8700")) &&
 			s->params.format == SANE_FRAME_RGB &&
 			s->hw->maxDepth == 14;
 
@@ -4750,10 +4759,10 @@ START_READ:
      * These scanners are identified by the problem with the half vertical scanning
      * area. When we corrected this, we also set the variable s->hw->need_color_reorder
      */
-    if (s->hw->need_color_reorder)
-    {
-      needStrangeReorder = SANE_TRUE;
-    }
+		if (s->hw->need_color_reorder)
+		{
+			needStrangeReorder = SANE_TRUE;
+		}
 
 		if (needStrangeReorder)
 			reorder = !reorder;

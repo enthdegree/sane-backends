@@ -383,6 +383,7 @@ init_options(Mustek_pp_Handle *hndl)
       hndl->opt[i].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     }
 
+  hndl->opt[OPT_NUM_OPTS].name = SANE_NAME_NUM_OPTIONS;
   hndl->opt[OPT_NUM_OPTS].title = SANE_TITLE_NUM_OPTIONS;
   hndl->opt[OPT_NUM_OPTS].desc = SANE_DESC_NUM_OPTIONS;
   hndl->opt[OPT_NUM_OPTS].type = SANE_TYPE_INT;
@@ -396,6 +397,7 @@ init_options(Mustek_pp_Handle *hndl)
   hndl->opt[OPT_MODE_GROUP].type = SANE_TYPE_GROUP;
   hndl->opt[OPT_MODE_GROUP].cap = 0;
   hndl->opt[OPT_MODE_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
+  hndl->opt[OPT_MODE_GROUP].size = 0;
 
   /* scan mode */
   hndl->opt[OPT_MODE].name = SANE_NAME_SCAN_MODE;
@@ -471,6 +473,7 @@ init_options(Mustek_pp_Handle *hndl)
   hndl->opt[OPT_GEOMETRY_GROUP].type = SANE_TYPE_GROUP;
   hndl->opt[OPT_GEOMETRY_GROUP].cap = SANE_CAP_ADVANCED;
   hndl->opt[OPT_GEOMETRY_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
+  hndl->opt[OPT_GEOMETRY_GROUP].size = 0;
 
   /* top-left x */
   hndl->opt[OPT_TL_X].name = SANE_NAME_SCAN_TL_X;
@@ -525,6 +528,7 @@ init_options(Mustek_pp_Handle *hndl)
   hndl->opt[OPT_ENHANCEMENT_GROUP].type = SANE_TYPE_GROUP;
   hndl->opt[OPT_ENHANCEMENT_GROUP].cap = 0;
   hndl->opt[OPT_ENHANCEMENT_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
+  hndl->opt[OPT_ENHANCEMENT_GROUP].size = 0;
 
 
   /* custom-gamma table */
@@ -972,6 +976,7 @@ sane_exit (void)
 
   if (devarray != NULL)
     free (devarray);
+  devarray = NULL;
 
   DBG (3, "sane_exit: all drivers unloaded\n");
 

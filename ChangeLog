@@ -1,3 +1,9 @@
+2001-12-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* configure configure.in: Changed order of tests for libsocket and
+	  libsyslog to avoid problems with OS/2. Small spelling and format
+	  fixes.
+
 2001-12-28  Abel Deuring <a.deuring@satzbau-gmbh.de>
 	* configure.in, configure, sanei/sanei_scsi.c, umax_pp_low.c,
 	  README.linux: replaced --enable-directio and ENABLE_DIRECTIO

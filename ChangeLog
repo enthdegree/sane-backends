@@ -1,3 +1,9 @@
+2004-08-23  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* tools/sane-find-scanner.c: Worked around a cygwin libusb
+	  compatibility problem (patch from Giuseppe Sacco eppesuig
+	  at users.alioth.debian.org).
+
 2004-08-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/gt68xx.desc doc/descriptions/unsupported.desc:

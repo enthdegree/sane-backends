@@ -30,15 +30,15 @@
 #include <dirent.h>
 #include <errno.h>
 
-#ifdef HAVE_LIBUSB
-#include "usb.h"
-extern char * check_usb_chip (struct usb_device *dev, int verbosity);
-#endif
-
 #if defined (HAVE_WINDOWS_H)
 #include <windows.h>
 #include <ddk/scsi.h>
 #include <ddk/ntddscsi.h>
+#endif
+
+#ifdef HAVE_LIBUSB
+#include "usb.h"
+extern char * check_usb_chip (struct usb_device *dev, int verbosity);
 #endif
 
 #include "../include/sane/sanei.h"

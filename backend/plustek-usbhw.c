@@ -67,14 +67,14 @@
 
 static u_long dwCrystalFrequency = 48000000UL;
 
-static Bool   fModuleFirstHome;  /* HEINER: this has to be initialized */
-static Bool   fLastScanIsAdf;
-static u_char a_bRegs[0x80];
+static SANE_Bool fModuleFirstHome;  /* HEINER: this has to be initialized */
+static SANE_Bool fLastScanIsAdf;
+static u_char    a_bRegs[0x80];
 
 /*.............................................................................
  *
  */
-static Bool usb_MotorOn( int handle, Bool fOn )
+static SANE_Bool usb_MotorOn( int handle, SANE_Bool fOn )
 {
 	if( fOn )
 		a_bRegs[0x45] |= 0x10;
@@ -89,7 +89,7 @@ static Bool usb_MotorOn( int handle, Bool fOn )
 /*.............................................................................
  *
  */
-static Bool usb_IsScannerReady( pPlustek_Device dev )
+static SANE_Bool usb_IsScannerReady( pPlustek_Device dev )
 {
 	u_char value;
 	double 		   len;	
@@ -137,7 +137,7 @@ static Bool usb_IsScannerReady( pPlustek_Device dev )
 /*.............................................................................
  *
  */
-static Bool usb_SensorAdf( int handle )
+static SANE_Bool usb_SensorAdf( int handle )
 {
 	u_char value;
 
@@ -149,7 +149,7 @@ static Bool usb_SensorAdf( int handle )
 /*.............................................................................
  *
  */
-static Bool usb_SensorPaper( int handle )
+static SANE_Bool usb_SensorPaper( int handle )
 {
 	u_char value;
 
@@ -165,7 +165,8 @@ static Bool usb_SensorPaper( int handle )
  * to repeatly move the module around the scanner and
  * 0 means forever.
  */
-static Bool usb_ModuleMove(pPlustek_Device dev, u_char bAction, u_long dwStep)
+static SANE_Bool usb_ModuleMove( pPlustek_Device dev,
+								 u_char bAction, u_long dwStep )
 {
 	SANE_Status res;
 	u_char      bReg2, reg7;
@@ -358,7 +359,7 @@ static Bool usb_ModuleMove(pPlustek_Device dev, u_char bAction, u_long dwStep)
 /*.............................................................................
  *
  */
-static Bool usb_ModuleToHome( pPlustek_Device dev, Bool fWait )
+static SANE_Bool usb_ModuleToHome( pPlustek_Device dev, SANE_Bool fWait )
 {
 	u_char    value;
 	pDCapsDef scaps = &dev->usbDev.Caps;
@@ -531,7 +532,7 @@ static Bool usb_ModuleToHome( pPlustek_Device dev, Bool fWait )
 /*.............................................................................
  *
  */
-static Bool usb_MotorSelect( pPlustek_Device dev, Bool fADF )
+static SANE_Bool usb_MotorSelect( pPlustek_Device dev, SANE_Bool fADF )
 {
 	pDCapsDef sCaps = &dev->usbDev.Caps;
 	pHWDef    hw    = &dev->usbDev.HwSetting;
@@ -617,7 +618,7 @@ static int usb_GetLampStatus( pPlustek_Device dev )
 /*.............................................................................
  *
  */
-static void usb_LedOn(  pPlustek_Device dev, Bool fOn )
+static void usb_LedOn(  pPlustek_Device dev, SANE_Bool fOn )
 {
 	u_char value;
 
@@ -641,7 +642,8 @@ static void usb_LedOn(  pPlustek_Device dev, Bool fOn )
 /*.............................................................................
  *
  */
-static Bool usb_LampOn( pPlustek_Device dev, Bool fOn, Bool fResetTimer )
+static SANE_Bool usb_LampOn( pPlustek_Device dev,
+							 SANE_Bool fOn, SANE_Bool fResetTimer )
 {
     pScanDef       scanning    = &dev->scanning;
 	pDCapsDef      sc          = &dev->usbDev.Caps;
@@ -679,22 +681,20 @@ static Bool usb_LampOn( pPlustek_Device dev, Bool fOn, Bool fResetTimer )
 			/*
 			 * EPSON specific stuff
 			 */
+			a_bRegs[0x29] = hw->bReg_0x29;
+			
 			if(_WAF_MISC_IO6_LAMP==(_WAF_MISC_IO6_LAMP & sc->workaroundFlag)) {
 
-				a_bRegs[0x29] = 3;	/* mode 3 */
 				a_bRegs[0x5b] = 0x94;
 	            usbio_WriteReg( dev->fd, 0x5b, a_bRegs[0x5b] );
 			
  			} else if(_WAF_MISC_IO3_LAMP ==
 								   (_WAF_MISC_IO3_LAMP & sc->workaroundFlag)) {
  				
- 				a_bRegs[0x29] = 1;	/* mode 1 */
  				a_bRegs[0x5a] |= 0x08;
  				usbio_WriteReg( dev->fd, 0x5a, a_bRegs[0x5a] );
  				
 			} else {
-
-				a_bRegs[0x29] = 1;	/* mode 1 */
 
 				if( lampId == DEV_LampReflection ) {
 					a_bRegs[0x2e] = 16383 / 256;
@@ -751,26 +751,24 @@ static Bool usb_LampOn( pPlustek_Device dev, Bool fOn, Bool fResetTimer )
 		
 			memset( &a_bRegs[0x29], 0, 0x37-0x29+1 );
 
+			a_bRegs[0x29] = hw->bReg_0x29;
+			
 			/*
 			 * EPSON specific stuff
 			 */
 			if(_WAF_MISC_IO6_LAMP==(_WAF_MISC_IO6_LAMP & sc->workaroundFlag)) {
 
-				a_bRegs[0x29] = 3;	/* mode 3 */
 				a_bRegs[0x5b] = 0x14;
 	            usbio_WriteReg( dev->fd, 0x5b, a_bRegs[0x5b] );
 			
  			} else if( _WAF_MISC_IO3_LAMP ==
 	 							   (_WAF_MISC_IO3_LAMP & sc->workaroundFlag)) {
 	 								
- 				a_bRegs[0x29] = 1;	/* mode 1 */
  				a_bRegs[0x5a] &= ~0x08;
  				usbio_WriteReg( dev->fd, 0x5a, a_bRegs[0x5a] );
 			
 			} else {
 			
-				a_bRegs[0x29] = 1;	/* mode 1 */
-
 				if( iStatusChange & DEV_LampReflection ) {
 					a_bRegs[0x2e] = 16383 / 256;
 					a_bRegs[0x2f] = 16383 % 256;

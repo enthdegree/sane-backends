@@ -88,8 +88,8 @@ static u_short m_wShadow  = 0;  /* check the windows registry... */
 /*.............................................................................
  *
  */
-static Bool usb_SetDarkShading( int fd, u_char channel,
-								void *lpCoeff, u_short wCount )
+static SANE_Bool usb_SetDarkShading( int fd, u_char channel,
+			  		 				 void *lpCoeff, u_short wCount )
 {
 	int res;
 
@@ -125,8 +125,8 @@ static Bool usb_SetDarkShading( int fd, u_char channel,
 /*.............................................................................
  *
  */
-static Bool usb_SetWhiteShading( int fd, u_char channel,
-								 void *lpData, u_short wCount )
+static SANE_Bool usb_SetWhiteShading( int fd, u_char channel,
+								 	  void *lpData, u_short wCount )
 {
 	int res;
 
@@ -408,13 +408,13 @@ static u_char usb_GetNewGain( u_short wMax )
 /*.............................................................................
  *
  */
-static Bool usb_AdjustGain( pPlustek_Device dev, int fNegative )
+static SANE_Bool usb_AdjustGain( pPlustek_Device dev, int fNegative )
 {
     pScanDef  scanning = &dev->scanning;
 	pDCapsDef scaps    = &dev->usbDev.Caps;
 	pHWDef    hw       = &dev->usbDev.HwSetting;
 	u_long    dw;
-	Bool      fRepeatITA = SANE_TRUE;
+	SANE_Bool fRepeatITA = SANE_TRUE;
 
 	if( usb_IsEscPressed())
 		return SANE_FALSE;
@@ -626,7 +626,7 @@ static void usb_GetNewOffset( u_long *pdwSum, u_long *pdwDiff, char *pcOffset,
 /*.............................................................................
  *
  */
-static Bool usb_AdjustOffset( pPlustek_Device dev )
+static SANE_Bool usb_AdjustOffset( pPlustek_Device dev )
 {
 	char   cAdjust = 16;
 	char   cOffset[3];
@@ -793,7 +793,7 @@ static void usb_GetDarkShading( pPlustek_Device dev, u_short *pwDest,
 /*.............................................................................
  *
  */
-static Bool usb_AdjustDarkShading( pPlustek_Device dev )
+static SANE_Bool usb_AdjustDarkShading( pPlustek_Device dev )
 {
     pScanDef  scanning = &dev->scanning;
 	pDCapsDef scaps    = &dev->usbDev.Caps;
@@ -837,19 +837,17 @@ static Bool usb_AdjustDarkShading( pPlustek_Device dev )
 	   (!usb_ScanReadImage(dev,pScanBuffer,m_ScanParam.Size.dwPhyBytes)) ||
 	   (!usb_ScanEnd( dev ))) {
 		
+		a_bRegs[0x29] = hw->bReg_0x29;
+		
 		if(_WAF_MISC_IO6_LAMP==(_WAF_MISC_IO6_LAMP & scaps->workaroundFlag)) {
-			a_bRegs[0x29] = 3;
 			a_bRegs[0x5b] = 0x94;
 			usbio_WriteReg( dev->fd, 0x5b, a_bRegs[0x5b] );
 			
  		} else if( _WAF_MISC_IO3_LAMP ==
  								(_WAF_MISC_IO3_LAMP & scaps->workaroundFlag)) {
- 			a_bRegs[0x29] = 3;
  			a_bRegs[0x5a] |= 0x08;
  			usbio_WriteReg( dev->fd, 0x5a, a_bRegs[0x5a] );
 		
-		} else {
-			a_bRegs[0x29] = 1;
 		}			
 		usbio_WriteReg( dev->fd, 0x29, a_bRegs[0x29] );
 		
@@ -860,20 +858,17 @@ static Bool usb_AdjustDarkShading( pPlustek_Device dev )
 	/*
 	 * set illumination mode to 1 or 3 on EPSON
 	 */
+	a_bRegs[0x29] = hw->bReg_0x29;
+	
 	if( _WAF_MISC_IO6_LAMP == (_WAF_MISC_IO6_LAMP & scaps->workaroundFlag)) {
 		
-		a_bRegs[0x29] = 3;
 		a_bRegs[0x5b] = 0x94;
 		usbio_WriteReg( dev->fd, 0x5b, a_bRegs[0x5b] );
 
  	} else if( _WAF_MISC_IO3_LAMP ==
 	 							(_WAF_MISC_IO3_LAMP & scaps->workaroundFlag)) {
- 		a_bRegs[0x29] = 3;
  		a_bRegs[0x5a] |= 0x08;
  		usbio_WriteReg( dev->fd, 0x5a, a_bRegs[0x5a] );
- 		
-	} else {
-		a_bRegs[0x29] = 1;
 	}		
 
 	if( !usbio_WriteReg( dev->fd, 0x29, a_bRegs[0x29])) {
@@ -915,7 +910,7 @@ static Bool usb_AdjustDarkShading( pPlustek_Device dev )
 /*.............................................................................
  *
  */
-static Bool usb_AdjustWhiteShading( pPlustek_Device dev )
+static SANE_Bool usb_AdjustWhiteShading( pPlustek_Device dev )
 {
     pScanDef     scanning = &dev->scanning;
 	pDCapsDef    scaps    = &dev->usbDev.Caps;
@@ -1632,7 +1627,7 @@ static int usb_DoCalibration( pPlustek_Device dev )
 /*.............................................................................
  *
  */
-static Bool usb_DownloadShadingData( pPlustek_Device dev, u_char bJobID )
+static SANE_Bool usb_DownloadShadingData( pPlustek_Device dev, u_char bJobID )
 {
 	pHWDef hw = &dev->usbDev.HwSetting;
 

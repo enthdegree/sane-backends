@@ -19,6 +19,7 @@
  *        added UMAX 3400 entries
  *        added HP2100 settings according to Craig Smoothey
  *        added LM9832 based U24
+ *        added CANON650 entry
  *.............................................................................
  *
  * This file is part of the SANE package.
@@ -617,6 +618,24 @@ static DCapsDef Cap0x1606_0x0060_0 =
  	_WAF_MISC_IO3_LAMP  /* use miscio 3 for lamp switching         */
 };
 
+/* Canon N650U/N656U
+ */
+static DCapsDef Cap0x04A9_0x2206_0 =
+{
+ 	{{ 0, 165}, 0, {2550, 3510 - 165}, {100, 100}, COLOR_BW },
+ 	{{ 0,  0}, 0, {0, 0}, { 0, 0 }, 0 },
+ 	{{ 0,  0}, 0, {0, 0}, { 0, 0 }, 0 },
+ 	{{ 0,  0}, 0, {0, 0}, { 0, 0 }, 0 },
+ 	{600, 600},
+ 	0,
+ 	SENSORORDER_bgr,
+ 	8,			        /* sensor distance                         */
+ 	4,		      	    /* number of buttons                       */
+ 	kNEC8861,           /* use default settings during calibration */
+ 	0,                  /* not used here...                        */
+ 	_WAF_NONE
+};
+
 /******************* additional Hardware descriptions ************************/
 
 static HWDef Hw0x07B3_0x0017_0 =
@@ -628,8 +647,8 @@ static HWDef Hw0x07B3_0x0017_0 =
 	300,	        /* wMotorDpi (Full step DPI)                */
 	/* 100,	// wStartY (The top scanning origin in Full Steps)  */
 	512,	        /* wRAMSize (KB)                            */
-	4,		        /* wMinIntegrationTimeLowres (ms)           */
-	5,		        /* wMinIntegrationTimeHighres (ms)          */
+	4,		        /* dMinIntegrationTimeLowres (ms)           */
+	5,		        /* dMinIntegrationTimeHighres (ms)          */
 	3000,	        /* wGreenPWMDutyCycleLow                    */
 	4095,	        /* wGreenPWMDutyCycleHigh                   */
 	0x02,	        /* bSensorConfiguration (0x0b)              */
@@ -643,7 +662,9 @@ static HWDef Hw0x07B3_0x0017_0 =
 	
 	_GREEN_CH,      /* bReg_0x26 color mode - bits 4 and 5      */
 	0,              /* bReg 0x27 color mode                     */
-	
+
+	1,              /* bReg 0x29 illumination mode              */
+		
 	1,		        /* StepperPhaseCorrection (0x1a & 0x1b)     */
 	14,		        /* 15,	bOpticBlackStart (0x1c)             */
 	62,		        /* 60,	bOpticBlackEnd (0x1d)               */
@@ -689,6 +710,7 @@ static HWDef Hw0x07B3_0x0007_0 =
 	{5, 23, 1, 3, 0, 0, 0, 6, 10, 22},
 	_GREEN_CH,
 	0,
+	1,
 	1,		
 	14,		
 	62,		
@@ -727,6 +749,7 @@ static HWDef Hw0x07B3_0x0007_2 =
 	_GREEN_CH,
 	0,
 	1,
+	1,
 	16,
 	64,
 	152,
@@ -763,6 +786,7 @@ static HWDef Hw0x07B3_0x0007_4 =
 	{20, 4, 13, 16, 19, 22, 0, 6, 23, 11},
 	_GREEN_CH,
 	0,
+	1,
 	1,
 	13,
 	62,
@@ -801,6 +825,7 @@ static HWDef Hw0x07B3_0x000F_0 =
 	_GREEN_CH,
 	0,
 	1,
+	1,
 	14,
 	62,
 	110,
@@ -837,6 +862,7 @@ static HWDef Hw0x07B3_0x0013_0 =
 	{5, 23, 1, 3, 0, 0, 0, 12, 10, 22},
 	_GREEN_CH,
 	0,
+	1,
 	1,
 	14,
 	62,
@@ -875,6 +901,7 @@ static HWDef Hw0x07B3_0x0013_4 =
 	_GREEN_CH,
 	0,
 	1,		
+	1,
 	13,
 	62,	
 	320,	
@@ -911,6 +938,7 @@ static HWDef Hw0x07B3_0x000F_4 =
 	{20, 4, 13, 16, 19, 22, 0, 6, 23, 11},
 	_GREEN_CH,
 	0,
+	1,
 	1,
 	13,
 	62,
@@ -949,6 +977,7 @@ static HWDef Hw0x07B3_0x0016_4 =
 	_GREEN_CH,
 	0,
 	1,		
+	1,
 	13,		
 	62,		
 	320,
@@ -989,6 +1018,7 @@ static HWDef Hw0x07B3_0x0017_4 =
 	_GREEN_CH,
 	0,
 	1,		
+	1,
 	13,		
 	62,		
 	320,	
@@ -1025,6 +1055,7 @@ static HWDef Hw0x07B3_0x0017_1 =
 	{5, 23, 1, 4, 7, 10, 0, 0, 10, 12},
 	_GREEN_CH,
 	0,
+	1,
 	1,
 	15,
 	60,
@@ -1063,6 +1094,7 @@ static HWDef Hw0x07B3_0x0012_0 =
 	_GREEN_CH,
 	0,
 	1,		
+	1,
 	14,		
 	62,		
 	110,	
@@ -1100,6 +1132,7 @@ static HWDef Hw0x07B3_0x0017_2 =
 	_GREEN_CH,
 	0,
 	1,		
+	1,
 	16,		
 	64,		
 	110,	
@@ -1137,6 +1170,7 @@ static HWDef Hw0x07B3_0x0017_3 =
 	_GREEN_CH,
 	0,
 	1,		
+	1,
 	14,		
 	62,		
 	110,	
@@ -1169,8 +1203,8 @@ static HWDef Hw0x03F0_0x0505 =
  	9,		/* wIntegrationTimeHighLamp                 */
  	600,	/* ok wMotorDpi (Full step DPI)             */
  	512,	/* wRAMSize (KB)                            */
- 	4,		/* wMinIntegrationTimeLowres (ms)           */
- 	5,		/* wMinIntegrationTimeHighres (ms)          */
+ 	4,		/* dMinIntegrationTimeLowres (ms)           */
+ 	5,		/* dMinIntegrationTimeHighres (ms)          */
  	3000,	/* wGreenPWMDutyCycleLow                    */
  	4095,	/* wGreenPWMDutyCycleHigh                   */
  	0x02,	/* bSensorConfiguration (0x0b)              */
@@ -1184,6 +1218,7 @@ static HWDef Hw0x03F0_0x0505 =
 
 	_GREEN_CH,	/* bReg_0x26 color mode - bits 4 and 5  */
 	0,          /* bReg 0x27 color mode                 */
+	1,          /* bReg 0x29 illumination mode          */
   	
  	1,		/* StepperPhaseCorrection (0x1a & 0x1b)     */
  	14,		/* 15,= bOpticBlackStart (0x1c)             */
@@ -1226,8 +1261,8 @@ static HWDef Hw0x03F0_0x0605 =
 	12,		/* wIntegrationTimeHighLamp                 */
 	600,	/* ok wMotorDpi (Full step DPI)             */
 	512,	/* wRAMSize (KB)                            */
-	9,		/* wMinIntegrationTimeLowres (ms)           */
-	9,		/* wMinIntegrationTimeHighres (ms)          */
+	9,		/* dMinIntegrationTimeLowres (ms)           */
+	9,		/* dMinIntegrationTimeHighres (ms)          */
 	0,	    /* wGreenPWMDutyCycleLow                    */
 	0,	    /* wGreenPWMDutyCycleHigh                   */
 	0x02,	/* bSensorConfiguration (0x0b)              */
@@ -1241,6 +1276,8 @@ static HWDef Hw0x03F0_0x0605 =
 	
 	_GREEN_CH,	/* bReg_0x26 color mode - bits 4 and 5  */
 	0,          /* bReg 0x27 color mode                 */
+	
+	1,          /* bReg 0x29 illumination mode          */
 
 	1,		/* StepperPhaseCorrection (0x1a & 0x1b)     */
 	14,		/* 15,= bOpticBlackStart (0x1c)             */
@@ -1283,8 +1320,8 @@ static HWDef Hw0x0400_0x1000_0 =
      12,     /* ok wIntegrationTimeHighLamp                  */
      600,    /* ok wMotorDpi (Full step DPI)                 */
      512,    /* ok wRAMSize (KB)                             */
-     9,      /* ok wMinIntegrationTimeLowres (ms)            */
-     9,      /* ok wMinIntegrationTimeHighres (ms)           */
+     9,      /* ok dMinIntegrationTimeLowres (ms)            */
+     9,      /* ok dMinIntegrationTimeHighres (ms)           */
      1169,   /* ok wGreenPWMDutyCycleLow (reg 0x2a + 0x2b)   */
      1169,   /* ok wGreenPWMDutyCycleHigh (reg 0x2a + 0x2b)  */
      0x02,   /* ok bSensorConfiguration (0x0b)               */
@@ -1297,6 +1334,7 @@ static HWDef Hw0x0400_0x1000_0 =
              /* ok color (reg 0x0f to 0x18)                  */
 	 _GREEN_CH,	 /* bReg_0x26 color mode - bits 4 and 5      */
 	 0,          /* bReg 0x27 color mode                     */
+	 1,          /* bReg 0x29 illumination mode              */
      257,    /* ok StepperPhaseCorrection (reg 0x1a + 0x1b)  */
      0x0e,   /* ok bOpticBlackStart (reg 0x1c)               */
      0x1d,   /* ok bOpticBlackEnd (reg 0x1d)                 */
@@ -1341,6 +1379,7 @@ static HWDef Hw0x0400_0x1001_0 =
     _GREEN_CH,
     0,
     1,
+    1,
     16,
     64,
     152,
@@ -1373,8 +1412,8 @@ static HWDef Hw0x04B8_0x010F_0 =
     12,     /* wIntegrationTimeHighLamp                  */
     600,    /* wMotorDpi (Full step DPI)                 */
     512,    /* wRAMSize (KB)                             */
-    4,      /* wMinIntegrationTimeLowres (ms)            */
-    5,      /* wMinIntegrationTimeHighres (ms)           */
+    4,      /* dMinIntegrationTimeLowres (ms)            */
+    5,      /* dMinIntegrationTimeHighres (ms)           */
     3000,   /* ok wGreenPWMDutyCycleLow (reg 0x2a + 0x2b)   */
     4095,   /* ok wGreenPWMDutyCycleHigh (reg 0x2a + 0x2b)  */
 
@@ -1390,6 +1429,7 @@ static HWDef Hw0x04B8_0x010F_0 =
             /* ok color (reg 0x0f to 0x18)                  */
 	_GREEN_CH,	/* ok bReg_0x26 color mode - bits 4 and 5   */
 	0x40,       /* ok bReg 0x27 color mode                  */
+	3,          /* bReg 0x29 illumination mode              */
 
     1,      /* ok StepperPhaseCorrection (reg 0x1a + 0x1b)  */
     0x00,   /* ok bOpticBlackStart (reg 0x1c)               */
@@ -1433,8 +1473,8 @@ static HWDef Hw0x1606_0x0060_0 =
     9,      /* wIntegrationTimeHighLamp                  */
     600,    /* wMotorDpi (Full step DPI)                 */
     512,    /* wRAMSize (KB)                             */
-    8,      /* wMinIntegrationTimeLowres (ms)            */
-    8,      /* wMinIntegrationTimeHighres (ms)           */
+    8,      /* dMinIntegrationTimeLowres (ms)            */
+    8,      /* dMinIntegrationTimeHighres (ms)           */
     4095,   /* wGreenPWMDutyCycleLow (reg 0x2a + 0x2b)   */
     4095,   /* wGreenPWMDutyCycleHigh (reg 0x2a + 0x2b)  */
 
@@ -1450,6 +1490,7 @@ static HWDef Hw0x1606_0x0060_0 =
                 /* color (reg 0x0f to 0x18)              */
  	_GREEN_CH,	/* bReg_0x26 color mode - bits 4 and 5   */
  	0x40,       /* bReg 0x27 color mode                  */
+	1,          /* bReg 0x29 illumination mode           */
 
     1,      /* StepperPhaseCorrection (reg 0x1a + 0x1b)  */
     0x2f,   /* bOpticBlackStart (reg 0x1c)               */
@@ -1477,6 +1518,69 @@ static HWDef Hw0x1606_0x0060_0 =
     0x44,   /* misc io12 (reg 0x59)                      */
     0x45,   /* misc io34 (reg 0x5a)                      */
     0x7c,   /* misc io56 (reg 0x5b)                      */
+    0,      /* test mode ADC Output CODE MSB (reg 0x5c)  */
+    0,      /* test mode ADC Output CODE LSB (reg 0x5d)  */
+    0,      /* test mode (reg 0x5e)                      */
+    _LM9832,
+	MODEL_NOPLUSTEK
+};
+
+/* Canon 650 */
+static HWDef Hw0x04A9_0x2206_0 =
+{
+    0.7,    /* dMaxMotorSpeed (Max_Speed)                */
+    0.7,    /* dMaxMoveSpeed (Max_Speed)                 */
+    100,    /* wIntegrationTimeLowLamp                   */
+    100,    /* wIntegrationTimeHighLamp                  */
+    600,    /* wMotorDpi (Full step DPI)                 */
+    512,    /* wRAMSize (KB)                             */
+    3.75,   /* dMinIntegrationTimeLowres (ms)            */
+    5.75,   /* dMinIntegrationTimeHighres (ms)           */
+    4095,   /* wGreenPWMDutyCycleLow (reg 0x2a + 0x2b)   */
+    4095,   /* wGreenPWMDutyCycleHigh (reg 0x2a + 0x2b)  */
+
+    0x15,   /* bSensorConfiguration (0x0b)               */
+    0x4c,   /* sensor control settings (reg 0x0c)        */
+    0x2f,   /* sensor control settings (reg 0x0d)        */
+    0x00,   /* sensor control settings (reg 0x0e)        */
+
+    {0x00, 0x03, 0x04, 0x05, 0x00, 0x00, 0x00, 0x00, 0x07, 0x03},
+                /* mono (reg 0x0f to 0x18) */
+
+	{0x00, 0x00, 0x04, 0x05, 0x06, 0x07, 0x00, 0x00, 0x00, 0x05},
+                /* color (reg 0x0f to 0x18)              */
+
+ 	(_BLUE_CH | 0x05),	/* bReg_0x26 color mode          */
+ 	
+ 	0x00,   /* bReg 0x27 color mode                      */
+	2,      /* bReg 0x29 illumination mode               */
+
+    5,      /* StepperPhaseCorrection (reg 0x1a + 0x1b)  */
+    1,      /* bOpticBlackStart (reg 0x1c)               */
+    52,     /* bOpticBlackEnd (reg 0x1d)                 */
+    110,    /* ? wActivePixelsStart (reg 0x1e + 0x1f)    */
+    5469,   /* wLineEnd (reg 0x20 + 0x21)                */
+
+    100,    /* red lamp on    (reg 0x2c + 0x2d)          */
+    5100,   /* red lamp off   (reg 0x2e + 0x2f)          */
+    100,    /* green lamp on  (reg 0x30 + 0x31)          */
+    3100,   /* green lamp off (reg 0x32 + 0x33)          */
+    100,    /* blue lamp on   (reg 0x34 + 0x35)          */
+    2100,   /* blue lamp off  (reg 0x36 + 0x37)          */
+
+    3,      /* stepper motor control (reg 0x45)          */
+    0,      /* wStepsAfterPaperSensor2 (reg 0x4c + 0x4d) */
+    0xfc,   /* acceleration profile (reg 0x51)           */
+    0,      /* lines to process (reg 0x54)               */
+    0x17,   /* kickstart (reg 0x55)                      */
+    0x08,   /* pwm freq (reg 0x56)                       */
+    0x1f,   /* pwm duty cycle (reg 0x57)                 */
+
+    0x05,   /* Paper sense (reg 0x58)                    */
+
+    0x24,   /* misc io12 (reg 0x59)                      */
+    0x12,   /* misc io34 (reg 0x5a)                      */
+    0x11,   /* misc io56 (reg 0x5b)                      */
     0,      /* test mode ADC Output CODE MSB (reg 0x5c)  */
     0,      /* test mode ADC Output CODE LSB (reg 0x5d)  */
     0,      /* test mode (reg 0x5e)                      */
@@ -1539,6 +1643,7 @@ static SetDef Settings[] =
  	{"0x1606-0x0060",	&Cap0x1606_0x0060_0, &Hw0x1606_0x0060_0, "UMAX 3400" },
 		
 	/* CANON... */
+	{"0x04A9-0x2206",   &Cap0x04A9_0x2206_0, &Hw0x04A9_0x2206_0, "N650U/N656U" },
 /*	{"0x04A9-0x220D", ,, "N670U" }, */
 		
 	/* Please add other devices here...

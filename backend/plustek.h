@@ -168,7 +168,6 @@ typedef struct Plustek_Device
     SANE_Int 			   res_list_size;    /* resolution values            */
     ScannerCaps            caps;             /* caps reported by the driver  */
 	AdjDef                 adj;	             /* for driver adjustment        */
-	struct itimerval       saveSettings;     /* for lamp timer               */
 	
     /**************************** USB-stuff **********************************/
     char                   usbId[_MAX_ID_LEN];/* to keep Vendor and product  */
@@ -177,6 +176,7 @@ typedef struct Plustek_Device
     ScanDef                scanning;         /* here we hold all stuff for   */
                                              /* the USB-scanner              */
 	DeviceDef              usbDev;	
+	struct itimerval       saveSettings;     /* for lamp timer               */
 #endif
 
     /*

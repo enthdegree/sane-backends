@@ -10,7 +10,7 @@
  * History:
  * 0.40 - starting version of the USB support
  * 0.41 - minor fixes
- * 0.42 - no changes
+ * 0.42 - added some stuff for CIS devices
  *
  *.............................................................................
  *
@@ -55,13 +55,10 @@
 
 /** @file plustek-usbscan.c
  */
-
-#include <math.h>
-
 static u_char     bMaxITA;
 
-static Bool       m_fAutoPark;
-static Bool       m_fFirst;
+static SANE_Bool  m_fAutoPark;
+static SANE_Bool  m_fFirst;
 static double     m_dHDPIDivider;
 static double     m_dMCLKDivider;
 static pScanParam m_pParam;
@@ -74,12 +71,16 @@ static u_short    m_wLineLength;
 static u_short	  m_wStepSize;
 static u_long     m_dwPauseLimit;
 
-static Bool		  m_fStart = SANE_FALSE;
+static SANE_Bool  m_fStart = SANE_FALSE;
 
+/* Prototype... */
+static SANE_Bool usb_DownloadShadingData( pPlustek_Device, u_char );
 
-static Bool usb_DownloadShadingData( pPlustek_Device, u_char );
-
-
+/**
+ * @param val1 -
+ * @param val2 -
+ * @return
+ */
 static u_long usb_min( u_long val1, u_long val2 )
 {
 	if( val1 > val2 )
@@ -88,6 +89,11 @@ static u_long usb_min( u_long val1, u_long val2 )
 	return val1;
 }
 
+/**
+ * @param val1 -
+ * @param val2 -
+ * @return
+ */
 static u_long usb_max( u_long val1, u_long val2 )
 {
 	if( val1 > val2 )
@@ -870,39 +876,45 @@ static void usb_GetLineLength( pPlustek_Device dev )
 			tp++;
 	}
 
-	/* We are CCD scanner, ctmode should be 0 */
-	b = (ntr + 1) * ((2*gbnd) + dur + 1);
-	b += (1 - ntr) * en_tradj;
+	b = 1;
+	if( ctmode == 0 ) { /* CCD mode scanner*/
+	
+		b  = (ntr + 1) * ((2 * gbnd) + dur + 1);
+		b += (1 - ntr) * en_tradj;
+	}
+	if( ctmode == 2 )   /* CIS mode scanner */
+	    b = 3;
+	
 
 	tr = m_bLineRateColor * (hw->wLineEnd + tp * (b + 3 - ntr));
 
-	if (tradj == 0)
-	{
-		if (ctmode == 0)
+	if( tradj == 0 ) {
+		if( ctmode == 0 )
 			tr += m_bLineRateColor;
-	}
-	else
-	{
+	} else {
+	
 		int le_phi, num_byteclk, num_mclkf, tr_fast_pix, extra_pix;
-
+			
 		/* Line color or gray mode */
-		if (afeop != 0)
-		{
-			le_phi = (tradj + 1) / 2 + 1 + 6;
-			num_byteclk = ((le_phi + 8 * hw->wLineEnd + 8 * b + 4) / (8 * tradj)) + 1;
-			num_mclkf = 8 * tradj * num_byteclk;
+		if( afeop != 0 ) {
+		
+			le_phi      = (tradj + 1) / 2 + 1 + 6;
+			num_byteclk = ((le_phi + 8 * hw->wLineEnd + 8 * b + 4) /
+						   (8 * tradj)) + 1;
+			num_mclkf   = 8 * tradj * num_byteclk;
 			tr_fast_pix = num_byteclk;
-			extra_pix = (num_mclkf - le_phi) % 8;
+			extra_pix   = (num_mclkf - le_phi) % 8;
 		}
 		else /* 3 channel pixel rate color */
 		{
-			le_phi = (tradj + 1) / 2 + 1 + 10 + 12;
+			le_phi      = (tradj + 1) / 2 + 1 + 10 + 12;
 			num_byteclk = ((le_phi + 3 * 8 * hw->wLineEnd + 3 * 8 * b + 3 * 4) /
 						   (3 * 8 * tradj)) + 1;
-			num_mclkf = 3 * 8 * tradj * num_byteclk;
+			num_mclkf   = 3 * 8 * tradj * num_byteclk;
 			tr_fast_pix = num_byteclk;
-			extra_pix = (num_mclkf - le_phi) % (3 * 8);
+			extra_pix   = (num_mclkf - le_phi) % (3 * 8);
 		}
+		
 		tr = b + hw->wLineEnd + 4 + tr_fast_pix;
 		if (extra_pix == 0)
 			tr++;
@@ -1105,7 +1117,7 @@ static void usb_GetScanLinesAndSize( pPlustek_Device dev, pScanParam pParam )
 /*.............................................................................
  *
  */
-static Bool usb_SetScanParameters( pPlustek_Device dev, pScanParam pParam )
+static SANE_Bool usb_SetScanParameters( pPlustek_Device dev, pScanParam pParam )
 {
 	static u_char reg8, reg38[6], reg48[2];
 
@@ -1254,7 +1266,7 @@ static Bool usb_SetScanParameters( pPlustek_Device dev, pScanParam pParam )
 /*.............................................................................
  *
  */
-static Bool usb_ScanBegin( pPlustek_Device dev, Bool fAutoPark )
+static SANE_Bool usb_ScanBegin( pPlustek_Device dev, SANE_Bool fAutoPark )
 {
 	u_char value;	
 
@@ -1327,7 +1339,7 @@ static Bool usb_ScanBegin( pPlustek_Device dev, Bool fAutoPark )
 /*.............................................................................
  *
  */
-static Bool usb_ScanEnd( pPlustek_Device dev )
+static SANE_Bool usb_ScanEnd( pPlustek_Device dev )
 {
 	u_char value;
 
@@ -1357,7 +1369,7 @@ static Bool usb_ScanEnd( pPlustek_Device dev )
 /*.............................................................................
  *
  */
-static Bool usb_IsDataAvailableInDRAM( pPlustek_Device dev )
+static SANE_Bool usb_IsDataAvailableInDRAM( pPlustek_Device dev )
 {
 	/* Compute polling timeout
 	 *	Height (Inches) / MaxScanSpeed (Inches/Second) = Seconds to move the
@@ -1410,7 +1422,8 @@ static Bool usb_IsDataAvailableInDRAM( pPlustek_Device dev )
 /*.............................................................................
  *
  */
-static Bool usb_ScanReadImage( pPlustek_Device dev, void *pBuf, u_long dwSize )
+static SANE_Bool usb_ScanReadImage( pPlustek_Device dev,
+									void *pBuf, u_long dwSize )
 {
 	static u_long dwBytes = 0;
 	SANE_Status res;

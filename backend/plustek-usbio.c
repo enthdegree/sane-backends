@@ -78,7 +78,8 @@
  * @param value  -
  * @return
  */
-static Bool usbio_WriteReg( SANE_Int handle, SANE_Byte reg, SANE_Byte value )
+static SANE_Bool usbio_WriteReg( SANE_Int handle,
+								 SANE_Byte reg, SANE_Byte value )
 {
 	int       i;
 	SANE_Byte data;

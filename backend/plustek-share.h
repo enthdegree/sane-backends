@@ -21,6 +21,7 @@
  *        added adjustment stuff
  * 0.42 - added FLAG_CUSTOM_GAMMA and _MAP_ definitions
  *        changed IOCTL interface to allow downloadable MAPS
+ *        added error codes
  *
  *.............................................................................
  *
@@ -493,6 +494,40 @@ typedef struct {
 #define _MAP_GREEN  1
 #define _MAP_BLUE   2
 #define _MAP_MASTER 3
+
+/*
+ * generic error codes...
+ */
+#define _OK			  0
+
+#define _FIRST_ERR	-9000
+
+#define _E_INIT	 	  (_FIRST_ERR-1)	/* already initialized				*/
+#define _E_NOT_INIT	  (_FIRST_ERR-2)	/* not initialized					*/
+#define _E_NULLPTR	  (_FIRST_ERR-3)	/* internal NULL-PTR detected		*/
+#define _E_ALLOC	  (_FIRST_ERR-4)	/* error allocating memory			*/
+#define _E_TIMEOUT	  (_FIRST_ERR-5)	/* signals a timeout condition		*/
+#define _E_INVALID	  (_FIRST_ERR-6)	/* invalid parameter detected		*/
+#define _E_INTERNAL	  (_FIRST_ERR-7)	/* internal error					*/
+#define _E_BUSY		  (_FIRST_ERR-8)	/* device is already in use			*/
+#define _E_ABORT	  (_FIRST_ERR-9)	/* operation aborted				*/
+#define	_E_LOCK		  (_FIRST_ERR-10)	/* can´t lock resource				*/
+#define _E_NOSUPP	  (_FIRST_ERR-11)	/* feature or device not supported  */
+#define _E_NORESOURCE (_FIRST_ERR-12)	/* out of memo, resource busy...    */
+#define _E_VERSION	  (_FIRST_ERR-19)	/* version conflict					*/
+#define _E_NO_DEV	  (_FIRST_ERR-20)	/* device does not exist			*/
+#define _E_NO_CONN	  (_FIRST_ERR-21)	/* nothing connected				*/
+#define _E_PORTSEARCH (_FIRST_ERR-22)	/* parport_enumerate failed			*/
+#define _E_NO_PORT	  (_FIRST_ERR-23)	/* requested port does not exist	*/
+#define _E_REGISTER	  (_FIRST_ERR-24)	/* cannot register this device		*/
+#define _E_SEQUENCE	  (_FIRST_ERR-30)	/* caller sequence does not match	*/
+#define _E_NO_ASIC	  (_FIRST_ERR-31)	/* can´t detect ASIC            	*/
+
+#define _E_LAMP_NOT_IN_POS	(_FIRST_ERR-40)
+#define _E_LAMP_NOT_STABLE	(_FIRST_ERR-41)
+#define _E_NODATA           (_FIRST_ERR-42)
+#define _E_BUFFER_TOO_SMALL (_FIRST_ERR-43)
+#define _E_DATAREAD         (_FIRST_ERR-44)
 
 /*
  * stuff needed for user space stuff

@@ -34,8 +34,6 @@
 #ifndef __PLUSTEK_USB_H__
 #define __PLUSTEK_USB_H__
 
-typedef int Bool;
-
 /* CCD ID (PCB ID): total 3 bits */
 #define	kNEC3799	0
 #define kSONY518	1
@@ -290,6 +288,9 @@ typedef struct HWDefault
 	u_char              bReg_0x26;
 	u_char              bReg_0x27;
 	
+	/* illumination mode reg 0x29 */
+	u_char              bReg_0x29;
+	
 	/* 0x1a & 0x1b, remember the u_char order is not Intel
 	 * format, you have to pay your attention when you
 	 * write this value to register.
@@ -441,7 +442,7 @@ typedef struct ScanDef
     /*
      * from calibration...
      */
-    Bool                fCalibrated;
+    SANE_Bool           fCalibrated;
 
     /*
      * the other stuff...
@@ -488,17 +489,6 @@ typedef struct ScanDef
 	u_char				bLinesToSkip;
 
 } ScanDef, *pScanDef;
-
-
-/*** some error codes... ****/
-
-#define _E_LAMP_NOT_IN_POS	-9600
-#define _E_LAMP_NOT_STABLE	-9601
-#define _E_INTERNAL         -9610
-#define _E_ALLOC            -9611
-#define _E_NODATA           -9620
-#define _E_BUFFER_TOO_SMALL -9621
-#define _E_DATAREAD         -9630
 
 #endif	/* guard __PLUSTEK_USB_H__ */
 

@@ -13,6 +13,8 @@
  *        added Canon to the manufacturer list
  * 0.42 - added warmup stuff
  *        added setmap function
+ *        changed detection stuff, so we first check whether
+ *        the vendor and product Ids match with the ones in our list
  *
  *.............................................................................
  *
@@ -264,6 +266,27 @@ static void usbDev_shutdown( Plustek_Device *dev  )
 	usb_StopLampTimer( dev );
 }
 
+/**
+ * This function checks wether a device, described by a given
+ * string(vendor and product ID), is support by this backend or not
+ *
+ * @param usbIdStr - sting consisting out of product and vendor ID
+ *                   format: "0xVVVVx0xPPPP" VVVV = Vendor ID, PPP = Product ID
+ * @returns; SANE_TRUE if supported, SANE_FALSE if not
+ */
+static SANE_Bool usb_IsDeviceInList( char *usbIdStr )
+{
+	int i;
+	
+	for( i = 0; NULL != Settings[i].pIDString; i++ ) {
+
+		if( 0 == strncmp( Settings[i].pIDString, usbIdStr, 13 ))
+	    	return SANE_TRUE;
+	}			
+
+	return SANE_FALSE;
+}
+
 /*.............................................................................
  *
  */
@@ -329,6 +352,16 @@ static int usbDev_open( const char *dev_name, void *misc )
 		DBG( _DBG_INFO, "... using the specified: 0x%04x\n", vendor );
 	}
 
+    /*
+     * before accessing the scanner, check if supported!
+     */
+     if( !usb_IsDeviceInList( dev->usbId )) {
+     	DBG( _DBG_ERROR, "Device >%s<, is not supported!\n", dev->usbId );
+		sanei_usb_close( handle );
+		return -1;
+     }
+	
+	
     if( SANE_STATUS_GOOD != usbio_DetectLM983x( handle, &version )) {
 		sanei_usb_close( handle );
         return -1;

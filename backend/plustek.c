@@ -48,6 +48,7 @@
  *        fixed a problem with the "size-sliders"
  *        fixed a bug that causes segfault when using the autodetection for USB
  *        devices
+ *        added OS/2 switch to disable the USB stuff for OS/2
  *
  *.............................................................................
  *
@@ -105,6 +106,7 @@
 #include <ctype.h>
 #include <unistd.h>
 #include <time.h>
+#include <math.h>
 
 #include <sys/time.h>
 #include <sys/wait.h>
@@ -119,8 +121,10 @@
 #include "sane/sanei_backend.h"
 #include "sane/sanei_config.h"
 
-/* might be used to disable all USB stuff */
-#define _PLUSTEK_USB
+/* might be used to disable all USB stuff - esp. for OS/2 */
+#ifndef HAVE_OS2_H
+# define _PLUSTEK_USB
+#endif
 
 #include "plustek-share.h"
 #ifdef _PLUSTEK_USB

@@ -5,6 +5,7 @@
 	* backend/plustek-pp_misc.c backend/plustek-pp_hwdefs.h: Fixed bug
 	  in parport setup routine.
 	* sanei/sanei_pp.c: Fixed problem in sanei_pp_setmode().
+	  Fixed parport mode setting in direct mode.
 
 2003-11-02  Julien Blache <jb@jblache.org>
 	* frontend/saned.c: fixed endianness issues in

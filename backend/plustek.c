@@ -145,7 +145,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.48-4"
+#define BACKEND_VERSION "0.48-5"
 #define BACKEND_NAME    plustek
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
@@ -528,27 +528,6 @@ static SANE_Status do_cancel( Plustek_Scanner *scanner, SANE_Bool closepipe  )
 	}
 
 	return SANE_STATUS_CANCELLED;
-}
-
-/** because of some internal problems (inside the parport driver), we have to
- * limit the max resolution to optical resolution. This is done by this
- * function
- * @param  dev - pointer to the device specific structure
- * @return The function always returns SANE_STATUS_GOOD
- */
-static SANE_Status limitResolution( Plustek_Device *dev )
-{
-	dev->dpi_range.min   = _DEF_DPI;
-	dev->dpi_range.max   = dev->usbDev.Caps.OpticDpi.x * 2;
-	dev->dpi_range.quant = 0;
-	dev->x_range.min     = 0;
-	dev->x_range.max     = SANE_FIX(dev->max_x);
-	dev->x_range.quant   = 0;
-	dev->y_range.min     = 0;
-	dev->y_range.max     = SANE_FIX(dev->max_y);
-	dev->y_range.quant   = 0;
-
-	return SANE_STATUS_GOOD;
 }
 
 /** Currently we support only LM9831/2/3 chips and these use the same
@@ -1114,7 +1093,6 @@ static SANE_Status attach( const char *dev_name,
 	int             cntr;
 	int             result;
 	int             handle;
-	SANE_Status     status;
 	Plustek_Device *dev;
 
 	DBG( _DBG_SANE_INIT, "attach (%s, %p, %p)\n",
@@ -1220,7 +1198,11 @@ static SANE_Status attach( const char *dev_name,
 		dev->res_list[dev->res_list_size - 1] = (SANE_Int)cntr;
 	}
 
-	status = limitResolution( dev );
+	/* set the limits */
+	dev->dpi_range.min   = _DEF_DPI;
+	dev->dpi_range.max   = dev->usbDev.Caps.OpticDpi.x * 2;
+	dev->x_range.max     = SANE_FIX(dev->max_x);
+	dev->y_range.max     = SANE_FIX(dev->max_y);
 
 	dev->fd = handle;
 	drvclose( dev );

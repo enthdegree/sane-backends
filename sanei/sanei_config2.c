@@ -50,7 +50,6 @@
 #include "sane/sanei.h"
 #include "sane/sanei_config.h"
 #include "sane/sanei_scsi.h"
-#include "sane/sanei_usb.h"
 
 /* This logically belongs to sanei_config.c but not every backend that
    uses sanei_config() wants to depend on this function.  */
@@ -60,7 +59,7 @@ sanei_config_attach_matching_devices (const char *name,
 				      SANE_Status (*attach) (const char *dev))
 {
   int bus = -1, channel = -1, id = -1, lun = -1;
-  char *vendor = 0, *model = 0, *type = 0, *end, *product;
+  char *vendor = 0, *model = 0, *type = 0, *end;
 
   if (strncmp (name, "scsi", 4) == 0)
     {

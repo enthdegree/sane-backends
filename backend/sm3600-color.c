@@ -271,7 +271,7 @@ TState StartScanColor(TInstance *this)
   UploadGammaTable(this,0x4000,this->agammaB);
   INST_ASSERT();
 
-  UploadGainCorrection(this);
+  UploadGainCorrection(this,0x6000);
   INST_ASSERT();
 
   /* enough for 1/100 inch sensor distance */

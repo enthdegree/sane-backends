@@ -346,7 +346,7 @@ TState StartScanGray(TInstance *this)
   RegWrite(this,0x40,1,0x20); /* FIFO at   0x08000 */
   UploadGammaTable(this,0,this->agammaY); INST_ASSERT();
 
-  UploadGainCorrection(this);
+  UploadGainCorrection(this, 0x2000);
   INST_ASSERT();
 
   /* for halftone dithering we need one history line */

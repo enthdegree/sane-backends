@@ -13,6 +13,8 @@
 	  out by Mattias Ellert, thanks: Waiting longer for DoJog() command
 	  completion, new function for transmitting the line gain correction
 	  data with correct endianess, Chassis-Gray-Level lowered.
+	* backend/sm3600.c : Fixed off-by-one-error in p->lines
+          backend/sm3600-scanmtek: Fixed just broken UploadGainCorrection()
 
 2004-04-14  Karl Heinz Kremer <khk@khk.net>
 

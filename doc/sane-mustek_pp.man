@@ -18,13 +18,16 @@ Previous versions of this backend only supported CCD type scanners. Patches
 for CIS type scanners were available, but simultaneous support for both 
 types was not possible. The current version of the driver enables both types
 to co-exist. The CIS drivers have been ported to it already, and work
-is going on to port the CCD drivers too.
+is going on to port the CCD drivers too. Currently there is no CCD support however. For CCD
+scanners, use the
+.BR sane-mustek_pp_ccd(5)
+backend.
 
 
 The following scanners might work with this backend:
 
 .TP
-.BR "CCD scanners" " (currently not hooked up yet)"
+.BR "CCD scanners" " (currently not hooked up yet, use mustek_pp_ccd backend)"
 .PP
 .RS
 Model:               ASIC ID:  CCD Type:  works:
@@ -413,7 +416,7 @@ level   debug output
  
 .PP
 .SH "SEE ALSO"
-sane(7), sane\-mustek(5), sane\-net(5), saned(1)
+sane(7), sane\-mustek_pp_ccd(5), sane\-mustek(5), sane\-net(5), saned(1)
 
 .TP
 For latest bug fixes and information see

@@ -164,7 +164,7 @@ static SANE_String_Const string_constraint_string_list[] = {
 
 static SANE_String_Const string_constraint_long_string_list[] = {
   SANE_I18N ("First entry"), SANE_I18N ("Second entry"), "3", "4", "5", "6",
-    "7", "8", "9", "10",
+  "7", "8", "9", "10",
   "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22",
   "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34",
   "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46",
@@ -272,7 +272,7 @@ init_options (Test_Device * test_device)
 {
   SANE_Option_Descriptor *od;
 
-  DBG (2, "init_options: test_device=%p\n", (void*)test_device);
+  DBG (2, "init_options: test_device=%p\n", (void *) test_device);
 
   /* opt_num_opts */
   od = &test_device->opt[opt_num_opts];
@@ -1225,7 +1225,7 @@ reader_process (Test_Device * test_device, SANE_Int fd)
   size_t buffer_size = 0, write_count = 0;
 
   DBG (2, "(child) reader_process: test_device=%p, fd=%d\n",
-                                                  (void*)test_device, fd);
+       (void *) test_device, fd);
 
   bytes_total = test_device->lines * test_device->bytes_per_line;
   status = init_picture_buffer (test_device, &buffer, &buffer_size);
@@ -1272,34 +1272,38 @@ reader_process (Test_Device * test_device, SANE_Int fd)
 /*
  * this code either runs in child or thread context...
  */
-static int reader_task(void *data)
+static int
+reader_task (void *data)
 {
-  SANE_Status         status;
-  sigset_t            ignore_set;
-  struct SIGACTION    act;
+  SANE_Status status;
+  sigset_t ignore_set;
+  struct SIGACTION act;
   struct Test_Device *test_device = (struct Test_Device *) data;
 
   DBG (2, "reader_task started\n");
-  if( sanei_thread_is_forked()) {
-    DBG( 3, "reader_task started (forked)\n" );
-    close( test_device->pipe );
-    test_device->pipe = -1;
+  if (sanei_thread_is_forked ())
+    {
+      DBG (3, "reader_task started (forked)\n");
+      close (test_device->pipe);
+      test_device->pipe = -1;
 
-  } else {
-    DBG( 3, "reader_task started (as thread)\n" );
-  }
+    }
+  else
+    {
+      DBG (3, "reader_task started (as thread)\n");
+    }
 
   /* block SIGPIPE */
-  sigemptyset  (&ignore_set);
+  sigemptyset (&ignore_set);
   sigaddset (&ignore_set, SIGPIPE);
   sigprocmask (SIG_SETMASK, &ignore_set, 0);
-  memset      (&act, 0, sizeof (act));
-  sigaction   (SIGTERM, &act, 0);
+  memset (&act, 0, sizeof (act));
+  sigaction (SIGTERM, &act, 0);
 
-  status = reader_process (test_device, test_device->reader_fds );
+  status = reader_process (test_device, test_device->reader_fds);
   DBG (2, "(child) reader_task: reader_process finished (%s)\n",
        sane_strstatus (status));
-  return (int)status;
+  return (int) status;
 }
 
 static SANE_Status
@@ -1307,7 +1311,7 @@ finish_pass (Test_Device * test_device)
 {
   SANE_Status return_status = SANE_STATUS_GOOD;
 
-  DBG (2, "finish_pass: test_device=%p\n", (void*)test_device);
+  DBG (2, "finish_pass: test_device=%p\n", (void *) test_device);
   test_device->scanning = SANE_FALSE;
   if (test_device->pipe > 0)
     {
@@ -1322,17 +1326,20 @@ finish_pass (Test_Device * test_device)
       int pid;
 
       DBG (2, "finish_pass: terminating reader process %d\n",
-           test_device->reader_pid);
+	   test_device->reader_pid);
       sanei_thread_kill (test_device->reader_pid);
-      pid = sanei_thread_waitpid (test_device->reader_pid, &status );
+      pid = sanei_thread_waitpid (test_device->reader_pid, &status);
       if (pid < 0)
-        {
-          DBG (1, "finish_pass: sanei_thread_waitpid failed, already terminated? (%s)\n",
-                strerror (errno));
-        } else {
-          DBG (2, "finish_pass: reader process terminated with status: %s\n",
-               sane_strstatus (status));
-        }
+	{
+	  DBG (1,
+	       "finish_pass: sanei_thread_waitpid failed, already terminated? (%s)\n",
+	       strerror (errno));
+	}
+      else
+	{
+	  DBG (2, "finish_pass: reader process terminated with status: %s\n",
+	       sane_strstatus (status));
+	}
       test_device->reader_pid = 0;
     }
   return return_status;
@@ -1412,15 +1419,15 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   SANE_Int num;
 
   DBG_INIT ();
-  sanei_thread_init();
+  sanei_thread_init ();
 
   test_device = 0;
   previous_device = 0;
 
-  DBG (2, "sane_init: version_code= %p, authorize=%p\n", (void*)version_code,
-       (void*)authorize);
-  DBG (1, "sane_init: SANE test backend version %d.%d.%d from %s\n",
-       V_MAJOR, V_MINOR, BUILD, PACKAGE_STRING);
+  DBG (2, "sane_init: version_code= %p, authorize=%p\n",
+       (void *) version_code, (void *) authorize);
+  DBG (1, "sane_init: SANE test backend version %d.%d.%d from %s\n", V_MAJOR,
+       V_MINOR, BUILD, PACKAGE_STRING);
 
   if (version_code)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BUILD);
@@ -1640,7 +1647,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 {
 
   DBG (2, "sane_get_devices: device_list=%p, local_only=%d\n",
-       (void*)device_list, local_only);
+       (void *) device_list, local_only);
   if (!inited)
     {
       DBG (1, "sane_get_devices: not inited, call sane_init() first\n");
@@ -1663,7 +1670,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   SANE_Status status;
 
   DBG (2, "sane_open: devicename = \"%s\", handle=%p\n",
-          devicename, (void*)handle);
+       devicename, (void *) handle);
   if (!inited)
     {
       DBG (1, "sane_open: not inited, call sane_init() first\n");
@@ -1700,7 +1707,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
       return SANE_STATUS_DEVICE_BUSY;
     }
   DBG (2, "sane_open: opening device `%s', handle = %p\n", test_device->name,
-          (void*)test_device);
+       (void *) test_device);
   test_device->open = SANE_TRUE;
   *handle = test_device;
 
@@ -1723,7 +1730,7 @@ sane_close (SANE_Handle handle)
 {
   Test_Device *test_device = handle;
 
-  DBG (2, "sane_close: handle=%p\n", (void*)handle);
+  DBG (2, "sane_close: handle=%p\n", (void *) handle);
   if (!inited)
     {
       DBG (1, "sane_close: not inited, call sane_init() first\n");
@@ -1732,12 +1739,12 @@ sane_close (SANE_Handle handle)
 
   if (!check_handle (handle))
     {
-      DBG (1, "sane_close: handle %p unknown\n", (void*)handle);
+      DBG (1, "sane_close: handle %p unknown\n", (void *) handle);
       return;
     }
   if (!test_device->open)
     {
-      DBG (1, "sane_close: handle %p not open\n", (void*)handle);
+      DBG (1, "sane_close: handle %p not open\n", (void *) handle);
       return;
     }
   test_device->open = SANE_FALSE;
@@ -1750,7 +1757,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   Test_Device *test_device = handle;
 
   DBG (4, "sane_get_option_descriptor: handle=%p, option = %d\n",
-       (void*)handle, option);
+       (void *) handle, option);
   if (!inited)
     {
       DBG (1, "sane_get_option_descriptor: not inited, call sane_init() "
@@ -1761,7 +1768,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   if (!check_handle (handle))
     {
       DBG (1, "sane_get_option_descriptor: handle %p unknown\n",
-           (void*)handle);
+	   (void *) handle);
       return 0;
     }
   if (!test_device->open)
@@ -1788,7 +1795,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option, SANE_Action action,
   SANE_Status status;
 
   DBG (4, "sane_control_option: handle=%p, opt=%d, act=%d, val=%p, info=%p\n",
-       (void*)handle, option, action, (void*)value, (void*)info);
+       (void *) handle, option, action, (void *) value, (void *) info);
   if (!inited)
     {
       DBG (1, "sane_control_option: not inited, call sane_init() first\n");
@@ -1797,7 +1804,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option, SANE_Action action,
 
   if (!check_handle (handle))
     {
-      DBG (1, "sane_control_option: handle %p unknown\n", (void*)handle);
+      DBG (1, "sane_control_option: handle %p unknown\n", (void *) handle);
       return SANE_STATUS_INVAL;
     }
   if (!test_device->open)
@@ -2013,7 +2020,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option, SANE_Action action,
 	  memcpy (test_device->val[option].wa, value,
 		  test_device->opt[option].size);
 	  DBG (4, "sane_control_option: set option %d (%s) to %p\n",
-	       option, test_device->opt[option].name, (void *)value);
+	       option, test_device->opt[option].name, (void *) value);
 	  break;
 	  /* options with side-effects */
 	case opt_print_options:
@@ -2270,7 +2277,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   SANE_Int channels = 1;
 
   DBG (2, "sane_get_parameters: handle=%p, params=%p\n",
-       (void*)handle, (void*)params);
+       (void *) handle, (void *) params);
   if (!inited)
     {
       DBG (1, "sane_get_parameters: not inited, call sane_init() first\n");
@@ -2278,12 +2285,12 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
     }
   if (!check_handle (handle))
     {
-      DBG (1, "sane_get_parameters: handle %p unknown\n", (void*)handle);
+      DBG (1, "sane_get_parameters: handle %p unknown\n", (void *) handle);
       return SANE_STATUS_INVAL;
     }
   if (!test_device->open)
     {
-      DBG (1, "sane_get_parameters: handle %p not open\n", (void*)handle);
+      DBG (1, "sane_get_parameters: handle %p not open\n", (void *) handle);
       return SANE_STATUS_INVAL;
     }
 
@@ -2477,22 +2484,24 @@ sane_start (SANE_Handle handle)
     }
 
   /* create reader routine as new process or thread */
-  test_device->pipe       = pipe_descriptor[0];
+  test_device->pipe = pipe_descriptor[0];
   test_device->reader_fds = pipe_descriptor[1];
-  test_device->reader_pid = sanei_thread_begin(reader_task,(void*)test_device);
+  test_device->reader_pid =
+    sanei_thread_begin (reader_task, (void *) test_device);
 
   if (test_device->reader_pid < 0)
     {
-      DBG (1, "sane_start: sanei_thread_begin failed (%s)\n", strerror(errno));
+      DBG (1, "sane_start: sanei_thread_begin failed (%s)\n",
+	   strerror (errno));
       return SANE_STATUS_NO_MEM;
     }
 
-   if( sanei_thread_is_forked())
-     {
-       close( test_device->reader_fds );
-       test_device->reader_fds = -1;
-     }
-    
+  if (sanei_thread_is_forked ())
+    {
+      close (test_device->reader_fds);
+      test_device->reader_fds = -1;
+    }
+
   return SANE_STATUS_GOOD;
 }
 
@@ -2509,7 +2518,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
 
 
   DBG (4, "sane_read: handle=%p, data=%p, max_length = %d, length=%p\n",
-       handle, data, max_length, (void*)length);
+       handle, data, max_length, (void *) length);
   if (!inited)
     {
       DBG (1, "sane_read: not inited, call sane_init() first\n");
@@ -2593,7 +2602,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
   read_count = max_scan_length;
 
   bytes_read = read (test_device->pipe, data, read_count);
-  if (bytes_read == 0  
+  if (bytes_read == 0
       || (bytes_read + test_device->bytes_total >= bytes_total))
     {
       SANE_Status status;

@@ -1,7 +1,11 @@
 2004-09-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* configure: Regenerated.
-
+	* doc/descriptions/unsupported.desc
+	  doc/descriptions-external/genesys.desc: Moved HP 35xx series to
+	  unsupported.desc because these scanners use a RTS8801 chip (no
+	  Genesys chipset).
+	
 2004-09-06  Jochen Eisinger <jochen@penguin-breeder.org>
 
 	* backend/mustek_pp.c: clarify error message

@@ -40,6 +40,7 @@
 :url "http://www.canon.com/"
 
 :model "CanoScan LiDE 35"
+:url "/unsupported/canon-lide-50.html"
 :interface "USB"
 :status :unsupported
 :comment "Same as LiDE 50."
@@ -86,30 +87,6 @@
 :url "/unsupported/hp-scanjet-2400c.html"
 :interface "USB"
 :status :unsupported
-
-:model "ScanJet 3500c"
-:url "/unsupported/hp-scanjet-3500c.html"
-:interface "USB"
-:status :unsupported
-:comment "Maybe GL646_HP, but not confirmed. Older information: Seems to use RealTek RTS8801C2-6. Vendor/Product ID 0x03F0/0x2205. See link and other Scanjet 35x0c entries."
-
-:model "ScanJet 3530c"
-:url "/unsupported/hp-scanjet-3530c.html"
-:interface "USB"
-:status :unsupported
-:comment "Maybe GL646_HP, but not confirmed. Older information: Chipset is Realtek RTS8801C2-6. Vendor/Product ID 0x03F0/0x2005. See link and other Scanjet 35x0c entries."
-
-:model "ScanJet 3570c"
-:interface "USB"
-:url "/unsupported/hp-scanjet-3570c.html"
-:status :unsupported
-:comment "Maybe GL646_HP, but not confirmed. Older information: Probably Realtek RTS8801C2-6, same ids as Scanjet 3530c. Has a TA. Vendor/product id 0x03F0/0x2005. See link and other Scanjet 35x0c entries."
-
-:model "ScanJet 3570cxi"
-;:url "http://www.realtek.com.tw/products/products1-2.aspx?modelid=37"
-:interface "USB"
-:status :unsupported
-:comment "Unsupported. See 3570c."
 
 :model "ScanJet 3670c"
 :url "/unsupported/hp-scanjet-3670c.html"

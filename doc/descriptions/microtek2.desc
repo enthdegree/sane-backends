@@ -11,7 +11,7 @@
 
 :backend "microtek2"              ; name of backend
 :version "0.95"                   ; version of backend
-:status :alpha                    ; :alpha, :beta, :stable, :new
+;:status :alpha                    ; :alpha, :beta, :stable, :new
 :manpage "sane-microtek2"         ; name of manpage (if it exists)
 :url "http://karstenfestag.gmxhome.de"
 
@@ -19,89 +19,126 @@
 
 :mfg "Microtek"                   ; name a manufacturer
 :url "http://www.microtek.com/"
+
 :model "ScanMaker E3plus"
 :interface "Parport"
-:status :stable
+:status :complete
+
 :model "ScanMaker E3plus"         ; name models for above-specified mfg.
 :interface "SCSI"
-:status :stable
+:status :complete
+
 :model "ScanMaker X6"
 :interface "SCSI"
-:status :stable
+:status :complete
+
 :model "ScanMaker X6EL"
 :interface "SCSI"
+:status :basic
+
 :model "ScanMaker X6USB"
 :interface "USB"
-:status :beta
+:status :good
+
 :model "ScanMaker V300"
 :interface "SCSI"
-:status :beta
+:status :good
+
 :model "ScanMaker V300"
 :interface "Parport"
-:status :beta
+:status :good
+
 :model "ScanMaker V310"
 :interface "SCSI"
+:status :basic
+
 :model "ScanMaker V310"
 :interface "Parport"
+:status :basic
+
 :model "ScanMaker V600"
 :interface "SCSI"
+:status :basic
+
 :model "ScanMaker V600"
 :interface "Parport"
+:status :basic
+
 :model "ScanMaker 330"
 :interface "SCSI"
+:status :basic
+
 :model "ScanMaker 630"
 :interface "SCSI"
+:status :basic
+
 :model "ScanMaker 636"
 :interface "SCSI"
-:status :stable
+:status :complete
+
 :model "ScanMaker 9600XL"
 :interface "SCSI"
 :comment "only flatbed mode ?"
-:status :stable
-:model "ScanMaker 9600XL"
-:interface "SCSI"
-:status :alpha
+:status :good
+
+;:model "ScanMaker 9600XL"
+;:interface "SCSI"
+;:status :minimal
+
 :model "Phantom 330CX"
 :interface "Parport"
-:status :stable
+:status :complete
+
 :model "SlimScan C3"
 :interface "Parport"
-:status :stable
+:status :complete
+
 :model "Phantom 636"
 :interface "SCSI"
-:status :stable
+:status :complete
+
 :model "Phantom 636CX"
 :interface "Parport"
-:status :stable
+:status :complete
+
 :model "SlimScan C6"
 :interface "USB"
-:status :stable
+:status :complete
+
 :model "ScanMaker V6USL"
 :interface "SCSI"
-:status :stable
+:status :complete
+
 :model "ScanMaker V6USL"
 :interface "USB"
-:status :stable
+:status :complete
+
 :model "ScanMaker X12USL"
 :interface "SCSI"
 :comment "only Flatbed mode ?"
-:status :beta
+:status :good
 
 :mfg "Vobis"
 :url "http://www.vobis.de/"
+
 :model "HighScan"                 ; name models for above-specified mfg.
 :interface "SCSI"
 :comment "only E3plus based models"
-:status :stable
+:status :complete
 
 :mfg "Scanport"
 :url "http://www.scanport.com/"
 :model "SQ300"
 :interface "Parport?"
+:status :basic
+
 :model "SQ2030"
 :interface "Parport"
+:status :basic
+
 :model "SQ4836"
 :interface "SCSI"
+:status :basic
 
 
 

@@ -2,7 +2,7 @@
  * Compatibility header file for backends
  *
  * This file provides some defines for macros missing on some platforms.
- * It also has the SANE API entry points. sanei_backend.h muste be included
+ * It also has the SANE API entry points. sanei_backend.h must be included
  * by every backend.
  *
  * @sa sanei.h sanei_thread.h
@@ -11,6 +11,22 @@
 /** @name Compatibility macros
  * @{
  */
+
+/*
+ * Compiler related options
+ */
+
+#ifdef __GNUC__
+
+/* __unused tells the compiler a variable is unused, so the
+ * compiler doesn't spit a warning. */
+#define __unused__ __attribute__((unused))
+
+#else
+
+#define __unused__
+
+#endif
 
 #include <sane/sanei_debug.h>
 

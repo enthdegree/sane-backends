@@ -6,6 +6,14 @@
 	  Made PS/2 bidirectional mode work.
 	* doc/plustek/PLUSTEK-PARPORT.txt: Update.
 
+2003-10-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/Makefile.in backend/mustek.c backend/mustek.h
+	  doc/descriptions/mustek.desc doc/mustek/mustek.CHANGES:
+	  Added support for sanei_thread. Removed OS/2 specific code.
+	  Added more debug messages.
+	* doc/saned.man: Added more info about firewall trouble.
+
 2003-10-29  Gerhard Jaeger <gerhard@gjaeger.de>
 	* sanei/lib/sanei_pp.c include/sanei/sanei_pp.h:
 	  Added functions sanei_pp_set_datadir() and sanei_pp_uses_directio().

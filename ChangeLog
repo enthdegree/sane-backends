@@ -1,3 +1,9 @@
+2002-01-23  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan.c backend/snapscan-scsi.c backend/snapscan.h
+          Fix recognition of Acer 320U, Fix for spaces in model ID strings,
+          Change snapscan version to 1.4.7
+          
 2002-01-23  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/mustek.c backend/mustek_usb.c doc/mustek/mustek.CHANGES

@@ -1,3 +1,9 @@
+2001-09-06  Stéphane Voltz  <svoltz@wanadoo.fr>
+
+	* backend/umax_pp_low.c: made CmdSetDataBuffer static
+	* backend/Makefile.in: removed sanei_config2 from 
+	  umax_pp depencies
+	  
 2001-09-05  Jochen Eisinger <jochen.eisinger@gmx.de>
 
         * backend/net.c: ignoring size of parameter value for

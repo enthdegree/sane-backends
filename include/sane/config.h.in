@@ -323,6 +323,9 @@
 /* Define if you have sys/types.h. OS/2 wants them before select.h, etc. */
 #undef HAVE_SYS_TYPES_H
 
+/* Define if you have sys/scsi/scsi.h. */
+#undef HAVE_SYS_SCSI_SCSI_H
+
 /* Define if you have the <unistd.h> header file.  */
 #undef HAVE_UNISTD_H
 

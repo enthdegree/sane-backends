@@ -1750,7 +1750,7 @@ esac
       fi
     
 else
-  if false; then # release (false) or development (true)
+  if true; then # release (false) or development (true)
        # Warnings enabled by default (development)
        for flag in $WARN_CFLAGS; do
          case "$CFLAGS" in
@@ -4797,7 +4797,7 @@ else
   if { (eval echo configure:4798: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
     for file in conftest.*; do
       case $file in
-      *.c | *.o | *.obj) ;;
+      *.$ac_ext | *.c | *.o | *.obj) ;;
       *) ac_cv_exeext=`echo $file | sed -e s/conftest//` ;;
       esac
     done

@@ -1726,7 +1726,7 @@ static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
 
 	if (request_focus_position(s, &s->currentFocusPosition) == SANE_STATUS_GOOD)
 	{
-		DBG( 0, "Enabling 'Set Focus' support\n");
+		DBG( 1, "Enabling 'Set Focus' support\n");
 		s->hw->focusSupport = SANE_TRUE;
 		s->opt[ OPT_FOCUS].cap &= ~SANE_CAP_INACTIVE; 
 
@@ -1745,7 +1745,7 @@ static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
 	}
 	else
 	{
-		DBG( 0, "Disabling 'Set Focus' support\n");
+		DBG( 1, "Disabling 'Set Focus' support\n");
 		s->hw->focusSupport = SANE_FALSE;
 		s->opt[ OPT_FOCUS].cap |= SANE_CAP_INACTIVE; 
 	}

@@ -46,7 +46,7 @@
 
 /**************************************************************************/
 /* Mustek backend version                                                 */
-#define BUILD 117
+#define BUILD 118
 /**************************************************************************/
 
 #include "../include/sane/config.h"
@@ -683,7 +683,6 @@ dev_read_req_enter (Mustek_Scanner *s, SANE_Byte *buf, SANE_Int lines,
 	}
       else if (s->hw->flags & MUSTEK_FLAG_PRO)
 	{
-	  scsi_sense_wait_ready (s);
 	  memset (command, 0, 6);
 	  command[0] = MUSTEK_SCSI_READ_SCANNED_DATA;
 	  command[2] = ((lines * bpl) >> 16) & 0xff;
@@ -784,10 +783,12 @@ inquiry (Mustek_Scanner *s)
       if (result[63] & (1 << 3))
 	{
 	  s->hw->flags |= MUSTEK_FLAG_ADF_READY;
+	  DBG(4, "inquiry: ADF ready\n");
 	}
       else
 	{
 	  s->hw->flags &= ~MUSTEK_FLAG_ADF_READY;
+	  DBG(4, "inquiry: ADF not ready (out of paper)\n");
 	}
     }
   if (!result[0])
@@ -2112,13 +2113,14 @@ calibration_pro (Mustek_Scanner *s)
 {
   SANE_Status status;
   
-  if (s->val[OPT_QUALITY_CAL].w && (!s->val[OPT_FAST_GRAY_MODE].w) &&
-      !((s->mode & MUSTEK_MODE_COLOR) &&
-	(strcmp(s->val[OPT_BIT_DEPTH].s, "12") == 0)))
+  if (s->val[OPT_QUALITY_CAL].w)
     DBG(4, "calibration_pro: doing calibration\n");
   else
-    return SANE_STATUS_GOOD;
-  
+    {
+      DBG(4, "calibration_pro: calibration not necessary\n");
+      return SANE_STATUS_GOOD;
+    }
+
   status = get_calibration_size_pro (s);
   if (status != SANE_STATUS_GOOD)
     return status;
@@ -4370,7 +4372,10 @@ init_options (Mustek_Scanner *s)
   s->opt[OPT_QUALITY_CAL].title = SANE_TITLE_QUALITY_CAL;
   s->opt[OPT_QUALITY_CAL].desc = SANE_DESC_QUALITY_CAL;
   s->opt[OPT_QUALITY_CAL].type = SANE_TYPE_BOOL;
-  s->val[OPT_QUALITY_CAL].w = SANE_FALSE;
+  if (s->hw->flags & MUSTEK_FLAG_PRO)
+    s->val[OPT_QUALITY_CAL].w = SANE_TRUE;
+  else
+    s->val[OPT_QUALITY_CAL].w = SANE_FALSE;
   s->opt[OPT_QUALITY_CAL].cap |= SANE_CAP_INACTIVE;
   if ((s->hw->flags & MUSTEK_FLAG_PRO) || (s->hw->flags & MUSTEK_FLAG_SE_PLUS))
     {
@@ -6104,6 +6109,10 @@ sane_start (SANE_Handle handle)
       if (status != SANE_STATUS_GOOD)
 	goto stop_scanner_and_return;
 
+      status = scsi_sense_wait_ready (s);
+      if (status != SANE_STATUS_GOOD)
+      	goto stop_scanner_and_return;
+
       status = calibration_pro (s);	
       if (status != SANE_STATUS_GOOD)
 	goto stop_scanner_and_return;
@@ -6116,11 +6125,12 @@ sane_start (SANE_Handle handle)
       if (status != SANE_STATUS_GOOD) 
 	goto stop_scanner_and_return;
 
-      scsi_unit_wait_ready (s);
-      scsi_sense_wait_ready (s);
-
       status = get_image_status (s, &s->params.bytes_per_line, 
 				 &s->params.lines);
+      if (status != SANE_STATUS_GOOD)
+      	goto stop_scanner_and_return;
+
+      status = scsi_sense_wait_ready (s);
       if (status != SANE_STATUS_GOOD)
       	goto stop_scanner_and_return;
     }

@@ -1,5 +1,13 @@
 CHANGES for the SANE Mustek backend
 
+2002-01-20:
+  * Released Mustek backend 1.0-118.
+
+2002-01-20
+  * Changes for 1200 Pro: Removed debug code. Calibration is done in
+    every mode. Calibration is on by default. Added some
+    scsi_sense_wait_ready commands to be sure.
+
 2002-01-16
   * Changed option names to use only "-" not "_".
 

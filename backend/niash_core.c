@@ -977,6 +977,20 @@ CircBufferGetLine (int iHandle, TDataPipe * p, unsigned char *pabLine,
 }
 
 
+/* try to keep the number of transfers the same, but make them all 
+   as good as possible the same size to avoid cranking in critical
+   situations
+*/
+static int
+_OptimizeXferSize (int iLines, int iLinesPerXfer)
+{
+  int iXfers;
+  iXfers = (iLines + iLinesPerXfer - 1) / iLinesPerXfer;
+  while (--iLinesPerXfer > 0
+	 && (iLines + iLinesPerXfer - 1) / iLinesPerXfer == iXfers);
+  return iLinesPerXfer + 1;
+}
+
 STATIC void
 CircBufferInit (int iHandle, TDataPipe * p,
 		int iWidth, int iHeight,
@@ -1052,6 +1066,10 @@ CircBufferInit (int iHandle, TDataPipe * p,
 	{
 	  p->iLinesPerXferBuf = MAX_LINES_PER_XFERBUF;
 	}
+      /* final optimization to keep critical scans smooth */
+      p->iLinesPerXferBuf =
+	_OptimizeXferSize (p->iLinesLeft, p->iLinesPerXferBuf);
+
       DBG (DBG_MSG, "_iXFerSize = %d for %d transfer(s)\n",
 	   (int) p->iLinesPerXferBuf * p->iBytesPerLine,
 	   (p->iLinesLeft + p->iLinesPerXferBuf - 1) / p->iLinesPerXferBuf);

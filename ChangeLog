@@ -1,3 +1,9 @@
+2004-10-18  Ullrich Sigwanz <usigwanz@freesurf.ch>
+
+        * backend/niash_core.c: 
+        * backend/niash.c: correcting vertical scanning start 
+          point for changed max. page height
+
 2004-10-17  Ullrich Sigwanz <usigwanz@freesurf.ch>
 
         * backend/niash_core.c: using exact number of lines

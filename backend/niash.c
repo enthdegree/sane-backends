@@ -1290,7 +1290,7 @@ sane_start (SANE_Handle h)
 
   s->ScanParams.iWidth = par.pixels_per_line * iScaleDown;
   s->ScanParams.iHeight = par.lines * iScaleDown;
-  s->ScanParams.iBottom = 14200UL;
+  s->ScanParams.iBottom = HP3300C_BOTTOM;
   s->ScanParams.fCalib = SANE_FALSE;
 
   /* perform a simple calibration just before scanning */

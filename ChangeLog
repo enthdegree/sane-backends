@@ -1,3 +1,8 @@
+2003-06-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added Canon 8000F. More info
+	  for Avision/Umax scanners.
+
 2003-05-27  Frank Zago  <fzago at austin dot rr dot com>
 
 	* backend/teco2.c: fixed a bug regarding color shifting above X

@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-06-06"		; version of backend
+:version "2003-06-09"		; version of backend
 :url "http://www.meier-geinitz.de/sane/misc/unsupported.html"
 ;:status :stable			; :alpha, :beta, :stable, :new
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
@@ -53,7 +53,7 @@
 :url "http://www.avision.com/"
 
 :model "iVina FB1600"
-:url "http://www.genesyslogic.com/GL646.htm"
+:url "http://www.meier-geinitz.de/sane/misc/umax-astra-4500.txt"
 :interface "USB"
 :status :unsupported
 :comment "Not supported. Is reported to use GeneScan II GL646 chipset. Same as UMAX Astra 4500."
@@ -144,6 +144,12 @@
 :interface "USB"
 :status :unsupported
 :comment "Not supported. Vendor/product 0x4a9/0x2205. However, a stand-alone program for FreeBSD is available."
+
+:model "CanoScan 8000F"
+:url "http://www.meier-geinitz.de/sane/misc/canon-8000f.txt"
+:interface "USB"
+:status :unsupported
+:comment "Not supported. USB Vendor/product 0x04a9/0x220f. See link for more information."
 
 :model "FS4000"
 :url "http://www.meier-geinitz.de/sane/misc/canon-fs4000.txt"
@@ -649,7 +655,7 @@
 :url "http://www.umax.com/"
 
 :model "Astra 4500"
-:url "http://www.genesyslogic.com/GL646.htm"
+:url "http://www.meier-geinitz.de/sane/misc/umax-astra-4500.txt"
 :interface "USB"
 :status :unsupported
 :comment "Not supported. Vendor/product 0x0638/0x0a10. Is reported to use GeneScan II GL646 chipset. Same as Avision iVina FB1600."

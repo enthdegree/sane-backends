@@ -1,3 +1,7 @@
+2001-11-18  Karl Heinz Kremer <khk@khk.net>
+
+	* backend/epson.h: Added missing defines for USB IOCTLs
+
 2001-11-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/mustek.desc doc/sane-mustek.man doc/mustek/mustek.CHANGES:

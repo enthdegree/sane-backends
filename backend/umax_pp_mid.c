@@ -330,7 +330,8 @@ sanei_umax_pp_cancel (void)
 int
 sanei_umax_pp_start (int x, int y, int width, int height, int dpi, int color,
 		     int autoset,
-		     int brightness, int contrast, int *rbpp, int *rtw, int *rth)
+		     int brightness, int contrast, int *rbpp, int *rtw,
+		     int *rth)
 {
   int col = BW_MODE;
 

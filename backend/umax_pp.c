@@ -163,7 +163,7 @@ static const SANE_Range u8_range = {
 #define MM_TO_PIXEL(mm, res)	(SANE_UNFIX(mm) * (float )res / MM_PER_INCH)
 #define PIXEL_TO_MM(px, res)	(SANE_FIX((float )(px * MM_PER_INCH / (res / 10)) / 10.0))
 
-#define UMAX_PP_DEFAULT_PORT		0x378
+#define UMAX_PP_DEFAULT_PORT		"/dev/parport0"
 
 #define UMAX_PP_RESERVE			259200
 /*
@@ -316,6 +316,64 @@ attach (const char *devname)
   return SANE_STATUS_GOOD;
 }
 
+/*
+ * walk a port list and try to attach to them
+ *
+ */
+static SANE_Int
+umax_pp_try_ports (char **ports)
+{
+  int i;
+  int rc = SANE_STATUS_INVAL;
+
+  if (ports != NULL)
+    {
+      i = 0;
+      rc = SANE_STATUS_INVAL;
+      while (ports[i] != NULL)
+	{
+	  if (rc != SANE_STATUS_GOOD)
+	    {
+	      DBG (3, "umax_pp_try_ports: trying port `%s'\n", ports[i]);
+	      rc = attach (ports[i]);
+	      if (rc != SANE_STATUS_GOOD)
+		DBG (3, "init: couldn't attach to port `%s'\n", ports[i]);
+	      else
+		DBG (3, "init: attach to port `%s' successfull\n", ports[i]);
+	    }
+	  free (ports[i]);
+	  i++;
+	}
+      free (ports);
+    }
+  return rc;
+}
+
+/*
+ * attempt to auto detect right parallel port
+ * if safe set to SANE_TRUE, no direct hardware access
+ *
+ */
+static SANE_Int
+umax_pp_auto_attach (SANE_Int safe)
+{
+  char **ports;
+  int rc = SANE_STATUS_INVAL;
+
+  /* safe tests: user parallel port devices */
+  ports = sanei_parport_find_device ();
+  if (ports != NULL)
+    rc = umax_pp_try_ports (ports);
+
+  /* try for direct hardware access */
+  if ((safe != SANE_TRUE) && (rc != SANE_STATUS_GOOD))
+    {
+      ports = sanei_parport_find_port ();
+      if (ports != NULL)
+	rc = umax_pp_try_ports (ports);
+    }
+  return rc;
+}
 
 static SANE_Int
 umax_pp_get_sync (SANE_Int dpi)
@@ -693,10 +751,10 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
   if (fp == NULL)
     {
-      DBG (2, "init: no configuration file, using default `port 0x%03X'\n",
+      DBG (2, "init: no configuration file, using default `port %s'\n",
 	   UMAX_PP_DEFAULT_PORT);
 
-      ret = attach (STRINGIFY (UMAX_PP_DEFAULT_PORT));
+      ret = attach (UMAX_PP_DEFAULT_PORT);
       return ret;
     }
 
@@ -926,13 +984,33 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	  cp += 5;
 	  cp = sanei_config_skip_whitespace (cp);
 
-	  DBG (3, "init: trying port `%s'\n", cp);
-
 	  if (*cp)
 	    {
-	      DBG (3, "attach(%s)\n", cp);
-	      if (attach (cp) != SANE_STATUS_GOOD)
-		DBG (2, "init: couldn't attach to port `%s'\n", cp);
+	      /* here, the argument maybe a device, an address, or special
+	       * keywords 'auto' and 'safe-auto'
+	       */
+	      if (strcmp (cp, "safe-auto") == 0)
+		{
+		  /* try every device we can find */
+		  if (umax_pp_auto_attach (SANE_TRUE) != SANE_STATUS_GOOD)
+		    DBG (2, "init: safe-auto attach failed !");
+		}
+	      else if (strcmp (cp, "auto") == 0)
+		{
+		  /* try every port/device we can find */
+		  if (umax_pp_auto_attach (SANE_FALSE) != SANE_STATUS_GOOD)
+		    {
+		      DBG (2, "init: auto attach failed !");
+		    }
+		}
+	      else
+		{
+		  DBG (3, "init: trying port `%s'\n", cp);
+
+		  DBG (3, "attach(%s)\n", cp);
+		  if (attach (cp) != SANE_STATUS_GOOD)
+		    DBG (2, "init: couldn't attach to port `%s'\n", cp);
+		}
 	    }
 	}
       else if ((strncmp (cp, "name", 4) == 0) && isspace (cp[4]))
@@ -1130,18 +1208,18 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
       DBG (3, "open: trying default device %s, port=%s,ppdev=%s\n",
 	   devlist[0].sane.name, devlist[0].port, devlist[0].ppdevice);
       if (devlist[0].port != NULL)
-        {
-          if ((devlist[0].port[0] == '0')
-              && ((devlist[0].port[1] == 'x') || (devlist[0].port[1] == 'X')))
-            prt = strtol (devlist[0].port + 2, NULL, 16);
-          else
-            prt = atoi (devlist[0].port);
+	{
+	  if ((devlist[0].port[0] == '0')
+	      && ((devlist[0].port[1] == 'x') || (devlist[0].port[1] == 'X')))
+	    prt = strtol (devlist[0].port + 2, NULL, 16);
+	  else
+	    prt = atoi (devlist[0].port);
 	  rc = sanei_umax_pp_open (prt, NULL);
-        }
+	}
       else
-        {
-          rc = sanei_umax_pp_open (0, devlist[0].ppdevice);
-        }
+	{
+	  rc = sanei_umax_pp_open (0, devlist[0].ppdevice);
+	}
       desc = &devlist[0];
     }
   switch (rc)
@@ -1416,14 +1494,14 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_GAMMA_VECTOR_G:
 	case OPT_GAMMA_VECTOR_B:
 
-	  for(i=0;i<dev->opt[option].size/sizeof(SANE_Word);i++)
-	  {
-	  	if(((SANE_Int *)val)[i]<0 || ((SANE_Int *)val)[i]>255) 
+	  for (i = 0; i < dev->opt[option].size / sizeof (SANE_Word); i++)
+	    {
+	      if (((SANE_Int *) val)[i] < 0 || ((SANE_Int *) val)[i] > 255)
 		{
-	  		DBG (2, "Value at index %d out of range\n",i);
-	  		return SANE_STATUS_INVAL;
+		  DBG (2, "Value at index %d out of range\n", i);
+		  return SANE_STATUS_INVAL;
 		}
-	  }
+	    }
 	  memcpy (val, dev->val[option].wa, dev->opt[option].size);
 	  return SANE_STATUS_GOOD;
 

@@ -112,7 +112,7 @@ extern int sanei_umax_pp_lamp (int on);
 
 */
 
-extern int sanei_umax_pp_open (int port,char *name);
+extern int sanei_umax_pp_open (int port, char *name);
 
 
 

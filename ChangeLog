@@ -1,3 +1,10 @@
+2003-10-09  Stéphane Voltz <svoltz@wanadoo.fr>
+
+	* backend/umax_pp.c backend/umax_pp_low.h backend/umax_pp.h
+	  backend/umax_pp_mid.c backend/umax_pp_low.c backend/umax_pp_mid.h
+	  backend/umax_pp.conf: added automatic parallel port detection, 
+	  and special keyword in configuration file to use it.
+
 2003-10-08  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* backend/Makefile.in : linking plustek_pp- and test-backend against

@@ -736,55 +736,147 @@ static void Insb (int port, unsigned char *dest, int size);
 static void Insw (int port, unsigned char *dest, int size);
 
 
-/*
- * returns 1 if succeds in getting base addr via /proc
- *         0 on failure
- *
- * on successfull return, *addr will hold parport base addr
- */
-int
-sanei_parport_info (int number, int *addr)
+
+char **
+sanei_parport_find_port (void)
 {
-  char name[256];
+  char **ports = NULL;
+#ifdef ENABLE_PARPORT_DIRECTIO
+  int i, addr, ecpaddr;
+  int found = 0;
+  char name[80], buffer[80];
   FILE *fic = NULL;
-  char buffer[64], val[16];
-  int baseadr, ecpadr;
 
-  /* try 2.4 first */
-  sprintf (name, "/proc/sys/dev/parport/parport%d/base-addr", number);
-  memset (buffer, 0, 64);
-  memset (val, 0, 16);
-  fic = fopen (name, "rb");
-  if (fic == NULL)
+  /* direct I/O detection */
+  /* linux 2.4 + 2.6 with proc support */
+  for (i = 0; i < 4; i++)
     {
-      /* open failure, try 2.2 */
-      sprintf (name, "/proc/parport/%d/hardware", number);
+      /* try to ensure loading of lp module */
+      sprintf (name, "/dev/lp%d", i);
+      fic = fopen (name, "wb");
+      if (fic != NULL)
+	fclose (fic);
+      sprintf (name, "/proc/sys/dev/parport/parport%d/base-addr", i);
       fic = fopen (name, "rb");
-      if (fic == NULL)
-	{			/* no proc at all */
-	  DBG (1, "sanei_parport_info(): no /proc \n");
-	  return 0;
-	}
-      fread (buffer, 64, 1, fic);
-      fclose (fic);
-      sscanf (buffer, "base: %s", val);
-      baseadr = strtol (val, NULL, 16);
-
-    }
-  else
-    {
-      fread (buffer, 64, 1, fic);
-      fclose (fic);
-      if (sscanf (buffer, "%d %d", &baseadr, &ecpadr) < 1)
+      if (fic != NULL)
 	{
-	  /* empty base file */
-	  return 0;
+	  fread (buffer, 64, 1, fic);
+	  fclose (fic);
+	  if (sscanf (buffer, "%d %d", &addr, &ecpaddr) > 0)
+	    {
+	      DBG (16, "parport at 0x%X\n", addr);
+	      ports =
+		(char **) realloc (ports, (found + 2) * sizeof (char *));
+	      ports[found] = (char *) malloc (19);
+	      sprintf (ports[found], "0x%X", addr);
+	      found++;
+	      ports[found] = NULL;
+	    }
 	}
-      *addr = baseadr;
     }
-  return 1;
+#endif
+  return ports;
 }
 
+
+char **
+sanei_parport_find_device (void)
+{
+  char *devices[] = { "/dev/ppi0",
+    "/dev/ppi1",
+    "/dev/ppi2",
+    "/dev/ppi3",
+    "/dev/parport0",
+    "/dev/parport1",
+    "/dev/parport2",
+    "/dev/parport3",
+    NULL
+  };
+  int i, file;
+  int rc = 0;
+  int found = 0;
+  char **ports = NULL;
+
+
+  /* device finding */
+  i = 0;
+  while (devices[i] != NULL)
+    {
+      DBG (16, "Controling %s: ", devices[i]);
+      file = open (devices[i], O_RDWR);
+      if (file < 0)
+	{
+	  switch (errno)
+	    {
+	    case ENOENT:
+#ifdef ENIO
+	    case ENXIO:
+#endif
+#ifdef ENODEV
+	    case ENODEV:
+#endif
+	      DBG (16, "no %s device ...\n", devices[i]);
+	      break;
+	    case EACCES:
+	      DBG (16, "current user cannot use existing %s device ...\n",
+		      devices[i]);
+	      break;
+	    default:
+	      perror (devices[i]);
+	    }
+	}
+      else
+	{
+#ifdef HAVE_LINUX_PPDEV_H
+	  /* on kernel < 2.4.23, you have to CLAIM the device 
+	   * to check it really exists
+	   * we may hang if another program already claimed it
+	   */
+	  rc = ioctl (file, PPCLAIM);
+	  if (rc)
+	    {
+	      switch (errno)
+		{
+		case ENOENT:
+#ifdef ENXIO
+		case ENXIO:
+#endif
+#ifdef ENODEV
+		case ENODEV:
+#endif
+		  DBG (16, "no %s device ...\n", devices[i]);
+		  break;
+		case EACCES:
+		  DBG (16, "current user cannot use existing %s device ...\n",
+			  devices[i]);
+		  break;
+		default:
+		  DBG (16, "errno=%d\n", errno);
+		  perror (devices[i]);
+		}
+	    }
+	  else
+	    {
+	      rc = ioctl (file, PPRELEASE);
+	    }
+#endif /* HAVE_LINUX_PPDEV_H */
+	  close (file);
+	  if (!rc)
+	    {
+	      DBG (16, "adding %s to valid devices ...\n", devices[i]);
+	      ports =
+		(char **) realloc (ports, (found + 2) * sizeof (char *));
+	      ports[found] = strdup (devices[i]);
+	      found++;
+	      ports[found] = NULL;
+	    }
+	}
+
+      /* suite */
+      i++;
+    }
+  return ports;
+}
 
 
 

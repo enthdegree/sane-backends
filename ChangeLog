@@ -1,3 +1,6 @@
+2002-03-07 Abel Deuring <a.deuring@satzbau-gmbh.de>
+	* sanei/sanei_scsi.c: fixed a typo (Sg_scsi_id -> SG_scsi_id)
+
 2002-03-07 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 
 	* updated umax backend to version 1.0.7-build-33

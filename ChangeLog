@@ -1,3 +1,6 @@
+2002-12-01   Stéphane Voltz  <svoltz@wanadoo.fr>
+
+        * backend/umax_pp.c: unmarked from SANE_I18N 2 options names
 
 2002-12-01  Rene Rebe <rene.rebe@gmx.net>
 	 * backend/avision.h backend/avision.c backend/avision.conf

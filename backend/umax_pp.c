@@ -452,7 +452,7 @@ init_options (Umax_PP_Device * dev)
   dev->opt[OPT_ENHANCEMENT_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
   /* lamp control */
-  dev->opt[OPT_LAMP_CONTROL].name = SANE_I18N ("lamp-control");
+  dev->opt[OPT_LAMP_CONTROL].name = "lamp-control";
   dev->opt[OPT_LAMP_CONTROL].title = SANE_I18N ("Lamp on");
   dev->opt[OPT_LAMP_CONTROL].desc = SANE_I18N ("Sets lamp on/off");
   dev->opt[OPT_LAMP_CONTROL].type = SANE_TYPE_BOOL;
@@ -462,7 +462,7 @@ init_options (Umax_PP_Device * dev)
   dev->opt[OPT_LAMP_CONTROL].cap |= SANE_CAP_ADVANCED;
 
   /* UTA control */
-  dev->opt[OPT_UTA_CONTROL].name = SANE_I18N ("UTA-control");
+  dev->opt[OPT_UTA_CONTROL].name = "UTA-control";
   dev->opt[OPT_UTA_CONTROL].title = SANE_I18N ("UTA on");
   dev->opt[OPT_UTA_CONTROL].desc = SANE_I18N ("Sets UTA on/off");
   dev->opt[OPT_UTA_CONTROL].type = SANE_TYPE_BOOL;

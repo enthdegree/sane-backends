@@ -41,7 +41,7 @@
    This backend is for testing frontends.
 */
 
-#define BUILD 14
+#define BUILD 15
 
 #include "../include/sane/config.h"
 
@@ -1218,13 +1218,18 @@ finish_pass (Test_Device * test_device)
   if (test_device->reader_pid > 0)
     {
       int status;
+      int pid;
 
       DBG (2, "finish_pass: terminating reader process %d\n",
 	   test_device->reader_pid);
       kill (test_device->reader_pid, SIGTERM);
-      waitpid (test_device->reader_pid, &status, 0);
-
-      if (WIFEXITED (status))
+      pid = waitpid (test_device->reader_pid, &status, 0);
+      if (pid < 0)
+	{
+	  DBG (1, "finish_pass: waitpid failed, already terminated? (%s)\n", 
+	       strerror (errno));
+	}
+      else if (WIFEXITED (status))
 	{
 	  DBG (2, "finish_pass: reader process terminated with status %s\n",
 	       sane_strstatus (WEXITSTATUS (status)));

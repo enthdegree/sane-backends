@@ -1,3 +1,8 @@
+2001-10-14 Jochen Eisinger <jochen.eisinger@gmx.de>
+
+	* backend/mustek_pp.conf: added comment about changes in
+	  the naming of ports in 2.4.x
+
 2001-10-13 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 
 	* backend/umax.c, bachend/umax-scanner.c, backend/umax.desc,

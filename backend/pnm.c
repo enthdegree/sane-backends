@@ -1044,6 +1044,8 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
   if(status_nomem == SANE_TRUE) return SANE_STATUS_NO_MEM;
   if(status_accessdenied == SANE_TRUE) return SANE_STATUS_ACCESS_DENIED;
 
+  *length = 0;
+
   if (feof (infile))
     return SANE_STATUS_EOF;
 

@@ -11,6 +11,8 @@
 	  SANE distribution.
 	* include/md5.h: Don't use __attribute__ for compilers that don't
 	  support it.
+	* doc/sane-ibm.man doc/descriptions/ibm.desc: Mention alpha
+	  quality. Add maintainer address.
 	
 2003-04-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

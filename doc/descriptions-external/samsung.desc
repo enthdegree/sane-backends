@@ -12,7 +12,7 @@
 :backend "samsung"                 ; name of backend
 ;:version "(external)"             ; version of backend
 :url "http;//www.samsung.com/"     ; backend's web page
-:comment "This See the website for the latest releases."
+:comment "See the website for the latest release."
 
 
 
@@ -27,22 +27,22 @@
 ; name models for above-specified mfg.
 :model "SCX-4016"
 :interface "USB"
-:status : untested
+:status :untested
 :comment "No information received about supported status"
 
 :model "SCX-4100"
 :interface "USB"
-:status : untested
+:status :untested
 :comment "No information received about supported status"
 
 :model "SCX-4216F"
 :interface "USB"
-:status : untested
+:status :untested
 :comment "No information received about supported status"
 
 :model "For models not mentioned, check their website"
 :interface "USB"
-:status : untested
+:status :untested
 :comment "No information received about supported status"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,

@@ -199,7 +199,7 @@ scanner_do_scsi_inquiry (unsigned char *buffer, int sfd)
 }
 
 static void
-scanner_identify_scsi_scanner (unsigned char *buffer, int sfd, 
+scanner_identify_scsi_scanner (unsigned char *buffer, int sfd,
 			       char *devicename)
 {
   unsigned char vendor[9];
@@ -258,7 +258,7 @@ scanner_identify_scsi_scanner (unsigned char *buffer, int sfd,
 }
 
 static void
-check_scsi_file (char * file_name)
+check_scsi_file (char *file_name)
 {
   int result;
   int sfd;
@@ -266,9 +266,9 @@ check_scsi_file (char * file_name)
 
   if (verbose)
     printf ("%s: checking %s...", prog_name, file_name);
-	      
+
   result = sanei_scsi_open (file_name, &sfd, NULL, NULL);
-  
+
   if (verbose)
     {
       if (result != 0)
@@ -286,7 +286,7 @@ check_scsi_file (char * file_name)
 }
 
 static void
-check_usb_file (char * file_name)
+check_usb_file (char *file_name)
 {
   SANE_Status result;
   SANE_Word vendor, product;
@@ -327,14 +327,14 @@ check_usb_file (char * file_name)
 }
 
 static DIR *
-scan_directory (char * dir_name)
+scan_directory (char *dir_name)
 {
   struct stat stat_buf;
   DIR *dir;
-  
+
   if (verbose)
     printf ("%s: scanning directory %s\n", prog_name, dir_name);
-  
+
   if (stat (dir_name, &stat_buf) < 0)
     {
       if (verbose)
@@ -359,20 +359,20 @@ scan_directory (char * dir_name)
 }
 
 static char *
-get_next_file (char * dir_name, DIR * dir)
+get_next_file (char *dir_name, DIR * dir)
 {
   struct dirent *dir_entry;
-  static char file_name [PATH_MAX];
+  static char file_name[PATH_MAX];
 
-  do 
+  do
     {
       dir_entry = readdir (dir);
       if (!dir_entry)
 	return 0;
     }
-  while (strcmp (dir_entry->d_name, ".") == 0 
-	 || strcmp (dir_entry->d_name, ".." ) == 0);
-  
+  while (strcmp (dir_entry->d_name, ".") == 0
+	 || strcmp (dir_entry->d_name, "..") == 0);
+
   if (strlen (dir_name) + strlen (dir_entry->d_name) + 1 > PATH_MAX)
     {
       if (verbose)
@@ -684,13 +684,13 @@ main (int argc, char **argv)
   while ((dev_name = *dev_list++))
     {
       if (strlen (dev_name) == 0)
-	continue; /* Empty device names ... */
+	continue;		/* Empty device names ... */
 
-      if (dev_name [strlen (dev_name) - 1] == '/')
+      if (dev_name[strlen (dev_name) - 1] == '/')
 	{
 	  /* check whole directories */
 	  DIR *dir;
-	  char * file_name;
+	  char *file_name;
 
 	  dir = scan_directory (dev_name);
 	  if (!dir)
@@ -713,7 +713,7 @@ main (int argc, char **argv)
 	 "# in order for the scanner to be used with SANE. If your scanner is\n"
 	 "# NOT listed above, check that you have installed the drivers.\n\n");
     }
-  
+
   sanei_usb_init ();
   if (verbose)
     printf ("%s: searching for USB scanners:\n", prog_name);
@@ -721,13 +721,13 @@ main (int argc, char **argv)
   while ((dev_name = *usb_dev_list++))
     {
       if (strlen (dev_name) == 0)
-	continue; /* Empty device names ... */
+	continue;		/* Empty device names ... */
 
-      if (dev_name [strlen (dev_name) - 1] == '/')
+      if (dev_name[strlen (dev_name) - 1] == '/')
 	{
 	  /* check whole directories */
 	  DIR *dir;
-	  char * file_name;
+	  char *file_name;
 
 	  dir = scan_directory (dev_name);
 	  if (!dir)

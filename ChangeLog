@@ -1,3 +1,7 @@
+2002-07-19 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
+
+	* doc/descriptions/umax.desc: added per backend status
+
 2002-07-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* tools/sane-desc.c: Models are sorted alphanumerically now. Added

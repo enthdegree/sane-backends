@@ -16,6 +16,7 @@
 	* AUTHORS: Updated for fujitsu backend.
 	* doc/descriptions-external/m3091.desc doc/descriptions/m3096g.desc:
 	  Removed, now in doc/descriptions/fujitsu.desc.
+	* PROJECTS: Removed m3091 project.
 
 2002-04-15  Marian Eichholz <eichholz@computer.org>
 	* sm3600 imported from sm3600.sf.net

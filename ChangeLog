@@ -1,3 +1,10 @@
+2002-08-18 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
+
+	* frontend/scanimage.c, frontend/stiff.h, frontend/stiff.c:
+	  Added option "-i filename"/"--icc-profile filename":
+	  When image is saved in tiff format then this icc-profile is
+	  added to the tiff file as tiff tag
+
 2002-08-25  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* tools/Makefile.in: Fixed gamma4scanimage target for OS/2.

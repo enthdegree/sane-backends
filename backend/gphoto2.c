@@ -106,7 +106,7 @@
 #include <gphoto2-camera.h>
 #include <gphoto2-port-log.h>
 
-#define CHECK_EXIT(f) {int res = f; if (res < 0) {DBG (0,"ERROR: %s\n", gp_result_as_string (res)); exit (1);}}
+#define CHECK_EXIT(f) {int res = f; if (res < 0) {DBG (0,"ERROR: %s\n", gp_result_as_string (res)); return (SANE_STATUS_INVAL);}}
 #define CHECK_RET(f) {int res = f; if (res < 0) {DBG (0,"ERROR: %s\n", gp_result_as_string (res)); return (SANE_STATUS_INVAL);}}
 
 #ifndef PATH_MAX
@@ -133,6 +133,7 @@ static djpeg_dest_ptr dest_mgr = NULL;
 static SANE_Int highres_height = 960, highres_width = 1280;
 static SANE_Int thumb_height = 120, thumb_width = 160;
 static SANE_String TopFolder;	/* Fixed part of path strings */
+static SANE_Int SubDirs = 1;    /* Search for Sub directories */
 
 static GPHOTO2 Cam_data;	/* Other camera data */
 
@@ -328,7 +329,7 @@ static SANE_Char cmdbuf[256];
 static CameraAbilities abilities;
 static CameraFile *data_file;
 static const char *data_ptr;
-static long data_file_total_size, data_file_current_index;
+static unsigned long data_file_total_size, data_file_current_index;
 
 static SANE_Int hack_fd;
 
@@ -381,7 +382,7 @@ init_gphoto2 (void)
   if (!Cam_data.camera_name)
     {
       DBG (0, "Camera name not specified in config file\n");
-      exit (1);
+      return SANE_STATUS_INVAL;
     }
 
   CHECK_RET (gp_camera_new (&camera));
@@ -398,7 +399,7 @@ init_gphoto2 (void)
   if (!Cam_data.port)
     {
       DBG (0, "Camera port not specified in config file\n");
-      exit (1);
+      return SANE_STATUS_INVAL;
     }
 
   CHECK_RET (gp_port_info_list_new (&il));
@@ -444,7 +445,8 @@ init_gphoto2 (void)
 
   if (!(abilities.operations & GP_OPERATION_CAPTURE_IMAGE))
     {
-      DBG (0, "warning: does not support image capture\n");
+      DBG (20, "Camera does not support image capture\n");
+      sod[GPHOTO2_OPT_SNAP].cap |= SANE_CAP_INACTIVE;
     }
 
   for (n = 0; abilities.speed[n]; n++)
@@ -518,7 +520,13 @@ get_info (void)
       image_range.max = Cam_data.pic_taken;
     }
 
-  n = read_dir (TopFolder, 0);
+  if ( SubDirs ) 
+    {
+      n = read_dir (TopFolder, 0);
+    }
+  else {
+      n = 1;
+  }
 
   /* If we've already got a folder_list, free it up before starting
    * the new one 
@@ -527,7 +535,7 @@ get_info (void)
     {
       int tmp;
       for (tmp = 0; folder_list[tmp]; tmp++)
-	{
+        {
 	  free (folder_list[tmp]);
 	}
       free (folder_list);
@@ -535,18 +543,27 @@ get_info (void)
 
   folder_list =
     (SANE_String *) malloc ((n + 1) * sizeof (SANE_String_Const *));
-  for (n = 0; n < gp_list_count (dir_list); n++)
+
+  if ( SubDirs ) 
     {
-      gp_list_get_name (dir_list, n, &val);
-      folder_list[n] = strdup (val);
-      if (strchr ((const char *) folder_list[n], ' '))
-	{
-	  *strchr ((const char *) folder_list[n], ' ') = '\0';
-	}
+      for (n = 0; n < gp_list_count (dir_list); n++)
+        {
+          gp_list_get_name (dir_list, n, &val);
+          folder_list[n] = strdup (val);
+          if (strchr ((const char *) folder_list[n], ' '))
+	    {
+	      *strchr ((const char *) folder_list[n], ' ') = '\0';
+	    }
+        }
+      if (n == 0)
+        {
+          folder_list[n++] = (SANE_String) strdup ("");
+        }
     }
-  if (n == 0)
+  else 
     {
-      folder_list[n++] = (SANE_String) strdup ("");
+	n=0; 
+	folder_list[n++] = "N/A";
     }
 
   folder_list[n] = NULL;
@@ -683,7 +700,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
 		  DBG (0,
 		       "%s: error: %s is not a valid gphoto2 port.  Use \"gphoto2 --list-ports\" for list.\n",
 		       "init_gphoto2", Cam_data.port);
-		  exit (1);
+		  return SANE_STATUS_INVAL;
 		}
 	    }
 	  else if (strncmp (dev_name, "camera=", 7) == 0)
@@ -752,8 +769,21 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
 	    }
 	  else if (strncmp (dev_name, "topfolder=", 10) == 0)
 	    {
-	      TopFolder = strdup (&dev_name[10]);
-	      DBG (20, "Config file topfolder=%s\n", TopFolder);
+	      /* Make sure TopFolder is non-null  */
+	      if ( strlen(dev_name) > 10 ) 
+	        {
+ 	          TopFolder = strdup (&dev_name[10]);
+	          DBG (20, "Config file topfolder=%s\n", TopFolder);
+	        }
+	    }
+	  else if (strncmp (dev_name, "subdirs=", 8) == 0)
+	    {
+ 	          SubDirs = atoi (&dev_name[8]);
+	          if ( SubDirs == 0 ) 
+		    {
+		      sod[GPHOTO2_OPT_FOLDER].cap |= SANE_CAP_INACTIVE;
+		    }
+	          DBG (20, "Config file subdirs=%d\n", SubDirs);
 	    }
 	}
       fclose (fp);
@@ -1289,8 +1319,16 @@ sane_start (SANE_Handle handle)
 
   CHECK_RET (gp_file_new (&data_file));
 
-  sprintf (cmdbuf, "%s/%s", (char *) TopFolder,
+  if ( SubDirs ) 
+    {
+      sprintf (cmdbuf, "%s/%s", (char *) TopFolder,
 	   (const char *) folder_list[current_folder]);
+    }
+  else 
+    {
+      strcpy(cmdbuf,TopFolder);
+    }
+
   CHECK_RET (gp_list_get_name
 	     (dir_list, Cam_data.current_picture_number - 1, &filename));
 
@@ -1302,7 +1340,7 @@ sane_start (SANE_Handle handle)
   if (strcmp (GP_MIME_JPEG, mime_type) != 0)
     {
       DBG (0, "FIXME - Only jpeg files currently supported\n");
-      exit (1);
+      return SANE_STATUS_INVAL;
     }
 
   CHECK_RET (gp_file_get_data_and_size
@@ -1437,12 +1475,14 @@ get_pictures_info (void)
     }
 
   strcpy (path, TopFolder);
-  if (folder_list[current_folder] != NULL)
+  if ( SubDirs ) 
     {
-      strcat (path, "/");
-      strcat (path, (const char *) folder_list[current_folder]);
+      if (folder_list[current_folder] != NULL)
+        {
+          strcat (path, "/");
+          strcat (path, (const char *) folder_list[current_folder]);
+        }
     }
-
   num_pictures = read_dir (path, 1);
   Cam_data.pic_taken = num_pictures;
   if (num_pictures > 0)

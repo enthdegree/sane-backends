@@ -1,3 +1,8 @@
+2002-03-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/backend-writing.txt: Updated concerning splitted .desc
+	  directories.
+
 2002-03-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* sanei_wire.c: Set allocated memory to 0 to avoid delivering

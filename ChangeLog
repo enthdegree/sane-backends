@@ -1,5 +1,9 @@
 2002-03-03  Frank Zago <fzago@greshamstorage.com>
 
+	* doc/.cvsignore: added sane-sceptre.5
+
+2002-03-03  Frank Zago <fzago@greshamstorage.com>
+
 	* doc/sane-sceptre.5: removed (auto-generated)
 
 2002-03-03  Frank Zago <fzago@greshamstorage.com>

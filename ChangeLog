@@ -1,7 +1,7 @@
 2003-07-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* tools/check-usb-chip.c: Added support for detecting Genesys
-	  Logic GL646.
+	  Logic GL646. Fixed indentation.
 
 2003-07-23  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

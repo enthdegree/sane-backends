@@ -988,15 +988,20 @@ check_merlin (struct usb_device *dev)
 
 
 static int
-gl646_write_reg (usb_dev_handle * handle, unsigned char reg, unsigned char val)
+gl646_write_reg (usb_dev_handle * handle, unsigned char reg,
+		 unsigned char val)
 {
   int result;
 
-  result = usb_control_msg (handle, 0x00, 0x00, 0x83, 0x00, (char *) &reg, 0x01, TIMEOUT);
+  result =
+    usb_control_msg (handle, 0x00, 0x00, 0x83, 0x00, (char *) &reg, 0x01,
+		     TIMEOUT);
   if (result < 0)
     return 0;
 
-  result = usb_control_msg (handle, 0x00, 0x00, 0x85, 0x00, (char *) &val, 0x01, TIMEOUT);
+  result =
+    usb_control_msg (handle, 0x00, 0x00, 0x85, 0x00, (char *) &val, 0x01,
+		     TIMEOUT);
   if (result < 0)
     return 0;
 
@@ -1004,15 +1009,20 @@ gl646_write_reg (usb_dev_handle * handle, unsigned char reg, unsigned char val)
 }
 
 static int
-gl646_read_reg (usb_dev_handle * handle, unsigned char reg, unsigned char *val)
+gl646_read_reg (usb_dev_handle * handle, unsigned char reg,
+		unsigned char *val)
 {
   int result;
 
-  result = usb_control_msg (handle, 0x00, 0x00, 0x83, 0x00, (char *) &reg, 0x01, TIMEOUT);
+  result =
+    usb_control_msg (handle, 0x00, 0x00, 0x83, 0x00, (char *) &reg, 0x01,
+		     TIMEOUT);
   if (result < 0)
     return 0;
 
-  result = usb_control_msg (handle, 0x80, 0x00, 0x84, 0x00, (char *) val, 0x01, TIMEOUT);
+  result =
+    usb_control_msg (handle, 0x80, 0x00, 0x84, 0x00, (char *) val, 0x01,
+		     TIMEOUT);
   if (result < 0)
     return 0;
 
@@ -1031,9 +1041,8 @@ check_gl646 (struct usb_device *dev)
     printf ("    checking for GL646 ...\n");
 
   /* Check device descriptor */
-  if ( (dev->descriptor.bDeviceClass != USB_CLASS_PER_INTERFACE)
-       || (dev->config[0].interface[0].altsetting[0].bInterfaceClass !=
-	  0x10))
+  if ((dev->descriptor.bDeviceClass != USB_CLASS_PER_INTERFACE)
+      || (dev->config[0].interface[0].altsetting[0].bInterfaceClass != 0x10))
     {
       if (verbose > 2)
 	printf
@@ -1101,8 +1110,8 @@ check_gl646 (struct usb_device *dev)
 	  bmAttributes != 0x02)
       || (dev->config[0].interface[0].altsetting[0].endpoint[1].
 	  wMaxPacketSize != 0x40)
-      || (dev->config[0].interface[0].altsetting[0].endpoint[1].bInterval != 0) 
-    )
+      || (dev->config[0].interface[0].altsetting[0].endpoint[1].bInterval !=
+	  0))
     {
       if (verbose > 2)
 	printf
@@ -1123,8 +1132,8 @@ check_gl646 (struct usb_device *dev)
 	  bmAttributes != 0x03)
       || (dev->config[0].interface[0].altsetting[0].endpoint[2].
 	  wMaxPacketSize != 0x1)
-      || (dev->config[0].interface[0].altsetting[0].endpoint[2].bInterval != 8)
-    )
+      || (dev->config[0].interface[0].altsetting[0].endpoint[2].bInterval !=
+	  8))
     {
       if (verbose > 2)
 	printf

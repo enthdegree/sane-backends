@@ -1,3 +1,8 @@
+2001-11-22  Stéphane Voltz  <svoltz@wanadoo.fr>
+
+	* backend/umax_pp_low.c: fixed build problem on non i386 linux when
+	  there is no <sys/io.h>.
+
 2001-11-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* TODO: Added entries about the fork/kill(-1,...) issue, the inb/outb
@@ -49,6 +54,7 @@
 
 2001-11-10  Stéphane Voltz  <svoltz@wanadoo.fr>
 
+>>>>>>> 1.539
 	* backend/umax_pp_low.c: correct PPC compile problem by removing
 	  buggy extra ifdef
 

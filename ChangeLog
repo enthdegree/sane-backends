@@ -4,6 +4,8 @@
 	  the IP address of the remote host before any communication occurs.
 	  Check for a errors before trsuting values that came from remote.
 	  Make sure that strings are 0-terminated.
+	* po/Makefile.in po/sane-backends.nl.po: Added dutch (nl) translations
+	  for sane-backends (from Bertrik Sikken <bertrik@zonnet.nl>).
 
 2003-02-09   Stéphane Voltz  <svoltz@wanadoo.fr>
 

@@ -1,3 +1,7 @@
+2003-03-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/as6e.c: Fixed segmentation fault when $PATH is not set.
+
 2003-03-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* sanei/sanei_scsi.c: OS/2 specific changes: memory for SRB now is

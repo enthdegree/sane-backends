@@ -793,6 +793,8 @@ check_for_driver (const char *devname)
   int count = 0, offset = 0;
 
   path = getenv ("PATH");
+  if (!path)
+    return 0;
   while (path[count] != '\0')
     {
       memset (fullname, '\0', sizeof (fullname));

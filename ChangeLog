@@ -1,3 +1,8 @@
+2004-06-13  Karl Heinz Kremer <khk@khk.net>
+
+	* backend/sane_usb.c: Added Perfection 1650 back in that was removed by
+	  mistake and finally removed Perfection 1250. 
+
 2004-06-15  Stéphane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c tools/umax_pp.c: final fixes for 610P color

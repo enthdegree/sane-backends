@@ -1,28 +1,33 @@
-.TH scanimage 1 "11 Sep 2002"
+.TH scanimage 1 "22 Nov 2002" @PACKAGEVERSION@ "SANE Scanner Access Now Easy"
 .IX scanimage
 .SH NAME
-scanimage - scan an image
+scanimage \- scan an image
 .SH SYNOPSIS
 .B scanimage
-.RB [ -d | --device-name
+.RB [ \-d | \-\-device-name
 .IR dev ]
-.RB [ --format
+.RB [ \-\-format
 .IR format ]
-.RB [ -i | --icc-profile=PROFILE]
-.RB [ -L | --list-devices ]
-.RB [ -f | --formatted-device-list 
+.RB [ \-i | \-\-icc-profile
+.IR profile ]
+.RB [ \-L | \-\-list-devices ]
+.RB [ \-f | \-\-formatted-device-list 
 .IR format ]
-.RB [ --batch[=FORMAT] ]
-.RB [ --batch-start=# ]
-.RB [ --batch-count=# ]
-.RB [ --batch-increment=# ]
-.RB [ --batch-double ]
-.RB [ --accept-md5-only ]
-.RB [ -n | --dont-scan ]
-.RB [ -T | --test ]
-.RB [ -h | --help ]
-.RB [ -v | --verbose ]
-.RB [ -V | --version ]
+.RB [ \-\-batch 
+.RI [ format ]]
+.RB [ \-\-batch-start
+.IR start ]
+.RB [ \-\-batch-count
+.IR count ]
+.RB [ \-\-batch-increment
+.IR increment ]
+.RB [ \-\-batch-double ]
+.RB [ \-\-accept-md5-only ]
+.RB [ \-n | \-\-dont-scan ]
+.RB [ \-T | \-\-test ]
+.RB [ \-h | \-\-help ]
+.RB [ \-v | \-\-verbose ]
+.RB [ \-V | \-\-version ]
 .RI [ device-specific-options ]
 .SH DESCRIPTION
 .B scanimage
@@ -35,20 +40,29 @@ standard output in one of the PNM (portable aNyMaP) formats (PBM for
 black-and-white images, PGM for grayscale images, and PPM for color
 images) or in TIFF (black-and-white, grayscale or color).
 .B scanimage
-accesses image acquisition devices through the SANE (Scanner Access
-Now Easy) interface and can thus support any device for which there
-exists a SANE backend (try "apropos sane\-" to get a list of available
-backends).
+accesses image acquisition devices through the
+.B SANE
+(Scanner Access Now Easy) interface and can thus support any device for which
+there exists a
+.B SANE
+backend (try
+.B apropos
+.I sane-
+to get a list of available backends).
 .SH OPTIONS
 .PP
 The
-.B -d
+.B \-d
 or
-.B --device-name
-options must be followed by a SANE device-name like "epson:/dev/sg0" or 
-"hp:/dev/usbscanner0". A (partial) list of available devices can be obtained
-with the
-.B --list-devices
+.B \-\-device-name
+options must be followed by a
+.B SANE
+device-name like 
+.RI ` epson:/dev/sg0 '
+or 
+.RI ` hp:/dev/usbscanner0 '.
+A (partial) list of available devices can be obtained with the
+.B \-\-list-devices
 option (see below).  If no device-name is specified explicitly,
 .B scanimage
 reads a device-name from the environment variable
@@ -58,50 +72,54 @@ If this variable is not set,
 will attempt to open the first available device.
 .PP
 The
-.B --format 
+.B \-\-format 
 .I format
-selects how image data is written to standard output.
+option selects how image data is written to standard output.
 .I format
 can be
 .B pnm
 or
-.B
-tiff
-to select file format PNM or TIFF. If
-.B --format
+.BR tiff.
+If
+.B \-\-format
 is not used, PNM is written.
 .PP
 The
-.B -i
+.B \-i
 or
-.B --icc-profile
+.B \-\-icc-profile
 option is used to include an ICC profile into a TIFF file.
 .PP
 The
-.B -L
+.B \-L
 or
-.B --list-devices
+.B \-\-list-devices
 option requests a (partial) list of devices that are available.  The
 list is not complete since some devices may be available, but are not
 listed in any of the configuration files (which are typically stored
-in directory @CONFIGDIR@).  This is particularly the case when
-accessing scanners through the network.  If a device is not listed in
-a configuration file, the only way to access it is by its full device
-name.  You may need to consult your system administrator to find out
-the names of such devices.
+in directory 
+.IR @CONFIGDIR@ ).
+This is particularly the case when accessing scanners through the network.  If
+a device is not listed in a configuration file, the only way to access it is
+by its full device name.  You may need to consult your system administrator to
+find out the names of such devices.
 .PP
 The
-.B -f
+.B \-f
 or
-.B --formatted-device-list
-option works similar to --list-devices, but requires a format string. 
-scanimage replaces the placeholders 
+.B \-\-formatted-device-list
+option works similar to
+.BR \-\-list-devices ,
+but requires a format string.
+.B scanimage
+replaces the placeholders
 .B %d %v %m %t %i
 with the device name, vendor name, model name, scanner type and an index
 number respectively. The command
 .PP
 .RS
-scanimage -f "scanner number %i device %d is a %t, model %m, produced by %v"
+.B scanimage \-f
+.I \*(lq scanner number %i device %d is a %t, model %m, produced by %v \*(rq
 .PP
 .RE
 will produce something like:
@@ -112,41 +130,51 @@ SCSI, produced by SHARP
 .RE
 .PP
 The
-.B --batch*
+.B \-\-batch*
 options provide the features for scanning documents using document
 feeders.  
-.B --batch[=FORMAT]
+.BR \-\-batch
+.RI [ format ]
 is used to specify the format of the filename that each page will be written
-to.  Each page is written out to a single file.  If the FORMAT is not
-specified, the default of out%d.pnm (or out%d.tif for --format tiff) will be
-used.  FORMAT is given as a printf style string with one integer parameter.
-.B --batch-start=#
+to.  Each page is written out to a single file.  If
+.I format
+is not specified, the default of out%d.pnm (or out%d.tif for \-\-format tiff)
+will be used.  
+.I format
+is given as a printf style string with one integer parameter.
+.B \-\-batch-start
+.I start
 selects the page number to start naming files with. If this option is not
 given, the counter will start at 0.
-.B --batch-count=#
+.B \-\-batch-count
+.I count
 specifies the number of pages to attempt to scan.  If not given, 
 scanimage will continue scanning until the scanner returns a state
 other than OK.  Not all scanners with document feeders signal when the
 ADF is empty, use this command to work around them.
 With 
-.B --batch-increment=#
+.B \-\-batch-increment
+.I increment
 you can change the amount that the number in the filename is incremented
 by.  Generally this is used when you are scanning double-sided documents
 on a single-sided document feeder.  A specific command is provided to
 aid this:
-.B --batch-double
+.B \-\-batch-double
 will automatically set the increment to 2.
 .PP
 The
-.B --accept-md5-only
+.B \-\-accept-md5-only
 option only accepts user authorization requests that support MD5 security. The
-SANE network daemon (saned) is capable of doing such requests. See
-.B saned(1)
+.B SANE
+network daemon
+.RB ( saned )
+is capable of doing such requests. See
+.BR saned (1).
 .PP
 The
-.B -n
+.B \-n
 or
-.B --dont-scan
+.B \-\-dont-scan
 option requests that
 .B scanimage
 only sets the options provided by the user but doesn't actually perform a
@@ -154,100 +182,106 @@ scan. This option can be used to e.g. turn off the scanner's lamp (if
 supported by the backend).
 .PP
 The
-.B -T
+.B \-T
 or
-.B --test
+.B \-\-test
 option requests that
 .B scanimage
-perform a few simple sanity tests to make sure the backend works as
-defined by the SANE API (in particular the
+performs a few simple sanity tests to make sure the backend works as
+defined by the
+.B SANE
+API (in particular the
 .B sane_read
 function is excercised by this test).
 .PP
 The
-.B -h
+.B \-h
 or
-.B --help
+.B \-\-help
 options request help information.  The information is printed on
 standard output and in this case, no attempt will be made to acquire
 an image.
 .PP
 The
-.B -v
+.B \-v
 or
-.B --verbose
+.B \-\-verbose
 options increase the verbosity of the operation of
 .B scanimage.
 The option may be specified repeatedly, each time increasing the verbosity
 level.
 .PP
 The
-.B -V
+.B \-V
 or
-.B --version
+.B \-\-version
 option requests that
 .B scanimage
 prints the program and package name, the version number of
-the SANE distribution that it came with and the version of the backend
-that it loads. Usually that's the dll backend. If more information about
-the version numbers of the backends are necessary, the DEBUG variable for
-the dll backend can be used. Example: SANE_DEBUG_DLL=3 scanimage -L.
+the
+.B SANE
+distribution that it came with and the version of the backend that it
+loads. Usually that's the dll backend. If more information about the version
+numbers of the backends are necessary, the
+.B DEBUG
+variable for the dll backend can be used. Example: SANE_DEBUG_DLL=3 scanimage
+\-L.
 .PP
-
 As you might imagine, much of the power of
 .B scanimage
-comes from the fact that it can control any SANE backend.  Thus, the
-exact set of command-line options depends on the capabilities of the
-selected device.  To see the options for a device named
+comes from the fact that it can control any
+.B SANE
+backend.  Thus, the exact set of command-line options depends on the
+capabilities of the selected device.  To see the options for a device named
 .IR dev ,
 invoke
 .B scanimage
 via a command-line of the form:
 .PP
 .RS
-scanimage --help --device-name
+.B scanimage \-\-help \-\-device-name
 .I dev
 .RE
 .PP
 The documentation for the device-specific options printed by
-.B --help
+.B \-\-help
 is best explained with a few examples:
 
- --brightness -100..100% [0]
+ \-\-brightness -100..100% [0]
 .br
     Controls the brightness of the acquired image.
 .PP
 .RS
 The description above shows that option
-.B --brightness
+.B \-\-brightness
 expects an option value in the range from -100 to 100 percent.  The
 value in square brackets indicates that the current option value is 0
 percent.
 .RE
 
- --default-enhancements
+ \-\-default-enhancements
 .br
     Set default values for enhancement controls.
 .PP
 .RS
 The description above shows that option
-.B --default-enhancements
+.B \-\-default-enhancements
 has no option value.  It should be thought of as having an immediate
 effect at the point of the command-line at which it appears.  For
 example, since this option resets the
-.B --brightness
+.B \-\-brightness
 option, the option-pair
-.B --brightness 50 --default-enhancements
+.B \-\-brightness 50 \-\-default-enhancements
 would effectively be a no-op.
 .RE
 
- --mode Lineart|Gray|Color [Gray]
+ \-\-mode Lineart|Gray|Color [Gray]
 .br
     Selects the scan mode (e.g., lineart or color).
 .PP
 .RS
 The description above shows that option
-.B --mode
+.B \-\-mode
 accepts an argument that must be one of the strings
 .BR Lineart ,
 .BR Gray ,
@@ -259,12 +293,12 @@ set to
 For convenience, it is legal to abbreviate the string values as long as
 they remain unique.  Also, the case of the spelling doesn't matter.  For
 example, option setting
-.B --mode col
+.B \-\-mode col
 is identical to
-.BR "--mode Color" .
+.BR "\-\-mode Color" .
 .RE
 
- --custom-gamma[=(yes|no)] [inactive]
+ \-\-custom-gamma[=(yes|no)] [inactive]
 .br
     Determines whether a builtin or a custom gamma-table
 .br
@@ -272,33 +306,34 @@ is identical to
 .PP
 .RS
 The description above shows that option
-.B --custom-gamma
+.B \-\-custom-gamma
 expects either no option value, a "yes" string, or a "no" string.
 Specifying the option with no value is equivalent to specifying "yes".
 The value in square-brackets indicates that the option is not
 currently active.  That is, attempting to set the option would result
 in an error message.  The set of available options typically depends
 on the settings of other options.  For example, the
-.B --custom-gamma
+.B \-\-custom-gamma
 table might be active only when a grayscale or color scan-mode has
 been requested.
 
 Note that the
-.B --help
+.B \-\-help
 option is processed only after all other options have been processed.
 This makes it possible to see the option settings for a particular
 mode by specifying the appropriate mode-options along
 with the
-.B --help
+.B \-\-help
 option.  For example, the command-line:
 .PP
-  scanimage --help --mode color
+.B  scanimage \-\-help \-\-mode
+.I color
 .PP
 would print the option settings that are in effect when the color-mode
 is selected.
 .RE
 
- --gamma-table 0..255,...
+ \-\-gamma-table 0..255,...
 .br
     Gamma-correction table.  In color mode this option
 .br
@@ -308,7 +343,7 @@ is selected.
 .PP
 .RS
 The description above shows that option
-.B --gamma-table
+.B \-\-gamma-table
 expects zero or more values in the range 0 to 255.  For example, a
 legal value for this option would be "3,4,5,6,7,8,9,10,11,12".  Since
 it's cumbersome to specify long vectors in this form, the same can be
@@ -319,12 +354,13 @@ is possible to specify multiple such linear segments.  For example,
 "[0]3-[2]3-[6]7,[7]10-[9]6" is equivalent to "3,3,3,4,5,6,7,10,8,6".
 The program
 .B gamma4scanimage
-can be used to generate such gamma tables (see man gamma4scanimage for
-details).
+can be used to generate such gamma tables (see 
+.BR gamma4scanimage (1)
+for details).
 .RE
 
 .br
- --filename <string> [/tmp/input.ppm]
+ \-\-filename <string> [/tmp/input.ppm]
 .br
     The filename of the image to be loaded.
 .PP
@@ -354,12 +390,19 @@ user:password:resource
 .PP
 scanimage uses this information to answer user authorization requests
 automatically. The file must have 0600 permissions or stricter. You should
-use this file in conjunction with the --accept-md5-only option to avoid
+use this file in conjunction with the \-\-accept-md5-only option to avoid
 server-side attacks. The resource may contain any character but is limited
 to 127 characters.
 .SH "SEE ALSO"
-sane(7), gamma4scanimage(1), xscanimage(1), xcam(1), xsane(1), scanadf(1), sane\-dll(5),
-sane\-net(5), sane-"backendname"(5)
+.BR sane (7),
+.BR gamma4scanimage (1),
+.BR xscanimage (1),
+.BR xcam(1) ,
+.BR xsane(1) ,
+.BR scanadf (1),
+.BR sane-dll (5),
+.BR sane-net (5),
+.BR sane-"backendname" (5)
 .SH AUTHOR
 David Mosberger, Andreas Beck, Gordon Matzigkeit and Caskey Dickson
 .SH BUGS

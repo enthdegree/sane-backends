@@ -2,6 +2,8 @@
 
 	* doc/sane.man: Formatting fixes. Updates some backend entries and
 	  sane-find-scanner. Some clarifications.
+	* doc/scanimage.man: Use "--option arg" format for all options.
+	  Other formatting fixes.
 
 2002-11-22  Michael Herder <crapsite at gmx.net>
 

@@ -671,7 +671,8 @@ attach_device(SANE_String *driver, SANE_String *name,
 
   if (found == 0)
     {
-      DBG (1, "sane_init: invalid driver name ``%s''\n", *driver);
+      DBG (1, "sane_init: no scanner detected\n");
+      DBG (3, "sane_init: either the driver name ``%s'' is invalid, or no scanner was detected\n", *driver);
     }
 
   free (*name);

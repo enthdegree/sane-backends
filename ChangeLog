@@ -1,3 +1,9 @@
+2004-09-06  Jochen Eisinger <jochen@penguin-breeder.org>
+
+	* backend/mustek_pp.c: clarify error message
+	* configure.in: only build the mustek_pp backend, if parallel
+	  port support of any kind is present
+
 2004-09-06  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* backend/plustek.c: Bumped build number.

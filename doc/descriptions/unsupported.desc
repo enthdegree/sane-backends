@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-03-30"		; version of backend
+:version "2003-04-11"		; version of backend
 :url "http://www.meier-geinitz.de/sane/misc/unsupported.html"
 ;:status :stable			; :alpha, :beta, :stable, :new
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
@@ -225,7 +225,7 @@
 :model "ScanJet 2300C"
 :interface "USB"
 :status :unsupported
-:comment "No chipset information is available."
+:comment "Unsupported. Vendor/product  0x03f0/0x0901. No chipset information is available until now."
 
 :model "ScanJet 3500c"
 :url "http://www.meier-geinitz.de/sane/misc/hp-scanjet-3500c.txt"
@@ -342,7 +342,7 @@
 :url "http://www.meier-geinitz.de/sane/misc/microtek-scanport-3000.txt"
 :interface "USB"
 :status :unsupported
-:comment "Unsupported. Vendor/Product ids: 0x04a7/0x0224. Maybe RTS8801C2-6? See link for details."
+:comment "Unsupported. Vendor/Product ids: 0x04a7/0x0224. Seems to use Realtek RTS8801B. See link for details."
 
 
 ;********************************************************************************************
@@ -375,6 +375,12 @@
 :url "http://www.meier-geinitz.de/sane/misc/mustek-scanners.html"
 :status :unsupported
 :comment "Not supported. SCSI over Parport."
+
+:model "P 3600 A3 Pro"
+:interface "USB"
+:url "http://www.mostang.com/pipermail/sane-devel/2003-April/018456.html"
+:status :unsupported
+:comment "Not supported but someone wants to start writing a backend. See link. Vendor/Product ids: 0x055f/0x0401"
 
 ;********************************************************************************************
 

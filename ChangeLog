@@ -9,6 +9,7 @@
 	* backend/ma1509.c: Remove test for multi-pass.
 	* doc/sane.man: Added information about #sane IRC
 	  channel. Formatting changes.
+	* doc/descriptions/unsupported.desc: Added Mustek P 3600 A3 Pro.
 	
 2003-04-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

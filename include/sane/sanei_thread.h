@@ -144,19 +144,4 @@ extern int sanei_thread_waitpid (int pid, int *status);
  */
 extern SANE_Status sanei_thread_get_status (int pid);
 
-/** Reader process function (OBSOLETE).
- *
- * This wrapper was necessary if a backend's reader process need more than one
- * argument. It will be removed soon. Do not use!
- *
- * FIXME: remove this ASAP
- */
-#ifdef HAVE_OS2_H
-static int os2_reader_process (void *data);
-
-#define fork()            sanei_thread_begin(os2_reader_process)
-#define kill(a, b)        sanei_thread_kill( a )
-#define waitpid(a, b, c)  sanei_thread_waitpid( a, b )
-#endif
-
 #endif /* sanei_thread_h */

@@ -1437,12 +1437,9 @@ sane_exit (void)
 
 	first_dev = NULL;
 
-	/* FIXEDME: this creates a segfault in DLL code. */
-	/* freeing something it shouldn't perhaps? */
-	/* Turns out to be a bug in libieee1284 0.1.4 and only occurs on 2.2 
-	 * kernels - have sent mail to Tim Waugh, will leave commented out
-	 * until I receive a reply */
-	/* ieee1284_free_ports(&pl); */
+	/* FIXEDME: this created a segfault in DLL code. */
+	/* Bug was fixed in libieee1284 0.1.5 */
+	ieee1284_free_ports(&pl);
 
 	DBG(2, "<< sane_exit\n");
 }
@@ -1974,9 +1971,25 @@ SANE_Status detect_mode(CANONP_Scanner *cs)
 	}
 
 	/* Check to make sure ECP mode really is supported */
-	if ((cs->ieee1284_mode == M1284_ECP) ||
+	/* Have disabled the hardware ECP check because it's always supported 
+	 * by libieee1284 now, and it's too prone to hitting a ppdev bug 
+	 */
+
+	if (/*(cs->ieee1284_mode == M1284_ECP) ||*/
 			(cs->ieee1284_mode == M1284_ECPSWE))
 	{
+		DBG(1, "detect_mode: attempting a 0 byte read, if we hang "
+				"here, it's a ppdev bug!\n");
+		/* 
+		 * 29/06/02 
+		 * NOTE:
+		 * This causes an infinite loop in ppdev on 2.4.18.  
+		 * Not checking on hardware ECP mode should work-around 
+		 * effectively.
+		 *
+		 * I have sent email to twaugh about it, should be fixed in 2.4.19 
+		 * and above.
+		 */
 		if (ieee1284_ecp_read_data(cs->params.port, 0, NULL, 0) == 
 				E1284_NOTIMPL)
 		{

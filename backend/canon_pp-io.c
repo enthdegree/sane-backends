@@ -80,13 +80,13 @@ static void DBG(int level, const char *format, ...)
 
 #endif
 
-/* 0x00 = Nibble Mode
-   0x10 = ECP Mode
+/* 0x00 = Nibble Mode (M1284_NIBBLE)
+   0x10 = ECP Mode (M1284_ECP)
    The scanner driver seems not to support ECP RLE mode 
    (which is a huge bummer because compression would be 
    ace) nor EPP mode.
    */
-static int ieee_mode = 0x0;
+static int ieee_mode = M1284_NIBBLE;
 
 static const int verbose = 0; 
 static const int dump_packets = 0;
@@ -192,18 +192,12 @@ int sanei_canon_pp_write(struct parport *port, int length, unsigned char *data)
 
 	if (verbose) 
 		DBG(10, "NEW Send Command (length %i):\n", length);
-	if (ieee_mode == 0x10)
+	if (ieee_mode == M1284_ECP)
 		ieee_negotiation(port, ieee_mode);
 
 	switch (ieee_mode)
 	{
-		case 0: 
-			count = ieee1284_compat_write(port, 0, (char *)data, 
-					length);
-			if (count != length)
-				return -1;
-			break;
-		case 0x10: 
+		case M1284_ECP: 
 			if (ieee1284_ecp_write_data(port, 0, (char *)data, 
 						length) != length)
 				return -1;
@@ -220,7 +214,7 @@ int sanei_canon_pp_write(struct parport *port, int length, unsigned char *data)
 
 int sanei_canon_pp_read(struct parport *port, int length, unsigned char *data)
 {
-	int count;
+	int count, offset;
 
 	if (verbose)
 		DBG(10, "NEW read_data (%i bytes):\n", length);
@@ -228,7 +222,7 @@ int sanei_canon_pp_read(struct parport *port, int length, unsigned char *data)
 
 	/* This is special; Nibble mode needs a little 
 	   extra help from us. */
-	if (ieee_mode == 0)
+	if (ieee_mode == M1284_NIBBLE)
 	{
 		/* Interrupt phase */
 		outcont(port, NSELECTIN, HOSTBUSY | NSELECTIN);
@@ -263,18 +257,29 @@ int sanei_canon_pp_read(struct parport *port, int length, unsigned char *data)
 		}
 	}
 
+	offset = 0;
+
 	count = ieee_transfer(port, length, data);
 
-	if (count != length)
+	length -= count;
+	offset+= count;
+	while (length > 0)
 	{
 		/* If 0 bytes were transferred, it's a legal
 		   "No data" condition (I think). Otherwise,
-		   print a message. */
-		if (count != 0)
-			DBG(1,"Data read error at byte %i\n", count);
+		   it may have run out of buffer.. keep reading*/
+		
+		if (count == 0) {
+			DBG(10, "Couldn't read enough data (need %d more "
+					"of %d)\n", length, length+offset);
+			scanner_endtransfer(port);
+			return 1;
+		}
 
-		scanner_endtransfer(port);
-		return 1;
+		count = ieee_transfer(port, length, data+offset);
+		length-=count;
+		offset+= count;
+
 	}
 
 	if (dump_packets)
@@ -332,7 +337,7 @@ static int ieee_transfer(struct parport *port, int length, unsigned char *data)
 
 	switch (ieee_mode) 
 	{
-		case 16:
+		case M1284_ECP:
 			result = ieee1284_ecp_read_data(port, 0, (char *)data, 
 					length);
 			break;		

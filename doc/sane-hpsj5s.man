@@ -14,9 +14,10 @@ cases, your computer might even hang. It cannot be excluded (although
 I consider it extremely unprobable) that your scanner will be
 damaged.
 .PP
-LIMITATIONS: For now this backend works only at Linux+PC platform.This limitation
-is due dependance on Linux loadable module. Will be fixed in future. Your system
-should support
+LIMITATIONS: For now this backend works only at Linux platform.This limitation
+is due dependance on libieee1284 library. If your system supports libieee1284 too,
+this backend should work. If you ported libieee1284 for you platform, please let
+me know.Your system should support
 .B EPP
 (or
 .B EPP+ECP
@@ -40,20 +41,16 @@ This backend expects device names of the form:
 .PP
 Where
 .I special
-is the path-name for the special device that corresponds to hpsj5s scaner driver.
-The special device name must be a link to device file or device file of hpsj5s.
-Under Linux, such a device name could be
-.I /dev/hpsj5s
-for example.
-
+is the parallel port name in form, libieee1284 expects. It seems to be system dependent.
+Under Linux it's parport0, parport1, etc.
 .SH CONFIGURATION
 The contents of the
 .I hpsj5s.conf
-file is a list of device names that correspond to HP ScanJet 5S
+file is a list of parport names that correspond to HP ScanJet 5S
 scanners.  Empty lines and lines starting with a hash mark (#) are
 ignored.  Only one device name can be listed in
 .IR hpsj5s.conf
-for this moment.
+for this moment. Future versions will support daisy chain selection.
 
 .SH TIPS
 .PP
@@ -97,6 +94,8 @@ to "/tmp/config:" would result in directories "tmp/config", ".", and
 sane(7)
 .br
 http://hpsj5s.sourceforge.net
+.br
+http://cyberelk.net/tim/libieee1284
 .br
 .SH AUTHOR
 Max Vorobiev

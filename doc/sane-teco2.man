@@ -1,4 +1,4 @@
-.TH sane-teco2 5 "03 August 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-teco2 5 "04 March 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-teco2
 .SH NAME
 sane-teco2 \- SANE backend for TECO / RELISYS scanners
@@ -36,7 +36,7 @@ The scanners that should work with this backend are:
 
 .RE
 
-For all these scanners, black&white and grayscale mode work
+For all these scanners, lineart and gray mode work
 well. However, most of them do not support more than a handful of
 resolutions in color mode. See the backend home page (under AUTHOR)
 for the exact status of each scanner.
@@ -67,18 +67,18 @@ scanimage --help -d teco2
 .TP
 .B --mode
 selects the basic mode of operation of the scanner valid choices are 
-.I Black & White
+.I Lineart
 ,
-.I Grayscale
+.I Gray
 and
 .I Color
-The Black & White mode is black and white only (1 bit). Grayscale
+The Lineart mode is black and white only (1 bit). Gray mode
 will produce 256 levels of gray (8 bits). Color will produce a 24 bits
 color image.
 
 .TP
 .B --resolution
-Black @ White and Grayscale
+Lineart and Gray
 selects the resolution for a scan. The scanner can do all resolutions
 between 1 and 600, in increments of 1.
 

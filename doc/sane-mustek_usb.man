@@ -1,0 +1,159 @@
+.TH sane-mustek 5 "26 Aug 2001"
+.IX sane-mustek_usb
+.SH NAME
+sane-mustek_usb - SANE backend for Mustek USB flatbed scanners
+.SH DESCRIPTION
+The
+.B sane-mustek_usb
+library implements a SANE (Scanner Access Now Easy) backend that
+provides access to Mustek (and some relabeled Trust) USB flatbed scanners.
+At present, the following scanners are known to work more or less with
+this backend:
+.PP
+.RS
+Mustek 600 CU
+.br
+Mustek 1200 UB
+.br
+Mustek 1200 CU
+.br
+Mustek 1200 CU Plus
+.br
+Trust Compact Scan USB 19200
+.br
+.RE
+.PP
+More details can be found on the Mustek backend homepage 
+.IR http://www.meier-geinitz.de/sane/ .
+.PP
+This backend is based on the 1200ub backend provided by Mustek. It was
+modified to fit into the SANE distribution, some bugs were fixed, and support
+for the 600 CU was added.
+.PP
+Beware! This is ALPHA software. It currently only works on Linux. It doesn't
+work on FreeBSD for unknown reasons. Other systems are untested. See BUGS for
+more information.
+.PP
+If you own a Mustek (or Trust) scanner other than the ones listed above that
+works with this backend, please let me know this by sending the scanner's exact
+model name and the USB vendor and device ids (e.g. from /proc/bus/usb/devices
+or syslog) to me.
+
+.SH "DEVICE NAMES"
+This backend expects device names of the form:
+.PP
+.RS
+.I special
+.RE
+.PP
+Where
+.I special
+is a path-name for the special device that corresponds to a USB scanner.
+With Linux, such a device name could be
+.I /dev/usb/scanner0
+or
+.IR /dev/usbscanner1 ,
+for example.
+
+.SH CONFIGURATION
+The contents of the
+.I mustek_usb.conf
+file is a list of options and device names that correspond to Mustek
+USB scanners.  Empty lines and lines starting with a hash mark (#) are
+ignored. If a device name is placed in 
+.IR mustek_usb.conf ,
+it must be followed by a line containing the keyword
+.I option
+and an option specifying the scanner type. The following options can be used:
+.IR 600cu ,
+.IR 1200cu ,
+.IR 1200cu_plus ,
+.IR 1200ub .
+For the Trust Compact Scan USB 19200 use `option 1200ub'.
+.PP
+Instead of using the device name, the scanner can be autodetected by 
+.I "usb vendor_id product_id"
+statements which are already included into
+.IR mustek_usb.conf .
+This is supported with Linux 2.4.8 and higher. "vendor_id" and "product_id"
+are hexadecimal numbers that identfy the scanner. If this doesn't work, a
+device name and the option specifying the scanner type must be placed in 
+.IR mustek_usb.conf .
+.PP
+A sample configuration file is shown below:
+.PP
+.RS
+# Comment
+.br
+usb 0x055f 0x0001
+.br
+/dev/usb/scanner0
+.br
+option 600cu
+.RE
+
+.SH FILES
+.TP
+.I @CONFIGDIR@/mustek_usb.conf
+The backend configuration file (see also description of
+.B SANE_CONFIG_DIR
+below).
+.TP
+.I @LIBDIR@/libsane-mustek_usb.a
+The static library implementing this backend.
+.TP
+.I @LIBDIR@/libsane-mustek_usb.so
+The shared library implementing this backend (present on systems that
+support dynamic loading).
+.SH ENVIRONMENT
+.TP
+.B SANE_CONFIG_DIR
+This environment variable specifies the list of directories that may
+contain the configuration file.  Under UNIX, the directories are
+separated by a colon (`:'), under OS/2, they are separated by a
+semi-colon (`;').  If this variable is not set, the configuration file
+is searched in two default directories: first, the current working
+directory (".") and then in @CONFIGDIR@.  If the value of the
+environment variable ends with the directory separator character, then
+the default directories are searched after the explicitly specified
+directories.  For example, setting
+.B SANE_CONFIG_DIR
+to "/tmp/config:" would result in directories "tmp/config", ".", and
+"@CONFIGDIR@" being searched (in this order).
+.TP
+.B SANE_DEBUG_MUSTEK_USB
+If the library was compiled with debug support enabled, this
+environment variable controls the debug level for this backend.  Higher
+debug levels increase the verbosity of the output. 
+
+.nf                                                                            
+Value  Descsription
+0      no output
+1      print fatal errors
+2      print important messages
+3      print non-fatal errors and less important messages
+4      print all but debugging messages
+5      print high level debugging messages
+6      print medium level debugging messages
+7      print low level debugging messages
+
+Example: 
+export SANE_DEBUG_MUSTEK_USB=4
+
+.SH "SEE ALSO"
+sane(7), sane-usb(5), sane\-mustek(5), sane\-mustek_pp(5)
+.br
+@DOCDIR@/mustek_usb/mustek_usb.CHANGES, 
+@DOCDIR@/mustek_usb/mustek_usb.TODO
+ 
+.SH AUTHOR
+Tom Wang (Mustek), Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+.SH BUGS
+This is ALPHA software. That means it's far from feature-complete and has lots
+of bugs. The support for the 600 CU is limited to 300, 150, 100 and 50
+dpi. Brightness and contrast options don't work in every mode.
+More detailed bug information is available at the Mustek backend
+homepage
+.IR http://www.meier-geinitz.de/sane/ .
+See also the CHANGES and TODO files.

@@ -1,0 +1,218 @@
+CHANGES for the SANE Mustek USB backend
+
+2001-09-06
+  * Release of version 1.0-4.
+
+2001-09-06
+  * usb_high: use only lower case for functions.
+  * mustek_usb: use only lower case for variables and functions.
+  * mustek_usb: remove unnecessary functions.
+
+2001-09-01
+  * usb_high: removed unnecessary macros and types.
+  * usb_high: use only lower case for variables and upper/lower mixed for
+    types.
+
+2001-08-30
+  * usb_low, usb_mid: use only lower case for functions. Fixed some
+    spellings and debug messages.
+
+2001-08-29
+  * usb_low: use only lower case for variables and upper/lower mixed for types.
+    remove unnecessary types.
+
+2001-08-28
+  * Also include sane-usb man page in tar.gz file to avoid make errors.
+  * Only use arrays of SANE_Byte for data transfer to scanner in usb_low.
+
+2001-08-26
+  * Check the result of all mallocs.
+  * Sensor is now only in mustek_usb_low.
+  * Removed gamma functions from code (weren't used anyway).
+  * Contrast is only active for color and gray scans.
+
+2001-08-26
+  * Release of version 1.0-3.
+
+2001-08-26
+  * Set up motor600 functions using the motor1200 with double dpi. This
+    doesn't work for 200 dpi, however. Removed 200 dpi from list until I
+    understand what's going on.
+  * Updated manual page
+  * Updated .conf file
+
+2001-08-25
+  * Used proper SANE_Status return values in mustek_usb_mid for all functions.
+  * Used proper SANE_Status return values in mustek_usb for all functions.
+  * Added Trust scanner to mustek_usb.desc.
+  * Removed Mono4 and Mono1 functions.
+
+2001-08-23
+  * Removed ifdefs in mustek_usb_mid.
+
+2001-08-22
+  * Removed GREENGRAY macro and included code (didn't work anyway).
+  * Removed 36 and 48 bit calibration.
+  * Added RIE (return if error) macro.
+
+2001-08-19
+  * Removed io functions in mustek_usb_low.
+  * Used proper SANE_Status return values in mustek_usb_low for all functions.
+  * Fixed lots of debug output in mustek_usb_low.
+  * Formatting update in mustek_usb_low.
+  * Used proper SANE_Status return values in mustek_usb_high for all functions.
+  * Fixed lots of debug output in mustek_usb_high.
+  * removed unnecessary modes in mustek_usb_high.
+
+2001-08-18
+  * Added manual selection of scanner type in mustek_usb.conf
+  * It's checked now if the scanner was autodetected or manually selected
+  * Set maximum resolution to 300 for 600 CU.
+  * Changed nUSBPipe to fd, which is more appropriate.
+  * Removed #ifdef 0 code from mustek_usb_high
+  * Used proper SANE_Status return values in mustek_usb_low for
+    - io_Open
+    - Open
+    - io_WriteReg
+    - io_ReadReg
+
+2001-08-08
+  * Fixed some format issues
+  * Better debug output
+  * Added support for CANON300 sensor (for 600 CU)
+
+2001-08-07
+  * Added support for sanei_usb v2.
+  * Check vendor/product directly after sane_open.
+
+2001-08-06
+  * Added scan buffer. It's used if the buffer suplied with sane_read is
+    smaller than one scan line.
+
+2001-08-06
+  * Released mustek_usb-backend 1.0-2.
+
+2001-08-05
+  * Support more than one scanner in the .conf file
+  * Use sanei_usb functions
+  * Allow usb vendor device in .conf
+  * Only use usb statements in .conf for all three scanners, comment out
+    device files
+  * Now the correct names are returned if autodetection works
+  * Manual page updates
+
+2001-08-05
+  * Released mustek_usb-backend 1.0-1.
+
+2001-08-04
+
+  * mustek_usb_low:
+    - fixed compilation warnings
+    - fixed compilation problems
+    - fixed C++ to C transition issues (e.g. "initializer element is not 
+      computable at load time")
+    - fixed debug output
+    - adjusted some names
+    - removed MEMFREE, MALLOC, LP*
+  * mustek_usb_mid:
+    - fixed compilation warnings
+    - changed printf to DBG
+    - fixed debug output
+    - reformatted
+  * mustek_usb_high:
+    - fixed some DBG statements
+    - fixed compilation warnings
+    - moved global variable to Mustek_Usb_Device
+    - reformatted
+  * mustek_usb:
+    - fixed compilation warnings
+    --> compile runs successfully for the first time since restructuring
+    - removed DWORDS etc.
+    - moved CScanner into Mustek_Usb_device
+    - removed global variables
+  * mustek_usb.conf: updated
+  * removed references to "WORD"
+  * ifdefed unused functions
+  * fixed bug concerning wrong x-resolution after the first scan for
+    low resolutions (e.g. preview). This also fixed the problems with
+    1200 CU.
+  --> Scanning works with 1200 UB, 1200 CU and probably 1200 CU Plus.
+  * added manual page
+  * updated mustek_usb.desc
+
+2001-08-02
+
+  * mustek_usb_high:
+    - fixed lots of compilation problems.
+    - removed LP..., huge*, far*
+    - removed MEMFREE, MEMALLOC
+    - added several "return SANE_TRUE" to SANE_Bool functions
+    - changed printf to DBG
+    - changed Sleep to usleep
+
+2001-07-22
+  * mustek_usb_low: Only one data structure: ma1017.
+  * mustek_usb_mid:  
+    - removed //
+    - remove SANE disclaimers
+    - use SANE types
+    - changed to use new usb_low style
+    - made everything static
+    - renamed functions to usb_mid_*
+  * mustek_usb_high:
+    - removed remaining //
+    - reformatted
+    - used SANE types
+    - made everything static
+    - renamed
+  * Fixed quite some compilation errors
+
+2001-07-08
+  * mustek_usb_low:
+    - renamed functions to usb_low/usb_low_io
+    - made all functions static
+    - used DBG instead of printf
+    - moved all status information from global to struct ma1017
+    - rename constructor/destructor
+    - included io constructor/destructor in usb_low
+
+2001-07-01
+  * Added more debug output in attach () when device file couldn't be opened.
+  * Added some tests for NULL pointers in attach ()
+  * fixed segfault in sane_exit ()
+  * indented all files
+  * fixed mustek_usb_high:
+    - changed // to /* */
+    - reformatted
+  * fixed mustek_usb_low:
+    - changed // to /* */
+    - reformatted
+    - removed most non-standard types
+
+2001-05-26
+  * Started working based on the Mustek source code from their FTP
+    server.
+  * Renamed backend to mustek_usb. All files start with this name.
+  * Created:
+    - mustek_usb(.c .h) from 1200ub(.c .h)
+    - mustek_usb_low from ma1017 and ma1017io
+    - mustek_usb_mid from ada*
+    - mustek_usb_high from scanner and calibrator
+  * Used "../include/sane" in #include statements
+  * Used /dev/usbscanner in mustek_usb.conf
+  * Fixed mustek_usb.desc
+  * Fixed mustek_usb.*: 
+    - use correct names
+    - no leading "_"
+    - use only C-style comments
+    - moved defines to .h,
+    - reformatted using GNU style
+    - use /dev/usbscanner as default
+    - Fixed DBG output
+    - don't use printf
+    - added more DBG output
+    - added "static" to internal functions
+    - commented out all references to c_scanner
+    - removed references to WORD and other non-standard types
+    - moved read_rows from global to Mustek_Usb_Scanner
+    --> mustek_usb.* compiles

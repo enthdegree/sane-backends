@@ -1,0 +1,8 @@
+2001-09-06
+
+* support more scanners
+* don't use a resolution list
+* allow 1200/600 dpi for y-resolution
+* remove/replace _word variables from usb_low
+* Check if gamma support is possible
+* Is is_invert usefull?

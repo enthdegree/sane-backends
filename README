@@ -189,9 +189,13 @@ should produce output similar to this:
   find-scanner: found "MUSTEK MFC-06000CZ 1.01" at device /dev/scanner
   find-scanner: found "MUSTEK MFC-06000CZ 1.01" at device /dev/sge
 
+Note that find-scanner will find any scanner that is connected to a
+SCSI bus.  It will even find scanners that are not supported at all
+by SANE.
+
 There may be several causes for the following messages from the
 frontends: "scanimage: no SANE devices found" or "xscanimage: no
-devices available." (together with a GTK error message).
+devices available.".
  
   * Your scanner is not recognized by any backend. It is not supported.
     You may ask the maintainer of your backend (see AUTHORS) or 

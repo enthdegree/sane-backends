@@ -1,6 +1,6 @@
 /* find-scanner.c
 
-   Copyright (C) 1997-1999 Oliver Rauch and others.
+   Copyright (C) 1997-2000 Oliver Rauch and others.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
@@ -149,9 +149,9 @@ scanner_identify_scanner (unsigned char *buffer, int sfd, char *devicename)
       && devtype != IN_periph_devtype_cpu)
     return;				/* no, continue searching */
 
-  get_inquiry_vendor ((char *) buffer, vendor);
-  get_inquiry_product ((char *) buffer, product);
-  get_inquiry_version ((char *) buffer, version);
+  get_inquiry_vendor ((char *) buffer, (char *) vendor);
+  get_inquiry_product ((char *) buffer, (char *) product);
+  get_inquiry_version ((char *) buffer, (char *) version);
 
   pp = &vendor[7];
   vendor[8] = '\0';
@@ -408,6 +408,11 @@ main (int argc, char **argv)
 	};
       dev_list = default_dev_list;
     }
+
+  printf (
+       "# Note that find-scanner will find any scanner that is connected\n"
+       "# to a SCSI bus.  It will even find scanners that are not supported\n"
+       "# at all by SANE.\n\n");
 
   if (getuid ())
     printf (

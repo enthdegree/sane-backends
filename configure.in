@@ -337,6 +337,13 @@ AC_ARG_ENABLE(parport-directio,
     fi
   ])
 
+AC_ARG_ENABLE(translations,
+  [  --enable-translations   install translations of backend options [default=no]],
+  INSTALL_TRANSLATIONS=install-translations,
+  INSTALL_TRANSLATIONS=
+)
+AC_SUBST(INSTALL_TRANSLATIONS)
+
 AC_PATH_PROG(SANE_CONFIG_PATH, sane-config, no)
 AC_CHECK_LIB(sane, sane_init, LIBSANE_EXISTS="yes")
 
@@ -347,7 +354,7 @@ AC_SUBST(DLL_PRELOAD)
 
 AC_OUTPUT([Makefile lib/Makefile sanei/Makefile frontend/Makefile
 	   japi/Makefile backend/Makefile include/Makefile doc/Makefile
-	   testsuite/Makefile
+	   po/Makefile testsuite/Makefile
 	   tools/Makefile tools/sane-config],)
 
 if test "$SANE_CONFIG_PATH" != "no" ; then

@@ -33,7 +33,7 @@ INSTALL_DATA = @INSTALL_DATA@
 INSTALLED_INCLUDES = $(addprefix $(top_srcdir)/include/sane/,sane.h \
 	saneopts.h)
 
-SUBDIRS	= lib sanei backend frontend doc tools
+SUBDIRS	= lib sanei backend frontend doc tools po
 
 all: all-recursive
 

@@ -18,6 +18,7 @@ datadir = @datadir@
 sysconfdir = @sysconfdir@
 sharedstatedir = @sharedstatedir@
 localstatedir = @localstatedir@
+localstatesanedir = $(localstatedir)/lock/sane
 libdir = @libdir@
 libsanedir = $(libdir)/sane
 infodir = @infodir@
@@ -36,6 +37,9 @@ MKDIR = $(top_srcdir)/mkinstalldirs
 INSTALL = @INSTALL@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_DATA = @INSTALL_DATA@
+INSTALL_LOCKPATH = @INSTALL_LOCKPATH@
+LOCKPATH_GROUP = @LOCKPATH_GROUP@
+
 RANLIB = @RANLIB@
 LN_S = @LN_S@
 
@@ -179,7 +183,10 @@ libsane-%.la: %.lo %-s.lo $(EXTRA) $(LIBOBJS)
 
 all:	$(LIBS) libsane.la
 
-install:
+install-lockpath:
+	$(MKDIR) -m 775 -g $(LOCKPATH_GROUP) $(DESTDIR)$(localstatesanedir)
+
+install: $(INSTALL_LOCKPATH)
 	$(MKDIR) $(DESTDIR)$(libdir) $(DESTDIR)$(libsanedir) $(DESTDIR)$(configdir)
 	@list="$(LIBS)"; for be in $$list; do \
 	  echo installing $${be} in $(libsanedir)/$${be}...; \
@@ -221,7 +228,7 @@ install:
 	 done
 
 uninstall:
-	rm -rf $(libsanedir) $(configdir)
+	rm -rf $(libsanedir) $(configdir) $(localstatesanedir)
 	rm -f $(libdir)/libsane.*
 	-for dir in $(FIRMWARE_DIRS) ; do \
 	   rmdir $(datadir)/sane/$${dir} ; \
@@ -375,6 +382,7 @@ libsane-plustek.la: ../sanei/sanei_constrain_value.lo
 libsane-plustek.la: ../sanei/sanei_usb.lo
 libsane-plustek.la: ../sanei/sanei_lm983x.lo
 libsane-plustek.la: ../sanei/sanei_thread.lo
+libsane-plustek.la: ../sanei/sanei_access.lo
 libsane-plustek_pp.la: ../sanei/sanei_constrain_value.lo
 libsane-plustek_pp.la: ../sanei/sanei_thread.lo
 libsane-plustek_pp.la: ../sanei/sanei_pp.lo
@@ -460,6 +468,7 @@ libsane-dll.la libsane.la: ../sanei/sanei_pp.lo
 libsane-dll.la libsane.la: ../sanei/sanei_usb.lo
 libsane-dll.la libsane.la: ../sanei/sanei_pv8630.lo
 libsane-dll.la libsane.la: ../sanei/sanei_lm983x.lo
+libsane-dll.la libsane.la: ../sanei/sanei_access.lo
 libsane-dll.la libsane.la: ../sanei/sanei_thread.lo
 ifneq (@SANEI_JPEG@,)
 libsane-dll.la libsane.la: ../sanei/sanei_jpeg.lo

@@ -5,6 +5,8 @@
 	* PROJECTS: Updated Winsane address.
 	* TODO: Added net/saned and .desc file entries. Removed scanimage/adf
 	  extention entry.
+	* backend/pnm.c backend/pnm.desc: Make sure that *length=0 in 
+	  sane_read(). Added more debug output.
 	
 2001-09-18  Stéphane Voltz  <svoltz@wanadoo.fr>
 

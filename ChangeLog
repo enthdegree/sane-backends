@@ -2,6 +2,7 @@
 
 	* doc/descriptions/unsupported.desc: Added Visioneer OneTouch 5800
 	  USB.
+	* doc/doxygen-sanei.conf: Update version.
 
 2003-06-25  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -1,7 +1,8 @@
 2003-04-03  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan.c backend/snapscan.h backend/snapscan-scsi.c
-	  backend/snapscan.conf doc/descriptions/snapscan.desc:
+	  backend/snapscan-options.c backend/snapscan.conf
+	  doc/descriptions/snapscan.desc:
 	  SnapScan backend 1.4.25 - added support for Epson Perfection 660,
 	  enhanced support for Acer 5000
 

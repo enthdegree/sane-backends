@@ -211,6 +211,7 @@ static void init_options (SnapScan_Scanner * ps)
     case SNAPSCANE52:
     case PRISA5300:
     case PRISA1240:
+    case PRISA5000:
         po[OPT_SCANRES].constraint.word_list = resolutions_1200;
         break;
     default:
@@ -1386,8 +1387,11 @@ SANE_Status sane_control_option (SANE_Handle h,
 
 /*
  * $Log$
- * Revision 1.5  2002/07/12 23:29:05  oliverschwartz
- * SnapScan backend 1.4.15
+ * Revision 1.6  2003/04/02 21:22:53  oliverschwartz
+ * Enabled 1200 DPI for Acer 5000
+ *
+ * Revision 1.7  2003/04/02 21:17:12  oliverschwartz
+ * Fix for 1200 DPI with Acer 5000
  *
  * Revision 1.6  2002/07/12 23:23:06  oliverschwartz
  * Disable quality calibration for 5300

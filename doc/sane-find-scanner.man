@@ -1,4 +1,4 @@
-.TH sane-find-scanner 1 "18 Jul 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-find-scanner 1 "4 Oct 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-find-scanner
 .SH NAME
 sane-find-scanner \- find SCSI and USB scanners and their device files
@@ -9,6 +9,8 @@ sane-find-scanner \- find SCSI and USB scanners and their device files
 .RB [ \-q ]
 .RB [ \-p ]
 .RB [ \-f ]
+.RB [ \-F 
+.IR filename ]
 .RI [ devname ]
 
 .SH DESCRIPTION
@@ -83,6 +85,14 @@ useful if
 .B sane-find-scanner
 is wrong in determing the device type.
 .TP 8
+.B \-F filename
+filename is a file that contains USB descriptors in the format of
+/proc/bus/usb/devices as used by Linux.
+.B sane-find-scanner
+tries to identify the chipset(s) of all USB scanners found in such a file. This
+option is useful for developers when the output of "cat /proc/bus/usb/devices"
+is avaliable but the scanner itsself isn't.
+.TP 8
 .B devname
 Test device file "devname". No other devices are checked if devname is given.
 .SH EXAMPLE
@@ -120,6 +130,5 @@ NetBSD, OpenBSD, and HP-UX.
 .SH BUGS
 No support for most parallel port scanners yet. 
 .br
-Detection of USB chipsets is limited to GrandTech 6801 and 6816, Mustek chips
-and National Semiconductor lm983x chips.
+Detection of USB chipsets is limited to a few chipsets.
 

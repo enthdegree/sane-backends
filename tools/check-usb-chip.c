@@ -27,25 +27,29 @@
 
 
 #include "../include/sane/config.h"
+#include "../include/sane/sane.h"
 
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
 
 static int verbose = 0;
-
+static SANE_Bool no_chipset_access;
 #define TIMEOUT 1000
 
 #ifdef HAVE_LIBUSB
 #include <usb.h>
 
-extern char *check_usb_chip (struct usb_device *dev, int verbosity);
+extern char *check_usb_chip (struct usb_device *dev, int verbosity, SANE_Bool from_file);
 
 
 static int
 prepare_interface (struct usb_device *dev, usb_dev_handle ** handle)
 {
   int result;
+
+  if (no_chipset_access)
+    return 0;
 
   *handle = usb_open (dev);
   if (*handle == 0)
@@ -860,20 +864,17 @@ check_ma1509 (struct usb_device *dev)
       || (dev->config[0].interface[0].altsetting[0].endpoint[0].
 	  bmAttributes != 0x02)
       || (dev->config[0].interface[0].altsetting[0].endpoint[0].
-	  wMaxPacketSize != 0x40)
-      || (dev->config[0].interface[0].altsetting[0].endpoint[0].bInterval !=
-	  0xff))
+	  wMaxPacketSize != 0x40))
     {
       if (verbose > 2)
 	printf
 	  ("    this is not a MA-1509 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
-	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
+	   "wMaxPacketSize = 0x%x)\n",
 	   dev->config[0].interface[0].altsetting[0].endpoint[0].
 	   bEndpointAddress,
 	   dev->config[0].interface[0].altsetting[0].endpoint[0].bmAttributes,
 	   dev->config[0].interface[0].altsetting[0].endpoint[0].
-	   wMaxPacketSize,
-	   dev->config[0].interface[0].altsetting[0].endpoint[0].bInterval);
+	   wMaxPacketSize);
       return 0;
     }
   if ((dev->config[0].interface[0].altsetting[0].endpoint[1].
@@ -881,20 +882,17 @@ check_ma1509 (struct usb_device *dev)
       || (dev->config[0].interface[0].altsetting[0].endpoint[1].
 	  bmAttributes != 0x02)
       || (dev->config[0].interface[0].altsetting[0].endpoint[1].
-	  wMaxPacketSize != 0x08)
-      || (dev->config[0].interface[0].altsetting[0].endpoint[1].bInterval !=
-	  0x00))
+	  wMaxPacketSize != 0x08))
     {
       if (verbose > 2)
 	printf
 	  ("    this is not a MA-1509 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
-	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
+	   "wMaxPacketSize = 0x%x)\n",
 	   dev->config[0].interface[0].altsetting[0].endpoint[1].
 	   bEndpointAddress,
 	   dev->config[0].interface[0].altsetting[0].endpoint[1].bmAttributes,
 	   dev->config[0].interface[0].altsetting[0].endpoint[1].
-	   wMaxPacketSize,
-	   dev->config[0].interface[0].altsetting[0].endpoint[1].bInterval);
+	   wMaxPacketSize);
       return 0;
     }
   if ((dev->config[0].interface[0].altsetting[0].endpoint[2].
@@ -1780,8 +1778,8 @@ check_gl841 (struct usb_device *dev)
 	  bmAttributes != 0x03)
       || (dev->config[0].interface[0].altsetting[0].endpoint[2].
 	  wMaxPacketSize != 0x1)
-      || (dev->config[0].interface[0].altsetting[0].endpoint[2].bInterval !=
-	  8))
+      || ((dev->config[0].interface[0].altsetting[0].endpoint[2].bInterval != 8)
+	  && (dev->config[0].interface[0].altsetting[0].endpoint[2].bInterval != 16)))
     {
       if (verbose > 2)
 	printf
@@ -2009,11 +2007,12 @@ check_icm532b (struct usb_device *dev)
 /* ====================================== end of icm532b ==================*/
 
 char *
-check_usb_chip (struct usb_device *dev, int verbosity)
+check_usb_chip (struct usb_device *dev, int verbosity, SANE_Bool from_file)
 {
   char *chip_name = 0;
 
   verbose = verbosity;
+  no_chipset_access = from_file;
 
   if (verbose > 2)
     printf ("\n<trying to find out which USB chip is used>\n");

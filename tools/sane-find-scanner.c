@@ -36,15 +36,16 @@
 #include <ddk/ntddscsi.h>
 #endif
 
-#ifdef HAVE_LIBUSB
-#include "usb.h"
-extern char * check_usb_chip (struct usb_device *dev, int verbosity);
-#endif
-
 #include "../include/sane/sanei.h"
 #include "../include/sane/sanei_scsi.h"
 #include "../include/sane/sanei_usb.h"
 #include "../include/sane/sanei_pa4s2.h"
+#include "../include/sane/sanei_config.h"
+
+#ifdef HAVE_LIBUSB
+#include "usb.h"
+extern char * check_usb_chip (struct usb_device *dev, int verbosity, SANE_Bool from_file);
+#endif
 
 #ifndef PATH_MAX
 # define PATH_MAX 1024
@@ -92,6 +93,8 @@ usage (char *msg)
   fprintf (stderr, "\t-f: force opening devname as SCSI even if it looks "
 	   "like USB\n");
   fprintf (stderr, "\t-p: enable scannig for parallel port devices\n");
+  fprintf (stderr, "\t-F file: try to detect chipset from given "
+	   "/proc/bus/usb/devices file\n");
   if (msg)
     fprintf (stderr, "\t%s\n", msg);
 }
@@ -433,7 +436,7 @@ get_libusb_product (struct usb_device *dev)
 }
 
 static void
-check_libusb_device (struct usb_device *dev)
+check_libusb_device (struct usb_device *dev, SANE_Bool from_file)
 {
   int is_scanner = 0;
   char *vendor = get_libusb_vendor (dev);
@@ -610,7 +613,7 @@ check_libusb_device (struct usb_device *dev)
 
   if (is_scanner > 0)
     {
-      char * chipset = check_usb_chip (dev, verbose);
+      char * chipset = check_usb_chip (dev, verbose, from_file);
 
       printf ("found USB scanner (vendor=0x%04x", dev->descriptor.idVendor);
       if (vendor)
@@ -620,7 +623,10 @@ check_libusb_device (struct usb_device *dev)
 	printf (" [%s]", product);
       if (chipset)
 	printf (", chip=%s", chipset);
-      printf (") at libusb:%s:%s\n", dev->bus->dirname, dev->filename);
+      if (from_file)
+	printf (")\n");
+      else
+	printf (") at libusb:%s:%s\n", dev->bus->dirname, dev->filename);
 
       libusb_device_found = SANE_TRUE;
       device_found = SANE_TRUE;
@@ -882,7 +888,205 @@ check_mustek_pp_device (void)
 	   "  # man-page for setup instructions.\n");
 
   return (found > 0 || scsi > 0);
+}
 
+static SANE_Bool
+parse_num (char* search, const char* line, int base, long int * number)
+{
+  char* start_number;
+
+  start_number = strstr (line, search);
+  if (start_number == NULL)
+    return SANE_FALSE;
+  start_number += strlen (search);
+ 
+  *number = strtol (start_number, NULL, base);
+  if (verbose > 2)
+    printf ("Found %s%ld\n", search, *number);
+  return SANE_TRUE;
+}
+
+static SANE_Bool
+parse_bcd (char* search, const char* line, long int * number)
+{
+  char* start_number;
+  char* end_number;
+  int first_part;
+  int second_part;
+
+  start_number = strstr (line, search);
+  if (start_number == NULL)
+    return SANE_FALSE;
+  start_number += strlen (search);
+ 
+  first_part = strtol (start_number, &end_number, 10);
+  start_number = end_number + 1; /* skip colon */
+  second_part = strtol (start_number, NULL, 10);
+  *number = ((first_part / 10) << 12) + ((first_part % 10) << 8) 
+    + ((second_part / 10) << 4) + (second_part % 10);
+  if (verbose > 2)
+    printf ("Found %s%ld\n", search, *number);
+  return SANE_TRUE;
+}
+
+static void
+parse_file (char *filename)
+{
+  FILE * parsefile;
+  char line [PATH_MAX], *token;
+  const char * p;
+  struct usb_device *dev = 0;
+  long int number = 0;
+  int current_config = 1;
+  int current_if = -1;
+  int current_as = -1;
+  int current_ep = -1;
+
+  if (verbose > 1)
+    printf ("trying to open %s\n", filename);
+  parsefile = fopen (filename, "r");
+
+  if (parsefile == NULL)
+    {
+      if (verbose > 0)
+	printf ("opening %s failed: %s\n", filename, strerror (errno));
+      return;
+    }
+
+  while (sanei_config_read (line, PATH_MAX, parsefile))
+    {
+      if (verbose > 2)
+	printf ("parsing line: `%s'\n", line);
+      p = sanei_config_get_string (line, &token);
+      if (!token || !p || token[0] == '\0')
+	continue;
+      if (token[1] != ':')
+	{
+	  if (verbose > 2)
+	    printf ("missing `:'?\n");
+	  continue;
+	}
+      switch (token[0])
+	{
+	case 'T':
+	  if (dev)
+	    check_libusb_device (dev, SANE_TRUE);
+	  dev = calloc (1, sizeof (struct usb_device));
+	  dev->bus = calloc (1, sizeof (struct usb_bus));
+	  current_config = 1;
+	  current_if = -1;
+	  current_as = -1;
+	  current_ep = -1;
+	  break;
+	case 'D':
+	  if (parse_bcd ("Ver=", line, &number))
+	    dev->descriptor.bcdUSB = number;
+	  if (parse_num ("Cls=", line, 16, &number))
+	    dev->descriptor.bDeviceClass = number;
+	  if (parse_num ("Sub=", line, 16, &number))
+	    dev->descriptor.bDeviceSubClass = number;
+	  if (parse_num ("Prot=", line, 16, &number))
+	    dev->descriptor.bDeviceProtocol = number;
+	  if (parse_num ("MxPS=", line, 10, &number))
+	    dev->descriptor.bMaxPacketSize0 = number;
+	  if (parse_num ("#Cfgs=", line, 10, &number))
+	    dev->descriptor.bNumConfigurations = number;
+	  dev->config = calloc (number, sizeof (struct usb_config_descriptor));
+	  break;
+	case 'P':
+	  if (parse_num ("Vendor=", line, 16, &number))
+	    dev->descriptor.idVendor = number;
+	  if (parse_num ("ProdID=", line, 16, &number))
+	    dev->descriptor.idProduct = number;
+	  if (parse_bcd ("Rev=", line, &number))
+	    dev->descriptor.bcdDevice = number;
+	  break;
+	case 'C':
+	  current_if = -1;
+	  current_as = -1;
+	  current_ep = -1;
+	  if (parse_num ("Cfg#=", line, 10, &number))
+	    {
+	      current_config = number - 1;
+	      dev->config[current_config].bConfigurationValue = number;
+	    }
+	  if (parse_num ("Ifs=", line, 10, &number))
+	    dev->config[current_config].bNumInterfaces = number;
+	  dev->config[current_config].interface 
+	    = calloc (number, sizeof (struct usb_interface));
+	  if (parse_num ("Atr=", line, 16, &number))
+	    dev->config[current_config].bmAttributes = number;
+	  if (parse_num ("MxPwr=", line, 10, &number))
+	    dev->config[current_config].MaxPower = number / 2;
+	  break;
+	case 'I':
+	  current_ep = -1;
+	  if (parse_num ("If#=", line, 10, &number))
+	    {
+	      if (current_if != number)
+		{
+		  current_if = number;
+		  current_as = -1;
+		  dev->config[current_config].interface[current_if].altsetting
+		    = calloc (20, sizeof (struct usb_interface_descriptor));
+		  /* Can't read number of altsettings */
+		  dev->config[current_config].interface[current_if].num_altsetting = 1;
+		}
+	      else
+		dev->config[current_config].interface[current_if].num_altsetting++;
+	    }
+	  if (parse_num ("Alt=", line, 10, &number))
+	    {
+	      current_as = number;
+	      dev->config[current_config].interface[current_if].altsetting[current_as].bInterfaceNumber 
+		= current_if;
+	      dev->config[current_config].interface[current_if].altsetting[current_as].bAlternateSetting 
+		= current_as;
+	    }
+	  if (parse_num ("#EPs=", line, 10, &number))
+	    dev->config[current_config].interface[current_if].altsetting[current_as].bNumEndpoints 
+	      = number;
+	  dev->config[current_config].interface[current_if].altsetting[current_as].endpoint 
+	    = calloc (number, sizeof (struct usb_endpoint_descriptor));
+	  if (parse_num ("Cls=", line, 16, &number))
+	    dev->config[current_config].interface[current_if].altsetting[current_as].bInterfaceClass 
+	      = number;
+	  if (parse_num ("Sub=", line, 16, &number))
+	    dev->config[current_config].interface[current_if].altsetting[current_as].bInterfaceSubClass 
+	      = number;
+	  if (parse_num ("Prot=", line, 16, &number))
+	    dev->config[current_config].interface[current_if].altsetting[current_as].bInterfaceProtocol 
+	      = number;
+	  break;
+	case 'E':
+	  current_ep++;
+	  if (parse_num ("Ad=", line, 16, &number))
+	    dev->config[current_config].interface[current_if].altsetting[current_as]
+	      .endpoint[current_ep].bEndpointAddress = number;
+	  if (parse_num ("Atr=", line, 16, &number))
+	    dev->config[current_config].interface[current_if].altsetting[current_as]
+	      .endpoint[current_ep].bmAttributes = number;
+	  if (parse_num ("MxPS=", line, 10, &number))
+	    dev->config[current_config].interface[current_if].altsetting[current_as]
+	      .endpoint[current_ep].wMaxPacketSize = number;
+	  if (parse_num ("Ivl=", line, 10, &number))
+	    dev->config[current_config].interface[current_if].altsetting[current_as]
+	      .endpoint[current_ep].bInterval = number;
+	  break;
+	case 'S':
+	case 'B':
+	  continue;
+	default:
+	  if (verbose > 1)
+	    printf ("ignoring unknown line identifier: %c\n", token[0]);
+	  continue;
+	}
+      free (token);
+    }
+  if (dev)
+    check_libusb_device (dev, SANE_TRUE);
+  fclose (parsefile);
+  return;
 }
 
 int
@@ -923,6 +1127,10 @@ main (int argc, char **argv)
 	case 'p':
 	  enable_pp_checks = SANE_TRUE;
 	  break;
+
+	case 'F':
+	  parse_file ((char *) (*(++ap)));
+	  exit (0);
 
 	default:
 	  printf ("unknown option: -%c, try -h for help\n", (*ap)[1]);
@@ -1301,7 +1509,7 @@ main (int argc, char **argv)
 	  {
 	    for (dev = bus->devices; dev; dev = dev->next)
 	      {
-		check_libusb_device (dev);
+		check_libusb_device (dev, SANE_FALSE);
 	      }			/* for (dev) */
 	  }			/* for (bus) */
       }				/* if (usb_dev_list == ap) */

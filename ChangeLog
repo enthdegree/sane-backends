@@ -1,3 +1,11 @@
+2004-10-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/sane-find-scanner.man tools/check-usb-chip.c
+	  tools/sane-find-scanner.c: sane-find-scanner can now load USB
+	  descriptors from /proc/bus/usb/devices dumps (e.g. from the
+	  unsupported scanner web pages). Minor modifications to some of
+	  the chipset tests.
+	
 2004-10-04  Peter Kirchgessner <peter@kirchgessner.net>
 
 	* backend/hp.h backend/hp.c backend/hp-scl.c:

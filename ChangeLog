@@ -11,6 +11,7 @@
 	* TODO: Added entry about auto-loading SCSI drivers. Removed entry
 	  about new SANE types. Moved entry about config.guess to 
 	  doc/releases.txt. Added more info about libtool problems.
+	* doc/releases.txt: Added info about config.guess and config.sub.
 
 2002-03-17  Peter Fales <peter@fales.com>
 

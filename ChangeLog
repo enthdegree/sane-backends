@@ -1,3 +1,13 @@
+2003-10-29  Gerhard Jaeger <gerhard@gjaeger.de>
+	* sanei/lib/sanei_pp.c include/sanei/sanei_pp.h:
+	  Added functions sanei_pp_set_datadir() and sanei_pp_uses_directio().
+	  Added some documentation.
+	* doc/plustek/PLUSTEK-PARPORT.txt doc/plustek/PLUSTEK-PARPORT-TODO.txt
+	  doc/plustek/PLUSTEK-USB-TODO.txt: Updates.
+	* backend/plustek_pp.c backend/plustek-pp_*: Made usage of the new
+	  sanei_pp functions, made EPP modes work with libieee1284. Also some
+	  cleanup work.
+
 2003-10-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/sane-scsi.man: Added hint for setting device permissions for

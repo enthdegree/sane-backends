@@ -1,3 +1,11 @@
+2003-10-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* AUTHORS: Marked maintainers that have CVS access with a
+	  (*). Added m. allan. noah to fujitsu backend. Added Julien Blache
+	  and Petter Reinholdtsen to "Miscellaneous coding". Removed
+	  Petter Reinholdtsen from "CVS repository maintainer".
+	* doc/sane-usb.man: sane-find-scanner is in section 1, not 5.
+
 2003-10-15  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* include/sanei/config.h.in configure.in configure:

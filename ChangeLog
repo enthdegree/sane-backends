@@ -3,6 +3,8 @@
 	* backend/microtek2.h doc/descriptions/microtek2.desc: New
 	  version: 0.96. Added Genius ColorPage-EP (from Karsten Festag
 	  <karsten.festag@gmx.de>). 
+	* doc/descriptions/unsupported.desc: Added link to artiscan 9600
+	  project. Removed Genius ColorPage-EP.
 
 2004-10-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

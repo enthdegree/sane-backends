@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2004-10-03"		; version of backend
+:version "2004-10-06"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -455,14 +455,8 @@
 
 ;********************************************************************************************
 
-:mfg "Genius"
-:url "http://www.geniusnet.com.tw/"
-
-:model "ColorPage-EP"
-;:url "/unsupported/genius-colorpage-hr6x.html"
-:interface "Parport"
-:status :unsupported
-:comment "Not supported. No details known."
+;:mfg "Genius"
+;:url "http://www.geniusnet.com.tw/"
 
 ;********************************************************************************************
 
@@ -1314,8 +1308,8 @@
 :model "Artiscan 9600 pro 36"                ; name models for above-specified mfg.
 :interface "Parport"
 :status :unsupported
-:url "http://lists.alioth.debian.org/pipermail/sane-devel/2004-February/010113.html"
-:comment "Unsupported. Someone wants to write a backend. See link."
+:url "http://home.pages.at/artiscann9600/"
+:comment "Unsupported at the moment. See link for a project for that scanner."
 
 ;********************************************************************************************
 

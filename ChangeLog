@@ -1,3 +1,16 @@
+2000-11-20  Henning Meier-Geinitz <hmg@gmx.de>
+	
+	* AUTHORS: Added Eugene S. Weiss.
+	* PROJECTS: Removed Artec as6e backend.
+	* README: Added link to man sane-as6e.5.
+	* TODO: Removed as6e.
+	* backend/dll.conf: Added as6e.
+	* backend/as6e.c backend/as6e.h backend/as6e.desc doc/sane-as6e.man:
+	  Added backend for Artec AS6E parallel port scanner (from Eugene S.
+	  Weiss <yossarian@users.sourceforge.net>).
+        * backend/Makefile.in: Added entries for as6e.
+	* doc/Makefile.in: Added generation of as6e manpage.
+	
 2000-11-20  Jochen Eisinger <jochen.eisinger@gmx.net>
 
 	* configure configure.in: Added test for /dev/urandom and

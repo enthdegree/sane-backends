@@ -211,6 +211,12 @@ struct pixmap {
 	unsigned char	*planes;
 };
 
+#ifdef __GNUC__
+#define UNUSEDARG __attribute__ ((unused))
+#else
+#define UNUSEDARG
+#endif
+
 /*
  *	Rotations
  */
@@ -245,6 +251,8 @@ extern char		*__progname;		/* Defined in /usr/lib/crt0.o */
 
 FILE * sanei_config_open (const char *filename);
 
+char *sanei_config_read (char *str, int n, FILE * stream);
+
 static int init_dc20 (char *, speed_t);
 
 static void close_dc20 (int);
@@ -266,4 +274,5 @@ static int zoom_y (struct pixmap *source, struct pixmap *dest);
 static int save_pixmap (struct pixmap *p, char *name, int orientation, int format);
 
 static int comet_to_pixmap (unsigned char *, struct pixmap *);
+
 

@@ -1,3 +1,21 @@
+2004-07-16  Gerhard Jaeger <gerhard@gjaeger.de>
+	* doc/plustek/Makefile.module doc/plustek/BUILD 
+	  doc/plustek/VERSION0 doc/plustek/VERSION1: Removed, no longer needed.
+	* doc/plustek/Makefile.kernel2x doc/plustek/MakeModule.sh:
+	  Getting version information now out of the backends main file.
+	* doc/plustek/Plustek_PARPORT.changes: Updated.
+	* doc/descriptions/plustek_pp.desc: Updated.
+	* doc/sane-plustek.man: Fixed typo.
+	* backend/plustek-pp.[ch], backend/plustek-pp_*.[ch]: 
+	  Added DevFS support for kernel 2.6, removed floating point 
+	  operations (Thanx to Rafal Rzepecki), bumped up build number,
+	  cleanup work.
+	* backend/plustek.c: Bumped up build number
+	* backend/plustek-usbshading.c: Improved autowarmup, cleanup work.
+	* backend/plustek-usb.h backend/plustek-usbdevs.c 
+	  backend/plustek-usbhw.c backend/plustek-usnscan.c: Improved
+	  fastforward stuff, cleanup work.
+
 2004-07-15  Rene Rebe <rene@rocklinux.org>
 
 	* include/sane/sane.h: added extern "C" for compilation with a C++

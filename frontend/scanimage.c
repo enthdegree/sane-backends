@@ -1486,7 +1486,7 @@ main (int argc, char **argv)
 Start image acquisition on a scanner device and write PNM image data to\n\
 standard output.\n\
 \n\
--b, --batch[=FORMAT]       working in batch mode, FORMAT is `out%%d.tif´ by\n\
+-b, --batch[=FORMAT]       working in batch mode, FORMAT is `out%%d.tif' by\n\
                            default\n\
     --batch-start=#        page number to start naming files with\n\
     --batch-count=#        how many pages to scan in batch mode\n\

@@ -539,7 +539,7 @@ main (int argc, char **argv)
     }
   if (unknown_found)
     printf ("\n"
-    "# `UNKNOWN vendor and product´ means that there seems to be a scanner\n"
+    "# `UNKNOWN vendor and product' means that there seems to be a scanner\n"
     "# at this device file but the vendor and product ids couldn't be \n"
     "# identified. Currently identification only works with Linux versions\n"
     "# >= 2.4.8. \n");

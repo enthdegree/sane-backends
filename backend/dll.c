@@ -403,7 +403,7 @@ init (struct backend *be)
 
   if (SANE_VERSION_MAJOR (version) != V_MAJOR)
     {
-      DBG(1, "init: backend `%s´ has a wrong major version (%d instead of %d)\n",
+      DBG(1, "init: backend `%s' has a wrong major version (%d instead of %d)\n",
 	  be->name,  SANE_VERSION_MAJOR (version), V_MAJOR); 
       return SANE_STATUS_INVAL;
     }

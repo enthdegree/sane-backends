@@ -58,7 +58,7 @@ The package
 contains a lot of backends, documentation (including the 
 .B SANE
 standard), networking support, and the command line frontend `scanimage'.  The
-frontends `xscanimage´ and `xcam´ are included in the package
+frontends `xscanimage' and `xcam' are included in the package
 .B `sane-frontends'. 
 Both packages can be downloaded from the
 .B SANE
@@ -361,7 +361,7 @@ contain /usr/local/lib/sane. See also the documentation of the frontends.
 .SH REPORTING BUGS
 If you think you found a bug in a backend, contact the author of your
 backend. Usually the email address can be found in the @DOCDIR@/AUTHORS
-file. If he isn't marked as `active maintainer´ you can also contact the SANE
+file. If he isn't marked as `active maintainer' you can also contact the SANE
 mailing list sane-devel (see http://www.mostang.com/sane/mail.html for
 details). You must be subscribed to the list, otherwise your mail won't be
 sent to the subscribers.

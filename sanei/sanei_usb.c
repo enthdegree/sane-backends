@@ -227,8 +227,8 @@ sanei_usb_read_bulk (SANE_Int fd, SANE_Byte * buffer, size_t *size)
       *size = 0;
       return SANE_STATUS_EOF;
     }
-  DBG (5, "sanei_usb_read_bulk: wanted %lu bytes, got %l bytes\n",
-	 *size, read_size);
+  DBG (5, "sanei_usb_read_bulk: wanted %lu bytes, got %ld bytes\n",
+	 (unsigned long) *size, (unsigned long) read_size);
   *size = read_size;
   return SANE_STATUS_GOOD;
 }
@@ -251,8 +251,8 @@ sanei_usb_write_bulk (SANE_Int fd, SANE_Byte * buffer, size_t *size)
       *size = 0;
       return SANE_STATUS_IO_ERROR;
     }
-  DBG (5, "sanei_usb_read_write: wanted %lu bytes, wrote %l bytes\n",
-	 *size, write_size);
+  DBG (5, "sanei_usb_write_bulk: wanted %lu bytes, wrote %ld bytes\n",
+	 (unsigned long) *size, (unsigned long) write_size);
   *size = write_size;
   return SANE_STATUS_GOOD;
 }

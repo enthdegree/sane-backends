@@ -1,4 +1,7 @@
 2002-04-21  Abel Deuring <a.deuring@satzbau-gmbh.de>
+	* backend/sharp.c: added a "free(devlist)" call to sane_exit
+
+2002-04-21  Abel Deuring <a.deuring@satzbau-gmbh.de>
 	* backend/canon-sane.c, backend/canon-scsi.c, backend/canon.c,
 	  backend/canon.h, doc/sane-canon.man,
 	  doc/descriptions/canon.desc: added support for FB620S and

@@ -89,6 +89,9 @@
          - renamed some variables
          - bugfix: duplex scanning now works when disconnect is enabled
            in the scsi controller.
+      V 1.7, 10-Mar-2003 (oschirr@abm.de)
+         - displays the offending byte when something is wrong in the
+           window descriptor block.
       
    SANE FLOW DIAGRAM
 
@@ -2678,8 +2681,19 @@ scsi_sense_handler (int scsi_fd, u_char * sensed_data, void *arg)
         }
       else if ((0x26 == asc) && (0x00 == ascq))
         {
+
           DBG (MSG_ERR, "\t%d/%d/%d: Invalid field in parm list \n", 
                sense, asc, ascq);
+	  /*hexdump (MSG_IO, "Sense", sensed_data, sensed_data[7]+8);*/
+	  if (sensed_data[7]+8 >=17) 
+	    {
+	      
+	      DBG(MSG_ERR, 
+		  "offending byte is %d. (Byte %d in window descriptor block)\n", 
+		  get_RS_offending_byte(sensed_data),
+		  get_RS_offending_byte(sensed_data)-8);
+	    }
+
           ret = SANE_STATUS_INVAL;
         }
       else if ((0x2C == asc) && (0x02 == ascq))

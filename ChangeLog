@@ -1,3 +1,9 @@
+2003-03-10  Oliver Schirrmeister <oschirr@abm.de>
+
+	* backend/fujitsu.c backund/fujitsu-scsi.h
+          displays the offending byte when something is wrong in the
+          window descriptor block.
+	
 2003-03-09  Eddy De Greef <eddy_de_greef at tiscali dot be>
 
 	* backend/mustek_pp_cis.c backend/mustek_pp_cis.h: Fixed two

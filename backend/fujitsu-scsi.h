@@ -933,7 +933,8 @@ static scsiblk window_descriptor_blockB =
 #define get_RS_additional_length(b)       b[0x07]	/* always 10 */
 #define get_RS_ASC(b)                     b[0x0c]
 #define get_RS_ASCQ(b)                    b[0x0d]
-#define get_RS_SKSV(b)                    getbitfield(b+0x0f,1,7)	/* valid, always 0 */
+#define get_RS_SKSV(b)                    getbitfield(b+0x0f,1,7)   /* valid, always 0 */
+#define get_RS_offending_byte(b)          getnbyte(b+0x10, 2)
 
 #define rs_return_block_size              18	/* Says Nikon */
 

@@ -3,6 +3,12 @@
 	* backend/plustek.c backend/plustek-usb.c:
 	  fixed bug, that causes CanoScan devices to use the wrong calibration
 	  functions, sanei_usb_get_vendor_product() fails.
+	* sanei/sanei_pp.c:
+	  Added sanei_pp_getmode, fixed conditional compilation stuff.
+	* include/sanei/sanei_pp.h:
+	  Added sanei_pp_getmode and SANEI_PP_MODE definitions.
+	* backend/plustek_pp.c backend/plustek-pp.h backend/plustek-pp_misc.c:
+	  Added parport-mode detection.
 
 2003-10-22  Peter Kirchgessner <peter@kirchgessner.net>
 	* backend/hp.c, backend/hp-handle.c, backend/Makefile.in:
@@ -16,8 +22,8 @@
 
 2003-10-22  Julien Blache <jb@jblache.org>
 	* frontend/saned.c: replaced in_addr_t mask; by u_int32_t mask; in
-	check_v4_in_range(). in_addr_t doesn't seem to exist on OS/2, and
-	it's nothing more than an unsigned 32 bits integer.
+	  check_v4_in_range(). in_addr_t doesn't seem to exist on OS/2, and
+	  it's nothing more than an unsigned 32 bits integer.
 
 2003-10-22  Gerhard Jaeger <gerhard@gjaeger.de>
 

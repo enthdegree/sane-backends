@@ -1,3 +1,11 @@
+
+2003-04-05  Nathan Rutman <nthn1@yahoo.com>
+
+	* backend/canon630u-common.c: Removed last change in offset/gain
+	  calculation, which croaked for some cases.  Give up early if we
+	  can't talk on the USB. 
+	* backend/canon630u.c: Added option to force scanner recalibration.
+
 2003-04-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/dll.c: Added some missing debug messages. Fixed a warning.

@@ -1,3 +1,8 @@
+2001-06-05  Peter Fales <peter@fales.com>
+
+	* backend/dc240.c - Fixed bug where attempting to change the
+	  "image number" in an empty camera causes a core dump.
+
 2001-06-06  Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c: OS/2 compile fixes (again). Backend 

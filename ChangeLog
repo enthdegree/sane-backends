@@ -1,3 +1,8 @@
+2002-07-23  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* TODO: Updated desc file entries. Removed entries about microtek
+	  fprintf issue and fujitsu mem leak.
+
 2002-07-23  Simon Munton <simon@munton.demon.co.uk>
 	* backend/pie.c: added consistency check for TL_X < BR_X and
 	  TL_Y < BR_Y

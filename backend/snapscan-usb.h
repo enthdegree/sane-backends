@@ -20,6 +20,27 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston,
   MA 02111-1307, USA.
 
+  As a special exception, the authors of SANE give permission for
+  additional uses of the libraries contained in this release of SANE.
+
+  The exception is that, if you link a SANE library with other files
+  to produce an executable, this does not by itself cause the
+  resulting executable to be covered by the GNU General Public
+  License.  Your use of that executable is in no way restricted on
+  account of linking the SANE library code into it.
+
+  This exception does not, however, invalidate any other reasons why
+  the executable file might be covered by the GNU General Public
+  License.
+
+  If you submit changes to SANE to the maintainers to be included in
+  a subsequent release, you agree by submitting the changes that
+  those changes may be distributed with this exception intact.
+
+  If you write modifications of your own for SANE, it is your choice
+  whether to permit this exception to apply to your modifications.
+  If you do not wish that, delete this exception notice.
+
   This file implements USB equivalents to the SCSI routines used by the Snapscan
   backend.
 */
@@ -84,6 +105,9 @@ static SANE_Status usb_cmd(int fd, const void *src, size_t src_size,
 
 /*
  * $Log$
+ * Revision 1.6  2003/07/26 17:16:55  oliverschwartz
+ * Changed licence to GPL + SANE exception for snapscan-usb.[ch]
+ *
  * Revision 1.5  2002/04/10 21:45:53  oliverschwartz
  * Removed illegal character / removed declaration of bqelements
  *

@@ -1,3 +1,8 @@
+2003-07-26  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan-usb.c backend/snapscan-usb.h:
+	  Changed license to GPL + SANE exception.
+
 2003-07-26  Peter Fales <peter@fales-lorenz.net>
 	* sanei/Makefile.in, backend/cderror.h, backend/jinclude.h,
 	  backend/dc210.c, backend/dc240.c, backend/ gphoto2.c, 

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends.nl\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2003-09-25 13:52+0200\n"
+"POT-Creation-Date: 2003-10-05 13:26+0200\n"
 "PO-Revision-Date: 2003-09-25 02:22+0200\n"
 "Last-Translator: Martin Kho <mkho@xs4all.nl>\n"
 "Language-Team: Nederlands\n"
@@ -29,8 +29,8 @@ msgstr "Grijstrap"
 
 #: .tmp/artec_eplus48u.c:155 .tmp/epson.c:473 .tmp/gt68xx.c:116
 #: .tmp/hp-option.c:2877 .tmp/leo.h:262 .tmp/ma1509.c:101 .tmp/mustek.c:126
-#: .tmp/mustek.c:130 .tmp/mustek_usb.c:268 .tmp/plustek.c:220
-#: .tmp/plustek_pp.c:191 .tmp/plustek_pp.c:200 .tmp/sceptre.h:292
+#: .tmp/mustek.c:130 .tmp/mustek_usb.c:268 .tmp/plustek.c:209
+#: .tmp/plustek_pp.c:190 .tmp/plustek_pp.c:199 .tmp/sceptre.h:292
 #: .tmp/snapscan.c:157 .tmp/teco1.h:292 .tmp/teco2.h:350 .tmp/teco3.h:296
 #: .tmp/test.c:123 .tmp/umax.c:195 .tmp/umax_pp.c:133
 msgid "Color"
@@ -38,8 +38,8 @@ msgstr "Kleur"
 
 #: .tmp/artec_eplus48u.c:2809 .tmp/gt68xx.c:594 .tmp/leo.c:871
 #: .tmp/ma1509.c:597 .tmp/matsushita.c:1149 .tmp/microtek2.h:602
-#: .tmp/mustek.c:4294 .tmp/mustek_usb.c:353 .tmp/plustek.c:831
-#: .tmp/plustek_pp.c:812 .tmp/sceptre.c:753 .tmp/snapscan-options.c:403
+#: .tmp/mustek.c:4294 .tmp/mustek_usb.c:353 .tmp/plustek.c:781
+#: .tmp/plustek_pp.c:811 .tmp/sceptre.c:753 .tmp/snapscan-options.c:403
 #: .tmp/teco1.c:1136 .tmp/teco2.c:1786 .tmp/teco3.c:971 .tmp/umax.c:5195
 #: .tmp/umax_pp.c:461
 msgid "Enhancement"
@@ -56,7 +56,7 @@ msgstr "Kies standaard waarden om verbeter opties te krijgen."
 #: .tmp/artec_eplus48u.c:2888 .tmp/epson.c:3123 .tmp/gt68xx.c:650
 #: .tmp/leo.c:823 .tmp/ma1509.c:549 .tmp/matsushita.c:1095
 #: .tmp/microtek2.h:601 .tmp/mustek.c:4246 .tmp/mustek_usb.c:305
-#: .tmp/plustek.c:785 .tmp/plustek_pp.c:766 .tmp/sceptre.c:705
+#: .tmp/plustek.c:735 .tmp/plustek_pp.c:765 .tmp/sceptre.c:705
 #: .tmp/snapscan-options.c:336 .tmp/teco1.c:1088 .tmp/teco2.c:1738
 #: .tmp/teco3.c:923 .tmp/test.c:619 .tmp/umax.c:5145 .tmp/umax_pp.c:412
 msgid "Geometry"
@@ -105,10 +105,6 @@ msgstr "Aantal te scannen beelden"
 msgid "Selects the number of the frame to scan"
 msgstr "Kiest het aantal te scannen beelden"
 
-#: .tmp/canon630u.c:157
-msgid "cal"
-msgstr "kal"
-
 #: .tmp/canon630u.c:158
 msgid "Calibrate Scanner"
 msgstr "Kalibreer scanner"
@@ -116,10 +112,6 @@ msgstr "Kalibreer scanner"
 #: .tmp/canon630u.c:159
 msgid "Force scanner calibration before scan"
 msgstr "Forceer kalibreren voor het scannen"
-
-#: .tmp/canon630u.c:257
-msgid "gray"
-msgstr "grijs"
 
 #: .tmp/canon630u.c:258 .tmp/umax1220u.c:207
 msgid "Grayscale scan"
@@ -129,10 +121,6 @@ msgstr "Grijstrap scan"
 msgid "Do a grayscale rather than color scan"
 msgstr "Voer een grijstrap-, in plaats van een kleurenscan uit"
 
-#: .tmp/canon630u.c:304
-msgid "gain"
-msgstr "bereik"
-
 #: .tmp/canon630u.c:305
 msgid "Analog Gain"
 msgstr "Analoog bereik"
@@ -140,10 +128,6 @@ msgstr "Analoog bereik"
 #: .tmp/canon630u.c:306
 msgid "Increase or decrease the analog gain of the CCD array"
 msgstr "Vergroot of verkleind het analoge bereik van de CCD-sensor"
-
-#: .tmp/canon630u.c:345
-msgid "gamma"
-msgstr "gamma"
 
 #: .tmp/canon630u.c:346 .tmp/epson.h:68
 msgid "Gamma Correction"
@@ -153,14 +137,14 @@ msgstr "Gammacorrectie"
 msgid "Selects the gamma corrected transfer curve"
 msgstr "Kiest de gamma gecorrigeerde overdrachtskromme"
 
-#: .tmp/epson.c:471 .tmp/plustek.c:217 .tmp/plustek_pp.c:188
-#: .tmp/plustek_pp.c:197
+#: .tmp/epson.c:471 .tmp/plustek.c:206 .tmp/plustek_pp.c:187
+#: .tmp/plustek_pp.c:196
 msgid "Binary"
 msgstr "Binair (zwart/wit)"
 
 #: .tmp/epson.c:472 .tmp/gt68xx.c:117 .tmp/ma1509.c:101 .tmp/mustek.c:125
-#: .tmp/mustek.c:130 .tmp/mustek_usb.c:269 .tmp/plustek.c:218
-#: .tmp/plustek_pp.c:190 .tmp/plustek_pp.c:199 .tmp/sceptre.h:291
+#: .tmp/mustek.c:130 .tmp/mustek_usb.c:269 .tmp/plustek.c:207
+#: .tmp/plustek_pp.c:189 .tmp/plustek_pp.c:198 .tmp/sceptre.h:291
 #: .tmp/snapscan.c:159 .tmp/test.c:123 .tmp/umax.c:192
 msgid "Gray"
 msgstr "Grijs"
@@ -337,7 +321,7 @@ msgstr "maximaal"
 
 #: .tmp/epson.c:2655 .tmp/gt68xx.c:432 .tmp/ma1509.c:499
 #: .tmp/matsushita.c:1044 .tmp/microtek2.h:600 .tmp/mustek.c:4109
-#: .tmp/mustek_usb.c:260 .tmp/plustek.c:702 .tmp/plustek_pp.c:677
+#: .tmp/mustek_usb.c:260 .tmp/plustek.c:663 .tmp/plustek_pp.c:676
 #: .tmp/sceptre.c:676 .tmp/snapscan-options.c:189 .tmp/teco2.c:1710
 #: .tmp/test.c:294 .tmp/umax.c:5023
 msgid "Scan Mode"
@@ -667,8 +651,8 @@ msgstr ""
 "voor extreem lichte of donkere beelden gebruiken."
 
 # original text: "Halftone"
-#: .tmp/hp-option.c:2875 .tmp/mustek.c:125 .tmp/plustek_pp.c:189
-#: .tmp/plustek_pp.c:198 .tmp/sceptre.h:290 .tmp/snapscan.c:158
+#: .tmp/hp-option.c:2875 .tmp/mustek.c:125 .tmp/plustek_pp.c:188
+#: .tmp/plustek_pp.c:197 .tmp/sceptre.h:290 .tmp/snapscan.c:158
 #: .tmp/umax.c:191
 msgid "Halftone"
 msgstr "Halftoon"
@@ -727,7 +711,7 @@ msgid "Slow"
 msgstr "Langzaam"
 
 #: .tmp/hp-option.c:3092 .tmp/hp-option.c:3199 .tmp/matsushita.c:244
-#: .tmp/mustek.c:141 .tmp/plustek.c:227 .tmp/plustek_pp.c:207
+#: .tmp/mustek.c:141 .tmp/plustek.c:216 .tmp/plustek_pp.c:206
 msgid "Normal"
 msgstr "Normaal"
 
@@ -768,7 +752,7 @@ msgstr "Dia"
 msgid "Film-strip"
 msgstr "Filmstrook"
 
-#: .tmp/hp-option.c:3182 .tmp/plustek.c:229 .tmp/plustek_pp.c:209
+#: .tmp/hp-option.c:3182 .tmp/plustek.c:218 .tmp/plustek_pp.c:208
 #: .tmp/saneopts.h:170
 msgid "Negative"
 msgstr "Negatief"
@@ -1271,7 +1255,8 @@ msgid "Midtone for red"
 msgstr "Middentoon voor rood"
 
 #: .tmp/microtek2.h:682
-msgid "Selects which radiance level should  be considered \"50 % red\"."
+#, fuzzy
+msgid "Selects which radiance level should be considered \"50 % red\"."
 msgstr "Bepaalt welke helderheidswaarde als 50% rood wordt gekozen."
 
 #: .tmp/microtek2.h:686
@@ -1428,25 +1413,25 @@ msgstr "Snelle grijsmodus"
 msgid "Scan in fast gray mode (lower quality)."
 msgstr "Scan in snelle grijsmodus (lage beeldkwaliteit)."
 
-#: .tmp/mustek.c:4316
-msgid "Brightness red channel"
-msgstr "Helderheid van de rode component"
+#: .tmp/mustek.c:4316 .tmp/umax_pp.c:569
+msgid "Red brightness"
+msgstr "Rode helderheid"
 
 #: .tmp/mustek.c:4317
 msgid "Controls the brightness of the red channel of the acquired image."
 msgstr "Stelt de helderheid van de rode component in van het gescande beeld."
 
-#: .tmp/mustek.c:4329
-msgid "Brightness green channel"
-msgstr "Helderheid van de groene component"
+#: .tmp/mustek.c:4329 .tmp/umax_pp.c:582
+msgid "Green brightness"
+msgstr "Groene helderheid"
 
 #: .tmp/mustek.c:4330
 msgid "Controls the brightness of the green channel of the acquired image."
 msgstr "Stelt de helderheid van de groene component in van het gescande beeld."
 
-#: .tmp/mustek.c:4342
-msgid "Brightness blue channel"
-msgstr "Helderheid van de blauwe component"
+#: .tmp/mustek.c:4342 .tmp/umax_pp.c:595
+msgid "Blue brightness"
+msgstr "Blauwe helderheid"
 
 #: .tmp/mustek.c:4343
 msgid "Controls the brightness of the blue channel of the acquired image."
@@ -1476,33 +1461,33 @@ msgstr "Contrast van de blauwe component"
 msgid "Controls the contrast of the blue channel of the acquired image."
 msgstr "Stelt het contrast van de blauwe component in van het gescande beeld."
 
-#: .tmp/plustek.c:219
+#: .tmp/plustek.c:208
 msgid "Gray 14/16"
 msgstr "Grijs 14/16"
 
-#: .tmp/plustek.c:221
+#: .tmp/plustek.c:210
 msgid "Color 42/48"
 msgstr "Kleur 42/48"
 
-#: .tmp/plustek.c:228 .tmp/plustek_pp.c:208
+#: .tmp/plustek.c:217 .tmp/plustek_pp.c:207
 msgid "Transparency"
 msgstr "Diapositief"
 
-#: .tmp/plustek.c:235 .tmp/plustek_pp.c:215
+#: .tmp/plustek_pp.c:200
+msgid "Color36"
+msgstr "Kleur 36"
+
+#: .tmp/plustek_pp.c:214
 msgid "Dithermap 1"
 msgstr "Ditherpatroon 1"
 
-#: .tmp/plustek.c:236 .tmp/plustek_pp.c:216
+#: .tmp/plustek_pp.c:215
 msgid "Dithermap 2"
 msgstr "Ditherpatroon 2"
 
-#: .tmp/plustek.c:237 .tmp/plustek_pp.c:217
+#: .tmp/plustek_pp.c:216
 msgid "Randomize"
 msgstr "Toevalspatroon"
-
-#: .tmp/plustek_pp.c:201
-msgid "Color36"
-msgstr "Kleur 36"
 
 #: .tmp/pnm.c:162
 msgid "Source Selection"
@@ -1935,7 +1920,8 @@ msgstr ""
 "voor multibit-scans."
 
 #: .tmp/saneopts.h:215
-msgid "Selects the scan mode (e.g., lineart,monochrome, or color)."
+#, fuzzy
+msgid "Selects the scan mode (e.g., lineart, monochrome, or color)."
 msgstr "Kiest de scanmodus (b.v. zwart/wit, grijs of kleur)."
 
 #: .tmp/saneopts.h:218
@@ -2576,9 +2562,10 @@ msgid "(5/6) Bool soft select soft detect emulated"
 msgstr "(5/6) Bool soft select soft detect emulated"
 
 #: .tmp/test.c:771
+#, fuzzy
 msgid ""
 "(5/6) Bool test option that has soft select, soft detect, and emulated (and "
-"advanced) capabilities. "
+"advanced) capabilities."
 msgstr ""
 "(5/6) Dit is een bool-testoptie, met \"soft select\", \"soft detect\", en "
 "\"emulated\" (en \"advanced\") mogelijkheden. "
@@ -2625,7 +2612,8 @@ msgid "(3/6) Int constraint word list"
 msgstr "(3/6) Int beperkte woordenlijst"
 
 #: .tmp/test.c:852
-msgid "(3/6) Int test option with unit bits and constraint word list set. "
+#, fuzzy
+msgid "(3/6) Int test option with unit bits and constraint word list set."
 msgstr ""
 "(3/6) Int-testoptie met de eenheid \"bits\" en een woordenlijst-beperking."
 
@@ -2644,8 +2632,9 @@ msgid "(5/6) Int array constraint range"
 msgstr "(5/6) Int rij bereikbeperking"
 
 #: .tmp/test.c:884
+#, fuzzy
 msgid ""
-"(5/6) Int test option with unit mm and using an array with a range "
+"(5/6) Int test option with unit dpi and using an array with a range "
 "constraint. Minimum is 4, maximum 192, and quant is 2."
 msgstr ""
 "(5/6) Int-testoptie met de eenheid \"mm\" en een rij met een "
@@ -2656,8 +2645,9 @@ msgid "(6/6) Int array constraint word list"
 msgstr "(6/6) Int rij beperkte woordenlijst"
 
 #: .tmp/test.c:902
+#, fuzzy
 msgid ""
-"(6/6) Int test option with unit percent and using an array a word list "
+"(6/6) Int test option with unit percent and using an array with a word list "
 "constraint."
 msgstr ""
 "(6/6) Int-testoptie met de eenheid \"procent\" en een rij met een "
@@ -2692,7 +2682,8 @@ msgid "(3/3) Fixed constraint word list"
 msgstr "(3/3) Vaste beperkte woordenlijst"
 
 #: .tmp/test.c:965
-msgid "(3/3) Fixed test option with no unit and constraint word list set. "
+#, fuzzy
+msgid "(3/3) Fixed test option with no unit and constraint word list set."
 msgstr "(3/3) Vaste-testoptie zonder eenheid en met een beperkte woordenlijst."
 
 #: .tmp/test.c:980
@@ -2865,25 +2856,13 @@ msgstr "Grijs helderheid"
 msgid "Sets gray channel brightness"
 msgstr "Stelt het bereik in van het grijze kanaal"
 
-#: .tmp/umax_pp.c:569
-msgid "Red brightness"
-msgstr "Rode helderheid"
-
 #: .tmp/umax_pp.c:571
 msgid "Sets red channel brightness"
 msgstr "Stelt de helderheid in van het rode kanaal"
 
-#: .tmp/umax_pp.c:582
-msgid "Green brightness"
-msgstr "Groene helderheid"
-
 #: .tmp/umax_pp.c:584
 msgid "Sets green channel brightness"
 msgstr "Stelt de helderheid in van het groene kanaal"
-
-#: .tmp/umax_pp.c:595
-msgid "Blue brightness"
-msgstr "Blauwe helderheid"
 
 #: .tmp/umax_pp.c:597
 msgid "Sets blue channel brightness"
@@ -2912,6 +2891,27 @@ msgstr "Stelt het contrast in van het groene kanaal"
 #: .tmp/umax_pp.c:655
 msgid "Sets blue channel contrast"
 msgstr "Stelt het contrast in van het blauwe kanaal"
+
+#~ msgid "cal"
+#~ msgstr "kal"
+
+#~ msgid "gray"
+#~ msgstr "grijs"
+
+#~ msgid "gain"
+#~ msgstr "bereik"
+
+#~ msgid "gamma"
+#~ msgstr "gamma"
+
+#~ msgid "Brightness red channel"
+#~ msgstr "Helderheid van de rode component"
+
+#~ msgid "Brightness green channel"
+#~ msgstr "Helderheid van de groene component"
+
+#~ msgid "Brightness blue channel"
+#~ msgstr "Helderheid van de blauwe component"
 
 #, fuzzy
 #~ msgid "Hardware internal X position of the scanning area."

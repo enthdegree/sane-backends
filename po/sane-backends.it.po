@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2003-09-25 13:52+0200\n"
+"POT-Creation-Date: 2003-10-05 13:26+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Luca Clemente, <luca.clem@zerobase.it>\n"
 "Language-Team: \n"
@@ -26,8 +26,8 @@ msgstr "Scala di grigi"
 
 #: .tmp/artec_eplus48u.c:155 .tmp/epson.c:473 .tmp/gt68xx.c:116
 #: .tmp/hp-option.c:2877 .tmp/leo.h:262 .tmp/ma1509.c:101 .tmp/mustek.c:126
-#: .tmp/mustek.c:130 .tmp/mustek_usb.c:268 .tmp/plustek.c:220
-#: .tmp/plustek_pp.c:191 .tmp/plustek_pp.c:200 .tmp/sceptre.h:292
+#: .tmp/mustek.c:130 .tmp/mustek_usb.c:268 .tmp/plustek.c:209
+#: .tmp/plustek_pp.c:190 .tmp/plustek_pp.c:199 .tmp/sceptre.h:292
 #: .tmp/snapscan.c:157 .tmp/teco1.h:292 .tmp/teco2.h:350 .tmp/teco3.h:296
 #: .tmp/test.c:123 .tmp/umax.c:195 .tmp/umax_pp.c:133
 msgid "Color"
@@ -35,8 +35,8 @@ msgstr "Colore"
 
 #: .tmp/artec_eplus48u.c:2809 .tmp/gt68xx.c:594 .tmp/leo.c:871
 #: .tmp/ma1509.c:597 .tmp/matsushita.c:1149 .tmp/microtek2.h:602
-#: .tmp/mustek.c:4294 .tmp/mustek_usb.c:353 .tmp/plustek.c:831
-#: .tmp/plustek_pp.c:812 .tmp/sceptre.c:753 .tmp/snapscan-options.c:403
+#: .tmp/mustek.c:4294 .tmp/mustek_usb.c:353 .tmp/plustek.c:781
+#: .tmp/plustek_pp.c:811 .tmp/sceptre.c:753 .tmp/snapscan-options.c:403
 #: .tmp/teco1.c:1136 .tmp/teco2.c:1786 .tmp/teco3.c:971 .tmp/umax.c:5195
 #: .tmp/umax_pp.c:461
 msgid "Enhancement"
@@ -53,7 +53,7 @@ msgstr "Setta i valori di default per il miglioramento"
 #: .tmp/artec_eplus48u.c:2888 .tmp/epson.c:3123 .tmp/gt68xx.c:650
 #: .tmp/leo.c:823 .tmp/ma1509.c:549 .tmp/matsushita.c:1095
 #: .tmp/microtek2.h:601 .tmp/mustek.c:4246 .tmp/mustek_usb.c:305
-#: .tmp/plustek.c:785 .tmp/plustek_pp.c:766 .tmp/sceptre.c:705
+#: .tmp/plustek.c:735 .tmp/plustek_pp.c:765 .tmp/sceptre.c:705
 #: .tmp/snapscan-options.c:336 .tmp/teco1.c:1088 .tmp/teco2.c:1738
 #: .tmp/teco3.c:923 .tmp/test.c:619 .tmp/umax.c:5145 .tmp/umax_pp.c:412
 msgid "Geometry"
@@ -103,10 +103,6 @@ msgstr "Numero di frame da acquisire"
 msgid "Selects the number of the frame to scan"
 msgstr "Selezionare il numero di frame da acquisire"
 
-#: .tmp/canon630u.c:157
-msgid "cal"
-msgstr "Calibrazione"
-
 #: .tmp/canon630u.c:158
 msgid "Calibrate Scanner"
 msgstr "Calibrare lo scanner"
@@ -114,10 +110,6 @@ msgstr "Calibrare lo scanner"
 #: .tmp/canon630u.c:159
 msgid "Force scanner calibration before scan"
 msgstr "Forzare la calibrazione dello scanner prima della scansione"
-
-#: .tmp/canon630u.c:257
-msgid "gray"
-msgstr "Grigio"
 
 #: .tmp/canon630u.c:258 .tmp/umax1220u.c:207
 msgid "Grayscale scan"
@@ -127,10 +119,6 @@ msgstr "Scansione con scala di grigi"
 msgid "Do a grayscale rather than color scan"
 msgstr "Effettuare una scansione con scala di grigi invece che a colori"
 
-#: .tmp/canon630u.c:304
-msgid "gain"
-msgstr "Guadagno"
-
 #: .tmp/canon630u.c:305
 msgid "Analog Gain"
 msgstr "Guadagno analogico"
@@ -138,10 +126,6 @@ msgstr "Guadagno analogico"
 #: .tmp/canon630u.c:306
 msgid "Increase or decrease the analog gain of the CCD array"
 msgstr "Aumentare o diminuire il guadagno del sensore CCD"
-
-#: .tmp/canon630u.c:345
-msgid "gamma"
-msgstr "Gamma"
 
 #: .tmp/canon630u.c:346 .tmp/epson.h:68
 msgid "Gamma Correction"
@@ -151,14 +135,14 @@ msgstr "Correzione Gamma"
 msgid "Selects the gamma corrected transfer curve"
 msgstr "Selezionare la curva di correzione gamma"
 
-#: .tmp/epson.c:471 .tmp/plustek.c:217 .tmp/plustek_pp.c:188
-#: .tmp/plustek_pp.c:197
+#: .tmp/epson.c:471 .tmp/plustek.c:206 .tmp/plustek_pp.c:187
+#: .tmp/plustek_pp.c:196
 msgid "Binary"
 msgstr "Bianco e Nero"
 
 #: .tmp/epson.c:472 .tmp/gt68xx.c:117 .tmp/ma1509.c:101 .tmp/mustek.c:125
-#: .tmp/mustek.c:130 .tmp/mustek_usb.c:269 .tmp/plustek.c:218
-#: .tmp/plustek_pp.c:190 .tmp/plustek_pp.c:199 .tmp/sceptre.h:291
+#: .tmp/mustek.c:130 .tmp/mustek_usb.c:269 .tmp/plustek.c:207
+#: .tmp/plustek_pp.c:189 .tmp/plustek_pp.c:198 .tmp/sceptre.h:291
 #: .tmp/snapscan.c:159 .tmp/test.c:123 .tmp/umax.c:192
 msgid "Gray"
 msgstr "Grigio"
@@ -333,7 +317,7 @@ msgstr "massimo"
 
 #: .tmp/epson.c:2655 .tmp/gt68xx.c:432 .tmp/ma1509.c:499
 #: .tmp/matsushita.c:1044 .tmp/microtek2.h:600 .tmp/mustek.c:4109
-#: .tmp/mustek_usb.c:260 .tmp/plustek.c:702 .tmp/plustek_pp.c:677
+#: .tmp/mustek_usb.c:260 .tmp/plustek.c:663 .tmp/plustek_pp.c:676
 #: .tmp/sceptre.c:676 .tmp/snapscan-options.c:189 .tmp/teco2.c:1710
 #: .tmp/test.c:294 .tmp/umax.c:5023
 msgid "Scan Mode"
@@ -645,8 +629,8 @@ msgid ""
 "dark images."
 msgstr ""
 
-#: .tmp/hp-option.c:2875 .tmp/mustek.c:125 .tmp/plustek_pp.c:189
-#: .tmp/plustek_pp.c:198 .tmp/sceptre.h:290 .tmp/snapscan.c:158
+#: .tmp/hp-option.c:2875 .tmp/mustek.c:125 .tmp/plustek_pp.c:188
+#: .tmp/plustek_pp.c:197 .tmp/sceptre.h:290 .tmp/snapscan.c:158
 #: .tmp/umax.c:191
 msgid "Halftone"
 msgstr "Mezzi toni"
@@ -712,7 +696,7 @@ msgid "Slow"
 msgstr "Piu' lento"
 
 #: .tmp/hp-option.c:3092 .tmp/hp-option.c:3199 .tmp/matsushita.c:244
-#: .tmp/mustek.c:141 .tmp/plustek.c:227 .tmp/plustek_pp.c:207
+#: .tmp/mustek.c:141 .tmp/plustek.c:216 .tmp/plustek_pp.c:206
 msgid "Normal"
 msgstr "Normale"
 
@@ -755,7 +739,7 @@ msgstr "Bianco pieno"
 msgid "Film-strip"
 msgstr "Pellicola"
 
-#: .tmp/hp-option.c:3182 .tmp/plustek.c:229 .tmp/plustek_pp.c:209
+#: .tmp/hp-option.c:3182 .tmp/plustek.c:218 .tmp/plustek_pp.c:208
 #: .tmp/saneopts.h:170
 msgid "Negative"
 msgstr "Negativo"
@@ -1255,7 +1239,8 @@ msgid "Midtone for red"
 msgstr "Mezzi toni rossi"
 
 #: .tmp/microtek2.h:682
-msgid "Selects which radiance level should  be considered \"50 % red\"."
+#, fuzzy
+msgid "Selects which radiance level should be considered \"50 % red\"."
 msgstr "Selezionare il livello di luminosita' da considerare \"50 % rosso\"."
 
 #: .tmp/microtek2.h:686
@@ -1409,25 +1394,25 @@ msgstr "Scala di grigi rapido"
 msgid "Scan in fast gray mode (lower quality)."
 msgstr "Scansione rapida con scala di grigi (bassa qualita')"
 
-#: .tmp/mustek.c:4316
-msgid "Brightness red channel"
-msgstr "Luminosita' canale rosso"
+#: .tmp/mustek.c:4316 .tmp/umax_pp.c:569
+msgid "Red brightness"
+msgstr "Luminosita' del rosso"
 
 #: .tmp/mustek.c:4317
 msgid "Controls the brightness of the red channel of the acquired image."
 msgstr "Controllare la luminosita' del canale rosso dell'immagine acquisita"
 
-#: .tmp/mustek.c:4329
-msgid "Brightness green channel"
-msgstr "Luminosita' canale verde"
+#: .tmp/mustek.c:4329 .tmp/umax_pp.c:582
+msgid "Green brightness"
+msgstr "Luminosita' del verde"
 
 #: .tmp/mustek.c:4330
 msgid "Controls the brightness of the green channel of the acquired image."
 msgstr "Controllare la luminosita' del canale verde dell'immagine acquisita"
 
-#: .tmp/mustek.c:4342
-msgid "Brightness blue channel"
-msgstr "Luminosita' canale blu"
+#: .tmp/mustek.c:4342 .tmp/umax_pp.c:595
+msgid "Blue brightness"
+msgstr "Luminosita' del verde"
 
 #: .tmp/mustek.c:4343
 msgid "Controls the brightness of the blue channel of the acquired image."
@@ -1457,33 +1442,33 @@ msgstr "Contrasto canale blu"
 msgid "Controls the contrast of the blue channel of the acquired image."
 msgstr "Controllare il contrasto del canale blu dell'immagine acquisita"
 
-#: .tmp/plustek.c:219
+#: .tmp/plustek.c:208
 msgid "Gray 14/16"
 msgstr "Grigio a 14/16 bits"
 
-#: .tmp/plustek.c:221
+#: .tmp/plustek.c:210
 msgid "Color 42/48"
 msgstr "Colore a 42/48 bits"
 
-#: .tmp/plustek.c:228 .tmp/plustek_pp.c:208
+#: .tmp/plustek.c:217 .tmp/plustek_pp.c:207
 msgid "Transparency"
 msgstr "Trasparenze"
 
-#: .tmp/plustek.c:235 .tmp/plustek_pp.c:215
+#: .tmp/plustek_pp.c:200
+msgid "Color36"
+msgstr "Colore a 36 bits"
+
+#: .tmp/plustek_pp.c:214
 msgid "Dithermap 1"
 msgstr ""
 
-#: .tmp/plustek.c:236 .tmp/plustek_pp.c:216
+#: .tmp/plustek_pp.c:215
 msgid "Dithermap 2"
 msgstr ""
 
-#: .tmp/plustek.c:237 .tmp/plustek_pp.c:217
+#: .tmp/plustek_pp.c:216
 msgid "Randomize"
 msgstr "Casuale"
-
-#: .tmp/plustek_pp.c:201
-msgid "Color36"
-msgstr "Colore a 36 bits"
 
 #: .tmp/pnm.c:162
 msgid "Source Selection"
@@ -1914,7 +1899,8 @@ msgstr ""
 "lescansioni ad alta risoluzione."
 
 #: .tmp/saneopts.h:215
-msgid "Selects the scan mode (e.g., lineart,monochrome, or color)."
+#, fuzzy
+msgid "Selects the scan mode (e.g., lineart, monochrome, or color)."
 msgstr ""
 "Seleziona il modo di scansione (ad esempio binario, bianco e nero o colore"
 
@@ -2521,7 +2507,7 @@ msgstr ""
 #: .tmp/test.c:771
 msgid ""
 "(5/6) Bool test option that has soft select, soft detect, and emulated (and "
-"advanced) capabilities. "
+"advanced) capabilities."
 msgstr ""
 
 #: .tmp/test.c:787
@@ -2561,7 +2547,7 @@ msgid "(3/6) Int constraint word list"
 msgstr ""
 
 #: .tmp/test.c:852
-msgid "(3/6) Int test option with unit bits and constraint word list set. "
+msgid "(3/6) Int test option with unit bits and constraint word list set."
 msgstr ""
 
 #: .tmp/test.c:867
@@ -2579,7 +2565,7 @@ msgstr ""
 
 #: .tmp/test.c:884
 msgid ""
-"(5/6) Int test option with unit mm and using an array with a range "
+"(5/6) Int test option with unit dpi and using an array with a range "
 "constraint. Minimum is 4, maximum 192, and quant is 2."
 msgstr ""
 
@@ -2589,7 +2575,7 @@ msgstr ""
 
 #: .tmp/test.c:902
 msgid ""
-"(6/6) Int test option with unit percent and using an array a word list "
+"(6/6) Int test option with unit percent and using an array with a word list "
 "constraint."
 msgstr ""
 
@@ -2620,7 +2606,7 @@ msgid "(3/3) Fixed constraint word list"
 msgstr ""
 
 #: .tmp/test.c:965
-msgid "(3/3) Fixed test option with no unit and constraint word list set. "
+msgid "(3/3) Fixed test option with no unit and constraint word list set."
 msgstr ""
 
 #: .tmp/test.c:980
@@ -2786,25 +2772,13 @@ msgstr "Luminosita' dei grigi"
 msgid "Sets gray channel brightness"
 msgstr "Determina la luminosita' dei grigi"
 
-#: .tmp/umax_pp.c:569
-msgid "Red brightness"
-msgstr "Luminosita' del rosso"
-
 #: .tmp/umax_pp.c:571
 msgid "Sets red channel brightness"
 msgstr "Determina la luminosita' del rosso"
 
-#: .tmp/umax_pp.c:582
-msgid "Green brightness"
-msgstr "Luminosita' del verde"
-
 #: .tmp/umax_pp.c:584
 msgid "Sets green channel brightness"
 msgstr "Determina la luminosita' del verde"
-
-#: .tmp/umax_pp.c:595
-msgid "Blue brightness"
-msgstr "Luminosita' del verde"
 
 #: .tmp/umax_pp.c:597
 msgid "Sets blue channel brightness"
@@ -2833,6 +2807,27 @@ msgstr "Determina il contrasto del verde"
 #: .tmp/umax_pp.c:655
 msgid "Sets blue channel contrast"
 msgstr "Determina il contrasto del blu"
+
+#~ msgid "cal"
+#~ msgstr "Calibrazione"
+
+#~ msgid "gray"
+#~ msgstr "Grigio"
+
+#~ msgid "gain"
+#~ msgstr "Guadagno"
+
+#~ msgid "gamma"
+#~ msgstr "Gamma"
+
+#~ msgid "Brightness red channel"
+#~ msgstr "Luminosita' canale rosso"
+
+#~ msgid "Brightness green channel"
+#~ msgstr "Luminosita' canale verde"
+
+#~ msgid "Brightness blue channel"
+#~ msgstr "Luminosita' canale blu"
 
 #~ msgid "Image"
 #~ msgstr "Immagine"

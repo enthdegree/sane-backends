@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2003-09-25 13:52+0200\n"
+"POT-Creation-Date: 2003-10-05 13:26+0200\n"
 "PO-Revision-Date: 2003-07-29 23:28+0100\n"
 "Last-Translator: Pavel Constantinov <pavelconstantinov@bigfoot.com>\n"
 "Language-Team:  <>\n"
@@ -26,8 +26,8 @@ msgstr "В сива скала"
 
 #: .tmp/artec_eplus48u.c:155 .tmp/epson.c:473 .tmp/gt68xx.c:116
 #: .tmp/hp-option.c:2877 .tmp/leo.h:262 .tmp/ma1509.c:101 .tmp/mustek.c:126
-#: .tmp/mustek.c:130 .tmp/mustek_usb.c:268 .tmp/plustek.c:220
-#: .tmp/plustek_pp.c:191 .tmp/plustek_pp.c:200 .tmp/sceptre.h:292
+#: .tmp/mustek.c:130 .tmp/mustek_usb.c:268 .tmp/plustek.c:209
+#: .tmp/plustek_pp.c:190 .tmp/plustek_pp.c:199 .tmp/sceptre.h:292
 #: .tmp/snapscan.c:157 .tmp/teco1.h:292 .tmp/teco2.h:350 .tmp/teco3.h:296
 #: .tmp/test.c:123 .tmp/umax.c:195 .tmp/umax_pp.c:133
 msgid "Color"
@@ -35,8 +35,8 @@ msgstr "Цвят"
 
 #: .tmp/artec_eplus48u.c:2809 .tmp/gt68xx.c:594 .tmp/leo.c:871
 #: .tmp/ma1509.c:597 .tmp/matsushita.c:1149 .tmp/microtek2.h:602
-#: .tmp/mustek.c:4294 .tmp/mustek_usb.c:353 .tmp/plustek.c:831
-#: .tmp/plustek_pp.c:812 .tmp/sceptre.c:753 .tmp/snapscan-options.c:403
+#: .tmp/mustek.c:4294 .tmp/mustek_usb.c:353 .tmp/plustek.c:781
+#: .tmp/plustek_pp.c:811 .tmp/sceptre.c:753 .tmp/snapscan-options.c:403
 #: .tmp/teco1.c:1136 .tmp/teco2.c:1786 .tmp/teco3.c:971 .tmp/umax.c:5195
 #: .tmp/umax_pp.c:461
 msgid "Enhancement"
@@ -53,7 +53,7 @@ msgstr "Нагласи висящи опции за повишителните �
 #: .tmp/artec_eplus48u.c:2888 .tmp/epson.c:3123 .tmp/gt68xx.c:650
 #: .tmp/leo.c:823 .tmp/ma1509.c:549 .tmp/matsushita.c:1095
 #: .tmp/microtek2.h:601 .tmp/mustek.c:4246 .tmp/mustek_usb.c:305
-#: .tmp/plustek.c:785 .tmp/plustek_pp.c:766 .tmp/sceptre.c:705
+#: .tmp/plustek.c:735 .tmp/plustek_pp.c:765 .tmp/sceptre.c:705
 #: .tmp/snapscan-options.c:336 .tmp/teco1.c:1088 .tmp/teco2.c:1738
 #: .tmp/teco3.c:923 .tmp/test.c:619 .tmp/umax.c:5145 .tmp/umax_pp.c:412
 msgid "Geometry"
@@ -101,10 +101,6 @@ msgstr "Номер на кадъра за сканиране"
 msgid "Selects the number of the frame to scan"
 msgstr "Избира номера на кадъра за сканиране"
 
-#: .tmp/canon630u.c:157
-msgid "cal"
-msgstr "кал."
-
 #: .tmp/canon630u.c:158
 msgid "Calibrate Scanner"
 msgstr "Калибрирай скенера"
@@ -112,10 +108,6 @@ msgstr "Калибрирай скенера"
 #: .tmp/canon630u.c:159
 msgid "Force scanner calibration before scan"
 msgstr "Задължителна калибрация преди сканиране"
-
-#: .tmp/canon630u.c:257
-msgid "gray"
-msgstr "сиво"
 
 #: .tmp/canon630u.c:258 .tmp/umax1220u.c:207
 msgid "Grayscale scan"
@@ -125,10 +117,6 @@ msgstr "Сканиране в сива скала"
 msgid "Do a grayscale rather than color scan"
 msgstr "Направи сканиране в сива скала, не цветно"
 
-#: .tmp/canon630u.c:304
-msgid "gain"
-msgstr "увеличение"
-
 #: .tmp/canon630u.c:305
 msgid "Analog Gain"
 msgstr "Аналогово увеличение"
@@ -136,10 +124,6 @@ msgstr "Аналогово увеличение"
 #: .tmp/canon630u.c:306
 msgid "Increase or decrease the analog gain of the CCD array"
 msgstr "Повиши или намали аналоговото увеличение на CCD матрицата"
-
-#: .tmp/canon630u.c:345
-msgid "gamma"
-msgstr "Гама"
 
 #: .tmp/canon630u.c:346 .tmp/epson.h:68
 msgid "Gamma Correction"
@@ -149,14 +133,14 @@ msgstr "Корекция на гамата"
 msgid "Selects the gamma corrected transfer curve"
 msgstr "Избира кривата на коригираната гама"
 
-#: .tmp/epson.c:471 .tmp/plustek.c:217 .tmp/plustek_pp.c:188
-#: .tmp/plustek_pp.c:197
+#: .tmp/epson.c:471 .tmp/plustek.c:206 .tmp/plustek_pp.c:187
+#: .tmp/plustek_pp.c:196
 msgid "Binary"
 msgstr "Двоичен"
 
 #: .tmp/epson.c:472 .tmp/gt68xx.c:117 .tmp/ma1509.c:101 .tmp/mustek.c:125
-#: .tmp/mustek.c:130 .tmp/mustek_usb.c:269 .tmp/plustek.c:218
-#: .tmp/plustek_pp.c:190 .tmp/plustek_pp.c:199 .tmp/sceptre.h:291
+#: .tmp/mustek.c:130 .tmp/mustek_usb.c:269 .tmp/plustek.c:207
+#: .tmp/plustek_pp.c:189 .tmp/plustek_pp.c:198 .tmp/sceptre.h:291
 #: .tmp/snapscan.c:159 .tmp/test.c:123 .tmp/umax.c:192
 msgid "Gray"
 msgstr "Сиво"
@@ -331,7 +315,7 @@ msgstr "макс."
 
 #: .tmp/epson.c:2655 .tmp/gt68xx.c:432 .tmp/ma1509.c:499
 #: .tmp/matsushita.c:1044 .tmp/microtek2.h:600 .tmp/mustek.c:4109
-#: .tmp/mustek_usb.c:260 .tmp/plustek.c:702 .tmp/plustek_pp.c:677
+#: .tmp/mustek_usb.c:260 .tmp/plustek.c:663 .tmp/plustek_pp.c:676
 #: .tmp/sceptre.c:676 .tmp/snapscan-options.c:189 .tmp/teco2.c:1710
 #: .tmp/test.c:294 .tmp/umax.c:5023
 msgid "Scan Mode"
@@ -655,8 +639,8 @@ msgstr ""
 "Тази стойност се добавя към вътрешната стойност за офсет. Използвайте за "
 "прекалено светли или тъмни изображения."
 
-#: .tmp/hp-option.c:2875 .tmp/mustek.c:125 .tmp/plustek_pp.c:189
-#: .tmp/plustek_pp.c:198 .tmp/sceptre.h:290 .tmp/snapscan.c:158
+#: .tmp/hp-option.c:2875 .tmp/mustek.c:125 .tmp/plustek_pp.c:188
+#: .tmp/plustek_pp.c:197 .tmp/sceptre.h:290 .tmp/snapscan.c:158
 #: .tmp/umax.c:191
 msgid "Halftone"
 msgstr "Полутон"
@@ -715,7 +699,7 @@ msgid "Slow"
 msgstr "По-бавно"
 
 #: .tmp/hp-option.c:3092 .tmp/hp-option.c:3199 .tmp/matsushita.c:244
-#: .tmp/mustek.c:141 .tmp/plustek.c:227 .tmp/plustek_pp.c:207
+#: .tmp/mustek.c:141 .tmp/plustek.c:216 .tmp/plustek_pp.c:206
 msgid "Normal"
 msgstr "Нормално"
 
@@ -755,7 +739,7 @@ msgstr "Солидно бяло"
 msgid "Film-strip"
 msgstr "Тип филм"
 
-#: .tmp/hp-option.c:3182 .tmp/plustek.c:229 .tmp/plustek_pp.c:209
+#: .tmp/hp-option.c:3182 .tmp/plustek.c:218 .tmp/plustek_pp.c:208
 #: .tmp/saneopts.h:170
 msgid "Negative"
 msgstr "Негатив"
@@ -1242,7 +1226,8 @@ msgid "Midtone for red"
 msgstr "Полутон - червено"
 
 #: .tmp/microtek2.h:682
-msgid "Selects which radiance level should  be considered \"50 % red\"."
+#, fuzzy
+msgid "Selects which radiance level should be considered \"50 % red\"."
 msgstr "Избира кое ниво на осветеност ще се смята за \"50 % червено\"."
 
 #: .tmp/microtek2.h:686
@@ -1393,25 +1378,25 @@ msgstr "Бърз сив режим"
 msgid "Scan in fast gray mode (lower quality)."
 msgstr "Сканирай в бърз сив режим (по-ниско качество)."
 
-#: .tmp/mustek.c:4316
-msgid "Brightness red channel"
-msgstr "Яркост - червен канал"
+#: .tmp/mustek.c:4316 .tmp/umax_pp.c:569
+msgid "Red brightness"
+msgstr "Яркост - червено"
 
 #: .tmp/mustek.c:4317
 msgid "Controls the brightness of the red channel of the acquired image."
 msgstr "Наглася яркостта на червения канал на полученото изображение."
 
-#: .tmp/mustek.c:4329
-msgid "Brightness green channel"
-msgstr "Яркост - зелен канал"
+#: .tmp/mustek.c:4329 .tmp/umax_pp.c:582
+msgid "Green brightness"
+msgstr "Яркост - зелено"
 
 #: .tmp/mustek.c:4330
 msgid "Controls the brightness of the green channel of the acquired image."
 msgstr "Наглася яркостта на зеления канал на полученото изображение."
 
-#: .tmp/mustek.c:4342
-msgid "Brightness blue channel"
-msgstr "Яркост - син канал"
+#: .tmp/mustek.c:4342 .tmp/umax_pp.c:595
+msgid "Blue brightness"
+msgstr "Яркост - синьо"
 
 #: .tmp/mustek.c:4343
 msgid "Controls the brightness of the blue channel of the acquired image."
@@ -1441,33 +1426,33 @@ msgstr "Контраст - син канал"
 msgid "Controls the contrast of the blue channel of the acquired image."
 msgstr "Наглася контраста на синия канал на полученото изображение."
 
-#: .tmp/plustek.c:219
+#: .tmp/plustek.c:208
 msgid "Gray 14/16"
 msgstr "Сиво 14/16"
 
-#: .tmp/plustek.c:221
+#: .tmp/plustek.c:210
 msgid "Color 42/48"
 msgstr "Color42/48"
 
-#: .tmp/plustek.c:228 .tmp/plustek_pp.c:208
+#: .tmp/plustek.c:217 .tmp/plustek_pp.c:207
 msgid "Transparency"
 msgstr "Прозрачност"
 
-#: .tmp/plustek.c:235 .tmp/plustek_pp.c:215
+#: .tmp/plustek_pp.c:200
+msgid "Color36"
+msgstr "Color36"
+
+#: .tmp/plustek_pp.c:214
 msgid "Dithermap 1"
 msgstr "Dithermap 1"
 
-#: .tmp/plustek.c:236 .tmp/plustek_pp.c:216
+#: .tmp/plustek_pp.c:215
 msgid "Dithermap 2"
 msgstr "Dithermap 2"
 
-#: .tmp/plustek.c:237 .tmp/plustek_pp.c:217
+#: .tmp/plustek_pp.c:216
 msgid "Randomize"
 msgstr "Направи произволно"
-
-#: .tmp/plustek_pp.c:201
-msgid "Color36"
-msgstr "Color36"
 
 #: .tmp/pnm.c:162
 msgid "Source Selection"
@@ -1896,7 +1881,8 @@ msgstr ""
 "мултибитово сканиране."
 
 #: .tmp/saneopts.h:215
-msgid "Selects the scan mode (e.g., lineart,monochrome, or color)."
+#, fuzzy
+msgid "Selects the scan mode (e.g., lineart, monochrome, or color)."
 msgstr "Избира режим на сканиране (lineart, монохромно или цветно)."
 
 #: .tmp/saneopts.h:218
@@ -2504,9 +2490,10 @@ msgid "(5/6) Bool soft select soft detect emulated"
 msgstr "(5/6) Булева мек избор мек детект емулирана"
 
 #: .tmp/test.c:771
+#, fuzzy
 msgid ""
 "(5/6) Bool test option that has soft select, soft detect, and emulated (and "
-"advanced) capabilities. "
+"advanced) capabilities."
 msgstr ""
 "(5/6) Булева тестова опция с мек избор, мек детект и емулирани (и разширени "
 "възможности."
@@ -2552,7 +2539,8 @@ msgid "(3/6) Int constraint word list"
 msgstr "(3/6) Int ограничен word list"
 
 #: .tmp/test.c:852
-msgid "(3/6) Int test option with unit bits and constraint word list set. "
+#, fuzzy
+msgid "(3/6) Int test option with unit bits and constraint word list set."
 msgstr ""
 "(3/6) Интегрална тестова опция с единица бит и нагласен ограничeн word list."
 
@@ -2571,8 +2559,9 @@ msgid "(5/6) Int array constraint range"
 msgstr "(5/6) Int array ограничен обхват"
 
 #: .tmp/test.c:884
+#, fuzzy
 msgid ""
-"(5/6) Int test option with unit mm and using an array with a range "
+"(5/6) Int test option with unit dpi and using an array with a range "
 "constraint. Minimum is 4, maximum 192, and quant is 2."
 msgstr ""
 "Интегрална тестова опция с единица мм; използва array с ограничен обхват. "
@@ -2583,8 +2572,9 @@ msgid "(6/6) Int array constraint word list"
 msgstr "(6/6) Int array ограничен word list"
 
 #: .tmp/test.c:902
+#, fuzzy
 msgid ""
-"(6/6) Int test option with unit percent and using an array a word list "
+"(6/6) Int test option with unit percent and using an array with a word list "
 "constraint."
 msgstr ""
 "Интегрална тестова опция с единица процент; използва array с ограничен word "
@@ -2619,7 +2609,8 @@ msgid "(3/3) Fixed constraint word list"
 msgstr "(3/3) Фиксирана ограничен word list"
 
 #: .tmp/test.c:965
-msgid "(3/3) Fixed test option with no unit and constraint word list set. "
+#, fuzzy
+msgid "(3/3) Fixed test option with no unit and constraint word list set."
 msgstr ""
 "(3/3) Фиксирана тестова опция без нагласена единица и с ограничен word list."
 
@@ -2787,25 +2778,13 @@ msgstr "Яркост - сиво"
 msgid "Sets gray channel brightness"
 msgstr "Наглася яркостта на сивия канал"
 
-#: .tmp/umax_pp.c:569
-msgid "Red brightness"
-msgstr "Яркост - червено"
-
 #: .tmp/umax_pp.c:571
 msgid "Sets red channel brightness"
 msgstr "Наглася яркостта на червения канал"
 
-#: .tmp/umax_pp.c:582
-msgid "Green brightness"
-msgstr "Яркост - зелено"
-
 #: .tmp/umax_pp.c:584
 msgid "Sets green channel brightness"
 msgstr "Наглася яркостта на зеления канал"
-
-#: .tmp/umax_pp.c:595
-msgid "Blue brightness"
-msgstr "Яркост - синьо"
 
 #: .tmp/umax_pp.c:597
 msgid "Sets blue channel brightness"
@@ -2834,3 +2813,24 @@ msgstr "Наглася контраста на зеления канал"
 #: .tmp/umax_pp.c:655
 msgid "Sets blue channel contrast"
 msgstr "Наглася контраста на синия канал"
+
+#~ msgid "cal"
+#~ msgstr "кал."
+
+#~ msgid "gray"
+#~ msgstr "сиво"
+
+#~ msgid "gain"
+#~ msgstr "увеличение"
+
+#~ msgid "gamma"
+#~ msgstr "Гама"
+
+#~ msgid "Brightness red channel"
+#~ msgstr "Яркост - червен канал"
+
+#~ msgid "Brightness green channel"
+#~ msgstr "Яркост - зелен канал"
+
+#~ msgid "Brightness blue channel"
+#~ msgstr "Яркост - син канал"

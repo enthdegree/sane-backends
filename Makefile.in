@@ -101,10 +101,13 @@ distclean: clean distclean-recursive
 	rm -f sane-backends-*.lsm
 	rm -f $(distdir).tar.gz.md5
 	rm -f japi/Makefile testsuite/Makefile
+	rm -f japi/*.class japi/*.h
+	rm -rf japi/.libs 
 	rm -f $(addprefix japi/,$(DISTCLEAN_FILES))
 	rm -f $(addprefix testsuite/,$(DISTCLEAN_FILES))
 	rm -rf $(distdir)
 	rm -f TAGS
+	rm -rf autom4te.cache
 
 depend: depend-recursive
 

@@ -48,7 +48,7 @@
 
 /**************************************************************************/
 /* Mustek backend version                                                 */
-#define BUILD 136
+#define BUILD 137
 /**************************************************************************/
 
 #include "../include/sane/config.h"
@@ -1551,12 +1551,11 @@ attach (SANE_String_Const devname, Mustek_Device ** devp, SANE_Bool may_wait)
       /* These values were measured and compared to those from the Windows
          driver. Tested with a Paragon 1200 A3 Pro v1.10 */
       dev->x_range.max = SANE_FIX (11.7 * MM_PER_INCH);
-      dev->y_range.max = SANE_FIX (17 * MM_PER_INCH);
+      dev->y_range.max = SANE_FIX (424);
       dev->dpi_range.max = SANE_FIX (1200);
       dev->sane.model = "1200 A3 PRO";
       dev->flags |= MUSTEK_FLAG_LD_NONE;
       dev->flags |= MUSTEK_FLAG_ENLARGE_X;
-      warning = SANE_TRUE;
     }
   else
     {

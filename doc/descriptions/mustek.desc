@@ -9,7 +9,7 @@
 ;
 
 :backend "mustek"		; name of backend
-:version "1.0-136"		; version of backend
+:version "1.0-137"		; version of backend
 :manpage "sane-mustek"		; name of manpage (if it exists)
 :url "http://www.meier-geinitz.de/sane/mustek-backend/"
 :comment "Most Mustek SCSI scanners are supported by this backend. For USB scanners, look at the mustek_usb backend."
@@ -121,7 +121,8 @@
 
 :model "Paragon 1200 A3 Pro"
 :interface "SCSI"
-:status :good
+:status :complete
+:comment "ADF and TA untested. Please contact me if you own such equipment."
 
 :model "Paragon 600 II N"
 :interface "Proprietary"

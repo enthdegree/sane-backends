@@ -1,5 +1,10 @@
 CHANGES for the SANE Mustek backend
 
+2004-06-08
+  * Released Mustek backend 1.0-137
+  * Reduced scan area of Mustek Paragon 1200 A3 Pro. Removed warning message.
+    Increased support level to complete.
+
 2004-03-21
   * Released Mustek backend 1.0-136
   * Added detection of Mustek ScanExpress 1200 FS.

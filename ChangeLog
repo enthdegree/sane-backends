@@ -9,6 +9,10 @@
 	* tools/RenSaneDlls.cmd: Fixed newlines.
 	* README.netbsd: Mention SCSI buffer size problems and uk/ss files
 	  issue.
+	* backend/mustek.c doc/descriptions/mustek.desc
+	  doc/mustek/mustek.CHANGES: Reduced scan area of Mustek Paragon
+	  1200 A3 Pro. Removed warning message. Increased support level to
+	  complete.
 
 2004-06-06  Karl Heinz Kremer <khk@khk.net>
 

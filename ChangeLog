@@ -1,3 +1,7 @@
+2004-04-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* NEWS: Added some more updated backends and danish translation.
+
 2004-04-15  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan-mutex.c: Fixed compilation problem on OS/2

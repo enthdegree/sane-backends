@@ -327,6 +327,8 @@ return SANE_STATUS_GOOD;
 static SANE_Status
 sense_handler (int scsi_fd, u_char * result, void *arg)
 {
+  scsi_fd = scsi_fd;			/* silence gcc */
+  arg = arg;					/* silence gcc */
 
   switch (result[2] & 0x0F)
     {
@@ -1861,6 +1863,8 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   size_t len;
   FILE *fp;
 
+  authorize = authorize;	/* silence gcc */
+
   DBG_INIT ();
 
   if (version_code)
@@ -1921,6 +1925,8 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   static const SANE_Device **devlist = 0;
   Apple_Device *dev;
   int i;
+
+  local_only = local_only;		/* silence gcc */
 
   if (devlist)
     free (devlist);
@@ -2656,6 +2662,8 @@ sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 {
 DBG (FLOW_CONTROL,"sane_set_io_mode: Entering.\n");
 
+ handle = handle;				/* silence gcc */
+
 if (non_blocking)
   {
   DBG (FLOW_CONTROL, "sane_set_io_mode: Don't call me please. "
@@ -2669,6 +2677,9 @@ return SANE_STATUS_GOOD;
 SANE_Status
 sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
 {
+  handle = handle;				/* silence gcc */
+  fd = fd;						/* silence gcc */
+
   DBG (FLOW_CONTROL, "sane_get_select_fd: Don't call me please. "
        "Unimplemented function\n");
   return SANE_STATUS_UNSUPPORTED;

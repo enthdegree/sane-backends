@@ -110,9 +110,7 @@ static const SANE_Range default_y_range =
 
 
 static inline void
-_lto2b(val, bytes)
-        SANE_Int val;
-        SANE_Byte *bytes;
+_lto2b(SANE_Int val, SANE_Byte *bytes)
 {
 
         bytes[0] = (val >> 8) & 0xff;
@@ -120,9 +118,7 @@ _lto2b(val, bytes)
 }
 
 static inline void
-_lto3b(val, bytes)
-        SANE_Int val;
-        SANE_Byte *bytes;
+_lto3b(SANE_Int val, SANE_Byte *bytes)
 {
 
         bytes[0] = (val >> 16) & 0xff;
@@ -131,9 +127,7 @@ _lto3b(val, bytes)
 }
 
 static inline void
-_lto4b(val, bytes)
-        SANE_Int val;
-        SANE_Byte *bytes;
+_lto4b(SANE_Int val, SANE_Byte *bytes)
 {
 
         bytes[0] = (val >> 24) & 0xff;
@@ -143,8 +137,7 @@ _lto4b(val, bytes)
 }
 
 static inline SANE_Int
-_2btol(bytes)
-        SANE_Byte *bytes;
+_2btol(SANE_Byte *bytes)
 {
         SANE_Int rv;
 
@@ -154,8 +147,7 @@ _2btol(bytes)
 }
 
 static inline SANE_Int
-_3btol(bytes)
-        SANE_Byte *bytes;
+_3btol(SANE_Byte *bytes)
 {
         SANE_Int rv;
 
@@ -166,8 +158,7 @@ _3btol(bytes)
 }
 
 static inline SANE_Int
-_4btol(bytes)
-        SANE_Byte *bytes;
+_4btol(SANE_Byte *bytes)
 {
         SANE_Int rv;
 

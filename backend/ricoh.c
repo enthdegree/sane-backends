@@ -50,6 +50,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+#include <time.h>
 #include <sys/time.h>
 #include <unistd.h>
 #include <ctype.h>
@@ -481,6 +482,8 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   char devnam[PATH_MAX] = "/dev/scanner";
   FILE *fp;
 
+  authorize = authorize;		/* silence gcc */
+
   DBG_INIT ();
   DBG (11, ">> sane_init\n");
 
@@ -541,6 +544,9 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   static const SANE_Device **devlist = 0;
   Ricoh_Device *dev;
   int i;
+
+  local_only = local_only;		/* silence gcc */
+
   DBG (11, ">> sane_get_devices\n");
 
   if (devlist)
@@ -996,6 +1002,9 @@ sane_cancel (SANE_Handle handle)
 SANE_Status
 sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 {
+  handle = handle;				/* silence gcc */
+  non_blocking = non_blocking;	/* silence gcc */
+
   DBG (5, ">> sane_set_io_mode\n");
   DBG (5, "<< sane_set_io_mode\n");
 
@@ -1005,6 +1014,9 @@ sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 SANE_Status
 sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
 {
+  handle = handle;				/* silence gcc */
+  fd = fd;						/* silence gcc */
+
   DBG (5, ">> sane_get_select_fd\n");
   DBG (5, "<< sane_get_select_fd\n");
 

@@ -186,7 +186,7 @@ option only accepts user authorization requests that support MD5 security. The
 network daemon
 .RB ( saned )
 is capable of doing such requests. See
-.BR saned (1).
+.BR saned (8).
 .PP
 The
 .B \-n

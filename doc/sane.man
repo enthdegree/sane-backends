@@ -132,7 +132,7 @@ Command-line frontend. See
 .B SANE
 network daemon that allows remote clients to access image acquisition devices
 available on the local host. See 
-.BR saned (1).
+.BR saned (8).
 .TP
 .B sane-find-scanner
 Command-line tool to find SCSI and USB scanners and determine their Unix
@@ -472,7 +472,7 @@ The
 .B SANE
 network daemon saned provides access to scanners located on different
 computers in connection with the net backend. See
-.BR sane\-net "(5) and " saned (1).
+.BR sane\-net "(5) and " saned (8).
 .TP
 .B pnm
 PNM image reader pseudo-backend. The purpose of this backend is primarily to
@@ -725,7 +725,7 @@ for details).
 .PP
 
 .SH "SEE ALSO"
-.BR saned (1),
+.BR saned (8),
 .BR sane-find-scanner (1),
 .BR scanimage (1),
 .BR sane\-abaton (5),

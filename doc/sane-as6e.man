@@ -35,7 +35,7 @@ correctly or place the program in a directory that is in the path.
 .SH SEE ALSO
 .BR sane (7),
 .BR as6edriver (5),
-.BR saned (1),
+.BR saned (8),
 .B http://as6edriver.sourceforge.net
 
 .SH AUTHOR

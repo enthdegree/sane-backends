@@ -196,7 +196,7 @@ TESTING
   Note that you don't  have to use two different machines to test "remote"
   scanning---you can use one and the same machine to test a backend via saned
   (just be sure to enable the "net" backend in dll.conf and follow the
-  steps described in saned(1)).
+  steps described in saned(8)).
 
 * Please test on every available platform/os. Even if no scanner is attached
   to this system, test compilation and running scanimage. If you don't have

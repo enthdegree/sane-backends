@@ -37,7 +37,7 @@ DISTCLEAN_FILES = @DISTCLEAN_FILES@
 
 @SET_MAKE@
 
-SECT1	= saned.1 scanimage.1 sane-config.1 sane-find-scanner.1 gamma4scanimage.1
+SECT1	= scanimage.1 sane-config.1 sane-find-scanner.1 gamma4scanimage.1
 SECT5	= sane-abaton.5 sane-agfafocus.5 sane-apple.5 sane-as6e.5 sane-dll.5 \
           sane-dc25.5 sane-dmc.5 sane-epson.5 sane-hp.5 sane-gphoto2.5 \
           sane-leo.5 sane-matsushita.5 sane-microtek.5 \
@@ -53,7 +53,8 @@ SECT5	= sane-abaton.5 sane-agfafocus.5 sane-apple.5 sane-as6e.5 sane-dll.5 \
           sane-coolscan2.5 sane-hpsj5s.5 sane-gt68xx.5 sane-artec_eplus48u.5 \
           sane-ma1509.5 sane-ibm.5 sane-hp5400.5 sane-plustek_pp.5 sane-u12.5
 SECT7   = sane.7
-MANPAGES = $(SECT1) $(SECT5) $(SECT7)
+SECT8	= saned.8
+MANPAGES = $(SECT1) $(SECT5) $(SECT7) $(SECT8)
 READMES = README AUTHORS COPYING ChangeLog LICENSE NEWS PROBLEMS \
           PROJECTS README README.aix README.beos README.darwin README.freebsd \
 	  README.djpeg \
@@ -107,7 +108,7 @@ DISTFILES = Makefile.in backend-writing.txt descriptions.txt \
 
 all: $(STANDARD) $(MANPAGES) html-pages
 
-%.1 %.5 %.7: %.man
+%.1 %.5 %.7 %.8: %.man
 	@sed -e 's|@DATADIR@|$(datadir)|g' \
 	     -e 's|@CONFIGDIR@|$(configdir)|g' \
 	     -e 's|@DOCDIR@|$(docdir)|g' \
@@ -119,7 +120,7 @@ all: $(STANDARD) $(MANPAGES) html-pages
 
 install: all
 	$(MKDIR) $(DESTDIR)$(mandir)/man1 $(DESTDIR)$(mandir)/man5 \
-           $(DESTDIR)$(mandir)/man7
+           $(DESTDIR)$(mandir)/man7 $(DESTDIR)$(mandir)/man8
 	@for page in $(SECT1); do \
 	  echo installing $${page} in $(mandir)/man1/$${page}...; \
 	  $(INSTALL_DATA) $${page} $(DESTDIR)$(mandir)/man1/$${page} || exit 1; \
@@ -131,6 +132,10 @@ install: all
 	@for page in $(SECT7); do \
 	  echo installing $${page} in $(mandir)/man7/$${page}...; \
 	  $(INSTALL_DATA) $${page} $(DESTDIR)$(mandir)/man7/$${page} || exit 1; \
+	done
+	@for page in $(SECT8); do \
+	  echo installing $${page} in $(mandir)/man8/$${page}...; \
+	  $(INSTALL_DATA) $${page} $(DESTDIR)$(mandir)/man8/$${page} || exit 1; \
 	done
 	$(MKDIR) $(DESTDIR)$(docdir)
 	@for readme in $(READMES); do \
@@ -165,6 +170,10 @@ uninstall:
 	@for page in $(SECT7); do \
 	  echo removing $${page} in $(mandir)/man7/$${page}...; \
 	  rm -f $(mandir)/man7/$${page}; \
+	done
+	@for page in $(SECT8); do \
+	  echo removing $${page} in $(mandir)/man8/$${page}...; \
+	  rm -f $(mandir)/man8/$${page}; \
 	done
 	rm -rf $(docdir)
 

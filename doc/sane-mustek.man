@@ -312,7 +312,7 @@ and
 .BR xscanimage (1)
 setuid root (generally not recommended for safety reasons) or, alternatively,
 access this backend through the network daemon 
-.BR saned (1).
+.BR saned (8).
 .PP
 If the Mustek backend blocks while sending the inqiury command to the scanner,
 add the option

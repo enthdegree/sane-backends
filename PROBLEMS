@@ -31,4 +31,4 @@ Last update: 2003-02-09
   networks.  Make sure that access is limited by tcpwrappers and/or a firewall
   setup. Don't depend only on saned's own authentification.  Don't run saned
   as root if it's not necessary. And do not install saned as setuid root.
-  Read man saned(1) for details.
+  Read man saned(8) for details.

@@ -1,3 +1,7 @@
+2004-06-13  Julien Blache <jb@jblache.org>
+	* doc/Makefile.in: saned is in /usr/sbin, its manpage should go to
+	section 8. Fixed everything referring to saned(1) to refer to saned(8).
+
 2004-06-13  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* doc/descriptions/unsupported.desc: Added NEC Petiscan as unsupported

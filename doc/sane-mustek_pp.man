@@ -113,7 +113,7 @@ Some scanners work faster when
 is enabled in the BIOS.
 .PP
 Note that the backend needs to run as root. To allow user access to the scanner
-run the backend through the network interface (See saned(1) and sane\-net(5)). Note also that the backend
+run the backend through the network interface (See saned(8) and sane\-net(5)). Note also that the backend
 .I does not
 support
 .I parport sharing ,
@@ -472,7 +472,7 @@ level   debug output
  
 .PP
 .SH "SEE ALSO"
-sane(7), sane\-mustek(5), sane\-net(5), saned(1), sane-find-scanner(1)
+sane(7), sane\-mustek(5), sane\-net(5), saned(8), sane-find-scanner(1)
 
 .TP
 For latest bug fixes and information see

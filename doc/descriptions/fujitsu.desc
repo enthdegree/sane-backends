@@ -49,25 +49,25 @@
 :interface "SCSI"
 :status :good
 
-:model "fi-4120C"
-:interface "SCSI USB"
-:status :good
-
-:model "fi-4220C"
-:interface "SCSI USB"
-:status :good
-
-:model "fi-4340C"
-:interface "SCSI USB"
-:status :good
-
 :model "ScanPartner 93GX"
 :interface "SCSI"
 :status :good
 
-:model "fi-4530C"
+:model "fi-4120C"
+:interface "SCSI USB"
+:status :basic
+
+:model "fi-4220C"
+:interface "SCSI USB"
+:status :basic
+
+:model "fi-4340C"
 :interface "SCSI"
 :status :basic
-:comment "color scan returns inverted image, Flatbed option is enabled"
+:comment "Color scans are inverted, Flatbed option is enabled"
 
+:model "fi-4530C"
+:interface "SCSI USB"
+:status :basic
+:comment "USB untested"
 

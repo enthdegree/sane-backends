@@ -1,3 +1,17 @@
+2002-03-10  Gerhard Jaeger <g.jaeger@earthling.net>
+
+	* doc/sane-plustek.man: Update
+	* backend/plustek-usbhw.c backend/plustek-usbimg.c backend/plustek-usbio.c
+	  backend/plustek-usbmap.c backend/plustek-usbscan.c
+	  backend/plustek-usbshading.c backend/plustek.c backend/plustek-devs.c
+	  backend/plustek-pp.c backend/plustek.usb
+	  backend/plustek.h backend/plustek-share.h backend/plustek-usb.h:
+	  Added custom gamma tables, added patches to support EPSON1250,
+	  UMAX3400 and HP2100C devices, added warmup and timed lamp-off features,
+	  minor bug-fixes
+	* backend/plustek.desc: Added Umax entry
+	* backend/plustek.conf: Update
+
 2002-03-10 Abel Deuring <a.dering@satzbau-gmbh.de>
 	* configure.in, configure, include/sanei/config.h.in,
 	  sanei/sanei_scsi.c: Added HAVE_SG_TARGET_STATUS for compatibility
@@ -44,12 +58,12 @@
 	  backend/dll.conf backend/Makefile.in sane-backends.lsm AUTHORS
 	  po/matsushita.fr.po doc/matsushita/matsushita.txt 
 	  doc/matsushita/matsushita10_trc.txt 
-	  doc/matsushita/matsushita11_trc.txt 
+	  doc/matsushita/matsushita11_trc.txt
 	  doc/matsushita/matsushita12_trc.txt 
 	  doc/matsushita/matsushita13_trc.txt 
 	  doc/matsushita/matsushita14_trc.txt 
 	  doc/matsushita/matsushita1_trc.txt 
-	  doc/matsushita/matsushita2_trc.txt 
+	  doc/matsushita/matsushita2_trc.txt
 	  doc/matsushita/matsushita3_trc.txt 
 	  doc/matsushita/matsushita4_trc.txt 
 	  doc/matsushita/matsushita5_trc.txt 
@@ -187,7 +201,7 @@
 	
 2002-02-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* configure configure.in Makefile.in backend/Makefile.in  
+	* configure configure.in Makefile.in backend/Makefile.in
 	  doc/Makefile.in frontend/Makefile.in include/Makefile.in
 	  japi/Makefile.in lib/Makefile.in sanei/Makefile.in
 	  tools/Makefile.in testsuite/Makefile.in po/Makefile.in: Added global
@@ -577,12 +591,12 @@
 
     * backend/gphoto2.c - Fixed breakage due to gphoto2 API changes
       (Added context parameter to functions calls)
-	
+
 2002-01-12  Gerhard Jaeger <g.jaeger@earthling.net>
 
     * doc/sane-plustek.man: Update
     * backend/plustek-devs.c backend/plustek-usb.c backend/plustek-usbhw.c
-      backend/plustek-usbio.c backend/plustek-usbscan.c 
+      backend/plustek-usbio.c backend/plustek-usbscan.c
       backend/plustek-usbshading.c backend/plustek.c:
       Updated to reflect the current feedback upon the code and
       added some minor fixes
@@ -693,7 +707,7 @@
 2002-01-08  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* configure configure.in: Added V_EXTRA version number to mark
-	  CVS versions (-cvs) and snapshots/betas (e.g. -beta1). 
+	  CVS versions (-cvs) and snapshots/betas (e.g. -beta1).
 	  V_EXTRA=-pre1 would result in "sane-backends-1.0.7-pre1(.tar.gz)".
 	  For release, V_EXTRA is empty. Added NUMBER_VERSION to avoid
 	  confusing sane-config and frontends that rely on numbered versions.

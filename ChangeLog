@@ -1,3 +1,9 @@
+2002-09-22  Peter Fales <peter@fales-lorenz.net>
+
+	* doc/sane-dc25.man, backend/dc25.c, backend/dc25.h, 
+	  backend/gphoto2.c, backend/gphoto2.h, backend/dc240.c, 
+	  backend/dc240.h:  Update authors email address
+
 2002-09-19  Frank Zago  <fzago at austin dot rr dot com>
 
 	* backend/leo.c backend/leo.conf doc/sane-leo.man

@@ -4,6 +4,8 @@
 	  Pedro Morais <morais@inocam.com>.
 	* sanei/sanei_usb.c: Comment out resetep at sane_close. This 
 	  function sets th USB data toggle only on the host side.
+	* TODO: Removed microtek2 problem, updated Irix patch section and
+	  Linux/Sparc section.
 
 2003-01-10  Gerhard Jaeger <gerhard@gjaeger.de>
 

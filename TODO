@@ -44,8 +44,6 @@ backends
     - coolscan: Lots of compilation warnings (e.g.
       "backend/coolscan-scsidef.h", line 160: warning: initialization
       type mismatch; empty declarations), see sane-devel.
-    - microtek2.c (scsi_read_control_bits): Make sure to pass a size_t*
-      to sanei_scsi_cmd().
 
   * Make sure that USB backends don't depend on the kernel USB scanner
     driver but also work with libusb. The linux kernel scanner driver may be
@@ -57,13 +55,9 @@ backends
   * Check the Irix patches from
     http://www.mostang.com/pipermail/sane-devel/2002-December/017010.html
 
-    - gphoto2 - configure/Makefile.in changes not accepted for now
+    - as6e
     - bh
-    - canon
     - coolscan
-    - dc210 - done
-    - dc240 - done
-    - dc25 - done
 
 doc
 ---
@@ -134,7 +128,9 @@ sanei
 platform-specific
 -----------------
   * SCSI access doesn't seem to work on Linux/Sparc. See emails from
-    Tomislav Renic on sane-devel (2001-09-21).
+    Tomislav Renic on sane-devel (2001-09-21). Looks like it only happens
+    on 64 bit systems. SANE is compiled as 32 bit program there but
+    the kernel expects 64 bit structures.
 
   * Really fix all the parport/inb/outb compilation issues which break
     porting to some non-i386 platforms.

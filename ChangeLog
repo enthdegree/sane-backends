@@ -1,5 +1,5 @@
 2004-01-05  Gerhard Jaeger <gerhard@gjaeger.de>
-	* configure.in: added new u12 backend.
+	* configure configure.in: added new u12 backend.
 	* AUTHORS: added myself as u12 backend author.
 	* backend/Makefile.in: added new backend u12.
 	* backend/u12.c backend/u12.h backend/u12-scanner.h backend/u12-hwdef.h

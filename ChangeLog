@@ -1,3 +1,11 @@
+2004-01-19  Gerhard Jaeger <gerhard@gjaeger.de>
+	* doc/u12/U12.changes: update.
+	* doc/u12/U12.todo: initial checkin.
+	* backend/plustek-usb.c: cleanup.
+	* backend/u12.c backend/u12-ccd.c backend/u12-hw.c backend/u12-if.c
+	  backend/u12-image.c backend/u12-io.c: activated cancel function,
+	  added lamp off timer function, cleanup, stability fixes.
+
 2004-01-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/gt68xx.c backend/gt68xx.conf backend/gt68xx_devices.c
@@ -12,12 +20,12 @@
 
 2004-01-15  Eddy De Greef <eddy_de_greef at tiscali dot be>
 
-	* backend/mustek_pp.c, backend/mustek_pp_cis.c: Bug fix: make sure 
-          that the child process releases the parallel port under all 
-          circumstances. Otherwise, the parent process may no longer be 
-          able to control the scanner and the lamp stays on and doesn't
-          return home.
-          
+	* backend/mustek_pp.c, backend/mustek_pp_cis.c: Bug fix: make sure
+	  that the child process releases the parallel port under all
+	  circumstances. Otherwise, the parent process may no longer be
+	  able to control the scanner and the lamp stays on and doesn't
+	  return home.
+
 2004-01-15  Gerard Klaver <gerard at gkall dot hobby dot nl>
 
 	* include/sane/saneopts.h: Added options WHITE_LEVEL_R, WHITE_LEVEL_G,
@@ -26,8 +34,8 @@
 	                      update text
 	* backend/teco2.c: changed WHITE_LEVEL to WHITE_LEVEL_R, _G and _B,
 	                   changed calibration part for the VM3564, VM356A and
-			   VM3575 (subtract highest and lowest value and then
-			   divide).
+	                   VM3575 (subtract highest and lowest value and then
+	                   divide).
 	* backend/teco2.h: changed WHITE_LEVEL to WHITE_LEVEL_R, _G, _B.
 
 2004-01-14  Gerhard Jaeger <gerhard@gjaeger.de>

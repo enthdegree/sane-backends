@@ -1,13 +1,48 @@
+/* sane - Scanner Access Now Easy.
+
+   This file is part of the SANE package.
+
+   SANE is free software; you can redistribute it and/or modify it under
+   the terms of the GNU General Public License as published by the Free
+   Software Foundation; either version 2 of the License, or (at your
+   option) any later version.
+
+   SANE is distributed in the hope that it will be useful, but WITHOUT
+   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+   for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with sane; see the file COPYING.  If not, write to the Free
+   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+   As a special exception, the authors of SANE give permission for
+   additional uses of the libraries contained in this release of SANE.
+
+   The exception is that, if you link a SANE library with other files
+   to produce an executable, this does not by itself cause the
+   resulting executable to be covered by the GNU General Public
+   License.  Your use of that executable is in no way restricted on
+   account of linking the SANE library code into it.
+
+   This exception does not, however, invalidate any other reasons why
+   the executable file might be covered by the GNU General Public
+   License.
+
+   If you submit changes to SANE to the maintainers to be included in
+   a subsequent release, you agree by submitting the changes that
+   those changes may be distributed with this exception intact.
+
+   If you write modifications of your own for SANE, it is your choice
+   whether to permit this exception to apply to your modifications.
+   If you do not wish that, delete this exception notice.
+*/
+
 #ifndef SG_ERR_H
 #define SG_ERR_H
 
-/* Feel free to copy and modify this GPL-ed code into your applications. */
-
-/* Version 0.84 (20010115) 
-	- all output now sent to stderr rather thatn stdout
-	- remove header files included in this file
-*/
-
+/* Linux sg error codes taken from Doug Gilbert's sg_utils:
+   http://www.torque.net/sg/ */
 
 /* Some of the following error/status codes are exchanged between the
    various layers of the SCSI sub-system in Linux and should never
@@ -32,6 +67,8 @@
 #define DID_PASSTHROUGH 0x0a    /* Force command past mid-level */
 #define DID_SOFT_ERROR 0x0b     /* The low-level driver wants a retry */
 #endif
+
+
 
 /* These defines are to isolate applictaions from kernel define changes */
 #define SG_ERR_DID_OK           DID_OK
@@ -94,47 +131,5 @@
 #define SG_ERR_SUGGEST_IS_OK    SUGGEST_IS_OK
 #define SG_ERR_DRIVER_MASK      DRIVER_MASK
 #define SG_ERR_SUGGEST_MASK     SUGGEST_MASK
-
-
-
-/* The following "print" functions send ACSII to stdout */
-extern void sg_print_command(const unsigned char * command);
-extern void sg_print_sense(const char * leadin,
-                           const unsigned char * sense_buffer, int sb_len);
-extern void sg_print_status(int masked_status);
-extern void sg_print_host_status(int host_status);
-extern void sg_print_driver_status(int driver_status);
-
-/* sg_chk_n_print() returns 1 quietly if there are no errors/warnings
-   else it prints to standard output and returns 0. */
-extern int sg_chk_n_print(const char * leadin, int masked_status,
-                          int host_status, int driver_status,
-                          const unsigned char * sense_buffer, int sb_len);
-
-/* The following function declaration is for the sg version 3 driver. 
-   Only version 3 sg_err.c defines it. */
-struct sg_io_hdr;
-extern int sg_chk_n_print3(const char * leadin, struct sg_io_hdr * hp);
-
-
-/* The following "category" function returns one of the following */
-#define SG_ERR_CAT_CLEAN 0      /* No errors or other information */
-#define SG_ERR_CAT_MEDIA_CHANGED 1 /* interpreted from sense buffer */
-#define SG_ERR_CAT_RESET 2      /* interpreted from sense buffer */
-#define SG_ERR_CAT_TIMEOUT 3
-#define SG_ERR_CAT_RECOVERED 4  /* Successful command after recovered err */
-#define SG_ERR_CAT_SENSE 98     /* Something else is in the sense buffer */
-#define SG_ERR_CAT_OTHER 99     /* Some other error/warning has occurred */
-
-extern int sg_err_category(int masked_status, int host_status,
-               int driver_status, const unsigned char * sense_buffer,
-               int sb_len);
-
-/* The following function declaration is for the sg version 3 driver. 
-   Only version 3 sg_err.c defines it. */
-extern int sg_err_category3(struct sg_io_hdr * hp);
-
-/* Returns length of SCSI command given the opcode (first byte) */
-int sg_get_command_size(unsigned char opcode);
 
 #endif

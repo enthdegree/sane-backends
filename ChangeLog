@@ -21,6 +21,7 @@
 	  license to GPL + SANE exception.
 	* LICENSE: Clarify that not all backends us GPL + SANE exception.
 	  Fixed pointer to README.djpeg.
+	* sanei/linux_sg3_err.h: Added GPL + SANE exception license.
 
 2003-07-25  Peter Fales <peter@fales-lorenz.net>
 	* include/sane/sanei_cderror.h, include/sane/sanei_jinclude.h 

@@ -7,6 +7,7 @@
  	  backend/mustek_usb_mid.c backend/mustek_usb_mid.h:
 	  Added backend mustek_usb for Mustek USB scanners. Currently the 
 	  600 CU, 1200 CU, 1200 CU Plus and 1200 UB are supported.
+	* backend/Makefile.in dll.conf: Added entries for mustek_usb.
 
 2001-09-08 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 

@@ -1,3 +1,9 @@
+2003-01-07   Stéphane Voltz  <svoltz@wanadoo.fr>
+
+        * doc/sane-umax_pp.man: updates and fixes
+	* doc/descriptions/umax_pp.desc: change model form HP3200C to 
+	  Scanjet 3200C
+
 2003-01-07  Matthew Duggan <stauff1@users.sourceforge.net>
 
 	* backend/canon_pp-dev.c: Improve/fix detection logic.

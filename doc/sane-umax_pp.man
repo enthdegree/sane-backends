@@ -25,12 +25,12 @@ Astra 2000P
 .RE
 .PP
 This backend handles 75x75, 150x150, 300x300, 600x600 and 600x1200 dpi scan
-resolutions, in color and gray levels. There is no lineart mode.
+resolutions, in color and gray levels. There is a software lineart mode.
 .PP
 These scanners share the same ASIC. Only parts such as CCD and ADC change from
 one to another. They even all reports being UMAX Astra 1220P via IEEE1284.
-There isn't direct way to recognize them properly. Under windows, model is
-set by the driver, regardless of the hardware. 
+There isn't software way to recognize them properly. Under windows, model is
+set by the driver installed, regardless of the hardware. 
 .PP
 .TP
 .B EPP MODE ONLY
@@ -50,7 +50,7 @@ run the backend through the network interface (See saned(1) and sane\-net(5)).
 A more relaxed solution (security wise) is to add suid bit to the frontend
 (See chmod(1)).
 The backend drop root priviledges as soon as it can, right after gaining direct
-access to IO ports.
+access to IO ports, which lessen risks when being root.
 
 .SH "DEVICE NAMES"
 This backend expects device names of the form:
@@ -74,7 +74,19 @@ this backend requires the base address of your port. If you are not sure which
 port your scanner is connected to, have a look at your /etc/modules.conf.
 .PP
 If you are using the linux ppdev character device, you will have to specify
-the device name, which is /dev/parport0 for the first parallel port.
+the device name, which is /dev/parport0 for the first parallel port. Check 
+the permissions on /dev/paraport0, many linux distributions restrict them
+for root only access. Get sure they are like:
+.br
+crw-rw-rw- 1 root root 99, 0 mai 20 2002 /dev/parport0
+.br
+crw-rw-rw- 1 root root 99, 1 mai 20 2002 /dev/parport1
+.br
+crw-rw-rw- 1 root root 99, 2 mai 20 2002 /dev/parport2
+.br
+crw-rw-rw- 1 root root 99, 3 mai 20 2002 /dev/parport3
+.br
+
 
 You can rename any device using the
 .PP
@@ -139,14 +151,16 @@ it may fail on unkown hardware combination. Valid values are 1220, 1600
 and 2000. It is usefull only autodetection fails to detect properly your scanner 
 model. If your scanner work properly but is reported wrongly, let it be that way. 
 The only valid case to change the model is when your scanner produces 'black' or 
-'inverted' scans.  In this case you can put the model. Be aware that it will 
+ 'inverted' scans.  In this case you can put the model. Be aware that it will 
 prevent autodetection.
 .PP
 
 Option
 .B buffer
 allows you to change the size of the scan buffer. The size must be specified in
-bytes. The default value is 2 megabytes. 
+bytes. The default value is 2 megabytes. Decreasing this value will improve the
+progress status reporting in the frontend, but will stall the scan more often.
+
 .PP
 
 

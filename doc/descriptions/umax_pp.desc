@@ -46,7 +46,7 @@
 
 :mfg "Hewlett-Packard"
 
-:model "HP 3200C"
+:model "Scanjet 3200C"
 :interface "Parport (EPP)"
 :comment "works (relabelled 1220P and 2000P)"
 

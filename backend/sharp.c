@@ -324,8 +324,8 @@ sense_handler(int fd, u_char *sense_buffer, void *s)
   int sense_key;
   SHARP_Sense_Data *sdat = (SHARP_Sense_Data *) s;
   
-  #define add_sense_code sense_buffer[12]
-  #define add_sense_qual sense_buffer[13]
+#define add_sense_code sense_buffer[12]
+#define add_sense_qual sense_buffer[13]
 
   memcpy(sdat->sb, sense_buffer, 16);
   
@@ -3247,9 +3247,13 @@ s->dev->sensedat.complain_on_adf_error = 1;
   s->dev->info.bufsize = s->dev->info.wanted_bufsize;
   if (s->dev->info.bufsize < 32 * 1024)
     s->dev->info.bufsize = 32 * 1024;
-  status = sanei_scsi_open_extended (s->dev->sane.name, &s->fd, 
-              &sense_handler, &s->dev->sensedat, &s->dev->info.bufsize);
-
+  {
+    int bsize = s->dev->info.bufsize;
+    status = sanei_scsi_open_extended (s->dev->sane.name, &s->fd, 
+              &sense_handler, &s->dev->sensedat, &bsize);
+    s->dev->info.bufsize = bsize;
+  }
+  
   if (status != SANE_STATUS_GOOD)
     {
       DBG (1, "open of %s failed: %s\n",

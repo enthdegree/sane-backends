@@ -1,3 +1,14 @@
+2003-09-25  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* po/Makefile.in: Added plustek_pp.c.
+	* po/sane-backends.nl.po: Updated Dutch translation (from Martin
+	  Kho <mkho@xs4all.nl>).
+	* po/sane-backends.bg.po po/sane-backends.cs.po po/sane-backends.de.po  
+	  po/sane-backends.es.po po/sane-backends.fr.po po/sane-backends.it.po  
+	  po/sane-backends.no.po po/sane-backends.pt.po po/sane-backends.ru.po  
+	  po/sane-backends.sv.po: Regenerated.
+	* doc/Makefile.in: Fixed link to image in HTML manpages.
+
 2003-09-24  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backends/snapscan.c: check second argument of sanei_config_get_string

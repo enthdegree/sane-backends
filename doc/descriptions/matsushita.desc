@@ -11,7 +11,7 @@
 
 :backend "matsushita"             ; name of backend
 :version "1.0-6"                  ; version of backend
-:status :stable                   ; :alpha, :beta, :stable, :new
+:status :stable                   ; :alpha, :beta, :stable
 :manpage "sane-matsushita"        ; name of manpage
 :url "http://fz.eryx.net/sane"    ; backend's web page
 
@@ -22,34 +22,35 @@
 
 :model "KV-SS25"
 :interface "SCSI"
+:status :stable
 
 :model "KV-SS25D"
 :interface "SCSI"
-:comment "untested"
+:status :stable
 
 :model "KV-SS50"
 :interface "SCSI"
-:comment "untested"
+:status :untested
 
 :model "KV-SS55"
 :interface "SCSI"
-:comment "untested"
+:status :untested
 
 :model "KV-SS50EX"
 :interface "SCSI"
-:comment "untested"
+:status :untested
 
 :model "KV-SS55EX"
 :interface "SCSI"
-:comment "untested"
+:status :untested
 
 :model "KV-SS850"
 :interface "SCSI"
-:comment "untested"
+:status :untested
 
 :model "KV-SS855"
 :interface "SCSI"
-:comment "untested"
+:status :untested
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

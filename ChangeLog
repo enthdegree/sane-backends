@@ -1,3 +1,7 @@
+2001-11-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* sanei/sanei_usb.c: Fixed debug messages.
+
 2001-11-06  Peter Fales <peter@fales.com>
 
 	* dc240.c - fix a bug that causes the backend's internal directory

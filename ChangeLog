@@ -1,3 +1,5 @@
+---- BACKEND FREEZE FOR SANE 1.0.8 ---
+
 2002-04-23  Frank Zago <fzago@greshamstorage.com>
 
 	* backend/coolscan2.c: Fixed the version reporting problem.

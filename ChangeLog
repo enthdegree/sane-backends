@@ -19,6 +19,9 @@
 	* backend/pnm.c doc/descriptions/pnm.desc: If fread returns 0, check
 	  for EOF and other errors and return appropriately.
 	* backend/mustek_usb_mid.h: Updated SANE header.
+	* backend/net.c doc/descriptions/net.desc: Fixed 16-bit byte-order
+	  handling in sane_read() (patch from Michael Herder <crapsite@gmx.net>).
+	  New version: 1.0.7.
 
 2002-03-24  Oliver Schwartz <oliver.schwartz@gmx.de>
 

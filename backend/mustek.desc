@@ -9,7 +9,7 @@
 ;
 
 :backend "mustek"		; name of backend
-:version "1.0-116"		; version of backend
+:version "1.0-117"		; version of backend
 :status :stable			; :alpha, :beta, :stable, :new
 :manpage "sane-mustek"		; name of manpage (if it exists)
 :url "http://www.meier-geinitz.de/sane/"
@@ -70,6 +70,9 @@
 
 :mfg "Trust"			; name a manufacturer
 :url "http://www.trust-site.com"
+:model "Imagery 1200"
+:interface "SCSI"
+:comment "3-pass"
 :model "Imagery 1200 SP"
 :interface "SCSI"
 :model "Imagery 4800 SP"

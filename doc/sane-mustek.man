@@ -1,4 +1,4 @@
-.TH sane-mustek 5 "18 Nov 2001"
+.TH sane-mustek 5 "22 Dec 2001"
 .IX sane-mustek
 .SH NAME
 sane-mustek - SANE backend for Mustek flatbed scanners
@@ -38,6 +38,8 @@ Paragon 1200 SP Pro
 Paragon 1200 A3 Pro
 .br
 Paragon 600 II N
+.br
+Trust Imagery 1200
 .br
 Trust Imagery 1200 SP
 .br

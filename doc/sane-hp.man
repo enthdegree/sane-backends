@@ -81,7 +81,7 @@ You can also watch the sane-devel mailinglist at
 .IR http://www.mostang.com/sane/mail.html .
 .PP
 More details about the hp backend can be found on its homepage 
-.IR http://www.kirchgessner.net/sane .
+.IR http://www.kirchgessner.net/sane.html .
 .PP
 .SH "DEVICE NAMES"
 This backend expects device names of the form:

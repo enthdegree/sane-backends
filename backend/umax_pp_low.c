@@ -612,28 +612,28 @@ static void bloc8Decode (int *op);
 static int loadDefaultTables (void);
 static int inquire (void);
 static int offsetCalibration1220p (int color, int *offRed, int *offGreen,
-			      int *offBlue);
+				   int *offBlue);
 static int offsetCalibration610p (int color, int *offRed, int *offGreen,
-			      int *offBlue);
+				  int *offBlue);
 static int coarseGainCalibration610p (int color, int dcRed, int dcGreen,
-				  int dcBlue, int *vgaRed, int *vgaGreen,
-				  int *vgaBlue);
+				      int dcBlue, int *vgaRed, int *vgaGreen,
+				      int *vgaBlue);
 static int coarseGainCalibration1220p (int color, int dcRed, int dcGreen,
-				  int dcBlue, int *vgaRed, int *vgaGreen,
-				  int *vgaBlue);
+				       int dcBlue, int *vgaRed, int *vgaGreen,
+				       int *vgaBlue);
 static int
 shadingCalibration (int color, int dcRed, int dcGreen, int dcBlue,
 		    int vgaRed, int vgaGreen, int vgaBlue, int *calibration);
 static int
 shadingCalibration610p (int color, int dcRed, int dcGreen, int dcBlue,
-		    int vgaRed, int vgaGreen, int vgaBlue, int *calibration);
-static int
-shadingCalibration1220p (int color, int dcRed, int dcGreen, int dcBlue,
-		    int vgaRed, int vgaGreen, int vgaBlue, int *calibration);
-static int
-leftShadingCalibration (int color, int dcRed, int dcGreen, int dcBlue,
 			int vgaRed, int vgaGreen, int vgaBlue,
 			int *calibration);
+static int shadingCalibration1220p (int color, int dcRed, int dcGreen,
+				    int dcBlue, int vgaRed, int vgaGreen,
+				    int vgaBlue, int *calibration);
+static int leftShadingCalibration (int color, int dcRed, int dcGreen,
+				   int dcBlue, int vgaRed, int vgaGreen,
+				   int vgaBlue, int *calibration);
 
 #define WRITESLOW(x,y) \
         PS2registerWrite((x),(y)); \
@@ -9809,16 +9809,16 @@ moveToOrigin (void)
 static int
 warmUp (int color, int *gain, int *offset)
 {
-int offGreen,offRed,offBlue;
-int vgaGreen,vgaRed,vgaBlue;
+  int offGreen, offRed, offBlue;
+  int vgaGreen, vgaRed, vgaBlue;
 
-  if(offsetCalibration1220p (color, &offRed, &offGreen, &offBlue)!=1)
-  	return 0;
-  if(coarseGainCalibration1220p (color, offRed, offGreen, offBlue, &vgaRed, &vgaGreen, &vgaBlue)!=1)
-  	return 0;
+  if (offsetCalibration1220p (color, &offRed, &offGreen, &offBlue) != 1)
+    return 0;
+  if (coarseGainCalibration1220p
+      (color, offRed, offGreen, offBlue, &vgaRed, &vgaGreen, &vgaBlue) != 1)
+    return 0;
   *offset = (offRed << 8) + (offGreen << 4) + offBlue;
   *gain = (vgaRed << 8) + (vgaBlue << 4) + vgaGreen;
-  printf("brightness=0x%03X, contrast=0x%03X\n",*gain,*offset);
   DBG (1, "warmUp() done ...\n");
   return 1;
 }
@@ -10231,7 +10231,8 @@ sanei_umax_pp_scan (int x, int y, int width, int height, int dpi, int color,
 	{
 	  len = reserve - read + dataoffset;
 	  len =
-	    sanei_umax_pp_readBlock (len, tw, dpi, 0, buffer + read - dataoffset);
+	    sanei_umax_pp_readBlock (len, tw, dpi, 0,
+				     buffer + read - dataoffset);
 	  if (len == 0)
 	    {
 	      DBG (0,
@@ -11427,7 +11428,8 @@ offsetCalibration1220p (int color, int *offRed, int *offGreen, int *offBlue)
     0x00, 0x40, 0xA4, 0x00, -1
   };
   float offsetX, offsetY, offsetZ, low, high;
-  DBG (16, "entering offsetCalibration1220p() ... (%s:%d)\n", __FILE__, __LINE__);
+  DBG (16, "entering offsetCalibration1220p() ... (%s:%d)\n", __FILE__,
+       __LINE__);
 
   /* really dirty hack: somethig is buggy in BW mode    */
   /* we override mode with color until the bug is found */
@@ -11487,7 +11489,7 @@ offsetCalibration1220p (int color, int *offRed, int *offGreen, int *offBlue)
       if (DBG_LEVEL >= 128)
 	Dump (0x18, buffer, NULL);
 
-      offsetX = 15.0 + (10.0 * (low - high))/32;
+      offsetX = 15.0 + (10.0 * (low - high)) / 32;
 
       /* block that repeats */
       /* must be monochrome since hscan=1 */
@@ -11533,7 +11535,7 @@ offsetCalibration1220p (int color, int *offRed, int *offGreen, int *offBlue)
 	val += buffer[i];
       high = (float) val / i;
 
-      offsetY = 15.0 + (10.0 * (low - high))/32.0;
+      offsetY = 15.0 + (10.0 * (low - high)) / 32.0;
     }
 
   /* block that repeats */
@@ -11580,12 +11582,12 @@ offsetCalibration1220p (int color, int *offRed, int *offGreen, int *offBlue)
     val += buffer[i];
   high = (float) val / i;
 
-  offsetZ = 15.0 + (10.0 * (low - high))/32.0;
+  offsetZ = 15.0 + (10.0 * (low - high)) / 32.0;
 
   DBG (32, "STEF: offsets(X,Y,Z)=(%f,%f,%f)\n", offsetX, offsetY, offsetZ);
-  *offRed=(int) offsetX;
-  *offGreen=(int) offsetY;
-  *offBlue=(int) offsetZ;
+  *offRed = (int) offsetX;
+  *offGreen = (int) offsetY;
+  *offBlue = (int) offsetZ;
   DBG (16, "offsetCalibration1220p() done ... (%s:%d)\n", __FILE__, __LINE__);
   return 1;
 }
@@ -11635,7 +11637,8 @@ offsetCalibration610p (int color, int *offRed, int *offGreen, int *offBlue)
   int len;
   int w;
 
-  DBG (16, "entering offsetCalibration610P() ... (%s:%d)\n", __FILE__, __LINE__);
+  DBG (16, "entering offsetCalibration610P() ... (%s:%d)\n", __FILE__,
+       __LINE__);
 
   if (sanei_umax_pp_getastra () < 1220)
     {
@@ -11776,7 +11779,7 @@ offsetCalibration610p (int color, int *offRed, int *offGreen, int *offBlue)
  */
 static int
 coarseGainCalibration610p (int color, int dcRed, int dcGreen, int dcBlue,
-		       int *vgaRed, int *vgaGreen, int *vgaBlue)
+			   int *vgaRed, int *vgaGreen, int *vgaBlue)
 {
   int motor[17] = {
     0x11, 0x00, 0x00, 0x70, 0x00, 0x00, 0xC0, 0x2F,
@@ -11867,8 +11870,8 @@ coarseGainCalibration610p (int color, int dcRed, int dcGreen, int dcBlue,
   while ((i > 0) && (data[i] <= (targetCode * 2) / 5))
     i--;
   xend = i;
-  DBG (32, "coarseGainCalibration610p: xstart=%d, xend=%d ->left=%d\n", xstart,
-       xend, ((xend + xstart - w) / 2));
+  DBG (32, "coarseGainCalibration610p: xstart=%d, xend=%d ->left=%d\n",
+       xstart, xend, ((xend + xstart - w) / 2));
   /* choose best 'left' position */
   sanei_umax_pp_setLeft ((xend + xstart - w) / 2);
 
@@ -11916,7 +11919,8 @@ coarseGainCalibration610p (int color, int dcRed, int dcGreen, int dcBlue,
 	break;
       DBG (32, "coarseGainCalibration610p, target/2.8=%f\n",
 	   (((float) targetCode) / 2.8));
-      DBG (32, "coarseGainCalibration610p, green: min=%d, max=%d\n", min, max);
+      DBG (32, "coarseGainCalibration610p, green: min=%d, max=%d\n", min,
+	   max);
     }
 
   if (color >= RGB_MODE)
@@ -11958,7 +11962,8 @@ coarseGainCalibration610p (int color, int dcRed, int dcGreen, int dcBlue,
 	    }
 	  if ((max <= targetCode) && (min > (((float) targetCode) / 2.8)))
 	    break;
-	  DBG (32, "coarseGainCalibration610p, blue: min=%d, max=%d\n", min, max);
+	  DBG (32, "coarseGainCalibration610p, blue: min=%d, max=%d\n", min,
+	       max);
 	}
 
       motor[0] = 0x09;
@@ -11998,7 +12003,8 @@ coarseGainCalibration610p (int color, int dcRed, int dcGreen, int dcBlue,
 	    }
 	  if ((max <= targetCode) && (min > (((float) targetCode) / 2.8)))
 	    break;
-	  DBG (32, "coarseGainCalibration610p, red: min=%d, max=%d\n", min, max);
+	  DBG (32, "coarseGainCalibration610p, red: min=%d, max=%d\n", min,
+	       max);
 	}
     }
   else
@@ -12012,9 +12018,10 @@ coarseGainCalibration610p (int color, int dcRed, int dcGreen, int dcBlue,
 }
 
 /* same as above, but for 1220P/1600P/200P */
-static int coarseGainCalibration1220p (int color, int dcRed, int dcGreen,
-				  int dcBlue, int *vgaRed, int *vgaGreen,
-				  int *vgaBlue)
+static int
+coarseGainCalibration1220p (int color, int dcRed, int dcGreen,
+			    int dcBlue, int *vgaRed, int *vgaGreen,
+			    int *vgaBlue)
 {
   unsigned char buffer[5300];
   int i, min, max;
@@ -12042,13 +12049,14 @@ static int coarseGainCalibration1220p (int color, int dcRed, int dcGreen,
     0x00, 0x40, 0xA4, 0x00, -1
   };
 
-  DBG (16, "entering coarseGainCalibration1220p() ... (%s:%d) \n", __FILE__, __LINE__);
+  DBG (16, "entering coarseGainCalibration1220p() ... (%s:%d) \n", __FILE__,
+       __LINE__);
 
   /* color correction set to 5,3,5 */
   /* for a start                   */
-  *vgaGreen=3;
-  *vgaRed=5;
-  *vgaBlue=5;
+  *vgaGreen = 3;
+  *vgaRed = 5;
+  *vgaBlue = 5;
 
   CMDSETGET (2, 0x10, opsc18);
   CMDSETGET (8, 0x24, opsc39);
@@ -12077,8 +12085,8 @@ static int coarseGainCalibration1220p (int color, int dcRed, int dcGreen,
 
 	  opsc04[7] |= 0x20;
 	}
-      encodeDC(dcRed, dcGreen, dcBlue, motor);
-      encodeVGA(vgaRed, vgaGreen, vgaBlue, motor);
+      encodeDC (dcRed, dcGreen, dcBlue, motor);
+      encodeVGA (*vgaRed, 0, 0, motor);
       CMDSETGET (2, 0x10, motor);
       CMDSETGET (8, 0x24, opsc40);
       if (DBG_LEVEL >= 128)
@@ -12123,10 +12131,10 @@ static int coarseGainCalibration1220p (int color, int dcRed, int dcGreen,
 		max = buffer[i];
 	    }
 	}
-      *vgaRed=opsc04[6] - 1;
+      *vgaRed = opsc04[6] - 1;
 
-      encodeDC(dcRed, dcGreen, dcBlue, motor);
-      encodeVGA(vgaRed, vgaGreen, vgaBlue, motor);
+      encodeDC (dcRed, dcGreen, dcBlue, motor);
+      encodeVGA (0, *vgaGreen, 0, motor);
       if (sanei_umax_pp_getastra () == 1600)
 	{
 	  motor[11] |= 0x20;
@@ -12175,13 +12183,13 @@ static int coarseGainCalibration1220p (int color, int dcRed, int dcGreen,
 		max = buffer[i];
 	    }
 	}
-      *vgaGreen=opsc04[6] - 1;
+      *vgaGreen = opsc04[6] - 1;
     }
 
 
   /* component Z: B&W component */
-      encodeDC(dcRed, dcGreen, dcBlue, motor);
-      encodeVGA(vgaRed, vgaGreen, vgaBlue, motor);
+  encodeDC (dcRed, dcGreen, dcBlue, motor);
+  encodeVGA (0, 0, *vgaBlue, motor);
   if (color < RGB_MODE)
     motor[0] = 0x01;		/* in BW, scan zone doesn't have an extra 4 points */
   else
@@ -12238,7 +12246,7 @@ static int coarseGainCalibration1220p (int color, int dcRed, int dcGreen,
 	    max = buffer[i];
 	}
     }
-  *vgaBlue=opsc04[6] - 1;
+  *vgaBlue = opsc04[6] - 1;
   DBG (1, "coarseGainCalibration1220p() done ...\n");
   return 1;
 }
@@ -12254,8 +12262,10 @@ shadingCalibration (int color, int dcRed, int dcGreen, int dcBlue,
 		    int vgaRed, int vgaGreen, int vgaBlue, int *calibration)
 {
   if (sanei_umax_pp_getastra () < 1220)
-  	return shadingCalibration610p (color, dcRed, dcGreen, dcBlue, vgaRed, vgaGreen, vgaBlue, calibration) ;
-  return shadingCalibration1220p (color, dcRed, dcGreen, dcBlue, vgaRed, vgaGreen, vgaBlue, calibration) ;
+    return shadingCalibration610p (color, dcRed, dcGreen, dcBlue, vgaRed,
+				   vgaGreen, vgaBlue, calibration);
+  return shadingCalibration1220p (color, dcRed, dcGreen, dcBlue, vgaRed,
+				  vgaGreen, vgaBlue, calibration);
 }
 
 /*
@@ -12267,7 +12277,8 @@ shadingCalibration (int color, int dcRed, int dcGreen, int dcBlue,
  */
 static int
 shadingCalibration610p (int color, int dcRed, int dcGreen, int dcBlue,
-		    int vgaRed, int vgaGreen, int vgaBlue, int *calibration)
+			int vgaRed, int vgaGreen, int vgaBlue,
+			int *calibration)
 {
   int motor[17] = {
     0x5A, 0x80, 0x02, 0x70, 0x00, 0x00, 0xC0, 0x00,
@@ -12307,13 +12318,13 @@ shadingCalibration610p (int color, int dcRed, int dcGreen, int dcBlue,
   int top, bottom;
 
   TRACE (16, "entering shadingCalibration610p ...\n");
-      len = 0x22;
-      w = 2550;
-      y = 10;
-      dpi = 300;
-      h = 90;
-      top = 8;
-      bottom = 8;
+  len = 0x22;
+  w = 2550;
+  y = 10;
+  dpi = 300;
+  h = 90;
+  top = 8;
+  bottom = 8;
 
   /* gray scanning handling */
   if (color < RGB_MODE)
@@ -12332,7 +12343,7 @@ shadingCalibration610p (int color, int dcRed, int dcGreen, int dcBlue,
 	   __FILE__, __LINE__);
       return 0;
     }
-   memset(data,0x00,w*h*bpp);
+  memset (data, 0x00, w * h * bpp);
 
   /* prepare scan command */
   x = sanei_umax_pp_getLeft ();
@@ -12362,7 +12373,8 @@ shadingCalibration610p (int color, int dcRed, int dcGreen, int dcBlue,
     h = h - y - 6;
   size = w * bpp * h;
 
-  DBG (128, "shadingCalibration610p: trying to read 0x%06X bytes ... (%s:%d)\n",
+  DBG (128,
+       "shadingCalibration610p: trying to read 0x%06X bytes ... (%s:%d)\n",
        size, __FILE__, __LINE__);
   /* since we know that each scan line matches CCD width, we signals
    * that data reading doens't need to sync on each byte, but at each
@@ -12390,7 +12402,7 @@ shadingCalibration610p (int color, int dcRed, int dcGreen, int dcBlue,
 	{
 	  sum = 0;
 	  for (y = top; y < h - bottom; y++)
-		sum += data[(y * bpp) * w + x];
+	    sum += data[(y * bpp) * w + x];
 	  avg = ((float) (sum)) / ((float) (h - (top + bottom)));
 	  coeff = (256.0 * (250.0 / avg - 1.0)) / 1.50;
 	  if (coeff < 0)
@@ -12454,9 +12466,10 @@ shadingCalibration610p (int color, int dcRed, int dcGreen, int dcBlue,
 
 static int
 shadingCalibration1220p (int color, int dcRed, int dcGreen, int dcBlue,
-		    int vgaRed, int vgaGreen, int vgaBlue, int *calibration)
+			 int vgaRed, int vgaGreen, int vgaBlue,
+			 int *calibration)
 {
-	return 1;
+  return 1;
 }
 
 /*

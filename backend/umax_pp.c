@@ -170,6 +170,10 @@ static const SANE_Range u8_range = {
 #define UMAX_PP_DEFAULT_PORT		"/dev/parport0"
 
 #define UMAX_PP_RESERVE			259200
+
+static int
+parse_int_option (const char *string, char *name, long int *value, long int fallback);
+
 /*
  * devname may be either an hardware address for direct I/O (0x378 for instance)
  * or the device name used by ppdev on linux systems        (/dev/parport0 )
@@ -626,8 +630,7 @@ init_options (Umax_PP_Device * dev)
   /*  gain group */
   dev->opt[OPT_MANUAL_GAIN].name = "manual-channel-gain";
   dev->opt[OPT_MANUAL_GAIN].title = SANE_I18N ("Gain");
-  dev->opt[OPT_MANUAL_GAIN].desc =
-    SANE_I18N ("Color channels gain settings");
+  dev->opt[OPT_MANUAL_GAIN].desc = SANE_I18N ("Color channels gain settings");
   dev->opt[OPT_MANUAL_GAIN].type = SANE_TYPE_BOOL;
   dev->opt[OPT_MANUAL_GAIN].cap |= SANE_CAP_ADVANCED;
   dev->val[OPT_MANUAL_GAIN].w = SANE_FALSE;
@@ -635,8 +638,7 @@ init_options (Umax_PP_Device * dev)
   /* gray gain */
   dev->opt[OPT_GRAY_GAIN].name = "gray-gain";
   dev->opt[OPT_GRAY_GAIN].title = SANE_I18N ("Gray gain");
-  dev->opt[OPT_GRAY_GAIN].desc =
-    SANE_I18N ("Sets gray channel gain");
+  dev->opt[OPT_GRAY_GAIN].desc = SANE_I18N ("Sets gray channel gain");
   dev->opt[OPT_GRAY_GAIN].type = SANE_TYPE_INT;
   dev->opt[OPT_GRAY_GAIN].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
   dev->opt[OPT_GRAY_GAIN].unit = SANE_UNIT_NONE;
@@ -648,8 +650,7 @@ init_options (Umax_PP_Device * dev)
   /* red gain */
   dev->opt[OPT_RED_GAIN].name = "red-gain";
   dev->opt[OPT_RED_GAIN].title = SANE_I18N ("Red gain");
-  dev->opt[OPT_RED_GAIN].desc =
-    SANE_I18N ("Sets red channel gain");
+  dev->opt[OPT_RED_GAIN].desc = SANE_I18N ("Sets red channel gain");
   dev->opt[OPT_RED_GAIN].type = SANE_TYPE_INT;
   dev->opt[OPT_RED_GAIN].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
   dev->opt[OPT_RED_GAIN].unit = SANE_UNIT_NONE;
@@ -661,8 +662,7 @@ init_options (Umax_PP_Device * dev)
   /* green gain */
   dev->opt[OPT_GREEN_GAIN].name = "green-gain";
   dev->opt[OPT_GREEN_GAIN].title = SANE_I18N ("Green gain");
-  dev->opt[OPT_GREEN_GAIN].desc =
-    SANE_I18N ("Sets green channel gain");
+  dev->opt[OPT_GREEN_GAIN].desc = SANE_I18N ("Sets green channel gain");
   dev->opt[OPT_GREEN_GAIN].type = SANE_TYPE_INT;
   dev->opt[OPT_GREEN_GAIN].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
   dev->opt[OPT_GREEN_GAIN].unit = SANE_UNIT_NONE;
@@ -674,8 +674,7 @@ init_options (Umax_PP_Device * dev)
   /* blue gain */
   dev->opt[OPT_BLUE_GAIN].name = "blue-gain";
   dev->opt[OPT_BLUE_GAIN].title = SANE_I18N ("Blue gain");
-  dev->opt[OPT_BLUE_GAIN].desc =
-    SANE_I18N ("Sets blue channel gain");
+  dev->opt[OPT_BLUE_GAIN].desc = SANE_I18N ("Sets blue channel gain");
   dev->opt[OPT_BLUE_GAIN].type = SANE_TYPE_INT;
   dev->opt[OPT_BLUE_GAIN].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
   dev->opt[OPT_BLUE_GAIN].unit = SANE_UNIT_NONE;
@@ -686,7 +685,7 @@ init_options (Umax_PP_Device * dev)
 
   /*  offset group */
   dev->opt[OPT_MANUAL_OFFSET].name = "manual-offset";
-  dev->opt[OPT_MANUAL_OFFSET].title = SANE_I18N("Offset");
+  dev->opt[OPT_MANUAL_OFFSET].title = SANE_I18N ("Offset");
   dev->opt[OPT_MANUAL_OFFSET].desc =
     SANE_I18N ("Color channels offset settings");
   dev->opt[OPT_MANUAL_OFFSET].type = SANE_TYPE_BOOL;
@@ -720,8 +719,7 @@ init_options (Umax_PP_Device * dev)
   /* green offset */
   dev->opt[OPT_GREEN_OFFSET].name = "green-offset";
   dev->opt[OPT_GREEN_OFFSET].title = SANE_I18N ("Green offset");
-  dev->opt[OPT_GREEN_OFFSET].desc =
-    SANE_I18N ("Sets green channel offset");
+  dev->opt[OPT_GREEN_OFFSET].desc = SANE_I18N ("Sets green channel offset");
   dev->opt[OPT_GREEN_OFFSET].type = SANE_TYPE_INT;
   dev->opt[OPT_GREEN_OFFSET].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
   dev->opt[OPT_GREEN_OFFSET].unit = SANE_UNIT_NONE;
@@ -745,7 +743,31 @@ init_options (Umax_PP_Device * dev)
   return SANE_STATUS_GOOD;
 }
 
+static int
+parse_int_option (const char *string, char *name, long int *value, long int fallback)
+{
+  int len;
+  char *end;
 
+  len = strlen (name);
+  if ((strncmp (string, name, len) == 0) && isspace (string[len]))
+    {
+
+      string += len+1;
+
+      errno = 0;
+      *value = strtol (string, &end, 0);
+
+      if (end == string || errno)
+	{
+	  DBG (2, "init: invalid value `%s`, using fallback '%ld'\n", string,fallback);
+	  *value = fallback;
+	}
+      DBG (3, "init: option %s %ld\n", name, *value);
+      return 1;
+    }
+  return 0;
+}
 
 SANE_Status
 sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
@@ -756,6 +778,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   FILE *fp;
   SANE_Status ret;
   int portdone = 0;
+  long int val = 0;
 
   DBG_INIT ();
 
@@ -801,23 +824,14 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	  cp += 7;
 	  cp = sanei_config_skip_whitespace (cp);
 
-	  if (strncmp (cp, "buffer", 6) == 0 && isspace (cp[6]))
+	  if (parse_int_option(cp, "buffer", &val, buf_size))
 	    {
-	      char *end;
-	      long int val;
-
-	      cp += 7;
-
-	      errno = 0;
-	      val = strtol (cp, &end, 0);
-
-	      if ((end == cp || errno) || (val < 0))
+	      if (val < 8192)
 		{
 		  DBG (2, "init: invalid value `%s`, falling back to %ld\n",
 		       cp, buf_size);
 		  val = buf_size;	/* safe fallback */
 		}
-
 	      DBG (3, "init: option buffer %ld\n", val);
 
 	      if (num_devices == 0)
@@ -832,176 +846,86 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 		  devlist[0].buf_size = val;
 		}
 	    }
-	  else if (strncmp (cp, "astra", 5) == 0)
-	    {
-	      char *end;
-	      long int val;
-
-	      cp += 6;
-
-	      errno = 0;
-	      val = strtol (cp, &end, 0);
-
-	      if ((end == cp || errno))
+	  else if (parse_int_option(cp, "astra", &val, 0))
+	  {
+	  	if((val!=610)&&(val!=1200)&&(val!=1600)&&(val!=2000))
 		{
-		  val = 1220;	/* safe fallback */
-		  DBG (2,
-		       "init: invalid astra value `%s`, falling back to %ld\n",
+		  val=0;
+		  DBG (2, "init: invalid value `%s`, falling back to %ld\n",
 		       cp, val);
 		}
-	      if ((val != 610)
-		  && (val != 1220) && (val != 1600) && (val != 2000))
-		{
-		  val = 1220;	/* safe fallback */
-		  DBG (2,
-		       "init: invalid astra value `%s`, falling back to %ld\n",
-		       cp, val);
-		}
+	      DBG (3, "init: setting global option astra to %ld\n", val);
 	      sanei_umax_pp_setastra (val);
-	      DBG (3, "init: option astra %ld P\n", val);
-	    }
-	  else if ((strncmp (cp, "red-gain", 14) == 0)
-		   && isspace (cp[14]))
-	    {
-	      char *end;
-	      long int val;
-
-	      cp += 15;
-
-	      errno = 0;
-	      val = strtol (cp, &end, 0);
-
-	      if ((end == cp || errno) || (val < 0) || (val > 15))
+	  }
+	  else if (parse_int_option(cp, "red-gain", &val, 12))
+	  {
+	  	if((val<0)||(val>15))
 		{
-		  val = 8;	/* safe fallback */
+		  val=12;
 		  DBG (2, "init: invalid value `%s`, falling back to %ld\n",
 		       cp, val);
 		}
-
-	      DBG (3, "init: option buffer %ld\n", val);
-
-	      DBG (3, "init: setting global option red-gain to %ld\n",
-		   val);
+	      DBG (3, "init: setting global option red-gain to %ld\n", val);
 	      red_gain = val;
-	    }
-	  else if (strncmp (cp, "green-gain", 16) == 0
-		   && isspace (cp[16]))
-	    {
-	      char *end;
-	      long int val;
-
-	      cp += 17;
-
-	      errno = 0;
-	      val = strtol (cp, &end, 0);
-
-	      if ((end == cp || errno) || (val < 0) || (val > 15))
+	  }
+	  else if (parse_int_option(cp, "green-gain", &val, 6))
+	  {
+	  	if((val<0)||(val>15))
 		{
-		  val = 4;	/* safe fallback */
+		  val=6;
 		  DBG (2, "init: invalid value `%s`, falling back to %ld\n",
 		       cp, val);
 		}
-
-	      DBG (3, "init: option green-gain %ld\n", val);
-	      DBG (3, "init: setting global option green-gain to %ld\n",
-		   val);
+	      DBG (3, "init: setting global option green-gain to %ld\n", val);
 	      green_gain = val;
-	    }
-	  else if (strncmp (cp, "blue-gain", 15) == 0
-		   && isspace (cp[15]))
-	    {
-	      char *end;
-	      long int val;
-
-	      cp += 16;
-
-	      errno = 0;
-	      val = strtol (cp, &end, 0);
-
-	      if ((end == cp || errno) || (val < 0) || (val > 15))
+	  }
+	  else if (parse_int_option(cp, "blue-gain", &val,12))
+	  {
+	  	if((val<0)||(val>15))
 		{
-		  val = 8;	/* safe fallback */
+		  val=12;
 		  DBG (2, "init: invalid value `%s`, falling back to %ld\n",
 		       cp, val);
 		}
-
-	      DBG (3, "init: option blue-gain %ld\n", val);
-
-	      DBG (3, "init: setting global option blue-gain to %ld\n",
-		   val);
+	      DBG (3, "init: setting global option blue-gain to %ld\n", val);
 	      blue_gain = val;
-	    }
-	  else if ((strncmp (cp, "red-offset", 12) == 0)
-		   && isspace (cp[12]))
-	    {
-	      char *end;
-	      long int val;
-
-	      cp += 13;
-
-	      errno = 0;
-	      val = strtol (cp, &end, 0);
-
-	      if ((end == cp || errno) || (val < 0) || (val > 15))
+	  }
+	  else if (parse_int_option(cp, "red-offset", &val, 10))
+	  {
+	  	if((val<0)||(val>15))
 		{
-		  val = 8;	/* safe fallback */
+		  val=10;
 		  DBG (2, "init: invalid value `%s`, falling back to %ld\n",
 		       cp, val);
 		}
-
-	      DBG (3, "init: option buffer %ld\n", val);
-
-	      DBG (3, "init: setting global option red-offset to %ld\n",
-		   val);
+	      DBG (3, "init: setting global option red-offset to %ld\n", val);
 	      red_offset = val;
-	    }
-	  else if (strncmp (cp, "green-offset", 14) == 0
-		   && isspace (cp[14]))
-	    {
-	      char *end;
-	      long int val;
-
-	      cp += 15;
-
-	      errno = 0;
-	      val = strtol (cp, &end, 0);
-
-	      if ((end == cp || errno) || (val < 0) || (val > 15))
+	  }
+	  else if (parse_int_option(cp, "green-offset", &val, 10))
+	  {
+	  	if((val<0)||(val>15))
 		{
-		  val = 4;	/* safe fallback */
+		  val=10;
 		  DBG (2, "init: invalid value `%s`, falling back to %ld\n",
 		       cp, val);
 		}
-
-	      DBG (3, "init: option green-offset %ld\n", val);
-	      DBG (3, "init: setting global option green-offset to %ld\n",
-		   val);
+	      DBG (3, "init: setting global option green-offset to %ld\n", val);
 	      green_offset = val;
-	    }
-	  else if (strncmp (cp, "blue-offset", 13) == 0 && isspace (cp[13]))
-	    {
-	      char *end;
-	      long int val;
-
-	      cp += 14;
-
-	      errno = 0;
-	      val = strtol (cp, &end, 0);
-
-	      if ((end == cp || errno) || (val < 0) || (val > 15))
+	  }
+	  else if (parse_int_option(cp, "blue-offset", &val, 10))
+	  {
+	  	if((val<0)||(val>15))
 		{
-		  val = 8;	/* safe fallback */
+		  val=10;
 		  DBG (2, "init: invalid value `%s`, falling back to %ld\n",
 		       cp, val);
 		}
-
-	      DBG (3, "init: option blue-offset %ld\n", val);
-
-	      DBG (3, "init: setting global option blue-offset to %ld\n",
-		   val);
+	      DBG (3, "init: setting global option red-offset to %ld\n", val);
 	      blue_offset = val;
-	    }
-	}
+	  }
+          else
+	    DBG (2, "init: don't know what to do with option `%s'\n", cp);
+	  }
       else if ((strncmp (cp, "port", 4) == 0) && isspace (cp[4]))
 	{
 	  /* protect ourself from buggy configuration tool such as

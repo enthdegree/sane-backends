@@ -1,3 +1,10 @@
+2004-08-28  Stéphane Voltz <svoltz@wanadoo.fr>
+
+	* backend/umax_pp.c:
+          option parsing fix
+	* backend/umax_pp_low.c:
+          minor 1220P calibration fixes
+
 2004-08-25  Stéphane Voltz <svoltz@wanadoo.fr>
 
 	* tools/umax_pp.c backend/umax_pp.c backend/umax_pp.conf

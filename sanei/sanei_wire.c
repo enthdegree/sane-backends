@@ -56,6 +56,9 @@ sanei_w_space (Wire *w, size_t howmuch)
   int fd = w->io.fd;
   ssize_t nread, nwritten;
 
+  if (w->status != 0)
+    return;
+
   if (w->buffer.curr + howmuch > w->buffer.end)
     {
       switch (w->direction)
@@ -80,6 +83,10 @@ sanei_w_space (Wire *w, size_t howmuch)
 
 	case WIRE_DECODE:
 	  left_over = w->buffer.end - w->buffer.curr;
+
+	  if ((signed)leftover < 0)
+	    return;
+	  
 	  if (left_over)
 	    memcpy (w->buffer.start, w->buffer.curr, left_over);
 	  w->buffer.curr = w->buffer.start;

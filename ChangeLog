@@ -3,6 +3,10 @@
 	* configure configure.in frontend/saned.c
 	  include/sane/config.h.in: Test for poll() and disable IPV6 if
 	  not found.
+	* include/lalloca.h: Remove test for MacOS X. That one breaks some
+	  MacOS X systems.
+	* configure configure.in frontend/Makefile.in tools/Makefile.in:
+	  Add -all_load to linker flags on MacOS X to avoid linker errors.
 
 2003-05-01 Oliver Rauch <Oliver.Rauch@XSane.org>
 

@@ -89,6 +89,11 @@ if test "`uname`" != "IRIX" -a "`uname`" != "IRIX64"; then
     AC_CHECK_LIB(socket, socket)
     AC_CHECK_LIB(syslog, syslog)            # OS/2 needs this
 fi
+dnl ugh bad test...
+if test "`uname`" = "Darwin" ; then
+LIBLIBFLAGS="-all_load"
+fi
+AC_SUBST(LIBLIBFLAGS)
 SANE_CHECK_JPEG
 SANE_CHECK_IEEE1284
 SANE_CHECK_GPHOTO2

@@ -39,6 +39,7 @@ CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
+LIBLIBFLAGS = @LIBLIBFLAGS@
 DEFS = @DEFS@
 
 LIBTOOL = ../libtool
@@ -92,7 +93,7 @@ sane-config: sane-config.in $(top_builddir)/config.status
 sane-find-scanner: sane-find-scanner.o ../backend/sane_strstatus.lo \
 	../sanei/sanei_scsi.lo ../sanei/sanei_usb.lo ../sanei/sanei_init_debug.lo
 	@$(LIBTOOL) $(MLINK) $(LINK) sane-find-scanner.o \
-	  ../backend/sane_strstatus.lo $(LIBSANEI) $(LIBLIB) $(LIBS)
+	  ../backend/sane_strstatus.lo $(LIBSANEI) $(LIBLIBFLAGS) $(LIBLIB) $(LIBS)
 
 gamma4scanimage: gamma4scanimage.o
 	@$(LIBTOOL) $(MLINK) $(LINK) gamma4scanimage.o -lm
@@ -103,9 +104,9 @@ gamma4scanimage: gamma4scanimage.o
 
 umax_pp: umax_pp.o ../backend/umax_pp_low.o
 	@$(LIBTOOL) $(MLINK) $(LINK) umax_pp.o ../backend/umax_pp_low.o \
-	   $(LIBSANEI) $(LIBLIB) $(LIBS)
+	   $(LIBSANEI) $(LIBLIBFLAGS) $(LIBLIB) $(LIBS)
 sane-desc: sane-desc.o
-	@$(LIBTOOL) $(MLINK) $(LINK) sane-desc.o $(LIBSANEI) $(LIBLIB) $(LIBS)
+	@$(LIBTOOL) $(MLINK) $(LINK) sane-desc.o $(LIBSANEI) $(LIBLIBFLAGS) $(LIBLIB) $(LIBS)
 
 depend:
 	makedepend $(INCLUDES) *.c

@@ -8,6 +8,7 @@ all: $(if $(INSTALL_TRANSLATIONS),update-mo)
 epson.*.po: ../backend/epson.c ../backend/epson.h 
 mustek.*.po: ../backend/mustek.c
 mustek_usb.*.po: ../backend/mustek_usb.c
+plustek.*.po: ../backend/plustek.c ../backend/plustek.h
 pnm.*.po: ../backend/pnm.c
 umax.*.po: ../backend/umax.c
 
@@ -46,7 +47,7 @@ ALL_LINGUAS = $(sort $(subst .,,$(suffix $(basename $(ALL_POS)))))
 INSTALL_TRANSLATIONS = @INSTALL_TRANSLATIONS@
 
 DISTFILES = Makefile.in README epson.de.po mustek.de.po \
-  mustek_usb.de.po pnm.de.po umax.de.po 
+  mustek_usb.de.po plustek.de.po pnm.de.po umax.de.po 
 
 .PHONY: all clean depend dist distclean install install-translations \
   uninstall update-mo update-po generate-%

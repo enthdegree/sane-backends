@@ -151,7 +151,7 @@ typedef enum {
  * our own decription for some options
  */
 #define PLUSTEK_DESC_SCAN_SOURCE \
-"Selects the picture mode."
+SANE_I18N("Selects the picture mode.")
 
 typedef struct Plustek_Device
 {

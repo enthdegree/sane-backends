@@ -191,46 +191,46 @@ static ModeParam mode_usb_params[] =
 
 static const SANE_String_Const mode_list[] =
 {
-	"Binary",
-	"Halftone",
-	"Gray",
-	"Color",
-/*	"Color30", */
+	SANE_I18N("Binary"),
+	SANE_I18N("Halftone"),
+	SANE_I18N("Gray"),
+	SANE_I18N("Color"),
+/*	SANE_I18N("Color30"), */
 	NULL
 };
 
 static const SANE_String_Const mode_9800x_list[] =
 {
-	"Binary",
-	"Halftone",
-	"Gray",
-	"Color",
-	"Color36",
+	SANE_I18N("Binary"),
+	SANE_I18N("Halftone"),
+	SANE_I18N("Gray"),
+	SANE_I18N("Color"),
+	SANE_I18N("Color36"),
 	NULL
 };
 
 static const SANE_String_Const mode_usb_list[] =
 {
-	"Binary",
-	"Gray",
-	"Color",
-	"Color42",
+	SANE_I18N("Binary"),
+	SANE_I18N("Gray"),
+	SANE_I18N("Color"),
+	SANE_I18N("Color42"),
 	NULL
 };
 
 static const SANE_String_Const ext_mode_list[] =
 {
-	"Normal",
-	"Transparency",
-	"Negative",
+	SANE_I18N("Normal"),
+	SANE_I18N("Transparency"),
+	SANE_I18N("Negative"),
 	NULL
 };
 
 static const SANE_String_Const halftone_list[] =
 {
-	"Dithermap 1",
-	"Dithermap 2",
-	"Randomize",
+	SANE_I18N("Dithermap 1"),
+	SANE_I18N("Dithermap 2"),
+	SANE_I18N("Randomize"),
 	NULL
 };
 
@@ -629,7 +629,7 @@ static SANE_Status init_options( Plustek_Scanner *s )
 
 	/* "Scan Mode" group: */
 	s->opt[OPT_MODE_GROUP].name  = "Scan Mode group";
-	s->opt[OPT_MODE_GROUP].title = "Scan Mode";
+	s->opt[OPT_MODE_GROUP].title = SANE_I18N("Scan Mode");
 	s->opt[OPT_MODE_GROUP].desc  = "";
 	s->opt[OPT_MODE_GROUP].type  = SANE_TYPE_GROUP;
 	s->opt[OPT_MODE_GROUP].cap   = 0;
@@ -668,7 +668,7 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	/* halftone */
 	s->opt[OPT_HALFTONE].name  = SANE_NAME_HALFTONE;
 	s->opt[OPT_HALFTONE].title = SANE_TITLE_HALFTONE;
-	s->opt[OPT_HALFTONE].desc  = "Selects the halftone.";
+	s->opt[OPT_HALFTONE].desc  = SANE_I18N("Selects the halftone.");
 	s->opt[OPT_HALFTONE].type  = SANE_TYPE_STRING;
 	s->opt[OPT_HALFTONE].size  = 32;
 	s->opt[OPT_HALFTONE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
@@ -679,7 +679,7 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	/* brightness */
 	s->opt[OPT_BRIGHTNESS].name  = SANE_NAME_BRIGHTNESS;
 	s->opt[OPT_BRIGHTNESS].title = SANE_TITLE_BRIGHTNESS;
-	s->opt[OPT_BRIGHTNESS].desc  = "Selects the brightness.";
+	s->opt[OPT_BRIGHTNESS].desc  = SANE_I18N("Selects the brightness.");
 	s->opt[OPT_BRIGHTNESS].type  = SANE_TYPE_FIXED;
 	s->opt[OPT_BRIGHTNESS].unit  = SANE_UNIT_PERCENT;
 	s->opt[OPT_BRIGHTNESS].constraint_type = SANE_CONSTRAINT_RANGE;
@@ -708,7 +708,7 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	s->val[OPT_RESOLUTION].w = s->hw->dpi_range.min;
 
 	/* "Geometry" group: */
-	s->opt[OPT_GEOMETRY_GROUP].title = "Geometry";
+	s->opt[OPT_GEOMETRY_GROUP].title = SANE_I18N("Geometry");
 	s->opt[OPT_GEOMETRY_GROUP].name  = "Geometry Group";
 	s->opt[OPT_GEOMETRY_GROUP].desc  = "";
 	s->opt[OPT_GEOMETRY_GROUP].type  = SANE_TYPE_GROUP;

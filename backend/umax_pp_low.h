@@ -88,6 +88,10 @@ extern void sanei_umax_pp_setauto (int mode);
 
 #define MOTOR_BIT     0x40
 
+#define UMAX_PP_PARPORT_SPP 0x01
+#define UMAX_PP_PARPORT_EPP 0x02
+#define UMAX_PP_PARPORT_ECP 0x04
+
 #endif
 
 extern int sanei_umax_pp_Scan (int x, int y, int width, int height, int dpi,

@@ -102,7 +102,7 @@
  *  see Changelog
  */
 
-#define UMAX_PP_BUILD	11
+#define UMAX_PP_BUILD	12
 #define UMAX_PP_STATE	"beta"
 
 static int num_devices = 0;
@@ -545,7 +545,8 @@ init_options (Umax_PP_Device * dev)
   /*  brightness group */
   dev->opt[OPT_MANUAL_BRIGHTNESS].name = "manual-channel-brightness";
   dev->opt[OPT_MANUAL_BRIGHTNESS].title = SANE_I18N ("Brightness");
-  dev->opt[OPT_MANUAL_BRIGHTNESS].desc = SANE_I18N ("Color channels brightness settings");
+  dev->opt[OPT_MANUAL_BRIGHTNESS].desc =
+    SANE_I18N ("Color channels brightness settings");
   dev->opt[OPT_MANUAL_BRIGHTNESS].type = SANE_TYPE_BOOL;
   dev->opt[OPT_MANUAL_BRIGHTNESS].cap |= SANE_CAP_ADVANCED;
   dev->val[OPT_MANUAL_BRIGHTNESS].w = SANE_FALSE;
@@ -553,7 +554,8 @@ init_options (Umax_PP_Device * dev)
   /* gray brightness */
   dev->opt[OPT_GRAY_BRIGHTNESS].name = "gray-brightness";
   dev->opt[OPT_GRAY_BRIGHTNESS].title = SANE_I18N ("Gray brightness");
-  dev->opt[OPT_GRAY_BRIGHTNESS].desc = SANE_I18N ("Sets gray channel brightness");
+  dev->opt[OPT_GRAY_BRIGHTNESS].desc =
+    SANE_I18N ("Sets gray channel brightness");
   dev->opt[OPT_GRAY_BRIGHTNESS].type = SANE_TYPE_INT;
   dev->opt[OPT_GRAY_BRIGHTNESS].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
   dev->opt[OPT_GRAY_BRIGHTNESS].unit = SANE_UNIT_NONE;
@@ -565,7 +567,8 @@ init_options (Umax_PP_Device * dev)
   /* red brightness */
   dev->opt[OPT_RED_BRIGHTNESS].name = "red-brightness";
   dev->opt[OPT_RED_BRIGHTNESS].title = SANE_I18N ("Red brightness");
-  dev->opt[OPT_RED_BRIGHTNESS].desc = SANE_I18N ("Sets red channel brightness");
+  dev->opt[OPT_RED_BRIGHTNESS].desc =
+    SANE_I18N ("Sets red channel brightness");
   dev->opt[OPT_RED_BRIGHTNESS].type = SANE_TYPE_INT;
   dev->opt[OPT_RED_BRIGHTNESS].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
   dev->opt[OPT_RED_BRIGHTNESS].unit = SANE_UNIT_NONE;
@@ -577,7 +580,8 @@ init_options (Umax_PP_Device * dev)
   /* green brightness */
   dev->opt[OPT_GREEN_BRIGHTNESS].name = "green-brightness";
   dev->opt[OPT_GREEN_BRIGHTNESS].title = SANE_I18N ("Green brightness");
-  dev->opt[OPT_GREEN_BRIGHTNESS].desc = SANE_I18N ("Sets green channel brightness");
+  dev->opt[OPT_GREEN_BRIGHTNESS].desc =
+    SANE_I18N ("Sets green channel brightness");
   dev->opt[OPT_GREEN_BRIGHTNESS].type = SANE_TYPE_INT;
   dev->opt[OPT_GREEN_BRIGHTNESS].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
   dev->opt[OPT_GREEN_BRIGHTNESS].unit = SANE_UNIT_NONE;
@@ -589,7 +593,8 @@ init_options (Umax_PP_Device * dev)
   /* blue brightness */
   dev->opt[OPT_BLUE_BRIGHTNESS].name = "blue-brightness";
   dev->opt[OPT_BLUE_BRIGHTNESS].title = SANE_I18N ("Blue brightness");
-  dev->opt[OPT_BLUE_BRIGHTNESS].desc = SANE_I18N ("Sets blue channel brightness");
+  dev->opt[OPT_BLUE_BRIGHTNESS].desc =
+    SANE_I18N ("Sets blue channel brightness");
   dev->opt[OPT_BLUE_BRIGHTNESS].type = SANE_TYPE_INT;
   dev->opt[OPT_BLUE_BRIGHTNESS].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
   dev->opt[OPT_BLUE_BRIGHTNESS].unit = SANE_UNIT_NONE;
@@ -610,8 +615,7 @@ init_options (Umax_PP_Device * dev)
   /* gray contrast */
   dev->opt[OPT_GRAY_CONTRAST].name = "gray-contrast";
   dev->opt[OPT_GRAY_CONTRAST].title = SANE_I18N ("Gray contrast");
-  dev->opt[OPT_GRAY_CONTRAST].desc =
-    SANE_I18N ("Sets gray channel contrast");
+  dev->opt[OPT_GRAY_CONTRAST].desc = SANE_I18N ("Sets gray channel contrast");
   dev->opt[OPT_GRAY_CONTRAST].type = SANE_TYPE_INT;
   dev->opt[OPT_GRAY_CONTRAST].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
   dev->opt[OPT_GRAY_CONTRAST].unit = SANE_UNIT_NONE;
@@ -648,8 +652,7 @@ init_options (Umax_PP_Device * dev)
   /* blue contrast */
   dev->opt[OPT_BLUE_CONTRAST].name = "blue-contrast";
   dev->opt[OPT_BLUE_CONTRAST].title = SANE_TITLE_CONTRAST;
-  dev->opt[OPT_BLUE_CONTRAST].desc =
-    SANE_I18N ("Sets blue channel contrast");
+  dev->opt[OPT_BLUE_CONTRAST].desc = SANE_I18N ("Sets blue channel contrast");
   dev->opt[OPT_BLUE_CONTRAST].type = SANE_TYPE_INT;
   dev->opt[OPT_BLUE_CONTRAST].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
   dev->opt[OPT_BLUE_CONTRAST].unit = SANE_UNIT_NONE;
@@ -775,7 +778,8 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	      sanei_umax_pp_setastra (val);
 	      DBG (3, "init: option astra %ld P\n", val);
 	    }
-	  else if ( (strncmp (cp, "red-brightness", 14) == 0) && isspace (cp[14]) )
+	  else if ((strncmp (cp, "red-brightness", 14) == 0)
+		   && isspace (cp[14]))
 	    {
 	      char *end;
 	      long int val;
@@ -794,10 +798,12 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
 	      DBG (3, "init: option buffer %ld\n", val);
 
-	      DBG (3, "init: setting global option red-brightness to %ld\n", val);
+	      DBG (3, "init: setting global option red-brightness to %ld\n",
+		   val);
 	      red_brightness = val;
 	    }
-	  else if (strncmp (cp, "green-brightness", 16) == 0 && isspace (cp[16]))
+	  else if (strncmp (cp, "green-brightness", 16) == 0
+		   && isspace (cp[16]))
 	    {
 	      char *end;
 	      long int val;
@@ -815,10 +821,12 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 		}
 
 	      DBG (3, "init: option green-brightness %ld\n", val);
-	      DBG (3, "init: setting global option green-brightness to %ld\n", val);
+	      DBG (3, "init: setting global option green-brightness to %ld\n",
+		   val);
 	      green_brightness = val;
 	    }
-	  else if (strncmp (cp, "blue-brightness", 15) == 0 && isspace (cp[15]))
+	  else if (strncmp (cp, "blue-brightness", 15) == 0
+		   && isspace (cp[15]))
 	    {
 	      char *end;
 	      long int val;
@@ -837,10 +845,12 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
 	      DBG (3, "init: option blue-brightness %ld\n", val);
 
-	      DBG (3, "init: setting global option blue-brightness to %ld\n", val);
+	      DBG (3, "init: setting global option blue-brightness to %ld\n",
+		   val);
 	      blue_brightness = val;
 	    }
-	  else if ((strncmp (cp, "red-contrast", 12) == 0) && isspace (cp[12]))
+	  else if ((strncmp (cp, "red-contrast", 12) == 0)
+		   && isspace (cp[12]))
 	    {
 	      char *end;
 	      long int val;
@@ -886,8 +896,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 		   val);
 	      green_contrast = val;
 	    }
-	  else if (strncmp (cp, "blue-contrast", 13) == 0
-		   && isspace (cp[13]))
+	  else if (strncmp (cp, "blue-contrast", 13) == 0 && isspace (cp[13]))
 	    {
 	      char *end;
 	      long int val;
@@ -1002,16 +1011,16 @@ sane_exit (void)
     }
 
   if (devlist != NULL)
-  {
-    free (devlist);
-    devlist=NULL;
-  }
+    {
+      free (devlist);
+      devlist = NULL;
+    }
 
   if (devarray != NULL)
-  {
-    free (devarray);
-    devarray=NULL;
-  }
+    {
+      free (devarray);
+      devarray = NULL;
+    }
 
   /* reset values */
   num_devices = 0;
@@ -1036,10 +1045,10 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   DBG (129, "unused arg: local_only = %d\n", (int) local_only);
 
   if (devarray != NULL)
-  {
-    free (devarray);
-    devarray=NULL;
-  }
+    {
+      free (devarray);
+      devarray = NULL;
+    }
 
   devarray = malloc ((num_devices + 1) * sizeof (devarray[0]));
 
@@ -1120,10 +1129,10 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 
       DBG (3, "open: trying default device %s, port=%s,ppdev=%s\n",
 	   devlist[0].sane.name, devlist[0].port, devlist[0].ppdevice);
-      if(devlist[0].port!=NULL)
-      	rc = sanei_umax_pp_open (atoi (devlist[0].port), NULL);
+      if (devlist[0].port != NULL)
+	rc = sanei_umax_pp_open (atoi (devlist[0].port), NULL);
       else
-      	rc = sanei_umax_pp_open (0 , devlist[0].ppdevice);
+	rc = sanei_umax_pp_open (0, devlist[0].ppdevice);
 
       desc = &devlist[0];
     }
@@ -2049,7 +2058,8 @@ sane_start (SANE_Handle handle)
 	   dev->BottomX - dev->TopX,
 	   dev->BottomY - dev->TopY,
 	   dev->dpi,
-	   (dev->red_brightness << 8) + (dev->green_brightness << 4) + dev->blue_brightness,
+	   (dev->red_brightness << 8) + (dev->green_brightness << 4) +
+	   dev->blue_brightness,
 	   (dev->red_contrast << 8) + (dev->green_contrast << 4) +
 	   dev->blue_contrast);
 
@@ -2061,11 +2071,12 @@ sane_start (SANE_Handle handle)
 				2,
 				autoset,
 				(dev->red_brightness << 8) +
-				(dev->green_brightness << 4) + dev->blue_brightness,
+				(dev->green_brightness << 4) +
+				dev->blue_brightness,
 				(dev->red_contrast << 8) +
 				(dev->green_contrast << 4) +
-				dev->blue_contrast,
-				&(dev->bpp), &(dev->tw), &(dev->th));
+				dev->blue_contrast, &(dev->bpp), &(dev->tw),
+				&(dev->th));
       /* we enlarged the scanning zone   */
       /* to allow reordering, we must    */
       /* substract it from real scanning */
@@ -2087,8 +2098,9 @@ sane_start (SANE_Handle handle)
 				dev->dpi,
 				(dev->color ==
 				 UMAX_PP_MODE_GRAYSCALE) ? 1 : 0, autoset,
-				dev->gray_brightness << 4, dev->gray_contrast << 4,
-				&(dev->bpp), &(dev->tw), &(dev->th));
+				dev->gray_brightness << 4,
+				dev->gray_contrast << 4, &(dev->bpp),
+				&(dev->tw), &(dev->th));
     }
 
   if (rc != UMAX1220P_OK)

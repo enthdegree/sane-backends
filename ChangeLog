@@ -16,6 +16,9 @@
 	* doc/descriptions/net.desc doc/descriptions/test.desc: No bugs for
 	  quite some time, changed status to stable (knocking on wood).
 	  Updated comments.
+	* doc/descriptions.txt doc/descriptions/template.desc. 
+	  doc/descriptions-external/template.desc.: Updated concerning 
+	  model status.
 
 2002-07-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -58,6 +58,8 @@
 :interface "SCSI USB"
 :model "HP ScanJet 6350C"
 :interface "SCSI USB"
+:model "HP ScanJet 6390C"
+:interface "SCSI USB"
 :model "HP PhotoSmart PhotoScanner"
 :interface "SCSI"
 

@@ -50,6 +50,8 @@ ScanJet 6300C  C7670A          SCSI/USB
 .br
 ScanJet 6350C  C7670A          SCSI/USB
 .br
+ScanJet 6390C  C7670A          SCSI/USB
+.br
 PhotoSmart     C5100A R029,R030,R032    SCSI
 .br
 OfficeJet Pro 1150C            PTAL

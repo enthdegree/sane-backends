@@ -1,3 +1,8 @@
+2001-05-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* TODO: Added entries about memory leaks, sane_init return values, and
+	  HP-UX problems in isfdtype.c.
+
 2001-05-11  Jochen Eisinger <jochen.eisinger@gmx.de>
 
 	* TODO, backend/mustek_pp.c: fixed line-end handling, removed entry

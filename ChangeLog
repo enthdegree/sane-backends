@@ -3,7 +3,10 @@
 	* configure configure.in acinclude.m4 aclocal.m4: Changed check for
 	  linux/videodev.h. If that file is not compilable, we don't build
 	  the v4l backend. That's to avoid compilation errors if videov.h
-	  from Linux kernel 2.6.* is used.
+	  from Linux kernel 2.6.* is used. Include all the headers we also
+	  include in backend/v4l.c to make sure we find all problems.
+	* backend/v4l.c: Try to not include linux/videodev2.h to avoid
+	  compilation errors.
 
 -- snapshot 1.0.13-pre3
 ---- CODE FREEZE FOR SANE 1.0.13 ---

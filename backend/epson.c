@@ -16,8 +16,8 @@
 
 */
 
-#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.19 - 2002-01-18"
-#define SANE_EPSON_BUILD	219
+#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.20 - 2002-04-13"
+#define SANE_EPSON_BUILD	220
 
 /*
    This file is part of the SANE package.
@@ -59,6 +59,9 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
+   2002-04-13	Check if scanner needs to be opened for the reset call.
+		(Thanks to Thomas Wenrich for pointing this out)
+		Added product IDs for Perfection 1650 and 2450
    2002-01-18	Recognize GT-xxxx type scanners also when using the SCSI or IEEE-1394 interface
    2002-01-06   Disable TEST_IOCTL again, which was enabled by accident. Also
 		protect the ioctl portion with an #ifdef __linux__
@@ -1405,6 +1408,7 @@ static SANE_Status check_ext_status ( Epson_Scanner * s) {
 static SANE_Status reset ( Epson_Scanner * s) {
 	SANE_Status status;
 	u_char param[2];
+	SANE_Bool need_open = SANE_FALSE;
 
 	if( ! s->hw->cmd->initialize_scanner)
 		return SANE_STATUS_GOOD;
@@ -1412,8 +1416,22 @@ static SANE_Status reset ( Epson_Scanner * s) {
 	param[0] = ESC;
 	param[1] = s->hw->cmd->initialize_scanner;
 
+	need_open = (s->fd < 0);
+
+	if (need_open) {
+		DBG(5, "reset calling open_scanner\n");
+		if ((status = open_scanner(s)) != SANE_STATUS_GOOD)
+			return status;
+	}
+
 	send (s, param, 2, &status);
 	status = expect_ack( s);
+
+	if (need_open) {
+		close_scanner(s);
+		s->fd = -1;
+	}
+
 	return status;
 }
 
@@ -1889,6 +1907,8 @@ static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
 			    productID != PRODUCT_PERFECTION_1240 &&
 			    productID != PRODUCT_STYLUS_SCAN_2500 &&
 			    productID != PRODUCT_PERFECTION_1640 &&
+			    productID != PRODUCT_PERFECTION_1650 &&
+			    productID != PRODUCT_PERFECTION_2450 &&
 			    productID != PRODUCT_EXPRESSION_1600 &&
 			    productID != PRODUCT_EXPRESSION_1680)
 			{

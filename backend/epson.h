@@ -77,6 +77,8 @@
 #define PRODUCT_PERFECTION_1640 (0x10a)
 #define PRODUCT_EXPRESSION_1600 (0x107)
 #define PRODUCT_EXPRESSION_1680 (0x10e)
+#define PRODUCT_PERFECTION_1650 (0x110)
+#define PRODUCT_PERFECTION_2450 (0x112)
 #endif
 
 /* string constants for GUI elements that are not defined SANE-wide */

@@ -305,7 +305,6 @@ sanei_usb_init (void)
 		  closedir (dir);
 		  return;
 	        }
-		return;
 	    }
 	}
       closedir (dir);

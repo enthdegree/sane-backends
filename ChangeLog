@@ -6,6 +6,7 @@
 	* tools/sane-find-scanner.c: Print USB descriptors (libusb) in
 	  -v -v mode. Print vendor and product names (when available).
 	  Rewrote libusb heuristics.
+	* backend/Makefile.in: Removed deleted files from DISFILES.
 
 2002-07-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

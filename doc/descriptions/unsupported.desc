@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-03-20"		; version of backend
+:version "2003-03-30"		; version of backend
 :url "http://www.meier-geinitz.de/sane/misc/unsupported.html"
 ;:status :stable			; :alpha, :beta, :stable, :new
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
@@ -307,7 +307,13 @@
 :url "http://www.meier-geinitz.de/sane/misc/medion-MD5345.txt"
 :interface "USB"
 :status :unsupported
-:comment "Probably unsupported. Vendor/product 0x0461/0x0377. The product id is Primax, maybe the viceo backend works?"
+:comment "Probably unsupported. Vendor/product 0x0461/0x0377. The vendor id is Primax. Same as MD 6228"
+
+:model "MD 6228"
+:url "http://www.meier-geinitz.de/sane/misc/medion-MD6228.txt"
+:interface "USB"
+:status :unsupported
+:comment "Probably unsupported. Vendor/product 0x0461/0x0377. The vendor id is Primax. Same as MD 5345."
 
 ;********************************************************************************************
 
@@ -331,6 +337,13 @@
 :interface "USB"
 :status :unsupported
 :comment "Unsupported. Vendor/Product ids: 0x05da/0x30cf. Looks very similar to the ScanMaker 3800. Maybe the same chip is used?"
+
+:model "ScanPort 3000"
+:url "http://www.meier-geinitz.de/sane/misc/microtek-scanport-3000.txt"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. Vendor/Product ids: 0x04a7/0x0224. Maybe RTS8801C2-6? See link for details."
+
 
 ;********************************************************************************************
 
@@ -362,6 +375,18 @@
 :url "http://www.meier-geinitz.de/sane/misc/mustek-scanners.html"
 :status :unsupported
 :comment "Not supported. SCSI over Parport."
+
+;********************************************************************************************
+
+:mfg "PIE"
+:url "http://www.scanace.com/"
+:comment "Pacific Image Electronics"
+
+:model "Primefilm 1800u"
+:url "http://www.genesyslogic.com/GL841.htm"
+:interface "USB"
+:status :unsupported
+:comment "Not supported. Vendor/product 0x05e3/0x0120. Is reported to use GeneScan II GL841 chipset."
 
 ;********************************************************************************************
 

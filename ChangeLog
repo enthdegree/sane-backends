@@ -1,3 +1,10 @@
+2002-10-31   Stéphane Voltz  <svoltz@wanadoo.fr>
+
+	* backend/umax_pp.c  backend/umax_pp.h  backend/umax_pp_low.h 
+	  backend/umax_pp_low.c tools/umax_pp.c: add UTA detection,
+	  version number updates
+	
+
 2002-10-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/dll.conf: Removed commented out gt68xx entry.

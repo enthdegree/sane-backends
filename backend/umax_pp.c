@@ -104,7 +104,7 @@
 
 /* if you change the source, please set UMAX_PP_STATE to "devel". Do *not*
  * change the UMAX_PP_BUILD. */
-#define UMAX_PP_BUILD	8
+#define UMAX_PP_BUILD	9
 #define UMAX_PP_STATE	"devel"
 
 static int num_devices = 0;
@@ -460,6 +460,16 @@ init_options (Umax_PP_Device * dev)
   dev->opt[OPT_LAMP_CONTROL].unit = SANE_UNIT_NONE;
   dev->val[OPT_LAMP_CONTROL].w = SANE_TRUE;
   dev->opt[OPT_LAMP_CONTROL].cap |= SANE_CAP_ADVANCED;
+
+  /* UTA control */
+  dev->opt[OPT_UTA_CONTROL].name = SANE_I18N ("UTA-control");
+  dev->opt[OPT_UTA_CONTROL].title = SANE_I18N ("UTA on");
+  dev->opt[OPT_UTA_CONTROL].desc = SANE_I18N ("Sets UTA on/off");
+  dev->opt[OPT_UTA_CONTROL].type = SANE_TYPE_BOOL;
+  dev->opt[OPT_UTA_CONTROL].size = sizeof (SANE_Word);
+  dev->opt[OPT_UTA_CONTROL].unit = SANE_UNIT_NONE;
+  dev->val[OPT_UTA_CONTROL].w = SANE_TRUE;
+  dev->opt[OPT_UTA_CONTROL].cap |= SANE_CAP_ADVANCED | SANE_CAP_INACTIVE;
 
   /* custom-gamma table */
   dev->opt[OPT_CUSTOM_GAMMA].name = SANE_NAME_CUSTOM_GAMMA;
@@ -1177,6 +1187,10 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   dev->next = first_dev;
   first_dev = dev;
 
+
+  if (sanei_umax_pp_UTA () == 1)
+    dev->opt[OPT_UTA_CONTROL].cap &= ~SANE_CAP_INACTIVE;
+
   *handle = dev;
 
   DBG (3, "open: success\n");
@@ -1321,6 +1335,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_PREVIEW:
 	case OPT_GRAY_PREVIEW:
 	case OPT_LAMP_CONTROL:
+	case OPT_UTA_CONTROL:
 	case OPT_RESOLUTION:
 	case OPT_TL_X:
 	case OPT_TL_Y:
@@ -1434,6 +1449,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 
 	  /* options with side-effects: */
+	case OPT_UTA_CONTROL:
+	  dev->val[option].w = *(SANE_Word *) val;
+	  return SANE_STATUS_GOOD;
+
 	case OPT_LAMP_CONTROL:
 	  if (dev->state != UMAX_PP_STATE_IDLE)
 	    {

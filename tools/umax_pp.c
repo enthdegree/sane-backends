@@ -312,7 +312,7 @@ main (int argc, char **argv)
 	    }
 	  i++;
 	  found = 1;
-	  if ((strlen (argv[i]) < 3)||(strlen (argv[i]) > 4))
+	  if ((strlen (argv[i]) < 3) || (strlen (argv[i]) > 4))
 	    {
 	      Usage (argv[0]);
 	      fprintf (stderr, "expected hex io port value ( ex: 378 )\n");
@@ -367,7 +367,7 @@ main (int argc, char **argv)
     }
   if (trace)
     {
-      printf ("UMAX 1220P scanning program version 2.16 starting ...\n");
+      printf ("UMAX 1220P scanning program version 2.17 starting ...\n");
 #ifdef HAVE_LINUX_PPDEV_H
       printf ("ppdev character device built-in.\n");
 #endif

@@ -67,6 +67,7 @@ enum Umax_PP_Option
   OPT_ENHANCEMENT_GROUP,
 
   OPT_LAMP_CONTROL,
+  OPT_UTA_CONTROL,
 
   OPT_CUSTOM_GAMMA,		/* use custom gamma tables? */
   /* The gamma vectors MUST appear in the order gray, red, green,

@@ -404,7 +404,7 @@ sanei_umax_pp_InitPort (int port, char *name)
   int fd, ectr;
   int found = 0;
 #if ((defined HAVE_IOPERM)||(defined HAVE_LINUX_PPDEV_H))
-  int mode;
+  int mode,ecp=0;
 #endif
 #ifdef HAVE_LINUX_PPDEV_H
   char strmodes[160];
@@ -536,6 +536,7 @@ sanei_umax_pp_InitPort (int port, char *name)
 		    }
 		  else
 		    {
+		      ecp=1;
 		      DBG (16,
 			   "umax_pp: mode set to PARPORT_MODE_ECP for '%s'\n",
 			   name);
@@ -600,7 +601,7 @@ sanei_umax_pp_InitPort (int port, char *name)
   else if (errno != 0)
     {
       /* /dev/io we get an unexpected error */
-      DBG (1, "opening '/dev/io' got unxepected errno=%d\n", errno);
+      DBG (1, "opening '/dev/io' got unexpected errno=%d\n", errno);
       return (0);
     }
   else
@@ -631,12 +632,15 @@ sanei_umax_pp_InitPort (int port, char *name)
   /* frob_econtrol (port, 0xe0, 4 << 5);
      unsigned char ectr = inb (ECONTROL (pb));
      outb ((ectr & ~m) ^ v, ECONTROL (pb));     */
+  if(ecp)
+  {
   ectr = Inb (ECPCONTROL);
   if (ectr != 0xFF)
     {
       ectr = (ectr & ~(0xE0)) ^ (4 << 5);
       Outb (ECPCONTROL, ectr);
     }
+  }
 
 
 #endif /* IO_SUPPORT_MISSING */
@@ -868,6 +872,13 @@ static int scannerStatus = 0;
 static int epp32 = 1;
 static int model = 0x15;
 static int astra = 0;
+static int hasUTA = 0;
+
+int
+sanei_umax_pp_UTA (void)
+{
+  return (hasUTA);
+}
 
 int
 sanei_umax_pp_ScannerStatus (void)
@@ -2539,7 +2550,9 @@ retry:
   if ((reg & 0x08) == 0x00)
     {
       reg = EPPRegisterRead (0x1C);
-      if ((reg & 0x10) != 0x10)
+      DBG (16, "UTA: reg1C=0x%02X   (%s:%d)\n", reg, __FILE__, __LINE__);
+      if (((reg & 0x10) != 0x10) && (reg != 0x6B) && (reg != 0xAB)
+	  && (reg != 0x23))
 	{
 	  DBG (0, "SendWord failed (reg1C=0x%02X)   (%s:%d)\n", reg, __FILE__,
 	       __LINE__);
@@ -2598,9 +2611,11 @@ retry:
   /* model 0x07 has always the last bit set to 1, and even bit 1 */
   /* when UTA is present, we get 0x6B there */
   scannerStatus = reg & 0xFC;
+  if (scannerStatus == 0x68)
+    hasUTA = 1;
 
   reg = reg & 0x10;
-  if (reg != 0x10)
+  if ((reg != 0x10) && (scannerStatus != 0x68) && (scannerStatus != 0xA8))
     {
       DBG (0, "SendWord failed: acknowledge not received (%s:%d)\n", __FILE__,
 	   __LINE__);
@@ -3055,7 +3070,8 @@ retry:
   if ((wait & 0x08) == 0x00)
     {
       reg = EPPRegisterRead (0x1C);
-      while ((reg & 0x10) != 0x10)
+      while (((reg & 0x10) != 0x10) && (reg != 0x6B) && (reg != 0xAB)
+	     && (reg != 0x23))
 	{
 	  DBG (0,
 	       "SendLength failed, expected reg & 0x10=0x10 , found 0x%02X (%s:%d)\n",
@@ -3178,7 +3194,7 @@ retry:
   /* model 0x07 has always the last bit set to 1 */
   scannerStatus = reg & 0xFC;
   reg = reg & 0x10;
-  if (reg != 0x10)
+  if ((reg != 0x10) && (scannerStatus != 0x68) && (scannerStatus != 0xA8))
     {
       DBG (0, "SendLength failed: acknowledge not received (%s:%d)\n",
 	   __FILE__, __LINE__);
@@ -3253,7 +3269,8 @@ SendData (int *cmd, int len)
   /* model 0x07 has always the last bit set to 1 */
   scannerStatus = reg & 0xFC;
   reg = reg & 0x10;
-  if (reg != 0x10)
+  if ((reg != 0x10) && (scannerStatus != 0x68) && (scannerStatus != 0xA8)
+      && (scannerStatus != 0x20))
     {
       DBG (0, "SendData failed: acknowledge not received (%s:%d)\n", __FILE__,
 	   __LINE__);
@@ -3348,7 +3365,7 @@ ReceiveData (int *cmd, int len)
   /* model 0x07 has always the last bit set to 1 */
   scannerStatus = reg & 0xF8;
   reg = reg & 0x10;
-  if (reg != 0x10)
+  if ((reg != 0x10) && (scannerStatus != 0x68) && (scannerStatus != 0xA8))
     {
       DBG (0, "ReceiveData failed: acknowledge not received (%s:%d)\n",
 	   __FILE__, __LINE__);

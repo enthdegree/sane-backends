@@ -63,6 +63,7 @@ extern int sanei_umax_pp_InitCancel (void);
 extern int sanei_umax_pp_Cancel (void);
 extern int sanei_umax_pp_CheckModel (void);
 extern int sanei_umax_pp_getauto (void);
+extern int sanei_umax_pp_UTA (void);
 extern void sanei_umax_pp_setauto (int mode);
 
 #ifndef __GLOBALES__

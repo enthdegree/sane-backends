@@ -62,35 +62,6 @@
 #undef MAX_DEBUG
 #endif
 
-/** Declare @c function_name if debugging is enabled.
- *
- * @param name Function name (should be a string constant).
- *
- * This macro should be used only at the beginning of a function body.  If
- * debugging is enabled (#NDEBUG is not defined), this macro declares a static
- * variable @c function_name, initialized with @name.  If debugging is disabled
- * (#NDEBUG is defined), this macro expands to nothing.
- *
- * @note When using this macro, @c function_name must be used only if debugging
- * is enabled.  In particular, @c function_name cannot be used with the #DBG
- * macro directly, because the arguments of #DBG are evaluated even if
- * debugging is disabled.  Use #XDBG(args) in this case.
- */
-#define DECLARE_FUNCTION_NAME(name)     \
-  IF_DBG ( static const char function_name[] = name; )
-
-/** Print a debug message if the debug level is sufficiently high.
- *
- * If the debugging is enabled (#NDEBUG is not defined), this macro is almost
- * equivalent to #DBG, except that you need an extra pair of parentheses around
- * all arguments.  If the debugging is disabled (#NDEBUG is defined), this
- * macro expands to an empty operator.
- * 
- * @note The arguments of this macro must not have side effects - they are not
- * evaluated when debugging is disabled.
- */
-#define XDBG(args)           do { IF_DBG ( DBG args ); } while (0)
-
 /* calculate the minimum/maximum values */
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
@@ -101,13 +72,13 @@
 
 #define MM_PER_INCH 25.4
 
+/* return if an error occured while the function was called */
 #ifdef MAX_DEBUG
+#  ifndef __FUNCTION__
+#    define __FUNCTION__ "somewhere"
+#  endif
 
-#ifndef __FUNCTION__
-#  define __FUNCTION__ "somewhere"
-#endif
-
-#define RIE(function) \
+#  define RIE(function) \
   do \
     { \
       status = function; \
@@ -122,7 +93,7 @@
 
 #else
 
-#define RIE(function)                                   \
+#  define RIE(function)                                   \
   do { status = function;                               \
     if (status != SANE_STATUS_GOOD) return status;      \
   } while (SANE_FALSE)
@@ -130,13 +101,16 @@
 #endif
 
 /* Flags */
-#define GT68XX_FLAG_MIRROR_X	 (1 << 0)	/* CIS unit mounted the other way round? */
-#define GT68XX_FLAG_MOTOR_HOME	 (1 << 1)	/* Use motor_home command (0x34) */
-#define GT68XX_FLAG_OFFSET_INV   (1 << 2)	/* Offset control is inverted */
-#define GT68XX_FLAG_UNTESTED     (1 << 3)	/* Print a warning for these scanners */
-#define GT68XX_FLAG_SE_2400      (1 << 4)	/* Special quirks for SE 2400USB */
-#define GT68XX_FLAG_NO_STOP      (1 << 5)	/* Don't call stop_scan before the scan */
-#define GT68XX_FLAG_CIS_LAMP     (1 << 6)	/* CIS sensor with lamp */
+#define GT68XX_FLAG_MIRROR_X	    (1 << 0)	/* CIS unit mounted the other way round? */
+#define GT68XX_FLAG_MOTOR_HOME	    (1 << 1)	/* Use motor_home command (0x34) */
+#define GT68XX_FLAG_OFFSET_INV      (1 << 2)	/* Offset control is inverted */
+#define GT68XX_FLAG_UNTESTED        (1 << 3)	/* Print a warning for these scanners */
+#define GT68XX_FLAG_SE_2400         (1 << 4)	/* Special quirks for SE 2400USB */
+#define GT68XX_FLAG_NO_STOP         (1 << 5)	/* Don't call stop_scan before the scan */
+#define GT68XX_FLAG_CIS_LAMP        (1 << 6)	/* CIS sensor with lamp */
+#define GT68XX_FLAG_NO_POWER_STATUS (1 << 7)	/* get_power_status_doesn't work */
+#define GT68XX_FLAG_NO_LINEMODE     (1 << 8)	/* Linemode does not work with this scanner */
+
 
 /* Forward typedefs */
 typedef struct GT68xx_USB_Device_Entry GT68xx_USB_Device_Entry;
@@ -154,6 +128,10 @@ typedef enum GT68xx_Color_Order
   COLOR_ORDER_BGR
 }
 GT68xx_Color_Order;
+
+#define GT68XX_COLOR_RED SANE_I18N ("Red")
+#define GT68XX_COLOR_GREEN SANE_I18N ("Green")
+#define GT68XX_COLOR_BLUE SANE_I18N ("Blue")
 
 /** Scan action code (purpose of the scan).
  *
@@ -446,6 +424,7 @@ struct GT68xx_Model
   SANE_Int base_xdpi;		/* x-resolution used to calculate geometry */ 
   SANE_Int base_ydpi;		/* y-resolution used to calculate geometry */ 
   SANE_Int ydpi_force_line_mode;/* if ydpi is equal or higher, use linemode */
+  SANE_Int ydpi_no_backtrack;   /* if ydpi is equal or higher, disable backtracking */
   SANE_Bool constant_ydpi;	/* Use base_ydpi for all resolutions        */
 
   SANE_Int xdpi_values[MAX_RESOLUTIONS]; /* possible x resolutions */	 
@@ -516,7 +495,7 @@ struct GT68xx_Device
   size_t read_pos;
   size_t read_bytes_in_buffer;
   size_t read_bytes_left;
-
+  SANE_Byte gray_mode_color;
 #ifdef USE_FORK
   Shm_Channel *shm_channel;
   pid_t reader_pid;
@@ -549,15 +528,15 @@ struct GT68xx_Scan_Request
   SANE_Bool lamp;	/**< Lamp on/off */
   SANE_Bool calculate;	/**< Don't scan, only calculate parameters */
   SANE_Bool use_ta;	/**< Use the tansparency adapter */
+  SANE_Bool backtrack;  /**< Enable backtracking */
+  SANE_Bool backtrack_lines;  /**< How many lines to backtrack */
 };
 
 /** Scan parameters for gt68xx_device_setup_scan().
  *
  * These parameters describe a low-level scan request; many such requests are
  * executed during calibration, and they need to have parameters separate from
- * the main request (GT68xx_Scan_Request).  E.g., on the BearPaw 2400 TA the
- * scan to find the home position is always done at 300dpi 8-bit mono with
- * fixed width and height, regardless of the high-level scan parameters.
+ * the main request (GT68xx_Scan_Request).  
  */
 struct GT68xx_Scan_Parameters
 {

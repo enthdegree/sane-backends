@@ -95,21 +95,36 @@ gt68xx_generic_read_scanned_data (GT68xx_Device * dev, SANE_Bool * ready)
 
   RIE (gt68xx_device_req (dev, req, req));
 
-#if 0
-  /* doesn't work with gt681xfw firmware */
-  if (req[1] == 0x35)
-    {
-#endif
-      if (req[0] == 0)
-	*ready = SANE_TRUE;
-      else
-	*ready = SANE_FALSE;
-#if 0
-    }
+  if (req[0] == 0)
+    *ready = SANE_TRUE;
   else
-    return SANE_STATUS_IO_ERROR;
-#endif
+    *ready = SANE_FALSE;
+
   return SANE_STATUS_GOOD;
+}
+
+static SANE_Byte
+gt68xx_generic_fix_gain (SANE_Int gain)
+{
+  if (gain < 0)
+    gain = 0;
+  else if (gain > 31)
+    {
+      gain = gain / 2 + 32;
+      if (gain > 63)
+	gain = 63;
+    }
+  return gain;
+}
+
+static SANE_Byte
+gt68xx_generic_fix_offset (SANE_Int offset)
+{
+  if (offset < 0)
+    offset = 0;
+  else if (offset > 63)
+    offset = 63;
+  return offset;
 }
 
 SANE_Status
@@ -120,13 +135,15 @@ gt68xx_generic_set_afe (GT68xx_Device * dev, GT68xx_AFE_Parameters * params)
   memset (req, 0, sizeof (req));
   req[0] = 0x22;
   req[1] = 0x01;
-  req[2] = params->r_offset;
-  req[3] = params->r_pga;
-  req[4] = params->g_offset;
-  req[5] = params->g_pga;
-  req[6] = params->b_offset;
-  req[7] = params->b_pga;
+  req[2] = gt68xx_generic_fix_offset (params->r_offset);
+  req[3] = gt68xx_generic_fix_gain (params->r_pga);
+  req[4] = gt68xx_generic_fix_offset (params->g_offset);
+  req[5] = gt68xx_generic_fix_gain (params->g_pga);
+  req[6] = gt68xx_generic_fix_offset (params->b_offset);
+  req[7] = gt68xx_generic_fix_gain (params->b_pga);
 
+  DBG (6, "gt68xx_generic_set_afe: real AFE: 0x%02x 0x%02x  0x%02x 0x%02x  0x%02x 0x%02x\n",
+       req [2], req [3], req [4], req [5], req [6], req [7]);
   return gt68xx_device_req (dev, req, req);
 }
 
@@ -147,6 +164,9 @@ gt68xx_generic_set_exposure_time (GT68xx_Device * dev,
   req[9] = HIBYTE (params->g_time);
   req[12] = LOBYTE (params->b_time);
   req[13] = HIBYTE (params->b_time);
+
+  DBG (6, "gt68xx_generic_set_exposure_time: 0x%03x 0x%03x 0x%03x\n",
+       params->r_time, params->g_time, params->b_time);
 
   RIE (gt68xx_device_req (dev, req, req));
   RIE (gt68xx_device_check_result (req, 0x76));

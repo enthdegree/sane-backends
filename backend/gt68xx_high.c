@@ -52,31 +52,29 @@
 static SANE_Status
 gt68xx_afe_ccd_auto (GT68xx_Scanner * scanner, GT68xx_Scan_Request * request);
 static SANE_Status gt68xx_afe_cis_auto (GT68xx_Scanner * scanner);
-static void
-gt68xx_afe_correction (SANE_Byte * value, SANE_Int correction);
 
 SANE_Status
 gt68xx_calibrator_new (SANE_Int width,
 		       SANE_Int white_level, GT68xx_Calibrator ** cal_return)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_calibrator_new") GT68xx_Calibrator *cal;
+  GT68xx_Calibrator *cal;
   SANE_Int i;
 
-  XDBG ((5, "%s: enter: width=%d, white_level=%d\n",
-	 function_name, width, white_level));
+  DBG (4, "gt68xx_calibrator_new: enter: width=%d, white_level=%d\n",
+       width, white_level);
 
   *cal_return = 0;
 
   if (width <= 0)
     {
-      XDBG ((5, "%s: invalid width=%d\n", function_name, width));
+      DBG (5, "gt68xx_calibrator_new: invalid width=%d\n", width);
       return SANE_STATUS_INVAL;
     }
 
   cal = (GT68xx_Calibrator *) malloc (sizeof (GT68xx_Calibrator));
   if (!cal)
     {
-      XDBG ((5, "%s: no memory for GT68xx_Calibrator\n", function_name));
+      DBG (5, "gt68xx_calibrator_new: no memory for GT68xx_Calibrator\n");
       return SANE_STATUS_NO_MEM;
     }
 
@@ -99,7 +97,7 @@ gt68xx_calibrator_new (SANE_Int width,
 
   if (!cal->k_white || !cal->k_black | !cal->white_line || !cal->black_line)
     {
-      XDBG ((5, "%s: no memory for calibration data\n", function_name));
+      DBG (5, "gt68xx_calibrator_new: no memory for calibration data\n");
       gt68xx_calibrator_free (cal);
       return SANE_STATUS_NO_MEM;
     }
@@ -113,25 +111,24 @@ gt68xx_calibrator_new (SANE_Int width,
     }
 
   *cal_return = cal;
-  XDBG ((5, "%s: leave: ok\n", function_name));
+  DBG (5, "gt68xx_calibrator_new: leave: ok\n");
   return SANE_STATUS_GOOD;
 }
 
 SANE_Status
 gt68xx_calibrator_free (GT68xx_Calibrator * cal)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_calibrator_free")
-    XDBG ((5, "%s: enter\n", function_name));
+  DBG (5, "gt68xx_calibrator_free: enter\n");
 
   if (!cal)
     {
-      XDBG ((5, "%s: cal==NULL\n", function_name));
+      DBG (5, "gt68xx_calibrator_free: cal==NULL\n");
       return SANE_STATUS_INVAL;
     }
 
 #ifdef TUNE_CALIBRATOR
-  XDBG ((5, "%s: min_clip_count=%d, max_clip_count=%d\n",
-	 function_name, cal->min_clip_count, cal->max_clip_count));
+  DBG (4, "gt68xx_calibrator_free: min_clip_count=%d, max_clip_count=%d\n",
+	 cal->min_clip_count, cal->max_clip_count);
 #endif /* TUNE_CALIBRATOR */
 
   if (cal->k_white)
@@ -160,14 +157,14 @@ gt68xx_calibrator_free (GT68xx_Calibrator * cal)
 
   free (cal);
 
-  XDBG ((5, "%s: leave: ok\n", function_name));
+  DBG (5, "gt68xx_calibrator_free: leave: ok\n");
   return SANE_STATUS_GOOD;
 }
 
 SANE_Status
 gt68xx_calibrator_add_white_line (GT68xx_Calibrator * cal, unsigned int *line)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_calibrator_add_white_line") SANE_Int i;
+  SANE_Int i;
   SANE_Int width = cal->width;
 
   SANE_Int sum = 0;
@@ -183,12 +180,11 @@ gt68xx_calibrator_add_white_line (GT68xx_Calibrator * cal, unsigned int *line)
 #endif
     }
   if (sum / width / 256 < 0x50)
-    XDBG ((1,
-	   "%s: WARNING: dark calibration line: %2d medium white: 0x%02x\n",
-	   function_name, cal->white_count - 1, sum / width / 256));
+    DBG (1, "gt68xx_calibrator_add_white_line: WARNING: dark calibration line: "
+	 "%2d medium white: 0x%02x\n", cal->white_count - 1, sum / width / 256);
   else
-    XDBG ((5, "%s: line: %2d medium white: 0x%02x\n", function_name,
-	   cal->white_count - 1, sum / width / 256));
+    DBG (5, "gt68xx_calibrator_add_white_line: line: %2d medium white: 0x%02x\n",
+	   cal->white_count - 1, sum / width / 256);
 
   return SANE_STATUS_GOOD;
 }
@@ -210,7 +206,7 @@ gt68xx_calibrator_eval_white (GT68xx_Calibrator * cal, double factor)
 SANE_Status
 gt68xx_calibrator_add_black_line (GT68xx_Calibrator * cal, unsigned int *line)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_calibrator_add_black_line") SANE_Int i;
+  SANE_Int i;
   SANE_Int width = cal->width;
 
   SANE_Int sum = 0;
@@ -226,8 +222,8 @@ gt68xx_calibrator_add_black_line (GT68xx_Calibrator * cal, unsigned int *line)
 #endif
     }
 
-  XDBG ((5, "%s: line: %2d medium black: 0x%02x\n", function_name,
-	 cal->black_count - 1, sum / width / 256));
+  DBG (5, "gt68xx_calibrator_add_black_line: line: %2d medium black: 0x%02x\n",
+	 cal->black_count - 1, sum / width / 256);
   return SANE_STATUS_GOOD;
 }
 
@@ -249,8 +245,7 @@ SANE_Status
 gt68xx_calibrator_finish_setup (GT68xx_Calibrator * cal)
 {
 #ifdef TUNE_CALIBRATOR
-  DECLARE_FUNCTION_NAME ("gt68xx_calibrator_finish_setup")
-    double ave_black = 0.0;
+  double ave_black = 0.0;
   double ave_diff = 0.0;
 #endif /* TUNE_CALIBRATOR */
   int i;
@@ -275,8 +270,8 @@ gt68xx_calibrator_finish_setup (GT68xx_Calibrator * cal)
 #ifdef TUNE_CALIBRATOR
   ave_black /= width;
   ave_diff /= width;
-  XDBG ((5, "%s: ave_black=%f, ave_diff=%f\n",
-	 function_name, ave_black, ave_diff));
+  DBG (4, "gt68xx_calibrator_finish_setup: ave_black=%f, ave_diff=%f\n",
+	 ave_black, ave_diff);
 #endif /* TUNE_CALIBRATOR */
 
   return SANE_STATUS_GOOD;
@@ -324,14 +319,14 @@ gt68xx_calibrator_process_line (GT68xx_Calibrator * cal, unsigned int *line)
 SANE_Status
 gt68xx_scanner_new (GT68xx_Device * dev, GT68xx_Scanner ** scanner_return)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_scanner_new") GT68xx_Scanner *scanner;
+  GT68xx_Scanner *scanner;
 
   *scanner_return = NULL;
 
   scanner = (GT68xx_Scanner *) malloc (sizeof (GT68xx_Scanner));
   if (!scanner)
     {
-      XDBG ((5, "%s: no memory for GT68xx_Scanner\n", function_name));
+      DBG (5, "gt68xx_scanner_new: no memory for GT68xx_Scanner\n");
       return SANE_STATUS_NO_MEM;
     }
 
@@ -377,9 +372,9 @@ gt68xx_scanner_free_calibrators (GT68xx_Scanner * scanner)
 SANE_Status
 gt68xx_scanner_free (GT68xx_Scanner * scanner)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_scanner_free") if (!scanner)
+  if (!scanner)
     {
-      XDBG ((5, "%s: scanner==NULL\n", function_name));
+      DBG (5, "gt68xx_scanner_free: scanner==NULL\n");
       return SANE_STATUS_INVAL;
     }
 
@@ -418,51 +413,50 @@ gt68xx_scanner_wait_for_positioning (GT68xx_Scanner * scanner)
 static SANE_Status
 gt68xx_scanner_internal_start_scan (GT68xx_Scanner * scanner)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_scanner_internal_start_scan")
-    SANE_Status status;
+  SANE_Status status;
   SANE_Bool ready;
   SANE_Int repeat_count;
 
   status = gt68xx_scanner_wait_for_positioning (scanner);
   if (status != SANE_STATUS_GOOD)
     {
-      XDBG ((5, "%s: gt68xx_scanner_wait_for_positioning error: %s\n",
-	     function_name, sane_strstatus (status)));
+      DBG (5, "gt68xx_scanner_internal_start_scan: gt68xx_scanner_wait_for_positioning error: %s\n",
+	     sane_strstatus (status));
       return status;
     }
 
   status = gt68xx_device_start_scan (scanner->dev);
   if (status != SANE_STATUS_GOOD)
     {
-      XDBG ((5, "%s: gt68xx_device_start_scan error: %s\n",
-	     function_name, sane_strstatus (status)));
+      DBG (5, "gt68xx_scanner_internal_start_scan: gt68xx_device_start_scan error: %s\n",
+	     sane_strstatus (status));
       return status;
     }
 
-  for (repeat_count = 0; repeat_count < 30 * 10; ++repeat_count)
+  for (repeat_count = 0; repeat_count < 30 * 100; ++repeat_count)
     {
       status = gt68xx_device_read_scanned_data (scanner->dev, &ready);
       if (status != SANE_STATUS_GOOD)
 	{
-	  XDBG ((5, "%s: gt68xx_device_read_scanned_data error: %s\n",
-		 function_name, sane_strstatus (status)));
+	  DBG (5, "gt68xx_scanner_internal_start_scan: gt68xx_device_read_scanned_data error: %s\n",
+		 sane_strstatus (status));
 	  return status;
 	}
       if (ready)
 	break;
-      usleep (100000);
+      usleep (10000);
     }
   if (!ready)
     {
-      XDBG ((5, "%s: scanner still not ready - giving up\n", function_name));
+      DBG (5, "gt68xx_scanner_internal_start_scan: scanner still not ready - giving up\n");
       return SANE_STATUS_DEVICE_BUSY;
     }
 
   status = gt68xx_device_read_start (scanner->dev);
   if (status != SANE_STATUS_GOOD)
     {
-      XDBG ((5, "%s: gt68xx_device_read_start error: %s\n",
-	     function_name, sane_strstatus (status)));
+      DBG (5, "gt68xx_scanner_internal_start_scan: gt68xx_device_read_start error: %s\n",
+	     sane_strstatus (status));
       return status;
     }
 
@@ -475,23 +469,22 @@ gt68xx_scanner_start_scan_extended (GT68xx_Scanner * scanner,
 				    GT68xx_Scan_Action action,
 				    GT68xx_Scan_Parameters * params)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_scanner_start_scan_extended")
-    SANE_Status status;
+  SANE_Status status;
   GT68xx_AFE_Parameters afe = *scanner->dev->afe;
 
   status = gt68xx_scanner_wait_for_positioning (scanner);
   if (status != SANE_STATUS_GOOD)
     {
-      XDBG ((5, "%s: gt68xx_scanner_wait_for_positioning error: %s\n",
-	     function_name, sane_strstatus (status)));
+      DBG (5, "gt68xx_scanner_start_scan_extended: gt68xx_scanner_wait_for_positioning error: %s\n",
+	     sane_strstatus (status));
       return status;
     }
 
   status = gt68xx_device_setup_scan (scanner->dev, request, action, params);
   if (status != SANE_STATUS_GOOD)
     {
-      XDBG ((5, "%s: gt68xx_device_setup_scan failed: %s\n", function_name,
-	     sane_strstatus (status)));
+      DBG (5, "gt68xx_scanner_start_scan_extended: gt68xx_device_setup_scan failed: %s\n",
+	     sane_strstatus (status));
       return status;
     }
 
@@ -500,8 +493,8 @@ gt68xx_scanner_start_scan_extended (GT68xx_Scanner * scanner,
 				   &scanner->reader);
   if (status != SANE_STATUS_GOOD)
     {
-      XDBG ((5, "%s: gt68xx_line_reader_new failed: %s\n", function_name,
-	     sane_strstatus (status)));
+      DBG (5, "gt68xx_scanner_start_scan_extended: gt68xx_line_reader_new failed: %s\n",
+	     sane_strstatus (status));
       return status;
     }
 
@@ -512,27 +505,20 @@ gt68xx_scanner_start_scan_extended (GT68xx_Scanner * scanner,
 					 scanner->dev->exposure);
       if (status != SANE_STATUS_GOOD)
 	{
-	  XDBG ((5, "%s: gt68xx_device_set_exposure_time failed: %s\n",
-		 function_name, sane_strstatus (status)));
+	  DBG (5, "gt68xx_scanner_start_scan_extended: gt68xx_device_set_exposure_time failed: %s\n",
+		 sane_strstatus (status));
 	  return status;
 	}
     }
-  DBG (5,
-       "gt68xx_start_scan_extended: afe: %02X %02X  %02X %02X  %02X %02X\n",
+  DBG (5, "gt68xx_start_scan_extended: afe: %02X %02X  %02X %02X  %02X %02X\n",
        afe.r_offset, afe.r_pga, afe.g_offset, afe.g_pga, afe.b_offset,
        afe.b_pga);
 
   if (action == SA_SCAN)
     {
 
-      gt68xx_afe_correction (&afe.r_offset, scanner->val[OPT_OFFSET].w);
-      gt68xx_afe_correction (&afe.g_offset, scanner->val[OPT_OFFSET].w);
-      gt68xx_afe_correction (&afe.b_offset, scanner->val[OPT_OFFSET].w);
-      gt68xx_afe_correction (&afe.r_pga, scanner->val[OPT_GAIN].w);
-      gt68xx_afe_correction (&afe.b_pga, scanner->val[OPT_GAIN].w);
-      gt68xx_afe_correction (&afe.g_pga, scanner->val[OPT_GAIN].w);
-      DBG (5,
-	   "gt68xx_start_scan_extended: corrected afe: %02X %02X  %02X %02X  %02X %02X\n",
+      DBG (5, "gt68xx_start_scan_extended: using afe: "
+	   "%02X %02X  %02X %02X  %02X %02X\n",
 	   afe.r_offset, afe.r_pga, afe.g_offset, afe.g_pga, afe.b_offset,
 	   afe.b_pga);
     }
@@ -540,8 +526,8 @@ gt68xx_scanner_start_scan_extended (GT68xx_Scanner * scanner,
   status = gt68xx_device_set_afe (scanner->dev, &afe);
   if (status != SANE_STATUS_GOOD)
     {
-      XDBG ((5, "%s: gt68xx_device_set_afe failed: %s\n", function_name,
-	     sane_strstatus (status)));
+      DBG (5, "gt68xx_scanner_start_scan_extended: gt68xx_device_set_afe failed: %s\n",
+	     sane_strstatus (status));
       return status;
     }
 
@@ -549,8 +535,8 @@ gt68xx_scanner_start_scan_extended (GT68xx_Scanner * scanner,
 
   if (status != SANE_STATUS_GOOD)
     {
-      XDBG ((5, "%s: gt68xx_scanner_internal_start_scan failed: %s\n",
-	     function_name, sane_strstatus (status)));
+      DBG (5, "gt68xx_scanner_start_scan_extended: gt68xx_scanner_internal_start_scan failed: %s\n",
+	     sane_strstatus (status));
       return status;
     }
 
@@ -623,9 +609,8 @@ gt68xx_scanner_calibrate_color_white_line (GT68xx_Scanner * scanner,
 static SANE_Status
 gt68xx_scanner_calibrate_gray_white_line (GT68xx_Scanner * scanner,
 					  unsigned int **buffer_pointers)
-{
+{ 
   gt68xx_calibrator_add_white_line (scanner->cal_gray, buffer_pointers[0]);
-
   return SANE_STATUS_GOOD;
 }
 
@@ -645,7 +630,6 @@ gt68xx_scanner_calibrate_gray_black_line (GT68xx_Scanner * scanner,
 					  unsigned int **buffer_pointers)
 {
   gt68xx_calibrator_add_black_line (scanner->cal_gray, buffer_pointers[0]);
-
   return SANE_STATUS_GOOD;
 }
 
@@ -653,7 +637,7 @@ SANE_Status
 gt68xx_scanner_calibrate (GT68xx_Scanner * scanner,
 			  GT68xx_Scan_Request * request)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_scanner_calibrate") SANE_Status status;
+  SANE_Status status;
   GT68xx_Scan_Parameters params;
   GT68xx_Scan_Request req;
   SANE_Int i;
@@ -667,15 +651,15 @@ gt68xx_scanner_calibrate (GT68xx_Scanner * scanner,
 
   if (scanner->auto_afe)
     {
-      if (scanner->dev->model->is_cis)
+      if (scanner->dev->model->is_cis && !(scanner->dev->model->flags & GT68XX_FLAG_CIS_LAMP))
 	status = gt68xx_afe_cis_auto (scanner);
       else
 	status = gt68xx_afe_ccd_auto (scanner, request);
 
       if (status != SANE_STATUS_GOOD)
 	{
-	  XDBG ((5, "%s: gt68xx_set_gain failed: %s\n",
-		 function_name, sane_strstatus (status)));
+	  DBG (5, "gt68xx_scanner_calibrate: gt68xx_set_gain failed: %s\n",
+		 sane_strstatus (status));
 	  return status;
 	}
       req.mbs = SANE_FALSE;
@@ -694,12 +678,8 @@ gt68xx_scanner_calibrate (GT68xx_Scanner * scanner,
   req.mds = SANE_TRUE;
   req.mas = SANE_FALSE;
 
-#if 0
-  if (scanner->dev->model->is_cis == SANE_TRUE)
+  if (scanner->dev->model->is_cis)
     req.color = SANE_TRUE;
-#else
-  req.color = SANE_TRUE;
-#endif
 
   if (req.use_ta)
     {
@@ -718,15 +698,19 @@ gt68xx_scanner_calibrate (GT68xx_Scanner * scanner,
 					       &params);
   if (status != SANE_STATUS_GOOD)
     {
-      XDBG ((5, "%s: gt68xx_scanner_start_scan_extended failed: %s\n",
-	     function_name, sane_strstatus (status)));
+      DBG (5, "gt68xx_scanner_calibrate: gt68xx_scanner_start_scan_extended failed: %s\n",
+	     sane_strstatus (status));
       return status;
     }
 
   if (params.color)
-    status = gt68xx_scanner_create_color_calibrators (scanner, &params);
+    {
+      status = gt68xx_scanner_create_color_calibrators (scanner, &params);
+    }
   else
-    status = gt68xx_scanner_create_gray_calibrators (scanner, &params);
+    {
+      status = gt68xx_scanner_create_gray_calibrators (scanner, &params);
+    }
 
 #if defined(SAVE_WHITE_CALIBRATION) || defined(SAVE_BLACK_CALIBRATION)
   printf ("P5\n%d %d\n255\n", params.pixel_xs, params.pixel_ys * 3);
@@ -736,8 +720,8 @@ gt68xx_scanner_calibrate (GT68xx_Scanner * scanner,
       status = gt68xx_line_reader_read (scanner->reader, buffer_pointers);
       if (status != SANE_STATUS_GOOD)
 	{
-	  XDBG ((5, "%s: gt68xx_line_reader_read failed: %s\n",
-		 function_name, sane_strstatus (status)));
+	  DBG (5, "gt68xx_scanner_calibrate: gt68xx_line_reader_read failed: %s\n",
+		 sane_strstatus (status));
 	  return status;
 	}
 
@@ -750,8 +734,8 @@ gt68xx_scanner_calibrate (GT68xx_Scanner * scanner,
 
       if (status != SANE_STATUS_GOOD)
 	{
-	  XDBG ((5, "%s: calibration failed: %s\n",
-		 function_name, sane_strstatus (status)));
+	  DBG (5, "gt68xx_scanner_calibrate: calibration failed: %s\n",
+		 sane_strstatus (status));
 	  return status;
 	}
     }
@@ -776,8 +760,8 @@ gt68xx_scanner_calibrate (GT68xx_Scanner * scanner,
   status = gt68xx_device_lamp_control (scanner->dev, SANE_FALSE, SANE_FALSE);
   if (status != SANE_STATUS_GOOD)
     {
-      XDBG ((5, "%s: gt68xx_device_lamp_control failed: %s\n",
-	     function_name, sane_strstatus (status)));
+      DBG (5, "gt68xx_scanner_calibrate: gt68xx_device_lamp_control failed: %s\n",
+	     sane_strstatus (status));
       return status;
     }
 
@@ -787,8 +771,8 @@ gt68xx_scanner_calibrate (GT68xx_Scanner * scanner,
 					       &params);
   if (status != SANE_STATUS_GOOD)
     {
-      XDBG ((5, "%s: gt68xx_scanner_start_scan_extended failed: %s\n",
-	     function_name, sane_strstatus (status)));
+      DBG (5, "gt68xx_scanner_calibrate: gt68xx_scanner_start_scan_extended failed: %s\n",
+	     sane_strstatus (status));
       return status;
     }
 
@@ -797,8 +781,8 @@ gt68xx_scanner_calibrate (GT68xx_Scanner * scanner,
       status = gt68xx_line_reader_read (scanner->reader, buffer_pointers);
       if (status != SANE_STATUS_GOOD)
 	{
-	  XDBG ((5, "%s: gt68xx_line_reader_read failed: %s\n",
-		 function_name, sane_strstatus (status)));
+	  DBG (5, "gt68xx_scanner_calibrate: gt68xx_line_reader_read failed: %s\n",
+	       sane_strstatus (status));
 	  return status;
 	}
 
@@ -811,8 +795,8 @@ gt68xx_scanner_calibrate (GT68xx_Scanner * scanner,
 
       if (status != SANE_STATUS_GOOD)
 	{
-	  XDBG ((5, "%s: calibration failed: %s\n",
-		 function_name, sane_strstatus (status)));
+	  DBG (5, "gt68xx_scanner_calibrate: calibration failed: %s\n",
+	       sane_strstatus (status));
 	  return status;
 	}
     }
@@ -825,8 +809,8 @@ gt68xx_scanner_calibrate (GT68xx_Scanner * scanner,
 
   if (status != SANE_STATUS_GOOD)
     {
-      XDBG ((5, "%s: gt68xx_device_lamp_control failed: %s\n",
-	     function_name, sane_strstatus (status)));
+      DBG (5, "gt68xx_scanner_calibrate: gt68xx_device_lamp_control failed: %s\n",
+	     sane_strstatus (status));
       return status;
     }
 
@@ -880,14 +864,14 @@ SANE_Status
 gt68xx_scanner_read_line (GT68xx_Scanner * scanner,
 			  unsigned int **buffer_pointers)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_scanner_read_line") SANE_Status status;
+  SANE_Status status;
 
   status = gt68xx_line_reader_read (scanner->reader, buffer_pointers);
 
   if (status != SANE_STATUS_GOOD)
     {
-      XDBG ((5, "%s: gt68xx_line_reader_read failed: %s\n",
-	     function_name, sane_strstatus (status)));
+      DBG (5, "gt68xx_scanner_read_line: gt68xx_line_reader_read failed: %s\n",
+	     sane_strstatus (status));
       return status;
     }
 
@@ -901,18 +885,19 @@ gt68xx_scanner_read_line (GT68xx_Scanner * scanner,
 	}
       else
 	{
-#if 0
-	  if (scanner->dev->model->is_cis == SANE_TRUE)
-	    gt68xx_calibrator_process_line (scanner->cal_g,
-					    buffer_pointers[0]);
+	  if (scanner->dev->model->is_cis)
+	    {
+	      if (strcmp (scanner->val[OPT_GRAY_MODE_COLOR].s, GT68XX_COLOR_BLUE) == 0)
+		gt68xx_calibrator_process_line (scanner->cal_b, buffer_pointers[0]);
+	      else if (strcmp (scanner->val[OPT_GRAY_MODE_COLOR].s, GT68XX_COLOR_GREEN) == 0)
+		gt68xx_calibrator_process_line (scanner->cal_g, buffer_pointers[0]);
+	      else
+		gt68xx_calibrator_process_line (scanner->cal_r, buffer_pointers[0]);
+	    }
 	  else
-	    gt68xx_calibrator_process_line (scanner->cal_gray,
-					    buffer_pointers[0]);
-#else
-	  gt68xx_calibrator_process_line (scanner->cal_g,
-					  buffer_pointers[0]);
-#endif
-	
+	    {
+	      gt68xx_calibrator_process_line (scanner->cal_gray, buffer_pointers[0]);
+	    }
 	}
     }
 
@@ -939,7 +924,7 @@ typedef struct GT68xx_Afe_Values GT68xx_Afe_Values;
 struct GT68xx_Afe_Values
 {
   SANE_Int black;		/* minimum black (0-255) */
-  SANE_Int white;		/* maximum of the average white segments (0-255) */
+  SANE_Int white;		/* maximum white (0-255) */
   SANE_Int total_white;		/* average white of the complete line (0-65536) */
   SANE_Int calwidth;
   SANE_Int callines;
@@ -951,38 +936,7 @@ struct GT68xx_Afe_Values
   SANE_Int coarse_white;
 };
 
-#ifndef NDEBUG
-static void
-gt68xx_afe_dump (SANE_String_Const phase, int i, GT68xx_AFE_Parameters * afe)
-{
-  XDBG ((3, "set afe %s %2d: RGB offset/pga: %02x %02x  %02x %02x  "
-	 "%02x %02x\n",
-	 phase, i, afe->r_offset, afe->r_pga, afe->g_offset, afe->g_pga,
-	 afe->b_offset, afe->b_pga));
-}
-#endif /* not NDEBUG */
 
-#ifndef NDEBUG
-static void
-gt68xx_afe_exposure_dump (SANE_String_Const phase, int i,
-			  GT68xx_Exposure_Parameters * exposure)
-{
-  XDBG ((3, "set exposure %s %2d: RGB exposure time: %02x %02x %02x\n",
-	 phase, i, exposure->r_time, exposure->g_time, exposure->b_time));
-}
-#endif /* not NDEBUG */
-
-static void
-gt68xx_afe_correction (SANE_Byte * value, SANE_Int correction)
-{
-  SANE_Int corrected_value = *value + correction;
-
-  if (corrected_value < 0)
-    corrected_value = 0;
-  if (corrected_value > 63)
-    corrected_value = 63;
-  *value = corrected_value;
-}
 /************************************************************************/
 /* CCD scanners                                                         */
 /************************************************************************/
@@ -999,15 +953,13 @@ gt68xx_afe_correction (SANE_Byte * value, SANE_Int correction)
 static void
 gt68xx_afe_ccd_calc (GT68xx_Afe_Values * values, unsigned int *buffer)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_afe_ccd_calc") SANE_Int start_black;
+  SANE_Int start_black;
   SANE_Int end_black;
   SANE_Int start_white;
   SANE_Int end_white;
-  SANE_Int segment;
-  SANE_Int segment_count;
-  SANE_Int i, j;
-  SANE_Int black_acc = 0;
-  SANE_Int black_count = 0;
+  SANE_Int i;
+  SANE_Int max_black = 0;
+  SANE_Int min_black = 255;
   SANE_Int max_white = 0;
   SANE_Int total_white = 0;
 
@@ -1020,60 +972,59 @@ gt68xx_afe_ccd_calc (GT68xx_Afe_Values * values, unsigned int *buffer)
   start_white = end_black + 5.0 * values->scan_dpi / MM_PER_INCH;
   end_white = values->calwidth;
 
-  if (values->scan_dpi >= 300)
-    segment = 50;
-  else if (values->scan_dpi >= 75)
-    segment = 15;
-  else
-    segment = 10;
+  DBG (5,
+	 "gt68xx_afe_ccd_calc: dpi=%d, start_black=%d, end_black=%d, start_white=%d, end_white=%d\n",
+	 values->scan_dpi, start_black, end_black, start_white,
+	 end_white);
 
-  start_white = (start_white / segment) * segment;
-  segment_count = (end_white - start_white) / segment;
-
-  XDBG ((5,
-	 "%s: dpi=%d, start_black=%d, end_black=%d, start_white=%d, end_white=%d\n",
-	 function_name, values->scan_dpi, start_black, end_black, start_white,
-	 end_white));
-
-  /* calc avg black value */
+  /* calc min and max black value */
   for (i = start_black; i < end_black; i++)
     {
-      black_acc += buffer[i] >> 8;
-      black_count++;
+      if ((SANE_Int) (buffer[i] >> 8) < min_black)
+	min_black = (buffer[i] >> 8);
+      if ((SANE_Int) (buffer[i] >> 8) > max_black)
+	max_black = (buffer[i] >> 8);
+#ifdef DEBUG_BLACK
+      if ((buffer[i] >> 8) > 15)
+	fprintf (stderr, "+");
+      else if ((buffer[i] >> 8) < 5)
+	fprintf (stderr, "-");
+      else
+	fprintf (stderr, "_");
+#endif
     }
-  /* find segment with max average value */
-  for (i = 0; i < segment_count; ++i)
+#ifdef DEBUG_BLACK
+  fprintf(stderr, "\n");
+#endif
+
+  for (i = start_white; i < end_white; ++i)
     {
-      unsigned int *segment_ptr = buffer + start_white + i * segment;
-      SANE_Int avg_white = 0;
-      for (j = 0; j < segment; ++j)
-	{
-	  avg_white += (segment_ptr[j] >> 8);
-	  total_white += segment_ptr[j];
-	}
-      avg_white /= segment;
-      if (avg_white > max_white)
-	max_white = avg_white;
+      if ((SANE_Int) (buffer[i] >> 8) > max_white)
+	max_white = (buffer[i] >> 8);
+      total_white += buffer[i];
     }
-  values->total_white = total_white / (segment_count * segment);
-  values->black = black_acc / black_count;
+  values->total_white = total_white / (end_white - start_white);
+
+  values->black = min_black;
   values->white = max_white;
   if (values->white < 50 || values->black > 150
-      || values->white - values->black < 30)
-    XDBG ((1, "%s: WARNING: max_white %3d   avg_black %3d\n",
-	   function_name, values->white, values->black));
+      || values->white - values->black < 30 || max_black - min_black > 15)
+    DBG (0, "gt68xx_afe_ccd_calc: WARNING: max_white %3d   min_black %3d  max_black %3d\n",
+	   values->white, values->black, max_black);
   else
-    XDBG ((5, "%s: max_white %3d   avg_black %3d\n",
-	   function_name, values->white, values->black));
+    DBG (5, "gt68xx_afe_ccd_calc: max_white %3d   min_black %3d  max_black %3d\n",
+	 values->white, values->black, max_black);
 }
 
 static SANE_Bool
-gt68xx_afe_ccd_adjust_offset_gain (GT68xx_Afe_Values * values,  
+gt68xx_afe_ccd_adjust_offset_gain (SANE_String_Const color_name, 
+				   GT68xx_Afe_Values * values,  
 				   unsigned int *buffer, SANE_Byte * offset,
-				   SANE_Byte * pga)
+				   SANE_Byte * pga, SANE_Byte * old_offset,
+				   SANE_Byte * old_pga)
 {
-  SANE_Int black_low = values->coarse_black, black_high = black_low + 15;
-  SANE_Int white_high = values->coarse_white, white_low = white_high - 15; 
+  SANE_Int black_low = values->coarse_black, black_high = black_low + 10;
+  SANE_Int white_high = values->coarse_white, white_low = white_high - 10; 
   SANE_Bool done = SANE_TRUE;
   SANE_Byte local_pga = *pga;
   SANE_Byte local_offset = *offset;
@@ -1146,16 +1097,21 @@ gt68xx_afe_ccd_adjust_offset_gain (GT68xx_Afe_Values * values,
  finish:
   if ((local_pga == *pga) && (local_offset == *offset))
     done = SANE_TRUE;
+  if ((local_pga == *old_pga) && (local_offset == *old_offset))
+    done = SANE_TRUE;
 
-  DBG (4, "white=%3d, black=%3d, offset=%2d, gain=%2d, old offs=%2d, "
-       "old gain=%2d, total_white=%5d %s\n", values->white, values->black,
-       local_offset, local_pga, *offset, *pga, values->total_white,
+  *old_pga = *pga;
+  *old_offset = *offset;
+
+  DBG (4, "%5s white=%3d, black=%3d, offset=%2d, gain=%2d, old offs=%2d, "
+       "old gain=%2d, total_white=%5d %s\n", color_name, values->white,
+       values->black, local_offset, local_pga, *offset, *pga, values->total_white,
        done ? "DONE " : "");
 
   *pga = local_pga;
   *offset = local_offset;
-  return done;
 
+  return done;
 }
 
 /** Select best AFE gain and offset parameters.
@@ -1175,27 +1131,30 @@ static SANE_Status
 gt68xx_afe_ccd_auto (GT68xx_Scanner * scanner,
 		     GT68xx_Scan_Request * orig_request)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_afe_ccd_auto") SANE_Status status;
+  SANE_Status status;
   GT68xx_Scan_Parameters params;
   GT68xx_Scan_Request request;
   int i;
   GT68xx_Afe_Values values;
   unsigned int *buffer_pointers[3];
-  GT68xx_AFE_Parameters *afe = scanner->dev->afe;
-  SANE_Bool done;
+  GT68xx_AFE_Parameters *afe = scanner->dev->afe, old_afe;
+  SANE_Bool gray_done = SANE_FALSE;
+  SANE_Bool red_done = SANE_FALSE, green_done = SANE_FALSE, blue_done = SANE_FALSE;
   SANE_Int last_white = 0;
 
   values.offset_direction = 1;
   if (scanner->dev->model->flags & GT68XX_FLAG_OFFSET_INV)
     values.offset_direction = -1;
 
+  memset (&old_afe, 255, sizeof (old_afe));
+
   request.x0 = SANE_FIX (0.0);
   request.xs = scanner->dev->model->x_size;
   request.xdpi = 300;
   request.ydpi = 300;
   request.depth = 8;
-  /*  request.color = orig_request->color;*/
-  request.color = SANE_TRUE;
+  request.color = orig_request->color;
+  /*  request.color = SANE_TRUE;*/
   request.mas = SANE_FALSE;
   request.mbs = SANE_FALSE;
   request.mds = SANE_TRUE;
@@ -1219,8 +1178,8 @@ gt68xx_afe_ccd_auto (GT68xx_Scanner * scanner,
 					       &params);
   if (status != SANE_STATUS_GOOD)
     {
-      XDBG ((3, "%s: gt68xx_scanner_start_scan_extended failed: %s\n",
-	     function_name, sane_strstatus (status)));
+      DBG (3, "gt68xx_afe_ccd_auto: gt68xx_scanner_start_scan_extended failed: %s\n",
+	     sane_strstatus (status));
       return status;
     }
   values.scan_dpi = params.xdpi;
@@ -1231,19 +1190,19 @@ gt68xx_afe_ccd_auto (GT68xx_Scanner * scanner,
     values.start_black = SANE_FIX (20.0);
   else
     values.start_black = scanner->dev->model->x_offset_mark;
-  values.coarse_black = 5;
-  values.coarse_white = 250;
+  values.coarse_black = 1;
+  values.coarse_white = 254;
 
   request.mds = SANE_FALSE;
-  XDBG ((5, "%s: scan_dpi=%d, calwidth=%d, max_width=%d, "
-	 "start_black=%.1f mm\n", function_name, values.scan_dpi,
-	 values.calwidth, values.max_width, SANE_UNFIX (values.start_black)));
+  DBG (5, "gt68xx_afe_ccd_auto: scan_dpi=%d, calwidth=%d, max_width=%d, "
+       "start_black=%.1f mm\n", values.scan_dpi,
+	 values.calwidth, values.max_width, SANE_UNFIX (values.start_black));
 
   status = gt68xx_line_reader_read (scanner->reader, buffer_pointers);
   if (status != SANE_STATUS_GOOD)
     {
-      XDBG ((3, "%s: gt68xx_line_reader_read failed: %s\n",
-	     function_name, sane_strstatus (status)));
+      DBG (3, "gt68xx_afe_ccd_auto: gt68xx_line_reader_read failed: %s\n",
+	   sane_strstatus (status));
       return status;
     }
   gt68xx_scanner_stop_scan (scanner);
@@ -1261,31 +1220,46 @@ gt68xx_afe_ccd_auto (GT68xx_Scanner * scanner,
 						   &params);
       if (status != SANE_STATUS_GOOD)
 	{
-	  XDBG ((3, "%s: gt68xx_scanner_start_scan_extended lamp brightness "
-		 "failed: %s\n", function_name, sane_strstatus (status)));
+	  DBG (3, "gt68xx_afe_ccd_auto: gt68xx_scanner_start_scan_extended lamp brightness "
+		 "failed: %s\n", sane_strstatus (status));
 	  return status;
 	}
       status = gt68xx_line_reader_read (scanner->reader, buffer_pointers);
       if (status != SANE_STATUS_GOOD)
 	{
-	  XDBG ((3, "%s: gt68xx_line_reader_read failed: %s\n",
-		 function_name, sane_strstatus (status)));
+	  DBG (3, "gt68xx_afe_ccd_auto: gt68xx_line_reader_read failed: %s\n",
+		 sane_strstatus (status));
 	  return status;
 	}
       gt68xx_scanner_stop_scan (scanner);
 
       gt68xx_afe_ccd_calc (&values, buffer_pointers[0]);
 
-      XDBG ((4, "%s: check lamp stable: this white = %d, last white = %d\n",
-	     function_name, values.total_white, last_white));
+      DBG (4, "gt68xx_afe_ccd_auto: check lamp stable: this white = %d, last white = %d\n",
+	     values.total_white, last_white);
+
 
       if (scanner->val[OPT_AUTO_WARMUP].w == SANE_TRUE)
 	{
-	  if (values.total_white <= (last_white + 20))
-	    break;		/* lamp is warmed up */
+	  if (scanner->dev->model->flags & GT68XX_FLAG_CIS_LAMP)
+	    {
+	      /* insist on at least 10 seconds */
+	      struct timeval now;
+	      int secs;
+	      
+	      gettimeofday (&now, 0);
+	      secs = now.tv_sec - scanner->lamp_on_time.tv_sec;
+	      if (secs >= 10 && (values.total_white <= (last_white + 20)) && values.total_white != 0)
+		break;
+	    }
+	  else
+	    {
+	      if ((values.total_white <= (last_white + 20)) && values.total_white != 0)
+		break;		/* lamp is warmed up */
+	    }
 	}
       else
-	{			/* insist on 30 seconds */
+	{			/* insist on 60 seconds */
 	  struct timeval now;
 	  int secs;
 
@@ -1301,56 +1275,77 @@ gt68xx_afe_ccd_auto (GT68xx_Scanner * scanner,
   do
     {
       i++;
-      IF_DBG (gt68xx_afe_dump ("scan", i, afe));
       /* read line */
       status = gt68xx_scanner_start_scan_extended (scanner, &request,
 						   SA_CALIBRATE_ONE_LINE,
 						   &params);
       if (status != SANE_STATUS_GOOD)
 	{
-	  XDBG ((3, "%s: gt68xx_scanner_start_scan_extended failed: %s\n",
-		 function_name, sane_strstatus (status)));
+	  DBG (3, "gt68xx_afe_ccd_auto: gt68xx_scanner_start_scan_extended failed: %s\n",
+		 sane_strstatus (status));
 	  return status;
 	}
 
       status = gt68xx_line_reader_read (scanner->reader, buffer_pointers);
       if (status != SANE_STATUS_GOOD)
 	{
-	  XDBG ((3, "%s: gt68xx_line_reader_read failed: %s\n",
-		 function_name, sane_strstatus (status)));
+	  DBG (3, "gt68xx_afe_ccd_auto: gt68xx_line_reader_read failed: %s\n",
+		 sane_strstatus (status));
 	  return status;
 	}
 
       if (params.color)
 	{
 	  /* red */
-	  done =
-	    gt68xx_afe_ccd_adjust_offset_gain (&values, buffer_pointers[0],
-					       &afe->r_offset, &afe->r_pga);
+	  if (!red_done)
+	    red_done =
+	      gt68xx_afe_ccd_adjust_offset_gain ("red", &values, buffer_pointers[0],
+						 &afe->r_offset, &afe->r_pga,
+						 &old_afe.r_offset, &old_afe.r_pga);
 	  /* green */
-	  done &=
-	    gt68xx_afe_ccd_adjust_offset_gain (&values, buffer_pointers[1],
-					       &afe->g_offset, &afe->g_pga);
+	  if (!green_done)
+	    green_done =
+	      gt68xx_afe_ccd_adjust_offset_gain ("green", &values, buffer_pointers[1],
+						 &afe->g_offset, &afe->g_pga,
+						 &old_afe.g_offset, &old_afe.g_pga);
 
 	  /* blue */
-	  done &=
-	    gt68xx_afe_ccd_adjust_offset_gain (&values, buffer_pointers[2],
-					       &afe->b_offset, &afe->b_pga);
+	  if (!blue_done)
+	    blue_done =
+	      gt68xx_afe_ccd_adjust_offset_gain ("blue", &values, buffer_pointers[2],
+						 &afe->b_offset, &afe->b_pga,
+						 &old_afe.b_offset, &old_afe.b_pga);
 	}
       else
 	{
-	  if (scanner->dev->model->flags & GT68XX_FLAG_OFFSET_INV)
-	    values.offset_direction = -1;
+	  if (strcmp (scanner->val[OPT_GRAY_MODE_COLOR].s, GT68XX_COLOR_BLUE) == 0)
+	    {
+	      gray_done =
+		gt68xx_afe_ccd_adjust_offset_gain ("gray", &values, buffer_pointers[0],
+						   &afe->b_offset, &afe->b_pga,
+						   &old_afe.b_offset, &old_afe.b_pga);
+	    }
+	  else if (strcmp (scanner->val[OPT_GRAY_MODE_COLOR].s, GT68XX_COLOR_GREEN) == 0)
+	    {
+	      gray_done =
+		gt68xx_afe_ccd_adjust_offset_gain ("gray", &values, buffer_pointers[0],
+						   &afe->g_offset, &afe->g_pga,
+						   &old_afe.g_offset, &old_afe.g_pga);
+	      afe->r_offset = afe->b_offset = 0x20;
+	      afe->r_pga = afe->b_pga = 0x18;
+	    }
 	  else
-	    values.offset_direction = 1;
-	  done =
-	    gt68xx_afe_ccd_adjust_offset_gain (&values, buffer_pointers[0],
-					       &afe->g_offset, &afe->g_pga);
+	    {
+	      gray_done =
+		gt68xx_afe_ccd_adjust_offset_gain ("gray", &values, buffer_pointers[0],
+						   &afe->r_offset, &afe->r_pga,
+						   &old_afe.r_offset, &old_afe.r_pga);
+	    }
 	}
-
       gt68xx_scanner_stop_scan (scanner);
     }
-  while (!done && i < 100);
+  while (((params.color && (!red_done || !green_done || !blue_done))
+	  || (!params.color && !gray_done))  && i < 100);
 
   return status;
 }
@@ -1364,7 +1359,7 @@ static void
 gt68xx_afe_cis_calc_black (GT68xx_Afe_Values * values,
 			   unsigned int *black_buffer)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_afe_cis_calc_black") SANE_Int start_black;
+  SANE_Int start_black;
   SANE_Int end_black;
   SANE_Int i, j;
   SANE_Int min_black = 255;
@@ -1386,15 +1381,15 @@ gt68xx_afe_cis_calc_black (GT68xx_Afe_Values * values,
     }
   values->black = min_black;
   average /= (end_black - start_black);
-  XDBG ((4, "%s: min_black=0x%02x, average_black=0x%02x\n", function_name, values->black,
-	 average));
+  DBG (5, "gt68xx_afe_cis_calc_black: min_black=0x%02x, average_black=0x%02x\n", values->black,
+	 average);
 }
 
 static void
 gt68xx_afe_cis_calc_white (GT68xx_Afe_Values * values,
 			   unsigned int *white_buffer)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_afe_cis_calc_white") SANE_Int start_white;
+  SANE_Int start_white;
   SANE_Int end_white;
   SANE_Int i, j;
   SANE_Int max_white = 0;
@@ -1418,107 +1413,164 @@ gt68xx_afe_cis_calc_white (GT68xx_Afe_Values * values,
     }
   values->white = max_white;
   values->total_white /= (values->callines * (end_white - start_white));
-  XDBG ((4, "%s: max_white=0x%02x, average_white=0x%02x\n", function_name, values->white,
-	 values->total_white >> 8));
+  DBG (5, "gt68xx_afe_cis_calc_white: max_white=0x%02x, average_white=0x%02x\n",
+       values->white, values->total_white >> 8);
 }
 
 static SANE_Bool
-gt68xx_afe_cis_adjust_offset (GT68xx_Afe_Values * values,
-			      unsigned int *black_buffer,
-			      SANE_Byte * offset)
+gt68xx_afe_cis_adjust_gain_offset (SANE_String_Const color_name, GT68xx_Afe_Values * values,
+				   unsigned int *black_buffer, unsigned int *white_buffer,
+				   GT68xx_AFE_Parameters * afe, GT68xx_AFE_Parameters * old_afe)
 {
-  SANE_Int offs = 0, tmp_offset = *offset;
-  SANE_Int low = values->coarse_black, high = low + 15;
+  SANE_Byte *offset, *old_offset, *gain, *old_gain;
+  SANE_Int o, g;
+  SANE_Int black_low = values->coarse_black, black_high = black_low + 10;
+  SANE_Int white_high = values->coarse_white, white_low = white_high - 10; 
+  SANE_Bool done = SANE_TRUE;
 
   gt68xx_afe_cis_calc_black (values, black_buffer);
-  if (values->black < low)
-    {
-      offs = (values->offset_direction * (low - values->black) / 4);
-      if (offs == 0)
-	offs = values->offset_direction;
-      DBG (4, "black = %d (too low) --> offs = %d\n", values->black, offs);
-    }
-  else if (values->black > high)
-    {
-      offs = -(values->offset_direction * (values->black - high) / 7);
-      if (offs == 0)
-	offs = -values->offset_direction;
-      DBG (4, "black = %d (too high) --> offs = %d\n", values->black, offs);
-    }
-  else
-    {
-      DBG (4, "black = %d (ok)\n", values->black);
-    }
-
-  if (offs == 0)
-    return SANE_TRUE;
-
-  tmp_offset += offs;
-  if (tmp_offset < 0)
-    tmp_offset = 0;
-  if (tmp_offset > 63)
-    tmp_offset = 63;
-  *offset = tmp_offset;
-  return SANE_FALSE;
-}
-
-static SANE_Bool
-gt68xx_afe_cis_adjust_gain (GT68xx_Afe_Values * values,
-			    unsigned int *white_buffer, SANE_Byte * gain)
-{
-  SANE_Int g = *gain;
-  SANE_Int white_high = values->coarse_white, white_low = white_high - 15; 
-
   gt68xx_afe_cis_calc_white (values, white_buffer);
 
-  if (values->white < white_low)
+  if (strcmp (color_name, "red") == 0)
     {
-      g += 1;
-      DBG (4, "white = %d (too low) --> gain += 1\n", values->white);
+      offset = &(afe->r_offset);
+      old_offset = &old_afe->r_offset;
+      gain = &afe->r_pga;
+      old_gain = &old_afe->r_pga;
     }
-  else if (values->white > white_high)
+  else if (strcmp (color_name, "green") == 0)
     {
-      g -= 1;
-      DBG (4, "white = %d (too high) --> gain -= 1\n", values->white);
+      offset = &afe->g_offset;
+      old_offset = &old_afe->g_offset;
+      gain = &afe->g_pga;
+      old_gain = &old_afe->g_pga;
     }
   else
     {
-      DBG (4, "white = %d (ok)\n", values->white);
+      offset = &afe->b_offset;
+      old_offset = &old_afe->b_offset;
+      gain = &afe->b_pga;
+      old_gain = &old_afe->b_pga;
     }
+  
+  o = *offset;
+  g = *gain;
+
+  if (values->white > white_high)
+    {
+      if (values->black > black_high)
+	  o -= values->offset_direction;
+      else if (values->black < black_low)
+	  g--;
+      else
+	{
+	  o -= values->offset_direction;
+	  g--;
+	}
+      done = SANE_FALSE;
+      goto finish;
+    }
+  else if (values->white < white_low)
+    {
+      if (values->black < black_low)
+	o += values->offset_direction;
+      else if (values->black > black_high)
+	g++;
+      else
+	{
+	  o += values->offset_direction;
+	  g++;
+	}
+      done = SANE_FALSE;
+      goto finish;
+    }
+  if (values->black > black_high)
+    {
+      if (values->white > white_high)
+	o -= values->offset_direction;
+      else if (values->white < white_low)
+	g++;
+      else
+	{
+	  o -= values->offset_direction;
+	  g++;
+	}
+      done = SANE_FALSE;
+      goto finish;
+    }
+  else if (values->black < black_low)
+    {
+      if (values->white < white_low)
+	o += values->offset_direction;
+      else if (values->white > white_high)
+	g--;
+      else
+	{
+	  o += values->offset_direction;
+	  g--;
+	}
+      done = SANE_FALSE;
+      goto finish;
+    }
+ finish:
   if (g < 0)
     g = 0;
-  if (g > 63)
-    g = 63;
+  if (g > 48)
+    g = 48;
+  if (o < 0)
+    o = 0;
+  if (o > 64)
+    o = 64;
 
-  if (g == *gain)
-    return SANE_TRUE;
+  if ((g == *gain) && (o == *offset))
+    done = SANE_TRUE;
+  if ((g == *old_gain) && (o == *old_offset))
+    done = SANE_TRUE;
+
+  *old_gain = *gain;
+  *old_offset = *offset;
+
+  DBG (4, "%5s white=%3d, black=%3d, offset=%2d, gain=%2d, old offs=%2d, "
+       "old gain=%2d, total_white=%5d %s\n", color_name, values->white,
+       values->black, o, g, *offset, *gain, values->total_white,
+       done ? "DONE " : "");
+
   *gain = g;
-  return SANE_FALSE;
+  *offset = o;
+
+  return done;
 }
 
+
 static SANE_Bool
-gt68xx_afe_cis_adjust_exposure (GT68xx_Afe_Values * values,
+gt68xx_afe_cis_adjust_exposure (SANE_String_Const color_name, GT68xx_Afe_Values * values,
 				unsigned int *white_buffer,
 				SANE_Int border, SANE_Int * exposure_time)
 {
+  SANE_Int exposure_change = 0;
   gt68xx_afe_cis_calc_white (values, white_buffer);
+
+
   if (values->white < border)
     {
-      *exposure_time += ((border - values->white) * 2);
-      DBG (4, "white = %d (too low) --> += %d\n",
-	   values->white, ((border - values->white) * 2));
+      exposure_change = ((border - values->white) * 1);
+      (*exposure_time) += exposure_change;
+      DBG (4, "%5s: white = %3d (exposure too low) --> exposure += %d (=0x%03x)\n", color_name,
+	   values->white, exposure_change, *exposure_time);
       return SANE_FALSE;
     }
-  else if (values->white > border + 10)
+  else if (values->white > border + 5)
     {
-      *exposure_time -= ((values->white - (border + 10)) * 2);
-      DBG (4, "white = %d (too high) --> -= %d\n",
-	   values->white, ((values->white - (border + 10)) * 2));
+      exposure_change = -((values->white - (border + 5)) * 1);
+      (*exposure_time) += exposure_change;
+      DBG (4, "%5s: white = %3d (exposure too high) --> exposure -= %d (=0x%03x)\n", color_name,
+	   values->white, exposure_change, *exposure_time);
       return SANE_FALSE;
     }
   else
     {
-      DBG (4, "white = %d (ok)\n", values->white);
+      DBG (4, "%5s: white = %3d (exposure ok=0x%03x)\n",
+	   color_name, values->white, *exposure_time);
     }
   return SANE_TRUE;
 }
@@ -1529,7 +1581,7 @@ gt68xx_afe_cis_read_lines (GT68xx_Afe_Values * values,
 			   SANE_Bool first, unsigned int *r_buffer,
 			   unsigned int *g_buffer, unsigned int *b_buffer)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_afe_cis_read_lines") SANE_Status status;
+  SANE_Status status;
   int line;
   unsigned int *buffer_pointers[3];
   GT68xx_Scan_Request request;
@@ -1545,7 +1597,7 @@ gt68xx_afe_cis_read_lines (GT68xx_Afe_Values * values,
   request.calculate = SANE_FALSE;
   request.use_ta = SANE_FALSE;
 
-  if (first)			/* go home */
+  if (first)			/* go to start position */
     {
       request.mbs = SANE_TRUE;
       request.mds = SANE_TRUE;
@@ -1573,15 +1625,15 @@ gt68xx_afe_cis_read_lines (GT68xx_Afe_Values * values,
 					SA_CALIBRATE_ONE_LINE, &params);
   if (status != SANE_STATUS_GOOD)
     {
-      XDBG ((5, "%s: gt68xx_scanner_start_scan_extended failed: %s\n",
-	     function_name, sane_strstatus (status)));
+      DBG (5, "gt68xx_afe_cis_read_lines: gt68xx_scanner_start_scan_extended failed: %s\n",
+	     sane_strstatus (status));
       return status;
     }
   values->scan_dpi = params.xdpi;
   values->calwidth = params.pixel_xs;
   values->callines = params.pixel_ys;
   values->coarse_black = 5;
-  values->coarse_white = 250;
+  values->coarse_white = 242;
 
   if (r_buffer && g_buffer && b_buffer)
     for (line = 0; line < values->callines; line++)
@@ -1589,8 +1641,8 @@ gt68xx_afe_cis_read_lines (GT68xx_Afe_Values * values,
 	status = gt68xx_line_reader_read (scanner->reader, buffer_pointers);
 	if (status != SANE_STATUS_GOOD)
 	  {
-	    XDBG ((5, "%s: gt68xx_line_reader_read failed: %s\n",
-		   function_name, sane_strstatus (status)));
+	    DBG (5, "gt68xx_afe_cis_read_lines: gt68xx_line_reader_read failed: %s\n",
+		   sane_strstatus (status));
 	    return status;
 	  }
 	memcpy (r_buffer + values->calwidth * line, buffer_pointers[0],
@@ -1604,8 +1656,8 @@ gt68xx_afe_cis_read_lines (GT68xx_Afe_Values * values,
   status = gt68xx_scanner_stop_scan (scanner);
   if (status != SANE_STATUS_GOOD)
     {
-      XDBG ((5, "%s: gt68xx_scanner_stop_scan failed: %s\n",
-	     function_name, sane_strstatus (status)));
+      DBG (5, "gt68xx_afe_cis_read_lines: gt68xx_scanner_stop_scan failed: %s\n",
+	     sane_strstatus (status));
       return status;
     }
 
@@ -1615,149 +1667,106 @@ gt68xx_afe_cis_read_lines (GT68xx_Afe_Values * values,
 static SANE_Status
 gt68xx_afe_cis_auto (GT68xx_Scanner * scanner)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_afe_cis_auto") SANE_Status status;
-  int total_count, offset_count, exposure_count;
+  SANE_Status status;
+  int total_count, exposure_count;
   GT68xx_Afe_Values values;
-  GT68xx_AFE_Parameters *afe = scanner->dev->afe;
+  GT68xx_AFE_Parameters *afe = scanner->dev->afe, old_afe;
   GT68xx_Exposure_Parameters *exposure = scanner->dev->exposure;
-  SANE_Int done;
+  SANE_Int red_done, green_done, blue_done;
   SANE_Bool first = SANE_TRUE;
-  unsigned int *r_buffer = 0, *g_buffer = 0, *b_buffer = 0;
+  unsigned int *r_gbuffer = 0, *g_gbuffer = 0, *b_gbuffer = 0;
+  unsigned int *r_obuffer = 0, *g_obuffer = 0, *b_obuffer = 0;
 
-  XDBG ((5, "%s: start\n", function_name));
+  DBG (5, "gt68xx_afe_cis_auto: start\n");
+
+  memset (&old_afe, 255, sizeof (old_afe));
 
   RIE (gt68xx_afe_cis_read_lines (&values, scanner, SANE_FALSE, SANE_FALSE,
-				  r_buffer, g_buffer, b_buffer));
+				  r_gbuffer, g_gbuffer, b_gbuffer));
 
-  r_buffer =
+  r_gbuffer =
     malloc (values.calwidth * values.callines * sizeof (unsigned int));
-  g_buffer =
+  g_gbuffer =
     malloc (values.calwidth * values.callines * sizeof (unsigned int));
-  b_buffer =
+  b_gbuffer =
     malloc (values.calwidth * values.callines * sizeof (unsigned int));
-  if (!r_buffer || !g_buffer || !b_buffer)
+  r_obuffer =
+    malloc (values.calwidth * values.callines * sizeof (unsigned int));
+  g_obuffer =
+    malloc (values.calwidth * values.callines * sizeof (unsigned int));
+  b_obuffer =
+    malloc (values.calwidth * values.callines * sizeof (unsigned int));
+  if (!r_gbuffer || !g_gbuffer || !b_gbuffer || !r_obuffer || !g_obuffer 
+      || !b_obuffer)
     return SANE_STATUS_NO_MEM;
 
-  if (scanner->dev->model->flags & GT68XX_FLAG_CIS_LAMP)
-    {
-      GT68xx_Afe_Values lamp_values = values;
-      SANE_Int last_white = -21;
-      SANE_Word i;
-      
-      lamp_values.callines = 1;
-      
-      /* loop waiting for lamp to give stable brightness */
-      for (i = 0; i < 80; i++)
-	{
-	  usleep (200000);
-	  if (i == 10)
-	    DBG (0, "Please wait for lamp warm-up\n");
-	  
-	  /* read line */
-	  RIE (gt68xx_afe_cis_read_lines (&lamp_values, scanner, SANE_TRUE, SANE_FALSE,
-					  r_buffer, g_buffer, b_buffer));
-	  
-	  gt68xx_afe_cis_calc_white (&lamp_values, r_buffer);
-	  
-	  XDBG ((4, "%s: check lamp stable: this white = 0x%04X, last white =0x%04X\n",
-		 function_name, lamp_values.total_white, last_white));
-	  
-	  if (scanner->val[OPT_AUTO_WARMUP].w == SANE_TRUE)
-	    {
-	      if (lamp_values.total_white <= (last_white + 20))
-		break;		/* lamp is warmed up */
-	    }
-	  else
-	    {			/* insist on 30 seconds */
-	      struct timeval now;
-	      int secs;
-	      
-	      gettimeofday (&now, 0);
-	      secs = now.tv_sec - scanner->lamp_on_time.tv_sec;
-	      if (secs >= WARMUP_TIME)
-		break;
-	    }
-	  last_white = lamp_values.total_white;
-	}
-    }
-
   total_count = 0;
+  exposure->r_time = exposure->g_time = exposure->b_time = 0x157;
+  red_done = green_done = blue_done = SANE_FALSE;
+  old_afe.r_offset = old_afe.g_offset = old_afe.b_offset = 255;
+  old_afe.r_pga = old_afe.g_pga = old_afe.b_pga = 255;
   do
     {
-      offset_count = 0;
       values.offset_direction = 1;
       if (scanner->dev->model->flags & GT68XX_FLAG_OFFSET_INV)
 	values.offset_direction = -1;
-      exposure->r_time = exposure->g_time = exposure->b_time = 0x157;
-      do
-	{
-	  /* AFE offset */
-	  IF_DBG (gt68xx_afe_dump ("offset", total_count, afe));
 
-	  /* read black line */
-	  RIE (gt68xx_afe_cis_read_lines (&values, scanner, SANE_FALSE, first,
-					  r_buffer, g_buffer, b_buffer));
-
-	  done =
-	    gt68xx_afe_cis_adjust_offset (&values, r_buffer, &afe->r_offset);
-	  done &=
-	    gt68xx_afe_cis_adjust_offset (&values, g_buffer, &afe->g_offset);
-	  done &=
-	    gt68xx_afe_cis_adjust_offset (&values, b_buffer, &afe->b_offset);
-
-	  offset_count++;
-	  total_count++;
-	  first = SANE_FALSE;
-	}
-      while (offset_count < 10 && !done);
-
-      /* AFE gain */
-      IF_DBG (gt68xx_afe_dump ("gain", total_count, afe));
-
-      /* read white line */
+      RIE (gt68xx_afe_cis_read_lines (&values, scanner, SANE_FALSE, first,
+				      r_obuffer, g_obuffer, b_obuffer));
       RIE (gt68xx_afe_cis_read_lines (&values, scanner, SANE_TRUE, SANE_FALSE,
-				      r_buffer, g_buffer, b_buffer));
+				      r_gbuffer, g_gbuffer, b_gbuffer));
 
-      done = gt68xx_afe_cis_adjust_gain (&values, r_buffer, &afe->r_pga);
-      done &= gt68xx_afe_cis_adjust_gain (&values, g_buffer, &afe->g_pga);
-      done &= gt68xx_afe_cis_adjust_gain (&values, b_buffer, &afe->b_pga);
-
+      if (!red_done)
+	red_done =
+	  gt68xx_afe_cis_adjust_gain_offset ("red", &values, r_obuffer, r_gbuffer, afe, &old_afe);
+      if (!green_done)
+	green_done =
+	  gt68xx_afe_cis_adjust_gain_offset ("green", &values, g_obuffer, g_gbuffer, afe, &old_afe);
+      if (!blue_done)
+	blue_done =
+	  gt68xx_afe_cis_adjust_gain_offset ("blue", &values, b_obuffer, b_gbuffer, afe, &old_afe);
       total_count++;
+      first = SANE_FALSE;
+
     }
-  while (total_count < 100 && !done);
+  while (total_count < 100 && (!red_done || !green_done || !blue_done));
 
-  if (total_count >= 100)
-    XDBG ((0, "%s: setting AFE reached limit\n", function_name));
-
-  IF_DBG (gt68xx_afe_dump ("final", total_count, afe));
-
+  if (!red_done || !green_done || !blue_done)
+    DBG (0, "gt68xx_afe_cis_auto: setting AFE reached limit\n");
+  
   /* Exposure time */
   exposure_count = 0;
+  red_done = green_done = blue_done = SANE_FALSE;
+  /*exposure->r_time = exposure->g_time = exposure->b_time = 0x150;*/
   do
     {
-      IF_DBG (gt68xx_afe_exposure_dump ("exposure", total_count, exposure));
-
       /* read white line */
       RIE (gt68xx_afe_cis_read_lines (&values, scanner, SANE_TRUE, SANE_FALSE,
-				      r_buffer, g_buffer, b_buffer));
-      done = gt68xx_afe_cis_adjust_exposure (&values, r_buffer, 230,
-					     &exposure->r_time);
-      done &= gt68xx_afe_cis_adjust_exposure (&values, g_buffer, 230,
-					      &exposure->g_time);
-      done &= gt68xx_afe_cis_adjust_exposure (&values, b_buffer, 230,
+				      r_gbuffer, g_gbuffer, b_gbuffer));
+      if (!red_done)
+	red_done = gt68xx_afe_cis_adjust_exposure ("red", &values, r_gbuffer, 240,
+						   &exposure->r_time);
+      if (!green_done)
+	green_done = gt68xx_afe_cis_adjust_exposure ("green", &values, g_gbuffer, 240,
+						     &exposure->g_time);
+      if (!blue_done)
+	blue_done = gt68xx_afe_cis_adjust_exposure ("blue", &values, b_gbuffer, 240,
 					      &exposure->b_time);
       exposure_count++;
       total_count++;
     }
-  while (!done && exposure_count < 10);
+  while ((!red_done || !green_done || !blue_done) && exposure_count < 30);
 
-  if (exposure_count >= 10)
-    XDBG ((0, "%s: setting exposure reached limit\n", function_name));
+  if (!red_done || !green_done || !blue_done)
+    DBG (0, "gt68xx_afe_cis_auto: setting exposure reached limit\n");
 
-  free (r_buffer);
-  free (g_buffer);
-  free (b_buffer);
-  XDBG ((4, "%s: total_count: %d\n", function_name, total_count));
+  free (r_gbuffer);
+  free (g_gbuffer);
+  free (b_gbuffer);
+  free (r_obuffer);
+  free (g_obuffer);
+  free (b_obuffer);
+  DBG (4, "gt68xx_afe_cis_auto: total_count: %d\n", total_count);
 
   return SANE_STATUS_GOOD;
 }

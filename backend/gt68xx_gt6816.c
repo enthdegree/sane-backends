@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
 
    Copyright (C) 2002 Sergey Vlasov <vsu@altlinux.ru>
-   Copyright (C) 2002, 2003 Henning Meier-Geinitz <henning@meier-geinitz.de>
+   Copyright (C) 2002-2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
    
    This file is part of the SANE package.
    
@@ -82,7 +82,7 @@ SANE_Status
 gt6816_download_firmware (GT68xx_Device * dev,
 			  SANE_Byte * data, SANE_Word size)
 {
-  DECLARE_FUNCTION_NAME ("gt6816_download_firmware") SANE_Status status;
+  SANE_Status status;
   SANE_Byte download_buf[MAX_DOWNLOAD_BLOCK_SIZE];
   SANE_Byte check_buf[MAX_DOWNLOAD_BLOCK_SIZE];
   SANE_Byte *block;
@@ -90,7 +90,7 @@ gt6816_download_firmware (GT68xx_Device * dev,
   GT68xx_Packet boot_req;
   SANE_Word block_size = MAX_DOWNLOAD_BLOCK_SIZE;
 
-  CHECK_DEV_ACTIVE (dev, function_name);
+  CHECK_DEV_ACTIVE (dev, "gt6816_download_firmware");
 
   for (addr = 0; addr < size; addr += block_size)
     {
@@ -107,7 +107,7 @@ gt6816_download_firmware (GT68xx_Device * dev,
       RIE (gt68xx_device_memory_read (dev, addr, block_size, check_buf));
       if (memcmp (block, check_buf, block_size) != 0)
 	{
-	  XDBG ((3, "%s: mismatch at block 0x%0x\n", function_name, addr));
+	  DBG (3, "gt6816_download_firmware: mismatch at block 0x%0x\n", addr);
 	  return SANE_STATUS_IO_ERROR;
 	}
     }
@@ -135,7 +135,8 @@ gt6816_get_power_status (GT68xx_Device * dev, SANE_Bool * power_ok)
 
   RIE (gt68xx_device_req (dev, req, req));
 
-  if (req[0] == 0x00 && req[1] == 0x3f && req[2] == 0x01)
+  if ((req[0] == 0x00 && req[1] == 0x3f && req[2] == 0x01) 
+      || (dev->model->flags & GT68XX_FLAG_NO_POWER_STATUS))
     *power_ok = SANE_TRUE;
   else
     *power_ok = SANE_FALSE;
@@ -240,7 +241,7 @@ gt6816_setup_scan (GT68xx_Device * dev,
 		   GT68xx_Scan_Request * request,
 		   GT68xx_Scan_Action action, GT68xx_Scan_Parameters * params)
 {
-  DECLARE_FUNCTION_NAME ("gt6816_setup_scan") SANE_Status status;
+  SANE_Status status;
   GT68xx_Model *model;
   SANE_Int xdpi, ydpi;
   SANE_Bool color;
@@ -257,10 +258,10 @@ gt6816_setup_scan (GT68xx_Device * dev,
   SANE_Fixed x0, y0, xs, ys;
   SANE_Bool backtrack = SANE_FALSE;
 
-  XDBG ((6, "%s: enter (action=%s)\n", function_name,
+  DBG (6, "gt6816_setup_scan: enter (action=%s)\n",
 	 action == SA_CALIBRATE ? "calibrate" :
 	 action == SA_CALIBRATE_ONE_LINE ? "calibrate one line" :
-	 action == SA_SCAN ? "scan" : "calculate only"));
+	 action == SA_SCAN ? "scan" : "calculate only");
 
   model = dev->model;
 
@@ -292,8 +293,8 @@ gt6816_setup_scan (GT68xx_Device * dev,
 	base_ydpi = model->optical_ydpi;
     }
 
-  XDBG ((6, "%s: base_xdpi=%d, base_ydpi=%d\n", function_name,
-	 base_xdpi, base_ydpi));
+  DBG (6, "gt6816_setup_scan: base_xdpi=%d, base_ydpi=%d\n", 
+       base_xdpi, base_ydpi);
 
 
   switch (action)
@@ -308,7 +309,6 @@ gt6816_setup_scan (GT68xx_Device * dev,
 	ys = SANE_FIX (1.0 * MM_PER_INCH / ydpi);	/* one line */
 	xs = request->xs;
 	depth = 8;
-	color = request->color;
 	break;
       }
     case SA_CALIBRATE:
@@ -331,7 +331,6 @@ gt6816_setup_scan (GT68xx_Device * dev,
 	  }
 	ys = SANE_FIX (CALIBRATION_HEIGHT);
 	xs = request->xs;
-	color = request->color;
 	break;
       }
     case SA_SCAN:
@@ -357,15 +356,17 @@ gt6816_setup_scan (GT68xx_Device * dev,
 	  }
 	x0 = request->x0 + x_offset;
 	y0 = request->y0 + y_offset;
+	if (y0 < 0)
+	  y0 = 0;
 	ys = request->ys;
 	xs = request->xs;
 
-	backtrack = SANE_TRUE;
+	backtrack = request->backtrack;
 	break;
       }
 
     default:
-      XDBG ((1, "%s: invalid action=%d\n", function_name, (int) action));
+      DBG (1, "gt6816_setup_scan: invalid action=%d\n", (int) action);
       return SANE_STATUS_INVAL;
     }
 
@@ -375,21 +376,21 @@ gt6816_setup_scan (GT68xx_Device * dev,
   pixel_xs = SANE_UNFIX (xs) * xdpi / MM_PER_INCH + 0.5;
 
 
-  XDBG ((6, "%s: xdpi=%d, ydpi=%d\n", function_name, xdpi, ydpi));
-  XDBG ((6, "%s: color=%s, depth=%d\n", function_name,
-	 color ? "TRUE" : "FALSE", depth));
-  XDBG ((6, "%s: pixel_x0=%d, pixel_y0=%d\n", function_name,
-	 pixel_x0, pixel_y0));
-  XDBG ((6, "%s: pixel_xs=%d, pixel_ys=%d\n", function_name,
-	 pixel_xs, pixel_ys));
-  XDBG ((6, "%s: backtrack=%d\n", function_name, backtrack));
+  DBG (6, "gt6816_setup_scan: xdpi=%d, ydpi=%d\n", xdpi, ydpi);
+  DBG (6, "gt6816_setup_scan: color=%s, depth=%d\n",
+	 color ? "TRUE" : "FALSE", depth);
+  DBG (6, "gt6816_setup_scan: pixel_x0=%d, pixel_y0=%d\n",
+	 pixel_x0, pixel_y0);
+  DBG (6, "gt6816_setup_scan: pixel_xs=%d, pixel_ys=%d\n",
+	 pixel_xs, pixel_ys);
+  DBG (6, "gt6816_setup_scan: backtrack=%d\n", backtrack);
 
 
-  color_mode_code = 0x80;	/* What does this mean ? */
+  color_mode_code = 0x80;
   if (color)
     color_mode_code |= (1 << 2);
   else
-    color_mode_code |= (1 << 1);
+    color_mode_code |= dev->gray_mode_color;
 
   if (depth > 12)
     color_mode_code |= (1 << 5);
@@ -399,8 +400,8 @@ gt6816_setup_scan (GT68xx_Device * dev,
       color_mode_code |= (1 << 4);
     }
 
-  XDBG ((6, "%s: color_mode_code = 0x%02X\n", function_name,
-	 color_mode_code));
+  DBG (6, "gt6816_setup_scan: color_mode_code = 0x%02X\n",
+	 color_mode_code);
 
   overscan_lines = 0;
   params->ld_shift_r = params->ld_shift_g = params->ld_shift_b = 0;
@@ -420,9 +421,9 @@ gt6816_setup_scan (GT68xx_Device * dev,
       params->ld_shift_g = ld_shift_g * ydpi / optical_ydpi;
       params->ld_shift_b = ld_shift_b * ydpi / optical_ydpi;
       params->ld_shift_double = 0;
-      XDBG ((6, "%s: overscan=%d, ld=%d/%d/%d\n", function_name,
+      DBG (6, "gt6816_setup_scan: overscan=%d, ld=%d/%d/%d\n",
 	     overscan_lines, params->ld_shift_r, params->ld_shift_g,
-	     params->ld_shift_b));
+	     params->ld_shift_b);
     }
 
   if (action == SA_SCAN && xdpi >= model->optical_xdpi
@@ -435,13 +436,13 @@ gt6816_setup_scan (GT68xx_Device * dev,
       else
 	overscan_lines += params->ld_shift_double;
 
-      XDBG ((6, "%s: overscan=%d, ld double=%d\n", function_name,
-	     overscan_lines, params->ld_shift_double));
+      DBG (6, "gt6816_setup_scan: overscan=%d, ld double=%d\n",
+	     overscan_lines, params->ld_shift_double);
     }
 
   abs_x0 = pixel_x0 * base_xdpi / xdpi;
   abs_y0 = pixel_y0 * base_ydpi / ydpi;
-  XDBG ((6, "%s: abs_x0=%d, abs_y0=%d\n", function_name, abs_x0, abs_y0));
+  DBG (6, "gt6816_setup_scan: abs_x0=%d, abs_y0=%d\n", abs_x0, abs_y0);
 
   params->double_column = abs_x0 & 1;
 
@@ -450,7 +451,7 @@ gt6816_setup_scan (GT68xx_Device * dev,
   pixel_align = 32;		/* best case for depth = 16 */
   while ((depth * pixel_align) % (64 * 8) != 0)
     pixel_align *= 2;
-  XDBG ((6, "%s: pixel_align=%d\n", function_name, pixel_align));
+  DBG (6, "gt6816_setup_scan: pixel_align=%d\n", pixel_align);
 
   if (pixel_xs % pixel_align == 0)
     scan_xs = pixel_xs;
@@ -463,7 +464,7 @@ gt6816_setup_scan (GT68xx_Device * dev,
     abs_ys = 2;
   else
     abs_ys = scan_ys * base_ydpi / ydpi;
-  XDBG ((6, "%s: abs_xs=%d, abs_ys=%d\n", function_name, abs_xs, abs_ys));
+  DBG (6, "gt6816_setup_scan: abs_xs=%d, abs_ys=%d\n", abs_xs, abs_ys);
 
   if (model->is_cis)
     {
@@ -472,47 +473,37 @@ gt6816_setup_scan (GT68xx_Device * dev,
   else
     {
       line_mode = SANE_FALSE;
-      if (!color)		/* ??? */
+      if (!color)
 	{
-	  XDBG ((6, "%s: using line mode for monochrome scan\n",
-		 function_name));
+	  DBG (6, "gt6816_setup_scan: using line mode for monochrome scan\n");
 	  line_mode = SANE_TRUE;
 	}
-      else if (ydpi >= model->ydpi_force_line_mode)
+      else if (ydpi >= model->ydpi_force_line_mode) /* really necessary? */
 	{
-	  XDBG ((6, "%s: forcing line mode for ydpi=%d\n", function_name,
-		 ydpi));
+	  DBG (6, "gt6816_setup_scan: forcing line mode for ydpi=%d\n",
+		 ydpi);
 	  line_mode = SANE_TRUE;
 	}
-#if 1
-      else if (ydpi == 600 && depth > 12)	/* XXX */
-	{
-	  XDBG ((6, "%s: forcing line mode for ydpi=%d, depth=%d\n",
-		 function_name, ydpi, depth));
-	  line_mode = SANE_TRUE;
-	}
-#endif
     }
   bits_per_line = depth * scan_xs;
   if (color && !line_mode)
     bits_per_line *= 3;
   if (bits_per_line % 8)	/* impossible */
     {
-      XDBG ((0, "%s: BUG: unaligned bits_per_line=%d\n", function_name,
-	     bits_per_line));
+      DBG (0, "gt6816_setup_scan: BUG: unaligned bits_per_line=%d\n",
+	     bits_per_line);
       return SANE_STATUS_INVAL;
     }
   scan_bpl = bits_per_line / 8;
 
   if (scan_bpl > 15600 && !line_mode)	/* ??? */
     {
-      XDBG ((6, "%s: scan_bpl=%d, trying line mode\n", function_name,
-	     scan_bpl));
+      DBG (6, "gt6816_setup_scan: scan_bpl=%d, trying line mode\n",
+	     scan_bpl);
       line_mode = SANE_TRUE;
       if (scan_bpl % 3)
 	{
-	  XDBG ((0, "%s: BUG: monochrome scan in pixel mode?\n",
-		 function_name));
+	  DBG (0, "gt6816_setup_scan: BUG: monochrome scan in pixel mode?\n");
 	  return SANE_STATUS_INVAL;
 	}
       scan_bpl /= 3;
@@ -520,29 +511,35 @@ gt6816_setup_scan (GT68xx_Device * dev,
 
   if (scan_bpl % 64)		/* impossible */
     {
-      XDBG ((0, "%s: BUG: unaligned scan_bpl=%d\n", function_name, scan_bpl));
-      return SANE_STATUS_INVAL;
-    }
-
-  if (scan_bpl > 15600)		/* ??? */
-    {
-      XDBG ((1, "%s: scan_bpl=%d, too large\n", function_name, scan_bpl));
+      DBG (0, "gt6816_setup_scan: BUG: unaligned scan_bpl=%d\n", scan_bpl);
       return SANE_STATUS_INVAL;
     }
 
   /* really? */
-
   if (color && line_mode)
     scan_ys *= 3;
 
-  XDBG ((6, "%s: scan_xs=%d, scan_ys=%d\n", function_name, scan_xs, scan_ys));
+  DBG (6, "gt6816_setup_scan: scan_xs=%d, scan_ys=%d\n",scan_xs, scan_ys);
 
-  XDBG ((6, "%s: scan_bpl=%d\n", function_name, scan_bpl));
+  DBG (6, "gt6816_setup_scan: scan_bpl=%d\n", scan_bpl);
 
   if (!request->calculate)
     {
       GT68xx_Packet req;
       SANE_Byte motor_mode_1, motor_mode_2;
+
+      if (scan_bpl > 15600)		/* ??? */
+	{
+	  DBG (0, "gt6816_setup_scan: scan_bpl=%d, too large\n", scan_bpl);
+	  return SANE_STATUS_NO_MEM;
+	}
+
+      if ((dev->model->flags & GT68XX_FLAG_NO_LINEMODE) && line_mode)
+	{
+	  DBG (0, "gt6816_setup_scan: the scanner's memory is too small for "
+	       "that combination of resolution, dpi and width\n");
+	  return SANE_STATUS_NO_MEM;
+	}
 
       motor_mode_1 = (request->mbs ? 0 : 1) << 1;
       motor_mode_1 |= (request->mds ? 0 : 1) << 2;
@@ -556,8 +553,8 @@ gt6816_setup_scan (GT68xx_Device * dev,
       if (action != SA_SCAN)
 	motor_mode_2 |= 1 << 3;
 
-      XDBG ((6, "%s: motor_mode_1 = 0x%02X, motor_mode_2 = 0x%02X\n",
-	     function_name, motor_mode_1, motor_mode_2));
+      DBG (6, "gt6816_setup_scan: motor_mode_1 = 0x%02X, motor_mode_2 = 0x%02X\n",
+	     motor_mode_1, motor_mode_2);
 
       /* Fill in the setup command */
       memset (req, 0, sizeof (req));
@@ -572,11 +569,14 @@ gt6816_setup_scan (GT68xx_Device * dev,
       req[0x08] = LOBYTE (abs_xs);
       req[0x09] = HIBYTE (abs_xs);
       req[0x0a] = color_mode_code;
-      req[0x0b] = 0x20;		/* 0x20 CCD; 0x60 CIS, I don't see any difference */
+      if (model->is_cis)
+	req[0x0b] = 0x60;
+      else
+	req[0x0b] = 0x20; 
       req[0x0c] = LOBYTE (xdpi);
       req[0x0d] = HIBYTE (xdpi);
-      req[0x0e] = 0x12;		/* 0x12 ??? */
-      req[0x0f] = 0x00;
+      req[0x0e] = 0x12;		/* 0x12 */
+      req[0x0f] = 0x00;         /* 0x00 */  
       req[0x10] = LOBYTE (scan_bpl);
       req[0x11] = HIBYTE (scan_bpl);
       req[0x12] = LOBYTE (scan_ys);
@@ -586,19 +586,14 @@ gt6816_setup_scan (GT68xx_Device * dev,
       req[0x16] = LOBYTE (ydpi);
       req[0x17] = HIBYTE (ydpi);
       if (backtrack)
-	{
-	  if (model->is_cis)
-	    req[0x18] = 0x20;
-	  else
-	    req[0x18] = 0x3f;
-	}
+	req[0x18] = request->backtrack_lines;
       else
 	req[0x18] = 0x00;
       status = gt68xx_device_req (dev, req, req);
       if (status != SANE_STATUS_GOOD)
 	{
-	  XDBG ((3, "%s: setup request failed: %s\n", function_name,
-		 sane_strstatus (status)));
+	  DBG (3, "gt6816_setup_scan: setup request failed: %s\n",
+		 sane_strstatus (status));
 	  return status;
 	}
     }
@@ -616,8 +611,7 @@ gt6816_setup_scan (GT68xx_Device * dev,
   params->line_mode = line_mode;
   params->overscan_lines = overscan_lines;
 
-  XDBG ((6, "%s: leave: ok\n", function_name));
+  DBG (6, "gt6816_setup_scan: leave: ok\n");
   return SANE_STATUS_GOOD;
 }
 
-/* vim: set sw=2 cino=>2se-1sn-1s{s^-1st0(0u0 smarttab expandtab: */

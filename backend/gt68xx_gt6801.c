@@ -2,7 +2,7 @@
 
    Copyright (C) 2002 Sergey Vlasov <vsu@altlinux.ru>
    GT6801 support by Andreas Nowack <nowack.andreas@gmx.de>
-   Copyright (C) 2002, 2003 Henning Meier-Geinitz <henning@meier-geinitz.de>
+   Copyright (C) 2002-2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
    
    This file is part of the SANE package.
    
@@ -115,7 +115,7 @@ SANE_Status
 gt6801_download_firmware (GT68xx_Device * dev,
 			  SANE_Byte * data, SANE_Word size)
 {
-  DECLARE_FUNCTION_NAME ("gt6801_download_firmware") SANE_Status status;
+  SANE_Status status;
   SANE_Byte download_buf[MAX_DOWNLOAD_BLOCK_SIZE];
   SANE_Byte check_buf[MAX_DOWNLOAD_BLOCK_SIZE];
   SANE_Byte *block;
@@ -123,7 +123,7 @@ gt6801_download_firmware (GT68xx_Device * dev,
   GT68xx_Packet boot_req;
   SANE_Word block_size = MAX_DOWNLOAD_BLOCK_SIZE;
 
-  CHECK_DEV_ACTIVE (dev, function_name);
+  CHECK_DEV_ACTIVE (dev, "gt6801_download_firmware");
 
   for (addr = 0; addr < size; addr += block_size)
     {
@@ -149,7 +149,7 @@ gt6801_download_firmware (GT68xx_Device * dev,
        */
       if ((check_buf[0] != 0) && (check_buf[1] != 0x40))
 	{
-	  XDBG ((3, "%s: mismatch at block 0x%0x\n", function_name, addr));
+	  DBG (3, "gt6801_download_firmware: mismatch at block 0x%0x\n", addr);
 	  return SANE_STATUS_IO_ERROR;
 	}
     }
@@ -171,45 +171,6 @@ gt6801_download_firmware (GT68xx_Device * dev,
 
   return SANE_STATUS_GOOD;
 }
-
-SANE_Status
-gt6801_u16b_download_firmware (GT68xx_Device * dev,
-			       SANE_Byte * data, SANE_Word size)
-{
-  DECLARE_FUNCTION_NAME ("gt6801_download_firmware") SANE_Status status;
-  SANE_Byte download_buf[MAX_DOWNLOAD_BLOCK_SIZE];
-  SANE_Byte *block;
-  SANE_Word addr, bytes_left;
-  GT68xx_Packet boot_req;
-  SANE_Word block_size = MAX_DOWNLOAD_BLOCK_SIZE;
-
-  CHECK_DEV_ACTIVE (dev, function_name);
-
-  for (addr = 0; addr < size; addr += block_size)
-    {
-      bytes_left = size - addr;
-      if (bytes_left > block_size)
-	block = data + addr;
-      else
-	{
-	  memset (download_buf, 0, block_size);
-	  memcpy (download_buf, data + addr, bytes_left);
-	  block = download_buf;
-	}
-      RIE (gt68xx_device_memory_write (dev, addr, block_size, block));
-    }
-
-  /* not tested: */
-  memset (boot_req, 0, sizeof (boot_req));
-  boot_req[0] = 0x69;
-  boot_req[1] = 0x01;
-  boot_req[2] = 0xc0;
-  boot_req[3] = 0x1c;
-  RIE (gt68xx_device_req (dev, boot_req, boot_req));
-
-  return SANE_STATUS_GOOD;
-}
-
 
 SANE_Status
 gt6801_get_power_status (GT68xx_Device * dev, SANE_Bool * power_ok)
@@ -315,47 +276,13 @@ gt6801_stop_scan (GT68xx_Device * dev)
   return SANE_STATUS_GOOD;
 }
 
-SANE_Status
-gt6801_u16b_stop_scan (GT68xx_Device * dev)
-{
-  GT68xx_Packet req;
-  SANE_Status status;
-  SANE_Int count = 0;
-
-  /* For some reason, the Plustek U16B needs both stop commands. */
-  memset (req, 0, sizeof (req));
-  req[0] = 0x42;
-  req[1] = 0x01;
-
-  DBG (5, "gt6801_u16b_stop_scan: stopping scan\n");
-  for (count = 0; count < 20; count++)
-    {  
-      memset (req, 0, sizeof (req));
-      req[0] = 0x42;
-      req[1] = 0x01;
-      RIE (gt68xx_device_req (dev, req, req));
-      if (gt68xx_device_check_result (req, 0x42) == SANE_STATUS_GOOD)
-	break;
-      DBG (7, "gt6801_u16b_stop_scan: failed, count = %d\n", count);
-    }
-  if (count <= 20)
-    {
-      DBG (7, "gt6801_u16b_stop_scan: succeeded\n");
-      memset (req, 0, sizeof (req));
-      req[0] = 0x41;
-      req[1] = 0x01;
-      return gt68xx_device_small_req (dev, req, req);
-    }
-
-  return SANE_STATUS_IO_ERROR;
-}
 
 SANE_Status
 gt6801_setup_scan (GT68xx_Device * dev,
 		   GT68xx_Scan_Request * request,
 		   GT68xx_Scan_Action action, GT68xx_Scan_Parameters * params)
 {
-  DECLARE_FUNCTION_NAME ("gt6801_setup_scan") SANE_Status status;
+  SANE_Status status;
   GT68xx_Model *model;
   SANE_Int xdpi, ydpi;
   SANE_Bool color;
@@ -371,10 +298,10 @@ gt6801_setup_scan (GT68xx_Device * dev,
   SANE_Fixed x0, y0, xs, ys;
   SANE_Bool backtrack = SANE_FALSE;
 
-  XDBG ((6, "%s: enter (action=%s)\n", function_name,
+  DBG (6, "gt6801_setup_scan: enter (action=%s)\n",
 	 action == SA_CALIBRATE ? "calibrate" :
 	 action == SA_CALIBRATE_ONE_LINE ? "calibrate one line" :
-	 action == SA_SCAN ? "scan" : "calculate only"));
+	 action == SA_SCAN ? "scan" : "calculate only");
 
   model = dev->model;
 
@@ -387,18 +314,14 @@ gt6801_setup_scan (GT68xx_Device * dev,
   base_xdpi = model->base_xdpi;
   base_ydpi = model->base_ydpi;
 
-#if 0
-  if (xdpi > model->base_xdpi)
-    base_xdpi = model->optical_xdpi;
-#endif
   if (!model->constant_ydpi)
     {
       if (ydpi > model->base_ydpi)
 	base_ydpi = model->optical_ydpi;
     }
 
-  XDBG ((6, "%s: base_xdpi=%d, base_ydpi=%d\n", function_name,
-	 base_xdpi, base_ydpi));
+  DBG (6, "gt6801_setup_scan: base_xdpi=%d, base_ydpi=%d\n",
+	 base_xdpi, base_ydpi);
 
   switch (action)
     {
@@ -410,7 +333,6 @@ gt6801_setup_scan (GT68xx_Device * dev,
 	ys = SANE_FIX (1.0 * MM_PER_INCH / ydpi);	/* 1 calibration line */
 	xs = request->xs;
 	depth = 8;
-	color = SANE_TRUE;
 	break;
       }
     case SA_CALIBRATE:
@@ -425,7 +347,6 @@ gt6801_setup_scan (GT68xx_Device * dev,
 	  y0 = 0;
 	ys = SANE_FIX (CALIBRATION_HEIGHT);
 	xs = request->xs;
-	color = request->color;
 	break;
       }
     case SA_SCAN:
@@ -436,14 +357,16 @@ gt6801_setup_scan (GT68xx_Device * dev,
 	else
 	  x0 = request->x0 + model->x_offset;
 	y0 = request->y0 + model->y_offset;
+	if (y0 < 0)
+	  y0 = 0;
 	ys = request->ys;
 	xs = request->xs;
-	backtrack = SANE_TRUE;
+	backtrack = request->backtrack;
 	break;
       }
 
     default:
-      XDBG ((3, "%s: invalid action=%d\n", function_name, (int) action));
+      DBG (3, "gt6801_setup_scan: invalid action=%d\n", (int) action);
       return SANE_STATUS_INVAL;
     }
 
@@ -452,20 +375,19 @@ gt6801_setup_scan (GT68xx_Device * dev,
   pixel_ys = SANE_UNFIX (ys) * ydpi / MM_PER_INCH + 0.5;
   pixel_xs = SANE_UNFIX (xs) * xdpi / MM_PER_INCH + 0.5;
 
-  XDBG ((6, "%s: xdpi=%d, ydpi=%d\n", function_name, xdpi, ydpi));
-  XDBG ((6, "%s: color=%s, depth=%d\n", function_name,
-	 color ? "TRUE" : "FALSE", depth));
-  XDBG ((6, "%s: pixel_x0=%d, pixel_y0=%d\n", function_name,
-	 pixel_x0, pixel_y0));
-  XDBG ((6, "%s: pixel_xs=%d, pixel_ys=%d\n", function_name,
-	 pixel_xs, pixel_ys));
-  XDBG ((6, "%s: backtrack=%d\n", function_name, backtrack));
+  DBG (6, "gt6801_setup_scan: xdpi=%d, ydpi=%d\n", xdpi, ydpi);
+  DBG (6, "gt6801_setup_scan: color=%s, depth=%d\n",
+	 color ? "TRUE" : "FALSE", depth);
+  DBG (6, "gt6801_setup_scan: pixel_x0=%d, pixel_y0=%d\n",
+	 pixel_x0, pixel_y0);
+  DBG (6, "gt6801_setup_scan: pixel_xs=%d, pixel_ys=%d\n",
+	 pixel_xs, pixel_ys);
 
   color_mode_code = 0x80;	/* What does this mean ? */
   if (color)
     color_mode_code |= (1 << 2);
   else
-    color_mode_code |= (1 << 1);
+    color_mode_code |= dev->gray_mode_color;
 
   if (depth > 12)
     color_mode_code |= (1 << 5);
@@ -474,8 +396,8 @@ gt6801_setup_scan (GT68xx_Device * dev,
       color_mode_code &= 0x7f;
       color_mode_code |= (1 << 4);
     }
-  XDBG ((6, "%s: color_mode_code = 0x%02X\n", function_name,
-	 color_mode_code));
+  DBG (6, "gt6801_setup_scan: color_mode_code = 0x%02X\n",
+	 color_mode_code);
 
   overscan_lines = 0;
   params->ld_shift_r = params->ld_shift_g = params->ld_shift_b = 0;
@@ -495,9 +417,9 @@ gt6801_setup_scan (GT68xx_Device * dev,
       params->ld_shift_g = ld_shift_g * ydpi / optical_ydpi;
       params->ld_shift_b = ld_shift_b * ydpi / optical_ydpi;
 
-      XDBG ((6, "%s: overscan=%d, ld=%d/%d/%d\n", function_name,
+      DBG (6, "gt6801_setup_scan: overscan=%d, ld=%d/%d/%d\n",
 	     overscan_lines, params->ld_shift_r, params->ld_shift_g,
-	     params->ld_shift_b));
+	     params->ld_shift_b);
     }
 
   if (action == SA_SCAN && xdpi >= model->optical_xdpi
@@ -509,17 +431,17 @@ gt6801_setup_scan (GT68xx_Device * dev,
 	overscan_lines += (params->ld_shift_double * 3);
       else
 	overscan_lines += params->ld_shift_double;
-      XDBG ((6, "%s: overscan=%d, ld double=%d\n", function_name,
-	     overscan_lines, params->ld_shift_double));
+      DBG (6, "gt6801_setup_scan: overscan=%d, ld double=%d\n",
+	     overscan_lines, params->ld_shift_double);
     }
 
 
-  XDBG ((6, "%s: base_xdpi=%d, base_ydpi=%d\n", function_name,
-	 base_xdpi, base_ydpi));
+  DBG (6, "gt6801_setup_scan: base_xdpi=%d, base_ydpi=%d\n",
+	 base_xdpi, base_ydpi);
 
   abs_x0 = pixel_x0 * base_xdpi / xdpi;
   abs_y0 = pixel_y0 * base_ydpi / ydpi;
-  XDBG ((6, "%s: abs_x0=%d, abs_y0=%d\n", function_name, abs_x0, abs_y0));
+  DBG (6, "gt6801_setup_scan: abs_x0=%d, abs_y0=%d\n", abs_x0, abs_y0);
 
   params->double_column = abs_x0 & 1;
 
@@ -528,7 +450,7 @@ gt6801_setup_scan (GT68xx_Device * dev,
   pixel_align = 32;		/* best case for depth = 16 */
   while ((depth * pixel_align) % (64 * 8) != 0)
     pixel_align *= 2;
-  XDBG ((6, "%s: pixel_align=%d\n", function_name, pixel_align));
+  DBG (6, "gt6801_setup_scan: pixel_align=%d\n", pixel_align);
 
   if (pixel_xs % pixel_align == 0)
     scan_xs = pixel_xs;
@@ -552,32 +474,31 @@ gt6801_setup_scan (GT68xx_Device * dev,
     abs_ys = 2;
   else
     abs_ys = scan_ys * base_ydpi / ydpi;
-  XDBG ((6, "%s: abs_xs=%d, abs_ys=%d\n", function_name, abs_xs, abs_ys));
+  DBG (6, "gt6801_setup_scan: abs_xs=%d, abs_ys=%d\n", abs_xs, abs_ys);
 
   if (model->is_cis)
     {
       line_mode = SANE_TRUE;
-      XDBG ((6, "%s: using line mode (CIS)\n", function_name));
+      DBG (6, "gt6801_setup_scan: using line mode (CIS)\n");
     }
   else
     {
       line_mode = SANE_FALSE;
       if (!color)
 	{
-	  XDBG ((6, "%s: using line mode for monochrome scan\n",
-		 function_name));
+	  DBG (6, "gt6801_setup_scan: using line mode for monochrome scan\n");
 	  line_mode = SANE_TRUE;
 	}
       else if (ydpi >= model->ydpi_force_line_mode)
 	{
-	  XDBG ((6, "%s: forcing line mode for ydpi=%d\n", function_name,
-		 ydpi));
+	  DBG (6, "gt6801_setup_scan: forcing line mode for ydpi=%d\n",
+	       ydpi);
 	  line_mode = SANE_TRUE;
 	}
       else if (ydpi == 600 && depth == 16)	/* XXX */
 	{
-	  XDBG ((6, "%s: forcing line mode for ydpi=%d, depth=%d\n",
-		 function_name, ydpi, depth));
+	  DBG (6, "gt6801_setup_scan: forcing line mode for ydpi=%d, depth=%d\n",
+		 ydpi, depth);
 	  line_mode = SANE_TRUE;
 	}
     }
@@ -587,27 +508,26 @@ gt6801_setup_scan (GT68xx_Device * dev,
       scan_ys *= 3;
 
 
-  XDBG ((6, "%s: scan_xs=%d, scan_ys=%d\n", function_name, scan_xs, scan_ys));
+  DBG (6, "gt6801_setup_scan: scan_xs=%d, scan_ys=%d\n", scan_xs, scan_ys);
 
   if (color && !line_mode)
     bits_per_line *= 3;
   if (bits_per_line % 8)	/* impossible */
     {
-      XDBG ((0, "%s: BUG: unaligned bits_per_line=%d\n", function_name,
-	     bits_per_line));
+      DBG (0, "gt6801_setup_scan: BUG: unaligned bits_per_line=%d\n",
+	     bits_per_line);
       return SANE_STATUS_INVAL;
     }
   scan_bpl = bits_per_line / 8;
 
   if (scan_bpl > 15600 && !line_mode)
     {
-      XDBG ((6, "%s: scan_bpl=%d, trying line mode\n", function_name,
-	     scan_bpl));
+      DBG (6, "gt6801_setup_scan: scan_bpl=%d, trying line mode\n",
+	     scan_bpl);
       line_mode = SANE_TRUE;
       if (scan_bpl % 3)
 	{
-	  XDBG ((0, "%s: BUG: monochrome scan in pixel mode?\n",
-		 function_name));
+	  DBG (0, "gt6801_setup_scan: BUG: monochrome scan in pixel mode?\n");
 	  return SANE_STATUS_INVAL;
 	}
       scan_bpl /= 3;
@@ -615,23 +535,31 @@ gt6801_setup_scan (GT68xx_Device * dev,
 
   if (scan_bpl % 64)		/* impossible */
     {
-      XDBG ((0, "%s: BUG: unaligned scan_bpl=%d\n", function_name, scan_bpl));
+      DBG (0, "gt6801_setup_scan: BUG: unaligned scan_bpl=%d\n", scan_bpl);
       return SANE_STATUS_INVAL;
     }
 
   if (scan_bpl > 15600)
     {
-      XDBG ((1, "%s: scan_bpl=%d, too large\n", function_name, scan_bpl));
+      DBG (1, "gt6801_setup_scan: scan_bpl=%d, too large\n", scan_bpl);
       return SANE_STATUS_INVAL;
     }
 
-  XDBG ((6, "%s: scan_bpl=%d\n", function_name, scan_bpl));
+  DBG (6, "gt6801_setup_scan: scan_bpl=%d\n", scan_bpl);
 
 
   if (!request->calculate)
     {
       GT68xx_Packet req;
       SANE_Byte motor_mode_1, motor_mode_2;
+
+      if ((dev->model->flags & GT68XX_FLAG_NO_LINEMODE) && line_mode)
+	{
+	  DBG (0, "gt6801_setup_scan: the scanner's memory is too small for "
+	       "that combination of resolution, dpi and width\n");
+	  return SANE_STATUS_NO_MEM;
+	}
+      DBG (6, "gt6801_setup_scan: backtrack=%d\n", backtrack);
 
       motor_mode_1 = (request->mbs ? 0 : 1) << 1;
       motor_mode_1 |= (request->mds ? 0 : 1) << 2;
@@ -640,8 +568,8 @@ gt6801_setup_scan (GT68xx_Device * dev,
 
       motor_mode_2 = (request->lamp ? 0 : 1) << 0;
       motor_mode_2 |= (line_mode ? 0 : 1) << 2;
-      XDBG ((6, "%s: motor_mode_1 = 0x%02X, motor_mode_2 = 0x%02X\n",
-	     function_name, motor_mode_1, motor_mode_2));
+      DBG (6, "gt6801_setup_scan: motor_mode_1 = 0x%02X, motor_mode_2 = 0x%02X\n",
+	     motor_mode_1, motor_mode_2);
 
       /* Fill in the setup command */
       memset (req, 0, sizeof (req));
@@ -671,20 +599,15 @@ gt6801_setup_scan (GT68xx_Device * dev,
       req[0x16] = LOBYTE (ydpi);
       req[0x17] = HIBYTE (ydpi);
       if (backtrack)
-	{
-	  if (model->is_cis)
-	    req[0x18] = 0x20;
-	  else
-	    req[0x18] = 0x3f;
-	}
+	req[0x18] = request->backtrack_lines;
       else
 	req[0x18] = 0x00;
 
       status = gt68xx_device_req (dev, req, req);
       if (status != SANE_STATUS_GOOD)
 	{
-	  XDBG ((1, "%s: setup request failed: %s\n", function_name,
-		 sane_strstatus (status)));
+	  DBG (1, "gt6801_setup_scan: setup request failed: %s\n",
+		 sane_strstatus (status));
 	  return status;
 	}
       RIE (gt68xx_device_check_result (req, 0x20));
@@ -703,7 +626,7 @@ gt6801_setup_scan (GT68xx_Device * dev,
   params->line_mode = line_mode;
   params->overscan_lines = overscan_lines;
 
-  XDBG ((6, "%s: leave: ok\n", function_name));
+  DBG (6, "gt6801_setup_scan: leave: ok\n");
   return SANE_STATUS_GOOD;
 }
 

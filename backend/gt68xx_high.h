@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
 
    Copyright (C) 2002 Sergey Vlasov <vsu@altlinux.ru>
-   Copyright (C) 2002 Henning Meier-Geinitz <henning@meier-geinitz.de>
+   Copyright (C) 2002-2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
    
    This file is part of the SANE package.
    
@@ -187,11 +187,13 @@ enum GT68xx_Option
 
   OPT_MODE_GROUP,
   OPT_MODE,
+  OPT_GRAY_MODE_COLOR,
   OPT_SOURCE,
   OPT_PREVIEW,
   OPT_BIT_DEPTH,
   OPT_RESOLUTION,
   OPT_LAMP_ON,
+  OPT_BACKTRACK,
 
   OPT_DEBUG_GROUP,
   OPT_AUTO_WARMUP,
@@ -200,6 +202,7 @@ enum GT68xx_Option
   OPT_COARSE_CAL_ONCE,
   OPT_QUALITY_CAL,
   OPT_FAST_PREVIEW,
+  OPT_BACKTRACK_LINES,
 
   OPT_ENHANCEMENT_GROUP,
   OPT_GAMMA_VALUE,
@@ -246,6 +249,11 @@ struct GT68xx_Scanner
   struct timeval start_time;		   /**< Time when the scan was started */
   SANE_Int bpp_list[5];			   /**< */
   SANE_Int *gamma_table;                   /**< Gray gamma table */
+#ifdef DEBUG_BRIGHTNESS
+  SANE_Int average_white;           /**< For debugging brightness problems */
+  SANE_Int max_white;
+  SANE_Int min_black;
+#endif
 };
 
 

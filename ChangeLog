@@ -1,3 +1,15 @@
+2004-06-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/gt68xx/gt68xx.TODO: New file. Lots of bugs and missing
+	  features for the gt68xx backend.
+	* backend/gt68xx.c backend/gt68xx_devices.c backend/gt68xx_generic.c
+	  backend/gt68xx_gt6801.c backend/gt68xx_gt6801.h backend/gt68xx_gt6816.c
+	  backend/gt68xx_high.c backend/gt68xx_high.h backend/gt68xx_low.c
+	  backend/gt68xx_low.h backend/gt68xx_mid.c doc/descriptions/gt68xx.desc
+	  doc/gt68xx/gt68xx.CHANGES: Updated to backend version 61. Lots
+	  of fixes for coarse calibration, scanning speed and several
+	  scanners. For details, see gt68xx.CHANGES.
+
 2004-06-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/.cvsignore: Added *.8.

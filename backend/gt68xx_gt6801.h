@@ -56,10 +56,6 @@ gt6801_download_firmware (GT68xx_Device * dev,
 			  SANE_Byte * data, SANE_Word size);
 
 static SANE_Status
-gt6801_u16b_download_firmware (GT68xx_Device * dev,
-			       SANE_Byte * data, SANE_Word size);
-
-static SANE_Status
 gt6801_get_power_status (GT68xx_Device * dev, SANE_Bool * power_ok);
 
 static SANE_Status
@@ -71,8 +67,6 @@ static SANE_Status gt6801_is_moving (GT68xx_Device * dev, SANE_Bool * moving);
 static SANE_Status gt6801_carriage_home (GT68xx_Device * dev);
 
 static SANE_Status gt6801_stop_scan (GT68xx_Device * dev);
-
-static SANE_Status gt6801_u16b_stop_scan (GT68xx_Device * dev);
 
 static SANE_Status
 gt6801_setup_scan (GT68xx_Device * dev,

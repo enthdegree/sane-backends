@@ -48,25 +48,35 @@
 
 #include "../include/sane/config.h"
 
-#define BUILD 60
+#define BUILD 61
 #define MAX_DEBUG
-#define WARMUP_TIME 30
+#define WARMUP_TIME 60
 #define CALIBRATION_HEIGHT 2.5
 
-#if 0
-#ifdef HAVE_SYS_SHM_H
+/* Use a reader process if possible (usually faster) */
+#if defined (HAVE_SYS_SHM_H) && (!defined (USE_PTHREAD)) && (!defined (HAVE_OS2_H))
 #define USE_FORK
 #define SHM_BUFFERS 10
-#endif
 #endif
 
 #define TUNE_CALIBRATOR
 
+/* Send coarse white or black calibration to stdout */
 #if 0
 #define SAVE_WHITE_CALIBRATION
 #endif
 #if 0
 #define SAVE_BLACK_CALIBRATION
+#endif
+
+/* Debug calibration, print total brightness of the scanned image */
+#if 0
+#define DEBUG_BRIGHTNESS
+#endif
+
+/* Debug calibration, print black mark values */
+#if 0
+#define DEBUG_BLACK
 #endif
 
 #include <ctype.h>
@@ -114,9 +124,16 @@ SANE_Bool little_endian;
 SANE_Bool debug_options = SANE_FALSE;
 
 static SANE_String_Const mode_list[] = {
-  SANE_I18N ("Color"),
-  SANE_I18N ("Gray"),
-  SANE_I18N ("Lineart"),
+  SANE_VALUE_SCAN_MODE_COLOR,
+  SANE_VALUE_SCAN_MODE_GRAY,
+  SANE_VALUE_SCAN_MODE_LINEART,
+  0
+};
+
+static SANE_String_Const gray_mode_list[] = {
+  GT68XX_COLOR_RED,
+  GT68XX_COLOR_GREEN,
+  GT68XX_COLOR_BLUE,
   0
 };
 
@@ -278,7 +295,7 @@ setup_scan_request (GT68xx_Scanner * s, GT68xx_Scan_Request * scan_request)
   if (s->val[OPT_FULL_SCAN].w == SANE_TRUE)
     {
       scan_request->x0 -= s->dev->model->x_offset;
-      scan_request->y0 -= (s->dev->model->y_offset - s->dev->model->y_offset_calib);
+      scan_request->y0 -= (s->dev->model->y_offset);
       scan_request->xs += s->dev->model->x_offset;
       scan_request->ys += s->dev->model->y_offset;
     }
@@ -293,12 +310,12 @@ setup_scan_request (GT68xx_Scanner * s, GT68xx_Scan_Request * scan_request)
   else
     scan_request->depth = 8;
 
-  if (strcmp (s->val[OPT_MODE].s, "Color") == 0)
+  if (strcmp (s->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_COLOR) == 0)
     scan_request->color = SANE_TRUE;
   else
     scan_request->color = SANE_FALSE;
 
-  if (strcmp (s->val[OPT_MODE].s, "Lineart") == 0)
+  if (strcmp (s->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_LINEART) == 0)
     {
       SANE_Int xs =
 	SANE_UNFIX (scan_request->xs) * scan_request->xdpi / MM_PER_INCH +
@@ -336,7 +353,7 @@ calc_parameters (GT68xx_Scanner * s)
   val = s->val[OPT_MODE].s;
 
   s->params.last_frame = SANE_TRUE;
-  if (strcmp (val, "Gray") == 0 || strcmp (val, "Lineart") == 0)
+  if (strcmp (val, SANE_VALUE_SCAN_MODE_GRAY) == 0 || strcmp (val, SANE_VALUE_SCAN_MODE_LINEART) == 0)
     s->params.format = SANE_FRAME_GRAY;
   else				/* Color */
     s->params.format = SANE_FRAME_RGB;
@@ -353,7 +370,7 @@ calc_parameters (GT68xx_Scanner * s)
       return status;
     }
 
-  if (strcmp (val, "Lineart") == 0)
+  if (strcmp (val, SANE_VALUE_SCAN_MODE_LINEART) == 0)
     s->params.depth = 1;
   else
     s->params.depth = scan_params.depth;
@@ -376,14 +393,6 @@ calc_parameters (GT68xx_Scanner * s)
   if (s->params.format == SANE_FRAME_RGB)
     s->params.bytes_per_line *= 3;
 
-  DBG (4, "calc_parameters: format=%d\n", s->params.format);
-  DBG (4, "calc_parameters: last frame=%d\n", s->params.last_frame);
-  DBG (4, "calc_parameters: lines=%d\n", s->params.lines);
-  DBG (4, "calc_parameters: pixels per line=%d\n", s->params.pixels_per_line);
-  DBG (4, "calc_parameters: bytes per line=%d\n", s->params.bytes_per_line);
-  DBG (4, "calc_parameters: Pixels %dx%dx%d\n",
-       s->params.pixels_per_line, s->params.lines, 1 << s->params.depth);
-
   DBG (5, "calc_parameters: exit\n");
   return status;
 }
@@ -398,7 +407,7 @@ create_bpp_list (GT68xx_Scanner * s, SANE_Int * bpp)
   s->bpp_list[0] = count;
   for (count = 0; bpp[count] != 0; count++)
     {
-      s->bpp_list[count + 1] = bpp[count];
+      s->bpp_list[s->bpp_list[0] - count] = bpp[count];
     }
   return SANE_STATUS_GOOD;
 }
@@ -445,7 +454,18 @@ init_options (GT68xx_Scanner * s)
   s->opt[OPT_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
   s->opt[OPT_MODE].size = max_string_size (mode_list);
   s->opt[OPT_MODE].constraint.string_list = mode_list;
-  s->val[OPT_MODE].s = strdup ("Gray");
+  s->val[OPT_MODE].s = strdup (SANE_VALUE_SCAN_MODE_GRAY);
+
+  /* scan mode */
+  s->opt[OPT_GRAY_MODE_COLOR].name = SANE_I18N ("gray-mode-color");
+  s->opt[OPT_GRAY_MODE_COLOR].title = SANE_I18N ("Gray mode color");
+  s->opt[OPT_GRAY_MODE_COLOR].desc = SANE_I18N ("Selects which scan color is used "
+						"gray mode (default: green).");
+  s->opt[OPT_GRAY_MODE_COLOR].type = SANE_TYPE_STRING;
+  s->opt[OPT_GRAY_MODE_COLOR].constraint_type = SANE_CONSTRAINT_STRING_LIST;
+  s->opt[OPT_GRAY_MODE_COLOR].size = max_string_size (gray_mode_list);
+  s->opt[OPT_GRAY_MODE_COLOR].constraint.string_list = gray_mode_list;
+  s->val[OPT_GRAY_MODE_COLOR].s = strdup (GT68XX_COLOR_GREEN);
 
   /* scan source */
   s->opt[OPT_SOURCE].name = SANE_NAME_SCAN_SOURCE;
@@ -503,7 +523,7 @@ init_options (GT68xx_Scanner * s)
     return SANE_STATUS_NO_MEM;
   dpi_list[0] = count;
   for (count = 0; model->ydpi_values[count] != 0; count++)
-    dpi_list[count + 1] = model->ydpi_values[count];
+    dpi_list[dpi_list[0] - count] = model->ydpi_values[count];
   s->opt[OPT_RESOLUTION].name = SANE_NAME_SCAN_RESOLUTION;
   s->opt[OPT_RESOLUTION].title = SANE_TITLE_SCAN_RESOLUTION;
   s->opt[OPT_RESOLUTION].desc = SANE_DESC_SCAN_RESOLUTION;
@@ -512,6 +532,13 @@ init_options (GT68xx_Scanner * s)
   s->opt[OPT_RESOLUTION].constraint_type = SANE_CONSTRAINT_WORD_LIST;
   s->opt[OPT_RESOLUTION].constraint.word_list = dpi_list;
   s->val[OPT_RESOLUTION].w = 300;
+
+  /* backtrack */
+  s->opt[OPT_BACKTRACK].name = SANE_NAME_BACKTRACK;
+  s->opt[OPT_BACKTRACK].title = SANE_TITLE_BACKTRACK;
+  s->opt[OPT_BACKTRACK].desc = SANE_DESC_BACKTRACK;
+  s->opt[OPT_BACKTRACK].type = SANE_TYPE_BOOL;
+  s->val[OPT_BACKTRACK].w = SANE_FALSE;
 
   /* "Debug" group: */
   s->opt[OPT_DEBUG_GROUP].title = SANE_I18N ("Debugging Options");
@@ -528,7 +555,7 @@ init_options (GT68xx_Scanner * s)
   s->opt[OPT_AUTO_WARMUP].title = SANE_I18N ("Automatic warmup");
   s->opt[OPT_AUTO_WARMUP].desc = 
     SANE_I18N ("Warm-up until the lamp's brightness is constant "
-	       "instead of insisting on 30 seconds warm-up time.");
+	       "instead of insisting on 60 seconds warm-up time.");
   s->opt[OPT_AUTO_WARMUP].type = SANE_TYPE_BOOL;
   s->opt[OPT_AUTO_WARMUP].unit = SANE_UNIT_NONE;
   s->opt[OPT_AUTO_WARMUP].constraint_type = SANE_CONSTRAINT_NONE;
@@ -602,6 +629,25 @@ init_options (GT68xx_Scanner * s)
   s->val[OPT_FAST_PREVIEW].w = SANE_TRUE;
   if (!debug_options)
     DISABLE (OPT_FAST_PREVIEW);
+
+  /* backtrack lines */
+  s->opt[OPT_BACKTRACK_LINES].name = "backtrack-lines";
+  s->opt[OPT_BACKTRACK_LINES].title = SANE_I18N("Backtrack lines");
+  s->opt[OPT_BACKTRACK_LINES].desc = 
+    SANE_I18N ("Number of lines the scan slider moves back when backtracking "
+	       "occurs. That happens when the scanner scans faster than the "
+	       "computer can receive the data. Low values cause fasetr scans "
+	       "but increase the risk of ommitting lines.");
+  s->opt[OPT_BACKTRACK_LINES].type = SANE_TYPE_INT;
+  s->opt[OPT_BACKTRACK_LINES].unit = SANE_UNIT_NONE;
+  s->opt[OPT_BACKTRACK_LINES].constraint_type = SANE_CONSTRAINT_RANGE;
+  s->opt[OPT_BACKTRACK_LINES].constraint.range = &u8_range;
+  if (s->dev->model->is_cis)
+    s->val[OPT_BACKTRACK_LINES].w = 0x10;
+  else
+    s->val[OPT_BACKTRACK_LINES].w = 0x3f;
+  if (!debug_options)
+    DISABLE (OPT_BACKTRACK_LINES);
 
   /* "Enhancement" group: */
   s->opt[OPT_ENHANCEMENT_GROUP].title = SANE_I18N ("Enhancement");
@@ -1314,6 +1360,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   s->first_scan = SANE_TRUE;
   s->gamma_table = 0;
   RIE (init_options (s));
+  dev->gray_mode_color = 0x02;
 
   DBG (5, "sane_open: exit\n");
 
@@ -1422,6 +1469,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_GAIN:
 	case OPT_QUALITY_CAL:
 	case OPT_FAST_PREVIEW:
+	case OPT_BACKTRACK:
+	case OPT_BACKTRACK_LINES:
 	case OPT_PREVIEW:
 	case OPT_LAMP_ON:
 	case OPT_AUTO_WARMUP:
@@ -1435,8 +1484,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  break;
 	  /* string options: */
 	case OPT_MODE:
-	  strcpy (val, s->val[option].s);
-	  break;
+	case OPT_GRAY_MODE_COLOR:
 	case OPT_SOURCE:
 	  strcpy (val, s->val[option].s);
 	  break;
@@ -1480,12 +1528,21 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_LAMP_ON:
 	case OPT_AUTO_WARMUP:
 	case OPT_COARSE_CAL_ONCE:
+	case OPT_BACKTRACK_LINES:
 	case OPT_OFFSET:
 	case OPT_GAIN:
 	case OPT_QUALITY_CAL:
 	case OPT_GAMMA_VALUE:
 	case OPT_THRESHOLD:
 	  s->val[option].w = *(SANE_Word *) val;
+	  break;
+	case OPT_GRAY_MODE_COLOR:
+	  if (strcmp (s->val[option].s, val) != 0)
+	    {			/* something changed */
+	      if (s->val[option].s)
+		free (s->val[option].s);
+	      s->val[option].s = strdup (val);
+	    }
 	  break;
 	case OPT_SOURCE:
 	  if (strcmp (s->val[option].s, val) != 0)
@@ -1515,18 +1572,25 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  if (s->val[option].s)
 	    free (s->val[option].s);
 	  s->val[option].s = strdup (val);
-	  if (strcmp (s->val[option].s, "Lineart") == 0)
+	  if (strcmp (s->val[option].s, SANE_VALUE_SCAN_MODE_LINEART) == 0)
 	    {
 	      ENABLE (OPT_THRESHOLD);
 	      DISABLE (OPT_BIT_DEPTH);
+	      ENABLE (OPT_GRAY_MODE_COLOR);
 	    }
 	  else
 	    {
 	      DISABLE (OPT_THRESHOLD);
-	      if (strcmp (s->val[option].s, "Gray") == 0)
-		RIE (create_bpp_list (s, s->dev->model->bpp_gray_values));
+	      if (strcmp (s->val[option].s, SANE_VALUE_SCAN_MODE_GRAY) == 0)
+		{
+		  RIE (create_bpp_list (s, s->dev->model->bpp_gray_values));
+		  ENABLE (OPT_GRAY_MODE_COLOR);
+		}
 	      else
-		RIE (create_bpp_list (s, s->dev->model->bpp_color_values));
+		{
+		  RIE (create_bpp_list (s, s->dev->model->bpp_color_values));
+		  DISABLE (OPT_GRAY_MODE_COLOR);
+		}
 	      if (s->bpp_list[0] < 2)
 		DISABLE (OPT_BIT_DEPTH);
 	      else
@@ -1547,6 +1611,15 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    {
 	      DISABLE (OPT_COARSE_CAL_ONCE);
 	    }
+	  myinfo |= SANE_INFO_RELOAD_OPTIONS;
+	  break;
+
+	case OPT_BACKTRACK:
+	  s->val[option].w = *(SANE_Word *) val;
+	  if (s->val[option].w == SANE_TRUE)
+	    ENABLE (OPT_BACKTRACK_LINES);
+	  else
+	    DISABLE (OPT_BACKTRACK_LINES);
 	  myinfo |= SANE_INFO_RELOAD_OPTIONS;
 	  break;
 
@@ -1580,6 +1653,13 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   if (params)
     *params = s->params;
 
+  DBG (4, "sane_get_parameters: format=%d, last_frame=%d, lines=%d\n",
+       s->params.format, s->params.last_frame, s->params.lines);
+  DBG (4, "sane_get_parameters: pixels_per_line=%d, bytes per line=%d\n",
+       s->params.pixels_per_line, s->params.bytes_per_line);
+  DBG (3, "sane_get_parameters: pixels %dx%dx%d\n",
+       s->params.pixels_per_line, s->params.lines, 1 << s->params.depth);
+
   DBG (5, "sane_get_parameters: exit\n");
 
   return SANE_STATUS_GOOD;
@@ -1612,6 +1692,13 @@ sane_start (SANE_Handle handle)
       return SANE_STATUS_INVAL;
     }
 
+  if (strcmp (s->val[OPT_GRAY_MODE_COLOR].s, GT68XX_COLOR_BLUE) == 0)
+    s->dev->gray_mode_color = 0x01;
+  else if (strcmp (s->val[OPT_GRAY_MODE_COLOR].s, GT68XX_COLOR_GREEN) == 0)
+    s->dev->gray_mode_color = 0x02;
+  else
+    s->dev->gray_mode_color = 0x03;
+    
   setup_scan_request (s, &scan_request);
   if (!s->first_scan && s->val[OPT_COARSE_CAL_ONCE].w == SANE_TRUE)
     s->auto_afe = SANE_FALSE;
@@ -1650,6 +1737,21 @@ sane_start (SANE_Handle handle)
   gt68xx_scanner_wait_for_positioning (s);
   gettimeofday (&s->start_time, 0);
 
+  if (s->val[OPT_BACKTRACK].w == SANE_TRUE)
+    scan_request.backtrack = SANE_TRUE;
+  else
+    {
+      if (s->val[OPT_RESOLUTION].w >= s->dev->model->ydpi_no_backtrack)
+	scan_request.backtrack = SANE_FALSE;
+      else
+	scan_request.backtrack = SANE_TRUE;
+    }
+    
+  if (scan_request.backtrack)
+    scan_request.backtrack_lines = s->val[OPT_BACKTRACK_LINES].w;
+  else
+    scan_request.backtrack_lines = 0;
+
   RIE (gt68xx_scanner_calibrate (s, &scan_request));
   RIE (gt68xx_scanner_start_scan (s, &scan_request, &scan_params));
   for (i = 0; i < scan_params.overscan_lines; ++i)
@@ -1664,7 +1766,15 @@ sane_start (SANE_Handle handle)
   s->byte_count = s->reader->params.pixel_xs;
   s->total_bytes = 0;
   s->first_scan = SANE_FALSE;
+
+#ifdef DEBUG_BRIGHTNESS
+  s->average_white = 0;
+  s->max_white = 0;
+  s->min_black = 255;
+#endif
+
   s->scanning = SANE_TRUE;
+
   DBG (5, "sane_start: exit\n");
   return SANE_STATUS_GOOD;
 }
@@ -1724,7 +1834,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   else
     inflate_x = 1;
 
-  lineart = (strcmp (s->val[OPT_MODE].s, "Lineart") == 0)
+  lineart = (strcmp (s->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_LINEART) == 0)
     ? SANE_TRUE : SANE_FALSE;
 
   if (s->reader->params.color)
@@ -1826,6 +1936,11 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	      buf[*len] = (buffer_pointers[color][s->byte_count] >> 8) & 0xff;
 	      if (s->total_bytes % (inflate_x * 3) == (inflate_x * 3 - 1))
 		s->byte_count++;
+#ifdef DEBUG_BRIGHTNESS
+	      s->average_white += buf[*len];
+	      s->max_white = (buf[*len] > s->max_white) ? buf[*len] : s->max_white;
+	      s->min_black = (buf[*len] < s->min_black) ? buf[*len] : s->min_black;
+#endif
 	    }
 	}
       else
@@ -1895,6 +2010,11 @@ sane_cancel (SANE_Handle handle)
 	  DBG (3,
 	       "sane_cancel: scan finished, scanned %d bytes in %d seconds\n",
 	       s->total_bytes, secs);
+#ifdef DEBUG_BRIGHTNESS
+	  DBG (1, "sane_cancel: average white: %d, max_white=%d, min_black=%d\n",
+	       s->average_white / s->total_bytes, s->max_white, s->min_black);
+#endif
+
 	}
       gt68xx_scanner_stop_scan (s);
       gt68xx_scanner_wait_for_positioning (s);

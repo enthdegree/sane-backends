@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
 
    Copyright (C) 2002 Sergey Vlasov <vsu@altlinux.ru>
-   Copyright (C) 2002, 2003 Henning Meier-Geinitz <henning@meier-geinitz.de>
+   Copyright (C) 2002 - 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
    
    This file is part of the SANE package.
    
@@ -477,7 +477,6 @@ gt68xx_device_memory_write (GT68xx_Device * dev,
       DBG (3, "gt68xx_device_memory_write: sanei_usb_control_msg failed: %s\n",
 	   sane_strstatus (status));
     }
-
   return status;
 }
 
@@ -758,14 +757,13 @@ gt68xx_device_read_raw (GT68xx_Device * dev, SANE_Byte * buffer,
   DBG (7, "gt68xx_device_read_raw: enter: size=%lu\n", (unsigned long) *size);
 
   status = sanei_usb_read_bulk (dev->fd, buffer, size);
-
+  
   if (status != SANE_STATUS_GOOD)
     {
       DBG (3, "gt68xx_device_read_raw: bulk read failed: %s\n",
 	   sane_strstatus (status));
       return status;
     }
-
   DBG (7, "gt68xx_device_read_raw: leave: size=%lu\n", (unsigned long) *size);
 
   return SANE_STATUS_GOOD;
@@ -839,10 +837,10 @@ gt68xx_device_read_prepare (GT68xx_Device * dev, size_t expected_count,
 
 #ifdef USE_FORK
 
-static void
+static SANE_Status
 gt68xx_reader_process (GT68xx_Device * dev)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   SANE_Int buffer_id;
   SANE_Byte *buffer_addr;
   size_t size;
@@ -879,8 +877,11 @@ gt68xx_reader_process (GT68xx_Device * dev)
       line++;
     }
   DBG (9, "gt68xx_reader_process: finished, now sleeping\n");
+  if (status != SANE_STATUS_GOOD)
+    return status;
   sleep (5 * 60);		/* wait until we are killed (or timeout) */
   shm_channel_writer_close (dev->shm_channel);
+  return status;
 }
 
 static SANE_Status
@@ -919,8 +920,8 @@ gt68xx_device_read_start_fork (GT68xx_Device * dev)
   if (pid == 0)
     {
       /* Child process */
-      gt68xx_reader_process (dev);
-      _exit (0);
+      status = gt68xx_reader_process (dev);
+      _exit (status);
     }
   else
     {
@@ -1040,6 +1041,8 @@ gt68xx_device_read (GT68xx_Device * dev, SANE_Byte * buffer, size_t * size)
 SANE_Status
 gt68xx_device_read_finish (GT68xx_Device * dev)
 {
+  SANE_Status status = SANE_STATUS_GOOD;
+
   CHECK_DEV_ACTIVE (dev, "gt68xx_device_read_finish");
 
   if (!dev->read_active)
@@ -1054,11 +1057,13 @@ gt68xx_device_read_finish (GT68xx_Device * dev)
 #ifdef USE_FORK
   if (dev->reader_pid != 0)
     {
-      int status;
+      int pid_status;
       /* usleep (100000);*/
       DBG (7, "gt68xx_device_read_finish: trying to kill reader process\n");
       kill (dev->reader_pid, SIGKILL);
-      waitpid (dev->reader_pid, &status, 0);
+      waitpid (dev->reader_pid, &pid_status, 0);
+      if (WIFEXITED(pid_status))
+	status = WEXITSTATUS(pid_status);
       DBG (7, "gt68xx_device_read_finish: reader process killed\n");
       dev->reader_pid = 0;
     }
@@ -1075,7 +1080,8 @@ gt68xx_device_read_finish (GT68xx_Device * dev)
 
   dev->read_active = SANE_FALSE;
 
-  return SANE_STATUS_GOOD;
+  DBG (7, "gt68xx_device_read_finish: exit (%s)\n", sane_strstatus (status));
+  return status;
 }
 
 static SANE_Status

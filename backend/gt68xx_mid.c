@@ -53,19 +53,19 @@ static SANE_Status
 gt68xx_delay_buffer_init (GT68xx_Delay_Buffer * delay,
 			  SANE_Int pixels_per_line, SANE_Int delay_count)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_delay_buffer_init") SANE_Int bytes_per_line;
+  SANE_Int bytes_per_line;
   SANE_Int line_count, i;
 
   if (pixels_per_line <= 0)
     {
-      XDBG ((3, "%s: BUG: pixels_per_line=%d\n",
-	     function_name, pixels_per_line));
+      DBG (3, "gt68xx_delay_buffer_init: BUG: pixels_per_line=%d\n",
+	     pixels_per_line);
       return SANE_STATUS_INVAL;
     }
 
   if (delay_count < 0)
     {
-      XDBG ((3, "%s: BUG: delay_count=%d\n", function_name, delay_count));
+      DBG (3, "gt68xx_delay_buffer_init: BUG: delay_count=%d\n", delay_count);
       return SANE_STATUS_INVAL;
     }
 
@@ -78,7 +78,7 @@ gt68xx_delay_buffer_init (GT68xx_Delay_Buffer * delay,
   delay->mem_block = (SANE_Byte *) malloc (bytes_per_line * line_count);
   if (!delay->mem_block)
     {
-      XDBG ((3, "%s: no memory for delay block\n", function_name));
+      DBG (3, "gt68xx_delay_buffer_init: no memory for delay block\n");
       return SANE_STATUS_NO_MEM;
     }
   /* make sure that we will see if one of the unitialized lines get displayed */
@@ -90,7 +90,7 @@ gt68xx_delay_buffer_init (GT68xx_Delay_Buffer * delay,
   if (!delay->lines)
     {
       free (delay->mem_block);
-      XDBG ((3, "%s: no memory for delay line pointers\n", function_name));
+      DBG (3, "gt68xx_delay_buffer_init: no memory for delay line pointers\n");
       return SANE_STATUS_NO_MEM;
     }
 
@@ -975,19 +975,19 @@ gt68xx_line_reader_new (GT68xx_Device * dev,
 			SANE_Bool final_scan,
 			GT68xx_Line_Reader ** reader_return)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_line_reader_new") SANE_Status status;
+  SANE_Status status;
   GT68xx_Line_Reader *reader;
   SANE_Int image_size;
   SANE_Int scan_bpl_full;
 
-  XDBG ((6, "%s: enter\n", function_name));
+  DBG (6, "gt68xx_line_reader_new: enter\n");
 
   *reader_return = NULL;
 
   reader = (GT68xx_Line_Reader *) malloc (sizeof (GT68xx_Line_Reader));
   if (!reader)
     {
-      XDBG ((3, "%s: cannot allocate GT68xx_Line_Reader\n", function_name));
+      DBG (3, "gt68xx_line_reader_new: cannot allocate GT68xx_Line_Reader\n");
       return SANE_STATUS_NO_MEM;
     }
   memset (reader, 0, sizeof (GT68xx_Line_Reader));
@@ -1002,8 +1002,8 @@ gt68xx_line_reader_new (GT68xx_Device * dev,
   status = gt68xx_line_reader_init_delays (reader);
   if (status != SANE_STATUS_GOOD)
     {
-      XDBG ((3, "%s: cannot allocate line buffers: %s\n",
-	     function_name, sane_strstatus (status)));
+      DBG (3, "gt68xx_line_reader_new: cannot allocate line buffers: %s\n",
+	     sane_strstatus (status));
       free (reader);
       return status;
     }
@@ -1100,8 +1100,8 @@ gt68xx_line_reader_new (GT68xx_Device * dev,
 
   if (reader->read == NULL)
     {
-      XDBG ((3, "%s: unsupported bit depth (%d)\n",
-	     function_name, reader->params.depth));
+      DBG (3, "gt68xx_line_reader_new: unsupported bit depth (%d)\n",
+	     reader->params.depth);
       gt68xx_line_reader_free_delays (reader);
       free (reader);
       return SANE_STATUS_UNSUPPORTED;
@@ -1115,7 +1115,7 @@ gt68xx_line_reader_new (GT68xx_Device * dev,
   reader->pixel_buffer = malloc (scan_bpl_full);
   if (!reader->pixel_buffer)
     {
-      XDBG ((3, "%s: cannot allocate pixel buffer\n", function_name));
+      DBG (3, "gt68xx_line_reader_new: cannot allocate pixel buffer\n");
       gt68xx_line_reader_free_delays (reader);
       free (reader);
       return SANE_STATUS_NO_MEM;
@@ -1128,15 +1128,15 @@ gt68xx_line_reader_new (GT68xx_Device * dev,
   status = gt68xx_device_read_prepare (reader->dev, image_size, final_scan);
   if (status != SANE_STATUS_GOOD)
     {
-      XDBG ((3, "%s: gt68xx_device_read_prepare failed: %s\n",
-	     function_name, sane_strstatus (status)));
+      DBG (3, "gt68xx_line_reader_new: gt68xx_device_read_prepare failed: %s\n",
+	   sane_strstatus (status));
       free (reader->pixel_buffer);
       gt68xx_line_reader_free_delays (reader);
       free (reader);
       return status;
     }
 
-  XDBG ((6, "%s: leave: ok\n", function_name));
+  DBG (6, "gt68xx_line_reader_new: leave: ok\n");
   *reader_return = reader;
   return SANE_STATUS_GOOD;
 }
@@ -1144,9 +1144,9 @@ gt68xx_line_reader_new (GT68xx_Device * dev,
 SANE_Status
 gt68xx_line_reader_free (GT68xx_Line_Reader * reader)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_line_reader_free") SANE_Status status;
+  SANE_Status status;
 
-  XDBG ((6, "%s: enter\n", function_name));
+  DBG (6, "gt68xx_line_reader_free: enter\n");
 
   gt68xx_line_reader_free_delays (reader);
 
@@ -1159,13 +1159,13 @@ gt68xx_line_reader_free (GT68xx_Line_Reader * reader)
   status = gt68xx_device_read_finish (reader->dev);
   if (status != SANE_STATUS_GOOD)
     {
-      XDBG ((3, "%s: gt68xx_device_read_finish failed: %s\n",
-	     function_name, sane_strstatus (status)));
+      DBG (3, "gt68xx_line_reader_free: gt68xx_device_read_finish failed: %s\n",
+	     sane_strstatus (status));
     }
 
   free (reader);
 
-  XDBG ((6, "%s: leave\n", function_name));
+  DBG (6, "gt68xx_line_reader_free: leave\n");
   return status;
 }
 

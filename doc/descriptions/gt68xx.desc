@@ -1,5 +1,5 @@
 :backend "gt68xx"
-:version "1.0-60"
+:version "1.0-61"
 :manpage "sane-gt68xx"
 :url "http://www.meier-geinitz.de/sane/gt68xx-backend/"
 :comment "Only the USB scanners mentioned below are supported. For other Mustek BearPaws, look at the Plustek and the MA-1509 backend."
@@ -64,9 +64,9 @@
 :comment "Works."
 
 :model "Colorpage Vivid4x"
-:status :basic
+:status :good
 :interface "USB"
-:comment "Should work but has limited testing. Please contact me if you own such a device."
+:comment "Works."
 
 :model "Colorpage Vivid4xe"
 :status :basic
@@ -186,7 +186,7 @@
 :model "BearPaw 2448 CS Plus"
 :interface "USB"
 :status :good
-:comment "Actually untested, but should be the same as 2448 TA Plus, but without TA."
+:comment "Same as 2448 TA Plus, but without TA."
 
 :model "BearPaw 2448 TA Plus"
 :interface "USB"
@@ -209,7 +209,8 @@
 
 :model "ScanExpress A3 USB"
 :interface "USB"
-:status :good
+:status :basic
+:comment "Still some vertical stripes."
 
 :model "ScanExpress 2400 USB"
 :interface "USB"
@@ -249,17 +250,14 @@
 :model "OpticPro 1248U"
 :interface "USB"
 :status :good
-:comment "Works up to 600 dpi."
 
 :model "OpticPro U16B"
 :interface "USB"
 :status :good
-:comment "Works upto 600 dpi."
 
 :model "OpticPro U16B+"
 :interface "USB"
-:status :untested
-:comment "Probably works. Please tell me if you own such a device."
+:status :good
 
 :model "OpticPro UT16B"
 :interface "USB"

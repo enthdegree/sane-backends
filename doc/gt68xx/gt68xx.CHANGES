@@ -1,9 +1,72 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0-61 (2004-06-18)
+
+* General:
+  * Re-enabled forked reader process when fork is not disabled. That's faster
+    with high resolutions and big scan widths.
+  * In gray and lineart mode the color to be used can be selected now.
+  * Resolution and depth lists are now in the "correct" order.
+  * Fixed "move to the end" bug when full scan is enabled.
+  * Used SANE_VALUE_SCAN_MODE_* macros.
+  * Added debugging code for brightness/calibration.
+  * Changed status of Genius Colorpage Vivid4x too good.
+  * Removed special command set for U16B (and Genesys Vivid4) as those scanners
+    are quite normal GT6816 devices.
+  * Removed special test for gt6816, 600 dpi, 16 bits -> linemode. The other
+    tests should change the settings to linemode if necessary.
+  * Added flag to indicate that a scanner doesn't support linemode. Print an error
+    if linemode is activated for that sort of scanners.
+  * Adjusted various debug levels.
+  * Added options to force backtracking and to set the number of lines to
+    backtrack.
+  * Increased default lamp-warmup time to 60 seconds. Also lamp-warmup doesn't
+    stop if lamp brightness is 0.
+  * reader_process returns an error now if read fails.
+  * Added gt68xx.TODO.
+  * Removed XDBG macros. Used DBG instead.
+  * Checks for correct gain and offset are in gt68xx_generic now.
+  * Fixed gain setting (including multiplier).
+  * Check for status of read_scanned_data every 10 ms. Avoids short stops before
+    scan data comes in.
+  * Added resolution limit for using backtracking.
+  * Reduced deafult CCD backtracking to 0x10 lines.
+* CCD coarse calibration:
+  * Check if calib has succeeded per color now (fewer loops).
+  * Added loop detection now.
+  * Use the brightest CCD element as max_white now.
+  * Added debugging DEFINE to check the position of the black mark.
+  * Print which color is currently calibrated.
+  * Changed debug messages.
+* CIS coarse calibration:
+  * Removed offset multiplier.
+  * Changed limits.
+  * Changed debug messages.
+  * Incresed exposure count.
+  * Removed special lamp-warmup in CIS calibration.
+  * CIS coarse calibration now does gain and offset at the same time
+    similar to CCD calibration. This change should avoid loops.
+  * Print which color is currently calibrated.
+* Mustek ScanExpress A3 USB:
+  * Fixed black mark.
+  * Use CCD calib now.
+  * Use inverted offset.
+  * Warm up for 10 seconds minimum.
+  * Fixes for geometry.
+* Plustek OpticPro U16B (and Genius Vivid 4):
+  * Linemode is not supported
+  * Reduced vertical res to 600 dpi.
+* Mustek BearPaw 1200 TA:
+  * Fixed position of black mark.
+* Mustek BearPaw 2448 TA Plus:
+  * Fixed position of black mark.
+* Mustek BearPaw 1200 CU:
+  * Increased start of white strip.
+
 V 1.0-60 (2004-04-19)
 
 * Mustek BearPaw 2448 TA PLUS:
-  - Fixed resolution settings (added missinf 200 dpi mode)
+  - Fixed resolution settings (added missing 200 dpi mode)
   - Fixed margins
   - Fixed black mark
   - Fixed TA margins

@@ -1,5 +1,7 @@
 2001-05-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
 	
+	* backend/as6e.desc: Changed status to alpha because backend
+	  isn't new any more.
 	* acinclude.m4 aclocal.m4 configure configure.in 
 	  include/sane/config.h.in: Fixed u_int* bug for Tru64 by
 	  including sys/bitypes.h.

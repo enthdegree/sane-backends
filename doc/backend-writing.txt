@@ -237,20 +237,27 @@ DOCUMENTATION
 CHECKLIST: SUBMITTING A NEW BACKEND 
 --------------------
 
-* Use the command "indent -gnu" to reformat your code according to the standard.
-* Add the backend name to dll.conf
+In sane-backends/
 * Add the author(s) name(s) to AUTHORS
 * Remove the backend name from PROJECT
 * Correct any related entries in TODO
-* Add the name of the man page (if any) to doc/.cvsignore
-* Move the description file from doc/descriptions-external/ to doc/descriptions/
-* Check that the description file is correct: cd doc; make html-pages
-* Check that the backend version is the same in the source and in the 
-  description file.
-* Check that the SANE license is in the backend source files.
-* In backend/Makefile.in, add the source file names and the .conf file
-  to DISTFILES.
 
+In sane-backends/backend/
+* Use the command "indent -gnu" to reformat your code according to the
+  standard.
+* Add the backend name to dll.conf
+* Check that the SANE license is in the backend source files.
+* Add the source file names and the .conf file
+  to DISTFILES in Makefile.in
+
+In sane-backends/doc/
+* Add the name of the man page to doc/.cvsignore
+* Add an entry for the man page in sane.man
+* Add the man page file in doc/Makefile.in
+* Move the description file from descriptions-external/ to doc/descriptions/
+* Check that the description file is correct: "cd doc; make html-pages" and check the html pages result with a browser.
+* Check that the backend version is the same in the source and in the
+  description file.
 
 
 INCLUDING INTO CVS

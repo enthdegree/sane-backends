@@ -1,3 +1,10 @@
+2002-01-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/abaton.desc backend/dmc.desc backend/m3096g.desc
+	  backend/mustek.c backend/sp15c.desc backend/v4l.desc:
+	  Updated broken URLs for which I could find new ones. Commented out
+	  all the others.
+
 2002-01-15  Peter Fales <peter@fales.com>
 	* backend/gphoto2.c:  Following yet another gphoto2 API change -
 	  converted gp_debug_printf to gp_log

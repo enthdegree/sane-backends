@@ -1,3 +1,8 @@
+2001-10-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/dll.c backend/dll.desc: HP/UX uses .sl for shared libs.
+	  Changed status to "stable". Increased version number.
+
 2001-10-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* TODO: Added possible saned problem with (not) fully qualified

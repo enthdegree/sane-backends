@@ -1,6 +1,6 @@
 /* sane-find-scanner.c
 
-   Copyright (C) 1997-2001 Oliver Rauch, Henning Meier-Geinitz, and others.
+   Copyright (C) 1997-2002 Oliver Rauch, Henning Meier-Geinitz, and others.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
@@ -19,23 +19,30 @@
 
  */
 
+#include "../include/sane/config.h"
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
-
 #include <sys/types.h>
+#include <sys/stat.h>
+#include <dirent.h>
+#include <errno.h>
 
-#include "../include/sane/config.h"
+#include "../include/sane/sanei.h"
 #include "../include/sane/sanei_scsi.h"
 #include "../include/sane/sanei_usb.h"
 
-#define BACKEND_NAME	findscanner
-#include "../include/sane/sanei_debug.h"
+#ifndef PATH_MAX
+# define PATH_MAX 1024
+#endif
 
 static const char *prog_name;
 
 static int verbose;
+
+static SANE_Bool unknown_found = SANE_FALSE;
 
 typedef struct
 {
@@ -48,12 +55,12 @@ scsiblk;
 #define set_inquiry_return_size(icb,val)	icb[0x04]=val
 #define IN_periph_devtype_cpu			0x03
 #define IN_periph_devtype_scanner		0x06
-#define get_inquiry_vendor(in, buf)		strncpy(buf, in + 0x08, 0x08)
-#define get_inquiry_product(in, buf)		strncpy(buf, in + 0x10, 0x010)
-#define get_inquiry_version(in, buf)		strncpy(buf, in + 0x20, 0x04)
-#define get_inquiry_periph_devtype(in)		(in[0] & 0x1f)
-#define get_inquiry_additional_length(in)	in[0x04]
-#define set_inquiry_length(out,n)		out[0x04]=n-5
+#define get_scsi_inquiry_vendor(in, buf)	strncpy(buf, in + 0x08, 0x08)
+#define get_scsi_inquiry_product(in, buf)	strncpy(buf, in + 0x10, 0x010)
+#define get_scsi_inquiry_version(in, buf)	strncpy(buf, in + 0x20, 0x04)
+#define get_scsi_inquiry_periph_devtype(in)	(in[0] & 0x1f)
+#define get_scsi_inquiry_additional_length(in)	in[0x04]
+#define set_scsi_inquiry_length(out,n)		out[0x04]=n-5
 
 static unsigned char inquiryC[] = {
   INQUIRY, 0x00, 0x00, 0x00, 0xff, 0x00
@@ -61,7 +68,6 @@ static unsigned char inquiryC[] = {
 static scsiblk inquiry = {
   inquiryC, sizeof (inquiryC)
 };
-
 
 static void
 usage (char *msg)
@@ -168,22 +174,22 @@ hexdump (const char *comment, unsigned char *buf, const int length)
 }
 
 static SANE_Status
-scanner_do_inquiry (unsigned char *buffer, int sfd)
+scanner_do_scsi_inquiry (unsigned char *buffer, int sfd)
 {
   size_t size;
   SANE_Status status;
 
-  DBG (5, "do_inquiry\n");
   memset (buffer, '\0', 256);	/* clear buffer */
 
-  size = 5;			/* first get only 5 bytes to get size of inquiry_return_block */
+  size = 5;			/* first get only 5 bytes to get size of 
+				   inquiry_return_block */
   set_inquiry_return_size (inquiry.cmd, size);
   status = sanei_scsi_cmd (sfd, inquiry.cmd, inquiry.size, buffer, &size);
 
   if (status != SANE_STATUS_GOOD)
     return (status);
 
-  size = get_inquiry_additional_length (buffer) + 5;
+  size = get_scsi_inquiry_additional_length (buffer) + 5;
 
   /* then get inquiry with actual size */
   set_inquiry_return_size (inquiry.cmd, size);
@@ -193,7 +199,8 @@ scanner_do_inquiry (unsigned char *buffer, int sfd)
 }
 
 static void
-scanner_identify_scanner (unsigned char *buffer, int sfd, char *devicename)
+scanner_identify_scsi_scanner (unsigned char *buffer, int sfd, 
+			       char *devicename)
 {
   unsigned char vendor[9];
   unsigned char product[17];
@@ -206,7 +213,7 @@ scanner_identify_scanner (unsigned char *buffer, int sfd, char *devicename)
     "CD-drive", "scanner", "optical-drive", "jukebox",
     "communicator"
   };
-  status = scanner_do_inquiry (buffer, sfd);
+  status = scanner_do_scsi_inquiry (buffer, sfd);
   if (status != SANE_STATUS_GOOD)
     {
       if (verbose)
@@ -217,17 +224,17 @@ scanner_identify_scanner (unsigned char *buffer, int sfd, char *devicename)
 
   if (verbose)
     hexdump ("Inquiry for device:", buffer,
-	     get_inquiry_additional_length (buffer) + 5);
+	     get_scsi_inquiry_additional_length (buffer) + 5);
 
-  devtype = get_inquiry_periph_devtype (buffer);
+  devtype = get_scsi_inquiry_periph_devtype (buffer);
   if (!verbose && devtype != IN_periph_devtype_scanner
       /* old HP scanners use the CPU id ... */
       && devtype != IN_periph_devtype_cpu)
     return;			/* no, continue searching */
 
-  get_inquiry_vendor ((char *) buffer, (char *) vendor);
-  get_inquiry_product ((char *) buffer, (char *) product);
-  get_inquiry_version ((char *) buffer, (char *) version);
+  get_scsi_inquiry_vendor ((char *) buffer, (char *) vendor);
+  get_scsi_inquiry_product ((char *) buffer, (char *) product);
+  get_scsi_inquiry_version ((char *) buffer, (char *) version);
 
   pp = &vendor[7];
   vendor[8] = '\0';
@@ -250,13 +257,136 @@ scanner_identify_scanner (unsigned char *buffer, int sfd, char *devicename)
   return;
 }
 
+static void
+check_scsi_file (char * file_name)
+{
+  int result;
+  int sfd;
+  unsigned char buffer[16384];
+
+  if (verbose)
+    printf ("%s: checking %s...", prog_name, file_name);
+	      
+  result = sanei_scsi_open (file_name, &sfd, NULL, NULL);
+  
+  if (verbose)
+    {
+      if (result != 0)
+	printf (" failed to open (%s)\n", sane_strstatus (result));
+      else
+	printf (" open ok\n");
+    }
+
+  if (result == SANE_STATUS_GOOD)
+    {
+      scanner_identify_scsi_scanner (buffer, sfd, file_name);
+      sanei_scsi_close (sfd);
+    }
+  return;
+}
+
+static void
+check_usb_file (char * file_name)
+{
+  SANE_Status result;
+  SANE_Word vendor, product;
+  SANE_Int fd;
+
+  if (verbose)
+    printf ("%s: checking %s...", prog_name, file_name);
+
+  result = sanei_usb_open (file_name, &fd);
+
+  if (result != SANE_STATUS_GOOD)
+    {
+      if (verbose)
+	printf (" failed to open (%s)\n", sane_strstatus (result));
+    }
+  else
+    {
+      result = sanei_usb_get_vendor_product (fd, &vendor, &product);
+      if (result == SANE_STATUS_GOOD)
+	{
+	  if (verbose)
+	    printf (" open ok, vendor and product ids were identified\n");
+	  printf ("%s: found USB scanner (vendor = 0x%04x, "
+		  "product = 0x%04x) at device %s\n", prog_name, vendor,
+		  product, file_name);
+	}
+      else
+	{
+	  if (verbose)
+	    printf (" open ok, but vendor and product could NOT be "
+		    "identified\n");
+	  printf ("%s: found USB scanner (UNKNOWN vendor and product) "
+		  "at device %s\n", prog_name, file_name);
+	  unknown_found = SANE_TRUE;
+	}
+      sanei_usb_close (fd);
+    }
+}
+
+static DIR *
+scan_directory (char * dir_name)
+{
+  struct stat stat_buf;
+  DIR *dir;
+  
+  if (verbose)
+    printf ("%s: scanning directory %s\n", prog_name, dir_name);
+  
+  if (stat (dir_name, &stat_buf) < 0)
+    {
+      if (verbose)
+	printf ("%s: cannot stat `%s' (%s)\n", prog_name,
+		dir_name, strerror (errno));
+      return 0;
+    }
+  if (!S_ISDIR (stat_buf.st_mode))
+    {
+      if (verbose)
+	printf ("%s: `%s' is not a directory\n", prog_name, dir_name);
+      return 0;
+    }
+  if ((dir = opendir (dir_name)) == 0)
+    {
+      if (verbose)
+	printf ("%s: cannot read directory `%s' (%s)\n", dir_name,
+		dir_name, strerror (errno));
+      return 0;
+    }
+  return dir;
+}
+
+static char *
+get_next_file (char * dir_name, DIR * dir)
+{
+  struct dirent *dir_entry;
+  static char file_name [PATH_MAX];
+
+  do 
+    {
+      dir_entry = readdir (dir);
+      if (!dir_entry)
+	return 0;
+    }
+  while (strcmp (dir_entry->d_name, ".") == 0 
+	 || strcmp (dir_entry->d_name, ".." ) == 0);
+  
+  if (strlen (dir_name) + strlen (dir_entry->d_name) + 1 > PATH_MAX)
+    {
+      if (verbose)
+	printf ("%s: filename too long\n", prog_name);
+      return 0;
+    }
+  sprintf (file_name, "%s%s", dir_name, dir_entry->d_name);
+  return file_name;
+}
+
 int
 main (int argc, char **argv)
 {
-  unsigned char buffer[16384];
   char **dev_list, **usb_dev_list, *dev_name, **ap;
-  int sfd;
-  SANE_Bool unknown_found = SANE_FALSE;
 
   prog_name = strrchr (argv[0], '/');
   if (prog_name)
@@ -461,6 +591,7 @@ main (int argc, char **argv)
 	"/dev/scg2e", "/dev/scg2f", "/dev/scg2g",
 	"/dev/sg/0", "/dev/sg/1", "/dev/sg/2", "/dev/sg/3",
 	"/dev/sg/4", "/dev/sg/5", "/dev/sg/6",
+	"/dev/scsi/scanner/", "/dev/scsi/processor/",
 #elif defined(HAVE_CAMLIB_H)
 	"/dev/scanner", "/dev/scanner0", "/dev/scanner1",
 	"/dev/pass0", "/dev/pass1", "/dev/pass2", "/dev/pass3",
@@ -552,78 +683,66 @@ main (int argc, char **argv)
     printf ("%s: searching for SCSI scanners:\n", prog_name);
   while ((dev_name = *dev_list++))
     {
-      int result;
+      if (strlen (dev_name) == 0)
+	continue; /* Empty device names ... */
 
-      if (verbose)
-	printf ("%s: checking %s...", prog_name, dev_name);
-
-      result = sanei_scsi_open (dev_name, &sfd, NULL, NULL);
-
-      if (verbose)
+      if (dev_name [strlen (dev_name) - 1] == '/')
 	{
-	  if (result != 0)
-	    printf (" failed to open (%s)\n", sane_strstatus (result));
-	  else
-	    printf (" open ok\n");
+	  /* check whole directories */
+	  DIR *dir;
+	  char * file_name;
+
+	  dir = scan_directory (dev_name);
+	  if (!dir)
+	    continue;
+
+	  while ((file_name = get_next_file (dev_name, dir)))
+	    check_scsi_file (file_name);
 	}
-
-      if (result == SANE_STATUS_GOOD)
+      else
 	{
-	  scanner_identify_scanner (buffer, sfd, dev_name);
-	  sanei_scsi_close (sfd);
+	  /* check device files */
+	  check_scsi_file (dev_name);
 	}
     }
   if (!check_sg ())
     {
       printf
 	("# If your scanner uses SCSI, you must have a driver for your SCSI\n"
-	 "# adapter and support for SCSI Generic (sg) in your Operating System\n"
+	 "# adapter and support for SCSI Generic (sg) in your operating system\n"
 	 "# in order for the scanner to be used with SANE. If your scanner is\n"
 	 "# NOT listed above, check that you have installed the drivers.\n\n");
     }
-
+  
   sanei_usb_init ();
   if (verbose)
     printf ("%s: searching for USB scanners:\n", prog_name);
+
   while ((dev_name = *usb_dev_list++))
     {
-      SANE_Status result;
-      SANE_Word vendor, product;
-      SANE_Int fd;
+      if (strlen (dev_name) == 0)
+	continue; /* Empty device names ... */
 
-      if (verbose)
-	printf ("%s: checking %s...", prog_name, dev_name);
-
-      result = sanei_usb_open (dev_name, &fd);
-
-      if (result != SANE_STATUS_GOOD)
+      if (dev_name [strlen (dev_name) - 1] == '/')
 	{
-	  if (verbose)
-	    printf (" failed to open (%s)\n", sane_strstatus (result));
+	  /* check whole directories */
+	  DIR *dir;
+	  char * file_name;
+
+	  dir = scan_directory (dev_name);
+	  if (!dir)
+	    continue;
+
+	  while ((file_name = get_next_file (dev_name, dir)))
+	    check_usb_file (file_name);
 	}
       else
 	{
-	  result = sanei_usb_get_vendor_product (fd, &vendor, &product);
-	  if (result == SANE_STATUS_GOOD)
-	    {
-	      if (verbose)
-		printf (" open ok, vendor and product ids were identified\n");
-	      printf ("%s: found USB scanner (vendor = 0x%04x, "
-		      "product = 0x%04x) at device %s\n", prog_name, vendor,
-		      product, dev_name);
-	    }
-	  else
-	    {
-	      if (verbose)
-		printf (" open ok, but vendor and product could NOT be "
-			"identified\n");
-	      printf ("%s: found USB scanner (UNKNOWN vendor and product) "
-		      "at device %s\n", prog_name, dev_name);
-	      unknown_found = SANE_TRUE;
-	    }
-	  sanei_usb_close (fd);
+	  /* check device files */
+	  check_usb_file (dev_name);
 	}
     }
+
   if (unknown_found)
     printf ("\n"
 	    "# `UNKNOWN vendor and product' means that there seems to be a scanner\n"

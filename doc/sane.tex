@@ -1487,10 +1487,9 @@ This function is used to read image data from the device represented
 by handle \code{h}.  Argument \code{buf} is a pointer to a memory area
 that is at least \code{maxlen} bytes long.  The number of bytes
 returned is stored in \code{*len}.  A backend must set this to zero
-when the call fails (i.e., when a status other than
-\code{SANE\_STA\-TUS\_GOOD} is returned).  When the call succeeds, the
-number of bytes returned can be anywhere in the range from 0 to
-\code{maxlen} bytes.
+when a status other than \code{SANE\_STA\-TUS\_GOOD} is returned.
+When the call succeeds, the number of bytes returned can be anywhere in
+the range from 0 to \code{maxlen} bytes.
 \begin{quote}\index{sane\_read}
 \begin{verbatim}
 SANE_Status sane_read (SANE_Handle h, SANE_Byte * buf,

@@ -48,10 +48,10 @@ The backend configuration file:
  @CONFIGDIR@/coolscan.conf. 
 
 The static library implementing this backend:
- @LIBDIR@/sane/libsane-coolscan.a
+ @LIBDIR@/libsane-coolscan.a
 
 The shared library implementing this backend:
- @LIBDIR@/sane/libsane-coolscan.so
+ @LIBDIR@/libsane-coolscan.so
  (present on systems that support dynamic loading)
 
 .SH ENVIRONMENT

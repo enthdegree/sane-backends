@@ -56,10 +56,10 @@ The backend configuration file (see also description of
 .B SANE_CONFIG_DIR
 below).
 .TP
-.I @LIBDIR@/sane/libsane-dc210.a
+.I @LIBDIR@/libsane-dc210.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/sane/libsane-dc210.so
+.I @LIBDIR@/libsane-dc210.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 

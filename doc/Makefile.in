@@ -61,7 +61,7 @@ all: sane.ps $(MANPAGES)
 	@sed -e 's|@DATADIR@|$(datadir)|g' \
 	     -e 's|@CONFIGDIR@|$(configdir)|g' \
 	     -e 's|@DOCDIR@|$(docdir)|g' \
-	     -e 's|@LIBDIR@|$(libdir)|g' \
+	     -e 's|@LIBDIR@|$(libdir)/sane|g' \
 	     -e 's|@BINDIR@|$(bindir)|g' \
 	     -e 's|@SBINDIR@|$(sbindir)|g' $^ >$@
 	@echo Generating manpage $@...

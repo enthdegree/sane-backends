@@ -1,3 +1,9 @@
+2000-10-30  Henning Meier-Geinitz <hmg@gmx.de>
+
+	* TODO: Updated. Added points about --without-x and the 
+	  #include <sane...> stuff. Added xcam problem. Changed entry for
+	  Relisys scanner.
+
 2000-10-30  Petter Reinholdtsen <pere@td.org.uit.no>
 
 	* frontend/xscanimage.c: Define GIMP_ENABLE_COMPAT_CRUFT when

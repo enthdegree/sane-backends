@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2004-01-11"		; version of backend
+:version "2004-01-13"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -237,7 +237,37 @@
 ;:url "/unsupported/canon-d2400uf.html"
 :interface "USB SCSI"
 :status :unsupported
-:comment "Probably not supported. Path-trough (ADF) scanner."
+:comment "Probably not supported. Pass-trough (ADF) scanner."
+
+:model "DR-3020C"
+;:url "/unsupported/canon-d2400uf.html"
+:interface "SCSI"
+:status :unsupported
+:comment "Not supported. High-speed pass-trough (ADF) scanner."
+
+:model "DR-3060"
+;:url "/unsupported/canon-d2400uf.html"
+:interface "SCSI"
+:status :unsupported
+:comment "Probably not supported. High-speed pass-trough (ADF) scanner."
+
+:model "DR-3080C"
+;:url "/unsupported/canon-d2400uf.html"
+:interface "SCSI"
+:status :unsupported
+:comment "Probably not supported. High-speed pass-trough (ADF) color scanner."
+
+:model "DR-6080"
+:url "/unsupported/canon-dr6080.html"
+:interface "SCSI"
+:status :unsupported
+:comment "Probably not supported. High-speed pass-trough (ADF) scanner."
+
+:model "DR-9080C"
+;:url "/unsupported/canon-d2400uf.html"
+:interface "SCSI"
+:status :unsupported
+:comment "Probably not supported. High-speed pass-trough (ADF) color scanner. Similar to DR-6080C, but can scan in color."
 
 :model "FS4000"
 :url "/unsupported/canon-fs4000.html"
@@ -500,6 +530,12 @@
 :url "/unsupported/hp-scanjet-3670c.html"
 :status :unsupported
 :comment "Probably unsupported. See link for more details."
+
+:model "ScanJet 3690c"
+:interface "USB"
+:url "/unsupported/hp-scanjet-3690.html"
+:status :unsupported
+:comment "Probably unsupported. No details available."
 
 :model "ScanJet 3970c"
 :interface "USB"
@@ -912,6 +948,11 @@
 :status :unsupported
 :comment "Not supported yet. GL646. May be supported later, see link for details."
 
+:model "OpticPro ST16"
+:url "/unsupported/plustek-opticpro-st16.html"
+:interface "USB"
+:status :unsupported
+
 :model "OpticPro S24"
 :url "/unsupported/plustek-opticpro-st24.html"
 :interface "USB"
@@ -1204,6 +1245,12 @@
 :interface "USB"
 :status :unsupported
 :comment "Not supported. No chipset information available. Same as Avision iVina FB2400."
+
+:model "AstraSlim"
+:url "/unsupported/umax-astraslim.html"
+:interface "USB"
+:status :unsupported
+:comment "Probably not supported currently. See link for more details."
 
 :model "AstraSlim 1200 SE"
 :url "/unsupported/umax-astraslim-1200-se.html"

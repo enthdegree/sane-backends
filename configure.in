@@ -104,7 +104,7 @@ AC_CHECK_HEADERS(fcntl.h unistd.h libc.h sys/dsreq.h sys/select.h \
     camlib.h os2.h sys/socket.h sys/io.h asm/io.h gscdds.h sys/hw.h \
     sys/types.h sys/scsi/scsi.h sys/scsi/sgdefs.h sys/scsi/targets/scgio.h \
     apollo/scsi.h sys/sdi_comm.h sys/passthrudef.h linux/ppdev.h usb.h \
-    sys/bitypes.h)
+    sys/bitypes.h, sys/sem.h)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -262,6 +262,14 @@ else
   SM3600=sm3600
 fi
 AC_SUBST(SM3600)
+if test "${ac_cv_header_sys_sem_h}" = "no" ; then
+  echo "disabling SnapScan backend"
+  SNAPSCAN=
+else
+  echo "enabling SnapScan backend"
+  SNAPSCAN=snapscan
+fi
+AC_SUBST(SNAPSCAN)
 
 if test "${enable_shared}" = "no"; then
   enable_preload=yes

@@ -1642,7 +1642,7 @@ if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
   cat >> confdefs.h <<EOF
 #define $ac_tr_hdr 1
 EOF
- 
+ sys/sem.h
 else
   echo "$ac_t""no" 1>&6
 fi
@@ -4318,6 +4318,14 @@ else
   SM3600=sm3600
 fi
 
+if test "${ac_cv_header_sys_sem_h}" = "no" ; then
+  echo "disabling SnapScan backend"
+  SNAPSCAN=
+else
+  echo "enabling SnapScan backend"
+  SNAPSCAN=snapscan
+fi
+
 
 if test "${enable_shared}" = "no"; then
   enable_preload=yes
@@ -4367,7 +4375,7 @@ fi
 # Extract the first word of "sane-config", so it can be a program name with args.
 set dummy sane-config; ac_word=$2
 echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
-echo "configure:4371: checking for $ac_word" >&5
+echo "configure:4379: checking for $ac_word" >&5
 if eval "test \"`echo '$''{'ac_cv_path_SANE_CONFIG_PATH'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -4401,7 +4409,7 @@ else
 fi
 
 echo $ac_n "checking for sane_init in -lsane""... $ac_c" 1>&6
-echo "configure:4405: checking for sane_init in -lsane" >&5
+echo "configure:4413: checking for sane_init in -lsane" >&5
 ac_lib_var=`echo sane'_'sane_init | sed 'y%./+-%__p_%'`
 if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
@@ -4409,7 +4417,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lsane  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 4413 "configure"
+#line 4421 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 /* We use char because int might match the return type of a gcc2
@@ -4420,7 +4428,7 @@ int main() {
 sane_init()
 ; return 0; }
 EOF
-if { (eval echo configure:4424: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+if { (eval echo configure:4432: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -4621,6 +4629,7 @@ s%@V4L@%$V4L%g
 s%@NET@%$NET%g
 s%@SANED@%$SANED%g
 s%@SM3600@%$SM3600%g
+s%@SNAPSCAN@%$SNAPSCAN%g
 s%@PNM@%$PNM%g
 s%@SANE_CONFIG_PATH@%$SANE_CONFIG_PATH%g
 s%@V_MAJOR@%$V_MAJOR%g

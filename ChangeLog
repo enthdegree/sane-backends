@@ -1,3 +1,7 @@
+2001-12-25  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* README.linux: Used "sane-find-scanner". Some minor changes.
+
 2001-12-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/mustek_usb.c backend/mustek_usb.conf backend/mustek_usb.desc

@@ -125,10 +125,11 @@ STATIC SANE_Bool CircBufferGetLine (int iHandle, TDataPipe * p,
 				    SANE_Bool iReversedHead);
 
 /* returns false, when trying to read after end of buffer 
-   if  pfJustDone!=NULL this element will be set SANE_TRUE, when the last scan was done*/
+   if fReturn==SANE_TRUE, the head will return automatically on an end of scan */
+
 STATIC SANE_Bool
 CircBufferGetLineEx (int iHandle, TDataPipe * p, unsigned char *pabLine,
-		     SANE_Bool iReversedHead, SANE_Bool * pfJustDone);
+		     SANE_Bool iReversedHead, SANE_Bool fReturn);
 
 STATIC void CircBufferExit (TDataPipe * p);
 

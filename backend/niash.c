@@ -1394,17 +1394,10 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
   /* time to read the next line? */
   if (s->iBytesLeft == 0)
     {
-      SANE_Bool fJustDone = SANE_FALSE;
       /* read a line from the transfer buffer */
       if (CircBufferGetLineEx (s->HWParams.iXferHandle, p, p->pabLineBuf,
-			       s->HWParams.iReversedHead, &fJustDone))
+			       s->HWParams.iReversedHead, SANE_TRUE))
 	{
-	  if (fJustDone)
-	    {
-	      DBG (DBG_MSG, "\n");
-	      DBG (DBG_MSG, "sane_read: returning cartridge\n");
-	      FinishScan (&s->HWParams);
-	    }
 	  pMode->adaptFormat (p->pabLineBuf, s->iPixelsPerLine,
 			      s->aValues[optThreshold].w);
 	  s->iBytesLeft = pMode->bytesPerLine (s->iPixelsPerLine);
@@ -1414,10 +1407,10 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
          because we try read after the end of the buffer */
       else
 	{
+	  FinishScan (&s->HWParams);
 	  CircBufferExit (p);
 	  free (p->pabLineBuf);
 	  p->pabLineBuf = NULL;
-	  FinishScan (&s->HWParams);
 	  *len = 0;
 	  DBG (DBG_MSG, "\n");
 	  DBG (DBG_MSG, "sane_read: read after end of buffer\n");

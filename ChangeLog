@@ -1,3 +1,8 @@
+2004-10-27  Ullrich Sigwanz <usigwanz@freesurf.ch>
+
+	* backend/niash_core.c backend/niash.c: moving critical timing
+          for backward movement to niash_core
+          
 2004-10-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc

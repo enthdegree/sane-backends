@@ -725,13 +725,10 @@ InitScan (TScanParams * pParams, THWParams * pHWParams)
 
 static SANE_Bool
 XferBufferGetLine (int iHandle, TDataPipe * p, unsigned char *pabLine,
-		   SANE_Bool * pfJustDone)
+		   SANE_Bool fReturn)
 {
-  unsigned char bData;
-  if (pfJustDone)
-    {
-      *pfJustDone = SANE_FALSE;
-    }
+  unsigned char bData, bData2;
+  SANE_Bool fJustDone = SANE_FALSE;
   /* all calculated transfers done ? */
   if (p->iLinesLeft == 0)
     return SANE_FALSE;
@@ -753,17 +750,21 @@ XferBufferGetLine (int iHandle, TDataPipe * p, unsigned char *pabLine,
 		   "reading reduced number of lines: %d instead of %d\n",
 		   iLines, p->iLinesPerXferBuf);
 	    }
-	  if (pfJustDone)
-	    {
-	      *pfJustDone = SANE_TRUE;
-	    }
+	  fJustDone = SANE_TRUE;
 	}
+      /* reading old buffer level */
       NiashReadReg (iHandle, 0x20, &bData);
-      DBG (DBG_MSG, "buffer level = %3d, <reading %5d unsigned chars>, ",
-	   (int) bData, iLines * p->iBytesPerLine);
       NiashReadBulk (iHandle, p->pabXferBuf, iLines * p->iBytesPerLine);
-      NiashReadReg (iHandle, 0x20, &bData);
-      DBG (DBG_MSG, "buffer level = %3d\r", bData);
+      /* reding new buffer level */
+      NiashReadReg (iHandle, 0x20, &bData2);
+      if (fJustDone && fReturn)
+	{
+	  NiashWriteReg (iHandle, 0x02, 0x80);
+	  DBG (DBG_MSG, "returning scanner head\n");
+	}
+      DBG (DBG_MSG,
+	   "buffer level = %3d, <reading %5d unsigned chars>, buffer level = %3d\r",
+	   (int) bData, iLines * p->iBytesPerLine, (int) bData2);
       fflush (stdout);
     }
   /* copy one line */
@@ -793,7 +794,7 @@ XferBufferInit (int iHandle, TDataPipe * p)
   /* skip garbage lines */
   for (i = 0; i < p->iSkipLines; i++)
     {
-      XferBufferGetLine (iHandle, p, NULL, NULL);
+      XferBufferGetLine (iHandle, p, NULL, SANE_FALSE);
     }
 }
 
@@ -809,13 +810,13 @@ CircBufferFill (int iHandle, TDataPipe * p, SANE_Bool iReversedHead)
 	{
 	  XferBufferGetLine (iHandle, p,
 			     &p->pabCircBuf[p->iRedLine * p->iBytesPerLine],
-			     NULL);
+			     SANE_FALSE);
 	}
       else
 	{
 	  XferBufferGetLine (iHandle, p,
 			     &p->pabCircBuf[p->iBluLine * p->iBytesPerLine],
-			     NULL);
+			     SANE_FALSE);
 	}
       /* advance pointers */
       p->iRedLine = (p->iRedLine + 1) % p->iLinesPerCircBuf;
@@ -925,10 +926,10 @@ _UnscrambleLine (unsigned char *pabLine,
 
 
 /* gets an unscrambled line from the circular buffer. the first couple of lines contain garbage,
-   if  pfJustDone!=NULL this element will be set SANE_TRUE, when the last scan was done*/
+   if fReturn==SANE_TRUE, the head will return automatically on an end of scan */
 STATIC SANE_Bool
 CircBufferGetLineEx (int iHandle, TDataPipe * p, unsigned char *pabLine,
-		     SANE_Bool iReversedHead, SANE_Bool * pfJustDone)
+		     SANE_Bool iReversedHead, SANE_Bool fReturn)
 {
   int iLineCount;
   for (iLineCount = 0; iLineCount < p->iScaleDownLpi; ++iLineCount)
@@ -937,16 +938,14 @@ CircBufferGetLineEx (int iHandle, TDataPipe * p, unsigned char *pabLine,
 	{
 	  if (!XferBufferGetLine (iHandle, p,
 				  &p->pabCircBuf[p->iRedLine *
-						 p->iBytesPerLine],
-				  pfJustDone))
+						 p->iBytesPerLine], fReturn))
 	    return SANE_FALSE;
 	}
       else
 	{
 	  if (!XferBufferGetLine (iHandle, p,
 				  &p->pabCircBuf[p->iBluLine *
-						 p->iBytesPerLine],
-				  pfJustDone))
+						 p->iBytesPerLine], fReturn))
 	    return SANE_FALSE;
 	}
       if (pabLine != NULL)
@@ -973,7 +972,7 @@ STATIC SANE_Bool
 CircBufferGetLine (int iHandle, TDataPipe * p, unsigned char *pabLine,
 		   SANE_Bool iReversedHead)
 {
-  return CircBufferGetLineEx (iHandle, p, pabLine, iReversedHead, NULL);
+  return CircBufferGetLineEx (iHandle, p, pabLine, iReversedHead, SANE_FALSE);
 }
 
 

@@ -42,7 +42,7 @@
 
 /* Please increase version number with every change 
    (don't forget to update net.desc) */
-#define NET_VERSION "1.0.3"
+#define NET_VERSION "1.0.4"
 
 #ifdef _AIX
 # include "../include/lalloca.h"	/* MUST come first for AIX! */
@@ -88,6 +88,10 @@ static Net_Device *first_device;
 static Net_Scanner *first_handle;
 static const SANE_Device **devlist;
 static int saned_port;
+static int client_big_endian; /* 1 == big endian; 0 == little endian */
+static int server_big_endian; /* 1 == big endian; 0 == little endian */
+static int depth; /* bits per pixel */
+static int hang_over; /*-1 == no hangover; otherwise cast value to unsigned char */
 
 static SANE_Status
 add_device (const char *name, Net_Device ** ndp)
@@ -332,6 +336,19 @@ SANE_Status sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   size_t len;
   FILE *fp;
 
+  /* determine (client) machine byte order */
+  short ns = 0x1234;
+  unsigned char *p = (unsigned char *)(&ns);
+  if(*p == 0x12)
+  {
+    client_big_endian = 1;
+    DBG(1,"Client has big endian byte order");
+  }
+  else
+  {
+    client_big_endian = 0;
+    DBG(1,"Client has little endian byte order");
+  }
   DBG_INIT ();
 
   auth_callback = authorize;
@@ -869,6 +886,7 @@ SANE_Status sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 
   status = reply.status;
   *params = reply.params;
+  depth = reply.params.depth;
   sanei_w_free (&s->hw->wire,
 		(WireCodecFunc) sanei_w_get_parameters_reply, &reply);
 
@@ -885,7 +903,10 @@ SANE_Status sane_start (SANE_Handle handle)
   socklen_t len;
   short port;			/* Internet-specific */
 
+
   DBG(3, "sane_start\n");
+
+  hang_over = -1;
 
   if (s->data >= 0)
     return SANE_STATUS_INVAL;
@@ -914,6 +935,16 @@ SANE_Status sane_start (SANE_Handle handle)
 
       status = reply.status;
       port = reply.port;
+      if(reply.byte_order == 0x1234)
+      {
+        server_big_endian = 0;
+        DBG(1,"Server has little endian byte order");
+      }
+      else
+      {
+        server_big_endian = 1;
+        DBG(1,"Server has big endian byte order");
+      }
       need_auth = (reply.resource_to_authorize != 0);
       if (need_auth)
 	{
@@ -962,7 +993,8 @@ sane_read (SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
 {
   Net_Scanner *s = handle;
   ssize_t nread;
-
+  unsigned long cnt;
+  unsigned char swap_buf;
   DBG(3, "sane_read: max_length = %d\n", max_length);
 
   if (s->data < 0)
@@ -1017,13 +1049,35 @@ sane_read (SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
 
   if (max_length > (SANE_Int) s->bytes_remaining)
     max_length = s->bytes_remaining;
-#if 0
-  /* Make sure to get only complete pixel */
-  if (0 != max_length % bytes_per_pixel)
-    max_length = (max_length / bytes_per_pixel) * bytes_per_pixel;
-#endif
   /* XXX How do we handle endian problems */
-  nread = read (s->data, data, max_length);
+  /*If we are scanning with 16bit/pixel, we must be sure to scan complete pixels.
+    Otherwise it's  impossible to swap the bytes, since we don't have access to the
+    previous data if sane_read is called the next time. Therefore we check, whether
+    an odd number ob bytes was read. If this is true, the last byte is stored in
+    hang_over and length is decreased by 1.*/
+
+  /*Check whether we are scanning with a depth of 16bit/pixel and whether server and
+    client have different byte order. If this is true, then it's neccessary to check
+    whether there's a hang_over from a previous call to sane_read.*/
+  if((depth == 16) && (server_big_endian != client_big_endian))
+  {
+    DBG(1,"client/server have different byte order; check for hang_over");
+    if(hang_over > -1)
+    {
+      DBG(1,"hang_over from previous call to sane_read()");
+      /* hang_over from previous call to sane_read; apply it now*/
+      *(data) = (unsigned char) hang_over;
+      nread = read (s->data, data+1, max_length-1);
+    }
+    else
+    {
+      DBG(1,"no hang_over from previous call to sane_read()");
+      /*no hang_over*/
+      nread = read (s->data, data, max_length);
+    }
+  }
+  else
+    nread = read (s->data, data, max_length);
   if (nread < 0)
     {
       if (errno == EAGAIN)
@@ -1034,8 +1088,40 @@ sane_read (SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
 	  return SANE_STATUS_IO_ERROR;
 	}
     }
-  s->bytes_remaining -= nread;
-  *length = nread;
+  /*Check whether we are scanning with a depth of 16bit/pixel and whether server and
+    client have different byte order. If this is true, then it's neccessary to check
+    whether read returned an odd number. If an odd  number has been returned, we must save the
+    last byte.*/
+  if((depth == 16) && (server_big_endian != client_big_endian))
+  {
+    DBG(1,"client/server have different byte order; must swap");
+    s->bytes_remaining -= nread;
+    if(0 != nread % 2)
+    {
+      DBG(1,"client/server have different byte order; store hang_over");
+      /*nread is odd; decrease length and store hang_over*/
+      *length = nread - 1;
+      hang_over = *(data + nread);
+    }
+    else
+    {
+      /*nread is even; no hang_over*/
+      *length = nread;
+      hang_over = -1;
+    }
+    /*Finally step through the buffer and swap bytes*/
+    for(cnt = 0;cnt < *length - 1;cnt += 2)
+    {
+       swap_buf = *(data +cnt);
+       *(data + cnt) = *(data +cnt + 1);
+       *(data + cnt + 1) = swap_buf;
+    }
+  }
+  else
+  {
+    s->bytes_remaining -= nread;
+    *length = nread;
+  }
   return SANE_STATUS_GOOD;
 }
 

@@ -1,3 +1,7 @@
+2001-06-14  Karl Heinz Kremer <khk@khk.net>
+
+	* doc/sane-epson.man: Removed reference to sane-devel list
+
 2001-06-14  Simon Munton <simon@munton.demon.co.uk>
 	* doc/sane-pie.man: Fixed formatting problems
 

@@ -62,7 +62,6 @@
 #define MUSTEK_FLAG_ADF_READY	(1 << 7)   /* paper present */
 #define MUSTEK_FLAG_TA		(1 << 8)   /* transparency adapter */
 /* line-distance correction */
-#define MUSTEK_FLAG_LD_MFS	(1 << 9)   /* MFS line-distance corr */
 #define MUSTEK_FLAG_LD_NONE	(1 << 10)  /* no line-distance corr */
 #define MUSTEK_FLAG_LD_BLOCK    (1 << 11)  /* blockwise LD corr */
 #define MUSTEK_FLAG_LD_N1	(1 << 12)  /* LD corr for N-type v1 */
@@ -95,7 +94,6 @@ enum Mustek_Option
     OPT_RESOLUTION,
     OPT_SPEED,
     OPT_SOURCE,
-    OPT_BACKTRACK,
     OPT_PREVIEW,
     OPT_GRAY_PREVIEW,
 

@@ -1,5 +1,44 @@
 CHANGES for the SANE Mustek backend
 
+2000-10-03
+  * Fixed segmentation fault in sane_init (else statement was missing). 
+    Thanks to Oliver Rauch who spotted this problem.
+  * Re-enabled double buffering.
+
+2000-10-02
+  * Zero out inquiry memory block before reading inquiry.
+
+2000-10-01
+  * Fixed fix_line_distance_block.
+  * Adjusted Paragon 12000 SP to use block LD correction if necessary.
+  * removed LD MFS (wasn't used anyway)
+
+2000-09-30
+  * Set blockbuffer size to 2 MB for Paragon series II scanners.
+  * Fix sane_cancel for Paragon series II scanners
+  * Fix speed and grain for Paragon series II scanners
+  * Backtracking is used for all scanners (removed option)
+  * included stop_scan into do_stop
+  * better integration of the wait_ready functions
+  * check that size of buffer <= size of block buffer
+
+2000-09-24
+  * Added more debug output in sane_get_option_descriptor.
+  * Added more debug output in sane_control_option.
+  * Added check for devicename and handle != 0 in sane_open
+  * Added check for handle != 0 in sane_get_option_descriptor
+  * Added check for handle != 0 in sane_get_parameters
+  * Added check for handle and val != 0 in sane_control_option
+  * Added check for handle != 0 in sane_start
+  * Added check for handle, buf and len != 0 in sane_read
+  * Added check for handle != 0 in sane_cancel
+  * Added check for handle != 0 in sane_set_io_mode
+  * Added check for handle != 0 in sane_get_select_fd
+  * Output option title in sane_get_option_descriptor if name is null
+
+2000-09-24
+  * Released backend version 1.0-97.
+  
 2000-09-24
   * Added RGB brightness and contrast for 3pass scanners
   * Brightness and contrast is +-100% for 3pass scanners now

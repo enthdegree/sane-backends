@@ -9,7 +9,7 @@
 ;
 
 :backend "mustek"		; name of backend
-:version "1.0-97"		; version of backend
+:version "1.0-98"		; version of backend
 :status :beta			; :alpha, :beta, :stable, :new
 :manpage "sane-mustek"		; name of manpage (if it exists)
 :url "http://hmg.home.pages.de/sane/"
@@ -70,13 +70,10 @@
 :url "http://www.trust-site.com"
 :model "Imagery 1200 SP"
 :interface "SCSI"
-:comment "Please test!"
 :model "Imagery 4800 SP"
 :interface "SCSI"
-:comment "Please test!"
 :model "SCSI Connect 19200"
 :interface "SCSI"
-:comment "Please test!"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

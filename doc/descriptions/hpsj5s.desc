@@ -11,7 +11,7 @@
 
 :backend "hpsj5s"                 ; name of backend
 :version "0.03"                   ; version of backend
-:status :new                     ; :alpha, :beta, :stable, :new
+:status :alpha                     ; :alpha, :beta, :stable, :new
 :manpage "sane-hpsj5s"                ; name of manpage (if it exists)
 :url "http://hpsj5s.sourceforge.net/" ; backend's web page
 

@@ -4432,59 +4432,77 @@ SANE_Status
 sanei_scsi_cmd2 (int fd,
 		 const void *cmd, size_t cmd_size,
 		 const void *src, size_t src_size,
-		 void *dst, size_t * dst_size) {
-
+		 void *dst, size_t * dst_size)
+{
+  mach_port_t masterPort;
   IOReturn ioReturnValue;
+  io_object_t scsiDevice;
+  int i;
+  CFMutableDictionaryRef scsiMatchDictionary;
+  int deviceTypeNumber;
+  CFNumberRef deviceTypeRef;
+  io_iterator_t scsiObjectIterator;
+  io_object_t device;
+  CFNumberRef IOUnitRef;
+  int iounit;
+  CFNumberRef scsiTargetRef;
+  int scsitarget;
+  CFNumberRef scsiLunRef;
+  int scsilun;
+  IOCFPlugInInterface ** plugInInterface;
+  SInt32 score;
+  HRESULT plugInResult;
+  IOSCSIDeviceInterface ** scsiDeviceInterface;
+  IOCDBCommandInterface ** cdbCommandInterface;
+  CDBInfo cdb;
+  IOVirtualRange range;
+  UInt32 transferCount;
+  Boolean isWrite;
+  SCSIResults results;
+  UInt32 seqNumber;
 
-  mach_port_t masterPort = NULL;
+  masterPort = NULL;
   ioReturnValue = IOMasterPort (MACH_PORT_NULL, &masterPort);
   if (ioReturnValue != kIOReturnSuccess || masterPort == NULL)
     return SANE_STATUS_IO_ERROR;
 
-  io_object_t scsiDevice = NULL;
-
-  int i;
+  scsiDevice = NULL;
   for (i = 0; !scsiDevice && i < 2; i++)
     {
-      CFMutableDictionaryRef scsiMatchDictionary =
-	IOServiceMatching (kIOSCSIDeviceClassName);
+      scsiMatchDictionary = IOServiceMatching (kIOSCSIDeviceClassName);
       if (scsiMatchDictionary == NULL) return SANE_STATUS_NO_MEM;
-      int deviceTypeNumber =
+      deviceTypeNumber =
 	(i == 0 ? kSCSIDevTypeScanner : kSCSIDevTypeProcessor);
-      CFNumberRef deviceTypeRef = CFNumberCreate (NULL, kCFNumberIntType, 
-						  &deviceTypeNumber);
+      deviceTypeRef = CFNumberCreate (NULL, kCFNumberIntType,
+				      &deviceTypeNumber);
       CFDictionarySetValue (scsiMatchDictionary,
 			    CFSTR (kSCSIPropertyDeviceTypeID), deviceTypeRef);
       CFRelease (deviceTypeRef);
 
-      io_iterator_t scsiObjectIterator = NULL;
+      scsiObjectIterator = NULL;
       ioReturnValue = IOServiceGetMatchingServices (masterPort,
 						    scsiMatchDictionary,
 						    &scsiObjectIterator);
       if (ioReturnValue != kIOReturnSuccess) return SANE_STATUS_NO_MEM;
 
-      io_object_t device;
       while ((device = IOIteratorNext (scsiObjectIterator)))
       {
-	CFNumberRef IOUnitRef =
+	IOUnitRef =
 	  IORegistryEntryCreateCFProperty (device,
 					   CFSTR (kSCSIPropertyIOUnit),
 					   NULL, 0);
-	int iounit;
 	CFNumberGetValue (IOUnitRef, kCFNumberIntType, &iounit);
 	CFRelease (IOUnitRef);
-	CFNumberRef scsiTargetRef =
+	scsiTargetRef =
 	  IORegistryEntryCreateCFProperty (device,
 					   CFSTR (kSCSIPropertyTarget),
 					   NULL, 0);
-	int scsitarget;
 	CFNumberGetValue (scsiTargetRef, kCFNumberIntType, &scsitarget);
 	CFRelease (scsiTargetRef);
-	CFNumberRef scsiLunRef =
+	scsiLunRef =
 	  IORegistryEntryCreateCFProperty (device,
 					   CFSTR (kSCSIPropertyLun),
 					   NULL, 0);
-	int scsilun;
 	CFNumberGetValue (scsiLunRef, kCFNumberIntType, &scsilun);
 	CFRelease (scsiLunRef);
 
@@ -4499,8 +4517,8 @@ sanei_scsi_cmd2 (int fd,
     }
   if (!scsiDevice) return SANE_STATUS_INVAL;
 
-  IOCFPlugInInterface ** plugInInterface = NULL;
-  SInt32 score = 0;
+  plugInInterface = NULL;
+  score = 0;
   ioReturnValue = IOCreatePlugInInterfaceForService (scsiDevice,
 						     kIOSCSIUserClientTypeID,
 						     kIOCFPlugInInterfaceID,
@@ -4509,9 +4527,7 @@ sanei_scsi_cmd2 (int fd,
   if (ioReturnValue != kIOReturnSuccess || plugInInterface == NULL)
     return SANE_STATUS_NO_MEM;
 
-  HRESULT plugInResult;
-
-  IOSCSIDeviceInterface ** scsiDeviceInterface = NULL;
+  scsiDeviceInterface = NULL;
   plugInResult = (*plugInInterface)->
     QueryInterface (plugInInterface,
 		    CFUUIDGetUUIDBytes (kIOSCSIDeviceInterfaceID),
@@ -4525,7 +4541,7 @@ sanei_scsi_cmd2 (int fd,
   ioReturnValue = (*scsiDeviceInterface)->open (scsiDeviceInterface);
   if (ioReturnValue != kIOReturnSuccess) return SANE_STATUS_IO_ERROR;
 
-  IOCDBCommandInterface ** cdbCommandInterface = NULL;
+  cdbCommandInterface = NULL;
   plugInResult = (*scsiDeviceInterface)->
     QueryInterface (scsiDeviceInterface,
 		    CFUUIDGetUUIDBytes (kIOCDBCommandInterfaceID),
@@ -4533,13 +4549,8 @@ sanei_scsi_cmd2 (int fd,
   if (plugInResult != S_OK || cdbCommandInterface == NULL)
     return SANE_STATUS_NO_MEM;
 
-  CDBInfo cdb;
   cdb.cdbLength = cmd_size;
   memcpy (&cdb.cdb, cmd, cmd_size);
-
-  IOVirtualRange range;
-  UInt32 transferCount;
-  Boolean isWrite;
   if (dst && dst_size)
     {
       bzero (dst, *dst_size);
@@ -4556,8 +4567,7 @@ sanei_scsi_cmd2 (int fd,
       isWrite = true;
     }
 
-  SCSIResults results;
-  UInt32 seqNumber = 0;
+  seqNumber = 0;
   ioReturnValue = (*cdbCommandInterface)->
     setAndExecuteCommand (cdbCommandInterface, &cdb, transferCount,
 			  &range, 1, isWrite, sane_scsicmd_timeout * 1000,
@@ -4586,59 +4596,73 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 			 int findbus, int findchannel, int findid, int findlun,
 			 SANE_Status (*attach) (const char *dev))
 {
+  mach_port_t masterPort;
   IOReturn ioReturnValue;
+  int i;
+  CFMutableDictionaryRef scsiMatchDictionary;
+  int deviceTypeNumber;
+  CFNumberRef deviceTypeRef;
+  io_iterator_t scsiObjectIterator;
+  io_object_t scsiDevice;
+  CFNumberRef IOUnitRef;
+  int iounit;
+  CFNumberRef scsiTargetRef;
+  int scsitarget;
+  CFNumberRef scsiLunRef;
+  int scsilun;
+  IOCFPlugInInterface ** plugInInterface;
+  SInt32 score;
+  HRESULT plugInResult;
+  IOSCSIDeviceInterface ** scsiDeviceInterface;
+  SCSIInquiry inquiry;
+  UInt32 inquirySize;
+  char devname [16];
 
-  mach_port_t masterPort = NULL;
+  masterPort = NULL;
   ioReturnValue = IOMasterPort (MACH_PORT_NULL, &masterPort);
   if (ioReturnValue != kIOReturnSuccess || masterPort == NULL) return;
 
-  int i;
   for (i = 0; i < 2; i++)
     {
-      CFMutableDictionaryRef scsiMatchDictionary =
-	IOServiceMatching (kIOSCSIDeviceClassName);
+      scsiMatchDictionary = IOServiceMatching (kIOSCSIDeviceClassName);
       if (scsiMatchDictionary == NULL) return;
-      int deviceTypeNumber =
+      deviceTypeNumber =
 	(i == 0 ? kSCSIDevTypeScanner : kSCSIDevTypeProcessor);
-      CFNumberRef deviceTypeRef = CFNumberCreate (NULL, kCFNumberIntType,
-						  &deviceTypeNumber);
+      deviceTypeRef = CFNumberCreate (NULL, kCFNumberIntType,
+				      &deviceTypeNumber);
       CFDictionarySetValue (scsiMatchDictionary,
 			    CFSTR (kSCSIPropertyDeviceTypeID), deviceTypeRef);
       CFRelease (deviceTypeRef);
 
-      io_iterator_t scsiObjectIterator = NULL;
+      scsiObjectIterator = NULL;
       ioReturnValue = IOServiceGetMatchingServices (masterPort,
 						    scsiMatchDictionary,
 						    &scsiObjectIterator);
       if (ioReturnValue != kIOReturnSuccess) return;
 
-      io_object_t scsiDevice;
       while ((scsiDevice = IOIteratorNext (scsiObjectIterator)))
 	{
-	  CFNumberRef IOUnitRef =
+	  IOUnitRef =
 	    IORegistryEntryCreateCFProperty (scsiDevice,
 					     CFSTR (kSCSIPropertyIOUnit),
 					     NULL, 0);
-	  int iounit;
 	  CFNumberGetValue (IOUnitRef, kCFNumberIntType, &iounit);
 	  CFRelease (IOUnitRef);
-	  CFNumberRef scsiTargetRef =
+	  scsiTargetRef =
 	    IORegistryEntryCreateCFProperty (scsiDevice,
 					     CFSTR (kSCSIPropertyTarget),
 					     NULL, 0);
-	  int scsitarget;
 	  CFNumberGetValue (scsiTargetRef, kCFNumberIntType, &scsitarget);
 	  CFRelease (scsiTargetRef);
-	  CFNumberRef scsiLunRef =
+	  scsiLunRef =
 	    IORegistryEntryCreateCFProperty (scsiDevice,
 					     CFSTR (kSCSIPropertyLun),
 					     NULL, 0);
-	  int scsilun;
 	  CFNumberGetValue (scsiLunRef, kCFNumberIntType, &scsilun);
 	  CFRelease (scsiLunRef);
 
-	  IOCFPlugInInterface ** plugInInterface = NULL;
-	  SInt32 score = 0;
+	  plugInInterface = NULL;
+	  score = 0;
 	  ioReturnValue =
 	    IOCreatePlugInInterfaceForService (scsiDevice,
 					       kIOSCSIUserClientTypeID,
@@ -4648,9 +4672,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 	  if (ioReturnValue != kIOReturnSuccess || plugInInterface == NULL)
 	    return;
 
-	  HRESULT plugInResult;
-
-	  IOSCSIDeviceInterface ** scsiDeviceInterface = NULL;
+	  scsiDeviceInterface = NULL;
 	  plugInResult = (*plugInInterface)->
 	    QueryInterface (plugInInterface,
 			    CFUUIDGetUUIDBytes (kIOSCSIDeviceInterfaceID),
@@ -4661,8 +4683,6 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 	  (*plugInInterface)->Release (plugInInterface);
 	  IOObjectRelease (scsiDevice);
 
-	  SCSIInquiry inquiry;
-	  UInt32 inquirySize;
 	  ioReturnValue = (*scsiDeviceInterface)->
 	    getInquiryData(scsiDeviceInterface, &inquiry,
 			   sizeof (SCSIInquiry), &inquirySize);
@@ -4677,7 +4697,6 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 					     inquiry.productName,
 					     strlen (findmodel)) == 0))
 	    {
-	      char devname [16];
 	      sprintf (devname, "u%dt%dl%d", iounit, scsitarget, scsilun);
 	      (*attach) (devname);
 	    }

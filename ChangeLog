@@ -1,3 +1,8 @@
+2003-06-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* sanei/sanei_scsi.c: Fixed C++ like code for MacOS X (patch from
+	  Mattias Ellert <mattias.ellert@tsl.uu.se>).
+
 2003-06-03  Oliver Schirrmeister <oschirr@abm.de>
 
 	* backend/fujitsu.c, backend/fujitsu.h: separated the 4x20 

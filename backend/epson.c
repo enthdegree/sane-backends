@@ -16,8 +16,8 @@
 
 */
 
-#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.21 - 2002-04-22"
-#define SANE_EPSON_BUILD	221
+#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.22 - 2002-08-17"
+#define SANE_EPSON_BUILD	222
 
 /*
    This file is part of the SANE package.
@@ -59,6 +59,10 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
+   2002-08-17	Fixed typo in variable name. 
+		Fixed IEEE-1394 problem with Perfection-2450.
+		Fixed problem with older B3 level SCSI scanners that do
+		not support the extended status request.
    2002-04-22	Declare close_scanner() and open_scanner() before they
 		are used.
    2002-04-13	Check if scanner needs to be opened for the reset call.
@@ -1099,6 +1103,7 @@ static SANE_Status set_cmd ( Epson_Scanner * s, u_char cmd, int val) {
 #define  set_exposure_time(s,v)		set_cmd( s,(s)->hw->cmd->set_exposure_time, v)
 #define  set_bay(s,v)			set_cmd( s,(s)->hw->cmd->set_bay, v)
 #define  set_threshold(s,v)		set_cmd( s,(s)->hw->cmd->set_threshold, v)
+#define  control_extension(s,v)		set_cmd( s,(s)->hw->cmd->control_an_extension, v)
 
 /*#define  (s,v)		set_cmd( s,(s)->hw->cmd->, v) */
 
@@ -1342,22 +1347,28 @@ static SANE_Status set_gamma_table ( Epson_Scanner * s) {
  * Requests the extended status flag from the scanner. The "warming up" condition
  * is reported as a warning (only visible if debug level is set to 10 or greater) -
  * every other condition is reported as an error.
+ *
+ * This function only gets called when we are dealing with a scanner that supports the 
+ * "warming up" code, so it's not a problem for B3 level scanners, that don't handle
+ * request extended status commands.
  */
 
 static SANE_Status check_ext_status ( Epson_Scanner * s) {
 	SANE_Status status;
-	u_char cmd = s->hw->cmd->request_extension_status;
+	u_char cmd = s->hw->cmd->request_extended_status;
 	u_char params [ 2];
 	u_char * buf;
 	EpsonHdr head;
 
-	if( ! cmd)
+	if(cmd == 0)
 		return SANE_STATUS_UNSUPPORTED;
 
 	params[ 0] = ESC;
 	params[ 1] = cmd;
 
-	if( NULL == ( head = ( EpsonHdr) command( s, params, 2, &status) ) ) {
+	head = (EpsonHdr) command(s, params, 2, &status);
+	if(NULL == head) 
+	{
 		DBG( 0, "Extended status flag request failed\n");
 		return status;
 	}
@@ -1693,6 +1704,7 @@ static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
 	Epson_Scanner * s = walloca( Epson_Scanner);
 	char * str;
 	struct Epson_Device * dev;
+	SANE_String_Const * source_list_add = source_list;
 
 	DBG(1, "%s\n", SANE_EPSON_VERSION);
 
@@ -1732,8 +1744,8 @@ static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
 	s->hw->extension = SANE_FALSE;
 	s->hw->use_extension = SANE_FALSE;
 
-  s->hw->need_color_reorder = SANE_FALSE;
-  s->hw->need_double_vertical = SANE_FALSE;
+	s->hw->need_color_reorder = SANE_FALSE;
+	s->hw->need_double_vertical = SANE_FALSE;
 	
 	s->hw->cmd = &epson_cmd[EPSON_LEVEL_DEFAULT];	/* use default function level */
         s->hw->connection = SANE_EPSON_NODEV;		/* no device configured yet */
@@ -2048,148 +2060,152 @@ static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
  * is the vertical range is smaller than the horizontal range.
  */
 
-  if ((dev->x_range->max - dev->x_range->min) > (dev->y_range->max - dev->y_range->min))
-  {
-    dev->y_range->max += (dev->y_range->max - dev->y_range->min);
-    dev->need_double_vertical = SANE_TRUE;
-    dev->need_color_reorder = SANE_TRUE;
-  }
+	if ((dev->x_range->max - dev->x_range->min) > (dev->y_range->max - dev->y_range->min))
+	{
+		dev->y_range->max += (dev->y_range->max - dev->y_range->min);
+		dev->need_double_vertical = SANE_TRUE;
+		dev->need_color_reorder = SANE_TRUE;
+	}
 
+
+/*
+ *  Add the flatbed option to the source list
+ */
+
+	*source_list_add++ = FBF_STR;
 
 /*
  *  Extended status flag request (ESC f).
  *    this also requests the scanner device name from the the scanner
  */
-#if 0
-	if( SANE_TRUE == dev->extension) 
-#endif
 	/*
 	 * because we are also using the device name from this command, 
 	 * we have to run this block even if the scanner does not report
 	 * an extension. The extensions are only reported if the ADF or
 	 * the TPU are actually detected. 
 	 */
+	if(s->hw->cmd->request_extended_status != 0)
 	{
 		u_char * buf;
 		u_char params[2];
 		EpsonHdr head;
-		SANE_String_Const * source_list_add = source_list;
 
 		params[0] = ESC;
-		params[1] = s->hw->cmd->request_extension_status;
+		params[1] = s->hw->cmd->request_extended_status;
 
 		if( NULL == ( head = ( EpsonHdr) command( s, params, 2, &status) ) ) {
 			DBG( 0, "Extended status flag request failed\n");
-			return status;
+			dev->sane.model = strdup("Unknown model");
 		}
-
-		buf = &head->buf[ 0];
-
-/*
- *  FBF
- */
-
-		*source_list_add++ = FBF_STR;
+		else
+		{
+			buf = &head->buf[ 0];
 
 /*
  *  ADF
  */
 
-		if( buf[ 1] & EXT_STATUS_IST) {
-			DBG( 1, "ADF detected\n");
+			if( buf[ 1] & EXT_STATUS_IST) {
+				DBG( 1, "ADF detected\n");
 
-			if( buf[ 1] & EXT_STATUS_EN) {
-				DBG( 1, "ADF is enabled\n");
-				dev->x_range = &dev->adf_x_range;
-				dev->y_range = &dev->adf_y_range;
+				if( buf[ 1] & EXT_STATUS_EN) {
+					DBG( 1, "ADF is enabled\n");
+					dev->x_range = &dev->adf_x_range;
+					dev->y_range = &dev->adf_y_range;
+				}
+
+				dev->adf_x_range.min = 0;
+				dev->adf_x_range.max = SANE_FIX( ( buf[  3] << 8 | buf[ 2]) * 25.4 / dev->dpi_range.max);
+				dev->adf_x_range.quant = 0;
+
+				dev->adf_y_range.min = 0;
+				dev->adf_y_range.max = SANE_FIX( ( buf[  5] << 8 | buf[ 4]) * 25.4 / dev->dpi_range.max);
+				dev->adf_y_range.quant = 0;
+
+				DBG( 5, "adf tlx %f tly %f brx %f bry %f [mm]\n"
+					, SANE_UNFIX( dev->adf_x_range.min)
+					, SANE_UNFIX( dev->adf_y_range.min)
+					, SANE_UNFIX( dev->adf_x_range.max)
+					, SANE_UNFIX( dev->adf_y_range.max)
+					);
+	
+				*source_list_add++ = ADF_STR;
+
+				dev->ADF = SANE_TRUE;
 			}
-
-			dev->adf_x_range.min = 0;
-			dev->adf_x_range.max = SANE_FIX( ( buf[  3] << 8 | buf[ 2]) * 25.4 / dev->dpi_range.max);
-			dev->adf_x_range.quant = 0;
-
-			dev->adf_y_range.min = 0;
-			dev->adf_y_range.max = SANE_FIX( ( buf[  5] << 8 | buf[ 4]) * 25.4 / dev->dpi_range.max);
-			dev->adf_y_range.quant = 0;
-
-			DBG( 5, "adf tlx %f tly %f brx %f bry %f [mm]\n"
-				, SANE_UNFIX( dev->adf_x_range.min)
-				, SANE_UNFIX( dev->adf_y_range.min)
-				, SANE_UNFIX( dev->adf_x_range.max)
-				, SANE_UNFIX( dev->adf_y_range.max)
-				);
-
-			*source_list_add++ = ADF_STR;
-
-			dev->ADF = SANE_TRUE;
-		}
 
 
 /*
  *  TPU
  */
 
-		if( buf[ 6] & EXT_STATUS_IST) {
-			DBG( 1, "TPU detected\n");
+			if( buf[ 6] & EXT_STATUS_IST) {
+				DBG( 1, "TPU detected\n");
+	
+				if( buf[ 6] & EXT_STATUS_EN) {
+					DBG( 1, "TPU is enabled\n");
+					dev->x_range = &dev->tpu_x_range;
+					dev->y_range = &dev->tpu_y_range;
+				}
 
-			if( buf[ 6] & EXT_STATUS_EN) {
-				DBG( 1, "TPU is enabled\n");
-				dev->x_range = &dev->tpu_x_range;
-				dev->y_range = &dev->tpu_y_range;
+				dev->tpu_x_range.min = 0;
+				dev->tpu_x_range.max = SANE_FIX( ( buf[  8] << 8 | buf[ 7]) * 25.4 / dev->dpi_range.max);
+				dev->tpu_x_range.quant = 0;
+
+				dev->tpu_y_range.min = 0;
+				dev->tpu_y_range.max = SANE_FIX( ( buf[ 10] << 8 | buf[ 9]) * 25.4 / dev->dpi_range.max);
+				dev->tpu_y_range.quant = 0;
+
+				DBG( 5, "tpu tlx %f tly %f brx %f bry %f [mm]\n"
+					, SANE_UNFIX( dev->tpu_x_range.min)
+					, SANE_UNFIX( dev->tpu_y_range.min)
+					, SANE_UNFIX( dev->tpu_x_range.max)
+					, SANE_UNFIX( dev->tpu_y_range.max)
+					);
+	
+				*source_list_add++ = TPU_STR;
+	
+				dev->TPU = SANE_TRUE;
 			}
 
-			dev->tpu_x_range.min = 0;
-			dev->tpu_x_range.max = SANE_FIX( ( buf[  8] << 8 | buf[ 7]) * 25.4 / dev->dpi_range.max);
-			dev->tpu_x_range.quant = 0;
-
-			dev->tpu_y_range.min = 0;
-			dev->tpu_y_range.max = SANE_FIX( ( buf[ 10] << 8 | buf[ 9]) * 25.4 / dev->dpi_range.max);
-			dev->tpu_y_range.quant = 0;
-
-			DBG( 5, "tpu tlx %f tly %f brx %f bry %f [mm]\n"
-				, SANE_UNFIX( dev->tpu_x_range.min)
-				, SANE_UNFIX( dev->tpu_y_range.min)
-				, SANE_UNFIX( dev->tpu_x_range.max)
-				, SANE_UNFIX( dev->tpu_y_range.max)
-				);
-
-			*source_list_add++ = TPU_STR;
-
-			dev->TPU = SANE_TRUE;
-		}
-
-		*source_list_add = NULL;
 /*
  *	Get the device name and copy it to dev->sane.model.
  *	The device name starts at buf[0x1A] and is up to 16 bytes long
  *	We are overwriting whatever was set previously!
  */
- 		{
+	 		{
 #define DEVICE_NAME_LEN	(16)		
-			char device_name[DEVICE_NAME_LEN + 1];
-			char *end_ptr;
-			int len;
+				char device_name[DEVICE_NAME_LEN + 1];
+				char *end_ptr;
+				int len;
 
-			/* make sure that the end of string is marked */
-			device_name[DEVICE_NAME_LEN] = '\0';
+				/* make sure that the end of string is marked */
+				device_name[DEVICE_NAME_LEN] = '\0';
 
-			/* copy the string to an area where we can work with it */
-			memcpy(device_name, buf + 0x1A, DEVICE_NAME_LEN);
-			end_ptr = strchr(device_name, ' ');
-			if (end_ptr != NULL)
-			{
-				*end_ptr = '\0';
+				/* copy the string to an area where we can work with it */
+				memcpy(device_name, buf + 0x1A, DEVICE_NAME_LEN);
+				end_ptr = strchr(device_name, ' ');
+				if (end_ptr != NULL)
+				{
+					*end_ptr = '\0';
+				}
+
+				len = strlen(device_name);
+
+				str = malloc( len + 1);
+				str[len] = '\0';
+
+				/* finally copy the device name to the structure */
+				dev->sane.model = ( char *) memcpy( str, device_name, len);
 			}
-
-			len = strlen(device_name);
-
-			str = malloc( len + 1);
-			str[len] = '\0';
-
-			/* finally copy the device name to the structure */
-			dev->sane.model = ( char *) memcpy( str, device_name, len);
 		}
 	}
+	else	/* command is not known */
+	{
+		dev->sane.model = strdup("EPSON Scanner");
+	}
+
+	*source_list_add = NULL;	/* add end marker to source list */
 
 /*
  *  Set values for quick format "max" entry.
@@ -3861,22 +3877,7 @@ SANE_Status sane_start ( SANE_Handle handle)
  */
 
 	if( s->hw->extension) {
-		u_char * buf;
-		EpsonHdr head;
-
-		DBG( 1, "use extension = %d\n", s->hw->use_extension);
-
-		params[0] = ESC;
-		params[1] = s->hw->cmd->control_an_extension;
-
-		if( NULL == ( head = ( EpsonHdr) command( s, params, 2, &status) ) ) {
-			DBG( 0, "control of an extension failed\n");
-			return status;
-		}
-
-		params[ 0] = s->hw->use_extension;	/* 1: effective, 0: ineffective */
-		send( s, params, 1, &status); /* to make (in)effective an extension unit*/
-		status = expect_ack ( s);
+		status = control_extension(s, s->hw->use_extension);
 
 		if( SANE_STATUS_GOOD != status) {
 			DBG( 0, "Probably you have to power %s your TPU\n"
@@ -3888,52 +3889,17 @@ SANE_Status sane_start ( SANE_Handle handle)
 			return status;
 		}
 
-		params[0] = ESC;
-		params[1] = s->hw->cmd->request_extension_status;
-
-		if( NULL == ( head = ( EpsonHdr) command( s, params, 2, &status) ) ) {
-			DBG( 0, "Extended status flag request failed\n");
-			return status;
+		if (s->hw->cmd->request_extended_status != 0)
+		{
+			status = check_ext_status(s);
+	
+			if (SANE_STATUS_GOOD != status) 
+			{
+				return status;
+			}
 		}
-
-		buf = &head->buf[ 0];
-
-		if( buf[ 0] & EXT_STATUS_FER) {
-			DBG( 0, "option: fatal error\n");
-			status = SANE_STATUS_INVAL;
-		}
-
-		if( buf[ 1] & EXT_STATUS_ERR) {
-			DBG( 0, "ADF: other error\n");
-			status = SANE_STATUS_INVAL;
-		}
-
-		if( buf[ 1] & EXT_STATUS_PE) {
-			DBG( 0, "ADF: no paper\n");
-			status = SANE_STATUS_INVAL;
-		}
-
-		if( buf[ 1] & EXT_STATUS_PJ) {
-			DBG( 0, "ADF: paper jam\n");
-			status = SANE_STATUS_INVAL;
-		}
-
-		if( buf[ 1] & EXT_STATUS_OPN) {
-			DBG( 0, "ADF: cover open\n");
-			status = SANE_STATUS_INVAL;
-		}
-
-		if( buf[ 6] & EXT_STATUS_ERR) {
-			DBG( 0, "TPU: other error\n");
-			status = SANE_STATUS_INVAL;
-		}
-
-		if( SANE_STATUS_GOOD != status) {
-			close_scanner( s);
-			return status;
-		}
-
-
+	
+	
 		/* 
 		 * set the focus position according to the extension used:
 		 * if the TPU is selected, then focus 2.5mm above the glass,
@@ -4365,36 +4331,39 @@ SANE_Status sane_start ( SANE_Handle handle)
 		}
     	}
 
-	if( SANE_TRUE == s->hw->extension) { /* make sure if any errors */
-
-/* TODO	*/
-
-		u_char result[ 4];		/* with an extension */
+	if(s->hw->cmd->request_extended_status != 0 && SANE_TRUE == s->hw->extension) 
+	{ 
+		u_char result[4];
 		u_char * buf;
 		size_t len;
 
 		params[0] = ESC;
-		params[1] = s->hw->cmd->request_extension_status;
+		params[1] = s->hw->cmd->request_extended_status;
 
-		send( s, params, 2, &status);		/* send ESC f (request extension status) */
+		send(s, params, 2, &status);		/* send ESC f (request extension status) */
 
-		if( SANE_STATUS_GOOD != status)
-			return status;
+		if (SANE_STATUS_GOOD == status)
+		{
+			len = 4;				/* receive header */
 
-		len = 4;				/* receive header */
+			receive( s, result, len, &status);
+    			if( SANE_STATUS_GOOD != status)
+      				return status;
 
-		receive( s, result, len, &status);
-    		if( SANE_STATUS_GOOD != status)
-      			return status;
-
-		len = result[ 3] << 8 | result[ 2];
-		buf = alloca( len);
-
-		receive( s, buf, len, &status);		/* reveive actual status data */
-
-		if( buf[ 0] & 0x80) {
-			close_scanner( s);
-			return SANE_STATUS_INVAL;
+			len = result[ 3] << 8 | result[ 2];
+			buf = alloca( len);
+	
+			receive( s, buf, len, &status);		/* reveive actual status data */
+	
+			if( buf[ 0] & 0x80) 
+			{
+				close_scanner( s);
+				return SANE_STATUS_INVAL;
+			}
+		}
+		else
+		{
+			DBG( 0, "Extended status flag request failed\n");
 		}
 	}
 
@@ -4557,7 +4526,7 @@ static SANE_Status read_data_block ( Epson_Scanner * s, EpsonDataRec * result) {
 	if( result->status & STATUS_FER) {
 		DBG( 1, "fatal error - Status = %02x\n", result->status);
 
-		status = check_ext_status( s);
+		status = check_ext_status(s);
 
 		/*
 		 * Hack Alert!!!

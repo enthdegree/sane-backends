@@ -123,7 +123,7 @@ typedef struct {
 	unsigned char	set_outline_emphasis;			/* B4 and later */
 	unsigned char	set_dither;				/* B4 and later */
 	unsigned char	set_color_correction_coefficients;	/* B3 and later */
-	unsigned char	request_extension_status;		/* for extension control */
+	unsigned char	request_extended_status;		/* get extended status from scanner */
 	unsigned char	control_an_extension;			/* for extension control */
 	unsigned char	eject;					/* for extension control */
 	unsigned char	request_push_button_status;

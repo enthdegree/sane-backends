@@ -16,8 +16,8 @@
 
 */
 
-#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.20 - 2002-04-13"
-#define SANE_EPSON_BUILD	220
+#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.21 - 2002-04-22"
+#define SANE_EPSON_BUILD	221
 
 /*
    This file is part of the SANE package.
@@ -59,6 +59,8 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
+   2002-04-22	Declare close_scanner() and open_scanner() before they
+		are used.
    2002-04-13	Check if scanner needs to be opened for the reset call.
 		(Thanks to Thomas Wenrich for pointing this out)
 		Added product IDs for Perfection 1650 and 2450
@@ -875,6 +877,8 @@ static SANE_Bool request_push_button_status(SANE_Handle handle, SANE_Bool * theB
 static void sane_activate( Epson_Scanner * s, SANE_Int option, SANE_Bool * change);
 static void sane_deactivate( Epson_Scanner * s, SANE_Int option, SANE_Bool * change);
 static void sane_optstate( SANE_Bool state, Epson_Scanner * s, SANE_Int option, SANE_Bool * change);
+static void close_scanner( Epson_Scanner * s);
+static SANE_Status open_scanner( Epson_Scanner * s);
 
 /*
  *

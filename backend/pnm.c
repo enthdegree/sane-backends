@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 1996, 1997 Andreas Beck
    Copyright (C) 2000, 2001 Michael Herder <crapsite@gmx.net>
-   Copyright (C) 2001 Henning Meier-Geinitz <henning@meier-geinitz.de>
+   Copyright (C) 2001, 2002 Henning Meier-Geinitz <henning@meier-geinitz.de>
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -40,7 +40,7 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.  */
 
-#define BUILD 2
+#define BUILD 3
 
 #include "../include/sane/config.h"
 
@@ -111,9 +111,44 @@ static const SANE_Range gamma_range =
   255 ,	/* maximum */
   0	/* quantization */
 };
+typedef enum 
+{
+  opt_num_opts = 0,
+  opt_source_group,
+  opt_filename,
+  opt_resolution,
+  opt_enhancement_group,
+  opt_brightness,
+  opt_contrast,
+  opt_grayify,
+  opt_three_pass,
+  opt_hand_scanner,
+  opt_default_enhancements,
+  opt_read_only,
+  opt_gamma_group,
+  opt_custom_gamma,
+  opt_gamma,
+  opt_gamma_r,
+  opt_gamma_g,
+  opt_gamma_b,
+  opt_status_group,
+  opt_status,
+  opt_status_eof,
+  opt_status_jammed,
+  opt_status_nodocs,
+  opt_status_coveropen,
+  opt_status_ioerror,
+  opt_status_nomem,
+  opt_status_accessdenied,
+  
+  /* must come last: */
+  num_options
+}
+pnm_opts;
+
 static SANE_Option_Descriptor sod[] =
 {
-  {
+  { /* opt_num_opts */
     SANE_NAME_NUM_OPTIONS,
     SANE_TITLE_NUM_OPTIONS,
     SANE_DESC_NUM_OPTIONS,
@@ -124,7 +159,7 @@ static SANE_Option_Descriptor sod[] =
     SANE_CONSTRAINT_NONE,
     {NULL}
   },
-  {
+  { /* opt_source_group */
     "",
     SANE_I18N("Source Selection"),
     SANE_I18N("Selection of the file to load."),
@@ -135,7 +170,7 @@ static SANE_Option_Descriptor sod[] =
     SANE_CONSTRAINT_NONE,
     {NULL}
   },
-  {
+  { /* opt_filename */
     SANE_NAME_FILE,
     SANE_TITLE_FILE,
     SANE_DESC_FILE,
@@ -147,7 +182,7 @@ static SANE_Option_Descriptor sod[] =
     {NULL}
   },
   {
-    /* resolution */
+    /* opt_resolution */
     SANE_NAME_SCAN_RESOLUTION,
     SANE_TITLE_SCAN_RESOLUTION,
     SANE_DESC_SCAN_RESOLUTION,
@@ -158,7 +193,7 @@ static SANE_Option_Descriptor sod[] =
     SANE_CONSTRAINT_WORD_LIST,
     {(SANE_String_Const *)resbit_list}	
   },
-  {
+  { /* opt_enhancement_group */
     "",
     SANE_I18N("Image Enhancement"),
     SANE_I18N("A few controls to enhance image while loading"),
@@ -169,7 +204,7 @@ static SANE_Option_Descriptor sod[] =
     SANE_CONSTRAINT_NONE,
     {NULL}
   },
-  {
+  { /* opt_brightness */
     SANE_NAME_BRIGHTNESS,
     SANE_TITLE_BRIGHTNESS,
     SANE_DESC_BRIGHTNESS,
@@ -180,7 +215,7 @@ static SANE_Option_Descriptor sod[] =
     SANE_CONSTRAINT_RANGE,
     {(SANE_String_Const *) &percentage_range}	/* this is ANSI conformant! */
   },
-  {
+  { /* opt_contrast */
     SANE_NAME_CONTRAST,
     SANE_TITLE_CONTRAST,
     SANE_DESC_CONTRAST,
@@ -191,7 +226,7 @@ static SANE_Option_Descriptor sod[] =
     SANE_CONSTRAINT_RANGE,
     {(SANE_String_Const *) &percentage_range}	/* this is ANSI conformant! */
   },
-  {
+  { /* opt_grayify */
     "grayify",
     SANE_I18N("Grayify"),
     SANE_I18N("Load the image as grayscale."),
@@ -202,7 +237,7 @@ static SANE_Option_Descriptor sod[] =
     SANE_CONSTRAINT_NONE,
     {NULL}
   },
-  {
+  { /* opt_three_pass */
     "three-pass",
     SANE_I18N("Three-Pass Simulation"),
     SANE_I18N("Simulate a three-pass scanner by returning 3 separate frames.  "
@@ -214,7 +249,7 @@ static SANE_Option_Descriptor sod[] =
     SANE_CONSTRAINT_NONE,
     {NULL}
   },
-  {
+  { /* opt_hand_scanner */
     "hand-scanner",
     SANE_I18N("Hand-Scanner Simulation"),
     SANE_I18N("Simulate a hand-scanner.  Hand-scanners often do not know the image "
@@ -227,7 +262,7 @@ static SANE_Option_Descriptor sod[] =
     SANE_CONSTRAINT_NONE,
     {NULL}
   },
-  {
+  { /* opt_default_enhancements */
     "default-enhancements",
     SANE_I18N("Defaults"),
     SANE_I18N("Set default values for enhancement controls (brightness & contrast)."),
@@ -238,8 +273,8 @@ static SANE_Option_Descriptor sod[] =
     SANE_CONSTRAINT_NONE,
     {NULL}
   },
-  {
-    "test option",
+  { /* opt_read_only */
+    "read-only",
     SANE_I18N("Read only test-option"),
     SANE_I18N("Let's see whether frontends can treat this right") ,
     SANE_TYPE_INT,
@@ -249,7 +284,7 @@ static SANE_Option_Descriptor sod[] =
     SANE_CONSTRAINT_NONE,
     {NULL}
   },
-  {
+  {  /* opt_gamma_group */
     "",
     SANE_I18N("Gamma tables"),
     SANE_I18N("Selection of custom gamma tables."),
@@ -260,7 +295,7 @@ static SANE_Option_Descriptor sod[] =
     SANE_CONSTRAINT_NONE,
     {NULL}
   },
-  {/* custom-gamma table */
+  {/* opt_custom_gamma */
     SANE_NAME_CUSTOM_GAMMA,
     SANE_TITLE_CUSTOM_GAMMA	,
     SANE_DESC_CUSTOM_GAMMA,
@@ -271,7 +306,7 @@ static SANE_Option_Descriptor sod[] =
     SANE_CONSTRAINT_NONE,
     {NULL}
   },
-  { /* grayscale gamma vector */
+  { /* opt_gamma */
     SANE_NAME_GAMMA_VECTOR,
     SANE_TITLE_GAMMA_VECTOR,
     SANE_DESC_GAMMA_VECTOR,
@@ -282,7 +317,7 @@ static SANE_Option_Descriptor sod[] =
     SANE_CONSTRAINT_RANGE,
     {(SANE_String_Const *) &gamma_range}
   },
-  { /* red gamma vector */
+  { /* opt_gamma_r */
     SANE_NAME_GAMMA_VECTOR_R,
     SANE_TITLE_GAMMA_VECTOR_R,
     SANE_DESC_GAMMA_VECTOR_R,
@@ -293,7 +328,7 @@ static SANE_Option_Descriptor sod[] =
     SANE_CONSTRAINT_RANGE,
     {(SANE_String_Const *) &gamma_range}
   },
-  { /* green gamma vector */
+  { /* opt_gamma_g */
     SANE_NAME_GAMMA_VECTOR_G,
     SANE_TITLE_GAMMA_VECTOR_G,
     SANE_DESC_GAMMA_VECTOR_G,
@@ -304,7 +339,7 @@ static SANE_Option_Descriptor sod[] =
     SANE_CONSTRAINT_RANGE,
     {(SANE_String_Const *) &gamma_range}
   },
-  { /* blue gamma vector */
+  { /* opt_gamma_b */
     SANE_NAME_GAMMA_VECTOR_B,
     SANE_TITLE_GAMMA_VECTOR_B,
     SANE_DESC_GAMMA_VECTOR_B,
@@ -315,11 +350,11 @@ static SANE_Option_Descriptor sod[] =
     SANE_CONSTRAINT_RANGE,
     {(SANE_String_Const *) &gamma_range}
   },
-  {
+  { /* opt_status_group */
     "",
     SANE_I18N("Status Code Simulation"),
     SANE_I18N("Forces the backend to return a specific status code after a call "
-    "to sane_read(). This can be used to test whether a frontend is able"
+    "to sane_read(). This can be used to test whether a frontend is able "
     "to treat the status codes correctly."),
     SANE_TYPE_GROUP,
     SANE_UNIT_NONE,
@@ -328,7 +363,7 @@ static SANE_Option_Descriptor sod[] =
     SANE_CONSTRAINT_NONE,
     {NULL}
   },
-  {
+  { /* opt_status */
     "status",
     SANE_I18N("Do not force status code"),
     SANE_I18N("Do not force the backend to return a status code."),
@@ -339,7 +374,7 @@ static SANE_Option_Descriptor sod[] =
     SANE_CONSTRAINT_NONE,
     {NULL}
   },
-  {
+  { /* opt_status_eof */
     "status-eof",
     SANE_I18N("Return SANE_STATUS_EOF"),
     SANE_I18N("Force the backend to return the status code SANE_STATUS_EOF after "
@@ -351,7 +386,7 @@ static SANE_Option_Descriptor sod[] =
     SANE_CONSTRAINT_NONE,
     {NULL}
   },
-  {
+  { /* opt_status_jammed */
     "status-jammed",
     SANE_I18N("Return SANE_STATUS_JAMMED"),
     SANE_I18N("Force the backend to return the status code SANE_STATUS_JAMMED after "
@@ -363,7 +398,7 @@ static SANE_Option_Descriptor sod[] =
     SANE_CONSTRAINT_NONE,
     {NULL}
   },
-  {
+  { /* opt_status_nodocs */
     "status-nodocs",
     SANE_I18N("Return SANE_STATUS_NO_DOCS"),
     SANE_I18N("Force the backend to return the status code SANE_STATUS_NO_DOCS after "
@@ -375,7 +410,7 @@ static SANE_Option_Descriptor sod[] =
     SANE_CONSTRAINT_NONE,
     {NULL}
   },
-  {
+  { /* opt_status_coveropen */
     "status-coveropen",
     SANE_I18N("Return SANE_STATUS_COVER_OPEN"),
     SANE_I18N("Force the backend to return the status code SANE_STATUS_COVER_OPEN after "
@@ -387,7 +422,7 @@ static SANE_Option_Descriptor sod[] =
     SANE_CONSTRAINT_NONE,
     {NULL}
   },
-  {
+  { /* opt_status_ioerror */
     "status-ioerror",
     SANE_I18N("Return SANE_STATUS_IO_ERROR"),
     SANE_I18N("Force the backend to return the status code SANE_STATUS_IO_ERROR after "
@@ -399,7 +434,7 @@ static SANE_Option_Descriptor sod[] =
     SANE_CONSTRAINT_NONE,
     {NULL}
   },
-  {
+  { /* opt_status_nomem */
     "status-nomem",
     SANE_I18N("Return SANE_STATUS_NO_MEM"),
     SANE_I18N("Force the backend to return the status code SANE_STATUS_NO_MEM after "
@@ -411,7 +446,7 @@ static SANE_Option_Descriptor sod[] =
     SANE_CONSTRAINT_NONE,
     {NULL}
   },
-  {
+  { /* opt_status_accessdenied */
     "status-accessdenied",
     SANE_I18N("Return SANE_STATUS_ACCESS_DENIED"),
     SANE_I18N("Force the backend to return the status code SANE_STATUS_ACCESS_DENIED "
@@ -569,7 +604,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	return status;
       switch (option)
 	{
-	case 3:
+	case opt_resolution:
 	  res = 75;
 	  myinfo |= SANE_INFO_RELOAD_PARAMS;
 	  break;
@@ -583,109 +618,110 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	return status;
     switch (option)
       {
-      case 2:
+      case opt_filename:
 	if ((strlen (value) + 1) > sizeof (filename))
 	  return SANE_STATUS_NO_MEM;
 	strcpy (filename, value);
 	myinfo |= SANE_INFO_RELOAD_PARAMS;
 	break;
-      case 3:
+      case opt_resolution:
 	res = *(SANE_Word *) value;
 	break;
-      case 5:
+      case opt_brightness:
 	bright = *(SANE_Word *) value;
 	break;
-      case 6:
+      case opt_contrast:
 	contr = *(SANE_Word *) value;
 	break;
-      case 7:
+      case opt_grayify:
 	gray = !!*(SANE_Word *) value;
         if (usegamma)
 	  {
 	    if (gray)
 	      {
-		sod[14].cap &= ~SANE_CAP_INACTIVE;
-		sod[15].cap |= SANE_CAP_INACTIVE;
-		sod[16].cap |= SANE_CAP_INACTIVE;
-		sod[17].cap |= SANE_CAP_INACTIVE;
+		sod[opt_gamma].cap &= ~SANE_CAP_INACTIVE;
+		sod[opt_gamma_r].cap |= SANE_CAP_INACTIVE;
+		sod[opt_gamma_g].cap |= SANE_CAP_INACTIVE;
+		sod[opt_gamma_b].cap |= SANE_CAP_INACTIVE;
 	      }
 	    else
 	      {
-		sod[14].cap |= SANE_CAP_INACTIVE;
-		sod[15].cap &= ~SANE_CAP_INACTIVE;
-		sod[16].cap &= ~SANE_CAP_INACTIVE;
-		sod[17].cap &= ~SANE_CAP_INACTIVE;
+		sod[opt_gamma].cap |= SANE_CAP_INACTIVE;
+		sod[opt_gamma_r].cap &= ~SANE_CAP_INACTIVE;
+		sod[opt_gamma_g].cap &= ~SANE_CAP_INACTIVE;
+		sod[opt_gamma_b].cap &= ~SANE_CAP_INACTIVE;
 	      }
 	  }
         else
 	  {
-	    sod[14].cap |= SANE_CAP_INACTIVE;
-	    sod[15].cap |= SANE_CAP_INACTIVE;
-	    sod[16].cap |= SANE_CAP_INACTIVE;
-	    sod[17].cap |= SANE_CAP_INACTIVE;
+	    sod[opt_gamma].cap |= SANE_CAP_INACTIVE;
+	    sod[opt_gamma_r].cap |= SANE_CAP_INACTIVE;
+	    sod[opt_gamma_g].cap |= SANE_CAP_INACTIVE;
+	    sod[opt_gamma_b].cap |= SANE_CAP_INACTIVE;
 	  }
 	myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
 	break;
-      case 8:
+      case opt_three_pass:
 	three_pass = !!*(SANE_Word *) value;
+	myinfo |= SANE_INFO_RELOAD_PARAMS;
 	break;
-      case 9:
+      case opt_hand_scanner:
 	hand_scanner = !!*(SANE_Word *) value;
+	myinfo |= SANE_INFO_RELOAD_PARAMS;
 	break;
-      case 10:
+      case opt_default_enhancements:
 	bright = contr = 0;
 	myinfo |= SANE_INFO_RELOAD_OPTIONS;
 	break;
-    /*gamma stuff*/
-      case 13:/*usegamma*/
+      case opt_custom_gamma:
 	usegamma = *(SANE_Word *) value;
-	/*activate/deactivate gamma*/
-	if(usegamma)
+	/* activate/deactivate gamma */
+	if (usegamma)
 	  {
 	    test_option = 100;
 	    if(gray)
 	      {
-		sod[14].cap &= ~SANE_CAP_INACTIVE;
-		sod[15].cap |= SANE_CAP_INACTIVE;
-		sod[16].cap |= SANE_CAP_INACTIVE;
-		sod[17].cap |= SANE_CAP_INACTIVE;
+		sod[opt_gamma].cap &= ~SANE_CAP_INACTIVE;
+		sod[opt_gamma_r].cap |= SANE_CAP_INACTIVE;
+		sod[opt_gamma_g].cap |= SANE_CAP_INACTIVE;
+		sod[opt_gamma_b].cap |= SANE_CAP_INACTIVE;
 	      }
 	    else
 	      {
-		sod[14].cap |= SANE_CAP_INACTIVE;
-		sod[15].cap &= ~SANE_CAP_INACTIVE;
-		sod[16].cap &= ~SANE_CAP_INACTIVE;
-		sod[17].cap &= ~SANE_CAP_INACTIVE;
+		sod[opt_gamma].cap |= SANE_CAP_INACTIVE;
+		sod[opt_gamma_r].cap &= ~SANE_CAP_INACTIVE;
+		sod[opt_gamma_g].cap &= ~SANE_CAP_INACTIVE;
+		sod[opt_gamma_b].cap &= ~SANE_CAP_INACTIVE;
 	      }
 	  }
 	else
 	  {
 	    test_option = 0;
-	    sod[14].cap |= SANE_CAP_INACTIVE;
-	    sod[15].cap |= SANE_CAP_INACTIVE;
-	    sod[16].cap |= SANE_CAP_INACTIVE;
-	    sod[17].cap |= SANE_CAP_INACTIVE;
+	    sod[opt_gamma].cap |= SANE_CAP_INACTIVE;
+	    sod[opt_gamma_r].cap |= SANE_CAP_INACTIVE;
+	    sod[opt_gamma_g].cap |= SANE_CAP_INACTIVE;
+	    sod[opt_gamma_b].cap |= SANE_CAP_INACTIVE;
 	  }
 	myinfo |= SANE_INFO_RELOAD_OPTIONS;
 	break;
-      case 14:
-	memcpy(&gamma[0][0], (SANE_Word *) value, 256*sizeof(SANE_Word));
+      case opt_gamma:
+	memcpy (&gamma[0][0], (SANE_Word *) value, 256 * sizeof(SANE_Word));
 	myinfo |= SANE_INFO_RELOAD_OPTIONS;
 	break;
-      case 15:
-	memcpy(&gamma[1][0], (SANE_Word *) value, 256*sizeof(SANE_Word));
+      case opt_gamma_r:
+	memcpy (&gamma[1][0], (SANE_Word *) value, 256 * sizeof(SANE_Word));
 	myinfo |= SANE_INFO_RELOAD_OPTIONS;
 	break;
-      case 16:
-	memcpy(&gamma[2][0], (SANE_Word *) value, 256*sizeof(SANE_Word));
+      case opt_gamma_g:
+	memcpy (&gamma[2][0], (SANE_Word *) value, 256 * sizeof(SANE_Word));
 	myinfo |= SANE_INFO_RELOAD_OPTIONS;
 	break;
-      case 17:
-	memcpy(&gamma[3][0], (SANE_Word *) value, 256*sizeof(SANE_Word));
+      case opt_gamma_b:
+	memcpy (&gamma[3][0], (SANE_Word *) value, 256 * sizeof(SANE_Word));
 	myinfo |= SANE_INFO_RELOAD_OPTIONS;
 	break;
-	/*status*/
-      case 19:
+	/* status */
+      case opt_status:
 	status_none = *(SANE_Word *) value;
 	if (status_none)
 	  {
@@ -699,9 +735,9 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  }
 	myinfo |= SANE_INFO_RELOAD_OPTIONS;
 	break;
-      case 20:
+      case opt_status_eof:
 	status_eof = *(SANE_Word *) value;
-	if(status_eof)
+	if (status_eof)
 	  {
 	    status_none = SANE_FALSE;
 	    status_jammed = SANE_FALSE;
@@ -713,7 +749,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  }
 	myinfo |= SANE_INFO_RELOAD_OPTIONS;
 	break;
-      case 21:
+      case opt_status_jammed:
 	status_jammed = *(SANE_Word *) value;
 	if (status_jammed)
 	  {
@@ -727,7 +763,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  }
 	myinfo |= SANE_INFO_RELOAD_OPTIONS;
 	break;
-      case 22:
+      case opt_status_nodocs:
 	status_nodocs = *(SANE_Word *) value;
 	if (status_nodocs)
 	  {
@@ -741,7 +777,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  }
 	myinfo |= SANE_INFO_RELOAD_OPTIONS;
 	break;
-      case 23:
+      case opt_status_coveropen:
 	status_coveropen = *(SANE_Word *) value;
 	if (status_coveropen)
 	  {
@@ -755,7 +791,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  }
 	myinfo |= SANE_INFO_RELOAD_OPTIONS;
 	break;
-      case 24:
+      case opt_status_ioerror:
 	status_ioerror = *(SANE_Word *) value;
 	if (status_ioerror)
 	  {
@@ -769,7 +805,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  }
 	myinfo |= SANE_INFO_RELOAD_OPTIONS;
 	break;
-      case 25:
+      case opt_status_nomem:
 	status_nomem = *(SANE_Word *) value;
 	if (status_nomem)
 	  {
@@ -783,7 +819,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  }
 	myinfo |= SANE_INFO_RELOAD_OPTIONS;
 	break;
-      case 26:
+      case opt_status_accessdenied:
 	status_accessdenied = *(SANE_Word *) value;
 	if (status_accessdenied)
 	  {
@@ -804,71 +840,70 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   case SANE_ACTION_GET_VALUE:
     switch (option)
       {
-      case 0:
+      case opt_num_opts:
 	*(SANE_Word *) value = NELEMS(sod);
 	break;
-      case 2:
+      case opt_filename:
 	strcpy (value, filename);
 	break;
-      case 3:
+      case opt_resolution:
 	*(SANE_Word *) value = res;
 	break;
-      case 5:
+      case opt_brightness:
 	*(SANE_Word *) value = bright;
 	break;
-      case 6:
+      case opt_contrast:
 	*(SANE_Word *) value = contr;
 	break;
-      case 7:
+      case opt_grayify:
 	*(SANE_Word *) value = gray;
 	break;
-      case 8:
+      case opt_three_pass:
 	*(SANE_Word *) value = three_pass;
 	break;
-      case 9:
+      case opt_hand_scanner:
 	*(SANE_Word *) value = hand_scanner;
 	break;
-      case 11:
+      case opt_read_only:
 	*(SANE_Word *) value = test_option;
 	break;
-      case 13:
+      case opt_custom_gamma:
 	*(SANE_Word *) value = usegamma;
 	break;
-      case 14:
+      case opt_gamma:
 	memcpy((SANE_Word *) value, &gamma[0][0], 256*sizeof(SANE_Word));
 	break;
-      case 15:
+      case opt_gamma_r:
 	memcpy((SANE_Word *) value, &gamma[1][0], 256*sizeof(SANE_Word));
 	break;
-      case 16:
+      case opt_gamma_g:
 	memcpy((SANE_Word *) value, &gamma[2][0], 256*sizeof(SANE_Word));
 	break;
-      case 17:
+      case opt_gamma_b:
 	memcpy((SANE_Word *) value, &gamma[3][0], 256*sizeof(SANE_Word));
 	break;
-	/*status*/
-      case 19:
+      case opt_status:
 	*(SANE_Word *) value = status_none;
 	break;
-      case 20:
+      case opt_status_eof:
 	*(SANE_Word *) value = status_eof;
 	break;
-      case 21:
+      case opt_status_jammed:
 	*(SANE_Word *) value = status_jammed;
 	break;
-      case 22:
+      case opt_status_nodocs:
 	*(SANE_Word *) value = status_nodocs;
 	break;
-      case 23:
+      case opt_status_coveropen:
 	*(SANE_Word *) value = status_coveropen;
 	break;
-      case 24:
+      case opt_status_ioerror:
 	*(SANE_Word *) value = status_ioerror;
 	break;
-      case 25:
+      case opt_status_nomem:
 	*(SANE_Word *) value = status_nomem;
 	break;
-      case 26:
+      case opt_status_accessdenied:
 	*(SANE_Word *) value = status_accessdenied;
 	break;
       default:

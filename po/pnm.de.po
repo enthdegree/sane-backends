@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.7\n"
-"POT-Creation-Date: 2002-01-09 16:00+0100\n"
+"POT-Creation-Date: 2002-01-11 19:24+0100\n"
 "PO-Revision-Date: 2002-01-09 14:46+0100\n"
 "Last-Translator: Henning Meier-Geinitz <henning@meier-geinitz.de>\n"
 "Language-Team: \n"
@@ -12,45 +12,47 @@ msgstr ""
 "Content-Type: text/plain; charset=iso-8859-1\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: .tmp/pnm.c:129
+#: .tmp/pnm.c:164
 msgid "Source Selection"
 msgstr "Dateiauswahl"
 
-#: .tmp/pnm.c:130
+#: .tmp/pnm.c:165
 msgid "Selection of the file to load."
 msgstr "Auswahl der zu ladenden Datei"
 
-#: .tmp/pnm.c:163
+#: .tmp/pnm.c:198
 msgid "Image Enhancement"
 msgstr "Bildkorrektur"
 
-#: .tmp/pnm.c:164
+#: .tmp/pnm.c:199
 msgid "A few controls to enhance image while loading"
 msgstr "Einige Einstellungen zur Verbesserung des Bildes während des Ladens"
 
-#: .tmp/pnm.c:196
+#: .tmp/pnm.c:231
 msgid "Grayify"
 msgstr "Graustufen"
 
-#: .tmp/pnm.c:197
+#: .tmp/pnm.c:232
 msgid "Load the image as grayscale."
 msgstr "Bild in Graustufen laden."
 
-#: .tmp/pnm.c:207
+#: .tmp/pnm.c:242
 msgid "Three-Pass Simulation"
 msgstr "Three-Pass Simulation"
 
-#: .tmp/pnm.c:208
+#: .tmp/pnm.c:243
 msgid ""
 "Simulate a three-pass scanner by returning 3 separate frames.  For kicks, it "
 "returns green, then blue, then red."
-msgstr "Simuliere einen Three-Pass Scanner, indem hintereinander je ein Frame für jede Grundfarbe übertragen wird. Die Reihenfolge ist grün-blau-rot."
+msgstr ""
+"Simuliere einen Three-Pass Scanner, indem hintereinander je ein Frame für "
+"jede Grundfarbe übertragen wird. Die Reihenfolge ist grün-blau-rot."
 
-#: .tmp/pnm.c:219
+#: .tmp/pnm.c:254
 msgid "Hand-Scanner Simulation"
 msgstr "Handscanner Simulation"
 
-#: .tmp/pnm.c:220
+#: .tmp/pnm.c:255
 msgid ""
 "Simulate a hand-scanner.  Hand-scanners often do not know the image height a "
 "priori.  Instead, they return a height of -1.  Setting this option allows to "
@@ -61,66 +63,72 @@ msgstr ""
 "Mit dieser Option kann man prüfen, ob das Frontend damit richtig umgehen "
 "kann."
 
-#: .tmp/pnm.c:232
+#: .tmp/pnm.c:267
 msgid "Defaults"
 msgstr "Defaulteinstellungen"
 
-#: .tmp/pnm.c:233
+#: .tmp/pnm.c:268
 msgid "Set default values for enhancement controls (brightness & contrast)."
-msgstr "Stellt die Farbverbesserungseinstellungen (Helligkeit und Kontrast) auf Defaultwerte."
+msgstr ""
+"Stellt die Farbverbesserungseinstellungen (Helligkeit und Kontrast) auf "
+"Defaultwerte."
 
-#: .tmp/pnm.c:243
+#: .tmp/pnm.c:278
 msgid "Read only test-option"
 msgstr "Nur-Lese-Testoption"
 
-#: .tmp/pnm.c:244
+#: .tmp/pnm.c:279
 msgid "Let's see whether frontends can treat this right"
 msgstr "Mal sehen, ob das Frontend damit umgehen kann."
 
-#: .tmp/pnm.c:254
+#: .tmp/pnm.c:289
 msgid "Gamma tables"
 msgstr "Gammatabellen"
 
-#: .tmp/pnm.c:255
+#: .tmp/pnm.c:290
 msgid "Selection of custom gamma tables."
 msgstr "Auswahl der benutzerdefinierten Gammatabellen."
 
-#: .tmp/pnm.c:320
+#: .tmp/pnm.c:355
 msgid "Status Code Simulation"
 msgstr "Statuscode Simulation"
 
-#: .tmp/pnm.c:321
+#: .tmp/pnm.c:356
+#, fuzzy
 msgid ""
-"Forces the backend to return a specific status code after a call to "
-"sane_read(). This can be used to test whether a frontend is ableto treat the "
-"status codes correctly."
-msgstr "Zwingt das Backend, einen bestimmten Statuscode nach dem Aufruf von sane_read() zurückzuliefern. Damit kann man prüfen, ob ein Frontend die Statuscodes richtig behandeln kann."
+"Forces the backend to return a specific status code after a call to sane_read"
+"(). This can be used to test whether a frontend is able to treat the status "
+"codes correctly."
+msgstr ""
+"Zwingt das Backend, einen bestimmten Statuscode nach dem Aufruf von sane_read"
+"() zurückzuliefern. Damit kann man prüfen, ob ein Frontend die Statuscodes "
+"richtig behandeln kann."
 
-#: .tmp/pnm.c:333
+#: .tmp/pnm.c:368
 msgid "Do not force status code"
 msgstr "Keinen Statuscode erzwingen"
 
-#: .tmp/pnm.c:334
+#: .tmp/pnm.c:369
 msgid "Do not force the backend to return a status code."
 msgstr "Zwinge das Backend nicht dazu, einen Statuscode zurückzuliefern."
 
-#: .tmp/pnm.c:344
+#: .tmp/pnm.c:379
 msgid "Return SANE_STATUS_EOF"
 msgstr "Liefere SANE_STATUS_EOF zurück"
 
-#: .tmp/pnm.c:345
+#: .tmp/pnm.c:380
 msgid ""
-"Force the backend to return the status code SANE_STATUS_EOF after "
-"sane_read() has been called."
+"Force the backend to return the status code SANE_STATUS_EOF after sane_read"
+"() has been called."
 msgstr ""
 "Zwinge das Backend dazu, nach einem Aufruf von sane_read() den Statuscode "
 "SANE_STATUS_EOF zurückzuliefern."
 
-#: .tmp/pnm.c:356
+#: .tmp/pnm.c:391
 msgid "Return SANE_STATUS_JAMMED"
 msgstr "Liefere SANE_STATUS_JAMMED zurück"
 
-#: .tmp/pnm.c:357
+#: .tmp/pnm.c:392
 msgid ""
 "Force the backend to return the status code SANE_STATUS_JAMMED after "
 "sane_read() has been called."
@@ -128,11 +136,11 @@ msgstr ""
 "Zwinge das Backend dazu, nach einem Aufruf von sane_read() den Statuscode "
 "SANE_STATUS_JAMMED zurückzuliefern."
 
-#: .tmp/pnm.c:368
+#: .tmp/pnm.c:403
 msgid "Return SANE_STATUS_NO_DOCS"
 msgstr "Liefere SANE_STATUS_NO_DOCS zurück"
 
-#: .tmp/pnm.c:369
+#: .tmp/pnm.c:404
 msgid ""
 "Force the backend to return the status code SANE_STATUS_NO_DOCS after "
 "sane_read() has been called."
@@ -140,11 +148,11 @@ msgstr ""
 "Zwinge das Backend dazu, nach einem Aufruf von sane_read() den Statuscode "
 "SANE_STATUS_NO_DOCS zurückzuliefern."
 
-#: .tmp/pnm.c:380
+#: .tmp/pnm.c:415
 msgid "Return SANE_STATUS_COVER_OPEN"
 msgstr "Liefere SANE_STATUS_COVER_OPEN zurück"
 
-#: .tmp/pnm.c:381
+#: .tmp/pnm.c:416
 msgid ""
 "Force the backend to return the status code SANE_STATUS_COVER_OPEN after "
 "sane_read() has been called."
@@ -152,11 +160,11 @@ msgstr ""
 "Zwinge das Backend dazu, nach einem Aufruf von sane_read() den Statuscode "
 "SANE_STATUS_COVER_OPEN zurückzuliefern."
 
-#: .tmp/pnm.c:392
+#: .tmp/pnm.c:427
 msgid "Return SANE_STATUS_IO_ERROR"
 msgstr "Liefere SANE_STATUS_IO_ERROR zurück"
 
-#: .tmp/pnm.c:393
+#: .tmp/pnm.c:428
 msgid ""
 "Force the backend to return the status code SANE_STATUS_IO_ERROR after "
 "sane_read() has been called."
@@ -164,11 +172,11 @@ msgstr ""
 "Zwinge das Backend dazu, nach einem Aufruf von sane_read() den Statuscode "
 "SANE_STATUS_IO_ERROR zurückzuliefern."
 
-#: .tmp/pnm.c:404
+#: .tmp/pnm.c:439
 msgid "Return SANE_STATUS_NO_MEM"
 msgstr "Liefere SANE_STATUS_NO_MEM zurück"
 
-#: .tmp/pnm.c:405
+#: .tmp/pnm.c:440
 msgid ""
 "Force the backend to return the status code SANE_STATUS_NO_MEM after "
 "sane_read() has been called."
@@ -176,21 +184,17 @@ msgstr ""
 "Zwinge das Backend dazu, nach einem Aufruf von sane_read() den Statuscode "
 "SANE_STATUS_NO_MEM zurückzuliefern."
 
-#: .tmp/pnm.c:416
+#: .tmp/pnm.c:451
 msgid "Return SANE_STATUS_ACCESS_DENIED"
 msgstr "Liefere SANE_STATUS_ACCESS_DENIED zurück"
 
-#: .tmp/pnm.c:417
+#: .tmp/pnm.c:452
 msgid ""
 "Force the backend to return the status code SANE_STATUS_ACCESS_DENIED after "
 "sane_read() has been called."
 msgstr ""
 "Zwinge das Backend dazu, nach einem Aufruf von sane_read() den Statuscode "
 "SANE_STATUS_ACCESS_DENIED zurückzuliefern."
-
-#: .tmp/pnm.c:469 .tmp/pnm.c:475
-msgid "PNM file reader"
-msgstr "PNM Dateileser"
 
 #: .tmp/saneopts.h:105
 msgid "Number of options"
@@ -532,14 +536,17 @@ msgstr ""
 
 #: .tmp/saneopts.h:228
 msgid "Determines whether a builtin or a custom gamma-table should be used."
-msgstr "Legt fest, dass eine benutzerdefinierte Gammatabelle verwendet werden soll."
+msgstr ""
+"Legt fest, dass eine benutzerdefinierte Gammatabelle verwendet werden soll."
 
 #: .tmp/saneopts.h:232
 msgid ""
 "Gamma-correction table.  In color mode this option equally affects the red, "
 "green, and blue channels simultaneously (i.e., it is an intensity gamma "
 "table)."
-msgstr "Gammatabelle. Im Farbmodus wirkt sich diese Option auf alle Farbkomponenten gleichzeitig aus."
+msgstr ""
+"Gammatabelle. Im Farbmodus wirkt sich diese Option auf alle Farbkomponenten "
+"gleichzeitig aus."
 
 #: .tmp/saneopts.h:237
 msgid "Gamma-correction table for the red band."

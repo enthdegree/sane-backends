@@ -1,5 +1,5 @@
 :backend "pnm"
-:version "1.0.2"
+:version "1.0.3"
 :status :beta
 :manpage "sane-pnm"
 :url "mailto:henning@meier-geinitz.de"

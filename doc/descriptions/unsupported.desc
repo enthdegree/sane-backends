@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2004-05-28"		; version of backend
+:version "2004-06-08"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -1132,6 +1132,12 @@
 :interface "USB"
 :status :unsupported
 :comment "Not supported. Some information is available. May work with the Plustek backend in future."
+
+:model "TravelScan FS-531"
+:url "unsupported/syscan-travelscan-fs531.html"
+:interface "USB"
+:status :unsupported
+:comment "Not supported. May work with the Plustek backend in future. See link for details."
 
 :model "TravelScan Pro"
 :url "/unsupported/syscan-travelscan-pro.html"

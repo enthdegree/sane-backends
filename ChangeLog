@@ -15,6 +15,7 @@
 	  complete.
 	* tools/hotplug/libsane.usermap: Added another variant of a
 	  Plustek OpticPro 1248U.
+	* doc/descriptions/unsupported.desc: Added Syscan TravelScan FS-531.
 
 2004-06-06  Karl Heinz Kremer <khk@khk.net>
 

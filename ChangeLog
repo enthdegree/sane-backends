@@ -6,6 +6,10 @@
 
 	* backend/test.c doc/descriptions/test.desc: Check if sane_init was
 	  called before any other SANE function.
+	* backend/dll.c doc/descriptions/dll.desc: Don't call sane_exit twice.
+	  Call sane_init after sane_exit. Try to load from $LD_LIBRARY_PATH
+	  ($SHLIB_PATH, $LIBPATH) first and only check LIBDIR if opening
+	  failed. New version: 1.0.6.
 
 2002-04-21  Abel Deuring <a.deuring@satzbau-gmbh.de>
 	* backend/sharp.c: added a "free(devlist)" call to sane_exit

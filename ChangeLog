@@ -1,3 +1,8 @@
+2005-02-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added several scanners. Minor
+	  fixes.
+	   
 2005-02-04  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* tools/hotplug/libsane.usermap: Added Epson CX6600 based on patch

@@ -183,6 +183,8 @@ AC_CHECK_FUNCS(atexit ioperm mkdir scsireq_enter sigprocmask \
     cfmakeraw tcsendbreak usleep strcasecmp strncasecmp _portaccess \
     getenv isfdtype vsyslog)
 
+SANE_LINKER_RPATH
+
 dnl initialize libtool
 AC_LIBTOOL_WIN32_DLL
 AM_PROG_LIBTOOL

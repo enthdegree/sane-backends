@@ -14,6 +14,8 @@
 	* doc/descriptions/avision.desc doc/descriptions/canon.desc
 	  doc/descriptions/sharp.desc: Updated to new status values.
 	  Bugs: #300146, #300147, #300154.
+	* include/sane/sanei_thread.h: Updated doxygen documentation
+	  for new sanei_thread interface.
 
 2003-10-23  Frank Zago <fzago at austin dot rr dot com>
 

@@ -1,4 +1,4 @@
-Plustek-USB.txt (2004-03-28) Gerhard Jäger <gerhard@gjaeger.de>
+Plustek-USB.txt (2004-07-05) Gerhard Jäger <gerhard@gjaeger.de>
 ===============================================================
 
 NOTE:
@@ -75,7 +75,8 @@ UMAX
 Vendor ID: 0x1606
 
 Product ID       Device-description and status	
-0x0060           UMAX 3400/3450 - working (TPA on 3450 not supported)
+0x0050           UMAX 3400 - working 
+0x0060           UMAX 3400/3450 - working 
 0x0160           UMAX 5400 - working
 
 COMPAQ

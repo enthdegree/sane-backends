@@ -1,11 +1,10 @@
-Plustek-USB-TODO.txt (2004-03-22) Gerhard Jäger <gerhard@gjaeger.de>
+Plustek-USB-TODO.txt (2004-07-05) Gerhard Jäger <gerhard@gjaeger.de>
 ====================================================================
 
 TODO (in general):
-	- more documentation/comments on the different functions
-	- auto-warmup
-	- sensor movement speedup ffw/rev
-	- add plustek.conf presettings to interface for frontends
+- more documentation/comments on the different functions
+-
+
 
 KNOWN BUGS/Limitations:
 
@@ -13,10 +12,16 @@ Model             Description                           Workaround
 ------------------------------------------------------------------------------
 
 HP 2100c          Straight Line Bug                     none
-EPSON Photo       Negative Scanning quality bad         none
+All with TPA      Negative Scanning quality bad         none
 CIS devices       Skip calibration does not work        none
 
 ********************************* DONE ***************************************
+
+all               add plustek.conf presettings to               done
+                  interface for frontends
+
+all               Auto-warmup                                   done
+all               Sensor movement speedup ffw/rev               done 
 
 Canon             fine calibration does not work                fixed
 Canon  650        color modes >=600 dpi too dark                fixed

@@ -88,8 +88,7 @@
 # define PPA_PROBE_EPP19 0x0200
 #else
 
-/*
- * the parport driver in Kernel 2.4 has changed. It does report the
+/* the parport driver in Kernel 2.4 has changed. It does report the
  * possible modes in a different, more general way. As long, as
  * we do not use the parport-module change mode facility, I assume
  * the following correlations
@@ -103,10 +102,8 @@
 #endif
 #endif
 
-#define _A 16807         /* multiplier */
-#define _M 2147483647L   /* 2**31 - 1 */
-#define _Q 127773L       /* m div a */
-#define _R 2836          /* m mod a */
+#define _PP_A 16807         /**< multiplier */
+#define _PP_M 2147483647L   /**< 2**31 - 1  */
 
 /*************************** some local vars *********************************/
 
@@ -426,17 +423,17 @@ static Long miscNextLongRand( Long seed )
 {
 	ULong lo, hi;
 
-    lo = _A * (Long)(seed & 0xFFFF);
-    hi = _A * (Long)((ULong)seed >> 16);
+    lo = _PP_A * (Long)(seed & 0xFFFF);
+    hi = _PP_A * (Long)((ULong)seed >> 16);
     lo += (hi & 0x7FFF) << 16;
-    if (lo > _M) {
+    if (lo > _PP_M) {
 
-		lo &= _M;
+		lo &= _PP_M;
         ++lo;
 	}
     lo += hi >> 15;
-    if (lo > _M) {
-		lo &= _M;
+    if (lo > _PP_M) {
+		lo &= _PP_M;
         ++lo;
 	}
 
@@ -447,7 +444,7 @@ static Long miscNextLongRand( Long seed )
  */
 static void miscSeedLongRand( ULong seed )
 {
-	randomnum = seed ? (seed & _M) : 1;  /* nonzero seed */
+	randomnum = seed ? (seed & _PP_M) : 1;  /* nonzero seed */
 }
 
 /************************ exported functions *********************************/
@@ -689,23 +686,23 @@ _LOC int MiscRegisterPort( pScanData ps, int portAddr )
 	DBG( DBG_LOW, "Assigning port handle %i\n", portAddr );
     ps->pardev = portAddr;
 #else
-	struct parport *pp = NULL;
-
-	DBG( DBG_LOW, "Requested port at 0x%02x\n", portAddr );
 
 #ifdef LINUX_26
 	__ps = ps;
 	__pa = portAddr;
 
+	DBG( DBG_LOW, "Requested port at 0x%02x\n", portAddr );
+
 	if( parport_register_driver(&pt_drv)) {
 		/* Failed; nothing we can do. */
 		return _E_REGISTER;
 	}
-	if( NULL == pp ) {
-		return _E_PORTSEARCH;
-	}
 
-#else	
+#else
+	struct parport *pp = NULL;
+
+	DBG( DBG_LOW, "Requested port at 0x%02x\n", portAddr );
+
 	pp         = parport_enumerate();
 	ps->pardev = NULL;
 
@@ -728,6 +725,7 @@ _LOC int MiscRegisterPort( pScanData ps, int portAddr )
 #endif
 
 	if( NULL == ps->pp ) {
+		printk("PORT not found!!!\n");
 		return _E_NO_PORT;
 	}
 

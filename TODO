@@ -1,4 +1,4 @@
-TODO (2003-03-13)
+TODO (2003-03-30)
 
 ******** todo ********
 
@@ -41,21 +41,15 @@ backends
     - as6e: attach: memory (dev + dev-sane.name) isn't freed if driver isn't
       found.
 
-  * net: add IPv6 support.
-
   * suspicious warnings or type mismatchs:
     - bh: backend/bh.c", line 1923: warning: end-of-loop code not reached
-      see sane-devel.
+      see sane-devel. Also don't use mktemp.
     - coolscan: Lots of compilation warnings (e.g.
       "backend/coolscan-scsidef.h", line 160: warning: initialization
       type mismatch; empty declarations), see sane-devel.
 
   * Check if sp15c backend (Fujitsu ScanPartner 15C) can be included in
     fujitsu or avision backends.
-
-  * Check the Irix patches from
-    http://www.mostang.com/pipermail/sane-devel/2002-December/017010.html
-    - as6e
 
   * artec
     - Fix misdetection of AT3. Add something like this to the version detection
@@ -106,8 +100,6 @@ frontends
        by one user). Maybe add a command line option to saned to set the
        timeout. Otherwise turn on TCP keep alive (where available) and
        (maybe) check the connection from server side.
-     - Add IPv6 support.
-     - Add support for IP ranges in saned.conf (like 10.0.0.0/8)?
      - Check for wire errors everywhere. Maybe create a macro?
      - Can the amount of memory that's used for strings be limited? 
        Otherwise remote computers can allocate huge amounts of memories on the
@@ -183,12 +175,18 @@ misc
     See http://fz.eryx.net/sane/#configure.
 
   * Fix japi to run on current jdks. Swing is now included, and there is
-    a segfault in Sane.c.
+    a segfault in Sane.c. Silvio Vogt <blackhol at web.de> is working on this
+    topic.
 
   * Update Dutch translation from Martin Kho (see sane-devel).
 
+  * add configure switch to enable/disable libusb support
 
 ******** done ********
+* Add support for IP ranges in saned.conf (like 10.0.0.0/8) --> no, use tcpwrapper?
+* net + saned: add IPv6 support.
+* Check the Irix patches from
+  http://www.mostang.com/pipermail/sane-devel/2002-December/017010.html
 * fujitsu:
   - Add support for USB scanners (patch from Ron Cemer ron@roncemer.com)
   - Add Fujitsu Scanpartner 93GX to list of supported devices, it worked at least 

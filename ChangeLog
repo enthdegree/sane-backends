@@ -6,6 +6,8 @@
 	  backend/net.h doc/sane-net.man doc/saned.man frontend/saned.c
 	  include/sane/config.h.in: Added support for IPv6. Updated
 	  manpages. Patch from Julien BLACHE <jb@jblache.org>.
+	* TODO: Updated net sections. Removed Irix pacht entry. Added
+	  entry about libusb switch.
 
 2003-03-28  Oliver Schirrmeister <oschirr@abm.de>
 

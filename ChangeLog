@@ -1,3 +1,7 @@
+2003-04-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/test.c backend/test.h doc/descriptions/test.desc: Added
+	  support for OS/2 (from Franz Bakan <fbakan@gmx.net>).
 
 2003-04-05  Nathan Rutman <nthn1@yahoo.com>
 

@@ -1,5 +1,5 @@
 /* sane - Scanner Access Now Easy.
-   Copyright (C) 2002 Henning Meier-Geinitz <henning@meier-geinitz.de>
+   Copyright (C) 2002, 2003 Henning Meier-Geinitz <henning@meier-geinitz.de>
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -41,7 +41,7 @@
    This backend is for testing frontends.
 */
 
-#define BUILD 20
+#define BUILD 21
 
 #include "../include/sane/config.h"
 
@@ -60,6 +60,9 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 #include "../include/sane/sanei_config.h"
+#ifdef HAVE_OS2_H
+#include "../include/sane/sanei_thread.h"
+#endif
 
 #define BACKEND_NAME	test
 #include "../include/sane/sanei_backend.h"
@@ -1201,6 +1204,21 @@ read_option (SANE_String line, SANE_String option_string,
   word = 0;
   return SANE_STATUS_GOOD;
 }
+
+#ifdef HAVE_OS2_H
+/*
+ * reader thread for OS/2: need a wrapper, because threads can have
+ * only one parameter.
+*/
+static void
+os2_reader_process (void *data)
+{
+  struct Test_Device *test_device = (struct Test_Device *) data;
+
+  DBG (1, "reader_process thread started\n");
+  reader_process (test_device, test_device->reader_fds);
+}
+#endif
 
 static SANE_Status
 reader_process (Test_Device * test_device, SANE_Int fd)
@@ -2437,7 +2455,13 @@ sane_start (SANE_Handle handle)
       return SANE_STATUS_IO_ERROR;
     }
 
+#ifndef HAVE_OS2_H
   test_device->reader_pid = fork ();
+#else
+  /* create reader routine as new process or thread */
+  test_device->reader_fds = pipe_descriptor[1];
+  test_device->reader_pid = sanei_thread_begin (os2_reader_process, (void *) test_device);
+#endif
   if (test_device->reader_pid == 0)	/* child */
     {
       SANE_Status status;
@@ -2462,7 +2486,9 @@ sane_start (SANE_Handle handle)
       return SANE_STATUS_NO_MEM;
     }
   /* parent */
+#ifndef HAVE_OS2_H
   close (pipe_descriptor[1]);
+#endif
   test_device->pipe = pipe_descriptor[0];
 
   return SANE_STATUS_GOOD;

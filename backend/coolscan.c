@@ -1700,7 +1700,7 @@ coolscan_get_inquiry_values (Coolscan_t * s)
 
   DBG (10, "get_inquiry_values\n");
 
-  inquiry_block = s->buffer;
+  inquiry_block = (char *) s->buffer;
   s->inquiry_len = 36;
 
   get_inquiry_vendor (inquiry_block, s->vendor);

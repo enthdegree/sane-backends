@@ -135,7 +135,7 @@ print_barcodetype (SANE_Int i)
 {
   return (i > 0 && i < NELEMS(barcode_search_bar_list)) ? 
     barcode_search_bar_list[i] : 
-    (const SANE_String) "unknown";
+    (SANE_String_Const) "unknown";
 }
 
 static SANE_String_Const

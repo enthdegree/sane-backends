@@ -1,3 +1,8 @@
+2003-01-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/bh.c backend/coolscan.c: Minor conversion fixes (from
+	  Andrea Suatoni <a.suatoni@telefonica.net>).
+
 2003-01-24  Gerhard Jaeger <gerhard@gjaeger.de>
 	* doc/plustek/Plustek-USB-TODO.txt
 	  doc/plustek/Plustek-USB.txt

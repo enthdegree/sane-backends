@@ -1,3 +1,8 @@
+2001-05-11  Jochen Eisinger <jochen.eisinger@gmx.de>
+
+	* TODO, backend/mustek_pp.c: fixed line-end handling, removed entry
+	  from TODO list
+
 2001-05-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* TODO: Removed pie from lists of bugs. Removed sane manual page.

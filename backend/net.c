@@ -466,7 +466,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 				       SANE_DLL_V_BUILD);
 
   DBG (1, "sane_init: SANE net backend version %s from %s\n", NET_VERSION,
-       PACKAGE_VERSION);
+       PACKAGE_STRING);
 
   /* determine (client) machine byte order */
   if (*p == 0x12)

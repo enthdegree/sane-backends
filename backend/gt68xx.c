@@ -900,7 +900,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
   DBG_INIT ();
   DBG (2, "SANE GT68xx backend version %d.%d build %d from %s\n", V_MAJOR,
-       V_MINOR, BUILD, PACKAGE_VERSION);
+       V_MINOR, BUILD, PACKAGE_STRING);
 
   if (version_code)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BUILD);

@@ -534,7 +534,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   auth_callback = authorize;
 
   DBG(1, "sane_init: SANE dll backend version %s from %s\n", DLL_VERSION,
-      PACKAGE_VERSION);
+      PACKAGE_STRING);
 
   /* chain preloaded backends together: */
   for (i = 0; i < NELEMS(preloaded_backends); ++i)

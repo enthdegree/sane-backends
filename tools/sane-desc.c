@@ -253,7 +253,7 @@ print_usage (char *program_name)
 static void
 print_version (void)
 {
-  printf ("sane-desc %s (%s)\n", SANE_DESC_VERSION, PACKAGE_VERSION);
+  printf ("sane-desc %s (%s)\n", SANE_DESC_VERSION, PACKAGE_STRING);
   printf ("Copyright (C) 2002 Henning Meier-Geinitz "
 	  "<henning@meier-geinitz.de>\n"
 	  "sane-desc comes with NO WARRANTY, to the extent permitted by "

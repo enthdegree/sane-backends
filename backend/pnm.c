@@ -505,7 +505,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   DBG (2, "sane_init: version_code %s 0, authorize %s 0\n",
        version_code == 0 ? "=" : "!=", authorize == 0 ? "=" : "!=");
   DBG (1, "sane_init: SANE pnm backend version %d.%d.%d from %s\n",
-       V_MAJOR, V_MINOR, BUILD, PACKAGE_VERSION);
+       V_MAJOR, V_MINOR, BUILD, PACKAGE_STRING);
 
   if (version_code)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BUILD);

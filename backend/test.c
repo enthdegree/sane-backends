@@ -1380,7 +1380,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   DBG (2, "sane_init: version_code= %p, authorize=%p\n", version_code,
        authorize);
   DBG (1, "sane_init: SANE test backend version %d.%d.%d from %s\n",
-       V_MAJOR, V_MINOR, BUILD, PACKAGE_VERSION);
+       V_MAJOR, V_MINOR, BUILD, PACKAGE_STRING);
 
   if (version_code)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BUILD);

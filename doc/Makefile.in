@@ -7,7 +7,7 @@ top_builddir = ..
 
 PACKAGE = @PACKAGE@
 VERSION = @VERSION@
-package_version = @PACKAGE_VERSION@
+package_version = @PACKAGE_STRING@
 distdir = $(top_srcdir)/$(PACKAGE)-$(VERSION)
 
 prefix = @prefix@

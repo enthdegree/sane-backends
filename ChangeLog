@@ -1,3 +1,8 @@
+2002-10-19  Peter Fales <peter@fales-lorenz.net>
+
+	* backend/dc25.c - Moved use of UNUSEDARG macro to fix
+	  compilation failure on OS/X
+
 2002-10-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions-external/tevion9693usb.desc: Added Trust 

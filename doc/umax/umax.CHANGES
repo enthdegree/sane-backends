@@ -1034,7 +1034,7 @@ build-32 -> build-33
   * removed #ifdef HAVE_SANEI_IPC parts (SANEI_IPC was never defined)
 
 
-build-33 -> build-34
+build-33 -> build-34 (sane-backends-1.0.8)
 --------------------
 
   * removed bug in reader_process / umax_queue_read_image_data:
@@ -1048,4 +1048,76 @@ build-33 -> build-34
   * backend waits until scanhead has repositioned after scan for UMAX UC1260
 
   * y_dpi quanitsation is set to 5 (same as x_dpi quantisation - was 1)
+
+
+build-34 -> build-35
+--------------------
+
+  * changed ID string "LS4H1S  " to "LS4H1S " (remove one space)
+
+  * activated lamp control for Astra 1220S V1.5
+
+
+build-35 -> build-36
+--------------------
+
+  * added PowerLook 2100XL as supported scanner
+
+  * settings for PowerLook 2100XL:
+    calibration_width_offest = 52
+    (calibration_bytespp = 2, default)
+    (calibration area = image, default)
+
+  * force_quality_calibration defined for PowerLook 2100XL:
+    (normal calibration mode expects different calibration_width_offsets
+     for PowerLook 2100XL, so it is not possible to calculate the correct
+     number of calibration pixels in normal calibration mode)
+    - disable quality calibration option for frontend
+    - always set quality calibration bit when scanning
+
+  * changes for exposure times:
+    - Inquiry does print correct maximum value now
+    - changed variable type from SANE_FIXED to SANE_INT
+    - exposure times setting for colormode does work correct now
+    - as default there is only one common setting for exposure times in rgb mode,
+      added umax.conf option exposure-time-rgb-bind to enable different settings
+      for each color
+    - added option select-calibration-exposure-time, disabled by default.
+      if disabled then the calibration expousre times are the same as the scan exposure times
+
+  * added UMAX PS-2400X as supported device
+
+  * added batch scanning support:
+    Options:
+    --batch-scan-start:		calibration, scan, scanhead is not moved into home position
+    --batch-scan-loop:		no calibration, scan, scanhead is not moved into home position
+    --batch-scan-end:		no calibration, scan, scanhead is moved into home position
+    --batch-next-tl-y:		defines the y start position of the bext batch scan
+
+    - calibration for batch scan needs a different offset and always is done for full ccd.
+      PowerLook 2100XL: calibration_width_offset_batch = 1052
+      Powerlook III:	calibration_width_offset_batch = 828
+
+
+build-36 -> build-37
+--------------------
+
+  * added Linotype Hell SAPHIR3 as supported scanner
+
+  * if batch-next-tl-y is not set then the backend uses br_y
+
+
+build-37 -> build-38 (sane-backends-1.0.9)
+--------------------
+
+  * added Power Look 2000 as supported scanner
+
+
+build-38 -> build-39
+--------------------
+
+  * Power Look 2000: corrected wrong calibration-width-offset from 52 to 22
+    and added calibration-width-offset-batch to 24
+
+  * initialized some global pointers and num_devices in sane_init
 

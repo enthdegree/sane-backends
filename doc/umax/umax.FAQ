@@ -1,5 +1,14 @@
 -------------------------------------------------------------------------------
 
+Q: I am using an Astra 2200 Scanner and can do a preview scan but the scanner
+   hangs or produces bad images when I start a final scan.
+
+A: Disable the option "quality calibration". This does not reduce the image
+   quality, the scanner reports it can do a quality calibration but that is
+   not true for the current firmware version.
+
+-------------------------------------------------------------------------------
+
 Q: What scsi controller shall I use for UMAX scsi scanners?
 
 A: The controller cards that come with UMAX scanners are very simple ones

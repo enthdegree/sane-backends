@@ -1,6 +1,9 @@
 TODO UMAX BACKEND FOR SANE
 ==========================
 
+ * When depth>8 then it is necessary to create the gray gamma
+   table with the correct depth
+
  * Astra 2200: enable option resolution bind for grayscale/lineart
    it must be disabled and set "true" for color mode
 

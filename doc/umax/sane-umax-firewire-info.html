@@ -4,7 +4,7 @@
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
    <meta name="Author" content="Oliver Rauch">
    <meta name="Description" content="scan, photocopy and fax frontend for SANE">
-   <title>SANE-umax Newsletter / mailinglist</title>
+   <title>SANE-umax backend</title>
 </head>
 <body text="#000000" bgcolor="#FFFFFF" link="#0000EF" vlink="#51188E" alink="#FF0000">
 
@@ -18,7 +18,7 @@
 </td>
 <td>
 <blockquote>
-<h1><font color="#009900">SANE-umax newsletter / mailinglist</font></h1>
+<h1><font color="#009900">SANE-umax backend</font></h1>
 </blockquote>
 </td>
 </tr>
@@ -34,6 +34,7 @@
 <ul>
 <li><a href="index.html">Index</a></li>
 <li><a href="imprint.html">Imprint</a></li>
+<li><a href="disclaimer.html">Disclaimer</a></li>
 <li><a href="sane-umax-doc.html">Documentation</a></li>
 <li><a href="sane-umax-news.html">News</a></li>
 <li><a href="sane-umax-contact.html">Contact</a></li>
@@ -49,41 +50,21 @@
 <td VALIGN=TOP BGCOLOR="#FFFFFF">
 <blockquote>
 <br>
-<h3><font color="#009900"><u>SANE-UMAX Newsletter</u></font></h3>
-<blockquote>
-Please select one of the following links and send the generated email.
-It is not necessary to enter a subject or any mail text. To unsubscribe
-you have to send the <i>unsubscribe mail</i> from the same email account
-that has been used for subscribtion.
+<h3>Information about UMAX firewire/IEEE1394 scanners</h3>
+
+I try to add support for UMAX firewire/IEEE1394 scanners like the 
+UMAX Astra 6400 to the sane-umax scsi backend.
+
+In the moment firewire scanners do not work. After some changes
+in the linux sbp2-firewire kernel module I am able to turn the lamp
+of the scanner on and off and to start a scan (the scanhead
+already does move). But I am not able to get any image data
+from the scanner yet. It is unknown if this is a problem in the
+sane-umax backend or in the firewire kernel modules.<br>
 <p>
-<ul>
-<li>
-<a href="mailto:sane-umax-announce-subscribe@thpoon.com">
-subscribe to SANE-UMAX-announce newsletter</a>
-</li>
-<li>
-<a href="mailto:sane-umax-announce-unsubscribe@thpoon.com">
-unsubscribe from SANE-UMAX-announce newsletter</a>
-</li>
-<li>
-<a href="mailto:sane-umax-announce-request@thpoon.com">
-get help about the newsletter service</a>
-</li>
-</ul>
-Thanks to
-<a href="mailto:a.genkin@utoronto.ca">Arcady Genkin</a>
-for hosting the newsletter.
- 
+I can not promise that the backend will support firewire scanners
+in the future but I think there is a good chance to get it work.<br>
 </blockquote>
- 
-<h3><font color="#009900"><u>SANE-UMAX Mailinglist</u></font></h3>
-<blockquote>
-There is no special mailing list available for sane-umax.  Please use the
-<a href="http://www.mostang.com/sane/mail.html">
-SANE mailinglist</a>.
-</blockquote>
- 
-</blockquote>          
 </td>
 </tr>
 </table>
@@ -96,3 +77,4 @@ Author: <a href="mailto:Oliver.Rauch@rauch-domain.de">Oliver Rauch</a>
 
 </body>
 </html>
+

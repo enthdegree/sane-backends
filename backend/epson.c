@@ -16,8 +16,8 @@
    Copyright (C) 2003 EPSON KOWA Corporation
 */
 
-#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.38 - 2003-08-21"
-#define SANE_EPSON_BUILD	238
+#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.39 - 2003-09-12"
+#define SANE_EPSON_BUILD	239
 
 /*
    This file is part of the SANE package.
@@ -59,6 +59,8 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
+   2003-09-12   Increment only once in loop to find USB scanners
+		Fix rounding problem when determining number of lines to scan
    2003-08-21   Removed '//' comments - again ...
 		Added EPSON Kowa copyright message
    2003-08-15	Added support for GT-30000, with support for the ADF in simplex mode
@@ -311,14 +313,14 @@
 
 #include  <sane/sanei_pio.h>
 
+#include  "epson.h"
+#include  "epson_scsi.h"
+#include  "epson_usb.h"
+
 #define  BACKEND_NAME epson
 #include  <sane/sanei_backend.h>
 
 #include  <sane/sanei_config.h>
-
-#include  "epson.h"
-#include  "epson_scsi.h"
-#include  "epson_usb.h"
 
 #define  EPSON_CONFIG_FILE	"epson.conf"
 
@@ -2019,7 +2021,6 @@ attach(const char * dev_name, Epson_Device * * devp, int type)
 				vendor = 0x4b8;
 
 				status = sanei_usb_find_devices(vendor, product, attach_one_usb);
-				i++;
 			}
 			return SANE_STATUS_INVAL;		/* return - the attach_one_usb() 
 											   will take care of this */
@@ -4084,8 +4085,8 @@ sane_get_parameters(SANE_Handle handle, SANE_Parameters * params)
 
 	max_x = max_y = 0;
 
-	s->params.pixels_per_line = SANE_UNFIX( s->val[ OPT_BR_X].w - s->val[ OPT_TL_X].w) / 25.4 * ndpi;
-	s->params.lines = SANE_UNFIX( s->val[ OPT_BR_Y].w - s->val[ OPT_TL_Y].w) / 25.4 * ndpi;
+	s->params.pixels_per_line = SANE_UNFIX( s->val[ OPT_BR_X].w -  s->val[ OPT_TL_X].w) / 25.4 * ndpi + 0.5;
+	s->params.lines = SANE_UNFIX( s->val[ OPT_BR_Y].w - s->val[ OPT_TL_Y].w) / 25.4 * ndpi + 0.5;
 
 	/* 
 	 * Make sure that the number of lines is correct for color shuffling:

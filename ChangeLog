@@ -1,3 +1,8 @@
+2003-09-12  Karl Heinz Kremer <khk@khk.net>
+
+	* backend/epson.c: Increment only once in loop to find USB scanners,
+	  fix rounding error when calculating number of lines to scan.
+
 2003-09-12  Eddy De Greef <eddy_de_greef at tiscali dot be>
 
 	* AUTHORS, backend/mustek_pp_cis.c, backend/mustek_pp_cis.h,

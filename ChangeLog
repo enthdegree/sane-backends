@@ -15,6 +15,7 @@
 	  security issues.
 	* README.linux: Moved "memory exhausted" and missing scsi headers
 	  problems from PROBLEMS.
+	* TODO: Added saned info. Added artec at3 misdetection.
 
 2003-02-09   Stéphane Voltz  <svoltz@wanadoo.fr>
 

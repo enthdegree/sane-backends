@@ -1,4 +1,4 @@
-TODO (2003-01-26)
+TODO (2003-02-09)
 
 ******** todo ********
 
@@ -56,6 +56,19 @@ backends
     http://www.mostang.com/pipermail/sane-devel/2002-December/017010.html
     - as6e
 
+  * artec
+    - Fix misdetection of AT3. Add something like this to the version detection
+      code:
+        else if (strstr (str, "AT3") == str)
+          {
+            str[3] = '\0';
+            strncpy (product_revision, str + 8, 4);
+          }
+      The AT3 seems to behave similar to the A6000C PLUS and includes its
+      version in the model string:
+      [artec] 0x00: 06 00 02 01 5b 00 00 00 55 4c 54 49 4d 41 20 20 ....[...ULTIMA
+      [artec] 0x10: 41 54 33 20 20 20 20 20 31 2e 36 30 20 20 20 20 AT3    1.60
+    - Fix email address of Chris Pinkham. cpinkham@infi.net bounces.
 doc
 ---
   * Add doxygen documentation for the remaining sanei files:
@@ -81,6 +94,11 @@ frontends
        (maybe) check the connection from server side.
      - Add IPv6 support.
      - Add support for IP ranges in saned.conf (like 10.0.0.0/8)?
+     - Check for wire errors everywhere. Maybe create a macro?
+     - Can the amount of memory that's used for strings be limited? 
+       Otherwise remote computers can allocate huge amounts of memories on the
+       server.
+     - Think about a complete rewrite with security in mind.
 
   * scanimage: Check range of width and height. scanimage just uses the ranges
     from br-x and br-y but this is wrong for tl-x and tl-y != 0 and for

@@ -1,3 +1,6 @@
+---- FEATURE FREEZE FOR SANE 1.0.15 ---
+-- snapshot 1.0.15-pre1
+
 2004-10-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Olivetti Job-Jet M400.

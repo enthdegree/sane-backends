@@ -2940,7 +2940,7 @@ static SANE_Status init_options ( Epson_Scanner * s) {
 		s->opt[ OPT_CCT_6].desc  = SANE_I18N("Adds to blue based on red level");
 		s->opt[ OPT_CCT_7].desc  = SANE_I18N("Adds to green based on blue level");
 		s->opt[ OPT_CCT_8].desc  = SANE_I18N("Adds to red based on blue level");
-		s->opt[ OPT_CCT_9].desc  = SANE_I18N("Control blue level");
+		s->opt[ OPT_CCT_9].desc  = SANE_I18N("Controls blue level");
 
 		s->opt[ OPT_CCT_1].type = SANE_TYPE_INT;
 		s->opt[ OPT_CCT_2].type = SANE_TYPE_INT;

@@ -364,6 +364,13 @@ If this works, you could try to acquire an image with:
 .IP
 scanimage -d mustek:/dev/scanner >t.pnm
 .PP
+To check that the SANE libraries are installed correctly you can use the test
+backend, even if you don't have a scanner or other SANE device:
+.IP
+scanimage -d test -T
+.TP
+You should get a list of PASSed tests.
+.PP
 If you are not sure what generic SCSI or USB device your scanner is connected
 to, try the command sane-find-scanner.  Usually, It's sufficient to invoke the
 program without any arguments.  Invoking this command should produce output

@@ -26,7 +26,8 @@ V_MAJOR = @V_MAJOR@
 V_MINOR = @V_MINOR@
 V_REV = @V_REV@
 DLL_PRELOAD = @DLL_PRELOAD@
-DLL_PRELOAD_EXTRAS = $(foreach be,$(DLL_PRELOAD),$($(addprefix EXTRA_,$(be))))
+DLL_PRELOAD_EXTRAS = $(foreach be,$(DLL_PRELOAD),$($(addprefix EXTRA_,$(be))))\
+                     @DJPEG@ 
 
 MKDIR = $(top_srcdir)/mkinstalldirs
 INSTALL = @INSTALL@
@@ -160,8 +161,8 @@ libsane.la: dll.lo dll-s.lo $(EXTRA) $(addsuffix .lo,$(DLL_PRELOAD)) $(LIBOBJS)
 
 EXTRA_hp = hp-accessor hp-device hp-handle hp-hpmem hp-option hp-scl
 EXTRA_umax_pp = umax_pp_low umax_pp_mid
-EXTRA_dc210 = djpeg
-EXTRA_dc240 = djpeg
+# EXTRA_dc210 = djpeg
+# EXTRA_dc240 = djpeg
 
 # When preloading dll, we need to add in all preloaded objects:
 libsane-dll.la: $(addsuffix .lo,$(DLL_PRELOAD))

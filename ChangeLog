@@ -14,6 +14,9 @@
 	  case. Changed some debug levels.
 	* PROJECTS: Updated some URLs. Removed m3096g and Mustek BearPaw 
 	  (both are included now in SANE). Added test backend and SaneTwain.
+	* TODO: Removed primax (not a backend), fixed viceo URL, updated 
+	  qcam entries, added entries about ipv6 support, removed saned
+	  address validation entry. Added entry about scanimage + NLS.
 
 2002-01-10  Tom Martone <tom@martoneconsulting.com>
         * backend/bh.c

@@ -240,8 +240,8 @@ AC_CHECK_LIB(scsi, scsireq_enter)	# FreeBSD needs this
 AC_CHECK_LIB(cam, cam_open_device)      # FreeBSD 3+ needs this
 
 if test "${ac_cv_header_usb_h}" = "yes" ; then
-  AC_CHECK_LIB(usb, usb_open)
-  if test "${ac_cv_lib_usb_usb_open}" = "yes" ; then
+  AC_CHECK_LIB(usb, usb_get_busses)
+  if test "${ac_cv_lib_usb_usb_get_busses}" = "yes" ; then
     HAVE_LIBUSB="yes"
   fi
 fi
@@ -278,7 +278,7 @@ AC_CHECK_FUNCS(atexit inet_addr inet_aton inet_ntoa ioperm mkdir \
 AC_REPLACE_FUNCS(getenv inet_ntop inet_pton isfdtype sigprocmask snprintf \
     strdup strndup strsep usleep vsyslog)
 
-if test "$ac_cv_header_os2_h" == "yes" ; then
+if test "$ac_cv_header_os2_h" = "yes" ; then
   AC_DEFINE(strncasecmp,strnicmp,[Define for OS/2 only])
 fi
 

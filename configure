@@ -3179,9 +3179,9 @@ fi
       # FreeBSD 3+ needs this
 
 if test "${ac_cv_header_usb_h}" = "yes" ; then
-  echo $ac_n "checking for usb_open in -lusb""... $ac_c" 1>&6
-echo "configure:3184: checking for usb_open in -lusb" >&5
-ac_lib_var=`echo usb'_'usb_open | sed 'y%./+-%__p_%'`
+  echo $ac_n "checking for usb_get_busses in -lusb""... $ac_c" 1>&6
+echo "configure:3184: checking for usb_get_busses in -lusb" >&5
+ac_lib_var=`echo usb'_'usb_get_busses | sed 'y%./+-%__p_%'`
 if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -3193,10 +3193,10 @@ cat > conftest.$ac_ext <<EOF
 /* Override any gcc2 internal prototype to avoid an error.  */
 /* We use char because int might match the return type of a gcc2
     builtin and then its argument prototype would still apply.  */
-char usb_open();
+char usb_get_busses();
 
 int main() {
-usb_open()
+usb_get_busses()
 ; return 0; }
 EOF
 if { (eval echo configure:3203: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
@@ -3226,7 +3226,7 @@ else
   echo "$ac_t""no" 1>&6
 fi
 
-  if test "${ac_cv_lib_usb_usb_open}" = "yes" ; then
+  if test "${ac_cv_lib_usb_usb_get_busses}" = "yes" ; then
     HAVE_LIBUSB="yes"
   fi
 fi
@@ -4413,7 +4413,7 @@ done
 
 
 
-if test "$ac_cv_header_os2_h" == "yes" ; then
+if test "$ac_cv_header_os2_h" = "yes" ; then
   cat >> confdefs.h <<\EOF
 #define strncasecmp strnicmp
 EOF

@@ -27,7 +27,7 @@
 :url "http://www.umaxweb.com.tw/"
 :url "http://support.umax.co.uk/"
 :model "parallel scanners"        ; name models for above-specified mfg.
-:interface "Parallel"
+:interface "Parport"
 :comment "Not supported - will propably never be supported by this backend"
 :model "USB scanners"
 :interface "USB"

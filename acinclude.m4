@@ -1,3 +1,12 @@
+dnl
+dnl Contains the following macros
+dnl   SANE_EXTRACT_LDFLAGS(LDFLAGS, LIBS)
+dnl   SANE_V4L_VERSION
+dnl   SANE_CHECK_PTAL
+dnl   SANE_CHECK_JPEG
+dnl   JAPHAR_GREP_CFLAGS(flag, cmd_if_missing, cmd_if_present)
+dnl
+
 #
 # Separate LIBS from LDFLAGS to link correctly on HP/UX (and other
 # platforms who care about the order of params to ld.  It removes all
@@ -67,7 +76,7 @@ AC_DEFUN(SANE_CHECK_PTAL,
 
 		AC_CHECK_HEADERS(ptal.h,
 			AC_CHECK_LIB(ptal,ptalInit,
-				AC_DEFINE(HAVE_PTAL)
+				AC_DEFINE(HAVE_PTAL, 1, [Is PTAL available?])
 				LDFLAGS="${LDFLAGS} -lptal"
 				PTAL_TMP_HAVE_PTAL=yes))
 
@@ -101,4 +110,20 @@ AC_DEFUN(SANE_CHECK_JPEG,
       AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
     ],)
   ],)
+])
+
+dnl
+dnl JAPHAR_GREP_CFLAGS(flag, cmd_if_missing, cmd_if_present)
+dnl
+dnl From Japhar.  Report changes to japhar@hungry.com
+dnl
+AC_DEFUN(JAPHAR_GREP_CFLAGS,
+[case "$CFLAGS" in
+"$1" | "$1 "* | *" $1" | *" $1 "* )
+  ifelse($#, 3, [$3], [:])
+  ;;
+*)
+  $2
+  ;;
+esac
 ])

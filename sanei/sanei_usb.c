@@ -134,6 +134,49 @@ cmsg;
 
 static SANE_Bool inited = SANE_FALSE;
 
+/* Debug level from sanei_init_debug */
+static SANE_Int debug_level;
+
+static void
+print_buffer (const SANE_Byte * buffer, SANE_Int size)
+{
+#define NUM_COLUMNS 16
+#define PRINT_BUFFER_SIZE (6 + NUM_COLUMNS * (3 + 1) + 1 + 1)
+  char line_str [PRINT_BUFFER_SIZE];
+  char *pp;
+  int column;
+  int line;
+
+  memset (line_str, 0, PRINT_BUFFER_SIZE);
+
+  for (line = 0; line < ((size + NUM_COLUMNS - 1) / NUM_COLUMNS); line++)
+    {
+      pp = line_str;
+      sprintf (pp, "%04X: ", line * NUM_COLUMNS);
+      pp += 6;
+      for (column = 0; column < NUM_COLUMNS; column++)
+	{
+	  if ((line * NUM_COLUMNS + column) < size)
+	    sprintf (pp, "%02X ", buffer [line * NUM_COLUMNS + column]);
+	  else
+	    sprintf (pp, "   ");
+	  pp += 3;
+	}
+      for (column = 0; column < NUM_COLUMNS; column++)
+	{
+	  if ((line * NUM_COLUMNS + column) < size)
+	    sprintf (pp, "%c",
+		     (buffer [line * NUM_COLUMNS + column] < 127) && 
+		     (buffer [line * NUM_COLUMNS + column] > 31) ?
+		     buffer [line * NUM_COLUMNS + column] : '.');
+	  else
+	    sprintf (pp, ".");
+	  pp += 1;
+	}
+      DBG(11, "%s\n", line_str);
+    }
+}
+
 static void
 kernel_get_vendor_product (int fd, int *vendorID, int *productID)
 {
@@ -178,11 +221,17 @@ sanei_usb_init (void)
 #endif /* HAVE_LIBUSB */
 
   if (inited)
-    return SANE_STATUS_GOOD;
+    return;
 
   inited = SANE_TRUE;
 
   DBG_INIT ();
+#ifdef DBG_LEVEL
+  debug_level = DBG_LEVEL;
+#else
+  debug_level = 0;
+#endif
+
   memset (devices, 0, sizeof (devices));
 
   /* Check for devices using the kernel scanner driver */
@@ -766,6 +815,9 @@ sanei_usb_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
       DBG (1, "sanei_usb_read_bulk: dn >= MAX_DEVICES || dn < 0\n");
       return SANE_STATUS_INVAL;
     }
+  DBG (5, "sanei_usb_read_bulk: trying to read %lu bytes\n",
+       (unsigned long) *size);
+
   if (devices[dn].method == sanei_usb_method_scanner_driver)
     read_size = read (devices[dn].fd, buffer, *size);
   else if (devices[dn].method == sanei_usb_method_libusb)
@@ -811,9 +863,12 @@ sanei_usb_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
       *size = 0;
       return SANE_STATUS_EOF;
     }
+  if (debug_level > 10)
+    print_buffer (buffer, read_size);
   DBG (5, "sanei_usb_read_bulk: wanted %lu bytes, got %ld bytes\n",
        (unsigned long) *size, (unsigned long) read_size);
   *size = read_size;
+    
   return SANE_STATUS_GOOD;
 }
 
@@ -833,6 +888,10 @@ sanei_usb_write_bulk (SANE_Int dn, const SANE_Byte * buffer, size_t * size)
       DBG (1, "sanei_usb_write_bulk: dn >= MAX_DEVICES || dn < 0\n");
       return SANE_STATUS_INVAL;
     }
+  DBG (5, "sanei_usb_write_bulk: trying to write %lu bytes\n",
+       (unsigned long) *size);
+  if (debug_level > 10)
+    print_buffer (buffer, *size);
 
   if (devices[dn].method == sanei_usb_method_scanner_driver)
     write_size = write (devices[dn].fd, buffer, *size);
@@ -891,6 +950,11 @@ sanei_usb_control_msg (SANE_Int dn, SANE_Int rtype, SANE_Int req,
       return SANE_STATUS_INVAL;
     }
 
+  DBG (5, "sanei_usb_control_msg: rtype = 0x%02x, req = %d, value = %d, "
+       "index = %d, len = %d\n", rtype, req, value, index, len);
+  if (!(rtype & 0x80) && debug_level > 10)
+    print_buffer (data, len);
+
   if (devices[dn].method == sanei_usb_method_scanner_driver)
     {
 #if defined(__linux__)
@@ -903,15 +967,14 @@ sanei_usb_control_msg (SANE_Int dn, SANE_Int rtype, SANE_Int req,
       c.req.length = len;
       c.data = data;
 
-      DBG (5, "sanei_usb_control_msg: rtype = 0x%02x, req = %d, value = %d, "
-	   "index = %d, len = %d\n", rtype, req, value, index, len);
-
       if (ioctl (devices[dn].fd, SCANNER_IOCTL_CTRLMSG, &c) < 0)
 	{
 	  DBG (5, "sanei_usb_control_msg: SCANNER_IOCTL_CTRLMSG error - %s\n",
 	       strerror (errno));
 	  return SANE_STATUS_IO_ERROR;
 	}
+      if ((rtype & 0x80) && debug_level > 10)
+	print_buffer (data, len);
       return SANE_STATUS_GOOD;
 #else /* not __linux__ */
       DBG (5, "sanei_usb_control_msg: not supported on this OS\n");
@@ -932,6 +995,8 @@ sanei_usb_control_msg (SANE_Int dn, SANE_Int rtype, SANE_Int req,
 	       usb_strerror ());
 	  return SANE_STATUS_INVAL;
 	}
+      if ((rtype & 0x80) && debug_level > 10)
+	print_buffer (data, len);
       return SANE_STATUS_GOOD;
     }
 #else /* not HAVE_LIBUSB */
@@ -942,7 +1007,7 @@ sanei_usb_control_msg (SANE_Int dn, SANE_Int rtype, SANE_Int req,
 #endif /* not HAVE_LIBUSB */
   else
     {
-      DBG (1, "sanei_usb_read_bulk: access method %d not implemented\n",
+      DBG (1, "sanei_usb_control_msg: access method %d not implemented\n",
 	   devices[dn].method);
       return SANE_STATUS_UNSUPPORTED;
     }
@@ -1015,5 +1080,7 @@ sanei_usb_read_int (SANE_Int dn, SANE_Byte * buffer, size_t * size)
   DBG (5, "sanei_usb_read_int: wanted %lu bytes, got %ld bytes\n",
        (unsigned long) *size, (unsigned long) read_size);
   *size = read_size;
+  if (debug_level > 10)
+    print_buffer (buffer, read_size);
   return SANE_STATUS_GOOD;
 }

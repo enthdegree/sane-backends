@@ -20,6 +20,9 @@
 	  include/sane/config.h.in frontend/saned.c: Added a switch to
 	  disable libusb. Removed switch to enable ipv6 uncondinionally.
 	  Check for sys/poll.h.
+	* sanei/sanei_usb.c: Added a function to print the buffer contents
+	  for the read and write functions. Fixed some DBGs. Fixed a wrong
+	  return value.
 
 2003-03-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

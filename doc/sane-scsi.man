@@ -1,4 +1,4 @@
-.TH sane-scsi 5 "24 May 2001"
+.TH sane-scsi 5 "10 Jun 2001"
 .IX sane-scsi
 .SH NAME
 sane-scsi - SCSI adapter tips for scanners
@@ -132,38 +132,40 @@ Tekram DC390
 Reported to work fine under FreeBSD 2.2.2R with the
 .B amd
 driver.
+
 .SH LINUX
 First, make sure your kernel has SCSI generic support enabled.  In
 ``make xconfig'', this shows up under ``SCSI support->SCSI generic
 support''.
 .PP
+
 To keep scanning times to a minimum, it is strongly recommended to use a large
-buffer size for the generic SCSI driver.  By default, older Linux kernels use
-a buffer of size 32KB.  This works, but for many cheaper scanners this causes
-scanning to be slower by about a factor of four than when using a size of
-127KB.  Linux defines the size of this buffer by macro
-.B SG_BIG_BUFF
-in header file
-.IR /usr/include/scsi/sg.h .
-Unless a system is seriously short on memory, it is recommended to
-increase this value to the maximum legal value of 128*1024-512=130560
-bytes.  After changing this value, it is necessary to recompile both
-the kernel (or the SCSI generic module) and the SCSI backends.
-.PP
-From SG driver version 2.0 on, the maximum buffer size can
-be changed at program run time, and the restriction to 127 kB is also
-removed. This driver version is part of the Linux kernels from version 
-2.2.7 on. If the new SG driver is available some backends
-(e.g. sane-umax, sane-mustek, sane-sharp) automatically request larger
-scsi buffers. If a backend does not automatically request a larger
-scsi buffer, set the
-environment variable
+buffer size for the generic SCSI driver. From SG driver version 2.0 on, the
+maximum buffer size can be changed at program run time, and there is no restriction in size. This driver version is part of the Linux kernels from
+version 2.2.7 on. If the new SG driver is available some backends
+(e.g. sane-umax, sane-mustek, sane-sharp) automatically request larger scsi
+buffers. If a backend does not automatically request a larger scsi buffer, set
+the environment variable
 .B SANE_SG_BUFFERSIZE
 to the desired buffer size in bytes. It is not recommended to use more 
 than 1 MB, because for large values the probability increases that the 
 SG driver cannot allocate the necessary buffer(s). For ISA cards, even 
 1 MB might be a too large value. For a detailed discussion of memory 
-issues of the SG driver, see http::/www.torque.net/sg.
+issues of the SG driver, see http://www.torque.net/sg.
+.PP
+For Linux kernels before version 2.2.7 the size of the buffer is only 32KB.
+This works, but for many cheaper scanners this causes scanning to be slower by
+about a factor of four than when using a size of 127KB.  Linux defines the
+size of this buffer by macro
+.B SG_BIG_BUFF
+in header file
+.IR /usr/include/scsi/sg.h .
+Unless a system is seriously short on memory, it is recommended to increase
+this value to the maximum legal value of 128*1024-512=130560 bytes.  After
+changing this value, it is necessary to recompile both the kernel (or the SCSI
+generic module) and the SCSI backends. Keep in mind that this is only
+necessary with older Linux kernels.
+
 .PP
 A common issue with SCSI scanners is what to do when you booted
 the system while the scanner was turned off?  In such a case, the
@@ -183,10 +185,15 @@ done as root).  It's also possible to dynamically remove a SCSI device
 by using the ``remove-single-device'' command.  For details, please
 refer to to the SCSI-Programming-HOWTO.
 .PP
-Scanners are known to work with the following SCSI adapters
-under Linux:
+Scanners are known to work with the following SCSI adapters under Linux. This
+list isn't complete, usually any SCSI adapter supported by Linux should work.
 .PP
 .RS
+.TP
+Acard/Advance SCSI adapters
+Some versions of the kernel driver (atp870u.c) cut the inquiry information.
+Therefore the scanner can't be detected correctly. See 
+http://www.meier-geinitz.de/sane/trouble.html#acard for a solution.
 .TP
 Adaptec AHA-1505/AHA-1542/AHA-2940
 Reported to work fine with Linux v2.0. If you encounter kernel freezes
@@ -225,22 +232,24 @@ values of the USLEEP macros in drivers/scsi/g_NCR5380.c.  Some documentation is
 in this file and NCR5380.c.
 .TP
 NCR/Symbios 810
-For this card, make sure the SCSI timeout is reasonably big; the
-default timeout for the Linux kernels before 2.0.33 is 10 seconds, which is
-way too low when scanning large area.  If you get messages of the form
-``restart (ncr dead ?)'' in your /var/log/messages file or on the system
-console, it's an indication that the timeout is too short.  In this case, find
-the line ``if (np->latetime>10)'' in file ncr53c8xx.c (normally in directory
-/usr/src/linux/drivers/scsi) and change the constant 10 to, say, 60 (one
-minute).  Then rebuild the kernel/module and try again. For some scanners it
-may be necssary to disable disconnect/reconnect. To achieve this use the
-option ncr53c8xx="disc:n".
+For some scanners it may be necssary to disable disconnect/reconnect. To
+achieve this use the option ncr53c8xx="disc:n".
+.br
+For Linux kernels before 2.0.33 it may be necessary to increase the SCSI
+timeout. The default timeout for the Linux kernels before 2.0.33 is 10
+seconds, which is way too low when scanning large area.  If you get messages
+of the form ``restart (ncr dead ?)'' in your /var/log/messages file or on the
+system console, it's an indication that the timeout is too short.  In this
+case, find the line ``if (np->latetime>10)'' in file ncr53c8xx.c (normally in
+directory /usr/src/linux/drivers/scsi) and change the constant 10 to, say, 60
+(one minute).  Then rebuild the kernel/module and try again.
 .TP
 Tekram DC390
 Version 1.11 of the Tekram driver seems to work fine mostly, except
 that the scan does not terminate properly (it causes a SCSI timeout
 after 10 minutes).  The generic AM53C974 also seems to work fine
 and does not suffer from the timeout problems.
+
 .SH Solaris, OpenStep and NeXTStep
 Under Solaris, OpenStep and NeXTStep, the generic SCSI device name
 refers to a SCSI bus, not to an individual device.  For example,
@@ -262,6 +271,6 @@ environment variable controls the debug level for the generic SCSI I/O
 subsystem.  E.g., a value of 128 requests all debug output to be
 printed.  Smaller levels reduce verbosity.
 .SH "SEE ALSO"
-sane(7), sane-find-scanner(1), sane-"backendname"(5)
+sane(7), sane\-find\-scanner(1), sane\-"backendname"(5)
 .SH AUTHOR
 David Mosberger

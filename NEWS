@@ -3,8 +3,9 @@ New with 1.0.13, released 2003-11-22:
 
 * New backends: mustek_pp_ccd (for Mustek parport CCD scanners),
   plustek_pp (for Plustek parport scanners, splitted from the plustek backend).
-* Updated backends: avision, canon630u, epson, fujitsu, gphoto2, gt68xx, hp,
-  hp5400, mustek, plustek, snapscan, teco2, test, umax, umax_pp.
+* Updated backends: avision, canon630u, coolscan, epson, fujitsu, gphoto2,
+  gt68xx, hp, hp5400, mustek, mustek_pp, pie, plustek, snapscan, teco2, test,
+  umax, umax_pp.
 * New internal interface for parport scanners.
 * Networking (IPv6 + subnet support) fixes + updates.
 * sane-find-scanner can detect some USB scanner chipsets now.

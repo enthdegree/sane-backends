@@ -1,5 +1,27 @@
 CHANGES for the SANE Mustek backend
 
+2000-04-02
+  * released backend version 0.78
+  * added MUSTEK_FLAG_DOUBLE_RES for the MFS-12000CX 3-pass scanner,
+    resolutions > 600 dpi should work now
+    
+2000-04-01
+  * reduced scan area for Paragon 800 S / II SP 
+
+2000-03-29
+  * released backend version 0.77
+  * inquiry is printed in full text at debug level 4
+  * more debug level tweaking
+  * man page update
+  * model name update
+  
+2000-03-25
+  * corrected some spelling errors
+  
+2000-03-24
+  * reduced scanarea for the MSF-6000SP
+  * restructured scanner recognition
+
 2000-03-18
   * released backend version 0.76
   

@@ -8,6 +8,9 @@
 #undef _ALL_SOURCE
 #endif
 
+/* Define if words are stored with the most significant byte first */
+#undef WORDS_BIGENDIAN
+
 /* Define if using alloca.c.  */
 #undef C_ALLOCA
 

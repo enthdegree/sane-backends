@@ -1016,6 +1016,7 @@ scan_it (void)
     "gray", "RGB", "red", "green", "blue"
   };
   SANE_Word total_bytes = 0, expected_bytes;
+  SANE_Int hang_over = -1;
 
   do
     {
@@ -1061,7 +1062,7 @@ scan_it (void)
 	    case SANE_FRAME_RED:
 	    case SANE_FRAME_GREEN:
 	    case SANE_FRAME_BLUE:
-	      assert ((parm.depth == 8) || (parm.depth == 16));
+	      assert (parm.depth == 8);
 	      must_buffer = 1;
 	      offset = parm.format - SANE_FRAME_RED;
 	      break;
@@ -1107,6 +1108,8 @@ scan_it (void)
 	      image.Bpp = 3;
 	      if (parm.format == SANE_FRAME_GRAY)
 		image.Bpp = 1;
+	      if (parm.depth == 16)
+		image.Bpp *= 2;
 	      image.x = image.width - 1;
 	      image.y = -1;
 	      if (!advance (&image))
@@ -1164,11 +1167,12 @@ scan_it (void)
 		  for (i = 0; i < len; ++i)
 		    {
 		      image.data[offset + i] = buffer[i];
-		      if ((offset + i) % 3 == 0 && !advance (&image))
-			{
-			  status = SANE_STATUS_NO_MEM;
-			  goto cleanup;
-			}
+		      if (image.Bpp == 3 || (offset + i) % 2 == 0)
+			if ((offset + i) % 3 == 0 && !advance (&image))
+			  {
+			    status = SANE_STATUS_NO_MEM;
+			    goto cleanup;
+			  }
 		    }
 		  offset += len;
 		  break;
@@ -1177,18 +1181,55 @@ scan_it (void)
 		  for (i = 0; i < len; ++i)
 		    {
 		      image.data[offset + i] = buffer[i];
-		      if (!advance (&image))
-			{
-			  status = SANE_STATUS_NO_MEM;
-			  goto cleanup;
-			}
+		      if (image.Bpp == 1 || (offset + i) % 2 == 0)
+			if (!advance (&image))
+			  {
+			    status = SANE_STATUS_NO_MEM;
+			    goto cleanup;
+			  }
 		    }
 		  offset += len;
 		  break;
 		}
 	    }
-	  else
-	    fwrite (buffer, 1, len, stdout);
+	  else /* ! must_buffer */
+  	    {
+	      if ((output_format == OUTPUT_TIFF) || (parm.depth != 16))
+		fwrite (buffer, 1, len, stdout);
+	      else
+	        {
+#if !defined(WORDS_BIGENDIAN)
+		  int i, start = 0;
+		  
+		  /* check if we have saved one byte from the last sane_read */
+		  if (hang_over > -1) 
+		    {
+		      if (len > 0)
+			{
+			  fwrite (buffer, 1, 1, stdout);
+			  buffer[0] = (SANE_Byte) hang_over;
+			  hang_over = -1;
+			  start = 1;
+			}
+		    }
+		  /* now do the byte-swapping */
+		  for (i = start; i < (len - 1); i += 2)
+		    {
+		      unsigned char LSB;
+		      LSB = buffer[i];
+		      buffer[i] = buffer[i+1];
+		      buffer[i+1] = LSB;
+		    }
+		  /* check if we have an odd number of bytes */
+		  if (((len - start) % 2) != 0)
+		    {
+		      hang_over = buffer [len - 1];
+		      len--;
+		    }
+#endif
+		  fwrite (buffer, 1, len, stdout);
+		}
+	    }
 
 	  if (verbose && parm.depth == 8)
 	    {
@@ -1211,13 +1252,30 @@ scan_it (void)
 				 parm.lines, parm.depth, resolution_value);
       else
 	write_pnm_header (parm.format, image.width, image.height, parm.depth);
-      fwrite (image.data, image.Bpp, image.height * image.width, stdout);
+      if ((output_format == OUTPUT_TIFF) || (image.Bpp == 1) 
+	  || (image.Bpp == 3))
+	fwrite (image.data, image.Bpp, image.height * image.width, stdout);
+      else /* image.Bpp == 2 or image.Bpp == 6 assumed */
+        {
+#if !defined(WORDS_BIGENDIAN)
+	  int i;
+	  for (i = 0; i < image.Bpp * image.height * image.width; i += 2)
+	    {
+	      unsigned char LSB;
+	      LSB = image.data[i];
+	      image.data[i] = image.data[i+1];
+	      image.data[i+1] = LSB;
+	    }
+#endif
+	  fwrite (image.data, image.Bpp, image.height * image.width, stdout);
+	}
     }
 
 cleanup:
   sane_cancel (device);
   if (image.data)
     free (image.data);
+
 
   expected_bytes = parm.bytes_per_line * parm.lines * 
     ((parm.format == SANE_FRAME_RGB || parm.format == SANE_FRAME_GRAY)?1:3);
@@ -1770,7 +1828,6 @@ standard output.\n\
 	}
 
       free (full_optstring);
-
       for (index = 0; index < 2; ++index)
 	if (window[index])
 	  {

@@ -5415,6 +5415,7 @@ SANE_Status sane_init(SANE_Int *version_code, SANE_Auth_Callback authorize)
 
 /* ------------------------------------------------------------ SANE EXIT ---------------------------------- */
 
+static const SANE_Device **devlist = 0;
 
 void sane_exit(void)
 {
@@ -5426,10 +5427,12 @@ void sane_exit(void)
   {
     next = dev->next;
     free(dev->devicename);
-    free(dev->vendor);
-    free(dev->product);
-    free(dev->version);
     free(dev);
+  }
+
+  if (devlist)
+  {
+    free(devlist);
   }
 }
 
@@ -5439,7 +5442,6 @@ void sane_exit(void)
 
 SANE_Status sane_get_devices(const SANE_Device ***device_list, SANE_Bool local_only)
 {
- static const SANE_Device **devlist = 0;
  Umax_Device *dev;
  int i;
 
@@ -5447,7 +5449,7 @@ SANE_Status sane_get_devices(const SANE_Device ***device_list, SANE_Bool local_o
 
   if (devlist)
   {
-    free (devlist);
+    free(devlist);
   }
 
   devlist = malloc((num_devices + 1) * sizeof (devlist[0]));
@@ -5459,7 +5461,9 @@ SANE_Status sane_get_devices(const SANE_Device ***device_list, SANE_Bool local_o
   i = 0;
 
   for (dev = first_dev; i < num_devices; dev = dev->next)
-  { devlist[i++] = &dev->sane; }
+  {
+    devlist[i++] = &dev->sane;
+  }
 
   devlist[i++] = 0;
 

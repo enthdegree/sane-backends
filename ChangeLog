@@ -10,7 +10,9 @@
 	* sanei/sanei_scsi.c: OS/2 changes: Removed semaphore code and
 	  increased MAX_DATA to 64k (from "Franz Bakan" <fbakan@gmx.net>).
 	* tools/sane-config.in: Also return -ldl (necessary fo IA64?).
-	
+	* TODO: Added entry about .exe and similar file extentions.
+	  Removed sane-config.in -ldl issue.
+
 2001-11-22  Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c: fixed build problem on non i386 linux when

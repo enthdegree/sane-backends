@@ -10,6 +10,17 @@
 	  that usually every SCSI adapter should work. Added paragraph about
 	  problems with Acard adapters. Rephrased NCR810 entry.
 	* doc/sane-net.man: Updated BUGS section. Added SEE ALSO.
+	* doc/saned.man doc/sane-abaton.man doc/sane-agfafocus.man
+	  doc/sane-apple.man doc/sane-as6e.man doc/sane-avision.man
+	  doc/sane-bh.man doc/sane-dc210.man doc/sane-dc240.man
+	  doc/sane-dc25.man doc/sane-dmc.man doc/sane-epson.man
+	  doc/sane-fujitsu.man doc/sane-hp.man doc/sane-microtek.man
+	  doc/sane-mustek_pp.man doc/sane-nec.man doc/sane-pie.man
+	  doc/sane-pint.man doc/sane-plustek.man doc/sane-pnm.man
+	  doc/sane-qcam.man doc/sane-ricoh.man doc/sane-s9036.man
+	  doc/sane-sharp.man doc/sane-sm3600.man doc/sane-st400.man
+	  doc/sane-tamarack.man doc/sane-umax_pp.man doc/sane-v4l.man:
+	  Added SEE ALSO entry for sane(7).
 
 2001-06-09  Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 

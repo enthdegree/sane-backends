@@ -7,20 +7,27 @@ AC_ARG_PROGRAM
 # version code:
 V_MAJOR=1
 V_MINOR=0
-V_REV=1
+V_REV=6
 
-PACKAGE=sane
+PACKAGE=sane-backends
 VERSION=${V_MAJOR}.${V_MINOR}.${V_REV}
 PACKAGE_VERSION="$PACKAGE-$VERSION"
-AC_DEFINE_UNQUOTED(PACKAGE, "$PACKAGE")
-AC_DEFINE_UNQUOTED(VERSION, "$VERSION")
-AC_DEFINE_UNQUOTED(PACKAGE_VERSION, "$PACKAGE_VERSION")
+AC_DEFINE_UNQUOTED(PACKAGE, "$PACKAGE",
+                   [Define to the name of the distribution.])
+AC_DEFINE_UNQUOTED(VERSION, "$VERSION",
+                   [Define to the version of the distribution.])
+AC_DEFINE_UNQUOTED(PACKAGE_VERSION, "$PACKAGE_VERSION",
+                 [The concatenation of the strings PACKAGE, "-", and VERSION.])
+AC_DEFINE_UNQUOTED(SANE_DLL_V_MAJOR, $V_MAJOR, [SANE DLL major number])
+AC_DEFINE_UNQUOTED(SANE_DLL_V_MINOR, $V_MINOR, [SANE DLL minor number])
+AC_DEFINE_UNQUOTED(SANE_DLL_V_BUILD, $V_REV, [SANE DLL revision number])
 AC_SUBST(PACKAGE)
 AC_SUBST(VERSION)
 AC_SUBST(PACKAGE_VERSION)
 
 dnl Checks for programs.
 AC_PROG_CC
+AC_PROG_LD
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 AC_PROG_CPP
@@ -28,21 +35,76 @@ AC_PROG_GCC_TRADITIONAL
 AC_AIX
 AC_MINIX
 AC_ISC_POSIX
+AM_PROG_CC_STDC
 
 INCLUDES="${INCLUDES} -I/usr/local/include"
 CPPFLAGS="${CPPFLAGS} -D_GNU_SOURCE"
+
 if test "${ac_cv_prog_gcc}" = "yes"; then
-  CFLAGS="${CFLAGS} -Wall"
-fi
+  NORMAL_CFLAGS="\
+      -W \
+      -Wall"
+  WARN_CFLAGS="\
+      -W \
+      -Wall \
+      -Wcast-align \
+      -Wcast-qual \
+      -Wmissing-declarations \
+      -Wmissing-prototypes \
+      -Wpointer-arith \
+      -Wreturn-type \
+      -Wstrict-prototypes \
+      -pedantic"
+
+  dnl OS/2 and others don't include some headers with -ansi enabled
+  ANSI_FLAG=-ansi
+  AC_CHECK_HEADER(os2.h,[ANSI_FLAG=],)
+  case "${host_os}" in  
+    solaris*)
+      ANSI_FLAG=
+      ;;
+  esac
+  WARN_CFLAGS="${WARN_CFLAGS} ${ANSI_FLAG}"
+
+  # Warnings enabled by default (development)
+  AC_ARG_ENABLE(warnings,
+    [  --enable-warnings       turn on tons of compiler warnings (GCC only) 
+                          [default=yes]],
+    [
+      if eval "test x$enable_warnings = xyes"; then 
+        for flag in $WARN_CFLAGS; do
+          JAPHAR_GREP_CFLAGS($flag, [ CFLAGS="$CFLAGS $flag" ])
+        done
+      else
+        for flag in $NORMAL_CFLAGS; do
+          JAPHAR_GREP_CFLAGS($flag, [ CFLAGS="$CFLAGS $flag" ])
+        done
+      fi
+    ],
+    [if true; then # release (false) or development (true)
+       # Warnings enabled by default (development)
+       for flag in $WARN_CFLAGS; do
+         JAPHAR_GREP_CFLAGS($flag, [ CFLAGS="$CFLAGS $flag" ])
+       done
+    else
+       # Warnings disabled by default (release)
+       for flag in $NORMAL_CFLAGS; do
+         JAPHAR_GREP_CFLAGS($flag, [ CFLAGS="$CFLAGS $flag" ])
+       done
+    fi])
+fi # ac_cv_prog_gcc
+echo using CFLAGS=${CFLAGS}
 
 dnl Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS(fcntl.h unistd.h libintl.h libc.h sys/dsreq.h sys/select.h \
-    sys/time.h jconfig.h \
+AC_CHECK_HEADERS(fcntl.h unistd.h libc.h sys/dsreq.h sys/select.h \
+    sys/time.h sys/shm.h \
     sys/scanio.h scsi.h sys/scsi.h sys/scsicmd.h sys/scsiio.h \
     bsd/dev/scsireg.h scsi/sg.h /usr/src/linux/include/scsi/sg.h io/cam/cam.h \
     camlib.h os2.h sys/socket.h sys/io.h asm/io.h gscdds.h sys/hw.h \
-    sys/types.h sys/scsi/sgdefs.h sys/scsi/targets/scgio.h apollo/scsi.h)
+    sys/types.h sys/scsi/scsi.h sys/scsi/sgdefs.h sys/scsi/targets/scgio.h \
+    apollo/scsi.h sys/sdi_comm.h sys/passthrudef.h linux/ppdev.h usb.h \
+    sys/bitypes.h sys/sem.h)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -51,10 +113,13 @@ AC_TYPE_SIGNAL
 AC_TYPE_SIZE_T
 AC_TYPE_PID_T
 AC_CHECK_TYPE(ssize_t, long)
-AC_CHECK_TYPE(u_char, unsigned char)
-AC_CHECK_TYPE(u_int, unsigned int)
-AC_CHECK_TYPE(u_long, unsigned long)
+SANE_CHECK_U_TYPES
 
+AC_MSG_CHECKING([for struct flock in fcntl.h])
+AC_EGREP_HEADER([struct flock], fcntl.h, [AC_MSG_RESULT(yes) ;
+                AC_DEFINE(HAVE_STRUCT_FLOCK, 1,
+                [Define if struct flock is available.])], AC_MSG_RESULT(no))
+ 
 if test "$ac_cv_header_sys_scsiio_h" = "yes" \
      -a "$ac_cv_header_scsi_h" = "yes";
 then
@@ -62,16 +127,50 @@ then
 #include <sys/scsiio.h>
 #include <scsi.h>
 ],[scsireq_t req],,
-   AC_DEFINE(scsireq_t, struct scsireq_t))
+   AC_DEFINE(scsireq_t, struct scsireq_t,
+             [Define scsireq_t as \`struct scsireq\' if necessary.]))
 fi
 
-dnl Checks for libraries.
+AC_MSG_CHECKING([for socklen_t in <sys/socket.h>])
+AC_TRY_COMPILE([
+#include <sys/socket.h>
+],[socklen_t len],AC_MSG_RESULT(yes),
+[AC_MSG_RESULT(no); AC_DEFINE(socklen_t,int,
+[Define socklen_t as \`int\' if necessary.])])
 
-AC_CHECK_LIB(scsi, scsireq_enter)	# FreeBSD needs this
+SANE_V4L_VERSION
+
+dnl Checks for dll libraries: dl
+if test "${enable_dynamic}" != "no"; then
+  AC_CHECK_HEADERS(dlfcn.h,
+  [AC_CHECK_LIB(dl,dlopen, DL_LIB=-ldl)
+   saved_LIBS="${LIBS}"
+   LIBS="${LIBS} ${DL_LIB}"
+   AC_CHECK_FUNCS(dlopen, enable_dynamic=yes,)
+   LIBS="${saved_LIBS}"
+  ],)
+
+  # HP/UX DLL handling
+  AC_CHECK_HEADERS(dl.h,
+  [AC_CHECK_LIB(dld,shl_load, DL_LIB=-ldld)
+   saved_LIBS="${LIBS}"
+   LIBS="${LIBS} ${DL_LIB}"
+   AC_CHECK_FUNCS(shl_load, enable_dynamic=yes,)
+   LIBS="${saved_LIBS}"
+  ],)
+fi
+AC_SUBST(DL_LIB)
+
+dnl Checks for Backend libraries.
 AC_CHECK_LIB(m,sqrt)
-AC_CHECK_LIB(intl,gettext)
-AC_CHECK_LIB(syslog,syslog)             # OS/2 needs this
-AC_CHECK_LIB(jpeg,jpeg_start_decompress)
+AC_CHECK_LIB(scsi, scsireq_enter)	# FreeBSD needs this
+AC_CHECK_LIB(cam, cam_open_device)      # FreeBSD 3+ needs this
+AC_CHECK_LIB(syslog, syslog)            # OS/2 needs this
+AC_CHECK_LIB(usb, usb_open)
+
+SANE_CHECK_JPEG
+
+SANE_CHECK_GPHOTO2
 
 dnl IRIX sometimes has SYSVR3/4 network DSOs, but we do not need or want
 dnl to use them!
@@ -80,80 +179,60 @@ if test "`uname`" != "IRIX" -a "`uname`" != "IRIX64"; then
     AC_CHECK_LIB(socket,socket)
 fi
 
+dnl check for PTAL library (used in hp backend)
+SANE_CHECK_PTAL
+
+dnl look for /dev/urandom
+if test -c /dev/urandom ; then
+    AC_DEFINE(HAVE_DEV_URANDOM, 1, [Is /dev/urandom available?])
+fi
+
 dnl Checks for library functions.
-AM_FUNC_ALLOCA
+AC_FUNC_ALLOCA
 AC_FUNC_MMAP
 AC_CHECK_FUNCS(atexit ioperm mkdir scsireq_enter sigprocmask \
     strdup strndup strftime strstr strsep strtod snprintf \
-    cfmakeraw tcsendbreak usleep strcasecmp strncasecmp _portaccess)
+    cfmakeraw tcsendbreak usleep strcasecmp strncasecmp _portaccess \
+    getenv isfdtype vsyslog)
+
+SANE_LINKER_RPATH
 
 dnl initialize libtool
+AC_LIBTOOL_WIN32_DLL
 AM_PROG_LIBTOOL
 
-dnl Checks for libraries.
 
-#### Choose a window system.
-
-AC_PATH_X
-if test "$no_x" = yes; then
-  window_system=none
-else
-  window_system=x11
-fi
-
-if test "${enable_dynamic}" != "no"; then
-  AC_CHECK_HEADERS(dlfcn.h,
-  [AC_CHECK_LIB(dl,dlopen)
-   AC_CHECK_FUNCS(dlopen, enable_dynamic=yes,)],)
-
-  # HP/UX DLL handling
-  AC_CHECK_HEADERS(dl.h,
-  [AC_CHECK_LIB(dld,shl_load)
-   AC_CHECK_FUNCS(shl_load, enable_dynamic=yes,)],)
-fi
-
-AM_PATH_GTK(0.99.13, HAVE_GTK=yes, )
-
-# Change CFLAGS temporarily so that C_SWITCH_X_SITE gets used
-# for the tests that follow.  We set it back to REAL_CFLAGS later on.
-
-if test "${HAVE_GTK}" = "yes"; then
-  XSCAN="xscanimage xcam"
-
-  # According to Owen Taylor, GTK_CFLAGS is _guaranteed_ to contain
-  # -D and -I flags only, i.e., it really is GTK_CPPFLAGS...
-  saved_CPPFLAGS="${CPPFLAGS}"
-  saved_LIBS="${LIBS}"
-  CPPFLAGS="${CPPFLAGS} ${GTK_CFLAGS}"
-  LIBS="${LIBS} ${GTK_LIBS}"
-
-  AC_CHECK_FUNCS(gtk_tooltips_set_tips gtk_events_pending)
-  if test "${ac_cv_func_gtk_events_pending}" = "no"; then
-    saved_CPPFLAGS="${saved_CPPFLAGS} -Dgtk_events_pending=gdk_events_pending"
-  fi
-
-  AC_CHECK_HEADERS(libgimp/gimp.h,GIMP_LIBS="-lgimp")
-
-  CPPFLAGS="${saved_CPPFLAGS}"
-  LIBS="${saved_LIBS}"
-fi
 AC_SUBST(INCLUDES)
-AC_SUBST(XSCAN)
-AC_SUBST(GTK_CFLAGS)
-AC_SUBST(GTK_LIBS)
-AC_SUBST(GIMP_LIBS)
 CPPFLAGS="${CPPFLAGS} -DPATH_SANE_CONFIG_DIR=\$(configdir) \
 	  -DPATH_SANE_DATA_DIR=\$(datadir) \
 	  -DV_MAJOR=${V_MAJOR} -DV_MINOR=${V_MINOR}"
 
-if test "${ac_cv_header_jconfig_h}" = "no"; then
-  echo "disabling DC210 backend (failed to find JPEG library)"
+if test "${sane_cv_use_libjpeg}" != "yes"; then
+  echo "disabling DC210/DC240 backends (failed to find JPEG library)"
   DC210=
+  DC240=
+  DJPEG=
 else
-  echo "enabling DC210 backend"
+  echo "enabling DC210/DC240 backends"
   DC210=dc210
+  DC240=dc240
+  DJPEG=djpeg
 fi
 AC_SUBST(DC210)
+AC_SUBST(DC240)
+AC_SUBST(DJPEG)
+
+
+if test "${HAVE_GPHOTO2}" != "gphoto2" \
+      -o "${sane_cv_use_libjpeg}" != "yes"; then
+  echo "disabling GPHOTO2 backend (failed to find gphoto2 or JPEG lib)"
+  GPHOTO2=
+else
+  echo "enabling GPHOTO2 backend"
+  GPHOTO2=gphoto2
+fi
+AC_SUBST(GPHOTO2)
+
 if test "${ac_cv_header_sys_scanio_h}" = "no"; then
   echo "disabling PINT backend"
   PINT=
@@ -172,6 +251,15 @@ else
   QCAM=qcam
 fi
 AC_SUBST(QCAM)
+if test "${sane_v4l_version}" = "v4l"
+then
+  echo "enabling Video4Linux backend"
+  V4L=v4l
+else
+  echo "disabling Video4Linux backend"
+  V4L=
+fi
+AC_SUBST(V4L)
 if test "${ac_cv_header_sys_socket_h}" = "no"; then
   echo "disabling NET backend"
   NET=
@@ -183,6 +271,24 @@ else
 fi
 AC_SUBST(NET)
 AC_SUBST(SANED)
+if test "${ac_cv_header_usb_h}" = "no" \
+         -o "${ac_cv_lib_usb_usb_open}" = "no"; then
+  echo "disabling SM3600 backend"
+  SM3600=
+else
+  echo "enabling SM3600 backend"
+  SM3600=sm3600
+fi
+AC_SUBST(SM3600)
+if test "${ac_cv_header_sys_sem_h}" = "no" ; then
+  echo "disabling SnapScan backend"
+  SNAPSCAN=
+else
+  echo "enabling SnapScan backend"
+  SNAPSCAN=snapscan
+fi
+AC_SUBST(SNAPSCAN)
+
 if test "${enable_shared}" = "no"; then
   enable_preload=yes
 fi
@@ -192,6 +298,34 @@ if test "${enable_dynamic}" != yes || test "${enable_preload}" = "yes"; then
 else
   DLL_PRELOAD=""
 fi
+
+AC_ARG_ENABLE(pnm-backend, 
+  [  --enable-pnm-backend    enable the pnm backend for testing frontends. Warning:
+                          This will be a security risk if used together with saned.
+                          See PROBLEMS file for details. [default=no]],
+  [PNM="pnm"], [PNM=""])
+AC_SUBST(PNM)
+
+AC_ARG_ENABLE(scsibuffersize, 
+  [  --enable-scsibuffersize=N  specify the default size (in bytes) of the buffer
+                          for SCSI commands [default=131072]],
+  [set_scsibuffersize="$enableval"], [set_scsibuffersize=131072])
+AC_DEFINE_UNQUOTED(SCSIBUFFERSIZE, $set_scsibuffersize,
+                   [SCSI command buffer size])
+echo "scsi buffersize: $set_scsibuffersize"
+
+AC_ARG_ENABLE(directio,
+  [  --enable-directio       enable direct IO (Linux only; can lead to crashes
+                          with backends using shared memory) [default=no]],
+  [
+    if eval "test x$enable_directio = xyes"; then
+      CFLAGS="$CFLAGS -DENABLE_DIRECTIO"
+    fi
+  ])
+
+AC_PATH_PROG(SANE_CONFIG_PATH, sane-config, no)
+AC_CHECK_LIB(sane, sane_init, LIBSANE_EXISTS="yes")
+
 AC_SUBST(V_MAJOR)
 AC_SUBST(V_MINOR)
 AC_SUBST(V_REV)
@@ -199,7 +333,26 @@ AC_SUBST(DLL_PRELOAD)
 
 AC_OUTPUT([Makefile lib/Makefile sanei/Makefile frontend/Makefile
 	   japi/Makefile backend/Makefile include/Makefile doc/Makefile
-	   tools/Makefile],)
+	   testsuite/Makefile
+	   tools/Makefile tools/sane-config],)
+
+if test "$SANE_CONFIG_PATH" != "no" ; then
+  SANE_INSTALLED_VERSION=`$SANE_CONFIG_PATH --version`
+  SANE_INSTALLED_PREFIX=`$SANE_CONFIG_PATH --prefix`
+  if test "$SANE_INSTALLED_PREFIX" != "$prefix" ; then
+    echo "*** WARNING: SANE is already installed (version $SANE_INSTALLED_VERSION). The old"
+    echo "*** installation is at $SANE_INSTALLED_PREFIX while SANE will now be installed"
+    echo "*** at $prefix. It is recommended to uninstall the old SANE version"
+    echo "*** before installing the new one to avoid problems."
+  fi
+else
+  if test "$LIBSANE_EXISTS" = "yes" ; then
+    echo "*** Warning: An old version of SANE was detected but the sane-config program"
+    echo "*** couldn't be found. If you encounter any problems with SANE remove the old"
+    echo "*** SANE files and reinstall this version."
+  fi
+fi
+
 
 echo "****************************************************************"
 echo "* Please be sure to read file PROBLEMS in this directory       *"

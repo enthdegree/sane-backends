@@ -27,6 +27,7 @@ SANE_Word sanei_epson_usb_product_ids[] = {
   0x801,			/* CC-600 / CX-5[1234]00 */
   0x802,			/* CC-570 / CX-3[12]00 */
   0x806,			/* PM-A850 */
+  0x807,			/* RX-500 */
   0x808,			/* CX-5400 */
   0				/* last entry - this is used for devices that are specified 
 				   in the config file as "usb <vendor> <product>" */

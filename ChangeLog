@@ -6,6 +6,8 @@
 	  Automatically create new languages on make update. Automatically
 	  generate list of DISTFILES. Added template for header used in new
 	  po files. Updated documentation.
+	* doc/descriptions/unsupported.desc: Added Genius Colorpage Vivid III.
+	  Added more info for Plustek OpticPro 1212U and U12/UT12.
 
 2003-02-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

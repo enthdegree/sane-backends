@@ -96,6 +96,9 @@
 
 #include "gphoto2.h"
 
+#include <gphoto2-core.h>
+#include <gphoto2-camera.h>
+
 #ifndef PATH_MAX
 # define PATH_MAX	1024
 #endif
@@ -123,7 +126,7 @@ static SANE_Int thumb_height = 120, thumb_width = 160;
 static SANE_String TopFolder;
 static SANE_String Gphoto2Path = "gphoto2";
 
-static GPHOTO2 Camera;
+static GPHOTO2 Cam_data;
 
 static SANE_Range image_range = {
   0,
@@ -131,7 +134,7 @@ static SANE_Range image_range = {
   0
 };
 
-static SANE_String **folder_list;
+static SANE_String_Const *folder_list;
 static SANE_Int current_folder = 0;
 
 static SANE_Option_Descriptor sod[] = {
@@ -301,8 +304,9 @@ static SANE_Parameters parms = {
   8,				/* Number of bits per sample. */
 };
 
-/* Linked list of file names in the current folder */
-static struct cam_dirlist *dir_head = NULL;
+
+CameraList *dir_list;
+Camera *camera;
 
 /* Buffer to hold line currently being processed by sane_read */
 static SANE_Byte *linebuffer = NULL;
@@ -316,8 +320,6 @@ static FILE *cmdpipe;
 /* String read from cmdpipe */
 static SANE_Byte tmpstr[256];
 
-static SANE_Byte name_buf[60];
-
 #include <sys/time.h>
 #include <unistd.h>
 
@@ -328,9 +330,19 @@ init_gphoto2 (void)
 
   DBG (1, "GPHOTO2 Backend 05/16/01\n");
 
+/*
+  if ( gp_init (GP_DEBUG_NONE) < 0 )
+    {
+      exit(1);
+    }
+  if ( gp_camera_new( &camera ) < 0 ) 
+    {
+	exit(1);
+     } 
+*/
   sprintf ((char *) cmdbuf, "%s --camera \"%s\" --port %s --list-folders -q",
-	   (char *) Gphoto2Path, (char *) Camera.camera_name,
-	   (char *) Camera.tty_name);
+	   (char *) Gphoto2Path, (char *) Cam_data.camera_name,
+	   (char *) Cam_data.tty_name);
 
   cmdpipe = popen ((char *) cmdbuf, "r");
   if (cmdpipe == NULL)
@@ -365,11 +377,10 @@ close_gphoto2 (SANE_Int fd)
 int
 get_info (void)
 {
-
+  SANE_String_Const val;
   SANE_Int n;
-  struct cam_dirlist *e;
 
-  if (Camera.pic_taken == 0)
+  if (Cam_data.pic_taken == 0)
     {
       sod[GPHOTO2_OPT_IMAGE_NUMBER].cap |= SANE_CAP_INACTIVE;
       image_range.min = 0;
@@ -379,7 +390,7 @@ get_info (void)
     {
       sod[GPHOTO2_OPT_IMAGE_NUMBER].cap &= ~SANE_CAP_INACTIVE;
       image_range.min = 1;
-      image_range.max = Camera.pic_taken;
+      image_range.max = Cam_data.pic_taken;
     }
 
   n = read_dir (TopFolder, 0);
@@ -397,26 +408,27 @@ get_info (void)
       free (folder_list);
     }
 
-  folder_list = (SANE_String * *)malloc ((n + 1) * sizeof (SANE_String *));
-  for (e = dir_head, n = 0; e; e = e->next, n++)
+  folder_list = (SANE_String_Const *)malloc ((n + 1) * sizeof (SANE_String_Const *));
+  for ( n = 0; n < gp_list_count(dir_list) ;  n++)
     {
-      folder_list[n] = (SANE_String *) strdup (e->name);
-      if (strchr ((char *) folder_list[n], ' '))
+      gp_list_get_name(dir_list,n,&val);
+      folder_list[n] = strdup(val);
+      if (strchr ((const char *) folder_list[n], ' '))
 	{
-	  *strchr ((char *) folder_list[n], ' ') = '\0';
+	  *strchr ((const char *) folder_list[n], ' ') = '\0';
 	}
     }
   if (n == 0)
     {
-      folder_list[n++] = (SANE_String *) strdup ("");
+      folder_list[n++] = (SANE_String) strdup ("");
     }
 
   folder_list[n] = NULL;
   sod[GPHOTO2_OPT_FOLDER].constraint.string_list =
     (SANE_String_Const *) folder_list;
 
-  Camera.pic_taken = 0;
-  Camera.pic_left = 1;		/* Just a guess! */
+  Cam_data.pic_taken = 0;
+  Cam_data.pic_left = 1;		/* Just a guess! */
 
   return 0;
 
@@ -427,10 +439,10 @@ erase (void)
 {
   sprintf ((char *) cmdbuf,
 	   "%s --camera \"%s\" --port %s --folder %s/%s  --stdout -d %d",
-	   (char *) Gphoto2Path, (char *) Camera.camera_name,
-	   (char *) Camera.tty_name, (char *) TopFolder,
-	   (char *) folder_list[current_folder],
-	   Camera.current_picture_number);
+	   (char *) Gphoto2Path, (char *) Cam_data.camera_name,
+	   (char *) Cam_data.tty_name, (char *) TopFolder,
+	   (const char *) folder_list[current_folder],
+	   Cam_data.current_picture_number);
   cmdpipe = popen ((char *) cmdbuf, "r");
   if (cmdpipe == NULL)
     {
@@ -468,7 +480,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
   fp = sanei_config_open (GPHOTO2_CONFIG_FILE);
 
   /* defaults */
-  Camera.tty_name = DEFAULT_TTY;
+  Cam_data.tty_name = DEFAULT_TTY;
 
   if (!fp)
     {
@@ -494,8 +506,8 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
 
 	      p = dev_name + 5;
 	      if (p)
-		Camera.tty_name = strdup (p);
-	      DBG (20, "Config file port=%s\n", Camera.tty_name);
+		Cam_data.tty_name = strdup (p);
+	      DBG (20, "Config file port=%s\n", Cam_data.tty_name);
 	      sprintf ((char *) cmdbuf, "%s -q --list-ports",
 		       (char *) Gphoto2Path);
 	      cmdpipe = popen ((char *) cmdbuf, "r");
@@ -517,7 +529,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
 		    {
 		      *strchr (tmpstr, ' ') = '\0';
 		    }
-		  if (strcmp (Camera.tty_name, tmpstr) == 0)
+		  if (strcmp (Cam_data.tty_name, tmpstr) == 0)
 		    {
 		      break;
 		    }
@@ -526,7 +538,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
 		{
 		  DBG (0,
 		       "%s: error: %s is not a valid gphoto2 port.  Use \"gphoto2 --list-ports\" for list.\n",
-		       f, Camera.tty_name);
+		       f, Cam_data.tty_name);
 		  exit (1);
 		}
 	      fclose (cmdpipe);
@@ -534,9 +546,9 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
 	  else if (strncmp (dev_name, "camera=", 7) == 0)
 	    {
 	      SANE_Int n, entries;
-	      Camera.camera_name = strdup (dev_name + 7);
-	      DBG (20, "Config file camera=%s\n", Camera.camera_name);
-	      sprintf (buf, "Image selection - %s", Camera.camera_name);
+	      Cam_data.camera_name = strdup (dev_name + 7);
+	      DBG (20, "Config file camera=%s\n", Cam_data.camera_name);
+	      sprintf (buf, "Image selection - %s", Cam_data.camera_name);
 
 	      sprintf ((char *) cmdbuf, "%s -q --list-cameras",
 		       (char *) Gphoto2Path);
@@ -559,7 +571,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
 		    {
 		      *strchr (tmpstr, '\n') = '\0';
 		    }
-		  if (strcmp (Camera.camera_name, tmpstr) == 0)
+		  if (strcmp (Cam_data.camera_name, tmpstr) == 0)
 		    {
 		      break;
 		    }
@@ -568,7 +580,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
 		{
 		  DBG (0,
 		       "%s: error: %s is not a valid camera type.  Use \"gphoto2 --list-cameras\" for list.\n",
-		       f, Camera.camera_name);
+		       f, Cam_data.camera_name);
 		  return SANE_STATUS_INVAL;
 		}
 
@@ -619,25 +631,25 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
   if (get_info () == -1)
     {
       DBG (1, "error: could not get info\n");
-      close_gphoto2 (Camera.fd);
+      close_gphoto2 (Cam_data.fd);
       return SANE_STATUS_INVAL;
     }
 
   /* load the current images array */
   get_pictures_info ();
 
-  if (Camera.pic_taken == 0)
+  if (Cam_data.pic_taken == 0)
     {
-      Camera.current_picture_number = 0;
+      Cam_data.current_picture_number = 0;
       parms.bytes_per_line = 0;
       parms.pixels_per_line = 0;
       parms.lines = 0;
     }
   else
     {
-      Camera.current_picture_number = 1;
+      Cam_data.current_picture_number = 1;
 /* OLD:
-      set_res (Camera.Pictures[Camera.current_picture_number - 1].low_res);
+      set_res (Cam_data.Pictures[Cam_data.current_picture_number - 1].low_res);
 */
 	set_res( gphoto2_opt_lowres );  
   }
@@ -646,12 +658,12 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
     {
       DBG (0, "\nCamera information:\n~~~~~~~~~~~~~~~~~\n\n");
       DBG (0, "Model...........: DC%s\n", "240");
-      DBG (0, "Firmware version: %d.%d\n", Camera.ver_major,
-	   Camera.ver_minor);
-      DBG (0, "Pictures........: %d/%d\n", Camera.pic_taken,
-	   Camera.pic_taken + Camera.pic_left);
+      DBG (0, "Firmware version: %d.%d\n", Cam_data.ver_major,
+	   Cam_data.ver_minor);
+      DBG (0, "Pictures........: %d/%d\n", Cam_data.pic_taken,
+	   Cam_data.pic_taken + Cam_data.pic_left);
       DBG (0, "Battery state...: %s\n",
-	   Camera.flags.low_batt == 0 ? "good" : (Camera.flags.low_batt ==
+	   Cam_data.flags.low_batt == 0 ? "good" : (Cam_data.flags.low_batt ==
 						  1 ? "weak" : "empty"));
     }
 
@@ -722,7 +734,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   is_open = 1;
   *handle = MAGIC;
 
-  DBG (4, "sane_open: pictures taken=%d\n", Camera.pic_taken);
+  DBG (4, "sane_open: pictures taken=%d\n", Cam_data.pic_taken);
 
   return SANE_STATUS_GOOD;
 }
@@ -781,17 +793,17 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       switch (option)
 	{
 	case GPHOTO2_OPT_IMAGE_NUMBER:
-	  Camera.current_picture_number = *(SANE_Word *) value;
+	  Cam_data.current_picture_number = *(SANE_Word *) value;
 	  myinfo |= SANE_INFO_RELOAD_PARAMS;
 
 	  /* get the image's resolution, unless the camera has no 
 	   * pictures yet 
 	   */
-	  if (Camera.pic_taken != 0)
+	  if (Cam_data.pic_taken != 0)
 	    {
 /* OLD:
-	      set_res (Camera.
-		       Pictures[Camera.current_picture_number - 1].low_res);
+	      set_res (Cam_data.
+		       Pictures[Cam_data.current_picture_number - 1].low_res);
 */
 	      set_res (gphoto2_opt_lowres); 
 	    }
@@ -801,11 +813,11 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  gphoto2_opt_thumbnails = !!*(SANE_Word *) value;
 	  myinfo |= SANE_INFO_RELOAD_PARAMS;
 
-	  if (Camera.pic_taken != 0)
+	  if (Cam_data.pic_taken != 0)
 	    {
 /* OLD:
-	      set_res (Camera.
-		       Pictures[Camera.current_picture_number - 1].low_res);
+	      set_res (Cam_data.
+		       Pictures[Cam_data.current_picture_number - 1].low_res);
 */
 	      set_res (gphoto2_opt_lowres); 
 	    }
@@ -828,7 +840,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	      /*  sod [GPHOTO2_OPT_LOWRES].cap |= SANE_CAP_INACTIVE; */
 	      /* and activate the image number selector, if there are 
 	       * pictures available */
-	      if (Camera.current_picture_number)
+	      if (Cam_data.current_picture_number)
 		{
 		  sod[GPHOTO2_OPT_IMAGE_NUMBER].cap &= ~SANE_CAP_INACTIVE;
 		}
@@ -876,14 +888,14 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  break;
 
 	case GPHOTO2_OPT_INIT_GPHOTO2:
-	  if ((Camera.fd = init_gphoto2 ()) == -1)
+	  if ((Cam_data.fd = init_gphoto2 ()) == -1)
 	    {
 	      return SANE_STATUS_INVAL;
 	    }
 	  if (get_info () == -1)
 	    {
 	      DBG (1, "error: could not get info\n");
-	      close_gphoto2 (Camera.fd);
+	      close_gphoto2 (Cam_data.fd);
 	      return SANE_STATUS_INVAL;
 	    }
 
@@ -906,7 +918,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  break;
 
 	case GPHOTO2_OPT_IMAGE_NUMBER:
-	  *(SANE_Word *) value = Camera.current_picture_number;
+	  *(SANE_Word *) value = Cam_data.current_picture_number;
 	  break;
 
 	case GPHOTO2_OPT_THUMBS:
@@ -934,7 +946,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    {
 	      return SANE_STATUS_INVAL;
 	    }
-	  strncpy ((char *) value, (char *) folder_list[current_folder], 256);
+	  strncpy ((char *) value, (const char *) folder_list[current_folder], 256);
 	  break;
 
 
@@ -1042,10 +1054,10 @@ sane_start (SANE_Handle handle)
 
   DBG (127, "sane_start called\n");
   if (handle != MAGIC || !is_open ||
-      (Camera.current_picture_number == 0 && gphoto2_opt_snap == SANE_FALSE))
+      (Cam_data.current_picture_number == 0 && gphoto2_opt_snap == SANE_FALSE))
     return SANE_STATUS_INVAL;	/* Unknown handle ... */
 
-  if (Camera.scanning)
+  if (Cam_data.scanning)
     return SANE_STATUS_EOF;
 
 /*
@@ -1053,7 +1065,7 @@ sane_start (SANE_Handle handle)
  * when batch/autoinc are in effect.  The first illegal picture number
  * terminates the scan
  */
-  if (Camera.current_picture_number > Camera.pic_taken)
+  if (Cam_data.current_picture_number > Cam_data.pic_taken)
     {
       return SANE_STATUS_INVAL;
     }
@@ -1064,7 +1076,7 @@ sane_start (SANE_Handle handle)
        * Don't allow picture unless there is room in the 
        * camera.
        */
-      if (Camera.pic_left == 0)
+      if (Cam_data.pic_left == 0)
 	{
 	  DBG (3, "No room to store new picture\n");
 	  return SANE_STATUS_INVAL;
@@ -1080,10 +1092,10 @@ sane_start (SANE_Handle handle)
 
   sprintf ((char *) cmdbuf,
 	   "%s --camera \"%s\" --port %s --folder %s/%s  --stdout -%s %d",
-	   (char *) Gphoto2Path, (char *) Camera.camera_name,
-	   (char *) Camera.tty_name, (char *) TopFolder,
-	   (char *) folder_list[current_folder],
-	   gphoto2_opt_thumbnails ? "t" : "p", Camera.current_picture_number);
+	   (char *) Gphoto2Path, (char *) Cam_data.camera_name,
+	   (char *) Cam_data.tty_name, (char *) TopFolder,
+	   (const char *) folder_list[current_folder],
+	   gphoto2_opt_thumbnails ? "t" : "p", Cam_data.current_picture_number);
   cmdpipe = popen ((char *) cmdbuf, "r");
 
   if (cmdpipe == NULL)
@@ -1130,7 +1142,7 @@ sane_start (SANE_Handle handle)
       return SANE_STATUS_INVAL;
     }
 
-  Camera.scanning = SANE_TRUE;	/* don't overlap scan requests */
+  Cam_data.scanning = SANE_TRUE;	/* don't overlap scan requests */
 
   return SANE_STATUS_GOOD;
 }
@@ -1168,32 +1180,34 @@ sane_read (SANE_Handle UNUSEDARG handle, SANE_Byte * data,
 	      DBG (1, "Failed to erase memory\n");
 	      return SANE_STATUS_INVAL;
 	    }
-	  Camera.pic_taken--;
-	  Camera.pic_left++;
-	  Camera.current_picture_number = Camera.pic_taken;
+	  Cam_data.pic_taken--;
+	  Cam_data.pic_left++;
+	  Cam_data.current_picture_number = Cam_data.pic_taken;
 	  image_range.max--;
 
 	  myinfo |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
+	  DBG(0, "FIXME - delete name_buf from dir_list\n");
+/*
 	  dir_delete ((SANE_String) & name_buf[1]);
-
+*/
 	}
       if (gphoto2_opt_autoinc)
 	{
-	  if (Camera.current_picture_number <= Camera.pic_taken)
+	  if (Cam_data.current_picture_number <= Cam_data.pic_taken)
 	    {
-	      Camera.current_picture_number++;
+	      Cam_data.current_picture_number++;
 
 	      myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
 
 	      /* get the image's resolution */
 /* OLD:
-	      set_res (Camera.Pictures[Camera.current_picture_number - 1].
+	      set_res (Cam_data.Pictures[Cam_data.current_picture_number - 1].
 		       low_res);
 */
 	      set_res (gphoto2_opt_lowres); 
 	    }
 	  DBG (4, "Increment count to %d (total %d)\n",
-	       Camera.current_picture_number, Camera.pic_taken);
+	       Cam_data.current_picture_number, Cam_data.pic_taken);
 	}
       return SANE_STATUS_EOF;
     }
@@ -1220,9 +1234,9 @@ sane_read (SANE_Handle UNUSEDARG handle, SANE_Byte * data,
 void
 sane_cancel (SANE_Handle UNUSEDARG handle)
 {
-  if (Camera.scanning)
+  if (Cam_data.scanning)
     {
-      Camera.scanning = SANE_FALSE;	/* done with scan */
+      Cam_data.scanning = SANE_FALSE;	/* done with scan */
     }
   else
     DBG (4, "sane_cancel: not scanning - nothing to do\n");
@@ -1255,21 +1269,21 @@ get_pictures_info (void)
   SANE_Int p;
   PictureInfo *pics;
 
-  if (Camera.Pictures)
+  if (Cam_data.Pictures)
     {
-      free (Camera.Pictures);
-      Camera.Pictures = NULL;
+      free (Cam_data.Pictures);
+      Cam_data.Pictures = NULL;
     }
 
   strcpy (path, TopFolder);
   if (folder_list[current_folder] != NULL)
     {
       strcat (path, "/");
-      strcat (path, (char *) folder_list[current_folder]);
+      strcat (path, (const char *) folder_list[current_folder]);
     }
 
   num_pictures = read_dir (path, 1);
-  Camera.pic_taken = num_pictures;
+  Cam_data.pic_taken = num_pictures;
   if (num_pictures > 0)
     {
       sod[GPHOTO2_OPT_IMAGE_NUMBER].cap &= ~SANE_CAP_INACTIVE;
@@ -1277,14 +1291,14 @@ get_pictures_info (void)
       image_range.max = num_pictures;
     }
 
-  if ((pics = (PictureInfo *) malloc (Camera.pic_taken *
+  if ((pics = (PictureInfo *) malloc (Cam_data.pic_taken *
 				      sizeof (PictureInfo))) == NULL)
     {
       DBG (1, "%s: error: allocate memory for pictures array\n", f);
       return NULL;
     }
 
-  for (p = 0; p < Camera.pic_taken; p++)
+  for (p = 0; p < Cam_data.pic_taken; p++)
     {
       if (get_picture_info (pics + p, p) == -1)
 	{
@@ -1293,7 +1307,7 @@ get_pictures_info (void)
 	}
     }
 
-  Camera.Pictures = pics;
+  Cam_data.Pictures = pics;
   return pics;
 }
 
@@ -1302,17 +1316,14 @@ get_picture_info (PictureInfo * pic, SANE_Int p)
 {
 
   SANE_Char f[] = "get_picture_info";
-  SANE_Int n;
-  struct cam_dirlist *e;
+  const char * name;
 
   DBG (4, "%s: info for pic #%d\n", f, p);
 
-  for (n = 0, e = dir_head; e && n < p; n++, e = e->next)
-    ;
+  gp_list_get_name (dir_list,p,&name);
+  DBG (4, "Name is %s\n", name);
 
-  DBG (4, "Name is %s\n", e->name);
-
-  read_info (e->name);
+  read_info (name);
 
   pic->low_res = SANE_FALSE;
 
@@ -1339,9 +1350,9 @@ snap_pic (void)
 
   sprintf ((char *) cmdbuf,
 	   "%s --camera \"%s\" --port %s --folder %s/%s -q  --capture-image",
-	   (char *) Gphoto2Path, (char *) Camera.camera_name,
-	   (char *) Camera.tty_name, (char *) TopFolder,
-	   (char *) folder_list[current_folder]);
+	   (char *) Gphoto2Path, (char *) Cam_data.camera_name,
+	   (char *) Cam_data.tty_name, (char *) TopFolder,
+	   (const char *) folder_list[current_folder]);
 
   cmdpipe = popen ((char *) cmdbuf, "r");
 
@@ -1372,7 +1383,7 @@ snap_pic (void)
   if (get_info () == -1)
     {
       DBG (1, "error: could not get info\n");
-      close_gphoto2 (Camera.fd);
+      close_gphoto2 (Cam_data.fd);
       return SANE_STATUS_INVAL;
     }
 
@@ -1385,7 +1396,7 @@ snap_pic (void)
 
 
   sod[GPHOTO2_OPT_IMAGE_NUMBER].cap |= SANE_CAP_INACTIVE;
-  Camera.current_picture_number = Camera.pic_taken;
+  Cam_data.current_picture_number = Cam_data.pic_taken;
   myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
 
   return SANE_STATUS_GOOD;
@@ -1403,30 +1414,31 @@ read_dir (SANE_String dir, SANE_Bool read_files)
   SANE_Int retval = 0;
   SANE_Int i, entries;
   SANE_Char f[] = "read_dir";
-  struct cam_dirlist *e, *next;
 
   /* Free up current list */
-  for (e = dir_head; e; e = next)
-    {
-      DBG (127, "%s: free entry %s\n", f, e->name);
-      next = e->next;
-      free (e);
-    }
-  dir_head = NULL;
+  if ( dir_list != NULL ) {
+	if ( gp_list_free(dir_list) < 0 ) {
+		DBG(0, "%s: errror: gp_list_free failed\n");
+	}
+	dir_list = NULL;
+  }
+  if ( gp_list_new( &dir_list ) < 0 ) {
+	DBG(0, "%s: errror: gp_list_new failed\n");
+  }
 
   if (read_files)
     {
       sprintf ((char *) cmdbuf,
 	       "%s --camera \"%s\" --port %s --folder %s --list-files --stdout",
-	       (char *) Gphoto2Path, (char *) Camera.camera_name,
-	       (char *) Camera.tty_name, dir);
+	       (char *) Gphoto2Path, (char *) Cam_data.camera_name,
+	       (char *) Cam_data.tty_name, dir);
     }
   else
     {
       sprintf ((char *) cmdbuf,
 	       "%s --camera \"%s\" --port %s --folder %s --list-folders -q",
-	       (char *) Gphoto2Path, (char *) Camera.camera_name,
-	       (char *) Camera.tty_name, dir);
+	       (char *) Gphoto2Path, (char *) Cam_data.camera_name,
+	       (char *) Cam_data.tty_name, dir);
     }
 
   cmdpipe = popen ((char *) cmdbuf, "r");
@@ -1445,7 +1457,7 @@ read_dir (SANE_String dir, SANE_Bool read_files)
       fgets ((char *) tmpstr, sizeof (tmpstr), cmdpipe);
       *strrchr ((char *) tmpstr, '\"') = '\0';
 
-      if (dir_insert ((char *) (tmpstr + 1)))
+  	if ( gp_list_append(dir_list, ((char *) (tmpstr + 1)), "") < 0 ) 
 	{
 	  DBG (1, "%s: error: failed to insert dir entry\n");
 	  return -1;
@@ -1461,99 +1473,18 @@ read_dir (SANE_String dir, SANE_Bool read_files)
  * read_info - read the info block from camera for the specified file
  */
 static SANE_Int
-read_info (SANE_String fname)
+read_info (SANE_String_Const fname)
 {
   SANE_Char path[256];
 
   strcpy (path, "\\PCCARD\\DCIM\\");
-  strcat (path, (char *) folder_list[current_folder]);
+  strcat (path, (const char *) folder_list[current_folder]);
   strcat (path, "\\");
   strcat (path, fname);
 
 
 
   return 0;
-}
-
-/*
- * dir_insert - Add (in alphabetical order) a directory entry to the
- * 		current list of entries.
- */
-static SANE_Int
-dir_insert (SANE_String s)
-{
-  struct cam_dirlist *cur, *e;
-
-  cur = (struct cam_dirlist *) malloc (sizeof (struct cam_dirlist));
-  if (cur == NULL)
-    {
-      DBG (1, "dir_insert: error: could not malloc entry\n");
-      return -1;
-    }
-
-  strcpy (cur->name, s);
-  DBG (127, "dir_insert: name is %s\n", cur->name);
-
-  cur->next = NULL;
-
-  if (dir_head == NULL)
-    {
-      dir_head = cur;
-    }
-  else if (strcmp (cur->name, dir_head->name) < 0)
-    {
-      cur->next = dir_head;
-      dir_head = cur;
-      return 0;
-    }
-  else
-    {
-      for (e = dir_head; e->next; e = e->next)
-	{
-	  if (strcmp (e->next->name, cur->name) > 0)
-	    {
-	      cur->next = e->next;
-	      e->next = cur;
-	      return 0;
-	    }
-	}
-      e->next = cur;
-    }
-  return 0;
-}
-
-/*
- *  dir_delete - Delete a directory entry from the linked list of file 
- * 		names
- */
-static SANE_Int
-dir_delete (SANE_String fname)
-{
-  struct cam_dirlist *cur, *e;
-
-  DBG (127, "dir_delete:  %s\n", fname);
-
-  if (strcmp (fname, dir_head->name) == 0)
-    {
-      cur = dir_head;
-      dir_head = dir_head->next;
-      free (cur);
-      return 0;
-    }
-
-  for (e = dir_head; e->next; e = e->next)
-    {
-
-      if (strcmp (fname, e->next->name) == 0)
-	{
-	  cur = e->next;
-	  e->next = e->next->next;
-	  free (cur);
-	  return (0);
-	}
-    }
-  DBG (1, "dir_delete: Couldn't find entry %s in dir list\n", fname);
-  return -1;
 }
 
 /*

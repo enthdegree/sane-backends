@@ -1,3 +1,14 @@
+2004-06-20  Mattias Ellert <mattias.ellert@tsl.uu.se>
+	* aclocal.m4, configure, sane/config.h.in, backend/Makefile.in, 
+	  backend/agfafocus.c, backend/artec_eplus48u.c, backend/avision.c,
+	  backend/coolscan.c, backend/fujitsu.c, backend/pie.c,
+	  backend/plustek.c, backend/plustek_pp.c, backend/sp15c.c,
+	  backend/tamarack.c, backend/u12.c
+	* Fixing bug #300602 for the following backends: agfafocus,
+	  artec_eplus48u, avision, coolscan, fujitsu, pie, plustek,
+	  plustek_pp, sp15c, tamarack and u12
+	* Migrating the avision backend to sanei_threads (bug #300631)
+
 2004-06-19  Mattias Ellert <mattias.ellert@tsl.uu.se>
 	* backend/gt68xx.c po/sane-backends.bg.po po/sane-backends.cs.po
 	  po/sane-backends.da.po po/sane-backends.de.po

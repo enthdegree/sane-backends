@@ -394,6 +394,9 @@ static int reader_process( void *args )
 
 	sigfillset ( &ignore_set );
 	sigdelset  ( &ignore_set, SIGTERM );
+#if defined (__APPLE__) && defined (__MACH__)
+	sigdelset  ( &ignore_set, SIGUSR2 );
+#endif
 	sigprocmask( SIG_SETMASK, &ignore_set, 0 );
 
 	memset   ( &act, 0, sizeof (act));

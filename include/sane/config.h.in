@@ -34,6 +34,9 @@
 /* Define to 1 if you have the <asm/io.h> header file. */
 #undef HAVE_ASM_IO_H
 
+/* Define to 1 if you have the <asm/types.h> header file. */
+#undef HAVE_ASM_TYPES_H
+
 /* Define to 1 if you have the `atexit' function. */
 #undef HAVE_ATEXIT
 
@@ -75,6 +78,9 @@
 
 /* Define to 1 if you have the `getpagesize' function. */
 #undef HAVE_GETPAGESIZE
+
+/* Define to 1 if you have the `gp_camera_init' function. */
+#undef HAVE_GP_CAMERA_INIT
 
 /* Define to 1 if you have the <gscdds.h> header file. */
 #undef HAVE_GSCDDS_H
@@ -268,6 +274,9 @@
 
 /* Define to 1 if you have the <sys/hw.h> header file. */
 #undef HAVE_SYS_HW_H
+
+/* Define to 1 if you have the <sys/ioctl.h> header file. */
+#undef HAVE_SYS_IOCTL_H
 
 /* Define to 1 if you have the <sys/io.h> header file. */
 #undef HAVE_SYS_IO_H

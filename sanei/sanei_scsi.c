@@ -5444,7 +5444,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
     return returnValue;
   }
 
-  SANE_Status
+  static SANE_Status
     sanei_scsi_cmd2_stuc_api (int fd,
 			      const void *cmd, size_t cmd_size,
 			      const void *src, size_t src_size,

@@ -45,6 +45,9 @@ static const char RCSid[] = "$Header$";
 
 /*
  * $Log$
+ * Revision 1.9  2004/06/20 00:34:10  ellert-guest
+ * Missed one...
+ *
  * Revision 1.8  2004/05/29 10:27:47  hmg-guest
  * Fixed the fix of the sanei_thread fix (from Mattias Ellert).
  *
@@ -1946,6 +1949,9 @@ reader_process (void *data)
 
   sigfillset (&ignore_set);
   sigdelset (&ignore_set, SIGTERM);
+#if defined (__APPLE__) && defined (__MACH__)
+  sigdelset (&ignore_set, SIGUSR2);
+#endif
   sigprocmask (SIG_SETMASK, &ignore_set, 0);
 
   memset (&act, 0, sizeof (act));

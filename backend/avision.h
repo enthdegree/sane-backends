@@ -296,9 +296,7 @@ typedef struct Avision_Scanner
   Avision_Connection av_con;
 
   pid_t reader_pid;		/* process id of reader */
-#ifdef HAVE_OS2_H
-   int reader_fds;		/* OS/2: pipe write handler for reader */
-#endif
+  int reader_fds;		/* pipe write handler for reader */
   int pipe;			/* pipe to reader process */
   int line;			/* current line number during scan */
   

@@ -574,7 +574,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
-#include <sys/wait.h>
 #include <unistd.h>
 #include <sys/time.h>
 
@@ -583,9 +582,7 @@
 #include <sane/sane.h>
 #include <sane/sanei.h>
 #include <sane/saneopts.h>
-#ifdef HAVE_OS2_H
 #include <sane/sanei_thread.h>
-#endif
 #include <sane/sanei_scsi.h>
 #include <sane/sanei_usb.h>
 #include <sane/sanei_config.h>
@@ -3906,8 +3903,8 @@ do_eof (Avision_Scanner *s)
   }
   
   /* join our processes - without a wait() you will produce defunct
-     childs */
-  wait (&exit_status);
+     children */
+  sanei_thread_waitpid (s->reader_pid, &exit_status);
 
   s->reader_pid = 0;
 
@@ -3927,8 +3924,8 @@ do_cancel (Avision_Scanner* s)
     int exit_status;
     
     /* ensure child knows it's time to stop: */
-    kill (s->reader_pid, SIGTERM);
-    while (wait (&exit_status) != s->reader_pid);
+    sanei_thread_kill (s->reader_pid);
+    sanei_thread_waitpid (s->reader_pid, &exit_status);
     s->reader_pid = 0;
   }
   
@@ -4233,12 +4230,18 @@ init_options (Avision_Scanner* s)
    the scanner state cannot be updated).  */
 
 static int
-reader_process (Avision_Scanner* s, int fd)
+reader_process (void *data)
 {
+  struct Avision_Scanner *s = (struct Avision_Scanner *) data;
+  int fd = s->reader_fds;
+
   Avision_Device* dev = s->hw;
   
   SANE_Status status;
   sigset_t sigterm_set;
+  sigset_t ignore_set;
+  struct SIGACTION act;
+  
   FILE* fp;
   
   /* the complex params */
@@ -4264,6 +4267,18 @@ reader_process (Avision_Scanner* s, int fd)
   u_int8_t* out_data;
   
   DBG (3, "reader_process:\n");
+  
+  if (sanei_thread_is_forked()) close (s->pipe);
+  
+  sigfillset (&ignore_set);
+  sigdelset (&ignore_set, SIGTERM);
+#if defined (__APPLE__) && defined (__MACH__)
+  sigdelset (&ignore_set, SIGUSR2);
+#endif
+  sigprocmask (SIG_SETMASK, &ignore_set, 0);
+  
+  memset (&act, 0, sizeof (act));
+  sigaction (SIGTERM, &act, 0);
   
   sigemptyset (&sigterm_set);
   sigaddset (&sigterm_set, SIGTERM);
@@ -4604,6 +4619,7 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
 
   /* must come first */
   sanei_usb_init ();
+  sanei_thread_init ();
 
   if (version_code)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BACKEND_BUILD);
@@ -5263,21 +5279,6 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters* params)
   return SANE_STATUS_GOOD;
 }
 
-#ifdef HAVE_OS2_H
-/*
- * reader thread for OS/2: need a wrapper, because threads can have
- * only one parameter.
- */
-static void
-os2_reader_process (void *data)
-{
-  struct Avision_Scanner *scanner = (struct Avision_Scanner *) data;
-  
-  DBG (1, "reader_process: thread started\n");
-  reader_process (scanner, scanner->reader_fds);
-}
-#endif
-
 SANE_Status
 sane_start (SANE_Handle handle)
 {
@@ -5442,36 +5443,13 @@ sane_start (SANE_Handle handle)
     return SANE_STATUS_IO_ERROR;
   }
   
-#ifndef HAVE_OS2_H
-  s->reader_pid = fork ();
-#else
   /* create reader routine as new process or thread */
+  s->pipe = fds[0];
   s->reader_fds = fds[1];
-  s->reader_pid = sanei_thread_begin (os2_reader_process, (void *) s);
-#endif
+  s->reader_pid = sanei_thread_begin (reader_process, (void *) s);
 
-  if (s->reader_pid == 0)  { /* if child */
-    sigset_t ignore_set;
-    struct SIGACTION act;
-    
-    close (fds [0] );
-    
-    sigfillset (&ignore_set);
-    sigdelset (&ignore_set, SIGTERM);
-    sigprocmask (SIG_SETMASK, &ignore_set, 0);
-    
-    memset (&act, 0, sizeof (act));
-    sigaction (SIGTERM, &act, 0);
-    
-    /* don't use exit() since that would run the atexit() handlers... */
-    _exit (reader_process (s, fds[1] ) );
-  }
+  if (sanei_thread_is_forked()) close (s->reader_fds);
 
-#ifndef HAVE_OS2_H
-  close (fds[1]);
-#endif
-  s->pipe = fds [0];
-  
   return SANE_STATUS_GOOD;
 
  stop_scanner_and_return:

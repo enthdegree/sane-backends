@@ -284,6 +284,7 @@ libsane-avision.la: ../sanei/sanei_config2.lo
 libsane-avision.la: ../sanei/sanei_constrain_value.lo
 libsane-avision.la: ../sanei/sanei_scsi.lo
 libsane-avision.la: ../sanei/sanei_usb.lo
+libsane-avision.la: ../sanei/sanei_thread.lo
 libsane-bh.la: ../sanei/sanei_config2.lo
 libsane-bh.la: ../sanei/sanei_constrain_value.lo
 libsane-bh.la: ../sanei/sanei_scsi.lo

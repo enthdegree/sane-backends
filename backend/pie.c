@@ -43,6 +43,10 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
+ * 22-2-2003 set devlist to NULL in sane_exit()
+ *           set first_dev to NULL in sane_exit()
+ *           eliminated num_devices
+ *
  * 23-7-2002 added TL_X > BR_X, TL_Y > BR_Y check in sane_start
  *
  * 17-9-2001 changed ADLIB to AdLib as the comparison is case sensitive and
@@ -330,9 +334,8 @@ static const SANE_Range percentage_range_100 = {
   0 << SANE_FIXED_SCALE_SHIFT	/* quantization */
 };
 
-static int num_devices;
-static Pie_Device *first_dev;
-static Pie_Scanner *first_handle;
+static Pie_Device *first_dev = NULL;
+static Pie_Scanner *first_handle = NULL;
 static const SANE_Device **devlist = NULL;
 
 
@@ -1217,7 +1220,6 @@ attach_scanner (const char *devicename, Pie_Device ** devp)
 
 #endif
 
-  ++num_devices;
   dev->next = first_dev;
   first_dev = dev;
 
@@ -2975,9 +2977,12 @@ sane_exit (void)
       free (dev);
     }
 
+  first_dev = NULL;
+
   if (devlist)
     {
       free (devlist);
+      devlist = NULL;
     }
 }
 
@@ -2993,12 +2998,16 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 
   DBG (DBG_sane_init, "sane_get_devices\n");
 
+  i = 0;
+  for (dev = first_dev; dev; dev = dev->next)
+    i++;
+
   if (devlist)
     {
       free (devlist);
     }
 
-  devlist = malloc ((num_devices + 1) * sizeof (devlist[0]));
+  devlist = malloc ((i + 1) * sizeof (devlist[0]));
   if (!devlist)
     {
       return SANE_STATUS_NO_MEM;
@@ -3006,12 +3015,12 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 
   i = 0;
 
-  for (dev = first_dev; i < num_devices; dev = dev->next)
+  for (dev = first_dev; dev; dev = dev->next)
     {
       devlist[i++] = &dev->sane;
     }
 
-  devlist[i++] = 0;
+  devlist[i] = NULL;
 
   *device_list = devlist;
 

@@ -1,3 +1,7 @@
+2003-02-23  Simon Munton <simon@munton.demon.co.uk>
+        * backend/pie.c: fixed segmentation faults when sane_init/sane_exit is
+	  run more than once.
+
 2003-02-23   Stéphane Voltz  <svoltz@wanadoo.fr>
 
         * backend/umax_pp_low.c backend/umax_pp_low.c: Added global vars reset.

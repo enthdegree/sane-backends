@@ -1,3 +1,8 @@
+2000-09-18  Petter Reinholdtsen <pere@td.org.uit.no>
+
+	* backend/v4l.c backend/v4l.h backend/v4l-grab.h: Remove some
+	compiler warnings.
+
 2000-09-18  Henning Meier-Geinitz <hmg@gmx.de>
 
         * README: Removed comment about xscanimage error message. Added

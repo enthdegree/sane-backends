@@ -10,7 +10,7 @@
 
 :backend "canon"		; name of backend
 :manpage "sane-canon"
-:version "1.10"			; version of backend
+:version "1.12"			; version of backend
 :status :alpha			; :alpha, :beta, :stable, :new
 
 :url "http://www.rzg.mpg.de/~mpd/sane/" ; backend home page
@@ -27,10 +27,13 @@
 :model "CanoScan 620S"		; name models for above-specified mfg.
 :interface "SCSI"
 :comment "1 pass; flatbed scanner"
+:model "CanoScan 1200S"		; name models for above-specified mfg.
+:interface "SCSI"
+:comment "1 pass; flatbed scanner"
 :model "CanoScan 2700F"		; name models for above-specified mfg.
 :interface "SCSI"
 :comment "1 pass; film scanner"
-:model "CanoScan 2710"		; name models for above-specified mfg.
+:model "CanoScan 2710S"		; name models for above-specified mfg.
 :interface "SCSI"
 :comment "1 pass; 36bit film scanner"
 

@@ -9,7 +9,7 @@
 	* README.linux: Added some hints about setting permissions with
 	  libusb on Linux 2.6. Removed some obsolete paragraphs.
 	* config.guess config.sub: Updated from stable libtool.
-
+	* doc/descriptions/unsupported.desc: Added Relisys Episode scanner.
 
 2004-03-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

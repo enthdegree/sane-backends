@@ -1,6 +1,8 @@
 2004-08-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* doc/descriptions/unsupported.desc: Added Epson 2580 and Nikon LS-50.
+	* doc/descriptions/unsupported.desc: Added Epson 2580 and Nikon
+	  LS-50.
+	* doc/descriptions-external/brother.desc: Added more clear comments.
 
 2004-08-28  Stéphane Voltz <svoltz@wanadoo.fr>
 

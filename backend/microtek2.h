@@ -1344,7 +1344,7 @@ scsi_read_control_bits(Microtek2_Scanner *);
 scsi_read_gamma(Microtek2_Scanner *); */
 
 static SANE_Status
-scsi_read_image(Microtek2_Scanner *, u_int8_t *);
+scsi_read_image(Microtek2_Scanner *, u_int8_t *, int);
 
 static SANE_Status
 scsi_read_image_info(Microtek2_Scanner *);

@@ -893,7 +893,7 @@ cancel_scan(Microtek2_Scanner *ms)
 
     /* READ IMAGE with a transferlength of 0 aborts a scan */
     ms->transfer_length = 0;
-    status = scsi_read_image(ms, (u_int8_t *) NULL);
+    status = scsi_read_image(ms, (u_int8_t *) NULL, 1);
     if ( status != SANE_STATUS_GOOD )
       {
         DBG(1, "cancel_scan: cancel failed: '%s'\n", sane_strstatus(status));
@@ -4668,12 +4668,14 @@ scsi_read_image_info(Microtek2_Scanner *ms)
 /*---------- scsi_read_image() -----------------------------------------------*/
 
 static SANE_Status
-scsi_read_image(Microtek2_Scanner *ms, u_int8_t *buffer)
+scsi_read_image(Microtek2_Scanner *ms, u_int8_t *buffer, int bytes_per_pixel)
 {
     u_int8_t cmd[RI_CMD_L];
     SANE_Bool endiantype;
     SANE_Status status;
     size_t size;
+    size_t i;
+    u_int8_t tmp;
 
 
     DBG(30, "scsi_read_image:  ms=%p, buffer=%p\n", (void *) ms, buffer);
@@ -4691,6 +4693,24 @@ scsi_read_image(Microtek2_Scanner *ms, u_int8_t *buffer)
 
     size = ms->transfer_length;
     status = sanei_scsi_cmd(ms->sfd, cmd, sizeof(cmd), buffer, &size);
+
+    if ( buffer && ( ms->dev->model_flags & MD_PHANTOM_C6 ) && endiantype )
+      {
+	switch(bytes_per_pixel)
+	  {
+	    case 1: break;
+	    case 2:
+		    for ( i = 1; i < size; i += 2 )
+		      {
+			tmp = buffer[i-1];
+			buffer[i-1] = buffer[i];
+			buffer[i] = tmp;
+		      }
+		    break;
+	    default:
+		    DBG(1, "scsi_read_image: Unexpected bytes_per_pixel=%d\n", bytes_per_pixel);
+	  }
+      }
 
     if ( status != SANE_STATUS_GOOD )
         DBG(1, "scsi_read_image: '%s'\n", sane_strstatus(status));
@@ -6098,7 +6118,7 @@ read_shading_image(Microtek2_Scanner *ms)
 #ifdef TESTBACKEND
             status = scsi_read_sh_d_image(ms, buf);
 #else
-            status = scsi_read_image(ms, buf);
+            status = scsi_read_image(ms, buf, md->shading_depth>8 ? 2 : 1);
 #endif
             if ( status != SANE_STATUS_GOOD )
               {
@@ -6239,7 +6259,7 @@ read_shading_image(Microtek2_Scanner *ms)
 #ifdef TESTBACKEND
         status = scsi_read_sh_w_image(ms, buf);
 #else
-        status = scsi_read_image(ms, buf);
+	status = scsi_read_image(ms, buf, md->shading_depth>8 ? 2 : 1);
 #endif
         if ( status != SANE_STATUS_GOOD )
             return status;
@@ -7148,7 +7168,7 @@ reader_process(void *data)
                  ms->src_lines_to_read, ms->bpl, ms->real_bpl, ms->buf.src_buf);
 
         sigprocmask (SIG_BLOCK, &sigterm_set, 0);
-        status = scsi_read_image(ms, ms->buf.src_buf);
+        status = scsi_read_image(ms, ms->buf.src_buf, (ms->depth > 8) ? 2 : 1);
         sigprocmask (SIG_UNBLOCK, &sigterm_set, 0);
         if ( status != SANE_STATUS_GOOD ) 
             return SANE_STATUS_IO_ERROR;

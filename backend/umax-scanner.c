@@ -101,7 +101,7 @@ static char *scanner_str[] =
   "UMAX ",	"Astra 2200 ", 
   "UMAX ",	"Astra 2400S ",
   "UMAX ",	"Mirage D-16L ",
-/*  "UMAX ",	"Mirage II ", */
+  "UMAX ",	"Mirage II ",
   "UMAX ",	"Mirage IIse ",
 /*  "UMAX ",	"PL-II ", */
 /*  "UMAX ",	"PowerLook 2000 ", */
@@ -118,6 +118,7 @@ static char *scanner_str[] =
   "Nikon ",	"AX-210 ",
   "KYE ",	"ColorPage-HR5 ", 
   "EPSON ",	"Perfection600 ", 
+  "ESCORT ",    "Galleria 600S ", /* is an Astra 600S */
   "END_OF_LIST"
 };
 

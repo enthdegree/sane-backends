@@ -212,6 +212,7 @@ typedef struct Umax_Device
   unsigned int		request_scsi_maxqueue;
   unsigned int		request_preview_lines;
   unsigned int		request_scan_lines;
+  unsigned int		handle_bad_sense_error;
   unsigned int		execute_request_sense;
   unsigned int		force_preview_bit_rgb;
   unsigned int		scsi_buffer_size_min;

@@ -1,3 +1,9 @@
+2001-09-17  Peter Fales <peter@fales.com>
+
+	* backend/gphoto2.c:  Converted from test code using pipes to
+	  the command line program to using the camera API.  Currently
+	  only supportes cameras that natively generate jpeg files.
+
 2001-09-17  Tom Martone <tom@martoneconsulting.com>
         * backend/bh.desc
           changed status from :new to :beta

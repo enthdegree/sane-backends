@@ -1,3 +1,10 @@
+2002-01-05  Karl Heinz Kremer <khk@khk.net>
+
+	* backend/epson.[ch]: Check for (and set) s->fd to -1 when 
+	  scanner is closed. Removed black gamma table - only RGB
+	  is used, even for grayscale scans. Do not call access()
+	  when running on OS/2 or when using a parallel port scanner.
+
 2002-01-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/net.c backend/net.desc: Fixed race condition between saned

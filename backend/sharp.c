@@ -46,6 +46,11 @@
    This file implements a SANE backend for Sharp flatbed scanners.  */
 
 /*
+   Version 0.32
+   changes to version 0.31:
+   - support for JX320 added (Thanks to Isaac Wilcox for providind the
+     patch)
+    
    Version 0.31
    changes to version 0.30:
    - support for JX350 added (Thanks to Shuhei Tomita for providind the
@@ -73,7 +78,7 @@
    - bi-level color scans now give useful (8 bit) output
    - separate thresholds for red, green, blue (bi-level color scan) added
 */
-#include "sane/config.h"
+#include <sane/config.h>
 
 #include <limits.h>
 #include <stdlib.h>
@@ -83,16 +88,16 @@
 #include <errno.h>
 #include <math.h>
 
-#include "sane/sane.h"
-#include "sane/saneopts.h"
-#include "sane/sanei_scsi.h"
+#include <sane/sane.h>
+#include <sane/saneopts.h>
+#include <sane/sanei_scsi.h>
 
 /* QUEUEDEBUG should be undefined unless you want to play
    with the sanei_scsi.c under Linux and/or with the Linux's SG driver,
    or your suspect problems with command queueing
 */
-/* #define QUEUEDEBUG */
-/* #define DEBUG */
+#define QUEUEDEBUG
+#define DEBUG
 #ifdef DEBUG
 #include <unistd.h>
 #include <sys/time.h>
@@ -135,23 +140,24 @@
 */
 /* #define USE_SEPARATE_Y_RESOLUTION */
 
-#include "sharp.h"
+#include <sharp.h>
 
 #define BACKEND_NAME sharp
-#include "sane/sanei_backend.h"
+#include <sane/sanei_backend.h>
 
 #ifndef PATH_MAX
 #define PATH_MAX	1024
 #endif
 
 #define DEFAULT_MUD_JX610 25
+#define DEFAULT_MUD_JX320 25
 #define DEFAULT_MUD_JX330 1200
 #define DEFAULT_MUD_JX250 1200
 
 #define PIX_TO_MM(x, mud) ((x) * 25.4 / mud)
 #define MM_TO_PIX(x, mud) ((x) * mud / 25.4)
 
-#include "sane/sanei_config.h"
+#include <sane/sanei_config.h>
 #define SHARP_CONFIG_FILE "sharp.conf"
 
 static int num_devices = 0;
@@ -382,7 +388,7 @@ sense_handler(int fd, u_char *sense_buffer, void *s)
           
         }
       else if (sdat->model == JX250 || sdat->model == JX330 ||
-	       sdat->model == JX350)
+	       sdat->model == JX350 || sdat->model == JX320)
         {
           switch (sense_key)
             {
@@ -1300,8 +1306,9 @@ attach (const char *devnam, SHARP_Device ** devp)
       else if (strncmp (inquiry_data + 16, "JX350", 5) == 0)
         sensedat.model = JX350;
       else if (   strncmp (inquiry_data + 16, "JX320", 5) == 0
-               || strncmp (inquiry_data + 16, "JX325", 5) == 0
-               || strncmp (inquiry_data + 16, "JX330", 5) == 0)
+               || strncmp (inquiry_data + 16, "JX325", 5) == 0)
+        sensedat.model = JX320;
+      else if (strncmp (inquiry_data + 16, "JX330", 5) == 0)
         sensedat.model = JX330;
     }
 
@@ -1323,11 +1330,16 @@ attach (const char *devnam, SHARP_Device ** devp)
     }
 
   DBG (3, "attach: sending MODE SELECT\n");
-  /* JX-610 probably supports only 25 MUD size */
+  /* JX-610 probably supports only 25 MUD size 
+     JX-320 only supports 25 MUD size
+  */
   if (strncmp (inquiry_data + 16, "JX610", 5) == 0)
     status = mode_select_mud (fd, DEFAULT_MUD_JX610);
+  else if (strncmp (inquiry_data + 16, "JX320", 5) == 0)
+    status = mode_select_mud (fd, DEFAULT_MUD_JX320);
   else
     status = mode_select_mud (fd, DEFAULT_MUD_JX330);
+
   if (status != SANE_STATUS_GOOD)
     {
       DBG (1, "attach: MODE_SELECT6 failed\n");
@@ -1402,6 +1414,21 @@ attach (const char *devnam, SHARP_Device ** devp)
       dev->info.tl_y_ranges[SCAN_SIMPLE].max = SANE_FIX(430); /* 431.8 is the real max */
       dev->info.br_y_ranges[SCAN_SIMPLE].max = SANE_FIX(431); /* 431.8 is the real max */
     }
+  else if (dev->sensedat.model == JX320)
+    {
+      dev->info.xres_range.max = 600;
+      dev->info.xres_range.min = 30;
+
+      dev->info.yres_range.max = 600;
+      dev->info.yres_range.min = 30;
+      dev->info.x_default = SANE_FIX(210);
+      dev->info.tl_x_ranges[SCAN_SIMPLE].max = SANE_FIX(212);
+      dev->info.br_x_ranges[SCAN_SIMPLE].max = SANE_FIX(213);
+
+      dev->info.y_default = SANE_FIX(297);
+      dev->info.tl_y_ranges[SCAN_SIMPLE].max = SANE_FIX(292);
+      dev->info.br_y_ranges[SCAN_SIMPLE].max = SANE_FIX(293);
+    }
   else
     {
       /* ask the scanner, if ADF or FSU are installed, and ask for 
@@ -1445,7 +1472,9 @@ attach (const char *devnam, SHARP_Device ** devp)
           get_max_scan_size(fd, dev, SCAN_WITH_FSU);
         }
 
-      if (dev->sensedat.model == JX330 || dev->sensedat.model == JX350)
+      if (   dev->sensedat.model == JX320 
+          || dev->sensedat.model == JX330
+          || dev->sensedat.model == JX350)
         {
           dev->info.xres_range.max = 600;
           dev->info.xres_range.min = 30;
@@ -1777,7 +1806,7 @@ init_options (SHARP_Scanner * s)
     SANE_DESC_HALFTONE " (JX-330 only)", halftone_list, OPT_HALFTONE, 0);
 
   if (s->dev->sensedat.model == JX250 || s->dev->sensedat.model == JX350 ||
-      s->dev->sensedat.model == JX610)
+      s->dev->sensedat.model == JX610 || s->dev->sensedat.model == JX320)
     s->opt[OPT_HALFTONE].cap |= SANE_CAP_INACTIVE;
 
   i = 0;
@@ -1884,7 +1913,7 @@ init_options (SHARP_Scanner * s)
   /* select resolution */
 #ifdef USE_RESOLUTION_LIST
   if (s->dev->sensedat.model == JX610 || s->dev->sensedat.model == JX330 ||
-      s->dev->sensedat.model == JX350)
+      s->dev->sensedat.model == JX350 || s->dev->sensedat.model == JX320)
     init_string_option(s, "ResolutionList", "ResolutionList", "ResolutionList", 
       resolution_list_jx610, OPT_RESOLUTION_LIST, RESOLUTION_MAX_JX610);
   else
@@ -1989,7 +2018,8 @@ init_options (SHARP_Scanner * s)
     "Edge emphasis", edge_emphasis_list,
     OPT_EDGE_EMPHASIS, 0);
 
-  if (s->dev->sensedat.model == JX250 || s->dev->sensedat.model == JX350)
+  if (   s->dev->sensedat.model == JX250 || s->dev->sensedat.model == JX350
+      || s->dev->sensedat.model == JX320)
     s->opt[OPT_EDGE_EMPHASIS].cap |= SANE_CAP_INACTIVE;
 
   /* threshold */
@@ -2177,7 +2207,8 @@ do_cancel (SHARP_Scanner * s)
       wait_ready(s->fd);
       sanei_scsi_cmd (s->fd, cmd, sizeof (cmd), 0, 0);
       /* if (s->adf_scan) */
-      if (s->dev->sensedat.model != JX610)
+      if (   s->dev->sensedat.model != JX610
+          && s->dev->sensedat.model != JX320)
         object_position(s->fd, UNLOAD_PAPER);
     }
 
@@ -2277,7 +2308,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
       */
       attach (devnam, &dp);
       /* make sure that there are at least two buffers */
-      if (DEFAULT_BUFFERS > 2)
+      if (DEFAULT_BUFFERS < 2)
         dp->info.buffers = DEFAULT_BUFFERS;
       else
         dp->info.buffers = 2;
@@ -2286,7 +2317,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
       return SANE_STATUS_GOOD;
     }
 
-  while (sanei_config_read(line, PATH_MAX, fp))
+  while (fgets(line, PATH_MAX, fp))
     {
       linecount++;
       word = 0;
@@ -3425,7 +3456,8 @@ s->dev->sensedat.complain_on_adf_error = 1;
     s->lightcolor = 3;
 
   s->adf_scan = 0;
-  if (s->dev->sensedat.model != JX610)
+  if (   s->dev->sensedat.model != JX610
+      && s->dev->sensedat.model != JX320)
     {
       status = mode_select_adf_fsu(s->fd, s->adf_fsu_mode);
       if (status != SANE_STATUS_GOOD)
@@ -3548,7 +3580,8 @@ s->dev->sensedat.complain_on_adf_error = 1;
   /* every Sharp scanner seems to have a different 
      window descriptor block...
   */
-  if (s->dev->sensedat.model == JX610)
+  if (   s->dev->sensedat.model == JX610
+      || s->dev->sensedat.model == JX320)
     {
       buf_size = sizeof(WDB);
     }
@@ -3591,7 +3624,8 @@ s->dev->sensedat.complain_on_adf_error = 1;
   else
     wp.wdb.bpp = 1;
   wp.wdb.ht_pattern[0] = 0;
-  if (s->dev->sensedat.model == JX610)
+  if (   s->dev->sensedat.model == JX610
+      || s->dev->sensedat.model == JX320)
     {
       wp.wdb.ht_pattern[1] = 0;
     }else{

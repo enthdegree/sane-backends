@@ -4,6 +4,7 @@
  * File:	 plustek-share.h - definitions for the backend and the driver
  *.............................................................................
  *
+ * Copyright (C) 2000/2001 Gerhard Jaeger <g.jaeger@earthling.net>
  * Last Update:
  *		Gerhard Jaeger <g.jaeger@earthling.net>
  *.............................................................................
@@ -14,6 +15,8 @@
  * 0.38 - changed the dwFlag entry in ScannerCaps and its meaning
  *        changed _NO_BASE
  *        fixed model list
+ *		  removed gray-scale capabilities for TPA scans
+ * 0.39 - added user-space stuff
  *
  *.............................................................................
  *
@@ -386,12 +389,12 @@ typedef struct {
 /*
  * transparency/negative mode set ranges
  */
-#define _TPAPageWidth		    		500U	/* org. was 450 = 38.1 mm */
-#define _TPAPageHeight		    		510U 	/* org. was 460 = 38.9 mm */
-#define _TPAModeSupportMin	    		2	    /* _COLOR_256GRAY	*/
-#define _TPAModeSupportMax	    		4	    /* _COLOR48 		*/
-#define _TPAModeSupportDef	    		3	    /* _COLOR24 		*/
-#define _TPAMinDpi		    			150
+#define _TPAPageWidth		500U			/* org. was 450 = 38.1 mm */
+#define _TPAPageHeight		510U 			/* org. was 460 = 38.9 mm */
+#define _TPAModeSupportMin	COLOR_TRUE24
+#define _TPAModeSupportMax	COLOR_TRUE48
+#define _TPAModeSupportDef	COLOR_TRUE24
+#define _TPAMinDpi		    150
 
 #define _Transparency48OriginOffsetX	375
 #define _Transparency48OriginOffsetY	780
@@ -403,6 +406,37 @@ typedef struct {
 #define _NegativePageHeight	    		350U	/* 29.6 mm */
 
 #define _DEF_DPI		 		 50
+
+/*
+ * stuff needed for user space stuff
+ */
+#ifdef _USER_MODE
+
+int PtDrvInit	  ( int portAddr, int lamp_off, int warm_up );
+int PtDrvShutdown ( void );
+int PtDrvOpen	  ( void );
+int PtDrvClose	  ( void );
+int PtDrvIoctl	  ( unsigned int cmd, void *arg );
+int PtDrvRead	  ( unsigned char *buffer, int count );
+
+#define _INIT(portAddr,lamp_off,warmup)	PtDrvInit(portAddr,lamp_off,warmup)
+#define _DOWN()							PtDrvShutdown()
+
+#define _OPEN(dev)			PtDrvOpen()
+#define _CLOSE(hd)			PtDrvClose()
+#define _IOCTL(hd,cmd,arg)	PtDrvIoctl(cmd,arg)
+#define _READ(hd,buf,len)	PtDrvRead(buf,len)
+
+#else
+
+#define _INIT(portAddr,lamp_off,warmup)
+#define _DOWN()
+
+#define _OPEN(dev)			open(dev,O_RDONLY)
+#define _CLOSE(hd)			close(hd)
+#define _IOCTL(hd,cmd,arg)  ioctl(hd,cmd,arg)
+#define _READ(hd,buf,len)	read(hd,buf,len)
+#endif
 
 #endif	/* guard __PLUSTEK_SHARE_H__ */
 

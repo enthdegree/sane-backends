@@ -1,4 +1,4 @@
-2002-06-09
+2002-07-17
 
 Here are a few rules and tips that should help writing a
 SANE-conformant backend and including it into the SANE package:
@@ -200,7 +200,7 @@ DOCUMENTATION
   create a .desc file which describes it. Anytime you submit source code for
   your backend, you should include an update to the .desc file which reflects
   the new state of the backend. The .desc files are used to create the HTML
-  lists of supported devices.
+  lists of supported devices. See http://www.mostang.com/sane/ for the results.
 
 * The .desc files are located in the directories "doc/descriptions" and
   "doc/descriptions-external" (for included and external backends).
@@ -208,15 +208,18 @@ DOCUMENTATION
 * "doc/descriptions.txt" describes the format of the ".desc" files. There is
   also a template for new .desc files: "template.desc.". The format of the
   files in the two directories is very similar.  If you'd like to try parsing
-  your creation to recreate the sane-backends webpages, look at "sane-desc.el"
-  and "sane-desc-ext.el" in the tools/ directory or use "make
-  sane-backends.html" and "make sane-backends-external.html" in "doc/". It may
-  be necessary to adjust the Makefile.
+  your creation to recreate the sane-backends webpages, cd into "tools/" and
+  enter "make sane-desc". You can either use sane-desc directly (try 
+  "./sane-desc -h") or use "make html-pages" in "doc/". 
+
+* For external backends, you don't need to supply :manpage and :version. The
+  manpage link won't work anyway and version will be outdated soon.
 
 * When your backend is included in the SANE distribution, add an entry to
   doc/sane.man, AUTHORS and sane-backends.lsm. The sane.man entry should point
   to your documentation (man-page, website, readme).  Also move your .desc
-  file from "doc/descriptions-external" to "doc/descriptions".
+  file from "doc/descriptions-external" to "doc/descriptions" and update
+  them.
 
 * In your manual page (backend.man), use @LIBDIR@ and the other macros for
   path names to the libraries, config files and documentation. Don't use fixed
@@ -233,7 +236,7 @@ DOCUMENTATION
 INCLUDING INTO CVS
 ------------------
 
-* If you want to include you backend into CVS use the latest CVS to make
+* If you want to include your backend into CVS use the latest CVS to make
   patches. Check the mailing list and the TODO list for information about
   bugs to avoid.
 

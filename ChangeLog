@@ -1,3 +1,9 @@
+2001-12-18  Ingo Wilken <Ingo.Wilken@informatik.uni-oldenburg.de>
+
+	* backend/st400.c backend/st400.conf
+	  Security fix: Dump inquiry data to $HOME/st400.dump instead
+	  of /tmp/st400.dump.
+
 2001-12-17  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan-scsi.c    backend/snapscan.h

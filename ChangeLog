@@ -1,3 +1,9 @@
+2002-08-30  Frank Zago  <fzago at austin dot rr dot com>
+
+	* backend/teco1.c backend/teco1.h backend/teco1.conf
+	  doc/descriptions/teco1.desc doc/teco/teco1.txt
+	  doc/sane-teco1.man: Added support for another museum piece, the
+	  Dextra DF-600P, a rebadged VM3510.
 
 2002-08-30  Rene Rebe <rene.rebe@gmx.net>
 	* backend/avision.h backend/avision.c backend/avision.conf
@@ -53,7 +59,7 @@
 	  backend/agfafocus.c backend/abaton.c
 	  sanei/sanei_pv8630.c: Fixed some warnings.
 
-2002-08-22 20:59  fzago
+2002-08-22  Frank Zago  <fzago at austin dot rr dot com>
 
 	* doc/sane-teco1.man: Added Dextra scanner to the list of
 	  untested, but potentialy supported, scanners.

@@ -1,9 +1,27 @@
+2000-12-23  Henning Meier-Geinitz <hmg@gmx.de>
+
+	* NEWS: Added date of release.
+	* TODO: Removed entries about PATH_MAX, sanei_scsi_find_devices, and
+	  shm.h. Added entry about the necessity to check HAVE_SYS_SHM_H.
+	* configure configure.in include/sane/config.h.in: Default to
+	  --enable-warnings again. Don't set "-ansi" for OS/2. Test for 
+	  sys/shm.h. 
+	* backend/GUIDE: Moved to doc/backend-writing.txt.
+	* doc/backend-writing.txt: New file (moved from backend/GUIDE).
+	  Added comments about sanei-backend.h and PATH_MAX.
+	* include/sane/sanei_backend.h: Added define for PATH_MAX (if
+	  necessary).
+	* sanei/sanei_scsi.c: Implemented sanei_scsi_find_devices for FreeBSD
+	  (from ports@FreeBSD.org).
+	* tools/Makefile.in: Use INSTALL_SCRIPT instead of INSTALL_PROGRAM for
+	  sane-config (from ports@FreeBSD.org).
+
 ************************  Release of sane-backends 1.0.4 **********************
 
 2000-12-22  Henning Meier-Geinitz <hmg@gmx.de>
 	
         * configure configure.in: Changed version to 1.0.4 and package to 
-	  sane-backend (from Oliver Rauch <Oliver.Rauch@Wolfsburg.DE).
+	  sane-backends (from Oliver Rauch <Oliver.Rauch@Wolfsburg.DE).
         * sane.lsm Removed (renamed to sane-backends.lsm).
 	* sane-backends.lsm New file. Package name is sane-backends instead 
 	  of sane and added additional maintainer: Oliver Rauch (from

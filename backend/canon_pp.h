@@ -67,7 +67,7 @@
 /* options: num,res,colour,depth,tl-x,tl-y,br-x,br-y,cal */
 /* preview option disabled */
 #define NUM_OPTIONS 9  
-#define BUF_MAX 64000
+#define BUF_MAX 65520
 
 /* Indexes into options array */
 #define OPT_NUM_OPTIONS 0

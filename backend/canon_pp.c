@@ -50,11 +50,12 @@
 #include  <lalloca.h>		/* MUST come first for AIX! */
 #endif
 
-#define VERSION "$Revision$"
+#define VERSION "$Revision$ (0.3)"
 #define BACKEND_NAME canon_pp
 
 #define THREE_BITS 0xE0
 #define TWO_BITS 0xC0
+#define MM_PER_IN 25.4
 
 #include  <string.h>
 #include  <unistd.h>
@@ -62,7 +63,7 @@
 #include  <sys/types.h>
 #include  <stdlib.h>
 #include  <errno.h>
-#include <ieee1284.h>
+#include  <ieee1284.h>
 
 #include  "../include/sane/sane.h"
 #include  "../include/sane/saneopts.h"
@@ -80,7 +81,6 @@
 /* Prototypes */
 static SANE_Status init_device(struct parport *pp);
 
-static void update_ranges(CANONP_Scanner *cs);
 /* create a calibration file and give it initial values */
 static int init_cal(char *file);
 
@@ -579,32 +579,30 @@ sane_open (SANE_String_Const name, SANE_Handle *h)
 	if(!(tmp_range = (SANE_Range *)malloc(sizeof(SANE_Range))))
 		return SANE_STATUS_NO_MEM;
 	(*tmp_range).min = 0;
-	/* max is set later */
+	(*tmp_range).max = 215;
 	cs->opt[OPT_TL_X].constraint.range = tmp_range;
 
 	/* TL-Y */
 	if(!(tmp_range = (SANE_Range *)malloc(sizeof(SANE_Range))))
 		return SANE_STATUS_NO_MEM;
 	(*tmp_range).min = 0;
-	/* max is set later */
+	(*tmp_range).max = 296;
 	cs->opt[OPT_TL_Y].constraint.range = tmp_range;
 
 	/* BR-X */
 	if(!(tmp_range = (SANE_Range *)malloc(sizeof(SANE_Range))))
 		return SANE_STATUS_NO_MEM;
-	(*tmp_range).min = 64;
-	/* max is set later */
+	(*tmp_range).min = 22;
+	(*tmp_range).max = 216;
 	cs->opt[OPT_BR_X].constraint.range = tmp_range;
 
 	/* BR-Y */
 	if(!(tmp_range = (SANE_Range *)malloc(sizeof(SANE_Range))))
 		return SANE_STATUS_NO_MEM;
 	(*tmp_range).min = 1;
-	/* max is set later */
+	(*tmp_range).max = 297;
 	cs->opt[OPT_BR_Y].constraint.range = tmp_range;
 
-	/* set the max for all those ranges */
-	update_ranges(cs);
 
 	cs->opened = SANE_TRUE;
 	cs->setup = SANE_TRUE;
@@ -742,17 +740,7 @@ sane_control_option (SANE_Handle h, SANE_Int opt, SANE_Action act,
 					{
 						cs->vals[opt] += 1;
 					}
-					if (cs->vals[opt] != i)
-					{
-						update_ranges(cs);
-						/* shouldn't have to reload
-						 * params too, but xsane
-						 * seems a bit buggy in that
-						 * respect.  it's ok for us
-						 * not to change them */
-						if (info != NULL) *info |= 
-							SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
-					}
+
 					if (res630[cs->vals[opt]] != 
 							*((int *)val))
 					{
@@ -784,23 +772,6 @@ sane_control_option (SANE_Handle h, SANE_Int opt, SANE_Action act,
 					break;
 				case OPT_TL_X:
 				case OPT_BR_X:
-					if ((i<cs->opt[opt].constraint.range->min) || (i>cs->opt[opt].constraint.range->max))
-						return SANE_STATUS_INVAL;
-					/* Rnd up to the next multiple of 4 */
-					if (i % 4) {
-						DBG(100, "Inexact: X requested"
-								": %d,",i);
-						if (opt == OPT_TL_X)
-							i -= (i % 4);
-						else
-							i += 4 - (i % 4);
-
-						DBG(100, " X provided: %d\n",i);
-						if (info != NULL) *info |= 
-							SANE_INFO_INEXACT; 
-					}
-					cs->vals[opt] = i;
-					break;
 				case OPT_TL_Y:
 				case OPT_BR_Y:
 					if ((i<cs->opt[opt].constraint.range->min) || (i>cs->opt[opt].constraint.range->max))
@@ -881,7 +852,8 @@ sane_control_option (SANE_Handle h, SANE_Int opt, SANE_Action act,
 	SANE_Status
 sane_get_parameters (SANE_Handle h, SANE_Parameters *params)
 {
-	CANONP_Scanner *cs = ((CANONP_Scanner *)h);
+	int res, max_width, max_height, max_res;
+        CANONP_Scanner *cs = ((CANONP_Scanner *)h);
 	SANE_Int total_lines = 0;
 	DBG(2, ">> sane_get_parameters (h=%p, params=%p)\n", h, params);
 
@@ -894,11 +866,36 @@ sane_get_parameters (SANE_Handle h, SANE_Parameters *params)
 		return SANE_STATUS_INVAL;
 	}
 
+	/* We use 630 res list here because the 330 res list is just a shorter
+	 * version, so this will always work. */
+	res = res630[cs->vals[OPT_RESOLUTION]];
+
 	/* 
 	 * These don't change whether we're scanning or not 
 	 * NOTE: Assumes options don't change after scanning commences
 	 */
-	total_lines = cs->vals[OPT_BR_Y] - cs->vals[OPT_TL_Y];
+
+	/* Copy the options stored in the vals into the scaninfo */
+	params->pixels_per_line = 
+                ((cs->vals[OPT_BR_X] - cs->vals[OPT_TL_X]) * res) / MM_PER_IN;
+	total_lines = ((cs->vals[OPT_BR_Y] - cs->vals[OPT_TL_Y]) * res) 
+                / MM_PER_IN;
+
+	/* FIXME: Magic numbers ahead! */
+
+	max_res = cs->params.scanheadwidth == 2552 ? 300 : 600;
+
+	/* x values have to be divisible by 4 (round down) */
+	params->pixels_per_line -= (params->pixels_per_line%4);
+
+	max_width = cs->params.scanheadwidth / (max_res / res);
+
+	max_height = (cs->params.scanheadwidth == 2552 ? 3508 : 7016) / 
+                                        (max_res / res);
+
+        if(params->pixels_per_line > max_width) params->pixels_per_line = max_width;
+        if(total_lines > max_height) total_lines = max_height;
+
 
 	params->depth = cs->vals[OPT_DEPTH] ? 16 : 8;
 
@@ -915,7 +912,6 @@ sane_get_parameters (SANE_Handle h, SANE_Parameters *params)
 			break;
 	}
 
-	params->pixels_per_line = cs->vals[OPT_BR_X] - cs->vals[OPT_TL_X];
 
 	if (!(params->pixels_per_line)) {
 		params->last_frame = SANE_TRUE;
@@ -959,7 +955,7 @@ sane_get_parameters (SANE_Handle h, SANE_Parameters *params)
 	SANE_Status
 sane_start (SANE_Handle h)
 {
-	int i,tmp;
+	unsigned int i, res, max_width, max_height, max_res, tmp;
 	CANONP_Scanner *cs = ((CANONP_Scanner *)h);
 	DBG(2, ">> sane_start (h=%p)\n", h);
 
@@ -973,30 +969,42 @@ sane_start (SANE_Handle h)
 		return SANE_STATUS_INVAL;
 	}
 
-	/* Copy the options stored in the vals into the scaninfo */
-	cs->scan.width = cs->vals[OPT_BR_X] - cs->vals[OPT_TL_X];
-	cs->scan.height = cs->vals[OPT_BR_Y] - cs->vals[OPT_TL_Y];
-	cs->scan.xoffset = cs->vals[OPT_TL_X];
-	cs->scan.yoffset = cs->vals[OPT_TL_Y];
-
-	if (((cs->vals[OPT_BR_Y] - cs->vals[OPT_TL_Y]) <= 0) || 
-			((cs->vals[OPT_BR_X] - cs->vals[OPT_TL_X]) <= 0))
-	{
-		DBG(1,"sane_start: height = %d, Width = %d. "
-				"Can't scan void range!",
-				cs->scan.height, cs->scan.width);
-		return SANE_STATUS_INVAL;
-	}
 
 	/* We use 630 res list here because the 330 res list is just a shorter
 	 * version, so this will always work. */
-	tmp = res630[cs->vals[OPT_RESOLUTION]];
+	res = res630[cs->vals[OPT_RESOLUTION]];
 
-	DBG(10, "sane_start: val=%d, tmp=%d\n", 
-			cs->vals[OPT_RESOLUTION], tmp);
+	/* Copy the options stored in the vals into the scaninfo */
+	cs->scan.width = ((cs->vals[OPT_BR_X] - cs->vals[OPT_TL_X]) * res) / MM_PER_IN;
+	cs->scan.height = ((cs->vals[OPT_BR_Y] - cs->vals[OPT_TL_Y]) * res) / MM_PER_IN;
+
+	cs->scan.xoffset = (cs->vals[OPT_TL_X] * res) / MM_PER_IN;
+	cs->scan.yoffset = (cs->vals[OPT_TL_Y] * res) / MM_PER_IN;
+
+        /* 
+         * These values have to pass the requirements of not exceeding 
+         * dimensions (simple clipping) and both width values have to be some 
+         * integer multiple of 4 
+         */
+
+	/* FIXME: Magic numbers ahead! */
+
+	max_res = cs->params.scanheadwidth == 2552 ? 300 : 600;
+
+	/* x values have to be divisible by 4 (round down) */
+	cs->scan.width -= (cs->scan.width%4);
+	cs->scan.xoffset -= (cs->scan.xoffset%4);
+
+	max_width = cs->params.scanheadwidth / (max_res / res);
+
+	max_height = (cs->params.scanheadwidth == 2552 ? 3508 : 7016) / 
+                                        (max_res / res);
+
+        if(cs->scan.width > max_width) cs->scan.width = max_width;
+        if(cs->scan.height > max_height) cs->scan.height = max_height;
 
 	/* We pass a value to init_scan which is the power of 2 that 75
-	 * is multiplied for the resolution.  ie:
+	 * is multiplied by for the resolution.  ie:
 	 * 75 -> 0
 	 * 150 -> 1
 	 * 300 -> 2
@@ -1007,15 +1015,24 @@ sane_start (SANE_Handle h)
 	 */
 
 	i = 0;
-	while (tmp > 75)
+	while (res > 75)
 	{
 		i++;
-		tmp = tmp >> 1;
+		res = res >> 1;
 	}
 
 	/* FIXME? xres == yres for now. */
 	cs->scan.xresolution = i;
 	cs->scan.yresolution = i;
+
+	if (((cs->vals[OPT_BR_Y] - cs->vals[OPT_TL_Y]) <= 0) || 
+			((cs->vals[OPT_BR_X] - cs->vals[OPT_TL_X]) <= 0))
+	{
+		DBG(1,"sane_start: height = %d, Width = %d. "
+				"Can't scan void range!",
+				cs->scan.height, cs->scan.width);
+		return SANE_STATUS_INVAL;
+	}
 
 	cs->scan.mode = cs->vals[OPT_COLOUR_MODE];
 
@@ -1596,19 +1613,19 @@ static SANE_Status init_device(struct parport *pp)
 	DBG(100, "init_device: configuring opt: tl-x\n");
 
 	/* The top-left-x */
-	cs->opt[OPT_TL_X].unit = SANE_UNIT_PIXEL;
+	cs->opt[OPT_TL_X].unit = SANE_UNIT_MM;
 	cs->opt[OPT_TL_X].constraint_type = SANE_CONSTRAINT_RANGE;
 
 	DBG(100, "init_device: configuring opt: tl-y\n");
 
 	/* The top-left-y */
-	cs->opt[OPT_TL_Y].unit = SANE_UNIT_PIXEL;
+	cs->opt[OPT_TL_Y].unit = SANE_UNIT_MM;
 	cs->opt[OPT_TL_Y].constraint_type = SANE_CONSTRAINT_RANGE;
 
 	DBG(100, "init_device: configuring opt: br-x\n");
 
 	/* The bottom-right-x */
-	cs->opt[OPT_BR_X].unit = SANE_UNIT_PIXEL;
+	cs->opt[OPT_BR_X].unit = SANE_UNIT_MM;
 	cs->opt[OPT_BR_X].constraint_type = SANE_CONSTRAINT_RANGE;
 	/* default scan width */
 	cs->vals[OPT_BR_X] = 100;
@@ -1616,7 +1633,7 @@ static SANE_Status init_device(struct parport *pp)
 	DBG(100, "init_device: configuring opt: br-y\n");
 
 	/* The bottom-right-y */
-	cs->opt[OPT_BR_Y].unit = SANE_UNIT_PIXEL;
+	cs->opt[OPT_BR_Y].unit = SANE_UNIT_MM;
 	cs->opt[OPT_BR_Y].constraint_type = SANE_CONSTRAINT_RANGE;
 	cs->vals[OPT_BR_Y] = 100;
 
@@ -1678,50 +1695,6 @@ sane_get_select_fd (SANE_Handle h, SANE_Int *fdp)
 	DBG(2, ">> sane_get_select_fd (%p, %p) (not supported)\n", h, fdp);
 	DBG(2, "<< sane_get_select_fd\n");
 	return SANE_STATUS_UNSUPPORTED;
-}
-
-/*************************************************************************
- *
- * update_ranges(): when the res is changed, the max scan size in pixels 
- * has to be changed.
- *
- *************************************************************************/
-static void update_ranges(CANONP_Scanner *cs) 
-{
-	int new_width, new_height, max_res;
-
-	/* FIXME: Magic numbers ahead! */
-
-	max_res = cs->params.scanheadwidth == 2552 ? 300 : 600;
-
-	new_width = cs->params.scanheadwidth / 
-		(max_res / res630[cs->vals[OPT_RESOLUTION]]);
-	new_height = (cs->params.scanheadwidth == 2552 ? 3508 : 7016) /
-		(max_res / res630[cs->vals[OPT_RESOLUTION]]);
-
-	/* Max width has to be divisible by 4 */
-	new_width -= (new_width%4);
-
-	DBG(10, "update_ranges: new_width = %d, new_height = %d\n",
-			new_width, new_height);
-
-	(*((SANE_Range *)(cs->opt[OPT_TL_X].constraint.range))).max = 
-		new_width - 1;
-	(*((SANE_Range *)(cs->opt[OPT_TL_Y].constraint.range))).max = 
-		new_height - 1;
-	(*((SANE_Range *)(cs->opt[OPT_BR_X].constraint.range))).max = 
-		new_width;
-	(*((SANE_Range *)(cs->opt[OPT_BR_Y].constraint.range))).max = 
-		new_height;
-
-	if (cs->vals[OPT_TL_X] > cs->opt[OPT_TL_X].constraint.range->max)
-		cs->vals[OPT_TL_X] = cs->opt[OPT_TL_X].constraint.range->max;
-	if (cs->vals[OPT_BR_X] > cs->opt[OPT_BR_X].constraint.range->max)
-		cs->vals[OPT_BR_X] = cs->opt[OPT_BR_X].constraint.range->max;
-	if (cs->vals[OPT_TL_Y] > cs->opt[OPT_TL_Y].constraint.range->max)
-		cs->vals[OPT_TL_Y] = cs->opt[OPT_TL_Y].constraint.range->max;
-	if (cs->vals[OPT_BR_Y] > cs->opt[OPT_BR_Y].constraint.range->max)
-		cs->vals[OPT_BR_Y] = cs->opt[OPT_BR_Y].constraint.range->max;
 }
 
 

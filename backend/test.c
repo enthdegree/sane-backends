@@ -41,7 +41,7 @@
    This backend is for testing frontends.
 */
 
-#define BUILD 19
+#define BUILD 20
 
 #include "../include/sane/config.h"
 
@@ -1247,7 +1247,8 @@ reader_process (Test_Device * test_device, SANE_Int fd)
 
   free (buffer);
   DBG (4, "(child) reader_process: finished,  wrote %d bytes, expected %d "
-       "bytes\n", byte_count, bytes_total);
+       "bytes, now waiting\n", byte_count, bytes_total);
+  sleep (1000);
   close (fd);
   return SANE_STATUS_GOOD;
 }
@@ -1258,6 +1259,14 @@ finish_pass (Test_Device * test_device)
   SANE_Status return_status = SANE_STATUS_GOOD;
 
   DBG (2, "finish_pass: test_device=%p\n", test_device);
+  test_device->scanning = SANE_FALSE;
+  if (test_device->pipe > 0)
+    {
+      DBG (2, "finish_pass: closing pipe\n");
+      close (test_device->pipe);
+      DBG (2, "finish_pass: pipe closed\n");
+      test_device->pipe = 0;
+    }
   if (test_device->reader_pid > 0)
     {
       int status;
@@ -1290,13 +1299,6 @@ finish_pass (Test_Device * test_device)
 	DBG (1, "finish_pass: reader process terminated by unknown reason\n");
 
       test_device->reader_pid = 0;
-    }
-  if (test_device->pipe > 0)
-    {
-      DBG (2, "finish_pass: closing pipe\n");
-      fclose (test_device->pipe_handle);
-      close (test_device->pipe);
-      test_device->pipe = 0;
     }
   return return_status;
 }
@@ -2451,9 +2453,6 @@ sane_start (SANE_Handle handle)
 
       close (pipe_descriptor[0]);
       status = reader_process (test_device, pipe_descriptor[1]);
-      DBG (2, "(child) sane_start: reader_process waiting ... returned %s\n",
-	   sane_strstatus (status));
-      sleep (1000);		/* wait for explicit kill */
       DBG (2, "(child) sane_start: reader_process timed out\n");
       _exit (status);
     }
@@ -2465,7 +2464,6 @@ sane_start (SANE_Handle handle)
   /* parent */
   close (pipe_descriptor[1]);
   test_device->pipe = pipe_descriptor[0];
-  test_device->pipe_handle = fdopen (pipe_descriptor[0], "r");
 
   return SANE_STATUS_GOOD;
 }
@@ -2479,6 +2477,8 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
   SANE_Int max_scan_length;
   ssize_t bytes_read;
   size_t read_count;
+  SANE_Int bytes_total = test_device->lines * test_device->bytes_per_line;
+
 
   DBG (4, "sane_read: handle=%p, data=%p, max_length = %d, length=%p\n",
        handle, data, max_length, length);
@@ -2552,20 +2552,21 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
       DBG (1, "sane_read: scan was cancelled\n");
       return SANE_STATUS_CANCELLED;
     }
+  if (test_device->eof)
+    {
+      DBG (2, "sane_read: No more data available, sending EOF\n");
+      return SANE_STATUS_EOF;
+    }
   if (!test_device->scanning)
     {
       DBG (1, "sane_read: not scanning (call sane_start first)\n");
       return SANE_STATUS_INVAL;
     }
-  if (test_device->eof)
-    {
-      DBG (2, "sane_read: EOF reached\n");
-      return SANE_STATUS_EOF;
-    }
   read_count = max_scan_length;
 
-  bytes_read = fread (data, 1, read_count, test_device->pipe_handle);
-  if (feof (test_device->pipe_handle))
+  bytes_read = read (test_device->pipe, data, read_count);
+  if (bytes_read == 0  
+      || (bytes_read + test_device->bytes_total >= bytes_total))
     {
       SANE_Status status;
       DBG (2, "sane_read: EOF reached\n");
@@ -2579,25 +2580,24 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
       test_device->eof = SANE_TRUE;
       if (strcmp (test_device->val[opt_mode].s, "Color") == 0
 	  && test_device->val[opt_three_pass].w == SANE_TRUE)
-	test_device->pass++;
+	{
+	  test_device->pass++;
+	  if (test_device->pass > 2)
+	    test_device->pass = 0;
+	}
       if (bytes_read == 0)
 	return SANE_STATUS_EOF;
     }
-  else if (bytes_read == 0 && ferror (test_device->pipe_handle))
+  else if (bytes_read < 0)
     {
       if (errno == EAGAIN)
 	{
 	  DBG (2, "sane_read: no data available, try again\n");
 	  return SANE_STATUS_GOOD;
 	}
-      else if (errno == 0)
-	{
-	  DBG (2, "sane_read: huh? ferror set but errno == 0?\n");
-	  clearerr (test_device->pipe_handle);
-	}
       else
 	{
-	  DBG (1, "sane_read: fread returned error: %s\n", strerror (errno));
+	  DBG (1, "sane_read: read returned error: %s\n", strerror (errno));
 	  return SANE_STATUS_IO_ERROR;
 	}
     }

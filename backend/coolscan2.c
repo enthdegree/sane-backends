@@ -1,7 +1,7 @@
 /* ========================================================================= */
 /*
    SANE - Scanner Access Now Easy.
-   coolscan2.c , version 0.1.7
+   coolscan2.c , version 0.1.8
 
    This file is part of the SANE package.
 
@@ -56,6 +56,7 @@
 /*
    Revision log:
 
+   0.1.8, 27/09/2002, andras: added subframe and load options
    0.1.7, 22/08/2002, andras: added exposure correction option
                                 and hack for LS-40 IR readout
    0.1.6, 14/06/2002, andras: types etc. fixed, fixes for LS-8000
@@ -202,6 +203,7 @@ typedef enum
   CS2_OPTION_YMIN,
   CS2_OPTION_YMAX,
 
+  CS2_OPTION_LOAD,
   CS2_OPTION_EJECT,
   CS2_OPTION_RESET,
 
@@ -297,10 +299,12 @@ static SANE_Status cs2_parse_cmd (cs2_t * s, char *text);
 static SANE_Status cs2_grow_send_buffer (cs2_t * s);
 static SANE_Status cs2_issue_cmd (cs2_t * s);
 static cs2_phase_t cs2_phase_check (cs2_t * s);
+static SANE_Status cs2_set_boundary (cs2_t *s);
 static SANE_Status cs2_scanner_ready (cs2_t * s, int flags);
 static SANE_Status cs2_page_inquiry (cs2_t * s, int page);
 static SANE_Status cs2_full_inquiry (cs2_t * s);
 static SANE_Status cs2_execute (cs2_t * s);
+static SANE_Status cs2_load (cs2_t * s);
 static SANE_Status cs2_eject (cs2_t * s);
 static SANE_Status cs2_reset (cs2_t * s);
 static SANE_Status cs2_focus (cs2_t * s);
@@ -655,6 +659,13 @@ sane_open (SANE_String_Const name, SANE_Handle * h)
 	      o.constraint.range = range;
 	    }
 	  break;
+	case CS2_OPTION_LOAD:
+	  o.name = "load";
+	  o.title = "Load";
+	  o.desc = "Load next slide";
+	  o.type = SANE_TYPE_BUTTON;
+	  o.cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+	  break;
 	case CS2_OPTION_EJECT:
 	  o.name = "eject";
 	  o.title = "Eject";
@@ -780,9 +791,6 @@ sane_open (SANE_String_Const name, SANE_Handle * h)
 	  o.unit = SANE_UNIT_MM;
 	  o.size = WSIZE;
 	  o.cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-#ifndef CS2_BLEEDING_EDGE
-	  o.cap |= SANE_CAP_INACTIVE;
-#endif
 	  o.constraint_type = SANE_CONSTRAINT_RANGE;
 	  range = (SANE_Range *) cs2_xmalloc (sizeof (SANE_Range));
 	  if (!range)
@@ -1104,6 +1112,8 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action a, void *v,
 	  break;
 	case CS2_OPTION_EJECT:
 	  break;
+	case CS2_OPTION_LOAD:
+	  break;
 	case CS2_OPTION_RESET:
 	  break;
 	case CS2_OPTION_FRAME:
@@ -1251,6 +1261,9 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action a, void *v,
 	    return SANE_STATUS_INVAL;
 	  for (pixel = 0; pixel < s->n_lut; pixel++)
 	    s->lut_b[pixel] = ((SANE_Word *) v)[pixel];
+	  break;
+	case CS2_OPTION_LOAD:
+	  cs2_load (s);
 	  break;
 	case CS2_OPTION_EJECT:
 	  cs2_eject (s);
@@ -2360,11 +2373,28 @@ cs2_execute (cs2_t * s)
 }
 
 static SANE_Status
-cs2_eject (cs2_t * s)
+cs2_load (cs2_t * s)
 {
   SANE_Status status;
 
-  /* check whether film is inserted XXXXXXXXXXXXXXXXXX */
+  cs2_scanner_ready (s, CS2_STATUS_NO_DOCS);
+  cs2_init_buffer (s);
+  cs2_parse_cmd (s, "e0 00 d1 00 00 00 00 00 0d 00");
+  s->n_send += 13;
+  status = cs2_grow_send_buffer (s);
+  if (status)
+    return status;
+  status = cs2_issue_cmd (s);
+  if (status)
+    return status;
+
+  return cs2_execute (s);
+}
+
+static SANE_Status
+cs2_eject (cs2_t * s)
+{
+  SANE_Status status;
 
   cs2_scanner_ready (s, CS2_STATUS_NO_DOCS);
   cs2_init_buffer (s);
@@ -2613,6 +2643,58 @@ cs2_convert_options (cs2_t * s)
 }
 
 static SANE_Status
+cs2_set_boundary (cs2_t *s)
+{
+  SANE_Status status;
+  int i_boundary;
+  unsigned long lvalue;
+
+  cs2_scanner_ready (s, CS2_STATUS_READY);
+  cs2_init_buffer (s);
+  cs2_parse_cmd (s, "2a 00 88 00 00 03");
+  cs2_pack_byte (s, ((4 + s->n_frames * 16) >> 16) & 0xff);
+  cs2_pack_byte (s, ((4 + s->n_frames * 16) >> 8) & 0xff);
+  cs2_pack_byte (s, (4 + s->n_frames * 16) & 0xff);
+  cs2_parse_cmd (s, "00");
+
+  cs2_pack_byte (s, ((4 + s->n_frames * 16) >> 8) & 0xff);
+  cs2_pack_byte (s, (4 + s->n_frames * 16) & 0xff);
+  cs2_pack_byte (s, s->n_frames);
+  cs2_pack_byte (s, s->n_frames);
+  for (i_boundary = 0; i_boundary < s->n_frames; i_boundary++)
+    {
+      lvalue = s->frame_offset * i_boundary + s->subframe / s->unit_mm;
+      cs2_pack_byte (s, (lvalue >> 24) & 0xff);
+      cs2_pack_byte (s, (lvalue >> 16) & 0xff);
+      cs2_pack_byte (s, (lvalue >> 8) & 0xff);
+      cs2_pack_byte (s, lvalue & 0xff);
+
+      lvalue = 0;
+      cs2_pack_byte (s, (lvalue >> 24) & 0xff);
+      cs2_pack_byte (s, (lvalue >> 16) & 0xff);
+      cs2_pack_byte (s, (lvalue >> 8) & 0xff);
+      cs2_pack_byte (s, lvalue & 0xff);
+
+      lvalue = s->frame_offset * i_boundary + s->subframe / s->unit_mm + s->frame_offset - 1;
+      cs2_pack_byte (s, (lvalue >> 24) & 0xff);
+      cs2_pack_byte (s, (lvalue >> 16) & 0xff);
+      cs2_pack_byte (s, (lvalue >> 8) & 0xff);
+      cs2_pack_byte (s, lvalue & 0xff);
+
+      lvalue = s->boundaryx - 1;
+      cs2_pack_byte (s, (lvalue >> 24) & 0xff);
+      cs2_pack_byte (s, (lvalue >> 16) & 0xff);
+      cs2_pack_byte (s, (lvalue >> 8) & 0xff);
+      cs2_pack_byte (s, lvalue & 0xff);
+    }
+  status = cs2_issue_cmd (s);
+  if (status)
+    return status;
+
+  return SANE_STATUS_GOOD;
+}
+
+static SANE_Status
 cs2_scan (cs2_t * s, cs2_scan_t type)
 {
   SANE_Status status;
@@ -2642,95 +2724,9 @@ cs2_scan (cs2_t * s, cs2_scan_t type)
   if (status)
     return status;
 
-  for (i_colour = 0; i_colour < s->n_colour_in; i_colour++)
-    {
-      cs2_scanner_ready (s, CS2_STATUS_READY);
-
-      cs2_init_buffer (s);
-      if (s->type == CS2_TYPE_LS40)
-	cs2_parse_cmd (s, "24 00 00 00 00 00 00 00 3a 80");
-      else
-	cs2_parse_cmd (s, "24 00 00 00 00 00 00 00 3a 00");
-      cs2_parse_cmd (s, "00 00 00 00 00 00 00 32");
-
-      cs2_pack_byte (s, cs2_colour_list[i_colour]);
-
-      cs2_pack_byte (s, 0x00);
-
-      cs2_pack_byte (s, s->real_resx >> 8);
-      cs2_pack_byte (s, s->real_resx & 0xff);
-      cs2_pack_byte (s, s->real_resy >> 8);
-      cs2_pack_byte (s, s->real_resy & 0xff);
-
-      cs2_pack_byte (s, (s->real_xoffset >> 24) & 0xff);
-      cs2_pack_byte (s, (s->real_xoffset >> 16) & 0xff);
-      cs2_pack_byte (s, (s->real_xoffset >> 8) & 0xff);
-      cs2_pack_byte (s, s->real_xoffset & 0xff);
-
-      cs2_pack_byte (s, (s->real_yoffset >> 24) & 0xff);
-      cs2_pack_byte (s, (s->real_yoffset >> 16) & 0xff);
-      cs2_pack_byte (s, (s->real_yoffset >> 8) & 0xff);
-      cs2_pack_byte (s, s->real_yoffset & 0xff);
-
-      cs2_pack_byte (s, (s->real_width >> 24) & 0xff);
-      cs2_pack_byte (s, (s->real_width >> 16) & 0xff);
-      cs2_pack_byte (s, (s->real_width >> 8) & 0xff);
-      cs2_pack_byte (s, s->real_width & 0xff);
-
-      cs2_pack_byte (s, (s->real_height >> 24) & 0xff);
-      cs2_pack_byte (s, (s->real_height >> 16) & 0xff);
-      cs2_pack_byte (s, (s->real_height >> 8) & 0xff);
-      cs2_pack_byte (s, s->real_height & 0xff);
-
-      cs2_pack_byte (s, 0x00);	/* brightness, etc. */
-      cs2_pack_byte (s, 0x00);
-      cs2_pack_byte (s, 0x00);
-      cs2_pack_byte (s, 0x05);	/* image composition CCCCCCC */
-      cs2_pack_byte (s, s->real_depth);	/* pixel composition */
-      cs2_parse_cmd (s, "00 00 00 00 00 00 00 00 00 00 00 00 00");
-      cs2_pack_byte (s, 0x00);	/* multiread, ordering */
-      cs2_pack_byte (s, (s->negative ? 0 : 1));	/* averaging, pos/neg */
-      switch (type)
-	{			/* scanning kind */
-	case CS2_SCAN_NORMAL:
-	  cs2_pack_byte (s, 0x01);
-	  break;
-	case CS2_SCAN_AE:
-	  cs2_pack_byte (s, 0x20);
-	  break;
-	case CS2_SCAN_AE_WB:
-	  cs2_pack_byte (s, 0x40);
-	  break;
-	default:
-	  DBG (1, "BUG: cs2_scan(): Unknown scanning type.\n");
-	  return SANE_STATUS_INVAL;
-	}
-      cs2_pack_byte (s, 0x02);	/* scanning mode */
-      cs2_pack_byte (s, 0x02);	/* colour interleaving */
-      cs2_pack_byte (s, 0xff);	/* (ae) */
-      if (i_colour == 3)	/* infrared */
-	cs2_parse_cmd (s, "00 00 00 00");	/* automatic */
-      else
-	{
-	  cs2_pack_byte (s,
-			 (s->
-			  real_exposure[cs2_colour_list[i_colour]] >> 24) &
-			 0xff);
-	  cs2_pack_byte (s,
-			 (s->
-			  real_exposure[cs2_colour_list[i_colour]] >> 16) &
-			 0xff);
-	  cs2_pack_byte (s,
-			 (s->
-			  real_exposure[cs2_colour_list[i_colour]] >> 8) &
-			 0xff);
-	  cs2_pack_byte (s,
-			 s->real_exposure[cs2_colour_list[i_colour]] & 0xff);
-	}
-      status = cs2_issue_cmd (s);
-      if (status)
-	return status;
-    }
+  status = cs2_set_boundary (s);
+  if (status)
+    return status;
 
   switch (type)
     {
@@ -2785,6 +2781,96 @@ cs2_scan (cs2_t * s, cs2_scan_t type)
 
     default:
       break;
+    }
+
+  for (i_colour = 0; i_colour < s->n_colour_in; i_colour++)
+    {
+      cs2_scanner_ready (s, CS2_STATUS_READY);
+
+      cs2_init_buffer (s);
+      if (s->type == CS2_TYPE_LS40)
+	cs2_parse_cmd (s, "24 00 00 00 00 00 00 00 3a 80");
+      else
+	cs2_parse_cmd (s, "24 00 00 00 00 00 00 00 3a 00");
+      cs2_parse_cmd (s, "00 00 00 00 00 00 00 32");
+
+      cs2_pack_byte (s, cs2_colour_list[i_colour]);
+
+      cs2_pack_byte (s, 0x00);
+
+      cs2_pack_byte (s, s->real_resx >> 8);
+      cs2_pack_byte (s, s->real_resx & 0xff);
+      cs2_pack_byte (s, s->real_resy >> 8);
+      cs2_pack_byte (s, s->real_resy & 0xff);
+
+      cs2_pack_byte (s, (s->real_xoffset >> 24) & 0xff);
+      cs2_pack_byte (s, (s->real_xoffset >> 16) & 0xff);
+      cs2_pack_byte (s, (s->real_xoffset >> 8) & 0xff);
+      cs2_pack_byte (s, s->real_xoffset & 0xff);
+
+      cs2_pack_byte (s, (s->real_yoffset >> 24) & 0xff);
+      cs2_pack_byte (s, (s->real_yoffset >> 16) & 0xff);
+      cs2_pack_byte (s, (s->real_yoffset >> 8) & 0xff);
+      cs2_pack_byte (s, s->real_yoffset & 0xff);
+
+      cs2_pack_byte (s, (s->real_width >> 24) & 0xff);
+      cs2_pack_byte (s, (s->real_width >> 16) & 0xff);
+      cs2_pack_byte (s, (s->real_width >> 8) & 0xff);
+      cs2_pack_byte (s, s->real_width & 0xff);
+
+      cs2_pack_byte (s, (s->real_height >> 24) & 0xff);
+      cs2_pack_byte (s, (s->real_height >> 16) & 0xff);
+      cs2_pack_byte (s, (s->real_height >> 8) & 0xff);
+      cs2_pack_byte (s, s->real_height & 0xff);
+
+      cs2_pack_byte (s, 0x00);	/* brightness, etc. */
+      cs2_pack_byte (s, 0x00);
+      cs2_pack_byte (s, 0x00);
+      cs2_pack_byte (s, 0x05);	/* image composition CCCCCCC */
+      cs2_pack_byte (s, s->real_depth);	/* pixel composition */
+      cs2_parse_cmd (s, "00 00 00 00 00 00 00 00 00 00 00 00 00");
+      cs2_pack_byte (s, 0x00);	/* multiread, ordering */
+      cs2_pack_byte (s, 0x80 + (s->negative ? 0 : 1));	/* averaging, pos/neg */
+      switch (type)
+	{			/* scanning kind */
+	case CS2_SCAN_NORMAL:
+	  cs2_pack_byte (s, 0x01);
+	  break;
+	case CS2_SCAN_AE:
+	  cs2_pack_byte (s, 0x20);
+	  break;
+	case CS2_SCAN_AE_WB:
+	  cs2_pack_byte (s, 0x40);
+	  break;
+	default:
+	  DBG (1, "BUG: cs2_scan(): Unknown scanning type.\n");
+	  return SANE_STATUS_INVAL;
+	}
+      cs2_pack_byte (s, 0x02);	/* scanning mode */
+      cs2_pack_byte (s, 0x02);	/* colour interleaving */
+      cs2_pack_byte (s, 0xff);	/* (ae) */
+      if (i_colour == 3)	/* infrared */
+	cs2_parse_cmd (s, "00 00 00 00");	/* automatic */
+      else
+	{
+	  cs2_pack_byte (s,
+			 (s->
+			  real_exposure[cs2_colour_list[i_colour]] >> 24) &
+			 0xff);
+	  cs2_pack_byte (s,
+			 (s->
+			  real_exposure[cs2_colour_list[i_colour]] >> 16) &
+			 0xff);
+	  cs2_pack_byte (s,
+			 (s->
+			  real_exposure[cs2_colour_list[i_colour]] >> 8) &
+			 0xff);
+	  cs2_pack_byte (s,
+			 s->real_exposure[cs2_colour_list[i_colour]] & 0xff);
+	}
+      status = cs2_issue_cmd (s);
+      if (status)
+	return status;
     }
 
   cs2_scanner_ready (s, CS2_STATUS_READY);

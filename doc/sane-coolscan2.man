@@ -64,6 +64,9 @@ feeder or APS adapter are used. The frame number
 ranges from 1 to the number of frames available, which is sensed each time
 the backend is initialized (usually each time you start the frontend).
 .TP
+.I --subframe <x>
+This option shifts the scan window by the specified amount (default
+unit is mm).
 .I --infrared=yes/no
 If set to "yes", the scanner will read the infrared channel, thus allowing
 defect removal in software. The infrared image is read during a second scan,
@@ -97,8 +100,11 @@ will adjust each channel separately.
 Multiply all exposure times with this value. This allows exposure
 correction without modifying white balance.
 .TP
+.I --load
+Load the next slide when using the slide loader.
+.TP
 .I --eject
-Eject the film strip.
+Eject the film strip or mounted slide when using the slide loader.
 .TP
 .I --reset
 Reset scanner. The scanner will perform the same action as when power is

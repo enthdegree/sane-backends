@@ -10,7 +10,7 @@
 ;
 
 :backend "coolscan2"
-:version "0.1.7"
+:version "0.1.8"
 :status :beta
 :manpage "sane-coolscan2"
 :url "http://coolscan2.sourceforge.net/"

@@ -2232,7 +2232,22 @@ void cis_drv_capabilities(SANE_Int info, SANE_String *model,
 ******************************************************************************/
 SANE_Status cis_drv_open (SANE_String port, SANE_Int caps, SANE_Int *fd)
 {
-   return sanei_pa4s2_open (port, fd);
+   SANE_Status status;
+
+   if (caps != CAP_NOTHING)
+   {
+      DBG (1, "cis_drv_open: called with unknown capabilities (0x%02X)\n", caps);
+      return SANE_STATUS_INVAL;
+   }
+
+   DBG (3, "cis_drv_open: called for port %s\n", port);
+
+   status = sanei_pa4s2_open (port, fd);
+
+   if (status != SANE_STATUS_GOOD)
+      DBG (2, "cis_drv_open: open failed (%s)\n", sane_strstatus (status));
+
+   return status;
 }
 
 /******************************************************************************
@@ -2245,12 +2260,12 @@ void cis_drv_setup (SANE_Handle hndl)
    cisdev = (Mustek_PP_CIS_dev*)malloc(sizeof(Mustek_PP_CIS_dev));
    if (cisdev == NULL)
    {
-      DBG (2, "cis_open: not enough memory for device descriptor\n");
+      DBG (2, "cis_drv_setup: not enough memory for device descriptor\n");
       sanei_pa4s2_close (dev->fd);
       return;
    }
    memset(cisdev, 0, sizeof(Mustek_PP_CIS_dev));
-   DBG(3, "cis_open: cis device allocated\n");
+   DBG(3, "cis_drv_setup: cis device allocated\n");
    
    dev->lamp_on = 0;
    dev->priv = cisdev;

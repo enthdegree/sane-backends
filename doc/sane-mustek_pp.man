@@ -86,6 +86,8 @@ Targa
 .br
    Funline TS12EP      1200 CP     yes
 .br
+   Funline TS6EP        600 CP     yes
+.br
 Trust  
 .br
    Easy Connect 9600+   600 CP     yes
@@ -98,7 +100,7 @@ this driver. They seem to be solved now.
 .HP 
 (**)   Problems have been reported in the past for the
 MD/LT9850 type (striped scans, head moving in wrong
-direction at some resolutions). It is not know whether
+direction at some resolutions). It is not known whether
 the current version of the driver still has these problems.
 .br
 .B  IF YOU HEAR LOUD CLICKING NOISES, IMMEDIATELY UNPLUG THE SCANNER !
@@ -262,7 +264,7 @@ to the start of the scan area at the fastest possible speed. On some models,
 this may not work, resulting in large inaccuracies (up to centimeters).
 By setting this option, the driver is forced to use normal speed during
 skipping, which can circumvent the accuracy problems. Currently, there are 
-no models for which these inaccuracy problems are known occur.
+no models for which these inaccuracy problems are known to occur.
 .br
 By default, fast skipping is used.
 .PP

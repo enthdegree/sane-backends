@@ -21,9 +21,14 @@
    MA 02111-1307, USA.
 */
 
-#define SANE_DESC_VERSION "0.2"
+#define SANE_DESC_VERSION "0.3"
 
 #define MAN_PAGE_LINK "http://www.mostang.com/sane/man/%s.5.html"
+#define COLOR_ALPHA    "#B00000"
+#define COLOR_BETA     "#900090"
+#define COLOR_STABLE   "#008000"
+#define COLOR_NEW      "#F00000"
+
 #include <../include/sane/config.h>
 
 #include <getopt.h>
@@ -164,12 +169,12 @@ typedef struct backend_record_entry
   struct backend_entry *be;
 }
 backend_record_entry;
-  
+
 typedef struct mfg_record_entry
 {
   struct mfg_record_entry *next;
   char *name;
-  struct backend_record_entry * be_record;
+  struct backend_record_entry *be_record;
 }
 mfg_record_entry;
 
@@ -217,7 +222,8 @@ debug_call (const char *fmt, ...)
 static void
 print_usage (char *program_name)
 {
-  printf ("Usage: %s [-s dir] [-m mode] [-d level] [-h] [-V]\n", program_name);
+  printf ("Usage: %s [-s dir] [-m mode] [-d level] [-h] [-V]\n",
+	  program_name);
   printf ("  -s|--search-dir dir    Specify the directory that contains "
 	  ".desc files\n");
   printf ("  -m|--mode mode         Output mode (ascii, hmtl-backends, "
@@ -408,12 +414,12 @@ read_keyword (SANE_String line, SANE_String keyword_token,
       return SANE_STATUS_GOOD;
     case param_string:
       {
-	char * pos;
+	char *pos;
 	cp = get_string (cp, &word);
 	/* remove escaped quotations */
 	while ((pos = strstr (word, "\\\"")) != 0)
-	    *pos = ' ';
-	       
+	  *pos = ' ';
+
 	DBG_DBG ("read_keyword: set entry `%s' to `%s'\n", keyword_token,
 		 word);
 	*(SANE_String *) argument = strdup (word);
@@ -565,7 +571,8 @@ read_files (void)
 		  if (strcmp (string_entry, ":new") == 0)
 		    {
 		      DBG_WARN ("ignored `%s' status :new, use keyword "
-				"`:new :yes' instead\n", current_backend->name);
+				"`:new :yes' instead\n",
+				current_backend->name);
 		      current_backend->status = status_unknown;
 		    }
 		  else if (strcmp (string_entry, ":alpha") == 0)
@@ -607,8 +614,9 @@ read_files (void)
 		    }
 		  else if (strcmp (string_entry, ":no") == 0)
 		    {
-		      DBG_INFO ("backend %s is NOT new in this SANE release\n",
-				current_backend->name);
+		      DBG_INFO
+			("backend %s is NOT new in this SANE release\n",
+			 current_backend->name);
 		      current_backend->new = SANE_FALSE;
 		    }
 		  else
@@ -657,7 +665,7 @@ read_files (void)
 		      current_backend->type = calloc (1, sizeof (type_entry));
 		      type = current_backend->type;
 		    }
-		  
+
 		  type->type = type_unknown;
 		  if (strcmp (string_entry, ":scanner") == 0)
 		    {
@@ -915,10 +923,10 @@ read_files (void)
 		}
 	      DBG_ERR ("unknown keyword token in line `%s'\n", line);
 	      return SANE_FALSE;
-	    }
+	    }			/* while (sanei_config_readline) */
 	  fclose (fp);
-	}
-    }
+	}			/* if (strlen) */
+    }				/* while (direntry) */
   if (!first_backend)
     {
       DBG_ERR ("Couldn't find any .desc file\n");
@@ -934,7 +942,7 @@ sort_by_mfg (device_type dev_type)
   backend_entry *be = first_backend;
   mfg_record_entry *last_mfg_record = 0;
   mfg_record_entry *next_mfg_record = first_mfg_record->next;
-  
+
   SANE_Bool changed = SANE_FALSE;
 
   while (be)
@@ -952,12 +960,14 @@ sort_by_mfg (device_type dev_type)
 		    {
 		      if (strcmp (mfg_record->name, mfg->name) == 0)
 			{
-			  backend_record_entry *be_record = mfg_record->be_record;
+			  backend_record_entry *be_record =
+			    mfg_record->be_record;
 			  if (be_record)
 			    {
 			      while (be_record->next)
 				be_record = be_record->next;
-			      be_record->next = calloc (1, sizeof (backend_record_entry));
+			      be_record->next =
+				calloc (1, sizeof (backend_record_entry));
 			      if (!be_record->next)
 				{
 				  DBG_ERR ("sort_by_mfg: couldn't calloc "
@@ -967,24 +977,24 @@ sort_by_mfg (device_type dev_type)
 			    }
 			  else
 			    {
-			      mfg_record->be_record 
+			      mfg_record->be_record
 				= calloc (1, sizeof (backend_record_entry));
 			      if (!mfg_record->be_record)
 				{
 				  DBG_ERR ("sort_by_mfg: couldn't calloc "
 					   "backend_record_entry\n");
 				}
-			      be_record = mfg_record->be_record; 
+			      be_record = mfg_record->be_record;
 			    }
 			  be_record->be = be;
 			  break;
-			}
+			}	/* if (strcmp) */
 		      mfg_record = mfg_record->next;
-		    }
-		  
+		    }		/* while (mfg_record) */
+
 		  if (!first_mfg_record)
 		    {
-		      first_mfg_record 
+		      first_mfg_record
 			= calloc (1, sizeof (mfg_record_entry));
 		      if (!first_mfg_record)
 			{
@@ -992,13 +1002,14 @@ sort_by_mfg (device_type dev_type)
 				   "mfg_record_entry\n");
 			}
 		      first_mfg_record->name = mfg->name;
-		      first_mfg_record->be_record = calloc (1, sizeof (backend_record_entry));
+		      first_mfg_record->be_record
+			= calloc (1, sizeof (backend_record_entry));
 		      if (!first_mfg_record->be_record)
 			{
 			  DBG_ERR ("sort_by_mfg: couldn't calloc "
 				   "backend_record_entry\n");
 			}
-		      first_mfg_record->be_record->be = be; 
+		      first_mfg_record->be_record->be = be;
 		    }
 		  else if (!mfg_record)
 		    {
@@ -1009,7 +1020,8 @@ sort_by_mfg (device_type dev_type)
 				   "mfg_record_entry\n");
 			}
 		      mfg_record->name = mfg->name;
-		      mfg_record->be_record = calloc (1, sizeof (backend_record_entry));
+		      mfg_record->be_record
+			= calloc (1, sizeof (backend_record_entry));
 		      if (!mfg_record->be_record)
 			{
 			  DBG_ERR ("sort_by_mfg: couldn't calloc "
@@ -1020,15 +1032,15 @@ sort_by_mfg (device_type dev_type)
 		      mfg_record->be_record->be = be;
 		    }
 		  mfg = mfg->next;
-		}
-	    }
+		}		/* while (mfg) */
+	    }			/* if (type) */
 	  type = type->next;
-	}
+	}			/* while (type) */
       be = be->next;
-    }
-  
+    }				/* while (be) */
+
   do
-    {
+    {				/* bubblesort */
       changed = SANE_FALSE;
       last_mfg_record = 0;
       mfg_record = first_mfg_record;
@@ -1064,7 +1076,7 @@ sort_by_backend (void)
   backend_entry *next_be = first_backend->next;
   SANE_Bool changed = SANE_FALSE;
 
-  do
+  do				/* bubblesort */
     {
       changed = SANE_FALSE;
       last_be = 0;
@@ -1096,7 +1108,7 @@ static void
 ascii_print_backends (void)
 {
   backend_entry *be;
-  
+
   sort_by_backend ();
   be = first_backend;
   while (be)
@@ -1188,7 +1200,7 @@ ascii_print_backends (void)
 		    }
 		else
 		  printf ("   url *none*\n");
-		
+
 		if (type->desc->comment)
 		  printf ("   comment `%s'\n", type->desc->comment);
 		else
@@ -1196,7 +1208,7 @@ ascii_print_backends (void)
 	      }
 	    else if (type->type >= type_meta)
 	      printf ("  desc *none*\n");
-	    
+
 	    if (type->mfg)
 	      {
 		mfg_entry *mfg = type->mfg;
@@ -1204,7 +1216,7 @@ ascii_print_backends (void)
 		  {
 		    model_entry *model = mfg->model;
 		    url_entry *url = mfg->url;
-		    
+
 		    printf ("  mfg `%s'\n", mfg->name);
 		    if (url)
 		      while (url)
@@ -1214,20 +1226,19 @@ ascii_print_backends (void)
 			}
 		    else
 		      printf ("   url *none*\n");
-		    
+
 		    if (mfg->comment)
 		      printf ("   comment `%s'\n", mfg->comment);
 		    else
 		      printf ("   comment *none*\n");
-		    
+
 		    if (model)
 		      while (model)
 			{
 			  url_entry *url = model->url;
 			  printf ("   model `%s'\n", model->name);
 			  if (model->interface)
-			    printf ("    interface `%s'\n",
-				    model->interface);
+			    printf ("    interface `%s'\n", model->interface);
 			  else
 			    printf ("    interface *none*\n");
 			  if (url)
@@ -1238,29 +1249,28 @@ ascii_print_backends (void)
 			      }
 			  else
 			    printf ("    url *none*\n");
-			  
+
 			  if (model->comment)
 			    printf ("    comment `%s'\n", model->comment);
 			  else
 			    printf ("    comment *none*\n");
-			  
+
 			  model = model->next;
 			}
 		    else
 		      printf ("   model *none*\n");
-		    
-		    /* ... */
+
 		    mfg = mfg->next;
-		  }
+		  }		/* while (mfg) */
 	      }
 	    else if (type->type < type_meta)
 	      printf ("  mfg *none*\n");
 	    type = type->next;
-	  }
+	  }			/* while (type) */
       else
 	printf (" type *none*\n");
       be = be->next;
-    }
+    }				/* while (be) */
 }
 
 
@@ -1304,7 +1314,7 @@ html_backends_table (device_type dev_type)
   while (be)
     {
       type_entry *type = be->type;
-      
+
       while (type)
 	{
 	  if (type->type == dev_type)
@@ -1312,10 +1322,10 @@ html_backends_table (device_type dev_type)
 	      mfg_entry *mfg = type->mfg;
 	      model_entry *model = mfg->model;
 	      int row_num = 0;
-	      
+
 	      /* count models for backend rowspan */
-	      if (mfg) /* scanner, camera */
-		while (mfg) 
+	      if (mfg)		/* scanner, camera */
+		while (mfg)
 		  {
 		    model = mfg->model;
 		    while (model)
@@ -1325,40 +1335,40 @@ html_backends_table (device_type dev_type)
 		      }
 		    mfg = mfg->next;
 		  }
-	      else row_num = 1;
-		  
-	      printf ("<tr><td rowspan=%d>\n", row_num);
+	      else
+		row_num = 1;
+
+	      printf ("<tr><td align=center rowspan=%d>\n", row_num);
 	      if (be->url && be->url->name)
 		printf ("<a href=\"%s\">%s</a>\n", be->url->name, be->name);
 	      else
 		printf ("%s", be->name);
 	      if (be->version)
-		printf (" (v%s, ", be->version);
+		printf ("<br>(v%s, ", be->version);
 	      else
-		printf (" (");
+		printf ("<br>(");
 	      switch (be->status)
 		{
 		case status_alpha:
-		  printf ("<font color=bb0000>alpha</font>");
+		  printf ("<font color=" COLOR_ALPHA ">alpha</font>");
 		  break;
 		case status_beta:
-		  printf ("<font color=806000>beta</font>");
+		  printf ("<font color=" COLOR_BETA ">beta</font>");
 		  break;
 		case status_stable:
-		  printf ("<font color=008000>stable</font>");
+		  printf ("<font color=" COLOR_STABLE ">stable</font>");
 		  break;
 		default:
 		  printf ("?");
 		  break;
 		}
 	      if (be->new)
-		printf ("<font color=\"red\">, NEW!</font>)");
+		printf ("<font color=" COLOR_NEW ">, NEW!</font>)");
 	      else
 		printf (")");
 	      printf ("</td>\n");
-	      printf ("<td rowspan=%d><a href=\"" MAN_PAGE_LINK
-		      "\">%s</a></td>\n", row_num, be->manpage,
-		      be->manpage);
+	      printf ("<td align=center rowspan=%d><a href=\"" MAN_PAGE_LINK
+		      "\">%s</a></td>\n", row_num, be->manpage, be->manpage);
 
 	      mfg = type->mfg;
 	      if (!mfg && type->desc)
@@ -1366,7 +1376,7 @@ html_backends_table (device_type dev_type)
 		  if (type->desc->desc)
 		    {
 		      if (type->desc->url && type->desc->url->name)
-			printf ("<td><a href=\"%s\">%s</a></td>\n", 
+			printf ("<td><a href=\"%s\">%s</a></td>\n",
 				type->desc->url->name, type->desc->desc);
 		      else
 			printf ("<td>%s</td>\n", type->desc->desc);
@@ -1382,9 +1392,9 @@ html_backends_table (device_type dev_type)
 	      while (mfg)
 		{
 		  int num_models = 0;
-		  
+
 		  model = mfg->model;
-		  while (model) /* count models for rowspan */
+		  while (model)	/* count models for rowspan */
 		    {
 		      model = model->next;
 		      num_models++;
@@ -1394,28 +1404,31 @@ html_backends_table (device_type dev_type)
 		      model = mfg->model;
 		      if (mfg != type->mfg)
 			printf ("<tr>\n");
-		      printf ("<td rowspan=%d>\n", num_models);
+		      printf ("<td align=center rowspan=%d>\n", num_models);
 		      if (mfg->url && mfg->url->name)
 			printf ("<a href=\"%s\">%s</a>\n", mfg->url->name,
 				mfg->name);
 		      else
 			printf ("%s\n", mfg->name);
-			
+
 		      while (model)
 			{
 			  if (model != mfg->model)
 			    printf ("<tr>\n");
-		    
+
 			  if (model->url && model->url->name)
-			    printf ("<td><a href=\"%s\">%s</a></td>\n",
-				    model->url->name, model->name);
+			    printf
+			      ("<td align=center><a href=\"%s\">%s</a></td>\n",
+			       model->url->name, model->name);
 			  else
-			    printf ("<td>%s</td>\n", model->name);
+			    printf ("<td align=center>%s</td>\n",
+				    model->name);
 
 			  if (model->interface)
-			    printf ("<td>%s</td>\n", model->interface);
+			    printf ("<td align=center>%s</td>\n",
+				    model->interface);
 			  else
-			    printf ("<td>?</td>\n");
+			    printf ("<td align=center>?</td>\n");
 
 			  if (model->comment && model->comment[0] != 0)
 			    printf ("<td>%s</td>\n", model->comment);
@@ -1424,18 +1437,17 @@ html_backends_table (device_type dev_type)
 
 			  model = model->next;
 			  printf ("</tr>\n");
-			}
-		    }
+			}	/* while (model) */
+		    }		/* if (num_models) */
 		  mfg = mfg->next;
-		}
-	    }
+		}		/* while (mfg) */
+	    }			/* if (type->type) */
 	  type = type->next;
-	}
+	}			/* while (type) */
       be = be->next;
-    }
+    }				/* while (be) */
   printf ("</table>\n");
 }
-
 
 
 static void
@@ -1493,7 +1505,7 @@ html_mfgs_table (device_type dev_type)
 		{
 		  mfg_entry *mfg = type->mfg;
 		  model_entry *model = mfg->model;
-		  
+
 		  mfg = type->mfg;
 		  while (mfg)
 		    {
@@ -1502,132 +1514,161 @@ html_mfgs_table (device_type dev_type)
 			{
 			  while (model)
 			    {
-			      printf ("<tr><td>\n");
+			      printf ("<tr><td align=center>\n");
 			      if (mfg->url && mfg->url->name)
-				printf ("<a href=\"%s\">%s</a>\n", mfg->url->name,
-					mfg->name);
+				printf ("<a href=\"%s\">%s</a>\n",
+					mfg->url->name, mfg->name);
 			      else
 				printf ("%s\n", mfg->name);
 			      printf ("</td>\n");
-			      
+
 			      if (model->url && model->url->name)
 				printf ("<td><a href=\"%s\">%s</a></td>\n",
 					model->url->name, model->name);
 			      else
 				printf ("<td>%s</td>\n", model->name);
-			      
+
 			      if (model->interface)
-				printf ("<td>%s</td>\n", model->interface);
+				printf ("<td align=center>%s</td>\n",
+					model->interface);
 			      else
-				printf ("<td>?</td>\n");
-			      
+				printf ("<td align=center>?</td>\n");
+
 			      if (model->comment && model->comment[0] != 0)
 				printf ("<td>%s</td>\n", model->comment);
 			      else
 				printf ("<td>&nbsp;</td>\n");
-			      
-			      printf ("<td>\n");
+
+			      printf ("<td align=center>\n");
 			      if (be->url && be->url->name)
-				printf ("<a href=\"%s\">%s</a>\n", be->url->name, be->name);
+				printf ("<a href=\"%s\">%s</a>\n",
+					be->url->name, be->name);
 			      else
 				printf ("%s", be->name);
 			      if (be->version)
-				printf (" (v%s, ", be->version);
+				printf ("<br>(v%s, ", be->version);
 			      else
-				printf (" (");
+				printf ("<br>(");
 			      switch (be->status)
 				{
 				case status_alpha:
-				  printf ("<font color=bb0000>alpha</font>");
+				  printf ("<font color=" COLOR_ALPHA
+					  ">alpha</font>");
 				  break;
 				case status_beta:
-				  printf ("<font color=806000>beta</font>");
+				  printf ("<font color=" COLOR_BETA
+					  ">beta</font>");
 				  break;
 				case status_stable:
-				  printf ("<font color=008000>stable</font>");
+				  printf ("<font color=" COLOR_STABLE
+					  ">stable</font>");
 				  break;
 				default:
 				  printf ("?");
 				  break;
 				}
 			      if (be->new)
-				printf ("<font color=\"red\">, NEW!</font>)");
+				printf ("<font color=" COLOR_NEW
+					">, NEW!</font>)");
 			      else
 				printf (")");
 			      printf ("</td>\n");
-			      printf ("<td><a href=\"" MAN_PAGE_LINK
-				      "\">%s</a></td>\n", be->manpage,
-				      be->manpage);
+			      printf ("<td align=center><a href=\""
+				      MAN_PAGE_LINK "\">%s</a></td>\n",
+				      be->manpage, be->manpage);
 
 			      printf ("</tr>\n");
 			      model = model->next;
-			    } /* while model */
-			} /* if strcasecmp */
+			    }	/* while model */
+			}	/* if strcasecmp */
 		      mfg = mfg->next;
-		    } /* while mfg */
-		} /* if type */
+		    }		/* while mfg */
+		}		/* if type */
 	      type = type->next;
-	    } /* while type */
+	    }			/* while type */
 	  be_record = be_record->next;
-	} /* while be_record */
+	}			/* while be_record */
       mfg_record = mfg_record->next;
-    } /* while mfg_record */
+    }				/* while mfg_record */
   printf ("</table>\n");
+}
+
+static void
+html_print_header (void)
+{
+  printf
+    ("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">\n"
+     "<html> <head>\n"
+     "<meta http-equiv=\"Content-Type\" content=\"text/html; "
+     "charset=iso-8859-1\">\n");
+  printf ("<title>%s</title>\n", title);
+  printf
+    ("</head>\n"
+     "<body bgcolor=FFFFFF>\n"
+     "<div align=center>\n"
+     "<img src=\"http://www.mostang.com/sane/sane.png\" alt=\"SANE\">\n");
+  printf ("<h1>%s</h1>\n", title);
+  printf ("</div>\n" "<hr>\n");
+  printf ("%s\n", intro);
+  printf
+    ("<p>This is only a summary!\n"
+     "Please consult the manpages and the author-supplied webpages\n"
+     "for more detailed (and usually important) information\n"
+     "concerning each backend.</p>\n"
+     "<p>There are special tables for <a\n"
+     "href=\"http://www.buzzard.org.uk/jonathan/scanners.html\"\n"
+     ">parallel port</a> and <a\n"
+     "href=\"http://www.buzzard.org.uk/jonathan/scanners-usb.html\">\n"
+     "USB</a> scanners from <a\n"
+     "href=\"mailto:jonathan@buzzard.org.uk\">\n"
+     "Jonathan Buzzard</a>.</p>\n"
+     "<p>If you have new information or corrections, please send\n"
+     "e-mail to sane-devel, the <a\n"
+     "href=\"http://www.mostang.com/sane/mail.html\">SANE mailing\n"
+     "list</a>.</p>\n"
+     "<p>(For an explanation of the tables, see the\n"
+     "<a href=\"#legend\">legend</a>.)\n"
+     "<p>There are tables for <a href=\"#SCANNERS\">scanners</a>,\n"
+     "<a href=\"#STILL\">still cameras</a>,\n"
+     "<a href=\"#VIDEO\">video cameras</a>,\n"
+     "<a href=\"#API\">APIs</a>, and\n"
+     "<a href=\"#META\">meta backends</a>\n");
+}
+
+static void
+html_print_footer (void)
+{
+  time_t current_time = time (0);
+
+  printf
+    ("<hr>\n"
+     "<a href=\"http://www.mostang.com/sane/\">[Back]</a>\n"
+     "<address>\n"
+     "<a href=\"http://www.mostang.com/sane/mail.html\"\n"
+     ">sane-devel@mostang.com</a> / SANE Development mailing list\n"
+     "</address>\n" "<font size=-1>\n");
+  printf ("This page was last updated on %s\n",
+	  asctime (localtime (&current_time)));
+  printf ("</font>\n");
+  printf ("</body> </html>\n");
 }
 
 static void
 html_print_backends (void)
 {
   backend_entry *be;
-  time_t current_time = time (0);
 
   sort_by_backend ();
   be = first_backend;
 
   if (!title)
-    title = "SANE: Backend (Drivers)";
+    title = "SANE: Backends (Drivers)";
   if (!intro)
     intro = "<p> The following table summarizes the backends/drivers "
       "distributed with the latest version of sane-backends, and the hardware "
       "or software they support. </p>";
 
-  printf ("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 ");
-  printf ("Transitional//EN\">\n");
-  printf ("<html> <head>\n");
-  printf ("<meta http-equiv=\"Content-Type\" content=\"text/html; ");
-  printf ("charset=iso-8859-1\">\n");
-  printf ("<title>%s</title>\n", title);
-  printf ("</head>\n");
-
-  printf ("<body bgcolor=FFFFFF>\n");
-  printf ("<div align=center>\n");
-  printf ("<img src=\"http://www.mostang.com/sane/sane.png\" alt=\"SANE\">\n");
-  printf ("<h1>%s</h1>\n", title);
-  printf ("</div>\n");
-  printf ("<hr>\n");
-  printf ("%s\n", intro);
-  printf ("<p>This is only a summary!\n");
-  printf ("Please consult the manpages and the author-supplied webpages\n");
-  printf ("for more detailed (and usually important) information\n");
-  printf ("concerning each backend.</p>\n");
-  printf ("<p>There are special tables for <a\n");
-  printf ("href=\"http://www.buzzard.org.uk/jonathan/scanners.html\"\n");
-  printf (">parallel port</a> and <a\n");
-  printf ("href=\"http://www.buzzard.org.uk/jonathan/scanners-usb.html\">\n");
-  printf ("USB</a> scanners from <a\n");
-  printf ("href=\"mailto:jonathan@buzzard.org.uk\">\n");
-  printf ("Jonathan Buzzard</a>.</p>\n");
-  printf ("<p>If you have new information or corrections, please send\n");
-  printf ("e-mail to sane-devel, the <a\n");
-  printf ("href=\"http://www.mostang.com/sane/mail.html\">SANE mailing\n");
-  printf ("list</a>.</p>\n");
-  printf ("<p>(For an explanation of the tables, see the\n");
-  printf ("<a href=\"#legend\">legend</a>.)\n");
-  printf ("<p>There are tables for <a href=\"#SCANNERS\">scanners</a>,\n");
-  printf ("<a href=\"#STILL\">still cameras</a>,\n");
-  printf ("<a href=\"#VIDEO\">video cameras</a>,\n");
-  printf ("<a href=\"#API\">APIs</a>, and\n");
-  printf ("<a href=\"#META\">meta backends</a>\n");
+  html_print_header ();
 
   printf ("<p><div align=center>\n");
 
@@ -1648,69 +1689,52 @@ html_print_backends (void)
 
   printf ("</div>\n");
 
-  printf ("<h3><a name=\"legend\">Legend:</a></h3>\n");
-  printf ("<blockquote>\n");
-  printf ("<dl>\n");
-  printf ("  <dt><b>Backend:</b></dt>\n");
-  printf ("  <dd>Name of the backend, with a link to more extensive and\n");
-  printf ("      detailed information, if it exists, or the email address\n");
-  printf ("      of the author or maintainer. In parentheses if available:\n");
-  printf ("      Version of backend/driver; newer versions may be\n");
-  printf ("      available from their home sites. Status of the backend:\n");
-  printf ("      A vague indication of robustness and reliability.\n");
-  printf ("      <ul><li><font color=\"bb0000\">alpha</font> means it must\n");
-  printf ("        do something, but is not very well tested, probably has\n");
-  printf ("        bugs, and may even crash your system, etc., etc.\n");
-  printf ("      <li><font color=\"806000\">beta</font> means it works\n");
-  printf ("        pretty well, and looks stable and functional, but not\n");
-  printf ("        bullet-proof.\n");
-  printf ("      <li><font color=\"008000\">stable</font> means someone is\n");
-  printf ("        pulling your leg.\n");
-  printf ("      </ul>\n");
-  printf ("      <font color=\"red\">NEW!</font> means brand-new to the\n");
-  printf ("      current release of SANE.\n");
-  printf ("  </dd>\n");
+  printf
+    ("<h3><a name=\"legend\">Legend:</a></h3>\n"
+     "<blockquote>\n"
+     "<dl>\n"
+     "  <dt><b>Backend:</b></dt>\n"
+     "  <dd>Name of the backend, with a link to more extensive and\n"
+     "      detailed information, if it exists, or the email address\n"
+     "      of the author or maintainer. In parentheses if available:\n"
+     "      Version of backend/driver; newer versions may be\n"
+     "      available from their home sites. Status of the backend:\n"
+     "      A vague indication of robustness and reliability.\n"
+     "      <ul><li><font color=" COLOR_ALPHA ">alpha</font> means it must\n"
+     "        do something, but is not very well tested, probably has\n"
+     "        bugs, and may even crash your system, etc., etc.\n"
+     "      <li><font color=" COLOR_BETA ">beta</font> means it works\n"
+     "        pretty well, and looks stable and functional, but not\n"
+     "        bullet-proof.\n"
+     "      <li><font color=" COLOR_STABLE ">stable</font> means someone is\n"
+     "        pulling your leg.\n"
+     "      </ul>\n"
+     "      <font color=" COLOR_NEW ">NEW!</font> means brand-new to the\n"
+     "      current release of SANE.\n"
+     "  </dd>\n"
+     "  <dt><b>Manual Page:</b></dt>\n"
+     "  <dd>A link to the man-page on-line, if it exists.</dd>\n"
+     "  <dt><b>Supported Devices</b> (for hardware devices):</dt>\n"
+     "  <dd>Which hardware the backend supports.</dd>\n"
+     "  <dt><b>Manufacturer:</b></dt>\n"
+     "  <dd>Manufacturer, Vendor or brand name of the device.</dd>\n"
+     "  <dt><b>Model:</b></dt>\n"
+     "  <dd>Name of the the device.</dd>\n"
+     "  <dt><b>Interface:</b></dt>\n"
+     "  <dd>How the device is connected to the computer.</dd>\n"
+     "  <dt><b>Comment:</b></dt>\n"
+     "  <dd>More information about the level of support and\n"
+     "      possible problems.</dd>\n"
+     "  <dt><b>Description</b> (for API and meta backends):</dt>\n"
+     "  <dd>The scope of application of the backend.\n"
+     "</dl>\n" "</blockquote>\n");
 
-  printf ("  <dt><b>Manual Page:</b></dt>\n");
-  printf ("  <dd>A link to the man-page on-line, if it exists.</dd>\n");
-
-  printf ("  <dt><b>Supported Devices</b> (for hardware devices):</dt>\n");
-  printf ("  <dd>Which hardware the backend supports.</dd>\n");
-  printf ("  <dt><b>Manufacturer:</b></dt>\n");
-  printf ("  <dd>Manufacturer, Vendor or brand name of the device.</dd>\n");
-  printf ("  <dt><b>Model:</b></dt>\n");
-  printf ("  <dd>Name of the the device.</dd>\n");
-  printf ("  <dt><b>Interface:</b></dt>\n");
-  printf ("  <dd>How the device is connected to the computer.</dd>\n");
-  printf ("  <dt><b>Comment:</b></dt>\n");
-  printf ("  <dd>More information about the level of support and\n");
-  printf ("      possible problems.</dd>\n");
-
-  printf ("  <dt><b>Description</b> (for API and meta backends):</dt>\n");
-  printf ("  <dd>The scope of application of the backend.\n");
-
-  printf ("</dl>\n");
-
-  printf ("</blockquote>\n");
-
-  printf ("<hr>\n");
-  printf ("<a href=\"http://www.mostang.com/sane/\">[Back]</a>\n");
-  printf ("<address>\n");
-  printf ("<a href=\"http://www.mostang.com/sane/mail.html\"\n");
-  printf (">sane-devel@mostang.com</a> / SANE Development mailing list\n");
-  printf ("</address>\n");
-  printf ("<font size=-1>\n");
-  printf ("This page was last updated on %s\n", 
-	  asctime (localtime (&current_time)));
-  printf ("</font>\n");
-  printf ("</body> </html>\n");
+  html_print_footer ();
 }
 
 static void
 html_print_mfgs (void)
 {
-  time_t current_time = time (0);
-
   if (!title)
     title = "SANE: Supported Devices";
 
@@ -1718,43 +1742,8 @@ html_print_mfgs (void)
     intro = "<p> The following table summarizes the devices supported "
       "by the latest version of sane-backends. </p>";
 
-  printf ("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 ");
-  printf ("Transitional//EN\">\n");
-  printf ("<html> <head>\n");
-  printf ("<meta http-equiv=\"Content-Type\" content=\"text/html; ");
-  printf ("charset=iso-8859-1\">\n");
-  printf ("<title>%s</title>\n", title);
-  printf ("</head>\n");
+  html_print_header ();
 
-  printf ("<body bgcolor=FFFFFF>\n");
-  printf ("<div align=center>\n");
-  printf ("<img src=\"http://www.mostang.com/sane/sane.png\" alt=\"SANE\">\n");
-  printf ("<h1>%s</h1>\n", title);
-  printf ("</div>\n");
-  printf ("<hr>\n");
-  printf ("%s\n", intro);
-  printf ("<p>This is only a summary!\n");
-  printf ("Please consult the manpages and the author-supplied webpages\n");
-  printf ("for more detailed (and usually important) information\n");
-  printf ("concerning each backend.</p>\n");
-  printf ("<p>There are special tables for <a\n");
-  printf ("href=\"http://www.buzzard.org.uk/jonathan/scanners.html\"\n");
-  printf (">parallel port</a> and <a\n");
-  printf ("href=\"http://www.buzzard.org.uk/jonathan/scanners-usb.html\">\n");
-  printf ("USB</a> scanners from <a\n");
-  printf ("href=\"mailto:jonathan@buzzard.org.uk\">\n");
-  printf ("Jonathan Buzzard</a>.</p>\n");
-  printf ("<p>If you have new information or corrections, please send\n");
-  printf ("e-mail to sane-devel, the <a\n");
-  printf ("href=\"http://www.mostang.com/sane/mail.html\">SANE mailing\n");
-  printf ("list</a>.</p>\n");
-  printf ("<p>(For an explanation of the tables, see the\n");
-  printf ("<a href=\"#legend\">legend</a>.)\n");
-  printf ("<p>There are tables for <a href=\"#SCANNERS\">scanners</a>,\n");
-  printf ("<a href=\"#STILL\">still cameras</a>,\n");
-  printf ("<a href=\"#VIDEO\">video cameras</a>,\n");
-  printf ("<a href=\"#API\">APIs</a>, and\n");
-  printf ("<a href=\"#META\">meta backends</a>\n");
 
   printf ("<p><div align=center>\n");
 
@@ -1775,59 +1764,45 @@ html_print_mfgs (void)
 
   printf ("</div>\n");
 
-  printf ("<h3><a name=\"legend\">Legend:</a></h3>\n");
-  printf ("<blockquote>\n");
-  printf ("<dl>\n");
-  printf ("  <dt><b>Manufacturer:</b></dt>\n");
-  printf ("  <dd>Manufacturer, Vendor or brand name of the device.</dd>\n");
-  printf ("  <dt><b>Model:</b></dt>\n");
-  printf ("  <dd>Name of the the device.</dd>\n");
-  printf ("  <dt><b>Interface:</b></dt>\n");
-  printf ("  <dd>How the device is connected to the computer.</dd>\n");
-  printf ("  <dt><b>Comment:</b></dt>\n");
-  printf ("  <dd>More information about the level of support and\n");
-  printf ("      possible problems.</dd>\n");
-  printf ("  <dt><b>Backend:</b></dt>\n");
-  printf ("  <dd>Name of the backend, with a link to more extensive and\n");
-  printf ("      detailed information, if it exists, or the email address\n");
-  printf ("      of the author or maintainer. In parentheses if available:\n");
-  printf ("      Version of backend/driver; newer versions may be\n");
-  printf ("      available from their home sites. Status of the backend:\n");
-  printf ("      A vague indication of robustness and reliability.\n");
-  printf ("      <ul><li><font color=\"bb0000\">alpha</font> means it must\n");
-  printf ("        do something, but is not very well tested, probably has\n");
-  printf ("        bugs, and may even crash your system, etc., etc.\n");
-  printf ("      <li><font color=\"806000\">beta</font> means it works\n");
-  printf ("        pretty well, and looks stable and functional, but not\n");
-  printf ("        bullet-proof.\n");
-  printf ("      <li><font color=\"008000\">stable</font> means someone is\n");
-  printf ("        pulling your leg.\n");
-  printf ("      </ul>\n");
-  printf ("      <font color=\"red\">NEW!</font> means brand-new to the\n");
-  printf ("      current release of SANE.\n");
-  printf ("  </dd>\n");
+  printf
+    ("<h3><a name=\"legend\">Legend:</a></h3>\n"
+     "<blockquote>\n"
+     "<dl>\n"
+     "  <dt><b>Manufacturer:</b></dt>\n"
+     "  <dd>Manufacturer, Vendor or brand name of the device.</dd>\n"
+     "  <dt><b>Model:</b></dt>\n"
+     "  <dd>Name of the the device.</dd>\n"
+     "  <dt><b>Interface:</b></dt>\n"
+     "  <dd>How the device is connected to the computer.</dd>\n"
+     "  <dt><b>Comment:</b></dt>\n"
+     "  <dd>More information about the level of support and\n"
+     "      possible problems.</dd>\n"
+     "  <dt><b>Backend:</b></dt>\n"
+     "  <dd>Name of the backend, with a link to more extensive and\n"
+     "      detailed information, if it exists, or the email address\n"
+     "      of the author or maintainer. In parentheses if available:\n"
+     "      Version of backend/driver; newer versions may be\n"
+     "      available from their home sites. Status of the backend:\n"
+     "      A vague indication of robustness and reliability.\n"
+     "      <ul><li><font color=" COLOR_ALPHA ">alpha</font> means it must\n"
+     "        do something, but is not very well tested, probably has\n"
+     "        bugs, and may even crash your system, etc., etc.\n"
+     "      <li><font color=" COLOR_BETA ">beta</font> means it works\n"
+     "        pretty well, and looks stable and functional, but not\n"
+     "        bullet-proof.\n"
+     "      <li><font color=" COLOR_STABLE ">stable</font> means someone is\n"
+     "        pulling your leg.\n"
+     "      </ul>\n"
+     "      <font color=" COLOR_NEW ">NEW!</font> means brand-new to the\n"
+     "      current release of SANE.\n"
+     "  </dd>\n"
+     "  <dt><b>Manual Page:</b></dt>\n"
+     "  <dd>A link to the man-page on-line, if it exists.</dd>\n"
+     "  <dt><b>Description</b> (for API and meta backends):</dt>\n"
+     "  <dd>The scope of application of the backend.\n"
+     "</dl>\n" "</blockquote>\n");
 
-  printf ("  <dt><b>Manual Page:</b></dt>\n");
-  printf ("  <dd>A link to the man-page on-line, if it exists.</dd>\n");
-
-  printf ("  <dt><b>Description</b> (for API and meta backends):</dt>\n");
-  printf ("  <dd>The scope of application of the backend.\n");
-
-  printf ("</dl>\n");
-
-  printf ("</blockquote>\n");
-
-  printf ("<hr>\n");
-  printf ("<a href=\"http://www.mostang.com/sane/\">[Back]</a>\n");
-  printf ("<address>\n");
-  printf ("<a href=\"http://www.mostang.com/sane/mail.html\"\n");
-  printf (">sane-devel@mostang.com</a> / SANE Development mailing list\n");
-  printf ("</address>\n");
-  printf ("<font size=-1>\n");
-  printf ("This page was last updated on %s\n", 
-	  asctime (localtime (&current_time)));
-  printf ("</font>\n");
-  printf ("</body> </html>\n");
+  html_print_footer ();
 }
 
 
@@ -1846,12 +1821,19 @@ main (int argc, char **argv)
     return 1;
   switch (mode)
     {
-    case output_mode_ascii: ascii_print_backends (); break;
-    case output_mode_html_backends: html_print_backends (); break;
-    case output_mode_html_mfgs: html_print_mfgs (); break;
-    default: DBG_ERR ("Unknown output mode\n"); return 1;
+    case output_mode_ascii:
+      ascii_print_backends ();
+      break;
+    case output_mode_html_backends:
+      html_print_backends ();
+      break;
+    case output_mode_html_mfgs:
+      html_print_mfgs ();
+      break;
+    default:
+      DBG_ERR ("Unknown output mode\n");
+      return 1;
     }
-  
 
   return 0;
 }

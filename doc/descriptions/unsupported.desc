@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-02-19"		; version of backend
+:version "2003-02-26"		; version of backend
 :url "http://www.meier-geinitz.de/sane/misc/unsupported.html"
 ;:status :stable			; :alpha, :beta, :stable, :new
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
@@ -96,7 +96,7 @@
 :url "http://www.meier-geinitz.de/sane/misc/canon-d646u.txt"
 :interface "USB"
 :status :unsupported
-:comment "Probably not supported. USB Vendor/product 0x04a9/0x220b. /proc/bus/usb/devices output available. Maybe genesys USB bridge + LM9830? Maybe could be supported by canon630u backend?"
+:comment "Probably not supported. USB Vendor/product 0x04a9/0x220b. /proc/bus/usb/devices output available. Maybe Genesys USB bridge + LM9830? Maybe could be supported by canon630u backend? See link for more information."
 
 :model "CanoScan D660U"
 :interface "USB"
@@ -233,29 +233,34 @@
 :comment "Not supported. Vendor/product: 0x03f0/0x1305. Not much is known about this scanner. The manual says:  4500c and 5500c series."
 :status :unsupported
 
-:model "ScanJet 5400C"
-:url "http://sourceforge.net/projects/hp5400backend/"
-:interface "USB"
-:comment "Not supported yet, but in development. A test program is available."
-:status :unsupported
-
-:model "ScanJet 5470C"
-:url "http://svana.org/kleptog/hp5470/"
-:interface "USB"
-:comment "Not supported yet, but in development. A test program is available."
-:status :unsupported
-
-:model "ScanJet 5490C"
-:url "http://sourceforge.net/projects/hp5400backend/"
-:interface "USB"
-:comment "Not supported yet, but in development. A test program is available."
-:status :unsupported
-
 :model "ScanJet 5500C"
 ;:url ""
 :interface "USB"
 :comment "Not supported. Not much is known about this scanner. Same as 4500c series?"
 :status :unsupported
+
+;********************************************************************************************
+
+:mfg "Lexmark"
+:url "http://www.lexmark.com/"
+
+:model "X83"
+:url "http://www.meier-geinitz.de/sane/misc/lexmark-x83.txt"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. Vendor/product 0x043d/0x003d. It does use a firmware (in some sort of eeprom(?), at least it's not necesary tu upload it). Probably parport over USB. Seems to use PAL16R8 and GL640USB_40SOJ chips."
+
+;********************************************************************************************
+
+:mfg "Medion/Lifetec/Tevion/Cytron"
+:url "http://www.medion.com/"
+:url "http://www.medion.de/"
+
+:model "MD 5345"
+:url "http://www.meier-geinitz.de/sane/misc/medion-MD5345.txt"
+:interface "USB"
+:status :unsupported
+:comment "Probably unsupported. Vendor/product 0x0461/0x0377. The product id is Primax, maybe the viceo backend works?"
 
 ;********************************************************************************************
 
@@ -360,6 +365,12 @@
 :status :unsupported
 :comment "Not supported. However, a stand-alone program is available."
 
+:model "Colorado 2400U"
+:url "http://viceo.orcon.net.nz/"
+:interface "USB"
+:status :unsupported
+:comment "Probably unsupported. ASIC EICI 10440A. Vendor/product 0x461/0x346. May work with viceo backend(?), see link."
+
 :model "Primascan Colorado 2600u"
 ;:url ""
 :interface "USB"
@@ -434,7 +445,13 @@
 :url "http://ingchai.sytes.net:81/scanner-info.txt"
 :interface "USB"
 :status :unsupported
-:comment "Not supported. Is reported to use the E5 chipset. Uses a Primax ID. See link for some details."
+:comment "Not supported. Is reported to use the E5 chipset. Uses a Primax ID. See link for some details. Looks similar to Primascan Colorado 2600u."
+
+:model "Onetouch 4400"
+;:url ""
+:interface "USB"
+:status :unsupported
+:comment "Not supported. Is reported to use LM9832 (or LM9830 + E5). Is reported to have the same ids as the Primascan Colorado 2600u, see that entry for more info."
 
 :model "Onetouch 8920"
 :url "http://www.meier-geinitz.de/sane/misc/visioneer-onetouch8920.txt"

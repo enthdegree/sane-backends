@@ -4,6 +4,8 @@
 	  backend. It supports the Hewlett-Packard 5400, 5470 and (maybe) 5490
 	  scanners.
 	* doc/descriptions-external/viceo.desc: Added Visioneer OneTouch 8600.
+	* doc/descriptions/unsupported.desc: Removed hp5400 series (now in
+	  hp5400.conf). Added Lexmark, Medion and Primax scanners.
 
 2003-02-26  Ulrich Deiters <ukd@xenon.pc.uni-koeln.de>
 

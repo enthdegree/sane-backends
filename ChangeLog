@@ -1,6 +1,8 @@
 2003-06-25  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* README.darwin: Mention some more working scanners.
+	* doc/descriptions/unsupported.des: Added Brother and Microtek
+	  scanners.
 
 2003-06-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-06-19"		; version of backend
+:version "2003-06-24"		; version of backend
 :url "http://www.meier-geinitz.de/sane/misc/unsupported.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 ;:url "http://www.meier-geinitz.de/sane/mustek-backend/"
@@ -132,6 +132,12 @@
 :url "http://www.mostang.com/pipermail/sane-devel/2003-February/017785.html"
 :interface "USB"
 :comment "Unsupported. A backend is under development (see link). Vendor/product 0x04f9/0x0111. See also MFC 4600."
+
+:model "MFC 9160"
+:status :unsupported
+;:url "http://www.mostang.com/pipermail/sane-devel/2003-February/017785.html"
+:interface "USB Parport"
+:comment "Unsupported. Maybe it's similar to the other Brother MFCs?"
 
 ;********************************************************************************************
 
@@ -439,6 +445,12 @@
 :interface "USB"
 :status :unsupported
 :comment "Unsupported. Vendor/Product ids: 0x05da/0x30cf. Looks very similar to the ScanMaker 3800. Maybe the same chip is used?"
+
+:model "ScanMaker 6700"
+:url "http://www.meier-geinitz.de/sane/misc/microtek-scanmaker-6700.txt"
+:interface "USB IEEE-1394"
+:status :unsupported
+:comment "Unsupported. See link."
 
 :model "ScanPort 3000"
 :url "http://www.meier-geinitz.de/sane/misc/microtek-scanport-3000.txt"

@@ -1,3 +1,7 @@
+2002-10-04  Karl Heinz Kremer <khk@khk.net>
+
+	* doc/sane-epson.man: Added quotes around halftoning options.
+
 2002-10-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* TODO: Updated list of backends scheduled for inclusion. Updated

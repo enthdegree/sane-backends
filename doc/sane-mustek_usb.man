@@ -1,4 +1,4 @@
-.TH sane-mustek 5 "3 Jan 2002"
+.TH sane-mustek 5 "12 Jan 2002"
 .IX sane-mustek_usb
 .SH NAME
 sane-mustek_usb - SANE backend for Mustek USB flatbed scanners
@@ -181,7 +181,7 @@ Tom Wang (Mustek, original 1200ub backend), Henning Meier-Geinitz
 This is BETA software. That means that it may contain bugs. 
 .PP
 FreeBSD support is shaky. Most of the time, scanning will work only in the
-first xscanimage/xsabe session. After closing the frontend, the scanner will
+first xscanimage/xsane session. After closing the frontend, the scanner will
 freeze. The reason is unknown until now.
 .PP
 More detailed bug information is

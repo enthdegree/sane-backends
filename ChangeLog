@@ -19,6 +19,7 @@
 	* doc/descriptions.txt doc/descriptions/template.desc. 
 	  doc/descriptions-external/template.desc.: Updated concerning 
 	  model status.
+	* tools/sane-desc.c: Added support for :status :unsupported.
 
 2002-07-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

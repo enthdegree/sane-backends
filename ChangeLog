@@ -5,6 +5,9 @@
 	  gphoto2 and a false positive result.
 	* TODO: Added entries about config.h, sane-backends.html, device file
 	  types, the HPUX -ansi problem, and make distclean.
+	* backend/Makefile.in backend/coolscan2.desc: Added description file
+	  for coolscan2 backend (from Major Andras 
+	  <andras@users.sourceforge.net>).
 
 2002-02-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2004-01-05"		; version of backend
+:version "2004-01-09"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -306,13 +306,13 @@
 :url "/unsupported/epson-perfection-1270.html"
 :interface "USB"
 :status :unsupported
-:comment "Probably unsupported. See link for details."
+:comment "Probably unsupported. May work with snapscan backend after some modification. See link for details."
 
 :model "Perfection 1270"
 :url "/unsupported/epson-perfection-1270.html"
 :interface "USB"
 :status :unsupported
-:comment "Probably unsupported. See link for details."
+:comment "Probably unsupported. May work with snapscan backend after some modification. See link for details."
 
 :model "Perfection 3170"
 ;:url ""
@@ -515,6 +515,12 @@
 
 :model "ScanJet 4570C"
 :url "/unsupported/hp-scanjet-4570c.html"
+:interface "USB"
+:comment "Not supported. See link for details."
+:status :unsupported
+
+:model "ScanJet 4600"
+:url "/unsupported/hp-scanjet-4600.html"
 :interface "USB"
 :comment "Not supported. See link for details."
 :status :unsupported
@@ -991,6 +997,23 @@
 :interface "USB"
 :status :unsupported
 :comment "Not supported. Some information is available. Vendor=0x06dc product=0x0014. RealTek RTS8801."
+
+;********************************************************************************************
+
+:mfg "Quato"
+:url "http://www.quato.de/"
+
+:model "X-Finity"
+;:url "/unsupported/"
+:interface "SCSI"
+:status :unsupported
+:comment "Probably not supported. No details yet. Originally maufactured by PFU?"
+
+:model "X-Finity Ultra"
+;:url "/unsupported/"
+:interface "USB IEEE-1394"
+:status :unsupported
+:comment "Probably not supported. No details yet."
 
 ;********************************************************************************************
 

@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2004-08-23"		; version of backend
+:version "2004-08-29"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -379,6 +379,12 @@
 :comment "Probably unsupported. May work with snapscan backend after some modification. See link for details."
 
 :model "Perfection 2480"
+:url "/unsupported/epson-perfection-2480-photo.html"
+:interface "USB"
+:status :unsupported
+:comment "Probably unsupported. See link for details."
+
+:model "Perfection 2580"
 :url "/unsupported/epson-perfection-2480-photo.html"
 :interface "USB"
 :status :unsupported
@@ -926,6 +932,12 @@
 :url "http://www.nikon.com/"
 
 :model "LS 50 ED"
+:interface "USB"
+:url "/unsupported/nikon-ls50-ed.html"
+:status :unsupported
+:comment "Most probably unsupported. See link for details."
+
+:model "Coolscan V ED"
 :interface "USB"
 :url "/unsupported/nikon-ls50-ed.html"
 :status :unsupported

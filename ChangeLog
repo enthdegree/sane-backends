@@ -1,3 +1,7 @@
+2004-06-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/.cvsignore: Added *.8.
+
 2004-06-17  Stéphane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c doc/descriptions/umax_pp.desc 

@@ -1,3 +1,7 @@
+2001-10-29  Peter Fales <peter@fales.com>
+
+	* backend/dc25.desc - Update URLs
+
 2001-10-19 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 
 	* set correct backend version number in backend/umax.desc

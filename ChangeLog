@@ -9,6 +9,8 @@
 	  Scan 300/S.
 	* doc/descriptions/agfafocus.desc: Added status and comments (from
 	  the manpage).
+	* doc/descriptions/ricoh.desc: Removed unused version and comment
+	  tokens.
 
 2002-07-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

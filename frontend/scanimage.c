@@ -1763,7 +1763,7 @@ List of available devices:", prog_name);
 	  }
 	  status = scan_it ();
 	  if (batch) {
-	    fprintf (stderr, "Scanned page %d.", batch_count);
+	    fprintf (stderr, "Scanned page %d.", n);
 	    fprintf (stderr, " (scanner status = %d)\n", status);
 	  }
 

@@ -40,16 +40,14 @@
 
    -----
 
-   This file is part of the canon_pp backend, supporting Canon FBX30P 
-   and NX40P scanners and also distributed as part of the stand-alone 
-   driver.  
+   This file is part of the canon_pp backend, supporting Canon CanoScan 
+   Parallel scanners and also distributed as part of the stand-alone driver.  
 
    canon_pp-dev.c: $Revision$
 
-   Misc constants for Canon FB330P/FB630P scanners and high-level 
-   scan functions.
+   Misc constants for Canon CanoScan Parallel scanners and high-level scan 
+   functions.
 
-   Function library for Canon FB330/FB630P Scanners by
    Simon Krix <kinsei@users.sourceforge.net>
    */
 
@@ -93,14 +91,19 @@ static void DBG(int level, const char *format, ...)
 
 
 /* Constants */
+#define ID_FB320P "CANON   IX-03055C       1.00"
+#define ID_FB620P "CANON   IX-06025C       1.00"
+
 #define ID_FB330P "CANON   IX-03075E       1.00"
 #define ID_FB630P "CANON   IX-06075E       1.00"
+
 #define ID_N340P "CANON   IX-03095G       1.00"
 #define ID_N640P "CANON   IX-06115G       1.00"
 
 /*const int scanline_count = 6;*/
 static const char *header = "#CANONPP";
 static const int fileversion = 3;
+static int abort_now = 0;
 
 /* Internal functions */
 static unsigned long column_sum(image_segment *image, int x, int colournum);
@@ -116,12 +119,12 @@ static int scanner_setup_params(unsigned char *buf, scanner_parameters *sp,
 		scan_parameters *scanp);
 
 /* file reading and writing helpers */
-int safe_write(int fd, const char *p, unsigned long len);
-int safe_read(int fd, char *p, unsigned long len);
+static int safe_write(int fd, const char *p, unsigned long len);
+static int safe_read(int fd, char *p, unsigned long len);
 
 /* Command sending loop (waiting for ready status) */
-int send_command(struct parport *port, char *buf, int bufsize, int delay, 
-		int timeout);
+static int send_command(struct parport *port, unsigned char *buf, int bufsize, 
+		int delay, int timeout);
 
 /* Commands ================================================ */
 
@@ -130,15 +133,16 @@ int send_command(struct parport *port, char *buf, int bufsize, int delay,
 
 /* Read device ID command */
 /* after this 0x26 (38) bytes are read */
-static unsigned char command_2[] = { 0xfe, 0x20, 0, 0, 0, 0, 0, 0, 0x26, 0 };
-/* Reads 12 bytes of unknown information */
-static unsigned char command_3[] = { 0xf3, 0x20, 0, 0, 0, 0, 0, 0, 0x0c, 0 };
+static unsigned char cmd_readid[] = { 0xfe, 0x20, 0, 0, 0, 0, 0, 0, 0x26, 0 };
 
-/* Scan init command: Always followed immediately by command 42 */
-static unsigned char command_41[] = { 0xde, 0x20, 0, 0, 0, 0, 0, 0, 0x2e, 0 };
+/* Reads 12 bytes of unknown information */
+static unsigned char cmd_readinfo[] = { 0xf3, 0x20, 0, 0, 0, 0, 0, 0, 0x0c, 0 };
+
+/* Scan init command: Always followed immediately by command cmd_scan */
+static unsigned char cmd_initscan[] = { 0xde, 0x20, 0, 0, 0, 0, 0, 0, 0x2e, 0 };
 
 /* Scan information block */
-static unsigned char command_42[45] =
+static unsigned char cmd_scan[45] =
 { 0x11, 0x2c, 0x11, 0x2c, 0x10, 0x4b, 0x10, 0x4b, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0x08, 0x08, 0x01, 0x01, 0x80, 0x01,
@@ -147,32 +151,32 @@ static unsigned char command_42[45] =
 };
 
 /* Read 6 byte buffer status block */
-static unsigned char command_5[] = { 0xf3, 0x21, 0, 0, 0, 0, 0, 0, 0x06, 0 };
+static unsigned char cmd_buf_status[] = { 0xf3, 0x21, 0, 0, 0, 0, 0, 0, 0x06, 0 };
 
 /* Request a block of image data */
-static unsigned char command_6[] = {0xd4, 0x20, 0, 0, 0, 0, 0, 0x09, 0x64, 0};
+static unsigned char cmd_packet_req[] = {0xd4, 0x20, 0, 0, 0, 0, 0, 0x09, 0x64, 0};
 
 /* "*SCANEND" command - returns the scanner to transparent mode */
-static unsigned char command_7[] =
+static unsigned char cmd_scanend[] =
 { 0x1b, 0x2a, 0x53, 0x43, 0x41, 0x4e, 0x45, 0x4e, 0x44, 0x0d };
 
 /* Reads BLACK calibration image */
-static unsigned char command_8[] = {0xf8, 0x20, 0, 0, 0, 0, 0, 0x4a, 0xc4, 0};
+static unsigned char cmd_calblack[] ={0xf8, 0x20, 0, 0, 0, 0, 0, 0x4a, 0xc4, 0};
 
-/* Unknown command 9 */
-static unsigned char command_9[] = {0xc5, 0x20, 0, 0, 0, 0, 0, 0, 0, 0};
+/* Clear the existing gamma table and create a new one */
+static unsigned char cmd_cleargamma[] = {0xc5, 0x20, 0, 0, 0, 0, 0, 0, 0, 0};
 
-/* Reads unknown 30 bytes */
-static unsigned char command_10[] = {0xf6, 0x20, 0, 0, 0, 0, 0, 0, 0x20, 0};
+/* Read back the gamma table values */
+static unsigned char cmd_readgamma[] = {0xf6, 0x20, 0, 0, 0, 0, 0, 0, 0x20, 0};
 
 /* Reads COLOUR (R,G or B) calibration image */
-static unsigned char command_11[] = {0xf9, 0x20, 0, 0, 0, 0, 0, 0x4a, 0xc4, 0};
+static unsigned char cmd_calcolour[]={0xf9, 0x20, 0, 0, 0, 0, 0, 0x4a, 0xc4, 0};
 
 /* Abort scan */
-static unsigned char command_12[] = {0xef, 0x20, 0, 0, 0, 0, 0, 0, 0, 0};
+static unsigned char cmd_abort[] = {0xef, 0x20, 0, 0, 0, 0, 0, 0, 0, 0};
 
-/* Followed by command 14 */
-static unsigned char command_13[] = {0xe6, 0x20, 0, 0, 0, 0, 0, 0, 0x20, 0};
+/* Upload the gamma table (followed by 32 byte write) */
+static unsigned char cmd_setgamma[] = {0xe6, 0x20, 0, 0, 0, 0, 0, 0, 0x20, 0};
 
 #if 0
 /* Something about RGB gamma/gain values? Not currently used by this code */
@@ -195,7 +199,7 @@ static unsigned char command_14[32] =
  * safe_write(): a small wrapper which ensures all the data is written in calls
  * to write(), since the POSIX call doesn't ensure it. 
  */
-int safe_write(int fd, const char *p, unsigned long len) {
+static int safe_write(int fd, const char *p, unsigned long len) {
 	int diff; 
 	unsigned long total = 0;
 
@@ -215,7 +219,7 @@ int safe_write(int fd, const char *p, unsigned long len) {
 
 /* same dealie for read, except in the case of read the return of 0 bytes with 
  * no INTR error indicates EOF */
-int safe_read(int fd, char *p, unsigned long len) {
+static int safe_read(int fd, char *p, unsigned long len) {
 	int diff;
 	unsigned long total = 0;
 
@@ -254,8 +258,8 @@ int sanei_canon_pp_init_scan(scanner_parameters *sp, scan_parameters *scanp)
 	int expected_scanline_size, expected_scanline_count;
 
 	/* Set up the default scan command packet */
-	memcpy(command_b, command_41, 10);
-	memcpy(command_b+10, command_42, 45);
+	memcpy(command_b, cmd_initscan, 10);
+	memcpy(command_b+10, cmd_scan, 45);
 
 	/* Load the proper settings into it */
 	scanner_setup_params(command_b+10, sp, scanp);
@@ -267,7 +271,7 @@ int sanei_canon_pp_init_scan(scanner_parameters *sp, scan_parameters *scanp)
 		return -1;
 		
 	/* Ask the scanner about the buffer */
-	if (send_command(sp->port, command_5, 10, 50000, 1000000))
+	if (send_command(sp->port, cmd_buf_status, 10, 50000, 1000000))
 		return -1;
 
 	/* Read buffer information block */
@@ -322,7 +326,7 @@ int sanei_canon_pp_init_scan(scanner_parameters *sp, scan_parameters *scanp)
 /* Wake the scanner, detect it, and fill sp with stuff */
 int sanei_canon_pp_initialise(scanner_parameters *sp)
 {
-	unsigned char unknown12[12];
+	unsigned char scanner_info[12];
 
 	/* Hopefully take the scanner out of transparent mode */
 	if (sanei_canon_pp_wake_scanner(sp->port))
@@ -335,37 +339,63 @@ int sanei_canon_pp_initialise(scanner_parameters *sp)
 	DBG(50, "initialise: >> scanner_init\n");
 	if (sanei_canon_pp_scanner_init(sp->port))
 	{
-		DBG(10, "initialise: Could not init scanner.\n");
-		return 1;
+		/* If we're using an unsupported ieee1284 mode here, this is 
+		 * where it will fail, so fall back to nibble. */
+		sanei_canon_pp_set_ieee1284_mode(M1284_NIBBLE);
+		if (sanei_canon_pp_scanner_init(sp->port))
+		{
+			DBG(10, "initialise: Could not init scanner.\n");
+			return 1;
+		}
 	}
 	DBG(50, "initialise: << scanner_init\n");
 
 	/* Read Device ID */
-	if (send_command(sp->port, command_2, 10, 10000, 100000))
+	if (send_command(sp->port, cmd_readid, 10, 10000, 100000))
 		return -1;
 	sanei_canon_pp_read(sp->port, 38, (unsigned char *)(sp->id_string));
 
 	/* Read partially unknown data */
-	if (send_command(sp->port, command_3, 10, 10000, 100000))
+	if (send_command(sp->port, cmd_readinfo, 10, 10000, 100000))
 		return -1;
-	sanei_canon_pp_read(sp->port, 12, unknown12);
+	sanei_canon_pp_read(sp->port, 12, scanner_info);
 
-	if (check8(unknown12, 12))
+	if (check8(scanner_info, 12))
 	{
 		DBG(10, "initialise: Checksum error reading Info Block.\n");
 		return 2;
 	}
 
-	sp->scanheadwidth = (unknown12[2] << 8) | unknown12[3];
-
+	sp->scanheadwidth = (scanner_info[2] << 8) | scanner_info[3];
 
 	/* Set up various known values */
-	if (strncmp(&(sp->id_string[8]), ID_FB330P, sizeof(ID_FB330P)) == 0)
+	if (strncmp(&(sp->id_string[8]), ID_FB320P, sizeof(ID_FB320P)) == 0)
+	{
+		strcpy(sp->name, "FB320P");
+		sp->natural_xresolution = 2;	
+		sp->natural_yresolution = 2;	
+		sp->scanbedlength = 3508;
+		/* This bit probably needs fudging */
+		sp->scanheadwidth = 2552;
+		sp->type = 0;
+	}
+	else if (strncmp(&(sp->id_string[8]), ID_FB330P, sizeof(ID_FB330P))==0)
 	{
 		strcpy(sp->name, "FB330P");
 		sp->natural_xresolution = 2;	
 		sp->natural_yresolution = 2;	
 		sp->scanbedlength = 3508;
+		sp->type = 1;
+	}
+	else if (strncmp(&(sp->id_string[8]), ID_FB620P, sizeof(ID_FB620P))==0)
+	{
+		strcpy(sp->name, "FB620P");
+		sp->natural_xresolution = 3;	
+		sp->natural_yresolution = 3;	
+		sp->scanbedlength = 7016;
+		/* This bit needs fudging */
+		sp->scanheadwidth = 5104;
+		sp->type = 0;
 	}
 	else if (strncmp(&(sp->id_string[8]), ID_FB630P, sizeof(ID_FB630P))==0)
 	{
@@ -373,6 +403,7 @@ int sanei_canon_pp_initialise(scanner_parameters *sp)
 		sp->natural_xresolution = 3;
 		sp->natural_yresolution = 3;
 		sp->scanbedlength = 7016;
+		sp->type = 1;
 	}
 	else if (strncmp(&(sp->id_string[8]), ID_N640P, sizeof(ID_N640P)) == 0)
 	{
@@ -380,6 +411,7 @@ int sanei_canon_pp_initialise(scanner_parameters *sp)
 		sp->natural_xresolution = 3;	
 		sp->natural_yresolution = 3;	
 		sp->scanbedlength = 7016;
+		sp->type = 1;
 	}
 	else if (strncmp(&(sp->id_string[8]), ID_N340P, sizeof(ID_N340P)) == 0)
 	{
@@ -387,6 +419,7 @@ int sanei_canon_pp_initialise(scanner_parameters *sp)
 		sp->natural_xresolution = 2;	
 		sp->natural_yresolution = 2;	
 		sp->scanbedlength = 3508;
+		sp->type = 1;
 	}
 	else
 	{
@@ -397,6 +430,7 @@ int sanei_canon_pp_initialise(scanner_parameters *sp)
 			sp->natural_xresolution = 3; 
 			sp->natural_yresolution = 3;	
 			sp->scanbedlength = 7016;
+			sp->type = 1;
 		}
 		else if (sp->scanheadwidth == 2552) 
 		{
@@ -405,6 +439,7 @@ int sanei_canon_pp_initialise(scanner_parameters *sp)
 			sp->natural_xresolution = 2; 
 			sp->natural_yresolution = 2;	
 			sp->scanbedlength = 3508;
+			sp->type = 1;
 		}
 		else
 		{
@@ -413,6 +448,7 @@ int sanei_canon_pp_initialise(scanner_parameters *sp)
 			sp->natural_xresolution = 3; 
 			sp->natural_yresolution = 3;	
 			sp->scanbedlength = 7016;			
+			sp->type = 1;
 		}
 	}
 
@@ -633,7 +669,7 @@ int sanei_canon_pp_read_segment(image_segment **dest, scanner_parameters *sp,
 	}
 
 	/* Set up packet request command */
-	memcpy(packet_req_command, command_6, 10);
+	memcpy(packet_req_command, cmd_packet_req, 10);
 	packet_req_command[7] = ((read_data_size + 4) & 0xFF00) >> 8;
 	packet_req_command[8] = (read_data_size + 4) & 0xFF;
 
@@ -672,6 +708,10 @@ int sanei_canon_pp_read_segment(image_segment **dest, scanner_parameters *sp,
 		goto error_out;
 	}
 
+	/* This is the only place we can abort safely - 
+	 * between reading one segment and requesting the next one. */
+	if (abort_now) goto error_out;
+
 	if (scanlines_left >= (scanline_number * 2)) 
 	{
 		DBG(100, "read_segment: Speculatively starting more scanning "
@@ -701,6 +741,7 @@ int sanei_canon_pp_read_segment(image_segment **dest, scanner_parameters *sp,
 	if (output_image && output_image->image_data) free(output_image->image_data);
 	if (output_image) free(output_image);
 	if (input_buffer) free(input_buffer);
+	abort_now = 0;
 	return -1;
 }
 
@@ -901,7 +942,8 @@ static int adjust_output(image_segment *image, scan_parameters *scanp,
 	return 0;
 }
 
-
+/* Calibration run.  Aborting allowed at "safe" points where the scanner won't
+ * be left in a crap state. */
 int sanei_canon_pp_calibrate(scanner_parameters *sp, char *cal_file) 
 {
 	int count, readnum, colournum, scanlinenum;
@@ -909,7 +951,7 @@ int sanei_canon_pp_calibrate(scanner_parameters *sp, char *cal_file)
 
 	int scanline_size;
 
-	const int scanline_count = 6;
+	int scanline_count = 6;
 	const int calibration_reads = 3;
 
 	unsigned char command_buffer[10];
@@ -917,8 +959,16 @@ int sanei_canon_pp_calibrate(scanner_parameters *sp, char *cal_file)
 	image_segment image;
 	unsigned char *databuf;
 
+	char colours[3][6] = {"Red", "Green", "Blue"};
+
 	/* Calibration data is monochromatic (greyscale format) */
 	scanline_size = sp->scanheadwidth * 1.25;
+
+	/* 620P has to be difficult here... */
+	if (!(sp->type) ) scanline_count = 8;
+
+	/* Probably shouldn't have to abort *just* yet, but may as well check */
+	if (abort_now) return -1;
 
 	DBG(40, "Calibrating %ix%i pixels calibration image "
 			"(%i bytes each scan).\n", 
@@ -946,16 +996,19 @@ int sanei_canon_pp_calibrate(scanner_parameters *sp, char *cal_file)
 	image.height = scanline_count * calibration_reads;
 
 	/* Sending the "dark calibration" command */
-	memcpy(command_buffer, command_8, 10);
+	memcpy(command_buffer, cmd_calblack, 10);
 
 	/* Which includes the size of data we expect the scanner to return */
 	command_buffer[7] = ((scanline_size * scanline_count) & 0xff00) >> 8;
 	command_buffer[8] = (scanline_size * scanline_count) & 0xff;
 
-	DBG(40, "Calibrating black level:\n");
+	DBG(40, "Step 1/3: Calibrating black level...\n");
 	for (readnum = 0; readnum < calibration_reads; readnum++)
 	{
-		DBG(40, "Scan number %i\n", readnum + 1);
+		DBG(40, "  * Black scan number %d/%d.\n", readnum + 1, 
+				calibration_reads);
+
+		if (abort_now) return -1;
 
 		if (send_command(sp->port, command_buffer, 10, 100000, 5000000))
 		{
@@ -989,36 +1042,47 @@ int sanei_canon_pp_calibrate(scanner_parameters *sp, char *cal_file)
 		sp->blackweight[count] = column_sum(&image, count, 3) >> 6;
 	}
 
-	/* Some unknown commands */
-	DBG(40, "Sending unknown request 1\n");
+	/* 620P has to be difficult here... */
+	if (!(sp->type) ) scanline_count = 6;
 
-	if (send_command(sp->port, command_9, 10, 100000, 10000000))
+	DBG(40, "Step 2/3: Gamma tables...\n");
+	DBG(40, "  * Requesting creation of new of gamma tables...\n");
+	if (abort_now) return -1;
+	if (send_command(sp->port, cmd_cleargamma, 10, 100000, 5000000))
 	{
-		DBG(1,"Error sending unknown request 1!");
+		DBG(1,"Error sending gamma command!\n");
 		free (image.image_data);
 		free(databuf);
 		return -1;
 	}
 
-	DBG(40, "Sending gamma calibration request (this will take a while)\n");
-
-	if (send_command(sp->port, command_10, 10, 100000, 20000000))
+	DBG(20, "  * Snoozing for 15 seconds while the scanner calibrates...");
+	usleep(15000000);
+	DBG(40, "done.\n");
+	
+	DBG(40, "  * Requesting gamma table values...");
+	if (send_command(sp->port, cmd_readgamma, 10, 100000, 10000000))
 	{
-		DBG(1,"Error sending gamma calibration request!");
+		DBG(1,"Error sending gamma table request!\n");
 		free (image.image_data);
 		free(databuf);
 		return -1;
 	}
+	DBG(40, "done.\n");
 
-	DBG(40, "Reading white-balance/gamma data... ");
+	DBG(40, "  * Reading white-balance/gamma data... ");
 	sanei_canon_pp_read(sp->port, 32, sp->gamma);
 	DBG(40, "done.\n");
 
-	memcpy(command_buffer, command_11, 10);
+	if (abort_now) return -1;
+
+	memcpy(command_buffer, cmd_calcolour, 10);
+
 	/* Set up returned data size */
 	command_buffer[7] = ((scanline_size * scanline_count) & 0xff00) >> 8;
 	command_buffer[8] = (scanline_size * scanline_count) & 0xff;
 
+	DBG(40, "Step 3/3: Calibrating sensors...\n");
 	/* Now for the RGB high-points */
 	for (colournum = 1; colournum < 4; colournum++)
 	{
@@ -1026,9 +1090,11 @@ int sanei_canon_pp_calibrate(scanner_parameters *sp, char *cal_file)
 		command_buffer[3] = colournum;
 		for (readnum = 0; readnum < 3; readnum++)
 		{
-			DBG(10, "Colour number: %i, scan number %i:\n", 
-					colournum, readnum + 1);
+			DBG(10, "  * %s sensors, scan number %d/%d.\n", 
+					colours[colournum-1], readnum + 1,
+					calibration_reads);
 
+			if (abort_now) return -1;
 			if (send_command(sp->port, command_buffer, 10,
 						100000, 5000000))
 			{
@@ -1071,9 +1137,12 @@ int sanei_canon_pp_calibrate(scanner_parameters *sp, char *cal_file)
 
 	}
 
+	if (abort_now) return -1;
+
 	/* cal_file == NUL indicates we want an in-memory scan only */
 	if (cal_file != NULL)
 	{
+		DBG(40, "Writing calibration to %s\n", cal_file);
 		outfile = open(cal_file, O_WRONLY | O_TRUNC | O_CREAT, 0600);
 		if (outfile < 0)
 		{
@@ -1090,17 +1159,17 @@ int sanei_canon_pp_calibrate(scanner_parameters *sp, char *cal_file)
 		if (safe_write(outfile, (char *)&(sp->scanheadwidth), 
 					sizeof(sp->scanheadwidth)) < 0)
 			DBG(10, "Write error on calibration file %s", cal_file);
-		if (safe_write(outfile, (char *)(sp->blackweight), sp->scanheadwidth * 
-					sizeof(long)) < 0)
+		if (safe_write(outfile, (char *)(sp->blackweight), 
+					sp->scanheadwidth * sizeof(long)) < 0)
 			DBG(10, "Write error on calibration file %s", cal_file);
-		if (safe_write(outfile, (char *)(sp->redweight), sp->scanheadwidth * 
-					sizeof(long)) < 0)
+		if (safe_write(outfile, (char *)(sp->redweight), 
+					sp->scanheadwidth * sizeof(long)) < 0)
 			DBG(10, "Write error on calibration file %s", cal_file);
-		if (safe_write(outfile, (char *)(sp->greenweight), sp->scanheadwidth * 
-					sizeof(long)) < 0)
+		if (safe_write(outfile, (char *)(sp->greenweight), 
+					sp->scanheadwidth * sizeof(long)) < 0)
 			DBG(10, "Write error on calibration file %s", cal_file);
-		if (safe_write(outfile, (char *)(sp->blueweight), sp->scanheadwidth * 
-					sizeof(long)) < 0)
+		if (safe_write(outfile, (char *)(sp->blueweight), 
+					sp->scanheadwidth * sizeof(long)) < 0)
 			DBG(10, "Write error on calibration file %s", cal_file);
 		if (safe_write(outfile, (char *)(sp->gamma), 32) < 0)
 			DBG(10, "Write error on calibration file %s", cal_file);
@@ -1232,23 +1301,24 @@ static int scanner_setup_params(unsigned char *buf, scanner_parameters *sp,
 	return 0;
 }
 
-int sanei_canon_pp_abort_scan(scanner_parameters *sp, scan_parameters *scanp)
+int sanei_canon_pp_abort_scan(scanner_parameters *sp)
 {
 	/* The abort command (hopefully) */
-	sanei_canon_pp_write(sp->port, 10, command_12);
+	sanei_canon_pp_write(sp->port, 10, cmd_abort);
 	sanei_canon_pp_check_status(sp->port);
-
-	/* Stop cc from warning us about unused params */
-	scanp->mode = scanp->mode;
-
 	return 0;
+}
+
+void sanei_canon_pp_abort(void)
+{
+	abort_now = 1;
 }
 
 /* adjust_gamma: Upload a gamma profile to the scanner */
 int sanei_canon_pp_adjust_gamma(scanner_parameters *sp)
 {
 	sp->gamma[31] = check8(sp->gamma, 31);
-	if (sanei_canon_pp_write(sp->port, 10, command_13))
+	if (sanei_canon_pp_write(sp->port, 10, cmd_setgamma))
 		return -1;
 	if (sanei_canon_pp_write(sp->port, 32, sp->gamma))
 		return -1;
@@ -1259,7 +1329,7 @@ int sanei_canon_pp_adjust_gamma(scanner_parameters *sp)
 int sanei_canon_pp_sleep_scanner(struct parport *port)
 {
 	/* *SCANEND Command - puts scanner to sleep */
-	sanei_canon_pp_write(port, 10, command_7);
+	sanei_canon_pp_write(port, 10, cmd_scanend);
 	sanei_canon_pp_check_status(port);
 
 	return 0;
@@ -1306,8 +1376,8 @@ int sanei_canon_pp_detect(struct parport *port)
 	return 0;
 }
 
-int send_command(struct parport *port, char *buf, int bufsize, int delay, 
-		int timeout)
+static int send_command(struct parport *port, unsigned char *buf, int bufsize, 
+		int delay, int timeout)
 /* Sends a command until the scanner says it is ready. 
  * sleeps for delay microsecs between reads
  * returns -1 on error, -2 on timeout */

@@ -1,3 +1,7 @@
+2003-06-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/Makefile.in: hp5400 doesn't need sanei_config2.
+
 2003-05-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* po/sane-backends.fr.po: Fixed two wrong codings of accented

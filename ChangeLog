@@ -1,3 +1,8 @@
+2002-01-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* sanei/sanei_wire.c: Added DBG message that warns if the read buffer
+	  is going to be deleted (data loss).
+
 2002-01-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* README.os2: Updated URL of Franz Bakan's web site.

@@ -1,5 +1,13 @@
 CHANGES for the SANE Mustek backend
 
+2000-12-09
+  * Fixed wrong comment in encode_resolution
+  * Added missing test for return status in sane_start
+  * Fixed wrong calculation of tlx and tly for Pro series scanners
+
+2000-12-05
+  * Released Mustek backend 1.0-100
+ 
 2000-12-05
   * Fixed lamp setting (avoid problems with some SE scanners).
 

@@ -1,4 +1,4 @@
-Plustek-USB.txt (2003-05-08) Gerhard Jäger <gerhard@gjaeger.de>
+Plustek-USB.txt (2003-17-09) Gerhard Jäger <gerhard@gjaeger.de>
 ================================================================
 
 NOTE:
@@ -77,16 +77,23 @@ Product ID       Device-description and status
 0x0060           UMAX 3400/3450 - working (TPA on 3450 not supported)
 0x0160           UMAX 5400 - working
 
+COMPAQ
+======
+Vendor ID: 0x049F
+
+Product ID       Device-description and status
+0x001A           S4-100 - working, identical with UMAX 3400
+
 CANON
 =====
 Vendor ID: 0x04A9
 
 Product ID       Device-description and status	
-0x????           FB620U - not integrated
-0x2206           N650U  - working
-0x2207           N1220U - mostly tested
-0x220D           N670U  - mostly working
-0x220E           N1240U - mostly working
+0x????           FB620U        - not integrated
+0x2206           N650U         - working
+0x2207           N1220U        - working
+0x220D           N670U/LiDE20  - working
+0x220E           N1240U/LiDE30 - working
 
 
 How to use and configure the Plustek USB backend
@@ -140,7 +147,7 @@ tar xvzf /tmp/plustek-sane-0.45-1.tar.gz
 
 Now do the ./configure step...
 Especially for SuSE with a preinstalled SANE-RPM:
-./configure --prefix=/usr --sysconfdir=/etc
+./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --infodir=/usr/share/info
 
 Then do the make step and after that as root user perform the make install
 step.

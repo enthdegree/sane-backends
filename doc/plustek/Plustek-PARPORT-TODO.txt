@@ -1,0 +1,23 @@
+Version 0.42-11
+
+TODO (in general):
+	- more documentation/comments on the different functions
+	- remove/check the CHECK marks
+	- add additional button handler
+    - Move documents to its correct SANE place
+
+    - ADD: Adjustment of the scan area	
+	- checking timeout conditions (MiscCheckTimer !) and handle them correctly
+	- test concurrency between scanner and printer on the same port
+    - test interaction with CUPS
+	- better dither maps
+	- let the 96001/3 based models work with the highest available
+      phys. resolution
+	- make the backtrace work for ASIC 96001/3 based models
+    - Update the IOCTL interface and remove some old structs (CmdBlk)
+    - Create the modes out of the capability list of each device
+    - FIX: P9636 problem (detected as OP12000)
+    - FIX: Genius VividPro II Film, Halftone/Gray > 450 dpi didn't work
+    - make A3I work correctly
+
+    	

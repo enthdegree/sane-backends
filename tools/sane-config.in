@@ -50,7 +50,7 @@ fi
 if test $# -gt 0; then
   case $1 in
     --version)
-      echo @VERSION@
+      echo @NUMBER_VERSION@
       ;;
     --help)
       if test $# -eq 1; then

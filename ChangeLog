@@ -4,6 +4,7 @@
 	* doc/descriptions/unsupported.desc: Added Mustek ScanMagic 9636P.
 	* TODO: Added epson/saned/xsane problem.
 	* configure configure.in: Disabled compilation warnings.
+	* tools/Makefile.in: Added sane-po.awk to DISTFILES.
 
 2003-05-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -1110,13 +1110,19 @@ sanei_scsi_open (const char *dev, int *fdp,
   }
 #endif /* defined(SGIOCSTL) || (USE == SOLARIS_INTERFACE) */
 
-  fd = open (dev, O_RDWR | O_EXCL);
+  fd = open (dev, O_RDWR | O_EXCL 
+#if USE == LINUX_INTERFACE
+	     | O_NONBLOCK
+#endif
+	     );
   if (fd < 0)
     {
       SANE_Status status = SANE_STATUS_INVAL;
 
       if (errno == EACCES)
 	status = SANE_STATUS_ACCESS_DENIED;
+      else if (errno == EBUSY)
+	status = SANE_STATUS_DEVICE_BUSY;
 
       DBG (1, "sanei_scsi_open: open of `%s' failed: %s\n",
 	   dev, strerror (errno));
@@ -3576,6 +3582,12 @@ sanei_scsi_cmd2 (int fd,
   SRB srb;			/* SCSI Request Block */
   /* xxx obsolete size_t cdb_size;
   */
+  if (aspi_buf == NULL) /* avoid SIGSEGV in memcpy() when calling
+                           sanei_scsi_cmd2() while aspi-driver is closed */
+    {
+      DBG (1, "sanei_scsi_cmd: Error no device (aspi_buf == NULL)\n");
+      return SANE_STATUS_INVAL;
+    }
 
   memset ((char *) &srb, 0, sizeof (srb));	/* Okay, I'm paranoid. */
   /* xxx obsolete cdb_size = CDB_SIZE (*(u_char *) src);*/ /* Size of command block. */

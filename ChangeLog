@@ -1,3 +1,9 @@
+2003-11-08  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan-options.c backend/snapscan.c
+	  Disabled quality calibration for Epson Perfection 1670 since it does
+	  not work reliably yet
+
 2003-11-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions-external/lhii.desc: Added (back) the links to

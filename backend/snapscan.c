@@ -78,7 +78,7 @@
 
 #define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
-#define BUILD               34
+#define BUILD               35
 
 #define BACKEND_NAME snapscan
 
@@ -1748,6 +1748,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.36  2003/11/09 21:43:45  oliver-guest
+ * Disabled quality calibration for Epson Perfection 1670
+ *
  * Revision 1.35  2003/11/07 23:26:49  oliver-guest
  * Final bugfixes for bascic support of Epson 1670
  *

@@ -503,6 +503,7 @@ static void init_options (SnapScan_Scanner * ps)
        although HCFG_CAL_ALLOWED is set. */
     if ((!(ps->hconfig & HCFG_CAL_ALLOWED))
         || (ps->pdev->model == SNAPSCANE52)
+        || (ps->pdev->model == PERFECTION1670)
         || (ps->pdev->model == PRISA5300)) {
         po[OPT_QUALITY_CAL].cap |= SANE_CAP_INACTIVE;
         ps->val[OPT_QUALITY_CAL].b = SANE_FALSE;
@@ -1484,6 +1485,9 @@ SANE_Status sane_control_option (SANE_Handle h,
 
 /*
  * $Log$
+ * Revision 1.12  2003/11/09 21:43:45  oliver-guest
+ * Disabled quality calibration for Epson Perfection 1670
+ *
  * Revision 1.11  2003/11/08 09:50:27  oliver-guest
  * Fix TPO scanning range for Epson 1670
  *

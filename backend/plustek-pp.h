@@ -609,7 +609,8 @@ typedef struct Plustek_Scanner
     struct Plustek_Scanner *next;
     pid_t 					reader_pid;		/* process id of reader          */
     SANE_Status             exit_code;      /* status of the reader process  */
-    int 					pipe;			/* pipe to reader process        */
+	int                     r_pipe;         /* pipe to reader process        */
+	int                     w_pipe;         /* pipe from reader process      */
 	unsigned long			bytes_read;		/* number of bytes currently read*/
     Plustek_Device 		   *hw;				/* pointer to current device     */
     Option_Value 			val[NUM_OPTIONS];

@@ -80,7 +80,6 @@
 #include <math.h>
 
 #include <sys/time.h>
-#include <sys/wait.h>
 #include <sys/types.h>
 #include <sys/ioctl.h>
 
@@ -88,10 +87,11 @@
 #include "sane/sanei.h"
 #include "sane/saneopts.h"
 
-#define BACKEND_VERSION "0.01-1"
+#define BACKEND_VERSION "0.01-2"
 #define BACKEND_NAME	plustek_pp
 #include "sane/sanei_backend.h"
 #include "sane/sanei_config.h"
+#include "sane/sanei_thread.h"
 
 #ifdef HAVE_IOPERM
 # define _BACKEND_ENABLED
@@ -321,58 +321,21 @@ static pModeParam getModeList( Plustek_Scanner *scanner )
 	return mp;
 }
 
-/** function to check what our reader process returns. If the
- * process didn't exist, we can be sure, that we had any other problems
- */
-static SANE_Bool getReaderProcessExitCode( Plustek_Scanner *scanner )
-{
-    int res;
-    int status;
-
-    scanner->exit_code = SANE_STATUS_IO_ERROR;
-
-	if( scanner->reader_pid > 0 ) {
-
-        res = waitpid( scanner->reader_pid, &status, WNOHANG );
-
-        if( res == scanner->reader_pid ) {
-
-    		DBG( _DBG_INFO, "res=%i, status=%i\n",res,status );
-
-            if( WIFEXITED( status )) {
-
-                scanner->exit_code = WEXITSTATUS(status);
-	    		DBG( _DBG_INFO, "Child WEXITSTATUS = %d\n",scanner->exit_code);
-
-            } else {
-
-				if( !WIFSIGNALED( status )) {
-	                scanner->exit_code = SANE_STATUS_GOOD;
-		    		DBG( _DBG_INFO, "Child termination okay\n" );
-				} else {
-		    		DBG( _DBG_ERROR, "Child terminated by signal %d\n",
-															WTERMSIG(status));
-				}				
-            }
-
-			scanner->reader_pid = -1;
-            return SANE_TRUE;
-        }
-    }
-
-    return SANE_FALSE;
-}
-
 /**
  */
 static SANE_Status close_pipe( Plustek_Scanner *scanner )
 {
-	if( scanner->pipe >= 0 ) {
+	if( scanner->r_pipe >= 0 ) {
 
-		DBG( _DBG_PROC, "close_pipe\n" );
+		DBG( _DBG_PROC, "close r_pipe\n" );
+		close( scanner->r_pipe );
+		scanner->r_pipe = -1;
+	}
+	if( scanner->w_pipe >= 0 ) {
 
-		close( scanner->pipe );
-		scanner->pipe = -1;
+		DBG( _DBG_PROC, "close w_pipe\n" );
+		close( scanner->w_pipe );
+		scanner->w_pipe = -1;
 	}
 
 	return SANE_STATUS_EOF;
@@ -402,15 +365,31 @@ static RETSIGTYPE sigalarm_handler( int signo )
 /** executed as a child process
  * read the data from the driver and send them to the parent process
  */
-static int reader_process( Plustek_Scanner *scanner, int pipe_fd )		
+static int reader_process( void *args )
 {
 	int              line;
-	unsigned long	 status;
-	unsigned long 	 data_length;
+	unsigned long    status;
+	unsigned long    data_length;
 	struct SIGACTION act;
+	sigset_t         ignore_set;
+	Plustek_Scanner *scanner = (Plustek_Scanner *)args;
 
-	DBG( _DBG_PROC, "reader_process started\n" );
+	if( sanei_thread_is_forked()) {
+		DBG( _DBG_PROC, "reader_process started (forked)\n" );
+		close( scanner->r_pipe );
+		scanner->r_pipe = -1;
+	} else {
+		DBG( _DBG_PROC, "reader_process started (as thread)\n" );
+	}
 
+	sigfillset ( &ignore_set );
+	sigdelset  ( &ignore_set, SIGTERM );
+	sigprocmask( SIG_SETMASK, &ignore_set, 0 );
+
+	memset   ( &act, 0, sizeof (act));
+	sigaction( SIGTERM, &act, 0 );
+
+	/* install the signal handler */
     sigemptyset(&(act.sa_mask));
     act.sa_flags = 0;
 
@@ -449,7 +428,7 @@ static int reader_process( Plustek_Scanner *scanner, int pipe_fd )
 					break;
 				}
 
-			    write( pipe_fd, buf, scanner->params.bytes_per_line );
+			    write( scanner->w_pipe, buf, scanner->params.bytes_per_line );
 
 				buf += scanner->params.bytes_per_line;
 			}
@@ -472,10 +451,8 @@ static int reader_process( Plustek_Scanner *scanner, int pipe_fd )
 	/* send to parent */
 	if( scanner->hw->readImage ) {
 		DBG( _DBG_PROC, "sending %lu bytes to parent\n", status );
-	    write( pipe_fd, scanner->buf, status );
+	    write( scanner->w_pipe, scanner->buf, status );
 	}
-
-	pipe_fd = -1;
 
 	DBG( _DBG_PROC, "reader_process: finished reading data\n" );
 	return SANE_STATUS_GOOD;
@@ -508,18 +485,24 @@ static SANE_Status do_cancel( Plustek_Scanner *scanner, SANE_Bool closepipe  )
 
 		act.sa_handler = sigalarm_handler;
 		sigaction( SIGALRM, &act, 0 );
-	
-		/* kill our child process and wait until done */
-		kill( scanner->reader_pid, SIGTERM );
 
-		/* give'em 10 seconds 'til done...*/			
-		alarm(10);					
-		res = waitpid( scanner->reader_pid, 0, 0 );
-		alarm(0);					
+		/* kill our child process and wait until done */
+		sanei_thread_kill( scanner->reader_pid );
+
+		/* give'em 10 seconds 'til done...*/
+		alarm(10);
+		res = sanei_thread_waitpid( scanner->reader_pid, 0 );
+		alarm(0);
 		
 		if( res != scanner->reader_pid ) {
-			DBG( _DBG_PROC,"waitpid() failed !\n");
-			kill( scanner->reader_pid, SIGKILL );
+			DBG( _DBG_PROC,"sanei_thread_waitpid() failed !\n");
+			
+			/* do it the hard way...*/
+#ifdef USE_PTHREAD
+			sanei_thread_kill( scanner->reader_pid );
+#else
+			sanei_thread_sendsig( scanner->reader_pid, SIGKILL );
+#endif
 		}			
 
 		scanner->reader_pid = 0;
@@ -1160,11 +1143,7 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 	FILE    *fp;
 
 	DBG_INIT();
-
-#ifdef _PLUSTEK_USB
-	sanei_usb_init();
-	sanei_lm983x_init();
-#endif	
+	sanei_thread_init();
 
 #if defined PACKAGE && defined VERSION
 	DBG( _DBG_SANE_INIT, "PlustekPP backend V"BACKEND_VERSION", part of "
@@ -1366,7 +1345,8 @@ SANE_Status sane_open( SANE_String_Const devicename, SANE_Handle* handle )
     	return SANE_STATUS_NO_MEM;
 
 	memset(s, 0, sizeof (*s));
-	s->pipe     = -1;
+	s->r_pipe   = -1;
+	s->w_pipe   = -1;
 	s->hw       = dev;
 	s->scanning = SANE_FALSE;
 
@@ -2028,7 +2008,9 @@ SANE_Status sane_start( SANE_Handle handle )
 
 	/* create reader routine as new process */
 	s->bytes_read = 0;
-  	s->reader_pid = fork();			
+	s->r_pipe     = fds[0];
+	s->w_pipe     = fds[1];
+	s->reader_pid = sanei_thread_begin( reader_process, s );
 
 	if( s->reader_pid < 0 ) {
 		DBG( _DBG_ERROR, "ERROR: could not create child process\n" );
@@ -2037,8 +2019,9 @@ SANE_Status sane_start( SANE_Handle handle )
 		return SANE_STATUS_IO_ERROR;
 	}
 
-	/* reader_pid = 0 ===> child process */		
-	if( 0 == s->reader_pid ) {									
+	/* reader_pid = 0 ===> child process */
+#if 0
+	if( 0 == s->reader_pid ) {
 
 		sigset_t 		 ignore_set;
 		struct SIGACTION act;
@@ -2061,11 +2044,13 @@ SANE_Status sane_start( SANE_Handle handle )
 		/* don't use exit() since that would run the atexit() handlers */
 		_exit( status );
 	}
-
+#endif
 	signal( SIGCHLD, sig_chldhandler );
 
-	close(fds[1]);
-	s->pipe = fds[0];
+	if( sanei_thread_is_forked()) {
+		close( s->w_pipe );
+		s->w_pipe = -1;
+	}
 
 	DBG( _DBG_SANE_INIT, "sane_start done\n" );
 
@@ -2083,7 +2068,7 @@ SANE_Status sane_read( SANE_Handle handle, SANE_Byte *data,
 	*length = 0;
 
 	/* here we read all data from the driver... */
-	nread = read( s->pipe, data, max_length );
+	nread = read( s->r_pipe, data, max_length );
 	DBG( _DBG_READ, "sane_read - read %ld bytes\n", (long)nread );
 	if (!(s->scanning)) {
 		return do_cancel( s, SANE_TRUE );
@@ -2093,10 +2078,10 @@ SANE_Status sane_read( SANE_Handle handle, SANE_Byte *data,
 
 		if( EAGAIN == errno ) {
 
-            /* if we already had red the picture, so it's okay and stop */
+            /* if we had already red the picture, so it's okay and stop */
 			if( s->bytes_read ==
 				(unsigned long)(s->params.lines * s->params.bytes_per_line)) {
-				waitpid( s->reader_pid, 0, 0 );
+				sanei_thread_waitpid( s->reader_pid, 0 );
 				s->reader_pid = -1;
 				drvclose( s->hw );
 				return close_pipe(s);
@@ -2119,7 +2104,7 @@ SANE_Status sane_read( SANE_Handle handle, SANE_Byte *data,
 	if( 0 == nread ) {
 
 		drvclose( s->hw );
-        getReaderProcessExitCode( s );
+        s->exit_code = sanei_thread_get_status( s->reader_pid );
 
         if( SANE_STATUS_GOOD != s->exit_code ) {
             close_pipe(s);
@@ -2156,12 +2141,12 @@ SANE_Status sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 		return SANE_STATUS_INVAL;
 	}
 
-	if( -1 == s->pipe ) {
+	if( -1 == s->r_pipe ) {
 		DBG( _DBG_ERROR, "ERROR: not supported !\n" );
 		return SANE_STATUS_UNSUPPORTED;
 	}
 	
-	if( fcntl (s->pipe, F_SETFL, non_blocking ? O_NONBLOCK : 0) < 0) {
+	if( fcntl (s->r_pipe, F_SETFL, non_blocking ? O_NONBLOCK : 0) < 0) {
 		DBG( _DBG_ERROR, "ERROR: can´t set to non-blocking mode !\n" );
 		return SANE_STATUS_IO_ERROR;
 	}
@@ -2183,7 +2168,7 @@ SANE_Status sane_get_select_fd( SANE_Handle handle, SANE_Int * fd )
 		return SANE_STATUS_INVAL;
 	}
 
-	*fd = s->pipe;
+	*fd = s->r_pipe;
 
 	DBG( _DBG_SANE_INIT, "sane_get_select_fd done\n" );
 	return SANE_STATUS_GOOD;

@@ -984,3 +984,12 @@ build-28 -> build-29
 
    * set minimum resolution to 5 (was 1 before what could make problems)
 
+
+build-29 -> build-30
+--------------------
+
+  * added EDGE KTX-9600US as supported scanner
+
+  * Changing scansource does not change lower left selection edge
+    if not necessary
+

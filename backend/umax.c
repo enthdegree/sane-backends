@@ -49,7 +49,7 @@
 
 /* --------------------------------------------------------------------------------------------------------- */
 
-#define BUILD 29
+#define BUILD 30
 
 /* --------------------------------------------------------------------------------------------------------- */
 
@@ -6208,15 +6208,12 @@ SANE_Status sane_control_option(SANE_Handle handle, SANE_Int option, SANE_Action
       {
         if (scanner->val[option].s)
         {
-          free (scanner->val[option].s);
+          free(scanner->val[option].s);
         }
-        scanner->val[option].s = (SANE_Char*)strdup(val); /* update string for umax_set_max_geometry */
+        scanner->val[option].s = (SANE_Char *) strdup(val); /* update string for umax_set_max_geometry */
 
         DBG(DBG_info,"sane_control_option: set SOURCE = %s\n", val);
         umax_set_max_geometry(scanner);
-
-        scanner->val[OPT_BR_X].w = scanner->device->x_range.max;       
-        scanner->val[OPT_BR_Y].w = scanner->device->y_range.max;           
 
         if (info)
         {

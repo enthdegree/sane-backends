@@ -123,6 +123,14 @@ of scsi buffer sizes the umax backend calculates the scsi buffer
 sizes in dependance of the numbers of bytes per scanline.
 With <i>scsi-buffer-size-min</i> and <i>scsi-buffer-size-max</i>
 the scsi buffer size can be defined in a range between 4KB and 1MB.
+Especially the minimum value is very important. If this value is
+set too small the backend is not able to send gamma tables to the
+scanner or to do a correct color calibration. This may result in
+strange color effects. If the minimum value is set too large then
+the backend is not able to allocate the requested scsi buffer size
+and aborts with out of memory error. The default is 32KB, for
+some scanners it should be increased to 64KB.
+
 <p>
 The option <i>scan-lines</i> defines the the number of lines that
 shall be scanned with one scsi read command for a real scan.

@@ -112,6 +112,7 @@ static char *scanner_str[] =
   "LinoHell",	"Office ",
   "LinoHell",	"Office2 ",
   "LinoHell",	"SAPHIR2 ",
+/*  "LinoHell",	"SAPHIR3 ", */
 /*  "LinoHell",	"SAPHIR4 ", */
   "Linotype",	"SAPHIR4 ",
 /*  "LinoHell",	"OPAL ", */
@@ -120,6 +121,7 @@ static char *scanner_str[] =
   "KYE ",	"ColorPage-HR5 ", 
   "EPSON ",	"Perfection600 ", 
   "ESCORT ",    "Galleria 600S ", /* is an Astra 600S */
+  "EDGE ",	"KTX-9600US ", /* may be an Astra 1220S */
   "END_OF_LIST"
 };
 

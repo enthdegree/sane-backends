@@ -56,7 +56,16 @@ shown below:
    (but has been enabled until this version)
  
  - scsi-buffer-size-min, scsi-buffer-size-max:
-   values: 4096-1048576, default min=65536, max=131072
+   values: 4096-1048576, default min=32768, max=131072
+   Especially the minimum value is very important.
+   If this value is set too small the backend is not
+   able to send gamma tables to the scanner or to
+   do a correct color calibration. This may result in
+   strange color effects. If the minimum value is set
+   too large then the backend is not able to allocate
+   the requested scsi buffer size and aborts with
+   out of memory error. The default is 32KB, for
+   some scanners it should be increased to 64KB.
  
  - scan-lines, preview-lines:
    values: 1-65535,
@@ -98,6 +107,20 @@ shown below:
  - lamp-control-available:
    values: 0=automatically set by driver - if known,
    1=available, default=0
+
+ - handle-bad-sense-error:
+   values: 0=handle as device busy, 1=handle as ok,
+   2=handle as i/o error, 3=ignore bad error code - continue sense handler,
+   default=0
+
+ - scsi-maxqueue:
+   values: 1..# (maximum defined at compile time).
+   default=2
+   most scsi drivers allow internal command queueing with a depth
+   of 2 commands. In most cases it does not mprove anything when you
+   increase this value. When your scsi driver does not support any
+   command queueing you can try to set this value to 1.
+   
 
 The special device name must be a generic SCSI device or a symlink to such a device.
 To find out to which device your scanner is assigned and how you have to set the

@@ -10,10 +10,10 @@
 ;
 
 :backend "lhii"	                  ; name of backend
-:version "(0.1)"                    ; version of backend
+:version "(0.2)"                  ; version of backend
 :status :alpha                    ; :alpha, :beta, :stable, :new
-; :manpage "sane-lhii"              ; name of manpage (if it exists)
-:url "ftp://www.cs.ubishops.ca/pub/lhii/"          ; backend's web page
+; :manpage "sane-lhii"            ; name of manpage (if it exists)
+:url "mailto:bauer-h@web.de"      ; backend's web page
 
 :devicetype :scanner              ; start of a list of devices....
                                   ; other types:  :stillcam, :vidcam,

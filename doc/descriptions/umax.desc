@@ -184,8 +184,8 @@
 
 :model "PowerLook 2100XL"
 :interface "SCSI"
-:status :beta
-:comment "work in progress"
+:status :stable
+:comment "OK"
 
 :model "PowerLook 3000"
 :interface "SCSI"

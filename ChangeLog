@@ -1,3 +1,9 @@
+2002-07-22  Chris Pinkham <cpinkham@infi.net>
+
+	* doc/descriptions/artec.desc: Changed status of AT6 model to alpha.
+	  Deleted entries for USB & parallel port scanners which are
+	  unsupported.
+
 2002-07-23  Matthew Duggan <stauff1@users.sourceforge.net>
 
 	* doc/descriptions/canon_pp.desc: Added "N640P ex" model to supported 

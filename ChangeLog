@@ -13,6 +13,7 @@
 	  Windows. It's now possible to add a new vendor/product id line
 	  to gt68xx.conf to test yet unsupported scanners without changing
 	  the source code.
+	* frontend/.cvsignore: Added tstbackend.
 	
 2004-09-02  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 	* backend/snapscan.c backend/snapscan-scsi.c backend/snapscan-options.c

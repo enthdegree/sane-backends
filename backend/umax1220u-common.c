@@ -360,14 +360,14 @@ bescape (const unsigned char *data, int dlen, unsigned char *buf, int blen)
 }
 
 static SANE_Status
-cwrite (UMAX_Handle * scan, UMAX_Cmd cmd, int len, const unsigned char *data,
+cwrite (UMAX_Handle * scan, UMAX_Cmd cmd, size_t len, const unsigned char *data,
         UMAX_Status_Byte * s)
 {
   SANE_Status res;
   UMAX_Status_Byte s0, s4;
 
   static unsigned char *escaped = NULL;
-  static int escaped_size = 0;
+  static size_t escaped_size = 0;
 
   DBG (80, "cwrite: cmd = %d, len = %d\n", cmd, len);
 
@@ -407,7 +407,7 @@ cwrite (UMAX_Handle * scan, UMAX_Cmd cmd, int len, const unsigned char *data,
 }
 
 static SANE_Status
-cread (UMAX_Handle * scan, UMAX_Cmd cmd, int len, unsigned char *data,
+cread (UMAX_Handle * scan, UMAX_Cmd cmd, size_t len, unsigned char *data,
        UMAX_Status_Byte * s)
 {
   SANE_Status res;
@@ -425,16 +425,11 @@ cread (UMAX_Handle * scan, UMAX_Cmd cmd, int len, unsigned char *data,
 
       while (len > 0)
         {
-          int req, n;
+          size_t req, n;
 
           req = n = (len > 0xf000) ? 0xf000 : len;
           CHK (sanei_pv8630_prep_bulkread (scan->fd, n));
           CHK (sanei_pv8630_bulkread (scan->fd, data, &n));
-          if (n < 0)
-            {
-              DBG (1, "qread: error reading\n");
-              return SANE_STATUS_IO_ERROR;
-            }
           if (n < req)
             {
               DBG (1, "qread: Expecting to read %d, only got %d\n", req, n);
@@ -458,7 +453,7 @@ cread (UMAX_Handle * scan, UMAX_Cmd cmd, int len, unsigned char *data,
 
 /* Seems to be like cwrite, with a verification option? */
 static SANE_Status
-cwritev (UMAX_Handle * scan, UMAX_Cmd cmd, int len, const unsigned char *data,
+cwritev (UMAX_Handle * scan, UMAX_Cmd cmd, size_t len, const unsigned char *data,
          UMAX_Status_Byte * s)
 {
   SANE_Status res;

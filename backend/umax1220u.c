@@ -162,7 +162,7 @@ static SANE_Option_Descriptor optionResolutionDescriptor = {
   sizeof (SANE_Word),
   SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_AUTOMATIC,
   SANE_CONSTRAINT_WORD_LIST,
-  {(SANE_String_Const *) optionResolutionList}
+  {(const SANE_String_Const *) optionResolutionList}
 };
 
 static SANE_Word optionResolutionValue = 75;
@@ -302,7 +302,7 @@ static SANE_Option_Descriptor optionTopLeftXDescriptor = {
   sizeof (SANE_Fixed),
   SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
   SANE_CONSTRAINT_RANGE,
-  {(SANE_String_Const *) & widthRange}
+  {(const SANE_String_Const *) & widthRange}
 };
 
 static SANE_Status
@@ -344,7 +344,7 @@ static SANE_Option_Descriptor optionTopLeftYDescriptor = {
   sizeof (SANE_Fixed),
   SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
   SANE_CONSTRAINT_RANGE,
-  {(SANE_String_Const *) & heightRange}
+  {(const SANE_String_Const *) & heightRange}
 };
 
 static SANE_Status
@@ -386,7 +386,7 @@ static SANE_Option_Descriptor optionBotRightXDescriptor = {
   sizeof (SANE_Fixed),
   SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
   SANE_CONSTRAINT_RANGE,
-  {(SANE_String_Const *) & widthRange}
+  {(const SANE_String_Const *) & widthRange}
 };
 
 static SANE_Status
@@ -428,7 +428,7 @@ static SANE_Option_Descriptor optionBotRightYDescriptor = {
   sizeof (SANE_Fixed),
   SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
   SANE_CONSTRAINT_RANGE,
-  {(SANE_String_Const *) & heightRange}
+  {(const SANE_String_Const *) & heightRange}
 };
 
 static SANE_Status

@@ -21,9 +21,22 @@
 
 :mfg "UMAX"                       ; name a manufacturer
 :url "http://www.umax.com/"
+
 :model "Astra 1220U"        ; name models for above-specified mfg.
 :interface "USB"
-:comment "Rewrite of command-line driver by Paul Mackerras"
+:comment "OK"
+
+:model "Astra 2000U"
+:interface "USB"
+:comment "Sort of. Scans, but colors all messed up."
+
+:model "Astra 2200U"
+:interface "USB"
+:comment "Incompatible."
+
+:model "Astra 2200US"
+:interface "USB"
+:comment "Incompatible."
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

@@ -16,8 +16,8 @@
 
 */
 
-#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.08 - 2001-06-09"
-#define SANE_EPSON_BUILD	208
+#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.11 - 2001-10-19"
+#define SANE_EPSON_BUILD	211
 
 /*
    This file is part of the SANE package.
@@ -1602,6 +1602,9 @@ static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
 	s->hw->color_shuffle = SANE_FALSE;
 	s->hw->extension = SANE_FALSE;
 	s->hw->use_extension = SANE_FALSE;
+
+  s->hw->need_color_reorder = SANE_FALSE;
+  s->hw->need_double_vertical = SANE_FALSE;
 	
 	s->hw->cmd = &epson_cmd[EPSON_LEVEL_DEFAULT];	/* use default function level */
         s->hw->connection = SANE_EPSON_NODEV;		/* no device configured yet */
@@ -1903,6 +1906,21 @@ static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
 
 	dev->x_range = &dev->fbf_x_range;
 	dev->y_range = &dev->fbf_y_range;
+
+/*
+ * Correct for a firmware bug in some Perfection 1650 scanners:
+ * Firmware version 1.08 reports only half the vertical scan area, we have
+ * to double the number. To find out if we have to do this, we just compare
+ * is the vertical range is smaller than the horizontal range.
+ */
+
+  if ((dev->x_range->max - dev->x_range->min) > (dev->y_range->max - dev->y_range->max))
+  {
+    dev->y_range->max += (dev->y_range->max - dev->y_range->min);
+    dev->need_double_vertical = SANE_TRUE;
+    dev->need_color_reorder = SANE_TRUE;
+  }
+
 
 /*
  *  Extended status flag request (ESC f).
@@ -4655,6 +4673,16 @@ START_READ:
 			strstr(s->hw->sane.model, "GT-8700")) &&
 			s->params.format == SANE_FRAME_RGB &&
 			s->hw->maxDepth == 14;
+
+    /*
+     * Certain Perfection 1650 also need this re-ordering of the two color channels.
+     * These scanners are identified by the problem with the half vertical scanning
+     * area. When we corrected this, we also set the variable s->hw->need_color_reorder
+     */
+    if (s->hw->need_color_reorder)
+    {
+      needStrangeReorder = SANE_TRUE;
+    }
 
 		if (needStrangeReorder)
 			reorder = !reorder;

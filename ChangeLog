@@ -1,3 +1,11 @@
+2001-10-04  Peter Kirchgessner <peter@kirchgessner.net>
+
+        * backend/hp-accessor.c hp-device.c hp-handle.c hp-hpmem.c
+                  hp-option.c  hp-scl.c            
+            Use include "../include/assert.h"
+          doc/sane-hp.man
+            Tell about subscribing to sane-devel
+
 2001-10-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* README.hp-ux: Lots of new and updated information (from

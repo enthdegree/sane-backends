@@ -1,3 +1,8 @@
+2004-09-14  Karl Heinz Kremer <khk@khk.net>
+	
+	* backend/epson_usb.c: add USB device ID for CX6400 back in
+	* backend/epson.c: disable "feed" command for Perfection 1640 w/ ADF
+
 2004-09-08  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/plustek/Plustek-USB.changes: Update.

@@ -16,8 +16,8 @@
    Copyright (C) 1999-2004 Karl Heinz Kremer <khk@khk.net>
 */
 
-#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.41 - 2004-02-01"
-#define SANE_EPSON_BUILD	241
+#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.42 - 2004-05-08"
+#define SANE_EPSON_BUILD	242
 
 /*
    This file is part of the SANE package.
@@ -59,6 +59,7 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
+   2004-05-08   Disable feed() for Perfection1640
    2004-02-08   Reformat all source code with "indent -bli0"
    2004-02-01   Added D7 function level as copy of D1 for CX-6400
         	Added IDs for CX-6400 and Perfection 4870
@@ -399,78 +400,57 @@
 
 static EpsonCmdRec epson_cmd[] = {
 /*
- *       request identity
- *       |   request identity2
- *       |   |   request status
- *       |   |   |   request condition
- *       |   |   |   |   set color mode
- *       |   |   |   |   |   start scanning
- *       |   |   |   |   |   |   set data format
- *       |   |   |   |   |   |   |   set resolution
- *       |   |   |   |   |   |   |   |   set zoom
- *       |   |   |   |   |   |   |   |   |   set scan area
- *       |   |   |   |   |   |   |   |   |   |   set brightness
- *       |   |   |   |   |   |   |   |   |   |   |            set gamma
- *       |   |   |   |   |   |   |   |   |   |   |            |   set halftoning
- *       |   |   |   |   |   |   |   |   |   |   |            |   |   set color correction
- *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   initialize scanner
- *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   set speed
- *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   set lcount
- *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   mirror image
- *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   set gamma table
- *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   set outline emphasis
- *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   set dither
- *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   set color correction coefficients
- *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   request extension status
- *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   control an extension
- *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    forward feed / eject
- *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   feed
- *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     request push button status
- *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   control auto area segmentation
- *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   set film type
- *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   set exposure time
- *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   set bay
- *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   |   set threshold
- *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   |   |   set focus position
- *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   |   |   |   request focus position 
- *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   |   |   |   |
- *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   |   |   |   |
+ *        request identity
+ *        |   request identity2
+ *        |   |   request status
+ *        |   |   |   request condition
+ *        |   |   |   |   set color mode
+ *        |   |   |   |   |   start scanning
+ *        |   |   |   |   |   |   set data format
+ *        |   |   |   |   |   |   |   set resolution
+ *        |   |   |   |   |   |   |   |   set zoom
+ *        |   |   |   |   |   |   |   |   |   set scan area
+ *        |   |   |   |   |   |   |   |   |   |   set brightness
+ *        |   |   |   |   |   |   |   |   |   |   |             set gamma
+ *        |   |   |   |   |   |   |   |   |   |   |             |   set halftoning
+ *        |   |   |   |   |   |   |   |   |   |   |             |   |   set color correction
+ *        |   |   |   |   |   |   |   |   |   |   |             |   |   |   initialize scanner
+ *        |   |   |   |   |   |   |   |   |   |   |             |   |   |   |   set speed
+ *        |   |   |   |   |   |   |   |   |   |   |             |   |   |   |   |   set lcount
+ *        |   |   |   |   |   |   |   |   |   |   |             |   |   |   |   |   |   mirror image
+ *        |   |   |   |   |   |   |   |   |   |   |             |   |   |   |   |   |   |   set gamma table
+ *        |   |   |   |   |   |   |   |   |   |   |             |   |   |   |   |   |   |   |   set outline emphasis
+ *        |   |   |   |   |   |   |   |   |   |   |             |   |   |   |   |   |   |   |   |   set dither
+ *        |   |   |   |   |   |   |   |   |   |   |             |   |   |   |   |   |   |   |   |   |   set color correction coefficients
+ *        |   |   |   |   |   |   |   |   |   |   |             |   |   |   |   |   |   |   |   |   |   |   request extension status
+ *        |   |   |   |   |   |   |   |   |   |   |             |   |   |   |   |   |   |   |   |   |   |   |   control an extension
+ *        |   |   |   |   |   |   |   |   |   |   |             |   |   |   |   |   |   |   |   |   |   |   |   |    forward feed / eject
+ *        |   |   |   |   |   |   |   |   |   |   |             |   |   |   |   |   |   |   |   |   |   |   |   |    |   feed
+ *        |   |   |   |   |   |   |   |   |   |   |             |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     request push button status
+ *        |   |   |   |   |   |   |   |   |   |   |             |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   control auto area segmentation
+ *        |   |   |   |   |   |   |   |   |   |   |             |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   set film type
+ *        |   |   |   |   |   |   |   |   |   |   |             |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   set exposure time
+ *        |   |   |   |   |   |   |   |   |   |   |             |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   set bay
+ *        |   |   |   |   |   |   |   |   |   |   |             |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   |   set threshold
+ *        |   |   |   |   |   |   |   |   |   |   |             |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   |   |   set focus position
+ *        |   |   |   |   |   |   |   |   |   |   |             |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   |   |   |   request focus position 
+ *        |   |   |   |   |   |   |   |   |   |   |             |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   |   |   |   |
+ *        |   |   |   |   |   |   |   |   |   |   |             |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   |   |   |   |
  */
-  {"A1", 'I', 0, 'F', 'S', 0, 'G', 0, 'R', 0, 'A', 0, {0, 0, 0}, 0, 0, 0, 0,
-   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-  {"A2", 'I', 0, 'F', 'S', 0, 'G', 'D', 'R', 'H', 'A', 'L', {-3, 3, 0}, 'Z',
-   'B', 0, '@', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-  {"B1", 'I', 0, 'F', 'S', 'C', 'G', 'D', 'R', 0, 'A', 0, {0, 0, 0}, 0, 'B',
-   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-  {"B2", 'I', 0, 'F', 'S', 'C', 'G', 'D', 'R', 'H', 'A', 'L', {-3, 3, 0}, 'Z',
-   'B', 0, '@', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-  {"B3", 'I', 0, 'F', 'S', 'C', 'G', 'D', 'R', 'H', 'A', 'L', {-3, 3, 0}, 'Z',
-   'B', 'M', '@', 0, 0, 0, 0, 0, 0, 'm', 'f', 'e', 0, 0, 0, 0, 0, 0, 0, 0, 0,
-   0},
-  {"B4", 'I', 0, 'F', 'S', 'C', 'G', 'D', 'R', 'H', 'A', 'L', {-3, 3, 0}, 'Z',
-   'B', 'M', '@', 'g', 'd', 0, 'z', 'Q', 'b', 'm', 'f', 'e', 0, 0, 0, 0, 0, 0,
-   0, 0, 0, 0},
-  {"B5", 'I', 0, 'F', 'S', 'C', 'G', 'D', 'R', 'H', 'A', 'L', {-3, 3, 0}, 'Z',
-   'B', 'M', '@', 'g', 'd', 'K', 'z', 'Q', 'b', 'm', 'f', 'e', 0, 0, 0, 0, 0,
-   0, 0, 0, 0, 0},
-  {"B6", 'I', 0, 'F', 'S', 'C', 'G', 'D', 'R', 'H', 'A', 'L', {-3, 3, 0}, 'Z',
-   'B', 'M', '@', 'g', 'd', 'K', 'z', 'Q', 'b', 'm', 'f', 'e', 0, 0, 0, 0, 0,
-   0, 0, 0, 0, 0},
-  {"B7", 'I', 0, 'F', 'S', 'C', 'G', 'D', 'R', 'H', 'A', 'L', {-4, 3, 0}, 'Z',
-   'B', 'M', '@', 'g', 'd', 'K', 'z', 'Q', 'b', 'm', 'f', 'e', '\f', 0, '!',
-   's', 'N', 0, 0, 't', 0, 0},
-  {"B8", 'I', 0, 'F', 'S', 'C', 'G', 'D', 'R', 'H', 'A', 'L', {-4, 3, 0}, 'Z',
-   'B', 'M', '@', 'g', 'd', 'K', 'z', 'Q', 'b', 'm', 'f', 'e', '\f', 0x19,
-   '!', 's', 'N', 0, 0, 0, 'p', 'q'},
-  {"F5", 'I', 0, 'F', 'S', 'C', 'G', 'D', 'R', 'H', 'A', 'L', {-3, 3, 0}, 'Z',
-   0, 'M', '@', 'g', 'd', 'K', 'z', 'Q', 0, 'm', 'f', 'e', '\f', 0, 0, 0, 'N',
-   'T', 'P', 0, 0, 0},
-  {"D1", 'I', 'i', 'F', 0, 'C', 'G', 'D', 'R', 0, 'A', 0, {0, 0, 0}, 'Z', 0,
-   0, '@', 'g', 'd', 0, 'z', 0, 0, 0, 'f', 0, 0, 0, '!', 0, 0, 0, 0, 0, 0, 0},
-  {"D7", 'I', 'i', 'F', 0, 'C', 'G', 'D', 'R', 0, 'A', 0, {0, 0, 0}, 'Z', 0,
-   0, '@', 'g', 'd', 0, 'z', 0, 0, 0, 'f', 0, 0, 0, '!', 0, 0, 0, 0, 0, 0, 0},
-  {"D8", 'I', 'i', 'F', 0, 'C', 'G', 'D', 'R', 0, 'A', 0, {0, 0, 0}, 'Z', 0,
-   0, '@', 'g', 'd', 0, 'z', 0, 0, 0, 'f', 0, 0, 0, '!', 0, 0, 0, 0, 0, 0, 0},
+  {"A1", 'I', 0, 'F','S', 0, 'G', 0, 'R', 0, 'A', 0, {0,0,0},   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,   0,  0,    0,  0,  0,  0,  0,  0,  0,  0},
+  {"A2", 'I', 0, 'F','S', 0, 'G','D','R','H','A','L',{-3,3,0}, 'Z','B', 0, '@', 0,  0,  0,  0,  0,  0,  0,  0,  0,   0,  0,    0,  0,  0,  0,  0,  0,  0,  0},
+  {"B1", 'I', 0, 'F','S','C','G','D','R', 0, 'A', 0, {0,0,0},   0, 'B', 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,   0,  0,    0,  0,  0,  0,  0,  0,  0,  0},
+  {"B2", 'I', 0, 'F','S','C','G','D','R','H','A','L',{-3,3,0}, 'Z','B', 0, '@', 0,  0,  0,  0,  0,  0,  0,  0,  0,   0,  0,    0,  0,  0,  0,  0,  0,  0,  0},
+  {"B3", 'I', 0, 'F','S','C','G','D','R','H','A','L',{-3,3,0}, 'Z','B','M','@', 0,  0,  0,  0,  0,  0, 'm','f','e',  0,  0,    0,  0,  0,  0,  0,  0,  0,  0},
+  {"B4", 'I', 0, 'F','S','C','G','D','R','H','A','L',{-3,3,0}, 'Z','B','M','@','g','d', 0, 'z','Q','b','m','f','e',  0,  0,    0,  0,  0,  0,  0,  0,  0,  0},
+  {"B5", 'I', 0, 'F','S','C','G','D','R','H','A','L',{-3,3,0}, 'Z','B','M','@','g','d','K','z','Q','b','m','f','e',  0,  0,    0,  0,  0,  0,  0,  0,  0,  0},
+  {"B6", 'I', 0, 'F','S','C','G','D','R','H','A','L',{-3,3,0}, 'Z','B','M','@','g','d','K','z','Q','b','m','f','e',  0,  0,    0,  0,  0,  0,  0,  0,  0,  0},
+  {"B7", 'I', 0, 'F','S','C','G','D','R','H','A','L',{-4,3,0}, 'Z','B','M','@','g','d','K','z','Q','b','m','f','e','\f', 0,   '!','s','N', 0,  0, 't', 0,  0},
+  {"B8", 'I', 0, 'F','S','C','G','D','R','H','A','L',{-4,3,0}, 'Z','B','M','@','g','d','K','z','Q','b','m','f','e','\f', 0x19,'!','s','N', 0,  0,  0, 'p','q'},
+  {"F5", 'I', 0, 'F','S','C','G','D','R','H','A','L',{-3,3,0}, 'Z', 0, 'M','@','g','d','K','z','Q', 0, 'm','f','e','\f', 0,    0,  0, 'N','T','P', 0,  0,  0},
+  {"D1", 'I','i','F', 0, 'C','G','D','R', 0, 'A', 0, {0,0,0},  'Z', 0,  0, '@','g','d', 0, 'z', 0,  0,  0, 'f', 0,   0,  0,   '!', 0,  0,  0,  0,  0,  0,  0},
+  {"D7", 'I','i','F', 0, 'C','G','D','R', 0, 'A', 0, {0,0,0},  'Z', 0,  0, '@','g','d', 0, 'z', 0,  0,  0, 'f', 0,   0,  0,   '!', 0,  0,  0,  0,  0,  0,  0},
+  {"D8", 'I','i','F', 0, 'C','G','D','R', 0, 'A', 0, {0,0,0},  'Z', 0,  0, '@','g','d', 0, 'z', 0,  0,  0, 'f','e',  0,  0,   '!', 0,  0,  0,  0,  0,  0,  0},
 };
 
 
@@ -2508,7 +2488,9 @@ attach (const char *dev_name, Epson_Device * *devp, int type)
     s->hw->cmd->feed = 0x19;
   }
   else if (strcmp ("GT-8200", dev->sane.model) == 0 ||
-	   strcmp ("Perfection1650", dev->sane.model) == 0)
+	   strcmp ("Perfection1650", dev->sane.model) == 0 ||
+		 strcmp ("Perfection1640", dev->sane.model) == 0 ||
+		 strcmp ("GT-8700", dev->sane.model) == 0)
   {
     s->hw->cmd->feed = 0;
     s->hw->cmd->set_focus_position = 0;
@@ -3891,7 +3873,7 @@ setvalue (SANE_Handle handle, SANE_Int option, void *value, SANE_Int * info)
   int optindex;
   SANE_Bool reload = SANE_FALSE;
 
-  DBG (5, "setvalue(option = %d, value = %p\n", option, value);
+  DBG (5, "setvalue(option = %d, value = %p)\n", option, value);
 
   status = sanei_constrain_value (sopt, value, info);
 
@@ -4182,7 +4164,10 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   {
     DBG (5, "Returning saved params structure\n");
     if (params != NULL)
-      *params = s->params;
+    {
+			DBG(1, "Restoring parameters from saved parameters\n");
+			*params = s->params;
+    }
 
     DBG (3, "Preview = %d\n", s->val[OPT_PREVIEW].w);
     DBG (3, "Resolution = %d\n", s->val[OPT_RESOLUTION].w);
@@ -4236,7 +4221,6 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
        SANE_UNFIX (s->val[OPT_TL_Y].w), SANE_UNFIX (s->val[OPT_BR_X].w),
        SANE_UNFIX (s->val[OPT_BR_Y].w));
 
-  print_params (s->params);
 
   /* 
    * Calculate bytes_per_pixel and bytes_per_line for 
@@ -4294,6 +4278,8 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   if (NULL != params)
     *params = s->params;
 
+  print_params (s->params);
+
   return SANE_STATUS_GOOD;
 }
 
@@ -4350,7 +4336,7 @@ sane_start (SANE_Handle handle)
       DBG (1, "You may have to power %s your TPU\n",
 	   s->hw->use_extension ? "on" : "off");
 
-      DBG (1, "Also you may have to restart the Sane frontend.");
+      DBG (1, "Also you may have to restart the Sane frontend.\n");
       close_scanner (s);
       return status;
     }
@@ -5869,8 +5855,12 @@ get_identity_information (SANE_Handle handle)
     int n;
 
     for (n = 0; n < NELEMS (epson_cmd); n++)
-      if (!strncmp (&ident->type, epson_cmd[n].level, 2))
-	break;
+    {
+      char type_level[3];
+      sprintf(type_level, "%c%c", ident->type, ident->level);
+      if (!strncmp (type_level, epson_cmd[n].level, 2))
+      	break;
+    }
 
     if (n < NELEMS (epson_cmd))
     {
@@ -5880,7 +5870,7 @@ get_identity_information (SANE_Handle handle)
     {
       dev->cmd = &epson_cmd[EPSON_LEVEL_DEFAULT];
       DBG (1, "Unknown type %c or level %c, using %s\n",
-	   ident->buf[0], ident->buf[1], dev->cmd->level);
+	   ident->type, ident->level, dev->cmd->level);
     }
 
     s->hw->level = dev->cmd->level[1] - '0';

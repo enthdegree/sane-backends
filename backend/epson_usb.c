@@ -24,6 +24,7 @@ SANE_Word sanei_epson_usb_product_ids[] = {
   0x128,			/* GT-X700 / Perfection 4870 */
   0x801,			/* CC-600 / CX-5[1234]00 */
   0x802,			/* CC-570 / CX-3[12]00 */
+  0x805,			/* CX-6400 */
   0x806,			/* PM-A850 / RX600 */
   0x807,			/* RX-500 */
   0x808,			/* CX-5400 */

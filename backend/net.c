@@ -40,7 +40,9 @@
 
    This file implements a SANE network-based meta backend.  */
 
-#define BUILD 5
+/* Please increase version number with every change 
+   (don't forget to update net.desc) */
+#define NET_VERSION "1.0.1"
 
 #ifdef _AIX
 # include "lalloca.h"		/* MUST come first for AIX! */
@@ -329,11 +331,15 @@ SANE_Status sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
   auth_callback = authorize;
 
+  /* Return the version number of the sane-backends package to allow
+     the frontend to print them. This is done only for net and dll,
+     because these backends are usually called by the frontend. */
   if (version_code)
-    *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BUILD);
+    *version_code = SANE_VERSION_CODE (SANE_DLL_V_MAJOR, SANE_DLL_V_MINOR,
+				       SANE_DLL_V_BUILD);
 
-  DBG(1, "sane_init: SANE net backend version %d.%d.%d from %s\n", V_MAJOR,
-      V_MINOR, BUILD, PACKAGE_VERSION);
+  DBG(1, "sane_init: SANE net backend version %s from %s\n", NET_VERSION,
+      PACKAGE_VERSION);
 
   serv = getservbyname ("sane", "tcp");
   if (serv)

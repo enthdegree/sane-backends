@@ -1,5 +1,5 @@
 :backend "dll"               ; name of backend
-:version "1.0.5"
+:version "1.0.1"
 :status :beta
 :manpage "sane-dll"
 

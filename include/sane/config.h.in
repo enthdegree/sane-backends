@@ -359,6 +359,11 @@
 /* Define if you have PTAL. */
 #undef HAVE_PTAL
 
+/* Version of the dll backend (=version of the sane-backends package) */
+#undef SANE_DLL_V_MAJOR
+#undef SANE_DLL_V_MINOR
+#undef SANE_DLL_V_BUILD
+
 #ifndef HAVE_STRNCASECMP
   /* OS/2 needs this */
 # define strncasecmp(a, b, c) strnicmp(a, b, c)

@@ -42,7 +42,9 @@
    allows managing an arbitrary number of SANE backends by using
    dynamic linking to load backends on demand.  */
 
-#define BUILD 5
+/* Please increase version number with every change 
+   (don't forget to update dll.desc) */
+#define DLL_VERSION "1.0.1"
 
 #ifdef _AIX
 # include "lalloca.h"   /* MUST come first for AIX! */
@@ -506,9 +508,8 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
   auth_callback = authorize;
 
-  DBG(1, "sane_init: SANE dll backend version %d.%d.%d from %s\n", V_MAJOR,
-      V_MINOR, BUILD, PACKAGE_VERSION);
-
+  DBG(1, "sane_init: SANE dll backend version %s from %s\n", DLL_VERSION,
+      PACKAGE_VERSION);
 
   /* chain preloaded backends together: */
   for (i = 0; i < NELEMS(preloaded_backends); ++i)
@@ -520,7 +521,8 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
     }
 
   if (version_code)
-    *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BUILD);
+    *version_code = SANE_VERSION_CODE (SANE_DLL_V_MAJOR, SANE_DLL_V_MINOR,
+				       SANE_DLL_V_BUILD);
 
   fp = sanei_config_open (DLL_CONFIG_FILE);
   if (!fp)

@@ -10,7 +10,7 @@
 ;
 
 :backend "umax"                   ; name of backend
-:version "1.0-38"                 ; version of backend
+:version "1.0-40"                 ; version of backend
 :manpage "sane-umax"              ; name of manpage (if it exists)
 :url "http://www.rauch-domain.de/sane-umax/index.html" ; backend's web page
 

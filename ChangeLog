@@ -10,6 +10,11 @@
 	* doc/sane-find-scanner.man tools/Makefile.in 
 	  tools/sane-find-scanner.c: Added USB support.
 	* doc/sane.man: Added information for USB scanners.
+	* TODO: Removed USB entries. Removed entry about checking for
+	  /etc/ld.so.conf, this shouldn't be necessary any longer. Removed
+	  entry about saned freezing, no bug reports about this for a long
+	  time. Removed entry about moving .desc files, this doesn't seem to
+	  be necessary. Added proposal to include libieeee1284. 
 	
 2001-08-05  Peter Fales <peter@fales.com>
 

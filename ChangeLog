@@ -57,6 +57,7 @@
 	  internal list. Don't use version and man page in external list.
 	* tools/sane-desc.el: Removed.
 	* configure configure.in: Added tools/sane-desc.el to output files.
+	* backend/Makefile.in: Updated DISTFILES.
 	
 2002-03-19  Frank Zago <fzago@greshamstorage.com>
 

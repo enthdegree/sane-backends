@@ -1,3 +1,7 @@
+2003-01-21  Karl Heinz Kremer <khk@khk.net>
+
+	* doc/descriptions/epson.desc: Added "SCSI" to GT-6000 entry
+
 2003-01-21  Eddy De Greef <eddy_de_greef at tiscali dot be>
 
 	* backend/mustek_pp_cis.c: compile warning fix and minor debug

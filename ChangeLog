@@ -14,8 +14,10 @@
 	  po/sane-backends.de.po po/sane-backends.es.po po/sane-backends.fi.po
 	  po/sane-backends.fr.po po/sane-backends.it.po po/sane-backends.nl.po
 	  po/sane-backends.no.po po/sane-backends.pt.po po/sane-backends.ru.po
-	  po/sane-backends.sv.po tools/check-usb-chip.c: Recreated. Fixed
+	  po/sane-backends.sv.po: Recreated. Fixed
 	  some fuzzy texts and added some translations to .de.po.
+	* tools/check-usb-chip.c: Workaround for GT6816 detection problem
+	  on BSDs.
 
 2004-10-11  Oliver Schirrmeister (oschirr@abm.de)
 

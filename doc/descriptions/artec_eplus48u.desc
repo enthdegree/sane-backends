@@ -1,0 +1,37 @@
+;
+; SANE Backend specification file
+;
+
+:backend "artec_eplus48u"
+:version "0.0.10"
+:manpage "sane-artec_eplus48u"
+:status :alpha
+:url "http://www.angelfire.com/linux/crapsite/"
+
+:devicetype :scanner
+
+:mfg "Artec"
+:url "http://www.artecusa.com/"
+:model "E+ 48U"
+:interface "USB"
+:comment "CIS scanner based on the GT6816 chip. Apparently all other devices are re-badged Artec scanners."
+
+:mfg "Tevion"
+:model "MD9693"
+:interface "USB"
+
+:mfg "Medion"
+:url "http://www.medion.de/"
+:model "MD9693"
+:interface "USB"
+
+:model "MD9705"
+:interface "USB"
+
+:mfg "Trust"
+:url "http://www.trust-site.com"
+:model "Easy Webscan 19200"
+:interface "USB"
+:comment "Different product id: 0x4006; modify artec_eplus48u.conf, if the scanner isn't detected"
+
+

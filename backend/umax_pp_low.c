@@ -290,15 +290,10 @@ static int cmd4[] = { 0x00, 0x08, 0x00, 0xC4, -1 };	/* 2048 bytes size */
 
 
 static int commande1[] = { 0x55, 0xAA, 0x00, 0x00, 0x22, 0x88, -1 };
-static int commande2[] = {
-  0x00, 0x00, 0x04, 0x00,
-  0x02, 0x00, 0x00, 0x0C,
-  0x00, 0x03, 0xC1, 0x80,
-  0x00, 0x20, 0x02, 0x00,
-  0x16, 0x41, 0xE0, 0xAC,
-  0x03, 0x03, 0x00, 0x00,
-  0x46, 0xA0, 0x00, 0x00,
-  0x00, 0x00, 0x00, 0x00,
+static int commande2[] = { 0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C,
+  0x00, 0x03, 0xC1, 0x80, 0x00, 0x20, 0x02, 0x00,
+  0x16, 0x41, 0xE0, 0xAC, 0x03, 0x03, 0x00, 0x00,
+  0x46, 0xA0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
   0x00, 0x10, -1
 };
 static int commande3[] = { 0x55, 0xAA, 0x00, 0x08, 0x00, 0x84, -1 };
@@ -570,9 +565,9 @@ sanei_umax_pp_InitPort (int port)
 	  if (sanei_parport_info (i, &addr))
 	    {
 	      if (gPort == addr)
-	        {
+		{
 		  found = 1;
-	          DBG (1, "Using /proc info\n");
+		  DBG (1, "Using /proc info\n");
 		}
 	    }
 	  else
@@ -2445,6 +2440,12 @@ SendData (int *cmd, int len)
 	  EPPRegisterWrite (0x1C, cmd[i]);
 	  reg = EPPRegisterRead (0x19) & 0xF8;
 	}
+      /* escape 55 AA pattern by adding 1B */
+      if ((i < len - 1) && (cmd[i] == 0x55) && (cmd[i + 1] == 0xAA))
+	{
+	  EPPRegisterWrite (0x1C, cmd[i]);
+	  reg = EPPRegisterRead (0x19) & 0xF8;
+	}
       i++;
     }
   DBG (16, "SendData, reg19=0x%02X (%s:%d)\n", reg, __FILE__, __LINE__);
@@ -2655,12 +2656,13 @@ InitBuffer001 (void)
   SendCommandString (commande2);
   DBG (16, "SendCommandString(commande2) passed (%s:%d) \n", __FILE__,
        __LINE__);
-  if (SendWord (cmd3) == 0)
+  if (SendWord (cmd3) == 0)	/* write 2048 to channel 4 */
     {
       DBG (0, "SendWord(cmd3) failed (%s:%d)\n", __FILE__, __LINE__);
       return (0);
     }
   DBG (16, "SendWord(cmd3) passed (%s:%d)\n", __FILE__, __LINE__);
+  /* write 2048 bytes: 4 * 512 bytes */
   for (j = 0; j < 4; j++)
     {
       for (i = 0; i < 256; i++)
@@ -3185,15 +3187,15 @@ sanei_umax_pp_InitScanner (int recover)
       j++;
     }
   sentcmd[j] = -1;
-  /* fails here if ther is an unfinished previous scan */
-  if (CmdSetGet (0x02, j, sentcmd) != 1)
-    {
-      DBG (0, "CmdSetGet(0x02,j,sentcmd) failed (%s:%d)\n", __FILE__,
-	   __LINE__);
-      return (0);
-    }
-  DBG (16, "CmdSetGet(0x02,j,sentcmd) passed ... (%s:%d)\n", __FILE__,
-       __LINE__);
+  /* fails here if there is an unfinished previous scan */
+  /*if (CmdSetGet (0x02, j, sentcmd) != 1) */
+  /*{ */
+  /*DBG (0, "CmdSetGet(0x02,j,sentcmd) failed (%s:%d)\n", __FILE__, */
+	   /*__LINE__);*/
+  /*return (0); */
+  /*} */
+  /*DBG (16, "CmdSetGet(0x02,j,sentcmd) passed ... (%s:%d)\n", __FILE__,
+     __LINE__); */
 
   /* needs some init */
   if (sentcmd[15] == 0x18)
@@ -3716,106 +3718,106 @@ Test610P (int value)
   Outb (CONTROL, control);
 
   Outb (DATA, 0x22);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0x22);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0x22);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0x22);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0x22);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0x22);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0x22);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0x22);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0xAA);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0xAA);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0xAA);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0xAA);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0xAA);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0xAA);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0xAA);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0xAA);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0x55);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0x55);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0x55);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0x55);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0x55);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0x55);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0x55);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0x55);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0x00);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0x00);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0x00);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0x00);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0x00);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0x00);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0x00);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0x00);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0xFF);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0xFF);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0xFF);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0xFF);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0xFF);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0xFF);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0xFF);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, 0xFF);
-  usleep(10000);
+  usleep (10000);
   if (value)
     {
       Outb (DATA, value);
-      usleep(10000);
+      usleep (10000);
       Outb (DATA, value);
-      usleep(10000);
+      usleep (10000);
       Outb (DATA, value);
-      usleep(10000);
+      usleep (10000);
       Outb (DATA, value);
-      usleep(10000);
+      usleep (10000);
       Outb (DATA, value);
-      usleep(10000);
+      usleep (10000);
       Outb (DATA, value);
-      usleep(10000);
+      usleep (10000);
       Outb (DATA, value);
-      usleep(10000);
+      usleep (10000);
       Outb (DATA, value);
-      usleep(10000);
+      usleep (10000);
     }
   val = Inb (STATUS);
-  usleep(10000);
+  usleep (10000);
   Outb (DATA, data);
   Outb (CONTROL, control);
   return (1);
@@ -3833,22 +3835,22 @@ In256 (void)
   int val, i, tmp;
 
   Outb (CONTROL, 0x04);
-  usleep(10000);
+  usleep (10000);
   Outb (CONTROL, 0x0C);
-  usleep(10000);
+  usleep (10000);
   val = Inb (STATUS);
   Outb (CONTROL, 0x0E);
-  usleep(10000);
+  usleep (10000);
   Outb (CONTROL, 0x0E);
-  usleep(10000);
+  usleep (10000);
   Outb (CONTROL, 0x0E);
-  usleep(10000);
+  usleep (10000);
   tmp = val;
   i = 0;
   while ((tmp == val) && (i < 256))
     {
       tmp = Inb (STATUS);
-      usleep(10000);
+      usleep (10000);
       i++;
     }
   if (tmp != val)
@@ -3858,9 +3860,9 @@ In256 (void)
       return (0);
     }
   Outb (CONTROL, 0x04);
-  usleep(10000);
+  usleep (10000);
   Outb (CONTROL, 0x04);
-  usleep(10000);
+  usleep (10000);
   return (1);
 }
 
@@ -4172,7 +4174,8 @@ sanei_umax_pp_ProbeScanner (int recover)
       break;
     case 0x07:
       WRITESLOW (0x12, 0x00);
-      SLOWNIBBLEREGISTEREAD (0x12, 0x00);
+      SLOWNIBBLEREGISTEREAD (0x12, 0x00);	/* we may get 0x20 */
+      /* must depend on the parport */
       break;
     default:
       WRITESLOW (0x12, 0x00);
@@ -4568,6 +4571,8 @@ sanei_umax_pp_ProbeScanner (int recover)
 
       reg = EPPRegisterRead (0x10);
       /* 2 reports of CF, was FF first (typo ?) */
+      /* CF seems a valid value                 */
+      /* in case of CF, we may have timeout ... */
       if (reg != 0x00)
 	{
 	  DBG (0, "Warning! expected reg10=0x00, found 0x%02X! (%s:%d) \n",
@@ -7128,9 +7133,9 @@ sanei_umax_pp_Scan (int x, int y, int width, int height, int dpi, int color,
 	{
 	  /* write pnm header */
 	  if (color >= RGB_MODE)
-	    fprintf (fout, "P6\n%d %d\n255\n", tw, th);
+	    fprintf (fout, "P6\n%d %d\n255\n", bpl / bpp, th);
 	  else
-	    fprintf (fout, "P5\n%d %d\n255\n", tw, th);
+	    fprintf (fout, "P5\n%d %d\n255\n", bpl / bpp, th);
 	}
 
       /* data reading loop */

@@ -150,7 +150,8 @@ below:
     Siemens S9036          sane-s9036(5)
     Siemens ST400,ST800    sane-st400(5)
     Tamarack               sane-tamarack(5)
-    UMAX                   sane-umax(5)
+    UMAX SCSI              sane-umax(5)
+    UMAX parallel port     sane-umax_pp(5)
     
   Backends for digital cameras:
     Connectix QuickCam     sane-qcam(5)

@@ -49,6 +49,7 @@ Backends:
  st400:         Ingo Wilken (*)
  tamarack:      Roger Wolff
  umax:          Oliver Rauch (*) and Michael K. Johnson
+ umax_pp:       Stéphane Voltz (*)
  v4l:           Juergen G. Schimmer
 
 (*) Current active maintainer(s).
@@ -119,5 +120,6 @@ Randolph Bentson <bentson@grieg.holmsjoen.com>
 Rene Rebe <rene.rebe@gmx.net>
 Roger Wolff <R.E.Wolff@BitWizard.nl>
 Simon Munton <simon@munton.demon.co.uk>
+Stéphane Voltz <svoltz@wanadoo.fr>
 Tom Martone <tom@martoneconsulting.com>
 Tristan Tarrant <ttarrant@etnoteam.it>

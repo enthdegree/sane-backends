@@ -2,8 +2,10 @@
 
 New with 1.0.9, released 2002-??-??:
 
-* New backends: hpsj5s (Hewlett-Packard ScanJet 5S parport scanner),
-  teco3 (some TECO SCSI flatbed scanners, model VM3552).
+* New backends: hpsj5s (Hewlett-Packard ScanJet 5S parport scanner), 
+  teco2 (some Relisys/Primax SCSI flatbed scanners, models VM3575, VM6565,
+  VM6586 and VM6575), teco3 (some Relisys/Piotech/Trust/Plustek SCSI
+  flatbed scanners, model VM3552).
 * Updated backends: avision, canon_pp, coolscan2, epson, hp, microtek, mustek,
   mustek_usb, pie, plustek, snapscan, teco1, test, umax_pp, v4l.
 * sane-find-scanner finds more scanners and has more verbosity options now.

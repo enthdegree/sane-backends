@@ -1,4 +1,4 @@
-.TH sane-scsi 5 "10 Jun 2001"
+.TH sane-scsi 5 "12 Nov 2001"
 .IX sane-scsi
 .SH NAME
 sane-scsi - SCSI adapter tips for scanners
@@ -24,11 +24,10 @@ For a detailed description of each backend's configuration file,
 please refer to the relevant backend manual page (e.g., sane\-epson(5)
 for Epson scanners, sane\-hp(5) for HP scanners, etc.).
 .PP
-For Linux, there is an alternate way of specifying scanner devices
-(beginning with SANE version 0.73).  This alternate way is based on
-/proc/scsi/scsi and allows to identify scanners by the SCSI vendor and
-model string and/or by the SCSI device address (consisting of bus
-number, channel number, id, and logical unit number).  The syntax for
+For Linux, there is an alternate way of specifying scanner devices.  This
+alternate way is based on /proc/scsi/scsi and allows to identify scanners by
+the SCSI vendor and model string and/or by the SCSI device address (consisting
+of bus number, channel number, id, and logical unit number).  The syntax for
 specifying a scanner in this way is:
 .PP
 .RS
@@ -44,7 +43,7 @@ is the SCSI model string,
 .I TYPE
 is type SCSI device type string,
 .I BUS
-is the SCSI bus number,
+is the SCSI bus number (named "host" in /proc/scsi/scsi),
 .I CHANNEL
 is the SCSI channel number,
 .I ID
@@ -62,6 +61,21 @@ single scsi-line matches multiple devices.  When this happens, each
 matching device will be probed by the backend one by one and
 registered if the backend thinks it is a compatible device.  For
 example, the line
+.PP
+.RS
+scsi MUSTEK MFS-06000CX Scanner 0 00 03 00 
+.RE
+.PP
+would attach the Mustek SCSI scanner with the following /proc/scsi/scsi entry:
+.PP
+.RS 2
+Host: scsi0 Channel: 00 Id: 03 Lun: 00
+  Vendor: MUSTEK   Model: MFS-06000CX Rev: 4.04
+  Type:   Scanner  ANSI SCSI revision: 0
+.RE
+.PP
+Usually it's sufficient to use vendor and model strings only or even only the
+vendor string. The following example
 .PP
 .RS
 scsi MUSTEK * * * * * * 
@@ -282,11 +296,12 @@ and so on.
 .SH ENVIRONMENT
 .TP
 .B SANE_DEBUG_SANEI_SCSI
-If the library was compiled with debug support enabled, this
-environment variable controls the debug level for the generic SCSI I/O
-subsystem.  E.g., a value of 128 requests all debug output to be
-printed.  Smaller levels reduce verbosity.
+If the library was compiled with debug support enabled, this environment
+variable controls the debug level for the generic SCSI I/O subsystem.  E.g., a
+value of 128 requests all debug output to be printed by the backend. A value
+of 255 also prints kernel messages from the SCSI subsystem (where available).
+Smaller levels reduce verbosity.
 .SH "SEE ALSO"
-sane(7), sane\-find\-scanner(1), sane\-"backendname"(5)
+sane(7), sane\-find\-scanner(1), sane\-"backendname"(5), sane\-usb(5)
 .SH AUTHOR
 David Mosberger

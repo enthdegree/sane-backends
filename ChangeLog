@@ -5,6 +5,7 @@
 	
 2001-05-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* doc/backend-writing.txt: Added "make libcheck" info.
 	* backend/sm3600-color.c backend/sm3600-gray.c backend/sm3600-homerun.c
 	  backend/sm3600-scanmtek.c backend/sm3600-scanusb.c
 	  backend/sm3600-scanutil.c backend/sm3600.c backend/sm3600.h:

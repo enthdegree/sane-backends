@@ -1,3 +1,11 @@
+2001-10-27  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+  * backend/Makefile.in     backend/snapscan-usb.c
+    backend/snapscan-usb.h  backend/snapscan.c
+    backend/snapscan.h
+    Check USB vendor ID to avoid USB hangup
+    Fix dither matrix computation bug
+
 ******    snapshot 2001-10-27                        *****
 
 2001-10-26  Oliver Schwartz <Oliver.Schwartz@gmx.de>

@@ -23,7 +23,7 @@
 #define lalloca_h
 
 /* AIX requires this to be the first thing in the file.  */
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(HAVE_NSLINKMODULE)
 # define alloca __builtin_alloca
 #else
 # if HAVE_ALLOCA_H

@@ -24,6 +24,7 @@
 	* backend/Makefile.in: Disable manual links for shared libraries.
 	  This breaks MacOS X and doesn't seem to be necessary on other
 	  platforms any more.
+	* include/lalloca.h: Don't use builtin alloca on MacOS X.
 
 2003-04-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

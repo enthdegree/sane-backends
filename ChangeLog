@@ -1,3 +1,7 @@
+2000-09-17  Petter Reinholdtsen <pere@td.org.uit.no>
+
+	* japi/Makefile.in: Move javac and javah to make variables.
+
 2000-09-16  Henning Meier-Geinitz <hmg@gmx.de>
 
 	* TODO: Added xscanimage bug and information about versioning

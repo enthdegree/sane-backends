@@ -299,7 +299,7 @@ static const TModeParam modeParam[] = {
 #define WARMUP_TIME         30	/* first wait is 30sec minimum */
 #define WARMUP_MAXTIME      90	/* after one and a half minute start latest */
 
-#define CAL_DEV_MAX         25
+#define CAL_DEV_MAX         15
 /* maximum deviation of cal values in percent between 2 tests */
 
 /* different warm up after start and after automatic off */
@@ -1012,8 +1012,8 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
 	case optTLY:
 	case optBRX:
 	case optBRY:
-	  info |= SANE_INFO_RELOAD_PARAMS;
 	case optThreshold:
+	  info |= SANE_INFO_RELOAD_PARAMS;
 	  status = sanei_constrain_value (&s->aOptions[n], pVal, &info);
 	  if (status != SANE_STATUS_GOOD)
 	    {
@@ -1376,8 +1376,7 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 			 s->iBytesLeft], *len);
   s->iBytesLeft -= *len;
 
-  DBG (DBG_MSG, "\n");
-  DBG (DBG_MSG, "read=%d\n", *len);
+  DBG (DBG_MSG, " read=%d    \n", *len);
 
   return SANE_STATUS_GOOD;
 }

@@ -110,9 +110,10 @@ dnl Checks for libraries.
 AC_CHECK_LIB(scsi, scsireq_enter)	# FreeBSD needs this
 AC_CHECK_LIB(cam, cam_open_device)      # FreeBSD 3+ needs this
 AC_CHECK_LIB(m,sqrt)
-AC_CHECK_LIB(intl,gettext)
-AC_CHECK_LIB(syslog,syslog)             # OS/2 needs this
-AC_CHECK_LIB(jpeg,jpeg_start_decompress)
+AC_CHECK_LIB(intl, gettext, INTLLIBS=-lintl)
+AC_SUBST(INTLLIBS)
+AC_CHECK_LIB(syslog, syslog)            # OS/2 needs this
+AC_CHECK_LIB(jpeg, jpeg_start_decompress)
 
 dnl IRIX sometimes has SYSVR3/4 network DSOs, but we do not need or want
 dnl to use them!

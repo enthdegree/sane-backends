@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2004-08-03"		; version of backend
+:version "2004-08-08"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -359,7 +359,7 @@
 ;:url ""
 :interface "USB"
 :status :unsupported
-:comment "Probably not supported. Probabaly a relabelled Lexmark X1150."
+:comment "Probably not supported. Probably a relabelled Lexmark X1150."
 
 ;********************************************************************************************
 
@@ -564,6 +564,12 @@
 
 :model "X1150"
 :url "/unsupported/lexmark-x1150.html"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported."
+
+:model "X1180"
+:url "/unsupported/lexmark-x1180.html"
 :interface "USB"
 :status :unsupported
 :comment "Unsupported."
@@ -1438,6 +1444,12 @@
 :model "WorkCentre XK35c"
 :url "/unsupported/xerox-workcentre-xk35c.html"
 :interface "USB Parport"
+:status :unsupported
+:comment "Not supported. See link for more details."
+
+:model "WorkCentre XK50cx"
+:url "/unsupported/xerox-workcentre-xk50cx.html"
+:interface "USB"
 :status :unsupported
 :comment "Not supported. See link for more details."
 

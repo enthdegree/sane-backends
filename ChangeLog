@@ -4,6 +4,7 @@
 	  doc/gt68xx/gt68xx.CHANGES tools/hotplug/libsane.usermap:
 	  Added Mustek ScanExpress 1248 UB and new version of Mustek
 	  BearPaw 1200 CU Plus.
+	* doc/descriptions/unsupported.desc: Added Lexm,ark and Xerox scanners.
 
 2004-08-05  Gerard Klaver <gerard at gkall dot hobby dot nl>
 

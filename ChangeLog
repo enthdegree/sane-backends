@@ -1,3 +1,7 @@
+2002-07-24  Matthew Duggan <stauff1@users.sourceforge.net>
+
+	* src/canon_pp-io.c: Minor bugfix checking return of read
+
 2002-07-23  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* TODO: Updated desc file entries. Removed entries about microtek

@@ -1,4 +1,4 @@
-.TH sane-mustek 5 "9 Dec 2001"
+.TH sane-mustek 5 "3 Jan 2002"
 .IX sane-mustek_usb
 .SH NAME
 sane-mustek_usb - SANE backend for Mustek USB flatbed scanners
@@ -25,6 +25,9 @@ Trust Compact Scan USB 19200
 .PP
 More details can be found on the Mustek backend homepage 
 .IR http://www.meier-geinitz.de/sane/ .
+.PP
+The Mustek BearPaw 1200 and 2400 scanners are supported by the plustek
+backend. See sane-plustek(5) for details.
 .PP
 This backend is based on the 1200ub backend provided by Mustek. It was
 modified to fit into the SANE distribution, some bugs were fixed, support
@@ -164,7 +167,7 @@ Example:
 export SANE_DEBUG_MUSTEK_USB=4
 
 .SH "SEE ALSO"
-sane(7), sane-usb(5), sane\-mustek(5), sane\-mustek_pp(5)
+sane(7), sane-usb(5), sane\-mustek(5), sane\-mustek_pp(5), sane-plustek(5)
 .br
 @DOCDIR@/mustek_usb/mustek_usb.CHANGES, 
 @DOCDIR@/mustek_usb/mustek_usb.TODO

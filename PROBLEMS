@@ -1,69 +1,34 @@
-Last update: Sun Nov 12 16:47:01 CET 2000
+Last update: 2003-02-09
 
-- Compiling SANE aborts with error "virtual memory exhausted" on Slackware
-  linux with gcc. What goes wrong?
+- Avoiding damage on flatbed scanners
 
-  The optimization set by "-O2" makes problems, try which one of the
-  following calls work:
+  Most flatbed scanners have no protection against exceeding the physical scan
+  area height.  That is, if a scan is attempted with a height that exceeds the
+  height of the scan surface, the scanner begins making loud noises and the
+  scan mechanism may be damaged.  Thus, if you hear such a noise, IMMEDIATELY
+  turn off the scanner.
 
-	make CFLAGS="-g -Wall -O1"
-	make CFLAGS="-g -Wall -O"
-	make CFLAGS="-g -Wall"
+  Normally, the backend will ensure that the maximum scan height is not
+  exceeded.  However, if your scanner model has not been tested yet this
+  safety-guard may not work. Please report errors like this to the author of
+  the backend or the sane-devel mailing list.
 
-- Avoiding damage on Mustek flatbed scanners
-	Most Mustek flatbed scanners have no protection against exceeding
-	the physical scan area height.  That is, if a scan is attempted with
-	a height that exceeds the height of the scan surface, the scanner
-	begins making loud noises and the scan mechanism may be damaged.
-	Thus, if you hear such a noise, IMMEDIATELY turn off the scanner.
+- pnm backend disabled by default
 
-	Normally, the Mustek backend will ensure that the maximum scan
-	height is not exceeded.  However, if your scanner model has not been
-	tested yet, this safety-guard may not work.  In such a case,
-	you may want to use scanimage's -y option to gradually determine the
-	exact height of the scan area (making sure to turn off the scanner as
-	soon as it starts making noises).  Once you know the proper height,
-	mail the following information to sane-devel@mostang.com:
+  If the pnm backend is installed and saned is used to allow users on remote
+  computers to scan on the local machine, pnm files can be read by the remote
+  user. This is limited to the files saned can access (usually it's running as
+  user "sane"). All pnm files can be read if saned runs as root which isn't
+  recommended anyway. The pnm backend is disabled by default. If you want to
+  use it, enable it with configure (see configure --help for details). Be sure
+  that only trusted users can access the pnm backend over saned. As the pnm
+  backend is ususally used for testing, the "test" backend should be used
+  instead.
 
-		- scanner name (labels on the front and back of the scanner)
-                - debug logfile
+- Security problems with saned (SANE network scanning daemon)
 
-	To get the debug logfile enter the following:
-
-		SANE_DEBUG_MUSTEK=5 scanimage -L 2>logfile.txt
-
-	The current list of Mustek scanners that are known to work
-	properly can be found in man-page sane-mustek(5).
-
-- My Linux box used to scan just fine but now it suddenly won't work anymore,
-  what's up?
-	If you increased SG_BIG_BUFF when building SANE (as is recommended
-	by sane-scsi(5) for performance reasons), be careful when upgrading
-	the kernel as that will typically install a new version of
-	/usr/include/scsi/sg.h, with the old, smaller value.  This has
-	the effect that SANE _thinks_ the SCSI buffer is big, but since
-	the Linux kernel uses a smaller value, scanning will fail with
-	"out of memory" errors.  To fix this problem, increase SG_BIG_BUFF
-	to the old value, rebuild the kernel, then reboot the machine
-	Newer versions of SANE (>1.01) tries to read the current
-	SG_BIG_BUFF from /proc/sys/kernel/sg-big-buff which is
-	available with newer linux kernels (>= v2.2).
-
-- Missing /usr/include/scsi on Linux systems
-	Older Linux distributions are missing the /usr/include/scsi directory.
-	In such a case, it is necessary to copy the relevant files from
-	the kernel distribution.  Normally, the command:
-
-		cp -a /usr/src/linux/include/scsi /usr/include
-
-	should fix this problem.
-
-- Security problems with pnm
-        If the pnm backend is installed and saned is used to allow users on
-        remote computers to scan on the local machine, pnm files can be read by
-	the remote user. This is limited to the files saned can access (usually
-        it's running as user "sane"). All pnm files can be read if saned runs
-        as root which isn't recommended anyway. The pnm backend is disabled
-        by default. If you want to use it, enable it with configure (see 
-        configure --help for details). Be sure that only trusted users can
-	access the pnm backend over saned.
+  saned is not intended to be exposed to the internet or other non-trusted
+  networks.  Make sure that access is limited by tcpwrappers and/or a firewall
+  setup. Don't depend only on saned's own authentification.  Don't run saned
+  as root if it's not necessary. And do not install saned as setuid root.
+  Read man saned(1) for details.

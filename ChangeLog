@@ -8,6 +8,11 @@
 	  for sane-backends (from Bertrik Sikken <bertrik@zonnet.nl>).
 	* doc/saned.man: More warnings about security issues. Make more clear
 	  that -s and -d can't be used in inetd mode.
+	* PROBLEMS: Moved "memory exhausted" and missing scsi headers problems
+	  to README.linux. Removed SG_BIG_BUF problem. Rewrote Mustek "exceed
+	  the physical scan area" problem as it applies to most flatbed
+	  scanners. Added info about test backend. Added info about saned
+	  security issues.
 
 2003-02-09   Stéphane Voltz  <svoltz@wanadoo.fr>
 

@@ -1,3 +1,12 @@
+2001-05-25  Karl Heinz Kremer <khk@khk.net>
+
+	* backend/epson.c: Allow more than 8 bit color depth even for 
+	  preview mode  since Xsane can handle this. Some code cleanup.
+          Removed ancient code that was used to determine the resolution
+          back when the backend still had a slider for the resolution
+          selection.
+	* backend/epson.desc: Updated version number, added new scanners.
+
 2001-05-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* sane-mustek.man: Removed some bug descriptions and addded

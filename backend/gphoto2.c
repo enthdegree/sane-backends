@@ -419,10 +419,26 @@ init_gphoto2 (void)
 
   if (strcmp (Cam_data.port, "Browse") != 0)
     {
-      port = gp_port_info_list_lookup_path (il, Cam_data.port);
+      CHECK_RET (port = gp_port_info_list_lookup_path (il, Cam_data.port));
       CHECK_RET (gp_port_info_list_get_info (il, port, &info));
       CHECK_RET (gp_camera_set_port_info (camera, info));
       gp_port_info_list_free (il);
+    }
+
+  for (n = 0; abilities.speed[n]; n++)
+    {
+      if (abilities.speed[n] == Cam_data.speed)
+	{
+	  break;
+	}
+    }
+
+  if (abilities.speed[n] == 0)
+    {
+      DBG (0,
+	   "%s: error: %d is not a valid speed for this camers.  Use \"gphoto2 --camera \"%s\" --abilities\" for list.\n",
+	   "init_gphoto2", Cam_data.speed, Cam_data.camera_name);
+      return SANE_STATUS_INVAL;
     }
 
   DBG (4, "init_gphoto2: about to initialize port\n");
@@ -473,20 +489,6 @@ init_gphoto2 (void)
       sod[GPHOTO2_OPT_ERASE].cap |= SANE_CAP_INACTIVE;
     }
 
-  for (n = 0; abilities.speed[n]; n++)
-    {
-      if (abilities.speed[n] == Cam_data.speed)
-	{
-	  break;
-	}
-      if (abilities.speed[n] == 0)
-	{
-	  DBG (0,
-	       "%s: error: %d is not a valid speed for this camers.  Use \"gphoto2 --camera \"%s\" --abilities\" for list.\n",
-	       "init_gphoto2", Cam_data.speed, Cam_data.camera_name);
-	  return SANE_STATUS_INVAL;
-	}
-    }
 
   DBG (4, "init_gphoto2: about to get folders\n");
 

@@ -21,12 +21,12 @@
  */
 
 #ifdef _AIX
-# include <lalloca.h>		/* MUST come first for AIX! */
+# include "../include/lalloca.h"		/* MUST come first for AIX! */
 #endif
 
-#include <sane/config.h>
-#include <lalloca.h>
-#include <sys/types.h>
+#include "../include/sane/config.h"
+#include "../include/lalloca.h"
+#include "../include/sys/types.h"
 
 #include <assert.h>
 #include <errno.h>
@@ -56,11 +56,11 @@
 #include <sys/time.h>
 #include <sys/types.h>
 
-#include <sane/sane.h>
-#include <sane/sanei.h>
-#include <sane/sanei_net.h>
-#include <sane/sanei_codec_bin.h>
-#include <sane/sanei_config.h>
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei.h"
+#include "../include/sane/sanei_net.h"
+#include "../include/sane/sanei_codec_bin.h"
+#include "../include/sane/sanei_config.h"
 
 #include "../include/sane/sanei_auth.h"
 
@@ -250,6 +250,9 @@ quit (int signum)
       sane_close (handle[i].handle);
 
   sane_exit ();
+  sanei_w_exit (&wire);
+  if (handle)
+    free (handle);
   syslog (LOG_INFO, "exiting\n");
   closelog ();
   exit (EXIT_SUCCESS);		/* This is a nowait-daemon. */
@@ -309,7 +312,7 @@ decode_handle (Wire * w, const char *op)
   SANE_Word h;
 
   sanei_w_word (w, &h);
-  if (w->status || (unsigned) h >= num_handles || !handle[h].inuse)
+  if (w->status || (unsigned) h >= (unsigned) num_handles || !handle[h].inuse)
     {
       syslog (LOG_WARNING,
 	      "%s: error while decoding handle argument (h=%d, %s)\n",
@@ -338,7 +341,7 @@ check_host (int fd)
 
   /* first, check whether we allow connections from the peer-host: */
   len = sizeof (sin);
-  if (getpeername (fd, (struct sockaddr *) &sin, &len) < 0)
+  if (getpeername (fd, (struct sockaddr *) &sin, (socklen_t *) &len) < 0)
     {
       DBG (1, "getpeername: %s\n", strerror (errno));
       return SANE_STATUS_INVAL;
@@ -476,7 +479,7 @@ start_scan (Wire * w, int h, SANE_Start_Reply * reply)
   be_handle = handle[h].handle;
 
   len = sizeof (sin);
-  if (getsockname (w->io.fd, (struct sockaddr *) &sin, &len) < 0)
+  if (getsockname (w->io.fd, (struct sockaddr *) &sin, (socklen_t *) &len) < 0)
     {
       syslog (LOG_ERR, "start_scan: failed to obtain socket address (%s)\n",
 	      strerror (errno));
@@ -510,7 +513,7 @@ start_scan (Wire * w, int h, SANE_Start_Reply * reply)
       return -1;
     }
 
-  if (getsockname (fd, (struct sockaddr *) &sin, &len) < 0)
+  if (getsockname (fd, (struct sockaddr *) &sin, (socklen_t *) &len) < 0)
     {
       syslog (LOG_ERR, "start_scan: failed to obtain socket address (%s)\n",
 	      strerror (errno));
@@ -536,16 +539,16 @@ static int
 store_reclen (SANE_Byte * buf, size_t buf_size, int i, size_t reclen)
 {
   buf[i++] = (reclen >> 24) & 0xff;
-  if (i >= buf_size)
+  if (i >= (int) buf_size)
     i = 0;
   buf[i++] = (reclen >> 16) & 0xff;
-  if (i >= buf_size)
+  if (i >= (int) buf_size)
     i = 0;
   buf[i++] = (reclen >> 8) & 0xff;
-  if (i >= buf_size)
+  if (i >= (int) buf_size)
     i = 0;
   buf[i++] = (reclen >> 0) & 0xff;
-  if (i >= buf_size)
+  if (i >= (int) buf_size)
     i = 0;
   return i;
 }
@@ -648,7 +651,7 @@ do_scan (Wire * w, int h, int data_fd)
 	  /* reserve 4 bytes to store the length of the data record: */
 	  i = reader;
 	  reader += 4;
-	  if (reader >= sizeof (buf))
+	  if (reader >= (int) sizeof (buf))
 	    reader = 0;
 
 	  assert (bytes_in_buf == 0);
@@ -662,7 +665,7 @@ do_scan (Wire * w, int h, int data_fd)
 	  reset_watchdog ();
 
 	  reader += length;
-	  if (reader >= sizeof (buf))
+	  if (reader >= (int) sizeof (buf))
 	    reader = 0;
 	  bytes_in_buf += length + 4;
 
@@ -747,7 +750,8 @@ process_request (Wire * w)
 	  
 	  free (resource);
 
-	  if ((i = sane_get_devices (&device_list, SANE_TRUE)) != SANE_STATUS_GOOD) {
+	  if ((i = sane_get_devices (&device_list, SANE_TRUE)) != 
+	      SANE_STATUS_GOOD) {
 
 	    memset (&reply, 0, sizeof (reply));
 	    reply.status = i;
@@ -773,16 +777,12 @@ process_request (Wire * w)
 	if (sanei_authorize (resource, "saned", auth_callback) !=
 	    SANE_STATUS_GOOD)
 	  {
-
-
 	    free (resource);
 	    memset (&reply, 0, sizeof (reply));	/* avoid leaking bits */
 	    reply.status = SANE_STATUS_ACCESS_DENIED;
-
 	  }
 	else
 	  {
-
 	    free (resource);
 
 	    memset (&reply, 0, sizeof (reply));	/* avoid leaking bits */
@@ -803,6 +803,7 @@ process_request (Wire * w)
 	can_authorize = 0;
 
 	sanei_w_reply (w, (WireCodecFunc) sanei_w_open_reply, &reply);
+	sanei_w_free (w, (WireCodecFunc) sanei_w_string, &name);
       }
       break;
 
@@ -832,8 +833,8 @@ process_request (Wire * w)
 	  opt.desc[i] = (SANE_Option_Descriptor *)
 	    sane_get_option_descriptor (be_handle, i);
 
-	sanei_w_reply (w,
-		       (WireCodecFunc) sanei_w_option_descriptor_array, &opt);
+	sanei_w_reply (w,(WireCodecFunc) sanei_w_option_descriptor_array,
+		       &opt);
 
 	free (opt.desc);
       }
@@ -845,7 +846,7 @@ process_request (Wire * w)
 	SANE_Control_Option_Reply reply;
 
 	sanei_w_control_option_req (w, &req);
-	if (w->status || (unsigned) req.handle >= num_handles
+	if (w->status || (unsigned) req.handle >= (unsigned) num_handles
 	    || !handle[req.handle].inuse)
 	  {
 	    syslog (LOG_WARNING,
@@ -867,8 +868,9 @@ process_request (Wire * w)
 
 	can_authorize = 0;
 
-	sanei_w_reply (w,
-		       (WireCodecFunc) sanei_w_control_option_reply, &reply);
+	sanei_w_reply (w, (WireCodecFunc) sanei_w_control_option_reply,
+		       &reply);
+	sanei_w_free (w, (WireCodecFunc) sanei_w_control_option_req, &req);
       }
       break;
 
@@ -883,8 +885,8 @@ process_request (Wire * w)
 
 	reply.status = sane_get_parameters (be_handle, &reply.params);
 
-	sanei_w_reply (w,
-		       (WireCodecFunc) sanei_w_get_parameters_reply, &reply);
+	sanei_w_reply (w, (WireCodecFunc) sanei_w_get_parameters_reply,
+		       &reply);
       }
       break;
 
@@ -911,7 +913,7 @@ process_request (Wire * w)
 
 	if (reply.status == SANE_STATUS_GOOD)
 	  {
-	    data_fd = accept (fd, 0, 0);	/* XXX may want to verify peer */
+	    data_fd = accept (fd, 0, 0);      /* XXX may want to verify peer */
 	    close (fd);
 	    if (data_fd < 0)
 	      {
@@ -922,7 +924,7 @@ process_request (Wire * w)
 			strerror (errno));
 		return;
 	      }
-	    fcntl (data_fd, F_SETFL, 1);	/* set non-blocking */
+	    fcntl (data_fd, F_SETFL, 1);      /* set non-blocking */
 	    shutdown (data_fd, 0);
 	    do_scan (w, h, data_fd);
 	    close (data_fd);

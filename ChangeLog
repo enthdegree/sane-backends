@@ -17,6 +17,12 @@
 	* TODO: Removed primax (not a backend), fixed viceo URL, updated 
 	  qcam entries, added entries about ipv6 support, removed saned
 	  address validation entry. Added entry about scanimage + NLS.
+	* backend/mustek_usb.c backend/mustek_usb.desc
+	  backend/mustek_usb_high.c backend/mustek_usb_high.h
+	  backend/mustek_usb_mid.c backend/mustek_usb_mid.h
+	  doc/mustek_usb/mustek_usb.CHANGES po/mustek_usb.de.po:
+	  Removed some warnings. Fixed segfault while exiting. Using empty
+	  devicename works now. New version: 1.0-10.
 
 2002-01-10  Tom Martone <tom@martoneconsulting.com>
         * backend/bh.c

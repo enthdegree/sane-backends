@@ -19,21 +19,44 @@
 
 :mfg "Canon"			; name a manufacturer
 :url "http://www.canon.com/"
+
+:model "CanoScan FB310P"	; name models for above-specified mfg.
+:interface "Parport (ECP)"
+:status :unsupported
+:comment "Need a scanner to work on"
+
+:model "CanoScan FB610P"	; name models for above-specified mfg.
+:interface "Parport (ECP)"
+:status :unsupported
+:comment "Need a scanner to work on"
+
+:model "CanoScan FB320P"	; name models for above-specified mfg.
+:interface "Parport (ECP)"
+:status :alpha
+:comment "Newly added support"
+
 :model "CanoScan FB620P"	; name models for above-specified mfg.
 :interface "Parport (ECP)"
-:comment "newly added support"
+:status :alpha
+:comment "Newly added support"
+
 :model "CanoScan FB330P"	; name models for above-specified mfg.
 :interface "Parport (ECP)"
-:comment "1 pass; flatbed scanner"
+:status :beta
+
 :model "CanoScan FB630P"	; name models for above-specified mfg.
 :interface "Parport (ECP)"
-:comment "1 pass; flatbed scanner"
+:status :beta
+
 :model "CanoScan N340P"		; name models for above-specified mfg.
 :interface "Parport (ECP)"
-:comment "1 pass; flatbed scanner"
+:status :beta
+
 :model "CanoScan N640P"		; name models for above-specified mfg.
 :interface "Parport (ECP)"
-:comment "1 pass; flatbed scanner"
+:status :beta
+
 :model "CanoScan N640P ex"	; name models for above-specified mfg.
 :interface "Parport (ECP)"
+:status :beta
 :comment "Just an N640P in a different box?"

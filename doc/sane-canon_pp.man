@@ -1,4 +1,4 @@
-.TH sane-canon_pp 5 "1 September 2002"
+.TH sane-canon_pp 5 "4 September 2002"
 .IX sane-canon_pp
 .SH NAME
 sane-canon_pp - SANE backend for Canon CanoScan Parallel Port flatbed scanners
@@ -9,6 +9,8 @@ library implements a SANE (Scanner Access Now Easy) backend that provides
 access to the following Canon flatbed scanners:
 .PP
 .RS
+CanoScan FB320P
+.br
 CanoScan FB620P
 .br
 CanoScan FB330P
@@ -26,9 +28,9 @@ CanoScan N640P ex
 No USB scanners are supported and there are no plans to support them in the 
 future.  Other projects are working on support for USB scanners. See the 
 .B PROJECTS 
-file for more detail.  The FB320P may also work, let us know if it does.  We 
-cannot add support for the FB310P and FB610P at the moment, but contact us if 
-you have one of these scanners and would really like to help.
+file for more detail.  We cannot add support for the FB310P and FB610P at the 
+moment, but contact us if you have one of these scanners and would really 
+like to help.
 .PP
 IMPORTANT: this is alpha code. While we have made every effort to make it as
 reliable as possible, it will not always work as expected.  Feedback is still

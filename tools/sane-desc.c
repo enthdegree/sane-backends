@@ -23,7 +23,7 @@
 
 #define SANE_DESC_VERSION "2.1"
 
-#define MAN_PAGE_LINK "http://www.mostang.com/sane/man/%s.5.html"
+#define MAN_PAGE_LINK "http://www.sane-project.org/man/%s.5.html"
 #define COLOR_MINIMAL      "\"#B00000\""
 #define COLOR_BASIC        "\"#FF9000\""
 #define COLOR_GOOD         "\"#90B000\""
@@ -1984,7 +1984,7 @@ html_print_header (void)
     ("</head>\n"
      "<body bgcolor=FFFFFF>\n"
      "<div align=center>\n"
-     "<img src=\"http://www.mostang.com/sane/sane.png\" alt=\"SANE\">\n");
+     "<img src=\"http://www.sane-project.org/images/sane.png\" alt=\"SANE\">\n");
   printf ("<h1>%s</h1>\n", title);
   printf ("</div>\n" "<hr>\n");
   printf ("%s\n", intro);
@@ -1992,18 +1992,11 @@ html_print_header (void)
     ("<p>This is only a summary!\n"
      "Please consult the manpages and the author-supplied webpages\n"
      "for more detailed (and usually important) information\n"
-     "concerning each backend.</p>\n"
-     "<p>There are special tables for <a\n"
-     "href=\"http://www.buzzard.org.uk/jonathan/scanners.html\"\n"
-     ">parallel port</a> and <a\n"
-     "href=\"http://www.buzzard.org.uk/jonathan/scanners-usb.html\">\n"
-     "USB</a> scanners from <a\n"
-     "href=\"mailto:jonathan@buzzard.org.uk\">\n"
-     "Jonathan Buzzard</a>.</p>\n");
+     "concerning each backend.</p>\n");
   printf
-    ("<p>If you have new information or corrections, please contact\n"
-     "<a href=\"mailto:henning@meier-geinitz.de\">henning@meier-geinitz.de</a>\n"
-     "with as many details as possible. Also please contact me if your scanner \n"
+    ("<p>If you have new information or corrections, please file a\n"
+     "<a href=\"http://www.sane-project.org/bugs.html\">bug report</a>\n"
+     "with as many details as possible. Also please tell us if your scanner \n"
      "isn't mentioned in this list at all.</p>\n"
      "<p>For an explanation of the tables, see the\n"
      "<a href=\"#legend\">legend</a>.\n");
@@ -2023,10 +2016,10 @@ html_print_footer (void)
 
   printf
     ("<hr>\n"
-     "<a href=\"http://www.mostang.com/sane/\">[Back]</a>\n"
+     "<a href=\"http://www.sane-project.org/\">SANE homepage</a>\n"
      "<address>\n"
-     "<a href=\"http://www.mostang.com/sane/mail.html\"\n"
-     ">sane-devel@mostang.com</a> / SANE Development mailing list\n"
+     "<a href=\"http://www.sane-project.org/imprint.html\"\n"
+     ">Contact</a>\n"
      "</address>\n" "<font size=-1>\n");
   printf ("This page was last updated on %s\n",
 	  asctime (localtime (&current_time)));

@@ -7,6 +7,7 @@
 
 	* TODO: Removed net/saned cancel problem. Added entry about
 	  clarifying sane_get_select_fd/sane_cancel in sane.tex.
+	  Added entry about sanei_usb and control messages.
 
 2001-10-25  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

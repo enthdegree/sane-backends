@@ -54,9 +54,9 @@
 /* this function locks the parallel port so that other devices */
 /* won't interfere. Returns UMAX1220P_BUSY is port cannot be   */
 /* lock or UMAX1220P_OK if it is locked                        */
-static int locked  = 0;
+static int locked = 0;
 #ifdef HAVE_LINUX_PPDEV_H
-static int exmode  = IEEE1284_MODE_COMPAT;
+static int exmode = IEEE1284_MODE_COMPAT;
 static int exflags = 0;
 #endif
 
@@ -64,20 +64,24 @@ static int
 lock_parport (void)
 {
 #ifdef HAVE_LINUX_PPDEV_H
-  int mode,fd;
+  int mode, fd;
 #endif
 
   DBG_INIT ();
-  DBG(3,"lock_parport\n");
+  DBG (3, "lock_parport\n");
 
 #ifdef HAVE_LINUX_PPDEV_H
-  fd=sanei_umax_pp_getparport ();
+  fd = sanei_umax_pp_getparport ();
   if ((fd > 0) && (!locked))
     {
-      ioctl (fd, PPGETMODE,&exmode);
-      ioctl (fd, PPGETFLAGS,&exflags);
-      mode=IEEE1284_MODE_EPP;
-      ioctl (fd, PPSETMODE,&mode);
+#ifdef PPGETMODE
+      if (ioctl (fd, PPGETMODE, &exmode))
+	exmode = IEEE1284_MODE_COMPAT;
+      if (ioctl (fd, PPGETFLAGS, &exflags))
+	exflags = 0;
+#endif
+      mode = IEEE1284_MODE_EPP;
+      ioctl (fd, PPSETMODE, &mode);
       if (ioctl (sanei_umax_pp_getparport (), PPCLAIM))
 	{
 	  return (UMAX1220P_BUSY);
@@ -96,18 +100,20 @@ static int
 unlock_parport (void)
 {
 #ifdef HAVE_LINUX_PPDEV_H
-int fd;
+  int fd;
 
-  fd=sanei_umax_pp_getparport ();
+  fd = sanei_umax_pp_getparport ();
   if ((fd > 0) && (locked))
     {
-      ioctl (fd, PPSETMODE,&exmode);
-      ioctl (fd, PPSETFLAGS,&exflags);
+      ioctl (fd, PPSETMODE, &exmode);
+#ifdef PPSETFLAGS
+      ioctl (fd, PPSETFLAGS, &exflags);
+#endif
       ioctl (fd, PPRELEASE);
       locked = 1;
     }
 #endif
-  DBG(3,"unlock_parport\n");
+  DBG (3, "unlock_parport\n");
   locked = 0;
   return (UMAX1220P_OK);
 }
@@ -128,7 +134,7 @@ sanei_umax_pp_model (int port, int *model)
   int recover = 0, rc;
 
   /* set up port */
-  DBG(3,"sanei_umax_pp_model\n");
+  DBG (3, "sanei_umax_pp_model\n");
   sanei_umax_pp_setport (port);
   if (lock_parport () == UMAX1220P_BUSY)
     return (UMAX1220P_BUSY);
@@ -146,15 +152,15 @@ sanei_umax_pp_model (int port, int *model)
   while (rc == 2);
 
   if (rc == 3)
-  {
-  unlock_parport ();
-    return (UMAX1220P_BUSY);
+    {
+      unlock_parport ();
+      return (UMAX1220P_BUSY);
     }
   if (rc != 1)
     {
       DBG (0, "sanei_umax_pp_InitTransport() failed (%s:%d)\n", __FILE__,
 	   __LINE__);
-  unlock_parport ();
+      unlock_parport ();
       return (UMAX1220P_TRANSPORT_FAILED);
     }
   rc = sanei_umax_pp_CheckModel ();
@@ -179,7 +185,7 @@ sanei_umax_pp_attach (int port)
   int recover = 0;
 
   /* set up port */
-  DBG(3,"sanei_umax_pp_attach\n");
+  DBG (3, "sanei_umax_pp_attach\n");
   sanei_umax_pp_setport (port);
   if (sanei_umax_pp_InitPort (port) != 1)
     return (UMAX1220P_PROBE_FAILED);
@@ -222,7 +228,7 @@ sanei_umax_pp_open (int port)
   int recover = 0;
 
   /* set up port */
-  DBG(3,"sanei_umax_pp_open\n");
+  DBG (3, "sanei_umax_pp_open\n");
   sanei_umax_pp_setport (port);
   if (lock_parport () == UMAX1220P_BUSY)
     return (UMAX1220P_BUSY);
@@ -272,7 +278,7 @@ sanei_umax_pp_open (int port)
 int
 sanei_umax_pp_cancel (void)
 {
-  DBG(3,"sanei_umax_pp_cancel\n");
+  DBG (3, "sanei_umax_pp_cancel\n");
   if (lock_parport () == UMAX1220P_BUSY)
     return (UMAX1220P_BUSY);
 
@@ -283,7 +289,7 @@ sanei_umax_pp_cancel (void)
   if (sanei_umax_pp_Park () == 0)
     {
       DBG (0, "Park failed !!! (%s:%d)\n", __FILE__, __LINE__);
-      unlock_parport();
+      unlock_parport ();
       return (UMAX1220P_PARK_FAILED);
     }
   /* EndSession() cancels any pending command  */
@@ -301,7 +307,7 @@ sanei_umax_pp_start (int x, int y, int width, int height, int dpi, int color,
 {
   int col = BW_MODE;
 
-  DBG(3,"sanei_umax_pp_start\n");
+  DBG (3, "sanei_umax_pp_start\n");
   if (lock_parport () == UMAX1220P_BUSY)
     return (UMAX1220P_BUSY);
   /* end session isn't done by cancel any more */
@@ -317,7 +323,7 @@ sanei_umax_pp_start (int x, int y, int width, int height, int dpi, int color,
       unlock_parport ();
       return (UMAX1220P_START_FAILED);
     }
-      unlock_parport();
+  unlock_parport ();
   return (UMAX1220P_OK);
 }
 
@@ -325,7 +331,7 @@ int
 sanei_umax_pp_read (long len, int window, int dpi, int last,
 		    unsigned char *buffer)
 {
-  DBG(3,"sanei_umax_pp_read\n");
+  DBG (3, "sanei_umax_pp_read\n");
   if (lock_parport () == UMAX1220P_BUSY)
     return (UMAX1220P_BUSY);
   if (sanei_umax_pp_ReadBlock (len, window, dpi, last, buffer) == 0)
@@ -333,7 +339,7 @@ sanei_umax_pp_read (long len, int window, int dpi, int last,
       sanei_umax_pp_EndSession ();
       return (UMAX1220P_READ_FAILED);
     }
-      unlock_parport();
+  unlock_parport ();
   return (UMAX1220P_OK);
 }
 
@@ -343,15 +349,15 @@ int
 sanei_umax_pp_lamp (int on)
 {
   /* init transport layer */
-  DBG(3,"sanei_umax_pp_lamp\n");
+  DBG (3, "sanei_umax_pp_lamp\n");
   if (lock_parport () == UMAX1220P_BUSY)
     return (UMAX1220P_BUSY);
-    
+
   if (sanei_umax_pp_SetLamp (on) == 0)
     {
       DBG (0, "Setting lamp state failed!\n");
     }
-  
+
   unlock_parport ();
   return (UMAX1220P_OK);
 }
@@ -364,17 +370,17 @@ sanei_umax_pp_status (void)
 {
   int status;
 
-  DBG(3,"sanei_umax_pp_status\n");
+  DBG (3, "sanei_umax_pp_status\n");
   if (lock_parport () == UMAX1220P_BUSY)
     return (UMAX1220P_BUSY);
   /* check if head is at home */
   sanei_umax_pp_CmdSync (0x40);
   status = sanei_umax_pp_ScannerStatus ();
   if ((status & MOTOR_BIT) == 0x00)
-  {
-  unlock_parport ();
-    return (UMAX1220P_BUSY);
-  }
+    {
+      unlock_parport ();
+      return (UMAX1220P_BUSY);
+    }
   unlock_parport ();
 
   return (UMAX1220P_OK);
@@ -384,21 +390,21 @@ int
 sanei_umax_pp_close ()
 {
 #ifdef HAVE_LINUX_PPDEV_H
-int fd;
+  int fd;
 #endif
 
-  DBG(3,"sanei_umax_pp_close\n");
+  DBG (3, "sanei_umax_pp_close\n");
 
   lock_parport ();
   sanei_umax_pp_EndSession ();
   unlock_parport ();
 
 #ifdef HAVE_LINUX_PPDEV_H
-  fd=sanei_umax_pp_getparport ();
-  if (fd>0)
+  fd = sanei_umax_pp_getparport ();
+  if (fd > 0)
     {
-      close(fd);
-      sanei_umax_pp_setparport(0);
+      close (fd);
+      sanei_umax_pp_setparport (0);
     }
 #endif
   return (UMAX1220P_OK);

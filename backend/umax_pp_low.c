@@ -503,12 +503,12 @@ sanei_umax_pp_InitPort (int port)
 	    }
 
 	  /* release port */
-	  if(!found)
-	  {
+	  if (!found)
+	    {
 	      mode = IEEE1284_MODE_COMPAT;
 	      ioctl (fd, PPSETMODE, &mode);
 	      ioctl (fd, PPRELEASE);
-	  }
+	    }
 	}
 
 
@@ -531,7 +531,7 @@ sanei_umax_pp_InitPort (int port)
     {
       DBG (1, "Using /dev/parport%d ...\n", i);
       sanei_umax_pp_setparport (fd);
-      return (1); 
+      return (1);
     }
 #endif /* HAVE_LINUX_PPDEV_H */
 
@@ -1535,7 +1535,7 @@ static int
 EPPRegisterRead (int reg)
 {
 #ifdef HAVE_LINUX_PPDEV_H
-  int fd, mode, rc, ex;
+  int fd, mode, rc;
   unsigned char breg, bval;
 #endif
   int control;
@@ -1549,7 +1549,6 @@ EPPRegisterRead (int reg)
     {
       breg = (unsigned char) (reg);
       mode = IEEE1284_MODE_EPP | IEEE1284_ADDR;
-      rc = ioctl (fd, PPGETMODE, &ex);
       rc = ioctl (fd, PPSETMODE, &mode);
       rc = write (fd, &breg, 1);
 
@@ -1563,11 +1562,10 @@ EPPRegisterRead (int reg)
 
       mode = 0;			/* forward */
       rc = ioctl (fd, PPDATADIR, &mode);
-      rc = ioctl (fd, PPSETMODE, &ex);
 
       return value;
     }
-  /* if not, direct harware access */
+  /* if not, direct hardware access */
 #endif
 
   Outb (EPPADR, reg);
@@ -1586,7 +1584,7 @@ static void
 EPPRegisterWrite (int reg, int value)
 {
 #ifdef HAVE_LINUX_PPDEV_H
-  int fd, mode, rc, ex;
+  int fd, mode, rc;
   unsigned char breg, bval;
 #endif
 
@@ -1599,7 +1597,6 @@ EPPRegisterWrite (int reg, int value)
     {
       breg = (unsigned char) (reg);
       mode = IEEE1284_MODE_EPP | IEEE1284_ADDR;
-      rc = ioctl (fd, PPGETMODE, &ex);
       rc = ioctl (fd, PPSETMODE, &mode);
       rc = write (fd, &breg, 1);
 
@@ -1610,7 +1607,7 @@ EPPRegisterWrite (int reg, int value)
 
       return;
     }
-  /* if not, direct harware access */
+  /* if not, direct hardware access */
 #endif
   Outb (EPPADR, reg);
   Outb (EPPDATA, value);
@@ -1620,7 +1617,7 @@ static void
 EPPBlockMode (int flag)
 {
 #ifdef HAVE_LINUX_PPDEV_H
-  int fd, mode, rc, ex;
+  int fd, mode, rc;
   unsigned char bval;
 
   /* check we have ppdev working */
@@ -1629,14 +1626,10 @@ EPPBlockMode (int flag)
     {
       bval = (unsigned char) (flag);
       mode = IEEE1284_MODE_EPP | IEEE1284_ADDR;
-      rc = ioctl (fd, PPGETMODE, &ex);
       rc = ioctl (fd, PPSETMODE, &mode);
       rc = write (fd, &bval, 1);
-      rc = ioctl (fd, PPSETMODE, &ex);
-
       return;
     }
-  /* if not, direct harware access */
 #endif
   Outb (EPPADR, flag);
 }
@@ -1645,7 +1638,8 @@ static void
 EPPReadBuffer (int size, unsigned char *dest)
 {
 #ifdef HAVE_LINUX_PPDEV_H
-  int fd, mode, rc, ex, exf;
+  int fd, mode, rc;
+  unsigned char bval;
 #endif
   int control;
 
@@ -1654,35 +1648,41 @@ EPPReadBuffer (int size, unsigned char *dest)
   fd = sanei_umax_pp_getparport ();
   if (fd > 0)
     {
-      EPPBlockMode (0x80);
-      rc = ioctl (fd, PPGETMODE, &ex);
-      rc = ioctl (fd, PPGETFLAGS, &exf);
+
+      bval = 0x80;
+      mode = IEEE1284_MODE_EPP | IEEE1284_ADDR;
+      rc = ioctl (fd, PPSETMODE, &mode);
+      rc = write (fd, &bval, 1);
+
       mode = 1;			/* data_reverse */
       rc = ioctl (fd, PPDATADIR, &mode);
+#ifdef PPSETFLAGS
       mode = PP_FASTREAD;
       rc = ioctl (fd, PPSETFLAGS, &mode);
+#endif
       mode = IEEE1284_MODE_EPP | IEEE1284_DATA;
       rc = ioctl (fd, PPSETMODE, &mode);
-      rc = read (fd, dest, size-1);
+      rc = read (fd, dest, size - 1);
 
       mode = 0;			/* forward */
       rc = ioctl (fd, PPDATADIR, &mode);
-      EPPBlockMode (0xA0);
+      bval = 0xA0;
+      mode = IEEE1284_MODE_EPP | IEEE1284_ADDR;
+      rc = ioctl (fd, PPSETMODE, &mode);
+      rc = write (fd, &bval, 1);
 
       mode = 1;			/* data_reverse */
       rc = ioctl (fd, PPDATADIR, &mode);
       mode = IEEE1284_MODE_EPP | IEEE1284_DATA;
       rc = ioctl (fd, PPSETMODE, &mode);
-      rc = read (fd, dest+ size-1,1);
+      rc = read (fd, dest + size - 1, 1);
 
       mode = 0;			/* forward */
       rc = ioctl (fd, PPDATADIR, &mode);
-      rc = ioctl (fd, PPSETMODE, &ex);
-      rc = ioctl (fd, PPSETFLAGS, &exf);
 
       return;
     }
-  /* if not, direct harware access */
+  /* if not, direct hardware access */
 #endif
 
   EPPBlockMode (0x80);
@@ -1691,7 +1691,7 @@ EPPReadBuffer (int size, unsigned char *dest)
   Insb (EPPDATA, dest, size - 1);
   control = Inb (CONTROL);
 
-  Outb (CONTROL, (control & 0x1F));		/* forward */
+  Outb (CONTROL, (control & 0x1F));	/* forward */
   EPPBlockMode (0xA0);
   control = Inb (CONTROL);
 
@@ -1699,7 +1699,7 @@ EPPReadBuffer (int size, unsigned char *dest)
   Insb (EPPDATA, (unsigned char *) (dest + size - 1), 1);
 
   control = Inb (CONTROL);
-  Outb (CONTROL, (control & 0x1F));		/* forward */
+  Outb (CONTROL, (control & 0x1F));	/* forward */
 }
 
 
@@ -1708,22 +1708,28 @@ EPPWriteBuffer (int size, unsigned char *source)
 {
 #ifdef HAVE_LINUX_PPDEV_H
   int fd, mode, rc;
+  unsigned char bval;
 #endif
 
 
-  EPPBlockMode (0xC0);
 #ifdef HAVE_LINUX_PPDEV_H
   /* check we have ppdev working */
   fd = sanei_umax_pp_getparport ();
   if (fd > 0)
     {
+      bval = 0xC0;
+      mode = IEEE1284_MODE_EPP | IEEE1284_ADDR;
+      rc = ioctl (fd, PPSETMODE, &mode);
+      rc = write (fd, &bval, 1);
+
       mode = IEEE1284_MODE_EPP | IEEE1284_DATA;
       rc = ioctl (fd, PPSETMODE, &mode);
       rc = write (fd, source, size);
       return;
     }
-  /* if not, direct harware access */
+  /* if not, direct hardware access */
 #endif
+  EPPBlockMode (0xC0);
   Outsb (EPPDATA, source, size);
 }
 
@@ -1821,7 +1827,8 @@ static void
 EPPRead32Buffer (int size, unsigned char *dest)
 {
 #ifdef HAVE_LINUX_PPDEV_H
-  int fd, mode, rc, ex, exf;
+  int fd, mode, rc;
+  unsigned char bval;
 #endif
   int control;
 
@@ -1830,37 +1837,43 @@ EPPRead32Buffer (int size, unsigned char *dest)
   fd = sanei_umax_pp_getparport ();
   if (fd > 0)
     {
-      EPPBlockMode (0x80);
-      rc = ioctl (fd, PPGETMODE, &ex);
-      rc = ioctl (fd, PPGETFLAGS, &exf);
+
+      bval = 0x80;
+      mode = IEEE1284_MODE_EPP | IEEE1284_ADDR;
+      rc = ioctl (fd, PPSETMODE, &mode);
+      rc = write (fd, &bval, 1);
+
       mode = 1;			/* data_reverse */
       rc = ioctl (fd, PPDATADIR, &mode);
+#ifdef PPSETFLAGS
       mode = PP_FASTREAD;
       rc = ioctl (fd, PPSETFLAGS, &mode);
+#endif
       mode = IEEE1284_MODE_EPP | IEEE1284_DATA;
       rc = ioctl (fd, PPSETMODE, &mode);
-      rc = read (fd, dest, size-4);
+      rc = read (fd, dest, size - 4);
 
-      rc = read (fd, dest+size-4, 3);
+      rc = read (fd, dest + size - 4, 3);
 
       mode = 0;			/* forward */
       rc = ioctl (fd, PPDATADIR, &mode);
-      EPPBlockMode (0xA0);
+      bval = 0xA0;
+      mode = IEEE1284_MODE_EPP | IEEE1284_ADDR;
+      rc = ioctl (fd, PPSETMODE, &mode);
+      rc = write (fd, &bval, 1);
 
       mode = 1;			/* data_reverse */
       rc = ioctl (fd, PPDATADIR, &mode);
       mode = IEEE1284_MODE_EPP | IEEE1284_DATA;
       rc = ioctl (fd, PPSETMODE, &mode);
-      rc = read (fd, dest+ size-1,1);
+      rc = read (fd, dest + size - 1, 1);
 
       mode = 0;			/* forward */
       rc = ioctl (fd, PPDATADIR, &mode);
-      rc = ioctl (fd, PPSETMODE, &ex);
-      rc = ioctl (fd, PPSETFLAGS, &exf);
 
       return;
     }
-  /* if not, direct harware access */
+  /* if not, direct hardware access */
 #endif
 
   EPPBlockMode (0x80);
@@ -1886,30 +1899,38 @@ static void
 EPPWrite32Buffer (int size, unsigned char *source)
 {
 #ifdef HAVE_LINUX_PPDEV_H
-  int fd, mode, rc, ex;
+  int fd, mode, rc;
+  unsigned char bval;
 #endif
   if ((size % 4) != 0)
     {
       DBG (0, "EPPWrite32Buffer: size %% 4 != 0!! (%s:%d)\n", __FILE__,
 	   __LINE__);
     }
-  EPPBlockMode (0xC0);
 #ifdef HAVE_LINUX_PPDEV_H
   /* check we have ppdev working */
   fd = sanei_umax_pp_getparport ();
   if (fd > 0)
     {
+
+      bval = 0xC0;
+      mode = IEEE1284_MODE_EPP | IEEE1284_ADDR;
+      rc = ioctl (fd, PPSETMODE, &mode);
+      rc = write (fd, &bval, 1);
+
+#ifdef PPSETFLAGS
       mode = PP_FASTWRITE;
-      rc = ioctl (fd, PPGETFLAGS, &ex);
       rc = ioctl (fd, PPSETFLAGS, &mode);
+#endif
       mode = IEEE1284_MODE_EPP | IEEE1284_DATA;
       rc = ioctl (fd, PPSETMODE, &mode);
       rc = write (fd, source, size);
-      rc = ioctl (fd, PPSETFLAGS, &ex);
+
       return;
     }
-  /* if not, direct harware access */
+  /* if not, direct hardware access */
 #endif
+  EPPBlockMode (0xC0);
   Outsw (EPPDATA, source, size / 4);
 }
 
@@ -1957,32 +1978,32 @@ WaitOnError (void)
 static int
 ParportPausedReadBuffer (int size, unsigned char *dest)
 {
-  unsigned char status;
+  unsigned char status, bval;
   int error;
   int word;
   int bread;
   int c;
-  int fd,rc,mode,ex,exf;
+  int fd, rc, mode;
 
   /* init */
   bread = 0;
   error = 0;
-  fd=sanei_umax_pp_getparport();
-      rc = ioctl (fd, PPGETMODE, &ex);
-      rc = ioctl (fd, PPGETFLAGS, &exf);
+  fd = sanei_umax_pp_getparport ();
 
-      mode = 1;			/* data_reverse */
-      rc = ioctl (fd, PPDATADIR, &mode);
+  mode = 1;			/* data_reverse */
+  rc = ioctl (fd, PPDATADIR, &mode);
+#ifdef PPSETFLAGS
+  mode = PP_FASTREAD;
+  rc = ioctl (fd, PPSETFLAGS, &mode);
+#endif
+  mode = IEEE1284_MODE_EPP | IEEE1284_DATA;
+  rc = ioctl (fd, PPSETMODE, &mode);
 
   if ((size & 0x03) != 0)
     {
       while ((!error) && ((size & 0x03) != 0))
 	{
-          mode = PP_FASTREAD;
-          rc = ioctl (fd, PPSETFLAGS, &mode);
-          mode = IEEE1284_MODE_EPP | IEEE1284_DATA;
-          rc = ioctl (fd, PPSETMODE, &mode);
-          rc = read (fd, dest, 1);
+	  rc = read (fd, dest, 1);
 	  size--;
 	  dest++;
 	  bread++;
@@ -2014,7 +2035,7 @@ ParportPausedReadBuffer (int size, unsigned char *dest)
     {
       do
 	{
-          rc = read (fd, dest, 1);
+	  rc = read (fd, dest, 1);
 	  size--;
 	  dest++;
 	readstatus:
@@ -2064,18 +2085,18 @@ ParportPausedReadBuffer (int size, unsigned char *dest)
 	{
 	  do
 	    {
-      	      rc = read (fd, dest, 1);
+	      rc = read (fd, dest, 1);
 	      dest++;
 	      size--;
 	      if (size)
 		{
-                  rc = ioctl (fd, PPRSTATUS, &status);
+		  rc = ioctl (fd, PPRSTATUS, &status);
 		  error = status & 0x08;
 		  if (!error)
-		  {
-                    rc = ioctl (fd, PPRSTATUS, &status);
-		    error = status & 0x08;
-		  }
+		    {
+		      rc = ioctl (fd, PPRSTATUS, &status);
+		      error = status & 0x08;
+		    }
 		}
 	    }
 	  while ((size > 0) && (!error));
@@ -2089,17 +2110,20 @@ ParportPausedReadBuffer (int size, unsigned char *dest)
   /* end reading */
   mode = 0;			/* forward */
   rc = ioctl (fd, PPDATADIR, &mode);
-  EPPBlockMode (0xA0);
+  bval = 0xA0;
+  mode = IEEE1284_MODE_EPP | IEEE1284_ADDR;
+  rc = ioctl (fd, PPSETMODE, &mode);
+  rc = write (fd, &bval, 1);
 
   mode = 1;			/* data_reverse */
   rc = ioctl (fd, PPDATADIR, &mode);
+  mode = IEEE1284_MODE_EPP | IEEE1284_DATA;
+  rc = ioctl (fd, PPSETMODE, &mode);
   rc = read (fd, dest, 1);
   bread++;
 
   mode = 0;			/* forward */
   rc = ioctl (fd, PPDATADIR, &mode);
-  rc = ioctl (fd, PPSETMODE, &ex);
-  rc = ioctl (fd, PPSETFLAGS, &exf);
   return (bread);
 }
 #endif
@@ -2242,13 +2266,14 @@ DirectPausedReadBuffer (int size, unsigned char *dest)
 }
 
 
-int PausedReadBuffer (int size, unsigned char *dest)
+int
+PausedReadBuffer (int size, unsigned char *dest)
 {
 #ifdef HAVE_LINUX_PPDEV_H
-  if(sanei_umax_pp_getparport ()>0)
-  	return(ParportPausedReadBuffer(size,dest));
+  if (sanei_umax_pp_getparport () > 0)
+    return (ParportPausedReadBuffer (size, dest));
 #endif
-  return(DirectPausedReadBuffer(size,dest));
+  return (DirectPausedReadBuffer (size, dest));
 }
 
 
@@ -7539,7 +7564,7 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
       opsc53[8] = 0x5C;		/* new working value */
       opsc53[9] = 0x05;
       opsc53[14] = opsc53[14] & 0xF0;
-      /*opsc53[14] = (opsc53[14] & 0xF0) | 0x04;	 -> 600 dpi ? */
+      /*opsc53[14] = (opsc53[14] & 0xF0) | 0x04;         -> 600 dpi ? */
       break;
 
     case 600:

@@ -5,6 +5,8 @@
 2004-10-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* frontend/saned.c: Fixed NULL string crash.
+	* REAME.linux: Added some more details about hotplug and Gentoo
+	  problems.
 
 2004-10-17  Ullrich Sigwanz <usigwanz@freesurf.ch>
 

@@ -1,3 +1,7 @@
+2005-03-02  Julien Blache <jb@jblache.org>
+	* tools/hotplug-ng/libsane.hotplug: allow for several spaces
+	between fields in the db file.
+
 2005-02-28  Julien Blache <jb@jblache.org>
 	* tools/hotplug-ng/libsane.hotplug: replace \t by [[:space:]] when
 	grepping for the device in the db file.

@@ -1,3 +1,6 @@
+2004-10-16  Oliver Rauch <Oliver.Rauch@Rauch-DOmain.DE>
+	* backend/umax.c: added default options for Linotype OPAL2
+
 2004-10-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added various scanners.

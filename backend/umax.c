@@ -3023,6 +3023,16 @@ static void umax_correct_inquiry(Umax_Device *dev, char *vendor, char *product, 
         dev->calibration_area = UMAX_CALIBRATION_AREA_CCD;
       }
     }
+    else if (!strncmp(product, "OPAL2 ", 6)) /* looks like a Mirage II */
+    {
+      DBG(DBG_warning,"setting up special options for %s\n", product);
+
+      if (dev->gamma_lsb_padded == -1) /* nothing defined in umax.conf and not by backend */
+      {
+        DBG(DBG_warning," - 16 bit gamma table is created lsb padded\n");
+        dev->gamma_lsb_padded = 1;
+      }
+    }
   }
   else if (!strncmp(vendor, "Linotype ", 9))
   {

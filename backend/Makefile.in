@@ -362,6 +362,7 @@ libsane-plustek.la: ../sanei/sanei_usb.lo
 libsane-plustek.la: ../sanei/sanei_lm983x.lo
 libsane-plustek.la: ../sanei/sanei_thread.lo
 libsane-plustek_pp.la: ../sanei/sanei_constrain_value.lo
+libsane-plustek_pp.la: ../sanei/sanei_thread.lo
 libsane-pnm.la: ../sanei/sanei_constrain_value.lo
 libsane-qcam.la: ../sanei/sanei_constrain_value.lo
 libsane-ricoh.la: ../sanei/sanei_config2.lo
@@ -394,6 +395,7 @@ libsane-tamarack.la: ../sanei/sanei_config2.lo
 libsane-tamarack.la: ../sanei/sanei_constrain_value.lo
 libsane-tamarack.la: ../sanei/sanei_scsi.lo
 libsane-test.la: ../sanei/sanei_constrain_value.lo
+libsane-test.la: ../sanei/sanei_thread.lo
 libsane-teco1.la: ../sanei/sanei_config2.lo
 libsane-teco1.la: ../sanei/sanei_constrain_value.lo
 libsane-teco1.la: ../sanei/sanei_scsi.lo

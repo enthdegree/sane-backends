@@ -1,3 +1,10 @@
+2002-04-12  Matthew Duggan <stauff1@users.sourceforge.net>
+	
+	* backend/canon_pp-io.c: Updated for new libieee1284 interface 
+	  (version 0.1.5)
+	* acinclude.m4 aclocal.m4 configure configure.in: 
+	  Added check for libieee1284 > 0.1.5
+
 2002-04-08  Rene Rebe <rene.rebe@gmx.net>
 
         * backend/avision.h backend/avision.c backend/avision.conf: bug-

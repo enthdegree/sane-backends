@@ -1007,9 +1007,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  dc240_opt_thumbnails = !!*(SANE_Word *) value;
 	  myinfo |= SANE_INFO_RELOAD_PARAMS;
 
-	  set_res (Camera.
+	  if ( Camera.pic_taken != 0 ) {
+	    set_res (Camera.
 		   Pictures[Camera.current_picture_number - 1].low_res);
-
+	  }
 	  break;
 
 	case DC240_OPT_SNAP:

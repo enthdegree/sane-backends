@@ -273,6 +273,8 @@ typedef struct Mustek_Scanner
     pid_t reader_pid;		/* process id of reader */
     int pipe;			/* pipe to reader process */
     long start_time;            /* at this time the scan started */
+    SANE_Word total_bytes;      /* bytes transmitted by sane_read */
+    SANE_Word total_lines;      /* lines transmitted to sane_read pipe */
 
     /* scanner dependent/low-level state: */
     Mustek_Device *hw;

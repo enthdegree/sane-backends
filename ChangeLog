@@ -5,6 +5,9 @@
 	
 2001-05-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* backend/microtek2.c backend/microtek2.desc backend/microtek2.h:
+	  Updated to version 0.9 (from Karsten Festag 
+	  <karsten.festag@t-online.de>).
 	* doc/sane-snapscan.man: Added new scanners and authors.
 	* AUTHORS: Added Sebastien Sable and Henrik Johansson.
 	* backend/snapscan-scsi.c backend/snapscan-sources.c

@@ -1,3 +1,10 @@
+2003-12-18  Gerhard Jaeger <gerhard@gjaeger.de>
+	* doc/sane-plustek.man: new version, minor fixes
+	* doc/descriptions/plustek.desc: new backend version
+	* backend/plustek-pp*: cleanup work
+	* backend/plustek-usb*: new version 0.47, added support for model overide
+	  when one manufacturer uses the same model-id for various devices.
+
 2003-12-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Canon 3200F.

@@ -3,6 +3,7 @@
 	* backend/microtek.c backend/microtek2.h: Fixed undefined behaviour
 	  problem and Scanmaker X12 problems. New version: 20020127. Code from
 	  karsten.festag@t-online.de (Karsten Festag).
+	* lib/inet_ntop.c: Fixed problem with header include order on Irix.
 
 2002-01-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

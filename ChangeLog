@@ -1,10 +1,16 @@
-2001-12-01  Henning Meier-Geinitz <henning@meier-geinitz.de
+2001-12-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/mustek.c backend/mustek.desc doc/mustek/mustek.CHANGES:
+	  Fixed a possible segfault in sane_control_option. Added more
+	  debug output for SCSI commands. New version: 1.0-116.
+
+2001-12-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* sanei/sanei_ab306: Removed warning: `dev_io_fd' defined but not
 	  used. Variable used only by FreeBSD. Added test for FreeBSD.
 	  Patch from Stephen Torri <storri@ameritech.net>.
 	
-2001-11-30  Henning Meier-Geinitz <henning@meier-geinitz.de
+2001-11-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* testsuite/Makefile.in testsuite/README: Added comment about
 	  the need to enable pnm. Made output easier to read.

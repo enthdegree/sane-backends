@@ -1,3 +1,7 @@
+2001-06-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* README.os2: Added link to Franz Bakan's web page.
+
 2001-06-09  Petter Reinholdtsen <pere@td.org.uit.no>
 
 	* acinclude.m4 include/sane/config.h.in: Fix configure/compile

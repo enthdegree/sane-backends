@@ -1,4 +1,4 @@
-TODO (2001-10-09)
+TODO (2001-10-15)
 
 ******** todo ********
 
@@ -39,11 +39,6 @@ backends
      - microtek
 
   * Check net/saned
-     - add Jochen Eisinger's net.c and sanei_wire.c fixes/additions.
-     - saned seems to have problems checking the peer name of incoming
-       connections. This happens at least with glibc 2.2.4 if the
-       name in saned.conf is not fully qualified. See sane-devel
-       "saned.conf hostname format".
      - cancel doesn't work over the net at least with pnm and mustek.
      - saned times out after 5 minutes (now 60 minutes). Check if the
        watchdog timer is really necessary (e.g. to avoid blocking scanners
@@ -160,8 +155,13 @@ misc
   * Add installation procedure for translations of SANE backend's options.
 
 ******** done ********
+* add Jochen Eisinger's net.c and sanei_wire.c fixes/additions.
 * net.c: don't just ignore the byte-order for the image data (needed to
   support depths > 8 bits/channel)
+* saned seems to have problems checking the peer name of incoming
+  connections. This happens at least with glibc 2.2.4 if the
+  name in saned.conf is not fully qualified. See sane-devel
+  "saned.conf hostname format".
 * If you mention sane-devel, also mention the website concerning
   subscription (http://www.mostang.com/sane/mail.html), because you can't
   write to sane-devel without subscribing.

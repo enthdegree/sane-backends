@@ -46,7 +46,7 @@
 
 /**************************************************************************/
 /* Mustek backend version                                                 */
-#define BUILD 104
+#define BUILD 105
 /**************************************************************************/
 
 #include "sane/config.h"
@@ -1180,7 +1180,7 @@ attach (SANE_String_Const devname, Mustek_Device **devp, SANE_Bool may_wait)
 	 MFC-600S and a Paragon 600 II N. */
       dev->x_range.min = SANE_FIX (0.0);
       dev->x_range.max = SANE_FIX (215.9);
-      dev->y_range.min = SANE_FIX (2.0);
+      dev->y_range.min = SANE_FIX (0.0);
       dev->y_range.max = SANE_FIX (288.0); 
       dev->x_trans_range.min = SANE_FIX (0.0);
       dev->y_trans_range.min = SANE_FIX (0.0);
@@ -1641,7 +1641,7 @@ area_and_windows (Mustek_Scanner *s)
 
   cp = cmd + 6;
 
-  /* The 600 II N v1.01 needs a larger scanarea for line-distance correction */
+  /* Some scanners need a larger scanarea for line-distance correction */
   offset = 0;
   if (((s->hw->flags & MUSTEK_FLAG_LD_N1) 
        || ((s->hw->flags & MUSTEK_FLAG_LD_BLOCK) 
@@ -1658,6 +1658,8 @@ area_and_windows (Mustek_Scanner *s)
       /*
        * The MSF-06000CZ seems to lock-up if the pixel-unit is used.
        * Using 1/8" works.
+       * This doesn't seem to be true with the current scheme.
+       * This code isn't used at the moment.  <hmg@gmx.de>
        */
       *cp++ = ((s->mode & MUSTEK_MODE_LINEART) ? 0x00 : 0x01);
 
@@ -1687,9 +1689,21 @@ area_and_windows (Mustek_Scanner *s)
       *cp++ = 0x8 | ((s->mode & MUSTEK_MODE_LINEART) ? 0x00 : 0x01);
 
       /* fill in scanning area: */
-      tlx = SANE_UNFIX (s->val[OPT_TL_X].w) * pixels_per_mm + 0.5;
+      if (strcmp (s->val[OPT_SOURCE].s, "Automatic Document Feeder") == 0)
+	{
+	  /* must mirror the x coordinates */
+	  brx = SANE_UNFIX (s->hw->x_range.max -  s->val[OPT_TL_X].w)
+	    * pixels_per_mm + 0.5;
+	  tlx = SANE_UNFIX (s->hw->x_range.max -  s->val[OPT_BR_X].w)
+	    * pixels_per_mm + 0.5;
+	}
+      else
+	{
+	  tlx = SANE_UNFIX (s->val[OPT_TL_X].w) * pixels_per_mm + 0.5;
+	  brx = SANE_UNFIX (s->val[OPT_BR_X].w) * pixels_per_mm + 0.5;
+
+	}
       tly = SANE_UNFIX (s->val[OPT_TL_Y].w) * pixels_per_mm + 0.5;
-      brx = SANE_UNFIX (s->val[OPT_BR_X].w) * pixels_per_mm + 0.5;
       bry = SANE_UNFIX (s->val[OPT_BR_Y].w) * pixels_per_mm + 0.5 + offset;
       STORE16L(cp, tlx);
       STORE16L(cp, tly);
@@ -2344,7 +2358,7 @@ mode_select_paragon (Mustek_Scanner *s, SANE_Int color_code)
 	mode[11] = 0x02;	/* speed */
       mode[12] = 0x00;		/* shadow param not used by Mustek */
       mode[13] = 0x00;		/* highlight param not used by Mustek */
-      mode[14] = 0x5c;		/* paper- */
+      mode[14] = 0x9c;		/* paper- */ 
       mode[15] = 0x00;		/* length */
       mode[16] = 0x41;		/* midtone param not used by Mustek */
     }
@@ -2433,7 +2447,7 @@ mode_select_pro (Mustek_Scanner *s)
 static SANE_Status
 gamma_correction (Mustek_Scanner *s, SANE_Int color_code)
 {
-  SANE_Int i, j, table = 0, len, bytes_per_channel, num_channels = 1;
+  SANE_Int i, j, table = 0, len = 0, bytes_per_channel, num_channels = 1;
   SANE_Byte gamma[4096+10], val, *cp;  /* for Paragon models 3 x 256 is the
 					 maximum. Pro needs 4096 bytes */
 
@@ -2483,6 +2497,13 @@ gamma_correction (Mustek_Scanner *s, SANE_Int color_code)
 	    table = color_code;
 	}
     }
+  else
+    if (s->hw->flags & MUSTEK_FLAG_N)
+      {
+	/* it seems 600 II N (firmware 1.x at least) wants 768 bytes in
+	 * gray mode too */
+	num_channels = 3;
+      }
 
   memset (gamma, 0, sizeof (gamma));
   gamma[0] = MUSTEK_SCSI_LOOKUP_TABLE;
@@ -2509,29 +2530,45 @@ gamma_correction (Mustek_Scanner *s, SANE_Int color_code)
 	  gamma[9] = 0x80; /* grayscale/lineart */
 	  DBG(5, "gamma_correction: sending brightness information\n");
 	}
+      gamma[7] = (len >> 8) & 0xff;	/* big endian! */
+      gamma[8] = (len >> 0) & 0xff;
     }
   else
     {
       bytes_per_channel = 256;
       gamma[2] = 0x27;		/* indicate user-selected gamma table */
-      gamma[9] = (color_code << 6);
+      if (s->hw->flags & MUSTEK_FLAG_N)
+	{
+	  /* 600 II N always uses 6-byte cdb */
+	  gamma[3] = (len >> 8) & 0xff;	/* big endian! */
+	  gamma[4] = (len >> 0) & 0xff;
+	  /* no way to pass color_code (?) */
+	}
+      else
+	{
+	  gamma[7] = (len >> 8) & 0xff;	/* big endian! */
+	  gamma[8] = (len >> 0) & 0xff;
+	  gamma[9] = (color_code << 6);
+	}
       len = num_channels * bytes_per_channel;
     }
-  gamma[7] = (len >> 8) & 0xff;	/* big endian! */
-  gamma[8] = (len >> 0) & 0xff;
 
   if (len > 0)
     {
       cp = gamma + 10;
-      for (j = 0; j < num_channels; ++j, ++table)
-	for (i = 0; i < bytes_per_channel; ++i)
-	  {
-	    val = s->gamma_table[table][i * 256 / bytes_per_channel];
-	       if (s->mode & MUSTEK_MODE_COLOR)
-		 /* compose intensity gamma and color channel gamma: */
-		 val = s->gamma_table[0][val];
-	    *cp++ = val;
-	  }
+      for (j = 0; j < num_channels; ++j)
+	{
+	  for (i = 0; i < bytes_per_channel; ++i)
+	    {
+	      val = s->gamma_table[table][i * 256 / bytes_per_channel];
+	      if (s->mode & MUSTEK_MODE_COLOR)
+		/* compose intensity gamma and color channel gamma: */
+		val = s->gamma_table[0][val];
+	      *cp++ = val;
+	    }
+	  if (!(s->hw->flags & MUSTEK_FLAG_N) || !(s->mode & MUSTEK_MODE_GRAY))
+	    table++;
+	}
     }
   DBG(5, "gamma_correction: sending gamma table of %d bytes\n", len);
   return dev_cmd (s, gamma, 10 + len, 0, 0);
@@ -3652,7 +3689,7 @@ fix_line_distance_block (Mustek_Scanner *s, SANE_Int num_lines, SANE_Int bpl,
 			 SANE_Byte *raw, SANE_Byte *out, SANE_Int num_lines_total)
 {
   SANE_Byte *out_end, *out_ptr, *raw_end = raw + num_lines * bpl;
-  SANE_Int c, num_saved_lines, line;
+  SANE_Int c, num_saved_lines, line, max_index, min_index;
   
   if (!s->ld.buf[0])
     {
@@ -3675,13 +3712,17 @@ fix_line_distance_block (Mustek_Scanner *s, SANE_Int num_lines, SANE_Int bpl,
   DBG(5, "fix_line_distance_block: s->ld.peak_res = %d, s->ld.ld_line = %d\n",
       s->ld.peak_res, s->ld.ld_line);
 
-  num_saved_lines = s->ld.index[0] - s->ld.index[2];
-  if ((num_saved_lines < 0) || (s->ld.index[0] == 0))
+  /* search maximum and minimum index */
+  max_index = MAX(s->ld.index[0], MAX(s->ld.index[1], s->ld.index[2]));
+  min_index = MIN(s->ld.index[0], MIN(s->ld.index[1], s->ld.index[2]));
+  num_saved_lines = max_index - min_index;
+  if (s->ld.index[0] == 0)
     num_saved_lines = 0;
   /* restore the previously saved lines: */
   memcpy (out, s->ld.buf[0], num_saved_lines * bpl);
   DBG (5, "fix_line_distance_block: copied %d lines from "
-       "ld.buf to buffer\n", num_saved_lines);
+       "ld.buf to buffer (max=%d, min=%d)\n", num_saved_lines, max_index,
+       min_index);
   while (1)
     {
       if (++s->ld.lmod3 >= 3)
@@ -3707,28 +3748,35 @@ fix_line_distance_block (Mustek_Scanner *s, SANE_Int num_lines, SANE_Int bpl,
 	      DBG (5, "fix_line_distance_block: copied line %d (color %d)\n",
 		   line + s->ld.ld_line, c);
 
-	      if ((raw >= raw_end) || ((s->ld.index[0] >= num_lines_total) &&
-			       (s->ld.index[1] >= num_lines_total) &&
-				       (s->ld.index[2] >= num_lines_total)))
+	      max_index = MAX(s->ld.index[0],
+			      MAX(s->ld.index[1], s->ld.index[2]));
+	      min_index = MIN(s->ld.index[0], 
+			      MIN(s->ld.index[1], s->ld.index[2]));
+	      if ((raw >= raw_end) || ((min_index >= num_lines_total)))
 		{
 		  DBG(5, "fix_line_distance_block: got num_lines: %d\n",
 		      num_lines);
-		  num_lines = s->ld.index[2] - s->ld.ld_line;
+		  num_lines = min_index - s->ld.ld_line;
 		  if (num_lines < 0)
 		    num_lines = 0;
 		  
 		  /* copy away the lines with at least one missing
 		     color component, so that we can interleave them
 		     with new scan data on the next call */
-		  num_saved_lines = s->ld.index[0] - s->ld.index[2];
-		  
+		  num_saved_lines = max_index - min_index;
+
+		  DBG (5, "fix_line_distance_block: num_saved_lines = %d; "
+		       "num_lines = %d; bpl = %d\n", num_saved_lines,
+		       num_lines, bpl);
+
 		  memcpy (s->ld.buf[0], out + num_lines * bpl,
 			  num_saved_lines * bpl);
+
 		  DBG (5, "fix_line_distance_block: copied %d lines to "
 		       "ld.buf\n", num_saved_lines);
 		  
 		  /* notice the number of lines we processed */
-		  s->ld.ld_line = s->ld.index[2];
+		  s->ld.ld_line = min_index;
 		  if (s->ld.ld_line < 0)
 		    s->ld.ld_line = 0;
 		  
@@ -3744,6 +3792,49 @@ fix_line_distance_block (Mustek_Scanner *s, SANE_Int num_lines, SANE_Int bpl,
 	}
     }
 }
+
+/* For MFS-1200SP 1.00 and others */
+/* No LD correction necessary, just shuffle around data */
+static SANE_Int
+fix_line_distance_none (Mustek_Scanner *s, SANE_Int num_lines, SANE_Int bpl,
+			  SANE_Byte *raw, SANE_Byte *out)
+{
+  SANE_Byte *red_ptr, *grn_ptr, *blu_ptr, *ptr, *ptr_end;
+  SANE_Word y;
+          
+  ptr = out;
+  red_ptr = raw;
+
+  DBG(5, "fix_line_distance_none: no ld correction necessary (%d lines)\n",
+      num_lines);
+
+  s->ld.ld_line += num_lines;
+
+  if (s->ld.ld_line > s->params.lines)
+    num_lines -= (s->ld.ld_line - s->params.lines);
+  if (num_lines < 0)
+    num_lines = 0;
+
+  DBG(5, "fix_line_distance_none: using %d lines (ld_line = %d, "
+      "s->params.lines = %d)\n", num_lines, s->ld.ld_line, s->params.lines);
+
+  for (y = 0; y < num_lines; ++y)
+    {
+      grn_ptr = red_ptr + bpl / 3;
+      blu_ptr = grn_ptr + bpl / 3;
+      ptr_end = red_ptr + bpl;            
+      
+      while (blu_ptr != ptr_end)
+	{
+	  *ptr++ = *red_ptr++;
+	  *ptr++ = *grn_ptr++;
+	  *ptr++ = *blu_ptr++; 
+	}
+      red_ptr = ptr_end;
+    }
+  return num_lines;
+}
+
 
 static SANE_Status
 init_options (Mustek_Scanner *s)
@@ -4218,27 +4309,7 @@ output_data (Mustek_Scanner *s, FILE *fp,
       else if (!(s->hw->flags & MUSTEK_FLAG_LD_NONE) && (s->ld.max_value != 0))
 	fix_line_distance_normal (s, num_lines, bpl, data, extra);
       else
-        {
-	  /* Just shuffle around while copying from *data to *extra */ 
-          SANE_Byte *red_ptr, *grn_ptr, *blu_ptr;
-          
-          ptr = extra;
-          red_ptr = data;
-          for (y = 0; y < num_lines; ++y)
-            {
-	      grn_ptr = red_ptr + bpl / 3;
-	      blu_ptr = grn_ptr + bpl / 3;
-	      ptr_end = red_ptr + bpl;            
-
-	      while (blu_ptr != ptr_end)
-		{
-		  *ptr++ = *red_ptr++;
-		  *ptr++ = *grn_ptr++;
-		  *ptr++ = *blu_ptr++;
-		}
-	      red_ptr = ptr_end;
-	    }
-	}
+	num_lines = fix_line_distance_none (s, num_lines, bpl, data, extra);
 
       if (strcmp (s->val[OPT_SOURCE].s, "Automatic Document Feeder") == 0)
 	{
@@ -5053,7 +5124,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
   s->fd = -1;
   s->pipe = -1;
   s->hw = dev;
-
+  s->ld.ld_line = 0;
   init_options (s);
 
   /* insert newly opened handle into list of open handles: */

@@ -191,7 +191,3 @@ More general comments, suggestions, and inquiries about frontends
 or SANE should go to 
 .BR sane\-devel@mostang.com ,
 the SANE Developers mailing list.
-
-
-
-

@@ -1,4 +1,4 @@
-.TH sane-config 1 "15 October 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-config 1 "8 Jan 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .SH NAME
 sane-config \- get information about the installed version of libsane
 .SH SYNOPSIS
@@ -16,7 +16,7 @@ backend library (libsane).
 .SH OPTIONS
 .l
 .B sane-config
-accepts the following options:
+accepts the following options (you can't use more than one option at the same time):
 .TP 8
 .B  \-\-version
 Print the currently installed version of libsane on the standard output.

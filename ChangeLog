@@ -1,3 +1,7 @@
+2004-01-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/sane-config.man: Only one option can be used at the same time.
+
 2004-01-09  Gerhard Jaeger <gerhard@gjaeger.de>
 	* doc/u12/U12.changes: initial checkin.
 	* doc/sane-u12.man doc/sane-plustek.man doc/sane-plustek_pp: added

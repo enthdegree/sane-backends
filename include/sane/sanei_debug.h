@@ -78,7 +78,7 @@ DBG_LOCAL (int level, const char *msg, ...)
   va_end (ap);
 }
 
-#  endif /* DEBUG_NOT_STATIC */
+#  endif /* DEBUG_DECLARE_ONLY */
 
 # endif /* !STUBS */
 

@@ -1,4 +1,4 @@
-TODO (2001-06-02)
+TODO (2001-06-04)
 
 ******** todo ********
 
@@ -47,10 +47,14 @@ backends
      - microtek
 
   * Check net/saned
-     - sometimes saned+net freezes right after a scan
+     - sometimes saned+net freezes right after a scan (is this still
+       occuring 2001-06-04?)
      - don't just ignore the byte-order for the image data (needed to
        support depths > 8 bits/channel)
-     - Add keep-alive mechanism to avoid timeouts
+     - saned times out after 5 minutes (now 60 minutes). Check if the
+       watchdog timer is really necessary (e.g. to avoid blocking scanners
+       by one user). Otherwise turn on TCP keep alive (where available) and
+       (maybe) check the connection from server side.
 
   * qcam:
      - implement auto mode for brightness and black-level (don't
@@ -96,9 +100,6 @@ backends
   * avision: line 1393: word isn't freed sometimes (maybe if  cp == line?)
 
   * add a contact address for each backend (in backend.desc).
-
-  * Don't export any other symbols than sane_* and sanei_*
-    - coolscan
 
 doc
 ---
@@ -165,7 +166,13 @@ misc
 
   * check memory leaks (checked with purify and mtrace (from glibc)):
 
-  * Check AIX/gcc shared lib loading problem: When starting scanimage,
+  * Use #include "../include/assert.h" instead of #include <assert.h> to
+    avoid problem with shared libraries on AIX.
+
+  * Add installation procedure for translations of SANE backend's options.
+
+******** done ********
+* Check AIX/gcc shared lib loading problem: When starting scanimage,
     only dll is loaded.
     Backend libraries can't be loaded:
     [dll] load: dlopen() failed (Symbol resolution failed for
@@ -174,10 +181,7 @@ misc
        module scanimage.
     This happens in most libraries. The reason is assert() e.g. in
     sanei_scsci.c. As assert() is in libgcc.a it can't be linked at runtime.
-
-  * Add installation procedure for translations of SANE backend's options.
-
-******** done ********
+* Don't export any other symbols than sane_* and sanei_*
 * nec:
    - Remove references to sharp backend (grep for "JX").
    - Check for HAVE_SYS_SHM_H before including sys/shm.h and

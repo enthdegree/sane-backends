@@ -1,3 +1,8 @@
+2002-04-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/mustek_usb.desc: Commented out 1200 USB as it is not
+	  really supported yet.
+
 2002-04-14  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* backend/plustek.[ch], backend/plustek-usbhw.c, backend/plustek-usbio.c,

@@ -1,4 +1,22 @@
+2004-08-03  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* AUTHORS: Added niash backend maintainer and author.
+	* configure.in: Added niash backend.
+	* backend/dll.conf: Added niash backend.
+	* backend/Makefile.in: Added niash backend files and target.
+	* backend/niash.c backend/niash_core.c backend/niash_core.h
+	  backend/niash-xfer.c backend/niash-xfer.h backend/niash-types.h: 
+	  Niash backend files, initial checkin.
+	* doc/sane-niash.man, doc/descriptions/niash.desc, doc/niash/niash.TODO: 
+	  Initial checkin.
+	* doc/Makefile.in: Added niash documentation stuff.
+	* doc/sane-man: Added niash manpage.
+	* po/Makefile.in: Added niash source file.
+	* po/sane-backends.de.po: Updated and completed niash backend translation.
+	* po/sane-backends.*.po: Added niash strings.
+
 2004-07-31  Julien Blache <jb at jblache dot org>
+
 	* frontend/scanimage.c: Added the possibility to cleanly stop a
 	batch by pressing Ctrl+D when using --batch-prompt.
 
@@ -8,6 +26,7 @@
 	  Grandtek Scopecam 
 
 2004-07-26  Gerhard Jaeger <gerhard@gjaeger.de>
+
 	* sanei/sanei_usb.c sanei/sanei configure configure.in: Added 
 	  resource manager library support.
 	* backend/plustek.[ch] backend/plustek-usbdevs.c backend/plustek-usbhw.c
@@ -36,6 +55,7 @@
 	  Epson Perfection 3170 (now in epkowa).
 
 2004-07-16  Gerhard Jaeger <gerhard@gjaeger.de>
+
 	* doc/plustek/Makefile.module doc/plustek/BUILD 
 	  doc/plustek/VERSION0 doc/plustek/VERSION1: Removed, no longer needed.
 	* doc/plustek/Makefile.kernel2x doc/plustek/MakeModule.sh:
@@ -86,6 +106,7 @@
 	* doc/descriptions/ma1509.desc: Removed dead link.
 
 2004-07-05  Gerhard Jaeger <gerhard@gjaeger.de>
+
 	* doc/descriptions/plustek.desc: Changed status of CanoScan D660U.
 	* doc/plustek/Plustek-USB*: Update.
 	* backend/plustek.c: Bumped up build number.
@@ -95,6 +116,7 @@
 	  for binary scanning for the CanoScan D660U, cleanup work.
 
 2004-07-03  Peter Fales <peter@fales-lorenz.net>
+
 	* acinclude.m4, aclocal.m4, configure, tools/sane-config.in: 
 	  When using pkg-config to get library flags for gphoto2, any
 	  extra flags (such as -L) must be passed to sane-config.in so
@@ -102,6 +124,7 @@
 	  (Bug #300686)
 
 2004-07-02  Gerhard Jaeger <gerhard@gjaeger.de>
+
 	* po/*.po: Updated according to changes in the plustek backend.
 	* backend/plustek.c backend/plustek-usb*: Major update, see
 	  doc/plustek/Plustek-USB.changes.
@@ -115,10 +138,12 @@
 	* doc/sane-u12.man: URL update.
 
 2004-06-30  Frank Zago  <fzago at austin dot rr dot com>
+
 	* backend/leo.c doc/descriptions/leo.desc: added support for 
 	  Genius FS-1130 Colorpage Scanner.
 
 2004-06-30  Gerhard Jaeger <gerhard@gjaeger.de>
+
 	* doc/plustek/Makefile.kernel26: fixed floating point issues 
 	  for SuSE kernels.
 
@@ -130,10 +155,12 @@
 	  jose <jgato@lambdaux.com>). Other minor fixes.
 	
 2004-06-28 m. allan noah <anoah at pfeiffer dot edu>
+
 	* backend/fujitsu.c: use model code instead of string compare
 	   submitted by: stan at saticed.me.uk
 
 2004-06-21  Gerhard Jaeger <gerhard@gjaeger.de>
+
 	* doc/descriptions/unsupported.desc: removed Compac S4 100 
 	  (supported by the Plustek backend), added various Plustek
 	  devices, changed OpticPro m12 to OpticSlim M12
@@ -146,14 +173,17 @@
 	  #300815).
 
 2004-06-22  Rene Rebe <rene@rocklinux.org>
+
 	* backend/avision.c, backend/avision.h, doc/sane-avision.man:
 	  Fixed compilation warning (Bug #300399) and added a force-a3
 	  option, needed for A3 scanner returning bogus scan area definitions
 
 2004-06-21  Gerhard Jaeger <gerhard@gjaeger.de>
+
 	* po/*.po: Updated according to upcomming changes in the plustek backend.
 
 2004-06-20  Mattias Ellert <mattias.ellert@tsl.uu.se>
+
 	* aclocal.m4, configure, sane/config.h.in, backend/Makefile.in, 
 	  backend/agfafocus.c, backend/artec_eplus48u.c, backend/avision.c,
 	  backend/coolscan.c, backend/fujitsu.c, backend/pie.c,
@@ -165,6 +195,7 @@
 	* Migrating the avision backend to sanei_threads (bug #300631)
 
 2004-06-19  Mattias Ellert <mattias.ellert@tsl.uu.se>
+
 	* backend/gt68xx.c po/sane-backends.bg.po po/sane-backends.cs.po
 	  po/sane-backends.da.po po/sane-backends.de.po
 	  po/sane-backends.es.po po/sane-backends.fr.po
@@ -177,12 +208,14 @@
 	* Swedish translation updated
 
 2004-06-19  Mattias Ellert <mattias.ellert@tsl.uu.se>
+
 	* sanei/sanei_scsi.c, tools/sane-find-scanner.c
 	* SCSI scanners can now be selected by LUN on MacOS X
 	* sane-find-scanner now finds SCSI scanners on MacOS X
 	* making some sanei_scsi internal functions static
 
 2004-05-30  Peter Fales <peter@fales-lorenz.net>
+
 	* acinclude.m4, aclocal.m4, configure.in, configure
 	In addition to using pkg-config to find the gphoto2 library flags,
 	we should check to see whether it's actually possible to link
@@ -231,6 +264,7 @@
 	  ASIC to settle down after probing.
 
 2004-06-13  Julien Blache <jb@jblache.org>
+
 	* doc/Makefile.in: saned is in /usr/sbin, its manpage should go to
 	section 8. Fixed everything referring to saned(1) to refer to saned(8).
 

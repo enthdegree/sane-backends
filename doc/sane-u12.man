@@ -1,4 +1,4 @@
-.TH sane-u12 5 "05 January 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-u12 5 "06 Jan 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-u12
 .SH NAME
 sane-u12 \- SANE backend for Plustek USB flatbed scanners,
@@ -32,7 +32,7 @@ OpticPro U1212     600x1200dpi 42bit 512Kb  0x0001
 OpticPro UT12      600x1200dpi 42bit 512Kb  0x0001
 .PP
 
-Vendor KYE/Genius - ID: 0x0458
+Vendor KYE/Genius - ID: 0x0458 (Vivid III = 0x07B3)
 .br
 ------------------------------------------------------------
 .br
@@ -40,7 +40,7 @@ USB Model:                  Properties:              Prod-ID
 .br
 ------------------------------------------------------------
 .br
-ColorPage Vivid III V2 USB  600x1200dpi 42bit 512Kb  0x????
+ColorPage Vivid III USB     600x1200dpi 42bit 512Kb  0x0001
 .br
 ColorPage HR6 V1            600x1200dpi 42bit 512Kb  0x2004
 .PP

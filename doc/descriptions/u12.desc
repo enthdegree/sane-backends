@@ -16,7 +16,6 @@
 :url "http://www.plustek.de/"
 :url "http://www.plustek.com/"
 
-;name models for above-specified mfg.
 :model "OpticPro U12"
 :interface "USB"
 :status :minimal
@@ -40,6 +39,6 @@
 :interface "USB"
 :status :untested
 
-:model "ColorPage Vivid III V2 USB"
+:model "ColorPage Vivid III USB"
 :interface "USB"
 :status :untested

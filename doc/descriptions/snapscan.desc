@@ -12,7 +12,6 @@
 
 :backend "SnapScan"               	; name of backend
 :version "1.4"                    	; version of backend
-:status :stable                    	; :alpha, :beta, :stable, :new
 :manpage "sane-snapscan"          	; name of manpage (if it exists)
 :url "http://snapscan.sourceforge.net/" ; backend's web page
 :comment "Supported  bit depths: 24 bit (color), 8 bit (gray)"
@@ -28,68 +27,68 @@
 
 :model "SnapScan 300"                  	; name models for above-specified mfg.
 :interface "SCSI"
-:status :beta
+:status :good
 
 :model "SnapScan 310"
 :interface "SCSI"
-:status :beta
+:status :good
 
 :model "SnapScan 600"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "Optional ADF supported."
 
 :model "Arcus 1200"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "Optional transparency unit supported."
 
 :model "SnapScan 1236s"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "Optional ADF and transparency unit supported."
 
 :model "SnapScan 1236u"
 :interface "USB"
-:status :stable
+:status :good
 :comment "Optional ADF and transparency unit supported."
 
 :model "SnapScan 1212u"
 :interface "USB"
-:status :stable
+:status :good
 
 :model "SnapScan e10"
 :interface "USB"
-:status :stable
+:status :good
 
 :model "SnapScan e20"
 :interface "USB"
-:status :stable
+:status :good
 
 :model "SnapScan e25"
 :interface "USB"
-:status :stable
+:status :good
 
 :model "SnapScan e26"
 :interface "USB"
-:status :stable
+:status :good
 
 :model "SnapScan e40"
 :interface "USB"
-:status :stable
+:status :good
 
 :model "SnapScan e42"
 :interface "USB"
-:status :stable
+:status :good
 
 :model "SnapScan e50"
 :interface "USB"
-:status :stable
+:status :good
 :comment "Optional tranparency unit supported"
 
 :model "SnapScan e52"
 :interface "USB"
-:status :stable
+:status :good
 :comment "Optional tranparency unit supported"
 
 :model "SnapScan e60"
@@ -110,70 +109,71 @@
 
 :model "300f"
 :interface "SCSI"
-:status :stable
+:status :good
 
 :model "310s"
 :interface "SCSI"
-:status :stable
+:status :good
 
 :model "610s"
 :interface "SCSI"
-:status :stable
+:status :good
 
 :model "610plus"
 :interface "SCSI"
-:status :stable
+:status :good
 
 :model "620s"
 :interface "SCSI"
-:status :stable
+:status :good
 
 :model "310u"
 :interface "USB"
-:status :stable
+:status :good
 
 :model "320u"
 :interface "USB"
-:status :stable
+:status :good
 
 :model "340u"
 :interface "USB"
-:status :stable
+:status :good
 
 :model "620u"
 :interface "USB"
-:status :stable
+:status :good
 :comment "Optional tranparency unit supported"
 
 :model "640u"
 :interface "USB"
-:status :stable
+:status :good
 :comment "Optional tranparency unit supported"
 
 :model "640bu"
 :interface "USB"
-:status :stable
+:status :good
 
 :model "1240"
 :interface "USB"
-:status :stable
+:status :good
 :comment "Optional tranparency unit supported"
 
 :model "3300"
 :interface "USB"
-:status :stable
+:status :good
 
 :model "4300"
 :interface "USB"
-:status :stable
+:status :good
 
 :model "5000"
 :interface "USB"
-:status :beta
+:status :basic
+:comment "Working up to 600 DPI"
 
 :model "5300"
 :interface "USB"
-:status :alpha
+:status :basic
 :comment "Problems with firmware upload reported"
 
 ;------------------------------------------------------------------------------
@@ -183,17 +183,17 @@
 
 :model "Maxi Scan A4 Deluxe (SCSI)"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "Rebadged SnapScan 310s."
 
 :model "Scan@home Touch 1248 (USB)"
 :interface "USB"
-:status :stable
+:status :good
 :comment "Rebadged Benq 3300."
 
 :model "Maxi Scan A4 USB 640U"
 :interface "USB"
-:status :stable
+:status :good
 :comment "Rebadged Benq 640U."
 
 ;------------------------------------------------------------------------------
@@ -203,12 +203,12 @@
 
 :model "Diamondview 648UT"
 :interface "USB"
-:status :stable
+:status :good
 :comment "Rebadged Benq 320u."
 
 :model "Diamondview 650U"
 :interface "USB"
-:status :stable
+:status :good
 :comment "Rebadged Benq 4300."
 
 ;------------------------------------------------------------------------------
@@ -218,7 +218,7 @@
 
 :model "Perfection 660"
 :interface "USB"
-:status :beta
+:status :good
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

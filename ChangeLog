@@ -1,3 +1,7 @@
+2003-07-22  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* doc/descriptions/snapscan.desc: Updated to use new status values.
+
 2003-07-22  Matthew Duggan <stauff1@users.sourceforge.net>
 
 	* doc/descriptions/canon_pp.desc: Updated to use new status values.

@@ -26,7 +26,7 @@
 :model "ScanExpress 1200 UB"
 :interface "USB"
 :status :stable
-:comment "Only 1200 UB is supported, NOT UB Plus!"
+:comment "For the UB Plus, see gt68xx backend"
 
 ;:model "ScanExpress 1200 USB"
 ;:interface "USB"

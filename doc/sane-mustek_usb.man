@@ -1,14 +1,14 @@
-.TH sane-mustek_usb 5 "12 Jan 2002"
+.TH sane-mustek_usb 5 "21 Nov 2002" @PACKAGEVERSION@ "SANE Scanner Access Now Easy"
 .IX sane-mustek_usb
 .SH NAME
-sane-mustek_usb - SANE backend for Mustek USB flatbed scanners
+sane-mustek_usb \- SANE backend for Mustek USB flatbed scanners
 .SH DESCRIPTION
 The
 .B sane-mustek_usb
-library implements a SANE (Scanner Access Now Easy) backend that
-provides access to Mustek (and some relabeled Trust) USB flatbed scanners.
-At present, the following scanners are known to work more or less with
-this backend:
+library implements a SANE (Scanner Access Now Easy) backend that provides
+access to Mustek USB flatbed scanners (including a clone from Trust).  At
+present, the following scanners are known to work more or less with this
+backend:
 .PP
 .RS
 Mustek 600 CU
@@ -27,26 +27,21 @@ More details can be found on the Mustek backend homepage
 .IR http://www.meier-geinitz.de/sane/ .
 .PP
 The Mustek BearPaw 1200 and 2400 scanners are supported by the plustek
-backend. See sane-plustek(5) for details.
-.PP
-This backend is based on the 1200ub backend provided by Mustek. It was
-modified to fit into the SANE distribution, some bugs were fixed, support
-for the 600 CU was added, and some features added.
-.PP
-This is BETA software. It currently only works on Linux and FreeBSD. Other
-systems are untested. See BUGS for more information.
+backend. See 
+.BR sane-plustek (5)
+for details. Other Mustek USB scanners are supported by the gt68xx backend,
+see
+.BR sane-gt68xx (5).
 .PP
 This backend can only work with scanners that are already detected by the
-operating system. For Linux, it may be necessary to load the scanner module
-with additional vendor/product parameters /see
-/usr/src/linux/Documentation/usb/scanner.txt for details). With FreeBSD upto
-4.4 only the 1200 CU will work out-of-the box. For other scanners, their ids
-must be added to the FreeBSD uscanner.c file and a new kernel must be
-compiled.
+operating system. See 
+.BR sane-usb (5)
+for details.
 .PP
 If you own a Mustek (or Trust) scanner other than the ones listed above that
-works with this backend, please let me know this by sending the scanner's exact
-model name and the USB vendor and device ids (e.g. from /proc/bus/usb/devices
+works with this backend, please let me know this by sending the scanner's
+exact model name and the USB vendor and device ids (e.g. from
+.I /proc/bus/usb/devices
 or syslog) to me.
 
 .SH "DEVICE NAMES"
@@ -76,28 +71,29 @@ USB scanners.  Empty lines and lines starting with a hash mark (#) are
 ignored. If a device name is placed in 
 .IR mustek_usb.conf ,
 it must be followed by a line containing the keyword
-.I option
+.B option
 and an option specifying the scanner type. The following options can be used:
-.IR 600cu ,
-.IR 1200cu ,
-.IR 1200cu_plus ,
-.IR 1200ub .
+.BR 600cu ,
+.BR 1200cu ,
+.BR 1200cu_plus ,
+.BR 1200ub .
 For the Trust Compact Scan USB 19200 use `option 1200ub'.
 .PP
 Instead of using the device name, the scanner can be autodetected by 
-.I "usb vendor_id product_id"
+.B "usb vendor_id product_id"
 statements which are already included into
 .IR mustek_usb.conf .
-This is only supported with Linux 2.4.8 and higher. "vendor_id" and
-"product_id" are hexadecimal numbers that identfy the scanner. If this doesn't
-work, a device name and the option specifying the scanner type must be placed
-in
-.IR mustek_usb.conf .
+This is only supported with Linux 2.4.8 and higher and all systems that
+support libsub. "vendor_id" and "product_id" are hexadecimal numbers that
+identfy the scanner. If this doesn't work, a device name and the option
+specifying the scanner type must be placed in
+.I mustek_usb.conf 
+as described above.
 .PP
 The global
-.I option max_block_size
+.B option max_block_size
 can be used to limit the amount of data acquired in one turn from the USB
-system. It may be woth trying, if USB errors occur.
+system. It may be worth trying, if USB errors occur.
 .PP
 A sample configuration file is shown below:
 .PP
@@ -116,8 +112,11 @@ option 600cu
 The first line is ignored. The second line sets the buffer size to a maximum of
 1024 bytes.  The third line tries to autodetect a scanner with vendor id 0x055f
 and product id 0x0001 (Mustek 1200 CU). The fourth line tells the backend to
-attach to /dev/usb/scanner0 and the fifth line specifies that
-/dev/usb/scanner0 is a Mustek 600 CU.
+attach to 
+.I /dev/usb/scanner0
+and the fifth line specifies that
+.I /dev/usb/scanner0
+is a Mustek 600 CU.
 .SH FILES
 .TP
 .I @CONFIGDIR@/mustek_usb.conf
@@ -167,26 +166,29 @@ Example:
 export SANE_DEBUG_MUSTEK_USB=4
 
 .SH "SEE ALSO"
-sane(7), sane-usb(5), sane\-mustek(5), sane\-mustek_pp(5), sane-plustek(5)
+.BR sane (7),
+.BR sane-usb (5),
+.BR sane-mustek (5),
+.BR sane-mustek_pp (5),
+.BR sane-plustek (5),
+.BR sane-gt68xx (5)
 .br
-@DOCDIR@/mustek_usb/mustek_usb.CHANGES, 
-@DOCDIR@/mustek_usb/mustek_usb.TODO
- 
-.SH AUTHOR
-Tom Wang (Mustek, original 1200ub backend), Henning Meier-Geinitz
-<henning@meier-geinitz.de>
+.IR @DOCDIR@/mustek_usb/mustek_usb.CHANGES ,
+.I @DOCDIR@/mustek_usb/mustek_usb.TODO
+.br
+.I http://www.meier-geinitz.de/sane/ 
 
+.SH AUTHOR
+Henning Meier-Geinitz <henning@meier-geinitz.de>
+.br
+This backend is based on the Mustek 1200ub backend from Mustek, maintained by
+Tom Wang.
 
 .SH BUGS
-This is BETA software. That means that it may contain bugs. 
-.PP
 FreeBSD support is shaky. Most of the time, scanning will work only in the
 first xscanimage/xsane session. After closing the frontend, the scanner will
-freeze. The reason is unknown until now.
+freeze. The reason is unknown until now. The same happens with OpenBSD and
+NetBSD.
 .PP
-More detailed bug information is
-available at the Mustek backend homepage
+More detailed bug information is available at the Mustek backend homepage
 .IR http://www.meier-geinitz.de/sane/ .
-See also the CHANGES and TODO files.
-Please contact me if you find a bug or missing feature:
-<henning@meier-geinitz.de>

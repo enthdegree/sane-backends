@@ -1,10 +1,8 @@
-2001-09-13
+2002-11-21
 
 * Support more scanners
   - 1200 USB (work in progress)
   - 600 USB
-* Add support for non-Linux OS
-  - FreeBSD: Scanning works, but after sane_close, a new scan will hang.
 * Remove/replace _word variables from usb_low
 * Check if low resolutions can be made faster.
 * Check fixmes.

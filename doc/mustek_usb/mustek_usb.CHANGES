@@ -1,5 +1,15 @@
 CHANGES for the SANE Mustek USB backend
 
+2002-11-20:
+  * Man page updated concerning The BSDs.
+
+2002-11-19:
+  * Added desc file hint to the gt68xx backend.
+
+2002-11-17:
+  * Fixed minor issues in the man page. Removed beta status. Added links
+    to other backends for Mustek scanners.
+
 2002-07-17:
   * Release of version 1.0-15. 
 

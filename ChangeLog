@@ -1,5 +1,6 @@
 2001-06-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* AUTHORS: Fixed Kazuya Fukuda's name and email address.
 	* backend/nec.c backend/nec.h backend/nec.desc: Update to backend
 	  version 0.12 (from Kazuya Fukuda <kazuya@pjs.nevt.nec.co.jp>).
 	  Removed references to sharp backend (grep for "JX"). Check for

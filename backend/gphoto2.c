@@ -104,7 +104,6 @@
 
 
 #include <gphoto2-camera.h>
-#include <gphoto2-debug.h>
 #include <gphoto2-port-log.h>
 
 #define CHECK_EXIT(f) {int res = f; if (res < 0) {DBG (0,"ERROR: %s\n", gp_result_as_string (res)); exit (1);}}
@@ -377,7 +376,7 @@ init_gphoto2 (void)
   SANE_Int n, m, port;
   CameraAbilitiesList *al;
 
-  gp_debug_printf (GP_DEBUG_HIGH, "SANE", "Initializing\n");
+  gp_log (GP_LOG_VERBOSE, "SANE", "Initializing\n");
 
   if (!Cam_data.camera_name)
     {

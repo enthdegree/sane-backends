@@ -14,7 +14,7 @@
 
 \title{\huge SANE Standard Version 1.03}
 \author{}
-\date{2002-10-01} 
+\date{2002-10-10} 
 
 \makeindex
 
@@ -1070,15 +1070,15 @@ SANE_Range;
 
 \subsection{\code{sane\_init}}
 
-This function must be called before any other SANE function can be
-called.  The behavior of a SANE backend is undefined if this function
-is not called first.  The version code of the backend is returned in
-the value pointed to by \code{version\_code}.  If that pointer is
-\code{NULL}, no version code is returned. 
-  Argument \code{authorize} is either a pointer to a function that is
-  invoked when the backend requires authentication for a specific
-  resource or \code{NULL} if the frontend does not support
-  authentication.
+This function must be called before any other SANE function can be called.
+The behavior of a SANE backend is undefined if this function is not called
+first or if the status code returned by \code{sane\_init} is different from
+\code{\defn{SANE\_STATUS\_GOOD}}.  The version code of the backend is returned
+in the value pointed to by \code{version\_code}.  If that pointer is
+\code{NULL}, no version code is returned.  Argument \code{authorize} is either
+a pointer to a function that is invoked when the backend requires
+authentication for a specific resource or \code{NULL} if the frontend does not
+support authentication.
 \begin{quote}\index{sane\_init}
 \begin{verbatim}
 SANE_Status sane_init (SANE_Int * version_code,
@@ -1492,6 +1492,11 @@ This function may fail with one of the following status codes.
   with the device.
 \item[\code{SANE\_STATUS\_NO\_MEM}:] An insufficent amount of memory
   is available.
+\item[\code{SANE\_STATUS\_INVAL}:] The scan cannot be started with the current
+  set of options. The frontend should reload the option descriptors, as if
+  \code{\defn{SANE\_INFO\_RELOAD\_OPTIONS}} had been returned from a call to
+  \code{sane\_control\_option()}, since the device's capabilities may have
+  changed.
 \end{description}
 \end{quote}
 
@@ -1573,10 +1578,11 @@ cancelled operation has returned.
 
 \subsection{\code{sane\_set\_io\_mode}}
 
-This function is used to set the I/O mode of handle \code{h}.  The I/O
-mode can be either blocking or non-blocking.  If argument \code{m} is
-\code{SANE\_TRUE}, the mode is set to non-blocking mode, otherwise
-it's set to blocking mode.
+This function is used to set the I/O mode of handle \code{h}.  The I/O mode
+can be either blocking or non-blocking.  If argument \code{m} is
+\code{SANE\_TRUE}, the mode is set to non-blocking mode, otherwise it's set to
+blocking mode.  This function can be called only after a call to
+\code{sane\_start()} has been performed.
 \begin{quote}\index{sane\_set\_io\_mode}
 \begin{verbatim}
 SANE_Status sane_set_io_mode (SANE_Handle h, SANE_Bool m);
@@ -1594,7 +1600,7 @@ This function may fail with one of the following status codes:
 \begin{description}
 \item[\code{SANE\_STATUS\_INVAL}:] No image acquisition is pending.
 \item[\code{SANE\_STATUS\_UNSUPPORTED}:] The backend does not support
-  this operation.
+  the requested I/O mode.
 \end{description}
 \end{quote}
 

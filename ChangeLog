@@ -1,3 +1,10 @@
+2002-10-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/sane.tex: Backend behaviour is undefined if sane_init
+	  doesn't return SANE_STATUS_GOOD. Added SANE_STATUS_INVAL to
+	  return codes for sane_start. Description of sane_set_io_mode is
+	  more precise.
+
 2002-10-15  Peter Kirchgessner <peter@kirchgessner.net>
 
 	* backend/hp.conf: Added comment for USB-scanner

@@ -656,12 +656,14 @@ static Avision_HWEntry Avision_Device_List [] =
       0x0638, 0x0A24,
       "Avision", "AV210",
       AV_USB, AV_FLATBED, 0},
+    /* comment="sheetfed scanner" */
     /* status="untested" */
 
-    { "AVISION", "AV220",
+    { "AVISION", "AVISION AV220",
       0x0638, 0x0A23,
       "Avision", "AV220",
       AV_USB, AV_FLATBED, 0},
+    /* comment="duplex! sheetfed scanner" */
     /* status="untested" */
 
     { "AVISION", "AV240SC",
@@ -704,15 +706,14 @@ static Avision_HWEntry Avision_Device_List [] =
       0x638, 0xa18,
       "Avision", "AV610",
       AV_SCSI, AV_FLATBED, 0},
-    /* comment="test at CeBIT 2004 USB 2.0 problems with my laptop used" */
     /* status="basic" */
       
     /* { "AVISION", "AVA6", 
       0x638, 0xa22,
       "Avision", "AVA6",
       AV_USB, AV_FLATBED, 0}, */
-    /* comment=" */
-    /* status="untested - probably a non-GPU device" */
+    /* comment="probably a CPU-less device" */
+    /* status="untested" */
     
     { "AVISION", "AV610CU",
       0x0638, 0x0A16,
@@ -866,7 +867,7 @@ static Avision_HWEntry Avision_Device_List [] =
       "Avision", "AVA3",
       AV_SCSI, AV_FLATBED, AV_FORCE_A3},
     /* comment="1 pass, 600 dpi, A3" */
-    /* status="beta" */
+    /* status="basic" */
 
     { "AVision", "DS610CU",
       0x638, 0xa16,
@@ -900,27 +901,43 @@ static Avision_HWEntry Avision_Device_List [] =
     
 #ifdef FAKE_ENTRIES_FOR_DESC_GENERATION
     { "hp",      "scanjet 7450c",
-      0, 0,
+      0x03f0, 0x0801,
       "Hewlett-Packard", "ScanJet 7450c",
       AV_USB, AV_FLATBED, AV_FIRMWARE | AV_RES_HACK},
     /* comment="1 pass, 2400 dpi - dual USB/SCSI interface - regularly tested" */
     /* status="good" */
     
     { "hp",      "scanjet 7490c",
-      0, 0,
+      0x03f0, 0x0801,
       "Hewlett-Packard", "ScanJet 7490c",
       AV_USB, AV_FLATBED, AV_FIRMWARE | AV_RES_HACK},
     /* comment="1 pass, 1200 dpi - dual USB/SCSI interface" */
     /* status="good" */
+
 #endif
-    
-    { "HP",      "C9930",
-      0, 0,
+    { "HP",      "C9930A",
+      0x03f0, 0x0b01,
       "Hewlett-Packard", "ScanJet 8200",
       AV_USB, AV_FLATBED, AV_FIRMWARE | AV_RES_HACK},
-    /* comment="1 pass, 4800 (?) dpi - USB 2.0 - not yet tested" */
+    /* comment="1 pass, 4800 (?) dpi - USB 2.0" */
+    /* status="untested" */
+
+#ifdef FAKE_ENTRIES_FOR_DESC_GENERATION
+    { "HP",      "C9930A",
+      0x03f0, 0x0b01,
+      "Hewlett-Packard", "ScanJet 8250",
+      AV_USB, AV_FLATBED, AV_FIRMWARE | AV_RES_HACK},
+    /* comment="1 pass, 4800 (?) dpi - USB 2.0" */
+    /* status="untested" */
+
+    { "HP",      "C9930A",
+      0x03f0, 0x0b01,
+      "Hewlett-Packard", "ScanJet 8290",
+      AV_USB, AV_FLATBED, AV_FIRMWARE | AV_RES_HACK},
+    /* comment="1 pass, 4800 (?) dpi - USB 2.0" */
     /* status="untested" */
     
+#endif 
     { "MINOLTA", "FS-V1",
       0x0638, 0x026a,
       "Minolta", "Dimage Scan Dual II",
@@ -998,6 +1015,12 @@ static Avision_HWEntry Avision_Device_List [] =
       "Fujitsu", "ScanPartner 600C",
       AV_SCSI, AV_SHEETFEED, 0},
     /* status="untested" */
+
+    { "FCPA", "ScanPartner 620C",
+      0, 0,
+      "Fujitsu", "ScanPartner 620C",
+      AV_SCSI, AV_SHEETFEED, 0},
+    /* status="good" */
     
     { "FCPA", "ScanPartner Jr",
       0, 0,

@@ -1,3 +1,8 @@
+
+2004-11-19  Rene Rebe <rene@exactcode.de>
+
+	* backend/avison.c doc/descriptions/avision.desc: just added new IDs
+
 2004-11-19  Gerhard Jaeger <gerhard@gjaeger.de>
 	
 	* backend/plustek.c backend/plustek-usb*: Major update, see

@@ -43,10 +43,12 @@
 
 :model "AV210"
 :interface "USB"
+:comment "sheetfed scanner"
 :status :untested
 
 :model "AV220"
 :interface "USB"
+:comment "duplex! sheetfed scanner"
 :status :untested
 
 :model "AV240SC"
@@ -75,12 +77,11 @@
 
 :model "AV610"
 :interface "SCSI"
-:comment "test at CeBIT 2004 USB 2.0 problems with my laptop used"
 :status :basic
 
 :model "AVA6"
 :interface "USB"
-:comment "probably a non-CPU device"
+:comment "probably a CPU-less device"
 :status :untested
 
 :model "AV610CU Scancopier"
@@ -229,7 +230,17 @@
 
 :model "ScanJet 8200"
 :interface "USB"
-:comment "1 pass, 4800 (?) dpi - USB 2.0 - not yet tested"
+:comment "1 pass, 4800 (?) dpi - USB 2.0"
+:status :untested
+
+:model "ScanJet 8250"
+:interface "USB"
+:comment "1 pass, 4800 (?) dpi - USB 2.0"
+:status :untested
+
+:model "ScanJet 8290"
+:interface "USB"
+:comment "1 pass, 4800 (?) dpi - USB 2.0"
 :status :untested
 
 
@@ -292,6 +303,10 @@
 :model "ScanPartner 600C"
 :interface "SCSI"
 :status :untested
+
+:model "ScanPartner 620C"
+:interface "SCSI"
+:status :good
 
 :model "ScanPartner Jr"
 :interface "SCSI"

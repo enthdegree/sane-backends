@@ -25,6 +25,9 @@
 	  Added new backend umax1220u for UMAX Astra 1220U and 2000U
 	  scanners (patch from Marcio Luis Teixeira 
 	  <marciot@holly.colostate.edu>).
+	* doc/Makefile.in doc/sane.man doc/sane-umax1220u.man: Added
+	  documentation fo umax1220u backend (patch from from Marcio Luis
+	  Teixeira <marciot@holly.colostate.edu>).
 
 2002-01-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -1,3 +1,8 @@
+2001-06-02  Oliver Rauch <Oliver.Rauch@rauch-domain.de>
+
+	* changed minimum scsi buffer size from 64KB to 32KB
+
+
 2001-06-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/umax_pp_low.c: Fixed the FreeBSD problems by checking

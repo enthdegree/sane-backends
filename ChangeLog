@@ -4,6 +4,8 @@
 	  found.
 	* frontend/saned.c: Use u_int_* instead of uint_*. That fixes
 	  compilation for MacOS X (hopefully).
+	* doc/Makefile.in: Add option -nodepage to man2html to avoid
+	  missing lines in the html output.
 
 2003-05-25  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

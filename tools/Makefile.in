@@ -120,6 +120,9 @@ clean:
 distclean: clean
 	rm -f Makefile $(DESTINATIONS) mustek600iin-off sane-desc
 	rm -f $(DISTCLEAN_FILES)
+	for subdir in $(SUBDIRS) ; do \
+	  ( cd $$subdir ; rm -f $(DISTCLEAN_FILES) ); \
+	done
 
 dist: $(DISTFILES)
 	for subdir in $(SUBDIRS) ; do \

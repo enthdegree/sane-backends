@@ -1,6 +1,7 @@
 2004-04-12  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* README.windows: Mentioned C++ misdetection trouble.
+	* tools/Makefile.in: In make distclean also clean subdirectories.
 
 2004-04-11  Karl Heinz Kremer <khk@khk.net>
 

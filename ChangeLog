@@ -1,3 +1,11 @@
+2002-03-03  Frank Zago <fzago@greshamstorage.com>
+
+	* doc/sceptre/s1200.txt: doc updates
+	* backend/sceptre.desc: increased version
+	* backend/sceptre.c backend/sceptre.h: fixed a gamma table bug,
+	  fixed some color shifting problems, some cleanups.
+	* doc/sceptre.man: doc updates
+
 2002-02-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/Makefile.in: Removed getopt.o getopt1.o and md5.o from

@@ -1,3 +1,7 @@
+2003-01-20  Karl Heinz Kremer <khk@khk.net>
+
+	* doc/descriptions/epson.desc: Replace :new with :alpha
+
 2003-01-19  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson_usb.c: Added USB product IDs for MFDs.

@@ -149,8 +149,8 @@
 
 :model "CX-3200"
 :interface "USB"
-:status :new
+:status :alpha
 
 :model "CX-5200"
 :interface "USB"
-:status :new
+:status :alpha

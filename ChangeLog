@@ -8,6 +8,8 @@
 	  seem to like that.
 	* doc/descriptions/unsupported.desc: Added some Boeder, Brother, HP and
 	  Trust scanners.
+	* TODO: Removed fujitsu and ma1509 entries. Updated .desc files and
+	  global variables entry.
 
 2003-03-10  Oliver Schirrmeister <oschirr@abm.de>
 

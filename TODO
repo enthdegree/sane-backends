@@ -1,4 +1,4 @@
-TODO (2003-02-22)
+TODO (2003-03-13)
 
 ******** todo ********
 
@@ -11,8 +11,6 @@ backends
       http://hp4200-backend.sourceforge.net/
       http://www.linuxprinting.org/till/tmp/sane-backends-1.0.9-hp4200-0.3.patch.bz2
       http://fz.eryx.net/sane/#hp4200
-    + Mustek BearPaw 1200F (ma1509)
-      http://www.meier-geinitz.de/sane/ma1509-backend/
 
   * qcam:
      - implement auto mode for brightness and black-level (don't
@@ -73,21 +71,15 @@ backends
       [artec] 0x10: 41 54 33 20 20 20 20 20 31 2e 36 30 20 20 20 20 AT3    1.60
     - Fix email address of Chris Pinkham. cpinkham@infi.net bounces.
 
-  * fujitsu:
-    - Add support for USB scanners (patch from Ron Cemer ron@roncemer.com)
-    - Add Fujitsu Scanpartner 93GX to list of supported devices, it worked at least 
-      with the m3096g backend.
   * All backends:
     Check that global variables are initialized propperly. sane_init can be
     called more than once (if sane_exit was called before)! Global variables
     must be either initialized in sane_init or reset in sane_exit.
     At least these backends segfault:
-    -  artec
+    - artec
     - mustek_pp
-    - pie
     - umax
-    - umax_pp
-
+    
 
 doc
 ---
@@ -99,9 +91,8 @@ doc
   * desc files:
     - Add keywords "vendor-id" and "product-id" for SCSI and USB ids.
     - snapscan: add Epson Perfection 660
-    - fujitsu: The  Fujitsu Scanpartner 93GX is also supported, it's a re-branded
-      ScanPartner 3093GX
     - plustek:  check status of Umax 3450 USB scanner (same as 3400?)
+    - umax: genius.kye.de times out?
 
   * manpages:
     - html manpages have broken links to other man pages if link is wrapped at
@@ -194,8 +185,15 @@ misc
   * Fix japi to run on current jdks. Swing is now included, and there is
     a segfault in Sane.c.
 
+  * Update Dutch translation from Martin Kho (see sane-devel).
+
 
 ******** done ********
+* fujitsu:
+  - Add support for USB scanners (patch from Ron Cemer ron@roncemer.com)
+  - Add Fujitsu Scanpartner 93GX to list of supported devices, it worked at least 
+    with the m3096g backend.
+* Add Mustek BearPaw 1200F (ma1509)
 * using only the first interface may be a problem with all-in-one devices
   Use the same approach as in kernel scanner driver instead.
 * SCSI access doesn't seem to work on Linux/Sparc. See emails from

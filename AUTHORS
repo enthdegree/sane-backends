@@ -30,6 +30,7 @@ Backends:
  mustek_pp:     Jochen Eisinger (*)
  net:		Andreas Beck and David Mosberger
  pnm:		Andreas Beck, Gordon Matzigkeit, and David Mosberger
+ pie:		Simon Munton (*)
  pint:		Gordon Matzigkeit
  plustek:	Rick Bronson, Gerhard Jaeger (*)
  qcam:		Scott Laird (original driver), David Mosberger (SANE backend),
@@ -111,4 +112,5 @@ Petter Reinholdtsen <pere@td.org.uit.no>
 Randolph Bentson <bentson@grieg.holmsjoen.com>
 Rene Rebe <rene.rebe@myokay.net>
 Roger Wolff <R.E.Wolff@BitWizard.nl>
+Simon Munton <simon@munton.demon.co.uk>
 Tristan Tarrant <ttarrant@etnoteam.it>

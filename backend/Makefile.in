@@ -53,7 +53,7 @@ COMPILE = $(CC) -c $(CFLAGS) $(DEFS) $(INCLUDES) $(CPPFLAGS)
 
 PRELOADABLE_BACKENDS = abaton agfafocus apple artec avision canon coolscan \
 	dc25 @DC210@ dmc epson hp m3096g microtek microtek2 mustek mustek_pp \
-	@NET@ @PINT@ plustek pnm @QCAM@ ricoh s9036 sharp snapscan sp15c \
+	@NET@ pie @PINT@ plustek pnm @QCAM@ ricoh s9036 sharp snapscan sp15c \
 	st400 tamarack umax @V4L@
 ALL_BACKENDS = $(PRELOADABLE_BACKENDS) dll
 
@@ -229,6 +229,9 @@ libsane-ricoh.la: ../sanei/sanei_scsi.lo
 libsane-s9036.la: ../sanei/sanei_config2.lo
 libsane-s9036.la: ../sanei/sanei_constrain_value.lo
 libsane-s9036.la: ../sanei/sanei_scsi.lo
+libsane-pie.la: ../sanei/sanei_config2.lo
+libsane-pie.la: ../sanei/sanei_constrain_value.lo
+libsane-pie.la: ../sanei/sanei_scsi.lo
 libsane-sharp.la: ../sanei/sanei_config2.lo
 libsane-sharp.la: ../sanei/sanei_constrain_value.lo
 libsane-sharp.la: ../sanei/sanei_scsi.lo

@@ -61,9 +61,9 @@ The following sections provide short descriptions and links to more
 information about several aspects of
 .B SANE.
 A name with a number in parenthesis (e.g. 
-.RB ` sane-dll (5)')
+.RB ` sane\-dll (5)')
 points to a manual page. In this case 
-.RB ` "man 5 sane-dll" '
+.RB ` "man 5 sane\-dll" '
 will display the page. Entries like
 .RI ` @DOCDIR@/sane.tex '
 are references to text files that were copied to the
@@ -97,6 +97,15 @@ mailing list devoted to SANE, it's perfectly OK to ask questions that are not
 strictly related to SANE development. How to subscribe and unsubscribe:
 .IR http://www.mostang.com/sane/mail.html .
 .TP
+.B SANE IRC channel
+The IRC (Internet Relay Chat) channel #sane can be found on the Freenode
+network (irc.freenode.net). It's for discussing 
+.B SANE
+problems, talking about development and general 
+.B SANE
+related chatting. Before asking for help, please read the other documentation
+mentioned in this manual page.
+.TP
 .B Compiling and installing SANE
 Look at
 .I  @DOCDIR@/README
@@ -106,11 +115,11 @@ installing
 .TP
 .B SCSI configuration
 For information about various systems and SCSI controllers see
-.BR sane-scsi (5).
+.BR sane\-scsi (5).
 .TP
 .B USB configuration
 For information about USB configuration see
-.BR sane-usb (5).
+.BR sane\-usb (5).
 
 .SH "FRONTENDS AND MISCELLANEOUS PROGRAMS"
 .TP 2
@@ -141,38 +150,38 @@ and the frontend information page at
 .B abaton
 The SANE backend for Abaton flatbed scanners supports the Scan 300/GS (8bit,
 256 levels of gray) and the Scan 300/S (black and white, untested). See
-.BR sane-abaton (5)
+.BR sane\-abaton (5)
 for details.
 .TP
 .B agfafocus
 This backend supports AGFA Focus scanners and the Siemens S9036 (untested).
 See
-.BR sane-agfafocus (5)
+.BR sane\-agfafocus (5)
 for details.
 .TP
 .B apple
 The SANE backend for Apple flatbed scanners supports the following scanners:
 AppleScanner, OneScanner and ColorOneScanner. See
-.BR sane-apple (5)
+.BR sane\-apple (5)
 for details.
 .TP
 .B artec
 The SANE Artec backend supports several Artec/Ultima SCSI flatbed scanners as
 well as the BlackWidow BW4800SP and the Plustek 19200S. See
-.BR sane-artec (5)
+.BR sane\-artec (5)
 for details.
 .TP
 .B artec_eplus48u
 The SANE artec_eplus48u backend supports the scanner Artec E+ 48U and re-badged
 models like Tevion MD 9693, Medion MD 9693, Medion MD 9705 and Trust Easy
 Webscan 19200. See
-.BR sane-artec_eplus48u (5)
+.BR sane\-artec_eplus48u (5)
 for details.
 .TP
 .B as6e
 This is a SANE backend for using the Artec AS6E parallel port interface
 scanner. See
-.BR sane-as6e (5)
+.BR sane\-as6e (5)
 for details.
 .TP
 .B avision
@@ -181,41 +190,41 @@ original Avision scanners (like AV 630, AV 620, ...) as well as the HP
 ScanJet 53xx and 74xx series, Fujitsu ScanPartner, some Mitsubishi and
 Minolta film-scanners.
 See 
-.BR sane-avision (5)
+.BR sane\-avision (5)
 for details.
 .TP
 .B bh
 The bh backend provides access to Bell+Howell Copiscan II series document
 scanners. See
-.BR sane-bh (5)
+.BR sane\-bh (5)
 for details.
 .TP
 .B canon
 The canon backend supports the CanoScan 300, CanoScan 600, and CanoScan
 2700F SCSI flatbed scanners. See
-.BR sane-canon (5)
+.BR sane\-canon (5)
 for details.
 .TP
 .B canon630u
 The canon630u backend supports the CanoScan 630u and 636u USB scanners.  See
-.BR sane-canon630u (5)
+.BR sane\-canon630u (5)
 for details.
 .TP
 .B canon_pp
 The canon_pp backend supports the CanoScan FB330P, FB630P, N340P and N640P
 parallel port scanners.  See
-.BR sane-canon_pp (5)
+.BR sane\-canon_pp (5)
 for details.
 .TP
 .B coolscan
 This is a SANE backend for Nikon Coolscan film-scanners. See
-.BR sane-coolscan (5)
+.BR sane\-coolscan (5)
 for details.
 .TP
 .B coolscan2
 This is a SANE backend for Nikon Coolscan film-scanners.
 See
-.BR sane-coolscan2 (5)
+.BR sane\-coolscan2 (5)
 or
 .I http://coolscan2.sourceforge.net
 for details.
@@ -223,13 +232,13 @@ for details.
 .B epson
 The SANE epson backend provides support for Epson SCSI, parallel port and USB
 flatbed scanners. See
-.BR sane-epson (5)
+.BR sane\-epson (5)
 for details.
 .TP
 .B fujitsu
 The fujitsu backend provides support for Fujitsu 3091, 3093, 3096 and
 fi-4340 SCSI scanners. See
-.BR sane-fujitsu (5)
+.BR sane\-fujitsu (5)
 for details.
 .TP
 .B gt68xx
@@ -237,154 +246,154 @@ The gt68xx backend provides support for scanners based on the Grandtech
 GT-6801 and GT-6816 chips like the Artec Ultima 2000 and several Mustek
 BearPaw CU and TA models. Some Genius, Lexmark, Medion, Packard Bell, Plustek,
 and Trust scanners are also supported. See
-.BR sane-gt68xx (5)
+.BR sane\-gt68xx (5)
 for details.
 .TP
 .B hp
 The SANE hp backend provides access to Hewlett-Packard ScanJet scanners which
 support SCL (Scanner Control Language by HP). See
-.BR sane-hp (5)
+.BR sane\-hp (5)
 for details.
 .TP
 .B hpsj5s
 The SANE backend for the Hewlett-Packard ScanJet 5S scanner. See
-.BR sane-hpsj5s (5)
+.BR sane\-hpsj5s (5)
 for details.
 .TP
 .B leo
 This backend supports the Leo S3 and the Across FS-1130, which is a re-badged
 LEO FS-1130 scanner. See
-.BR sane-leo (5)
+.BR sane\-leo (5)
 for details.
 .TP
 .B ma1509
 The ma1509 backend supports the Mustek BearPaw 1200F USB flatbed scanner. See
-.BR sane-ma1509 (5)
+.BR sane\-ma1509 (5)
 for details.
 .TP
 .B matsushita
 This backend supports some Panasonic KVSS high speed scanners. See
-.BR sane-matsushita (5)
+.BR sane\-matsushita (5)
 for details.
 .TP
 .B microtek
 The microtek backend provides access to the "second generation" Microtek
 scanners with SCSI-1 command set. See 
-.BR sane-microtek (5)
+.BR sane\-microtek (5)
 for details.
 .TP
 .B microtek2
 The microtek2 backend provides access to some Microtek scanners with a
 SCSI-2 command set. See
-.BR sane-microtek2 (5)
+.BR sane\-microtek2 (5)
 for details.
 .TP
 .B mustek
 The SANE mustek backend supports most Mustek SCSI flatbed scanners including
 the Paragon and ScanExpress series and the 600 II N (non-SCSI). Some Trust
 scanners are also supported. See 
-.BR sane-mustek (5)
+.BR sane\-mustek (5)
 for details.
 .TP
 .B mustek_pp
 The mustek_pp backend provides access to Mustek parallel port flatbed
 scanners. See
-.BR sane-mustek_pp (5)
+.BR sane\-mustek_pp (5)
 for details.
 .TP
 .B mustek_usb
 The mustek_usb backend provides access to some Mustek ScanExpress USB flatbed
 scanners. See
-.BR sane-mustek_usb (5)
+.BR sane\-mustek_usb (5)
 for details.
 .TP
 .B nec
 The SANE nec backend supports the NEC PC-IN500/4C SCSI scanner. See
-.BR sane-nec (5)
+.BR sane\-nec (5)
 for details.
 .TP
 .B pie
 The pie backend provides access to Pacific Image Electronics (PIE) and Devcom
 SCSI flatbed scanners. See
-.BR sane-pie (5)
+.BR sane\-pie (5)
 for details.
 .TP
 .B plustek
 The SANE plustek backend supports Plustek parallel port and LM983[1/2/3] based
 USB flatbed scanners. Scanners using the LM983x chips include some models from
 Plustek, KYE/Genius, Hewlett-Packard, Mustek, Umax, Epson, and Canon. See
-.BR sane-plustek (5)
+.BR sane\-plustek (5)
 for details.
 .TP
 .B ricoh
 The ricoh backend provides access to the following Ricoh flatbed
 scanners: IS50 and IS60. See
-.BR sane-ricoh (5)
+.BR sane\-ricoh (5)
 for details.
 .TP
 .B s9036
 The s9036 backend provides access to Siemens 9036 flatbed scanners. See
-.BR sane-s9036 (5)
+.BR sane\-s9036 (5)
 for details.
 .TP
 .B sceptre
 The sceptre backend provides access to the Sceptre S1200 flatbed scanner. See
-.BR sane-sceptre (5)
+.BR sane\-sceptre (5)
  for details.
 .TP
 .B sharp
 The SANE sharp backend supports Sharp SCSI scanners. See
-.BR sane-sharp (5)
+.BR sane\-sharp (5)
 for details.
 .TP
 .B sm3600
 The SANE sm3600 backend supports the Microtek ScanMaker 3600 USB scanner. See
-.BR sane-sm3600 (5)
+.BR sane\-sm3600 (5)
 for details.
 .TP
 .B snapscan
 The snapscan backend supports AGFA SnapScan flatbed scanners. See
-.BR sane-snapscan (5)
+.BR sane\-snapscan (5)
 for details.
 .TP
 .B sp15c
 This backend supports the Fujitsu FCPA ScanPartner 15C flatbed scanner. See
-.BR sane-sp15c (5)
+.BR sane\-sp15c (5)
 for details.
 .TP
 .B st400
 The sane-st400 backend provides access to Siemens ST400 and ST800. See
-.BR sane-st400 (5)
+.BR sane\-st400 (5)
 for details.
 .TP
 .B tamarack
 The SANE tamarack backend supports Tamarack Artiscan flatbed scanners. See
-.BR sane-tamarack (5)
+.BR sane\-tamarack (5)
 for details.
 .TP
 .B teco1 teco2 teco3
 The SANE teco1, teco2 and teco3 backends support some TECO scanners,
 usually sold under the Relisys, Trust, Primax, Piotech, Dextra
 names. See
-.BR sane-teco1 "(5), " sane-teco2 "(5) and " sane-teco3 (5)
+.BR sane\-teco1 "(5), " sane\-teco2 "(5) and " sane\-teco3 (5)
 for details.
 .TP
 .B umax
 The sane-umax backend provides access to several UMAX-SCSI-scanners and some
 Linotype Hell SCSI-scanners. See
-.BR sane-umax (5)
+.BR sane\-umax (5)
 for details.
 .TP
 .B umax_pp
 The sane-umax_pp backend provides access to Umax parallel port flatbed scanners
 and the HP 3200C. See 
-.BR sane-umax_pp (5)
+.BR sane\-umax_pp (5)
 for details.
 .TP
 .B umax1200u
 The sane-umax1220u backend supports the UMAX Astra 1220U (USB) flatbed scanner
 (and also the UMAX Astra 2000U, sort of). See
-.BR sane-umax1220u (5)
+.BR sane\-umax1220u (5)
 for details.
 .PP
 Also, have a look at the backend information page at
@@ -396,19 +405,19 @@ and the list of projects in
 .TP 2
 .B dc210
 Backend for Kodak DC210 Digital Camera. See
-.BR sane-dc210 (5).
+.BR sane\-dc210 (5).
 .TP
 .B dc240
 Backend for Kodak DC240 Digital Camera. See
-.BR sane-dc240 (5).
+.BR sane\-dc240 (5).
 .TP
 .B dc25
 Backend for Kodak DC20/DC25 Digital Cameras. See
-.BR sane-dc25 (5).
+.BR sane\-dc25 (5).
 .TP
 .B dmc
 Backend for the Polaroid Digital Microscope Camera. See
-.BR sane-dmc(5).
+.BR sane\-dmc (5).
 .TP
 .B gphoto2
 Backend for digital cameras supported by the gphoto2 library package.  (See
@@ -418,11 +427,11 @@ for more information and a list of supported cameras.)  Gphoto2 supports over
 testing is needed before all of these cameras will be supported by
 .B SANE
 backend.  See
-.BR sane-gphoto2 (5).
+.BR sane\-gphoto2 (5).
 .TP
 .B qcam
 Backend for Connectix QuickCam cameras. See 
-.BR sane-qcam (5).
+.BR sane\-qcam (5).
 .PP
 Also, have a look at the backend information page at
 .I http://www.mostang.com/sane/sane-supported-devices.html
@@ -437,21 +446,21 @@ The sane-dll library implements a
 backend that provides access to an arbitrary number of other
 .B SANE
 backends by dynamic loading. See
-.BR sane-dll(5).
+.BR sane\-dll (5).
 .TP
 .B net
 The 
 .B SANE
 network daemon saned provides access to scanners located on different
 computers in connection with the net backend. See
-.BR sane-net "(5) and " saned (1).
+.BR sane\-net "(5) and " saned (1).
 .TP
 .B pnm
 PNM image reader pseudo-backend. The purpose of this backend is primarily to
 aid in debugging of
 .B SANE
 frontends. See
-.BR sane-pnm (5).
+.BR sane\-pnm (5).
 .TP
 .B pint
 Backend for scanners that use the
@@ -460,7 +469,7 @@ Backend for scanners that use the
 .B PINT
 driver is being actively developed on the OpenBSD platform, and has been
 ported to a few other *nix-like operating systems. See
-.BR sane-pint (5).
+.BR sane\-pint (5).
 .TP
 .B test
 The
@@ -468,7 +477,7 @@ The
 test backend is for testing frontends and the
 .B SANE
 installation.  It provides test pictures and various test options. See
-.BR sane-test (5).
+.BR sane\-test (5).
 .TP
 .B v4l
 The sane-v4l library implements a
@@ -477,7 +486,7 @@ backend that provides generic access to video cameras and similar equipment
 using the
 .B V4L
 (Video for Linux) API. See
-.BR sane-v4l(5) .
+.BR sane\-v4l (5) .
 .PP
 Also, have a look at the backend information page at
 .I http://www.mostang.com/sane/sane-supported-devices.html
@@ -491,7 +500,7 @@ backends (drivers) are loaded dynamically by the
 .B sane-dll
 meta backend. If you have any questions about the dynamic loading,
 read
-.BR sane-dll (5).
+.BR sane\-dll (5).
 .B SANE
 frontend can also be linked to other backends directly by copying or linking a
 backend to
@@ -575,9 +584,9 @@ finds your scanner only as root but not as normal user, the permissions for
 the device files are not adjusted correctly. If the scanner isn't found at all,
 the operating system hasn't detected it and may need some help. Depending on
 the type of your scanner, read
-.BR sane-usb (5)
+.BR sane\-usb (5)
 or
-.BR sane-scsi (5).
+.BR sane\-scsi (5).
 If your scanner (or other device) is not connected over the SCSI bus or USB,
 read the backend's manual page for details on how to set it up.
 .PP

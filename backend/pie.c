@@ -43,6 +43,8 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
+ * 23-7-2002 added TL_X > BR_X, TL_Y > BR_Y check in sane_start
+ *
  * 17-9-2001 changed ADLIB to AdLib as the comparison is case sensitive and
  * 	     the scanner returns AdLib
  *
@@ -103,7 +105,7 @@
 #define DBG_sane_option 13
 #define DBG_dump	14
 
-#define BUILD 7
+#define BUILD 8
 
 #define PIE_CONFIG_FILE "pie.conf"
 #define MM_PER_INCH	 25.4
@@ -3494,6 +3496,25 @@ sane_start (SANE_Handle handle)
   int status;
 
   DBG (DBG_sane_init, "sane_start\n");
+
+  /* Check for inconsistencies */
+
+  if (scanner->val[OPT_TL_X].w > scanner->val[OPT_BR_X].w)
+    {
+      DBG (0, "sane_start: %s (%.1f mm) is bigger than %s (%.1f mm) "
+              "-- aborting\n",
+              scanner->opt[OPT_TL_X].title, SANE_UNFIX (scanner->val[OPT_TL_X].w),
+              scanner->opt[OPT_BR_X].title, SANE_UNFIX (scanner->val[OPT_BR_X].w));
+      return SANE_STATUS_INVAL;
+    }
+  if (scanner->val[OPT_TL_Y].w > scanner->val[OPT_BR_Y].w)
+    {
+      DBG (0, "sane_start: %s (%.1f mm) is bigger than %s (%.1f mm) "
+	      "-- aborting\n",
+	      scanner->opt[OPT_TL_Y].title, SANE_UNFIX (scanner->val[OPT_TL_Y].w),
+	      scanner->opt[OPT_BR_Y].title, SANE_UNFIX (scanner->val[OPT_BR_Y].w));
+      return SANE_STATUS_INVAL;
+    }
 
   mode = scanner->val[OPT_MODE].s;
 

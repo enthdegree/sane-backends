@@ -13,6 +13,16 @@
 	  Use uniform model names for HP scanners.
 	* doc/descriptions/unsupported.desc: Added Canon CanoScan D1250U2 
 	  and HP ScanJet 4400C.
+	* po/artec_eplus48u.de.po po/epson.de.po po/epson.ru.po
+	  po/epson.sv.po po/gt68xx.de.po po/matsushita.fr.po
+	  po/matsushita.ru.po po/mustek.de.po po/mustek.ru.po
+	  po/mustek_usb.de.po po/mustek_usb.ru.po po/plustek.de.po
+	  po/plustek.es.po po/plustek.ru.po po/pnm.de.po po/pnm.ru.po
+	  po/sceptre.fr.po po/sceptre.ru.po po/snapscan.de.po
+	  po/snapscan.ru.po po/teco1.fr.po po/teco1.ru.po po/umax.de.po
+	  po/umax.fr.po po/umax_pp.de.po po/umax_pp.fr.po po/umax_pp.ru.po
+	  po/umax.ru.po: Remove per-backend translations. The translations
+	  are now in the per-language sane-backends.??.po files.
 
 2003-01-07  Peter Fales  <peter@fales-lorenz.net>
 

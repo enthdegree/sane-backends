@@ -211,6 +211,9 @@ clean:
 
 distclean: clean
 	rm -f $(DISTCLEAN_FILES)
+	for subdir in $(SUBDIRS) ; do \
+	  ( cd $$subdir ; rm -f $(DISTCLEAN_FILES) ); \
+	done
 	rm -f $(MANPAGES)
 	rm -f Makefile
 	rm -f *.lot *.lof *.ind *.gz

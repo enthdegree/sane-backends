@@ -1,3 +1,8 @@
+2002-06-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/sane-fujitsu.man doc/sane-tamarcak.man: Added newline at 
+	  the end to keep Solaris' sed happy.
+
 2002-06-25  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* tools/sane-find-scanner.c: Added support for scanning whole

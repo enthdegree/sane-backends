@@ -9,6 +9,10 @@
 	  always in 8 bit mode now (can be selected by option). Upper and lower
 	  limits for coarse calibration are unified now. Added options for
 	  adjusting gain and offset.
+	* po/sane-backends.de.po po/sane-backends.es.po po/sane-backends.fr.po
+	  po/sane-backends.pt.po po/sane-backends.ru.po po/sane-backends.sv.po:
+	  Adjusted for new gt68xx options. Updated German translation for
+	  gt68xx.
 
 2003-02-04  Michael Herder <crapsite@gmx.net>
 

@@ -397,6 +397,9 @@ main (int argc, char **argv)
 	  "/dev/uk0", "/dev/uk1", "/dev/uk2", "/dev/uk3", "/dev/uk4",
 	  "/dev/uk5", "/dev/uk6",
 	  "/dev/ss0", 
+#elif defined(__OpenBSD__)
+	  "/dev/uk0", "/dev/uk1", "/dev/uk2", "/dev/uk3", "/dev/uk4",
+	  "/dev/uk5", "/dev/uk6",
 #elif defined(__hpux)
 	  /* First controller, id 0-8 */
 	  "/dev/rscsi/c0t0d0", "/dev/rscsi/c0t1d0", "/dev/rscsi/c0t2d0",
@@ -431,6 +434,16 @@ main (int argc, char **argv)
 	  "/dev/usbscanner12", "/dev/usbscanner13",
 	  "/dev/usbscanner14", "/dev/usbscanner15",
 #elif defined(__FreeBSD__)
+	  "/dev/uscanner",
+	  "/dev/uscanner0", "/dev/uscanner1",
+	  "/dev/uscanner2", "/dev/uscanner3",
+	  "/dev/uscanner4", "/dev/uscanner5",
+	  "/dev/uscanner6", "/dev/uscanner7",
+	  "/dev/uscanner8", "/dev/uscanner9",
+	  "/dev/uscanner10", "/dev/uscanner11",
+	  "/dev/uscanner12", "/dev/uscanner13",
+	  "/dev/uscanner14", "/dev/uscanner15",
+#elif defined(__OpenBSD__)
 	  "/dev/uscanner",
 	  "/dev/uscanner0", "/dev/uscanner1",
 	  "/dev/uscanner2", "/dev/uscanner3",

@@ -392,22 +392,18 @@ init_dc210 (DC210 * camera)
     }
 
   /* send a break to get it back to a known state */
-#ifdef HAVE_TCSENDBREAK
-# if defined(__sgi)
-  /* Maybe you should consider the following for all the platforms, not just
-     IRIX. Again, inspired by the gPhoto2 DC210 camera library setup */
+  /* Used to supply a non-zero argument to tcsendbreak(), TCSBRK, 
+   * and TCSBRKP, but that is system dependent.  e.g. on irix a non-zero
+   * value does a drain instead of a break.  A zero value is universally
+   * used to send a break.
+   */
 
-  ioctl (camera->fd, TCSBRK, 0);
-  ioctl (camera->fd, TCSBRK, 1);
-# else
-  tcsendbreak (camera->fd, 4);
-# endif
-#else
-# if defined(TCSBRKP)
-  ioctl (camera->fd, TCSBRKP, 4);
+#ifdef HAVE_TCSENDBREAK
+  tcsendbreak (camera->fd, 0);
+# elif defined(TCSBRKP)
+  ioctl (camera->fd, TCSBRKP, 0);
 # elif defined(TCSBRK)
-  ioctl (camera->fd, TCSBRK, 4);
-# endif
+  ioctl (camera->fd, TCSBRK, 0);
 #endif
 
    /* and wait for it to recover from the break */
@@ -907,7 +903,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
        (action ==
 	SANE_ACTION_SET_VALUE ? "SET" : (action ==
 					 SANE_ACTION_GET_VALUE ? "GET" :
-					 "SETAUTO")), value, info);
+					 "SETAUTO")), value, (void *)info);
 
   if (handle != MAGIC || !is_open)
     return SANE_STATUS_INVAL;	/* Unknown handle ... */

@@ -437,23 +437,18 @@ init_dc240 (DC240 * camera)
     }
 
   /* send a break to get it back to a known state */
+  /* Used to supply a non-zero argument to tcsendbreak(), TCSBRK, 
+   * and TCSBRKP, but that is system dependent.  e.g. on irix a non-zero
+   * value does a drain instead of a break.  A zero value is universally
+   * used to send a break.
+   */
 
 #ifdef HAVE_TCSENDBREAK
-# if defined(__sgi)
-  /* Maybe you should consider the following for all the platforms, not just
-     IRIX. Again, inspired by the gPhoto2 DC240 camera library setup */
-
-  ioctl (camera->fd, TCSBRK, 0);
-  ioctl (camera->fd, TCSBRK, 1);
-# else
-  tcsendbreak (camera->fd, 4);
-# endif
-#else
-# if defined(TCSBRKP)
-  ioctl (camera->fd, TCSBRKP, 4);
+  tcsendbreak (camera->fd, 0);
+# elif defined(TCSBRKP)
+  ioctl (camera->fd, TCSBRKP, 0);
 # elif defined(TCSBRK)
-  ioctl (camera->fd, TCSBRK, 4);
-# endif
+  ioctl (camera->fd, TCSBRK, 0);
 #endif
 
   /* and wait for it to recover from the break */

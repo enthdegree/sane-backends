@@ -10,7 +10,7 @@
 ;
 
 :backend "artec"                  ; name of backend
-:version "0.5.14"                 ; version of backend
+:version "0.5.16"                 ; version of backend
 :status :stable                   ; :alpha, :beta, :stable, :new
 :manpage "sane-artec"             ; name of manpage (if it exists)
 :url "http://www4.infi.net/~cpinkham/sane/sane-artec-doc.html" ; backend's web page

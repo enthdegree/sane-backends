@@ -49,13 +49,24 @@ older kernels. One important exception is the section on "Device Names
 in devfs".
 
 Adaptec 1542 SCSI adapter:
-Using buffer sizes of more than 32768 bytes with the aha1542 driver can
-lead to kernel panic. To avoid this, set --enable-scsibuffersize or
-SANE_SG_BUFFERSIZE to 32768, or download and install the SG driver
-2.1.37 or newer from http://www.torque.net/sg.           
+  Using buffer sizes of more than 32768 bytes with the aha1542 driver can
+  lead to kernel panic. To avoid this, set --enable-scsibuffersize or
+  SANE_SG_BUFFERSIZE to 32768, or download and install the SG driver
+  2.1.37 or newer from http://www.torque.net/sg.           
 
-idescsi
-The Linux kernel "Emulation of a SCSI host adapter for IDE ATAPI
-devices" (idescsi) is reported to cause problems in connection with
-SANE. If your scanner isn't found or you encounter segmentation faults
-try to disable idescsi.
+idescsi:
+  The Linux kernel "Emulation of a SCSI host adapter for IDE ATAPI
+  devices" (idescsi) is reported to cause problems in connection with
+  SANE. If your scanner isn't found or you encounter segmentation faults
+  try to disable idescsi.
+
+Other Information
+=================
+
+Excessive warnings "pointer of type `void *' used in arithmetic":
+  Some versions of glibc generate these warnings not related to SANE
+  source code. To suppress these warnings do
+
+  export CFLAGS="-g -O2 -D__NO_STRING_INLINES"
+
+  and rerun configure.

@@ -54,11 +54,11 @@
 
 
 #ifdef _AIX
-# include "lalloca.h"   /* MUST come first for AIX! */
+# include "../include/lalloca.h"   /* MUST come first for AIX! */
 #endif
 
-#include "sane/config.h"
-#include "lalloca.h"
+#include "../include/sane/config.h"
+#include "../include/lalloca.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -77,14 +77,14 @@
 #include <sys/stat.h>
 #endif
 
-#include "sane/sane.h"
-#include "sane/sanei.h"
-#include "sane/sanei_config.h"
-#include "sane/sanei_scsi.h"
-#include "sane/saneopts.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei.h"
+#include "../include/sane/sanei_config.h"
+#include "../include/sane/sanei_scsi.h"
+#include "../include/sane/saneopts.h"
 
 #define BACKEND_NAME microtek2
-#include "sane/sanei_backend.h"
+#include "../include/sane/sanei_backend.h"
 
 #include "microtek2.h"
 
@@ -796,7 +796,7 @@ sane_get_option_descriptor(SANE_Handle handle, SANE_Int n)
 {
     Microtek2_Scanner *ms = handle;
 
-    DBG(30, "sane_get_option_descriptor: handle=%p, opt=%d\n", handle, n);
+    DBG(255, "sane_get_option_descriptor: handle=%p, opt=%d\n", handle, n);
 
     if ( n < 0 || n > NUM_OPTIONS )
       {
@@ -954,6 +954,7 @@ sane_init(SANE_Int *version_code, SANE_Auth_Callback authorize)
     FILE *fp;
     char dev_name[PATH_MAX];
     int match;
+    SANE_Auth_Callback trash;
 
     DBG_INIT();
     DBG(1, "sane_init: Microtek2 (v%d.%d) says hello...\n",
@@ -964,6 +965,8 @@ sane_init(SANE_Int *version_code, SANE_Auth_Callback authorize)
 
 #ifdef HAVE_AUTHORIZATION
     auth_callback = authorize;
+#else
+    trash = authorize;     /* prevents compiler warning "unused variable" */
 #endif
 
     match = 0;
@@ -1338,7 +1341,8 @@ sane_start(SANE_Handle handle)
         strip_lines = 1;
 
     /* calculate number of lines that fit into the source buffer */
-    ms->src_max_lines = MIN(sanei_scsi_max_request_size / ms->bpl, strip_lines);
+    ms->src_max_lines = MIN(sanei_scsi_max_request_size / ms->bpl,
+                                                 (u_int32_t)strip_lines);
     if ( ms->src_max_lines == 0 )
       {
         DBG(1, "sane_start: Scan buffer too small\n");
@@ -2351,7 +2355,7 @@ chunky_proc_data(Microtek2_Scanner *ms)
             " junk=%d\n", ms->src_lines_to_read, ms->bpl, ms->ppl,
              bpp, ms->depth, bpl_ppl_diff);
 
-    for ( line = 0; line < ms->src_lines_to_read; line++ )
+    for ( line = 0; line < (u_int32_t)ms->src_lines_to_read; line++ )
       {
         from += bpl_ppl_diff;
         status = chunky_copy_pixels(from, ms->ppl, ms->depth, ms->fp);
@@ -2518,14 +2522,14 @@ condense_shading(Microtek2_Scanner *ms)
 
     count_1s = 0;
     i = 0;
-    for ( byte = 0; byte < ms->n_control_bytes; byte++ )
+    for ( byte = 0; byte < (int)ms->n_control_bytes; byte++ )
       {
         for ( bit = 0; bit < 8; bit++ )
           {
             /* in lineart mode there are more 1' in the control bytes */
             /* than we have pixels per line. */
 
-            if ( count_1s >= ms->ppl )
+            if ( count_1s >= (int)ms->ppl )
                 break;
 
             /* experimental */
@@ -3025,39 +3029,57 @@ static SANE_Status
 dump_area(u_int8_t *area, int len, char *info)
 {
     /* this function dumps control or information blocks */
-
+    
 #define BPL    16               /* bytes per line to print */
-
+   
     int i;
     int o;
     int o_limit;
+    char outputline[100];
+    char *outbuf;
 
     if ( ! info[0] )
-        info = "No additional info available";
+        info = "No additional info available";    
 
     DBG(30, "dump_area: %s\n", info);
-
+   
+    outbuf = outputline;
     o_limit = (len + BPL - 1) / BPL;
-    for ( o = 0; o < o_limit; o++) {
-        fprintf(stderr, "  %4d: ", o * BPL);
-        for ( i=0; i < BPL && (o * BPL + i ) < len; i++) {
+    for ( o = 0; o < o_limit; o++)
+      {
+        sprintf(outbuf, "  %4d: ", o * BPL);
+        outbuf += 8; 
+        for ( i=0; i < BPL && (o * BPL + i ) < len; i++)
+          {
             if ( i == BPL / 2 )
-                fprintf(stderr, " ");
-            fprintf(stderr, "%02x", area[o * BPL + i]);
-        }
+              { 
+                sprintf(outbuf, " ");
+                outbuf +=1;
+              }
+            sprintf(outbuf, "%02x", area[o * BPL + i]); 
+            outbuf += 2;
+          }
+        
+        sprintf(outbuf, "%*s",  2 * ( 2 + BPL - i), " " );
+        outbuf += (2 * ( 2 + BPL - i));
+        sprintf(outbuf, "%s",  (i == BPL / 2) ? " " : "");
+        outbuf += ((i == BPL / 2) ? 1 : 0);
 
-        fprintf(stderr, "%*s",  2 * ( 2 + BPL - i), " " );
-        fprintf(stderr, "%s",  (i == BPL / 2) ? " " : "");
-
-        for ( i = 0; i < BPL && (o * BPL + i ) < len; i++) {
+        for ( i = 0; i < BPL && (o * BPL + i ) < len; i++)
+          {
             if ( i == BPL / 2 )
-                fprintf(stderr, " ");
-            fprintf(stderr, "%c", isprint(area[o * BPL + i])
+              {
+                sprintf(outbuf, " ");
+                outbuf += 1;
+              }
+            sprintf(outbuf, "%c", isprint(area[o * BPL + i])
                                   ? area[o * BPL + i]
                                   : '.');
-        }
-        fprintf(stderr, "\n");
-    }
+            outbuf += 1;
+          }
+        outbuf = outputline;
+        DBG(1, "%s\n", outbuf);
+      }
 
     return SANE_STATUS_GOOD;
 }
@@ -3068,222 +3090,229 @@ dump_area(u_int8_t *area, int len, char *info)
 static SANE_Status
 dump_area2(u_int8_t *area, int len, char *info)
 {
-    int i;
 
+#define BPL    16               /* bytes per line to print */
+
+    int i, linelength;
+    char outputline[100];
+    char *outbuf;
+    linelength = BPL * 3;
 
     if ( ! info[0] )
-        info = "No additional info available";
+        info = "No additional info available";    
+    
+    DBG(1, "[%s]\n", info);
 
-    fprintf(stderr, "[%s]\n", info);
-
+    outbuf = outputline;
     for ( i = 0; i < len; i++)
-        fprintf(stderr, "%02x", *(area + i));
-
-    fprintf(stderr, "\n");
+      {
+        sprintf(outbuf, "%02x,", *(area + i));
+        outbuf += 3;
+        if ( ((i+1)%BPL == 0) || (i == len-1) )
+           {
+             outbuf = outputline;
+             DBG(1, "%s\n", outbuf);
+           }
+      }
 
     return SANE_STATUS_GOOD;
 }
 
-
 /*---------- dump_attributes() -----------------------------------------------*/
 
-static SANE_Status
+
+static SANE_Status 
 dump_attributes(Microtek2_Info *mi)
 {
-  /* dump all we know about the scanner to stderr */
+  /* dump all we know about the scanner */
 
   int i;
 
   DBG(30, "dump_attributes: mi=%p\n", mi);
-
-  fprintf(stderr, "\n\nScanner attributes from device structure\n");
-  fprintf(stderr, "========================================\n");
-  fprintf(stderr, "\nScanner ID...\n");
-  fprintf(stderr, "~~~~~~~~~~~~~\n");
-  fprintf(stderr, "  Vendor Name%20s: '%s'\n", " ", mi->vendor);
-  fprintf(stderr, "  Model Name%21s: '%s'\n", " ", mi->model);
-  fprintf(stderr, "  Revision%23s: '%s'\n", " ", mi->revision);
-
-  fprintf(stderr, "  Model Code%21s: 0x%02x (", " ", mi->model_code);
-  switch(mi->model_code)
+  DBG(1, "\n");
+  DBG(1, "Scanner attributes from device structure\n");
+  DBG(1, "========================================\n");
+  DBG(1, "Scanner ID...\n");
+  DBG(1, "~~~~~~~~~~~~~\n");
+  DBG(1, "  Vendor Name%15s: '%s'\n", " ", mi->vendor);
+  DBG(1, "  Model Name%16s: '%s'\n", " ", mi->model);
+  DBG(1, "  Revision%18s: '%s'\n", " ", mi->revision);
+  DBG(1, "  Model Code%16s: 0x%02x\n"," ", mi->model_code);
+  switch(mi->model_code) 
     {
-      case 0x80: fprintf(stderr, "Redondo"); break;
-      case 0x81: fprintf(stderr, "Aruba"); break;
-      case 0x82: fprintf(stderr, "Bali"); break;
-      case 0x83: fprintf(stderr, "Washington"); break;
-      case 0x84: fprintf(stderr, "Manhattan"); break;
-      case 0x85: fprintf(stderr, "TR3"); break;
-      case 0x86: fprintf(stderr, "CCP"); break;
-      case 0x87: fprintf(stderr, "Scanmaker V"); break;
-      case 0x88: fprintf(stderr, "Scanmaker VI"); break;
-      case 0x89: fprintf(stderr, "A3-400"); break;
-      case 0x8a: fprintf(stderr, "MRS-1200A3 - ScanMaker 9600XL"); break;
-      case 0x8b: fprintf(stderr, "Watt"); break;
-      case 0x8c: fprintf(stderr, "TR6"); break;
-      case 0x8d: fprintf(stderr, "Tr3 10-bit"); break;
-      case 0x8e: fprintf(stderr, "CCB"); break;
-      case 0x8f: fprintf(stderr, "Sun Rise"); break;
-      case 0x90: fprintf(stderr, "ScanMaker E3 10-bit"); break;
-      case 0x91: fprintf(stderr, "X6"); break;
-      case 0x92: fprintf(stderr, "E3+ or Vobis Highscan"); break;
-      case 0x93: fprintf(stderr, "ScanMaker 330"); break;
-      case 0x94: fprintf(stderr, "Phantom 330cx or Phantom 336cx"); break;
-      case 0x97: fprintf(stderr, "ScanMaker 636"); break;
-      case 0x98: fprintf(stderr, "ScanMaker X6EL"); break;
-      case 0x99: fprintf(stderr, "ScanMaker X6USB"); break;
-      case 0x9a: fprintf(stderr, "Phantom 636cx / C6"); break;
-      case 0x9d: fprintf(stderr, "AGFA DuoScan T1200"); break;
-      case 0xa3: fprintf(stderr, "ScanMaker V6USL"); break;
-      default:   fprintf(stderr, "Unknown"); break;
+      case 0x80: DBG(1, "%60s", "Redondo\n"); break;
+      case 0x81: DBG(1, "%60s", "Aruba\n"); break;
+      case 0x82: DBG(1, "%60s", "Bali\n"); break;
+      case 0x83: DBG(1, "%60s", "Washington\n"); break;
+      case 0x84: DBG(1, "%60s", "Manhattan\n"); break;
+      case 0x85: DBG(1, "%60s", "TR3\n"); break;
+      case 0x86: DBG(1, "%60s", "CCP\n"); break;
+      case 0x87: DBG(1, "%60s", "Scanmaker V\n"); break;
+      case 0x88: DBG(1, "%60s", "Scanmaker VI\n"); break;
+      case 0x89: DBG(1, "%60s", "A3-400\n"); break;
+      case 0x8a: DBG(1, "%60s", "MRS-1200A3 - ScanMaker 9600XL\n"); break;
+      case 0x8b: DBG(1, "%60s", "Watt\n"); break;
+      case 0x8c: DBG(1, "%60s", "TR6\n"); break;
+      case 0x8d: DBG(1, "%60s", "Tr3 10-bit\n"); break;
+      case 0x8e: DBG(1, "%60s", "CCB\n"); break;
+      case 0x8f: DBG(1, "%68s", "Sun Rise\n"); break;
+      case 0x90: DBG(1, "%60s", "ScanMaker E3 10-bit\n"); break;
+      case 0x91: DBG(1, "%60s", "X6\n"); break;
+      case 0x92: DBG(1, "%60s", "E3+ or Vobis Highscan\n"); break;
+      case 0x93: DBG(1, "%60s", "ScanMaker 330\n"); break;
+      case 0x94: DBG(1, "%60s", "Phantom 330cx or Phantom 336cx\n"); break;
+      case 0x97: DBG(1, "%60s", "ScanMaker 636\n"); break;
+      case 0x98: DBG(1, "%60s", "ScanMaker X6EL\n"); break;
+      case 0x9a: DBG(1, "%60s", "Phantom 636cx / C6\n"); break;
+      case 0x9d: DBG(1, "%60s", "AGFA DuoScan T1200\n"); break;
+      case 0xa3: DBG(1, "%60s", "ScanMaker V6USL\n"); break;
+      default:   DBG(1, "%60s", "Unknown\n"); break;
     }
-  fprintf(stderr, ")\n");
-  fprintf(stderr, "  Device Type Code%15s: 0x%02x (%s),\n", " ",
+  DBG(1, "  Device Type Code%10s: 0x%02x (%s),\n", " ",
                   mi->device_type,
-                  mi->device_type & MI_DEVTYPE_SCANNER ?
+	          mi->device_type & MI_DEVTYPE_SCANNER ?
                   "Scanner" : "Unknown type");
-
-  fprintf(stderr, "  Scanner type%19s: ", " ");
-  switch (mi->scanner_type)
+          
+  switch (mi->scanner_type) 
     {
-      case MI_TYPE_FLATBED: fprintf(stderr, "Flatbed scanner\n");
+      case MI_TYPE_FLATBED:
+          DBG(1, "  Scanner type%33s%s", " ", " Flatbed scanner\n");
           break;
-      case MI_TYPE_TRANSPARENCY: fprintf(stderr, "Transparency scanner\n");
+      case MI_TYPE_TRANSPARENCY:
+          DBG(1, "  Scanner type%33s%s", " ", " Transparency scanner\n");
           break;
-      case MI_TYPE_SHEEDFEED: fprintf(stderr, "Sheet feed scanner\n");
+      case MI_TYPE_SHEEDFEED:
+          DBG(1, "  Scanner type%33s%s", " ", " Sheet feed scanner\n");
           break;
-      default: fprintf(stderr, "Unknown\n");
+      default:
+          DBG(1, "  Scanner type%33s%s", " ", " Unknown\n");
           break;
     }
-
-  fprintf(stderr, "  Supported options%14s: Automatic document feeder: %s\n",
-                  " ", mi->option_device & MI_OPTDEV_ADF ? "Yes" : "No");
-  fprintf(stderr, "%35sTransparency media adapter: %s\n",
-                  " ", mi->option_device & MI_OPTDEV_TMA ? "Yes" : "No");
-  fprintf(stderr, "%35sAuto paper detecting: %s\n",
-                  " ", mi->option_device & MI_OPTDEV_ADP ? "Yes" : "No");
-  fprintf(stderr, "%35sAdvanced picture system: %s\n",
-                  " ", mi->option_device & MI_OPTDEV_APS ? "Yes" : "No");
-  fprintf(stderr, "%35sStripes: %s\n",
-                  " ", mi->option_device & MI_OPTDEV_STRIPE ? "Yes" : "No");
-  fprintf(stderr, "%35sSlides: %s\n",
-                  " ", mi->option_device & MI_OPTDEV_SLIDE ? "Yes" : "No");
-  fprintf(stderr, "  Scan button%20s: %s\n", " ", mi->scnbuttn ? "Yes" : "No");
-
-
-  fprintf(stderr, "\nImaging Capabilities...\n");
-  fprintf(stderr, "~~~~~~~~~~~~~~~~~~~~~~~\n");
-  fprintf(stderr, "  Color scanner%18s: %s\n", " ", (mi->color) ? "Yes" : "No");
-  fprintf(stderr, "  Number passes%18s: %d pass%s\n", " ",
+  
+  DBG(1, "  Supported options%9s: Automatic document feeder: %s\n",
+	          " ", mi->option_device & MI_OPTDEV_ADF ? "Yes" : "No");
+  DBG(1, "%31sTransparency media adapter: %s\n",
+	          " ", mi->option_device & MI_OPTDEV_TMA ? "Yes" : "No");
+  DBG(1, "%31sAuto paper detecting: %s\n",
+	          " ", mi->option_device & MI_OPTDEV_ADP ? "Yes" : "No");
+  DBG(1, "%31sAdvanced picture system: %s\n",
+	          " ", mi->option_device & MI_OPTDEV_APS ? "Yes" : "No");
+  DBG(1, "%31sStripes: %s\n",
+	          " ", mi->option_device & MI_OPTDEV_STRIPE ? "Yes" : "No");
+  DBG(1, "%31sSlides: %s\n",
+	          " ", mi->option_device & MI_OPTDEV_SLIDE ? "Yes" : "No");
+  DBG(1, "  Scan button%15s: %s\n", " ", mi->scnbuttn ? "Yes" : "No"); 
+         
+  DBG(1, "\n");
+  DBG(1, "  Imaging Capabilities...\n");
+  DBG(1, "  ~~~~~~~~~~~~~~~~~~~~~~~\n");
+  DBG(1, "  Color scanner%6s: %s\n", " ", (mi->color) ? "Yes" : "No");
+  DBG(1, "  Number passes%6s: %d pass%s\n", " ",
                   (mi->onepass) ? 1 : 3,
                   (mi->onepass) ? "" : "es");
-  fprintf(stderr, "  Resolution%21s: X-max: %5d dpi\n%35sY-max: %5d dpi\n",
+  DBG(1, "  Resolution%9s: X-max: %5d dpi\n%35sY-max: %5d dpi\n",
                   " ", mi->max_xresolution, " ",mi->max_yresolution);
-  fprintf(stderr, "  Geometry%23s: Geometric width: %5d pts (%2.2f'')\n", " ",
-          mi->geo_width, (float) mi->geo_width / (float) mi->opt_resolution);
-  fprintf(stderr, "%35sGeometric height:%5d pts (%2.2f'')\n", " ",
+  DBG(1, "  Geometry%11s: Geometric width: %5d pts (%2.2f'')\n", " ",
+          mi->geo_width, (float) mi->geo_width / (float) mi->opt_resolution); 
+  DBG(1, "%23sGeometric height:%5d pts (%2.2f'')\n", " ",
           mi->geo_height, (float) mi->geo_height / (float) mi->opt_resolution);
-  fprintf(stderr, "  Optical resolution%13s: %d\n", " ", mi->opt_resolution);
+  DBG(1, "  Optical resolution%1s: %d\n", " ", mi->opt_resolution);
 
-  fprintf(stderr, "  Modes%26s: Lineart:     %s\n%35sHalftone:     %s\n", " ",
-                  (mi->scanmode & MI_HASMODE_LINEART) ? " Yes" : " No", " ",
-                  (mi->scanmode & MI_HASMODE_HALFTONE) ? "Yes" : "No");
+  DBG(1, "  Modes%14s: Lineart:     %s\n%35sHalftone:     %s\n", " ",
+	          (mi->scanmode & MI_HASMODE_LINEART) ? " Yes" : " No", " ",
+	          (mi->scanmode & MI_HASMODE_HALFTONE) ? "Yes" : "No");
 
-  fprintf(stderr, "%35sGray:     %s\n%35sColor:     %s\n", " ",
-                  (mi->scanmode & MI_HASMODE_GRAY) ? "    Yes" : "    No", " ",
-                  (mi->scanmode & MI_HASMODE_COLOR) ? "   Yes" : "   No");
+  DBG(1, "%23sGray:     %s\n%35sColor:     %s\n", " ",
+	          (mi->scanmode & MI_HASMODE_GRAY) ? "    Yes" : "    No", " ",
+	          (mi->scanmode & MI_HASMODE_COLOR) ? "   Yes" : "   No");
 
-  fprintf(stderr, "  Depths%25s: Nibble Gray:  %s\n",
-                  " ", (mi->depth & MI_HASDEPTH_NIBBLE) ? "Yes" : "No");
-  fprintf(stderr, "%35s10-bit-color: %s\n",
+  DBG(1, "  Depths%14s: Nibble Gray:  %s\n",
+	          " ", (mi->depth & MI_HASDEPTH_NIBBLE) ? "Yes" : "No");
+  DBG(1, "%23s10-bit-color: %s\n",
                   " ", (mi->depth & MI_HASDEPTH_10) ? "Yes" : "No");
-  fprintf(stderr, "%35s12-bit-color: %s\n", " ",
-                  (mi->depth & MI_HASDEPTH_12) ? "Yes" : "No");
-  fprintf(stderr, "  d/l of HT pattern%14s: %s\n",
+  DBG(1, "%23s12-bit-color: %s\n", " ",
+	          (mi->depth & MI_HASDEPTH_12) ? "Yes" : "No");
+  DBG(1, "  d/l of HT pattern%2s: %s\n",
                   " ", (mi->has_dnldptrn) ? "Yes" : "No");
-  fprintf(stderr, "  Builtin HT pattern%13s: %d\n", " ", mi->grain_slct);
-
-  fprintf(stderr, "  LUT capabilities:%14s:", " ");
-  if ( MI_LUTCAP_NONE(mi->lut_cap) )
-      fprintf(stderr, " None\n");
+  DBG(1, "  Builtin HT pattern%1s: %d\n", " ", mi->grain_slct);
+  
+  if ( MI_LUTCAP_NONE(mi->lut_cap) ) 
+      DBG(1, "  LUT capabilities   : None\n"); 
   if ( mi->lut_cap & MI_LUTCAP_256B )
-      fprintf(stderr, "  256 bytes\n");
+      DBG(1, "  LUT capabilities   :  256 bytes\n"); 
   if ( mi->lut_cap & MI_LUTCAP_1024B )
-      fprintf(stderr, " 1024 bytes\n");
+      DBG(1, "  LUT capabilities   : 1024 bytes\n"); 
   if ( mi->lut_cap & MI_LUTCAP_1024W )
-      fprintf(stderr, " 1024 words\n");
+      DBG(1, "  LUT capabilities   : 1024 words\n"); 
   if ( mi->lut_cap & MI_LUTCAP_4096B )
-      fprintf(stderr, " 4096 bytes\n");
+      DBG(1, "  LUT capabilities   : 4096 bytes\n"); 
   if ( mi->lut_cap & MI_LUTCAP_4096W )
-      fprintf(stderr, " 4096 words\n");
-
-  fprintf(stderr, "\nMiscellaneous capabilities...\n");
-  fprintf(stderr, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-  fprintf(stderr, "  Data format%20s: ", " ");
-  if ( mi->onepass)
+      DBG(1, "  LUT capabilities   : 4096 words\n"); 
+  DBG(1, "\n");
+  DBG(1, "  Miscellaneous capabilities...\n");
+  DBG(1, "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+  if ( mi->onepass) 
     {
-      switch(mi->data_format)
+      switch(mi->data_format) 
         {
-          case MI_DATAFMT_CHUNKY:
-              fprintf(stderr, "Chunky data, R, G & B in one pixel\n");
+	  case MI_DATAFMT_CHUNKY:
+              DBG(1, "  Data format        :%s",
+                     " Chunky data, R, G & B in one pixel\n");
               break;
-          case MI_DATAFMT_LPLCONCAT:
-              fprintf(stderr, "Line by line in concatenated sequence,\n");
-              fprintf(stderr, "%35swithout color indicator\n", " ");
+	  case MI_DATAFMT_LPLCONCAT:
+              DBG(1, "  Data format        :%s",
+                     " Line by line in concatenated sequence,\n");
+              DBG(1, "%23swithout color indicator\n", " ");
               break;
-          case MI_DATAFMT_LPLSEGREG:
-              fprintf(stderr, "Line by line in segregated sequence,\n");
-              fprintf(stderr, "%35swith color indicator\n", " ");
+	  case MI_DATAFMT_LPLSEGREG:
+              DBG(1, "  Data format        :%s",
+                     " Line by line in segregated sequence,\n");
+              DBG(1, "%23swith color indicator\n", " ");
               break;
-          case MI_DATAFMT_WORDCHUNKY:
-              fprintf(stderr, "Word chunky data\n");
+	  case MI_DATAFMT_WORDCHUNKY:
+              DBG(1, "  Data format        : Word chunky data\n");
               break;
           default:
-              fprintf(stderr, "Unknown\n");
+              DBG(1, "  Data format        : Unknown\n");
           break;
         }
-    }
+    } 
   else
-      fprintf(stderr, "No information with 3-pass scanners\n");
+      DBG(1, "No information with 3-pass scanners\n");
 
-  fprintf(stderr, "  Color Sequence%17s: ", " ");
-  for ( i = 0; i < RSA_COLORSEQUENCE_L; i++)
+  DBG(1, "  Color Sequence%17s: \n", " ");
+  for ( i = 0; i < RSA_COLORSEQUENCE_L; i++) 
     {
-      switch(mi->color_sequence[i])
+      switch(mi->color_sequence[i]) 
         {
-          case MI_COLSEQ_RED:   fprintf(stderr,"R"); break;
-          case MI_COLSEQ_GREEN: fprintf(stderr,"G"); break;
-          case MI_COLSEQ_BLUE:  fprintf(stderr,"B"); break;
+	  case MI_COLSEQ_RED:   DBG(1,"%34s%s\n", " ","R"); break;
+	  case MI_COLSEQ_GREEN: DBG(1,"%34s%s\n", " ","G"); break;
+	  case MI_COLSEQ_BLUE:  DBG(1,"%34s%s\n", " ","B"); break;
         }
-      if ( i == RSA_COLORSEQUENCE_L - 1)
-          fprintf(stderr, "\n");
-      else
-          fprintf(stderr, " - ");
     }
-  fprintf(stderr, "  Scanning direction%13s: ", " ");
+  DBG(1, "  Scanning direction%13s: ", " ");
   if ( mi->direction & MI_DATSEQ_RTOL )
-      fprintf(stderr, "Right to left\n");
+      DBG(1, "Right to left\n");
   else
-      fprintf(stderr, "Left to right\n");
-  fprintf(stderr, "  CCD gap%24s: %d lines\n", " ", mi->ccd_gap);
-  fprintf(stderr, "  CCD pixels%21s: %d\n", " ", mi->ccd_pixels);
-  fprintf(stderr, "  Calib white stripe location%4s: %d\n",
+      DBG(1, "Left to right\n");
+  DBG(1, "  CCD gap%24s: %d lines\n", " ", mi->ccd_gap);
+  DBG(1, "  CCD pixels%21s: %d\n", " ", mi->ccd_pixels);
+  DBG(1, "  Calib white stripe location%4s: %d\n",
                   " ",  mi->calib_white);
-  fprintf(stderr, "  Max calib space%16s: %d\n", " ", mi->calib_space);
-  fprintf(stderr, "  Number of lens%17s: %d\n", " ", mi->nlens);
-  fprintf(stderr, "  Max number of windows%10s: %d\n", " ", mi->nwindows);
-  fprintf(stderr, "  Shading transfer function%6s: %d\n", " ",mi->shtrnsferequ);
-  fprintf(stderr, "  Red balance%20s: %d\n", " ", mi->balance[0]);
-  fprintf(stderr, "  Green balance%18s: %d\n", " ", mi->balance[1]);
-  fprintf(stderr, "  Blue balance%19s: %d\n", " " , mi->balance[2]);
-  fprintf(stderr, "  Buffer type%20s: %s\n",
+  DBG(1, "  Max calib space%16s: %d\n", " ", mi->calib_space);
+  DBG(1, "  Number of lens%17s: %d\n", " ", mi->nlens);
+  DBG(1, "  Max number of windows%10s: %d\n", " ", mi->nwindows);
+  DBG(1, "  Shading transfer function%6s: %d\n", " ",mi->shtrnsferequ);
+  DBG(1, "  Red balance%20s: %d\n", " ", mi->balance[0]);
+  DBG(1, "  Green balance%18s: %d\n", " ", mi->balance[1]);
+  DBG(1, "  Blue balance%19s: %d\n", " " , mi->balance[2]);
+  DBG(1, "  Buffer type%20s: %s\n",
                   " ",  mi->buftype ? "Ping-Pong" : "Ring");
-  fprintf(stderr, "  FEPROM%25s: %s\n", " ", mi->feprom ? "Yes" : "No");
-
+  DBG(1, "  FEPROM%25s: %s\n", " ", mi->feprom ? "Yes" : "No");
+                  
   md_dump_clear = 0;
   return SANE_STATUS_GOOD;
 }
-
-
 /*---------- get_calib_params() ----------------------------------------------*/
 
 static void
@@ -4725,7 +4754,7 @@ lplconcat_proc_data(Microtek2_Scanner *ms)
             from[color] = ms->buf.src_buf + mi->color_sequence[color] * ms->ppl;
 
 
-    for ( line = 0; line < ms->src_lines_to_read; line++ )
+    for ( line = 0; line < (u_int32_t)ms->src_lines_to_read; line++ )
       {
         for ( color = 0 ; color < 3; color++ )
             save_from[color] = from[color];
@@ -5078,7 +5107,7 @@ prepare_shading_data(Microtek2_Scanner *ms, u_int32_t lines, u_int8_t **data)
               for ( i = 0; i < mi->geo_width; i++ )
                 {
                   value = 0;
-                  for ( line = 0; line < lines; line++ )
+                  for ( line = 0; line < (int)lines; line++ )
                       value += *((u_int16_t *) ms->shading_image
                                + line * 3 * mi->geo_width
                                + colseq * mi->geo_width
@@ -5102,7 +5131,7 @@ prepare_shading_data(Microtek2_Scanner *ms, u_int32_t lines, u_int8_t **data)
               for ( i = 0; i < mi->geo_width; i++ )
                 {
                   value = 0;
-                  for ( line = 0; line < lines; line++ )
+                  for ( line = 0; line < (int)lines; line++ )
                       value += *((u_int16_t *) ms->shading_image
                                + line * 3 * mi->geo_width
                                + 3 * i
@@ -5208,7 +5237,7 @@ proc_onebit_data(Microtek2_Scanner *ms)
 
         from += ms->bpl;
 
-      } while ( ++line < ms->src_lines_to_read );
+      } while ( ++line < (u_int32_t)ms->src_lines_to_read );
 
     return SANE_STATUS_GOOD;
 }
@@ -5274,7 +5303,7 @@ reader_process(Microtek2_Scanner *ms)
 #if 0
         /* test, output color indicator */
         for ( i = 0 ; i < ms->transfer_length; i = i + ms->bpl)
-            fprintf(stderr,"'%c' '%c' '%c'\n", *(ms->buf.src_buf + i),
+            DBG(1,"'%c' '%c' '%c'\n", *(ms->buf.src_buf + i),
                     *(ms->buf.src_buf + i + ms->bpl / 3),
                     *(ms->buf.src_buf + i + ms->bpl / 3 * 2));
 #endif
@@ -5407,7 +5436,7 @@ segreg_proc_data(Microtek2_Scanner *ms)
 
     ms->buf.free_lines -= ms->src_lines_to_read;
     save_current_src = ms->buf.current_src;
-    if ( ms->buf.free_lines < ms->src_max_lines )
+    if ( (SANE_Int)ms->buf.free_lines < ms->src_max_lines )
       {
         ms->buf.current_src = ++ms->buf.current_src % 2;
         ms->buf.src_buf = ms->buf.src_buffer[ms->buf.current_src];
@@ -5676,13 +5705,13 @@ set_exposure(Microtek2_Scanner *ms)
 
     /* first master channel, apply transformation to all colors */
     exposure = ms->exposure_m;
-    for ( byte = 0; byte < ms->lut_size; byte++ )
+    for ( byte = 0; byte < (u_int32_t)ms->lut_size; byte++ )
       {
         for ( color = 0; color < 3; color++)
           {
             val32 = (u_int32_t) *((u_int16_t *) from + color * size + byte);
             val32 = MIN(val32 + val32
-                     * (2 * (u_int32_t) exposure / 100), maxval);
+                     * (2 * (u_int32_t) exposure / 100), (u_int32_t)maxval);
             *((u_int16_t *) from + color * size + byte) = (u_int16_t) val32;
           }
       }
@@ -5694,11 +5723,12 @@ set_exposure(Microtek2_Scanner *ms)
     exposure_rgb[2] = ms->exposure_b;
     for ( color = 0; color < 3; color++ )
       {
-        for ( byte = 0; byte < size; byte++ )
+        for ( byte = 0; byte < (u_int32_t)size; byte++ )
           {
             val32 = (u_int32_t) *((u_int16_t *) from + color * size + byte);
             val32 = MIN(val32 + val32
-                         * (2 * (u_int32_t) exposure_rgb[color] / 100), maxval);
+                         * (2 * (u_int32_t) exposure_rgb[color] / 100),
+                                                             (u_int32_t)maxval);
             *((u_int16_t *) from + color * size + byte) = (u_int16_t) val32;
           }
       }
@@ -6063,7 +6093,7 @@ wordchunky_proc_data(Microtek2_Scanner *ms)
     DBG(30, "wordchunky_proc_data: ms=%p\n", ms);
 
     from = ms->buf.src_buf;
-    for ( line = 0; line < ms->src_lines_to_read; line++ )
+    for ( line = 0; line < (u_int32_t)ms->src_lines_to_read; line++ )
       {
         status = wordchunky_copy_pixels(from, ms->ppl, ms->depth, ms->fp);
         if ( status != SANE_STATUS_GOOD )

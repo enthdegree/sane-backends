@@ -1,3 +1,8 @@
+2002-06-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions.txt: New file. Specification of the format of
+	  backend description files (*.desc).
+
 2002-06-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/mustek.c doc/descriptions/mustek.desc 

@@ -5,6 +5,10 @@
 
 2003-01-06  Peter Fales  <peter@fales-lorenz.net>
 
+        * doc/descriptions/dc25.desc, doc/descriptions/dc210.desc,
+	  doc/descriptions/dc240.desc, doc/descriptions/gphoto2.desc:
+	  Update author information
+
         * backend/dc25.c:  Fix compiler warning 
 
 	* backend/dc210.c, backend/dc240.c, backend/dc210.conf, 

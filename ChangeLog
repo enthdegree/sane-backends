@@ -4,6 +4,7 @@
 	  doc/gt68xx/gt68xx.CHANGES: Removed unused gain and offset
 	  options.
 	* NEWS: Added (planned) release date.
+	* configure configure.in: Disabled compilation warnings.
 
 2004-10-31  Gerhard Jaeger <gerhard@gjaeger.de>
 

@@ -1,4 +1,4 @@
-TODO (2001-12-27)
+TODO (2002-01-03)
 
 ******** todo ********
 
@@ -49,6 +49,9 @@ backends
        by one user). Maybe add a command line option to saned to set the
        timeout. Otherwise turn on TCP keep alive (where available) and
        (maybe) check the connection from server side.
+     - There seems to be yet another race condition or other source for
+       freezes in saned or net. Wheile scanning with pnm and auth, scanimage
+       freezes. Last message from saned: "process_request: got request 2".
 
   * qcam:
      - implement auto mode for brightness and black-level (don't
@@ -111,6 +114,8 @@ doc
 
   * Update backend manpages.
 
+  * Add description of --enable-parport-directio.
+
 frontends
 ---------
   * dll: Rewrite to use libtool ltdl library
@@ -126,13 +131,6 @@ sanei
   * sanei_scsi: Check return values of req_wait and cmd in case of
     SCSI DEVICE BUSY. Better specification of the behaviour of sanei_scsi
     functions (e.g. return values, timeout 10 min versus 1 min)?
-
-  * sanei_usb: Add sanei_usb_control_msg. At least the Linux
-    USB scanner driver allows to send control messages since kernel 2.4.13.
-    See http://umax1220u-sane.sourceforge.net/sanei/ .
-
-  * Add support for PV8630 USB chipset (as sanei interface):
-    http://umax1220u-sane.sourceforge.net/sanei/
 
   * create sanei_parport_* and remove all inb, outb,... from all backends;
     use libieee1284 if available (see
@@ -152,9 +150,6 @@ platform-specific
   * Add AC_OBJEXT and AC_EXEEXT to configure.in for automatically adding
     the correct extensions (e.g. for OS/2). Also update the Makefiles
     accordingly.
-
-  * Fix libsocket problem (OS/2). libsocket must be linked when testing for
-    libsyslog.
 
   * Add support for semaphores also for OS/2 (currently used in snapscan).
 
@@ -190,11 +185,14 @@ misc
 
   * Add installation procedure for translations of SANE backend's options.
 
-  * Split configure option --enable-directio into --enable-scsi-directio and
-    --enable-parport-directio to avoid confusion. Also add appropriate
-    documentation.
-
 ******** done ********
+* Split configure option --enable-directio into --enable-scsi-directio and
+  --enable-parport-directio to avoid confusion. Also add appropriate
+  documentation.
+* sanei_usb: Add sanei_usb_control_msg. 
+* Add support for PV8630 USB chipset (as sanei interface):
+* Fix libsocket problem (OS/2). libsocket must be linked when testing for
+  libsyslog.
 * Add bearpaw backend (Mustek BearPaw 1200 + maybe 2400)
   (will be supported by plustek backend)
 * Must -ldl be added to sane-config.in?

@@ -1,3 +1,8 @@
+2003-10-06  Peter Kirchgessner <peter@kirchgessner.net>
+
+	* backend/hp.c, backend/hp-option.h: Bug #300248 fixed
+	  (correct "Negatives" in option description to "Negative")
+
 2003-10-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/Makefile.in: Remove doxygen-sanei.conf in clean target.

@@ -2,5 +2,6 @@
 
 	* configure configure.in: Updated version. Enabled compilation
 	  warnings.
+	* doc/releases.txt: Updated according to current practice.
 
 Older entries can be found in ChangeLog-1.0.15.

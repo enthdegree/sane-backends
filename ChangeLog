@@ -1,3 +1,8 @@
+2001-05-16  Chris Pinkham <cpinkham@infi.net>
+
+	* backend/artec.c: changed #include to use "../include/sane/config.h"
+	  instead of "sane/config.h".
+
 2001-05-16  Stéphane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp.c: fix memory leak in sane_exit
@@ -181,8 +186,8 @@
 
 	* backend/artec.c: Fixed bug causing possible dereference of a NULL
 	  pointer.
-	* backend/artec.desc: Modified USB entry to say AS6E scanner supported
-	  by SANE AS6E backend.
+	* backend/artec.desc: Modified Parport entry to say AS6E scanner
+	  supported by SANE AS6E backend.
 
 2001-04-29  Petter Reinholdtsen <pere@td.org.uit.no>
 

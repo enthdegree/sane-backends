@@ -1,5 +1,11 @@
 CHANGES for the SANE Mustek backend
 
+2002-07-07
+  * Released Mustek backend 1.0-126.
+
+2002-07-07
+  * Increased width and height of Paragon 800 and 600.
+
 2002-06-07
   * Released Mustek backend 1.0-125.
 

@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 1996, 1997 David Mosberger-Tang and Andreas Czechanowski,
    1998 Andreas Bolsch for extension to ScanExpress models version 0.6,
-   2000, 2001 Henning Meier-Geinitz.
+   2000-2002 Henning Meier-Geinitz.
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -46,7 +46,7 @@
 
 /**************************************************************************/
 /* Mustek backend version                                                 */
-#define BUILD 125
+#define BUILD 126
 /**************************************************************************/
 
 #include "../include/sane/config.h"
@@ -1249,7 +1249,7 @@ attach (SANE_String_Const devname, Mustek_Device ** devp, SANE_Bool may_wait)
       dev->x_range.min = SANE_FIX (1.5);
       dev->x_range.max = SANE_FIX (218.0);
       dev->y_range.min = SANE_FIX (0.0);
-      dev->y_range.max = SANE_FIX (288.0);
+      dev->y_range.max = SANE_FIX (293.0);
       dev->x_trans_range.min = SANE_FIX (0.0);
       dev->y_trans_range.min = SANE_FIX (0.0);
       dev->x_trans_range.max = SANE_FIX (205.0);
@@ -1269,9 +1269,9 @@ attach (SANE_String_Const devname, Mustek_Device ** devp, SANE_Bool may_wait)
          Windows driver. Tested with a Paragon 600 II CD, a Paragon
          MFC-600S and a Paragon 600 II N. */
       dev->x_range.min = SANE_FIX (0.0);
-      dev->x_range.max = SANE_FIX (215.9);
+      dev->x_range.max = SANE_FIX (218.0);
       dev->y_range.min = SANE_FIX (0.0);
-      dev->y_range.max = SANE_FIX (288.0);
+      dev->y_range.max = SANE_FIX (293.0);
       dev->x_trans_range.min = SANE_FIX (0.0);
       dev->y_trans_range.min = SANE_FIX (0.0);
       dev->x_trans_range.max = SANE_FIX (201.0);

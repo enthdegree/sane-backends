@@ -7,6 +7,7 @@
 	* README.netbsd: Removed. Shared libraries are supported since 1.0.8.
 	* README.openbsd: Updated for libusb.
 	* README: Added section about libraries like libiee1284 and libusb.
+	* doc/doxygen-sanei.conf: Updated version number.
 
 2002-06-29  Matthew Duggan <stauff1@users.sourceforge.net>
 

@@ -1,3 +1,8 @@
+2002-01-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/mustek.c backend/mustek.desc doc/mustek/mustek.CHANGES:
+	  Fixed calibration bug for the 1200 Pro. New version: 1.0-118.
+
 2002-01-19  Peter Fales <peter@fales.com>
 
 	* backend/gphoto2.c - Fixed a bug that can cause driver errors

@@ -14,6 +14,8 @@ Model:
 .br 
 \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\- 
 .br 
+Astra 610P         
+.br 
 Astra 1220P         
 .br 
 HP3200C            
@@ -33,11 +35,13 @@ There isn't software way to recognize them properly. Under windows, model is
 set by the driver installed, regardless of the hardware. 
 .PP 
 .TP 
-.B EPP MODE ONLY
-The current version of the backend use only EPP mode to communicate with the 
-scanner. PS/2 and SPP mode aren't implemented. It is recommended that you set
-your parallel port to EPP in BIOS with the current version of this backend. 
-ECPEPP will only work if you use a 2.4 kernel with ppdev character device support.
+.B EPP/ECP MODES ONLY
+The current version of the backend uses only EPP or ECP mode to communicate 
+with the scanner. PS/2 and SPP mode aren't implemented. It is recommended that 
+you set your parallel port to EPP in BIOS with the current version of this 
+backend. You can leave it to ECP or ECP+EPP, but in this case you may not use
+ppdev but only direct hardware access if you have to use ECP.  ECPEPP will only
+ work if you use a 2.4 or 2.6 kernel with ppdev character device support.
 .PP 
 This backend does support parport sharing only 
 .I 
@@ -172,7 +176,7 @@ Option
 .B astra
 allows you to change the model of your scanner. Current auto detection is based
 on side effects on scanning when using 1220P command set on other models, so
-it may fail on unkown hardware combination. Valid values are 1220, 1600 
+it may fail on unkown hardware combination. Valid values are 610, 1220, 1600 
 and 2000. It is usefull only when autodetection fails to detect properly
 your scanner model. If your scanner work properly but is reported wrongly, 
 let it be that way. 
@@ -185,7 +189,7 @@ Option
 .B buffer
 allows you to change the size of the scan buffer. The size must be specified in
 bytes. The default value is 2 megabytes. Decreasing this value will improve the
-smoothness of the updates of progress status in the frontend, but will stall the
+smoothness of progress bar in the frontend, but will stall the
 scan more often.
 
 .PP 

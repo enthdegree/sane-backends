@@ -46,7 +46,7 @@
 /*****************************************************************************/
 /*                 set port to 'idle state' and get iopl                     */
 /*****************************************************************************/
-extern int sanei_umax_pp_InitPort (int port, char *name);
+extern int sanei_umax_pp_initPort (int port, char *name);
 
 
 
@@ -54,14 +54,14 @@ extern int sanei_umax_pp_InitPort (int port, char *name);
 
 
 
-extern int sanei_umax_pp_ProbeScanner (int recover);
-extern int sanei_umax_pp_InitScanner (int recover);
-extern int sanei_umax_pp_InitTransport (int recover);
-extern int sanei_umax_pp_ReleaseScanner (void);
-extern int sanei_umax_pp_EndSession (void);
-extern int sanei_umax_pp_InitCancel (void);
-extern int sanei_umax_pp_Cancel (void);
-extern int sanei_umax_pp_CheckModel (void);
+extern int sanei_umax_pp_probeScanner (int recover);
+extern int sanei_umax_pp_initScanner (int recover);
+extern int sanei_umax_pp_initTransport (int recover);
+extern int sanei_umax_pp_releaseScanner (void);
+extern int sanei_umax_pp_endSession (void);
+extern int sanei_umax_pp_initCancel (void);
+extern int sanei_umax_pp_cancel (void);
+extern int sanei_umax_pp_checkModel (void);
 extern int sanei_umax_pp_getauto (void);
 extern int sanei_umax_pp_UTA (void);
 extern void sanei_umax_pp_setauto (int mode);
@@ -89,24 +89,24 @@ extern void sanei_umax_pp_setauto (int mode);
 #define MOTOR_BIT     0x40
 
 #define UMAX_PP_PARPORT_PS2      0x01
-#define UMAX_PP_PARPORT_EPP      0x02
-#define UMAX_PP_PARPORT_EPP_HALF 0x04
+#define UMAX_PP_PARPORT_BYTE     0x02
+#define UMAX_PP_PARPORT_EPP      0x04
 #define UMAX_PP_PARPORT_ECP      0x08
 
 #endif
 
-extern int sanei_umax_pp_Scan (int x, int y, int width, int height, int dpi,
+extern int sanei_umax_pp_scan (int x, int y, int width, int height, int dpi,
 			       int color, int brightness, int contrast);
-extern int sanei_umax_pp_Move (int distance, int precision,
+extern int sanei_umax_pp_move (int distance, int precision,
 			       unsigned char *buffer);
-extern int sanei_umax_pp_SetLamp (int on);
-extern int sanei_umax_pp_CompletionWait (void);
-extern int sanei_umax_pp_CommitScan (void);
-extern int sanei_umax_pp_Park (void);
-extern int sanei_umax_pp_ParkWait (void);
-extern int sanei_umax_pp_ReadBlock (long len, int window, int dpi, int last,
+extern int sanei_umax_pp_setLamp (int on);
+extern int sanei_umax_pp_completionWait (void);
+extern int sanei_umax_pp_commitScan (void);
+extern int sanei_umax_pp_park (void);
+extern int sanei_umax_pp_parkWait (void);
+extern int sanei_umax_pp_readBlock (long len, int window, int dpi, int last,
 				    unsigned char *buffer);
-extern int sanei_umax_pp_StartScan (int x, int y, int width, int height,
+extern int sanei_umax_pp_startScan (int x, int y, int width, int height,
 				    int dpi, int color, int brightness,
 				    int contrast, int *rbpp, int *rtw,
 				    int *rth);
@@ -117,12 +117,13 @@ extern void sanei_umax_pp_setparport (int fd);
 extern int sanei_umax_pp_getparport (void);
 extern void sanei_umax_pp_setastra (int mod);
 extern int sanei_umax_pp_getastra (void);
-extern int sanei_umax_pp_ScannerStatus (void);
-extern int sanei_umax_pp_ReleaseScanner (void);
-extern int sanei_umax_pp_EndSession (void);
-extern int sanei_umax_pp_ProbeScanner (int recover);
+extern int sanei_umax_pp_scannerStatus (void);
+extern int sanei_umax_pp_releaseScanner (void);
+extern int sanei_umax_pp_endSession (void);
+extern int sanei_umax_pp_probeScanner (int recover);
 
 extern char **sanei_parport_find_port (void);
 extern char **sanei_parport_find_device (void);
 
-extern int sanei_umax_pp_CmdSync (int cmd);
+extern int sanei_umax_pp_cmdSync (int cmd);
+extern void sanei_umax_pp_gamma (int *red, int *green, int *blue);

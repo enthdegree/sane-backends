@@ -89,7 +89,7 @@ main (int argc, char **argv)
 	    {
 	      Usage (argv[0]);
 	      fprintf (stderr, "expected color mode value\n");
-	      return (0);
+	      return 0;
 	    }
 	  color = 0;
 	  i++;
@@ -106,7 +106,7 @@ main (int argc, char **argv)
 	    {
 	      fprintf (stderr, "unexpected color mode value <%s>\n", argv[i]);
 	      fprintf (stderr, "Must be RGB, RGB12, BW, or BW12\n");
-	      return (0);
+	      return 0;
 	    }
 	}
 
@@ -117,13 +117,13 @@ main (int argc, char **argv)
 	    {
 	      Usage (argv[0]);
 	      fprintf (stderr, "expected x value\n");
-	      return (0);
+	      return 0;
 	    }
 	  x = atoi (argv[i + 1]);
 	  if (x < 0 || x > 5100)
 	    {
 	      fprintf (stderr, "x must be between 0 and 5099\n");
-	      return (0);
+	      return 0;
 	    }
 	  i++;
 	  found = 1;
@@ -135,13 +135,13 @@ main (int argc, char **argv)
 	    {
 	      Usage (argv[0]);
 	      fprintf (stderr, "expected y value\n");
-	      return (0);
+	      return 0;
 	    }
 	  y = atoi (argv[i + 1]);
 	  if (y < 0 || y > 7000)
 	    {
 	      fprintf (stderr, "y must be between 0 and 7000\n");
-	      return (0);
+	      return 0;
 	    }
 	  i++;
 	  found = 1;
@@ -153,19 +153,19 @@ main (int argc, char **argv)
 	    {
 	      Usage (argv[0]);
 	      fprintf (stderr, "expected width value\n");
-	      return (0);
+	      return 0;
 	    }
 	  width = atoi (argv[i + 1]);
 	  if ((width < 1) || (width > 5100))
 	    {
 	      fprintf (stderr, "width must be between 1 and 5100\n");
-	      return (0);
+	      return 0;
 	    }
 	  if (x + width > 5100)
 	    {
 	      fprintf (stderr,
 		       "Right side of scan area exceed physical limits (x+witdh>5100)\n");
-	      return (0);
+	      return 0;
 	    }
 	  i++;
 	  found = 1;
@@ -178,19 +178,19 @@ main (int argc, char **argv)
 	    {
 	      Usage (argv[0]);
 	      fprintf (stderr, "expected height value\n");
-	      return (0);
+	      return 0;
 	    }
 	  height = atoi (argv[i + 1]);
 	  if ((height < 1) || (height > 7000))
 	    {
 	      fprintf (stderr, "height must be between 1 and 7000\n");
-	      return (0);
+	      return 0;
 	    }
 	  if (y + height > 7100)
 	    {
 	      fprintf (stderr,
 		       "Bottom side of scan area exceed physical limits (y+height>7100)\n");
-	      return (0);
+	      return 0;
 	    }
 	  i++;
 	  found = 1;
@@ -202,7 +202,7 @@ main (int argc, char **argv)
 	    {
 	      Usage (argv[0]);
 	      fprintf (stderr, "expected trace value\n");
-	      return (0);
+	      return 0;
 	    }
 	  trace = atoi (argv[i + 1]);
 	  i++;
@@ -229,13 +229,13 @@ main (int argc, char **argv)
 	    {
 	      Usage (argv[0]);
 	      fprintf (stderr, "expected dpi value\n");
-	      return (0);
+	      return 0;
 	    }
 	  dpi = atoi (argv[i + 1]);
 	  if ((dpi < 75) || (dpi > 1200))
 	    {
 	      fprintf (stderr, "dpi value has to be between 75 and 1200\n");
-	      return (0);
+	      return 0;
 	    }
 	  if ((dpi != 75)
 	      && (dpi != 150)
@@ -243,19 +243,20 @@ main (int argc, char **argv)
 	    {
 	      fprintf (stderr,
 		       "dpi value has to be 75, 150, 300, 600 or 1200\n");
-	      return (0);
+	      return 0;
 	    }
 	  i++;
 	  found = 1;
 	}
 
-      if ((strcmp (argv[i], "-g") == 0) || (strcmp (argv[i], "--brightness") == 0))
+      if ((strcmp (argv[i], "-g") == 0)
+	  || (strcmp (argv[i], "--brightness") == 0))
 	{
 	  if (i == (argc - 1))
 	    {
 	      Usage (argv[0]);
 	      fprintf (stderr, "expected hex brightness value ( ex: A59 )\n");
-	      return (0);
+	      return 0;
 	    }
 	  i++;
 	  found = 1;
@@ -263,7 +264,7 @@ main (int argc, char **argv)
 	    {
 	      Usage (argv[0]);
 	      fprintf (stderr, "expected hex brightness value ( ex: A59 )\n");
-	      return (0);
+	      return 0;
 	    }
 	  brightness = strtol (argv[i], NULL, 16);
 	  sanei_umax_pp_setauto (0);
@@ -276,7 +277,7 @@ main (int argc, char **argv)
 	    {
 	      Usage (argv[0]);
 	      fprintf (stderr, "expected hex contrast value ( ex: A59 )\n");
-	      return (0);
+	      return 0;
 	    }
 	  i++;
 	  found = 1;
@@ -284,7 +285,7 @@ main (int argc, char **argv)
 	    {
 	      Usage (argv[0]);
 	      fprintf (stderr, "expected hex contrast value ( ex: A59 )\n");
-	      return (0);
+	      return 0;
 	    }
 	  contrast = strtol (argv[i], NULL, 16);
 	}
@@ -296,7 +297,7 @@ main (int argc, char **argv)
 	      Usage (argv[0]);
 	      fprintf (stderr,
 		       "expected device name ( ex: /dev/parport0 )\n");
-	      return (0);
+	      return 0;
 	    }
 	  i++;
 	  found = 1;
@@ -308,7 +309,7 @@ main (int argc, char **argv)
 	    {
 	      Usage (argv[0]);
 	      fprintf (stderr, "expected hex io port value ( ex: 3BC )\n");
-	      return (0);
+	      return 0;
 	    }
 	  i++;
 	  found = 1;
@@ -316,7 +317,7 @@ main (int argc, char **argv)
 	    {
 	      Usage (argv[0]);
 	      fprintf (stderr, "expected hex io port value ( ex: 378 )\n");
-	      return (0);
+	      return 0;
 	    }
 	  port = strtol (argv[i], NULL, 16);
 	}
@@ -328,7 +329,7 @@ main (int argc, char **argv)
 	    {
 	      Usage (argv[0]);
 	      fprintf (stderr, "expected lamp value\n");
-	      return (0);
+	      return 0;
 	    }
 	  lamp = atoi (argv[i + 1]);
 	  i++;
@@ -339,7 +340,7 @@ main (int argc, char **argv)
 	{
 	  Usage (argv[0]);
 	  fprintf (stderr, "unexpected argument <%s>\n", argv[i]);
-	  return (0);
+	  return 0;
 	}
 
       /* next arg */
@@ -360,10 +361,10 @@ main (int argc, char **argv)
 
   /*  enable I/O */
   /* parport_claim */
-  if (sanei_umax_pp_InitPort (port, name) != 1)
+  if (sanei_umax_pp_initPort (port, name) != 1)
     {
       fprintf (stderr, "failed to gain direct acces to port 0x%X!\n", port);
-      return (0);
+      return 0;
     }
   if (trace)
     {
@@ -381,65 +382,77 @@ main (int argc, char **argv)
   if ((!scan) && (lamp < 0) && (!probe))
     scan = 1;
 
-  /* lamp on/off */
-  if (lamp >= 0)
-    {
-      /* init transport layer */
-      if (sanei_umax_pp_InitTransport (recover) != 1)
-	{
-	  printf ("InitTransport() failed (%s:%d)\n", __FILE__, __LINE__);
-	  return (0);
-	}
-      if (sanei_umax_pp_SetLamp (lamp) == 0)
-	{
-	  fprintf (stderr, "Setting lamp state failed!\n");
-	  return (0);
-	}
-    }
-
 
   /* probe scanner */
-  if (probe)
+  if ((probe) || (lamp >= 0))
     {
       printf ("Probing scanner ....\n");
-      if (sanei_umax_pp_ProbeScanner (recover) != 1)
+      if (sanei_umax_pp_probeScanner (recover) != 1)
 	{
 	  if (recover)
 	    {
-	      sanei_umax_pp_InitTransport (recover);
-	      sanei_umax_pp_EndSession ();
-	      if (sanei_umax_pp_ProbeScanner (recover) != 1)
+	      sanei_umax_pp_initTransport (recover);
+	      sanei_umax_pp_endSession ();
+	      if (sanei_umax_pp_probeScanner (recover) != 1)
 		{
 		  printf ("Recover failed ....\n");
-		  return (0);
+		  return 0;
 		}
 	      printf ("Recover done !\n");
 	    }
 	  else
-	    return (0);
+	    return 0;
 	}
 
       /* could be written better .... but it is only test */
-      sanei_umax_pp_EndSession ();
+      sanei_umax_pp_endSession ();
       /* init transport layer */
-      if (sanei_umax_pp_InitTransport (0) != 1)
+      if (sanei_umax_pp_initTransport (0) != 1)
 	{
-	  printf ("InitTransport() failed (%s:%d)\n", __FILE__, __LINE__);
-	  return (0);
+	  printf ("initTransport() failed (%s:%d)\n", __FILE__, __LINE__);
+	  return 0;
 	}
-      i = sanei_umax_pp_CheckModel ();
-      if (i < 610)
+      i = sanei_umax_pp_checkModel ();
+      if (i < 600)
 	{
-	  sanei_umax_pp_EndSession ();
-	  printf ("CheckModel() failed (%s:%d)\n", __FILE__, __LINE__);
-	  return (0);
+	  sanei_umax_pp_endSession ();
+	  printf ("checkModel() failed (%s:%d)\n", __FILE__, __LINE__);
+	  return 0;
 	}
       if (trace)
 	printf ("UMAX Astra %dP detected \n", i);
 
       /* free scanner if a scan is planned */
       if (scan)
-	sanei_umax_pp_EndSession ();
+	sanei_umax_pp_endSession ();
+    }
+
+  /* lamp on/off: must come after probing (610p handling) */
+  if (lamp >= 0)
+    {
+      /* init transport layer */
+      if (trace)
+	printf ("Tryning to set lamp %s\n", lamp ? "on" : "off");
+      if (sanei_umax_pp_initTransport (recover) != 1)
+	{
+	  printf ("initTransport() failed (%s:%d)\n", __FILE__, __LINE__);
+	  return 0;
+	}
+      else
+	{
+	  if (trace)
+	    printf ("initTransport passed...\n");
+	}
+      if (sanei_umax_pp_setLamp (lamp) == 0)
+	{
+	  fprintf (stderr, "Setting lamp state failed!\n");
+	  return 0;
+	}
+      else
+	{
+	  if (trace)
+	    printf ("sanei_umax_pp_setLamp passed...\n");
+	}
     }
 
   /* scan */
@@ -452,43 +465,43 @@ main (int argc, char **argv)
        */
       do
 	{
-	  i = sanei_umax_pp_InitTransport (recover);
+	  i = sanei_umax_pp_initTransport (recover);
 	}
       while (i == 2);
       if (i != 1)
 	{
-	  printf ("InitTransport() failed (%s:%d)\n", __FILE__, __LINE__);
-	  return (0);
+	  printf ("initTransport() failed (%s:%d)\n", __FILE__, __LINE__);
+	  return 0;
 	}
-      /*i = sanei_umax_pp_CheckModel ();
+      /*i = sanei_umax_pp_checkModel ();
          if (i < 610)
          {
-         sanei_umax_pp_EndSession ();
-         printf ("CheckModel() failed (%s:%d)\n", __FILE__, __LINE__);
-         return (0);
+         sanei_umax_pp_endSession ();
+         printf ("checkModel() failed (%s:%d)\n", __FILE__, __LINE__);
+         return 0;
          }
          if (trace)
          printf ("UMAX Astra %dP detected \n", i); */
       /* init scanner */
-      if (sanei_umax_pp_InitScanner (recover) == 0)
+      if (sanei_umax_pp_initScanner (recover) == 0)
 	{
-	  sanei_umax_pp_EndSession ();
-	  return (0);
+	  sanei_umax_pp_endSession ();
+	  return 0;
 	}
       /* scan */
-      if (sanei_umax_pp_Scan
+      if (sanei_umax_pp_scan
 	  (x, y, width, height, dpi, color, brightness, contrast) != 1)
 	{
-	  sanei_umax_pp_ReleaseScanner ();
-	  sanei_umax_pp_EndSession ();
-	  return (0);
+	  sanei_umax_pp_releaseScanner ();
+	  sanei_umax_pp_endSession ();
+	  return 0;
 	}
 
       /* wait for head parking */
-      sanei_umax_pp_ParkWait ();
-      sanei_umax_pp_ReleaseScanner ();
+      sanei_umax_pp_parkWait ();
+      sanei_umax_pp_releaseScanner ();
     }
-  sanei_umax_pp_EndSession ();
+  sanei_umax_pp_endSession ();
 
-  return (1);
+  return 1;
 }

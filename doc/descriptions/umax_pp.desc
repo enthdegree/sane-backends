@@ -22,31 +22,35 @@
 :mfg "UMAX"                     ; name a manufacturer
 :url "http://www.umax.com.tw/"
 
-; These scanners are known to have the same ASIC. What scanners work
-; isn't actually known. Also the interfaces are only guessed
+; These scanners are known to have the same ASIC family. 
 
 :model "Astra 1220P"
-:interface "Parport (EPP)"
+:interface "Parport (EPP/ECP)"
 :status :good      
 
 :model "Astra 2000P"
-:interface "Parport (EPP)"
+:interface "Parport (EPP/ECP)"
 :status :good      
 
 :model "Astra 1600P"
 :interface "Parport (EPP)"
 :status :good      
 
-:model "Astra 610P"
-:interface "Parport (EPP)"
+:model "Astra 600P"
+:interface "Parport (sPP/ECP)"
 :status :unsupported      
-:comment "don't work due to lack of hardware to test"
+:comment "untested, but should be close to 610P"
+
+:model "Astra 610P"
+:interface "Parport (SPP/ECP)"
+:status :minimal      
+:comment "work in progress"
 
 
 :mfg "Hewlett-Packard"
 
 :model "Scanjet 3200C"
-:interface "Parport (EPP)"
+:interface "Parport (EPP/ECP)"
 :status :good      
 :comment "works (relabelled 1220P and 2000P)"
 

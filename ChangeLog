@@ -1,3 +1,10 @@
+2004-03-09  Stéphane Voltz <svoltz@wanadoo.fr>
+
+	* backend/umax_pp_low.c backend/umax_pp_low.h backend/umax_pp_mid.c
+          doc/sane-umax_pp.man doc/descriptions/umax_pp.desc tools/umax_pp.c:
+	  finished ECP support for 1220P/2000P. Added scanner detection and
+	  low-level communication for 610P.
+
 2004-03-08  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* tools/check-usb-scanner.c: GL841 max packet size can be 512
@@ -86,7 +93,6 @@
 	* backend/umax_pp_low.h backend/umax_pp_low.c backend/umax_pp.conf
 	  backend/umax_pp.c tools/umax_pp.c: added initial ECP support for
 	   scanner, laid groundwork for 610P support.
-	* backend/mustek_pp_ccd300.c: forgot parameters to wait_bank_change
 
 2004-02-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

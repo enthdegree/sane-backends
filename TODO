@@ -1,4 +1,4 @@
-TODO (2001-09-09)
+TODO (2001-09-18)
 
 ******** todo ********
 
@@ -39,6 +39,8 @@ backends
      - microtek
 
   * Check net/saned
+     - add Jochen Eisinger's net.c and sanei_wire.c fixes/additions.
+     - cancel doesn't work over the net at least with pnm and mustek.
      - don't just ignore the byte-order for the image data (needed to
        support depths > 8 bits/channel)
      - saned times out after 5 minutes (now 60 minutes). Check if the
@@ -105,6 +107,10 @@ doc
 
   * Update backend manpages
 
+  * Check .desc files:
+    - sharp.desc: doesn't mention manual page.
+    - sm3600.desc: set status to :alpha, beta, or :stable.
+
   * Check for logical errors and spelling
     - agfafocus (CONFIGURATION: Microtek scanners? SANE_DEBUG_AGFAFOCUS:
                  SANE_DEBUG_UMAX values? Last paragraph of DEBUG)
@@ -144,9 +150,6 @@ frontends
   * Add a check in the frontends if the backend delivers more data than
     it announced by sane_get_parameters to avoid segfaults with bad 
     backends?
-
-  * scanimage: Maybe add ADF extensions from Caskey Dickson (or add them to 
-    scanadf if necessary).
 
  [the remaining entries have been moved to the sane-frontends package]
 
@@ -188,6 +191,8 @@ misc
 
 ******** done ********
 
+* scanimage: Maybe add ADF extensions from Caskey Dickson (or add them to 
+  scanadf if necessary).
 * Add Mustek USB backend (1200UB, 1200CU, 1200CU Plus)
   http://www.meier-geinitz.de/sane/
   Henning Meier-Geinitz <henning@meier-geinitz.de>

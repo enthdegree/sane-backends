@@ -226,7 +226,13 @@
 :url "http://www.meier-geinitz.de/sane/misc/canon-lide-50.html"
 :interface "USB"
 :status :unsupported
-:comment "Probably not supported. Chipset probably Genesys. Some information is available."
+:comment "Probably not supported yet. Some information is available."
+
+:model "CanoScan LiDE 80"
+:url "http://www.meier-geinitz.de/sane/misc/canon-lide-80.html"
+:interface "USB"
+:status :unsupported
+:comment "Probably not supported yet. Some information is available."
 
 ;********************************************************************************************
 
@@ -364,8 +370,8 @@
 :comment "Unsupported. Chipset is Realtek RTS8801C2-6. Vendor/Product ID 0x03F0/0x2005. See link and other Scanjet 35x0c entries."
 
 :model "ScanJet 3570c"
-:url "http://www.cscs.ch/~tack/hp3530.html"
 :interface "USB"
+:url "http://www.meier-geinitz.de/sane/misc/hp-scanjet-3570c.html"
 :status :unsupported
 :comment "Unsupported. Probably Realtek RTS8801C2-6, same ids as Scanjet 3530c. Has a TA. Vendor/product id 0x03F0/0x2005. See link and other Scanjet 35x0c entries."
 

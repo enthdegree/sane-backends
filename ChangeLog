@@ -8,6 +8,7 @@
 	* backend/Makefile.in backend/coolscan2.desc: Added description file
 	  for coolscan2 backend (from Major Andras 
 	  <andras@users.sourceforge.net>).
+	* backend/gphoto2.desc: gphoto2 is no longer "NEW".
 
 2002-02-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

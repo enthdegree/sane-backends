@@ -3,6 +3,8 @@
 	* README.linux: Used "sane-find-scanner". Some minor changes.
 	* config.guess config.sub: Updated from 
 	  http://savannah.gnu.org/projects/config.
+	* TODO: New section: "platform-specific". Added some problems with
+	  *BSD. Some minor fixes and additions.
 
 2001-12-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

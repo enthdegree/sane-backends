@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-02-27"		; version of backend
+:version "2003-03-02"		; version of backend
 :url "http://www.meier-geinitz.de/sane/misc/unsupported.html"
 ;:status :stable			; :alpha, :beta, :stable, :new
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
@@ -447,12 +447,6 @@
 :interface "USB"
 :status :unsupported
 :comment "Not supported. No chipset information available. Same as Avision iVina FB2400."
-
-:model "AstraSlim SE"
-:url "http://www.meier-geinitz.de/sane/misc/umax-astraslim.txt"
-:interface "USB"
-:status :unsupported
-:comment "Not supported out of the box but should work with the artec_eplus48u backend. See link for details."
 
 ;********************************************************************************************
 

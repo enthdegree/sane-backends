@@ -6,6 +6,8 @@
 	  doesn't try to do any fixing/rounding.
 	* doc/sane-scsi.man: Changed the example to use /dev/sg0 instead of
 	  /dev/sge.
+	* doc/descriptions/unsupported.desc: Removed Umax AstraSlim (now
+	  supported by artec_eplus48u backend).
 
 2003-03-03  Gerhard Jaeger <gerhard@gjaeger.de>
 	* doc/plustek/Plustek-USB-TODO.txt: update

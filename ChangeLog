@@ -34,7 +34,7 @@
 
 	* configure configure.in acinclude.m4 aclocal.m4 
 	  include/sane/config.h.in: Added test for PTAL library and headers 
-	  (patch from David Paschal <paschal@rcsis.co>). Some reformating of 
+	  (patch from David Paschal <paschal@rcsis.com>). Some reformating of 
 	  the output of configure --help.
 
 	* backend/GUIDE: Updated entry about #include.

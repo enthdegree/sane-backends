@@ -28,8 +28,7 @@
 # 2003-04-30: Henning Meier-Geinitz
 #   * soname changed to "libsane" for every backend (all systems but AIX)
 #   * fix version number for Irix
-#   * -framework addition for MacOS X (from Mattias Ellert 
-#      <mattias.ellert@tsl.uu.se>)
+#   * backported -framework support for MacOS X from libtool 2.0
 
 basename="s,^.*/,,g"
 
@@ -1182,6 +1181,19 @@ EOF
 	  prev=
 	  continue
 	  ;;
+	framework)
+	  case $host in
+	    *-*-darwin*)
+	      case "$deplibs " in
+		*" $qarg.ltframework "*) ;;
+		*) deplibs="$deplibs $qarg.ltframework" # this is fixed later
+		   ;;
+	      esac
+	      ;;
+	  esac
+	  prev=
+	  continue
+	  ;;
 	inst_prefix)
 	  inst_prefix_dir="$arg"
 	  prev=
@@ -1413,6 +1425,11 @@ EOF
 	continue
 	;;
 
+      -framework)
+	prev=framework
+	continue
+	;;
+
       -inst-prefix-dir)
 	prev=inst_prefix
 	continue
@@ -1479,7 +1496,7 @@ EOF
 	    ;;
 	  *-*-rhapsody* | *-*-darwin1.[012])
 	    # Rhapsody C and math libraries are in the System framework
-	    deplibs="$deplibs -framework System"
+	    deplibs="$deplibs System.ltframework"
 	    continue
 	  esac
 	elif test "X$arg" = "X-lc_r"; then
@@ -2059,6 +2076,18 @@ EOF
 	    fi
 	  fi
 	  ;; # -l
+	*.ltframework)
+	  if test "$linkmode,$pass" = "prog,link"; then
+	    compile_deplibs="$deplib $compile_deplibs"
+	    finalize_deplibs="$deplib $finalize_deplibs"
+	  else
+	    deplibs="$deplib $deplibs"
+	    if test "$linkmode" = lib ; then
+	      newdependency_libs="$deplib $newdependency_libs"
+	    fi
+	  fi
+	  continue
+	  ;;
 	-L*)
 	  case $linkmode in
 	  lib)
@@ -2200,6 +2229,13 @@ EOF
 	case $lib in
 	*/* | *\\*) . $lib ;;
 	*) . ./$lib ;;
+	esac
+
+	case $host in
+	*-*-darwin*)
+	  # Convert "-framework foo" to "foo.ltframework"
+	  dependency_libs=`$echo "X$dependency_libs" | $Xsed -e 's/-framework \([^ $]*\)/\1.ltframework/g'`
+	  ;;
 	esac
 
 	if test "$linkmode,$pass" = "lib,link" ||
@@ -3342,7 +3378,7 @@ EOF
 	    ;;
 	  *-*-rhapsody* | *-*-darwin1.[012])
 	    # Rhapsody C library is in the System framework
-	    deplibs="$deplibs -framework System"
+	    deplibs="$deplibs System.ltframework"
 	    ;;
 	  *-*-netbsd*)
 	    # Don't link with libc until the a.out ld.so is fixed.
@@ -3634,8 +3670,8 @@ EOF
 
 	case $host in
 	*-*-rhapsody* | *-*-darwin1.[012])
-	  # On Rhapsody replace the C library is the System framework
-	  newdeplibs=`$echo "X $newdeplibs" | $Xsed -e 's/ -lc / -framework System /'`
+	  # On Rhapsody replace the C library with the System framework
+	  newdeplibs=`$echo "X $newdeplibs" | $Xsed -e 's/ -lc / System.ltframework /'`
 	  ;;
 	esac
 
@@ -3684,6 +3720,14 @@ EOF
 	# Done checking deplibs!
 	deplibs=$newdeplibs
       fi
+      # Time to change all our "foo.ltframework" stuff back to "-framework foo"
+      case $host in
+	*-*-darwin*)
+	  newdeplibs=`$echo "X $newdeplibs" | $Xsed -e 's% \([^ $]*\).ltframework% -framework \1%g'`
+	  dependency_libs=`$echo "X $dependency_libs" | $Xsed -e 's% \([^ $]*\).ltframework% -framework \1%g'`
+	  deplibs=`$echo "X $deplibs" | $Xsed -e 's% \([^ $]*\).ltframework% -framework \1%g'`
+	  ;;
+      esac
 
       # All the library-specific variables (install_libdir is set above).
       library_names=
@@ -4180,20 +4224,23 @@ EOF
 
       case $host in
       *-*-rhapsody* | *-*-darwin1.[012])
-	# On Rhapsody replace the C library is the System framework
-	compile_deplibs=`$echo "X $compile_deplibs" | $Xsed -e 's/ -lc / -framework System /'`
-	finalize_deplibs=`$echo "X $finalize_deplibs" | $Xsed -e 's/ -lc / -framework System /'`
+	# On Rhapsody replace the C library with the System framework
+	compile_deplibs=`$echo "X $compile_deplibs" | $Xsed -e 's/ -lc / System.ltframework /'`
+	finalize_deplibs=`$echo "X $finalize_deplibs" | $Xsed -e 's/ -lc / System.ltframework /'`
 	;;
       esac
 
       case $host in
-      *darwin*)
-        # Don't allow lazy linking, it breaks C++ global constructors
-        if test "$tagname" = CXX ; then
-        compile_command="$compile_command ${wl}-bind_at_load"
-        finalize_command="$finalize_command ${wl}-bind_at_load"
-        fi
-        ;;
+      *-*-darwin*)
+	# Don't allow lazy linking, it breaks C++ global constructors
+	if test "$tagname" = CXX ; then
+	  compile_command="$compile_command ${wl}-bind_at_load"
+	  finalize_command="$finalize_command ${wl}-bind_at_load"
+	fi
+	# Time to change all our "foo.ltframework" stuff back to "-framework foo"
+	compile_deplibs=`$echo "X $compile_deplibs" | $Xsed -e 's% \([^ $]*\).ltframework% -framework \1%g'`
+	finalize_deplibs=`$echo "X $finalize_deplibs" | $Xsed -e 's% \([^ $]*\).ltframework% -framework \1%g'`
+	;;
       esac
 
       compile_command="$compile_command $compile_deplibs"

@@ -429,6 +429,7 @@ check_libusb_device (struct usb_device *dev)
   int is_scanner = 0;
   char *vendor = get_libusb_vendor (dev);
   char *product = get_libusb_product (dev);
+  int interface_nr;
 
   if (!dev->config)
     {
@@ -579,18 +580,22 @@ check_libusb_device (struct usb_device *dev)
   if (dev->descriptor.idProduct == 0)	/* hub */
     --is_scanner;
 
-  switch (dev->descriptor.bDeviceClass)
+  for (interface_nr = 0; interface_nr < dev->config[0].bNumInterfaces && is_scanner <= 0; interface_nr++)
     {
-    case USB_CLASS_VENDOR_SPEC:
-      ++is_scanner;
-      break;
-    case USB_CLASS_PER_INTERFACE:
-      switch (dev->config[0].interface->altsetting[0].bInterfaceClass)
+      switch (dev->descriptor.bDeviceClass)
 	{
 	case USB_CLASS_VENDOR_SPEC:
-	case USB_CLASS_PER_INTERFACE:
-	case 16:		/* data? */
 	  ++is_scanner;
+	  break;
+	case USB_CLASS_PER_INTERFACE:
+	  switch (dev->config[0].interface[interface_nr].altsetting[0].bInterfaceClass)
+	    {
+	    case USB_CLASS_VENDOR_SPEC:
+	    case USB_CLASS_PER_INTERFACE:
+	    case 16:                /* data? */
+	      ++is_scanner;
+	      break;
+	    }
 	  break;
 	}
     }
@@ -1072,8 +1077,7 @@ main (int argc, char **argv)
 	{
 	  if (verbose > 0)
 	    printf
-	      ("  # A USB device was detected. This program can't be sure "
-	       "if it's really\n  # a scanner. If it is your scanner, it "
+	      ("  # Your USB scanner was (probably) detected. It "
 	       "may or may not be supported by\n  # SANE. Try scanimage "
 	       "-L and read the backend's manpage.\n");
 	}

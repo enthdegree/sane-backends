@@ -6,6 +6,8 @@
 	  scanners. Removed Mustek BearPaw 1200F.
 	* sanei/sanei_usb.c: Check all acceptable interfaces instead of using
 	  the first one.
+	* tools/sane-find-scanner.c: Check all interfaces. Print a more
+	  definite message when a scanner was found to avoid confusion.
 
 2003-02-18   Stéphane Voltz  <svoltz@wanadoo.fr>
 

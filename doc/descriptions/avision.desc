@@ -29,7 +29,7 @@
 :interface "SCSI"
 :comment "1 pass, 600 DPI"
 
-:mfg "HP"
+:mfg "Hewlett-Packard"
 :url "http://www.hp.com/"
 
 :model "HP 5300"
@@ -41,11 +41,14 @@
 :model "HP 7400"
 :interface "USB"
 :comment "1 pass, 1200 DPI"
+:model "HP 7450"
+:interface "USB"
+:comment "1 pass, 1200 DPI"
 
-:mfg "MINOLTA"
+:mfg "Minolta"
 :url "http://www.minolta.com/"
 
-:model "FS-V1"
+:model "FS-V1 (Dimage Scan Dual II)"
 :interface "USB"
 :comment "1 pass, 2820 DPI, film-scanner"
 

@@ -1,4 +1,4 @@
-.TH sane-avision 5 "10 Dec 2001"
+.TH sane-avision 5 "07 Julc 2002"
 .IX sane-avision
 
 .SH NAME
@@ -36,23 +36,34 @@ the first scans!
  #
  option force-a4
  option disable-gamma-table
+ option disable-calibration
+ option disable-calibration
+ option one-calib-only
  
  - force-a4:
    Forces the backend to overwrite the scanable area
    returned by the scanner. This might be needed for
    the AV 630 which returns no area - or newer scanners
-   which retuns the area in a unkown format our backend
+   which retun the area in a unkown format our backend
    doesn't recongize yet.
  
  - disable-gamma-table:
    Disables the usage of the scanner's gamma-table. You
-   might try this if your scans hang, or only produces
+   might try this if your scans hang or only produces
    random garbage.
  
  - disable-calibration:
    Disables the scanner's color calibration. You
-   might try this if your scans hang, or only produces
+   might try this if your scans hang or only produces
    random garbage.
+ 
+ - one-calib-only
+   When this option is enabled, the backend will only
+   perform a calibration when the backend is initialized
+   and not before each scan. This might extend the life
+   of the CCD, but does not work reliable with the newer
+   USB scanners (they hang sometimes or return garbage
+   image data). So this option should be used with care.
 
 .SH "DEVICE NAMES"
 This backend expects device names of the form:
@@ -118,4 +129,4 @@ sane(7), sane\-scsi(5)
 http://drocklinux.dyndns.org/rene/avision/index.html
 
 .SH AUTHOR
-René Rebe, Meino Christian Cramer and Martin Jelínek
+René Rebe, Meino Christian Cramer and Jose Paulo Moitinho de Almeida

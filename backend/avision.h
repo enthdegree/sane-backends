@@ -86,10 +86,14 @@ typedef struct Avision_HWEntry {
   } scanner_type;
   
   /* feature overwrites */
-  enum {AV_CALIB2 = 1, /* use single command calibraion send (i.e. all new scanners) */
-	AV_GAMMA2 = 2, /* use 512 bytes gamma table (i.e. Minolta film-scanner) */
-	AV_GAMMA3 = 4  /* use 256 bytes gamma table (i.e. HP 5370C) */
-	/* more to come ... */
+  enum {
+    /* use single command calibraion send (i.e. all new scanners) */
+    AV_CALIB2 = 1,
+    /* use 512 bytes gamma table (i.e. Minolta film-scanner) */
+    AV_GAMMA2 = 2,
+    /* use 256 bytes gamma table (i.e. HP 5370C) */
+    AV_GAMMA3 = 4  
+    /* more to come ... */
   } feature_type;
   
 } Avision_HWEntry;
@@ -170,12 +174,13 @@ typedef struct Avision_Device
   SANE_Range speed_range;
 
   SANE_Bool inquiry_new_protocol;
+  SANE_Bool inquiry_detect_accessories;
   SANE_Bool inquiry_needs_calibration;
   SANE_Bool inquiry_needs_gamma;
   SANE_Bool inquiry_needs_software_colorpack;
   
-  int    inquiry_optical_res;     /* in dpi */
-  int    inquiry_max_res;         /* in dpi */
+  int inquiry_optical_res;     /* in dpi */
+  int inquiry_max_res;         /* in dpi */
   
   double inquiry_x_range;         /* in mm */
   double inquiry_y_range;         /* in mm */
@@ -186,18 +191,28 @@ typedef struct Avision_Device
   double inquiry_transp_x_range;  /* in mm */
   double inquiry_transp_y_range;  /* in mm */
   
-  int    inquiry_color_boundary;
-  int    inquiry_grey_boundary;
-  int    inquiry_line_difference; /* software color pack */
+  int inquiry_color_boundary;
+  int inquiry_grey_boundary;
+  int inquiry_dithered_boundary;
+  int inquiry_thresholded_boundary;
+  int inquiry_line_difference; /* software color pack */
   
-  /* int    inquiry_bits_per_channel; */
+  /* int inquiry_bits_per_channel; */
   
+  /* accessories */
+  SANE_Bool inquiry_adf;
+  SANE_Bool inquiry_light_box;
+  
+  /* film scanner atributes - maybe these should be in the scanner struct? */
   SANE_Range frame_range;
   SANE_Word current_frame;
   SANE_Word holder_type;
-
+  
+  /* driver state */
+  SANE_Bool is_calibrated;
+  
   Avision_HWEntry* hw;
-
+  
 } Avision_Device;
 
 /* all the state relevant for the SANE interface */
@@ -209,6 +224,9 @@ typedef struct Avision_Scanner
   SANE_Option_Descriptor opt [NUM_OPTIONS];
   Option_Value val [NUM_OPTIONS];
   SANE_Int gamma_table [4][256];
+  
+  /* page (ADF) state */
+  int page;
   
   /* Parsed option values and variables that are valid only during
      the actual scan: */
@@ -326,13 +344,21 @@ typedef struct Avision_Scanner
 /* SCSI commands that the Avision scanners understand: */
 
 #define AVISION_SCSI_TEST_UNIT_READY        0x00
+#define AVISION_SCSI_MEDIA_CHECK            0x08
 #define AVISION_SCSI_INQUIRY                0x12
-#define AVISION_SCSI_MODE_SELECT            0x15 
+#define AVISION_SCSI_MODE_SELECT            0x15
 #define AVISION_SCSI_SCAN                   0x1b
 #define AVISION_SCSI_SET_WINDOW             0x24
 #define AVISION_SCSI_READ                   0x28
 #define AVISION_SCSI_SEND                   0x2a
-#define AVISION_SCSI_GET_DATA_STATUS        0x34 
+#define AVISION_SCSI_OBJECT_POSITION        0x31
+#define AVISION_SCSI_GET_DATA_STATUS        0x34
+
+#define AVISION_SCSI_OP_REJECT_PAPER        0x00
+#define AVISION_SCSI_OP_LOAD_PAPER          0x01
+#define AVISION_SCSI_OP_GO_HOME             0x02
+#define AVISION_SCSI_OP_TRANS_CALIB_GREY    0x04
+#define AVISION_SCSI_OP_TRANS_CALIB_COLOR   0x05
 
 /* The structures that you have to send to an avision to get it to
    do various stuff... */

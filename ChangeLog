@@ -1,3 +1,6 @@
+2004-01-08  Oliver Rauch <oliver.rauch@rauch-domain.de>
+	* backend/umax.c: changed order of includes because of compilation error
+
 2004-01-07  Oliver Rauch <oliver.rauch@rauch-domain.de>
 	* backend/umax.c: disabled quality calibration for Astra 2200 SU via USB
 

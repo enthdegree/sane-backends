@@ -1,5 +1,6 @@
 2005-04-01  Gerhard Jaeger <gerhard@gjaeger.de>
 
+	* README: Added some info about the --enable-locking switch.
 	* doc/descriptions/unsupported.desc
 	  doc/descriptions-external/genesys.desc: Moved some Plustek
 	  devices over to the genesys descriptions.

@@ -1,3 +1,8 @@
+2001-06-09  Petter Reinholdtsen <pere@td.org.uit.no>
+
+	* acinclude.m4 include/sane/config.h.in: Fix configure/compile
+	  problem on Alpha/Tru64 Unix.
+
 2001-06-07  Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c: make use of PPGETMODES to get ppdev

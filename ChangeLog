@@ -1,3 +1,11 @@
+2001-05-20  Oliver Rauch <Oliver.Rauch@rauch-domain.de>
+
+	* removed a bug in saned (patch by Matthias Trute <mtrute@topmail.de>)
+          calculation of the reader buffer index was not correct:
+             if (reader >= sizeof (buf))
+          -    reader = 0;
+          +    reader -= sizeof(buf);
+
 2001-05-19  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson.c: fixed dates in change log entries

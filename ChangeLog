@@ -1,3 +1,7 @@
+2003-07-19  Oliver Rauch  <oliver.rauch@rauch-domain.de>
+
+	* doc/descriptopns/umax.desc: changed status
+
 2003-07-19  Frank Zago  <fzago at austin dot rr dot com>
 
 	* backend/teco2.c backend/teco2.h backend/teco2.conf: (from gerard

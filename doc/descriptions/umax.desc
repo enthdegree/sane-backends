@@ -10,8 +10,7 @@
 ;
 
 :backend "umax"                   ; name of backend
-:version "1.0-37"                 ; version of backend
-:status :stable                   ; :alpha, :beta, :stable
+:version "1.0-38"                 ; version of backend
 :manpage "sane-umax"              ; name of manpage (if it exists)
 :url "http://www.rauch-domain.de/sane-umax/index.html" ; backend's web page
 
@@ -29,82 +28,82 @@
 
 :model "Vista S6"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "OK"
 
 :model "Vista S6E"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "OK"
 
 :model "UMAX S-6E"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "OK"
 
 :model "UMAX S-6EG"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "OK"
 
 :model "Vista-S8"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "OK"
 
 :model "Supervista S-12"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "OK"
 
 :model "UMAX S-12"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "OK"
 
 :model "UMAX S-12G"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "OK"
 
 :model "Astra 600S"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "OK"
 
 :model "Astra 610S"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "OK"
 
 :model "Astra 1200S"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "OK"
 
 :model "Astra 1220S"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "OK"
 
 :model "Astra 2100S"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "OK"
 
 :model "Astra 2200 (SU)"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "OK"
 
 :model "Astra 2200 (SU)"
 :interface "USB"
-:status :stable
+:status :good
 :comment "OK, needs USB control messages"
 
 :model "Astra 2400S"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "OK"
 
 :model "Astra 6400"
@@ -119,47 +118,47 @@
 
 :model "Astra MX3"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "OK"
 
 :model "Astra MX3"
 :interface "USB"
-:status :stable
+:status :good
 :comment "OK, needs USB control messages"
 
 :model "Mirage D-16L"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "OK"
 
 :model "Mirage II"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "OK"
 
 :model "Mirage IIse"
 :interface "SCSI"
-:status :untested
-:comment "may work, please test and give feedback"
+:status :good
+:comment "OK"
 
 :model "PSD"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "OK"
 
 :model "PowerLook"
 :interface "SCSI"
-:status :untested
-:comment "may work, please test and give feedback"
+:status :good
+:comment "OK, SCSI-ID=PS-2400X"
 
 :model "PL-II"
 :interface "SCSI"
-:status :untested
-:comment "may work, please test and give feedback"
+:status :good
+:comment "OK"
 
 :model "PowerLook III"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "OK"
 
 :model "PowerLook 270"
@@ -179,22 +178,22 @@
 
 :model "PowerLook 2000"
 :interface "SCSI"
-:status :untested
-:comment "may work, please test and give feedback"
+:status :good
+:comment "OK"
 
 :model "PowerLook 2100XL"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "OK"
 
 :model "PowerLook 3000"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "OK"
 
 :model "Gemini D-16"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "OK"
 
 :model "UMAX VT600"
@@ -204,27 +203,27 @@
 
 :model "Vista-T630"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "OK for some firmwareversions, on others only lineart OK"
 
 :model "UC 630"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "Version 2.8 OK, others only lineart OK"
 
 :model "UG 630"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "OK"
 
 :model "UG 80"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "OK"
 
 :model "UC 840"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "Version 1.6 OK, others only lineart OK"
 
 :model "UC 1200S"
@@ -234,12 +233,12 @@
 
 :model "UC 1200SE"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "Version 3.0 OK, others unknown"
 
 :model "UC 1260"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "Version 1.6 OK, others unknown"
 
 
@@ -248,17 +247,17 @@
 
 :model "Jade"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "OK, SCSI-ID=LinoHell Office"
 
 :model "Jade"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "OK, SCSI-ID=LinoHell JADE"
 
 :model "Jade2"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "OK, SCSI-ID=LinoHell Office2"
 
 :model "Saphir"
@@ -268,12 +267,12 @@
 
 :model "Saphir2"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "OK, SCSI-ID=LinoHell SAPHIR2"
 
 :model "Saphir3"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "OK, SCSI-ID=LinoHell SAPHIR3"
 
 :model "Saphir Ultra"
@@ -283,8 +282,8 @@
 
 :model "Saphir Ultra II"
 :interface "SCSI"
-:status :untested
-:comment "support disabled until tested - please contact author"
+:status :good
+:comment "OK, SCSI-ID=Linotype SAPHIR4"
 
 :model "Saphir HiRes"
 :interface "SCSI"
@@ -303,7 +302,7 @@
 
 :model "Linoscan 1400"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "OK, SCSI-ID=HDM LS4H1S"
 
 :mfg "Vobis"
@@ -311,7 +310,7 @@
 
 :model "Highscreen Scanboostar Premium"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "OK, SCSI-ID=LinoHell Office2"
 
 :mfg "EDGE"                      ; another manufacturer...
@@ -327,14 +326,14 @@
 
 :model "Perfection 600"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "OK, SCSI-ID=EPSON Perfection600"
 
 :mfg "Escom"                      ; another manufacturer...
 
 :model "Image Scanner 256"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "OK, SCSI-ID=UMAX UG 80"
 
 :mfg "Escort"                      ; another manufacturer...
@@ -345,11 +344,11 @@
 :comment "untested, SCSI-ID=ESCORT Galleria 600S"
 
 :mfg "Genius"                  ; another manufacturer...
-:url "http://www.genius.kye.de/"
+;:url "http://www.genius.kye.de/"
 
 :model "ColorPage-HR5 (Pro)"
 :interface "SCSI"
-:status :stable
+:status :good
 :comment "OK, SCSI-ID=KYE ColorPage-HR5"
 
 :mfg "Nikon"                      ; another manufacturer...
@@ -362,7 +361,15 @@
 
 :model "AX-210"
 :interface "SCSI"
-:status :stable
+:status :good
+:comment "OK"
+
+:mfg "TriGem"                      ; another manufacturer...
+:url "http://www.nikon.com/"
+
+:model "PowerScanII"
+:interface "SCSI"
+:status :good
 :comment "OK"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,

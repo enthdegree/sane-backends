@@ -484,7 +484,7 @@ init_options (Umax_PP_Device * dev)
   dev->opt[OPT_UTA_CONTROL].size = sizeof (SANE_Word);
   dev->opt[OPT_UTA_CONTROL].unit = SANE_UNIT_NONE;
   dev->val[OPT_UTA_CONTROL].w = SANE_TRUE;
-  dev->opt[OPT_UTA_CONTROL].cap |= SANE_CAP_ADVANCED;
+  dev->opt[OPT_UTA_CONTROL].cap |= SANE_CAP_ADVANCED | SANE_CAP_INACTIVE;
 
   /* custom-gamma table */
   dev->opt[OPT_CUSTOM_GAMMA].name = SANE_NAME_CUSTOM_GAMMA;

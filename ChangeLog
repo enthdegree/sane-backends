@@ -1,3 +1,7 @@
+2003-08-17  Stéphane Voltz <svoltz@wanadoo.fr>
+
+	* backend/umax_pp.c backend/umax_pp.h: revert change for UTA
+
 2003-08-15  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson.[ch]: Added support for GT-30000, with support for the 

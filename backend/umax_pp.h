@@ -97,7 +97,6 @@ typedef union
 {
   SANE_Word w;
   SANE_Word *wa;		/* word array */
-  SANE_Int  *ia;		/* int array */
   SANE_String s;
 }
 Option_Value;

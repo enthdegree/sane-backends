@@ -10,9 +10,9 @@
 ;
 
 :backend "teco2"                  ; name of backend
-:version "1.0-6"                  ; version of backend
+:version "1.0-7"                  ; version of backend
 :manpage "sane-teco2"
-:url "http://www.zago.net/sane/#teco2"   ; backend's web page
+:url "http://gkall.hobby.nl/teco2.html"   ; backend's web page
 
 :devicetype :scanner
 
@@ -32,7 +32,7 @@
 :model "SCORPIO Super 3"
 :comment "sub model VM3575"
 :interface "SCSI"
-:status :basic
+:status :good
 
 :model "APOLLO Express 3"
 :comment "sub model VM356A"
@@ -61,7 +61,7 @@
 :model "Jewel 4800"
 :comment "sub model VM356A"
 :interface "SCSI"
-:status :basic
+:status :good
 
 :model "Profi 9600"
 :comment "sub model VM6575"

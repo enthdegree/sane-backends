@@ -1,4 +1,4 @@
-.TH sane-avision 5 "04 Nov 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-avision 5 "01 Dec 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-avision
 
 .SH NAME
@@ -35,7 +35,6 @@ the first scans!
  option disable-calibration
  option one-calib-only
  option old-calibration
- option disable-c5-guard
  
  #scsi Vendor Model Type Bus Channel ID LUN 
  scsi AVISION
@@ -71,11 +70,6 @@ the first scans!
    This enables the use of the old calibration code for
    testing purposes.
  
- - disable-c5-guard:
-   This disables the alpha-quality code normally needed
-   for newer USB scanners (e.g. HP 5370) to compute some
-   values for the hardware scaling.
-
  Note: Any option above modifies the default code-flow
        for your scanner. The options should only be used
        when you encounter problems with the default be-
@@ -102,6 +96,12 @@ could be
 or
 .IR /dev/sge ,
 for example.  See sane-scsi(5) for details.
+
+ Note: Since the backend does only use the scsi interface
+       for scanner access, you need a scsi emulation for
+       USB devices such as the HP 5300, HP 7400 or Minolta
+       film-scanners. The kernel module is named hpusbscsi
+       and present in the latest 2.4 and 2.5 kernels.
 
 .SH FILES
 .TP

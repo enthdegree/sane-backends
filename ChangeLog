@@ -1,3 +1,7 @@
+2003-02-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* Makefile.in: Added ChangeLog-1.0.10 to DISTFILES.
+
 2003-02-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/gt68xx.c backend/gt68xx_devices.c backend/gt68xx_high.c

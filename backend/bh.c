@@ -248,6 +248,19 @@ print_read_type (SANE_Int i)
 }
 
 static SANE_Int 
+get_rotation_id(char *s)
+{
+  SANE_Int i;
+
+  for (i = 0; rotation_list[i]; i++) 
+    if (strcmp(s, rotation_list[i]) == 0) 
+      break;
+
+  /* unknown strings are treated as '0' */
+  return rotation_list[i] ? i : 0;
+}
+
+static SANE_Int 
 get_compression_id(char *s)
 {
   SANE_Int i;
@@ -426,6 +439,7 @@ ScannerDump(BH_Scanner *s)
  
   DBG (5, "autoborder_default=%d\n", info->autoborder_default);
   DBG (5, "batch_default=%d\n", info->batch_default);
+  DBG (5, "deskew_default=%d\n", info->deskew_default);
   DBG (5, "check_adf_default=%d\n", info->check_adf_default);
   DBG (5, "duplex_default=%d\n", info->duplex_default);
   DBG (5, "timeout_adf_default=%d\n", info->timeout_adf_default);
@@ -963,7 +977,7 @@ set_window (BH_Scanner *s, SANE_Byte batchmode)
     struct window_data window;
   } set_window_cmd;
   SANE_Status status;
-  SANE_Int width, length, i, format;
+  SANE_Int width, length, i, format, rotation, deskew ;
 
   DBG (3, "set_window called\n");
 
@@ -986,6 +1000,7 @@ set_window (BH_Scanner *s, SANE_Byte batchmode)
 
   set_window_cmd.window.windowid = 0;
   set_window_cmd.window.autoborder = _OPT_VAL_WORD(s, OPT_AUTOBORDER);
+  DBG (5, "autoborder set to=%d\n", set_window_cmd.window.autoborder);
   _lto2b(_OPT_VAL_WORD(s, OPT_RESOLUTION), set_window_cmd.window.xres);
   _lto2b(_OPT_VAL_WORD(s, OPT_RESOLUTION), set_window_cmd.window.yres);
   _lto4b((int) _OPT_VAL_WORD_THOUSANDTHS(s, OPT_TL_X), set_window_cmd.window.ulx);
@@ -1053,6 +1068,14 @@ set_window (BH_Scanner *s, SANE_Byte batchmode)
       break;
     }
 
+  /* rotation and deskew settings, if autoborder is turned on */
+  if(set_window_cmd.window.autoborder){ /*--- setting byte 46 of the window descriptor block only works with autoborder */
+    rotation = get_rotation_id(_OPT_VAL_STRING(s, OPT_ROTATION));
+    if (_OPT_VAL_WORD(s, OPT_DESKEW) == SANE_TRUE) deskew = BH_DESKEW_ENABLE;
+    else deskew = BH_DESKEW_DISABLE;
+    set_window_cmd.window.border_rotation = ( rotation | deskew );  /*--- deskew assumes autoborder */
+  }
+
   /* remote - 0x00 ACE set in window; 0x01 ACE set by control panel */
   set_window_cmd.window.remote = _OPT_VAL_WORD(s, OPT_CONTROL_PANEL);
   if (set_window_cmd.window.remote == 0x00) {
@@ -1080,6 +1103,7 @@ set_window (BH_Scanner *s, SANE_Byte batchmode)
     }
 
   status = sanei_scsi_cmd (s->fd, &set_window_cmd, sizeof (set_window_cmd), 0, 0);
+  DBG (5, "sanei_scsi_cmd executed, status=%d\n", status );
   if (status != SANE_STATUS_GOOD)
     return status;
 
@@ -1100,7 +1124,7 @@ get_window (BH_Scanner *s, SANE_Int *w, SANE_Int *h, SANE_Bool backpage)
     struct window_data window;
   } get_window_data;
   SANE_Status status;
-  SANE_Int x, y, i = 0;
+  SANE_Int x, y, i = 0, get_window_delay = 1;
   SANE_Bool autoborder;
   size_t len;
 
@@ -1137,6 +1161,10 @@ get_window (BH_Scanner *s, SANE_Int *w, SANE_Int *h, SANE_Bool backpage)
 	      if (get_window_data.window.autoborder != 1 &&
 		  i < BH_AUTOBORDER_TRIES)
 		{
+	          DBG (5, "waiting %d second[s], try: %d\n",get_window_delay,i);
+		  sleep(get_window_delay);  /*--- page 4-5 of B&H Copiscan 8000 ESC OEM Tech Manual */
+                                            /*--- requires at least 50ms wait between each GET WINDOW command */
+                                            /*--- experience shows that this can take 3 to 4 seconds */
 		  continue;
 		}
 	      if (get_window_data.window.autoborder != 1)
@@ -1145,8 +1173,11 @@ get_window (BH_Scanner *s, SANE_Int *w, SANE_Int *h, SANE_Bool backpage)
 		      BH_AUTOBORDER_TRIES);
 		  status = SANE_STATUS_IO_ERROR;
 		}
+             DBG (0, "page dimension: wide:%d high:%d \n",*w,*h);
 	    }
 	  DBG (3, "*** Window size: %dx%d+%d+%d\n", *w, *h, x, y);
+	  DBG (5, "*** get_window found autoborder=%02xh\n", get_window_data.window.autoborder);
+	  DBG (5, "*** get_window found border_rotation=%02xh\n", get_window_data.window.border_rotation);
 	}
 
       /* we are 'outta here' */
@@ -2389,6 +2420,24 @@ init_options (BH_Scanner * s)
   s->opt[OPT_PAPER_SIZE].constraint.string_list = paper_list;
   s->val[OPT_PAPER_SIZE].s = strdup (paper_list[0]);
 
+  /* rotation */
+  s->opt[OPT_ROTATION].name = SANE_NAME_ROTATION;
+  s->opt[OPT_ROTATION].title = SANE_TITLE_ROTATION;
+  s->opt[OPT_ROTATION].desc = SANE_DESC_ROTATION;
+  s->opt[OPT_ROTATION].type = SANE_TYPE_STRING;
+  s->opt[OPT_ROTATION].size = max_string_size (rotation_list);
+  s->opt[OPT_ROTATION].constraint_type = SANE_CONSTRAINT_STRING_LIST;
+  s->opt[OPT_ROTATION].constraint.string_list = rotation_list;
+  s->val[OPT_ROTATION].s = strdup (rotation_list[0]);
+
+  /* Deskew: */
+  s->opt[OPT_DESKEW].name = SANE_NAME_DESKEW;
+  s->opt[OPT_DESKEW].title = SANE_TITLE_DESKEW;
+  s->opt[OPT_DESKEW].desc = SANE_DESC_DESKEW;
+  s->opt[OPT_DESKEW].type = SANE_TYPE_BOOL;
+  s->opt[OPT_DESKEW].constraint_type = SANE_CONSTRAINT_NONE;
+  s->val[OPT_DESKEW].w =  s->hw->info.deskew_default;
+
   /* top-left x */
   s->opt[OPT_TL_X].name = SANE_NAME_SCAN_TL_X;
   s->opt[OPT_TL_X].title = SANE_TITLE_SCAN_TL_X;
@@ -2866,7 +2915,7 @@ attach (const char *devnam, BH_Device ** devp)
 
       if (ibuf.devtype != 6
 	  || strncmp ((char *)ibuf.vendor, "B&H SCSI", 8) != 0
-	  || strncmp ((char *)ibuf.product, "COPISCAN II", 11) != 0)
+	  || strncmp ((char *)ibuf.product, "COPISCAN ", 9) != 0)
 	{
 	  DBG (1, 
 	       "attach: device is not a recognized Bell and Howell scanner\n");
@@ -3063,6 +3112,7 @@ attach (const char *devnam, BH_Device ** devp)
   dev->info.res_default = dev->info.resBasicX;
   dev->info.autoborder_default = dev->info.canBorderRecog;
   dev->info.batch_default = SANE_FALSE;
+  dev->info.deskew_default = SANE_FALSE;
   dev->info.check_adf_default = SANE_FALSE;
   dev->info.duplex_default = SANE_FALSE;
   dev->info.timeout_adf_default = 0;
@@ -3350,6 +3400,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option, SANE_Action action,
 	case OPT_SCAN_MODE:
 	case OPT_COMPRESSION:
 	case OPT_PAPER_SIZE:
+	case OPT_ROTATION:
 	case OPT_BARCODE_SEARCH_BAR:
 	case OPT_BARCODE_SEARCH_MODE:
 	case OPT_SECTION:
@@ -3359,6 +3410,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option, SANE_Action action,
 	  /* boolean options: */
 	case OPT_PREVIEW:
 	case OPT_AUTOBORDER:
+	case OPT_DESKEW:
 	case OPT_BATCH:
 	case OPT_CHECK_ADF:
 	case OPT_DUPLEX:
@@ -3458,6 +3510,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option, SANE_Action action,
 	  /* fall through */
 	case OPT_SCAN_SOURCE:
 	case OPT_COMPRESSION:
+	case OPT_ROTATION:
 	case OPT_BARCODE_SEARCH_MODE:
 	case OPT_SECTION:
 	  if (s->val[option].s)
@@ -3473,6 +3526,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option, SANE_Action action,
 	  /* fall through */
 	case OPT_PREVIEW:
 	case OPT_BATCH:
+	case OPT_DESKEW:
 	case OPT_CHECK_ADF:
 	case OPT_DUPLEX:
 	case OPT_NEGATIVE:

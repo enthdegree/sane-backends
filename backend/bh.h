@@ -60,7 +60,7 @@
 #define NUM_READS 56 + 1
 
 /* specify sanity limits for autoborder detection and barcode decoding */
-#define BH_AUTOBORDER_TRIES 1000
+#define BH_AUTOBORDER_TRIES 100
 #define BH_DECODE_TRIES 100
 /* specify a fudge factor in mm for border around decoded barcodes */
 #define BH_DECODE_FUDGE 1.0
@@ -88,6 +88,14 @@ typedef enum
   BH_COMP_G42D
 } bh_compress;
 
+typedef enum
+{
+  BH_ROTATION_0, 
+  BH_ROTATION_90,
+  BH_ROTATION_180,
+  BH_ROTATION_270
+} bh_rotation;
+
 typedef enum 
 {
   OPT_NUM_OPTS = 0,
@@ -107,6 +115,10 @@ typedef enum
   OPT_GEOMETRY_GROUP,
   /* automatic border detection */
   OPT_AUTOBORDER,
+  /* hardware rotation */
+  OPT_ROTATION,
+  /* hardware deskew */
+  OPT_DESKEW,
   /* paper size */
   OPT_PAPER_SIZE,
   /* top-left x */
@@ -243,6 +255,7 @@ typedef struct _BH_Info
   SANE_Int res_default;
   SANE_Bool autoborder_default;
   SANE_Bool batch_default;
+  SANE_Bool deskew_default;
   SANE_Bool check_adf_default;
   SANE_Bool duplex_default;
   SANE_Int timeout_adf_default;
@@ -497,6 +510,16 @@ static SANE_String_Const barcode_search_bar_list[] =
   0
 };
 
+/* list of supported rotation angles */
+static SANE_String_Const rotation_list[] =
+{
+  "0",
+  "90",
+  "180",
+  "270",
+  0
+};
+
 /* list of support paper sizes */
 /* 'custom' MUST be item 0; otherwise a width or length of 0 indicates
  * the maximum value supported by the scanner
@@ -602,6 +625,14 @@ _4btol(SANE_Byte *bytes)
 #define SANE_NAME_COMPRESSION "compression"
 #define SANE_TITLE_COMPRESSION "Data Compression"
 #define SANE_DESC_COMPRESSION "Sets the compression mode of the scanner"
+
+#define SANE_NAME_ROTATION "rotation"
+#define SANE_TITLE_ROTATION "Page Rotation"
+#define SANE_DESC_ROTATION "Sets the page rotation mode of the scanner"
+
+#define SANE_NAME_DESKEW "deskew"
+#define SANE_TITLE_DESKEW "Page Deskew"
+#define SANE_DESC_DESKEW "Enable Deskew Mode"
 
 #define SANE_NAME_TIMEOUT_ADF "timeout-adf"
 #define SANE_TITLE_TIMEOUT_ADF "ADF Timeout"
@@ -753,6 +784,10 @@ _4btol(SANE_Byte *bytes)
 #define BH_BATCH_TERMINATE 0x02
 #define BH_BATCH_ABORT 0x03
 
+/* deskew mode codes used with BH_SCSI_SET_WINDOW */
+#define BH_DESKEW_DISABLE 0x00       /* border detection is assumed, see page 3-37 of 8000 manual */
+#define BH_DESKEW_ENABLE 0x04        /* deskew and border detection */
+
 /* used with BH_SCSI_SET_WINDOW, BH_SCSI_GET_WINDOW */
 typedef struct _BH_SectionBlock {
   SANE_Byte ul_x[4];
@@ -765,32 +800,34 @@ typedef struct _BH_SectionBlock {
 } BH_SectionBlock;
 
 /* used with BH_SCSI_SET_WINDOW, BH_SCSI_GET_WINDOW */
-struct window_data {
-  SANE_Byte windowid;
-  SANE_Byte autoborder;
-  SANE_Byte xres[2];
-  SANE_Byte yres[2];
-  SANE_Byte ulx[4];
-  SANE_Byte uly[4];
-  SANE_Byte windowwidth[4];
-  SANE_Byte windowlength[4];
-  SANE_Byte brightness;
-  SANE_Byte threshold;
-  SANE_Byte contrast;
-  SANE_Byte imagecomposition;
-  SANE_Byte bitsperpixel;
-  SANE_Byte halftonecode;
-  SANE_Byte halftoneid;
-  SANE_Byte paddingtype;
-  SANE_Byte bitordering[2];
-  SANE_Byte compressiontype;
-  SANE_Byte compressionarg;
-  SANE_Byte reserved2[6];
-  SANE_Byte remote;
-  SANE_Byte acefunction;
-  SANE_Byte acesensitivity;
-  SANE_Byte batchmode;
-  SANE_Byte reserved3[20];
+struct window_data {           /* window descriptor block byte layout */
+  SANE_Byte windowid;          /* 0 */
+  SANE_Byte autoborder;        /* 1 */
+  SANE_Byte xres[2];           /* 2,3 */
+  SANE_Byte yres[2];           /* 4,5 */
+  SANE_Byte ulx[4];            /* 6-9 */
+  SANE_Byte uly[4];            /* 10-13 */
+  SANE_Byte windowwidth[4];    /* 14-17 */
+  SANE_Byte windowlength[4];   /* 18-21 */
+  SANE_Byte brightness;        /* 22 */
+  SANE_Byte threshold;         /* 23 */
+  SANE_Byte contrast;          /* 24 */
+  SANE_Byte imagecomposition;  /* 25 */
+  SANE_Byte bitsperpixel;      /* 26 */
+  SANE_Byte halftonecode;      /* 27 */
+  SANE_Byte halftoneid;        /* 28 */
+  SANE_Byte paddingtype;       /* 29 */
+  SANE_Byte bitordering[2];    /* 30,31 */
+  SANE_Byte compressiontype;   /* 32 */
+  SANE_Byte compressionarg;    /* 33 */
+  SANE_Byte reserved2[6];      /* 34-39 */
+  SANE_Byte remote;            /* 40 */
+  SANE_Byte acefunction;       /* 41 */
+  SANE_Byte acesensitivity;    /* 42 */
+  SANE_Byte batchmode;         /* 43 */
+  SANE_Byte reserved3[2];      /* 44,45 */
+  SANE_Byte border_rotation;   /* 46     added this for copiscan 8080 */
+  SANE_Byte reserved4[17];     /* 47-63  added this for copiscan 8080 */
   BH_SectionBlock sectionblock[NUM_SECTIONS];
 };
 

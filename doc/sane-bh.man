@@ -542,4 +542,4 @@ sane\-scsi(5), scanimage(1), scanadf(1)
 .SH AUTHOR
 The sane-bh backend was written by Tom Martone, based on the sane-ricoh
 backend by Feico W. Dillema and the bnhscan program by Sean Reifschneider
-of tummy.com ltd.
+of tummy.com ltd.  Some 8000 enhancements added by Mark Temple.

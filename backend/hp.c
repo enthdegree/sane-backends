@@ -49,6 +49,9 @@ static char *hp_backend_revision = "$Revision$";
 
    V 1.06:
    $Log$
+   Revision 1.21  2004/10/04 18:09:05  kig-guest
+   Rename global function hp_init_openfd to sanei_hp_init_openfd
+
    Revision 1.20  2004/03/27 13:52:39  kig-guest
    Keep USB-connection open (was problem with Linux 2.6.x)
 
@@ -809,7 +812,7 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback UNUSEDARG authorize)
   DBG(3, "sane_init called\n");
   sanei_thread_init ();
 
-  hp_init_openfd ();
+  sanei_hp_init_openfd ();
   hp_destroy();
 
   if (version_code)

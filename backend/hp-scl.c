@@ -44,6 +44,9 @@
 
 /*
    $Log$
+   Revision 1.14  2004/10/04 18:09:05  kig-guest
+   Rename global function hp_init_openfd to sanei_hp_init_openfd
+
    Revision 1.13  2004/03/27 13:52:39  kig-guest
    Keep USB-connection open (was problem with Linux 2.6.x)
 
@@ -142,7 +145,7 @@ typedef struct
 
 /* Initialize structure where we remember out open file descriptors */
 void
-hp_init_openfd ()
+sanei_hp_init_openfd ()
 {int iCount;
  memset (asHpOpenFd, 0, sizeof (asHpOpenFd));
 

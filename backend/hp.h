@@ -164,7 +164,7 @@ typedef	int HpScl;
 typedef long int HpScl;
 #endif
 
-void hp_init_openfd (void);
+void sanei_hp_init_openfd (void);
 
 typedef struct
 {

@@ -1,5 +1,9 @@
 CHANGES for the SANE Mustek backend
 
+2001-11-18
+  * The Primax Compact 4800 seems to bes also supported. Added .desc and 
+    manpage entries.
+
 2001-09-10
   * Released Mustek backend 1.0-113.
 

@@ -1,3 +1,9 @@
+2000-11-15  Henning Meier-Geinitz <hmg@gmx.de>
+
+	* PROJECTS: Added entry about Visioneer OneTouch 8600.
+	* TODO: Added entries about net backend crashing after timeout, stiff.c
+	  problems, and more details about Irix cc jpeg problems.
+
 2000-11-15  Rene Rebe <rene.rebe@gmx.net>
 	* backend/avision.[c,h]: some fixes for brightness and contrast via
 	  the gamma-table. New config-option to force the backend to use DIN A4

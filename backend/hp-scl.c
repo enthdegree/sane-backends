@@ -44,6 +44,9 @@
 
 /*
    $Log$
+   Revision 1.13  2004/03/27 13:52:39  kig-guest
+   Keep USB-connection open (was problem with Linux 2.6.x)
+
    Revision 1.12  2003/10/09 19:34:57  kig-guest
    Redo when TEST UNIT READY failed
    Redo when read returns with 0 bytes (non-SCSI only)
@@ -88,6 +91,13 @@ extern int sanei_debug_hp;*/
 #define HP_SCSI_CMD_LEN		(6)
 #define HP_SCSI_BUFSIZ	(HP_SCSI_MAX_WRITE + HP_SCSI_CMD_LEN)
 
+#define HP_MAX_OPEN_FD 16
+static struct hp_open_fd_s  /* structure to save info about open file descriptor */
+{
+    char *devname;
+    HpConnect connect;
+    int fd;
+} asHpOpenFd[HP_MAX_OPEN_FD];
 
 
 /*
@@ -128,6 +138,157 @@ typedef struct
   int wr_buf_size;
   int wr_left;
 } PROCDATA_HANDLE;
+
+
+/* Initialize structure where we remember out open file descriptors */
+void
+hp_init_openfd ()
+{int iCount;
+ memset (asHpOpenFd, 0, sizeof (asHpOpenFd));
+
+ for (iCount = 0; iCount < HP_MAX_OPEN_FD; iCount++)
+     asHpOpenFd[iCount].fd = -1;
+}
+
+
+/* Look if the device is still open */
+static SANE_Status
+hp_GetOpenDevice (const char *devname, HpConnect connect, int *pfd)
+
+{int iCount;
+
+ for (iCount = 0; iCount < HP_MAX_OPEN_FD; iCount++)
+     {
+     if (!asHpOpenFd[iCount].devname) continue;
+     if (   (strcmp (asHpOpenFd[iCount].devname, devname) == 0)
+         && (asHpOpenFd[iCount].connect == connect) )
+         {
+         if (pfd) *pfd = asHpOpenFd[iCount].fd;
+         DBG(3, "hp_GetOpenDevice: device %s is open with fd=%d\n", devname,
+             asHpOpenFd[iCount].fd);
+         return SANE_STATUS_GOOD;
+         }
+     }
+ DBG(3, "hp_GetOpenDevice: device %s not open\n", devname);
+ return SANE_STATUS_INVAL;
+}
+
+/* Add an open file descriptor. This also decides */
+/* if we keep a connection open or not. */
+static SANE_Status
+hp_AddOpenDevice (const char *devname, HpConnect connect, int fd)
+
+{int iCount, iKeepOpen;
+ static int iInitKeepFlags = 1;
+
+ /* The default values which connections to keep open or not */
+ static int iKeepOpenSCSI = 0;
+ static int iKeepOpenUSB = 1;
+ static int iKeepOpenDevice = 0;
+ static int iKeepOpenPIO = 0;
+
+ if (iInitKeepFlags) /* Change the defaults by environment */
+     {char *eptr;
+
+     iInitKeepFlags = 0;
+
+     eptr = getenv ("SANE_HP_KEEPOPEN_SCSI");
+     if ( (eptr != NULL) && ((*eptr == '0') || (*eptr == '1')) )
+         iKeepOpenSCSI = (*eptr == '1');
+
+     eptr = getenv ("SANE_HP_KEEPOPEN_USB");
+     if ( (eptr != NULL) && ((*eptr == '0') || (*eptr == '1')) )
+         iKeepOpenUSB = (*eptr == '1');
+
+     eptr = getenv ("SANE_HP_KEEPOPEN_DEVICE");
+     if ( (eptr != NULL) && ((*eptr == '0') || (*eptr == '1')) )
+         iKeepOpenDevice = (*eptr == '1');
+
+     eptr = getenv ("SANE_HP_KEEPOPEN_PIO");
+     if ( (eptr != NULL) && ((*eptr == '0') || (*eptr == '1')) )
+         iKeepOpenPIO = (*eptr == '1');
+     }
+
+ /* Look if we should keep it open or not */
+ iKeepOpen = 0;
+ switch (connect)
+     {
+     case HP_CONNECT_SCSI: iKeepOpen = iKeepOpenSCSI;
+                           break;
+     case HP_CONNECT_PIO : iKeepOpen = iKeepOpenPIO;
+                           break;
+     case HP_CONNECT_USB : iKeepOpen = iKeepOpenUSB;
+                           break;
+     case HP_CONNECT_DEVICE : iKeepOpen = iKeepOpenDevice;
+                           break;
+     case HP_CONNECT_RESERVE:
+                           break;
+     }
+ if (!iKeepOpen)
+     {
+     DBG(3, "hp_AddOpenDevice: %s should not be kept open\n", devname);
+     return SANE_STATUS_INVAL;
+     }
+
+ for (iCount = 0; iCount < HP_MAX_OPEN_FD; iCount++)
+     {
+     if (!asHpOpenFd[iCount].devname)  /* Is this entry free ? */
+         {
+         asHpOpenFd[iCount].devname = sanei_hp_strdup (devname);
+         if (!asHpOpenFd[iCount].devname) return SANE_STATUS_NO_MEM;
+         DBG(3, "hp_AddOpenDevice: added device %s with fd=%d\n", devname, fd);
+         asHpOpenFd[iCount].connect = connect;
+         asHpOpenFd[iCount].fd = fd;
+         return SANE_STATUS_GOOD;
+         }
+     }
+ DBG(3, "hp_AddOpenDevice: %s not added\n", devname);
+ return SANE_STATUS_NO_MEM;
+}
+
+
+/* Check if we have remembered an open file descriptor */
+static SANE_Status
+hp_IsOpenFd (int fd, HpConnect connect)
+
+{int iCount;
+
+ for (iCount = 0; iCount < HP_MAX_OPEN_FD; iCount++)
+     {
+     if (   (asHpOpenFd[iCount].devname != NULL)
+         && (asHpOpenFd[iCount].fd == fd)
+         && (asHpOpenFd[iCount].connect == connect) )
+         {
+         DBG(3, "hp_IsOpenFd: %d is open\n", fd);
+         return SANE_STATUS_GOOD;
+         }
+     }
+ DBG(3, "hp_IsOpenFd: %d not open\n", fd);
+ return SANE_STATUS_INVAL;
+}
+
+
+static SANE_Status
+hp_RemoveOpenFd (int fd, HpConnect connect)
+
+{int iCount;
+
+ for (iCount = 0; iCount < HP_MAX_OPEN_FD; iCount++)
+     {
+     if (   (asHpOpenFd[iCount].devname != NULL)
+         && (asHpOpenFd[iCount].fd == fd)
+         && (asHpOpenFd[iCount].connect == connect) )
+         {
+         sanei_hp_free (asHpOpenFd[iCount].devname);
+         asHpOpenFd[iCount].devname = NULL;
+         DBG(3, "hp_RemoveOpenFd: removed %d\n", asHpOpenFd[iCount].fd);
+         asHpOpenFd[iCount].fd = -1;
+         return SANE_STATUS_GOOD;
+         }
+     }
+ DBG(3, "hp_RemoveOpenFd: %d not removed\n", fd);
+ return SANE_STATUS_INVAL;
+}
 
 
 static SANE_Status
@@ -291,8 +452,13 @@ hp_nonscsi_open (const char *devname, int *fd, HpConnect connect)
  {
     DBG(1, "hp_nonscsi_open: open device %s failed\n", devname);
  }
+ else
+ {
+    DBG(17,"hp_nonscsi_open: device %s opened, fd=%d\n", devname, lfd);
+ }
 
  if (fd) *fd = lfd;
+
  return status;
 }
 
@@ -320,6 +486,7 @@ hp_nonscsi_close (int fd, HpConnect connect)
    default:
      break;
  }
+ DBG(17,"hp_nonscsi_close: closed fd=%d\n", fd);
 }
 
 SANE_Status
@@ -327,17 +494,26 @@ sanei_hp_nonscsi_new (HpScsi * newp, const char * devname, HpConnect connect)
 {
  HpScsi new;
  SANE_Status status;
+ int iAlreadyOpen = 0;
 
   new = sanei_hp_allocz(sizeof(*new));
   if (!new)
     return SANE_STATUS_NO_MEM;
 
-  status = hp_nonscsi_open(devname, &new->fd, connect);
-  if (FAILED(status))
+  /* Is the device already open ? */
+  if ( hp_GetOpenDevice (devname, connect, &new->fd) == SANE_STATUS_GOOD )
   {
-    DBG(1, "nonscsi_new: open failed (%s)\n", sane_strstatus(status));
-    sanei_hp_free(new);
-    return SANE_STATUS_IO_ERROR;
+    iAlreadyOpen = 1;
+  }
+  else
+  {
+    status = hp_nonscsi_open(devname, &new->fd, connect);
+    if (FAILED(status))
+    {
+      DBG(1, "nonscsi_new: open failed (%s)\n", sane_strstatus(status));
+      sanei_hp_free(new);
+      return SANE_STATUS_IO_ERROR;
+    }
   }
 
   /* For SCSI-devices we would have the inquire command here */
@@ -349,24 +525,43 @@ sanei_hp_nonscsi_new (HpScsi * newp, const char * devname, HpConnect connect)
   if ( new->devname ) strcpy (new->devname, devname);
 
   *newp = new;
+
+  /* Remember the open device */
+  if (!iAlreadyOpen) hp_AddOpenDevice (devname, connect, new->fd);
+
   return SANE_STATUS_GOOD;
 }
 
 static void
-hp_scsi_close (HpScsi this)
+hp_scsi_close (HpScsi this, int completely)
 {HpConnect connect;
 
  DBG(3, "scsi_close: closing fd %ld\n", (long)this->fd);
 
  connect = sanei_hp_scsi_get_connect (this);
 
+ if (!completely)  /* May we keep the device open ? */
+ {
+   if ( hp_IsOpenFd (this->fd, connect) == SANE_STATUS_GOOD )
+   {
+     DBG(3, "scsi_close: not closing. Keep open\n");
+     return;
+   }
+   
+ }
  assert(this->fd >= 0);
 
  if (connect != HP_CONNECT_SCSI)
    hp_nonscsi_close (this->fd, connect);
  else
    sanei_scsi_close (this->fd);
+
+ DBG(3,"scsi_close: really closed\n");
+
+ /* Remove a remembered open device */
+ hp_RemoveOpenFd (this->fd, connect);
 }
+
 
 SANE_Status
 sanei_hp_scsi_new (HpScsi * newp, const char * devname)
@@ -377,8 +572,10 @@ sanei_hp_scsi_new (HpScsi * newp, const char * devname)
   HpScsi	new;
   HpConnect     connect;
   SANE_Status	status;
+  int iAlreadyOpen = 0;
 
   connect = sanei_hp_get_connect (devname);
+
   if (connect != HP_CONNECT_SCSI)
     return sanei_hp_nonscsi_new (newp, devname, connect);
 
@@ -386,13 +583,21 @@ sanei_hp_scsi_new (HpScsi * newp, const char * devname)
   if (!new)
       return SANE_STATUS_NO_MEM;
 
-  status = sanei_scsi_open(devname, &new->fd, 0, 0);
-  if (FAILED(status))
-    {
-      DBG(1, "scsi_new: open failed (%s)\n", sane_strstatus(status));
-      sanei_hp_free(new);
-      return SANE_STATUS_IO_ERROR;
-    }
+  /* Is the device still open ? */
+  if ( hp_GetOpenDevice (devname, connect, &new->fd) == SANE_STATUS_GOOD )
+  {
+    iAlreadyOpen = 1;
+  }
+  else
+  {
+    status = sanei_scsi_open(devname, &new->fd, 0, 0);
+    if (FAILED(status))
+      {
+        DBG(1, "scsi_new: open failed (%s)\n", sane_strstatus(status));
+        sanei_hp_free(new);
+        return SANE_STATUS_IO_ERROR;
+      }
+  }
 
   DBG(3, "scsi_inquire: sending INQUIRE\n");
   status = sanei_scsi_cmd(new->fd, inq_cmd, 6, new->inq_data, &inq_len);
@@ -441,6 +646,10 @@ sanei_hp_scsi_new (HpScsi * newp, const char * devname)
   if ( new->devname ) strcpy (new->devname, devname);
 
   *newp = new;
+
+  /* Remember the open device */
+  if (!iAlreadyOpen) hp_AddOpenDevice (devname, connect, new->fd);
+
   return SANE_STATUS_GOOD;
 }
 
@@ -457,14 +666,14 @@ sanei_hp_scsi_new (HpScsi * newp, const char * devname)
  * device (from hp-handle.c), and "completely" destroy it when
  * the frontend closes its handle. */
 void
-sanei_hp_scsi_destroy (HpScsi this,int UNUSEDARG completely)
+sanei_hp_scsi_destroy (HpScsi this,int completely)
 {
   /* Moved to hp_scsi_close():
    * assert(this->fd >= 0);
    * DBG(3, "scsi_close: closing fd %d\n", this->fd);
    */
 
-  hp_scsi_close (this);
+  hp_scsi_close (this, completely);
   if ( this->devname ) sanei_hp_free (this->devname);
   sanei_hp_free(this);
 }

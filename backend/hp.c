@@ -43,12 +43,17 @@
    HP Scanner Control Language (SCL).
 */
 
-static char *hp_backend_version = "1.05";
+static char *hp_backend_version = "1.06";
 static char *hp_backend_revision = "$Revision$";
 /* Changes:
 
-   V 1.05:
+   V 1.06:
    $Log$
+   Revision 1.20  2004/03/27 13:52:39  kig-guest
+   Keep USB-connection open (was problem with Linux 2.6.x)
+
+
+   V 1.05:
    Revision 1.19  2003/10/24 17:26:07  kig-guest
    Use new sanei-thread-interface
 
@@ -804,6 +809,7 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback UNUSEDARG authorize)
   DBG(3, "sane_init called\n");
   sanei_thread_init ();
 
+  hp_init_openfd ();
   hp_destroy();
 
   if (version_code)

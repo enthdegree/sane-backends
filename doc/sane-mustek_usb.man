@@ -1,4 +1,4 @@
-.TH sane-mustek_usb 5 "05 Dec 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-mustek_usb 5 "09 Jan 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-mustek_usb
 .SH NAME
 sane-mustek_usb \- SANE backend for Mustek USB flatbed scanners
@@ -185,10 +185,15 @@ This backend is based on the Mustek 1200ub backend from Mustek, maintained by
 Tom Wang.
 
 .SH BUGS
-FreeBSD support is shaky. Most of the time, scanning will work only in the
-first xscanimage/xsane session. After closing the frontend, the scanner will
-freeze. The reason is unknown until now. The same happens with OpenBSD and
-NetBSD.
+These devices have a hardware bug: Once data is written to them, they can't be
+resetted (toggle = DATA0). That means, any operation that tries to reset the
+device will result in running into timeouts.
+
+That means that this backend will fail when it is loaded the second time in
+some configurations: E.g. using libusb, (Free|Open|Net)BSD or with Linux if
+you unload and reload the scanner module. The only choice is to replug the
+scanner in this case.
+
 .PP
 More detailed bug information is available at the Mustek backend homepage
 .IR http://www.meier-geinitz.de/sane/mustek_usb-backend/ .

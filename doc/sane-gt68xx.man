@@ -248,8 +248,9 @@ and all the other contributors.
 
 .SH BUGS
 Currently scanning seems to only work reliably under Linux. With FreeBSD,
-NetBSD and OpenBSD scanning works only once. Then either the scanner has to be
-replugged or even a reboot is necessary. That's most probably a kernel issue.
+NetBSD and OpenBSD scanning with the GT-6801 based scanners works only
+once. Then the scanner isn't detected anymore and has to be replugged. The
+GT-6816 based scanners don't work at all for yet unknown reasons.
 .PP
 The first few lines of the image are garbage for the 2400 TA
 Plus.

@@ -25,6 +25,8 @@
 	  Fixed priority handling (backend and manpage were overwritten even if
 	  a model had a lower priority).
 	* tools/README: Updated sane-find-scanner and sane-desc.el entries.
+	* doc/sane-gt68xx.man doc/sane-mustek_usb.man: Updated status for the
+	  BSDs.
 
 2003-01-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -3,6 +3,9 @@
 	* configure configure.in: Link to functions in lib/ only
 	  if they are not available on the system. Use AC_PROG_LIBTOOL
 	  instead of the deprecated AM_PROG_LIBTOOL.
+	* backend/Makefile.in lib/Makefile.in: Link to functions in lib/ only
+	  if they are not available on the system. Avoid duplicating list of
+	  functions.
 
 2002-02-10  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

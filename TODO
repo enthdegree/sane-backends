@@ -1,4 +1,4 @@
-TODO (2002-04-17)
+TODO (2002-04-21)
 
 ******** todo ********
 
@@ -16,12 +16,6 @@ backends
       http://homepages.paradise.net.nz/stevenel/scanner/
    (+)Hewlett-Packard ScanJet 3300C / 3400C and 4300C (wip)
       http://sourceforge.net/projects/hp3300backend
-
-  * Update backends
-    + Canon FB620S flatbed scanner and FS2710 film scanner support
-      (update for canon backend).
-      ftp://stthd0.pc.uni-koeln.de/pub/canon-1.08.tar.gz
-      Ulrich Deiters <ukd@xenon.pc.Uni-Koeln.DE>
     
   * All backends should check for TL_X < BR_X and TL_Y < BR_Y to
     avoid segfaults or even scanner damage. This should NOT be done
@@ -44,8 +38,6 @@ backends
 
   * dll: 
      - Rewrite to use libtool ltdl library
-     - Check what happens when calling sane_init/sane_open and sane_exit
-       more than once.
 
   * dc210, dc240, gphoto2, and jpeg stuff: move sanei_* functions to sanei/
     (if they are necessary). 
@@ -64,12 +56,10 @@ backends
       - canon
       - coolscan
       - dmc
-      - m3096/fujitsu (?)
-      - microtek
+      - fujitsu
       - qcam
       - ricoh
       - s9036
-      - sharp
       - sp15c
       - tamarack
       
@@ -78,21 +68,15 @@ backends
   * as6e: attach: memory (dev + dev-sane.name) isn't freed if driver isn't
     found.
 
-  * avision: line 1393: word isn't freed sometimes (maybe if  cp == line?)
-
   * net: add IPv6 support.
 
   * Fix warnings about DBG calls:
     - avision
-    - sm3600
     - umax1220u
-    - v4l
  
   * Make all symbols that don't start with sane_ or sanei_ static (see
     make libcheck):
-    - artec: cap_data
     - avision: Avision_Device_List
-    - canon: option_name
   
   * bh: Suspicious loop ("../../backend/bh.c", line 1923: warning:
     end-of-loop code not reached), see sane-devel.
@@ -195,6 +179,14 @@ misc
 
 
 ******** done ********
+* avision: line 1393: word isn't freed sometimes (maybe if  cp == line?)
+* dll: Check what happens when calling sane_init/sane_open and sane_exit
+       more than once.
+* Update backends
+  + Canon FB620S flatbed scanner and FS2710 film scanner support
+    (update for canon backend).
+    ftp://stthd0.pc.uni-koeln.de/pub/canon-1.08.tar.gz
+    Ulrich Deiters <ukd@xenon.pc.Uni-Koeln.DE>
 * The plustek backend doesn't compile on OS/2 because 
   in plustek-usbhw.c itimerval is unknown.
 * Add backends:

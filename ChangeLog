@@ -1,3 +1,8 @@
+2001-06-14  Peter Fales <peter@fales.com>
+
+	* backend/dc25.c - Backed out the previously added mkdtemp()
+	  patch, as mkdtemp is not available on all platforms.
+
 2001-06-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* TODO: Updated documentation entries. Added compilation bug in dc25.c.

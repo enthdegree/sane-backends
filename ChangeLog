@@ -1,6 +1,8 @@
 2003-06-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added link for HP 5550c.
+	* doc/descriptions/hp5400.desc doc/descriptions/ma1509.desc:
+	  Removed :new marker.
 
 2003-06-11  Oliver Schirrmeister <oschirr@abm.de>
 

@@ -29,7 +29,6 @@
 				; "Parport (SPP)", "Parport (ECP)",
 				; "Serial port" or "Propretiary".
 :status :alpha
-:new :yes
 
 :model "ScanJet 5470c"		; name models for above-specified mfg.
 :interface "USB"		; interface type of the device:

@@ -1,5 +1,5 @@
 :backend "gt68xx"
-:version "1.0-53"
+:version "1.0-54"
 :manpage "sane-gt68xx"
 :url "http://www.meier-geinitz.de/sane/gt68xx-backend/"
 :comment "Only the USB scanners mentioned below are supported. For other Mustek BearPaws, look at the Plustek and the MA-1509 backend."
@@ -237,10 +237,6 @@
 :status :good
 :comment "Works up to 600 dpi."
 
-:model "OpticSlim 1200"
-:interface "USB"
-:status :good
-
 :model "OpticPro U16B"
 :interface "USB"
 :status :untested
@@ -250,6 +246,15 @@
 :interface "USB"
 :status :untested
 :comment "Should be detected but may not work. Please contact me if you own such a device. Same as U16B but with a transparency adapter?"
+
+:model "OpticSlim 1200"
+:interface "USB"
+:status :good
+
+:model "OpticSlim 2400"
+:interface "USB"
+:status :basic
+:comment "Calibration doesn't seem to work correctly on all scanners yet. Needs more testing. Please tell me how well this scanner works."
 
 ; -----------------------------------------------------------------------------
 

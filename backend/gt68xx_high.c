@@ -729,7 +729,7 @@ gt68xx_scanner_calibrate (GT68xx_Scanner * scanner,
     status = gt68xx_scanner_create_gray_calibrators (scanner, &params);
 
 #if defined(SAVE_WHITE_CALIBRATION) || defined(SAVE_BLACK_CALIBRATION)
-  printf ("P5\n%d %d\n255\n", params.pixel_xs, params.pixel_ys);
+  printf ("P5\n%d %d\n255\n", params.pixel_xs, params.pixel_ys * 3);
 #endif
   for (i = 0; i < params.pixel_ys; ++i)
     {

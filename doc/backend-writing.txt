@@ -1,4 +1,4 @@
-2000-12-23
+2001-04-13
 
 Here are a few rules that should help writing a SANE-conformant
 backend:
@@ -117,5 +117,13 @@ backend:
   look at "sane-desc.el" in the tools/ directory.
 
 * When your backend is included in the SANE distribution, add an entry
-  to README and sane-backends.lsm. The README entry should point to your 
-  documentation (man-page, website, readme).
+  to README, AUTHORS and sane-backends.lsm. The README entry should point to
+  your documentation (man-page, website, readme).
+
+* Don't use printf, fprintf or perror to output debug or error messages.
+  Use the DBG macro instead. If your backend can't detect a scanner for
+  whatever reason it shouldn't output anything as long as
+  SANE_DEBUG_BACKENDNAME isn't set.
+
+* Don't use exit() in your backend. You will exit the whole program, not only your
+  backend.

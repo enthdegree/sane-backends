@@ -40,6 +40,8 @@
 
    This file implements a SANE network-based meta backend.  */
 
+#define BUILD 5
+
 #ifdef _AIX
 # include "lalloca.h"		/* MUST come first for AIX! */
 #endif
@@ -90,18 +92,18 @@ add_device (const char *name, Net_Device ** ndp)
   struct hostent *he;
   Net_Device *nd;
 
-  DBG (1, "adding backend %s\n", name);
+  DBG (1, "add_device: adding backend %s\n", name);
 
   he = gethostbyname (name);
   if (!he)
     {
-      DBG (1, "can't get address of host %s\n", name);
+      DBG (1, "add_device: can't get address of host %s\n", name);
       return SANE_STATUS_IO_ERROR;
     }
 
   if (he->h_addrtype != AF_INET)
     {
-      DBG (1, "don't know how to deal with addr family %d\n", he->h_addrtype);
+      DBG (1, "add_device: don't know how to deal with addr family %d\n", he->h_addrtype);
       return SANE_STATUS_INVAL;
     }
 
@@ -328,7 +330,10 @@ SANE_Status sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   auth_callback = authorize;
 
   if (version_code)
-    *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, 0);
+    *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BUILD);
+
+  DBG(1, "sane_init: SANE net backend version %d.%d.%d from %s\n", V_MAJOR,
+      V_MINOR, BUILD, PACKAGE_VERSION);
 
   serv = getservbyname ("sane", "tcp");
   if (serv)
@@ -337,7 +342,7 @@ SANE_Status sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
     {
       saned_port = htons (6566);
       DBG (1,
-	   "init: could not find `sane' service (%s); using default port %d\n",
+	   "sane_init: could not find `sane' service (%s); using default port %d\n",
 	   strerror (errno), htons (saned_port));
     }
 
@@ -380,7 +385,7 @@ sane_exit (void)
   Net_Scanner *handle, *next_handle;
   Net_Device *dev, *next_device;
 
-  DBG (1, "exiting\n");
+  DBG (1, "sane_exit: exiting\n");
 
   /* first, close all handles: */
   for (handle = first_handle; handle; handle = next_handle)
@@ -395,7 +400,7 @@ sane_exit (void)
     {
       next_device = dev->next;
 
-      DBG (2, "closing dev %p, ctl=%d\n", dev, dev->ctl);
+      DBG (2, "sane_exit: closing dev %p, ctl=%d\n", dev, dev->ctl);
 
       if (dev->ctl >= 0)
 	{
@@ -458,7 +463,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 	  status = connect_dev (dev);
 	  if (status != SANE_STATUS_GOOD)
 	    {
-	      DBG (1, "get_devices: ignoring failure to connect to %s\n",
+	      DBG (1, "sane_get_devices: ignoring failure to connect to %s\n",
 		   dev->name);
 	      continue;
 	    }
@@ -469,7 +474,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 		    (WireCodecFunc) sanei_w_get_devices_reply, &reply);
       if (reply.status != SANE_STATUS_GOOD)
 	{
-	  DBG (1, "get_devices: ignoring rpc-returned status %s\n",
+	  DBG (1, "sane_get_devices: ignoring rpc-returned status %s\n",
 	       sane_strstatus (reply.status));
 	  sanei_w_free (&dev->wire,
 			(WireCodecFunc) sanei_w_get_devices_reply, &reply);
@@ -531,7 +536,7 @@ SANE_Status sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
   Net_Scanner *s;
   int need_auth;
 
-  DBG (3, "open(\"%s\")\n", full_name);
+  DBG (3, "sane_open(\"%s\")\n", full_name);
 
   dev_name = strchr (full_name, ':');
   if (dev_name)
@@ -589,7 +594,7 @@ SANE_Status sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
     {
       if (dev->wire.status != 0)
 	{
-	  DBG (1, "open rpc call failed (%s)\n", strerror (dev->wire.status));
+	  DBG (1, "sane_open: open rpc call failed (%s)\n", strerror (dev->wire.status));
 	  return SANE_STATUS_IO_ERROR;
 	}
 
@@ -618,7 +623,7 @@ SANE_Status sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
 
       if (status != SANE_STATUS_GOOD)
 	{
-	  DBG (1, "remote open failed\n");
+	  DBG (1, "sane_open: remote open failed\n");
 	  return reply.status;
 	}
     }
@@ -654,7 +659,7 @@ sane_close (SANE_Handle handle)
     }
   if (!s)
     {
-      DBG (1, "close: invalid handle %p\n", handle);
+      DBG (1, "sane_close: invalid handle %p\n", handle);
       return;			/* oops, not a handle we know about */
     }
   if (prev)
@@ -764,7 +769,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	      if ((SANE_Word) value_size == reply.value_size)
 		memcpy (value, reply.value, reply.value_size);
 	      else
-		DBG (1, "control_option: size changed from %d to %d\n",
+		DBG (1, "sane_control_option: size changed from %d to %d\n",
 		     s->opt.desc[option]->size, reply.value_size);
 	    }
 
@@ -819,14 +824,14 @@ SANE_Status sane_start (SANE_Handle handle)
   len = sizeof (sin);
   if (getpeername (s->hw->ctl, (struct sockaddr *) &sin, &len) < 0)
     {
-      DBG (1, "start: getpeername() failed (%s)\n", strerror (errno));
+      DBG (1, "sane_start: getpeername() failed (%s)\n", strerror (errno));
       return SANE_STATUS_IO_ERROR;
     }
 
   fd = socket (s->hw->addr.sa_family, SOCK_STREAM, 0);
   if (fd < 0)
     {
-      DBG (1, "start: socket() failed (%s)\n", strerror (errno));
+      DBG (1, "sane_start: socket() failed (%s)\n", strerror (errno));
       return SANE_STATUS_IO_ERROR;
     }
 
@@ -869,7 +874,7 @@ SANE_Status sane_start (SANE_Handle handle)
 
   if (connect (fd, (struct sockaddr *) &sin, len) < 0)
     {
-      DBG (1, "start: connect() failed (%s)\n", strerror (errno));
+      DBG (1, "sane_start: connect() failed (%s)\n", strerror (errno));
       close (fd);
       return SANE_STATUS_IO_ERROR;
     }
@@ -920,7 +925,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
 			    | ((u_long) s->reclen_buf[1] << 16)
 			    | ((u_long) s->reclen_buf[2] << 8)
 			    | ((u_long) s->reclen_buf[3] << 0));
-      DBG (3, "read: next record length=%ld bytes\n",
+      DBG (3, "sane_read: next record length=%ld bytes\n",
 	   (long) s->bytes_remaining);
       if (s->bytes_remaining == (size_t) - 1)
 	{

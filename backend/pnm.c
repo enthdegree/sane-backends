@@ -335,8 +335,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  if ((strlen (value) + 1) > sizeof (filename))
 	    return SANE_STATUS_NO_MEM;
 	  strcpy (filename, value);
-	  if (access (filename, R_OK) == 0)
-	    myinfo |= SANE_INFO_RELOAD_PARAMS;
+	  myinfo |= SANE_INFO_RELOAD_PARAMS;
 	  break;
 	case 4:
 	  bright = *(SANE_Word *) value;

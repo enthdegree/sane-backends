@@ -42,6 +42,8 @@
    allows managing an arbitrary number of SANE backends by using
    dynamic linking to load backends on demand.  */
 
+#define BUILD 5
+
 #ifdef _AIX
 # include "lalloca.h"   /* MUST come first for AIX! */
 #endif
@@ -198,7 +200,7 @@ static const char *op_name[] =
 static void *
 op_unsupported (void)
 {
-  DBG(1, "call to unsupported backend operation\n");
+  DBG(1, "op_unsupported: call to unsupported backend operation\n");
   return (void *) (long) SANE_STATUS_UNSUPPORTED;
 }
 
@@ -208,18 +210,18 @@ add_backend (const char *name, struct backend **bep)
 {
   struct backend *be, *prev;
 
-  DBG(1, "adding backend %s\n", name);
+  DBG(1, "add_backend: adding backend %s\n", name);
 
   if (strcmp(name,"dll") == 0)
     {
-      DBG( 0, "remove the dll-backend from your dll.conf !!!\n");
+      DBG( 0, "add_backend: remove the dll-backend from your dll.conf!!!\n");
       return SANE_STATUS_GOOD;
     }
 
   for (prev = 0, be = first_backend; be; prev = be, be = be->next)
     if (strcmp (be->name, name) == 0)
       {
-        DBG(1, "...already there\n");
+        DBG(1, "add_backend: %s is already there\n", name);
         /* move to front so we preserve order that we'd get with
            dynamic loading: */
         if (prev)
@@ -269,7 +271,7 @@ load (struct backend *be)
 # error "Tried to compile unsupported DLL."
 #endif /* HAVE_DLOPEN */
 
-  DBG(1, "loading backend %s\n", be->name);
+  DBG(1, "load: loading backend %s\n", be->name);
 
   /* initialize all ops to "unsupported" so we can "use" the backend
      even if the stuff later in this function fails */
@@ -312,7 +314,7 @@ load (struct backend *be)
           libname, strerror (errno));
       return SANE_STATUS_INVAL;
     }
-  DBG(2, "dlopen()ing `%s'\n", libname);
+  DBG(2, "load: dlopen()ing `%s'\n", libname);
 
 #ifdef HAVE_DLOPEN
   be->handle = dlopen (libname, mode);
@@ -324,9 +326,9 @@ load (struct backend *be)
   if (!be->handle)
     {
 #ifdef HAVE_DLOPEN
-      DBG(2, "dlopen() failed (%s)\n", dlerror());
+      DBG(2, "load: dlopen() failed (%s)\n", dlerror());
 #else
-      DBG(2, "dlopen() failed (%s)\n", strerror (errno));
+      DBG(2, "load: dlopen() failed (%s)\n", strerror (errno));
 #endif
       return SANE_STATUS_INVAL;
     }
@@ -363,7 +365,7 @@ load (struct backend *be)
             be->op[i] = op;
         }
       if (NULL == op)
-        DBG(2, "unable to find %s\n", funcname);
+        DBG(2, "load: unable to find %s\n", funcname);
     }
 
   return SANE_STATUS_GOOD;
@@ -397,7 +399,14 @@ init (struct backend *be)
     return status;
 
   if (SANE_VERSION_MAJOR (version) != V_MAJOR)
-    return SANE_STATUS_INVAL;
+    {
+      DBG(1, "init: backend `%s´ has a wrong major version (%d instead of %d)\n",
+	  be->name,  SANE_VERSION_MAJOR (version), V_MAJOR); 
+      return SANE_STATUS_INVAL;
+    }
+  DBG(3, "init: backend `%s' is version %d.%d.%d\n", be->name,
+      SANE_VERSION_MAJOR(version), SANE_VERSION_MINOR(version),
+      SANE_VERSION_BUILD(version));
 
   be->inited = 1;
 
@@ -497,6 +506,10 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
   auth_callback = authorize;
 
+  DBG(1, "sane_init: SANE dll backend version %d.%d.%d from %s\n", V_MAJOR,
+      V_MINOR, BUILD, PACKAGE_VERSION);
+
+
   /* chain preloaded backends together: */
   for (i = 0; i < NELEMS(preloaded_backends); ++i)
     {
@@ -507,7 +520,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
     }
 
   if (version_code)
-    *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, 0);
+    *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BUILD);
 
   fp = sanei_config_open (DLL_CONFIG_FILE);
   if (!fp)
@@ -553,14 +566,14 @@ sane_exit (void)
   struct backend *be, *next;
   struct alias *alias;
 
-  DBG(1, "exiting\n");
+  DBG(1, "sane_exit: exiting\n");
 
   for (be = first_backend; be; be = next)
     {
       next = be->next;
       if (be->loaded)
         {
-          DBG(2, "calling backend `%s's exit function\n", be->name);
+          DBG(2, "sane_exit: calling backend `%s's exit function\n", be->name);
           (*be->op[OP_EXIT]) ();
 #ifdef HAVE_DLL
 
@@ -803,7 +816,7 @@ sane_close (SANE_Handle handle)
 {
   struct meta_scanner *s = handle;
 
-  DBG(3, "close(handle=%p)\n", handle);
+  DBG(3, "sane_close(handle=%p)\n", handle);
   (*s->be->op[OP_CLOSE]) (s->handle);
   free (s);
 }
@@ -813,7 +826,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 {
   struct meta_scanner *s = handle;
 
-  DBG(3, "get_option_descriptor(handle=%p,option=%d)\n", handle, option);
+  DBG(3, "sane_get_option_descriptor(handle=%p,option=%d)\n", handle, option);
   return (*s->be->op[OP_GET_OPTION_DESC]) (s->handle, option);
 }
 
@@ -823,7 +836,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 {
   struct meta_scanner *s = handle;
 
-  DBG(3, "control_option(handle=%p,option=%d,action=%d,value=%p,info=%p)\n",
+  DBG(3, "sane_control_option(handle=%p,option=%d,action=%d,value=%p,info=%p)\n",
       handle, option, action, value, info);
   return (long) (*s->be->op[OP_CTL_OPTION]) (s->handle, option, action,
                                              value, info);
@@ -834,7 +847,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 {
   struct meta_scanner *s = handle;
 
-  DBG(3, "get_parameters(handle=%p,params=%p)\n", handle, params);
+  DBG(3, "sane_get_parameters(handle=%p,params=%p)\n", handle, params);
   return (long) (*s->be->op[OP_GET_PARAMS]) (s->handle, params);
 }
 
@@ -843,7 +856,7 @@ sane_start (SANE_Handle handle)
 {
   struct meta_scanner *s = handle;
 
-  DBG(3, "start(handle=%p)\n", handle);
+  DBG(3, "sane_start(handle=%p)\n", handle);
   return (long) (*s->be->op[OP_START]) (s->handle);
 }
 
@@ -853,7 +866,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
 {
   struct meta_scanner *s = handle;
 
-  DBG(3, "read(handle=%p,data=%p,maxlen=%d,lenp=%p)\n",
+  DBG(3, "sane_read(handle=%p,data=%p,maxlen=%d,lenp=%p)\n",
       handle, data, max_length, length);
   return (long) (*s->be->op[OP_READ]) (s->handle, data, max_length, length);
 }
@@ -863,7 +876,7 @@ sane_cancel (SANE_Handle handle)
 {
   struct meta_scanner *s = handle;
 
-  DBG(3, "cancel(handle=%p)\n", handle);
+  DBG(3, "sane_cancel(handle=%p)\n", handle);
   (*s->be->op[OP_CANCEL]) (s->handle);
 }
 
@@ -872,7 +885,7 @@ sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 {
   struct meta_scanner *s = handle;
 
-  DBG(3, "set_io_mode(handle=%p,nonblocking=%d)\n", handle, non_blocking);
+  DBG(3, "sane_set_io_mode(handle=%p,nonblocking=%d)\n", handle, non_blocking);
   return (long) (*s->be->op[OP_SET_IO_MODE]) (s->handle, non_blocking);
 }
 
@@ -881,6 +894,6 @@ sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
 {
   struct meta_scanner *s = handle;
 
-  DBG(3, "get_select_fd(handle=%p,fdp=%p)\n", handle, fd);
+  DBG(3, "sane_get_select_fd(handle=%p,fdp=%p)\n", handle, fd);
   return (long) (*s->be->op[OP_GET_SELECT_FD]) (s->handle, fd);
 }

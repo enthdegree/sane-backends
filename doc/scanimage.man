@@ -1,4 +1,4 @@
-.TH scanimage 1 "24 November 2000"
+.TH scanimage 1 "13 April 2001"
 .IX scanimage
 .SH NAME
 scanimage - scan an image
@@ -115,8 +115,11 @@ or
 .B --version
 option requests that
 .B scanimage
-print the program and package name, as well as the version number of
-the SANE distribution that it came with.
+prints the program and package name, the version number of
+the SANE distribution that it came with and the version of the backend
+that it loads. Usually that's the dll backend. If more information about
+the version numbers of the backends are necessary, the DEBUG variable for
+the dll backend can be used. Example: SANE_DEBUG_DLL=3 scanimage -L.
 
 As you might imagine, much of the power of
 .B scanimage

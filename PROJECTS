@@ -22,6 +22,10 @@ David Mosberger
 Canon 1220U USB scanner (wip)
 http://sourceforge.net/projects/canonscanner/
 
+E3 USB chipset support (e.g. Genius Vivid Pro USB, Colorado USB 19200,
+Visioneer OneTouch 7600, IBM IdeaScan 2000 USB) (wip)
+http://homepages.paradise.net.nz/stevenel/scanner/
+
 ePhoto (wip?)
 Matthew K. Gray <mkgray@mit.edu>
  

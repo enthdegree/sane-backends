@@ -1348,6 +1348,7 @@ main (int argc, char **argv)
   int batch = 0;
   SANE_Status status;
   char *full_optstring;
+  SANE_Int version_code;
 
   atexit (sane_exit);
 
@@ -1359,7 +1360,7 @@ main (int argc, char **argv)
 
   defdevname = getenv ("SANE_DEFAULT_DEVICE");
 
-  sane_init (0, auth_callback);
+  sane_init (&version_code, auth_callback);
 
   /* make a first pass through the options with error printing and argument
      permutation disabled: */
@@ -1429,7 +1430,10 @@ main (int argc, char **argv)
 	  }
 
 	case 'V':
-	  printf ("scanimage (%s) %s\n", PACKAGE, VERSION);
+	  printf ("scanimage (%s) %s; backend version %d.%d.%d\n", PACKAGE,
+		  VERSION, SANE_VERSION_MAJOR(version_code),
+		  SANE_VERSION_MINOR(version_code),
+		  SANE_VERSION_BUILD(version_code));
 	  exit (0);
 
 	default:

@@ -51,7 +51,7 @@
 
 #ifdef NEED_SYS_BITYPES_H
 # include <sys/bitypes.h>
-#else // not NEED_SYS_BITYPES_H
+#else /* not NEED_SYS_BITYPES_H */
 
 /* Define to `unsigned char' if <sys/types.h> doesn't define.  */
 #undef u_char
@@ -71,7 +71,7 @@
 /* Define to `unsigned int' if <sys/types.h> doesn't define. */
 #undef u_int32_t
 
-#endif // not NEED_SYS_BITYPES_H
+#endif /* not NEED_SYS_BITYPES_H */
 
 /* Define to `long' if <sys/types.h> doesn't define.  */
 #undef ssize_t
@@ -346,6 +346,9 @@
 
 /* Define if you have sys/bitypes.h. */
 #undef HAVE_SYS_BITYPES_H
+
+/* Define if you have sys/sem.h. */
+#undef HAVE_SYS_SEM_H
 
 /* Define if you have the <unistd.h> header file.  */
 #undef HAVE_UNISTD_H

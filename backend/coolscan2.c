@@ -1,7 +1,7 @@
 /* ========================================================================= */
 /*
    SANE - Scanner Access Now Easy.
-   coolscan2.c , version 0.1.4
+   coolscan2.c , version CVS
 
    This file is part of the SANE package.
 
@@ -51,6 +51,17 @@
 */
 /* ========================================================================= */
 
+
+/* ========================================================================= */
+/*
+   Revision log:
+
+   0.1.4, 22/04/2002, andras: first version to be included in SANE CVS
+   0.1.5, 26/04/2002, andras: lots of minor fixes related to saned
+
+*/
+/* ========================================================================= */
+
 #ifdef _AIX
 # include "../include/lalloca.h"	/* MUST come first for AIX! */
 #endif
@@ -81,7 +92,7 @@
 
 #define CS2_VERSION_MAJOR 0
 #define CS2_VERSION_MINOR 1
-#define CS2_REVISION 4
+#define CS2_REVISION 5
 #define CS2_CONFIG_FILE "coolscan2.conf"
 
 #define WSIZE (sizeof (SANE_Word))
@@ -317,10 +328,9 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
   DBG_INIT ();
   DBG (10, "sane_init() called.\n");
+  DBG (1, "coolscan2 backend, version %i.%i.%i initializing.\n", CS2_VERSION_MAJOR, CS2_VERSION_MINOR, CS2_REVISION);
 
   authorize = authorize;	/* to shut up compiler */
-
-  DBG(0, "This is sane-coolscan2 version %d.%d build %d\n", CS2_VERSION_MAJOR, CS2_VERSION_MINOR, CS2_REVISION);
 
   if (version_code)
     *version_code =
@@ -365,7 +375,7 @@ sane_get_devices (const SANE_Device *** list, SANE_Bool local_only)
     {
       if (open_devices)
 	{
-	  DBG (1,
+	  DBG (4,
 	       "sane_get_devices(): Devices open, not scanning for scanners.\n");
 	  return SANE_STATUS_IO_ERROR;
 	}
@@ -1338,9 +1348,12 @@ sane_get_parameters (SANE_Handle h, SANE_Parameters * p)
 
   DBG (10, "sane_get_parameters() called.\n");
 
-  status = cs2_convert_options (s);
-  if (status)
-    return status;
+  if (!s->scanning)		/* only recalculate when not scanning */
+    {
+      status = cs2_convert_options (s);
+      if (status)
+	return status;
+    }
 
   if (s->infrared_stage == CS2_INFRARED_OUT)
     {
@@ -1365,11 +1378,20 @@ SANE_Status
 sane_start (SANE_Handle h)
 {
   cs2_t *s = (cs2_t *) h;
+  SANE_Status status;
 
   DBG (10, "sane_start() called.\n");
 
+  if (s->scanning)
+    return SANE_STATUS_INVAL;
+
+  status = cs2_convert_options (s);
+  if (status)
+    return status;
+
   s->infrared_index = 0;
   s->i_line_buf = 0;
+  s->xfer_position = 0;
 
   s->scanning = SANE_TRUE;
 
@@ -1393,8 +1415,10 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 
   DBG (10, "sane_read() called, maxlen = %i.\n", maxlen);
 
-  if (!s->scanning)
-    return SANE_STATUS_INVAL;
+  if (!s->scanning) {
+    *len = 0;
+    return SANE_STATUS_CANCELLED;
+  }
 
   if (s->infrared_stage == CS2_INFRARED_OUT)
     {
@@ -1403,7 +1427,7 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
       if (s->xfer_position + xfer_len_out > s->n_infrared_buf)
 	xfer_len_out = s->n_infrared_buf - s->xfer_position;
 
-      if (xfer_len_out <= 0)
+      if (xfer_len_out == 0)	/* no more data */
 	{
 	  *len = 0;
 	  return SANE_STATUS_EOF;
@@ -1411,16 +1435,16 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 
       memcpy (buf, &(s->infrared_buf[s->xfer_position]), xfer_len_out);
 
-      *len = xfer_len_out;
       s->xfer_position += xfer_len_out;
 
       if (s->xfer_position >= s->n_infrared_buf)
 	s->infrared_next = CS2_INFRARED_OFF;
 
+      *len = xfer_len_out;
       return SANE_STATUS_GOOD;
     }
 
-  if (s->i_line_buf)
+  if (s->i_line_buf > 0)
     {
       xfer_len_out = s->n_line_buf - s->i_line_buf;
       if (xfer_len_out > maxlen)
@@ -1433,7 +1457,6 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 	s->i_line_buf = 0;
 
       *len = xfer_len_out;
-
       return SANE_STATUS_GOOD;
     }
 
@@ -1442,22 +1465,27 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
     s->n_colour_in * s->logical_width * s->bytes_per_pixel +
     s->n_colour_out * s->odd_padding;
 
-  if (xfer_len_line != s->n_line_buf)
-    {
-      line_buf_new = (SANE_Byte *) cs2_xrealloc (s->line_buf, xfer_len_line * sizeof (SANE_Byte));
-      if (!line_buf_new)
-	return SANE_STATUS_NO_MEM;
-      s->line_buf = line_buf_new;
-      s->n_line_buf = xfer_len_line;
-    }
-
   if (s->xfer_position + xfer_len_line > s->xfer_bytes_total)
-    xfer_len_line = s->xfer_bytes_total - s->xfer_position;	/* XXXXXXXXXXX */
+    xfer_len_line = s->xfer_bytes_total - s->xfer_position; /* just in case */
 
-  if (xfer_len_line <= 0)
+  if (xfer_len_line == 0)	/* no more data */
     {
       *len = 0;
       return SANE_STATUS_EOF;
+    }
+
+  if (xfer_len_line != s->n_line_buf)
+    {
+      line_buf_new =
+	(SANE_Byte *) cs2_xrealloc (s->line_buf,
+				    xfer_len_line * sizeof (SANE_Byte));
+      if (!line_buf_new)
+	{
+	  *len = 0;
+	  return SANE_STATUS_NO_MEM;
+	}
+      s->line_buf = line_buf_new;
+      s->n_line_buf = xfer_len_line;
     }
 
   cs2_scanner_ready (s, CS2_STATUS_READY);
@@ -1487,7 +1515,8 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 	      && (colour == s->n_colour_out))
 	    s8 = (u_int8_t *) & (s->infrared_buf[s->infrared_index++]);
 	  else
-	    s8 = (u_int8_t *) & (s->line_buf[s->n_colour_out * index + colour]);
+	    s8 =
+	      (u_int8_t *) & (s->line_buf[s->n_colour_out * index + colour]);
 	  *s8 =
 	    s->recv_buf[colour * s->logical_width +
 			(colour + 1) * s->odd_padding + index];
@@ -1499,7 +1528,9 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 	      (u_int16_t *) & (s->infrared_buf[2 * (s->infrared_index++)]);
 	  else
 	    s16 =
-	      (u_int16_t *) & (s->line_buf[2 * (s->n_colour_out * index + colour)]);
+	      (u_int16_t *) & (s->
+			       line_buf[2 *
+					(s->n_colour_out * index + colour)]);
 	  *s16 =
 	    s->recv_buf[2 * (colour * s->logical_width + index)] * 256 +
 	    s->recv_buf[2 * (colour * s->logical_width + index) + 1];
@@ -1507,23 +1538,25 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 	  break;
 	default:
 	  DBG (1, "BUG: sane_read(): Unknown number of bytes per pixel.\n");
+	  *len = 0;
 	  return SANE_STATUS_INVAL;
+	  break;
 	}
   s->xfer_position += xfer_len_line;
 
   xfer_len_out = xfer_len_line;
   if (xfer_len_out > maxlen)
     xfer_len_out = maxlen;
-  *len = xfer_len_out;
 
   memcpy (buf, s->line_buf, xfer_len_out);
   if (xfer_len_out < xfer_len_line)
-    s->i_line_buf = xfer_len_out;
+    s->i_line_buf = xfer_len_out; /* data left in the line buffer, read out next time */
 
   if ((s->infrared_stage == CS2_INFRARED_IN)
       && (s->xfer_position >= s->n_infrared_buf))
     s->infrared_next = CS2_INFRARED_OUT;
 
+  *len = xfer_len_out;
   return SANE_STATUS_GOOD;
 }
 
@@ -1532,7 +1565,10 @@ sane_cancel (SANE_Handle h)
 {
   cs2_t *s = (cs2_t *) h;
 
-  DBG (10, "sane_cancel() called.\n");
+  if (s->scanning)
+    DBG (10, "sane_cancel() called while scanning.\n");
+  else
+    DBG (10, "sane_cancel() called while not scanning.\n");
 
   if (s->scanning && (s->infrared_stage != CS2_INFRARED_OUT))
     {
@@ -2507,12 +2543,11 @@ cs2_convert_options (cs2_t * s)
     if (s->real_exposure[cs2_colour_list[i_colour]] < 1)
       s->real_exposure[cs2_colour_list[i_colour]] = 1;
 
-  s->xfer_position = 0;
+  s->n_colour_out = s->n_colour_in = 3;	/* XXXXXXXXXXXXXX CCCCCCCCCCCCCC */
+
   s->xfer_bytes_total =
     s->bytes_per_pixel * s->n_colour_out * s->logical_width *
     s->logical_height;
-
-  s->n_colour_out = s->n_colour_in = 3;	/* XXXXXXXXXXXXXX CCCCCCCCCCCCCC */
 
   if (s->preview)
     s->infrared_stage = s->infrared_next = CS2_INFRARED_OFF;
@@ -2525,7 +2560,7 @@ cs2_convert_options (cs2_t * s)
 
       if (s->infrared)
 	{
-	  s->n_colour_in++;
+	  s->n_colour_in ++;
 	  s->n_infrared_buf =
 	    s->bytes_per_pixel * s->logical_width * s->logical_height;
 	  infrared_buf_new =

@@ -10,7 +10,7 @@
 ;
 
 :backend "coolscan2"
-:version "0.1.4"
+:version "0.1.5"
 :status :beta
 ; :manpage "sane-template"
 :url "http://coolscan2.sourceforge.net/"
@@ -19,17 +19,17 @@
 :mfg "Nikon"
 :url "http://www.nikon.com/"
 
-:model "LS-30"
+:model "LS 30"
 :interface "SCSI"
 
-:model "LS-40 ED"
+:model "LS 40 ED"
 :interface "USB"
 
-:model "LS-4000 ED"
+:model "LS 4000 ED"
 :interface "IEEE1394"
 :comment "untested -- feedback needed"
 
-:model "LS-8000 ED"
+:model "LS 8000 ED"
 :interface "IEEE1394"
 :comment "untested -- feedback needed"
 

@@ -1,0 +1,9 @@
+SANE test suite
+===============
+Petter Reinholdtsen <pere@td.org.uit.no>
+
+This is a test framework for the Scanner Access Now Easy project
+(SANE).  Please add more tests.  This framework should be able to test
+everything without installing, to make sure a new distribution is
+function properly before the old one is replaced.  If it isn't, please
+fix the bug. :-)

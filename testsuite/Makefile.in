@@ -1,0 +1,20 @@
+SCANIMAGE = ../frontend/scanimage
+TESTFILE  = testfile.pnm
+DEVICE    = pnm:0
+OPTIONS   = --filename=$(TESTFILE)
+
+all: Makefile
+	echo "Use 'make test' to run the tests."
+
+test: Makefile test.local
+
+test.local: 
+	if $(SCANIMAGE) -d $(DEVICE) $(OPTIONS) -T && \
+	   $(SCANIMAGE) -d $(DEVICE) $(OPTIONS) --three-pass=yes   -T && \
+	   $(SCANIMAGE) -d $(DEVICE) $(OPTIONS) --hand-scanner=yes -T ; \
+	then : ; else echo ; echo; echo "Something failed"; fi
+
+# Generate new Makefile when something changes
+Makefile: Makefile.in ../config.status
+	cd .. \
+	  && CONFIG_FILES=testsuite/Makefile CONFIG_HEADERS= /bin/sh ./config.status

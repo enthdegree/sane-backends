@@ -3,6 +3,7 @@
 	* PROJECTS: Removed (very) old entries. Removed backends which
 	  are included in the distribution now. Updated bearpaw and OS/2
 	  entries.
+	* NEWS: Created preliminary entry for 1.0.6.
 	  
 2001-09-16  Peter Fales <peter@fales.com>
 

@@ -7,7 +7,7 @@
  *  @brief Here we have our USB device definitions.
  *
  * Based on sources acquired from Plustek Inc.<br>
- * Copyright (C) 2001-2002 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2003 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.40 - starting version of the USB support
@@ -37,6 +37,7 @@
  *        - tweaked EPSON 1260 settings
  *        - removed EPSON 660 stuff
  *        - added Canon 1220U entry
+ *        - added entry for Compaq S4-100
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -587,16 +588,16 @@ static DCapsDef Cap0x1606_0x0060_0 =
  */
 static DCapsDef Cap0x1606_0x0160_0 =
 {
- 	{{ 0, 165}, 0, -1, {2550, 3510 - 165}, {100, 100}, COLOR_BW },
- 	{{ 0,  0},  0, -1, {0, 0}, { 0, 0 }, 0 },
- 	{{ 0,  0},  0, -1, {0, 0}, { 0, 0 }, 0 },
- 	{{ 0,  0},  0, -1, {0, 0}, { 0, 0 }, 0 },
+ 	{{ 30, 165}, 0, -1, {2550, 3508}, {100, 100}, COLOR_BW },
+ 	{{  0,   0}, 0, -1, {0, 0}, { 0, 0 }, 0 },
+ 	{{  0,   0}, 0, -1, {0, 0}, { 0, 0 }, 0 },
+ 	{{  0,   0}, 0, -1, {0, 0}, { 0, 0 }, 0 },
  	{1200, 1200},
  	0,
  	SENSORORDER_bgr,
  	12,			        /* sensor distance                         */
  	4,		      	    /* number of buttons                       */
- 	kNEC8861,           /* use default settings during calibration */
+ 	kNEC3778,           /* use default settings during calibration */
  	0,                  /* not used here...                        */
  	_WAF_MISC_IO_LAMPS, /* use miscio 3 for lamp switching         */
     _MIO3
@@ -606,7 +607,7 @@ static DCapsDef Cap0x1606_0x0160_0 =
  */
 static DCapsDef Cap0x04A9_0x2206_0 =
 {
- 	{{ 0, 90}, 35, -1, {2550, 3508}, {75, 75}, COLOR_GRAY16 },
+ 	{{ 0, 90}, 35,  5, {2550, 3508}, {75, 75}, COLOR_GRAY16 },
  	{{ 0,  0},  0,  0, {0, 0}, { 0, 0 }, 0 },
  	{{ 0,  0},  0,  0, {0, 0}, { 0, 0 }, 0 },
  	{{ 0,  0},  0,  0, {0, 0}, { 0, 0 }, 0 },
@@ -617,14 +618,14 @@ static DCapsDef Cap0x04A9_0x2206_0 =
  	1,		      	    /* number of buttons                       */
  	kNEC8861,           /* use default settings during calibration */
  	0,                  /* not used here...                        */
-	(_WAF_MISC_IO_LAMPS | _WAF_SKIP_WHITEFINE), _NO_MIO
+    _WAF_MISC_IO_LAMPS | _WAF_BLACKFINE, _NO_MIO
 };
 
 /* Canon N1220U
  */
 static DCapsDef Cap0x04A9_0x2207_0 =
 {
-	{{ 0, 85}, 35, -1, {2550, 3508}, {75, 75}, COLOR_BW },
+	{{ 0, 85}, 35,  5, {2550, 3508}, {75, 75}, COLOR_BW },
     {{ 0,  0},  0,  0, {0, 0}, { 0, 0 }, 0 },
     {{ 0,  0},  0,  0, {0, 0}, { 0, 0 }, 0 },
     {{ 0,  0},  0,  0, {0, 0}, { 0, 0 }, 0 },
@@ -635,14 +636,14 @@ static DCapsDef Cap0x04A9_0x2207_0 =
     1,                  /* number of buttons                       */
     kNEC8861,           /* use default settings during calibration */
     0,                  /* not used here...                        */
-    (_WAF_MISC_IO_LAMPS | _WAF_SKIP_WHITEFINE), _NO_MIO
+    _WAF_MISC_IO_LAMPS | _WAF_BLACKFINE, _NO_MIO
 };
 
 /* Canon N670U/N676U/LiDE20
  */
 static DCapsDef Cap0x04A9_0x220D_0 =
 {
- 	{{ 0, 100}, 35, -1, {2550, 3508}, {75, 75}, COLOR_GRAY16 },
+ 	{{ 0, 100}, 35,  5, {2550, 3508}, {75, 75}, COLOR_GRAY16 },
  	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
  	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
  	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
@@ -653,14 +654,14 @@ static DCapsDef Cap0x04A9_0x220D_0 =
  	3,		      	    /* number of buttons                       */
  	kNEC8861,           /* use default settings during calibration */
  	0,                  /* not used here...                        */
-	(_WAF_MISC_IO_LAMPS | _WAF_SKIP_WHITEFINE), _NO_MIO
+	_WAF_MISC_IO_LAMPS | _WAF_BLACKFINE, _NO_MIO
 };
 
 /* Canon N1240U
  */
 static DCapsDef Cap0x04A9_0x220E_0 =
 {
-	{{ 0, 100}, 35, -1, {2550, 3508}, {75, 75}, COLOR_BW },
+	{{ 0, 100}, 35,  5, {2550, 3508}, {75, 75}, COLOR_BW },
     {{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
     {{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
     {{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
@@ -671,7 +672,7 @@ static DCapsDef Cap0x04A9_0x220E_0 =
     3,                  /* number of buttons                       */
     kNEC8861,           /* use default settings during calibration */
     0,                  /* not used here...                        */
-    (_WAF_MISC_IO_LAMPS | _WAF_SKIP_WHITEFINE), _NO_MIO
+    _WAF_MISC_IO_LAMPS | _WAF_BLACKFINE, _NO_MIO
 };
 
 /******************* additional Hardware descriptions ************************/
@@ -1761,8 +1762,8 @@ static HWDef Hw0x1606_0x0060_0 =
 /** Umax 5400 */
 static HWDef Hw0x1606_0x0160_0 =
 {
-    1.7,    /* dMaxMotorSpeed (Max_Speed)                */
-    0.8,    /* dMaxMoveSpeed (Max_Speed)                 */
+    1.1,    /* dMaxMotorSpeed (Max_Speed)                */
+    0.9,    /* dMaxMoveSpeed (Max_Speed)                 */
     9,      /* dIntegrationTimeLowLamp                   */
     9,      /* dIntegrationTimeHighLamp                  */
     600,    /* wMotorDpi (Full step DPI)                 */
@@ -1819,8 +1820,8 @@ static HWDef Hw0x1606_0x0160_0 =
     0,      /* test mode ADC Output CODE MSB (reg 0x5c)  */
     0,      /* test mode ADC Output CODE LSB (reg 0x5d)  */
     0,      /* test mode (reg 0x5e)                      */
-    _LM9832, /* might be LM9831 on UMAX 3450! */
-	MODEL_UMAX
+    _LM9832,
+	MODEL_UMAX1200
 };
 
 /** Canon 650/656 */
@@ -1862,8 +1863,6 @@ static HWDef Hw0x04A9_0x2206_0 =
     89,     /* ? wActivePixelsStart (reg 0x1e + 0x1f)         */
     6074,   /* wLineEnd (reg 0x20 + 0x21)                     */
 
-/* 0x17ba = 6074 bis 100dpi, 0x14ba = 5306 */
-
     23,  	/* red lamp on    (reg 0x2c + 0x2d)               */
     2416,   /* red lamp off   (reg 0x2e + 0x2f)               */
     23,  	/* green lamp on  (reg 0x30 + 0x31)               */
@@ -1880,14 +1879,14 @@ static HWDef Hw0x04A9_0x2206_0 =
     0x08,   /* pwm freq (reg 0x56)                            */
     0x1f,   /* pwm duty cycle (reg 0x57)                      */
 
-    0x05,   /* Paper sense (reg 0x58)                    */
+    0x05,   /* Paper sense (reg 0x58)                         */
 
-    0x24,   /* misc io12 (reg 0x59)                      */
-    0x96,   /* misc io34 (reg 0x5a)                      */
-    0xb9,   /* misc io56 (reg 0x5b)                      */
-    0x01,   /* test mode ADC Output CODE MSB (reg 0x5c)  */
-    0,      /* test mode ADC Output CODE LSB (reg 0x5d)  */
-    0,      /* test mode (reg 0x5e)                      */
+    0x66,   /* misc io12 (reg 0x59)                           */
+    0x16,   /* misc io34 (reg 0x5a)                           */
+    0x91,   /* misc io56 (reg 0x5b)                           */
+    0x01,   /* test mode ADC Output CODE MSB (reg 0x5c)       */
+    0,      /* test mode ADC Output CODE LSB (reg 0x5d)       */
+    0,      /* test mode (reg 0x5e)                           */
     _LM9832,
 	MODEL_CANON600
 };
@@ -1948,9 +1947,9 @@ static HWDef Hw0x04A9_0x2207_0 =
 
     0x05,   /* Paper sense (reg 0x58)                         */
 
-    0x44,   /* misc io12 (reg 0x59)                           */
-    0x94,   /* misc io34 (reg 0x5a)                           */
-    0x19,   /* misc io56 (reg 0x5b)                           */
+    0x66,   /* misc io12 (reg 0x59)                           */
+    0x16,   /* misc io34 (reg 0x5a)                           */
+    0x91,   /* misc io56 (reg 0x5b)                           */
     0x01,   /* test mode ADC Output CODE MSB (reg 0x5c)       */
     0,      /* test mode ADC Output CODE LSB (reg 0x5d)       */
     0,      /* test mode (reg 0x5e)                           */
@@ -1989,7 +1988,9 @@ static HWDef Hw0x04A9_0x220D_0 =
 	2,      /* bReg 0x29 illumination mode (runtime)          */
 
 	{ 3,  0,    0, 23, 1800,  0,    0 },
-	{ 2, 23, 3562, 23, 3315, 23, 2676 },
+/*	{ 2, 23, 3562, 23, 3315, 23, 2676 },
+ */
+	{ 2, 23, 16383, 23, 16383, 23, 16383 },
 
     1,      /* StepperPhaseCorrection (reg 0x1a + 0x1b)       */
     0,      /* bOpticBlackStart (reg 0x1c)                    */
@@ -2017,9 +2018,9 @@ static HWDef Hw0x04A9_0x220D_0 =
 
     0x04,   /* Paper sense (reg 0x58)                         */
 
-    0x44,   /* misc io12 (reg 0x59)                           */
-    0x94,   /* misc io34 (reg 0x5a)                           */
-    0x19,   /* misc io56 (reg 0x5b)                           */
+    0x66,   /* misc io12 (reg 0x59)                           */
+    0x16,   /* misc io34 (reg 0x5a)                           */
+    0x91,   /* misc io56 (reg 0x5b)                           */
     0x01,   /* test mode ADC Output CODE MSB (reg 0x5c)       */
     0,      /* test mode ADC Output CODE LSB (reg 0x5d)       */
     0,      /* test mode (reg 0x5e)                           */
@@ -2085,9 +2086,9 @@ static HWDef Hw0x04A9_0x220E_0 =
 
     0x04,   /* Paper sense (reg 0x58)                         */
 
-    0x44,   /* misc io12 (reg 0x59)                           */
-    0x94,   /* misc io34 (reg 0x5a)                           */
-    0x19,   /* misc io56 (reg 0x5b)                           */
+    0x66,   /* misc io12 (reg 0x59)                           */
+    0x16,   /* misc io34 (reg 0x5a)                           */
+    0x91,   /* misc io56 (reg 0x5b)                           */
     0x01,   /* test mode ADC Output CODE MSB (reg 0x5c)       */
     0,      /* test mode ADC Output CODE LSB (reg 0x5d)       */
     0,      /* test mode (reg 0x5e)                           */
@@ -2152,7 +2153,10 @@ static SetDef Settings[] =
 	/* UMAX... */
  	{"0x1606-0x0060",	&Cap0x1606_0x0060_0, &Hw0x1606_0x0060_0, "3400/3450" },
  	{"0x1606-0x0160",	&Cap0x1606_0x0160_0, &Hw0x1606_0x0160_0, "5400"      },
-		
+  
+	/* COMPAQ... */
+ 	{"0x049F-0x001A",	&Cap0x1606_0x0060_0, &Hw0x1606_0x0060_0, "S4-100" },
+
 	/* CANON... */
 	{"0x04A9-0x2206",   &Cap0x04A9_0x2206_0, &Hw0x04A9_0x2206_0, "N650U/N656U" },
 	{"0x04A9-0x2207",   &Cap0x04A9_0x2207_0, &Hw0x04A9_0x2207_0, "N1220U"      },
@@ -2313,6 +2317,18 @@ static ClkMotorDef Motors[] = {
 		/* Gray mode MCLK settings */
 	    { 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5 },
 	    { 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5 }
+	},
+
+	{ MODEL_UMAX1200, 16, 4, 6,
+		/* Motor settings (PWM and PWM_Duty) */
+	    {{ 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 },
+		 { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }},
+        /* Color mode MCLK settings */
+	    { 3.0, 3.0, 3.0, 3.0, 3.0, 6.0, 6.0, 6.0, 6.0, 6.0 },
+	    { 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0 },
+		/* Gray mode MCLK settings */
+	    {  6.0,  6.0,  6.0,  6.0,  6.0, 13.0, 13.0, 13.0, 13.0, 13.0 },
+	    { 13.0, 13.0, 13.0, 13.0, 13.0, 13.0, 13.0, 13.0, 13.0, 13.0 }
 	},
 
 	/* settings good for the EPSON models (tested with 1260) */

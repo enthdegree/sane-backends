@@ -11,7 +11,7 @@
  * Original code taken from sane-0.71<br>
  * Copyright (C) 1997 Hypercore Software Design, Ltd.<br>
  * Also based on the work done by Rick Bronson<br>
- * Copyright (C) 2000-2002 Gerhard Jaeger <gerhard@gjaeger.de><br>
+ * Copyright (C) 2000-2003 Gerhard Jaeger <gerhard@gjaeger.de><br>
  *
  * History:
  * - 0.30 - initial version
@@ -57,6 +57,7 @@
  * - 0.45 - added additional flags
  *        - added WIFSIGNALED to check result of child termination
  *        - changed readImage interface for USB devices
+ *        - homeing of USB scanner is now working correctly
  *.
  * <hr>
  * This file is part of the SANE package.
@@ -130,7 +131,7 @@
 #include "sane/sanei.h"
 #include "sane/saneopts.h"
 
-#define BACKEND_VERSION "0.45-5"
+#define BACKEND_VERSION "0.45-6"
 #define BACKEND_NAME	plustek
 #include "sane/sanei_backend.h"
 #include "sane/sanei_config.h"
@@ -442,7 +443,6 @@ static SANE_Bool getReaderProcessExitCode( Plustek_Scanner *scanner )
 }
 
 /**
- *
  */
 static SANE_Status close_pipe( Plustek_Scanner *scanner )
 {
@@ -458,7 +458,6 @@ static SANE_Status close_pipe( Plustek_Scanner *scanner )
 }
 
 /**
- *
  */
 static void sig_chldhandler( int signo )
 {
@@ -467,26 +466,26 @@ static void sig_chldhandler( int signo )
 
 /** signal handler to kill the child process
  */
-static RETSIGTYPE reader_process_sigterm_handler( int signal )
+static RETSIGTYPE reader_process_sigterm_handler( int signo )
 {
-	DBG( _DBG_PROC, "reader_process: terminated by signal %d\n", signal );
+	DBG( _DBG_PROC, "reader_process: terminated by signal %d\n", signo );
 	_exit( SANE_STATUS_GOOD );
 }
 
-static RETSIGTYPE usb_reader_process_sigterm_handler( int signal )
+static RETSIGTYPE usb_reader_process_sigterm_handler( int signo )
 {
-	DBG( _DBG_PROC, "reader_process: terminated by signal %d\n", signal );
+	DBG( _DBG_PROC, "reader_process: terminated by signal %d\n", signo );
 	cancelRead = SANE_TRUE;
 }
 
-static RETSIGTYPE sigalarm_handler( int signal )
+static RETSIGTYPE sigalarm_handler( int signo )
 {
-	_VAR_NOT_USED( signal );
+	_VAR_NOT_USED( signo );
 	DBG( _DBG_PROC, "ALARM!!!\n" );
 }
 
 /** executed as a child process
- * read the data from the driver and send the to the parent process
+ * read the data from the driver and send them to the parent process
  */
 static int reader_process( Plustek_Scanner *scanner, int pipe_fd )		
 {
@@ -589,7 +588,7 @@ static SANE_Status do_cancel( Plustek_Scanner *scanner, SANE_Bool closepipe  )
 
 	if( scanner->reader_pid > 0 ) {
 
-		DBG( _DBG_PROC,"killing reader_process\n" );
+		DBG( _DBG_PROC, ">>>>>>>> killing reader_process <<<<<<<<\n" );
 
 		/* tell the driver to stop scanning */
 		if( _ASIC_IS_USB != scanner->hw->caps.AsicID ) {
@@ -1152,7 +1151,8 @@ static SANE_Status attach( const char *dev_name, pCnfDef cnf,
 	SANE_Status	    status;
 	Plustek_Device *dev;
 
-	DBG(_DBG_SANE_INIT, "attach (%s, %p, %p)\n", dev_name, cnf, (void *)devp);
+	DBG( _DBG_SANE_INIT, "attach (%s, %p, %p)\n",
+	                                      dev_name, (void *)cnf, (void *)devp);
 
 	/* already attached ?*/
 	for( dev = first_dev; dev; dev = dev->next ) {
@@ -1556,7 +1556,7 @@ SANE_Status sane_get_devices(const SANE_Device ***device_list,
 	Plustek_Device *dev;
 
 	DBG(_DBG_SANE_INIT, "sane_get_devices (%p, %ld)\n",
-                                               device_list, (long) local_only);
+                                       (void *)device_list, (long) local_only);
 
 	/* already called, so cleanup */
 	if( devlist )

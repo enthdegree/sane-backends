@@ -1,7 +1,7 @@
-Plustek.changes (2003-01-11) Gerhard Jäger <gerhard@gjaeger.de>
+Plustek.changes (2003-05-08) Gerhard Jäger <gerhard@gjaeger.de>
 ===============================================================
 
-V 0.45 (2003-01-10)
+V 0.45 (2003-05-08)
 
 - Starting this changelog
 - Updates since V 0.44:
@@ -10,4 +10,7 @@ V 0.45 (2003-01-10)
   * made CanoScan N650U and N670U work
   * fixed EPSON 1260 motor killer-bug
   * improved TPA scanning
+  * fixed TPA warmup bug on EPSON 1260/Photo
+  * fixed Genius device detection problem
+  * Added Compaq S4-100 (identical to UMAX3400)
 

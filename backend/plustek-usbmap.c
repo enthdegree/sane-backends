@@ -7,7 +7,7 @@
  *  @brief Creating and manipulating lookup tables.
  *
  * Based on sources acquired from Plustek Inc.<br>
- * Copyright (C) 2001-2002 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2003 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.40 - starting version of the USB support

@@ -7,7 +7,7 @@
  *  @brief Main defines for the USB devices.
  *
  * Based on sources acquired from Plustek Inc.<br>
- * Copyright (C) 2001-2002 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2003 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.40 - starting version of the USB support
@@ -246,6 +246,7 @@ typedef enum
 	MODEL_CANON600 ,      /**< for CanoScan 600dpi models */
 	MODEL_CANON1200,      /**< for Canon 1200dpi models   */
 	MODEL_UMAX,           /**< for UMAX 3400/3450         */
+	MODEL_UMAX1200,       /**< for UMAX 5400              */
 	MODEL_LAST
 } eModelDef;
 

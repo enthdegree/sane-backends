@@ -256,9 +256,24 @@
 :interface "USB"
 :status :stable
 
+:model "UMAX 3450"
+:interface "USB"
+:status :stable
+:comment "TPA not supported"
+
 :model "UMAX 5400"
 :interface "USB"
-:status :untested
+:status :stable
+
+;* COMPAQ ******************************************************************************************
+
+:mfg "Compaq"
+:url "http://www.compaq.com/"
+
+:model "S4-100"
+:interface "USB"
+:status :stable
+:comment "Identical to UMAX 3400"
 
 ;* CANON *******************************************************************************************
 

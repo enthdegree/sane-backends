@@ -1,17 +1,19 @@
-Plustek-USB-TODO.txt (2003-03-03) Gerhard Jäger <gerhard@gjaeger.de>
+Plustek-USB-TODO.txt (2003-05-08) Gerhard Jäger <gerhard@gjaeger.de>
 ====================================================================
 
 TODO (in general):
 	- more documentation/comments on the different functions
-    - Move documents to its correct SANE place
+	- Move documents to its correct SANE place
 	- improve calibration
-    - auto-warmup
-    - sensor movement speedup
+	- auto-warmup
+	- sensor movement speedup ffw/rev
+	- add plustek.conf presettings to interface for frontends
 
 KNOWN BUGS/Limitations:
 
 Model             Description                           Workaround
 ------------------------------------------------------------------------------
+
 HP 2100c          Straight Line Bug                     none
 EPSON Photo       Negative Scanning quality bad         none
 Canon             fine calibration does not work        none
@@ -21,19 +23,22 @@ Canon 1240        gray mode too bright                  none
 
 ********************************* DONE ***************************************
 
-HP 2100c          hits against scan-bed                 fixed
-Genius            Devices not recognized                fixed
-EPSON Photo       Permanently warmup on TPA scanning    fixed
-EPSON Photo       Transparency mode does not work       fixed
+HP 2100c          hits against scan-bed                         fixed
+Genius            Devices not recognized                        fixed
+EPSON Photo       Permanently warmup on TPA scanning            fixed
+EPSON Photo       Transparency mode does not work               fixed
                   correctly
-all               binary mode does not work correctly   done
-Canon             16bit gray mode does not work         done
-EPSON 1250/60     Motor control settings are wrong      fixed
-CanoScan 1240                                           added
-EPSON + HP        vertical line bug                     fixed
-HP                blooming on 42bit >=400dpi            fixed
+all               binary mode does not work correctly           done
+Canon             16bit gray mode does not work                 done
+EPSON 1250/60     Motor control settings are wrong              fixed
+CanoScan 1240                                                   added
+EPSON + HP        vertical line bug                             fixed
+HP                blooming on 42bit >=400dpi                    fixed
+UMAX5400          bad picture quality                           fixed
+UMAX3400          Straight Line Bug                             fixed
 
-Make the color modes > 8bit work correctly              done
-make mono/gray modes work on Canon scanners             done
-copy picture line by line to backend                    done
+Make the color modes > 8bit work correctly                      done
+make mono/gray modes work on Canon scanners                     done
+copy picture line by line to backend                            done
+cancel function does not work correctly in large resolutions    fixed
 

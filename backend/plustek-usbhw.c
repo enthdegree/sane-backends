@@ -7,7 +7,7 @@
  *  @brief Functions to control the scanner hardware.
  *
  * Based on sources acquired from Plustek Inc.<br>
- * Copyright (C) 2001-2002 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2003 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.40 - starting version of the USB support
@@ -25,7 +25,8 @@
  *        - added usb_switchLampX
  *        - do now not reinitialized MISC I/O pins upon reset registers
  * - 0.45 - added function usb_AdjustLamps() to tweak CIS lamp settings
- * - 0.46 - fixed NULL pointer problem in lamp-off ISR
+ *        - fixed NULL pointer problem in lamp-off ISR
+ *        - added usb_AdjustCISLampSettings()
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -119,8 +120,7 @@ static SANE_Bool usb_MotorOn( int handle, SANE_Bool fOn )
 	return SANE_TRUE;
 }
 
-/*.............................................................................
- *
+/** check if scanner is ready
  */
 static SANE_Bool usb_IsScannerReady( pPlustek_Device dev )
 {
@@ -168,7 +168,6 @@ static SANE_Bool usb_IsScannerReady( pPlustek_Device dev )
 }
 
 /**
- *
  */
 static SANE_Bool usb_SensorAdf( int handle )
 {
@@ -180,7 +179,6 @@ static SANE_Bool usb_SensorAdf( int handle )
 }
 
 /**
- *
  */
 static SANE_Bool usb_SensorPaper( int handle )
 {
@@ -410,8 +408,7 @@ static SANE_Bool usb_ModuleMove( pPlustek_Device dev,
 	return SANE_FALSE;
 }
 
-/*.............................................................................
- *
+/**
  */
 static SANE_Bool usb_ModuleToHome( pPlustek_Device dev, SANE_Bool fWait )
 {
@@ -420,12 +417,14 @@ static SANE_Bool usb_ModuleToHome( pPlustek_Device dev, SANE_Bool fWait )
 	pDCapsDef scaps = &dev->usbDev.Caps;
 	pHWDef    hw    = &dev->usbDev.HwSetting;
 
-	/* Check if LM9831 is ready for setting command */
+	/* Check if merlin is ready for setting command */
 	usbio_WriteReg( dev->fd, 0x58, hw->bReg_0x58 );
 	usbio_ReadReg ( dev->fd, 2, &value );
 
 	/* check current position... */
+#if 0	
 	_UIO(usbio_ReadReg( dev->fd, 2, &value ));
+#endif	
 
 	if( value & 1 ) {
 		fModuleFirstHome = SANE_FALSE;
@@ -614,7 +613,6 @@ static SANE_Bool usb_ModuleToHome( pPlustek_Device dev, SANE_Bool fWait )
 }
 
 /**
- *
  */
 static SANE_Bool usb_MotorSelect( pPlustek_Device dev, SANE_Bool fADF )
 {
@@ -654,6 +652,71 @@ static SANE_Bool usb_MotorSelect( pPlustek_Device dev, SANE_Bool fADF )
 
 	usbio_WriteReg( dev->fd, 0x5b, a_bRegs[0x5b] );
 	return SANE_TRUE;
+}
+
+/** function to adjust the lamp settings of a device
+ */
+static SANE_Bool usb_AdjustLamps( pPlustek_Device dev )
+{
+	pHWDef hw = &dev->usbDev.HwSetting;
+
+	a_bRegs[0x2c] = hw->red_lamp_on / 256;
+	a_bRegs[0x2d] = hw->red_lamp_on & 0xFF;
+	a_bRegs[0x2e] = hw->red_lamp_off / 256;
+	a_bRegs[0x2f] = hw->red_lamp_off & 0xFF;
+
+	a_bRegs[0x30] = hw->green_lamp_on / 256;
+	a_bRegs[0x31] = hw->green_lamp_on & 0xFF;
+	a_bRegs[0x32] = hw->green_lamp_off / 256;
+	a_bRegs[0x33] = hw->green_lamp_off & 0xFF;
+
+	a_bRegs[0x34] = hw->blue_lamp_on / 256;
+	a_bRegs[0x35] = hw->blue_lamp_on & 0xFF;
+	a_bRegs[0x36] = hw->blue_lamp_off / 256;
+	a_bRegs[0x37] = hw->blue_lamp_off & 0xFF;
+
+	return sanei_lm983x_write( dev->fd, 0x2c,
+							   &a_bRegs[0x2c], 0x37-0x2c+1, SANE_TRUE );
+}
+
+/**
+ */
+static void usb_AdjustCISLampSettings( Plustek_Device *dev, SANE_Bool on )
+{
+	pHWDef hw = &dev->usbDev.HwSetting;
+
+	if( !(hw->bReg_0x26 & _ONE_CH_COLOR))
+		return;
+
+	DBG( _DBG_INFO2, "AdjustCISLamps(%u)\n", on );
+
+	if((dev->scanning.sParam.bDataType == SCANDATATYPE_Gray) ||
+	   (dev->scanning.sParam.bDataType == SCANDATATYPE_BW)) {
+
+		hw->bReg_0x29 = hw->illu_mono.mode;
+
+		memcpy( &hw->red_lamp_on,
+				&hw->illu_mono.red_lamp_on, sizeof(u_short) * 6 );
+
+	} else {
+		hw->bReg_0x29 = hw->illu_color.mode;
+
+		memcpy( &hw->red_lamp_on,
+				&hw->illu_color.red_lamp_on, sizeof(u_short) * 6 );
+	}
+
+	if( !on ) {
+
+		hw->red_lamp_on    = 16383;
+		hw->red_lamp_off   = 0;
+		hw->green_lamp_on  = 16383;
+		hw->green_lamp_off = 0;
+		hw->blue_lamp_on   = 16383;
+		hw->blue_lamp_off  = 0;
+	}
+
+	a_bRegs[0x29] = hw->bReg_0x29;
+	usb_AdjustLamps( dev );
 }
 
 /** according to the flag field, we return the register and
@@ -847,34 +910,7 @@ static void usb_LedOn( pPlustek_Device dev, SANE_Bool fOn )
 	}
 }
 
-/** function to adjust the lamp settings of a device
- *
- */
-static SANE_Bool usb_AdjustLamps( pPlustek_Device dev )
-{
-	pHWDef hw = &dev->usbDev.HwSetting;
-
-	a_bRegs[0x2c] = hw->red_lamp_on / 256;
-	a_bRegs[0x2d] = hw->red_lamp_on & 0xFF;
-	a_bRegs[0x2e] = hw->red_lamp_off / 256;
-	a_bRegs[0x2f] = hw->red_lamp_off & 0xFF;
-
-	a_bRegs[0x30] = hw->green_lamp_on / 256;
-	a_bRegs[0x31] = hw->green_lamp_on & 0xFF;
-	a_bRegs[0x32] = hw->green_lamp_off / 256;
-	a_bRegs[0x33] = hw->green_lamp_off & 0xFF;
-
-	a_bRegs[0x34] = hw->blue_lamp_on / 256;
-	a_bRegs[0x35] = hw->blue_lamp_on & 0xFF;
-	a_bRegs[0x36] = hw->blue_lamp_off / 256;
-	a_bRegs[0x37] = hw->blue_lamp_off & 0xFF;
-
-	return sanei_lm983x_write( dev->fd, 0x2c,
-							   &a_bRegs[0x2c], 0x37-0x2c+1, SANE_TRUE );
-}
-
 /** usb_LampOn
- *
  */
 static SANE_Bool usb_LampOn( pPlustek_Device dev,
 							 SANE_Bool fOn, SANE_Bool fResetTimer )
@@ -1202,7 +1238,6 @@ static void usb_StartLampTimer( pPlustek_Device dev )
 }
 
 /** usb_StopLampTimer
- *
  */
 static void usb_StopLampTimer( pPlustek_Device dev )
 {
@@ -1250,6 +1285,13 @@ static SANE_Bool usb_Wait4Warmup( pPlustek_Device dev )
 {
 	u_long         dw;
     struct timeval t;
+
+	pHWDef hw = &dev->usbDev.HwSetting;
+
+   	if( hw->bReg_0x29 != 1 ) {
+		DBG(_DBG_INFO,"Warmup: skipped for CIS devices\n" );
+		return SANE_TRUE;
+	}
 
  	/*
 	 * wait until warmup period has been elapsed

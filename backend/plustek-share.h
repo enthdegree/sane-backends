@@ -6,7 +6,7 @@
 /** @file plustek-share.h
  *  @brief Common definitions for the backend and the kernel driver
  *
- * Copyright (C) 2001-2002 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2003 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.36 - initial version

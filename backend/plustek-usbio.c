@@ -7,7 +7,7 @@
  *  @brief Some I/O stuff.
  *
  * Based on sources acquired from Plustek Inc.<br>
- * Copyright (C) 2001-2002 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2003 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * History:
@@ -18,6 +18,7 @@
  * - 0.44 - added dump registers and dumpPic functions
  *        - beautyfied output of ASIC detection
  * - 0.45 - fixed dumpRegs
+ *        - added dimension stuff to dumpPic
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -76,8 +77,16 @@
 #define usbio_ReadReg(fd, reg, value) \
   sanei_lm983x_read (fd, reg, value, 1, 0)
 
+typedef struct {
+
+	u_char depth;
+	u_long x;
+	u_long y;
+} PicDef, *pPicDef;
+
+static PicDef dPix;
+
 /**
- *
  */
 static void dumpPic( char* name, SANE_Byte *buffer, u_long len )
 {
@@ -86,10 +95,27 @@ static void dumpPic( char* name, SANE_Byte *buffer, u_long len )
 	if( DBG_LEVEL < _DBG_DUMP )
 		return;
 
-	if( NULL == buffer )
-		fp = fopen( name, "w+b" ); 	
-	else
-		fp = fopen( name, "a+b" ); 	
+	if( NULL == buffer ) {
+
+		DBG( _DBG_DUMP, "Creating file '%s'\n", name );
+
+		fp = fopen( name, "w+b" );
+
+		if( NULL != fp ) {
+
+			if( 0 != dPix.x ) {
+
+				DBG( _DBG_DUMP, "> X=%lu, Y=%lu, depth=%u\n",
+											dPix.x, dPix.y, dPix.depth );
+				if( dPix.depth > 8 )
+					fprintf( fp, "P6\n%lu %lu\n65535\n", dPix.x, dPix.y );
+    			else
+					fprintf( fp, "P6\n%lu %lu\n255\n", dPix.x, dPix.y );
+			}
+    	}
+	} else {
+		fp = fopen( name, "a+b" );
+	}
 
 	if( NULL == fp ) {
 		DBG( _DBG_DUMP, "Can not open file '%s'\n", name );
@@ -98,6 +124,24 @@ static void dumpPic( char* name, SANE_Byte *buffer, u_long len )
 
 	fwrite( buffer, 1, len, fp );
     fclose( fp );
+}
+
+/**
+ */
+static void dumpPicInit( pScanParam sd, char* name )
+{
+	dPix.x = sd->Size.dwPhyBytes;
+
+	if( sd->bDataType == SCANDATATYPE_Color )
+		dPix.x /= 3;
+
+	if( sd->bBitDepth > 8 )
+		dPix.x /= 2;
+
+	dPix.y	   = sd->Size.dwLines;
+	dPix.depth = sd->bBitDepth;
+
+	dumpPic( name, NULL, 0 );
 }
 
 /**
@@ -194,7 +238,7 @@ static SANE_Bool usbio_WriteReg( SANE_Int handle,
 	/* retry loop... */
 	for( i = 0; i < 100; i++ ) {
 
-		_UIO( sanei_lm983x_write_byte( handle, reg, value ));
+		sanei_lm983x_write_byte( handle, reg, value );
 	
 		/* Flush register 0x02 when register 0x58 is written */
  		if( 0x58 == reg ) {

@@ -1,4 +1,4 @@
-TODO (2003-05-09)
+TODO (2003-05-15)
 
 ******** todo ********
 
@@ -167,6 +167,7 @@ misc
   * In configure, print a list of backends that's build.
 
 ******** done ********
+* plustek:  check status of Umax 3450 USB scanner (same as 3400?)
 * avision: mention that hpusbscsi is no longer necessary.
 * avision: don't crash if there is no config file.
 * hp5400: Use GPL + SANE addition license.

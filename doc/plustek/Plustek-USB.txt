@@ -1,4 +1,4 @@
-Plustek-USB.txt (2003-01-11) Gerhard Jäger <gerhard@gjaeger.de>
+Plustek-USB.txt (2003-05-08) Gerhard Jäger <gerhard@gjaeger.de>
 ================================================================
 
 NOTE:
@@ -58,7 +58,7 @@ Hewlett Packard
 Vendor ID: 0x03F0
 
 Product ID       Device-description and status	
-0x0505           HP Scanjet 2100c - mostly working
+0x0505           HP Scanjet 2100c - working
 0x0605           HP Scanjet 2200c - working
 
 EPSON
@@ -74,8 +74,8 @@ UMAX
 Vendor ID: 0x1606
 
 Product ID       Device-description and status	
-0x0060           UMAX 3400/3450 - working
-0x0160           UMAX 5400 - not tested
+0x0060           UMAX 3400/3450 - working (TPA on 3450 not supported)
+0x0160           UMAX 5400 - working
 
 CANON
 =====
@@ -87,20 +87,6 @@ Product ID       Device-description and status
 0x2207           N1220U - mostly tested
 0x220D           N670U  - mostly working
 0x220E           N1240U - mostly working
-
-AVISION
-=======
-Vendor ID: 0x????
-
-Product ID       Device-description and status	
-0x????           AV630CS - not integrated
-
-ARTEC
-=====
-Vendor ID: 0x????
-
-Product ID       Device-description and status	
-0x????           Artec 1236 - not integrated
 
 
 How to use and configure the Plustek USB backend
@@ -190,6 +176,52 @@ i.e. on SuSE system > 7.x
 /etc/init.d/boot.local
 An alternative way is to use the hotplug utilities.
 
+
+Using hotplug utilities and libusb
+----------------------------------
+
+When using libusb with SANE, then you should also use the hotplug utilities to
+automatically setup your device nodes (at least the permissions) and prevent
+scanner.o from loading.
+
+Assuming, that these utilites are properly installed on your box, you have
+to tweak and add some files.
+
+In directory (where of course the config files reside):
+/etc/hotplug
+
+Append the line
+scanner
+to file
+blacklist
+
+This prevents the scanner module from the usb-subsystem to be loaded.
+
+Next thing is to add a new line in
+usb.usermap:
+
+usbscanner 0x0003 0x1606 0x0160 0x0000 0x0000 0x00 0x00 0x00 0x00 0x00 0x00 0x00 000000
+
+The example line shows the vendor ID of UMAX 0x1606 and the product ID of the 5400
+0x0160 - these values must match the ones of your scanner.
+
+Last step is adding a script in 
+/etc/hotplug/usb/
+It is called "usbscanner" (don't forget the executable rights)
+
+-------------------------------------------------
+# !/bin/bash
+
+if [ "${ACTION}" = add ] && [ -f "${DEVICE}" ]
+then
+        chgrp users "${DEVICE}"
+        chmod ug+rw "${DEVICE}"
+fi
+-------------------------------------------------
+
+This script will correct the access right to your scanner device when the device
+is plugged in.
+              
 
 Debugging your USB scanner (written by Kev Green)
 -------------------------------------------------
@@ -406,4 +438,7 @@ MCLK_DIV = ------------------------------------------
 Symbols:
 
 CM - Color Mode (unitless), 3 for channel pixel rate color, else 1
+
+
+-------------------------
 

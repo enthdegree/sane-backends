@@ -7,7 +7,7 @@
  *  @brief Image processing functions for copying and scaling image lines.
  *
  * Based on sources acquired from Plustek Inc.<br>
- * Copyright (C) 2001-2002 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2003 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.40 - starting version of the USB support
@@ -21,6 +21,7 @@
  *        - fixed endless loop bug
  *        - fixed a bug in usb_GrayScalePseudo16 function
  *        - fixed a bug in usb_GrayDuplicatePseudo16 function
+ *        - removed the scaler stuff for CIS devices
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -1481,77 +1482,69 @@ static void usb_GetImageProc( struct Plustek_Device *dev )
  */
 static SANE_Int usb_ReadData( struct Plustek_Device *dev )
 {
-	u_long   dw, dwRet, dwBytes, dwAdjust;
+	u_long   dw, dwRet, dwBytes, pl;
     pScanDef scanning = &dev->scanning;
 	pHWDef   hw       = &dev->usbDev.HwSetting;
 
 	DBG( _DBG_READ, "usb_ReadData()\n" );
 
-	dwAdjust = 1;                                                
-
-	/* for 1 channel color, we have to adjust the phybytes... */
-	if( hw->bReg_0x26 & _ONE_CH_COLOR ) {
-		if( scanning->sParam.bDataType == SCANDATATYPE_Color ) {
-			dwAdjust = 3;
-		}
-	}
+	pl = a_bRegs[0x4e] * hw->wDRAMSize/128;
 
 	while( scanning->sParam.Size.dwTotalBytes ) {
-	
+
 		if( usb_IsEscPressed()) {
 			DBG( _DBG_INFO, "usb_ReadData() - Cancel detected...\n" );
 			return 0;
 		}
-   		
+
    		if( scanning->sParam.Size.dwTotalBytes > scanning->dwBytesScanBuf )
    			dw = scanning->dwBytesScanBuf;
    		else
    			dw = scanning->sParam.Size.dwTotalBytes;
-   			
+
    		scanning->sParam.Size.dwTotalBytes -= dw;
 
-   		if(!scanning->sParam.Size.dwTotalBytes && dw < (m_dwPauseLimit * 1024))
+   		if(!scanning->sParam.Size.dwTotalBytes && dw < (pl * 1024))
    		{
    			if(!(a_bRegs[0x4e] = (u_char)ceil((double)dw /
 													(4.0 * hw->wDRAMSize)))) {
    				a_bRegs[0x4e] = 1;
 			}
-   				
+
    			a_bRegs[0x4f] = 0;
-				
+
    			sanei_lm983x_write( dev->fd, 0x4e, &a_bRegs[0x4e], 2, SANE_TRUE );
    		}
 
    		while( scanning->bLinesToSkip ) {
-			
+
    			DBG( _DBG_READ, "Skipping %u lines\n", scanning->bLinesToSkip );
 
    			dwBytes = scanning->bLinesToSkip*scanning->sParam.Size.dwPhyBytes;
-			dwBytes *= dwAdjust;
-				
+
    			if (dwBytes > scanning->dwBytesScanBuf) {
-				
+
    				dwBytes = scanning->dwBytesScanBuf;
    				scanning->bLinesToSkip -= scanning->dwLinesScanBuf;
    			} else {
    				scanning->bLinesToSkip = 0;
-   			}						
-					
+   			}
+
    			if( !usb_ScanReadImage( dev, scanning->pbGetDataBuf, dwBytes ))
 				return 0;
    		}
-		
+
    	    if( usb_ScanReadImage( dev, scanning->pbGetDataBuf, dw )) {
 
 			dumpPic( "plustek-pic.raw", scanning->pbGetDataBuf, dw );
-		
+
    	    	if( scanning->dwLinesDiscard ) {
 
 	   			DBG( _DBG_READ, "Discarding %lu lines\n",
 			   										scanning->dwLinesDiscard );
-   	    	   	    	
-   	    		dwRet = dw / (scanning->sParam.Size.dwPhyBytes * dwAdjust);
-   	    		
+
+   	    		dwRet = dw / scanning->sParam.Size.dwPhyBytes;
+
    	    		if (scanning->dwLinesDiscard > dwRet) {
    	    			scanning->dwLinesDiscard -= dwRet;
    	    			dwRet = 0;
@@ -1561,19 +1554,19 @@ static SANE_Int usb_ReadData( struct Plustek_Device *dev )
    	    		}
    	    	} else {
 
-   	    		dwRet = dw / (scanning->sParam.Size.dwPhyBytes * dwAdjust);
-   	    	}	
+   	    		dwRet = dw / scanning->sParam.Size.dwPhyBytes;
+   	    	}
 
    			scanning->pbGetDataBuf += scanning->dwBytesScanBuf;
    			if( scanning->pbGetDataBuf >= scanning->pbScanBufEnd ) {
    				scanning->pbGetDataBuf = scanning->pbScanBufBegin;
-   			}	
-   	    	
+   			}
+
    	    	if( dwRet )
    	    		return dwRet;
    	    }
 	}
-	
+
 	return 0;
 }
 

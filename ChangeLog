@@ -1,3 +1,17 @@
+2003-05-15  Gerhard Jaeger <gerhard@gjaeger.de>
+	* TODO: status of UMAX 3450 is fixed now in .desc
+	* descriptions/plustek.desc: update
+	* doc/plustek/Plustek-USB-TODO.txt doc/plustek/Plustek-USB.txt
+	  doc/plustek/Plustek.changes: update
+	* backend/plustek-devs.c backend/plustek-pp.c backend/plustek-usb.c
+	  backend/plustek-usbhw.c backend/plustek-usbimg.c
+	  backend/plustek-usbio.c backend/plustek-usbmap.c
+	  backend/plustek-usbscan.c backend/plustek-usbshading.c
+	  backend/plustek.c backend/plustek.h backend/plustek-share.h
+	  backend/plustek-usb.h:
+	  Major bugfix release, cancel should work now, calibration for
+	  CIS devices is now fully functional
+
 2003-05-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Updates for Canon
@@ -579,7 +593,7 @@
 2003-03-03  Gerhard Jaeger <gerhard@gjaeger.de>
 	* doc/plustek/Plustek-USB-TODO.txt: update
 	* backend/plustek-devs.c backend/plustek-usb.c backend/plustek-usbhw.c
-	  backend/plustek-usbimg.c backend/plustek-usbscan.c backend/plustek.c: 
+	  backend/plustek-usbimg.c backend/plustek-usbscan.c backend/plustek.c:
 	  Fixed some bugs, that avoid proper function of Genius devices and
 	  the HP2100c. Fixed also a problem, that causes permanent warmup cylces
 	  on EPSON Photo devices.

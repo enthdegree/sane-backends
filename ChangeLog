@@ -2,6 +2,18 @@
 
 	* tools/sane-desc.c: Added backends mode with splitted tables.
 	  Fixed HTML colors. Spelling and other minor fixes.
+	* doc/descriptions-external/hp4200.desc
+	  doc/descriptions-external/hpoj.desc
+	  doc/descriptions-external/ibm.desc
+	  doc/descriptions-external/lhii.desc
+	  doc/descriptions-external/niash.desc
+	  doc/descriptions-external/teco2.desc
+	  doc/descriptions-external/teco3.desc
+	  doc/descriptions-external/tevion9693usb.desc
+	  doc/descriptions-external/v4l2.desc: Minor fixes for the new
+	  sane-desc.c. Commented out version numbers and manpages. Added
+	  :status :untested if the comment suggests this. Fixed double
+	  and bad device types.
 
 2002-07-08  Karl Heinz Kremer <khk@khk.net>
 	* doc/descriptions/epson.desc: fixed typo in URL

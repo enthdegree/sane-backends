@@ -1,5 +1,7 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 1998-2001 Yuri Dario
+   Copyright (C) 2002-2003 Henning Meier-Geinitz (documentation)
+   Copyright (C) 2003 Gerhard Jaeger (pthread/process support)
    This file is part of the SANE package.
 
    SANE is free software; you can redistribute it and/or modify it under
@@ -40,19 +42,16 @@
 */
 
 /** @file sanei_thread.h
- * Header file to make porting fork, wait, and waitpid easier.
+ * Support for forking processes and threading.
  *
- * This file contains helper functions for the OS/2 port (using threads
- * instead of forked processes). <b>Do not use these functions in the backends
- * directly</b>, they are used automatically by macros. Just include this file
- * in an \#ifdef HAVE_OS2_H statement if you use fork. If your reader process
- * has more than one argument, you also need to implement a
- * os2_reader_process() in your backend. The implementation should call your
- * own reader process. See mustek.c for an example.
- *    
- * The preprocessor is used for routing process-related function to OS/2
- * threaded code: in this way, Unix backends requires only minimal code
- * changes.
+ * Backends should not use fork() directly because fork() does not work
+ * correctly on some platforms. Use the functions provided by sanei_thread
+ * instead. The build system decides if fork() or threads are used.
+ *
+ * Please keep in mind that the behaviour of the child process depends
+ * on if it's a process or thread especially concerning variables.
+ *
+ * In this file we use "task" as an umbrella term for process and thread.
  *
  * @sa sanei.h sanei_backend.h
  */
@@ -61,51 +60,99 @@
 #define sanei_thread_h
 #include "../include/sane/config.h"
 
-/** @name Internal functions 
- * @{
+/** Initialize sanei_thread.
+ *
+ * This function must be called before any other sanei_thread function.
  */
-extern void sanei_thread_init( void );
+extern void sanei_thread_init (void);
 
-/** function to check, whether we're in forked environment or not
+/** Do we use processes or threads?
+ *
+ * This function can be used to check if processes or threads are used.
+ *
+ * @return
+ * - SANE_TRUE - if processes are used (fork)
+ * - SANE_FALSE - i threads are used
  */
-extern SANE_Bool sanei_thread_is_forked( void );
-  
-/** function to start func() in own thread/process
- */
-extern int sanei_thread_begin( int (func)(void *args), void* args );
+extern SANE_Bool sanei_thread_is_forked (void);
 
-/** function to terminate spawned process/thread. In pthread
- * context, pthread_cancel is used, in process contect, SIGTERM is send
+/** Spawn a new task.
+ *
+ * This function should be used to start a new task.
+ *
+ * @param func() function to call as child task
+ * @param args argument of the function (only one!)
+ *
+ * @return
+ * - task id
+ * - -1 if creating the new task failed
+ */
+extern int sanei_thread_begin (int (func) (void *args), void *args);
+
+/** Terminate spawned task.
+ *
+ * This function terminates the task that was created with sanei_thread_begin.
+ *
+ * For processes, SIGTERM is sent. If threads are used, pthread_cancel()
+ * terminates the task.
+ *
  * @param pid - the id of the task
+ *
+ * @return
+ * - 0 on success
+ * - any other value if an error occured while terminating the task
  */
-extern int sanei_thread_kill( int pid );
+extern int sanei_thread_kill (int pid);
 
-/** function to send signals to the thread/process
+/** Send a signal to a task.
+ *
+ * This function can be used to send a signal to a task.
+ *
+ * For terminating the task, sanei_thread_kill() should be used.
+ *
  * @param pid - the id of the task
  * @param sig - the signal to send
- */
-extern int sanei_thread_sendsig( int pid, int sig );
-
-/**
- */
-extern int sanei_thread_waitpid( int pid, int *status );
-
-/** function to return the current status of the spawned function
- * @param pid - the id of the task
- */
-extern SANE_Status sanei_thread_get_status( int pid );
-
-/* @} */
-
-/** Reader process function.
  *
- * This wrapper is necessary if a backend's reader process need more than one
- * argument. Add a function to your backend with this name and let it call your
- * own reader process. See mustek.c for an example.
+ * @return 
+ * - 0 - on success
+ * - any other value - if an error occured while sending the signal
  */
-/* FIXME: remove this ASAP */
+extern int sanei_thread_sendsig (int pid, int sig);
+
+/** Wait for task termination.
+ *
+ * This function waits until a task that has been terminated by 
+ * sanei_thread_kill(), sanei_thread_sendsys() or by any other means
+ * is finished.
+ *
+ * @param pid - the id of the task
+ * @param status - status of the task that has just finished
+ *
+ * @return
+ * - the pid of the task we have been waiting for
+ */
+extern int sanei_thread_waitpid (int pid, int *status);
+
+/** Check the current status of the spawned task
+ *
+ * 
+ * @param pid - the id of the task
+ *
+ * @return
+ * - SANE_STATUS_GOOD - if the task finished without errors
+ * - any other value - if the task finished unexpectantly or hasn't finished yet
+ */
+extern SANE_Status sanei_thread_get_status (int pid);
+
+/** Reader process function (OBSOLETE).
+ *
+ * This wrapper was necessary if a backend's reader process need more than one
+ * argument. It will be removed soon. Do not use!
+ *
+ * FIXME: remove this ASAP
+ */
 #ifdef HAVE_OS2_H
-static int os2_reader_process( void* data);
+static int os2_reader_process (void *data);
 
 #define fork()            sanei_thread_begin(os2_reader_process)
 #define kill(a, b)        sanei_thread_kill( a )

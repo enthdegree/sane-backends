@@ -161,6 +161,14 @@
 :interface "USB"
 :status :good
 
+:model "CX-3600"
+:interface "USB"
+:status :good
+
+:model "CX-3650"
+:interface "USB"
+:status :good
+
 :model "CX-5200"
 :interface "USB"
 :status :good

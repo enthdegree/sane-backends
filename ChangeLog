@@ -1,3 +1,7 @@
+2995-02-10  Karl Heinz Kremer <khk@khk.net>
+
+	* doc/descriptions/epson.desc: Added CX-3600 and 3650
+
 2005-02-08  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan.h backend/snapscan.conf

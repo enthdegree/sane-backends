@@ -1,4 +1,4 @@
-2002-01-07
+2002-01-08
 
 This directory contains translations for the options of the SANE backends.
 They are only used if configure is called with option --enable-translations.
@@ -11,15 +11,15 @@ What do you need to do if you want to:
     setting (e.g. de_DE for German in Germany).
 
 - Update existing translations when the source code has changed
-  * cd po ; make update-po
+  * cd po ; make
   * Edit backend.lang.po, add/change translations. 
-  * make
+  * make install
 
 - Add a new language
-  * cd po ; make update-pot
-  * cp backend.pot backend.lang.pot
+  * cd po ; make
+  * cp backend.pot backend.lang.pot (with lang = your language, e.g. "de")
   * Edit backend-lang.po, enter translations. Don't forget to edit the header.
-  * make update-mo ; make install
+  * make ; make install
 
 - Add a translation for a backend that is not listed yet in Makefile.in
   * Edit your sources and add SANE_I18N to the appropriate strings. Mark the
@@ -28,17 +28,17 @@ What do you need to do if you want to:
     Do NOT mark macros. Especially you don't need to mark standard option
     strings like SANE_TITLE_NUM_OPTIONS as this is already done in saneopts.h.
     Example: s->opt[5].title = SANE_I18N("Enhancement");
-  * Edit Makefile.in. Add your backend to ALL_BACKENDS and ass a line
+  * Edit Makefile.in. Add your backend to ALL_BACKENDS and add a line
     "backend.pot: yourfiles" where yourfiles is a list of all your files 
     containing translatable text.
-  * configure --enable-translations
-  * cd po ; make update-pot
-  * cp backend.pot backend.lang.pot
+  * cd po ; make
+  * cp backend.pot backend.lang.pot (with lang = your language, e.g. "de")
   * Edit backend-lang.po, enter translations. Don't forget to edit the header.
-  * make update-mo ; make install
+  * make ; make install
 
 Bugs:
 - This is the first attempt to support translations. It's probably very buggy
   and nearly untested.
 - Lot's of ugly tricks and asumptions in Makefile.in
-- Documentation isn't finished
+- All well known options are added to *.lang.po even if they are not used
+  in the backend.

@@ -2580,6 +2580,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
   DBG (7, "sane_init()\n" );
 
+  devlist = 0;
   /* make sure these 2 are empty */
   strcpy (artec_vendor, "");
   strcpy (artec_model, "");

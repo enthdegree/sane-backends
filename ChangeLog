@@ -14,7 +14,8 @@
 	  as active maintainer because his primary email address bounces,
 	  and he doesn't respond to mails to other addresses. Marked email
 	  addresses and website as dead. Fixed AT3 misdectection that was
-	  on the TODO list for some time.
+	  on the TODO list for some time. Initialize global variables in
+	  sane_init.
 
 2003-03-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

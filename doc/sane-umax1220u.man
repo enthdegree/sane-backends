@@ -15,13 +15,18 @@ For the latest information on this backend, please visit
 
 .SH UMAX ASTRA 2000U EXPERIMENTAL SUPPORT
 
-This backend can also drive the UMAX Astra 2000U (sort of). You
-will be able to scan, but the colors will be horrible. From
-Stephane (the author of sane-umax_pp), I learned that there are
-differences in the way the color calibration is performed. It may
-be possible to use ideas from that backend to add complete support
-for the 2000U to this backend. Since I do not have access to an
-Astra 2000U, I do not plan to work on this -- any volunteers?
+This backend may also be able to drive the UMAX Astra 2000U.
+Some people are successful with it, others report that the
+colors come out terrible. Your milage may vary.
+
+From Stephane (the author of sane-umax_pp), I learned that there
+are differences in the way the color calibration is performed on
+the 1220U and the 2000U and it may account for the problem.
+Stephane's backend support the 2000P, the parallel port sibling
+to the 2000U. It may be possible to use ideas and code from 
+Stephane's backend to add complete support for the 2000U to
+this backend. Since I do not have access to an Astra 2000U, I
+do not plan to work on this -- any volunteers?
 
 .SH CONFIGURATION
 

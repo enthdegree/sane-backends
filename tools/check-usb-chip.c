@@ -1336,6 +1336,160 @@ check_gl660_gl646 (struct usb_device *dev)
 }
 
 
+/********** the gl841 section **********/
+
+static char *
+check_gl841 (struct usb_device *dev)
+{
+  unsigned char val;
+  int result;
+  usb_dev_handle *handle;
+
+  if (verbose > 2)
+    printf ("    checking for GL841 ...\n");
+
+  /* Check device descriptor */
+  if ((dev->descriptor.bDeviceClass != USB_CLASS_VENDOR_SPEC)
+      || (dev->config[0].interface[0].altsetting[0].bInterfaceClass != USB_CLASS_VENDOR_SPEC))
+    {
+      if (verbose > 2)
+	printf
+	  ("    this is not a GL841 (bDeviceClass = %d, bInterfaceClass = %d)\n",
+	   dev->descriptor.bDeviceClass,
+	   dev->config[0].interface[0].altsetting[0].bInterfaceClass);
+      return 0;
+    }
+  if (dev->descriptor.bcdUSB != 0x200)
+    {
+      if (verbose > 2)
+	printf ("    this is not a GL841 (bcdUSB = 0x%x)\n",
+		dev->descriptor.bcdUSB);
+      return 0;
+    }
+  if (dev->descriptor.bDeviceSubClass != 0xff)
+    {
+      if (verbose > 2)
+	printf ("    this is not a GL841 (bDeviceSubClass = 0x%x)\n",
+		dev->descriptor.bDeviceSubClass);
+      return 0;
+    }
+  if (dev->descriptor.bDeviceProtocol != 0xff)
+    {
+      if (verbose > 2)
+	printf ("    this is not a GL841 (bDeviceProtocol = 0x%x)\n",
+		dev->descriptor.bDeviceProtocol);
+      return 0;
+    }
+
+  /* Check endpoints */
+  if (dev->config[0].interface[0].altsetting[0].bNumEndpoints != 3)
+    {
+      if (verbose > 2)
+	printf ("    this is not a GL841 (bNumEndpoints = %d)\n",
+		dev->config[0].interface[0].altsetting[0].bNumEndpoints);
+      return 0;
+    }
+
+  if ((dev->config[0].interface[0].altsetting[0].endpoint[0].
+       bEndpointAddress != 0x81)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[0].
+	  bmAttributes != 0x02)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[0].
+	  wMaxPacketSize != 0x40)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[0].bInterval !=
+	  0x0))
+    {
+      if (verbose > 2)
+	printf
+	  ("    this is not a GL841 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].
+	   bEndpointAddress,
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].bmAttributes,
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].
+	   wMaxPacketSize,
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].bInterval);
+      return 0;
+    }
+
+  if ((dev->config[0].interface[0].altsetting[0].endpoint[1].
+       bEndpointAddress != 0x02)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[1].
+	  bmAttributes != 0x02)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[1].
+	  wMaxPacketSize != 0x40)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[1].bInterval !=
+	  0))
+    {
+      if (verbose > 2)
+	printf
+	  ("    this is not a GL841 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].
+	   bEndpointAddress,
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].bmAttributes,
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].
+	   wMaxPacketSize,
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].bInterval);
+      return 0;
+    }
+
+  if ((dev->config[0].interface[0].altsetting[0].endpoint[2].
+       bEndpointAddress != 0x83)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[2].
+	  bmAttributes != 0x03)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[2].
+	  wMaxPacketSize != 0x1)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[2].bInterval !=
+	  8))
+    {
+      if (verbose > 2)
+	printf
+	  ("    this is not a GL841 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
+	   dev->config[0].interface[0].altsetting[0].endpoint[2].
+	   bEndpointAddress,
+	   dev->config[0].interface[0].altsetting[0].endpoint[2].bmAttributes,
+	   dev->config[0].interface[0].altsetting[0].endpoint[2].
+	   wMaxPacketSize,
+	   dev->config[0].interface[0].altsetting[0].endpoint[2].bInterval);
+      return 0;
+    }
+
+  result = prepare_interface (dev, &handle);
+  if (!result)
+    return "GL841?";
+
+  result = gl646_write_reg (handle, 0x38, 0x15);
+  if (!result)
+    {
+      if (verbose > 2)
+	printf ("    this is not a GL841 (writing register failed)\n");
+      finish_interface (handle);
+      return 0;
+    }
+
+  result = gl646_read_reg (handle, 0x38, &val);
+  if (!result)
+    {
+      if (verbose > 2)
+	printf ("    this is not a GL841 (reading register failed)\n");
+      finish_interface (handle);
+      return 0;
+    }
+
+  if (val != 0x15)
+    {
+      if (verbose > 2)
+	printf ("    this is not a GL841 (reg 0x38 != 0x15)\n");
+      finish_interface (handle);
+      return 0;
+    }
+  finish_interface (handle);
+  return "GL841";
+}
+
+
 /********** the icm532b section version 0.2 **********/
 /*          no write and read test registers yet     */
 
@@ -1546,6 +1700,9 @@ check_usb_chip (struct usb_device *dev, int verbosity)
 
   if (!chip_name)
     chip_name = check_gl660_gl646 (dev);
+
+  if (!chip_name)
+    chip_name = check_gl841 (dev);
 
   if (!chip_name)
     chip_name = check_icm532b (dev);

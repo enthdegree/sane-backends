@@ -1,3 +1,7 @@
+2003-12-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* tools/check-usb-chip.c: Added test for Genesys Logic GL841.
+
 2003-12-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Updated/added several Medion

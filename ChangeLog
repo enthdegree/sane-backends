@@ -1,3 +1,7 @@
+2003-12-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added some scanners.
+
 2003-12-06  Peter Fales <peter@fales-lorenz.net>
 	* acinclude.m4, aclocal.m4, configure:  gphoto2 backend is now 
 	  enabled by default if gphoto2-config is found.   Use

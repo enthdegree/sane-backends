@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-12-06"		; version of backend
+:version "2003-12-07"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -377,7 +377,7 @@
 
 ;********************************************************************************************
 
-:mfg "GUILLEMOT"			; name a manufacturer
+:mfg "Guillemot"			; name a manufacturer
 ;:url "http://www.hp.com/"
 
 :model "SCAN@HOME 48 USB"
@@ -1080,6 +1080,12 @@
 :status :unsupported
 :comment "Probably not supported. See link for details."
 
+:model "Astra 3000"
+:url "/unsupported/umax-astra-3000.html"
+:interface "USB"
+:status :unsupported
+:comment "Probably not supported. See link for details."
+
 :model "Astra 3600"
 :url "/unsupported/umax-astra-3600.html"
 :interface "USB"
@@ -1165,6 +1171,12 @@
 
 :model "OneTouch 7100"
 :url "/unsupported/visioneer-onetouch7100.html"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. See link for details."
+
+:model "OneTouch 8100"
+:url "/unsupported/visioneer-onetouch8100.html"
 :interface "USB"
 :status :unsupported
 :comment "Unsupported. See link for details."

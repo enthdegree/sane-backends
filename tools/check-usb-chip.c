@@ -241,6 +241,16 @@ check_gt6816 (struct usb_device *dev)
       return 0;
     }
 
+  if (dev->config[0].bNumInterfaces != 0x01)
+    {
+      if (verbose > 2)
+	printf ("    this is not a GT-6816 (bNumInterfaces = 0x%x)\n",
+		dev->config[0].bNumInterfaces);
+      return 0;
+    }
+
+
+
   /* Check endpoints */
   if (dev->config[0].interface[0].altsetting[0].bNumEndpoints != 2)
     {

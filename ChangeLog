@@ -1,3 +1,8 @@
+2004-07-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* tools/check-usb-chip.c: Also check the number of interfaces for
+	  the GT-6816 to avoid conflicts with other GT chips.
+
 2004-07-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions-external/brother.desc: New file. Added the

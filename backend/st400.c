@@ -67,6 +67,8 @@ vim: ts=4 sw=4 noexpandtab
    					  manpage.  ST400 locks up with reads >64KB - added
 					  maxread entry to model struct.  Tested with SANE 1.0.2.
    1.6 (08 Apr 2000): Minor cleanups.
+   1.7 (18 Dec 2001): Security fix from Tim Waugh.  Dump inquiry data to
+					  "$HOME/st400.dump" instead of "/tmp/st400.dump".
 */
 
 #include "sane/config.h"
@@ -211,13 +213,24 @@ st400_inquiry( int fd, ST400_Model **modelP )
 		return status;
 
 	if( st400_dump_data ) {
+		const char *home = getenv ("HOME");
+		char basename[] = "st400.dump";
+		char *name;
 		FILE *fp;
 
-		fp = fopen("/tmp/st400.dump", "ab");
+		if (home) {
+			name = malloc (strlen (home) + sizeof (basename) + 1);
+			sprintf (name, "%s/%s", home, basename);
+		} else name = basename;
+
+		fp = fopen(name, "ab");
 		if( fp != NULL ) {
 			fwrite(inqdata.bytes, 1, inqlen, fp);
 			fclose(fp);
 		}
+
+		if (name != basename)
+			free (name);
 	}
 
 	if( inqlen != sizeof(inqdata) )

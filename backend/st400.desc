@@ -12,6 +12,7 @@
 :url "http://www.siemens.de/"
 :model "ST400"
 :interface "SCSI"
+:comment "6 bit gray"
 :model "ST800"
 :interface "SCSI"
 :comment "6 bit gray"

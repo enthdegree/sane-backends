@@ -12,7 +12,7 @@
 :backend "canon630u"                ; name of backend
 :manpage "sane-canon630u"
 :version "0.1"                  ; version of backend
-:status :alpha                  ; :alpha, :beta, :stable, :new
+:status :new                  ; :alpha, :beta, :stable, :new
 :url "http://canon-fb630u.sourceforge.net/" ; backend home page
 
 :devicetype :scanner              ; start of a list of devices....

@@ -7,6 +7,9 @@
 	  compilation errors on e.g. OS/2.
 	* include/Sane/sanei_debug.h: Added warnings for format problems
 	  in DBG messages (from Frank Zago <fzago@greshamstorage.com>).
+	* include/sane/sanei.h sanei/Makefile.in sanei/load_values.c
+	  sanei/save_values.c: Removed load_values and save_values as they
+	  are only used in sane_frontends.
 
 2002-02-13  Peter Fales <peter@fales.com>
 

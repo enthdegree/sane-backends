@@ -1,4 +1,4 @@
-TODO (2003-07-19)
+TODO (2003-07-21)
 
 ******** todo ********
 
@@ -67,6 +67,11 @@ backends
   * fujitsu: Add patch from m. allan noah:
     http://www.mostang.com/pipermail/sane-devel/2003-June/019332.html
 
+  * mustek_pp: Re-enable support for CCD scanners.
+
+  * avision: Add patch for using the --source option from priya
+   <priyag@newgen.co.in> (?)
+
 doc
 ---
   * Add doxygen documentation for the remaining sanei files:
@@ -81,9 +86,8 @@ doc
     - plustek: add Genius ColorPage HR6X EPP as supported
     - Change all description files to use the new status keyword:
       avision, canon, canon_pp, canon630u, coolscan2, fujitsu,
-      hp, hp5400, hpsj5s, leo, matsushita, microtek, microtek2, mustek_pp,
-      plustek, sceptre, sharp, snapscan, st400, teco1, teco2, teco3, umax,
-      umax1220u, umax_pp.
+      hp, hp5400, hpsj5s, microtek, microtek2, mustek_pp,
+      plustek, sharp, snapscan, st400, umax1220u.
 
   * manpages:
     - html manpages have broken links to other man pages if link is wrapped at

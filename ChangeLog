@@ -1,3 +1,8 @@
+2003-07-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* TODO: Added mustek_pp CCD support and avision patch
+	  entry. Updated .desc file section.
+
 2003-07-21  Stéphane Voltz <svoltz@wanadoo.fr>
 
 	* doc/descriptions/umax_pp.desc: removed unwanted status line for 

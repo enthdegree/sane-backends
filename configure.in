@@ -203,16 +203,18 @@ fi
 dnl Checks for library functions.
 AC_FUNC_ALLOCA
 AC_FUNC_MMAP
-AC_CHECK_FUNCS(atexit ioperm mkdir scsireq_enter sigprocmask \
-    strdup strndup strftime strstr strsep strtod snprintf \
-    cfmakeraw tcsendbreak usleep strcasecmp strncasecmp _portaccess \
-    getenv isfdtype vsyslog inet_ntop)
+AC_CHECK_FUNCS(atexit ioperm mkdir scsireq_enter  \
+    strftime strstr strtod  \
+    cfmakeraw tcsendbreak strcasecmp strncasecmp _portaccess)
+
+AC_REPLACE_FUNCS(getenv inet_ntop isfdtype sigprocmask snprintf \
+    strdup strndup strsep usleep vsyslog)
 
 SANE_LINKER_RPATH
 
 dnl initialize libtool
 AC_LIBTOOL_WIN32_DLL
-AM_PROG_LIBTOOL
+AC_PROG_LIBTOOL
 
 
 AC_SUBST(INCLUDES)

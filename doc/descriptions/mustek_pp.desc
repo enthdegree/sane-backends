@@ -56,21 +56,19 @@
 :status :beta
 :comment "CIS scanner"
 
-:model "1200 CP"
+:model "ScanExpress 1200 CP"
 :interface "Parport (EPP)"
 :status :beta
 :comment "CIS scanner"
 
-:model "1200 CP+"
+:model "ScanExpress 1200 CP+"
 :interface "Parport (EPP)"
 :status :beta
 :comment "CIS scanner"
 
-:mfg "Medion/Tevion/LifeTec"
+:mfg "Medion/Lifetec/Tevion/Cytron"
 :url "http://www.medion.de/"
-:url "http://www.tevion.de/"
-:url "http://www.lifetec.de/"
-:comment "Those scanners are also known as \"Aldi Scanner\""
+:comment "Those scanners are also known as \"Aldi Scanner\" or \"Tchibo Scanners\""
 
 :model "MD 9848"
 :interface "Parport (EPP)"
@@ -104,9 +102,10 @@
 :status :beta
 :comment "CIS scanner"
 
-:mfg "Trust Easy Connect"
+:mfg "Trust"
+:url "http://www.trust-site.com/home/"
 
-:model "9600+"
+:model "Easy Connect 9600+"
 :interface "Parport (EPP)"
 :status :beta
 :comment "CIS scanner"

@@ -5,7 +5,8 @@
 	  Perfection 2480 (now in snapscan.desc).
 	* doc/descriptions-external/genesys.desc: Added Canon LiDE 35.
 	* backend/gt68xx.c backend/gt68xx.conf backend/gt68xx_devices.c
-	  backend/gt68xx_low.h backend/gt68xx_shm_channel.c
+	  backend/gt68xx_low.h backend/gt68xx_low.h
+	  backend/gt68xx_shm_channel.c
 	  doc/sane-gt68xx.man doc/descriptions/gt68xx.desc
 	  doc/gt68xx/gt68xx.CHANGES: Fixed firmware name for Mustek 1248
 	  UB. Changed status to basic. Removed "unsupported" warning.

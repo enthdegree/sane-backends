@@ -174,6 +174,8 @@ gt68xx_device_new (GT68xx_Device ** dev_return)
   dev->read_buffer = NULL;
   dev->read_buffer_size = 32768;
 
+  dev->manual_selection = SANE_FALSE;
+
 #ifdef USE_FORK
   dev->shm_channel = NULL;
 #endif /* USE_FORK */

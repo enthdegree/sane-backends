@@ -634,6 +634,8 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   V4L_Device *dev;
   int i;
 
+  local_only = TRUE; /* Avoid compile warning */
+
   if (devlist)
     free (devlist);
 
@@ -1069,11 +1071,19 @@ sane_cancel (SANE_Handle handle)
 SANE_Status
 sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 {
+  /* Avoid compile warning */
+  handle = 0;
+  non_blocking = 0;
+
   return SANE_STATUS_UNSUPPORTED;
 }
 
 SANE_Status
 sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
 {
+  /* Avoid compile warning */
+  handle = 0;
+  fd = 0;
+
   return SANE_STATUS_UNSUPPORTED;
 }

@@ -54,8 +54,8 @@
 
 typedef enum
   {
-    V4L_MONO	= 0x01,
-    V4L_COLOR	= 0x10
+    V4L_MONO    = 0x01,
+    V4L_COLOR   = 0x10
   }
 V4L_Model;
 
@@ -69,36 +69,36 @@ V4L_Resolution;
 /* commands common to all quick-cameras: */
 typedef enum
   {
-    V4L_SEND_VIDEO_FRAME		=  7,
-    V4L_SET_BRIGHTNESS		= 11,
-    V4L_SET_TOP			= 13,
-    V4L_SET_LEFT			= 15,
-    V4L_SET_NUM_V		= 17,
-    V4L_SET_NUM_H		= 19,
-    V4L_SEND_VERSION		= 23,
-    V4L_SET_BLACK		= 29,
-    V4L_SET_WHITE		= 31,
-    V4L_SET_SATURATION		= 35,
-    V4L_SEND_STATUS		= 41,
-    V4L_SET_SPEED		= 45
+    V4L_SEND_VIDEO_FRAME                =  7,
+    V4L_SET_BRIGHTNESS          = 11,
+    V4L_SET_TOP                 = 13,
+    V4L_SET_LEFT                        = 15,
+    V4L_SET_NUM_V               = 17,
+    V4L_SET_NUM_H               = 19,
+    V4L_SEND_VERSION            = 23,
+    V4L_SET_BLACK               = 29,
+    V4L_SET_WHITE               = 31,
+    V4L_SET_SATURATION          = 35,
+    V4L_SEND_STATUS             = 41,
+    V4L_SET_SPEED               = 45
   }
 V4L_Command;
 
 /* commands for grayscale camera: */
 typedef enum
   {
-    V4L_MONO_SET_CONTRAST	= 25,
-    V4L_MONO_AUTO_ADJUST_OFFSET	= 27,
-    V4L_MONO_GET_OFFSET		= 33
+    V4L_MONO_SET_CONTRAST       = 25,
+    V4L_MONO_AUTO_ADJUST_OFFSET = 27,
+    V4L_MONO_GET_OFFSET         = 33
   }
 V4L_Mono_Command;
 
 /* commands for color camera: */
 typedef enum
   {
-    V4L_COL_LOAD_RAM		= 27,
-    V4L_COL_SET_HUE		= 33,
-    V4L_COL_SET_CONTRAST		= 37
+    V4L_COL_LOAD_RAM            = 27,
+    V4L_COL_SET_HUE             = 33,
+    V4L_COL_SET_CONTRAST                = 37
   }
 V4L_Col_Command;
 
@@ -107,17 +107,17 @@ typedef enum
     OPT_NUM_OPTS = 0,
 
     OPT_MODE_GROUP,
-    OPT_DEPTH,			/* 4 or 6 (b&w) or 24 (color) */
-    OPT_RESOLUTION,		/* resolution in pixels */
-    OPT_XFER_SCALE,		/* transfer-scale */
-    OPT_DESPECKLE,		/* turn on despeckling? */
-    OPT_TEST,			/* test image */
+    OPT_DEPTH,                  /* 4 or 6 (b&w) or 24 (color) */
+    OPT_RESOLUTION,             /* resolution in pixels */
+    OPT_XFER_SCALE,             /* transfer-scale */
+    OPT_DESPECKLE,              /* turn on despeckling? */
+    OPT_TEST,                   /* test image */
 
     OPT_GEOMETRY_GROUP,
-    OPT_TL_X,			/* top-left x */
-    OPT_TL_Y,			/* top-left y */
-    OPT_BR_X,			/* bottom-right x */
-    OPT_BR_Y,			/* bottom-right y */
+    OPT_TL_X,                   /* top-left x */
+    OPT_TL_Y,                   /* top-left y */
+    OPT_BR_X,                   /* bottom-right x */
+    OPT_BR_Y,                   /* bottom-right y */
 
     OPT_ENHANCEMENT_GROUP,
     OPT_BRIGHTNESS,
@@ -135,7 +135,7 @@ V4L_Option;
 typedef union
   {
     SANE_Word w;
-    SANE_Word *wa;		/* word array */
+    SANE_Word *wa;              /* word array */
     SANE_String s;
   }
 Option_Value;
@@ -149,11 +149,11 @@ V4L_Port_Mode;
 
 typedef struct
   {
-    size_t num_bytes;		/* # of bytes to read */
-    V4L_Resolution resolution;	/* high-resolution? */
-    SANE_Parameters params;	/* other parameters */
-    u_int mode;			/* qcam scan code (get video data command) */
-    int despeckle;		/* apply despeckling filter? */
+    size_t num_bytes;           /* # of bytes to read */
+    V4L_Resolution resolution;  /* high-resolution? */
+    SANE_Parameters params;     /* other parameters */
+    u_int mode;                 /* qcam scan code (get video data command) */
+    int despeckle;              /* apply despeckling filter? */
   }
 V4L_Scan_Request;
 
@@ -162,8 +162,8 @@ typedef struct V4L_Device
     struct V4L_Device * next;
     SANE_Device sane;
     V4L_Port_Mode port_mode;
-    int version;		/* camera version */
-    int lock_fd;		/* used for locking protocol */
+    int version;                /* camera version */
+    int lock_fd;                /* used for locking protocol */
   }
 V4L_Device;
 
@@ -175,16 +175,16 @@ typedef struct V4L_Scanner
     Option_Value val[NUM_OPTIONS];
     V4L_Resolution resolution;
     SANE_Parameters params;
-    char* devicename;		/* Name of the Device */
-    int fd;			/* Filedescriptor */
-    SANE_Int user_corner;	/* bitmask of user-selected coordinates */
-    SANE_Int value_changed;	/* bitmask of options that were set */
+    SANE_String_Const devicename; /* Name of the Device */
+    int fd;                     /* Filedescriptor */
+    SANE_Int user_corner;       /* bitmask of user-selected coordinates */
+    SANE_Int value_changed;     /* bitmask of options that were set */
     SANE_Bool scanning;
     SANE_Bool deliver_eof;
-    SANE_Bool mmap;		/* Do we use mmap ? */
+    SANE_Bool mmap;             /* Do we use mmap ? */
     /* state for reading a frame: */
-    size_t num_bytes;		/* # of bytes read so far */
-    size_t bytes_per_frame;	/* total number of bytes in frame */
+    size_t num_bytes;           /* # of bytes read so far */
+    size_t bytes_per_frame;     /* total number of bytes in frame */
     /* internal state for v4l_readbytes(): */
     int readbytes_state;
     unsigned int saved_bits;

@@ -33,15 +33,15 @@ struct GRABBER {
     struct STRTAB   *inputs;
 
     int   (*grab_open)(char *opt);
-    int   (*grab_close)();
+    int   (*grab_close)(void);
 
     int   (*grab_setupfb)(int sw, int sh, int format, void *base, int bpl);
     int   (*grab_overlay)(int x, int y, int width, int height, int format,
-			  struct OVERLAY_CLIP *oc, int count);
+                          struct OVERLAY_CLIP *oc, int count);
 
     int   (*grab_setparams)(int format, int *width, int *height, int *linelength);
     void* (*grab_capture)(int single);
-    void  (*grab_cleanup)();
+    void  (*grab_cleanup)(void);
 
     int   (*grab_tune)(unsigned long freq);
     int   (*grab_tuned)(void);
@@ -66,5 +66,5 @@ extern unsigned char* format_desc[];
 
 int   grabber_open(int sw, int sh, void *base, int format, int width);
 int   grabber_setparams(int format, int *width, int *height,
-			int *linelength, int lut_valid);
+                        int *linelength, int lut_valid);
 void* grabber_capture(void *dest, int dest_linelength, int single);

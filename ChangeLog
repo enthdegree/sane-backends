@@ -11,6 +11,8 @@
 	* include/sane/sanei_usb.h sanei/sanei_usb.c: Used dn (device number)
 	  instead of fd (file descriptor) to avoid confusion. Updated doxygen
 	  documentation.
+	* doc/sane-usb.man: Updated concerning libusb. Added tips for access 
+	  via the kernel scanner drivers.
 
 2002-06-29  Matthew Duggan <stauff1@users.sourceforge.net>
 

@@ -1,3 +1,12 @@
+2002-11-18  Frank Zago  <fzago at austin dot rr dot com>
+
+	* backend/umax-usb.c: the usb support for the umax 2200 wasn't
+	  using the correct sanei USB API, which broke the support for that
+	  scanner. Also fixed a couple warnings and a typo.
+	* backend/sceptre.c backend/teco1.c backend/teco3.c
+	  backend/matsushita.c backend/leo.c: fixed hexdump() declaration.
+	* backend/dll.c: fixed some warnings.
+
 2002-11-07   Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c: disable test facility

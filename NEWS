@@ -1,7 +1,22 @@
 -*-Mode: outline-*-
-New with 1.0.13, released 2003-xx-xx:
+New with 1.0.13, released 2003-11-22:
 
-* Port to Cygwin
+* New backends: mustek_pp_ccd (for Mustek parport CCD scanners),
+  plustek_pp (for Plustek parport scanners, splitted from the plustek backend).
+* Updated backends: avision, canon630u, epson, fujitsu, gphoto2, gt68xx, hp,
+  hp5400, mustek, plustek, snapscan, teco2, test, umax, umax_pp.
+* New internal interface for parport scanners.
+* Networking (IPv6 + subnet support) fixes + updates.
+* sane-find-scanner can detect some USB scanner chipsets now.
+* Better support for threading.
+* Port to MS Windows (Cygwin).
+* Portability fixes (especially for FreeBSD, MacOS X, OS/2).
+* Build system improvements.
+* Added new (Bulgarian, Czech and Italian) and updated existing translations.
+* The level of support for scanners is now: unsupported, minimal, basic, good,
+  complete or untested (instead of alpha, beta, stable).
+* Documentation updates.
+* Bugfixes.
 
 
 New with 1.0.12, released 2003-05-25:

@@ -1,3 +1,7 @@
+2002-03-12  Frank Zago <fzago@greshamstorage.com>
+
+	* PROJECTS backend/teco.desc: new project
+
 2002-03-11  Henning Meier-Geinitz <henning@meier-geinitz.d>
 
 	* README: Some more information on where to find the config files and

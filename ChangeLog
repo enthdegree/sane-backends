@@ -1,3 +1,12 @@
+2001-10-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/m3096g-scsi.h backend/m3096g.c backend/m3096g.h
+	  doc/sane-fujitsu.man: Update (from Oliver Schirrmeister 
+	  <oschirr@abm.de>). Added: Support for ipc2/3 and cmp2 options;
+ 	  support for duplex-scanners m3093DG, m4097DG; constraint checking
+	  for m3093; support EVPD (virtual product data); support ADF paper
+	  size spezification.
+
 2001-10-09  Peter Fales <peter@fales.com>
 
 	* backend/dc210.c, backend/dc210.h: Fix compiler warnings

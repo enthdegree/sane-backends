@@ -1,10 +1,10 @@
-TODO (2002-03-17)
+TODO (2002-03-19)
 
 ******** todo ********
 
 backends
 --------
-  * Add new backends (?)
+  * Add new backends (+ means: scheduled for version 1.0.8)
     - hp4200 http://hp4200-backend.sourceforge.net/
     - v4l2 http://video.inodes.org/sane-v4l2/
     - Relisys Scorpio Super 3 SCSI II
@@ -20,14 +20,18 @@ backends
     - Fujitsu M3091DCd support
       Frederik Ramm <frederik@remote.org>
       http://www.remote.org/frederik/projects/software/sane/
-    - Canon FB620S flatbed scanner and FS2710 film scanner
-      ftp://stthd0.pc.uni-koeln.de/pub/canon-1.08.tar.gz
-      Ulrich Deiters <ukd@xenon.pc.Uni-Koeln.DE>
+    + canon_pp backend for Canon FB630P, FB330P, N640P and N340P
+      parallel-port scanners.
+      http://canon-fb330p.sourceforge.net/
     - Hewlett-Packard ScanJet 3300C / 3400C and 4300C (wip)
       http://sourceforge.net/projects/hp3300backend
 
   * Update backends
     - Combine all the Fujitsu backends into one single backend
+    + Canon FB620S flatbed scanner and FS2710 film scanner support
+      (update for canon backend).
+      ftp://stthd0.pc.uni-koeln.de/pub/canon-1.08.tar.gz
+      Ulrich Deiters <ukd@xenon.pc.Uni-Koeln.DE>
     
   * All backends should check for TL_X < BR_X and TL_Y < BR_Y to
     avoid segfaults or even scanner damage. This should NOT be done
@@ -110,7 +114,9 @@ doc
     sane_get_select_fd, Unix select() calls and sane_cancel.
 
   * sane-backends.html should state more clearly which backends are included
-    in the distribution.
+    in the distribution. Solution: Split into two lists.
+
+  * sane-backends.html should be sorted by manufacturer, not by backend.
 
 frontends
 ---------
@@ -183,6 +189,8 @@ misc
 
   * Check licence issues with getopt*.c and md5.c. These files are GPLed, so
     if they are used in backends, their SANE exception will be void.
+
+  * Can we link external libraries only to backends that need them?
 
 
 ******** done ********

@@ -371,6 +371,9 @@
 #undef ssize_t
 
 /* Define for OS/2 only */
+#undef strcasecmp
+
+/* Define for OS/2 only */
 #undef strncasecmp
 
 /* Define to `unsigned char' if <sys/types.h> does not define. */

@@ -280,6 +280,7 @@ AC_REPLACE_FUNCS(getenv inet_ntop inet_pton isfdtype sigprocmask snprintf \
 
 if test "$ac_cv_header_os2_h" = "yes" ; then
   AC_DEFINE(strncasecmp,strnicmp,[Define for OS/2 only])
+  AC_DEFINE(strcasecmp,stricmp,[Define for OS/2 only])
 fi
 
 SANE_LINKER_RPATH

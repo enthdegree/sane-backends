@@ -165,6 +165,10 @@
 :interface "USB"
 :status :good
 
+:model "CX-5400"
+:interface "USB"
+:status :good
+
 :model "CX-6400"
 :interface "USB"
 :status :good

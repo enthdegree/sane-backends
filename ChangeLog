@@ -1,7 +1,8 @@
 2005-01-12  Julien Blache <jb@jblache.org>
 
 	* tools/hotplug/libusbscanner: use sysfs to get the device number,
-	instead of guessing (it ended up being wrong in a number of cases...)
+	instead of guessing (it ended up being wrong in a number of
+	cases...). Fix from Ubuntu, transmitted by Martin Pitt.
 
 2005-01-12  Gerhard Jaeger <gerhard@gjaeger.de>
 

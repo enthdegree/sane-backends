@@ -5,6 +5,9 @@
 	* backend/mustek.c doc/descriptions/mustek.desc
 	  doc/mustek/mustek.CHANGES: Increased width and height of Paragon
 	  800 and 600.
+	* doc/descriptions/mustek_usb.desc: Changed status to stable 
+	  (knocking on wood...). Added more Mustek URLs, fixed the existing
+	  one. Added per-model status. Added "compatible" comments.
 
 2002-07-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

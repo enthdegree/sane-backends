@@ -23,6 +23,11 @@
 	* include/sane/sane.h: added extern "C" for compilation with a C++
 	  compiler
 
+2004-07-12  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/sane-coolscan2.man doc/sane-microtek2.man: Fixed 
+	  manual page problems.
+
 2004-07-10  Gerard Klaver <gerard at gkall dot hobby dot nl>
 
 	* tools/check-usb-chip.c: Added check for the GT-8911.

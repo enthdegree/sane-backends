@@ -248,9 +248,7 @@ int sanei_scsi_max_request_size = MAX_DATA;
    to maintain run time compatibility with the old and the
    new SG driver for Linux
 */
-# ifdef SG_IO
-#  include "linux_sg3_err.h"  /* contains several definitions of error codes */
-# endif
+#include "linux_sg3_err.h"  /* contains several definitions of error codes */
 #ifndef SG_SET_COMMAND_Q
 #define SG_SET_COMMAND_Q 0x2271
 #endif

@@ -1,3 +1,9 @@
+2001-05-22  Karl Heinz Kremer <khk@khk.net>
+
+	* backend/epson.c: Added sense handler to support the GT-8000 scanner.
+	  Also added experimental (and #ifdef protected) USB scanner probing
+	  code - requires patch to USB scanner driver.
+
 2001-05-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* README: Added "man sane" to quick install. Added paragraph about

@@ -21,15 +21,15 @@
    MA 02111-1307, USA.
 */
 
-#define SANE_DESC_VERSION "0.7"
+#define SANE_DESC_VERSION "0.8"
 
 #define MAN_PAGE_LINK "http://www.mostang.com/sane/man/%s.5.html"
-#define COLOR_ALPHA       "#B00000"
-#define COLOR_BETA        "#B0B000"
-#define COLOR_STABLE      "#008000"
-#define COLOR_UNTESTED    "#0000B0"
-#define COLOR_UNSUPPORTED "#F00000"
-#define COLOR_NEW         "#F00000"
+#define COLOR_ALPHA       "\"#B00000\""
+#define COLOR_BETA        "\"#B0B000\""
+#define COLOR_STABLE      "\"#008000\""
+#define COLOR_UNTESTED    "\"#0000B0\""
+#define COLOR_UNSUPPORTED "\"#F00000\""
+#define COLOR_NEW         "\"#F00000\""
 
 #include <../include/sane/config.h>
 
@@ -48,6 +48,7 @@
 #include <time.h>
 
 #include "../include/sane/sane.h"
+#include "../include/sane/sanei.h"
 #include "../include/sane/sanei_config.h"
 
 #ifndef PATH_MAX
@@ -64,6 +65,7 @@ typedef enum output_mode
 {
   output_mode_ascii = 0,
   output_mode_html_backends,
+  output_mode_html_backends_split,
   output_mode_html_mfgs
 }
 output_mode;
@@ -238,8 +240,9 @@ print_usage (char *program_name)
 	  program_name);
   printf ("  -s|--search-dir dir    Specify the directory that contains "
 	  ".desc files\n");
-  printf ("  -m|--mode mode         Output mode (ascii, html-backends, "
-	  "html-mfgs)\n");
+  printf
+    ("  -m|--mode mode         Output mode (ascii, html-backends-split,\n"
+     "                         html-backends, html-mfgs)\n");
   printf ("  -t|--title \"title\"     The title used for HTML pages\n");
   printf ("  -i|--intro \"intro\"     A short description of the "
 	  "contents of the page\n");
@@ -305,6 +308,11 @@ get_options (int argc, char **argv)
 	    {
 	      DBG_INFO ("Output mode: html-backends\n");
 	      mode = output_mode_html_backends;
+	    }
+	  else if (strcmp (optarg, "html-backends-split") == 0)
+	    {
+	      DBG_INFO ("Output mode: html-backends-split\n");
+	      mode = output_mode_html_backends_split;
 	    }
 	  else if (strcmp (optarg, "html-mfgs") == 0)
 	    {
@@ -1214,6 +1222,11 @@ sort_by_mfg (device_type dev_type)
     }				/* while (be) */
 
   DBG_DBG ("sort_by_mfg: Sorting manufacturers\n");
+  if (!first_mfg_record)
+    {
+      DBG_DBG ("sort_by_mfg: no manufacturers found\n");
+      return 0;
+    }
   do
     {				/* bubblesort for manufacturers */
       changed = SANE_FALSE;
@@ -1222,6 +1235,7 @@ sort_by_mfg (device_type dev_type)
       next_mfg_record = first_mfg_record->next;
       while (mfg_record->next)
 	{
+	  DBG_DBG("%s, %s\n", mfg_record->name, mfg_record->next->name);
 	  if (strcasecmp (mfg_record->name, mfg_record->next->name) > 0)
 	    {
 	      mfg_record_entry *a = mfg_record, *b = mfg_record->next,
@@ -1234,6 +1248,8 @@ sort_by_mfg (device_type dev_type)
 	      mfg_record->next = a;
 	      a->next = c;
 	      changed = SANE_TRUE;
+	      DBG_DBG("chnaged: %s, %s\n", mfg_record->name,
+		      mfg_record->next->name);
 	    }
 	  last_mfg_record = mfg_record;
 	  mfg_record = mfg_record->next;
@@ -1589,16 +1605,16 @@ html_backends_table (device_type dev_type)
 		}
 	      while (mfg)
 		{
-		  int num_models = 0;
-
 		  model = mfg->model;
-		  while (model)	/* count models for rowspan */
+		  if (model)
 		    {
-		      model = model->next;
-		      num_models++;
-		    }
-		  if (num_models > 0)
-		    {
+		      int num_models = 0;
+
+		      while (model)	/* count models for rowspan */
+			{
+			  model = model->next;
+			  num_models++;
+			}
 		      model = mfg->model;
 		      if (mfg != type->mfg)
 			printf ("<tr>\n");
@@ -1680,6 +1696,241 @@ html_backends_table (device_type dev_type)
   printf ("</table>\n");
 }
 
+static void
+html_backends_split_table (device_type dev_type)
+{
+  backend_entry *be = first_backend;
+  SANE_Bool first = SANE_TRUE;
+
+  printf ("<p><b>Backends</b>: \n");
+  while (be)			/* print link list */
+    {
+      type_entry *type = be->type;
+      SANE_Bool found = SANE_FALSE;
+
+      while (type)
+	{
+	  if (type->type == dev_type)
+	    found = SANE_TRUE;
+	  type = type->next;
+	}
+      if (found)
+	{
+	  if (!first)
+	    printf (", \n");
+	  first = SANE_FALSE;
+	  printf ("<a href=\"#%s\">%s</a>",
+		  html_generate_anchor_name (be->name), be->name);
+	}
+      be = be->next;
+    }
+  be = first_backend;
+  if (first)
+    printf ("(none)\n");
+
+  printf ("</p>\n");
+
+
+  while (be)
+    {
+      type_entry *type = be->type;
+
+      while (type)
+	{
+	  if (type->type == dev_type)
+	    {
+	      mfg_entry *mfg = type->mfg;
+	      model_entry *model = mfg->model;
+
+	      printf ("<h3><a name=\"%s\">Backend: %s\n",
+		      html_generate_anchor_name (be->name), be->name);
+
+	      if (be->version || be->new)
+		{
+		  printf ("(");
+		  if (be->version)
+		    {
+		      printf ("v%s", be->version);
+		      if (be->new)
+			printf (", <font color=" COLOR_NEW ">NEW!</font>");
+		    }
+		  else
+		    printf ("<font color=" COLOR_NEW ">NEW!</font>");
+		  printf (")\n");
+		}
+	      printf ("</a></h3>\n");
+
+	      printf ("<p>\n");
+
+	      if (be->url && be->url->name)
+		{
+		  url_entry *url = be->url;
+		  printf ("<b>Link(s):</b> \n");
+		  while (url)
+		    {
+		      if (url != be->url)
+			printf (", ");
+		      printf ("<a href=\"%s\">%s</a>", url->name, url->name);
+		      url = url->next;
+		    }
+		  printf ("<br>\n");
+		}
+	      if (be->manpage)
+		printf ("<b>Manual page:</b> <a href=\"" MAN_PAGE_LINK
+			"\">%s</a><br>\n", be->manpage, be->manpage);
+
+	      if (be->comment)
+		printf ("<b>Comment:</b> %s<br>\n", be->comment);
+
+	      if (type->desc)
+		{
+		  printf ("<b>Status:</b> \n");
+		  switch (be->status)
+		    {
+		    case status_alpha:
+		      printf ("<font color=" COLOR_ALPHA ">alpha</font>");
+		      break;
+		    case status_beta:
+		      printf ("<font color=" COLOR_BETA ">beta</font>");
+		      break;
+		    case status_stable:
+		      printf ("<font color=" COLOR_STABLE ">stable</font>");
+		      break;
+		    default:
+		      printf ("?");
+		      break;
+		    }
+		  printf ("<br>\n");
+
+		  if (type->desc->desc)
+		    {
+		      if (type->desc->url && type->desc->url->name)
+			printf ("<b>Description:</b> "
+				"<a href=\"%s\">%s</a><br>\n",
+				type->desc->url->name, type->desc->desc);
+		      else
+			printf ("<b>Description:</b> %s<br>\n",
+				type->desc->desc);
+		    }
+
+		  if (type->desc->comment)
+		    printf ("<b>Comment:</b> %s<br>\n", type->desc->comment);
+		  printf ("</p>\n");
+		  type = type->next;
+		  continue;
+		}
+	      printf ("</p>\n");
+
+	      if (!mfg)
+		{
+		  type = type->next;
+		  continue;
+		}
+
+	      printf ("<table border=1>\n");
+
+	      printf ("<tr bgcolor=E0E0FF>\n");
+	      printf ("<th align=center>Manufacturer</th>\n");
+	      printf ("<th align=center>Model</th>\n");
+	      printf ("<th align=center>Interface</th>\n");
+	      printf ("<th align=center>Status</th>\n");
+	      printf ("<th align=center>Comment</th>\n");
+	      printf ("</tr>\n");
+
+	      mfg = type->mfg;
+	      while (mfg)
+		{
+		  model = mfg->model;
+		  if (model)
+		    {
+		      int num_models = 0;
+
+		      while (model)	/* count models for rowspan */
+			{
+			  model = model->next;
+			  num_models++;
+			}
+		      model = mfg->model;
+		      printf ("<tr>\n");
+		      printf ("<td align=center rowspan=%d>\n", num_models);
+		      if (mfg->url && mfg->url->name)
+			printf ("<a href=\"%s\">%s</a>\n", mfg->url->name,
+				mfg->name);
+		      else
+			printf ("%s\n", mfg->name);
+
+		      while (model)
+			{
+			  enum status_entry status = model->status;
+
+			  if (model != mfg->model)
+			    printf ("<tr>\n");
+
+			  if (model->url && model->url->name)
+			    printf
+			      ("<td align=center><a href=\"%s\">%s</a></td>\n",
+			       model->url->name, model->name);
+			  else
+			    printf ("<td align=center>%s</td>\n",
+				    model->name);
+
+			  if (model->interface)
+			    printf ("<td align=center>%s</td>\n",
+				    model->interface);
+			  else
+			    printf ("<td align=center>?</td>\n");
+
+			  printf ("<td align=center>");
+			  if (status == status_unknown)
+			    status = be->status;
+			  switch (status)
+			    {
+			    case status_alpha:
+			      printf ("<font color=" COLOR_ALPHA
+				      ">alpha</font>");
+			      break;
+			    case status_beta:
+			      printf ("<font color=" COLOR_BETA
+				      ">beta</font>");
+			      break;
+			    case status_stable:
+			      printf ("<font color=" COLOR_STABLE
+				      ">stable</font>");
+			      break;
+			    case status_untested:
+			      printf ("<font color=" COLOR_UNTESTED
+				      ">untested</font>");
+			      break;
+			    case status_unsupported:
+			      printf ("<font color=" COLOR_UNSUPPORTED
+				      ">unsupported</font>");
+			      break;
+			    default:
+			      printf ("?");
+			      break;
+			    }
+			  printf ("</td>\n");
+
+			  if (model->comment && model->comment[0] != 0)
+			    printf ("<td>%s</td>\n", model->comment);
+			  else
+			    printf ("<td>&nbsp;</td>\n");
+
+			  model = model->next;
+			  printf ("</tr>\n");
+			}	/* while (model) */
+		    }		/* if (num_models) */
+		  mfg = mfg->next;
+		}		/* while (mfg) */
+	    }			/* if (type->type) */
+	  printf ("</table>\n");
+	  type = type->next;
+	}			/* while (type) */
+      be = be->next;
+    }				/* while (be) */
+  printf ("</table>\n");
+}
+
 
 static void
 html_mfgs_table (device_type dev_type)
@@ -1698,20 +1949,21 @@ html_mfgs_table (device_type dev_type)
 	      html_generate_anchor_name (mfg_record->name), mfg_record->name);
       mfg_record = mfg_record->next;
     }
-  printf ("</p>\n");
   mfg_record = first_mfg_record;
+  if (!mfg_record)
+    printf ("(none)\n");
+  printf ("</p>\n");
   while (mfg_record)
     {
       backend_record_entry *be_record = mfg_record->be_record;
 
       printf ("<h3><a name=\"%s\">Manufacturer: %s</a></h3>\n",
 	      html_generate_anchor_name (mfg_record->name), mfg_record->name);
-      if (mfg_record->comment)
-	printf ("<p><b>Comment:</b> %s</p>\n", mfg_record->comment);
+      printf ("<p>\n");
       if (mfg_record->url && mfg_record->url->name)
 	{
 	  url_entry *url = mfg_record->url;
-	  printf ("<p><b>Link(s):</b> \n");
+	  printf ("<b>Link(s):</b> \n");
 	  while (url)
 	    {
 	      if (url != mfg_record->url)
@@ -1719,9 +1971,16 @@ html_mfgs_table (device_type dev_type)
 	      printf ("<a href=\"%s\">%s</a>", url->name, url->name);
 	      url = url->next;
 	    }
-	  printf ("</p>\n");
+	  printf ("<br>\n");
 	}
-
+      if (mfg_record->comment)
+	printf ("<b>Comment:</b> %s<br>\n", mfg_record->comment);
+      printf ("</p>\n");
+      if (!be_record || !be_record->model)
+	{
+	  mfg_record = mfg_record->next;
+	  continue;
+	}
       printf ("<table border=1>\n");
       printf ("<tr bgcolor=E0E0FF>\n");
 
@@ -1864,7 +2123,7 @@ html_print_header (void)
      "<a href=\"#STILL\">still cameras</a>,\n"
      "<a href=\"#VIDEO\">video cameras</a>,\n"
      "<a href=\"#API\">APIs</a>, and\n"
-     "<a href=\"#META\">meta backends</a>\n");
+     "<a href=\"#META\">meta backends</a>.\n");
 }
 
 static void
@@ -1939,7 +2198,7 @@ html_print_backends (void)
      "  <dt><b>Supported Devices</b> (for hardware devices):</dt>\n"
      "  <dd>Which hardware the backend supports.</dd>\n"
      "  <dt><b>Manufacturer:</b></dt>\n"
-     "  <dd>Manufacturer, Vendor or brand name of the device.</dd>\n"
+     "  <dd>Manufacturer, vendor or brand name of the device.</dd>\n"
      "  <dt><b>Model:</b></dt>\n"
      "  <dd>Name of the the device.</dd>\n"
      "  <dt><b>Interface:</b></dt>\n"
@@ -1972,6 +2231,88 @@ html_print_backends (void)
 }
 
 static void
+html_print_backends_split (void)
+{
+  backend_entry *be;
+
+  sort_by_backend ();
+  be = first_backend;
+
+  if (!title)
+    title = "SANE: Backends (Drivers)";
+  if (!intro)
+    intro = "<p> The following table summarizes the backends/drivers "
+      "distributed with the latest version of sane-backends, and the hardware "
+      "or software they support. </p>";
+
+  html_print_header ();
+
+  printf ("<h2><a name=\"SCANNERS\">Scanners</a></h2>\n");
+  html_backends_split_table (type_scanner);
+
+  printf ("<h2><a name=\"STILL\">Still Cameras</a></h2>\n");
+  html_backends_split_table (type_stillcam);
+
+  printf ("<h2><a name=\"VIDEO\">Video Cameras</a></h2>\n");
+  html_backends_split_table (type_vidcam);
+
+  printf ("<h2><a name=\"API\">APIs</a></h2>\n");
+  html_backends_split_table (type_api);
+
+  printf ("<h2><a name=\"META\">Meta Backends</a></h2>\n");
+  html_backends_split_table (type_meta);
+
+  printf
+    ("<h3><a name=\"legend\">Legend:</a></h3>\n"
+     "<blockquote>\n"
+     "<dl>\n"
+     "  <dt><b>Backend:</b></dt>\n"
+     "  <dd>Name of the backend,  In parentheses if available:\n"
+     "      Version of backend/driver; newer versions may be\n"
+     "      available from their home sites.<br>"
+     "      <font color=" COLOR_NEW ">NEW!</font> means brand-new to the\n"
+     "      current release of SANE.\n"
+     "  </dd>\n"
+     "  <dt><b>Link(s):</b></dt>\n"
+     "  <dd>Link(s) to more extensive and\n"
+     "      detailed information, if it exists, or the email address\n"
+     "      of the author or maintainer.\n"
+     "  <dt><b>Manual Page:</b></dt>\n"
+     "  <dd>A link to the man-page on-line, if it exists.</dd>\n"
+     "  <dt><b>Comment:</b></dt>\n"
+     "  <dd>More information about the backend or model, e.g. the level of "
+     "      support and possible problems.</dd>\n"
+     "  <dt><b>Manufacturer:</b></dt>\n"
+     "  <dd>Manufacturer, vendor or brand name of the device.</dd>\n"
+     "  <dt><b>Model:</b></dt>\n"
+     "  <dd>Name of the the device.</dd>\n"
+     "  <dt><b>Interface:</b></dt>\n"
+     "  <dd>How the device is connected to the computer.</dd>\n"
+     "  <dt><b>Status</b>:</dt>\n"
+     "  <dd>A vague indication of robustness and reliability.\n"
+     "      <ul><li><font color=" COLOR_UNSUPPORTED ">unsupported</font>"
+     "        means the device is not supported at least by this backend. "
+     "        It may be supported by other backends, however.\n"
+     "      <li><font color=" COLOR_UNTESTED ">untested</font> means the "
+     "        device may be supported but couldn't be tested. Be very "
+     "        careful.\n"
+     "      <li><font color=" COLOR_ALPHA ">alpha</font> means it must\n"
+     "        do something, but is not very well tested, probably has\n"
+     "        bugs, and may even crash your system, etc., etc.\n"
+     "      <li><font color=" COLOR_BETA ">beta</font> means it works\n"
+     "        pretty well, and looks stable and functional, but not\n"
+     "        bullet-proof.\n"
+     "      <li><font color=" COLOR_STABLE ">stable</font> means someone is\n"
+     "        pulling your leg.\n"
+     "      </ul></dd>\n"
+     "  <dt><b>Description</b>:</dt>\n"
+     "  <dd>The scope of application of the backend.\n"
+     "</dl>\n" "</blockquote>\n");
+
+  html_print_footer ();
+}
+
+static void
 html_print_mfgs (void)
 {
   if (!title)
@@ -1995,10 +2336,10 @@ html_print_mfgs (void)
   html_mfgs_table (type_vidcam);
 
   printf ("<h2><a name=\"API\">APIs</a></h2>\n");
-  html_backends_table (type_api);
+  html_backends_split_table (type_api);
 
   printf ("<h2><a name=\"META\">Meta Backends</a></h2>\n");
-  html_backends_table (type_meta);
+  html_backends_split_table (type_meta);
 
   printf
     ("<h3><a name=\"legend\">Legend:</a></h3>\n"
@@ -2067,6 +2408,9 @@ main (int argc, char **argv)
       break;
     case output_mode_html_backends:
       html_print_backends ();
+      break;
+    case output_mode_html_backends_split:
+      html_print_backends_split ();
       break;
     case output_mode_html_mfgs:
       html_print_mfgs ();

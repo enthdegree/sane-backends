@@ -15,6 +15,10 @@
 	  Added comments about ANSI C, compilation warnings, testing and 
 	  keeping manpages up-to-date.
 	* backend/pnm.c: Added SANE_I18N() marks.
+	* TODO: Cleanup. Moved several entries to doc/backend-writing.txt.
+	  Moved some entries to more appropriate paragraphs. Added entry about
+	  missing or defective links in the .desc files. Removed entry about
+	  translations.
 
 2002-01-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

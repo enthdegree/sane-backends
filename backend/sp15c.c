@@ -45,6 +45,9 @@ static const char RCSid[] = "$Header$";
 
 /*
  * $Log$
+ * Revision 1.10  2004/10/06 15:59:40  hmg-guest
+ * Don't eject medium twice after each page.
+ *
  * Revision 1.9  2004/06/20 00:34:10  ellert-guest
  * Missed one...
  *
@@ -1567,10 +1570,14 @@ sp15c_free_scanner (struct sp15c *s)
 {
   int ret;
   DBG (10, "sp15c_free_scanner\n");
+#if 0
+  /* hmg: reports from several people show that this code ejects two pages
+     instead of one. So I've commented it out for now. */
   ret = sp15c_object_discharge (s);
   if (ret)
     return ret;
-
+#endif
+  
   wait_scanner (s);
 
   ret = do_scsi_cmd (s->sfd, release_unitB.cmd, release_unitB.size, NULL, 0);

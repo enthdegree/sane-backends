@@ -17,6 +17,7 @@
 	  project. Removed Genius ColorPage-EP.
 	* configure.in include/sane/config.h.in: Removed dangling
 	  quotation mark.
+	* backend/sp15c.c: Don't eject medium twice after each page.
 
 2004-10-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

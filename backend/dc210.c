@@ -373,7 +373,10 @@ init_dc210 (DC210 * camera)
 # if defined(__sgi)
   tty_new.c_cflag &= ~CNEW_RTSCTS;
 # else
+/* OS/2 doesn't have CRTSCTS - will this work for them? */
+#  ifdef CRTSCTS
   tty_new.c_cflag &= ~CRTSCTS;
+#  endif
 # endif
   tty_new.c_cflag |= CLOCAL | CREAD;
 #endif

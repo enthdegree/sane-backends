@@ -623,8 +623,7 @@ read_data (SANE_Int fd, SANE_Byte * buf, SANE_Int sz)
 	{
 	  DBG (2,
 	       "read_data: warning: "
-	       "bad checksum (got %02x != expected %02x) will re-read block\n",
-	       rcsum, ccsum);
+	       "bad checksum (got %02x != expected %02x)\n", rcsum, ccsum);
 	  continue;
 	}
 
@@ -1403,6 +1402,12 @@ sane_read (SANE_Handle UNUSEDARG handle, SANE_Byte * data,
 	  if (Camera.current_picture_number <= Camera.pic_taken)
 	    {
 	      Camera.current_picture_number++;
+
+	      myinfo |= SANE_INFO_RELOAD_PARAMS;
+
+	      /* get the image's resolution */
+	      set_res (Camera.Pictures[Camera.current_picture_number - 1].
+		       low_res);
 	    }
 	  DBG (4, "Increment count to %d (total %d)\n",
 	       Camera.current_picture_number, Camera.pic_taken);

@@ -15,7 +15,7 @@
 :devicetype :scanner              ; start of a list of devices....
 
 :mfg "Microtek"
-:url "http://www.microtek.com"
+:url "http://www.microtek.com/"
 
 :model "ScanMaker 3600"
 :interface "USB"

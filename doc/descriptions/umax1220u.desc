@@ -28,14 +28,17 @@
 
 :model "Astra 2000U"
 :interface "USB"
-:comment "Sort of. Scans, but colors all messed up."
+:status :beta
+:comment "Sort of scans, but colors all messed up."
 
 :model "Astra 2200U"
 :interface "USB"
+:status :unsupported
 :comment "Incompatible."
 
 :model "Astra 2200US"
 :interface "USB"
+:status :unsupported
 :comment "Incompatible."
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,

@@ -192,9 +192,9 @@ static SANE_Status SCSISource_get (Source *pself,
             ps->scsi_buf_max = ps->pss->read_bytes;
             ndata = ps->pss->read_bytes;
             ps->pss->bytes_remaining -= ps->pss->read_bytes;
-            DBG (DL_DATA_TRACE, "%s: pos: %d; max: %d; expected: %d; read: %d\n",
-                me, ps->scsi_buf_pos, ps->scsi_buf_max, ps->pss->expected_read_bytes,
-                ps->pss->read_bytes);
+            DBG (DL_DATA_TRACE, "%s: pos: %d; max: %d; expected: %lu; read: %lu\n",
+                me, ps->scsi_buf_pos, ps->scsi_buf_max, (u_long) ps->pss->expected_read_bytes,
+                (u_long) ps->pss->read_bytes);
         }
         ndata = MIN(ndata, remaining);
         memcpy (pbuf, ps->pss->buf + ps->scsi_buf_pos, (size_t)ndata);
@@ -766,13 +766,13 @@ static SANE_Status RGBRouter_get (Source *pself,
     }
     *plen -= remaining;
     DBG(DL_DATA_TRACE,
-        "%s: Request=%d, remaining=%d, read=%d, TXSource_rem=%d, bytes_rem=%d\n",
+        "%s: Request=%d, remaining=%d, read=%d, TXSource_rem=%d, bytes_rem=%lu\n",
         me,
         org_len,
         pself->remaining(pself),
         *plen,
         TxSource_remaining(pself),
-        ps->pss->bytes_remaining);
+        (u_long) ps->pss->bytes_remaining);
     return status;
 }
 
@@ -962,6 +962,9 @@ static SANE_Status create_source_chain (SnapScan_Scanner *pss,
 
 /*
  * $Log$
+ * Revision 1.10  2004/10/03 17:34:36  hmg-guest
+ * 64 bit platform fixes (bug #300799).
+ *
  * Revision 1.9  2004/04/09 16:18:37  oliver-guest
  * Fix initialization of FDSource.bytes_remaining
  *

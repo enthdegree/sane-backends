@@ -1063,7 +1063,7 @@ static SANE_Status read_calibration_data (SnapScan_Scanner *pss, void *buf, u_ch
     CHECK_STATUS (status, me, "snapscan_cmd");
 
     if(read_bytes != expected_read_bytes) {
-    DBG (DL_MAJOR_ERROR, "%s: read %d of %d calibration data\n", me, read_bytes, expected_read_bytes);
+    DBG (DL_MAJOR_ERROR, "%s: read %lu of %lu calibration data\n", me, (u_long) read_bytes, (u_long) expected_read_bytes);
     return SANE_STATUS_IO_ERROR;
     }
 
@@ -1203,7 +1203,7 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
                 break;
             }
 
-            DBG(DL_INFO, "Size of firmware: %d\n", bufLength);
+            DBG(DL_INFO, "Size of firmware: %lu\n", (u_long) bufLength);
             pCDB = (unsigned char *)malloc(bufLength + cdbLength);
             pFwBuf = pCDB + cdbLength;
             zero_buf (pCDB, cdbLength);
@@ -1227,6 +1227,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
+ * Revision 1.29  2004/10/03 17:34:36  hmg-guest
+ * 64 bit platform fixes (bug #300799).
+ *
  * Revision 1.28  2004/09/02 20:59:11  oliver-guest
  * Added support for Epson 2480
  *

@@ -3505,8 +3505,8 @@ artec_sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int
   bytes_read = 0;
   while ((rows_read < max_ret_rows) && (rows_read < remaining_rows))
     {
-      DBG (50, "top of while loop, rr = %d, mrr = %d, rem = %d\n",
-	   rows_read, max_ret_rows, remaining_rows);
+      DBG (50, "top of while loop, rr = %lu, mrr = %lu, rem = %lu\n",
+	   (u_long) rows_read, (u_long) max_ret_rows, (u_long) remaining_rows);
 
       if (s->bytes_to_read - bytes_read <= s->params.bytes_per_line * max_read_rows)
 	{
@@ -3549,12 +3549,12 @@ artec_sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int
 	  lread = 1;
 	}
 
-      DBG (50, "rows_available = %d, params.lines = %d, bytes_per_line = %d\n",
-	   rows_available, s->params.lines, s->params.bytes_per_line);
-      DBG (50, "bytes_to_read = %lu, max_len = %d, max_rows = %d\n",
-	   (u_long) s->bytes_to_read, max_len, max_ret_rows);
-      DBG (50, "nread = %lu, lread = %lu, bytes_read = %d, rows_read = %d\n",
-	   (u_long) nread, (u_long) lread, bytes_read, rows_read);
+      DBG (50, "rows_available = %lu, params.lines = %d, bytes_per_line = %d\n",
+	   (u_long) rows_available, s->params.lines, s->params.bytes_per_line);
+      DBG (50, "bytes_to_read = %lu, max_len = %d, max_rows = %lu\n",
+	   (u_long) s->bytes_to_read, max_len, (u_long) max_ret_rows);
+      DBG (50, "nread = %lu, lread = %lu, bytes_read = %lu, rows_read = %lu\n",
+	   (u_long) nread, (u_long) lread, (u_long) bytes_read, (u_long) rows_read);
 
       status = read_data (s->fd, ARTEC_DATA_IMAGE, temp_buf, &nread);
 

@@ -243,7 +243,7 @@ get_tpu_stat (int fd, CANON_Device * dev)
 
   for (i = 0; i < buf_size; i++)
     {
-      DBG (3, "scan mode control byte[%d] = %d\n", i, tbuf[i]);
+      DBG (3, "scan mode control byte[%lu] = %d\n", (u_long) i, tbuf[i]);
     }
   dev->tpu.Status = (tbuf[2 + 4 + 5] >> 7) ?
     TPU_STAT_INACTIVE : TPU_STAT_NONE;
@@ -290,7 +290,7 @@ get_adf_stat (int fd, CANON_Device * dev)
 
   for (i = 0; i < buf_size; i++)
     {
-      DBG (3, "scan mode control byte[%d] = %d\n", i, abuf[i]);
+      DBG (3, "scan mode control byte[%lu] = %d\n", (u_long) i, abuf[i]);
     }
 
   dev->adf.Status = (abuf[ADF_Status] & ADF_NOT_PRESENT) ?
@@ -760,7 +760,7 @@ attach (const char *devnam, CANON_Device ** devp)
     }
   for (i = 0; i < buf_size; i++)
     {
-      DBG (3, "scan mode byte[%d] = %d\n", i, ebuf[i]);
+      DBG (3, "scan mode byte[%lu] = %d\n", (u_long) i, ebuf[i]);
     }
 
   DBG (3, "attach: sending (extended) INQUIRY\n");
@@ -1088,7 +1088,7 @@ do_cancel (CANON_Scanner * s)
 	  s->reset_flag = 0;
 	  DBG (21, "do_cancel: reset_flag = %d\n", s->reset_flag);
 	  s->time0 = -1;
-	  DBG (21, "time0 = %ld\n", s->time0);
+	  DBG (21, "time0 = %ld\n", (u_long) s->time0);
 	}
 
       if (s->hw->info.model == FB1200)

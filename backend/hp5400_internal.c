@@ -979,7 +979,7 @@ InitScanner (int iHandle)
 
   if (hp5400_command_write (iHandle, 0xF10B, sizeof (UISetup1), UISetup1) < 0)
     {
-      HP5400_DBG (DBG_MSG, "failed to send UISetup1 (%d)\n", sizeof (UISetup1));
+      HP5400_DBG (DBG_MSG, "failed to send UISetup1 (%lu)\n", (u_long) sizeof (UISetup1));
       return -1;
     }
 

@@ -2370,8 +2370,8 @@ static SANE_Status do_real_calibrate(Microtek_Scanner *s)
        nleft -= ntoget, spot += buffsize) {
     ntoget = (nleft > nmax) ? nmax : nleft;
     buffsize = ntoget * 3 * linewidth;
-    DBG(23, "...nleft %d  toget %d  size %d  spot %d  input+spot %p\n",
-	nleft, ntoget, buffsize, spot, input+spot);
+    DBG(23, "...nleft %d  toget %d  size %lu  spot %d  input+spot %p\n",
+	nleft, ntoget, (u_long) buffsize, spot, input+spot);
     if ((statusA = read_scan_data(s, ntoget, input+spot, &buffsize)) 
 	!= SANE_STATUS_GOOD) {
       DBG(23, "...read scan failed\n");

@@ -20,6 +20,19 @@
 	  (bug #300823). Fixed Microtek Phantom C6 scanning on big endian
 	  platforms. Based on patch from Matijs van Zuijlen in Debian bug
 	  tracking system (#274523).
+	* sanei/sanei_auth.c sanei/sanei_lm983x.c sanei/sanei_wire.c
+	  backend/artec.c backend/artec_eplus48u.c backend/as6e.c
+	  backend/avision.c backend/canon-sane.c backend/canon-scsi.c
+	  backend/canon.c backend/canon630u-common.c backend/dc25.c
+	  backend/epson.c backend/fujitsu.c backend/gt68xx_low.c
+	  backend/hp5400_internal.c backend/hp5400_sanei.c
+	  backend/ma1509.c backend/microtek.c backend/microtek2.c
+	  backend/mustek.c backend/mustek_scsi_pp.c backend/nec.c
+	  backend/net.c backend/pie.c backend/sharp.c
+	  backend/snapscan-scsi.c backend/snapscan-sources.c
+	  backend/snapscan-usb.c backend/snapscan.c backend/teco3.c
+	  backend/test.c backend/umax-usb.c backend/umax1220u-common.c:
+	  64 bit platform fixes (bug #300799).
 
 2004-10-02  Thomas Soumarmon <thomas.soumarmon@cogitae.net>
 

@@ -937,7 +937,7 @@ receive (Epson_Scanner * s, void *buf, ssize_t buf_size, SANE_Status * status)
       *status = SANE_STATUS_GOOD;
   }
 
-  DBG (7, "receive buf, expected = %lu, got = %d\n", (u_long) buf_size, n);
+  DBG (7, "receive buf, expected = %lu, got = %ld\n", (u_long) buf_size, (long) n);
 
 #if 1
   if (n > 0)

@@ -228,7 +228,9 @@ sanei_authorize (const char *resource,
     }
 
   sprintf (md5resource, "%.128s$MD5$%x%lx%08lx",
-	   resource, getpid (), time (NULL), randombits ());
+	   resource, getpid (), (long int) time (NULL), randombits ());
+
+  DBG(0, "resource=%s\n", md5resource);
 
   memset (username, 0, SANE_MAX_USERNAME_LEN);
   memset (password, 0, SANE_MAX_PASSWORD_LEN);

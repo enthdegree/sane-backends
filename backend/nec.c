@@ -3451,7 +3451,7 @@ sane_read_direct (SANE_Handle handle, SANE_Byte *dst_buf, SANE_Int max_len,
     DBG (20, "buffer_status: %i ", bs.fdb[0]*256*256 + bs.fdb[1]*256 + bs.fdb[2]); 
   }
 #endif
-  DBG (20, "remaining: %i ", s->bytes_to_read);
+  DBG (20, "remaining: %lu ", (u_long)  s->bytes_to_read);
   *len = 0;
 
   if (s->bytes_to_read == 0)
@@ -3483,7 +3483,7 @@ sane_read_direct (SANE_Handle handle, SANE_Byte *dst_buf, SANE_Int max_len,
     }
   *len = nread;
   s->bytes_to_read -= nread;
-  DBG (20, "remaining: %i ", s->bytes_to_read);
+  DBG (20, "remaining: %lu ", (u_long) s->bytes_to_read);
 
   DBG (10, ">>\n");
   return (SANE_STATUS_GOOD);

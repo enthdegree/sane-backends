@@ -3118,9 +3118,9 @@ retry:
         /* All other URBs must be 64 bytes (max) per URB. */
         if ( (j == 0) && (cnt > 31) ) cnt = 31; else if (cnt > 64) cnt = 64;
         hexdump (IO_CMD, "*** URB going out:", &buf[j], cnt);
-        DBG (10, "try to write %u bytes\n", cnt);
+        DBG (10, "try to write %lu bytes\n", (u_long) cnt);
         ret = sanei_usb_write_bulk(fd, &buf[j], &cnt);
-        DBG (10, "wrote %u bytes\n", cnt);
+        DBG (10, "wrote %lu bytes\n", (u_long) cnt);
         if (ret != SANE_STATUS_GOOD) break;
 
         w_cmd_count++;
@@ -3135,7 +3135,7 @@ retry:
         if ( (out != NULL) && (req_out_len > 0) ) {
 /*            while (ol < req_out_len) {*/
                 cnt = (size_t)(req_out_len-ol);
-                DBG (10, "try to read %u bytes\n", cnt);
+                DBG (10, "try to read %lu bytes\n", (u_long) cnt);
                 ret = sanei_usb_read_bulk(fd, &out[ol], &cnt);
 
                 /*flaming hack, count packets to fix data0/1 toggle issues*/
@@ -3143,7 +3143,7 @@ retry:
                 if(cnt % 64)
                     r_cmd_count++;
 
-                DBG (10, "read %u bytes\n", cnt);
+                DBG (10, "read %lu bytes\n", (u_long) cnt);
                 if (cnt > 0) {
                     hexdump (IO_CMD, "*** Data read:", &out[ol], cnt);
                 }
@@ -3165,12 +3165,12 @@ retry:
 	if (status_byte != 0) {
 	  DBG
 	    (MSG_ERR,
-	     "Got bad status: %2.2x op_code=%2.2x ret=%d req_out_len=%u ol=%u\n",
+	     "Got bad status: %2.2x op_code=%2.2x ret=%d req_out_len=%lu ol=%lu\n",
 	     status_byte,
 	     op_code,
 	     ret,
-	     req_out_len,
-	     ol);
+	     (u_long) req_out_len,
+	     (u_long) ol);
        }
     }
 
@@ -6766,14 +6766,14 @@ reader3091ColorSimplex (struct fujitsu *scanner, FILE * fp)
 
 #ifdef DEBUG
           redStart =
-            ((unsigned int) redSource -
-             (unsigned int) largeBuffer) / scanner->bytes_per_scan_line;
+            ((unsigned long int) redSource -
+             (unsigned long int) largeBuffer) / scanner->bytes_per_scan_line;
           greenStart =
-            ((unsigned int) greenSource -
-             (unsigned int) largeBuffer) / scanner->bytes_per_scan_line;
+            ((unsigned long int) greenSource -
+             (unsigned long int) largeBuffer) / scanner->bytes_per_scan_line;
           blueStart =
-            ((unsigned int) blueSource -
-             (unsigned int) largeBuffer) / scanner->bytes_per_scan_line;
+            ((unsigned long int) blueSource -
+             (unsigned long int) largeBuffer) / scanner->bytes_per_scan_line;
           redSum = 0;
           greenSum = 0;
           blueSum = 0;
@@ -7008,14 +7008,14 @@ reader3091ColorDuplex (struct fujitsu *scanner, FILE * fp_front, FILE * fp_back)
 
 #ifdef DEBUG
           redStart =
-            ((unsigned int) redSource -
-             (unsigned int) largeBuffer) / scanner->bytes_per_scan_line;
+            ((unsigned long int) redSource -
+             (unsigned long int) largeBuffer) / scanner->bytes_per_scan_line;
           greenStart =
-            ((unsigned int) greenSource -
-             (unsigned int) largeBuffer) / scanner->bytes_per_scan_line;
+            ((unsigned long int) greenSource -
+             (unsigned long int) largeBuffer) / scanner->bytes_per_scan_line;
           blueStart =
-            ((unsigned int) blueSource -
-             (unsigned int) largeBuffer) / scanner->bytes_per_scan_line;
+            ((unsigned long int) blueSource -
+             (unsigned long int) largeBuffer) / scanner->bytes_per_scan_line;
           redSum = 0;
           greenSum = 0;
           blueSum = 0;

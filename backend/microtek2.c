@@ -257,8 +257,8 @@ sane_get_devices(const SANE_Device ***device_list, SANE_Bool local_only)
 
     sd_list = (const SANE_Device **)
                malloc( (md_num_devices + 1) * sizeof(SANE_Device **));
-    DBG(100, "sane_get_devices: sd_list=%p, malloc'd %d bytes\n",
-               (void *) sd_list, (md_num_devices + 1) * sizeof(SANE_Device **));
+    DBG(100, "sane_get_devices: sd_list=%p, malloc'd %lu bytes\n",
+	(void *) sd_list, (u_long)  ((md_num_devices + 1) * sizeof(SANE_Device **)));
 
     if ( ! sd_list )
       {
@@ -540,8 +540,8 @@ sane_open(SANE_String_Const name, SANE_Handle *handle)
         return status;
 
     ms = malloc(sizeof(Microtek2_Scanner));
-    DBG(100, "sane_open: ms=%p, malloc'd %d bytes\n",
-                         (void *) ms, sizeof(Microtek2_Scanner));
+    DBG(100, "sane_open: ms=%p, malloc'd %lu bytes\n",
+	(void *) ms, (u_long) sizeof(Microtek2_Scanner));
     if ( ms == NULL )
       {
         DBG(1, "sane_open: malloc() for ms failed\n");
@@ -718,8 +718,8 @@ add_device_list(SANE_String_Const dev_name, Microtek2_Device **mdev)
     }
 
     md = (Microtek2_Device *) malloc(sizeof(Microtek2_Device));
-    DBG(100, "add_device_list: md=%p, malloc'd %d bytes\n",
-                         (void *) md, sizeof(Microtek2_Device));
+    DBG(100, "add_device_list: md=%p, malloc'd %lu bytes\n",
+                         (void *) md, (u_long) sizeof(Microtek2_Device));
     if ( md == NULL )
       {
 	DBG(1, "add_device_list: malloc() for md failed\n");
@@ -2230,8 +2230,8 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
             free((void *) md->custom_gamma_table[color]);
         md->custom_gamma_table[color] =
                               (SANE_Int *) malloc(tablesize * sizeof(SANE_Int));
-        DBG(100, "init_options: md->custom_gamma_table[%d]=%p, malloc'd %d bytes\n",
-            color, (void *) md->custom_gamma_table[color],(tablesize * sizeof(SANE_Int)));
+        DBG(100, "init_options: md->custom_gamma_table[%d]=%p, malloc'd %lu bytes\n",
+            color, (void *) md->custom_gamma_table[color], (u_long) (tablesize * sizeof(SANE_Int)));
         if ( md->custom_gamma_table[color] == NULL )
           {
             DBG(1, "init_options: malloc for custom gamma table failed\n");
@@ -4821,9 +4821,9 @@ scsi_read_shading(Microtek2_Scanner *ms, u_int8_t *buffer, u_int32_t length)
     if ( md_dump >= 2 )
         dump_area2(cmd, RSI_CMD_L, "readshading");
 
-    DBG(100, "scsi_read_shading: sfd=%d, cmd=%p, sizeofcmd=%d,"
-             "dest=%p, destsize=%d\n",
-              ms->sfd, cmd, sizeof(cmd), buffer, size);
+    DBG(100, "scsi_read_shading: sfd=%d, cmd=%p, sizeofcmd=%lu,"
+             "dest=%p, destsize=%lu\n",
+              ms->sfd, cmd, (u_long) sizeof(cmd), buffer, (u_long) size);
 
     status = sanei_scsi_cmd(ms->sfd, cmd, sizeof(cmd), buffer, &size);
     if ( status != SANE_STATUS_GOOD )
@@ -5281,8 +5281,8 @@ sane_start(SANE_Handle handle)
       {
         if (ms->control_bytes) free((void *)ms->control_bytes);
         ms->control_bytes = (u_int8_t *) malloc(ms->n_control_bytes);
-        DBG(100, "sane_start: ms->control_bytes=%p, malloc'd %d bytes\n",
-                             ms->control_bytes, ms->n_control_bytes);
+        DBG(100, "sane_start: ms->control_bytes=%p, malloc'd %lu bytes\n",
+                             ms->control_bytes, (u_long) ms->n_control_bytes);
         if ( ms->control_bytes == NULL )
           {
             DBG(1, "sane_start: malloc() for control bits failed\n");
@@ -6660,8 +6660,8 @@ calc_cx_shading_line(Microtek2_Scanner *ms)
     status = SANE_STATUS_GOOD;
 
     sortbuf = malloc( md->shading_length * sizeof(float) );
-    DBG(100, "calc_cx_shading: sortbuf= %p, malloc'd %d Bytes\n",
-              (void *) sortbuf, md->shading_length * sizeof(float));
+    DBG(100, "calc_cx_shading: sortbuf= %p, malloc'd %lu Bytes\n",
+	(void *) sortbuf, (u_long) (md->shading_length * sizeof(float)));
     if ( sortbuf == NULL )
       {
         DBG(1, "calc_cx_shading: malloc for sort buffer failed\n");

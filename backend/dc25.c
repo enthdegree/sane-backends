@@ -2337,7 +2337,7 @@ sane_start (SANE_Handle handle)
   int n, i;
   FILE *f;
 
-  DBG (127, "sane_start called, handle=%x\n",(unsigned int)handle);
+  DBG (127, "sane_start called, handle=%lx\n", (u_long) handle);
 
   if (handle != MAGIC || !is_open ||
       (dc25_opt_image_number == 0 && dc25_opt_snap == SANE_FALSE))

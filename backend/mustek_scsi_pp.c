@@ -787,7 +787,7 @@ mustek_scsi_pp_cmd (int fd, const void *src, size_t src_size,
   if (src_size < 6)
     {
       sanei_pa4s2_enable (fd, SANE_FALSE);
-      DBG (2, "mustek_scsi_pp_cmd: source size is only %d (<6)\n", src_size);
+      DBG (2, "mustek_scsi_pp_cmd: source size is only %lu (<6)\n", (u_long) src_size);
       return SANE_STATUS_INVAL;
     }
 
@@ -811,8 +811,8 @@ mustek_scsi_pp_cmd (int fd, const void *src, size_t src_size,
 
   if (src_size > 6)
     {
-      DBG (5, "mustek_scsi_pp_cmd: sending data block of length %d\n",
-	   src_size - 6);
+      DBG (5, "mustek_scsi_pp_cmd: sending data block of length %lu\n",
+	   (u_long) (src_size - 6));
 
       stat =
 	mustek_scsi_pp_send_data_block (fd, ((const u_char *) src) + 6,
@@ -839,8 +839,8 @@ mustek_scsi_pp_cmd (int fd, const void *src, size_t src_size,
 	{
 	  sanei_pa4s2_enable (fd, SANE_FALSE);
 	  DBG (2,
-	       "mustek_scsi_pp_cmd: buffer (size %d) not big enough for data (size %d)\n",
-	       *dst_size, length);
+	       "mustek_scsi_pp_cmd: buffer (size %lu) not big enough for data (size %d)\n",
+	       (u_long) *dst_size, length);
 	  return SANE_STATUS_INVAL;
 	}
 

@@ -74,8 +74,8 @@ sanei_w_space (Wire * w, size_t howmuch)
 
   if (w->buffer.curr + howmuch > w->buffer.end)
     {
-      DBG (4, "sanei_w_space: free buffer size is %d\n",
-	   w->buffer.end - w->buffer.curr);
+      DBG (4, "sanei_w_space: free buffer size is %lu\n",
+	   (u_long) (w->buffer.end - w->buffer.curr));
       switch (w->direction)
 	{
 	case WIRE_ENCODE:
@@ -97,8 +97,8 @@ sanei_w_space (Wire * w, size_t howmuch)
 	    }
 	  w->buffer.curr = w->buffer.start;
 	  w->buffer.end = w->buffer.start + w->buffer.size;
-	  DBG (4, "sanei_w_space: ENCODE: free buffer is now %d\n",
-	       w->buffer.size);
+	  DBG (4, "sanei_w_space: ENCODE: free buffer is now %lu\n",
+	       (u_long) w->buffer.size);
 	  break;
 
 	case WIRE_DECODE:
@@ -137,8 +137,8 @@ sanei_w_space (Wire * w, size_t howmuch)
 	      w->buffer.end += nread;
 	    }
 	  while (left_over < howmuch);
-	  DBG (4, "sanei_w_space: DECODE: %d bytes read\n",
-	       w->buffer.end - w->buffer.start);
+	  DBG (4, "sanei_w_space: DECODE: %lu bytes read\n",
+	       (u_long) (w->buffer.end - w->buffer.start));
 	  break;
 
 	case WIRE_FREE:
@@ -560,8 +560,8 @@ sanei_w_set_dir (Wire * w, WireDirection dir)
        w->direction == WIRE_ENCODE ? "ENCODE" : 
        (w->direction == WIRE_DECODE ? "DECODE" : "FREE"));
   if (w->direction == WIRE_DECODE && w->buffer.curr != w->buffer.end)
-    DBG (1, "sanei_w_set_dir: WARNING: will delete %d bytes from buffer\n",
-	 w->buffer.end - w->buffer.curr);
+    DBG (1, "sanei_w_set_dir: WARNING: will delete %lu bytes from buffer\n",
+	 (u_long) (w->buffer.end - w->buffer.curr));
   flush (w);
   w->direction = dir;
   DBG (4, "sanei_w_set_dir: direction changed\n");

@@ -1361,7 +1361,7 @@ teco_fill_image (Teco_Scanner * dev)
       MKSCSI_READ_10 (cdb, 0, 0, size);
 
       hexdump (DBG_info2, "teco_fill_image: READ_10 CDB", cdb.data, 10);
-      DBG (DBG_info, "  image_end=%d\n", dev->image_end);
+      DBG (DBG_info, "  image_end=%lu\n", (u_long) dev->image_end);
 
       if (dev->scan_mode == TECO_COLOR && dev->does_color_shift)
 	{

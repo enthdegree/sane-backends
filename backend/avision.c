@@ -1168,8 +1168,8 @@ static void debug_print_raw (int dbg_level, char* info, const u_int8_t* data,
   
   DBG (dbg_level, info);
   for (i = 0; i < count; ++ i) {
-    DBG (dbg_level, "  [%d] %1d%1d%1d%1d%1d%1d%1d%1db %3oo %3dd %2xx\n",
-	 i,
+    DBG (dbg_level, "  [%lu] %1d%1d%1d%1d%1d%1d%1d%1db %3oo %3dd %2xx\n",
+	 (u_long) i,
 	 BIT(data[i],7), BIT(data[i],6), BIT(data[i],5), BIT(data[i],4),
 	 BIT(data[i],3), BIT(data[i],2), BIT(data[i],1), BIT(data[i],0),
 	 data[i], data[i], data[i]);
@@ -1493,7 +1493,7 @@ avision_usb_status (Avision_Connection* av_con)
   status = sanei_usb_read_int (av_con->usb_dn, &usb_status,
 			       &count);
   
-  DBG (3, "(pseudo interrupt) got: %d, status: %d\n", count, usb_status);
+  DBG (3, "(pseudo interrupt) got: %lu, status: %d\n", (u_long) count, usb_status);
   
   if (status != SANE_STATUS_GOOD)
     return status;
@@ -1601,7 +1601,7 @@ static SANE_Status avision_cmd (Avision_Connection* av_con,
 	 (if we do not transfer additional data) ... */
       u_int8_t enlarged_cmd [min_usb_size];
       if (cmd_size < min_usb_size && !src_size) {
-	DBG (1, "filling command to have a length of 10, was: %u\n", cmd_size);
+	DBG (1, "filling command to have a length of 10, was: %lu\n", (u_long) cmd_size);
 	memcpy (enlarged_cmd, m_cmd, cmd_size);
 	memset (enlarged_cmd + cmd_size, 0, min_usb_size - cmd_size);
 	m_cmd = enlarged_cmd;
@@ -1612,10 +1612,10 @@ static SANE_Status avision_cmd (Avision_Connection* av_con,
       if (count > max_usb_size)
 	count = max_usb_size;
       
-      DBG (8, "try to write cmd, count: %u.\n", count);
+      DBG (8, "try to write cmd, count: %lu.\n", (u_long) count);
       status = sanei_usb_write_bulk (av_con->usb_dn, &(m_cmd[i]), &count);
       
-      DBG (8, "wrote %u bytes\n", count);
+      DBG (8, "wrote %lu bytes\n", (u_long) count);
       if (status != SANE_STATUS_GOOD)
 	break;
       i += count;
@@ -1632,10 +1632,10 @@ static SANE_Status avision_cmd (Avision_Connection* av_con,
       if (count > max_usb_size)
 	count = max_usb_size;
       
-      DBG (8, "try to write src, count: %u.\n", count);
+      DBG (8, "try to write src, count: %lu.\n", (u_long) count);
       status = sanei_usb_write_bulk (av_con->usb_dn, &(m_src[i]), &count);
       
-      DBG (8, "wrote %u bytes\n", count);
+      DBG (8, "wrote %lu bytes\n", (u_long) count);
       if (status != SANE_STATUS_GOOD)
 	break;
       i += count;
@@ -1647,10 +1647,10 @@ static SANE_Status avision_cmd (Avision_Connection* av_con,
       while (out_count < *dst_size) {
 	count = (*dst_size - out_count);
 	
-	DBG (8, "try to read %u bytes\n", count);
+	DBG (8, "try to read %lu bytes\n", (u_long) count);
         status = sanei_usb_read_bulk(av_con->usb_dn, &(m_dst[out_count]),
 				     &count);
-	DBG (8, "read %u bytes\n", count);
+	DBG (8, "read %lu bytes\n", (u_long) count);
 	
 	if (status != SANE_STATUS_GOOD) {
 	  DBG(3, "*** Got error %d trying to read\n", status);
@@ -1683,9 +1683,9 @@ static SANE_Status avision_cmd (Avision_Connection* av_con,
       
       count = sizeof(sense_header);
       
-      DBG (8, "try to write %u bytes\n", count);
+      DBG (8, "try to write %lu bytes\n", (u_long) count);
       status = sanei_usb_write_bulk (av_con->usb_dn, (u_int8_t*) &sense_header, &count);
-      DBG (8, "wrote %u bytes\n", count);
+      DBG (8, "wrote %lu bytes\n", (u_long) count);
       
       if (status != SANE_STATUS_GOOD) {
 	DBG (3, "*** Got error %d trying to request sense!\n", status);
@@ -1693,9 +1693,9 @@ static SANE_Status avision_cmd (Avision_Connection* av_con,
       else {
 	count = sizeof (sense_buffer);
 	
-	DBG (8, "try to read %u bytes sense data\n", count);
+	DBG (8, "try to read %lu bytes sense data\n", (u_long) count);
 	status = sanei_usb_read_bulk(av_con->usb_dn, sense_buffer, &count);
-	DBG (8, "read %u bytes sense data\n", count);
+	DBG (8, "read %lu bytes sense data\n", (u_long) count);
 	
 	if (status != SANE_STATUS_GOOD)
 	  DBG (3, "*** Got error %d trying to read sense!\n", status);
@@ -1949,7 +1949,7 @@ wait_4_light (Avision_Scanner* s)
   
   for (try = 0; try < 18; ++ try) {
     
-    DBG (5, "wait_4_light: read bytes %d\n", size);
+    DBG (5, "wait_4_light: read bytes %lu\n", (u_long) size);
     status = avision_cmd (&s->av_con, &rcmd, sizeof (rcmd), 0, 0, &result, &size);
     
     if (status != SANE_STATUS_GOOD || size != sizeof (result)) {
@@ -2915,7 +2915,7 @@ get_calib_format (Avision_Scanner* s, struct calibration_format* format)
   set_double (rcmd.datatypequal, s->hw->data_dq);
   set_triple (rcmd.transferlen, size);
   
-  DBG (3, "get_calib_format: read_data: %d bytes\n", size);
+  DBG (3, "get_calib_format: read_data: %lu bytes\n", (u_long) size);
   status = avision_cmd (&s->av_con, &rcmd, sizeof (rcmd), 0, 0, result, &size);
   if (status != SANE_STATUS_GOOD || size != sizeof (result) ) {
     DBG (1, "get_calib_format: read calib. info failt (%s)\n",
@@ -2969,8 +2969,8 @@ get_calib_data (Avision_Scanner* s, u_int8_t data_type,
   
   struct command_read rcmd;
   
-  DBG (3, "get_calib_data: type %x, size %d, line_size: %d\n",
-       data_type, calib_size, line_size);
+  DBG (3, "get_calib_data: type %x, size %lu, line_size: %lu\n",
+       data_type, (u_long) calib_size, (u_long) line_size);
   
   memset (&rcmd, 0, sizeof (rcmd));
   
@@ -3061,7 +3061,7 @@ set_calib_data (Avision_Scanner* s, struct calibration_format* format,
     {
       size_t send_size = elements_per_line * 2;
       DBG (3, "set_calib_data: all channels in one command\n");
-      DBG (3, "set_calib_data: send_size: %d\n", send_size);
+      DBG (3, "set_calib_data: send_size: %lu\n", (u_long) send_size);
       
       memset (&scmd, 0, sizeof (scmd) );
       scmd.opc = AVISION_SCSI_SEND;
@@ -3522,10 +3522,10 @@ send_gamma (Avision_Scanner* s)
   
   gamma_values = gamma_table_size / 256;
   
-  DBG (3, "send_gamma: table_raw_size: %d, table_size: %d\n",
-       gamma_table_raw_size, gamma_table_size);
-  DBG (3, "send_gamma: values: %d, invert_table: %d\n",
-       gamma_values, invert_table);
+  DBG (3, "send_gamma: table_raw_size: %lu, table_size: %lu\n",
+       (u_long) gamma_table_raw_size, (u_long) gamma_table_size);
+  DBG (3, "send_gamma: values: %lu, invert_table: %d\n",
+       (u_long) gamma_values, invert_table);
   
   /* prepare for emulating contrast, brightness ... via the gamma-table */
   brightness = SANE_UNFIX (s->val[OPT_BRIGHTNESS].w);
@@ -3618,8 +3618,8 @@ send_gamma (Avision_Scanner* s)
 	}
       }
       
-      DBG (4, "send_gamma: sending %d bytes gamma table.\n",
-	   gamma_table_raw_size);
+      DBG (4, "send_gamma: sending %lu bytes gamma table.\n",
+	   (u_long) gamma_table_raw_size);
       status = avision_cmd (&s->av_con, &scmd, sizeof (scmd),
 			    gamma_data, gamma_table_raw_size, 0, 0);
     }
@@ -3905,7 +3905,7 @@ start_scan (Avision_Scanner* s)
     cmd.bitset1 &= ~(0x01<<7);
   }
   
-  DBG (3, "start_scan: sending command. Bytes: %d\n", size);
+  DBG (3, "start_scan: sending command. Bytes: %lu\n", (u_long) size);
   return avision_cmd (&s->av_con, &cmd, size, 0, 0, 0, 0);
 }
 
@@ -3957,7 +3957,7 @@ read_data (Avision_Scanner* s, SANE_Byte* buf, size_t* count)
   struct command_read rcmd;
   SANE_Status status;
 
-  DBG (9, "read_data: %d\n", *count);
+  DBG (9, "read_data: %lu\n", (u_long) *count);
   
   memset (&rcmd, 0, sizeof (rcmd));
   
@@ -4330,17 +4330,17 @@ reader_process (void *data)
   stripe_size = bytes_per_line * lines_per_stripe;
   out_size = bytes_per_line * lines_per_output;
   
-  DBG (3, "dev->scsi_buffer_size / 2: %d, half_inch_bytes: %d\n",
-       dev->scsi_buffer_size / 2, half_inch_bytes);
+  DBG (3, "dev->scsi_buffer_size / 2: %d, half_inch_bytes: %lu\n",
+       dev->scsi_buffer_size / 2, (u_long) half_inch_bytes);
   
-  DBG (3, "bytes_per_line: %d, pixels_per_line: %d\n",
-       bytes_per_line, pixels_per_line);
+  DBG (3, "bytes_per_line: %lu, pixels_per_line: %lu\n",
+       (u_long) bytes_per_line, (u_long) pixels_per_line);
   
-  DBG (3, "lines_per_stripe: %d, lines_per_output: %d\n",
-       lines_per_stripe, lines_per_output);
+  DBG (3, "lines_per_stripe: %lu, lines_per_output: %lu\n",
+       (u_long) lines_per_stripe, (u_long) lines_per_output);
   
-  DBG (3, "max_bytes_per_read: %d, stripe_size: %d, out_size: %d\n",
-       max_bytes_per_read, stripe_size, out_size);
+  DBG (3, "max_bytes_per_read: %lu, stripe_size: %lu, out_size: %lu\n",
+       (u_long) max_bytes_per_read, (u_long) stripe_size, (u_long) out_size);
   
   stripe_data = malloc (stripe_size);
   out_data = malloc (out_size);
@@ -4349,7 +4349,7 @@ reader_process (void *data)
   
   /* calculate params for the simple reader */
   total_size = bytes_per_line * (s->params.lines + s->avdimen.line_difference);
-  DBG (3, "reader_process: total_size: %d\n", total_size);
+  DBG (3, "reader_process: total_size: %lu\n", (u_long) total_size);
   
   processed_bytes = 0;
   stripe_fill = 0;
@@ -4371,11 +4371,11 @@ reader_process (void *data)
 	  if (processed_bytes + this_read > total_size)
 	    this_read = total_size - processed_bytes;
 	  
-	  DBG (5, "reader_process: processed_bytes: %d, total_size: %d\n",
-	       processed_bytes, total_size);
+	  DBG (5, "reader_process: processed_bytes: %lu, total_size: %lu\n",
+	       (u_long) processed_bytes, (u_long) total_size);
 	  
-	  DBG (5, "reader_process: this_read: %d\n",
-	       this_read);
+	  DBG (5, "reader_process: this_read: %lu\n",
+	       (u_long) this_read);
 	  
 	  sigprocmask (SIG_BLOCK, &sigterm_set, 0);
 	  status = read_data (s, stripe_data + stripe_fill, &this_read);
@@ -5495,7 +5495,7 @@ sane_read (SANE_Handle handle, SANE_Byte* buf, SANE_Int max_len, SANE_Int* len)
   *len = 0;
 
   nread = read (s->pipe, buf, max_len);
-  DBG (3, "sane_read: got %d bytes\n", nread);
+  DBG (3, "sane_read: got %ld bytes\n", (long) nread);
 
   if (!s->scanning)
     return SANE_STATUS_CANCELLED;

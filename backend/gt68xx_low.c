@@ -156,8 +156,8 @@ gt68xx_device_new (GT68xx_Device ** dev_return)
 
   if (!dev)
     {
-      DBG (3, "gt68xx_device_new: couldn't malloc %d bytes for device\n",
-	   sizeof (GT68xx_Device));
+      DBG (3, "gt68xx_device_new: couldn't malloc %lu bytes for device\n",
+	   (u_long) sizeof (GT68xx_Device));
       *dev_return = 0;
       return SANE_STATUS_NO_MEM;
     }

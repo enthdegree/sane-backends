@@ -96,8 +96,8 @@ static SANE_Status snapscani_usb_cmd(int fd, const void *src, size_t src_size,
     static const char me[] = "snapscani_usb_cmd";
     int status;
 
-    DBG (DL_CALL_TRACE, "%s(%d,0x%x,%d,0x%x,0x%x (%d))\n", me,
-         fd,(int)src,src_size,(int)dst,(int)dst_size,dst_size ? *dst_size : 0);
+    DBG (DL_CALL_TRACE, "%s(%d,0x%lx,%lu,0x%lx,0x%lx (%lu))\n", me,
+         fd, (u_long) src,(u_long) src_size,(u_long) dst, (u_long) dst_size,(u_long) (dst_size ? *dst_size : 0));
 
     while(bqhead) {
         status = atomic_usb_cmd(fd, bqhead->src, bqhead->src_size, NULL, NULL);
@@ -131,8 +131,8 @@ static SANE_Status atomic_usb_cmd(int fd, const void *src, size_t src_size,
     int status;
     sigset_t all,oldset;
 
-    DBG (DL_CALL_TRACE, "%s(%d,0x%x,%d,0x%x,0x%x (%d))\n", me,
-         fd,(int)src,src_size,(int)dst,(int)dst_size,dst_size ? *dst_size : 0);
+    DBG (DL_CALL_TRACE, "%s(%d,0x%lx,%lu,0x%lx,0x%lx (%lu))\n", me,
+         fd, (u_long) src,(u_long) src_size,(u_long) dst, (u_long) dst_size,(u_long) (dst_size ? *dst_size : 0));
 
     /* Prevent the calling process from being killed */
     sigfillset(&all);
@@ -275,11 +275,11 @@ static SANE_Status usb_write(int fd, const void *buf, size_t n) {
 
     status = sanei_usb_write_bulk(fd, (const SANE_Byte*)buf, &bytes_written);
     if(bytes_written != n) {
-        DBG (DL_MAJOR_ERROR, "%s Only %d bytes written\n",me,bytes_written);
+      DBG (DL_MAJOR_ERROR, "%s Only %lu bytes written\n",me, (u_long) bytes_written);
         status = SANE_STATUS_IO_ERROR;
     }
     urb_counters->write_urbs += (bytes_written + 7) / 8;
-    DBG (DL_DATA_TRACE, "Written %d bytes\n", bytes_written);
+    DBG (DL_DATA_TRACE, "Written %lu bytes\n", (u_long) bytes_written);
     return status;
 }
 
@@ -291,12 +291,12 @@ static SANE_Status usb_read(SANE_Int fd, void *buf, size_t n) {
 
     status = sanei_usb_read_bulk(fd, (SANE_Byte*)buf, &bytes_read);
     if (bytes_read != n) {
-        DBG (DL_MAJOR_ERROR, "%s Only %d bytes read\n",me,bytes_read);
+        DBG (DL_MAJOR_ERROR, "%s Only %lu bytes read\n",me, (u_long) bytes_read);
         status = SANE_STATUS_IO_ERROR;
     }
     urb_counters->read_urbs += ((63 + bytes_read) / 64); 
     DBG(DL_DATA_TRACE, "%s: reading: %s\n",me,usb_debug_data(dbgmsg,buf,n));
-    DBG(DL_DATA_TRACE, "Read %d bytes\n", bytes_read);
+    DBG(DL_DATA_TRACE, "Read %lu bytes\n", (u_long) bytes_read);
     return status;
 }
 
@@ -344,9 +344,8 @@ static SANE_Status usb_cmd(int fd, const void *src, size_t src_size,
   int status,tstatus;
   int cmdlen,datalen;
 
-  DBG (DL_CALL_TRACE, "%s(%d,0x%x,%d,0x%x,0x%x (%d))\n", me,
-       fd,(int)src,src_size,(int)dst,(int)dst_size,dst_size ? *dst_size : 0);
-
+  DBG (DL_CALL_TRACE, "%s(%d,0x%lx,%lu,0x%lx,0x%lx (%lu))\n", me,
+       fd, (u_long) src,(u_long) src_size,(u_long) dst, (u_long) dst_size,(u_long) (dst_size ? *dst_size : 0));
 
   /* Since the  "Send Diagnostic" command isn't supported by
      all Snapscan USB-scanners it's disabled .
@@ -417,7 +416,7 @@ static int enqueue_bq(int fd,const void *src, size_t src_size)
     static const char me[] = "enqueue_bq";
     struct usb_busy_queue *bqe;
 
-    DBG (DL_CALL_TRACE, "%s(%d,%p,%d)\n", me, fd,src,src_size);
+    DBG (DL_CALL_TRACE, "%s(%d,%p,%lu)\n", me, fd,src, (u_long) src_size);
 
     if((bqe = malloc(sizeof(struct usb_busy_queue))) == NULL)
         return -1;
@@ -564,6 +563,9 @@ static void snapscani_usb_shm_exit(void)
 #endif
 /*
  * $Log$
+ * Revision 1.19  2004/10/03 17:34:36  hmg-guest
+ * 64 bit platform fixes (bug #300799).
+ *
  * Revision 1.18  2004/06/16 19:52:26  oliver-guest
  * Don't enforce even number of URB packages on 1212u_2. Fixes bug #300753.
  *

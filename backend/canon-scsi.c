@@ -411,12 +411,12 @@ define_scan_mode (int fd, u_char page, void *data)
 
   for (i = 0; i < sizeof (cmd); i++)
     {
-      DBG (31, "define scan mode: cmd[%d]='0x%0X'\n", i, cmd[i]);
+      DBG (31, "define scan mode: cmd[%lu]='0x%0X'\n", (u_long) i, cmd[i]);
     }
 
   for (i = 0; i < sizeof (pdata); i++)
     {
-      DBG (31, "define scan mode: pdata[%d]='0x%0X'\n", i, pdata[i]);
+      DBG (31, "define scan mode: pdata[%lu]='0x%0X'\n", (u_long) i, pdata[i]);
     }
 
   pdatalen = (page == TRANSPARENCY_UNIT) ? 12 :

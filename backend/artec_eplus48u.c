@@ -1470,8 +1470,8 @@ artec48u_device_new (Artec48U_Device ** dev_return)
 
   if (!dev)
     {
-      XDBG ((3, "%s: couldn't malloc %d bytes for device\n",
-	   function_name, sizeof (Artec48U_Device)));
+      XDBG ((3, "%s: couldn't malloc %lu bytes for device\n",
+	     function_name, (u_long) sizeof (Artec48U_Device)));
       *dev_return = 0;
       return SANE_STATUS_NO_MEM;
     }
@@ -3718,7 +3718,7 @@ save_calibration_data (Artec48U_Scanner * s)
 
   /*read values */
   cnt = fwrite (s->shading_buffer_b, sizeof (unsigned char), 30720*s->dev->epro_mult, f); /*epro*/
-  XDBG ((1, "Wrote %i bytes to black shading buffer \n", cnt));
+  XDBG ((1, "Wrote %li bytes to black shading buffer \n", (u_long) cnt));
   if (cnt != (30720*s->dev->epro_mult))/*epro*/
     {
       fclose (f);

@@ -282,7 +282,8 @@ hp5400_bulk_read (int iHandle, size_t len, int block, FILE * file)
 			sizeof (buf));
       res = block;
       sanei_usb_read_bulk (fd, buffer, &res);
-      HP5400_DBG (DBG_MSG, "Read bulk returned %d, %d remain\n", res, len);
+      HP5400_DBG (DBG_MSG, "Read bulk returned %lu, %lu remain\n",
+		  (u_long) res, (u_long) len);
       if (res > 0)
 	{
 	  fwrite (buffer, (len < res) ? len : res, 1, file);
@@ -312,7 +313,8 @@ hp5400_bulk_read_block (int iHandle, int iCmd, void *cmd, int cmdlen,
   _UsbWriteControl (fd, iCmd, 0, cmd, cmdlen);
   res = len;
   sanei_usb_read_bulk (fd, (SANE_Byte *) buffer, &res);
-  HP5400_DBG (DBG_MSG, "Read block returned %d when reading %d\n", res, len);
+  HP5400_DBG (DBG_MSG, "Read block returned %lu when reading %d\n", 
+	      (u_long) res, len);
   return res;
 }
 
@@ -349,7 +351,7 @@ hp5400_bulk_command_write (int iHandle, int iCmd, void *cmd, int cmdlen,
       }
       res = (datalen < block) ? datalen : block;
       sanei_usb_write_bulk (fd, (SANE_Byte *) (data + offset), &res);
-      HP5400_DBG (DBG_MSG, "Write returned %d, %d remain\n", res, datalen);
+      HP5400_DBG (DBG_MSG, "Write returned %lu, %d remain\n", (u_long) res, datalen);
       datalen -= block;
       offset += block;
     }

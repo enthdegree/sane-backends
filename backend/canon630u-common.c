@@ -237,7 +237,7 @@ write_bulk (int fd, unsigned int addr, void *src, size_t count)
 {
   SANE_Status status;
 
-  DBG (13, "write_bulk(fd, 0x%02x, buf, 0x%04x);\n", addr, count);
+  DBG (13, "write_bulk(fd, 0x%02x, buf, 0x%04lx);\n", addr, (u_long) count);
 
   if (!src)
     {
@@ -259,7 +259,7 @@ read_bulk (int fd, unsigned int addr, void *dst, size_t count)
 {
   SANE_Status status;
 
-  DBG (13, "read_bulk(fd, 0x%02x, buf, 0x%04x);\n", addr, count);
+  DBG (13, "read_bulk(fd, 0x%02x, buf, 0x%04lx);\n", addr, (u_long) count);
 
   if (!dst)
     {
@@ -300,10 +300,10 @@ write_many (int fd, unsigned int addr, void *src, size_t count)
   SANE_Status status;
   size_t i;
 
-  DBG (14, "multi write %d\n", count);
+  DBG (14, "multi write %lu\n", (u_long) count);
   for (i = 0; i < count; i++)
     {
-      DBG (15, " %04x:%02x", addr + i, ((byte *) src)[i]);
+      DBG (15, " %04lx:%02x", (u_long) (addr + i), ((byte *) src)[i]);
       status = write_byte (fd, addr + i, ((byte *) src)[i]);
       if (status != SANE_STATUS_GOOD)
 	{
@@ -324,12 +324,12 @@ read_many (int fd, unsigned int addr, void *dst, size_t count)
   size_t i;
   byte val;
 
-  DBG (14, "multi read %d\n", count);
+  DBG (14, "multi read %lu\n", (u_long) count);
   for (i = 0; i < count; i++)
     {
       status = read_byte (fd, addr + i, &val);
       ((byte *) dst)[i] = val;
-      DBG (15, " %04x:%02x", addr + i, ((byte *) dst)[i]);
+      DBG (15, " %04lx:%02x", (u_long) (addr + i), ((byte *) dst)[i]);
       /* on err, return number of success */
       if (status != SANE_STATUS_GOOD)
 	{

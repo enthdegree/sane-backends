@@ -149,7 +149,7 @@ static SANE_Status sanei_umaxusb_cmd(int fd, const void *src, size_t src_size, v
 		sanei_pv8630_prep_bulkread(fd, *dst_size);
 		sanei_pv8630_bulkread(fd, dst, dst_size);
 
-		DBG(DBG_info, "  SCSI cmd returned %d bytes\n", *dst_size);
+		DBG(DBG_info, "  SCSI cmd returned %lu bytes\n", (u_long) *dst_size);
 
 		sanei_pv8630_wait_byte(fd, PV8630_RSTATUS, 0xf8, 0xff, 1000);
 

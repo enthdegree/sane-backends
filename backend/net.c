@@ -1774,7 +1774,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
 	      return SANE_STATUS_IO_ERROR;
 	    }
 	}
-      DBG (4, "sane_read: read %d bytes, %d from 4 total\n", nread,
+      DBG (4, "sane_read: read %lu bytes, %d from 4 total\n", (u_long) nread,
 	   s->reclen_buf_offset);
       s->reclen_buf_offset += nread;
       if (s->reclen_buf_offset < 4)
@@ -1918,8 +1918,8 @@ sane_read (SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
 	  *(data + cnt + 1) = swap_buf;
 	}
     }
-  DBG (3, "sane_read: %d bytes read, %d remaining\n", nread,
-       s->bytes_remaining);
+  DBG (3, "sane_read: %lu bytes read, %lu remaining\n", (u_long) nread,
+       (u_long) s->bytes_remaining);
 
   return SANE_STATUS_GOOD;
 }

@@ -271,8 +271,8 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	}
     }				/*while there's space in the buffer */
   s->image_counter += *len;
-  DBG (3, "image ctr = %d bytes_to_read = %d returning %d\n",
-       s->image_counter, s->bytes_to_read, *len);
+  DBG (3, "image ctr = %d bytes_to_read = %lu returning %d\n",
+       s->image_counter, (u_long) s->bytes_to_read, *len);
 
   return SANE_STATUS_GOOD;
 }

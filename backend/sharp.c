@@ -3388,7 +3388,7 @@ sane_start (SANE_Handle handle)
         return SANE_STATUS_NO_MEM;
       }
     s->rdr_ctl = (SHARP_rdr_ctl*) shmat(s->shmid, 0, 0);
-    if ((int)s->rdr_ctl == -1)
+    if (s->rdr_ctl == (void *) -1)
      {
        shmctl(s->shmid, IPC_RMID, &ds);
        free(s->buffer);
@@ -3956,7 +3956,7 @@ sane_read_direct (SANE_Handle handle, SANE_Byte *dst_buf, SANE_Int max_len,
   size_t nread;
   DBG (10, "<< sane_read_direct ");
 
-  DBG (20, "remaining: %i ", s->bytes_to_read);
+  DBG (20, "remaining: %lu ", (u_long) s->bytes_to_read);
   *len = 0;
 
   if (s->bytes_to_read == 0)
@@ -3985,7 +3985,7 @@ sane_read_direct (SANE_Handle handle, SANE_Byte *dst_buf, SANE_Int max_len,
     }
   *len = nread;
   s->bytes_to_read -= nread;
-  DBG (20, "remaining: %i ", s->bytes_to_read);
+  DBG (20, "remaining: %lu ", (u_long) s->bytes_to_read);
 
   DBG (10, ">>\n");
   return (SANE_STATUS_GOOD);

@@ -1232,8 +1232,8 @@ reader_process (Test_Device * test_device, SANE_Int fd)
   if (status != SANE_STATUS_GOOD)
     return status;
 
-  DBG (2, "(child) reader_process: buffer=%p, buffersize=%d\n",
-       buffer, buffer_size);
+  DBG (2, "(child) reader_process: buffer=%p, buffersize=%lu\n",
+       buffer, (u_long) buffer_size);
 
   while (byte_count < bytes_total)
     {
@@ -1254,8 +1254,8 @@ reader_process (Test_Device * test_device, SANE_Int fd)
 	  return SANE_STATUS_IO_ERROR;
 	}
       byte_count += bytes_written;
-      DBG (4, "(child) reader_process: wrote %d bytes of %d (%d total)\n",
-	   bytes_written, write_count, byte_count);
+      DBG (4, "(child) reader_process: wrote %ld bytes of %lu (%d total)\n",
+	   (long) bytes_written, (u_long) write_count, byte_count);
       write_count -= bytes_written;
     }
 
@@ -2653,7 +2653,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
   *length = bytes_read;
   test_device->bytes_total += bytes_read;
 
-  DBG (2, "sane_read: read %d bytes of %d, total %d\n", bytes_read,
+  DBG (2, "sane_read: read %ld bytes of %d, total %d\n", (long) bytes_read,
        max_scan_length, test_device->bytes_total);
   return SANE_STATUS_GOOD;
 }

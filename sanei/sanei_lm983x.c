@@ -201,7 +201,7 @@ sanei_lm983x_read( SANE_Int fd, SANE_Byte reg,
 				return result;
 
 			read_bytes += size;
-			DBG( 15, "sanei_lm983x_read: read %d bytes\n", size );
+			DBG( 15, "sanei_lm983x_read: read %lu bytes\n", (u_long) size );
 
 			if( read_bytes != max_len ) {
 				DBG( 2, "sanei_lm983x_read: short read (%d/%d)\n",

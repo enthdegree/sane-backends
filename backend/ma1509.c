@@ -822,8 +822,8 @@ calibration (Ma1509_Scanner * s)
   if (!buffer)
     {
       DBG (1,
-	   "calibration: couldn't malloc %d bytes for calibration buffer\n",
-	   total_size * 3);
+	   "calibration: couldn't malloc %lu bytes for calibration buffer\n",
+	   (u_long) (total_size * 3));
       return SANE_STATUS_NO_MEM;
     }
   memset (buffer, 0x00, total_size);
@@ -915,8 +915,8 @@ send_gamma (Ma1509_Scanner * s)
   buffer = malloc (total_size);
   if (!buffer)
     {
-      DBG (1, "send_gamma: couldn't malloc %d bytes for gamma  buffer\n",
-	   total_size);
+      DBG (1, "send_gamma: couldn't malloc %lu bytes for gamma  buffer\n",
+	   (u_long) total_size);
       return SANE_STATUS_NO_MEM;
     }
 

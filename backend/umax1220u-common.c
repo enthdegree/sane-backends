@@ -370,7 +370,7 @@ cwrite (UMAX_Handle * scan, UMAX_Cmd cmd, size_t len, const unsigned char *data,
   static unsigned char *escaped = NULL;
   static size_t escaped_size = 0;
 
-  DBG (80, "cwrite: cmd = %d, len = %d\n", cmd, len);
+  DBG (80, "cwrite: cmd = %d, len = %lu\n", cmd, (u_long) len);
 
   CHK (usync (scan, cmd | CMD_WRITE, len));
 
@@ -414,7 +414,7 @@ cread (UMAX_Handle * scan, UMAX_Cmd cmd, size_t len, unsigned char *data,
   SANE_Status res;
   UMAX_Status_Byte s0, s4;
 
-  DBG (80, "cread: cmd = %d, len = %d\n", cmd, len);
+  DBG (80, "cread: cmd = %d, len = %lu\n", cmd, (u_long) len);
 
   CHK (usync (scan, cmd | CMD_READ, len));
 
@@ -433,7 +433,7 @@ cread (UMAX_Handle * scan, UMAX_Cmd cmd, size_t len, unsigned char *data,
           CHK (sanei_pv8630_bulkread (scan->fd, data, &n));
           if (n < req)
             {
-              DBG (1, "qread: Expecting to read %d, only got %d\n", req, n);
+              DBG (1, "qread: Expecting to read %lu, only got %lu\n", (u_long) req, (u_long) n);
               return SANE_STATUS_IO_ERROR;
             }
           data += n;

@@ -3707,8 +3707,8 @@ fix_line_distance_se (Mustek_Scanner * s, SANE_Int num_lines, SANE_Int bpl,
 		    }
 		}
 	      DBG (5, "fix_line_distance_se: got saved line: %d; line: %d; "
-		   "color: %d; raw bytes: %d; out bytes: %d\n",
-		   s->ld.saved[color], lines[color], color, ptr - ptr_start,
+		   "color: %d; raw bytes: %lu; out bytes: %d\n",
+		   s->ld.saved[color], lines[color], color, (u_long) (ptr - ptr_start),
 		   s->params.pixels_per_line);
 	      ptr = ptr_start + bpc;
 	    }
@@ -3783,8 +3783,8 @@ fix_line_distance_se (Mustek_Scanner * s, SANE_Int num_lines, SANE_Int bpl,
 			}
 		      DBG (5,
 			   "fix_line_distance_se: got line: %d; color: %d; "
-			   "raw bytes: %d; out bytes: %d\n",
-			   lines[s->ld.color], s->ld.color, raw - raw_start,
+			   "raw bytes: %lu; out bytes: %d\n",
+			   lines[s->ld.color], s->ld.color, (u_long) (raw - raw_start),
 			   s->params.pixels_per_line);
 		      raw = raw_start + bpc;
 		    }

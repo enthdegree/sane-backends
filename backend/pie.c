@@ -1728,7 +1728,7 @@ pie_perform_cal (Pie_Scanner * scanner, int cal_index)
       set_read_length (sread.cmd, 1);
       size = rcv_length;
 
-      DBG (DBG_info, "pie_perform_cal: reading 1 line (%d bytes)\n", size);
+      DBG (DBG_info, "pie_perform_cal: reading 1 line (%lu bytes)\n", (u_long) size);
 
       status =
 	sanei_scsi_cmd (scanner->sfd, sread.cmd, sread.size, rcv_buffer,
@@ -1902,7 +1902,7 @@ pie_perform_cal (Pie_Scanner * scanner, int cal_index)
       return status;
     }
 
-  DBG (DBG_info, "pie_perform_cal: sending cal data (%d bytes)\n", size);
+  DBG (DBG_info, "pie_perform_cal: sending cal data (%lu bytes)\n", (u_long) size);
   DBG_DUMP (DBG_dump, send_buffer, 64);
 
   status =
@@ -2691,7 +2691,7 @@ pie_reader_process_indexed (Pie_Scanner * scanner, FILE * fp)
       else
 	{
 	  DBG (DBG_info2,
-	       "pie_reader_process_indexed: got a line (%d bytes)\n", size);
+	       "pie_reader_process_indexed: got a line (%lu bytes)\n", (u_long) size);
 
 	  /* just send the data on, assume filter bytes not present as per calibration case */
 	  fwrite (buffer, 1, scanner->params.bytes_per_line, fp);

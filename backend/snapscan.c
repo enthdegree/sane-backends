@@ -872,8 +872,8 @@ SANE_Status sane_open (SANE_String_Const name, SANE_Handle * h)
                 pss->phys_buf_sz = sanei_scsi_max_request_size;
             }
             DBG (DL_DATA_TRACE,
-                "%s: Allocating %d bytes as scanner buffer.\n",
-                me, pss->phys_buf_sz);
+                "%s: Allocating %lu bytes as scanner buffer.\n",
+                me, (u_long) pss->phys_buf_sz);
             pss->buf = (u_char *) malloc(pss->phys_buf_sz);
             if (!pss->buf) {
                 DBG (DL_MAJOR_ERROR,
@@ -1837,6 +1837,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.45  2004/10/03 17:34:36  hmg-guest
+ * 64 bit platform fixes (bug #300799).
+ *
  * Revision 1.44  2004/09/02 20:59:12  oliver-guest
  * Added support for Epson 2480
  *

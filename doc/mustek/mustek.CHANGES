@@ -1,5 +1,11 @@
 CHANGES for the SANE Mustek backend
 
+2002-07-30
+  * Released Mustek backend 1.0-127.
+
+2002-07-30
+  * Fixed some warnings.
+
 2002-07-07
   * Released Mustek backend 1.0-126.
 

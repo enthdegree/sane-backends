@@ -257,8 +257,8 @@ scsi_sense_wait_ready (Mustek_Scanner * s)
     {
       len = sizeof (sense_buffer);
 
-      DBG (5, "scsi_sense_wait_ready: command size = %d, sense size = %ld\n",
-	   sizeof (scsi_request_sense), (long int) len);
+      DBG (5, "scsi_sense_wait_ready: command size = %ld, sense size = %ld\n",
+	   (long int) sizeof (scsi_request_sense), (long int) len);
       status = sanei_scsi_cmd (s->fd, scsi_request_sense,
 			       sizeof (scsi_request_sense), sense_buffer,
 			       &len);
@@ -529,9 +529,9 @@ dev_cmd (Mustek_Scanner * s, const void *src, size_t src_size,
   SANE_Byte cmd_byte[5];
   const SANE_Byte *pp;
 
-  DBG (5, "dev_cmd: fd=%d, src=%p, src_size=%d, dst=%p, dst_size=%d\n",
-       s->fd, src, (SANE_Int) src_size, dst,
-       (SANE_Int) dst_size ? *dst_size : 0);
+  DBG (5, "dev_cmd: fd=%d, src=%p, src_size=%ld, dst=%p, dst_size=%ld\n",
+       s->fd, src, (long int) src_size, dst,
+       (long int) (dst_size ? *dst_size : 0));
 
   if (src && (debug_level >= 5))	/* output data sent to SCSI device */
     {
@@ -2052,8 +2052,8 @@ send_calibration_lines_pro (Mustek_Scanner * s)
   cmd2 = (SANE_Byte *) malloc (buf_size + sizeof (scsi_send_data));
   if (!cmd1 || !cmd2)
     {
-      DBG (1, "send_calibration_lines_pro: failed to malloc %d bytes for "
-	   "sending lines\n", buf_size + sizeof (scsi_send_data));
+      DBG (1, "send_calibration_lines_pro: failed to malloc %ld bytes for "
+	   "sending lines\n", (long int) (buf_size + sizeof (scsi_send_data)));
       return SANE_STATUS_NO_MEM;
     }
   memset (cmd1, 0, sizeof (scsi_send_data));
@@ -2214,8 +2214,8 @@ send_calibration_lines_se (Mustek_Scanner * s, SANE_Word color)
   cmd = (SANE_Byte *) malloc (buf_size + sizeof (scsi_send_data));
   if (!cmd)
     {
-      DBG (1, "send_calibration_lines_se: failed to malloc %d bytes for "
-	   "sending lines\n", buf_size + sizeof (scsi_send_data));
+      DBG (1, "send_calibration_lines_se: failed to malloc %ld bytes for "
+	   "sending lines\n", (long int) (buf_size + sizeof (scsi_send_data)));
       return SANE_STATUS_NO_MEM;
     }
   memset (cmd, 0, sizeof (scsi_send_data));
@@ -4309,7 +4309,7 @@ init_options (Mustek_Scanner * s)
   s->opt[OPT_CONTRAST].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_CONTRAST].constraint.range = &percentage_range;
   if (!(s->hw->flags & MUSTEK_FLAG_THREE_PASS))
-    /* 1-pass scanners don't support brightness in multibit mode */
+    /* 1-pass scanners don't support contrast in multibit mode */
     s->opt[OPT_CONTRAST].cap |= SANE_CAP_INACTIVE;
   s->val[OPT_CONTRAST].w = 0;
 
@@ -4833,9 +4833,9 @@ reader_process (Mustek_Scanner * s, SANE_Int fd)
 	      if (status == SANE_STATUS_GOOD)
 		{
 		  DBG (4, "reader_process: buffer %d is ready, wanted %d, "
-		       "got %d bytes\n", buffernumber + 1,
+		       "got %ld bytes\n", buffernumber + 1,
 		       bstat[buffernumber].lines * bpl,
-		       bstat[buffernumber].num_read);
+		       (long int) bstat[buffernumber].num_read);
 		}
 	      else
 		{
@@ -4857,9 +4857,9 @@ reader_process (Mustek_Scanner * s, SANE_Int fd)
 		  return status;
 		}
 
-	      DBG (4, "reader_process: buffer %d: sending %d bytes to "
+	      DBG (4, "reader_process: buffer %d: sending %ld bytes to "
 		   "output_data\n", buffernumber + 1,
-		   bstat[buffernumber].num_read);
+		   (long int) bstat[buffernumber].num_read);
 	      output_data (s, fp, bstat[buffernumber].data,
 			   bstat[buffernumber].lines, bpl, extra);
 	      if (bstat[buffernumber].finished)
@@ -5425,7 +5425,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   first_handle = s;
 
   *handle = s;
-  DBG (4, "sane_open: finished (handle=%p)\n", s);
+  DBG (4, "sane_open: finished (handle=%p)\n", (void *) s);
   return SANE_STATUS_GOOD;
 }
 

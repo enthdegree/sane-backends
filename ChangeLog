@@ -1,3 +1,8 @@
+2000-09-16  Henning Meier-Geinitz <hmg@gmx.de>
+
+	* TODO: Added xscanimage bug and information about versioning
+ 	  problems. Some other minor changes.
+
 2000-09-15 Gerhard Jaeger <g.jaeger@earthling.net>
 	
 	* backend/plustek.c

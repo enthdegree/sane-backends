@@ -16,6 +16,7 @@
 	  doesn't work on 64 bit platforms as size_t is 64 bits there
 	  while the length of a data block is defined as 32 bits in the
 	  SANE network standard (bug #300837).
+	* backend/microtek2.c: Fixed some warnings (bug #300823).
 
 2004-10-02  Thomas Soumarmon <thomas.soumarmon@cogitae.net>
 

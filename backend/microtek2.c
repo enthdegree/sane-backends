@@ -6383,6 +6383,9 @@ prepare_shading_data(Microtek2_Scanner *ms, u_int32_t lines, u_int8_t **data)
                              + color * ( ms->bpl / ms->lut_entry_size / 3 )
                              + i);
                 value /= lines;
+                *((u_int16_t *) *data
+                   + color * ( mi->geo_width / mi->calib_divisor ) + i) =
+                                           (u_int16_t) MIN(0xffff, value);
 #else
 /*  use a median filter to get the shading data -- should be better */
                     *(sortbuf + line ) =
@@ -6393,10 +6396,9 @@ prepare_shading_data(Microtek2_Scanner *ms, u_int32_t lines, u_int8_t **data)
                 qsort(sortbuf, lines, sizeof(u_int16_t),
                        (qsortfunc)compare_func_16);
                 value = *(sortbuf + ( lines - 1 ) / 2 );
-#endif
                 *((u_int16_t *) *data
-                   + color * ( mi->geo_width / mi->calib_divisor ) + i) =
-                                           (u_int16_t) MIN(0xffff, value);
+                   + color * ( mi->geo_width / mi->calib_divisor ) + i) = value;
+#endif
               }
           }
         break;
@@ -6422,6 +6424,9 @@ prepare_shading_data(Microtek2_Scanner *ms, u_int32_t lines, u_int8_t **data)
                              + color);
 
                 value /= lines;
+                *((u_int16_t *) *data
+                 + color * ( mi->geo_width / mi->calib_divisor ) + i) =
+                                               (u_int16_t) MIN(0xffff, value);
 #else
 /*  use a median filter to get the shading data -- should be better */
                     *(sortbuf + line ) =
@@ -6432,10 +6437,9 @@ prepare_shading_data(Microtek2_Scanner *ms, u_int32_t lines, u_int8_t **data)
                 qsort(sortbuf, lines, sizeof(u_int16_t),
                        (qsortfunc)compare_func_16);
                 value = *(sortbuf + ( lines - 1 ) / 2 );
-#endif
                 *((u_int16_t *) *data
-                 + color * ( mi->geo_width / mi->calib_divisor ) + i) =
-                                               (u_int16_t) MIN(0xffff, value);
+                 + color * ( mi->geo_width / mi->calib_divisor ) + i) = value;
+#endif
               }
           }
         break;
@@ -6469,9 +6473,14 @@ prepare_shading_data(Microtek2_Scanner *ms, u_int32_t lines, u_int8_t **data)
 				+ color);
 
 		    value /= lines;
+#ifndef  MICROTEK2_CALIB_USE_MEDIAN
 		    *((u_int16_t *) *data
 			+ color * ( mi->geo_width / mi->calib_divisor ) + i) =
 			(u_int16_t) MIN(0xffff, value);
+#else
+		    *((u_int16_t *) *data
+			+ color * ( mi->geo_width / mi->calib_divisor ) + i) = value;
+#endif
 		  }
 
               }

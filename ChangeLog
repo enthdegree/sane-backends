@@ -2,6 +2,7 @@
 
 	* backend/bh.c backend/coolscan.c: Minor conversion fixes (from
 	  Andrea Suatoni <a.suatoni@telefonica.net>).
+	* backend/test.c: Use "Color pattern" consistantly.
 
 2003-01-24  Gerhard Jaeger <gerhard@gjaeger.de>
 	* doc/plustek/Plustek-USB-TODO.txt

@@ -128,7 +128,7 @@ static SANE_String_Const order_list[] = {
 
 static SANE_String_Const test_picture_list[] = {
   SANE_I18N ("Solid black"), SANE_I18N ("Solid white"),
-  SANE_I18N ("Color patterns"), SANE_I18N ("Grid"),
+  SANE_I18N ("Color pattern"), SANE_I18N ("Grid"),
   0
 };
 

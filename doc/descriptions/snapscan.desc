@@ -39,6 +39,11 @@
 :status :stable
 :comment "Optional ADF supported."
 
+:model "Arcus 1200"
+:interface "SCSI"
+:status :stable
+:comment "Optional transparency unit supported."
+
 :model "SnapScan 1236s"
 :interface "SCSI"
 :status :stable
@@ -179,12 +184,17 @@
 :model "Maxi Scan A4 Deluxe (SCSI)"
 :interface "SCSI"
 :status :stable
-:comment "Seems to be a repackaged SnapScan 310s."
+:comment "Rebadged SnapScan 310s."
 
 :model "Scan@home Touch 1248 (USB)"
 :interface "USB"
 :status :stable
-:comment "Seems to be a repackaged Benq 3300."
+:comment "Rebadged Benq 3300."
+
+:model "Maxi Scan A4 USB 640U"
+:interface "USB"
+:status :stable
+:comment "Rebadged Benq 640U."
 
 ;------------------------------------------------------------------------------
 
@@ -194,12 +204,12 @@
 :model "Diamondview 648UT"
 :interface "USB"
 :status :stable
-:comment "Seems to be a repackaged Benq 320u."
+:comment "Rebadged Benq 320u."
 
 :model "Diamondview 650U"
 :interface "USB"
 :status :stable
-:comment "Seems to be a repackaged Benq 4300."
+:comment "Rebadged Benq 4300."
 
 ;------------------------------------------------------------------------------
 

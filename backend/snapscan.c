@@ -78,7 +78,7 @@
 
 #define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
-#define BUILD               25
+#define BUILD               26
 
 #include "snapscan.h"
 
@@ -1762,8 +1762,14 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
- * Revision 1.28  2003/04/02 21:00:47  oliverschwartz
- * SnapScan backend 1.4.25
+ * Revision 1.29  2003/04/30 20:49:40  oliverschwartz
+ * SnapScan backend 1.4.26
+ *
+ * Revision 1.58  2003/04/30 20:43:07  oliverschwartz
+ * Set backend version number to 1.4.26
+ *
+ * Revision 1.57  2003/04/02 21:17:14  oliverschwartz
+ * Fix for 1200 DPI with Acer 5000
  *
  * Revision 1.56  2003/02/08 10:45:09  oliverschwartz
  * Use 600 DPI as optical resolution for Benq 5000

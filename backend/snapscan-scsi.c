@@ -53,6 +53,7 @@
 /* scanner scsi commands */
 
 static SANE_Status download_firmware(SnapScan_Scanner * pss);
+static SANE_Status wait_scanner_ready (SnapScan_Scanner * pss);
 
 #include "snapscan-usb.h"
 
@@ -891,8 +892,15 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
     pc[SET_WINDOW_P_BLUE_UNDER_COLOR] = 0xff;
     pc[SET_WINDOW_P_GREEN_UNDER_COLOR] = 0xff;
 
-    status = snapscan_cmd (pss->pdev->bus, pss->fd, pss->cmd,
-               SET_WINDOW_TOTAL_LEN, NULL, NULL);
+    do {
+        status = snapscan_cmd (pss->pdev->bus, pss->fd, pss->cmd,
+                  SET_WINDOW_TOTAL_LEN, NULL, NULL);
+        if (status == SANE_STATUS_DEVICE_BUSY) {
+            DBG (DL_MINOR_INFO, "%s: waiting for scanner to warm up\n", me);
+            wait_scanner_ready (pss);
+        }
+    } while (status == SANE_STATUS_DEVICE_BUSY);
+
     CHECK_STATUS (status, me, "snapscan_cmd");
     return status;
 }
@@ -972,7 +980,9 @@ static SANE_Status send_diagnostic (SnapScan_Scanner *pss)
         ||
 	pss->pdev->model == VUEGO610S
 	||
-	pss->pdev->model == SNAPSCAN1236) 
+	pss->pdev->model == SNAPSCAN1236
+        ||
+        pss->pdev->model == ARCUS1200) 
     {
         return SANE_STATUS_GOOD;
     }
@@ -1201,8 +1211,14 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
- * Revision 1.21  2003/04/02 21:00:47  oliverschwartz
- * SnapScan backend 1.4.25
+ * Revision 1.22  2003/04/30 20:49:39  oliverschwartz
+ * SnapScan backend 1.4.26
+ *
+ * Revision 1.37  2003/04/30 20:42:19  oliverschwartz
+ * Added support for Agfa Arcus 1200 (supplied by Valtteri Vuorikoski)
+ *
+ * Revision 1.36  2003/04/02 21:17:13  oliverschwartz
+ * Fix for 1200 DPI with Acer 5000
  *
  * Revision 1.35  2003/02/08 10:45:09  oliverschwartz
  * Use 600 DPI as optical resolution for Benq 5000

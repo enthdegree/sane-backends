@@ -1,3 +1,10 @@
+2003-04-30  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan.c backend/snapscan.h backend/snapscan-options.c
+	  backend/snapscan-scsi.c doc/descriptions/snapscan.desc: SnapScan
+	  backend 1.4.26, added support for Agfa Arcus 1200, better support 
+	  for Benq 5000.
+
 2003-04-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* lib/getopt.c: Removed #include again, breaks compilation on

@@ -97,7 +97,8 @@ typedef enum
     PRISA4300_2,        /* Acer ScanPrisa 3300/4300 - 600 DPI, 42 bit*/
     PRISA5000,          /* Acer ScanPrisa 5000 - 1200 DPI */
     PRISA5300,          /* Acer ScanPrisa 5300 - 1200 DPI */
-    PERFECTION660       /* Epson Perfection 660 - 1200 DPI */
+    PERFECTION660,      /* Epson Perfection 660 - 1200 DPI */
+    ARCUS1200		/* Agfa Arcus 1200 - 1200 DPI (rebadged Acer?) */
 } SnapScan_Model;
 
 struct SnapScan_Driver_desc {
@@ -128,7 +129,8 @@ static struct SnapScan_Driver_desc drivers[] =
     {PRISA1240,      "Acer1240"},
     {PRISA5000,      "Acer5000"},
     {PRISA5300,      "Acer5300"},
-    {PERFECTION660,  "Perfection 660"}
+    {PERFECTION660,  "Perfection 660"},
+    {ARCUS1200,      "Arcus1200"}
 };
 
 #define known_drivers ((int) (sizeof(drivers)/sizeof(drivers[0])))
@@ -174,7 +176,8 @@ static struct SnapScan_Model_desc scanners[] =
     {"SNAPSCAN 600",        SNAPSCAN600},
     {"SnapScan",            SNAPSCAN},
     {"ACERSCAN_A4____1",    ACER300F},
-    {"Perfection 660",      PERFECTION660}
+    {"Perfection 660",      PERFECTION660},
+    {"ARCUS 1200",          ARCUS1200}
 };
 #define known_scanners ((int) (sizeof(scanners)/sizeof(scanners[0])))
 
@@ -374,8 +377,11 @@ struct snapscan_scanner
 
 /*
  * $Log$
- * Revision 1.20  2003/04/02 21:00:48  oliverschwartz
- * SnapScan backend 1.4.25
+ * Revision 1.21  2003/04/30 20:49:40  oliverschwartz
+ * SnapScan backend 1.4.26
+ *
+ * Revision 1.38  2003/04/30 20:42:22  oliverschwartz
+ * Added support for Agfa Arcus 1200 (supplied by Valtteri Vuorikoski)
  *
  * Revision 1.37  2003/02/05 22:11:11  oliverschwartz
  * Added Epson Perfection 660

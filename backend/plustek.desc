@@ -10,7 +10,7 @@
 ;
 
 :backend "plustek"              ; name of backend
-:version "0.38"                 ; version of backend
+:version "0.39"                 ; version of backend
 :status :stable                 ; :alpha, :beta, :stable, :new
 :manpage "sane-plustek"         ; name of manpage (if it exists)
 
@@ -54,6 +54,10 @@
 :interface "Parport (SPP, EPP)"
 :comment "OK"
 
+:model "OpticPro 1236P"
+:interface "Parport (SPP, EPP)"
+:comment "OK - reported as OpticPro 12000P/96000P"
+
 :model "OpticPro 12000P/96000P"
 :interface "Parport (SPP, EPP)"
 :comment "OK"
@@ -80,15 +84,15 @@
 
 :model "OpticPro P8"
 :interface "Parport"
-:comment "Not supported."
+:comment "Not tested."
 
 :model "OpticPro P12"
-:interface "Parport"
-:comment "Not supported."
+:interface "Parport (SPP, EPP)"
+:comment "OK"
 
 :model "OpticPro PT12"
-:interface "Parport"
-:comment "Not supported."
+:interface "Parport (SPP, EPP)"
+:comment "OK."
 
 :model "OpticPro 19200S"
 :interface "SCSI"

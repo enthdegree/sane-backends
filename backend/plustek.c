@@ -9,7 +9,7 @@
  * original code taken from sane-0.71
  * Copyright (C) 1997 Hypercore Software Design, Ltd.
  * also based on the work done by Rick Bronson
- * Copyright (C) 2000 Gerhard Jaeger <g.jaeger@earthling.net>
+ * Copyright (C) 2000/2001 Gerhard Jaeger <g.jaeger@earthling.net>
  *.............................................................................
  * History:
  * 0.30 - initial version
@@ -36,6 +36,7 @@
  *        some minor fixes
  *        removed dropout stuff
  *        removed some warning conditions
+ * 0.39 - added stuff to use the backend completely in user mode
  *
  *.............................................................................
  *
@@ -209,16 +210,18 @@ static int drvopen( const char *dev_name )
 	int			   handle;
 	unsigned short version = _PTDRV_IOCTL_VERSION;
 
+	_INIT(0x378,190,15);
+
     DBG( _DBG_INFO, "drvopen()\n" );
 
-	if ((handle = open(dev_name, O_RDONLY)) < 0) {
+	if ((handle = _OPEN(dev_name)) < 0) {
 	    DBG(_DBG_ERROR, "open: can't open %s as a device\n", dev_name);
     	return handle;
 	}
 	
-	result = ioctl(handle, _PTDRV_OPEN_DEVICE, &version );
+	result = _IOCTL( handle, _PTDRV_OPEN_DEVICE, &version );
 	if( result < 0 ) {
-		close( handle );
+		_CLOSE( handle );
 		DBG( _DBG_ERROR, "ioctl PT_DRV_OPEN_DEVICE failed(%d)\n", result );
         if( -9019 == result )
     		DBG( _DBG_ERROR,"Version problem, please recompile driver!\n" );
@@ -249,10 +252,10 @@ static SANE_Status drvclose( int handle )
 		 * don't check the return values, simply do it and close the driver
 		 */
 		int_cnt = 0;
-		ioctl( handle, _PTDRV_STOP_SCAN, &int_cnt );
-		ioctl( handle, _PTDRV_CLOSE_DEVICE, 0);
+		_IOCTL( handle, _PTDRV_STOP_SCAN, &int_cnt );
+		_IOCTL( handle, _PTDRV_CLOSE_DEVICE, 0);
 
-		close( handle );
+		_CLOSE( handle );
 	}
 
 	return SANE_STATUS_GOOD;
@@ -373,7 +376,7 @@ static int reader_process( Plustek_Scanner *scanner, int pipe_fd )
 	}
 	
 	/* here we read all data from the driver... */
-	status = (unsigned long)read( scanner->hw->fd, scanner->buf, data_length );
+	status = (unsigned long)_READ( scanner->hw->fd, scanner->buf, data_length );
 
 	/* on error, there's no need to clean up, as this is done by the parent */
 	if((int)status < 0 ) {
@@ -415,7 +418,7 @@ static SANE_Status do_cancel( Plustek_Scanner *scanner, SANE_Bool closepipe  )
 		/* tell the driver to stop scanning */
 		if( -1 != scanner->hw->fd ) {
 			int_cnt = 1;
-			ioctl( scanner->hw->fd, _PTDRV_STOP_SCAN, &int_cnt );
+			_IOCTL( scanner->hw->fd, _PTDRV_STOP_SCAN, &int_cnt );
 		}
 
 		/* kill our child process and wait until done */
@@ -458,7 +461,8 @@ static SANE_Status limitResolution( Plustek_Device *dev )
 	 *		   Note: the limit for the Asic 96001/3 models is limited to the
 	 *				 X-Resolution
 	 */
-	if( _ASIC_IS_98001 == dev->caps.AsicID ) {
+	if((_ASIC_IS_98003 == dev->caps.AsicID) ||
+       (_ASIC_IS_98001 == dev->caps.AsicID)) {
 		dev->dpi_range.max = lens.rDpiY.wPhyMax;
 	} else {
 		dev->dpi_range.max = lens.rDpiX.wPhyMax;
@@ -660,24 +664,24 @@ static SANE_Status attach( const char *dev_name, Plustek_Device **devp )
 		return SANE_STATUS_IO_ERROR;
     }
 
-	result = ioctl( handle, _PTDRV_GET_CAPABILITIES, &scaps);
+	result = _IOCTL( handle, _PTDRV_GET_CAPABILITIES, &scaps);
 	if( result < 0 ) {
 		DBG( _DBG_ERROR, "ioctl _PTDRV_GET_CAPABILITIES failed(%d)\n", result);
-		close(handle);
+		_CLOSE(handle);
 		return SANE_STATUS_IO_ERROR;
     }
 
-	result = ioctl( handle, _PTDRV_GET_LENSINFO, &lens);
+	result = _IOCTL( handle, _PTDRV_GET_LENSINFO, &lens);
 	if( result < 0 ) {
 		DBG( _DBG_ERROR, "ioctl _PTDRV_GET_LENSINFO failed(%d)\n", result );
-		close(handle);
+		_CLOSE(handle);
 		return SANE_STATUS_IO_ERROR;
 	}
 
 	/* did we fail on connection? */
 	if( _NO_BASE == scaps.wIOBase ) {
 		DBG( _DBG_ERROR, "failed to find Plustek scanner\n" );
-		close(handle);
+		_CLOSE(handle);
 		return SANE_STATUS_INVAL;
     }
 
@@ -718,7 +722,7 @@ static SANE_Status attach( const char *dev_name, Plustek_Device **devp )
 
 	if (NULL == dev->res_list) {
 		DBG( _DBG_ERROR, "alloc fail, resolution problem\n" );
-		close(handle);
+		_CLOSE(handle);
 		return SANE_STATUS_INVAL;
 	}
 
@@ -786,7 +790,11 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 		return attach("/dev/pt_drv", 0);
 	}
 
+#if V_REV >= 3
 	while (sanei_config_read( dev_name, sizeof(dev_name), fp)) {
+#else
+	while (fgets(dev_name, sizeof(dev_name), fp)) {
+#endif
 
 		DBG( _DBG_SANE_INIT, "sane_init, >%s<\n", dev_name);
 		if( dev_name[0] == '#')		/* ignore line comments */
@@ -833,6 +841,8 @@ void sane_exit( void )
 
 		free( dev );
 	}
+
+	_DOWN();
 
 	auth         = NULL;
 	first_dev    = NULL;
@@ -1136,7 +1146,7 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 					    } else {
 						    s->opt[OPT_MODE].constraint.string_list = mode_list;
     					}
-	    				s->val[OPT_MODE].w = 3;		/* _COLOR_TRUE24 */
+	    				s->val[OPT_MODE].w = 3;		/* COLOR_TRUE24 */
 
 				    } else {
 
@@ -1162,11 +1172,11 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 	    				if( s->hw->caps.dwFlag & SFLAG_TPA ) {
 		    				s->opt[OPT_MODE].constraint.string_list =
 											&mode_9800x_list[_TPAModeSupportMin];
-			    		} else {
+        	    		} else {
 				    		s->opt[OPT_MODE].constraint.string_list =
 												&mode_list[_TPAModeSupportMin];
 					    }
-    					s->val[OPT_MODE].w = 1;		/* _COLOR_TRUE24 */
+ 						s->val[OPT_MODE].w = 0;		/* COLOR_24 is the default */
         			}
 
 		    		s->opt[OPT_HALFTONE].cap |= SANE_CAP_INACTIVE;
@@ -1303,24 +1313,24 @@ SANE_Status sane_start( SANE_Handle handle )
 		return SANE_STATUS_IO_ERROR;
 	}
 
-	result = ioctl( s->hw->fd, _PTDRV_GET_CAPABILITIES, &scaps);
+	result = _IOCTL( s->hw->fd, _PTDRV_GET_CAPABILITIES, &scaps);
 	if( result < 0 ) {
 		DBG( _DBG_ERROR, "ioctl _PTDRV_GET_CAPABILITIES failed(%d)\n", result);
-		close( s->hw->fd );
+		_CLOSE( s->hw->fd );
 		return SANE_STATUS_IO_ERROR;
     }
 	
-	result = ioctl( s->hw->fd, _PTDRV_GET_LENSINFO, &lens);
+	result = _IOCTL( s->hw->fd, _PTDRV_GET_LENSINFO, &lens);
 	if( result < 0 ) {
 		DBG( _DBG_ERROR, "ioctl _PTDRV_GET_LENSINFO failed(%d)\n", result );
-		close(s->hw->fd);
+		_CLOSE( s->hw->fd );
 		return SANE_STATUS_IO_ERROR;
     }
 
 	/* did we fail on connection? */
 	if (scaps.wIOBase == _NO_BASE ) {
 		DBG( _DBG_ERROR, "failed to find Plustek scanner\n" );
-		close(s->hw->fd);
+		_CLOSE( s->hw->fd );
 		return SANE_STATUS_INVAL;
 	}
 
@@ -1394,17 +1404,17 @@ SANE_Status sane_start( SANE_Handle handle )
 
 	cb.ucmd.cInf.ImgDef.wLens = scaps.wLens;
 
-	result = ioctl( s->hw->fd, _PTDRV_PUT_IMAGEINFO, &cb);
+	result = _IOCTL( s->hw->fd, _PTDRV_PUT_IMAGEINFO, &cb);
 	if( result < 0 ) {
 		DBG( _DBG_ERROR, "ioctl _PTDRV_PUT_IMAGEINFO failed(%d)\n", result );
-		close(s->hw->fd);
+		_CLOSE( s->hw->fd );
 		return SANE_STATUS_IO_ERROR;
 	}
 
-	result = ioctl(s->hw->fd, _PTDRV_GET_CROPINFO, &crop);
+	result = _IOCTL(s->hw->fd, _PTDRV_GET_CROPINFO, &crop);
 	if( result < 0 ) {
 	    DBG( _DBG_ERROR, "ioctl _PTDRV_GET_CROPINFO failed(%d)\n", result );
-	    close(s->hw->fd);
+		_CLOSE( s->hw->fd );
     	return SANE_STATUS_IO_ERROR;
     }
 
@@ -1449,17 +1459,17 @@ SANE_Status sane_start( SANE_Handle handle )
 	DBG( _DBG_SANE_INIT, "bright %i contrast %i\n", cb.ucmd.sInf.siBrightness,
 			 									      cb.ucmd.sInf.siContrast);
 
-	result = ioctl(s->hw->fd, _PTDRV_SET_ENV, &cb.ucmd.sInf);
+	result = _IOCTL(s->hw->fd, _PTDRV_SET_ENV, &cb.ucmd.sInf);
 	if( result < 0 ) {
 		DBG( _DBG_ERROR, "ioctl _PTDRV_SET_ENV failed(%d)\n", result );
-		close(s->hw->fd);
+		_CLOSE( s->hw->fd );
 		return SANE_STATUS_IO_ERROR;
     }
 
-	result = ioctl(s->hw->fd, _PTDRV_START_SCAN, &start);
+	result = _IOCTL(s->hw->fd, _PTDRV_START_SCAN, &start);
 	if( result < 0 ) {
 		DBG( _DBG_ERROR, "ioctl _PTDRV_START_SCAN failed(%d)\n", result );
-		close(s->hw->fd);
+		_CLOSE( s->hw->fd );
 		return SANE_STATUS_IO_ERROR;
     }
 
@@ -1470,7 +1480,7 @@ SANE_Status sane_start( SANE_Handle handle )
 	s->buf = realloc( s->buf, (s->params.lines) * s->params.bytes_per_line );
 	if( NULL == s->buf ) {
 		DBG( _DBG_ERROR, "realloc failed\n" );
-		close(s->hw->fd);
+		_CLOSE( s->hw->fd );
 		return SANE_STATUS_NO_MEM;
 	}
 
@@ -1486,7 +1496,7 @@ SANE_Status sane_start( SANE_Handle handle )
 	if( pipe(fds) < 0 ) {
 		DBG( _DBG_ERROR, "ERROR: could not create pipe\n" );
 	    s->scanning = SANE_FALSE;
-		close(s->hw->fd);
+		_CLOSE( s->hw->fd );
 		return SANE_STATUS_IO_ERROR;
 	}
 
@@ -1497,7 +1507,7 @@ SANE_Status sane_start( SANE_Handle handle )
 	if( s->reader_pid < 0 ) {
 		DBG( _DBG_ERROR, "ERROR: could not create child process\n" );
 	    s->scanning = SANE_FALSE;
-		close(s->hw->fd);
+		_CLOSE( s->hw->fd );
 		return SANE_STATUS_IO_ERROR;
 	}
 

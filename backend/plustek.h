@@ -9,10 +9,7 @@
  *
  * original code taken from sane-0.71
  * Copyright (C) 1997 Hypercore Software Design, Ltd.
- *
- * modifications
- * Copyright (C) 1998 Christian Bucher
- * Copyright (C) 1998 Kling & Hautzinger GmbH
+ * Copyright (C) 2000/2001 Gerhard Jaeger <g.jaeger@earthling.net>
  * Last Update:
  *		Gerhard Jaeger <g.jaeger@earthling.net>
  *.............................................................................
@@ -32,6 +29,7 @@
  * 0.38 - added caps to struct Plustek_Device
  *        added exit code to struct Plustek_Scanner
  *        removed dropout stuff
+ * 0.39 - no changes
  *
  *.............................................................................
  *

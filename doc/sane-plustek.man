@@ -1,4 +1,4 @@
-.TH sane-plustek 5 "30 November 2000"
+.TH sane-plustek 5 "09 April 2001"
 .IX sane-plustek
 .SH NAME
 sane-plustek - SANE backend for Plustek parallel port flatbed scanners
@@ -18,6 +18,10 @@ Model:                 ASIC: Properties:
 .br
 ---------------------- ----- ------------------------
 .br
+OpticPro PT12          98003 600x1200 dpi 36bit 512Kb
+.br
+OpticPro P12           98003 600x1200 dpi 36bit 512Kb
+.br
 OpticPro 9636T/12000T  98001 600x1200 dpi 36bit 512Kb
 .br
 OpticPro 12000P Turbo  98001 600x1200 dpi 36bit 512Kb
@@ -27,6 +31,8 @@ OpticPro 9636P+/Turbo  98001 600x1200 dpi 36bit 512Kb
 OpticPro 9636P         98001 600x1200 dpi 36bit 512Kb
 .br
 OpticPro 12000P/96000P 96003 600x1200 dpi 30bit 128Kb
+.br
+OpticPro 1236P         96003 600x1200 dpi 30bit 128Kb
 .br
 OpticPro 9600P         96003 600x1200 dpi 30bit 128Kb
 .br
@@ -164,6 +170,13 @@ lOffonEnd=e
 .I e
 specifies the behaviour when unloading the driver, 1 --> switch
 lamps off, 0 --> do not change lamp status
+.RE
+.PP
+slowIO=s
+.RS
+.I s
+specifies which I/O functions the driver should use, 1 --> use
+delayed functions, 0 --> use the non-delayed ones
 .RE
 .PP
 mov=m
@@ -308,10 +321,6 @@ ASIC 98001 based models:
 * The 300dpi transparency and negative mode does not work
 .br
   correctly.
-.br
-* The gray mode for transparency and negative sources will
-.br
-  not work correctly.
 .br
 * There is currently no way to distinguish a model with
 .br

@@ -1,6 +1,7 @@
 2001-05-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* sanei/sanei_codec_ascii.c: Used #include "../include/sane/...".
+	* sanei/sanei_codec_ascii.c tools/mustek600iin-off.c
+	  tools/sane-find-scanner.c: Used #include "../include/sane/...".
 	* backend/net.c backend/net.h backend/net.desc: Fixed some memory
 	  leaks. A bit of reformating. Added more debug output. Used
 	  #include "../include/sane/...".

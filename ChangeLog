@@ -9,6 +9,7 @@
 
 2001-04-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* sanei/sanei_config2.c: Fixed memory leak: vendor wasn't freed.
 	* PROJECTS: Added entry for the Fujitsu M3091DCd. Updated my email
 	  address.
 	* TODO: Added entry for the Fujitsu M3091DCd and a combined Fujitsu

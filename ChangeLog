@@ -6,6 +6,8 @@
 	* backend/Makefile.in lib/Makefile.in: Link to functions in lib/ only
 	  if they are not available on the system. Avoid duplicating list of
 	  functions.
+	* sanei/sanei_usb.c: If get_vendor_product fails, don't try again for
+	  every device file.
 
 2002-02-10  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

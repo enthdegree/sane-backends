@@ -5,6 +5,7 @@ dnl   SANE_V4L_VERSION
 dnl   SANE_CHECK_PTAL
 dnl   SANE_CHECK_JPEG
 dnl   JAPHAR_GREP_CFLAGS(flag, cmd_if_missing, cmd_if_present)
+dnl   SANE_LINKER_RPATH
 dnl
 
 #
@@ -126,4 +127,29 @@ AC_DEFUN(JAPHAR_GREP_CFLAGS,
   $2
   ;;
 esac
+])
+
+dnl
+dnl SANE_LINKER_RPATH
+dnl
+dnl Detect how to set runtime link path (rpath).  Set variable
+dnl LINKER_RPATH.  Typical content will be '-Wl,-rpath,' or '-R '.  If
+dnl set, add '${LINKER_RPATH}${libdir}' to $LDFLAGS
+dnl
+
+AC_DEFUN(SANE_LINKER_RPATH,
+[dnl AC_REQUIRE([AC_SUBST])dnl This line resulted in an empty AC_SUBST() !!
+  AC_CACHE_CHECK([linker parameter to set runtime link path], LINKER_RPATH,
+    [LINKER_RPATH=
+    case "$host_os" in
+    linux* | freebsd* | netbsd* | openbsd*)
+      # I believe this only works with GNU ld [pere 2001-04-16]
+      LINKER_RPATH="-Wl,-rpath,"
+      ;;
+    solaris*)
+      LINKER_RPATH="-R "
+      ;;
+    esac
+    ])
+  AC_SUBST(LINKER_RPATH)dnl
 ])

@@ -2074,7 +2074,7 @@ main (int argc, char *argv[])
       DBG (DBG_WARN, "main: starting debug mode (level %d)\n", debug);
 
       DBG (DBG_DBG, 
-	   "main: trying to get port for service `sane' (getaddrinfo)\n");
+	   "main: trying to get port for service `sane-port' (getaddrinfo)\n");
 
       memset (&hints, 0, sizeof (struct addrinfo));
 
@@ -2082,11 +2082,11 @@ main (int argc, char *argv[])
       hints.ai_flags = AI_PASSIVE;
       hints.ai_socktype = SOCK_STREAM;
 
-      err = getaddrinfo (NULL, "sane", &hints, &res);
+      err = getaddrinfo (NULL, "sane-port", &hints, &res);
       if (err)
 	{
-	  DBG (DBG_WARN, "main: \"sane\" service unknown on your host; you should add\n");
-	  DBG (DBG_WARN, "main:      sane 6566/tcp saned # SANE network scanner daemon\n");
+	  DBG (DBG_WARN, "main: \"sane-port\" service unknown on your host; you should add\n");
+	  DBG (DBG_WARN, "main:      sane-port 6566/tcp saned # SANE network scanner daemon\n");
 	  DBG (DBG_WARN, "main: to your /etc/services file (or equivalent). Proceeding anyway.\n");
 	  err = getaddrinfo (NULL, "6566", &hints, &res);
 	  if (err)
@@ -2326,7 +2326,7 @@ main (int argc, char *argv[])
 
       DBG (DBG_DBG, 
 	   "main: trying to get port for service `sane' (getservbyname)\n");
-      serv = getservbyname ("sane", "tcp");
+      serv = getservbyname ("sane-port", "tcp");
       if (serv)
 	{
 	  port = serv->s_port;

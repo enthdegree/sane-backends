@@ -156,7 +156,7 @@ add_device (const char *name, Net_Device ** ndp)
   hints.ai_family = PF_INET;
 # endif /* ENABLE_IPV6 */
 
-  error = getaddrinfo (name, "sane", &hints, &res);
+  error = getaddrinfo (name, "sane-port", &hints, &res);
   if (error)
     {
       error = getaddrinfo (name, NULL, &hints, &res);
@@ -665,7 +665,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
 #ifndef NET_USES_AF_INDEP
   DBG (2, "sane_init: determining sane service port\n");
-  serv = getservbyname ("sane", "tcp");
+  serv = getservbyname ("sane-port", "tcp");
 
   if (serv)
     {
@@ -675,7 +675,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   else
     {
       saned_port = htons (6566);
-      DBG (1, "sane_init: could not find `sane' service (%s); using default "
+      DBG (1, "sane_init: could not find `sane-port' service (%s); using default "
 	   "port %d\n", strerror (errno), ntohs (saned_port));
     }
 #endif /* !NET_USES_AF_INDEP */

@@ -1,4 +1,4 @@
-.TH saned 1 "29 Oct 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH saned 1 "30 May 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX saned
 .SH NAME
 saned \- SANE network daemon
@@ -92,7 +92,7 @@ support IPv6, check the documentation for your inetd daemon.
 The configuration line normally looks like this:
 .PP
 .RS
-sane stream tcp nowait saned.saned @SBINDIR@/saned saned
+sane-port stream tcp nowait saned.saned @SBINDIR@/saned saned
 .RE
 .PP
 However, if your system uses
@@ -105,7 +105,7 @@ and use a line of the following form in
 instead:
 .PP
 .RS
-sane stream tcp nowait saned.saned /usr/sbin/tcpd @SBINDIR@/saned
+sane-port stream tcp nowait saned.saned /usr/sbin/tcpd @SBINDIR@/saned
 .RE
 .PP
 Note that both examples assume that there is a
@@ -130,7 +130,7 @@ for xinetd.conf may be helpful:
 .br
 # network.
 .br
-service sane
+service sane-port
 .br
 {
 .br
@@ -153,9 +153,11 @@ Finally, it is also necessary to add a line of the following form to
 .IR /etc/services :
 .PP
 .RS
-sane 6566/tcp # SANE network scanner daemon
+sane-port 6566/tcp # SANE network scanner daemon
 .RE
 .PP
+The official IANA short name for port 6566 is "sane-port". The older name "sane"
+is now deprecated.
 
 .SH "RESTRICTIONS"
 In addition to the control connection (port 6566) saned also uses a data

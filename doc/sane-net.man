@@ -77,7 +77,7 @@ and
 are contacted in addition to the hosts listed above.
 .PP
 For this backend to function properly, it is also necessary to define the
-.B sane
+.B sane-port
 service in
 .IR /etc/services .
 The
@@ -85,7 +85,7 @@ The
 service should be defined using a line of the following form:
 .PP
 .RS
-sane 6566/tcp # SANE network scanner daemon
+sane-port 6566/tcp # SANE network scanner daemon
 .RE
 .PP
 .SH FILES

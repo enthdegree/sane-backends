@@ -662,6 +662,11 @@
 :status :unsupported
 :comment "Probably unsupported. See link for details."
 
+:model "MD 41985"
+:url "/unsupported/medion-md6190.html"
+:interface "USB"
+:status :unsupported
+:comment "Probably unsupported. See link for details."
 
 ;********************************************************************************************
 
@@ -694,6 +699,12 @@
 :interface "SCSI IEEE-1384"
 :status :unsupported
 :comment "Unsupported. Same as Agfa DuoScan T2500?"
+
+:model "ArtixScan 4000tf"
+;:url ""
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. Uses ALI M5611B."
 
 :model "Filmscan 35"
 :interface "USB	"
@@ -765,6 +776,12 @@
 :interface "USB"
 :status :unsupported
 :comment "Unsupported. See link for more details."
+
+:model "ScanMaker 5700"
+;:url ""
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. Uses ALI M5615 like the ScanMaker 4700."
 
 :model "ScanMaker 5900"
 :url "/unsupported/microtek-scanmaker-5900.html"

@@ -206,7 +206,7 @@ static void init_options (SnapScan_Scanner * ps)
     static SANE_Word resolutions_1200[] =
         {10, 50, 75, 100, 150, 200, 300, 450, 600, 900, 1200};
     static SANE_Word resolutions_1600[] =
-        {10, 50, 75, 100, 150, 200, 300, 450, 600, 900, 1200, 1600};
+        {11, 50, 75, 100, 150, 200, 300, 450, 600, 900, 1200, 1600};
     static SANE_String_Const names_all[] =
         {md_colour, md_bilevelcolour, md_greyscale, md_lineart, NULL};
     static SANE_String_Const names_basic[] =
@@ -1485,6 +1485,9 @@ SANE_Status sane_control_option (SANE_Handle h,
 
 /*
  * $Log$
+ * Revision 1.13  2003/11/28 23:23:18  oliver-guest
+ * Correct length of wordlist for resolutions_1600
+ *
  * Revision 1.12  2003/11/09 21:43:45  oliver-guest
  * Disabled quality calibration for Epson Perfection 1670
  *

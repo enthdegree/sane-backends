@@ -52,7 +52,7 @@
 :mfg "Mitsubishi"
 
 :model "MCA-S600C"
-:interface "SCSI
+:interface "SCSI"
 
 :model "MCA-SS600"
 :interface "SCSI"

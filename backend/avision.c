@@ -224,7 +224,7 @@ Avision_HWEntry Avision_Device_List  [] =
     {"MINOLTA", "FS-V1",         1, 1},
     /* possibly all Minolta film-scanners ? */
     {"MITSBISH", "MCA-S600C",    0, 0},
-    {"MITSBISH", "MCA-SS600",    0, 0}, /* untested an ID guseed */
+    {"MITSBISH", "MCA-SS600",    0, 0}, /* untested an ID guessed */
     {NULL,       NULL,           0, 0} }; /* last entry detection */
 
 #define A4_X_RANGE 8.5   /* used when scanner returns invalid range fields ... */

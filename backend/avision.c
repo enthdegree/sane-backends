@@ -84,7 +84,7 @@
 
 
 #define BACKEND_NAME avision
-#define BACKEND_BUILD 12  /* avision backend BUILD version */
+#define BACKEND_BUILD 13  /* avision backend BUILD version */
 
 #define MAX_X_RANGE 8.5 /* used when scanner returns invaild ragne fields ... */
 #define MAX_Y_RANGE 11.8
@@ -100,6 +100,8 @@
 static int num_devices;
 static Avision_Device* first_dev;
 static Avision_Scanner* first_handle;
+
+static SANE_Bool force_a4 = SANE_FALSE; /* for scanable area to ISO(DIN) A4 */
 
 static const SANE_String_Const mode_list[] =
   {
@@ -588,6 +590,14 @@ attach (const char* devname, Avision_Device** devp)
   else
     DBG (3, "Inquiry x/y-range is vaild?!?\n");
   
+  if (force_a4)
+    {
+      DBG (3, "option: \"force_a4\" found! Using defauld %fx%finch (ISO A4).\n",
+	   MAX_X_RANGE, MAX_Y_RANGE);
+      dev->x_range.max = SANE_FIX (MAX_X_RANGE * MM_PER_INCH);
+      dev->y_range.max = SANE_FIX (MAX_Y_RANGE * MM_PER_INCH);
+    }
+  
   ++num_devices;
   dev->next = first_dev;
   first_dev = dev;
@@ -692,7 +702,6 @@ set_gamma (Avision_Scanner* s)
   
   double brightness;
   double contrast;
-  /* double threshold; */
   
   DBG (3, "set_gamma\n");
   
@@ -703,9 +712,6 @@ set_gamma (Avision_Scanner* s)
   contrast /= 100;
   
   DBG (3, "brightness: %f, contrast: %f\n", brightness, contrast);
-  
-  /* threshold = SANE_UNFIX (s->val[OPT_THRESHOLD].w); */
-  /* threshold /= 100; */
   
   /* should we sent a custom gamma-table ?? 
    * don't send anything if no - the scanner may not understand the gamma-table
@@ -858,18 +864,12 @@ set_window (Avision_Scanner* s)
   
   /* this is normaly unsupported by avsion scanner.
    * I clear this only to be shure if an other scanner knows about it ...
-   * we do this via the gamma table (soon) ...
+   * we do this via the gamma table ...
    */
   cmd.window_descriptor.thresh = 128;
   cmd.window_descriptor.brightness = 128; 
   cmd.window_descriptor.contrast = 128;
     
-  /*
-   * cmd.window_descriptor.thresh = 1 + 2.55 * (SANE_UNFIX (s->val[OPT_THRESHOLD].w));
-   * cmd.window_descriptor.brightness = 128 + 1.28 * (SANE_UNFIX (s->val[OPT_BRIGHTNESS].w));
-   * cmd.window_descriptor.contrast = 128 + 1.28 * (SANE_UNFIX (s->val[OPT_CONTRAST].w));
-   */ 
-  
   /* mode dependant settings */
   switch (s->mode)
     {
@@ -1177,17 +1177,6 @@ init_options (Avision_Scanner* s)
   s->opt[OPT_CONTRAST].constraint.range = &percentage_range;
   s->val[OPT_CONTRAST].w = SANE_FIX(0);
 
-  /* Threshold */
-  s->opt[OPT_THRESHOLD].name = SANE_NAME_THRESHOLD;
-  s->opt[OPT_THRESHOLD].title = SANE_TITLE_THRESHOLD;
-  s->opt[OPT_THRESHOLD].desc = SANE_DESC_THRESHOLD;
-  s->opt[OPT_THRESHOLD].type = SANE_TYPE_FIXED;
-  s->opt[OPT_THRESHOLD].unit = SANE_UNIT_PERCENT;
-  s->opt[OPT_THRESHOLD].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_THRESHOLD].constraint.range = &abs_percentage_range;
-  s->opt[OPT_THRESHOLD].cap = SANE_CAP_INACTIVE;
-  s->val[OPT_THRESHOLD].w = SANE_FIX(50);
-
   /* Quality Scan */
   s->opt[OPT_QSCAN].name   = "quality-scan";
   s->opt[OPT_QSCAN].title  = "Quality scan";
@@ -1373,7 +1362,12 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
   char dev_name[PATH_MAX];
   size_t len;
   FILE *fp;
-
+  
+  char line[PATH_MAX];
+  const char* cp;
+  char* word;
+  int linenumber = 0;
+  
   DBG (3, "sane_init\n");
 
   DBG_INIT();
@@ -1388,18 +1382,57 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
     return SANE_STATUS_GOOD;
   }
 
-  while (sanei_config_read  (dev_name, sizeof (dev_name), fp) ) 
+  while (sanei_config_read  (line, sizeof (line), fp))
     {
-      if (dev_name[0] == '#')		/* ignore line comments */
-	continue;
-      len = strlen (dev_name);
-      if (dev_name[len - 1] == '\n')
-	dev_name[--len] = '\0';
+      word = 0;
+      linenumber++;
+      
+      DBG(5, "sane_init: parsing config line \"%s\"\n",
+	  line);
+      
+      cp = sanei_config_get_string (line, &word);
+      
+      if (!word || cp == line)
+	{
+	  DBG(5, "sane_init: config file line %d: ignoring empty line\n",
+	      linenumber);
+	  continue;
+	}
+      if (word[0] == '#')
+	{
+	  DBG(5, "sane_init: config file line %d: ignoring comment line\n",
+	      linenumber);
+	  free (word);
+	  continue;
+	}
+                    
+      if (strcmp (word, "option") == 0)
+      	{
+	  free (word);
+	  word = 0;
+	  cp = sanei_config_get_string (cp, &word);
 	  
-      if (!len)
-	continue;			/* ignore empty lines */
+	  if (strcmp (word, "force-a4") == 0)
+	    {
+	      DBG(3, "sane_init: config file line %d: enabling force-a4\n",
+		      linenumber);
+	      force_a4 = SANE_TRUE;
+	      
+	      if (word)
+		free (word);
+	      word = 0;
+	    }
+	}
+      else
+	{
+	  DBG(4, "sane_init: config file line %d: trying to attach `%s'\n",
+	      linenumber, line);
 	  
-      sanei_config_attach_matching_devices (dev_name, attach_one);
+	  sanei_config_attach_matching_devices (line, attach_one);
+	  if (word)
+	    free (word);
+	  word = 0;
+	}
     }
   fclose (fp);
   return SANE_STATUS_GOOD;
@@ -1585,7 +1618,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  
 	case OPT_BRIGHTNESS:
 	case OPT_CONTRAST:
-	case OPT_THRESHOLD:
 	case OPT_QSCAN:    
 	case OPT_QCALIB:
 	case OPT_TRANS:
@@ -1631,11 +1663,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    *info |= SANE_INFO_RELOAD_PARAMS;
 	  /* fall through */
 	case OPT_PREVIEW:
-	  
 	case OPT_BRIGHTNESS:
 	case OPT_CONTRAST:
-	case OPT_THRESHOLD:
-	  
 	case OPT_QSCAN:    
 	case OPT_QCALIB:
 	case OPT_TRANS:
@@ -1658,17 +1687,20 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    {
 	      s->mode = make_mode (s->val[OPT_MODE].s);
 	      
-	      if (s->mode == GREYSCALE)
-		{
-		  s->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
-		}
-	      else if (s->mode == TRUECOLOR)
+	      /* the mode specific stuff */
+	      if (s->mode == TRUECOLOR)
 		{
 		  s->opt[OPT_GAMMA_VECTOR].cap   &= ~SANE_CAP_INACTIVE;
 		  s->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
 		  s->opt[OPT_GAMMA_VECTOR_G].cap &= ~SANE_CAP_INACTIVE;
 		  s->opt[OPT_GAMMA_VECTOR_B].cap &= ~SANE_CAP_INACTIVE;
 		}
+	      else /* grey or binary */
+		{
+		  s->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
+		}
+	      s->opt[OPT_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
+	      s->opt[OPT_CONTRAST].cap   &= ~SANE_CAP_INACTIVE;
 	    }
 	  else
 	    {
@@ -1676,7 +1708,11 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	      s->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
 	      s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
 	      s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
-	  }
+	      
+	      /* we have to set this inacitve, cause we use the gamma-table for it! */
+	      s->opt[OPT_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
+	      s->opt[OPT_CONTRAST].cap   |= SANE_CAP_INACTIVE;
+	    }
 	  if (info)
 	    *info |= SANE_INFO_RELOAD_OPTIONS;
 	  return SANE_STATUS_GOOD;
@@ -1686,44 +1722,43 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  {
 	    if (s->val[option].s)
 	      free (s->val[option].s);
-	    s->val[option].s = strdup (val);
 	    
+	    s->val[option].s = strdup (val);
 	    s->mode = make_mode (s->val[OPT_MODE].s);
 	    
-	    if (info)
-	      *info |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
-	    
-	    s->opt[OPT_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
-	    s->opt[OPT_CONTRAST].cap   |= SANE_CAP_INACTIVE;
-	    s->opt[OPT_THRESHOLD].cap  |= SANE_CAP_INACTIVE;
-	    
-	    s->opt[OPT_CUSTOM_GAMMA].cap |= SANE_CAP_INACTIVE;
-	    s->opt[OPT_GAMMA_VECTOR].cap |= SANE_CAP_INACTIVE;
-	    s->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
-	    s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
-	    s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
-	    
-	    if (strcmp (val, "Thresholded") == 0) 
-	      s->opt[OPT_THRESHOLD].cap  &= ~SANE_CAP_INACTIVE;
-	    else {
-	      s->opt[OPT_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
-	      s->opt[OPT_CONTRAST].cap   &= ~SANE_CAP_INACTIVE;
-	    }
-	    
-	    /* if (!binary) */
-	    s->opt[OPT_CUSTOM_GAMMA].cap &= ~SANE_CAP_INACTIVE;
-	    
-	    if (s->val[OPT_CUSTOM_GAMMA].w) {
-	      if (strcmp (val, "Gray") == 0)
-		s->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
-	      else if (strcmp (val, "Color") == 0) {
+	    /* set to mode specific values */
+	    if (s->mode == TRUECOLOR)
+	      {
 		s->opt[OPT_GAMMA_VECTOR].cap   &= ~SANE_CAP_INACTIVE;
 		s->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
 		s->opt[OPT_GAMMA_VECTOR_G].cap &= ~SANE_CAP_INACTIVE;
 		s->opt[OPT_GAMMA_VECTOR_B].cap &= ~SANE_CAP_INACTIVE;
 	      }
-	    }
+	    else /* grey or mono */
+	      {
+		s->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
+		s->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
+		s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
+		s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
+	      }
 	    
+	    s->opt[OPT_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
+	    s->opt[OPT_CONTRAST].cap   &= ~SANE_CAP_INACTIVE;
+	    
+	    /* overwrite if OPT_CUSTOM_GAMMA == false */
+	    if (!s->val[OPT_CUSTOM_GAMMA].w)
+	      {
+		s->opt[OPT_GAMMA_VECTOR].cap   |= SANE_CAP_INACTIVE;
+		s->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
+		s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
+		s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
+		
+		/* we have to set this inacitve, cause we use the gamma-table for it! */
+		s->opt[OPT_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
+		s->opt[OPT_CONTRAST].cap   |= SANE_CAP_INACTIVE;
+	      }
+	    if (info)
+	      *info |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
 	    return SANE_STATUS_GOOD;
 	  }
 	}

@@ -78,7 +78,6 @@ enum Avision_Option
   OPT_ENHANCEMENT_GROUP,
   OPT_BRIGHTNESS,
   OPT_CONTRAST,
-  OPT_THRESHOLD,
   OPT_QSCAN,
   OPT_QCALIB,
   OPT_TRANS,             /* Transparency Mode */

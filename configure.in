@@ -103,7 +103,7 @@ AC_CHECK_HEADERS(fcntl.h unistd.h libc.h sys/dsreq.h sys/select.h \
     bsd/dev/scsireg.h scsi/sg.h /usr/src/linux/include/scsi/sg.h io/cam/cam.h \
     camlib.h os2.h sys/socket.h sys/io.h asm/io.h gscdds.h sys/hw.h \
     sys/types.h sys/scsi/scsi.h sys/scsi/sgdefs.h sys/scsi/targets/scgio.h \
-    apollo/scsi.h sys/sdi_comm.h sys/passthrudef.h linux/ppdev.h)
+    apollo/scsi.h sys/sdi_comm.h sys/passthrudef.h linux/ppdev.h usb.h)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -165,6 +165,7 @@ AC_CHECK_LIB(m,sqrt)
 AC_CHECK_LIB(scsi, scsireq_enter)	# FreeBSD needs this
 AC_CHECK_LIB(cam, cam_open_device)      # FreeBSD 3+ needs this
 AC_CHECK_LIB(syslog, syslog)            # OS/2 needs this
+AC_CHECK_LIB(usb, usb_open)
 
 SANE_CHECK_JPEG
 
@@ -252,6 +253,15 @@ else
 fi
 AC_SUBST(NET)
 AC_SUBST(SANED)
+if test "${ac_cv_header_usb_h}" = "no" -o "${ac_cv_lib_usb}" = "no"; then
+  echo "disabling SM3600 backend"
+  SM3600=
+else
+  echo "enabling SM3600 backend"
+  SM3600=sm3600
+fi
+AC_SUBST(SM3600)
+
 if test "${enable_shared}" = "no"; then
   enable_preload=yes
 fi

@@ -121,6 +121,18 @@
 :interface "SCSI"
 :status :stable
 
+:model "310u"
+:interface "USB"
+:status :stable
+
+:model "320u"
+:interface "USB"
+:status :stable
+
+:model "340u"
+:interface "USB"
+:status :stable
+
 :model "620u"
 :interface "USB"
 :status :stable
@@ -129,6 +141,7 @@
 :model "640u"
 :interface "USB"
 :status :stable
+:comment "Optional tranparency unit supported"
 
 :model "640bu"
 :interface "USB"
@@ -154,6 +167,7 @@
 :model "5300"
 :interface "USB"
 :status :alpha
+:comment "Problems with firmware upload reported"
 
 :mfg "Guillemot / Hercules"
 :url "http://www.guillemot.com"
@@ -177,6 +191,11 @@
 :interface "USB"
 :status :stable
 :comment "Seems to be a repackaged Benq 320u."
+
+:model "Diamondview 650U"
+:interface "USB"
+:status :stable
+:comment "Seems to be a repackaged Benq 4300."
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

@@ -482,7 +482,7 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
 
     switch (pss->pdev->model)
     {
-    case SNAPSCAN300:
+    case SNAPSCAN:
     case ACER300F:
         pss->chroma_offset[R_CHAN] =
         pss->chroma_offset[G_CHAN] =
@@ -1186,8 +1186,11 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
- * Revision 1.19  2002/09/26 20:09:18  oliverschwartz
- * SnapScan backend 1.4.16 (support for Acer/Benq 5000)
+ * Revision 1.20  2003/01/08 21:45:15  oliverschwartz
+ * Update to snapscan backend 1.4.18
+ *
+ * Revision 1.34  2002/12/10 20:14:12  oliverschwartz
+ * Enable color offset correction for SnapScan300
  *
  * Revision 1.33  2002/09/24 16:07:48  oliverschwartz
  * Added support for Benq 5000

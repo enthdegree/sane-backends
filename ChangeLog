@@ -1,3 +1,12 @@
+2003-01-08  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* doc/descriptions/snapscan.desc:
+	  Added entries for Acer/Benq 310U, 320U, 340U and 
+	  Mitsubishi Diamondview 650U
+	* backend/snapscan.c backend/snapscan.h backend/snapscan-scsi.c
+	  backend/snapscan.conf: Backend version 1.4.18, added support for 
+	  Acer/Benq310U, fixed color correction for Agfa SnapScan 300 
+
 2003-01-08  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/hpsj5s.desc doc/descriptions-external/hp4200.desc:

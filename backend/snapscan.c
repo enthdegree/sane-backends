@@ -78,7 +78,7 @@
 
 #define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
-#define BUILD               17
+#define BUILD               18
 
 #include "snapscan.h"
 
@@ -485,6 +485,7 @@ static SANE_Status snapscani_init_device_structure(
     (*pd)->model = model_num;
     switch (model_num)
     {
+    case SNAPSCAN:
     case SNAPSCAN300:
         (*pd)->depths = depths8;
         break;
@@ -1753,8 +1754,17 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
- * Revision 1.26  2002/10/14 21:49:42  oliverschwartz
- * SnapScan backend 1.4.17
+ * Revision 1.27  2003/01/08 21:45:15  oliverschwartz
+ * Update to snapscan backend 1.4.18
+ *
+ * Revision 1.55  2003/01/08 21:16:17  oliverschwartz
+ * Added support for Acer / Benq 310U
+ *
+ * Revision 1.54  2002/12/10 20:14:12  oliverschwartz
+ * Enable color offset correction for SnapScan300
+ *
+ * Revision 1.53  2002/10/31 19:29:41  oliverschwartz
+ * Set version to 1.4.17
  *
  * Revision 1.52  2002/10/12 10:40:48  oliverschwartz
  * Added support for Snapscan e10

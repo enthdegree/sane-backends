@@ -78,7 +78,8 @@ typedef enum
 typedef enum
 {
     UNKNOWN,
-    SNAPSCAN300,        /* the original SnapScan or SnapScan 300 */
+    SNAPSCAN,           /* the original SnapScan */
+    SNAPSCAN300,        /* the SnapScan 300 */
     SNAPSCAN310,        /* the SnapScan 310 */
     SNAPSCAN600,        /* the SnapScan 600 */
     SNAPSCAN1236,       /* the SnapScan 1236 */
@@ -107,6 +108,7 @@ static struct SnapScan_Driver_desc drivers[] =
 {
     /* enum value -> Driver name */
     {UNKNOWN,        "Unknown"},
+    {SNAPSCAN,       "SnapScan"},
     {SNAPSCAN300,    "SnapScan300"},
     {SNAPSCAN310,    "SnapScan310"},
     {SNAPSCAN600,    "SnapScan600"},
@@ -168,7 +170,7 @@ static struct SnapScan_Model_desc scanners[] =
     {"SNAPSCAN 300",        SNAPSCAN300},
     {"SNAPSCAN 310",        SNAPSCAN310},
     {"SNAPSCAN 600",        SNAPSCAN600},
-    {"SnapScan",            SNAPSCAN300},
+    {"SnapScan",            SNAPSCAN},
     {"ACERSCAN_A4____1",    ACER300F}
 };
 #define known_scanners ((int) (sizeof(scanners)/sizeof(scanners[0])))
@@ -200,7 +202,8 @@ struct SnapScan_USB_Model_desc
 
 static struct SnapScan_USB_Model_desc usb_scanners[] =
 {
-    {0x04a5, 0x2022, SNAPSCAN310}  /* Acer 320U */
+    {0x04a5, 0x1a20, SNAPSCAN310},  /* Acer 310U */
+    {0x04a5, 0x2022, SNAPSCAN310}   /* Acer 320U */
 };
 #define known_usb_scanners ((int) (sizeof(usb_scanners)/sizeof(usb_scanners[0])))
 
@@ -366,8 +369,14 @@ struct snapscan_scanner
 
 /*
  * $Log$
- * Revision 1.18  2002/10/14 21:49:43  oliverschwartz
- * SnapScan backend 1.4.17
+ * Revision 1.19  2003/01/08 21:45:15  oliverschwartz
+ * Update to snapscan backend 1.4.18
+ *
+ * Revision 1.36  2003/01/08 21:16:36  oliverschwartz
+ * Added support for Acer / Benq 310U
+ *
+ * Revision 1.35  2002/12/10 20:14:12  oliverschwartz
+ * Enable color offset correction for SnapScan300
  *
  * Revision 1.34  2002/10/12 10:40:48  oliverschwartz
  * Added support for Snapscan e10

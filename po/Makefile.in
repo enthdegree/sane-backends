@@ -16,7 +16,7 @@ SRC_FILES = ../include/sane/saneopts.h ../backend/artec_eplus48u.c \
   ../backend/teco3.h ../backend/test.c ../backend/umax1220u.c \
   ../backend/umax.c ../backend/umax_pp.c
 
-DISTFILES = Makefile.in README sane-backends.pot sane-backends.de.po \
+DISTFILES = Makefile.in README sane-backends.de.po \
   sane-backends.es.po sane-backends.fr.po sane-backends.ru.po sane-backends.sv.po
 
 # End of configuration section

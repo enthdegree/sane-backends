@@ -28,6 +28,8 @@
 	  are now in the per-language sane-backends.??.po files.
 	* TODO: Updated .desc file, mapages, sanei_usb and OS/2 entries. Removed
 	  entry about po files.
+	* po/Makefile.in: Remove sane-backends.pot from list of distributed 
+	  files.
 
 2003-01-07  Peter Fales  <peter@fales-lorenz.net>
 

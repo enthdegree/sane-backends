@@ -24,6 +24,9 @@
 	* doc/sane-coolscan.man: Used @@ macros instead of fixed paths.
 	* doc/sane-dc210.man doc/sane-dc240.man doc/sane-dc25.man:
 	  Used @@ macros instead of fixed paths. Fixed library paths.
+	* doc/Makefile.in doc/sane-coolscan.man doc/sane-dc210.man
+	  doc/sane-dc240.man doc/sane-dc25.man: Set the correct library
+	  path for all backends by changing @LIBDIR@ to $(libdir)/sane.
 
 2001-06-09  Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 

@@ -13,6 +13,8 @@
 	  doc/mustek/mustek.CHANGES: Reduced scan area of Mustek Paragon
 	  1200 A3 Pro. Removed warning message. Increased support level to
 	  complete.
+	* tools/hotplug/libsane.usermap: Added another variant of a
+	  Plustek OpticPro 1248U.
 
 2004-06-06  Karl Heinz Kremer <khk@khk.net>
 

@@ -46,7 +46,7 @@
    This file implements a SANE backend for Mustek 1200UB and similar 
    USB flatbed scanners.  */
 
-#define BUILD 15
+#define BUILD 16
 
 #include "../include/sane/config.h"
 
@@ -711,6 +711,15 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BUILD);
 
   DBG (5, "sane_init: authorize %s null\n", authorize ? "!=" : "==");
+
+
+  num_devices = 0;
+  first_dev = 0;
+  first_handle = 0;
+  devlist = 0;
+  new_dev = 0;
+  new_dev_len = 0;
+  new_dev_alloced = 0;
 
   sanei_usb_init ();
 

@@ -29,6 +29,8 @@ More details can be found on the Mustek USB backend homepage
 The Mustek BearPaw 1200 and 2400 scanners are supported by the plustek
 backend. See 
 .BR sane-plustek (5)
+for details. The Mustek BearPaw 1200F is supported by the MA-1509 backend. See
+.BR sane-ma1509 (5)
 for details. Other Mustek USB scanners are supported by the gt68xx backend,
 see
 .BR sane-gt68xx (5).
@@ -171,7 +173,8 @@ export SANE_DEBUG_MUSTEK_USB=4
 .BR sane-mustek (5),
 .BR sane-mustek_pp (5),
 .BR sane-plustek (5),
-.BR sane-gt68xx (5)
+.BR sane-gt68xx (5),
+.BR sane-ma1509 (5)
 .br
 .IR @DOCDIR@/mustek_usb/mustek_usb.CHANGES ,
 .I @DOCDIR@/mustek_usb/mustek_usb.TODO

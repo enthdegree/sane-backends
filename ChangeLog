@@ -12,6 +12,9 @@
 	  run more than once.
 	* doc/descriptions-external/ibm.desc: Add Ricoh IS-420.
 	* sanei/sanei_usb.c: Call sanei_usb_init only once.
+	* backend/mustek_usb.c doc/descriptions/mustek_usb.desc
+	  doc/mustek_usb/mustek_usb.CHANGES doc/sane-mustek_usb.man: Iniatialize
+	  global variables explicitely. Mention ma1509.
 
 2003-02-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

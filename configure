@@ -4019,12 +4019,15 @@ CPPFLAGS="${CPPFLAGS} -DPATH_SANE_CONFIG_DIR=\$(configdir) \
 	  -DV_MAJOR=${V_MAJOR} -DV_MINOR=${V_MINOR}"
 
 if test "${sane_cv_use_libjpeg}" != "yes"; then
-  echo "disabling DC210 backend (failed to find JPEG library)"
+  echo "disabling DC210/DC240 backends (failed to find JPEG library)"
   DC210=
+  DC240=
 else
-  echo "enabling DC210 backend"
+  echo "enabling DC210/DC240 backends"
   DC210=dc210
+  DC240=dc240
 fi
+
 
 if test "${ac_cv_header_sys_scanio_h}" = "no"; then
   echo "disabling PINT backend"
@@ -4082,7 +4085,10 @@ else
   set_scsibuffersize=131072
 fi
 
-CFLAGS="$CFLAGS -DSCSIBUFFERSIZE=$set_scsibuffersize"
+cat >> confdefs.h <<EOF
+#define SCSIBUFFERSIZE $set_scsibuffersize
+EOF
+
 echo "scsi buffersize: $set_scsibuffersize"
 
 
@@ -4193,6 +4199,7 @@ ac_given_INSTALL="$INSTALL"
 
 trap 'rm -fr `echo "Makefile lib/Makefile sanei/Makefile frontend/Makefile
 	   japi/Makefile backend/Makefile include/Makefile doc/Makefile
+	   testsuite/Makefile
 	   tools/Makefile tools/sane-config include/sane/config.h" | sed "s/:[^ ]*//g"` conftest*; exit 1' 1 2 15
 EOF
 cat >> $CONFIG_STATUS <<EOF
@@ -4256,6 +4263,7 @@ s%@OBJDUMP@%$OBJDUMP%g
 s%@LIBTOOL@%$LIBTOOL%g
 s%@INCLUDES@%$INCLUDES%g
 s%@DC210@%$DC210%g
+s%@DC240@%$DC240%g
 s%@PINT@%$PINT%g
 s%@QCAM@%$QCAM%g
 s%@V4L@%$V4L%g
@@ -4308,6 +4316,7 @@ cat >> $CONFIG_STATUS <<EOF
 
 CONFIG_FILES=\${CONFIG_FILES-"Makefile lib/Makefile sanei/Makefile frontend/Makefile
 	   japi/Makefile backend/Makefile include/Makefile doc/Makefile
+	   testsuite/Makefile
 	   tools/Makefile tools/sane-config"}
 EOF
 cat >> $CONFIG_STATUS <<\EOF

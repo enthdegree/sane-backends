@@ -170,13 +170,16 @@ CPPFLAGS="${CPPFLAGS} -DPATH_SANE_CONFIG_DIR=\$(configdir) \
 	  -DV_MAJOR=${V_MAJOR} -DV_MINOR=${V_MINOR}"
 
 if test "${sane_cv_use_libjpeg}" != "yes"; then
-  echo "disabling DC210 backend (failed to find JPEG library)"
+  echo "disabling DC210/DC240 backends (failed to find JPEG library)"
   DC210=
+  DC240=
 else
-  echo "enabling DC210 backend"
+  echo "enabling DC210/DC240 backends"
   DC210=dc210
+  DC240=dc240
 fi
 AC_SUBST(DC210)
+AC_SUBST(DC240)
 if test "${ac_cv_header_sys_scanio_h}" = "no"; then
   echo "disabling PINT backend"
   PINT=

@@ -1,3 +1,8 @@
+2001-05-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* tools/Makefile.in: Fixed umax_pp compilation problem with Solaris
+	  and other operating systems.
+	
 2001-05-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/canon.conf doc/sane-canon.man: Added config file and some

@@ -1,4 +1,4 @@
-TODO (2002-04-13)
+TODO (2002-04-17)
 
 ******** todo ********
 
@@ -6,6 +6,8 @@ backends
 --------
   * Add new backends (+ means: scheduled for version 1.0.8, (+) means: 
     still maintained and/or updates will come)
+    + Coolscan2 backend: support for LS-40, LS-4000, and LS-8000
+      http://coolscan2.sourceforge.net/
    (+)hp4200 http://hp4200-backend.sourceforge.net/
    (+)Relisys Scorpio Super 3 SCSI II
       Mark Plowman <sane-devel@plowman.xs4all.nl>
@@ -13,9 +15,6 @@ backends
    (+)Genius Vivid Pro USB, Colorado USB 19200, Visioneer OneTouch 7600 
       IBM IdeaScan 2000 USB 
       http://homepages.paradise.net.nz/stevenel/scanner/
-    + Fujitsu M3091DCd support
-      Frederik Ramm <frederik@remote.org>
-      http://www.remote.org/frederik/projects/software/sane/
    (+)Hewlett-Packard ScanJet 3300C / 3400C and 4300C (wip)
       http://sourceforge.net/projects/hp3300backend
 
@@ -66,7 +65,7 @@ backends
       - canon
       - coolscan
       - dmc
-      - m3096
+      - m3096/fujitsu (?)
       - microtek
       - qcam
       - ricoh
@@ -86,7 +85,6 @@ backends
 
   * Fix warnings about DBG calls:
     - avision
-    - m3096g
     - sm3600
     - umax1220u
     - v4l
@@ -96,7 +94,13 @@ backends
     - artec: cap_data
     - avision: Avision_Device_List
     - canon: option_name
-    - sm3600: aidProduct
+  
+  * bh: Suspicious loop ("../../backend/bh.c", line 1923: warning:
+    end-of-loop code not reached), see sane-devel.
+
+  * coolscan: Lots of compilation warnings (e.g.
+    "../../backend/coolscan-scsidef.h", line 160: warning: initialization
+    type mismatch; empty declarations), see sane-devel.
 
 doc
 ---
@@ -127,6 +131,8 @@ frontends
      - Add IPv6 support.
 
   * scanimage: Add i18n (NLS) support?
+
+  * scanimage: Fix pnm 16 bit output (partly patch available).
 
  [the remaining entries have been moved to the sane-frontends package]
 
@@ -163,9 +169,6 @@ platform-specific
 
   * Add support for semaphores also for OS/2 (currently used in snapscan).
 
-  * The plustek backend doesn't compile on OS/2 because 
-    in plustek-usbhw.c itimerval is unknown.
-
 misc
 ----
   * sane-config: add options "--exec-prefix=...." and "--prefix=..."
@@ -193,6 +196,11 @@ misc
 
 
 ******** done ********
+* The plustek backend doesn't compile on OS/2 because 
+  in plustek-usbhw.c itimerval is unknown.
+* Add backends:
+    + Fujitsu M3091DCd support
+  Done (fujitsu).
 * Add backends (no response from author and unchanged for some time)
     - Linux Handscanner Ioctl Interface scanner by Harald
       Bauer <bauer-h@web.de>

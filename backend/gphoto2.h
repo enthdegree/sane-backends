@@ -200,10 +200,6 @@ char *sanei_config_read (char *str, int n, FILE * stream);
 
 static SANE_Int read_dir (SANE_String dir, SANE_Bool read_files);
 
-static SANE_Int dir_insert (SANE_String s);
-
-static SANE_Int dir_delete (SANE_String name);
-
 static void set_res (SANE_Int lowres);
 
-static SANE_Int read_info (SANE_String fname);
+static SANE_Int read_info (SANE_String_Const fname);

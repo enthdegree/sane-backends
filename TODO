@@ -1,4 +1,4 @@
-TODO (2001-11-21)
+TODO (2001-11-22)
 
 ******** todo ********
 
@@ -38,7 +38,7 @@ backends
   * Check all backends which use fork/kill for the kill (-1,...) bug
     first found in the microtek2 backend.
 
-  * really fix all the parport/inb/outb compilation issues which break
+  * Really fix all the parport/inb/outb compilation issues which break
     porting to some non-i386 platforms.
 
   * Use DBG(...) instead of fprintf(stderr, ...) or printf
@@ -150,6 +150,8 @@ misc
                    xscanimage / gimp with xscanimage plugin (where available)
      All the above with shared and static libraries.
 
+  * Keep config.guess and config.sub uptodate.
+
   * Use #include "../include/sane/..." instead of #include <sane...>
 
   * Use #include "../include/lalloca.h" instead of #include <lalloca.h>
@@ -164,11 +166,12 @@ misc
 
   * Add installation procedure for translations of SANE backend's options.
  
-  * Update (at least) config.guess and config.sub to support newer platforms.
-
-  * Must -ldl be added to sane-config.in?
+  * Add AC_OBJEXT and AC_EXEEXT to configure.in for automatically adding
+    the correct extensions (e.g. for OS/2). Also update the Makefiles
+     accordingly.
 
 ******** done ********
+* Must -ldl be added to sane-config.in?
 * Use @LIBDIR@, @CONFIGDIR@ and the other @@ macros to refer to paths.
   These are updated when installing to a non-standard prefix.
 * net: cancel doesn't work over the net at least with pnm and mustek.

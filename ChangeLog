@@ -1,3 +1,8 @@
+2002-01-13  Abel Deuring <a.deuring@satzbau.gmbh.de>
+	* frontend/scanimage.c, doc/scaniamge.man: Added the option -f /
+	  --formatted-device-list to allow arbirtarily formatted device
+	  lists. Suggested by Klaas Freitag.
+
 2002-01-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* acinclude.m4 aclocal.m4 configure: Included AC_PROG_LIBTOOL into

@@ -1,4 +1,4 @@
-.TH sane-mustek 5 "10 Jun 2001"
+.TH sane-mustek 5 "7 Jul 2001"
 .IX sane-mustek
 .SH NAME
 sane-mustek - SANE backend for Mustek flatbed scanners
@@ -118,10 +118,11 @@ device name.
 The supported options are
 .BR linedistance-fix ,
 .BR lineart-fix ,
-.BR legal-size
+.BR legal-size ,
 .BR buffersize ,
 .BR blocksize ,
 .BR strip-height ,
+.BR disable-double-buffering ,
 and
 .B force-wait
 
@@ -176,12 +177,15 @@ single SCSI read command.  The height is specified in inches and may contain a
 fractional part (e.g., 1.5).  Setting the strip-height to a small value (one
 inch, for example) reduces the likelihood of encountering problems with SCSI
 driver timeouts and/or timeouts with other devices on the same SCSI bus.
-Unfortunately, it also increases scan times.  Thus, if the scanner is the only
-device on the SCSI bus it is connected to and if it is known that the SCSI
-driver does not suffer from premature timeouts, it is recommended to increase
-the strip-height or remove the option completely, which corresponds to an
-infinite strip height.  See sane-scsi(5) on how to avoid problems with SCSI
-timeouts.
+Unfortunately, it also increases scan times. With current SCSI adapters and
+drivers this option shouldn't be needed any more.
+
+Option
+.B disable-double-buffering
+is a global option. If set, the backend will only send one buffer at a time to
+the scanner. Try this option if you have trouble while scanning, e.g. SCSI
+errors, freezes, or the first few cm are repeated over and over again in your
+image.
 
 Finally,
 .B force-wait

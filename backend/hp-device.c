@@ -49,7 +49,7 @@ extern int sanei_debug_hp;*/
 
 #include <stdlib.h>
 #include <string.h>
-#include "../include/assert.h"
+#include "../include/lassert.h"
 #include "hp-device.h"
 #include "hp-accessor.h"
 #include "hp-option.h"

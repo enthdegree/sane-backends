@@ -56,7 +56,7 @@ extern int sanei_debug_hp;*/
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
-#include "../include/assert.h"
+#include "../include/lassert.h"
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/stat.h>

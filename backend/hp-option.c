@@ -62,7 +62,7 @@ extern int sanei_debug_hp; */
 
 #include <stdio.h>
 #include <string.h>
-#include "../include/assert.h"
+#include "../include/lassert.h"
 #ifndef SANE_HOME_HP
 #include <pwd.h>
 #endif

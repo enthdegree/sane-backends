@@ -1,3 +1,8 @@
+2000-09-10 Peter Kirchgessner <peter@kirchgessner.net>
+
+        * backend/hp-handle.c
+            Special handling of sane_cancel for OfficeJet K series
+
 2000-09-09 Peter Kirchgessner <peter@kirchgessner.net>
 
         * backend/hp.h hp-scsi.h hp-scl.h hp-option.h hp-option.c

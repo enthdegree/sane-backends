@@ -116,7 +116,7 @@ install:
 	  nn=`echo $$n | sed 's,^libsane-dll,libsane,'`; \
 	  (cd ..; $(LN_S) sane/$$n $$nn); \
 	done || exit 1
-	$(INSTALL_PROGRAM) libsane.la $(libdir)/libsane.la
+	$(LIBTOOL) $(MINST) $(INSTALL_PROGRAM) libsane.la $(libdir)/libsane.la
 	@list="$(CONFIGS)"; for cfg in $$list; do \
 	  if test ! -r $(srcdir)/$${cfg}; then continue; fi; \
 	  if test -f $(configdir)/$${cfg}; then \

@@ -44,6 +44,15 @@ In order to build SANE, the following tools and libraries are required:
 	- ANSI C compiler: GNU C (gcc) is recommended for best performance,
 	  but any ANSI-compliant compiler should do
 
+Some more libraries are not strictly necessary to compile SANE, but some
+functionality may be lost if they are not available:
+        
+        - libusb (>=0.1.6): For the sm3600 backend. Can also be used for
+          other USB backends especially on non-Linux platforms.
+        - libjpeg (>=6B): For the dc210, dc240, and gphoto2 backends.
+        - libieee1284 (>=0.1.5): For the canon_pp backend.
+        - libgphoto2 (>=2.0beta4dev8): For the gphoto2 backend.
+
 SANE should build on most Unix-like systems. Support for OS/2 is also
 available. For more details look at the operating system specific README.*
 files. For a detailed support matrix, see:

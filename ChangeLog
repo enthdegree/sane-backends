@@ -1,3 +1,14 @@
+2003-10-17  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* acinclude.m4 aclocal.m4 configure: Added -D_REENTRANT to compiler
+	  flags, when using pthread support.
+	* sanei/sanei_thread.c: Added SIGPIPE handling,
+	  when compiled for pthread support.
+	* backend/test.c: Removed blocking SIGPIPE, as this is now handled
+	  in sanei_thread library.
+	* backend/plustek.h backend/plustek.c backend/plustek-usbhw.c:
+	  Added checks for intervaltimer, to make it compile on OS/2.
+
 2003-10-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* AUTHORS: Marked maintainers that have CVS access with a
@@ -106,7 +117,7 @@
 
 2003-10-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* acinclude.m4 aclocal.m4 configure configure
+	* acinclude.m4 aclocal.m4 configure.in configure
 	  include/sane/config.h.in sanei/sanei_thread.c: More verbose help
 	  messages for --enable-fork-process. Print message about pthread
 	  support after all the tests. If libpthread isn't available, try if

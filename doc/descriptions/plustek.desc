@@ -3,10 +3,10 @@
 ;
 
 :backend "plustek"
-:version "0.47"
+:version "0.48"
 :manpage "sane-plustek"
 ; backend's web page
-:url "http://www.gjaeger.de/scanner/plustek.html"
+:url "http://www.gjaeger.de/scanner/plustek/"
 
 :devicetype :scanner
 
@@ -38,13 +38,6 @@
 :model "OpticPro UT24"
 :interface "USB"
 :status :complete
-
-;* The unsupported ones :-( *****************************************************************
-
-:model "OpticPro 19200S"
-:interface "SCSI"
-:status :unsupported
-:comment "rebadged Artec AM12S (supported by Artec Backend)"
 
 ;* Genius/KYE *******************************************************************************************
 
@@ -133,7 +126,7 @@
 :model "UMAX 3450"
 :interface "USB"
 :status :good
-:comment "TPA not supported"
+:comment "use option enableTPA 1 to enable TPA scanning"
 
 :model "UMAX 5400"
 :interface "USB"
@@ -180,6 +173,6 @@
 
 :model "CanoScan D660U"
 :interface "USB"
-:status :basic
-:comment "Binary and gray mode not working"
+:status :good
+:comment "Binary mode is not working"
 

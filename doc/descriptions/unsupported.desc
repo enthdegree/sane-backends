@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2004-12-26"		; version of backend
+:version "2005-12-10"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -486,6 +486,12 @@
 :url "/unsupported/teco-vm6509.html"
 :interface "USB"
 :comment "Probably unsupported. See link for details."
+
+:model "Maxi Scan A4 Parallel 36 bit"
+:status :unsupported
+;:url "/unsupported/teco-vm6509.html"
+:interface "Parport"
+:comment "Probably unsupported. Identical to the Benq Prisa 620P."
 
 
 ;********************************************************************************************

@@ -1,3 +1,7 @@
+2005-01-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added Guillemot scanner.
+
 2005-01-09  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson.c: "flaming hack to get USB scanners working without timeouts 

@@ -1,3 +1,9 @@
+2002-02-09  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* po/Makefile.in po/snapscan.de.po backend/snapscan.c:
+          Added language translation support for snapscan backend,
+          added german translations.
+
 2002-02-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* po/Makefile.in po/saneopts.fr.po po/umax.fr.po: Added french

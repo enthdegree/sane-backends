@@ -1,3 +1,6 @@
+---- FEATURE FREEZE FOR SANE 1.0.14 ---
+-- snapshot 1.0.14-pre1
+
 2004-04-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* japi/.cvsignore: Updated.

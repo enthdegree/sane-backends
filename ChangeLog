@@ -2,6 +2,11 @@
 
 	* sanei_wire.c: Set allocated memory to 0 to avoid delivering
 	  garbage to the frontend.
+	* backend/mustek.c backend/mustek.desc backend/mustek.h 
+	  doc/mustek/mustek.CHANGES: Fixed halftone pattern handling. The
+	  buffer was way too small. Option 0 has an empty name. Better debug
+	  output for dev_cmd. Set size for group options to 0. Set size of
+	  halftone pattern to non 0.
 
 2002-03-19  Frank Zago <fzago@greshamstorage.com>
 

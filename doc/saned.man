@@ -54,8 +54,10 @@ as setuid root.
 .PP
 The contents of the
 .I saned.conf
-file is a list of host names or IP addresses that are permitted to
-use local SANE devices.  Connections from localhost are always permitted.
+file is a list of host names, IP addresses or IP subnets (CIDR notation) that
+are permitted to use local SANE devices. IPv6 addresses must be enclosed in
+brackets, and should always be specified in their compressed form.
+Connections from localhost are always permitted.
 Empty lines and lines starting with a hash mark (#) are ignored.  A line
 containing the single character ``+'' is interpreted to match any hostname.
 This allows any remote machine to use your scanner and may present a security
@@ -69,12 +71,15 @@ scan-client.somedomain.firm
 .br
 192.168.0.1
 .br
-::1
+192.168.2.12/29
+.br
+[::1]
+.br
+[2001:7a8:185e::42:12]/64
 .RE
 .PP
 The case of the host names does not matter, so AHost.COM is considered
-identical to ahost.com. IPv6 addresses should always be specified in their
-compressed form.
+identical to ahost.com.
 
 For
 .B saned

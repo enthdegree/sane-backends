@@ -467,6 +467,181 @@ decode_handle (Wire * w, const char *op)
   return h;
 }
 
+
+
+/* Convert a number of bits to an 8-bit bitmask */
+static unsigned int cidrtomask4[9] = { 0x00, 0x80, 0xC0, 0xE0, 0xF0,
+				       0xF8, 0xFC, 0xFE, 0xFF };
+
+#ifdef SANED_USES_AF_INDEP
+static SANE_Bool
+check_v4_in_range (struct sockaddr_in *sin, char *base_ip, char *netmask)
+{
+  int cidr;
+  int i, err;
+  char *end;
+  in_addr_t mask; 
+  struct sockaddr_in *base;
+  struct addrinfo hints;
+  struct addrinfo *res;
+  SANE_Bool ret = SANE_FALSE;
+
+  cidr = -1;
+  cidr = strtol (netmask, &end, 10);
+  
+  /* sanity check the cidr value */
+  if ((cidr < 0) || (cidr > 32) || (end == netmask))
+    {
+      DBG (DBG_ERR, "check_v4_in_range: invalid CIDR value (%s) !\n", netmask);
+      return SANE_FALSE;
+    }
+
+  mask = 0;
+  cidr -= 8;
+  
+  for (i = 3; cidr >= 0; i--)
+    {
+      mask |= (htonl (0xff) << (8 * i));
+      cidr -= 8;
+    }
+  
+  if (cidr < 0)
+    mask |= (htonl (cidrtomask4[cidr + 8]) << (8 * i));
+
+  /* get a sockaddr_in representing the base IP address */
+  memset (&hints, 0, sizeof (struct addrinfo));
+  hints.ai_flags = AI_NUMERICHOST;
+  hints.ai_family = PF_INET;
+  
+  err = getaddrinfo (base_ip, NULL, &hints, &res);
+  if (err)
+    {
+      DBG (DBG_DBG, "check_v4_in_range: getaddrinfo() failed: %s\n", gai_strerror (err));
+      return SANE_FALSE;
+    }
+
+  base = (struct sockaddr_in *)res->ai_addr;
+
+  if ((base->sin_addr.s_addr & mask) == (sin->sin_addr.s_addr & mask))
+    ret = SANE_TRUE;
+  
+  freeaddrinfo (res);
+  
+  return ret;
+}
+
+
+# ifdef ENABLE_IPV6
+/* Convert a number of bits to a 16-bit bitmask */
+static unsigned int cidrtomask6[17] = { 0x0000, 0x8000, 0xC000, 0xE000,
+					0xF000, 0xF800, 0xFC00, 0xFE00,
+					0xFF00, 0xFF80, 0xFFC0, 0xFFE0,
+					0xFFF0, 0xFFF8, 0xFFFC, 0xFFFE,
+					0xFFFF };
+
+static SANE_Bool
+check_v6_in_range (struct sockaddr_in6 *sin6, char *base_ip, char *netmask)
+{
+  int cidr;
+  int i, err;
+  unsigned int mask[8];
+  char *end;
+  struct sockaddr_in6 *base;
+  struct addrinfo hints;
+  struct addrinfo *res;
+  SANE_Bool ret = SANE_TRUE;
+
+  cidr = -1;
+  cidr = strtol (netmask, &end, 10);
+
+  /* sanity check the cidr value */
+  if ((cidr < 0) || (cidr > 128) || (end == netmask))
+    {
+      DBG (DBG_ERR, "check_v6_in_range: invalid CIDR value (%s) !\n", netmask);
+      return SANE_FALSE;
+    }
+
+  memset (mask, 0, (8 * sizeof (unsigned int)));
+  cidr -= 8;
+  
+  for (i = 0; cidr >= 0; i++)
+    {
+      mask[i] = htonl (0xffff);
+      cidr -= 16;
+    }
+  
+  if (cidr < 0)
+    mask[i] = htonl (cidrtomask6[cidr + 16]);
+  
+  /* get a sockaddr_in6 representing the base IP address */
+  memset (&hints, 0, sizeof (struct addrinfo));
+  hints.ai_flags = AI_NUMERICHOST;
+  hints.ai_family = PF_INET6;
+
+  err = getaddrinfo (base_ip, NULL, &hints, &res);
+  if (err)
+    {
+      DBG (DBG_DBG, "check_v6_in_range: getaddrinfo() failed: %s\n", gai_strerror (err));
+      return SANE_FALSE;
+    }
+
+  base = (struct sockaddr_in6 *)res->ai_addr;
+
+  for (i = 0; i < 8; i++)
+    {
+      if ((base->sin6_addr.s6_addr16[i] & mask[i]) != (sin6->sin6_addr.s6_addr16[i] & mask[i]))
+	{
+	  ret = SANE_FALSE;
+	  break;
+	}
+    }
+  
+  freeaddrinfo (res);
+  
+  return ret;
+}
+# endif /* ENABLE_IPV6 */
+#else /* !SANED_USES_AF_INDEP */
+static SANE_Bool
+check_v4_in_range (struct in_addr *inaddr, struct in_addr *base, char *netmask)
+{
+  int cidr;
+  int i;
+  char *end;
+  in_addr_t mask; 
+  SANE_Bool ret = SANE_FALSE;
+
+  cidr = -1;
+  cidr = strtol (netmask, &end, 10);
+  
+  /* sanity check the cidr value */
+  if ((cidr < 0) || (cidr > 32) || (end == netmask))
+    {
+      DBG (DBG_ERR, "check_v4_in_range: invalid CIDR value (%s) !\n", netmask);
+      return SANE_FALSE;
+    }
+
+  mask = 0;
+  cidr -= 8;
+  
+  for (i = 3; cidr >= 0; i--)
+    {
+      mask |= (htonl (0xff) << (8 * i));
+      cidr -= 8;
+    }
+  
+  if (cidr < 0)
+    mask |= (htonl (cidrtomask4[cidr + 8]) << (8 * i));
+
+  if ((base->s_addr & mask) == (inaddr->s_addr & mask))
+    ret = SANE_TRUE;
+  
+  return ret;
+}
+#endif /* SANED_USES_AF_INDEP */
+
+
+
 /* Access control */
 #ifdef SANED_USES_AF_INDEP
 static SANE_Status
@@ -483,15 +658,15 @@ check_host (int fd)
   int err;
   char text_addr[64];
 #ifdef ENABLE_IPV6
+  SANE_Bool IPv4map = SANE_FALSE;
   char *remote_ipv4 = NULL; /* in case we have an IPv4-mapped address (eg ::ffff:127.0.0.1) */
+  char *tmp;
   struct addrinfo *remote_ipv4_addr = NULL;
 #endif /* ENABLE_IPV6 */
-  char config_line[1024];
+  char config_line_buf[1024];
+  char *config_line;
+  char *netmask;
   char hostname[MAXHOSTNAMELEN];
-
-#ifdef ENABLE_IPV6  
-  SANE_Bool IPv4map = SANE_FALSE;
-#endif /* ENABLE_IPV6 */
 
   int len;
   FILE *fp;
@@ -641,12 +816,14 @@ check_host (int fd)
 	      DBG (DBG_MSG, "check_host: remote host has same addr as local: access granted\n");
 	      
 	      freeaddrinfo (res);
-	      
+	      res = NULL;
+
 	      return SANE_STATUS_GOOD;
 	    }
 	}
       
       freeaddrinfo (res);
+      res = NULL;
       
       DBG (DBG_DBG, 
 	   "check_host: remote host doesn't have same addr as local\n");
@@ -670,9 +847,10 @@ check_host (int fd)
 	  continue;
 	}
       
-      while (!access_ok && sanei_config_read (config_line, 
-					      sizeof (config_line), fp))
+      while (!access_ok && sanei_config_read (config_line_buf, 
+					      sizeof (config_line_buf), fp))
 	{
+	  config_line = config_line_buf; /* from now on, use a pointer */
 	  DBG (DBG_DBG, "check_host: config file line: `%s'\n", config_line);
 	  if (config_line[0] == '#')	/* ignore line comments */
 	    continue;
@@ -680,7 +858,34 @@ check_host (int fd)
 	  
 	  if (!len)
 	    continue;		/* ignore empty lines */
-	  
+
+	  /* look for a subnet specification */
+	  netmask = strchr (config_line, '/');
+	  if (netmask != NULL)
+	    {
+	      *netmask = '\0';
+	      netmask++;
+	      DBG (DBG_DBG, "check_host: subnet with base IP = %s, CIDR netmask = %s\n",
+		   config_line, netmask);
+	    }
+
+#ifdef ENABLE_IPV6
+	  /* IPv6 addresses are enclosed in [] */
+	  if (*config_line == '[')
+	    {
+	      config_line++;
+	      tmp = strchr (config_line, ']');
+	      if (tmp == NULL)
+		{
+		  DBG (DBG_ERR,
+		       "check_host: malformed IPv6 address in config file, skipping: [%s\n",
+		       config_line);
+		  continue;
+		}
+	      *tmp = '\0';
+	    }
+#endif /* ENABLE_IPV6 */
+
 	  if (strcmp (config_line, "+") == 0)
 	    {
 	      access_ok = 1;
@@ -700,6 +905,72 @@ check_host (int fd)
 	      access_ok = 1;
 	      DBG (DBG_DBG,
 		   "check_host: access granted from IP address %s (IPv4-mapped)\n", remote_ip);
+	    }
+	  /* handle IP ranges, take care of the IPv4map stuff */
+	  else if (netmask != NULL)
+	    {
+	      if (strchr (config_line, ':') != NULL) /* is a v6 address */
+		{
+		  if (SS_FAMILY(remote_address) == AF_INET6)
+		    {
+		      if (check_v6_in_range (sin6, config_line, netmask))
+			{
+			  access_ok = 1;
+			  DBG (DBG_DBG, "check_host: access granted from IP address %s (in subnet [%s]/%s)\n",
+			       remote_ip, config_line, netmask);
+			}
+		    }
+		}
+	      else /* is a v4 address */
+		{
+		  if (IPv4map == SANE_TRUE)
+		    {
+		      /* get a sockaddr_in representing the v4-mapped IP address */
+		      memset (&hints, 0, sizeof (struct addrinfo));
+		      hints.ai_flags = AI_NUMERICHOST;
+		      hints.ai_family = PF_INET;
+		      
+		      err = getaddrinfo (remote_ipv4, NULL, &hints, &res);
+		      if (err)
+			DBG (DBG_DBG, "check_host: getaddrinfo() failed: %s\n", gai_strerror (err));
+		      else
+			sin = (struct sockaddr_in *)res->ai_addr;
+		    }
+
+		  if ((SS_FAMILY(remote_address) == AF_INET) ||
+		      (IPv4map == SANE_TRUE))
+		    {
+		      
+		      if (check_v4_in_range (sin, config_line, netmask))
+			{
+			  DBG (DBG_DBG, "check_host: access granted from IP address %s (in subnet %s/%s)\n",
+			       ((IPv4map == SANE_TRUE) ? remote_ipv4 : remote_ip), config_line, netmask);
+			  access_ok = 1;
+			}
+		      else
+			{
+			  /* restore the old sin pointer */
+			  sin = (struct sockaddr_in *)&remote_address;
+			}
+		      
+		      if (res != NULL)
+			{
+			  freeaddrinfo (res);
+			  res = NULL;
+			}
+		    }
+		}
+	    }
+#else /* !ENABLE_IPV6 */
+	  /* handle IP ranges */
+	  else if (netmask != NULL)
+	    {
+	      if (check_v4_in_range (sin, config_line, netmask))
+		{
+		  access_ok = 1;
+		  DBG (DBG_DBG, "check_host: access granted from IP address %s (in subnet %s/%s)\n",
+		       remote_ip, config_line, netmask);
+		}
 	    }
 #endif /* ENABLE_IPV6 */
 	  else
@@ -747,6 +1018,7 @@ check_host (int fd)
 			break;
 		    }
 		  freeaddrinfo (res);
+		  res = NULL;
 		}
 	    }
 	}
@@ -768,7 +1040,9 @@ check_host (int fd)
   int j, access_ok = 0;
   struct hostent *he;
   char text_addr[64];
-  char config_line[1024];
+  char config_line_buf[1024];
+  char *config_line;
+  char *netmask;
   char hostname[MAXHOSTNAMELEN];
   char *r_hostname;
   static struct in_addr config_line_address;
@@ -862,9 +1136,10 @@ check_host (int fd)
 	  continue;
 	}
       
-      while (!access_ok && sanei_config_read (config_line, 
-					      sizeof (config_line), fp))
+      while (!access_ok && sanei_config_read (config_line_buf, 
+					      sizeof (config_line_buf), fp))
 	{
+	  config_line = config_line_buf; /* from now on, use a pointer */
 	  DBG (DBG_DBG, "check_host: config file line: `%s'\n", config_line);
 	  if (config_line[0] == '#')	/* ignore line comments */
 	    continue;
@@ -873,6 +1148,16 @@ check_host (int fd)
 	  if (!len)
 	    continue;		/* ignore empty lines */
 	  
+	  /* look for a subnet specification */
+	  netmask = strchr (config_line, '/');
+	  if (netmask != NULL)
+	    {
+	      *netmask = '\0';
+	      netmask++;
+	      DBG (DBG_DBG, "check_host: subnet with base IP = %s, CIDR netmask = %s\n",
+		   config_line, netmask);
+	    }
+
 	  if (strcmp (config_line, "+") == 0)
 	    {
 	      access_ok = 1;
@@ -886,6 +1171,15 @@ check_host (int fd)
 		  if (memcmp (&remote_address.s_addr, 
 			      &config_line_address.s_addr, 4) == 0)
 		    access_ok = 1;
+		  else if (netmask != NULL)
+		    {
+		      if (check_v4_in_range (&remote_address, &config_line_address, netmask))
+			{
+			  access_ok = 1;
+			  DBG (DBG_DBG, "check_host: access granted from IP address %s (in subnet %s/%s)\n",
+			       remote_ip, config_line, netmask);
+			}
+		    }
 		}
 	      else
 		{

@@ -1,3 +1,9 @@
+2003-10-19  Julien Blache <jb@jblache.org>
+	* frontend/saned.c: added subnet support to saned ; added
+	check_v4_in_range and check_v6_in_range functions.
+	* backend/saned.conf: updated the config file.
+	* doc/saned.man: updated the manpage for saned.
+
 2003-10-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Reflecta iScan

@@ -1,3 +1,8 @@
+2002-09-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions-external/gt68xx.desc: Updated Mustek
+	  information. Added Plustek OpticPro 1248U.
+
 2002-09-17  Oliver Schirrmeister <oschirr@abm.de>
         * backend/fujitsu.c fujitsu.h fujitsu-scsi.h:
           added m3092 support

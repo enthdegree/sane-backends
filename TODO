@@ -1,4 +1,4 @@
-TODO (2000-11-13)
+TODO (2000-11-15)
 
 ******** todo ********
 
@@ -31,7 +31,7 @@ backends
     avoid plain text passwords?
 
   * check net/saned
-     - net backend segfaults if saned isn't started
+     - net backend segfaults if saned isn't started (or timed out)
      - don't just ignore the byte-order for the image data (needed to
        support depths > 8 bits/channel)
 
@@ -71,7 +71,14 @@ frontends
     it announced by sane_get_parameters to avoid segfaults with bad 
     backends?
 
-  [the remaining entries have been moved to the sane-frontends package]
+  * stiff.c: Tiff header not written correctly: "Jaeger, Gerhard"
+    <gjaeger@sysgo.de> writes: When writing the TIFF header, you have to
+    specify the TAG "BitsPerSample", which tells a reader how many bits each
+    sample has. The current version only specifies one value (8 or 16). This
+    is wrong, as we have to specify one value for each channel (i.e for a
+    24bit RGB pic we must specify 8,8,8, see TIFF6.0 spec, [...]
+
+ [the remaining entries have been moved to the sane-frontends package]
 
 sanei
 -----
@@ -99,10 +106,16 @@ misc
                    (not possible if I'm not root on the system)
                    xscanimage / gimp with xscanimage plugin (where available)
      All the above with shared and static libraries.
-     - build on Irix fails because of problems with the jpeg library. If this
-       is removed in configure, build works.
-     - build on AIX does only work for static libraries. The shared libraries
-       seem to overwrite each other.
+
+  * build on Irix fails because of problems with the jpeg library. If this
+    is removed in configure, build works. It complains about functions like
+    (typename) functionname (). It doesn't like the brackets which result
+    from expanding the macros EXTERN(x), METHODDEF(x), and GLOBAL(x) to
+    (x). Defining something like EXTERN(x) x seems to work.  Same for dc210.c
+    Something like --disable-jpeg for configure would be nice.
+
+  * build on AIX does only work for static libraries. The shared libraries
+    seem to overwrite each other.
 
   * move .desc files for backends that are not included in SANE to
     different directory (e.g. backends and external-backends)?

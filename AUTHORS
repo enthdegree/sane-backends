@@ -13,7 +13,7 @@ Backends:
  apple:         Milon Firikis
  artec:         Chris Pinkham
  artec_eplus48u:Sergey Vlasov, Andreas Nowack, David Stevenson, and
-                Michael Herder
+                Michael Herder (*)
  as6e:          Eugene S. Weiss
  avision:       Meino Christian Cramer, Rene Rebe (*)
  bh:            Tom Martone

@@ -91,7 +91,7 @@
 #endif
 
 /* For debugging purposes: output a stream straight out from the
- * scanner without reordering the colors. */
+ * scanner without reordering the colors, 0=normal, 1 = raw. */
 static int raw_output = 0;
 
 /*--------------------------------------------------------------------------*/
@@ -156,6 +156,14 @@ static const SANE_Range threshold_range = {
 
 /*--------------------------------------------------------------------------*/
 
+static const SANE_Range white_level_range = {
+  0,				/* minimum */
+  64,				/* maximum */
+  1				/* quantization */
+};
+
+/*--------------------------------------------------------------------------*/
+
 /* Gamma range */
 static const SANE_Range gamma_range = {
   0,				/* minimum */
@@ -168,21 +176,24 @@ static const SANE_Range gamma_range = {
 static const struct dpi_color_adjust vm3564_dpi_color_adjust[] = {
 
   /*dpi, x, y, z, color sequence R G or B, 0 (-) or 1 (+) color skewing, lines skewing */
-  {25, 1, 0, 2, 0, 0},
-  {40, 1, 0, 2, 0, 0},
-  {50, 1, 0, 2, 0, 1},
-  {60, 1, 0, 2, 1, 0},
-  {72, 1, 2, 0, 0, 1},
-  {75, 1, 0, 2, 1, 1},
-  {100, 2, 1, 0, 0, 1},
-  {120, 1, 0, 2, 1, 1},
-  {150, 1, 0, 2, 1, 2},
-  {160, 1, 0, 2, 1, 1},
-  {175, 1, 0, 2, 1, 1},
-  {180, 1, 0, 2, 1, 1},
-  {200, 2, 1, 0, 0, 1},
-  {225, 1, 0, 2, 1, 2},
-  {300, 1, 0, 2, 1, 2},
+  {25, 1, 0, 2, 0, 0},		/* Not tested */
+  {50, 1, 2, 0, 0, 1},		/* Not tested */
+  {75, 1, 0, 2, 1, 1},		/* Not tested */
+  {150, 1, 0, 2, 1, 2},		/* Not tested */
+  {160, 1, 0, 2, 1, 2},		/* Not tested */
+  {225, 1, 0, 2, 1, 3},		/* Not tested */
+  {300, 1, 0, 2, 1, 4},		/* Not tested */
+
+/*{305, 1, 0, 2, 1, 4},		Not tested *
+ *{310, 1, 0, 2, 1, 4},		Not tested *
+ *{315, 1, 0, 2, 1, 4},		Not tested */
+  {375, 1, 0, 2, 1, 5},		/* Not tested */
+/*{380, 1, 0, 2, 1, 5},		Not tested *
+ *{385, 1, 0, 2, 1, 5},	 	Not tested */
+  {450, 1, 0, 2, 1, 6},		/* Not tested */
+/*{455, 1, 0, 2, 1, 6},		Not tested */
+  {525, 1, 0, 2, 1, 7},		/* Not tested */
+  {600, 1, 0, 2, 1, 8},		/* Not tested */
   /* must be the last entry */
   {0, 0, 0, 0, 0, 0}
 };
@@ -190,53 +201,65 @@ static const struct dpi_color_adjust vm3564_dpi_color_adjust[] = {
 /* Used for VM356A only */
 
 static const struct dpi_color_adjust vm356a_dpi_color_adjust[] = {
+
+  /* All values with ydpi > 300 result in a wrong proportion for       */
+  /* the scan. The proportion can be adjusted with the following       */
+  /* command: convert -geometry (dpi/max_xdpi * 100%)x100%             */
+  /* max_xdpi is for the vm356a constant with 300 dpi                  */
+  /* e.g. 600dpi adjust with: convert -geometry 200%x100%              */
+
+  /* All resolutions in increments of 25 are testede, only the shown   */
+  /* bring back good results                                           */
+
+  /* all of the folowing values give good results                      */
+
   /*dpi, x, y, z, color sequence R G or B, 0 (-) or 1 (+) color skewing, lines skewing */
-  {25, 1, 0, 2, 0, 0},		/* ok */
-  {50, 1, 0, 2, 0, 1},
-  {75, 1, 0, 2, 1, 1},		/* ok */
-  {150, 1, 0, 2, 1, 2},		/* ok */
-  {160, 1, 0, 2, 1, 2},		/* ok */
-  {225, 1, 0, 2, 1, 2},		/* ok */
-  {300, 1, 0, 2, 1, 2},		/* ok */
-
-  {305, 1, 0, 2, 1, 2},		/* ok, but wrong proportion */
-  {310, 1, 0, 2, 1, 2},		/* ok, but wrong proportion */
-  {315, 1, 0, 2, 1, 2},		/* ok, but wrong proportion */
-  {375, 1, 0, 2, 1, 2},		/* ok, but wrong proportion */
-  {380, 1, 0, 2, 1, 2},		/* ok, but wrong proportion */
-  {385, 1, 0, 2, 1, 2},		/* ok, but wrong proportion */
-  {450, 1, 0, 2, 1, 2},		/* ok, but wrong proportion */
-  {455, 1, 0, 2, 1, 2},		/* ok, but wrong proportion */
-  {525, 1, 0, 2, 1, 2},		/* ok, but wrong proportion */
-  {600, 1, 0, 2, 1, 2},		/* ok, but wrong proportion */
-
-/* text Michael Hoeller */
-/* all increments by 5 from 20 to 600 are checked  */
-/* with 85, 165, 155 good picture but not colour setup works */
-/* with 65, 200 and 320 crashes the driver    */
-
-/*  {0, 1, 0, 2, 1, 1} general setup NOK for all dpi values */
-/*   150, 225 and 300 should be OK*/
+  /* some values disabled because of choice of nearby values to keep usertable short   */
+  {25, 1, 0, 2, 0, 0},
+  {50, 1, 2, 0, 0, 1},
+  {75, 1, 0, 2, 1, 1},
+  {150, 1, 0, 2, 1, 2},
+/* {160, 1, 0, 2, 1, 2},		ok */
+  {225, 1, 0, 2, 1, 3},
+  {300, 1, 0, 2, 1, 4},
+/* {305, 1, 0, 2, 1, 4},		ok, *
+ * {310, 1, 0, 2, 1, 4},		ok, *
+ * {315, 1, 0, 2, 1, 4},   	        ok, */
+  {375, 1, 0, 2, 1, 5},
+/* {380, 1, 0, 2, 1, 5},		ok, *
+ * {385, 1, 0, 2, 1, 5},		ok, */
+  {450, 1, 0, 2, 1, 6},
+/* {455, 1, 0, 2, 1, 6},		ok, */
+  {525, 1, 0, 2, 1, 7},
+  {600, 1, 0, 2, 1, 8},
 
   /* must be the last entry */
   {0, 0, 0, 0, 0, 0}
 };
+
 /* Used for the VM3575 only */
 
 static const struct dpi_color_adjust vm3575_dpi_color_adjust[] = {
 
+  /* All values with ydpi > 300 result in a wrong proportion for */
+  /* the scan. The proportion can be adjusted with the following */
+  /* command: convert -geometry (dpi/max_xdpi * 100%)x100%       */
+  /* max_xdpi is for the vm3575 constant with 300 dpi            */
+  /* e.g. 600dpi adjust with: convert -geometry 200%x100%        */
+
   {50, 2, 0, 1, 1, 1},
   {60, 2, 1, 0, 0, 2},
+/* {75, 2, 0, 1, 1, 2},           NOK, effects in scan, also with twain driver*/
   {100, 2, 1, 0, 0, 3},
   {120, 2, 0, 1, 1, 3},
   {150, 2, 0, 1, 1, 4},
+/* {180, 2, 1, 0, 0, 4},          NOK, skewing problem*/
   {225, 2, 0, 1, 1, 6},
   {300, 2, 0, 1, 1, 8},
-
-  {375, 2, 0, 1, 1, 10},	/* ok, but wrong y proportion */
-  {450, 2, 0, 1, 1, 12},	/* ok, but wrong y proportion */
-  {525, 2, 0, 1, 1, 14},	/* ok, but wrong y proportion */
-  {600, 2, 0, 1, 1, 16},	/* ok, but wrong y proportion */
+  {375, 2, 0, 1, 1, 10},
+  {450, 2, 0, 1, 1, 12},
+  {525, 2, 0, 1, 1, 14},
+  {600, 2, 0, 1, 1, 16},
 
   /* must be the last entry */
   {0, 0, 0, 0, 0, 0}
@@ -302,15 +325,29 @@ static const struct scanners_supported scanners[] = {
    {SANE_FIX (0), SANE_FIX (8.5 * MM_PER_INCH), 0},
    {SANE_FIX (0), SANE_FIX (11.7 * MM_PER_INCH), 0},
    vm3564_dpi_color_adjust},
+
   {6, "TECO VM356A",
    TECO_VM356A,
    "Relisys", "APOLLO Express 3",
    {1, 600, 1},			/* resolution */
    300, 600,			/* max x and Y resolution */
-   2550, 12, 3, 0,		/* calibration */
+   2550, 12, 3, 1,		/* calibration */
+   /* dots/inch * x-length, calibration samples, tot.bytes for 3 colors, default SANE_TECO2_CAL_ALGO value */
    {SANE_FIX (0), SANE_FIX (8.5 * MM_PER_INCH), 0},
    {SANE_FIX (0), SANE_FIX (11.7 * MM_PER_INCH), 0},
    vm356a_dpi_color_adjust},
+
+  {6, "TECO VM356A",
+   TECO_VM356A,
+   "Primax", "Jewel 4800",
+   {1, 600, 1},			/* resolution */
+   300, 600,			/* max x and Y resolution */
+   2550, 12, 3, 1,		/* calibration */
+   /* dots/inch * x-length, calibration samples, tot.bytes for 3 colors, default SANE_TECO2_CAL_ALGO value */
+   {SANE_FIX (0), SANE_FIX (8.5 * MM_PER_INCH), 0},
+   {SANE_FIX (0), SANE_FIX (11.7 * MM_PER_INCH), 0},
+   vm356a_dpi_color_adjust},
+
   {6, "TECO VM3575",
    TECO_VM3575,
    "Relisys", "SCORPIO Super 3",
@@ -320,6 +357,17 @@ static const struct scanners_supported scanners[] = {
    {SANE_FIX (0), SANE_FIX (8.5 * MM_PER_INCH), 0},
    {SANE_FIX (0), SANE_FIX (11.7 * MM_PER_INCH), 0},
    vm3575_dpi_color_adjust},
+
+  {6, "TECO VM3575",
+   TECO_VM3575,
+   "Relisys", "AVEC Super 3",
+   {1, 600, 1},			/* resolution */
+   300, 600,			/* max x and Y resolution */
+   2550, 12, 6, 1,		/* calibration */
+   {SANE_FIX (0), SANE_FIX (8.5 * MM_PER_INCH), 0},
+   {SANE_FIX (0), SANE_FIX (11.7 * MM_PER_INCH), 0},
+   vm3575_dpi_color_adjust},
+
   {6, "TECO VM656A",
    TECO_VM656A,
    "Relisys", "APOLLO Express 6",
@@ -329,6 +377,7 @@ static const struct scanners_supported scanners[] = {
    {SANE_FIX (0), SANE_FIX (210), 0},
    {SANE_FIX (0), SANE_FIX (297), 0},
    vm656a_dpi_color_adjust},
+
   {6, "TECO VM6575",
    TECO_VM6575,
    "Relisys", "SCORPIO Pro",
@@ -338,9 +387,30 @@ static const struct scanners_supported scanners[] = {
    {SANE_FIX (0), SANE_FIX (8.5 * MM_PER_INCH), 0},
    {SANE_FIX (0), SANE_FIX (11.7 * MM_PER_INCH), 0},
    vm6575_dpi_color_adjust},
+
+  {6, "TECO VM6575",
+   TECO_VM6575,
+   "Primax", "Profi 9600",
+   {1, 600, 1},			/* resolution */
+   600, 1200,			/* max x and Y resolution */
+   5100, 8, 6, 0,		/* calibration */
+   {SANE_FIX (0), SANE_FIX (8.5 * MM_PER_INCH), 0},
+   {SANE_FIX (0), SANE_FIX (11.7 * MM_PER_INCH), 0},
+   vm6575_dpi_color_adjust},
+
   {6, "TECO VM6586",
    TECO_VM6586,
    "Relisys", "SCORPIO Pro-S",
+   {1, 600, 1},			/* resolution */
+   600, 1200,			/* max x and Y resolution */
+   5100, 8, 6, 0,		/* calibration */
+   {SANE_FIX (0), SANE_FIX (8.5 * MM_PER_INCH), 0},
+   {SANE_FIX (0), SANE_FIX (11.7 * MM_PER_INCH), 0},
+   vm6586_dpi_color_adjust},
+
+  {6, "TECO VM6586",
+   TECO_VM6586,
+   "Primax", "Profi 19200",
    {1, 600, 1},			/* resolution */
    600, 1200,			/* max x and Y resolution */
    5100, 8, 6, 0,		/* calibration */
@@ -683,16 +753,36 @@ teco_identify_scanner (Teco_Scanner * dev)
    * backend supports that one. */
   for (i = 0; i < NELEMS (scanners); i++)
     {
-
       if (dev->scsi_type == scanners[i].scsi_type &&
 	  strcmp (dev->scsi_teco_name, scanners[i].scsi_teco_name) == 0)
 	{
 
 	  DBG (DBG_error, "teco_identify_scanner: scanner supported\n");
 
-	  dev->def = &(scanners[i]);
+	  /*patch for VM356A Jewel or Apollo text in frontend-+ others-------------- */
 
-	  return (SANE_TRUE);
+	  if (strncmp (dev->scsi_vendor, "RELISYS", 1) == 0 ||
+	      strncmp (dev->scsi_vendor, "       ", 1) == 0)
+	    {
+	      DBG (DBG_error,
+		   "teco_identify_scanner: scanner detected with this teco_name and first brand/name entry in table\n");
+
+	      dev->def = &(scanners[i]);
+
+	      return (SANE_TRUE);
+	    }
+	  else
+	    {
+	      i++;
+
+	      DBG (DBG_error,
+		   "teco_identify_scanner: scanner detected with this teco_name and second brand/name entry in table\n");
+
+	      dev->def = &(scanners[i]);
+
+	      return (SANE_TRUE);
+	    }
+
 	}
     }
 
@@ -1051,7 +1141,8 @@ teco_do_calibration (Teco_Scanner * dev)
   size_t size;
   int i;
   int j;
-  int colsub;
+  int colsub0;
+  int colsub1;
   int *tmp_buf;			/* hold the temporary calibration */
   size_t tmp_buf_size;
   const char *calibration_algo;
@@ -1075,14 +1166,22 @@ teco_do_calibration (Teco_Scanner * dev)
     {
     case TECO_VM3564:
     case TECO_VM356A:
-      colsub = 0x110;
+      /* white level calibration correction */
+      /* 0x110 or 272 is middle value */
+      colsub0 = 240 + (dev->val[OPT_WHITE_LEVEL].w);
+      /* 14000 is middle value */
+      colsub1 = 12720 + (40 * dev->val[OPT_WHITE_LEVEL].w);
       break;
     case TECO_VM3575:
-      colsub = 0x1100;
+      /* 0x1100 or 4352 is middle value */
+      colsub0 = 4096 + (8 * dev->val[OPT_WHITE_LEVEL].w);
+      /* 4206639 is middle value */
+      colsub1 = 4142639 + (2000 * dev->val[OPT_WHITE_LEVEL].w);
       break;
       /* For VM6575, 656A, 6586 until otherwise default value is used */
     default:
-      colsub = 0x1000;
+      colsub0 = 0x1000;
+      colsub1 = 4206639;
       break;
     }
 
@@ -1180,11 +1279,11 @@ teco_do_calibration (Teco_Scanner * dev)
 
       if (cal_algo == 1)
 	{
-	  tmp_buf[j] = (4206639 * dev->def->cal_lines) / tmp_buf[j];
+	  tmp_buf[j] = (colsub1 * dev->def->cal_lines) / tmp_buf[j];
 	}
       else
 	{
-	  tmp_buf[j] = colsub - (tmp_buf[j] / dev->def->cal_lines);
+	  tmp_buf[j] = colsub0 - (tmp_buf[j] / dev->def->cal_lines);
 	}
     }
 
@@ -1788,6 +1887,18 @@ teco_init_options (Teco_Scanner * dev)
   dev->opt[OPT_PREVIEW].type = SANE_TYPE_BOOL;
   dev->opt[OPT_PREVIEW].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
   dev->val[OPT_PREVIEW].w = SANE_FALSE;
+
+  /* white level calibration manual correction */
+  dev->opt[OPT_WHITE_LEVEL].name = SANE_NAME_WHITE_LEVEL;
+  dev->opt[OPT_WHITE_LEVEL].title = SANE_TITLE_WHITE_LEVEL;
+  dev->opt[OPT_WHITE_LEVEL].desc = SANE_DESC_WHITE_LEVEL;
+  dev->opt[OPT_WHITE_LEVEL].type = SANE_TYPE_INT;
+  dev->opt[OPT_WHITE_LEVEL].unit = SANE_UNIT_NONE;
+  dev->opt[OPT_WHITE_LEVEL].constraint_type = SANE_CONSTRAINT_RANGE;
+  dev->opt[OPT_WHITE_LEVEL].constraint.range = &white_level_range;
+  dev->val[OPT_WHITE_LEVEL].w = 32;	/* to get middle value */
+
+
 
   /* Lastly, set the default scan mode. This might change some
    * values previously set here. */
@@ -2413,6 +2524,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_CUSTOM_GAMMA:
 	case OPT_PREVIEW:
 	case OPT_THRESHOLD:
+	case OPT_WHITE_LEVEL:
 	  *(SANE_Word *) val = dev->val[option].w;
 	  return SANE_STATUS_GOOD;
 
@@ -2461,6 +2573,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_BR_X:
 	case OPT_THRESHOLD:
 	case OPT_RESOLUTION:
+	case OPT_WHITE_LEVEL:
 	  if (info)
 	    {
 	      *info |= SANE_INFO_RELOAD_PARAMS;
@@ -2500,6 +2613,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  dev->opt[OPT_DITHER].cap |= SANE_CAP_INACTIVE;
 	  dev->opt[OPT_FILTER_COLOR].cap |= SANE_CAP_INACTIVE;
 	  dev->opt[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE;
+	  dev->opt[OPT_WHITE_LEVEL].cap |= SANE_CAP_INACTIVE;
 
 	  /* This the default resolution range, except for the
 	   * VM3575, VM3564, VM356A and VM6586 in color mode. */
@@ -2518,10 +2632,32 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    {
 	      dev->scan_mode = TECO_GRAYSCALE;
 	      dev->depth = 8;
-	      dev->opt[OPT_CUSTOM_GAMMA].cap &= ~SANE_CAP_INACTIVE;
-	      if (dev->val[OPT_CUSTOM_GAMMA].w)
+
+	      switch (dev->def->tecoref)
 		{
-		  dev->opt[OPT_GAMMA_VECTOR_GRAY].cap &= ~SANE_CAP_INACTIVE;
+		case TECO_VM3564:
+		case TECO_VM356A:
+		  dev->opt[OPT_WHITE_LEVEL].cap &= ~SANE_CAP_INACTIVE;
+		  break;
+		case TECO_VM3575:
+		  dev->opt[OPT_WHITE_LEVEL].cap &= ~SANE_CAP_INACTIVE;
+		  dev->opt[OPT_CUSTOM_GAMMA].cap &= ~SANE_CAP_INACTIVE;
+		  if (dev->val[OPT_CUSTOM_GAMMA].w)
+		    {
+		      dev->opt[OPT_GAMMA_VECTOR_GRAY].cap &=
+			~SANE_CAP_INACTIVE;
+		    }
+		  break;
+		case TECO_VM656A:
+		case TECO_VM6575:
+		case TECO_VM6586:
+		  dev->opt[OPT_CUSTOM_GAMMA].cap &= ~SANE_CAP_INACTIVE;
+		  if (dev->val[OPT_CUSTOM_GAMMA].w)
+		    {
+		      dev->opt[OPT_GAMMA_VECTOR_GRAY].cap &=
+			~SANE_CAP_INACTIVE;
+		    }
+		  break;
 		}
 	      dev->opt[OPT_FILTER_COLOR].cap &= ~SANE_CAP_INACTIVE;
 	    }
@@ -2529,14 +2665,35 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    {
 	      dev->scan_mode = TECO_COLOR;
 	      dev->depth = 8;
-	      dev->opt[OPT_CUSTOM_GAMMA].cap &= ~SANE_CAP_INACTIVE;
-	      if (dev->val[OPT_CUSTOM_GAMMA].w)
-		{
-		  dev->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
-		  dev->opt[OPT_GAMMA_VECTOR_G].cap &= ~SANE_CAP_INACTIVE;
-		  dev->opt[OPT_GAMMA_VECTOR_B].cap &= ~SANE_CAP_INACTIVE;
-		}
 
+	      switch (dev->def->tecoref)
+		{
+		case TECO_VM3564:
+		case TECO_VM356A:
+		  dev->opt[OPT_WHITE_LEVEL].cap &= ~SANE_CAP_INACTIVE;
+		  break;
+		case TECO_VM3575:
+		  dev->opt[OPT_WHITE_LEVEL].cap &= ~SANE_CAP_INACTIVE;
+		  dev->opt[OPT_CUSTOM_GAMMA].cap &= ~SANE_CAP_INACTIVE;
+		  if (dev->val[OPT_CUSTOM_GAMMA].w)
+		    {
+		      dev->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
+		      dev->opt[OPT_GAMMA_VECTOR_G].cap &= ~SANE_CAP_INACTIVE;
+		      dev->opt[OPT_GAMMA_VECTOR_B].cap &= ~SANE_CAP_INACTIVE;
+		    }
+		  break;
+		case TECO_VM656A:
+		case TECO_VM6575:
+		case TECO_VM6586:
+		  dev->opt[OPT_CUSTOM_GAMMA].cap &= ~SANE_CAP_INACTIVE;
+		  if (dev->val[OPT_CUSTOM_GAMMA].w)
+		    {
+		      dev->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
+		      dev->opt[OPT_GAMMA_VECTOR_G].cap &= ~SANE_CAP_INACTIVE;
+		      dev->opt[OPT_GAMMA_VECTOR_B].cap &= ~SANE_CAP_INACTIVE;
+		    }
+		  break;
+		}
 	      /* The VM3575, VM3564, VM356A and VM6586 supports only a handful of resolution. Do that here.
 	       * Ugly! */
 	      if (dev->resolutions_list != NULL)
@@ -2634,7 +2791,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
        * in the SET WINDOWS command. */
       if (dev->val[OPT_PREVIEW].w == SANE_TRUE)
 	{
-	  /* for VM356A, no good 50 dpi scan possible */
+	  /* for VM356A, no good 50 dpi scan possible, now leave as */
 
 	  switch (dev->def->tecoref)
 	    {

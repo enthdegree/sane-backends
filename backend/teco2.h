@@ -293,9 +293,9 @@ enum Teco_Option
   OPT_GAMMA_VECTOR_GRAY,	/* Custom Grayscale Gamma table */
 
   OPT_DITHER,
-  OPT_FILTER_COLOR,				/* which color to filter */
-  OPT_THRESHOLD,				/* Threshold */
-
+  OPT_FILTER_COLOR,		/* which color to filter */
+  OPT_THRESHOLD,		/* Threshold */
+  OPT_WHITE_LEVEL,		/*white level correction */
 
   OPT_PREVIEW,
 
@@ -308,6 +308,8 @@ typedef union
   SANE_Word w;			/* word */
   SANE_Word *wa;		/* word array */
   SANE_String s;		/* string */
+  SANE_Range white_level_range;
+
 }
 Option_Value;
 
@@ -322,7 +324,7 @@ struct scanners_supported
   char scsi_teco_name[12];	/* real name of the scanner */
   enum
   {
-    TECO_VM3564,  
+    TECO_VM3564,
     TECO_VM356A,
     TECO_VM3575,
     TECO_VM6575,
@@ -340,8 +342,8 @@ struct scanners_supported
 
   int cal_length;		/* size of a calibration line in pixels */
   int cal_lines;		/* number of calibration lines to read */
-	int cal_col_len;			/* number of byte to code one color */
-	int cal_algo; /* default algo to use to compute calibration line */
+  int cal_col_len;		/* number of byte to code one color */
+  int cal_algo;			/* default algo to use to compute calibration line */
 
   /* Minimum and maximum width and length supported. */
   SANE_Range x_range;

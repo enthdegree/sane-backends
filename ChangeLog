@@ -1,3 +1,8 @@
+2003-11-10  Gerhard Jaeger <gerhard@gjaeger.de>
+	* backend/Makefile.in: Linking pie backend now against sanei_thread lib.
+	* backend/pie.c: Switched backend over to sanei_thread usage, to make it
+	  also work with OS/2.
+
 2003-11-08  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan-options.c backend/snapscan.c
@@ -49,7 +54,7 @@
 
 2003-11-04  Gerhard Jaeger <gerhard@gjaeger.de>
 	* backend/Makefile.in: Linking coolscan now against sanei_thread lib.
-	* backend/coolscan.c backend/coolscan.h: Switch backend over to
+	* backend/coolscan.c backend/coolscan.h: Switched backend over to
 	  sanei_thread usage, to make it work at least with OS/2.
 	* backend/plustek-pp_misc.c backend/plustek-pp_hwdefs.h: Fixed bug
 	  in parport setup routine.

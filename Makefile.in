@@ -128,3 +128,6 @@ dist: $(DISTFILES)
 $(PACKAGE)-$(VERSION).tar.gz: dist
 
 sane-backends: dist lsm
+
+etags:
+	etags */*.[ch] */*/*.h

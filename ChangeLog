@@ -1,3 +1,7 @@
+2001-06-03  Karl Heinz Kremer <khk@khk.net>
+
+	* doc/sane-epson.man: Updated documentation
+
 2001-06-03  Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c: Fixed compile problem on archs that

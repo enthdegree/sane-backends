@@ -4571,7 +4571,8 @@ output_data (Mustek_Scanner *s, FILE *fp,
 		{
 		  while (ptr != ptr_end)
 		    {
-		      *ptr++ = ~*ptr;
+		      (*ptr) = ~(*ptr);
+		      ptr++;
 		      /* need to revert bit direction */
 		      *ptr= ((*ptr & 0x80) >> 7) + ((*ptr & 0x40) >> 5)
 			+ ((*ptr & 0x20) >> 3) + ((*ptr & 0x10) >> 1) 
@@ -4581,7 +4582,10 @@ output_data (Mustek_Scanner *s, FILE *fp,
 		}
 	      else
 		while (ptr != ptr_end)
-		  *ptr++ = ~*ptr;
+		  {
+		    (*ptr) = ~(*ptr);
+		    ptr++;
+		  }
 	    }
 	  if (strcmp (s->val[OPT_SOURCE].s, "Automatic Document Feeder") == 0)
 	    {

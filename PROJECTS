@@ -1,4 +1,4 @@
-PROJECTS (2002-02-08)
+PROJECTS (2002-02-19)
 
 Here is a list of projects that various people have expressed interest
 in.  Before starting working on one of these projects, it may be a
@@ -15,6 +15,10 @@ wip       Work in progress. There is (more or less) working code. For details,
 
 Backends:
 ---------
+
+Acer ScanWit 2720S film scanner (wip)
+Max Ushakov <ushakov@mccme.ru>
+ftp://mccme.ru/users/ushakov/scanwit
 
 Canon 1220U USB scanner (wip)
 http://sourceforge.net/projects/canonscanner/

@@ -1,3 +1,7 @@
+2002-10-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/dll.conf: Added commented out entries for hpoj and gt68xx.
+
 2002-10-17  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* backend/plustek.c: removed internationalization stuff

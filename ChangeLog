@@ -1,3 +1,9 @@
+2003-02-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions-external/hp5400.desc: Added description for hp5400
+	  backend. It supports the Hewlett-Packard 5400, 5470 and (maybe) 5490
+	  scanners.
+
 2003-02-26  Ulrich Deiters <ukd@xenon.pc.uni-koeln.de>
 
 	* modified the Canon SCSI backend (now version 1.12):
@@ -12,19 +18,7 @@
 	  xscanimage when doing previews with scanners using hardware
 	  scan resolutions only.
 
-<<<<<<< ChangeLog
-2002-11-13  Ulrich Deiters <ukd@xenon.pc.uni-koeln.de>
-
-	* modified the Canon SCSI backend (now version 1.10):
-	* backend/canon.c, canon-scsi.c: Added support of focus control for
-	  the FS2710 film scanner.
-	* backend/canon-sane.c: Set handler_arg in sanei_scsi_open() calls
-	  to zero to avoid crashes with Mandrake Linux 9.0
-
-2002-11-12 Oliver Rauch <Oliver.Rauch@Rauch-Domain.DE>
-=======
 2003-02-25  Henning Meier-Geinitz <henning@meier-geinitz.de>
->>>>>>> 1.1505
 
 	* po/sane-backends.fr.po: Updated French translation (from Yann E.
 	  MORIN <yann dot morin dot 1998 at anciens dot enib dot fr>).

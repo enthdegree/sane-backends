@@ -1,10 +1,10 @@
-TODO (2003-02-13)
+TODO (2003-02-16)
 
 ******** todo ********
 
 backends
 --------
-  * Add new backends (+ means scheduled for SANE 1.0.10)
+  * Add new backends (+ means scheduled for SANE 1.0.12)
     - Hewlett-Packard ScanJet 3300C / 3400C and 4300C (wip)
       http://sourceforge.net/projects/hp3300backend
     - Hewlett-Packard 4200c
@@ -85,8 +85,10 @@ doc
 
   * desc files:
     - Add keywords "vendor-id" and "product-id" for SCSI and USB ids.
-    - avision.desc: Is the removal of the HP 7450 intended? 
     - snapscan: add Epson Perfection 660
+    - fujitsu: The  Fujitsu Scanpartner 93GX is also supported, it's a re-branded
+      ScanPartner 3093GX
+    - plustek:  check status of Umax 3450 USB scanner (same as 3400?)
 
   * manpages:
     - html manpages have broken links to other man pages if link is wrapped at
@@ -180,6 +182,7 @@ misc
 
   * Fix japi to run on current jdks. Swing is now included, and there is
     a segfault in Sane.c.
+
 
 ******** done ********
 * SCSI access doesn't seem to work on Linux/Sparc. See emails from

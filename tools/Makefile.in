@@ -88,10 +88,10 @@ sane-config: sane-config.in $(top_builddir)/config.status
 	cd $(top_builddir) \
           && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
-sane-find-scanner: sane-find-scanner.o \
+sane-find-scanner: sane-find-scanner.o ../backend/sane_strstatus.lo \
 	../sanei/sanei_scsi.lo ../sanei/sanei_usb.lo ../sanei/sanei_init_debug.lo
-	@$(LIBTOOL) $(MLINK) $(LINK) sane-find-scanner.o $(LIBSANEI) $(LIBLIB) \
-		$(LIBS)
+	@$(LIBTOOL) $(MLINK) $(LINK) sane-find-scanner.o \
+	  ../backend/sane_strstatus.lo $(LIBSANEI) $(LIBLIB) $(LIBS)
 
 ../backend/umax_pp_low.o: ../backend/umax_pp_low.c 
 	$(COMPILE) ../backend/umax_pp_low.c -o ../backend/umax_pp_low.o \

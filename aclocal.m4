@@ -150,7 +150,6 @@ AC_DEFUN([SANE_CHECK_DLL_LIB],
     #Mac OS X/Darwin
     AC_CHECK_HEADERS(mach-o/dyld.h,
     [AC_CHECK_FUNCS(NSLinkModule, enable_dynamic=yes,)
-     LDFLAGS="$LDFLAGS -module"
      DL_LIB=""
     ],)
   fi

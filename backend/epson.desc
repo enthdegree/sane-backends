@@ -10,7 +10,7 @@
 ;
 
 :backend "epson"                  ; name of backend
-:version "0.2.07"                 ; version of backend
+:version "0.2.08"                 ; version of backend
 :status :stable                   ; :alpha, :beta, :stable, :new
 :manpage "sane-epson"             ; name of manpage (if it exists)
 :url "http://www.freecolormanagement.com/sane"        ; backend's web page
@@ -89,6 +89,7 @@
 :interface "SCSI USB"
 
 :model "Expression 636"
+:comment "US version of GT-9500"
 :interface "SCSI"
 
 :model "Expression 800"

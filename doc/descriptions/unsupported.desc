@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2004-04-19"		; version of backend
+:version "2004-04-24"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -557,6 +557,12 @@
 
 :model "X1150"
 :url "/unsupported/lexmark-x1150.html"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported."
+
+:model "X5130"
+:url "/unsupported/lexmark-x5130.html"
 :interface "USB"
 :status :unsupported
 :comment "Unsupported."
@@ -1179,6 +1185,11 @@
 :status :unsupported
 :comment "Probably not supported. See link for details."
 
+:model "Astra 4000"
+:interface "USB"
+:status :unsupported
+:comment "Probably not supported, no details known."
+
 :model "Astra 4400"
 :url "/unsupported/umax-astra-4400.html"
 :interface "USB"
@@ -1190,6 +1201,11 @@
 :interface "USB"
 :status :unsupported
 :comment "Probably not supported. See link for details."
+
+:model "Astra 4600"
+:interface "USB"
+:status :unsupported
+:comment "Probably not supported, no details known."
 
 :model "Astra 6700"
 ;:url ""

@@ -260,8 +260,9 @@ if test "`uname`" != "IRIX" -a "`uname`" != "IRIX64"; then
 	AC_CHECK_LIB(syslog, syslog)            # OS/2 needs this
 fi
 
-dnl check for PTAL library (used in hp backend)
-SANE_CHECK_PTAL
+dnl Don't check for PTAL library anymore.
+dnl Support for HP OfficeJets is now in the external "hpoj" backend.
+dnl SANE_CHECK_PTAL
 
 dnl look for /dev/urandom
 if test -c /dev/urandom ; then

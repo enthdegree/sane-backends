@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: sane-backends 1.0.14\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2004-10-21 22:17+0200\n"
-"PO-Revision-Date: 2004-10-23 17:29+0200\n"
+"PO-Revision-Date: 2004-11-04 02:07+0100\n"
 "Last-Translator: Giuseppe Sacco <eppesuig@debian.org>\n"
 "Language-Team: italian translation project <tp@lists.linux.it>\n"
 "MIME-Version: 1.0\n"
@@ -72,10 +72,7 @@ msgstr "Calibrare lo scanner prima della prossima scansione"
 msgid ""
 "If enabled, the device will be calibrated before the next scan. Otherwise, "
 "calibration is performed only before the first start."
-msgstr ""
-"Il dispositivo verrà calibrato prima della prossima scansione solamente se "
-"tale funzione è abilitata, altrimenti la calibrazione viene eseguita "
-"solamente alla prima scansione."
+msgstr "Il dispositivo verrà calibrato prima della prossima scansione solamente se tale funzione sarrà abilitata, altrimenti la calibrazione verrà eseguita solamente alla prima scansione."
 
 #: .tmp/artec_eplus48u.c:2954
 msgid "Only perform shading-correction"
@@ -86,11 +83,7 @@ msgid ""
 "If enabled, only the shading correction is performed during calibration. The "
 "default values for gain, offset and exposure time, either build-in or from "
 "the configuration file, are used."
-msgstr ""
-"Durante la calibrazione verrà eseguita solo la correzione delle ombre, "
-"qualora sia stata abilitata, mentre per guadagno, scarto e tempo di "
-"esposizione verranno utilizzati i valori predefiniti o quelli presenti nel "
-"file di configurazione"
+msgstr "Se abilitata verrà eseguita solo la correzione delle ombre, qualora sia stata abilitata, mentre per guadagno, scarto e tempo di esposizione verranno utilizzati i valori predefiniti o quelli presenti nel file di configurazione"
 
 #: .tmp/artec_eplus48u.c:2967
 msgid "Button state"
@@ -98,11 +91,11 @@ msgstr "Stato del pulsante"
 
 #: .tmp/avision.h:539
 msgid "Number of the frame to scan"
-msgstr "Numero di frame da acquisire"
+msgstr "Numero di fotogrammi da acquisire"
 
 #: .tmp/avision.h:540
 msgid "Selects the number of the frame to scan"
-msgstr "Selezionare il numero di frame da acquisire"
+msgstr "Selezionare il numero di fotogrammi da acquisire"
 
 #: .tmp/canon630u.c:158
 msgid "Calibrate Scanner"
@@ -110,15 +103,15 @@ msgstr "Calibrare lo scanner"
 
 #: .tmp/canon630u.c:159
 msgid "Force scanner calibration before scan"
-msgstr "Forzare la calibrazione dello scanner prima della scansione"
+msgstr "Forza la calibrazione dello scanner prima della scansione"
 
 #: .tmp/canon630u.c:258 .tmp/umax1220u.c:207
 msgid "Grayscale scan"
-msgstr "Scansione con scala di grigi"
+msgstr "Scansione in scala di grigi"
 
 #: .tmp/canon630u.c:259 .tmp/umax1220u.c:208
 msgid "Do a grayscale rather than color scan"
-msgstr "Effettuare una scansione con scala di grigi invece che a colori"
+msgstr "Effettuare una scansione in scala di grigi invece che a colori"
 
 #: .tmp/canon630u.c:305
 msgid "Analog Gain"
@@ -126,11 +119,11 @@ msgstr "Guadagno analogico"
 
 #: .tmp/canon630u.c:306
 msgid "Increase or decrease the analog gain of the CCD array"
-msgstr "Aumenta o diminuisce il guadagno del sensore CCD"
+msgstr "Aumenta o diminuisce il guadagno analogico del sensore CCD"
 
 #: .tmp/canon630u.c:346 .tmp/epson.h:68
 msgid "Gamma Correction"
-msgstr "Correzione Gamma"
+msgstr "Correzione gamma"
 
 #: .tmp/canon630u.c:347
 msgid "Selects the gamma corrected transfer curve"
@@ -192,15 +185,15 @@ msgstr "Nessuno"
 
 #: .tmp/epson.c:554 .tmp/epson.c:562 .tmp/epson.c:574
 msgid "Halftone A (Hard Tone)"
-msgstr "Mezzi Toni A"
+msgstr "Mezzi Toni A (hard tone)"
 
 #: .tmp/epson.c:555 .tmp/epson.c:563 .tmp/epson.c:575
 msgid "Halftone B (Soft Tone)"
-msgstr "Mezzi Toni B"
+msgstr "Mezzi Toni B (soft tone)"
 
 #: .tmp/epson.c:556 .tmp/epson.c:564 .tmp/epson.c:576
 msgid "Halftone C (Net Screen)"
-msgstr "Mezzi Toni C"
+msgstr "Mezzi Toni C (net screen)"
 
 #: .tmp/epson.c:565 .tmp/epson.c:577
 msgid "Dither A (4x4 Bayer)"
@@ -284,11 +277,11 @@ msgstr "Stampa a contrasto elevato"
 
 #: .tmp/epson.c:675
 msgid "User defined (Gamma=1.0)"
-msgstr "Definito dall'utente (Gamma=1.0)"
+msgstr "Definito dall'utente (gamma=1.0)"
 
 #: .tmp/epson.c:676
 msgid "User defined (Gamma=1.8)"
-msgstr "Definito dall'utente (Gamma=1.8)"
+msgstr "Definito dall'utente (gamma=1.8)"
 
 #: .tmp/epson.c:746
 msgid "CD"
@@ -324,7 +317,7 @@ msgstr "Modalità di scansione"
 
 #: .tmp/epson.c:2764
 msgid "Selects the halftone."
-msgstr "Selezionare i mezzi toni"
+msgstr "Seleziona i mezzi toni"
 
 #: .tmp/epson.c:2786
 msgid "Dropout"
@@ -332,11 +325,11 @@ msgstr "Esclusione"
 
 #: .tmp/epson.c:2787
 msgid "Selects the dropout."
-msgstr "Selezionare l'esclusione"
+msgstr "Seleziona l'esclusione."
 
 #: .tmp/epson.c:2799
 msgid "Selects the brightness."
-msgstr "Selezionare la brillantezza."
+msgstr "Seleziona la brillantezza."
 
 #: .tmp/epson.c:2814
 msgid "Sharpness"
@@ -348,8 +341,7 @@ msgstr "Correzione del colore"
 
 #: .tmp/epson.c:2953
 msgid "Sets the color correction table for the selected output device."
-msgstr ""
-"Compilare la tabella di correzione dei colori per il dispositivo selezionato"
+msgstr "Imposta la tabella di correzione dei colori per il dispositivo selezionato."
 
 #: .tmp/epson.c:2994
 msgid "Color correction coefficients"
@@ -357,31 +349,31 @@ msgstr "Coefficienti di correzione del colore"
 
 #: .tmp/epson.c:2995
 msgid "Matrix multiplication of RGB"
-msgstr "Duplicazione della matrice RGB"
+msgstr "Moltiplicazione matriciale dei valori RGB"
 
 #: .tmp/epson.c:3012
 msgid "Shift green to red"
-msgstr "Spostamento verde -> rosso"
+msgstr "Spostamento da verde a rosso"
 
 #: .tmp/epson.c:3013
 msgid "Shift green to blue"
-msgstr "Spostamento verde -> blu"
+msgstr "Spostamento da verde a blu"
 
 #: .tmp/epson.c:3014
 msgid "Shift red to green"
-msgstr "Spostamento rosso -> verde"
+msgstr "Spostamento da rosso a verde"
 
 #: .tmp/epson.c:3016
 msgid "Shift red to blue"
-msgstr "Spostamento rosso -> blu"
+msgstr "Spostamento da rosso a blu"
 
 #: .tmp/epson.c:3017
 msgid "Shift blue to green"
-msgstr "Spostamento blu -> verde"
+msgstr "Spostamento da blu a verde"
 
 #: .tmp/epson.c:3018
 msgid "Shift blue to red"
-msgstr "Spostamento blu -> rosso"
+msgstr "Spostamento da blu a rosso"
 
 #: .tmp/epson.c:3021
 msgid "Controls green level"
@@ -437,7 +429,7 @@ msgstr "Velocità"
 
 #: .tmp/epson.c:3164
 msgid "Auto area segmentation"
-msgstr "Taglio automatico dell'area"
+msgstr "Sezionamento automatico dell'area"
 
 #: .tmp/epson.c:3177
 msgid "Short resolution list"
@@ -453,7 +445,7 @@ msgstr "Zoom"
 
 #: .tmp/epson.c:3188
 msgid "Defines the zoom factor the scanner will use"
-msgstr "Definire il fattore di zoom che lo scanner userà"
+msgstr "Definisce il fattore di zoom usato dallo scanner"
 
 #: .tmp/epson.c:3268
 msgid "Quick format"
@@ -473,7 +465,7 @@ msgstr "Espulsione"
 
 #: .tmp/epson.c:3351
 msgid "Eject the sheet in the ADF"
-msgstr "Espelli il foglio dall'alimentatore automatico"
+msgstr "Espelle il foglio dall'alimentatore automatico"
 
 #: .tmp/epson.c:3363
 msgid "Auto eject"
@@ -481,7 +473,7 @@ msgstr "Espulsione automatica"
 
 #: .tmp/epson.c:3364
 msgid "Eject document after scanning"
-msgstr "Espelli il documento dopo la sua scansione"
+msgstr "Espelle il documento dopo la sua scansione"
 
 #: .tmp/epson.c:3376
 msgid "ADF Mode"
@@ -489,7 +481,7 @@ msgstr "Modalità ADF"
 
 #: .tmp/epson.c:3378
 msgid "Selects the ADF mode (simplex/duplex)"
-msgstr "Selezionare la modalità ADF (solo fronte/fronte-retro)"
+msgstr "Seleziona la modalità ADF (solo fronte/fronte-retro)"
 
 #: .tmp/epson.c:3392
 msgid "Bay"
@@ -497,16 +489,13 @@ msgstr "Cassetto"
 
 #: .tmp/epson.c:3393
 msgid "Select bay to scan"
-msgstr "Selezionare il cassetto per la scansione"
+msgstr "Seleziona il cassetto per la scansione"
 
 #: .tmp/epson.h:69
 msgid ""
 "Selects the gamma correction value from a list of pre-defined devices or the "
 "user defined table, which can be downloaded to the scanner"
-msgstr ""
-"Selezionare la correzione gamma da una lista di dispositivi predefiniti, "
-"oppure dalla tabella personalizzata, con la quale verrà configurato lo "
-"scanner"
+msgstr "Seleziona la correzione gamma da una lista di dispositivi predefiniti, oppure dalla tabella personalizzata, con la quale verrà configurato lo scanner"
 
 #: .tmp/epson.h:72
 msgid "Focus Position"
@@ -514,7 +503,7 @@ msgstr "Posizione della messa a fuoco"
 
 #: .tmp/epson.h:73
 msgid "Sets the focus position to either the glass or 2.5mm above the glass"
-msgstr "Selezionare la messa a fuoco sul piano di vetro o 2,5mm sopra lo stesso"
+msgstr "Seleziona la messa a fuoco sul piano di vetro o 2,5mm sopra lo stesso"
 
 #: .tmp/epson.h:75
 msgid "Wait for Button"
@@ -524,12 +513,12 @@ msgstr "Attendi il tasto"
 msgid ""
 "After sending the scan command, wait until the button on the scanner is "
 "pressed to actually start the scan process."
-msgstr "Dopo avere inviato il comando di scansione attendere finché il tasto dello scanner viene premuto per iniziare il processo di acquisizione."
+msgstr "Dopo aver inviato il comando di scansione, attendere finché non viene premuto il tasto dello scanner per fare partire il processo di acquisizione."
 
 #: .tmp/gt68xx.c:142 .tmp/ma1509.c:106 .tmp/mustek.c:156
 #: .tmp/snapscan-options.c:82 .tmp/umax.c:183
 msgid "Transparency Adapter"
-msgstr "Adattatore per Trasparenza"
+msgstr "Adattatore per trasparenza"
 
 #: .tmp/gt68xx.c:461
 msgid "Gray mode color"
@@ -553,7 +542,7 @@ msgstr "Preriscaldamento automatico"
 msgid ""
 "Warm-up until the lamp's brightness is constant instead of insisting on 60 "
 "seconds warm-up time."
-msgstr "Preriscaldare fino a quando la brillantezza della lampada diventi costante invece di attendere 60 secondi."
+msgstr "Preriscalda fino a che la luminisità della lampada sia costante invece di attendere 60 secondi."
 
 #: .tmp/gt68xx.c:567
 msgid "Full scan"
@@ -563,9 +552,7 @@ msgstr "Scansione completa"
 msgid ""
 "Scan the complete scanning area including calibration strip. Be careful. "
 "Don't select the full height. For testing only."
-msgstr ""
-"Effettua la scansione su tutta l'area possibile, compresa la scriscia di "
-"calibrazione. Attenzione. Non selezionare l'altezza completa. Solo per test."
+msgstr "Effettua la scansione su tutta l'area possibile, compresa la striscia di calibrazione. Fare attenzione a non selezionare l'altezza completa. Da usare solo per effettuare test."
 
 #: .tmp/gt68xx.c:580
 msgid "Coarse calibration"
@@ -576,11 +563,7 @@ msgid ""
 "Setup gain and offset for scanning automatically. If this option is "
 "disabled, options for setting the analog frontend parameters manually are "
 "provided. This option is enabled by default. For testing only."
-msgstr ""
-"Definisce gain e offset per la scansione automatica. Se questa opzione è "
-"disabilitata allora delle opzioni per la parametrizzazione manuale analogica "
-"saranno presenti nel frontend. Questa opzione è attiva in maniera "
-"predefinita. Solo per test."
+msgstr "Definisce guadagno e scarto per la scansione automatica. Se questa opzione è disabilitata allora saranno presenti nel frontend alcune opzioni per la parametrizzazione manuale analogica. Questa opzione è attiva in maniera predefinita. Da usare solo per effettuare test."
 
 #: .tmp/gt68xx.c:596
 msgid "Coarse calibration for first scan only"
@@ -591,7 +574,7 @@ msgid ""
 "Coarse calibration is only done for the first scan. Works with most scanners "
 "and can save scanning time. If the image brightness is different with each "
 "scan, disable this option. For testing only."
-msgstr "La calibrazione granulosa è effettuata solo durante la prima scansione. Funziona con la maggior parte degli scanner e può fare risparmiare parecchio tempo. Disabilitarla se la brillantezza è diversa per ciascuna delle immagini da acquisire. Solo per test."
+msgstr "La calibrazione granulosa è effettuata solo durante la prima scansione. Funziona con la maggior parte degli scanner e può fare risparmiare parecchio tempo. Disabilitarla se la brillantezza è diversa per ciascuna delle immagini da acquisire. Da usare solo per effettuare test."
 
 #: .tmp/gt68xx.c:622 .tmp/mustek.c:4326
 msgid "Fast preview"
@@ -623,7 +606,7 @@ msgstr ""
 
 #: .tmp/gt68xx.c:661
 msgid "Gamma value"
-msgstr "Valore gamma."
+msgstr "Valore gamma"
 
 #: .tmp/gt68xx.c:662
 msgid "Sets the gamma value of all channels."
@@ -641,7 +624,7 @@ msgstr "Questo valore è aggiunto al valore interno del guadagno. Da usare per i
 
 #: .tmp/gt68xx.c:697
 msgid "Offset correction"
-msgstr "Correzione offset"
+msgstr "Correzione scarto"
 
 #: .tmp/gt68xx.c:699
 msgid ""
@@ -798,7 +781,7 @@ msgstr "Seleziona il filtro per l'ammorbidimento (smoothing)."
 
 #: .tmp/hp-option.h:79
 msgid "Unload media after scan"
-msgstr "Estrarre il supporto dopo la scansione"
+msgstr "Espelle il supporto dopo la scansione"
 
 #: .tmp/hp-option.h:80
 msgid "Unloads the media after a scan."
@@ -814,11 +797,11 @@ msgstr "Cambia il documento."
 
 #: .tmp/hp-option.h:91
 msgid "Unload"
-msgstr "Estrazione"
+msgstr "Espulsione"
 
 #: .tmp/hp-option.h:92
 msgid "Unload Document."
-msgstr "Estrae il documento."
+msgstr "Espelle il documento."
 
 #: .tmp/hp-option.h:97 .tmp/niash.c:728
 msgid "Calibrate"
@@ -854,7 +837,7 @@ msgstr ""
 
 #: .tmp/hp-option.h:119 .tmp/hp-option.h:126
 msgid "Color Matrix"
-msgstr "Colore su matrice"
+msgstr "Matrice del colore"
 
 #: .tmp/hp-option.h:121
 msgid "Set the scanners color matrix."
@@ -902,7 +885,7 @@ msgstr "uscita a 8 bit"
 
 #: .tmp/hp-option.h:158
 msgid "Use bit depth greater eight internally, but output only eight bits."
-msgstr "Usa più di 8 bit interni, ma produce solo 8 bit."
+msgstr "Usa internamente più di 8 bit, ma produce solo 8 bit."
 
 #: .tmp/hp-option.h:164
 msgid "Front button wait"
@@ -948,7 +931,7 @@ msgstr "Modalità di scansione"
 
 #: .tmp/leo.h:260 .tmp/matsushita.h:209 .tmp/teco1.h:291 .tmp/teco3.h:294
 msgid "Black & White"
-msgstr "Bianco e Nero"
+msgstr "Bianco e nero"
 
 #: .tmp/matsushita.c:139
 msgid "Bayer Dither 16"
@@ -1050,7 +1033,7 @@ msgstr "Riduzione del rumore"
 
 #: .tmp/matsushita.c:1279
 msgid "Reduce the isolated dot noise"
-msgstr "Ridurre il rumore dei punti isolati"
+msgstr "Riduce il rumore dei punti isolati"
 
 #: .tmp/matsushita.c:1290
 msgid "Image emphasis"
@@ -1058,7 +1041,7 @@ msgstr "Accentuazione dell'immagine"
 
 #: .tmp/matsushita.c:1291
 msgid "Sets the image emphasis"
-msgstr "Selezionare l'accentuazione dell'immagine"
+msgstr "Imposta l'accentuazione dell'immagine"
 
 #: .tmp/matsushita.c:1302 .tmp/matsushita.c:1303
 msgid "Gamma"
@@ -1106,15 +1089,15 @@ msgstr "Disattiva backtracking"
 
 #: .tmp/microtek2.h:610
 msgid "If checked the scanner does not perform backtracking"
-msgstr "Se attivo lo scanner non esegue il backtracking"
+msgstr "Se abilitato lo scanner non esegue il backtracking"
 
 #: .tmp/microtek2.h:614
 msgid "Toggle lamp of flatbed"
-msgstr "Accendere/Spegnere la lampada dello scanner"
+msgstr "Commuta lo stato della lampada dello scanner"
 
 #: .tmp/microtek2.h:615
 msgid "Toggles the lamp of the flatbed"
-msgstr "Accendere/Spegnere la lampada dello scanner"
+msgstr "Commuta lo stato della lampada dello scanner (accesa/spenta)"
 
 #: .tmp/microtek2.h:618
 msgid "Calibration by backend"
@@ -1122,15 +1105,15 @@ msgstr "Calibrazione automatica"
 
 #: .tmp/microtek2.h:619
 msgid "If checked the color calibration before a scan is done by the backend"
-msgstr "Se attivo la calibrazione del colore viene eseguita automaticamente prima della scansione"
+msgstr "Se abilitato la calibrazione del colore viene eseguita automaticamente prima della scansione"
 
 #: .tmp/microtek2.h:623
 msgid "Use the lightlid-35mm adapter"
-msgstr "Utilizzare l'adattatore per diapositive"
+msgstr "Utilizza l'adattatore per diapositive"
 
 #: .tmp/microtek2.h:624
 msgid "This option turns off the lamp of the flatbed during a scan"
-msgstr "Questa opzione spegne la lampada del piatto durante la scansione"
+msgstr "Questa opzione spegne la lampada del piano durante la scansione"
 
 #: .tmp/microtek2.h:628 .tmp/snapscan-options.c:329
 msgid "Quality scan"
@@ -1156,11 +1139,11 @@ msgstr "Determinazione automatica della soglia"
 msgid ""
 "If checked the backend automatically tries to determine an optimal value for "
 "the threshold."
-msgstr "Se attivo viene determinato in maniera automatica il valore ottimale della soglia."
+msgstr "Se abilitato viene determinato in maniera automatica il valore ottimale della soglia."
 
 #: .tmp/microtek2.h:642
 msgid "Gamma correction"
-msgstr "Correzione Gamma"
+msgstr "Correzione gamma"
 
 #: .tmp/microtek2.h:643
 msgid "Selects the gamma correction mode."
@@ -1168,7 +1151,7 @@ msgstr "Selezionare la modalità di correzione gamma."
 
 #: .tmp/microtek2.h:646
 msgid "Bind gamma"
-msgstr "Lega il valore gamma"
+msgstr "Fissa il valore gamma"
 
 #: .tmp/microtek2.h:647
 msgid "Use same gamma values for all colour channels."
@@ -1176,11 +1159,11 @@ msgstr "Utilizza lo stesso valore di correzione gamma per tutti i canali."
 
 #: .tmp/microtek2.h:651
 msgid "Scalar gamma"
-msgstr "Valore gamma"
+msgstr "Scalare gamma"
 
 #: .tmp/microtek2.h:652
 msgid "Selects a value for scalar gamma correction."
-msgstr "Selezionare il valore per la correzione gamma"
+msgstr "Selezionare il valore per la correzione gamma scalare."
 
 #: .tmp/microtek2.h:656
 msgid "Scalar gamma red"
@@ -1389,7 +1372,7 @@ msgstr "Luminosità del rosso"
 
 #: .tmp/mustek.c:4405
 msgid "Controls the brightness of the red channel of the acquired image."
-msgstr "Controllare la luminosità del canale rosso dell'immagine acquisita."
+msgstr "Controlla la luminosità del canale rosso dell'immagine acquisita."
 
 #: .tmp/mustek.c:4417
 msgid "Green brightness"
@@ -1397,7 +1380,7 @@ msgstr "Luminosità del verde"
 
 #: .tmp/mustek.c:4418
 msgid "Controls the brightness of the green channel of the acquired image."
-msgstr "Controllare la luminosità del canale verde dell'immagine acquisita."
+msgstr "Controlla la luminosità del canale verde dell'immagine acquisita."
 
 #: .tmp/mustek.c:4430
 msgid "Blue brightness"
@@ -1405,7 +1388,7 @@ msgstr "Luminosità del blu"
 
 #: .tmp/mustek.c:4431
 msgid "Controls the brightness of the blue channel of the acquired image."
-msgstr "Controllare la luminosità del canale blu dell'immagine acquisita."
+msgstr "Controlla la luminosità del canale blu dell'immagine acquisita."
 
 #: .tmp/mustek.c:4456
 msgid "Contrast red channel"
@@ -1413,7 +1396,7 @@ msgstr "Contrasto canale rosso"
 
 #: .tmp/mustek.c:4457
 msgid "Controls the contrast of the red channel of the acquired image."
-msgstr "Controllare il contrasto del canale rosso dell'immagine acquisita."
+msgstr "Controlla il contrasto del canale rosso dell'immagine acquisita."
 
 #: .tmp/mustek.c:4469
 msgid "Contrast green channel"
@@ -1421,7 +1404,7 @@ msgstr "Contrasto canale verde"
 
 #: .tmp/mustek.c:4470
 msgid "Controls the contrast of the green channel of the acquired image."
-msgstr "Controllare il contrasto del canale verde dell'immagine acquisita."
+msgstr "Controlla il contrasto del canale verde dell'immagine acquisita."
 
 #: .tmp/mustek.c:4482
 msgid "Contrast blue channel"
@@ -1429,7 +1412,7 @@ msgstr "Contrasto canale blu"
 
 #: .tmp/mustek.c:4483
 msgid "Controls the contrast of the blue channel of the acquired image."
-msgstr "Controllare il contrasto del canale blu dell'immagine acquisita."
+msgstr "Controlla il contrasto del canale blu dell'immagine acquisita."
 
 #: .tmp/niash.c:683
 msgid "Image"
@@ -2833,7 +2816,7 @@ msgstr "Definire la modalità di calibrazione"
 
 #: .tmp/umax_pp.c:560
 msgid "Sets lamp on/off"
-msgstr "Accendere/spegnere la lampada"
+msgstr "Commuta lo stato della lampada"
 
 #: .tmp/umax_pp.c:569
 msgid "UTA on"

@@ -13,6 +13,14 @@
 # DEVICE=/proc/bus/usb/BBB/DDD
 # TYPE=usb
 
+# latest hotplug doesn't set DEVICE on 2.6.x kernels
+if [ -z "$DEVICE" ] ; then
+  IF=`echo $DEVPATH | sed 's/\(bus\/usb\/devices\/\)\(.*\)-\(.*\)/\2/'`
+  DEV=`echo $DEVPATH | sed 's/\(bus\/usb\/devices\/\)\(.*\)-\(.*\)/\3/'`
+  DEV=`expr $DEV + 1`
+  DEVICE=`printf '/proc/bus/usb/%.03d/%.03d' $IF $DEV`
+fi
+
 if [ "$ACTION" = "add" -a "$TYPE" = "usb" ]; then
   chown root:scanner "$DEVICE"
   chmod 0660 "$DEVICE"

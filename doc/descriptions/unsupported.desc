@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-10-12"		; version of backend
+:version "2003-10-14"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -701,6 +701,16 @@
 
 ;********************************************************************************************
 
+:mfg "Pentax"
+
+:model "DSmobile USB"
+:url "/unsupported/syscan-travelscan-pro.html"
+:interface "USB"
+:status :unsupported
+:comment "Probably not supported. Some information is available."
+
+;********************************************************************************************
+
 :mfg "PIE"
 :url "http://www.scanace.com/"
 :comment "Pacific Image Electronics"
@@ -849,6 +859,17 @@
 
 ;********************************************************************************************
 
+:mfg "Sicos"
+;:comment ""
+
+:model "DMS 2000"
+:url "mailto:ehaase@inf.fu-berlin.de"
+:interface "proprietary"
+:status :unsupported
+:comment "Not supported until now. Work on a backend has started, contact the author for details (see link)"
+
+;********************************************************************************************
+
 :mfg "Spot Technology"
 :comment "Spot seems have gone out of business."
 
@@ -880,6 +901,12 @@
 :status :unsupported
 :comment "Not supported. Some information is available. May work with the Plustek backend in future."
 
+:model "TravelScan Pro"
+:url "/unsupported/syscan-travelscan-pro.html"
+:interface "USB"
+:status :unsupported
+:comment "Probably not supported. Some information is available."
+
 ;********************************************************************************************
 
 :mfg "TCE"
@@ -906,6 +933,12 @@
 
 :mfg "UMAX"
 :url "http://www.umax.com/"
+
+:model "Astra 2100 U"
+:url "/unsupported/umax-astra-2100u.html"
+:interface "USB"
+:status :unsupported
+:comment "Probably not supported. See link for details."
 
 :model "Astra 4400"
 :url "/unsupported/umax-astra-4400.html"

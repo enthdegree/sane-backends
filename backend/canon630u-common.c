@@ -493,17 +493,25 @@ static const byte seq003[] =
 
 
 /* Scanner init, called at calibration and scan time.  Returns 1 if this
-   was the first time the scanner was plugged in, otherwise 0. */
+   was the first time the scanner was plugged in, 0 afterward, and
+   -1 on error. */
 static int
 init (int fd)
 {
   byte result, rv;
 
-  gl640WriteReq (fd, GL640_GPIO_OE, 0x71);
+  if (gl640WriteReq (fd, GL640_GPIO_OE, 0x71) != SANE_STATUS_GOOD) { 
+      DBG(1, "Initial write request failed.\n");
+      return -1;
+  }
   /* Gets 0x04 or 0x05 first run, gets 0x64 subsequent runs. */
-  gl640ReadReq (fd, GL640_GPIO_READ, &rv);
+  if (gl640ReadReq (fd, GL640_GPIO_READ, &rv) != SANE_STATUS_GOOD) {
+      DBG(1, "Initial read request failed.\n");
+      return -1;
+  }
   gl640WriteReq (fd, GL640_GPIO_OE, 0x70);
 
+  DBG (2, "init query: %x\n", rv);
   if (rv != 0x64)
     {
       gl640WriteReq (fd, GL640_GPIO_WRITE, 0x00);
@@ -526,7 +534,7 @@ init (int fd)
   /* parallel port noise filter */
   write_byte (fd, 0x70, 0x73);
 
-  DBG (2, "init: %x\n", rv);
+  DBG (2, "init post-reset: %x\n", rv);
   /* Returns 1 if this was the first time the scanner was plugged in. */
   return (rv != 0x64);
 }
@@ -1127,6 +1135,14 @@ compute_ogn (char *calfilename)
          255 : 1.5 times brighter
          511 : 2 times brighter
          1023: 3 times brighter */
+#if 1
+      /* Original gain/offset */
+      gain = 512 * ((max_range[i / (width / 3)] /
+		     (avg[i + width] - avg[i])) - 1);
+      offset = avg[i];
+#else
+      /* This doesn't work for some people.  For instance, a negative
+         offset would be bad.  */
 
       /* Enhanced offset and gain calculation by M.Reinelt <reinelt@eunet.at>
        * These expressions were found by an iterative calibration process, 
@@ -1135,11 +1151,12 @@ compute_ogn (char *calfilename)
        * formula.
        * Note that offset is linear, but gain isn't!
        */
-      offset=(double)3.53*avg[i]-125;
-      gain=(double)3861.0*exp(-0.0168*(avg[i+width]-avg[i]));
+      offset = (double)3.53 * avg[i] - 125;
+      gain = (double)3861.0 * exp(-0.0168 * (avg[i + width] - avg[i]));
+#endif
 
-      DBG (14, "%d wht=%f blk=%f diff=%f gain=%d\n", i,
-	   avg[i + width], avg[i], avg[i + width] - avg[i], gain);
+      DBG (14, "%d wht=%f blk=%f diff=%f gain=%d offset=%d\n", i,
+	   avg[i + width], avg[i], avg[i + width] - avg[i], gain, offset);
       /* 10-bit gain, 6-bit offset (subtractor) in two bytes */
       ogn[0] = (byte) (((offset << 2) + (gain >> 8)) & 0xFF);
       ogn[1] = (byte) (gain & 0xFF);
@@ -1266,7 +1283,8 @@ scan (CANON_Handle * opt)
   buf = malloc (0x400);
   for (temp = 0; temp < 0x0400; temp++)
     /* gamma calculation by M.Reinelt <reinelt@eunet.at> */
-    buf[temp] = (double) 255.0 * exp(log((temp+0.5)/1023.0)/opt->gamma) + 0.5;
+    buf[temp] = (double) 255.0 * exp(log((temp + 0.5) / 1023.0) / opt->gamma)
+	+ 0.5;
 
   /* Gamma R, write and verify */
   write_byte (fd, DATAPORT_TARGET, DP_R | DP_GAMMA);
@@ -1415,13 +1433,18 @@ scan (CANON_Handle * opt)
 
 static SANE_Status
 CANON_set_scan_parameters (CANON_Handle * scan,
+			   const int forceCal,
 			   const int gray,
 			   const int left,
 			   const int top,
 			   const int right,
-			   const int bottom, const int res, const int gain, const double gamma)
+			   const int bottom, 
+			   const int res, 
+			   const int gain, 
+			   const double gamma)
 {
   DBG (2, "CANON_set_scan_parameters:\n");
+  DBG (2, "cal   = %d\n", forceCal);
   DBG (2, "gray  = %d (ignored)\n", gray);
   DBG (2, "res   = %d\n", res);
   DBG (2, "gain  = %d\n", gain);
@@ -1450,6 +1473,7 @@ CANON_set_scan_parameters (CANON_Handle * scan,
   if (gamma <= 0.0)
     return SANE_STATUS_INVAL;
 
+  /* Store params */
   scan->resolution = res;
   scan->x1 = left;
   scan->x2 = right - /* subtract 1 pixel */ 600 / scan->resolution;
@@ -1457,7 +1481,7 @@ CANON_set_scan_parameters (CANON_Handle * scan,
   scan->y2 = bottom;
   scan->gain = gain;
   scan->gamma = gamma;
-  scan->flags = 0;
+  scan->flags = forceCal ? FLG_FORCE_CAL : 0;
 
   return SANE_STATUS_GOOD;
 }
@@ -1552,6 +1576,7 @@ CANON_finish_scan (CANON_Handle * scanner)
 static SANE_Status
 CANON_start_scan (CANON_Handle * scanner)
 {
+  int rv;
   SANE_Status status;
   DBG (3, "CANON_start_scan called\n");
 
@@ -1561,13 +1586,18 @@ CANON_start_scan (CANON_Handle * scanner)
     return SANE_STATUS_IO_ERROR;
 
   /* calibrate if needed */
-  if (init (scanner->fd)
-      || !check_ogn_file () || (scanner->flags & FLG_FORCE_CAL))
-    {
+  rv = init (scanner->fd);
+  if (rv < 0) {
+      DBG(1, "Can't talk on USB.\n");
+      return SANE_STATUS_IO_ERROR;
+  }
+  if ((rv == 1)
+      || !check_ogn_file () 
+      || (scanner->flags & FLG_FORCE_CAL)) {
       plugin_cal (scanner);
       wait_for_return (scanner->fd);
-    }
-
+  }
+  
   /* scan */
   if ((status = scan (scanner)) != SANE_STATUS_GOOD)
     {

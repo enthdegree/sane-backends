@@ -103,7 +103,7 @@ environment variable controls the debug level for this backend.  Higher
 debug levels increase the verbosity of the output. 
 
 Example: 
-export SANE_DEBUG_CANON630U=10
+SANE_DEBUG_CANON630U=12 scanimage > /dev/null
 .SH "SEE ALSO"
 sane(7), sane\-usb(5), sane\-find\-scanner(1)
 .br

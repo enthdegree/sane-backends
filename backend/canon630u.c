@@ -96,6 +96,7 @@ static SANE_Parameters parms = {
   8				/* Number of bits per sample. */
 };
 
+
 struct _SANE_Option
 {
   SANE_Option_Descriptor *descriptor;
@@ -106,6 +107,8 @@ struct _SANE_Option
 
 typedef struct _SANE_Option SANE_Option;
 
+
+/*-----------------------------------------------------------------*/
 
 static SANE_Word getNumberOfOptions (void);	/* Forward declaration */
 
@@ -141,6 +144,51 @@ optionNumOptionsCallback (SANE_Option * option, SANE_Handle handle,
   return SANE_STATUS_GOOD;
 }
 
+/*-----------------------------------------------------------------*/
+
+/*
+This option lets the user force scanner calibration.  Normally, this is
+done only once, at first scan after powerup.
+ */
+
+static SANE_Word optionCalibrateValue = SANE_FALSE;
+
+static SANE_Option_Descriptor optionCalibrateDescriptor = {
+  SANE_I18N ("cal"),
+  SANE_I18N ("Calibrate Scanner"),
+  SANE_I18N ("Force scanner calibration before scan"),
+  SANE_TYPE_BOOL,
+  SANE_UNIT_NONE,
+  sizeof (SANE_Word),
+  SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+  SANE_CONSTRAINT_NONE,
+  {NULL}
+};
+
+static SANE_Status
+optionCalibrateCallback (SANE_Option * option, SANE_Handle handle,
+			 SANE_Action action, void *value, SANE_Int * info)
+{
+  handle = handle;
+  option = option;		/* Eliminate warning about unused parameters */
+
+  switch (action)
+    {
+    case SANE_ACTION_SET_AUTO:
+      return SANE_STATUS_INVAL;
+      break;
+    case SANE_ACTION_SET_VALUE:
+      *info |= SANE_INFO_RELOAD_PARAMS;
+      optionCalibrateValue = *(SANE_Bool *) value;
+      break;
+    case SANE_ACTION_GET_VALUE:
+      *(SANE_Word *) value = optionCalibrateValue;
+      break;
+    }
+  return SANE_STATUS_GOOD;
+}
+
+/*-----------------------------------------------------------------*/
 
 /*
 This option lets the user select the scan resolution. The Canon fb630u
@@ -197,6 +245,7 @@ optionResolutionCallback (SANE_Option * option, SANE_Handle handle,
   return SANE_STATUS_GOOD;
 }
 
+/*-----------------------------------------------------------------*/
 
 #ifdef GRAY
 /*
@@ -240,6 +289,7 @@ optionGrayscaleCallback (SANE_Option * option, SANE_Handle handle,
 }
 #endif /* GRAY */
 
+/*-----------------------------------------------------------------*/
 
 /* Analog Gain setting */
 static const SANE_Range aGainRange = {
@@ -286,7 +336,9 @@ optionAGainCallback (SANE_Option * option, SANE_Handle handle,
   return SANE_STATUS_GOOD;
 }
 
+/*-----------------------------------------------------------------*/
 
+/* Scanner gamma setting */
 static SANE_Fixed optionGammaValue = SANE_FIX (1.6);
 
 static SANE_Option_Descriptor optionGammaDescriptor = {
@@ -326,6 +378,7 @@ optionGammaCallback (SANE_Option * option, SANE_Handle handle,
   return SANE_STATUS_GOOD;
 }
 
+/*-----------------------------------------------------------------*/
 
 /*
 Scan range
@@ -343,7 +396,7 @@ static const SANE_Range heightRange = {
   0				/* quantization */
 };
 
-
+/*-----------------------------------------------------------------*/
 /*
 This option controls the top-left-x corner of the scan
 */
@@ -386,7 +439,7 @@ optionTopLeftXCallback (SANE_Option * option, SANE_Handle handle,
   return SANE_STATUS_GOOD;
 }
 
-
+/*-----------------------------------------------------------------*/
 /*
 This option controls the top-left-y corner of the scan
 */
@@ -429,7 +482,7 @@ optionTopLeftYCallback (SANE_Option * option, SANE_Handle handle,
   return SANE_STATUS_GOOD;
 }
 
-
+/*-----------------------------------------------------------------*/
 /*
 This option controls the bot-right-x corner of the scan
 Default to 2 inches.
@@ -473,7 +526,7 @@ optionBotRightXCallback (SANE_Option * option, SANE_Handle handle,
   return SANE_STATUS_GOOD;
 }
 
-
+/*-----------------------------------------------------------------*/
 /*
 This option controls the bot-right-y corner of the scan
 Default to 2 inches
@@ -517,7 +570,7 @@ optionBotRightYCallback (SANE_Option * option, SANE_Handle handle,
   return SANE_STATUS_GOOD;
 }
 
-
+/*-----------------------------------------------------------------*/
 /*
 The following array binds the option descriptors to
 their respective callback routines
@@ -526,6 +579,7 @@ their respective callback routines
 static SANE_Option so[] = {
   {&optionNumOptionsDescriptor, optionNumOptionsCallback},
   {&optionResolutionDescriptor, optionResolutionCallback},
+  {&optionCalibrateDescriptor, optionCalibrateCallback},
 #ifdef GRAY
   {&optionGrayscaleDescriptor, optionGrayscaleCallback},
 #endif
@@ -927,6 +981,7 @@ sane_start (SANE_Handle handle)
   DBG (3, "sane_start\n");
 
   res = CANON_set_scan_parameters (&scanner->scan,
+				   optionCalibrateValue,
 #ifdef GRAY
 				   optionGrayscaleValue,
 #else
@@ -940,8 +995,10 @@ sane_start (SANE_Handle handle)
 				   MM_IN_INCH * 600,
 				   SANE_UNFIX (optionBotRightYValue) /
 				   MM_IN_INCH * 600,
-				   optionResolutionValue, optionAGainValue, 
+				   optionResolutionValue, 
+				   optionAGainValue,
 				   SANE_UNFIX (optionGammaValue));
+
   if (res != SANE_STATUS_GOOD)
     return res;
 

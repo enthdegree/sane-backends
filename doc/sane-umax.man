@@ -1,4 +1,4 @@
-.TH sane-umax 5 "23 June 2000"
+.TH sane-umax 5 "16 august 2000"
 .IX sane-umax
 
 .SH NAME
@@ -31,7 +31,15 @@ shown below:
  #scsi Vendor Model Type Bus Channel ID LUN 
  scsi UMAX * Scanner * * * * * 
  /dev/scanner 
- # this is a comment 
+ # this is a comment
+ #
+ # for the following commands:
+ # - set command queueing depth to 4
+ option scsi-maxqueue 4
+ # - turn off lamp (if command is supported) when sane_close is called
+ option lamp-off-at-exit 1
+ # - turn off lamp (if command is supported) after 60 minutes duty time
+ option lamp-off-time 60
  /dev/sge 
 
 The special device name must be a generic SCSI device or a symlink to such a device.

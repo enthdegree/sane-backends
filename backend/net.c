@@ -89,13 +89,13 @@
 #if defined (HAVE_GETADDRINFO) && defined (HAVE_GETNAMEINFO)
 # define NET_USES_AF_INDEP
 # ifdef ENABLE_IPV6
-#  define NET_VERSION "1.0.12 (AF-indep+IPv6)"
+#  define NET_VERSION "1.0.13 (AF-indep+IPv6)"
 # else
-#  define NET_VERSION "1.0.12 (AF-indep)"
+#  define NET_VERSION "1.0.13 (AF-indep)"
 # endif /* ENABLE_IPV6 */
 #else
 # undef ENABLE_IPV6
-# define NET_VERSION "1.0.12"
+# define NET_VERSION "1.0.13"
 #endif /* HAVE_GETADDRINFO && HAVE_GETNAMEINFO */
 
 static SANE_Auth_Callback auth_callback;
@@ -1790,7 +1790,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
 			    | ((u_long) s->reclen_buf[3] << 0));
       DBG (3, "sane_read: next record length=%ld bytes\n",
 	   (long) s->bytes_remaining);
-      if (s->bytes_remaining == (size_t) - 1)
+      if (s->bytes_remaining == 0xffffffff)
 	{
 	  char ch;
 

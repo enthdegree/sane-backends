@@ -9,9 +9,13 @@
 	* doc/descriptions/unsupported.desc: Added Nikon LS-5000 ED (bug
 	  #300972). 
 	* include/sane/saneopts.h: Added option for turning off the
-	  scanner's lamp on exit.
+	  scanner's lamp on exit (bug #300963).
 	* backend/gt68xx.c backend/gt68xx_high.h: Used new lamp option
-	  from saneopts.h.
+	  from saneopts.h (bug #300963).
+	* backend/net.c doc/descriptions/net.desc: Check for (size_t) -1
+	  doesn't work on 64 bit platforms as size_t is 64 bits there
+	  while the length of a data block is defined as 32 bits in the
+	  SANE network standard (bug #300837).
 
 2004-10-02  Thomas Soumarmon <thomas.soumarmon@cogitae.net>
 

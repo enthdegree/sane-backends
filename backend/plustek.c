@@ -139,7 +139,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.46-5"
+#define BACKEND_VERSION "0.46-6"
 #define BACKEND_NAME	plustek
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
@@ -165,12 +165,14 @@
 #define _SECTION        "[merlin-device]"
 #define _DEFAULT_DEVICE "auto"
 
+/** to disable the backend... */
+#define _PLUSTEK_USB
+
 /* declare it here, as it's used in plustek-usbscan.c too :-( */
 static SANE_Bool cancelRead;
 
 /* the USB-stuff... I know this is in general no good idea, but it works */
 #ifdef _PLUSTEK_USB
-
 # include "plustek-usbio.c"
 # include "plustek-usbdevs.c"
 # include "plustek-usbhw.c"

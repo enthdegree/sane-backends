@@ -1,3 +1,10 @@
+2001-11-22  Stéphane Voltz  <svoltz@wanadoo.fr>
+
+	* backend/umax_pp_low.c: fixed color calibration bug. Scans are
+	  of much better quality now. Manual settings now work correctly.
+	* tools/umax_pp.c: changed version.
+	  
+
 2001-11-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* config.guess config.sub: Fetched new versions from

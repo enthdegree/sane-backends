@@ -21,36 +21,51 @@
 :mfg "Artec/Ultima"               ; name a manufacturer
 :url "http://www.artecusa.com/"
 ;; name models for above-specified mfg.
+
 :model "AT3"
 :interface "SCSI"
+:status :complete
 :comment "all modes working"
+
 :model "A6000C"
 :interface "SCSI"
+:status :complete
 :comment "all modes working"
+
 :model "A6000C PLUS"
 :interface "SCSI"
-:comment "f/w <= v1.92 alpha, f/w >= v1.93 OK"
+:status :complete
+:comment "f/w <= v1.92 basic, f/w >= v1.93 OK"
+
 :model "AT6"
-:status :alpha
+:status :minimal
 :interface "SCSI"
 :comment "First scan works, subsequent fail until scanner power cycle."
+
 :model "AT12"
 :interface "SCSI"
+:status :complete
 :comment "all modes working"
+
 :model "AM12S"
 :interface "SCSI"
+:status :complete
 :comment "all modes working"
 
 :mfg "BlackWidow"
 :url "http://www.blackwidow.co.uk/"
+
 :model "BW4800SP"
 :interface "SCSI"
+:status :complete
 :comment "rebadged Artec AT3"
 
 :mfg "Plustek"
 :url "http://www.plustek.com/"
+
 :model "OpticPro 19200S"
 :interface "SCSI"
+:status :complete
 :comment "rebadged Artec AM12S"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,

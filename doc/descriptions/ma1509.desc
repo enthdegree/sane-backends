@@ -27,7 +27,6 @@
 				; "SCSI", "USB", "Parport (EPP)",
 				; "Parport (SPP)", "Parport (ECP)",
 				; "Serial port" or "Propretiary".
-:status :alpha
 :status :good
 :comment "Works upto 600 dpi. No support for TA and ADF yet."				
 				

@@ -11,7 +11,7 @@
 :backend "canon"		; name of backend
 :manpage "sane-canon"
 :version "1.12"			; version of backend
-;:status :beta			; :alpha, :beta, :stable, :new
+;:status :good			; :alpha, :beta, :stable, :new
 
 :url "http://www.rzg.mpg.de/~mpd/sane/" ; backend home page
 
@@ -43,12 +43,12 @@
 :model "CanoScan 2700F"		; name models for above-specified mfg.
 :interface "SCSI"
 :comment "1 pass; film scanner"
-:status :alpha
+:status :good
 
 :model "CanoScan 2710S"		; name models for above-specified mfg.
 :interface "SCSI"
 :comment "1 pass; 36bit film scanner"
-:status :beta
+:status :good
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

@@ -135,8 +135,6 @@ typedef enum
 {
   OPT_NUM_OPTS = 0,
 
-  OPT_PAGE,
-
   OPT_MODE_GROUP,
   OPT_MODE,
   OPT_NEGATIVE,			/* Reverse image format */
@@ -328,8 +326,6 @@ CANON_Scanner;
 
 static char *option_name[] = {
   "OPT_NUM_OPTS",
-
-  "OPT_PAGE",
 
   "OPT_MODE_GROUP",
   "OPT_MODE",

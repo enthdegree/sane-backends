@@ -1135,15 +1135,6 @@ init_options (CANON_Scanner * s)
   s->opt[OPT_NUM_OPTS].cap = SANE_CAP_SOFT_DETECT;
   s->val[OPT_NUM_OPTS].w = NUM_OPTIONS;
 
-  s->opt[OPT_PAGE].name = "options-page";
-  s->opt[OPT_PAGE].title = "";
-  s->opt[OPT_PAGE].desc = "Selects the options page to show";
-  s->opt[OPT_PAGE].type = SANE_TYPE_STRING;
-  s->opt[OPT_PAGE].size = max_string_size (page_list);
-  s->opt[OPT_PAGE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
-  s->opt[OPT_PAGE].constraint.string_list = page_list;
-  s->val[OPT_PAGE].s = strdup (page_list[0]);
-
   /* "Mode" group: */
   s->opt[OPT_MODE_GROUP].title = "Scan Mode";
   s->opt[OPT_MODE_GROUP].desc = "";

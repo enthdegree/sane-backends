@@ -447,14 +447,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	       s->val[option].s);
 	  return (SANE_STATUS_GOOD);
 
-	case OPT_PAGE:
-	  strcpy (val, s->val[option].s);
-	  if (info)
-	    *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
-	  DBG (21, "value for option %s: %s\n", option_name[option],
-	       s->val[option].s);
-	  return (SANE_STATUS_GOOD);
-
 	case OPT_NEGATIVE:
 	  strcpy (val, s->val[option].s);
 	  if (info)
@@ -869,58 +861,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  s->val[option].s = strdup (val);
 	  for (i = 0; strcmp (val, scanning_speed_list[i]); i++);
 	  s->scanning_speed = i;
-	  return (SANE_STATUS_GOOD);
-
-	case OPT_PAGE:
-	  if (info && strcmp (s->val[option].s, (SANE_String) val))
-	    *info |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
-	  if (s->val[option].s)
-	    free (s->val[option].s);
-	  s->val[option].s = strdup (val);
-	  if (info)
-	    *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
-	  DBG (21, "value for option %s: %s\n", option_name[option],
-	       s->val[option].s);
-	  if (!strcmp (val, "Show normal options"))
-	    {
-	      DBG (21, "setting OPT_PAGE to 'Normal options'\n");
-	      s->opt[OPT_MODE_GROUP].cap &= ~SANE_CAP_ADVANCED;
-	      s->opt[OPT_RESOLUTION_GROUP].cap &= ~SANE_CAP_ADVANCED;
-	      s->opt[OPT_ENHANCEMENT_GROUP].cap &= ~SANE_CAP_ADVANCED;
-	      s->opt[OPT_CALIBRATION_GROUP].cap &= ~SANE_CAP_ADVANCED;
-	      s->opt[OPT_EJECT_GROUP].cap &= ~SANE_CAP_ADVANCED;
-	      s->opt[OPT_ADF_GROUP].cap &= ~SANE_CAP_ADVANCED;
-
-	      s->opt[OPT_FOCUS_GROUP].cap |= SANE_CAP_ADVANCED;
-	      s->opt[OPT_MARGINS_GROUP].cap |= SANE_CAP_ADVANCED;
-	      s->opt[OPT_COLORS_GROUP].cap |= SANE_CAP_ADVANCED;
-	    }
-	  else if (!strcmp (val, "Show advanced options"))
-	    {
-	      DBG (21, "setting OPT_PAGE to 'Advanced options'\n");
-	      s->opt[OPT_MODE_GROUP].cap |= SANE_CAP_ADVANCED;
-	      s->opt[OPT_RESOLUTION_GROUP].cap |= SANE_CAP_ADVANCED;
-	      s->opt[OPT_ENHANCEMENT_GROUP].cap |= SANE_CAP_ADVANCED;
-	      s->opt[OPT_CALIBRATION_GROUP].cap |= SANE_CAP_ADVANCED;
-	      s->opt[OPT_EJECT_GROUP].cap |= SANE_CAP_ADVANCED;
-	      s->opt[OPT_ADF_GROUP].cap |= SANE_CAP_ADVANCED;
-
-	      s->opt[OPT_FOCUS_GROUP].cap &= ~SANE_CAP_ADVANCED;
-	      s->opt[OPT_MARGINS_GROUP].cap &= ~SANE_CAP_ADVANCED;
-	      s->opt[OPT_COLORS_GROUP].cap &= ~SANE_CAP_ADVANCED;
-	    }
-	  else
-	    {
-	      s->opt[OPT_MODE_GROUP].cap &= ~SANE_CAP_ADVANCED;
-	      s->opt[OPT_RESOLUTION_GROUP].cap &= ~SANE_CAP_ADVANCED;
-	      s->opt[OPT_ENHANCEMENT_GROUP].cap &= ~SANE_CAP_ADVANCED;
-	      s->opt[OPT_CALIBRATION_GROUP].cap &= ~SANE_CAP_ADVANCED;
-	      s->opt[OPT_EJECT_GROUP].cap &= ~SANE_CAP_ADVANCED;
-	      s->opt[OPT_ADF_GROUP].cap &= ~SANE_CAP_ADVANCED;
-	      s->opt[OPT_FOCUS_GROUP].cap &= ~SANE_CAP_ADVANCED;
-	      s->opt[OPT_MARGINS_GROUP].cap &= ~SANE_CAP_ADVANCED;
-	      s->opt[OPT_COLORS_GROUP].cap &= ~SANE_CAP_ADVANCED;
-	    }
 	  return (SANE_STATUS_GOOD);
 
 	  /* modification for FB620S */

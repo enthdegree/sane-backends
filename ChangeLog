@@ -2,5 +2,6 @@
 
 	* configure configure.in: Warnings enabled again. Added -cvs to
 	  version.
+	* doc/releases.txt: Updated information about diffs.
 
 Older entries can be found in ChangeLog-1.0.13.

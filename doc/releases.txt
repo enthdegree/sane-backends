@@ -1,4 +1,4 @@
-2003-09-24
+2003-11-23
 
 This text summarizes some points to pay attention to when a new release
 of sane-backends should is planned.
@@ -27,7 +27,7 @@ Before the release:
 * final compilation test
 * tag CVS with release tag; e.g.: 'cvs tag RELEASE_1_0_4'
 * make diff from last release;
-  e.g.: 'cvs diff -uNr RELEASE_1_0_3 > sane-1.0.4.diff'
+  e.g.: 'cvs diff -uNr RELEASE_1_0_12 > sane-backends-1.0.12-1.0.13.diff'
 
 Making the release:
 

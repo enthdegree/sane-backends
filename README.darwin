@@ -1,0 +1,29 @@
+SANE and Darwin (Mac OS X)
+--------------------------
+
+Building:
+---------
+You may get the message: "gcc: Internal compiler error: program cc1obj got
+fatal signal 11". That's not a bug in SANE. Probably a compiler or hardware
+problem.  The error usually occurs in canon.c because that's the most complex
+backend (at least concerning compilation). If you can't update your compiler,
+try to reduce optimization (e.g. CFLAGS="-O1" ./configure). Another
+work-around: Disable the canon backend in backend/Makefile.in (look at
+PRELOADABLE_BACKENDS) and rerun configure.
+
+SCSI-scanners:
+--------------
+Probably not supported because there are no functions in sanei_scsi to access
+the Darwin generic SCSI devices. Patches are welcome.
+
+USB-scanners:
+-------------
+Untested. May work if libusb is used. Try "sane-find-scanner -v -v" and report
+success or failure to the SANE mailing list.
+
+Parport-scanners:
+-----------------
+I don't have any information about these. Please contact me or the SANE mailing
+list if you succeeded in using one of these.
+
+2002-07-15 Henning Meier-Geinitz <henning@meier-geinitz.de>

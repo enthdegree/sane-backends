@@ -1167,7 +1167,6 @@
 :devicetype :vidcam
 
 :mfg "Biolux"
-:url "http://www.xerox.com/"
 
 :model "654 (micrOcular)"
 :url "/unsupported/biolux-654.html"

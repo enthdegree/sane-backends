@@ -1338,7 +1338,11 @@ sane_read (SANE_Handle UNUSEDARG handle, SANE_Byte * data,
 
   if (converter_scan_complete ())
     {
-      SANE_Status retval = converter_do_scan_complete_cleanup ();
+      SANE_Status retval;
+
+      *length=0;
+      retval = converter_do_scan_complete_cleanup ();
+
       if (retval != SANE_STATUS_GOOD)
 	{
 	  return retval;
@@ -1499,7 +1503,7 @@ snap_pic (void)
    * see the new image - need to use a biggger hammer to get it to
    * re-read the camera directory 
    */
-DBG(0, "PSF - old pic count is %d, about to get_info\n",Cam_data.pic_taken);
+
   if (init_gphoto2 () != SANE_STATUS_GOOD)
     {
       return SANE_STATUS_INVAL;
@@ -1512,15 +1516,12 @@ DBG(0, "PSF - old pic count is %d, about to get_info\n",Cam_data.pic_taken);
       return SANE_STATUS_INVAL;
     }
 
-DBG(0, "PSF - new pic count is %d, about to get_pictures_info\n",Cam_data.pic_taken);
   if (get_pictures_info () == NULL)
     {
       DBG (1, "%s: Failed to get new picture info\n", f);
       /* FIXME - I guess we should try to erase the image here */
       return SANE_STATUS_INVAL;
     }
-
-DBG(0, "PSF - new pic count is %d, completed get_pictures_info\n",Cam_data.pic_taken);
 
   sod[GPHOTO2_OPT_IMAGE_NUMBER].cap |= SANE_CAP_INACTIVE;
   Cam_data.current_picture_number = Cam_data.pic_taken;

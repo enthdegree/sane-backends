@@ -12,6 +12,7 @@
 	  failed. New version: 1.0.6.
 	* backend/v4l.c: Fixed some warnings.
 	* backend/artec.c: Don't export cap_data.
+	* backend/canon.h: Don't export option_name.
 
 2002-04-21  Abel Deuring <a.deuring@satzbau-gmbh.de>
 	* backend/sharp.c: added a "free(devlist)" call to sane_exit

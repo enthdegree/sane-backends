@@ -16,8 +16,8 @@
 
 */
 
-#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.24 - 2002-10-05"
-#define SANE_EPSON_BUILD	224
+#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.30 - 2002-11-03"
+#define SANE_EPSON_BUILD	230
 
 /*
    This file is part of the SANE package.
@@ -59,6 +59,7 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
+   2002-11-03	Full libusb support.
    2002-10-05	Fixed problem with incorrect response to sane_get_parameters()
    		in certain situations.
    2002-09-01	USB scanners are now using libsane-usb funtions
@@ -745,7 +746,8 @@ max_string_size (const SANE_String_Const strings[])
 typedef struct {
 	u_char	code;
 	u_char	status;
-	u_short	count;
+	u_char	count1;
+	u_char	count2;
 	u_char	buf [ 1];
 
 } EpsonHdrRec, * EpsonHdr;
@@ -753,7 +755,8 @@ typedef struct {
 typedef struct {
 	u_char	code;
 	u_char	status;
-	u_short	count;
+	u_char	count1;
+	u_char	count2;
 
 	u_char	type;
 	u_char	level;
@@ -785,20 +788,29 @@ typedef struct {
  *
  */
 
-static EpsonHdr command ( Epson_Scanner * s, u_char * cmd, size_t cmd_size, SANE_Status * status);
+static EpsonHdr command ( Epson_Scanner * s, u_char * cmd, size_t cmd_size, 
+		SANE_Status * status);
 static SANE_Status get_identity_information(SANE_Handle handle);
 static SANE_Status get_identity2_information(SANE_Handle handle);
-static int send ( Epson_Scanner * s, void *buf, size_t buf_size, SANE_Status * status);
-static ssize_t receive ( Epson_Scanner * s, void *buf, ssize_t buf_size, SANE_Status * status);
+static int send ( Epson_Scanner * s, void *buf, size_t buf_size, 
+		SANE_Status * status);
+static ssize_t receive ( Epson_Scanner * s, void *buf, ssize_t buf_size, 
+		SANE_Status * status);
 static SANE_Status color_shuffle(SANE_Handle handle, int *new_length);
-static SANE_Status request_focus_position(SANE_Handle handle, u_char * position);
-static SANE_Bool request_push_button_status(SANE_Handle handle, SANE_Bool * theButtonStatus);
-static void sane_activate( Epson_Scanner * s, SANE_Int option, SANE_Bool * change);
-static void sane_deactivate( Epson_Scanner * s, SANE_Int option, SANE_Bool * change);
-static void sane_optstate( SANE_Bool state, Epson_Scanner * s, SANE_Int option, SANE_Bool * change);
+static SANE_Status request_focus_position(SANE_Handle handle, 
+		u_char * position);
+static SANE_Bool request_push_button_status(SANE_Handle handle, 
+		SANE_Bool * theButtonStatus);
+static void sane_activate( Epson_Scanner * s, SANE_Int option, 
+		SANE_Bool * change);
+static void sane_deactivate( Epson_Scanner * s, SANE_Int option, 
+		SANE_Bool * change);
+static void sane_optstate( SANE_Bool state, Epson_Scanner * s, 
+		SANE_Int option, SANE_Bool * change);
 static void close_scanner( Epson_Scanner * s);
 static SANE_Status open_scanner( Epson_Scanner * s);
 SANE_Status sane_auto_eject ( Epson_Scanner * s);
+static SANE_Status attach_one_usb(SANE_String_Const devname);
 
 /*
  *
@@ -815,8 +827,10 @@ send(Epson_Scanner * s, void *buf, size_t buf_size, SANE_Status * status)
 		size_t k;
 		const u_char * s = buf;
 
-		for( k = 0; k < buf_size; k++) {
-			DBG( 125, "buf[%u] %02x %c\n", k, s[ k], isprint( s[ k]) ? s[ k] : '.');
+		for (k = 0; k < buf_size; k++) 
+		{
+			DBG( 125, "buf[%u] %02x %c\n", k, s[ k], 
+					isprint( s[ k]) ? s[ k] : '.');
 		}
 	}
 #endif
@@ -862,7 +876,7 @@ receive(Epson_Scanner * s, void *buf, ssize_t buf_size, SANE_Status * status)
 	{
 		n = sanei_epson_scsi_read(s->fd, buf, buf_size, status);
 	} 
-        else if ( s->hw->connection == SANE_EPSON_PIO) 
+	else if ( s->hw->connection == SANE_EPSON_PIO) 
 	{
 		if (buf_size == (n = sanei_pio_read( s->fd, buf, (size_t) buf_size)))
 			*status = SANE_STATUS_GOOD;
@@ -918,7 +932,6 @@ receive(Epson_Scanner * s, void *buf, ssize_t buf_size, SANE_Status * status)
 			{
 				if (k!=0)	/* don't do this the first time */
 				{
-fprintf(stderr, "running from i=%d to %d\n", strlen(hex_str), NUM_OF_HEX_ELEMENTS*3);
 					for (i = strlen(hex_str); i < (NUM_OF_HEX_ELEMENTS*3); i++)
 					{
 						hex_str[i] = ' ';
@@ -951,7 +964,9 @@ fprintf(stderr, "running from i=%d to %d\n", strlen(hex_str), NUM_OF_HEX_ELEMENT
  *
  */
 
-static SANE_Status expect_ack ( Epson_Scanner * s) {
+static SANE_Status 
+expect_ack(Epson_Scanner * s) 
+{
 	u_char result [ 1];
 	size_t len;
 	SANE_Status status;
@@ -1403,7 +1418,8 @@ static void close_scanner ( Epson_Scanner * s)
  * different open functions are called. 
  */
 
-static SANE_Status open_scanner ( Epson_Scanner * s) 
+static SANE_Status 
+open_scanner(Epson_Scanner * s) 
 {
 	SANE_Status status = 0;
 
@@ -1411,7 +1427,7 @@ static SANE_Status open_scanner ( Epson_Scanner * s)
 
 	/* don't do this for OS2: */
 #ifndef HAVE_OS2_H
-
+#if 0
 	/* test the device name */
 	if ((s->hw->connection != SANE_EPSON_PIO) && (access(s->hw->sane.name, R_OK | W_OK)  != 0))
 	{
@@ -1419,20 +1435,27 @@ static SANE_Status open_scanner ( Epson_Scanner * s)
 		return SANE_STATUS_ACCESS_DENIED;
 	}
 #endif
+#endif
 
 
-	if( s->hw->connection == SANE_EPSON_SCSI) {
-		status = sanei_scsi_open(s->hw->sane.name, &s->fd, sanei_epson_scsi_sense_handler, NULL); 
+	if( s->hw->connection == SANE_EPSON_SCSI) 
+	{
+		status = sanei_scsi_open(s->hw->sane.name, &s->fd, 
+				sanei_epson_scsi_sense_handler, NULL); 
 		if (SANE_STATUS_GOOD != status)
 		{
-			DBG(1, "sane_start: %s open failed: %s\n", s->hw->sane.name, sane_strstatus( status));
+			DBG(1, "sane_start: %s open failed: %s\n", s->hw->sane.name, 
+					sane_strstatus( status));
 			return status;
 		}
-	} else if ( s->hw->connection == SANE_EPSON_PIO) {
+	} 
+	else if (s->hw->connection == SANE_EPSON_PIO) 
+	{
 		status = sanei_pio_open( s->hw->sane.name, &s->fd);
 		if( SANE_STATUS_GOOD != status) 
 		{
-			DBG(1, "sane_start: %s open failed: %s\n", s->hw->sane.name, sane_strstatus( status));
+			DBG(1, "sane_start: %s open failed: %s\n", s->hw->sane.name, 
+					sane_strstatus( status));
 			return status;
 		}
 	} 
@@ -1493,10 +1516,11 @@ static Epson_Scanner *first_handle = NULL;
 
 
 static EpsonHdr 
-command ( Epson_Scanner * s, u_char * cmd, size_t cmd_size, SANE_Status * status) 
+command(Epson_Scanner * s, u_char * cmd, size_t cmd_size, SANE_Status * status) 
 {
 	EpsonHdr head;
 	u_char * buf;
+	int count;
 
 	if( NULL == ( head = walloc( EpsonHdrRec))) {
 		DBG( 1, "out of memory (line %d)\n", __LINE__);
@@ -1517,10 +1541,10 @@ command ( Epson_Scanner * s, u_char * cmd, size_t cmd_size, SANE_Status * status
 		buf += 4;
 	}
 	else if (s->hw->connection == SANE_EPSON_USB)
-        {
-                int     bytes_read;
-                bytes_read = receive( s, buf, 4, status);
-                buf += bytes_read;
+	{
+		int     bytes_read;
+		bytes_read = receive( s, buf, 4, status);
+		buf += bytes_read;
 	} 
 	else 
 	{
@@ -1534,61 +1558,63 @@ command ( Epson_Scanner * s, u_char * cmd, size_t cmd_size, SANE_Status * status
 	DBG( 4, "code   %02x\n", (int) head->code);
 
 	switch (head->code) 
-        {
+	{
 
-          case NAK:
-		/* fall through */	
-		/* !!! is this really sufficient to report an error ? */
-          case ACK:
-            break;	/* no need to read any more data after ACK or NAK */
+		case NAK:
+			/* fall through */	
+			/* !!! is this really sufficient to report an error ? */
+		case ACK:
+			break;	/* no need to read any more data after ACK or NAK */
 
-          case STX:
-	    if(  s->hw->connection == SANE_EPSON_SCSI) 
-	    {
-		/* nope */
-	    } 
-	    else if (s->hw->connection == SANE_EPSON_USB)
-            {
-                /* we've already read the complete data */
-            } 
-	    else
-            {
-		receive (s, buf, 3, status);
-/*		buf += 3; */
-	    }
+		case STX:
+			if(  s->hw->connection == SANE_EPSON_SCSI) 
+			{
+				/* nope */
+			} 
+			else if (s->hw->connection == SANE_EPSON_USB)
+			{
+				/* we've already read the complete data */
+			} 
+			else
+			{
+				receive (s, buf, 3, status);
+				/*		buf += 3; */
+			}
 
-            if( SANE_STATUS_GOOD != *status)
-	      return (EpsonHdr) 0;
+			if( SANE_STATUS_GOOD != *status)
+				return (EpsonHdr) 0;
 
-	    DBG( 4, "status %02x\n", (int) head->status);
-	    DBG( 4, "count  %d\n", (int) head->count);
+			DBG( 4, "status %02x\n", (int) head->status);
 
-            if( NULL == (head = realloc (head, sizeof (EpsonHdrRec) + head->count)))
-	    {
-		    DBG( 1, "out of memory (line %d)\n", __LINE__);
-		    *status = SANE_STATUS_NO_MEM;
-		    return (EpsonHdr) 0;
-	    }
+			count = head->count2 * 255 + head->count1;
+			DBG( 4, "count  %d\n", count);
 
-            buf = head->buf;
-            receive (s, buf, head->count, status);
+			if( NULL == (head = realloc (head, sizeof (EpsonHdrRec) + count)))
+			{
+				DBG( 1, "out of memory (line %d)\n", __LINE__);
+				*status = SANE_STATUS_NO_MEM;
+				return (EpsonHdr) 0;
+			}
 
-            if( SANE_STATUS_GOOD != *status)
-	      return (EpsonHdr) 0;
+			buf = head->buf;
+			receive (s, buf, count, status);
 
-            break;
+			if( SANE_STATUS_GOOD != *status)
+				return (EpsonHdr) 0;
 
-	  default:
-            if( 0 == head->code)
-	      DBG( 1, "Incompatible printer port (probably bi/directional)\n");
-            else if( cmd[cmd_size - 1] == head->code)
-	      DBG( 1, "Incompatible printer port (probably not bi/directional)\n");
+			break;
 
-            DBG( 2, "Illegal response of scanner for command: %02x\n", head->code);
-            break;
-        }
+		default:
+			if( 0 == head->code)
+				DBG( 1, "Incompatible printer port (probably bi/directional)\n");
+			else if( cmd[cmd_size - 1] == head->code)
+				DBG( 1, "Incompatible printer port (probably not bi/directional)\n");
 
-        return head;
+			DBG( 2, "Illegal response of scanner for command: %02x\n", head->code);
+			break;
+	}
+
+	return head;
 }
 
 
@@ -1598,16 +1624,19 @@ command ( Epson_Scanner * s, u_char * cmd, size_t cmd_size, SANE_Status * status
  * Attach one device with name *dev_name to the backend.
  */
 
-static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
+static SANE_Status 
+attach(const char * dev_name, Epson_Device * * devp, int type) 
+{
 	SANE_Status status;
 	Epson_Scanner * s = walloca( Epson_Scanner);
 	char * str;
 	struct Epson_Device * dev;
 	SANE_String_Const * source_list_add = source_list;
+	int port;
 
 	DBG(1, "%s\n", SANE_EPSON_VERSION);
 
-	DBG(5, "attach(%s)\n", dev_name);
+	DBG(5, "attach(%s, %d)\n", dev_name, type);
 
 	for (dev = first_dev; dev; dev = dev->next)
 	{
@@ -1623,16 +1652,32 @@ static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
 
 	dev = malloc(sizeof(*dev));
 	if (!dev)
-     	 {
-		 DBG( 1, "out of memory (line %d)\n", __LINE__);
-		 return SANE_STATUS_NO_MEM;
-	 }
+	{
+		DBG( 1, "out of memory (line %d)\n", __LINE__);
+		return SANE_STATUS_NO_MEM;
+	}
 
-	
+	/* check for PIO devices */
+	/* can we convert the device name to an integer? This is only possible 
+	   with PIO devices */
+	port = atoi(dev_name);
+	if (port != 0)
+	{
+		type = SANE_EPSON_PIO;
+	}
 
-/*
- *  set dummy values.
- */
+	if (strncmp(dev_name, SANE_EPSON_CONFIG_PIO, strlen(SANE_EPSON_CONFIG_PIO)) == 0) 
+	{
+		/* we have a match for the PIO string and adjust the device name */
+		dev_name += strlen(SANE_EPSON_CONFIG_PIO);
+		dev_name  = sanei_config_skip_whitespace(dev_name);
+		type = SANE_EPSON_PIO;
+	}
+
+
+	/*
+	 *  set dummy values.
+	 */
 
 	s->hw = dev;		
 	s->hw->sane.name = NULL;
@@ -1646,66 +1691,32 @@ static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
 
 	s->hw->need_color_reorder = SANE_FALSE;
 	s->hw->need_double_vertical = SANE_FALSE;
-	
-	s->hw->cmd = &epson_cmd[EPSON_LEVEL_DEFAULT];	/* use default function level */
-        s->hw->connection = SANE_EPSON_NODEV;		/* no device configured yet */
+
+	s->hw->cmd = &epson_cmd[EPSON_LEVEL_DEFAULT];	/* default function level */
+	s->hw->connection = type;
 
 	DBG( 3, "attach: opening %s\n", dev_name);
 
-	s->hw->last_res = s->hw->last_res_preview = 0;	/* set resolution to safe values */
-
-/*
- *  decide if interface is USB, SCSI or parallel.
- */
+	s->hw->last_res  = 0;
+	s->hw->last_res_preview = 0;	/* set resolution to safe values */
 
 	/*
-	 * if the config file contains a line "usb /dev/usbscanner", then handle this
- 	 * here and use the USB device from now on.
+	 *  decide if interface is USB, SCSI or parallel.
 	 */
-	if (strncmp(dev_name, SANE_EPSON_CONFIG_USB, strlen(SANE_EPSON_CONFIG_USB)) == 0) {
-		/* we have a match for the USB string and adjust the device name */
-		dev_name += strlen(SANE_EPSON_CONFIG_USB);
-		dev_name  = sanei_config_skip_whitespace(dev_name);
-		s->hw->connection = SANE_EPSON_USB;
 
+	/*
+	 * if the config file contains a line "usb /dev/usbscanner", then handle 
+	 * this here and use the USB device from now on.
+	 */
+	if (s->hw->connection == SANE_EPSON_USB)
+	{
+		/* we have a match for the USB string and adjust the device name */
 		sanei_usb_init();
 	}
+
 	/*
-	 * if the config file contains a line "pio 0xXXX", then handle this case here
-	 * and use the PIO (parallel interface) device from now on.
+	 *  if interface is SCSI do an inquiry.
 	 */
-	else if (strncmp(dev_name, SANE_EPSON_CONFIG_PIO, strlen(SANE_EPSON_CONFIG_PIO)) == 0) {
-		/* we have a match for the PIO string and adjust the device name */
-		dev_name += strlen(SANE_EPSON_CONFIG_PIO);
-		dev_name  = sanei_config_skip_whitespace(dev_name);
-		s->hw->connection = SANE_EPSON_PIO;
-	}
-	else {		/* legacy mode */
-		char * end;
-
-		strtol( dev_name, &end, 0);
-
-		if( ( end == dev_name) || *end) {
-			s->hw->connection = SANE_EPSON_SCSI;
-		} else {
-			s->hw->connection = SANE_EPSON_PIO;
-	      	}
-	}
-
-	if (s->hw->connection == SANE_EPSON_NODEV) 
-	{
-		/* 
-		   With the current code this can neve happen, because 
-		   the routine to handle the legacy mode will always 
-		   return a SCSI device. If this gets changed however,
-		   here is the test to return with an error code.
-		*/
-		return SANE_STATUS_INVAL;
-	}
-
-/*
- *  if interface is SCSI do an inquiry.
- */
 
 	if( s->hw->connection == SANE_EPSON_SCSI) 
 	{
@@ -1738,13 +1749,13 @@ static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
 		 */
 
 		if( buf[ 0] != TYPE_PROCESSOR
-			|| strncmp( buf + 8, "EPSON", 5) != 0
-			|| (strncmp( buf + 16, "SCANNER ", 8) != 0
-				&& strncmp( buf + 14, "SCANNER ", 8) != 0
-				&& strncmp( buf + 14, "Perfection", 10) != 0
-				&& strncmp( buf + 16, "Perfection", 10) != 0
-				&& strncmp( buf + 16, "Expression", 10) != 0
-				&& strncmp( buf + 16, "GT", 2) != 0 ))
+				|| strncmp( buf + 8, "EPSON", 5) != 0
+				|| (strncmp( buf + 16, "SCANNER ", 8) != 0
+					&& strncmp( buf + 14, "SCANNER ", 8) != 0
+					&& strncmp( buf + 14, "Perfection", 10) != 0
+					&& strncmp( buf + 16, "Perfection", 10) != 0
+					&& strncmp( buf + 16, "Expression", 10) != 0
+					&& strncmp( buf + 16, "GT", 2) != 0 ))
 		{
 			DBG( 1, "attach: device doesn't look like an EPSON  scanner\n");
 			close_scanner( s);
@@ -1757,7 +1768,7 @@ static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
 		if( SANE_STATUS_GOOD != ( status = sanei_pio_open(dev_name, &s->fd))) 
 		{
 			DBG(0, "Cannot open %s as a parallel-port device: %s\n",
-				dev_name, sane_strstatus( status));
+					dev_name, sane_strstatus( status));
 			return status;
 		}
 	} 
@@ -1765,10 +1776,29 @@ static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
 	else if (s->hw->connection == SANE_EPSON_USB) 
 	{
 		SANE_Word vendor;
-                SANE_Word product;
+		SANE_Word product;
+		SANE_Bool isLibUSB;
+
+		isLibUSB = (strncmp(dev_name, "libusb:", strlen("libusb:")) == 0); 
+
+		if ((!isLibUSB) && (strlen(dev_name) == 0))
+		{
+			int i;
+			i = 0;
+			while (sanei_epson_usb_product_ids[i] != 0)
+			{
+				product = sanei_epson_usb_product_ids[i];
+				vendor = 0x4b8;
+
+				status = sanei_usb_find_devices(vendor, product, attach_one_usb);
+				i++;
+			}
+			return SANE_STATUS_INVAL;		/* return - the attach_one_usb() 
+											   will take care of this */
+		}
 
 		status = sanei_usb_open(dev_name, &s->fd);
-
+		
 		if (SANE_STATUS_GOOD != status)
 		{
 			return status;
@@ -1810,7 +1840,7 @@ static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
 			if (is_valid == SANE_FALSE)
 			{
 				DBG(0, "The device at %s is not a supported EPSON scanner (product id=0x%x)\n",
-					dev_name, product);
+						dev_name, product);
 				sanei_usb_close(s->fd);
 				s->fd = -1;
 				return SANE_STATUS_INVAL;
@@ -1823,15 +1853,15 @@ static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
 		}
 	}
 
-/*
- * Initialize the scanner (ESC @).
- */
+	/*
+	 * Initialize the scanner (ESC @).
+	 */
 	reset(s);
 
 
-/*
- *  Identification Request (ESC I).
- */
+	/*
+	 *  Identification Request (ESC I).
+	 */
 	if (s->hw->cmd->request_identity != 0)
 	{
 		status =  get_identity_information(s);
@@ -1978,7 +2008,6 @@ static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
 		u_char * buf;
 		u_char params[2];
 		EpsonHdr head;
-DBG(0, "Requesting extended status\n");		
 
 		params[0] = ESC;
 		params[1] = s->hw->cmd->request_extended_status;
@@ -1991,13 +2020,9 @@ DBG(0, "Requesting extended status\n");
 		{
 			buf = &head->buf[ 0];
 
-DBG(0, "No error\n");			
-
 /*
  *  ADF
  */
-
-DBG(0, "Checking for ADF: (%02x)\n", buf[1]);
 
 			if( buf[ 1] & EXT_STATUS_IST) {
 				DBG( 1, "ADF detected\n");
@@ -2032,7 +2057,6 @@ DBG(0, "Checking for ADF: (%02x)\n", buf[1]);
 /*
  *  TPU
  */
-DBG(0, "Checking for TPU: (%02x)\n", buf[6]);
 
 			if( buf[ 6] & EXT_STATUS_IST) {
 				DBG( 1, "TPU detected\n");
@@ -2091,7 +2115,6 @@ DBG(0, "Checking for TPU: (%02x)\n", buf[6]);
 
 				/* finally copy the device name to the structure */
 				dev->sane.model = ( char *) memcpy( str, device_name, len);
-DBG(0, "Device name = %s\n", dev->sane.model);				
 			}
 		}
 	}
@@ -2146,60 +2169,88 @@ DBG(0, "Device name = %s\n", dev->sane.model);
 
 static SANE_Status attach_one ( const char *dev) 
 {
-	DBG(5, "attach(%s)\n", dev);
+	DBG(5, "attach_one(%s)\n", dev);
 
-	return attach( dev, 0);
+	return attach(dev, 0, SANE_EPSON_SCSI);
 }
 
+SANE_Status attach_one_usb(SANE_String_Const devname)
+{
+	int len = strlen(devname);
+	char * attach_string;
+
+	DBG(5, "attach_one_usb(%s)\n", devname);
+
+	attach_string = alloca(len + 5);
+	if (attach_string == NULL)
+		return SANE_STATUS_NO_MEM;
+
+	return attach(devname, 0, SANE_EPSON_USB);
+}
 
 /*
  * sane_init()
  *
  *
  */
+SANE_Status 
+sane_init(SANE_Int * version_code, SANE_Auth_Callback authorize) 
+{
+	size_t len;
+	FILE *fp;
 
-SANE_Status sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize) {
-  size_t len;
-  FILE *fp;
+	authorize = authorize;	/* get rid of compiler warning */
 
-  authorize = authorize;	/* get rid of compiler warning */
+	/* sanei_authorization(devicename, STRINGIFY(BACKEND_NAME), auth_callback); */
 
-  /* sanei_authorization(devicename, STRINGIFY(BACKEND_NAME), auth_callback); */
-
-
-  DBG_INIT ();
+	DBG_INIT ();
 #if defined PACKAGE && defined VERSION
-  DBG( 2, "sane_init: " PACKAGE " " VERSION "\n");
+	DBG( 2, "sane_init: " PACKAGE " " VERSION "\n");
 #endif
 
-  if( version_code != NULL)
-    *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, SANE_EPSON_BUILD);
+	if( version_code != NULL)
+		*version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, SANE_EPSON_BUILD);
 
-  /* default to /dev/scanner instead of insisting on config file */
-  if( (fp = sanei_config_open (EPSON_CONFIG_FILE)))
-    {
-      char line[PATH_MAX];
-
-      while (sanei_config_read (line, sizeof (line), fp))
+	/* default to /dev/scanner instead of insisting on config file */
+	if( (fp = sanei_config_open (EPSON_CONFIG_FILE)))
 	{
-	  DBG( 4, "sane_init, >%s<\n", line);
-	  if( line[0] == '#')		/* ignore line comments */
-	    continue;
-	  len = strlen (line);
-	  if( !len)
-            continue;			/* ignore empty lines */
-	  DBG( 4, "sane_init, >%s<\n", line);
+		char line[PATH_MAX];
 
-          sanei_config_attach_matching_devices (line, attach_one);
+		while (sanei_config_read (line, sizeof (line), fp))
+		{
+			int vendor, product;
+
+			DBG( 4, "sane_init, >%s<\n", line);
+			if( line[0] == '#')		/* ignore line comments */
+				continue;
+			len = strlen (line);
+			if( !len)
+				continue;			/* ignore empty lines */
+
+			if (sscanf(line, "usb %d %d", &vendor, &product) == 2)
+			{
+				sanei_usb_attach_matching_devices(line, attach_one_usb);
+			}
+			else if (strncmp(line, "usb", 3) == 0)
+			{
+				const char * dev_name;
+				/* remove the "usb" sub string */
+				dev_name  = sanei_config_skip_whitespace(line+3);
+				attach_one_usb(dev_name);
+			}
+			else
+			{
+				sanei_config_attach_matching_devices(line, attach_one);
+			}
+		}
+		fclose (fp);
 	}
-      fclose (fp);
-    }
 
-  /* read the option section and assign the connection type to the
-     scanner structure - which we don't have at this time. So I have
-     to come up with something :-) */
+	/* read the option section and assign the connection type to the
+	   scanner structure - which we don't have at this time. So I have
+	   to come up with something :-) */
 
-  return SANE_STATUS_GOOD;
+	return SANE_STATUS_GOOD;
 }
 
 /*
@@ -2939,11 +2990,11 @@ static SANE_Status init_options ( Epson_Scanner * s) {
  *
  */
 
-SANE_Status sane_open ( SANE_String_Const devicename, SANE_Handle * handle) 
+SANE_Status 
+sane_open(SANE_String_Const devicename, SANE_Handle * handle) 
 {
 	Epson_Device	*dev;
 	Epson_Scanner	*s;
-	SANE_Status	status;
 
 	DBG(5, "sane_open(%s)\n", devicename);
 
@@ -2960,11 +3011,15 @@ SANE_Status sane_open ( SANE_String_Const devicename, SANE_Handle * handle)
 
 		if (!dev)
 		{
-			status = attach(devicename, &dev);
+#if 0
+			status = attach(devicename, &dev, SANE_EPSON_);
 			if (status != SANE_STATUS_GOOD)
 			{
 				return status;
 			}
+#endif
+			DBG(0, "Error opening the device");
+			return SANE_STATUS_INVAL;
 		}
 	}
 	else
@@ -3197,7 +3252,7 @@ static SANE_Status getvalue( SANE_Handle handle,
 	case OPT_THRESHOLD:
 	case OPT_ZOOM:
 	case OPT_BIT_DEPTH:
-  case OPT_WAIT_FOR_BUTTON:
+	case OPT_WAIT_FOR_BUTTON:
 		*((SANE_Word *) value) = sval->w;
 		break;
 
@@ -4737,28 +4792,26 @@ START_READ:
 		 */
 
 		/*
-		 * The Perfection 1640 seems to have the R and G channels swapped.
+		 * Some scaners (e.g. the Perfection 1640 and GT-2200) seem 
+		 * to have the R and G channels swapped.
 		 * The GT-8700 is the Asian version of the Perfection1640.
 		 * If the scanner name is one of these, and the scan mode is
-		 * RGB and the maxDepth is set to 14 (this is just another
-		 * check to make sure that we are dealing with the correct
-		 * device) then swap the colors.
+		 * RGB then swap the colors.
 		 */
 
 		needStrangeReorder = 
-			(strstr(s->hw->sane.model, "GT-2200") &&
-			 s->params.format == SANE_FRAME_RGB) || 
-			((strstr(s->hw->sane.model, "1640") &&
-			  strstr(s->hw->sane.model, "Perfection")) ||
-			 strstr(s->hw->sane.model, "GT-8700")) &&
-			s->params.format == SANE_FRAME_RGB &&
-			s->hw->maxDepth == 14;
+			( strstr(s->hw->sane.model, "GT-2200") ||
+			  ((strstr(s->hw->sane.model, "1640") &&
+				strstr(s->hw->sane.model, "Perfection")) ||
+			   strstr(s->hw->sane.model, "GT-8700")) ) &&
+			s->params.format == SANE_FRAME_RGB;
 
-    /*
-     * Certain Perfection 1650 also need this re-ordering of the two color channels.
-     * These scanners are identified by the problem with the half vertical scanning
-     * area. When we corrected this, we also set the variable s->hw->need_color_reorder
-     */
+		/*
+		 * Certain Perfection 1650 also need this re-ordering of the two 
+		 * color channels. These scanners are identified by the problem 
+		 * with the half vertical scanning area. When we corrected this, 
+		 * we also set the variable s->hw->need_color_reorder
+		 */
 		if (s->hw->need_color_reorder)
 		{
 			needStrangeReorder = SANE_TRUE;
@@ -5197,8 +5250,9 @@ get_identity_information(SANE_Handle handle)
 	{
 		int n, k;
 		int x = 0, y = 0;
+		int count = ident->count2 * 255 + ident->count1;
 
-		for( n = ident->count, buf = ident->buf; n; n -= k, buf += k) {
+		for( n = count, buf = ident->buf; n; n -= k, buf += k) {
 			switch (*buf) {
 			case 'R':
 			{

@@ -1,3 +1,7 @@
+2002-11-03  Karl Heinz Kremer <khk@khk.net>
+
+	* backend/epson.c: Full support for libusb
+
 2002-11-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* README configure.in configure po/Makefile.in po/README:

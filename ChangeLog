@@ -1,3 +1,11 @@
+2002-09-16  Matthew Duggan <stauff1@users.sourceforge.net>
+	* backend/canon_pp-dev.c backend/canon_pp-dev.h backend/canon_pp-io.c 
+	  backend/canon_pp-io.h backend/canon_pp.c backend/canon_pp.h:
+	  Fix init problem, add changes to facilitate configurable wakeup mode
+	  (for faster starts on FB360P and FB620P).
+	* doc/sane-canon_pp.man doc/descriptions/canon_pp.desc: Updates 
+	  regarding FB310P and FB610P (rebadged Avisions)
+
 2002-09-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/.cvsignore frontend/.cvsignore tools/.cvsignore: Added .libs.

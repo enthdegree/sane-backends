@@ -585,6 +585,8 @@ do_scan (Wire * w, int h, int data_fd)
   long int nwritten;
   SANE_Int length;
   size_t nbytes;
+  
+  DBG (3, "do_scan: start\n");
 
   FD_ZERO (&rd_mask);
   FD_SET (w->io.fd, &rd_mask);
@@ -623,8 +625,11 @@ do_scan (Wire * w, int h, int data_fd)
 	         pass back this status to the client: */
 	      FD_CLR (be_fd, &rd_mask);
 	      be_fd = -1;
+	      /* only set status_dirty if EOF hasn't been already detected */
+	      if (status == SANE_STATUS_GOOD) 
+		status_dirty = 1; 
 	      status = SANE_STATUS_EOF;
-	      status_dirty = 1;
+	      DBG (3, "do_scan: select_fd was closed --> EOF\n");
 	      continue;
 	    }
 	  else
@@ -645,6 +650,7 @@ do_scan (Wire * w, int h, int data_fd)
 		  nbytes = bytes_in_buf;
 		  if (writer + nbytes > sizeof (buf))
 		    nbytes = sizeof (buf) - writer;
+		  DBG (4, "do_scan: trying to write %d bytes to client\n", nbytes);
 		  nwritten = write (data_fd, buf + writer, nbytes);
 		  DBG (4, "do_scan: wrote %ld bytes to client\n", nwritten);
 		  if (nwritten < 0)
@@ -679,6 +685,7 @@ do_scan (Wire * w, int h, int data_fd)
 	  if (reader + nbytes > sizeof (buf))
 	    nbytes = sizeof (buf) - reader;
 
+	  DBG (4, "do_scan: trying to read %d bytes from scanner\n", nbytes);
 	  status = sane_read (be_handle, buf + reader, nbytes, &length);
 	  DBG (4, "do_scan: read %d bytes from scanner\n", length);
 
@@ -693,6 +700,7 @@ do_scan (Wire * w, int h, int data_fd)
 	    {
 	      reader = i;	/* restore reader index */
 	      status_dirty = 1;
+	      DBG (3, "do_scan: status = `%s'\n", sane_strstatus(status));
 	    }
 	  else
 	    store_reclen (buf, sizeof (buf), i, length);
@@ -704,6 +712,8 @@ do_scan (Wire * w, int h, int data_fd)
 	  reader = store_reclen (buf, sizeof (buf), reader, 0xffffffff);
 	  buf[reader] = status;
 	  bytes_in_buf += 5;
+	  DBG (3, "do_scan: statuscode `%s' was added to buffer\n", 
+	       sane_strstatus(status));
 	}
 
       if (FD_ISSET (w->io.fd, &rd_set))

@@ -1,3 +1,8 @@
+2004-01-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/gamma4scanimage.man: scanimage is in section 1.
+	* doc/descriptions/unsupported.desc: Added Lexmark X74.
+
 2004-01-15  Eddy De Greef <eddy_de_greef at tiscali dot be>
 
 	* backend/mustek_pp.c, backend/mustek_pp_cis.c: Bug fix: make sure 

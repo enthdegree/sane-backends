@@ -10,6 +10,11 @@
 	  Patch from Matthew Duggan <stauff1@users.sourceforge.net>.
 	* doc/sane-canon_pp.man: Added more hints on getting canon_pp driver
 	  working. Patch from Matthew Duggan <stauff1@users.sourceforge.net>.
+	* backend/Makefile.in backend/canon630u-common.c backend/canon630u.c
+	  backend/canon630u.conf backend/dll.conf backend/lm9830.h: Added
+	  canon630u backend. This backend supports the CanoScan 630u and
+	  CanoScan 636u (hopefully). Patch from Nathan Rutman 
+	  <nathan@gordian.com>.
 
 2002-04-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

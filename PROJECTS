@@ -1,4 +1,4 @@
-PROJECTS (2002-01-07)
+PROJECTS (2002-01-11)
 
 Here is a list of projects that various people have expressed interest
 in.  Before starting working on one of these projects, it may be a
@@ -24,7 +24,7 @@ Simon Krix <kinsei@dingoblue.net.au>
 http://members.dingoblue.net.au/~kinsei/scanner/
 
 Canon FB620S flatbed scanner and FS2710 film scanner
-ftp://stthd0.pc.uni-koeln.de/pub/canon-1.08.tar.gz
+ftp://stthd0.pc.uni-koeln.de/pub/canon-1.09.tar.gz
 Ulrich Deiters <ukd@xenon.pc.Uni-Koeln.DE>
 
 Coolscan2 backend: support for LS-40, LS-4000, and LS-8000 (wip)
@@ -47,19 +47,15 @@ http://sourceforge.net/projects/hp3300backend
 IBM 2456 and Ricoh IS-410 support (wip)
 http://www.meier-geinitz.de/sane/ibm-backend/
 
-m3096g updates (wip)
-http://www.abm.de/sane/
-
-Mustek BearPaw USB scanner (wip)
-http://www.meier-geinitz.de/sane/lm983x.html
-Henning Meier-Geinitz <henning@meier-geinitz.de> et. al.
-
 Primax parallel port scanners (wip)
 http://primax.sourceforge.net/
 
 Relisys Scorpio Super 3 SCSI II (planned)
 http://www.xs4all.nl/~plowman/
 Mark Plowman <sane-devel@plowman.xs4all.nl>
+
+Test backend (similar to pnm backend, but doesn't read files) (planned)
+Henning Meier-Geinitz <henning@meier-geinitz.de> et. al.
 
 Visioneer OneTouch 8600: viceo (wip)
 http://www.littlecms.com/iphoto/otlinux.htm
@@ -78,7 +74,7 @@ BeOS port (wip)
 http://www.intuiware.com/Products/BeSANE/index.html
 
 OS/2 support (wip)
-http://home.tiscalinet.de/fbakan/sane105.htm
+http://home.tiscalinet.de/fbakan/sane-os2.htm
 
 win32 port of SANE (planned)
 Oliver Rauch <oliver.rauch@Wolfsburg.DE>
@@ -87,8 +83,12 @@ Oliver Rauch <oliver.rauch@Wolfsburg.DE>
 Misc:
 -----
 
+SaneTwain: TWAIN compliant datasource which is able to connect to a SANE
+           scanner backend.
+http://sanetwain.ozuzo.net/
+
 WinSANE: Win32 TWAIN DLL to interface with scanners supported by SANE over the
-         network. (wip?)
+         network. (old)
 http://www.integramicro.com/winsane/
 
 TWAIN interface for xsane-win32 (planned)

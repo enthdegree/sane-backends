@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2004-04-30"		; version of backend
+:version "2004-05-18"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -296,14 +296,26 @@
 :comment "Not supported. USB Vendor/product 0x04a9/0x3042. See link for more details."
 
 :model "IS 12"
-;:url ""
+:url "/unsupported/canon-is-12.html"
 :interface "USB"
 :status :unsupported
-:comment "Probably not supported. This scanner is used in a number of Canon portable printers (BJC-80 for one). No further information available."
+:comment "Probably not supported. Scanner cardridge for Canon inkjet printers."
+
+:model "IS 22"
+:url "/unsupported/canon-is-22.html"
+:interface "Parport"
+:status :unsupported
+:comment "Probably not supported. Scanner cardridge for Canon inkjet printers."
 
 :model "IS 32"
 :url "/unsupported/canon-is-32.html"
 :interface "USB"
+:status :unsupported
+:comment "Probably not supported. Scanner cardridge for Canon inkjet printers."
+
+:model "IS 52"
+:url "/unsupported/canon-is-52.html"
+;:interface "USB"
 :status :unsupported
 :comment "Probably not supported. Scanner cardridge for Canon inkjet printers."
 
@@ -1314,8 +1326,9 @@
 
 :model "PaperPort 3100b"
 :interface "Parport"
+:url "/unsupported/visioneer-paperport-3100b.html"
 :status :unsupported
-:comment "Most probably not supported. More details would be appreciated."
+:comment "Most probably not supported. See link for details."
 
 :model "PaperPort 6100"
 :interface "Parport"

@@ -1,3 +1,8 @@
+2004-05-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added more Canon cartridge
+	  scanners. Updated Visioneer Paperport 3100b.
+
 2004-05-18  Michael Herder <crapmail@nurfuerspam.de>
 
 	* backend/Makefile.in: 

@@ -57,13 +57,14 @@ backends
 
   * Check the Irix patches from
     http://www.mostang.com/pipermail/sane-devel/2002-December/017010.html
-    - gphoto2 (?)
+
+    - gphoto2 - configure/Makefile.in changes not accepted for now
     - bh
     - canon
     - coolscan
-    - dc210
-    - dc240
-    - dc25
+    - dc210 - done
+    - dc240 - done
+    - dc25 - done
 
 doc
 ---

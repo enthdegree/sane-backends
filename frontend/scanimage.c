@@ -280,16 +280,28 @@ auth_callback (SANE_String_Const resource,
 	       md5digest[10], md5digest[11],
 	       md5digest[12], md5digest[13], md5digest[14], md5digest[15]);
     }
-
 }
+
 static RETSIGTYPE
 sighandler (int signum)
 {
+  static SANE_Bool first_time = SANE_TRUE;
+
   if (device)
     {
-      fprintf (stderr, "%s: stopping scanner... (sig %d)\n", prog_name,
+      fprintf (stderr, "%s: received signal %d\n", prog_name,
 	       signum);
-      sane_cancel (device);
+      if (first_time)
+	{
+	  first_time = SANE_FALSE;
+	  fprintf (stderr, "%s: trying to stop scanner\n", prog_name);
+	  sane_cancel (device);
+	}
+      else
+	{
+	  fprintf (stderr, "%s: aborting\n", prog_name);
+	  _exit(0);
+	}
     }
 }
 

@@ -7,6 +7,8 @@
 	  -lsyslog and -lsocket are linked for OS/2.
 	* doc/descriptions/abaton.desc: Added :status :untested for 
 	  Scan 300/S.
+	* doc/descriptions/agfafocus.desc: Added status and comments (from
+	  the manpage).
 
 2002-07-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

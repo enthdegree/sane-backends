@@ -2,10 +2,12 @@
 	* po/*.po: Updated according to changes in the plustek backend.
 	* backend/plustek.c backend/plustek-usb*: Major update, see
 	  doc/plustek/Plustek-USB.changes.
-	* doc/sane-plustek.man: update
-	* doc/plustek/Plustek-USB.changes: update.
+	* doc/sane-plustek.man: Update.
+	* doc/plustek/Plustek-USB.changes: Update.
 	* doc/descriptions/plustek.desc: Removed unsupported devices, 
 	  updated some states.
+	* doc/descriptions/plustek_pp.desc: URL update.
+	* doc/descriptions/u12.desc: URL update, changed state of backend.
 
 2004-06-30  Frank Zago  <fzago at austin dot rr dot com>
 	* backend/leo.c doc/descriptions/leo.desc: added support for 

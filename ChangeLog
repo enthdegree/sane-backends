@@ -4,6 +4,7 @@
 	  Fixed conditional compilation problem
 	  Updated localization strings
     * doc/sane-plustek.man: Updated
+    * po/plustek.de.po: Updated
     * doc/doxygen-sanei.conf: Added doxygen configuration file for
       the sane libs
     * include/sane/sanei.h include/sane/sanei_ab306.h

@@ -1,3 +1,8 @@
+2002-09-28  Andras Major <andras@users.sourceforge.net>
+
+	* backends/coolscan2.c doc/descriptions/coolscan2.desc
+	  doc/sane-coolscan2.man: update to 0.1.8
+
 2002-09-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* config.sub config.guess: Updated to current versions.

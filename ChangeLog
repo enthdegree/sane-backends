@@ -1,4 +1,15 @@
+2004-04-14  Rene Rebe <rene@rocklinux.org>
+
+	* backend/avision.h, backend/avision.c: the current development state,
+	  including cleanups, code refactoring, dynamic color and scan source
+	  list creation, implemented ADF mirroring needed for some ASICs ,
+	  some scan window scaliing fixes for some ASICs, added 16bit gray
+	  and color support, fixed a tiny big-endian issue, fixed command
+	  error reporting for some ASICs, improved inquiry logging and some
+	  tiny fixes for film-scanners.
+
 2004-04-14  Gerhard Jaeger <gerhard@gjaeger.de>
+
 	* backend/plustek_pp.c backend/plustek-pp_sysdep.h
 	  backend/plustek-pp_scan.h backend/plustek-pp_ptdrv.c
 	  backend/plustek-pp_misc.c: Fixed Kernel 2.6 compilation problems.

@@ -67,8 +67,10 @@ typedef struct Avision_Connection {
 typedef struct Avision_HWEntry {
   char* scsi_mfg;
   char* scsi_model;
+
   int   usb_vendor;
   int   usb_product;
+
   const char* real_mfg;
   const char* real_model;
   
@@ -111,7 +113,7 @@ typedef struct Avision_HWEntry {
     
     /* maybe more ...*/
   } feature_type;
-  
+    
 } Avision_HWEntry;
 
 typedef enum {
@@ -128,6 +130,8 @@ typedef enum {
   AV_DITHERED,
   AV_GRAYSCALE,
   AV_TRUECOLOR,
+  AV_GRAYSCALE16,
+  AV_TRUECOLOR16,
   AV_COLOR_MODE_LAST
 } color_mode;
 
@@ -144,7 +148,6 @@ enum Avision_Option
   
   OPT_MODE_GROUP,
   OPT_MODE,
-#define OPT_MODE_DEFAULT 3
   OPT_RESOLUTION,
 #define OPT_RESOLUTION_DEFAULT 300
   OPT_SPEED,
@@ -215,9 +218,18 @@ typedef struct Avision_Device
   SANE_Bool inquiry_needs_software_colorpack;
   SANE_Bool inquiry_needs_line_pack;
   SANE_Bool inquiry_adf_need_mirror;
+  SANE_Bool inquiry_adf_bgr_order;
   SANE_Bool inquiry_light_detect;
   SANE_Bool inquiry_light_control;
   int       inquiry_max_shading_target;
+  
+  /* the list of available color modes */
+  SANE_String_Const color_list[AV_COLOR_MODE_LAST];
+  color_mode color_list_num[AV_COLOR_MODE_LAST];
+  
+  /* the list of available source modes */
+  SANE_String_Const source_list[AV_SOURCE_MODE_LAST];
+  source_mode source_list_num[AV_SOURCE_MODE_LAST];
   
   int inquiry_optical_res;        /* in dpi */
   int inquiry_max_res;            /* in dpi */
@@ -230,16 +242,19 @@ typedef struct Avision_Device
   int inquiry_dithered_boundary;
   int inquiry_thresholded_boundary;
   int inquiry_line_difference; /* software color pack */
-  
-  /* int inquiry_bits_per_channel; */
+
+  int inquiry_channels_per_pixel;
+  int inquiry_bits_per_channel;
 
   int scsi_buffer_size; /* nice to have SCSI buffer size */
+
+  /* additional information - read delayed until sane_open() */
+  
+  SANE_Bool additional_probe;
   
   /* accessories */
   SANE_Bool acc_light_box;
   SANE_Bool acc_adf;
-  
-  SANE_Bool is_adf; /* ADF scanner */
   
   /* film scanner atributes - maybe these should be in the scanner struct? */
   SANE_Range frame_range;
@@ -248,9 +263,6 @@ typedef struct Avision_Device
   
   /* some versin corrections */
   u_int16_t data_dq; /* was ox0A0D - but hangs some new scanners */
-  
-  /* driver state */
-  SANE_Bool is_calibrated;
   
   Avision_HWEntry* hw;
 } Avision_Device;
@@ -265,8 +277,10 @@ typedef struct Avision_Scanner
   Option_Value val [NUM_OPTIONS];
   SANE_Int gamma_table [4][256];
   
-  /* page (ADF) state */
-  int page;
+  /* we now save the calib data because we might need it for 16bit software
+     calibration :-( */
+  u_int8_t* dark_avg_data;
+  u_int8_t* white_avg_data;
   
   /* Parsed option values and variables that are valid only during
      the actual scan: */
@@ -292,6 +306,12 @@ typedef struct Avision_Scanner
 
 /* Some Avision driver internal defines */
 #define AV_WINID 0
+
+/* SCSI error codes */
+#define AVISION_SCSI_GOOD                   0x00
+#define AVISION_SCSI_CONDITION_GOOD         0x02
+#define AVISION_SCSI_INTERMEDIATE_GOOD      0x08
+#define AVISION_SCSI_INTERMEDIATE_C_GOOD    0x0a
 
 /* SCSI commands that the Avision scanners understand: */
 

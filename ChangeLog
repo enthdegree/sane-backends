@@ -1,3 +1,7 @@
+2003-10-17  Karl Heinz Kremer <khk@khk.net>
+
+	* doc/descriptions/epson.desc: Fixed bug #30149 (added :status information for all scanners)
+
 2003-10-17  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* acinclude.m4 aclocal.m4 configure: Added -D_REENTRANT to compiler

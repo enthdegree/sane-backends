@@ -78,7 +78,7 @@
 
 #define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
-#define BUILD               31
+#define BUILD               34
 
 #define BACKEND_NAME snapscan
 
@@ -204,9 +204,13 @@ static const SANE_Device **get_devices_list = NULL;
 /* Initialize gamma tables */
 static SANE_Status init_gamma(SnapScan_Scanner * ps)
 {
+    static const char me[] = "init_gamma";
     u_char *gamma;
 
     ps->gamma_length = 1 << ps->bpp;
+    DBG (DL_MINOR_INFO, "%s: using 4*%d bytes for gamma table\n",
+         me,
+         ps->gamma_length);
 
     ps->gamma_tables =
         (SANE_Int *) malloc(4 * ps->gamma_length * sizeof(SANE_Int));
@@ -921,13 +925,9 @@ SANE_Status sane_open (SANE_String_Const name, SANE_Handle * h)
             status = download_firmware(pss);
             CHECK_STATUS (status, me, "download_firmware");
             /* send inquiry command again, wait for scanner to initialize */
-            do
-            {
-                DBG (DL_INFO, "%s: Waiting for scanner after firmware upload\n",me);
-                sleep(1);
-                status =  inquiry (pss);
-            } while (status == SANE_STATUS_DEVICE_BUSY);
-
+            status = wait_scanner_ready(pss);
+            CHECK_STATUS (status, me, "wait_scanner_ready after firmware upload");
+            status =  inquiry (pss);
             CHECK_STATUS (status, me, "inquiry after firmware upload");
             /* The model identifier may change after firmware upload */
             memcpy (model, &pss->buf[INQUIRY_PRODUCT], 16);
@@ -1488,13 +1488,12 @@ SANE_Status sane_start (SANE_Handle h)
     status = wait_scanner_ready (pss);
     CHECK_STATUS (status, me, "wait_scanner_ready");
 
-    /* download the gamma and halftone tables */
+    /* start scanning; reserve the unit first, because a release_unit is
+       necessary to abort a scan in progress */
 
-    status = download_gamma_tables(pss);
-    CHECK_STATUS (status, me, "download_gamma_tables");
+    pss->state = ST_SCAN_INIT;
 
-    status = download_halftone_matrices(pss);
-    CHECK_STATUS (status, me, "download_halftone_matrices");
+    reserve_unit(pss);
 
     /* set up the window and fetch the resulting scanner parameters */
     status = set_window(pss);
@@ -1502,6 +1501,14 @@ SANE_Status sane_start (SANE_Handle h)
 
     status = inquiry(pss);
     CHECK_STATUS (status, me, "inquiry");
+
+    /* download the gamma and halftone tables */
+
+    status = download_gamma_tables(pss);
+    CHECK_STATUS (status, me, "download_gamma_tables");
+
+    status = download_halftone_matrices(pss);
+    CHECK_STATUS (status, me, "download_halftone_matrices");
 
     /* we must measure the data transfer rate between the host and the
        scanner, and the method varies depending on whether there is a
@@ -1522,12 +1529,6 @@ SANE_Status sane_start (SANE_Handle h)
          pss->ms_per_line,
          pss->bytes_per_line/pss->ms_per_line);
 
-    /* start scanning; reserve the unit first, because a release_unit is
-       necessary to abort a scan in progress */
-
-    pss->state = ST_SCAN_INIT;
-
-    reserve_unit(pss);
 
     if(pss->val[OPT_QUALITY_CAL].b)
     {
@@ -1547,13 +1548,18 @@ SANE_Status sane_start (SANE_Handle h)
         release_unit (pss);
         return status;
     }
-    /* Wait for scanner ready again (e.g. until paper is loaded from an ADF) */
-    status = wait_scanner_ready (pss);
-    if (status != SANE_STATUS_GOOD)
+
+    if (pss->source == SRC_ADF)
     {
-        DBG (DL_MAJOR_ERROR, "%s: scan command failed while waiting for scanner: %s.\n", me, sane_strstatus(status));
-        release_unit (pss);
-        return status;
+        /* Wait for scanner ready again (e.g. until paper is loaded from an ADF) */
+        /* Maybe replace with get_data_buffer_status()? */
+        status = wait_scanner_ready (pss);
+        if (status != SANE_STATUS_GOOD)
+        {
+            DBG (DL_MAJOR_ERROR, "%s: scan command failed while waiting for scanner: %s.\n", me, sane_strstatus(status));
+            release_unit (pss);
+            return status;
+        }
     }
 
     DBG (DL_MINOR_INFO, "%s: starting the reader process.\n", me);
@@ -1742,6 +1748,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.35  2003/11/07 23:26:49  oliver-guest
+ * Final bugfixes for bascic support of Epson 1670
+ *
  * Revision 1.34  2003/10/21 20:43:25  oliver-guest
  * Bugfixes for SnapScan backend
  *

@@ -760,18 +760,17 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
     DBG (DL_CALL_TRACE, "%s Resolution: %d\n", me, pss->res);
 
     pos_factor = pss->actual_res;
-    if (pss->pdev->model == PRISA5000)
+    switch (pss->pdev->model)
     {
-        if (pss->res > 600)
-        {
-            pos_factor = 1200;
-        }
-        else
-        {
-            pos_factor = 600;
-        }
+        case PRISA5000:
+            pos_factor = (pss->res > 600) ?  1200 : 600;
+            break;
+        case PERFECTION1670:
+            pos_factor = (pss->res > 800) ?  1600 : 800;
+            break;
+        default:
+            break;
     }
-
     /* it's an ugly sound if the scanner drives against the rear
        wall, and with changing max values we better be sure */
     check_range(&(pss->brx), pss->pdev->x_range);
@@ -1013,9 +1012,9 @@ static SANE_Status wait_scanner_ready (SnapScan_Scanner *pss)
             /* first additional sense byte contains time to wait */
             {
                 int delay = pss->asi1 + 1;
-                DBG (DL_INFO,
-                    "%s: scanner warming up. Waiting %ld seconds.\n",
-                    me, (long) delay);
+                DBG (0,
+                    "Scanner warming up - waiting %ld seconds.\n",
+                    (long) delay);
                 sleep (delay);
             }
             break;
@@ -1223,6 +1222,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
+ * Revision 1.26  2003/11/07 23:26:49  oliver-guest
+ * Final bugfixes for bascic support of Epson 1670
+ *
  * Revision 1.25  2003/10/21 20:43:25  oliver-guest
  * Bugfixes for SnapScan backend
  *

@@ -1,3 +1,8 @@
+2003-11-08  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan-scsi.c backend/snapscan.c doc/descriptions/snapscan.desc:
+	  Final bugfixes for Epson 1670
+
 2003-11-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* README.openbsd: Added info about setting permissions (Bug #300311).

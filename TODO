@@ -1,4 +1,4 @@
-TODO (2001-04-08)
+TODO (2001-04-16)
 
 ******** todo ********
 
@@ -80,6 +80,7 @@ backends
     sane_get_devices().
       - qcam
       - etc?
+  * as6e: change :new status to :alpha, :beta, or :stable.
 
 doc
 ---
@@ -92,6 +93,8 @@ doc
 
   * Documentation for sanei API
     - any ideas for this?
+ 
+  * install all documentation that's available
 
 frontends
 ---------

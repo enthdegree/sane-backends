@@ -5,6 +5,7 @@
 	  http://savannah.gnu.org/projects/config.
 	* TODO: New section: "platform-specific". Added some problems with
 	  *BSD. Some minor fixes and additions.
+	* tools/sane-find-scanner.c: Added OpenBSD device files.
 
 2001-12-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-06-27"		; version of backend
+:version "2003-07-01"		; version of backend
 :url "http://www.meier-geinitz.de/sane/misc/unsupported.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 ;:url "http://www.meier-geinitz.de/sane/mustek-backend/"
@@ -419,6 +419,17 @@
 
 ;********************************************************************************************
 
+:mfg "Memorex"
+:url "http://www.memorex.com/"
+
+:model "6142u"
+:url "http://www.meier-geinitz.de/sane/misc/visioneer-onetouch4400.txt"
+:interface "USB"
+:status :unsupported
+:comment "Probably unsupported. See Visioneer Onetouch 4400."
+
+;********************************************************************************************
+
 :mfg "Microtek"
 :url "http://www.microtek.com/"
 
@@ -748,29 +759,52 @@
 :status :unsupported
 :comment "Unsupported. Vendor/Product ids: 0x04a7/0x0224. Seems to use Realtek RTS8801B. Same as Microtek Scanport 3000. See link for details."
 
-:model "OneTouch 5800 USB"
-;:url "http://www.meier-geinitz.de/sane/misc/visioneer-onetouch4800.txt"
-:interface "USB"
-:status :unsupported
-:comment "Unsupported. 48 bit scanner, doesn't work with viceo backend. Maybe E5 chipset? Vendor/product 0x04a7/0x0226"
-
 :model "OneTouch 5300 USB"
 :url "http://www.meier-geinitz.de/sane/misc/visioneer-onetouch5300usb.txt"
 :interface "USB"
 :status :unsupported
-:comment "Not supported. Vendor/product ids 0x04a7/0x0226. See link for output of /proc/bus/usb/devices. The output looks very similar to that of the 8920."
+:comment "Not supported. Vendor/product ids 0x04a7/0x0226. Chipset is RTS8801B(?). See link for output of /proc/bus/usb/devices."
+
+:model "OneTouch 5800 USB"
+:url "http://www.meier-geinitz.de/sane/misc/visioneer-onetouch5800.txt"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. 48 bit scanner, doesn't work with viceo backend. RTS8801C. Vendor/product 0x04a7/0x0226."
+
+:model "Onetouch 8700"
+;:url "http://www.meier-geinitz.de/sane/misc/visioneer-onetouch8920.txt"
+:interface "USB"
+:status :unsupported
+:comment "Not supported. Same as 8920 but without TA?"
+
+:model "Onetouch 8900"
+;:url "http://www.meier-geinitz.de/sane/misc/visioneer-onetouch8920.txt"
+:interface "USB"
+:status :unsupported
+:comment "Not supported. Same as 8920 but without TA?"
 
 :model "Onetouch 8920"
 :url "http://www.meier-geinitz.de/sane/misc/visioneer-onetouch8920.txt"
 :interface "USB"
 :status :unsupported
-:comment "Not supported. Same as 8700 and 8900 but includes a TA. Uses a Primax ID. See link for output of /proc/bus/usb/devices."
+:comment "Not supported. Same as 8700 and 8900 but includes a TA. Uses a Primax ID. Chipset is RTS8801C. See link for output of /proc/bus/usb/devices."
 
 :model "Primascan Colorado 2600u"
 :url "http://www.meier-geinitz.de/sane/misc/visioneer-onetouch4400.txt"
 :interface "USB"
 :status :unsupported
 :comment "Not supported. See Visioneer Onetouch 4400."
+
+;********************************************************************************************
+
+:mfg "Xerox"
+:url "http://www.xerox.com/"
+
+:model "WorkCentre XK35c"
+:url "http://www.meier-geinitz.de/sane/misc/xerox-workcentre-xk35c.txt"
+:interface "USB Parport"
+:status :unsupported
+:comment "Not supported. See link for more details."
 
 ;********************************************************************************************
 

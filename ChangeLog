@@ -1,3 +1,8 @@
+2003-07-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added Memorex, Visioneer and
+	  Xerox scanners. Updated information for Visioneer scanners.
+	
 2003-06-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Visioneer OneTouch 5800

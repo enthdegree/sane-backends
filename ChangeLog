@@ -1,7 +1,8 @@
 2001-09-04  Peter Kirchgessner <peter@kirchgessner.net>
 
         * backend/hp-device.[hc] hp-handle.c hp-scl.[hc]
-            hp-option.[hc] hp.[hc]
+            hp-option.[hc] hp.[hc] hp.desc
+          doc/sane-hp.man:
           Add support for active XPA
           Check if paper in ADF for ADF scan
           Add option lamp off

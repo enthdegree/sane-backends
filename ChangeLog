@@ -1,3 +1,17 @@
+2002-04-15  Marian Eichholz <eichholz@computer.org>
+	* sm3600 imported from sm3600.sf.net
+	  featuring infrastructure for various models and the (new) SM 3750i.
+	  backend/sm3600.h
+	  backend/sm3600.c
+	  backend/sm3600-color.c
+	  backend/sm3600-homerun.c
+	  backend/sm3600-scantool.h
+	  backend/sm3600-scanutil.c
+	  backend/sm3600-gray.c
+	  backend/sm3600-scanmtek.c
+	  backend/sm3600-scanusb.c
+	  doc/sane-sm3600.man
+
 2002-04-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/mustek_usb.desc: Commented out 1200 USB as it is not

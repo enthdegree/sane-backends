@@ -1,3 +1,8 @@
+2003-01-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* configure configure.in: Adjusted test for sparc64 to disable
+	  SCSI generic v3.
+
 2003-01-20  Karl Heinz Kremer <khk@khk.net>
 
 	* doc/descriptions/epson.desc: Replace :new with :alpha

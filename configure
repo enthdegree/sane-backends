@@ -8284,7 +8284,7 @@ fi
   fi
 fi
 
-if test "`uname`" = "sparc64" ; then
+if sparc64 -q > /dev/null 2>&1 ; then
 
 cat >>confdefs.h <<\_ACEOF
 #define DISABLE_LINUX_SG_IO 1

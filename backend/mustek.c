@@ -46,7 +46,7 @@
 
 /**************************************************************************/
 /* Mustek backend version                                                 */
-#define BUILD 109
+#define BUILD 110
 /**************************************************************************/
 
 #include "../include/sane/config.h"
@@ -2754,6 +2754,15 @@ do_stop (Mustek_Scanner *s)
       DBG(2, "Scanning time was %ld seconds, %ld kB/s\n", scan_time,
 	  scan_size / scan_time);
 
+      if (s->total_bytes == s->params.lines * s->params.bytes_per_line)
+	DBG(3, "Scanned %d bytes as expected\n", s->total_bytes);
+      else if (s->total_bytes < s->params.lines * s->params.bytes_per_line)
+	DBG(3, "Scanned %d bytes, expected %d bytes\n", s->total_bytes,
+	    s->params.lines * s->params.bytes_per_line);
+      else
+	DBG(1, "Warning: Scanned %d bytes, but expected only %d bytes\n",
+	    s->total_bytes, s->params.lines * s->params.bytes_per_line);
+
       /* ensure child knows it's time to stop: */
       DBG(5, "do_stop: terminating reader process\n");
       kill (s->reader_pid, SIGTERM);
@@ -3750,7 +3759,8 @@ fix_line_distance_normal (Mustek_Scanner *s, SANE_Int num_lines, SANE_Int bpl,
 /* Paragon series I + II. */
 static SANE_Int
 fix_line_distance_block (Mustek_Scanner *s, SANE_Int num_lines, SANE_Int bpl,
-			 SANE_Byte *raw, SANE_Byte *out, SANE_Int num_lines_total)
+			 SANE_Byte *raw, SANE_Byte *out,
+			 SANE_Int num_lines_total)
 {
   SANE_Byte *out_end, *out_ptr, *raw_end = raw + num_lines * bpl;
   SANE_Int c, num_saved_lines, line, max_index, min_index;
@@ -3823,6 +3833,9 @@ fix_line_distance_block (Mustek_Scanner *s, SANE_Int num_lines, SANE_Int bpl,
 		  num_lines = min_index - s->ld.ld_line;
 		  if (num_lines < 0)
 		    num_lines = 0;
+		  if ((s->total_lines + num_lines) > s->params.lines)
+		    num_lines = s->params.lines - s->total_lines;
+		  s->total_lines += num_lines;
 		  
 		  /* copy away the lines with at least one missing
 		     color component, so that we can interleave them
@@ -4556,6 +4569,7 @@ reader_process (Mustek_Scanner *s, SANE_Int fd)
   if (!fp)
     return SANE_STATUS_IO_ERROR;
 
+  s->total_lines = 0;
   bpl = s->hw->bpl;
 
   /* buffer size is scanner dependant */
@@ -5819,6 +5833,8 @@ sane_start (SANE_Handle handle)
   if (status != SANE_STATUS_GOOD)
     return status;
 
+  s->total_bytes = 0;
+
   if (s->fd < 0)
     {
       /* this is the first (and maybe only) pass... */
@@ -6167,7 +6183,8 @@ sane_read (SANE_Handle handle, SANE_Byte *buf, SANE_Int max_len, SANE_Int *len)
 	      if (*len == 0)
 		DBG(5, "sane_read: no more data at the moment--try again\n");
 	      else
-		DBG(5, "sane_read: read buffer of %d bytes\n", *len);
+		DBG(5, "sane_read: read buffer of %d bytes "
+		    "(%d bytes total)\n", *len, s->total_bytes);
 	      return SANE_STATUS_GOOD;
 	    }
 	  else
@@ -6180,7 +6197,8 @@ sane_read (SANE_Handle handle, SANE_Byte *buf, SANE_Int max_len, SANE_Int *len)
 	}
 
       *len += nread;
-      
+      s->total_bytes += nread;
+
       if (nread == 0)
 	{
 	  if (*len == 0)
@@ -6204,13 +6222,14 @@ sane_read (SANE_Handle handle, SANE_Byte *buf, SANE_Int max_len, SANE_Int *len)
 	    }
 	  else
 	    {
-	      DBG(5, "sane_read: read last buffer of %d bytes\n",
-		  *len);
+	      DBG(5, "sane_read: read last buffer of %d bytes "
+		  "(%d bytes total)\n", *len, s->total_bytes);
 	      return SANE_STATUS_GOOD;
 	    }
 	}
     }
-  DBG(5, "sane_read: read full buffer of %d bytes\n", *len);
+  DBG(5, "sane_read: read full buffer of %d bytes (%d total bytes)\n",
+      *len, s->total_bytes);
   return SANE_STATUS_GOOD;
 }
 

@@ -2,6 +2,8 @@
 
 	* backend/ibm.desc: New file. Backend for the IBM 2456 and the
 	  Ricoh IS-410.
+	* PROJECTS: Added IBM backend. Removed gphoto2 (now included in 
+	  distribution).
 
 2001-10-07  Peter Fales <peter@fales.com>
 

@@ -2428,11 +2428,14 @@ attachScanner (const char *devicename, struct fujitsu **devp)
 
   if (NULL == (dev = malloc (sizeof (*dev))))
     return SANE_STATUS_NO_MEM;
+  memset(dev,0,sizeof(*dev));
 
   dev->scsi_buf_size = scsiBuffer;
 
   if ((dev->buffer = malloc (dev->scsi_buf_size)) == NULL)
     return SANE_STATUS_NO_MEM;
+
+  memset(dev->buffer,0,sizeof(dev->scsi_buf_size));
 
   dev->devicename = strdup (devicename);
   dev->connection = mostRecentConfigConnectionType;

@@ -1,3 +1,7 @@
+2002-07-23  Matthew Duggan <stauff1@users.sourceforge.net>
+
+	* doc/sane-canon_pp.man: Added N640Pex to the man page too..
+
 2002-07-22  Chris Pinkham <cpinkham@infi.net>
 
 	* doc/descriptions/artec.desc: Changed status of AT6 model to alpha.

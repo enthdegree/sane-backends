@@ -2,12 +2,12 @@
 
 	* doc/descriptions/mustek_pp.desc: cleaned up the file a little
 
-2003-01-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
+2003-02-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/gt68xx.desc doc/descriptions/unsupported.desc:
 	  Unified manufacturer names. Minor bugfixes.
 
-2003-01-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
+2003-02-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
         * configure configure.in: Warnings enabled again. Used extra version
           -cvs.

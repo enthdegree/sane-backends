@@ -90,16 +90,42 @@ static void DBG(int level, const char *format, ...)
 
 #endif
 
+struct scanner_hardware_desc {
+	char *name;
+	unsigned int natural_xresolution;
+	unsigned int natural_yresolution;
+	unsigned int scanbedlength;
+	unsigned int scanheadwidth;       /* 0 means provided by scanner */
+	unsigned int type;
+};
 
-/* Constants */
-#define ID_FB320P "CANON   IX-03055C"
-#define ID_FB620P "CANON   IX-06025C"
+static const struct scanner_hardware_desc 
+	/* The known scanner types */
+	hw_fb320p = { "FB320P", 2, 2, 3508, 2552, 0 },
+	hw_fb330p = { "FB330P", 2, 2, 3508,    0, 1 },
+	hw_fb620p = { "FB620P", 3, 3, 7016, 5104, 0 },
+	hw_fb630p = { "FB630P", 3, 3, 7016,    0, 1 },
+	hw_n640p  = { "N640P",  3, 3, 7016,    0, 1 },
+	hw_n340p  = { "N340P",  2, 2, 3508,    0, 1 },
 
-#define ID_FB330P "CANON   IX-03075E"
-#define ID_FB630P "CANON   IX-06075E"
+	/* A few generic scanner descriptions for aliens */
+	hw_alien600 = { "Unknown 600dpi", 3, 3, 7016, 0, 1 },
+	hw_alien300 = { "Unknown 300dpi", 2, 2, 3508, 0, 1 },
+	hw_alien = { "Unknown (600dpi?)", 3, 3, 7016, 0, 1 };
 
-#define ID_N340P "CANON   IX-03095G"
-#define ID_N640P "CANON   IX-06115G"
+/* ID table linking ID strings with hardware descriptions */
+struct scanner_id {
+	char *id;
+	const struct scanner_hardware_desc *hw;
+};
+static const struct scanner_id scanner_id_table[] = { 
+	{ "CANON   IX-03055C", &hw_fb320p },
+	{ "CANON   IX-06025C", &hw_fb620p },
+	{ "CANON   IX-03075E", &hw_fb330p },
+	{ "CANON   IX-06075E", &hw_fb630p },
+	{ "CANON   IX-03095G", &hw_n340p },
+	{ "CANON   IX-06115G", &hw_n640p },
+	{ NULL, NULL } };
 
 /*const int scanline_count = 6;*/
 static const char *header = "#CANONPP";
@@ -327,6 +353,8 @@ int sanei_canon_pp_init_scan(scanner_parameters *sp, scan_parameters *scanp)
 int sanei_canon_pp_initialise(scanner_parameters *sp, int mode)
 {
 	unsigned char scanner_info[12];
+	const struct scanner_id *cur_id;
+	const struct scanner_hardware_desc *hw;
 
 	/* Hopefully take the scanner out of transparent mode */
 	if (sanei_canon_pp_wake_scanner(sp->port, mode))
@@ -351,6 +379,7 @@ int sanei_canon_pp_initialise(scanner_parameters *sp, int mode)
 	DBG(50, "initialise: << scanner_init\n");
 
 	/* Read Device ID */
+	memset(sp->id_string, 0, sizeof sp->id_string);
 	if (send_command(sp->port, cmd_readid, 10, 10000, 100000))
 		return -1;
 	sanei_canon_pp_read(sp->port, 38, (unsigned char *)(sp->id_string));
@@ -369,88 +398,41 @@ int sanei_canon_pp_initialise(scanner_parameters *sp, int mode)
 	sp->scanheadwidth = (scanner_info[2] << 8) | scanner_info[3];
 
 	/* Set up various known values */
-	if (strncmp(&(sp->id_string[8]), ID_FB320P, sizeof(ID_FB320P)-3) == 0)
+	cur_id = scanner_id_table;
+	while (cur_id->id)
 	{
-		strcpy(sp->name, "FB320P");
-		sp->natural_xresolution = 2;	
-		sp->natural_yresolution = 2;	
-		sp->scanbedlength = 3508;
-		/* This bit probably needs fudging */
-		sp->scanheadwidth = 2552;
-		sp->type = 0;
+		if (!strncmp(sp->id_string+8, cur_id->id, strlen(cur_id->id)))
+			break;
+		cur_id++;
 	}
-	else if (strncmp(&(sp->id_string[8]), ID_FB330P, sizeof(ID_FB330P)-3)==0)
+
+	if (cur_id->id)
 	{
-		strcpy(sp->name, "FB330P");
-		sp->natural_xresolution = 2;	
-		sp->natural_yresolution = 2;	
-		sp->scanbedlength = 3508;
-		sp->type = 1;
+		hw = cur_id->hw;
 	}
-	else if (strncmp(&(sp->id_string[8]), ID_FB620P, sizeof(ID_FB620P)-3)==0)
+	else if (sp->scanheadwidth == 5104) 
 	{
-		strcpy(sp->name, "FB620P");
-		sp->natural_xresolution = 3;	
-		sp->natural_yresolution = 3;	
-		sp->scanbedlength = 7016;
-		/* This bit needs fudging */
-		sp->scanheadwidth = 5104;
-		sp->type = 0;
+		/* Guess 600dpi scanner */
+		hw = &hw_alien600;
 	}
-	else if (strncmp(&(sp->id_string[8]), ID_FB630P, sizeof(ID_FB630P)-3)==0)
+	else if (sp->scanheadwidth == 2552) 
 	{
-		strcpy(sp->name, "FB630P");
-		sp->natural_xresolution = 3;
-		sp->natural_yresolution = 3;
-		sp->scanbedlength = 7016;
-		sp->type = 1;
-	}
-	else if (strncmp(&(sp->id_string[8]), ID_N640P, sizeof(ID_N640P)-3) == 0)
-	{
-		strcpy(sp->name, "N640P");
-		sp->natural_xresolution = 3;	
-		sp->natural_yresolution = 3;	
-		sp->scanbedlength = 7016;
-		sp->type = 1;
-	}
-	else if (strncmp(&(sp->id_string[8]), ID_N340P, sizeof(ID_N340P)-3) == 0)
-	{
-		strcpy(sp->name, "N340P");
-		sp->natural_xresolution = 2;	
-		sp->natural_yresolution = 2;	
-		sp->scanbedlength = 3508;
-		sp->type = 1;
+		/* Guess 300dpi scanner */
+		hw = &hw_alien300;
 	}
 	else
 	{
-		if (sp->scanheadwidth == 5104) 
-		{
-			/* Guess 600dpi scanner */
-			strcpy(sp->name, "Unknown 600dpi");
-			sp->natural_xresolution = 3; 
-			sp->natural_yresolution = 3;	
-			sp->scanbedlength = 7016;
-			sp->type = 1;
-		}
-		else if (sp->scanheadwidth == 2552) 
-		{
-			/* Guess 300dpi scanner */
-			strcpy(sp->name, "Unknown 300dpi");
-			sp->natural_xresolution = 2; 
-			sp->natural_yresolution = 2;	
-			sp->scanbedlength = 3508;
-			sp->type = 1;
-		}
-		else
-		{
-			/* Guinea Pigs :) */
-			strcpy(sp->name, "Unknown (600dpi?)");
-			sp->natural_xresolution = 3; 
-			sp->natural_yresolution = 3;	
-			sp->scanbedlength = 7016;			
-			sp->type = 1;
-		}
+		/* Guinea Pigs :) */
+		hw = &hw_alien;
 	}
+
+	strcpy(sp->name, hw->name);
+	sp->natural_xresolution = hw->natural_xresolution;	
+	sp->natural_yresolution = hw->natural_yresolution;	
+	sp->scanbedlength = hw->scanbedlength;
+	if (hw->scanheadwidth)
+		sp->scanheadwidth = hw->scanheadwidth;
+	sp->type = hw->type;
 
 	return 0;	
 }

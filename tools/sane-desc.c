@@ -2,6 +2,7 @@
    sane-desc.c -- generate list of supported SANE devices
 
    Copyright (C) 2002-2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
+   Copyright (C) 2004 Jose Gato <jgato@gsyc.escet.urjc.es> (XML output)
 
    This file is part of the SANE package.
 
@@ -21,7 +22,7 @@
    MA 02111-1307, USA.
 */
 
-#define SANE_DESC_VERSION "2.4"
+#define SANE_DESC_VERSION "2.5"
 
 #define MAN_PAGE_LINK "http://www.sane-project.org/man/%s.5.html"
 #define COLOR_MINIMAL      "\"#B00000\""
@@ -162,7 +163,7 @@ typedef struct backend_entry
   struct backend_entry *next;
   char *name;
   char *version;
-  enum status_entry status; /* deprecated */
+  enum status_entry status;	/* deprecated */
   char *manpage;
   struct url_entry *url;
   char *comment;
@@ -309,7 +310,7 @@ get_options (int argc, char **argv)
 	      DBG_INFO ("Output mode: ascii\n");
 	      mode = output_mode_ascii;
 	    }
-	  else if (strcmp (optarg, "xml") ==0)
+	  else if (strcmp (optarg, "xml") == 0)
 	    {
 	      DBG_INFO ("Output mode: xml\n");
 	      mode = output_mode_xml;
@@ -596,21 +597,22 @@ read_files (void)
 	      type_entry *current_type = current_backend->type;
 	      while (current_type)
 		{
-		  if (current_type->type == type_scanner || 
+		  if (current_type->type == type_scanner ||
 		      current_type->type == type_stillcam ||
 		      current_type->type == type_vidcam)
 		    {
 		      mfg_entry *current_mfg = current_type->mfg;
-		      
+
 		      while (current_mfg)
 			{
 			  model_entry *current_model = current_mfg->model;
-			  
+
 			  while (current_model)
 			    {
 			      if (current_model->status == status_unknown)
-				DBG_WARN ("`%s' `%s' does not have a status\n", current_mfg->name,
-					  current_model->name);
+				DBG_WARN
+				  ("`%s' `%s' does not have a status\n",
+				   current_mfg->name, current_model->name);
 			      current_model = current_model->next;
 			    }
 			  current_mfg = current_mfg->next;
@@ -715,7 +717,8 @@ read_files (void)
 		      DBG_WARN ("overwriting version of backend `%s' to `%s'"
 				"(was: `%s')\n",
 				current_backend->name, string_entry,
-				current_backend->version, current_backend->version);
+				current_backend->version,
+				current_backend->version);
 		    }
 
 		  DBG_INFO ("setting version of backend `%s' to `%s'\n",
@@ -773,8 +776,9 @@ read_files (void)
 		    case level_model:
 		      if (current_model->status != status_unknown)
 			{
-			  DBG_WARN ("overwriting status of model `%s' (backend `%s')\n",
-				    current_model->name, current_backend->name);
+			  DBG_WARN
+			    ("overwriting status of model `%s' (backend `%s')\n",
+			     current_model->name, current_backend->name);
 			}
 		      if (strcmp (string_entry, ":alpha") == 0)
 			{
@@ -841,15 +845,18 @@ read_files (void)
 			}
 		      else
 			{
-			  DBG_ERR ("unknown status of model `%s': `%s' (backend `%s')\n",
-				   current_model->name, string_entry, current_backend->name);
+			  DBG_ERR
+			    ("unknown status of model `%s': `%s' (backend `%s')\n",
+			     current_model->name, string_entry,
+			     current_backend->name);
 			  current_model->status = status_untested;
 			  return SANE_FALSE;
 			}
 		      break;
 		    default:
-		      DBG_ERR ("level %d not implemented for :status (backend `%s')\n",
-			       current_level, current_backend->name);
+		      DBG_ERR
+			("level %d not implemented for :status (backend `%s')\n",
+			 current_level, current_backend->name);
 		      return SANE_FALSE;
 		    }
 
@@ -969,14 +976,16 @@ read_files (void)
 		{
 		  if (!current_type)
 		    {
-		      DBG_ERR ("use `:devicetype' keyword first (backend `%s')\n", 
-			       current_backend->name);
+		      DBG_ERR
+			("use `:devicetype' keyword first (backend `%s')\n",
+			 current_backend->name);
 		      return SANE_FALSE;
 		    }
 		  if (current_type->type < type_meta)
 		    {
-		      DBG_ERR ("use `:desc' for `:api' and `:meta' only (backend `%s')\n",
-			       current_backend->name);
+		      DBG_ERR
+			("use `:desc' for `:api' and `:meta' only (backend `%s')\n",
+			 current_backend->name);
 		      return SANE_FALSE;
 		    }
 
@@ -1009,14 +1018,16 @@ read_files (void)
 
 		  if (!current_type)
 		    {
-		      DBG_ERR ("use `:devicetype' keyword first (backend `%s')\n",
-			       current_backend->name);
+		      DBG_ERR
+			("use `:devicetype' keyword first (backend `%s')\n",
+			 current_backend->name);
 		      return SANE_FALSE;
 		    }
 		  if (current_type->type >= type_meta)
 		    {
-		      DBG_ERR ("use `:mfg' for hardware devices only (backend `%s')\n",
-			       current_backend->name);
+		      DBG_ERR
+			("use `:mfg' for hardware devices only (backend `%s')\n",
+			 current_backend->name);
 		      return SANE_FALSE;
 		    }
 
@@ -1054,8 +1065,9 @@ read_files (void)
 
 		  if (!current_type)
 		    {
-		      DBG_ERR ("use `:devicetype' keyword first (backend `%s')\n",
-			       current_backend->name);
+		      DBG_ERR
+			("use `:devicetype' keyword first (backend `%s')\n",
+			 current_backend->name);
 		      return SANE_FALSE;
 		    }
 		  if (current_level != level_mfg
@@ -1107,8 +1119,8 @@ read_files (void)
 		    {
 		      DBG_WARN ("overwriting `%s's interface of model "
 				"`%s' to `%s' (was: `%s')\n",
-				current_backend->name, current_model->name, string_entry,
-				current_model->interface);
+				current_backend->name, current_model->name,
+				string_entry, current_model->interface);
 		    }
 
 		  DBG_INFO ("setting interface of model `%s' to `%s'\n",
@@ -1149,8 +1161,9 @@ read_files (void)
 				"`%s'\n", string_entry, current_model->name);
 		      break;
 		    default:
-		      DBG_ERR ("level %d not implemented for :url (backend `%s')\n",
-			       current_level, current_backend->name);
+		      DBG_ERR
+			("level %d not implemented for :url (backend `%s')\n",
+			 current_level, current_backend->name);
 		      return SANE_FALSE;
 		    }
 		  continue;
@@ -1183,13 +1196,15 @@ read_files (void)
 				current_model->name, string_entry);
 		      break;
 		    default:
-		      DBG_ERR ("level %d not implemented for `:comment' (backend `%s')\n",
-			       current_level, current_backend->name);
+		      DBG_ERR
+			("level %d not implemented for `:comment' (backend `%s')\n",
+			 current_level, current_backend->name);
 		      return SANE_FALSE;
 		    }
 		  continue;
 		}
-	      DBG_ERR ("unknown keyword token in line `%s' of file `%s'\n", line, file_name);
+	      DBG_ERR ("unknown keyword token in line `%s' of file `%s'\n",
+		       line, file_name);
 	      return SANE_FALSE;
 	    }			/* while (sanei_config_readline) */
 	  fclose (fp);
@@ -1273,14 +1288,17 @@ update_model_record_list (model_record_entry * first_model_record,
 		  int old_priority = calc_priority (model_record->status);
 		  if (new_priority < old_priority)
 		    {
-		        DBG_DBG ("update_model_record_list: model %s ignored, backend %s has "
-				 "higher priority\n", model->name, model_record->be->name);
-			return first_model_record;
+		      DBG_DBG
+			("update_model_record_list: model %s ignored, backend %s has "
+			 "higher priority\n", model->name,
+			 model_record->be->name);
+		      return first_model_record;
 		    }
 		  if (new_priority > old_priority)
 		    {
-		      DBG_DBG ("update_model_record_list: model %s overrides the one from backend %s\n",
-			       model->name, model_record->be->name);
+		      DBG_DBG
+			("update_model_record_list: model %s overrides the one from backend %s\n",
+			 model->name, model_record->be->name);
 		      tmp_model_record = model_record->next;
 		    }
 		}
@@ -1615,89 +1633,139 @@ ascii_print_backends (void)
     }				/* while (be) */
 }
 
+
+static char *
+clean_string (char *c)
+{
+  /* not avoided characters */
+
+  char *aux;
+
+  aux = malloc (strlen (c) * sizeof (char) * 6);
+
+  *aux = '\0';
+
+  while (*c != '\0')
+    {
+
+      switch (*c)
+	{
+	case '<':
+	  aux = strcat (aux, "&lt;");
+	  break;
+	case '>':
+	  aux = strcat (aux, "&gt;");
+	  break;
+	case '¡':
+	  aux = strcat (aux, "!");
+	  break;
+	case '¿':
+	  aux = strcat (aux, "?");
+	  break;
+	case '\'':
+	  aux = strcat (aux, "&apos;");
+	  break;
+	case '&':
+	  aux = strcat (aux, "&amp;");
+	  break;
+	default:
+	  aux = strncat (aux, c, 1);
+	}
+      c = c + 1;
+    }
+  return aux;
+}
+
 /* Print an XML list with all the information we have */
-static void 
+static void
 xml_print_backends (void)
 {
   backend_entry *be;
 
   be = first_backend;
-  while (be) 
+  printf ("<backends>\n");
+  while (be)
     {
       url_entry *url = be->url;
       type_entry *type = be->type;
 
       if (be->name)
-	printf ("<backend name=\"%s\">\n",be->name);
+	printf ("<backend name=\"%s\">\n", clean_string (be->name));
       else
 	printf ("<backend name=\"*none\">\n");
 
       if (be->version)
-	printf ("<version>%s</version> \n", be->version);
+	printf ("<version>%s</version> \n", clean_string (be->version));
       else
 	printf ("<version>*none*</version>\n");
 
       if (be->new)
-	printf (" NEW!\n");
+	printf ("<new state=\"yes\"/>\n");
+      else
+	printf ("<new state=\"no\"/>\n");
+
 
       if (be->manpage)
-	printf (" <manpage>%s</manpage>\n", be->manpage);
+	printf (" <manpage>%s</manpage>\n", clean_string (be->manpage));
       else
 	printf (" <manpage>*none*</manpage>\n");
 
       if (url)
 	while (url)
 	  {
-	    printf (" <url>%s</url>\n", url->name);
+	    printf (" <url>%s</url>\n", clean_string (url->name));
 	    url = url->next;
 	  }
       else
 	printf (" <url>*none*</url>\n");
 
       if (be->comment)
-	printf (" <comment>%s</comment>\n", be->comment);
+	printf (" <comment>%s</comment>\n", clean_string (be->comment));
       else
 	printf (" <comment>*none*</comment>\n");
 
       if (type)
 	while (type)
 	  {
+
 	    switch (type->type)
 	      {
 	      case type_scanner:
-		printf (" <type>scanner</type>\n");
+		printf (" <type def=\"scanner\">\n");
 		break;
 	      case type_stillcam:
-		printf (" <type>stillcam</type>\n");
+		printf (" <type def=\"stillcam\">\n");
 		break;
 	      case type_vidcam:
-		printf (" <type>vidcam </type>\n");
+		printf (" <type def=\"vidcam\">\n");
 		break;
 	      case type_meta:
-		printf (" <type>meta</type>\n");
+		printf (" <type def=\"meta\">\n");
 		break;
 	      case type_api:
-		printf (" <type>api</type>\n");
+		printf (" <type def=\"api\">\n");
 		break;
 	      default:
-		printf (" <type> *unknown* </type>\n");
+		printf (" <type def=\"*unknown*\">\n");
 		break;
 	      }
 	    if (type->desc)
 	      {
 		url_entry *url = type->desc->url;
-		printf ("  <desc>%s</desc>\n", type->desc->desc);
+		printf ("   <desc>%s</desc>\n",
+			clean_string (type->desc->desc));
 		if (url)
 		  while (url)
 		    {
-		      printf ("  <url>%s</url>\n", url->name);
+		      printf ("   <url>%s</url>\n", clean_string (url->name));
 		      url = url->next;
 		    }
 		else
 		  printf ("   <url>*none*</url>\n");
 
 		if (type->desc->comment)
-		  printf ("   <comment>%s</comment>\n", type->desc->comment);
+		  printf ("   <comment>%s</comment>\n",
+			  clean_string (type->desc->comment));
 		else
 		  printf ("   <comment>*none*</comment>\n");
 	      }
@@ -1712,18 +1780,20 @@ xml_print_backends (void)
 		    model_entry *model = mfg->model;
 		    url_entry *url = mfg->url;
 
-		    printf (" <mfg name=\"%s\">\n", mfg->name);
+		    printf (" <mfg name=\"%s\">\n", clean_string (mfg->name));
 		    if (url)
 		      while (url)
 			{
-			  printf ("  <url>`%s'</url>\n", url->name);
+			  printf ("  <url>`%s'</url>\n",
+				  clean_string (url->name));
 			  url = url->next;
 			}
 		    else
 		      printf ("  <url>*none*</url>\n");
 
 		    if (mfg->comment)
-		      printf ("  <comment>%s</comment>\n", mfg->comment);
+		      printf ("  <comment>%s</comment>\n",
+			      clean_string (mfg->comment));
 		    else
 		      printf ("  <comment>*none*</comment>\n");
 
@@ -1731,9 +1801,11 @@ xml_print_backends (void)
 		      while (model)
 			{
 			  url_entry *url = model->url;
-			  printf ("   <model name=\"%s\">\n", model->name);
+			  printf ("   <model name=\"%s\">\n",
+				  clean_string (model->name));
 			  if (model->interface)
-			    printf ("    <interface>%s</interface>\n", model->interface);
+			    printf ("    <interface>%s</interface>\n",
+				    clean_string (model->interface));
 			  else
 			    printf ("    <interface>*none*</interface>\n");
 
@@ -1767,39 +1839,42 @@ xml_print_backends (void)
 			  if (url)
 			    while (url)
 			      {
-				printf ("    <url>%s</url>\n", url->name);
+				printf ("    <url>%s</url>\n",
+					clean_string (url->name));
 				url = url->next;
 			      }
 			  else
 			    printf ("    <url>*none*</url>\n");
 
 			  if (model->comment)
-			    printf ("    <comment>%s</comment>\n", model->comment);
+			    printf ("    <comment>%s</comment>\n",
+				    clean_string (model->comment));
 			  else
 			    printf ("    <comment>*none*</comment>\n");
 
 			  model = model->next;
-			  printf("   </model>\n");
-			} /* while (model) */
+			  printf ("   </model>\n");
+			}	/* while (model) */
 		    else
 		      printf ("   <model name=\"*none*\" />\n");
 
-		    printf(" </mfg>\n");
+		    printf (" </mfg>\n");
 		    mfg = mfg->next;
 		  }		/* while (mfg) */
 	      }
 	    else if (type->type < type_meta)
 	      printf ("  <mfg>*none*</mfg>\n");
 	    type = type->next;
+	    printf (" </type>\n");
 	  }			/* while (type) */
       else
 	printf (" <type>*none*</type>\n");
-      printf("</backend>\n");
+      printf ("</backend>\n");
       be = be->next;
 
     }				/* while (be) */
+  printf ("</backends>\n");
 }
-
 
 
 /* Generate a name used for <a name=...> HTML tags */
@@ -1818,15 +1893,27 @@ html_generate_anchor_name (device_type dev_type, char *manufacturer_name)
 
   switch (dev_type)
     {
-    case type_scanner: type_char ='S'; break;
-    case type_stillcam: type_char ='C'; break;
-    case type_vidcam: type_char ='V'; break;
-    case type_meta: type_char ='M'; break;
-    case type_api: type_char ='A'; break;
-    default: type_char ='Z'; break;
+    case type_scanner:
+      type_char = 'S';
+      break;
+    case type_stillcam:
+      type_char = 'C';
+      break;
+    case type_vidcam:
+      type_char = 'V';
+      break;
+    case type_meta:
+      type_char = 'M';
+      break;
+    case type_api:
+      type_char = 'A';
+      break;
+    default:
+      type_char = 'Z';
+      break;
     }
 
-  snprintf (name, strlen (manufacturer_name) + 1 + 2, "%c-%s", 
+  snprintf (name, strlen (manufacturer_name) + 1 + 2, "%c-%s",
 	    type_char, manufacturer_name);
 
   while (*pointer)
@@ -1890,7 +1977,8 @@ html_backends_split_table (device_type dev_type)
 	      model_entry *model;
 
 	      printf ("<h3><a name=\"%s\">Backend: %s\n",
-		      html_generate_anchor_name (type->type, be->name), be->name);
+		      html_generate_anchor_name (type->type, be->name),
+		      be->name);
 
 	      if (be->version || be->new)
 		{
@@ -2012,7 +2100,7 @@ html_backends_split_table (device_type dev_type)
 
 			  printf ("<td align=center>");
 			  if (status == status_unknown)
-			      status = be->status;
+			    status = be->status;
 			  switch (status)
 			    {
 			    case status_minimal:
@@ -2062,7 +2150,7 @@ html_backends_split_table (device_type dev_type)
 	}			/* while (type) */
       be = be->next;
     }				/* while (be) */
-  /*  printf ("</table>\n");*/
+  /*  printf ("</table>\n"); */
 }
 
 /* Generate one table per manufacturer constructed of all backends */
@@ -2081,7 +2169,8 @@ html_mfgs_table (device_type dev_type)
       if (mfg_record != first_mfg_record)
 	printf (", \n");
       printf ("<a href=\"#%s\">%s</a>",
-	      html_generate_anchor_name (type_unknown, mfg_record->name), mfg_record->name);
+	      html_generate_anchor_name (type_unknown, mfg_record->name),
+	      mfg_record->name);
       mfg_record = mfg_record->next;
     }
   mfg_record = first_mfg_record;
@@ -2093,7 +2182,8 @@ html_mfgs_table (device_type dev_type)
       model_record_entry *model_record = mfg_record->model_record;
 
       printf ("<h3><a name=\"%s\">Manufacturer: %s</a></h3>\n",
-	      html_generate_anchor_name (type_unknown, mfg_record->name), mfg_record->name);
+	      html_generate_anchor_name (type_unknown, mfg_record->name),
+	      mfg_record->name);
       printf ("<p>\n");
       if (mfg_record->url && mfg_record->url->name)
 	{
@@ -2144,10 +2234,10 @@ html_mfgs_table (device_type dev_type)
 	    printf ("<td align=center>?</td>\n");
 
 	  printf ("<td align=center>");
-	  
+
 	  if (status == status_unknown)
 	    status = model_record->be->status;
-	  
+
 	  switch (status)
 	    {
 	    case status_minimal:
@@ -2265,8 +2355,7 @@ html_print_footer (void)
      "<a href=\"http://www.sane-project.org/\">SANE homepage</a>\n"
      "<address>\n"
      "<a href=\"http://www.sane-project.org/imprint.html\"\n"
-     ">Contact</a>\n"
-     "</address>\n" "<font size=-1>\n");
+     ">Contact</a>\n" "</address>\n" "<font size=-1>\n");
   printf ("This page was last updated on %s\n",
 	  asctime (localtime (&current_time)));
   printf ("</font>\n");
@@ -2287,8 +2376,7 @@ html_print_legend_backend (void)
      "      current release of SANE.<br>\n"
      "      UNMAINTAINED means that nobody maintains that backend. Expect no \n"
      "      new features or newly supported devices. You are welcome to take over \n"
-     "      maintainership.\n"
-     "  </dd>\n");
+     "      maintainership.\n" "  </dd>\n");
 }
 
 static void
@@ -2330,16 +2418,15 @@ static void
 html_print_legend_model (void)
 {
   printf
-    ("  <dt><b>Model:</b></dt>\n"
-     "  <dd>Name of the the device.</dd>\n");
+    ("  <dt><b>Model:</b></dt>\n" "  <dd>Name of the the device.</dd>\n");
 }
 
 static void
 html_print_legend_interface (void)
 {
   printf
-     ("  <dt><b>Interface:</b></dt>\n"
-      "  <dd>How the device is connected to the computer.</dd>\n");
+    ("  <dt><b>Interface:</b></dt>\n"
+     "  <dd>How the device is connected to the computer.</dd>\n");
 }
 
 static void
@@ -2362,11 +2449,12 @@ html_print_legend_status (void)
   printf
     ("      <li><font color=" COLOR_BASIC ">basic</font> means it works at \n"
      "        least in the most important modes but quality is not perfect.\n"
-     "      <li><font color=" COLOR_GOOD ">good</font> means the device is usable \n"
+     "      <li><font color=" COLOR_GOOD
+     ">good</font> means the device is usable \n"
      "        for day-to-day work. Some rather exotic features may be missing.\n"
-     "      <li><font color=" COLOR_COMPLETE ">complete</font> means the backends \n"
-     "        supports everything the device can do.\n"
-     "      </ul></dd>\n");
+     "      <li><font color=" COLOR_COMPLETE
+     ">complete</font> means the backends \n"
+     "        supports everything the device can do.\n" "      </ul></dd>\n");
 }
 
 static void
@@ -2405,8 +2493,7 @@ html_print_backends_split (void)
   printf ("<h2><a name=\"META\">Meta Backends</a></h2>\n");
   html_backends_split_table (type_meta);
 
-  printf ("<h3><a name=\"legend\">Legend:</a></h3>\n"
-	  "<blockquote><dl>\n");
+  printf ("<h3><a name=\"legend\">Legend:</a></h3>\n" "<blockquote><dl>\n");
 
   html_print_legend_backend ();
   html_print_legend_link ();
@@ -2452,9 +2539,7 @@ html_print_mfgs (void)
   html_backends_split_table (type_meta);
 
   printf
-    ("<h3><a name=\"legend\">Legend:</a></h3>\n"
-     "<blockquote>\n"
-     "<dl>\n");
+    ("<h3><a name=\"legend\">Legend:</a></h3>\n" "<blockquote>\n" "<dl>\n");
 
   html_print_legend_model ();
   html_print_legend_interface ();
@@ -2466,7 +2551,7 @@ html_print_mfgs (void)
   html_print_legend_manufacturer ();
   html_print_legend_description ();
 
-  printf("</dl>\n" "</blockquote>\n");
+  printf ("</dl>\n" "</blockquote>\n");
 
   html_print_footer ();
 }
@@ -2491,7 +2576,7 @@ main (int argc, char **argv)
       ascii_print_backends ();
       break;
     case output_mode_xml:
-      xml_print_backends();
+      xml_print_backends ();
       break;
     case output_mode_html_backends_split:
       html_print_backends_split ();

@@ -5,6 +5,8 @@
 	  status as we don't have confirmation that the backend actually
 	  works.
 	* tools/hotplug/libsane.usermap: Added Mustek ScanExpress 1248UB.
+	* tools/sane-desc.c: XML mode updates (patch from Jose Gato
+	  <jgato@gsyc.escet.urjc.es>).
 
 2004-07-05  Gerhard Jaeger <gerhard@gjaeger.de>
 	* doc/descriptions/plustek.desc: Changed status of CanoScan D660U.

@@ -1517,8 +1517,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_GAMMA_VECTOR_R:
 	case OPT_GAMMA_VECTOR_G:
 	case OPT_GAMMA_VECTOR_B:
-	  DBG (DBG_proc, "DEBUG: memcpy %p %p %d\n", val, dev->val[option].wa,
-	       dev->opt[option].size);
 	  memcpy (val, dev->val[option].wa, dev->opt[option].size);
 	  return SANE_STATUS_GOOD;
 

@@ -1,3 +1,8 @@
+2002-04-13  Karl Heinz Kremer <khk@khk.net>
+
+	* backend/epson.[ch]: Added new product IDs for Perfection 1650 and
+	  2450. Check if scanner needs to be opened for the reset() call.
+
 2002-04-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/canon630u-common.c: Added #include <sys/types.h> to

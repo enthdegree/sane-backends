@@ -1,4 +1,4 @@
-TODO (2001-10-26)
+TODO (2001-10-28)
 
 ******** todo ********
 
@@ -61,7 +61,7 @@ backends
   * v4l: Problems (crash) with more than one video card. It looks like 
     the two different cards are identified as the same card.
 
-  * Fix backends where sane_exit() do not release memory allocated by
+  * Fix backends where sane_exit() does not release memory allocated by
     sane_get_devices().
       - abaton
       - agfafocus
@@ -105,10 +105,6 @@ doc
 
   * Update backend manpages
 
-  * Use @LIBDIR@, @CONFIGDIR@ and the other @@ macros to refer to paths.
-    These are updated when installing to a non-standard prefix.
-    - umax
- 
 frontends
 ---------
   * dll: Rewrite to use libtool ltdl library
@@ -123,6 +119,10 @@ sanei
 -----
   * SCSI access doesn't seem to work on Linux/Sparc. See emails from
     Tomislav Renic on sane-devel (2001-09-21).
+
+  * sanei_scsi: Check return values of req_wait and cmd in case of
+    SCSI DEVICE BUSY. Better specification of the behaviour of sanei_scsi
+    functions (e.g. return values, timeout 10 min versus 1 min)?
 
   * sanei_usb: Add sanei_usb_write_control or similar. At least the Linux
     USB scanner driver allows to send control messages since kernel 2.4.13.
@@ -159,6 +159,8 @@ misc
   * Add installation procedure for translations of SANE backend's options.
 
 ******** done ********
+* Use @LIBDIR@, @CONFIGDIR@ and the other @@ macros to refer to paths.
+  These are updated when installing to a non-standard prefix.
 * net: cancel doesn't work over the net at least with pnm and mustek.
 * add Jochen Eisinger's net.c and sanei_wire.c fixes/additions.
 * net.c: don't just ignore the byte-order for the image data (needed to

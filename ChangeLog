@@ -1,3 +1,7 @@
+2002-07-23  Peter Fales <peter@fales-lorenz.net>
+
+	* doc/descriptions/gphoto2.desc:  Comment out :interface line
+
 2002-07-23  Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* doc/descriptions/umax_pp.desc: tagged 610P as unsupported

@@ -44,12 +44,8 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-   
-#ifdef NEED_STRINGS_H
-# include <strings.h>
-#else
-# include <string.h>
-#endif
+
+#include <string.h>
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -193,15 +189,28 @@ sanei_authorize (const char *resource,
   while (sanei_config_read (line, 1024, passwd_file))
     {
 
-      if (strncmp (line, resource, strlen (resource)) == 0)
-	{
+      if ((strlen (line) > 0) && (line[strlen (line) - 1] == '\n'))
+	line[strlen (line) - 1] = '\n';
 
-	  if (((index (line, ':')) - line) == (signed) strlen (resource))
+      if ((strlen (line) > 0) && (line[strlen (line) - 1] == '\r'))
+	line[strlen (line) - 1] = '\r';
+
+      if (strchr (line, ':') != NULL)
+	{
+	  if (strchr (strchr (line, ':') + 1, ':') != NULL)
 	    {
 
-	      entry_found = SANE_TRUE;
-	      break;
+	      if (strcmp (strchr (strchr (line, ':') + 1, ':') + 1, resource)
+		  == 0)
 
+		{
+
+
+
+		  entry_found = SANE_TRUE;
+		  break;
+
+		}
 	    }
 
 	}
@@ -238,34 +247,35 @@ sanei_authorize (const char *resource,
   while (sanei_config_read (line, 1024, passwd_file))
     {
 
+      if ((strlen (line) > 0) && (line[strlen (line) - 1] == '\n'))
+	line[strlen (line) - 1] = '\n';
 
-      if ((strncmp (line, resource, strlen (resource)) == 0) &&
-	  (((index (line, ':')) - line) == (signed) strlen (resource)))
+      if ((strlen (line) > 0) && (line[strlen (line) - 1] == '\r'))
+	line[strlen (line) - 1] = '\r';
+
+
+      if ((strncmp (line, username, strlen (username)) == 0) &&
+	  (((strchr (line, ':')) - line) == (signed) strlen (username)))
 	{
 
-	  linep = index (line, ':') + 1;
+	  linep = strchr (line, ':') + 1;
 
-	  if ((strncmp (linep, username, strlen (username)) == 0) &&
-	      (((index (linep, ':')) - linep) == (signed) strlen (username)))
+	  if ((strchr (linep, ':') != NULL)
+	      && (strcmp (strchr (linep, ':') + 1, resource) == 0))
 	    {
 
-	      linep = index (linep, ':') + 1;
+	      *(strchr (linep, ':')) = 0;
 
-	      if (strlen (linep) > 127)
-		DBG (1, "%s contains invalid entries...\n", passwd_filename);
-	      else
+
+	      if (check_passwd (password, linep, md5resource, username))
 		{
-
-		  if (check_passwd (password, linep, md5resource, username))
-		    {
-		      fclose (passwd_file);
-		      DBG (2, "authorization succeeded\n");
-		      return SANE_STATUS_GOOD;
-		    }
+		  fclose (passwd_file);
+		  DBG (2, "authorization succeeded\n");
+		  return SANE_STATUS_GOOD;
 		}
 	    }
-
 	}
+
 
     }
 

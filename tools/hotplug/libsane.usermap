@@ -1,0 +1,14 @@
+# This file is part of sane-backends.
+#
+# The entries below are used to detect a USB scanner when it's plugged in
+# and then run the libusbscanner script to change the ownership and
+# permissions on the "device node" used by libusb.
+#
+# The 0x0003 match flag means the device is matched by its vendor and
+# product IDs.
+#
+# Sample entry (replace 0xVVVV and 0xPPPP with vendor ID and product ID respectively) :
+# libusbscanner      0x0003      0xVVVV   0xPPPP    0x0000       0x0000       0x00         0x00            0x00            0x00            0x00               0x00               0x00000000
+#
+# usb module         match_flags idVendor idProduct bcdDevice_lo bcdDevice_hi bDeviceClass bDeviceSubClass bDeviceProtocol bInterfaceClass bInterfaceSubClass bInterfaceProtocol driver_info
+#

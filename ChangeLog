@@ -1,3 +1,8 @@
+2004-02-28  Julien Blache <jb@jblache.org>
+	* tools/hotplug: added the hotplug script used by the Debian
+	package, with a quick README.
+	* tools/README: updated to mention the hotplug/ directory.
+
 2004-02-27  Matthew Duggan <stauff1@users.sourceforge.net>
 
 	* backend/canon_pp.c: Add more debug output to help resolve bug #300524

@@ -1,0 +1,25 @@
+README for the hotplug scripts for sane-backends :
+--------------------------------------------------
+
+If you intend to use a USB scanner with libusb, you should install the hotplug
+package, and then take the following steps :
+  o copy the libsane.usermap and libusbscanner files from this directory to
+    /etc/hotplug/usb/
+  o add scanner to /etc/hotplug/blacklist so that the scanner.o kernel driver
+    won't be loaded by hotplug.
+  o edit /etc/hotplug/usb/libsane.usermap, and add a line similar to the one
+    given at the top of the file, replacing 0xVVVV and 0xPPPP with the vendor ID
+    and the product ID of your scanner, respectively.
+
+The vendor ID and product ID of your scanner can be obtained by running
+sane-find-scanner (you might need to run it as root).
+
+Please note that the scanner.o (or scanner.ko in Linux 2.6) kernel module is
+now deprecated and marked as obsolete in Linux 2.6. It is recommended to switch
+to libusb.
+
+If the hotplug support doesn't work for you once you have taken the steps
+described above, check that your kernel has been built with hotplug support.
+Otherwise, you'll need to rebuild your kernel.
+
+ -- Julien BLACHE <jb@jblache.org>, Sat, 28 Feb 2004 10:01:02 +0000

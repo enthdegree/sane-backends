@@ -1,6 +1,11 @@
-2003-06-18
+2004-02-28
 
 This directory contains various tools that may be useful:
+
+ hotplug/:
+        hotplug script and config file used to change the persmissions
+        on the libusb "device nodes" when a scanner is plugged in.
+        Please read the README file in this directory for instructions.
 
  sane-find-scanner:
         Attempts to find a SCSI scanner attached to your system.

@@ -1,6 +1,9 @@
 2004-04-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* japi/.cvsignore: Updated.
+	* japi/Jscanimage.java japi/Sane.c: Fixes from  David Neary
+	  <David@phenix.fr> to make japi work with current jdks. More
+	  work and documentation is still needed.
 
 2004-04-10  Jochen Eisinger <jochen@penguin-breeder.org>
 

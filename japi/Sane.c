@@ -265,7 +265,7 @@ JNIEXPORT void JNICALL Java_Sane_getOptionNative
 		}
 	else if (sopt->constraint_type == SANE_CONSTRAINT_STRING_LIST)
 		{
-		jclass stringClass = (*env)->FindClass(env, "String");
+		jclass stringClass = (*env)->FindClass(env, "java/lang/String");
 		jobjectArray stringList;
 		int len;		/* Gets # elements */
 		int i;

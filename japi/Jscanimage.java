@@ -53,19 +53,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.NumberFormat;
-import com.sun.java.swing.ImageIcon;
-import com.sun.java.swing.JPanel;
-import com.sun.java.swing.JCheckBox;
-import com.sun.java.swing.JComboBox;
-import com.sun.java.swing.JLabel;
-import com.sun.java.swing.JButton;
-import com.sun.java.swing.JSlider;
-import com.sun.java.swing.JTextField;
-import com.sun.java.swing.SwingConstants;
-import com.sun.java.swing.border.BevelBorder;
-import com.sun.java.swing.border.TitledBorder;
-import com.sun.java.swing.event.ChangeEvent;
-import com.sun.java.swing.event.ChangeListener;
+import javax.swing.*;
+import javax.swing.border.*;
+import javax.swing.event.*;
 
 /*
  *	Main program.
@@ -292,7 +282,8 @@ public class Jscanimage extends Frame implements WindowListener,
 			c.gridwidth = GridBagConstraints.REMAINDER;
 			c.fill = GridBagConstraints.NONE;
 			c.anchor = GridBagConstraints.WEST;
-			group.add(cbox, c);
+			if (group != null)
+				group.add(cbox, c);
 			addControl(cbox);
 			break;
 		case SaneOption.TYPE_FIXED:

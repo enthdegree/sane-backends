@@ -140,7 +140,7 @@ static void
 reset_watchdog (void)
 {
   if (!debug)
-    alarm (300);
+    alarm (3600);
 }
 
 static void

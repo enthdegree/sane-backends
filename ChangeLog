@@ -1,3 +1,9 @@
+2002-05-05  Andras Major <andras@users.sourceforge.net>
+
+	* backend/coolscan2.c: version number replaces "CVS"
+	* doc/coolscan2.man doc/descriptions/coolscan2.desc: added
+	  man page for coolscan2.
+
 2002-05-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/test.c doc/descriptions/test.desc: Check return value

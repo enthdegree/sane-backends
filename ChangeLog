@@ -1,8 +1,13 @@
+2003-11-20  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* doc/descriptions/snapscan.desc: Added model "SnapScan"
+	  (Bugtrack #300286)
+
 2003-11-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* po/sane-backends.sv.po: Updated Swedish translation (from 
+	* po/sane-backends.sv.po: Updated Swedish translation (from
 	  Mattias Ellert <mattias.ellert@tsl.uu.se>).
-	
+
 2003-11-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* configure configure.in acinclude.m4 aclocal.m4: Changed check for

@@ -25,7 +25,11 @@
 :mfg "AGFA"				; name a manufacturer
 :url "http://www.agfa.com/"
 
-:model "SnapScan 300"                  	; name models for above-specified mfg.
+:model "SnapScan"                  	; name models for above-specified mfg.
+:interface "SCSI"
+:status :good
+
+:model "SnapScan 300"
 :interface "SCSI"
 :status :good
 

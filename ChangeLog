@@ -1,5 +1,8 @@
 2001-05-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* configure configure.in: Don't use -ansi for Solaris. On some
+	  Solaris installations compilation breaks with -ansi.
+
 	* doc/Makefile.in tools/sane-desc.el doc/.cvsignore: Install
 	  sane.ps and sane.dvi if latex/makeindex/dvips is available.
 	  Generate sane-backends.html in doc/. New target: 

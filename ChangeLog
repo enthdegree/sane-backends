@@ -1,3 +1,8 @@
+2003-11-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/Makefile.in: sanei_pp must be linked if we preload
+	  backends. 
+
 ---- FEATURE FREEZE FOR SANE 1.0.13 ---
 -- snapshot 1.0.12-pre2
 

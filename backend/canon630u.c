@@ -154,7 +154,7 @@ done only once, at first scan after powerup.
 static SANE_Word optionCalibrateValue = SANE_FALSE;
 
 static SANE_Option_Descriptor optionCalibrateDescriptor = {
-  SANE_I18N ("cal"),
+  "cal",
   SANE_I18N ("Calibrate Scanner"),
   SANE_I18N ("Force scanner calibration before scan"),
   SANE_TYPE_BOOL,
@@ -254,7 +254,7 @@ This option lets the user select a gray scale scan
 static SANE_Word optionGrayscaleValue = SANE_FALSE;
 
 static SANE_Option_Descriptor optionGrayscaleDescriptor = {
-  SANE_I18N ("gray"),
+  "gray",
   SANE_I18N ("Grayscale scan"),
   SANE_I18N ("Do a grayscale rather than color scan"),
   SANE_TYPE_BOOL,
@@ -301,7 +301,7 @@ static const SANE_Range aGainRange = {
 static SANE_Int optionAGainValue = 1;
 
 static SANE_Option_Descriptor optionAGainDescriptor = {
-  SANE_I18N ("gain"),
+  "gain",
   SANE_I18N ("Analog Gain"),
   SANE_I18N ("Increase or decrease the analog gain of the CCD array"),
   SANE_TYPE_INT,
@@ -342,7 +342,7 @@ optionAGainCallback (SANE_Option * option, SANE_Handle handle,
 static SANE_Fixed optionGammaValue = SANE_FIX (1.6);
 
 static SANE_Option_Descriptor optionGammaDescriptor = {
-  SANE_I18N ("gamma"),
+  "gamma",
   SANE_I18N ("Gamma Correction"),
   SANE_I18N ("Selects the gamma corrected transfer curve"),
   SANE_TYPE_FIXED,

@@ -234,6 +234,8 @@ struct GT68xx_Command_Set
    */
   /*@{ */
 
+  SANE_Byte request_type;		/**< Request type (should be 0x40, vendor spec) */
+  SANE_Byte request;			/**< Vendor spec resquest (0x01 or 0x04) */
   SANE_Word memory_read_value;		/**< Memory read - wValue */
   SANE_Word memory_write_value;		/**< Memory write - wValue */
   SANE_Word send_cmd_value;		/**< Send normal command - wValue */

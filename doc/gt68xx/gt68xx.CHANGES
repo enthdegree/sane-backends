@@ -1,5 +1,11 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0-41 (2003-02-27)
+
+- Added Genius Colorpage Vivid3xe.
+- Added request_type and request fields to the command set. Request is 0x01
+  or 0x04.
+
 V 1.0-40 (2003-02-22)
 
 - Added vid/pid 0x07b3/0x0400 to gt68xx.conf also

@@ -499,6 +499,7 @@ gt68xx_device_memory_read (GT68xx_Device * dev,
 
 static SANE_Status
 gt68xx_device_generic_req (GT68xx_Device * dev,
+			   SANE_Byte request_type, SANE_Word request,
 			   SANE_Word cmd_value, SANE_Word cmd_index,
 			   SANE_Word res_value, SANE_Word res_index,
 			   GT68xx_Packet cmd, GT68xx_Packet res)
@@ -510,7 +511,7 @@ gt68xx_device_generic_req (GT68xx_Device * dev,
   CHECK_DEV_ACTIVE (dev, "gt68xx_device_generic_req");
 
   status = sanei_usb_control_msg (dev->fd,
-				  0x40, 0x01, cmd_value, cmd_index,
+				  request_type, request, cmd_value, cmd_index,
 				  GT68XX_PACKET_SIZE, cmd);
   if (status != SANE_STATUS_GOOD)
     {
@@ -522,7 +523,7 @@ gt68xx_device_generic_req (GT68xx_Device * dev,
   memset (res, 0, sizeof (GT68xx_Packet));
 
   status = sanei_usb_control_msg (dev->fd,
-				  0xc0, 0x01, res_value, res_index,
+				  request_type | 0x80, request, res_value, res_index,
 				  GT68XX_PACKET_SIZE, res);
   if (status != SANE_STATUS_GOOD)
     {
@@ -540,6 +541,8 @@ gt68xx_device_req (GT68xx_Device * dev, GT68xx_Packet cmd, GT68xx_Packet res)
 {
   GT68xx_Command_Set *command_set = dev->model->command_set;
   return gt68xx_device_generic_req (dev,
+				    command_set->request_type,
+				    command_set->request,
 				    command_set->send_cmd_value,
 				    command_set->send_cmd_index,
 				    command_set->recv_res_value,
@@ -558,6 +561,8 @@ gt68xx_device_small_req (GT68xx_Device * dev, GT68xx_Packet cmd,
     memcpy (fixed_cmd + i * 8, cmd, 8);
 
   return gt68xx_device_generic_req (dev,
+				    command_set->request_type,
+				    command_set->request,
 				    command_set->send_small_cmd_value,
 				    command_set->send_small_cmd_index,
 				    command_set->recv_small_res_value,

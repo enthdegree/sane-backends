@@ -3,7 +3,9 @@
 	* backend/umax1220u.desc: New file (from Marcio Luis Teixeira
 	  <marciot@holly.colostate.edu>).
 	* PROJECTS: Updated Winsane address.
-
+	* TODO: Added net/saned and .desc file entries. Removed scanimage/adf
+	  extention entry.
+	
 2001-09-18  Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c backend/umax_pp.desc:

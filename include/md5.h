@@ -83,8 +83,8 @@ typedef unsigned long int md5_uintptr;
 
 #define __md5_buffer md5_buffer
 
-#if defined __GNUC__ && defined __attribute__
-#define ALIGN __attribute__ ((__aligned__ (__alignof__ (md5_uint32))))
+#if defined __GNUC__
+#define ALIGN __attribute__ ((__aligned__ (4)))
 #else
 #define ALIGN
 #endif 

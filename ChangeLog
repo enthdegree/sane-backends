@@ -1,6 +1,7 @@
 2003-05-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* include/md5.h: Check for __attribute__ explicitely.
+	* include/md5.h: Set fixed alignment because otherwise the MacOS X
+	  gcc doesn't like it.
 	* backend/ibm.c backend/ibm-scsi.c doc/descriptions/ibm.desc:
 	  Disabled object_position. That should fix the Ricoh IS-420.
 

@@ -18,103 +18,138 @@
 
 :mfg "Mustek"			; name a manufacturer
 :url "http://www.mustek.com/"
-:url "http://www.mustek.tw/"
+:url "http://www.mustek.com.tw/"
 :url "http://www.mustek.de/"
 
 :model "Paragon MFS-6000CX"
 :interface "SCSI"
 :comment "3-pass"
 :status :stable
+
 :model "Paragon MFS-12000CX"
 :interface "SCSI"
 :comment "3-pass"
 :status :stable
+
 :model "Paragon MFC-600S"
 :interface "SCSI"
 :status :stable
+
 :model "Paragon 600 II CD"
 :interface "SCSI"
 :status :stable
+
 :model "ScanMagic 600 II SP"
 :interface "SCSI"
 :status :stable
+
 :model "Paragon MFC-800S"
 :interface "SCSI"
 :status :stable
+
 :model "Paragon 800 II SP"
 :interface "SCSI"
 :status :stable
+
 :model "Paragon MFS-6000SP"
 :interface "SCSI"
 :status :stable
+
 :model "Paragon MFS-8000SP"
 :interface "SCSI"
 :status :stable
+
 :model "Paragon MFS-1200SP"
 :interface "SCSI"
 :status :stable
+
 :model "Paragon MFS-12000SP"
 :interface "SCSI"
 :status :stable
+
 :model "ScanExpress 6000SP"
 :interface "SCSI"
 :status :stable
+
 :model "ScanExpress 12000SP"
 :interface "SCSI"
 :status :stable
+
 :model "ScanExpress 12000SP Plus"
 :interface "SCSI"
 :status :stable
+
 :model "Paragon 1200 III SP"
 :interface "SCSI"
 :status :stable
+
 :model "Paragon 1200 LS"
 :interface "SCSI"
 :status :stable
+
 :model "ScanMagic 9636S"
 :interface "SCSI"
 :status :stable
+
 :model "ScanMagic 9636S Plus"
 :interface "SCSI"
 :status :stable
+
 :model "ScanExpress A3 SP"
 :interface "SCSI"
 :comment "Please test!"
 :status :beta
+
 :model "Paragon 1200 SP Pro"
 :interface "SCSI"
 :status :stable
+
 :model "Paragon 1200 A3 Pro"
 :interface "SCSI"
 :comment "Please test!"
 :status :beta
+
 :model "Paragon 600 II N"
 :interface "Proprietary"
 :status :stable
 
+
 :mfg "Trust"			; name a manufacturer
 :url "http://www.trust-site.com"
+:comment "Carefully check the model names. Trust uses similar names for completely different hardware."
+
 :model "Imagery 1200"
 :interface "SCSI"
-:comment "3-pass"
 :status :stable
+:comment "3-pass, Mustek Paragon MFS-6000CX compatible"
+
 :model "Imagery 1200 SP"
 :interface "SCSI"
+:status :stable
+:comment "Mustek Paragon MFS-6000SP compatible"
+
 :model "Imagery 4800 SP"
 :interface "SCSI"
 :status :stable
+:comment "Mustek Paragon 500 II CD compatible"
+
 :model "SCSI Connect 19200"
 :interface "SCSI"
 :status :stable
+:comment "Mustek ScanExpress 12000SP compatible"
+
 :model "SCSI excellence series 19200"
 :interface "SCSI"
 :status :stable
+:comment "Mustek ScanExpress 12000SP compatible"
+
 
 :mfg "Primax"			; name a manufacturer
-:url "http://www.primax.nl"
+:url "http://www.primax.nl/"
 :model "Compact 4800 SCSI"
 :interface "SCSI"
-:status :stable
+:status :untested
+:comment "Probably Mustek 600 II CD compatible"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

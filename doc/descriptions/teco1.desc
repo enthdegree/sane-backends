@@ -11,9 +11,8 @@
 
 :backend "teco1"                  ; name of backend
 :version "1.0-9"                  ; version of backend
-:status :beta                     ; :alpha, :beta, :stable, :new
 :manpage "sane-teco1"             ; name of manpage (if it exists)
-:url "http://fz.eryx.net/sane/#teco"    ; backend's web page
+:url "http://zago.net/sane/#teco"    ; backend's web page
 
 :devicetype :scanner              ; start of a list of devices....
                                   ; other types:  :stillcam, :vidcam,
@@ -26,17 +25,17 @@
 :model "RELI 2412"
 :interface "SCSI"
 :comment "sub model VM3530+"
-:status :stable
+:status :complete
 
 :model "AVEC 2400"
 :interface "SCSI"
 :comment "sub model VM3520"
-:status :stable
+:status :complete
 
 :model "RELI 4830"
 :interface "SCSI"
 :comment "sub model VM4542"
-:status :beta
+:status :good
 
 :model "AVEC 2412"
 :comment "sub model VM3520+"
@@ -104,7 +103,7 @@
 :model "DF-600P"
 :comment "sub model VM3510"
 :interface "SCSI"
-:status :beta
+:status :good
 
 :model "DF-1200T+"
 :comment "sub model VM3530+"

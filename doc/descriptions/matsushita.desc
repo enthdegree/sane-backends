@@ -11,9 +11,8 @@
 
 :backend "matsushita"             ; name of backend
 :version "1.0-6"                  ; version of backend
-:status :stable                   ; :alpha, :beta, :stable
 :manpage "sane-matsushita"        ; name of manpage
-:url "http://fz.eryx.net/sane"    ; backend's web page
+:url "http://zago.net/sane"    ; backend's web page
 
 :devicetype :scanner              ; start of a list of devices....
 
@@ -22,11 +21,11 @@
 
 :model "KV-SS25"
 :interface "SCSI"
-:status :stable
+:status :complete
 
 :model "KV-SS25D"
 :interface "SCSI"
-:status :stable
+:status :complete
 
 :model "KV-SS50"
 :interface "SCSI"

@@ -11,9 +11,8 @@
 
 :backend "teco3"                  ; name of backend
 :version "1.0-1"                  ; version of backend
-:status :beta                     ; :alpha, :beta, :stable
 :manpage "sane-teco3"             ; name of manpage (if it exists)
-:url "http://fz.eryx.net/sane/#teco3"    ; backend's web page
+:url "http://zago.net/sane/#teco3"    ; backend's web page
 
 :devicetype :scanner              ; start of a list of devices....
                                   ; other types:  :stillcam, :vidcam,
@@ -25,7 +24,7 @@
 :model "Infinity Scorpio"
 :comment "sub model VM3552"
 :interface "SCSI"
-:status :beta
+:status :good
 
 :mfg "Plustek"
 :model "OpticPro 2400SP"
@@ -38,18 +37,18 @@
 :model "Splendeur 3024"
 :comment "sub model VM3552"
 :interface "SCSI"
-:status :beta
+:status :good
 
 :mfg "Trust"
 :model "Imagery 2400 SP"
 :comment "sub model VM3552"
 :interface "SCSI"
-:status :beta
+:status :good
 
 :model "Imagery 4800 SP+"
 :comment "sub model VM3552"
 :interface "SCSI"
-:status :beta
+:status :good
 
 :model "Imagery 9600 SP"
 :comment "sub model VM3552"

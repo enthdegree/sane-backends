@@ -11,9 +11,8 @@
 
 :backend "sceptre"
 :version "1.0-10"                  ; version of backend
-:status :beta                      ; :alpha, :beta, :stable, :new
 :manpage "sane-sceptre"           ; name of manpage
-:url "http://fz.eryx.net/sane/"   ; backend's web page
+:url "http://zago.net/sane/"   ; backend's web page
 
 :devicetype :scanner
 
@@ -21,7 +20,7 @@
 :url "http://www.sceptre.com/"
 :model "Vividscan S1200" 
 :interface "SCSI"
-:status :beta
+:status :basic
 
 :mfg "Komodo"
 :url "http://www.komodo.com/"

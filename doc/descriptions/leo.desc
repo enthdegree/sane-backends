@@ -11,9 +11,8 @@
 
 :backend "leo"                    ; name of backend
 :version "1.0-10"                  ; version of backend
-:status :beta                      ; :alpha, :beta, :stable, :new
 :manpage "sane-leo"               ; name of manpage (if it exists)
-:url "http://fz.eryx.net/sane/#leo" ; backend's web page
+:url "http://zago.net/sane/#leo" ; backend's web page
 
 :devicetype :scanner              ; start of a list of devices....
 
@@ -21,13 +20,13 @@
 :model "LEOScan S3" 
 :interface "SCSI"
 :comment "FCC ID LUZFS1130"
-:status :beta
+:status :good
 
 :mfg "Across Technologies"
 :model "FS-1130"
 :interface "SCSI"
 :comment "FCC ID LUZFS1130"
-:status :beta
+:status :good
 
 :mfg "Genius"
 :model "FS-1130 Colorpage Scanner"

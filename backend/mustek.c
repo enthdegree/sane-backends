@@ -46,7 +46,7 @@
 
 /**************************************************************************/
 /* Mustek backend version                                                 */
-#define BUILD 108
+#define BUILD 109
 /**************************************************************************/
 
 #include "../include/sane/config.h"
@@ -602,7 +602,8 @@ dev_block_read_start (Mustek_Scanner *s,SANE_Int lines)
 
 static SANE_Status
 dev_read_req_enter (Mustek_Scanner *s, SANE_Byte *buf, SANE_Int lines,
-		    SANE_Int bpl, size_t *lenp, void **idp, SANE_Int bank)
+		    SANE_Int bpl, size_t *lenp, void **idp, SANE_Int bank,
+		    SANE_Byte *command)
 {
   *lenp = lines * bpl;
 
@@ -619,42 +620,34 @@ dev_read_req_enter (Mustek_Scanner *s, SANE_Byte *buf, SANE_Int lines,
     {
       if (s->hw->flags & MUSTEK_FLAG_SE)
 	{
-	  SANE_Byte readlines[10];
 	  if (s->mode & MUSTEK_MODE_COLOR)
 	    lines *= 3;
 	    
-	  memset (readlines, 0, sizeof (readlines));
-	  readlines[0] = MUSTEK_SCSI_READ_DATA;
-	  readlines[6] = bank;	/* buffer bank not used ??? */
-	  readlines[7] = (lines >> 8) & 0xff;
-	  readlines[8] = (lines >> 0) & 0xff;
-	  return sanei_scsi_req_enter (s->fd, readlines, sizeof (readlines),
-				       buf, lenp, idp); 
+	  memset (command, 0, 10);
+	  command[0] = MUSTEK_SCSI_READ_DATA;
+	  command[6] = bank;	/* buffer bank not used ??? */
+	  command[7] = (lines >> 8) & 0xff;
+	  command[8] = (lines >> 0) & 0xff;
+	  return sanei_scsi_req_enter (s->fd, command, 10, buf, lenp, idp); 
 	}
       else if (s->hw->flags & MUSTEK_FLAG_PRO)
 	{
-	  SANE_Byte readlines[6];
-
 	  DBG(5, "enter read request\n");	  			
-	  memset (readlines, 0, sizeof (readlines));
-	  readlines[0] = MUSTEK_SCSI_READ_SCANNED_DATA;
-	  readlines[2] = ((lines * bpl) >> 16) & 0xff;
-	  readlines[3] = ((lines * bpl) >> 8) & 0xff;
-	  readlines[4] = ((lines * bpl) >> 0) & 0xff;
-	  return sanei_scsi_req_enter (s->fd, readlines, sizeof (readlines),
-				       buf, lenp, idp); 
+	  memset (command, 0, 6);
+	  command[0] = MUSTEK_SCSI_READ_SCANNED_DATA;
+	  command[2] = ((lines * bpl) >> 16) & 0xff;
+	  command[3] = ((lines * bpl) >> 8) & 0xff;
+	  command[4] = ((lines * bpl) >> 0) & 0xff;
+	  return sanei_scsi_req_enter (s->fd, command, 6, buf, lenp, idp); 
 	}
       else /* Paragon series */
       	{	    
-	  SANE_Byte readlines[6];
-
-	  memset (readlines, 0, sizeof (readlines));
-	  readlines[0] = MUSTEK_SCSI_READ_SCANNED_DATA;
-	  readlines[2] = (lines >> 16) & 0xff;
-	  readlines[3] = (lines >> 8) & 0xff;
-	  readlines[4] = (lines >> 0) & 0xff;
-	  return sanei_scsi_req_enter (s->fd, readlines, sizeof (readlines),
-				       buf, lenp, idp); 
+	  memset (command, 0, 6);
+	  command[0] = MUSTEK_SCSI_READ_SCANNED_DATA;
+	  command[2] = (lines >> 16) & 0xff;
+	  command[3] = (lines >> 8) & 0xff;
+	  command[4] = (lines >> 0) & 0xff;
+	  return sanei_scsi_req_enter (s->fd, command, 6, buf, lenp, idp); 
 	}
     }
 }
@@ -2385,10 +2378,19 @@ mode_select_paragon (Mustek_Scanner *s, SANE_Int color_code)
     mode[6] |= 0x10;
   if (s->hw->flags & MUSTEK_FLAG_PARAGON_1) 
     {
-      mode[8] =
-	encode_percentage (s, SANE_UNFIX (s->val[OPT_BRIGHTNESS].w));
-      mode[9] = 
-	encode_percentage (s, SANE_UNFIX (s->val[OPT_CONTRAST].w));
+      if ((s->mode == MUSTEK_MODE_LINEART) 
+	  || (s->mode == MUSTEK_MODE_HALFTONE))
+	{
+	  mode[8] =
+	    encode_percentage (s, SANE_UNFIX (s->val[OPT_BRIGHTNESS].w));
+	  mode[9] = 
+	    encode_percentage (s, SANE_UNFIX (s->val[OPT_CONTRAST].w));
+	}
+      else
+	{
+	  mode[8] = 0x0c;
+	  mode[9] = 0x0c;
+	}
       mode[10] = 2;             /* grain */
       if (s->val[OPT_PREVIEW].w && s->val[OPT_FAST_PREVIEW].w)
 	mode[11] = 0x01;
@@ -2398,7 +2400,7 @@ mode_select_paragon (Mustek_Scanner *s, SANE_Int color_code)
       else
 	mode[11] = 0x02;	/* speed */
       mode[12] = 0x00;		/* shadow param not used by Mustek */
-      mode[13] = 0x00;		/* highlight param not used by Mustek */
+      mode[13] = 0xff;		/* highlight only used by some scanners */
       mode[14] = 0x70;		/* paper- */
       mode[15] = 0x00;		/* length */
       mode[16] = 0x53;		/* midtone param not used by Mustek */
@@ -3113,7 +3115,10 @@ static SANE_Status
 adf_and_backtrack (Mustek_Scanner *s)
 {
   SANE_Byte backtrack[6];
-  SANE_Int code = 0x82; /* enable backtracking */
+  SANE_Int code = 0x80; 
+
+  if (!(s->hw->flags & MUSTEK_FLAG_NO_BACKTRACK))
+    code |= 0x02; /* enable backtracking */
 
   if (strcmp (s->val[OPT_SOURCE].s, "Automatic Document Feeder") == 0)
     code |= 0x01;
@@ -4532,16 +4537,17 @@ reader_process (Mustek_Scanner *s, SANE_Int fd)
     {
       void *id;	          /* scsi queue id */
       SANE_Byte *data;    /* data buffer */
-      SANE_Int lines;          /* # lines in buffer */
+      SANE_Byte *command; /* command buffer */
+      SANE_Int lines;     /* # lines in buffer */
       size_t num_read;    /* # of bytes read (return value) */
-      SANE_Int bank;           /* needed by SE models */
+      SANE_Int bank;      /* needed by SE models */
       SANE_Bool ready;    /* ready to send to application? */
       SANE_Bool finished; /* block is finished */                               
     } bstat [2];
 
   if (disable_double_buffering)
     DBG(3, "reader_process: disable_double_buffering is set, this may be "
-	"slow.\n");
+	"slow\n");
 
   sigemptyset (&sigterm_set);
   sigaddset (&sigterm_set, SIGTERM);
@@ -4584,11 +4590,20 @@ reader_process (Mustek_Scanner *s, SANE_Int fd)
   bstat[0].data = malloc (2 * lines_per_buffer * (long) bpl);
   if (!bstat[0].data)
     {
-      DBG(1, "reader_process: failed to malloc %ld bytes for buffer\n",
+      DBG(1, "reader_process: failed to malloc %ld bytes for data buffer\n",
 	  lines_per_buffer * (long) bpl);
       return SANE_STATUS_NO_MEM;
     }
   bstat[1].data = bstat[0].data + lines_per_buffer * (long) bpl;
+
+  bstat[0].command = malloc (2 * 10);
+  if (!bstat[0].command)
+    {
+      DBG(1, "reader_process: failed to malloc %ld bytes for command buffer\n",
+	  2 * 10);
+      return SANE_STATUS_NO_MEM;
+    }
+  bstat[1].command = bstat[0].command + 10;
 
   /* Touch all pages of the buffer to fool the memory management. */ 
   ptr = bstat[0].data + 2 * lines_per_buffer * (long) bpl - 1;
@@ -4730,7 +4745,8 @@ reader_process (Mustek_Scanner *s, SANE_Int fd)
                                            bstat[buffernumber].lines, bpl,
                                            &bstat[buffernumber].num_read,
                                            &bstat[buffernumber].id,
-                                           bstat[buffernumber].bank);
+                                           bstat[buffernumber].bank,
+					   bstat[buffernumber].command);
               sigprocmask (SIG_UNBLOCK, &sigterm_set, 0);
 
  
@@ -4979,6 +4995,25 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback authorize)
 		free (word);
 	      word = 0;
 	      }
+	  else if (strcmp (word, "disable-backtracking") == 0)
+	    {
+	      if (new_dev_len > 0)
+		{
+		  new_dev[new_dev_len - 1]->flags |= MUSTEK_FLAG_NO_BACKTRACK;
+		  DBG(3, "sane_init: config file line %d: disabling "
+		      "backtracking for %s\n", linenumber, 
+		      new_dev[new_dev_len - 1]->sane.name);
+		}
+	      else
+		{
+		  DBG(3, "sane_init: config file line %d: option "
+		      "disable-backtracking ignored, was set before any "
+		      "device name\n", linenumber);
+		}
+	      if (word)
+		free (word);
+	      word = 0;
+	    }
 	  else if (strcmp (word, "lineart-fix") == 0)
 	    {
 	      if (new_dev_len > 0)

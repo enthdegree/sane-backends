@@ -1,5 +1,16 @@
 CHANGES for the SANE Mustek backend
 
+2001-07-09
+  * Released Mustek backend 1.0-109.
+
+2001-07-09
+  * Fixed (hopefully) problem with black images (Paragon 6000 SP).
+
+2001-07-08
+  * Fixed problem with double buffering/SCSI command queuing and
+    Linux 2.4.x. Thaks to Abel Deuring for his help.
+  * Added option to disable backtracking
+
 2001-07-07
   * Released Mustek backend 1.0-108.
 

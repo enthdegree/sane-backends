@@ -16,8 +16,8 @@
 
 */
 
-#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.17 - 2002-01-05"
-#define SANE_EPSON_BUILD	217
+#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.18 - 2002-01-06"
+#define SANE_EPSON_BUILD	218
 
 /*
    This file is part of the SANE package.
@@ -60,6 +60,8 @@
 
 /*
 
+   2002-01-06   Disable TEST_IOCTL again, which was enabled by accident. Also
+		protect the ioctl portion with an #ifdef __linux__
    2002-01-05   Version 0.2.17
 		Check for and set s->fd to -1 when device is closed.		
 		Removed black gamma table - only use RGB even for grayscale
@@ -241,7 +243,7 @@
 */
 
 
- #define TEST_IOCTL
+/* #define TEST_IOCTL */
 
 /* DON'T CHANGE THE NEXT LINE ! */
 /* #undef FORCE_COLOR_SHUFFLE */
@@ -1852,6 +1854,7 @@ static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
 			return status;
 		}
 
+#ifdef __linux__
 #ifdef TEST_IOCTL
 		/* read the vendor and product IDs via the IOCTLs */
 		if (ioctl(s->fd, IOCTL_SCANNER_VENDOR , &vendorID) == -1)
@@ -1893,6 +1896,7 @@ static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
 				return SANE_STATUS_INVAL;
 			}
 		}
+#endif
 #endif
 	}
 
@@ -3345,6 +3349,10 @@ static void handle_source( Epson_Scanner * s, SANE_Int optindex,
 {
 	int force_max = SANE_FALSE;
 	SANE_Bool dummy;
+
+	/* reset the scanner when we are changing the source setting - 
+	   this is necessary for the Perfection 1650 */
+	reset(s);
 
 	s->focusOnGlass = SANE_TRUE;	/* this is the default */
 

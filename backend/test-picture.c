@@ -143,7 +143,9 @@ init_picture_buffer (Test_Device * test_device, SANE_Byte ** buffer,
 
 	      if (test_device->params.depth == 1)
 		{
-		  if (test_device->params.format == SANE_FRAME_GRAY)
+		  if (test_device->params.format == SANE_FRAME_GRAY ||
+		      (test_device->params.format >= SANE_FRAME_RED &&
+		       test_device->params.format <= SANE_FRAME_BLUE))
 		    {
 		      SANE_Byte value = 0;
 		      for (x1 = 0; x1 < 8; x1++)
@@ -170,7 +172,7 @@ init_picture_buffer (Test_Device * test_device, SANE_Byte ** buffer,
 		      SANE_Byte value = 0;
 		      for (x1 = 0; x1 < 8; x1++)
 			{
-			  SANE_Word xfull = x * 8 / 3 + x1;
+			  SANE_Word xfull = x * 8 / 3 + (7 - x1);
 
 			  if (xfull < ppl)
 			    {

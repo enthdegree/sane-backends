@@ -41,7 +41,7 @@
    This backend is for testing frontends.
 */
 
-#define BUILD 17
+#define BUILD 18
 
 #include "../include/sane/config.h"
 
@@ -2316,7 +2316,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
     channels = 3;
 
   if (p->depth == 1)
-    p->bytes_per_line = channels * (p->pixels_per_line + 7) / 8;
+    p->bytes_per_line = channels * (int) ((p->pixels_per_line + 7) / 8);
   else				/* depth == 8 || depth == 16 */
     p->bytes_per_line = channels * p->pixels_per_line * ((p->depth + 7) / 8);
 

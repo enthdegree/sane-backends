@@ -4,10 +4,10 @@
 :version "1.2"  			; version of backend
 :status :beta     			; :alpha, :beta, :stable, :new
 :manpage "sane-dc25"			; name of manpage (if it exists)
-:url "http://peter.fales.com/DC-25.html";
+:url "mailto:peter@fales.com";
 :devicetype :stillcam			; start of a list of devices....
 :mfg "Kodak"				; Manufacturer
-:url "http://www.kodak.com/US/en/digital/cameras/dc25/";
+:url "http://www.kodak.com/global/en/service/digCam/dc25/dc25.shtml";
 :model "DC25"				;
 :interface "Serial port"
 :model "DC20" 				;

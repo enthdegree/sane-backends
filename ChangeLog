@@ -1,3 +1,8 @@
+2004-04-24  Jochen Eisinger <jochen@penguin-breeder.org>
+
+	* doc/sane-usb.man: added comment about devmode not working
+	  with current (2.6.3-2.6.5) 2.6 kernels
+
 2004-04-23  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/dll.c: Fixed dynamic loading of backend libraries

@@ -103,6 +103,8 @@ using the following line in /etc/fstab:
 none /proc/bus/usb usbfs defaults,devmode=0666  0  0
 .RE
 .PP
+.B DUE TO A KERNEL BUG THIS WON'T WORK WITH CURRENT 2.6 KERNELS. USE HOTPLUG INSTEAD
+.PP
 However, this way everyone has access to all USB devices. Another way to set
 permissions is to use the hotplug utilities
 .RI ( http://linux-hotplug.sourceforge.net/ ),

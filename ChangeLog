@@ -3,6 +3,7 @@
 	* AUTHORS backend/microtek2.c doc/sane-microtek2.man
 	  doc/descriptions/microtek2.desc: Updated Karsten Festag's email
 	  address and website.
+	* NEWS: Added OPENSTEP to the list of portability fixes.
 
 2002-05-23 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 

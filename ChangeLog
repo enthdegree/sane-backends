@@ -1,3 +1,9 @@
+2004-10-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/test.c: Fixed typo.
+	* README.solaris: Added details on building SANE on Solaris/x86
+	  (from Tomasz Orlinski <tomasz.orlinski@wp.pl>).
+
 2004-10-10  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* backend/Makefile.in: fix niash dependencies

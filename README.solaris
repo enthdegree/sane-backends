@@ -1,7 +1,70 @@
-2002-06-11
+This is a report on how to build SANE on Solaris/x86 using a USB scanner. See
+below for SCSI.
 
-Currently, only SCSI scanners are supported on Solaris.  The following text
-describes, how to use a SCSI scanner.
+From: Tomasz Orlinski <tomasz.orlinski@wp.pl>
+To: sane-devel@lists.alioth.debian.org
+Subject: [sane-devel] USB scanners DO work on Solaris 10 x86
+Date: Thu, 7 Oct 2004 20:26:50 +0200
+
+I would like to inform you, that I have compiled SANE on Sun Solaris 10 x86
+with built-in USB scanner support. It was possible, because Sun had prepared
+libusb library wrapper for Solaris 10. I know, that Solaris 10 Software
+Express Release 08/04 is required. I have done it in that way:
+LD_LIBRARY_PATH=/usr/sfw/lib:$LD_LIBRARY_PATH
+CFLAGS="-I/usr/sfw/include"
+CPPFLAGS="-I/usr/sfw/include"
+LDFLAGS="-L/usr/sfw/lib -R/usr/sfw/lib -lusb"
+export LD_LIBRARY_PATH CFLAGS CPPFLAGS LDFLAGS
+./configure --prefix=/opt/sane --disable-fork-process
+make
+make install
+It was also required to add a generic USB kernel driver. I had to look for
+my scanner device name in output of
+prtconf -D -v
+command. My scanner is Plustek UT24 and the apropriate part of output looked
+like this:
+name='compatible' type=string items=8 value='usb7b3,17.100' + ...
+I had to remove the not used kernel driver
+rem_drv ugen
+And add it again:
+add_drv -i 'usb7b3,17.100' ugen
+Then, /opt/sane/bin/sane-find-scanner detected my scanner and everything
+worked fine. I to add " " signs around usb7b3,17.100 name in
+/etc/driver_aliases to have the scanner working after reboot.
+To compile this packages SUNWlibusb and SUNWlibusbugen were needed. I used
+Solaris Software Companion CD gcc 2.95.3 compiler and Sun's /usr/ccs/bin/ld
+linker. USB support DOES NOT work in Solaris 9 and earlier versions.
+I hope, that this information would be useful for other USB scanner users.
+
+From: Tomasz Orlinski <tomasz.orlinski@wp.pl>
+To: sane-devel@lists.alioth.debian.org
+Subject: Re: [sane-devel] USB scanners DO work on Solaris 10 x86
+Date: Fri, 8 Oct 2004 16:06:14 +0200
+
+[...]
+
+Sun in Driver Development Kit v. 0.9 writes how to compile SANE, but it does not
+really work :) They write about compiling with gcc and give options for Sun
+Forte compiler (cc) and forget about attaching a kernel driver. But they write,
+that versions earlier than 1.0.14 cannot be used. They want also to build SANE
+with Posix threads enabled. So I think that can be true. Sun writes also, that
+Solaris Software Express release at least S10_62 is needed to use
+libusb. Release number can be checked in /etc/release. The newest version can be
+downloaded from www.sun.com/solaris for free.
+
+In my opinion it is important to be cautious when using scanner or just libusb
+on important Solaris machines (especially multi-processor ones), because unlike
+in other systems, Solaris kernel is fully preemtible, what means, that many
+instances of the same driver can ran simultanously - it's dangerous, when
+drivers are not perfect. And Solaris USB framework is absolutely new, so it can
+contain bugs. I tried to crash my Solaris using USB subsystem and SANE, I didn't
+manage to, but it doesn't mean, it's impossible.
+
+SANE frontends work without any problems with Xsun and GIMP included in Solaris
+Software Companion CD.
+
+---------------------------------------------------------------------------
+The following text describes, how to use a SCSI scanner (2002-06-11).
 
 You need a generic SCSI driver to run SANE on Solaris.  There are at
 least three such drivers: the scg driver by Joerg Schillig, the

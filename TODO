@@ -1,4 +1,4 @@
-TODO (2003-03-30)
+TODO (2003-04-02)
 
 ******** todo ********
 
@@ -22,9 +22,6 @@ backends
        access.
      - The result of locking isn't checked --> does it make sense at all?
 
-  * sm3600.c, .h:
-     - Fix comment header (wrong author, wrong description)
-
   * dc210, dc240, gphoto2, and jpeg stuff: move sanei_* functions to sanei/
     (if they are necessary). That's probably for SANE2.
 
@@ -32,7 +29,8 @@ backends
      - Geometry support is missing
      - Frequency setting is missing
      - check if v4lctl distributed with xawtv can be used
-     - Add v4l updates from Martin Palm
+     - Add v4l updates from Martin Palm, see
+       http://www.meier-geinitz.de/sane/misc/sane-v4l-update.tar.gz
 
   * memory leaks:
     - sane_exit() does not release memory allocated by sane_get_devices():
@@ -52,17 +50,6 @@ backends
     fujitsu or avision backends.
 
   * artec
-    - Fix misdetection of AT3. Add something like this to the version detection
-      code:
-        else if (strstr (str, "AT3") == str)
-          {
-            str[3] = '\0';
-            strncpy (product_revision, str + 8, 4);
-          }
-      The AT3 seems to behave similar to the A6000C PLUS and includes its
-      version in the model string:
-      [artec] 0x00: 06 00 02 01 5b 00 00 00 55 4c 54 49 4d 41 20 20 ....[...ULTIMA
-      [artec] 0x10: 41 54 33 20 20 20 20 20 31 2e 36 30 20 20 20 20 AT3    1.60
     - Fix email address of Chris Pinkham. cpinkham@infi.net bounces.
 
   * All backends:
@@ -70,7 +57,6 @@ backends
     called more than once (if sane_exit was called before)! Global variables
     must be either initialized in sane_init or reset in sane_exit.
     At least these backends segfault:
-    - artec
     - mustek_pp
     - umax
     
@@ -90,7 +76,8 @@ doc
 
   * manpages:
     - html manpages have broken links to other man pages if link is wrapped at
-      the end of the line (e.g. sane-pint points to pint.5.html).
+      the end of the line (e.g. sane-pint points to pint.5.html). Escaping the
+      "-" with a backslash seems to work.
 
 frontends
 ---------
@@ -135,8 +122,8 @@ sanei
     checking for scanners. Ideas: Open/close all the /dev/sg* files in
     sanei_scsi.c, dll.c or in a new backend.
 
-  * sanei_usb, sanei_scsi: Print all data send to and received from devices.
-    Use high debug level.
+  * sanei_scsi: Print all data send to and received from devices.  Use high
+    debug level. Already implemented for sanei_usb.
 
   * sanei_usb:
     - some scanners seem to provide more than one bulk-in endpoint(?) 
@@ -156,6 +143,8 @@ platform-specific
   * OS/2 issues: 
     - Add $EXEEXT or sed expression to Makefiles to get the .exe extension?
     - Add support for semaphores also for OS/2 (currently used in snapscan).
+    - Check why scanimag ecrashes with current CVS:
+      http://www.mostang.com/pipermail/sane-devel/2003-March/018363.html
 
   * icc on ia32 + ia64:
     - fix sys/io.h problems (see README.linux)
@@ -180,9 +169,11 @@ misc
 
   * Update Dutch translation from Martin Kho (see sane-devel).
 
-  * add configure switch to enable/disable libusb support
 
 ******** done ********
+* add configure switch to enable/disable libusb support
+* Fix misdetection of Artec AT3.
+* sm3600.c, .h: Fix comment header (wrong author, wrong description)
 * Add support for IP ranges in saned.conf (like 10.0.0.0/8) --> no, use tcpwrapper?
 * net + saned: add IPv6 support.
 * Check the Irix patches from

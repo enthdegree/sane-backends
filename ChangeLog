@@ -23,6 +23,9 @@
 	* sanei/sanei_usb.c: Added a function to print the buffer contents
 	  for the read and write functions. Fixed some DBGs. Fixed a wrong
 	  return value.
+	* TODO: Removed sm3600, artec and libusb configure switch entries.
+	  Updated v4l, sanei buffer print and html manpages entries.
+	  Added OS/2 crash entry.
 
 2003-03-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

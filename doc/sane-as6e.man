@@ -24,7 +24,7 @@ It can be found at
 .SH BUGS
 
 .SH SEE ALSO
-as6edriver(5)
+sane(7), as6edriver(5)
 
 .SH AUTHOR
 Eugene S. Weiss

@@ -88,3 +88,5 @@ like a problem due to byte-padding).
 .PP
 The program needs root-priviledges since it needs to be able to access
 the camera's I/O ports.
+.SH SEE ALSO
+sane(7)

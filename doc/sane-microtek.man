@@ -149,7 +149,7 @@ A value of 128 requests maximally copious debug output; smaller
 levels reduce verbosity.
 
 .SH "SEE ALSO"
-sane\-scsi(5)
+sane(7), sane\-scsi(5)
 
 .SH AUTHOR
 Matt Marjanovic

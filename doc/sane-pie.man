@@ -63,6 +63,9 @@ The shared library implementing this backend (present on systems that
 support dynamic loading).
 .PP
 
+.SH SEE ALSO
+sane(7)
+
 .SH "CONTACT AND BUG-REPORTS"
 Please send any information and bug-reports to:
 .br

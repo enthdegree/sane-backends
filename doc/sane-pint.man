@@ -87,6 +87,8 @@ If the library was compiled with debug support enabled, this
 environment variable controls the debug level for this backend.  E.g.,
 a value of 128 requests all debug output to be printed.  Smaller
 levels reduce verbosity.
+.SH SEE ALSO
+sane(7)
 .SH AUTHOR
 Gordon Matzigkeit, adapted from existing backends written by David
 Mosberger.

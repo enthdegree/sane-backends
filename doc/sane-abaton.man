@@ -118,7 +118,7 @@ confidence that it will work, as well as to fully exploit the
 information returned by the INQUIRY command.
 
 .SH "SEE ALSO"
-sane\-scsi(5), scanimage(1)
+sane(7), sane\-scsi(5), scanimage(1)
 
 .SH AUTHOR
 The sane-abaton backend was partially written by David Huggins-Daines,

@@ -42,3 +42,5 @@ it, enable it with configure (see configure --help for details). Be sure that
 only trusted users can access the pnm backend over saned.
 .SH AUTHOR
 Andreas Beck, Gordon Matzigkeit, and David Mosberger
+.SH SEE ALSO
+sane(7)

@@ -135,7 +135,7 @@ also set the environment variable SANE_DEBUG_SANEI_SCSI to 128 before sending
 me the report.
 
 .SH "SEE ALSO"
-sane\-scsi(5)
+sane(7), sane\-scsi(5)
 .br
 http://www.informatik.uni-oldenburg.de/~ingo/sane/ 
 

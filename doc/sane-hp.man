@@ -370,7 +370,7 @@ LaserJet 3150 connected to a JetDirect 70X/170X/300X/500X with firmware
 x.08.xx or later, you can scan using the JetDirect's embedded web server.
 
 .SH "SEE ALSO"
-sane\-scsi(5)
+sane(7), sane\-scsi(5)
 .SH AUTHOR
 The sane-hp backend was written by Geoffrey T. Dairiki. HP PhotoSmart
 PhotoScanner support by Peter Kirchgessner.

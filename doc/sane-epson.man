@@ -271,7 +271,7 @@ only if you know what you are doing!
 
 .SH "SEE ALSO"
 
-sane\-scsi(5), scanimage(1), xscanimage(1), xsane(1)
+sane(7), sane\-scsi(5), scanimage(1), xscanimage(1), xsane(1)
 
 .SH BUGS
 

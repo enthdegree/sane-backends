@@ -83,3 +83,5 @@ Meier-Geinitz.
 
 Send bug reports to the SANE mailing list: sane-devel@mostang.com.
 
+.SH SEE ALSO
+sane(7).

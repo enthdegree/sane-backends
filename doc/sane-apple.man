@@ -248,7 +248,7 @@ Make scan possible for all models in all supported modes.
 .B Missing Functionality.
 
 .SH "SEE ALSO"
-sane\-scsi(5)
+sane(7), sane\-scsi(5)
 
 .SH AUTHOR
 The sane-apple backend was written not entirely from scratch by

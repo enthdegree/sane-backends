@@ -343,6 +343,5 @@ ASIC 96003/1 based models:
 * The scanquality of the A3I is poor
 .br
 
-
-
-
+.SH SEE ALSO
+sane(7)

@@ -537,7 +537,7 @@ recreate it with the SANE_DEBUG_BH environment variable set to
 .IR sane\-devel@mostang.com .
 
 .SH "SEE ALSO"
-sane\-scsi(5), scanimage(1), scanadf(1)
+sane(7), sane\-scsi(5), scanimage(1), scanadf(1)
 
 .SH AUTHOR
 The sane-bh backend was written by Tom Martone, based on the sane-ricoh

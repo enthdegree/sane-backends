@@ -67,7 +67,7 @@ E.g. just say:
 export SANE_DEBUG_SM3600=5
 
 .SH "SEE ALSO"
-sane-microtek2(5)
+sane(7), sane-microtek2(5)
 
 .SH AUTHOR
 .br

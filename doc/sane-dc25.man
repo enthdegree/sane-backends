@@ -79,6 +79,7 @@ A value of 128 requests maximally copious debug output; smaller
 levels reduce verbosity.
 
 .SH "SEE ALSO"
+sane(7)
 
 .SH AUTHOR
 Peter Fales, psfales@earthling.net

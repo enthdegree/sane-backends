@@ -164,7 +164,7 @@ a scanner, I could be helpful in adding support for these scanners.
 The AGFA HORIZON scanners are SCSI-2 scanners, and it would probably
 be easier to support these scanners in a SCSI-2 compliant backend.
 .SH "SEE ALSO"
-sane\-scsi(5)
+sane(7), sane\-scsi(5)
 
 .SH AUTHOR
 

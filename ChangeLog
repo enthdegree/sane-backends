@@ -1,3 +1,7 @@
+2003-11-14  Gerhard Jaeger <gerhard@gjaeger.de>
+	* backend/plustek.c backend/plustek-usb.cal backend/plustek-usbshading.c
+	  backend/plustek-usbhw.c: Endianess fixes.
+
 2003-11-13  Peter Fales <peter@fales-lorenz.net>
 	* backend/gphoto2.h:  Line beginning with "static static" was breaking
 	  compiles on some platforms.

@@ -4842,6 +4842,8 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback authorize)
 	{
 	  DBG(5, "sane_init: config file line %d: ignoring empty line\n",
 	      linenumber);
+	  if (word)
+	    free (word);
 	  continue;
 	}
       if (word[0] == '#')
@@ -5215,6 +5217,16 @@ sane_close (SANE_Handle handle)
 
   if (s->ld.buf[0])
     free (s->ld.buf[0]);
+  if (s->val[OPT_MODE].s)
+    free (s->val[OPT_MODE].s);
+  if (s->val[OPT_BIT_DEPTH].s)
+    free (s->val[OPT_BIT_DEPTH].s);
+  if (s->val[OPT_SPEED].s)
+    free (s->val[OPT_SPEED].s);
+  if (s->val[OPT_SOURCE].s)
+    free (s->val[OPT_SOURCE].s);
+  if (s->val[OPT_HALFTONE_DIMENSION].s)
+    free (s->val[OPT_HALFTONE_DIMENSION].s);
 
   if (prev)
     prev->next = s->next;

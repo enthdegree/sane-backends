@@ -49,6 +49,9 @@ static SANE_Status
 gt6801_check_firmware (GT68xx_Device * dev, SANE_Bool * loaded);
 
 static SANE_Status
+gt6801_check_plustek_firmware (GT68xx_Device * dev, SANE_Bool * loaded);
+
+static SANE_Status
 gt6801_download_firmware (GT68xx_Device * dev,
 			  SANE_Byte * data, SANE_Word size);
 

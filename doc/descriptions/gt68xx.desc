@@ -1,6 +1,6 @@
 :backend "gt68xx"
-:status :alpha
-:version "1.0-29"
+:status :beta
+:version "1.0-30"
 :manpage "sane-gt68xx"
 :url "http://www.meier-geinitz.de/sane/gt68xx-backend/"
 :comment "Only the USB scanners mentioned below are supported. For other Mustek BearPaws, look at the Plustek backend."
@@ -73,8 +73,8 @@
 
 :model "OpticPro 1248U"
 :interface "USB"
-:status :untested
-:comment "currently working on supporting this scanner"
+:status :alpha
+:comment "Works up to 600 dpi in gray mode, try disabling calibration"
 
 :mfg "Artec"
 :url "http://www.artecusa.com/"
@@ -138,9 +138,9 @@
 :model "X70"
 :status :alpha
 :interface "USB"
-:comment "works in all resolutions but 50 and 1200 dpi"
+:comment "works, but sometimes the image brightness changes with resolution"
 
 :model "X73"
-:status :untested
+:status :alpha
 :interface "USB"
-:comment "maybe works like the X70, contact author if you own such a model"
+:comment "should work like the X70, but was reported to fail, more reports welcome"

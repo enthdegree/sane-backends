@@ -1,4 +1,4 @@
-.TH sane-gt68xx 5 "5 Nov 2002"
+.TH sane-gt68xx 5 "13 Nov 2002"
 .IX sane-gt68xx
 .SH NAME
 sane-gt68xx - SANE backend for GT-68XX based USB flatbed scanners
@@ -37,6 +37,8 @@ Mustek ScanExpress 1200 UB Plus
 .br
 Packard Bell Diamond 1200
 .br
+Plustek OpticPro 1248U
+.br
 Trust Compact Scan USB 19200
 .br
 Trust Flat Scan USB 19200
@@ -45,8 +47,9 @@ Trust Flat Scan USB 19200
 More details can be found on the gt68xx backend homepage 
 .IR http://www.meier-geinitz.de/sane/gt68xx/ .
 .PP
-This is ALPHA software. Keep your hand at the scanner's plug and unplug it, if
-the head bumps at the end of the scan area.
+This is BETA software. Especially if you test new or untested scanners, keep
+your hand at the scanner's plug and unplug it, if the head bumps at the end of
+the scan area.
 .PP
 If you own a scanner other than the ones listed above that works with this
 backend, please let me know this by sending the scanner's exact model name and
@@ -201,10 +204,6 @@ and all the other contributors.
 Currently scanning seems to only work under Linux. With the BSDs, either the
 first command after the firmware boot or the reading of the scanned data times
 out.
-.PP
-Automatic gain is slow (especially 2400 CU). Maybe use the existing default
-values. Also, default values could be added to gt68xx.conf. Check if auto-gain
-for CCD scanners should use the max/min values, too.
 .PP
 The first few lines of the image are garbage for the 2400 TA
 Plus.

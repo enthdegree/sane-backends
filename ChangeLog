@@ -3,6 +3,12 @@
 	* configure configure.in acinclude.m4 aclocal.m4 
 	  include/sane/config.h.in: Fix compilation on Tru64 by readding
 	  the sys/bitypes.h work-around. Minimum autoconf version is 2.50 now.
+	* backend/gt68xx.c backend/gt68xx.conf backend/gt68xx_devices.c
+	  backend/gt68xx_gt6801.c backend/gt68xx_gt6801.h doc/sane-gt68xx.man
+	  doc/descriptions/gt68xx.desc doc/gt68xx/gt68xx.CHANGES po/gt68xx.de.po:
+	  Added basic support for Plustek OpticPro 1248U (from Gerhard Jaeger
+	  <gerhard@gjaeger.de>). Removed 50 and 1200 dpi from Lexmark X73.
+	  Backend status is BETA now.
 
 2002-11-13  Ulrich Deiters <ukd@xenon.pc.uni-koeln.de>
 

@@ -1,4 +1,13 @@
-V 1.0-29 (2002-11-??)
+V 1.0-30 (2002-11-13)
+
+- Added basic support for Plustek OpticPro 1248U (from Gerhard Jaeger
+  <gerhard@gjaeger.de>). Only gray mode without calib seems to work until
+   now.
+- Removed 50 and 1200 dpi from Lexmark X73 (doesn't seem to work). Decreased
+  height.
+- Backend status is BETA now.
+
+V 1.0-29 (2002-11-07)
 
 - Changed option titles and descriptions to make them better readable.
 - Added translation markers for all options.

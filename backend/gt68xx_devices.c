@@ -101,6 +101,32 @@ static GT68xx_Command_Set mustek_gt6801_command_set = {
   gt68xx_generic_get_id
 };
 
+static GT68xx_Command_Set plustek_gt6801_command_set = {
+  "plustek-gt6801",
+
+  0x200a, 0x2009,
+  0x2010, 0x3f40, 0x2011, 0x3f00,
+  0x2012, 0x3f40, 0x2013, 0x3f00,
+
+  /* activate */ NULL,
+  /* deactivate */ NULL,
+  gt6801_check_plustek_firmware,
+  gt6801_download_firmware,
+  gt6801_get_power_status,
+  /* get_ta_status (FIXME: implement this) */ NULL,
+  gt6801_lamp_control,
+  gt6801_is_moving,
+  /*gt68xx_generic_move_relative *** to be tested */ NULL,
+  gt6801_carriage_home,
+  gt68xx_generic_start_scan,
+  gt68xx_generic_read_scanned_data,
+  gt6801_stop_scan,
+  gt6801_setup_scan,
+  gt68xx_generic_set_afe,
+  NULL,
+  gt68xx_generic_get_id
+};
+
 static GT68xx_Model mustek_2400ta_model = {
   "mustek-bearpaw-2400-ta",
   "Mustek",
@@ -227,7 +253,7 @@ static GT68xx_Model mustek_1200ta_model = {
   {0x2a, 0x0c, 0x2e, 0x06, 0x2d, 0x07},
   {0x157, 0x157, 0x157},
   SANE_FALSE,
-  GT68XX_FLAG_UNTESTED
+  0
   /* Setup for 1200 TA */
 };
 
@@ -550,14 +576,14 @@ static GT68xx_Model lexmark_x73_model = {
   1200,				/* ??? */
   SANE_TRUE,
 
-  {600, 300, 150, 75, 50, 0},
-  {1200, 600, 300, 150, 75, 50, 0},
+  {600, 300, 150, 75, 0},
+  {600, 300, 150, 75, 0},
   {16, 12, 8, 0},
   {16, 12, 8, 0},
   SANE_FIX (6.519),
   SANE_FIX (12.615),
   SANE_FIX (220.0),		/* physical windowsize: 220 mm  */
-  SANE_FIX (300.0),		/* physical windowsize: 300 mm  */
+  SANE_FIX (297.0),		/* physical windowsize: 300 mm  */
   SANE_FIX (1.0),
   SANE_FIX (0.0),
 
@@ -583,6 +609,50 @@ static GT68xx_Model lexmark_x73_model = {
      the sledge and the scanner may be damaged!  */
 };
 
+static GT68xx_Model plustek_op1248u_model = {
+  "plustek-op1248u",
+  "Plustek",
+  "OpticPro 1248U",
+  "ccd548.fw",
+  SANE_FALSE,
+
+  &plustek_gt6801_command_set,
+
+  600,	/* Optic X DPI           */
+  600,  /* Optic Y DPI           */
+  600,  /* Base X DPI            */
+  600,  /* Base Y DPI            */
+  600,  /* Y DPI force line mode */
+
+  SANE_TRUE,
+  {600, 300, 150, 75, 0},
+  {600, 300, 150, 75, 0},
+
+  {12, 8, 0},
+  {12, 8, 0},
+  SANE_FIX (5.6),    	/* scanarea start X */
+  SANE_FIX (8.0),       /* scanarea start Y */
+  SANE_FIX (218.0),
+  SANE_FIX (299.0),
+  SANE_FIX (0.0),       /* shading start  */
+  SANE_FIX (0.0),		/* no black mark  */
+  SANE_FIX (0.0),		/* no TA */
+  SANE_FIX (0.0),
+  SANE_FIX (100.0),
+  SANE_FIX (100.0),
+  SANE_FIX (0.0),
+
+  /* line distance correction */
+  0, 0, 0,
+  0,
+
+  COLOR_ORDER_BGR,
+  {31, 25, 31, 25, 31, 25},
+  {0x157, 0x157, 0x157},
+  SANE_FALSE,			/* is a CCD device */
+  0
+};
+
 static GT68xx_USB_Device_Entry gt68xx_usb_device_list[] = {
   {0x055f, 0x0218, &mustek_2400ta_model},
   {0x055f, 0x0219, &mustek_2400taplus_model},
@@ -595,6 +665,7 @@ static GT68xx_USB_Device_Entry gt68xx_usb_device_list[] = {
   {0x05d8, 0x4002, &mustek_2400cu_model},	/* manual override */
   {0x055f, 0x0210, &mustek_a3usb_model},
   {0x043d, 0x002d, &lexmark_x73_model},
+  {0x07b3, 0x0401, &plustek_op1248u_model},
   {0, 0, NULL}
 };
 

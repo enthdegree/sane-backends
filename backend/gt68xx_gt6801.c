@@ -98,10 +98,9 @@ gt6801_check_firmware (GT68xx_Device * dev, SANE_Bool * loaded)
 }
 #endif
 
-#if 0
 /* doesn't work with at least cytron scanner */
 SANE_Status
-gt6801_check_firmware (GT68xx_Device * dev, SANE_Bool * loaded)
+gt6801_check_plustek_firmware (GT68xx_Device * dev, SANE_Bool * loaded)
 {
   SANE_Status status;
   GT68xx_Packet req;
@@ -124,8 +123,6 @@ gt6801_check_firmware (GT68xx_Device * dev, SANE_Bool * loaded)
 
   return SANE_STATUS_GOOD;
 }
-#endif
-
 
 #define MAX_DOWNLOAD_BLOCK_SIZE 64
 

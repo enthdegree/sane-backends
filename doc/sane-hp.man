@@ -66,6 +66,8 @@ OfficeJet G series             PTAL
 .br
 PSC 700 series                 PTAL
 .br
+PSC 900 series                 PTAL
+.br
 OfficeJet K series             PTAL
 .br
 OfficeJet V series             PTAL
@@ -364,9 +366,9 @@ is supported by the ppSCSI-driver (see above).
 A separate backend is planned to properly support the OfficeJet K and V
 series, as well as other non-SCL HP MFPs, such as the OfficeJet 500, 600,
 700, T, and PSC 300 series and the LaserJet 1100A, 1220, and 3200.
-Experimental scanning support for these models is under development;
-see the HP OfficeJet Linux driver project at http://hpoj.sourceforge.net
-for more information.
+For now, scanning on these non-SCL scrollfed models is supported by the
+"ptal-hp scan" command-line application in version 0.8 or later of the
+HP OfficeJet Linux driver, available from http://hpoj.sourceforge.net.
 .TP
 .B LaserJet 3100 and 3150
 Support for the LaserJet 3100 and 3150 is NOT planned, because programming

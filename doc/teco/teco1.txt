@@ -14,6 +14,13 @@ Inquiry page 0x82
    000: 06 82 00 12 11 54 45 43 4f 20 56 4d 33 35 33 41    .....TECO VM353A
    016: 20 56 31 2e 30 36                                   V1.06
 
+AVEC Colour 2412
+three pass scanner - 300*600 dpi - 8.5*14
+    000: 06 00 02 02 30 00 00 10 20 20 20 20 20 20 20 20    ....0...        
+    016: 49 6d 61 67 65 20 53 63 61 6e 6e 65 72 20 20 20    Image Scanner   
+    032: 31 2e 30 38 31 2e 30 38 02 00 54 45 43 4f 20 56    1.081.08..TECO V
+    048: 4d 33 35 32 41                                     M352A
+
 Avec Color Office 2400 (no ADF, no transparency adapter)
 three pass scanner - 300*600 dpi - 8.5*14
 Inquiry:

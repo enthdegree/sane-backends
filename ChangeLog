@@ -9,6 +9,7 @@
 	* include/sane/sanei_usb.h sanei/sanei_config2.c sanei/sanei_usb.c:
 	  Moved the function to check the "usb VENDOR PRODUCT" config
 	  lines to sanei_usb to avoid linking problems.
+	* backend/Makefile.in: Fixed spelling mistakes concerning st400.
 
 2001-09-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

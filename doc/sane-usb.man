@@ -1,4 +1,4 @@
-.TH sane-scsi 5 "06 Jul 2002"
+.TH sane-scsi 5 "14 Jul 2002"
 .IX sane-usb
 .SH NAME
 sane-usb - USB configuration tips for SANE
@@ -22,14 +22,16 @@ by the epson backend.
 .PP
 This manual page describes the access of USB scanners over the sanei_usb
 interface. For the backends using direct kernel or libusb access have a look
-at their manual pages for details.
+at their manual pages for details. The sections "KERNEL SCANNER DRIVER TIPS"
+and "LIBUSB ACCESS TIPS" of this manual page may be of some use for these backends, too.
 .PP
 Two methods for accessing USB devices are used by sanei_usb: direct access
 using the kernel scanner driver and access over libusb. sanei_usb tries both
 methods, if they are available. Currently USB access is only tested for Linux
-(kernel, libusb), FreeBSD (kernel) and OpenBSD (kernel). Libusb access should
-also work on NetBSD and Mac OS X (Darwin) but hasn't been tested yet. For
-installation issues, also check the @DOCDIR@/README.platform files.
+(kernel, libusb), FreeBSD (kernel, libsub), NetBSD (libusb), and OpenBSD
+(kernel, libusb). Libusb access should also work on Mac OS X (Darwin) but
+hasn't been tested yet. For installation issues, also check the
+@DOCDIR@/README.platform files.
 .PP
 Most backends will detect USB scanners automatically using "usb" configuration
 file lines. This method allows to identify scanners by the USB vendor and
@@ -46,8 +48,9 @@ is the USB vendor id, and
 .I PRODUCT
 is the USB product id of the scanner. Both ids are non-negative integer
 numbers in decimal or hexadecimal format. The correct values for these fields
-can be found by looking at the output of the command "cat
-/proc/bus/usb/devices/".  This is an example of a config file line:
+can be found by looking into the syslog (e.g., /var/log/messages) or under
+Linux by issuing the command "cat /proc/bus/usb/devices/".  This is an example
+of a config file line:
 .PP
 .RS
 usb 0x055f 0x0006
@@ -61,10 +64,10 @@ backend. The same config line in decimal format looks like this:
 usb 1375 6
 .RE
 .PP
-For some backends, it may be necessary to edit the appropriate backend
-configuration file before using SANE for the first time.  For most systems,
-the configuration file should list the name of the USB device file that the
-scanner is connected to (e.g., under Linux,
+If your scanner is not detected automatically, it may be necessary to edit the
+appropriate backend configuration file before using SANE for the first time.
+For most systems, the configuration file should list the name of the USB
+device file that the scanner is connected to (e.g., under Linux,
 .B /dev/usb/scanner0
 or
 .B /dev/usbscanner0
@@ -95,7 +98,8 @@ available and installed on the system and setting permissions isn't easy at
 least on Linux. Libusb access isn't tested very well.
 .PP
 Autodetecting scanners and using USB control messages with the kernel access
-method only works with recent (>=v2.4.12) Linux kernels.
+method only works with recent (>=v2.4.12) Linux kernels. If you need one of
+these two features on a different platform, use libusb instead.
 
 .SH KERNEL SCANNER DRIVER TIPS
 Ensure that the access permissions for the USB device are set appropriately.
@@ -120,20 +124,22 @@ this can be done with modprobe parameters: First, remove the scanner module
 (rmmod scanner), then load it again: modprobe scanner vendor=0x0001
 product=0x0002. Use the appropriate vendor and product (e.g. from syslog or
 cat /proc/bus/usb/devices). For OpenBSD the kernel must be recompiled. For
-details look at @DOCDIR@/README.openbsd.
+details look at @DOCDIR@/README.openbsd. Similar approaches should be used for
+the other BSDs.
 
 .SH LIBUSB ACCESS TIPS
 Libusb can only access your scanner if it's not claimed by the kernel scanner
 driver. If you want to use libusb, unload the kernel driver (e.g. rmmod
-scanner under Linux). For Linux, your kernel needs support for the USB
-filesystem (usbfs) and that filesystem must be mounted. That's done
-automatically, if /etc/fstab contains a line like this:
+scanner under Linux) or disable the driver when compiling a new kernel. For
+Linux, your kernel needs support for the USB filesystem (usbfs) and that
+filesystem must be mounted. That's done automatically, if /etc/fstab contains
+a line like this:
 .PP
 .RS
 none /proc/bus/usb usbfs defaults  0  0
 .RE
 .PP
-The permissions for the device files used by libusb must be ajusted for user
+The permissions for the device files used by libusb must be adjusted for user
 access. Otherwise only root can use SANE devices. For
 .IR Linux ,
 the devices are located in /proc/bus/usb/. There are directories named
@@ -155,7 +161,7 @@ access permissions. Last, the frontends can be run as root. However, that's
 not recommended for security reasons.
 .PP
 For the
-.IR BSDs,
+.IR BSDs ,
 the device files are named /dev/ugen*. Use chmod to apply appropriate
 permissions.
 

@@ -140,15 +140,6 @@ AM_PROG_LIBTOOL
 
 dnl Checks for libraries.
 
-#### Choose a window system.
-
-AC_PATH_X
-if test "$no_x" = yes; then
-  window_system=none
-else
-  window_system=x11
-fi
-
 if test "${enable_dynamic}" != "no"; then
   AC_CHECK_HEADERS(dlfcn.h,
   [AC_CHECK_LIB(dl,dlopen)
@@ -160,37 +151,7 @@ if test "${enable_dynamic}" != "no"; then
    AC_CHECK_FUNCS(shl_load, enable_dynamic=yes,)],)
 fi
 
-AM_PATH_GTK(0.99.13, HAVE_GTK=yes, )
-
-# Change CFLAGS temporarily so that C_SWITCH_X_SITE gets used
-# for the tests that follow.  We set it back to REAL_CFLAGS later on.
-
-if test "${HAVE_GTK}" = "yes"; then
-  XSCAN="xscanimage xcam"
-
-  # According to Owen Taylor, GTK_CFLAGS is _guaranteed_ to contain
-  # -D and -I flags only, i.e., it really is GTK_CPPFLAGS...
-  saved_CPPFLAGS="${CPPFLAGS}"
-  saved_LIBS="${LIBS}"
-  CPPFLAGS="${CPPFLAGS} ${GTK_CFLAGS}"
-  SANE_EXTRACT_LDFLAGS(LDFLAGS, GTK_LIBS)
-  LIBS="${LIBS} ${GTK_LIBS}"
-
-  AC_CHECK_FUNCS(gtk_tooltips_set_tips gtk_events_pending)
-  if test "${ac_cv_func_gtk_events_pending}" = "no"; then
-    saved_CPPFLAGS="${saved_CPPFLAGS} -Dgtk_events_pending=gdk_events_pending"
-  fi
-
-  AC_CHECK_HEADERS(libgimp/gimp.h,GIMP_LIBS="-lgimp")
-
-  CPPFLAGS="${saved_CPPFLAGS}"
-  LIBS="${saved_LIBS}"
-fi
 AC_SUBST(INCLUDES)
-AC_SUBST(XSCAN)
-AC_SUBST(GTK_CFLAGS)
-AC_SUBST(GTK_LIBS)
-AC_SUBST(GIMP_LIBS)
 CPPFLAGS="${CPPFLAGS} -DPATH_SANE_CONFIG_DIR=\$(configdir) \
 	  -DPATH_SANE_DATA_DIR=\$(datadir) \
 	  -DV_MAJOR=${V_MAJOR} -DV_MINOR=${V_MINOR}"

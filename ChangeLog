@@ -1,3 +1,8 @@
+2001-06-13  Karl Heinz Kremer <khk@khk.net>
+	
+	* backend/epson.desc: Added GT-9500 (same scanner as Expression 636)
+	* backend/epson.c: Finally updated version #
+
 2001-06-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* TODO: Updated the entries about documentation.

@@ -1,3 +1,8 @@
+2002-03-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* sanei_wire.c: Set allocated memory to 0 to avoid delivering
+	  garbage to the frontend.
+
 2002-03-19  Frank Zago <fzago@greshamstorage.com>
 
 	* matsushita backend: updates and fixes.

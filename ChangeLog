@@ -1,3 +1,8 @@
+2002-04-22 Karl Heinz Kremer <khk@khk.net>
+
+	* backend/epson.c: Declare close_scanner() and open_scanner() before
+	  they are used
+
 2002-04-21 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 
 	* sane-umax backend update to version 1.0 build 34

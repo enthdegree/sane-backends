@@ -1,3 +1,8 @@
+2002-04-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/test.c doc/descriptions/test.desc: Check if sane_init was
+	  called before any other SANE function.
+
 2002-04-21  Abel Deuring <a.deuring@satzbau-gmbh.de>
 	* backend/sharp.c: added a "free(devlist)" call to sane_exit
 

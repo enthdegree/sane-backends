@@ -1,3 +1,7 @@
+2000-11-27  Oliver Rauch <Oliver.Rauch@Wolfsburg.DE>
+
+	* backend/umax.c: corrected wrong BUILD (25->24)
+
 2000-11-26  Henning Meier-Geinitz <hmg@gmx.de>
 
 	* AUTHORS: Added Karsten Festag as maintainer of microtek2.

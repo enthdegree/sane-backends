@@ -30,8 +30,7 @@ V_MAJOR = @V_MAJOR@
 V_MINOR = @V_MINOR@
 V_REV = @V_REV@
 DLL_PRELOAD = @DLL_PRELOAD@
-DLL_PRELOAD_EXTRAS = $(foreach be,$(DLL_PRELOAD),$($(addprefix EXTRA_,$(be))))\
-                     @DJPEG@ 
+DLL_PRELOAD_EXTRAS = $(foreach be,$(DLL_PRELOAD),$($(addprefix EXTRA_,$(be))))
 
 MKDIR = $(top_srcdir)/mkinstalldirs
 INSTALL = @INSTALL@
@@ -86,10 +85,10 @@ DISTFILES = abaton.c abaton.conf abaton.h agfafocus.c agfafocus.conf \
   as6e.h avision.c avision.conf avision.h bh.c bh.conf bh.h canon.c \
   canon.conf canon.h canon-sane.c canon-scsi.c canon630u.c canon630u-common.c \
   canon630u.conf canon_pp.conf canon_pp.h canon_pp.c canon_pp-dev.c \
-  canon_pp-dev.h canon_pp-io.c canon_pp-io.h cderror.h cdjpeg.h coolscan.c \
+  canon_pp-dev.h canon_pp-io.c canon_pp-io.h coolscan.c \
   coolscan.conf coolscan.h coolscan-scsidef.h coolscan2.c coolscan2.conf \
   dc210.c dc210.conf dc210.h \
-  dc240.c dc240.conf dc240.h dc25.c dc25.conf dc25.h djpeg.c djpeg.README \
+  dc240.c dc240.conf dc240.h dc25.c dc25.conf dc25.h \
   dll.aliases dll.c dll.conf dmc.c dmc.conf dmc.h \
   epson.c epson_scsi.c epson_usb.c epson.conf epson.h epson_scsi.h \
   epson_usb.h \
@@ -108,7 +107,6 @@ DISTFILES = abaton.c abaton.conf abaton.h agfafocus.c agfafocus.conf \
   hp5400_internal.c hp5400_internal.h hp5400_xfer.h \
   hp5400_sane.c hp5400_sanei.c hp5400_sanei.h \
   ibm.c ibm.conf ibm.h ibm-scsi.c \
-  jinclude.h \
   leo.c leo.h leo.conf \
   lm9830.h \
   ma1509.c ma1509.conf ma1509.h \
@@ -246,8 +244,6 @@ EXTRA_canon_pp = canon_pp-io canon_pp-dev
 EXTRA_hp = hp-accessor hp-device hp-handle hp-hpmem hp-option hp-scl
 EXTRA_umax_pp = umax_pp_low umax_pp_mid
 EXTRA_epson = epson_scsi epson_usb
-# EXTRA_dc210 = djpeg
-# EXTRA_dc240 = djpeg
 
 # When preloading dll, we need to add in all preloaded objects:
 libsane-dll.la: $(addsuffix .lo,$(DLL_PRELOAD))
@@ -293,8 +289,8 @@ libsane-coolscan2.la: ../sanei/sanei_constrain_value.lo
 libsane-coolscan2.la: ../sanei/sanei_scsi.lo
 libsane-coolscan2.la: ../sanei/sanei_usb.lo
 libsane-dc25.la: ../sanei/sanei_constrain_value.lo
-libsane-dc210.la: ../sanei/sanei_constrain_value.lo djpeg.lo
-libsane-dc240.la: ../sanei/sanei_constrain_value.lo djpeg.lo
+libsane-dc210.la: ../sanei/sanei_constrain_value.lo  ../sanei/sanei_jpeg.lo
+libsane-dc240.la: ../sanei/sanei_constrain_value.lo  ../sanei/sanei_jpeg.lo
 libsane-dmc.la: ../sanei/sanei_config2.lo
 libsane-dmc.la: ../sanei/sanei_constrain_value.lo
 libsane-dmc.la: ../sanei/sanei_scsi.lo
@@ -308,7 +304,7 @@ libsane-fujitsu.la: ../sanei/sanei_config2.lo
 libsane-fujitsu.la: ../sanei/sanei_constrain_value.lo
 libsane-fujitsu.la: ../sanei/sanei_scsi.lo
 libsane-fujitsu.la: ../sanei/sanei_usb.lo
-libsane-gphoto2.la: ../sanei/sanei_constrain_value.lo djpeg.lo
+libsane-gphoto2.la: ../sanei/sanei_constrain_value.lo  ../sanei/sanei_jpeg.lo
 libsane-gt68xx.la: ../sanei/sanei_constrain_value.lo
 libsane-gt68xx.la: ../sanei/sanei_usb.lo
 libsane-hp.la: ../sanei/sanei_config2.lo
@@ -421,6 +417,10 @@ libsane-dll.la libsane.la: ../sanei/sanei_pa4s2.lo
 libsane-dll.la libsane.la: ../sanei/sanei_usb.lo
 libsane-dll.la libsane.la: ../sanei/sanei_pv8630.lo
 libsane-dll.la libsane.la: ../sanei/sanei_lm983x.lo
+endif
+
+ifneq ($(@SANEI_JPEG@),)
+libsane-dll.la libsane.la: ../sanei/sanei_jpeg.lo
 endif
 
 depend:

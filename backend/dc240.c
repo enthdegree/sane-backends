@@ -68,7 +68,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <limits.h>
-#include "cdjpeg.h"
+#include "sane/sanei_jpeg.h"
 #include <sys/ioctl.h>
 
 #include "sane/sane.h"

@@ -279,9 +279,11 @@ else
     echo "*** disabling DC240 backend (failed to find JPEG library)"
   else
     BACKENDS="${BACKENDS} dc210 dc240"
-    DJPEG=djpeg
+    SANEI_JPEG="sanei_jpeg.o"
+    SANEI_JPEG_LO="sanei_jpeg.lo"
   fi
-  AC_SUBST(DJPEG)
+  AC_SUBST(SANEI_JPEG)
+  AC_SUBST(SANEI_JPEG_LO)
 
   if test "${sane_cv_use_libieee1284}" != "yes"
     then

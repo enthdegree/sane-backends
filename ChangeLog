@@ -1,3 +1,9 @@
+2002-09-03  Abel Deuring <a.deuring@satzbau-gmbh.de>
+	* sanei/sanei_scci.c doc/sanei-scsi.man:
+	  default timeout for SCSI commmands is now 120 seconds; added
+	  the environment variable SANE_SCSICMD_TIMEOUT to override
+	  the default value.
+
 2002-09-01  Matthew Duggan <stauff1@users.sourceforge.net>
 
 	* doc/sane-canon_pp.man doc/descriptions/canon_pp.desc:

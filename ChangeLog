@@ -1,3 +1,10 @@
+2003-06-05  Jochen Eisinger <jochen.eisinger@gmx.de>
+
+	* include/sane/sanei_pa4s2.h, sanei/sanei_pa4s2.c: New sanei_pa4s2
+	  version supporting both raw IO and libieee1284. If you don't
+	  have libieee1284 installed, you need to enable raw IO when
+	  running configure
+	  
 2003-06-06  Oliver Schirrmeister <oschirr@abm.de>
 
 	* backend/fujitsu.h backend/fujitsu.c doc/descriptions/fujitsu.desc

@@ -1,5 +1,5 @@
 /* sane - Scanner Access Now Easy.
-   Copyright (C) 2000 Jochen Eisinger <jochen.eisinger@gmx.net>
+   Copyright (C) 2000-2003 Jochen Eisinger <jochen.eisinger@gmx.net>
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -57,6 +57,19 @@
 #define SANEI_PA4S2_OPT_TRY_MODE_UNI	1	/* enable UNI protocoll */
 #define SANEI_PA4S2_OPT_ALT_LOCK	2	/* use alternative lock cmd */
 /* @} */
+
+/** Get list of possibly available devices
+ *
+ * Returns a list of arguments accepted as *dev by sanei_pa4s2_open
+ *
+ * @return
+ *  - array of known *devs. The last entry is marked as NULL pointer. The
+ *    user has to make sure, the array, but not the entries are freed.
+ *
+ * @sa sanei_pa4s2_open
+ *
+ */
+extern char ** sanei_pa4s2_devices();
 
 /** Open pa4s2 device 
  *
@@ -166,32 +179,4 @@ extern SANE_Status sanei_pa4s2_readend (int fd);
  */
 extern SANE_Status sanei_pa4s2_writebyte (int fd, u_char reg, u_char val);
 
-
-/*
-
-   these are the values you can read from an A4S2-chipset:
-
-   reg  | bits     | description
-   ------+----------+---------------------------------------------
-   0x00 | 76543210 | ASIC-ID: 0xA8 - 1013
-   |          |          0xA5 - 1015
-   |          |          0xA2 - 1505
-   ------+----------+---------------------------------------------
-   0x01 | 76543210 | pixel: depending on the selected channel,
-   |          |        this is a gray/red/green/blue value
-   ------+----------+---------------------------------------------
-   0x02 |      2   | ASIC 1013: CCD-Type (0/4)
-   |        0 | ASIC 1013: 0 = scanner is home
-   |          |
-   |      2 0 | ASIC 1015: CCD-Type (0/1/4 - 5?)
-   |       1  | ASIC 1015: 0 = scanner is home
-   |     3    | ASIC 1015: 1 = motor is moving
-   ------+----------+---------------------------------------------
-   0x03 |      210 | ASIC 1013/1015: bank count
-   ------+----------+---------------------------------------------
-
-
-   register 0x03 can also be written
-   registers 0x05 and 0x06 are used for controlling the scanner
- */
 #endif

@@ -48,8 +48,8 @@ SECT5	= sane-abaton.5 sane-agfafocus.5 sane-apple.5 sane-as6e.5 sane-dll.5 \
           sane-snapscan.5 sane-canon.5 sane-coolscan.5 sane-bh.5 sane-dc240.5 \
           sane-umax_pp.5 sane-umax1220u.5 sane-sm3600.5 sane-usb.5 \
           sane-mustek_usb.5 sane-sceptre.5 sane-canon_pp.5 sane-canon630u.5 \
-          sane-teco1.5 sane-teco3.5 sane-test.5 sane-sp15c.5 sane-coolscan2.5 \
-          sane-hpsj5s.5
+          sane-teco1.5 sane-teco2.5 sane-teco3.5 sane-test.5 sane-sp15c.5 \
+          sane-coolscan2.5 sane-hpsj5s.5
 SECT7   = sane.7
 MANPAGES = $(SECT1) $(SECT5) $(SECT7)
 READMES = README AUTHORS COPYING ChangeLog LEVEL2 LICENSE NEWS PROBLEMS \
@@ -85,8 +85,8 @@ DISTFILES = Makefile.in backend-writing.txt descriptions.txt \
   sane-st400.man sane-tamarack.man sane-umax.man sane-umax1220u.man \
   sane-umax_pp.man sane-usb.man sane-v4l.man sane.man sane.png \
   sane.tex saned.man scanimage.man sane-sceptre.man sane-canon_pp.man \
-  sane-teco1.man sane-teco3.man sane-test.man sane-sp15c.man sane-hpsj5s.man \
-  gamma4scanimage.man
+  sane-teco1.man sane-teco2.man sane-teco3.man sane-test.man sane-sp15c.man \
+  sane-hpsj5s.man gamma4scanimage.man
 
 .PHONY: all clean depend dist distclean html html-man install \
   install-mostang sane-html uninstall

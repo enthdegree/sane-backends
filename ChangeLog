@@ -6,6 +6,7 @@
 	* po/Makefile.in README: Made Makefile more intelligent. Targets
 	  are only updated if necessary. No manual copying necessary.
 	* backend/mustek_usb.desc: New status: beta.
+	* README: Added description of --enable-translations.
 
 2002-01-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

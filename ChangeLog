@@ -1,3 +1,8 @@
+2001-04-17  Karl Heinz Kremer <khk@khk.net>
+
+	* doc/sane-epson.man: Fixed types, some reformatting and got rid
+	  of a duplicate paragraph.
+
 2001-04-17  Henning Meier-Geinitz <hmg@gmx.de>
 
 	* backend/dc210.desc backend/dc240.desc backend/microtek2.desc:

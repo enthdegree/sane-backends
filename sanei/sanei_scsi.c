@@ -883,8 +883,8 @@ sanei_scsi_open (const char *dev, int *fdp,
 
     if (sscanf (dev, "b%dt%dl%d", &bus, &target, &lun) != 3)
       {
-	DBG (1, "sanei_scsi_open: device name %s is not a valid\n",
-	     strerror (errno));
+	DBG (1, "sanei_scsi_open: device name `%s´ is not valid: %s\n",
+	     dev, strerror (errno));
 	return SANE_STATUS_INVAL;
       }
 
@@ -1070,8 +1070,8 @@ sanei_scsi_open (const char *dev, int *fdp,
 	cam_devices[fd] = curdev;
       }
       else {
-	 DBG(1, "sanei_scsi_open: device %s not found\n",
-	     strerror(errno));
+	DBG(1, "sanei_scsi_open: can't open device `%s´: %s\n", dev,
+	    strerror(errno));
 	 return SANE_STATUS_INVAL;
       }
    }
@@ -1083,8 +1083,8 @@ sanei_scsi_open (const char *dev, int *fdp,
 
      if (4 != sscanf(dev, "/dev/passthru0:%d,%d,%d,%d", &bus, &cnt, &id, &lun))
        { 
-	 DBG (1, "sanei_scsi_open: device name %s is not a valid\n", 
-	      strerror (errno)); 
+	 DBG (1, "sanei_scsi_open: device name `%s´ is not valid: %s\n", 
+	      dev, strerror (errno)); 
 	 return SANE_STATUS_INVAL; 
        } 
      dev_addr.psa_bus = bus; 

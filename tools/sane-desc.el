@@ -442,7 +442,7 @@ This page was lasted updated on %s
 <dl>
   <dt><b>Backend:</b></dt>
   <dd>Name of the backend, with a link to more extensive and detailed
-  information, if it exists.</dd>
+  information, if it exists, or the email address of the author or maintainer.</dd>
 
   <dt><b>Version:</b></dt>
   <dd>Version of backend/driver distributed in the lastest SANE release.
@@ -612,4 +612,4 @@ This page was lasted updated on %s
 (defun sane-desc-doit ()
   (interactive)
   (sane-desc-parse-directory ".")
-  (sane-desc-generate-backend-page "/home/httpd/html/sane/sane-backends.html"))
+  (sane-desc-generate-backend-page "../doc/sane-backends.html"))

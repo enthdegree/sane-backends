@@ -50,8 +50,10 @@ DLH	= TEXINPUTS=$(srcdir):$$TEXINPUTS dlh
 MAN2HTML= nroff -man |\
 	  man2html -compress -title $${page} -cgiurl '$$title.$$section.html'|\
 	  sed 's,<BODY>,<BODY BGCOLOR=\#FFFFFF TEXT=\#000000><H1 ALIGN=CENTER><IMG SRC="../sane.png" HEIGHT=117 WIDTH=346></H1>,'
+EMACS   = xemacs
+WWW_PATH= /home/httpd/html/sane/
 
-all: $(MANPAGES)
+all: sane.ps $(MANPAGES) 
 
 %.1 %.5: %.man
 	@sed -e 's|@DATADIR@|$(datadir)|g' \
@@ -62,7 +64,7 @@ all: $(MANPAGES)
 	     -e 's|@SBINDIR@|$(sbindir)|g' $^ >$@
 	@echo Generating manpage $@...
 
-install: $(MANPAGES)
+install: all
 	$(MKDIR) $(mandir)/man1 $(mandir)/man5
 	@for page in $(SECT1); do \
 	  echo installing $${page} in $(mandir)/man1/$${page}...; \
@@ -92,23 +94,25 @@ install: $(MANPAGES)
 	    $(INSTALL_DATA) $${doc} $(docdir)/$${doc}; \
 	  done
 
-sane.ind:
-	touch sane.ind
-	$(LATEX) $(srcdir)/sane
-	makeindex sane.idx
+sane.ind: sane.tex net.tex
+	@echo Generating index for sane.ps...
+	@touch sane.ind
+	@-$(LATEX) $(srcdir)/sane </dev/null >/dev/null && \
+	  makeindex sane.idx 2>/dev/null
 
-ps: sane.ind
-	$(LATEX) $(srcdir)/sane
-	$(LATEX) $(srcdir)/sane
-	dvips sane.dvi -o sane.ps
+sane.ps: sane.ind
+	@echo Generating sane.ps...
+	@-$(LATEX) $(srcdir)/sane </dev/null >/dev/null && \
+	  $(LATEX) $(srcdir)/sane </dev/null >/dev/null && \
+	  dvips sane.dvi -o sane.ps 2>/dev/null
 
-html: sane.ind sane-backends-html html-man
+sane-html: sane.ind
 	$(DLH) $(srcdir)/sane.tex
 
-sane-backends-html:
+sane-backends.html: 
 	cd $(top_srcdir)/backend \
-	 && emacs -batch --load $(top_srcdir)/tools/sane-desc.el \
-		-f sane-desc-doit
+	 && $(EMACS) -batch --load $(top_srcdir)/tools/sane-desc.el \
+	      -f sane-desc-doit
 
 html-man: $(MANPAGES)
 	@for page in $(MANPAGES); do \
@@ -116,7 +120,29 @@ html-man: $(MANPAGES)
 	  cat $${page} | $(MAN2HTML) > $${page}.html; \
 	done
 
-sane.tex: sane.ind
+html: sane-backends.html html-man sane-html
+
+%.gz: %
+	gzip -f -c $^ >$@
+
+install-mostang: html sane.ps sane.ps.gz
+	@echo Installing html manpages in $(WWW_PATH)/man...
+	$(MKDIR) $(WWW_PATH)/man
+	for manpage in $(MANPAGES) ; do \
+	  $(INSTALL_DATA) $${manpage}.html $(WWW_PATH)/man/$${manpage}.html; \
+	done
+	@echo Installing sane-backends.html in $(WWW_PATH)...
+	$(MKDIR) $(WWW_PATH)
+	$(INSTALL_DATA) sane-backends.html $(WWW_PATH)/sane-backends.html
+	@echo Installing SANE standard \(html\) in $(WWW_PATH)/html/...
+	$(MKDIR) $(WWW_PATH)/html/
+	for html in sane/* ; do \
+	  $(INSTALL_DATA) $${html} $(WWW_PATH)/html/ || exit 1; \
+	done
+	@echo Installing SANE standard \(postscript\) in $(WWW_PATH)/...
+	$(INSTALL_DATA) sane.ps $(WWW_PATH)/sane.ps
+	@echo Installing SANE standard \(ps.gz\) in $(WWW_PATH)/...
+	$(INSTALL_DATA) sane.ps.gz $(WWW_PATH)/sane.ps.gz
 
 clean:
 	rm -f *.toc *.aux *.log *.cp *.fn *.tp *.vr *.pg *.ky *.blg *.idx *.cb
@@ -125,14 +151,14 @@ clean:
 distclean: clean
 	rm -f $(MANPAGES)
 	rm -f Makefile *~
-	rm -f *.lot *.lof *.ind
-	rm -f sane.dvi sane.ps
+	rm -f *.lot *.lof *.ind *.gz
+	rm -f sane.dvi sane.ps sane-backends.html
 	rm -f sane/*.html sane/*.gif
+	-rm -rf sane
 	for manpage in $(MANPAGES) ; do \
 	  rm -f $${manpage}.html ; \
 	done
 
-
 depend:
 
-.PHONY: all install depend clean ps html html-man sane-backends-html
+.PHONY: all install depend clean html html-man sane-html install-mostang

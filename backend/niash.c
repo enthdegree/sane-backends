@@ -713,7 +713,7 @@ _InitOptions (TScanner * s)
 	  pDesc->cap =
 	    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE |
 	    SANE_CAP_EMULATED;
-	  pVal->w = 60;
+	  pVal->w = 50;
 
 	default:
 	  DBG (DBG_ERR, "Uninitialised option %d\n", i);
@@ -1240,10 +1240,21 @@ sane_start (SANE_Handle h)
   /* perform a simple calibration just before scanning */
   _WaitForLamp (s, abCalibTable);
 
-  /* copy gamma table */
-  for (i = 0; i < 4096; i++)
+  if (s->aValues[optMode].w == MODE_LINEART)
     {
-      abGamma[i] = s->aGammaTable[i];
+      /* use a unity gamma table for lineart to be independent from Gamma settings */
+      for (i = 0; i < 4096; ++i)
+	{
+	  abGamma[i] = i / 16;
+	}
+    }
+  else
+    {
+      /* copy gamma table */
+      for (i = 0; i < 4096; i++)
+	{
+	  abGamma[i] = s->aGammaTable[i];
+	}
     }
 
   WriteGammaCalibTable (abGamma, abGamma, abGamma, abCalibTable, 0, 0,
@@ -1365,7 +1376,8 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 			 s->iBytesLeft], *len);
   s->iBytesLeft -= *len;
 
-  DBG (DBG_MSG, " read=%d\n", *len);
+  DBG (DBG_MSG, "\n");
+  DBG (DBG_MSG, "read=%d\n", *len);
 
   return SANE_STATUS_GOOD;
 }

@@ -1,3 +1,10 @@
+2002-02-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/Makefile.in backend/dll.conf backend/sceptre.c
+	  backend/sceptre.conf backend/sceptre.desc backend/sceptre.h:
+	  Added sceptre backend for the Sceptre VividScan 1200 (patch from
+	  Frank Zago <fzago@greshamstorage.com>).
+
 2002-02-20  Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c backend/umax_pp.c:  corrected few bugs

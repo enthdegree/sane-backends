@@ -60,7 +60,7 @@ DISTCLEAN_FILES = @DISTCLEAN_FILES@
 @SET_MAKE@
 
 PRELOADABLE_BACKENDS = abaton agfafocus apple artec as6e avision bh canon \
-        canon630u @CANON_PP@ coolscan dc25 @DC210@ @DC240@ dmc epson \
+        canon630u @CANON_PP@ coolscan coolscan2 dc25 @DC210@ @DC240@ dmc epson \
         fujitsu @GPHOTO2@ hp leo matsushita microtek microtek2 \
         mustek mustek_pp mustek_usb nec @NET@ pie @PINT@ plustek \
         @PNM@ @QCAM@ ricoh s9036 sceptre sharp @SM3600@ @SNAPSCAN@ \
@@ -82,7 +82,8 @@ DISTFILES = abaton.c abaton.conf abaton.h agfafocus.c agfafocus.conf \
   canon.conf canon.h canon-sane.c canon-scsi.c canon630u.c canon630u-common.c \
   canon630u.conf canon_pp.conf canon_pp.h canon_pp.c canon_pp-dev.c \
   canon_pp-dev.h canon_pp-io.c canon_pp-io.h cderror.h cdjpeg.h coolscan.c \
-  coolscan.conf coolscan.h coolscan-scsidef.h dc210.c dc210.conf dc210.h \
+  coolscan.conf coolscan.h coolscan-scsidef.h coolscan2.c coolscan2.conf \
+  dc210.c dc210.conf dc210.h \
   dc240.c dc240.conf dc240.h dc25.c dc25.conf dc25.h djpeg.c djpeg.README \
   dll.aliases dll.c dll.conf dmc.c dmc.conf dmc.h epson.c epson.conf epson.h \
   fujitsu.c fujitsu.conf fujitsu.h fujitsu-scsi.h \
@@ -256,6 +257,10 @@ libsane-canon_pp.la: $(addsuffix .lo,$(EXTRA_canon_pp))
 libsane-coolscan.la: ../sanei/sanei_config2.lo
 libsane-coolscan.la: ../sanei/sanei_constrain_value.lo
 libsane-coolscan.la: ../sanei/sanei_scsi.lo
+libsane-coolscan2.la: ../sanei/sanei_config2.lo
+libsane-coolscan2.la: ../sanei/sanei_constrain_value.lo
+libsane-coolscan2.la: ../sanei/sanei_scsi.lo
+libsane-coolscan2.la: ../sanei/sanei_usb.lo
 libsane-dc25.la: ../sanei/sanei_constrain_value.lo
 libsane-dc210.la: ../sanei/sanei_constrain_value.lo djpeg.lo
 libsane-dc240.la: ../sanei/sanei_constrain_value.lo djpeg.lo

@@ -22,6 +22,12 @@
 :mfg "Artec"
 :url "http://www.artecusa.com/"
 
+:model "AM12e+"
+:status :unsupported
+;:url ""
+:interface "Parport"
+:comment "Unsupported. Chipset unknown. Maybe similar to SCSI version or as6e?"
+
 :model "Ultima 2000 (0x4001)"
 :status :unsupported
 :url "http://umax1220u-sane.sourceforge.net/index.php?ScannerChipsets"

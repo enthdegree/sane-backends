@@ -1,5 +1,6 @@
 2001-05-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* include/lalloca.h: Used a more suitable comment.
 	* doc/backend-writing.txt: Reformated. Added point about headers
 	  and libraries that are not available on every system and inclusion
 	  of backends into CVS. Some minor fixes and clarifications.

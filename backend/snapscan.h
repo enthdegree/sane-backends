@@ -52,6 +52,8 @@
 #ifndef snapscan_h
 #define snapscan_h
 
+#include "../include/sane/sane.h"
+
 #define UNREFERENCED_PARAMETER(x)           ((void) x)
 
 /* snapscan device field values */
@@ -98,6 +100,7 @@ typedef enum
     PRISA5000,          /* Acer ScanPrisa 5000 - 1200 DPI */
     PRISA5300,          /* Acer ScanPrisa 5300 - 1200 DPI */
     PERFECTION660,      /* Epson Perfection 660 - 1200 DPI */
+    PERFECTION1670,     /* Epson Perfection 1670 - 1600 DPI */
     ARCUS1200		/* Agfa Arcus 1200 - 1200 DPI (rebadged Acer?) */
 } SnapScan_Model;
 
@@ -129,8 +132,9 @@ static struct SnapScan_Driver_desc drivers[] =
     {PRISA1240,      "Acer1240"},
     {PRISA5000,      "Acer5000"},
     {PRISA5300,      "Acer5300"},
+    {ARCUS1200,      "Arcus1200"},
     {PERFECTION660,  "Perfection 660"},
-    {ARCUS1200,      "Arcus1200"}
+    {PERFECTION1670, "Perfection 1670"}
 };
 
 #define known_drivers ((int) (sizeof(drivers)/sizeof(drivers[0])))
@@ -178,6 +182,7 @@ static struct SnapScan_Model_desc scanners[] =
     {"SnapScan",            SNAPSCAN},
     {"ACERSCAN_A4____1",    ACER300F},
     {"Perfection 660",      PERFECTION660},
+    {"EPSON Scanner",       PERFECTION1670},
     {"ARCUS 1200",          ARCUS1200}
 };
 #define known_scanners ((int) (sizeof(scanners)/sizeof(scanners[0])))
@@ -369,6 +374,9 @@ struct snapscan_scanner
 
 /*
  * $Log$
+ * Revision 1.24  2003/10/07 18:29:20  oliver-guest
+ * Initial support for Epson 1670, minor bugfix
+ *
  * Revision 1.23  2003/09/12 16:10:33  hmg-guest
  * Moved union Option_Value from backend header files to sanei_backend.h. No need
  * to copy it over and over again. Changed header inclusion order in backend

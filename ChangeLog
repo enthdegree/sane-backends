@@ -1,3 +1,8 @@
+2003-10-07  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+	* backend/snapscan.h backend/snapscan.c backend/snapscan-option.c
+	  Initial support for Epson Perfection 1670, minor bugfix
+	  (#300247)
+
 2003-10-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* acinclude.m4 aclocal.m4 configure configure

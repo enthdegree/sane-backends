@@ -142,6 +142,8 @@ static void init_options (SnapScan_Scanner * ps)
         {8, 50, 75, 100, 150, 200, 300, 450, 600};
     static SANE_Word resolutions_1200[] =
         {10, 50, 75, 100, 150, 200, 300, 450, 600, 900, 1200};
+    static SANE_Word resolutions_1600[] =
+        {10, 50, 75, 100, 150, 200, 300, 450, 600, 900, 1200, 1600};
     static SANE_String_Const names_all[] =
         {md_colour, md_bilevelcolour, md_greyscale, md_lineart, NULL};
     static SANE_String_Const names_basic[] =
@@ -214,6 +216,9 @@ static void init_options (SnapScan_Scanner * ps)
     case PRISA5000:
     case ARCUS1200:
         po[OPT_SCANRES].constraint.word_list = resolutions_1200;
+        break;
+    case PERFECTION1670:
+        po[OPT_SCANRES].constraint.word_list = resolutions_1600;
         break;
     default:
         po[OPT_SCANRES].constraint.word_list = resolutions_600;
@@ -1388,6 +1393,9 @@ SANE_Status sane_control_option (SANE_Handle h,
 
 /*
  * $Log$
+ * Revision 1.9  2003/10/07 18:29:20  oliver-guest
+ * Initial support for Epson 1670, minor bugfix
+ *
  * Revision 1.8  2003/08/19 21:05:08  oliverschwartz
  * Scanner ID cleanup
  *

@@ -78,7 +78,7 @@
 
 #define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
-#define BUILD               27
+#define BUILD               28
 
 #define BACKEND_NAME snapscan
 
@@ -165,7 +165,7 @@ static char src_tpo[] = SANE_I18N("Transparency Adapter");
 static char src_adf[] = SANE_I18N("Document Feeder");
 
 /* predefined scan window setting names */
-static char pdw_none[] = SANE_I18N("none");
+static char pdw_none[] = SANE_I18N("None");
 static char pdw_6X4[] = SANE_I18N("6x4 (inch)");
 static char pdw_8X10[] = SANE_I18N("8x10 (inch)");
 static char pdw_85X11[] = SANE_I18N("8.5x11 (inch)");
@@ -1770,6 +1770,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.33  2003/10/07 18:29:20  oliver-guest
+ * Initial support for Epson 1670, minor bugfix
+ *
  * Revision 1.32  2003/09/24 18:05:39  oliver-guest
  * Bug #300198: Check second argument of sanei_config_get_string
  *

@@ -73,7 +73,7 @@ fi
 dnl Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS(fcntl.h unistd.h libintl.h libc.h sys/dsreq.h sys/select.h \
-    sys/time.h jconfig.h \
+    sys/time.h \
     sys/scanio.h scsi.h sys/scsi.h sys/scsicmd.h sys/scsiio.h \
     bsd/dev/scsireg.h scsi/sg.h /usr/src/linux/include/scsi/sg.h io/cam/cam.h \
     camlib.h os2.h sys/socket.h sys/io.h asm/io.h gscdds.h sys/hw.h \
@@ -137,7 +137,8 @@ AC_CHECK_LIB(m,sqrt)
 AC_CHECK_LIB(scsi, scsireq_enter)	# FreeBSD needs this
 AC_CHECK_LIB(cam, cam_open_device)      # FreeBSD 3+ needs this
 AC_CHECK_LIB(syslog, syslog)            # OS/2 needs this
-AC_CHECK_LIB(jpeg, jpeg_start_decompress)
+
+SANE_CHECK_JPEG
 
 dnl IRIX sometimes has SYSVR3/4 network DSOs, but we do not need or want
 dnl to use them!
@@ -172,7 +173,7 @@ CPPFLAGS="${CPPFLAGS} -DPATH_SANE_CONFIG_DIR=\$(configdir) \
 	  -DPATH_SANE_DATA_DIR=\$(datadir) \
 	  -DV_MAJOR=${V_MAJOR} -DV_MINOR=${V_MINOR}"
 
-if test "${ac_cv_header_jconfig_h}" = "no"; then
+if test "${sane_cv_use_libjpeg}" != "yes"; then
   echo "disabling DC210 backend (failed to find JPEG library)"
   DC210=
 else

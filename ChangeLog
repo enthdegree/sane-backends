@@ -10,7 +10,7 @@
 	* doc/descriptions/unsupported.desc
 	  doc/descriptions-external/hp_rts88xx.desc: Moved HP 35xx
 	  scanners to hp_rts88x backend. Updated status settings and URL
-	  (from johanneshub@foni.net).
+	  (from johanneshub@foni.net). Updated link to Tamarack 9600 project.
 	* doc/descriptions-external/brother.desc: Seems to work in version
 	  0.0.12 at least for one scanner.
 

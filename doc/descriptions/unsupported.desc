@@ -1317,10 +1317,16 @@
 ;:comment ""
 ;:url ""
 
+:model "Artiscan 9600"                ; name models for above-specified mfg.
+:interface "Parport"
+:status :unsupported
+:url "http://www.autistici.org/tamarhack/"
+:comment "Unsupported at the moment. See link for a project for that scanner taht may support it in future."
+
 :model "Artiscan 9600 pro 36"                ; name models for above-specified mfg.
 :interface "Parport"
 :status :unsupported
-:url "http://home.pages.at/artiscann9600/"
+:url "http://www.autistici.org/tamarhack/"
 :comment "Unsupported at the moment. See link for a project for that scanner."
 
 ;********************************************************************************************

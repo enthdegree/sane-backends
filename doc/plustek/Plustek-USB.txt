@@ -1,4 +1,4 @@
-Plustek-USB.txt (2003-17-09) Gerhard Jäger <gerhard@gjaeger.de>
+Plustek-USB.txt (2003-24-09) Gerhard Jäger <gerhard@gjaeger.de>
 ================================================================
 
 NOTE:
@@ -112,7 +112,7 @@ a SANE backends archive (i.e. sane-backends-1.0.9.tar.gz)
 a driver archive (i.e. plustek-sane-0.45-1.tar.gz)
 
 The latest SANE archive can be obtained at:
-http://www.mostang.com/sane
+http://www.sane-project.org
 and the latest backend at:
 http://www.gjaeger.de/scanner/plustek.html
 
@@ -236,7 +236,7 @@ Debugging your USB scanner (written by Kev Green)
 Firstly, are you running the latest version of SANE, and the Plustek USB driver?
 
 Double check at http://www.gjaeger.de/scanner/plustek.html
-(Plustek USB driver) and http://www.mostang.com/sane/ (SANE Suite) to
+(Plustek USB driver) and http://www.sane-project.org (SANE Suite) to
 make sure you are.
 
 Now, in order to test and utilise your scanner with the Scanner Access Now Easy

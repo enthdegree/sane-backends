@@ -162,7 +162,7 @@ printer. The other one is to connect the printer to another parallel port.
 
 Here you will not find how to setup xscanimage to work with GIMP or
 how to compile sane to obtain xscanimage, for such questions, please
-refer to the mailing lists at SANE (http://www.mostang.com/sane)
+refer to the mailing lists at SANE (http://www.sane-project.org)
 
 
 SYMPTOM: error in loading shared libraries: libsane.so.1: cannot open

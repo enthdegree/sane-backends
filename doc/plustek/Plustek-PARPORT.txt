@@ -1,4 +1,4 @@
-Plustek-PARPRORT.txt (2003-01-11) Gerhard Jäger <gerhard@gjaeger.de>
+Plustek-PARPRORT.txt (2003-09-24) Gerhard Jäger <gerhard@gjaeger.de>
 ====================================================================
 
 
@@ -22,7 +22,7 @@ a SANE backends archive   (i.e. sane-backends-1.0.9.tar.gz)
 a driver archive (i.e. plustek-sane-0.45-1.tar.gz)
 
 The latest SANE archive can be obtained at:
-http://www.mostang.com/sane
+http://www.sane-project.org
 and the latest backend at:
 http://www.gjaeger.de/scanner/plustek.html
 

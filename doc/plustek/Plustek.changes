@@ -1,11 +1,12 @@
-Plustek.changes (2003-22-09) Gerhard Jäger <gerhard@gjaeger.de>
+Plustek.changes (2003-24-09) Gerhard Jäger <gerhard@gjaeger.de>
 ===============================================================
 
-V 0.46 (2003-15-09)
--------------------
+V 0.46-1 (2003-24-09)
+---------------------
 - Added alternate calibration for CIS devices
 - Added coarse calibration data-cache
 - Moved parallelport code to extra backend file plustek_pp
+- Fixed some minor bugs
 
 V 0.45 (2003-05-08)
 -------------------

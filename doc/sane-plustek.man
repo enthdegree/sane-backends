@@ -1,4 +1,4 @@
-.TH sane-plustek 5 "9 Jan 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-plustek 5 "22 Mar 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-plustek
 .SH NAME
 sane-plustek \- SANE backend for LM983[1/2/3] based
@@ -145,6 +145,8 @@ USB Model:         ASIC:  Properties:              Prod-ID
 CanoScan N650/656U LM9832  600x1200dpi 42bit 512Kb 0x2206
 .br
 CanoScan N1220U    LM9832 1200x2400dpi 42bit 512Kb 0x2207
+.br
+CanoScan D660U     LM9832  600x1200dpi 42bit 512Kb 0x2208
 .br
 CanoScan N670/676U LM9833  600x1200dpi 48bit 512Kb 0x220D
 .br

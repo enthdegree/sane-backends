@@ -1,4 +1,4 @@
-U12.changes (2004-19-01) Gerhard Jäger <gerhard@gjaeger.de>
+U12.changes (2004-21-01) Gerhard Jäger <gerhard@gjaeger.de>
 ===========================================================
 
 V 0.01-1 (2004-09-01)
@@ -16,4 +16,9 @@ V 0.02-4 (2004-19-01)
 ---------------------
 - activated cancel function
 - added lamp off timer function
-                         
+
+V 0.02-6 (2004-21-01)
+---------------------
+- compilation fixes
+- changes to some structures
+                                  

@@ -1,4 +1,4 @@
-Plustek-PARPRORT.txt (2003-10-27) Gerhard Jäger <gerhard@gjaeger.de>
+Plustek-PARPRORT.txt (2004-03-28) Gerhard Jäger <gerhard@gjaeger.de>
 ====================================================================
 
 
@@ -16,17 +16,13 @@ The kernel module
 
 As it might be helpful to create and use the kernel-module, this way still
 exists. It's possible to create this module out of the backend sources
-in sane-backends/backend and the makefile (Makefile.module) in this
-directory. Simply do
+in sane-backends/backend. Simply do (as root user)
 
-make -f Makefile.module all
+./MakeModule.sh
 
-Then the module should be compiled. To install and load it, make sure you
-are root user, then do:
+Then the module should be compiled, installed and loaded.
 
-make -f Makefile.module install
-
-add the following three lines to file /etc/conf.modules (or /etc/modules.conf)
+Add the following three lines to file /etc/modules.conf 
 
 alias char-major-40	pt_drv
 pre-install pt_drv modprobe -k parport
@@ -34,8 +30,6 @@ options pt_drv lampoff=180 warmup=15 port=0x378 lOffonEnd=0 mov=0 slowIO=1
 
 See man page for sane-plustek_pp ("man sane-plustek_pp") for explanation of
 these options.
-
-make -f Makefile.module load
 
 Now "scanimage -L" should show something like this:
 device `plustek:/dev/pt_drv' is a Plustek 9630P flatbed scanner

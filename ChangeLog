@@ -9,6 +9,7 @@
 	  .desc files.
 	* doc/sane.man: Added paragraph about testing with the test backend.
 	* TODO: Removed several avision bug entries.
+	* NEWS: First version of entry for 1.0.8.
 
 2002-04-21  Frank Zago <fzago@greshamstorage.com>
 

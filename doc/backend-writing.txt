@@ -1,4 +1,4 @@
-2001-05-26
+2001-06-10
 
 When you start writing a backend, please contact the SANE mailing list in
 order to add your backend to the PROJECTS file.
@@ -160,6 +160,11 @@ DOCUMENTATION
 * When your backend is included in the SANE distribution, add an entry
   to doc/sane.man, AUTHORS and sane-backends.lsm. The sane.man entry should
   point to your documentation (man-page, website, readme).
+
+* In your manual page (backend.man), use @LIBDIR@ and the other macros for
+  path names to the libraries, config files and documentation. Don't use
+  fixed paths as they will be wrong if SANE is installed with a different
+  prefix (e.g. /usr instead of /usr/local).
 
 * If you want to include READMEs, HTML files or other documentation,
   please create your own directory (doc/backendname) and store your files

@@ -1,11 +1,15 @@
 2002-05-02  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
+	* doc/description/snapscan.desc: Fix URL
+
+2002-05-02  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
 	* backend/snapscan.c   backend/snapscan-options.c
 	  backend/snapscan-scsi.c backend/snapscan-usb.c po/snapscan.de.po: 
 	  Snapscan backend version 1.4.13
 	  - Support for ADF
 	  - Fixed status handling after cancel
-	* backend/snapscan.desc: 
+	* doc/description/snapscan.desc: 
 	  - Add Guillemot Scan@home 1248 USB
 	  - Fix vendor URLs
 
@@ -44,9 +48,6 @@
 	  Snapscan backend version 1.4.12
 	  - Removed SCSI debug options
 	  - Fixed option handling (errors found by tstbackend)
-	* backend/snapscan.desc: 
-	  - Add Guillemot Scan@home 1248 USB
-	  - Fix vendor URLs
 
 2002-04-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

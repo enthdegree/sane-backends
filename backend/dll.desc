@@ -2,6 +2,7 @@
 :version "1.0.2"
 :status :beta
 :manpage "sane-dll"
+:url "mailto:henning@meier-geinitz.de"
 
 :devicetype :meta
 :desc "Dynamic loading of shared-library backends."

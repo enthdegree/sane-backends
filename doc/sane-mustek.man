@@ -48,7 +48,7 @@ Trust SCSI Connect 19200
 .RE
 .PP
 More details can be found on the Mustek backend homepage 
-.IR http://hmg.home.pages.de/sane/.
+.IR http://www.meier-geinitz.de/sane/.
 .PP
 Don't mix up MFS (Paragon), Pro and ScanExpress models! They're
 completely different. Check the exact model name!
@@ -346,5 +346,5 @@ Some scanners (e.g. Paragon 1200 A3 + Pro, SE A3) need more testing.
 
 More detailed bug information is available at the Mustek backend
 homepage
-.IR http://hmg.home.pages.de/sane/ .
+.IR http://www.meier-geinitz.de/sane/ .
 

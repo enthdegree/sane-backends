@@ -1,4 +1,4 @@
-PROJECTS (2001-04-07)
+PROJECTS (2001-04-29)
 
 Here is a list of projects that various people have expressed interest
 in.  Before starting working on one of these projects, it may be a
@@ -32,6 +32,10 @@ Matthew K. Gray <mkgray@mit.edu>
 EpsPhoto: for PhotoPC500 (wanted?)
 Jeff Tranter <tranter@software.Mitel.COM>
 
+Fujitsu M3091DCd support (wip)
+Frederik Ramm <frederik@remote.org>
+http://www.remote.org/frederik/projects/software/sane/
+
 Handheld scanner support: e.g. for Mustek CG-6000 (wip)
 ftp://www.cs.ubishops.ca/pub/lhii/
 
@@ -42,7 +46,7 @@ Microtek ScanMaker 3600 USB scanner (wip)
 http://sm3600.sourceforge.net
 
 Mustek BearPaw USB scanner (wip)
-Henning Meier-Geinitz <hmg@gmx.de>
+Henning Meier-Geinitz <henning@meier-geinitz.de> et. al.
 
 Mustek 1200 CU USB scanner (planned)
 Daniel Münch <aris.to@gmx.de>

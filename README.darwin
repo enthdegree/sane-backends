@@ -23,7 +23,8 @@ SCSI-scanners:
 --------------
 There is support for SCSI scanners but hasn't had much testing. Please send 
 failure and success reports to the sane-devel mailing list. At least
-the Epson Perfection 1640SU is reported to work.
+the Epson Perfection 1640SU and the CANON IX-06015C (CanoScan 600) are reported
+to work.
 
 sane-find-scanner is not able to find SCSI scanners on MacOS X yet.
 
@@ -32,6 +33,8 @@ USB-scanners:
 Work with libusb. Very limited testing until now. Try 
 "sane-find-scanner -v -v" and report success or failure to the SANE mailing
 list. Backends that use fork to create separate reader processes seem to fail.
+At least the following scanners are known to work:  UMax Astra 1220U and 2000U,
+Epson Perfection 1640SU and 2450 Photo.
 
 Parport-scanners:
 -----------------

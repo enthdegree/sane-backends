@@ -765,12 +765,13 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	      DBG (3, "init: setting global option blue-gain to %ld\n", val);
 	      blue_gain = val;
 	    }
-	  else if (strncmp (cp, "red-highlight", 13) == 0)
+	  else if ((strncmp (cp, "red-highlight", 13) == 0)
+		   && isspace (cp[13]))
 	    {
 	      char *end;
 	      long int val;
 
-	      cp += 9;
+	      cp += 14;
 
 	      errno = 0;
 	      val = strtol (cp, &end, 0);
@@ -789,12 +790,12 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	      red_highlight = val;
 	    }
 	  else if (strncmp (cp, "green-highlight", 15) == 0
-		   && isspace (cp[10]))
+		   && isspace (cp[15]))
 	    {
 	      char *end;
 	      long int val;
 
-	      cp += 11;
+	      cp += 16;
 
 	      errno = 0;
 	      val = strtol (cp, &end, 0);
@@ -811,12 +812,12 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 		   val);
 	      green_highlight = val;
 	    }
-	  else if (strncmp (cp, "blue-highlight", 14) == 0 && isspace (cp[9]))
+	  else if (strncmp (cp, "blue-highlight", 14) == 0 && isspace (cp[14]))
 	    {
 	      char *end;
 	      long int val;
 
-	      cp += 10;
+	      cp += 15;
 
 	      errno = 0;
 	      val = strtol (cp, &end, 0);

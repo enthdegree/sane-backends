@@ -1,3 +1,11 @@
+2002-04-24  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan.c   backend/snapscan.h   backend/snapscan-options.c
+          backend/snapscan-scsi.c: Snapscan backend version 1.4.11
+          - Improve scan area option setting
+          - Cleanup of DBG messages
+          - Improve config file reading
+
 ---- BACKEND FREEZE FOR SANE 1.0.8 ---
 
 2002-04-23  Frank Zago <fzago@greshamstorage.com>

@@ -105,7 +105,7 @@ static char *scanner_str[] =
   "UMAX ",	"Mirage II ",
   "UMAX ",	"Mirage IIse ",
   "UMAX ",	"PL-II ",
-/*  "UMAX ",	"PowerLook 2000 ", */
+  "UMAX ",	"Power Look 2000 ",
   "UMAX ",	"PowerLook 2100XL",
   "UMAX ",	"PowerLook III ",
   "UMAX ",	"PowerLook 3000 ",

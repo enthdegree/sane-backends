@@ -49,7 +49,7 @@
 
 /* --------------------------------------------------------------------------------------------------------- */
 
-#define BUILD 37
+#define BUILD 38
 
 /* --------------------------------------------------------------------------------------------------------- */
 
@@ -2920,6 +2920,17 @@ static void umax_correct_inquiry(Umax_Device *dev, char *vendor, char *product, 
         dev->calibration_width_offset_batch = 828;
         DBG(DBG_warning," - adding calibration width offset for batch scanning of %d pixels\n", dev->calibration_width_offset_batch);
       }
+    }
+    else if (!strncmp(product, "Power Look 2000", 15))
+    {
+      DBG(DBG_warning,"setting up special options for %s\n", product);
+
+      if (dev->calibration_width_offset == -99999) /* no calibration-width-offset defined in umax.conf */
+      {
+        dev->calibration_width_offset = 52;
+        DBG(DBG_warning," - adding calibration width offset of %d pixels\n", dev->calibration_width_offset);
+      }
+      /* calibration_area = image */
     }
     else if (!strncmp(product, "PowerLook 2100XL", 16))
     {
@@ -5956,8 +5967,8 @@ SANE_Status sane_init(SANE_Int *version_code, SANE_Auth_Callback authorize)
       else if (umax_test_configure_option(option_str, "slow-speed",                     &umax_slow,                     -1,   1));
       else if (umax_test_configure_option(option_str, "care-about-smearing",            &umax_smear,                    -1,   1));
       else if (umax_test_configure_option(option_str, "calibration-full-ccd",           &umax_calibration_area,         -1,   1));
-      else if (umax_test_configure_option(option_str, "calibration-width-offset",       &umax_calibration_width_offset, -99999, 65535));
       else if (umax_test_configure_option(option_str, "calibration-width-offset-batch", &umax_calibration_width_offset_batch, -99999, 65535));
+      else if (umax_test_configure_option(option_str, "calibration-width-offset",       &umax_calibration_width_offset, -99999, 65535));
       else if (umax_test_configure_option(option_str, "calibration-bytes-pixel",        &umax_calibration_bytespp,      -1,   2));
       else if (umax_test_configure_option(option_str, "exposure-time-rgb-bind",         &umax_exposure_time_rgb_bind,   -1,   1));
       else if (umax_test_configure_option(option_str, "invert-shading-data",            &umax_invert_shading_data,      -1,   1));

@@ -48,7 +48,7 @@
 
 /*--------------------------------------------------------------------------*/
 
-#define BUILD 8			/* 2002/09/07 */
+#define BUILD 9			/* 2002/10/09 */
 #define BACKEND_NAME teco1
 #define TECO_CONFIG_FILE "teco1.conf"
 
@@ -179,6 +179,16 @@ static const struct scanners_supported scanners[] = {
    256,				/* number of bytes per gamma color */
    99				/* number of bytes in a window */
    },
+
+  {6, "TECO VM352A",
+   TECO_VM3520,					/* same as AVEC 2400 */
+   "Relisys", "AVEC Colour 2412",
+   {1, 600, 1},
+   300, 600,
+   3,
+   256,
+   99
+  },
 
   {6, "TECO VM4542",
    TECO_VM4542,
@@ -885,11 +895,8 @@ teco_send_gamma (Teco_Scanner * dev)
     }
   else
     {
-
       if (dev->scan_mode == TECO_BW)
 	{
-
-	  int shift = GAMMA_LENGTH >> 8;
 	  /* Map threshold from a 0..255 scale to a
 	   * 0..GAMMA_LENGTH scale. */
 	  unsigned int threshold =

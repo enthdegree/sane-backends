@@ -44,7 +44,7 @@ dumpinquiry
 .PP
 .SH FILES
 .TP
-.I /usr/local/etc/sane.d/dc25.conf
+.I @CONFIGDIR@/dc25.conf
 The backend configuration file (see also description of
 .B SANE_CONFIG_DIR
 below).
@@ -64,13 +64,13 @@ contain the configuration file.  Under UNIX, the directories are
 separated by a colon (`:'), under OS/2, they are separated by a
 semi-colon (`;').  If this variable is not set, the configuration file
 is searched in two default directories: first, the current working
-directory (".") and then in /usr/local/etc/sane.d.  If the value of the
+directory (".") and then in @CONFIGDIR@.  If the value of the
 environment variable ends with the directory separator character, then
 the default directories are searched after the explicitly specified
 directories.  For example, setting
 .B SANE_CONFIG_DIR
 to "/tmp/config:" would result in directories "tmp/config", ".", and
-"/usr/local/etc/sane.d" being searched (in this order).
+"@CONFIGDIR@" being searched (in this order).
 .TP
 .B SANE_DEBUG_DC25
 If the library was compiled with debugging support enabled, this

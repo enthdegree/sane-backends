@@ -206,7 +206,7 @@ sanei_usb_init (void)
 #if defined(__linux__)
     "/dev/", "usbscanner",
     "/dev/usb/", "scanner",
-#elif defined(__FreeBSD__)
+#elif defined(__FreeBSD__) || defined(__NetBSD__) || defined (__OpenBSD__)
     "/dev/", "uscanner",
 #endif
     0, 0

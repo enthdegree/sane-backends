@@ -18,8 +18,7 @@
 */
 
 /** @file sanei.h
- *  This file declares SANE internal routines that are provided to
- *  simplify backend implementation. 
+ *  Convenience macros and function declarations for backends
  */
 
 /* Doxygen documentation */
@@ -103,7 +102,5 @@
  */
 extern SANE_Status sanei_constrain_value (const SANE_Option_Descriptor * opt,
 					  void * value, SANE_Word * info);
-extern int sanei_save_values (int fd, SANE_Handle device);
-extern int sanei_load_values (int fd, SANE_Handle device);
 
 #endif /* sanei_h */

@@ -1,5 +1,14 @@
 CHANGES for the SANE Mustek USB backend
 
+2002-07-17:
+  * Release of version 1.0-15. 
+
+2002-07-17:
+  * Added manufacturer comment in mustek_usb.desc.
+  * Changed brightness to threshold.
+  * Fixed some warnings.
+  * Really check the status in usb_low_open.
+
 2002-04-24:
   * Release of version 1.0-14. 
 

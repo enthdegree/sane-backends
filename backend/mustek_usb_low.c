@@ -67,8 +67,8 @@ usb_low_init (ma1017 ** chip_address)
 
   if (!chip)
     {
-      DBG (3, "usb_low_init: couldn't malloc %d bytes for chip\n",
-	   sizeof (ma1017));
+      DBG (3, "usb_low_init: couldn't malloc %ld bytes for chip\n",
+	   (long int) sizeof (ma1017));
       *chip_address = 0;
       return SANE_STATUS_NO_MEM;
     }
@@ -2829,7 +2829,7 @@ usb_low_open (ma1017 * chip, SANE_String_Const devname)
       chip->is_opened = SANE_TRUE;
       /* Try to get vendor and device ids */
       DBG (7, "usb_low_open: trying to identify device `%s'\n", devname);
-      RIE (usb_low_identify_scanner (chip->fd, &scanner_type));
+      status = usb_low_identify_scanner (chip->fd, &scanner_type);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (3, "usb_low_open: device `%s' doesn't look like a supported "

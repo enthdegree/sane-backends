@@ -46,7 +46,7 @@
    This file implements a SANE backend for Mustek 1200UB and similar 
    USB flatbed scanners.  */
 
-#define BUILD 14
+#define BUILD 15
 
 #include "../include/sane/config.h"
 
@@ -357,16 +357,16 @@ init_options (Mustek_Usb_Scanner * s)
   s->opt[OPT_ENHANCEMENT_GROUP].cap = 0;
   s->opt[OPT_ENHANCEMENT_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
-  /* brightness */
-  s->opt[OPT_BRIGHTNESS].name = SANE_NAME_BRIGHTNESS;
-  s->opt[OPT_BRIGHTNESS].title = SANE_TITLE_BRIGHTNESS;
-  s->opt[OPT_BRIGHTNESS].desc = SANE_DESC_BRIGHTNESS;
-  s->opt[OPT_BRIGHTNESS].type = SANE_TYPE_INT;
-  s->opt[OPT_BRIGHTNESS].unit = SANE_UNIT_NONE;
-  s->opt[OPT_BRIGHTNESS].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_BRIGHTNESS].constraint.range = &char_range;
-  s->opt[OPT_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
-  s->val[OPT_BRIGHTNESS].w = 0;
+  /* threshold */
+  s->opt[OPT_THRESHOLD].name = SANE_NAME_THRESHOLD;
+  s->opt[OPT_THRESHOLD].title = SANE_TITLE_THRESHOLD;
+  s->opt[OPT_THRESHOLD].desc = SANE_DESC_THRESHOLD;
+  s->opt[OPT_THRESHOLD].type = SANE_TYPE_INT;
+  s->opt[OPT_THRESHOLD].unit = SANE_UNIT_NONE;
+  s->opt[OPT_THRESHOLD].constraint_type = SANE_CONSTRAINT_RANGE;
+  s->opt[OPT_THRESHOLD].constraint.range = &u8_range;
+  s->opt[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE;
+  s->val[OPT_THRESHOLD].w = 128;
 
   /* custom-gamma table */
   s->opt[OPT_CUSTOM_GAMMA].name = SANE_NAME_CUSTOM_GAMMA;
@@ -593,7 +593,7 @@ static SANE_Status
 fit_lines (Mustek_Usb_Scanner * s, SANE_Byte * src, SANE_Byte * dst,
 	   SANE_Word src_lines, SANE_Word * dst_lines)
 {
-  SANE_Int bright;
+  SANE_Int threshold;
   SANE_Word src_width, dst_width;
   SANE_Word dst_pixel, src_pixel;
   SANE_Word dst_line, src_line;
@@ -602,8 +602,7 @@ fit_lines (Mustek_Usb_Scanner * s, SANE_Byte * src, SANE_Byte * dst,
   src_width = s->hw->width;
   dst_width = s->width_dots;
 
-  bright = s->val[OPT_BRIGHTNESS].w;
-  bright = 128 - bright;
+  threshold = s->val[OPT_THRESHOLD].w;
 
   DBG (5, "fit_lines: dst_width=%d, src_width=%d, src_lines=%d, "
        "offset=%d\n", dst_width, src_width, src_lines, s->hw->line_offset);
@@ -650,7 +649,7 @@ fit_lines (Mustek_Usb_Scanner * s, SANE_Byte * src, SANE_Byte * dst,
 	      if ((dst_pixel % 8) == 0)
 		dst[dst_address] = 0;
 	      dst[dst_address] |=
-		(((src[src_address] > bright) ? 0 : 1)
+		(((src[src_address] > threshold) ? 0 : 1)
 		 << (7 - (dst_pixel % 8)));
 	    }
 	}
@@ -1201,7 +1200,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_TL_Y:
 	case OPT_BR_X:
 	case OPT_BR_Y:
-	case OPT_BRIGHTNESS:
+	case OPT_THRESHOLD:
 	case OPT_CUSTOM_GAMMA:
 	  *(SANE_Word *) val = s->val[option].w;
 	  break;
@@ -1250,7 +1249,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  RIE (calc_parameters (s));
 	  myinfo |= SANE_INFO_RELOAD_PARAMS;
 	  break;
-	case OPT_BRIGHTNESS:
+	case OPT_THRESHOLD:
 	  s->val[option].w = *(SANE_Word *) val;
 	  break;
 	  /* Boolean */
@@ -1303,7 +1302,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	  RIE (calc_parameters (s));
 
-	  s->opt[OPT_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
+	  s->opt[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE;
 	  s->opt[OPT_CUSTOM_GAMMA].cap |= SANE_CAP_INACTIVE;
 	  s->opt[OPT_GAMMA_VECTOR].cap |= SANE_CAP_INACTIVE;
 	  s->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
@@ -1312,7 +1311,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	  if (strcmp (val, "Lineart") == 0)
 	    {
-	      s->opt[OPT_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
+	      s->opt[OPT_THRESHOLD].cap &= ~SANE_CAP_INACTIVE;
 	    }
 	  else
 	    {
@@ -1511,7 +1510,8 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   *len = MIN (max_len, (SANE_Int) s->hw->scan_buffer_len);
   memcpy (buf, s->hw->scan_buffer_start, *len);
   DBG (4, "sane_read: exit, read %d bytes from scan_buffer; "
-       "%d bytes remaining\n", *len, s->hw->scan_buffer_len - *len);
+       "%ld bytes remaining\n", *len, 
+       (long int) (s->hw->scan_buffer_len - *len));
   s->hw->scan_buffer_len -= (*len);
   s->hw->scan_buffer_start += (*len);
   s->total_bytes += (*len);
@@ -1577,7 +1577,7 @@ sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
 {
   Mustek_Usb_Scanner *s = handle;
 
-  DBG (5, "sane_get_select_fd: handle = %p, fd = %p\n", handle, fd);
+  DBG (5, "sane_get_select_fd: handle = %p, fd = %p\n", handle, (void *) fd);
   if (!s->scanning)
     {
       DBG (1, "sane_get_select_fd: not scanning\n");

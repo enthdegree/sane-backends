@@ -1,9 +1,9 @@
 :backend "mustek_usb"
 :status :stable
-:version "1.0-114"
+:version "1.0-15"
 :manpage "sane-mustek_usb"
 :url "http://www.meier-geinitz.de/sane/"
-
+:comment "Only the USB scanners mentioned below are supported. For BearPaws, look at the Plustek backend."
 :devicetype :scanner
 
 :mfg "Mustek"

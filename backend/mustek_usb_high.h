@@ -153,7 +153,7 @@ enum Mustek_Usb_Option
   OPT_BR_Y,			/* bottom-right y */
 
   OPT_ENHANCEMENT_GROUP,	/* 10 */
-  OPT_BRIGHTNESS,
+  OPT_THRESHOLD,
   OPT_CUSTOM_GAMMA,
   OPT_GAMMA_VECTOR,
   OPT_GAMMA_VECTOR_R,

@@ -67,10 +67,12 @@
 #define NO_AUTO_EXPOSURE 0
 #define AUTO_EXPOSURE    1
 
-#define AUTO_DOC_FEEDER_UNIT    0x01
-#define TRANSPARENCY_UNIT       0x02
-#define SCAN_CONTROL_CONDITIONS 0x20
-#define ALL_SCAN_MODE_PAGES     0x3F
+#define AUTO_DOC_FEEDER_UNIT            0x01
+#define TRANSPARENCY_UNIT               0x02
+#define TRANSPARENCY_UNIT_FB1200        0x03
+#define SCAN_CONTROL_CONDITIONS         0x20
+#define SCAN_CONTROL_CON_FB1200         0x21
+#define ALL_SCAN_MODE_PAGES             0x3F
 
 #define RED   0
 #define GREEN 1
@@ -93,10 +95,15 @@
 #define TPU_STAT_INACTIVE	1
 #define TPU_STAT_ACTIVE		2
 
+#define SANEI_CONSTRAIN_STRICT	0	/* for sanei_constrain_value2() */
+#define SANEI_CONSTRAIN_CLIP	1
+#define SANEI_CONSTRAIN_ROUND	2
+
 #define CS3_600  0		/* CanoScan 300/600 */
 #define CS2700   1		/* CanoScan 2700F */
 #define FB620    2		/* CanoScan FB620S */
 #define FS2710   3		/* CanoScan FS2710 */
+#define FB1200   4		/* CanoScan FB1200S */
 
 #ifndef MAX
 #define MAX(A,B)	(((A) > (B))? (A) : (B))
@@ -249,7 +256,14 @@ typedef struct CANON_Info
   SANE_Range TPU_Transparency_range;
   SANE_Int TPU_Stat;
 
-
+  SANE_Bool can_focus;			/* has got focus control */
+  SANE_Bool can_autoexpose;		/* can do autoexposure by hardware */
+  SANE_Bool can_calibrate;		/* has got calibration control */
+  SANE_Bool can_eject;			/* can eject medium */
+  SANE_Bool can_mirror;			/* can mirror image by hardware */
+  SANE_Bool is_scsi2;			/* is an SCSI-2 device */
+  SANE_Bool is_filmscanner;
+  SANE_Bool has_fixed_resolutions;	/* only a finite number possible */
 }
 CANON_Info;
 
@@ -300,8 +314,8 @@ typedef struct CANON_Scanner
   SANE_Int ShadowB;
 
   /* 990320, ss: array for fixed resolutions */
-  SANE_Word xres_word_list[8];
-  SANE_Word yres_word_list[8];
+  SANE_Word xres_word_list[16];
+  SANE_Word yres_word_list[16];
 
   SANE_Byte *inbuffer;		/* modification for FB620S */
   SANE_Byte *outbuffer;		/* modification for FB620S */
@@ -311,6 +325,8 @@ typedef struct CANON_Scanner
   time_t time1;			/* modification for FB620S */
   int switch_preview;		/* modification for FB620S */
   int reset_flag;		/* modification for FB620S */
+
+  int tmpfile;		        /* modification for FB1200S */
 
   size_t bytes_to_read;
   int scanning;

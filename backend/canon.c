@@ -3,12 +3,10 @@
    Written by Helmut Koeberle, Email: helmut.koeberle@bytec.de
    Modified by Manuel Panea <Manuel.Panea@rzg.mpg.de>
    and Markus Mertinat <Markus.Mertinat@Physik.Uni-Augsburg.DE>
-   FB620 support by Mitsuru Okaniwa <m-okaniwa@bea.hi-ho.ne.jp>
+   FB620 and FB1200 support by Mitsuru Okaniwa <m-okaniwa@bea.hi-ho.ne.jp>
    FS2710 support by Ulrich Deiters <ukd@xenon.pc.uni-koeln.de>
-   (Canon refused to make the FS2710 documentation available,
-   hence not all features are supported.)
 
-   backend version: 1.10
+   backend version: 1.12
 
    This file is part of the SANE package.
 
@@ -104,6 +102,10 @@
 #include <unistd.h>
 #include <time.h>
 
+#include <fcntl.h> /* for FB1200S */
+#include <unistd.h> /* for FB1200S */
+#include <errno.h> /* for FB1200S */
+
 #include <sane/sane.h>
 #include <sane/saneopts.h>
 #include <sane/sanei_scsi.h>
@@ -122,9 +124,8 @@
 
 #define MM_PER_INCH	 25.4
 
-#define GAMMA_ENTRIES_12   256	/* modification for FS2710 */
-#define GAMMA_LENGTH_12   1*GAMMA_ENTRIES_12	/* modification for FS2710 */
-#define GAMMA_TRANSFER_12  0x03	/* modification for FS2710 */
+static SANE_Byte primaryHigh[256], primaryLow[256], secondaryHigh[256],
+		 secondaryLow[256];	/* modification for FB1200S */
 
 static int num_devices = 0;
 static CANON_Device *first_dev = NULL;
@@ -142,6 +143,11 @@ static const SANE_String_Const mode_list_fs2710[] = {
 /* modification for FB620S */
 static const SANE_String_Const mode_list_fb620[] = {
   "Lineart", "Gray", "Color", "Fine color", 0
+};
+
+/* modification for FB1200S */
+static const SANE_String_Const mode_list_fb1200[] = {
+  "Lineart", "Gray", "Color", 0
 };
 
 static const SANE_String_Const tpu_dc_mode_list[] = {
@@ -225,13 +231,6 @@ get_tpu_stat (int fd, CANON_Device * dev)
 
   DBG (3, ">> get tpu stat\n");
 
-  /* Check wether it is a CS-600 at all */
-  if (strncmp (dev->sane.model, "IX-06015", 8))
-    {
-      dev->tpu.Status = TPU_STAT_NONE;
-      return;
-    }
-
   memset (tbuf, 0, sizeof (tbuf));
   buf_size = sizeof (tbuf);
   status = get_scan_mode (fd, TRANSPARENCY_UNIT, tbuf, &buf_size);
@@ -279,12 +278,6 @@ get_adf_stat (int fd, CANON_Device * dev)
 
   DBG (3, ">> get adf stat\n");
 
-  if (strncmp (dev->sane.model, FB620S, 9) == 0)
-    {
-      dev->adf.Status = ADF_STAT_NONE;
-      return;
-    }
-
   memset (abuf, 0, buf_size);
   status = get_scan_mode (fd, AUTO_DOC_FEEDER_UNIT, abuf, &buf_size);
   if (status != SANE_STATUS_GOOD)
@@ -297,7 +290,6 @@ get_adf_stat (int fd, CANON_Device * dev)
   for (i = 0; i < buf_size; i++)
     {
       DBG (3, "scan mode control byte[%d] = %d\n", i, abuf[i]);
-/*    printf("scan mode control byte[%d] = %d\n", i, abuf[i]); */
     }
 
   dev->adf.Status = (abuf[ADF_Status] & ADF_NOT_PRESENT) ?
@@ -312,19 +304,12 @@ get_adf_stat (int fd, CANON_Device * dev)
   dev->adf.Priority = (abuf[ADF_Settings] & ADF_PRIORITY);
   dev->adf.Feeder = (abuf[ADF_Settings] & ADF_FEEDER);
 
-/*#ifndef NDEBUG
-  printf("ADF Status: %d\n", dev->adf.Status);
-  printf("ADF Priority: %d\n", dev->adf.Priority);
-  printf("ADF Problem: %d\n", dev->adf.Problem);
-  printf("ADF Feeder: %d\n", dev->adf.Feeder);
-# else */
   DBG (11, "ADF Status: %d\n", dev->adf.Status);
   DBG (11, "ADF Priority: %d\n", dev->adf.Priority);
   DBG (11, "ADF Problem: %d\n", dev->adf.Problem);
   DBG (11, "ADF Feeder: %d\n", dev->adf.Feeder);
 
   DBG (3, "<< get adf stat\n");
-/* # endif */
   return;
 }
 
@@ -334,356 +319,223 @@ static SANE_Status
 sense_handler (int scsi_fd, u_char * result, void *arg)
 {
   static char me[] = "canon_sense_handler";
-  CANON_Scanner *s = (CANON_Scanner *) arg;
-  u_char sense, asc, ascq;
+  CANON_Device *dev = (CANON_Device *) arg;
+  u_char sense;
+  int asc;
   char *sense_str = NULL;
-  SANE_Status status = SANE_STATUS_GOOD;
+  SANE_Status status;
 
   DBG (1, ">> sense_handler\n");
-
   DBG (11, "%s(%ld, %p, %p)\n", me, (long) scsi_fd,
        (void *) result, (void *) arg);
-
   DBG (11, "sense buffer: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x \
-%02x %02x %02x %02x %02x %02x\n", result[0], result[1], result[2], result[3], result[4], result[5], result[6], result[7], result[8], result[9], result[10], result[11], result[12], result[13], result[14], result[15]);
+%02x %02x %02x %02x %02x %02x\n", result[0], result[1], result[2], result[3],
+  result[4], result[5], result[6], result[7], result[8], result[9], result[10],
+  result[11], result[12], result[13], result[14], result[15]);
 
-  if (s)
+  if (dev && dev->info.is_scsi2)
     {
-
-      if (s->hw->info.model != FB620 && s->hw->info.model != CS3_600)
+      DBG(11, "sense data interpretation for SCSI-2 devices\n");
+      sense = result[2] & 0x0f;		/* extract the sense key */
+      if (result[7] > 3)		/* additional sense code available? */
 	{
-	  sense = result[0];
+	  asc = result[12] << 8 + result[13];	/* 12: additional sense code */
+	}					/* 13: a.s.c. qualifier */
+      else
+	asc = 0xffff;
 
-	  switch (sense)
+      switch (sense)
+	{
+	case 0x00:
+	  DBG(11, "sense category: no error\n");
+	  status = SANE_STATUS_GOOD;
+	  break;
+
+	case 0x01:
+	  DBG(11, "sense category: recovered error\n");
+	  switch (asc)
 	    {
-	    case 0x00:		/* Good */
-	      sense_str = "Good. Command has executed normally";
-	      break;
-	    case 0x02:		/* Check Condition */
-	      sense_str = "Check Condition";
-	      break;
-	    case 0x08:		/* Busy */
-	      sense_str = "Scanner is busy";
-	      break;
-	    case 0x18:		/* Reservation Conflict */
-	      sense_str = "The scanner is reserved by another SCSI device";
+	    case 0x3700:
+	      sense_str = "rounded parameter";
 	      break;
 	    default:
-	      DBG (5, "%s: no handling for sense %x.\n", me, sense);
-	      break;
+	      sense_str = "unknown";
 	    }
-	}
-      else
-	{
-/* sense hander for FB620S */
-	  sense = result[2] & 0x0f;
-	  if (result[7] > 3)
+	  status = SANE_STATUS_GOOD;
+	  break;
+
+	case 0x03:
+	  DBG(11, "sense category: medium error\n");
+	  switch (asc)
 	    {
-	      asc = result[12];
-	      ascq = result[13];
-	      switch (sense)
-		{
-		case 0x01:
-		  switch (asc)
-		    {
-		    case 0x37:
-		      switch (ascq)
-			{
-			case 0x00:
-			  sense_str = "Rounded Parameter";
-			  status = SANE_STATUS_GOOD;
-			  break;
-			}
-		      break;
-		    }
-		  break;
-
-		case 0x03:
-		  switch (asc)
-		    {
-		    case 0x80:
-		      switch (ascq)
-			{
-			case 0x00:
-			  sense_str = "ADF Jam";
-			  status = SANE_STATUS_IO_ERROR;
-			  break;
-			case 0x01:
-			  sense_str = "ADF Cover Open";
-			  status = SANE_STATUS_IO_ERROR;
-			  break;
-			}
-		      break;
-		    }
-		  break;
-
-		case 0x04:
-		  switch (asc)
-		    {
-		    case 0x60:
-		      switch (ascq)
-			{
-			case 0x00:
-			  sense_str = "Lamp Failure";
-			  status = SANE_STATUS_IO_ERROR;
-			  break;
-			}
-		      break;
-
-		    case 0x62:
-		      switch (ascq)
-			{
-			case 0x00:
-			  sense_str = "Scan Head Positioning Error";
-			  status = SANE_STATUS_IO_ERROR;
-			  break;
-			}
-		      break;
-
-		    case 0x80:
-		      switch (ascq)
-			{
-			case 0x01:
-			  sense_str = "CPU check Error";
-			  status = SANE_STATUS_IO_ERROR;
-			  break;
-			case 0x02:
-			  sense_str = "RAM check Error";
-			  status = SANE_STATUS_IO_ERROR;
-			  break;
-			case 0x03:
-			  sense_str = "ROM check Error";
-			  status = SANE_STATUS_IO_ERROR;
-			  break;
-			case 0x04:
-			  sense_str = "Hardware check Error";
-			  status = SANE_STATUS_IO_ERROR;
-			  break;
-			case 0x05:
-			  sense_str = "Transparency Unit Lamp Failure";
-			  status = SANE_STATUS_IO_ERROR;
-			  break;
-			case 0x06:
-			  sense_str =
-			    "Transparency Unit Scan Head Positioning Failure";
-			  status = SANE_STATUS_IO_ERROR;
-			  break;
-
-			}
-		      break;
-		    }
-		  break;
-
-		case 0x05:
-		  switch (asc)
-		    {
-		    case 0x1a:
-		      switch (ascq)
-			{
-			case 0x00:
-			  sense_str = "Parameter List Length Error";
-			  status = SANE_STATUS_IO_ERROR;
-			  break;
-			}
-		      break;
-
-		    case 0x20:
-		      switch (ascq)
-			{
-			case 0x00:
-			  sense_str = "Invalid Command Operation Code";
-			  status = SANE_STATUS_IO_ERROR;
-			  break;
-			}
-		      break;
-
-		    case 0x24:
-		      switch (ascq)
-			{
-			case 0x00:
-			  sense_str = "Invalid Field in CDB";
-			  status = SANE_STATUS_IO_ERROR;
-			  break;
-			}
-		      break;
-
-		    case 0x25:
-		      switch (ascq)
-			{
-			case 0x00:
-			  sense_str = "Unsupported LUN";
-			  status = SANE_STATUS_UNSUPPORTED;
-			  break;
-			}
-		      break;
-
-		    case 0x26:
-		      switch (ascq)
-			{
-			case 0x00:
-			  sense_str = "Invalid Field in Parameter List";
-			  status = SANE_STATUS_UNSUPPORTED;
-			  break;
-			}
-		      break;
-
-		    case 0x2c:
-		      switch (ascq)
-			{
-			case 0x00:
-			  sense_str = "Command Sequence Error";
-			  status = SANE_STATUS_UNSUPPORTED;
-			  break;
-
-			case 0x01:
-			  sense_str = "Too Many Windows Specified";
-			  status = SANE_STATUS_UNSUPPORTED;
-			  break;
-			}
-		      break;
-
-		    case 0x3a:
-		      switch (ascq)
-			{
-			case 0x00:
-			  sense_str = "Medium Not Present";
-			  status = SANE_STATUS_IO_ERROR;
-			  break;
-			}
-		      break;
-
-		    case 0x3d:
-		      switch (ascq)
-			{
-			case 0x00:
-			  sense_str = "Invalid Bit IDENTIFY Message";
-			  status = SANE_STATUS_UNSUPPORTED;
-			  break;
-			}
-		      break;
-
-		    case 0x80:
-		      switch (ascq)
-			{
-			case 0x02:
-			  sense_str = "Option Not Connect";
-			  status = SANE_STATUS_UNSUPPORTED;
-			  break;
-			}
-		      break;
-
-		    }
-		  break;
-
-		case 0x06:
-		  switch (asc)
-		    {
-		    case 0x29:
-		      switch (ascq)
-			{
-			case 0x00:
-			  sense_str = "Power on Reset / Bus Device Reset";
-			  status = SANE_STATUS_GOOD;
-			  break;
-			}
-		      break;
-
-		    case 0x2a:
-		      switch (ascq)
-			{
-			case 0x00:
-			  sense_str =
-			    "Parameter Changed by another Initiator";
-			  status = SANE_STATUS_IO_ERROR;
-			  break;
-			}
-		      break;
-		    }
-		  break;
-
-		case 0x0b:
-		  switch (asc)
-		    {
-		    case 0x00:
-		      switch (ascq)
-			{
-			case 0x00:
-			  sense_str = "No Additional Sense Information";
-			  status = SANE_STATUS_IO_ERROR;
-			  break;
-			}
-		      break;
-
-		    case 0x45:
-		      switch (ascq)
-			{
-			case 0x00:
-			  sense_str = "Reselect Failure";
-			  status = SANE_STATUS_IO_ERROR;
-			  break;
-			}
-		      break;
-
-		    case 0x47:
-		      switch (ascq)
-			{
-			case 0x00:
-			  sense_str = "SCSI Parity Error";
-			  status = SANE_STATUS_IO_ERROR;
-			  break;
-			}
-		      break;
-
-		    case 0x48:
-		      switch (ascq)
-			{
-			case 0x00:
-			  sense_str =
-			    "Initiator Detected Error Messege Received";
-			  status = SANE_STATUS_IO_ERROR;
-			  break;
-			}
-		      break;
-
-		    case 0x49:
-		      switch (ascq)
-			{
-			case 0x00:
-			  sense_str = "Invalid Message Error";
-			  status = SANE_STATUS_UNSUPPORTED;
-			  break;
-			}
-		      break;
-
-		    case 0x80:
-		      switch (ascq)
-			{
-			case 0x00:
-			  sense_str = "Time out Error";
-			  status = SANE_STATUS_IO_ERROR;
-			  break;
-			case 0x01:
-			  sense_str = "Trancparency Unit Shading Error";
-			  status = SANE_STATUS_IO_ERROR;
-			  break;
-			case 0x03:
-			  sense_str = "Lamp not Stabilized";
-			  status = SANE_STATUS_IO_ERROR;
-			  break;
-			}
-		      break;
-
-		    }
-		  break;
-		}
+	    case 0x8000:
+	      sense_str = "ADF jam";
+	      break;
+	    case 0x8001:
+	      sense_str = "ADF cover open";
+	      break;
+	    default:
+	      sense_str = "unknown";
 	    }
+	  status = SANE_STATUS_IO_ERROR;
+	  break;
+
+	case 0x04:
+	  DBG(11, "sense category: hardware error\n");
+	  switch (asc)
+	    {
+	    case 0x6000:
+	      sense_str = "lamp failure";
+	      break;
+	    case 0x6200:
+	      sense_str = "scan head positioning error";
+	      break;
+	    case 0x8001:
+	      sense_str = "CPU check error";
+	      break;
+	    case 0x8002:
+	      sense_str = "RAM check error";
+	      break;
+	    case 0x8003:
+	      sense_str = "ROM check error";
+	      break;
+	    case 0x8004:
+	      sense_str = "hardware check error";
+	      break;
+	    case 0x8005:
+	      sense_str = "transparency unit lamp failure";
+	      break;
+	    case 0x8006:
+	      sense_str = "transparency unit scan head positioning failure";
+	      break;
+	    default:
+	      sense_str = "unknown";
+	    }
+	  status = SANE_STATUS_IO_ERROR;
+	  break;
+
+	case 0x05:
+	  DBG(11, "sense category: illegal request\n");
+	  switch (asc)
+	    {
+	    case 0x1a00:
+	      sense_str = "parameter list length error";
+	      status = SANE_STATUS_IO_ERROR;
+	      break;
+	    case 0x2000:
+	      sense_str = "invalid command operation code";
+	      status = SANE_STATUS_UNSUPPORTED;
+	      break;
+	    case 0x2400:
+	      sense_str = "invalid field in CDB";
+	      status = SANE_STATUS_IO_ERROR;
+	      break;
+	    case 0x2500:
+	      sense_str = "unsupported LUN";
+	      status = SANE_STATUS_UNSUPPORTED;
+	      break;
+	    case 0x2600:
+	      sense_str = "invalid field in parameter list";
+	      status = SANE_STATUS_UNSUPPORTED;
+	      break;
+	    case 0x2c00:
+	      sense_str = "command sequence error";
+	      status = SANE_STATUS_UNSUPPORTED;
+	      break;
+	    case 0x2c01:
+	      sense_str = "too many windows specified";
+	      status = SANE_STATUS_UNSUPPORTED;
+	      break;
+	    case 0x3a00:
+	      sense_str = "medium not present";
+	      status = SANE_STATUS_IO_ERROR;
+	      break;
+	    case 0x3d00:
+	      sense_str = "invalid bit IDENTIFY message";
+	      status = SANE_STATUS_UNSUPPORTED;
+	      break;
+	    case 0x8002:
+	      sense_str = "option not connect";
+	      status = SANE_STATUS_UNSUPPORTED;
+	      break;
+	    default:
+	      sense_str = "unknown";
+	      status = SANE_STATUS_UNSUPPORTED;
+	    }
+	  break;
+
+	case 0x06:
+	  DBG(11, "sense category: unit attention\n");
+	  switch (asc)
+	    {
+	    case 0x2900:
+	      sense_str = "power on reset / bus device reset";
+	      status = SANE_STATUS_IO_ERROR;
+	      break;
+	    case 0x2a00:
+	      sense_str = "parameter changed by another initiator";
+	      status = SANE_STATUS_IO_ERROR;
+	      break;
+	    default:
+	      sense_str = "unknown";
+	      status = SANE_STATUS_IO_ERROR;
+	    }
+	  break;
+
+	case 0x0b:
+	  DBG(11, "sense category: non-standard\n");
+	  switch (asc)
+	    {
+	    case 0x0000:
+	      sense_str = "no additional sense information";
+	      status = SANE_STATUS_IO_ERROR;
+	      break;
+	    case 0x4500:
+	      sense_str = "reselect failure";
+	      status = SANE_STATUS_IO_ERROR;
+	      break;
+	    case 0x4700:
+	      sense_str = "SCSI parity error";
+	      status = SANE_STATUS_IO_ERROR;
+	      break;
+	    case 0x4800:
+	      sense_str = "initiator detected error message received";
+	      status = SANE_STATUS_IO_ERROR;
+	      break;
+	    case 0x4900:
+	      sense_str = "invalid message error";
+	      status = SANE_STATUS_UNSUPPORTED;
+	      break;
+	    case 0x8000:
+	      sense_str = "timeout error";
+	      status = SANE_STATUS_IO_ERROR;
+	      break;
+	    case 0x8001:
+	      sense_str = "trancparency unit shading error";
+	      status = SANE_STATUS_IO_ERROR;
+	      break;
+	    case 0x8003:
+	      sense_str = "lamp not stabilized";
+	      status = SANE_STATUS_IO_ERROR;
+	      break;
+	    default:
+	      sense_str = "unknown";
+	      status = SANE_STATUS_IO_ERROR;
+	    }
+	  break;
+	default:
+	  DBG(11, "sense category: else\n");
 	}
     }
-  DBG (1, "sense buffer: %s\n", sense_str);
-  if (s)
+  else
     {
-      s->sense_str = sense_str;
+      sense_str = "problem not analyzed (unknown SCSI class)";
+      status = SANE_STATUS_IO_ERROR;
     }
+  DBG (11, "sense message: %s\n", sense_str);
+#if 0					/* superfluous? [U.D.] */
+  s->sense_str = sense_str;
+#endif
   DBG (1, "<< sense_handler\n");
   return status;
 }
@@ -702,9 +554,9 @@ do_gamma (CANON_Scanner * s)
   buf_size = 256 * sizeof (u_char);
   transfer_data_type = 0x03;
 
-  neg = (s->hw->info.model == CS2700 || s->hw->info.model == FS2710) ?
-    strcmp (filmtype_list[1],
-	    s->val[OPT_NEGATIVE].s) : s->val[OPT_HNEGATIVE].w;
+  neg = (s->hw->info.is_filmscanner) ?
+    strcmp (filmtype_list[1], s->val[OPT_NEGATIVE].s)
+    : s->val[OPT_HNEGATIVE].w;
 
   if (!strcmp (s->val[OPT_MODE].s, "Gray"))
     {
@@ -802,7 +654,7 @@ attach (const char *devnam, CANON_Device ** devp)
     }
 
   DBG (3, "attach: opening %s\n", devnam);
-  status = sanei_scsi_open (devnam, &fd, 0, 0);
+  status = sanei_scsi_open (devnam, &fd, sense_handler, dev);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (1, "attach: open failed: %s\n", sane_strstatus (status));
@@ -859,7 +711,7 @@ attach (const char *devnam, CANON_Device ** devp)
   status = medium_position (fd);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (1, "attach: MEDIUM POSTITION failed\n");
+      DBG (1, "attach: MEDIUM POSITION failed\n");
       sanei_scsi_close (fd);
       fd = -1;
       return (SANE_STATUS_INVAL);
@@ -877,21 +729,23 @@ attach (const char *devnam, CANON_Device ** devp)
       return (SANE_STATUS_INVAL);
     }
 
-/*   DBG (3, "attach: sending GET SCAN MODE for transparency unit\n"); */
-/*   memset (ebuf, 0, sizeof (ebuf)); */
-/*   buf_size = sizeof (ebuf); */
-/*   buf_size = 12; */
-/*   status = get_scan_mode (fd, TRANSPARENCY_UNIT, ebuf, &buf_size); */
-/*   if (status != SANE_STATUS_GOOD) */
-/*   { */
-/*     DBG (1, "attach: GET SCAN MODE for transparency unit failed\n"); */
-/*     sanei_scsi_close (fd); */
-/*     return (SANE_STATUS_INVAL); */
-/*   } */
-/*   for (i=0; i<buf_size; i++) */
-/*   { */
-/*     DBG(3, "scan mode trans byte[%d] = %d\n", i, ebuf[i]); */
-/*   } */
+#if 0
+  DBG (3, "attach: sending GET SCAN MODE for transparency unit\n");
+  memset (ebuf, 0, sizeof (ebuf));
+  buf_size = sizeof (ebuf);
+  buf_size = 12;
+  status = get_scan_mode (fd, TRANSPARENCY_UNIT, ebuf, &buf_size);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (1, "attach: GET SCAN MODE for transparency unit failed\n");
+      sanei_scsi_close (fd);
+      return (SANE_STATUS_INVAL);
+    }
+  for (i=0; i<buf_size; i++)
+    {
+      DBG(3, "scan mode trans byte[%d] = %d\n", i, ebuf[i]);
+    }
+#endif
 
   DBG (3, "attach: sending GET SCAN MODE for scan control conditions\n");
   memset (ebuf, 0, sizeof (ebuf));
@@ -922,11 +776,9 @@ attach (const char *devnam, CANON_Device ** devp)
 
 #if 0
   DBG (3, "attach: sending GET SCAN MODE for transparency unit\n");
-
-
   memset (ebuf, 0, sizeof (ebuf));
   buf_size = 64;
-  status = get_scan_mode (fd, ALL_SCAN_MODE_PAGES,	/* TRANSPARENCY_UNIT, */
+  status = get_scan_mode (fd, ALL_SCAN_MODE_PAGES,	/* transparency unit */
 			  ebuf, &buf_size);
   if (status != SANE_STATUS_GOOD)
     {
@@ -940,21 +792,22 @@ attach (const char *devnam, CANON_Device ** devp)
     }
 #endif
 
-/*   DBG (3, "attach: sending GET SCAN MODE for all scan mode pages\n"); */
-/*   memset (ebuf, 0, sizeof (ebuf)); */
-/*   buf_size = 32; */
-/*   status = get_scan_mode (fd, (u_char)ALL_SCAN_MODE_PAGES,  */
-/* 			  ebuf, &buf_size); */
-/*   if (status != SANE_STATUS_GOOD) */
-/*   { */
-/*     DBG (1, "attach: GET SCAN MODE for scan control conditions failed\n"); */
-/*     sanei_scsi_close (fd); */
-/*     return (SANE_STATUS_INVAL); */
-/*   } */
-/*   for (i=0; i<buf_size; i++) */
-/*   { */
-/*     DBG(3, "scan mode control byte[%d] = %d\n", i, ebuf[i]); */
-/*   } */
+#if 0
+  DBG (3, "attach: sending GET SCAN MODE for all scan mode pages\n");
+  memset (ebuf, 0, sizeof (ebuf));
+  buf_size = 32;
+  status = get_scan_mode (fd, (u_char)ALL_SCAN_MODE_PAGES, ebuf, &buf_size);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (1, "attach: GET SCAN MODE for scan control conditions failed\n");
+      sanei_scsi_close (fd);
+      return (SANE_STATUS_INVAL);
+    }
+  for (i=0; i<buf_size; i++)
+    {
+    DBG(3, "scan mode control byte[%d] = %d\n", i, ebuf[i]);
+  }
+#endif
 
 
   DBG (3, "attach: sending MODE SENSE\n");
@@ -988,82 +841,151 @@ attach (const char *devnam, CANON_Device ** devp)
     }
   strncpy (str, (char *) (ibuf + 16), 16);
   dev->sane.model = str;
-  if (strncmp (str, "IX-27015", 8) == 0)
+
+  /* Register the fixed properties of the scanner below:
+     - whether it is a film scanner or a flatbed scanner
+     - whether it can have an automatic document feeder (ADF)
+     - whether it can be equipped with a transparency unit (TPU)
+     - whether it has got focus control
+     - whether it can optimize image parameters (autoexposure)
+     - whether it can calibrate itself
+     - whether it can eject the media
+     - whether it can mirror the scanned data
+     - whether it is an SCSI-2 device (gives status information by "sense key")
+     - whether it is a film scanner (or can be used as one)
+     - whether it has fixed, hardware-set scan resolutions only
+  */
+  if (strncmp (str, "IX-27015", 8) == 0)	/* FS2700S */
     {
       dev->info.model = CS2700;
       dev->sane.type = "film scanner";
+      dev->adf.Status = ADF_STAT_NONE;
+      dev->tpu.Status = TPU_STAT_NONE;
+      dev->info.can_focus = SANE_TRUE;
+      dev->info.can_autoexpose = SANE_FALSE;
+      dev->info.can_calibrate = SANE_FALSE;
+      dev->info.can_eject = SANE_TRUE;
+      dev->info.can_mirror = SANE_TRUE;
+      dev->info.is_scsi2 = SANE_TRUE;
+      dev->info.is_filmscanner = SANE_TRUE;
+      dev->info.has_fixed_resolutions = SANE_TRUE;
     }
-  else if (strncmp (str, "IX-27025E", 9) == 0)	/* modification for FS2710 */
+  else if (strncmp (str, "IX-27025E", 9) == 0)	/* FS2710S */
     {
       dev->info.model = FS2710;
       dev->sane.type = "film scanner";
+      dev->adf.Status = ADF_STAT_NONE;
+      dev->tpu.Status = TPU_STAT_NONE;
+      dev->info.can_focus = SANE_TRUE;
+      dev->info.can_autoexpose = SANE_FALSE;
+      dev->info.can_calibrate = SANE_FALSE;
+      dev->info.can_eject = SANE_TRUE;
+      dev->info.can_mirror = SANE_TRUE;
+      dev->info.is_scsi2 = SANE_TRUE;
+      dev->info.is_filmscanner = SANE_TRUE;
+      dev->info.has_fixed_resolutions = SANE_TRUE;
     }
-  else if (strncmp (str, "IX-06035E", 9) == 0)	/* modification for FB620S */
+  else if (strncmp (str, "IX-06035E", 9) == 0)	/* FB620S */
     {
       dev->info.model = FB620;
       dev->sane.type = "flatbed scanner";
+      dev->adf.Status = ADF_STAT_NONE;
+      dev->tpu.Status = TPU_STAT_NONE;
+      dev->info.can_focus = SANE_FALSE;
+      dev->info.can_autoexpose = SANE_FALSE;
+      dev->info.can_calibrate = SANE_TRUE;
+      dev->info.can_eject = SANE_FALSE;
+      dev->info.can_mirror = SANE_FALSE;
+      dev->info.is_scsi2 = SANE_TRUE;
+      dev->info.is_filmscanner = SANE_FALSE;
+      dev->info.has_fixed_resolutions = SANE_TRUE;
     }
-  else
+  else if (strncmp (str, "IX-12015E", 9) == 0)	/* FB1200S */
+    {
+      dev->info.model = FB1200;
+      dev->sane.type = "flatbed scanner";
+      dev->adf.Status = ADF_STAT_ACTIVE;
+      dev->tpu.Status = TPU_STAT_NONE;
+      dev->info.can_focus = SANE_FALSE;
+      dev->info.can_autoexpose = SANE_FALSE;
+      dev->info.can_calibrate = SANE_FALSE;
+      dev->info.can_eject = SANE_FALSE;
+      dev->info.can_mirror = SANE_FALSE;
+      dev->info.is_scsi2 = SANE_TRUE;
+      dev->info.is_filmscanner = SANE_FALSE;
+      dev->info.has_fixed_resolutions = SANE_TRUE;
+    }
+  else						/* CS300, CS600 */
     {
       dev->info.model = CS3_600;
       dev->sane.type = "flatbed scanner";
+      dev->adf.Status = ADF_STAT_ACTIVE;
+      dev->tpu.Status = TPU_STAT_ACTIVE;
+      dev->info.can_focus = SANE_FALSE;
+      dev->info.can_autoexpose = SANE_FALSE;
+      dev->info.can_calibrate = SANE_FALSE;
+      dev->info.can_eject = SANE_FALSE;
+      dev->info.can_mirror = SANE_TRUE;
+      dev->info.is_scsi2 = SANE_TRUE;
+      dev->info.is_filmscanner = SANE_FALSE;
+      dev->info.has_fixed_resolutions = SANE_FALSE;
     }
-
 
   DBG (5, "dev->sane.name = '%s'\n", dev->sane.name);
   DBG (5, "dev->sane.vendor = '%s'\n", dev->sane.vendor);
   DBG (5, "dev->sane.model = '%s'\n", dev->sane.model);
   DBG (5, "dev->sane.type = '%s'\n", dev->sane.type);
 
-  get_tpu_stat (fd, dev);	/* Query TPU */
-  get_adf_stat (fd, dev);	/* Query ADF */
+  if (dev->tpu.Status != TPU_STAT_NONE)
+    get_tpu_stat (fd, dev);		/* Query TPU */
+  if (dev->adf.Status != ADF_STAT_NONE)
+    get_adf_stat (fd, dev);		/* Query ADF */
 
   dev->info.bmu = mbuf[6];
   DBG (5, "bmu=%d\n", dev->info.bmu);
-  dev->info.mud = (mbuf[8] * 256) + mbuf[9];
+  dev->info.mud = (mbuf[8] << 8) + mbuf[9];
   DBG (5, "mud=%d\n", dev->info.mud);
 
-  dev->info.xres_default = (ebuf[5] * 256) + ebuf[6];
+  dev->info.xres_default = (ebuf[5] << 8) + ebuf[6];
   DBG (5, "xres_default=%d\n", dev->info.xres_default);
-  dev->info.xres_range.max = (ebuf[10] * 256) + ebuf[11];
+  dev->info.xres_range.max = (ebuf[10] << 8) + ebuf[11];
   DBG (5, "xres_range.max=%d\n", dev->info.xres_range.max);
-  dev->info.xres_range.min = (ebuf[14] * 256) + ebuf[15];
+  dev->info.xres_range.min = (ebuf[14] << 8) + ebuf[15];
   DBG (5, "xres_range.min=%d\n", dev->info.xres_range.min);
   dev->info.xres_range.quant = ebuf[9] >> 4;
   DBG (5, "xres_range.quant=%d\n", dev->info.xres_range.quant);
 
-  dev->info.yres_default = (ebuf[7] * 256) + ebuf[8];
+  dev->info.yres_default = (ebuf[7] << 8) + ebuf[8];
   DBG (5, "yres_default=%d\n", dev->info.yres_default);
-  dev->info.yres_range.max = (ebuf[12] * 256) + ebuf[13];
+  dev->info.yres_range.max = (ebuf[12] << 8) + ebuf[13];
   DBG (5, "yres_range.max=%d\n", dev->info.yres_range.max);
-  dev->info.yres_range.min = (ebuf[16] * 256) + ebuf[17];
+  dev->info.yres_range.min = (ebuf[16] << 8) + ebuf[17];
   DBG (5, "yres_range.min=%d\n", dev->info.yres_range.min);
   dev->info.yres_range.quant = ebuf[9] & 0x0f;
   DBG (5, "xres_range.quant=%d\n", dev->info.xres_range.quant);
 
   dev->info.x_range.min = SANE_FIX (0.0);
-  dev->info.x_range.max = (ebuf[20] * 256 * 256 * 256)
-    + (ebuf[21] * 256 * 256) + (ebuf[22] * 256) + ebuf[23] - 1;
+  dev->info.x_range.max = (ebuf[20] << 24) + (ebuf[21] << 16)
+    + (ebuf[22] << 8) + ebuf[23] - 1;
   dev->info.x_range.max =
     SANE_FIX (dev->info.x_range.max * MM_PER_INCH / dev->info.mud);
   DBG (5, "x_range.max=%d\n", dev->info.x_range.max);
   dev->info.x_range.quant = 0;
 
   dev->info.y_range.min = SANE_FIX (0.0);
-  dev->info.y_range.max = (ebuf[24] * 256 * 256 * 256)
-    + (ebuf[25] * 256 * 256) + (ebuf[26] * 256) + ebuf[27] - 1;
+  dev->info.y_range.max = (ebuf[24] << 24) + (ebuf[25] << 16)
+    + (ebuf[26] << 8) + ebuf[27] - 1;
   dev->info.y_range.max =
     SANE_FIX (dev->info.y_range.max * MM_PER_INCH / dev->info.mud);
   DBG (5, "y_range.max=%d\n", dev->info.y_range.max);
   dev->info.y_range.quant = 0;
 
-  dev->info.x_adf_range.max = (ebuf[30] * 256 * 256 * 256)
-    + (ebuf[31] * 256 * 256) + (ebuf[32] * 256) + ebuf[33] - 1;
+  dev->info.x_adf_range.max = (ebuf[30] << 24) + (ebuf[31] << 16)
+    + (ebuf[32] << 8) + ebuf[33] - 1;
   DBG (5, "x_adf_range.max=%d\n", dev->info.x_adf_range.max);
-  dev->info.y_adf_range.max = (ebuf[34] * 256 * 256 * 256)
-    + (ebuf[35] * 256 * 256) + (ebuf[36] * 256) + ebuf[37] - 1;
+  dev->info.y_adf_range.max = (ebuf[34] << 24) + (ebuf[35] << 16)
+    + (ebuf[36] << 8) + ebuf[37] - 1;
   DBG (5, "y_adf_range.max=%d\n", dev->info.y_adf_range.max);
-
 
   dev->info.brightness_range.min = 0;
   dev->info.brightness_range.max = 255;
@@ -1138,11 +1060,11 @@ do_cancel (CANON_Scanner * s)
     {
       if (s->val[OPT_EJECT_AFTERSCAN].w == SANE_TRUE)
 	{
-	  DBG (3, "attach: sending MEDIUM POSITION\n");
+	  DBG (3, "do_cancel: sending MEDIUM POSITION\n");
 	  status = medium_position (s->fd);
 	  if (status != SANE_STATUS_GOOD)
 	    {
-	      DBG (1, "attach: MEDIUM POSTITION failed\n");
+	      DBG (1, "do_cancel: MEDIUM POSITION failed\n");
 	      return (SANE_STATUS_INVAL);
 	    }
 	  s->AF_NOW = SANE_TRUE;
@@ -1166,422 +1088,25 @@ do_cancel (CANON_Scanner * s)
 	  s->time0 = -1;
 	  DBG (21, "time0 = %ld\n", s->time0);
 	}
+
+      if (s->hw->info.model == FB1200)
+	{
+	  DBG (3, "CANCEL FB1200S\n");
+	  status = cancel (s->fd);
+	  if (status != SANE_STATUS_GOOD)
+	    {
+	      DBG (1, "CANCEL FB1200S failed\n");
+	      return (SANE_STATUS_INVAL);
+	    }
+	  DBG (3, "CANCEL FB1200S OK\n");
+	}
+
       sanei_scsi_close (s->fd);
       s->fd = -1;
     }
 
   DBG (1, "<< do_cancel\n");
   return (SANE_STATUS_CANCELLED);
-}
-
-/**************************************************************************/
-
-static SANE_Status
-adjust_hilo_points (CANON_Scanner * s)
-{
-  int mode;
-  char *mode_str;
-  SANE_Status status;
-  u_char wbuf[72], dbuf[28], gbuf[256];
-  size_t buf_size;
-
-  size_t nread, bread, i, j;
-  SANE_Byte *adjbuf;
-  double histo[3][256], sum[3], partsum[3], newsum;
-  double percentage, next_percentage;
-  float gamma[3];
-  int maxhi, minlo, transfer_data_type;
-  SANE_Word save_xres, new_xres;
-
-  if (s->hw->info.model == FS2710)
-    transfer_data_type = GAMMA_TRANSFER_12;
-  else
-    transfer_data_type = 0x03;
-
-  DBG (1, ">> adjust_hilo_points\n");
-
-  /* First make sure we have a current parameter set.  Some of the
-     parameters will be overwritten below, but that's OK.  */
-  status = sane_get_parameters (s, 0);
-  if (status != SANE_STATUS_GOOD)
-    return status;
-
-  status = sanei_scsi_open (s->hw->sane.name, &s->fd, sense_handler, s);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (1, "open of %s failed: %s\n",
-	   s->hw->sane.name, sane_strstatus (status));
-      return (status);
-    }
-
-  if (s->val[OPT_CUSTOM_GAMMA].w == 1)
-    {
-      buf_size = 256 * sizeof (u_char);
-      for (i = 0; i < 4; i++)
-	{
-	  for (j = 0; j < 256; j++)
-	    {
-	      /* Use a straight intensity curve for all colors */
-	      gbuf[j] = (u_char) j;
-	      DBG (22, "set_density %d: gbuf[%d] = [%d]\n", i, j, gbuf[j]);
-	    }
-
-	  status =
-	    set_density_curve (s->fd, i, gbuf, &buf_size, transfer_data_type);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG (7, "SET_DENSITY_CURVE failed\n");
-	      sanei_scsi_close (s->fd);
-	      s->fd = -1;
-	      return (SANE_STATUS_INVAL);
-	    }
-	}
-    }
-
-  mode_str = s->val[OPT_MODE].s;
-
-  save_xres = (SANE_Word) s->val[OPT_X_RESOLUTION].w;
-
-  s->scanning = SANE_FALSE;
-  new_xres = 170;
-  sane_control_option (s, OPT_X_RESOLUTION, SANE_ACTION_SET_VALUE,
-		       &new_xres, 0);
-
-  status = sane_get_parameters (s, 0);
-  if (status != SANE_STATUS_GOOD)
-    return status;
-
-  s->xres = s->val[OPT_X_RESOLUTION].w;
-  s->yres = s->val[OPT_X_RESOLUTION].w;
-
-  s->ulx = SANE_UNFIX (s->val[OPT_TL_X].w) * s->hw->info.mud / MM_PER_INCH;
-  s->uly = SANE_UNFIX (s->val[OPT_TL_Y].w) * s->hw->info.mud / MM_PER_INCH;
-
-  s->width = SANE_UNFIX (s->val[OPT_BR_X].w - s->val[OPT_TL_X].w)
-    * s->hw->info.mud / MM_PER_INCH;
-  s->length = SANE_UNFIX (s->val[OPT_BR_Y].w - s->val[OPT_TL_Y].w)
-    * s->hw->info.mud / MM_PER_INCH;
-
-  DBG (11, "ahl: s->width='%d', s->length='%d'\n", s->width, s->length);
-
-  if (s->hw->info.model != CS2700 && s->hw->info.model != FS2710)
-    {
-      if ((strcmp (mode_str, "Lineart") == 0) ||
-	  (strcmp (mode_str, "Halftone") == 0))
-	{
-	  s->RIF = s->val[OPT_HNEGATIVE].w;
-	}
-      else
-	{
-	  s->RIF = !s->val[OPT_HNEGATIVE].w;
-	}
-    }
-
-  s->brightness = s->val[OPT_BRIGHTNESS].w;
-  s->contrast = s->val[OPT_CONTRAST].w;
-  s->threshold = s->val[OPT_THRESHOLD].w;
-  s->bpp = s->params.depth;
-
-  s->GRC = s->val[OPT_CUSTOM_GAMMA].w;
-  s->Mirror = s->val[OPT_MIRROR].w;
-  s->AE = 0;
-
-  s->HiliteR = 255;
-  s->ShadowR = 0;
-  s->HiliteG = 255;
-  s->ShadowG = 0;
-  s->HiliteB = 255;
-  s->ShadowB = 0;
-
-  if (strcmp (mode_str, "Lineart") == 0)
-    {
-      mode = 4;
-      s->image_composition = 0;
-    }
-  else if (strcmp (mode_str, "Halftone") == 0)
-    {
-      mode = 4;
-      s->image_composition = 1;
-    }
-  else if (strcmp (mode_str, "Gray") == 0)
-    {
-      mode = 5;
-      s->image_composition = 2;
-    }
-  else if (strcmp (mode_str, "Color") == 0 ||
-	   strcmp (mode_str, "Fine color") == 0)
-    {
-      mode = 6;
-      s->image_composition = 5;
-    }
-  else if (strcmp (mode_str, "Raw") == 0)
-    {
-      mode = 6;
-      s->image_composition = 5;
-    }
-  else
-    {
-      mode = 6;
-      s->image_composition = 5;
-    }
-
-  DBG (11, "ahl: s->xres='%d', s->yres='%d'\n", s->xres, s->yres);
-
-  memset (wbuf, 0, sizeof (wbuf));
-  wbuf[7] = 64;
-  wbuf[10] = s->xres >> 8;
-  wbuf[11] = s->xres;
-  wbuf[12] = s->yres >> 8;
-  wbuf[13] = s->yres;
-  wbuf[14] = s->ulx >> 24;
-  wbuf[15] = s->ulx >> 16;
-  wbuf[16] = s->ulx >> 8;
-  wbuf[17] = s->ulx;
-  wbuf[18] = s->uly >> 24;
-  wbuf[19] = s->uly >> 16;
-  wbuf[20] = s->uly >> 8;
-  wbuf[21] = s->uly;
-  wbuf[22] = s->width >> 24;
-  wbuf[23] = s->width >> 16;
-  wbuf[24] = s->width >> 8;
-  wbuf[25] = s->width;
-  wbuf[26] = s->length >> 24;
-  wbuf[27] = s->length >> 16;
-  wbuf[28] = s->length >> 8;
-  wbuf[29] = s->length;
-  wbuf[30] = s->brightness;
-  wbuf[31] = s->threshold;
-  wbuf[32] = s->contrast;
-  wbuf[33] = s->image_composition;
-  wbuf[34] = (s->hw->info.model == FS2710) ? 12 : s->bpp;
-  wbuf[36] = 1;
-  wbuf[37] = (1 << 7) + 3;
-/*   wbuf[50] = (s->GRC << 3) | (s->Mirror << 2) | (s->AE); */
-  wbuf[50] = (s->GRC << 3) | (s->Mirror << 2);
-  wbuf[54] = 2;
-  wbuf[57] = 1;
-  wbuf[58] = 1;
-  wbuf[59] = s->HiliteR;
-  wbuf[60] = s->ShadowR;
-  wbuf[62] = s->HiliteG;
-  wbuf[64] = s->ShadowG;
-  wbuf[70] = s->HiliteB;
-  wbuf[71] = s->ShadowB;
-
-
-  DBG (7, "ahl: RIF=%d, GRC=%d, Mirror=%d, AE=%d\n",
-       s->RIF, s->GRC, s->Mirror, s->AE);
-  DBG (7, "ahl: HR=%d, SR=%d, HG=%d, SG=%d, HB=%d, SB=%d\n",
-       s->HiliteR, s->ShadowR,
-       s->HiliteG, s->ShadowG, s->HiliteB, s->ShadowB);
-
-  if (s->hw->info.model == FB620)	/* modification for FB620S */
-    {
-      wbuf[36] = 0;
-      wbuf[50] = s->GRC << 3;
-      wbuf[54] = 0;
-      wbuf[57] = 0;
-      wbuf[58] = 0;
-    }
-
-  buf_size = sizeof (wbuf);
-  status = set_window (s->fd, wbuf);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (1, "SET WINDOW failed: %s\n", sane_strstatus (status));
-      return (status);
-    }
-
-  DBG (7, "adjust_hilo: set_window done\n");
-
-  buf_size = sizeof (wbuf);
-  memset (wbuf, 0, buf_size);
-  status = get_window (s->fd, wbuf, &buf_size);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (1, "GET WINDOW failed: %s\n", sane_strstatus (status));
-      return (status);
-    }
-
-  DBG (5, "ahl: xres=%d\n", (wbuf[10] * 256) + wbuf[11]);
-  DBG (5, "ahl: yres=%d\n", (wbuf[12] * 256) + wbuf[13]);
-  DBG (5, "ahl: ulx=%d\n", (wbuf[14] * 256 * 256 * 256)
-       + (wbuf[15] * 256 * 256) + (wbuf[16] * 256) + wbuf[17]);
-  DBG (5, "ahl: uly=%d\n", (wbuf[18] * 256 * 256 * 256)
-       + (wbuf[19] * 256 * 256) + (wbuf[20] * 256) + wbuf[21]);
-  DBG (5, "ahl: width=%d\n", (wbuf[22] * 256 * 256 * 256)
-       + (wbuf[23] * 256 * 256) + (wbuf[24] * 256) + wbuf[25]);
-  DBG (5, "ahl: length=%d\n", (wbuf[26] * 256 * 256 * 256)
-       + (wbuf[27] * 256 * 256) + (wbuf[28] * 256) + wbuf[29]);
-
-
-  status = scan (s->fd);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (1, "start of scan failed: %s\n", sane_strstatus (status));
-      return (status);
-    }
-
-  buf_size = sizeof (dbuf);
-  memset (dbuf, 0, buf_size);
-  status = get_data_status (s->fd, dbuf, &buf_size);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (1, "GET DATA STATUS failed: %s\n", sane_strstatus (status));
-      return (status);
-    }
-  DBG (5, "ahl: Magnified Width=%d\n", (dbuf[12] * 256 * 256 * 256)
-       + (dbuf[13] * 256 * 256) + (dbuf[14] * 256) + dbuf[15]);
-  DBG (5, "ahl: Magnified Length=%d\n", (dbuf[16] * 256 * 256 * 256)
-       + (dbuf[17] * 256 * 256) + (dbuf[18] * 256) + dbuf[19]);
-  DBG (5, "ahl: Data=%d bytes\n", (dbuf[20] * 256 * 256 * 256)
-       + (dbuf[21] * 256 * 256) + (dbuf[22] * 256) + dbuf[23]);
-
-  if (s->xres > 0 && s->yres > 0 && s->width > 0 && s->length > 0)
-    {
-      s->params.pixels_per_line = s->width * s->xres / s->hw->info.mud;
-      s->params.lines = s->length * s->yres / s->hw->info.mud;
-    }
-  s->bytes_to_read = s->params.bytes_per_line * s->params.lines;
-
-  DBG (1,
-       "ahl: %d pixels per line, %d bytes, %d lines high, total %lu bytes, "
-       "dpi=%d\n", s->params.pixels_per_line, s->params.bytes_per_line,
-       s->params.lines, (u_long) s->bytes_to_read,
-       s->val[OPT_X_RESOLUTION].w);
-
-  if (s->bytes_to_read == 0)
-    {
-      return (SANE_STATUS_GOOD);
-    }
-
-  if ((adjbuf = (SANE_Byte *) malloc (s->bytes_to_read)) == NULL)
-    {
-      DBG (1, "adjust_hilo: malloc failed\n");
-      do_cancel (s);
-      return (SANE_STATUS_IO_ERROR);
-    }
-
-  bread = 0;
-  nread = 16384;
-  while (s->bytes_to_read > 0)
-    {
-      if (nread > s->bytes_to_read)
-	nread = s->bytes_to_read;
-      status = read_data (s->fd, &adjbuf[bread], &nread);
-      bread += nread;
-      s->bytes_to_read -= nread;
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (1, "adjust_hilo: read_data failed: %s\n",
-	       sane_strstatus (status));
-	  do_cancel (s);
-	  return (SANE_STATUS_IO_ERROR);
-	}
-    }
-
-  DBG (7, "adjust_hilo: bread='%lu'\n", (unsigned long) bread);
-
-  sane_control_option (s, OPT_X_RESOLUTION, SANE_ACTION_SET_VALUE, &save_xres,
-		       0);
-  status = sane_get_parameters (s, 0);
-  if (status != SANE_STATUS_GOOD)
-    return status;
-
-  DBG (7, "adjust_hilo: building histograms\n");
-
-  /* Build the histograms */
-  DBG (7, "sizeof(histo)='%lu'\n", (unsigned long) sizeof (histo));
-  memset (histo, 0, sizeof (histo));
-
-  for (i = 0; i < bread; i += 3)
-    {
-      ++histo[RED][(int) adjbuf[i]];
-      ++histo[GREEN][(int) adjbuf[i + 1]];
-      ++histo[BLUE][(int) adjbuf[i + 2]];
-    }
-
-  for (i = 0; i < 256; i++)
-    {
-      DBG (7, "adjust_hilo: histo[%d]=(%03.3f, %03.3f, %03.3f)\n",
-	   i, histo[RED][i], histo[GREEN][i], histo[BLUE][i]);
-    }
-
-
-  /* For each color */
-  minlo = 255;
-  maxhi = 0;
-  for (i = RED; i <= BLUE; i++)
-    {
-      /* Count the "total weight" of the histogram */
-      for (j = 0; j < 256; j++)
-	{
-	  sum[i] += histo[i][j];
-	}
-
-      /* Find the "middle weight point" in the histogram */
-      j = 0;
-      while ((partsum[i] <= sum[i] / 2) && (j < 256))
-	{
-	  partsum[i] += histo[i][j];
-	  j++;
-	}
-
-      /* We set the gamma value to the middle weight point */
-      /*      s->gamma_table[][] = */
-      gamma[i] = (float) --j;
-      DBG (1, "adjust_hilo: gamma[%d] = '%f'\n", i, gamma[i]);
-
-      /* Find the shadow point */
-      newsum = 0.0;
-      for (j = 0; j < 255; j++)
-	{
-	  newsum += histo[i][j];
-	  percentage = newsum / sum[i];
-	  next_percentage = (newsum + histo[i][j + 1]) / sum[i];
-
-	  if (fabs (percentage - 0.004) < fabs (next_percentage - 0.004))
-	    {
-	      minlo = j + 1;
-	      break;
-	    }
-	}
-
-      /* Find the hilight point */
-      newsum = 0.0;
-      for (j = 255; j > 0; j--)
-	{
-	  newsum += histo[i][j];
-	  percentage = newsum / sum[i];
-	  next_percentage = (newsum + histo[i][j - 1]) / sum[i];
-
-	  if (fabs (percentage - 0.004) < fabs (next_percentage - 0.004))
-	    {
-	      maxhi = j + 32;
-	      break;
-	    }
-
-	}
-
-      s->val[OPT_SHADOW_R + i * 2].w = *((SANE_Word *) & minlo);
-      DBG (1, "adjust_hilo: lo[%d]='%d'\n", i, minlo);
-      DBG (1, "adjust_hilo: s->val[OPT_SHADOW_R+%d*2]='%d'\n",
-	   i, s->val[OPT_SHADOW_R + i * 2].w);
-
-      s->val[OPT_HILITE_R + i * 2].w = *((SANE_Word *) & maxhi);
-      DBG (1, "adjust_hilo: hi[%d]='%d'\n", i, maxhi);
-      DBG (1, "adjust_hilo: s->val[OPT_HILITE_R+%d*2]='%d'\n",
-	   i, s->val[OPT_HILITE_R + i * 2].w);
-    }
-
-  DBG (1, "<< adjust_hilo_points\n");
-
-
-  free (adjbuf);
-  sanei_scsi_close (s->fd);
-  s->fd = -1;
-
-  return (SANE_STATUS_GOOD);
 }
 
 /**************************************************************************/
@@ -1631,20 +1156,24 @@ init_options (CANON_Scanner * s)
   s->opt[OPT_MODE].type = SANE_TYPE_STRING;
   s->opt[OPT_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
 
-  if (s->hw->info.model == FB620)
-    {				/* modification for FB620S */
+  switch (s->hw->info.model)
+    {
+    case FB620:
       s->opt[OPT_MODE].size = max_string_size (mode_list_fb620);
       s->opt[OPT_MODE].constraint.string_list = mode_list_fb620;
       s->val[OPT_MODE].s = strdup (mode_list_fb620[3]);
-    }
-  else if (s->hw->info.model == FS2710)
-    {				/* modification for FS2710 */
+      break;
+    case FB1200:
+      s->opt[OPT_MODE].size = max_string_size (mode_list_fb1200);
+      s->opt[OPT_MODE].constraint.string_list = mode_list_fb1200;
+      s->val[OPT_MODE].s = strdup (mode_list_fb1200[2]);
+      break;
+    case FS2710:
       s->opt[OPT_MODE].size = max_string_size (mode_list_fs2710);
       s->opt[OPT_MODE].constraint.string_list = mode_list_fs2710;
       s->val[OPT_MODE].s = strdup (mode_list_fs2710[0]);
-    }
-  else
-    {
+      break;
+    default:
       s->opt[OPT_MODE].size = max_string_size (mode_list);
       s->opt[OPT_MODE].constraint.string_list = mode_list;
       s->val[OPT_MODE].s = strdup (mode_list[3]);
@@ -1660,8 +1189,7 @@ init_options (CANON_Scanner * s)
   s->opt[OPT_NEGATIVE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
   s->opt[OPT_NEGATIVE].constraint.string_list = filmtype_list;
   s->opt[OPT_NEGATIVE].cap |=
-    (s->hw->info.model == CS2700 || s->hw->info.model == FS2710) ?
-    0 : SANE_CAP_INACTIVE;
+    (s->hw->info.is_filmscanner)? 0 : SANE_CAP_INACTIVE;
   s->val[OPT_NEGATIVE].s = strdup (filmtype_list[1]);
 
   /* Negative film type */
@@ -1673,8 +1201,7 @@ init_options (CANON_Scanner * s)
   s->opt[OPT_NEGATIVE_TYPE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
   s->opt[OPT_NEGATIVE_TYPE].constraint.string_list = negative_filmtype_list;
   s->opt[OPT_NEGATIVE_TYPE].cap |=
-    (s->hw->info.model == CS2700 || s->hw->info.model == FS2710) ?
-    0 : SANE_CAP_INACTIVE;
+    (s->hw->info.is_filmscanner) ? 0 : SANE_CAP_INACTIVE;
   s->val[OPT_NEGATIVE_TYPE].s = strdup (negative_filmtype_list[0]);
 
   /* Scanning speed */
@@ -1686,8 +1213,9 @@ init_options (CANON_Scanner * s)
   s->opt[OPT_SCANNING_SPEED].constraint_type = SANE_CONSTRAINT_STRING_LIST;
   s->opt[OPT_SCANNING_SPEED].constraint.string_list = scanning_speed_list;
   s->opt[OPT_SCANNING_SPEED].cap |=
-    (s->hw->info.model == CS2700 || s->hw->info.model == FS2710) ?
-    0 : SANE_CAP_INACTIVE;
+    (s->hw->info.model == CS2700) ? 0 : SANE_CAP_INACTIVE;
+  s->opt[OPT_SCANNING_SPEED].cap &=
+    (s->hw->info.model == CS2700) ? SANE_TRUE : ~SANE_CAP_SOFT_SELECT;
   s->val[OPT_SCANNING_SPEED].s = strdup (scanning_speed_list[0]);
 
   /* "Resolution" group: */
@@ -1704,16 +1232,14 @@ init_options (CANON_Scanner * s)
   s->opt[OPT_RESOLUTION_BIND].type = SANE_TYPE_BOOL;
   s->val[OPT_RESOLUTION_BIND].w = SANE_TRUE;
 
-  /* hardware resolution only */
+  /* hardware resolutions only */
   s->opt[OPT_HW_RESOLUTION_ONLY].name = "hw-resolution-only";
   s->opt[OPT_HW_RESOLUTION_ONLY].title = "Hardware resolution";
   s->opt[OPT_HW_RESOLUTION_ONLY].desc = "Use only hardware resolutions";
   s->opt[OPT_HW_RESOLUTION_ONLY].type = SANE_TYPE_BOOL;
   s->val[OPT_HW_RESOLUTION_ONLY].w = SANE_TRUE;
   s->opt[OPT_HW_RESOLUTION_ONLY].cap |=
-    (s->hw->info.model == CS2700 || s->hw->info.model == FS2710
-    || s->hw->info.model == FB620) ? 0 : SANE_CAP_INACTIVE;
-					/* mod. for FB620S */
+    (s->hw->info.has_fixed_resolutions)? 0 : SANE_CAP_INACTIVE;
 
   /* x-resolution */
   s->opt[OPT_X_RESOLUTION].name = SANE_NAME_SCAN_RESOLUTION;
@@ -1721,20 +1247,11 @@ init_options (CANON_Scanner * s)
   s->opt[OPT_X_RESOLUTION].desc = SANE_DESC_SCAN_RESOLUTION;
   s->opt[OPT_X_RESOLUTION].type = SANE_TYPE_INT;
   s->opt[OPT_X_RESOLUTION].unit = SANE_UNIT_DPI;
-  s->opt[OPT_X_RESOLUTION].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_X_RESOLUTION].constraint.range = &s->hw->info.xres_range;
-  s->val[OPT_X_RESOLUTION].w =
-    (s->hw->info.model == CS2700 || s->hw->info.model == FS2710) ? 340 : 300;
-
-  /* 990320, ss: use only hardware resolutions           */
-  /* to get option menue instead of slider in xscanimage */
-  if (s->hw->info.model == CS2700 || s->hw->info.model == FS2710 ||
-      s->hw->info.model == FB620)
+  if (s->hw->info.has_fixed_resolutions)
     {
-      int iCnt, iNum;
+      int iCnt;
       float iRes;		/* modification for FB620S */
       s->opt[OPT_X_RESOLUTION].constraint_type = SANE_CONSTRAINT_WORD_LIST;
-      iNum = 0;
       iCnt = 0;
 
       iRes = s->hw->info.xres_range.max;
@@ -1749,12 +1266,18 @@ init_options (CANON_Scanner * s)
       /* fill array upto maximum resolution */
       while (iRes < s->hw->info.xres_range.max)
 	{
-	  iCnt++;
 	  iRes *= 2;
-	  s->xres_word_list[iCnt] = iRes;
+	  s->xres_word_list[++iCnt] = iRes;
 	}
       s->xres_word_list[0] = iCnt;
-      s->val[OPT_X_RESOLUTION].w = s->xres_word_list[2];	/* 340 */
+      s->val[OPT_X_RESOLUTION].w = s->xres_word_list[2];
+
+    }
+  else
+    {
+      s->opt[OPT_X_RESOLUTION].constraint_type = SANE_CONSTRAINT_RANGE;
+      s->opt[OPT_X_RESOLUTION].constraint.range = &s->hw->info.xres_range;
+      s->val[OPT_X_RESOLUTION].w = 300;
     }
 
   /* y-resolution */
@@ -1763,21 +1286,12 @@ init_options (CANON_Scanner * s)
   s->opt[OPT_Y_RESOLUTION].desc = SANE_DESC_SCAN_Y_RESOLUTION;
   s->opt[OPT_Y_RESOLUTION].type = SANE_TYPE_INT;
   s->opt[OPT_Y_RESOLUTION].unit = SANE_UNIT_DPI;
-  s->opt[OPT_Y_RESOLUTION].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_Y_RESOLUTION].constraint.range = &s->hw->info.yres_range;
-  s->val[OPT_Y_RESOLUTION].w =
-    (s->hw->info.model == CS2700 || s->hw->info.model == FS2710) ? 340 : 300;
   s->opt[OPT_Y_RESOLUTION].cap |= SANE_CAP_INACTIVE;
-
-  /* 990320, ss: use only hardware resolutions           */
-  /* to get option menue instead of slider in xscanimage */
-  if (s->hw->info.model == CS2700 || s->hw->info.model == FS2710 ||
-      s->hw->info.model == FB620)
+  if (s->hw->info.has_fixed_resolutions)
     {
-      int iCnt, iNum;
+      int iCnt;
       float iRes;		/* modification for FB620S */
       s->opt[OPT_Y_RESOLUTION].constraint_type = SANE_CONSTRAINT_WORD_LIST;
-      iNum = 0;
       iCnt = 0;
 
       iRes = s->hw->info.yres_range.max;
@@ -1792,12 +1306,17 @@ init_options (CANON_Scanner * s)
       /* fill array upto maximum resolution */
       while (iRes < s->hw->info.yres_range.max)
 	{
-	  iCnt++;
 	  iRes *= 2;
-	  s->yres_word_list[iCnt] = iRes;
+	  s->yres_word_list[++iCnt] = iRes;
 	}
       s->yres_word_list[0] = iCnt;
-      s->val[OPT_Y_RESOLUTION].w = s->yres_word_list[2];	/* 340 */
+      s->val[OPT_Y_RESOLUTION].w = s->yres_word_list[2];
+    }
+  else
+    {
+      s->opt[OPT_Y_RESOLUTION].constraint_type = SANE_CONSTRAINT_RANGE;
+      s->opt[OPT_Y_RESOLUTION].constraint.range = &s->hw->info.yres_range;
+      s->val[OPT_Y_RESOLUTION].w = 300;
     }
 
   /* Focus group: */
@@ -1806,27 +1325,24 @@ init_options (CANON_Scanner * s)
   s->opt[OPT_FOCUS_GROUP].type = SANE_TYPE_GROUP;
   s->opt[OPT_FOCUS_GROUP].cap = SANE_CAP_ADVANCED;
   s->opt[OPT_FOCUS_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
-  s->opt[OPT_FOCUS_GROUP].cap |= (s->hw->info.model == FB620) ? SANE_CAP_INACTIVE : 0;	/* modification for FB620S */
+  s->opt[OPT_FOCUS_GROUP].cap |=
+    (s->hw->info.can_focus) ? 0 : SANE_CAP_INACTIVE;
 
   /* Auto-Focus switch */
   s->opt[OPT_AF].name = "af";
   s->opt[OPT_AF].title = "Auto Focus";
   s->opt[OPT_AF].desc = "Enable/disable Auto Focus";
   s->opt[OPT_AF].type = SANE_TYPE_BOOL;
-  s->opt[OPT_AF].cap |= (s->hw->info.model == FB620) ? SANE_CAP_INACTIVE : 0;	/* modification for FB620S */
-  s->val[OPT_AF].w = (s->hw->info.model == FB620) ? SANE_FALSE : SANE_TRUE;
+  s->opt[OPT_AF].cap |= (s->hw->info.can_focus) ? 0 : SANE_CAP_INACTIVE;
+  s->val[OPT_AF].w = s->hw->info.can_focus;
 
   /* Auto-Focus once switch */
   s->opt[OPT_AF_ONCE].name = "afonce";
   s->opt[OPT_AF_ONCE].title = "Auto Focus only once";
   s->opt[OPT_AF_ONCE].desc = "Do Auto Focus only once between ejects";
   s->opt[OPT_AF_ONCE].type = SANE_TYPE_BOOL;
-  s->opt[OPT_AF_ONCE].cap |=
-    (s->hw->info.model == CS2700 || s->hw->info.model == FS2710) ?
-    0 : SANE_CAP_INACTIVE;
-  s->val[OPT_AF_ONCE].w =
-    (s->hw->info.model == CS2700 || s->hw->info.model == FS2710) ?
-    SANE_TRUE : SANE_FALSE;
+  s->opt[OPT_AF_ONCE].cap |= (s->hw->info.can_focus) ? 0 : SANE_CAP_INACTIVE;
+  s->val[OPT_AF_ONCE].w = s->hw->info.can_focus;
 
   /* Manual focus */
   s->opt[OPT_FOCUS].name = "focus";
@@ -1837,8 +1353,8 @@ init_options (CANON_Scanner * s)
   s->opt[OPT_FOCUS].unit = SANE_UNIT_NONE;
   s->opt[OPT_FOCUS].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_FOCUS].constraint.range = &s->hw->info.focus_range;
-  s->opt[OPT_FOCUS].cap |= (s->hw->info.model == FB620) ? SANE_CAP_INACTIVE : 0;	/* modification for FB620S */
-  s->val[OPT_FOCUS].w = (s->hw->info.model == FB620) ? SANE_FALSE : 128;
+  s->opt[OPT_FOCUS].cap |= (s->hw->info.can_focus) ? 0 : SANE_CAP_INACTIVE;
+  s->val[OPT_FOCUS].w = (s->hw->info.can_focus) ? 128 : 0;
 
   /* Margins group: */
   s->opt[OPT_MARGINS_GROUP].title = "Scan margins";
@@ -1904,7 +1420,7 @@ init_options (CANON_Scanner * s)
     SANE_CAP_INACTIVE : 0;
   s->val[OPT_HNEGATIVE].w = SANE_FALSE;
 
-  /* Same values vor highlight and shadow points for red, green, blue */
+  /* Same values for highlight and shadow points for red, green, blue */
   s->opt[OPT_BIND_HILO].name = "bind-highlight-shadow-points";
   s->opt[OPT_BIND_HILO].title = SANE_TITLE_RGB_BIND;
   s->opt[OPT_BIND_HILO].desc = SANE_DESC_RGB_BIND;
@@ -2022,7 +1538,7 @@ init_options (CANON_Scanner * s)
   s->opt[OPT_MIRROR].title = "Mirror image";
   s->opt[OPT_MIRROR].desc = "Mirror the image horizontally";
   s->opt[OPT_MIRROR].type = SANE_TYPE_BOOL;
-  s->opt[OPT_MIRROR].cap |= (s->hw->info.model == FB620) ? SANE_CAP_INACTIVE : 0;	/* modification for FB620S */
+  s->opt[OPT_MIRROR].cap |= (s->hw->info.can_mirror) ? 0: SANE_CAP_INACTIVE;
   s->val[OPT_MIRROR].w = SANE_FALSE;
 
   /* analog-gamma curve */
@@ -2091,36 +1607,31 @@ init_options (CANON_Scanner * s)
   s->opt[OPT_AE].name = "ae";
   s->opt[OPT_AE].title = "Auto Exposure";
   s->opt[OPT_AE].desc = "Enable/disable the Auto Exposure feature";
-  s->opt[OPT_AE].cap |=
-    (s->hw->info.model == CS2700 || s->hw->info.model == FS2710
-    || s->hw->info.model == FB620) ? SANE_CAP_INACTIVE : 0;
-					/* mod. for FB620S */
-  
-  if (s->hw->info.model == FS2710) s->opt[OPT_AE].cap &=
-    ~SANE_CAP_SOFT_SELECT;
+  s->opt[OPT_AE].cap |= (s->hw->info.can_autoexpose) ? 0 : SANE_CAP_INACTIVE;
   s->opt[OPT_AE].type = SANE_TYPE_BOOL;
   s->val[OPT_AE].w = SANE_FALSE;
 
 
-  /* "Calibration" group (active only for FB620S) */
+  /* "Calibration" group */
   s->opt[OPT_CALIBRATION_GROUP].title = "Calibration";
   s->opt[OPT_CALIBRATION_GROUP].desc = "";
   s->opt[OPT_CALIBRATION_GROUP].type = SANE_TYPE_GROUP;
-  s->opt[OPT_CALIBRATION_GROUP].cap |= (s->hw->info.model == FB620) ? 0 : SANE_CAP_INACTIVE;	/* modification for FB620S */
+  s->opt[OPT_CALIBRATION_GROUP].cap |=
+    (s->hw->info.can_calibrate) ? 0 : SANE_CAP_INACTIVE;
   s->opt[OPT_CALIBRATION_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
-  /* calibration now for FB620S */
+  /* calibration now */
   s->opt[OPT_CALIBRATION_NOW].name = "calibration-now";
   s->opt[OPT_CALIBRATION_NOW].title = "Calibration now";
   s->opt[OPT_CALIBRATION_NOW].desc = "Execute calibration *now*";
   s->opt[OPT_CALIBRATION_NOW].type = SANE_TYPE_BUTTON;
   s->opt[OPT_CALIBRATION_NOW].unit = SANE_UNIT_NONE;
   s->opt[OPT_CALIBRATION_NOW].cap |=
-    (s->hw->info.model == FB620) ? 0 : SANE_CAP_INACTIVE;
+    (s->hw->info.can_calibrate) ? 0 : SANE_CAP_INACTIVE;
   s->opt[OPT_CALIBRATION_NOW].constraint_type = SANE_CONSTRAINT_NONE;
   s->opt[OPT_CALIBRATION_NOW].constraint.range = NULL;
 
-  /* scanner self diagnostic for FB620S */
+  /* scanner self diagnostic */
   s->opt[OPT_SCANNER_SELF_DIAGNOSTIC].name = "self-diagnostic";
   s->opt[OPT_SCANNER_SELF_DIAGNOSTIC].title = "Self diagnostic";
   s->opt[OPT_SCANNER_SELF_DIAGNOSTIC].desc =
@@ -2128,14 +1639,14 @@ init_options (CANON_Scanner * s)
   s->opt[OPT_SCANNER_SELF_DIAGNOSTIC].type = SANE_TYPE_BUTTON;
   s->opt[OPT_SCANNER_SELF_DIAGNOSTIC].unit = SANE_UNIT_NONE;
   s->opt[OPT_SCANNER_SELF_DIAGNOSTIC].cap |=
-    (s->hw->info.model == FB620) ? 0 : SANE_CAP_INACTIVE;
+    (s->hw->info.can_calibrate) ? 0 : SANE_CAP_INACTIVE;
   s->opt[OPT_SCANNER_SELF_DIAGNOSTIC].constraint_type = SANE_CONSTRAINT_NONE;
   s->opt[OPT_SCANNER_SELF_DIAGNOSTIC].constraint.range = NULL;
 
   /* reset scanner for FB620S */
   s->opt[OPT_RESET_SCANNER].name = "reset-scanner";
   s->opt[OPT_RESET_SCANNER].title = "Reset scanner";
-  s->opt[OPT_RESET_SCANNER].desc = "Reste the scanner";
+  s->opt[OPT_RESET_SCANNER].desc = "Reset the scanner";
   s->opt[OPT_RESET_SCANNER].type = SANE_TYPE_BUTTON;
   s->opt[OPT_RESET_SCANNER].unit = SANE_UNIT_NONE;
   s->opt[OPT_RESET_SCANNER].cap |=
@@ -2143,13 +1654,13 @@ init_options (CANON_Scanner * s)
   s->opt[OPT_RESET_SCANNER].constraint_type = SANE_CONSTRAINT_NONE;
   s->opt[OPT_RESET_SCANNER].constraint.range = NULL;
 
-  /* "Eject" group (active only for model 2700F) */
+
+  /* "Eject" group (active only for film scanners) */
   s->opt[OPT_EJECT_GROUP].title = "Medium handling";
   s->opt[OPT_EJECT_GROUP].desc = "";
   s->opt[OPT_EJECT_GROUP].type = SANE_TYPE_GROUP;
-/*   s->opt[OPT_EJECT_GROUP].cap |=  */
-/*     (s->hw->info.model == CS2700) ? 0 : SANE_CAP_INACTIVE; */
-  s->opt[OPT_EJECT_GROUP].cap = 0;
+  s->opt[OPT_EJECT_GROUP].cap |=
+    (s->hw->info.can_eject) ? 0 : SANE_CAP_INACTIVE;
   s->opt[OPT_EJECT_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
   /* eject after scan */
@@ -2158,8 +1669,7 @@ init_options (CANON_Scanner * s)
   s->opt[OPT_EJECT_AFTERSCAN].desc =
     "Automatically eject the film from the device after each scan";
   s->opt[OPT_EJECT_AFTERSCAN].cap |=
-    (s->hw->info.model == CS2700 || s->hw->info.model == FS2710) ?
-    0 : SANE_CAP_INACTIVE;
+    (s->hw->info.can_eject) ? 0 : SANE_CAP_INACTIVE;
   s->opt[OPT_EJECT_AFTERSCAN].type = SANE_TYPE_BOOL;
   s->val[OPT_EJECT_AFTERSCAN].w = SANE_FALSE;
 
@@ -2169,12 +1679,9 @@ init_options (CANON_Scanner * s)
   s->opt[OPT_EJECT_BEFOREEXIT].desc =
     "Automatically eject the film from the device before exiting the program";
   s->opt[OPT_EJECT_BEFOREEXIT].cap |=
-    (s->hw->info.model == CS2700 || s->hw->info.model == FS2710) ?
-    0 : SANE_CAP_INACTIVE;
+    (s->hw->info.can_eject) ? 0 : SANE_CAP_INACTIVE;
   s->opt[OPT_EJECT_BEFOREEXIT].type = SANE_TYPE_BOOL;
-  s->val[OPT_EJECT_BEFOREEXIT].w =
-    (s->hw->info.model == CS2700 || s->hw->info.model == FS2710) ?
-    SANE_TRUE : SANE_FALSE;
+  s->val[OPT_EJECT_BEFOREEXIT].w = s->hw->info.can_eject;
 
   /* eject now */
   s->opt[OPT_EJECT_NOW].name = "eject-now";
@@ -2183,8 +1690,7 @@ init_options (CANON_Scanner * s)
   s->opt[OPT_EJECT_NOW].type = SANE_TYPE_BUTTON;
   s->opt[OPT_EJECT_NOW].unit = SANE_UNIT_NONE;
   s->opt[OPT_EJECT_NOW].cap |=
-    (s->hw->info.model == CS2700 || s->hw->info.model == FS2710) ?
-    0 : SANE_CAP_INACTIVE;
+    (s->hw->info.can_eject) ? 0 : SANE_CAP_INACTIVE;
   s->opt[OPT_EJECT_NOW].constraint_type = SANE_CONSTRAINT_NONE;
   s->opt[OPT_EJECT_NOW].constraint.range = NULL;
 
@@ -2214,7 +1720,6 @@ init_options (CANON_Scanner * s)
   s->opt[OPT_TPU_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
   s->opt[OPT_TPU_GROUP].cap |=
     (s->hw->tpu.Status != TPU_STAT_NONE) ? 0 : SANE_CAP_INACTIVE;
-
 
   /* Transparency Unit (FAU, Film Adapter Unit) */
   s->opt[OPT_TPU_ON].name = "transparency-unit-on-off";
@@ -2264,7 +1769,6 @@ init_options (CANON_Scanner * s)
     (s->hw->tpu.Status == TPU_STAT_ACTIVE &&
      s->hw->tpu.ControlMode == 3) ? 0 : SANE_CAP_INACTIVE;
 
-
   /* Select Film type */
   s->opt[OPT_TPU_FILMTYPE].name = "Filmtype";
   s->opt[OPT_TPU_FILMTYPE].title = "Select Film type";
@@ -2275,9 +1779,9 @@ init_options (CANON_Scanner * s)
   s->opt[OPT_TPU_FILMTYPE].constraint.string_list = tpu_filmtype_list;
   s->val[OPT_TPU_FILMTYPE].s =
     strdup (tpu_filmtype_list[s->hw->tpu.FilmType]);
-  s->opt[OPT_TPU_FILMTYPE].cap |= (s->hw->tpu.Status == TPU_STAT_ACTIVE
-				   && s->hw->tpu.ControlMode ==
-				   1) ? 0 : SANE_CAP_INACTIVE;
+  s->opt[OPT_TPU_FILMTYPE].cap |=
+    (s->hw->tpu.Status == TPU_STAT_ACTIVE && s->hw->tpu.ControlMode == 1) ?
+    0 : SANE_CAP_INACTIVE;
 
 
   /* preview */
@@ -2319,46 +1823,53 @@ do_focus (CANON_Scanner * s)
   if (status != SANE_STATUS_GOOD)
     {
       DBG (1, "do_focus: GET FILM STATUS failed\n");
-      sanei_scsi_close (s->fd);
-      s->fd = -1;
-      return (SANE_STATUS_INVAL);
+      if (status == SANE_STATUS_UNSUPPORTED)
+	return (SANE_STATUS_GOOD);
+      else
+	{
+	  DBG (1, "do_focus: ... for unknown reasons\n");
+	  sanei_scsi_close (s->fd);
+	  s->fd = -1;
+	  return (SANE_STATUS_INVAL);
+	}
     }
   DBG (3, "focus point before autofocus : %d\n", ebuf[3]);
 
-  if (s->val[OPT_AF].w == SANE_TRUE)
+  if (s->val[OPT_AF].w == SANE_TRUE)	/* autofocus */
     {
-      /* Auto-Focus */
       if (s->hw->info.model == FS2710)
 	status = execute_auto_focus_FS2710 (s->fd, AUTO_FOCUS,
-					    NO_AUTO_EXPOSURE, 128);
+		 NO_AUTO_EXPOSURE, 128);
       else
 	status = execute_auto_focus (s->fd, AUTO_FOCUS,
-				     (s->scanning_speed ==
-				      0) ? AUTO_SCAN_SPEED : NO_AUTO_SCAN_SPEED,
-				     (s->AE ==
-				      0) ? NO_AUTO_EXPOSURE : AUTO_EXPOSURE, 0);
+		 (s->scanning_speed == 0) ? AUTO_SCAN_SPEED
+		 : NO_AUTO_SCAN_SPEED,
+		 (s->AE == 0) ? NO_AUTO_EXPOSURE : AUTO_EXPOSURE, 0);
     }
-  else
+  else					/* manual focus */
     {
-      /* Manual Focus */
       if (s->hw->info.model == FS2710)
 	status = execute_auto_focus_FS2710 (s->fd, MANUAL_FOCUS,
-					    NO_AUTO_EXPOSURE,
-					    s->val[OPT_FOCUS].w);
+		 NO_AUTO_EXPOSURE, s->val[OPT_FOCUS].w);
       else
 	status = execute_auto_focus (s->fd, MANUAL_FOCUS,
-				     (s->scanning_speed ==
-				      0) ? AUTO_SCAN_SPEED : NO_AUTO_SCAN_SPEED,
-				     (s->AE ==
-				      0) ? NO_AUTO_EXPOSURE : AUTO_EXPOSURE,
-				     s->val[OPT_FOCUS].w);
+		 (s->scanning_speed == 0) ? AUTO_SCAN_SPEED
+		 : NO_AUTO_SCAN_SPEED,
+		 (s->AE == 0) ? NO_AUTO_EXPOSURE : AUTO_EXPOSURE,
+		 s->val[OPT_FOCUS].w);
     }
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (7, "EXECUTE_AUTO_FOCUS failed\n");
-      sanei_scsi_close (s->fd);
-      s->fd = -1;
-      return (SANE_STATUS_INVAL);
+      DBG (7, "execute_auto_focus failed\n");
+      if (status == SANE_STATUS_UNSUPPORTED)
+	  return (SANE_STATUS_GOOD);
+      else
+	{
+	  DBG (1, "do_focus: ... for unknown reasons\n");
+	  sanei_scsi_close (s->fd);
+	  s->fd = -1;
+	  return (SANE_STATUS_INVAL);
+	}
     }
 
   DBG (3, "do_focus: sending GET FILM STATUS\n");
@@ -2368,11 +1879,18 @@ do_focus (CANON_Scanner * s)
   if (status != SANE_STATUS_GOOD)
     {
       DBG (1, "do_focus: GET FILM STATUS failed\n");
-      sanei_scsi_close (s->fd);
-      s->fd = -1;
-      return (SANE_STATUS_INVAL);
+      if (status == SANE_STATUS_UNSUPPORTED)
+	  return (SANE_STATUS_GOOD);
+      else
+	{
+	  DBG (1, "do_focus: ... for unknown reasons\n");
+	  sanei_scsi_close (s->fd);
+	  s->fd = -1;
+	  return (SANE_STATUS_INVAL);
+	}
     }
-  DBG (3, "focus point after autofocus : %d\n", ebuf[3]);
+  else
+      DBG (3, "focus point after autofocus : %d\n", ebuf[3]);
 
   return (SANE_STATUS_GOOD);
 }

@@ -52,7 +52,7 @@ test_unit_ready (int fd)
   DBG (31, ">> test_unit_ready\n");
 
   memset (cmd, 0, sizeof (cmd));
-  status = sanei_scsi_cmd (fd, cmd, sizeof (cmd), NULL, NULL);
+  status = sanei_scsi_cmd2 (fd, cmd, sizeof (cmd), NULL, 0, NULL, NULL);
 
   DBG (31, "<< test_unit_ready\n");
   return (status);
@@ -129,7 +129,7 @@ reserve_unit (int fd)
 
   memset (cmd, 0, sizeof (cmd));
   cmd[0] = 0x16;
-  status = sanei_scsi_cmd (fd, cmd, sizeof (cmd), NULL, NULL);
+  status = sanei_scsi_cmd2 (fd, cmd, sizeof (cmd), NULL, 0, NULL, NULL);
 
   DBG (31, "<< reserve_unit\n");
   return (status);
@@ -294,7 +294,7 @@ execute_auto_focus (int fd, int mode, int speed, int AE, int count)
 {
   static u_char cmd[10];
   int status;
-  DBG (7, ">> execute auto focus\n");
+  DBG (7, ">> execute_auto_focus\n");
   DBG (7, ">> focus: mode='%d', speed='%d', AE='%d', count='%d'\n",
        mode, speed, AE, count);
 
@@ -305,7 +305,7 @@ execute_auto_focus (int fd, int mode, int speed, int AE, int count)
   cmd[4] = count;
   status = sanei_scsi_cmd2 (fd, cmd, sizeof (cmd), NULL, 0, NULL, NULL);
 
-  DBG (7, "<< execute auto focus\n");
+  DBG (7, "<< execute_auto_focus\n");
   return (status);
 }
 
@@ -314,7 +314,7 @@ execute_auto_focus_FS2710 (int fd, int mode, int AE, int count)
 {
   static u_char cmd[10];
   int status;
-  DBG (7, ">> execute auto focus 2710\n");
+  DBG (7, ">> execute_auto_focus_FS2710\n");
   DBG (7, ">> focus: mode='%d', count='%d'\n", mode, count);
 
   memset (cmd, 0, sizeof (cmd));
@@ -328,7 +328,7 @@ execute_auto_focus_FS2710 (int fd, int mode, int AE, int count)
 #endif
   status = sanei_scsi_cmd2 (fd, cmd, sizeof (cmd), NULL, 0, NULL, NULL);
 
-  DBG (7, "<< execute auto focus2710\n");
+  DBG (7, "<< execute_auto_focus_FS2710\n");
   return (status);
 }
 
@@ -369,6 +369,10 @@ get_scan_mode (int fd, u_char page, void *buf, size_t * buf_size)
       cmd[4] = 0x14 + PageLen;
       break;
 
+/*    case SCAN_CONTROL_CON_FB1200:
+      cmd[4] = 0x17 + PageLen;
+      break;*/
+
     default:
       cmd[4] = 0x24 + PageLen;
       break;
@@ -386,20 +390,24 @@ static SANE_Status
 define_scan_mode (int fd, u_char page, void *data)
 {
   static u_char cmd[6];
-  u_char pdata[20];
+  u_char pdata[23];
   size_t i;
   int status, pdatalen;
   DBG (31, ">> define scan mode\n");
 
   memset (cmd, 0, sizeof (cmd));
-  memset (pdata, 0, sizeof (data));
+  memset (pdata, 0, sizeof (pdata));
   cmd[0] = 0xd6;
   cmd[1] = 0x10;
   cmd[4] = (page == TRANSPARENCY_UNIT) ? 0x0c :
-    (page == SCAN_CONTROL_CONDITIONS) ? 0x14 : 0x24;
+    (page == TRANSPARENCY_UNIT_FB1200) ? 0x0c :
+    (page == SCAN_CONTROL_CONDITIONS) ? 0x14 :
+    (page == SCAN_CONTROL_CON_FB1200) ? 0x17 : 0x24;
 
   memcpy (pdata + 4, data, (page == TRANSPARENCY_UNIT) ? 8 :
-	  (page == SCAN_CONTROL_CONDITIONS) ? 16 : 24);
+          (page == TRANSPARENCY_UNIT_FB1200) ? 10 :
+	  (page == SCAN_CONTROL_CONDITIONS) ? 16 :
+	  (page == SCAN_CONTROL_CON_FB1200) ? 19 : 32);
 
   for (i = 0; i < sizeof (cmd); i++)
     {
@@ -412,7 +420,9 @@ define_scan_mode (int fd, u_char page, void *data)
     }
 
   pdatalen = (page == TRANSPARENCY_UNIT) ? 12 :
-    (page == SCAN_CONTROL_CONDITIONS) ? 20 : 28;
+    (page == TRANSPARENCY_UNIT_FB1200) ? 14 :
+    (page == SCAN_CONTROL_CONDITIONS) ? 20 :
+    (page == SCAN_CONTROL_CON_FB1200) ? 23 : 36;
 
   status =
     sanei_scsi_cmd2 (fd, cmd, sizeof (cmd), pdata, pdatalen, NULL, NULL);
@@ -559,7 +569,7 @@ get_data_status (int fd, void *buf, size_t * buf_size)
   memset (cmd, 0, sizeof (cmd));
   cmd[0] = 0x34;
   cmd[8] = 28;
-  status = sanei_scsi_cmd (fd, cmd, sizeof (cmd), buf, buf_size);
+  status = sanei_scsi_cmd2 (fd, cmd, sizeof (cmd), NULL, 0, buf, buf_size);
 
   DBG (31, "<< get_data_status\n");
   return (status);
@@ -616,7 +626,8 @@ get_calibration_status (int fd, void *buf, size_t * buf_size)
   return (status);
 }
 
-/* static SANE_Status
+#if 0
+static SANE_Status
 get_switch_status (int fd, void *buf, size_t *buf_size)
 {
   static u_char cmd[6];
@@ -630,9 +641,9 @@ get_switch_status (int fd, void *buf, size_t *buf_size)
 
   DBG (31, "<< get_switch_status\n");
   return (status);
-} */
+}
 
-/* static SANE_Status
+static SANE_Status
 wait_ready(int fd)
 {
   SANE_Status status;
@@ -648,7 +659,24 @@ wait_ready(int fd)
     sleep(3);
   }
   return(status);
-} */
+}
+#endif
+
+/*************** modification for FB1200S ***************/
+static SANE_Status
+cancel (int fd)
+{
+  static u_char cmd[10];
+  int status;
+  DBG (31, ">> cancel_FB1200S\n");
+
+  memset (cmd, 0, sizeof (cmd));
+  cmd[0] = 0xe4;
+  status = sanei_scsi_cmd2 (fd, cmd, sizeof (cmd), NULL, 0, NULL, NULL);
+
+  DBG (31, "<< cancel_FB1200S \n");
+  return (status);
+}
 
 /**************************************************************************/
 /* As long as we do not know how this scanner stores its density curves,
@@ -681,7 +709,7 @@ set_density_curve_fs2710 (SANE_Handle handle, int component, u_char * buf)
       hi = (i < 256) ? *buf++ : 2 * *(buf - 1) - *(buf - 2);
       if (hi > 255)
 	hi = 255;
-      for (j = 0; j < 16; j++)	/* do a linear interpolation */
+      for (j = 0; j < 16; j++)		/* do a linear interpolation */
 	*p++ = (u_char) (lo + ((double) ((hi - lo) * j)) / 16.0 + 0.5);
     }
   return (SANE_STATUS_GOOD);

@@ -94,8 +94,8 @@ AC_CHECK_HEADERS(fcntl.h unistd.h libc.h sys/dsreq.h sys/select.h \
     sys/scanio.h scsi.h sys/scsi.h sys/scsicmd.h sys/scsiio.h \
     bsd/dev/scsireg.h scsi/sg.h /usr/src/linux/include/scsi/sg.h io/cam/cam.h \
     camlib.h os2.h sys/socket.h sys/io.h asm/io.h gscdds.h sys/hw.h \
-    sys/types.h sys/scsi/sgdefs.h sys/scsi/targets/scgio.h apollo/scsi.h \
-    sys/sdi_comm.h sys/passthrudef.h)
+    sys/types.h sys/scsi/scsi.h sys/scsi/sgdefs.h sys/scsi/targets/scgio.h \
+    apollo/scsi.h sys/sdi_comm.h sys/passthrudef.h)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -119,7 +119,7 @@ then
 #include <scsi.h>
 ],[scsireq_t req],,
    AC_DEFINE(scsireq_t, struct scsireq_t,
-             [Define scsireq_t as `struct scsireq' if necessary.]))
+             [Define scsireq_t as \`struct scsireq\' if necessary.]))
 fi
 
 AC_MSG_CHECKING([for socklen_t in <sys/socket.h>])
@@ -127,7 +127,7 @@ AC_TRY_COMPILE([
 #include <sys/socket.h>
 ],[socklen_t len],AC_MSG_RESULT(yes),
 [AC_MSG_RESULT(no); AC_DEFINE(socklen_t,int,
-[Define socklen_t as `int' if necessary.])])
+[Define socklen_t as \`int\' if necessary.])])
 
 SANE_V4L_VERSION
 

@@ -1599,8 +1599,8 @@ for ac_hdr in fcntl.h unistd.h libc.h sys/dsreq.h sys/select.h \
     sys/scanio.h scsi.h sys/scsi.h sys/scsicmd.h sys/scsiio.h \
     bsd/dev/scsireg.h scsi/sg.h /usr/src/linux/include/scsi/sg.h io/cam/cam.h \
     camlib.h os2.h sys/socket.h sys/io.h asm/io.h gscdds.h sys/hw.h \
-    sys/types.h sys/scsi/sgdefs.h sys/scsi/targets/scgio.h apollo/scsi.h \
-    sys/sdi_comm.h sys/passthrudef.h
+    sys/types.h sys/scsi/scsi.h sys/scsi/sgdefs.h sys/scsi/targets/scgio.h \
+    apollo/scsi.h sys/sdi_comm.h sys/passthrudef.h
 do
 ac_safe=`echo "$ac_hdr" | sed 'y%./+-%__p_%'`
 echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6

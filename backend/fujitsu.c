@@ -130,6 +130,9 @@
          - enabled option dropoutcolor for the fi-4530C, and fi-4x20C
       02.06.2004 (oschirr@abm.de)
          - bugfix: can read duplex color now
+      2004-06-28 (anoah@pfeiffer.edu)
+         - bugfix: use model code instead of string compare with 4220
+           submitted by: stan@saticed.me.uk
    
    SANE FLOW DIAGRAM
 
@@ -4503,7 +4506,7 @@ identify_scanner (struct fujitsu *s)
       if (!strncmp (product, "fi-4530C", 8) ||
 	  !strncmp (product, "M3091", 5) ||
 	  !strncmp (product, "M3092", 5) ||
-	  !strncmp (product, "fi-4120", 7) )
+	  s->model == MODEL_FI4x20)
 	{
 	  /* These scanner don't support standard paper size specification
 	   * in bye 0x35 of the window descriptor block

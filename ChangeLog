@@ -1,3 +1,7 @@
+2004-06-28 m. allan noah <anoah at pfeiffer dot edu>
+         * backend/fujitsu.c: use model code instead of string compare
+           submitted by: stan at saticed.me.uk
+
 2004-06-21  Gerhard Jaeger <gerhard@gjaeger.de>
 	* doc/descriptions/unsupported.desc: removed Compac S4 100 
 	  (supported by the Plustek backend), added various Plustek

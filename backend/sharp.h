@@ -165,6 +165,7 @@ typedef enum
     */
     unknown = -1,
     JX250,
+    JX320,
     JX330,
     JX350,
     JX610

@@ -6,6 +6,11 @@
 	  now stops if one of the essential headers isn't found.
 	* backend/dll.conf: Added entry for test backend (commented out).
 	* doc/backend-writing.txt: Mentioned descriptions.txt.
+	* bachend/test.c backend/test.conf backend/test.h 
+	  backend/test-picture.c doc/descriptions/test.desc doc/sane-test.man:
+	  Added support for lineart mode with pixels_per_line not divisible by
+	  8. Added support for padded image formats. Added documentation for
+	  all options.
 
 2002-06-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

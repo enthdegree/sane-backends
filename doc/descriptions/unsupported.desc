@@ -163,11 +163,6 @@
 :status :unsupported
 :comment "Unsupported. Vendor/product: 0x04c5/0x1042. Maybe similar to fi-4220C?"
 
-:model "fi-4220C"
-:url "http://www.mostang.com/pipermail/sane-devel/2003-February/017663.html"
-:interface "USB SCSI"
-:status :unsupported
-:comment "Unsupported, but there is a patch to support it (see link). Vendor/product: 0x04c5/0x1041. Epson S1R72105 SCSI/USB controller."
 
 ;********************************************************************************************
 
@@ -203,16 +198,16 @@
 :comment "Unsupported. Seems to use RealTek RTS8801C2-6, see link. Vendor/Product ID 0x03F0/0x2205."
 
 :model "ScanJet 3530c"
-;:url "http://www.realtek.com.tw/products/products1-2.aspx?modelid=37"
+:url "http://www.meier-geinitz.de/sane/misc/hp-scanjet-2530c.txt"
 :interface "USB"
 :status :unsupported
-:comment "Unsupported. Chipset and ids unknown, but maybe it's similar to the 3500c?"
+:comment "Unsupported. Chipset is Realtek RTS8801C2-6, see ScanJet 3500c. Vendor/Product ID 0x03F0/0x2005."
 
 :model "ScanJet 3570c"
 ;:url "http://www.realtek.com.tw/products/products1-2.aspx?modelid=37"
 :interface "USB"
 :status :unsupported
-:comment "Unsupported. Chipset unknown, but maybe it's similar to the 3500c? Has a TA. Vendor/product id 0x03F0/0x2005."
+:comment "Unsupported. Probably Realtek RTS8801C2-6, same ids as Scanjet 3530c. Has a TA. Vendor/product id 0x03F0/0x2005."
 
 :model "ScanJet 3570cxi"
 ;:url "http://www.realtek.com.tw/products/products1-2.aspx?modelid=37"
@@ -245,7 +240,7 @@
 :status :unsupported
 
 :model "ScanJet 5470C"
-:url "http://sourceforge.net/projects/hp5400backend/"
+:url "http://svana.org/kleptog/hp5470/"
 :interface "USB"
 :comment "Not supported yet, but in development. A test program is available."
 :status :unsupported
@@ -396,6 +391,16 @@
 :interface "SCSI"
 :status :unsupported
 :comment "Not supported. However, a patch for the teco2 backend and some information is available. Model VM3564."
+
+;********************************************************************************************
+
+:mfg "Syscan"
+
+:model "TravelScan 460/464"
+:url "http://www.mostang.com/pipermail/sane-devel/2003-February/017787.html"
+:interface "USB"
+:status :unsupported
+:comment "Not supported. Some information is available. May work with the Plustek backend in future."
 
 ;********************************************************************************************
 

@@ -1,3 +1,9 @@
+2003-02-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Removed Fujitsu fi-4220C (now
+	  supported by fujitsu backend). Added Syscan Travelscan 464. Updated
+	  HP scanners.
+
 2003-02-20  Oliver Schirrmeister <oschirr@abm.de>
         * make option RIF available for 3091 and 3092, bugfix
 	* set availability of options THRESHOLD und VARIANCE

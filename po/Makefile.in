@@ -16,7 +16,9 @@ SRC_FILES = ../include/sane/saneopts.h ../backend/artec_eplus48u.c \
   ../backend/snapscan-options.c ../backend/teco1.c ../backend/teco1.h \
   ../backend/teco2.c ../backend/teco2.h ../backend/teco3.c \
   ../backend/teco3.h ../backend/test.c ../backend/umax1220u.c \
-  ../backend/umax.c ../backend/umax_pp.c
+  ../backend/umax.c ../backend/umax_pp.c \
+  ../backend/hp-option.h ../backend/hp-option.c
+
 
 DISTFILES = Makefile.in README template.po \
   $(foreach lang,$(ALL_LINGUAS),sane-backends.$(lang).po)

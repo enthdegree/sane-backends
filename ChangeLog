@@ -1,3 +1,11 @@
+2002-05-26  Karl Heinz Kremer <khk@khk.net>
+
+	* doc/descriptions/epson.desc
+	  doc/sane-epson.man
+	  backend/epson.conf: Updated man page, added one more
+	  comment to the conf file and adjusted the version in
+	  the desc file.
+
 2002-05-26  Frank Zago  <fzago@austin.rr.com>
 
 	* doc/descriptions-external/teco2.desc

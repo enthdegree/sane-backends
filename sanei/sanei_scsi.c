@@ -2177,56 +2177,192 @@ sanei_scsi_cmd2 (int fd,
   return sanei_scsi_req_wait (id);
 }
 
+/* The following code (up to and including sanei_scsi_find_devices() )
+   is trying to match device/manufacturer names and/or SCSI addressing
+   numbers (i.e. <host,bus,id,lun>) with a sg device file name
+   (e.g. /dev/sg3).
+*/
 #define PROCFILE	"/proc/scsi/scsi"
+#define DEVFS_MSK	"/dev/scsi/host%d/bus%d/target%d/lun%d/generic"
+#define SCAN_MISSES 5
 
-#define CSTRLEN(string_const)	(sizeof (string_const) - 1)
+/* Some <scsi/scsi.h> headers don't have the following define */
+#ifndef SCSI_IOCTL_GET_IDLUN
+#define SCSI_IOCTL_GET_IDLUN 0x5382
+#endif
 
-static int
-get_devicename (int devnum, int host, int channel, int target,
-                int lun, char *name, size_t name_len)
-{
-  int dev_fd, i;
-  static const struct
+static int lx_sg_dev_base = -1;
+static int lx_devfs = -1;
+
+static const struct lx_device_name_list_tag
     {
       const char *prefix;
       char base;
-    }
-  device_name_list[] =
-    {
+    } lx_dnl[] = {
+      {"/dev/sg",  0},
       {"/dev/sg",  'a'},
-      {"/dev/sg",  '0'},
-      {"/dev/uk",  '0'},
-      {"/dev/gsc", '0'},
-    };
+      {"/dev/uk",  0},
+      {"/dev/gsc", 0} };
 
-  for (i = 0; i < NELEMS (device_name_list); ++i)
+static int    /* Returns open sg file descriptor, or -1 for no access,
+                 or -2 for not found (or other error) */
+lx_mk_devicename(int guess_devnum, char *name, size_t name_len)
+{
+  int dev_fd, k, dnl_len;
+  const struct lx_device_name_list_tag * dnp;
+  
+  dnl_len = NELEMS (lx_dnl);
+  k = ((-1 == lx_sg_dev_base) ? 0 : lx_sg_dev_base);
+  for (; k < dnl_len; ++k)
     {
-      snprintf (name, name_len, "%s%c", device_name_list[i].prefix,
-		device_name_list[i].base + devnum);
+      dnp= &lx_dnl[k];
+      if (dnp->base)
+	  snprintf (name, name_len, "%s%c", dnp->prefix,
+		    dnp->base + guess_devnum);
+      else
+	  snprintf (name, name_len, "%s%d", dnp->prefix, guess_devnum);
+      dev_fd = open (name, O_RDWR | O_NONBLOCK);
+      if (dev_fd >= 0)
+	{
+	  lx_sg_dev_base = k;
+	  return dev_fd;
+	}
+      else if ((EACCES == errno) || (EBUSY == errno))
+        {
+	  lx_sg_dev_base = k;
+	  return -1;
+	}
+      if (-1 != lx_sg_dev_base)
+          return -2;
+    }
+  return -2;
+}
+  
+static int   /* Returns 1 for match, else 0 */
+lx_chk_id(int dev_fd, int host, int channel, int id, int lun)
+{
+#ifdef SG_GET_SCSI_ID
+  struct sg_scsi_id ssid;
 
-      dev_fd = open (name, O_RDWR);
+  if ((ioctl(dev_fd, SG_GET_SCSI_ID, &ssid) >= 0))
+    {
+      DBG(2, "lx_chk_id: %d,%d  %d,%d  %d,%d  %d,%d\n", host, ssid.host_no,
+      	  channel, ssid.channel, id, ssid.scsi_id, lun, ssid.lun);
+      if ((host == ssid.host_no) &&
+	  (channel == ssid.channel) &&
+	  (id == ssid.scsi_id) &&
+	  (lun == ssid.lun))
+          return 1;
+      else
+          return 0;
+    }
+#endif
+    {
+      struct my_scsi_idlun {
+          int dev_id;
+	  int host_unique_id;
+        } my_idlun;
+      if (ioctl(dev_fd, SCSI_IOCTL_GET_IDLUN, &my_idlun) >= 0)
+        {
+	  if (((my_idlun.dev_id & 0xff) == id) &&
+	      (((my_idlun.dev_id >> 8) & 0xff) == lun) &&
+	      (((my_idlun.dev_id >> 16) & 0xff) == channel))
+	      return 1;	/* cheating, assume 'host' number matches */
+	}
+    }
+    return 0;
+}
+
+static int  /* Returns 1 if match with 'name' set, else 0 */
+lx_scan_sg(int exclude_devnum, char * name, size_t name_len, 
+	   int host, int channel, int id, int lun)
+{
+  int dev_fd, k, missed;
+
+  if (-1 == lx_sg_dev_base)
+    return 0;
+  for (k = 0, missed = 0; (missed < SCAN_MISSES) && (k < 255); ++k, ++missed)
+    {
+      DBG(2, "lx_scan_sg: k=%d, exclude=%d, missed=%d\n", k, 
+          exclude_devnum, missed);
+      if (k == exclude_devnum)
+        {
+	  missed = 0;
+	  continue;  /* assumed this one has been checked already */
+        }
+      if ((dev_fd = lx_mk_devicename(k, name, name_len)) >= 0)
+	{
+	  missed = 0;
+	  if (lx_chk_id(dev_fd, host, channel, id, lun))
+	    {
+	      close(dev_fd);
+	      return 1;
+	    }
+	  close(dev_fd);
+	}
+      else if (-1 == dev_fd)
+          missed = 0;  /* no permissions but something found */
+    }
+  return 0;
+}
+
+static int  /* Returns 1 if match, else 0 */
+lx_chk_devicename(int guess_devnum, char * name, size_t name_len, int host,
+	          int channel, int id, int lun)
+{
+  int dev_fd;
+
+  if (host < 0)
+      return 0;
+  if (0 != lx_devfs)
+    {  /* simple mapping if we have devfs */
+      if (-1 == lx_devfs)
+        {
+	  if ((dev_fd = lx_mk_devicename(guess_devnum, name, name_len)) >= 0)
+	      close(dev_fd);   /* hack to load sg driver module */
+	}
+      snprintf (name, name_len, DEVFS_MSK, host, channel, id, lun);
+      dev_fd = open (name, O_RDWR | O_NONBLOCK);
       if (dev_fd >= 0)
 	{
 	  close (dev_fd);
-	  DBG (1, "searched device is %s\n", name);
-	  return 0;
+	  lx_devfs = 1;
+	  DBG (1, "lx_chk_devicename: matched device(devfs): %s\n", name);
+	  return 1;
+	}
+      else if (ENOENT == errno)
+          lx_devfs = 0;
+    }
+
+  if ((dev_fd = lx_mk_devicename(guess_devnum, name, name_len)) < -1)
+    {	/* no candidate sg device file name found, try /dev/sg0,1 */
+      if ((dev_fd = lx_mk_devicename(0, name, name_len)) < -1)
+        {
+	  if ((dev_fd = lx_mk_devicename(1, name, name_len)) < -1)
+	      return 0; /* no luck finding sg fd to open */
 	}
     }
-    
-  snprintf(name, name_len, "/dev/scsi/host%i/bus%i/target%i/lun%i/generic",
-           host, channel, target, lun);
-  dev_fd = open (name, O_RDWR);
   if (dev_fd >= 0)
     {
-      close (dev_fd);
-      DBG (1, "searched device is %s\n", name);
-      return 0;
+/* now check this fd for match on <host, channel, id, lun> */
+      if (lx_chk_id(dev_fd, host, channel, id, lun))
+        {
+          close(dev_fd);
+          DBG (1, "lx_chk_devicename: matched device(direct): %s\n", name);
+          return 1;
+        }
+      close(dev_fd);
     }
-
-  return -1;
+/* if mismatch then call scan algorithm */
+  if (lx_scan_sg(guess_devnum, name, name_len, host, channel, id, lun))
+    {
+      DBG (1, "lx_chk_devicename: matched device(scan): %s\n", name);
+      return 1;
+    }
+  return 0;
 }
 
-void
+void  /* calls 'attach' function pointer with sg device file name iff match */
 sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 			 const char *findtype,
 			 int findbus, int findchannel, int findid, int findlun,
@@ -2246,7 +2382,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
   char vendor[32], model[32], type[32], revision[32];
   int bus, channel, id, lun;
 
-  int number, i, defined;
+  int number, i, definedd;
   char line[256], dev_name[128];
   const char *string;
   FILE *proc_fp;
@@ -2275,7 +2411,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
       {"Id:",      3, 1, {0}},
       {"Lun:",     4, 1, {0}}
     };
-  
+
   param[0].u.str = vendor;
   param[1].u.str = model;
   param[2].u.str = type;
@@ -2286,7 +2422,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
   param[7].u.i = &lun;
 
   DBG_INIT ();
-  
+
   proc_fp = fopen (PROCFILE, "r");
   if (!proc_fp)
     {
@@ -2304,6 +2440,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
   if (findtype)
     findtype_len = strlen (findtype);
 
+  definedd = 0;
   while (!feof (proc_fp))
     {
       fgets (line, sizeof (line), proc_fp);
@@ -2330,12 +2467,13 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 			++string;
 		    }
 		  string = sanei_config_skip_whitespace (string);
-		  defined |= 1 << i;
+		  definedd |= 1 << i;
 
-		  if (param[i].u.v == &bus) {
-		    ++number;
-		    defined = FOUND_HOST;
-		  }
+		  if (param[i].u.v == &bus)
+		    {
+		      ++number;
+		      definedd = FOUND_HOST;
+		    }
 		  break;
 		}
 	    }
@@ -2343,22 +2481,30 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 	    ++string;		/* no match */
 	}
 
-      if (defined != FOUND_ALL)
+      if (FOUND_ALL != definedd)
 	/* some info is still missing */
 	continue;
+  
+      definedd = 0;
       if ((!findvendor || strncmp (vendor, findvendor, findvendor_len) == 0)
 	  && (!findmodel || strncmp (model, findmodel, findmodel_len) == 0)
 	  && (!findtype || strncmp (type, findtype, findtype_len) == 0)
 	  && (findbus == -1 || bus == findbus)
 	  && (findchannel == -1 || channel == findchannel)
 	  && (findid == -1 || id == findid)
-	  && (findlun == -1 || lun == findlun)
-	  && get_devicename (number, *param[4].u.i, *param[5].u.i,
-	                     *param[6].u.i, *param[7].u.i,
-	                     dev_name, sizeof (dev_name)) >= 0
-	  && (*attach) (dev_name) != SANE_STATUS_GOOD)
-	return;
-
+	  && (findlun == -1 || lun == findlun))
+        {
+          DBG(2, "sanei_scsi_find_devices: vendor=%s model=%s type=%s\n\t"
+  	          "bus=%d chan=%d id=%d lun=%d  num=%d\n", findvendor, 
+              findmodel, findtype, bus, channel, id, lun, number);
+	  if (lx_chk_devicename(number, dev_name, sizeof (dev_name), bus,
+	  		         channel, id, lun)
+	      && ( (*attach)(dev_name) != SANE_STATUS_GOOD)) 
+	    {
+	      fclose (proc_fp);
+	      return;
+	    }
+        }
       vendor[0] = model[0] = type[0] = 0;
       bus = channel = id = lun = -1;
     }

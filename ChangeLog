@@ -9,6 +9,9 @@
 	* po/mustek.de.po mustek_usb.de.po: Added German translations
 	  for Mustek SCSI and USB backends. Translations for well-known
 	  options are missing.
+	* Makefile.in configure configure.in: Added option 
+	  --enable-translations to configure. I18N support is disabled by 
+	  default.
 
 2002-01-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

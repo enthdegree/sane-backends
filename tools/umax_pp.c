@@ -33,7 +33,7 @@ main (int argc, char **argv)
   char *name = NULL;
   int scan = 0;
   int lamp = -1;
-  int i;
+  int i,fd;
   int found;
   int recover = 0;
   int trace = 0;
@@ -368,7 +368,7 @@ main (int argc, char **argv)
     }
   if (trace)
     {
-      printf ("UMAX 1220P scanning program version 5.0 starting ...\n");
+      printf ("UMAX 1220P scanning program version 5.1 starting ...\n");
 #ifdef HAVE_LINUX_PPDEV_H
       printf ("ppdev character device built-in.\n");
 #endif
@@ -406,6 +406,7 @@ main (int argc, char **argv)
 
       /* could be written better .... but it is only test */
       sanei_umax_pp_endSession ();
+
       /* init transport layer */
       if (sanei_umax_pp_initTransport (0) != 1)
 	{
@@ -492,16 +493,22 @@ main (int argc, char **argv)
       if (sanei_umax_pp_scan
 	  (x, y, width, height, dpi, color, brightness, contrast) != 1)
 	{
-	  sanei_umax_pp_releaseScanner ();
 	  sanei_umax_pp_endSession ();
 	  return 0;
 	}
 
       /* wait for head parking */
       sanei_umax_pp_parkWait ();
-      sanei_umax_pp_releaseScanner ();
     }
   sanei_umax_pp_endSession ();
+#ifdef HAVE_LINUX_PPDEV_H
+  fd = sanei_umax_pp_getparport ();
+  if (fd > 0)
+    {
+      close (fd);
+      sanei_umax_pp_setparport (0);
+    }
+#endif
 
   return 1;
 }

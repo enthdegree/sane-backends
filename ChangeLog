@@ -1,3 +1,10 @@
+2004-03-15  Stéphane Voltz <svoltz@wanadoo.fr>
+
+	* backend/umax_pp_low.c backend/umax_pp_low.h backend/umax_pp_mid.c
+          backend/umax_pp.c tools/umax_pp.c:   Added ppdev support for 610P
+          detection. Fixed scan area overflow at >= 600 dpi. Fixed ppdev
+	  data direction setting. Fixed direct hardware ECP mode for 1220P.
+
 2004-03-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* tools/README tools/hotplug/README tools/hotplug/libsane.usermap

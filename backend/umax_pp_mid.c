@@ -320,7 +320,6 @@ sanei_umax_pp_cancel (void)
     }
   /* endSession() cancels any pending command  */
   /* such as parking ...., so we only return   */
-  sanei_umax_pp_releaseScanner ();
   unlock_parport ();
   return (UMAX1220P_OK);
 }

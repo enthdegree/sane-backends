@@ -47,17 +47,8 @@
 /*                 set port to 'idle state' and get iopl                     */
 /*****************************************************************************/
 extern int sanei_umax_pp_initPort (int port, char *name);
-
-
-
-
-
-
-
-extern int sanei_umax_pp_probeScanner (int recover);
 extern int sanei_umax_pp_initScanner (int recover);
 extern int sanei_umax_pp_initTransport (int recover);
-extern int sanei_umax_pp_releaseScanner (void);
 extern int sanei_umax_pp_endSession (void);
 extern int sanei_umax_pp_initCancel (void);
 extern int sanei_umax_pp_cancel (void);
@@ -118,8 +109,6 @@ extern int sanei_umax_pp_getparport (void);
 extern void sanei_umax_pp_setastra (int mod);
 extern int sanei_umax_pp_getastra (void);
 extern int sanei_umax_pp_scannerStatus (void);
-extern int sanei_umax_pp_releaseScanner (void);
-extern int sanei_umax_pp_endSession (void);
 extern int sanei_umax_pp_probeScanner (int recover);
 
 extern char **sanei_parport_find_port (void);

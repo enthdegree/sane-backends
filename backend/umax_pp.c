@@ -300,12 +300,12 @@ attach (const char *devname)
     {				/* Astra 1220, 1600 and 2000 */
       dev->max_res = 1200;
       dev->max_h_size = 5100;
-      dev->max_v_size = 7000;
+      dev->max_v_size = 7000 - 8; /* -8: workaround 'y overflow bug at 600 dpi' */
     }
   else
     {				/* Astra 610 */
       dev->max_res = 600;
-      dev->max_h_size = 2050;
+      dev->max_h_size = 2550;
       dev->max_v_size = 3500;
     }
   dev->sane.model = strdup (model);

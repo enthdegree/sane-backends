@@ -1068,6 +1068,8 @@ sanei_umax_pp_initPort (int port, char *name)
 	      /* faking result */
 	      modes = 0xFFFFFFFF;
 #endif
+	      mode = 0;
+
 	      /* prefered mode is EPP */
 	      if (modes & PARPORT_MODE_EPP)
 		{
@@ -1134,7 +1136,20 @@ sanei_umax_pp_initPort (int port, char *name)
 
 	      /* allways start in compat mode (for probe) */
 	      mode = IEEE1284_MODE_COMPAT;
-	      ioctl (fd, PPSETMODE, &mode);
+	      rc = ioctl (fd, PPSETMODE, &mode);
+	      if (rc)
+		DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n",
+		     strerror (errno), __FILE__, __LINE__);
+	      mode = 0;		/* data forward */
+	      rc = ioctl (fd, PPDATADIR, &mode);
+	      if (rc)
+		DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n",
+		     strerror (errno), __FILE__, __LINE__);
+	      mode = 1;		/* FW IDLE */
+	      rc = ioctl (fd, PPSETPHASE, &mode);
+	      if (rc)
+		DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n",
+		     strerror (errno), __FILE__, __LINE__);
 	      found = 1;
 
 	    }
@@ -1257,24 +1272,24 @@ Outb (int port, int value)
 		 __FILE__, __LINE__);
 	  return;
 	case 2:
-	  /* XXX STEF XXX : should we do BOTH ? */
-	  if (val & 0x20)
-	    {
-	      rc = ioctl (fd, PPDATADIR, &val);
-	      if (rc)
-		DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n",
-		     strerror (errno), __FILE__, __LINE__);
-	    }
-	  else
-	    {
-	      rc = ioctl (fd, PPWCONTROL, &val);
-	      if (rc)
-		DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n",
-		     strerror (errno), __FILE__, __LINE__);
-	    }
+	  mode = val & 0x20;
+	  rc = ioctl (fd, PPDATADIR, &mode);
+	  if (rc)
+	    DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n",
+		 strerror (errno), __FILE__, __LINE__);
+	  val = val & 0xDF;
+	  rc = ioctl (fd, PPWCONTROL, &val);
+	  if (rc)
+	    DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n",
+		 strerror (errno), __FILE__, __LINE__);
 	  return;
 	case 4:
 	  rc = ioctl (fd, PPGETMODE, &exmode);
+	  if (rc)
+	    DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+		 __FILE__, __LINE__);
+	  mode = 0;		/* data forward */
+	  rc = ioctl (fd, PPDATADIR, &mode);
 	  if (rc)
 	    DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
 		 __FILE__, __LINE__);
@@ -1293,6 +1308,11 @@ Outb (int port, int value)
 	  return;
 	case 3:
 	  rc = ioctl (fd, PPGETMODE, &exmode);
+	  if (rc)
+	    DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+		 __FILE__, __LINE__);
+	  mode = 0;		/* data forward */
+	  rc = ioctl (fd, PPDATADIR, &mode);
 	  if (rc)
 	    DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
 		 __FILE__, __LINE__);
@@ -1743,11 +1763,11 @@ compatMode (void)
 {
 #ifdef HAVE_LINUX_PPDEV_H
   if (ppdev_set_mode (IEEE1284_MODE_COMPAT))
-    {
-      return;
-    }
+    return;
 #endif
-  Outb (ECR, 0x14);
+  if (!gECP)
+    return;
+  Outb (ECR, 0x15);
 }
 
 /* set parallel port mode to 'bidirectionel'*/
@@ -1758,6 +1778,8 @@ byteMode (void)
   if (ppdev_set_mode (IEEE1284_MODE_BYTE))
     return;
 #endif
+  if (!gECP)
+    return;
   Outb (ECR, 0x35);		/* or 0x34 */
 }
 
@@ -1780,6 +1802,8 @@ ECPFifoMode (void)
   if (ppdev_set_mode (IEEE1284_MODE_ECP))
     return;
 #endif
+  if (!gECP)
+    return;
   Outb (ECR, 0x75);
 }
 
@@ -1828,7 +1852,6 @@ waitFifoEmpty (void)
     {
       breg = Inb (ECR);
       i++;
-      /* usleep (2000); */
     }
   if (i == FIFO_WAIT)
     {
@@ -3546,29 +3569,32 @@ init005 (int arg)
 int
 putByte610p (int data)
 {
-  int status;
+  int status, control;
 
   status = Inb (STATUS) & 0xF8;
-  if (status != 0xC8)
+  if ((status != 0xC8) && (status != 0xC0))
     {
-      DBG (0, "putByte610p failed, expected 0xC8 got 0x%02X ! (%s:%d)\n",
+      DBG (0,
+	   "putByte610p failed, expected 0xC8 or 0xC0 got 0x%02X ! (%s:%d)\n",
 	   status, __FILE__, __LINE__);
       return 0;
     }
-  Inb (CONTROL);
-  Outb (CONTROL, 0x04);
+  control = Inb (CONTROL) & 0x1F;	/* data forward */
+  Outb (CONTROL, control);
+
   Outb (DATA, data);
   Outb (CONTROL, 0x07);
   status = Inb (STATUS) & 0xF8;
-  if (status != 0x48)
+  if ((status != 0x48) && (status != 0x40))
     {
-      DBG (0, "putByte610p failed, expected 0xC8 got 0x%02X ! (%s:%d)\n",
+      DBG (0,
+	   "putByte610p failed, expected 0x48 or 0x40 got 0x%02X ! (%s:%d)\n",
 	   status, __FILE__, __LINE__);
       return 0;
     }
   Outb (CONTROL, 0x05);
   status = Inb (STATUS) & 0xF8;
-  Outb (CONTROL, 0x04);
+  Outb (CONTROL, control);
   return status;
 }
 
@@ -3655,6 +3681,7 @@ getStatus610p (void)
 {
   int data, status;
 
+  /* XXX STEF: we have to save current mode and restore it on return */
   byteMode ();
   status = Inb (STATUS) & 0xF8;
   Outb (CONTROL, 0x26);		/* data reverse */
@@ -3667,7 +3694,6 @@ getStatus610p (void)
     }
   scannerStatus = data;
   Outb (CONTROL, 0x24);
-  compatMode ();		/* XXX STEF XXX */
   return status;
 }
 
@@ -3678,26 +3704,44 @@ sendLength610p (int *cmd)
   int ret, i, wait;
 /* 55,AA,x,y,z,t */
 
+  byteMode ();
   wait = putByte610p (0x55);
-  if (wait != 0xC8)
+  if ((wait != 0xC8) && (wait != 0xC0))
     {
-      DBG (0, "sendLength610p failed, expected 0xC8 got %d ! (%s:%d)\n",
+      DBG (0,
+	   "sendLength610p failed, expected 0xC8 or 0xC0 got 0x%02X ! (%s:%d)\n",
 	   wait, __FILE__, __LINE__);
       return 0;
     }
-  ret = putByte610p (0xAA);
-  if (ret != 0xC8)
+  wait = putByte610p (0xAA);
+  if ((wait != 0xC8) && (wait != 0xC0))
     {
-      DBG (0, "sendLength610p failed, expected 0xC8 got %d ! (%s:%d)\n",
-	   ret, __FILE__, __LINE__);
+      DBG (0,
+	   "sendLength610p failed, expected 0xC8 or 0xC0 got 0x%02X ! (%s:%d)\n",
+	   wait, __FILE__, __LINE__);
       return 0;
     }
+
+  /* if wait=C0, we have to ... wait */
+  if (wait == 0xC0)
+    {
+      byteMode ();
+      wait = Inb (STATUS);	/* C0 expected */
+      Outb (CONTROL, 0x26);
+      ret = Inb (DATA);		/* 88 expected */
+      Outb (CONTROL, 0x24);
+      for (i = 0; i < 10; i++)
+	wait = Inb (STATUS);	/* C8 expected */
+      byteMode ();
+    }
+
   for (i = 0; i < 3; i++)
     {
       ret = putByte610p (cmd[i]);
       if (ret != 0xC8)
 	{
-	  DBG (0, "sendLength610p failed, expected 0xC8 got %d ! (%s:%d)\n",
+	  DBG (0,
+	       "sendLength610p failed, expected 0xC8 got 0x%02X ! (%s:%d)\n",
 	       ret, __FILE__, __LINE__);
 	  return 0;
 	}
@@ -3706,7 +3750,7 @@ sendLength610p (int *cmd)
   if ((ret != 0xC0) && (ret != 0xD0))
     {
       DBG (0,
-	   "sendLength610p failed, expected 0xC0 or 0xD0 got %d ! (%s:%d)\n",
+	   "sendLength610p failed, expected 0xC0 or 0xD0 got 0x%02X ! (%s:%d)\n",
 	   ret, __FILE__, __LINE__);
       return 0;
     }
@@ -3731,8 +3775,8 @@ disconnect610p (void)
 	}
     }
   Outb (CONTROL, 0x0C);
-  Outb (DATA, gData);
-  TRACE (16, "disconnect610p() passed ");
+  /*Outb (DATA, gData); */
+  Outb (DATA, 0xFF);		/* XXX STEF XXX */
   return 1;
 }
 
@@ -3743,31 +3787,56 @@ connect610p (void)
 {
   int control;
 
-  gData = Inb (DATA);
+  gData = Inb (DATA);		/* to gDATA ? */
 
   Outb (DATA, 0xAA);
   Outb (CONTROL, 0x0E);
   control = Inb (CONTROL);	/* 0x0E expected */
   control = Inb (CONTROL);
+  if (control != 0x0E)
+    {
+      DBG (0, "connect610p control=%02X, expected 0x0E (%s:%d)\n", control,
+	   __FILE__, __LINE__);
+    }
 
   Outb (DATA, 0x00);
   Outb (CONTROL, 0x0C);
   control = Inb (CONTROL);	/* 0x0C expected */
   control = Inb (CONTROL);
+  if (control != 0x0C)
+    {
+      DBG (0, "connect610p control=%02X, expected 0x0C (%s:%d)\n", control,
+	   __FILE__, __LINE__);
+    }
 
   Outb (DATA, 0x55);
   Outb (CONTROL, 0x0E);
   control = Inb (CONTROL);	/* 0x0E expected */
   control = Inb (CONTROL);
+  if (control != 0x0E)
+    {
+      DBG (0, "connect610p control=%02X, expected 0x0E (%s:%d)\n", control,
+	   __FILE__, __LINE__);
+    }
 
   Outb (DATA, 0xFF);
   Outb (CONTROL, 0x0C);
   control = Inb (CONTROL);	/* 0x0C expected */
   control = Inb (CONTROL);
+  if (control != 0x0C)
+    {
+      DBG (0, "connect610p control=%02X, expected 0x0C (%s:%d)\n", control,
+	   __FILE__, __LINE__);
+    }
 
   Outb (CONTROL, 0x04);
   control = Inb (CONTROL);	/* 0x04 expected */
   control = Inb (CONTROL);
+  if (control != 0x04)
+    {
+      DBG (0, "connect610p control=%02X, expected 0x04 (%s:%d)\n", control,
+	   __FILE__, __LINE__);
+    }
 
   TRACE (16, "connect610p() passed ");
   return 1;
@@ -4459,7 +4528,27 @@ SPPsendWord610p (int *cmd)
   int i;
   int tmp, status;
 
+#ifdef HAVE_LINUX_PPDEV_H
+  int exmode, mode, rc, fd;
+#endif
   connect610p ();
+
+#ifdef HAVE_LINUX_PPDEV_H
+  fd = sanei_umax_pp_getparport ();
+  if (fd > 0)
+    {
+      rc = ioctl (fd, PPGETMODE, &exmode);
+      if (rc)
+	DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	     __FILE__, __LINE__);
+      mode = IEEE1284_MODE_COMPAT;
+      rc = ioctl (fd, PPSETMODE, &mode);
+      if (rc)
+	DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	     __FILE__, __LINE__);
+    }
+#endif
+
   Outb (DATA, 0x55);
   Outb (CONTROL, 0x05);
   status = Inb (STATUS) & 0xF8;
@@ -4551,6 +4640,16 @@ SPPsendWord610p (int *cmd)
       Outb (DATA, 0xFF);
     }
 
+#ifdef HAVE_LINUX_PPDEV_H
+  fd = sanei_umax_pp_getparport ();
+  if (fd > 0)
+    {
+      rc = ioctl (fd, PPSETMODE, &exmode);
+      if (rc)
+	DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
+	     __FILE__, __LINE__);
+    }
+#endif
   disconnect610p ();
 
   return 1;
@@ -4561,7 +4660,7 @@ static int
 EPPsendWord610p (int *cmd)
 {
   int i;
-  int tmp;
+  int tmp, control;
 
   /* send magic tag */
   tmp = Inb (STATUS) & 0xF8;
@@ -4572,10 +4671,13 @@ EPPsendWord610p (int *cmd)
 	   tmp, __FILE__, __LINE__);
       /* return 0; XXX STEF XXX */
     }
-  tmp = Inb (CONTROL);
-  Outb (CONTROL, 0x04);
+
+  /* sets to EPP, and get sure that data direction is forward */
+  tmp = (Inb (CONTROL) & 0xE0) | 0x04;
+  Outb (CONTROL, tmp);
   Outb (EPPDATA, 0x55);
 
+  /* bit0 is timeout bit in EPP mode, should we take care of it ? */
   tmp = Inb (STATUS) & 0xF8;
   if (tmp != 0xC8)
     {
@@ -4584,12 +4686,12 @@ EPPsendWord610p (int *cmd)
 	   tmp, __FILE__, __LINE__);
       /* return 0; XXX STEF XXX */
     }
-  tmp = Inb (CONTROL);
-  Outb (CONTROL, 0x04);
+  tmp = (Inb (CONTROL) & 0xE0) | 0x04;
+  Outb (CONTROL, tmp);
   Outb (EPPDATA, 0xAA);
 
-  tmp = Inb (CONTROL);
-  Outb (CONTROL, 0xA4);
+  control = (Inb (CONTROL) & 0xE0) | 0xA4;
+  Outb (CONTROL, control);	/* bit 7 + data reverse + reset */
   for (i = 0; i < 9; i++)
     {
       tmp = Inb (STATUS) & 0xF8;
@@ -4606,16 +4708,16 @@ EPPsendWord610p (int *cmd)
   while ((tmp == 0xC8) && (cmd[i] != -1))
     {
       tmp = Inb (STATUS) & 0xF8;
-      Inb (CONTROL);
-      Outb (CONTROL, 0x04);
+      control = (Inb (CONTROL) & 0xE0) | 0x04;
+      Outb (CONTROL, control);
       Outb (EPPDATA, cmd[i]);
       i++;
     }
 
   /* end */
   Outb (DATA, 0xFF);
-  tmp = Inb (CONTROL);
-  Outb (CONTROL, 0xA4);
+  control = (Inb (CONTROL) & 0xE0) | 0xA4;
+  Outb (CONTROL, control);	/* data reverse + ????? */
   tmp = Inb (STATUS) & 0xF8;
   if (tmp == 0xC8)
     {
@@ -4630,6 +4732,7 @@ EPPsendWord610p (int *cmd)
 	   tmp, __FILE__, __LINE__);
       return 0;
     }
+  tmp = Inb (EPPDATA);
   return 1;
 }
 
@@ -5572,50 +5675,6 @@ cmdSetDataBuffer (int *data)
 }
 
 
-
-
-/* free scanner and parallel port
- 0: failure
- 1: success 
-*/
-int
-sanei_umax_pp_releaseScanner (void)
-{
-  int reg;
-
-  /* no op for 610P */
-  if (sanei_umax_pp_getastra () == 610)
-    return 1;
-
-  /* this must set EPAT chips to idle */
-  REGISTERWRITE (0x0A, 0x00);
-  reg = registerRead (0x0D);
-  reg = (reg & 0xBF);
-  registerWrite (0x0D, reg);
-  if (getModel () != 0x07)
-    {
-      if (sendCommand (0x40) == 0)
-	{
-	  DBG (0, "sendCommand(0x40) (%s:%d) failed ...\n", __FILE__,
-	       __LINE__);
-	  return 0;
-	}
-    }
-  if (sendCommand (0x30) == 0)
-    {
-      DBG (0, "sendCommand(0x30) (%s:%d) failed ...\n", __FILE__, __LINE__);
-      return 0;
-    }
-  DBG (1, "releaseScanner() done ...\n");
-
-  return 1;
-}
-
-
-
-/* 1: OK
-   0: end session failed */
-
 /* 1: OK
    0: end session failed */
 
@@ -5666,9 +5725,8 @@ sanei_umax_pp_endSession (void)
 	  return 0;
 	}
       TRACE (16, "SPPsendWord610p(zero) passed ... ");
-      compatMode ();
     }
-  sanei_umax_pp_releaseScanner ();
+  compatMode ();
 
   /* restore port state */
   Outb (DATA, gData);
@@ -5731,6 +5789,7 @@ initScanner610p (int recover)
 
   int op03[9] = { 0x00, 0x00, 0x00, 0xAA, 0xCC, 0xEE, 0xFF, 0xFF, -1 };
 
+  byteMode ();			/* just to get sure */
   CMDSET (8, 0x23, cmd01);
   /* all values but two last should be the same */
   CMDGET (8, 0x23, buffer);
@@ -5817,16 +5876,16 @@ initScanner610p (int recover)
    * since it is first probe or recover */
   /* move forward */
   CMDSYNC (0xC2);
-  if(!recover)
-  {
-  CMDSETGET (2, 0x10, op01);
-  CMDSETGET (8, 0x22, op02);
-  CMDSYNC (0xC2);
-  CMDSYNC (0x00);
-  CMDSETGET (4, 0x08, op03);
-  CMDSYNC (0x40);
-  sleep (2);
-  }
+  if (!recover)
+    {
+      CMDSETGET (2, 0x10, op01);
+      CMDSETGET (8, 0x22, op02);
+      CMDSYNC (0xC2);
+      CMDSYNC (0x00);
+      CMDSETGET (4, 0x08, op03);
+      CMDSYNC (0x40);
+      sleep (2);
+    }
 
   /* move backward */
   CMDSETGET (2, 0x10, op11);
@@ -5866,7 +5925,7 @@ initScanner610p (int recover)
       CMDSYNC (0x00);
       CMDSETGET (4, 0x08, op03);
       CMDSYNC (0x40);
-      sleep (8);
+      sleep (9);
     }
 
   CMDSYNC (0xC2);
@@ -5876,17 +5935,17 @@ initScanner610p (int recover)
    * it seem I just can't found 'real' parking command ...
    */
   /* send park command */
-  if(sanei_umax_pp_park()==0)
-  {
-	  TRACE (0, "sanei_umax_pp_park failed! ");
-	  return 0;
-  }
+  if (sanei_umax_pp_park () == 0)
+    {
+      TRACE (0, "sanei_umax_pp_park failed! ");
+      return 0;
+    }
   /* and wait it to succeed */
-  if(sanei_umax_pp_parkWait()==0)
-  {
-	  TRACE (0, "sanei_umax_pp_parkWait failed! ");
-	  return 0;
-  }
+  if (sanei_umax_pp_parkWait () == 0)
+    {
+      TRACE (0, "sanei_umax_pp_parkWait failed! ");
+      return 0;
+    }
 
   DBG (1, "initScanner610p done ...\n");
   return 1;
@@ -6128,8 +6187,6 @@ initTransport610p (void)
   int tmp, i;
   int zero[5] = { 0, 0, 0, 0, -1 };
 
-  compatMode ();
-
   /* test EPP availability */
   connect610p ();
   if (sync610p () == 0)
@@ -6142,6 +6199,11 @@ initTransport610p (void)
   if (EPPsendWord610p (zero) == 0)
     {
       DBG (1, "No EPP mode detected\n");
+      gMode = UMAX_PP_PARPORT_BYTE;
+    }
+  else
+    {
+      gMode = UMAX_PP_PARPORT_EPP;
     }
   disconnect610p ();
 
@@ -6151,6 +6213,7 @@ initTransport610p (void)
   byteMode ();
 
   /* reset after failure */
+  /* set to data reverse */
   Outb (CONTROL, 0x2C);
   Inb (CONTROL);
   for (i = 0; i < 10; i++)
@@ -6222,14 +6285,12 @@ initTransport1220P (int recover)	/* ECP OK !! */
       DBG (16, "Error! expected reg0B=0x%02X, found 0x%02X! (%s:%d) \n",
 	   gEPAT, reg, __FILE__, __LINE__);
       DBG (16, "Scanner needs probing ... \n");
-      sanei_umax_pp_releaseScanner ();
       if (sanei_umax_pp_probeScanner (recover) != 1)
 	{
 	  return 0;
 	}
       else
 	{
-	  sanei_umax_pp_releaseScanner ();
 	  return 2;		/* signals retry initTransport() */
 	}
     }
@@ -6822,7 +6883,7 @@ probeECP (unsigned char *dest)
   breg = Inb (ECR);
   breg = Inb (CONTROL);
   byteMode ();			/*Outb (ECR, 0x20);            byte mode */
-  byteMode ();			/*Outb (ECR, 0x20); */
+  /*byteMode ();                        Outb (ECR, 0x20); */
   breg = Inb (CONTROL);
   Outb (CONTROL, 0x04);
   Outb (CONTROL, 0x04);
@@ -7072,6 +7133,9 @@ sanei_umax_pp_probeScanner (int recover)
   int zero[5] = { 0, 0, 0, 0, -1 };
   int model;
 
+  /* saves port state */
+  gData = Inb (DATA);
+  gControl = Inb (CONTROL);
 
   if (sanei_umax_pp_getastra () == 610)
     return probe610p (recover);
@@ -7633,7 +7697,7 @@ sanei_umax_pp_probeScanner (int recover)
   REGISTERWRITE (0x0A, 0x11);	/*start transfert */
   if (gMode == UMAX_PP_PARPORT_ECP)
     {
-      ECPSetBuffer (0x400);	
+      ECPSetBuffer (0x400);
     }
 
   for (i = 0; i < nb; i++)	/* 300 for ECP ??? */
@@ -9771,19 +9835,19 @@ sanei_umax_pp_park (void)
 
   CMDSYNC (0x00);
 
-  if (sanei_umax_pp_getastra () != 610 )
-  {
-    CMDSETGET (0x02, 16, header);
-    CMDSETGET (0x08, 36, body);
-  }
+  if (sanei_umax_pp_getastra () != 610)
+    {
+      CMDSETGET (0x02, 16, header);
+      CMDSETGET (0x08, 36, body);
+    }
   else
-  {
-    CMDSETGET (0x02, 16, op11);
-    CMDSETGET (0x08, 36, op02);
-    CMDSYNC (0xC2);
-    CMDSYNC (0x00);
-    CMDSETGET (4, 0x08, op03);
-  }
+    {
+      CMDSETGET (0x02, 16, op11);
+      CMDSETGET (0x08, 36, op02);
+      CMDSYNC (0xC2);
+      CMDSYNC (0x00);
+      CMDSETGET (4, 0x08, op03);
+    }
 
   CMDSYNC (0x40);
 
@@ -9941,7 +10005,7 @@ sanei_umax_pp_readBlock (long len, int window, int dpi, int last,
 {
   DBG (8, "ReadBlock(%ld,%d,%d,%d)\n", len, window, dpi, last);
   /* EPP block reading is available only when dpi >=600 */
-  if ((dpi >= 600) && ( gMode != UMAX_PP_PARPORT_ECP) )
+  if ((dpi >= 600) && (gMode != UMAX_PP_PARPORT_ECP))
     {
       DBG (8, "cmdGetBlockBuffer(4,%ld,%d);\n", len, window);
       len = cmdGetBlockBuffer (4, len, window, buffer);
@@ -10186,12 +10250,12 @@ sanei_umax_pp_parkWait (void)
   do
     {
       if (sanei_umax_pp_getastra () == 610)
-      {	  /* send 'CONTINUE' */
+	{			/* send 'CONTINUE' */
 	  CMDSYNC (0xC2);
 	  CMDSETGET (2, 0x10, op21);
 	  CMDSETGET (8, 0x22, op22);
-      }
-      sleep (2);
+	}
+      usleep (1000);
       CMDSYNC (0x40);
       status = sanei_umax_pp_scannerStatus ();
     }
@@ -10219,7 +10283,7 @@ sanei_umax_pp_startScan (int x, int y, int width, int height, int dpi,
   int xdpi, ydpi, bpl, h;
   int th, tw, bpp;
   int distance, i;
-  int hwdpi=600;    /* CCD hardware dpi */
+  int hwdpi = 600;		/* CCD hardware dpi */
 
   int opsc04[9] = { 0x06, 0xF4, 0xFF, 0x81, 0x1B, 0x00, 0x00, 0x00, -1 };
   int opsc53[17] =
@@ -10250,9 +10314,9 @@ sanei_umax_pp_startScan (int x, int y, int width, int height, int dpi,
 
 
   if (sanei_umax_pp_getastra () == 610)
-  {
-	  hwdpi=300;
-  }
+    {
+      hwdpi = 300;
+    }
   DBG (8, "startScan(%d,%d,%d,%d,%d,%d,%X);\n", x, y, width, height, dpi,
        color, brightness);
   buffer = (unsigned char *) malloc (2096100);
@@ -10484,6 +10548,8 @@ sanei_umax_pp_startScan (int x, int y, int width, int height, int dpi,
 	ydpi = 300;
     }
 
+  /* XXX STEF XXX : bug here, we may overflow there */
+  /* now, how to handle this ?                      */
   if (color >= RGB_MODE)
     {
       h = ((height * ydpi) / hwdpi) + 8;

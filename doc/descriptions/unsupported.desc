@@ -39,11 +39,11 @@
 :mfg "Canon"
 :url "http://www.canon.com/"
 
-:model "CanoScan FB1210U"
-:url "http://sourceforge.net/projects/canonscanner/"
+:model "CanoScan D646U"
+:url "http://www.meier-geinitz.de/sane/misc/canon-d646u.txt"
 :interface "USB"
 :status :unsupported
-:comment "Not supported. Vendor/product 0x4a9/0x2205. However, a stand-alone program for FreeBSD is available."
+:comment "Probably not supported. USB Vendor/product 0x04a9/0x220b. /proc/bus/usb/devices output available. Maybe genesys USB bridge + LM9830? Maybe could be supported by canon630u backend?"
 
 :model "CanoScan D660U"
 :interface "USB"
@@ -56,11 +56,18 @@
 :status :unsupported
 :comment "Not supported. However, some information is available."
 
+:model "CanoScan FB1210U"
+:url "http://sourceforge.net/projects/canonscanner/"
+:interface "USB"
+:status :unsupported
+:comment "Not supported. Vendor/product 0x4a9/0x2205. However, a stand-alone program for FreeBSD is available."
+
 :model "FS4000US"
 ;:url ""
 :interface "USB SCSI"
 :status :unsupported
 :comment "Not supported. USB Vendor/product 0x04a9/0x3042. May work with Vuescan."
+
 
 ;********************************************************************************************
 
@@ -91,22 +98,23 @@
 :model "fi-4010C"
 :interface "USB"
 :status :unsupported
-:comment "Unsupported. Vendor/product: 0x04c5, 0x1029. No details about the chipset known until know."
+:comment "Unsupported. Vendor/product: 0x04c5, 0x1029. Maybe similar to fi-4220C?"
 
 :model "fi-4110CU"
 :interface "USB"
 :status :unsupported
-:comment "Unsupported. No details about the chipset known until know."
+:comment "Unsupported. Vendor/product unknown. Maybe similar to fi-4220C?"
 
 :model "fi-4120C"
 :interface "USB SCSI"
 :status :unsupported
-:comment "Unsupported. Vendor/product: 0x04c5/0x1042. No details about the chipset known until know."
+:comment "Unsupported. Vendor/product: 0x04c5/0x1042. Maybe similar to fi-4220C?"
 
 :model "fi-4220C"
+:url "http://www.mostang.com/pipermail/sane-devel/2003-February/017663.html"
 :interface "USB SCSI"
 :status :unsupported
-:comment "Unsupported. Vendor/product: 0x04c5/0x1041. No details about the chipset known until know."
+:comment "Unsupported, but there is a patch to support it (see link). Vendor/product: 0x04c5/0x1041. Epson S1R72105 SCSI/USB controller."
 
 ;********************************************************************************************
 
@@ -282,11 +290,13 @@
 :comment "Uses RealTek chipset (RTL8801D)"
 
 :model "OpticPro S12"
+:url "http://www.genesyslogic.com/GL646.htm"
 :interface "USB"
 :status :unsupported
 :comment "Uses the Genesys Logic GL646 chipset."
 
 :model "OpticPro S24"
+:url "http://www.genesyslogic.com/GL646.htm"
 :interface "USB"
 :status :unsupported
 :comment "Uses the Genesys Logic GL646 chipset."

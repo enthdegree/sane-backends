@@ -568,12 +568,12 @@ void
 sanei_hp_handle_cancel (HpHandle this)
 {
   this->cancelled = 1;
-  /* Office-Jets (K series) may not deliver enough data. */
-  /* Therefor the read might not return until it is interrupted. */
+  /* The OfficeJet K series may not deliver enough data. */
+  /* Therefore the read might not return until it is interrupted. */
   DBG(3,"sanei_hp_handle_cancel: compat flags: 0x%04x\n",
       (int)this->dev->compat);
   if (    (this->reader_pid)
-       && (this->dev->compat & (HP_COMPAT_OJ_1150C | HP_COMPAT_OJ_1170C)) )
+       && (this->dev->compat & HP_COMPAT_OJ_1150C) )
   {
      DBG(3,"sanei_hp_handle_cancel: send SIGTERM to child (%d)\n",
          this->reader_pid);

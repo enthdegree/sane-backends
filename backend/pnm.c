@@ -40,7 +40,7 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.  */
 
-#define BUILD 7
+#define BUILD 8
 
 #include "../include/sane/config.h"
 
@@ -85,7 +85,7 @@ static SANE_Word res = 75;
 static SANE_Fixed contr = 0;
 static SANE_Bool gray = SANE_FALSE;
 static SANE_Bool usegamma = SANE_FALSE;
-static SANE_Word gamma [4][256];
+static SANE_Word gamma[4][256];
 static enum
 {
   ppm_bitmap,
@@ -94,25 +94,22 @@ static enum
 }
 ppm_type = ppm_color;
 static FILE *infile = NULL;
-static const SANE_Word resbit_list[] =
-{
+static const SANE_Word resbit_list[] = {
   17,
   75, 90, 100, 120, 135, 150, 165, 180, 195,
   200, 210, 225, 240, 255, 270, 285, 300
 };
-static const SANE_Range percentage_range =
-{
+static const SANE_Range percentage_range = {
   -100 << SANE_FIXED_SCALE_SHIFT,	/* minimum */
   100 << SANE_FIXED_SCALE_SHIFT,	/* maximum */
-     0 << SANE_FIXED_SCALE_SHIFT	/* quantization */
+  0 << SANE_FIXED_SCALE_SHIFT	/* quantization */
 };
-static const SANE_Range gamma_range =
-{
-  0 ,	/* minimum */
-  255 ,	/* maximum */
-  0	/* quantization */
+static const SANE_Range gamma_range = {
+  0,				/* minimum */
+  255,				/* maximum */
+  0				/* quantization */
 };
-typedef enum 
+typedef enum
 {
   opt_num_opts = 0,
   opt_source_group,
@@ -141,328 +138,355 @@ typedef enum
   opt_status_ioerror,
   opt_status_nomem,
   opt_status_accessdenied,
-  
+
   /* must come last: */
   num_options
 }
 pnm_opts;
 
-static SANE_Option_Descriptor sod[] =
-{
-  { /* opt_num_opts */
-    SANE_NAME_NUM_OPTIONS,
-    SANE_TITLE_NUM_OPTIONS,
-    SANE_DESC_NUM_OPTIONS,
-    SANE_TYPE_INT,
-    SANE_UNIT_NONE,
-    sizeof (SANE_Word),
-    SANE_CAP_SOFT_DETECT,
-    SANE_CONSTRAINT_NONE,
-    {NULL}
-  },
-  { /* opt_source_group */
-    "",
-    SANE_I18N("Source Selection"),
-    "",
-    SANE_TYPE_GROUP,
-    SANE_UNIT_NONE,
-    0,
-    0,
-    SANE_CONSTRAINT_NONE,
-    {NULL}
-  },
-  { /* opt_filename */
-    SANE_NAME_FILE,
-    SANE_TITLE_FILE,
-    SANE_DESC_FILE,
-    SANE_TYPE_STRING,
-    SANE_UNIT_NONE,
-    sizeof (filename),
-    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
-    SANE_CONSTRAINT_NONE,
-    {NULL}
-  },
+static SANE_Option_Descriptor sod[] = {
+  {				/* opt_num_opts */
+   SANE_NAME_NUM_OPTIONS,
+   SANE_TITLE_NUM_OPTIONS,
+   SANE_DESC_NUM_OPTIONS,
+   SANE_TYPE_INT,
+   SANE_UNIT_NONE,
+   sizeof (SANE_Word),
+   SANE_CAP_SOFT_DETECT,
+   SANE_CONSTRAINT_NONE,
+   {NULL}
+   }
+  ,
+  {				/* opt_source_group */
+   "",
+   SANE_I18N ("Source Selection"),
+   "",
+   SANE_TYPE_GROUP,
+   SANE_UNIT_NONE,
+   0,
+   0,
+   SANE_CONSTRAINT_NONE,
+   {NULL}
+   }
+  ,
+  {				/* opt_filename */
+   SANE_NAME_FILE,
+   SANE_TITLE_FILE,
+   SANE_DESC_FILE,
+   SANE_TYPE_STRING,
+   SANE_UNIT_NONE,
+   sizeof (filename),
+   SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+   SANE_CONSTRAINT_NONE,
+   {NULL}
+   }
+  ,
   {
-    /* opt_resolution */
-    SANE_NAME_SCAN_RESOLUTION,
-    SANE_TITLE_SCAN_RESOLUTION,
-    SANE_DESC_SCAN_RESOLUTION,
-    SANE_TYPE_INT,
-    SANE_UNIT_DPI,
-    sizeof(SANE_Word),
-    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_AUTOMATIC,
-    SANE_CONSTRAINT_WORD_LIST,
-    {(SANE_String_Const *)resbit_list}	
-  },
-  { /* opt_enhancement_group */
-    "",
-    SANE_I18N("Image Enhancement"),
-    "",
-    SANE_TYPE_GROUP,
-    SANE_UNIT_NONE,
-    0,
-    0,
-    SANE_CONSTRAINT_NONE,
-    {NULL}
-  },
-  { /* opt_brightness */
-    SANE_NAME_BRIGHTNESS,
-    SANE_TITLE_BRIGHTNESS,
-    SANE_DESC_BRIGHTNESS,
-    SANE_TYPE_FIXED,
-    SANE_UNIT_PERCENT,
-    sizeof (SANE_Word),
-    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
-    SANE_CONSTRAINT_RANGE,
-    {(SANE_String_Const *) &percentage_range}	/* this is ANSI conformant! */
-  },
-  { /* opt_contrast */
-    SANE_NAME_CONTRAST,
-    SANE_TITLE_CONTRAST,
-    SANE_DESC_CONTRAST,
-    SANE_TYPE_FIXED,
-    SANE_UNIT_PERCENT,
-    sizeof (SANE_Word),
-    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
-    SANE_CONSTRAINT_RANGE,
-    {(SANE_String_Const *) &percentage_range}	/* this is ANSI conformant! */
-  },
-  { /* opt_grayify */
-    "grayify",
-    SANE_I18N("Grayify"),
-    SANE_I18N("Load the image as grayscale."),
-    SANE_TYPE_BOOL,
-    SANE_UNIT_NONE,
-    sizeof (SANE_Word),
-    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
-    SANE_CONSTRAINT_NONE,
-    {NULL}
-  },
-  { /* opt_three_pass */
-    "three-pass",
-    SANE_I18N("Three-Pass Simulation"),
-    SANE_I18N("Simulate a three-pass scanner by returning 3 separate frames.  "
+   /* opt_resolution */
+   SANE_NAME_SCAN_RESOLUTION,
+   SANE_TITLE_SCAN_RESOLUTION,
+   SANE_DESC_SCAN_RESOLUTION,
+   SANE_TYPE_INT,
+   SANE_UNIT_DPI,
+   sizeof (SANE_Word),
+   SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_AUTOMATIC,
+   SANE_CONSTRAINT_WORD_LIST,
+   {(SANE_String_Const *) resbit_list}
+   }
+  ,
+  {				/* opt_enhancement_group */
+   "",
+   SANE_I18N ("Image Enhancement"),
+   "",
+   SANE_TYPE_GROUP,
+   SANE_UNIT_NONE,
+   0,
+   0,
+   SANE_CONSTRAINT_NONE,
+   {NULL}
+   }
+  ,
+  {				/* opt_brightness */
+   SANE_NAME_BRIGHTNESS,
+   SANE_TITLE_BRIGHTNESS,
+   SANE_DESC_BRIGHTNESS,
+   SANE_TYPE_FIXED,
+   SANE_UNIT_PERCENT,
+   sizeof (SANE_Word),
+   SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+   SANE_CONSTRAINT_RANGE,
+   {(SANE_String_Const *) & percentage_range}	/* this is ANSI conformant! */
+   }
+  ,
+  {				/* opt_contrast */
+   SANE_NAME_CONTRAST,
+   SANE_TITLE_CONTRAST,
+   SANE_DESC_CONTRAST,
+   SANE_TYPE_FIXED,
+   SANE_UNIT_PERCENT,
+   sizeof (SANE_Word),
+   SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+   SANE_CONSTRAINT_RANGE,
+   {(SANE_String_Const *) & percentage_range}	/* this is ANSI conformant! */
+   }
+  ,
+  {				/* opt_grayify */
+   "grayify",
+   SANE_I18N ("Grayify"),
+   SANE_I18N ("Load the image as grayscale."),
+   SANE_TYPE_BOOL,
+   SANE_UNIT_NONE,
+   sizeof (SANE_Word),
+   SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+   SANE_CONSTRAINT_NONE,
+   {NULL}
+   }
+  ,
+  {				/* opt_three_pass */
+   "three-pass",
+   SANE_I18N ("Three-Pass Simulation"),
+   SANE_I18N
+   ("Simulate a three-pass scanner by returning 3 separate frames.  "
     "For kicks, it returns green, then blue, then red."),
-    SANE_TYPE_BOOL,
-    SANE_UNIT_NONE,
-    sizeof (SANE_Word),
-    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
-    SANE_CONSTRAINT_NONE,
-    {NULL}
-  },
-  { /* opt_hand_scanner */
-    "hand-scanner",
-    SANE_I18N("Hand-Scanner Simulation"),
-    SANE_I18N("Simulate a hand-scanner.  Hand-scanners often do not know the "
+   SANE_TYPE_BOOL,
+   SANE_UNIT_NONE,
+   sizeof (SANE_Word),
+   SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+   SANE_CONSTRAINT_NONE,
+   {NULL}
+   }
+  ,
+  {				/* opt_hand_scanner */
+   "hand-scanner",
+   SANE_I18N ("Hand-Scanner Simulation"),
+   SANE_I18N ("Simulate a hand-scanner.  Hand-scanners often do not know the "
 	      "image height a priori.  Instead, they return a height of -1.  "
 	      "Setting this option allows to test whether a frontend can "
 	      "handle this correctly."),
-    SANE_TYPE_BOOL,
-    SANE_UNIT_NONE,
-    sizeof (SANE_Word),
-    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
-    SANE_CONSTRAINT_NONE,
-    {NULL}
-  },
-  { /* opt_default_enhancements */
-    "default-enhancements",
-    SANE_I18N("Defaults"),
-    SANE_I18N("Set default values for enhancement controls (brightness & "
+   SANE_TYPE_BOOL,
+   SANE_UNIT_NONE,
+   sizeof (SANE_Word),
+   SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+   SANE_CONSTRAINT_NONE,
+   {NULL}
+   }
+  ,
+  {				/* opt_default_enhancements */
+   "default-enhancements",
+   SANE_I18N ("Defaults"),
+   SANE_I18N ("Set default values for enhancement controls (brightness & "
 	      "contrast)."),
-    SANE_TYPE_BUTTON,
-    SANE_UNIT_NONE,
-    0,
-    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
-    SANE_CONSTRAINT_NONE,
-    {NULL}
-  },
-  { /* opt_read_only */
-    "read-only",
-    SANE_I18N("Read only test-option"),
-    SANE_I18N("Let's see whether frontends can treat this right") ,
-    SANE_TYPE_INT,
-    SANE_UNIT_PERCENT,
-    sizeof (SANE_Word),
-    SANE_CAP_SOFT_DETECT,
-    SANE_CONSTRAINT_NONE,
-    {NULL}
-  },
-  {  /* opt_gamma_group */
-    "",
-    SANE_I18N("Gamma Tables"),
-    "",
-    SANE_TYPE_GROUP,
-    SANE_UNIT_NONE,
-    0,
-    0,
-    SANE_CONSTRAINT_NONE,
-    {NULL}
-  },
-  {/* opt_custom_gamma */
-    SANE_NAME_CUSTOM_GAMMA,
-    SANE_TITLE_CUSTOM_GAMMA	,
-    SANE_DESC_CUSTOM_GAMMA,
-    SANE_TYPE_BOOL,
-    SANE_UNIT_NONE,
-    sizeof(SANE_Word),
-    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
-    SANE_CONSTRAINT_NONE,
-    {NULL}
-  },
-  { /* opt_gamma */
-    SANE_NAME_GAMMA_VECTOR,
-    SANE_TITLE_GAMMA_VECTOR,
-    SANE_DESC_GAMMA_VECTOR,
-    SANE_TYPE_INT,
-    SANE_UNIT_NONE,
-    sizeof(SANE_Word)*256,
-    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE,
-    SANE_CONSTRAINT_RANGE,
-    {(SANE_String_Const *) &gamma_range}
-  },
-  { /* opt_gamma_r */
-    SANE_NAME_GAMMA_VECTOR_R,
-    SANE_TITLE_GAMMA_VECTOR_R,
-    SANE_DESC_GAMMA_VECTOR_R,
-    SANE_TYPE_INT,
-    SANE_UNIT_NONE,
-    sizeof(SANE_Word)*256,
-    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE,
-    SANE_CONSTRAINT_RANGE,
-    {(SANE_String_Const *) &gamma_range}
-  },
-  { /* opt_gamma_g */
-    SANE_NAME_GAMMA_VECTOR_G,
-    SANE_TITLE_GAMMA_VECTOR_G,
-    SANE_DESC_GAMMA_VECTOR_G,
-    SANE_TYPE_INT,
-    SANE_UNIT_NONE,
-    sizeof(SANE_Word)*256,
-    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE,
-    SANE_CONSTRAINT_RANGE,
-    {(SANE_String_Const *) &gamma_range}
-  },
-  { /* opt_gamma_b */
-    SANE_NAME_GAMMA_VECTOR_B,
-    SANE_TITLE_GAMMA_VECTOR_B,
-    SANE_DESC_GAMMA_VECTOR_B,
-    SANE_TYPE_INT,
-    SANE_UNIT_NONE,
-    sizeof(SANE_Word)*256,
-    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE,
-    SANE_CONSTRAINT_RANGE,
-    {(SANE_String_Const *) &gamma_range}
-  },
-  { /* opt_status_group */
-    "",
-    SANE_I18N("Status Code Simulation"),
-    "",
-    SANE_TYPE_GROUP,
-    SANE_UNIT_NONE,
-    0,
-    SANE_CAP_ADVANCED,
-    SANE_CONSTRAINT_NONE,
-    {NULL}
-  },
-  { /* opt_status */
-    "status",
-    SANE_I18N("Do not force status code"),
-    SANE_I18N("Do not force the backend to return a status code."),
-    SANE_TYPE_BOOL,
-    SANE_UNIT_NONE,
-    sizeof(SANE_Bool),
-    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
-    SANE_CONSTRAINT_NONE,
-    {NULL}
-  },
-  { /* opt_status_eof */
-    "status-eof",
-    SANE_I18N("Return SANE_STATUS_EOF"),
-    SANE_I18N("Force the backend to return the status code SANE_STATUS_EOF "
+   SANE_TYPE_BUTTON,
+   SANE_UNIT_NONE,
+   0,
+   SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+   SANE_CONSTRAINT_NONE,
+   {NULL}
+   }
+  ,
+  {				/* opt_read_only */
+   "read-only",
+   SANE_I18N ("Read only test-option"),
+   SANE_I18N ("Let's see whether frontends can treat this right"),
+   SANE_TYPE_INT,
+   SANE_UNIT_PERCENT,
+   sizeof (SANE_Word),
+   SANE_CAP_SOFT_DETECT,
+   SANE_CONSTRAINT_NONE,
+   {NULL}
+   }
+  ,
+  {				/* opt_gamma_group */
+   "",
+   SANE_I18N ("Gamma Tables"),
+   "",
+   SANE_TYPE_GROUP,
+   SANE_UNIT_NONE,
+   0,
+   0,
+   SANE_CONSTRAINT_NONE,
+   {NULL}
+   }
+  ,
+  {				/* opt_custom_gamma */
+   SANE_NAME_CUSTOM_GAMMA,
+   SANE_TITLE_CUSTOM_GAMMA,
+   SANE_DESC_CUSTOM_GAMMA,
+   SANE_TYPE_BOOL,
+   SANE_UNIT_NONE,
+   sizeof (SANE_Word),
+   SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+   SANE_CONSTRAINT_NONE,
+   {NULL}
+   }
+  ,
+  {				/* opt_gamma */
+   SANE_NAME_GAMMA_VECTOR,
+   SANE_TITLE_GAMMA_VECTOR,
+   SANE_DESC_GAMMA_VECTOR,
+   SANE_TYPE_INT,
+   SANE_UNIT_NONE,
+   sizeof (SANE_Word) * 256,
+   SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE,
+   SANE_CONSTRAINT_RANGE,
+   {(SANE_String_Const *) & gamma_range}
+   }
+  ,
+  {				/* opt_gamma_r */
+   SANE_NAME_GAMMA_VECTOR_R,
+   SANE_TITLE_GAMMA_VECTOR_R,
+   SANE_DESC_GAMMA_VECTOR_R,
+   SANE_TYPE_INT,
+   SANE_UNIT_NONE,
+   sizeof (SANE_Word) * 256,
+   SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE,
+   SANE_CONSTRAINT_RANGE,
+   {(SANE_String_Const *) & gamma_range}
+   }
+  ,
+  {				/* opt_gamma_g */
+   SANE_NAME_GAMMA_VECTOR_G,
+   SANE_TITLE_GAMMA_VECTOR_G,
+   SANE_DESC_GAMMA_VECTOR_G,
+   SANE_TYPE_INT,
+   SANE_UNIT_NONE,
+   sizeof (SANE_Word) * 256,
+   SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE,
+   SANE_CONSTRAINT_RANGE,
+   {(SANE_String_Const *) & gamma_range}
+   }
+  ,
+  {				/* opt_gamma_b */
+   SANE_NAME_GAMMA_VECTOR_B,
+   SANE_TITLE_GAMMA_VECTOR_B,
+   SANE_DESC_GAMMA_VECTOR_B,
+   SANE_TYPE_INT,
+   SANE_UNIT_NONE,
+   sizeof (SANE_Word) * 256,
+   SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE,
+   SANE_CONSTRAINT_RANGE,
+   {(SANE_String_Const *) & gamma_range}
+   }
+  ,
+  {				/* opt_status_group */
+   "",
+   SANE_I18N ("Status Code Simulation"),
+   "",
+   SANE_TYPE_GROUP,
+   SANE_UNIT_NONE,
+   0,
+   SANE_CAP_ADVANCED,
+   SANE_CONSTRAINT_NONE,
+   {NULL}
+   }
+  ,
+  {				/* opt_status */
+   "status",
+   SANE_I18N ("Do not force status code"),
+   SANE_I18N ("Do not force the backend to return a status code."),
+   SANE_TYPE_BOOL,
+   SANE_UNIT_NONE,
+   sizeof (SANE_Bool),
+   SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+   SANE_CONSTRAINT_NONE,
+   {NULL}
+   }
+  ,
+  {				/* opt_status_eof */
+   "status-eof",
+   SANE_I18N ("Return SANE_STATUS_EOF"),
+   SANE_I18N ("Force the backend to return the status code SANE_STATUS_EOF "
 	      "after sane_read() has been called."),
-    SANE_TYPE_BOOL,
-    SANE_UNIT_NONE,
-    sizeof(SANE_Bool),
-    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
-    SANE_CONSTRAINT_NONE,
-    {NULL}
-  },
-  { /* opt_status_jammed */
-    "status-jammed",
-    SANE_I18N("Return SANE_STATUS_JAMMED"),
-    SANE_I18N("Force the backend to return the status code SANE_STATUS_JAMMED "
-	      "after sane_read() has been called."),
-    SANE_TYPE_BOOL,
-    SANE_UNIT_NONE,
-    sizeof(SANE_Bool),
-    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
-    SANE_CONSTRAINT_NONE,
-    {NULL}
-  },
-  { /* opt_status_nodocs */
-    "status-nodocs",
-    SANE_I18N("Return SANE_STATUS_NO_DOCS"),
-    SANE_I18N("Force the backend to return the status code "
+   SANE_TYPE_BOOL,
+   SANE_UNIT_NONE,
+   sizeof (SANE_Bool),
+   SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+   SANE_CONSTRAINT_NONE,
+   {NULL}
+   }
+  ,
+  {				/* opt_status_jammed */
+   "status-jammed",
+   SANE_I18N ("Return SANE_STATUS_JAMMED"),
+   SANE_I18N
+   ("Force the backend to return the status code SANE_STATUS_JAMMED "
+    "after sane_read() has been called."),
+   SANE_TYPE_BOOL,
+   SANE_UNIT_NONE,
+   sizeof (SANE_Bool),
+   SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+   SANE_CONSTRAINT_NONE,
+   {NULL}
+   }
+  ,
+  {				/* opt_status_nodocs */
+   "status-nodocs",
+   SANE_I18N ("Return SANE_STATUS_NO_DOCS"),
+   SANE_I18N ("Force the backend to return the status code "
 	      "SANE_STATUS_NO_DOCS after sane_read() has been called."),
-    SANE_TYPE_BOOL,
-    SANE_UNIT_NONE,
-    sizeof(SANE_Bool),
-    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
-    SANE_CONSTRAINT_NONE,
-    {NULL}
-  },
-  { /* opt_status_coveropen */
-    "status-coveropen",
-    SANE_I18N("Return SANE_STATUS_COVER_OPEN"),
-    SANE_I18N("Force the backend to return the status code "
+   SANE_TYPE_BOOL,
+   SANE_UNIT_NONE,
+   sizeof (SANE_Bool),
+   SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+   SANE_CONSTRAINT_NONE,
+   {NULL}
+   }
+  ,
+  {				/* opt_status_coveropen */
+   "status-coveropen",
+   SANE_I18N ("Return SANE_STATUS_COVER_OPEN"),
+   SANE_I18N ("Force the backend to return the status code "
 	      "SANE_STATUS_COVER_OPEN after sane_read() has been called."),
-    SANE_TYPE_BOOL,
-    SANE_UNIT_NONE,
-    sizeof(SANE_Bool),
-    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
-    SANE_CONSTRAINT_NONE,
-    {NULL}
-  },
-  { /* opt_status_ioerror */
-    "status-ioerror",
-    SANE_I18N("Return SANE_STATUS_IO_ERROR"),
-    SANE_I18N("Force the backend to return the status code "
+   SANE_TYPE_BOOL,
+   SANE_UNIT_NONE,
+   sizeof (SANE_Bool),
+   SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+   SANE_CONSTRAINT_NONE,
+   {NULL}
+   }
+  ,
+  {				/* opt_status_ioerror */
+   "status-ioerror",
+   SANE_I18N ("Return SANE_STATUS_IO_ERROR"),
+   SANE_I18N ("Force the backend to return the status code "
 	      "SANE_STATUS_IO_ERROR after sane_read() has been called."),
-    SANE_TYPE_BOOL,
-    SANE_UNIT_NONE,
-    sizeof(SANE_Bool),
-    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
-    SANE_CONSTRAINT_NONE,
-    {NULL}
-  },
-  { /* opt_status_nomem */
-    "status-nomem",
-    SANE_I18N("Return SANE_STATUS_NO_MEM"),
-    SANE_I18N("Force the backend to return the status code SANE_STATUS_NO_MEM "
-	      "after sane_read() has been called."),
-    SANE_TYPE_BOOL,
-    SANE_UNIT_NONE,
-    sizeof(SANE_Bool),
-    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
-    SANE_CONSTRAINT_NONE,
-    {NULL}
-  },
-  { /* opt_status_accessdenied */
-    "status-accessdenied",
-    SANE_I18N("Return SANE_STATUS_ACCESS_DENIED"),
-    SANE_I18N("Force the backend to return the status code "
+   SANE_TYPE_BOOL,
+   SANE_UNIT_NONE,
+   sizeof (SANE_Bool),
+   SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+   SANE_CONSTRAINT_NONE,
+   {NULL}
+   }
+  ,
+  {				/* opt_status_nomem */
+   "status-nomem",
+   SANE_I18N ("Return SANE_STATUS_NO_MEM"),
+   SANE_I18N
+   ("Force the backend to return the status code SANE_STATUS_NO_MEM "
+    "after sane_read() has been called."),
+   SANE_TYPE_BOOL,
+   SANE_UNIT_NONE,
+   sizeof (SANE_Bool),
+   SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+   SANE_CONSTRAINT_NONE,
+   {NULL}
+   }
+  ,
+  {				/* opt_status_accessdenied */
+   "status-accessdenied",
+   SANE_I18N ("Return SANE_STATUS_ACCESS_DENIED"),
+   SANE_I18N ("Force the backend to return the status code "
 	      "SANE_STATUS_ACCESS_DENIED after sane_read() has been called."),
-    SANE_TYPE_BOOL,
-    SANE_UNIT_NONE,
-    sizeof(SANE_Bool),
-    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
-    SANE_CONSTRAINT_NONE,
-    {NULL}
-  }
+   SANE_TYPE_BOOL,
+   SANE_UNIT_NONE,
+   sizeof (SANE_Bool),
+   SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+   SANE_CONSTRAINT_NONE,
+   {NULL}
+   }
 };
 
-static SANE_Parameters parms =
-{
+static SANE_Parameters parms = {
   SANE_FRAME_RGB,
   0,
   0,				/* Number of bytes returned per scan line: */
@@ -476,12 +500,12 @@ static SANE_Parameters parms =
 SANE_Status
 sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
-  DBG_INIT();
+  DBG_INIT ();
 
-  DBG(2, "sane_init: version_code %s 0, authorize %s 0\n",
-      version_code == 0 ? "=" : "!=", authorize == 0 ? "=" : "!="); 
-  DBG(1, "sane_init: SANE pnm backend version %d.%d.%d from %s\n", 
-      V_MAJOR, V_MINOR, BUILD, PACKAGE_VERSION);
+  DBG (2, "sane_init: version_code %s 0, authorize %s 0\n",
+       version_code == 0 ? "=" : "!=", authorize == 0 ? "=" : "!=");
+  DBG (1, "sane_init: SANE pnm backend version %d.%d.%d from %s\n",
+       V_MAJOR, V_MINOR, BUILD, PACKAGE_VERSION);
 
   if (version_code)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BUILD);
@@ -491,37 +515,33 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 void
 sane_exit (void)
 {
-  DBG(2, "sane_exit\n");
+  DBG (2, "sane_exit\n");
   return;
 }
 
 /* Device select/open/close */
 
-static const SANE_Device dev[] =
-{
+static const SANE_Device dev[] = {
   {
-    "0",
-    "Noname",
-    "PNM file reader",
-    "virtual device"
-  },
+   "0",
+   "Noname",
+   "PNM file reader",
+   "virtual device"},
   {
-    "1",
-    "Noname",
-    "PNM file reader",
-    "virtual device"
-  },
+   "1",
+   "Noname",
+   "PNM file reader",
+   "virtual device"},
 };
 
 SANE_Status
 sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 {
-  static const SANE_Device * devlist[] =
-  {
+  static const SANE_Device *devlist[] = {
     dev + 0, dev + 1, 0
   };
 
-  DBG(2, "sane_get_devices: local_only = %d\n", local_only);
+  DBG (2, "sane_get_devices: local_only = %d\n", local_only);
   *device_list = devlist;
   return SANE_STATUS_GOOD;
 }
@@ -533,23 +553,23 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 
   if (!devicename)
     return SANE_STATUS_INVAL;
-  DBG(2, "sane_open: devicename = \"%s\"\n", devicename);  
+  DBG (2, "sane_open: devicename = \"%s\"\n", devicename);
 
   if (!devicename[0])
     i = 0;
   else
-    for (i = 0; i < NELEMS(dev); ++i)
+    for (i = 0; i < NELEMS (dev); ++i)
       if (strcmp (devicename, dev[i].name) == 0)
 	break;
-  if (i >= NELEMS(dev))
+  if (i >= NELEMS (dev))
     return SANE_STATUS_INVAL;
-  
+
   if (is_open)
     return SANE_STATUS_DEVICE_BUSY;
-  
+
   is_open = 1;
   *handle = MAGIC;
-  for(i=0;i<256;i++)
+  for (i = 0; i < 256; i++)
     {
       gamma[0][i] = i;
       gamma[1][i] = i;
@@ -562,7 +582,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 void
 sane_close (SANE_Handle handle)
 {
-  DBG(2, "sane_close\n");
+  DBG (2, "sane_close\n");
   if (handle == MAGIC)
     is_open = 0;
 }
@@ -570,43 +590,42 @@ sane_close (SANE_Handle handle)
 const SANE_Option_Descriptor *
 sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 {
-  DBG(2, "sane_get_option_descriptor: option = %d\n", option);
+  DBG (2, "sane_get_option_descriptor: option = %d\n", option);
   if (handle != MAGIC || !is_open)
     return NULL;		/* wrong device */
-  if (option < 0 || option >= NELEMS(sod))
+  if (option < 0 || option >= NELEMS (sod))
     return NULL;
   return &sod[option];
 }
 
 SANE_Status
 sane_control_option (SANE_Handle handle, SANE_Int option,
-		     SANE_Action action, void *value,
-		     SANE_Int * info)
+		     SANE_Action action, void *value, SANE_Int * info)
 {
   SANE_Int myinfo = 0;
   SANE_Status status;
   int v;
   v = 75;
 
-  DBG(2, "sane_control_option: handle=%p, opt=%d, act=%d, val=%p, info=%p\n",
-      handle, option, action, value, info);
+  DBG (2, "sane_control_option: handle=%p, opt=%d, act=%d, val=%p, info=%p\n",
+       handle, option, action, value, info);
 
   if (handle != MAGIC || !is_open)
     {
-      DBG(1, "sane_control_option: unknown handle or not open\n");
+      DBG (1, "sane_control_option: unknown handle or not open\n");
       return SANE_STATUS_INVAL;	/* Unknown handle ... */
     }
 
-  if (option < 0 || option >= NELEMS(sod))
+  if (option < 0 || option >= NELEMS (sod))
     {
-      DBG(1, "sane_control_option: option %d < 0 or >= number of options\n",
-	  option);
+      DBG (1, "sane_control_option: option %d < 0 or >= number of options\n",
+	   option);
       return SANE_STATUS_INVAL;	/* Unknown option ... */
     }
 
   if (!SANE_OPTION_IS_ACTIVE (sod[option].cap))
     {
-      DBG(4, "sane_control_option: option is inactive\n");
+      DBG (4, "sane_control_option: option is inactive\n");
       return SANE_STATUS_INVAL;
     }
 
@@ -615,10 +634,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
     case SANE_ACTION_SET_AUTO:
       if (!SANE_OPTION_IS_SETTABLE (sod[option].cap))
 	{
-	  DBG(4, "sane_control_option: option is not settable\n");
+	  DBG (4, "sane_control_option: option is not settable\n");
 	  return SANE_STATUS_INVAL;
 	}
-      status = sanei_constrain_value (sod + option, (void*)&v, &myinfo);
+      status = sanei_constrain_value (sod + option, (void *) &v, &myinfo);
       if (status != SANE_STATUS_GOOD)
 	return status;
       switch (option)
@@ -634,307 +653,315 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
     case SANE_ACTION_SET_VALUE:
       if (!SANE_OPTION_IS_SETTABLE (sod[option].cap))
 	{
-	  DBG(4, "sane_control_option: option is not settable\n");
+	  DBG (4, "sane_control_option: option is not settable\n");
 	  return SANE_STATUS_INVAL;
 	}
       status = sanei_constrain_value (sod + option, value, &myinfo);
       if (status != SANE_STATUS_GOOD)
 	return status;
-    switch (option)
-      {
-      case opt_filename:
-	if ((strlen (value) + 1) > sizeof (filename))
-	  return SANE_STATUS_NO_MEM;
-	strcpy (filename, value);
-	myinfo |= SANE_INFO_RELOAD_PARAMS;
-	break;
-      case opt_resolution:
-	res = *(SANE_Word *) value;
-	break;
-      case opt_brightness:
-	bright = *(SANE_Word *) value;
-	break;
-      case opt_contrast:
-	contr = *(SANE_Word *) value;
-	break;
-      case opt_grayify:
-	gray = !!*(SANE_Word *) value;
-        if (usegamma)
-	  {
-	    if (gray)
-	      {
-		sod[opt_gamma].cap &= ~SANE_CAP_INACTIVE;
-		sod[opt_gamma_r].cap |= SANE_CAP_INACTIVE;
-		sod[opt_gamma_g].cap |= SANE_CAP_INACTIVE;
-		sod[opt_gamma_b].cap |= SANE_CAP_INACTIVE;
-	      }
-	    else
-	      {
-		sod[opt_gamma].cap |= SANE_CAP_INACTIVE;
-		sod[opt_gamma_r].cap &= ~SANE_CAP_INACTIVE;
-		sod[opt_gamma_g].cap &= ~SANE_CAP_INACTIVE;
-		sod[opt_gamma_b].cap &= ~SANE_CAP_INACTIVE;
-	      }
-	  }
-        else
-	  {
-	    sod[opt_gamma].cap |= SANE_CAP_INACTIVE;
-	    sod[opt_gamma_r].cap |= SANE_CAP_INACTIVE;
-	    sod[opt_gamma_g].cap |= SANE_CAP_INACTIVE;
-	    sod[opt_gamma_b].cap |= SANE_CAP_INACTIVE;
-	  }
-	myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
-	break;
-      case opt_three_pass:
-	three_pass = !!*(SANE_Word *) value;
-	myinfo |= SANE_INFO_RELOAD_PARAMS;
-	break;
-      case opt_hand_scanner:
-	hand_scanner = !!*(SANE_Word *) value;
-	myinfo |= SANE_INFO_RELOAD_PARAMS;
-	break;
-      case opt_default_enhancements:
-	bright = contr = 0;
-	myinfo |= SANE_INFO_RELOAD_OPTIONS;
-	break;
-      case opt_custom_gamma:
-	usegamma = *(SANE_Word *) value;
-	/* activate/deactivate gamma */
-	if (usegamma)
-	  {
-	    test_option = 100;
-	    if(gray)
-	      {
-		sod[opt_gamma].cap &= ~SANE_CAP_INACTIVE;
-		sod[opt_gamma_r].cap |= SANE_CAP_INACTIVE;
-		sod[opt_gamma_g].cap |= SANE_CAP_INACTIVE;
-		sod[opt_gamma_b].cap |= SANE_CAP_INACTIVE;
-	      }
-	    else
-	      {
-		sod[opt_gamma].cap |= SANE_CAP_INACTIVE;
-		sod[opt_gamma_r].cap &= ~SANE_CAP_INACTIVE;
-		sod[opt_gamma_g].cap &= ~SANE_CAP_INACTIVE;
-		sod[opt_gamma_b].cap &= ~SANE_CAP_INACTIVE;
-	      }
-	  }
-	else
-	  {
-	    test_option = 0;
-	    sod[opt_gamma].cap |= SANE_CAP_INACTIVE;
-	    sod[opt_gamma_r].cap |= SANE_CAP_INACTIVE;
-	    sod[opt_gamma_g].cap |= SANE_CAP_INACTIVE;
-	    sod[opt_gamma_b].cap |= SANE_CAP_INACTIVE;
-	  }
-	myinfo |= SANE_INFO_RELOAD_OPTIONS;
-	break;
-      case opt_gamma:
-	memcpy (&gamma[0][0], (SANE_Word *) value, 256 * sizeof(SANE_Word));
-	myinfo |= SANE_INFO_RELOAD_OPTIONS;
-	break;
-      case opt_gamma_r:
-	memcpy (&gamma[1][0], (SANE_Word *) value, 256 * sizeof(SANE_Word));
-	myinfo |= SANE_INFO_RELOAD_OPTIONS;
-	break;
-      case opt_gamma_g:
-	memcpy (&gamma[2][0], (SANE_Word *) value, 256 * sizeof(SANE_Word));
-	myinfo |= SANE_INFO_RELOAD_OPTIONS;
-	break;
-      case opt_gamma_b:
-	memcpy (&gamma[3][0], (SANE_Word *) value, 256 * sizeof(SANE_Word));
-	myinfo |= SANE_INFO_RELOAD_OPTIONS;
-	break;
-	/* status */
-      case opt_status:
-	status_none = *(SANE_Word *) value;
-	if (status_none)
-	  {
-	    status_eof = SANE_FALSE;
-	    status_jammed = SANE_FALSE;
-	    status_nodocs = SANE_FALSE;
-	    status_coveropen = SANE_FALSE;
-	    status_ioerror = SANE_FALSE;
-	    status_nomem = SANE_FALSE;
-	    status_accessdenied = SANE_FALSE;
-	  }
-	myinfo |= SANE_INFO_RELOAD_OPTIONS;
-	break;
-      case opt_status_eof:
-	status_eof = *(SANE_Word *) value;
-	if (status_eof)
-	  {
-	    status_none = SANE_FALSE;
-	    status_jammed = SANE_FALSE;
-	    status_nodocs = SANE_FALSE;
-	    status_coveropen = SANE_FALSE;
-	    status_ioerror = SANE_FALSE;
-	    status_nomem = SANE_FALSE;
-	    status_accessdenied = SANE_FALSE;
-	  }
-	myinfo |= SANE_INFO_RELOAD_OPTIONS;
-	break;
-      case opt_status_jammed:
-	status_jammed = *(SANE_Word *) value;
-	if (status_jammed)
-	  {
-	    status_eof = SANE_FALSE;
-	    status_none = SANE_FALSE;
-	    status_nodocs = SANE_FALSE;
-	    status_coveropen = SANE_FALSE;
-	    status_ioerror = SANE_FALSE;
-	    status_nomem = SANE_FALSE;
-	    status_accessdenied = SANE_FALSE;
-	  }
-	myinfo |= SANE_INFO_RELOAD_OPTIONS;
-	break;
-      case opt_status_nodocs:
-	status_nodocs = *(SANE_Word *) value;
-	if (status_nodocs)
-	  {
-	    status_eof = SANE_FALSE;
-	    status_jammed = SANE_FALSE;
-	    status_none = SANE_FALSE;
-	    status_coveropen = SANE_FALSE;
-	    status_ioerror = SANE_FALSE;
-	    status_nomem = SANE_FALSE;
-	    status_accessdenied = SANE_FALSE;
-	  }
-	myinfo |= SANE_INFO_RELOAD_OPTIONS;
-	break;
-      case opt_status_coveropen:
-	status_coveropen = *(SANE_Word *) value;
-	if (status_coveropen)
-	  {
-	    status_eof = SANE_FALSE;
-	    status_jammed = SANE_FALSE;
-	    status_nodocs = SANE_FALSE;
-	    status_none = SANE_FALSE;
-	    status_ioerror = SANE_FALSE;
-	    status_nomem = SANE_FALSE;
-	    status_accessdenied = SANE_FALSE;
-	  }
-	myinfo |= SANE_INFO_RELOAD_OPTIONS;
-	break;
-      case opt_status_ioerror:
-	status_ioerror = *(SANE_Word *) value;
-	if (status_ioerror)
-	  {
-	    status_eof = SANE_FALSE;
-	    status_jammed = SANE_FALSE;
-	    status_nodocs = SANE_FALSE;
-	    status_coveropen = SANE_FALSE;
-	    status_none = SANE_FALSE;
-	    status_nomem = SANE_FALSE;
-	    status_accessdenied = SANE_FALSE;
-	  }
-	myinfo |= SANE_INFO_RELOAD_OPTIONS;
-	break;
-      case opt_status_nomem:
-	status_nomem = *(SANE_Word *) value;
-	if (status_nomem)
-	  {
-	    status_eof = SANE_FALSE;
-	    status_jammed = SANE_FALSE;
-	    status_nodocs = SANE_FALSE;
-	    status_coveropen = SANE_FALSE;
-	    status_ioerror = SANE_FALSE;
-	    status_none = SANE_FALSE;
-	    status_accessdenied = SANE_FALSE;
-	  }
-	myinfo |= SANE_INFO_RELOAD_OPTIONS;
-	break;
-      case opt_status_accessdenied:
-	status_accessdenied = *(SANE_Word *) value;
-	if (status_accessdenied)
-	  {
-	    status_eof = SANE_FALSE;
-	    status_jammed = SANE_FALSE;
-	    status_nodocs = SANE_FALSE;
-	    status_coveropen = SANE_FALSE;
-	    status_ioerror = SANE_FALSE;
-	    status_nomem = SANE_FALSE;
-	    status_none = SANE_FALSE;
-	  }
-	myinfo |= SANE_INFO_RELOAD_OPTIONS;
-	break;
-      default:
-	return SANE_STATUS_INVAL;
-      }
-    break;
-  case SANE_ACTION_GET_VALUE:
-    switch (option)
-      {
-      case opt_num_opts:
-	*(SANE_Word *) value = NELEMS(sod);
-	break;
-      case opt_filename:
-	strcpy (value, filename);
-	break;
-      case opt_resolution:
-	*(SANE_Word *) value = res;
-	break;
-      case opt_brightness:
-	*(SANE_Word *) value = bright;
-	break;
-      case opt_contrast:
-	*(SANE_Word *) value = contr;
-	break;
-      case opt_grayify:
-	*(SANE_Word *) value = gray;
-	break;
-      case opt_three_pass:
-	*(SANE_Word *) value = three_pass;
-	break;
-      case opt_hand_scanner:
-	*(SANE_Word *) value = hand_scanner;
-	break;
-      case opt_read_only:
-	*(SANE_Word *) value = test_option;
-	break;
-      case opt_custom_gamma:
-	*(SANE_Word *) value = usegamma;
-	break;
-      case opt_gamma:
-	memcpy((SANE_Word *) value, &gamma[0][0], 256*sizeof(SANE_Word));
-	break;
-      case opt_gamma_r:
-	memcpy((SANE_Word *) value, &gamma[1][0], 256*sizeof(SANE_Word));
-	break;
-      case opt_gamma_g:
-	memcpy((SANE_Word *) value, &gamma[2][0], 256*sizeof(SANE_Word));
-	break;
-      case opt_gamma_b:
-	memcpy((SANE_Word *) value, &gamma[3][0], 256*sizeof(SANE_Word));
-	break;
-      case opt_status:
-	*(SANE_Word *) value = status_none;
-	break;
-      case opt_status_eof:
-	*(SANE_Word *) value = status_eof;
-	break;
-      case opt_status_jammed:
-	*(SANE_Word *) value = status_jammed;
-	break;
-      case opt_status_nodocs:
-	*(SANE_Word *) value = status_nodocs;
-	break;
-      case opt_status_coveropen:
-	*(SANE_Word *) value = status_coveropen;
-	break;
-      case opt_status_ioerror:
-	*(SANE_Word *) value = status_ioerror;
-	break;
-      case opt_status_nomem:
-	*(SANE_Word *) value = status_nomem;
-	break;
-      case opt_status_accessdenied:
-	*(SANE_Word *) value = status_accessdenied;
-	break;
-      default:
-	return SANE_STATUS_INVAL;
-      }
-    break;
-  }
+      switch (option)
+	{
+	case opt_filename:
+	  if ((strlen (value) + 1) > sizeof (filename))
+	    return SANE_STATUS_NO_MEM;
+	  strcpy (filename, value);
+	  myinfo |= SANE_INFO_RELOAD_PARAMS;
+	  break;
+	case opt_resolution:
+	  res = *(SANE_Word *) value;
+	  break;
+	case opt_brightness:
+	  bright = *(SANE_Word *) value;
+	  break;
+	case opt_contrast:
+	  contr = *(SANE_Word *) value;
+	  break;
+	case opt_grayify:
+	  gray = !!*(SANE_Word *) value;
+	  if (usegamma)
+	    {
+	      if (gray)
+		{
+		  sod[opt_gamma].cap &= ~SANE_CAP_INACTIVE;
+		  sod[opt_gamma_r].cap |= SANE_CAP_INACTIVE;
+		  sod[opt_gamma_g].cap |= SANE_CAP_INACTIVE;
+		  sod[opt_gamma_b].cap |= SANE_CAP_INACTIVE;
+		}
+	      else
+		{
+		  sod[opt_gamma].cap |= SANE_CAP_INACTIVE;
+		  sod[opt_gamma_r].cap &= ~SANE_CAP_INACTIVE;
+		  sod[opt_gamma_g].cap &= ~SANE_CAP_INACTIVE;
+		  sod[opt_gamma_b].cap &= ~SANE_CAP_INACTIVE;
+		}
+	    }
+	  else
+	    {
+	      sod[opt_gamma].cap |= SANE_CAP_INACTIVE;
+	      sod[opt_gamma_r].cap |= SANE_CAP_INACTIVE;
+	      sod[opt_gamma_g].cap |= SANE_CAP_INACTIVE;
+	      sod[opt_gamma_b].cap |= SANE_CAP_INACTIVE;
+	    }
+	  myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+	  break;
+	case opt_three_pass:
+	  three_pass = !!*(SANE_Word *) value;
+	  myinfo |= SANE_INFO_RELOAD_PARAMS;
+	  break;
+	case opt_hand_scanner:
+	  hand_scanner = !!*(SANE_Word *) value;
+	  myinfo |= SANE_INFO_RELOAD_PARAMS;
+	  break;
+	case opt_default_enhancements:
+	  bright = contr = 0;
+	  myinfo |= SANE_INFO_RELOAD_OPTIONS;
+	  break;
+	case opt_custom_gamma:
+	  usegamma = *(SANE_Word *) value;
+	  /* activate/deactivate gamma */
+	  if (usegamma)
+	    {
+	      test_option = 100;
+	      if (gray)
+		{
+		  sod[opt_gamma].cap &= ~SANE_CAP_INACTIVE;
+		  sod[opt_gamma_r].cap |= SANE_CAP_INACTIVE;
+		  sod[opt_gamma_g].cap |= SANE_CAP_INACTIVE;
+		  sod[opt_gamma_b].cap |= SANE_CAP_INACTIVE;
+		}
+	      else
+		{
+		  sod[opt_gamma].cap |= SANE_CAP_INACTIVE;
+		  sod[opt_gamma_r].cap &= ~SANE_CAP_INACTIVE;
+		  sod[opt_gamma_g].cap &= ~SANE_CAP_INACTIVE;
+		  sod[opt_gamma_b].cap &= ~SANE_CAP_INACTIVE;
+		}
+	    }
+	  else
+	    {
+	      test_option = 0;
+	      sod[opt_gamma].cap |= SANE_CAP_INACTIVE;
+	      sod[opt_gamma_r].cap |= SANE_CAP_INACTIVE;
+	      sod[opt_gamma_g].cap |= SANE_CAP_INACTIVE;
+	      sod[opt_gamma_b].cap |= SANE_CAP_INACTIVE;
+	    }
+	  myinfo |= SANE_INFO_RELOAD_OPTIONS;
+	  break;
+	case opt_gamma:
+	  memcpy (&gamma[0][0], (SANE_Word *) value,
+		  256 * sizeof (SANE_Word));
+	  myinfo |= SANE_INFO_RELOAD_OPTIONS;
+	  break;
+	case opt_gamma_r:
+	  memcpy (&gamma[1][0], (SANE_Word *) value,
+		  256 * sizeof (SANE_Word));
+	  myinfo |= SANE_INFO_RELOAD_OPTIONS;
+	  break;
+	case opt_gamma_g:
+	  memcpy (&gamma[2][0], (SANE_Word *) value,
+		  256 * sizeof (SANE_Word));
+	  myinfo |= SANE_INFO_RELOAD_OPTIONS;
+	  break;
+	case opt_gamma_b:
+	  memcpy (&gamma[3][0], (SANE_Word *) value,
+		  256 * sizeof (SANE_Word));
+	  myinfo |= SANE_INFO_RELOAD_OPTIONS;
+	  break;
+	  /* status */
+	case opt_status:
+	  status_none = *(SANE_Word *) value;
+	  if (status_none)
+	    {
+	      status_eof = SANE_FALSE;
+	      status_jammed = SANE_FALSE;
+	      status_nodocs = SANE_FALSE;
+	      status_coveropen = SANE_FALSE;
+	      status_ioerror = SANE_FALSE;
+	      status_nomem = SANE_FALSE;
+	      status_accessdenied = SANE_FALSE;
+	    }
+	  myinfo |= SANE_INFO_RELOAD_OPTIONS;
+	  break;
+	case opt_status_eof:
+	  status_eof = *(SANE_Word *) value;
+	  if (status_eof)
+	    {
+	      status_none = SANE_FALSE;
+	      status_jammed = SANE_FALSE;
+	      status_nodocs = SANE_FALSE;
+	      status_coveropen = SANE_FALSE;
+	      status_ioerror = SANE_FALSE;
+	      status_nomem = SANE_FALSE;
+	      status_accessdenied = SANE_FALSE;
+	    }
+	  myinfo |= SANE_INFO_RELOAD_OPTIONS;
+	  break;
+	case opt_status_jammed:
+	  status_jammed = *(SANE_Word *) value;
+	  if (status_jammed)
+	    {
+	      status_eof = SANE_FALSE;
+	      status_none = SANE_FALSE;
+	      status_nodocs = SANE_FALSE;
+	      status_coveropen = SANE_FALSE;
+	      status_ioerror = SANE_FALSE;
+	      status_nomem = SANE_FALSE;
+	      status_accessdenied = SANE_FALSE;
+	    }
+	  myinfo |= SANE_INFO_RELOAD_OPTIONS;
+	  break;
+	case opt_status_nodocs:
+	  status_nodocs = *(SANE_Word *) value;
+	  if (status_nodocs)
+	    {
+	      status_eof = SANE_FALSE;
+	      status_jammed = SANE_FALSE;
+	      status_none = SANE_FALSE;
+	      status_coveropen = SANE_FALSE;
+	      status_ioerror = SANE_FALSE;
+	      status_nomem = SANE_FALSE;
+	      status_accessdenied = SANE_FALSE;
+	    }
+	  myinfo |= SANE_INFO_RELOAD_OPTIONS;
+	  break;
+	case opt_status_coveropen:
+	  status_coveropen = *(SANE_Word *) value;
+	  if (status_coveropen)
+	    {
+	      status_eof = SANE_FALSE;
+	      status_jammed = SANE_FALSE;
+	      status_nodocs = SANE_FALSE;
+	      status_none = SANE_FALSE;
+	      status_ioerror = SANE_FALSE;
+	      status_nomem = SANE_FALSE;
+	      status_accessdenied = SANE_FALSE;
+	    }
+	  myinfo |= SANE_INFO_RELOAD_OPTIONS;
+	  break;
+	case opt_status_ioerror:
+	  status_ioerror = *(SANE_Word *) value;
+	  if (status_ioerror)
+	    {
+	      status_eof = SANE_FALSE;
+	      status_jammed = SANE_FALSE;
+	      status_nodocs = SANE_FALSE;
+	      status_coveropen = SANE_FALSE;
+	      status_none = SANE_FALSE;
+	      status_nomem = SANE_FALSE;
+	      status_accessdenied = SANE_FALSE;
+	    }
+	  myinfo |= SANE_INFO_RELOAD_OPTIONS;
+	  break;
+	case opt_status_nomem:
+	  status_nomem = *(SANE_Word *) value;
+	  if (status_nomem)
+	    {
+	      status_eof = SANE_FALSE;
+	      status_jammed = SANE_FALSE;
+	      status_nodocs = SANE_FALSE;
+	      status_coveropen = SANE_FALSE;
+	      status_ioerror = SANE_FALSE;
+	      status_none = SANE_FALSE;
+	      status_accessdenied = SANE_FALSE;
+	    }
+	  myinfo |= SANE_INFO_RELOAD_OPTIONS;
+	  break;
+	case opt_status_accessdenied:
+	  status_accessdenied = *(SANE_Word *) value;
+	  if (status_accessdenied)
+	    {
+	      status_eof = SANE_FALSE;
+	      status_jammed = SANE_FALSE;
+	      status_nodocs = SANE_FALSE;
+	      status_coveropen = SANE_FALSE;
+	      status_ioerror = SANE_FALSE;
+	      status_nomem = SANE_FALSE;
+	      status_none = SANE_FALSE;
+	    }
+	  myinfo |= SANE_INFO_RELOAD_OPTIONS;
+	  break;
+	default:
+	  return SANE_STATUS_INVAL;
+	}
+      break;
+    case SANE_ACTION_GET_VALUE:
+      switch (option)
+	{
+	case opt_num_opts:
+	  *(SANE_Word *) value = NELEMS (sod);
+	  break;
+	case opt_filename:
+	  strcpy (value, filename);
+	  break;
+	case opt_resolution:
+	  *(SANE_Word *) value = res;
+	  break;
+	case opt_brightness:
+	  *(SANE_Word *) value = bright;
+	  break;
+	case opt_contrast:
+	  *(SANE_Word *) value = contr;
+	  break;
+	case opt_grayify:
+	  *(SANE_Word *) value = gray;
+	  break;
+	case opt_three_pass:
+	  *(SANE_Word *) value = three_pass;
+	  break;
+	case opt_hand_scanner:
+	  *(SANE_Word *) value = hand_scanner;
+	  break;
+	case opt_read_only:
+	  *(SANE_Word *) value = test_option;
+	  break;
+	case opt_custom_gamma:
+	  *(SANE_Word *) value = usegamma;
+	  break;
+	case opt_gamma:
+	  memcpy ((SANE_Word *) value, &gamma[0][0],
+		  256 * sizeof (SANE_Word));
+	  break;
+	case opt_gamma_r:
+	  memcpy ((SANE_Word *) value, &gamma[1][0],
+		  256 * sizeof (SANE_Word));
+	  break;
+	case opt_gamma_g:
+	  memcpy ((SANE_Word *) value, &gamma[2][0],
+		  256 * sizeof (SANE_Word));
+	  break;
+	case opt_gamma_b:
+	  memcpy ((SANE_Word *) value, &gamma[3][0],
+		  256 * sizeof (SANE_Word));
+	  break;
+	case opt_status:
+	  *(SANE_Word *) value = status_none;
+	  break;
+	case opt_status_eof:
+	  *(SANE_Word *) value = status_eof;
+	  break;
+	case opt_status_jammed:
+	  *(SANE_Word *) value = status_jammed;
+	  break;
+	case opt_status_nodocs:
+	  *(SANE_Word *) value = status_nodocs;
+	  break;
+	case opt_status_coveropen:
+	  *(SANE_Word *) value = status_coveropen;
+	  break;
+	case opt_status_ioerror:
+	  *(SANE_Word *) value = status_ioerror;
+	  break;
+	case opt_status_nomem:
+	  *(SANE_Word *) value = status_nomem;
+	  break;
+	case opt_status_accessdenied:
+	  *(SANE_Word *) value = status_accessdenied;
+	  break;
+	default:
+	  return SANE_STATUS_INVAL;
+	}
+      break;
+    }
   if (info)
     *info = myinfo;
   return SANE_STATUS_GOOD;
@@ -959,7 +986,7 @@ getparmfromfile (void)
   parms.bytes_per_line = parms.pixels_per_line = parms.lines = 0;
   if ((fn = fopen (filename, "rb")) == NULL)
     {
-      DBG(1, "getparmfromfile: unable to open file \"%s\"\n", filename);
+      DBG (1, "getparmfromfile: unable to open file \"%s\"\n", filename);
       return -1;
     }
 
@@ -987,7 +1014,7 @@ getparmfromfile (void)
     }
   else
     {
-      DBG(1, "getparmfromfile: %s is not a recognized PPM\n", filename);
+      DBG (1, "getparmfromfile: %s is not a recognized PPM\n", filename);
       fclose (fn);
       return -1;
     }
@@ -1010,7 +1037,7 @@ getparmfromfile (void)
   else
     {
       if (three_pass)
-  	{
+	{
 	  parms.format = SANE_FRAME_RED + (pass + 1) % 3;
 	  parms.last_frame = (pass >= 2);
 	}
@@ -1025,12 +1052,11 @@ getparmfromfile (void)
 }
 
 SANE_Status
-sane_get_parameters (SANE_Handle handle,
-		     SANE_Parameters * params)
+sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 {
   int rc = SANE_STATUS_GOOD;
 
-  DBG(2, "sane_get_parameters\n");
+  DBG (2, "sane_get_parameters\n");
   if (handle != MAGIC || !is_open)
     rc = SANE_STATUS_INVAL;	/* Unknown handle ... */
   else if (getparmfromfile ())
@@ -1045,44 +1071,44 @@ sane_start (SANE_Handle handle)
   char buf[1024];
   int nlines;
 
-  DBG(2, "sane_start\n");
+  DBG (2, "sane_start\n");
   rgb_comp = 0;
   if (handle != MAGIC || !is_open)
     return SANE_STATUS_INVAL;	/* Unknown handle ... */
 
   if (infile != NULL)
-  {
-    fclose (infile);
-    infile = NULL;
-    if (!three_pass || ++pass >= 3)
-	     return SANE_STATUS_EOF;
-  }
+    {
+      fclose (infile);
+      infile = NULL;
+      if (!three_pass || ++pass >= 3)
+	return SANE_STATUS_EOF;
+    }
 
   if (getparmfromfile ())
     return SANE_STATUS_INVAL;
 
   if ((infile = fopen (filename, "rb")) == NULL)
     {
-      DBG(1, "sane_start: unable to open file \"%s\"\n", filename);
+      DBG (1, "sane_start: unable to open file \"%s\"\n", filename);
       return SANE_STATUS_INVAL;
     }
 
   /* Skip the header (only two lines for a bitmap). */
   nlines = (ppm_type == ppm_bitmap) ? 1 : 0;
   while (nlines < 3)
-  {
-    /* Skip comments. */
-    get_line (buf, sizeof (buf), infile);
-    if (*buf != '#')
-     	nlines++;
-  }
+    {
+      /* Skip comments. */
+      get_line (buf, sizeof (buf), infile);
+      if (*buf != '#')
+	nlines++;
+    }
 
   return SANE_STATUS_GOOD;
 }
 
 static SANE_Int rgblength = 0;
 static SANE_Byte *rgbbuf = 0;
-static SANE_Byte rgbleftover[3] = {0, 0, 0};
+static SANE_Byte rgbleftover[3] = { 0, 0, 0 };
 
 SANE_Status
 sane_read (SANE_Handle handle, SANE_Byte * data,
@@ -1090,47 +1116,54 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
 {
   int len, x, hlp;
 
-  DBG(2,"sane_read: max_length = %d, rgbleftover = {%d, %d, %d}\n",
-      max_length, rgbleftover[0], rgbleftover[1], rgbleftover[2]);
+  DBG (2, "sane_read: max_length = %d, rgbleftover = {%d, %d, %d}\n",
+       max_length, rgbleftover[0], rgbleftover[1], rgbleftover[2]);
   if (!length)
     {
-      DBG(1, "sane_read: length == NULL\n");
+      DBG (1, "sane_read: length == NULL\n");
       return SANE_STATUS_INVAL;
     }
   *length = 0;
   if (!data)
     {
-      DBG(1, "sane_read: data == NULL\n");
+      DBG (1, "sane_read: data == NULL\n");
       return SANE_STATUS_INVAL;
     }
   if (handle != MAGIC)
     {
-      DBG(1, "sane_read: unknown handle\n");
+      DBG (1, "sane_read: unknown handle\n");
       return SANE_STATUS_INVAL;
     }
   if (!is_open)
     {
-      DBG(1, "sane_read: call sane_open first\n");
+      DBG (1, "sane_read: call sane_open first\n");
       return SANE_STATUS_INVAL;
     }
   if (!infile)
     {
-      DBG(1, "sane_read: scan was cancelled\n");
+      DBG (1, "sane_read: scan was cancelled\n");
       return SANE_STATUS_CANCELLED;
     }
   if (feof (infile))
     {
-      DBG(2, "sane_read: EOF reached\n");
+      DBG (2, "sane_read: EOF reached\n");
       return SANE_STATUS_EOF;
     }
 
-  if(status_jammed == SANE_TRUE) return SANE_STATUS_JAMMED;
-  if(status_eof == SANE_TRUE) return SANE_STATUS_EOF;
-  if(status_nodocs == SANE_TRUE) return SANE_STATUS_NO_DOCS;
-  if(status_coveropen == SANE_TRUE) return SANE_STATUS_COVER_OPEN;
-  if(status_ioerror == SANE_TRUE) return SANE_STATUS_IO_ERROR;
-  if(status_nomem == SANE_TRUE) return SANE_STATUS_NO_MEM;
-  if(status_accessdenied == SANE_TRUE) return SANE_STATUS_ACCESS_DENIED;
+  if (status_jammed == SANE_TRUE)
+    return SANE_STATUS_JAMMED;
+  if (status_eof == SANE_TRUE)
+    return SANE_STATUS_EOF;
+  if (status_nodocs == SANE_TRUE)
+    return SANE_STATUS_NO_DOCS;
+  if (status_coveropen == SANE_TRUE)
+    return SANE_STATUS_COVER_OPEN;
+  if (status_ioerror == SANE_TRUE)
+    return SANE_STATUS_IO_ERROR;
+  if (status_nomem == SANE_TRUE)
+    return SANE_STATUS_NO_MEM;
+  if (status_accessdenied == SANE_TRUE)
+    return SANE_STATUS_ACCESS_DENIED;
 
   /* Allocate a buffer for the RGB values. */
   if (ppm_type == ppm_color && (gray || three_pass))
@@ -1145,18 +1178,19 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
 	  if (rgbbuf == 0)
 	    return SANE_STATUS_NO_MEM;
 	}
-      else rgblength = 3 * max_length;
-      
+      else
+	rgblength = 3 * max_length;
+
       /* Copy any leftovers into the buffer. */
       q = rgbbuf;
       p = rgbleftover + 1;
       while (p - rgbleftover <= rgbleftover[0])
 	*q++ = *p++;
-      
+
       /* Slurp in the RGB buffer. */
       len = fread (q, 1, rgblength - rgbleftover[0], infile);
       rgbend = rgbbuf + len;
-      
+
       q = data;
       if (gray)
 	{
@@ -1170,14 +1204,14 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
 	  for (p = (rgbbuf + (pass + 1) % 3); p < rgbend; p += 3)
 	    *q++ = *p;
 	}
-      
+
       /* Save any leftovers in the array. */
       rgbleftover[0] = len % 3;
       p = rgbbuf + (len - rgbleftover[0]);
       q = rgbleftover + 1;
       while (p < rgbend)
 	*q++ = *p++;
-      
+
       len /= 3;
     }
   else
@@ -1189,21 +1223,21 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
     {
       if (feof (infile))
 	{
-	  DBG(2, "sane_read: EOF reached\n");
+	  DBG (2, "sane_read: EOF reached\n");
 	  return SANE_STATUS_EOF;
 	}
       else
 	{
-	  DBG (1, "sane_read: error while reading file (%s)\n", 
+	  DBG (1, "sane_read: error while reading file (%s)\n",
 	       strerror (errno));
 	  return SANE_STATUS_IO_ERROR;
 	}
     }
-  
+
   if (parms.depth == 8)
     {
       /* Do the transformations ... DEMO ONLY ! THIS MAKES NO SENSE ! */
-      for(x = 0; x < len; x++)
+      for (x = 0; x < len; x++)
 	{
 	  hlp = *((unsigned char *) data + x) - 128;
 	  hlp *= (contr + (100 << SANE_FIXED_SCALE_SHIFT));
@@ -1215,13 +1249,13 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
 	    hlp = 255;
 	  *(data + x) = hlp;
 	}
-      /*gamma*/
-      if(usegamma)
+      /*gamma */
+      if (usegamma)
 	{
 	  unsigned char uc;
-	  if(gray)
+	  if (gray)
 	    {
-	      for(x = 0; x < len; x++)
+	      for (x = 0; x < len; x++)
 		{
 		  uc = *((unsigned char *) data + x);
 		  uc = gamma[0][uc];
@@ -1230,30 +1264,31 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
 	    }
 	  else
 	    {
-	      for(x = 0; x < len; x++)
+	      for (x = 0; x < len; x++)
 		{
-		  if(parms.format == SANE_FRAME_RGB)
+		  if (parms.format == SANE_FRAME_RGB)
 		    {
 		      uc = *((unsigned char *) (data + x));
-		      uc = (unsigned char)gamma[rgb_comp + 1][(int)uc];
-		      *((unsigned char *)data + x) = uc;
+		      uc = (unsigned char) gamma[rgb_comp + 1][(int) uc];
+		      *((unsigned char *) data + x) = uc;
 		      rgb_comp += 1;
-		      if(rgb_comp>2) rgb_comp = 0;
+		      if (rgb_comp > 2)
+			rgb_comp = 0;
 		    }
 		  else
 		    {
-		      int f=0;
-		      if(parms.format == SANE_FRAME_RED)
+		      int f = 0;
+		      if (parms.format == SANE_FRAME_RED)
 			f = 1;
-		      if(parms.format == SANE_FRAME_GREEN)
+		      if (parms.format == SANE_FRAME_GREEN)
 			f = 2;
-		      if(parms.format == SANE_FRAME_BLUE)
+		      if (parms.format == SANE_FRAME_BLUE)
 			f = 3;
-		      if(f)
+		      if (f)
 			{
 			  uc = *((unsigned char *) (data + x));
-			  uc = (unsigned char)gamma[f][(int)uc];
-			  *((unsigned char *)data + x) = uc;
+			  uc = (unsigned char) gamma[f][(int) uc];
+			  *((unsigned char *) data + x) = uc;
 			}
 		    }
 		}
@@ -1268,7 +1303,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
 void
 sane_cancel (SANE_Handle handle)
 {
-  DBG(2, "sane_cancel: handle = %p\n", handle);
+  DBG (2, "sane_cancel: handle = %p\n", handle);
   pass = 0;
   if (infile != NULL)
     {
@@ -1281,15 +1316,22 @@ sane_cancel (SANE_Handle handle)
 SANE_Status
 sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 {
-  DBG(2, "sane_set_io_mode: handle = %p, non_blocking = %d\n", handle,
-      non_blocking);
-  return SANE_STATUS_UNSUPPORTED;
+  DBG (2, "sane_set_io_mode: handle = %p, non_blocking = %d\n", handle,
+       non_blocking);
+  if (!infile)
+    {
+      DBG (1, "sane_set_io_mode: not scanning\n");
+      return SANE_STATUS_INVAL;
+    }
+  if (non_blocking)
+    return SANE_STATUS_UNSUPPORTED;
+  return SANE_STATUS_GOOD;
 }
 
 SANE_Status
 sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
 {
-  DBG(2, "sane_get_select_fd: handle = %p, fd %s 0\n", handle,
-      fd ? "!=" : "=");
+  DBG (2, "sane_get_select_fd: handle = %p, fd %s 0\n", handle,
+       fd ? "!=" : "=");
   return SANE_STATUS_UNSUPPORTED;
 }

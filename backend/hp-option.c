@@ -58,11 +58,11 @@
 extern int sanei_debug_hp; */
 #define DEBUG_DECLARE_ONLY
 #include "sane/config.h"
-#include <lalloca.h>
+#include "../include/lalloca.h"
 
 #include <stdio.h>
 #include <string.h>
-#include <assert.h>
+#include "../include/assert.h"
 #ifndef SANE_HOME_HP
 #include <pwd.h>
 #endif

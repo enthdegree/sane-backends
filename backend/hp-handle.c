@@ -52,7 +52,7 @@ extern int sanei_debug_hp; */
 #endif
 #include <string.h>
 #include <signal.h>
-#include <assert.h>
+#include "../include/assert.h"
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/wait.h>

@@ -48,7 +48,7 @@ extern int sanei_debug_hp; */
 
 #include "sane/config.h"
 
-#include <assert.h>
+#include "../include/assert.h"
 #include <string.h>
 
 #include <sys/types.h>

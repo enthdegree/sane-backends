@@ -1,0 +1,249 @@
+SCSI trace for a preview
+
+0002E: Bus Free
+00032:    Arbitration   /80 (7)
+00034:    Select w/ATN  /81 (0,7)
+00038:       Message-Out/C0 (Identify : LUN  0 Disconnect OK)
+00039:       Command    /02 00 00 00 04 00 (V Spec)
+0003F: (000004) Data-In /06 00 00 00 
+00043:       Status     /00 (Good)
+00044:       Message-In /00 (Cmd Cmplt)
+00045: Bus Free
+00049:    Arbitration   /80 (7)
+0004B:    Select w/ATN  /81 (0,7)
+0004F:       Message-Out/C0 (Identify : LUN  0 Disconnect OK)
+00050:       Command    /02 00 00 00 04 00 (V Spec)
+00056: (000004) Data-In /06 00 00 00 
+0005A:       Status     /00 (Good)
+0005B:       Message-In /00 (Cmd Cmplt)
+0005C: Bus Free
+00060:    Arbitration   /80 (7)
+00062:    Select w/ATN  /81 (0,7)
+00066:       Message-Out/C0 (Identify : LUN  0 Disconnect OK)
+00067:       Command    /00 00 00 00 01 00 (Test U Rdy)
+0006D: (000001) Data-In /00 
+0006E:       Status     /00 (Good)
+0006F:       Message-In /00 (Cmd Cmplt)
+00070: Bus Free
+00074:    Arbitration   /80 (7)
+00076:    Select w/ATN  /81 (0,7)
+0007A:       Message-Out/C0 (Identify : LUN  0 Disconnect OK)
+0007B:       Command    /02 00 00 00 04 00 (V Spec)
+00081: (000004) Data-In /06 00 00 00 
+00085:       Status     /00 (Good)
+00086:       Message-In /00 (Cmd Cmplt)
+00087: Bus Free
+0008B:    Arbitration   /80 (7)
+0008D:    Select w/ATN  /81 (0,7)
+00091:       Message-Out/C0 (Identify : LUN  0 Disconnect OK)
+00092:       Command    /1D 00 80 00 00 00 (Send Diag)
+00098:       Status     /00 (Good)
+00099:       Message-In /00 (Cmd Cmplt)
+0009A: Bus Free
+0009E:    Arbitration   /80 (7)
+000A0:    Select w/ATN  /81 (0,7)
+000A4:       Message-Out/C0 (Identify : LUN  0 Disconnect OK)
+000A5:       Command    /1C 00 00 00 03 00 (Rcv Diag)
+000AB: (000003) Data-In /00 00 00 
+000AE:       Status     /00 (Good)
+000AF:       Message-In /00 (Cmd Cmplt)
+000B0: Bus Free
+000B4:    Arbitration   /80 (7)
+000B6:    Select w/ATN  /81 (0,7)
+000BA:       Message-Out/C0 (Identify : LUN  0 Disconnect OK)
+000BB:       Command    /15 10 00 00 18 00 (Mode Sel)
+000C1:       Status     /00 (Good)
+000C2:       Message-In /00 (Cmd Cmplt)
+000C3: Bus Free
+000C7:    Arbitration   /80 (7)
+000C9:    Select w/ATN  /81 (0,7)
+000CD:       Message-Out/C0 (Identify : LUN  0 Disconnect OK)
+000CE:       Command    /24 00 00 00 00 00 00 00 52 00 (Set Window)
+000D8:          Data-Out/00 00 00 00 00 00 00 4A 00 00 00 24 00 24 00 00 
+000E8:                   00 00 00 00 00 00 00 00 13 EC 00 00 1B 6B 04 80 
+000F8:                   04 05 18 00 00 80 00 00 00 00 00 00 00 00 00 00 
+00108: (000052)          00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00119:       Status     /00 (Good)
+0011A:       Message-In /00 (Cmd Cmplt)
+0011B: Bus Free
+0011F:    Arbitration   /80 (7)
+00121:    Select w/ATN  /81 (0,7)
+00125:       Message-Out/C0 (Identify : LUN  0 Disconnect OK)
+00126:       Command    /02 00 00 00 04 00 (V Spec)
+0012C: (000004) Data-In /06 00 00 00 
+00130:       Status     /00 (Good)
+00131:       Message-In /00 (Cmd Cmplt)
+00132: Bus Free
+00136:    Arbitration   /80 (7)
+00138:    Select w/ATN  /81 (0,7)
+0013C:       Message-Out/C0 (Identify : LUN  0 Disconnect OK)
+0013D:       Command    /02 00 00 00 04 00 (V Spec)
+00143: (000004) Data-In /06 00 00 00 
+00147:       Status     /00 (Good)
+00148:       Message-In /00 (Cmd Cmplt)
+00149: Bus Free
+0014D:    Arbitration   /80 (7)
+0014F:    Select w/ATN  /81 (0,7)
+00153:       Message-Out/C0 (Identify : LUN  0 Disconnect OK)
+00154:       Command    /2A 00 03 00 00 02 00 03 00 00 (Ex Write)
+0015E:          Data-Out/00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 
+0016E:                   10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F 
+0017E:                   20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F 
+0018E: (000300)          30 31 32 33 34 35 36 37 38 39 3A 3B 3C 3D 3E 3F 
+0019F:       Status     /00 (Good)
+001A0:       Message-In /00 (Cmd Cmplt)
+001A1: Bus Free
+001A5:    Arbitration   /80 (7)
+001A7:    Select w/ATN  /81 (0,7)
+001AB:       Message-Out/C0 (Identify : LUN  0 Disconnect OK)
+001AC:       Command    /1B 00 00 00 00 00 (Start/Stop)
+001B2:       Status     /00 (Good)
+001B3:       Message-In /00 (Cmd Cmplt)
+001B4: Bus Free
+001B8:    Arbitration   /80 (7)
+001BA:    Select w/ATN  /81 (0,7)
+001BE:       Message-Out/C0 (Identify : LUN  0 Disconnect OK)
+001BF:       Command    /02 00 00 00 04 00 (V Spec)
+001C5: (000004) Data-In /06 00 00 00 
+001C9:       Status     /00 (Good)
+001CA:       Message-In /00 (Cmd Cmplt)
+001CB: Bus Free
+001CF:    Arbitration   /80 (7)
+001D1:    Select w/ATN  /81 (0,7)
+001D5:       Message-Out/C0 (Identify : LUN  0 Disconnect OK)
+001D6:       Command    /34 01 00 00 00 00 00 00 10 00 (Prefetch)
+001E0: (000010) Data-In /00 00 0D 01 00 00 00 00 00 05 E9 44 01 A6 01 32 
+001F0:       Status     /00 (Good)
+001F1:       Message-In /00 (Cmd Cmplt)
+001F2: Bus Free
+001F6:    Arbitration   /80 (7)
+001F8:    Select w/ATN  /81 (0,7)
+001FC:       Message-Out/C0 (Identify : LUN  0 Disconnect OK)
+001FD:       Command    /34 01 00 00 00 00 00 00 10 00 (Prefetch)
+00207: (000010) Data-In /00 00 0D 01 00 00 00 00 00 05 E9 44 01 A6 01 32 
+00217:       Status     /00 (Good)
+00218:       Message-In /00 (Cmd Cmplt)
+00219: Bus Free
+0021D:    Arbitration   /80 (7)
+0021F:    Select w/ATN  /81 (0,7)
+00223:       Message-Out/C0 (Identify : LUN  0 Disconnect OK)
+00224:       Command    /28 00 00 00 00 00 00 FE 9A 00 (Ex Read)
+0022E:          Data-In /3E 43 3B 46 3B 3B 3B 3D 3B 38 38 44 3B 3A 32 34 
+0023E:                   38 39 35 38 36 35 2F 34 38 34 39 36 36 2C 31 33 
+0024E:                   31 35 34 35 3B 33 2D 33 43 30 32 38 33 3E 35 34 
+0025E: (00FE9A)          35 36 37 3C 33 33 2E 3F 34 34 39 3A 38 41 3A 37 
+0026F:       Status     /00 (Good)
+00270:       Message-In /00 (Cmd Cmplt)
+00271: Bus Free
+00275:    Arbitration   /80 (7)
+00277:    Select w/ATN  /81 (0,7)
+0027B:       Message-Out/C0 (Identify : LUN  0 Disconnect OK)
+0027C:       Command    /34 01 00 00 00 00 00 00 10 00 (Prefetch)
+00286: (000010) Data-In /00 00 0D 01 00 00 00 00 00 04 EA AA 01 A6 01 32 
+00296:       Status     /00 (Good)
+00297:       Message-In /00 (Cmd Cmplt)
+00298: Bus Free
+0029C:    Arbitration   /80 (7)
+0029E:    Select w/ATN  /81 (0,7)
+002A2:       Message-Out/C0 (Identify : LUN  0 Disconnect OK)
+002A3:       Command    /28 00 00 00 00 00 00 FE 9A 00 (Ex Read)
+002AD:          Data-In /72 5F 73 6B 4B 60 62 4E 56 74 6F 5F 62 63 56 5A 
+002BD:                   56 4F 52 58 4C 59 63 50 62 5E 6A 59 6E 71 4F 80 
+002CD:                   81 56 88 71 52 66 5B 5C 49 46 55 3F 54 52 4B 58 
+002DD: (00FE9A)          5E 63 53 66 64 58 6B 77 5F 6C 6F 55 59 65 59 5B 
+002EE:       Status     /00 (Good)
+002EF:       Message-In /00 (Cmd Cmplt)
+002F0: Bus Free
+002F4:    Arbitration   /80 (7)
+002F6:    Select w/ATN  /81 (0,7)
+002FA:       Message-Out/C0 (Identify : LUN  0 Disconnect OK)
+002FB:       Command    /34 01 00 00 00 00 00 00 10 00 (Prefetch)
+00305: (000010) Data-In /00 00 0D 01 00 00 00 00 00 03 EC 10 01 A6 01 32 
+00315:       Status     /00 (Good)
+00316:       Message-In /00 (Cmd Cmplt)
+00317: Bus Free
+0031B:    Arbitration   /80 (7)
+0031D:    Select w/ATN  /81 (0,7)
+00321:       Message-Out/C0 (Identify : LUN  0 Disconnect OK)
+00322:       Command    /28 00 00 00 00 00 00 FE 9A 00 (Ex Read)
+0032C:          Data-In /9D A3 9B 9F 92 99 A0 27 3A 34 32 30 32 20 A2 AD 
+0033C:                   B0 A7 92 AC A1 A3 98 1B 2E 2D 1F 19 18 1F 19 53 
+0034C:                   3E 5F 68 74 71 23 36 77 71 79 77 70 77 1F 5D 71 
+0035C: (00FE9A)          70 60 6A 74 71 52 58 5B 55 50 58 5E 5E 5C 55 51 
+0036D:       Status     /00 (Good)
+0036E:       Message-In /00 (Cmd Cmplt)
+0036F: Bus Free
+00373:    Arbitration   /80 (7)
+00375:    Select w/ATN  /81 (0,7)
+00379:       Message-Out/C0 (Identify : LUN  0 Disconnect OK)
+0037A:       Command    /34 01 00 00 00 00 00 00 10 00 (Prefetch)
+00384: (000010) Data-In /00 00 0D 01 00 00 00 00 00 02 ED 76 01 A6 01 32 
+00394:       Status     /00 (Good)
+00395:       Message-In /00 (Cmd Cmplt)
+00396: Bus Free
+0039A:    Arbitration   /80 (7)
+0039C:    Select w/ATN  /81 (0,7)
+003A0:       Message-Out/C0 (Identify : LUN  0 Disconnect OK)
+003A1:       Command    /28 00 00 00 00 00 00 FE 9A 00 (Ex Read)
+003AB:          Data-In /4A 41 48 46 22 2A 2D 31 2B 2A 1F 41 56 53 43 52 
+003BB:                   56 40 47 58 55 42 4E 50 4C 4A 5A 59 41 1C 2C 31 
+003CB:                   34 2A 27 38 22 2F 27 30 31 2B 2A 28 27 1E 4D 62 
+003DB: (00FE9A)          5C 5A 5A 67 5D 5B 57 5E 52 50 5D 52 64 4C 55 58 
+003EC:       Status     /00 (Good)
+003ED:       Message-In /00 (Cmd Cmplt)
+003EE: Bus Free
+003F2:    Arbitration   /80 (7)
+003F4:    Select w/ATN  /81 (0,7)
+003F8:       Message-Out/C0 (Identify : LUN  0 Disconnect OK)
+003F9:       Command    /34 01 00 00 00 00 00 00 10 00 (Prefetch)
+00403: (000010) Data-In /00 00 0D 01 00 00 00 00 00 01 EE DC 01 A6 01 32 
+00413:       Status     /00 (Good)
+00414:       Message-In /00 (Cmd Cmplt)
+00415: Bus Free
+00419:    Arbitration   /80 (7)
+0041B:    Select w/ATN  /81 (0,7)
+0041F:       Message-Out/C0 (Identify : LUN  0 Disconnect OK)
+00420:       Command    /28 00 00 00 00 00 00 FE 9A 00 (Ex Read)
+0042A:          Data-In /1A 24 1C 1D 1C 1A 22 1F 18 1B 1B 35 33 2E 43 3B 
+0043A:                   32 3E 3F 30 35 45 33 42 45 36 39 3C 3A 34 34 38 
+0044A:                   2F 38 38 39 39 42 36 3E 3C 2E 38 3B 40 33 35 32 
+0045A: (00FE9A)          35 30 2F 36 2D 37 37 32 32 2C 35 39 31 32 38 33 
+0046B:       Status     /00 (Good)
+0046C:       Message-In /00 (Cmd Cmplt)
+0046D: Bus Free
+00471:    Arbitration   /80 (7)
+00473:    Select w/ATN  /81 (0,7)
+00477:       Message-Out/C0 (Identify : LUN  0 Disconnect OK)
+00478:       Command    /34 01 00 00 00 00 00 00 10 00 (Prefetch)
+00482: (000010) Data-In /00 00 0D 01 00 00 00 00 00 00 F0 42 01 A6 01 32 
+00492:       Status     /00 (Good)
+00493:       Message-In /00 (Cmd Cmplt)
+00494: Bus Free
+00498:    Arbitration   /80 (7)
+0049A:    Select w/ATN  /81 (0,7)
+0049E:       Message-Out/C0 (Identify : LUN  0 Disconnect OK)
+0049F:       Command    /28 00 00 00 00 00 00 F0 42 00 (Ex Read)
+004A9:          Data-In /34 35 29 38 1D 2B 34 37 30 2D 2D 19 30 18 28 30 
+004B9:                   2D 1C 34 34 31 35 40 32 39 17 32 2E 3A 32 34 33 
+004C9:                   40 30 35 3A 32 2D 1A 39 2B 3C 1F 31 34 2B 1B 15 
+004D9: (00F042)          2D 2C 32 2B 2A 35 2D 2E 32 19 29 35 2F 2C 38 16 
+004EA:       Status     /00 (Good)
+004EB:       Message-In /00 (Cmd Cmplt)
+004EC: Bus Free
+004F0:    Arbitration   /80 (7)
+004F2:    Select w/ATN  /81 (0,7)
+004F6:       Message-Out/C0 (Identify : LUN  0 Disconnect OK)
+004F7:       Command    /24 00 00 00 00 00 00 00 52 00 (Set Window)
+00501:          Data-Out/00 00 00 00 00 00 00 4A 00 00 00 24 00 24 00 00 
+00511:                   00 00 00 00 00 00 00 00 00 00 00 00 00 00 04 80 
+00521:                   04 05 18 00 00 80 00 00 00 00 00 00 00 00 00 00 
+00531: (000052)          00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00542:       Status     /00 (Good)
+00543:       Message-In /00 (Cmd Cmplt)
+00544: Bus Free
+00548:    Arbitration   /80 (7)
+0054A:    Select w/ATN  /81 (0,7)
+0054E:       Message-Out/C0 (Identify : LUN  0 Disconnect OK)
+0054F:       Command    /1B 00 00 00 00 00 (Start/Stop)
+00555:       Status     /00 (Good)
+00556:       Message-In /00 (Cmd Cmplt)

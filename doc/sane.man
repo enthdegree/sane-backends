@@ -211,6 +211,10 @@ scanners: IS50 and IS60. See sane-ricoh(5) for details.
 The s9036 backend provides access to Siemens 9036 flatbed scanners. See
 sane-s9036(5) for details.
 .TP
+.B sceptre
+The sceptre backend provides access to the Sceptre S1200 flatbed scanner. See
+sane-sceptre(5) for details.
+.TP
 .B sharp
 The SANE sharp backend supports Sharp SCSI scanners. See sane-sharp(5) for details.
 .TP

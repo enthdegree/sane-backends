@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-01-17"		; version of backend
+:version "2003-01-28"		; version of backend
 ;:status :stable			; :alpha, :beta, :stable, :new
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 ;:url "http://www.meier-geinitz.de/sane/mustek-backend/"
@@ -50,6 +50,12 @@
 :status :unsupported
 :comment "Not supported. However, some information is available."
 
+:model "FS4000US"
+;:url ""
+:interface "USB SCSI"
+:status :unsupported
+:comment "Not supported. USB Vendor/product 0x04a9/0x3042. May work with Vuescan."
+
 ;********************************************************************************************
 
 :mfg "Compaq"
@@ -70,6 +76,31 @@
 :interface "USB"
 :status :unsupported
 :comment "Unsupported. Vendor/product: 0x04b8/0x0114."
+
+;********************************************************************************************
+
+:mfg "Fujitsu"
+:url "http://www.fujitsu.ca/"
+
+:model "fi-4010C"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. Vendor/product: 0x04c5, 0x1029. No details about the chipset known until know."
+
+:model "fi-4110CU"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. No details about the chipset known until know."
+
+:model "fi-4120C"
+:interface "USB SCSI"
+:status :unsupported
+:comment "Unsupported. Vendor/product: 0x04c5/0x1042. No details about the chipset known until know."
+
+:model "fi-4220C"
+:interface "USB SCSI"
+:status :unsupported
+:comment "Unsupported. Vendor/product: 0x04c5/0x1041. No details about the chipset known until know."
 
 ;********************************************************************************************
 
@@ -276,6 +307,17 @@
 :interface "SCSI"
 :status :unsupported
 :comment "Not supported. However, a patch for the teco2 backend and some information is available. Model VM3564."
+
+;********************************************************************************************
+
+:mfg "Prolink"
+:url "http://www.fida.com/"
+
+:model "Winscan Pro 2448U"
+:url "http://www.mostang.com/pipermail/sane-devel/2003-January/017449.html"
+:interface "USB"
+:status :unsupported
+:comment "Not supported. Some information is available. Vendor=0x06dc product=0x0014. Is reported to use an RealTek RTS8801 chipset."
 
 ;********************************************************************************************
 

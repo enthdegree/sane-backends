@@ -1,8 +1,13 @@
+2003-01-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added Canon, Fijitsu and Prolink
+	  scanners.
+
 2003-01-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* frontend/saned.c: Fixed severe bug in saned that allowed a remote
-	  frontend to crash saned (null pointer derefence) if no scanners are
-	  connected.
+	* frontend/saned.c: Fixed severe bug in saned that allowed a
+	remote frontend to crash saned (null pointer derefence) if no
+	scanners are connected.
 
 ---- CODE FREEZE FOR SANE 1.0.10 ---
 -- snapshot 1.0.10-pre3

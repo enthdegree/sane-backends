@@ -1,3 +1,8 @@
+2001-08-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* configure configure.in: Fixed bug concerning libusb that
+	  broke compilation on NetBSD.
+
 2001-08-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* include/sane/sanei_thread.h sanei/sanei_thread.c: Updated

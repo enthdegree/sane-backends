@@ -3,6 +3,8 @@
 	* include/sane/sanei_thread.h sanei/sanei_thread.c: Updated
 	  sanei_thread functions (from Yuri Dario) and made clear that
 	  they shouldn't be used directly.
+	* include/sane/sanei_usb.h sanei/Makefile.in sanei/sanei_usb.c
+	  doc/Makefile.in doc/sane-usb.man: Added sane USB interface.
 
 2001-08-05  Peter Fales <peter@fales.com>
 

@@ -65,8 +65,16 @@
 #elif HAVE_SYS_HW_H
 # include <sys/hw.h>		/* OS/2 */
 #else
+#ifdef ENABLE_DIRECTIO
+#undef ENABLE_DIRECTIO
+#endif
+#endif
+
+/* we need either direct io or ppdev to function */
+#if ! defined ENABLE_DIRECTIO && ! defined HAVE_LINUX_PPDEV_H
 #define IO_SUPPORT_MISSING
 #endif
+
 
 #include "umax_pp_low.h"
 
@@ -138,6 +146,7 @@ static int CmdGetBlockBuffer (int cmd, int len, int window,
 
 static void Bloc2Decode (int *op);
 static void Bloc8Decode (int *op);
+void sanei_umax_pp_gamma (int *red, int *green, int *blue);
 
 
 #define WRITESLOW(x,y) \
@@ -394,7 +403,7 @@ sanei_umax_pp_InitPort (int port)
   gPort = port;
 
 #ifdef IO_SUPPORT_MISSING
-  DBG (1, "*** Direct I/O unavailable, giving up ***\n");
+  DBG (1, "*** Direct I/O or ppdev unavailable, giving up ***\n");
   return (0);
 #else
 
@@ -426,14 +435,18 @@ sanei_umax_pp_InitPort (int port)
 	  else
 	    {
 	      sprintf (strmodes, "\n");
-	      if (mode & PARPORT_MODE_COMPAT)
-		sprintf (strmodes, "%s\t\tPARPORT_MODE_COMPAT\n", strmodes);
 	      if (mode & PARPORT_MODE_PCSPP)
 		sprintf (strmodes, "%s\t\tPARPORT_MODE_PCSPP\n", strmodes);
+	      if (mode & PARPORT_MODE_TRISTATE)
+		sprintf (strmodes, "%s\t\tPARPORT_MODE_TRISTATE\n", strmodes);
 	      if (mode & PARPORT_MODE_EPP)
 		sprintf (strmodes, "%s\t\tPARPORT_MODE_EPP\n", strmodes);
 	      if (mode & PARPORT_MODE_ECP)
 		sprintf (strmodes, "%s\t\tPARPORT_MODE_ECP\n", strmodes);
+	      if (mode & PARPORT_MODE_COMPAT)
+		sprintf (strmodes, "%s\t\tPARPORT_MODE_COMPAT\n", strmodes);
+	      if (mode & PARPORT_MODE_DMA)
+		sprintf (strmodes, "%s\t\tPARPORT_MODE_DMA\n", strmodes);
 	      DBG (32, "parport modes: %X\n", mode);
 	      DBG (32, "parport modes: %s\n", strmodes);
 	      if (!(mode & PARPORT_MODE_EPP) && !(mode & PARPORT_MODE_ECP))
@@ -455,6 +468,13 @@ sanei_umax_pp_InitPort (int port)
 #endif
 	  /* prefered mode is EPP */
 	  mode = IEEE1284_MODE_EPP;
+	  mode = ioctl (fd, PPNEGOT, &mode);
+	  if (mode)
+	    {
+	      DBG (16,
+		   "umax_pp: ppdev couldn't negociate mode IEEE1284_MODE_EPP for '%s'\n",
+		   parport_name);
+	    }
 	  if (ioctl (fd, PPSETMODE, &mode))
 	    {
 	      DBG (16,
@@ -607,13 +627,8 @@ Outb (int port, int value)
 #ifdef HAVE_LINUX_PPDEV_H
   int fd, rc;
   unsigned char val;
-#endif
 
-#ifdef HAVE_SYS_HW_H
-  _outp8 (port, value);
-#else
 
-#ifdef HAVE_LINUX_PPDEV_H
   fd = sanei_umax_pp_getparport ();
   val = (unsigned char) value;
   if (fd > 0)
@@ -639,9 +654,14 @@ Outb (int port, int value)
     }
 #endif /* HAVE_LINUX_PPDEV_H */
 
+#ifdef ENABLE_DIRECTIO
+#ifdef HAVE_SYS_HW_H
+  _outp8 (port, value);
+#else
   outb (value, port);
-
 #endif /* HAVE_SYS_HW_H      */
+#endif /* ENABLE_DIRECTIO    */
+
 #endif /* IO_SUPPORT_MISSING */
 }
 
@@ -653,18 +673,13 @@ static int
 Inb (int port)
 {
   int res = 0xFF;
+#ifndef IO_SUPPORT_MISSING
+
 #ifdef HAVE_LINUX_PPDEV_H
   int fd, rc;
   unsigned char val;
-#endif
 
-#ifndef IO_SUPPORT_MISSING
 
-#ifdef HAVE_SYS_HW_H
-  res = _inp8 (port) & 0xFF;
-#else
-
-#ifdef HAVE_LINUX_PPDEV_H
   fd = sanei_umax_pp_getparport ();
   if (fd > 0)
     {
@@ -696,9 +711,13 @@ Inb (int port)
     }
 #endif /* HAVE_LINUX_PPDEV_H */
 
+#ifdef ENABLE_DIRECTIO
+#ifdef HAVE_SYS_HW_H
+  res = _inp8 (port) & 0xFF;
+#else
   res = inb (port) & 0xFF;
-
 #endif /* HAVE_SYS_HW_H */
+#endif /* ENABLE_DIRECTIO    */
 
 #endif /* IO_SUPPORT_MISSING */
   return res;
@@ -709,6 +728,7 @@ static void
 Insb (int port, unsigned char *dest, int size)
 {
 #ifndef IO_SUPPORT_MISSING
+#ifdef ENABLE_DIRECTIO
 #ifndef __i386__
   int i;
   for (i = 0; i < size; i++)
@@ -720,6 +740,7 @@ Insb (int port, unsigned char *dest, int size)
   insb (port, dest, size);
 #endif
 #endif
+#endif /* ENABLE_DIRECTIO    */
 #endif
 }
 
@@ -727,6 +748,7 @@ static void
 Outsb (int port, unsigned char *source, int size)
 {
 #ifndef IO_SUPPORT_MISSING
+#ifdef ENABLE_DIRECTIO
 #ifndef __i386__
   int i;
 
@@ -739,6 +761,7 @@ Outsb (int port, unsigned char *source, int size)
   outsb (port, source, size);
 #endif
 #endif
+#endif /* ENABLE_DIRECTIO    */
 #endif
 }
 
@@ -749,6 +772,7 @@ static void
 Insw (int port, unsigned char *dest, int size)
 {
 #ifndef IO_SUPPORT_MISSING
+#ifdef ENABLE_DIRECTIO
 #ifndef __i386__
   int i;
 
@@ -761,6 +785,7 @@ Insw (int port, unsigned char *dest, int size)
   insl (port, dest, size);
 #endif
 #endif
+#endif /* ENABLE_DIRECTIO    */
 #endif
 }
 
@@ -768,6 +793,7 @@ static void
 Outsw (int port, unsigned char *source, int size)
 {
 #ifndef IO_SUPPORT_MISSING
+#ifdef ENABLE_DIRECTIO
 #ifndef __i386__
   int i;
 
@@ -780,6 +806,7 @@ Outsw (int port, unsigned char *source, int size)
   outsw (port, source, size);
 #endif
 #endif
+#endif /* ENABLE_DIRECTIO    */
 #endif
 }
 
@@ -2998,7 +3025,7 @@ ReceiveData (int *cmd, int len)
   DBG (16, "ReceiveData, reg1C=0x%02X (%s:%d)\n", reg, __FILE__, __LINE__);
 
   /* model 0x07 has always the last bit set to 1 */
-  scannerStatus = reg & 0xFC;
+  scannerStatus = reg & 0xF8;
   reg = reg & 0x10;
   if (reg != 0x10)
     {
@@ -5927,6 +5954,24 @@ Bloc2Decode (int *op)
     DBG (0, "\t->color scan       \n");
   else
     DBG (0, "\t->no color scan    \n");
+
+  /* byte 14 */
+  if (op[14] & 0x20)
+    {
+      DBG (0, "\t->lamp on    \n");
+    }
+  else
+    {
+      DBG (0, "\t->lamp off    \n");
+    }
+  if (op[14] & 0x04)
+    {
+      DBG (0, "\t->normal scan (head stops at each row)    \n");
+    }
+  else
+    {
+      DBG (0, "\t->move and scan (head doesn't stop at each row)    \n");
+    }
   DBG (0, "\n");
 }
 
@@ -6070,6 +6115,9 @@ DumpNB (int width, int height, unsigned char *data, char *name)
   fclose (fic);
 }
 
+
+/* dump data has received from scanner (red line/green line/blue line)
+   to a color pnm file */
 static void
 DumpRVB (int width, int height, unsigned char *data, char *name)
 {
@@ -6100,6 +6148,42 @@ DumpRVB (int width, int height, unsigned char *data, char *name)
 	  fputc (data[3 * y * width + 2 * width + x], fic);
 	  fputc (data[3 * y * width + width + x], fic);
 	  fputc (data[3 * y * width + x], fic);
+	}
+    }
+  fclose (fic);
+}
+
+/* dump a color buffer in a color PNM */
+static void
+DumpRGB (int width, int height, unsigned char *data, char *name)
+{
+  FILE *fic;
+  char titre[80];
+  int y, x;
+
+  if (name == NULL)
+    {
+      sprintf (titre, "dump%04d.pnm", num);
+      num++;
+    }
+  else
+    {
+      sprintf (titre, "%s", name);
+    }
+  fic = fopen (titre, "wb");
+  fprintf (fic, "P6\n%d %d\n255\n", width, height);
+  if (fic == NULL)
+    {
+      DBG (0, "could not open %s for writing\n", titre);
+      return;
+    }
+  for (y = 0; y < height; y++)
+    {
+      for (x = 0; x < width; x++)
+	{
+	  fputc (data[3 * y * width + x * 3], fic);
+	  fputc (data[3 * y * width + x * 3 + 1], fic);
+	  fputc (data[3 * y * width + x * 3 + 2], fic);
 	}
     }
   fclose (fic);
@@ -6352,7 +6436,6 @@ Move (int distance, int precision, unsigned char *buffer)
 
 
 
-
 /* for each column, finds the row where white/black transition occurs
 	then returns the average */
 static float
@@ -6360,36 +6443,74 @@ EdgePosition (int width, int height, unsigned char *data)
 {
   int ecnt, x, y;
   float epos;
-  int d, dmax, dpos;
+  int d, dmax, dpos, i;
+  unsigned char *dbuffer = NULL;
 
+  if (DBG_LEVEL > 128)
+    {
+      dbuffer = (unsigned char *) malloc (3 * width * height);
+      memset (dbuffer, 0x00, 3 * width * height);
+    }
   epos = 0;
   ecnt = 0;
   for (x = 0; x < width; x++)
     {
-      /* first edge: white->black */
+      /* edge: white->black drop  */
+      /* loop stops on black area */
       dmax = 0;
       dpos = 0;
-      for (y = 1; y < height; y++)
+      d = 0;
+      i = 0;
+      for (y = 10; (y < height) && (data[i] > 10); y++)
 	{
-	  d = data[x + (y - 1) * width] - data[x + y * width];
+	  i = x + y * width;
+	  d = data[i - width] - data[i];
 	  if (d > dmax)
 	    {
 	      dmax = d;
 	      dpos = y;
 	    }
+	  if ((DBG_LEVEL > 128) && (dbuffer != NULL))
+	    {
+	      dbuffer[i * 3] = data[i];
+	      dbuffer[i * 3 + 1] = data[i];
+	      dbuffer[i * 3 + 2] = data[i];
+	    }
 	}
-      if (dmax > 0)
+      epos += dpos;
+      ecnt++;
+      if ((DBG_LEVEL > 128) && (dbuffer != NULL))
 	{
-	  epos += dpos;
-	  ecnt++;
+	  dbuffer[(x + dpos * width) * 3] = 0xFF;
+	  dbuffer[(x + dpos * width) * 3 + 1] = 0x00;
+	  dbuffer[(x + dpos * width) * 3 + 2] = 0x00;
 	}
     }
   if (ecnt == 0)
     epos = 70;
   else
     epos = epos / ecnt;
+  if ((DBG_LEVEL > 128) && (dbuffer != NULL))
+    {
+      i = ((int) epos) * width;
+      for (x = 0; x < width; x++)
+	{
+	  dbuffer[(x + i) * 3] = 0x00;
+	  dbuffer[(x + i) * 3 + 1] = 0xFF;
+	  dbuffer[(x + i) * 3 + 2] = 0xFF;
+	}
+      for (y = 0; y < height; y++)
+	{
+	  dbuffer[(width / 2 + y * width) * 3] = 0x00;
+	  dbuffer[(width / 2 + y * width) * 3 + 1] = 0xFF;
+	  dbuffer[(width / 2 + y * width) * 3 + 2] = 0x00;
+	}
+      DumpRGB (width, height, dbuffer, NULL);
+      free (dbuffer);
+    }
   return (epos);
 }
+
 
 
 static int
@@ -6467,13 +6588,13 @@ MoveToOrigin (void)
     }
   edge = EdgePosition (300, 180, buffer);
   /* rounded to lowest integer, since upping origin might lead */
-  /* to bump in the other side if doing a preview              */
+  /* to bump in the other side if doing a full size preview    */
   val = (int) (edge);
 
   /* edge is 60 dots (at 600 dpi) from origin */
   /* origin=current pos - 180 + edge + 60     */
   /* grumpf, there is an offset somewhere ... */
-  delta = -180 + edge - 8;
+  delta = -188 + val;
   DBG (64, "Edge=%f, val=%d, delta=%d\n", edge, val, delta);
 
   /* move back to y-coordinate origin */
@@ -7314,6 +7435,13 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
     0x41, 0xA0, 0x0A, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x33, 0x1A, 0x00,
     -1
   };
+#ifdef UMAX_PP_DANGEROUS_EXPERIMENT
+  FILE *f = NULL;
+  char line[1024], *ptr;
+  int *base = NULL;
+  int channel;
+  int max = 0;
+#endif
 
   DBG (8, "StartScan(%d,%d,%d,%d,%d,%d,%X);\n", x, y, width, height, dpi,
        color, gain);
@@ -7560,19 +7688,17 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
     {
     case 1200:
       opsc53[6] = 0x60;
-      opsc53[8] = 0x5F;		/* test value */
-      opsc53[8] = 0x5E;		/* old value */
-      opsc53[8] = 0x5C;		/* new working value */
+      opsc53[8] = 0x5F;
       opsc53[9] = 0x05;
-      opsc53[14] = opsc53[14] & 0xF0;
+      /*opsc53[14] = opsc53[14] & 0xF0;  ~ 0x08 -> scan AND move */
       /*opsc53[14] = (opsc53[14] & 0xF0) | 0x04;         -> 600 dpi ? */
+      /*opsc53[14] = (opsc53[14] & 0xF0) | 0x0C; */
       opsc53[14] = (opsc53[14] & 0xF0) | 0x0C;
       break;
 
     case 600:
       opsc53[6] = 0x60;
-      opsc53[8] = 0x2E;		/* new working value */
-      opsc53[8] = 0x2F;		/* old value */
+      opsc53[8] = 0x2F;
       opsc53[9] = 0x05;
       opsc53[14] = (opsc53[14] & 0xF0) | 0x04;
       break;
@@ -7672,12 +7798,64 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
 
 
   CMDSYNC (0x00);
+#ifdef UMAX_PP_DANGEROUS_EXPERIMENT
   /*opsc53[13] = 0x80;           B&W bit */
   /*opsc53[13] = 0x40;           green bit */
   /*opsc53[13] = 0x20;           red bit */
   /*opsc53[13] = 0x10;           blue bit */
   /* with cmd 01, may be use to do 3 pass scanning ? */
   /* bits 0 to 3 seem related to sharpness */
+  f = fopen ("dangerous.params", "rb");
+  if (f != NULL)
+    {
+      while (!feof (f))
+	{
+	  fgets (line, 1024, f);
+	  channel = 0;
+	  if (sscanf (line, "CMD%1d", &channel) != 1)
+	    channel = 0;
+	  switch (channel)
+	    {
+	    case 0:
+	      break;
+	    case 1:
+	      base = opsc04;
+	      max = 8;
+	      break;
+	    case 2:
+	      base = opsc53;
+	      max = 16;
+	      break;
+	    case 8:
+	      base = opscan;
+	      max = 36;
+	      break;
+	    default:
+	      printf ("WARNING: unknown channel %d\n", channel);
+	      channel = 0;
+	    }
+	  if (channel > 0)
+	    {
+	      printf ("Channel %d:", channel);
+	      ptr = line + 6;
+	      for (i = 0; (i < max) && ((ptr - line) < strlen (line)); i++)
+		{
+		  if (ptr[0] != '-')
+		    {
+		      sscanf (ptr, "%02X", base + i);
+		      printf ("*");
+		    }
+		  else
+		    printf (" ");
+		  ptr += 3;
+		  printf ("0x%02X ", base[i]);
+		}
+	      printf ("\n");
+	    }
+	}
+      fclose (f);
+    }
+#endif
 
 
   CMDSETGET (2, 0x10, opsc53);

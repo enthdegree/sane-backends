@@ -81,6 +81,7 @@ lock_parport (void)
 	exflags = 0;
 #endif
       mode = IEEE1284_MODE_EPP;
+      ioctl (fd, PPNEGOT, &mode);
       ioctl (fd, PPSETMODE, &mode);
       if (ioctl (sanei_umax_pp_getparport (), PPCLAIM))
 	{
@@ -100,11 +101,13 @@ static int
 unlock_parport (void)
 {
 #ifdef HAVE_LINUX_PPDEV_H
-  int fd;
+  int fd, mode;
 
   fd = sanei_umax_pp_getparport ();
   if ((fd > 0) && (locked))
     {
+      mode = IEEE1284_MODE_COMPAT;
+      ioctl (fd, PPNEGOT, &mode);
       ioctl (fd, PPSETMODE, &exmode);
 #ifdef PPSETFLAGS
       ioctl (fd, PPSETFLAGS, &exflags);

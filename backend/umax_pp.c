@@ -424,7 +424,7 @@ init_options (Umax_PP_Device * dev)
   dev->opt[OPT_CUSTOM_GAMMA].title = SANE_TITLE_CUSTOM_GAMMA;
   dev->opt[OPT_CUSTOM_GAMMA].desc = SANE_DESC_CUSTOM_GAMMA;
   dev->opt[OPT_CUSTOM_GAMMA].type = SANE_TYPE_BOOL;
-  dev->opt[OPT_CUSTOM_GAMMA].cap |= SANE_CAP_ADVANCED ;
+  dev->opt[OPT_CUSTOM_GAMMA].cap |= SANE_CAP_ADVANCED;
   dev->val[OPT_CUSTOM_GAMMA].w = SANE_FALSE;
 
   /* grayscale gamma vector */
@@ -592,8 +592,7 @@ init_options (Umax_PP_Device * dev)
 
 
 
-SANE_Status
-sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
+SANE_Status sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
   char dev_name[512];
   const char *cp;
@@ -815,7 +814,8 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 		   val);
 	      green_highlight = val;
 	    }
-	  else if (strncmp (cp, "blue-highlight", 14) == 0 && isspace (cp[14]))
+	  else if (strncmp (cp, "blue-highlight", 14) == 0
+		   && isspace (cp[14]))
 	    {
 	      char *end;
 	      long int val;
@@ -968,8 +968,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   return SANE_STATUS_GOOD;
 }
 
-SANE_Status
-sane_open (SANE_String_Const devicename, SANE_Handle * handle)
+SANE_Status sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 {
   Umax_PP_Device *dev;
   Umax_PP_Descriptor *desc;
@@ -1157,7 +1156,7 @@ sane_close (SANE_Handle handle)
 	}
     }
 
-      sanei_umax_pp_close ();
+  sanei_umax_pp_close ();
 
 
 
@@ -1635,8 +1634,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 }
 
 
-SANE_Status
-sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
+SANE_Status sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 {
   Umax_PP_Device *dev = handle;
   int dpi, remain;
@@ -1791,8 +1789,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 }
 
 
-SANE_Status
-sane_start (SANE_Handle handle)
+SANE_Status sane_start (SANE_Handle handle)
 {
   Umax_PP_Device *dev = handle;
   int rc;
@@ -2043,8 +2040,7 @@ sane_cancel (SANE_Handle handle)
     }
 }
 
-SANE_Status
-sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
+SANE_Status sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 {
   DBG (129, "unused arg: handle = %p, non_blocking = %d\n",
        handle, (int) non_blocking);
@@ -2054,8 +2050,7 @@ sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
   return SANE_STATUS_UNSUPPORTED;
 }
 
-SANE_Status
-sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
+SANE_Status sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
 {
 
   DBG (129, "unused arg: handle = %p, fd = %p\n", handle, fd);

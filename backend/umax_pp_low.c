@@ -4408,7 +4408,6 @@ sanei_umax_pp_ProbeScanner (int recover)
   if (TestVersion (0) == 0)
     {
       DBG (0, "TestVersion(0) (%s:%d) failed ...\n", __FILE__, __LINE__);
-      return (0);
     }
   DBG (16, "TestVersion(0) passed...\n");
   /* must fail for 1220P and 2000P */
@@ -4425,7 +4424,6 @@ sanei_umax_pp_ProbeScanner (int recover)
   if (TestVersion (0) == 0)
     {
       DBG (0, "TestVersion(0) (%s:%d) failed ...\n", __FILE__, __LINE__);
-      return (0);
     }
   DBG (16, "TestVersion(0) passed...\n");
   /* must fail */

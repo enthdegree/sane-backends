@@ -1,3 +1,16 @@
+2002-04-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/canon_pp.c backend/canon_pp-dev.c backend/canon_pp-io.c
+	  backend/canon_pp-dev.h: Changed timeouts and added scanner sleeps 
+	  to improve reliability of 6x0P models.  Also corrected typo which 
+	  caused full bed scans to fail.  Disabled problematic detect for now, 
+	  will make detection slightly slower. Patch from Matthew Duggan 
+	  <stauff1@users.sourceforge.net>.
+	* doc/descriptions/canon_pp.desc: Added man page, incremented version.
+	  Patch from Matthew Duggan <stauff1@users.sourceforge.net>.
+	* doc/sane-canon_pp.man: Added more hints on getting canon_pp driver
+	  working. Patch from Matthew Duggan <stauff1@users.sourceforge.net>.
+
 2002-04-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/mustek.c doc/descriptions/mustek.desc 

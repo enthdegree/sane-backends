@@ -113,6 +113,7 @@ DISTFILES = abaton.c abaton.conf abaton.h agfafocus.c agfafocus.conf \
   Makefile.in matsushita.c \
   matsushita.conf matsushita.h microtek2.c microtek2.conf microtek2.h \
   microtek.c microtek.conf microtek.h mustek.c mustek.conf mustek.h \
+  mustek_pp_ccd.c mustek_pp_ccd.conf mustek_pp_ccd.h \
   mustek_pp.c mustek_pp.conf mustek_pp.h mustek_pp_cis.c mustek_pp_cis.h \
   mustek_pp_decl.h mustek_pp_drivers.h mustek_pp_null.c mustek_pp_ccd300.c \
   mustek_pp_ccd300.h mustek_usb.c mustek_usb.conf \
@@ -345,6 +346,8 @@ libsane-mustek.la: ../sanei/sanei_scsi.lo
 libsane-mustek.la: ../sanei/sanei_ab306.lo
 libsane-mustek_pp.la: ../sanei/sanei_constrain_value.lo
 libsane-mustek_pp.la: ../sanei/sanei_pa4s2.lo
+libsane-mustek_pp_ccd.la: ../sanei/sanei_constrain_value.lo
+libsane-mustek_pp_ccd.la: ../sanei/sanei_pa4s2.lo
 libsane-mustek_usb.la: ../sanei/sanei_constrain_value.lo
 libsane-mustek_usb.la: ../sanei/sanei_usb.lo
 libsane-nec.la: ../sanei/sanei_config2.lo

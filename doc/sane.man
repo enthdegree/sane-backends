@@ -1,4 +1,4 @@
-.TH sane 7 "30 Sept 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane 7 "3 Oct 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane
 
 .SH NAME
@@ -308,8 +308,14 @@ for details.
 .TP
 .B mustek_pp
 The mustek_pp backend provides access to Mustek parallel port flatbed
-scanners. See
+scanners with a CIS sensor. See
 .BR sane\-mustek_pp (5)
+for details.
+.TP
+.B mustek_pp_ccd
+The mustek_pp_ccd backend provides access to Mustek parallel port flatbed
+scanners with a CCD sensor. See
+.BR sane\-mustek_pp_ccd (5)
 for details.
 .TP
 .B mustek_usb
@@ -761,6 +767,7 @@ for details).
 .BR sane\-microtek (5),
 .BR sane\-mustek (5),
 .BR sane\-mustek_pp (5),
+.BR sane\-mustek_pp_ccd (5),
 .BR sane\-mustek_usb (5),
 .BR sane\-nec (5),
 .BR sane\-net (5),

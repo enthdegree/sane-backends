@@ -46,6 +46,7 @@ Backends:
  mustek:        Andreas Bolsch, David Mosberger, Andreas Czechanowski and
                 Henning Meier-Geinitz (*)
  mustek_pp:     Jochen Eisinger (*), Eddy De Greef (*)
+ mustek_pp_ccd: Jochen Eisinger (*)
  mustek_usb:    Tom Wang and Henning Meier-Geinitz (*)
  nec:           Kazuya Fukuda (*)
  net:           Andreas Beck and David Mosberger

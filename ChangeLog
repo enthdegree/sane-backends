@@ -2,6 +2,8 @@
 	
 	* doc/descriptions/mustek_usb.desc: Added "ScanExpress" for all models
 	  to avoid confusion with BearPaw models.
+	* Makefile.in: Added ChangeLog-1.0.6 ChangeLog-1.0.7 ChangeLog-1.0.8
+	  to DISTFILES.
 
 2002-09-29  Karl Heinz Kremer <khk@khk.net>
 

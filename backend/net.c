@@ -42,7 +42,7 @@
 
 /* Please increase version number with every change 
    (don't forget to update net.desc) */
-#define NET_VERSION "1.0.1"
+#define NET_VERSION "1.0.2"
 
 #ifdef _AIX
 # include "lalloca.h"		/* MUST come first for AIX! */
@@ -349,7 +349,7 @@ SANE_Status sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
       saned_port = htons (6566);
       DBG (1,
 	   "sane_init: could not find `sane' service (%s); using default port %d\n",
-	   strerror (errno), htons (saned_port));
+	   strerror (errno), ntohs (saned_port));
     }
 
   fp = sanei_config_open (NET_CONFIG_FILE);
@@ -360,8 +360,6 @@ SANE_Status sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	  if (device_name[0] == '#')	/* ignore line comments */
 	    continue;
 	  len = strlen (device_name);
-	  if (device_name[len - 1] == '\n')
-	    device_name[--len] = '\0';
 
 	  if (!len)
 	    continue;		/* ignore empty lines */

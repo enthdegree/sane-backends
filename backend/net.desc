@@ -1,5 +1,5 @@
 :backend "net"               ; name of backend
-:version "1.0.1"
+:version "1.0.2"
 :status :beta
 :manpage "sane-net"
 :url "mailto:jochen.eisinger@gmx.net"

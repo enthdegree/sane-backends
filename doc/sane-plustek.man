@@ -1,4 +1,4 @@
-.TH sane-plustek 5 "10 November 2000"
+.TH sane-plustek 5 "30 November 2000"
 .IX sane-plustek
 .SH NAME
 sane-plustek - SANE backend for Plustek parallel port flatbed scanners
@@ -124,7 +124,7 @@ See the plustek.conf file for examples.
 .SH CONFIGURATION
 .PP
 As the driver is a loadable kernel module, it is configured
-by invoking insmod with the approriate parameters or
+by invoking insmod with the appropriate parameters or
 appending the options to the file
 .B /etc/conf.modules
 .PP

@@ -10,7 +10,7 @@
 ;
 
 :backend "plustek"              ; name of backend
-:version "0.37"                 ; version of backend
+:version "0.38"                 ; version of backend
 :status :stable                 ; :alpha, :beta, :stable, :new
 :manpage "sane-plustek"         ; name of manpage (if it exists)
 

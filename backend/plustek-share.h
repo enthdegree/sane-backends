@@ -11,6 +11,9 @@
  * 0.36 - initial version
  * 0.37 - updated scanner info list
  *        removed override switches
+ * 0.38 - changed the dwFlag entry in ScannerCaps and its meaning
+ *        changed _NO_BASE
+ *        fixed model list
  *
  *.............................................................................
  *
@@ -213,7 +216,8 @@ typedef struct {
     "12000P/96000P",			\
     "9636P+/Turbo",				\
     "9636T/12000T",				\
-	"P12"						\
+	"P8",						\
+	"P12",						\
 	"PT12"						\
 }
 
@@ -247,15 +251,16 @@ typedef struct {
 #define _BITS_12				0x00000003
 
 /* (1.2): SCANNERINFO.dwFlag */
-#define SFLAG_ADF		    	0x00000001
-#define SFLAG_Calibrate 	    0x00000002
-#define SFLAG_MultiFunction	    0x00000004		/* Keypad support			*/
-#define SFLAG_SheetFed		    0x00000008
-#define SFLAG_HardwareMap	    0x00000010
-#define SFLAG_Transparency	    0x00000020		/* supports transparency	*/
-#define SFLAG_Negative		    0x00000040		/* supports negative		*/
-#define SFLAG_QualityScan	    0x00000080		/* has quality scan mode	*/
-#define SFLAG_MessageVxD	    0x00000080		/* has quality scan mode	*/
+#define SFLAG_MULTIFUNC         0x00000001  /* is multifunction device      */
+#define SFLAG_SCANNERDEV        0x00000002  /* is scannerdevice             */
+#define SFLAG_FLATBED           0x00000004  /* is flatbed scanner           */
+#define SFLAG_PRINTEROPT        0x00000008  /* has printer option           */
+
+#define SFLAG_ADF		    	0x00000010  /* Automatic document feeder    */
+#define SFLAG_MFP       	    0x00000020	/* MF-Keypad support		    */
+#define SFLAG_SheetFed		    0x00000040  /* Sheetfed support             */
+#define SFLAG_TPA       	    0x00000080	/* has transparency	adapter     */
+#define SFLAG_BUTTONOPT         0x00000100  /* has buttons                  */
 
 /*
  * (1.2.1) Provide the scanner ID. This field is valid when the wIOBase
@@ -265,7 +270,7 @@ typedef struct {
 #define SFLAG_IDMask		    0x00f00000		/* Scanner ID				*/
 
 /* (1.3): SCANNERINFO.wIOBase */
-#define _NO_BASE	0
+#define _NO_BASE	0xFFFF
 
 /******************************************************************************
  * Section 2
@@ -295,6 +300,7 @@ typedef struct {
 #define SCANDEF_RightAlign	    	0x00008000	/* 12-bit					 */
 
 #define SCANDEF_WindowStyle	    	0x00000038
+#define SCANDEF_TPA                 (SCANDEF_Transparency | SCANDEF_Negative)
 
 /* these values will be combined with ScannerInfo.dwFlag */
 #define _SCANNER_SCANNING	    	0x8000000
@@ -354,6 +360,7 @@ typedef struct {
 /******************************************************************************
  * Section 5 - Scanmodes
  */
+#define _ScanMode_Color         0
 #define _ScanMode_AverageOut	1	/* CCD averaged 2 pixels value for output*/
 #define _ScanMode_Mono			2   /* not color mode						 */
 #define _FastScanMode			_ScanMode_AverageOut

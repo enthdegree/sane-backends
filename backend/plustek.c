@@ -32,6 +32,7 @@
  *        applied Michaels' patch to solve the sane_get_parameter problem
  *        getting X-size of scan area from driver
  *        applied Michaels´ patch for OPT_RESOLUTION (SANE_INFO_INEXACT stuff)
+ * 0.38 - now using the information from the driver
  *
  *.............................................................................
  *
@@ -101,8 +102,8 @@
 #include "sane/sanei_backend.h"
 #include "sane/sanei_config.h"
 
-#include "plustek.h"
 #include "plustek-share.h"
+#include "plustek.h"
 
 /*********************** the debug levels ************************************/
 
@@ -135,7 +136,7 @@ static ModeParam mode_params[] =
   {1, 16, COLOR_TRUE36},
 };
 
-static ModeParam mode_9636_params[] =
+static ModeParam mode_9800x_params[] =
 {
   {0, 1,  COLOR_BW},
   {0, 1,  COLOR_HALFTONE},
@@ -154,7 +155,7 @@ static const SANE_String_Const mode_list[] =
 	NULL
 };
 
-static const SANE_String_Const mode_9636_list[] =
+static const SANE_String_Const mode_9800x_list[] =
 {
 	"Binary",
 	"Halftone",
@@ -274,10 +275,9 @@ static pModeParam getModeList( Plustek_Scanner *scanner )
 {
 	pModeParam mp;
 
-	if((MODEL_OP_9636T  == scanner->hw->model) ||
-	   (MODEL_OP_9636P  == scanner->hw->model) ||
-	   (MODEL_OP_9636PP == scanner->hw->model)) {
-		mp = mode_9636_params;	
+	if((_ASIC_IS_98003 == scanner->hw->caps.AsicID) ||
+       (_ASIC_IS_98001 == scanner->hw->caps.AsicID)) {
+		mp = mode_9800x_params;	
 	} else {
 		mp = mode_params;	
 	}
@@ -437,7 +437,7 @@ static SANE_Status limitResolution( Plustek_Device *dev )
 	 *		   Note: the limit for the Asic 96001/3 models is limited to the
 	 *				 X-Resolution
 	 */
-	if( _ASIC_IS_98001 == dev->asic ) {
+	if( _ASIC_IS_98001 == dev->caps.AsicID ) {
 		dev->dpi_range.max = lens.rDpiY.wPhyMax;
 	} else {
 		dev->dpi_range.max = lens.rDpiX.wPhyMax;
@@ -492,10 +492,9 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	s->opt[OPT_MODE].size  = 32;
 	s->opt[OPT_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
 
-	if((MODEL_OP_9636T  == s->hw->model) ||
-	   (MODEL_OP_9636P  == s->hw->model) ||
-	   (MODEL_OP_9636PP == s->hw->model)) {
-		s->opt[OPT_MODE].constraint.string_list = mode_9636_list;
+	if((_ASIC_IS_98001  == s->hw->caps.AsicID) ||
+       (_ASIC_IS_98003  == s->hw->caps.AsicID)) {
+		s->opt[OPT_MODE].constraint.string_list = mode_9800x_list;
 	} else {
 		s->opt[OPT_MODE].constraint.string_list = mode_list;
 	}
@@ -612,8 +611,10 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	s->opt[OPT_BR_Y].constraint.range = &s->hw->y_range;
 	s->val[OPT_BR_Y].w = SANE_FIX(_DEFAULT_BRY);
 
-	/* CHANGE: disable some settings for the 9636T and the other models */
-	if(MODEL_OP_9636T != s->hw->model) {
+	/* disable extended mode list for devices without TPA */
+	DBG(_DBG_SANE_INIT, "0x%08lx\n", s->hw->caps.dwFlag );
+
+	if( 0 == (s->hw->caps.dwFlag & SFLAG_TPA)) {
 		s->opt[OPT_EXT_MODE].cap |= SANE_CAP_INACTIVE;
 	}
 
@@ -684,12 +685,21 @@ static SANE_Status attach( const char *dev_name, Plustek_Device **devp )
 	dev->sane.vendor = "Plustek";
 	dev->sane.type   = "flatbed scanner";
 
-
 	/* save the info we got from the driver */
-	dev->model  = scaps.Model;
-	dev->asic   = scaps.AsicID;
-	dev->max_x  = scaps.wMaxExtentX*MM_PER_INCH/_MEASURE_BASE;
-	dev->max_y  = scaps.wMaxExtentY*MM_PER_INCH/_MEASURE_BASE;
+    dev->caps = scaps;
+
+	DBG( _DBG_INFO, "Scanner information:\n" );
+    if( dev->caps.Model <= MODEL_OP_PT12 )
+    	DBG( _DBG_INFO, "Model  : %s\n", ModelStr[dev->caps.Model] );
+    else
+    	DBG( _DBG_INFO, "Model  : %s\n", ModelStr[0] );
+
+	DBG( _DBG_INFO, "Asic   : 0x%02x\n", dev->caps.AsicID );
+	DBG( _DBG_INFO, "Flags  : 0x%08lx\n", dev->caps.dwFlag );
+	DBG( _DBG_INFO, "Version: 0x%08x\n", dev->caps.Version );
+
+	dev->max_x = scaps.wMaxExtentX*MM_PER_INCH/_MEASURE_BASE;
+	dev->max_y = scaps.wMaxExtentY*MM_PER_INCH/_MEASURE_BASE;
 
 	dev->res_list = (SANE_Int *) calloc(((lens.rDpiX.wMax -_DEF_DPI)/25 + 1),
 			     sizeof (SANE_Int));  /* one more to avoid a buffer overflow */
@@ -720,9 +730,9 @@ static SANE_Status attach( const char *dev_name, Plustek_Device **devp )
 
 	/* error, give asic # */
 	if (scaps.Model > sizeof (ModelStr) / sizeof (*ModelStr)) {
-		sprintf (str, "ASIC ID = 0x%x",  scaps.AsicID);
+		sprintf(str, "ASIC ID = 0x%x",  scaps.AsicID);
 	} else {
-		sprintf (str, ModelStr[scaps.Model]);  /* lookup model string */
+		sprintf(str, ModelStr[scaps.Model]);  /* lookup model string */
 	}
 
 	dev->sane.model = str;
@@ -1124,10 +1134,9 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
    					s->val[OPT_BR_X].w = SANE_FIX(_DEFAULT_BRX);
 					s->val[OPT_BR_Y].w = SANE_FIX(_DEFAULT_BRY);
 
-					if((MODEL_OP_9636T  == s->hw->model) ||
-					   (MODEL_OP_9636P  == s->hw->model) ||
-					   (MODEL_OP_9636PP == s->hw->model)) {
-						s->opt[OPT_MODE].constraint.string_list = mode_9636_list;
+                	if((_ASIC_IS_98001  == s->hw->caps.AsicID) ||
+                       (_ASIC_IS_98003  == s->hw->caps.AsicID)) {
+						s->opt[OPT_MODE].constraint.string_list = mode_9800x_list;
 					} else {
 						s->opt[OPT_MODE].constraint.string_list = mode_list;
 					}
@@ -1154,9 +1163,9 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 						s->val[OPT_BR_Y].w = SANE_FIX(_DEFAULT_NEG_BRY);
 					}
 
-					if( MODEL_OP_9636T == s->hw->model ) {
+					if( s->hw->caps.dwFlag & SFLAG_TPA ) {
 						s->opt[OPT_MODE].constraint.string_list =
-											&mode_9636_list[_TPAModeSupportMin];
+											&mode_9800x_list[_TPAModeSupportMin];
 					} else {
 						s->opt[OPT_MODE].constraint.string_list =
 												&mode_list[_TPAModeSupportMin];

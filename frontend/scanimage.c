@@ -1012,6 +1012,7 @@ scan_it (void)
   static const char *format_name[] = {
     "gray", "RGB", "red", "green", "blue"
   };
+  SANE_Word total_bytes = 0, expected_bytes;
 
   do
     {
@@ -1123,6 +1124,7 @@ scan_it (void)
       while (1)
 	{
 	  status = sane_read (device, buffer, sizeof (buffer), &len);
+	  total_bytes += (SANE_Word) len;
 	  if (status != SANE_STATUS_GOOD)
 	    {
 	      if (verbose && parm.depth == 8)
@@ -1213,6 +1215,19 @@ cleanup:
   sane_cancel (device);
   if (image.data)
     free (image.data);
+
+  expected_bytes = parm.bytes_per_line * parm.lines * 
+    ((parm.format == SANE_FRAME_RGB || parm.format == SANE_FRAME_GRAY)?1:3);
+  if (parm.lines < 0)
+    expected_bytes = 0;
+  if (total_bytes > expected_bytes && expected_bytes != 0)
+    {
+      fprintf (stderr,
+	       "%s: WARNING: read more data than announced by backend "
+	       "(%u/%u)\n", prog_name, total_bytes, expected_bytes);
+    }
+  else if (verbose)
+    fprintf (stderr, "%s: read %u bytes in total\n", prog_name, total_bytes);
 
   return status;
 }

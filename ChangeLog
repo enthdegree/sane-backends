@@ -1,3 +1,8 @@
+2002-11-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* po/Makefile.in po/epson.sv.po po/saneopts.sv.po: Added Swedish
+	  translation (from Dennis Björklund <db@zigo.dhs.org>).
+
 2002-11-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* configure configure.in backend/canon630u.c backend/dll.c

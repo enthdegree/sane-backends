@@ -66,7 +66,8 @@ DISTFILES = Makefile.in README epson.de.po epson.ru.po gt68xx.de.po \
   saneopts.de.po saneopts.ru.po saneopts.fr.po saneopts.es.po \
   sceptre.fr.po sceptre.ru.po teco1.fr.po teco1.ru.po \
   umax.de.po umax.fr.po umax.ru.po umax_pp.fr.po umax_pp.ru.po umax_pp.de.po \
-  snapscan.de.po snapscan.ru.po artec_eplus48u.de.po
+  snapscan.de.po snapscan.ru.po artec_eplus48u.de.po \
+  saneopts.sv.po epson.sv.po
 
 .PHONY: all clean depend dist distclean install install-translations \
   uninstall update-mo update-po generate-%

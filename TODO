@@ -1,11 +1,10 @@
-TODO (2001-01-09)
+TODO (2001-01-21)
 
 ******** todo ********
 
 backends
 --------
   * Add new backends (?)
-    - bh http://www.martoneconsulting.com/sane-bh.html
     - Polaroid SprintScan 35 LE [should be included into microtek] 
       Dick Bruijn <dick@wau.mis.ah.nl>
     - primax http://primax.sourceforge.net/
@@ -19,7 +18,7 @@ backends
       http://www.abaforum.es/martim/bird/otlinux.htm
     - Mustek 1200 UB backend
       ftp://ftp.mustek.com.tw/pub/driver/1200UB/Linux/
-    - bearpaw (Mustek BearPaw)
+    - bearpaw (Mustek BearPaw 1200 + maybe 2400)
       Henning Meier-Geinitz <hmg@gmx.de>
 
   * Update backends
@@ -56,6 +55,9 @@ backends
 
   * nec: Check for HAVE_SYS_SHM_H before including sys/shm.h and
     disable shared memory support if necessary.
+
+  * v4l: Problems (crash) with more than one video card. It looks like 
+    the two different cards are identified as the same card.
 
 doc
 ---
@@ -124,6 +126,7 @@ misc
   * Check all manpages for references to find-scanner (->sane-find-scanner).
 
 ******** done ********
+* Add new backends: bh http://www.martoneconsulting.com/sane-bh.html
 * Add manpage for find-scanner.
 * Should find-scanner be installed?
 * net backend segfaults sometimes when connected to localhost. Enabling

@@ -42,7 +42,7 @@ Backends:
  microtek2:     Bernd Schroeder, Karsten Festag (*)
  mustek:        Andreas Bolsch, David Mosberger, Andreas Czechanowski and
                 Henning Meier-Geinitz (*)
- mustek_pp:     Jochen Eisinger (*)
+ mustek_pp:     Jochen Eisinger (*), Eddy De Greef (*)
  mustek_usb:    Tom Wang and Henning Meier-Geinitz (*)
  nec:           Kazuya Fukuda (*)
  net:           Andreas Beck and David Mosberger
@@ -119,6 +119,7 @@ David Huggins-Daines <bn711@freenet.carleton.ca>
 David Mosberger <David.Mosberger@acm.org>
 David Stevenson <david.stevenson@zoom.co.uk>
 Didier Carlier <didier@sema.be>
+Eddy De Greef <eddy_de_greef@tiscalinet.be>
 Eugene S. Weiss <yossarian@users.sourceforge.net>
 Feico W. Dillema <dillema@acm.org>
 Franck Schneider <schnefra@hol.fr>

@@ -1,3 +1,16 @@
+2003-01-12  Jochen Eisinger <jochen.eisinger@gmx.de>
+
+	* doc/sane-mustek_pp.man, doc/descriptions/mustek_pp.desc,
+	  backend/mustek_pp*: replaced the old mustek_pp backend with
+	  version 12-alpha. This version fully supports CIS scanners but
+	  removes support for 600dpi CCD scanners and the 300dpi CCD
+	  support isn't yet working. In contrary to the old backend, this
+	  version is based on information provided by Mustek. For now,
+	  the backend exports lots of illegal symbols, this will be fixed
+	  before code freeze. Also the .desc file is empty and will be updated
+	  soon.
+	* AUTHORS: added Eddy De Greef who wrote the CIS hardware driver part
+
 2003-01-12  Abel Deuring <a.deuring@satzbau-gmbh.de>
 	* backend/sharp.*: fixed a segfault, when the SCAN command returned
           an error; optional "relaxed" handling of transparency unit errors.

@@ -1,5 +1,5 @@
 /* sane - Scanner Access Now Easy.
-   Copyright (C) 2000 Jochen Eisinger <jochen.eisinger@gmx.net>
+   Copyright (C) 2000-2003 Jochen Eisinger <jochen.eisinger@gmx.net>
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -41,43 +41,176 @@
 #ifndef mustek_pp_h
 #define mustek_pp_h
 
-#include <sys/types.h>
-#include <sys/time.h>
+#if defined(HAVE_SYS_TYPES_H)
+# include <sys/types.h>
+#endif
+#if defined(HAVE_SYS_TIME_H)
+# include <sys/time.h>
+#endif
    
+#define DEBUG_NOT_STATIC
 #include "../include/sane/sanei_debug.h"
 
-/* #define for user authentification */
-/* #undef	HAVE_AUTHORIZATION */
+/* Please note: ASSERT won't go away if you define NDEBUG, it just won't
+ * output a message when ASSERT failes. So if "cond" does anything, it will
+ * be executed, even if NDEBUG is defined... 
+ */
+#define	ASSERT(cond, retval)	do { 					\
+				if (!(cond)) { 				\
+					DBG(2, "assertion %s failed\n",	\
+					STRINGIFY(cond));		\
+					if (retval >= 0)		\
+						return retval;		\
+					else				\
+						return;			\
+				}					\
+				}
 
-/* #define for invert option */
-/* #undef	HAVE_INVERSION */
-
-/* #define if you want to patch for ASIC 1505 */
-/* #undef	PATCH_MUSTEK_PP_1505 */
-
-#ifdef HAVE_AUTHORIZATION
-
-#define MAX_LINE_LEN	512
-
-  /* Here are the usernames and passwords stored
-   * the file name is relative to SANE_CONFIG_DIR */
-
-#define PASSWD_FILE	".auth"
-#define SEPARATOR	':'
-
-#define SALT		"je"
-
+/* This macro uses a otherwise unused argument */
+#if defined(__GNUC__)
+# define __UNUSED__	__attribute__ ((unused))
+#else
+# define __UNUSED__
 #endif
 
-enum Mustek_PP_Option
+
+/* the function init uses this callback to register a device to the backend */
+typedef SANE_Status (*SANE_Attach_Callback) (SANE_String_Const port, SANE_String_Const name,
+						SANE_Int driver, SANE_Int info);
+
+typedef struct {
+
+	const char		*driver;
+	const char		*author;
+	const char		*version;
+
+	/* this function detects the presence of a scanner at the
+	 * given location */
+	SANE_Status		(*init)(SANE_Int options,
+					SANE_String_Const port,
+					SANE_String_Const name,
+					SANE_Attach_Callback attach);
+	/* this function returns the informationen needed to set up
+	 * the device entry. the info parameter is passed from
+	 * init to the attach_callback to this function, to
+	 * help to identify the device, before it is registered
+	 */
+	void			(*capabilities)(SANE_Int info,
+						SANE_String *model,
+						SANE_String *vendor,
+						SANE_String *type,
+						SANE_Int *maxres,
+						SANE_Int *minres,
+						SANE_Int *maxhsize,
+						SANE_Int *maxvsize,
+						SANE_Int *caps);
+
+	/* tries to open the given device. returns a fd on success */
+	SANE_Status		(*open)(SANE_String port, SANE_Int caps, SANE_Int *fd);
+
+	/* start scanning session */
+	void			(*setup)(SANE_Handle hndl);
+
+        /* processes a configuration option */
+        SANE_Status		(*config)(SANE_Handle hndl, 
+					  SANE_String_Const optname,
+                                          SANE_String_Const optval);
+
+	/* stop scanning session */
+	void			(*close)(SANE_Handle hndl);
+
+	/* start actuall scan */
+	SANE_Status		(*start)(SANE_Handle hndl);
+
+	/* read data (one line) */
+	void			(*read)(SANE_Handle hndl, SANE_Byte *buffer);
+
+	/* stop scanner and return scanhead home */
+	void			(*stop)(SANE_Handle hndl);
+
+} Mustek_pp_Functions;
+
+/* Drivers */
+
+
+
+#define MUSTEK_PP_NUM_DRIVERS	((int)(sizeof(Mustek_pp_Drivers) / \
+				sizeof(Mustek_pp_Functions)))
+
+#define	CAP_NOTHING		0
+#define CAP_GAMMA_CORRECT	1
+#define CAP_INVERT		2
+#define	CAP_SPEED_SELECT	4
+#define CAP_LAMP_OFF		8
+#define CAP_TA			16
+#define CAP_DEPTH		32
+
+/* Structure for holding name/value options from the configuration file */
+typedef struct Mustek_pp_config_option {
+
+   SANE_String name;
+   SANE_String value;
+   
+} Mustek_pp_config_option;
+
+typedef struct Mustek_pp_Device {
+
+	struct Mustek_pp_Device	*next;
+
+	SANE_Device		sane;
+
+	/* non-const copy of SANE_Device */
+	SANE_String		name, vendor, model, type;
+
+	/* port */
+	SANE_String		port;
+
+	/* part describing hardware capabilities */
+	int			minres;
+	int			maxres;
+	int			maxhsize;
+	int			maxvsize;
+	int			caps;
+
+	/* functions */
+	Mustek_pp_Functions	*func;
+        
+        /* Modified by EDG: device identification is needed to initialize
+           private device descriptor */
+        SANE_Int 		info;
+        
+        /* Array of configuration file options */
+        int			numcfgoptions;
+        Mustek_pp_config_option *cfgoptions;
+
+} Mustek_pp_Device;
+
+#define STATE_IDLE		0
+#define	STATE_CANCELLED		1
+#define STATE_SCANNING		2
+
+#define MODE_BW			0
+#define MODE_GRAYSCALE		1
+#define MODE_COLOR		2
+
+#define SPEED_SLOWEST		0
+#define SPEED_SLOWER		1
+#define SPEED_NORMAL		2
+#define SPEED_FASTER		3
+#define SPEED_FASTEST		4
+
+
+enum Mustek_pp_Option
 {
   OPT_NUM_OPTS = 0,
 
   OPT_MODE_GROUP,
   OPT_MODE,
+  OPT_DEPTH,
   OPT_RESOLUTION,
   OPT_PREVIEW,
   OPT_GRAY_PREVIEW,
+  OPT_SPEED,
 
   OPT_GEOMETRY_GROUP,
   OPT_TL_X,			/* top-left x */
@@ -87,11 +220,9 @@ enum Mustek_PP_Option
 
   OPT_ENHANCEMENT_GROUP,
 
-#ifdef HAVE_INVERSION
 
   OPT_INVERT,
 
-#endif
   OPT_CUSTOM_GAMMA,		/* use custom gamma tables? */
   /* The gamma vectors MUST appear in the order gray, red, green,
      blue.  */
@@ -112,193 +243,52 @@ typedef union
 }
 Option_Value;
 
-typedef struct CCD_info
-{
-  /* CCD mode (color/grayscale/lineart) */
-  int mode;
-  /* inversion (true/false) */
-  int invert;
-  /* how many positions to skip until scanable area starts */
-  int skipcount;
-  /* how many positions to skip until scan area starts */
-  int skipimagebytes;
-  /* total skip, adjusted to resolution */
-  int adjustskip;
-  /* current resolution */
-  int res;
-  /* current hardware resolution */
-  int hwres;
-  /* how many positions to scan for one pixel */
-  int res_step;
-  /* how many lines to scan for one scanline */
-  int line_step;
-  /* current CCD channel (red/green or gray/blue) */
-  int channel;
-}
-CCD_Info;
 
-typedef struct Mustek_PP_Descriptor
-{
-  /* SANE device */
-  SANE_Device sane;
-  /* port no (0x378,0x278,0x3bc) */
-  SANE_String port;
-  /* maximal resolution (300/600) */
-  SANE_Int max_res;
-  /* max horiz */
-  SANE_Int max_h_size;
-  /* max vert */
-  SANE_Int max_v_size;
-  /* msecs to wait for bank change */
-  unsigned int wait_bank;
-  /* lines to scan in one read */
-  SANE_Int strip_height;
-  /* bytesize of scan buffer */
-  long int buf_size;
-  /* ASIC id (0xa8 0xa5, 0xa2) */
-  u_char asic;
-  /* CCD type (0,1,4,5) */
-  u_char ccd;
-  /* devices requires authentification (yes/no) */
-  int requires_auth;
-  /* color index to divide black from white (0-255) */
-  int bw;
-  /* seconds to wait for the lamp */
-  int wait_lamp;
-  /* use 600 dpi code (yes/no) */
-  int use600;
-}
-Mustek_PP_Descriptor;
+typedef struct Mustek_pp_Handle {
 
-typedef struct Mustek_PP_Device
-{
-  /* next device */
-  struct Mustek_PP_Device *next;
+	struct Mustek_pp_Handle	*next;
 
-  /* device descriptor */
-  Mustek_PP_Descriptor *desc;
+	
+	
+	Mustek_pp_Device	*dev;
 
-  /* fd for sanei_pa4s2 */
-  int fd;
+	int			fd;
 
-  /* CCD status */
-  CCD_Info CCD;
-  /* used during calibration & return_home */
-  CCD_Info Saved_CCD;
+	int			reader;
+	int			pipe;
 
-  /* options and values */
-  SANE_Option_Descriptor opt[NUM_OPTIONS];
-  Option_Value val[NUM_OPTIONS];
+	int			state;
+	
+	int			topX, topY;
+	int			bottomX, bottomY;
+	int			mode;
+	int			res;
 
-  /* gamma tables (all, red, green, blue) */
-  SANE_Int gamma_table[4][256];
+	/* gamma table, etc... */
+	SANE_Int		gamma_table[4][256];
+	int			do_gamma;
+	int			invert;
+	int			use_ta;
+	int			depth;
+	int			speed;
+	
+	/* current parameters */
+	SANE_Parameters params;
 
-  /* scanning, idle, cancelled */
-  int state;
-
-  /* scan area */
-  int TopX;
-  int TopY;
-  int BottomX;
-  int BottomY;
-
-  /* ASIC & CCD (see mustek_pp_descritpor) */
-  int asic_id;
-  int ccd_type;
-
-  /* when did we turn the lamp on? */
-  time_t lamp_on;
-
-  /* image control for ASIC 0xA5 */
-  int image_control;
-
-  /* bank count (for all ASICs) */
-  int bank_count;
-
-  /* motor state for ASIC 0xA8 */
-  int motor_phase;
-  int motor_step;
-
-  /* those are used to count the hardware line the scanner is at, the
-     line the current bank is at and the lines we've scanned */
-  int line;
-  int line_diff;
-  int ccd_line;
-  int lines_left;
-  int max_lines;
-  int redline;
-  int blueline;
-
-  /* result from calibration */
-  int blackpos;
-
-  /* line distances during scan */
-  int rdiff, gdiff, bdiff;
-
-  /* calibration buffers (high cut) */
-  SANE_Byte *calib_r;
-  SANE_Byte *calib_g;
-  SANE_Byte *calib_b;
-
-  /* calibration values (low cut) */
-  SANE_Byte ref_black, ref_red, ref_green, ref_blue;
-
-  /* line distance buffers */
-  SANE_Byte *green;
-  SANE_Byte **red;
-  SANE_Byte **blue;
-
-  /* line distances */
-  int blue_offs;
-  int green_offs;
-
-  /* scan buffer */
-  SANE_Byte *buf;
-  long int bufsize, buflen;
-
-  /* current parameters */
-  SANE_Parameters params;
-  SANE_Range dpi_range;
-  SANE_Range x_range;
-  SANE_Range y_range;
+	SANE_Range dpi_range;
+	SANE_Range x_range;
+	SANE_Range y_range;
+	SANE_Range gamma_range;
+  
+	/* options */
+	SANE_Option_Descriptor	opt[NUM_OPTIONS];
+	Option_Value		val[NUM_OPTIONS];
 
 
-  /* these are additional parameters for 600 dpi scanners */
+	time_t			lamp_on;
 
-  SANE_Byte motor_ctrl;
-  SANE_Bool first_time;
-  SANE_Byte unknown_value;
-  SANE_Byte expose_time;
-  SANE_Byte voltages[3];
-  SANE_Bool send_voltages;
-
-
-}
-Mustek_PP_Device;
-
-
-#if (!defined __GNUC__ || __GNUC__ < 2 || \
-     __GNUC_MINOR__ < (defined __cplusplus ? 6 : 4))
-
-#define __PRETTY_FUNCTION__	"mustek_pp"
-
-#endif
-
-#define DEBUG()		DBG(4, "%s(v%d.%d.%d-%s): line %d: debug exception\n", \
-			  __PRETTY_FUNCTION__, V_MAJOR, V_MINOR,	\
-			  MUSTEK_PP_BUILD, MUSTEK_PP_STATE, __LINE__)
-
-#define ASSERT(cond)	if (!(cond))					\
-			  {						\
-                            DEBUG();					\
-			    DBG(1, "ASSERT(%s) failed\n", STRINGIFY(cond)); \
-			    DBG(1, "expect disaster...\n");\
-			  }
-
-/* Please note: ASSERT won't go away if you define NDEBUG, it just won't
- * output a message when ASSERT failes. So if "cond" does anything, it will
- * be executed, even if NDEBUG is defined... 
- */
-
+	void			*priv;
+	
+} Mustek_pp_Handle;
 
 #endif /* mustek_pp_h */

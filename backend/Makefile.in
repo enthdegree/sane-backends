@@ -117,7 +117,9 @@ DISTFILES = abaton.c abaton.conf abaton.h agfafocus.c agfafocus.conf \
   Makefile.in matsushita.c \
   matsushita.conf matsushita.h microtek2.c microtek2.conf microtek2.h \
   microtek.c microtek.conf microtek.h mustek.c mustek.conf mustek.h \
-  mustek_pp.c mustek_pp.conf mustek_pp.h mustek_usb.c mustek_usb.conf \
+  mustek_pp.c mustek_pp.conf mustek_pp.h mustek_pp_cis.c mustek_pp_cis.h \
+  mustek_pp_decl.h mustek_pp_drivers.h mustek_pp_null.c mustek_pp_ccd300.c \
+  mustek_pp_ccd300.h mustek_usb.c mustek_usb.conf \
   mustek_usb.h mustek_usb_high.c mustek_usb_high.h mustek_usb_low.c \
   mustek_usb_low.h mustek_usb_mid.c mustek_usb_mid.h nec.c nec.conf nec.h \
   net.c net.conf net.h pie.c pie.conf pie-scsidef.h pint.c pint.h plustek.c \
@@ -240,6 +242,7 @@ EXTRA_canon_pp = canon_pp-io canon_pp-dev
 EXTRA_hp = hp-accessor hp-device hp-handle hp-hpmem hp-option hp-scl
 EXTRA_umax_pp = umax_pp_low umax_pp_mid
 EXTRA_epson = epson_scsi epson_usb
+EXTRA_mustek_pp = mustek_pp_null mustek_pp_cis mustek_pp_ccd300
 # EXTRA_dc210 = djpeg
 # EXTRA_dc240 = djpeg
 
@@ -325,6 +328,7 @@ libsane-mustek.la: ../sanei/sanei_config2.lo
 libsane-mustek.la: ../sanei/sanei_constrain_value.lo
 libsane-mustek.la: ../sanei/sanei_scsi.lo
 libsane-mustek.la: ../sanei/sanei_ab306.lo
+libsane-mustek_pp.la: $(addsuffix .lo,$(EXTRA_mustek_pp))
 libsane-mustek_pp.la: ../sanei/sanei_constrain_value.lo
 libsane-mustek_pp.la: ../sanei/sanei_pa4s2.lo
 libsane-mustek_usb.la: ../sanei/sanei_constrain_value.lo

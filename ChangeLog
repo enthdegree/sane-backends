@@ -1,7 +1,13 @@
+2005-02-04  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* tools/hotplug/libsane.usermap: Added Epson CX6600 based on patch
+	  submitted by Aurelien Jarno <lists@aurel32.net>.
+
 2005-02-03  Ulrich Sigwanz <usigwanz@freesurf.ch>
-        * backend/niash_xfer.c:
-        * tools/hotplug/libsane.usermap:
-          added ID for Silitek-HP-ScanJet-3400c-Clone
+
+	* backend/niash_xfer.c:
+	* tools/hotplug/libsane.usermap:
+	  added ID for Silitek-HP-ScanJet-3400c-Clone
           
 2005-01-19  Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 

@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2004-05-18"		; version of backend
+:version "2004-05-28"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -349,6 +349,17 @@
 
 ;********************************************************************************************
 
+:mfg "Dell"
+:url "http://www.dell.com/"
+
+:model "A920"
+;:url ""
+:interface "USB"
+:status :unsupported
+:comment "Probably not supported. Probabaly a relabelled Lexmark X1150."
+
+;********************************************************************************************
+
 :mfg "Epson"
 :url "http://www.epson.com/"
 
@@ -490,12 +501,6 @@
 :url "/unsupported/hp-photosmart-s20xi.html"
 :status :unsupported
 :comment "Not supported yet by SANE, but a backend is under development. See link for details."
-
-:model "ScanJet 2300C"
-:interface "USB"
-:url "/unsupported/hp-scanjet-2300c.html"
-:status :unsupported
-:comment "Unsupported. See link for details."
 
 :model "ScanJet 3970c"
 :interface "USB"
@@ -651,6 +656,12 @@
 :interface "SCSI"
 :status :unsupported
 :comment "Probably unsupported. Seems to be similar to the Microtek 330 CX and is detected by the microtek2 backend. Scanning doesn't seem to work however."
+
+:model "Scanmaker 1850S"
+:url "/unsupported/microtek-scanmaker-1850s.html"
+:interface "SCSI"
+:status :unsupported
+:comment "Unsupported. See link for details."
 
 :model "ScanMaker 3630"
 :url "/unsupported/microtek-scanmaker-3630.html"
@@ -938,6 +949,12 @@
 :interface "USB"
 :status :unsupported
 :comment "Uses Plustek ASIC P99002"
+
+:model "OpticPro m12"
+:interface "USB"
+:url "http://lists.alioth.debian.org/pipermail/sane-devel/2004-May/011076.html"
+:status :unsupported
+:comment "Uses the GT6816 chipset. May be supported by the gt68xx backend in future. See link for details."
 
 :model "OpticPro S6"
 :interface "USB"

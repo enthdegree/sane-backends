@@ -2,6 +2,9 @@
 
 	* README.hp-ux: Mention trouble with higher optimization levels
 	  (from Ulrich Deiters <ukd@xenon.pc.Uni-Koeln.DE>).
+	* doc/descriptions/unsupported.desc: Added Dell A920, Microtek
+	  1850S and Plustek OpticPro m12. Removed HP,Scanjet 2300 (already
+	  in genesys.desc).
 
 2004-05-27  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

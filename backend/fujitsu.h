@@ -12,6 +12,13 @@
 static int num_devices;
 static struct fujitsu *first_dev;
 
+typedef union
+  {
+    SANE_Word w;
+    SANE_String s;
+  }
+Option_Value;
+
 /* ------------------------------------------------------------------------- 
  * This option list has to contain all options for all scanners supported by
  * this driver. If a certain scanner cannot handle a certain option, there's
@@ -79,6 +86,17 @@ enum fujitsu_Option
   OPT_GREEN_OFFSET,
   OPT_USE_SWAPFILE,
 
+  OPT_IMPRINTER_GROUP,
+  OPT_IMPRINTER,
+  OPT_IMPRINTER_DIR,
+  OPT_IMPRINTER_YOFFSET,
+  OPT_IMPRINTER_STRING,
+  OPT_IMPRINTER_CTR_INIT,
+  OPT_IMPRINTER_CTR_STEP,
+  OPT_IMPRINTER_CTR_DIR,
+
+  OPT_SLEEP_MODE,
+
   /* must come last: */
   NUM_OPTIONS
 };
@@ -89,7 +107,9 @@ struct fujitsu
   struct fujitsu *next;
 
   SANE_Option_Descriptor opt[NUM_OPTIONS];
+  Option_Value val[NUM_OPTIONS];
   SANE_Device sane;
+
 
   /* Immutable values which are set during initial probing of the scanner. */
   /* --------------------------------------------------------------------- */
@@ -110,7 +130,8 @@ struct fujitsu
   /* when scanning duplex                   */
 
   int can_read_alternate;	/* duplex transfer mode front/back/front/back... */
-  int adf_present;		/* true if an ADF has been detected.       */
+  int has_adf;		        /* true if an ADF has been detected.       */
+  int has_fb;
   int duplex_present;		/* true if a duplex unit has been detected. */
   int ipc_present;		/* true if ipc2/3 option detected         */
   int cmp_present;		/* true if cmp2 present                   */
@@ -122,6 +143,33 @@ struct fujitsu
   int has_white_level_follow;	/* ............                           */
   int has_subwindow;		/* ............                            */
   int has_dropout_color;	/*  */
+  int has_imprinter;
+  int has_threshold;
+  int has_brightness;
+  int has_contrast;
+
+  SANE_Range adf_width_range;
+  SANE_Range adf_height_range;
+  SANE_Range x_range;
+  SANE_Range y_range;
+
+  SANE_Range x_res_range;
+  SANE_Range y_res_range;
+  SANE_Range x_grey_res_range;
+  SANE_Range y_grey_res_range;
+
+  SANE_String_Const vpd_mode_list[7];
+  SANE_String_Const compression_mode_list[9];
+
+  SANE_Int x_res_list[17];	/* range of x and y resolution */
+  SANE_Int y_res_list[17];	/* if scanner has only fixed resolutions */
+  SANE_Int x_res_list_grey[17];
+  SANE_Int y_res_list_grey[17];
+
+  SANE_Range threshold_range;
+  SANE_Range brightness_range;
+  SANE_Range contrast_range;
+
   /* User settable values (usually mirrored in SANE options)               */
   /* --------------------------------------------------------------------- */
 
@@ -191,23 +239,6 @@ struct fujitsu
   int green_offset;		/* color tuning - green scan line offset     */
   int blue_offset;		/* color tuning - blue scan line offset      */
 
-  SANE_Range adf_width_range;
-  SANE_Range adf_height_range;
-  SANE_Range x_range;
-  SANE_Range y_range;
-
-  SANE_Range x_res_range;
-  SANE_Range y_res_range;
-  SANE_Range x_grey_res_range;
-  SANE_Range y_grey_res_range;
-
-  SANE_String_Const vpd_mode_list[7];
-  SANE_String_Const compression_mode_list[9];
-
-  SANE_Int x_res_list[17];	/* range of x and y resolution */
-  SANE_Int y_res_list[17];	/* if scanner has only fixed resolutions */
-  SANE_Int x_res_list_grey[17];
-  SANE_Int y_res_list_grey[17];
 
 
   /* Derived values (calculated by calculateDerivedValues from the above)  */
@@ -294,6 +325,16 @@ struct fujitsu
   /***** end of "set window" terms *****/
 
   int dropout_color;
+
+  SANE_Bool use_imprinter;
+  int imprinter_direction;
+  SANE_Word imprinter_y_offset;
+  SANE_Char imprinter_string[max_imprinter_string_length];
+  int imprinter_ctr_init;
+  int imprinter_ctr_step;
+  int imprinter_ctr_dir;
+
+  SANE_Int sleep_time;
 };
 
 /** scan only front page */
@@ -316,6 +357,7 @@ struct fujitsu
 #define MODEL_4097 5
 /** fi-???? */
 #define MODEL_FI   6
+#define MODEL_3097 7
 
 /* A note regarding the MODEL... constants. There's a place in
  * identifyScanner() where the INQUIRY data is parsed and the model
@@ -328,7 +370,7 @@ struct fujitsu
  * treated differently in the backend. For example, if the "abc" model
  * has an optional ADF and the "xyz" model has the ADF built-in, we
  * don't need to distinguish these models, and it's sufficient to set
- * the "adf_present" variable accordingly.
+ * the "has_adf" variable accordingly.
  * 
  * The same would apply if two sub-models behave in the same way but
  * one of them is faster, or has some exotic extra capability that we
@@ -429,11 +471,12 @@ static int identifyScanner (struct fujitsu *s);
 static void doInquiry (struct fujitsu *s);
 
 static int do_scsi_cmd (int fd, unsigned char *cmd, int cmd_len,
-			unsigned char *out, size_t out_len);
+			unsigned char *out, size_t req_out_len, 
+			size_t *res_out_len);
 
 static void hexdump (int level, char *comment, unsigned char *p, int l);
 
-static SANE_Status initOptions (struct fujitsu *scanner);
+static SANE_Status init_options (struct fujitsu *scanner);
 
 static int grabScanner (struct fujitsu *s);
 
@@ -441,13 +484,19 @@ static int freeScanner (struct fujitsu *s);
 
 static int waitScanner (struct fujitsu *s);
 
-static int objectPosition (struct fujitsu *s);
+static int object_position (struct fujitsu *s, int i_load);
 
 static SANE_Status doCancel (struct fujitsu *scanner);
 
-static int objectDischarge (struct fujitsu *s);
+/*static int objectDischarge (struct fujitsu *s);*/
+
+static int fujitsu_set_sleep_mode(struct fujitsu *s);
 
 static int set_mode_params (struct fujitsu *s);
+
+static int imprinter(struct fujitsu *s);
+
+static int fujitsu_send(struct fujitsu *s);
 
 static int setWindowParam (struct fujitsu *s);
 
@@ -473,7 +522,8 @@ static unsigned int readerGenericPassthrough (struct fujitsu *scanner,
 
 static int read_large_data_block (struct fujitsu *s,
 				  unsigned char *buffer, unsigned int length,
-				  int i_window_id);
+				  int i_window_id, 
+				  unsigned int *i_data_read);
 
 static SANE_Status attachOne (const char *name);
 
@@ -490,7 +540,7 @@ static SANE_Status setModeSP15 (struct fujitsu *scanner, int mode);
 static void calculateDerivedValues (struct fujitsu *scanner);
 
 static int makeTempFile (void);
-static SANE_Status getHardwareStatus (struct fujitsu *s);
+static SANE_Status get_hardware_status (struct fujitsu *s);
 static void fujitsu_set_standard_size (SANE_Handle handle);
 
 

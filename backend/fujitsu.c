@@ -58,6 +58,16 @@
    Section 7 - private routines for the SP15C
    ...
 
+   Changes:
+      V , 05-Mai-2002, OS (oschirr@abm.de)
+         - release memory allocated by sane_get_devices
+         - several bugfixes
+         - supports the M3097
+         - get threshold, contrast and brightness from vpd
+         - imprinter support
+	 - get_hardware_status now works before calling sane_start
+	 - avoid unnecessary reload of options when using source=fb
+
    SANE FLOW DIAGRAM
 
    - sane_init() : initialize backend, attach scanners
@@ -112,6 +122,14 @@
 
 #define DEBUG 1
 
+#define MSG_ERR	        1
+#define MSG_USER	5
+#define MSG_INFO        6
+#define FLOW_CONTROL	10
+#define MSG_IO	        15
+#define IO_CMD          20
+#define IO_CMD_RES      20
+
 /* ------------------------------------------------------------------------- */
 
 static const char sourceADF[] = "ADF";
@@ -149,14 +167,16 @@ static SANE_String_Const lamp_colorList[] =
 static const char dropout_color_red[] = "Red";
 static const char dropout_color_green[] = "Green";
 static const char dropout_color_blue[] = "Blue";
-static const char dropout_color_default[] = "Default";
+static const char dropout_color_default[] = "Panel";
 static SANE_String_Const dropout_color_list[] =
   { dropout_color_default, dropout_color_red,
   dropout_color_green, dropout_color_blue, NULL
 };
 
 
-static const SANE_Range threshold_range = { 0, 255, 1 };
+static const SANE_Range default_threshold_range = { 0, 255, 1 };
+static const SANE_Range default_brightness_range = { 0, 255, 1 };
+static const SANE_Range default_contrast_range = { 0, 255, 1 };
 
 static const SANE_Range rangeX3091 =
   { 0, SANE_FIX (215.9), SANE_FIX (MM_PER_INCH / 1200) };
@@ -257,12 +277,28 @@ static SANE_String_Const paper_orientation_mode_list[] =
   { paper_orientation_portrait, paper_orientation_landscape, NULL };
 
 
+static const char imprinter_dir_topbot[] = "Top to Bottom";
+static const char imprinter_dir_bottop[] = "Bottom to Top";
+static SANE_String_Const imprinter_dir_list[] = 
+  { imprinter_dir_topbot, imprinter_dir_bottop, NULL };
+
+static const char imprinter_ctr_dir_inc[] = "Increment";
+static const char imprinter_ctr_dir_dec[] = "Decrement";
+static SANE_String_Const imprinter_ctr_dir_list[] = 
+  { imprinter_ctr_dir_inc, imprinter_ctr_dir_dec, NULL };
+
+static SANE_Range imprinter_ctr_step_range = { 0, 2, 1 };
+static const SANE_Range range_imprinter_y_offset =
+  { SANE_FIX (7), SANE_FIX(140), 0};
+/*SANE_FIX (MM_PER_INCH / 1200) };*/
+
+static SANE_Range range_sleep_mode = {1, 254, 1};
 
 static SANE_Int res_list0[] = { 4, 0, 200, 300, 400 };	/* 3096GX gray */
 
-static SANE_Int res_list1[] = { 5, 0, 200, 240, 300, 400 };	/* 3096GX binary */
+static SANE_Int res_list1[] = { 5, 0, 200, 240, 300, 400 };/* 3096GX binary */
 
-static SANE_Int res_list2[] = { 7, 0, 100, 150, 200, 240, 300, 400 };	/* 3093DG gray */
+static SANE_Int res_list2[] = { 7, 0, 100, 150, 200, 240, 300, 400 };/* 3093DG gray */
 
 static SANE_Int res_list3[] = { 8, 0, 100, 150, 200, 240, 300, 400, 600 };	/* 3093DG binary */
 
@@ -277,15 +313,22 @@ static int forceModel = -1;
 /* Also set via config file. */
 static int scsiBuffer = 64 * 1024;
 
-/*
- * @@ Section 2 - SANE Interface
- */
 
 /*
  * required for compressed data transfer. sense_handler has to tell
  * the caller the number of scanned bytes. 
  */
 static struct fujitsu *current_scanner;
+
+/*
+ * used by sane_get_devices
+ */
+static const SANE_Device **devlist = 0;
+
+/*
+ * @@ Section 2 - SANE Interface
+ */
+
 
 /**
  * Called by SANE initially.
@@ -366,7 +409,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	      /*
 	         if ((forceModel = modelMatch(lp)) == -1)
 	         {
-	         DBG(1, "sane_init: configuration option \"force-model\" "
+	         DBG(MSG_ERR, "sane_init: configuration option \"force-model\" "
 	         "does not support value \"%s\" - ignored.\n", lp);
 	         }
 	         else
@@ -389,14 +432,15 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 		}
 	      else
 		{
-		  DBG (1, "sane_init: configuration option \"scsi-buffer-"
+		  DBG (MSG_ERR, 
+		       "sane_init: configuration option \"scsi-buffer-"
 		       "size\" is outside allowable range of 4096..%d",
 		       sanei_scsi_max_request_size);
 		}
 	    }
 	  else
 	    {
-	      DBG (1,
+	      DBG (MSG_ERR,
 		   "sane_init: configuration option \"%s\" unrecognized - ignored.\n",
 		   lp);
 	    }
@@ -437,7 +481,6 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 SANE_Status
 sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 {
-  static const SANE_Device **devlist = 0;
   struct fujitsu *dev;
   int i;
 
@@ -489,7 +532,7 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
    * all in one function.
    */
 
-  initOptions (scanner);
+  init_options (scanner);
 
   /*
    * Now we have to establish sensible defaults for this scanner model.
@@ -506,6 +549,7 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
 
     case MODEL_FORCE:
     case MODEL_3096:
+    case MODEL_3097:
     case MODEL_3093:
     case MODEL_4097:
     case MODEL_FI:
@@ -516,7 +560,7 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
       setDefaultsSP15 (scanner);
       break;
     default:
-      DBG (1, "sane_open: unknown model\n");
+      DBG (MSG_ERR, "sane_open: unknown model\n");
       return SANE_STATUS_INVAL;
     }
 
@@ -541,10 +585,10 @@ sane_set_io_mode (SANE_Handle h, SANE_Bool non_blocking)
  * An advanced method we don't support but have to define.
  */
 SANE_Status
-sane_get_select_fd (SANE_Handle h, SANE_Int * fdp)
+sane_get_select_fd (SANE_Handle h, SANE_Int *fdp)
 {
   DBG (10, "sane_get_select_fd\n");
-  DBG (99, "%p %p\n", h, fdp);
+  DBG (99, "%p %d\n", h, *fdp);
   return SANE_STATUS_UNSUPPORTED;
 }
 
@@ -615,7 +659,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
   *info = 0;
 
-  if (scanner->object_count != 0)
+  if ( (scanner->object_count != 0) && (scanner->eof == SANE_FALSE) )
     {
       DBG (5, "sane_control_option: device busy\n");
       return SANE_STATUS_DEVICE_BUSY;
@@ -703,11 +747,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  return SANE_STATUS_GOOD;
 
 	case OPT_TL_X:
-	  *(SANE_Word *) val = scanner->top_left_x;
-	  return SANE_STATUS_GOOD;
-
 	case OPT_TL_Y:
-	  *(SANE_Word *) val = scanner->top_left_y;
+	  *(SANE_Word *) val = scanner->val[option].w;
 	  return SANE_STATUS_GOOD;
 
 	case OPT_PAGE_WIDTH:
@@ -969,9 +1010,60 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 
 
+	case OPT_IMPRINTER:
+	  *(SANE_Bool *) val = scanner->use_imprinter;
+	  return SANE_STATUS_GOOD;
+
+	case OPT_IMPRINTER_DIR:
+	  switch (scanner->imprinter_direction) 
+	    { 
+	    case S_im_dir_top_bottom:
+	      strcpy( val, imprinter_dir_topbot);
+	      break;
+	    case S_im_dir_bottom_top:
+	      strcpy( val, imprinter_dir_bottop);
+	      break;
+	    default:
+	      return SANE_STATUS_INVAL;
+	    }
+	  return SANE_STATUS_GOOD;
+
+	case OPT_IMPRINTER_YOFFSET:
+	  *(SANE_Word *) val = scanner->imprinter_y_offset;
+	  return SANE_STATUS_GOOD;
+
+	case OPT_IMPRINTER_STRING:
+	  strncpy((SANE_String) val, scanner->imprinter_string, 
+		  max_imprinter_string_length);
+	  return SANE_STATUS_GOOD;
+
+	case OPT_IMPRINTER_CTR_STEP:
+	  *(SANE_Word *) val = scanner->imprinter_ctr_step;
+	  return SANE_STATUS_GOOD;
+
+	case OPT_IMPRINTER_CTR_INIT:
+	  *(SANE_Word *) val = scanner->imprinter_ctr_init;
+	  return SANE_STATUS_GOOD;
+
+	case OPT_IMPRINTER_CTR_DIR:
+	  switch (scanner->imprinter_ctr_dir)
+	    { 
+	    case S_im_dir_inc:
+	      strcpy( val, imprinter_ctr_dir_inc);
+	      break;
+	    case S_im_dir_dec:
+	      strcpy( val, imprinter_ctr_dir_dec);
+	      break;
+	    default:
+	      return SANE_STATUS_INVAL;
+	    }
+	  return SANE_STATUS_GOOD;
+
+
+
 
 	case OPT_START_BUTTON:
-	  if (SANE_STATUS_GOOD == getHardwareStatus (scanner))
+	  if (SANE_STATUS_GOOD == get_hardware_status (scanner))
 	    {
 	      *(SANE_Bool *) val = get_HW_start_button (scanner->buffer);
 	    }
@@ -980,6 +1072,12 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	      *(SANE_Bool *) val = SANE_FALSE;
 	    }
 	  return SANE_STATUS_GOOD;
+
+
+	case OPT_SLEEP_MODE:
+	  *(SANE_Word *) val = scanner->sleep_time;
+	  return SANE_STATUS_GOOD;
+	  
 	}
     }
   else if (action == SANE_ACTION_SET_VALUE)
@@ -1022,7 +1120,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		{
 		  return SANE_STATUS_GOOD;
 		}
-	      else if (scanner->adf_present)
+	      else if (scanner->has_adf)
 		{
 		  scanner->use_adf = SANE_TRUE;
 		  /* enable adf-related options. disregard the
@@ -1048,12 +1146,18 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    }
 	  else
 	    {
+              if (scanner->use_adf == SANE_FALSE)
+		{
+		  return SANE_STATUS_GOOD;
+		}
 	      /* flatbed disables duplex, paper size, paper orientation */
 	      scanner->use_adf = SANE_FALSE;
 	      scanner->opt[OPT_DUPLEX].cap = SANE_CAP_INACTIVE;
 	      scanner->duplex_mode = DUPLEX_FRONT;
 	      scanner->opt[OPT_PAPER_SIZE].cap = SANE_CAP_INACTIVE;
 	      scanner->opt[OPT_PAPER_ORIENTATION].cap = SANE_CAP_INACTIVE;
+	      scanner->opt[OPT_PAGE_WIDTH].cap = SANE_CAP_INACTIVE;
+	      scanner->opt[OPT_PAGE_HEIGHT].cap = SANE_CAP_INACTIVE;
 	    }
 	  *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
 	  return SANE_STATUS_GOOD;
@@ -1070,9 +1174,14 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  return SANE_STATUS_GOOD;
 
 	case OPT_X_RES:
+	  if (scanner->resolution_x == *(SANE_Word *) val) 
+	    {
+	      return SANE_STATUS_GOOD;
+	    }
 	  scanner->resolution_x = (*(SANE_Word *) val);
-	  /* When x resolution is set and resolutions are linked, set y resolution
-	   * as well, making sure the value used is a valid y resolution.
+	  /* When x resolution is set and resolutions are linked,
+	   * set y resolution as well, making sure the value used 
+	   * is a valid y resolution.
 	   */
 	  if (scanner->resolution_linked)
 	    {
@@ -1089,6 +1198,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  return SANE_STATUS_GOOD;
 
 	case OPT_Y_RES:
+	  if (scanner->resolution_y == *(SANE_Word *) val) 
+	    {
+	      return SANE_STATUS_GOOD;
+	    }
 	  scanner->resolution_y = *(SANE_Word *) val;
 	  scanner->resolution_linked = SANE_FALSE;
 	  calculateDerivedValues (scanner);
@@ -1096,17 +1209,25 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  return SANE_STATUS_GOOD;
 
 	case OPT_TL_X:
-	  scanner->top_left_x = *(SANE_Word *) val;
+	  if (scanner->val[option].w == *(SANE_Word *) val) 
+	    {
+	      return SANE_STATUS_GOOD;
+	    }
+	  scanner->val[option].w = *(SANE_Word *) val;
 	  calculateDerivedValues (scanner);
-	  if (scanner->rounded_top_left_x != scanner->top_left_x)
+	  if (scanner->rounded_top_left_x != scanner->val[option].w)
 	    *info |= SANE_INFO_INEXACT;
 	  *info |= SANE_INFO_RELOAD_PARAMS;
 	  return SANE_STATUS_GOOD;
 
 	case OPT_TL_Y:
-	  scanner->top_left_y = *(SANE_Word *) val;
+	  if (scanner->val[option].w == *(SANE_Word *) val) 
+	    {
+	      return SANE_STATUS_GOOD;
+	    }
+	  scanner->val[option].w = *(SANE_Word *) val;
 	  calculateDerivedValues (scanner);
-	  if (scanner->rounded_top_left_y != scanner->top_left_y)
+	  if (scanner->rounded_top_left_y != scanner->val[option].w)
 	    *info |= SANE_INFO_INEXACT;
 	  *info |= SANE_INFO_RELOAD_PARAMS;
 	  return SANE_STATUS_GOOD;
@@ -1115,8 +1236,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  tmp = (SANE_Word *) val;
 	  scanner->page_width = FIXED_MM_TO_SCANNER_UNIT (*tmp);
 	  /* FIXME          scanner->opt[OPT_TL_X].constraint.range->max = *tmp; */
-	  if (scanner->top_left_x > *tmp)
-	    scanner->top_left_x = *tmp;
+	  if (scanner->val[option].w > *tmp)
+	    scanner->val[option].w = *tmp;
 	  if (scanner->bottom_right_x > *tmp)
 	    scanner->bottom_right_x = *tmp;
 	  calculateDerivedValues (scanner);
@@ -1127,8 +1248,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  tmp = (SANE_Word *) val;
 	  scanner->page_height = FIXED_MM_TO_SCANNER_UNIT (*tmp);
 	  /* FIXME          scanner->opt[OPT_TL_Y].constraint.range->max = *tmp; */
-	  if (scanner->top_left_y > *tmp)
-	    scanner->top_left_y = *tmp;
+	  if (scanner->val[option].w > *tmp)
+	    scanner->val[option].w = *tmp;
 	  if (scanner->bottom_right_y > *tmp)
 	    scanner->bottom_right_y = *tmp;
 	  calculateDerivedValues (scanner);
@@ -1136,6 +1257,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  return SANE_STATUS_GOOD;
 
 	case OPT_BR_X:
+	  if (scanner->bottom_right_x == *(SANE_Word *) val)
+	    {
+	      return SANE_STATUS_GOOD;
+	    }
 	  scanner->bottom_right_x = *(SANE_Word *) val;
 	  calculateDerivedValues (scanner);
 	  if (scanner->rounded_bottom_right_x != scanner->bottom_right_x)
@@ -1144,6 +1269,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  return SANE_STATUS_GOOD;
 
 	case OPT_BR_Y:
+	  if (scanner->bottom_right_y == *(SANE_Word *) val)
+	    {
+	      return SANE_STATUS_GOOD;
+	    }
 	  scanner->bottom_right_y = *(SANE_Word *) val;
 	  calculateDerivedValues (scanner);
 	  if (scanner->rounded_bottom_right_y != scanner->bottom_right_y)
@@ -1202,6 +1331,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    case MODEL_FORCE:
 	    case MODEL_3093:
 	    case MODEL_3096:
+	    case MODEL_3097:
 	    case MODEL_4097:
 	    case MODEL_FI:
 	      return (setMode3096 (scanner, newMode));
@@ -1436,8 +1566,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		| SANE_CAP_SOFT_SELECT;
 	      scanner->opt[OPT_THRESHOLD_CURVE].cap = SANE_CAP_SOFT_DETECT
 		| SANE_CAP_SOFT_SELECT;
-	      scanner->opt[OPT_VARIANCE_RATE].cap = SANE_CAP_SOFT_DETECT
-		| SANE_CAP_SOFT_SELECT;
 	    }
 
 	  *info |= SANE_INFO_RELOAD_OPTIONS;
@@ -1557,6 +1685,93 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 
 
+
+	case OPT_IMPRINTER:
+
+	  if (scanner->use_imprinter == *(SANE_Bool *) val)
+	    {
+	      return SANE_STATUS_GOOD;
+	    }
+
+	  scanner->use_imprinter = *(SANE_Bool *) val;
+
+	  imprinter(scanner);
+
+	  if (scanner->use_imprinter)
+	    {
+	      scanner->opt[OPT_IMPRINTER_DIR].cap = SANE_CAP_SOFT_SELECT |
+		SANE_CAP_SOFT_DETECT;
+	      scanner->opt[OPT_IMPRINTER_YOFFSET].cap = SANE_CAP_SOFT_SELECT |
+		SANE_CAP_SOFT_DETECT;
+	      scanner->opt[OPT_IMPRINTER_STRING].cap = SANE_CAP_SOFT_SELECT |
+		SANE_CAP_SOFT_DETECT;
+	      scanner->opt[OPT_IMPRINTER_CTR_INIT].cap = SANE_CAP_SOFT_SELECT |
+		SANE_CAP_SOFT_DETECT;
+	      scanner->opt[OPT_IMPRINTER_CTR_STEP].cap = SANE_CAP_SOFT_SELECT |
+		SANE_CAP_SOFT_DETECT;
+	      scanner->opt[OPT_IMPRINTER_CTR_DIR].cap = SANE_CAP_SOFT_SELECT |
+		SANE_CAP_SOFT_DETECT;
+	      *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+	    }
+	  else
+	    {
+	      scanner->opt[OPT_IMPRINTER_DIR].cap = SANE_CAP_INACTIVE;
+	      scanner->opt[OPT_IMPRINTER_YOFFSET].cap = SANE_CAP_INACTIVE;
+	      scanner->opt[OPT_IMPRINTER_STRING].cap = SANE_CAP_INACTIVE;
+	      scanner->opt[OPT_IMPRINTER_CTR_INIT].cap = SANE_CAP_INACTIVE;
+	      scanner->opt[OPT_IMPRINTER_CTR_STEP].cap = SANE_CAP_INACTIVE;
+	      scanner->opt[OPT_IMPRINTER_CTR_DIR].cap = SANE_CAP_INACTIVE;
+	      *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+	    }
+	  return SANE_STATUS_GOOD;
+
+	case OPT_IMPRINTER_DIR:
+	  if (strcmp (val, imprinter_dir_topbot) == 0)
+	    scanner->imprinter_direction = S_im_dir_top_bottom;
+	  else if (strcmp (val, imprinter_dir_bottop) == 0)
+	    scanner->imprinter_direction = S_im_dir_bottom_top;
+	  else
+	    return SANE_STATUS_INVAL;
+	  return SANE_STATUS_GOOD;
+
+	case OPT_IMPRINTER_YOFFSET:
+	  scanner->imprinter_y_offset = *(SANE_Word *) val;
+	  return SANE_STATUS_GOOD;
+
+	case OPT_IMPRINTER_STRING:
+	  strncpy(scanner->imprinter_string, (SANE_String) val,
+		  max_imprinter_string_length);
+	  
+	  return SANE_STATUS_GOOD;
+
+	case OPT_IMPRINTER_CTR_STEP:
+	  scanner->imprinter_ctr_step = (*(SANE_Word *) val);
+	  return SANE_STATUS_GOOD;
+
+	case OPT_IMPRINTER_CTR_INIT:
+	  if (scanner->imprinter_ctr_init == (*(SANE_Word *) val)) 
+	    {
+	      return SANE_STATUS_GOOD;
+	    }
+	  scanner->imprinter_ctr_init = (*(SANE_Word *) val);
+	  imprinter(scanner);
+
+	  return SANE_STATUS_GOOD;
+
+	case OPT_IMPRINTER_CTR_DIR:
+	  if (strcmp (val, imprinter_ctr_dir_inc) == 0)
+	    scanner->imprinter_ctr_dir = S_im_dir_inc;
+	  else if (strcmp (val, imprinter_ctr_dir_dec) == 0)
+	    scanner->imprinter_ctr_dir = S_im_dir_dec;
+	  else
+	    return SANE_STATUS_INVAL;
+	  return SANE_STATUS_GOOD;
+
+	case OPT_SLEEP_MODE:
+	  scanner->sleep_time = (*(SANE_Word *) val);
+	  /*fujitsu_set_sleep_mode(scanner);*/
+	  return SANE_STATUS_GOOD;
+
 	}			/* switch */
     }				/* else */
   return SANE_STATUS_INVAL;
@@ -1642,7 +1857,8 @@ sane_start (SANE_Handle handle)
       if (sanei_scsi_open (scanner->sane.name, &(scanner->sfd),
 			   senseHandler, 0) != SANE_STATUS_GOOD)
 	{
-	  DBG (1, "sane_start: open of %s failed:\n", scanner->sane.name);
+	  DBG (MSG_ERR, 
+	       "sane_start: open of %s failed:\n", scanner->sane.name);
 	  return SANE_STATUS_INVAL;
 	}
     }
@@ -1660,8 +1876,39 @@ sane_start (SANE_Handle handle)
       return ret;
     }
 
+  fujitsu_set_sleep_mode(scanner);
 
-  if (scanner->use_adf == SANE_TRUE && (ret = objectPosition (scanner)))
+
+  if (set_mode_params (scanner))
+    {
+
+      DBG (MSG_ERR, "sane_start: ERROR: failed to set mode\n");
+      /* ignore it */
+    }
+
+  if ((ret = fujitsu_send(scanner)))
+    {
+      DBG (5, "sane_start: ERROR: failed to start send command\n");
+      freeScanner (scanner);
+      sanei_scsi_close (scanner->sfd);
+      scanner->object_count = 0;
+      scanner->sfd = -1;
+      return ret;
+    }
+#if 0
+  if ((ret = imprinter(scanner)))
+    {
+      DBG (5, "sane_start: ERROR: failed to start imprinter command\n");
+      freeScanner (scanner);
+      sanei_scsi_close (scanner->sfd);
+      scanner->object_count = 0;
+      scanner->sfd = -1;
+      return ret;
+    }
+#endif
+
+  if (scanner->use_adf == SANE_TRUE && 
+      (ret = object_position (scanner, SANE_TRUE)))
     {
       DBG (5, "sane_start: WARNING: ADF empty\n");
       freeScanner (scanner);
@@ -1673,12 +1920,6 @@ sane_start (SANE_Handle handle)
 
   /* swap_res ?? */
 
-  if (set_mode_params (scanner))
-    {
-
-      DBG (1, "sane_start: ERROR: failed to set mode\n");
-      /* ignore it */
-    }
 
   if ((ret = setWindowParam (scanner)))
     {
@@ -1698,12 +1939,13 @@ sane_start (SANE_Handle handle)
   DBG (10, "\tbrightness (halftone) = %d\n", scanner->brightness);
   DBG (10, "\tthreshold (line art) = %d\n", scanner->threshold);
 
+
   startScan (scanner);
 
   /* create a pipe, fds[0]=read-fd, fds[1]=write-fd */
   if (pipe (defaultFds) < 0)
     {
-      DBG (1, "ERROR: could not create pipe\n");
+      DBG (MSG_ERR, "ERROR: could not create pipe\n");
       scanner->object_count = 0;
       freeScanner (scanner);
       sanei_scsi_close (scanner->sfd);
@@ -1718,7 +1960,7 @@ sane_start (SANE_Handle handle)
 	{
 	  if ((tempFile = makeTempFile ()) == -1)
 	    {
-	      DBG (1, "ERROR: could not create temporary file.\n");
+	      DBG (MSG_ERR, "ERROR: could not create temporary file.\n");
 	      scanner->object_count = 0;
 	      freeScanner (scanner);
 	      sanei_scsi_close (scanner->sfd);
@@ -1730,7 +1972,7 @@ sane_start (SANE_Handle handle)
 	{
 	  if (pipe (duplexFds) < 0)
 	    {
-	      DBG (1, "ERROR: could not create duplex pipe.\n");
+	      DBG (MSG_ERR, "ERROR: could not create duplex pipe.\n");
 	      scanner->object_count = 0;
 	      freeScanner (scanner);
 	      sanei_scsi_close (scanner->sfd);
@@ -1740,7 +1982,8 @@ sane_start (SANE_Handle handle)
 	}
     }
 
-  scanner->reader_pid = fork ();
+  ret = SANE_STATUS_GOOD;
+  scanner->reader_pid = fork();
   if (scanner->reader_pid == 0)
     {
       /* reader_pid = 0 ===> child process */
@@ -1762,6 +2005,13 @@ sane_start (SANE_Handle handle)
       _exit (reader_process
 	     (scanner, defaultFds[1],
 	      (tempFile != -1) ? tempFile : duplexFds[1]));
+    } 
+  else if (scanner->reader_pid == -1) 
+    {
+      DBG(MSG_ERR, "cannot fork reader process.\n");
+      DBG(MSG_ERR, "%s", strerror(errno));
+      ret = SANE_STATUS_IO_ERROR;
+
     }
   close (defaultFds[1]);
   if (duplexFds[1] != -1)
@@ -1769,8 +2019,12 @@ sane_start (SANE_Handle handle)
   scanner->default_pipe = defaultFds[0];
   scanner->duplex_pipe = (tempFile != -1) ? tempFile : duplexFds[0];
 
-  DBG (10, "sane_start: ok\n");
-  return SANE_STATUS_GOOD;
+  if (ret == SANE_STATUS_GOOD) 
+    {
+      DBG (10, "sane_start: ok\n");
+    }
+
+  return ret;
 }
 
 
@@ -1877,10 +2131,10 @@ sane_read (SANE_Handle handle, SANE_Byte * buf,
     default:
       return doCancel (scanner);
     }
-  DBG (10, "sane_read, object_count=%d\n", scanner->object_count);
+  DBG (30, "sane_read, object_count=%d\n", scanner->object_count);
 
   nread = read (source, buf, max_len);
-  DBG (10, "sane_read: read %ld bytes of %ld\n",
+  DBG (30, "sane_read: read %ld bytes of %ld\n",
        (long) nread, (long) max_len);
 
   if (nread < 0)
@@ -2001,6 +2255,9 @@ sane_exit (void)
       free (dev->buffer);
       free (dev);
     }
+
+  if (devlist)
+    free (devlist);
 }
 
 
@@ -2119,10 +2376,7 @@ senseHandler (int scsi_fd, u_char * sensed_data, void *arg)
       DBG (5, "\t%d/%d/%d: Scanner ready\n", sense, asc, ascq);
       if (get_RS_EOM (sensed_data))
 	{
-
-	  current_scanner->i_transfer_length =
-	    get_RS_information (sensed_data);
-
+	  current_scanner->i_transfer_length = get_RS_information (sensed_data);
 	  return SANE_STATUS_EOF;
 	}
       return SANE_STATUS_GOOD;
@@ -2130,157 +2384,196 @@ senseHandler (int scsi_fd, u_char * sensed_data, void *arg)
     case 0x2:			/* Not Ready */
       if ((0x00 == asc) && (0x00 == ascq))
 	{
-	  DBG (1, "\t%d/%d/%d: Not Ready \n", sense, asc, ascq);
+	  DBG (MSG_ERR, "\t%d/%d/%d: Not Ready \n", sense, asc, ascq);
 	}
       else
 	{
-	  DBG (1, "\tUnknown - Sense=%d, ASC=%d, ASCQ=%d\n", sense, asc,
-	       ascq);
+	  DBG (MSG_ERR, "\tUnknown - Sense=%d, ASC=%d, ASCQ=%d\n", 
+	       sense, asc, ascq);
 	}
       break;
 
     case 0x3:			/* Medium Error */
       if ((0x80 == asc) && (0x01 == ascq))
 	{
-	  DBG (1, "\t%d/%d/%d: Jam \n", sense, asc, ascq);
+	  DBG (MSG_ERR, "\t%d/%d/%d: Jam \n", sense, asc, ascq);
 	  ret = SANE_STATUS_JAMMED;
 	}
       else if ((0x80 == asc) && (0x02 == ascq))
 	{
-	  DBG (1, "\t%d/%d/%d: ADF cover open \n", sense, asc, ascq);
+	  DBG (MSG_ERR, "\t%d/%d/%d: ADF cover open \n", sense, asc, ascq);
 	  ret = SANE_STATUS_COVER_OPEN;
 	}
       else if ((0x80 == asc) && (0x03 == ascq))
 	{
-	  DBG (1, "\t%d/%d/%d: ADF empty \n", sense, asc, ascq);
+	  DBG (MSG_ERR, "\t%d/%d/%d: ADF empty \n", sense, asc, ascq);
 	  ret = SANE_STATUS_NO_DOCS;
+	}
+      else if ((0x80 == asc) && (0x04 == ascq))
+	{
+	  DBG (MSG_ERR, "\t%d/%d/%d: Special-purpose paper detection\n", 
+	       sense, asc, ascq);
+	}
+      else if ((0x80 == asc) && (0x07 == ascq))
+	{
+	  DBG (MSG_ERR, "\t%d/%d/%d: Double feed error\n", 
+	       sense, asc, ascq);
+	}
+      else if ((0x80 == asc) && (0x10 == ascq))
+	{
+	  DBG (MSG_ERR, "\t%d/%d/%d: No Ink Cartridge is mounted\n", 
+	       sense, asc, ascq);
 	}
       else if ((0x80 == asc) && (0x13 == ascq))
 	{
-	  DBG (1, "\t%d/%d/%d: temporary lack of data\n", sense, asc, ascq);
+	  DBG (MSG_ERR, "\t%d/%d/%d: temporary lack of data\n", 
+	       sense, asc, ascq);
 	  ret = SANE_STATUS_DEVICE_BUSY;
+	}
+      else if ((0x80 == asc) && (0x14 == ascq))
+	{
+	  DBG (MSG_ERR, "\t%d/%d/%d: Endorser paper detection failure\n", 
+	       sense, asc, ascq);
 	}
       else
 	{
-	  DBG (1, "\tUnknown - Sense=%d, ASC=%d, ASCQ=%d\n", sense, asc,
-	       ascq);
+	  DBG (MSG_ERR, "\tUnknown - Sense=%d, ASC=%d, ASCQ=%d\n", 
+	       sense, asc, ascq);
 	}
       break;
 
     case 0x4:			/* Hardware Error */
       if ((0x80 == asc) && (0x01 == ascq))
 	{
-	  DBG (1, "\t%d/%d/%d: FB motor fuse \n", sense, asc, ascq);
+	  DBG (MSG_ERR, "\t%d/%d/%d: FB motor fuse \n", sense, asc, ascq);
 	}
       else if ((0x80 == asc) && (0x02 == ascq))
 	{
-	  DBG (1, "\t%d/%d/%d: heater fuse \n", sense, asc, ascq);
+	  DBG (MSG_ERR, "\t%d/%d/%d: heater fuse \n", sense, asc, ascq);
 	}
       else if ((0x80 == asc) && (0x04 == ascq))
 	{
-	  DBG (1, "\t%d/%d/%d: ADF motor fuse \n", sense, asc, ascq);
+	  DBG (MSG_ERR, "\t%d/%d/%d: ADF motor fuse \n", sense, asc, ascq);
 	}
       else if ((0x80 == asc) && (0x05 == ascq))
 	{
-	  DBG (1, "\t%d/%d/%d: mechanical alarm \n", sense, asc, ascq);
+	  DBG (MSG_ERR, "\t%d/%d/%d: mechanical alarm \n", sense, asc, ascq);
 	}
       else if ((0x80 == asc) && (0x06 == ascq))
 	{
-	  DBG (1, "\t%d/%d/%d: optical alarm \n", sense, asc, ascq);
+	  DBG (MSG_ERR, "\t%d/%d/%d: optical alarm \n", sense, asc, ascq);
+	}
+      else if ((0x80 == asc) && (0x07 == ascq))
+	{
+	  DBG (MSG_ERR, "\t%d/%d/%d: FAN error \n", sense, asc, ascq);
+	}
+      else if ((0x80 == asc) && (0x08 == ascq))
+	{
+	  DBG (MSG_ERR, "\t%d/%d/%d: abnormal option(IPC) \n", 
+	       sense, asc, ascq);
+	}
+      else if ((0x80 == asc) && (0x10 == ascq))
+	{
+	  DBG (MSG_ERR, "\t%d/%d/%d: imprinter error \n", sense, asc, ascq);
 	}
       else if ((0x44 == asc) && (0x00 == ascq))
 	{
-	  DBG (1, "\t%d/%d/%d: abnormal internal target \n", sense, asc,
-	       ascq);
+	  DBG (MSG_ERR, "\t%d/%d/%d: abnormal internal target \n", 
+	       sense, asc, ascq);
 	}
       else if ((0x47 == asc) && (0x00 == ascq))
 	{
-	  DBG (1, "\t%d/%d/%d: SCSI parity error \n", sense, asc, ascq);
+	  DBG (MSG_ERR, "\t%d/%d/%d: SCSI parity error \n", 
+	       sense, asc, ascq);
 	}
       else
 	{
-	  DBG (1, "\tUnknown - Sense=%d, ASC=%d, ASCQ=%d\n", sense, asc,
-	       ascq);
+	  DBG (MSG_ERR, "\tUnknown - Sense=%d, ASC=%d, ASCQ=%d\n", 
+	       sense, asc, ascq);
 	}
       break;
 
     case 0x5:			/* Illegal Request */
       if ((0x00 == asc) && (0x00 == ascq))
 	{
-	  DBG (1, "\t%d/%d/%d: Page end is detected before reading\n",
+	  DBG (MSG_ERR, "\t%d/%d/%d: Page end is detected before reading\n",
 	       sense, asc, ascq);
 	  ret = SANE_STATUS_INVAL;
 	}
       else if ((0x1a == asc) && (0x00 == ascq))
 	{
-	  DBG (1, "\t%d/%d/%d: Parameter list error \n", sense, asc, ascq);
+	  DBG (MSG_ERR, "\t%d/%d/%d: Parameter list error \n", 
+	       sense, asc, ascq);
 	  ret = SANE_STATUS_INVAL;
 	}
       else if ((0x20 == asc) && (0x00 == ascq))
 	{
-	  DBG (1, "\t%d/%d/%d: Invalid command \n", sense, asc, ascq);
+	  DBG (MSG_ERR, "\t%d/%d/%d: Invalid command \n", sense, asc, ascq);
 	  ret = SANE_STATUS_INVAL;
 	}
       else if ((0x24 == asc) && (0x00 == ascq))
 	{
-	  DBG (1, "\t%d/%d/%d: Invalid field in CDB \n", sense, asc, ascq);
+	  DBG (MSG_ERR, "\t%d/%d/%d: Invalid field in CDB \n", 
+	       sense, asc, ascq);
 	  ret = SANE_STATUS_INVAL;
 	}
       else if ((0x25 == asc) && (0x00 == ascq))
 	{
-	  DBG (1, "\t%d/%d/%d: Unsupported logical unit \n", sense, asc,
-	       ascq);
+	  DBG (MSG_ERR, "\t%d/%d/%d: Unsupported logical unit \n", 
+	       sense, asc, ascq);
 	  ret = SANE_STATUS_UNSUPPORTED;
 	}
       else if ((0x26 == asc) && (0x00 == ascq))
 	{
-	  DBG (1, "\t%d/%d/%d: Invalid field in parm list \n", sense, asc,
-	       ascq);
+	  DBG (MSG_ERR, "\t%d/%d/%d: Invalid field in parm list \n", 
+	       sense, asc, ascq);
 	  ret = SANE_STATUS_INVAL;
 	}
       else if ((0x2C == asc) && (0x02 == ascq))
 	{
-	  DBG (1, "\t%d/%d/%d: wrong window combination \n", sense, asc,
-	       ascq);
+	  DBG (MSG_ERR, "\t%d/%d/%d: wrong window combination \n", 
+	       sense, asc, ascq);
 	  ret = SANE_STATUS_INVAL;
 	}
       else
 	{
-	  DBG (1, "\tUnknown - Sense=%d, ASC=%d, ASCQ=%d\n", sense, asc,
-	       ascq);
+	  DBG (MSG_ERR, "\tUnknown - Sense=%d, ASC=%d, ASCQ=%d\n", 
+	       sense, asc, ascq);
 	}
       break;
 
     case 0x6:			/* Unit Attention */
       if ((0x00 == asc) && (0x00 == ascq))
 	{
-	  DBG (1, "\t%d/%d/%d: UNIT ATTENTION \n", sense, asc, ascq);
+	  DBG (MSG_ERR, "\t%d/%d/%d: UNIT ATTENTION \n", sense, asc, ascq);
 	}
       else
 	{
-	  DBG (1, "\tUnknown - Sense=%d, ASC=%d, ASCQ=%d\n", sense, asc,
-	       ascq);
+	  DBG (MSG_ERR, "\tUnknown - Sense=%d, ASC=%d, ASCQ=%d\n", 
+	       sense, asc, ascq);
 	}
       break;
 
     case 0xb:			/* Aborted Command */
       if ((0x43 == asc) && (0x00 == ascq))
 	{
-	  DBG (1, "\t%d/%d/%d: Message error \n", sense, asc, ascq);
+	  DBG (MSG_ERR, "\t%d/%d/%d: Message error \n", sense, asc, ascq);
 	}
       else if ((0x80 == asc) && (0x01 == ascq))
 	{
-	  DBG (1, "\t%d/%d/%d: Image transfer error \n", sense, asc, ascq);
+	  DBG (MSG_ERR, "\t%d/%d/%d: Image transfer error \n", 
+	       sense, asc, ascq);
 	}
       else
 	{
-	  DBG (1, "\tUnknown - Sense=%d, ASC=%d, ASCQ=%d\n", sense, asc,
-	       ascq);
+	  DBG (MSG_ERR, "\tUnknown - Sense=%d, ASC=%d, ASCQ=%d\n", 
+	       sense, asc, ascq);
 	}
       break;
 
     default:
-      DBG (1, "\tUnknown - Sense=%d, ASC=%d, ASCQ=%d\n", sense, asc, ascq);
+      DBG (MSG_ERR, "\tUnknown - Sense=%d, ASC=%d, ASCQ=%d\n", 
+	   sense, asc, ascq);
     }
   return ret;
 }
@@ -2299,12 +2592,14 @@ doInquiry (struct fujitsu *s)
   set_IN_return_size (inquiryB.cmd, 96);
   set_IN_evpd (inquiryB.cmd, 0);
   set_IN_page_code (inquiryB.cmd, 0);
+ 
+  hexdump (MSG_IO, "inquiry", inquiryB.cmd, inquiryB.size);
 
-  do_scsi_cmd (s->sfd, inquiryB.cmd, inquiryB.size, s->buffer, 96);
+  do_scsi_cmd (s->sfd, inquiryB.cmd, inquiryB.size, s->buffer, 96, NULL);
 }
 
 static SANE_Status
-getHardwareStatus (struct fujitsu *s)
+get_hardware_status (struct fujitsu *s)
 {
   SANE_Status ret;
   DBG (10, "get_hardware_status\n");
@@ -2314,12 +2609,28 @@ getHardwareStatus (struct fujitsu *s)
 
   if (s->sfd < 0)
     {
-      return SANE_STATUS_INVAL;
+      int sfd;
+
+      if (sanei_scsi_open (s->devicename, &sfd, senseHandler, 0) != 0)
+	{
+	  DBG (5, "get_hardware_status: open failed\n");
+	  return SANE_STATUS_INVAL;
+	}
+      
+      hexdump (MSG_IO, "get_hardware_status", 
+	       hw_statusB.cmd, hw_statusB.size);
+
+      ret = do_scsi_cmd (sfd, hw_statusB.cmd, hw_statusB.size,
+			 s->buffer, 10, NULL);
+      sanei_scsi_close (sfd);
     }
   else
     {
+      hexdump (MSG_IO, "get_hardware_status", 
+	       hw_statusB.cmd, hw_statusB.size);
+
       ret = do_scsi_cmd (s->sfd, hw_statusB.cmd, hw_statusB.size,
-			 s->buffer, 10);
+			 s->buffer, 10, NULL);
     }
 
   if (ret == SANE_STATUS_GOOD)
@@ -2354,43 +2665,57 @@ getVitalProductData (struct fujitsu *s)
   set_IN_evpd (inquiryB.cmd, 1);
   set_IN_page_code (inquiryB.cmd, 0xf0);
 
-  ret = do_scsi_cmd (s->sfd, inquiryB.cmd, inquiryB.size, s->buffer, 0x64);
+  hexdump (MSG_IO, "get_vital_product_data", inquiryB.cmd, inquiryB.size);
+  ret = do_scsi_cmd (s->sfd, inquiryB.cmd, inquiryB.size, 
+		     s->buffer, 0x64, NULL);
   if (ret == SANE_STATUS_GOOD)
     {
-      DBG (1, "basic x res: %d\n", get_IN_basic_x_res (s->buffer));
-      DBG (1, "basic y res %d\n", get_IN_basic_y_res (s->buffer));
-      DBG (1, "step x res %d\n", get_IN_step_x_res (s->buffer));
-      DBG (1, "step y res %d\n", get_IN_step_y_res (s->buffer));
-      DBG (1, "max x res %d\n", get_IN_max_x_res (s->buffer));
-      DBG (1, "max y res %d\n", get_IN_max_y_res (s->buffer));
-      DBG (1, "min x res %d\n", get_IN_min_x_res (s->buffer));
-      DBG (1, "max y res %d\n", get_IN_min_y_res (s->buffer));
-      DBG (1, "window width %d\n", get_IN_window_width (s->buffer));
-      DBG (1, "window length %d\n", get_IN_window_length (s->buffer));
-      DBG (1, "has operator panel %d\n", get_IN_operator_panel (s->buffer));
-      DBG (1, "has barcode %d\n", get_IN_barcode (s->buffer));
-      DBG (1, "has endorser %d\n", get_IN_endorser (s->buffer));
-      DBG (1, "is duplex %d\n", get_IN_duplex (s->buffer));
-      DBG (1, "has flatbed %d\n", get_IN_flatbed (s->buffer));
-      DBG (1, "has adf %d\n", get_IN_adf (s->buffer));
-      DBG (1, "binary scanning: %d\n", get_IN_monochrome (s->buffer));
-      DBG (1, "gray scanning: %d\n", get_IN_multilevel (s->buffer));
-      DBG (1, "half-tone scanning: %d\n", get_IN_half_tone (s->buffer));
-      DBG (1, "color binary scanning: %d\n",
-	   get_IN_monochrome_rgb (s->buffer));
-      DBG (1, "color scanning: %d\n", get_IN_multilevel_rgb (s->buffer));
-      DBG (1, "color half-tone scanning: %d\n",
-	   get_IN_half_tone_rgb (s->buffer));
-      DBG (1, "compression MR: %d\n", get_IN_compression_MH (s->buffer));
-      DBG (1, "compression MR: %d\n", get_IN_compression_MR (s->buffer));
-      DBG (1, "compression MMR: %d\n", get_IN_compression_MMR (s->buffer));
-      DBG (1, "compression JBIG: %d\n", get_IN_compression_JBIG (s->buffer));
-      DBG (1, "compression JPG1: %d\n",
-	   get_IN_compression_JPG_BASE (s->buffer));
-      DBG (1, "compression JPG2: %d\n",
-	   get_IN_compression_JPG_EXT (s->buffer));
-      DBG (1, "compression JPG3: %d\n",
-	   get_IN_compression_JPG_INDEP (s->buffer));
+      DBG (MSG_INFO, "basic x res: %d\n", get_IN_basic_x_res (s->buffer));
+      DBG (MSG_INFO, "basic y res %d\n", get_IN_basic_y_res (s->buffer));
+      DBG (MSG_INFO, "step x res %d\n", get_IN_step_x_res (s->buffer));
+      DBG (MSG_INFO, "step y res %d\n", get_IN_step_y_res (s->buffer));
+      DBG (MSG_INFO, "max x res %d\n", get_IN_max_x_res (s->buffer));
+      DBG (MSG_INFO, "max y res %d\n", get_IN_max_y_res (s->buffer));
+      DBG (MSG_INFO, "min x res %d\n", get_IN_min_x_res (s->buffer));
+      DBG (MSG_INFO, "max y res %d\n", get_IN_min_y_res (s->buffer));
+      DBG (MSG_INFO, "window width %d\n", get_IN_window_width (s->buffer));
+      DBG (MSG_INFO, "window length %d\n", get_IN_window_length (s->buffer));
+
+      if (get_IN_page_length (s->buffer) > 0x19) 
+	{
+	  DBG (MSG_INFO, "has operator panel %d\n",
+	       get_IN_operator_panel (s->buffer));
+	  DBG (MSG_INFO, "has barcode %d\n", get_IN_barcode (s->buffer));
+	  DBG (MSG_INFO, "has endorser %d\n", get_IN_endorser (s->buffer));
+	  DBG (MSG_INFO, "is duplex %d\n", get_IN_duplex (s->buffer));
+	  DBG (MSG_INFO, "has flatbed %d\n", get_IN_flatbed (s->buffer));
+	  DBG (MSG_INFO, "has adf %d\n", get_IN_adf (s->buffer));
+	  DBG (MSG_INFO, "binary scanning: %d\n", 
+	       get_IN_monochrome (s->buffer));
+	  DBG (MSG_INFO, "gray scanning: %d\n", get_IN_multilevel (s->buffer));
+	  DBG (MSG_INFO, "half-tone scanning: %d\n", 
+	       get_IN_half_tone (s->buffer));
+	  DBG (MSG_INFO, "color binary scanning: %d\n",
+	       get_IN_monochrome_rgb (s->buffer));
+	  DBG (MSG_INFO, "color scanning: %d\n", 
+	       get_IN_multilevel_rgb (s->buffer));
+	  DBG (MSG_INFO, "color half-tone scanning: %d\n",
+	       get_IN_half_tone_rgb (s->buffer));
+	  DBG (MSG_INFO, "compression MR: %d\n", 
+	       get_IN_compression_MH (s->buffer));
+	  DBG (MSG_INFO, "compression MR: %d\n", 
+	       get_IN_compression_MR (s->buffer));
+	  DBG (MSG_INFO, "compression MMR: %d\n", 
+	       get_IN_compression_MMR (s->buffer));
+	  DBG (MSG_INFO, "compression JBIG: %d\n", 
+	       get_IN_compression_JBIG (s->buffer));
+	  DBG (MSG_INFO, "compression JPG1: %d\n",
+	       get_IN_compression_JPG_BASE (s->buffer));
+	  DBG (MSG_INFO, "compression JPG2: %d\n",
+	       get_IN_compression_JPG_EXT (s->buffer));
+	  DBG (MSG_INFO, "compression JPG3: %d\n",
+	       get_IN_compression_JPG_INDEP (s->buffer));
+	}
     }
   return ret;
 }
@@ -2403,26 +2728,37 @@ getVitalProductData (struct fujitsu *s)
  */
 static int
 do_scsi_cmd (int fd, unsigned char *cmd, int cmd_len,
-	     unsigned char *out, size_t out_len)
+	     unsigned char *out, size_t req_out_len, size_t *res_out_len)
 {
   int ret;
-  size_t ol = out_len;
+  size_t ol = req_out_len;
 
-  hexdump (20, "<cmd<", cmd, cmd_len);
+  hexdump (IO_CMD, "<cmd<", cmd, cmd_len);
 
   ret = sanei_scsi_cmd (fd, cmd, cmd_len, out, &ol);
-  if ((out_len != 0) && (out_len != ol))
+  if (res_out_len != NULL)
     {
-      DBG (1, "sanei_scsi_cmd: asked %lu bytes, got %lu\n",
-	   (u_long) out_len, (u_long) ol);
+      *res_out_len = ol;
     }
+
+  if ((req_out_len != 0) && (req_out_len != ol))
+    {
+      DBG (MSG_ERR, "sanei_scsi_cmd: asked %lu bytes, got %lu\n",
+	   (u_long) req_out_len, (u_long) ol);
+    }
+
+
   if (ret)
     {
-      DBG (1, "sanei_scsi_cmd: returning 0x%08x\n", ret);
+      DBG (MSG_ERR, "sanei_scsi_cmd: returning 0x%08x\n", ret);
     }
-  DBG (10, "sanei_scsi_cmd: returning %lu bytes:\n", (u_long) ol);
-  if (out != NULL && out_len != 0)
-    hexdump (15, ">rslt>", out, (out_len > 0x60) ? 0x60 : out_len);
+
+  DBG (IO_CMD_RES, "sanei_scsi_cmd: returning %lu bytes:\n", (u_long) ol);
+
+  if (out != NULL && ol != 0)
+    {
+      hexdump (IO_CMD_RES, ">rslt>", out, (ol > 0x60) ? 0x60 : ol);
+    }
 
   return ret;
 }
@@ -2521,13 +2857,18 @@ freeScanner (struct fujitsu *s)
 {
   int ret;
   DBG (10, "freeScanner\n");
-  ret = objectDischarge (s);
+
+#if 0
+  ret = object_position (s, SANE_FALSE);
   if (ret)
     return ret;
 
   waitScanner (s);
+#endif
 
-  ret = do_scsi_cmd (s->sfd, release_unitB.cmd, release_unitB.size, NULL, 0);
+  hexdump (MSG_IO, "release_unit", release_unitB.cmd, release_unitB.size);
+  ret = do_scsi_cmd (s->sfd, release_unitB.cmd, release_unitB.size, 
+		     NULL, 0, NULL);
   if (ret)
     return ret;
 
@@ -2557,7 +2898,9 @@ grabScanner (struct fujitsu *s)
   DBG (10, "grabScanner\n");
   waitScanner (s);
 
-  ret = do_scsi_cmd (s->sfd, reserve_unitB.cmd, reserve_unitB.size, NULL, 0);
+  hexdump (MSG_IO, "reserve_unit", reserve_unitB.cmd, reserve_unitB.size);
+  ret = do_scsi_cmd (s->sfd, reserve_unitB.cmd, reserve_unitB.size, 
+		     NULL, 0, NULL);
   if (ret)
     return ret;
 
@@ -2581,21 +2924,23 @@ waitScanner (struct fujitsu *s)
 
   while (ret != SANE_STATUS_GOOD)
     {
+      hexdump (MSG_IO, "test_unit_ready", test_unit_readyB.cmd,
+	       test_unit_readyB.size);
       ret = do_scsi_cmd (s->sfd, test_unit_readyB.cmd,
-			 test_unit_readyB.size, 0, 0);
+			 test_unit_readyB.size, 0, 0, NULL);
       if (ret == SANE_STATUS_DEVICE_BUSY)
 	{
 	  usleep (500000);	/* wait 0.5 seconds */
 	  /* 20 sec. max (prescan takes up to 15 sec. */
 	  if (cnt++ > 40)
 	    {
-	      DBG (1, "waitScanner: scanner does NOT get ready\n");
+	      DBG (MSG_ERR, "waitScanner: scanner does NOT get ready\n");
 	      return -1;
 	    }
 	}
       else if (ret != SANE_STATUS_GOOD)
 	{
-	  DBG (1, "waitScanner: unit ready failed (%s)\n",
+	  DBG (MSG_ERR, "waitScanner: unit ready failed (%s)\n",
 	       sane_strstatus (ret));
 	}
     }
@@ -2607,29 +2952,64 @@ waitScanner (struct fujitsu *s)
  * Issues the SCSI OBJECT POSITION command if an ADF is installed.
  */
 static int
-objectPosition (struct fujitsu *s)
+object_position (struct fujitsu *s, int i_load)
 {
   int ret;
-  DBG (10, "objectPosition\n");
+  DBG (10, "object_position: %s \n", (i_load==SANE_TRUE)?"load":"discharge");
   if (s->use_adf != SANE_TRUE)
     {
       return SANE_STATUS_GOOD;
     }
-  if (s->adf_present == SANE_FALSE)
+  if (s->has_adf == SANE_FALSE)
     {
-      DBG (10, "objectPosition: ADF not present.\n");
+      DBG (10, "object_position: ADF not present.\n");
       return SANE_STATUS_UNSUPPORTED;
     }
   memcpy (s->buffer, object_positionB.cmd, object_positionB.size);
-  set_OP_autofeed (s->buffer, OP_Feed);
-  ret = do_scsi_cmd (s->sfd, s->buffer, object_positionB.size, NULL, 0);
+
+  if (i_load == SANE_TRUE) 
+    {
+      set_OP_autofeed (s->buffer, OP_Feed);
+    } 
+  else 
+    {
+      set_OP_autofeed (s->buffer, OP_Discharge);
+    }
+
+  hexdump (MSG_IO, "object_position", s->buffer, object_positionB.size);
+  ret = do_scsi_cmd (s->sfd, s->buffer, object_positionB.size, NULL, 0, NULL);
   if (ret != SANE_STATUS_GOOD)
     return ret;
   waitScanner (s);
-  DBG (10, "objectPosition: ok\n");
+  DBG (10, "object_position: ok\n");
   return ret;
 }
 
+
+/**
+ * Issues OBJECT DISCHARGE command to spit out the paper.
+ */
+/*
+static int
+objectDischarge (struct fujitsu *s)
+{
+  int ret;
+
+  DBG (10, "objectDischarge\n");
+  if (s->use_adf != SANE_TRUE)
+    {
+      return SANE_STATUS_GOOD;
+    }
+
+  memcpy (s->buffer, object_positionB.cmd, object_positionB.size);
+  set_OP_autofeed (s->buffer, OP_Discharge);
+  hexdump (MSG_IO, "object_position", s->buffer, object_positionB.size);
+  ret = do_scsi_cmd (s->sfd, s->buffer, object_positionB.size, NULL, 0, NULL);
+  waitScanner (s);
+  DBG (10, "objectDischarge: ok\n");
+  return ret;
+}
+*/
 
 /**
  * Performs cleanup.
@@ -2655,10 +3035,11 @@ doCancel (struct fujitsu *scanner)
       int exit_status;
       DBG (10, "doCancel: kill reader_process\n");
 
-      /* Tell reader process to stop, then wait for it to react. If kill fails because
-       * the process doesn't exist for some reason, don't wait. This will mostly happen
-       * if the process has already terminated and been waited for - for example, in the
-       * duplex-with-tempfile scenario.
+      /* Tell reader process to stop, then wait for it to react. 
+       * If kill fails because the process doesn't exist for some 
+       * reason, don't wait. This will mostly happen if the process 
+       * has already terminated and been waited for - for example, 
+       * in the duplex-with-tempfile scenario.
        */
       if (kill (scanner->reader_pid, SIGTERM) == 0)
 	{
@@ -2680,27 +3061,6 @@ doCancel (struct fujitsu *scanner)
 }
 
 
-/**
- * Issues OBJECT DISCHARGE command to spit out the paper.
- */
-static int
-objectDischarge (struct fujitsu *s)
-{
-  int ret;
-
-  DBG (10, "objectDischarge\n");
-  if (s->use_adf != SANE_TRUE)
-    {
-      return SANE_STATUS_GOOD;
-    }
-
-  memcpy (s->buffer, object_positionB.cmd, object_positionB.size);
-  set_OP_autofeed (s->buffer, OP_Discharge);
-  ret = do_scsi_cmd (s->sfd, s->buffer, object_positionB.size, NULL, 0);
-  waitScanner (s);
-  DBG (10, "objectDischarge: ok\n");
-  return ret;
-}
 
 /**
  * Convenience method to determine longest string size in a list.
@@ -2762,7 +3122,8 @@ startScan (struct fujitsu *s)
 	(s->duplex_mode == DUPLEX_BACK) ? WD_wid_back : WD_wid_front;
     }
 
-  ret = do_scsi_cmd (s->sfd, command, cmdsize, NULL, 0);
+  hexdump (MSG_IO, "start_scan", command, cmdsize);
+  ret = do_scsi_cmd (s->sfd, command, cmdsize, NULL, 0, NULL);
 
   free (command);
 
@@ -2805,30 +3166,68 @@ set_mode_params (struct fujitsu *s)
       set_MSEL_dropout_front (command, s->dropout_color);
       set_MSEL_dropout_back (command, s->dropout_color);
 
-
-      /*
-         set_MSEL_pagecode(command, MSEL_transfer_mode);
-         set_MSEL_transfer_mode(command, 1);
-
-         set_MSEL_pagecode(command, MSEL_sleep);
-         set_MSEL_sleep_mode(command, 1);
-       */
-
-
       i_param_size = mode_select_headerB.size + i_cmd_size + 2;
       set_MSEL_xfer_length (s->buffer, i_param_size);
 
-      hexdump (5, "mode_select", s->buffer, i_param_size + mode_selectB.size);
+      hexdump (MSG_IO, "mode_select", s->buffer, 
+	       i_param_size + mode_selectB.size);
 
       ret = do_scsi_cmd (s->sfd, s->buffer,
-			 i_param_size + mode_selectB.size, NULL, 0);
+			 i_param_size + mode_selectB.size, NULL, 0, NULL);
 
     }
+
 
   if (!ret)
     {
 
       DBG (10, "set_mode_params: ok\n");
+    }
+
+  return ret;
+}
+
+static int
+fujitsu_set_sleep_mode(struct fujitsu *s) 
+{
+  int ret;
+  unsigned char *command;
+  int     i_cmd_size;
+  int     i_param_size;
+
+  ret = SANE_STATUS_GOOD;
+
+  if (s->model == MODEL_FI) /*...and others */
+    {
+      memcpy (s->buffer, mode_selectB.cmd, mode_selectB.size);
+      memcpy (s->buffer + mode_selectB.size, mode_select_headerB.cmd,
+	      mode_select_headerB.size);
+      memcpy (s->buffer + mode_selectB.size + mode_select_headerB.size,
+	      mode_select_parameter_blockB.cmd,
+	      mode_select_parameter_blockB.size);
+  
+  
+  
+      command = s->buffer + mode_selectB.size + mode_select_headerB.size;
+      i_cmd_size = 6;
+      set_MSEL_len (command, i_cmd_size);
+
+      set_MSEL_pagecode (command, MSEL_sleep);
+      set_MSEL_sleep_mode(command, s->sleep_time);
+  
+      i_param_size = mode_select_headerB.size + i_cmd_size + 2;
+      set_MSEL_xfer_length (s->buffer, i_param_size);
+
+      hexdump (MSG_IO, "mode_select", s->buffer, 
+	       i_param_size + mode_selectB.size);
+  
+      ret = do_scsi_cmd (s->sfd, s->buffer,
+			 i_param_size + mode_selectB.size, NULL, 0, NULL);
+
+      if (!ret)
+	{
+	  DBG (10, "set_sleep_mode: ok\n");
+	}
     }
 
   return ret;
@@ -2858,6 +3257,7 @@ readerGenericPassthrough (struct fujitsu *scanner, FILE * fp, int i_window_id)
   unsigned int totalDataSize, dataLeft, dataToRead;
   unsigned char *largeBuffer;
   unsigned int largeBufferSize = 0;
+  unsigned int i_data_read;
 
   dataLeft = scanner->bytes_per_scan_line * scanner->scan_height_pixels;
   totalDataSize = dataLeft;
@@ -2871,21 +3271,22 @@ readerGenericPassthrough (struct fujitsu *scanner, FILE * fp, int i_window_id)
     {
       dataToRead = (dataLeft < largeBufferSize) ? dataLeft : largeBufferSize;
 
-      status =
-	read_large_data_block (scanner, largeBuffer, dataToRead, i_window_id);
+      status = read_large_data_block (scanner, largeBuffer, dataToRead, 
+				      i_window_id, &i_data_read);
 
       switch (status)
 	{
 	case SANE_STATUS_GOOD:
 	  break;
 	case SANE_STATUS_EOF:
-	  DBG (5, "reader_process: EOM (no more data) length = %d\n",
-	       scanner->i_transfer_length);
-	  dataToRead -= scanner->i_transfer_length;
+	  DBG (10, "reader_process: EOM (no more data) length = %d\n",
+	       i_data_read);
+	  dataToRead -= i_data_read;
 	  dataLeft = dataToRead;
 	  break;
 	default:
-	  DBG (1, "reader_process: unable to get image data from scanner!\n");
+	  DBG (MSG_ERR, 
+	       "reader_process: unable to get image data from scanner!\n");
 	  fclose (fp);
 	  return (0);
 	}
@@ -2894,7 +3295,7 @@ readerGenericPassthrough (struct fujitsu *scanner, FILE * fp, int i_window_id)
       fflush (fp);
 
       dataLeft -= dataToRead;
-      DBG (5, "reader_process: buffer of %d bytes read; %d bytes to go\n",
+      DBG (10, "reader_process: buffer of %d bytes read; %d bytes to go\n",
 	   dataToRead, dataLeft);
     }
   while (dataLeft);
@@ -2915,39 +3316,62 @@ readerGenericPassthrough (struct fujitsu *scanner, FILE * fp, int i_window_id)
  * @param length how many bytes to read
  * @param i_window_id 0=read data from front side 128= read data from back.
  *        m3091: set i_window_id=0 for both sides.
+ * @return i_data_read the number of bytes returned by the scanner, is not
+ *         always euqal to length.
  */
 static int
 read_large_data_block (struct fujitsu *s, unsigned char *buffer,
-		       unsigned int length, int i_window_id)
+		       unsigned int length, int i_window_id, 
+		       unsigned int *i_data_read)
 {
-  unsigned int dataLeft = length;
+  unsigned int data_left = length;
   unsigned int dataToRead;
-  int r;
+  int status;
   unsigned char *myBuffer = buffer;
+  size_t data_read;
 
+  *i_data_read = 0;
   current_scanner = s;
-  DBG (9, "read_large_data_block requested %u bytes\n", length);
+  DBG (FLOW_CONTROL, "read_large_data_block requested %u bytes\n", length);
   do
     {
       dataToRead =
-	(dataLeft <= s->scsi_buf_size) ? dataLeft : s->scsi_buf_size;
+	(data_left <= s->scsi_buf_size) ? data_left : s->scsi_buf_size;
 
       set_R_datatype_code (readB.cmd, R_datatype_imagedata);
       set_R_window_id (readB.cmd, i_window_id);
       set_R_xfer_length (readB.cmd, dataToRead);
-      DBG (9, "read_large_data_block ...  xfer length=%u\n", dataToRead);
-      r = do_scsi_cmd (s->sfd, readB.cmd, readB.size, myBuffer, dataToRead);
-      if (r)
+
+      status = do_scsi_cmd (s->sfd, readB.cmd, readB.size, myBuffer, 
+			    dataToRead, &data_read);	
+
+      if (status == SANE_STATUS_EOF)
+	{
+	  /* get the real number of bytes */
+	  data_read = s->i_transfer_length;
+	  data_left = 0;
+	}
+      else if (status != SANE_STATUS_GOOD)
 	{
 	  /* denotes error */
-	  return r;
+	  data_left = 0;
 	}
-      myBuffer += dataToRead;
-      dataLeft -= dataToRead;
-    }
-  while (dataLeft);
+      else 
+	{
+	  myBuffer += data_read;
+	  data_left -= data_read;
+	}
 
-  return SANE_STATUS_GOOD;
+      *i_data_read += data_read;
+    }
+  while (data_left);
+
+  if (*i_data_read != length) 
+    {
+      DBG(10, "data read = %d data requested = %d\n", *i_data_read, length);
+    }
+
+  return status;
 }
 
 
@@ -2988,9 +3412,9 @@ identifyScanner (struct fujitsu *s)
       return 1;
     }
 
-  get_IN_vendor (s->buffer, vendor);
-  get_IN_product (s->buffer, product);
-  get_IN_version (s->buffer, version);
+  get_IN_vendor ((char*) s->buffer, vendor);
+  get_IN_product ((char*) s->buffer, product);
+  get_IN_version ((char*) s->buffer, version);
 
   vendor[8] = '\0';
   product[16] = '\0';
@@ -3045,6 +3469,7 @@ identifyScanner (struct fujitsu *s)
        (s->model == MODEL_FORCE) ? "unknown" :
        (s->model == MODEL_3091) ? "3091" :
        (s->model == MODEL_3096) ? "3096" :
+       (s->model == MODEL_3097) ? "3097" :
        (s->model == MODEL_3093) ? "3093" :
        (s->model == MODEL_4097) ? "4097" :
        (s->model == MODEL_SP15) ? "SP15" :
@@ -3054,7 +3479,8 @@ identifyScanner (struct fujitsu *s)
   strcpy (s->productName, product);
   strcpy (s->versionName, version);
 
-  s->adf_present = SANE_FALSE;
+  s->has_adf = SANE_FALSE;
+  s->has_fb = SANE_FALSE;
   s->can_read_alternate = SANE_FALSE;
   s->ipc_present = SANE_FALSE;
   s->has_dropout_color = SANE_FALSE;
@@ -3063,23 +3489,38 @@ identifyScanner (struct fujitsu *s)
   s->has_emphasis = SANE_FALSE;
   s->has_autosep = SANE_FALSE;
   s->has_mirroring = SANE_FALSE;
+  s->has_imprinter = SANE_FALSE;
+  s->has_threshold = SANE_TRUE;
+  s->has_brightness = SANE_TRUE;
+  s->has_contrast = SANE_TRUE;
+
+  s->threshold_range = default_threshold_range;
+  s->brightness_range = default_brightness_range;
+  s->contrast_range = default_contrast_range;
+
+  s->vpd_mode_list[0] = NULL;
+  s->compression_mode_list[0] = cmp_none;
+
 
   if (s->model == MODEL_3091)
     {
       /* Couldn't find a way to ask the scanner if it supports the ADF, 
        * so just hard-code it.
        */
-      s->adf_present = SANE_TRUE;
+      s->has_adf = SANE_TRUE;
+      s->has_fb = SANE_FALSE;
+      s->has_contrast = SANE_FALSE;
       s->color_raster_offset = get_IN_raster (s->buffer);
       s->duplex_raster_offset = get_IN_frontback (s->buffer);
       s->duplex_present =
 	(get_IN_duplex_3091 (s->buffer)) ? SANE_TRUE : SANE_FALSE;
     }
   else if ((s->model == MODEL_3096) || (s->model == MODEL_3093)
-	   || (s->model == MODEL_4097))
+	   || (s->model == MODEL_3097) || (s->model == MODEL_4097))
     {
       int i;
-      s->adf_present = SANE_TRUE;
+      s->has_adf = SANE_TRUE;
+      s->has_fb = SANE_TRUE;
       s->color_raster_offset = 0;
       s->duplex_raster_offset = 0;
 
@@ -3153,7 +3594,7 @@ identifyScanner (struct fujitsu *s)
     {
 
       s->can_read_alternate = 1;
-      s->ipc_present = (strchr (s->productName, 'i')) ? 1 : 0;
+      s->ipc_present = (strchr ((s->productName)+3, 'i')) ? 1 : 0;
       if (!strncmp (product, "fi-4340C", 8))
 	{
 	  s->has_dropout_color = SANE_TRUE;
@@ -3161,7 +3602,7 @@ identifyScanner (struct fujitsu *s)
     }
   else
     {
-      s->adf_present = SANE_FALSE;
+      s->has_adf = SANE_FALSE;
     }
 
 
@@ -3208,9 +3649,6 @@ identifyScanner (struct fujitsu *s)
     }
 
 
-  s->vpd_mode_list[0] = NULL;
-
-  s->compression_mode_list[0] = cmp_none;
   if (s->cmp_present)
     {
 
@@ -3233,23 +3671,20 @@ identifyScanner (struct fujitsu *s)
        */
       int i, i_num_res;
 
-      if (get_IN_page_length (s->buffer) > 0x19)
-	{
-	  /* VPD extended format present */
-	  s->adf_present = get_IN_adf (s->buffer);
-	  s->duplex_present = get_IN_duplex (s->buffer);
-	  /*s->flatbed       = get_IN_flatbed(s->buffer); */
-	  s->has_hw_status = get_IN_has_hw_status (s->buffer);
-	  s->has_outline = get_IN_ipc_outline_extraction (s->buffer);
-	  s->has_emphasis = get_IN_ipc_image_emphasis (s->buffer);
-	  s->has_autosep = get_IN_ipc_auto_separation (s->buffer);
-	  s->has_mirroring = get_IN_ipc_mirroring (s->buffer);
-	  s->has_white_level_follow =
-	    get_IN_ipc_white_level_follow (s->buffer);
-	  s->has_subwindow = get_IN_ipc_subwindow (s->buffer);
-	}
+
+      /* 
+       * calculate maximum window with and window length.
+       */
+      s->x_range.max = SANE_FIX(get_IN_window_width(s->buffer) * MM_PER_INCH / 
+				get_IN_basic_x_res(s->buffer) );
+      s->y_range.max = SANE_FIX(get_IN_window_length(s->buffer)* MM_PER_INCH / 
+				get_IN_basic_y_res(s->buffer) );
 
 
+      DBG(DEBUG, "range: %d %d\n",s->x_range.max, s->y_range.max);
+      /*
+       * set possible resolutions.
+       */
       s->x_res_range.quant = get_IN_step_x_res (s->buffer);
       s->y_res_range.quant = get_IN_step_y_res (s->buffer);
       s->x_res_range.max = get_IN_max_x_res (s->buffer);
@@ -3348,94 +3783,131 @@ identifyScanner (struct fujitsu *s)
 	  /* can't get resolutions for grey scale reading ???? */
 	}
 
-      /*
-       * setup mode list.
-       * caution: vpd_mode_list has constant size (see header file)
-       */
-      i = 0;
-      if (get_IN_monochrome (s->buffer))
+
+      if (get_IN_page_length (s->buffer) > 0x19)
 	{
+	  /* VPD extended format present */
+	  s->has_adf = get_IN_adf (s->buffer);
+	  s->has_fb = get_IN_flatbed(s->buffer);
+	  s->duplex_present = get_IN_duplex (s->buffer);
+	  s->has_hw_status = get_IN_has_hw_status (s->buffer);
+	  s->has_outline = get_IN_ipc_outline_extraction (s->buffer);
+	  s->has_emphasis = get_IN_ipc_image_emphasis (s->buffer);
+	  s->has_autosep = get_IN_ipc_auto_separation (s->buffer);
+	  s->has_mirroring = get_IN_ipc_mirroring (s->buffer);
+	  s->has_white_level_follow =
+	    get_IN_ipc_white_level_follow (s->buffer);
+	  s->has_subwindow = get_IN_ipc_subwindow (s->buffer);
 
-	  s->vpd_mode_list[i] = mode_lineart;
-	  i++;
-	}
-      if (get_IN_half_tone (s->buffer))
-	{
+	  /*
+	   * get threshold, brightness and contrast ranges.
+	   */
+	  s->has_threshold = (get_IN_threshold_steps(s->buffer) != 0);
+	  if (s->has_threshold) 
+	    {
+	      s->threshold_range.quant = (get_IN_threshold_steps(s->buffer) / 255);
+	    }
+	  s->has_contrast = (get_IN_contrast_steps(s->buffer) != 0);
+	  if (s->has_contrast) 
+	    {
+	      s->contrast_range.quant = (get_IN_contrast_steps(s->buffer) / 255);
+	    }
+	  s->has_brightness = (get_IN_brightness_steps(s->buffer) != 0);
+	  if (s->has_brightness) 
+	    {
+	      s->brightness_range.quant = (get_IN_brightness_steps(s->buffer)/255);
+	    }
 
-	  s->vpd_mode_list[i] = mode_halftone;
-	  i++;
-	}
-      if (get_IN_multilevel (s->buffer))
-	{
+	  /*
+	   * setup mode list.
+	   * caution: vpd_mode_list has constant size (see header file)
+	   */
+	  i = 0;
+	  if (get_IN_monochrome (s->buffer))
+	    {
+	      
+	      s->vpd_mode_list[i] = mode_lineart;
+	      i++;
+	    }
+	  if (get_IN_half_tone (s->buffer))
+	    {
+	      
+	      s->vpd_mode_list[i] = mode_halftone;
+	      i++;
+	    }
+	  if (get_IN_multilevel (s->buffer))
+	    {
+	      
+	      s->vpd_mode_list[i] = mode_grayscale;
+	      i++;
+	    }
+	  if (get_IN_multilevel_rgb (s->buffer))
+	    {
+	      
+	      s->vpd_mode_list[i] = mode_color;
+	      i++;
+	    }
+	  s->vpd_mode_list[i] = NULL;
+	  
 
-	  s->vpd_mode_list[i] = mode_grayscale;
-	  i++;
-	}
-      if (get_IN_multilevel_rgb (s->buffer))
-	{
-
-	  s->vpd_mode_list[i] = mode_color;
-	  i++;
-	}
-      s->vpd_mode_list[i] = NULL;
-
-
-      /*
+	  /*
        * setup compression modes
        */
-      i = 1;			/* compression_mode_list[0] = no compression */
-      if (get_IN_compression_MH (s->buffer))
-	{
+	  i = 1;			/* compression_mode_list[0] = no compression */
+	  if (get_IN_compression_MH (s->buffer))
+	    {
 
-	  s->compression_mode_list[i] = cmp_mh;
-	  i++;
+	      s->compression_mode_list[i] = cmp_mh;
+	      i++;
+	    }
+	  if (get_IN_compression_MR (s->buffer))
+	    {
+
+	      s->compression_mode_list[i] = cmp_mr;
+	      i++;
+	    }
+	  if (get_IN_compression_MMR (s->buffer))
+	    {
+
+	      s->compression_mode_list[i] = cmp_mmr;
+	      i++;
+	    }
+	  if (get_IN_compression_JBIG (s->buffer))
+	    {
+
+	      s->compression_mode_list[i] = cmp_jbig;
+	      i++;
+	    }
+
+	  if (get_IN_compression_JPG_BASE (s->buffer))
+	    {
+
+	      s->compression_mode_list[i] = cmp_jpg_base;
+	      i++;
+	    }
+	  if (get_IN_compression_JPG_EXT (s->buffer))
+	    {
+
+	      s->compression_mode_list[i] = cmp_jpg_ext;
+	      i++;
+	    }
+	  if (get_IN_compression_JPG_INDEP (s->buffer))
+	    {
+
+	      s->compression_mode_list[i] = cmp_jpg_indep;
+	      i++;
+	    }
+
+	  s->compression_mode_list[i] = NULL;
+	  s->cmp_present = (i > 1);
+
+	  s->has_imprinter = get_IN_imprinter(s->buffer);
 	}
-      if (get_IN_compression_MR (s->buffer))
-	{
-
-	  s->compression_mode_list[i] = cmp_mr;
-	  i++;
-	}
-      if (get_IN_compression_MMR (s->buffer))
-	{
-
-	  s->compression_mode_list[i] = cmp_mmr;
-	  i++;
-	}
-      if (get_IN_compression_JBIG (s->buffer))
-	{
-
-	  s->compression_mode_list[i] = cmp_jbig;
-	  i++;
-	}
-
-      if (get_IN_compression_JPG_BASE (s->buffer))
-	{
-
-	  s->compression_mode_list[i] = cmp_jpg_base;
-	  i++;
-	}
-      if (get_IN_compression_JPG_EXT (s->buffer))
-	{
-
-	  s->compression_mode_list[i] = cmp_jpg_ext;
-	  i++;
-	}
-      if (get_IN_compression_JPG_INDEP (s->buffer))
-	{
-
-	  s->compression_mode_list[i] = cmp_jpg_indep;
-	  i++;
-	}
-
-      s->compression_mode_list[i] = NULL;
-      s->cmp_present = (i > 1);
-
     }
 
   s->object_count = 0;
 
-  DBG (10, "\tADF:%s present\n", s->adf_present ? "" : " not");
+  DBG (10, "\tADF:%s present\n", s->has_adf ? "" : " not");
   DBG (10, "\tDuplex Unit:%s present\n", s->duplex_present ? "" : " not");
   DBG (10, "\tDuplex Raster Offset: %d\n", s->duplex_raster_offset);
   DBG (10, "\tColor Raster Offset: %d\n", s->color_raster_offset);
@@ -3461,6 +3933,10 @@ modelMatch (const char *product)
     {
       return MODEL_3096;
     }
+  else if (strstr (product, "3097"))
+    {
+      return MODEL_3097;
+    }
   else if (strstr (product, "4097"))
     {
       return MODEL_4097;
@@ -3481,6 +3957,154 @@ modelMatch (const char *product)
   return -1;
 }
 
+static int
+imprinter(struct fujitsu *s) 
+{
+  int ret;
+  unsigned char *command;
+  int i_size;
+  DBG (10, "imprinter\n");
+
+  ret = 0;
+
+  if (s->has_imprinter)
+    {
+      memcpy (s->buffer, imprinterB.cmd, imprinterB.size);
+      memcpy (s->buffer + imprinterB.size,
+	      imprinter_descB.cmd, imprinter_descB.size);
+      
+      command = s->buffer + imprinterB.size;
+      if (s->use_imprinter) {
+	set_IMD_enable(command, IMD_enable);
+      } else {
+	set_IMD_enable(command, IMD_disable);
+      }
+
+      set_IMD_side(command, IMD_back);
+      if (0) {
+
+	/* 16 bit counter */
+	set_IMD_format(command, IMD_16_bit);
+	set_IMD_initial_count_16(command, s->imprinter_ctr_init);
+	i_size = 4;
+      } else {
+
+	/* 24 bit counter */
+	set_IMD_format(command, IMD_24_bit);
+	set_IMD_initial_count_24(command, s->imprinter_ctr_init);
+	i_size = 6;
+      }
+      
+      set_IM_xfer_length(s->buffer, i_size);
+
+      hexdump (MSG_IO, "imprinter", s->buffer, 
+	       imprinterB.size + i_size);
+      
+
+      if (s->sfd < 0) 
+	{
+	  int sfd;
+
+	  if (sanei_scsi_open (s->devicename, &sfd, senseHandler, 0) != 0)
+	    {
+	      DBG (5, "imprinter: open failed\n");
+	      return SANE_STATUS_INVAL;
+	    }
+      
+
+	  ret = do_scsi_cmd (sfd, s->buffer,
+			     imprinterB.size + i_size,
+			     NULL, 0, NULL);
+	  sanei_scsi_close (sfd);
+	} 
+      else 
+	{
+	  ret = do_scsi_cmd (s->sfd, s->buffer,
+			     imprinterB.size + i_size,
+			     NULL, 0, NULL);
+	}
+
+      if (!ret)
+	{
+	  
+	  DBG (10, "imprinter: ok\n");
+	}
+    }
+
+  return ret;
+}
+
+static int
+fujitsu_send(struct fujitsu *s) 
+{
+  int ret;
+  unsigned char *command;
+  char *cp_string = "%05ud";
+  int  i_strlen;
+  int  i_yoffset;
+  int  i_ymin;
+
+  DBG (10, "send\n");
+
+  ret = 0;
+
+  if (s->has_imprinter && s->use_imprinter)
+    {
+
+      memcpy (s->buffer, sendB.cmd, sendB.size);
+      memcpy (s->buffer + sendB.size,
+	      send_imprinterB.cmd,
+	      send_imprinterB.size);
+      
+      cp_string = s->imprinter_string;
+      i_strlen = strlen(cp_string);
+      command = s->buffer;
+      set_S_datatype_code(command, S_datatype_imprinter_data);
+      set_S_xfer_length(command, send_imprinterB.size + i_strlen);
+
+      command += sendB.size;
+      set_imprinter_cnt_dir(command, S_im_dir_inc);
+      set_imprinter_lap24(command, S_im_ctr_16bit);
+      set_imprinter_cstep(command, 1);
+
+      /* minimum offset is 7mm. You have to set i_yoffset to 0 to
+       * have 7mm offset.
+       */
+      i_ymin = FIXED_MM_TO_SCANNER_UNIT(7);
+      i_yoffset = FIXED_MM_TO_SCANNER_UNIT(s->imprinter_y_offset);
+      if (i_yoffset >= i_ymin) 
+	{
+	  i_yoffset = i_yoffset - i_ymin;
+	} 
+      else 
+	{
+	  i_yoffset = 0;
+	}
+      set_imprinter_uly(command, i_yoffset);
+
+      set_imprinter_dirs(command, s->imprinter_direction);
+      set_imprinter_string_length(command, i_strlen);
+
+      command += send_imprinterB.size;
+      memcpy(command, cp_string, i_strlen);
+
+      hexdump (MSG_IO, "send", s->buffer, 
+	       i_strlen +  send_imprinterB.size + sendB.size);
+
+      ret = do_scsi_cmd (s->sfd, s->buffer,
+			 i_strlen +  send_imprinterB.size + sendB.size,
+			 NULL, 0, NULL);
+
+    }
+
+  if (!ret)
+    {
+
+      DBG (10, "send: ok\n");
+    }
+
+  return ret;
+}
 
 /**
  * This routine issues a SCSI SET WINDOW command to the scanner, using the
@@ -3513,7 +4137,7 @@ setWindowParam (struct fujitsu *s)
   /* compiler was unhappy about me using "assert" ...? */
   if (windowDataSize > window_descriptor_blockB.size)
     {
-      DBG (1,
+      DBG (MSG_ERR,
 	   "backend is broken - cannot transfer larger window descriptor than defined in header file\n");
     }
 
@@ -3597,9 +4221,16 @@ setWindowParam (struct fujitsu *s)
     }
 
   set_WD_paper_size (buffer, s->paper_size);
-  set_WD_paper_width_X (buffer, s->page_width);
-  set_WD_paper_length_Y (buffer, s->page_height);
-  set_WD_paper_selection (buffer, s->paper_selection);
+  set_WD_paper_orientation(buffer, s->paper_orientation);
+  set_WD_paper_selection(buffer, s->paper_selection);
+		
+  if (s->paper_selection != WD_paper_SEL_STANDARD) {
+    set_WD_paper_width_X (buffer, s->page_width);
+    set_WD_paper_length_Y (buffer, s->page_height);
+  } else {
+    set_WD_paper_width_X (buffer, 0);
+    set_WD_paper_length_Y (buffer, 0);
+  }
 
   /* prepare SCSI buffer */
 
@@ -3642,7 +4273,7 @@ setWindowParam (struct fujitsu *s)
   /* when in duplex mode, add a second window */
   if (s->duplex_mode == DUPLEX_BOTH)
     {
-      hexdump (15, "Window set - front", buffer, windowDataSize);
+      hexdump (MSG_IO, "Window set - front", buffer, windowDataSize);
       set_WD_wid (buffer, WD_wid_back);
       if (s->model != MODEL_3091)
 	{
@@ -3654,7 +4285,7 @@ setWindowParam (struct fujitsu *s)
 	  set_WD_paper_width_X (buffer, 0);
 	  set_WD_paper_length_Y (buffer, 0);
 	}
-      hexdump (15, "Window set - back", buffer, windowDataSize);
+      hexdump (MSG_IO, "Window set - back", buffer, windowDataSize);
       memcpy (s->buffer + set_windowB.size +
 	      window_parameter_data_blockB.size + windowDataSize, buffer,
 	      windowDataSize);
@@ -3667,14 +4298,14 @@ setWindowParam (struct fujitsu *s)
     }
   else
     {
-      hexdump (5, "Window set", buffer, windowDataSize);
+      hexdump (MSG_IO, "Window set", buffer, windowDataSize);
       set_SW_xferlen (s->buffer, (window_parameter_data_blockB.size +
 				  windowDataSize));
       scsiCommandLength =
 	window_parameter_data_blockB.size + windowDataSize + set_windowB.size;
     }
 
-  ret = do_scsi_cmd (s->sfd, s->buffer, scsiCommandLength, NULL, 0);
+  ret = do_scsi_cmd (s->sfd, s->buffer, scsiCommandLength, NULL, 0, NULL);
   if (ret)
     return ret;
   DBG (10, "set_window_param: ok\n");
@@ -3694,8 +4325,8 @@ calculateDerivedValues (struct fujitsu *scanner)
   /* Convert the SANE_FIXED values for the scan area into 1/1200 inch 
    * scanner units */
 
-  scanner->top_margin = FIXED_MM_TO_SCANNER_UNIT (scanner->top_left_y);
-  scanner->left_margin = FIXED_MM_TO_SCANNER_UNIT (scanner->top_left_x);
+  scanner->top_margin = FIXED_MM_TO_SCANNER_UNIT (scanner->val[OPT_TL_Y].w);
+  scanner->left_margin = FIXED_MM_TO_SCANNER_UNIT (scanner->val[OPT_TL_X].w);
   scanner->scan_width = FIXED_MM_TO_SCANNER_UNIT (scanner->bottom_right_x) -
     scanner->left_margin;
   scanner->scan_height = FIXED_MM_TO_SCANNER_UNIT (scanner->bottom_right_y) -
@@ -3722,7 +4353,7 @@ calculateDerivedValues (struct fujitsu *scanner)
 
   /* sepcial relationship between X and Y must be maintained for 3096 */
 
-  if ((scanner->model == MODEL_3096) &&
+  if (( (scanner->model == MODEL_3096) || (scanner->model == MODEL_3097) )&&
       ((scanner->left_margin + scanner->scan_width) >= 13200))
     {
       if (scanner->top_margin > 19830)
@@ -3802,7 +4433,7 @@ reader_process (struct fujitsu *scanner, int pipe_fd, int duplex_pipeFd)
   fp1 = fdopen (pipe_fd, "w");
   if (!fp1)
     {
-      DBG (1, "reader_process: couldn't open pipe!\n");
+      DBG (MSG_ERR, "reader_process: couldn't open pipe!\n");
       return 1;
     }
   if (scanner->duplex_mode == DUPLEX_BOTH)
@@ -3810,7 +4441,7 @@ reader_process (struct fujitsu *scanner, int pipe_fd, int duplex_pipeFd)
       fp2 = fdopen (duplex_pipeFd, "w");
       if (!fp2)
 	{
-	  DBG (1, "reader_process: couldn't open pipe!\n");
+	  DBG (MSG_ERR, "reader_process: couldn't open pipe!\n");
 	  return 1;
 	}
     }
@@ -3850,6 +4481,7 @@ reader_process (struct fujitsu *scanner, int pipe_fd, int duplex_pipeFd)
 
     case MODEL_FORCE:
     case MODEL_3096:
+    case MODEL_3097:
     case MODEL_3093:
     case MODEL_4097:
     case MODEL_FI:
@@ -3894,13 +4526,13 @@ reader_process (struct fujitsu *scanner, int pipe_fd, int duplex_pipeFd)
  * according to the capabilities of the detected scanner model.
  */
 static SANE_Status
-initOptions (struct fujitsu *scanner)
+init_options (struct fujitsu *scanner)
 {
   int i;
   SANE_Option_Descriptor *opt;
   SANE_String_Const *valueList;
 
-  DBG (10, "initOptions\n");
+  DBG (10, "init_options\n");
 
   /*
    * set defaults for everything
@@ -3933,7 +4565,7 @@ initOptions (struct fujitsu *scanner)
   opt->desc = SANE_DESC_SCAN_SOURCE;
   opt->type = SANE_TYPE_STRING;
   valueList =
-    (scanner->adf_present) ? sourceListWithADF : sourceListWithoutADF;
+    (scanner->has_adf) ? sourceListWithADF : sourceListWithoutADF;
   opt->size = maxStringSize (valueList);
   opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
   opt->constraint.string_list = valueList;
@@ -3951,13 +4583,14 @@ initOptions (struct fujitsu *scanner)
       valueList = (scanner->model == MODEL_3091) ? modeList3091 :
 	((scanner->model == MODEL_3096) ||
 	 (scanner->model == MODEL_3093) ||
+	 (scanner->model == MODEL_3097) ||
 	 (scanner->model ==
 	  MODEL_4097)) ? modeList3096 : scanner->vpd_mode_list;
       /* add others */
       if (valueList[0] == NULL)
 	{
 
-	  DBG (1, "no modes found for this scanner\n");
+	  DBG (MSG_ERR, "no modes found for this scanner\n");
 	}
     }
   else
@@ -3991,6 +4624,8 @@ initOptions (struct fujitsu *scanner)
   opt->title = SANE_TITLE_SCAN_X_RESOLUTION;
   opt->desc = SANE_DESC_SCAN_X_RESOLUTION;
   opt->type = SANE_TYPE_INT;
+  opt->constraint_type = SANE_CONSTRAINT_WORD_LIST;
+  opt->constraint.word_list = scanner->x_res_list;
   opt->unit = SANE_UNIT_DPI;
   opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
 
@@ -3999,6 +4634,8 @@ initOptions (struct fujitsu *scanner)
   opt->title = SANE_TITLE_SCAN_Y_RESOLUTION;
   opt->desc = SANE_DESC_SCAN_Y_RESOLUTION;
   opt->type = SANE_TYPE_INT;
+  opt->constraint_type = SANE_CONSTRAINT_WORD_LIST;
+  opt->constraint.word_list = scanner->y_res_list;
   opt->unit = SANE_UNIT_DPI;
   opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
 
@@ -4170,7 +4807,16 @@ initOptions (struct fujitsu *scanner)
   opt->desc = SANE_DESC_BRIGHTNESS;
   opt->type = SANE_TYPE_INT;
   opt->unit = SANE_UNIT_NONE;
-  /* contraints will be set in "setMode" */
+  opt->constraint_type = SANE_CONSTRAINT_RANGE;
+  opt->constraint.range = &scanner->brightness_range;
+  if (scanner->has_brightness)
+    {
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    } 
+  else
+    {
+      opt->cap = SANE_CAP_INACTIVE;
+    }
 
   opt = scanner->opt + OPT_AVERAGING;
   opt->name = "averaging";
@@ -4179,15 +4825,22 @@ initOptions (struct fujitsu *scanner)
   opt->type = SANE_TYPE_BOOL;
   opt->unit = SANE_UNIT_NONE;
 
-  scanner->opt[OPT_CONTRAST].name = SANE_NAME_CONTRAST;
-  scanner->opt[OPT_CONTRAST].title = SANE_TITLE_CONTRAST;
-  scanner->opt[OPT_CONTRAST].desc = SANE_DESC_CONTRAST;
-  scanner->opt[OPT_CONTRAST].type = SANE_TYPE_INT;
-  scanner->opt[OPT_CONTRAST].unit = SANE_UNIT_NONE;
-  scanner->opt[OPT_CONTRAST].constraint_type = SANE_CONSTRAINT_RANGE;
-  scanner->opt[OPT_CONTRAST].constraint.range = &threshold_range;
-  scanner->opt[OPT_CONTRAST].cap =
-    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+  opt = scanner->opt + OPT_CONTRAST;
+  opt->name = SANE_NAME_CONTRAST;
+  opt->title = SANE_TITLE_CONTRAST;
+  opt->desc = SANE_DESC_CONTRAST;
+  opt->type = SANE_TYPE_INT;
+  opt->unit = SANE_UNIT_NONE;
+  opt->constraint_type = SANE_CONSTRAINT_RANGE;
+  opt->constraint.range = &scanner->contrast_range;
+  if (scanner->has_contrast)
+    {
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    } 
+  else
+    {
+      opt->cap = SANE_CAP_INACTIVE;
+    }
 
   opt = scanner->opt + OPT_THRESHOLD;
   opt->name = SANE_NAME_THRESHOLD;
@@ -4195,17 +4848,28 @@ initOptions (struct fujitsu *scanner)
   opt->desc = SANE_DESC_THRESHOLD;
   opt->type = SANE_TYPE_INT;
   opt->unit = SANE_UNIT_NONE;
-  /* contraints will be set in "setMode" */
+  opt->constraint_type = SANE_CONSTRAINT_RANGE;
+  opt->constraint.range = &scanner->threshold_range;
+  if (scanner->has_threshold)
+    {
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    } 
+  else
+    {
+      opt->cap = SANE_CAP_INACTIVE;
+    }
 
-  scanner->opt[OPT_MIRROR_IMAGE].name = "mirroring";
-  scanner->opt[OPT_MIRROR_IMAGE].title = "mirror image";
-  scanner->opt[OPT_MIRROR_IMAGE].desc = "mirror image";
-  scanner->opt[OPT_MIRROR_IMAGE].type = SANE_TYPE_BOOL;
-  scanner->opt[OPT_MIRROR_IMAGE].unit = SANE_UNIT_NONE;
+
+  opt = scanner->opt + OPT_MIRROR_IMAGE;
+  opt->name = "mirroring";
+  opt->title = "mirror image";
+  opt->desc = "mirror image";
+  opt->type = SANE_TYPE_BOOL;
+  opt->unit = SANE_UNIT_NONE;
   if (scanner->has_mirroring)
-    scanner->opt[OPT_MIRROR_IMAGE].cap = SANE_CAP_SOFT_SELECT |
-      SANE_CAP_SOFT_DETECT;
-
+    opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+  else
+    opt->cap = SANE_CAP_INACTIVE;
 
   scanner->opt[OPT_RIF].name = "rif";
   scanner->opt[OPT_RIF].title = "rif";
@@ -4438,7 +5102,7 @@ initOptions (struct fujitsu *scanner)
   scanner->opt[OPT_DROPOUT_COLOR].name = "dropout_color";
   scanner->opt[OPT_DROPOUT_COLOR].title = "dropout color";
   scanner->opt[OPT_DROPOUT_COLOR].desc =
-    "select dropout color when scanning gray";
+    "select dropout color";
   scanner->opt[OPT_DROPOUT_COLOR].type = SANE_TYPE_STRING;
   scanner->opt[OPT_DROPOUT_COLOR].size = maxStringSize (dropout_color_list);
   scanner->opt[OPT_DROPOUT_COLOR].constraint_type =
@@ -4466,6 +5130,93 @@ initOptions (struct fujitsu *scanner)
       scanner->opt[OPT_START_BUTTON].unit = SANE_UNIT_NONE;
       scanner->opt[OPT_START_BUTTON].cap = SANE_CAP_SOFT_DETECT;
     }
+
+
+  if (scanner->has_imprinter) 
+    {
+
+      opt = scanner->opt + OPT_IMPRINTER_GROUP;
+      opt->title = "imprinter control";
+      opt->desc = "";
+      opt->type = SANE_TYPE_GROUP;
+      opt->constraint_type = SANE_CONSTRAINT_NONE;
+
+      opt = scanner->opt + OPT_IMPRINTER;
+      opt->name = "imprinter";
+      opt->title = "enable imprinter";
+      opt->desc = "enables the imprinter";
+      opt->type = SANE_TYPE_BOOL;
+      opt->unit = SANE_UNIT_NONE;
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+
+      opt = scanner->opt + OPT_IMPRINTER_DIR;
+      opt->name = "imprinter_direction";
+      opt->title = "imprinter direction";
+      opt->desc = "writing direction of the imprinter";
+      opt->type = SANE_TYPE_STRING;
+      opt->size = maxStringSize(imprinter_dir_list);
+      opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
+      opt->constraint.string_list = imprinter_dir_list;
+      opt->cap = SANE_CAP_INACTIVE;
+
+      opt = scanner->opt + OPT_IMPRINTER_CTR_DIR;
+      opt->name = "imprinter_ctr_dir";
+      opt->title = "imprinter counter direction";
+      opt->desc = "imprinter counter direction";
+      opt->type = SANE_TYPE_STRING;
+      opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
+      opt->size = maxStringSize(imprinter_ctr_dir_list);
+      opt->constraint.string_list = imprinter_ctr_dir_list;
+      opt->cap = SANE_CAP_INACTIVE;
+
+      opt = scanner->opt + OPT_IMPRINTER_YOFFSET;
+      opt->name = "imprinter_yoffset";
+      opt->title = "imprinter Y-Offset";
+      opt->desc = "imprinter Y-Offset";
+      opt->type = SANE_TYPE_FIXED;
+      opt->unit = SANE_UNIT_MM;
+      opt->constraint_type = SANE_CONSTRAINT_RANGE;
+      opt->constraint.range = &range_imprinter_y_offset;
+      opt->cap = SANE_CAP_INACTIVE;
+
+      opt = scanner->opt + OPT_IMPRINTER_STRING;
+      opt->name = "imprinter_string";
+      opt->title = "imprinter string";
+      opt->desc = "The string the imprinter prints";
+      opt->type = SANE_TYPE_STRING;
+      opt->size = max_imprinter_string_length;
+      opt->cap = SANE_CAP_INACTIVE;
+
+      opt = scanner->opt + OPT_IMPRINTER_CTR_INIT;
+      opt->name = "imprinter_ctr_init";
+      opt->title = "imprinter counter init value";
+      opt->desc = "imprinter counter initial value";
+      opt->type = SANE_TYPE_INT;
+      opt->unit = SANE_UNIT_NONE;
+      opt->cap = SANE_CAP_INACTIVE;
+
+      opt = scanner->opt + OPT_IMPRINTER_CTR_STEP;
+      opt->name = "imprinter_ctr_step";
+      opt->title = "imprinter counter step";
+      opt->desc = "imprinter counter step";
+      opt->type = SANE_TYPE_INT;
+      opt->unit = SANE_UNIT_NONE;
+      opt->constraint_type = SANE_CONSTRAINT_RANGE;
+      opt->constraint.range = &imprinter_ctr_step_range;
+      scanner->opt[OPT_IMPRINTER_CTR_STEP].cap = SANE_CAP_INACTIVE;
+
+    } 
+  else 
+    {
+      scanner->opt[OPT_IMPRINTER].cap = SANE_CAP_INACTIVE;
+      scanner->opt[OPT_IMPRINTER_DIR].cap = SANE_CAP_INACTIVE;
+      scanner->opt[OPT_IMPRINTER_YOFFSET].cap = SANE_CAP_INACTIVE;
+      scanner->opt[OPT_IMPRINTER_STRING].cap = SANE_CAP_INACTIVE;
+      scanner->opt[OPT_IMPRINTER_CTR_INIT].cap = SANE_CAP_INACTIVE;
+      scanner->opt[OPT_IMPRINTER_CTR_STEP].cap = SANE_CAP_INACTIVE;
+      scanner->opt[OPT_IMPRINTER_CTR_DIR].cap = SANE_CAP_INACTIVE;
+    }
+
 
   /* "Tuning" group ------------------------------------------------------ */
 
@@ -4524,10 +5275,26 @@ initOptions (struct fujitsu *scanner)
   opt->cap = (scanner->model != MODEL_3091) ? SANE_CAP_INACTIVE :
     SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
 
+  opt = scanner->opt + OPT_SLEEP_MODE;
+  opt->name = "sleep_timer";
+  opt->title = "sleep timer";
+  opt->desc = "time in minutes until the internal power supply switches to sleep mode"; 
+  opt->type = SANE_TYPE_INT;
+  opt->unit = SANE_UNIT_NONE;
+  opt->constraint_type = SANE_CONSTRAINT_RANGE;
+  opt->constraint.range=&range_sleep_mode;
+  if (scanner->model == MODEL_FI) /*...and others */
+    {
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    } 
+  else 
+    {
+      opt->cap = SANE_CAP_INACTIVE;
+    }
 
-  DBG (10, "initOptions:ok\n");
+  DBG (10, "init_options:ok\n");
   return SANE_STATUS_GOOD;
-}				/* initOptions */
+}				/* init_options */
 
 
 
@@ -4542,7 +5309,7 @@ static unsigned int
 reader3091ColorSimplex (struct fujitsu *scanner, FILE * fp)
 {
   int status;
-  unsigned int dataLeft;
+  unsigned int data_left;
   unsigned int totalDataSize, dataToRead, dataToProcess;
   unsigned int green_offset, blue_offset, lookAheadSize;
   unsigned readOffset;
@@ -4551,6 +5318,7 @@ reader3091ColorSimplex (struct fujitsu *scanner, FILE * fp)
   unsigned int largeBufferSize = 0;
   unsigned int colorLineGap = 0;
   unsigned char *redSource, *greenSource, *blueSource, *target;
+  unsigned int i_data_read;
 
 #ifdef DEBUG
   unsigned int lineCount = 0;
@@ -4559,7 +5327,7 @@ reader3091ColorSimplex (struct fujitsu *scanner, FILE * fp)
 #endif
 
   linebuffer = malloc (scanner->bytes_per_scan_line);
-  dataLeft = scanner->bytes_per_scan_line * scanner->scan_height_pixels;
+  data_left = scanner->bytes_per_scan_line * scanner->scan_height_pixels;
 
   colorLineGap = scanner->color_raster_offset * scanner->resolution_y / 300;
   green_offset =
@@ -4590,23 +5358,23 @@ reader3091ColorSimplex (struct fujitsu *scanner, FILE * fp)
 
   DBG (10,
        "reader_process: reading %u+%u bytes in large blocks of %u bytes\n",
-       dataLeft, lookAheadSize, largeBufferSize);
+       data_left, lookAheadSize, largeBufferSize);
 
   readOffset = 0;
-  dataLeft += lookAheadSize;
-  totalDataSize = dataLeft;
+  data_left += lookAheadSize;
+  totalDataSize = data_left;
 
   do
     {
-      dataToRead = (dataLeft < largeBufferSize - readOffset)
-	? dataLeft : largeBufferSize - readOffset;
+      dataToRead = (data_left < largeBufferSize - readOffset)
+	? data_left : largeBufferSize - readOffset;
 
       dataToProcess = dataToRead + readOffset - lookAheadSize;
-      /*      if (dataToRead == dataLeft) dataToProcess += lookAheadSize / 2;  */
+      /*      if (dataToRead == data_left) dataToProcess += lookAheadSize / 2;  */
 
       status =
 	read_large_data_block (scanner, largeBuffer + readOffset, dataToRead,
-			       0);
+			       0, &i_data_read);
 
       switch (status)
 	{
@@ -4616,10 +5384,11 @@ reader3091ColorSimplex (struct fujitsu *scanner, FILE * fp)
 	  DBG (5, "reader_process: EOM (no more data) length = %d\n",
 	       scanner->i_transfer_length);
 	  dataToRead -= scanner->i_transfer_length;
-	  dataLeft = dataToRead;
+	  data_left = dataToRead;
 	  break;
 	default:
-	  DBG (1, "reader_process: unable to get image data from scanner!\n");
+	  DBG (MSG_ERR, 
+	       "reader_process: unable to get image data from scanner!\n");
 	  fclose (fp);
 	  return (0);
 	}
@@ -4694,13 +5463,13 @@ reader3091ColorSimplex (struct fujitsu *scanner, FILE * fp)
 	}
       fflush (fp);
 
-      dataLeft -= dataToRead;
+      data_left -= dataToRead;
       DBG (10, "reader_process: buffer of %d bytes read; %d bytes to go\n",
-	   dataToRead, dataLeft);
+	   dataToRead, data_left);
       memcpy (largeBuffer, largeBuffer + dataToProcess, lookAheadSize);
       readOffset = lookAheadSize;
     }
-  while (dataLeft);
+  while (data_left);
   free (linebuffer);
   if (largeBuffer != scanner->buffer)
     free (largeBuffer);
@@ -4711,10 +5480,10 @@ reader3091ColorSimplex (struct fujitsu *scanner, FILE * fp)
 
 
 static unsigned int
-reader3091ColorDuplex (struct fujitsu *scanner, FILE * fpFront, FILE * fpBack)
+reader3091ColorDuplex (struct fujitsu *scanner, FILE * fp_front, FILE * fp_back)
 {
   int status;
-  unsigned int dataLeft;
+  unsigned int data_left;
   unsigned int totalDataSize, dataToRead, dataToProcess;
   unsigned int green_offset, blue_offset, lookAheadSize;
   unsigned readOffset;
@@ -4728,6 +5497,7 @@ reader3091ColorDuplex (struct fujitsu *scanner, FILE * fpFront, FILE * fpBack)
   unsigned int lineCount = 0;
   unsigned int colorLineGap = 0;
   unsigned char *redSource, *greenSource, *blueSource, *target;
+  unsigned int i_data_read;
 
 #ifdef DEBUG
   unsigned int frontLineCount = 0;
@@ -4739,10 +5509,10 @@ reader3091ColorDuplex (struct fujitsu *scanner, FILE * fpFront, FILE * fpBack)
   linebuffer = malloc (scanner->bytes_per_scan_line);
   if (linebuffer == NULL)
     {
-      DBG (1, "reader_process: out of memory for line buffer\n");
+      DBG (MSG_ERR, "reader_process: out of memory for line buffer\n");
       return (0);
     }
-  dataLeft = scanner->bytes_per_scan_line * scanner->scan_height_pixels;
+  data_left = scanner->bytes_per_scan_line * scanner->scan_height_pixels;
 
   colorLineGap = scanner->color_raster_offset * scanner->resolution_y / 300;
   green_offset = 2 * colorLineGap * scanner->bytes_per_scan_line;
@@ -4793,16 +5563,16 @@ reader3091ColorDuplex (struct fujitsu *scanner, FILE * fpFront, FILE * fpBack)
     }
   else
     {
-      duplexBuffer = malloc (duplexBufferSize = dataLeft);
+      duplexBuffer = malloc (duplexBufferSize = data_left);
       if (duplexBuffer == NULL)
 	{
-	  DBG (1,
+	  DBG (MSG_ERR,
 	       "reader_process: out of memory for duplex buffer (try option --swapfile)\n");
 	  return (0);
 	}
       duplexPointer = duplexBuffer;
     }
-  dataLeft *= 2;
+  data_left *= 2;
 
   largeBuffer = scanner->buffer;
   largeBufferSize =
@@ -4821,32 +5591,32 @@ reader3091ColorDuplex (struct fujitsu *scanner, FILE * fpFront, FILE * fpBack)
       largeBuffer = malloc (largeBufferSize = 4 * lookAheadSize);
       if (largeBuffer == NULL)
 	{
-	  DBG (1,
+	  DBG (MSG_ERR,
 	       "reader_process: out of memory for SCSI read buffer, try smaller image\n");
 	  return (0);
 	}
     }
 
   DBG (10, "reader_process: reading %u bytes in blocks of %u bytes\n",
-       dataLeft, scanner->scsi_buf_size);
+       data_left, scanner->scsi_buf_size);
 
 
   readOffset = 0;
-  dataLeft += lookAheadSize;
-  totalDataSize = dataLeft;
+  data_left += lookAheadSize;
+  totalDataSize = data_left;
 
   do
     {
-      dataToRead = (dataLeft < largeBufferSize - readOffset)
-	? dataLeft : largeBufferSize - readOffset;
+      dataToRead = (data_left < largeBufferSize - readOffset)
+	? data_left : largeBufferSize - readOffset;
 
       dataToProcess = dataToRead + readOffset - lookAheadSize;
-      if (dataToRead == dataLeft)
+      if (dataToRead == data_left)
 	dataToProcess += lookAheadSize / 2;
 
       status =
 	read_large_data_block (scanner, largeBuffer + readOffset, dataToRead,
-			       0);
+			       0, &i_data_read);
       switch (status)
 	{
 	case SANE_STATUS_GOOD:
@@ -4855,12 +5625,13 @@ reader3091ColorDuplex (struct fujitsu *scanner, FILE * fpFront, FILE * fpBack)
 	  DBG (5, "reader_process: EOM (no more data) length = %d\n",
 	       scanner->i_transfer_length);
 	  dataToRead -= scanner->i_transfer_length;
-	  dataLeft = dataToRead;
+	  data_left = dataToRead;
 	  break;
 	default:
-	  DBG (1, "reader_process: unable to get image data from scanner!\n");
-	  fclose (fpFront);
-	  fclose (fpBack);
+	  DBG (MSG_ERR, 
+	       "reader_process: unable to get image data from scanner!\n");
+	  fclose (fp_front);
+	  fclose (fp_back);
 	  return (0);
 	}
 
@@ -4935,7 +5706,7 @@ reader3091ColorDuplex (struct fujitsu *scanner, FILE * fpFront, FILE * fpBack)
 	      if (lineCount < duplexEndLine - 4 * colorLineGap)
 		{
 		  fwrite (linebuffer, 1, scanner->bytes_per_scan_line,
-			  fpFront);
+			  fp_front);
 #ifdef DEBUG
 		  DBG (10,
 		       "line %4u to front line %4u source lines %3u/%3u/%3u colors %u/%u/%u\n",
@@ -4957,10 +5728,10 @@ reader3091ColorDuplex (struct fujitsu *scanner, FILE * fpFront, FILE * fpBack)
 		{
 		  if ((int)
 		      fwrite (linebuffer, 1, scanner->bytes_per_scan_line,
-			      fpBack) != scanner->bytes_per_scan_line)
+			      fp_back) != scanner->bytes_per_scan_line)
 		    {
-		      fclose (fpBack);
-		      DBG (1,
+		      fclose (fp_back);
+		      DBG (MSG_ERR,
 			   "reader_process: out of disk space while writing temp file\n");
 		      return (0);
 		    }
@@ -5010,20 +5781,20 @@ reader3091ColorDuplex (struct fujitsu *scanner, FILE * fpFront, FILE * fpBack)
 
 	}
 
-      fflush (fpFront);
+      fflush (fp_front);
 
-      dataLeft -= dataToRead;
+      data_left -= dataToRead;
       DBG (10, "reader_process: buffer of %d bytes read; %d bytes to go\n",
-	   dataToRead, dataLeft);
+	   dataToRead, data_left);
       /* FIXME: simon lai reported an overflow here! */
       memcpy (largeBuffer, largeBuffer + dataToProcess, lookAheadSize);
       readOffset = lookAheadSize;
     }
-  while (dataLeft);
+  while (data_left);
   free (linebuffer);
   if (largeBuffer != scanner->buffer)
     free (largeBuffer);
-  fclose (fpFront);
+  fclose (fp_front);
 
   /*
    * If we're using a temp file, the data has already been written,
@@ -5040,12 +5811,12 @@ reader3091ColorDuplex (struct fujitsu *scanner, FILE * fpFront, FILE * fpBack)
    */
   if (scanner->use_temp_file)
     {
-      fflush (fpBack);
+      fflush (fp_back);
     }
   else
     {
-      fwrite (duplexBuffer, 1, duplexBufferSize, fpBack);
-      fclose (fpBack);
+      fwrite (duplexBuffer, 1, duplexBufferSize, fp_back);
+      fclose (fp_back);
       free (duplexBuffer);
     }
 
@@ -5056,7 +5827,7 @@ reader3091ColorDuplex (struct fujitsu *scanner, FILE * fpFront, FILE * fpBack)
 
 static unsigned int
 reader_gray_duplex_alternate (struct fujitsu *scanner,
-			      FILE * fpFront, FILE * fpBack)
+			      FILE * fp_front, FILE * fp_back)
 {
 
   int status;
@@ -5065,9 +5836,8 @@ reader_gray_duplex_alternate (struct fujitsu *scanner,
   unsigned int duplexBufferSize;
   unsigned char *duplexBuffer;
   unsigned char *duplexPointer;
-  unsigned char *largeBuffer;
   unsigned int largeBufferSize = 0;
-
+  unsigned int i_data_read;
 
   i_left_front = scanner->bytes_per_scan_line * scanner->scan_height_pixels;
   i_left_back = i_left_front;
@@ -5080,17 +5850,22 @@ reader_gray_duplex_alternate (struct fujitsu *scanner,
     }
   else
     {
+      /*
+       * allocate a buffer for the back side because sane_read will 
+       * first read the front side and than the back side. If I write
+       * to the pipe directly sane_read will not read from that pipe
+       * and the write will block.
+       */
       duplexBuffer = malloc (duplexBufferSize = i_left_back);
       if (duplexBuffer == NULL)
 	{
-	  DBG (1,
+	  DBG (MSG_ERR,
 	       "reader_process: out of memory for duplex buffer (try option --swapfile)\n");
 	  return (0);
 	}
       duplexPointer = duplexBuffer;
     }
 
-  largeBuffer = scanner->buffer;
   largeBufferSize =
     scanner->scsi_buf_size -
     (scanner->scsi_buf_size % scanner->bytes_per_scan_line);
@@ -5103,7 +5878,8 @@ reader_gray_duplex_alternate (struct fujitsu *scanner,
 	? i_left_front : largeBufferSize;
 
       DBG (5, "reader_process: read %d bytes from front side\n", dataToRead);
-      status = read_large_data_block (scanner, largeBuffer, dataToRead, 0x0);
+      status = read_large_data_block (scanner, scanner->buffer, dataToRead, 
+				      0x0, &i_data_read);
 
       switch (status)
 	{
@@ -5115,15 +5891,20 @@ reader_gray_duplex_alternate (struct fujitsu *scanner,
 	  dataToRead -= scanner->i_transfer_length;
 	  i_left_front = dataToRead;
 	  break;
+	case SANE_STATUS_DEVICE_BUSY:
+	  DBG (5, "device busy");
+	  dataToRead = 0;
+	  break;
 	default:
-	  DBG (1, "reader_process: unable to get image data from scanner!\n");
-	  fclose (fpFront);
-	  fclose (fpBack);
+	  DBG (MSG_ERR, 
+	       "reader_process: unable to get image data from scanner!\n");
+	  fclose (fp_front);
+	  fclose (fp_back);
 	  return (0);
 	}
 
       totalDataSize += dataToRead;
-      fwrite (scanner->buffer, 1, dataToRead, fpFront);
+      fwrite (scanner->buffer, 1, dataToRead, fp_front);
       i_left_front -= dataToRead;
       DBG (5,
 	   "reader_process_front: buffer of %d bytes read; %d bytes to go\n",
@@ -5137,7 +5918,8 @@ reader_gray_duplex_alternate (struct fujitsu *scanner,
 	? i_left_back : largeBufferSize;
 
       DBG (5, "reader_process: read %d bytes from back side\n", dataToRead);
-      status = read_large_data_block (scanner, largeBuffer, dataToRead, 0x80);
+      status = read_large_data_block (scanner, scanner->buffer, dataToRead, 
+				      0x80, &i_data_read);
 
       switch (status)
 	{
@@ -5149,21 +5931,26 @@ reader_gray_duplex_alternate (struct fujitsu *scanner,
 	  dataToRead -= scanner->i_transfer_length;
 	  i_left_back = dataToRead;
 	  break;
+	case SANE_STATUS_DEVICE_BUSY:
+	  DBG (5, "device busy");
+	  dataToRead = 0;
+	  break;
 	default:
-	  DBG (1, "reader_process: unable to get image data from scanner!\n");
-	  fclose (fpFront);
-	  fclose (fpBack);
+	  DBG (MSG_ERR, 
+	       "reader_process: unable to get image data from scanner!\n");
+	  fclose (fp_front);
+	  fclose (fp_back);
 	  return (0);
 	}
 
       totalDataSize += dataToRead;
       if (scanner->use_temp_file)
 	{
-	  if ((unsigned int) fwrite (scanner->buffer, 1, dataToRead, fpBack)
+	  if ((unsigned int) fwrite (scanner->buffer, 1, dataToRead, fp_back)
 	      != dataToRead)
 	    {
-	      fclose (fpBack);
-	      DBG (1,
+	      fclose (fp_back);
+	      DBG (MSG_ERR,
 		   "reader_process: out of disk space while writing temp file\n");
 	      return (0);
 	    }
@@ -5172,7 +5959,6 @@ reader_gray_duplex_alternate (struct fujitsu *scanner,
 	{
 	  memcpy (duplexPointer, scanner->buffer, dataToRead);
 	  duplexPointer += dataToRead;
-	  /*fwrite(scanner->buffer, 1, dataToRead, fpBack); */
 	}
 
       i_left_back -= dataToRead;
@@ -5182,17 +5968,18 @@ reader_gray_duplex_alternate (struct fujitsu *scanner,
     }
   while (i_left_front > 0 || i_left_back > 0);
 
-  fflush (fpFront);
-  fclose (fpFront);
+  fflush (fp_front);
+  fclose (fp_front);
 
   if (scanner->use_temp_file)
     {
-      fflush (fpBack);
+      fflush (fp_back);
     }
   else
     {
-      fwrite (duplexBuffer, 1, duplexBufferSize, fpBack);
-      fclose (fpBack);
+      fwrite (duplexBuffer, 1, duplexBufferSize, fp_back);
+      fflush(fp_back);
+      fclose(fp_back);
       free (duplexBuffer);
     }
 
@@ -5201,14 +5988,14 @@ reader_gray_duplex_alternate (struct fujitsu *scanner,
 
 static unsigned int
 reader_gray_duplex_sequential (struct fujitsu *scanner,
-			       FILE * fpFront, FILE * fpBack)
+			       FILE * fp_front, FILE * fp_back)
 {
   unsigned int i_total_size;
 
   i_total_size = 0;
 
-  i_total_size += readerGenericPassthrough (scanner, fpFront, 0);
-  i_total_size += readerGenericPassthrough (scanner, fpBack, 0x80);
+  i_total_size += readerGenericPassthrough (scanner, fp_front, 0);
+  i_total_size += readerGenericPassthrough (scanner, fp_back, 0x80);
 
   return i_total_size;
 }
@@ -5216,10 +6003,10 @@ reader_gray_duplex_sequential (struct fujitsu *scanner,
 
 
 static unsigned int
-reader3091GrayDuplex (struct fujitsu *scanner, FILE * fpFront, FILE * fpBack)
+reader3091GrayDuplex (struct fujitsu *scanner, FILE * fp_front, FILE * fp_back)
 {
   int status;
-  unsigned int totalDataSize, dataLeft, dataToRead;
+  unsigned int totalDataSize, data_left, dataToRead;
   unsigned int duplexStartLine, duplexEndLine;
   unsigned int duplexBufferSize;
   unsigned char *duplexBuffer;
@@ -5228,8 +6015,9 @@ reader3091GrayDuplex (struct fujitsu *scanner, FILE * fpFront, FILE * fpBack)
   unsigned int largeBufferSize = 0;
   unsigned char *source;
   unsigned int lineCount = 0;
+  unsigned int i_data_read;
 
-  dataLeft = scanner->bytes_per_scan_line * scanner->scan_height_pixels;
+  data_left = scanner->bytes_per_scan_line * scanner->scan_height_pixels;
 
   /* Only allocate memory if we're not using a temp file. */
   if (scanner->use_temp_file)
@@ -5239,17 +6027,17 @@ reader3091GrayDuplex (struct fujitsu *scanner, FILE * fpFront, FILE * fpBack)
     }
   else
     {
-      duplexBuffer = malloc (duplexBufferSize = dataLeft);
+      duplexBuffer = malloc (duplexBufferSize = data_left);
       if (duplexBuffer == NULL)
 	{
-	  DBG (1,
+	  DBG (MSG_ERR,
 	       "reader_process: out of memory for duplex buffer (try option --swapfile)\n");
 	  return (0);
 	}
       duplexPointer = duplexBuffer;
     }
 
-  dataLeft *= 2;
+  data_left *= 2;
   largeBuffer = scanner->buffer;
   largeBufferSize =
     scanner->scsi_buf_size -
@@ -5261,13 +6049,14 @@ reader3091GrayDuplex (struct fujitsu *scanner, FILE * fpFront, FILE * fpBack)
     scanner->scan_height_pixels * 2 -
     scanner->duplex_raster_offset * scanner->resolution_y / 300;
 
-  totalDataSize = dataLeft;
+  totalDataSize = data_left;
 
   do
     {
-      dataToRead = (dataLeft < largeBufferSize) ? dataLeft : largeBufferSize;
+      dataToRead = (data_left < largeBufferSize) ? data_left : largeBufferSize;
 
-      status = read_large_data_block (scanner, largeBuffer, dataToRead, 0);
+      status = read_large_data_block (scanner, largeBuffer, dataToRead, 
+				      0, &i_data_read);
 
       switch (status)
 	{
@@ -5277,12 +6066,13 @@ reader3091GrayDuplex (struct fujitsu *scanner, FILE * fpFront, FILE * fpBack)
 	  DBG (5, "reader_process: EOM (no more data) length = %d\n",
 	       scanner->i_transfer_length);
 	  dataToRead -= scanner->i_transfer_length;
-	  dataLeft = dataToRead;
+	  data_left = dataToRead;
 	  break;
 	default:
-	  DBG (1, "reader_process: unable to get image data from scanner!\n");
-	  fclose (fpFront);
-	  fclose (fpBack);
+	  DBG (MSG_ERR, 
+	       "reader_process: unable to get image data from scanner!\n");
+	  fclose (fp_front);
+	  fclose (fp_back);
 	  return (0);
 	}
 
@@ -5293,7 +6083,7 @@ reader3091GrayDuplex (struct fujitsu *scanner, FILE * fpFront, FILE * fpBack)
 	      (((lineCount - duplexStartLine) % 2 == 1)
 	       && (lineCount < duplexEndLine)))
 	    {
-	      fwrite (source, 1, scanner->bytes_per_scan_line, fpFront);
+	      fwrite (source, 1, scanner->bytes_per_scan_line, fp_front);
 	    }
 	  else
 	    {
@@ -5301,10 +6091,10 @@ reader3091GrayDuplex (struct fujitsu *scanner, FILE * fpFront, FILE * fpBack)
 		{
 		  if ((int)
 		      fwrite (source, 1, scanner->bytes_per_scan_line,
-			      fpBack) != scanner->bytes_per_scan_line)
+			      fp_back) != scanner->bytes_per_scan_line)
 		    {
-		      fclose (fpBack);
-		      DBG (1,
+		      fclose (fp_back);
+		      DBG (MSG_ERR,
 			   "reader_process: out of disk space while writing temp file\n");
 		      return (0);
 		    }
@@ -5318,24 +6108,24 @@ reader3091GrayDuplex (struct fujitsu *scanner, FILE * fpFront, FILE * fpBack)
 	    }
 	  lineCount++;
 	}
-      fflush (fpFront);
+      fflush (fp_front);
 
-      dataLeft -= dataToRead;
+      data_left -= dataToRead;
       DBG (10, "reader_process: buffer of %d bytes read; %d bytes to go\n",
-	   dataToRead, dataLeft);
+	   dataToRead, data_left);
     }
-  while (dataLeft);
-  fclose (fpFront);
+  while (data_left);
+  fclose (fp_front);
 
   /* see comment in reader3091ColorDuplex about this */
   if (scanner->use_temp_file)
     {
-      fflush (fpBack);
+      fflush (fp_back);
     }
   else
     {
-      fwrite (duplexBuffer, 1, duplexBufferSize, fpBack);
-      fclose (fpBack);
+      fwrite (duplexBuffer, 1, duplexBufferSize, fp_back);
+      fclose (fp_back);
       free (duplexBuffer);
     }
 
@@ -5374,8 +6164,11 @@ setMode3091 (struct fujitsu *scanner, int mode)
 
       /* threshold is available, default is 128 */
       scanner->threshold = 128;
-      scanner->opt[OPT_THRESHOLD].cap =
-	SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
+      if (scanner->has_threshold) 
+	{
+	  scanner->opt[OPT_THRESHOLD].cap =
+	    SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
+	}
       scanner->opt[OPT_THRESHOLD].constraint_type = SANE_CONSTRAINT_RANGE;
       scanner->opt[OPT_THRESHOLD].constraint.range = &allowableThreshold;
 
@@ -5485,7 +6278,7 @@ static void
 setDefaults3091 (struct fujitsu *scanner)
 {
 
-  scanner->use_adf = scanner->adf_present;
+  scanner->use_adf = scanner->has_adf;
   scanner->duplex_mode = DUPLEX_FRONT;
   scanner->resolution_x = 300;
   scanner->resolution_y = 300;
@@ -5497,8 +6290,8 @@ setDefaults3091 (struct fujitsu *scanner)
   scanner->bitorder = 0;
   setMode3091 (scanner, MODE_COLOR);
 
-  scanner->top_left_x = 0;
-  scanner->top_left_y = 0;
+  scanner->val[OPT_TL_X].w = 0;
+  scanner->val[OPT_TL_Y].w = 0;
   /* this size is just big enough to match letter and A4 formats */
   scanner->bottom_right_x = SANE_FIX (215.9);
   scanner->bottom_right_y = SANE_FIX (297.0);
@@ -5526,6 +6319,9 @@ setDefaults3091 (struct fujitsu *scanner)
 
   scanner->opt[OPT_DROPOUT_COLOR].cap = SANE_CAP_INACTIVE;
   scanner->dropout_color = MSEL_dropout_DEFAULT;
+
+  scanner->sleep_time = 15;
+  scanner->use_imprinter = SANE_FALSE;
 }
 
 
@@ -5541,10 +6337,10 @@ static void
 setDefaults3096 (struct fujitsu *scanner)
 {
 
-  scanner->use_adf = scanner->adf_present;
+  scanner->use_adf = scanner->has_adf;
   scanner->duplex_mode = DUPLEX_FRONT;
-  scanner->resolution_x = 400;
-  scanner->resolution_y = 400;
+  scanner->resolution_x = 300;
+  scanner->resolution_y = 300;
   scanner->resolution_linked = SANE_TRUE;
   scanner->brightness = 0;
   scanner->threshold = 0;
@@ -5552,13 +6348,11 @@ setDefaults3096 (struct fujitsu *scanner)
   scanner->reverse = 0;
   setMode3096 (scanner, MODE_GRAYSCALE);
 
-  scanner->top_left_x = 0;
-  scanner->top_left_y = 0;
+  scanner->val[OPT_TL_X].w = 0;
+  scanner->val[OPT_TL_Y].w = 0;
   /* this size is just big enough to match letter and A4 formats */
   scanner->bottom_right_x = SANE_FIX (215.9);
   scanner->bottom_right_y = SANE_FIX (297.0);
-  scanner->page_width = FIXED_MM_TO_SCANNER_UNIT (scanner->bottom_right_x);
-  scanner->page_height = FIXED_MM_TO_SCANNER_UNIT (scanner->bottom_right_y);
   scanner->mirror = SANE_FALSE;
   scanner->use_temp_file = SANE_FALSE;
 
@@ -5594,6 +6388,10 @@ setDefaults3096 (struct fujitsu *scanner)
   scanner->paper_size = WD_paper_A4;
   scanner->paper_orientation = WD_paper_PORTRAIT;
   scanner->paper_selection = WD_paper_SEL_STANDARD;
+  scanner->page_width = FIXED_MM_TO_SCANNER_UNIT (scanner->bottom_right_x);
+  scanner->page_height = FIXED_MM_TO_SCANNER_UNIT (scanner->bottom_right_y);
+  scanner->opt[OPT_PAGE_HEIGHT].cap = SANE_CAP_INACTIVE;
+  scanner->opt[OPT_PAGE_WIDTH].cap = SANE_CAP_INACTIVE;
 
   scanner->dtc_selection = WD_dtc_selection_DEFAULT;
   scanner->opt[OPT_NOISE_REMOVAL].cap = SANE_CAP_INACTIVE;
@@ -5602,11 +6400,20 @@ setDefaults3096 (struct fujitsu *scanner)
   scanner->opt[OPT_SMOOTHING_MODE].cap = SANE_CAP_INACTIVE;
   scanner->opt[OPT_GRADATION].cap = SANE_CAP_INACTIVE;
   scanner->opt[OPT_THRESHOLD_CURVE].cap = SANE_CAP_INACTIVE;
-  scanner->opt[OPT_VARIANCE_RATE].cap = SANE_CAP_INACTIVE;
 
   scanner->dropout_color = MSEL_dropout_DEFAULT;
   /* 3091 only option */
   scanner->opt[OPT_LAMP_COLOR].cap = SANE_CAP_INACTIVE;
+
+  scanner->imprinter_direction = S_im_dir_top_bottom;
+  scanner->imprinter_y_offset = 7;
+  memcpy(scanner->imprinter_string, "%05ud", max_imprinter_string_length);
+  scanner->imprinter_ctr_init = 0;
+  scanner->imprinter_ctr_step = 1;
+  scanner->imprinter_ctr_dir = S_im_dir_inc;
+
+  scanner->sleep_time = 15;
+  scanner->use_imprinter = SANE_FALSE;
 }
 
 /**
@@ -5621,11 +6428,10 @@ setDefaults3096 (struct fujitsu *scanner)
 static SANE_Status
 setMode3096 (struct fujitsu *scanner, int mode)
 {
-
+  /*
   static const SANE_Int allowableResolutionsBW[] = { 4, 200, 240, 300, 400 };
   static const SANE_Int allowableResolutionsGray[] = { 3, 200, 300, 400 };
-  static const SANE_Range allowableThreshold = { 0, 255, 4 };
-  static const SANE_Range allowableBrightness = { 1, 255, 33 };
+  */
 
   scanner->color_mode = mode;
 
@@ -5641,10 +6447,11 @@ setMode3096 (struct fujitsu *scanner, int mode)
 
       /* threshold is available, default is 128 */
       scanner->threshold = 128;
-      scanner->opt[OPT_THRESHOLD].cap =
-	SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
-      scanner->opt[OPT_THRESHOLD].constraint_type = SANE_CONSTRAINT_RANGE;
-      scanner->opt[OPT_THRESHOLD].constraint.range = &allowableThreshold;
+      if (scanner->has_threshold)
+	{
+	  scanner->opt[OPT_THRESHOLD].cap =
+	    SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
+	}
 
       /* brightness is unavailable */
       scanner->brightness = 0;
@@ -5657,11 +6464,12 @@ setMode3096 (struct fujitsu *scanner, int mode)
       scanner->opt[OPT_GAMMA].cap =
 	SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;;
 
-      /* X resolution and Y resolution in steps including 240 */
+      /* X resolution and Y resolution in steps including 240 
       scanner->opt[OPT_X_RES].constraint_type = SANE_CONSTRAINT_WORD_LIST;
       scanner->opt[OPT_X_RES].constraint.word_list = allowableResolutionsBW;
       scanner->opt[OPT_Y_RES].constraint_type = SANE_CONSTRAINT_WORD_LIST;
       scanner->opt[OPT_Y_RES].constraint.word_list = allowableResolutionsBW;
+      */
       if (scanner->has_dropout_color)
 	{
 	  scanner->opt[OPT_DROPOUT_COLOR].cap =
@@ -5688,10 +6496,11 @@ setMode3096 (struct fujitsu *scanner, int mode)
 
       /* brightness is available, 8 steps */
       scanner->brightness = 0x80;
-      scanner->opt[OPT_BRIGHTNESS].cap =
-	SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
-      scanner->opt[OPT_BRIGHTNESS].constraint_type = SANE_CONSTRAINT_RANGE;
-      scanner->opt[OPT_BRIGHTNESS].constraint.range = &allowableBrightness;
+      if (scanner->has_brightness) 
+	{
+	  scanner->opt[OPT_BRIGHTNESS].cap =
+	    SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
+	}
 
       /* Compression available if installed; Gamma available. */
       if (scanner->cmp_present)
@@ -5700,12 +6509,12 @@ setMode3096 (struct fujitsu *scanner, int mode)
       scanner->opt[OPT_GAMMA].cap =
 	SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;;
 
-      /* X resolution and Y resolution in steps including 240 */
+      /* X resolution and Y resolution in steps including 240 
       scanner->opt[OPT_X_RES].constraint_type = SANE_CONSTRAINT_WORD_LIST;
       scanner->opt[OPT_X_RES].constraint.word_list = allowableResolutionsBW;
       scanner->opt[OPT_Y_RES].constraint_type = SANE_CONSTRAINT_WORD_LIST;
       scanner->opt[OPT_Y_RES].constraint.word_list = allowableResolutionsBW;
-
+      */
       if (scanner->has_dropout_color)
 	{
 	  scanner->opt[OPT_DROPOUT_COLOR].cap =
@@ -5738,11 +6547,12 @@ setMode3096 (struct fujitsu *scanner, int mode)
       scanner->opt[OPT_GAMMA].cap = SANE_CAP_INACTIVE;
       scanner->compress_type = WD_cmp_NONE;
 
-      /* X and y in steps without the 240 */
+      /* X and y in steps without the 240 
       scanner->opt[OPT_X_RES].constraint_type = SANE_CONSTRAINT_WORD_LIST;
       scanner->opt[OPT_X_RES].constraint.word_list = allowableResolutionsGray;
       scanner->opt[OPT_Y_RES].constraint_type = SANE_CONSTRAINT_WORD_LIST;
       scanner->opt[OPT_Y_RES].constraint.word_list = allowableResolutionsGray;
+      */
 
       if (scanner->has_dropout_color)
 	{
@@ -5750,11 +6560,12 @@ setMode3096 (struct fujitsu *scanner, int mode)
 	    SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
 	}
       /* verify that the currently set resolutions aren't out of order */
-
+      /*
       if (scanner->resolution_x == 240)
 	scanner->resolution_x = 300;
       if (scanner->resolution_y == 240)
 	scanner->resolution_y = 300;
+      */
       calculateDerivedValues (scanner);
       return (SANE_STATUS_GOOD);
 

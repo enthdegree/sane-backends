@@ -97,6 +97,7 @@ scsiblk;
 #define MODE_SELECT             0x15
 #define MODE_SENSE              0x1a
 #define SCAN                    0x1b
+#define IMPRINTER               0xc1
 #define HW_STATUS               0xc2
 
 
@@ -182,6 +183,12 @@ static scsiblk inquiryB = { inquiryC, sizeof (inquiryC) };
 #define get_IN_has_set_subwindow(in)       (getnbyte(in+0x2a, 2)) & 1
 #define get_IN_has_imprinter(in)           (getnbyte(in+0x2a, 2)) & 2
 #define get_IN_has_hw_status(in)           (getnbyte(in+0x2a, 2)) & 4
+#define get_IN_brightness_steps(in)        getnbyte(in+0x52, 1)
+#define get_IN_threshold_steps(in)         getnbyte(in+0x53, 1)
+#define get_IN_contrast_steps(in)          getnbyte(in+0x54, 1)
+#define get_IN_ipc_bw_reverse(in)          getbitfield(in+0x58, 1, 6)
+#define get_IN_ipc_auto1(in)               getbitfield(in+0x58, 1, 5)
+#define get_IN_ipc_auto2(in)               getbitfield(in+0x58, 1, 5)
 #define get_IN_ipc_outline_extraction(in)  getbitfield(in+0x58, 1, 4)
 #define get_IN_ipc_image_emphasis(in)      getbitfield(in+0x58, 1, 3)
 #define get_IN_ipc_auto_separation(in)     getbitfield(in+0x58, 1, 2)
@@ -196,6 +203,9 @@ static scsiblk inquiryB = { inquiryC, sizeof (inquiryC) };
 #define get_IN_compression_JPG_BASE(in)    getbitfield(in+0x5a, 1, 3)
 #define get_IN_compression_JPG_EXT(in)     getbitfield(in+0x5a, 1, 2)
 #define get_IN_compression_JPG_INDEP(in)   getbitfield(in+0x5a, 1, 1)
+#define get_IN_imprinter(in)               getbitfield(in+0x5c, 1, 7)
+#define get_IN_imprinter_stamp(in)         getbitfield(in+0x5c, 1, 6)
+#define get_IN_imprinter_electrical(in)    getbitfield(in+0x5c, 1, 5)
 
 /* ==================================================================== */
 
@@ -226,18 +236,23 @@ static scsiblk object_positionB =
 
 /* ==================================================================== */
 
-/*
-  static unsigned char sendC[] =
+
+static unsigned char sendC[] =
   {SEND, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-  static scsiblk sendB =
+static scsiblk sendB =
   {sendC, sizeof (sendC)};
-*/
+
 
 #define set_S_datatype_code(sb, val) sb[0x02] = (unsigned char)val
 #define S_datatype_imagedatai		0x00
-#define S_EX_datatype_LUT			0x01	/* Experiment code */
+#define S_datatype_halftone_mask        0x02
+#define S_datatype_gamma_function       0x03
+#define S_datatype_LUT_data             0x83
+#define S_datatype_jpg_q_table          0x88
+#define S_datatype_imprinter_data       0x90
+#define S_EX_datatype_LUT		0x01	/* Experiment code */
 #define S_EX_datatype_shading_data	0xa0	/* Experiment code */
-#define S_user_reg_gamma			0xc0
+#define S_user_reg_gamma		0xc0
 #define S_device_internal_info		0x03
 #define set_S_datatype_qual_upper(sb, val) sb[0x04] = (unsigned char)val
 #define S_DQ_none	0x00
@@ -249,12 +264,78 @@ static scsiblk object_positionB =
 #define S_DQ_Reg3	0x03
 #define set_S_xfer_length(sb, val)    putnbyte(sb + 0x06, val, 3)
 
+static unsigned char send_imprinterC[] = 
+  {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+   0x00, 0x00};
+static scsiblk send_imprinterB = 
+  {send_imprinterC, sizeof(send_imprinterC)};
+
+/* imprinter counter
+ * 0 = increase counter
+ * 1 = decrease counter
+ */
+#define set_imprinter_cnt_dir(sb, val) setbitfield(sb + 0x01, 1, 5, val)
+#define S_im_dir_inc 0
+#define S_im_dir_dec 1
+/* counter value
+ * 1 = 24 bit
+ * 0 = 16 bit
+ */
+#define set_imprinter_lap24(sb, val) setbitfield(sb + 0x01, 1, 4, val)
+#define S_im_ctr_24bit 1
+#define S_im_ctr_16bit 0
+/* stepping of the imprinter counter
+ * 0..2 allowed
+ */
+#define set_imprinter_cstep(sb, val) setbitfield(sb + 0x01, 0x03, 0, val)
+#define set_imprinter_uly(sb, val) putnbyte(sb + 0x06, val, 4)
+
+/* specifies the way of printing direction of the strings.
+ */
+#define set_imprinter_dirs(sb, val) setbitfield(sb + 0x0c, 0x03, 0, val)
+#define S_im_dir_left_right 0
+#define S_im_dir_top_bottom 1
+#define S_im_dir_right_left 2
+#define S_im_dir_bottom_top 3
+
+#define set_imprinter_string_length(sb, len)  putnbyte(sb + 0x11, len, 1)
+#define max_imprinter_string_length 40
+
 /*
    static unsigned char gamma_user_LUT_LS1K[512] = { 0x00 };
    static scsiblk gamma_user_LUT_LS1K_LS1K = {
    gamma_user_LUT_LS1K, sizeof(gamma_user_LUT_LS1K)
    };
  */
+
+/* ==================================================================== */
+
+static unsigned char imprinterC[] =
+  { IMPRINTER, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+static scsiblk imprinterB = { imprinterC, sizeof (imprinterC) };
+
+#define set_IM_xfer_length(sb, val) putnbyte(sb + 0x7, val, 2)
+
+static unsigned char imprinter_descC[] = 
+  { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+static scsiblk imprinter_descB = {imprinter_descC, sizeof(imprinter_descC) };
+
+/* enable/disable imprinter printing*/
+#define set_IMD_enable(sb, val) setbitfield(sb + 0x01, 1, 7, val)
+#define IMD_enable 0
+#define IMD_disable 1
+/* specifies thes side of a document to be printed */
+#define set_IMD_side(sb, val) setbitfield(sb + 0x01, 1, 6, val)
+#define IMD_front 0
+#define IMD_back 1
+/* format of the counter 16/24 bit*/
+#define set_IMD_format(sb, val) setbitfield(sb + 0x01, 1, 5, val)
+#define IMD_16_bit 0
+#define IMD_24_bit 1
+/* initial count */
+#define set_IMD_initial_count_16(sb, val) putnbyte(sb + 0x02, val, 2)
+#define set_IMD_initial_count_24(sb, val) putnbyte(sb + 0x03, val, 3)
 
 /* ==================================================================== */
 
@@ -364,7 +445,7 @@ static unsigned char hw_statusC[] =
   { HW_STATUS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 static scsiblk hw_statusB = { hw_statusC, sizeof (hw_statusC) };
 
-#define set_HW_allocation_length(sb, len) putnbyte(sb + 0x06, len, 2)
+#define set_HW_allocation_length(sb, len) putnbyte(sb + 0x07, len, 2)
 
 #define get_HW_B5_present(in)              getbitfield(in+0x02, 1, 0)
 #define get_HW_A4_present(in)              getbitfield(in+0x02, 1, 1)

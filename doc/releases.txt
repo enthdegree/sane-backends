@@ -1,4 +1,4 @@
-2001-05-27
+2002-01-07
 
 This text summarizes some points to pay attention to when a new realease
 of sane-backends should be made.
@@ -6,22 +6,22 @@ of sane-backends should be made.
 Before the release:
 
 * configure.in: increase version number
+* configure.in: remove EXTRA version number
 * configure.in: set --disable-warnings as default
 * configure: recreate
 * NEWS: update and enter date of release
 * sane-backends.lsm: update
 * ChangeLog: set release marker
 * final compilation test
-* make distclean
-* tag CVS with release tag: 'cvs tag RELEASE_1_0_4'
-* make diff from last release: 'cvs diff -uNr RELEASE_1_0_3 > sane-1.0.4.diff'
+* tag CVS with release tag; e.g.: 'cvs tag RELEASE_1_0_4'
+* make diff from last release;
+  e.g.: 'cvs diff -uNr RELEASE_1_0_3 > sane-1.0.4.diff'
 
 Making the release:
 
-* remove all CVS files from directories (CVS, .cvsignore etc.)
-* make tar.gz and sane-backends-x.y.z.lsm
+* make tar.gz and sane-backends-x.y.z.lsm with "make sane-backends"
 * upload both to mostang.com
-* make sane-backends.html and upload to mostang.com
+* make sane-backends.html (in doc/) and upload to mostang.com
 * update SANE standard and man pages on mostang.com 
   (look at `make install-mostang' for both)
 * check and update platforms page on mostang.com
@@ -33,4 +33,5 @@ Making the release:
 After the release:
 
 * configure.in: set --enable-warnings as default
+* configure.in: add EXTRA version number (usually "-cvs")
 * configure: regenerate

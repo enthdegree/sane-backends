@@ -775,6 +775,10 @@ sanei_usb_close (SANE_Int dn)
 	   dn);
       return;
     }
+  if (devices[dn].devname) {
+	  free(devices[dn].devname);
+	  devices[dn].devname = NULL;
+  }
   if (devices[dn].method == sanei_usb_method_scanner_driver)
     close (devices[dn].fd);
   else

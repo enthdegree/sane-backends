@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2004-04-02"		; version of backend
+:version "2004-04-19"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -300,6 +300,12 @@
 :interface "USB"
 :status :unsupported
 :comment "Probably not supported. This scanner is used in a number of Canon portable printers (BJC-80 for one). No further information available."
+
+:model "IS 32"
+:url "/unsupported/canon-is-32.html"
+:interface "USB"
+:status :unsupported
+:comment "Probably not supported. Scanner cardridge for Canon inkjet printers."
 
 ;********************************************************************************************
 

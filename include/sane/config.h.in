@@ -338,12 +338,6 @@
 /* Define if you have the shl_load function.  */
 #undef HAVE_SHL_LOAD
 
-/* Define if you have the GIMP header files and library.  */
-#undef HAVE_LIBGIMP_GIMP_H
-
-/* Define if you have gtk version 0.99.3 or earlier.  */
-#undef HAVE_GTK_TOOLTIPS_SET_TIPS
-
 /* Define if you have the POSIX routine tcsendbreak().  */
 #undef HAVE_TCSENDBREAK
 

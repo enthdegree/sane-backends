@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-02-26"		; version of backend
+:version "2003-02-27"		; version of backend
 :url "http://www.meier-geinitz.de/sane/misc/unsupported.html"
 ;:status :stable			; :alpha, :beta, :stable, :new
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
@@ -128,10 +128,16 @@
 :url "http://www.compaq.com/"
 
 :model "S200"
-;:url "http://sourceforge.net/projects/canonscanner/"
+;:url ""
 :interface "USB"
 :status :unsupported
 :comment "Not supported. 2400x1200 dpi. Vendor=0x049f, Product=0x0021. One bulk-in, one bulk-out and one interrupt endpoint. Type-number: U0001-HB21, another type nr on the inside:  75100512-00"
+
+:model "S4 100"
+:url "http://www.meier-geinitz.de/sane/misc/compaq-s4-100.txt"
+:interface "USB"
+:status :unsupported
+:comment "Not supported. Vendor=0x049f, Product=0x001a."
 
 ;********************************************************************************************
 
@@ -278,6 +284,12 @@
 :interface "USB"
 :status :unsupported
 :comment "Unsupported. Vendor/Product ids: 0x05da/0x30ce. Seems to be based on the SQ Scan08 chip. See link to spec sheet."
+
+:model "ScanMaker 4800"
+:url "http://www.meier-geinitz.de/sane/misc/microtek-scanmaker-4800.txt"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. Vendor/Product ids: 0x05da/0x30cf."
 
 ;********************************************************************************************
 

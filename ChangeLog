@@ -5,6 +5,8 @@
 	  doc/gt68xx/gt68xx.CHANGES: Added Genius Colorpage Vivid3xe. Added
 	  request_type and request fields to the command set. Request is 0x01
 	  or 0x04.
+	* doc/descriptions/unsupported.desc: Added Compaq S4 100 and Microtek
+	  Scanmaker 4800.
 	
 2003-02-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

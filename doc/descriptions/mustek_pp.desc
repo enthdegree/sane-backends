@@ -14,7 +14,7 @@
 :manpage "sane-mustek_pp"         ; name of manpage (if it exists)
                                   ; backend's web page
 :url "http://penguin-breeder.org/?page=mustek_pp"
-:comment "Supports CCD and CIS type parallel port scanners from Mustek"
+:comment "Supports CIS type parallel port scanners from Mustek. A lot of Mustek CCD scanners are supported by SANE 1.0.9 and earlier. Since 1.0.10 CCD scanners don't work with the mustek_pp backend. Support will be added again in future."
 
 :devicetype :scanner              ; start of a list of devices....
                                   ; other types:  :stillcam, :vidcam,
@@ -27,23 +27,31 @@
 
 :model "ScanExpress 6000 P"
 :interface "Parport (EPP)"
-:status :alpha
-:comment "300 dpi CCD scanner"
+;:status :alpha
+;:comment "300 dpi CCD scanner"
+:status :unsupported
+:comment "Please use SANE version 1.0.9 or earlier for this CCD scanner. Since 1.0.10 it's no longer supported. "
 
 :model "ScanExpress 600 SEP"
 :interface "Parport (EPP)"
-:status :alpha
-:comment "300 dpi CCD scanner"
+;:status :alpha
+;:comment "300 dpi CCD scanner"
+:status :unsupported
+:comment "Please use SANE version 1.0.9 or earlier for this CCD scanner. Since 1.0.10 it's no longer supported."
 
 :model "ScanMagic 4800 P"
 :interface "Parport (EPP)"
-:status :alpha
-:comment "300 dpi CCD scanner"
+;:status :alpha
+;:comment "300 dpi CCD scanner"
+:status :unsupported
+:comment "Please use SANE version 1.0.9 or earlier for this CCD scanner. Since 1.0.10 it's no longer supported."
 
 :model "600 III EP Plus"
 :interface "Parport (EPP)"
-:status :alpha
-:comment "300 dpi CCD scanner"
+;:status :alpha
+;:comment "300 dpi CCD scanner"
+:status :unsupported
+:comment "Please use SANE version 1.0.9 or earlier for this CCD scanner. Since 1.0.10 it's no longer supported."
 
 :model "ScanExpress 600 CP"
 :interface "Parport (EPP)"
@@ -71,8 +79,10 @@
 
 :model "MD 9848"
 :interface "Parport (EPP)"
-:status :alpha
-:comment "300 dpi CCD scanner"
+;:status :alpha
+;:comment "300 dpi CCD scanner"
+:status :unsupported
+:comment "Please use SANE version 1.0.9 or earlier for this CCD scanner. Since 1.0.10 it's no longer supported."
 
 :model "MD/LT 935x"
 :interface "Parport (EPP)"
@@ -118,22 +128,28 @@
 
 :model "Compact II"
 :interface "Parport (EPP)"
-:status :alpha
-:comment "300 dpi CCD scanner"
+;:status :alpha
+;:comment "300 dpi CCD scanner"
+:status :unsupported
+:comment "Please use SANE version 1.0.9 or earlier for this CCD scanner. Since 1.0.10 it's no longer supported."
 
 :mfg "Cybercom"
 
 :model "9352"
 :interface "Parport (EPP)"
-:status :alpha
-:comment "300 dpi CCD scanner"
+;:status :alpha
+;:comment "300 dpi CCD scanner"
+:status :unsupported
+:comment "Please use SANE version 1.0.9 or earlier for this CCD scanner. Since 1.0.10 it's no longer supported."
 
 :mfg "Gallery"
 
 :model "4800"
 :interface "Parport (EPP)"
-:status :alpha
-:comment "300 dpi CCD scanner"
+;:status :alpha
+;:comment "300 dpi CCD scanner"
+:status :unsupported
+:comment "Please use SANE version 1.0.9 or earlier for this CCD scanner. Since 1.0.10 it's no longer supported."
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

@@ -1,4 +1,4 @@
-/* find-scanner.c
+/* sane-find-scanner.c
 
    Copyright (C) 1997-2000 Oliver Rauch and others.
 
@@ -410,7 +410,7 @@ main (int argc, char **argv)
     }
 
   printf (
-       "# Note that find-scanner will find any scanner that is connected\n"
+       "# Note that sane-find-scanner will find any scanner that is connected\n"
        "# to a SCSI bus.  It will even find scanners that are not supported\n"
        "# at all by SANE. It won't find a scanner that is connected to a\n"
        "# parallel, USB or other non-SCSI port.\n\n");

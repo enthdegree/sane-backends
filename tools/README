@@ -1,32 +1,33 @@
-Mon Sep 18 19:38:21 CEST 2000
+2000-12-31
 
 This directory contains various tools that may be useful:
 
- find-scanner:
-	Attempts to find a SCSI scanner attached to your system.
-	Invoke with "find-scanner -h" to get command-line
-	syntax. Note that find-scanner will find any scanner that
-        is connected to a SCSI bus.  It will even find scanners
-        that are not supported at all by SANE.
+ sane-find-scanner (previous name: "find-scanner"):
+        Attempts to find a SCSI scanner attached to your system.
+        Invoke with "sane-find-scanner -h" to get command-line
+        syntax. Note that sane-find-scanner will find any scanner
+        that is connected to a SCSI bus.  It will even find scanners
+        that are not supported at all by SANE. More details can be
+        found in the man page sane-find-scanner(1).
 
  xerox:
-	A simple script to make photocopies ("xeroxing").  In
-	the script, you may need to adjust the device name
-	assigned to variable DEV and the resolution assigned
-	to variable RES as well as the paper with and height
-	(variables WIDTH and HEIGHT, respectively.
+        A simple script to make photocopies ("xeroxing").  In
+        the script, you may need to adjust the device name
+        assigned to variable DEV and the resolution assigned
+        to variable RES as well as the paper with and height
+        (variables WIDTH and HEIGHT, respectively.
 
  mustek600iin-off:
-	Allows you to turn off a Mustek 600 II N scanner.
-	Use "make mustek600iin-off" to compile.
+        Allows you to turn off a Mustek 600 II N scanner.
+        Use "make mustek600iin-off" to compile.
 
 Maybe usefull for SANE developers:
 
  sane-desc.el:
- 	Some handy elisp stuff to automagically generate descriptive
-	SANE webpages from backend .desc files with emacs. Look at the
+        Some handy elisp stuff to automagically generate descriptive
+        SANE webpages from backend .desc files with emacs. Look at the
         top of the file for more details.
 
  sane-config:
-	Show SANE version, linker flags etc. Might be usefull for 
-	frontend developers.
+        Show SANE version, linker flags etc. Might be usefull for 
+        frontend developers.

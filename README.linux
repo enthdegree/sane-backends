@@ -33,12 +33,12 @@ device mustek:/dev/scanner' is a Mustek ScanExpress 12000SP flatbed scanner
 
 If this doesn't work you may have to add the right SCSI generic device name
 to the configuration file. This should be documented in the man page for
-your backend. To find out about the right SCSI device use tools/find-scanner:
+your backend. To find out about the right SCSI device use sane-find-scanner:
 
-# tools/find-scanner
-find-scanner: found scanner "SCANNER  2.02" at device /dev/scanner
-find-scanner: found scanner "SCANNER  2.02" at device /dev/sg0
-find-scanner: found scanner "SCANNER  2.02" at device /dev/sga 
+# sane-find-scanner
+sane-find-scanner: found scanner "SCANNER  2.02" at device /dev/scanner
+sane-find-scanner: found scanner "SCANNER  2.02" at device /dev/sg0
+sane-find-scanner: found scanner "SCANNER  2.02" at device /dev/sga 
 
 It may help to set a soft link /dev/scanner to the respective device.
 

@@ -1,0 +1,44 @@
+.TH sane-find-scanner 1 "31 December 2000"
+.IX sane-find-scanner
+.SH NAME
+sane-find-scanner - find SCSI scanners and their device files
+.SH SYNOPSIS
+.B sane-find-scanner
+.RB [\-h|\-?]
+.RB [\-v]
+.RI [devname]
+.SH DESCRIPTION
+.B sane-find-scanner
+is a command-line tool to find SCSI scanners and determine their Unix device
+files. It's part of the sane-backends package. It checks the default generic
+SCSI devices, e.g. /dev/sg? for Linux.  Also /dev/scanner is checked. The test
+is done by sending a SCSI inquiry command and looking for a device type of
+"scanner" or "processor" (some old HP scanners seem to send "processor"). So
+sane-find-scanner will find any SCSI scanner even if it isn't supported by any
+SANE backend. It won't find parallel port, USB, or other non-SCSI scanners.
+
+.SH OPTIONS
+.TP 8
+.B \-h, \-?
+Prints a short usage message.
+.TP 8
+.B \-v
+Verbose output. Show every device name and the test result.
+.TP 8
+.B devname
+Test device file "devname". No other devices are checked if devname is given.
+.SH EXAMPLE
+.B sane-find-scanner -v
+.br
+Check all SCSI devices for available scanners and print a line for every
+device file.
+.PP
+.B sane-find-scanner /dev/scanner
+.br
+Look for a scanner (only) at /dev/scanner and print the result.
+.SH "SEE ALSO"
+sane-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane-"backendname"(5)
+.SH AUTHOR
+Oliver Rauch and others. Manual page by Henning Meier-Geinitz.
+.SH BUGS
+No support for non-SCSI scanners yet.

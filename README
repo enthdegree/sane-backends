@@ -191,16 +191,16 @@ If this works, you could try to acquire an image with:
 	scanimage -d mustek:/dev/scanner >t.pnm
 
 If you are not sure what generic SCSI device your scanner is connected to, try
-the command tools/find-scanner.  It is normally sufficient to invoke the
+the command sane-find-scanner.  It is normally sufficient to invoke the
 program without any arguments.  Invoking this command should produce output
 similar to this:
 
-  $ tools/find-scanner
-  find-scanner: found "MUSTEK MFC-06000CZ 1.01" at device /dev/scanner
-  find-scanner: found "MUSTEK MFC-06000CZ 1.01" at device /dev/sge
+  $ sane-find-scanner
+  sane-find-scanner: found "MUSTEK MFC-06000CZ 1.01" at device /dev/scanner
+  sane-find-scanner: found "MUSTEK MFC-06000CZ 1.01" at device /dev/sge
 
-Note that find-scanner will find any scanner that is connected to a SCSI bus.
-It will even find scanners that are not supported at all by SANE.
+Note that sane-find-scanner will find any scanner that is connected to a SCSI
+bus.  It will even find scanners that are not supported at all by SANE.
 
 There may be several causes for the following messages from the frontends:
 "scanimage: no SANE devices found" or "xscanimage: no devices available.".

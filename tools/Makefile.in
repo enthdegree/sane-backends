@@ -47,7 +47,7 @@ LINK = $(CC) $(LDFLAGS) -o $@
 
 @SET_MAKE@
 
-DESTINATIONS = find-scanner sane-config
+DESTINATIONS = sane-find-scanner sane-config
 
 EXTRA = sane_strstatus.lo ../sanei/sanei_init_debug.lo \
 	../sanei/sanei_config.lo ../sanei/sanei_config2.lo \
@@ -65,16 +65,17 @@ LIBLIB = ../lib/liblib.a
 
 all:	$(DESTINATIONS)
 
-install: sane-config
+install: sane-config sane-find-scanner
 	$(INSTALL_SCRIPT) sane-config $(bindir)/sane-config
+	$(INSTALL_PROGRAM) sane-find-scanner $(bindir)/sane-find-scanner
 
 sane-config: sane-config.in $(top_builddir)/config.status 
 	cd $(top_builddir) \
           && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
-find-scanner: find-scanner.o \
+sane-find-scanner: sane-find-scanner.o \
 	../sanei/sanei_scsi.lo ../sanei/sanei_init_debug.lo
-	@$(LIBTOOL) $(MLINK) $(LINK) find-scanner.o $(LIBSANEI) $(LIBLIB) \
+	@$(LIBTOOL) $(MLINK) $(LINK) sane-find-scanner.o $(LIBSANEI) $(LIBLIB) \
 		$(LIBS)
 
 depend:

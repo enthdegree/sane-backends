@@ -1244,7 +1244,7 @@ sane_start (SANE_Handle handle)
   if ((s->hw->info.model != FB620) &&	/* modification for FB620S */
       (s->val[OPT_PREVIEW].w == SANE_FALSE) && (s->AF_NOW == SANE_TRUE))
     {
-      do_focus (s);
+      if ((status = do_focus (s)) != SANE_STATUS_GOOD) return (status);
       if (s->val[OPT_AF_ONCE].w == SANE_TRUE)
 	{
 	  s->AF_NOW = SANE_FALSE;
@@ -1253,7 +1253,7 @@ sane_start (SANE_Handle handle)
 
   if (s->val[OPT_CUSTOM_GAMMA].w == 1)
     {
-      do_gamma (s);
+      if ((status = do_gamma (s)) != SANE_STATUS_GOOD) return (status);
     }
 
 #if 1
@@ -1800,7 +1800,7 @@ read_fb620 (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   SANE_Status status;
   SANE_Byte *out, *red, *green, *blue;
   SANE_Int ncopy;
-  size_t nread, i, pixel_per_line;
+  size_t nread = 0, i, pixel_per_line;
 
   DBG (21, ">> read_fb620\n");
 

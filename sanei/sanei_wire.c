@@ -207,6 +207,7 @@ sanei_w_array (Wire * w, SANE_Word * len_ptr, void **v,
 	      w->status = ENOMEM;
 	      return;
 	    }
+	  memset (*v, 0, len * element_size);
 	}
       else
 	*v = 0;
@@ -264,6 +265,7 @@ sanei_w_ptr (Wire * w, void **v, WireCodecFunc w_value, size_t value_size)
 	      w->status = ENOMEM;
 	      return;
 	    }
+	  memset (*v, 0, value_size);
 	}
       (*w_value) (w, *v);
     }

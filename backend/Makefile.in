@@ -65,7 +65,7 @@ PRELOADABLE_BACKENDS = abaton agfafocus apple artec as6e avision bh canon \
         microtek2 mustek mustek_pp mustek_usb nec @NET@ pie @PINT@ plustek \
         @PNM@ @QCAM@ ricoh s9036 sceptre sharp @SM3600@ @SNAPSCAN@ \
         sp15c st400 tamarack test teco1 teco2 teco3 umax umax_pp umax1220u \
-        @V4L@
+        @V4L@ artec_eplus48u
 ifneq (@SELECTED_BACKENDS@,)
 PRELOADABLE_BACKENDS = @SELECTED_BACKENDS@
 endif
@@ -87,7 +87,8 @@ endif
 LIBOBJS = $(addprefix ../lib/,$(addsuffix .lo,$(LIBLIB_FUNCS)))
 
 DISTFILES = abaton.c abaton.conf abaton.h agfafocus.c agfafocus.conf \
-  agfafocus.h apple.c apple.conf apple.h artec.c artec.conf artec.h as6e.c \
+  agfafocus.h apple.c apple.conf apple.h artec.c artec.conf artec.h \
+  artec_eplus48u.c artec_eplus48u.h artec_eplus48u.conf as6e.c \
   as6e.h avision.c avision.conf avision.h bh.c bh.conf bh.h canon.c \
   canon.conf canon.h canon-sane.c canon-scsi.c canon630u.c canon630u-common.c \
   canon630u.conf canon_pp.conf canon_pp.h canon_pp.c canon_pp-dev.c \
@@ -263,6 +264,8 @@ libsane-apple.la: ../sanei/sanei_scsi.lo
 libsane-artec.la: ../sanei/sanei_config2.lo
 libsane-artec.la: ../sanei/sanei_constrain_value.lo
 libsane-artec.la: ../sanei/sanei_scsi.lo
+libsane-artec_eplus48u.la: ../sanei/sanei_constrain_value.lo
+libsane-artec_eplus48u.la: ../sanei/sanei_usb.lo
 libsane-as6e.la: ../sanei/sanei_config2.lo
 libsane-as6e.la: ../sanei/sanei_constrain_value.lo
 libsane-avision.la: ../sanei/sanei_config2.lo

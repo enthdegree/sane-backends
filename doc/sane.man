@@ -138,6 +138,11 @@ The SANE Artec backend supports several Artex/Ultima SCSI flatbed scanners as
 well as the BlackWidow BW4800SP and the Plustek 19200S. See sane-artec(5) for
 details.
 .TP
+.B artec_eplus48u
+The SANE artec_eplus48u backend supports the scanner Artec E+ 48U and re-badged
+models like Tevion MD 9693, Medion MD 9693, Medion MD 9705 and Trust Easy
+Webscan 19200. See sane-artec_eplus48u(5) for details.
+.TP
 .B as6e
 This is a SANE backend for using the Artec AS6E parallel port interface
 scanner. See sane-as6e(5) for details.
@@ -167,7 +172,7 @@ This is a SANE backend for Nikon Coolscan film-scanners. See sane-coolscan(5)
 for details.
 .TP
 .B coolscan2
-This is a SANE backend for Nikon Coolscan film-scanners. 
+This is a SANE backend for Nikon Coolscan film-scanners.
 See sane-coolscan2(5) or http://coolscan2.sourceforge.net for details.
 .TP
 .B epson

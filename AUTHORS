@@ -12,6 +12,8 @@ Backends:
  agfafocus:     Karl Anders Øygard
  apple:         Milon Firikis
  artec:         Chris Pinkham (*)
+ artec_eplus48u:Sergey Vlasov, Andreas Nowack, David Stevenson, and
+                Michael Herder (*)
  as6e:          Eugene S. Weiss (*)
  avision:       Meino Christian Cramer, Rene Rebe(*)
  bh:            Tom Martone (*)
@@ -29,7 +31,7 @@ Backends:
  epson:         Karl Heinz Kremer (*)
  fujitsu:       Randolph Bentson, Frederik Ramm, Oliver Schirrmeister (*)
  gphoto2:       Peter Fales (*)
- gt68xx:        Sergey Vlasov, Andreas Nowack, David Stevenson, and 
+ gt68xx:        Sergey Vlasov, Andreas Nowack, David Stevenson, and
                 Henning Meier-Geinitz (*)
  hp:            Peter Kirchgessner (*)
                 Geoffrey Dairiki

@@ -1,3 +1,14 @@
+2002-11-20  Michael Herder <crapsite at gmx.net>
+
+	  Added artec_eplus48u backend for the scanner Artec E+ 48U and
+	  re-badged models like Tevion/Medion MD 9693, Medion MD 9705 and
+          Trust Easy Webscan 19200.
+        * backend/Makefile.in backend/dll.conf backend/artec_eplus48u.c
+	  backend/artec_eplus48u.conf backend/artec_eplus48u.h
+	* doc/.cvsignore doc/Makefile.in doc/sane-artec_eplus48u.man doc/sane.man
+	  doc/descriptions/artec_eplus48u.desc
+	* AUTHORS: Updated concerning artec_eplus48u.
+
 2002-11-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/sane-usb.man: Added quick start section. New structure/order.

@@ -483,7 +483,7 @@ init_gphoto2 (void)
 	{
 	  DBG (0,
 	       "%s: error: %d is not a valid speed for this camers.  Use \"gphoto2 --camera \"%s\" --abilities\" for list.\n",
-	       "init_gphoto2", Cam_data.camera_name, Cam_data.speed);
+	       "init_gphoto2", Cam_data.speed, Cam_data.camera_name);
 	  return SANE_STATUS_INVAL;
 	}
     }
@@ -518,6 +518,7 @@ close_gphoto2 (void)
       DBG (1, "close_gphoto2: error: could not close device\n");
     }
 
+  camera = NULL;
   close (hack_fd);
 }
 
@@ -909,11 +910,12 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
 }
 
 /*
- * sane_exit() - Required by SANE API, but otherwise not used
+ * sane_exit() - Required by SANE API.
  */
 void
 sane_exit (void)
 {
+  close_gphoto2 ();
 }
 
 /*
@@ -1017,7 +1019,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
        (action ==
 	SANE_ACTION_SET_VALUE ? "SET" : (action ==
 					 SANE_ACTION_GET_VALUE ? "GET" :
-					 "SETAUTO")), value, info);
+					 "SETAUTO")), value, (void *) info);
 
   if (handle != MAGIC || !is_open)
     return SANE_STATUS_INVAL;	/* Unknown handle ... */
@@ -1028,6 +1030,17 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   switch (action)
     {
     case SANE_ACTION_SET_VALUE:
+
+      /* Can't set disabled options */
+      if (!SANE_OPTION_IS_ACTIVE (sod[option].cap))
+	{
+	  return (SANE_STATUS_INVAL);
+	}
+
+      /* initialize info to zero - we'll OR in various values later */
+      if (info)
+	*info = 0;
+
       status = sanei_constrain_value (sod + option, value, &myinfo);
       if (status != SANE_STATUS_GOOD)
 	{
@@ -1043,6 +1056,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  else
 	    Cam_data.current_picture_number = Cam_data.pic_taken;
 
+	  /* 
+	   * Setting a new image number could change image size (if
+	   * we supported that - which we hope to do someday!
+	   */
 	  myinfo |= SANE_INFO_RELOAD_PARAMS;
 
 	  /* get the image's resolution, unless the camera has no 
@@ -1060,6 +1077,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	case GPHOTO2_OPT_THUMBS:
 	  gphoto2_opt_thumbnails = !!*(SANE_Word *) value;
+
+	  /* Thumbnail forces an image size change: */
 	  myinfo |= SANE_INFO_RELOAD_PARAMS;
 
 	  if (Cam_data.pic_taken != 0)
@@ -1074,6 +1093,9 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	case GPHOTO2_OPT_SNAP:
 	  gphoto2_opt_snap = !!*(SANE_Word *) value;
+
+	  /* Snap forces new image size and changes image range */
+
 	  myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
 	  /* if we are snapping a new one */
 	  if (gphoto2_opt_snap)
@@ -1101,6 +1123,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	case GPHOTO2_OPT_LOWRES:
 	  gphoto2_opt_lowres = !!*(SANE_Word *) value;
+
+	  /* Lowres potentially changes image size */
 	  myinfo |= SANE_INFO_RELOAD_PARAMS;
 
 /* FIXME - change the number of pictures left depending on resolution
@@ -1160,6 +1184,13 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       break;
 
     case SANE_ACTION_GET_VALUE:
+
+      /* Can't return status for disabled options */
+      if (!SANE_OPTION_IS_ACTIVE (sod[option].cap))
+	{
+	  return (SANE_STATUS_INVAL);
+	}
+
       switch (option)
 	{
 	case 0:
@@ -1213,7 +1244,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	}
     }
 
-  if (info)
+  if (info && action == SANE_ACTION_SET_VALUE)
     {
       *info = myinfo;
       myinfo = 0;

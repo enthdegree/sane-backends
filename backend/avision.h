@@ -108,13 +108,28 @@ typedef struct Avision_HWEntry {
   
 } Avision_HWEntry;
 
-enum asic_type {
+typedef enum {
   AV_ASIC_Cx = 0,
   AV_ASIC_C1 = 1,
   AV_ASIC_C2 = 3,
   AV_ASIC_C5 = 5,
   AV_ASIC_OA980 = 128
-};
+} asic_type;
+
+typedef enum {
+  AV_THRESHOLDED,
+  AV_DITHERED,
+  AV_GRAYSCALE,
+  AV_TRUECOLOR,
+  AV_COLOR_MODE_LAST
+} color_mode;
+
+typedef enum {
+  AV_NORMAL,
+  AV_TRANSPARENT,
+  AV_ADF,
+  AV_OPERATION_MODE_LAST
+} operation_mode;
 
 enum Avision_Option
 {
@@ -162,19 +177,14 @@ typedef union Option_Value
 typedef struct Avision_Dimensions
 {
   /* in dpi */
-  int res;
-  
-  /* int resx;
-     int rexy; */
+  int xres;
+  int yres;
   
   /* in pixels */
   long tlx;
   long tly;
   long brx;
   long bry;
-  
-  long width;
-  long height;
   
   /* in pixels */
   int line_difference;
@@ -193,7 +203,7 @@ typedef struct Avision_Device
   SANE_Range y_range;
   SANE_Range speed_range;
 
-  enum asic_type inquiry_asic_type;
+  asic_type inquiry_asic_type;
   SANE_Bool inquiry_new_protocol;
   SANE_Bool inquiry_adf;
   SANE_Bool inquiry_detect_accessories;
@@ -211,14 +221,8 @@ typedef struct Avision_Device
   int inquiry_optical_res;        /* in dpi */
   int inquiry_max_res;            /* in dpi */
   
-  double inquiry_x_range;         /* in mm */
-  double inquiry_y_range;         /* in mm */
-  
-  double inquiry_adf_x_range;     /* in mm */
-  double inquiry_adf_y_range;     /* in mm */
-  
-  double inquiry_transp_x_range;  /* in mm */
-  double inquiry_transp_y_range;  /* in mm */
+  double inquiry_x_ranges  [AV_OPERATION_MODE_LAST]; /* in mm */
+  double inquiry_y_ranges  [AV_OPERATION_MODE_LAST]; /* in mm */
   
   int inquiry_color_boundary;
   int inquiry_gray_boundary;
@@ -268,7 +272,9 @@ typedef struct Avision_Scanner
   SANE_Bool scanning;           /* scan in progress */
   SANE_Parameters params;       /* scan window */
   Avision_Dimensions avdimen;   /* scan window - detailed internals */
-  int mode;
+
+  color_mode c_mode;
+  operation_mode o_mode;
   
   int fd;			/* SCSI filedescriptor */
   pid_t reader_pid;		/* process id of reader */
@@ -276,12 +282,6 @@ typedef struct Avision_Scanner
   int line;			/* current line number during scan */
   
 } Avision_Scanner;
-
-/* modes */
-#define THRESHOLDED 0
-#define DITHERED 1
-#define GRAYSCALE 2
-#define TRUECOLOR 3
 
 /* scsi command defines */
 #define AV_ADF_ON     0x80
@@ -547,14 +547,14 @@ typedef struct calibration_format
                             var[2] = ((val) >> 8 ) & 0xff; \
                             var[3] = ((val)      ) & 0xff
 
-#define get_double(var) (*var << 8) + *(var + 1)
+#define get_double(var) ((*var << 8) + *(var + 1))
 
-#define get_triple(var) (*var << 16) + \
-                        (*(var + 1) << 8) + * *var
+#define get_triple(var) ((*var << 16) + \
+                         (*(var + 1) << 8) + * *var)
 
-#define get_quad(var)   (*var << 24) + \
-                        (*(var + 1) << 16) + \
-                        (*(var + 2) << 8) + *(var + 3)
+#define get_quad(var)   ((*var << 24) + \
+                         (*(var + 1) << 16) + \
+                         (*(var + 2) << 8) + *(var + 3))
 
 #define BIT(n, p) ((n & ( 1 << p))?1:0)
 

@@ -67,6 +67,22 @@
                 Avision INC for the documentation we got! ;-)
    
    ChangeLog:
+   2002-11-30: René Rebe
+         * added meta-info to auto-generate the avision.desc
+   
+   2002-11-29: René Rebe
+         * wild guess for the HP 5730 problem
+   
+   2002-11-27: René Rebe
+         * better range checks and default initialization
+         * optimized color-packing algorithm
+   
+   2002-11-26: René Rebe
+         * cleanup of duplicate values - prepare for x/y resolution difference
+         * correct scan-window-size for different scan modes
+         * limitting of scan-window with line-difference
+         * correctly handle read returning with zero bytes as EOF
+   
    2002-11-23: René Rebe
          * added ADF option, implemented line_pack
          * option descriptions cleanup
@@ -366,7 +382,7 @@
 #endif
 
 #define BACKEND_NAME avision
-#define BACKEND_BUILD 54  /* avision backend BUILD version */
+#define BACKEND_BUILD 55  /* avision backend BUILD version */
 
 static Avision_HWEntry Avision_Device_List [] =
   {
@@ -375,198 +391,305 @@ static Avision_HWEntry Avision_Device_List [] =
     { "AVISION", "AV100CS",
       "Avision", "AV100CS",
       AV_SCSI, AV_SHEETFEED, 0},
+    /* interface="SCSI" */
+    /* status="untested" */
     
     { "AVISION", "AV100IIICS",
       "Avision", "AV100IIICS",
       AV_SCSI, AV_FLATBED, 0},
+    /* interface="SCSI" */
+    /* status="untested" */
     
     { "AVISION", "AV100S",
       "Avision", "AV100S",
       AV_SCSI, AV_FLATBED, 0},
+    /* interface="SCSI" */
+    /* status="untested" */
     
     { "AVISION", "AV240SC",
       "Avision", "AV240SC",
       AV_SCSI, AV_FLATBED, 0},
+    /* interface="SCSI" */
+    /* status="untested" */
     
     { "AVISION", "AV260CS",
       "Avision", "AV260CS",
       AV_SCSI, AV_FLATBED, 0},
+    /* interface="SCSI" */
+    /* status="untested" */
     
     { "AVISION", "AV360CS",
       "Avision", "AV360CS",
       AV_SCSI, AV_FLATBED, 0},
+    /* interface="SCSI" */
+    /* status="untested" */
     
     { "AVISION", "AV363CS",
       "Avision", "AV363CS",
       AV_SCSI, AV_FLATBED, 0},
+    /* interface="SCSI" */
+    /* status="untested" */
     
     { "AVISION", "AV420CS",
       "Avision", "AV420CS",
       AV_SCSI, AV_FLATBED, 0},
+    /* interface="SCSI" */
+    /* status="untested" */
     
     { "AVISION", "AV6120",
       "Avision", "AV6120",
       AV_SCSI, AV_FLATBED, 0},
+    /* interface="SCSI" */
+    /* status="untested" */
     
     { "AVISION", "AV620CS",
       "Avision", "AV620CS",
       AV_SCSI, AV_FLATBED, 0},
+    /* interface="SCSI" */
+    /* comment="1 pass, 600 dpi" */
+    /* status="stable" */
     
     { "AVISION", "AV620CS Plus",
       "Avision", "AV620CS Plus",
       AV_SCSI, AV_FLATBED, 0},
+    /* interface="SCSI" */
+    /* comment="1 pass, 1200 dpi" */
+    /* status="stable" */
     
     { "AVISION", "AV630CS",
       "Avision", "AV630CS",
       AV_SCSI, AV_FLATBED , 0},
+    /* interface="SCSI" */
+    /* comment="1 pass, 1200 dpi" */
+    /* status="stable" */
     
     { "AVISION", "AV630CSL",
       "Avision", "AV630CSL",
       AV_SCSI, AV_FLATBED , 0},
+    /* interface="SCSI" */
+    /* comment="1 pass, 1200 dpi" */
+    /* status="untested" */
     
     { "AVISION", "AV6240",
       "Avision", "AV6240",
       AV_SCSI, AV_FLATBED, 0},
+    /* interface="SCSI" */
+    /* comment="1 pass, ??? dpi" */
+    /* status="stable" */
     
     {"AVISION", "AV600U",
      "Avision", "AV600U",
      AV_USB, AV_FLATBED, 0}, /* c5 calib */
+    /* interface="USB" */
+    /* comment="1 pass, 1200 dpi" */
+    /* status="untested" */
     
     { "AVISION", "AV660S",
       "Avision", "AV660S",
       AV_SCSI, AV_FLATBED, 0},
-    
+    /* interface="USB" */
+    /* comment="1 pass, 1200 dpi" */
+    /* status="untested" */
+
     { "AVISION", "AV680S",
       "Avision", "AV680S",
       AV_SCSI, AV_FLATBED, 0},
+    /* interface="USB" */
+    /* comment="1 pass, 1200 dpi" */
+    /* status="untested" */
     
     {"AVISION", "AV690U",
      "Avision", "AV690U",
      AV_USB, AV_FLATBED, 0}, /* c5 calib */
+    /* interface="USB" */
+    /* comment="1 pass, 2400 dpi" */
+    /* status="untested" */
     
     { "AVISION", "AV800S",
       "Avision", "AV800S",
       AV_SCSI, AV_FLATBED, 0},
+    /* interface="SCSI" */
+    /* comment="1 pass, 1200 dpi" */
+    /* status="untested" */
     
     { "AVISION", "AV810C",
       "Avision", "AV810C",
       AV_SCSI, AV_FLATBED, 0},
+    /* interface="SCSI" */
+    /* comment="1 pass, 1200 dpi" */
+    /* status="untested" */
     
     { "AVISION", "AV820",
       "Avision", "AV820",
       AV_SCSI, AV_FLATBED, 0},
+    /* interface="SCSI" */
+    /* comment="1 pass, 1200 dpi" */
+    /* status="untested" */
     
     { "AVISION", "AV820C",
       "Avision", "AV820C",
       AV_SCSI, AV_FLATBED, 0},
+    /* interface="SCSI" */
+    /* comment="1 pass, 1200 dpi" */
+    /* status="untested" */
     
     { "AVISION", "AV820C Plus",
       "Avision", "AV820C Plus",
       AV_SCSI, AV_FLATBED, 0},
+    /* interface="SCSI" */
+    /* comment="1 pass, 1200 dpi" */
+    /* status="untested" */
     
     {"AVISION", "AV830C",
      "Avision", "AV830C",
      AV_SCSI, AV_FLATBED, 0},
+    /* interface="SCSI" */
+    /* comment="1 pass, 1200 dpi" */
+    /* status="untested" */
     
     {"AVISION", "AV830C Plus",
      "Avision", "AV830C Plus",
      AV_SCSI, AV_FLATBED, 0},
+    /* interface="SCSI" */
+    /* comment="1 pass, 1200 dpi" */
+    /* status="untested" */
     
     { "AVISION", "AV880",
       "Avision", "AV880",
       AV_SCSI, AV_FLATBED, 0},
+    /* interface="SCSI" */
+    /* comment="1 pass, 1200 dpi" */
+    /* status="untested" */
     
     { "AVISION", "AV880C",
       "Avision", "AV880C",
       AV_SCSI, AV_FLATBED, 0},
+    /* interface="SCSI" */
+    /* comment="1 pass, 1200 dpi" */
+    /* status="untested" */
     
     { "AVISION", "AV8000S",
       "Avision", "AV8000S",
       AV_SCSI, AV_FLATBED, 0},
+    /* interface="SCSI" */
+    /* comment="1 pass, 1200 dpi, A3" */
+    /* status="stable" */
     
     { "AVISION", "AVA3",
       "Avision", "AVA3",
       AV_SCSI, AV_FLATBED, 0},
+    /* interface="SCSI" */
+    /* comment="1 pass, 600 dpi, A3" */
+    /* status="untested" */
     
     /* and possibly more avisions */
     
     { "HP",      "ScanJet 5300C",
       "Hewlett-Packard", "ScanJet 5300C",
       AV_USB, AV_FLATBED, 0},
+    /* interface="USB" */
+    /* comment="1 pass, 1200 dpi" */
+    /* status="stable" */
     
     { "HP",      "ScanJet 5370C",
       "Hewlett-Packard", "ScanJet 5370C",
-      AV_USB, AV_FLATBED, 0}, /* AV_NO_LINE_DIFFERENCE */
+      AV_USB, AV_FLATBED, 0},
+    /* interface="USB" */
+    /* comment="1 pass, 2400 dpi" */
+    /* status="alpha" */
     
     /* The HP 7450c seems to use the same ID */
     { "hp",      "scanjet 7400c",
       "Hewlett-Packard", "ScanJet 7400c",
       AV_USB, AV_FLATBED, AV_LIGHT_CHECK_BOGUS},
+    /* interface="USB" */
+    /* comment="1 pass, 1200 dpi" */
+    /* status="alpha" */
     
-    /* needs firmware and possibly more adaptions */
-    /*{"UMAX",    "Astra 4500",    AV_USB, AV_FLATBED, 0},
-      {"UMAX",    "Astra 6700",    AV_USB, AV_FLATBED, 0}, */
-    
-    /* Minolta Dimage Scan Dual II */
     { "MINOLTA", "FS-V1",
       "Minolta", "FS-V1",
       AV_USB, AV_FILM, 0},
+    /* interface="USB" */
+    /* comment="1 pass, film-scanner" */
+    /* status="alpha" */
     
     /* Minolta Scan Elite II - might be basically a Dual II + IR scan */
     
     /* possibly all Minolta film-scanners ? */
     
-    /* Only the SS600 is tested ... */
-    
     { "MITSBISH", "MCA-ADFC",
       "Mitsubishi", "MCA-ADFC",
       AV_SCSI, AV_SHEETFEED, 0},
+    /* interface="SCSI" */
+    /* status="untested" */
     
     { "MITSBISH", "MCA-S1200C",
       "Mitsubishi", "S1200C",
       AV_SCSI, AV_SHEETFEED, 0},
+    /* interface="SCSI" */
+    /* status="untested" */
     
     { "MITSBISH", "MCA-S600C",
       "Mitsubishi", "S600C",
       AV_SCSI, AV_SHEETFEED, 0},
+    /* interface="SCSI" */
+    /* status="untested" */
     
     { "MITSBISH", "SS600",
       "Mitsubishi", "SS600",
       AV_SCSI, AV_SHEETFEED, 0},
+    /* interface="SCSI" */
+    /* status="beta" */
     
     /* The next are all untested ... */
     
     { "FCPA", "ScanPartner",
       "Fujitsu", "ScanPartner",
       AV_SCSI, AV_SHEETFEED, 0},
+    /* interface="SCSI" */
+    /* status="untested" */
 
     { "FCPA", "ScanPartner 10",
       "Fujitsu", "ScanPartner 10",
       AV_SCSI, AV_SHEETFEED, 0},
+    /* interface="SCSI" */
+    /* status="untested" */
     
     { "FCPA", "ScanPartner 10C",
       "Fujitsu", "ScanPartner 10C",
       AV_SCSI, AV_SHEETFEED, 0},
+    /* interface="SCSI" */
+    /* status="untested" */
     
     { "FCPA", "ScanPartner 15C",
       "Fujitsu", "ScanPartner 15C",
       AV_SCSI, AV_SHEETFEED, 0},
+    /* interface="SCSI" */
+    /* status="untested" */
     
     { "FCPA", "ScanPartner 300C",
       "Fujitsu", "ScanPartner 300C",
       AV_SCSI, AV_SHEETFEED, 0},
+    /* interface="SCSI" */
+    /* status="untested" */
     
     { "FCPA", "ScanPartner 600C",
       "Fujitsu", "ScanPartner 600C",
       AV_SCSI, AV_SHEETFEED, 0},
+    /* interface="SCSI" */
+    /* status="untested" */
     
     { "FCPA", "ScanPartner Jr",
       "Fujitsu", "ScanPartner Jr",
       AV_SCSI, AV_SHEETFEED, 0},
+    /* interface="SCSI" */
+    /* status="untested" */
     
     { "FCPA", "ScanStation",
       "Fujitsu", "ScanStation",
       AV_SCSI, AV_SHEETFEED, 0},
+    /* interface="SCSI" */
+    /* status="untested" */
     
     /* More IDs from the Avision dll:
       ArtiScan ProA3
@@ -713,10 +836,8 @@ static void debug_print_avdimen (int dbg_level, char* func, Avision_Dimensions* 
   DBG (dbg_level, "%s: tlx: %ld, tly: %ld, brx: %ld, bry: %ld\n",
        func, avdimen->tlx, avdimen->tly,
        avdimen->brx, avdimen->bry);
-  DBG (dbg_level, "%s: width: %ld, height: %ld\n",
-       func, avdimen->width, avdimen->height);
-  DBG (dbg_level, "%s: res: %d, line_difference: %d\n",
-       func, avdimen->res, avdimen->line_difference);
+  DBG (dbg_level, "%s: xres: %d, yres: %d, line_difference: %d\n",
+       func, avdimen->xres, avdimen->yres, avdimen->line_difference);
 }
 
 static void debug_print_params (int dbg_level, char* func, SANE_Parameters* params)
@@ -731,7 +852,7 @@ static void debug_print_params (int dbg_level, char* func, SANE_Parameters* para
 static void debug_print_calib_format (int dbg_level, char* func,
 				      u_int8_t* result)
 {
-  debug_print_raw (dbg_level + 2, "debug_print_calib_format:", result, 32);
+  debug_print_raw (dbg_level + 2, "debug_print_calib_format:\n", result, 32);
   
   DBG (dbg_level, "%s: [0-1]  pixels per line %d\n",
        func, (result[0]<<8)+result[1]);
@@ -838,7 +959,7 @@ static u_int16_t
 bubble_sort (u_int16_t* sort_data, size_t count)
 {
   size_t i, j, k, limit;
-  u_int64_t sum = 0;
+  double sum = 0;
   u_int16_t temp;
   
   limit = count / 3;
@@ -870,19 +991,19 @@ bubble_sort2 (u_int16_t* sort_data, size_t count)
   sort_data[0] = bubble_sort (sort_data, count);
 }
 
-static int
+static color_mode
 make_mode (char* mode)
 {
   DBG (3, "make_mode:\n");
 
   if (strcmp (mode, "Line Art") == 0)
-    return THRESHOLDED;
+    return AV_THRESHOLDED;
   if (strcmp (mode, "Dithered") == 0)
-    return DITHERED;
+    return AV_DITHERED;
   else if (strcmp (mode, "Gray") == 0)
-    return GRAYSCALE;
+    return AV_GRAYSCALE;
   else if (strcmp (mode, "Color") == 0)
-    return TRUECOLOR;
+    return AV_TRUECOLOR;
 
   return -1;
 }
@@ -893,20 +1014,20 @@ get_pixel_boundary (Avision_Scanner* s)
   Avision_Device* dev = s->hw;
   int boundary;
   
-  switch (s->mode) {
-  case TRUECOLOR:
+  switch (s->c_mode) {
+  case AV_TRUECOLOR:
     boundary = dev->inquiry_color_boundary;
     break;
-  case GRAYSCALE:
+  case AV_GRAYSCALE:
     boundary = dev->inquiry_gray_boundary;
     break;
-  case DITHERED:
+  case AV_DITHERED:
     if (dev->inquiry_asic_type != AV_ASIC_C5)
       boundary = 32;
     else
       boundary = dev->inquiry_dithered_boundary;
     break;
-  case THRESHOLDED:
+  case AV_THRESHOLDED:
     if (dev->inquiry_asic_type != AV_ASIC_C5)
       boundary = 32;
     else
@@ -1298,7 +1419,7 @@ wait_4_light (Avision_Scanner *s)
 /* C5 hardware scaling parameter. Code by Avision.
    Scan width and length base dpi is not always 1200 dpi.
    Be carefull! */
-
+#ifdef THIS_IS_NEEDED
 static void
 c5_guard (Avision_Scanner* s)
 {
@@ -1331,12 +1452,13 @@ c5_guard (Avision_Scanner* s)
   n_height = (256 * (s->avdimen.height - 1) + (weight - 1) ) / weight;
   DBG (1, "c5_guard: n_height = %d\n", n_height);
   
-#ifdef THIS_IS_NEEDED
-  if (!gray_mode) { /* single bit mode */
+  /* single bit mode */
+  /*
+  if (!gray_mode) {
     s->avdimen.width = new_width;
     s->avdimen.brx = s->avdimen.tlx + s->avdimen.width;
   }
-#endif
+  */
   
   /* overwrite with corrected values */
   s->params.lines = n_width;
@@ -1346,6 +1468,7 @@ c5_guard (Avision_Scanner* s)
   debug_print_avdimen (1, "c5_guard", &s->avdimen);
   debug_print_params (1, "c5_guard", &s->params);
 }
+#endif
 
 static SANE_Status
 get_accessories_info (int fd, SANE_Bool *adf, SANE_Bool *light_box)
@@ -1826,75 +1949,67 @@ attach (const char* devname, Avision_Device** devp)
   DBG (1, "attach: optical resolution set to: %d dpi\n", dev->inquiry_optical_res);
   DBG (1, "attach: max resolution set to: %d dpi\n", dev->inquiry_max_res);
   
-  /* Get max X and max Y ... */
-  dev->inquiry_x_range = ( ( (unsigned int)result[81] << 8)
-			   + (unsigned int)result[82] ) * MM_PER_INCH;
-  dev->inquiry_y_range = ( ( (unsigned int)result[83] << 8)
-			   + (unsigned int)result[84] ) * MM_PER_INCH;
-  
-  dev->inquiry_adf_x_range = ( ( (unsigned int)result[85] << 8)
-			       + (unsigned int)result[86] ) * MM_PER_INCH;
-  dev->inquiry_adf_y_range = ( ( (unsigned int)result[87] << 8)
-			       + (unsigned int)result[88] ) * MM_PER_INCH;
-  
-  dev->inquiry_transp_x_range = ( ( (unsigned int)result[77] << 8)
-				  + (unsigned int)result[78] ) * MM_PER_INCH;
-  dev->inquiry_transp_y_range = ( ( (unsigned int)result[79] << 8)
-				  + (unsigned int)result[80] ) * MM_PER_INCH;
-  
-  if (dev->hw->scanner_type != AV_FILM) {
-    dev->inquiry_x_range /= AVISION_BASE_RES;
-    dev->inquiry_y_range /= AVISION_BASE_RES;
-    dev->inquiry_adf_x_range /= AVISION_BASE_RES;
-    dev->inquiry_adf_y_range /= AVISION_BASE_RES;
-    dev->inquiry_transp_x_range /= AVISION_BASE_RES;
-    dev->inquiry_transp_y_range /= AVISION_BASE_RES;
-  } else {
-    /* ZP: The right number is 2820, wether it is 40-41, 42-43, 44-45,
-     * 46-47 or 89-90 I don't know but I would bet for the last !
-     * RR: OK. We use it via the optical_res which we need anyway ...
-     */
-    dev->inquiry_x_range /= dev->inquiry_optical_res;
-    dev->inquiry_y_range /= dev->inquiry_optical_res;
-    dev->inquiry_adf_x_range /= dev->inquiry_optical_res;
-    dev->inquiry_adf_y_range /= dev->inquiry_optical_res;
-    dev->inquiry_transp_x_range /= dev->inquiry_optical_res;
-    dev->inquiry_transp_y_range /= dev->inquiry_optical_res;
-  }
-  
-  /* check if x/y range is valid :-((( */
-  if (dev->inquiry_x_range == 0 || dev->inquiry_y_range == 0) {
-    if (dev->hw->scanner_type == AV_SHEETFEED) {
-      DBG (1, "attach: x/y-range is invalid! ...\n");
-      DBG (1, "attach:   Using defauld %fx%finch (sheetfeed).\n",
-	   A4_X_RANGE, SHEETFEED_Y_RANGE);
-      
-      dev->inquiry_x_range = A4_X_RANGE * MM_PER_INCH;
-      dev->inquiry_y_range = SHEETFEED_Y_RANGE * MM_PER_INCH;
+  /* get max x/y ranges for the different modes */
+  {
+    double base_dpi;
+    if (dev->hw->scanner_type != AV_FILM) {
+      base_dpi = AVISION_BASE_RES;
+    } else {
+      /* ZP: The right number is 2820, wether it is 40-41, 42-43, 44-45,
+       * 46-47 or 89-90 I don't know but I would bet for the last !
+       * RR: OK. We use it via the optical_res which we need anyway ...
+       */
+      base_dpi = dev->inquiry_optical_res;
     }
-    else {
-      DBG (1, "attach: x/y-range is invalid! Using defauld %fx%finch (ISO A4).\n",
-	   A4_X_RANGE, A4_Y_RANGE);
-      
-      dev->inquiry_x_range = A4_X_RANGE * MM_PER_INCH;
-      dev->inquiry_y_range = A4_Y_RANGE * MM_PER_INCH;
-    }
-  }
-  else
-    DBG (3, "attach: x/y-range seems to be valid!\n");
-    if (force_a4) {
-    DBG (1, "attach: \"force_a4\" found! Using defauld %fx%finch (ISO A4).\n",
-	 A4_X_RANGE, A4_Y_RANGE);
-    dev->inquiry_x_range = A4_X_RANGE * MM_PER_INCH;
-    dev->inquiry_y_range = A4_Y_RANGE * MM_PER_INCH;
+    
+    dev->inquiry_x_ranges [AV_NORMAL] =
+      get_double (&(result[81])) * MM_PER_INCH / base_dpi;
+    dev->inquiry_y_ranges [AV_NORMAL] =
+      get_double (&(result[83])) * MM_PER_INCH / base_dpi;
+  
+    dev->inquiry_x_ranges [AV_TRANSPARENT] =
+      get_double (&(result[77])) * MM_PER_INCH / base_dpi;
+    dev->inquiry_y_ranges [AV_TRANSPARENT] =
+      get_double (&(result[79])) * MM_PER_INCH / base_dpi;
+  
+    dev->inquiry_x_ranges [AV_ADF] =
+      get_double (&(result[85])) * MM_PER_INCH / base_dpi;
+    dev->inquiry_y_ranges [AV_ADF] =
+      get_double (&(result[87])) * MM_PER_INCH / base_dpi;
   }
   
-  DBG (1, "attach: range:        %f x %f\n",
-       dev->inquiry_x_range, dev->inquiry_y_range);
-  DBG (1, "attach: adf_range:    %f x %f\n",
-       dev->inquiry_adf_x_range, dev->inquiry_adf_y_range);
-  DBG (1, "attach: transp_range: %f x %f\n",
-       dev->inquiry_transp_x_range, dev->inquiry_transp_y_range);
+  /* check if x/y ranges are valid :-((( */
+  {
+    operation_mode mode;
+
+    for (mode = AV_NORMAL; mode < AV_OPERATION_MODE_LAST; ++ mode)
+      {
+	if (dev->inquiry_x_ranges [mode] != 0 &&
+	    dev->inquiry_y_ranges [mode] != 0)
+	  {
+	    DBG (3, "attach: x/y-range for mode %d is valid!\n", mode);
+	    if (force_a4) {
+	      DBG (1, "attach: \"force_a4\" found! Using defauld (ISO A4).\n");
+	      dev->inquiry_x_ranges [mode] = A4_X_RANGE * MM_PER_INCH;
+	      dev->inquiry_y_ranges [mode] = A4_Y_RANGE * MM_PER_INCH;
+	    }
+	  }
+	else /* mode is invaild */
+	  {
+	    DBG (1, "attach: x/y-range for mode %d is invalid! Using default.\n", mode);
+	    
+	    dev->inquiry_x_ranges [mode] = A4_X_RANGE * MM_PER_INCH;
+	    
+	    if (dev->hw->scanner_type == AV_SHEETFEED)
+	      dev->inquiry_y_ranges [mode] = SHEETFEED_Y_RANGE * MM_PER_INCH;
+	    else
+	      dev->inquiry_y_ranges [mode] = A4_Y_RANGE * MM_PER_INCH;
+	  }
+	DBG (1, "attach: Mode %d range is now: %f x %f mm.\n",
+	     mode,
+	     dev->inquiry_x_ranges [mode], dev->inquiry_y_ranges [mode]);
+      } /* end for all modes */
+  }
   
   /* Try to retrieve additional accessories information */
   if (dev->inquiry_detect_accessories) {
@@ -1922,7 +2037,11 @@ attach (const char* devname, Avision_Device** devp)
       goto close_scanner_and_return;
   }
   
-  dev->data_dq = 0; /* was 0x0a0d ... */
+  /* normally the data_dq is 0x0a0d - but newer scanner hang with it ... */
+  if (!dev->inquiry_new_protocol)
+    dev->data_dq = 0x0a0d;
+  else
+    dev->data_dq = 0;
 
   status = wait_ready (fd);
   if (status != SANE_STATUS_GOOD)
@@ -1992,7 +2111,7 @@ get_calib_format (Avision_Scanner* s, struct calibration_format* format)
   /* software format it as 1 line if true color scan */
   /* only line interleave format to be supported */
   
-  if ((s->mode == TRUECOLOR) || BIT(format->ability1, 3))
+  if ((s->c_mode == AV_TRUECOLOR) || BIT(format->ability1, 3))
     {
       format->lines /= 3;
       format->channels = 3;
@@ -2592,7 +2711,7 @@ normal_calibration (Avision_Scanner* s)
   
   send_type = 0x82; /* download calibration data */
   
-  if ((s->mode == TRUECOLOR) || BIT(calib_format.ability1, 3)) { /* color mode? */
+  if ((s->c_mode == AV_TRUECOLOR) || BIT(calib_format.ability1, 3)) { /* color mode? */
     DBG (3, "normal_calibration: using color calibration\n");
     read_type = 0x62; /* read color calib data */
     send_type_q = 0x12; /* color calib data */
@@ -2947,7 +3066,7 @@ set_gamma (Avision_Scanner* s)
   double contrast;
   
   if (dev->inquiry_asic_type != AV_ASIC_OA980)
-    invert_table = (s->mode == THRESHOLDED) || (s->mode == DITHERED);
+    invert_table = (s->c_mode == AV_THRESHOLDED) || (s->c_mode == AV_DITHERED);
   
   switch (dev->inquiry_asic_type)
     {
@@ -2998,9 +3117,9 @@ set_gamma (Avision_Scanner* s)
 	   * v1 <- current value for table
 	   * v2 <- next value for table (for interpolation)
 	   */
-	  switch (s->mode)
+	  switch (s->c_mode)
 	    {
-	    case TRUECOLOR:
+	    case AV_TRUECOLOR:
 	      {
 		v1 = (double) (s->gamma_table [0][j] +
 			       s->gamma_table [1 + color][j] ) / 2;
@@ -3074,6 +3193,8 @@ set_window (Avision_Scanner* s)
 {
   Avision_Device* dev = s->hw;
   
+  int base_dpi;
+  
   SANE_Status status;
   struct
   {
@@ -3083,6 +3204,19 @@ set_window (Avision_Scanner* s)
   } cmd;
    
   DBG (3, "set_window\n");
+  
+  if (dev->inquiry_asic_type != AV_ASIC_C5) {
+    base_dpi = 1200;
+  }
+  else {
+    base_dpi = s->avdimen.xres - s->avdimen.xres % 300;
+    if (base_dpi > dev->inquiry_optical_res)
+      base_dpi = dev->inquiry_optical_res;
+    else if (s->avdimen.xres <= 150)
+      base_dpi = 150;
+  }
+  
+  DBG (1, "set_window: base_dpi = %d\n", base_dpi);
   
   /* wipe out anything */
   memset (&cmd, 0, sizeof (cmd) );
@@ -3094,16 +3228,17 @@ set_window (Avision_Scanner* s)
   set_double (cmd.window_header.desclen, sizeof (cmd.window_descriptor) );
   
   /* resolution parameters */
-  set_double (cmd.window_descriptor.xres, s->avdimen.res);
-  set_double (cmd.window_descriptor.yres, s->avdimen.res);
+  set_double (cmd.window_descriptor.xres, s->avdimen.xres);
+  set_double (cmd.window_descriptor.yres, s->avdimen.yres);
      
-  /* upper left corner coordinates in inch/1200 */
-  set_quad (cmd.window_descriptor.ulx, s->avdimen.tlx * 1200 / s->avdimen.res);
-  set_quad (cmd.window_descriptor.uly, s->avdimen.tly * 1200 / s->avdimen.res);
+  /* upper left corner coordinates in inch * base_dpi */
+  set_quad (cmd.window_descriptor.ulx, s->avdimen.tlx * base_dpi / s->avdimen.xres);
+  set_quad (cmd.window_descriptor.uly, s->avdimen.tly * base_dpi / s->avdimen.yres);
   
   /* width and length in inch/1200 */
-  set_quad (cmd.window_descriptor.width, s->avdimen.width * 1200 / s->avdimen.res);
-  set_quad (cmd.window_descriptor.length, s->avdimen.height * 1200 / s->avdimen.res);
+  set_quad (cmd.window_descriptor.width, s->params.pixels_per_line * base_dpi / s->avdimen.xres);
+  set_quad (cmd.window_descriptor.length,
+	    (s->params.lines + s->avdimen.line_difference) * base_dpi / s->avdimen.yres);
 
   /* width and length in _bytes_ */
   set_double (cmd.window_descriptor.linewidth, s->params.bytes_per_line);
@@ -3149,21 +3284,21 @@ set_window (Avision_Scanner* s)
   cmd.window_descriptor.contrast = 128;
   
   /* mode dependant settings */
-  switch (s->mode)
+  switch (s->c_mode)
     {
-    case THRESHOLDED:
+    case AV_THRESHOLDED:
       cmd.window_descriptor.bpc = 1;
       cmd.window_descriptor.image_comp = 0;
       cmd.window_descriptor.bitset1 &= 0xC7; /* no filter */
       break;
     
-    case DITHERED:
+    case AV_DITHERED:
       cmd.window_descriptor.bpc = 1;
       cmd.window_descriptor.image_comp = 1;
       cmd.window_descriptor.bitset1 &= 0xC7; /* no filter */
       break;
       
-    case GRAYSCALE:
+    case AV_GRAYSCALE:
       cmd.window_descriptor.bpc = 8;
       cmd.window_descriptor.image_comp = 2;
       cmd.window_descriptor.bitset1 &= 0xC7;  /* no filter */
@@ -3171,14 +3306,14 @@ set_window (Avision_Scanner* s)
       /* cmd.window_descriptor.bitset1 |= 0x30; */
       break;
       
-    case TRUECOLOR:
+    case AV_TRUECOLOR:
       cmd.window_descriptor.bpc = 8;
       cmd.window_descriptor.image_comp = 5;
       cmd.window_descriptor.bitset1 |= 0x20;  /* rgb one-pass filter */
       break;
       
     default:
-      DBG (1, "Invalid mode. %d\n", s->mode);
+      DBG (1, "Invalid mode. %d\n", s->c_mode);
       return SANE_STATUS_INVAL;
     }
   
@@ -3259,7 +3394,7 @@ start_scan (Avision_Scanner *s)
   
   memset (&cmd, 0, sizeof (cmd));
   cmd.opc = AVISION_SCSI_SCAN;
-  cmd.transferlen = 0; /*RR: Was 0 */
+  cmd.transferlen = 0; /*RR: Was 1 */
   
   if (s->val[OPT_PREVIEW].w == SANE_TRUE) {
     cmd.bitset1 |= 0x01<<6;
@@ -3329,25 +3464,21 @@ do_cancel (Avision_Scanner *s)
 }
 
 static SANE_Status
-read_data (Avision_Scanner* s, SANE_Byte* buf, size_t count)
+read_data (Avision_Scanner* s, SANE_Byte* buf, size_t* count)
 {
   struct command_read rcmd;
   SANE_Status status;
 
-  DBG (9, "read_data: %d\n", count);
+  DBG (9, "read_data: %d\n", *count);
   
   memset (&rcmd, 0, sizeof (rcmd));
   
   rcmd.opc = AVISION_SCSI_READ;
   rcmd.datatypecode = 0x00; /* read image data */
+  set_double (rcmd.datatypequal, s->hw->data_dq);
+  set_triple (rcmd.transferlen, *count);
   
-  /* Urghs!#*! I needed really long to figure out that the AV 800S
-     doesn't like another data_type_qualifier ... !!! */
-  rcmd.datatypequal [0] = 0x0;
-  rcmd.datatypequal [1] = 0x0;
-  set_triple (rcmd.transferlen, count);
-  
-  status = sanei_scsi_cmd (s->fd, &rcmd, sizeof (rcmd), buf, &count);
+  status = sanei_scsi_cmd (s->fd, &rcmd, sizeof (rcmd), buf, count);
   
   return status;
 }
@@ -3370,9 +3501,9 @@ init_options (Avision_Scanner* s)
   
   /* Init the SANE option from the scanner inquiry data */
   
-  dev->x_range.max = SANE_FIX ( (int)dev->inquiry_x_range);
+  dev->x_range.max = SANE_FIX ( (int)dev->inquiry_x_ranges[s->o_mode]);
   dev->x_range.quant = 0;
-  dev->y_range.max = SANE_FIX ( (int)dev->inquiry_y_range);
+  dev->y_range.max = SANE_FIX ( (int)dev->inquiry_y_ranges[s->o_mode]);
   dev->y_range.quant = 0;
   
   dev->dpi_range.min = 50;
@@ -3409,7 +3540,7 @@ init_options (Avision_Scanner* s)
   s->opt[OPT_MODE].constraint.string_list = mode_list;
   s->val[OPT_MODE].s = strdup (mode_list[OPT_MODE_DEFAULT]);
   
-  s->mode = make_mode (s->val[OPT_MODE].s);
+  s->c_mode = make_mode (s->val[OPT_MODE].s);
   
   /* resolution */
   s->opt[OPT_RESOLUTION].name = SANE_NAME_SCAN_RESOLUTION;
@@ -3688,7 +3819,7 @@ reader_process (Avision_Scanner *s, int fd)
   max_bytes_per_read = sanei_scsi_max_request_size / 2;
   
   /* perform some nice max 1/2 inch computation to make scan-previews look nicer */
-  half_inch_bytes = s->params.bytes_per_line * s->avdimen.res / 2;
+  half_inch_bytes = s->params.bytes_per_line * s->avdimen.yres / 2;
   if (max_bytes_per_read > half_inch_bytes)
     max_bytes_per_read = half_inch_bytes;
   
@@ -3740,12 +3871,17 @@ reader_process (Avision_Scanner *s, int fd)
 	       this_read);
 	  
 	  sigprocmask (SIG_BLOCK, &sigterm_set, 0);
-	  status = read_data (s, stripe_data + stripe_fill, this_read);
+	  status = read_data (s, stripe_data + stripe_fill, &this_read);
 	  sigprocmask (SIG_UNBLOCK, &sigterm_set, 0);
 	  
 	  if (status != SANE_STATUS_GOOD) {
 	    DBG (1, "reader_process: read_data failed with status: %d\n", status);
 	    return 3;
+	  }
+	  
+	  if (this_read == 0) {
+	    DBG (1, "reader_process: read_data failed due to lenght zero (EOF)\n");
+	    return 4;
 	  }
 	  
 	  stripe_fill += this_read;
@@ -3757,25 +3893,30 @@ reader_process (Avision_Scanner *s, int fd)
       /* perform output convertions */
       
       usefull_bytes = stripe_fill;
-      if (s->mode == TRUECOLOR)
+      if (s->c_mode == AV_TRUECOLOR)
 	usefull_bytes -= s->avdimen.line_difference * bytes_per_line;
       
       DBG (5, "reader_process: usefull_bytes %i\n", usefull_bytes);
       
       /* perform needed data convertions (packing, ...) and/or copy the image data */
-      if (s->mode == TRUECOLOR)
+      if (s->c_mode == AV_TRUECOLOR)
 	{
-	  if (s->avdimen.line_difference > 0) /* color pack */
+	  if (s->avdimen.line_difference > 0) /* color-pack */
 	    {
-	      int c, i;
-	      int pixels = usefull_bytes / 3;
+	      int i;
 	      int c_offset = (s->avdimen.line_difference / 3) * bytes_per_line;
 	      
-	      for (c = 0; c < 3; ++ c)
-		for (i = 0; i < pixels; ++ i)
-		  out_data [i * 3 + c] = stripe_data [i * 3 + (c * c_offset) + c];
+	      u_int8_t* r_ptr = stripe_data;
+	      u_int8_t* g_ptr = stripe_data + c_offset + 1;
+	      u_int8_t* b_ptr = stripe_data + 2 * c_offset + 2;
+	      
+	      for (i = 0; i < usefull_bytes;) {
+		out_data [i++] = *r_ptr; r_ptr += 3;
+		out_data [i++] = *g_ptr; g_ptr += 3;
+		out_data [i++] = *b_ptr; b_ptr += 3;
+	      }
 	    } /* end color pack */
-	  else if (dev->inquiry_needs_line_pack) { /* line pack */
+	  else if (dev->inquiry_needs_line_pack) { /* line-pack */
 	    int i = 0;
 	    int l, p;
 	    int line_pixels = bytes_per_line / 3;
@@ -3801,7 +3942,7 @@ reader_process (Avision_Scanner *s, int fd)
 	  memcpy (out_data, stripe_data, usefull_bytes);
 	}
       }
-      else /*if (s->mode == GRAYSCALE) */ {
+      else /*if (s->c_mode == GRAYSCALE) */ {
 	memcpy (out_data, stripe_data, usefull_bytes);
       }
       
@@ -4116,6 +4257,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		     SANE_Action action, void* val, SANE_Int* info)
 {
   Avision_Scanner* s = handle;
+  Avision_Device* dev = s->hw;
   SANE_Status status;
   SANE_Word cap;
 
@@ -4174,7 +4316,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  strcpy (val, s->val[option].s);
 	  return SANE_STATUS_GOOD;
 	} /* end switch option */
-    } /* end if GET_VALUE*/
+    } /* end if GET_ACTION_GET_VALUE */
   else if (action == SANE_ACTION_SET_VALUE)
     {
       if (!SANE_OPTION_IS_SETTABLE (cap))
@@ -4186,23 +4328,18 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       
       switch (option)
 	{
-	  /* (mostly) side-effect-free word options: */
-	case OPT_RESOLUTION:
-	case OPT_SPEED:
+	  /* side-effect-free word options: */
 	case OPT_TL_X:
 	case OPT_TL_Y:
 	case OPT_BR_X:
 	case OPT_BR_Y:
-	  if (info)
-	    *info |= SANE_INFO_RELOAD_PARAMS;
-	  /* fall through */
+	case OPT_RESOLUTION:
+	case OPT_SPEED:
 	case OPT_PREVIEW:
 	case OPT_BRIGHTNESS:
 	case OPT_CONTRAST:
 	case OPT_QSCAN:    
 	case OPT_QCALIB:
-	case OPT_TRANS:
-	case OPT_ADF:
 	  s->val[option].w = *(SANE_Word*) val;
 	  return SANE_STATUS_GOOD;
 	  
@@ -4215,6 +4352,29 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  return SANE_STATUS_GOOD;
 		 
 	  /* options with side-effects: */
+	case OPT_TRANS:
+	case OPT_ADF:
+	  
+	  s->val[option].w = *(SANE_Word*) val;
+	  
+	  if (option == OPT_TRANS && *(SANE_Word*) val) {
+	    s->o_mode = AV_TRANSPARENT;
+	    s->val[OPT_ADF].w = SANE_FALSE;
+	  }
+	  else if (option == OPT_ADF && *(SANE_Word*) val) {
+	    s->o_mode = AV_ADF;
+	    s->val[OPT_TRANS].w = SANE_FALSE;
+	  }
+	  else
+	    s->o_mode = AV_NORMAL;
+	  
+	  dev->x_range.max = SANE_FIX ( (int)dev->inquiry_x_ranges[s->o_mode]);
+	  dev->y_range.max = SANE_FIX ( (int)dev->inquiry_y_ranges[s->o_mode]);
+	  
+	  if (info)
+	    *info |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
+	  
+	  return SANE_STATUS_GOOD;
 	  
 	case OPT_MODE:
 	  {
@@ -4222,14 +4382,14 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	      free (s->val[option].s);
 	    
 	    s->val[option].s = strdup (val);
-	    s->mode = make_mode (s->val[OPT_MODE].s);
+	    s->c_mode = make_mode (s->val[OPT_MODE].s);
 	    
 	    /* set to mode specific values */
 	    
 	    /* the gamma table related */
 	    if (!disable_gamma_table)
 	      {
-		if (s->mode == TRUECOLOR) {
+		if (s->c_mode == AV_TRUECOLOR) {
 		  s->opt[OPT_GAMMA_VECTOR].cap   &= ~SANE_CAP_INACTIVE;
 		  s->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
 		  s->opt[OPT_GAMMA_VECTOR_G].cap &= ~SANE_CAP_INACTIVE;
@@ -4254,7 +4414,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    status = set_frame (s, frame);
 	    if (status == SANE_STATUS_GOOD) {
 	      s->val[OPT_FRAME].w = frame;
-	      s->hw->current_frame = frame;
+	      dev->current_frame = frame;
 	    }
 	    return status;
 	  }
@@ -4276,99 +4436,117 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters* params)
   if (!s->scanning)
     {
       int boundary = get_pixel_boundary (s);
-      int gray_mode = ((s->mode == TRUECOLOR) || (s->mode == GRAYSCALE));
+      int gray_mode = ((s->c_mode == AV_TRUECOLOR) || (s->c_mode == AV_GRAYSCALE));
       
+#ifdef THIS_IS_NEEDED
       /* Official Avision fix C5 lineart bug. ?!? */
       if ((!gray_mode) && (dev->inquiry_asic_type == AV_ASIC_C5))
 	boundary = 1;
+#endif
       
       DBG (3, "sane_get_parameters: boundary %d, gray_mode: %d\n",
 	   boundary, gray_mode);
   
-      s->avdimen.res = s->val[OPT_RESOLUTION].w;
+      /* TODO: Allow different x/y resolutions */
+      s->avdimen.xres = s->val[OPT_RESOLUTION].w;
+      s->avdimen.yres = s->val[OPT_RESOLUTION].w;
       
       DBG (3, "sane_get_parameters: tlx: %f, tly: %f, brx: %f, bry: %f\n",
 	   SANE_UNFIX (s->val[OPT_TL_X].w), SANE_UNFIX (s->val[OPT_TL_Y].w),
 	   SANE_UNFIX (s->val[OPT_BR_X].w), SANE_UNFIX (s->val[OPT_BR_Y].w));
       
       /* window parameter in pixel */
-      s->avdimen.tlx = s->avdimen.res * SANE_UNFIX (s->val[OPT_TL_X].w)
+      s->avdimen.tlx = s->avdimen.xres * SANE_UNFIX (s->val[OPT_TL_X].w)
 	/ MM_PER_INCH;
-      s->avdimen.tly = s->avdimen.res * SANE_UNFIX (s->val[OPT_TL_Y].w)
+      s->avdimen.tly = s->avdimen.yres * SANE_UNFIX (s->val[OPT_TL_Y].w)
 	/ MM_PER_INCH;
-      s->avdimen.brx = s->avdimen.res * SANE_UNFIX (s->val[OPT_BR_X].w)
+      s->avdimen.brx = s->avdimen.xres * SANE_UNFIX (s->val[OPT_BR_X].w)
 	/ MM_PER_INCH;
-      s->avdimen.bry = s->avdimen.res * SANE_UNFIX (s->val[OPT_BR_Y].w)
+      s->avdimen.bry = s->avdimen.yres * SANE_UNFIX (s->val[OPT_BR_Y].w)
 	/ MM_PER_INCH;
       
+      /* TODO: limit to real scan boundaries */
+      
       /* line difference */
-      if (s->mode == TRUECOLOR && dev->inquiry_needs_software_colorpack)
+      if (s->c_mode == AV_TRUECOLOR && dev->inquiry_needs_software_colorpack)
 	{
 	  if (dev->hw->feature_type & AV_NO_LINE_DIFFERENCE) {
 	    DBG (1, "sane_get_parameters: Line difference ignored due to device-list!!\n");
 	  }
 	  else {
 	    s->avdimen.line_difference
-	      = (dev->inquiry_line_difference * s->avdimen.res) /
+	      = (dev->inquiry_line_difference * s->avdimen.yres) /
 	      dev->inquiry_optical_res;
 	    
 	    s->avdimen.line_difference -= s->avdimen.line_difference % 3;
 	  }
 	  
 	  s->avdimen.bry += s->avdimen.line_difference;
-	  /* TODO: limit bry to max scan area */
+	  
+	  /* limit bry + line_difference to real scan boundary */
+	  {
+	    long y_max = dev->inquiry_y_ranges[s->o_mode] * s->avdimen.yres / MM_PER_INCH;
+	    DBG (3, "sane_get_parameters: y_max: %ld, bry: %ld, line_difference: %d\n",
+		 y_max, s->avdimen.bry, s->avdimen.line_difference);
+	    
+	    if (s->avdimen.bry + s->avdimen.line_difference > y_max) {
+	      DBG (1, "sane_get_parameters: bry limitted!\n");
+	      s->avdimen.bry = y_max - s->avdimen.line_difference;
+	    }
+	  }
+	  
 	} /* end if needs software colorpack */
       else {
 	s->avdimen.line_difference = 0;
       }
       
-      s->avdimen.width = (s->avdimen.brx - s->avdimen.tlx);
-      s->avdimen.width -= s->avdimen.width % boundary;
-      s->avdimen.height = (s->avdimen.bry - s->avdimen.tly);
+      memset (&s->params, 0, sizeof (s->params));
+      
+      s->params.pixels_per_line = (s->avdimen.brx - s->avdimen.tlx);
+      s->params.pixels_per_line -= s->params.pixels_per_line % boundary;
+      s->params.lines = s->avdimen.bry - s->avdimen.tly - s->avdimen.line_difference;
       
       debug_print_avdimen (1, "sane_get_parameters", &s->avdimen);
       
-      memset (&s->params, 0, sizeof (s->params));
-      
-      s->params.pixels_per_line = s->avdimen.width;
-      s->params.lines = s->avdimen.height - s->avdimen.line_difference;
-      
-      switch (s->mode)
+      switch (s->c_mode)
 	{
-	case THRESHOLDED:
+	case AV_THRESHOLDED:
 	  s->params.format = SANE_FRAME_GRAY;
 	  s->params.bytes_per_line = s->params.pixels_per_line / 8;
 	  s->params.depth = 1;
 	  break;
-	case DITHERED:
+	case AV_DITHERED:
 	  s->params.format = SANE_FRAME_GRAY;
 	  s->params.bytes_per_line = s->params.pixels_per_line / 8;
 	  s->params.depth = 1;
 	  break;
-	case GRAYSCALE:
+	case AV_GRAYSCALE:
 	  s->params.format = SANE_FRAME_GRAY;
 	  s->params.bytes_per_line = s->params.pixels_per_line;
 	  s->params.depth = 8;
 	  break;             
-	case TRUECOLOR:
+	case AV_TRUECOLOR:
 	  s->params.format = SANE_FRAME_RGB;
 	  s->params.bytes_per_line = s->params.pixels_per_line * 3;
 	  s->params.depth = 8;
 	  break;
+	default:
+	  DBG (1, "Invalid mode. %d\n", s->c_mode);
+	  return SANE_STATUS_INVAL;
 	} /* end switch */
       
       s->params.last_frame = SANE_TRUE;
       
       debug_print_params (1, "sane_get_parameters", &s->params);
-  
+      
+#ifdef THIS_IS_NEEDED
       /* C5 implements hardware scaling.
 	 So modify s->params and s->avdimen. */
       
-      /*
-	if (!disable_c5_guard && dev->inquiry_asic_type == AV_ASIC_C5) {
+      if (!disable_c5_guard && dev->inquiry_asic_type == AV_ASIC_C5) {
 	c5_guard (s);
-	}
-      */
+      }
+#endif
     } /* end if not scanning */
   
   if (params) {

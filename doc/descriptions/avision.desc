@@ -1,5 +1,8 @@
 ; SANE Backend specification file
 ;
+; THIS FILE IS GENERATED FROM THE "avision.c" FILE AUTOMATICALLY - DO NOT EDIT
+; THIS FILE MANUALLY !!!
+;
 ; It's basically emacs-lisp --- so ";" indicates comment to end of line.
 ; All syntactic elements are keyword tokens, followed by a string or
 ;  keyword argument, as specified.
@@ -7,56 +10,168 @@
 ; ":backend" *must* be specified.
 ; All other information is optional (but what good is the file without it?).
 
-:backend "avision"             ; name of backend
-:version "0.3.1"               ; version of backend
-:status :beta                  ; :alpha, :beta, :stable, :new
-:url "http://drocklinux.dyndns.org/rene/avision/index.html" ; backend's web page
+; name of backend
+:backend "avision"
 
-:manpage "sane-avision"        ; name of manpage (if it exists)
+; version of backend
+:version "Build: 55"
+;status: alpha, beta, stable, new
+:status :stable
+
+; backend's web page
+:url "http://drocklinux.dyndns.org/rene/avision/index.html"
+
+; name of manpage (if it exists)
+:manpage "sane-avision"
 
 :devicetype :scanner
 
-:mfg "Avision" ; name a manufacturer
-:url "http://www.avision.com/"
+:mfg "Avision"
+:url "http://www.avision.com"
 
-:model "AV 6240" ; name models for above-specified mfg.
+:model "AV100CS"
 :interface "SCSI"
-:comment "1 pass, ??? DPI"
-:model "AV 630 CS"
+:status "untested"
+:model "AV100IIICS"
 :interface "SCSI"
-:comment "1 pass, 600 DPI"
-:model "AV 620 CS"
+:status "untested"
+:model "AV100S"
 :interface "SCSI"
-:comment "1 pass, 600 DPI"
+:status "untested"
+:model "AV240SC"
+:interface "SCSI"
+:status "untested"
+:model "AV260CS"
+:interface "SCSI"
+:status "untested"
+:model "AV360CS"
+:interface "SCSI"
+:status "untested"
+:model "AV363CS"
+:interface "SCSI"
+:status "untested"
+:model "AV420CS"
+:interface "SCSI"
+:status "untested"
+:model "AV6120"
+:interface "SCSI"
+:status "untested"
+:model "AV620CS"
+:interface "SCSI"
+:status "stable"
+:model "AV620CS Plus"
+:interface "SCSI"
+:status "stable"
+:model "AV630CS"
+:interface "SCSI"
+:status "stable"
+:model "AV630CSL"
+:interface "SCSI"
+:status "untested"
+:model "AV6240"
+:interface "SCSI"
+:status "stable"
+:model "AV600U"
+:interface "USB"
+:status "untested"
+:model "AV660S"
+:interface "USB"
+:status "untested"
+:model "AV680S"
+:interface "USB"
+:status "untested"
+:model "AV690U"
+:interface "USB"
+:status "untested"
+:model "AV800S"
+:interface "SCSI"
+:status "untested"
+:model "AV810C"
+:interface "SCSI"
+:status "untested"
+:model "AV820"
+:interface "SCSI"
+:status "untested"
+:model "AV820C"
+:interface "SCSI"
+:status "untested"
+:model "AV820C Plus"
+:interface "SCSI"
+:status "untested"
+:model "AV830C"
+:interface "SCSI"
+:status "untested"
+:model "AV830C Plus"
+:interface "SCSI"
+:status "untested"
+:model "AV880"
+:interface "SCSI"
+:status "untested"
+:model "AV880C"
+:interface "SCSI"
+:status "untested"
+:model "AV8000S"
+:interface "SCSI"
+:status "stable"
+:model "AVA3"
+:interface "SCSI"
+:status "untested"
 
 :mfg "Hewlett-Packard"
-:url "http://www.hp.com/"
+:url "http://www.hp.com"
 
-:model "HP 5300"
+:model "ScanJet 5300C"
 :interface "USB"
-:comment "1 pass, 600 DPI"
-:model "HP 5370c"
+:status "stable"
+:model "ScanJet 5370C"
 :interface "USB"
-:comment "1 pass, 600 DPI"
-:model "HP 7400"
+:status "alpha"
+:model "ScanJet 7400c"
 :interface "USB"
-:comment "1 pass, 1200 DPI"
-:model "HP 7450"
-:interface "USB"
-:comment "1 pass, 1200 DPI"
+:status "alpha"
 
 :mfg "Minolta"
-:url "http://www.minolta.com/"
+:url "http://www.minolta.com"
 
-:model "FS-V1 (Dimage Scan Dual II)"
+:model "FS-V1"
 :interface "USB"
-:comment "1 pass, 2820 DPI, film-scanner"
+:status "alpha"
 
 :mfg "Mitsubishi"
 
-:model "MCA-S600C"
+:model "MCA-ADFC"
 :interface "SCSI"
-
-:model "MCA-SS600"
+:status "untested"
+:model "S1200C"
 :interface "SCSI"
+:status "untested"
+:model "S600C"
+:interface "SCSI"
+:status "untested"
+:model "SS600"
+:interface "SCSI"
+:status "beta"
 
+:mfg "Fujitsu"
+
+:model "ScanPartner"
+:interface "SCSI"
+:status "untested"
+:model "ScanPartner 10"
+:interface "SCSI"
+:status "untested"
+:model "ScanPartner 10C"
+:interface "SCSI"
+:status "untested"
+:model "ScanPartner 15C"
+:interface "SCSI"
+:status "untested"
+:model "ScanPartner 300C"
+:interface "SCSI"
+:status "untested"
+:model "ScanPartner 600C"
+:interface "SCSI"
+:status "untested"
+:model "ScanPartner Jr"
+:interface "SCSI"
+:status "untested"

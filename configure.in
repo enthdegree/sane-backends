@@ -105,13 +105,27 @@ fi
 
 SANE_V4L_VERSION
 
-dnl Checks for libraries.
-
-AC_CHECK_LIB(scsi, scsireq_enter)	# FreeBSD needs this
-AC_CHECK_LIB(cam, cam_open_device)      # FreeBSD 3+ needs this
-AC_CHECK_LIB(m,sqrt)
+dnl Checks for Frontend libraries: intl
 AC_CHECK_LIB(intl, gettext, INTLLIBS=-lintl)
 AC_SUBST(INTLLIBS)
+
+dnl Checks for dll libraries: dl
+if test "${enable_dynamic}" != "no"; then
+  AC_CHECK_HEADERS(dlfcn.h,
+  [AC_CHECK_LIB(dl,dlopen, DL_LIB=-ldl)
+   AC_CHECK_FUNCS(dlopen, enable_dynamic=yes,)],)
+
+  # HP/UX DLL handling
+  AC_CHECK_HEADERS(dl.h,
+  [AC_CHECK_LIB(dld,shl_load, DL_LIB=-ldld)
+   AC_CHECK_FUNCS(shl_load, enable_dynamic=yes,)],)
+fi
+AC_SUBST(DL_LIB)
+
+dnl Checks for Backend libraries.
+AC_CHECK_LIB(m,sqrt)
+AC_CHECK_LIB(scsi, scsireq_enter)	# FreeBSD needs this
+AC_CHECK_LIB(cam, cam_open_device)      # FreeBSD 3+ needs this
 AC_CHECK_LIB(syslog, syslog)            # OS/2 needs this
 AC_CHECK_LIB(jpeg, jpeg_start_decompress)
 
@@ -139,18 +153,6 @@ dnl initialize libtool
 AC_LIBTOOL_WIN32_DLL
 AM_PROG_LIBTOOL
 
-dnl Checks for libraries.
-
-if test "${enable_dynamic}" != "no"; then
-  AC_CHECK_HEADERS(dlfcn.h,
-  [AC_CHECK_LIB(dl,dlopen)
-   AC_CHECK_FUNCS(dlopen, enable_dynamic=yes,)],)
-
-  # HP/UX DLL handling
-  AC_CHECK_HEADERS(dl.h,
-  [AC_CHECK_LIB(dld,shl_load)
-   AC_CHECK_FUNCS(shl_load, enable_dynamic=yes,)],)
-fi
 
 AC_SUBST(INCLUDES)
 CPPFLAGS="${CPPFLAGS} -DPATH_SANE_CONFIG_DIR=\$(configdir) \

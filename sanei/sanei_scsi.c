@@ -3857,8 +3857,8 @@ scsi_cmd (int fd,
       handler = fd_info[fd].sense_handler;
       DBG (3, "cmd=%x, error=%d:%s, bsiz=%d, stat=%x,%x,%x, slen=%d\n",
 	   scmd.cdb.g0_cdb.cmd, scmd.error, strerror (scmd.errno),
-	   *dst_size, scmd.u_scb.cmd_scb[0], scmd.u_scb.cmd_scb[1],
-	   scmd.u_scb.cmd_scb[2], scmd.sense_count);
+	   ((dst_size != NULL)?(*dst_size):0), scmd.u_scb.cmd_scb[0], 
+	   scmd.u_scb.cmd_scb[1], scmd.u_scb.cmd_scb[2], scmd.sense_count);
       *errbf = '\0';
       for (i = 0; i < scmd.sense_count; i++)
 	sprintf (errbf + strlen (errbf), "%x,", scmd.u_sense.cmd_sense[i]);

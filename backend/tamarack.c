@@ -562,7 +562,7 @@ read_data (Tamarack_Scanner *s, SANE_Byte *buf, int lines, int bpl)
   gettimeofday (&tv_start,NULL);
 #endif
 
-  status = sanei_scsi_cmd (s->fd, &cmd, sizeof (cmd)+2, buf, &nbytes);
+  status = sanei_scsi_cmd (s->fd, &cmd, sizeof (cmd), buf, &nbytes);
 
 #ifdef DEBUG
   gettimeofday (&tv_end,NULL);

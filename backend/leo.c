@@ -1,6 +1,6 @@
 /* sane - Scanner Access Now Easy.
 
-   Copyright (C) 2002 Frank Zago (fzago at austin dot rr dot com)
+   Copyright (C) 2002-2003 Frank Zago (fzago at austin dot rr dot com)
    
    This file is part of the SANE package.
    
@@ -48,7 +48,7 @@
 
 /*--------------------------------------------------------------------------*/
 
-#define BUILD 9			/* 2002/09/19 */
+#define BUILD 10			/* 2003/01/16 */
 #define BACKEND_NAME leo
 #define LEO_CONFIG_FILE "leo.conf"
 
@@ -131,6 +131,8 @@ static const struct scanners_supported scanners[] = {
   {6, "ACROSS  ", "                ",
    "Across", "FS-1130"},
   {6, "LEO     ", "LEOScan-S3      ",
+   "Leo", "S3"},
+  {6, "LEO", "LEOScan-S3",
    "Leo", "S3"}
 };
 

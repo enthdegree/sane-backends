@@ -1,3 +1,8 @@
+2003-01-16  Frank Zago  <fzago at austin dot rr dot com>
+
+	* backend/leo.c doc/descriptions/leo.desc doc/leo/leo.txt: Added
+	  another scsi string for the fs-1130.
+
 2003-01-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/microtek2.c backend/microtek2.h: Bugfix for the X12USL

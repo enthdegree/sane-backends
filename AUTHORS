@@ -36,7 +36,8 @@ Backends:
  hp:            Peter Kirchgessner (*)
                 Geoffrey Dairiki
  hpsj5s:        Max Vorobiev (*)
- ibm:           mf, Henning Meier-Geinitz (*)
+ hp5400:        Martijn van Oosterhout (*), Thomas Soumarmon (*)
+ ibm:           M.F., Henning Meier-Geinitz (*)
  leo:           Frank Zago (*)
  ma1509:        Henning Meier-Geinitz (*)
  matsushita:    Frank Zago (*)
@@ -145,15 +146,16 @@ Karsten Festag <karsten.festag@gmx.de>
 Kazuhiro Sasayama <kaz@hypercore.co.jp>
 Kazuya Fukuda <kaafuu@mug.biglobe.ne.jp>
 Kevin Charter <charter@cs.rice.edu>
+M.F. <massifr@tiscalinet.it>
 Manuel Panea <Manuel.Panea@rzg.mpg.de>
 Marcio Teixeira <marciot@users.sourceforge.net>
 Marian Eichholz <eichholz@computer.org>
 Markus Mertinat <Markus.Mertinat@Physik.Uni-Augsburg.DE>
+Martijn van Oosterhout <kleptog@svana.org>
 Matthew Duggan <stauff1@users.sourceforge.net>
 Matthew Marjanovic <maddog@mir.com>
 Max Vorobiev <pcwizard@yandex.ru>
 Meino Christian Cramer <mccramer@s.netic.de>
-mf <massifr@tiscalinet.it>
 Michael Herder <crapsite@gmx.net>
 Michael K. Johnson <johnsonm@redhat.com>
 Michel Roelofs <michelr@stack.nl>
@@ -175,6 +177,7 @@ Sergey Vlasov <vsu@altlinux.ru>
 Simon Krix <kinsei@users.sourceforge.net>
 Simon Munton <simon@munton.demon.co.uk>
 Stéphane Voltz <svoltz@wanadoo.fr>
+Thomas Soumarmon <soumarmt@nerim.net>
 Tom Martone <tom@martoneconsulting.com>
 Tom Wang <tom.wang@mustek.com.tw>
 Tristan Tarrant <ttarrant@etnoteam.it>

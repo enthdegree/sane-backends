@@ -1,3 +1,15 @@
+2003-04-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* AUTHORS backend/Makefile.in backend/dll.conf backend/hp5400.c
+	  backend/hp5400.conf backend/hp5400.h backend/hp5400_internal.c
+	  backend/hp5400_sanei.c backend/hp5400_xfer.h doc/.cvsignore
+	  doc/Makefile.in doc/sane-hp5400.man doc/sane.man:
+	  Added hp5400 backend from Martijn van Oosterhout
+	  <kleptog@svana.org> and Thomas Soumarmon
+	  <soumarmt@nerim.net>. Changed to use sanei_usb instead of direct
+	  /dev/usb/scanner access. Added manual page. Fixed some
+	  portablility issues and some warnings. Added SANE headers.
+	
 2003-04-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/scanimage.man: Added EXAMPLES section.

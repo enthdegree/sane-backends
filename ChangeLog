@@ -7,6 +7,7 @@
 	  include/sane/sanei_lm983x.h include/sane/sanei_thread.h
 	  include/sane/sanei_usb.h: Added, fixed and updated documentation
 	  for sanei using doxygen.
+	* doc/.cvsignore: Added sanei-html.
 
 2002-02-15  Stéphane Voltz  <svoltz@wanadoo.fr>
 

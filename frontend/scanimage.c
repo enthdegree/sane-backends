@@ -2,7 +2,7 @@
    Uses the SANE library.
    Copyright (C) 1996, 1997, 1998 Andreas Beck and David Mosberger
 
-   You can contact me at becka@sunserver1.rz.uni-duesseldorf.de
+   You can contact me at becka@uni-duesseldorf.de
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as

@@ -3,6 +3,8 @@
 	* include/sane/sanei.h include/sane/sanei_codec_ascii.h
 	  include/sane/sanei_codec_bin.h include/sane/saneopts.h: Changed
 	  license to GPL + SANE exception.
+	* AUTHORS frontend/scanimage.c: Updated email address of Andreas
+	  Beck.
 
 2003-07-25  Peter Fales <peter@fales-lorenz.net>
 	* include/sane/sanei_cderror.h, include/sane/sanei_jinclude.h 

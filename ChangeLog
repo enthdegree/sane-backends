@@ -1,3 +1,11 @@
+2001-10-28  Peter Fales <peter@fales.com>
+
+	* backend/gphoto2.c, backend/gphoto2.conf: the ghoto2 people
+	  made some pretty radical changes to the API and broke 
+	  the gphoto2 backend.  Made the changes to allow the
+	  gphoto2 backend to work with the latest changes from the
+	  gphoto2 library CVS.
+
 2001-10-28  Karl Heinz Kremer <khk@khk.net>
 
   * backend/epson.c: Fixed bug in recognition of faulty Perfection 1650

@@ -1,3 +1,9 @@
+2002-01-17  Peter Fales <peter@fales.com>
+
+	* configure, acinclude.m4, aclocal.m4 - Update gphoto2 version check
+	* backend/gphoto2.c - Improved support for options not
+	  supported by camera.  Cosmetic cleanup.
+	  	
 2002-01-18  Rene Rebe <rene.rebe@gmx.net>
 
         * docs/sane-avision.man: added the new disable-gamma-table option
@@ -19,11 +25,13 @@
 	* include/sanei/sanei_usb.h: Made documentation doxygen compatible.
 
 2002-01-17  Peter Fales <peter@fales.com>
+
 	* backend/gphoto2.c, doc/sane-gphoto2.man
 	  Remove calls to exit()
 	  Support cameras which store all files in top-level directory
 
 2002-01-17  Peter Fales <peter@fales.com>
+
 	* configure, acinclude.m4, aclocal.m4 - (Really) disable
 	  gphoto2 backend unless specifically requested by the user (using
 	  --with-gphoto2) and the right CVS version of gphoto2 is found
@@ -46,6 +54,7 @@
 	  Updated to support doxygen comments
 
 2002-01-17  Peter Fales <peter@fales.com>
+
 	* configure.in, configure, acinclude.m4, aclocal.m4 - Disable
 	  gphoto2 backend unless specifically requested by the user (using
 	  --with-gphoto2) and the right CVS version of gphoto2 is found
@@ -67,6 +76,7 @@
 	  all the others.
 
 2002-01-15  Peter Fales <peter@fales.com>
+
 	* backend/gphoto2.c:  Following yet another gphoto2 API change -
 	  converted gp_debug_printf to gp_log
 

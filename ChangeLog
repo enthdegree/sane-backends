@@ -5,6 +5,7 @@
 	
 2001-05-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* AUTHORS: Added Sebastien Sable and Henrik Johansson.
 	* backend/snapscan-scsi.c backend/snapscan-sources.c
 	  backend/snapscan-sources.h backend/snapscan-usb.c
 	  backend/snapscan-usb.h backend/snapscan.c backend/snapscan.conf

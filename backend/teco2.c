@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
 
    Copyright (C) 2002-2003 Frank Zago (fzago at austin dot rr dot com)
-   Copyright (C) 2003-2004 Gerard Klaver (gerard at gkall dot hobby dot nl)
+   Copyright (C) 2003-2005 Gerard Klaver (gerard at gkall dot hobby dot nl)
 
    This file is part of the SANE package.
    
@@ -59,11 +59,12 @@
 		      VM656A, VM6586
    update 2004/08/05, use of SANE_VALUE_SCAN_MODE_LINEART, _GRAY, and _COLOR,
                       changed use of %d to %ld (when bytes values are displayed)
+   update 2005/03/04, use of __unused__
 */
 
 /*--------------------------------------------------------------------------*/
 
-#define BUILD 7			/* 2004/08/05 */
+#define BUILD 8			/* 2005/03/04 */
 #define BACKEND_NAME teco2
 #define TECO2_CONFIG_FILE "teco2.conf"
 
@@ -1668,14 +1669,12 @@ teco_scan (Teco_Scanner * dev)
 
 /* SCSI sense handler. Callback for SANE. */
 static SANE_Status
-teco_sense_handler (int scsi_fd, unsigned char *result, void *arg)
+teco_sense_handler (int scsi_fd, unsigned char *result, void __unused__ *arg)
 {
   int asc, ascq, sensekey;
   int len;
 
   DBG (DBG_proc, "teco_sense_handler (scsi_fd = %d)\n", scsi_fd);
-
-  arg = arg;			/* silence gcc */
 
   sensekey = get_RS_sense_key (result);
   len = 7 + get_RS_additional_length (result);
@@ -2505,7 +2504,7 @@ do_cancel (Teco_Scanner * dev)
 /* Sane entry points */
 
 SANE_Status
-sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
+sane_init (SANE_Int * version_code, SANE_Auth_Callback __unused__ authorize)
 {
   FILE *fp;
   char dev_name[PATH_MAX];
@@ -2515,11 +2514,9 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
   DBG (DBG_sane_init, "sane_init\n");
 
-  authorize = authorize;	/* silence gcc */
-
   DBG (DBG_error, "This is sane-teco2 version %d.%d-%d\n", V_MAJOR,
        V_MINOR, BUILD);
-  DBG (DBG_error, "(C) 2002 - 2003 by Frank Zago, update 2003 - 2004 by Gerard Klaver\n");
+  DBG (DBG_error, "(C) 2002 - 2003 by Frank Zago, update 2003 - 2005 by Gerard Klaver\n");
 
   if (version_code)
     {
@@ -2554,14 +2551,12 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 }
 
 SANE_Status
-sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
+sane_get_devices (const SANE_Device *** device_list, SANE_Bool __unused__ local_only)
 {
   Teco_Scanner *dev;
   int i;
 
   DBG (DBG_proc, "sane_get_devices: enter\n");
-
-  local_only = local_only;	/* silence gcc */
 
   if (devlist)
     free (devlist);
@@ -3346,15 +3341,12 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 }
 
 SANE_Status
-sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
+sane_set_io_mode (SANE_Handle __unused__ handle, SANE_Bool __unused__ non_blocking)
 {
   SANE_Status status;
   Teco_Scanner *dev = handle;
 
   DBG (DBG_proc, "sane_set_io_mode: enter\n");
-
-  handle = handle;		/* silence gcc */
-  non_blocking = non_blocking;	/* silence gcc */
 
   if (dev->scanning == SANE_FALSE)
     {
@@ -3376,12 +3368,9 @@ sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 }
 
 SANE_Status
-sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
+sane_get_select_fd (SANE_Handle __unused__ handle, SANE_Int __unused__ * fd)
 {
   DBG (DBG_proc, "sane_get_select_fd: enter\n");
-
-  handle = handle;		/* silence gcc */
-  fd = fd;			/* silence gcc */
 
   DBG (DBG_proc, "sane_get_select_fd: exit\n");
 

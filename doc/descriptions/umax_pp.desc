@@ -21,38 +21,36 @@
                                   ;               :meta, :api
 
 :mfg "UMAX"                     ; name a manufacturer
-:url "http://www.umax.com/"
+:url "http://www.umax.com.tw/"
 
 ; These scanners are known to have the same ASIC. What scanners work
 ; isn't actually known. Also the interfaces are only guessed
 
 :model "Astra 1220P"
 :interface "Parport (EPP)"
-:comment "works"
+:status :good      
 
 :model "Astra 2000P"
 :interface "Parport (EPP)"
-:comment "works"
+:status :good      
 
 :model "Astra 1600P"
 :interface "Parport (EPP)"
-:comment "works"
+:status :good      
 
 :model "Astra 610P"
 :interface "Parport (EPP)"
 :status :unsupported      
-:comment "don't work (yet)"
+:comment "don't work due to lack of hardware to test"
 
 
 :mfg "Hewlett-Packard"
 
 :model "Scanjet 3200C"
 :interface "Parport (EPP)"
+:status :good      
 :comment "works (relabelled 1220P and 2000P)"
 
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.
-
-
-

@@ -174,5 +174,4 @@
 :model "CanoScan D660U"
 :interface "USB"
 :status :good
-:comment "Binary mode is not working"
-
+:comment "TPA scans not perfect"

@@ -330,12 +330,6 @@
 :status :unsupported
 :comment "Not supported. 2400x1200 dpi. Vendor=0x049f, Product=0x0021. One bulk-in, one bulk-out and one interrupt endpoint. Type-number: U0001-HB21, another type nr on the inside: 75100512-00"
 
-:model "S4 100"
-:url "/unsupported/compaq-s4-100.html"
-:interface "USB"
-:status :unsupported
-:comment "Not supported. Vendor=0x049f, Product=0x001a."
-
 ;********************************************************************************************
 
 :mfg "Corex"
@@ -961,7 +955,7 @@
 :status :unsupported
 :comment "Uses Plustek ASIC P99002"
 
-:model "OpticPro m12"
+:model "OpticSlim M12"
 :interface "USB"
 :url "http://lists.alioth.debian.org/pipermail/sane-devel/2004-May/011076.html"
 :status :unsupported
@@ -976,6 +970,31 @@
 :interface "USB"
 :status :unsupported
 :comment "Probably LM983x based."
+
+:model "OpticPro ST64"
+:interface "USB"
+:status :unsupported
+:comment "No further information available."
+
+:model "OpticSlim 2420"
+:interface "USB"
+:status :unsupported
+:comment "No further information available."
+
+:model "OpticBook 2000"
+:interface "USB"
+:status :unsupported
+:comment "Bookscanner. No further information available."
+
+:model "OpticBook 7200"
+:interface "USB"
+:status :unsupported
+:comment "Filmscanner. No further information available."
+
+:model "OptiCard 600+"
+:interface "USB"
+:status :unsupported
+:comment "Business card reader. No further information available."
 
 :model "Spectra ADF"
 ;:url ""

@@ -1,5 +1,12 @@
 2001-05-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* tools/README tools/Makefile.in tools/umax_pp.c tools/.cvsignore:
+	  Added umax_pp test program (patch from Stéphane Voltz 
+	  <svoltz@wanadoo.fr>).
+	
+	* configure configure.in include/sane/config.h.in: Test for
+	  linux/ppdev.h (for umax_pp backend).
+	
 	* backend/umax_pp.c backend/umax_pp.h backend/umax_pp_low.c
 	  backend/umax_pp_low.h backend/umax_pp_mid.c backend/umax_pp_mid.h
 	  backend/umax_pp.conf backend/umax_pp.desc backend/Makefile.in 

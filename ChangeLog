@@ -7,6 +7,8 @@
 	  Support for variable DESTDIR. If set, all files are installed to that
 	  location. Also print the filename of the installed file, not only the
 	  path. Both changes are mostly for package creators/maintainers.
+	* configure configure.in: Another try to get the DISTCLEAN_FILES
+	  working.
 
 2002-03-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

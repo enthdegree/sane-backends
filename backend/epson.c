@@ -741,7 +741,7 @@ static const SANE_String_Const qf_list [ ] =
 	, SANE_I18N("A5 landscape")
 	, SANE_I18N("Letter")
 	, SANE_I18N("A4")
-	, SANE_I18N("max")
+	, SANE_I18N("Max")
 	, NULL
 	};
 
@@ -3292,7 +3292,7 @@ static SANE_Status init_options ( Epson_Scanner * s) {
 		/* select bay */
 		s->opt[ OPT_BAY].name		= "bay";
 		s->opt[ OPT_BAY].title		= SANE_I18N("Bay");
-		s->opt[ OPT_BAY].desc		= SANE_I18N("select bay to scan");
+		s->opt[ OPT_BAY].desc		= SANE_I18N("Select bay to scan");
 
 		s->opt[ OPT_BAY].type		= SANE_TYPE_STRING;
 		s->opt[ OPT_BAY].size		= max_string_size(bay_list);

@@ -1,3 +1,13 @@
+2004-07-26  Gerhard Jaeger <gerhard@gjaeger.de>
+	* sanei/sanei_usb.c sanei/sanei configure configure.in: Added 
+	  resource manager library support.
+	* backend/plustek.[ch] backend/plustek-usbdevs.c backend/plustek-usbhw.c
+	  backend/plustek-usbshading.c backend/plustek.conf: Added speedup 
+	  parameters and TPA autodetection for UMAX3400/3450, added 
+	  disableSpeedup option.
+	* doc/plustek/Plustek-USB-TODO.txt doc/plustek/Plustek-USB.changes
+	  doc/descriptions/plustek.desc: Updated.
+
 2004-07-21  Stéphane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c backend/umax_pp.c tools/umax_pp.c:
@@ -383,13 +393,13 @@
 	  applied patch from Mattias Ellert (thanks), which adds support
 	  for sanei_thread
 
-2004-05-15  Stï¿½hane Voltz <svoltz@wanadoo.fr>
+2004-05-15  Stéphane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c backend/umax_pp.c tools/umax_pp.c: fixed 
 	  origin shift bug for 610P. Added on guard against configuration
 	  that can put several 'port' option in conf file.
 
-2004-05-13  Stï¿½hane Voltz <svoltz@wanadoo.fr>
+2004-05-13  Stéphane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c backend/umax_pp.c tools/umax_pp.c: fixed 
 	  data lines reordering for 610P
@@ -403,7 +413,7 @@
 	* Makefile.in: Remove autoconf temp files and some japi stuff in
 	  distclean target.
 
-2004-05-10  Stï¿½hane Voltz <svoltz@wanadoo.fr>
+2004-05-10  Stéphane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c : fixed 300x600 dpi scans, direct
           hardware access and timing issues for 610P
@@ -423,7 +433,7 @@
 	* tools/hotplug/libsane.usbmap: removed empty lines, latest
 	  hotplug cannot cope with them
 	
-2004-03-15  Stï¿½hane Voltz <svoltz@wanadoo.fr>
+2004-03-15  Stéphane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c backend/umax_pp_low.h backend/umax_pp_mid.c
 	  backend/umax_pp_mid.h backend/umax_pp.c backend/umax_pp.h 

@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
 
    Copyright (C) 2002-2003 Frank Zago (fzago at austin dot rr dot com)
-   Copyright (C) 2003 Gerard Klaver (gerard at gkall dot hobby dot nl)
+   Copyright (C) 2003-2004 Gerard Klaver (gerard at gkall dot hobby dot nl)
 
    This file is part of the SANE package.
    
@@ -44,18 +44,19 @@
 
 /*
    $Id$
-   TECO scanner VM3575, VM6565, VM6575, VM6586, VM356A, VM3564
+   TECO scanner VM3575, VM656A, VM6575, VM6586, VM356A, VM3564
    update 2003/02/14, Patch for VM356A Gerard Klaver
    update 2003/03/19, traces, tests VM356A Gerard Klaver, Michael Hoeller
    update 2003/07/19, white level calibration, color modes VM3564, VM356A, VM3575
                       Gerard Klaver, Michael Hoeller
    update 2004/01/15, white level , red, green, and blue calibration for the 
-                      VM3564, VM356A and VM3575 Gerard Klaver
+                      VM3564, VM356A and VM3575: Gerard Klaver
+   update 2004/04/10  red, green and blue calibration for the VM6575
 */
 
 /*--------------------------------------------------------------------------*/
 
-#define BUILD 5			/* 2003/04/18 */
+#define BUILD 7			/* 2004/08/03 */
 #define BACKEND_NAME teco2
 #define TECO2_CONFIG_FILE "teco2.conf"
 
@@ -225,22 +226,14 @@ static const struct dpi_color_adjust vm356a_dpi_color_adjust[] = {
   /* bring back good results                                           */
 
   /*dpi, color sequence R G or B, 0 (-) or 1 (+) color skewing, lines skewing */
-  /* some values disabled because of choice of nearby values to keep usertable short */
   {25, 1, 0, 2, 0, 0},
   {50, 1, 2, 0, 0, 1},
   {75, 1, 0, 2, 1, 1},
   {150, 1, 0, 2, 1, 2},
-/* {160, 1, 0, 2, 1, 2},		ok */
   {225, 1, 0, 2, 1, 3},
   {300, 1, 0, 2, 1, 4},
-/* {305, 1, 0, 2, 1, 4},		ok, *
- * {310, 1, 0, 2, 1, 4},		ok, *
- * {315, 1, 0, 2, 1, 4},   	        ok, */
   {375, 1, 0, 2, 1, 5},
-/* {380, 1, 0, 2, 1, 5},		ok, *
- * {385, 1, 0, 2, 1, 5},		ok, */
   {450, 1, 0, 2, 1, 6},
-/* {455, 1, 0, 2, 1, 6},		ok, */
   {525, 1, 0, 2, 1, 7},
   {600, 1, 0, 2, 1, 8},
 
@@ -319,7 +312,7 @@ static const struct dpi_color_adjust default_dpi_color_adjust[1] = {
 };
 
 /* For all scanners. Must be reasonable (eg. between 50 and 300) and
- * appear in the vm3575_dpi_color_adjust list. */
+ * appear in the ...._dpi_color_adjust list of all supported scanners. */
 #define DEF_RESOLUTION 150
 
 /*--------------------------------------------------------------------------*/
@@ -332,7 +325,7 @@ static const struct scanners_supported scanners[] = {
    "Relisys", "AVEC II S3",
    {1, 600, 1},			/* resolution */
    300, 600,			/* max x and Y resolution */
-   2550, 12, 3, 0,		/* calibration */
+   2550, 12, 3, 1,		/* calibration */
    {SANE_FIX (0), SANE_FIX (8.5 * MM_PER_INCH), 0},
    {SANE_FIX (0), SANE_FIX (11.7 * MM_PER_INCH), 0},
    vm3564_dpi_color_adjust},
@@ -394,7 +387,7 @@ static const struct scanners_supported scanners[] = {
    "Relisys", "SCORPIO Pro",
    {1, 600, 1},			/* resolution */
    600, 1200,			/* max x and Y resolution */
-   5100, 8, 6, 0,		/* calibration */
+   5100, 8, 6, 1,		/* calibration */
    {SANE_FIX (0), SANE_FIX (8.5 * MM_PER_INCH), 0},
    {SANE_FIX (0), SANE_FIX (11.7 * MM_PER_INCH), 0},
    vm6575_dpi_color_adjust},
@@ -404,7 +397,7 @@ static const struct scanners_supported scanners[] = {
    "Primax", "Profi 9600",
    {1, 600, 1},			/* resolution */
    600, 1200,			/* max x and Y resolution */
-   5100, 8, 6, 0,		/* calibration */
+   5100, 8, 6, 1,		/* calibration */
    {SANE_FIX (0), SANE_FIX (8.5 * MM_PER_INCH), 0},
    {SANE_FIX (0), SANE_FIX (11.7 * MM_PER_INCH), 0},
    vm6575_dpi_color_adjust},
@@ -1123,10 +1116,11 @@ teco_wait_for_data (Teco_Scanner * dev)
   return SANE_STATUS_DEVICE_BUSY;
 }
 
-/* Do the calibration stuff. Get 12 lines of data. Each pixel is coded
- * in 6 bytes (2 per color). To do the calibration, allocates an array
- * big enough for one line, read the 12 lines of calibration, and do a
- * simple average. The input line is 1 raster for each color. However
+/* Do the calibration stuff. Get 12 or 8 lines of data. Each pixel is coded
+ * in 6 bytes (2 per color) or 3 bytes (3564 and 356A). To do the calibration,
+ * allocates an array big enough for one line, read the 12 or 8 lines of calibration,
+ * subtract the highest and lowest value and do a average. 
+ * The input line is 1 raster for each color. However
  * the output line is interlaced (ie RBG for the first pixel, then RGB
  * for the second, and so on...). The output line are the value to use
  * to compensate for the white point. 
@@ -1152,7 +1146,6 @@ teco_do_calibration (Teco_Scanner * dev)
   size_t size;
   int i;
   int j;
-  int colsub0, colsub1;
   int colsub0_0, colsub0_1, colsub0_2;
   int colsub1_0, colsub1_1, colsub1_2;
   int *tmp_buf, *tmp_min_buf, *tmp_max_buf;			/* hold the temporary calibration */
@@ -1160,8 +1153,6 @@ teco_do_calibration (Teco_Scanner * dev)
   const char *calibration_algo;
   int cal_algo;
 
-  colsub0 = 0;
-  colsub1 = 0;
   colsub0_0 = 0;
   colsub0_1 = 0;
   colsub0_2 = 0;
@@ -1198,6 +1189,7 @@ teco_do_calibration (Teco_Scanner * dev)
       colsub1_0 = 12720 + (40 * dev->val[OPT_WHITE_LEVEL_B].w);
       break;
     case TECO_VM3575:
+    case TECO_VM6575:
       /* 0x1100 or 4352 is middle value */
       colsub0_1 = 4096 + (8 * dev->val[OPT_WHITE_LEVEL_R].w);
       colsub0_2 = 4096 + (8 * dev->val[OPT_WHITE_LEVEL_G].w);
@@ -1207,10 +1199,23 @@ teco_do_calibration (Teco_Scanner * dev)
       colsub1_2 = 4078639 + (4000 * dev->val[OPT_WHITE_LEVEL_G].w);
       colsub1_0 = 4078639 + (4000 * dev->val[OPT_WHITE_LEVEL_B].w);
       break;
-      /* For VM6575, 656A, 6586 until otherwise default value is used */
+      /* old default value */
+    case TECO_VM656A:
+    case TECO_VM6586:
+      colsub0_1 = 0x1000;
+      colsub0_2 = 0x1000;
+      colsub0_0 = 0x1000;
+      colsub1_1 = 4206639;
+      colsub1_2 = 4206639;
+      colsub1_0 = 4206639;
+      break;
     default:
-      colsub0 = 0x1000;
-      colsub1 = 4206639;
+      colsub0_1 = 0x1000;
+      colsub0_2 = 0x1000;
+      colsub0_0 = 0x1000;
+      colsub1_1 = 4206639;
+      colsub1_2 = 4206639;
+      colsub1_0 = 4206639;
       break;
     }
 
@@ -1229,12 +1234,11 @@ teco_do_calibration (Teco_Scanner * dev)
   	memset (tmp_max_buf, 0x00, tmp_max_buf_size);
       break;
     case TECO_VM3575:
+    case TECO_VM656A:
+    case TECO_VM6575:
+    case TECO_VM6586:
   	memset (tmp_min_buf, 0xffff, tmp_min_buf_size);
   	memset (tmp_max_buf, 0x0000, tmp_max_buf_size);
-      break;
-    default:
-  	memset (tmp_min_buf, 0xff, tmp_min_buf_size);
-  	memset (tmp_max_buf, 0x00, tmp_max_buf_size);
       break;
     }
   
@@ -1298,17 +1302,10 @@ teco_do_calibration (Teco_Scanner * dev)
 	{
 	  switch (dev->def->tecoref)
 	    {
+	    case TECO_VM3575:
 	    case TECO_VM6575:
 	    case TECO_VM656A:
 	    case TECO_VM6586:
-	      tmp_buf[3 * j + 0] +=
-		(dev->buffer[6 * j + 1] << 8) + dev->buffer[6 * j + 0];
-	      tmp_buf[3 * j + 1] +=
-		(dev->buffer[6 * j + 3] << 8) + dev->buffer[6 * j + 2];
-	      tmp_buf[3 * j + 2] +=
-		(dev->buffer[6 * j + 5] << 8) + dev->buffer[6 * j + 4];
-	      break;
-	    case TECO_VM3575:
 	      tmp_buf[3 * j + 0] +=
 		(dev->buffer[6 * j + 1] << 8) + dev->buffer[6 * j + 0];
 	      /* get lowest value */
@@ -1382,6 +1379,14 @@ teco_do_calibration (Teco_Scanner * dev)
 		      tmp_max_buf[3 * j + 2]  = dev->buffer[3 * j + 2];
 	      }
 		break;
+/*	    default:
+	      tmp_buf[3 * j + 0] +=
+		(dev->buffer[6 * j + 1] << 8) + dev->buffer[6 * j + 0];
+	      tmp_buf[3 * j + 1] +=
+		(dev->buffer[6 * j + 3] << 8) + dev->buffer[6 * j + 2];
+	      tmp_buf[3 * j + 2] +=
+		(dev->buffer[6 * j + 5] << 8) + dev->buffer[6 * j + 4];
+	      break;  */
 	    }
 	}
     }
@@ -1390,26 +1395,17 @@ teco_do_calibration (Teco_Scanner * dev)
   /* hexdump (DBG_info2, "calibration before average min value:", tmp_min_buf, tmp_min_buf_size); */
   /* hexdump (DBG_info2, "calibration before average max value:", tmp_max_buf, tmp_max_buf_size); */
   
-  /* Do the average. Since we got 12 lines, divide all values by 12
+  /* Do the average. Since we got 12 or 8 lines, divide all values by 10 or 6
    * and create the final calibration value that compensates for the
-   * white values read, for VM3564 and VM356A subtract lowest and highest
-   * value and divide by 10 */
+   * white values read. */
   switch (dev->def->tecoref)
   {
+	case TECO_VM356A:
+	case TECO_VM3564:
+	case TECO_VM3575:
    	case TECO_VM6575:
 	case TECO_VM656A:
 	case TECO_VM6586:
-  		for (j = 0; j < (3 * dev->def->cal_length); j++)
-		{
-      			if (cal_algo == 1)
-	  		tmp_buf[j] = (colsub1 * dev->def->cal_lines) / tmp_buf[j];
-      			else 
-	  		tmp_buf[j] = colsub0 - (tmp_buf[j] / dev->def->cal_lines);
-		}
-	      	break;
-	case TECO_VM3575:
-	case TECO_VM3564:
-	case TECO_VM356A:
   		for (j = 0; j < dev->def->cal_length; j++)
 		{
 	       /* subtract lowest and highest value */
@@ -1439,6 +1435,15 @@ teco_do_calibration (Teco_Scanner * dev)
 			}
 		}
 	      	break;
+/*		default:
+  		for (j = 0; j < (3 * dev->def->cal_length); j++)
+		{
+      			if (cal_algo == 1)
+	  		tmp_buf[j] = (colsub1_1 * dev->def->cal_lines) / tmp_buf[j];
+      			else 
+	  		tmp_buf[j] = colsub0_1 - (tmp_buf[j] / dev->def->cal_lines);
+		}
+	      	break;   */
     }
 
   /*hexdump (DBG_info2, "calibration after average:", tmp_buf, tmp_buf_size); */
@@ -2821,19 +2826,12 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		  dev->opt[OPT_WHITE_LEVEL_B].cap &= ~SANE_CAP_INACTIVE;
 		  break;
 		case TECO_VM3575:
-		  dev->opt[OPT_WHITE_LEVEL_R].cap &= ~SANE_CAP_INACTIVE;
-		  dev->opt[OPT_WHITE_LEVEL_G].cap &= ~SANE_CAP_INACTIVE;
-		  dev->opt[OPT_WHITE_LEVEL_B].cap &= ~SANE_CAP_INACTIVE;
-		  dev->opt[OPT_CUSTOM_GAMMA].cap &= ~SANE_CAP_INACTIVE;
-		  if (dev->val[OPT_CUSTOM_GAMMA].w)
-		    {
-		      dev->opt[OPT_GAMMA_VECTOR_GRAY].cap &=
-			~SANE_CAP_INACTIVE;
-		    }
-		  break;
 		case TECO_VM656A:
 		case TECO_VM6575:
 		case TECO_VM6586:
+		  dev->opt[OPT_WHITE_LEVEL_R].cap &= ~SANE_CAP_INACTIVE;
+		  dev->opt[OPT_WHITE_LEVEL_G].cap &= ~SANE_CAP_INACTIVE;
+		  dev->opt[OPT_WHITE_LEVEL_B].cap &= ~SANE_CAP_INACTIVE;
 		  dev->opt[OPT_CUSTOM_GAMMA].cap &= ~SANE_CAP_INACTIVE;
 		  if (dev->val[OPT_CUSTOM_GAMMA].w)
 		    {
@@ -2858,20 +2856,12 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		  dev->opt[OPT_WHITE_LEVEL_B].cap &= ~SANE_CAP_INACTIVE;
 		  break;
 		case TECO_VM3575:
-		  dev->opt[OPT_WHITE_LEVEL_R].cap &= ~SANE_CAP_INACTIVE;
-		  dev->opt[OPT_WHITE_LEVEL_G].cap &= ~SANE_CAP_INACTIVE;
-		  dev->opt[OPT_WHITE_LEVEL_B].cap &= ~SANE_CAP_INACTIVE;
-		  dev->opt[OPT_CUSTOM_GAMMA].cap &= ~SANE_CAP_INACTIVE;
-		  if (dev->val[OPT_CUSTOM_GAMMA].w)
-		    {
-		      dev->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
-		      dev->opt[OPT_GAMMA_VECTOR_G].cap &= ~SANE_CAP_INACTIVE;
-		      dev->opt[OPT_GAMMA_VECTOR_B].cap &= ~SANE_CAP_INACTIVE;
-		    }
-		  break;
 		case TECO_VM656A:
 		case TECO_VM6575:
 		case TECO_VM6586:
+		  dev->opt[OPT_WHITE_LEVEL_R].cap &= ~SANE_CAP_INACTIVE;
+		  dev->opt[OPT_WHITE_LEVEL_G].cap &= ~SANE_CAP_INACTIVE;
+		  dev->opt[OPT_WHITE_LEVEL_B].cap &= ~SANE_CAP_INACTIVE;
 		  dev->opt[OPT_CUSTOM_GAMMA].cap &= ~SANE_CAP_INACTIVE;
 		  if (dev->val[OPT_CUSTOM_GAMMA].w)
 		    {
@@ -2983,10 +2973,11 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 	  switch (dev->def->tecoref)
 	    {
 	    case TECO_VM356A:
+	    case TECO_VM6575:
 	      dev->x_resolution = 75;
 	      dev->y_resolution = 75;
 	      break;
-	      /* For VM3575, VM6575, VM656A, VM6586 etc until otherwise default value is used */
+	      /* For VM3575, VM656A, VM6586 etc until otherwise default value is used */
 	    default:
 	      dev->x_resolution = 50;
 	      dev->y_resolution = 50;

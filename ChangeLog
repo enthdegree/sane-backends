@@ -1,3 +1,11 @@
+2002-10-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* TODO: Updated list of backends scheduled for inclusion. Updated
+	  v4l bug list. Added entry about vendor/product ids for .desc.
+	  Removed TL_X > BR_X (->TODO), dll ltdl rewrite, wait return
+	  value (->TODO), sane.tex comment about 1 bit color mode,
+	  sane-plustek.man issue.
+
 2002-10-02  Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* tools/umax_pp.c: changed version and added handling of 4 digits

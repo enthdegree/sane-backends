@@ -1,4 +1,4 @@
-PROJECTS (2002-04-07)
+PROJECTS (2002-04-13)
 
 Here is a list of projects that various people have expressed interest
 in.  Before starting working on one of these projects, it may be a
@@ -76,10 +76,6 @@ http://primax.sourceforge.net/
 
 Relisys Scorpio Super 3 - VM3575 (wip)
 http://fz.eryx.net/sane/#teco2
-
-Test backend (similar to pnm backend, but doesn't read files) (wip)
-http://www.meier-geinitz.de/sane/test-backend/
-Henning Meier-Geinitz <henning@meier-geinitz.de> et. al.
 
 Video for Linux 2 (wip)
 http://sane-v4l2.inodes.org/

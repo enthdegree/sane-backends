@@ -16,7 +16,7 @@
 
 */
 
-#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.01 - 2000-12-25"
+#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.02 - 2001-03-31"
 
 /*
    This file is part of the SANE package.
@@ -58,8 +58,12 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
+   2000-03-31   Version 0.2.02
+   2001-03-17   Next attempt to get the reported number of lines correct
+   		for the "color shuffling" part.
+		Added more comments.
    2000-12-25	Version 0.2.01
-   		Fixed problem with bilevel scanning with Perfection610: The
+    		Fixed problem with bilevel scanning with Perfection610: The
 		line count has to be an even number with this scanner.
 		Several initialization fixes regarding bit depth selection.
 		This version goes back into the CVS repository, the 1.0.4 
@@ -193,6 +197,10 @@
 		this is not yet available via the UI (Christian Bucher)
    2000-01-24	Removed C++ style comments '//' (KHK)
 */
+
+
+/* DON'T CHANGE THE NEXT LINE !!! */
+/* #undef FORCE_COLOR_SHUFFLE */
 
 
 #ifdef  _AIX
@@ -1014,8 +1022,10 @@ static SANE_Status set_resolution ( Epson_Scanner * s, int xres, int yres) {
 }
 
 /*
+ * set_scan_area() 
  *
- *
+ * Sends the "set scan area" command to the scanner with the currently selected scan area.
+ * This scan area is already corrected for "color shuffling" if necessary.
  */
 
 static SANE_Status set_scan_area ( Epson_Scanner * s, int x, int y, int width, int height) {
@@ -1043,7 +1053,7 @@ static SANE_Status set_scan_area ( Epson_Scanner * s, int x, int y, int width, i
 	params[ 6] = height;
 	params[ 7] = height >> 8;
 
-	DBG( 1, "%p %d %d %d %d\n", ( void *) s, x, y, width, height);
+	DBG( 1, "set_scan_area: %p %d %d %d %d\n", ( void *) s, x, y, width, height);
 
 	send( s, params, 8, &status);
 	status = expect_ack( s);
@@ -1052,8 +1062,10 @@ static SANE_Status set_scan_area ( Epson_Scanner * s, int x, int y, int width, i
 }
 
 /*
+ * set_color_correction_coefficients()
  *
- *
+ * Sends the "set color correction coefficients" command with the currently selected
+ * parameters to the scanner.
  */
 
 static SANE_Status set_color_correction_coefficients ( Epson_Scanner * s) {
@@ -1109,7 +1121,7 @@ static SANE_Status set_gamma_table ( Epson_Scanner * s) {
 	u_char gamma [ 257];
 	int n;
 	int table;
-	static const char gamma_cmds[] = { 'm', 'r', 'g', 'b' };
+	static const char gamma_cmds[] = { 'M', 'R', 'G', 'B' };
 
 
 	DBG( 1, "set_gamma_table: starting.\n" );
@@ -1145,14 +1157,14 @@ static SANE_Status set_gamma_table ( Epson_Scanner * s) {
 
 
 /*
- * TODO: &status in send make no sense like that.
+ * TODO: &status in send makes no sense like that.
  */
 
 /*
-    When handling inverted images, we must also invert the user
-    supplied gamma function.  This is *not* just 255-gamma -
-    this gives a negative image.
-*/
+ *  When handling inverted images, we must also invert the user
+ *  supplied gamma function.  This is *not* just 255-gamma -
+ *  this gives a negative image.
+ */
 
 	for( table = 0; table < 4; table++ ) {
 		gamma[0] = gamma_cmds[ table ];
@@ -1183,8 +1195,11 @@ static SANE_Status set_gamma_table ( Epson_Scanner * s) {
 }
 
 /*
+ * check_ext_status()
  *
- *
+ * Requests the extended status flag from the scanner. The "warming up" condition
+ * is reported as a warning (only visible if debug level is set to 10 or greater) -
+ * every other condition is reported as an error.
  */
 
 static SANE_Status check_ext_status ( Epson_Scanner * s) {
@@ -1383,12 +1398,6 @@ static SANE_Status eject ( Epson_Scanner * s) {
  *
  *
  */
-
-#ifdef OBSOLETE
-static Epson_Device dummy_dev =
-{ { NULL, "Epson", NULL, "flatbed scanner" }
-};
-#endif
 
 static int num_devices= 0;		/* number of EPSON scanners attached to backend */
 static Epson_Device *first_dev = NULL;	/* first EPSON scanner in list */
@@ -2138,7 +2147,7 @@ static SANE_Status init_options ( Epson_Scanner * s) {
 		s->opt[OPT_BIT_DEPTH].constraint_type = SANE_CONSTRAINT_WORD_LIST;
 		s->opt[OPT_BIT_DEPTH].constraint.word_list = bitDepthList;
 		s->opt[OPT_BIT_DEPTH].cap |= SANE_CAP_INACTIVE; 
-		s->val[OPT_BIT_DEPTH].w = bitDepthList[1];
+		s->val[OPT_BIT_DEPTH].w = bitDepthList[1];	/* the first "real" element is the default */
 
 		if (bitDepthList[0] == 1)	/* only one element in the list -> hide the option */
                         s->opt[OPT_BIT_DEPTH].cap |= SANE_CAP_INACTIVE;
@@ -3528,6 +3537,22 @@ SANE_Status sane_get_parameters ( SANE_Handle handle, SANE_Parameters * params)
 	s->params.pixels_per_line = SANE_UNFIX( s->val[ OPT_BR_X].w - s->val[ OPT_TL_X].w) / 25.4 * ndpi;
 	s->params.lines = SANE_UNFIX( s->val[ OPT_BR_Y].w - s->val[ OPT_TL_Y].w) / 25.4 * ndpi;
 
+	/* 
+	 * Make sure that the number of lines is correct for color shuffling:
+	 * The shuffling alghorithm produces 2xline_distance lines at the
+	 * beginning and the same amount at the end of the scan that are not
+	 * useable. If s->params.lines gets negative, 0 lines are reported
+	 * back to the frontend.
+	 */
+	if (s->hw->color_shuffle)
+	{
+		s->params.lines -= 4*s->line_distance;
+		if (s->params.lines < 0)
+		{
+			s->params.lines = 0;
+		}
+	}
+
 		DBG( 3, "Preview = %d\n", s->val[OPT_PREVIEW].w);
 		DBG( 3, "Resolution = %d\n", s->val[OPT_RESOLUTION].w);
 
@@ -3540,7 +3565,8 @@ SANE_Status sane_get_parameters ( SANE_Handle handle, SANE_Parameters * params)
 			, SANE_UNFIX( s->val[ OPT_BR_Y].w)
 			);
 
-	/* Calculate bytes_per_pixel and bytes_per_line for 
+	/* 
+	 * Calculate bytes_per_pixel and bytes_per_line for 
 	 * any color depths.
 	 * 
 	 * The default color depth is stored in mode_params.depth:
@@ -3996,38 +4022,61 @@ SANE_Status sane_start ( SANE_Handle handle)
 	 {
 	  s->line_distance = s->hw->max_line_distance * ndpi / s->hw->optical_res;
 	  if (s->line_distance != 0)
-	  {
+	   {
 		  s->hw->color_shuffle = SANE_TRUE;
-	  }
+	   }
 	  else
 		  s->hw->color_shuffle = SANE_FALSE;
 	 }
 
+/* 
+ * for debugging purposes: 
+ */
+#ifdef FORCE_COLOR_SHUFFLE
+	DBG(0, "Test mode: FORCE_COLOR_SHUFFLE = TRUE\n");
+	s->hw->color_shuffle = SANE_TRUE;
+#endif
 
-	/* modify the scan area */
+
+  /* 
+   * Modify the scan area: If the scanner requires color shuffling, then we try to
+   * scan more lines to compensate for the lines that will be removed from the scan
+   * due to the color shuffling alghorithm.
+   * At this time we add two times the line distance to the number of scan lines if
+   * this is possible - if not, then we try to calculate the number of additional
+   * lines according to the selected scan area.
+   */
 	if (s->hw->color_shuffle == SANE_TRUE) 
 	 {
-#if 0
-	   top -= s->line_distance;
+
+	   /* start the scan 2*line_distance earlier */
+	   top -= 2*s->line_distance;
 	   if (top < 0)
 	    {
 	      top = 0;
 	    }
-#endif
 
-           s->params.lines += 2* s->line_distance;
+	   /* scan 4*line_distance lines more */
+           s->params.lines += 4*s->line_distance;
 	 }
 
-	if (SANE_UNFIX( s->val[ OPT_BR_Y].w) / 25.4 * ndpi < s->params.lines)
-	{
-	 	s->params.lines = (int) SANE_UNFIX(s->val[OPT_BR_Y].w) / 25.4 * ndpi + 0.5;
-	}
+	/* 
+	 * If (top + s->params.lines) is larger than the max scan area, reset
+	 * the number of scan lines:
+	 */
+	if (SANE_UNFIX( s->val[ OPT_BR_Y].w) / 25.4 * ndpi < (s->params.lines + top))
+	 {
+	   s->params.lines = ((int) SANE_UNFIX(s->val[OPT_BR_Y].w) / 
+	   	25.4 * ndpi + 0.5) - top;
+	 }
 
 
-	status = set_scan_area( s, left, top, s->params.pixels_per_line, s->params.lines);
+	status = set_scan_area( s, left, top, s->params.pixels_per_line, 
+		s->params.lines);
 
 	if( SANE_STATUS_GOOD != status) {
-		DBG( 1, "sane_start: set_scan_area failed: %s\n", sane_strstatus( status));
+		DBG( 1, "sane_start: set_scan_area failed: %s\n", 
+			sane_strstatus( status));
 		return status;
 	}
 
@@ -4041,7 +4090,8 @@ SANE_Status sane_start ( SANE_Handle handle)
 	 */
 
 	if (((s->hw->cmd->level[0] == 'B') && 
-			( (s->hw->level >= 5) || ( (s->hw->level >= 4) && (! mode_params[s->val[ OPT_MODE].w].color))))
+		( (s->hw->level >= 5) || ( (s->hw->level >= 4) && 
+		(! mode_params[s->val[ OPT_MODE].w].color))))
 		|| ( s->hw->cmd->level[0] == 'D') )
 	{
 		s->block = SANE_TRUE;
@@ -4555,11 +4605,15 @@ START_READ:
 		 * this time this is the only 14 bit scanner, so I'm using this information
 		 * to reverse the re-order rule.
 		 * This has to be checked again after new 14bit scanners are released !!!
+		 *
+		 * The GT-8700 is the Asian version of the Perfection1640.
 		 */
 
 		needStrangeReorder = 
 			strstr(s->hw->sane.model, "1640") &&
-			strstr(s->hw->sane.model, "Perfection") &&
+			((strstr(s->hw->sane.model, "1640") &&
+			strstr(s->hw->sane.model, "Perfection")) ||
+			strstr(s->hw->sane.model, "GT-8700")) &&
 			s->params.format == SANE_FRAME_RGB &&
 			s->hw->maxDepth == 14;
 

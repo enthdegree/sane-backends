@@ -6,6 +6,8 @@
 	* TODO: New section: "platform-specific". Added some problems with
 	  *BSD. Some minor fixes and additions.
 	* tools/sane-find-scanner.c: Added OpenBSD device files.
+	* README.openbsd: New file. Some information on how to get SANE 
+	  running on top of OpenBSD.
 
 2001-12-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

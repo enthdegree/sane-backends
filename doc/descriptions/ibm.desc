@@ -36,7 +36,7 @@
 :model "IS-420"
 :interface "SCSI"
 :status :alpha
-:comment "Flatbed works."
+:comment "Needs some code hacking to get it working"
 
 :model "IS-430"
 :interface "SCSI"

@@ -32,10 +32,12 @@ one to another. They even all reports being UMAX Astra 1220P via IEEE1284.
 There isn't direct way to recognize them properly. Under windows, model is
 set by the driver, regardless of the hardware. 
 .PP
+.TP
+.B EPP MODE ONLY
 The current version of the backend use only EPP mode to communicate with the 
 scanner. PS/2 and SPP mode aren't implemented. It is recommended that you set
 your parallel port to EPP in BIOS with the current version of this backend. 
-ECPEPP will only work if you use a 2.4 kernel with ppdev support.
+ECPEPP will only work if you use a 2.4 kernel with ppdev character device support.
 .PP
 This backend does support parport sharing only 
 .I 

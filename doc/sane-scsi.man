@@ -94,6 +94,22 @@ then the following two commands would set the permission correctly:
 $ chgrp scanner /dev/sge
 .br
 $ chmod 660 /dev/sge
+.br
+.RE
+.PP
+When your system uses the device filesystem (devfs), you have to edit
+.BR /etc/devfs/perms.
+There you should search the line
+.PP
+.RS
+REGISTER ^sg[^/]* PERMISSIONS root.root 0600
+.RE
+.PP
+and add a new line (eg. for changing permissions of sg4):
+.PP
+.RS
+REGISTER ^sg4 PERMISSIONS root.scanner 0660
+.RE
 .RE
 .SH FreeBSD
 .PP

@@ -1,3 +1,8 @@
+2005-02-06  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+	* doc/descriptions/unsupported.desc doc/descriptions/snapscan.desc:
+	  Renamed "Benq" to "Benq (Acer)" for better access through the
+	  scanner search engine. Fixes bug #301158
+
 2005-02-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added several scanners. Minor

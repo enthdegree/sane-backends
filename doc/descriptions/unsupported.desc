@@ -374,6 +374,31 @@
 :status :unsupported
 :comment "Not supported. Vendor/product: 0x07b3/0x0001. See link for details."
 
+
+;********************************************************************************************
+
+:mfg "GUILLEMOT"			; name a manufacturer
+;:url "http://www.hp.com/"
+
+:model "SCAN@HOME 48 USB"
+:status :unsupported
+:url "/unsupported/teco-vm6509.html"
+:interface "USB"
+:comment "Probably unsupported. See link for details."
+
+
+;********************************************************************************************
+
+:mfg "Hercules"			; name a manufacturer
+;:url "http://www.hp.com/"
+
+:model "SCAN@HOME 48 USB"
+:status :unsupported
+:url "/unsupported/teco-vm6509.html"
+:interface "USB"
+:comment "Probably unsupported. See link for details."
+
+
 ;********************************************************************************************
 
 :mfg "Hewlett-Packard"			; name a manufacturer
@@ -1021,6 +1046,18 @@
 :interface "USB"
 :status :unsupported
 :comment "Not supported. Some information is available."
+
+;********************************************************************************************
+
+:mfg "Teco"
+:url "http://www.tecoimage.com.tw/"
+
+:model "VM6509F"
+:status :unsupported
+:url "/unsupported/teco-vm6509.html"
+:interface "USB"
+:comment "Probably unsupported. See link for details."
+
 ;********************************************************************************************
 
 :mfg "Trust"

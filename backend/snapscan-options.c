@@ -282,11 +282,16 @@ static void init_options (SnapScan_Scanner * ps)
             source_list[i++] = src_tpo;
             po[OPT_SOURCE].cap &= ~SANE_CAP_INACTIVE;
         }
+        if (ps->hconfig & HCFG_ADF)
+        {
+            source_list[i++] = src_adf;
+            po[OPT_SOURCE].cap &= ~SANE_CAP_INACTIVE;
+        } 
         source_list[i] = 0;
         po[OPT_SOURCE].size = max_string_size(source_list);
         po[OPT_SOURCE].constraint.string_list = source_list;
         ps->source = SRC_FLATBED;
-        ps->source_s = (SANE_Char *) strdup(source_list[0]);
+        ps->source_s = (SANE_Char *) strdup(src_flatbed);
     }
 
     po[OPT_GEOMETRY_GROUP].title = SANE_I18N("Geometry");
@@ -843,9 +848,10 @@ SANE_Status sane_control_option (SANE_Handle h,
         }
         /* prevent setting of options during a scan */
         if (pss->state!=ST_IDLE) {
-            DBG(DL_INFO, 
-                "set value for option %s ignored: scanner is still scanning\n",
-                pss->options[n].name
+            DBG(DL_INFO,
+                "set value for option %s ignored: scanner is still scanning (status %d)\n",
+                pss->options[n].name,
+                pss->state
             );
             return SANE_STATUS_DEVICE_BUSY;
         }
@@ -1008,6 +1014,12 @@ SANE_Status sane_control_option (SANE_Handle h,
                 pss->source = SRC_TPO;
                 pss->pdev->x_range.max = x_range_tpo.max;
                 pss->pdev->y_range.max = y_range_tpo.max;
+            }
+            else if (strcmp(v, src_adf) == 0)
+            {
+                pss->source = SRC_ADF;
+                pss->pdev->x_range.max = x_range_fb.max;
+                pss->pdev->y_range.max = y_range_fb.max;
             }
             else
             {
@@ -1336,6 +1348,9 @@ SANE_Status sane_control_option (SANE_Handle h,
 
 /*
  * $Log$
+ * Revision 1.4  2002/05/02 17:19:14  oliverschwartz
+ * SnapScan backend 1.4.13: Support for ADF
+ *
  * Revision 1.3  2002/04/27 15:35:16  oliverschwartz
  * SnapScan backend 1.4.12: Fix option handling
  *

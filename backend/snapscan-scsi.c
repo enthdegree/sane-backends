@@ -867,6 +867,9 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
     if (pss->source == SRC_TPO) {
         source |= 0x08;
     }
+    if (pss->source == SRC_ADF) {
+        source |= 0x10;
+    }
     pc[SET_WINDOW_P_OPERATION_MODE] = source;
     DBG (DL_MINOR_INFO, "%s: operation mode set to %d\n", me, (int) source);
     pc[SET_WINDOW_P_RED_UNDER_COLOR] = 0xff;    /* defaults */
@@ -957,7 +960,7 @@ static SANE_Status send_diagnostic (SnapScan_Scanner *pss)
 	pss->pdev->model == SNAPSCAN1236) 
     {
         return SANE_STATUS_GOOD;
-    } 
+    }
     DBG (DL_CALL_TRACE, "%s\n", me);
 
     status = snapscan_cmd (pss->pdev->bus, pss->fd, cmd, sizeof (cmd), NULL, NULL);
@@ -973,8 +976,8 @@ static SANE_Status wait_scanner_ready (SnapScan_Scanner *pss)
 
     DBG (DL_CALL_TRACE, "%s\n", me);
 
-    /* if the tray is returning to the start position 
-       no time to wait is returned by the scanner. We'll 
+    /* if the tray is returning to the start position
+       no time to wait is returned by the scanner. We'll
        try several times and sleep 1 second between each try. */
     for (retries = 20; retries; retries--)
     {
@@ -996,6 +999,9 @@ static SANE_Status wait_scanner_ready (SnapScan_Scanner *pss)
         case SANE_STATUS_IO_ERROR:
             /* hardware error; bail */
             DBG (DL_MAJOR_ERROR, "%s: hardware error detected.\n", me);
+            return status;
+        case SANE_STATUS_JAMMED:
+        case SANE_STATUS_NO_DOCS:
             return status;
         default:
             DBG (DL_MAJOR_ERROR,
@@ -1178,6 +1184,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
+ * Revision 1.17  2002/05/02 17:19:15  oliverschwartz
+ * SnapScan backend 1.4.13: Support for ADF
+ *
  * Revision 1.16  2002/04/27 15:35:17  oliverschwartz
  * SnapScan backend 1.4.12: Fix option handling
  *

@@ -36,6 +36,10 @@ msgstr "Flachbett"
 msgid "Transparency Adapter"
 msgstr "Durchlicht"
 
+#snapscan.c:166
+msgid "Document Feeder"
+msgstr "Automatischer Dokumenteinzug"
+
 #snapscan.c:227
 msgid "none"
 msgstr "keine"
@@ -123,46 +127,3 @@ msgstr "Farbzeilen pro Lesevorgang"
 #snapscan.c:821
 msgid "Greyscale lines per read"
 msgstr "Graustufenzeilen pro Lesevorgang"
-
-#snapscan.c:835
-msgid "SCSI commands (for debugging)"
-msgstr "SCSI Befehle (zur Fehlerbehebung)"
-
-#snapscan.c:840
-msgid "Inquiry"
-msgstr "Inquiry"
-
-#snapscan.c:841
-msgid   "Send an Inquiry command to the scanner and dump out some of "
-        "the current settings."
-msgstr "Sendet ein 'Inquiry' Kommando an den Scanner und gibt einige "
-       "der momentanen Einstellungen aus."
-
-#snapscan.c:849
-msgid "Self test"
-msgstr "Selbsttest"
-
-#snapscan.c:850
-msgid "Send a Self Test command to the scanner and report the result."
-msgstr "Sendet ein Selbstestkommando an den Scanner und gibt das "
-       "Ergebnis aus"
-
-#snapscan.c:857
-msgid "Request sense"
-msgstr "Request sense"
-
-#snapscan.c:858
-msgid "Send a Request Sense command to the scanner, and print out the sense "
-      "report."
-msgstr "Sendet ein 'Request Sense' Kommando an den Scanner und gibt "
-       "den aktuellen Sense-Status aus."
-
-#snapscan.c:866
-msgid "Release unit (cancel)"
-msgstr "Release unit (Abbruch)"
-
-#snapscan.c:867
-msgid "Send a Release Unit command to the scanner. This is the same as "
-      "a cancel command."
-msgstr "Sendet ein 'Release Unit' Kommando an den Scanner. Dies führt "
-       "zum selben Ergebnis wie ein Abbruch-Kommando"

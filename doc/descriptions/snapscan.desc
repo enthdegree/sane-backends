@@ -87,7 +87,8 @@
 :interface "SCSI"
 :comment "Close SnapScan 310 compatible."
 
-:mfg "Acer"
+:mfg "Acer / Benq"
+:url "www.benq.com
 ;------------------------------------------------------------------------------
 
 :model "300f"
@@ -140,12 +141,17 @@
 :interface "USB"
 :comment "Have no specific programming info yet, untested."
 
-:mfg "Guillemot International"
+:mfg "Guillemot / Hercules"
+:url "www.guillemot.com"
 ;------------------------------------------------------------------------------
 
 :model "Maxi Scan A4 Deluxe (SCSI)"
 :interface "SCSI"
 :comment "May be a repackaged Vuego 310s or SnapScan 310s."
+
+:model "Scan@home Touch 1248 (USB)"
+:interface "USB"
+:comment "Seems to be a repackaged Acer 3300."
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

@@ -78,7 +78,7 @@
 
 #define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
-#define BUILD               12
+#define BUILD               13
 
 #include "snapscan.h"
 
@@ -162,6 +162,7 @@ static char md_lineart[] = SANE_I18N("Lineart");
 /* predefined scan source names */
 static char src_flatbed[] = SANE_I18N("Flatbed");
 static char src_tpo[] = SANE_I18N("Transparency Adapter");
+static char src_adf[] = SANE_I18N("Document Feeder");
 
 /* predefined scan window setting names */
 static char pdw_none[] = SANE_I18N("none");
@@ -933,19 +934,12 @@ SANE_Status sane_open (SANE_String_Const name, SANE_Handle * h)
         status = wait_scanner_ready (pss);
         if (status != SANE_STATUS_GOOD)
         {
-            if (status == SANE_STATUS_DEVICE_BUSY)
-            {
-                sleep(5);
-            }
-            else
-            {
-                DBG (DL_MAJOR_ERROR,
-                     "%s: error waiting for scanner to warm up: %s\n",
-                     me,
-                     sane_strstatus(status));
-                free (pss);
-                return status;
-            }
+            DBG (DL_MAJOR_ERROR,
+                "%s: error waiting for scanner to warm up: %s\n",
+                me,
+                sane_strstatus(status));
+            free (pss);
+            return status;
         }
         DBG (DL_MINOR_INFO, "%s: performing scanner self test.\n", me);
         status = send_diagnostic (pss);
@@ -1569,10 +1563,19 @@ SANE_Status sane_start (SANE_Handle h)
     status = scan(pss);
     if (status != SANE_STATUS_GOOD)
     {
-        DBG (DL_MAJOR_ERROR, "%s: scan command failed.\n", me);
+        DBG (DL_MAJOR_ERROR, "%s: scan command failed: %s.\n", me, sane_strstatus(status));
         release_unit (pss);
         return status;
     }
+
+    status = wait_scanner_ready (pss);
+    if (status != SANE_STATUS_GOOD)
+    {
+        DBG (DL_MAJOR_ERROR, "%s: scan command failed: %s.\n", me, sane_strstatus(status));
+        release_unit (pss);
+        return status;
+    }
+
     DBG (DL_MINOR_INFO, "%s: starting the reader process.\n", me);
     status = start_reader(pss);
     {
@@ -1605,8 +1608,10 @@ SANE_Status sane_read (SANE_Handle h,
 
     *plen = 0;
 
-    if (pss->state == ST_CANCEL_INIT)
+    if (pss->state == ST_CANCEL_INIT) {
+        pss->state = ST_IDLE;
         return SANE_STATUS_CANCELLED;
+    }
 
     if (pss->psrc == NULL  ||  pss->psrc->remaining(pss->psrc) == 0)
     {
@@ -1757,6 +1762,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.23  2002/05/02 17:19:16  oliverschwartz
+ * SnapScan backend 1.4.13: Support for ADF
+ *
  * Revision 1.22  2002/04/27 15:35:18  oliverschwartz
  * SnapScan backend 1.4.12: Fix option handling
  *

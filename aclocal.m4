@@ -212,7 +212,32 @@ AC_DEFUN([SANE_V4L_VERSION],
         #endif
       ],[sane_v4l_version=v4l2],[sane_v4l_version=v4l])
     ])
-  ],,[ ])
+  ],,
+  [
+    /* To be sure, we include everything v4l includes */
+    #include <assert.h>
+    #include <ctype.h>
+    #include <errno.h>
+    #include <fcntl.h>
+    #include <limits.h>
+    #include <math.h>
+    #include <setjmp.h>
+    #include <signal.h>
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <string.h>
+    #include <sys/types.h>
+    #include <sys/wait.h>
+    #include <unistd.h>
+    #include <sys/mman.h>
+
+    #include <unistd.h>
+    #include <sys/time.h>
+    #include <sys/stat.h>
+    #include <sys/ioctl.h>
+    #include <asm/types.h>
+    #define __LINUX_VIDEODEV2_H
+  ])
 ])
 
 #

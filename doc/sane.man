@@ -251,6 +251,9 @@ sane-st400(5) for details.
 The SANE tamarack backend supports Tamarack Artiscan flatbed scanners. See
 sane-tamarack(5) for details.
 .TP
+.B teco1
+The SANE teco1 backend supports some TECO scanners, usually sold under the RELISYS name. See sane-teco1(5) for details.
+.TP
 .B umax
 The sane-umax backend provides access to several UMAX-SCSI-scanners and some
 Linotype Hell SCSI-scanners. See sane-umax(5) for details.

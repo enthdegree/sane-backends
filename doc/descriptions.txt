@@ -82,6 +82,13 @@ the SANE mailing list for advice. The "Parport" entries can be amended by
 previous `:model', is optional and should be used only once per model.
 Example: `:interface "SCSI USB IEEE-1394"'
 
+The keyword `:status' is an indication of the level of support for the model.
+It's followed by one of the following keyword arguments: `:alpha', `:beta',
+`:stable', `:untested', or `:unsupported'. The `:status' keyword refers to the
+previous `:model', is optional and should be used only once per model. If it's
+not used, the backend's status (if set) is valid for all models.
+Example: `:status :untested'
+
 The `:desc' keyword token is used for non-hardware devices (API and meta). Its
 string argument describes the meta backend or API. It should be used only once
 per device type.

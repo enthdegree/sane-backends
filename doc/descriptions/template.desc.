@@ -23,6 +23,8 @@
 :mfg "TemPlate"                   ; name a manufacturer
 :url "http://www.template.com/"
 :model "Templ Z"                  ; name models for above-specified mfg.
+:status :untested                 ; :alpha, :beta, :stable, :untested, 
+                                  ; or :unsupported
 :interface "SCSI"                 ; interface type of the device:
                                   ; "SCSI", "USB", "Parport (EPP)",
                                   ; "Parport (SPP)", "Parport (ECP)",
@@ -43,5 +45,6 @@
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.
 
+; :status specifier is optional after :mfg and at the top-level
 
 

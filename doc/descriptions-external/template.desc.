@@ -26,6 +26,8 @@
                                   ; "SCSI", "USB", "Parport (EPP)",
                                   ; "Parport (SPP)", "Parport (ECP)",
                                   ; "Serial port" or "Proprietary".
+:status :untested                 ; :alpha, :beta, :stable, :untested,
+                                  ; or :unsupported
 :model "Templ ZS"
 :interface "USB"
 :model "Templ ZQ"
@@ -42,5 +44,6 @@
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.
 
+; :status specifier is optional after :mfg and at the top-level
 
 

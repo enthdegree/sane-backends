@@ -1,3 +1,9 @@
+2001-09-10  Peter Fales <peter@fales.com>
+
+	* backend/gphoto2.c, backend/Makefile.in, configure.in, configure,
+	  acinclude.m4, aclocal.m4: Add gphoto2 backend to Makefiles.
+	  It's disable if the gphoto2 program is not present.
+
 2001-09-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/mustek.c backend/mustek.desc doc/mustek/mustek.CHANGES:

@@ -20,6 +20,7 @@ mandir = @mandir@
 includedir = @includedir@
 oldincludedir = /usr/include
 configdir = ${sysconfdir}/sane.d
+docdir=$(prefix)/doc/sane-@VERSION@
 
 MKDIR = $(top_srcdir)/mkinstalldirs
 INSTALL = @INSTALL@
@@ -38,6 +39,7 @@ SECT5	= sane-abaton.5 sane-agfafocus.5 sane-apple.5 sane-dll.5 sane-dc25.5 \
           sane-plustek.5 sane-st400.5 sane-mustek_pp.5 sane-dc210.5 \
           sane-v4l.5 sane-snapscan.5 sane-canon.5 sane-coolscan.5
 MANPAGES = $(SECT1) $(SECT5)
+DOCS	= sane.ps sane.dvi
 LATEX	= TEXINPUTS=$(srcdir):$$TEXINPUTS latex
 DLH	= TEXINPUTS=$(srcdir):$$TEXINPUTS dlh
 MAN2HTML= nroff -man |\
@@ -62,6 +64,13 @@ install: $(MANPAGES)
 	@for page in $(SECT5); do \
 	  echo installing $${page} in $(mandir)/man5/$${page}...; \
 	  $(INSTALL_DATA) $${page} $(mandir)/man5/$${page} || exit 1; \
+	done
+
+install-docs: ps
+	$(MKDIR) $(docdir)
+	@for doc in $(DOCS); do \
+	  echo installing $${doc} in $(docdir)/$${doc}...; \
+	  $(INSTALL_DATA) $${doc} $(docdir)/$${doc} || exit 1; \
 	done
 
 docs: ps html

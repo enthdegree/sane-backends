@@ -66,6 +66,14 @@
                 Avision INC for the documentation we got! ;-)
    
    ChangeLog:
+   2002-04-14: Frank Zago
+         * fix more memory leaks
+         * add the paper test
+         * fix a couple bug on the error path in sane_init
+   
+   2002-04-13: René Rebe
+         * added many more scanner IDs
+   
    2002-04-11: René Rebe
          * fixed dpi for sheetfeed scanners - other cleanups
          * fixed attach to close the filehandle if no scanner was found
@@ -215,25 +223,100 @@
 #endif
 
 #define BACKEND_NAME avision
-#define BACKEND_BUILD 26  /* avision backend BUILD version */
+#define BACKEND_BUILD 27  /* avision backend BUILD version */
 
-Avision_HWEntry Avision_Device_List  [] =
-  { { "AVISION", "AV630CS",
-      "Avision", "AV630CS",
-      AV_SCSI, AV_FLATBED },
+static Avision_HWEntry Avision_Device_List  [] =
+  {
+    /* All Avision except 630, 620 and 6240 untested ... */
+    
+    { "AVISION", "AV100CS", 
+      "Avision", "AV100CS",
+      AV_SCSI, AV_SHEETFEED},
+    
+    { "AVISION", "AV100IIICS", 
+      "Avision", "AV100IIICS",
+      AV_SCSI, AV_FLATBED},
+    
+    { "AVISION", "AV100S", 
+      "Avision", "AV100S",
+      AV_SCSI, AV_FLATBED},
+    
+    { "AVISION", "AV240SC", 
+      "Avision", "AV240SC",
+      AV_SCSI, AV_FLATBED},
+    
+    { "AVISION", "AV260CS", 
+      "Avision", "AV260CS",
+      AV_SCSI, AV_FLATBED},
+    
+    { "AVISION", "AV360CS", 
+      "Avision", "AV360CS",
+      AV_SCSI, AV_FLATBED},
+    
+    { "AVISION", "AV363CS", 
+      "Avision", "AV363CS",
+      AV_SCSI, AV_FLATBED},
+    
+    { "AVISION", "AV420CS", 
+      "Avision", "AV420CS",
+      AV_SCSI, AV_FLATBED},
+    
+    { "AVISION", "AV6120", 
+      "Avision", "AV6120",
+      AV_SCSI, AV_FLATBED},
     
     { "AVISION", "AV620CS",
       "Avision", "AV620CS",
       AV_SCSI, AV_FLATBED},
-
-    { "AVISION", "AV 6240",
+    
+    { "AVISION", "AV630CS",
+      "Avision", "AV630CS",
+      AV_SCSI, AV_FLATBED },
+    
+    { "AVISION", "AV630CSL",
+      "Avision", "AV630CSL",
+      AV_SCSI, AV_FLATBED },
+    
+    { "AVISION", "AV6240",
       "Avision", "AV6240",
       AV_SCSI, AV_FLATBED},
-	
-    { "AVISION", "AV100C", 
-      "Avision", "AV100C",
+    
+    { "AVISION", "AV660S",
+      "Avision", "AV660S",
       AV_SCSI, AV_FLATBED},
-	
+    
+    { "AVISION", "AV680S",
+      "Avision", "AV680S",
+      AV_SCSI, AV_FLATBED},
+    
+    { "AVISION", "AV800S",
+      "Avision", "AV800S",
+      AV_SCSI, AV_FLATBED},
+    
+    { "AVISION", "AV810C",
+      "Avision", "AV810C",
+      AV_SCSI, AV_FLATBED},
+    
+    { "AVISION", "AV820",
+      "Avision", "AV820",
+      AV_SCSI, AV_FLATBED},
+    
+    { "AVISION", "AV820C",
+      "Avision", "AV820C",
+      AV_SCSI, AV_FLATBED},
+    
+    { "AVISION", "AV880",
+      "Avision", "AV880",
+      AV_SCSI, AV_FLATBED},
+    
+    { "AVISION", "AV880C",
+      "Avision", "AV880C",
+      AV_SCSI, AV_FLATBED},
+    
+    { "AVISION", "AVA3",
+      "Avision", "AVA3",
+      AV_SCSI, AV_FLATBED},
+    
     /* and possibly more avisions */
     
     { "HP",      "ScanJet 5300C",
@@ -243,7 +326,7 @@ Avision_HWEntry Avision_Device_List  [] =
     { "HP",      "ScanJet 5370C",
       "Hewlett-Packard", "ScanJet 5370C",
       AV_USB, AV_FLATBED},
-	
+    
     { "hp",      "scanjet 7400c",
       "Hewlett-Packard", "ScanJet 7400c",
       AV_USB, AV_FLATBED},
@@ -258,13 +341,66 @@ Avision_HWEntry Avision_Device_List  [] =
     
     /* possibly all Minolta film-scanners ? */
     
+    /* Only the SS600 is tested ... */
+    
+    { "MITSBISH", "MCA-ADFC",
+      "Mitsubishi", "MCA-ADFC",
+      AV_SCSI, AV_SHEETFEED},
+    
+    { "MITSBISH", "MCA-S1200C",
+      "Mitsubishi", "S1200C", 
+      AV_SCSI, AV_SHEETFEED},
+    
     { "MITSBISH", "MCA-S600C",
       "Mitsubishi", "S600C",
       AV_SCSI, AV_SHEETFEED},
     
-    { "MITSBISH", "MCA-SS600",	/* untested an ID guessed */
+    { "MITSBISH", "SS600",
       "Mitsubishi", "SS600", 
       AV_SCSI, AV_SHEETFEED},
+    
+    /* The next are all untested ... */
+    
+    { "FCPA", "ScanPartner",
+      "Fujitsu", "ScanPartner",
+      AV_SCSI, AV_SHEETFEED},
+
+    { "FCPA", "ScanPartner 10",
+      "Fujitsu", "ScanPartner 10",
+      AV_SCSI, AV_SHEETFEED},
+    
+    { "FCPA", "ScanPartner 10C",
+      "Fujitsu", "ScanPartner 10C",
+      AV_SCSI, AV_SHEETFEED},
+    
+    { "FCPA", "ScanPartner 15C",
+      "Fujitsu", "ScanPartner 15C",
+      AV_SCSI, AV_SHEETFEED},
+    
+    { "FCPA", "ScanPartner 300C",
+      "Fujitsu", "ScanPartner 300C",
+      AV_SCSI, AV_SHEETFEED},
+    
+    { "FCPA", "ScanPartner 600C",
+      "Fujitsu", "ScanPartner 600C",
+      AV_SCSI, AV_SHEETFEED},
+    
+    { "FCPA", "ScanPartner Jr",
+      "Fujitsu", "ScanPartner Jr",
+      AV_SCSI, AV_SHEETFEED},
+    
+    { "FCPA", "ScanStation",
+      "Fujitsu", "ScanStation",
+      AV_SCSI, AV_SHEETFEED},
+    
+    /* More IDs from the Avision dll:
+      ArtiScan ProA3
+      FB1065
+      FB1265
+      PHI860S
+      PSDC SCSI
+      SCSI Scan 19200
+      V6240 */
     
     /* last entry detection */
     { NULL, NULL,
@@ -288,6 +424,7 @@ Avision_HWEntry Avision_Device_List  [] =
 static int num_devices;
 static Avision_Device* first_dev;
 static Avision_Scanner* first_handle;
+static const SANE_Device** devlist = 0;
 
 static SANE_Bool disable_gamma_table = SANE_FALSE; /* disable the usage of a custom gamma-table */
 static SANE_Bool disable_calibration = SANE_FALSE; /* disable the calibration */
@@ -866,11 +1003,13 @@ set_frame (Avision_Scanner* s, SANE_Word frame)
   return status;
 }
 
+#if 0							/* unused */
 static SANE_Status
 eject_or_rewind (Avision_Scanner* s)
 {
   return (set_frame (s, 0xff) );
 }
+#endif
 
 static SANE_Status
 attach (const char* devname, Avision_Device** devp)
@@ -1350,8 +1489,7 @@ perform_calibration (Avision_Scanner* s)
     rcmd.datatypequal [1] = 0x0a;
     set_triple (rcmd.transferlen, calib_size);
     
-    DBG (1, "perform_calibration: %i %x\n", calib_size, &calib_size);
-    
+    DBG (1, "perform_calibration: %p %d\n", calib_data, calib_size);
     status = sanei_scsi_cmd (s->fd, &rcmd, sizeof (rcmd), calib_data, &calib_size);
     if (status != SANE_STATUS_GOOD) {
       DBG (1, "perform_calibration: calibration data read failed (%s)\n", sane_strstatus (status));
@@ -1790,6 +1928,27 @@ release_unit (Avision_Scanner *s)
   return status;
 }
 
+/* Check if a sheet is present. For Sheetfeed scanners only. */
+static SANE_Status
+check_paper (Avision_Scanner *s)
+{
+  char cmd[] = {0x08, 0, 0, 0, 1, 0};
+  SANE_Status status;
+  char buf[1];
+  size_t size = 1;
+  
+  status = sanei_scsi_cmd2 (s->fd, cmd, sizeof (cmd),
+			    NULL, 0,
+			    buf, &size);
+
+  if (status == SANE_STATUS_GOOD) {
+    if (buf[0] == 0) 
+      status = SANE_STATUS_NO_DOCS;
+  }
+  
+  return status;
+}
+
 static SANE_Status
 go_home (Avision_Scanner *s)
 {
@@ -1848,12 +2007,16 @@ do_eof (Avision_Scanner *s)
   wait (&exit_status); /* without a wait() call you will produce
 			  defunct childs */
 
+  s->reader_pid = 0;
+
   return SANE_STATUS_EOF;
 }
 
 static SANE_Status
 do_cancel (Avision_Scanner *s)
 {
+  SANE_Status status;
+  
   DBG (3, "do_cancel\n");
 
   s->scanning = SANE_FALSE;
@@ -1869,16 +2032,18 @@ do_cancel (Avision_Scanner *s)
       while (wait (&exit_status) != s->reader_pid);
       s->reader_pid = 0;
     }
-
+  
   if (s->fd >= 0)
     {
-      /* release the device ? */
+      /* release the device */
+      status = release_unit (s);
+      
       /* go_home (s); */
       
       sanei_scsi_close (s->fd);
       s->fd = -1;
     }
-
+  
   return SANE_STATUS_CANCELLED;
 }
 
@@ -1934,9 +2099,12 @@ init_options (Avision_Scanner* s)
   dev->speed_range.max = (SANE_Int)4;
   dev->speed_range.quant = (SANE_Int)1;
   
+  s->opt[OPT_NUM_OPTS].name = "";
   s->opt[OPT_NUM_OPTS].title = SANE_TITLE_NUM_OPTIONS;
   s->opt[OPT_NUM_OPTS].desc = "";
   s->opt[OPT_NUM_OPTS].cap = SANE_CAP_SOFT_DETECT;
+  s->opt[OPT_NUM_OPTS].type = SANE_TYPE_INT;
+  s->opt[OPT_NUM_OPTS].size = sizeof(SANE_TYPE_INT);
   s->val[OPT_NUM_OPTS].w = NUM_OPTIONS;
   
   /* "Mode" group: */
@@ -1944,6 +2112,7 @@ init_options (Avision_Scanner* s)
   s->opt[OPT_MODE_GROUP].desc = ""; /* for groups only title and type are valid */
   s->opt[OPT_MODE_GROUP].type = SANE_TYPE_GROUP;
   s->opt[OPT_MODE_GROUP].cap = 0;
+  s->opt[OPT_MODE_GROUP].size = 0;
   s->opt[OPT_MODE_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
   /* scan mode */
@@ -1991,6 +2160,7 @@ init_options (Avision_Scanner* s)
   s->opt[OPT_GEOMETRY_GROUP].desc = ""; /* for groups only title and type are valid */
   s->opt[OPT_GEOMETRY_GROUP].type = SANE_TYPE_GROUP;
   s->opt[OPT_GEOMETRY_GROUP].cap = SANE_CAP_ADVANCED;
+  s->opt[OPT_GEOMETRY_GROUP].size = 0;
   s->opt[OPT_GEOMETRY_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
   /* top-left x */
@@ -2038,6 +2208,7 @@ init_options (Avision_Scanner* s)
   s->opt[OPT_ENHANCEMENT_GROUP].desc = ""; /* for groups only title and type are valid */
   s->opt[OPT_ENHANCEMENT_GROUP].type = SANE_TYPE_GROUP;
   s->opt[OPT_ENHANCEMENT_GROUP].cap = 0;
+  s->opt[OPT_ENHANCEMENT_GROUP].size = 0;
   s->opt[OPT_ENHANCEMENT_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
   /* transparency adapter. */
@@ -2313,7 +2484,7 @@ reader_process (Avision_Scanner *s, int fd)
       
       s->line += usefull_bytes / bytes_per_line;
       DBG (5, "reader_process: end loop\n");
-    } /* end wile not all lines */
+    } /* end while not all lines */
   
   if (dev->inquiry_new_protocol) {
     status = go_home(s);
@@ -2350,7 +2521,7 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
   
   char line[PATH_MAX];
   const char* cp = 0;
-  char* word = 0;
+  char* word;
   int linenumber = 0;
 
   authorize = authorize; /* silence gcc */
@@ -2371,7 +2542,7 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
 
   while (sanei_config_read  (line, sizeof (line), fp))
     {
-      word = 0;
+      word = NULL;
       linenumber++;
       
       DBG(5, "sane_init: parsing config line \"%s\"\n",
@@ -2383,6 +2554,8 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
 	{
 	  DBG(5, "sane_init: config file line %d: ignoring empty line\n",
 	      linenumber);
+	  free (word);
+	  word = NULL;
 	  continue;
 	}
       if (word[0] == '#')
@@ -2390,14 +2563,14 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
 	  DBG(5, "sane_init: config file line %d: ignoring comment line\n",
 	      linenumber);
 	  free (word);
-	  word = 0;
+	  word = NULL;
 	  continue;
 	}
                     
       if (strcmp (word, "option") == 0)
       	{
 	  free (word);
-	  word = 0;
+	  word = NULL;
 	  cp = sanei_config_get_string (cp, &word);
 	  
 	  if (strcmp (word, "disable-gamma-table") == 0)
@@ -2418,9 +2591,6 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
 		      linenumber);
 	      force_a4 = SANE_TRUE;
 	    }
-	  if (word)
-	    free (word);
-	  word = 0;
 	}
       else
 	{
@@ -2428,9 +2598,8 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
 	      linenumber, line);
 	  
 	  sanei_config_attach_matching_devices (line, attach_one);
-	  if (word)
 	    free (word);
-	  word = 0;
+	  word = NULL;
 	}
     }
   fclose (fp);
@@ -2452,12 +2621,15 @@ sane_exit (void)
     free (dev->sane.name);
     free (dev);
   }
+  first_dev = NULL;
+
+  free(devlist);
+  devlist = NULL;
 }
 
 SANE_Status
 sane_get_devices (const SANE_Device*** device_list, SANE_Bool local_only)
 {
-  static const SANE_Device** devlist = 0;
   Avision_Device* dev;
   int i;
 
@@ -2538,6 +2710,7 @@ void
 sane_close (SANE_Handle handle)
 {
   Avision_Scanner *prev, *s;
+  int i;
 
   DBG (3, "sane_close\n");
   DBG (3, " \n");
@@ -2562,6 +2735,12 @@ sane_close (SANE_Handle handle)
     prev->next = s->next;
   else
     first_handle = s->next;
+
+  for (i = 1; i < NUM_OPTIONS; i++) {
+	  if (s->opt[i].type == SANE_TYPE_STRING && s->val[i].s) {
+		  free (s->val[i].s);
+	  }
+  }
 
   free (handle);
 }
@@ -2866,6 +3045,14 @@ sane_start (SANE_Handle handle)
     goto stop_scanner_and_return;
   }
   
+  if (dev->hw->scanner_type == AV_SHEETFEED) {
+    status = check_paper(s);
+    if (status != SANE_STATUS_GOOD) {
+      DBG (1, "sane_start: check_paper() failed: %s\n", sane_strstatus (status));
+      goto stop_scanner_and_return;
+    }
+  }
+  
   if (dev->inquiry_new_protocol) {
     wait_4_light (s);
   }
@@ -2919,7 +3106,6 @@ sane_start (SANE_Handle handle)
   }
   
   s->scanning = SANE_TRUE;
-  
   s->line = 0;
   
   if (pipe (fds) < 0) {
@@ -2954,7 +3140,7 @@ sane_start (SANE_Handle handle)
   /* cancel the scan nicely and do a go_home for the new_protocol */
   do_cancel (s);
   
-  return SANE_STATUS_IO_ERROR;
+  return status;
 }
 
 SANE_Status
@@ -3003,7 +3189,6 @@ sane_cancel (SANE_Handle handle)
     do_cancel (s);
 }
 
-
 SANE_Status
 sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 {
@@ -3018,7 +3203,6 @@ sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
   
   return SANE_STATUS_GOOD;
 }
-
 
 SANE_Status
 sane_get_select_fd (SANE_Handle handle, SANE_Int *fd)

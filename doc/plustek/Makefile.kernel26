@@ -10,21 +10,15 @@ ifeq ($(LINUXVERSION),)
 endif
 LINUXRELEASE = $(shell uname -r | cut -d'.' -f3)
 
-VERSION0 = $(shell cat $(SUBDIRS)/../VERSION0)
-VERSION1 = $(shell cat $(SUBDIRS)/../VERSION1)
-BUILD    = $(shell cat $(SUBDIRS)/../BUILD)
+VERSIONSTR = $(shell grep "define BACKEND_VERSION" $(PWD)/plustek_pp.c | cut -b25-50 )
 
 #
 # extra flags
 #
-EXTRA_CFLAGS += -D_PTDRV_V1=$(VERSION1) -D_PTDRV_V0=$(VERSION0) -D_PTDRV_BUILD=$(BUILD)
+EXTRA_CFLAGS += -D_PTDRV_VERSTR=\"$(VERSIONSTR)\"
 
 ifeq ($(DEBUG),y)
 	EXTRA_CFLAGS += -DDEBUG
-endif
-
-ifeq ($(shell test `uname -r | cut -d'.' -f3` -lt 6 && echo 1),1)
-	EXTRA_CFLAGS += -mhard-float
 endif
 
 #

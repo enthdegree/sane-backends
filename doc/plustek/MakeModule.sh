@@ -34,7 +34,7 @@ fi
 echo -e "\b\b\b - done."
 
 #
-#
+# Version checks...
 #
 echo -e "\nCheck for kernelversion:"
 if [ "$OSMINOR" == "6" ]; then
@@ -48,6 +48,9 @@ else
 	exit -2
 fi
 
+#
+# Setup...
+#
 echo -e "Build-directory: \n"$BUILD_DIR
 echo -n "Removing build-directory..."
 rm -rf $BUILD_DIR
@@ -62,7 +65,7 @@ echo -n "Linking source files..."
 C_FILES=`ls $SRC_DIR/plustek-pp_*.c`
 H_FILES=`ls $SRC_DIR/plustek-pp_*.h`
 
-for F in $C_FILES $H_FILES $SRC_DIR/plustek-pp.h; do
+for F in $C_FILES $H_FILES $SRC_DIR/plustek-pp.h $SRC_DIR/plustek_pp.c; do
 	ln -s $F .
 done
 echo -e "\b\b\b - done."
@@ -71,14 +74,21 @@ echo -n "Copying Makefile to build-directory..."
 cp $MAKEFILE Makefile
 echo -e "\b\b\b - done."
 
+#
+# Building the module...
+#
 echo "Making the module..."
 if [ "$OSMINOR" == "4" ]; then
 	make all $1
 else
 	make -C /lib/modules/$KERNEL_V/build/ SUBDIRS=$BUILD_DIR modules $1
 fi
-
+RES=$?
 cd ..
+if [ $RES != 0 ]; then
+	echo "There were some build errors..."
+	exit -1
+fi
 echo "done."
 
 echo "Should I install the module?"

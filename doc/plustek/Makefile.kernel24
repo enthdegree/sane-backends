@@ -28,8 +28,7 @@ REF = cxref
 #
 # common compiler options
 #
-OPT = -fomit-frame-pointer -D_PTDRV_V1=$(VERSION1) \
--D_PTDRV_V0=$(VERSION0) -D_PTDRV_BUILD=$(BUILD)
+OPT = -fomit-frame-pointer -D_PTDRV_VERSTR=\"$(VERSIONSTR)\"
 
 #
 # cxref options
@@ -52,9 +51,8 @@ REFOPT = -xref-all -index-all -html32
 ifeq ($(LINUXVERSION),)
  LINUXVERSION = $(shell uname -r)
 endif
-VERSION0 = $(shell cat ./../VERSION0)
-VERSION1 = $(shell cat ./../VERSION1)
-BUILD    = $(shell cat ./../BUILD)
+
+VERSIONSTR = $(shell grep "define BACKEND_VERSION" $(SRC_DIR)/plustek_pp.c | cut -b25-50 )
 
 # Change it here or specify it on the "make" commandline
 ifeq ($(HEADER_PATH),)

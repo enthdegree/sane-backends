@@ -64,52 +64,6 @@
 # include <asm/io.h>		/* older Linux */
 #elif HAVE_SYS_HW_H
 # include <sys/hw.h>		/* OS/2 */
-#elif defined(__i386__)  && defined (__GNUC__)
-  /* other x86 with GCC (Win9x ?) */
-
-static __inline__ void
-outb (u_char value, u_long port)
-{
-  __asm__ __volatile__ ("outb %0,%1"::"a" (value), "d" ((u_short) port));
-}
-
-static __inline__ u_char
-inb (u_long port)
-{
-  u_char value;
-
-  __asm__ __volatile__ ("inb %1,%0":"=a" (value):"d" ((u_short) port));
-  return value;
-}
-
-static __inline__ void
-outsb (unsigned short port, const void *addr, unsigned long count)
-{
-  __asm__ __volatile__ ("rep ; outsb":"=S" (addr), "=c" (count):"d" (port),
-			"0" (addr), "1" (count));
-}
-
-static __inline__ void
-outsw (unsigned short port, const void *addr, unsigned long count)
-{
-  __asm__ __volatile__ ("rep ; outsw":"=S" (addr), "=c" (count):"d" (port),
-			"0" (addr), "1" (count));
-}
-
-static __inline__ void
-insb (unsigned short port, void *addr, unsigned long count) \
-{
-  __asm__ __volatile__ ("rep ; insb":"=D" (addr), "=c" (count):"d" (port),
-			"0" (addr), "1" (count));
-}
-
-static __inline__ void
-insl (unsigned short port, void *addr, unsigned long count) \
-{
-  __asm__ __volatile__ ("rep ; insl":"=D" (addr), "=c" (count):"d" (port),
-			"0" (addr), "1" (count));
-}
-
 #else
 #define IO_SUPPORT_MISSING
 #endif
@@ -131,8 +85,6 @@ insl (unsigned short port, void *addr, unsigned long count) \
 #endif
 
 static int Fonc001 (void);
-static int InitBuffer001 (void);
-static int InitBuffer002 (void);
 static int FoncSendWord (int *cmd);
 
 static void SetEPPMode (int mode);
@@ -284,17 +236,6 @@ static void Bloc8Decode (int *op);
 				TRACE(16,"CmdGet() passed ...")
 
 
-static int cmd1[] = { 0x00, 0x00, 0x22, 0x88, -1 };
-static int cmd3[] = { 0x00, 0x08, 0x00, 0x84, -1 };	/* 2048 bytes size write */
-static int cmd4[] = { 0x00, 0x08, 0x00, 0xC4, -1 };	/* 2048 bytes size read */
-
-
-static int commande2[] = { 0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C,
-  0x00, 0x03, 0xC1, 0x80, 0x00, 0x20, 0x02, 0x00,
-  0x16, 0x41, 0xE0, 0xAC, 0x03, 0x03, 0x00, 0x00,
-  0x46, 0xA0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-  0x00, 0x10, -1
-};
 
 static int gPort = 0x378;
 
@@ -549,7 +490,7 @@ sanei_umax_pp_InitPort (int port)
       else
 	{
 	  /* we check if parport is does ECP */
-	  #ifdef PPGETMODES
+#ifdef PPGETMODES
 	  if (ioctl (fd, PPGETMODES, &mode))
 	    {
 	      DBG (16, "umax_pp: ppdev couldn't gave modes for port '%s'\n",
@@ -578,9 +519,10 @@ sanei_umax_pp_InitPort (int port)
 		  return (0);
 		}
 	    }
-	  #else
-	      DBG (16, "umax_pp: ppdev used to build SANE doesn't have PPGETMODES.\n");
-	  #endif
+#else
+	  DBG (16,
+	       "umax_pp: ppdev used to build SANE doesn't have PPGETMODES.\n");
+#endif
 
 	  /* find the base addr of ppdev */
 	  if (sanei_parport_info (i, &addr))
@@ -2692,149 +2634,6 @@ Fonc001 (void)
 
 
 
-static int
-InitBuffer001 (void)
-{
-  int i, j, read, tmp, reg;
-  unsigned char dest[65536];
-  int donnees[2048];
-
-  SendWord (cmd4);
-  EPPREGISTERWRITE (0x0E, 0x0D);
-  EPPREGISTERWRITE (0x0F, 0x00);
-  DBG (16, "SendWord(cmd4) passed (%s:%d) \n", __FILE__, __LINE__);
-
-
-
-      if (PausedReadData (2048, dest) == 0)
-	{
-	  DBG (16, "PausedReadData(2048,dest) failed (%s:%d)\n", __FILE__,
-	       __LINE__);
-	  return (0);
-	}
-      DBG (16, "PausedReadData(2048,dest) passed (%s:%d)\n", __FILE__,
-	   __LINE__);
-
-  if (SendWord (cmd1) == 0)
-    {
-      DBG (0, "SendWord(cmd1) failed (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
-    }
-  DBG (16, "SendWord(cmd1) passed (%s:%d)\n", __FILE__, __LINE__);
-
-
-  SendData (commande2,0x22);
-  DBG (16, "SendData(commande2,0x22) passed (%s:%d) \n", __FILE__,
-       __LINE__);
-  if (SendWord (cmd3) == 0)	/* write 2048 to channel 4 */
-    {
-      DBG (0, "SendWord(cmd3) failed (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
-    }
-  DBG (16, "SendWord(cmd3) passed (%s:%d)\n", __FILE__, __LINE__);
-  /* write 2048 bytes: 4 * 512 bytes */
-  for (j = 0; j < 4; j++)
-    {
-      for (i = 0; i < 256; i++)
-	{
-	  donnees[j * 512 + 2 * i] = i;
-	  donnees[j * 512 + 2 * i + 1] = 0xFF - i;
-	}
-    }
-  if (SendData (donnees, 2048) == 0)
-    {
-      DBG (0, "SendData(donnees,%d) failed (%s:%d)\n", 2048, __FILE__,
-	   __LINE__);
-      return (0);
-    }
-  TRACE (16, "SendData(donnees,2048) passed ...");
-
-  return (1);			/* OK */
-}
-
-
-static int
-InitBuffer002 (void)
-{
-  int i, j, read, tmp, reg;
-  unsigned char dest[65536];
-  int donnees[2048];
-
-  SendWord (cmd4);
-  DBG (16, "SendWord(cmd4) passed (%s:%d) \n", __FILE__, __LINE__);
-  EPPREGISTERWRITE (0x0E, 0x0D);
-  EPPREGISTERWRITE (0x0F, 0x00);
-
-
-
-      if (PausedReadData (2048, dest) == 0)
-	{
-	  DBG (16, "PausedReadData(2048,dest) failed (%s:%d)\n", __FILE__,
-	       __LINE__);
-	  return (0);
-	}
-      DBG (16, "PausedReadData(2048,dest) passed (%s:%d)\n", __FILE__,
-	   __LINE__);
-
-  if (SendWord (cmd1) == 0)
-    {
-      DBG (0, "SendWord(cmd1) failed (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
-    }
-  DBG (16, "SendWord(cmd1) passed (%s:%d)\n", __FILE__, __LINE__);
-
-  SendData (commande2,0x22);
-  DBG (16, "SendData(commande2) passed (%s:%d) \n", __FILE__,
-       __LINE__);
-
-  if (SendWord (cmd3) == 0)
-    {
-      DBG (0, "SendWord(cmd3) failed (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
-    }
-  DBG (16, "SendWord(cmd3) passed (%s:%d)\n", __FILE__, __LINE__);
-
-
-  i = 0;
-  while (i < 512)
-    {
-      donnees[i] = 0x00;
-      i++;
-    }
-  donnees[i] = 0xFF;
-  i++;
-  donnees[i] = 0xAA;
-  i++;
-  donnees[i] = 0x55;
-  i++;
-  donnees[i] = 0xFE;
-  i++;
-
-  for (i = 2; i < 256; i++)
-    {
-      donnees[512 + 2 * i] = i;
-      donnees[512 + 2 * i + 1] = 0xFF - i;
-    }
-  for (j = 0; j < 2; j++)
-    {
-      for (i = 0; i < 256; i++)
-	{
-	  donnees[1024 + 512 * j + 2 * i] = i;
-	  donnees[1024 + 512 * j + 2 * i + 1] = 0xFF - i;
-	}
-    }
-
-  if (SendData (donnees, 2048) == 0)
-    {
-      DBG (0, "SendData(donnees,%d) failed (%s:%d)\n", 2048, __FILE__,
-	   __LINE__);
-      return (0);
-    }
-  TRACE (16, "SendData(donnees,2048) passed ...");
-
-
-  return (1);
-}
 
 
 /* 1 OK, 0 failed */
@@ -3837,6 +3636,15 @@ sanei_umax_pp_ProbeScanner (int recover)
   int val;
   int zero[5] = { 0, 0, 0, 0, -1 };
   int model;
+  int cmd1[] = { 0x00, 0x00, 0x22, 0x88, -1 };
+  int cmd2[] = { 0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C,
+    0x00, 0x03, 0xC1, 0x80, 0x00, 0x20, 0x02, 0x00,
+    0x16, 0x41, 0xE0, 0xAC, 0x03, 0x03, 0x00, 0x00,
+    0x46, 0xA0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x10, -1
+  };
+  int cmd3[] = { 0x00, 0x08, 0x00, 0x84, -1 };	/* 2048 bytes size write */
+  int cmd4[] = { 0x00, 0x08, 0x00, 0xC4, -1 };	/* 2048 bytes size read */
 
   /* save and set CONTROL */
   tmp = (Inb (CONTROL)) & 0x1F;
@@ -4060,7 +3868,8 @@ sanei_umax_pp_ProbeScanner (int recover)
       break;
     case 0x07:
       WRITESLOW (0x12, 0x00);
-      SLOWNIBBLEREGISTEREAD (0x12, 0x00);	/* we may get 0x20 */
+      SLOWNIBBLEREGISTEREAD (0x12, 0x00);
+      /* we may get 0x20, in this case some color aberration may occur */
       /* must depend on the parport */
       /* model 0x07 + 0x00=>0x20=2000P */
       break;
@@ -4132,7 +3941,30 @@ sanei_umax_pp_ProbeScanner (int recover)
   Init002 (0);
   DBG (16, "Init002(0) passed... (%s:%d)\n", __FILE__, __LINE__);
 
-  for (i = 0; i < 256; i++)
+  EPPREGISTERWRITE (0x0A, 0);
+
+  /* catch any failure to read back data in EPP mode */
+  reg = EPPRegisterRead (0x0A);
+  if (reg != 0)
+    {
+      DBG (0, "EPPRegisterRead, found 0x%X expected 0x00 (%s:%d)\n", reg,
+	   __FILE__, __LINE__);
+      if (reg == 0xFF)
+	{
+	  /* EPP mode not set */
+	  DBG(0, "\n*** It appears that EPP data transfer doesn't work      ***");
+	  DBG(0, "*** Please read EPP MODE ONLY section in sane-umax_pp.5 ***\n");
+	}
+      return(0);
+    }
+  else
+    {
+      DBG (16, "EPPRegisterRead(0x0A)=0x00 passed... (%s:%d)\n", __FILE__,
+	   __LINE__);
+    }
+  EPPREGISTERWRITE (0x0A, 0xFF);
+  EPPREGISTERREAD (0x0A, 0xFF);
+  for (i = 1; i < 256; i++)
     {
       EPPREGISTERWRITE (0x0A, i);
       EPPREGISTERREAD (0x0A, i);
@@ -4358,116 +4190,116 @@ sanei_umax_pp_ProbeScanner (int recover)
   /* some sort of countdown, some warming-up ? */
   /* maybe some pauses are needed              */
   /* if (model == 0x07) */
-    {
-      EPPREGISTERWRITE (0x0A, 0x00);
-      reg = EPPRegisterRead (0x0D);
-      reg = (reg & 0xE8);
-      EPPRegisterWrite (0x0D, reg);
-      DBG (16, "(%s:%d) passed \n", __FILE__, __LINE__);
-      Init022 ();
-      DBG (16, "Init022() passed... (%s:%d)\n", __FILE__, __LINE__);
-      reg = EPPRegisterRead (0x0B);
-      if (reg != gEPAT)
-	{
-	  DBG (0, "Error! expected reg0B=0x%02X, found 0x%02X! (%s:%d) \n",
-	       gEPAT, reg, __FILE__, __LINE__);
-	  return (0);
-	}
+  {
+    EPPREGISTERWRITE (0x0A, 0x00);
+    reg = EPPRegisterRead (0x0D);
+    reg = (reg & 0xE8);
+    EPPRegisterWrite (0x0D, reg);
+    DBG (16, "(%s:%d) passed \n", __FILE__, __LINE__);
+    Init022 ();
+    DBG (16, "Init022() passed... (%s:%d)\n", __FILE__, __LINE__);
+    reg = EPPRegisterRead (0x0B);
+    if (reg != gEPAT)
+      {
+	DBG (0, "Error! expected reg0B=0x%02X, found 0x%02X! (%s:%d) \n",
+	     gEPAT, reg, __FILE__, __LINE__);
+	return (0);
+      }
 
-      reg = EPPRegisterRead (0x0D);
-      reg = (reg & 0xE8) | 0x43;
-      EPPRegisterWrite (0x0D, reg);
-      EPPREGISTERWRITE (0x0C, 0x04);
-      reg = EPPRegisterRead (0x0A);
-      if (reg != 0x00)
-	{
-	  DBG (0, "Warning! expected reg0A=0x00, found 0x%02X! (%s:%d) \n",
-	       reg, __FILE__, __LINE__);
-	}
+    reg = EPPRegisterRead (0x0D);
+    reg = (reg & 0xE8) | 0x43;
+    EPPRegisterWrite (0x0D, reg);
+    EPPREGISTERWRITE (0x0C, 0x04);
+    reg = EPPRegisterRead (0x0A);
+    if (reg != 0x00)
+      {
+	DBG (0, "Warning! expected reg0A=0x00, found 0x%02X! (%s:%d) \n",
+	     reg, __FILE__, __LINE__);
+      }
 
-      EPPREGISTERWRITE (0x0A, 0x1C);
-      EPPREGISTERWRITE (0x08, 0x21);
-      EPPREGISTERWRITE (0x0E, 0x0F);
-      EPPREGISTERWRITE (0x0F, 0x0C);
-      usleep (10000);
+    EPPREGISTERWRITE (0x0A, 0x1C);
+    EPPREGISTERWRITE (0x08, 0x21);
+    EPPREGISTERWRITE (0x0E, 0x0F);
+    EPPREGISTERWRITE (0x0F, 0x0C);
+    usleep (10000);
 
-      EPPREGISTERWRITE (0x0A, 0x1C);
-      EPPREGISTERWRITE (0x0E, 0x10);
-      EPPREGISTERWRITE (0x0F, 0x1C);
-      reg = EPPRegisterRead (0x13);
-      if (reg != 0x00)
-	{
-	  DBG (0, "Warning! expected reg13=0x00, found 0x%02X! (%s:%d) \n",
-	       reg, __FILE__, __LINE__);
-	}
-      EPPREGISTERWRITE (0x13, 0x81);
-      usleep (10000);
-      EPPREGISTERWRITE (0x13, 0x80);
+    EPPREGISTERWRITE (0x0A, 0x1C);
+    EPPREGISTERWRITE (0x0E, 0x10);
+    EPPREGISTERWRITE (0x0F, 0x1C);
+    reg = EPPRegisterRead (0x13);
+    if (reg != 0x00)
+      {
+	DBG (0, "Warning! expected reg13=0x00, found 0x%02X! (%s:%d) \n",
+	     reg, __FILE__, __LINE__);
+      }
+    EPPREGISTERWRITE (0x13, 0x81);
+    usleep (10000);
+    EPPREGISTERWRITE (0x13, 0x80);
 
-      EPPREGISTERWRITE (0x0E, 0x04);
-      EPPREGISTERWRITE (0x0F, 0xFF);
-      EPPREGISTERWRITE (0x0E, 0x05);
-      EPPREGISTERWRITE (0x0F, 0x03);
-      EPPREGISTERWRITE (0x10, 0x66);
-      usleep (10000);
+    EPPREGISTERWRITE (0x0E, 0x04);
+    EPPREGISTERWRITE (0x0F, 0xFF);
+    EPPREGISTERWRITE (0x0E, 0x05);
+    EPPREGISTERWRITE (0x0F, 0x03);
+    EPPREGISTERWRITE (0x10, 0x66);
+    usleep (10000);
 
-      EPPREGISTERWRITE (0x0E, 0x04);
-      EPPREGISTERWRITE (0x0F, 0xFF);
-      EPPREGISTERWRITE (0x0E, 0x05);
-      EPPREGISTERWRITE (0x0F, 0x01);
-      EPPREGISTERWRITE (0x10, 0x55);
-      usleep (10000);
+    EPPREGISTERWRITE (0x0E, 0x04);
+    EPPREGISTERWRITE (0x0F, 0xFF);
+    EPPREGISTERWRITE (0x0E, 0x05);
+    EPPREGISTERWRITE (0x0F, 0x01);
+    EPPREGISTERWRITE (0x10, 0x55);
+    usleep (10000);
 
-      EPPREGISTERWRITE (0x0E, 0x04);
-      EPPREGISTERWRITE (0x0F, 0xFF);
-      EPPREGISTERWRITE (0x0E, 0x05);
-      EPPREGISTERWRITE (0x0F, 0x00);
-      EPPREGISTERWRITE (0x10, 0x44);
-      usleep (10000);
+    EPPREGISTERWRITE (0x0E, 0x04);
+    EPPREGISTERWRITE (0x0F, 0xFF);
+    EPPREGISTERWRITE (0x0E, 0x05);
+    EPPREGISTERWRITE (0x0F, 0x00);
+    EPPREGISTERWRITE (0x10, 0x44);
+    usleep (10000);
 
-      EPPREGISTERWRITE (0x0E, 0x04);
-      EPPREGISTERWRITE (0x0F, 0x7F);
-      EPPREGISTERWRITE (0x0E, 0x05);
-      EPPREGISTERWRITE (0x0F, 0x00);
-      EPPREGISTERWRITE (0x10, 0x33);
-      usleep (10000);
+    EPPREGISTERWRITE (0x0E, 0x04);
+    EPPREGISTERWRITE (0x0F, 0x7F);
+    EPPREGISTERWRITE (0x0E, 0x05);
+    EPPREGISTERWRITE (0x0F, 0x00);
+    EPPREGISTERWRITE (0x10, 0x33);
+    usleep (10000);
 
-      EPPREGISTERWRITE (0x0E, 0x04);
-      EPPREGISTERWRITE (0x0F, 0x3F);
-      EPPREGISTERWRITE (0x0E, 0x05);
-      EPPREGISTERWRITE (0x0F, 0x00);
-      EPPREGISTERWRITE (0x10, 0x22);
-      usleep (10000);
+    EPPREGISTERWRITE (0x0E, 0x04);
+    EPPREGISTERWRITE (0x0F, 0x3F);
+    EPPREGISTERWRITE (0x0E, 0x05);
+    EPPREGISTERWRITE (0x0F, 0x00);
+    EPPREGISTERWRITE (0x10, 0x22);
+    usleep (10000);
 
-      EPPREGISTERWRITE (0x0E, 0x04);
-      EPPREGISTERWRITE (0x0F, 0x00);
-      EPPREGISTERWRITE (0x0E, 0x05);
-      EPPREGISTERWRITE (0x0F, 0x00);
-      EPPREGISTERWRITE (0x10, 0x11);
-      usleep (10000);
+    EPPREGISTERWRITE (0x0E, 0x04);
+    EPPREGISTERWRITE (0x0F, 0x00);
+    EPPREGISTERWRITE (0x0E, 0x05);
+    EPPREGISTERWRITE (0x0F, 0x00);
+    EPPREGISTERWRITE (0x10, 0x11);
+    usleep (10000);
 
-      EPPREGISTERWRITE (0x13, 0x81);
-      usleep (10000);
-      EPPREGISTERWRITE (0x13, 0x80);
+    EPPREGISTERWRITE (0x13, 0x81);
+    usleep (10000);
+    EPPREGISTERWRITE (0x13, 0x80);
 
-      EPPREGISTERWRITE (0x0E, 0x04);
-      EPPREGISTERWRITE (0x0F, 0x00);
-      EPPREGISTERWRITE (0x0E, 0x05);
-      EPPREGISTERWRITE (0x0F, 0x00);
-      usleep (10000);
+    EPPREGISTERWRITE (0x0E, 0x04);
+    EPPREGISTERWRITE (0x0F, 0x00);
+    EPPREGISTERWRITE (0x0E, 0x05);
+    EPPREGISTERWRITE (0x0F, 0x00);
+    usleep (10000);
 
-      reg = EPPRegisterRead (0x10);
-      DBG (1,"Count-down value is 0x%02X  (%s:%d)\n", reg,__FILE__, __LINE__);
-      /* 2 reports of CF, was FF first (typo ?) */
-      /* CF seems a valid value                 */
-      /* in case of CF, we may have timeout ... */
-      /*if (reg != 0x00)
-	{
-	  DBG (0, "Warning! expected reg10=0x00, found 0x%02X! (%s:%d) \n",
-	       reg, __FILE__, __LINE__);
-	}*/
-      EPPREGISTERWRITE (0x13, 0x00);
-    }
+    reg = EPPRegisterRead (0x10);
+    DBG (1, "Count-down value is 0x%02X  (%s:%d)\n", reg, __FILE__, __LINE__);
+    /* 2 reports of CF, was FF first (typo ?) */
+    /* CF seems a valid value                 */
+    /* in case of CF, we may have timeout ... */
+    /*if (reg != 0x00)
+       {
+       DBG (0, "Warning! expected reg10=0x00, found 0x%02X! (%s:%d) \n",
+       reg, __FILE__, __LINE__);
+       } */
+    EPPREGISTERWRITE (0x13, 0x00);
+  }
 
   EPPREGISTERWRITE (0x0A, 0x00);
   reg = EPPRegisterRead (0x0D);
@@ -4516,117 +4348,112 @@ sanei_umax_pp_ProbeScanner (int recover)
   reg = EPPRegisterRead (0x19) & 0xC8;
   /* if reg=E8 or D8 , we have a 'messed' scanner */
 
-  for(k=0;k<1;k++)
-  {
-  /* is SendLength 34 bytes */
-  SendWord(cmd1);
-
-  DBG (16, "SendWord(cmd1) passed (%s:%d) \n", __FILE__,
-       __LINE__);
-  /* SendData */
-  SendData (commande2,0x22);
-  DBG (16, "SendData(commande2) passed (%s:%d) \n", __FILE__,
-       __LINE__);
-
-  /* is SendLength 2048 bytes */
-  SendWord (cmd3);
-  DBG (16, "SendWord(cmd3) passed (%s:%d) \n", __FILE__,
-       __LINE__);
-
-  /* fill buffer ? */
-  memset (donnees, 0x00, 2048 * sizeof (int));
-  donnees[512] = 0xFF;
-  donnees[513] = 0xAA;
-  donnees[514] = 0x55;
-  if (SendData (donnees, 2048) == 0)
+  for (k = 0; k < 1; k++)
     {
-      DBG (0, "SendData(donnees,%d) failed (%s:%d)\n", 2048, __FILE__,
-	   __LINE__);
-      return (0);
-    }
-  TRACE (16, "SendData(donnees,2048) passed ...");
+      /* is SendLength 34 bytes */
+      SendWord (cmd1);
+
+      DBG (16, "SendWord(cmd1) passed (%s:%d) \n", __FILE__, __LINE__);
+      /* SendData */
+      SendData (cmd2, 0x22);
+      DBG (16, "SendData(cmd2) passed (%s:%d) \n", __FILE__, __LINE__);
+
+      /* is SendLength 2048 bytes */
+      SendWord (cmd3);
+      DBG (16, "SendWord(cmd3) passed (%s:%d) \n", __FILE__, __LINE__);
+
+      /* fill buffer ? */
+      memset (donnees, 0x00, 2048 * sizeof (int));
+      donnees[512] = 0xFF;
+      donnees[513] = 0xAA;
+      donnees[514] = 0x55;
+      if (SendData (donnees, 2048) == 0)
+	{
+	  DBG (0, "SendData(donnees,%d) failed (%s:%d)\n", 2048, __FILE__,
+	       __LINE__);
+	  return (0);
+	}
+      TRACE (16, "SendData(donnees,2048) passed ...");
 
 
-  SendWord(cmd4);
-  DBG (16, "SendWord(cmd4) passed (%s:%d) \n", __FILE__,
-       __LINE__);
-  EPPREGISTERWRITE (0x0E, 0x0D);
-  EPPREGISTERWRITE (0x0F, 0x00);
+      SendWord (cmd4);
+      DBG (16, "SendWord(cmd4) passed (%s:%d) \n", __FILE__, __LINE__);
+      EPPREGISTERWRITE (0x0E, 0x0D);
+      EPPREGISTERWRITE (0x0F, 0x00);
 
 
-  reg = EPPRegisterRead (0x19) & 0xF8;
-  if ((reg != 0xD0) && (reg != 0xC0))
-    {
-      DBG (0, "Expected reg19=0xD0 or 0xC0, got 0x%02X! (%s:%d)\n", reg,
+      reg = EPPRegisterRead (0x19) & 0xF8;
+      if ((reg != 0xD0) && (reg != 0xC0))
+	{
+	  DBG (0, "Expected reg19=0xD0 or 0xC0, got 0x%02X! (%s:%d)\n", reg,
+	       __FILE__, __LINE__);
+	  DBG (0, "Going on .....\n");
+	}
+      EPPREGISTERREAD (0x0C, 0x04);
+      EPPREGISTERWRITE (0x0C, 0x44);
+      EPPRead32Buffer (0x0, dest);
+      read = PausedReadBuffer (2048, dest);
+      DBG (16, "PausedReadBuffer(2048,dest)=%d passed (%s:%d)\n", read,
 	   __FILE__, __LINE__);
-      DBG (0, "Going on .....\n");
-    }
-  EPPREGISTERREAD (0x0C, 0x04);
-  EPPREGISTERWRITE (0x0C, 0x44);
-  EPPRead32Buffer (0x0, dest);
-  read = PausedReadBuffer (2048, dest);
-  DBG (16, "PausedReadBuffer(2048,dest)=%d passed (%s:%d)\n", read, __FILE__,
-       __LINE__);
-  EPPREGISTERWRITE (0x0E, 0x0D);
-  EPPREGISTERWRITE (0x0F, 0x00);
+      EPPREGISTERWRITE (0x0E, 0x0D);
+      EPPREGISTERWRITE (0x0F, 0x00);
 
 
-  /* dest should hold the same datas than donnees */
-  for (i = 0; i < 2047; i++)
-    {
-      if (donnees[i] != (int) (dest[i]))
+      /* dest should hold the same datas than donnees */
+      for (i = 0; i < 2047; i++)
 	{
-	  DBG
-	    (0,
-	     "Warning data read back differs: expected %02X found dest[%d]=%02X ! (%s:%d)\n",
-	     donnees[i], i, dest[i], __FILE__, __LINE__);
+	  if (donnees[i] != (int) (dest[i]))
+	    {
+	      DBG
+		(0,
+		 "Warning data read back differs: expected %02X found dest[%d]=%02X ! (%s:%d)\n",
+		 donnees[i], i, dest[i], __FILE__, __LINE__);
+	    }
 	}
-    }
 
 
 
-  if (SendWord (cmd1) == 0)
-    {
-      DBG (0, "SendWord(cmd1) failed (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
-    }
-  DBG (16, "SendWord(cmd1) passed (%s:%d)\n", __FILE__, __LINE__);
-
-  SendData (commande2,0x22);
-  DBG (16, "SendData(commande2) passed (%s:%d) \n", __FILE__,
-       __LINE__);
-
-
-  if (SendWord (cmd3) == 0)
-    {
-      DBG (0, "SendWord(cmd3) failed (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
-    }
-  DBG (16, "SendWord(cmd3) passed (%s:%d)\n", __FILE__, __LINE__);
-
-
-
-  /* send buffer 2048 bytes wide */
-  for (j = 0; j < 4; j++)
-    {
-      for (i = 0; i < 256; i++)
+      if (SendWord (cmd1) == 0)
 	{
-	  donnees[512 * j + 2 * i] = i;
-	  donnees[512 * j + 2 * i] = 0xFF - i;
+	  DBG (0, "SendWord(cmd1) failed (%s:%d)\n", __FILE__, __LINE__);
+	  return (0);
 	}
-    }
+      DBG (16, "SendWord(cmd1) passed (%s:%d)\n", __FILE__, __LINE__);
 
-  if (SendData (donnees, 2048) == 0)
-    {
-      DBG (0, "SendData(donnees,%d) failed (%s:%d)\n", 2048, __FILE__,
-	   __LINE__);
-      return (0);
-    }
-  TRACE (16, "SendData(donnees,2048) passed ...");
-  SendWord (cmd4);
-  DBG (16, "SendWord(cmd4) passed (%s:%d) \n", __FILE__, __LINE__);
-  EPPREGISTERWRITE (0x0E, 0x0D);
-  EPPREGISTERWRITE (0x0F, 0x00);
+      SendData (cmd2, 0x22);
+      DBG (16, "SendData(cmd2) passed (%s:%d) \n", __FILE__, __LINE__);
+
+
+      if (SendWord (cmd3) == 0)
+	{
+	  DBG (0, "SendWord(cmd3) failed (%s:%d)\n", __FILE__, __LINE__);
+	  return (0);
+	}
+      DBG (16, "SendWord(cmd3) passed (%s:%d)\n", __FILE__, __LINE__);
+
+
+
+      /* send buffer 2048 bytes wide */
+      for (j = 0; j < 4; j++)
+	{
+	  for (i = 0; i < 256; i++)
+	    {
+	      donnees[512 * j + 2 * i] = i;
+	      donnees[512 * j + 2 * i] = 0xFF - i;
+	    }
+	}
+
+      if (SendData (donnees, 2048) == 0)
+	{
+	  DBG (0, "SendData(donnees,%d) failed (%s:%d)\n", 2048, __FILE__,
+	       __LINE__);
+	  return (0);
+	}
+      TRACE (16, "SendData(donnees,2048) passed ...");
+      SendWord (cmd4);
+      DBG (16, "SendWord(cmd4) passed (%s:%d) \n", __FILE__, __LINE__);
+      EPPREGISTERWRITE (0x0E, 0x0D);
+      EPPREGISTERWRITE (0x0F, 0x00);
 
 
 
@@ -4638,9 +4465,9 @@ sanei_umax_pp_ProbeScanner (int recover)
 	}
       DBG (16, "PausedReadData(2048,dest) passed (%s:%d)\n", __FILE__,
 	   __LINE__);
-  }
+    }
 
-	  
+
 
   if (SendWord (cmd1) == 0)
     {
@@ -4649,9 +4476,8 @@ sanei_umax_pp_ProbeScanner (int recover)
     }
   DBG (16, "SendWord(cmd1) passed (%s:%d)\n", __FILE__, __LINE__);
 
-  SendData (commande2,0x22);
-  DBG (16, "SendData(commande2) passed (%s:%d) \n", __FILE__,
-       __LINE__);
+  SendData (cmd2, 0x22);
+  DBG (16, "SendData(cmd2) passed (%s:%d) \n", __FILE__, __LINE__);
 
   if (SendWord (cmd3) == 0)
     {
@@ -4699,34 +4525,295 @@ sanei_umax_pp_ProbeScanner (int recover)
   TRACE (16, "SendData(donnees,2048) passed ...");
 
 
-      if (InitBuffer001 () != 1)
-	{
-	  DBG (0, "InitBuffer001 failed! (%s:%d) \n", __FILE__, __LINE__);
-	  return (0);
-	}
-      DBG (16, "InitBuffer001 passed ... (%s:%d) \n", __FILE__, __LINE__);
-      DBG (16, "InitBuffer002+InitBuffer001 loop %d passed ... (%s:%d) \n", j,
-	   __FILE__, __LINE__);
+  SendWord (cmd4);
+  EPPREGISTERWRITE (0x0E, 0x0D);
+  EPPREGISTERWRITE (0x0F, 0x00);
+  DBG (16, "SendWord(cmd4) passed (%s:%d) \n", __FILE__, __LINE__);
 
-  /* we are still connected to EPAT */
+
+
+  if (PausedReadData (2048, dest) == 0)
+    {
+      DBG (16, "PausedReadData(2048,dest) failed (%s:%d)\n", __FILE__,
+	   __LINE__);
+      return (0);
+    }
+  DBG (16, "PausedReadData(2048,dest) passed (%s:%d)\n", __FILE__, __LINE__);
+
+  if (SendWord (cmd1) == 0)
+    {
+      DBG (0, "SendWord(cmd1) failed (%s:%d)\n", __FILE__, __LINE__);
+      return (0);
+    }
+  DBG (16, "SendWord(cmd1) passed (%s:%d)\n", __FILE__, __LINE__);
+
+
+  SendData (cmd2, 0x22);
+  DBG (16, "SendData(cmd2,0x22) passed (%s:%d) \n", __FILE__, __LINE__);
+  if (SendWord (cmd3) == 0)	/* write 2048 to channel 4 */
+    {
+      DBG (0, "SendWord(cmd3) failed (%s:%d)\n", __FILE__, __LINE__);
+      return (0);
+    }
+  DBG (16, "SendWord(cmd3) passed (%s:%d)\n", __FILE__, __LINE__);
+  /* write 2048 bytes: 4 * 512 bytes */
+  for (j = 0; j < 4; j++)
+    {
+      for (i = 0; i < 256; i++)
+	{
+	  donnees[j * 512 + 2 * i] = i;
+	  donnees[j * 512 + 2 * i + 1] = 0xFF - i;
+	}
+    }
+  if (SendData (donnees, 2048) == 0)
+    {
+      DBG (0, "SendData(donnees,%d) failed (%s:%d)\n", 2048, __FILE__,
+	   __LINE__);
+      return (0);
+    }
+  TRACE (16, "SendData(donnees,2048) passed ...");
+
+  return (1);			/* OK */
+
+  SendWord (cmd4);
+  DBG (16, "SendWord(cmd4) passed (%s:%d) \n", __FILE__, __LINE__);
+  EPPREGISTERWRITE (0x0E, 0x0D);
+  EPPREGISTERWRITE (0x0F, 0x00);
+
+
+
+  if (PausedReadData (2048, dest) == 0)
+    {
+      DBG (16, "PausedReadData(2048,dest) failed (%s:%d)\n", __FILE__,
+	   __LINE__);
+      return (0);
+    }
+  DBG (16, "PausedReadData(2048,dest) passed (%s:%d)\n", __FILE__, __LINE__);
+
+  if (SendWord (cmd1) == 0)
+    {
+      DBG (0, "SendWord(cmd1) failed (%s:%d)\n", __FILE__, __LINE__);
+      return (0);
+    }
+  DBG (16, "SendWord(cmd1) passed (%s:%d)\n", __FILE__, __LINE__);
+
+  SendData (cmd2, 0x22);
+  DBG (16, "SendData(cmd2) passed (%s:%d) \n", __FILE__, __LINE__);
+
+  if (SendWord (cmd3) == 0)
+    {
+      DBG (0, "SendWord(cmd3) failed (%s:%d)\n", __FILE__, __LINE__);
+      return (0);
+    }
+  DBG (16, "SendWord(cmd3) passed (%s:%d)\n", __FILE__, __LINE__);
+
+
+  i = 0;
+  while (i < 512)
+    {
+      donnees[i] = 0x00;
+      i++;
+    }
+  donnees[i] = 0xFF;
+  i++;
+  donnees[i] = 0xAA;
+  i++;
+  donnees[i] = 0x55;
+  i++;
+  donnees[i] = 0xFE;
+  i++;
+
+  for (i = 2; i < 256; i++)
+    {
+      donnees[512 + 2 * i] = i;
+      donnees[512 + 2 * i + 1] = 0xFF - i;
+    }
   for (j = 0; j < 2; j++)
     {
-      if (InitBuffer002 () != 1)
+      for (i = 0; i < 256; i++)
 	{
-	  DBG (0, "InitBuffer002 failed! (%s:%d) \n", __FILE__, __LINE__);
-	  return (0);
+	  donnees[1024 + 512 * j + 2 * i] = i;
+	  donnees[1024 + 512 * j + 2 * i + 1] = 0xFF - i;
 	}
-      DBG (16, "InitBuffer002 passed ... (%s:%d) \n", __FILE__, __LINE__);
-
-      if (InitBuffer001 () != 1)
-	{
-	  DBG (0, "InitBuffer001 failed! (%s:%d) \n", __FILE__, __LINE__);
-	  return (0);
-	}
-      DBG (16, "InitBuffer001 passed ... (%s:%d) \n", __FILE__, __LINE__);
-      DBG (16, "InitBuffer002+InitBuffer001 loop %d passed ... (%s:%d) \n", j,
-	   __FILE__, __LINE__);
     }
+
+  if (SendData (donnees, 2048) == 0)
+    {
+      DBG (0, "SendData(donnees,%d) failed (%s:%d)\n", 2048, __FILE__,
+	   __LINE__);
+      return (0);
+    }
+  TRACE (16, "SendData(donnees,2048) passed ...");
+
+  SendWord (cmd4);
+  EPPREGISTERWRITE (0x0E, 0x0D);
+  EPPREGISTERWRITE (0x0F, 0x00);
+  DBG (16, "SendWord(cmd4) passed (%s:%d) \n", __FILE__, __LINE__);
+
+
+
+  if (PausedReadData (2048, dest) == 0)
+    {
+      DBG (16, "PausedReadData(2048,dest) failed (%s:%d)\n", __FILE__,
+	   __LINE__);
+      return (0);
+    }
+  DBG (16, "PausedReadData(2048,dest) passed (%s:%d)\n", __FILE__, __LINE__);
+
+  if (SendWord (cmd1) == 0)
+    {
+      DBG (0, "SendWord(cmd1) failed (%s:%d)\n", __FILE__, __LINE__);
+      return (0);
+    }
+  DBG (16, "SendWord(cmd1) passed (%s:%d)\n", __FILE__, __LINE__);
+
+
+  SendData (cmd2, 0x22);
+  DBG (16, "SendData(cmd2,0x22) passed (%s:%d) \n", __FILE__, __LINE__);
+  if (SendWord (cmd3) == 0)	/* write 2048 to channel 4 */
+    {
+      DBG (0, "SendWord(cmd3) failed (%s:%d)\n", __FILE__, __LINE__);
+      return (0);
+    }
+  DBG (16, "SendWord(cmd3) passed (%s:%d)\n", __FILE__, __LINE__);
+  /* write 2048 bytes: 4 * 512 bytes */
+  for (j = 0; j < 4; j++)
+    {
+      for (i = 0; i < 256; i++)
+	{
+	  donnees[j * 512 + 2 * i] = i;
+	  donnees[j * 512 + 2 * i + 1] = 0xFF - i;
+	}
+    }
+  if (SendData (donnees, 2048) == 0)
+    {
+      DBG (0, "SendData(donnees,%d) failed (%s:%d)\n", 2048, __FILE__,
+	   __LINE__);
+      return (0);
+    }
+  TRACE (16, "SendData(donnees,2048) passed ...");
+
+  return (1);			/* OK */
+
+  SendWord (cmd4);
+  DBG (16, "SendWord(cmd4) passed (%s:%d) \n", __FILE__, __LINE__);
+  EPPREGISTERWRITE (0x0E, 0x0D);
+  EPPREGISTERWRITE (0x0F, 0x00);
+
+
+
+  if (PausedReadData (2048, dest) == 0)
+    {
+      DBG (16, "PausedReadData(2048,dest) failed (%s:%d)\n", __FILE__,
+	   __LINE__);
+      return (0);
+    }
+  DBG (16, "PausedReadData(2048,dest) passed (%s:%d)\n", __FILE__, __LINE__);
+
+  if (SendWord (cmd1) == 0)
+    {
+      DBG (0, "SendWord(cmd1) failed (%s:%d)\n", __FILE__, __LINE__);
+      return (0);
+    }
+  DBG (16, "SendWord(cmd1) passed (%s:%d)\n", __FILE__, __LINE__);
+
+  SendData (cmd2, 0x22);
+  DBG (16, "SendData(cmd2) passed (%s:%d) \n", __FILE__, __LINE__);
+
+  if (SendWord (cmd3) == 0)
+    {
+      DBG (0, "SendWord(cmd3) failed (%s:%d)\n", __FILE__, __LINE__);
+      return (0);
+    }
+  DBG (16, "SendWord(cmd3) passed (%s:%d)\n", __FILE__, __LINE__);
+
+
+  i = 0;
+  while (i < 512)
+    {
+      donnees[i] = 0x00;
+      i++;
+    }
+  donnees[i] = 0xFF;
+  i++;
+  donnees[i] = 0xAA;
+  i++;
+  donnees[i] = 0x55;
+  i++;
+  donnees[i] = 0xFE;
+  i++;
+
+  for (i = 2; i < 256; i++)
+    {
+      donnees[512 + 2 * i] = i;
+      donnees[512 + 2 * i + 1] = 0xFF - i;
+    }
+  for (j = 0; j < 2; j++)
+    {
+      for (i = 0; i < 256; i++)
+	{
+	  donnees[1024 + 512 * j + 2 * i] = i;
+	  donnees[1024 + 512 * j + 2 * i + 1] = 0xFF - i;
+	}
+    }
+
+  if (SendData (donnees, 2048) == 0)
+    {
+      DBG (0, "SendData(donnees,%d) failed (%s:%d)\n", 2048, __FILE__,
+	   __LINE__);
+      return (0);
+    }
+  TRACE (16, "SendData(donnees,2048) passed ...");
+
+  SendWord (cmd4);
+  EPPREGISTERWRITE (0x0E, 0x0D);
+  EPPREGISTERWRITE (0x0F, 0x00);
+  DBG (16, "SendWord(cmd4) passed (%s:%d) \n", __FILE__, __LINE__);
+
+
+
+  if (PausedReadData (2048, dest) == 0)
+    {
+      DBG (16, "PausedReadData(2048,dest) failed (%s:%d)\n", __FILE__,
+	   __LINE__);
+      return (0);
+    }
+  DBG (16, "PausedReadData(2048,dest) passed (%s:%d)\n", __FILE__, __LINE__);
+
+  if (SendWord (cmd1) == 0)
+    {
+      DBG (0, "SendWord(cmd1) failed (%s:%d)\n", __FILE__, __LINE__);
+      return (0);
+    }
+  DBG (16, "SendWord(cmd1) passed (%s:%d)\n", __FILE__, __LINE__);
+
+
+  SendData (cmd2, 0x22);
+  DBG (16, "SendData(cmd2,0x22) passed (%s:%d) \n", __FILE__, __LINE__);
+  if (SendWord (cmd3) == 0)	/* write 2048 to channel 4 */
+    {
+      DBG (0, "SendWord(cmd3) failed (%s:%d)\n", __FILE__, __LINE__);
+      return (0);
+    }
+  DBG (16, "SendWord(cmd3) passed (%s:%d)\n", __FILE__, __LINE__);
+  /* write 2048 bytes: 4 * 512 bytes */
+  for (j = 0; j < 4; j++)
+    {
+      for (i = 0; i < 256; i++)
+	{
+	  donnees[j * 512 + 2 * i] = i;
+	  donnees[j * 512 + 2 * i + 1] = 0xFF - i;
+	}
+    }
+  if (SendData (donnees, 2048) == 0)
+    {
+      DBG (0, "SendData(donnees,%d) failed (%s:%d)\n", 2048, __FILE__,
+	   __LINE__);
+      return (0);
+    }
+  TRACE (16, "SendData(donnees,2048) passed ...");
+
+  return (1);			/* OK */
 
 
 
@@ -4743,14 +4830,13 @@ sanei_umax_pp_ProbeScanner (int recover)
   EPPREGISTERWRITE (0x0F, 0x00);
 
 
-      if (PausedReadData (2048, dest) == 0)
-	{
-	  DBG (16, "PausedReadData(2048,dest) failed (%s:%d)\n", __FILE__,
-	       __LINE__);
-	  return (0);
-	}
-      DBG (16, "PausedReadData(2048,dest) passed (%s:%d)\n", __FILE__,
+  if (PausedReadData (2048, dest) == 0)
+    {
+      DBG (16, "PausedReadData(2048,dest) failed (%s:%d)\n", __FILE__,
 	   __LINE__);
+      return (0);
+    }
+  DBG (16, "PausedReadData(2048,dest) passed (%s:%d)\n", __FILE__, __LINE__);
 
 
 

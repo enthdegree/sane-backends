@@ -79,7 +79,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.02-2"
+#define BACKEND_VERSION "0.02-3"
 #define BACKEND_NAME    u12
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
@@ -1662,9 +1662,10 @@ SANE_Status sane_start( SANE_Handle handle )
 	}
 #endif
 
+#if 0
 	if( s->val[OPT_PREVIEW].w )
 		image.dwFlag |= _SCANDEF_PREVIEW;
-
+#endif
     /* set adjustments for brightness and contrast */
 	dev->DataInf.siBrightness = s->val[OPT_BRIGHTNESS].w;
 	dev->DataInf.siContrast   = s->val[OPT_CONTRAST].w;

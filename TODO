@@ -1,4 +1,4 @@
-TODO (2002-11-21)
+TODO (2002-12-01)
 
 ******** todo ********
 
@@ -36,7 +36,6 @@ backends
   * net: add IPv6 support.
 
   * suspicious warnings or type mismatchs:
-    - avision.c: avision.c:3163: warning: too many arguments for format
     - bh: backend/bh.c", line 1923: warning: end-of-loop code not reached
       see sane-devel.
     - coolscan: Lots of compilation warnings (e.g.
@@ -45,16 +44,13 @@ backends
     - microtek2.c (scsi_read_control_bits): Make sure to pass a size_t*
       to sanei_scsi_cmd().
 
-  * hpsj5s seems to freeze in DetectScanner() if a printer is connected to
-    the system. Is the access to the parport device save at all? Should
-    hpsj5s be commented out in dll.conf?
-    See "[sane-devel] My Umax works well, now it hangs up?" for details.
-
   * Make sure that USB backends don't depend on the kernel USB scanner
     driver but also work with libusb. The linux kernel scanner driver may be
     gone in Linux 2.6.0.
     - plustek: will need some work to autodetect all supported scanners
-    - hp: currently no support for sanei_usb at all
+
+  * Check if sp15c backend (Fujitsu ScanPartner 15C) can be included in
+    fujitsu or avision backends.
 
 doc
 ---
@@ -77,12 +73,6 @@ doc
       <viceo@stevencherie.net>)
 
     - Add keywords "vendor-id" and "product-id" for SCSI and USB ids.
-
-  * manpages:
-    - Make sure that .SH NAME uses \- to distinguish between the backend 
-      name and the description
-    - Check .IX for correctness (e.g. umax-1220u). Is it needed at all?
-    - Maybe add sane-backends-version to .TH?
 
 frontends
 ---------
@@ -123,6 +113,9 @@ sanei
     checking for scanners. Ideas: Open/close all the /dev/sg* files in
     sanei_scsi.c, dll.c or in a new backend.
 
+  * sanei_usb, sanei_scsi: Print all data send to and received from devices.
+    Use high debug level.
+
 platform-specific
 -----------------
   * SCSI access doesn't seem to work on Linux/Sparc. See emails from
@@ -141,10 +134,11 @@ platform-specific
 
   * Fix MacOS X issues: 
     - Add support in sanei_scsi.c.
-    - Find out why libusb doesn't work propperly.
-    - Check if dll.c needs to use the .dylib postfix for libraries. The usage
-      of .so or .dylib seems to depend on a compat package and the availability
-      of the dl.h header file (?).
+    - Find out why libusb doesn't work propperly. Seems to work with some scanners,
+      however.
+    - More docu in README.darwin.
+    - Check libtool glitches. Does an update make sense?
+    - Check that LDFLAGS approach in configure works for dynamic loading.
     - sm3600 is reported to crash with MacOS X.
 
 misc
@@ -165,6 +159,14 @@ misc
     a segfault in Sane.c.
 
 ******** done ********
+* manpages:
+  - Make sure that .SH NAME uses \- to distinguish between the backend 
+    name and the description
+  - Check .IX for correctness (e.g. umax-1220u). Is it needed at all?
+  - Maybe add sane-backends-version to .TH?
+* avision.c: avision.c:3163: warning: too many arguments for format
+* hpsj5s seems to freeze in DetectScanner() if a printer is connected to
+  the system.
 * Fix warnings about DBG calls (try gcc 3.x to get these warnings):
 * add backend: tevion9693usb backend
 * canon.c: Fix model extraction code.

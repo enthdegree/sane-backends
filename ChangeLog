@@ -2,6 +2,9 @@
 
 	* configure configure.in backend/dll.c: Add dynamic loading support
 	  for MacOS X/Darwin (from Peter O'Gorman <peter@pogma.com>).
+	* TODO: Added sp15c inclusion and low-level buffer prints. Removed
+	  avision warning, hpsj5s freeze, hp/libusb, and manpages issues.
+	  Updated MacOS X list.
 
 2002-11-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

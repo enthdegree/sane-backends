@@ -7,8 +7,9 @@
 	* sanei/Makefile.in, backend/cderror.h, backend/jinclude.h,
 	  backend/dc210.c, backend/dc240.c, backend/ gphoto2.c, 
 	  backend/djpeg.c, backend/cdjpeg.h, backend/Makefile.in, configure
-	  configure.in:  Move jpeg support file to sanei directory, header
-	  files to include/sane, and associated configure changes
+	  configure.in, frontend/Makefile.in:  Move jpeg support file 
+	  to sanei directofiles to include/sane, and associated 
+	  configure changes
 
 2003-07-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -2,6 +2,8 @@
 
 	* doc/descriptions/fujitsu.desc: Changed status to beta and added
 	  URLs.
+	* doc/descriptions-external/gt68xx.desc: Added some untested scanners.
+	  Updated Mustek entries.
 
 2002-09-22  Peter Fales <peter@fales-lorenz.net>
 

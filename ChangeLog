@@ -1,8 +1,15 @@
+*************************  snapshot-2000-11-28  *******************************
+
+2000-11-28  Oliver Rauch <Oliver.Rauch@Wolfsburg.DE>
+
+	* added SANE_CHECK_JPEG to aclocal.m4 and configure.in
+	  (test routine by henning Meier Geinitz)
+
+*************************  Feature freeze for SANE 1.0.4  *********************
+
 2000-11-27  Peter Kirchgessner <peter@kirchgessner.net>
 
         * NEWS: hp-backend version is 0.92
-
-*************************  Feature freeze for SANE 1.0.4  *********************
 
 2000-11-27  Oliver Rauch <Oliver.Rauch@Wolfsburg.DE>
 

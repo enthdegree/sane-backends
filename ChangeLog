@@ -1,3 +1,9 @@
+2001-10-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* TODO: Removed some entries about net/saned.
+	* doc/saned.man: Clear up that a FQDN must be used in 
+	  saned.conf and that localhost is allways granted acces.
+
 2001-10-14 Jochen Eisinger <jochen.eisinger@gmx.de>
 
 	* backend/mustek_pp.conf: added comment about changes in

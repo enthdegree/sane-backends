@@ -10,6 +10,7 @@
 	  detection for the Plustek OpticPro U16B.
 	* doc/descriptions/unsupported.desc: Added more information for
 	  the HP Scanjet 2300c.
+	* lib/getopt.c: Add missing includes.
 
 2003-04-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

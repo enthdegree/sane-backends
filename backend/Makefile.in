@@ -242,6 +242,7 @@ libsane-net.la: ../sanei/sanei_wire.lo
 libsane-pint.la: ../sanei/sanei_constrain_value.lo
 libsane-plustek.la: ../sanei/sanei_config2.lo
 libsane-plustek.la: ../sanei/sanei_constrain_value.lo
+libsane-plustek.la: ../sanei/sanei_usb.lo
 libsane-pnm.la: ../sanei/sanei_constrain_value.lo
 libsane-qcam.la: ../sanei/sanei_constrain_value.lo
 libsane-ricoh.la: ../sanei/sanei_config2.lo

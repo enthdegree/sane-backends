@@ -17,6 +17,8 @@
  *        fixed model list
  *		  removed gray-scale capabilities for TPA scans
  * 0.39 - added user-space stuff
+ *        added Genius Colorpage Vivid III V2 stuff
+ * 0.40 - added stuff to share with USB and Parport
  *
  *.............................................................................
  *
@@ -145,7 +147,7 @@ typedef struct {
     unsigned long	dwLinesPerArea;
     unsigned long	dwOffsetX;
     unsigned long	dwOffsetY;
-    ImgDef 	ImgDef;
+    ImgDef 	        ImgDef;
 } CropInfo, *pCropInfo;
 
 typedef struct {
@@ -187,6 +189,7 @@ typedef struct {
     unsigned short	wBeginY;		/* offset from top	*/
 } LensInfo, *pLensInfo;
 
+/* TODO: move it out the way...*/
 typedef struct {
     union {
 		unsigned short	wShadingBufSize;	/* output			*/
@@ -201,27 +204,39 @@ typedef struct {
     } ucmd;
 } CmdBlk, *pCmdBlk;
 
+/*
+ * useful for description tables
+ */
+typedef struct {
+	int	  id;
+	char *desc;	
+} TabDef, *pTabDef;
+
+
+
 /* NOTE: needs to be kept in sync with table below */
 #define MODELSTR static char *ModelStr[] = { \
-    "unknown",					\
-    "Primax 4800",  			\
-    "Primax 4800 Direct",  		\
-    "Primax 4800 Direct 30Bit", \
-    "Primax 9600 Direct 30Bit", \
-    "4800P",  					\
-    "4830P",  					\
-    "600P/6000P",				\
-    "4831P",  					\
-    "9630P",  					\
-    "9630PL",  					\
-    "9636P",  					\
-    "A3I",    					\
-    "12000P/96000P",			\
-    "9636P+/Turbo",				\
-    "9636T/12000T",				\
-	"P8",						\
-	"P12",						\
-	"PT12"						\
+    "unknown",						 \
+    "Primax 4800",  				 \
+    "Primax 4800 Direct",  			 \
+    "Primax 4800 Direct 30Bit", 	 \
+    "Primax 9600 Direct 30Bit", 	 \
+    "4800P",  						 \
+    "4830P",  						 \
+    "600P/6000P",					 \
+    "4831P",  						 \
+    "9630P",  						 \
+    "9630PL",  						 \
+    "9636P",  						 \
+    "A3I",    						 \
+    "12000P/96000P",				 \
+    "9636P+/Turbo",					 \
+    "9636T/12000T",					 \
+	"P8",							 \
+	"P12",							 \
+	"PT12",							 \
+    "Genius Colorpage Vivid III V2", \
+	"USB-Device"					 \
 }
 
 /* the models */
@@ -244,6 +259,8 @@ typedef struct {
 #define MODEL_OP_P8      16 /* 512k, 98003 ASIC, 36 bit,  300x600, 8.5x11.69 */
 #define MODEL_OP_P12     17 /* 512k, 98003 ASIC, 36 bit, 600x1200, 8.5x11.69 */
 #define MODEL_OP_PT12    18 /* like OP_P12 + transparency 					 */
+#define MODEL_GEN_CPV2   19 /* Genius Colorpage Vivid III V2, ASIC 98003     */
+#define MODEL_OP_USB	 20 /* some USB scanner device                       */
 
 /******************************************************************************
  * Section 1
@@ -300,10 +317,16 @@ typedef struct {
 #define SCANDEF_Negative	    	0x00000200	/* Scanning from negative    */
 #define SCANDEF_QualityScan	    	0x00000400	/* Scanning in quality mode  */
 #define SCANDEF_BuildBwMap	    	0x00000800	/* Set default map			 */
+#define SCANDEF_ContinuousScan      0x00001000
+#define SCANDEF_DontBackModule      0x00002000  /* module will not back to   */
+												/* home after image scanned  */
 #define SCANDEF_RightAlign	    	0x00008000	/* 12-bit					 */
 
 #define SCANDEF_WindowStyle	    	0x00000038
 #define SCANDEF_TPA                 (SCANDEF_Transparency | SCANDEF_Negative)
+
+#define SCANDEF_Adf                 0x00020000  /* Scan from ADF tray        */
+
 
 /* these values will be combined with ScannerInfo.dwFlag */
 #define _SCANNER_SCANNING	    	0x8000000
@@ -359,6 +382,7 @@ typedef struct {
 #define SOURCE_Reflection	0
 #define SOURCE_Transparency	1
 #define SOURCE_Negative 	2
+#define SOURCE_ADF          3
 
 /******************************************************************************
  * Section 5 - Scanmodes
@@ -380,11 +404,16 @@ typedef struct {
 #define COLOR_TRUE48		4  /* not sure if this should be the same as 32 */
 #define COLOR_TRUE36		5
 
+/* We don't support halftone mode now --> Plustek statement for USB */
+#define COLOR_GRAY16		COLOR_HALFTONE
+
+
 /* IDs the ASIC return */
 #define _ASIC_IS_96001		0x0f	/* value for 96001	*/
 #define _ASIC_IS_96003		0x10	/* value for 96003  */
 #define _ASIC_IS_98001		0x81	/* value for 98001	*/
 #define _ASIC_IS_98003		0x83	/* value for 98003	*/
+#define _ASIC_IS_USB        0x42    /* for the USB stuff*/
 
 /*
  * transparency/negative mode set ranges
@@ -406,6 +435,12 @@ typedef struct {
 #define _NegativePageHeight	    		350U	/* 29.6 mm */
 
 #define _DEF_DPI		 		 50
+
+/*
+ * additional shared stuff between user-world and kernel mode
+ */
+#define _VAR_NOT_USED(x)	((x)=(x))
+
 
 /*
  * stuff needed for user space stuff

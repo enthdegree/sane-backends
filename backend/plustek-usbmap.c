@@ -1,0 +1,271 @@
+/*.............................................................................
+ * Project : SANE library for Plustek USB flatbed scanners.
+ *.............................................................................
+ * File:	 plustek-usbmap.c - creating and manipulating lookup tables
+ *.............................................................................
+ *
+ * based on sources acquired from Plustek Inc.
+ * Copyright (C) 2001 Gerhard Jaeger <g.jaeger@earthling.net>
+ *.............................................................................
+ * History:
+ * 0.40 - starting version of the USB support
+ *
+ *.............................................................................
+ *
+ * This file is part of the SANE package.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston,
+ * MA 02111-1307, USA.
+ *
+ * As a special exception, the authors of SANE give permission for
+ * additional uses of the libraries contained in this release of SANE.
+ *
+ * The exception is that, if you link a SANE library with other files
+ * to produce an executable, this does not by itself cause the
+ * resulting executable to be covered by the GNU General Public
+ * License.  Your use of that executable is in no way restricted on
+ * account of linking the SANE library code into it.
+ *
+ * This exception does not, however, invalidate any other reasons why
+ * the executable file might be covered by the GNU General Public
+ * License.
+ *
+ * If you submit changes to SANE to the maintainers to be included in
+ * a subsequent release, you agree by submitting the changes that
+ * those changes may be distributed with this exception intact.
+ *
+ * If you write modifications of your own for SANE, it is your choice
+ * whether to permit this exception to apply to your modifications.
+ * If you do not wish that, delete this exception notice.
+ */
+
+#define _MAP_SIZE		4096U
+
+static SANE_Byte a_bMap[_MAP_SIZE * 3];
+
+#if 0
+/*.............................................................................
+ * HEINER
+ */
+static SANE_Bool usb_LinearMapDownload( pPlustek_Device dev )
+{
+	int       i, j;
+	SANE_Byte value;
+	
+	if( !usbio_WriteReg( dev->fd, 7, 0))
+		return SANE_FALSE;
+	
+	for( i = 0; i < 3; i++ )
+		for( j = 0; j < 4096; j++ )
+			a_bMap[i*4096 + j] = (j / 16);
+
+	for( i = 0; i < 3; i++ ) {
+	
+		/* select color */
+		value = (i << 2)+2;
+		
+		usbio_WriteReg( dev->fd, 0x03, value );
+		usbio_WriteReg( dev->fd, 0x04, 0 );
+		usbio_WriteReg( dev->fd, 0x05, 0 );
+		
+		/* write the gamma table entry to merlin */
+		sanei_lm9831_write( dev->fd,  0x06,
+							a_bMap+i*_MAP_SIZE, _MAP_SIZE, SANE_FALSE );
+	}
+	
+	return SANE_TRUE;
+}
+
+/*.............................................................................
+ * HEINER
+ */
+static void usb_SetMap( SANE_Word *pwMap, SANE_Word wChannel )
+{
+	u_long dw;
+	
+    if (wChannel == CHANNEL_Master) {
+
+		for( dw = 0; dw < _MAP_SIZE; dw++ )
+			a_bMap[dw] = (SANE_Byte)(pwMap[dw * 4UL] >> 6);
+			
+		memcpy( &a_bMap[kMapSize],     a_bMap, _MAP_SIZE );
+		memcpy( &a_bMap[kMapSize * 2], a_bMap, _MAP_SIZE );
+
+    } else {
+
+		for( dw = 0; dw < _MAP_SIZE * 3UL; dw++ )
+			a_bMap[dw] = (SANE_Byte)(pwMap[dw * 4UL] >> 6);
+	}
+}
+#endif
+
+/*.............................................................................
+ * adjust acording to brightness and contrast
+ */
+static void usb_MapAdjust( pPlustek_Device dev )
+{
+	u_long i, tabLen;
+	double b, c, tmp;
+	
+	tabLen = 4096;
+
+	/*
+	 * adjust brightness (b) and contrast (c) using the function:
+	 *
+	 * s´(x,y) = (s(x,y) + b) * c
+	 * b = [-127, 127]
+	 * c = [0,2]
+	 */
+
+	/*
+	 * scale brightness and contrast...
+	 */
+	b = ((double)dev->scanning.sParam.brightness * 192.0)/100.0;
+	c = ((double)dev->scanning.sParam.contrast   + 100.0)/100.0;
+
+	DBG( _DBG_INFO, "brightness   = %i -> %i\n",
+					dev->scanning.sParam.brightness, (u_char)b);
+	DBG( _DBG_INFO, "contrast*100 = %i -> %i\n",
+					dev->scanning.sParam.contrast, (int)(c*100));
+
+	for( i = 0; i < tabLen; i++ ) {
+
+		tmp = ((double)(a_bMap[i] + b)) * c;
+		if( tmp < 0 )   tmp = 0;
+		if( tmp > 255 ) tmp = 255;
+		a_bMap[i] = (u_char)tmp;		
+
+		tmp = ((double)(a_bMap[tabLen+i] + b)) * c;
+		if( tmp < 0 )   tmp = 0;
+		if( tmp > 255 ) tmp = 255;
+		a_bMap[tabLen+i] = (u_char)tmp;
+
+		tmp = ((double)(a_bMap[tabLen*2+i] + b)) * c;
+		if( tmp < 0 )   tmp = 0;
+		if( tmp > 255 ) tmp = 255;
+		a_bMap[tabLen*2+i] = (u_char)tmp;				
+	}
+}
+
+/*.............................................................................
+ *
+ */
+static SANE_Bool usb_MapDownload( pPlustek_Device dev, u_char bDataType )
+{
+    pScanDef  scanning = &dev->scanning;
+
+	int       color, maxColor;			/* loop counters             */
+	int       i, j, iThreshold;
+	SANE_Byte value;					/* value transmitted to port */
+	SANE_Bool fInverse = 0;
+	
+	DBG( _DBG_INFO, "usb_MapDownload()\n" );
+
+	/* simply create a standard table ... */
+	for( i = 0; i < 3; i++ )
+		for( j = 0; j < 4096; j++ )
+			a_bMap[i*4096 + j] = (j / 16);
+
+	/* do the brightness and contrast adjustment ... */			
+	if( scanning->sParam.bDataType != SCANDATATYPE_BW )	
+		usb_MapAdjust( dev );
+			
+	if( !usbio_WriteReg( dev->fd, 7, 0))
+		return SANE_FALSE;
+
+	if( bDataType == SCANDATATYPE_Color ) {
+		color    = 0;
+		maxColor = 3;
+	} else {
+		color    = 1;
+		maxColor = 2;
+	}
+
+	for( ; color < maxColor; color++) {
+	
+		/* select color */
+		value = (color << 2)+2;
+		
+		/* set gamma color selector */
+		usbio_WriteReg( dev->fd, 0x03, value );
+		usbio_WriteReg( dev->fd, 0x04, 0 );
+		usbio_WriteReg( dev->fd, 0x05, 0 );
+		
+		/* write the gamma table entry to merlin */
+		if( scanning->sParam.bDataType == SCANDATATYPE_BW )	{
+		
+			iThreshold = (int)((double)scanning->sParam.siThreshold * 1.27);
+
+			/*  for registry threshold adjustment */
+/* HEINER: not needed !*/
+#if 0			
+			if((i = 128 /* HEINER// - Registry.GetThreshold() */)) {
+				j = ((iThreshold >= 0)? (127 - i): (i + 127));
+				iThreshold = i + iThreshold * j / 127;
+		/*	}  */
+#endif			
+
+			j = _MAP_SIZE / 2 - 16 * iThreshold * 128 / 127;
+			if(j < 0)
+				j = 0;
+			if(j > (int)_MAP_SIZE)
+				j = _MAP_SIZE;
+	
+			DBG(_DBG_INFO, "Threshold is at %u siThresh=%u\n", j, iThreshold);
+			
+			for(i = 0; i < j; i++)
+				a_bMap[color*_MAP_SIZE + i] = 0;
+				
+			for(i = j; i < (int)_MAP_SIZE; i++)
+				a_bMap[color*_MAP_SIZE + i] = 255;
+
+			fInverse = 1;
+			
+		} else {
+			fInverse = 0;
+		}
+		
+		if( /*scanning->dwFlag & SCANFLAG_Pseudo48 && */
+			scanning->sParam.bSource == SOURCE_Negative ) {
+			fInverse ^= 1;
+		}
+		
+		if((scanning->dwFlag & SCANDEF_Inverse) &&
+			!(scanning->dwFlag & SCANFLAG_Pseudo48)) {
+			fInverse ^= 1;
+		}	
+		
+		if( fInverse ) {
+		
+			u_char  map[_MAP_SIZE];
+			u_char *pMap = a_bMap+color*_MAP_SIZE;
+			
+			DBG( _DBG_INFO, "Inverting Map\n" );
+			
+			for( i = 0; i < (int)_MAP_SIZE; i++, pMap++ )
+				map[i] = ~*pMap;
+			
+			sanei_lm9831_write( dev->fd,  0x06, map, _MAP_SIZE, SANE_FALSE );
+		}
+		else
+			sanei_lm9831_write( dev->fd,  0x06, a_bMap+color*_MAP_SIZE,
+								 _MAP_SIZE, SANE_FALSE );
+	
+	} /* for each color */
+	
+	return SANE_TRUE;
+}
+
+/* END PLUSTEK-USBMAP.C .....................................................*/

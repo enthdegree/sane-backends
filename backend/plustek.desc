@@ -10,7 +10,7 @@
 ;
 
 :backend "plustek"              ; name of backend
-:version "0.39"                 ; version of backend
+:version "0.40"                 ; version of backend
 :status :stable                 ; :alpha, :beta, :stable, :new
 :manpage "sane-plustek"         ; name of manpage (if it exists)
 
@@ -23,7 +23,7 @@
 
 
 :mfg "Plustek"                  ; name of manufacturer
-:url "http://www.plustek.com/"
+:url "http://www.plustek.de/"
 
 ;name models for above-specified mfg.
 :model "OpticPro 4800P"
@@ -98,9 +98,30 @@
 :interface "SCSI"
 :comment "rebadged Artec AM12S (supported by Artec Backend)"
 
-:model "OpticPro 1212U/U12/UT12"
+:model "OpticPro 1212U"
 :interface "USB"
-:comment "Not supported."
+:comment "not supported."
+
+:model "OpticPro U12"
+:interface "USB"
+:comment "OK."
+
+:model "OpticPro UT12"
+:interface "USB"
+:comment "OK."
+
+:model "OpticPro UT16"
+:interface "USB"
+:comment "OK."
+
+:model "OpticPro U24"
+:interface "USB"
+:comment "OK."
+
+:model "OpticPro UT24"
+:interface "USB"
+:comment "OK."
+
 
 :mfg "Primax"                  ; name of manufacturer
 :url "http://www.primax.nl/"
@@ -127,6 +148,22 @@
 :model "Scan-It Pro 4800"
 :interface "Parport (SPP, EPP)"
 :comment "OK - use driver-switch mov=2"
+
+:mfg "KYE - Genius"           ; name of manufacturer
+
+:model "Colorpage Vivid III V2"
+:interface "Parport (SPP, EPP)"
+:comment "OK"
+
+:model "Colorpage HR6 V2"
+:interface "USB"
+
+:mfg "BrightScan"
+
+:model "BrighScan OpticPro"
+:interface "Parport (SPP, EPP)"
+:comment "OK - Reported as P12"
+
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

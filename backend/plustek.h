@@ -29,7 +29,10 @@
  * 0.38 - added caps to struct Plustek_Device
  *        added exit code to struct Plustek_Scanner
  *        removed dropout stuff
- * 0.39 - no changes
+ * 0.39 - PORTTYPE enum
+ *        added function pointers to control a scanner device
+ *        (Parport and USB)
+ * 0.40 - added USB stuff
  *
  *.............................................................................
  *
@@ -135,6 +138,15 @@ enum {
 };
 
 /*
+ *
+ */
+typedef enum {
+	PARPORT,
+	USB,
+	NUM_PORTTYPES
+} PORTTYPE;
+
+/*
  * our own decription for some options
  */
 #define PLUSTEK_DESC_SCAN_SOURCE \
@@ -154,7 +166,32 @@ typedef struct Plustek_Device
     SANE_Int  		 	  *res_list;         /* to hold the available phys.  */
     SANE_Int 			   res_list_size;    /* resolution values            */
     ScannerCaps            caps;             /* caps reported by the driver  */
-} Plustek_Device;
+
+    /**************************** USB-stuff **********************************/
+    char                  *usbId;            /* pointer to Vendor and product*/
+                                             /* ID string (from conf) file   */
+#ifdef _PLUSTEK_USB
+    ScanDef                scanning;         /* here we hold all stuff for   */
+                                             /* the USB-scanner              */
+	DeviceDef              usbDev;	
+#endif
+
+    /*
+     * each device we support may need other access functions...
+     */
+    int  (*open)       ( const char*, void* );
+    int  (*close)      ( struct Plustek_Device* );
+    void (*shutdown)   ( struct Plustek_Device* );
+    int  (*getCaps)    ( struct Plustek_Device* );
+    int  (*getLensInfo)( struct Plustek_Device*, pLensInfo  );
+    int  (*getCropInfo)( struct Plustek_Device*, pCropInfo  );
+    int  (*putImgInfo) ( struct Plustek_Device*, pImgDef    );
+    int  (*setScanEnv) ( struct Plustek_Device*, pScanInfo  );
+    int  (*startScan)  ( struct Plustek_Device*, pStartScan );
+    int  (*stopScan)   ( struct Plustek_Device*, int* );
+    int  (*readImage)  ( struct Plustek_Device*, SANE_Byte*, unsigned long );
+
+} Plustek_Device, *pPlustek_Device;
 
 typedef union
 {

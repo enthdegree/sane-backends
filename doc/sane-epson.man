@@ -96,10 +96,10 @@ all three channels. The valid choices depend on the scanner model.
 The
 .I --halftoning
 switch selects the mode that is used in Binary mode. Valid options
-are None, Halftone A (Hard Tone), Halftone B (Soft Tone), Halftone C
-(Net Screen), Dither A (4x4 Bayer), Dither B (4x4 Spiral), Dither C
-(4x4 Net Screen), Dither D (8x4 Net Screen), Text Enhanced Technology,
-Download pattern A, and Download pattern B.
+are "None", "Halftone A (Hard Tone)", "Halftone B (Soft Tone)", "Halftone C
+(Net Screen)", "Dither A (4x4 Bayer)", "Dither B (4x4 Spiral)", "Dither C
+(4x4 Net Screen)", "Dither D (8x4 Net Screen)", "Text Enhanced Technology",
+"Download pattern A", and "Download pattern B".
 
 The 
 .I --dropout

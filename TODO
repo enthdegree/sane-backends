@@ -1,4 +1,4 @@
-TODO (2000-09-17)
+TODO (2000-09-24)
 
 ******** todo ********
 
@@ -25,7 +25,7 @@ backends
      - umax (will be fixed with the next backend release)
 
   * use #include "sane/..." instead of #include <sane/...>
-    - umax (see above)
+     - umax (see above)
 
   * check #include <lalloca.h> (is this a global system header
     on any platform? Otherwise --> "lalloca.h")
@@ -33,14 +33,9 @@ backends
   * make authorization_callback work in net-backend and saned 
 
   * check net/saned
-    - net backend segfaults if saned isn't started
-    - don't just ignore the byte-order for the image data (needed to
+     - net backend segfaults if saned isn't started
+     - don't just ignore the byte-order for the image data (needed to
       support depths > 8 bits/channel)
-
-  * mustek: for 3-pass scanners, it is said that xscanimage doesn't update
-    the scan progress bar properly between scans; it is said to stop at
-    90%, start the next pass, and once the next pass has started, it moves
-    on to 100% and the progress bar disappears at that point
 
   * qcam: implement auto mode for brightness and black-level (don't
     just advertise it!) Actually, implement an auto "backend" instead
@@ -55,8 +50,8 @@ backends
 doc
 ---
   * add sane manpage
-    - versioning system
-    - SANE API
+     - versioning system
+     - SANE API
 
   * add sane-usb manpage
 
@@ -69,11 +64,8 @@ frontends
     new package for frontends.
 
   * add new frondends (possibly to frontend package) (?)
-    - xsane
-    - scanadf
-
-  * use #include "sane/..." instead of #include <sane/...>
-    - umax
+     - xsane
+     - scanadf
 
   * add possibility to use external filters to xscanimage/xsane (?)
 
@@ -91,10 +83,15 @@ frontends
 
   * xcam: add recording feature (e.g., GIF, JPG, or MPEG)
 
-  * dll: make it robust against against it being listed in the configuration
+  * dll: make it robust against it being listed in the configuration
     file (currently bad things will happen if dll attempts to load itself)
  
-   * dll: Rewrite to use libtool ltdl library
+  * dll: Rewrite to use libtool ltdl library
+
+  * For 3-pass scanners, xscanimage doesn't update the scan progress
+    bar properly between scans; the scanner seems to be faster than 
+    xscanimage can write to disk (problem: seek for every byte). This
+    doesn't happen as GIMP-plugin.
 
 sanei
 -----
@@ -131,15 +128,14 @@ misc
 
   * add ADF and TA entries to .desc files
 
-  * add alpha channel so that RGBI scanners like Nikon LS-20 can
-    send infra-red info back to gimp for post-processing                
-
   * Add a check for installed sane versions.
 
   * Print a warning when already a sane version is installed.                       
   * Maybe add script to detect and deinstall existing sane versions
 
-  * 0 is white for sane 
+  * 0 is white for sane in lineart and halftone, however, 0 is black for
+    the other modes. Possible reason: pnm data format. The SANE standard
+    doesn't talk about this.
 
 ******** done ********
 

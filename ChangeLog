@@ -3,6 +3,8 @@
 	* backend/dll.c backend/dll.desc: HP/UX uses .sl for shared libs.
 	  Changed status to "stable". Increased version number.
 
+	* tools/sane-find-scanner.c: Check for __hpux instead of __hpux__.
+
 2001-10-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* TODO: Added possible saned problem with (not) fully qualified

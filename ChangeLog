@@ -23,6 +23,7 @@
 	* po/Makefile.in: make now creates all the files, make install does
 	  nothing but installation.
 	* README: Updated. Fixed minor bugs.
+	* AUTHORS: Added sanei authors.
 
 2001-01-08  Stéphane Voltz  <svoltz@wanadoo.fr>
 

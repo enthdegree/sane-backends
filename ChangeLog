@@ -1,3 +1,9 @@
+2001-11-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/scanimage.man frontend/scanimage.c: Use out%d.tif by default if
+	  --format tiff was selected. Update documentation about default formats.
+	  Fixed spelling mistakes.
+
 2001-11-18  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson.c: Fixed Wait for Button functionality.

@@ -1,4 +1,4 @@
-PROJECTS (2002-01-31)
+PROJECTS (2002-02-02)
 
 Here is a list of projects that various people have expressed interest
 in.  Before starting working on one of these projects, it may be a
@@ -48,6 +48,9 @@ http://www.mivlgu.murom.ru/~vsu/gt68xx/
 Handheld scanner support: e.g. for Mustek CG-6000 (wip)
 ftp://www.cs.ubishops.ca/pub/lhii/
 
+Hewlett-Packard ScanJet 2200c
+http://scanjet2200c.sourceforge.net/
+
 Hewlett-Packard ScanJet 3300C / 3400C and 4300C (wip)
 http://sourceforge.net/projects/hp3300backend
 
@@ -61,17 +64,19 @@ Relisys Scorpio Super 3 SCSI II (planned)
 http://www.xs4all.nl/~plowman/
 Mark Plowman <sane-devel@plowman.xs4all.nl>
 
+Sceptre S1200 scanner support (wip)
+http://www.geocities.com/harikus2000/sane/sane.html
+Frank Zago <fzago@greshamstorage.com>
+
 Test backend (similar to pnm backend, but doesn't read files) (planned)
 Henning Meier-Geinitz <henning@meier-geinitz.de> et. al.
-
-Visioneer OneTouch 8600: viceo (wip)
-http://www.littlecms.com/iphoto/otlinux.htm
 
 Video for Linux 2 (wip)
 http://sane-v4l2.inodes.org/
 
-HP ScanJet 2200c
-http://scanjet2200c.sourceforge.net/
+Visioneer OneTouch 8600: viceo (wip)
+http://www.littlecms.com/iphoto/otlinux.htm
+
 
 
 SANE on non-Unix platforms:

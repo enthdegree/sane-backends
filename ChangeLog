@@ -1,8 +1,13 @@
+2004-05-01  Jochen Eisinger <jochen@penguin-breeder.org>
+
+	* tools/hotplug/libsane.usbmap: removed empty lines, latest
+	  hotplug cannot cope with them
+	
 2004-03-15  Stéphane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c backend/umax_pp_low.h backend/umax_pp_mid.c
-          backend/umax_pp_mid.h backend/umax_pp.c backend/umax_pp.h 
-          tools/umax_pp.c:   added support for 610P
+	  backend/umax_pp_mid.h backend/umax_pp.c backend/umax_pp.h 
+	  tools/umax_pp.c:   added support for 610P
 
 2004-05-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

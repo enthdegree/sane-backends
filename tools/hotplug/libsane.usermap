@@ -16,7 +16,7 @@
 # The following list already contains a lot of scanners. If your scanner
 # isn't mentioned there, add it as explained above and mail the entry to
 # the sane-devel mailing list.
-
+#
 # Hewlett-Packard|ScanJet 4100C
 libusbscanner             0x0003      0x03f0   0x0101    0x0000       0x0000       0x00         0x00            0x00            0x00            0x00               0x00               0x00000000
 # Hewlett-Packard|PhotoSmart S20
@@ -423,5 +423,3 @@ libusbscanner             0x0003      0x1606   0x0160    0x0000       0x0000    
 libusbscanner             0x0003      0x1606   0x0230    0x0000       0x0000       0x00         0x00            0x00            0x00            0x00               0x00               0x00000000
 # SYSCAN|TravelScan 460/464
 libusbscanner             0x0003      0x0a82   0x4600    0x0000       0x0000       0x00         0x00            0x00            0x00            0x00               0x00               0x00000000
-
-

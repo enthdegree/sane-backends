@@ -12,7 +12,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.7\n"
-"POT-Creation-Date: 2002-02-14 21:21-0600\n"
+"POT-Creation-Date: 2002-03-06 17:26-0600\n"
 "PO-Revision-Date: 2002-02-10 22:57:13-0600\n"
 "Last-Translator: Frank Zago <fzago at greshamstorage.com>\n"
 "Language-Team: \n"
@@ -20,38 +20,38 @@ msgstr ""
 "Content-Type: text/plain; charset=iso-8859-1\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: .tmp/sceptre.c:423
+#: .tmp/sceptre.c:632
 msgid "flatbed scanner"
 msgstr "numériseur à plat"
 
-#: .tmp/sceptre.c:503
+#: .tmp/sceptre.c:711
 msgid "Scan Mode"
 msgstr "Mode de numérisation"
 
-#: .tmp/sceptre.c:531
+#: .tmp/sceptre.c:740
 msgid "Geometry"
 msgstr "Aire de numérisation"
 
-#: .tmp/sceptre.c:578
+#: .tmp/sceptre.c:788
 msgid "Enhancement"
 msgstr ""
 
 # sceptre.h:280
-#: .tmp/sceptre.h:278
+#: .tmp/sceptre.h:281
 msgid "Lineart"
 msgstr "Noir et blanc"
 
 # sceptre.h:280
-#: .tmp/sceptre.h:279
+#: .tmp/sceptre.h:282
 msgid "Halftone"
 msgstr "Demi-ton"
 
 # sceptre.h:280
-#: .tmp/sceptre.h:280
+#: .tmp/sceptre.h:283
 msgid "Gray"
 msgstr "Gris"
 
 # sceptre.h:280
-#: .tmp/sceptre.h:281
+#: .tmp/sceptre.h:284
 msgid "Color"
 msgstr "Couleur"

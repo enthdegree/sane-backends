@@ -3,6 +3,7 @@
 	* acinclude.m4 aclocal.m4 configure include/sane/config.h.in:
 	  Added missing HAVE_LIBIEEE1284 macro. The test was there, but
 	  the macro wasn't set.
+	* po/sane-backends.de.po: Added some missing translations.
 
 2003-05-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

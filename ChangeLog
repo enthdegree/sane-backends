@@ -1,3 +1,9 @@
+2002-08-18 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
+	* tools/gamma4scanimage.c: Bugfix (atof->atoi)
+	* tools/README: added gamma4scanimage
+	* doc/Makefile.in: added manpage for gamma4scanimage
+	* doc/gamma4scanimage.man: added manpage for gamma4scanimage
+
 2002-08-17  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson.[ch]: Fixed typo in variable name. Fixed IEEE-1394 

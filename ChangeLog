@@ -18,6 +18,8 @@
 
 	* frontend/scanimage.c: Fail if there are arguments without a preceding
 	  option on the command line. Fixed indenting.
+	* TODO: Updated concerning .desc files. Added comment about USB
+	  problems on *BSD.
 
 2002-07-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

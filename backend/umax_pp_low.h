@@ -78,6 +78,7 @@ extern void sanei_umax_pp_setauto (int mode);
 
 #define LAMP_STATE	0x20
 #define MOTOR_BIT	0x40
+#define ASIC_BIT	0x100
 
 #define UMAX_PP_PARPORT_PS2      0x01
 #define UMAX_PP_PARPORT_BYTE     0x02

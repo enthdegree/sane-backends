@@ -440,7 +440,7 @@ sanei_umax_pp_status (void)
   status = sanei_umax_pp_scannerStatus ();
   unlock_parport ();
   DBG (8, "sanei_umax_pp_status=0x%02X\n", status);
-  if ((status & MOTOR_BIT) == 0x00)
+  if (((status & ASIC_BIT) != 0x00)||((status & MOTOR_BIT) == 0x00))
     return UMAX1220P_BUSY;
 
   return UMAX1220P_OK;

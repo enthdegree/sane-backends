@@ -1641,6 +1641,8 @@ Outsw (int port, unsigned char *source, int size)
 /* and published it through an easy interface              */
 /* will turn it into a struct when 610P code will be done  */
 static int scannerStatus = 0;
+static time_t gTime = 0 ;
+static time_t gDelay = 0 ;
 static int epp32 = 1;
 static int gMode = 0;
 static int gprobed = 0;
@@ -1673,6 +1675,21 @@ sanei_umax_pp_UTA (void)
 int
 sanei_umax_pp_scannerStatus (void)
 {
+struct timeval tv;
+
+  /* the 610P ASIC needs some time to settle down after probe */
+  if((gTime>0)&&(gDelay>0))
+  {
+  	gettimeofday(&tv,NULL);
+	/* delay elapsed ?*/
+	if(tv.tv_sec-gTime<gDelay)
+		/* still waiting */
+  		return ASIC_BIT;
+	/* wait finished */
+	gDelay=0;
+	gTime=0;
+  }
+
   /* 0x07 variant returns status with bit 0 or 1 allways set to 1 */
   /* so we mask it out                                            */
   return scannerStatus & 0xFC;
@@ -5797,7 +5814,7 @@ sanei_umax_pp_endSession (void)
 int
 initScanner610p (int recover)
 {
-  int first, rc;
+  int first, rc, x;
   int cmd55AA[9] = { 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA, -1 };
   int cmd02[17] = { 0x02, 0x80, 0x00, 0x40, 0x30, 0x00, 0xC0, 0x2F,
     0x2F, 0x07, 0x00, 0x00, 0x00, 0x80, 0xF0, 0x00, -1
@@ -5833,10 +5850,18 @@ initScanner610p (int recover)
   };
 
   int op03[9] = { 0x00, 0x00, 0x00, 0xAA, 0xCC, 0xEE, 0xFF, 0xFF, -1 };
+  struct timeval tv;
 
   byteMode ();			/* just to get sure */
   first = 0;
   rc = inquire ();
+
+  /* get time to handle settle time delay */
+  gettimeofday(&tv,NULL);
+  gTime=tv.tv_sec;
+  /* default delay */
+  gDelay=5;
+
   if (rc == 0)
     {
       DBG (0, "inquire() failed ! (%s:%d) \n", __FILE__, __LINE__);
@@ -5844,6 +5869,8 @@ initScanner610p (int recover)
     }
   if (rc == 2)
     {
+      /* same value used by windows driver */
+      gDelay=45;
       DBG (1, "inquire() signals re-homing needed ... (%s:%d) \n",
 	   __FILE__, __LINE__);
       first = 1;
@@ -5946,6 +5973,14 @@ initScanner610p (int recover)
     {
       TRACE (0, "sanei_umax_pp_parkWait failed! ");
       return 0;
+    }
+
+  /* override gamma table with 610P defaults */
+  for (x = 0; x < 256; x++)
+    {
+      ggRed[x] = x;
+      ggGreen[x] = x;
+      ggBlue[x] = x;
     }
 
   DBG (1, "initScanner610p done ...\n");
@@ -12203,6 +12238,7 @@ shadingCalibration (int color, int dcRed, int dcGreen, int dcBlue,
   };
 
   int len, dpi, size;
+  int bpp = 3;			/* defaults to color scan value */
   int w, h, x, y;
   int sum, i;
   float avg, coeff = 0;
@@ -12231,7 +12267,17 @@ shadingCalibration (int color, int dcRed, int dcGreen, int dcBlue,
       bottom = 8;
     }
 
-  data = (unsigned char *) malloc (w * h * 3);
+  /* gray scanning handling */
+  if (color < RGB_MODE)
+    {
+      lm9811[7] = dcGreen << 4;
+      lm9811[6] = 0x40 | vgaGreen;
+      bpp = 1;
+
+      motor[13] = 0x6F;
+    }
+
+  data = (unsigned char *) malloc (w * h * bpp);
   if (data == NULL)
     {
       DBG (0, "shadingCalibration: failed to allocate memory (%s:%d)\n",
@@ -12241,7 +12287,7 @@ shadingCalibration (int color, int dcRed, int dcGreen, int dcBlue,
 
   /* prepare scan command */
   x = sanei_umax_pp_getLeft ();
-  encodeWX (w, x, dpi, color, ccd, 3 * w);
+  encodeWX (w, x, dpi, color, ccd, bpp * w);
   encodeHY (h, y, motor);
   encodeDC (dcRed, dcGreen, dcBlue, motor);
   encodeVGA (vgaRed, vgaGreen, vgaBlue, motor);
@@ -12259,18 +12305,14 @@ shadingCalibration (int color, int dcRed, int dcGreen, int dcBlue,
   CMDSETGET (4, 0x08, commit);
   COMPLETIONWAIT;
 
-  if (color >= RGB_MODE)
-    {
-      /* picture height is scan area height minus y    */
-      /* then we substract 6 lines that aren't scanned */
-      h = h - y - 6;
-      size = w * 3 * h;
-    }
+  /* picture height is scan area height minus y          */
+  /* then we substract 14 or 6 lines that aren't scanned */
+  if (color < RGB_MODE)
+    h = h - y - 14;
   else
-    {
-      h = h - y - 1;
-      size = w * h;
-    }
+    h = h - y - 6;
+  size = w * bpp * h;
+
   DBG (128, "shadingCalibration: trying to read 0x%06X bytes ... (%s:%d)\n",
        size, __FILE__, __LINE__);
   /* since we know that each scan line matches CCD width, we signals
@@ -12285,32 +12327,52 @@ shadingCalibration (int color, int dcRed, int dcGreen, int dcBlue,
   /* debug image files */
   /* data is in R B G order */
   if (DBG_LEVEL > 128)
-    DumpNB (w * 3, h, data, NULL);
+    DumpNB (w * bpp, h, data, NULL);
 
-  for (i = 0; i < 3; i++)
+  /* in gray scans, we have only green component (i=3) */
+  if (color < RGB_MODE)
     {
+      /* zeroes unused shading coefficients */
+      memset (calibration, 0x00, 2 * w);
+
+      /* build green only coefficients */
       for (x = 4; x < w; x++)
 	{
 	  sum = 0;
 	  for (y = top; y < h - bottom; y++)
-	    sum += data[(y * 3 + i) * w + x];
+	    sum += data[y * w + x];
 	  avg = ((float) (sum)) / ((float) (h - (top + bottom)));
-	  /*coeff = (256.0 * (250.0 / avg - 1.0)) / 1.95; */
-	  switch (i)
-	    {
-	    case 0:		/* RED */
-	      coeff = (256.0 * (250.0 / avg - 1.0)) / 1.80;
-	      break;
-	    case 1:		/* BLUE */
-	      coeff = (256.0 * (250.0 / avg - 1.0)) / 1.70;
-	      break;
-	    case 2:		/* GREEN */
-	      coeff = (256.0 * (250.0 / avg - 1.0)) / 1.70;
-	      break;
-	    }
-	  calibration[x + i * w - 4] = (int) (coeff + 0.5);
+	  coeff = (256.0 * (250.0 / avg - 1.0)) / 1.70;
+	  calibration[x + 2 * w - 4] = (int) (coeff + 0.5);
 	}
-      /* 100 in coeffs -> +104 on picture */
+    }
+  else
+    {
+      for (i = 0; i < 3; i++)
+	{
+	  for (x = 4; x < w; x++)
+	    {
+	      sum = 0;
+	      for (y = top; y < h - bottom; y++)
+		sum += data[(y * bpp + i) * w + x];
+	      avg = ((float) (sum)) / ((float) (h - (top + bottom)));
+	      /*coeff = (256.0 * (250.0 / avg - 1.0)) / 1.95; */
+	      switch (i)
+		{
+		case 0:	/* RED */
+		  coeff = (256.0 * (250.0 / avg - 1.0)) / 1.80;
+		  break;
+		case 1:	/* BLUE */
+		  coeff = (256.0 * (250.0 / avg - 1.0)) / 1.70;
+		  break;
+		case 2:	/* GREEN */
+		  coeff = (256.0 * (250.0 / avg - 1.0)) / 1.70;
+		  break;
+		}
+	      calibration[x + i * w - 4] = (int) (coeff + 0.5);
+	    }
+	  /* 100 in coeffs -> +104 on picture */
+	}
     }
 
   /* use default color tables */
@@ -12323,8 +12385,8 @@ shadingCalibration (int color, int dcRed, int dcGreen, int dcBlue,
 
   if (DBG_LEVEL > 128)
     {
-      DumpNB (w * 3, h, data, NULL);
-      DumpNB (w, h * 3, data, NULL);
+      DumpNB (w * bpp, h, data, NULL);
+      DumpNB (w, h * bpp, data, NULL);
     }
 
   free (data);

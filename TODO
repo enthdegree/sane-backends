@@ -1,4 +1,4 @@
-TODO (2001-06-20)
+TODO (2001-08-01)
 
 ******** todo ********
 
@@ -39,6 +39,8 @@ backends
     - Canon FB620S flatbed scanner and FS2710 film scanner
       ftp://stthd0.pc.uni-koeln.de/pub/canon-1.08.tar.gz
       Ulrich Deiters <ukd@xenon.pc.Uni-Koeln.DE>
+    - UMAX Astra 1220U  backend
+      http://umax1220u-sane.sourceforge.net/
 
   * Update backends
     - Combine all the Fujitsu backends into one single backend

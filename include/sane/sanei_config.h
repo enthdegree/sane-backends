@@ -69,7 +69,15 @@ extern const char *sanei_config_get_string (const char *str,
    set to * to match anything.  To include whitespace in these
    strings, enclose them in double-quotes (").  BUS, ID, and LUN are
    the desired SCSI bus, id, and logical-unit numbers.  These can be
-   set to * or simply omitted to match anything.  */
+   set to * or simply omitted to match anything. 
+
+   Also USB device specifications of the form:
+
+        usb VENDOR PRODUCT
+
+   are supported. VENDOR and PRODUCT are non-negative integer numbers in
+   decimal or hexadecimal format.
+ */
 extern void sanei_config_attach_matching_devices (const char *name,
 						  SANE_Status (*attach)
 						    (const char *dev));

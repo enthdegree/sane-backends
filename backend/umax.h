@@ -2,7 +2,7 @@
 
 /* umax.h - headerfile for SANE-backend for umax scanners
   
-   (C) 1997-2001 Oliver Rauch
+   (C) 1997-2002 Oliver Rauch
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
@@ -50,21 +50,14 @@
 
 #include "sys/types.h"
 
-#ifdef HAVE_SANEI_IPC
-# include "sane/sanei_ipc.h"
-#endif
-
-
 /* --------------------------------------------------------------------------------------------------------- */
 /* COMPILER OPTIONS: */
 
-
+#define UMAX_ENABLE_USB
 #define UMAX_HIDE_UNUSED
+
 /* #define SANE_UMAX_DEBUG_S12 */
-/* #define PREVIEW_FIX_ON */
-
 /* #define UMAX_CALIBRATION_MODE_SELECTABLE */
-
                                          
 /* --------------------------------------------------------------------------------------------------------- */
 
@@ -191,13 +184,19 @@ typedef union
 
 /* LIST OF AVAILABLE SCANNERS, THE VALUES LISTED HERE ARE THE SAME FOR DIFFERENT APPLICATIONS
    THAT USE THE SAME DEVICE */
-   
+
 /* Umax_Device contains values relevant for the device that are not intersting for the sane interface */
 
 typedef struct Umax_Device
 {
   struct Umax_Device	*next;
   SANE_Device		sane;
+
+  int connection_type;
+#define SANE_UMAX_UNKNOWN 0
+#define SANE_UMAX_SCSI 1
+#define SANE_UMAX_USB 2
+
   SANE_Range		x_dpi_range;
   SANE_Range		y_dpi_range;
   SANE_Range		x_range;
@@ -452,10 +451,6 @@ typedef struct Umax_Device
   int			pause_for_moving;	       /* pause for moving scanhead over full scanarea in ms */
   int			lamp_control_available;		       /* is set when scanner supportes lamp control */
   int			gamma_lsb_padded;                              /* 16 bit gamma data is padded to lsb */
-
-#ifdef HAVE_SANEI_IPC
-  sanei_ipc			*ipc;
-#endif
 } Umax_Device;
 
 
@@ -486,9 +481,7 @@ typedef struct Umax_Scanner
   SANE_Parameters		params;
 
   pid_t				reader_pid;
-#ifndef HAVE_SANEI_IPC
   int				pipe;
-#endif
 } Umax_Scanner;
 
 

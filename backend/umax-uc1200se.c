@@ -3,7 +3,7 @@
 
 /* umax-uc1200se.c: inquiry for UMAX scanner uc1200se
   
-   (C) 1998-2001 Oliver Rauch
+   (C) 1998-2002 Oliver Rauch
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as

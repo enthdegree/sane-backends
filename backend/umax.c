@@ -4,7 +4,7 @@
 
    umax.c 
 
-   (C) 1997-2001 Oliver Rauch
+   (C) 1997-2002 Oliver Rauch
 
    This file is part of the SANE package.
 
@@ -49,7 +49,7 @@
 
 /* --------------------------------------------------------------------------------------------------------- */
 
-#define BUILD 32
+#define BUILD 33
 
 /* --------------------------------------------------------------------------------------------------------- */
 
@@ -130,19 +130,23 @@ in ADF mode this is done often:
 #include "sane/sanei_scsi.h"
 #include "sane/sanei_debug.h"
 
+#ifdef UMAX_ENABLE_USB
+# include "sane/sanei_usb.h"
+#endif
+
 #include <math.h>
 #include <string.h>
 
 #include "umax-scsidef.h"
 #include "umax-scanner.c"
 
+#ifdef UMAX_ENABLE_USB
+# include "umax-usb.c"
+#endif
+
 #include "umax.h"
 #include "sane/sanei_backend.h"
 #include "sane/sanei_config.h"
-
-#ifdef HAVE_SANEI_IPC
-#include "sane/sanei_ipc.h"
-#endif
 
 /* ------------------------------------------------------------ SANE DEFINES ------------------------------- */
 
@@ -200,6 +204,7 @@ static int umax_calibration_bytespp = -1;      /* -1=auto */
 static int umax_invert_shading_data = -1;      /* -1=auto */
 static int umax_lamp_control_available = 0;    /* 0=disabled */
 static int umax_gamma_lsb_padded = -1;         /* -1=auto */
+static int umax_connection_type = 1;           /* 1=scsi, 2=usb */
 
 /* ------------------------------------------------------------ CALIBRATION MODE --------------------------- */
 
@@ -1216,6 +1221,136 @@ static unsigned char * umax_get_pixel_line(Umax_Device *dev)
 }
 
 
+/* ============================================================ Switches between the SCSI and USB commands = */
+
+/* ------------------------------------------------------------ UMAX SCSI CMD ------------------------------ */
+
+static SANE_Status umax_scsi_cmd(Umax_Device *dev, const void *src, size_t src_size, void *dst, size_t * dst_size)
+{
+  switch (dev->connection_type)
+  {
+    case SANE_UMAX_SCSI:
+      return sanei_scsi_cmd(dev->sfd, src, src_size, dst, dst_size);
+     break;
+
+#ifdef UMAX_ENABLE_USB
+    case SANE_UMAX_USB:
+      return sanei_umaxusb_cmd(dev->sfd, src, src_size, dst, dst_size);
+     break;
+#endif
+
+    default:
+      return(SANE_STATUS_INVAL);
+  }
+}
+
+/* ------------------------------------------------------------ UMAX SCSI OPEN EXTENDED -------------------- */
+
+static SANE_Status umax_scsi_open_extended(const char *devicename, Umax_Device *dev,
+                                           SANEI_SCSI_Sense_Handler handler, void *handler_arg, int *buffersize)
+{
+  switch (dev->connection_type) 
+  {
+    case SANE_UMAX_SCSI:
+      return sanei_scsi_open_extended(devicename, &dev->sfd, handler, handler_arg, buffersize);
+     break;
+
+#ifdef UMAX_ENABLE_USB
+    case SANE_UMAX_USB:
+      return sanei_umaxusb_open_extended(devicename, &dev->sfd, handler, handler_arg, buffersize);
+     break;
+#endif
+
+    default:
+      return(SANE_STATUS_INVAL);
+  }
+}
+
+/* ------------------------------------------------------------ UMAX SCSI OPEN ----------------------------- */
+
+static SANE_Status umax_scsi_open(const char *devicename, Umax_Device *dev,
+                                  SANEI_SCSI_Sense_Handler handler, void *handler_arg)
+{
+  switch (dev->connection_type)
+  {
+    case SANE_UMAX_SCSI:
+      return sanei_scsi_open(devicename, &dev->sfd, handler, handler_arg);
+     break;
+
+#ifdef UMAX_ENABLE_USB
+    case SANE_UMAX_USB:
+      return sanei_umaxusb_open(devicename, &dev->sfd, handler, handler_arg);
+     break;
+#endif
+
+    default:
+      return(SANE_STATUS_INVAL);
+  }
+}
+
+/* ------------------------------------------------------------ UMAX SCSI CLOSE ---------------------------- */
+
+static void umax_scsi_close(Umax_Device *dev)
+{
+  switch (dev->connection_type)
+  {
+    case SANE_UMAX_SCSI:
+      sanei_scsi_close(dev->sfd);
+      dev->sfd=-1;
+     break;
+
+#ifdef UMAX_ENABLE_USB
+    case SANE_UMAX_USB:
+      sanei_umaxusb_close(dev->sfd);
+      dev->sfd=-1;
+     break;
+#endif
+  }	
+}
+
+/* ------------------------------------------------------------ UMAX SCSI REQ ENTER ------------------------ */
+
+static SANE_Status umax_scsi_req_enter(Umax_Device *dev, const void *src, size_t src_size,
+                                       void *dst, size_t * dst_size, void **idp)
+{
+  switch (dev->connection_type)
+  {
+    case SANE_UMAX_SCSI:
+      return sanei_scsi_req_enter (dev->sfd, src, src_size, dst, dst_size, idp);
+     break;
+
+#ifdef UMAX_ENABLE_USB
+    case SANE_UMAX_USB:
+      return sanei_umaxusb_req_enter (dev->sfd, src, src_size, dst, dst_size, idp);
+     break;
+#endif
+
+    default:
+      return(SANE_STATUS_INVAL);
+  }
+}
+
+/* ------------------------------------------------------------ UMAX SCSI REQ WAIT ------------------------- */
+
+static SANE_Status umax_scsi_req_wait(Umax_Device *dev, void *id)
+{
+  switch (dev->connection_type)
+  {
+    case SANE_UMAX_SCSI:
+      return sanei_scsi_req_wait(id);
+     break;
+
+#ifdef UMAX_ENABLE_USB
+    case SANE_UMAX_USB:
+      return sanei_umaxusb_req_wait(id);
+     break;
+#endif
+
+    default:
+      return(SANE_STATUS_INVAL);
+  }
+}
+
 /* ------------------------------------------------------------ UMAX SCSI GET LAMP STATUS ------------------ */
 
 
@@ -1226,7 +1361,7 @@ static SANE_Status umax_scsi_get_lamp_status(Umax_Device *dev, int *lamp_on)
 
   DBG(DBG_proc, "umax_scsi_get_lamp_status\n");
 
-  status = sanei_scsi_cmd(dev->sfd, get_lamp_status.cmd, get_lamp_status.size, dev->buffer[0], &size);
+  status = umax_scsi_cmd(dev, get_lamp_status.cmd, get_lamp_status.size, dev->buffer[0], &size);
   if (status)
   {
     DBG(DBG_error, "umax_scsi_get_lamp_status: command returned status %s\n", sane_strstatus(status));
@@ -1251,7 +1386,7 @@ static SANE_Status umax_scsi_set_lamp_status(Umax_Device *dev, int lamp_on)
   DBG(DBG_info, "lamp_status=%d\n", lamp_on);
 
   set_lamp_status_lamp_on(set_lamp_status.cmd, lamp_on);
-  status = sanei_scsi_cmd(dev->sfd, set_lamp_status.cmd, set_lamp_status.size, NULL, NULL);
+  status = umax_scsi_cmd(dev, set_lamp_status.cmd, set_lamp_status.size, NULL, NULL);
 
   if (status)
   {
@@ -1271,8 +1406,8 @@ static SANE_Status umax_set_lamp_status(SANE_Handle handle, int lamp_on)
 
   DBG(DBG_proc, "umax_set_lamp_status\n");
 
-  if ( sanei_scsi_open(scanner->device->sane.name, &(scanner->device->sfd), sense_handler,
-                       scanner->device) != SANE_STATUS_GOOD )
+  if (umax_scsi_open(scanner->device->sane.name, scanner->device, sense_handler,
+                     scanner->device) != SANE_STATUS_GOOD )
   {
      DBG(DBG_error, "ERROR: umax_set_lamp_status: open of %s failed:\n", scanner->device->sane.name);
      return SANE_STATUS_INVAL;
@@ -1285,8 +1420,7 @@ static SANE_Status umax_set_lamp_status(SANE_Handle handle, int lamp_on)
     status = umax_scsi_set_lamp_status(scanner->device, lamp_on);
   }
 
-  sanei_scsi_close(scanner->device->sfd);
-  scanner->device->sfd = -1;
+  umax_scsi_close(scanner->device);
 
  return status;
 }
@@ -1301,7 +1435,7 @@ static SANE_Status umax_get_data_buffer_status(Umax_Device *dev)
 
   DBG(DBG_proc, "get_data_buffer_status\n");
   set_GDBS_wait(get_data_buffer_status.cmd,1);					    /* wait for scanned data */
-  status = sanei_scsi_cmd(dev->sfd, get_data_buffer_status.cmd, get_data_buffer_status.size, NULL, NULL);
+  status = umax_scsi_cmd(dev, get_data_buffer_status.cmd, get_data_buffer_status.size, NULL, NULL);
   if (status)
   {
     DBG(DBG_error, "umax_get_data_buffer_status: command returned status %s\n", sane_strstatus(status));
@@ -1322,7 +1456,7 @@ static void umax_do_request_sense(Umax_Device *dev)
 
   DBG(DBG_proc, "do_request_sense\n");
   set_RS_allocation_length(request_sense.cmd, rs_return_block_size); 
-  status = sanei_scsi_cmd(dev->sfd, request_sense.cmd, request_sense.size, dev->buffer[0], &size);
+  status = umax_scsi_cmd(dev, request_sense.cmd, request_sense.size, dev->buffer[0], &size);
   if (status)
   {
     DBG(DBG_error, "umax_do_request_sense: command returned status %s\n", sane_strstatus(status));
@@ -1348,7 +1482,7 @@ static SANE_Status umax_wait_scanner(Umax_Device *dev)
       return -1;
     }
 											  /* test unit ready */
-    status = sanei_scsi_cmd(dev->sfd, test_unit_ready.cmd, test_unit_ready.size, NULL, NULL);
+    status = umax_scsi_cmd(dev, test_unit_ready.cmd, test_unit_ready.size, NULL, NULL);
     cnt++;
 
     if (status)
@@ -1380,7 +1514,7 @@ static int umax_grab_scanner(Umax_Device *dev)
   DBG(DBG_proc, "grab_scanner\n");
 
   WAIT_SCANNER;									   /* wait for scanner ready */
-  status = sanei_scsi_cmd(dev->sfd, reserve_unit.cmd, reserve_unit.size, NULL, NULL);
+  status = umax_scsi_cmd(dev, reserve_unit.cmd, reserve_unit.size, NULL, NULL);
 
   if (status)
   {
@@ -1407,7 +1541,7 @@ static int umax_reposition_scanner(Umax_Device *dev)
                                         ( (dev->inquiry_fb_length * dev->y_coordinate_base) );
 
   DBG(DBG_info2, "trying to reposition scanner ...\n");
-  status = sanei_scsi_cmd(dev->sfd, object_position.cmd, object_position.size, NULL, NULL);
+  status = umax_scsi_cmd(dev, object_position.cmd, object_position.size, NULL, NULL);
   if (status)
   {
     DBG(DBG_error, "umax_reposition_scanner: command returned status %s\n", sane_strstatus(status));
@@ -1442,7 +1576,7 @@ static int umax_give_scanner(Umax_Device *dev)
  int status;
 
   DBG(DBG_info2, "trying to release scanner ...\n");
-  status = sanei_scsi_cmd(dev->sfd, release_unit.cmd, release_unit.size, NULL, NULL);
+  status = umax_scsi_cmd(dev, release_unit.cmd, release_unit.size, NULL, NULL);
   if (status)
   {
     DBG(DBG_error, "umax_give_scanner: command returned status %s\n", sane_strstatus(status));
@@ -1501,7 +1635,7 @@ static void umax_send_gamma_data(Umax_Device *dev, void *gamma_data, int color)
       memcpy(dest, data, 1024);								/* copy data */
 
       set_S_xfer_length(dev->buffer[0], 1026);						       /* set length */
-      status = sanei_scsi_cmd(dev->sfd, dev->buffer[0], send.size + 1026, NULL, NULL);
+      status = umax_scsi_cmd(dev, dev->buffer[0], send.size + 1026, NULL, NULL);
       if (status)
       {
         DBG(DBG_error, "umax_send_gamma_data(DCF=0, one color): command returned status %s\n", sane_strstatus(status));
@@ -1527,7 +1661,7 @@ static void umax_send_gamma_data(Umax_Device *dev, void *gamma_data, int color)
       memcpy(dest, data, 1024);								   /* copy blue data */
 
       set_S_xfer_length(dev->buffer[0], 3076);						       /* set length */
-      status = sanei_scsi_cmd(dev->sfd, dev->buffer[0], send.size + 3076, NULL, NULL);
+      status = umax_scsi_cmd(dev, dev->buffer[0], send.size + 3076, NULL, NULL);
       if (status)
       {
         DBG(DBG_error, "umax_send_gamma_data(DCF=0, RGB): command returned status %s\n", sane_strstatus(status));
@@ -1550,7 +1684,7 @@ static void umax_send_gamma_data(Umax_Device *dev, void *gamma_data, int color)
     memcpy(dest, data, 256);									/* copy data */
 
     set_S_xfer_length(dev->buffer[0], 258);						       /* set length */
-    status = sanei_scsi_cmd(dev->sfd, dev->buffer[0], send.size + 258, NULL, NULL);
+    status = umax_scsi_cmd(dev, dev->buffer[0], send.size + 258, NULL, NULL);
     if (status)
     {
       DBG(DBG_error, "umax_send_gamma_data(DCF=1): command returned status %s\n", sane_strstatus(status));
@@ -1615,7 +1749,7 @@ static void umax_send_gamma_data(Umax_Device *dev, void *gamma_data, int color)
       set_S_xfer_length(dev->buffer[0], color*length+gamma_DCF2.size);			       /* set length */
       memcpy(dest, data, color*length);								/* copy data */
 
-      status = sanei_scsi_cmd(dev->sfd, dev->buffer[0], send.size+gamma_DCF2.size + length * color, NULL, NULL);
+      status = umax_scsi_cmd(dev, dev->buffer[0], send.size+gamma_DCF2.size + length * color, NULL, NULL);
       if (status)
       {
         DBG(DBG_error, "umax_send_gamma_data(DCF=2): command returned status %s\n", sane_strstatus(status));
@@ -1648,7 +1782,7 @@ static void umax_send_data(Umax_Device *dev, void *data, int size, int datatype)
   dest=dev->buffer[0] + send.size;
   memcpy(dest, data, size);									/* copy data */
 
-  status = sanei_scsi_cmd(dev->sfd, dev->buffer[0], send.size + size, NULL, NULL);
+  status = umax_scsi_cmd(dev, dev->buffer[0], send.size + size, NULL, NULL);
   if (status)
   {
     DBG(DBG_error, "umax_send_data: command returned status %s\n", sane_strstatus(status));
@@ -1691,7 +1825,7 @@ static void umax_send_gain_data(Umax_Device *dev, void *data, int size)
 
 /* ------------------------------------------------------------ UMAX QUEUE READ IMAGE DATA REQ ------------- */
 
-static SANE_Status umax_queue_read_image_data_req(Umax_Device *dev, unsigned length, int bufnr)
+static SANE_Status umax_queue_read_image_data_req(Umax_Device *dev, unsigned int length, int bufnr)
 {
  SANE_Status status;
 
@@ -1700,7 +1834,7 @@ static SANE_Status umax_queue_read_image_data_req(Umax_Device *dev, unsigned len
   set_R_xfer_length(sread.cmd, length);							       /* set length */
   set_R_datatype_code(sread.cmd, R_datatype_imagedata);					     /* set datatype */
 
-  status = sanei_scsi_req_enter(dev->sfd, sread.cmd, sread.size, dev->buffer[bufnr], &length, &(dev->queue_id[bufnr]));
+  status = umax_scsi_req_enter(dev, sread.cmd, sread.size, dev->buffer[bufnr], &length, &(dev->queue_id[bufnr]));
   if (status)
   {
     DBG(DBG_error, "umax_queue_read_image_data_req: command returned status %s\n", sane_strstatus(status));
@@ -1723,7 +1857,7 @@ static int umax_wait_queued_image_data(Umax_Device *dev, int bufnr)
 
   DBG(DBG_proc, "umax_wait_queued_image_data for buffer[%d] (id=%p)\n", bufnr, dev->queue_id[bufnr]);
 
-  status = sanei_scsi_req_wait(dev->queue_id[bufnr]);
+  status = umax_scsi_req_wait(dev, dev->queue_id[bufnr]);
   if (status)
   {
     DBG(DBG_error, "umax_wait_queued_image_data: wait returned status %s\n", sane_strstatus(status));
@@ -1744,7 +1878,7 @@ static int umax_read_data(Umax_Device *dev, size_t length, int datatype)
   set_R_xfer_length(sread.cmd, length);							       /* set length */
   set_R_datatype_code(sread.cmd, datatype);						     /* set datatype */
 
-  status = sanei_scsi_cmd(dev->sfd, sread.cmd, sread.size, dev->buffer[0], &length);
+  status = umax_scsi_cmd(dev, sread.cmd, sread.size, dev->buffer[0], &length);
   if (status)
   {
     DBG(DBG_error, "umax_read_data: command returned status %s\n", sane_strstatus(status));
@@ -2039,7 +2173,7 @@ static SANE_Status umax_set_window_param(Umax_Device *dev)
 
   set_SW_xferlen(dev->buffer[0], (window_parameter_data_block.size + (window_descriptor_block.size * num_dblocks)));
 
-  status = sanei_scsi_cmd(dev->sfd, dev->buffer[0], set_window.size + window_parameter_data_block.size +
+  status = umax_scsi_cmd(dev, dev->buffer[0], set_window.size + window_parameter_data_block.size +
                                               (window_descriptor_block.size * num_dblocks), NULL, NULL);
   if (status)
   {
@@ -2068,7 +2202,7 @@ static void umax_do_inquiry(Umax_Device *dev)
   size = 5;
 
   set_inquiry_return_size(inquiry.cmd, size);  /* first get only 5 bytes to get size of inquiry_return_block */
-  status = sanei_scsi_cmd(dev->sfd, inquiry.cmd, inquiry.size, dev->buffer[0], &size);
+  status = umax_scsi_cmd(dev, inquiry.cmd, inquiry.size, dev->buffer[0], &size);
   if (status)
   {
     DBG(DBG_error, "umax_do_inquiry: command returned status %s\n", sane_strstatus(status));
@@ -2077,7 +2211,7 @@ static void umax_do_inquiry(Umax_Device *dev)
   size = get_inquiry_additional_length(dev->buffer[0]) + 5;
 
   set_inquiry_return_size(inquiry.cmd, size);			        /* then get inquiry with actual size */
-  status = sanei_scsi_cmd(dev->sfd, inquiry.cmd, inquiry.size, dev->buffer[0], &size);
+  status = umax_scsi_cmd(dev, inquiry.cmd, inquiry.size, dev->buffer[0], &size);
   if (status)
   {
     DBG(DBG_error, "umax_do_inquiry: command returned status %s\n", sane_strstatus(status));
@@ -2126,7 +2260,7 @@ static SANE_Status umax_start_scan(Umax_Device *dev)
 
   DBG(DBG_info,"starting scan\n");
 
-  status = sanei_scsi_cmd(dev->sfd, scan.cmd, scan.size + size, NULL, NULL);
+  status = umax_scsi_cmd(dev, scan.cmd, scan.size + size, NULL, NULL);
   if (status)
   {
     DBG(DBG_error, "umax_start_scan: command returned status %s\n", sane_strstatus(status));
@@ -2392,7 +2526,7 @@ static void umax_do_new_inquiry(Umax_Device *dev, size_t size)	       /* call in
   memset(dev->buffer[0], '\0', 256);							     /* clear buffer */
 
   set_inquiry_return_size(inquiry.cmd, size);
-  status = sanei_scsi_cmd(dev->sfd, inquiry.cmd, inquiry.size, dev->buffer[0], &size);
+  status = umax_scsi_cmd(dev, inquiry.cmd, inquiry.size, dev->buffer[0], &size);
   if (status)
   {
     DBG(DBG_error, "umax_do_new_inquiry: command returned status %s\n", sane_strstatus(status));
@@ -3755,11 +3889,7 @@ static int umax_calculate_analog_gamma(double value)
 
 /* ------------------------------------------------------------ UMAX OUTPUT IMAGE DATA  -------------------- */
 
-#ifdef HAVE_SANEI_IPC
-static void umax_output_image_data(Umax_Device *dev, unsigned int data_to_read, int bufnr)
-#else
 static void umax_output_image_data(Umax_Device *dev, FILE *fp, unsigned int data_to_read, int bufnr)
-#endif
 {
     if (dev->do_color_ordering == 0)							   /* pixel ordering */
     {
@@ -3780,11 +3910,7 @@ static void umax_output_image_data(Umax_Device *dev, FILE *fp, unsigned int data
           dev->buffer[bufnr][i]=new;
         }
       }
-#ifdef HAVE_SANEI_IPC
-      sanei_ipc_write(dev->ipc, dev->buffer[bufnr], 1, data_to_read);
-#else
       fwrite(dev->buffer[bufnr], 1, data_to_read, fp);
-#endif
     }
     else										    /* line ordering */
     {
@@ -3809,11 +3935,7 @@ static void umax_output_image_data(Umax_Device *dev, FILE *fp, unsigned int data
         pixelsource = umax_get_pixel_line(dev);
         if (pixelsource != NULL)
         {
-#ifdef HAVE_SANEI_IPC
-          sanei_ipc_write(dev->ipc, pixelsource, bytes, dev->width_in_pixels * 3);
-#else
           fwrite(pixelsource, bytes, dev->width_in_pixels * 3, fp);
-#endif
         }
       }
     }
@@ -3822,11 +3944,7 @@ static void umax_output_image_data(Umax_Device *dev, FILE *fp, unsigned int data
 /* ------------------------------------------------------------ UMAX READER PROCESS ------------------------ */
 
 
-#ifdef HAVE_SANEI_IPC
-static int umax_reader_process(Umax_Device *dev, unsigned int image_size)
-#else
 static int umax_reader_process(Umax_Device *dev, FILE *fp, unsigned int image_size)
-#endif
 {
  int status;
  int bytes        = 1;
@@ -3922,11 +4040,7 @@ static int umax_reader_process(Umax_Device *dev, FILE *fp, unsigned int image_si
       }
 
       data_to_read = (data_left_to_read < dev->row_bufsize) ? data_left_to_read : dev->row_bufsize;
-#ifdef HAVE_SANEI_IPC
-      umax_output_image_data(dev, data_to_read, bufnr_read);
-#else
       umax_output_image_data(dev, fp, data_to_read, bufnr_read);
-#endif
 
       data_left_to_read -= data_to_read;
       DBG(DBG_read, "umax_reader_process: buffer of %d bytes read; %d bytes to go\n", data_to_read, data_left_to_read);
@@ -4055,12 +4169,20 @@ static void umax_init(Umax_Device *dev)		     /* umax_init is called once while 
 {
   DBG(DBG_proc,"init\n");
 
-  dev->devicename                        = NULL;
-  dev->sfd                               = -1;
-  dev->pixelbuffer                       = NULL;
+  dev->devicename  = NULL;
+  dev->pixelbuffer = NULL;
 
   /* config file or predefined settings */
-  dev->request_scsi_maxqueue    = umax_scsi_maxqueue;
+  if (dev->connection_type == SANE_UMAX_SCSI)
+  {
+    dev->request_scsi_maxqueue  = umax_scsi_maxqueue;
+  }
+  else /* SANE_UMAX_USB, USB does not support command queueing */
+  {
+    DBG(DBG_info2, "setting request_scsi_maxqueue = 1 for USB connection\n");
+    dev->request_scsi_maxqueue  = 1;	  
+  }
+
   dev->request_preview_lines    = umax_preview_lines;
   dev->request_scan_lines       = umax_scan_lines;
   dev->handle_bad_sense_error   = umax_handle_bad_sense_error;
@@ -4239,12 +4361,11 @@ static SANE_Status do_cancel(Umax_Scanner *scanner)
     }
   }
 
-  if (scanner->device->sfd >= 0)
+  if (scanner->device->sfd != -1)
   {
     umax_give_scanner(scanner->device); /* reposition and release scanner */
     DBG(DBG_sane_info,"closing scannerdevice filedescriptor\n");
-    sanei_scsi_close(scanner->device->sfd);
-    scanner->device->sfd = -1;
+    umax_scsi_close(scanner->device);
   }
 
   scanner->device->three_pass_color = 1; /* reset color in color scanning */
@@ -4256,25 +4377,26 @@ static SANE_Status do_cancel(Umax_Scanner *scanner)
 /* ------------------------------------------------------------ ATTACH SCANNER ----------------------------- */
 
 
-static SANE_Status attach_scanner(const char *devicename, Umax_Device **devp)
+static SANE_Status attach_scanner(const char *devicename, Umax_Device **devp, int connection_type)
 {
  Umax_Device *dev;
- int sfd;
  int i;
 
-  DBG(DBG_sane_proc,"attach_scanner: %s\n", devicename);
+  DBG(DBG_sane_proc,"attach_scanner: %s, connection_type %d\n", devicename, connection_type);
 
-  for (dev = first_dev; dev; dev = dev->next)
+  for (dev = first_dev; dev; dev = dev->next) /* search is scanner already is listed in devicelist */
   {
-    if (strcmp(dev->sane.name, devicename) == 0)
+    if (strcmp(dev->sane.name, devicename) == 0) /* scanner is already listed */
     {
       if (devp)
       {
-        *devp = dev;
+        *devp = dev; /* return pointer to device */
       }
      return SANE_STATUS_GOOD;
     }
   }
+
+  /* scanner has not been attached yet */
 
   dev = malloc( sizeof(*dev) );
   if (!dev)
@@ -4283,37 +4405,71 @@ static SANE_Status attach_scanner(const char *devicename, Umax_Device **devp)
   }
   memset(dev, '\0', sizeof(Umax_Device)); /* clear structure */
 
-  DBG(DBG_info, "attach_scanner: opening %s\n", devicename);
+  /* If connection type is not known (==0) then try to open the device as an USB device. */
+  /* If it fails, try the SCSI method. */
 
-#ifdef HAVE_SANEI_SCSI_OPEN_EXTENDED
-  dev->bufsize = 16384; /* 16KB */
+#ifdef UMAX_ENABLE_USB
+  dev->connection_type = connection_type; /* 0 = unknown, 1=scsi, 2=usb */
 
-  if (sanei_scsi_open_extended(devicename, &sfd, sense_handler, dev, (int *) &dev->bufsize) != 0)
+  if (dev->connection_type != SANE_UMAX_SCSI)
   {
-    DBG(DBG_error, "ERROR: attach_scanner: opening %s failed\n", devicename);
-    free(dev);
-    return SANE_STATUS_INVAL;
-  }
+    dev->bufsize = 16384; /* 16KB */
+    DBG(DBG_info, "attach_scanner: opening usb device %s\n", devicename);
 
-  if (dev->bufsize < 4096) /* < 4KB */
-  {
-    DBG(DBG_error, "ERROR: attach_scanner: sanei_scsi_open_extended returned too small scsi buffer\n");
-    sanei_scsi_close(sfd);
-    free(dev);
-    return SANE_STATUS_NO_MEM;
-  }
+    if (sanei_umaxusb_open(devicename, &dev->sfd, sense_handler, dev) == SANE_STATUS_GOOD)
+    {
+      dev->connection_type = SANE_UMAX_USB;
+    }
+    else /* opening usb device failed */
+    {
+      if (dev->connection_type == SANE_UMAX_USB) /* we know it is not a scsi device: error */
+      {
+        DBG(DBG_error, "ERROR: attach_scanner: opening usb device %s failed\n", devicename);
+        free(dev);
+       return SANE_STATUS_INVAL;
+      }
 
-  DBG(DBG_info, "attach_scanner: sanei_scsi_open_extended returned scsi buffer size = %d\n", dev->bufsize);
+      DBG(DBG_info, "attach_scanner: failed to open %s as usb device\n", devicename);
+    }
+  }
 #else
-  dev->bufsize = sanei_scsi_max_request_size;
-
-  if (sanei_scsi_open(devicename, &sfd, sense_handler, dev) != 0)
-  {
-    DBG(DBG_error, "ERROR: attach_scanner: open failed\n");
-    free(dev);
-    return SANE_STATUS_INVAL;
-  }
+  dev->connection_type = SANE_UMAX_SCSI;
 #endif
+
+  if (dev->connection_type != SANE_UMAX_USB) /* not an USB device, then try as SCSI */
+  {
+#ifdef HAVE_SANEI_SCSI_OPEN_EXTENDED
+    dev->bufsize = 16384; /* 16KB */
+    DBG(DBG_info, "attach_scanner: opening scsi device %s\n", devicename);
+
+    if (sanei_scsi_open_extended(devicename, &dev->sfd, sense_handler, dev, (int *) &dev->bufsize) != 0)
+    {
+      DBG(DBG_error, "ERROR: attach_scanner: opening scsi device %s failed\n", devicename);
+      free(dev);
+     return SANE_STATUS_INVAL;
+    }
+
+    if (dev->bufsize < 4096) /* < 4KB */
+    {
+      DBG(DBG_error, "ERROR: attach_scanner: sanei_scsi_open_extended returned too small scsi buffer\n");
+      umax_scsi_close(dev);
+      free(dev);
+     return SANE_STATUS_NO_MEM;
+    }
+
+    DBG(DBG_info, "attach_scanner: sanei_scsi_open_extended returned scsi buffer size = %d\n", dev->bufsize);
+#else
+    dev->bufsize = sanei_scsi_max_request_size;
+
+    if (sanei_scsi_open(devicename, dev, sense_handler, dev) != 0)
+    {
+      DBG(DBG_error, "ERROR: attach_scanner: opening scsi device %s failed\n", devicename);
+      free(dev);
+     return SANE_STATUS_INVAL;
+    }
+#endif
+    dev->connection_type = SANE_UMAX_SCSI; /* set connection type (may have been unknown == 0) */
+  }
 
   DBG(DBG_info, "attach_scanner: allocating SCSI buffer[0]\n");
   dev->buffer[0] = malloc(dev->bufsize);								/* allocate buffer */
@@ -4326,7 +4482,7 @@ static SANE_Status attach_scanner(const char *devicename, Umax_Device **devp)
   if (!dev->buffer[0]) /* malloc failed */
   {
     DBG(DBG_error, "ERROR: attach scanner: could not allocate buffer[0]\n");
-    sanei_scsi_close(sfd);
+    umax_scsi_close(dev);
     free(dev);
     return SANE_STATUS_NO_MEM;
   }
@@ -4337,13 +4493,11 @@ static SANE_Status attach_scanner(const char *devicename, Umax_Device **devp)
   umax_initialize_values(dev);										   /* reset values */
 
   dev->devicename = strdup(devicename);
-  dev->sfd        = sfd;
 
   if (umax_identify_scanner(dev) != 0)
   {
     DBG(DBG_error, "ERROR: attach_scanner: scanner-identification failed\n");
-    sanei_scsi_close(dev->sfd);
-    dev->sfd=-1;
+    umax_scsi_close(dev);
     free(dev->buffer[0]);
     free(dev);
     return SANE_STATUS_INVAL;
@@ -4375,8 +4529,7 @@ static SANE_Status attach_scanner(const char *devicename, Umax_Device **devp)
   DBG(DBG_inquiry,"==================== end of inquiry ====================\n");
   DBG(DBG_inquiry,"\n");
 
-  sanei_scsi_close(dev->sfd);
-  dev->sfd=-1;
+  umax_scsi_close(dev);
 
   dev->sane.name   = dev->devicename;
   dev->sane.vendor = dev->vendor;
@@ -4468,14 +4621,9 @@ static RETSIGTYPE reader_process_sigterm_handler(int signal)
 /* ------------------------------------------------------------ READER PROCESS ----------------------------- */
 
 
-#ifdef HAVE_SANEI_IPC
-static int reader_process(Umax_Scanner *scanner)		      /* executed as a child process */
-{
-#else
 static int reader_process(Umax_Scanner *scanner, int pipe_fd)		      /* executed as a child process */
 {
  FILE *fp;
-#endif
  int status;
  unsigned int data_length;
  struct SIGACTION act;
@@ -4516,24 +4664,16 @@ static int reader_process(Umax_Scanner *scanner, int pipe_fd)		      /* executed
 
   data_length = scanner->params.lines * scanner->params.bytes_per_line;
 
-#ifndef HAVE_SANEI_IPC
   fp = fdopen (pipe_fd, "w");
   if (!fp)
   {
     return SANE_STATUS_IO_ERROR;
-  }
-#endif
+  } 
 
   DBG(DBG_sane_info,"reader_process: starting to READ data\n");
 
-
-#ifdef HAVE_SANEI_IPC
-  status = umax_reader_process(scanner->device, data_length);
-  sanei_ipc_detach_as_sender(scanner->device->ipc);
-#else
   status = umax_reader_process(scanner->device, fp, data_length);
   fclose(fp);
-#endif
 
   for (i = 1; i<scanner->device->request_scsi_maxqueue; i++)
   {
@@ -5381,13 +5521,21 @@ static SANE_Status init_options(Umax_Scanner *scanner)
 }
 
 
-/* ------------------------------------------------------------ ATTACH_ONE ---------------------------------- */
+/* ------------------------------------------------------------ ATTACH ONE SCSI ----------------------------- */
 
-
-/* callback function for sanei_config_attach_matching_devices(dev_name, attach_one) */
-static SANE_Status attach_one(const char *name)
+/* callback function for sanei_config_attach_matching_devices(dev_name, attach_one_scsi) */
+static SANE_Status attach_one_scsi(const char *name)
 {
-  attach_scanner(name, 0);
+  attach_scanner(name, 0, SANE_UMAX_SCSI);
+ return SANE_STATUS_GOOD;
+}
+
+/* ------------------------------------------------------------ ATTACH ONE USB ------------------------------ */
+
+/* callback function for sanei_usb_attach_matching_devices(dev_name, attach_one_usb) */
+static SANE_Status attach_one_usb(const char *name)
+{
+  attach_scanner(name, 0, SANE_UMAX_USB);
  return SANE_STATUS_GOOD;
 }
 
@@ -5408,7 +5556,7 @@ static SANE_Status umax_test_configure_option(const char *option_str, char *test
     value = strtol(value_str, &end_ptr, 10);
     if (end_ptr == value_str || errno) 
     {
-      DBG(DBG_error, "ERROR: inavlid value \"%s\" for option %s in %s\n", value_str, test_name, UMAX_CONFIG_FILE);
+      DBG(DBG_error, "ERROR: invalid value \"%s\" for option %s in %s\n", value_str, test_name, UMAX_CONFIG_FILE);
     }
     else
     {
@@ -5446,12 +5594,12 @@ SANE_Status sane_init(SANE_Int *version_code, SANE_Auth_Callback authorize)
 
   DBG(DBG_sane_init,"sane_init\n");
   DBG(DBG_error,"This is sane-umax version %d.%d build %d\n", V_MAJOR, V_MINOR, BUILD);
-#ifdef HAVE_SANEI_IPC
-  DBG(DBG_error,"compiled with sanei_ipc for inter-process-data-transfer\n");
+#ifdef UMAX_ENABLE_USB
+  DBG(DBG_error,"compiled with USB support for Astra 2200\n");
 #else
-  DBG(DBG_error,"compiled with pipe for inter-process-data-transfer\n");
+  DBG(DBG_error,"no USB support for Astra 2200\n");
 #endif
-  DBG(DBG_error,"(C) 1997-2001 by Oliver Rauch\n");
+  DBG(DBG_error,"(C) 1997-2002 by Oliver Rauch\n");
   DBG(DBG_error,"EMAIL: Oliver.Rauch@rauch-domain.de\n");
 
   if (version_code)
@@ -5461,11 +5609,19 @@ SANE_Status sane_init(SANE_Int *version_code, SANE_Auth_Callback authorize)
 
   frontend_authorize_callback = authorize; /* store frontend authorize callback */
 
+#ifdef UMAX_ENABLE_USB
+  sanei_usb_init();
+#endif
+
   fp = sanei_config_open(UMAX_CONFIG_FILE);
   if (!fp) 
   {
-    attach_scanner("/dev/scanner", 0);					     /* no config-file: /dev/scanner */
-    return SANE_STATUS_GOOD;
+    /* no config-file: try /dev/scanner and /dev/usbscanner. */
+    attach_scanner("/dev/scanner",    0, SANE_UMAX_SCSI);
+#ifdef UMAX_ENABLE_USB
+    attach_scanner("/dev/usbscanner", 0, SANE_UMAX_USB);
+#endif
+   return SANE_STATUS_GOOD;
   }
 
   DBG(DBG_info, "reading configure file %s\n", UMAX_CONFIG_FILE);
@@ -5492,28 +5648,44 @@ SANE_Status sane_init(SANE_Int *version_code, SANE_Auth_Callback authorize)
       else if (umax_test_configure_option(option_str, "slow-speed",               &umax_slow,                     -1,   1));
       else if (umax_test_configure_option(option_str, "care-about-smearing",      &umax_smear,                    -1,   1));
       else if (umax_test_configure_option(option_str, "calibration-full-ccd",     &umax_calibration_area,         -1,   1));
-      else if (umax_test_configure_option(option_str, "calibration-width-offset", &umax_calibration_width_offset, -1,   65535));
+      else if (umax_test_configure_option(option_str, "calibration-width-offset", &umax_calibration_width_offset, -99999, 65535));
       else if (umax_test_configure_option(option_str, "calibration-bytes-pixel",  &umax_calibration_bytespp,      -1,   2));
       else if (umax_test_configure_option(option_str, "invert-shading-data",      &umax_invert_shading_data,      -1,   1));
       else if (umax_test_configure_option(option_str, "lamp-control-available",   &umax_lamp_control_available,    0,   1));
       else if (umax_test_configure_option(option_str, "gamma-lsb-padded",         &umax_gamma_lsb_padded,         -1,   1));
+      else if (umax_test_configure_option(option_str, "connection-type",          &umax_connection_type,           1,   2));
       else
       {
         DBG(DBG_error,"ERROR: unknown option \"%s\" in %s\n", option_str, UMAX_CONFIG_FILE);
       }
       continue;
     }
+    else if (strncmp(config_line, "scsi", 4) == 0)
+    {
+      DBG(DBG_info,"sanei_config_attach_matching_devices(%s)\n", config_line);
+      sanei_config_attach_matching_devices(config_line, attach_one_scsi);
+      continue;
+    }
+    else if (strncmp(config_line, "usb", 3) == 0)
+    {
+#ifdef UMAX_ENABLE_USB
+      DBG(DBG_info,"sanei_usb_attach_matching_devices(%s)\n", config_line);
+      sanei_usb_attach_matching_devices(config_line, attach_one_usb);
+#else
+      DBG(DBG_info,"USB not supported, ignoring config line: %s\n", config_line);
+#endif
+      continue;
+    }
 
-    len = strlen (config_line);
+    len = strlen(config_line);
 
     if (!len) /* ignore empty lines */
     {
       continue;
     }
 
-    DBG(DBG_info,"attach_matching_devices(%s)\n", config_line);
-    /* ok, theis should be one or more devices: try to attach it/them */
-    sanei_config_attach_matching_devices(config_line, attach_one);
+    /* umax_connection_type is set by umax.conf: 1=scsi, 2=usb */
+    attach_scanner(config_line, 0, umax_connection_type); /* try to open as devicename */
   }
 
   DBG(DBG_info, "finished reading configure file\n");
@@ -5595,7 +5767,7 @@ SANE_Status sane_open(SANE_String_Const devicename, SANE_Handle *handle)
 
   DBG(DBG_sane_init,"sane_open\n");
 
-  if (devicename[0])								    /* search for devicename */
+  if (devicename[0])   /* search for devicename */
   {
     DBG(DBG_sane_info,"sane_open: devicename=%s\n", devicename);
 
@@ -5603,13 +5775,13 @@ SANE_Status sane_open(SANE_String_Const devicename, SANE_Handle *handle)
     {
       if (strcmp(dev->sane.name, devicename) == 0)
       {
-        break;
+        break; /* device found, exit for loop */
       }
     }
 
-    if (!dev)
+    if (!dev) /* no device found */
     {
-      status = attach_scanner(devicename, &dev);
+      status = attach_scanner(devicename, &dev, 0 /* connection-type not known */); /* try to open devicename and set dev */
       if (status != SANE_STATUS_GOOD)
       {
         return status;
@@ -5622,7 +5794,7 @@ SANE_Status sane_open(SANE_String_Const devicename, SANE_Handle *handle)
     dev = first_dev; 							/* empty devicename -> use first device */
   }
 
-  if (!dev)
+  if (!dev) /* no device found */
   {
     return SANE_STATUS_INVAL;
   }
@@ -5635,8 +5807,7 @@ SANE_Status sane_open(SANE_String_Const devicename, SANE_Handle *handle)
 
   memset(scanner, 0, sizeof (*scanner));
 
-  scanner->device      = dev;
-  scanner->device->sfd = -1;
+  scanner->device = dev;
 
   if (scanner->device->inquiry_GIB & 32)
   {
@@ -6260,7 +6431,7 @@ SANE_Status sane_control_option(SANE_Handle handle, SANE_Int option, SANE_Action
         }
         scanner->val[option].s = (SANE_Char *) strdup(val); /* update string for umax_set_max_geometry */
 
-        DBG(DBG_info,"sane_control_option: set SOURCE = %s\n", val);
+        DBG(DBG_info,"sane_control_option: set SOURCE = %s\n", (SANE_Char *) val);
         umax_set_max_geometry(scanner);
 
         if (info)
@@ -6677,15 +6848,13 @@ SANE_Status sane_start(SANE_Handle handle)
  const char *scan_source;
  int pause;
  int status;
-#ifndef HAVE_SANEI_IPC
  int fds[2];
-#endif
 
   DBG(DBG_sane_init,"sane_start\n");
 
   mode = scanner->val[OPT_MODE].s;
 
-  if (scanner->device->sfd < 0)   /* first call, don`t run this routine again on multi frame or multi image scan */
+  if (scanner->device->sfd == -1)   /* first call, don`t run this routine again on multi frame or multi image scan */
   {
     umax_initialize_values(scanner->device);								    /* reset values */
 
@@ -6703,8 +6872,7 @@ SANE_Status sane_start(SANE_Handle handle)
       else
       {
         DBG(DBG_error,"ERROR: Transparency Adapter not available\n");
-        sanei_scsi_close(scanner->device->sfd);
-        scanner->device->sfd=-1;
+        umax_scsi_close(scanner->device);
        return SANE_STATUS_INVAL;
       }
     }
@@ -6721,8 +6889,7 @@ SANE_Status sane_start(SANE_Handle handle)
         else
         {
           DBG(DBG_error,"ERROR: Automatic Document Feeder not available\n");
-         sanei_scsi_close(scanner->device->sfd);
-         scanner->device->sfd=-1;
+         umax_scsi_close(scanner->device);
          return SANE_STATUS_INVAL;
         }
       }
@@ -7076,7 +7243,7 @@ SANE_Status sane_start(SANE_Handle handle)
         scsi_bufsize = scanner->device->scsi_buffer_size_max;
       }
 
-      if (sanei_scsi_open_extended(scanner->device->sane.name, &(scanner->device->sfd), sense_handler,
+      if (umax_scsi_open_extended(scanner->device->sane.name, scanner->device, sense_handler,
                                    scanner->device, (int *) &scsi_bufsize) != 0)
       {
         DBG(DBG_error, "ERROR: sane_start: open failed\n");
@@ -7086,12 +7253,12 @@ SANE_Status sane_start(SANE_Handle handle)
 
       if (scsi_bufsize < scanner->device->scsi_buffer_size_min) /* minimum size must be available */
       {
-        DBG(DBG_error, "ERROR: sane_start: sanei_scsi_open_extended returned too small scsi buffer\n");
-        sanei_scsi_close((scanner->device->sfd));
+        DBG(DBG_error, "ERROR: sane_start: umax_scsi_open_extended returned too small scsi buffer\n");
+        umax_scsi_close((scanner->device));
         scanner->scanning = SANE_FALSE;
         return SANE_STATUS_NO_MEM;
       }
-      DBG(DBG_info, "sane_start: sanei_scsi_open_extended returned scsi buffer size = %d\n", scsi_bufsize);
+      DBG(DBG_info, "sane_start: umax_scsi_open_extended returned scsi buffer size = %d\n", scsi_bufsize);
 
       if (scsi_bufsize < scanner->device->width_in_pixels) /* print warning when buffer is smaller than one scanline */
       {
@@ -7116,7 +7283,7 @@ SANE_Status sane_start(SANE_Handle handle)
         if (!scanner->device->buffer[0]) /* malloc failed */
         {
           DBG(DBG_error, "ERROR: sane_start: could not allocate buffer[0]\n");
-          sanei_scsi_close(scanner->device->sfd);
+          umax_scsi_close(scanner->device);
           scanner->device->bufsize = 0;
           scanner->scanning = SANE_FALSE;
          return SANE_STATUS_NO_MEM;
@@ -7124,7 +7291,7 @@ SANE_Status sane_start(SANE_Handle handle)
       }
     }
 #else
-    if ( sanei_scsi_open(scanner->device->sane.name, &(scanner->device->sfd), sense_handler,
+    if ( umax_scsi_open(scanner->device->sane.name, scanner->device, sense_handler,
                          scanner->device) != SANE_STATUS_GOOD )
     {
       scanner->scanning = SANE_FALSE;
@@ -7139,8 +7306,7 @@ SANE_Status sane_start(SANE_Handle handle)
     /* grab scanner */
     if (umax_grab_scanner(scanner->device))
     {
-      sanei_scsi_close(scanner->device->sfd);
-      scanner->device->sfd=-1;
+      umax_scsi_close(scanner->device);
       scanner->scanning = SANE_FALSE;
       DBG(DBG_warning,"WARNING: unable to reserve scanner: device busy\n");
      return SANE_STATUS_DEVICE_BUSY;
@@ -7312,19 +7478,12 @@ SANE_Status sane_start(SANE_Handle handle)
   }
 
 
-#ifdef HAVE_SANEI_IPC
-  if (sanei_ipc_create(&scanner->device->ipc))
-  {
-    DBG(DBG_error,"ERROR: could not create ipc\n");
-#else
   if (pipe(fds) < 0)
   {
     DBG(DBG_error,"ERROR: could not create pipe\n");
-#endif
     scanner->scanning = SANE_FALSE;
     umax_give_scanner(scanner->device); /* reposition and release scanner */
-    sanei_scsi_close(scanner->device->sfd);
-    scanner->device->sfd=-1;
+    umax_scsi_close(scanner->device);
    return SANE_STATUS_IO_ERROR;
   }
 
@@ -7334,11 +7493,7 @@ SANE_Status sane_start(SANE_Handle handle)
     sigset_t ignore_set;
     struct SIGACTION act;
 
-#ifdef HAVE_SANEI_IPC
-    sanei_ipc_attach_as_sender(scanner->device->ipc);
-#else
     close(fds[0]);
-#endif
 
     sigfillset(&ignore_set);
     sigdelset(&ignore_set, SIGTERM);
@@ -7347,19 +7502,11 @@ SANE_Status sane_start(SANE_Handle handle)
     memset(&act, 0, sizeof (act));
     sigaction (SIGTERM, &act, 0);
 
-#ifdef HAVE_SANEI_IPC
-    _exit(reader_process(scanner));   /* don't use exit() since that would run the atexit() handlers */
-#else
     _exit(reader_process(scanner, fds[1]));   /* don't use exit() since that would run the atexit() handlers */
-#endif
   }
 
-#ifdef HAVE_SANEI_IPC
-  sanei_ipc_attach_as_receiver(scanner->device->ipc);
-#else
   close(fds[1]);
   scanner->pipe = fds[0]; 
-#endif
 
  return SANE_STATUS_GOOD;
 }
@@ -7375,11 +7522,7 @@ SANE_Status sane_read(SANE_Handle handle, SANE_Byte *buf, SANE_Int max_len, SANE
 
   *len = 0;
 
-#ifdef HAVE_SANEI_IPC
-  nread = sanei_ipc_read(scanner->device->ipc, buf, max_len);
-#else
   nread = read(scanner->pipe, buf, max_len);
-#endif
 
   DBG(DBG_sane_info, "sane_read: read %ld bytes\n", (long) nread);
 
@@ -7413,21 +7556,15 @@ SANE_Status sane_read(SANE_Handle handle, SANE_Byte *buf, SANE_Int max_len, SANE
       do_cancel(scanner);
     }
 
-#ifdef HAVE_SANEI_IPC
-    sanei_ipc_detach_as_receiver(scanner->device->ipc);
-    sanei_ipc_destroy(&scanner->device->ipc);
-   return SANE_STATUS_EOF;
-#else
-  DBG(DBG_sane_proc,"closing pipe\n");
+    DBG(DBG_sane_proc,"closing pipe\n");
 
-  if (scanner->pipe >= 0)
-  {
-    close(scanner->pipe);
-    scanner->pipe = -1;
-  }
+    if (scanner->pipe >= 0)
+    {
+      close(scanner->pipe);
+      scanner->pipe = -1;
+    }
 
- return SANE_STATUS_EOF;    
-#endif
+    return SANE_STATUS_EOF;    
   }
 
  return SANE_STATUS_GOOD;
@@ -7461,15 +7598,11 @@ SANE_Status sane_set_io_mode(SANE_Handle handle, SANE_Bool non_blocking)
 
   if (!scanner->scanning) { return SANE_STATUS_INVAL; }
 
-#ifdef HAVE_SANEI_IPC
-  return sanei_ipc_set_io_mode(scanner->device->ipc, non_blocking);
-#else
   if (fcntl(scanner->pipe, F_SETFL, non_blocking ? O_NONBLOCK : 0) < 0)
   {
     return SANE_STATUS_IO_ERROR;
   }  
  return SANE_STATUS_GOOD;  
-#endif
 }
 
 
@@ -7487,11 +7620,8 @@ SANE_Status sane_get_select_fd(SANE_Handle handle, SANE_Int *fd)
     return SANE_STATUS_INVAL;
   }
 
-#ifdef HAVE_SANEI_IPC
-  *fd = scanner->device->ipc->fds[0];
-#else
   *fd = scanner->pipe;
-#endif
+
  return SANE_STATUS_GOOD;
 }
 

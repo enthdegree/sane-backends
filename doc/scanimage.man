@@ -1,4 +1,4 @@
-.TH scanimage 1 "12 Jan 2002"
+.TH scanimage 1 "11 Sep 2002"
 .IX scanimage
 .SH NAME
 scanimage - scan an image
@@ -8,19 +8,21 @@ scanimage - scan an image
 .IR dev ]
 .RB [ --format
 .IR format ]
-.RB [ --accept-md5-only ]
-.RB [ -h | --help ]
+.RB [ -i | --icc-profile=PROFILE]
 .RB [ -L | --list-devices ]
 .RB [ -f | --formatted-device-list 
 .IR format ]
-.RB [ -T | --test ]
-.RB [ -v | --verbose ]
-.RB [ -V | --version ]
 .RB [ --batch[=FORMAT] ]
 .RB [ --batch-start=# ]
 .RB [ --batch-count=# ]
 .RB [ --batch-increment=# ]
 .RB [ --batch-double ]
+.RB [ --accept-md5-only ]
+.RB [ -n | --dont-scan ]
+.RB [ -T | --test ]
+.RB [ -h | --help ]
+.RB [ -v | --verbose ]
+.RB [ -V | --version ]
 .RI [ device-specific-options ]
 .SH DESCRIPTION
 .B scanimage
@@ -70,18 +72,10 @@ to select file format PNM or TIFF. If
 is not used, PNM is written.
 .PP
 The
-.B --accept-md5-only
-option only accepts user authorization requests that support MD5 security. The
-SANE network daemon (saned) is capable of doing such requests. See
-.B saned(1)
-.PP
-The
-.B -h
+.B -i
 or
-.B --help
-options request help information.  The information is printed on
-standard output and in this case, no attempt will be made to acquire
-an image.
+.B --icc-profile
+option is used to include an ICC profile into a TIFF file.
 .PP
 The
 .B -L
@@ -115,40 +109,8 @@ will produce something like:
 .RS
 scanner number 0  device sharp:/dev/sg1 is  a  flatbed scanner, model JX250
 SCSI, produced by SHARP
-.PP
 .RE
-The
-.B -T
-or
-.B --test
-option requests that
-.B scanimage
-perform a few simple sanity tests to make sure the backend works as
-defined by the SANE API (in particular the
-.B sane_read
-function is excercised by this test).
 .PP
-The
-.B -v
-or
-.B --verbose
-options increase the verbosity of the operation of
-.B scanimage.
-The option may be specified repeatedly, each time increasing the verbosity
-level.
-
-The
-.B -V
-or
-.B --version
-option requests that
-.B scanimage
-prints the program and package name, the version number of
-the SANE distribution that it came with and the version of the backend
-that it loads. Usually that's the dll backend. If more information about
-the version numbers of the backends are necessary, the DEBUG variable for
-the dll backend can be used. Example: SANE_DEBUG_DLL=3 scanimage -L.
-
 The
 .B --batch*
 options provide the features for scanning documents using document
@@ -174,6 +136,63 @@ on a single-sided document feeder.  A specific command is provided to
 aid this:
 .B --batch-double
 will automatically set the increment to 2.
+.PP
+The
+.B --accept-md5-only
+option only accepts user authorization requests that support MD5 security. The
+SANE network daemon (saned) is capable of doing such requests. See
+.B saned(1)
+.PP
+The
+.B -n
+or
+.B --dont-scan
+option requests that
+.B scanimage
+only sets the options provided by the user but doesn't actually perform a
+scan. This option can be used to e.g. turn off the scanner's lamp (if
+supported by the backend).
+.PP
+The
+.B -T
+or
+.B --test
+option requests that
+.B scanimage
+perform a few simple sanity tests to make sure the backend works as
+defined by the SANE API (in particular the
+.B sane_read
+function is excercised by this test).
+.PP
+The
+.B -h
+or
+.B --help
+options request help information.  The information is printed on
+standard output and in this case, no attempt will be made to acquire
+an image.
+.PP
+The
+.B -v
+or
+.B --verbose
+options increase the verbosity of the operation of
+.B scanimage.
+The option may be specified repeatedly, each time increasing the verbosity
+level.
+.PP
+The
+.B -V
+or
+.B --version
+option requests that
+.B scanimage
+prints the program and package name, the version number of
+the SANE distribution that it came with and the version of the backend
+that it loads. Usually that's the dll backend. If more information about
+the version numbers of the backends are necessary, the DEBUG variable for
+the dll backend can be used. Example: SANE_DEBUG_DLL=3 scanimage -L.
+.PP
 
 As you might imagine, much of the power of
 .B scanimage
@@ -186,7 +205,7 @@ invoke
 via a command-line of the form:
 .PP
 .RS
-scanimage --help --device
+scanimage --help --device-name
 .I dev
 .RE
 .PP
@@ -298,6 +317,10 @@ that the first vector element is set to 3, the 9-th element is set to
 12 and the values inbetween are interpolated linearly.  Of course, it
 is possible to specify multiple such linear segments.  For example,
 "[0]3-[2]3-[6]7,[7]10-[9]6" is equivalent to "3,3,3,4,5,6,7,10,8,6".
+The program
+.B gamma4scanimage
+can be used to generate such gamma tables (see man gamma4scanimage for
+details).
 .RE
 
 .br
@@ -335,7 +358,7 @@ use this file in conjunction with the --accept-md5-only option to avoid
 server-side attacks. The resource may contain any character but is limited
 to 127 characters.
 .SH "SEE ALSO"
-sane(7), xscanimage(1), xcam(1), xsane(1), scanadf(1), sane\-dll(5),
+sane(7), gamma4scanimage(1), xscanimage(1), xcam(1), xsane(1), scanadf(1), sane\-dll(5),
 sane\-net(5), sane-"backendname"(5)
 .SH AUTHOR
 David Mosberger, Andreas Beck, Gordon Matzigkeit and Caskey Dickson

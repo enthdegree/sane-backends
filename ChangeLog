@@ -1,3 +1,7 @@
+2000-12-12  Henning Meier-Geinitz <hmg@gmx.de>
+
+	* NEWS: Updated/corrected version numbers of backends.
+	
 2000-12-10  Henning Meier-Geinitz <hmg@gmx.de>
 
 	* doc/sane-scsi.man: Small changes/updates concerning Linux

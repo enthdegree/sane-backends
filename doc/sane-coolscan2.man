@@ -4,7 +4,7 @@
 sane-coolscan2 \- SANE backend for Nikon Coolscan film scanners
 .SH DESCRIPTION
 The
-.sane-coolscan2
+.B sane-coolscan2
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to Nikon Coolscan film scanners.  Some functions of this 
 backend should be considered

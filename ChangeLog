@@ -4,7 +4,9 @@
 	  directories.
 	* doc/Makefile.in: Updated install-mostang concerning splitted HTML
 	  pages.
-
+	* configure configure.in README: Use only shared libraries by default.
+	  Fixed file patterns for distclean targets.
+	
 2002-03-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* sanei_wire.c: Set allocated memory to 0 to avoid delivering

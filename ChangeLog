@@ -1,4 +1,8 @@
-2001-05-07  Oliver Rauch <Oliver.Rauch@rauch-domain.de>
+2001-05-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* NEWS: Updated concerning sane man page and new backends.
+	
+2001-05-17  Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 
 	* updated umax backend to version 1.0 build 26
 

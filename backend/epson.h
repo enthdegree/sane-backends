@@ -152,7 +152,7 @@ enum
 		, OPT_SPEED
 		, OPT_AAS
 		, OPT_ZOOM
-		, OPT_GAMMA_VECTOR
+/* 		, OPT_GAMMA_VECTOR */
 		, OPT_GAMMA_VECTOR_R
 		, OPT_GAMMA_VECTOR_G
 		, OPT_GAMMA_VECTOR_B
@@ -288,7 +288,8 @@ struct Epson_Scanner {
 	SANE_Bool invert_image;
 	SANE_Bool focusOnGlass;
 	SANE_Byte currentFocusPosition;
-	SANE_Word gamma_table [ 4] [ 256];
+/*	SANE_Word gamma_table [ 4] [ 256]; */
+	SANE_Word gamma_table [ 3] [ 256];
 	SANE_Int retry_count;
 	SANE_Byte *line_buffer[LINES_SHUFFLE_MAX];	
 					/* buffer lines for color shuffling */

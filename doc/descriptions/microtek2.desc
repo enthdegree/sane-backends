@@ -21,18 +21,24 @@
 :url "http://www.microtek.com/"
 :model "ScanMaker E3plus"
 :interface "Parport"
+:status :stable
 :model "ScanMaker E3plus"         ; name models for above-specified mfg.
 :interface "SCSI"
+:status :stable
 :model "ScanMaker X6"
 :interface "SCSI"
+:status :stable
 :model "ScanMaker X6EL"
 :interface "SCSI"
 :model "ScanMaker X6USB"
 :interface "USB"
+:status :beta
 :model "ScanMaker V300"
 :interface "SCSI"
+:status :beta
 :model "ScanMaker V300"
 :interface "Parport"
+:status :beta
 :model "ScanMaker V310"
 :interface "SCSI"
 :model "ScanMaker V310"
@@ -47,30 +53,42 @@
 :interface "SCSI"
 :model "ScanMaker 636"
 :interface "SCSI"
+:status :stable
 :model "ScanMaker 9600XL"
 :interface "SCSI"
 :comment "only flatbed mode ?"
 :model "Phantom 330CX"
 :interface "Parport"
+:status :stable
 :model "SlimScan C3"
 :interface "Parport"
+:status :stable
 :model "Phantom 636"
 :interface "SCSI"
+:status :stable
 :model "Phantom 636CX"
 :interface "Parport"
+:status :stable
 :model "SlimScan C6"
 :interface "USB"
+:status :stable
 :model "ScanMaker V6USL"
 :interface "SCSI"
+:status :stable
+:model "ScanMaker V6USL"
+:interface "USB"
+:status :stable
 :model "ScanMaker X12USL"
 :interface "SCSI"
 :comment "only 8bit color, work in progress"
+:status :alpha
 
 :mfg "Vobis"
 :url "http://www.vobis.de/"
 :model "HighScan"                 ; name models for above-specified mfg.
 :interface "SCSI"
 :comment "only E3plus based models"
+:status :stable
 
 :mfg "Scanport"
 :url "http://www.scanport.com/"

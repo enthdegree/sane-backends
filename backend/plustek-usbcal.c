@@ -585,7 +585,7 @@ static SANE_Bool cano_AdjustGain( pPlustek_Device dev )
 			}
       
 			adj = cano_adjGainSetting(min,max,a_bRegs+0x3c,w_max);
-			a_bRegs[0x3a] = (a_bRegs[0x3d] = a_bRegs[0x3c]);
+			a_bRegs[0x3b] = (a_bRegs[0x3d] = a_bRegs[0x3c]);
       
 			DBG(_DBG_INFO2, "MAX(G)= 0x%04x(%u)\n", w_max, w_max );
       

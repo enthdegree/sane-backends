@@ -682,7 +682,11 @@ static SANE_Bool usb_AdjustGain( pPlustek_Device dev, int fNegative )
 	m_ScanParam.Size.dwLines  = 1;				/* for gain */
 	m_ScanParam.Size.dwPixels = scaps->Normal.Size.x *
 								scaps->OpticDpi.x / 300UL;
-
+/*for TPA tests*/
+#if 0
+	m_ScanParam.Size.dwPixels = dev->usbDev.pSource->Size.x *
+								scaps->OpticDpi.x / 300UL;
+#endif								
 	m_ScanParam.Size.dwBytes  = m_ScanParam.Size.dwPixels *
 								2 * m_ScanParam.bChannels;
 
@@ -693,6 +697,11 @@ static SANE_Bool usb_AdjustGain( pPlustek_Device dev, int fNegative )
 
 	m_ScanParam.Origin.x = (u_short)((u_long) hw->wActivePixelsStart *
 													300UL / scaps->OpticDpi.x);
+/*for TPA tests*/
+#if 0
+	m_ScanParam.Origin.x = (u_short)((u_long)dev->usbDev.pSource->DataOrigin.x *
+													300UL / scaps->OpticDpi.x);
+#endif
 	m_ScanParam.bCalibration = PARAM_Gain;
 
 	DBG( _DBG_INFO2, "Coarse Calibration Strip:\n" );
@@ -788,8 +797,9 @@ TOGAIN:
 			Gain_Hilight.Red  = Gain_Hilight.Green =
 			Gain_Hilight.Blue = (u_short)(dwMax / 20UL);
 
-			Gain_Reg.Red  = Gain_Reg.Green = Gain_Reg.Blue =
-			a_bRegs[0x3b] = a_bRegs[0x3c]  = a_bRegs[0x3d] = usb_GetNewGain(Gain_Hilight.Green);
+			Gain_Reg.Red  = Gain_Reg.Green =
+			Gain_Reg.Blue = a_bRegs[0x3b] =
+			a_bRegs[0x3c] = a_bRegs[0x3d] = usb_GetNewGain(Gain_Hilight.Green);
 		}
 	} else {
 
@@ -807,8 +817,8 @@ TOGAIN:
 			for( dw = 0; dwLoop1; dwLoop1-- ) {
 
 				/* do some averaging... */
-				for (dwLoop2 = dwDiv, dwR = dwG = dwB = 0; dwLoop2; dwLoop2--, dw++)
-				{
+				for (dwLoop2 = dwDiv, dwR = dwG = dwB = 0;
+													dwLoop2; dwLoop2--, dw++) {
 					if( hw->bReg_0x26 & _ONE_CH_COLOR ) {
 						dwR += ((u_short*)pScanBuffer)[dw];
 						dwG += ((u_short*)pScanBuffer)

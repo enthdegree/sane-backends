@@ -202,6 +202,7 @@ static ModeParam mode_params[] =
   {1, 16, COLOR_TRUE48}
 };
 
+/* HEINER
 static const SANE_String_Const mode_list[] =
 {
 	SANE_I18N("Binary"),
@@ -210,7 +211,7 @@ static const SANE_String_Const mode_list[] =
 	SANE_I18N("Color"),
 	NULL
 };
-
+*/
 static const SANE_String_Const mode_usb_list[] =
 {
 	SANE_I18N("Binary"),
@@ -1803,16 +1804,16 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
    					    	s->val[OPT_BR_X].w = SANE_FIX(_DEFAULT_NEG_BRX);
 						    s->val[OPT_BR_Y].w = SANE_FIX(_DEFAULT_NEG_BRY);
     					}
-
+/* HEINER
 	    				if( s->hw->caps.dwFlag & SFLAG_TPA ) {
-	    				
+*/	    				
 		    				s->opt[OPT_MODE].constraint.string_list =
 											&mode_usb_list[_TPAModeSupportMin];
-        	    		} else {
+/* HEINER       	    		} else {
 				    		s->opt[OPT_MODE].constraint.string_list =
 												&mode_list[_TPAModeSupportMin];
 					    }
- 						s->val[OPT_MODE].w = 0;		/* COLOR_24 is the default */
+ */						s->val[OPT_MODE].w = 0;		/* COLOR_24 is the default */
         			}
 
 		    		s->opt[OPT_HALFTONE].cap |= SANE_CAP_INACTIVE;

@@ -814,7 +814,7 @@ static int usbDev_setScanEnv( Plustek_Device *dev, pScanInfo si )
 			dev->scanning.fGrayFromColor = 2;
 			si->ImgDef.wDataType = COLOR_TRUE24;
 
-			DBG( _DBG_INFO, "Gray from color set!\n" );
+			DBG( _DBG_INFO, "* Gray from color set!\n" );
 		}
 	}
 
@@ -827,9 +827,9 @@ static int usbDev_setScanEnv( Plustek_Device *dev, pScanInfo si )
     								   SCANFLAG_StillModule | SCANDEF_Adf | SCANDEF_ContinuousScan);
 
 	if( !(SCANDEF_QualityScan & si->ImgDef.dwFlag)) {
-		DBG( _DBG_INFO, "Preview Mode set!\n" );
+		DBG( _DBG_INFO, "* Preview Mode set!\n" );
 	} else {
-		DBG( _DBG_INFO, "Preview Mode NOT set!\n" );
+		DBG( _DBG_INFO, "* Preview Mode NOT set!\n" );
 		dev->scanning.dwFlag |= SCANDEF_QualityScan;
 	}
 
@@ -1034,6 +1034,7 @@ static int usbDev_Prepare( struct Plustek_Device *dev, SANE_Byte *buf )
 
 	if( dev->adj.cacheCalData )
 		usb_SaveCalData( dev );
+
 	DBG( _DBG_INFO, "calibration done.\n" );
 
 	if( !( scanning->dwFlag & SCANFLAG_Scanning )) {

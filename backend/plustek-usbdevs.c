@@ -545,7 +545,7 @@ static DCapsDef Cap0x0400_0x1001_0 =
 static DCapsDef Cap0x04B8_0x010F_0 =
 {
 	/* Normal */
-	{{   25,  85},  10, -1, {2550, 3508}, { 100, 100 }, COLOR_BW },
+	{{   25,   85},  10, -1, {2550, 3508}, { 100, 100 }, COLOR_BW },
 	/* Positive */
 	{{ 1100,  972}, 720, -1, { 473,  414}, { 150, 150 }, COLOR_GRAY16 },
 	/* Negative */

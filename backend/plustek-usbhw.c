@@ -28,7 +28,8 @@
  *        - fixed NULL pointer problem in lamp-off ISR
  *        - added usb_AdjustCISLampSettings()
  *        - skipping warmup for CIS devices 
- * - 0.46 - no changes
+ * - 0.46 - fixed problem in usb_GetLampStatus for CIS devices, as we
+ *          read back reg[0x29] to wrong position
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -695,12 +696,15 @@ static void usb_AdjustCISLampSettings( Plustek_Device *dev, SANE_Bool on )
 	if((dev->scanning.sParam.bDataType == SCANDATATYPE_Gray) ||
 	   (dev->scanning.sParam.bDataType == SCANDATATYPE_BW)) {
 
+		DBG( _DBG_INFO2, " * setting mono mode\n" );
 		hw->bReg_0x29 = hw->illu_mono.mode;
 
 		memcpy( &hw->red_lamp_on,
 				&hw->illu_mono.red_lamp_on, sizeof(u_short) * 6 );
 
 	} else {
+
+		DBG( _DBG_INFO2, " * setting color mode\n" );
 		hw->bReg_0x29 = hw->illu_color.mode;
 
 		memcpy( &hw->red_lamp_on,
@@ -788,10 +792,14 @@ static int usb_GetLampStatus( pPlustek_Device dev )
 		usb_GetLampRegAndMask( sc->lamp, &reg, &msk );
 
 		if( 0 == reg ) {
-
+#if 0
+			/* probably not correct, esp. when changing from color to gray...*/
 			usbio_ReadReg( dev->fd, 0x29, &a_bRegs[0x29] );
-
-			if( a_bRegs[0x29] & 3)
+			if( a_bRegs[0x29] & 3 )
+#else
+			usbio_ReadReg( dev->fd, 0x29, &reg );
+			if( reg & 3 )
+#endif
 				iLampStatus |= DEV_LampReflection;
 		} else {
 

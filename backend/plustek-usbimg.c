@@ -485,7 +485,7 @@ static void usb_ColorScale8_2( struct Plustek_Device *dev )
 	} 			
 }
 
-/*.............................................................................
+/**
  *
  */
 static void usb_ColorScale16( struct Plustek_Device *dev )
@@ -554,6 +554,78 @@ static void usb_ColorScale16( struct Plustek_Device *dev )
 			}
 		} 			
 	}	
+}
+
+/**
+ *
+ */
+static void usb_ColorScale16_2( struct Plustek_Device *dev )
+{
+	HiLoDef  tmp;
+	int      izoom, ddax;
+	u_long   dw;
+    pScanDef scanning = &dev->scanning;
+
+	usb_AverageColorWord( dev );
+
+	dw = scanning->sParam.Size.dwPixels;
+
+	if( scanning->sParam.bSource == SOURCE_ADF ) {
+		iNext    = -1;
+		dwPixels = scanning->sParam.Size.dwPixels - 1;
+	} else {
+		iNext    = 1;
+		dwPixels = 0;
+	}
+
+	izoom = usb_GetScaler( scanning );
+
+	if( scanning->dwFlag & SCANFLAG_RightAlign ) {
+
+		for( dwBitsPut = 0, ddax = 0; dw; dwBitsPut++ ) {
+
+			ddax -= _SCALER;
+
+			while((ddax < 0) && (dw > 0)) {
+
+				tmp = *((pHiLoDef)&scanning->Red.pw[dw]);
+				scanning->UserBuf.pw_rgb[dwPixels].Red = _HILO2WORD(tmp) >> 2;
+        	
+				tmp = *((pHiLoDef)&scanning->Green.pw[dw]);
+				scanning->UserBuf.pw_rgb[dwPixels].Green = _HILO2WORD(tmp) >> 2;
+
+				tmp = *((pHiLoDef)&scanning->Blue.pw[dw]);
+				scanning->UserBuf.pw_rgb[dwPixels].Blue = _HILO2WORD(tmp) >> 2;
+
+				dwPixels = dwPixels + iNext;
+				ddax    += izoom;
+				dw--;
+			}
+		}
+
+	} else {
+
+		for( dwBitsPut = 0, ddax = 0; dw; dwBitsPut++ ) {
+
+			ddax -= _SCALER;
+
+			while((ddax < 0) && (dw > 0)) {
+
+				tmp = *((pHiLoDef)&scanning->Red.pw[dw]);
+				scanning->UserBuf.pw_rgb[dwPixels].Red = _HILO2WORD(tmp);
+
+				tmp = *((pHiLoDef)&scanning->Green.pw[dw]);
+				scanning->UserBuf.pw_rgb[dwPixels].Green = _HILO2WORD(tmp);
+
+				tmp = *((pHiLoDef)&scanning->Blue.pw[dw]);
+				scanning->UserBuf.pw_rgb[dwPixels].Blue = _HILO2WORD(tmp);
+
+				dwPixels = dwPixels + iNext;
+				ddax    += izoom;
+				dw--;
+			}
+		}
+	}
 }
 
 /*.............................................................................
@@ -1124,8 +1196,14 @@ static void usb_GetImageProc( struct Plustek_Device *dev )
 
 			case SCANDATATYPE_Color:
 				if (scanning->sParam.bBitDepth > 8) {
-					scanning->pfnProcess = usb_ColorScale16;
-					DBG( _DBG_INFO, "ImageProc is: ColorScale16\n" );
+
+					if( hw->bReg_0x26 & _ONE_CH_COLOR ) {
+						scanning->pfnProcess = usb_ColorScale16_2;
+						DBG( _DBG_INFO, "ImageProc is: ColorScale16_2\n" );
+					} else {
+						scanning->pfnProcess = usb_ColorScale16;
+						DBG( _DBG_INFO, "ImageProc is: ColorScale16\n" );
+					}
 					
 				} else if (scanning->dwFlag & SCANFLAG_Pseudo48) {
 					scanning->pfnProcess = usb_ColorScalePseudo16;

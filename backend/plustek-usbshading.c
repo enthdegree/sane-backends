@@ -59,8 +59,10 @@
 
 /************** global stuff - I hate it, but we need it... ******************/
 
-static u_short a_wWhiteShading[10200 * 3] = {0};
-static u_short a_wDarkShading[10200 * 3]  = {0};
+#define _SHADING_BUF	(10200*3)
+
+static u_short a_wWhiteShading[_SHADING_BUF] = {0};
+static u_short a_wDarkShading[_SHADING_BUF]  = {0};
 
 /************************** static variables *********************************/
 
@@ -87,6 +89,37 @@ static double dRed, dGreen, dBlue;
 
 static u_short m_wHilight = 4 /*0*/;  /* check the windows registry... */
 static u_short m_wShadow  = 4 /*0*/;  /* check the windows registry... */
+
+/** usb_SetMCLK
+ * get the MCLK out of our table
+ */
+static void	usb_SetMCLK( pPlustek_Device dev, pScanParam pParam )
+{
+	int       	 idx, i;
+	pClkMotorDef clk;
+
+	pHWDef    	 hw = &dev->usbDev.HwSetting;
+
+	clk = usb_GetMotorSet( hw->motorModel );
+	idx = 0;
+	for( i = 0; i < _MAX_CLK; i++ ) {
+		if( pParam->PhyDpi.x <= dpi_ranges[i] )
+  			break;
+		idx++;
+	}
+	if( idx >= _MAX_CLK )
+		idx = _MAX_CLK - 1;
+
+	if( pParam->bDataType != SCANDATATYPE_Color )
+		dMCLK = clk->gray_mclk[idx];
+	else
+		dMCLK = clk->color_mclk[idx];
+
+ 	pParam->dMCLK = dMCLK;
+
+	DBG( _DBG_INFO, "SETMCLK[%u/%u], using entry %u: %f, %u\n",
+			hw->motorModel,	pParam->bDataType, idx, dMCLK, pParam->PhyDpi.x );
+}
 
 /** usb_SetDarkShading
  * download the dark shading data to Merlins' DRAM
@@ -407,8 +440,10 @@ static u_char usb_GetNewGain( u_short wMax )
 		dRatio = m_dwIdealGain / (wMax / dAmp);
 		dAmp   = floor((dRatio / 3 - 0.93)/0.067);
 
-		if( dAmp > 31 )
+		if( dAmp > 31 ) {
+			DBG( _DBG_INFO, "Gain internally limited! (%.3f-> 31)\n", dAmp );
 			dAmp = 31;
+		}
 
 		bGain = (u_char)dAmp + 32;
 		return bGain;
@@ -433,9 +468,8 @@ static SANE_Bool usb_AdjustGain( pPlustek_Device dev, int fNegative )
     pScanDef  scanning = &dev->scanning;
 	pDCapsDef scaps    = &dev->usbDev.Caps;
 	pHWDef    hw       = &dev->usbDev.HwSetting;
-	u_long    dw;
+	u_long    dw, bytes2get;
 	SANE_Bool fRepeatITA = SANE_TRUE;
-    struct timeval t;
 
 	if( usb_IsEscPressed())
 		return SANE_FALSE;
@@ -446,15 +480,27 @@ static SANE_Bool usb_AdjustGain( pPlustek_Device dev, int fNegative )
 
 	/*
      * define the strip to scan for coarse calibration
+     * done at 300dpi
      */
 	m_ScanParam.Size.dwLines  = 1;				/* for gain */
 	m_ScanParam.Size.dwPixels = scaps->Normal.Size.x *
 								scaps->OpticDpi.x / 300UL;
+
 	m_ScanParam.Size.dwBytes  = m_ScanParam.Size.dwPixels *
 								2 * m_ScanParam.bChannels;
+
+	if( hw->bReg_0x26 & _ONE_CH_COLOR )
+		m_ScanParam.Size.dwBytes *=3;
+
 	m_ScanParam.Origin.x      = (u_short)((u_long) hw->wActivePixelsStart *
 													300UL / scaps->OpticDpi.x);
 	m_ScanParam.bCalibration  = PARAM_Gain;
+
+	DBG( _DBG_INFO2, "Coarse Calibration Strip:\n" );
+	DBG( _DBG_INFO2, "Lines    = %lu\n", m_ScanParam.Size.dwLines  );
+	DBG( _DBG_INFO2, "Pixels   = %lu\n", m_ScanParam.Size.dwPixels );
+	DBG( _DBG_INFO2, "Bytes    = %lu\n", m_ScanParam.Size.dwBytes  );
+	DBG( _DBG_INFO2, "Origin.X = %u\n",  m_ScanParam.Origin.x );
 
 	i = 0;
 TOGAIN:
@@ -463,40 +509,31 @@ TOGAIN:
 	if( !usb_SetScanParameters( dev, &m_ScanParam ))
  		return SANE_FALSE;
 
- 	/*
-	 * wait until warmup period has been elapsed
-	 */
-	gettimeofday( &t, NULL);	
-	dw = t.tv_sec - dev->usbDev.dwTicksLampOn;
-	if( dw < dev->usbDev.dwWarmup )
-		DBG(_DBG_INFO,"Warmup: Waiting %lu seconds\n",dev->usbDev.dwWarmup );
-	
-	do {
+	if( !usb_Wait4Warmup( dev )) {
+		DBG( _DBG_ERROR, "usb_AdjustGain() - CANCEL detected\n" );
+		return SANE_FALSE;
+	}
 
-		gettimeofday( &t, NULL);	
-		
-		dw = t.tv_sec - dev->usbDev.dwTicksLampOn;
-		
-		if( usb_IsEscPressed()) {
-			DBG( _DBG_INFO, "adjustGain() - Cancel detected...\n" );
-			return 0;
-		}
-		
-	} while( dw < dev->usbDev.dwWarmup );
+	bytes2get = m_ScanParam.Size.dwPhyBytes;
+	if( hw->bReg_0x26 & _ONE_CH_COLOR )
+		bytes2get *=3;
 
 	if(	!usb_ScanBegin( dev, SANE_FALSE) ||
-		!usb_ScanReadImage( dev, pScanBuffer, m_ScanParam.Size.dwPhyBytes ) ||
+		!usb_ScanReadImage( dev, pScanBuffer, bytes2get ) ||
 		!usb_ScanEnd( dev )) {
 		DBG( _DBG_ERROR, "usb_AdjustGain() failed\n" );
 		return SANE_FALSE;
 	}
 
+	DBG( _DBG_INFO2, "PhyBytes  = %lu\n",  m_ScanParam.Size.dwPhyBytes  );
+	DBG( _DBG_INFO2, "PhyPixels = %lu\n",  m_ScanParam.Size.dwPhyPixels );
+
 	sprintf( tmp, "coarse-gain-%u.raw", i++ );
 
 	dumpPic( tmp, NULL, 0 );
-	dumpPic( tmp, pScanBuffer, m_ScanParam.Size.dwPhyBytes );
+	dumpPic( tmp, pScanBuffer, bytes2get );
 		
-	usb_Swap((u_short *)pScanBuffer, m_ScanParam.Size.dwPhyBytes );
+	usb_Swap((u_short *)pScanBuffer, bytes2get );
 
 	if( fNegative ) {
 
@@ -576,9 +613,15 @@ TOGAIN:
 				/* do some averaging... */
 				for (dwLoop2 = dwDiv, dwR = dwG = dwB = 0; dwLoop2; dwLoop2--, dw++)
 				{
-					dwR += ((pRGBUShortDef)pScanBuffer)[dw].Red;
-					dwG += ((pRGBUShortDef)pScanBuffer)[dw].Green;
-					dwB += ((pRGBUShortDef)pScanBuffer)[dw].Blue;
+					if( hw->bReg_0x26 & _ONE_CH_COLOR ) {
+						dwR += ((u_short*)pScanBuffer)[dw];
+						dwG += ((u_short*)pScanBuffer)[dw+m_ScanParam.Size.dwPhyPixels+1];
+						dwB += ((u_short*)pScanBuffer)[dw+(m_ScanParam.Size.dwPhyPixels+1)*2];
+            		} else {
+						dwR += ((pRGBUShortDef)pScanBuffer)[dw].Red;
+						dwG += ((pRGBUShortDef)pScanBuffer)[dw].Green;
+						dwB += ((pRGBUShortDef)pScanBuffer)[dw].Blue;
+					}
 				}
 				dwR = dwR / dwDiv;
 				dwG = dwG / dwDiv;
@@ -592,41 +635,65 @@ TOGAIN:
 					rgb.Blue = dwB;
 			}
 
+			DBG(_DBG_INFO2, "MAX(R,G,B)= 0x%04x(%u), 0x%04x(%u), 0x%04x(%u)\n",
+				  rgb.Red, rgb.Red, rgb.Green, rgb.Green, rgb.Blue, rgb.Blue );
+
 			m_dwIdealGain = 0xf000; /* min(min(rgb.wRed, rgb.wGreen), rgb.wBlue) */
 
 			a_bRegs[0x3b] = usb_GetNewGain( rgb.Red   );
 			a_bRegs[0x3c] = usb_GetNewGain( rgb.Green );
 			a_bRegs[0x3d] = usb_GetNewGain( rgb.Blue  );
 
-			/* for MODEL KaoHsiung 1200 scanner multi-straight-line bug at
-             * 1200 dpi color mode
-             */
-			if( hw->motorModel == MODEL_KaoHsiung && scaps->bCCD == kNEC3778 &&
-				dMCLK >= 5.5 && !a_bRegs[0x3c] ) {
+			if( !_IS_PLUSTEKMOTOR(hw->motorModel)) {
+/* CHECK this...*/
+#if 0
+       			if((!a_bRegs[0x3b] ||
+      			    !a_bRegs[0x3c] || !a_bRegs[0x3d]) && dMCLK > 3.0) {
 
-				a_bRegs[0x3b] = a_bRegs[0x3c] = a_bRegs[0x3d] = 1;
-				scanning->sParam.dMCLK = dMCLK = dMCLK - 1.5;
-				goto TOGAIN;
+       				scanning->sParam.dMCLK = dMCLK = dMCLK - 0.5;
+     				a_bRegs[0x3b] = a_bRegs[0x3c] = a_bRegs[0x3d] = 1;
+       				goto TOGAIN;
 
-			} else if( hw->motorModel == MODEL_HuaLien &&
-						scaps->bCCD == kNEC3799 && fRepeatITA )	{
+       			} else if(((a_bRegs[0x3b] == 63) || (a_bRegs[0x3c] == 63) ||
+       								  (a_bRegs[0x3d] == 63)) && (dMCLK < 10)) {
 
-				if((!a_bRegs[0x3b] ||
-				    !a_bRegs[0x3c] || !a_bRegs[0x3d]) && dMCLK > 3.0) {
-
-					scanning->sParam.dMCLK = dMCLK = dMCLK - 0.5;
-					a_bRegs[0x3b] = a_bRegs[0x3c] = a_bRegs[0x3d] = 1;
-					goto TOGAIN;
-
-				} else if(((a_bRegs[0x3b] == 63) || (a_bRegs[0x3c] == 63) ||
-									  (a_bRegs[0x3d] == 63)) && (dMCLK < 10)) {
-
-					scanning->sParam.dMCLK = dMCLK = dMCLK + 0.5;
-					a_bRegs[0x3b] = a_bRegs[0x3c] = a_bRegs[0x3d] = 1;
-					goto TOGAIN;
+       				scanning->sParam.dMCLK = dMCLK = dMCLK + 0.5;
+       				a_bRegs[0x3b] = a_bRegs[0x3c] = a_bRegs[0x3d] = 1;
+       				goto TOGAIN;
 				}
-				bMaxITA = (u_char)floor((dMCLK + 1) / 2);
-				fRepeatITA = SANE_FALSE;
+#endif
+			} else {
+
+        		/* for MODEL KaoHsiung 1200 scanner multi-straight-line bug at
+                 * 1200 dpi color mode
+                 */
+        		if( hw->motorModel == MODEL_KaoHsiung && scaps->bCCD == kNEC3778 &&
+        			dMCLK >= 5.5 && !a_bRegs[0x3c] ) {
+
+        			a_bRegs[0x3b] = a_bRegs[0x3c] = a_bRegs[0x3d] = 1;
+        			scanning->sParam.dMCLK = dMCLK = dMCLK - 1.5;
+        			goto TOGAIN;
+
+        		} else if( hw->motorModel == MODEL_HuaLien &&
+        					scaps->bCCD == kNEC3799 && fRepeatITA )	{
+
+        			if((!a_bRegs[0x3b] ||
+        			    !a_bRegs[0x3c] || !a_bRegs[0x3d]) && dMCLK > 3.0) {
+
+        				scanning->sParam.dMCLK = dMCLK = dMCLK - 0.5;
+        				a_bRegs[0x3b] = a_bRegs[0x3c] = a_bRegs[0x3d] = 1;
+        				goto TOGAIN;
+
+        			} else if(((a_bRegs[0x3b] == 63) || (a_bRegs[0x3c] == 63) ||
+        								  (a_bRegs[0x3d] == 63)) && (dMCLK < 10)) {
+
+        				scanning->sParam.dMCLK = dMCLK = dMCLK + 0.5;
+        				a_bRegs[0x3b] = a_bRegs[0x3c] = a_bRegs[0x3d] = 1;
+        				goto TOGAIN;
+        			}
+        			bMaxITA = (u_char)floor((dMCLK + 1) / 2);
+        			fRepeatITA = SANE_FALSE;
+        		}
 			}
 
 		} else {
@@ -1072,6 +1139,11 @@ static SANE_Bool usb_AdjustWhiteShading( pPlustek_Device dev )
 	sprintf( tmp, "fine-white.raw" );
 	dumpPic( tmp, NULL, 0 );
 
+	DBG( _DBG_INFO2, "FINE WHITE Calibration Strip: %s\n", tmp );
+	DBG( _DBG_INFO2, "Lines    = %lu\n", m_ScanParam.Size.dwLines  );
+	DBG( _DBG_INFO2, "Pixels   = %lu\n", m_ScanParam.Size.dwPixels );
+	DBG( _DBG_INFO2, "Bytes    = %lu\n", m_ScanParam.Size.dwBytes  );
+	DBG( _DBG_INFO2, "Origin.X = %u\n",  m_ScanParam.Origin.x );
 
 	for( dw = dwShadingLines /*SHADING_Lines*/,
 							 dwRead = 0; dw; dw -= m_ScanParam.Size.dwLines ) {
@@ -1085,17 +1157,19 @@ static SANE_Bool usb_AdjustWhiteShading( pPlustek_Device dev )
 			}
 
 			if( usb_ScanReadImage( dev, pBuf + dwRead,
-								   m_ScanParam.Size.dwTotalBytes)) {
+								   m_ScanParam.Size.dwBytes *
+												m_ScanParam.Size.dwLines)) {
 
 				if( _LM9831 == hw->chip ) {
 					/* Delay for white shading hold for 9831-1200 scanner */
 					usleep(10 * 1000);	
 				}
 
-				dumpPic( tmp, pBuf + dwRead, m_ScanParam.Size.dwPhyBytes );
+				dumpPic( tmp, pBuf + dwRead, m_ScanParam.Size.dwBytes *
+													m_ScanParam.Size.dwLines );
 
 				if( usb_ScanEnd( dev )) {
-					dwRead += m_ScanParam.Size.dwTotalBytes;
+					dwRead += m_ScanParam.Size.dwBytes;
 					continue;
 				}
 			}
@@ -1374,39 +1448,6 @@ static void usb_ResizeWhiteShading( double dAmp, u_short *pwShading, int iGain )
 	}
 }
 
-/** usb_SetMCLK
- * get the MCLK out of our table
- */
-static void	usb_SetMCLK( pPlustek_Device dev )
-{
-	int       	 idx, i;
-	pClkMotorDef clk;
-
-    pScanDef  	 scanning = &dev->scanning;
-	pHWDef    	 hw       = &dev->usbDev.HwSetting;
-	
-	clk = usb_GetMotorSet( hw->motorModel );
-	idx = 0;
-	for( i = 0; i < _MAX_CLK; i++ ) {
-		if( scanning->sParam.PhyDpi.x <= dpi_ranges[i] )
-  			break;
-		idx++;
-	}
-	if( idx >= _MAX_CLK )
-		idx = _MAX_CLK - 1;	
-
-	if( scanning->sParam.bDataType != SCANDATATYPE_Color )
-		dMCLK = clk->gray_mclk[idx]; 	 					
-	else
-		dMCLK = clk->color_mclk[idx]; 	 					
-
- 	scanning->sParam.dMCLK = dMCLK;		
-
-	DBG( _DBG_INFO, "SETMCLK[%u/%u], using entry %u: %f, %u\n",
-				hw->motorModel,	scanning->sParam.bDataType,
-						idx, dMCLK, scanning->sParam.PhyDpi.x );
-}
-
 /** usb_DoCalibration
  *
  */
@@ -1443,13 +1484,16 @@ static int usb_DoCalibration( pPlustek_Device dev )
 	a_bRegs[0x3b] = a_bRegs[0x3c] = a_bRegs[0x3d] = 1;
 	a_bRegs[0x45] &= ~0x10;
 
+	memset( a_wWhiteShading, 0, _SHADING_BUF );
+	memset( a_wDarkShading,  0, _SHADING_BUF );
+
 	/* Go to shading position
      */
 	DBG( _DBG_INFO, "goto shading position\n" );
 
 	/* HEINER: Currently not clear why Plustek didn't use the ShadingOriginY
 	 *         for all modes
-	 * It should be okay to remove thisand reference to the ShadingOriginY
+	 * It should be okay to remove this and reference to the ShadingOriginY
 	 */	
 #if 0	
 	if( scanning->sParam.bSource == SOURCE_Negative ) {
@@ -1485,13 +1529,18 @@ static int usb_DoCalibration( pPlustek_Device dev )
 	/*
 	 * this won't work for Plustek devices!!!
 	 */
+#if 0
+	if( scaps->workaroundFlag & _WAF_BYPASS_CALIBRATION ||
+		!(SCANDEF_QualityScan & dev->scanning.dwFlag)) {
+#else
 	if( scaps->workaroundFlag & _WAF_BYPASS_CALIBRATION ) {
+#endif
 
 		DBG( _DBG_INFO, "--> BYPASS\n" );
 		a_bRegs[0x38] = a_bRegs[0x39] = a_bRegs[0x3a] = 1;
 		a_bRegs[0x3b] = a_bRegs[0x3c] = a_bRegs[0x3d] = 1;
 		a_bRegs[0x45] |= 0x10;
-		usb_SetMCLK( dev );
+		usb_SetMCLK( dev, &scanning->sParam );
 
 	    dumpregs( dev->fd, a_bRegs );
 		DBG( _DBG_INFO, "<-- BYPASS\n" );
@@ -1634,7 +1683,7 @@ static int usb_DoCalibration( pPlustek_Device dev )
 			if( !_IS_PLUSTEKMOTOR(hw->motorModel)) {
 				DBG( _DBG_INFO, "No Plustek model: %udpi\n",
 												scanning->sParam.PhyDpi.x );
-				usb_SetMCLK( dev );
+				usb_SetMCLK( dev, &scanning->sParam );
 
 			} else 	if( dev->usbDev.Caps.OpticDpi.x == 600 ) {
 				DBG( _DBG_INFO, "Default Shading (600dpi)\n" );
@@ -1834,8 +1883,12 @@ static SANE_Bool usb_DownloadShadingData( pPlustek_Device dev, u_char bJobID )
 
 		case PARAM_Scan:
 			{
+#if 0
+				if( scaps->workaroundFlag & _WAF_BYPASS_CALIBRATION ||
+					!(SCANDEF_QualityScan & dev->scanning.dwFlag)) {
+#else
 				if( scaps->workaroundFlag & _WAF_BYPASS_CALIBRATION ) {
-
+#endif
 					DBG( _DBG_INFO, "--> BYPASS\n" );
 
 					/* set RAM configuration AND

@@ -45,10 +45,6 @@ msgstr "Normal"
 msgid "Transparency"
 msgstr "Transparencia"
 
-#: .tmp/plustek.c:237
-msgid "Negative"
-msgstr "Negativo"
-
 #: .tmp/plustek.c:243
 msgid "Dithermap 1"
 msgstr "Mapa de entramado 1"

@@ -364,12 +364,12 @@ static int usbDev_open( const char *dev_name, void *misc )
     /*
      * before accessing the scanner, check if supported!
      */
-     if( !usb_IsDeviceInList( dev->usbId )) {
+    if( !usb_IsDeviceInList( dev->usbId )) {
      	DBG( _DBG_ERROR, "Device >%s<, is not supported!\n", dev->usbId );
 		sanei_usb_close( handle );
 		return -1;
-     }
-	
+	}
+
     if( SANE_STATUS_GOOD != usbio_DetectLM983x( handle, &version )) {
 		sanei_usb_close( handle );
         return -1;
@@ -819,6 +819,17 @@ static int usbDev_readImage( struct Plustek_Device *dev,
 
 		if( usb_SetScanParameters( dev, &scanning->sParam )) {
 /* what if error !!!*/
+
+			/*
+			 * if we bypass the calibration step, we wait on lamp warmup here...
+			 */
+			if( scaps->workaroundFlag & _WAF_BYPASS_CALIBRATION ) {
+        		if( !usb_Wait4Warmup( dev )) {
+					DBG( _DBG_INFO, "ReadImage() - Cancel detected...\n" );
+					return 0;
+				}
+			}
+
 			scanning->pbScanBufBegin = scanning->pScanBuffer;
 
 			if((dev->caps.dwFlag & SFLAG_ADF) && (scaps->OpticDpi.x == 600))

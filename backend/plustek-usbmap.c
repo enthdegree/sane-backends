@@ -202,6 +202,8 @@ static SANE_Bool usb_MapDownload( pPlustek_Device dev, u_char bDataType )
 		}								
 	
 	} /* for each color */
+
+	DBG( _DBG_INFO, "usb_MapDownload() done.\n" );
 	
 	return SANE_TRUE;
 }

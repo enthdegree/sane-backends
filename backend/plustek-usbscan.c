@@ -13,6 +13,7 @@
  * 0.42 - added some stuff for CIS devices
  * 0.43 - no changes
  * 0.44 - added CIS specific settings and calculations
+ *        removed usb_IsEscPressed
  *
  *.............................................................................
  *
@@ -102,28 +103,6 @@ static u_long usb_max( u_long val1, u_long val2 )
 		return val1;
 
 	return val2;
-}
-
-/**
- * This function is used to detect a cancel condition,
- * our ESC key is the SIGUSR1 signal. It is sent by the backend when the
- * cancel button has been pressed
- *
- * @param - none
- * @return the function returns SANE_TRUE if a cancel condition has been
- *  detected, if not, it returns SANE_FALSE
- */
-static SANE_Bool usb_IsEscPressed( void )
-{
-	sigset_t sigs;
-	
-	sigpending( &sigs );
-	if( sigismember( &sigs, SIGUSR1 )) {
-		DBG( _DBG_INFO, "SIGUSR1 is pending --> Cancel detected\n" );
-		return SANE_TRUE;
-	}
-
-	return SANE_FALSE;
 }
 
 /**
@@ -367,7 +346,6 @@ static void usb_GetScanRect( pPlustek_Device dev, pScanParam pParam )
 		wDataPixelStart += hw->wActivePixelsStart;
 	}
 	wLineEnd = wDataPixelStart + (u_short)(m_dHDPIDivider * pParam->Size.dwPhyPixels + 0.5);
-
 	DBG( _DBG_INFO, "DataPixelStart=%u, LineEnd=%u\n",
 				     wDataPixelStart, wLineEnd );
 

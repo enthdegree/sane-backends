@@ -51,6 +51,7 @@
  *        added OS/2 switch to disable the USB stuff for OS/2
  * 0.43 - added support for PREVIEW flag
  * 0.44 - added _DBG_DUMP debug level
+ *        fixed a bug, that stops our lamp timer
  *
  *.............................................................................
  *
@@ -119,6 +120,7 @@
 #include "sane/sanei.h"
 #include "sane/saneopts.h"
 
+#define BACKEND_VERSION "0.44-3"
 #define BACKEND_NAME	plustek
 #include "sane/sanei_backend.h"
 #include "sane/sanei_config.h"
@@ -378,8 +380,8 @@ static pModeParam getModeList( Plustek_Scanner *scanner )
 	return mp;
 }
 
-/*.............................................................................
- *
+/** function to check what our reader process returns. If the
+ * process didn't exist, we can be sure, that we had any other problems
  */
 static SANE_Bool getReaderProcessExitCode( Plustek_Scanner *scanner )
 {
@@ -404,6 +406,7 @@ static SANE_Bool getReaderProcessExitCode( Plustek_Scanner *scanner )
 	    		DBG( _DBG_INFO, "Child termination okay\n" );
             }
 
+			scanner->reader_pid = -1;
             return SANE_TRUE;
         }
     }
@@ -589,7 +592,7 @@ static SANE_Status do_cancel( Plustek_Scanner *scanner, SANE_Bool closepipe  )
 }
 
 /**
- * because of some internal problems (inside the parport driver, we have to
+ * because of some internal problems (inside the parport driver), we have to
  * limit the max resolution to optical resolution. This is done by this
  * function
  * @param  dev - pointer to the device specific structure
@@ -1320,7 +1323,10 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 #endif	
 
 #if defined PACKAGE && defined VERSION
-	DBG( _DBG_SANE_INIT, "sane_init: " PACKAGE " " VERSION "\n");
+	DBG( _DBG_SANE_INIT, "Plustek backend V"BACKEND_VERSION", part of "
+												 PACKAGE " " VERSION "\n");
+#else
+	DBG( _DBG_INFO, "Plustek backend V"BACKEND_VERSION"\n" );
 #endif
 
 	/* do some presettings... */
@@ -1344,7 +1350,7 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 
 	while( sanei_config_read( str, sizeof(str), fp)) {
 		
-		DBG( _DBG_SANE_INIT, "sane_init, >%s<\n", str );
+		DBG( _DBG_SANE_INIT, ">%s<\n", str );
 		if( str[0] == '#')		/* ignore line comments */
     		continue;
 			
@@ -2294,7 +2300,7 @@ SANE_Status sane_read( SANE_Handle handle, SANE_Byte *data,
 
 		if( EAGAIN == errno ) {
 
-            /* if we already had read the picture, so it's okay and stop */
+            /* if we already had red the picture, so it's okay and stop */
 			if( s->bytes_read ==
 				(unsigned long)(s->params.lines * s->params.bytes_per_line)) {
 				waitpid( s->reader_pid, 0, 0 );
@@ -2320,17 +2326,12 @@ SANE_Status sane_read( SANE_Handle handle, SANE_Byte *data,
 	if( 0 == nread ) {
 
 		drvclose( s->hw );
+        getReaderProcessExitCode( s );
 
-        if( 0 == s->bytes_read ) {
-
-            getReaderProcessExitCode( s );
-
-            if( SANE_STATUS_GOOD != s->exit_code ) {
-                close_pipe(s);
-        		return s->exit_code;
-            }
+        if( SANE_STATUS_GOOD != s->exit_code ) {
+            close_pipe(s);
+      		return s->exit_code;
         }
-
 		return close_pipe(s);
 	}
 

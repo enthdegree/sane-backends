@@ -28,6 +28,7 @@
  *        added Genius Model strings
  *        added Canon N670U entry
  *        added bStepsToReverse to the HwDesc structure
+ *        tweaked EPSON1250 settings for TPA (negative origins)
  *
  *.............................................................................
  *
@@ -525,10 +526,10 @@ static DCapsDef Cap0x07B3_0x0014_2 =
 /* Model: HP Scanjet 2100C */
 static DCapsDef Cap0x03F0_0x0505 =
 {
-	{{        0,    208},  100, {2550, 3508}, { 50,  50}, COLOR_BW     },
-    {{ 0,  0}, 0, {0, 0}, { 0, 0 }, 0 }, /* No film scanner module    */
-    {{ 0,  0}, 0, {0, 0}, { 0, 0 }, 0 }, /* No film scanner module    */
-    {{ 0,  0}, 0, {0, 0}, { 0, 0 }, 0 }, /* No ADF                    */
+	{{ 0, 208}, 0, {2550, 3508}, { 50,  50}, COLOR_BW },
+    {{ 0,   0}, 0, {0, 0}, { 0, 0 }, 0 }, /* No film scanner module    */
+    {{ 0,   0}, 0, {0, 0}, { 0, 0 }, 0 }, /* No film scanner module    */
+    {{ 0,   0}, 0, {0, 0}, { 0, 0 }, 0 }, /* No ADF                    */
  	{600, 600},
  	0,
  	SENSORORDER_rgb,
@@ -541,7 +542,7 @@ static DCapsDef Cap0x03F0_0x0505 =
 static DCapsDef Cap0x03F0_0x0605 =
 {
 	/* DataOrigin (x, y), ShadingOriginY */
-	{{ 0, 209}, 100,
+	{{ 0, 209}, 0,
 	{2550, 3508 }, { 50,  50}, COLOR_BW },
 	
     {{ 0,  0}, 0, {0, 0}, { 0, 0 }, 0 }, /* No film scanner module    */
@@ -594,7 +595,7 @@ static DCapsDef Cap0x0400_0x1001_0 =
 static DCapsDef Cap0x04B8_0x010F_0 =
 {
 	{{       25,       80},  10, {2550, 3508}, { 100, 100 }, COLOR_BW },
-	{{     1055, 744 - 84}, 543, { 473,  414}, { 150, 150 }, COLOR_GRAY16 },
+	{{      965,      350}, 543, { 473,  414}, { 150, 150 }, COLOR_GRAY16 },
 	{{1004 + 20, 744 - 20}, 543, { 567,  414}, { 150, 150 }, COLOR_GRAY16 },
 	{{ 0,  0},   0, {0, 0}, { 0, 0 }, 0 },
 	{1200, 1200},
@@ -1620,7 +1621,7 @@ static HWDef Hw0x04A9_0x2206_0 =
     0x2f,   /* sensor control settings (reg 0x0d)        */
     0x00,   /* sensor control settings (reg 0x0e)        */
 
-    {0x00, 0x03, 0x04, 0x05, 0x00, 0x00, 0x00, 0x00, 0x07, 0x03},
+    {0x01, 0x0c, 0x0e, 0x10, 0x00, 0x00, 0x00, 0x00, 0x16, 0x0e},
                 /* mono (reg 0x0f to 0x18) */
 
 	{0x00, 0x00, 0x04, 0x05, 0x06, 0x07, 0x00, 0x00, 0x00, 0x05},
@@ -1645,6 +1646,14 @@ static HWDef Hw0x04A9_0x2206_0 =
     23,  	/* blue lamp on   (reg 0x34 + 0x35)          */
     1426,   /* blue lamp off  (reg 0x36 + 0x37)          */
 #else
+
+/* National Sources...*/
+	 100,
+	5100,
+	 100,
+	3100,
+	 100,   
+	2100, 
 
     1,  	/* red lamp on    (reg 0x2c + 0x2d)          */
     16383,  /* red lamp off   (reg 0x2e + 0x2f)          */
@@ -1693,7 +1702,9 @@ static HWDef Hw0x04A9_0x220D_0 =
     0x2f,   /* sensor control settings (reg 0x0d)        */
     0x00,   /* sensor control settings (reg 0x0e)        */
 
-    {0x00, 0x03, 0x04, 0x05, 0x00, 0x00, 0x00, 0x00, 0x07, 0x03},
+/*    {0x01, 0x0c, 0x0e, 0x10, 0x00, 0x00, 0x00, 0x00, 0x16, 0x0e},
+ */
+	{0x00, 0x00, 0x04, 0x05, 0x06, 0x07, 0x00, 0x00, 0x00, 0x05},
                 /* mono (reg 0x0f to 0x18) */
 
 	{0x00, 0x00, 0x04, 0x05, 0x06, 0x07, 0x00, 0x00, 0x00, 0x05},
@@ -1933,9 +1944,9 @@ static ClkMotorDef Motors[] = {
 		/* <=400dpi   <=600dpi   <=800dpi   <=1200dpi  <=2400dpi */
 		 { 6, 32 }, { 6, 32 }, { 6, 32 }, { 6, 32 }, { 6, 32 }},
         /* Color mode MCLK settings */
-	    { 6.0, 5.0, 4.0, 4.0, 3.0, 2.0, 1.5, 1.0, 1.0, 1.0 },
+	    { 6.0, 5.0, 4.0, 4.0, 3.0, 2.0, 2.0, 2.0, 2.0, 2.0 },
 		/* Gray mode MCLK settings */
-	    { 4.5, 4.5, 4.5, 4.5, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0 }
+	    { 18.0, 15.0, 12.0, 12.0, 9.5, 6.5, 6.0, 6.0, 6.0, 6.0 }
 	}
 };
 

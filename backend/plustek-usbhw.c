@@ -18,6 +18,8 @@
  * 0.44 - added bStepsToReverse and active Pixelstart values
  *        to resetRegister function
  *        modified getLampStatus function for CIS devices
+ *        added usb_Wait4Warmup()
+ *        moved usb_IsEscPressed to this file
  *
  *.............................................................................
  *
@@ -691,7 +693,7 @@ static int usb_GetLampStatus( pPlustek_Device dev )
 		return -1;
 	}	
 	
- 	/* do we use the misc I/O pins for switchwing the lamp ? */
+ 	/* do we use the misc I/O pins for switching the lamp ? */
 	if( _WAF_MISC_IO_LAMPS & sc->workaroundFlag ) {
 			
 		usb_GetLampRegAndMask( sc->lamp, &reg, &msk );
@@ -779,6 +781,37 @@ static SANE_Bool usb_switchLamp( pPlustek_Device dev, SANE_Bool on )
     return SANE_TRUE;
 }
 
+/** usb_switchLampX
+ * used for all devices that use some misc I/O pins to switch the lamp
+ */
+static SANE_Bool usb_switchLampX( pPlustek_Device dev,
+								  SANE_Bool on, SANE_Bool tpa )
+{
+	SANE_Byte reg, msk;
+	pDCapsDef sc = &dev->usbDev.Caps;
+
+	if( tpa )
+		usb_GetLampRegAndMask( _GET_TPALAMP(sc->lamp), &reg, &msk );
+	else
+		usb_GetLampRegAndMask( sc->lamp, &reg, &msk );
+
+ 	if( 0 == reg )
+    	return SANE_FALSE; /* no need to switch something */
+
+	DBG( _DBG_INFO, "usb_switchLampX(ON=%u,TPA=%u)", on, tpa );
+
+	if( on )
+		a_bRegs[reg] |= msk;
+  	else
+		a_bRegs[reg] &= ~msk;
+
+	DBG( _DBG_INFO, "Switch Lamp: %u, regs[0x%02x] = 0x%02x\n",
+													on, reg, a_bRegs[reg] );
+    usbio_WriteReg( dev->fd, reg, a_bRegs[reg] );
+
+    return SANE_TRUE;
+}
+
 /** usb_LedOn
  *
  */
@@ -839,6 +872,17 @@ static SANE_Bool usb_LampOn( pPlustek_Device dev,
 		if( iLampStatus != lampId ) {
 			
 			DBG( _DBG_INFO, "Switching Lamp on\n" );
+
+/* here we might have to switch off the TPA/Main lamp before
+ * using the other one
+ */
+			if( lampId != dev->usbDev.currentLamp ) {
+
+				if( dev->usbDev.currentLamp == DEV_LampReflection )
+					usb_switchLampX( dev, SANE_FALSE, SANE_FALSE );
+				else
+					usb_switchLampX( dev, SANE_FALSE, SANE_TRUE );
+			}
 
 			memset( &a_bRegs[0x29], 0, (0x37-0x29+1));
 			
@@ -1079,7 +1123,7 @@ static void usb_StartLampTimer( pPlustek_Device dev )
 
 	/* setup handler */
 	sigemptyset( &s.sa_mask );
-	sigaddset  ( &s.sa_mask, SIGINT );
+	sigaddset  ( &s.sa_mask, SIGALRM );
 	s.sa_flags   = 0;
 	s.sa_handler = usb_LampTimerIrq;
 
@@ -1122,4 +1166,56 @@ static void usb_StopLampTimer( pPlustek_Device dev )
 	DBG( _DBG_INFO, "Lamp-Timer stopped\n" );
 }
 
+/**
+ * This function is used to detect a cancel condition,
+ * our ESC key is the SIGUSR1 signal. It is sent by the backend when the
+ * cancel button has been pressed
+ *
+ * @param - none
+ * @return the function returns SANE_TRUE if a cancel condition has been
+ *  detected, if not, it returns SANE_FALSE
+ */
+static SANE_Bool usb_IsEscPressed( void )
+{
+	sigset_t sigs;
+
+	sigpending( &sigs );
+	if( sigismember( &sigs, SIGUSR1 )) {
+		DBG( _DBG_INFO, "SIGUSR1 is pending --> Cancel detected\n" );
+		return SANE_TRUE;
+	}
+
+	return SANE_FALSE;
+}
+
+/**
+ * wait until warmup has been done
+ */
+static SANE_Bool usb_Wait4Warmup( pPlustek_Device dev )
+{
+	u_long         dw;
+    struct timeval t;
+
+ 	/*
+	 * wait until warmup period has been elapsed
+	 */
+	gettimeofday( &t, NULL);
+	dw = t.tv_sec - dev->usbDev.dwTicksLampOn;
+	if( dw < dev->usbDev.dwWarmup )
+		DBG(_DBG_INFO,"Warmup: Waiting %lu seconds\n",dev->usbDev.dwWarmup );
+
+	do {
+
+		gettimeofday( &t, NULL);
+
+		dw = t.tv_sec - dev->usbDev.dwTicksLampOn;
+
+		if( usb_IsEscPressed()) {
+			return SANE_FALSE;
+		}
+
+	} while( dw < dev->usbDev.dwWarmup );
+
+	return SANE_TRUE;
+}
 /* END PLUSTEK-USBHW.C ......................................................*/

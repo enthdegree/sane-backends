@@ -239,7 +239,7 @@ sanei_usb_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size);
  * - SANE_STATUS_INVAL - on every other error
  */
 extern SANE_Status
-sanei_usb_write_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size);
+sanei_usb_write_bulk (SANE_Int dn, const SANE_Byte * buffer, size_t * size);
 
 /** Send/receive a control message to/from a USB device.
  *

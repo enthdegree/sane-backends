@@ -59,6 +59,9 @@
                 Avision INC for the documentation we got! ;-)
    
    ChangeLog:
+   2002-01-17: René Rebe
+         * fixed set_window to not call exit
+   
    2002-01-16: René Rebe
          * some cleanups and printf removal
    
@@ -1363,7 +1366,7 @@ set_window (Avision_Scanner* s)
 	
     default:
       DBG (3, "Invalid mode. %d\n", s->mode);
-      exit (1);
+      return SANE_STATUS_INVAL;
     }
 
   /* set window command
@@ -2411,7 +2414,7 @@ sane_start (SANE_Handle handle)
   
   status = set_window (s);
   if (status != SANE_STATUS_GOOD) {
-    DBG (1, "open: set scan area command failed: %s\n",
+    DBG (1, "open: set scan window command failed: %s\n",
 	 sane_strstatus (status));
     goto stop_scanner_and_return;
   }

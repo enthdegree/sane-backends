@@ -262,15 +262,15 @@ reset_watchdog (void)
 
 static void
 auth_callback (SANE_String_Const res,
-	       SANE_Char username[SANE_MAX_USERNAME_LEN],
-	       SANE_Char password[SANE_MAX_PASSWORD_LEN])
+	       SANE_Char *username,
+	       SANE_Char *password)
 {
   SANE_Net_Procedure_Number procnum;
   SANE_Authorization_Req req;
   SANE_Word word, ack = 0;
 
-  memset (username, 0, sizeof (username));
-  memset (password, 0, sizeof (password));
+  memset (username, 0, SANE_MAX_USERNAME_LEN);
+  memset (password, 0, SANE_MAX_PASSWORD_LEN);
 
   if (!can_authorize)
     {

@@ -1,3 +1,9 @@
+2004-09-01  Julien Blache <jb@jblache.org>
+	* frontend/saned.c: auth_callback(): arrays are passed as
+	pointers, declaring parameters as arrays of fixed size is
+	useless. memset() the correct length, not sizeof(pointer).
+	Caught while testing splint on the SANE sources.
+
 2004-08-30  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/descriptions/unsupported.desc: Added Canon LiDE35.

@@ -11,7 +11,7 @@ Backends:
  abaton:        David Huggins-Daines
  agfafocus:     Karl Anders Øygard
  apple:         Milon Firikis
- artec:         Chris Pinkham (*)
+ artec:         Chris Pinkham
  artec_eplus48u:Sergey Vlasov, Andreas Nowack, David Stevenson, and
                 Michael Herder (*)
  as6e:          Eugene S. Weiss (*)
@@ -112,7 +112,7 @@ Andrew Kuchling <amk@magnet.com>
 Bernd Schroeder <bernd@aquila.muc.de>
 Brian J. Murrell <brian@interlinx.bc.ca>
 Chris Bagwell <cbagwell@users.sourceforge.net>
-Chris Pinkham <cpinkham@infi.net>
+Chris Pinkham <cpinkham@infi.net> (email address dead)
 Christian Bucher <cbucher@vernetzt.at>
 David Etherton <etherton@netcom.com>
 David F. Skoll <dskoll@iname.com>

@@ -2110,6 +2110,11 @@ attach (const char *devname, ARTEC_Device ** devp)
       str[11] = '\0';
       strncpy (product_revision, str + 12, 4);
     }
+  else if (strstr (str, "AT3") == str)
+    {
+      str[3] = '\0';
+      strncpy (product_revision, str + 8, 4);
+    }
   else
     {
       /* get the product revision from it's normal place */

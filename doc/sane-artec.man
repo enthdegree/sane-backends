@@ -36,7 +36,7 @@ are available from the backend homepage:
 .br
 .br
 .RS
-.B http://www4.infi.net/~cpinkham/sane/
+.B http://www4.infi.net/~cpinkham/sane/ (does not exist anymore?)
 .RE
 
 .SH DOCUMENTATION
@@ -200,4 +200,4 @@ sane(7), sane\-scsi(5)
 
 .SH AUTHOR
 
-Chris Pinkham (cpinkham@infi.net)
+Chris Pinkham (cpinkham@infi.net) (does not exist anymore?)

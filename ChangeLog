@@ -9,8 +9,13 @@
 	* backend/sm3600-color.c backend/sm3600-gray.c backend/sm3600-homerun.c
 	  backend/sm3600-scanmtek.c backend/sm3600-scantool.h backend/sm3600-scanusb.c
 	  backend/sm3600-scanutil.c backend/sm3600.c backend/sm3600.h:
-	  Fixed comment headers. They were copied verbatim from the dll backend.
-
+	  Fixed comment headers. They were copied verbatim from the dll	backend.
+	* AUTHORS backend/artec.c doc/sane-artec.man: Remove Chris Pinkham
+	  as active maintainer because his primary email address bounces,
+	  the website is dead and he doesn't respond to mails to other
+	  addresses. Marked email addresses and website as dead. Fixed AT3
+	  misdectection that was on the TODO list for some time.
+	
 2003-03-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* frontend/saned.c: Include poll.h only if new saned code is

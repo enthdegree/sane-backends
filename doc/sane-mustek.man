@@ -1,4 +1,4 @@
-.TH sane-mustek 5 "24 May 2001"
+.TH sane-mustek 5 "10 Jun 2001"
 .IX sane-mustek
 .SH NAME
 sane-mustek - SANE backend for Mustek flatbed scanners
@@ -48,7 +48,7 @@ Trust SCSI Connect 19200
 .RE
 .PP
 More details can be found on the Mustek backend homepage 
-.IR http://www.meier-geinitz.de/sane/.
+.IR http://www.meier-geinitz.de/sane/ .
 .PP
 Don't mix up MFS (Paragon), Pro and ScanExpress models! They're
 completely different. Check the exact model name!
@@ -71,7 +71,7 @@ noises and the scan mechanism may be damaged.  Thus, if you hear such
 a noise, IMMEDIATELY turn off the scanner. This shouldn't happen if
 your scanner is in the list of known scanners. There is more
 information in the
-.IR PROBLEMS
+.I @DOCDIR@/PROBLEMS
 file.
 .PP
 If you own a Mustek (or Trust) scanner other than the ones listed
@@ -81,7 +81,10 @@ and a debug output to
 .IR sane\-devel@mostang.com .
 You can get the debug output by setting the environment variable
 SANE_DEBUG_MUSTEK to 5 and showing the list of available scanners with
-scanimage \-L . Please send all of it to the mailing list.
+scanimage\ \-L . Please send all of it to the mailing list. You must be
+subscribed to sane-devel before you can send mail to the list. See
+.I http://www.mostang.com/sane/mail.html
+for details.
 
 .SH "DEVICE NAMES"
 This backend expects device names of the form:
@@ -97,7 +100,7 @@ SCSI scanner or the port number at which the 600 II N can
 be found (see section PARAGON 600 II N below).  For SCSI
 scanners, the special device name must be a generic SCSI device or a
 symlink to such a device.  The program 
-.IR sane-find-scanner 
+.I sane-find-scanner 
 helps to find out the correct device. Under Linux, such a device name
 could be
 .I /dev/sga
@@ -120,7 +123,7 @@ The supported options are
 .BR blocksize ,
 .BR strip-height ,
 and
-.BR force-wait ,
+.B force-wait
 
 Options come in two flavors: global and positional ones.  Global
 options apply to all devices managed by the backend whereas positional
@@ -254,7 +257,7 @@ of the adapter in the mustek.conf file.  Valid port numbers are 0x26b,
 doesn't conflict with the other hardware in your computer. Put only
 one number on a single line. Example:
 
-.IR 0x3eb
+.I 0x3eb
 
 .PP
 Note that for this scanner root privileges are required to access the
@@ -263,10 +266,12 @@ xscanimage(1) setuid root (generally not recommended for safety
 reasons) or, alternatively, access this backend through the network
 daemon saned(1). On systems which support this feature, the scanner
 can be accessed through
-.IR /dev/port.
-Don't forget to adjust the permissions for /dev/port. At least with
-recent Linux kernels root privileges are necessary for /dev/port access,
-too.
+.IR /dev/port .
+Don't forget to adjust the permissions for 
+.IR /dev/port .
+At least with recent Linux kernels root privileges are necessary for 
+.I /dev/port
+access, too.
 .PP
 If your images have horizontal stripes in color mode, check option
 linedistance-fix (see above). Apply this option for a scanner with

@@ -16,8 +16,8 @@
    Copyright (C) 1999-2004 Karl Heinz Kremer <khk@khk.net>
 */
 
-#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.42 - 2004-05-08"
-#define SANE_EPSON_BUILD	242
+#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.43 - 2004-10-16"
+#define SANE_EPSON_BUILD	243
 
 /*
    This file is part of the SANE package.
@@ -59,6 +59,7 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
+   2004-10-16   Added USB ID for Expression 10000XL
    2004-05-08   Disable feed() for Perfection1640
    2004-02-08   Reformat all source code with "indent -bli0"
    2004-02-01   Added D7 function level as copy of D1 for CX-6400

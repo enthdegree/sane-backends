@@ -1,3 +1,7 @@
+2004-10-16  Karl Heinz Kremer <khk@khk.net>
+
+	* backend/epson_usb.c: Added USB ID for Expression 10000XL
+
 2004-10-16  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* ltmain.sh: backport -framework support from libtool 2.0

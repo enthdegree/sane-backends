@@ -1,3 +1,8 @@
+2001-10-25  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+  * NEWS backend/snapscan.c backend/snapscan.desc
+    Change snapscan backend version number to 1.4.0
+
 2001-10-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/microtek2.c backend/microtek2.desc backend/microtek2.h

@@ -1,3 +1,8 @@
+2002-09-28 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
+
+	* backend/umax.c:
+	  update to build 37
+
 2002-09-28  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* sanei/sanei_lm983x.c: cleanup in reset function

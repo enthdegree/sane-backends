@@ -1,6 +1,8 @@
 2002-09-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* TODO: Updated desc and SANE standard sections. Removed ptal entry.
+	* doc/Makefile.in: Make sure that sane-desc is compiled when generating
+	  HTML pages.
 
 2002-09-01  Peter Kirchgessner <peter@kirchgessner.net>
 

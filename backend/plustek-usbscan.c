@@ -1006,13 +1006,14 @@ static void usb_GetScanLinesAndSize( Plustek_Device *dev, pScanParam pParam )
 
 	pParam->Size.dwTotalBytes = pParam->Size.dwPhyBytes * pParam->Size.dwPhyLines;
 
+#if 0
 	if( hw->bReg_0x26 & _ONE_CH_COLOR ) {
 
 		if( pParam->bDataType == SCANDATATYPE_Color ) {
 			pParam->Size.dwTotalBytes *= 3;
 		}
 	}
-
+#endif
 	DBG( _DBG_INFO, "* PhyBytes   = %lu\n", pParam->Size.dwPhyBytes );
 	DBG( _DBG_INFO, "* PhyLines   = %lu\n", pParam->Size.dwPhyLines );
 	DBG( _DBG_INFO, "* TotalBytes = %lu\n", pParam->Size.dwTotalBytes );

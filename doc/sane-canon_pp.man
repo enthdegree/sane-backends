@@ -1,7 +1,7 @@
-.TH sane-canon_pp 5 "1 October 2002"
+.TH sane-canon_pp 5 "1 October 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-canon_pp
 .SH NAME
-sane-canon_pp - SANE backend for Canon CanoScan Parallel Port flatbed scanners
+sane-canon_pp \- SANE backend for Canon CanoScan Parallel Port flatbed scanners
 .SH DESCRIPTION
 The
 .B sane-canon_pp

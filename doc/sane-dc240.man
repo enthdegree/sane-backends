@@ -1,4 +1,4 @@
-.TH sane-dc240 5 "23 March 2001"
+.TH sane-dc240 5 "23 March 2001" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-dc240
 .SH NAME
 sane-dc240 \- SANE backend for Kodak DC240 Digital Camera

@@ -1,7 +1,7 @@
-.TH sane-ricoh 5 "24 Jun 2000"
+.TH sane-ricoh 5 "24 Jun 2000" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-ricoh
 .SH NAME
-sane-ricoh - SANE backend for Ricoh flatbed scanners
+sane-ricoh \- SANE backend for Ricoh flatbed scanners
 .SH DESCRIPTION
 The
 .B sane-ricoh

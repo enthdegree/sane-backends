@@ -1,7 +1,7 @@
-.TH sane-snapscan 5 "26 May 2001"
+.TH sane-snapscan 5 "26 May 2001" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-snapscan
 .SH NAME
-sane-snapscan - SANE backend for AGFA SnapScan flatbed scanners
+sane-snapscan \- SANE backend for AGFA SnapScan flatbed scanners
 .SH DESCRIPTION
 The
 .B sane-snapscan

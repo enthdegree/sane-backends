@@ -1,7 +1,7 @@
-.TH sane-pnm 5 "22 April 2001"
+.TH sane-pnm 5 "22 April 2001" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-pnm
 .SH NAME
-sane-pnm - SANE PNM image reader pseudo-backend
+sane-pnm \- SANE PNM image reader pseudo-backend
 .SH DESCRIPTION
 The
 .B sane-pnm

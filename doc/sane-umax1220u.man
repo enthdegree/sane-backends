@@ -1,7 +1,7 @@
-.TH sane-umax1220u 5 "6 Jan 2002"
+.TH sane-umax1220u 5 "6 Jan 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-umax
 .SH NAME
-sane-umax1220u - SANE backend for the UMAX Astra 1220U scanner
+sane-umax1220u \- SANE backend for the UMAX Astra 1220U scanner
 
 .SH DESCRIPTION
 

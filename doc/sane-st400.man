@@ -1,7 +1,7 @@
-.TH sane-st400 5 "08 Mar 1999"
+.TH sane-st400 5 "08 Mar 1999" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-st400
 .SH NAME
-sane-st400 - SANE backend for Siemens ST/Highscan flatbed scanners
+sane-st400 \- SANE backend for Siemens ST/Highscan flatbed scanners
 .SH DESCRIPTION
 The
 .B sane-st400

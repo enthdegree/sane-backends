@@ -1,7 +1,7 @@
-.TH sane-canon630u 5 "06 Apr 2002"
+.TH sane-canon630u 5 "06 Apr 2002"  "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-canon630u
 .SH NAME
-sane-canon630u - SANE backend for the Canon 630u USB flatbed scanner
+sane-canon630u \- SANE backend for the Canon 630u USB flatbed scanner
 .SH DESCRIPTION
 The
 .B sane-canon

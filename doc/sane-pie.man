@@ -1,7 +1,7 @@
-.TH sane-pie 5 "7 Sept 2000"
+.TH sane-pie 5 "7 Sept 2000" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-pie
 .SH NAME
-sane-pie - SANE backend for PIE, Devcom and AdLib SCSI flatbed scanners
+sane-pie \- SANE backend for PIE, Devcom and AdLib SCSI flatbed scanners
 
 .SH DESCRIPTION
 The

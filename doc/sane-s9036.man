@@ -1,7 +1,7 @@
-.TH sane-s9036 5 "24 Jun 2000"
+.TH sane-s9036 5 "24 Jun 2000" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-s9036
 .SH NAME
-sane-s9036 - SANE backend for Siemens 9036 flatbed scanners
+sane-s9036 \- SANE backend for Siemens 9036 flatbed scanners
 .SH DESCRIPTION
 The
 .B sane-s9036

@@ -1,7 +1,7 @@
-.TH sane-apple 5 "13 May 1998"
+.TH sane-apple 5 "13 May 1998"  "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-apple
 .SH NAME
-sane-apple - SANE backend for Apple flatbed scanners
+sane-apple \- SANE backend for Apple flatbed scanners
 .SH DESCRIPTION
 The
 .B sane-apple

@@ -1,7 +1,7 @@
-.TH sane-epson 5 "27-Dec-2000"
+.TH sane-epson 5 "27-Dec-2000" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-epson
 .SH NAME
-sane-epson - SANE backend for EPSON scanners
+sane-epson \- SANE backend for EPSON scanners
 .SH DESCRIPTION
 The
 .B sane-epson

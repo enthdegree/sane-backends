@@ -1,7 +1,7 @@
-.TH sane-matsushita 5 "April 21s, 2002"
+.TH sane-matsushita 5 "April 21s, 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-matsushita
 .SH NAME
-sane-matsushita - SANE backend for Panasonic KV-SS high speed scanners
+sane-matsushita \- SANE backend for Panasonic KV-SS high speed scanners
 .SH DESCRIPTION
 The
 .B sane-matsushita

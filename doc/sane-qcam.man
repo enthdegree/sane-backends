@@ -1,7 +1,7 @@
-.TH sane-qcam 5 "25 October 1997"
+.TH sane-qcam 5 "25 October 1997" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-qcam
 .SH NAME
-sane-qcam - SANE backend for Connectix QuickCam cameras
+sane-qcam \- SANE backend for Connectix QuickCam cameras
 .SH DESCRIPTION
 The
 .B sane-qcam

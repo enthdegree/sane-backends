@@ -1,7 +1,7 @@
-.TH sane-pint 5 "13 May 1998"
+.TH sane-pint 5 "13 May 1998" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-pint
 .SH NAME
-sane-pint - SANE backend for scanners that use the PINT device driver
+sane-pint \- SANE backend for scanners that use the PINT device driver
 .SH DESCRIPTION
 The
 .B sane-pint

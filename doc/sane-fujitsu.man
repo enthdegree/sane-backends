@@ -1,10 +1,10 @@
-.TH sane-fujitsu 5 "17 Apr 2002"
+.TH sane-fujitsu 5 "17 Apr 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-fujitsu
 .IX sane-fcpa
 .IX sane-m3096g
 
 .SH NAME
-sane-fujitsu - SANE backend for Fujitsu flatbed scanners
+sane-fujitsu \- SANE backend for Fujitsu flatbed scanners
 
 .SH DESCRIPTION
 The

@@ -1,7 +1,7 @@
-.TH sane-leo 5 "16 April 2002"
+.TH sane-leo 5 "16 April 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-leo
 .SH NAME
-sane-leo - SANE backend for LEO Technologies scanners
+sane-leo \- SANE backend for LEO Technologies scanners
 .SH DESCRIPTION
 The
 .B sane-leo

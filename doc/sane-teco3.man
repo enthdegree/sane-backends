@@ -1,7 +1,7 @@
-.TH sane-teco3 5 "25 July 2002"
+.TH sane-teco3 5 "25 July 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-teco3
 .SH NAME
-sane-teco3 - SANE backend for TECO / RELISYS scanners
+sane-teco3 \- SANE backend for TECO / RELISYS scanners
 .SH DESCRIPTION
 The
 .B sane-teco3

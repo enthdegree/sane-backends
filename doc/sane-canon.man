@@ -1,7 +1,7 @@
-.TH sane-canon 5 "03 May 2001"
+.TH sane-canon 5 "03 May 2001" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-canon
 .SH NAME
-sane-canon - SANE backend for Canon SCSI scanners
+sane-canon \- SANE backend for Canon SCSI scanners
 .SH DESCRIPTION
 The
 .B sane-canon

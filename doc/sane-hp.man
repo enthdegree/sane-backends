@@ -1,7 +1,7 @@
-.TH sane-hp 5 "20 Nov 2002"
+.TH sane-hp 5 "20 Nov 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-hp
 .SH NAME
-sane-hp - SANE backend for HP ScanJet scanners
+sane-hp \- SANE backend for HP ScanJet scanners
 .SH DESCRIPTION
 The
 .B sane-hp

@@ -1,7 +1,7 @@
-.TH sane-hpsj5s 5 "24 Feb 2002"
+.TH sane-hpsj5s 5 "24 Feb 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-hpsj5s
 .SH NAME
-sane-hpsj5s - SANE backend for HP ScanJet 5S sheetfed scanner
+sane-hpsj5s \- SANE backend for HP ScanJet 5S sheetfed scanner
 .SH DESCRIPTION
 The
 .B sane-hpsj5s

@@ -1,7 +1,7 @@
-.TH sane-bh 5 "15 Sep 1999"
+.TH sane-bh 5 "15 Sep 1999" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-bh
 .SH NAME
-sane-bh - SANE backend for Bell+Howell Copiscan II series document
+sane-bh \- SANE backend for Bell+Howell Copiscan II series document
 scanners
 .SH DESCRIPTION
 The

@@ -1,8 +1,8 @@
-.TH sane-avision 5 "04 Nov 2002"
+.TH sane-avision 5 "04 Nov 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-avision
 
 .SH NAME
-sane-avision - SANE backend for original Avision and Avision OEM scanners
+sane-avision \- SANE backend for original Avision and Avision OEM scanners
 (HP, Minolta, Mitsubishi, UMAX and possibly more) flatbed scanners
 
 .SH ABOUT THIS FILE

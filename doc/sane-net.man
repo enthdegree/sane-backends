@@ -1,7 +1,7 @@
-.TH sane-net 5 "8 Oct 2002"
+.TH sane-net 5 "8 Oct 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-net
 .SH NAME
-sane-net - SANE network backend
+sane-net \- SANE network backend
 .SH DESCRIPTION
 The
 .B sane-net

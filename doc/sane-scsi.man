@@ -1,7 +1,7 @@
-.TH sane-scsi 5 "13 Apr 2002"
+.TH sane-scsi 5 "13 Apr 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-scsi
 .SH NAME
-sane-scsi - SCSI adapter tips for scanners
+sane-scsi \- SCSI adapter tips for scanners
 .SH DESCRIPTION
 This manual page contains various operating-system specific tips and
 tricks on how to get scanners with a SCSI interface working.

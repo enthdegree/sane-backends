@@ -1,7 +1,7 @@
-.TH sane-sceptre 5 "April 21st, 2002"
+.TH sane-sceptre 5 "April 21st, 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-sceptre
 .SH NAME
-sane-sceptre - SANE backend for SCEPTRE scanners
+sane-sceptre \- SANE backend for SCEPTRE scanners
 .SH DESCRIPTION
 The
 .B sane-sceptre

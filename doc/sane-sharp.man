@@ -1,7 +1,7 @@
-.TH sane-sharp 5 "21 Nov 2000"
+.TH sane-sharp 5 "21 Nov 2000" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-sharp
 .SH NAME
-sane-sharp - SANE backend for SHARP scanners
+sane-sharp \- SANE backend for SHARP scanners
 .SH DESCRIPTION
 The
 .B sane-sharp

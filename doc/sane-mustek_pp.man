@@ -1,7 +1,7 @@
-.TH sane-mustek_pp 5 "21 April 2001"
+.TH sane-mustek_pp 5 "21 April 2001" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-mustek_pp
 .SH NAME
-sane-mustek_pp - SANE backend for Mustek parallel port flatbed scanners
+sane-mustek_pp \- SANE backend for Mustek parallel port flatbed scanners
 .SH DESCRIPTION
 The
 .B sane-mustek_pp

@@ -1,4 +1,4 @@
-.TH sane-gphoto2 5 "04 September 2001"
+.TH sane-gphoto2 5 "04 September 2001" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-gphoto2
 .SH NAME
 sane-gphoto2 \- SANE backend for gphoto2 supported cameras

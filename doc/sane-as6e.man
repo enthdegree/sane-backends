@@ -1,4 +1,4 @@
-.TH sane-as6e 5 "  November 19, 2000" "SANE Artec  AS6E Backend "
+.TH sane-as6e 5 "November 19, 2000" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 
 .SH NAME
 sane-as6e \- SANE backend for using the Artec AS6E parallel port interface scanner.

@@ -1,7 +1,7 @@
-.TH sane-umax_pp 5 "15 February 2002"
+.TH sane-umax_pp 5 "15 February 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-umax_pp
 .SH NAME
-sane-umax_pp - SANE backend for Umax parallel port flatbed scanners
+sane-umax_pp \- SANE backend for Umax parallel port flatbed scanners
 .SH DESCRIPTION
 The
 .B sane-umax_pp

@@ -1,7 +1,7 @@
-.TH sane-agfafocus 5 "17 Oct 1998"
+.TH sane-agfafocus 5 "17 Oct 1998" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-agfafocus
 .SH NAME
-sane-agfafocus - SANE backend for AGFA Focus flatbed scanners
+sane-agfafocus \- SANE backend for AGFA Focus flatbed scanners
 .SH DESCRIPTION
 The
 .B sane-agfafocus

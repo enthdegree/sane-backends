@@ -1,7 +1,7 @@
-.TH sane-coolscan2 5 "22/08/2002"
+.TH sane-coolscan2 5 "22/08/2002"  "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-coolscan2
 .SH NAME
-sane-coolscan2 - SANE backend for Nikon Coolscan film scanners
+sane-coolscan2 \- SANE backend for Nikon Coolscan film scanners
 .SH DESCRIPTION
 The
 .sane-coolscan2

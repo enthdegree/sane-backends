@@ -1,7 +1,7 @@
-.TH sane-v4l 5 "28 Aug 2002"
+.TH sane-v4l 5 "28 Aug 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-v4l
 .SH NAME
-sane-v4l - SANE interface for Video for Linux API
+sane-v4l \- SANE interface for Video for Linux API
 .SH DESCRIPTION
 The
 .B sane-v4l

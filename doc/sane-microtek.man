@@ -1,4 +1,4 @@
-.TH sane-microtek 5 "February 8, 2000"
+.TH sane-microtek 5 "February 8, 2000" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-microtek
 .SH NAME
 sane-microtek \- SANE backend for Microtek scanners

@@ -1,7 +1,7 @@
-.TH sane-sm3600 5 "10.02.2002"
+.TH sane-sm3600 5 "10.02.2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-sm3600
 .SH NAME
-sane-sm3600 - SANE backend for Microtek scanners with M011 USB chip
+sane-sm3600 \- SANE backend for Microtek scanners with M011 USB chip
 .SH DESCRIPTION
 The
 .B sane-sm3600

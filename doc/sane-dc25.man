@@ -1,4 +1,4 @@
-.TH sane-dc25 5 "12 April 1999"
+.TH sane-dc25 5 "12 April 1999" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-dc25
 .SH NAME
 sane-dc25 \- SANE backend for Kodak DC20/DC25 Digital Cameras

@@ -1,9 +1,9 @@
 . .IX sane-microtek2
 ." Process this file with
 ." man -l sane-microtek2.man
-.TH sane-microtek2 5 "28 Jan 2002"
+.TH sane-microtek2 5 "28 Jan 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .SH NAME
-sane-microtek2 - SANE backend for Microtek scanners with SCSI-2 command set
+sane-microtek2 \- SANE backend for Microtek scanners with SCSI-2 command set
 .SH DESCRIPTION
 The
 .B sane-microtek2

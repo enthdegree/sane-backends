@@ -1,7 +1,7 @@
-.TH sane-dmc 5 "13 May 1998"
+.TH sane-dmc 5 "13 May 1998" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-dmc
 .SH NAME
-sane-dmc - SANE backend for the Polaroid Digital Microscope Camera
+sane-dmc \- SANE backend for the Polaroid Digital Microscope Camera
 .SH DESCRIPTION
 The
 .B sane-dmc

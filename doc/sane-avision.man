@@ -1,4 +1,4 @@
-.TH sane-avision 5 "07 Julc 2002"
+.TH sane-avision 5 "04 Nov 2002"
 .IX sane-avision
 
 .SH NAME
@@ -22,23 +22,25 @@ The configuration file for this backend resides in
 	@CONFIGDIR@/avision.conf. 
 
 Its contents is a list of device names that correspond to Avision and Avision
-compatible scanners. Empty lines and lines starting with a hash mark (#) are
-ignored. A sample configuration file is shown below: 
+compatible scanners and backend-options. Empty lines and lines starting with
+a hash mark (#) are ignored. A sample configuration file is shown below: 
 
 .B I suggest you hold one hand on the power-button of the scanner while you try
 the first scans!
 
- #scsi Vendor Model Type Bus Channel ID LUN 
- scsi AVISION
- /dev/scanner
-
  # this is a comment
- #
+  
  option force-a4
  option disable-gamma-table
  option disable-calibration
- option disable-calibration
  option one-calib-only
+ option old-calibration
+ option disable-c5-guard
+ 
+ #scsi Vendor Model Type Bus Channel ID LUN 
+ scsi AVISION
+ scsi HP
+ /dev/scanner
  
  - force-a4:
    Forces the backend to overwrite the scanable area
@@ -57,13 +59,29 @@ the first scans!
    might try this if your scans hang or only produces
    random garbage.
  
- - one-calib-only
+ - one-calib-only:
    When this option is enabled, the backend will only
    perform a calibration when the backend is initialized
    and not before each scan. This might extend the life
    of the CCD, but does not work reliable with the newer
    USB scanners (they hang sometimes or return garbage
    image data). So this option should be used with care.
+ 
+ - old-calibration:
+   This enables the use of the old calibration code for
+   testing purposes.
+ 
+ - disable-c5-guard:
+   This disables the alpha-quality code normally needed
+   for newer USB scanners (e.g. HP 5370) to compute some
+   values for the hardware scaling.
+
+ Note: Any option above modifies the default code-flow
+       for your scanner. The options should only be used
+       when you encounter problems with the default be-
+       haviour of the backend. Please report the need of
+       options to the backend-author so the backend can
+       be fixed as soon as possible.
 
 .SH "DEVICE NAMES"
 This backend expects device names of the form:
@@ -117,11 +135,12 @@ to "/tmp/config:" would result in directories "tmp/config", ".", and
 .TP
 .B SANE_DEBUG_AVISION
 If the library was compiled with debug support enabled, this
-environment variable controls the debug level for this backend.  Higher
-debug levels increase the verbosity of the output. 
+environment variable controls the debug level for this backend.
+Higher debug levels increase the verbosity of the output. The debug
+level 7 is the author's prefered value to debug backend problems.
 
 Example: 
-export SANE_DEBUG_AVISION=4
+export SANE_DEBUG_AVISION=7
 
 .SH "SEE ALSO"
 sane(7), sane\-scsi(5)

@@ -59,6 +59,7 @@
    
    Very much thanks to:
                 Oliver Neukum who sponsored a HP 5300 USB scanner !!! ;-)
+                Avision INC for sponsoring a AV 8000S with ADF !!! ;-)
                 Avision INC for the documentation we got! ;-)
    
    Check the avision.c file for a ChangeLog ...
@@ -87,16 +88,33 @@ typedef struct Avision_HWEntry {
   
   /* feature overwrites */
   enum {
-    /* use single command calibraion send (i.e. all new scanners) */
-    AV_CALIB2 = 1,
-    /* use 512 bytes gamma table (i.e. Minolta film-scanner) */
-    AV_GAMMA2 = 2,
-    /* use 256 bytes gamma table (i.e. HP 5370C) */
-    AV_GAMMA3 = 4  
-    /* more to come ... */
+    /* force no calibration */
+    AV_NO_CALIB = 1,
+    
+    /* force the special C5 calibration */
+    AV_C5_CALIB = 2,
+    
+    /* no gamma table */
+    AV_NO_GAMMA = 4,
+    
+    /* light check is bogus */
+    AV_LIGHT_CHECK_BOGUS = 8,
+    
+    /* do not use line packing even if line_difference */
+    AV_NO_LINE_DIFFERENCE = 16
+    
+    /* maybe more ...*/
   } feature_type;
   
 } Avision_HWEntry;
+
+enum asic_type {
+  AV_ASIC_Cx = 0,
+  AV_ASIC_C1 = 1,
+  AV_ASIC_C2 = 3,
+  AV_ASIC_C5 = 5,
+  AV_ASIC_OA980 = 128
+};
 
 enum Avision_Option
 {
@@ -122,8 +140,9 @@ enum Avision_Option
   OPT_QSCAN,
   OPT_QCALIB,
   OPT_TRANS,             /* Transparency Mode */
+  OPT_ADF,               /* Use ADF unit */
   
-  OPT_GAMMA_VECTOR,      /* first must be grey */
+  OPT_GAMMA_VECTOR,      /* first must be gray */
   OPT_GAMMA_VECTOR_R,    /* then r g b vector */
   OPT_GAMMA_VECTOR_G,
   OPT_GAMMA_VECTOR_B,
@@ -144,17 +163,18 @@ typedef struct Avision_Dimensions
 {
   /* in dpi */
   int res;
-  int resx;
-  int rexy;
   
-  /* in 1200/dpi */
+  /* int resx;
+     int rexy; */
+  
+  /* in pixels */
   long tlx;
   long tly;
   long brx;
   long bry;
   
   long width;
-  long length;
+  long height;
   
   /* in pixels */
   int line_difference;
@@ -173,14 +193,23 @@ typedef struct Avision_Device
   SANE_Range y_range;
   SANE_Range speed_range;
 
+  enum asic_type inquiry_asic_type;
   SANE_Bool inquiry_new_protocol;
+  SANE_Bool inquiry_adf;
   SANE_Bool inquiry_detect_accessories;
   SANE_Bool inquiry_needs_calibration;
   SANE_Bool inquiry_needs_gamma;
+  SANE_Bool inquiry_calibration;
+  SANE_Bool inquiry_3x3_matrix;
   SANE_Bool inquiry_needs_software_colorpack;
+  SANE_Bool inquiry_needs_line_pack;
+  SANE_Bool inquiry_adf_need_mirror;
+  SANE_Bool inquiry_light_detect;
+  SANE_Bool inquiry_light_control;
+  int       inquiry_max_shading_target;
   
-  int inquiry_optical_res;     /* in dpi */
-  int inquiry_max_res;         /* in dpi */
+  int inquiry_optical_res;        /* in dpi */
+  int inquiry_max_res;            /* in dpi */
   
   double inquiry_x_range;         /* in mm */
   double inquiry_y_range;         /* in mm */
@@ -192,7 +221,7 @@ typedef struct Avision_Device
   double inquiry_transp_y_range;  /* in mm */
   
   int inquiry_color_boundary;
-  int inquiry_grey_boundary;
+  int inquiry_gray_boundary;
   int inquiry_dithered_boundary;
   int inquiry_thresholded_boundary;
   int inquiry_line_difference; /* software color pack */
@@ -200,13 +229,18 @@ typedef struct Avision_Device
   /* int inquiry_bits_per_channel; */
   
   /* accessories */
-  SANE_Bool inquiry_adf;
-  SANE_Bool inquiry_light_box;
+  SANE_Bool acc_light_box;
+  SANE_Bool acc_adf;
+  
+  SANE_Bool is_adf; /* ADF scanner */
   
   /* film scanner atributes - maybe these should be in the scanner struct? */
   SANE_Range frame_range;
   SANE_Word current_frame;
   SANE_Word holder_type;
+  
+  /* some versin corrections */
+  u_int16_t data_dq; /* was ox0A0D - but hangs some new scanners */
   
   /* driver state */
   SANE_Bool is_calibrated;
@@ -243,17 +277,19 @@ typedef struct Avision_Scanner
   
 } Avision_Scanner;
 
+/* modes */
+#define THRESHOLDED 0
+#define DITHERED 1
+#define GRAYSCALE 2
+#define TRUECOLOR 3
+
+/* scsi command defines */
 #define AV_ADF_ON     0x80
 
 #define AV_QSCAN_ON   0x10
 #define AV_QCALIB_ON  0x08
 #define AV_TRANS_ON   0x80
 #define AV_INVERSE_ON 0x20
-
-#define THRESHOLDED 0
-#define DITHERED 1
-#define GREYSCALE 2
-#define TRUECOLOR 3
 
 /* request sense */
 #define VALID                       (SANE_Byte) (0x01<<7)
@@ -357,48 +393,49 @@ typedef struct Avision_Scanner
 #define AVISION_SCSI_OP_REJECT_PAPER        0x00
 #define AVISION_SCSI_OP_LOAD_PAPER          0x01
 #define AVISION_SCSI_OP_GO_HOME             0x02
-#define AVISION_SCSI_OP_TRANS_CALIB_GREY    0x04
+#define AVISION_SCSI_OP_TRANS_CALIB_GRAY    0x04
 #define AVISION_SCSI_OP_TRANS_CALIB_COLOR   0x05
 
 /* The structures that you have to send to an avision to get it to
    do various stuff... */
 
-struct command_header
+typedef struct command_header
 {
   u_int8_t opc;
   u_int8_t pad0 [3];
   u_int8_t len;
   u_int8_t pad1;
-};
+} command_header;
 
-struct command_set_window
+typedef struct command_set_window
 {
   u_int8_t opc;
   u_int8_t reserved0 [5];
   u_int8_t transferlen [3];
   u_int8_t control;
-};
+} command_set_window;
 
-struct command_read
+typedef struct command_read
 {
   u_int8_t opc;
   u_int8_t bitset1;
   u_int8_t datatypecode;
-  u_int8_t calibchn;
+  u_int8_t readtype;
   u_int8_t datatypequal [2];
   u_int8_t transferlen [3];
   u_int8_t control;
-};
+} command_read;
 
-struct command_scan
+typedef struct command_scan
 {
   u_int8_t opc;
-  u_int8_t pad0 [3];
+  u_int8_t bitset0;
+  u_int8_t reserved0 [2];
   u_int8_t transferlen;
   u_int8_t bitset1;
-};
+} command_scan;
 
-struct command_send
+typedef struct command_send
 {
   u_int8_t opc;
   u_int8_t bitset1;
@@ -407,18 +444,18 @@ struct command_send
   u_int8_t datatypequal [2];
   u_int8_t transferlen [3];
   u_int8_t reserved1;
-};
+} command_send;
 
-struct command_set_window_window_header
+typedef struct command_set_window_window_header
 {
   u_int8_t reserved0 [6];
   u_int8_t desclen [2];
-};
+} command_set_window_window_header;
 
-struct command_set_window_window_descriptor
+typedef struct command_set_window_window_descriptor
 {
   u_int8_t winid;
-  u_int8_t pad0;
+  u_int8_t reserved0;
   u_int8_t xres [2];
   u_int8_t yres [2];
   u_int8_t ulx [4];
@@ -426,16 +463,16 @@ struct command_set_window_window_descriptor
   u_int8_t width [4];
   u_int8_t length [4];
   u_int8_t brightness;
-  u_int8_t thresh;
+  u_int8_t threshold;
   u_int8_t contrast;
   u_int8_t image_comp;
   u_int8_t bpc;
   u_int8_t halftone [2];
-  u_int8_t pad_type;
+  u_int8_t padding_and_bitset;
   u_int8_t bitordering [2];
   u_int8_t compr_type;
   u_int8_t compr_arg;
-  u_int8_t pad4 [6];
+  u_int8_t reserved1 [6];
   u_int8_t vendor_specid;
   u_int8_t paralen;
   u_int8_t bitset1;
@@ -444,21 +481,27 @@ struct command_set_window_window_descriptor
   u_int8_t linewidth [2];
   u_int8_t linecount [2];
   u_int8_t bitset2;
-  u_int8_t pad5;
+  u_int8_t ir_exposure_time;
   
   u_int8_t r_exposure_time [2];
   u_int8_t g_exposure_time [2];
   u_int8_t b_exposure_time [2];
-};
+  
+  u_int8_t bitset3;
+  u_int8_t auto_focus;
+  u_int8_t line_width_msb;
+  u_int8_t line_count_msb;
+  u_int8_t edge_threshold;
+} command_set_window_window_descriptor;
 
-struct page_header
+typedef struct page_header
 {
   u_int8_t pad0 [4];
   u_int8_t code;
   u_int8_t length;
-};
+} page_header;
 
-struct avision_page
+typedef struct avision_page
 {
   u_int8_t gamma;
   u_int8_t thresh;
@@ -466,23 +509,56 @@ struct avision_page
   u_int8_t delay;
   u_int8_t features;
   u_int8_t pad0;
-};
+} avision_page;
 
-/* set SCSI highended variables. Declare them as an array of chars */
+typedef struct calibration_format
+{
+  u_int16_t pixel_per_line;
+  u_int8_t bytes_per_channel;
+  u_int8_t lines;
+  u_int8_t flags;
+  u_int8_t ability1;
+  u_int8_t r_gain;
+  u_int8_t g_gain;
+  u_int8_t b_gain;
+  u_int16_t r_shading_target;
+  u_int16_t g_shading_target;
+  u_int16_t b_shading_target;
+  u_int16_t r_dark_shading_target;
+  u_int16_t g_dark_shading_target;
+  u_int16_t b_dark_shading_target;
+  
+  /* not returned but usefull in some places */
+  u_int8_t channels;
+} calibration_format;
+
+
+/* set/get SCSI highended variables. Declare them as an array of chars */
 /* endianness-safe, int-size safe... */
 #define set_double(var,val) var[0] = ((val) >> 8) & 0xff;  \
-                            var[1] = ((val)     ) & 0xff;
+                            var[1] = ((val)     ) & 0xff
 
 #define set_triple(var,val) var[0] = ((val) >> 16) & 0xff; \
                             var[1] = ((val) >> 8 ) & 0xff; \
-                            var[2] = ((val)      ) & 0xff;
+                            var[2] = ((val)      ) & 0xff
 
 #define set_quad(var,val)   var[0] = ((val) >> 24) & 0xff; \
                             var[1] = ((val) >> 16) & 0xff; \
                             var[2] = ((val) >> 8 ) & 0xff; \
-                            var[3] = ((val)      ) & 0xff;
+                            var[3] = ((val)      ) & 0xff
+
+#define get_double(var) (*var << 8) + *(var + 1)
+
+#define get_triple(var) (*var << 16) + \
+                        (*(var + 1) << 8) + * *var
+
+#define get_quad(var)   (*var << 24) + \
+                        (*(var + 1) << 16) + \
+                        (*(var + 2) << 8) + *(var + 3)
 
 #define BIT(n, p) ((n & ( 1 << p))?1:0)
+
+#define SET_BIT(n, p) (n |= 1 << p)
 
 /* These should be in saneopts.h */
 #define SANE_NAME_FRAME "frame"

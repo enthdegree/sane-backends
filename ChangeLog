@@ -1,3 +1,11 @@
+
+2002-11-23  Rene Rebe <rene.rebe@gmx.net>
+
+	* backend/avision.h backend/avision.c backend/avision.conf
+	  doc/sane-avision.man: updated the Avisin backend to my todays
+	  snapshot. It know handles more scanners as well as ADF and A3
+	  size devices.
+
 2002-11-23  Max Vorobiev <pcwizard@yandex.ru>
 	* backend/hpsj5s.c: Removed default port probing.
 	

@@ -1,3 +1,10 @@
+2004-05-15  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* doc/plustek/BUID: bumped up build number.
+	* doc/plustek/Plustek-PARPORT.changes: update
+	* backend/plustek-pp_misc.c: fixed kernel 2.6 issue.
+	  fixed also Bug #300698.
+
 2004-05-15  Michael Herder <crapmail@nurfuerspam.de>
 
 	* backend/artec_eplus48u.c backend/artec_eplus48u.h: 

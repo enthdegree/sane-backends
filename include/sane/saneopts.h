@@ -212,7 +212,7 @@ SANE_I18N("Number of bits per sample, typical values are 1 for \"line-art\" " \
 "and 8 for multibit scans.")
 
 #define SANE_DESC_SCAN_MODE \
-SANE_I18N("Selects the scan mode (e.g., lineart,monochrome, or color).")
+SANE_I18N("Selects the scan mode (e.g., lineart, monochrome, or color).")
 
 #define SANE_DESC_SCAN_SPEED \
 SANE_I18N("Determines the speed at which the scan proceeds.")

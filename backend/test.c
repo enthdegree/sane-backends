@@ -769,7 +769,7 @@ init_options (Test_Device * test_device)
   od->name = "bool-soft-select-soft-detect-emulated";
   od->title = SANE_I18N ("(5/6) Bool soft select soft detect emulated");
   od->desc = SANE_I18N ("(5/6) Bool test option that has soft select, soft "
-			"detect, and emulated (and advanced) capabilities. ");
+			"detect, and emulated (and advanced) capabilities.");
   od->type = SANE_TYPE_BOOL;
   od->unit = SANE_UNIT_NONE;
   od->size = sizeof (SANE_Word);
@@ -850,7 +850,7 @@ init_options (Test_Device * test_device)
   od->name = "int-constraint-word-list";
   od->title = SANE_I18N ("(3/6) Int constraint word list");
   od->desc = SANE_I18N ("(3/6) Int test option with unit bits and "
-			"constraint word list set. ");
+			"constraint word list set.");
   od->type = SANE_TYPE_INT;
   od->unit = SANE_UNIT_BIT;
   od->size = sizeof (SANE_Word);
@@ -963,7 +963,7 @@ init_options (Test_Device * test_device)
   od->name = "fixed-constraint-word-list";
   od->title = SANE_I18N ("(3/3) Fixed constraint word list");
   od->desc = SANE_I18N ("(3/3) Fixed test option with no unit and "
-			"constraint word list set. ");
+			"constraint word list set.");
   od->type = SANE_TYPE_FIXED;
   od->unit = SANE_UNIT_NONE;
   od->size = sizeof (SANE_Word);

@@ -679,7 +679,7 @@ enum Microtek2_Option
 
 #define M_NAME_MIDTONE_R       "midtone-r"
 #define M_TITLE_MIDTONE_R      SANE_I18N("Midtone for red")
-#define M_DESC_MIDTONE_R       SANE_I18N("Selects which radiance level should " \
+#define M_DESC_MIDTONE_R       SANE_I18N("Selects which radiance level should" \
                                " be considered \"50 % red\".")
 
 #define M_NAME_MIDTONE_G       "midtone-g"

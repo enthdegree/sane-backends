@@ -1,8 +1,20 @@
 -*-Mode: outline-*-
 New with 1.0.12, released 2003-xx-xx:
 
-* Security fixes for saned.
-* Updated backends: teco2 (Relisys AVEC II S3, Relisys APOLLO Express 3 and Primax Jewel 4800)
+* New backends: hp5400 (Hewlett Packard 54XX series), ibm (IBM 2456, Ricoh
+  IS-410, IS-420, and IS-430), and ma1509 (Mustek BearPaw 1200F).
+* Updated backends: apple, as6e, avision, canon (FB1200S), canon630u, dc210,
+  dc240, dll, epson, fujitsu (fi4220), gphoto2, gt68xx, hp, mustek, mustek_pp,
+  mustek_usb, net, pie, plustek, snapscan (Epson Perfection 660), teco2
+  (Relisys AVEC II S3, Relisys APOLLO Express 3 and Primax Jewel 4800), test,
+  umax_pp.
+* Added IPv6 support for saned and net backend.
+* Build system improvements.
+* USB access improvements.
+* Portability fixes (especially for Irix, MacOS X and OS/2 and Linux/m68k).
+* Added new (nl) and updated existing translations.
+* Documentation updates.
+* Bugfixes.
 
 New with 1.0.11, released 2003-02-09:
 

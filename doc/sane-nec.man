@@ -26,13 +26,13 @@ The backend has the following known problems:
 At present,
 the following scanners are known to work with this backend.
 .RS
-Vendor	Product id:
+Vendor Product id
 .br
------	-----------
+------ -----------
 .br
-NEC	PC-IN500/4C
-
+NEC    PC-IN500/4C
 .RE
+
 .SH FILES
 .TP
 .I @CONFIGDIR@/nec.conf

@@ -19,29 +19,29 @@ At present,
 the following scanners are known to work with this backend.
 .RS
 .PP
-Vendor	Product id:
+Vendor  Product id:
 .br
------	-----------
+-----   -----------
 .br
-Sharp	JX-610
+Sharp   JX-610
 .br
-Sharp	JX-250
+Sharp   JX-250
 .br
 Sharp   JX-320
 .br
 Sharp   JX-330
 .br
-Sharp	JX-350
+Sharp   JX-350
 .RE
 .PP
 The following scanners are detected by the backend, but not tested:
 .PP
 .RS
-Vendor	Product id:
+Vendor  Product id:
 .br
------	-----------
+-----   -----------
 .br
-Sharp	JX-325
+Sharp   JX-325
 
 .RE
 .SH DEVICE NAMES

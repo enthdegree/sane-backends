@@ -4,6 +4,8 @@
 	  Added new file sane-desc.c. sane-desc is inended as an replacement
 	  for the Emacs Lisp file sane-desc.el. It can generate ASCI and HTML
 	  lists from the backends' .desc files.
+	* doc/sane.man: Added security to the list of topics that can be
+	  reported to me.
 
 2002-07-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

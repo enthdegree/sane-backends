@@ -1,5 +1,6 @@
 2001-02-22  Petter Reinholdtsen <pere@td.org.uit.no>
 
+	* TODO: Add comment on how link problems should really be fixed.
 	* TODO: List memleak problem for sane_get_devices().
 
 	* configure.in include/sane/config.h.in: Really move definition of

@@ -1,13 +1,21 @@
+2005-04-01  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* doc/descriptions/unsupported.desc
+	  doc/descriptions-external/genesys.desc: Moved some Plustek
+	  devices over to the genesys descriptions.
+
 2005-03-31 Julien Blache <jb@jblache.org>
+
 	* doc/scanimage.man: fix typos, patch from A Costa.
 
 2005-03-20 Earle F. Philhower III <earle@ziplabel.com>
+
 	* backend/sm3840_scan.c: Big-endian graymode fix
 
 2005-03-17 Gerard Klaver <gerard at gkall dot hobby dot nl>
 
 	* doc/descriptions-external/samsung.desc added
-	  
+
 2005-03-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Removed Microtek ScanMaker
@@ -28,21 +36,25 @@
 
 2005-03-04  Gerard Klaver <gerard at gkall dot hobby dot nl>
 
-        * doc/sane-teco2.man: text update
+	* doc/sane-teco2.man: text update
 	  backends/teco2: use of __unused__
-				      
+
 2005-03-03  Julien Blache <jb@jblache.org>
+
 	* tools/hotplug-ng/libsane.hotplug: add missing quote in the grep line.
 
 2005-03-02  Julien Blache <jb@jblache.org>
+
 	* tools/hotplug-ng/libsane.hotplug: allow for several spaces
 	between fields in the db file.
 
 2005-02-28  Julien Blache <jb@jblache.org>
+
 	* tools/hotplug-ng/libsane.hotplug: replace \t by [[:space:]] when
 	grepping for the device in the db file.
 
 2005-02-21  Julien Blache <jb@jblache.org>
+
 	* tools/hotplug-ng: added new hotplug/hotplug-ng hook, with
 	scripts and documentation.
 

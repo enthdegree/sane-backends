@@ -592,7 +592,7 @@ static int usb_GetLampStatus( pPlustek_Device dev )
 	}	
 	
 	if((_WAF_MISC_IO6_LAMP == (_WAF_MISC_IO6_LAMP & sc->workaroundFlag)) ||
- 	   (_WAF_MISC_IO3_LAMP == (_WAF_MISC_IO3_LAMP & sc->workaroundFlag)) {
+ 	   (_WAF_MISC_IO3_LAMP == (_WAF_MISC_IO3_LAMP & sc->workaroundFlag))) {
 			
 		iLampStatus |= DEV_LampReflection;
 	

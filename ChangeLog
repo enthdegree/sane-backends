@@ -1,3 +1,8 @@
+2001-08-26 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
+
+	* backend/umax.c backend/umax.desc doc/umax/umax.CHANGES:
+          umax scsi backend update to version 1.0 build 29
+
 2001-08-19  Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c tools/umax_pp.c:

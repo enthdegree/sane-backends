@@ -1,3 +1,10 @@
+2003-12-01  Nathan Rutman <nthn1@yahoo.com>
+
+	* backend/canon630u.c: Change default scan size to full platen,
+	  removed compiler warnings, made HMG's fix for bug #300257
+	  permament.
+	* doc/sane-canon630u.man: cleanup
+	
 2003-12-01  Jochen Eisinger <jochen@penguin-breeder.org>
 
 	* backend/mustek_pp_ccd300.c: Fixed horizontal offset of scan area

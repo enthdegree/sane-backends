@@ -1,3 +1,12 @@
+2004-10-14  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* sanei/sanei_thread.c: Added missing pthread_detach() so the
+	  thread resources could be reused again.
+
+2004-10-13  Ullrich Sigwanz <usigwanz@freesurf.ch>
+
+        * backend/niash.c: Proper resource handling in sane_cancel.
+
 2004-10-12  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* backend/plustek.c: Fixed warning condition.

@@ -1,4 +1,4 @@
-.TH sane-mustek_usb 5 "21 Oct 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-mustek_usb 5 "3 Mar 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-mustek_usb
 .SH NAME
 sane-mustek_usb \- SANE backend for Mustek USB flatbed scanners
@@ -189,16 +189,13 @@ Tom Wang.
 
 .SH BUGS
 These devices have a hardware bug: Once data is written to them, they can't be
-resetted (toggle = DATA0). That means, any operation that tries to reset the
+reset (toggle = DATA0). That means, any operation that tries to reset the
 device will result in running into timeouts.
 
-That means that this backend will fail when it is loaded the second time in
-some configurations: E.g. using libusb, (Free|Open|Net)BSD or with Linux if
-you unload and reload the scanner module. The only choice is to replug the
-scanner in this case. The workaround for Linux is to use the scanner module
-(modprobe scanner) instead of libusb. See 
-.BR sane-usb (5)
-for details.
+In earlier versions this backend failed when it is loaded the second time in
+some configurations. The only choice was to replug the scanner in this case. The
+backend uses a workaround for that bug now but it's only tested on
+Linux. Reports for other operating systems are appriciated.
 
 .PP
 More detailed bug information is available at the Mustek backend homepage

@@ -188,6 +188,9 @@ typedef struct ma1017
   Motor_Type motor;
   Mustek_Type scanner_type;
   SANE_Word max_block_size;
+
+  SANE_Word total_read_urbs;
+  SANE_Word total_write_urbs;
 }
 ma1017;
 

@@ -1,3 +1,10 @@
+2004-03-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/mustek_usb.c backend/mustek_usb_low.c
+	  backend/mustek_usb_low.h doc/sane-mustek_usb.man:
+	  Added workaround for toggle = data0 chipset bug.
+	  Fixes bug #300323.
+
 2004-03-01  Frank Zago  <fzago at austin dot rr dot com>
 
 	* doc/descriptions-external/genesys.desc: created list of scanners

@@ -3,7 +3,7 @@
    Copyright (C) 2000 Mustek.
    Originally maintained by Tom Wang <tom.wang@mustek.com.tw>
 
-   Copyright (C) 2001, 2002 by Henning Meier-Geinitz.
+   Copyright (C) 2001 - 2004 by Henning Meier-Geinitz.
 
    This file is part of the SANE package.
 
@@ -153,6 +153,8 @@ usb_low_init (ma1017 ** chip_address)
   chip->sensor = ST_CANON600;
   chip->motor = MT_1200;
 
+  chip->total_read_urbs = 0;
+  chip->total_write_urbs = 0;
   DBG (7, "usb_low_init: exit\n");
   return SANE_STATUS_GOOD;
 }
@@ -163,17 +165,15 @@ usb_low_exit (ma1017 * chip)
   DBG (7, "usb_low_exit: chip = %p\n", (void *) chip);
   if (chip)
     {
-      if (chip->fd >= 0)
-	{
-	  DBG (7, "usb_low_exit: closing fd %d\n", chip->fd);
-	  sanei_usb_close (chip->fd);
-	  chip->fd = -1;
-	}
+      if (chip->fd >= 0 && chip->is_opened)
+	usb_low_close (chip);
       DBG (7, "usb_low_exit: freeing chip\n");
       free (chip);
     }
-  return SANE_STATUS_GOOD;
+  DBG (5, "usb_low_exit: read %d URBs, wrote %d URBs\n", 
+       chip->total_read_urbs, chip->total_write_urbs);
   DBG (7, "usb_low_exit: exit\n");
+  return SANE_STATUS_GOOD;
 }
 
 /* A0 ~ A1 */
@@ -294,6 +294,7 @@ usb_low_start_cmt_table (ma1017 * chip)
 	   "wrote %lu bytes\n", (unsigned long int) n);
       return SANE_STATUS_IO_ERROR;
     }
+  chip->total_write_urbs++;
   chip->is_rowing = SANE_TRUE;
   DBG (7, "usb_low_start_cmt_table: exit\n");
   return SANE_STATUS_GOOD;
@@ -331,7 +332,7 @@ usb_low_stop_cmt_table (ma1017 * chip)
 	   "%lu bytes\n", (unsigned long int) n);
       return SANE_STATUS_IO_ERROR;
     }
-
+  chip->total_write_urbs++;
   n = 1;
   status = sanei_usb_read_bulk (chip->fd, &read_byte, &n);
   if (status != SANE_STATUS_GOOD || n != 1)
@@ -340,6 +341,7 @@ usb_low_stop_cmt_table (ma1017 * chip)
 	   "bytes\n", (unsigned long int) n);
       return SANE_STATUS_IO_ERROR;
     }
+  chip->total_read_urbs++;
   chip->is_rowing = SANE_FALSE;
 
   DBG (7, "usb_low_stop_cmt_table: exit\n");
@@ -2601,6 +2603,7 @@ usb_low_wait_rowing (ma1017 * chip)
 	   sane_strstatus (status));
       return SANE_STATUS_IO_ERROR;
     }
+  chip->total_read_urbs++;
   chip->is_rowing = SANE_FALSE;
   DBG (7, "usb_low_wait_rowing: exit\n");
   return SANE_STATUS_GOOD;
@@ -2638,6 +2641,9 @@ usb_low_read_rows (ma1017 * chip, SANE_Byte * data, SANE_Word byte_count)
 	       sane_strstatus (status));
 	  return status;
 	}
+      /* Count the number of URBs. This is a bit tricky, as we are reading
+	 bigger chunks here but the scanner can only handle 64 bytes at once. */
+      chip->total_read_urbs += ((n +  63) / 64);
       bytes_total += n;
       if ((SANE_Word) bytes_total != byte_count)
 	{
@@ -2688,6 +2694,7 @@ usb_low_write_reg (ma1017 * chip, SANE_Byte reg_no, SANE_Byte data)
 	   sane_strstatus (status));
       return SANE_STATUS_IO_ERROR;
     }
+  chip->total_write_urbs++;
   DBG (7, "usb_low_write_reg: reg: 0x%02x, value: 0x%02x\n", reg_no, data);
   return SANE_STATUS_GOOD;
 }
@@ -2719,6 +2726,8 @@ usb_low_read_reg (ma1017 * chip, SANE_Byte reg_no, SANE_Byte * data)
       return SANE_STATUS_INVAL;
     }
   n = 2;
+  DBG (5, "usb_low_read_reg: trying to write %lu bytes\n", (unsigned long int) n);
+
   status = sanei_usb_write_bulk (chip->fd, data_field, &n);
   if (status != SANE_STATUS_GOOD || n != 2)
     {
@@ -2727,7 +2736,9 @@ usb_low_read_reg (ma1017 * chip, SANE_Byte reg_no, SANE_Byte * data)
 	   sane_strstatus (status));
       return SANE_STATUS_IO_ERROR;
     }
+  chip->total_write_urbs++;
   n = 1;
+  DBG (5, "usb_low_read_reg: trying to read %lu bytes\n", (unsigned long int) n);
   status = sanei_usb_read_bulk (chip->fd, (SANE_Byte *) & read_byte, &n);
   if (status != SANE_STATUS_GOOD || n != 1)
     {
@@ -2736,6 +2747,7 @@ usb_low_read_reg (ma1017 * chip, SANE_Byte reg_no, SANE_Byte * data)
 	   (unsigned long int) n, sane_strstatus (status));
       return SANE_STATUS_IO_ERROR;
     }
+  chip->total_read_urbs++;
   if (data)
     *data = read_byte;
   DBG (7, "usb_low_read_reg: Reg: 0x%02x, Value: 0x%02x\n",
@@ -2879,8 +2891,18 @@ usb_low_close (ma1017 * chip)
 
   if (chip->fd >= 0)
     {
+      SANE_Byte dummy;
+
       if (chip->is_rowing)
 	usb_low_stop_rowing (chip);
+      /* Now make sure that both the number of written and
+	 read URBs is even. Use some dummy writes/reads. That's to avoid
+	 a nasty bug in the MA 1017 chipset that causes timeouts when
+	 the number of URBs is odd (toggle bug). */
+      if ((chip->total_read_urbs % 2) == 1)
+	usb_low_get_a4 (chip, &dummy);
+      if ((chip->total_write_urbs % 2) == 1)
+	usb_low_set_fix_pattern (chip, SANE_FALSE);
       sanei_usb_close (chip->fd);
       chip->fd = -1;
     }

@@ -1,5 +1,15 @@
 CHANGES for the SANE Mustek USB backend
 
+2004-03-02
+  * Release of version 1.0-18.
+
+2004-03-02
+  * Added workaround for data0 toggle bug. I think this is a bug in the
+    chipset. The chipset doesn't set the toggle to data0 when the endpoints
+    are reset. As this is done whenever the device files/libusb is closed,
+    this backend worked ony once. Now we count the number of URBs and
+    just read/write some crap if the number is odd.
+
 2003-09-21
   * Release of version 1.0-17.
 

@@ -3,7 +3,7 @@
    Copyright (C) 2000 Mustek.
    Originally maintained by Tom Wang <tom.wang@mustek.com.tw>
 
-   Copyright (C) 2001, 2002 by Henning Meier-Geinitz.
+   Copyright (C) 2001 - 2004 by Henning Meier-Geinitz.
 
    This file is part of the SANE package.
 
@@ -46,7 +46,7 @@
    This file implements a SANE backend for Mustek 1200UB and similar 
    USB flatbed scanners.  */
 
-#define BUILD 17
+#define BUILD 18
 
 #include "../include/sane/config.h"
 
@@ -86,8 +86,8 @@ static Mustek_Usb_Device *first_dev;
 static Mustek_Usb_Scanner *first_handle;
 static const SANE_Device **devlist = 0;
 
-/* Maximum amount of data read in one turn from USB */
-static SANE_Word max_block_size = 8 * 1024;
+/* Maximum amount of data read in one turn from USB. */
+static SANE_Word max_block_size = (8 * 1024);
 
 /* Array of newly attached devices */
 static Mustek_Usb_Device **new_dev;

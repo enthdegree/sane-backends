@@ -15,6 +15,31 @@
 	* backend/net.c backend/net.desc backend/net.h: Use copies of option
 	  descriptors to make sure their addresses aren't changed until
 	  sane_close. New version: 1.0.7.
+	* doc/descriptions/abaton.desc doc/descriptions/agfafocus.desc
+	  doc/descriptions/apple.desc doc/descriptions/artec.desc
+	  doc/descriptions/as6e.desc doc/descriptions/avision.desc
+	  doc/descriptions/bh.desc doc/descriptions/canon.desc
+	  doc/descriptions/coolscan.desc doc/descriptions/dc210.desc
+	  doc/descriptions/dc240.desc doc/descriptions/dc25.desc
+	  doc/descriptions/dll.desc doc/descriptions/dmc.desc
+	  doc/descriptions/epson.desc doc/descriptions/gphoto2.desc
+	  doc/descriptions/hp.desc doc/descriptions/m3096g.desc
+	  doc/descriptions/matsushita.desc doc/descriptions/microtek2.desc
+	  doc/descriptions/microtek.desc doc/descriptions/mustek.desc
+	  doc/descriptions/mustek_pp.desc doc/descriptions/mustek_usb.desc
+	  doc/descriptions/nec.desc doc/descriptions/net.desc
+	  doc/descriptions/pie.desc doc/descriptions/pint.desc
+	  doc/descriptions/plustek.desc doc/descriptions/pnm.desc
+	  doc/descriptions/qcam.desc doc/descriptions/ricoh.desc
+	  doc/descriptions/s9036.desc doc/descriptions/sceptre.desc
+	  doc/descriptions/sharp.desc doc/descriptions/sm3600.desc
+	  doc/descriptions/snapscan.desc doc/descriptions/sp15c.desc
+	  doc/descriptions/st400.desc doc/descriptions/tamarack.desc
+	  doc/descriptions/template.desc. doc/descriptions/umax1220u.desc 
+	  doc/descriptions/umax.desc doc/descriptions/umax_pp.desc
+	  doc/descriptions/v4l.desc:
+	  Moved descriptions of included backends from backend/*.desc.
+
 
 2002-03-19  Frank Zago <fzago@greshamstorage.com>
 

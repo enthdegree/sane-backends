@@ -1,4 +1,4 @@
-TODO (2001-04-22)
+TODO (2001-04-29)
 
 ******** todo ********
 
@@ -36,13 +36,17 @@ backends
     - Genius Vivid Pro USB, Colorado USB 19200, Visioneer OneTouch 7600 
       IBM IdeaScan 2000 USB 
       http://homepages.paradise.net.nz/stevenel/scanner/
+    - Fujitsu M3091DCd support
+      Frederik Ramm <frederik@remote.org>
+      http://www.remote.org/frederik/projects/software/sane/
 
   * Update backends
     - add additions/bug fixes to microtek2 from Karsten Festag
       <karsten.festag@t-online.de> (partially done)
     - include snapscan updates http://sourceforge.net/projects/snapscan
+    - Combine all the Fujitsu backends into one single backend
 
-  * Use DBG(...) instead of fprintf(stderr, ...)
+  * Use DBG(...) instead of fprintf(stderr, ...) or printf
      - microtek
 
   * Check net/saned

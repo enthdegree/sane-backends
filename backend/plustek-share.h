@@ -9,6 +9,8 @@
  *.............................................................................
  * History:
  * 0.36 - initial version
+ * 0.37 - updated scanner info list
+ *        removed override switches
  *
  *.............................................................................
  *
@@ -99,7 +101,7 @@
  * both sides use the same structures. This version changes each time
  * the ioctl interface changes
  */
-#define _PTDRV_IOCTL_VERSION	0x0100
+#define _PTDRV_IOCTL_VERSION	0x0101
 
 /*.............................................................................
  * the structures for driver communication
@@ -227,13 +229,14 @@ typedef struct {
 #define MODEL_OP_4831P 	  8 /* 128k, 96003 ASIC, 30 bit, 300x600, 8.5x11.69  */
 #define MODEL_OP_9630P 	  9	/* 128k, 96003 ASIC, 30 bit, 600x1200, 8.5x11.69 */
 #define MODEL_OP_9630PL	 10	/* 128k, 96003 ASIC, 30 bit, 600x1200, 8.5x14	 */
-#define MODEL_OP_9636P 	 11	/* 128k, 98001 ASIC, 36 bit, 600x1200, 8.5x11.69 */
-#define MODEL_OP_A3I 	 12	/* 128k, 98001 ASIC, 36 bit, 400x800,  11.69x17  */
-#define MODEL_OP_12000P  13	/* 128k, 96003 ASIC, 36 bit, 600x1200, 8.5x11.69 */
+#define MODEL_OP_9636P 	 11	/* 512k, 98001 ASIC, 36 bit, 600x1200, 8.5x11.69 */
+#define MODEL_OP_A3I 	 12	/* 128k, 96003 ASIC, 30 bit, 400x800,  11.69x17  */
+#define MODEL_OP_12000P  13	/* 128k, 96003 ASIC, 30 bit, 600x1200, 8.5x11.69 */
 #define MODEL_OP_9636PP  14	/* 512k, 98001 ASIC, 36 bit, 600x1200, 8.5x11.69 */
 #define MODEL_OP_9636T 	 15	/* like OP_9636PP + transparency 				 */
-#define MODEL_OP_P12     16 /* 512k, 98003 ASIC, 36 bit, 600x1200, 8.5x11.69 */
-#define MODEL_OP_PT12    17 /* like OP_P12 + transparency 					 */
+#define MODEL_OP_P8      16 /* 512k, 98003 ASIC, 36 bit,  300x600, 8.5x11.69 */
+#define MODEL_OP_P12     17 /* 512k, 98003 ASIC, 36 bit, 600x1200, 8.5x11.69 */
+#define MODEL_OP_PT12    18 /* like OP_P12 + transparency 					 */
 
 /******************************************************************************
  * Section 1
@@ -370,7 +373,7 @@ typedef struct {
 #define COLOR_TRUE36		5
 
 /* IDs the ASIC return */
-#define _ASIC_IS_96001		0x0f	/* for 96001		*/
+#define _ASIC_IS_96001		0x0f	/* value for 96001	*/
 #define _ASIC_IS_96003		0x10	/* value for 96003  */
 #define _ASIC_IS_98001		0x81	/* value for 98001	*/
 #define _ASIC_IS_98003		0x83	/* value for 98003	*/
@@ -395,15 +398,6 @@ typedef struct {
 #define _NegativePageHeight	    		350U	/* 29.6 mm */
 
 #define _DEF_DPI		 		 50
-
-/*
- * model override defines
- */
-#define _OVR_NONE				0
-#define _OVR_PLUSTEK_9630PL		1	/* for legal version of the OP9630	*/
-#define _OVR_PRIMAX_4800D		2	/* for the Primax 4800 Direct		*/
-#define _OVR_PLUSTEK_9636		3	/* for 9636T/P+/Turbo				*/
-#define _OVR_PLUSTEK_9636P		4	/* for 9636P						*/
 
 #endif	/* guard __PLUSTEK_SHARE_H__ */
 

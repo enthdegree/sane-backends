@@ -1,4 +1,4 @@
-.TH sane-plustek 5 "19 September 2000"
+.TH sane-plustek 5 "10 November 2000"
 .IX sane-plustek
 .SH NAME
 sane-plustek - SANE backend for Plustek parallel port flatbed scanners
@@ -33,6 +33,8 @@ OpticPro 9600P         96003 600x1200 dpi 30bit 128Kb
 OpticPro 9630P/FBIV    96003 600x1200 dpi 30bit 128Kb
 .br
 OpticPro 9630PL (14")  96003 600x1200 dpi 30bit 128Kb
+.br
+OpticPro A3I           96003  400x800 dpi 30bit 128Kb
 .br
 OpticPro 600P/6000P    96003  300x600 dpi 30bit  32Kb
 .br
@@ -70,11 +72,11 @@ Model:                      Plustek Model:  Remarks:
 .br
 Colorado 4800               OpticPro 4800   not tested
 .br
-Colorado 4800 Direct        OpticPro 600    mov=2
+Compact 4800 Direct         OpticPro 600    mov=2
 .br
-Colorado 4800 Direct 30bit  OpticPro 4830   not tested
+Compact 4800 Direct 30bit   OpticPro 4830   not tested
 .br
-Colorado 9600 Direct 30bit  OpticPro 9630   not tested
+Compact 9600 Direct 30bit   OpticPro 9630   works
 .PP
 
 .SH "ARIES SCANNERS"
@@ -193,7 +195,10 @@ mov=m
 .br
        transparency/negativ capabilities
 .br
-       and R/W test during startup
+.I m
+=5 - OpticPro A3I override (works if OP12000 has
+.br
+       been detected) enables A3 scanning
 .br
 .RE
 .PP
@@ -256,6 +261,10 @@ The Linux Kernelmodule.
 .PP
 Please send any information and bug-reports to:
 .br
+.B Plustek Driver Mailing List <plustek@linuxhacker.org>
+.br
+or directly to:
+.br
 .B Gerhard Jaeger <g.jaeger@earthling.net>
 .PP
 Additional info and hints can be obtained in our
@@ -312,7 +321,7 @@ ASIC 98001 based models:
 .PP
 ASIC 96003/1 based models:
 .br
-  30bit mode is currently not supported.
+* 30bit mode is currently not supported.
 .br
 * On low-end systems and under heavy system load, the
 .br
@@ -321,6 +330,8 @@ ASIC 96003/1 based models:
   to hit the scan-bed and/or the picture is corrupted.
 .br
 * The scanspeed on 600x1200 dpi models is slow.
+.br
+* The scanquality of the A3I is poor
 .br
 
 

@@ -27,6 +27,11 @@
  *        fixed sane compatibility problems
  *        added multiple device support
  *        12bit color-depth are now available for scanimage
+ * 0.37 - removed X/Y autocorrection, now correcting the stuff
+ *        before scanning
+ *        applied Michaels' patch to solve the sane_get_parameter problem
+ *        getting X-size of scan area from driver
+ *        applied Michaels´ patch for OPT_RESOLUTION (SANE_INFO_INEXACT stuff)
  *
  *.............................................................................
  *
@@ -224,6 +229,8 @@ static int drvopen( const char *dev_name )
 	if( result < 0 ) {
 		close( handle );
 		DBG( _DBG_ERROR,"ioctl PT_DRV_OPEN_DEVICE failed(%d)\n", result );
+        if( -9019 == result )
+    		DBG( _DBG_ERROR,"Version problem, please recompile driver!\n" );
 		return result;
     }
 
@@ -437,7 +444,7 @@ static SANE_Status limitResolution( Plustek_Device *dev )
 	}
 	dev->dpi_range.quant = 0;
 	dev->x_range.min 	 = 0;
-	dev->x_range.max 	 = SANE_FIX(_NORMAL_X);
+	dev->x_range.max 	 = SANE_FIX(dev->max_x);
 	dev->x_range.quant 	 = 0;
 	dev->y_range.min 	 = 0;
 	dev->y_range.max 	 = SANE_FIX(dev->max_y);
@@ -681,6 +688,7 @@ static SANE_Status attach( const char *dev_name, Plustek_Device **devp )
 	/* save the info we got from the driver */
 	dev->model  = scaps.Model;
 	dev->asic   = scaps.AsicID;
+	dev->max_x  = scaps.wMaxExtentX*MM_PER_INCH/_MEASURE_BASE;
 	dev->max_y  = scaps.wMaxExtentY*MM_PER_INCH/_MEASURE_BASE;
 
 	dev->res_list = (SANE_Int *) calloc(((lens.rDpiX.wMax -_DEF_DPI)/25 + 1),
@@ -823,7 +831,7 @@ void sane_exit( void )
 /*.............................................................................
  * return a list of all devices
  */
-SANE_Status sane_get_devices (const SANE_Device ***device_list,
+SANE_Status sane_get_devices(const SANE_Device ***device_list,
 														SANE_Bool local_only )
 {
 	static const SANE_Device **devlist = 0;
@@ -1044,48 +1052,27 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 
 					if (d < min_d) {
 					    min_d = d;
-				    	best = s->hw->res_list[n];
+				    	best  = s->hw->res_list[n];
 					}
 				}
 
 	    		s->val[option].w = (SANE_Word)best;
-				if (info != NULL)
+
+                if(v != best)
+                    *(SANE_Word *)value = best;
+
+				if (info != NULL) {
+					if( v != best)	
+                        *info |= SANE_INFO_INEXACT;
 					*info |= SANE_INFO_RELOAD_PARAMS;
+     		  	}
 			    break;
+
 		  	}
 			case OPT_TL_X:
 			case OPT_TL_Y:
 			case OPT_BR_X:
 			case OPT_BR_Y:
-				if( OPT_BR_Y == option ) {
-					if( *(SANE_Word *)value < s->val[OPT_TL_Y].w ) {
-						*(SANE_Word *)value = s->val[OPT_TL_Y].w;
-						if (info != NULL)
-							*info |= SANE_INFO_RELOAD_OPTIONS;
-					}
-				}
-				if( OPT_TL_Y == option ) {
-					if( *(SANE_Word *)value > s->val[OPT_BR_Y].w ) {
-						*(SANE_Word *)value = s->val[OPT_BR_Y].w;
-						if (info != NULL)
-							*info |= SANE_INFO_RELOAD_OPTIONS;
-					}
-				}
-				if( OPT_BR_X == option ) {
-					if( *(SANE_Word *)value < s->val[OPT_TL_X].w ) {
-						*(SANE_Word *)value = s->val[OPT_TL_X].w;
-						if (info != NULL)
-							*info |= SANE_INFO_RELOAD_OPTIONS;
-					}
-				}
-				if( OPT_TL_X == option ) {
-					if( *(SANE_Word *)value > s->val[OPT_BR_X].w ) {
-						*(SANE_Word *)value = s->val[OPT_BR_X].w;
-						if (info != NULL)
-							*info |= SANE_INFO_RELOAD_OPTIONS;
-					}
-				}
-
 				s->val[option].w = *(SANE_Word *)value;
 				if (info != NULL)
 					*info |= SANE_INFO_RELOAD_PARAMS;
@@ -1130,7 +1117,7 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 
 					s->hw->dpi_range.min = _DEF_DPI;
 
-					s->hw->x_range.max = SANE_FIX(_NORMAL_X);
+					s->hw->x_range.max = SANE_FIX(s->hw->max_x);
 					s->hw->y_range.max = SANE_FIX(s->hw->max_y);
 					s->val[OPT_TL_X].w = SANE_FIX(_DEFAULT_TLX);
 					s->val[OPT_TL_Y].w = SANE_FIX(_DEFAULT_TLY);
@@ -1206,8 +1193,11 @@ SANE_Status sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 	pModeParam  	 mp;
 	Plustek_Scanner *s = (Plustek_Scanner *)handle;
 
-	/* if we're calling from within, calc best guess */
-	if (NULL == params) {
+	/* if we're calling from within, calc best guess
+     * do the same, if sane_get_parameters() is called
+     * by a frontend before sane_start() is called
+     */
+    if ((NULL == params) ||	(s->scanning != SANE_TRUE)) {
 
 		mp = getModeList( s );
 
@@ -1238,6 +1228,11 @@ SANE_Status sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 				s->params.bytes_per_line = s->params.pixels_per_line *
 															s->params.depth / 8;
 		}
+
+        /* if sane_get_parameters() was called before sane_start() */
+	    /* pass new values to the caller                           */
+    	if ((NULL != params) &&	(s->scanning != SANE_TRUE))
+	    	*params = s->params;
 	} else
 		*params = s->params;
 
@@ -1263,6 +1258,7 @@ SANE_Status sane_start( SANE_Handle handle )
 	CmdBlk		cb;
 	CropInfo	crop;
 	SANE_Status status;
+    SANE_Word   tmp;
 
 	DBG( _DBG_SANE_INIT, "sane_start\n" );
 
@@ -1310,10 +1306,25 @@ SANE_Status sane_start( SANE_Handle handle )
 		return SANE_STATUS_INVAL;
 	}
 
-	/* All ready to go.  Set and image def and see what the scanner
-	 * says for crop info.  Of course I ignore this, too...
+	/* All ready to go.  Set image def and see what the scanner
+	 * says for crop info.
 	 */
 	ndpi = s->val[OPT_RESOLUTION].w;
+
+    /* exchange the values as we can't deal with negative heights and so on...*/
+    tmp = s->val[OPT_TL_X].w;
+    if( tmp > s->val[OPT_BR_X].w ) {
+		DBG( _DBG_INFO, "exchanging BR-X - TL-X\n" );
+        s->val[OPT_TL_X].w = s->val[OPT_BR_X].w;
+        s->val[OPT_BR_X].w = tmp;
+    }
+
+    tmp = s->val[OPT_TL_Y].w;
+    if( tmp > s->val[OPT_BR_Y].w ) {
+		DBG( _DBG_INFO, "exchanging BR-Y - TL-Y\n" );
+        s->val[OPT_TL_Y].w = s->val[OPT_BR_Y].w;
+        s->val[OPT_BR_Y].w = tmp;
+    }
 
 	/* position and extent are always relative to 300 dpi */
 	left   = (int)(SANE_UNFIX (s->val[OPT_TL_X].w)*(double)lens.rDpiX.wPhyMax/

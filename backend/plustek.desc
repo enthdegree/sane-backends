@@ -10,7 +10,7 @@
 ;
 
 :backend "plustek"              ; name of backend
-:version "0.36"                 ; version of backend
+:version "0.37"                 ; version of backend
 :status :stable                 ; :alpha, :beta, :stable, :new
 :manpage "sane-plustek"         ; name of manpage (if it exists)
 
@@ -75,8 +75,8 @@
 :comment "OK"
 
 :model "OpticPro AI3"
-:interface "Parport"
-:comment "Not supported."
+:interface "Parport (SPP, EPP)"
+:comment "OK - use driver-switch mov=5"
 
 :model "OpticPro P8"
 :interface "Parport"
@@ -116,7 +116,7 @@
 
 :model "Compact 9600 Direct-30"
 :interface "Parport (SPP, EPP)"
-:comment "Not tested, (same as OP9630P)"
+:comment "OK - (same as OP9630P)"
 
 :mfg "Aries"                  ; name of manufacturer
 

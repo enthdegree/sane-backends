@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-10-05"		; version of backend
+:version "2003-10-10"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -207,6 +207,12 @@
 :interface "USB"
 :status :unsupported
 :comment "Not supported. Vendor/product 0x4a9/0x2205. However, a stand-alone program for FreeBSD is available."
+
+:model "DR-2080C"
+;:url "/unsupported/canon-d2400uf.html"
+:interface "USB SCSI"
+:status :unsupported
+:comment "Probably not supported. Path-trough (ADF) scanner."
 
 :model "FS4000"
 :url "/unsupported/canon-fs4000.html"
@@ -427,9 +433,9 @@
 :status :unsupported
 
 :model "ScanJet 5500C"
-;:url ""
+:url "/unsupported/hp-scanjet-5500c.html"
 :interface "USB"
-:comment "Not supported. Same as 4500C, but with ADF."
+:comment "Not supported. See link for details."
 :status :unsupported
 
 :model "ScanJet 5550C"
@@ -622,7 +628,7 @@
 :status :unsupported
 
 :model "BearPaw 4800 TA Pro"
-:url "http://www.meier-geinitz.de/sane/misc/mustek-scanners.html#UNSUPPORTED"
+:url "/unsupported/mustek-bearpaw-4800ta-pro.html"
 :interface "USB"
 :comment "Not supported. See link for some information."
 :status :unsupported

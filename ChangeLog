@@ -1,3 +1,8 @@
+2002-04-22  Rene Rebe <rene.rebe@gmx.net>
+
+	* backend/avision.c next backend version, several new scsi id's,
+	  and bug fixes
+
 2002-04-22 Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson.c: Declare close_scanner() and open_scanner() before

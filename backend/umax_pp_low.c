@@ -402,9 +402,9 @@ int
 sanei_umax_pp_InitPort (int port, char *name)
 {
   int fd, ectr;
-  int found = 0;
+  int found = 0, ecp = 0;
 #if ((defined HAVE_IOPERM)||(defined HAVE_LINUX_PPDEV_H))
-  int mode,ecp=0;
+  int mode;
 #endif
 #ifdef HAVE_LINUX_PPDEV_H
   char strmodes[160];
@@ -433,7 +433,8 @@ sanei_umax_pp_InitPort (int port, char *name)
 	{
 	  /* ppdev opening and configuration                               */
 	  found = 0;
-	  fd = open (name, O_RDWR | O_NOCTTY | O_NONBLOCK);
+	  /*fd = open (name, O_RDWR | O_NOCTTY | O_NONBLOCK); */
+	  fd = open (name, O_RDWR | O_NOCTTY);
 	  if (fd < 0)
 	    {
 	      switch (errno)
@@ -536,7 +537,7 @@ sanei_umax_pp_InitPort (int port, char *name)
 		    }
 		  else
 		    {
-		      ecp=1;
+		      ecp = 1;
 		      DBG (16,
 			   "umax_pp: mode set to PARPORT_MODE_ECP for '%s'\n",
 			   name);
@@ -632,15 +633,15 @@ sanei_umax_pp_InitPort (int port, char *name)
   /* frob_econtrol (port, 0xe0, 4 << 5);
      unsigned char ectr = inb (ECONTROL (pb));
      outb ((ectr & ~m) ^ v, ECONTROL (pb));     */
-  if(ecp)
-  {
-  ectr = Inb (ECPCONTROL);
-  if (ectr != 0xFF)
+  if (ecp)
     {
-      ectr = (ectr & ~(0xE0)) ^ (4 << 5);
-      Outb (ECPCONTROL, ectr);
+      ectr = Inb (ECPCONTROL);
+      if (ectr != 0xFF)
+	{
+	  ectr = (ectr & ~(0xE0)) ^ (4 << 5);
+	  Outb (ECPCONTROL, ectr);
+	}
     }
-  }
 
 
 #endif /* IO_SUPPORT_MISSING */
@@ -1655,6 +1656,8 @@ EPPRegisterRead (int reg)
 	DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
 	     __FILE__, __LINE__);
       rc = write (fd, &breg, 1);
+      if (rc != 1)
+	DBG (0, "ppdev short write (%s:%d)\n", __FILE__, __LINE__);
 
       mode = 1;			/* data_reverse */
       rc = ioctl (fd, PPDATADIR, &mode);
@@ -1665,6 +1668,8 @@ EPPRegisterRead (int reg)
 	DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
 	     __FILE__, __LINE__);
       rc = read (fd, &bval, 1);
+      if (rc != 1)
+	DBG (0, "ppdev short read (%s:%d)\n", __FILE__, __LINE__);
       value = bval;
 
       mode = 0;			/* forward */
@@ -7808,7 +7813,7 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
     0x41, 0xA0, 0x0A, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x33, 0x1A, 0x00,
     -1
   };
-
+#define UMAX_PP_DANGEROUS_EXPERIMENT 666
 #ifdef UMAX_PP_DANGEROUS_EXPERIMENT
   FILE *f = NULL;
   char line[1024], *ptr;
@@ -8213,7 +8218,7 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
 	    }
 	  printf ("CMD%d BEFORE: ", channel);
 	  for (i = 0; i < max; i++)
-	    printf ("%02x ", base[i]);
+	    printf ("%02X ", base[i]);
 	  printf ("\n");
 	  if (channel > 0)
 	    {

@@ -1,3 +1,8 @@
+2002-11-05   Stéphane Voltz  <svoltz@wanadoo.fr>
+
+	* backend/umax_pp.c  backend/umax_pp_mid.c : OS/2 compile fix, indent
+	  correction
+	  
 2002-11-03  Karl Heinz Kremer <khk@khk.net>
 
 	* sanei/sanei_usb.c: Use endpoint address with direction information

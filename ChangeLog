@@ -1,3 +1,7 @@
+2001-04-16  Petter Reinholdtsen <pere@td.org.uit.no>
+
+	* acinclude.m4 configure.in: Clean up warning flag handling.
+
 2001-04-16  Henning Meier-Geinitz <hmg@gmx.de>
 
 	* README: Updated xsane link.

@@ -100,6 +100,8 @@ typedef union
   SANE_String s;
 } TOptionValue;
 
+#define HW_GAMMA_SIZE 4096
+#define SANE_GAMMA_SIZE 4096
 
 typedef struct
 {
@@ -114,7 +116,7 @@ typedef struct
   int iBytesLeft;		/* bytes to read */
   int iPixelsPerLine;		/* pixels in one scan line */
 
-  SANE_Int aGammaTable[4096];	/* a 12-to-8 bit color lookup table */
+  SANE_Int aGammaTable[SANE_GAMMA_SIZE];	/* a 12-to-8 bit color lookup table */
 
   /* fCancelled needed to let sane issue the cancel message
      instead of an error message */
@@ -148,9 +150,52 @@ static const SANE_Range rangeGammaTable = { 0, 255, 1 };
 /* available scanner resolutions */
 static const SANE_Int setResolutions[] = { 4, 75, 150, 300, 600 };
 
+/* range of an analog gamma */
 static const SANE_Range rangeGamma = { SANE_FIX (0.25), SANE_FIX (4.0),
   SANE_FIX (0.0)
 };
+
+/* interpolate a sane gamma table to a hardware appropriate one */
+static void
+_ConvertGammaTable (SANE_Word * saneGamma, unsigned char *hwGamma)
+{
+  int i;
+  for (i = 0; i < SANE_GAMMA_SIZE; ++i)
+    {
+      int j;
+      int current, next;
+
+      current = (i * HW_GAMMA_SIZE) / SANE_GAMMA_SIZE;
+      next = ((i + 1) * HW_GAMMA_SIZE) / SANE_GAMMA_SIZE;
+
+      for (j = current; j < HW_GAMMA_SIZE && j < next; ++j)
+	{
+	  if (j == current)
+	    {
+	      hwGamma[j] = saneGamma[i];
+	    }
+	  else
+	    {
+	      hwGamma[j] =
+		(saneGamma[i] * (next - j) +
+		 saneGamma[i + 1] * (j - current)) / (next - current);
+	    }
+	}
+    }
+}
+
+/* create a unity gamma table */
+static void
+_UnityGammaTable (unsigned char *hwGamma)
+{
+  int i;
+  for (i = 0; i < HW_GAMMA_SIZE; ++i)
+    {
+      hwGamma[i] = (i * 256) / HW_GAMMA_SIZE;
+    }
+
+}
+
 static const SANE_Range rangeXmm = { 0, 220, 1 };
 static const SANE_Range rangeYmm = { 0, 290, 1 };
 static const SANE_Int startUpGamma = SANE_FIX (1.6);
@@ -177,12 +222,14 @@ static const char lineartStr[] = { "Lineart" };
 #define MODE_GRAY    1
 #define MODE_LINEART 2
 
+/* lineart treshold range */
 static const SANE_Range rangeThreshold = {
   0,
   100,
   1
 };
 
+/* scanning modes */
 static SANE_String_Const modeList[] = {
   colorStr,
   grayStr,
@@ -211,6 +258,7 @@ _bytesPerLineColor (int pixelsPerLine)
 }
 
 
+/* dummy*/
 static void
 _rgb2rgb (unsigned char *buffer, int pixels, int threshold)
 {
@@ -221,6 +269,7 @@ _rgb2rgb (unsigned char *buffer, int pixels, int threshold)
 }
 
 
+/* convert 24bit RGB to 8bit GRAY */
 static void
 _rgb2gray (unsigned char *buffer, int pixels, int threshold)
 {
@@ -249,7 +298,7 @@ _rgb2gray (unsigned char *buffer, int pixels, int threshold)
     }
 }
 
-
+/* convert 24bit RGB to 1bit B/W */
 static void
 _rgb2lineart (unsigned char *buffer, int pixels, int threshold)
 {
@@ -275,7 +324,6 @@ _rgb2lineart (unsigned char *buffer, int pixels, int threshold)
     }
 }
 
-
 typedef struct tgModeParam
 {
   SANE_Int depth;
@@ -285,11 +333,10 @@ typedef struct tgModeParam
 
 } TModeParam;
 
-
 static const TModeParam modeParam[] = {
   {DEPTH_COLOR, SANE_FRAME_RGB, _bytesPerLineColor, _rgb2rgb},
   {DEPTH_GRAY, SANE_FRAME_GRAY, _bytesPerLineGray, _rgb2gray},
-  {DEPTH_LINEART, SANE_FRAME_GRAY, _bytesPerLineLineart, _rgb2lineart}
+  {DEPTH_LINEART, SANE_FRAME_GRAY, _bytesPerLineLineart, _rgb2lineart},
 };
 
 
@@ -479,16 +526,19 @@ _WaitForLamp (TScanner * s, unsigned char *pabCalibTable)
 }
 
 
+/* used, when setting gamma as 1 value */
 static void
-_SetAnalogGamma (SANE_Int * aiGamma, SANE_Int sfGamma)
+_SetScalarGamma (SANE_Int * aiGamma, SANE_Int sfGamma)
 {
   int j;
   double fGamma;
-  fGamma = ((double) sfGamma) / (0x01 << SANE_FIXED_SCALE_SHIFT);
-  for (j = 0; j < 4096; j++)
+  fGamma = SANE_UNFIX (sfGamma);
+  for (j = 0; j < SANE_GAMMA_SIZE; j++)
     {
       int iData;
-      iData = floor (256.0 * pow (((double) j / 4096.0), 1.0 / fGamma));
+      iData =
+	floor (256.0 *
+	       pow (((double) j / (double) SANE_GAMMA_SIZE), 1.0 / fGamma));
       if (iData > 255)
 	iData = 255;
       aiGamma[j] = iData;
@@ -496,6 +546,7 @@ _SetAnalogGamma (SANE_Int * aiGamma, SANE_Int sfGamma)
 }
 
 
+/* return size of longest string in a string list */
 static size_t
 _MaxStringSize (const SANE_String_Const strings[])
 {
@@ -512,8 +563,9 @@ _MaxStringSize (const SANE_String_Const strings[])
 }
 
 
+/* change a sane cap and return true, when a change took place */
 static int
-_SetCap (SANE_Word * pCap, SANE_Word cap, int isSet)
+_ChangeCap (SANE_Word * pCap, SANE_Word cap, int isSet)
 {
   SANE_Word prevCap = *pCap;
   if (isSet)
@@ -534,7 +586,7 @@ _InitOptions (TScanner * s)
   int i;
   SANE_Option_Descriptor *pDesc;
   TOptionValue *pVal;
-  _SetAnalogGamma (s->aGammaTable, startUpGamma);
+  _SetScalarGamma (s->aGammaTable, startUpGamma);
 
   for (i = optCount; i < optLast; i++)
     {
@@ -1036,7 +1088,7 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
 		{
 		  info |= SANE_INFO_RELOAD_OPTIONS;
 		}
-	      _SetAnalogGamma (s->aGammaTable, s->aValues[n].w);
+	      _SetScalarGamma (s->aGammaTable, s->aValues[n].w);
 	    }
 	  break;
 
@@ -1047,16 +1099,16 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
 
 	  /* prepare table for debug */
 	  strcpy (szTable, "Gamma table summary:");
-	  for (i = 0; i < 4096; i++)
+	  for (i = 0; i < SANE_GAMMA_SIZE; i++)
 	    {
-	      if ((i % 256) == 0)
+	      if ((SANE_GAMMA_SIZE / 16) && (i % (SANE_GAMMA_SIZE / 16)) == 0)
 		{
 		  strcat (szTable, "\n");
 		  DBG (DBG_MSG, szTable);
 		  strcpy (szTable, "");
 		}
 	      /* test for number print */
-	      if ((i % 32) == 0)
+	      if ((SANE_GAMMA_SIZE / 64) && (i % (SANE_GAMMA_SIZE / 64)) == 0)
 		{
 		  sprintf (szTemp, " %04X", pi[i]);
 		  strcat (szTable, szTemp);
@@ -1079,17 +1131,17 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
 	    if (strcmp ((char const *) pVal, colorStr) == 0)
 	      {
 		s->aValues[optMode].w = MODE_COLOR;
-		fCapChanged = _SetCap (pCap, SANE_CAP_INACTIVE, 1);
+		fCapChanged = _ChangeCap (pCap, SANE_CAP_INACTIVE, 1);
 	      }
 	    if (strcmp ((char const *) pVal, grayStr) == 0)
 	      {
 		s->aValues[optMode].w = MODE_GRAY;
-		fCapChanged = _SetCap (pCap, SANE_CAP_INACTIVE, 1);
+		fCapChanged = _ChangeCap (pCap, SANE_CAP_INACTIVE, 1);
 	      }
 	    if (strcmp ((char const *) pVal, lineartStr) == 0)
 	      {
 		s->aValues[optMode].w = MODE_LINEART;
-		fCapChanged = _SetCap (pCap, SANE_CAP_INACTIVE, 0);
+		fCapChanged = _ChangeCap (pCap, SANE_CAP_INACTIVE, 0);
 
 	      }
 	    info |= SANE_INFO_RELOAD_PARAMS;
@@ -1121,7 +1173,7 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
 	}
       if (pInfo != NULL)
 	{
-	  *pInfo = info;
+	  *pInfo |= info;
 	}
       break;
 
@@ -1183,7 +1235,7 @@ sane_get_parameters (SANE_Handle h, SANE_Parameters * p)
 }
 
 
-/* get the scale don factor for a resolution that is 
+/* get the scale down factor for a resolution that is 
   not supported by hardware */
 static int
 _SaneEmulateScaling (int iDpi)
@@ -1200,9 +1252,9 @@ sane_start (SANE_Handle h)
 {
   TScanner *s;
   SANE_Parameters par;
-  int i, iLineCorr;
+  int iLineCorr;
   int iScaleDown;
-  static unsigned char abGamma[4096];
+  static unsigned char abGamma[HW_GAMMA_SIZE];
   static unsigned char abCalibTable[HW_PIXELS * 6];
 
   DBG (DBG_MSG, "sane_start\n");
@@ -1243,18 +1295,12 @@ sane_start (SANE_Handle h)
   if (s->aValues[optMode].w == MODE_LINEART)
     {
       /* use a unity gamma table for lineart to be independent from Gamma settings */
-      for (i = 0; i < 4096; ++i)
-	{
-	  abGamma[i] = i / 16;
-	}
+      _UnityGammaTable (abGamma);
     }
   else
     {
       /* copy gamma table */
-      for (i = 0; i < 4096; i++)
-	{
-	  abGamma[i] = s->aGammaTable[i];
-	}
+      _ConvertGammaTable (s->aGammaTable, abGamma);
     }
 
   WriteGammaCalibTable (abGamma, abGamma, abGamma, abCalibTable, 0, 0,
@@ -1331,6 +1377,7 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
     {
       CircBufferExit (p);
       free (p->pabLineBuf);
+      p->pabLineBuf = NULL;
       FinishScan (&s->HWParams);
       *len = 0;
       DBG (DBG_MSG, "\n");
@@ -1356,8 +1403,9 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
          because we try read after the end of the buffer */
       else
 	{
-	  CircBufferExit (&s->DataPipe);
+	  CircBufferExit (p);
 	  free (p->pabLineBuf);
+	  p->pabLineBuf = NULL;
 	  FinishScan (&s->HWParams);
 	  *len = 0;
 	  DBG (DBG_MSG, "\n");
@@ -1390,11 +1438,16 @@ sane_cancel (SANE_Handle h)
   DBG (DBG_MSG, "sane_cancel\n");
 
   s = (TScanner *) h;
-
-  /* to be implemented more thoroughly */
-
   /* Make sure the scanner head returns home */
   FinishScan (&s->HWParams);
+  /* delete allocated data */
+  if (s->fScanning)
+    {
+      CircBufferExit (&s->DataPipe);
+      free (s->DataPipe.pabLineBuf);
+      s->DataPipe.pabLineBuf = NULL;
+      DBG (DBG_MSG, "sane_cancel: freeing buffers\n");
+    }
   s->fCancelled = SANE_TRUE;
   s->fScanning = SANE_FALSE;
 }

@@ -1,3 +1,16 @@
+2002-03-24  Oliver Schwartz <oliver.schwartz@gmx.de>
+
+	* backend/snapscan-options.c: New file (option functions moved from 
+          snapscan.c)
+        * backend/snapscan-utils.c: Removed file
+        * backend/Makefile.in: Added snapscan-options.c, removed snapscan-utils.c
+        * backend/snapscan.c backend/snapscan.h backend/snapscan-scsi.c
+          backend/snapscan-usb.c backend/snapscan.h backend/snapscan.conf: 
+          Snapcan-backend ver. 1.4.9
+          - Moved option functions to snapscan-options.c
+          - Autodetect USB scanners on Linux
+          - Better error reporting
+	
 2002-03-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/backend-writing.txt: Updated concerning splitted .desc

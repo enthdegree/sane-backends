@@ -6,8 +6,10 @@ backends
 --------
   * Add new backends (+ means: scheduled for version 1.0.9)
     - hp4200 http://hp4200-backend.sourceforge.net/
-    - Relisys Scorpio Super 3 - VM3575 (wip)
+    + Relisys Scorpio Super 3 - VM3575 (wip)
       http://fz.eryx.net/sane/#teco2
+    + Relisys Scorpio - VM3552
+	  http://fz.eryx.net/sane/#teco3
     - Genius Vivid Pro USB, Colorado USB 19200, Visioneer OneTouch 7600 
       IBM IdeaScan 2000 USB 
       http://homepages.paradise.net.nz/stevenel/scanner/

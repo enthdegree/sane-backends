@@ -1,3 +1,7 @@
+2004-10-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* frontend/saned.c: Fixed NULL string crash.
+
 2004-10-17  Ullrich Sigwanz <usigwanz@freesurf.ch>
 
         * backend/niash_core.c: rewrote buffer portioning

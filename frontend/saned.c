@@ -1715,6 +1715,14 @@ process_request (Wire * w)
 	    return;
 	  }
 
+	if (!name)
+	  {
+	    DBG (DBG_ERR, "process_request: (open) device_name == NULL\n");
+	    reply.status = SANE_STATUS_INVAL;
+	    sanei_w_reply (w, (WireCodecFunc) sanei_w_open_reply, &reply);
+	    return;
+	  }
+
 	can_authorize = 1;
 
 	resource = strdup (name);

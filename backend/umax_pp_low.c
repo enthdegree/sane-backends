@@ -46,9 +46,11 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <signal.h>
 #include "../include/sane/config.h"
 #include "../include/sane/sanei_debug.h"
+#include <errno.h>
 
 #ifdef HAVE_LINUX_PPDEV_H
 #include <sys/ioctl.h>
@@ -63,7 +65,7 @@
 # include <asm/io.h>		/* older Linux */
 #elif HAVE_SYS_HW_H
 # include <sys/hw.h>		/* OS/2 */
-#elif defined(__i386__)  && defined (__GNUC__)	&& defined HAVE_IOPERM
+#elif defined(__i386__)  && defined (__GNUC__)
   /* other x86 with GCC (Win9x ?) */
 
 static __inline__ void
@@ -445,10 +447,11 @@ sanei_umax_pp_InitPort (int port)
   int mode;
 #ifdef HAVE_LINUX_PPDEV_H
   char parport_name[16];
-  int fd, i, found;
+  int i, found;
   int value;
   int ectr, addr;
 #endif
+  int fd;
 
   /* since this function must be called before */
   /* any other, we put debug init here         */
@@ -474,17 +477,40 @@ sanei_umax_pp_InitPort (int port)
   /* ECP i/o range */
   if (iopl (3) != 0)
     {
-      DBG (1, "ioperm could not raise IO permission level to 3\n");
+      DBG (1, "iopl could not raise IO permission to level 3\n");
       return (0);
     }
   mode = getuid ();
   setreuid (mode, mode);
   mode = getgid ();
   setregid (mode, mode);
+#endif
 
 
-/* this ensures that the port is in the expected idle state */
-/* only useful when doing effective hardware access         */
+  /* FreeBSD and NetBSD with compatibility opion 9 */
+  /* opening /dev/io raise IOPL to level 3         */
+  fd=open("/dev/io",O_RDWR);
+  if(errno==EACCES)
+    {  
+      /* /dev/io exist but process hasn't the right permission */
+      DBG (1, "ioperm could not gain access to 0x%X\n", port);
+      return (0);
+    }
+  if((errno==ENXIO)||(errno==ENOENT))
+    {
+      /* /dev/io does not exist */
+      DBG (16, "no '/dev/io' device\n");
+    } 
+  else if (errno!=0)
+    {
+      /* /dev/io we get an unexpected error */
+      DBG (1, "opening '/dev/io' got unxepected errno=%d\n",errno);
+      return (0);
+    }
+
+
+  /* this ensures that the port is in the expected idle state */
+  /* only useful when doing effective hardware access         */
   spp_data = inb (DATA);
   spp_status = inb (STATUS);
   spp_control = inb (CONTROL);
@@ -500,7 +526,6 @@ sanei_umax_pp_InitPort (int port)
       spp_control = spp_control & 0x1F;
       outb (0x0C, CONTROL);
     }
-#endif
 #endif
 
 #ifdef HAVE_LINUX_PPDEV_H

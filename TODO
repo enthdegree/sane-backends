@@ -1,16 +1,15 @@
 ----- todo:
 
-- all frontends: support depths > 8 bits/channel
+- xscanimage/xcam: support depths > 8 bits/channel
 - net: don't just ignore the byte-order for the image data (needed to
   support depths > 8 bits/channel)
 - mustek: for 3-pass scanners, it is said that xscanimage doesn't update
   the scan progress bar properly between scans; it is said to stop at
   90%, start the next pass, and once the next pass has started, it moves
   on to 100% and the progress bar disappears at that point
-- man pages for xcam, and the API functions
+- man pages for the API functions
 - xscanimage: provide both scale and textentry for ranges (make new widget)
-- xcam: provide access to option doc strings and allow disabling of
-  advanced options and tooltips
+- xcam: provide access to option doc strings
 - xscanimage: scanning of images whose heights is not known a priori is not
   supported yet; this is going to be important for handheld scanners
 - qcam: implement auto mode for brightness and black-level (don't
@@ -23,15 +22,18 @@
 - xcam: add recording feature (e.g., GIF, JPG, or MPEG)
 - dll: make it robust against against it being listed in the configuration
   file (currently bad things will happen if dll attempts to load itself)
-- PREVIEW: maybe there should be an option to limit the preview
+
++++++ done:
+
++ PREVIEW: maybe there should be an option to limit the preview
   scan to the selected area? YES => this will also make it easier
   to avoid the scan area selection to get confused when the user
   resizes the preview area in a way that changes the aspect ratio;
   in essence we want to allow for the preview-image to be a subregion
-  of the preview-window
-
-+++++ done:
-
+  of the preview-window (done in xsane)
++ xcam: allow disabling of advanced options and tooltips
++ man page for xcam
++ scanimage: support depths > 8 bits/channel
 + upgrade to GTK 1.2 (but stay backwards compatible to 1.0 if possible)
 + saned: check_host() consider using strncasecmp()
 + GTK: changing the length unit causes dirty pixels in the unit-labels

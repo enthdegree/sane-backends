@@ -10,7 +10,9 @@
 	  output.
 	* doc/scanimage.man: Reordered options. Added info about ICC profiles,
 	  gamma4scanimage, and --dont-scan option. Fixed example.
-
+	* doc/gamma4scanimage.man: Formatting updates. Added default values.
+	  Minor fixes.
+	
 2002-09-10  Peter Kirchgessner <peter@kirchgessner.net>
 
 	* doc/sane-hp.man: Added hints about special USB device names

@@ -481,6 +481,12 @@ AC_OUTPUT([Makefile lib/Makefile sanei/Makefile frontend/Makefile
 	   po/Makefile testsuite/Makefile
 	   tools/sane-desc.el tools/Makefile tools/sane-config],)
 
+echo "Installation directories:"
+echo "Configuration: `eval eval echo ${sysconfdir}`"
+echo "Libraries:     `eval eval echo ${libdir}`"
+echo "Binaries:      `eval eval echo ${bindir}` and `eval eval echo ${sbindir}`"
+echo "Manpages:      `eval eval echo ${mandir}`"
+
 if test "$SANE_CONFIG_PATH" != "no" ; then
   SANE_INSTALLED_VERSION=`$SANE_CONFIG_PATH --version`
   SANE_INSTALLED_PREFIX=`$SANE_CONFIG_PATH --prefix`

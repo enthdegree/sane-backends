@@ -19,14 +19,14 @@
    2000-11-19, PK: Color TIFF-header: write 3 values for bits per sample
 */
 #ifdef _AIX
-# include <lalloca.h>	/* MUST come first for AIX! */
+# include "../include/lalloca.h"	/* MUST come first for AIX! */
 #endif
 
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <sane/config.h>
-#include <sane/sane.h>
+#include "../include/sane/config.h"
+#include "../include/sane/sane.h"
 
 typedef struct {
     int tag, typ, nvals, val;

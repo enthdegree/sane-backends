@@ -25,8 +25,8 @@
    andreas.czechanowski@ins.uni-stuttgart.de
  */
 
-#include <sane/config.h>
-#include <sane/sanei.h>
+#include "../include/sane/config.h"
+#include "../include/sane/sanei.h"
 
 #define MUSTEK_CONF	STRINGIFY(PATH_SANE_CONFIG_DIR) "/mustek.conf"
 #define PORT_DEV	"/dev/port"

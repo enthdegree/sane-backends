@@ -26,11 +26,11 @@
 
 #include <sys/types.h>
 
-#include <sane/config.h>
-#include <sane/sanei_scsi.h>
+#include "../include/sane/config.h"
+#include "../include/sane/sanei_scsi.h"
 
 #define BACKEND_NAME	findscanner
-#include <sane/sanei_debug.h>
+#include "../include/sane/sanei_debug.h"
 
 static const char *prog_name;
 

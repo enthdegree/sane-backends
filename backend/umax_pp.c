@@ -104,7 +104,7 @@
 
 /* if you change the source, please set UMAX_PP_STATE to "devel". Do *not*
  * change the UMAX_PP_BUILD. */
-#define UMAX_PP_BUILD	8
+#define UMAX_PP_BUILD	9
 #define UMAX_PP_STATE	"devel"
 
 static int num_devices = 0;

@@ -2542,7 +2542,6 @@ SendWord (int *cmd)
     default:
       return (SendWord1220P (cmd));
     }
-  return (0);
 }
 
 
@@ -4088,7 +4087,6 @@ sanei_umax_pp_InitTransport (int recover)
     default:
       return (InitTransport1220P (recover));
     }
-  return (0);
 }
 
 
@@ -5364,7 +5362,6 @@ Prologue (void)
     default:
       return (connect_epat ());
     }
-  return (0);
 }
 
 
@@ -5382,7 +5379,6 @@ Epilogue (void)
     default:
       return (deconnect_epat ());
     }
-  return (0);
 }
 
 
@@ -6746,8 +6742,7 @@ MoveToOrigin (void)
   if ((edge <= 30) && (sanei_umax_pp_getastra () != 1600))
     {
       DBG (2, "MoveToOrigin() detected a 1600P");
-      if (!sanei_umax_pp_getastra ())
-	sanei_umax_pp_setastra (1600);
+      sanei_umax_pp_setastra (1600);
     }
   edge = EdgePosition (300, 180, buffer);
   /* rounded to lowest integer, since upping origin might lead */

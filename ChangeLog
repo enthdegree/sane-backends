@@ -6,6 +6,11 @@
 	  More comments. Fixed some warnings. Code cleanup. 
 	* doc/Makefile.in: Added support for sane-desc.c.
 	* doc/backend-writing.txt: Updated concerning sane-desc.c.
+	* backend/mustek_usb.c backend/mustek_usb_high.h
+	  backend/mustek_usb_low.c doc/descriptions/mustek_usb.desc
+	  doc/mustek_usb/mustek_usb.CHANGES: Added manufacturer comment in
+	  mustek_usb.desc. Changed brightness to threshold. Fixed some
+	  warnings. Really check the status in usb_low_open.
 
 2013-07-15  Frank Zago  <fzago at austin dot rr dot com>
 

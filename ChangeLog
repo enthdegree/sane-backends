@@ -9,6 +9,7 @@
 	  Tekram DC315 controllers under Linux.
 	* backend/Makefile.in backend/test.c backend/test.conf backend/test.h
 	  backend/test-picture.c: Added new test backend.
+	* doc/Makefile.in: Added sane-test man page. Added teco doc directory.
 
 2002-04-12  Frank Zago <fzago@greshamstorage.com>
 

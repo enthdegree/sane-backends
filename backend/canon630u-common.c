@@ -50,6 +50,7 @@
    This code has not been tested on anything other than Linux/i386.
 */
 
+#include <sys/types.h>
 #include <errno.h>
 #include <fcntl.h>		/* open */
 #include <stdio.h>

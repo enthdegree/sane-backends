@@ -4460,7 +4460,6 @@ init_options (Mustek_Scanner * s)
   s->opt[OPT_HALFTONE_PATTERN].title = SANE_TITLE_HALFTONE_PATTERN;
   s->opt[OPT_HALFTONE_PATTERN].desc = SANE_DESC_HALFTONE_PATTERN;
   s->opt[OPT_HALFTONE_PATTERN].type = SANE_TYPE_INT;
-  s->opt[OPT_HALFTONE_PATTERN].size = 4;
   s->opt[OPT_HALFTONE_PATTERN].cap |= SANE_CAP_INACTIVE;
   s->opt[OPT_HALFTONE_PATTERN].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_HALFTONE_PATTERN].constraint.range = &u8_range;
@@ -5868,6 +5867,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    if (s->custom_halftone_pattern)
 	      {
 		s->opt[OPT_HALFTONE_PATTERN].cap &= ~SANE_CAP_INACTIVE;
+		/* BUG: The SANE standard does nor allow to change the option
+		   size at run time */
 		s->opt[OPT_HALFTONE_PATTERN].size =
 		  (s->halftone_pattern_type & 0x0f) * sizeof (SANE_Word);
 	      }

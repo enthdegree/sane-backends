@@ -99,13 +99,11 @@
  */
 
 /* history:
- *  0.0.1-devel		SANE backend structure taken from mustek_pp backend
+ *  see Changelog
  */
 
-/* if you change the source, please set UMAX_PP_STATE to "devel". Do *not*
- * change the UMAX_PP_BUILD. */
-#define UMAX_PP_BUILD	9
-#define UMAX_PP_STATE	"devel"
+#define UMAX_PP_BUILD	11
+#define UMAX_PP_STATE	"beta"
 
 static int num_devices = 0;
 static Umax_PP_Descriptor *devlist = NULL;
@@ -167,6 +165,7 @@ static const SANE_Range u8_range = {
 
 #define UMAX_PP_DEFAULT_PORT		0x378
 
+#define UMAX_PP_RESERVE			259200
 /*
  * devname may be either an hardware address for direct I/O (0x378 for instance)
  * or the device name used by ppdev on linux systems        (/dev/parport0 )
@@ -318,8 +317,24 @@ attach (const char *devname)
 }
 
 
-
-
+static SANE_Int
+umax_pp_get_sync (SANE_Int dpi)
+{
+  /* delta between color frames */
+  switch (dpi)
+    {
+    case 1200:
+      return 8;
+    case 600:
+      return 4;
+    case 300:
+      return 2;
+    case 150:
+      return 1;
+    default:
+      return 0;
+    }
+}
 
 
 static SANE_Status
@@ -1147,7 +1162,9 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
     for (j = 0; j < 256; ++j)
       dev->gamma_table[i][j] = j;
 
-  dev->buf = malloc (dev->desc->buf_size);
+  /* the extra amount of UMAX_PP_RESERVE bytes is to handle */
+  /* the data needed to resync the color frames     */
+  dev->buf = malloc (dev->desc->buf_size + UMAX_PP_RESERVE);
   dev->bufsize = dev->desc->buf_size;
 
   dev->dpi_range.min = SANE_FIX (75);
@@ -1323,8 +1340,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       return SANE_STATUS_INVAL;
     }
 
-  DBG (6, "control_option: option <%s>, action ... %d", dev->opt[option].name,
-       action);
+  DBG (6, "control_option: option <%s>, action ... %d\n",
+       dev->opt[option].name, action);
 
   if (action == SANE_ACTION_GET_VALUE)
     {
@@ -1436,6 +1453,17 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		*info |= SANE_INFO_INEXACT;
 	      DBG (16, "control_option: swapping Y coordinates\n");
 	    }
+	  if (strcmp (dev->val[OPT_MODE].s, "Color") == 0)
+	    {
+	      dpi = (int) (SANE_UNFIX (dev->val[OPT_RESOLUTION].w));
+	      if (dev->val[OPT_TL_Y].w < 2 * umax_pp_get_sync (dpi))
+		{
+		  DBG (16, "control_option: correcting TL_Y coordinates\n");
+		  dev->val[OPT_TL_Y].w = 2 * umax_pp_get_sync (dpi);
+		  if (info)
+		    *info |= SANE_INFO_INEXACT;
+		}
+	    }
 	  return SANE_STATUS_GOOD;
 
 	  /* side-effect-free word-array options: */
@@ -1540,7 +1568,18 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  if (dpi >= 600)
 	    {
 	      dev->val[OPT_TL_X].w = dev->val[OPT_TL_X].w & 0xFFFC;
-	      dev->val[OPT_BR_X].w = dev->val[OPT_BR_X].w & 0xFFF8;
+	      dev->val[OPT_BR_X].w = dev->val[OPT_BR_X].w & 0xFFFC;
+	    }
+	  /* corrects top y for offset */
+	  if (strcmp (dev->val[OPT_MODE].s, "Color") == 0)
+	    {
+	      if (dev->val[OPT_TL_Y].w < 2 * umax_pp_get_sync (dpi))
+		{
+		  DBG (16, "control_option: correcting TL_Y coordinates\n");
+		  dev->val[OPT_TL_Y].w = 2 * umax_pp_get_sync (dpi);
+		  if (info)
+		    *info |= SANE_INFO_INEXACT;
+		}
 	    }
 	  return SANE_STATUS_GOOD;
 
@@ -1679,6 +1718,19 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	      *info |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
 
 	    dev->val[option].s = strdup (val);
+
+	    /* corrects top y for offset */
+	    if (strcmp (val, "Color") == 0)
+	      {
+		dpi = (int) (SANE_UNFIX (dev->val[OPT_RESOLUTION].w));
+		if (dev->val[OPT_TL_Y].w < 2 * umax_pp_get_sync (dpi))
+		  {
+		    dev->val[OPT_TL_Y].w = 2 * umax_pp_get_sync (dpi);
+		    DBG (16, "control_option: correcting TL_Y coordinates\n");
+		    if (info)
+		      *info |= SANE_INFO_INEXACT;
+		  }
+	      }
 
 	    dev->opt[OPT_CUSTOM_GAMMA].cap |= SANE_CAP_INACTIVE;
 	    dev->opt[OPT_GAMMA_VECTOR].cap |= SANE_CAP_INACTIVE;
@@ -1921,12 +1973,12 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 
 }
 
-
 SANE_Status
 sane_start (SANE_Handle handle)
 {
   Umax_PP_Device *dev = handle;
   int rc, autoset;
+  int delta = 0;
 
   /* sanity check */
   if (dev->state == UMAX_PP_STATE_SCANNING)
@@ -1966,12 +2018,14 @@ sane_start (SANE_Handle handle)
   else
     autoset = 1;
 
+
   /* call start scan */
   if (dev->color == UMAX_PP_MODE_COLOR)
     {
+      delta = umax_pp_get_sync (dev->dpi);
       DBG (64, "start:umax_pp_start(%d,%d,%d,%d,%d,1,%X,%X)\n",
 	   dev->TopX,
-	   dev->TopY,
+	   dev->TopY - 2 * delta,
 	   dev->BottomX - dev->TopX,
 	   dev->BottomY - dev->TopY,
 	   dev->dpi,
@@ -1980,7 +2034,7 @@ sane_start (SANE_Handle handle)
 	   dev->blue_highlight);
 
       rc = sanei_umax_pp_start (dev->TopX,
-				dev->TopY,
+				dev->TopY - 2 * delta,
 				dev->BottomX - dev->TopX,
 				dev->BottomY - dev->TopY,
 				dev->dpi,
@@ -1990,8 +2044,13 @@ sane_start (SANE_Handle handle)
 				(dev->green_gain << 4) + dev->blue_gain,
 				(dev->red_highlight << 8) +
 				(dev->green_highlight << 4) +
-				dev->blue_highlight, &(dev->bpp), &(dev->tw),
-				&(dev->th));
+				dev->blue_highlight,
+				&(dev->bpp), &(dev->tw), &(dev->th));
+      /* we enlarged the scanning zone   */
+      /* to allow reordering, we must    */
+      /* substract it from real scanning */
+      /* zone                            */
+      dev->th -= 2 * delta;
     }
   else
     {
@@ -2026,11 +2085,26 @@ sane_start (SANE_Handle handle)
   dev->bufread = 0;
   dev->read = 0;
 
+  /* in case of color, we have to preload blue and green */
+  /* data to allow reordering while later read           */
+  if ((dev->color == UMAX_PP_MODE_COLOR) && (delta > 0))
+    {
+      rc =
+	sanei_umax_pp_read (2 * delta * dev->tw * dev->bpp, dev->tw, dev->dpi,
+			    0,
+			    dev->buf + UMAX_PP_RESERVE -
+			    2 * delta * dev->tw * dev->bpp);
+      if (rc != UMAX1220P_OK)
+	{
+	  DBG (2, "start: preload buffer failed\n");
+	  return SANE_STATUS_IO_ERROR;
+	}
+    }
+
   /* OK .... */
   return SANE_STATUS_GOOD;
 
 }
-
 
 SANE_Status
 sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
@@ -2043,6 +2117,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   SANE_Byte *lbuf;
   int max = 0;
   int min = 255;
+  int delta = 0;
 
 
   /* no data until further notice */
@@ -2085,86 +2160,79 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	  length = (dev->bufsize / ll) * ll;
 	}
 
-      /* now do the read */
-      rc = sanei_umax_pp_read (length, dev->tw, dev->dpi, last, dev->buf);
+      delta = umax_pp_get_sync (dev->dpi);
+
+      if (dev->color == UMAX_PP_MODE_COLOR)
+	rc =
+	  sanei_umax_pp_read (length, dev->tw, dev->dpi, last,
+			      dev->buf + UMAX_PP_RESERVE);
+      else
+	rc = sanei_umax_pp_read (length, dev->tw, dev->dpi, last, dev->buf);
       if (rc != UMAX1220P_OK)
 	return SANE_STATUS_IO_ERROR;
-      dev->bufread = 0;
       dev->buflen = length;
       DBG (64, "sane_read: got %ld bytes of data from scanner\n", length);
 
-      /* rounding to line size: needed by data reordering */
-      nl = length / ll;
-
-      /* re order data into RGB */
-      if (dev->color == UMAX_PP_MODE_COLOR)
-	{
-	  DBG (64, "sane_read: reordering %ld bytes of data (lines=%d)\n",
-	       length, nl);
-	  lbuf = (SANE_Byte *) malloc (dev->bufsize);
-	  if (lbuf == NULL)
-	    {
-	      DBG (1, "sane_read: couldn't allocate %ld bytes\n",
-		   dev->bufsize);
-	      return SANE_STATUS_NO_MEM;
-	    }
-	  /* this loop will be optimized when everything else will be working */
-	  if (sanei_umax_pp_getastra () == 1600)
-	    {
-	      for (y = 0; y < nl; y++)
-		{
-		  for (x = 0; x < dev->tw; x++)
-		    {
-		      lbuf[x * dev->bpp + y * ll] =
-			dev->buf[dev->bufread + x + y * ll + 2 * dev->tw];
-		      lbuf[x * dev->bpp + y * ll + 1] =
-			dev->buf[dev->bufread + x + y * ll + dev->tw];
-		      lbuf[x * dev->bpp + y * ll + 2] =
-			dev->buf[dev->bufread + x + y * ll];
-		    }
-		}
-	    }
-	  else
-	    {
-	      for (y = 0; y < nl; y++)
-		{
-		  for (x = 0; x < dev->tw; x++)
-		    {
-		      lbuf[x * dev->bpp + y * ll] =
-			dev->buf[dev->bufread + x + y * ll + 2 * dev->tw];
-		      lbuf[x * dev->bpp + y * ll + 1] =
-			dev->buf[dev->bufread + x + y * ll + dev->tw];
-		      lbuf[x * dev->bpp + y * ll + 2] =
-			dev->buf[dev->bufread + x + y * ll];
-		    }
-		}
-	    }
-	  /* avoids memcopy */
-	  free (dev->buf);
-	  dev->buf = lbuf;
-	}
-
-      /* software lineart */
+      /* we transform data for software lineart */
       if (dev->color == UMAX_PP_MODE_LINEART)
 	{
 	  DBG (64, "sane_read: software lineart\n");
 
 	  for (y = 0; y < length; y++)
 	    {
-	      if (dev->buf[dev->bufread + y] > max)
-		max = dev->buf[dev->bufread + y];
-	      if (dev->buf[dev->bufread + y] < min)
-		min = dev->buf[dev->bufread + y];
+	      if (dev->buf[y] > max)
+		max = dev->buf[y];
+	      if (dev->buf[y] < min)
+		min = dev->buf[y];
 	    }
 	  max = (min + max) / 2;
 	  for (y = 0; y < length; y++)
 	    {
-	      if (dev->buf[dev->bufread + y] > max)
-		dev->buf[dev->bufread + y] = 255;
+	      if (dev->buf[y] > max)
+		dev->buf[y] = 255;
 	      else
-		dev->buf[dev->bufread + y] = 0;
+		dev->buf[y] = 0;
 	    }
 	}
+      else if (dev->color == UMAX_PP_MODE_COLOR)
+	{
+	  /* number of lines */
+	  nl = dev->buflen / ll;
+	  DBG (64, "sane_read: reordering %ld bytes of data (lines=%d)\n",
+	       length, nl);
+	  lbuf = (SANE_Byte *) malloc (dev->bufsize + UMAX_PP_RESERVE);
+	  if (lbuf == NULL)
+	    {
+	      DBG (1, "sane_read: couldn't allocate %ld bytes\n",
+		   dev->bufsize + UMAX_PP_RESERVE);
+	      return SANE_STATUS_NO_MEM;
+	    }
+	  /* reorder data in R,G,B values */
+	  for (y = 0; y < nl; y++)
+	    {
+	      for (x = 0; x < dev->tw; x++)
+		{
+		  /* red value: sync'ed */
+		  lbuf[x * dev->bpp + y * ll + UMAX_PP_RESERVE] =
+		    dev->buf[x + y * ll + 2 * dev->tw + UMAX_PP_RESERVE];
+		  /* green value, +delta line ahead of sync */
+		  lbuf[x * dev->bpp + y * ll + 1 + UMAX_PP_RESERVE] =
+		    dev->buf[x + (y - delta) * ll + dev->tw +
+			     UMAX_PP_RESERVE];
+		  /* blue value, +2*delta line ahead of sync */
+		  lbuf[x * dev->bpp + y * ll + 2 + UMAX_PP_RESERVE] =
+		    dev->buf[x + (y - 2 * delta) * ll + UMAX_PP_RESERVE];
+		}
+	    }
+	  /* store last data lines for next reordering */
+	  if (!last)
+	    memcpy (lbuf + UMAX_PP_RESERVE - 2 * delta * ll,
+		    dev->buf + UMAX_PP_RESERVE + dev->buflen - 2 * delta * ll,
+		    2 * delta * ll);
+	  free (dev->buf);
+	  dev->buf = lbuf;
+	}
+      dev->bufread = 0;
     }
 
   /* how much get data we can get from memory buffer */
@@ -2175,7 +2243,10 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 
 
 
-  memcpy (buf, dev->buf + dev->bufread, length);
+  if (dev->color == UMAX_PP_MODE_COLOR)
+    memcpy (buf, dev->buf + dev->bufread + UMAX_PP_RESERVE, length);
+  else
+    memcpy (buf, dev->buf + dev->bufread, length);
   *len = length;
   dev->bufread += length;
   dev->read += length;

@@ -1,3 +1,9 @@
+2003-02-09   Stéphane Voltz  <svoltz@wanadoo.fr>
+
+        * backend/umax_pp.c: fixed big bug related to color plane
+	  synchronization, which gave blur effect at > 75 dpi
+	* tools/umax_pp.c: change version number
+
 2003-02-08  Peter Fales <peter@fales-lorenz.net>
 	* backend/dc210.c, backend/dc240.c:  Fixes for Irix from
 	  Andrea Suatoni.

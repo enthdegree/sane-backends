@@ -66,28 +66,32 @@
  * @{
  */
 extern void sanei_thread_init( void );
- 
+
+/**
+ */
+extern SANE_Bool sanei_thread_is_forked( void );
+  
 /** <b>Do not use in backends</b>
  *
  * Wrapper for @c fork. 
  */
-extern int sanei_thread_begin( void (*start)(void *arg), void* arg_list);
+extern int sanei_thread_begin( void (*start)(void *arg), void* args );
 
 /** <b>Do not use in backends</b>
  *
- * Wrapper for @c kill. 
+ * Wrapper for @c kill.
  */
 extern int sanei_thread_kill( int pid, int sig);
 
 /** <b>Do not use in backends</b>
  *
- * Wrapper for @c waitpid. 
+ * Wrapper for @c waitpid.
  */
 extern int sanei_thread_waitpid( int pid, int *stat_loc, int options);
 
 /** <b>Do not use in backends</b>
  *
- * Wrapper for @c wait. 
+ * Wrapper for @c wait.
  */
 extern int sanei_thread_wait( int *stat_loc);
 /* @} */

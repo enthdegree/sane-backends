@@ -43,7 +43,6 @@
  * - 0.46 - flag initialized is now used as device index
  *        - added calFile to Plustek_Device
  *        - removed _OPT_HALFTONE
- *        - added pthread support
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -370,7 +369,6 @@ typedef struct Plustek_Scanner
 {
 	struct Plustek_Scanner *next;
 	pid_t                   reader_pid;     /* process id of reader          */
-	SANE_Bool               child_forked;   /* use fork or pthreads */
 	SANE_Status             exit_code;      /* status of the reader process  */
 	int                     pipe;           /* pipe to reader process        */
 	unsigned long           bytes_read;     /* number of bytes currently read*/

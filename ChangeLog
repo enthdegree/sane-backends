@@ -1,3 +1,15 @@
+2003-10-07  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* aclocal.m4 acinlcude.m4 configure configure.in: modified checks for
+	  pthread support, added switch --enable-fork-process which toggles
+	  between the usage of fork and pthread, set the default behaviour to
+	  pthread usage on Darwin
+	* include/sane/config.h: added the HAVE_LIBPTHRAD stuff
+	* sanei/sanei_thread.c include/sane/sanei_thread.h: fixed compilation issue
+	  on OS/2, added support for fork too, so that we can use sanei_thread
+	  functions in any case.
+	* backend/plustek.[ch]: changes due to the sanei_thread-lib work
+
 2003-10-06  Peter Kirchgessner <peter@kirchgessner.net>
 
 	* backend/hp.c, backend/hp-option.h: Bug #300248 fixed
@@ -11,7 +23,7 @@
 2003-10-06  Thomas Soumarmon <thomas.soumarmon@cogitae.net>
 
 	* backend/hp5400_*: fixed bug #300252 : added static to all non
-	  SANE specific functions + changed #include <sane/..> into 
+	  SANE specific functions + changed #include <sane/..> into
 	  #include "../include/sane/..." as mentioned in the
 	  backend-writing.txt file
 

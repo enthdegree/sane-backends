@@ -129,7 +129,6 @@
 #include <math.h>
 
 #include <sys/time.h>
-#include <sys/wait.h>
 #include <sys/types.h>
 #include <sys/ioctl.h>
 
@@ -137,18 +136,15 @@
 #include "sane/sanei.h"
 #include "sane/saneopts.h"
 
-#define BACKEND_VERSION "0.46-2"
+#define BACKEND_VERSION "0.46-3"
 #define BACKEND_NAME	plustek
 #include "sane/sanei_backend.h"
 #include "sane/sanei_config.h"
-
-/*we're using this possibility only on MacOS X... */
-#if defined HAVE_PTHREAD_H && defined HAVE_IOKIT_IOKITLIB_H
-#define _PLUSTEK_USE_THREAD
-#endif
-
-#ifdef _PLUSTEK_USE_THREAD
 #include "sane/sanei_thread.h"
+
+/** we're using this possibility only on MacOS X... */
+#if defined HAVE_LIBPTHREAD
+#define _PLUSTEK_USE_THREAD
 #endif
 
 /** might be used to disable all USB stuff - esp. for OS/2 */
@@ -355,7 +351,7 @@ static SANE_Bool getReaderProcessExitCode( Plustek_Scanner *scanner )
 
 	if( scanner->reader_pid > 0 ) {
 
-        res = waitpid( scanner->reader_pid, &status, WNOHANG );
+        res = sanei_thread_waitpid( scanner->reader_pid, &status, WNOHANG );
 
         if( res == scanner->reader_pid ) {
 
@@ -551,31 +547,16 @@ static SANE_Status do_cancel( Plustek_Scanner *scanner, SANE_Bool closepipe  )
 		sigaction( SIGALRM, &act, 0 );
 
 		/* kill our child process and wait until done */
-		if( scanner->child_forked ) {
-			kill( scanner->reader_pid, SIGUSR1 );
+		sanei_thread_kill( scanner->reader_pid, SIGUSR1 );
 
-			/* give'em 10 seconds 'til done...*/
-			alarm(10);
-			res = waitpid( scanner->reader_pid, 0, 0 );
-			
-		} else {
-#ifdef _PLUSTEK_USE_THREAD
-			sanei_thread_kill( scanner->reader_pid, SIGUSR1 );
-			alarm(10);
-			res = sanei_thread_waitpid( scanner->reader_pid, 0, 0);
-#else
-			res = scanner->reader_pid;
-#endif
-		}
+		/* give'em 10 seconds 'til done...*/
+		alarm(10);
+		res = sanei_thread_waitpid( scanner->reader_pid, 0, 0 );
 		alarm(0);
 		
 		if( res != scanner->reader_pid ) {
-			DBG( _DBG_PROC,"waitpid() failed !\n");
-#ifdef _PLUSTEK_USE_THREAD
+			DBG( _DBG_PROC,"sanei_thread_waitpid() failed !\n");
 			sanei_thread_kill( scanner->reader_pid, SIGKILL );
-#else
-			kill( scanner->reader_pid, SIGKILL );
-#endif
 		}
 		scanner->reader_pid = 0;
 		DBG( _DBG_PROC,"reader_process killed\n");
@@ -1244,9 +1225,7 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 	sanei_usb_init();
 	sanei_lm983x_init();
 #endif	
-#ifdef _PLUSTEK_USE_THREAD
 	sanei_thread_init();
-#endif
 
 #if defined PACKAGE && defined VERSION
 	DBG( _DBG_SANE_INIT, "Plustek backend V"BACKEND_VERSION", part of "
@@ -2075,11 +2054,9 @@ SANE_Status sane_start( SANE_Handle handle )
 	/* create reader routine as new process */
 	s->bytes_read = 0;
 #ifdef _PLUSTEK_USE_THREAD
-	s->child_forked = SANE_FALSE;
-	s->pipe         = fds[1];
-	s->reader_pid   = sanei_thread_begin( reader_thread, s );
+	s->pipe       = fds[1];
+	s->reader_pid = sanei_thread_begin( reader_thread, s );
 #else
-	s->child_forked = SANE_TRUE;
   	s->reader_pid = fork();
 #endif
 	cancelRead = SANE_FALSE;
@@ -2118,7 +2095,7 @@ SANE_Status sane_start( SANE_Handle handle )
 
 	signal( SIGCHLD, sig_chldhandler );
 
-	if( s->child_forked )
+	if( sanei_thread_is_forked())
 		close(fds[1]);
 		
 	s->pipe = fds[0];
@@ -2152,7 +2129,7 @@ SANE_Status sane_read( SANE_Handle handle, SANE_Byte *data,
             /* if we already had red the picture, so it's okay and stop */
 			if( s->bytes_read ==
 				(unsigned long)(s->params.lines * s->params.bytes_per_line)) {
-				waitpid( s->reader_pid, 0, 0 );
+				sanei_thread_waitpid( s->reader_pid, 0, 0 );
 				s->reader_pid = -1;
 				drvclose( s->hw );
 				return close_pipe(s);

@@ -8,6 +8,7 @@ dnl   SANE_EXTRACT_LDFLAGS(LDFLAGS, LIBS)
 dnl   SANE_V4L_VERSION
 dnl   SANE_CHECK_JPEG
 dnl   SANE_CHECK_IEEE1284
+dnl   SANE_CHECK_PTHREAD
 dnl   JAPHAR_GREP_CFLAGS(flag, cmd_if_missing, cmd_if_present)
 dnl   SANE_LINKER_RPATH
 dnl   SANE_CHECK_U_TYPES
@@ -222,6 +223,45 @@ AC_DEFUN([SANE_CHECK_IEEE1284],
   fi
 ])
 
+#
+# Checks for pthread support
+AC_DEFUN([SANE_CHECK_PTHREAD],
+[
+  AC_MSG_CHECKING([whether to enable pthread support])
+
+  case "${host_os}" in
+  darwin*) # currently only enabled on MacOS X
+    use_pthread=yes
+    ;;
+  *)
+    use_pthread=no
+  esac
+
+  #
+  # now that we have the systems preferences, we check
+  # the user
+  AC_ARG_ENABLE( [fork-process],
+    AC_HELP_STRING([--enable-fork-process],
+                   [use fork instead of pthread (default)]),
+    [
+      if test $enableval != yes ; then
+        use_pthread=yes
+      fi
+    ])
+  AC_MSG_RESULT([$use_pthread])
+  if test $use_pthread = yes ; then
+    AC_CHECK_HEADERS(pthread.h,
+    [AC_CHECK_LIB(pthread,pthread_create,)
+       saved_LIBS="${LIBS}"
+       LIBS="${LIBS} -lpthread"
+       AC_CHECK_FUNCS(pthread_create, enable_dynamic=yes,)
+       AC_CHECK_FUNCS(pthread_kill,   enable_dynamic=yes,)
+       AC_CHECK_FUNCS(pthread_join,   enable_dynamic=yes,)
+       AC_CHECK_FUNCS(pthread_detach, enable_dynamic=yes,)
+       LIBS="${saved_LIBS}"
+    ],)
+  fi
+])
 
 #
 # Checks for jpeg library >= v6B (61), needed for DC210,  DC240, and 

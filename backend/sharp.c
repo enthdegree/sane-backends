@@ -109,7 +109,6 @@
 #ifdef HAVE_SYS_SHM_H
 #define USE_FORK
 #endif
-#define USE_FORK
 
 #ifdef USE_FORK
 #include <signal.h>

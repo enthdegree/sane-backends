@@ -1,3 +1,9 @@
+2001-02-22  Petter Reinholdtsen <pere@td.org.uit.no>
+
+	* include/sane/sanei_backend.h: Include <fcntl.h> before testing
+	for O_NONBLOCK and <limits.h> before testing for PATH_MAX to
+	increase the chances of getting the real value.
+
 2001-02-12  Petter Reinholdtsen <pere@td.org.uit.no>
 
 	* backend/dll.c backend/v4l.c: Get rid of small memory leak when

@@ -1,3 +1,8 @@
+2002-12-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/sane-mustek.man doc/sane-mustek_usb.man doc/descriptions/mustek.desc
+	  doc/descriptions/mustek_usb.desc: Updated links.
+	
 2002-12-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/epson_scsi.c backend/sm3600.c: Move config.h include to the

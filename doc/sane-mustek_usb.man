@@ -1,4 +1,4 @@
-.TH sane-mustek_usb 5 "21 Nov 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-mustek_usb 5 "05 Dec 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-mustek_usb
 .SH NAME
 sane-mustek_usb \- SANE backend for Mustek USB flatbed scanners
@@ -23,8 +23,8 @@ Trust Compact Scan USB 19200
 .br
 .RE
 .PP
-More details can be found on the Mustek backend homepage 
-.IR http://www.meier-geinitz.de/sane/ .
+More details can be found on the Mustek USB backend homepage 
+.IR http://www.meier-geinitz.de/sane/mustek_usb-backend/ .
 .PP
 The Mustek BearPaw 1200 and 2400 scanners are supported by the plustek
 backend. See 
@@ -176,7 +176,7 @@ export SANE_DEBUG_MUSTEK_USB=4
 .IR @DOCDIR@/mustek_usb/mustek_usb.CHANGES ,
 .I @DOCDIR@/mustek_usb/mustek_usb.TODO
 .br
-.I http://www.meier-geinitz.de/sane/ 
+.I http://www.meier-geinitz.de/sane/mustek_usb-backend/
 
 .SH AUTHOR
 Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -191,4 +191,4 @@ freeze. The reason is unknown until now. The same happens with OpenBSD and
 NetBSD.
 .PP
 More detailed bug information is available at the Mustek backend homepage
-.IR http://www.meier-geinitz.de/sane/ .
+.IR http://www.meier-geinitz.de/sane/mustek_usb-backend/ .

@@ -1,4 +1,4 @@
-.TH sane-mustek 5 "21 Nov 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-mustek 5 "5 Dec 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-mustek
 .SH NAME
 sane-mustek \- SANE backend for Mustek SCSI flatbed scanners
@@ -51,8 +51,8 @@ Primax Compact 4800 SCSI
 .br
 .RE
 .PP
-More details can be found on the Mustek backend homepage 
-.IR http://www.meier-geinitz.de/sane/ .
+More details can be found on the Mustek SCSI backend homepage 
+.IR http://www.meier-geinitz.de/sane/mustek-backend/ .
 .PP
 Don't mix up MFS (Paragon), Pro and ScanExpress models! They're
 completely different. Check the exact model name!
@@ -274,7 +274,7 @@ and (if sufficient memory is available) disable swapping.
 .PP
 Details on how to get the Mustek SCSI adpaters and other cards running can be
 found at
-.IR http://www.meier-geinitz.de/sane/docu.html#SCSI .
+.IR http://www.meier-geinitz.de/sane/mustek-backend/#SCSI .
 
 .SH "PARAGON 600 II N"
 This backend has support for the Paragon 600 II N parallel port
@@ -385,7 +385,7 @@ export SANE_DEBUG_MUSTEK=4
 .br
 .I @DOCDIR@/mustek/mustek.CHANGES
 .br
-.I http://www.meier-geinitz.de/sane/
+.I http://www.meier-geinitz.de/sane/mustek-backend/
 
 .SH AUTHOR
 David Mosberger, Andreas Czechanowski, Andreas Bolsch (SE extensions),
@@ -401,4 +401,4 @@ The gamma table supports only 256 colors, even if some scanners can do more.
 .PP
 More detailed bug information is available at the Mustek backend
 homepage:
-.IR http://www.meier-geinitz.de/sane/ .
+.IR http://www.meier-geinitz.de/sane/mustek-backend/ .

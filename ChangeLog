@@ -8,6 +8,7 @@
 	  Free devlist on exit. Undef MIN and MAX macros before defining them.
 	* backend/Makefile.in frontend/Makefile.in: Added missing files to
 	  DISTFILES.
+	* config.guess: Updated from ftp.gnu.org.
 
 2002-04-24  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

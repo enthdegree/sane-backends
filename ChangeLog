@@ -1,3 +1,7 @@
+2003-11-13  Peter Fales <peter@fales-lorenz.net>
+	* backend/gphoto2.h:  Line beginning with "static static" was breaking
+	  compiles on some platforms.
+
 2003-11-10  Gerhard Jaeger <gerhard@gjaeger.de>
 	* backend/Makefile.in: Linking pie backend now against sanei_thread lib.
 	* backend/pie.c: Switched backend over to sanei_thread usage, to make it

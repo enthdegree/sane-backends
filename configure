@@ -564,9 +564,9 @@ test "$program_transform_name" = "" && program_transform_name="s,x,x,"
 # version code:
 V_MAJOR=1
 V_MINOR=0
-V_REV=3
+V_REV=4
 
-PACKAGE=sane
+PACKAGE=sane-backends
 VERSION=${V_MAJOR}.${V_MINOR}.${V_REV}
 PACKAGE_VERSION="$PACKAGE-$VERSION"
 cat >> confdefs.h <<EOF

@@ -583,8 +583,9 @@ void
 WaitBankCountChange (mustek_pp_ccd300_priv * dev)
 {
   unsigned char ucASICBCValue;
+  int test0r=100;
 
-  while (1)
+  while (test0r--)
     {
       ucASICBCValue = GetBankCount (dev);
       if (ucASICBCValue == dev->bankcountValue)
@@ -2266,7 +2267,7 @@ ccd300_open (SANE_String port, SANE_Int caps, SANE_Int * fd)
 {
   SANE_Status status;
 
-  if ((caps != CAP_NOTHING) && (caps != CAP_TA))
+  if (caps - (caps & (CAP_NOTHING | CAP_INVERT | CAP_LAMP_OFF | CAP_TA)))
     {
       DBG (1, "ccd300_open: called with unknown capabilities (0x%02X)\n",
 	   caps);
@@ -2356,6 +2357,8 @@ ccd300_close(SANE_Handle handle)
 {
 	Mustek_pp_Handle *hndl = handle;
 	mustek_pp_ccd300_priv *dev = hndl->priv;
+
+  DBG(4, "ccd300_close: turning scanner offline\n");
   
   Switch_To_Scanner(dev);
   A4StopScan(0, 0, dev);
@@ -2370,12 +2373,20 @@ ccd300_start (SANE_Handle handle)
   Mustek_pp_Handle *hndl = handle;
   mustek_pp_ccd300_priv *dev = hndl->priv;
   int bitsperpixel, samplesperpixel;
+
+  DBG(4, "ccd300_start: starting scanner\n");
   
   Switch_To_Scanner(dev);
   PullCarriage_ToHome (dev);
   dev->ErrorCode = 0;
   dev->ScanResolution = hndl->res;
   dev->Skip_ImageBytes = hndl->topX;
+
+  dev->Frame_Top = hndl->topY;
+  dev->Frame_Left = hndl->topX;
+  dev->Frame_Bottom = hndl->bottomY;
+  dev->Frame_Right = hndl->bottomX;
+  dev->scan_source = 0;
 
   switch (hndl->mode) {
 
@@ -2398,20 +2409,42 @@ ccd300_start (SANE_Handle handle)
       break;
   }
 
+
+
+  SetScanParameter(0, 0, dev);
   A4StartScan(0, 0, dev);
+  DBG(4, "scan started\n");
   Switch_To_Printer(dev);
 
   return SANE_STATUS_GOOD;
 }
 
 
-/*ARGSUSED*/
 static void
-ccd300_read (SANE_Handle hndl __UNUSED__, SANE_Byte *buffer __UNUSED__)
+ccd300_read (SANE_Handle handle, SANE_Byte *buffer)
 {
+	Mustek_pp_Handle *hndl = handle;
+	mustek_pp_ccd300_priv *dev = hndl->priv;
+
+	DBG(4, "ccd300_read: reading one line\n");
+
+	dev->ImageBuffer = buffer;
+	dev->BufferLine_Count = 1;
+	dev->ErrorCode = 0;
+	dev->reverse_rgb = 0;
+	Switch_To_Scanner(dev);
+	A4GetImage(0, 0, dev);
+	Switch_To_Printer(dev);
 }
-/*ARGSUSED*/
+
 static void
-ccd300_stop (SANE_Handle hndl __UNUSED__)
+ccd300_stop (SANE_Handle handle)
 {
+	Mustek_pp_Handle *hndl = handle;
+	mustek_pp_ccd300_priv *dev = hndl->priv;
+  
+	DBG(4, "ccd300_stop: stoping scanner\n");
+  Switch_To_Scanner(dev);
+  A4StopScan(0, 0, dev);
+  Switch_To_Printer(dev);
 }

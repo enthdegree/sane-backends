@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
 
    Copyright (C) 2002-2003 Frank Zago (fzago at austin dot rr dot com)
-   Copyright (C) 2003 Gerard Klaver
+   Copyright (C) 2003 Gerard Klaver (gerard at gkall dot hobby dot nl)
 
    This file is part of the SANE package.
    
@@ -44,9 +44,13 @@
 
 /*
    $Id$
-   TECO scanner VM3575, VM6565, VM6575, VM6586, VM356A
-   Patch for VM356A Gerard Klaver v  2003/02/14
-   update 2003/03/19, traces, tests, Gerard Klaver, Michael Hoeller
+   TECO scanner VM3575, VM6565, VM6575, VM6586, VM356A, VM3564
+   update 2003/02/14, Patch for VM356A Gerard Klaver
+   update 2003/03/19, traces, tests VM356A Gerard Klaver, Michael Hoeller
+   update 2003/07/19, white level calibration, color modes VM3564, VM356A, VM3575
+                      Gerard Klaver, Michael Hoeller
+   update 2004/01/15, white level , red, green, and blue calibration for the 
+                      VM3564, VM356A and VM3575 Gerard Klaver
 */
 
 /*--------------------------------------------------------------------------*/
@@ -156,7 +160,23 @@ static const SANE_Range threshold_range = {
 
 /*--------------------------------------------------------------------------*/
 
-static const SANE_Range white_level_range = {
+static const SANE_Range red_level_range = {
+  0,				/* minimum */
+  64,				/* maximum */
+  1				/* quantization */
+};
+
+/*--------------------------------------------------------------------------*/
+
+static const SANE_Range green_level_range = {
+  0,				/* minimum */
+  64,				/* maximum */
+  1				/* quantization */
+};
+
+/*--------------------------------------------------------------------------*/
+
+static const SANE_Range blue_level_range = {
   0,				/* minimum */
   64,				/* maximum */
   1				/* quantization */
@@ -175,7 +195,7 @@ static const SANE_Range gamma_range = {
 
 static const struct dpi_color_adjust vm3564_dpi_color_adjust[] = {
 
-  /*dpi, x, y, z, color sequence R G or B, 0 (-) or 1 (+) color skewing, lines skewing */
+  /*dpi, color sequence R G or B, 0 (-) or 1 (+) color skewing, lines skewing */
   {25, 1, 0, 2, 0, 0},		/* Not tested */
   {50, 1, 2, 0, 0, 1},		/* Not tested */
   {75, 1, 0, 2, 1, 1},		/* Not tested */
@@ -183,15 +203,8 @@ static const struct dpi_color_adjust vm3564_dpi_color_adjust[] = {
   {160, 1, 0, 2, 1, 2},		/* Not tested */
   {225, 1, 0, 2, 1, 3},		/* Not tested */
   {300, 1, 0, 2, 1, 4},		/* Not tested */
-
-/*{305, 1, 0, 2, 1, 4},		Not tested *
- *{310, 1, 0, 2, 1, 4},		Not tested *
- *{315, 1, 0, 2, 1, 4},		Not tested */
   {375, 1, 0, 2, 1, 5},		/* Not tested */
-/*{380, 1, 0, 2, 1, 5},		Not tested *
- *{385, 1, 0, 2, 1, 5},	 	Not tested */
   {450, 1, 0, 2, 1, 6},		/* Not tested */
-/*{455, 1, 0, 2, 1, 6},		Not tested */
   {525, 1, 0, 2, 1, 7},		/* Not tested */
   {600, 1, 0, 2, 1, 8},		/* Not tested */
   /* must be the last entry */
@@ -211,10 +224,8 @@ static const struct dpi_color_adjust vm356a_dpi_color_adjust[] = {
   /* All resolutions in increments of 25 are testede, only the shown   */
   /* bring back good results                                           */
 
-  /* all of the folowing values give good results                      */
-
-  /*dpi, x, y, z, color sequence R G or B, 0 (-) or 1 (+) color skewing, lines skewing */
-  /* some values disabled because of choice of nearby values to keep usertable short   */
+  /*dpi, color sequence R G or B, 0 (-) or 1 (+) color skewing, lines skewing */
+  /* some values disabled because of choice of nearby values to keep usertable short */
   {25, 1, 0, 2, 0, 0},
   {50, 1, 2, 0, 0, 1},
   {75, 1, 0, 2, 1, 1},
@@ -1141,13 +1152,23 @@ teco_do_calibration (Teco_Scanner * dev)
   size_t size;
   int i;
   int j;
-  int colsub0;
-  int colsub1;
-  int *tmp_buf;			/* hold the temporary calibration */
-  size_t tmp_buf_size;
+  int colsub0, colsub1;
+  int colsub0_0, colsub0_1, colsub0_2;
+  int colsub1_0, colsub1_1, colsub1_2;
+  int *tmp_buf, *tmp_min_buf, *tmp_max_buf;			/* hold the temporary calibration */
+  size_t tmp_buf_size, tmp_min_buf_size, tmp_max_buf_size;
   const char *calibration_algo;
   int cal_algo;
 
+  colsub0 = 0;
+  colsub1 = 0;
+  colsub0_0 = 0;
+  colsub0_1 = 0;
+  colsub0_2 = 0;
+  colsub1_0 = 0;
+  colsub1_1 = 0;
+  colsub1_2 = 0;
+	
   DBG (DBG_proc, "teco_do_calibration: enter\n");
 
   /* Get default calibration algorithm. */
@@ -1166,17 +1187,25 @@ teco_do_calibration (Teco_Scanner * dev)
     {
     case TECO_VM3564:
     case TECO_VM356A:
-      /* white level calibration correction */
+      /* white level red, green and blue calibration correction */
       /* 0x110 or 272 is middle value */
-      colsub0 = 240 + (dev->val[OPT_WHITE_LEVEL].w);
+      colsub0_1 = 240 + (dev->val[OPT_WHITE_LEVEL_R].w);
+      colsub0_2 = 240 + (dev->val[OPT_WHITE_LEVEL_G].w);
+      colsub0_0 = 240 + (dev->val[OPT_WHITE_LEVEL_B].w);
       /* 14000 is middle value */
-      colsub1 = 12720 + (40 * dev->val[OPT_WHITE_LEVEL].w);
+      colsub1_1 = 12720 + (40 * dev->val[OPT_WHITE_LEVEL_R].w);
+      colsub1_2 = 12720 + (40 * dev->val[OPT_WHITE_LEVEL_G].w);
+      colsub1_0 = 12720 + (40 * dev->val[OPT_WHITE_LEVEL_B].w);
       break;
     case TECO_VM3575:
       /* 0x1100 or 4352 is middle value */
-      colsub0 = 4096 + (8 * dev->val[OPT_WHITE_LEVEL].w);
+      colsub0_1 = 4096 + (8 * dev->val[OPT_WHITE_LEVEL_R].w);
+      colsub0_2 = 4096 + (8 * dev->val[OPT_WHITE_LEVEL_G].w);
+      colsub0_0 = 4096 + (8 * dev->val[OPT_WHITE_LEVEL_B].w);
       /* 4206639 is middle value */
-      colsub1 = 4142639 + (2000 * dev->val[OPT_WHITE_LEVEL].w);
+      colsub1_1 = 4078639 + (4000 * dev->val[OPT_WHITE_LEVEL_R].w);
+      colsub1_2 = 4078639 + (4000 * dev->val[OPT_WHITE_LEVEL_G].w);
+      colsub1_0 = 4078639 + (4000 * dev->val[OPT_WHITE_LEVEL_B].w);
       break;
       /* For VM6575, 656A, 6586 until otherwise default value is used */
     default:
@@ -1186,9 +1215,30 @@ teco_do_calibration (Teco_Scanner * dev)
     }
 
   tmp_buf_size = dev->def->cal_length * 3 * sizeof (int);
+  tmp_min_buf_size = dev->def->cal_length * 3 * sizeof (int);
+  tmp_max_buf_size = dev->def->cal_length * 3 * sizeof (int);
   tmp_buf = malloc (tmp_buf_size);
+  tmp_min_buf = malloc (tmp_min_buf_size);
+  tmp_max_buf = malloc (tmp_max_buf_size);
   memset (tmp_buf, 0, tmp_buf_size);
-  if (tmp_buf == NULL)
+  switch (dev->def->tecoref)
+    {
+    case TECO_VM3564:
+    case TECO_VM356A:
+  	memset (tmp_min_buf, 0xff, tmp_min_buf_size);
+  	memset (tmp_max_buf, 0x00, tmp_max_buf_size);
+      break;
+    case TECO_VM3575:
+  	memset (tmp_min_buf, 0xffff, tmp_min_buf_size);
+  	memset (tmp_max_buf, 0x0000, tmp_max_buf_size);
+      break;
+    default:
+  	memset (tmp_min_buf, 0xff, tmp_min_buf_size);
+  	memset (tmp_max_buf, 0x00, tmp_max_buf_size);
+      break;
+    }
+  
+  if ((tmp_buf == NULL) || (tmp_min_buf == NULL) || (tmp_max_buf == NULL))
     {
       DBG (DBG_proc, "teco_do_calibration: not enough memory (%d bytes)\n",
 	   tmp_buf_size);
@@ -1248,7 +1298,6 @@ teco_do_calibration (Teco_Scanner * dev)
 	{
 	  switch (dev->def->tecoref)
 	    {
-	    case TECO_VM3575:
 	    case TECO_VM6575:
 	    case TECO_VM656A:
 	    case TECO_VM6586:
@@ -1259,32 +1308,137 @@ teco_do_calibration (Teco_Scanner * dev)
 	      tmp_buf[3 * j + 2] +=
 		(dev->buffer[6 * j + 5] << 8) + dev->buffer[6 * j + 4];
 	      break;
+	    case TECO_VM3575:
+	      tmp_buf[3 * j + 0] +=
+		(dev->buffer[6 * j + 1] << 8) + dev->buffer[6 * j + 0];
+	      /* get lowest value */
+	      if (tmp_min_buf[3 * j + 0]  >> ((dev->buffer[6 * j + 1] << 8) + dev->buffer[6 * j + 0]))
+	      {
+		      tmp_min_buf[3 * j + 0] = (dev->buffer[6 * j + 1] << 8) + dev->buffer[6 * j + 0];
+	      }
+	      /* get highest value */
+	      if (tmp_max_buf[3 * j + 0]  < ((dev->buffer[6 * j + 1] << 8) + dev->buffer[6 * j + 0]))
+	      {
+		      tmp_max_buf[3 * j + 0] = (dev->buffer[6 * j + 1] << 8) + dev->buffer[6 * j + 0];
+	      }
+	      tmp_buf[3 * j + 1] +=
+		(dev->buffer[6 * j + 3] << 8) + dev->buffer[6 * j + 2];
+	      /* get lowest value */
+	      if (tmp_min_buf[3 * j + 1]  >> ((dev->buffer[6 * j + 3] << 8) + dev->buffer[6 * j + 2]))
+	      {
+		      tmp_min_buf[3 * j + 1] = (dev->buffer[6 * j + 3] << 8) + dev->buffer[6 * j + 2];
+	      }
+	      /* get highest value */
+	      if (tmp_max_buf[3 * j + 1]  < ((dev->buffer[6 * j + 3] << 8) + dev->buffer[6 * j + 2]))
+	      {
+		      tmp_max_buf[3 * j + 1] = (dev->buffer[6 * j + 3] << 8) + dev->buffer[6 * j + 2];
+	      }
+	      tmp_buf[3 * j + 2] +=
+		(dev->buffer[6 * j + 5] << 8) + dev->buffer[6 * j + 4];
+	      /* get lowest value */
+	      if (tmp_min_buf[3 * j + 2]  >> ((dev->buffer[6 * j + 5] << 8) + dev->buffer[6 * j + 4]))
+	      {
+		      tmp_min_buf[3 * j + 2] = (dev->buffer[6 * j + 5] << 8) + dev->buffer[6 * j + 4];
+	      }
+	      /* get highest value */
+	      if (tmp_max_buf[3 * j + 2]  < ((dev->buffer[6 * j + 5] << 8) + dev->buffer[6 * j + 4]))
+	      {
+		      tmp_max_buf[3 * j + 2] = (dev->buffer[6 * j + 5] << 8) + dev->buffer[6 * j + 4];
+	      }
+	      break;
 	    case TECO_VM3564:
 	    case TECO_VM356A:
 	      tmp_buf[3 * j + 0] += dev->buffer[3 * j + 0];
+	      /* get lowest value */
+	      if (tmp_min_buf[3 * j + 0]  >> dev->buffer[3 * j + 0])
+	      {
+		      tmp_min_buf[3 * j + 0] = dev->buffer[3 * j + 0];
+	      }
+	      /* get highest value */
+	      if (tmp_max_buf[3 * j + 0]  < dev->buffer[3 * j + 0]) 
+	      {
+		      tmp_max_buf[3 * j + 0] = dev->buffer[3 * j + 0];
+	      }
 	      tmp_buf[3 * j + 1] += dev->buffer[3 * j + 1];
+	      /* get lowest value */
+	      if (tmp_min_buf[3 * j + 1]  >> dev->buffer[3 * j + 1]) 
+	      {
+		      tmp_min_buf[3 * j + 1]  = dev->buffer[3 * j + 1];
+	      }
+	      /* get hightest value */
+	      if (tmp_max_buf[3 * j + 1]  < dev->buffer[3 * j + 1]) 
+	      {
+		      tmp_max_buf[3 * j + 1]  = dev->buffer[3 * j + 1];
+	      }
 	      tmp_buf[3 * j + 2] += dev->buffer[3 * j + 2];
-	      break;
+              /* get lowest value */
+	      if (tmp_min_buf[3 * j + 2]  >> dev->buffer[3 * j + 2]) 
+	      {
+		      tmp_min_buf[3 * j + 2]  = dev->buffer[3 * j + 2];
+	      }
+	      /* get highest value */
+	      if (tmp_max_buf[3 * j + 2]  < dev->buffer[3 * j + 2]) 
+	      {
+		      tmp_max_buf[3 * j + 2]  = dev->buffer[3 * j + 2];
+	      }
+		break;
 	    }
 	}
     }
 
-  /*hexdump (DBG_info2, "calibration before average:", tmp_buf, tmp_buf_size); */
-
+  /* hexdump (DBG_info2, "calibration before average:", tmp_buf, tmp_buf_size); */
+  /* hexdump (DBG_info2, "calibration before average min value:", tmp_min_buf, tmp_min_buf_size); */
+  /* hexdump (DBG_info2, "calibration before average max value:", tmp_max_buf, tmp_max_buf_size); */
+  
   /* Do the average. Since we got 12 lines, divide all values by 12
    * and create the final calibration value that compensates for the
-   * white values read. */
-  for (j = 0; j < (3 * dev->def->cal_length); j++)
-    {
-
-      if (cal_algo == 1)
-	{
-	  tmp_buf[j] = (colsub1 * dev->def->cal_lines) / tmp_buf[j];
-	}
-      else
-	{
-	  tmp_buf[j] = colsub0 - (tmp_buf[j] / dev->def->cal_lines);
-	}
+   * white values read, for VM3564 and VM356A subtract lowest and highest
+   * value and divide by 10 */
+  switch (dev->def->tecoref)
+  {
+   	case TECO_VM6575:
+	case TECO_VM656A:
+	case TECO_VM6586:
+  		for (j = 0; j < (3 * dev->def->cal_length); j++)
+		{
+      			if (cal_algo == 1)
+	  		tmp_buf[j] = (colsub1 * dev->def->cal_lines) / tmp_buf[j];
+      			else 
+	  		tmp_buf[j] = colsub0 - (tmp_buf[j] / dev->def->cal_lines);
+		}
+	      	break;
+	case TECO_VM3575:
+	case TECO_VM3564:
+	case TECO_VM356A:
+  		for (j = 0; j < dev->def->cal_length; j++)
+		{
+	       /* subtract lowest and highest value */
+			tmp_buf[j] = tmp_buf[j] - (tmp_min_buf[j] + tmp_max_buf[j]); 
+			tmp_buf[j + dev->def->cal_length] = tmp_buf[j + dev->def->cal_length] 
+				- (tmp_min_buf[j + dev->def->cal_length] 
+				+ tmp_max_buf[j + dev->def->cal_length]); 
+			tmp_buf[j + 2 * dev->def->cal_length] = tmp_buf[j + 2 * dev->def->cal_length] 
+				- (tmp_min_buf[j + 2 * dev->def->cal_length] 
+				+ tmp_max_buf[j + 2 *dev->def->cal_length]); 
+		/* sequence colors first color row one then two and last three   */
+      			if (cal_algo == 1) 
+			{
+	  		tmp_buf[j] = (colsub1_0 * (dev->def->cal_lines - 2)) / tmp_buf[j];
+	  		tmp_buf[j + dev->def->cal_length] = (colsub1_1 * (dev->def->cal_lines - 2)) 
+				/ tmp_buf[j + dev->def->cal_length];
+	  		tmp_buf[j + 2 * dev->def->cal_length] = (colsub1_2 * (dev->def->cal_lines - 2)) 
+				/ tmp_buf[j + 2 * dev->def->cal_length];
+			}
+      			else 
+			{
+	  		tmp_buf[j] = colsub0_0 - (tmp_buf[j] / (dev->def->cal_lines - 2));
+	  		tmp_buf[j + dev->def->cal_length] = colsub0_1 - (tmp_buf[j + dev->def->cal_length] 
+								/ (dev->def->cal_lines - 2));
+	  		tmp_buf[j + 2 * dev->def->cal_length] = colsub0_2 
+				- (tmp_buf[j + 2 * dev->def->cal_length] / (dev->def->cal_lines - 2));
+			}
+		}
+	      	break;
     }
 
   /*hexdump (DBG_info2, "calibration after average:", tmp_buf, tmp_buf_size); */
@@ -1888,18 +2042,36 @@ teco_init_options (Teco_Scanner * dev)
   dev->opt[OPT_PREVIEW].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
   dev->val[OPT_PREVIEW].w = SANE_FALSE;
 
-  /* white level calibration manual correction */
-  dev->opt[OPT_WHITE_LEVEL].name = SANE_NAME_WHITE_LEVEL;
-  dev->opt[OPT_WHITE_LEVEL].title = SANE_TITLE_WHITE_LEVEL;
-  dev->opt[OPT_WHITE_LEVEL].desc = SANE_DESC_WHITE_LEVEL;
-  dev->opt[OPT_WHITE_LEVEL].type = SANE_TYPE_INT;
-  dev->opt[OPT_WHITE_LEVEL].unit = SANE_UNIT_NONE;
-  dev->opt[OPT_WHITE_LEVEL].constraint_type = SANE_CONSTRAINT_RANGE;
-  dev->opt[OPT_WHITE_LEVEL].constraint.range = &white_level_range;
-  dev->val[OPT_WHITE_LEVEL].w = 32;	/* to get middle value */
+  /* red level calibration manual correction */
+  dev->opt[OPT_WHITE_LEVEL_R].name = SANE_NAME_WHITE_LEVEL_R;
+  dev->opt[OPT_WHITE_LEVEL_R].title = SANE_TITLE_WHITE_LEVEL_R;
+  dev->opt[OPT_WHITE_LEVEL_R].desc = SANE_DESC_WHITE_LEVEL_R;
+  dev->opt[OPT_WHITE_LEVEL_R].type = SANE_TYPE_INT;
+  dev->opt[OPT_WHITE_LEVEL_R].unit = SANE_UNIT_NONE;
+  dev->opt[OPT_WHITE_LEVEL_R].constraint_type = SANE_CONSTRAINT_RANGE;
+  dev->opt[OPT_WHITE_LEVEL_R].constraint.range = &red_level_range;
+  dev->val[OPT_WHITE_LEVEL_R].w = 32;	/* to get middle value */
 
-
-
+  /* green level calibration manual correction */
+  dev->opt[OPT_WHITE_LEVEL_G].name = SANE_NAME_WHITE_LEVEL_G;
+  dev->opt[OPT_WHITE_LEVEL_G].title = SANE_TITLE_WHITE_LEVEL_G;
+  dev->opt[OPT_WHITE_LEVEL_G].desc = SANE_DESC_WHITE_LEVEL_G;
+  dev->opt[OPT_WHITE_LEVEL_G].type = SANE_TYPE_INT;
+  dev->opt[OPT_WHITE_LEVEL_G].unit = SANE_UNIT_NONE;
+  dev->opt[OPT_WHITE_LEVEL_G].constraint_type = SANE_CONSTRAINT_RANGE;
+  dev->opt[OPT_WHITE_LEVEL_G].constraint.range = &green_level_range;
+  dev->val[OPT_WHITE_LEVEL_G].w = 32;	/* to get middle value */
+  
+  /* blue level calibration manual correction */
+  dev->opt[OPT_WHITE_LEVEL_B].name = SANE_NAME_WHITE_LEVEL_B;
+  dev->opt[OPT_WHITE_LEVEL_B].title = SANE_TITLE_WHITE_LEVEL_B;
+  dev->opt[OPT_WHITE_LEVEL_B].desc = SANE_DESC_WHITE_LEVEL_B;
+  dev->opt[OPT_WHITE_LEVEL_B].type = SANE_TYPE_INT;
+  dev->opt[OPT_WHITE_LEVEL_B].unit = SANE_UNIT_NONE;
+  dev->opt[OPT_WHITE_LEVEL_B].constraint_type = SANE_CONSTRAINT_RANGE;
+  dev->opt[OPT_WHITE_LEVEL_B].constraint.range = &blue_level_range;
+  dev->val[OPT_WHITE_LEVEL_B].w = 32;	/* to get middle value */
+  
   /* Lastly, set the default scan mode. This might change some
    * values previously set here. */
   sane_control_option (dev, OPT_MODE, SANE_ACTION_SET_VALUE,
@@ -2524,7 +2696,9 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_CUSTOM_GAMMA:
 	case OPT_PREVIEW:
 	case OPT_THRESHOLD:
-	case OPT_WHITE_LEVEL:
+	case OPT_WHITE_LEVEL_R:
+	case OPT_WHITE_LEVEL_G:
+	case OPT_WHITE_LEVEL_B:
 	  *(SANE_Word *) val = dev->val[option].w;
 	  return SANE_STATUS_GOOD;
 
@@ -2573,7 +2747,9 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_BR_X:
 	case OPT_THRESHOLD:
 	case OPT_RESOLUTION:
-	case OPT_WHITE_LEVEL:
+	case OPT_WHITE_LEVEL_R:
+	case OPT_WHITE_LEVEL_G:
+	case OPT_WHITE_LEVEL_B:
 	  if (info)
 	    {
 	      *info |= SANE_INFO_RELOAD_PARAMS;
@@ -2613,7 +2789,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  dev->opt[OPT_DITHER].cap |= SANE_CAP_INACTIVE;
 	  dev->opt[OPT_FILTER_COLOR].cap |= SANE_CAP_INACTIVE;
 	  dev->opt[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE;
-	  dev->opt[OPT_WHITE_LEVEL].cap |= SANE_CAP_INACTIVE;
+	  dev->opt[OPT_WHITE_LEVEL_R].cap |= SANE_CAP_INACTIVE;
+	  dev->opt[OPT_WHITE_LEVEL_G].cap |= SANE_CAP_INACTIVE;
+	  dev->opt[OPT_WHITE_LEVEL_B].cap |= SANE_CAP_INACTIVE;
+
 
 	  /* This the default resolution range, except for the
 	   * VM3575, VM3564, VM356A and VM6586 in color mode. */
@@ -2637,10 +2816,14 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		{
 		case TECO_VM3564:
 		case TECO_VM356A:
-		  dev->opt[OPT_WHITE_LEVEL].cap &= ~SANE_CAP_INACTIVE;
+		  dev->opt[OPT_WHITE_LEVEL_R].cap &= ~SANE_CAP_INACTIVE;
+		  dev->opt[OPT_WHITE_LEVEL_G].cap &= ~SANE_CAP_INACTIVE;
+		  dev->opt[OPT_WHITE_LEVEL_B].cap &= ~SANE_CAP_INACTIVE;
 		  break;
 		case TECO_VM3575:
-		  dev->opt[OPT_WHITE_LEVEL].cap &= ~SANE_CAP_INACTIVE;
+		  dev->opt[OPT_WHITE_LEVEL_R].cap &= ~SANE_CAP_INACTIVE;
+		  dev->opt[OPT_WHITE_LEVEL_G].cap &= ~SANE_CAP_INACTIVE;
+		  dev->opt[OPT_WHITE_LEVEL_B].cap &= ~SANE_CAP_INACTIVE;
 		  dev->opt[OPT_CUSTOM_GAMMA].cap &= ~SANE_CAP_INACTIVE;
 		  if (dev->val[OPT_CUSTOM_GAMMA].w)
 		    {
@@ -2670,10 +2853,14 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		{
 		case TECO_VM3564:
 		case TECO_VM356A:
-		  dev->opt[OPT_WHITE_LEVEL].cap &= ~SANE_CAP_INACTIVE;
+		  dev->opt[OPT_WHITE_LEVEL_R].cap &= ~SANE_CAP_INACTIVE;
+		  dev->opt[OPT_WHITE_LEVEL_G].cap &= ~SANE_CAP_INACTIVE;
+		  dev->opt[OPT_WHITE_LEVEL_B].cap &= ~SANE_CAP_INACTIVE;
 		  break;
 		case TECO_VM3575:
-		  dev->opt[OPT_WHITE_LEVEL].cap &= ~SANE_CAP_INACTIVE;
+		  dev->opt[OPT_WHITE_LEVEL_R].cap &= ~SANE_CAP_INACTIVE;
+		  dev->opt[OPT_WHITE_LEVEL_G].cap &= ~SANE_CAP_INACTIVE;
+		  dev->opt[OPT_WHITE_LEVEL_B].cap &= ~SANE_CAP_INACTIVE;
 		  dev->opt[OPT_CUSTOM_GAMMA].cap &= ~SANE_CAP_INACTIVE;
 		  if (dev->val[OPT_CUSTOM_GAMMA].w)
 		    {

@@ -1156,7 +1156,7 @@ sanei_scsi_open (const char *dev, int *fdp,
     int ioctl_val;
     int real_buffersize;
     fdparms *fdpa = 0;
-    Sg_scsi_id devinfo;
+    SG_scsi_id devinfo;
     
     pdata = fdpa = malloc(sizeof(fdparms));
     if (!pdata)

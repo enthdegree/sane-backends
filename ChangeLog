@@ -33,6 +33,9 @@
 	* TODO: Removed sm3600, artec and libusb configure switch entries.
 	  Updated v4l, sanei buffer print and html manpages entries.
 	  Added OS/2 crash entry.
+	* include/getopt.h lib/getopt.c lib/getopt1.c: Update to glibc
+	  2.3.1 version. This fixes a compilation warning. Further more,
+	  the code is now LGPLed.
 
 2003-03-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

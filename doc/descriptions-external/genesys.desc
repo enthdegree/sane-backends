@@ -81,7 +81,6 @@
 :url "/unsupported/hp-scanjet-2400c.html"
 :interface "USB"
 :status :unsupported
-:comment "possible support by this backend not confirmed"
 
 :model "ScanJet 3500c"
 :url "/unsupported/hp-scanjet-3500c.html"
@@ -111,7 +110,6 @@
 :url "/unsupported/hp-scanjet-3670c.html"
 :interface "USB"
 :status :unsupported
-:comment "possible support by this backend not confirmed"
 
 :model "ScanJet 3690c"
 :url "/unsupported/hp-scanjet-3690.html"

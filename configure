@@ -1465,7 +1465,7 @@ esac
       fi
     
 else
-  if false; then # release (false) or development (true)
+  if true; then # release (false) or development (true)
        # Warnings enabled by default (development)
        for flag in $WARN_CFLAGS; do
          case "$CFLAGS" in

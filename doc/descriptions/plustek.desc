@@ -142,7 +142,7 @@
 
 :model "Compact 9600 Direct-30"
 :interface "Parport (SPP, EPP)"
-:status :stable
+:status :complete
 :comment "same as OpticPro 9630P"
 
 ;* Genius/KYE *******************************************************************************************

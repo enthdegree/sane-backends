@@ -192,8 +192,14 @@ sanei_w_array (Wire * w, SANE_Word * len_ptr, void **v,
     len = *len_ptr;
   DBG (4, "sanei_w_array: send/receive array length\n");
   sanei_w_word (w, &len);
-  DBG (4, "sanei_w_array: array has %d elements\n", len);
 
+  if (w->status)
+    {
+      DBG (1, "sanei_w_array: bad status: %d\n", w->status);
+      return;
+    }
+  DBG (4, "sanei_w_array: array has %d elements\n", len);
+      
   if (w->direction == WIRE_DECODE)
     {
       *len_ptr = len;
@@ -219,6 +225,11 @@ sanei_w_array (Wire * w, SANE_Word * len_ptr, void **v,
     {
       (*w_element) (w, val);
       val += element_size;
+      if (w->status)
+	{
+	  DBG (1, "sanei_w_array: bad status: %d\n", w->status);
+	  return;
+	}
     }
   DBG (4, "sanei_w_array: done\n");
 }
@@ -251,6 +262,11 @@ sanei_w_ptr (Wire * w, void **v, WireCodecFunc w_value, size_t value_size)
 
   DBG (4, "sanei_w_ptr: send/receive is_null\n");
   sanei_w_word (w, &is_null);
+  if (w->status)
+    {
+      DBG (1, "sanei_w_ptr: bad status: %d\n", w->status);
+      return;
+    }
 
   if (!is_null)
     {
@@ -307,7 +323,7 @@ sanei_w_string (Wire * w, SANE_String * v)
 {
   DBG (3, "sanei_w_string: wire %d\n", w->io.fd);
   (*w->codec.w_string) (w, v);
-  if (w->direction != WIRE_FREE)
+  if (w->direction != WIRE_FREE && w->status == 0)
     DBG (4, "sanei_w_string: value = %s\n", *v);
 }
 

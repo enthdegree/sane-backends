@@ -54,6 +54,9 @@ bin_w_byte (Wire *w, void *v)
   SANE_Byte *b = v;
 
   sanei_w_space (w, 1);
+  if (w->status)
+    return;
+
   switch (w->direction)
     {
     case WIRE_ENCODE:
@@ -82,8 +85,14 @@ bin_w_string (Wire *w, void *v)
 	len = strlen (*s) + 1;
     }
   sanei_w_array (w, &len, v, w->codec.w_byte, 1);
-  if (w->direction == WIRE_DECODE && !len)
-    *s = 0;
+
+  if (w->direction == WIRE_DECODE)
+    {
+      if (len == 0)
+	*s = 0;
+      else if (w->status == 0)
+	*(*s + len - 1) = '\0';
+    }
 }
 
 static void
@@ -92,6 +101,8 @@ bin_w_word (Wire *w, void *v)
   SANE_Word val, *word = v;
 
   sanei_w_space (w, 4);
+  if (w->status)
+    return;
   switch (w->direction)
     {
     case WIRE_ENCODE:

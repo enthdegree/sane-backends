@@ -183,6 +183,12 @@ auth_callback (SANE_String_Const res,
       return;
     }
 
+  if (wire.status)
+    {
+      DBG(DBG_ERR, "auth_callback: bad status %d\n", wire.status);
+      return;
+    }
+
   switch (current_request)
     {
     case SANE_NET_OPEN:
@@ -222,10 +228,24 @@ auth_callback (SANE_String_Const res,
 	   current_request, res);
       break;
     }
+
+  if (wire.status)
+    {
+      DBG(DBG_ERR, "auth_callback: bad status %d\n", wire.status);
+      return;
+    }
+
   reset_watchdog ();
 
   sanei_w_set_dir (&wire, WIRE_DECODE);
   sanei_w_word (&wire, &word);
+
+  if (wire.status)
+    {
+      DBG(DBG_ERR, "auth_callback: bad status %d\n", wire.status);
+      return;
+    }
+
   procnum = word;
   if (procnum != SANE_NET_AUTHORIZE)
     {
@@ -237,6 +257,12 @@ auth_callback (SANE_String_Const res,
     }
 
   sanei_w_authorization_req (&wire, &req);
+  if (wire.status)
+    {
+      DBG(DBG_ERR, "auth_callback: bad status %d\n", wire.status);
+      return;
+    }
+
   if (req.username)
     strcpy (username, req.username);
   if (req.password)
@@ -514,30 +540,51 @@ init (Wire * w)
 
   reset_watchdog ();
 
-  sanei_w_set_dir (w, WIRE_DECODE);
-  sanei_w_word (w, &word);	/* decode procedure number */
-  sanei_w_init_req (w, &req);
-  w->version = SANEI_NET_PROTOCOL_VERSION;
+  status = check_host (w->io.fd);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_WARN, "init: access by host %s denied\n", remote_hostname);
+      return -1;
+    }
 
+  sanei_w_set_dir (w, WIRE_DECODE);
+  if (w->status)
+    {
+      DBG (DBG_ERR, "init: bad status after sanei_w_set_dir: %d\n", w->status);
+      return -1;
+    }
+  
+  sanei_w_word (w, &word);	/* decode procedure number */
   if (w->status || word != SANE_NET_INIT)
     {
       DBG (DBG_ERR, "init: bad status=%d or procnum=%d\n",
 	   w->status, word);
       return -1;
     }
+
+  sanei_w_init_req (w, &req);
+  if (w->status)
+    {
+      DBG (DBG_ERR, "init: bad status after sanei_w_init_req: %d\n", w->status);
+      return -1;
+    }
+
+  w->version = SANEI_NET_PROTOCOL_VERSION;
   if (req.username)
     default_username = strdup (req.username);
 
   sanei_w_free (w, (WireCodecFunc) sanei_w_init_req, &req);
+  if (w->status)
+    {
+      DBG (DBG_ERR, "init: bad status after sanei_w_free: %d\n", w->status);
+      return -1;
+    }
 
   reply.version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR,
 					  SANEI_NET_PROTOCOL_VERSION);
 
-  status = check_host (w->io.fd);
-
-  DBG (DBG_WARN, "init: access by %s@%s %s\n",
-       default_username, remote_hostname,
-       (status == SANE_STATUS_GOOD) ? "accepted" : "rejected");
+  DBG (DBG_WARN, "init: access by %s@%s accepted\n",
+       default_username, remote_hostname);
 
   if (status == SANE_STATUS_GOOD)
     {
@@ -823,6 +870,14 @@ process_request (Wire * w)
   DBG (DBG_DBG, "process_request: waiting for request\n");
   sanei_w_set_dir (w, WIRE_DECODE);
   sanei_w_word (w, &word);	/* decode procedure number */
+
+  if (w->status)
+    {
+      DBG (DBG_ERR,
+	   "process_request: bad status %d\n", w->status);
+      quit (0);
+    }
+
   current_request = word;
 
   DBG (DBG_MSG, "process_request: got request %d\n", current_request);

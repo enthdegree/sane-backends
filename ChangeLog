@@ -1,6 +1,8 @@
 2003-06-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* README.darwin: Minor updates.
+	* TODO: Added v4l2 problem, desc file issues. Removed sm3600 
+	  MacOS	X problem + printing backends in configure.
 
 2003-06-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

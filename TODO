@@ -1,4 +1,4 @@
-TODO (2003-06-06)
+TODO (2003-06-13)
 
 ******** todo ********
 
@@ -32,6 +32,7 @@ backends
        trouble if /usr/include/linux is a link.
      - Add v4l updates from Martin Palm, see
        http://www.meier-geinitz.de/sane/misc/sane-v4l-update.tar.gz
+     - compilation seems to break when video4linux version 2 is installed?
 
   * memory leaks:
     - sane_exit() does not release memory allocated by sane_get_devices():
@@ -77,6 +78,8 @@ doc
       That explains how much the scanner can do instead of the release status of 
       a scanner (alpha/beta...).
     - umax: genius.kye.de times out?
+    - umax, artec_eplus48u: http://www.umax.com.tw/ times out?
+    - plustek: add Genius ColorPage HR6X EPP as supported
 
   * manpages:
     - html manpages have broken links to other man pages if link is wrapped at
@@ -138,8 +141,6 @@ platform-specific
 
   * Fix MacOS X issues: 
     - More docu in README.darwin.
-    - sm3600 is reported to crash with MacOS X. Actually, the crash is in
-      libusb::usb_find_devices().
   
   * OS/2 issues: 
     - Add support for semaphores also for OS/2 (currently used in snapscan).
@@ -162,8 +163,6 @@ misc
     a segfault in Sane.c. Silvio Vogt <blackhol at web.de> is working on this
     topic.
 
-  * In configure, print a list of backends that are build.
-
   * There is a misterious problem with string list options that occurs
     with (at least) the epson backend, saned and xsane. See
     http://www.mostang.com/pipermail/sane-devel/2003-May/018755.html.
@@ -171,6 +170,9 @@ misc
 
 
 ******** done ********
+* sm3600 is reported to crash with MacOS X. Actually, the crash is in
+  libusb::usb_find_devices().
+* In configure, print a list of backends that are build.
 * Remove test for poll in configure.
 * use u_int32_t instead of uint32_t in saned.c.
 * plustek:  check status of Umax 3450 USB scanner (same as 3400?)

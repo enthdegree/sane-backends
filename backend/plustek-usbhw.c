@@ -746,7 +746,7 @@ static SANE_Bool usb_MotorSelect( Plustek_Device *dev, SANE_Bool fADF )
 	}
 
 	/* To stop the motor moving */
-	usbio_WriteReg( dev->fd, 0x07, 0 );		
+	usbio_WriteReg( dev->fd, 0x07, 0 );
 	usleep(10 * 1000);
 
 	usbio_WriteReg( dev->fd, 0x5b, a_bRegs[0x5b] );
@@ -759,23 +759,23 @@ static SANE_Bool usb_AdjustLamps( Plustek_Device *dev )
 {
 	pHWDef hw = &dev->usbDev.HwSetting;
 
-	a_bRegs[0x2c] = hw->red_lamp_on / 256;
-	a_bRegs[0x2d] = hw->red_lamp_on & 0xFF;
-	a_bRegs[0x2e] = hw->red_lamp_off / 256;
-	a_bRegs[0x2f] = hw->red_lamp_off & 0xFF;
+	a_bRegs[0x2c] = _HIBYTE(hw->red_lamp_on);
+	a_bRegs[0x2d] = _LOBYTE(hw->red_lamp_on);
+	a_bRegs[0x2e] = _HIBYTE(hw->red_lamp_off);
+	a_bRegs[0x2f] = _LOBYTE(hw->red_lamp_off);
 
-	a_bRegs[0x30] = hw->green_lamp_on / 256;
-	a_bRegs[0x31] = hw->green_lamp_on & 0xFF;
-	a_bRegs[0x32] = hw->green_lamp_off / 256;
-	a_bRegs[0x33] = hw->green_lamp_off & 0xFF;
+	a_bRegs[0x30] = _HIBYTE(hw->green_lamp_on);
+	a_bRegs[0x31] = _LOBYTE(hw->green_lamp_on);
+	a_bRegs[0x32] = _HIBYTE(hw->green_lamp_off);
+	a_bRegs[0x33] = _LOBYTE(hw->green_lamp_off);
 
-	a_bRegs[0x34] = hw->blue_lamp_on / 256;
-	a_bRegs[0x35] = hw->blue_lamp_on & 0xFF;
-	a_bRegs[0x36] = hw->blue_lamp_off / 256;
-	a_bRegs[0x37] = hw->blue_lamp_off & 0xFF;
+	a_bRegs[0x34] = _HIBYTE(hw->blue_lamp_on);
+	a_bRegs[0x35] = _LOBYTE(hw->blue_lamp_on);
+	a_bRegs[0x36] = _HIBYTE(hw->blue_lamp_off);
+	a_bRegs[0x37] = _LOBYTE(hw->blue_lamp_off);
 
 	return sanei_lm983x_write( dev->fd, 0x2c,
-							   &a_bRegs[0x2c], 0x37-0x2c+1, SANE_TRUE );
+	                           &a_bRegs[0x2c], 0x37-0x2c+1, SANE_TRUE );
 }
 
 /**

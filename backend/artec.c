@@ -134,7 +134,7 @@ static const u_int8_t test_unit_ready[] =
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
-struct
+static struct
   {
     SANE_String model;		/* product model */
     SANE_String type;		/* type of scanner */

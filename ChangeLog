@@ -9,6 +9,8 @@
 
 2001-05-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* doc/sane-microtek2.man: Include updates from backend version 0.9
+	  (from karsten.festag@t-online.de (Karsten Festag)).
 	* backend/sm3600.c: setResolutions has only 5 instead of 6 resolutions.
 
 2001-05-26  Jochen Eisinger <jochen.eisinger@gmx.net>

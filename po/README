@@ -20,6 +20,7 @@ What do you need to do if you want to:
 - Add a new language to an existing backend
   * cd po ; make backend.lang.po-gen 
   * Edit backend-lang.po, enter translations. Don't forget to edit the header.
+  * Edit Makefile.in, add backend.lang.po to DISTFILES.
   * make ; make install
 
 - Add a translation for a backend that is not listed yet in Makefile.in
@@ -29,8 +30,9 @@ What do you need to do if you want to:
     Do NOT mark macros. Especially you don't need to mark standard option
     strings like SANE_TITLE_NUM_OPTIONS as this is already done in saneopts.h.
     Example: s->opt[5].title = SANE_I18N("Enhancement");
-  * Edit Makefile.in. Add a line "backend.*.po: yourfiles" where yourfiles is
-    a space-separated list of all your files containing translatable text.
+  * Edit po/Makefile.in. Add a line "backend.*.po: yourfiles" where
+    yourfiles is a space-separated list of all your files containing
+    translatable text. Also add backend.lang.po to DISTFILES.
   * ./configure --enable-translations
   * cd po ; make backend.lang.po-gen
   * Edit backend-lang.po, enter translations. Don't forget to edit the header.

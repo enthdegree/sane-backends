@@ -2,6 +2,8 @@
 
 	* doc/descriptions/unsupported.desc: Added Tevion MD 40420. Moved
 	  Plustek OpticPro S(T)28 to genesys.desc.
+	* doc/descriptions-external/genesys.desc: Moved Plustek OpticPro
+	  S(T)28 to genesys.desc.
 
 2004-03-22  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

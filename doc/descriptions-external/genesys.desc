@@ -198,6 +198,16 @@
 :interface "USB"
 :status :unsupported
 
+:model "OpticPro S28"
+:interface "USB"
+:url "/unsupported/plustek-opticpro-s28.html"
+:status :unsupported
+
+:model "OpticPro ST28"
+:url "/unsupported/plustek-opticpro-s28.html"
+:interface "USB"
+:status :unsupported
+
 :model "OpticPro ST48"
 :url "/unsupported/plustek-opticpro-st48.html"
 :interface "USB"

@@ -7,6 +7,8 @@
 	  for OS/2.
 	* doc/sane-scsi.man: Added more information about NCR/Symbios 810 and
 	  Tekram DC315 controllers under Linux.
+	* backend/Makefile.in backend/test.c backend/test.conf backend/test.h
+	  backend/test-picture.c: Added new test backend.
 
 2002-04-12  Frank Zago <fzago@greshamstorage.com>
 

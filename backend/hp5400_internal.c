@@ -74,6 +74,11 @@
 #define max(A,B) (((A)>(B)) ? (A) : (B))
 #endif
 
+
+#ifndef STRING_VERSION_MATCH
+#define NO_STRING_VERSION_MATCH 1
+#endif
+
 #ifdef __GNUC__
 #define PACKED __attribute__ ((packed))
 #else

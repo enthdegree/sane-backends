@@ -1,3 +1,10 @@
+2004-10-02  Thomas Soumarmon <thomas.soumarmon@cogitae.net>
+	
+	* backend/hp5400_internal.c: hp5400 version mathing test
+          has been removed by default.
+          To enable it :
+          CFLAGS="-DSTRING_VERSION_MATCH" ./configure
+
 2004-10-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added several

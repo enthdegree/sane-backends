@@ -1,3 +1,20 @@
+2003-06-05  Thomas Soumarmon <thomas.soumarmon@cogitae.net>
+	* hp5400 backend : synchronized sourceforge CVS with SANE CVS, details below
+	  added :
+	   backend/hp5400_debug.c
+	   backend/hp5400_debug.h
+	   backend/hp5400_sane.c
+	   backend/hp5400_sanei.h
+	   backend/hp5400_internal.h
+	  modified :
+	   backend/hp5400.c
+	   backend/hp5400.h
+	   backend/hp5400_internal.c
+	   backend/hp5400_sanei.c
+	   backend/hp5400_xfer.h
+	   	to compile and run (on linux 2.4.21) as SANE backend and in the
+		corresponding hp5400backend sourceforge project
+
 2003-06-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* TODO: Removed saned issues.
@@ -12,7 +29,7 @@
 	  version supporting both raw IO and libieee1284. If you don't
 	  have libieee1284 installed, you need to enable raw IO when
 	  running configure
-	  
+
 2003-06-06  Oliver Schirrmeister <oschirr@abm.de>
 
 	* backend/fujitsu.h backend/fujitsu.c doc/descriptions/fujitsu.desc

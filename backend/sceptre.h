@@ -94,7 +94,7 @@ CDB;
  ((unsigned char *)buf)[3] = ((val) >>  0) & 0xff; \
 }
 
-#define MKSCSI_SCSI_TEST_UNIT_READY(cdb) \
+#define MKSCSI_TEST_UNIT_READY(cdb) \
 	cdb.data[0] = SCSI_TEST_UNIT_READY; \
 	cdb.data[1] = 0; \
 	cdb.data[2] = 0; \
@@ -148,7 +148,7 @@ CDB;
 	cdb.data[5] = 0; \
 	cdb.len = 6;
 
-#define MKSCSI_SCSI_RECEIVE_DIAG(cdb, pc, buflen) \
+#define MKSCSI_RECEIVE_DIAG(cdb, pc, buflen) \
 	cdb.data[0] = SCSI_RECEIVE_DIAG; \
 	cdb.data[1] = 0; \
 	cdb.data[2] = pc; \
@@ -166,7 +166,7 @@ CDB;
 	cdb.data[5] = 0; \
 	cdb.len = 6;
 
-#define MKSCSI_SCSI_SET_WINDOW(cdb, buflen) \
+#define MKSCSI_SET_WINDOW(cdb, buflen) \
 	cdb.data[0] = SCSI_SET_WINDOW; \
 	cdb.data[1] = 0; \
 	cdb.data[2] = 0; \
@@ -179,7 +179,7 @@ CDB;
 	cdb.data[9] = 0; \
 	cdb.len = 10;
 
-#define MKSCSI_SCSI_READ_10(cdb, dtc, dtq, buflen) \
+#define MKSCSI_READ_10(cdb, dtc, dtq, buflen) \
 	cdb.data[0] = SCSI_READ_10; \
 	cdb.data[1] = 0; \
 	cdb.data[2] = (dtc); \
@@ -201,7 +201,7 @@ CDB;
 	cdb.data[5] = 0; \
 	cdb.len = 6;
 
-#define MKSCSI_SCSI_SEND_10(cdb, dtc, dtq, buflen) \
+#define MKSCSI_SEND_10(cdb, dtc, dtq, buflen) \
 	cdb.data[0] = SCSI_SEND_10; \
 	cdb.data[1] = 0; \
 	cdb.data[2] = (dtc); \
@@ -265,7 +265,7 @@ enum Sceptre_Option
   OPT_PREVIEW,			/* preview mode */
 
   /* must come last: */
-  NUM_OPTIONS
+  OPT_NUM_OPTIONS
 };
 
 typedef union
@@ -275,6 +275,22 @@ typedef union
   SANE_String s;		/* string */
 }
 Option_Value;
+
+/*--------------------------------------------------------------------------*/
+
+/* 
+ * Scanner supported by this backend. 
+ */
+struct scanners_supported
+{
+  /* From scsi inquiry */
+  int scsi_type;
+  char scsi_vendor[9];
+  char scsi_product[17];
+
+  char *real_vendor;
+  char *real_product;
+};
 
 /*--------------------------------------------------------------------------*/
 
@@ -304,24 +320,12 @@ typedef struct Sceptre_Scanner
   SANE_Range x_range;
   SANE_Range y_range;
   SANE_Range resolution_range;
+  int scnum;			/* index of that scanner in
+				   * scanners_supported */
 
   /* SCSI handling */
   SANE_Byte *buffer;		/* for SCSI transfer. */
   size_t buffer_size;		/* allocated size of buffer */
-
-  SANE_Byte *image;		/* keep the current image there */
-  size_t image_size;		/* allocated size of image */
-  size_t image_begin;		/* first significant byte in image */
-  size_t image_end;		/* first free byte in image */
-
-  int raster_size;		/* size of a raster */
-  int raster_num;		/* for colour scan, current raster read */
-  int raster_real;		/* real number of raster in the
-				   * scan. This is necessary since I
-				   * don't know how to reliably compute
-				   * the number of lines */
-
-  int line;			/* current line of the scan */
 
   /* Scanning handling. */
   int scanning;			/* TRUE is a scan is running. */
@@ -345,19 +349,37 @@ typedef struct Sceptre_Scanner
   int depth;			/* depth per color */
   int halftone_param;		/* haltone number, valid for SCEPTRE_HALFTONE */
 
-  size_t bytes_left;		/* number of bytes promised to backend
-				   * left to read. */
+  size_t bytes_left;		/* number of bytes left to give to the backend */
+
+  size_t real_bytes_left;	/* number of bytes left the scanner will return. */
+
+  SANE_Byte *image;		/* keep the raw image here */
+  size_t image_size;		/* allocated size of image */
+  size_t image_begin;		/* first significant byte in image */
+  size_t image_end;		/* first free byte in image */
 
   int color_shift;		/* for color scan: number of lines to
 				   * shift the colors. The higher the
 				   * resolution, the higher this
 				   * number. */
 
+  int raster_size;		/* size of a raster */
+  int raster_num;		/* for colour scan, current raster read */
+  int raster_real;		/* real number of raster in the
+				   * scan. This is necessary since I
+				   * don't know how to reliably compute
+				   * the number of lines */
+
+  int raster_ahead;		/* max size of the incomplete lines */
+
+  int line;			/* current line of the scan */
+
+
   SANE_Parameters params;
 
   /* Options */
-  SANE_Option_Descriptor opt[NUM_OPTIONS];
-  Option_Value val[NUM_OPTIONS];
+  SANE_Option_Descriptor opt[OPT_NUM_OPTIONS];
+  Option_Value val[OPT_NUM_OPTIONS];
 
   /* Gamma table. 1 array per colour. */
   SANE_Word gamma_R[GAMMA_LENGTH];
@@ -387,3 +409,15 @@ Sceptre_Scanner;
 #define DBG_sane_option 13
 
 /*--------------------------------------------------------------------------*/
+
+/* 32 bits from an array to an integer (eg ntohl). */
+#define B32TOI(buf) \
+	((((unsigned char *)buf)[0] << 24) | \
+	 (((unsigned char *)buf)[1] << 16) | \
+	 (((unsigned char *)buf)[2] <<  8) |  \
+	 (((unsigned char *)buf)[3] <<  0))
+
+/* 16 bits from an array to an integer (eg ntohs). */
+#define B16TOI(buf) \
+	((((unsigned char *)buf)[0] <<  8) | \
+	 (((unsigned char *)buf)[1] <<  0))

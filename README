@@ -32,6 +32,8 @@ Quick install:
 make
 make install
 
+man sane
+
 Prerequisites
 =============
 
@@ -51,6 +53,11 @@ files. For a detailed support matrix, see:
 This table may be out of date. Please send any corrections or additions to
 sane-devel@mostang.com together with your platform, os and version.
 
+Please check that there aren't any older versions of SANE installed on your
+system. Especially if sane-libraries are installed in a different prefix
+directory (e.g. /usr/lib) this may cause problems with external
+frontends. Please remove these libraries (libsane.*, sane/libsane-*) before
+installing this version of SANE.
 
 Configuration
 =============
@@ -86,9 +93,9 @@ configure options, there are the following SANE specific options:
 	configuration file. Please refer to the backend's man pages for
 	details.
 
-In addition to these SANE-specific configuration options, there are
-many standard-options.  To get a description of available standard
-option, invoke configure with option --help.
+In addition to these configuration options, there are some more SANE-specific
+options and many standard-options.  To get a description of available options,
+invoke configure with option --help.
 
 If you plan on debugging one of the SANE programs, we recommend to run
 configure like this:
@@ -102,6 +109,10 @@ Build
 =====
 
 To build SANE, simply type "make" in the top-level directory.
+
+To clean up the executables and libraries in the source directory, type "make
+clean". To restore everything to the status after unpacking the package, type
+"make distclean".
 
 
 Installation and Configuration
@@ -120,3 +131,10 @@ components, please refer to the manual page sane(7).
 
 The tools directory contains some small programs that may be helpfull. They
 are described in tools/README.
+
+Removing
+========
+
+Type "make uninstall" to remove SANE from your system. This will also remove
+older versions of SANE if they have been installed at the same prefix.
+Warning: Your configuration in etc/sane.d/*.conf will be deleted also.

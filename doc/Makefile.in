@@ -48,14 +48,14 @@ SECT5	= sane-abaton.5 sane-agfafocus.5 sane-apple.5 sane-as6e.5 sane-dll.5 \
           sane-snapscan.5 sane-canon.5 sane-coolscan.5 sane-bh.5 sane-dc240.5 \
           sane-umax_pp.5 sane-umax1220u.5 sane-sm3600.5 sane-usb.5 \
           sane-mustek_usb.5 sane-sceptre.5 sane-canon_pp.5 sane-canon630u.5 \
-          sane-teco1.5
+          sane-teco1.5 sane-test.5
 SECT7   = sane.7
 MANPAGES = $(SECT1) $(SECT5) $(SECT7)
 READMES = README AUTHORS COPYING ChangeLog LEVEL2 LICENSE NEWS PROBLEMS \
           PROJECTS README README.aix README.hp-ux README.linux README.os2 \
           README.solaris README.unixware2 README.unixware7 TODO
 DOCS    = backend-writing.txt sane.ps sane.dvi
-BACKDIRS= canon matsushita mustek mustek_usb umax sceptre
+BACKDIRS= canon matsushita mustek mustek_usb umax sceptre teco
 LATEX	= TEXINPUTS=$(srcdir):$$TEXINPUTS latex
 DLH	= TEXINPUTS=$(srcdir):$$TEXINPUTS dlh
 MAN2HTML= nroff -man |\
@@ -71,7 +71,8 @@ DISTFILES = Makefile.in backend-writing.txt doxygen-sanei.conf html.sty \
   net.tex \
   releases.txt sane-abaton.man sane-agfafocus.man sane-apple.man \
   sane-artec.man sane-as6e.man sane-avision.man sane-bh.man \
-  sane-canon.man sane-canon630u.man sane-coolscan.man sane-dc210.man sane-dc240.man \
+  sane-canon.man sane-canon630u.man sane-coolscan.man sane-dc210.man \
+  sane-dc240.man \
   sane-dc25.man sane-dll.man sane-dmc.man sane-epson.man \
   sane-find-scanner.man sane-fujitsu.man sane-gphoto2.man sane-hp.man \
   sane-logo.png sane-logo2.jpg sane-matsushita.man sane-microtek.man \
@@ -83,7 +84,7 @@ DISTFILES = Makefile.in backend-writing.txt doxygen-sanei.conf html.sty \
   sane-st400.man sane-tamarack.man sane-umax.man sane-umax1220u.man \
   sane-umax_pp.man sane-usb.man sane-v4l.man sane.man sane.png \
   sane.tex saned.man scanimage.man sane-sceptre.man sane-canon_pp.man \
-  sane-teco1.man
+  sane-teco1.man sane-test.man
 
 .PHONY: all clean depend dist distclean html html-man install \
   install-mostang sane-html uninstall

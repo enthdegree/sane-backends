@@ -12,9 +12,13 @@
 
 #define INQUIRY_BUF_SIZE		(36)
 
-SANE_Status sanei_epson_scsi_sense_handler(int scsi_fd, u_char *result, void *arg);
-SANE_Status sanei_epson_scsi_inquiry(int fd, int page_code, void * buf, size_t * buf_size);
-int sanei_epson_scsi_read(int fd, void * buf, size_t buf_size, SANE_Status * status);
-int sanei_epson_scsi_write(int fd, const void * buf, size_t buf_size, SANE_Status * status);
+SANE_Status sanei_epson_scsi_sense_handler (int scsi_fd, u_char * result,
+					    void *arg);
+SANE_Status sanei_epson_scsi_inquiry (int fd, int page_code, void *buf,
+				      size_t * buf_size);
+int sanei_epson_scsi_read (int fd, void *buf, size_t buf_size,
+			   SANE_Status * status);
+int sanei_epson_scsi_write (int fd, const void *buf, size_t buf_size,
+			    SANE_Status * status);
 
 #endif

@@ -1,3 +1,7 @@
+2004-02-08  Karl Heinz Kremer <khk@khk.net>
+	* backend/epson*.[ch]: Reformat source code to get rid of different coding styles
+	  used over the years (and by different authors). 
+
 2004-02-08  Frank Zago  <fzago at austin dot rr dot com>
 	* README.windows: added info about USB scanners.
 

@@ -1,6 +1,9 @@
 2002-10-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* configure configure.in: Print installation directories.
+	* backend/gt68xx.c backend/gt68xx_devices.c backend/gt68xx_high.c
+	  backend/gt68xx_low.c backend/gt68xx_low.h doc/gt68xx/gt68xx.CHANGES:
+	  Faster AFE calibration. Minor fixes. New version: 1.0-28.
 
 2002-10-31   Stéphane Voltz  <svoltz@wanadoo.fr>
 

@@ -1,4 +1,14 @@
-V 1.0-27 (2002-10-??)
+V 1.0-28 (2002-10-31)
+
+- Reduce scan width of 2400 TA Plus: otherwise the black mark would create
+  light vertical stripes.
+- Removed default parameters. Set AFE and exposure in every model struct.
+- Faster automatic gain setting for the CIS scanners. The default values from
+  the model struct and the last values are used for calculation.
+- Set default AFE values for ScanExpress 1200 UB Plus, BearPaw 1200 CU, BearPaw
+  2400 CU Plus.
+
+V 1.0-27 (2002-10-25)
 
 - Bugfix: override applies to all devices found by the last usb line.
 - Individual resolutions + depth values for every scanner.

@@ -412,8 +412,8 @@ gt68xx_device_activate (GT68xx_Device * dev)
   if (!dev->afe || !dev->exposure)
     return SANE_STATUS_NO_MEM;
 
-  memcpy (dev->afe, dev->model->afe_params, sizeof (*dev->afe));
-  memcpy (dev->exposure, dev->model->exposure, sizeof (*dev->exposure));
+  memcpy (dev->afe, &dev->model->afe_params, sizeof (*dev->afe));
+  memcpy (dev->exposure, &dev->model->exposure, sizeof (*dev->exposure));
   dev->active = SANE_TRUE;
 
   return SANE_STATUS_GOOD;

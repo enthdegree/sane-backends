@@ -182,6 +182,28 @@ struct GT68xx_USB_Device_Entry
  */
 static GT68xx_USB_Device_Entry gt68xx_usb_device_list[MAX_SCANNERS];
 
+/** GT68xx analog front-end (AFE) parameters.
+ */
+struct GT68xx_AFE_Parameters
+{
+  SANE_Byte r_offset;	/**< Red channel offset */
+  SANE_Byte r_pga;	/**< Red channel PGA gain */
+  SANE_Byte g_offset;	/**< Green channel offset (also used for mono) */
+  SANE_Byte g_pga;	/**< Green channel PGA gain (also used for mono) */
+  SANE_Byte b_offset;	/**< Blue channel offset */
+  SANE_Byte b_pga;	/**< Blue channel PGA gain */
+};
+
+/** GT68xx exposure time parameters.
+ */
+struct GT68xx_Exposure_Parameters
+{
+  SANE_Int r_time;     /**< Red exposure time */
+  SANE_Int g_time;     /**< Red exposure time */
+  SANE_Int b_time;     /**< Red exposure time */
+};
+
+
 /**
  * Scanner command set description.
  *
@@ -438,8 +460,8 @@ struct GT68xx_Model
   SANE_Int ld_shift_double;
 
   GT68xx_Color_Order line_mode_color_order;
-  GT68xx_AFE_Parameters *afe_params;
-  GT68xx_Exposure_Parameters *exposure;
+  GT68xx_AFE_Parameters afe_params;
+  GT68xx_Exposure_Parameters exposure;
 
   SANE_Bool is_cis;		/* Is this a CIS or CCD scanner? */
   SANE_Word flags;		/* Which hacks are needed for this scanner? */
@@ -538,26 +560,6 @@ struct GT68xx_Scan_Parameters
   SANE_Int double_column;
 };
 
-/** GT68xx analog front-end (AFE) parameters.
- */
-struct GT68xx_AFE_Parameters
-{
-  SANE_Byte r_offset;	/**< Red channel offset */
-  SANE_Byte r_pga;	/**< Red channel PGA gain */
-  SANE_Byte g_offset;	/**< Green channel offset (also used for mono) */
-  SANE_Byte g_pga;	/**< Green channel PGA gain (also used for mono) */
-  SANE_Byte b_offset;	/**< Blue channel offset */
-  SANE_Byte b_pga;	/**< Blue channel PGA gain */
-};
-
-/** GT68xx exposure time parameters.
- */
-struct GT68xx_Exposure_Parameters
-{
-  SANE_Int r_time;     /**< Red exposure time */
-  SANE_Int g_time;     /**< Red exposure time */
-  SANE_Int b_time;     /**< Red exposure time */
-};
 
 #define GT68XX_PACKET_SIZE 64
 

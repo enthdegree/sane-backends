@@ -451,7 +451,6 @@ gt68xx_scanner_internal_start_scan (GT68xx_Scanner * scanner)
 	break;
       usleep (100000);
     }
-
   if (!ready)
     {
       XDBG ((5, "%s: scanner still not ready - giving up\n", function_name));
@@ -643,6 +642,8 @@ gt68xx_scanner_calibrate (GT68xx_Scanner * scanner,
   GT68xx_Scan_Request req;
   SANE_Int i;
   unsigned int *buffer_pointers[3];
+  GT68xx_AFE_Parameters *afe = scanner->dev->afe;
+  GT68xx_Exposure_Parameters *exposure = scanner->dev->exposure;
 
   memcpy (&req, request, sizeof (req));
 
@@ -665,6 +666,11 @@ gt68xx_scanner_calibrate (GT68xx_Scanner * scanner,
     }
   else
     req.mbs = SANE_TRUE;
+
+  DBG (3, "afe 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x\n", afe->r_offset,
+       afe->r_pga, afe->g_offset, afe->g_pga, afe->b_offset, afe->b_pga);
+  DBG (3, "exposure 0x%02x 0x%02x 0x%02x\n", exposure->r_time,
+       exposure->g_time, exposure->b_time);
 
   if (!scanner->calib)
     return SANE_STATUS_GOOD;
@@ -1436,26 +1442,41 @@ gt68xx_afe_cis_calc_white (GT68xx_Afe_Values * values,
 
 static SANE_Bool
 gt68xx_afe_cis_adjust_offset (GT68xx_Afe_Values * values,
-			      unsigned int *black_buffer, SANE_Int off_dist,
-			      SANE_Byte * offset)
+			      unsigned int *black_buffer,
+			      SANE_Int offset_direction, SANE_Byte * offset)
 {
-  SANE_Int offs = *offset;
+  SANE_Int offs = 0, tmp_offset = *offset;
+  SANE_Int low = 8, high = 22;
 
   gt68xx_afe_cis_calc_black (values, black_buffer);
-  if (values->black < 5)
-    offs += off_dist;
-  else if (values->black > 15)
-    offs -= off_dist;
+  if (values->black < low)
+    {
+      offs = (offset_direction * (low - values->black) / 4);
+      if (offs == 0)
+	offs = offset_direction;
+      DBG (5, "black = %d (too low) --> offs = %d\n", values->black, offs);
+    }
+  else if (values->black > high)
+    {
+      offs = -(offset_direction * (values->black - high) / 7);
+      if (offs == 0)
+	offs = -offset_direction;
+      DBG (5, "black = %d (too high) --> offs = %d\n", values->black, offs);
+    }
+  else
+    {
+      DBG (5, "black = %d (ok)\n", values->black);
+    }
 
-  if (offs < 0)
-    offs = 0;
-  if (offs > 63)
-    offs = 63;
-
-  if (offs == *offset)
+  if (offs == 0)
     return SANE_TRUE;
 
-  *offset = offs;
+  tmp_offset += offs;
+  if (tmp_offset < 0)
+    tmp_offset = 0;
+  if (tmp_offset > 63)
+    tmp_offset = 63;
+  *offset = tmp_offset;
   return SANE_FALSE;
 }
 
@@ -1467,8 +1488,20 @@ gt68xx_afe_cis_adjust_gain (GT68xx_Afe_Values * values,
 
   gt68xx_afe_cis_calc_white (values, white_buffer);
 
-  if (values->white < 240)
-    g += 2;
+  if (values->white < 235)
+    {
+      g += 1;
+      DBG (5, "white = %d (too low) --> gain += 1\n", values->white);
+    }
+  else if (values->white > 250)
+    {
+      g -= 1;
+      DBG (5, "white = %d (too high) --> gain -= 1\n", values->white);
+    }
+  else
+    {
+      DBG (5, "white = %d (ok)\n", values->white);
+    }
   if (g < 0)
     g = 0;
   if (g > 63)
@@ -1483,19 +1516,26 @@ gt68xx_afe_cis_adjust_gain (GT68xx_Afe_Values * values,
 static SANE_Bool
 gt68xx_afe_cis_adjust_exposure (GT68xx_Afe_Values * values,
 				unsigned int *white_buffer,
-				SANE_Int expos_dist, SANE_Int border,
-				SANE_Int * exposure_time)
+				SANE_Int border, SANE_Int * exposure_time)
 {
   gt68xx_afe_cis_calc_white (values, white_buffer);
   if (values->white < border)
     {
-      *exposure_time += expos_dist;
+      *exposure_time += ((border - values->white) * 2);
+      DBG (5, "white = %d (too low) --> += %d\n",
+	   values->white, ((border - values->white) * 2));
       return SANE_FALSE;
     }
-  if (values->white > border + 10)
+  else if (values->white > border + 10)
     {
-      *exposure_time -= expos_dist;
+      *exposure_time -= ((values->white - (border + 10)) * 2);
+      DBG (5, "white = %d (too high) --> -= %d\n",
+	   values->white, ((values->white - (border + 10)) * 2));
       return SANE_FALSE;
+    }
+  else
+    {
+      DBG (5, "white = %d (ok)\n", values->white);
     }
   return SANE_TRUE;
 }
@@ -1591,11 +1631,11 @@ static SANE_Status
 gt68xx_afe_cis_auto (GT68xx_Scanner * scanner)
 {
   DECLARE_FUNCTION_NAME ("gt68xx_afe_cis_auto") SANE_Status status;
-  int total_count, offset_count;
+  int total_count, offset_count, exposure_count;
   GT68xx_Afe_Values values;
   GT68xx_AFE_Parameters *afe = scanner->dev->afe;
   GT68xx_Exposure_Parameters *exposure = scanner->dev->exposure;
-  SANE_Int off_dist, expos_dist;
+  SANE_Int offset_direction;
   SANE_Int done;
   SANE_Bool first = SANE_TRUE;
   unsigned int *r_buffer = 0, *g_buffer = 0, *b_buffer = 0;
@@ -1615,15 +1655,13 @@ gt68xx_afe_cis_auto (GT68xx_Scanner * scanner)
     return SANE_STATUS_NO_MEM;
 
   total_count = 0;
-  afe->r_pga = afe->g_pga = afe->b_pga = 0x06;
-
+  /*  afe->r_pga = afe->g_pga = afe->b_pga = 0x06; */
   do
     {
       offset_count = 0;
-      off_dist = 32;
+      offset_direction = 1;
       if (scanner->dev->model->flags & GT68XX_FLAG_OFFSET_INV)
-	off_dist = -off_dist;
-      afe->r_offset = afe->g_offset = afe->b_offset = 0x20;
+	offset_direction = -1;
       exposure->r_time = exposure->g_time = exposure->b_time = 0x157;
       do
 	{
@@ -1633,23 +1671,23 @@ gt68xx_afe_cis_auto (GT68xx_Scanner * scanner)
 	  /* read black line */
 	  RIE (gt68xx_afe_cis_read_lines (&values, scanner, SANE_FALSE, first,
 					  r_buffer, g_buffer, b_buffer));
-	  off_dist /= 2;
+	  /*offset_direction /= 2; */
 
 	  done =
-	    gt68xx_afe_cis_adjust_offset (&values, r_buffer, off_dist,
+	    gt68xx_afe_cis_adjust_offset (&values, r_buffer, offset_direction,
 					  &afe->r_offset);
 	  done &=
-	    gt68xx_afe_cis_adjust_offset (&values, g_buffer, off_dist,
+	    gt68xx_afe_cis_adjust_offset (&values, g_buffer, offset_direction,
 					  &afe->g_offset);
 	  done &=
-	    gt68xx_afe_cis_adjust_offset (&values, b_buffer, off_dist,
+	    gt68xx_afe_cis_adjust_offset (&values, b_buffer, offset_direction,
 					  &afe->b_offset);
 
 	  offset_count++;
 	  total_count++;
 	  first = SANE_FALSE;
 	}
-      while (offset_count < 6 && !done);
+      while (offset_count < 10 && !done);
 
       /* AFE gain */
       IF_DBG (gt68xx_afe_dump ("gain", total_count, afe));
@@ -1669,8 +1707,7 @@ gt68xx_afe_cis_auto (GT68xx_Scanner * scanner)
   IF_DBG (gt68xx_afe_dump ("final", total_count, afe));
 
   /* Exposure time */
-  expos_dist = exposure->r_time;
-
+  exposure_count = 0;
   do
     {
       IF_DBG (gt68xx_afe_exposure_dump ("exposure", total_count, exposure));
@@ -1678,21 +1715,21 @@ gt68xx_afe_cis_auto (GT68xx_Scanner * scanner)
       /* read white line */
       RIE (gt68xx_afe_cis_read_lines (&values, scanner, SANE_TRUE, SANE_FALSE,
 				      r_buffer, g_buffer, b_buffer));
-      expos_dist /= 2;
-      done = gt68xx_afe_cis_adjust_exposure (&values, r_buffer, expos_dist,
-					     230, &exposure->r_time);
-      done &= gt68xx_afe_cis_adjust_exposure (&values, g_buffer, expos_dist,
-					      230, &exposure->g_time);
-      done &= gt68xx_afe_cis_adjust_exposure (&values, b_buffer, expos_dist,
-					      230, &exposure->b_time);
-
+      done = gt68xx_afe_cis_adjust_exposure (&values, r_buffer, 230,
+					     &exposure->r_time);
+      done &= gt68xx_afe_cis_adjust_exposure (&values, g_buffer, 230,
+					      &exposure->g_time);
+      done &= gt68xx_afe_cis_adjust_exposure (&values, b_buffer, 230,
+					      &exposure->b_time);
+      exposure_count++;
       total_count++;
     }
-  while (!done && expos_dist > 0);
+  while (!done && exposure_count < 10);
 
   free (r_buffer);
   free (g_buffer);
   free (b_buffer);
+  XDBG ((4, "%s: total_count: %d\n", function_name, total_count));
   return SANE_STATUS_GOOD;
 }
 

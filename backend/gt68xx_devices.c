@@ -49,29 +49,6 @@
 #include "gt68xx_gt6801.c"
 #include "gt68xx_gt6816.c"
 
-/* Default parameters for the analog frontend (offset, gain) */
-
-static GT68xx_AFE_Parameters default_afe_params = {
-  0x14, 0x07, 0x14, 0x07, 0x14, 0x07
-};
-
-static GT68xx_AFE_Parameters mustek_2400ta_afe_params = {
-  0x2a, 0x0c, 0x2e, 0x06, 0x2d, 0x07
-};
-
-static GT68xx_AFE_Parameters mustek_1200ta_afe_params = {
-  0x2a, 0x0c, 0x2e, 0x06, 0x2d, 0x07
-};
-
-static GT68xx_AFE_Parameters mustek_1200cu_afe_params = {
-  0x14, 0x06, 0x15, 0x08, 0x11, 0x04
-};
-
-/* Default exposure times */
-static GT68xx_Exposure_Parameters default_exposure_params = {
-  0x157, 0x157, 0x157
-};
-
 static GT68xx_Command_Set mustek_gt6816_command_set = {
   "mustek-gt6816",
 
@@ -160,8 +137,8 @@ static GT68xx_Model mustek_2400ta_model = {
   0,
 
   COLOR_ORDER_RGB,
-  &mustek_2400ta_afe_params,
-  &default_exposure_params,
+  {0x2a, 0x0c, 0x2e, 0x06, 0x2d, 0x07},
+  {0x157, 0x157, 0x157},
   SANE_FALSE,
   0
     /* flatbed values tested */
@@ -188,7 +165,7 @@ static GT68xx_Model mustek_2400taplus_model = {
   {16, 12, 8, 0},
   SANE_FIX (7.41),
   SANE_FIX (7.4),
-  SANE_FIX (219.0),
+  SANE_FIX (217.5),
   SANE_FIX (298.0),
   SANE_FIX (0.0),
   SANE_FIX (5.0),
@@ -203,8 +180,8 @@ static GT68xx_Model mustek_2400taplus_model = {
   8,
 
   COLOR_ORDER_RGB,
-  &mustek_2400ta_afe_params,
-  &default_exposure_params,
+  {0x2a, 0x0c, 0x2e, 0x06, 0x2d, 0x07},
+  {0x157, 0x157, 0x157},
   SANE_FALSE,
   0
     /* Setup and tested */
@@ -247,8 +224,8 @@ static GT68xx_Model mustek_1200ta_model = {
   0,
 
   COLOR_ORDER_RGB,
-  &mustek_1200ta_afe_params,
-  &default_exposure_params,
+  {0x2a, 0x0c, 0x2e, 0x06, 0x2d, 0x07},
+  {0x157, 0x157, 0x157},
   SANE_FALSE,
   0
     /* Everything untested */
@@ -290,8 +267,8 @@ static GT68xx_Model mustek_1200cuplus_model = {
   0,
 
   COLOR_ORDER_BGR,
-  &default_afe_params,
-  &default_exposure_params,
+  {0x14, 0x07, 0x14, 0x07, 0x14, 0x07},
+  {0x157, 0x157, 0x157},
   SANE_TRUE,
   0
     /* Everything untested */
@@ -333,8 +310,8 @@ static GT68xx_Model mustek_2400cuplus_model = {
   0,
 
   COLOR_ORDER_BGR,
-  &default_afe_params,
-  &default_exposure_params,
+  {0x1a, 0x16, 0x15, 0x08, 0x0e, 0x02},
+  {0x157, 0x157, 0x157},
   SANE_TRUE,
   0
     /* Setup and tested */
@@ -379,8 +356,8 @@ static GT68xx_Model mustek_1200cu_model = {
   0,
 
   COLOR_ORDER_BGR,
-  &mustek_1200cu_afe_params,
-  &default_exposure_params,
+  {0x13, 0x04, 0x15, 0x06, 0x0f, 0x02},
+  {0x157, 0x157, 0x157},
   SANE_TRUE,
   0
     /* Setup and tested */
@@ -422,8 +399,8 @@ static GT68xx_Model mustek_scanexpress1200ubplus_model = {
   0,
 
   COLOR_ORDER_BGR,
-  &mustek_1200cu_afe_params,
-  &default_exposure_params,
+  {0x0f, 0x01, 0x15, 0x06, 0x13, 0x04},
+  {0x157, 0x157, 0x157},
   SANE_TRUE,
   0
     /* Setup and tested */
@@ -464,8 +441,8 @@ static GT68xx_Model artec_ultima2000_model = {
   0,
 
   COLOR_ORDER_BGR,
-  &mustek_1200cu_afe_params,
-  &default_exposure_params,
+  {0x0f, 0x01, 0x15, 0x06, 0x13, 0x04},
+  {0x157, 0x157, 0x157},
   SANE_TRUE,
   GT68XX_FLAG_MIRROR_X | GT68XX_FLAG_MOTOR_HOME | GT68XX_FLAG_OFFSET_INV
     /* Setup for Cytron TCM MD 9385 */
@@ -507,8 +484,8 @@ static GT68xx_Model mustek_2400cu_model = {
   0,
 
   COLOR_ORDER_BGR,
-  &mustek_1200cu_afe_params,
-  &default_exposure_params,
+  {0x0f, 0x01, 0x15, 0x06, 0x13, 0x04},
+  {0x157, 0x157, 0x157},
   SANE_TRUE,
   0
     /* basically tested, works up to 300 dpi (?) */
@@ -550,8 +527,8 @@ static GT68xx_Model mustek_a3usb_model = {
   0,
 
   COLOR_ORDER_BGR,
-  &default_afe_params,
-  &default_exposure_params,
+  {0x14, 0x07, 0x14, 0x07, 0x14, 0x07},
+  {0x157, 0x157, 0x157},
   SANE_TRUE,
   0
     /* Completely untested */
@@ -594,8 +571,8 @@ static GT68xx_Model lexmark_x73_model = {
   0,
 
   COLOR_ORDER_RGB,
-  &default_afe_params,
-  &default_exposure_params,
+  {0x14, 0x07, 0x14, 0x07, 0x14, 0x07},
+  {0x157, 0x157, 0x157},
   SANE_FALSE,
   0
     /* 50 dpi and 1200 dpi scan does not work (for lexmark x70); when using

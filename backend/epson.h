@@ -107,6 +107,7 @@ typedef struct {
 	unsigned char	request_extended_status;		/* get extended status from scanner */
 	unsigned char	control_an_extension;			/* for extension control */
 	unsigned char	eject;					/* for extension control */
+	unsigned char	feed;
 	unsigned char	request_push_button_status;
 	unsigned char	control_auto_area_segmentation;
 	unsigned char	set_film_type;				/* for extension control */
@@ -167,6 +168,7 @@ enum
 		, OPT_FOCUS
 		, OPT_BAY
 		, OPT_EJECT
+		, OPT_ADF_MODE
 	, NUM_OPTIONS
 	};
 
@@ -230,9 +232,10 @@ struct Epson_Device {
 	SANE_Word *resolution_list;	/* for display purposes we store a second copy */
 
 	SANE_Bool extension;		/* extension is installed */
-	SANE_Bool use_extension;	/* use the installed extension */
+	SANE_Int  use_extension;	/* use the installed extension */
 	SANE_Bool TPU;			/* TPU is installed */
 	SANE_Bool ADF;			/* ADF is installed */
+	SANE_Bool duplexSupport;	/* does the ADF handle duplex scanning */
 	SANE_Bool focusSupport;		/* does this scanner have support for "set focus position" ? */
 	SANE_Bool color_shuffle;	/* does this scanner need color shuffling */
 	SANE_Int  maxDepth;		/* max. color depth */
@@ -240,10 +243,19 @@ struct Epson_Device {
 	SANE_Int  optical_res;		/* optical resolution */
 	SANE_Int  max_line_distance;
 
-  SANE_Bool need_double_vertical;
-  SANE_Bool need_color_reorder;
+	SANE_Bool need_double_vertical;
+	SANE_Bool need_color_reorder;
+	SANE_Bool need_reset_on_source_change;
 
-  SANE_Bool wait_for_button;  /* do we have to wait until the scanner button is pressed? */
+	SANE_Bool wait_for_button;  /* do we have to wait until the scanner button is pressed? */
+
+	SANE_Int fbf_max_x;
+	SANE_Int fbf_max_y;
+	SANE_Int adf_max_x;
+	SANE_Int adf_max_y;
+
+	SANE_Int devtype;
+
 
 	EpsonCmd cmd;
 };
@@ -281,6 +293,7 @@ struct Epson_Scanner {
 	SANE_Int line_distance;		/* current line distance */
 	SANE_Int current_output_line;	/* line counter when color shuffling */
 	SANE_Int lines_written;		/* debug variable */
+	SANE_Bool option_has_changed;	/* did one of the options change it's value? */
 };
 
 typedef struct Epson_Scanner Epson_Scanner;

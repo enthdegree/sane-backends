@@ -1,3 +1,11 @@
+2003-08-15  Karl Heinz Kremer <khk@khk.net>
+
+	* backend/epson.[ch]: Added support for GT-30000, with support for the 
+	  ADF in simplex mode (used some code from the EPSON Kowa IScan version 
+	  of the backend)
+	* backend/epson_scsi.c: Use sanei_scsi_cmd2() to send commands to fix a problem
+	  with SBP-2 under FreeBSD
+
 2003-08-15  Stéphane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp.c backend/umax_pp.h: added a check of values passed

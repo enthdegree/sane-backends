@@ -1,6 +1,7 @@
 #ifdef _AIX
 # include "../include/lalloca.h" /* MUST come first for AIX! */
 #endif
+#include <string.h>		/* for memset and memcpy */
 #include "../include/sane/config.h"
 #include <sane/sanei_debug.h>
 #include <sane/sanei_scsi.h>
@@ -21,7 +22,6 @@
 #endif
 
 #include <stdio.h>
-#include <string.h>
 
 /*
  * sense handler for the sanei_scsi_XXX comands
@@ -93,15 +93,15 @@ sanei_epson_scsi_write(int fd, const void * buf, size_t buf_size, SANE_Status * 
 {
 	u_char * cmd;
 
-	cmd = alloca( 6 + buf_size);
-	memset( cmd, 0, 6);
+	cmd = alloca(8 + buf_size);
+	memset( cmd, 0, 8);
 	cmd[ 0] = WRITE_6_COMMAND;
 	cmd[ 2] = buf_size >> 16;
 	cmd[ 3] = buf_size >> 8;
 	cmd[ 4] = buf_size;
-	memcpy( cmd + 6, buf, buf_size);
+	memcpy( cmd + 8, buf, buf_size);
 
-	if( SANE_STATUS_GOOD == ( *status = sanei_scsi_cmd( fd, cmd, 6 + buf_size, NULL, NULL)))
+	if( SANE_STATUS_GOOD == ( *status = sanei_scsi_cmd2( fd, cmd, 6, cmd + 8, buf_size, NULL, NULL)))
 		return buf_size;
 
 	return 0;

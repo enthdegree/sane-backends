@@ -16,8 +16,8 @@
 
 */
 
-#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.36 - 2003-03-26"
-#define SANE_EPSON_BUILD	236
+#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.37 - 2003-05-11"
+#define SANE_EPSON_BUILD	238
 
 /*
    This file is part of the SANE package.
@@ -59,6 +59,13 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
+   2003-08-15	Added support for GT-30000, with support for the ADF in simplex mode
+		Borrowed some code from the EPSON Kowa IScan version of the backend
+		Use sanei_scsi_cmd2() to send commands. This makes this backend 
+		useable for SBP-2 under FreeBSD
+   2003-05-11   Initialize OPT_LIMIT_RESOLUTION before first call to filter_resolution_list()
+		Fix memory problem in get_identity_information(). Both problems were
+		reported to the Debian bug database.
    2003-03-26	Fixed two warnings reported by der Mouse
    2003-02-16	Code cleanup, use more descriptive variable names.
    2003-02-15   Move sanei_usb_init() to sane_init(). Thanks to Ron Cemer
@@ -317,6 +324,10 @@
 #	define  PATH_MAX	(1024)
 #endif
 
+#ifndef MM_PER_INCH
+#define MM_PER_INCH     25.4
+#endif
+
 #define  walloc(x)	(x *)malloc(sizeof(x))
 #define  walloca(x)	(x *)alloca(sizeof(x))
 
@@ -335,6 +346,7 @@
 #define	 NAK	0x15
 #define	 CAN	0x18
 #define	 ESC	0x1B
+#define  PF     0x19
 
 #define	 S_ACK	"\006"
 #define	 S_CAN	"\030"
@@ -403,29 +415,30 @@ static EpsonCmdRec epson_cmd [ ] =
  *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   request extension status
  *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   control an extension
  *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    forward feed / eject
- *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   request push button status
- *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   |   control auto area segmentation
- *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   |   |   set film type
- *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   |   |   |   set exposure time
- *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   |   |   |   |   set bay
- *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   |   |   |   |   |   set threshold
- *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   |   |   |   |   |   |   set focus position
- *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   |   |   |   |   |   |   |   request focus position 
- *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   |   |   |   |   |   |   |   |
- *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   |   |   |   |   |   |   |   |
+ *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   feed
+ *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     request push button status
+ *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   control auto area segmentation
+ *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   set film type
+ *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   set exposure time
+ *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   set bay
+ *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   |   set threshold
+ *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   |   |   set focus position
+ *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   |   |   |   request focus position 
+ *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   |   |   |   |
+ *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   |   |   |   |
  */
-  {"A1",'I', 0 ,'F','S', 0 ,'G', 0 ,'R', 0 ,'A', 0 ,{ 0,0,0}, 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ,  0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 },
-  {"A2",'I', 0 ,'F','S', 0 ,'G','D','R','H','A','L',{-3,3,0},'Z','B', 0 ,'@', 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ,  0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 },
-  {"B1",'I', 0 ,'F','S','C','G','D','R', 0 ,'A', 0 ,{ 0,0,0}, 0 ,'B', 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ,  0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 },
-  {"B2",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-3,3,0},'Z','B', 0 ,'@', 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ,  0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 },
-  {"B3",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-3,3,0},'Z','B','M','@', 0 , 0 , 0 , 0 , 0 , 0 ,'m','f','e',  0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 },
-  {"B4",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-3,3,0},'Z','B','M','@','g','d', 0 ,'z','Q','b','m','f','e',  0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 },
-  {"B5",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-3,3,0},'Z','B','M','@','g','d','K','z','Q','b','m','f','e',  0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 },
-  {"B6",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-3,3,0},'Z','B','M','@','g','d','K','z','Q','b','m','f','e',  0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 },
-  {"B7",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-4,3,0},'Z','B','M','@','g','d','K','z','Q','b','m','f','e','\f','!','s','N', 0 , 0 ,'t', 0 , 0 },
-  {"B8",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-4,3,0},'Z','B','M','@','g','d','K','z','Q','b','m','f','e',  0 ,'!','s','N', 0 , 0 , 0 ,'p','q'},
-  {"F5",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-3,3,0},'Z', 0 ,'M','@','g','d','K','z','Q', 0 ,'m','f','e','\f', 0 , 0 ,'N','T','P', 0 , 0 , 0 },
-  {"D1",'I','i','F', 0 ,'C','G','D','R', 0 ,'A', 0 ,{ 0,0,0},'Z', 0 , 0 ,'@','g','d', 0 ,'z', 0 , 0 , 0 ,'f', 0 ,  0 ,'!', 0 , 0 , 0 , 0 , 0 , 0 , 0 },
+  {"A1",'I', 0 ,'F','S', 0 ,'G', 0 ,'R', 0 ,'A', 0 ,{ 0,0,0}, 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ,  0 , 0,    0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 },
+  {"A2",'I', 0 ,'F','S', 0 ,'G','D','R','H','A','L',{-3,3,0},'Z','B', 0 ,'@', 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ,  0 , 0,    0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 },
+  {"B1",'I', 0 ,'F','S','C','G','D','R', 0 ,'A', 0 ,{ 0,0,0}, 0 ,'B', 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ,  0 , 0,    0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 },
+  {"B2",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-3,3,0},'Z','B', 0 ,'@', 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ,  0 , 0,    0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 },
+  {"B3",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-3,3,0},'Z','B','M','@', 0 , 0 , 0 , 0 , 0 , 0 ,'m','f','e',  0 , 0,    0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 },
+  {"B4",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-3,3,0},'Z','B','M','@','g','d', 0 ,'z','Q','b','m','f','e',  0 , 0,    0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 },
+  {"B5",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-3,3,0},'Z','B','M','@','g','d','K','z','Q','b','m','f','e',  0 , 0,    0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 },
+  {"B6",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-3,3,0},'Z','B','M','@','g','d','K','z','Q','b','m','f','e',  0 , 0,    0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 },
+  {"B7",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-4,3,0},'Z','B','M','@','g','d','K','z','Q','b','m','f','e','\f', 0,   '!','s','N', 0 , 0 ,'t', 0 , 0 },
+  {"B8",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-4,3,0},'Z','B','M','@','g','d','K','z','Q','b','m','f','e','\f',0x19, '!','s','N', 0 , 0 , 0 ,'p','q'},
+  {"F5",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-3,3,0},'Z', 0 ,'M','@','g','d','K','z','Q', 0 ,'m','f','e','\f', 0,    0 , 0 ,'N','T','P', 0 , 0 , 0 },
+  {"D1",'I','i','F', 0 ,'C','G','D','R', 0 ,'A', 0 ,{ 0,0,0},'Z', 0 , 0 ,'@','g','d', 0 ,'z', 0 , 0 , 0 ,'f', 0 ,  0 , 0,   '!', 0 , 0 , 0 , 0 , 0 , 0 , 0 },
 };
 
 
@@ -455,6 +468,13 @@ static const SANE_String_Const mode_list [ ] =
 	, SANE_I18N("Gray")
 	, SANE_I18N("Color")
 	, NULL
+	};
+
+static const SANE_String_Const adf_mode_list [] =
+	{ 
+		SANE_I18N("Simplex"),
+		SANE_I18N("Duplex"),
+		NULL
 	};
 
 
@@ -1020,6 +1040,35 @@ static SANE_Status set_cmd ( Epson_Scanner * s, u_char cmd, int val) {
 	return status;
 }
 
+/* A little helper function to correct the extended status reply
+      gotten from scanners with known buggy firmware.
+ */
+static void
+fix_up_extended_status_reply( const char *model, u_char *buf )
+{
+
+	if (0 == strncmp( model, "ES-9000H", strlen( "ES-9000H" ) )
+			|| 0 == strncmp( model, "GT-30000", strlen( "GT-30000" ) ) )
+	{
+		DBG( 1, "Fixing up buggy ADF max scan dimensions.\n" );
+		buf[2] = 0xB0;
+		buf[3] = 0x6D;
+		buf[4] = 0x60;
+		buf[5] = 0x9F;
+	}
+}
+
+static void print_params(const SANE_Parameters params)
+{
+	DBG(5, "params.format = %d\n", params.format);
+	DBG(5, "params.last_frame = %d\n", params.last_frame);
+	DBG(5, "params.bytes_per_line = %d\n", params.bytes_per_line);
+	DBG(5, "params.pixels_per_line = %d\n", params.pixels_per_line);
+	DBG(5, "params.lines = %d\n", params.lines);
+	DBG(5, "params.depth = %d\n", params.depth);
+}
+
+
 /*
  *
  *
@@ -1282,6 +1331,78 @@ static SANE_Status set_gamma_table ( Epson_Scanner * s) {
 	return status;
 }
 
+
+
+void
+get_size( char c1, char c2, double *w, double *h )
+{
+	int ind;
+	unsigned char flag;
+
+	double wsizetbl [ ] = {
+		11.60,  // A3V
+		11.00,  // WLT
+		10.12,  // B4V
+		8.50,   // LGV
+		8.27,   // A4V
+		11.69,  // A4H
+		8.50,   // LTV
+		11.00,  // LTH
+		7.17,   // B5V
+		10.12,  // B5H
+		5.83,   // A5V
+		8.27,   // A5H
+		7.25,   // EXV
+		10.50,  // EXH
+		11.69,  // unknown
+		11.69,  // unknown
+		11.69,  // unknown
+	};
+	double hsizetbl [ ] = {
+		16.54,  // A3V
+		17.00,  // WLT
+		14.33,  // B4V
+		14.00,  // LGV
+		11.69,  // A4V
+		8.27,   // A4H
+		11.00,  // LTV
+		8.50,   // LTH
+		10.12,  // B5V
+		7.17,   // B5H
+		8.27,   // A5V
+		5.83,   // A5H
+		10.50,  // EXV
+		7.25,   // EXH
+		17.00,  // unknown
+		17.00,  // unknown
+		17.00,  // unknown
+	};
+
+	flag = c1;
+	for ( ind = 0; ind < 8; ind++ )
+	{
+		if ( flag & 0x80 )
+			goto DetectSize;
+		flag = flag << 1;
+	}
+	flag = c2;
+	for ( ; ind < 16; ind++ )
+	{
+		if ( flag & 0x80 )
+			goto DetectSize;
+		flag = flag << 1;
+	}
+
+DetectSize:
+
+	*w = wsizetbl [ ind ];
+	*h = hsizetbl [ ind ];
+
+	DBG( 10, "detected width: %f\n", *w );
+	DBG( 10, "detected height: %f\n", *h );
+}
+
+
 /*
  * check_ext_status()
  *
@@ -1294,12 +1415,16 @@ static SANE_Status set_gamma_table ( Epson_Scanner * s) {
  * request extended status commands.
  */
 
-static SANE_Status check_ext_status ( Epson_Scanner * s) {
+static SANE_Status check_ext_status ( Epson_Scanner * s, int * max_x, int * max_y) 
+{
 	SANE_Status status;
 	u_char cmd = s->hw->cmd->request_extended_status;
 	u_char params [ 2];
 	u_char * buf;
 	EpsonHdr head;
+
+	*max_x = 0;
+	*max_y = 0;
 
 	if(cmd == 0)
 		return SANE_STATUS_UNSUPPORTED;
@@ -1308,7 +1433,7 @@ static SANE_Status check_ext_status ( Epson_Scanner * s) {
 	params[ 1] = cmd;
 
 	head = (EpsonHdr) command(s, params, 2, &status);
-	if(NULL == head) 
+	if (NULL == head) 
 	{
 		DBG( 0, "Extended status flag request failed\n");
 		return status;
@@ -1326,30 +1451,74 @@ static SANE_Status check_ext_status ( Epson_Scanner * s) {
 		status = SANE_STATUS_INVAL;
 	}
 
+	if ( s->hw->ADF && s->hw->use_extension && s->hw->cmd->feed )
+	{
+		fix_up_extended_status_reply( s->hw->sane.model, buf );
+
+		*max_x = buf [ 3 ] << 8 | buf [ 2 ];
+		*max_y = buf [ 5 ] << 8 | buf [ 4 ];
+
+		if (0 == strcmp( "ES-9000H", s->hw->sane.model )
+				|| 0 == strcmp( "GT-30000", s->hw->sane.model) )
+		{
+			/* set size of current sheet, but don't clobber zoom
+			   settings (which should always be smaller than the
+			   detected sheet size) */
+			double w, h;
+			get_size( buf[16], buf[17], &w, &h );
+			w = SANE_FIX( w * MM_PER_INCH );
+			h = SANE_FIX( h * MM_PER_INCH );
+			if (w < s->val[OPT_BR_X].w)
+				s->val[OPT_BR_X].w = w;
+			if (h < s->val[OPT_BR_Y].w)
+				s->val[OPT_BR_Y].w = h;
+		}
+	}
+
+
 	if( buf[ 1] & EXT_STATUS_ERR) {
-		DBG( 0, "ADF: other error\n");
+		DBG( 1, "ADF: other error\n");
 		status = SANE_STATUS_INVAL;
 	}
 
 	if( buf[ 1] & EXT_STATUS_PE) {
-		DBG( 0, "ADF: no paper\n");
-		status = SANE_STATUS_INVAL;
+		DBG( 1, "ADF: no paper\n");
+		status = SANE_STATUS_NO_DOCS;
+		return status;
 	}
 
 	if( buf[ 1] & EXT_STATUS_PJ) {
-		DBG( 0, "ADF: paper jam\n");
-		status = SANE_STATUS_INVAL;
+		DBG( 1, "ADF: paper jam\n");
+		status = SANE_STATUS_JAMMED;
 	}
 
 	if( buf[ 1] & EXT_STATUS_OPN) {
-		DBG( 0, "ADF: cover open\n");
-		status = SANE_STATUS_INVAL;
+		DBG( 1, "ADF: cover open\n");
+		status = SANE_STATUS_COVER_OPEN;
 	}
 
 	if( buf[ 6] & EXT_STATUS_ERR) {
-		DBG( 0, "TPU: other error\n");
+		DBG( 1, "TPU: other error\n");
 		status = SANE_STATUS_INVAL;
 	}
+
+	/* return the max. scan area for the ADF */
+	if (buf[6] & EXT_STATUS_IST)
+	{
+		*max_x = buf[8] << 8 | buf[7];
+		*max_y = buf[10] << 8 | buf[9];
+	}
+
+	/* return the max. scan area for the flatbed */
+	if( s->hw->devtype == 3 && s->hw->use_extension == 0)
+	{
+		double w, h;
+		get_size( buf[18], buf[19], &w, &h );
+		* max_x = (int) (w * s->hw->dpi_range.max);
+		* max_y = (int) (h * s->hw->dpi_range.max);
+	}
+
+	free(head);
 
 	return status;
 }
@@ -1364,7 +1533,9 @@ static SANE_Status check_ext_status ( Epson_Scanner * s) {
 static SANE_Status reset ( Epson_Scanner * s) {
 	SANE_Status status;
 	u_char param[2];
-	SANE_Bool need_open = SANE_FALSE;
+	SANE_Bool needToClose  = SANE_FALSE;
+
+	DBG(5, "reset()\n");
 
 	if( ! s->hw->cmd->initialize_scanner)
 		return SANE_STATUS_GOOD;
@@ -1372,9 +1543,9 @@ static SANE_Status reset ( Epson_Scanner * s) {
 	param[0] = ESC;
 	param[1] = s->hw->cmd->initialize_scanner;
 
-	need_open = (s->fd < 0);
-
-	if (need_open) {
+	if (s->fd == -1) 
+	{
+		needToClose = SANE_TRUE;
 		DBG(5, "reset calling open_scanner\n");
 		if ((status = open_scanner(s)) != SANE_STATUS_GOOD)
 			return status;
@@ -1383,9 +1554,9 @@ static SANE_Status reset ( Epson_Scanner * s) {
 	send (s, param, 2, &status);
 	status = expect_ack( s);
 
-	if (need_open) {
+	if (needToClose) 
+	{
 		close_scanner(s);
-		s->fd = -1;
 	}
 
 	return status;
@@ -1401,6 +1572,8 @@ static SANE_Status reset ( Epson_Scanner * s) {
 
 static void close_scanner ( Epson_Scanner * s) 
 {
+	DBG(5, "close_scanner(fd = %d)\n", s->fd);
+
 	if (s->fd == -1)
 		return;
 
@@ -1434,6 +1607,12 @@ open_scanner(Epson_Scanner * s)
 	SANE_Status status = 0;
 
 	DBG(5, "open_scanner()\n");
+
+	if (s->fd != -1)
+	{
+		DBG(5, "scanner is already open: fd = %d\n", s->fd);
+		return SANE_STATUS_GOOD;	/* no need to open the scanner */
+	}
 
 	/* don't do this for OS2: */
 #ifndef HAVE_OS2_H
@@ -1480,6 +1659,35 @@ open_scanner(Epson_Scanner * s)
 }
 
 
+/*
+ * feed ( )
+ */
+
+static SANE_Status feed ( Epson_Scanner * s) {
+	SANE_Status status;
+	u_char params [ 2];
+	u_char cmd = s->hw->cmd->feed;
+
+	DBG(5, "feed()\n");
+
+	if (! cmd)
+	{
+		DBG(5, "feed() is not supported\n");
+		return SANE_STATUS_UNSUPPORTED;
+	}
+
+	params[ 0] = cmd;
+
+	send( s, params, 1, &status);
+
+	if( SANE_STATUS_GOOD != ( status = expect_ack( s) ) ) {
+		close_scanner( s);
+		return status;
+	}
+
+	return status;
+}
+
 
 /*
  * eject()
@@ -1493,14 +1701,19 @@ static SANE_Status eject ( Epson_Scanner * s) {
 	SANE_Status status;
 	u_char params [ 2];
 	u_char cmd = s->hw->cmd->eject;
+	SANE_Bool needToClose = SANE_FALSE;
 
 	DBG(5, "eject()\n");
 
 	if( ! cmd)
 		return SANE_STATUS_UNSUPPORTED;
 
-	if( SANE_STATUS_GOOD != ( status = open_scanner( s)))
-		return status;
+	if (s->fd == -1)
+	{
+		needToClose = SANE_TRUE;
+		if( SANE_STATUS_GOOD != ( status = open_scanner( s)))
+			return status;
+	}
 
 	params[ 0] = cmd;
 
@@ -1511,7 +1724,9 @@ static SANE_Status eject ( Epson_Scanner * s) {
 		return status;
 	}
 
-	close_scanner( s);
+	if (needToClose)
+		close_scanner( s);
+
 	return status;
 }
 
@@ -1737,7 +1952,7 @@ attach(const char * dev_name, Epson_Device * * devp, int type)
 			DBG(1, "attach: open failed: %s\n", sane_strstatus( status));
 			return status;
 		}
-		reset(s);
+//		reset(s);
 		DBG( 3, "attach: sending INQUIRY\n");
 
 		status = sanei_epson_scsi_inquiry( s->fd, 0, buf, &buf_size);
@@ -2002,12 +2217,6 @@ attach(const char * dev_name, Epson_Device * * devp, int type)
 
 
 /*
- *  Add the flatbed option to the source list
- */
-
-	*source_list_add++ = FBF_STR;
-
-/*
  *  Extended status flag request (ESC f).
  *    this also requests the scanner device name from the the scanner
  */
@@ -2035,11 +2244,65 @@ attach(const char * dev_name, Epson_Device * * devp, int type)
 			buf = &head->buf[ 0];
 
 /*
+ *  Add the flatbed option to the source list
+ */
+
+			*source_list_add++ = FBF_STR;
+
+			s->hw->devtype = buf[11] >> 6;
+
+/*
+ *	Get the device name and copy it to dev->sane.model.
+ *	The device name starts at buf[0x1A] and is up to 16 bytes long
+ *	We are overwriting whatever was set previously!
+ */
+	 		{
+				char device_name[DEVICE_NAME_LEN + 1];
+				char *end_ptr;
+				int len;
+
+				/* make sure that the end of string is marked */
+				device_name[DEVICE_NAME_LEN] = '\0';
+
+				/* copy the string to an area where we can work with it */
+				memcpy(device_name, buf + 0x1A, DEVICE_NAME_LEN);
+				end_ptr = strchr(device_name, ' ');
+				if (end_ptr != NULL)
+				{
+					*end_ptr = '\0';
+				}
+
+				len = strlen(device_name);
+
+				str = malloc( len + 1);
+				str[len] = '\0';
+
+				dev->sane.model = ( char *) memcpy( str, device_name, len);
+			}
+/*
  *  ADF
  */
 
-			if( buf[ 1] & EXT_STATUS_IST) {
+			if (dev->extension && (buf[1] & EXT_STATUS_IST)) 
+			{
 				DBG( 1, "ADF detected\n");
+
+				/* the GT-30000 does not report the ADF scan area */
+				if ((strcmp(dev->sane.model, "GT-30000") == 0) || 
+						(strcmp(dev->sane.model, "ES-9000H") == 0))
+				{
+					fix_up_extended_status_reply(buf+26, buf);
+
+					dev->duplexSupport = (buf[0] & 0x10) != 0;
+					if (dev->duplexSupport)
+					{
+						DBG(1, "Found DUPLEX ADF\n");
+					}
+
+					
+
+
+				}
 
 				if( buf[ 1] & EXT_STATUS_EN) {
 					DBG( 1, "ADF is enabled\n");
@@ -2051,9 +2314,13 @@ attach(const char * dev_name, Epson_Device * * devp, int type)
 				dev->adf_x_range.max = SANE_FIX( ( buf[  3] << 8 | buf[ 2]) * 25.4 / dev->dpi_range.max);
 				dev->adf_x_range.quant = 0;
 
+				dev->adf_max_x = buf[3] << 8 | buf[2];
+
 				dev->adf_y_range.min = 0;
 				dev->adf_y_range.max = SANE_FIX( ( buf[  5] << 8 | buf[ 4]) * 25.4 / dev->dpi_range.max);
 				dev->adf_y_range.quant = 0;
+
+				dev->adf_max_y = buf[5] << 8 | buf[4];
 
 				DBG( 5, "adf tlx %f tly %f brx %f bry %f [mm]\n"
 					, SANE_UNFIX( dev->adf_x_range.min)
@@ -2072,7 +2339,8 @@ attach(const char * dev_name, Epson_Device * * devp, int type)
  *  TPU
  */
 
-			if( buf[ 6] & EXT_STATUS_IST) {
+			if (dev->extension && (buf[6] & EXT_STATUS_IST))
+			{
 				DBG( 1, "TPU detected\n");
 	
 				if( buf[ 6] & EXT_STATUS_EN) {
@@ -2138,6 +2406,26 @@ attach(const char * dev_name, Epson_Device * * devp, int type)
 	}
 
 	*source_list_add = NULL;	/* add end marker to source list */
+
+	DBG(1, "scanner model: %s\n", dev->sane.model);
+
+	/* establish defaults */
+	s->hw->need_reset_on_source_change = SANE_FALSE;	
+
+	if (strcmp("ES-9000H", dev->sane.model) == 0 ||
+			strcmp("GT-30000", dev->sane.model) == 0)
+	{
+		s->hw->cmd->set_focus_position = 0;
+		s->hw->cmd->feed = 0x19;
+	}
+	else if (strcmp("GT-8200", dev->sane.model) == 0 ||
+			strcmp("Perfection1650", dev->sane.model) == 0)
+	{
+		s->hw->cmd->feed = 0;
+		s->hw->cmd->set_focus_position = 0;
+		s->hw->need_reset_on_source_change = SANE_TRUE;
+	}
+
 
 /*
  *  Set values for quick format "max" entry.
@@ -2347,6 +2635,8 @@ static SANE_Status init_options ( Epson_Scanner * s) {
 	int i;
 	SANE_Bool dummy;
 
+	DBG(5, "init_options()\n");
+
 	for( i = 0; i < NUM_OPTIONS; ++i) {
 		s->opt[ i].size = sizeof( SANE_Word);
 		s->opt[ i].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
@@ -2373,7 +2663,6 @@ static SANE_Status init_options ( Epson_Scanner * s) {
 		s->opt[ OPT_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
 		s->opt[ OPT_MODE].constraint.string_list = mode_list;
 		s->val[ OPT_MODE].w = 0;		/* Binary */
-
 
 		/* bit depth */
 		s->opt[OPT_BIT_DEPTH].name = SANE_NAME_BIT_DEPTH;
@@ -2977,10 +3266,25 @@ static SANE_Status init_options ( Epson_Scanner * s) {
 		s->opt[ OPT_AUTO_EJECT].type	= SANE_TYPE_BOOL;
 		s->val[ OPT_AUTO_EJECT].w	= SANE_FALSE;
 
-		if( ! s->hw->ADF) {		/* Hack: Using set_bay to indicate. */
+		if( ! s->hw->ADF) 
+		{
 			s->opt[ OPT_AUTO_EJECT].cap |= SANE_CAP_INACTIVE;
 		}
 
+
+		s->opt[OPT_ADF_MODE].name = "adf_mode";
+		s->opt[OPT_ADF_MODE].title = SANE_I18N("ADF Mode");
+		s->opt[OPT_ADF_MODE].desc = SANE_I18N("Selects the ADF mode (simplex/duplex)");
+		s->opt[OPT_ADF_MODE].type = SANE_TYPE_STRING;
+		s->opt[OPT_ADF_MODE].size = max_string_size(adf_mode_list);
+		s->opt[OPT_ADF_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
+		s->opt[OPT_ADF_MODE].constraint.string_list = adf_mode_list;
+		s->val[OPT_ADF_MODE].w = 0;		/* simplex */
+
+		if( (! s->hw->ADF) || (s->hw->duplexSupport == SANE_FALSE) )
+		{
+			s->opt[OPT_ADF_MODE].cap |= SANE_CAP_INACTIVE;
+		}
 
 		/* select bay */
 		s->opt[ OPT_BAY].name		= "bay";
@@ -3081,6 +3385,9 @@ sane_open(SANE_String_Const devicename, SANE_Handle * handle)
 	first_handle = s;
 
 	*handle = ( SANE_Handle) s;
+
+	open_scanner(s);
+
 	return SANE_STATUS_GOOD;
 }
 
@@ -3099,42 +3406,6 @@ void sane_close ( SANE_Handle handle)
 	 */
 
 	s = (Epson_Scanner *) handle;
-
-	/*
-	 * If the s->ptr pointer is not NULL, then a scan operation
-	 * was started and if s->eof is FALSE, it was not finished.
-	 */
-
-	if (!s->eof && s->ptr != NULL)
-	{
-		u_char * dummy;
-		int len;
-		SANE_Status status;
-
-		/* malloc one line */
-		dummy = malloc (s->params.bytes_per_line);
-		if (dummy == NULL)
-		{
-			DBG (0, "Out of memory\n");
-	        	return;
-		}
-		else
-		{
-
-			/* there is still data to read from the scanner */
-
-			s->canceling = SANE_TRUE;
-			status = sane_read(s, dummy, s->params.bytes_per_line, &len);
-
-			while (!s->eof && 
-				SANE_STATUS_CANCELLED != sane_read(s, dummy, s->params.bytes_per_line, &len))
-			{
-				/* empty body, the while condition does the processing */
-			}
-		}
-	}
-
-
 
 	/* remove handle from list of open handles */
 	prev = 0;
@@ -3291,6 +3562,7 @@ static SANE_Status getvalue( SANE_Handle handle,
 		*((SANE_Word *) value) = sval->w;
 		break;
 	case OPT_MODE:
+	case OPT_ADF_MODE:
 	case OPT_HALFTONE:
 	case OPT_DROPOUT:
 	case OPT_QUICK_FORMAT:
@@ -3321,6 +3593,7 @@ static SANE_Status getvalue( SANE_Handle handle,
 /**
     End of getvalue.
 **/
+
 
 static void handle_depth_halftone( Epson_Scanner * s, SANE_Bool * reload)
 
@@ -3379,11 +3652,14 @@ static void handle_source( Epson_Scanner * s, SANE_Int optindex,
 
 	/* reset the scanner when we are changing the source setting - 
 	   this is necessary for the Perfection 1650 */
-	reset(s);
+	if (s->hw->need_reset_on_source_change)
+		reset(s);
 
 	s->focusOnGlass = SANE_TRUE;	/* this is the default */
 
-	if (s->val[ OPT_SOURCE ].w == optindex) return;
+	if (s->val[ OPT_SOURCE ].w == optindex) 
+		return;
+
 	s->val[ OPT_SOURCE ].w = optindex;
 
 	if(  s->val[ OPT_TL_X ].w == s->hw->x_range->min
@@ -3393,14 +3669,26 @@ static void handle_source( Epson_Scanner * s, SANE_Int optindex,
 	  ) {
 	    force_max = SANE_TRUE;
 	}
-	if( ! strcmp( ADF_STR, value) ) {
+	if (strcmp( ADF_STR, value) == 0) 
+	{
 		s->hw->x_range = &s->hw->adf_x_range;
 		s->hw->y_range = &s->hw->adf_y_range;
 		s->hw->use_extension = SANE_TRUE;
 		/* disable film type option */
 		deactivateOption(s, OPT_FILM_TYPE, &dummy);
 		s->val[ OPT_FOCUS].w = 0;
-	} else if( ! strcmp( TPU_STR, value) ) {
+		if (s->hw->duplexSupport)
+		{
+			activateOption(s, OPT_ADF_MODE, &dummy);
+		}
+		else
+		{
+			deactivateOption(s, OPT_ADF_MODE, &dummy);
+			s->val[OPT_ADF_MODE].w = 0;
+		}
+	} 
+	else if (strcmp( TPU_STR, value) == 0) 
+	{
 		s->hw->x_range = &s->hw->tpu_x_range;
 		s->hw->y_range = &s->hw->tpu_y_range;
 		s->hw->use_extension = SANE_TRUE;
@@ -3419,13 +3707,19 @@ static void handle_source( Epson_Scanner * s, SANE_Int optindex,
 			s->val[ OPT_FOCUS].w = 1;
 			s->focusOnGlass = SANE_FALSE;
 		}
-	} else {
+		deactivateOption(s, OPT_ADF_MODE, &dummy);
+		deactivateOption(s, OPT_EJECT, &dummy);
+		deactivateOption(s, OPT_AUTO_EJECT, &dummy);
+	} 
+	else 	/* neither ADF nor TPU active */
+	{
 		s->hw->x_range = &s->hw->fbf_x_range;
 		s->hw->y_range = &s->hw->fbf_y_range;
 		s->hw->use_extension = SANE_FALSE;
 		/* disable film type option */
 		deactivateOption(s, OPT_FILM_TYPE, &dummy);
 		s->val[ OPT_FOCUS].w = 0;
+		deactivateOption(s, OPT_ADF_MODE, &dummy);
 	}
 
 	qf_params[ XtNumber(qf_params)-1 ].tl_x = s->hw->x_range->min;
@@ -3481,10 +3775,14 @@ static SANE_Status setvalue( SANE_Handle handle,
 	const SANE_String_Const * optval;
 	int optindex;
 	SANE_Bool reload = SANE_FALSE;	
+	
+	DBG(5, "setvalue(option = %d, value = %p\n", option, value);
 
 	status = sanei_constrain_value( sopt, value, info);
 
 	if( status != SANE_STATUS_GOOD) return status;
+
+	s->option_has_changed = SANE_TRUE;
 
 	optval = NULL;
 	optindex = 0;
@@ -3597,6 +3895,10 @@ static SANE_Status setvalue( SANE_Handle handle,
 
 		break;
 	}
+
+	case OPT_ADF_MODE :
+		sval->w = optindex;
+		break;
 
 	case OPT_BIT_DEPTH :
 		sval->w = *((SANE_Word *) value);
@@ -3740,7 +4042,7 @@ SANE_Status
 sane_get_parameters(SANE_Handle handle, SANE_Parameters * params) 
 {
 	Epson_Scanner * s = ( Epson_Scanner *) handle;
-	int ndpi;
+	int ndpi, max_x, max_y;
 	int bytes_per_pixel;
 
 	DBG(5, "sane_get_parameters()\n");
@@ -3755,6 +4057,20 @@ sane_get_parameters(SANE_Handle handle, SANE_Parameters * params)
 		DBG(5, "Returning saved params structure\n");
 		if (params != NULL)
 			*params = s->params;
+
+		DBG( 3, "Preview = %d\n", s->val[OPT_PREVIEW].w);
+		DBG( 3, "Resolution = %d\n", s->val[OPT_RESOLUTION].w);
+
+		DBG( 1, "get para %p %p tlx %f tly %f brx %f bry %f [mm]\n"
+				, ( void * ) s
+				, ( void * ) s->val
+				, SANE_UNFIX( s->val[ OPT_TL_X].w)
+				, SANE_UNFIX( s->val[ OPT_TL_Y].w)
+				, SANE_UNFIX( s->val[ OPT_BR_X].w)
+				, SANE_UNFIX( s->val[ OPT_BR_Y].w));
+
+		print_params(s->params);
+
 		return SANE_STATUS_GOOD;
 	}
 
@@ -3763,6 +4079,8 @@ sane_get_parameters(SANE_Handle handle, SANE_Parameters * params)
 	memset( &s->params, 0, sizeof( SANE_Parameters));
 
 	ndpi = s->val[ OPT_RESOLUTION].w;
+
+	max_x = max_y = 0;
 
 	s->params.pixels_per_line = SANE_UNFIX( s->val[ OPT_BR_X].w - s->val[ OPT_TL_X].w) / 25.4 * ndpi;
 	s->params.lines = SANE_UNFIX( s->val[ OPT_BR_Y].w - s->val[ OPT_TL_Y].w) / 25.4 * ndpi;
@@ -3781,6 +4099,8 @@ sane_get_parameters(SANE_Handle handle, SANE_Parameters * params)
 		{
 			s->params.lines = 0;
 		}
+		DBG(1, "Adjusted params.lines for color_shuffle by %d to %d\n", 
+				4*s->line_distance, s->params.lines);
 	}
 
 	DBG( 3, "Preview = %d\n", s->val[OPT_PREVIEW].w);
@@ -3793,6 +4113,8 @@ sane_get_parameters(SANE_Handle handle, SANE_Parameters * params)
 			, SANE_UNFIX( s->val[ OPT_TL_Y].w)
 			, SANE_UNFIX( s->val[ OPT_BR_X].w)
 			, SANE_UNFIX( s->val[ OPT_BR_Y].w));
+
+	print_params(s->params);
 
 	/* 
 	 * Calculate bytes_per_pixel and bytes_per_line for 
@@ -3867,8 +4189,11 @@ SANE_Status sane_start ( SANE_Handle handle)
 	int left, top;
 	int lcount;
 	int i, j;	/* loop counter */
+	
+	DBG(5, "sane_start()\n");
 
 	open_scanner( s);
+
 /*
  *  There is some undocumented special behavior with the TPU enable/disable.
  *      TPU power	ESC e		status
@@ -3883,7 +4208,14 @@ SANE_Status sane_start ( SANE_Handle handle)
 
 	if (s->hw->extension) 
 	{
-		status = control_extension(s, s->hw->use_extension);
+		int max_x, max_y;
+
+		int extensionCtrl;
+		extensionCtrl = (s->hw->use_extension ? 1 : 0);
+		if (s->hw->use_extension && (s->val[OPT_ADF_MODE].w == 1))
+			extensionCtrl = 2;
+
+		status = control_extension(s, extensionCtrl);
 
 		if( SANE_STATUS_GOOD != status) 
 		{
@@ -3891,18 +4223,33 @@ SANE_Status sane_start ( SANE_Handle handle)
 					s->hw->use_extension ? "on" : "off");
 
 			DBG(0, "Also you may have to restart the Sane frontend.");
-
+			close_scanner(s);
 			return status;
 		}
 
 		if (s->hw->cmd->request_extended_status != 0)
 		{
-			status = check_ext_status(s);
+			status = check_ext_status(s, &max_x, &max_y);
 	
-			if (SANE_STATUS_GOOD != status) 
+			if (SANE_STATUS_GOOD != status && SANE_STATUS_DEVICE_BUSY != status) 
 			{
+				close_scanner(s);
 				return status;
 			}
+		}
+
+		if (s->hw->ADF && s->hw->use_extension && s->hw->cmd->feed)
+		{
+			status = feed(s);
+			if (SANE_STATUS_GOOD != status)
+			{
+				close_scanner(s);
+				return status;
+			}
+
+			check_ext_status(s, &max_x, &max_y);
+			s->hw->adf_max_x = max_x;
+			s->hw->adf_max_y = max_y;
 		}
 	
 	
@@ -3927,6 +4274,24 @@ SANE_Status sane_start ( SANE_Handle handle)
 			}
 		}
 	}
+
+	/* use the flatbed size for the max. scansize for the GT-30000
+	   and similar scanners if the ADF is not enabled */
+	if ( s->hw->devtype == 3 && s->hw->use_extension == 0 )
+	{
+		int max_x, max_y;
+
+		status = check_ext_status ( s, & max_x, & max_y );
+		if( SANE_STATUS_GOOD != status &&
+				SANE_STATUS_DEVICE_BUSY != status ) {
+			close_scanner( s);
+			return status;
+		}
+
+		s->hw->fbf_max_x = max_x;
+		s->hw->fbf_max_y = max_y;
+	}
+
 
 	mparam = mode_params + s->val[ OPT_MODE].w;
 	DBG(1, "sane_start: Setting data format to %d bits\n", mparam->depth);
@@ -4321,8 +4686,16 @@ SANE_Status sane_start ( SANE_Handle handle)
 		s->block = SANE_TRUE;
 		lcount = sanei_scsi_max_request_size / s->params.bytes_per_line;
 
-		if( lcount > 255)
+		if( lcount >= 255)
+		{
 			lcount = 255;
+		}
+
+		if ( s->hw->TPU && s->hw->use_extension  && lcount > 32)
+		{
+			lcount = 32;
+		}
+
 
 		/*
 		 * The D1 series of scanners only allow an even line number
@@ -4428,26 +4801,26 @@ SANE_Status sane_start ( SANE_Handle handle)
 		}
 #endif
 
-		DBG( 5, "SANE_START: color: %d\n", (int) buf[1]);
-		DBG( 5, "SANE_START: resolution (x, y): (%d, %d)\n", 
+		DBG( 5, "SANE_START: Color: %d\n", (int) buf[1]);
+		DBG( 5, "SANE_START: Resolution (x, y): (%d, %d)\n", 
 				(int) (buf[4]<<8|buf[3]), (int) (buf[6]<<8|buf[5]));
-		DBG( 5, "SANE_START: area[dots] (x-offset, y-offset), (x-range, y-range): (%d, %d), (%d, %d)\n",
+		DBG( 5, "SANE_START: Scan area(pixels) (x0, y0), (x1, y1): (%d, %d), (%d, %d)\n",
 				(int) (buf[9]<<8|buf[8]), (int) (buf[11]<<8|buf[10]), 
 				(int) (buf[13]<<8|buf[12]), (int) (buf[15]<<8|buf[14]));
-	    DBG( 5, "SANE_START: data format: %d\n", (int) buf[17]);
-	    DBG( 5, "SANE_START: halftone: %d\n", (int) buf[19]);
-	    DBG( 5, "SANE_START: brightness: %d\n", (int) buf[21]);
-	    DBG( 5, "SANE_START: gamma: %d\n", (int) buf[23]);
-	    DBG( 5, "SANE_START: zoom[percentage] (x, y): (%d, %d)\n", (int) buf[26], (int) buf[25]);
-	    DBG( 5, "SANE_START: color correction: %d\n", (int) buf[28]);
-	    DBG( 5, "SANE_START: outline emphasis: %d\n", (int) buf[30]);
-	    DBG( 5, "SANE_START: read mode: %d\n", (int) buf[32]);
-	    DBG( 5, "SANE_START: mirror image: %d\n", (int) buf[34]);
-	    DBG( 5, "SANE_START: (new B6 or B7 command ESC s): %d\n", (int) buf[36]);
-	    DBG( 5, "SANE_START: (new B6 or B7 command ESC t): %d\n", (int) buf[38]);
-	    DBG( 5, "SANE_START: line counter: %d\n", (int) buf[40]);
-	    DBG( 5, "SANE_START: extension control: %d\n", (int) buf[42]);
-	    DBG( 5, "SANE_START: (new B6 or B7 command ESC N): %d\n", (int) buf[44]);
+	    DBG( 5, "SANE_START: Data format: %d\n", (int) buf[17]);
+	    DBG( 5, "SANE_START: Halftone: %d\n", (int) buf[19]);
+	    DBG( 5, "SANE_START: Brightness: %d\n", (int) buf[21]);
+	    DBG( 5, "SANE_START: Gamma: %d\n", (int) buf[23]);
+	    DBG( 5, "SANE_START: Zoom (x, y): (%d, %d)\n", (int) buf[26], (int) buf[25]);
+	    DBG( 5, "SANE_START: Color correction: %d\n", (int) buf[28]);
+	    DBG( 5, "SANE_START: Sharpness control: %d\n", (int) buf[30]);
+	    DBG( 5, "SANE_START: Scanning mode: %d\n", (int) buf[32]);
+	    DBG( 5, "SANE_START: Mirroring: %d\n", (int) buf[34]);
+	    DBG( 5, "SANE_START: Auto area segmentation: %d\n", (int) buf[36]);
+	    DBG( 5, "SANE_START: Threshold: %d\n", (int) buf[38]);
+	    DBG( 5, "SANE_START: Line counter: %d\n", (int) buf[40]);
+	    DBG( 5, "SANE_START: Option unit control: %d\n", (int) buf[42]);
+	    DBG( 5, "SANE_START: Film type: %d\n", (int) buf[44]);
 	  }
 #endif
 
@@ -4505,6 +4878,8 @@ SANE_Status sane_start ( SANE_Handle handle)
 
 SANE_Status sane_auto_eject ( Epson_Scanner * s) {
 
+	DBG(5, "sane_auto_eject()\n");
+
 	if( s->hw->ADF && s->hw->use_extension && s->val[ OPT_AUTO_EJECT].w) {		/* sequence! */
 		SANE_Status status;
 
@@ -4548,9 +4923,11 @@ static SANE_Status read_data_block ( Epson_Scanner * s, EpsonDataRec * result) {
 	}
 
 	if( result->status & STATUS_FER) {
+		int dummy_x, dummy_y;
+
 		DBG( 1, "fatal error - Status = %02x\n", result->status);
 
-		status = check_ext_status(s);
+		status = check_ext_status(s, &dummy_x, &dummy_y);
 
 		/*
 		 * Hack Alert!!!
@@ -4615,6 +4992,35 @@ static SANE_Status read_data_block ( Epson_Scanner * s, EpsonDataRec * result) {
  *
  */
 
+
+void scan_finish(Epson_Scanner * s)
+{
+	SANE_Status status;
+	int i, x, y;
+
+	DBG(5, "scan_finish()\n");
+
+	free(s->buf);
+	s->buf = NULL;
+
+	status = check_ext_status(s, &x, &y);
+
+	if (SANE_STATUS_NO_DOCS == status && s->hw->ADF && s->hw->use_extension)
+		sane_auto_eject(s);
+
+//	close_scanner(s);
+//	s->fd = -1;
+
+	for (i=0; i<s->line_distance; i++)
+	{
+		if (s->line_buffer[i] != NULL)
+		{
+			free(s->line_buffer[i]);
+			s->line_buffer[i] = NULL;
+		}
+	}
+}
+
 #define GET_COLOR(x)	((x.status>>2) & 0x03)
 
 SANE_Status sane_read ( SANE_Handle handle, SANE_Byte * data, SANE_Int max_length, SANE_Int * length) {
@@ -4634,31 +5040,16 @@ START_READ:
 		EpsonDataRec result;
 		size_t buf_len;
 
-		if( s->eof) {
+		if ((s->fd != -1) && s->eof) 
+		{
 			if (s->hw->color_shuffle) 
 			{
 				DBG(1, "Written %d lines after color shuffle\n", s->lines_written);
 				DBG(1, "Lines requested: %d\n", s->params.lines);
 			}
-			free( s->buf);
-			s->buf = NULL;
-			sane_auto_eject( s);
-			close_scanner( s);
-			s->fd = -1;
+
 			*length = 0;
-
-			/*
-			 * free the line-buffers
-			 */
-
-			for (i = 0; i< s->line_distance; i++)
-			{
-				if (s->line_buffer[i] != NULL)
-				{
-					free(s->line_buffer[i]);
-					s->line_buffer[i] = NULL;
-				}
-			}
+			scan_finish(s);
 
 			return SANE_STATUS_EOF;
 		}
@@ -4667,7 +5058,11 @@ START_READ:
 		DBG( 5, "sane_read: begin scan1\n");
 
 		if( SANE_STATUS_GOOD != ( status = read_data_block( s, &result)))
+		{
+			*length = 0;
+			scan_finish(s);
 			return status;
+		}
 
 		buf_len = result.buf[ 1] << 8 | result.buf[ 0];
 
@@ -4742,7 +5137,11 @@ START_READ:
 			receive( s, s->buf + index * s->params.pixels_per_line, buf_len, &status);
 
 			if( SANE_STATUS_GOOD != status)
+			{
+				scan_finish(s);
+				*length = 0;
 				return status;
+			}
 
 			send( s, S_ACK, 1, &status);
 
@@ -4750,7 +5149,11 @@ START_READ:
 			 * ... and the last data block
 			 */
 			if( SANE_STATUS_GOOD != ( status = read_data_block( s, &result)))
+			{
+				*length = 0;
+				scan_finish(s);
 				return status;
+			}
 
 			buf_len = result.buf[ 1] << 8 | result.buf[ 0];
 
@@ -4772,7 +5175,11 @@ START_READ:
 			receive( s, s->buf + index * s->params.pixels_per_line, buf_len, &status);
 
 			if( SANE_STATUS_GOOD != status)
+			{
+				*length = 0;
+				scan_finish(s);
 				return status;
+			}
 		} else {
 			/*
 			 * Read data in block mode
@@ -4789,33 +5196,26 @@ START_READ:
 			/* bytes_to_process = buf_len; */
 
 			if( SANE_STATUS_GOOD != status)
+			{
+				*length = 0;
+				scan_finish(s);
 				return status;
+			}
 		}
 
-		if( result.status & STATUS_AREA_END)
+		if (result.status & STATUS_AREA_END)
+		{
 			s->eof = SANE_TRUE;
-		else {
+		}
+		else 
+		{
 			if( s->canceling) {
 				send( s, S_CAN, 1, &status);
 				expect_ack( s);
-				free( s->buf);
-				s->buf = NULL;
-				sane_auto_eject( s);
-				close_scanner( s);
-				s->fd = -1;
-				*length = 0;
-				/*
-				 * free the line-buffers 
-				 */
 
-				for (i = 0; i< s->line_distance; i++)
-				{
-					if (s->line_buffer[i] != NULL)
-					{
-						free(s->line_buffer[i]);
-						s->line_buffer[i] = NULL;
-					}
-				}
+				*length = 0;
+
+				scan_finish(s);
 
 				return SANE_STATUS_CANCELLED;
 			} else
@@ -5293,8 +5693,12 @@ get_identity_information(SANE_Handle handle)
 		int n, k;
 		int x = 0, y = 0;
 		int count = ident->count2 * 255 + ident->count1;
+		
+		// we need to correct for the difference in size between
+		// the EpsonIdentRec and the EpsonHdrRec
+		int correction = sizeof(EpsonIdentRec) - sizeof(EpsonHdrRec);
 
-		for( n = count, buf = ident->buf; n; n -= k, buf += k) {
+		for( n = (count-correction), buf = ident->buf; n; n -= k, buf += k) {
 			switch (*buf) {
 			case 'R':
 			{
@@ -5368,6 +5772,8 @@ get_identity_information(SANE_Handle handle)
 	memcpy(&(s->hw->resolution_list[1]), s->hw->res_list, s->hw->res_list_size * sizeof(SANE_Word));
 
 	/* filter the resolution list */
+	/* the option is not yet initialized, for now just set it to false */
+	s->val[OPT_LIMIT_RESOLUTION].w = SANE_FALSE;
 	filter_resolution_list(s);
 	
 	return SANE_STATUS_GOOD;
@@ -5445,11 +5851,44 @@ get_identity2_information(SANE_Handle handle)
  * from the scanner the CAN message will be sent.
  */
 
-void sane_cancel ( SANE_Handle handle) {
+void sane_cancel ( SANE_Handle handle) 
+{
 	Epson_Scanner * s = ( Epson_Scanner *) handle;
 
-	if( s->buf != NULL)
-		s->canceling = SANE_TRUE;
+	/*
+	 * If the s->ptr pointer is not NULL, then a scan operation
+	 * was started and if s->eof is FALSE, it was not finished.
+	 */
+
+	if (s->buf != NULL)
+	{
+		u_char * dummy;
+		int len;
+		SANE_Status status;
+
+		/* malloc one line */
+		dummy = malloc (s->params.bytes_per_line);
+		if (dummy == NULL)
+		{
+			DBG (0, "Out of memory\n");
+	        	return;
+		}
+		else
+		{
+
+			/* there is still data to read from the scanner */
+
+			s->canceling = SANE_TRUE;
+
+			while (!s->eof && 
+				SANE_STATUS_CANCELLED != sane_read(s, dummy, s->params.bytes_per_line, &len))
+			{
+				/* empty body, the while condition does the processing */
+			}
+			free(dummy);
+		}
+
+	}
 }
 
 

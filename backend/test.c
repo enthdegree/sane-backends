@@ -453,7 +453,7 @@ init_options (Test_Device * test_device)
   od = &test_device->opt[opt_read_limit];
   od->name = "read-limit";
   od->title = SANE_I18N ("Read limit");
-  od->desc = SANE_I18N ("Limit the amount of data tranferred with each "
+  od->desc = SANE_I18N ("Limit the amount of data transferred with each "
 			"call to sane_read().");
   od->type = SANE_TYPE_BOOL;
   od->unit = SANE_UNIT_NONE;

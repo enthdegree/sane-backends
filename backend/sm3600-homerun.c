@@ -172,11 +172,11 @@ static TLineType GetLineType(TInstance *this)
       bHolesOk=true;
       for (i=0; i<2; i++)
 	{
-	  int n=axHoles[i+1]-axHoles[i];
-	  if (n<1050 || n>1400)
+	  int xDistance=axHoles[i+1]-axHoles[i];
+	  if (xDistance<1050 || xDistance>1400)
 	    bHolesOk=false;
 	}
-      if (axHoles[0]<400 || axHoles[0]>900) /* 2 cm tolerance */
+      if (axHoles[0]<350 || axHoles[0]>900) /* >2 cm tolerance */
 	bHolesOk=false;
     }
   else
@@ -186,8 +186,22 @@ static TLineType GetLineType(TInstance *this)
      by other means... */
   if (bHolesOk)
     {
-      this->calibration.xMargin=axHoles[0]-480;           /* left bed corner */
-      this->calibration.nHoleGray=puchBuffer[axHoles[0]]; /* black reference */
+      /* black reference */
+      this->calibration.nHoleGray=puchBuffer[axHoles[0]];
+      switch (this->model)
+	{
+	case sm3600:
+	  /* bed corner */
+	  this->calibration.xMargin=axHoles[0]-480;
+	  this->calibration.yMargin=413;
+	  break;
+	case sm3700:
+	case sm3750: /* basically unknown sub-brand */
+	default:
+	  this->calibration.xMargin=axHoles[0]-462;
+	  this->calibration.yMargin=330;
+	  break;
+	} /* switch */
     }
   dprintf(DEBUG_ORIG,"~ %s - %d\n",
 	  achLine,
@@ -203,15 +217,40 @@ static TLineType GetLineType(TInstance *this)
 
 /* **********************************************************************
 
-DoCalibration
+FakeCalibration()
+
+If DoIriginate() and this Calibration code is skipped,
+we should at least provide for some fake measurements.
+Thus a test scan of the scanner's inside is possible.
 
 ********************************************************************** */
 
-#define CALIB_START  200
-#define CALIB_LINES  8
-#define CALIB_GAP    10
+__SM3600EXPORT__
+TState FakeCalibration(TInstance *this)
+{
+  if (this->calibration.bCalibrated)
+    return SANE_STATUS_GOOD;
+  this->calibration.bCalibrated=true;
+  if (!this->calibration.achStripeY)
+    {
+      this->calibration.achStripeY=calloc(1,MAX_PIXEL_PER_SCANLINE);
+      if (!this->calibration.achStripeY)
+	return SetError(this,SANE_STATUS_NO_MEM,"no memory for calib Y");
+    }
+  memset(this->calibration.achStripeY,0xC0,MAX_PIXEL_PER_SCANLINE);
+  /* scan *every* nonsense */
+  this->calibration.xMargin=this->calibration.yMargin=0;
+  return SANE_STATUS_GOOD;
+}
+
+/* **********************************************************************
+
+DoCalibration() and friends
+
+********************************************************************** */
 
 #define SM3600_CALIB_USE_MEDIAN
+#define SM3600_CALIB_APPLY_HANNING_WINDOW
 
 #ifdef SM3600_CALIB_USE_MEDIAN
 typedef int (*TQSortProc)(const void *, const void *);
@@ -223,6 +262,8 @@ int CompareProc(const unsigned char *p1, const unsigned char *p2)
 }
 #endif
 
+#define MAX_CALIB_STRIPES 8
+
 __SM3600EXPORT__
 TState DoCalibration(TInstance *this)
 {
@@ -230,15 +271,36 @@ TState DoCalibration(TInstance *this)
   long   aulSum[MAX_PIXEL_PER_SCANLINE];
 #endif
 #ifdef SM3600_CALIB_USE_MEDIAN
-  unsigned char aauchY[CALIB_LINES][MAX_PIXEL_PER_SCANLINE];
-  unsigned char auchRow[CALIB_LINES];
+  unsigned char aauchY[MAX_CALIB_STRIPES][MAX_PIXEL_PER_SCANLINE];
+  unsigned char auchRow[MAX_CALIB_STRIPES];
+#endif
+#ifdef SM3600_CALIB_APPLY_HANNING_WINDOW
+  unsigned char auchHanning[MAX_PIXEL_PER_SCANLINE];
 #endif
 
   int    iLine,i;
+  int    yStart,cStripes,cyGap;
   TState rc;
   if (this->calibration.bCalibrated)
     return SANE_STATUS_GOOD;
-  DoJog(this,CALIB_START);
+
+  switch (this->model)
+    {
+    case sm3600:
+      yStart=200;
+      cStripes=MAX_CALIB_STRIPES;
+      cyGap=10;
+      break;
+    case sm3700: /* in fact, the 3600 calibration should do!!! */
+    case sm3750:
+    default:
+      yStart=100;  /* 54 is perimeter */
+      cStripes=MAX_CALIB_STRIPES;  
+      cyGap=10;
+      break;
+    } /* switch */
+
+  DoJog(this,yStart);
   /* scan a gray line at 600 DPI */
   if (!this->calibration.achStripeY)
     {
@@ -249,7 +311,7 @@ TState DoCalibration(TInstance *this)
 #ifdef SM3600_CALIB_USE_RMS
   memset(aulSum,0,sizeof(aulSum));
 #endif
-  for (iLine=0; iLine<CALIB_LINES; iLine++)
+  for (iLine=0; iLine<cStripes; iLine++)
     {
       dprintf(DEBUG_CALIB,"calibrating %i...\n",iLine);
       RegWriteArray(this,R_ALL, 74, auchRegsSingleLine);
@@ -272,27 +334,30 @@ TState DoCalibration(TInstance *this)
 	aulSum[i]+=(long)this->calibration.achStripeY[i]*
 	  (long)this->calibration.achStripeY[i];
 #endif
-      DoJog(this,CALIB_GAP);
+      DoJog(this,cyGap);
     }
 #ifdef SM3600_CALIB_USE_RMS
   for (i=0; i<MAX_PIXEL_PER_SCANLINE; i++)
-    this->calibration.achStripeY[i]=(unsigned char)(int)sqrt(aulSum[i]/CALIB_LINES);
+    this->calibration.achStripeY[i]=(unsigned char)(int)sqrt(aulSum[i]/cStripes);
 #endif
 #ifdef SM3600_CALIB_USE_MEDIAN
   /* process the collected lines rowwise. Use intermediate buffer for qsort */
   for (i=0; i<MAX_PIXEL_PER_SCANLINE; i++)
     {
-      for (iLine=0; iLine<CALIB_LINES; iLine++)
+      for (iLine=0; iLine<cStripes; iLine++)
 	auchRow[iLine]=aauchY[iLine][i];
-      qsort(auchRow,CALIB_LINES, sizeof(unsigned char), (TQSortProc)CompareProc);
-      this->calibration.achStripeY[i]=auchRow[(CALIB_LINES-1)/2];
+      qsort(auchRow,cStripes, sizeof(unsigned char), (TQSortProc)CompareProc);
+      this->calibration.achStripeY[i]=auchRow[(cStripes-1)/2];
     }
 #endif
-  /* intentionally, I did *not* apply a hanning filter. Discussion
-     welcome :-) */
+#ifdef SM3600_CALIB_APPLY_HANNING_WINDOW
+  memcpy(auchHanning,this->calibration.achStripeY,sizeof(auchHanning));
+  for (i=1; i<MAX_PIXEL_PER_SCANLINE-1; i++)
+    this->calibration.achStripeY[i]=(unsigned char)
+      ((2*(int)auchHanning[i]+auchHanning[i-1]+auchHanning[i+1])/4);
+#endif
   
-  /* scan a color line at 600 DPI */
-  DoJog(this,-CALIB_START-CALIB_LINES*CALIB_GAP);
+  DoJog(this,-yStart-cStripes*cyGap);
   INST_ASSERT();
   this->calibration.bCalibrated=true;
   return SANE_STATUS_GOOD;

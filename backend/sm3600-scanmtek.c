@@ -52,11 +52,30 @@ $Id$
 
 #include "sm3600-scantool.h"
 
-unsigned short aidProduct[] = {
-  0x40B3, 0x40CA, 0x40FF /* not official */, /* ScanMaker 3600 */
-  0x40B8, 0x40CB, /* ScanMaker 3700 */
-  /* SM3750 unknown */
-  0x0 };
+static struct {
+  TModel         model;
+  unsigned short idProduct;
+ } aScanners[]={
+  { sm3600, 0x40B3 },
+  { sm3600, 0x40CA },
+  { sm3600, 0x40FF },
+  { sm3700, 0x40B8 },
+  { sm3700, 0x40CB },
+  { sm3750, 0x40dd },
+  { sm3600, 0x40FF }, /* unknown */
+  { unknown, 0x0000 } };
+
+__SM3600EXPORT__
+TModel GetScannerModel(unsigned short idVendor,
+		       unsigned short idProduct)
+{
+  int i;
+  if (idVendor!=SCANNER_VENDOR) return unknown;
+  for (i=0; aScanners[i].model!=unknown; i++)
+    if (aScanners[i].idProduct==idProduct)
+      return aScanners[i].model;
+  return unknown;
+}
 
 /* **********************************************************************
 

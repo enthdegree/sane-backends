@@ -85,6 +85,8 @@ typedef enum { false, true } TBool;
 
 typedef SANE_Status TState;
 
+typedef enum { unknown, sm3600, sm3700, sm3750 } TModel;
+
 typedef struct {
   TBool         bCalibrated;
   int           xMargin; /* in 1/600 inch */
@@ -112,8 +114,11 @@ typedef enum { fast, high, best } TQuality;
 typedef enum { color, gray, line, halftone } TMode;
 
 #define INST_ASSERT() { if (this->nErrorState) return this->nErrorState; }
+
+#define CHECK_ASSERTION(a) if (!(a)) return SetError(this,SANE_STATUS_INVAL,"assertion failed in %s %d",__FILE__,__LINE__)
+
 #define CHECK_POINTER(p) \
-if (!p) return SetError(this,SANE_STATUS_NO_MEM,"memory failed in %d",__LINE__)
+if (!(p)) return SetError(this,SANE_STATUS_NO_MEM,"memory failed in %s %d",__FILE__,__LINE__)
 
 #define dprintf debug_printf
 
@@ -148,7 +153,11 @@ typedef struct TScanState {
 
 #ifndef INSANE_VERSION
 
+#ifdef SM3600_SUPPORT_EXPOSURE
 #define NUM_OPTIONS 18
+#else
+#define NUM_OPTIONS 16
+#endif
 
 typedef union
   {  
@@ -161,6 +170,7 @@ TOptionValue;
 typedef struct TDevice {
   struct TDevice        *pNext;
   struct usb_device     *pdev;
+  TModel                 model;
   SANE_Device            sane;
 } TDevice;
 
@@ -187,9 +197,13 @@ typedef struct TInstance {
   TBool              bOptSkipOriginate;
   TQuality           quality;
   TMode              mode;
+  TModel             model;
   usb_dev_handle    *hScanner;
   FILE              *fhLog;
   FILE              *fhScan;
+  int                ichPageBuffer; /* write position in full page buffer */
+  int                cchPageBuffer; /* total size of '' */
+  unsigned char     *pchPageBuffer; /* the humble buffer */
 } TInstance;
 
 #define TRUE  1
@@ -247,10 +261,6 @@ typedef enum { none, hpos, hposH, hres } TRegIndex;
 /* sm3600-scanutil.c */
 __SM3600EXPORT__ int SetError(TInstance *this, int nError, const char *szFormat, ...);
 __SM3600EXPORT__ void debug_printf(unsigned long ulType, const char *szFormat, ...);
-__SM3600EXPORT__ void FixExposure(unsigned char *pchBuf,
-				  int cchBulk,
-				  int nBrightness,
-				  int nContrast);
 __SM3600EXPORT__ TState FreeState(TInstance *this, TState nReturn);
 __SM3600EXPORT__ TState EndScan(TInstance *this);
 __SM3600EXPORT__ TState ReadChunk(TInstance *this, unsigned char *achOut,
@@ -263,7 +273,9 @@ __SM3600EXPORT__ TState DoScanFile(TInstance *this);
 __SM3600EXPORT__ void   GetAreaSize(TInstance *this);
 __SM3600EXPORT__ void   ResetCalibration(TInstance *this);
 
-__SM3600EXPORT__ TState InitGammaTables(TInstance *this);
+__SM3600EXPORT__ TState InitGammaTables(TInstance *this,
+					int nBrightness,
+					int nContrast);
 __SM3600EXPORT__ TState CancelScan(TInstance *this);
 
 /* sm3600-scanmtek.c */
@@ -272,6 +284,8 @@ __SM3600EXPORT__ TState DoInit(TInstance *this);
 __SM3600EXPORT__ TState DoReset(TInstance *this);
 __SM3600EXPORT__ TState WaitWhileBusy(TInstance *this,int cSecs);
 __SM3600EXPORT__ TState WaitWhileScanning(TInstance *this,int cSecs);
+__SM3600EXPORT__ TState GetScannerModel(unsigned short idVendor, unsigned short idProduct);
+
 #ifdef INSANE_VERSION
 __SM3600EXPORT__ TState DoLampSwitch(TInstance *this,int nPattern);
 #endif
@@ -296,6 +310,7 @@ __SM3600EXPORT__ TState StartScanGray(TInstance *this);
 __SM3600EXPORT__ TState StartScanColor(TInstance *this);
 
 /* sm3600-homerun.c */
+__SM3600EXPORT__ TState FakeCalibration(TInstance *this);
 __SM3600EXPORT__ TState DoOriginate(TInstance *this, TBool bStepOut);
 __SM3600EXPORT__ TState DoJog(TInstance *this,int nDistance);
 

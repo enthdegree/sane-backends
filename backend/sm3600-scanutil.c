@@ -1,4 +1,4 @@
-/* sane - Scanner Access Now Easy.
+/*
    Copyright (C) 1996, 1997 David Mosberger-Tang
    This file is part of the SANE package.
 
@@ -138,36 +138,6 @@ void DumpBuffer(FILE *fh, const char *pch, int cch)
 
 /* **********************************************************************
 
-FixExposure()
-
-Exposure is done by adding brightness to the original scan value and
-augmenting the result around the middle value of 128.
-
-********************************************************************** */
-
-__SM3600EXPORT__
-void FixExposure(unsigned char *pchBuf,
-		 int cchBulk,
-		 int nBrightness,
-		 int nContrast)
-{
-  int i;
-  int nOffB=nBrightness-128;
-  int nFakC=(nContrast+128)*100; /* in percent, to get smoother interpolation */
-  for (i=0; i<cchBulk; i++)
-  {
-    int nNew=pchBuf[i];
-    nNew=(nNew+nOffB)*nFakC/12800+128;
-    if (nNew<0) nNew=0;
-    else if (nNew>255) nNew=255;
-    pchBuf[i]=(unsigned char)nNew;
-  }
-}
-
-
-
-/* **********************************************************************
-
 FreeState()
 
 Frees all dynamical memory for scan buffering.
@@ -235,7 +205,8 @@ TState CancelScan(TInstance *this)
   DBG(DEBUG_JUNK,"cs4: %d\n",(int)this->nErrorState);
   bCanceled=this->state.bCanceled;
   this->state.bCanceled=false; /* re-enable Origination! */
-  DoOriginate(this,false); /* have an error here... */
+  if (!this->bOptSkipOriginate)
+    DoOriginate(this,false); /* have an error here... */
   this->state.bCanceled=bCanceled;
   DBG(DEBUG_JUNK,"cs5: %d\n",(int)this->nErrorState);
   INST_ASSERT();
@@ -352,6 +323,7 @@ void ResetCalibration(TInstance *this)
     free(this->calibration.achStripeB);
   /* reset all handles, pointers, flags */
   memset(&(this->calibration),0,sizeof(this->calibration));
+  /* TODO: type specific margins */
   this->calibration.xMargin=200;
   this->calibration.yMargin=0x019D;
   this->calibration.nHoleGray=10;
@@ -368,15 +340,23 @@ Init gammy tables and gain tables within controller memory.
 ====================================================================== */
 
 __SM3600EXPORT__
-TState InitGammaTables(TInstance *this)
+TState InitGammaTables(TInstance *this, int nBrightness, int nContrast)
 {
-  int           i;
+  long          i;
+  long          lOffset;
+  long          lScale;
+  /* the rescaling is done with temporary zero translation to 2048 */
+  lOffset=(nBrightness-128)*16; /* signed! */
+  lScale=(nContrast+128)*100;  /* in percent */
   for (i=0; i<4096; i++)
     {
-      this->agammaY[i]=i;
-      this->agammaR[i]=i;
-      this->agammaG[i]=i;
-      this->agammaB[i]=i;
+      int n=(int)((i+lOffset)*lScale/12800L+2048L);
+      if (n<0) n=0;
+      else if (n>4095) n=4095;
+      this->agammaY[i]=n;
+      this->agammaR[i]=n;
+      this->agammaG[i]=n;
+      this->agammaB[i]=n;
     }
   return SANE_STATUS_GOOD;
 }
@@ -391,7 +371,7 @@ Top level caller for scantool.
 
 ====================================================================== */
 
-#define APP_CHUNK_SIZE   8192
+#define APP_CHUNK_SIZE   0x8000
 
 __SM3600EXPORT__
 TState DoScanFile(TInstance *this)
@@ -403,7 +383,7 @@ TState DoScanFile(TInstance *this)
 
   achBuf=malloc(APP_CHUNK_SIZE);
   rc=SANE_STATUS_GOOD; /* make compiler happy */
-  rc=InitGammaTables(this);
+  rc=InitGammaTables(this, this->param.nBrightness, this->param.nContrast);
   if (rc!=SANE_STATUS_GOOD) return rc;
   if (this->mode==color)
     rc=StartScanColor(this);
@@ -413,7 +393,7 @@ TState DoScanFile(TInstance *this)
   cy=this->state.cyPixel;
   if (this->bVerbose)
     fprintf(stderr,"scanning %d by %d\n",cx,cy);
-  if (this->fhScan && !this->bWriteRaw)
+  if (this->fhScan && !this->bWriteRaw && !this->pchPageBuffer)
    {
       switch (this->mode)
 	{
@@ -433,7 +413,19 @@ TState DoScanFile(TInstance *this)
       rc=ReadChunk(this,achBuf,APP_CHUNK_SIZE,&cch);
       if (cch>0 && this->fhScan && cch<=APP_CHUNK_SIZE)
 	{
-	  if (!this->bWriteRaw)
+	  if (this->pchPageBuffer)
+	    {
+#ifdef SM3600_DEBUGPAGEBUFFER
+	      if (this->bVerbose)
+		fprintf(stderr,"ichPageBuffer:%d, cch:%d, cchPageBuffer:%d\n",
+			this->ichPageBuffer,cch,this->cchPageBuffer);
+#endif
+	      CHECK_ASSERTION(this->ichPageBuffer+cch<=this->cchPageBuffer);
+	      memcpy(this->pchPageBuffer+this->ichPageBuffer,
+		     achBuf,cch);
+	      this->ichPageBuffer+=cch;
+	    }
+	  else if (!this->bWriteRaw)
 	    fwrite(achBuf,1,cch,this->fhScan);
 	  lcchRead+=cch;
 	}

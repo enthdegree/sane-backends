@@ -112,6 +112,11 @@ char *achErrorMessages[]={ "everything fine",
 #define GLOBAL extern
 #endif
 
+#define PFMT_DEFAULT      0
+#define PFMT_PBM          1
+#define PFMT_PCL          2
+#define PFMT_TIFFG4       3
+
 /* ====================================================================== */
 
 GLOBAL unsigned long      ulDebugMask;
@@ -119,6 +124,7 @@ GLOBAL TBool              bVerbose;
 GLOBAL TBool              bInteractive;
 GLOBAL char              *szLogFile;
 GLOBAL char              *szScanFile;
+GLOBAL int                idOutputFormat;
 
 GLOBAL TInstance          devInstance;
 

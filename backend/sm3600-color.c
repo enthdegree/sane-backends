@@ -92,9 +92,6 @@ static TState ReadNextColorLine(PTInstance this)
 	      if (this->bWriteRaw)
 		fwrite(this->state.pchBuf,1,this->state.cchBulk,this->fhScan);
 	      INST_ASSERT();
-	      FixExposure(this->state.pchBuf,this->state.cchBulk,
-			  this->param.nBrightness,
-			  this->param.nContrast);
 	      if (this->state.cchBulk!=USB_CHUNK_SIZE)
 		this->state.bLastBulk=true;
 	      this->state.iBulkReadPos=0;

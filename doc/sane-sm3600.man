@@ -1,7 +1,7 @@
-.TH sane-sm3600 5 "15.05.2001"
+.TH sane-sm3600 5 "10.02.2002"
 .IX sane-sm3600
 .SH NAME
-sane-sm3600 - SANE backend for Microtek scanners M011 USB chip
+sane-sm3600 - SANE backend for Microtek scanners with M011 USB chip
 .SH DESCRIPTION
 The
 .B sane-sm3600
@@ -21,6 +21,8 @@ Vendor     Product id:     Remark:
 --------   --------------  -----------
 .br
 Microtek   ScanMaker 3600  all modes ok
+Microtek   ScanMaker 3700  reported to work
+Microtek   ScanMaker 3750  reported to work
 .RE
 .PP
 If you own a Microtek scanner with the M011 chip other than the ones
@@ -38,7 +40,7 @@ Color, grayscale, halftone and lineart scans.
 contrast, brightness, control, gamma correction.
 
 .SH "DEVICE NAMES"
-This backend does not support device names in a usable form.
+This backend does not support device names in a standardized form.
 
 .SH CONFIGURATION
 This backend does not support a configuration file right now.
@@ -51,6 +53,20 @@ The static library implementing this backend.
 .I @LIBDIR@/libsane-sm3600.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
+
+.SH PERMISSIONS AND INTERFACES
+
+The backend uses \fBlibusb\fR and it's pseudo files in
+\fI/proc/bus/usb/*\fR.
+
+These files are normally owned by \fBroot\fR and You are responsible
+to get access to these files, for example \fBchown\fR-ing them to
+Yourself. If You have no right permissions, the backend will find the
+device, but You'll get an I/O error.
+
+The better way is to use automatical \fBhotplugging\fR. See
+\fIhttp://sm3600.sf.net/hotplug.html\fR for instructions and useful
+links.
 
 .SH ENVIRONMENT
 .TP
@@ -67,7 +83,7 @@ E.g. just say:
 export SANE_DEBUG_SM3600=5
 
 .SH "SEE ALSO"
-sane(7), sane-microtek2(5)
+sane-microtek2(5), http://sm3600.sourceforge.net
 
 .SH AUTHOR
 .br

@@ -38,7 +38,7 @@ INSTALLED_INCLUDES = sane.h saneopts.h
 
 SANE_INCLUDES = $(addprefix $(top_srcdir)/include/sane/,$(INSTALLED_INCLUDES)) \
                 $(addprefix $(top_srcdir)/include/sane/,config.h.in sanei.h \
-                sanei_ab306.h sanei_auth.h sanei_backend.h \
+                sanei_ab306.h sanei_auth.h sanei_access.h sanei_backend.h \
                 sanei_cderror.h sanei_jinclude.h sanei_jpeg.h \
                 sanei_codec_ascii.h sanei_codec_bin.h sanei_config.h \
                 sanei_debug.h sanei_lm983x.h sanei_net.h sanei_pa4s2.h \

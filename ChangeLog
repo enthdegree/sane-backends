@@ -16,6 +16,7 @@
 	* README.linux: Moved "memory exhausted" and missing scsi headers
 	  problems from PROBLEMS.
 	* TODO: Added saned info. Added artec at3 misdetection.
+	* configure configure.in NEWS: Updated version number.
 
 2003-02-09   Stéphane Voltz  <svoltz@wanadoo.fr>
 

@@ -1,4 +1,9 @@
 -*-Mode: outline-*-
+New with 1.0.11, released 2003-02-09:
+
+* Security fixes for saned.
+
+
 New with 1.0.10, released 2003-02-01:
 
 * New backends: artec_eplus48u (Artec E+ 48U, Tevion/Medion MD 9693, Medion

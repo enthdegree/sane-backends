@@ -1,4 +1,4 @@
-.TH sane-avision 5 "01 Dec 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-avision 5 "04 Mar 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-avision
 
 .SH NAME
@@ -13,8 +13,8 @@ This file only is a short descripton of the avision-backend for sane!
 The
 .B sane-avision
 library implements a SANE (Scanner Access Now Easy) backend that
-provides access to Avision flatbed scanners and the Avision
-OEM scanners labelled with HP and Minolta.
+provides access to various Avision scanners and the Avision OEM
+scanners labelled by HP, Minolta, Mitsubishi or Fujitsu.
 
 .SH CONFIGURATION
 
@@ -39,7 +39,8 @@ the first scans!
  #scsi Vendor Model Type Bus Channel ID LUN 
  scsi AVISION
  scsi HP
- /dev/scanner
+ scsi /dev/scanner
+ usb 0x03f0 0x0701
  
  - force-a4:
    Forces the backend to overwrite the scanable area
@@ -81,27 +82,32 @@ the first scans!
 This backend expects device names of the form:
 .PP
 .RS
-.I special
+.I scsi special
+.I usb special
 .RE
 .PP
 Where
 .I special
-is the path-name for the special device that corresponds to a
-SCSI scanner. The special device name must be a generic SCSI device or a
+is the path-name for the device that corresponds to a SCSI scanner or
+the USB vendor/product ID pair corresponding to the USB scanner. The
+special device name must be a generic SCSI device or a
 symlink to such a device.  The program 
 .IR sane-find-scanner 
 helps to find out the correct device. Under Linux, such a device name
 could be
-.I /dev/sga
+.I /dev/sg0
 or
-.IR /dev/sge ,
+.IR /dev/sga ,
 for example.  See sane-scsi(5) for details.
 
- Note: Since the backend does only use the scsi interface
-       for scanner access, you need a scsi emulation for
-       USB devices such as the HP 5300, HP 7400 or Minolta
-       film-scanners. The kernel module is named hpusbscsi
-       and present in the latest 2.4 and 2.5 kernels.
+ Note: Since the backend now includes native USB access,
+       it is no longer needed - even considered obsolete -
+       to access the scanner via the SCSI emulation (named
+       hpusbscsi on Linux) for Avision USB devices such as
+       the HP 53xx, HP 74xx or Minolta film-scanners.
+
+ A list with supported devices is built into the avision backend so
+ normally specifying an ID should not be necessary.
 
 .SH FILES
 .TP
@@ -111,7 +117,7 @@ The backend configuration file (see also description of
 below).
 .TP
 .I @LIBDIR@/libsane-avision.a
-The static library implementing this backend.
+The static library bimplementing this backend.
 .TP
 .I @LIBDIR@/libsane-avision.so
 The shared library implementing this backend (present on systems that
@@ -148,4 +154,4 @@ sane(7), sane\-scsi(5)
 http://drocklinux.dyndns.org/rene/avision/index.html
 
 .SH AUTHOR
-René Rebe, Meino Christian Cramer and Jose Paulo Moitinho de Almeida
+René Rebe and Meino Christian Cramer

@@ -82,6 +82,14 @@
                 All the many other beta-tester and debug-log sender ;-)
    
    ChangeLog:
+   2003-05-08: René Rebe
+         * fixed crash when config is missing reported by Franz Bakan
+   
+   2003-03-25: René Rebe
+         * urgs, no the 5300/5370 do _not_share the same ID, there are
+           at least two different models sold ?!?
+         * C5 set_window _hack_
+   
    2003-03-24: René Rebe
          * request sense after usb error
          * provide a hack to limit the resolution for some scanners
@@ -465,7 +473,7 @@
 #endif
 
 #define BACKEND_NAME avision
-#define BACKEND_BUILD 69  /* avision backend BUILD version */
+#define BACKEND_BUILD 70  /* avision backend BUILD version */
 
 /* Attention: The comments must be stay as they are - they are
    automatially parsed to generate the SANE avision.desc file, as well
@@ -704,14 +712,12 @@ static Avision_HWEntry Avision_Device_List [] =
     /* comment="1 pass, 1200 dpi - regularly tested" */
     /* status="stable" */
 
-#ifdef FAKE_ENTRYS
     { "HP",      "ScanJet 5370C",
       0x03f0, 0x0701,
       "Hewlett-Packard", "ScanJet 5370C",
       AV_USB, AV_FLATBED, 0},
     /* comment="1 pass, 2400 dpi" */
     /* status="alpha" */
-#endif
     
     { "hp",      "scanjet 7400c",
       0x03f0, 0x0801,
@@ -866,8 +872,8 @@ static Avision_HWEntry Avision_Device_List [] =
 
 #define INVALID_WHITE_SHADING	0x0000
 #define DEFAULT_WHITE_SHADING	0xFFF0
-#define WHITE_MAP_RANGE		0x4000
 #define MAX_WHITE_SHADING       0xFFFF
+#define WHITE_MAP_RANGE		0x4000
 
 #define INVALID_DARK_SHADING	0xFFFF
 #define DEFAULT_DARK_SHADING	0x0000
@@ -1033,18 +1039,18 @@ static void debug_print_calib_format (int dbg_level, char* func,
   DBG (dbg_level, "%s: [7]    G gain: %d\n", func, result[7]);
   DBG (dbg_level, "%s: [8]    B gain: %d\n", func, result[8]);
   
-  DBG (dbg_level, "%s: [9-10] R shading target: %d\n",
+  DBG (dbg_level, "%s: [9-10] R shading target: %x\n",
        func, get_double ( &(result[9]) ) );
-  DBG (dbg_level, "%s: [11-12] G shading target: %d\n",
+  DBG (dbg_level, "%s: [11-12] G shading target: %x\n",
        func, get_double ( &(result[11]) ) );
-  DBG (dbg_level, "%s: [13-14] B shading target: %d\n",
+  DBG (dbg_level, "%s: [13-14] B shading target: %x\n",
        func, get_double ( &(result[13]) ) );
   
-  DBG (dbg_level, "%s: [15-16] R dark shading target: %d\n",
+  DBG (dbg_level, "%s: [15-16] R dark shading target: %x\n",
        func, get_double ( &(result[15]) ) );
-  DBG (dbg_level, "%s: [17-18] G dark shading target: %d\n",
+  DBG (dbg_level, "%s: [17-18] G dark shading target: %x\n",
        func, get_double ( &(result[17]) ) );
-  DBG (dbg_level, "%s: [19-20] B dark shading target: %d\n",
+  DBG (dbg_level, "%s: [19-20] B dark shading target: %x\n",
        func, get_double ( &(result[19]) ) );
 }
 
@@ -2693,9 +2699,9 @@ compute_white_shading_data (Avision_Scanner* s,
   if (s->hw->inquiry_max_shading_target != INVALID_WHITE_SHADING)
     inquiry_mst = s->hw->inquiry_max_shading_target << 4;
   
-  mst[0] = format->r_shading_target << 8;
-  mst[1] = format->g_shading_target << 8;
-  mst[2] = format->b_shading_target << 8;
+  mst[0] = format->r_shading_target; /* << 4; */
+  mst[1] = format->g_shading_target; /* << 4; */
+  mst[2] = format->b_shading_target; /* << 4; */
   
   for (i = 0; i < format->channels; ++i) {
     if (mst[i] == INVALID_WHITE_SHADING || mst[i] > MAX_WHITE_SHADING) {
@@ -2719,16 +2725,23 @@ compute_white_shading_data (Avision_Scanner* s,
       if (data[i]) {
 	result =
 	  (u_int32_t) ((double) mst[i % 3] * WHITE_MAP_RANGE / data[i] + 0.5);
+	 DBG (3, "data for element %d: %x\n", i, data[i]);
+ 
       }
       else {
 	result = DEFAULT_WHITE_SHADING;
 	++ values_invalid;
       }
       
-      if (result > MAX_WHITE_SHADING) {
+      if (result > WHITE_MAP_RANGE) {
 	result = DEFAULT_WHITE_SHADING;
 	++ values_limitted;
       }
+
+#ifdef 0      
+      /* test */
+      result = 0xA000;
+#endif
       
       data[i] = (u_int16_t) result;
     }
@@ -3425,6 +3438,7 @@ set_window (Avision_Scanner* s)
     base_dpi = 1200;
   }
   else {
+    /* round down to the next multiple of 300 */
     base_dpi = s->avdimen.xres - s->avdimen.xres % 300;
     if (base_dpi > dev->inquiry_optical_res)
       base_dpi = dev->inquiry_optical_res;
@@ -3478,7 +3492,6 @@ set_window (Avision_Scanner* s)
   set_quad (cmd.window.descriptor.length,
 	    (s->params.lines + s->avdimen.line_difference) * base_dpi / s->avdimen.yres);
 
-  /* width and length in _bytes_ */
   set_double (cmd.window.avision.line_width, s->params.bytes_per_line);
   set_double (cmd.window.avision.line_count, s->params.lines + s->avdimen.line_difference);
   
@@ -4276,7 +4289,8 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
   const char* cp = 0;
   char* word;
   int linenumber = 0;
-  
+  int model_num = 0;  
+
   authorize = authorize; /* silence gcc */
   
   DBG (3, "sane_init:\n");
@@ -4290,134 +4304,138 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BACKEND_BUILD);
   
   fp = sanei_config_open (AVISION_CONFIG_FILE);
-  
-  /* first parse the config file */
-  while (sanei_config_read  (line, sizeof (line), fp))
+  if (fp > 0)
     {
-      word = NULL;
-      ++ linenumber;
-      
-      DBG(5, "sane_init: parsing config line \"%s\"\n",
-	  line);
-      
-      cp = sanei_config_get_string (line, &word);
-      
-      if (!word || cp == line)
+      /* first parse the config file */
+      while (sanei_config_read  (line, sizeof (line), fp))
 	{
-	  DBG(5, "sane_init: config file line %d: ignoring empty line\n",
-	      linenumber);
-	  free (word);
 	  word = NULL;
-	  continue;
-	}
-      if (word[0] == '#')
-	{
-	  DBG(5, "sane_init: config file line %d: ignoring comment line\n",
-	      linenumber);
-	  free (word);
-	  word = NULL;
-	  continue;
-	}
+	  ++ linenumber;
+      
+	  DBG(5, "sane_init: parsing config line \"%s\"\n",
+	      line);
+      
+	  cp = sanei_config_get_string (line, &word);
+      
+	  if (!word || cp == line)
+	    {
+	      DBG(5, "sane_init: config file line %d: ignoring empty line\n",
+		  linenumber);
+	      free (word);
+	      word = NULL;
+	      continue;
+	    }
+	  if (word[0] == '#')
+	    {
+	      DBG(5, "sane_init: config file line %d: ignoring comment line\n",
+		  linenumber);
+	      free (word);
+	      word = NULL;
+	      continue;
+	    }
                     
-      if (strcmp (word, "option") == 0)
-      	{
+	  if (strcmp (word, "option") == 0)
+	    {
+	      free (word);
+	      word = NULL;
+	      cp = sanei_config_get_string (cp, &word);
+	  
+	      if (strcmp (word, "disable-gamma-table") == 0)
+		{
+		  DBG(3, "sane_init: config file line %d: disable-gamma-table\n",
+		      linenumber);
+		  disable_gamma_table = SANE_TRUE;
+		}
+	      if (strcmp (word, "disable-calibration") == 0)
+		{
+		  DBG(3, "sane_init: config file line %d: disable-calibration\n",
+		      linenumber);
+		  disable_calibration = SANE_TRUE;
+		}
+	      if (strcmp (word, "old-calibration") == 0)
+		{
+		  DBG(3, "sane_init: config file line %d: old-calibration\n",
+		      linenumber);
+		  old_calibration = SANE_TRUE;
+		}
+	      if (strcmp (word, "one-calib-only") == 0)
+		{
+		  DBG(3, "sane_init: config file line %d: one-calib-only\n",
+		      linenumber);
+		  one_calib_only = SANE_TRUE;
+		}
+	      if (strcmp (word, "force-a4") == 0)
+		{
+		  DBG(3, "sane_init: config file line %d: enabling force-a4\n",
+		      linenumber);
+		  force_a4 = SANE_TRUE;
+		}
+	      if (strcmp (word, "disable-c5-guard") == 0)
+		{
+		  DBG(3, "sane_init: config file line %d: disabling c5-guard\n",
+		      linenumber);
+		  disable_c5_guard = SANE_TRUE;
+		}
+	    }
+	  else if (strcmp (word, "usb") == 0)
+	    {
+	      DBG(2, "sane_init: config file line %d: trying to attach USB:`%s'\n",
+		  linenumber, line);
+	      /* try to attach USB device */
+	      sanei_usb_attach_matching_devices (line, attach_one_usb);
+	    }
+	  else if (strcmp (word, "scsi") == 0)
+	    {
+	      DBG(2, "sane_init: config file line %d: trying to attach SCSI: %s'\n",
+		  linenumber, line);
+	  
+	      /* the last time I verified (2003-03-18) this function
+		 only matches SCSI devices ... */
+	      sanei_config_attach_matching_devices (line, attach_one_scsi);
+	    }
+	  else {
+	    DBG(1, "sane_init: config file line %d: OBSOLETE !! use the scsi keyword!\n",
+		linenumber);
+	    DBG(1, "sane_init:   (see man sane-avision for details): trying to attach SCSI: %s'\n",
+		line);
+	  
+	    /* the last time I verified (2003-03-18) this function
+	       only matched SCSI devices ... */
+	    sanei_config_attach_matching_devices (line, attach_one_scsi);
+	  }
 	  free (word);
 	  word = NULL;
-	  cp = sanei_config_get_string (cp, &word);
-	  
-	  if (strcmp (word, "disable-gamma-table") == 0)
-	    {
-	      DBG(3, "sane_init: config file line %d: disable-gamma-table\n",
-		  linenumber);
-	      disable_gamma_table = SANE_TRUE;
-	    }
-	  if (strcmp (word, "disable-calibration") == 0)
-	    {
-	      DBG(3, "sane_init: config file line %d: disable-calibration\n",
-		  linenumber);
-	      disable_calibration = SANE_TRUE;
-	    }
-	  if (strcmp (word, "old-calibration") == 0)
-	    {
-	      DBG(3, "sane_init: config file line %d: old-calibration\n",
-		  linenumber);
-	      old_calibration = SANE_TRUE;
-	    }
-	  if (strcmp (word, "one-calib-only") == 0)
-	    {
-	      DBG(3, "sane_init: config file line %d: one-calib-only\n",
-		  linenumber);
-	      one_calib_only = SANE_TRUE;
-	    }
-	  if (strcmp (word, "force-a4") == 0)
-	    {
-	      DBG(3, "sane_init: config file line %d: enabling force-a4\n",
-		  linenumber);
-	      force_a4 = SANE_TRUE;
-	    }
-	  if (strcmp (word, "disable-c5-guard") == 0)
-	    {
-	      DBG(3, "sane_init: config file line %d: disabling c5-guard\n",
-		  linenumber);
-	      disable_c5_guard = SANE_TRUE;
-	    }
-	}
-      else if (strcmp (word, "usb") == 0)
-        {
-          DBG(2, "sane_init: config file line %d: trying to attach USB:`%s'\n",
-	      linenumber, line);
-          /* try to attach USB device */
-          sanei_usb_attach_matching_devices (line, attach_one_usb);
-        }
-      else if (strcmp (word, "scsi") == 0)
-        {
-	  DBG(2, "sane_init: config file line %d: trying to attach SCSI: %s'\n",
-	      linenumber, line);
-	  
-          /* the last time I verified (2003-03-18) this function
-             only matches SCSI devices ... */
-	  sanei_config_attach_matching_devices (line, attach_one_scsi);
-	}
-      else {
-	DBG(1, "sane_init: config file line %d: OBSOLETE !! use the scsi keyword!\n",
-	    linenumber);
-	DBG(1, "sane_init:   (see man sane-avision for details): trying to attach SCSI: %s'\n",
-	    line);
-	  
-	/* the last time I verified (2003-03-18) this function
-	   only matched SCSI devices ... */
-	sanei_config_attach_matching_devices (line, attach_one_scsi);
-      }
-      free (word);
-      word = NULL;
-    }
-  
-  fclose (fp);
-  if (word)
-    free (word);
-
-  {
-    int model_num = 0;
-    while (Avision_Device_List [model_num].scsi_mfg != NULL)
-      {
-	if (Avision_Device_List [model_num].usb_vendor != 0 &&
-	    Avision_Device_List [model_num].usb_product != 0 )
-	  {
-	    DBG (1, "sane_init: Trying to find USB device %x %x ...\n",
-		 Avision_Device_List [model_num].usb_vendor,
-		 Avision_Device_List [model_num].usb_product);
+	} /* end while read */
       
-	    /* TODO: check return value */
-	    if (sanei_usb_find_devices (Avision_Device_List [model_num].usb_vendor,
-					Avision_Device_List [model_num].usb_product,
-					attach_one_usb) != SANE_STATUS_GOOD) {
-	      DBG(1, "sane_init: error during USB device detection!\n");
-	    }
+      fclose (fp);
+      
+      if (word)
+	free (word);
+    } /* end if fp */
+  
+  /* mayb try to attach default /dev/scanner here later?
+     attach_one_scsi ("/dev/scanner") */
+  
+  /* search for all supported USB devices */
+  while (Avision_Device_List [model_num].scsi_mfg != NULL)
+    {
+      if (Avision_Device_List [model_num].usb_vendor != 0 &&
+	  Avision_Device_List [model_num].usb_product != 0 )
+	{
+	  DBG (1, "sane_init: Trying to find USB device %x %x ...\n",
+	       Avision_Device_List [model_num].usb_vendor,
+	       Avision_Device_List [model_num].usb_product);
+	  
+	  /* TODO: check return value */
+	  if (sanei_usb_find_devices (Avision_Device_List [model_num].usb_vendor,
+				      Avision_Device_List [model_num].usb_product,
+				      attach_one_usb) != SANE_STATUS_GOOD) {
+	    DBG(1, "sane_init: error during USB device detection!\n");
 	  }
-	++ model_num;
-      } /* end for all devices in supported list */
-  } /* end usb device scanning */
-
+	}
+      ++ model_num;
+    } /* end for all devices in supported list */
+  
   return SANE_STATUS_GOOD;
 }
 

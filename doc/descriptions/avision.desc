@@ -14,7 +14,7 @@
 :backend "avision"
 
 ; version of backend
-:version "Build: 69"
+:version "Build: 70"
 ;status: alpha, beta, stable, new
 :status :stable
 

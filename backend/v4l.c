@@ -180,9 +180,6 @@ attach (const char *devname, V4L_Device **devp)
 {
   V4L_Device * q;
 
-  if (!devp)
-    return SANE_STATUS_INVAL;
-
   errno = 0;
 
   q = malloc (sizeof (*q));
@@ -202,8 +199,8 @@ attach (const char *devname, V4L_Device **devp)
   q->next = first_dev;
   first_dev = q;
 
-
-  *devp = q;
+  if (devp)
+    *devp = q;
   return SANE_STATUS_GOOD;
 }
 
@@ -245,12 +242,12 @@ init_options (V4L_Scanner *s)
   parms.depth   =       pict.depth;
   if (pict.depth < 8)
      parms.depth        =       8;
-  parms.depth   =       8;
+  parms.depth   =       8; /* ??? */
   parms.lines           = window.height;
   parms.pixels_per_line = window.width;
-  switch(pict.palette)
+  switch (pict.palette)
      {
-        case VIDEO_PALETTE_GREY:        /* Linear greyscale */
+       case VIDEO_PALETTE_GREY:        /* Linear greyscale */
            {
                 parms.format    =       SANE_FRAME_GRAY;
                 parms.bytes_per_line  = window.width;
@@ -361,6 +358,7 @@ init_options (V4L_Scanner *s)
                        | SANE_CAP_ALWAYS_SETTABLE);
     }
 
+  /* Number of options */
   s->opt[OPT_NUM_OPTS].title = SANE_TITLE_NUM_OPTIONS;
   s->opt[OPT_NUM_OPTS].desc = SANE_DESC_NUM_OPTIONS;
   s->opt[OPT_NUM_OPTS].type = SANE_TYPE_INT;
@@ -368,12 +366,24 @@ init_options (V4L_Scanner *s)
   s->val[OPT_NUM_OPTS].w = NUM_OPTIONS;
 
   /* "Mode" group: */
-
   s->opt[OPT_MODE_GROUP].title = "Scan Mode";
   s->opt[OPT_MODE_GROUP].desc = "";
   s->opt[OPT_MODE_GROUP].type = SANE_TYPE_GROUP;
   s->opt[OPT_MODE_GROUP].cap = 0;
   s->opt[OPT_MODE_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
+
+  /* bit-depth */
+  s->opt[OPT_DEPTH].name = SANE_NAME_BIT_DEPTH;
+  s->opt[OPT_DEPTH].title = "Pixel depth";
+  s->opt[OPT_DEPTH].desc = "Number of bits per pixel.";
+  s->opt[OPT_DEPTH].type = SANE_TYPE_INT;
+  s->opt[OPT_DEPTH].unit = SANE_UNIT_BIT;
+  s->opt[OPT_DEPTH].constraint_type = SANE_CONSTRAINT_WORD_LIST;
+  s->opt[OPT_DEPTH].constraint.word_list = color_depth_list;
+  s->val[OPT_DEPTH].w = pict.depth;
+  /* if (pict.depth == 0) */
+  /* ??? make sure, depth is one of color_depth_list */
+  s->val[OPT_DEPTH].w = 8;
 
   /* resolution */
   s->opt[OPT_RESOLUTION].name = SANE_NAME_SCAN_RESOLUTION;
@@ -385,20 +395,34 @@ init_options (V4L_Scanner *s)
   s->opt[OPT_RESOLUTION].unit = SANE_UNIT_NONE;
   s->opt[OPT_RESOLUTION].constraint_type = SANE_CONSTRAINT_STRING_LIST;
   s->opt[OPT_RESOLUTION].constraint.string_list = resolution_list;
-  s->val[OPT_RESOLUTION].s = strdup (resolution_list[V4L_RES_LOW]);
-  s->val[OPT_RESOLUTION].w = 1;
+  s->val[OPT_RESOLUTION].s = strdup (resolution_list[V4L_RES_LOW]); /* ??? result untested, strdup
+								       repeated with every call to
+								       sane_control_option */
+  s->val[OPT_RESOLUTION].w = 1; /* ??? */
 
-  /* bit-depth */
-  s->opt[OPT_DEPTH].name = SANE_NAME_BIT_DEPTH;
-  s->opt[OPT_DEPTH].title = "Pixel depth";
-  s->opt[OPT_DEPTH].desc = "Number of bits per pixel.";
-  s->opt[OPT_DEPTH].type = SANE_TYPE_INT;
-  s->opt[OPT_DEPTH].unit = SANE_UNIT_BIT;
-  s->opt[OPT_DEPTH].constraint_type = SANE_CONSTRAINT_WORD_LIST;
-  s->opt[OPT_DEPTH].constraint.word_list = color_depth_list;
-  s->val[OPT_DEPTH].w = pict.depth;
-  if (pict.depth == 0)
-     s->val[OPT_DEPTH].w = 8;
+  /* xfer-scale */
+  s->opt[OPT_XFER_SCALE].name = "transfer-scale";
+  s->opt[OPT_XFER_SCALE].title = "Transfer scale";
+  s->opt[OPT_XFER_SCALE].desc =
+    "The transferscale determines how many of the acquired pixels actually "
+    "get sent to the computer.  For example, a transfer scale of 2 would "
+    "request that every other acquired pixel would be omitted.  That is, "
+    "when scanning a 200 pixel wide and 100 pixel tall area, the resulting "
+    "image would be only 100x50 pixels large.  Using a large transfer scale "
+    "improves acquisition speed, but reduces resolution.";
+  s->opt[OPT_XFER_SCALE].type = SANE_TYPE_INT;
+  s->opt[OPT_XFER_SCALE].constraint_type = SANE_CONSTRAINT_WORD_LIST;
+  s->opt[OPT_XFER_SCALE].constraint.word_list = xfer_scale_list;
+  s->val[OPT_XFER_SCALE].w = xfer_scale_list[1];
+
+  /* despeckle */
+  s->opt[OPT_DESPECKLE].name = "despeckle";
+  s->opt[OPT_DESPECKLE].title = "Speckle filter";
+  s->opt[OPT_DESPECKLE].desc = "Turning on this filter will remove the "
+    "christmas lights that are typically present in dark images.";
+  s->opt[OPT_DESPECKLE].type = SANE_TYPE_BOOL;
+  s->opt[OPT_DESPECKLE].constraint_type = SANE_CONSTRAINT_NONE;
+  s->val[OPT_DESPECKLE].w = 0;
 
   /* test */
   s->opt[OPT_TEST].name = "test-image";
@@ -462,33 +486,8 @@ init_options (V4L_Scanner *s)
   if (s->val[OPT_BR_Y].w > 511)
     s->val[OPT_BR_Y].w = 511;
 
-  /* xfer-scale */
-  s->opt[OPT_XFER_SCALE].name = "transfer-scale";
-  s->opt[OPT_XFER_SCALE].title = "Transfer scale";
-  s->opt[OPT_XFER_SCALE].desc =
-    "The transferscale determines how many of the acquired pixels actually "
-    "get sent to the computer.  For example, a transfer scale of 2 would "
-    "request that every other acquired pixel would be omitted.  That is, "
-    "when scanning a 200 pixel wide and 100 pixel tall area, the resulting "
-    "image would be only 100x50 pixels large.  Using a large transfer scale "
-    "improves acquisition speed, but reduces resolution.";
-  s->opt[OPT_XFER_SCALE].type = SANE_TYPE_INT;
-  s->opt[OPT_XFER_SCALE].constraint_type = SANE_CONSTRAINT_WORD_LIST;
-  s->opt[OPT_XFER_SCALE].constraint.word_list = xfer_scale_list;
-  s->val[OPT_XFER_SCALE].w = xfer_scale_list[1];
-
-  /* despeckle */
-  s->opt[OPT_DESPECKLE].name = "despeckle";
-  s->opt[OPT_DESPECKLE].title = "Speckle filter";
-  s->opt[OPT_DESPECKLE].desc = "Turning on this filter will remove the "
-    "christmas lights that are typically present in dark images.";
-  s->opt[OPT_DESPECKLE].type = SANE_TYPE_BOOL;
-  s->opt[OPT_DESPECKLE].constraint_type = SANE_CONSTRAINT_NONE;
-  s->val[OPT_DESPECKLE].w = 0;
-
 
   /* "Enhancement" group: */
-
   s->opt[OPT_ENHANCEMENT_GROUP].title = "Enhancement";
   s->opt[OPT_ENHANCEMENT_GROUP].desc = "";
   s->opt[OPT_ENHANCEMENT_GROUP].type = SANE_TYPE_GROUP;
@@ -580,7 +579,7 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback authorize)
   fp = sanei_config_open (V4L_CONFIG_FILE);
   if (!fp)
     {
-      DBG(1, "sane_init: file `%s' not accessible\n", V4L_CONFIG_FILE);
+      DBG (1, "sane_init: file `%s' not accessible\n", V4L_CONFIG_FILE);
       return SANE_STATUS_INVAL;
     }
 
@@ -596,21 +595,21 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback authorize)
       /* Remove trailing space and trailing comments */
       for (str = dev_name; *str && !isspace (*str) && *str != '#'; ++str);
       *str = '\0';
-      v4ldev = open ( dev_name,O_RDWR);
+      v4ldev = open (dev_name, O_RDWR);
       if (-1 != v4ldev)
         {
-          if (-1 != ioctl(v4ldev,VIDIOCGCAP,&capability))
+          if (-1 != ioctl (v4ldev, VIDIOCGCAP, &capability))
             {
-              DBG(1, "sane_init: found videodev on `%s'\n", dev_name);
+              DBG (1, "sane_init: found videodev on `%s'\n", dev_name);
               attach (dev_name, 0);
             }
           else
-            DBG(1, "sane_init: ioctl(%d,VIDIOCGCAP,..) failed on `%s'\n",
-                v4ldev, dev_name);
+            DBG (1, "sane_init: ioctl (%d, VIDIOCGCAP,..) failed on `%s': %s\n",
+                v4ldev, dev_name, strerror (errno));
           close (v4ldev);
         }
       else
-        DBG(1, "sane_init: failed to open device `%s'\n", dev_name);
+        DBG (1, "sane_init: failed to open device `%s': %s\n", dev_name, strerror (errno));
     }
   fclose (fp);
   return SANE_STATUS_GOOD;
@@ -666,7 +665,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
   V4L_Device *dev;
   V4L_Scanner *s;
 
-  DBG(4, "open(%s)\n", devicename);
+  DBG (4, "sane_open: trying to open `%s'\n", devicename);
 
   if (devicename[0])
     {
@@ -706,7 +705,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
         return SANE_STATUS_INVAL;
 
       if (-1 == ioctl(v4ldev,VIDIOCGMBUF,&ov_mbuf))
-        DBG(1, "No Fbuffer\n");
+        DBG (1, "sane_open: no Fbuffer\n");
     }
   else
     /* empty devicname -> use first device */
@@ -749,7 +748,7 @@ sane_close (SANE_Handle handle)
     }
   if (!s)
     {
-      DBG(1, "sane_close: bad handle %p\n", handle);
+      DBG (1, "sane_close: bad handle %p\n", handle);
       return;           /* oops, not a handle we know about */
     }
   if (prev)
@@ -816,7 +815,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           *(SANE_Word *) val = s->val[option].w;
           return SANE_STATUS_GOOD;
         default:
-          DBG(1, "control_option: option %d unknown\n", option);
+          DBG (1, "sane_control_option: option %d unknown\n", option);
         }
     }
   else if (action == SANE_ACTION_SET_VALUE)
@@ -831,7 +830,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
       if (-1 == ioctl(s->fd,VIDIOCGWIN,&window))
         {
-          DBG(1, "Can not get Window Geometry\n");
+          DBG (1, "sane_control_option: can not get window geometry\n");
           /*return SANE_STATUS_INVAL;*/
         }
       window.clipcount  = 0;
@@ -902,16 +901,16 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
         }
       if (-1 == ioctl(s->fd,VIDIOCSWIN,&window))
         {
-          DBG(1, "Can not set Window Geometry\n");
+          DBG (1, "sane_control_option: can not set window geometry\n");
           /*return SANE_STATUS_INVAL;*/
         }
       if (-1 == ioctl(s->fd,VIDIOCGWIN,&window))
         {
-          DBG(1, "Can not get window geometry\n");
+          DBG (1, "sane_control_option: can not get window geometry\n");
         }
       if (-1 == ioctl(s->fd,VIDIOCSPICT,&pict))
         {
-          DBG(1, "Can not set Picture Parameters\n");
+          DBG (1, "sane_control_option: can not set picture parameters\n");
           /*return SANE_STATUS_INVAL;*/
         }
       return SANE_STATUS_GOOD;
@@ -954,6 +953,7 @@ sane_start (SANE_Handle handle)
   int len;
   V4L_Scanner *s;
 
+  DBG(2, "sane_start\n");
   for (s = first_handle; s; s = s->next)
     {
       if (s == handle)
@@ -961,53 +961,52 @@ sane_start (SANE_Handle handle)
     }
   if (!s)
     {
-      DBG(1, "sane_start: bad handle %p\n", handle);
+      DBG (1, "sane_start: bad handle %p\n", handle);
       return SANE_STATUS_INVAL;         /* oops, not a handle we know about */
     }
   len = ioctl(v4ldev,VIDIOCGCAP,&capability);
   if (-1 == len)
-    DBG(1, "Can not get capabilities\n");
+    DBG (1, "sane_start: can not get capabilities\n");
   buffercount = 0;
-  DBG(2, "sane_start\n");
   if (-1 == ioctl(s->fd,VIDIOCGMBUF,&ov_mbuf))
      {
         s->mmap = FALSE;
         buffer = malloc(capability.maxwidth * capability.maxheight * pict.depth);
         if (0 == buffer)
           return SANE_STATUS_NO_MEM;
-        DBG(2, "V4L READING Frame\n");
+        DBG (2, "sane_start: V4L READING Frame\n");
         len = read (s->fd,buffer,parms.bytes_per_line * parms.lines);
-        DBG(2, "V4L Frame read\n");
+        DBG (2, "sane_start: V4L Frame read\n");
      }
   else
      {
         s->mmap = TRUE;
-        DBG(2, "MMAP Frame\n");
-        DBG(2, "Buffersize %d , Buffers %d , Offset %p\n",
+        DBG (2, "sane_start: MMAP Frame\n");
+        DBG (2, "sane_start: Buffersize %d , Buffers %d , Offset %p\n",
             ov_mbuf.size, ov_mbuf.frames, ov_mbuf.offsets);
         buffer = mmap (0,ov_mbuf.size,PROT_READ|PROT_WRITE,MAP_SHARED,s->fd,0);
-        DBG(2, "MMAPed Frame, Capture 1 Pict into %p\n", buffer);
+        DBG (2, "sane_start: MMAPed Frame, Capture 1 Pict into %p\n", buffer);
         gb.frame = 0;
         gb.width = window.width;
         gb.width = parms.pixels_per_line;
         gb.height = window.height;
         gb.height = parms.lines;
         gb.format = pict.palette;
-        DBG(2,"MMAPed Frame %d x %d with Palette %d\n",
+        DBG (2,"sane_start: MMAPed Frame %d x %d with Palette %d\n",
             gb.width,gb.height,gb.format);
         len = ioctl(v4ldev,VIDIOCMCAPTURE,&gb);
-        DBG(2, "mmap-result %d\n",len);
-        DBG(2, "Frame %x\n",gb.frame);
+        DBG (2, "sane_start: mmap-result %d\n",len);
+        DBG (2, "sane_start: Frame %x\n",gb.frame);
 #if 0
         len = ioctl(v4ldev,VIDIOCSYNC,&(gb.frame));
         if (-1 == len)
           {
-            DBG(1, "Call to ioctl(%d, VIDIOCSYNC, ..) failed\n", v4ldev);
+            DBG (1, "sane_start: Call to ioctl(%d, VIDIOCSYNC, ..) failed\n", v4ldev);
             return SANE_STATUS_INVAL;
           }
 #endif
      }
-  DBG(2, "sane_start: done\n");
+  DBG (2, "sane_start: done\n");
   return SANE_STATUS_GOOD;
 }
 

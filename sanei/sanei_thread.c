@@ -90,7 +90,7 @@ sanei_thread_init( void )
  *
 */
 int
-sanei_thread_begin( void (*func)(void *args), void* args )
+sanei_thread_begin( int (*func)(void *args), void* args )
 {
    return _beginthread( func, NULL, 1024*1024, args );
 }
@@ -104,7 +104,7 @@ sanei_thread_kill( int pid )
 int
 sanei_thread_waitpid( int pid, int *status )
 {
-  if (status
+  if (status)
     *status = 0;
   return pid; /* DosWaitThread( (TID*) &pid, DCWW_WAIT);*/
 }
@@ -131,6 +131,11 @@ sanei_thread_get_status( int pid )
 #endif
 
 #ifdef USE_PTHREAD
+
+/* seems to be undefined in MacOS X */
+#ifndef PTHREAD_CANCELED
+# define PTHREAD_CANCELED ((void *) -1)
+#endif
 
 typedef struct {
 

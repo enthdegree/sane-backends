@@ -9,6 +9,8 @@
 	* doc/sane-nec.man: Fixed problem with table.
 	* doc/sane-sharp.man: Fixed problem with table.
 	* backend/sharp.desc: Added link to sane-sharp manual page.
+	* doc/sane_mustek_pp.man: Removed link to sane-musteka4s2 (doesn't
+	  exist).
 
 2001-10-09  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

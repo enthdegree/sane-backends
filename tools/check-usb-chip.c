@@ -348,6 +348,186 @@ check_gt6816 (struct usb_device *dev)
   return "GT-6816";
 }
 
+/* Check for Grandtech GT-8911 */
+static char *
+check_gt8911 (struct usb_device *dev)
+{
+  char req[64];
+  usb_dev_handle *handle;
+  int result;
+
+  if (verbose > 2)
+    printf ("    checking for GT-8911 ...\n");
+
+  /* Check device descriptor */
+  if ((dev->descriptor.bDeviceClass != USB_CLASS_PER_INTERFACE)
+      || (dev->config[0].interface[0].altsetting[0].bInterfaceClass !=
+	  USB_CLASS_VENDOR_SPEC))
+    {
+      if (verbose > 2)
+	printf
+	  ("    check 1, this is not a GT-8911 (bDeviceClass = %d, bInterfaceClass = %d)\n",
+	   dev->descriptor.bDeviceClass,
+	   dev->config[0].interface[0].altsetting[0].bInterfaceClass);
+      return 0;
+    }
+  if (dev->descriptor.bcdUSB != 0x110)
+    {
+      if (verbose > 2)
+	printf ("    check 2, this is not a GT-8911 (bcdUSB = 0x%x)\n",
+		dev->descriptor.bcdUSB);
+      return 0;
+    }
+  if (dev->descriptor.bDeviceSubClass != 0x00)
+    {
+      if (verbose > 2)
+	printf ("    check 3, this is not a GT-8911 (bDeviceSubClass = 0x%x)\n",
+		dev->descriptor.bDeviceSubClass);
+      return 0;
+    }
+  if (dev->descriptor.bDeviceProtocol != 0x00)
+    {
+      if (verbose > 2)
+	printf ("    check 4, this is not a GT-8911 (bDeviceProtocol = 0x%x)\n",
+		dev->descriptor.bDeviceProtocol);
+      return 0;
+    }
+
+  /* Check endpoints */
+  if (dev->config[0].interface[0].altsetting[0].bNumEndpoints != 2)
+    {
+      if (verbose > 2)
+	printf ("    check 5, this is not a GT-8911 (bNumEndpoints = %d)\n",
+		dev->config[0].interface[0].altsetting[0].bNumEndpoints);
+      return 0;
+    }
+  /* Check first endpoint descriptor block */
+  if ((dev->config[0].interface[0].altsetting[0].endpoint[0].
+       bEndpointAddress != 0x81)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[0].
+	  bmAttributes != 0x02)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[0].
+	  wMaxPacketSize != 0x40)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[0].bInterval !=
+	  0x00))
+    {
+      if (verbose > 2)
+	printf
+	  ("    check 6, this is not a GT-8911 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].
+	   bEndpointAddress,
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].bmAttributes,
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].
+	   wMaxPacketSize,
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].bInterval);
+      return 0;
+    }
+  if ((dev->config[0].interface[0].altsetting[0].endpoint[1].
+       bEndpointAddress != 0x02)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[1].
+	  bmAttributes != 0x02)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[1].
+	  wMaxPacketSize != 0x40)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[1].bInterval !=
+	  0x00))
+    {
+      if (verbose > 2)
+	printf
+	  ("    check 7, this is not a GT-8911 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].
+	   bEndpointAddress,
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].bmAttributes,
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].
+	   wMaxPacketSize,
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].bInterval);
+      return 0;
+
+    }
+
+  /* Check fourth endpoint descriptor block */
+if ((dev->config[0].interface[1].altsetting[2].endpoint[0].
+       bEndpointAddress != 0x83)
+      || (dev->config[0].interface[1].altsetting[2].endpoint[0].
+	  bmAttributes != 0x01)
+      || (dev->config[0].interface[1].altsetting[2].endpoint[0].
+	  wMaxPacketSize != 0x01d0)
+      || (dev->config[0].interface[1].altsetting[2].endpoint[0].bInterval !=
+	  0x01))
+    {
+      if (verbose > 2)
+	printf
+	  ("    check 8, this is not a GT-8911 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
+	   dev->config[0].interface[1].altsetting[2].endpoint[0].
+	   bEndpointAddress,
+	   dev->config[0].interface[1].altsetting[2].endpoint[0].bmAttributes,
+	   dev->config[0].interface[1].altsetting[2].endpoint[0].
+	   wMaxPacketSize,
+	   dev->config[0].interface[1].altsetting[2].endpoint[0].bInterval);
+      return 0;
+    }
+  if ((dev->config[0].interface[1].altsetting[2].endpoint[1].
+       bEndpointAddress != 0x04)
+      || (dev->config[0].interface[1].altsetting[2].endpoint[1].
+	  bmAttributes != 0x02)
+      || (dev->config[0].interface[1].altsetting[2].endpoint[1].
+	  wMaxPacketSize != 0x40)
+      || (dev->config[0].interface[1].altsetting[2].endpoint[1].bInterval !=
+	  0x00))
+    {
+      if (verbose > 2)
+	printf
+	  ("    check 9, this is not a GT-8911 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
+	   dev->config[0].interface[1].altsetting[2].endpoint[1].
+	   bEndpointAddress,
+	   dev->config[0].interface[1].altsetting[2].endpoint[1].bmAttributes,
+	   dev->config[0].interface[1].altsetting[2].endpoint[1].
+	   wMaxPacketSize,
+	   dev->config[0].interface[1].altsetting[2].endpoint[1].bInterval);
+      return 0;
+
+    }
+
+  /* Now we send a control message */
+  result = prepare_interface (dev, &handle);
+  if (!result)
+    return "GT-8911?";
+  
+  memset (req, 0, 8);
+  req[0] = 0x55;
+  req[1] = 0x66;
+
+    usb_control_msg (handle, 0xc0, 0x10, 0x41, 0x0000, req, 64, TIMEOUT);
+  if (result <= 0)
+    {
+      if (verbose > 2)
+	printf ("    Check 10, Couldn't send read control message (%s)\n",
+		strerror (errno));
+      finish_interface (handle);
+      return 0;
+    }
+  result =
+    usb_control_msg (handle, 0xc0, 0x10, 0x05, 0x0000, req, 64, TIMEOUT);
+  if (result <= 0)
+    {
+      if (verbose > 2)
+	printf ("    Check 11, Couldn't send read control message (%s)\n",
+		strerror (errno));
+      finish_interface (handle);
+      return 0;
+    }
+  /* tested on model hardware version 0xffffffc0, firmware version 0x10)) */
+  if (verbose > 2)
+    printf ("    Check 12, control message (hardware version %0x / firmware version %0x)\n",
+		req[0], req[1]);
+
+  finish_interface (handle);
+  return "GT-8911";
+}
+
 /* Check for Mustek MA-1017 */
 static char *
 check_ma1017 (struct usb_device *dev)
@@ -1842,6 +2022,9 @@ check_usb_chip (struct usb_device *dev, int verbosity)
 
   if (!chip_name)
     chip_name = check_gt6816 (dev);
+
+  if (!chip_name)
+    chip_name = check_gt8911 (dev);
 
   if (!chip_name)
     chip_name = check_ma1017 (dev);

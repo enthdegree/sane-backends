@@ -1,3 +1,6 @@
+2002-06-05  A bel Deuring <a.deuring@satzbau-gmbh.de>
+	* doc/descriptions/sharp.desc: added "interface" parameter
+
 2002-06-05  Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* backend/umax_pp.c:  reverted a change in color reordering for 1600P

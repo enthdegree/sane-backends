@@ -115,6 +115,7 @@ static struct SnapScan_Model_desc scanners[] =
     {"FlatbedScanner19",    PRISA1240},
     {"FlatbedScanner20",    PRISA640},
     {"FlatbedScanner21",    PRISA4300},
+    {"FlatbedScanner22",    PRISA4300_2},
     {"FlatbedScanner23",    PRISA4300_2},
     {"FlatbedScanner24",    PRISA5300},
     {"SNAPSCAN 1212U",      SNAPSCAN1212U},
@@ -122,9 +123,8 @@ static struct SnapScan_Model_desc scanners[] =
     {"SNAPSCAN e20",        SNAPSCANE20},
     {"SNAPSCAN e25",        SNAPSCANE20},
     {"SNAPSCAN e26",        SNAPSCANE20},
-    {"SNAPSCAN e26    ",    SNAPSCANE20},
     {"SNAPSCAN e40",        SNAPSCANE50},
-    {"SNAPSCAN e42",        SNAPSCANE50},
+    {"SNAPSCAN e42",        SNAPSCANE52},
     {"SNAPSCAN e50",        SNAPSCANE50},
     {"SNAPSCAN e52",        SNAPSCANE52},
     {"SNAPSCAN 1236",       SNAPSCAN1236},
@@ -154,6 +154,19 @@ static SANE_Word usb_vendor_ids[] =
     0x04a5      /* Acer */
 };
 #define known_usb_vendor_ids ((int) (sizeof(usb_vendor_ids)/sizeof(usb_vendor_ids[0])))
+
+struct SnapScan_USB_Model_desc
+{
+    SANE_Word vendor_id;
+    SANE_Word product_id;
+    SnapScan_Model id;
+};
+
+static struct SnapScan_USB_Model_desc usb_scanners[] =
+{
+    {0x04a5, 0x2022, SNAPSCAN310}  /* Acer 320U */
+};
+#define known_usb_scanners ((int) (sizeof(usb_scanners)/sizeof(usb_scanners[0])))
 
 
 typedef enum
@@ -324,8 +337,8 @@ struct snapscan_scanner
 
 /*
  * $Log$
- * Revision 1.11  2002/01/10 22:20:17  oliverschwartz
- * Update to snapscan-20020110 (snapscan 1.4.4)
+ * Revision 1.12  2002/01/23 20:50:34  oliverschwartz
+ * Fix recognition of Acer 320U
  *
  * Revision 1.27  2002/01/06 18:34:02  oliverschwartz
  * Added support for Snapscan e42 thanks to Yari Adán Petralanda

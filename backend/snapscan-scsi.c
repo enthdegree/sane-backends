@@ -56,6 +56,46 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss);
 
 #include "snapscan-usb.h"
 
+/* find model by SCSI ID string or USB vendor/product ID */
+static SnapScan_Model snapscani_get_model_id(char* model_str, int fd, SnapScan_Bus bus_type)
+{
+    static char me[] = "snapscani_get_model_id";
+    SnapScan_Model model_id = UNKNOWN;
+    SANE_Word vendor_id, product_id;
+    int i;
+
+    DBG(DL_CALL_TRACE, "%s(%s, %d, %d)\n",me, model_str, fd, bus_type);
+    for (i = 0;  i < known_scanners;  i++)
+    {
+        if (0 == strcasecmp (model_str, scanners[i].scsi_name))
+        {
+            model_id = scanners[i].id;
+            break;
+        }
+    }
+    /* Also test USB vendor and product ID numbers, since some USB models use
+       identical model names.
+    */
+    if ((bus_type == USB) &&
+        (sanei_usb_get_vendor_product(fd, &vendor_id, &product_id) == SANE_STATUS_GOOD))
+    {
+    	DBG(DL_MINOR_INFO, 
+            "%s: looking up scanner for ID 0x%04x,0x%04x.\n",
+            me, vendor_id, product_id);           
+        for (i = 0; i < known_usb_scanners; i++)
+        {
+            if ((usb_scanners[i].vendor_id == vendor_id) &&
+                (usb_scanners[i].product_id == product_id))
+            {
+                model_id = usb_scanners[i].id;
+                DBG(DL_MINOR_INFO, "%s: scanner identified\n", me);
+                break;
+            }
+        }
+    }
+    return model_id;
+}
+
 /* a sensible sense handler, courtesy of Franck;
    the last argument is expected to be a pointer to the associated
    SnapScan_Scanner structure */
@@ -392,7 +432,6 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
     if ( (pss->pdev->bus == USB) && (*(pss->buf + INQUIRY_HWST) & 0x02) )
     {
         char model[17];
-        int i;
 
         status = download_firmware(pss);
         CHECK_STATUS (status, me, "download_firmware");
@@ -413,20 +452,13 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
         /* The model identifier will change after firmware upload */
         memcpy (model, &pss->buf[INQUIRY_PRODUCT], 16);
         model[16] = 0;
+        remove_trailing_space(model);
         DBG (DL_INFO,
             "%s (after firmware upload): Checking if \"%s\" is a supported scanner\n",
             me,
             model);
         /* Check if it is one of our supported models */
-        pss->pdev->model = UNKNOWN;
-        for (i = 0;  i < known_scanners;  i++)
-        {
-            if (0 == strcasecmp (model, scanners[i].scsi_name))
-            {
-                pss->pdev->model = scanners[i].id;
-                break;
-            }
-        }
+        pss->pdev->model = snapscani_get_model_id(model, pss->fd, pss->pdev->bus);
         if (pss->pdev->model == UNKNOWN) {
             DBG (DL_MINOR_ERROR,
                 "%s (after firmware upload): \"%s\" is not a supported scanner\n",
@@ -1181,8 +1213,8 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
- * Revision 1.10  2002/01/22 19:25:41  oliverschwartz
- * Fix minor bugs in snapscan backend
+ * Revision 1.11  2002/01/23 20:50:32  oliverschwartz
+ * Fix recognition of Acer 320U
  *
  * Revision 1.25  2001/12/12 19:44:59  oliverschwartz
  * Clean up CVS log

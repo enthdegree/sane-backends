@@ -78,7 +78,7 @@
 
 #define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
-#define BUILD                6
+#define BUILD                7
 
 #include "snapscan.h"
 
@@ -1086,14 +1086,7 @@ static SANE_Status add_device (SANE_String_Const name)
     if (supported_vendor)
     {
         /* Known vendor.  Check if it is one of our supported models */
-        for (i = 0;  i < known_scanners;  i++)
-        {
-            if (0 == strcasecmp (model, scanners[i].scsi_name))
-            {
-                model_num = scanners[i].id;
-                break;
-            }
-        }
+        model_num = snapscani_get_model_id(model, fd, bus_type);
     }
     if (!supported_vendor  ||  UNKNOWN == model_num)
     {
@@ -3100,8 +3093,8 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
- * Revision 1.16  2002/01/22 19:25:42  oliverschwartz
- * Fix minor bugs in snapscan backend
+ * Revision 1.17  2002/01/23 20:50:33  oliverschwartz
+ * Fix recognition of Acer 320U
  *
  * Revision 1.38  2002/01/14 21:11:56  oliverschwartz
  * Add workaround for bug semctl() call in libc for PPC

@@ -92,6 +92,6 @@ clean:
 	rm -rf .libs
 
 distclean: clean
-	rm -f Makefile $(DESTINATIONS)
+	rm -f Makefile $(DESTINATIONS) mustek600IIn-off
 
 .PHONY: all install depend clean distclean

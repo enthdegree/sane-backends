@@ -52,10 +52,12 @@
  * If you do not wish that, delete this exception notice.
  */
 
+#define _SCALER		1000
+
 static u_char   bShift;
 static u_char  *pbSrce, *pbDest;
 static int	    iNext;
-static u_long   dwPixels, dwBitsPut, dwBits;
+static u_long   dwPixels, dwBitsPut;
 static u_short	wSum;
 static u_short *pwDest;
 static u_short	wR, wG, wB;
@@ -302,13 +304,26 @@ static void usb_AverageGrayWord( struct Plustek_Device *dev )
 }
 
 /*.............................................................................
+ * returns the zoom value, used for our scaling algorithm (DDA algo
+ * digital differential analyzer).
+ */
+static int usb_GetScaler( pScanDef scanning )
+{
+	double ratio;
+
+	ratio = (double)scanning->sParam.UserDpi.x/
+			(double)scanning->sParam.PhyDpi.x;	
+			
+	return (int)(1.0/ratio * _SCALER);			
+}
+
+/*.............................................................................
  *
  */
 static void usb_ColorScaleGray( struct Plustek_Device *dev )
 {
 	int      izoom, ddax;
 	u_long   dw;
-	double   ratio;
     pScanDef scanning = &dev->scanning;
 
 	usb_AverageColorByte( dev );
@@ -323,16 +338,14 @@ static void usb_ColorScaleGray( struct Plustek_Device *dev )
 		dwPixels = 0;
 	}
 	
-	ratio = (double)scanning->sParam.UserDpi.x/
-			(double)scanning->sParam.PhyDpi.x;	
-	izoom = (int)(1.0/ratio * 1000);			
+	izoom = usb_GetScaler( scanning );			
 
 	switch( scanning->fGrayFromColor ) {
 	
 	case 1:
 	 	for( dwBitsPut = 0, ddax = 0; dw; dwBitsPut++ ) {
 
-	 		ddax -= 1000;
+	 		ddax -= _SCALER;
 
  			while((ddax < 0) && (dw > 0)) {
 
@@ -349,7 +362,7 @@ static void usb_ColorScaleGray( struct Plustek_Device *dev )
 	case 2:
 	 	for( dwBitsPut = 0, ddax = 0; dw; dwBitsPut++ ) {
 
-	 		ddax -= 1000;
+	 		ddax -= _SCALER;
 
  			while((ddax < 0) && (dw > 0)) {
 
@@ -366,7 +379,7 @@ static void usb_ColorScaleGray( struct Plustek_Device *dev )
 	case 3:
 	 	for( dwBitsPut = 0, ddax = 0; dw; dwBitsPut++ ) {
 
-	 		ddax -= 1000;
+	 		ddax -= _SCALER;
 
  			while((ddax < 0) && (dw > 0)) {
 
@@ -389,7 +402,6 @@ static void usb_ColorScale8( struct Plustek_Device *dev )
 {
 	int      izoom, ddax;
 	u_long   dw;
-	double   ratio;
     pScanDef scanning = &dev->scanning;
 
 	usb_AverageColorByte( dev );
@@ -404,13 +416,11 @@ static void usb_ColorScale8( struct Plustek_Device *dev )
 		dwPixels = 0;
 	}
 
-	ratio = (double)scanning->sParam.UserDpi.x/
-			(double)scanning->sParam.PhyDpi.x;	
-	izoom = (int)(1.0/ratio * 1000);			
+	izoom = usb_GetScaler( scanning );			
 
 	for( dwBitsPut = 0, ddax = 0; dw; dwBitsPut++ ) {
 
-		ddax -= 1000;
+		ddax -= _SCALER;
 
 		while((ddax < 0) && (dw > 0)) {
 
@@ -437,7 +447,6 @@ static void usb_ColorScale16( struct Plustek_Device *dev )
 {
 	int      izoom, ddax;
 	u_long   dw;
-	double   ratio;
     pScanDef scanning = &dev->scanning;
 
 	usb_AverageColorWord( dev );
@@ -452,15 +461,13 @@ static void usb_ColorScale16( struct Plustek_Device *dev )
 		dwPixels = 0;
 	}
 
-	ratio = (double)scanning->sParam.UserDpi.x/
-			(double)scanning->sParam.PhyDpi.x;	
-	izoom = (int)(1.0/ratio * 1000);			
+	izoom = usb_GetScaler( scanning );			
 	
 	if( scanning->dwFlag & SCANFLAG_RightAlign ) {
 	
 		for( dwBitsPut = 0, ddax = 0; dw; dwBitsPut++ ) {
 
-			ddax -= 1000;
+			ddax -= _SCALER;
 
 			while((ddax < 0) && (dw > 0)) {
 
@@ -483,7 +490,7 @@ static void usb_ColorScale16( struct Plustek_Device *dev )
 		
 		for( dwBitsPut = 0, ddax = 0; dw; dwBitsPut++ ) {
 
-			ddax -= 1000;
+			ddax -= _SCALER;
 
 			while((ddax < 0) && (dw > 0)) {
 
@@ -511,7 +518,6 @@ static void usb_ColorScalePseudo16( struct Plustek_Device *dev )
 {
 	int      izoom, ddax;
 	u_long   dw;
-	double   ratio;
     pScanDef scanning = &dev->scanning;
 
 	usb_AverageColorByte( dev );
@@ -526,9 +532,7 @@ static void usb_ColorScalePseudo16( struct Plustek_Device *dev )
 		dwPixels = 0;
 	}
 	
-	ratio = (double)scanning->sParam.UserDpi.x/
-			(double)scanning->sParam.PhyDpi.x;	
-	izoom = (int)(1.0/ratio * 1000);			
+	izoom = usb_GetScaler( scanning );			
 
 	wR = (u_short)scanning->Red.pcb[0].a_bColor[0];
 	wG = (u_short)scanning->Green.pcb[0].a_bColor[1];
@@ -536,7 +540,7 @@ static void usb_ColorScalePseudo16( struct Plustek_Device *dev )
 
 	for( dwBitsPut = 0, ddax = 0; dw; dwBitsPut++ ) {
 
-		ddax -= 1000;
+		ddax -= _SCALER;
 
 		while((ddax < 0) && (dw > 0)) {
 
@@ -706,12 +710,11 @@ static void usb_ColorDuplicateGray( struct Plustek_Device *dev )
 /*.............................................................................
  *
  */
-static void usb_BWReduce( struct Plustek_Device *dev )
+static void usb_BWScale( struct Plustek_Device *dev )
 {
-/*	u_char   tmp; */
+	u_char   tmp;
 	int      izoom, ddax;
-	u_long   /*i,*/dw;
-	double   ratio;
+	u_long   i, dw;
     pScanDef scanning = &dev->scanning;
 
 	pbSrce = scanning->Green.pb;
@@ -730,17 +733,15 @@ static void usb_BWReduce( struct Plustek_Device *dev )
 		iNext = 1;
 	}
 
-	ratio = (double)scanning->sParam.UserDpi.x/
-			(double)scanning->sParam.PhyDpi.x;	
-	izoom = (int)(1.0/ratio * 1000);			
+	izoom = usb_GetScaler( scanning );			
 	
-	memset( pbDest, 0, scanning->sParam.Size.dwPixels );
+	memset( pbDest, 0, scanning->dwBytesLine );
 	ddax = 0;
 	dw 	 = 0;
-#if 0
-	for( i = 0; i < scanning->sParam.Size.dwValidPixels*8; i++ ) {
+	
+	for( i = 0; i < scanning->sParam.Size.dwPixels; i++ ) {
 
-		ddax -= 1000;
+		ddax -= _SCALER;
 
 		while( ddax < 0 ) {
 
@@ -755,43 +756,6 @@ static void usb_BWReduce( struct Plustek_Device *dev )
 			ddax += izoom;
 		}
 	}
-	
-#else	
-	for( wSum = scanning->sParam.PhyDpi.x, dwBits = 8,
-		 dwPixels = scanning->sParam.Size.dwPixels; dwPixels; ) {
-		
-		for( dwBitsPut = 8; dwBitsPut && dwPixels;) {
-		
-			wSum += scanning->sParam.UserDpi.x;
-			
-			if( wSum >= scanning->sParam.PhyDpi.x ) {
-			
-				wSum -= scanning->sParam.PhyDpi.x;
-				if (*pbSrce & 0x80)
-					*pbDest = (*pbDest << 1) | 1;
-				else
-					*pbDest <<= 1;
-				dwBitsPut--;
-				dwPixels--;
-			}
-			if( !--dwBits )	{
-				pbSrce++;
-				dwBits = 8;
-			} else
-				*pbSrce <<= 1;
-		}
-		/*  If m_dwBitsPut != 0, all pixels are processed */
-		if( dwBitsPut )
-			*pbDest <<= dwBitsPut;
-
-		if( scanning->sParam.bSource == SOURCE_ADF )
-			*pbDest = BitsReverseTable[*pbDest];
-
-		pbDest = pbDest + iNext;
-		if( pbDest < scanning->UserBuf.pb )
-			break;
-	}
-#endif	
 }
 
 /*.............................................................................
@@ -818,7 +782,6 @@ static void usb_BWDuplicate( struct Plustek_Device *dev )
 static void usb_GrayScale8( struct Plustek_Device *dev )
 {
 	int      izoom, ddax;
-	double   ratio;
     pScanDef scanning = &dev->scanning;
 
 	usb_AverageGrayByte( dev );
@@ -832,13 +795,11 @@ static void usb_GrayScale8( struct Plustek_Device *dev )
 		iNext = 1;
 	}
 	
-	ratio = (double)scanning->sParam.UserDpi.x/
-			(double)scanning->sParam.PhyDpi.x;	
-	izoom = (int)(1.0/ratio * 1000);			
+	izoom = usb_GetScaler( scanning );			
 
 	for( dwPixels = scanning->sParam.Size.dwPixels, ddax = 0; dwPixels; pbSrce++ ) {
 
-		ddax -= 1000;
+		ddax -= _SCALER;
 
 		while((ddax < 0) && (dwPixels > 0)) {
 
@@ -856,7 +817,6 @@ static void usb_GrayScale8( struct Plustek_Device *dev )
 static void usb_GrayScale16( struct Plustek_Device *dev )
 {
 	int      izoom, ddax;
-	double   ratio;
     pScanDef scanning = &dev->scanning;
 
 	usb_AverageGrayWord( dev);
@@ -872,9 +832,7 @@ static void usb_GrayScale16( struct Plustek_Device *dev )
 		pwDest = scanning->UserBuf.pw;
 	}
 	
-	ratio = (double)scanning->sParam.UserDpi.x/
-			(double)scanning->sParam.PhyDpi.x;	
-	izoom = (int)(1.0/ratio * 1000);			
+	izoom = usb_GetScaler( scanning );			
 	ddax  = 0;
 
 	if( scanning->dwFlag & SCANFLAG_RightAlign ) {
@@ -882,7 +840,7 @@ static void usb_GrayScale16( struct Plustek_Device *dev )
 		for( dwPixels = scanning->sParam.Size.dwPixels -
 						scanning->sParam.UserDpi.x; dwPixels; pwm++ ) {
 
-			ddax -= 1000;
+			ddax -= _SCALER;
 
 			while((ddax < 0) && (dwPixels > 0)) {
 
@@ -898,7 +856,7 @@ static void usb_GrayScale16( struct Plustek_Device *dev )
 		for( dwPixels = scanning->sParam.Size.dwPixels -
 						scanning->sParam.UserDpi.x; dwPixels; pwm++ ) {
 
-			ddax -= 1000;
+			ddax -= _SCALER;
 
 			while((ddax < 0) && (dwPixels > 0)) {
 
@@ -917,7 +875,6 @@ static void usb_GrayScale16( struct Plustek_Device *dev )
 static void usb_GrayScalePseudo16( struct Plustek_Device *dev )
 {
 	int      izoom, ddax;
-	double   ratio;
     pScanDef scanning = &dev->scanning;
 
 	usb_AverageGrayByte( dev );
@@ -933,14 +890,12 @@ static void usb_GrayScalePseudo16( struct Plustek_Device *dev )
 		pwDest = scanning->UserBuf.pw;
 	}
 
-	ratio = (double)scanning->sParam.UserDpi.x/
-			(double)scanning->sParam.PhyDpi.x;	
-	izoom = (int)(1.0/ratio * 1000);			
+	izoom = usb_GetScaler( scanning );			
 	ddax  = 0;
 
 	for( dwPixels = scanning->sParam.Size.dwPixels, ddax = 0; dwPixels; pbSrce++ ) {
 
-		ddax -= 1000;
+		ddax -= _SCALER;
 
 		while((ddax < 0) && (dwPixels > 0)) {
 
@@ -1083,8 +1038,8 @@ static void usb_GetImageProc( struct Plustek_Device *dev )
 				break;
 
 			default:
-				scanning->pfnProcess = usb_BWReduce;
-				DBG( _DBG_INFO, "ImageProc is: BWReduce\n" );
+				scanning->pfnProcess = usb_BWScale;
+				DBG( _DBG_INFO, "ImageProc is: BWScale\n" );
 				break;
 		}
 

@@ -893,7 +893,8 @@ static int usbDev_readImage( struct Plustek_Device *dev,
 	DBG(_DBG_INFO,"dwBytesScanBuf   = %lu\n",scanning->dwBytesScanBuf );
 	DBG(_DBG_INFO,"dwLinesDiscard   = %lu\n",scanning->dwLinesDiscard );
 	DBG(_DBG_INFO,"dwLinesToSkip    = %u\n", scanning->bLinesToSkip );
-	DBG(_DBG_INFO,"dwLinesUser      = %lu\n",scanning->dwLinesUser );
+	DBG(_DBG_INFO,"dwLinesUser      = %lu\n",scanning->dwLinesUser  );
+	DBG(_DBG_INFO,"dwBytesLine      = %lu\n",scanning->dwBytesLine  );
 
 	scanning->pbGetDataBuf = scanning->pbScanBufBegin;
 	

@@ -374,7 +374,7 @@ typedef struct
 	double	dMCLK;			/* for positive & negative & Adf                 */
 	short	brightness;		
 	short	contrast;		
-	u_short	siThreshold;	/* only for B/W output                           */
+	short	siThreshold;	/* only for B/W output                           */
 	u_char	bSource;		/* Reflection/Positive/Negative/Adf (SOURCE_xxx) */
 	u_char	bDataType;		/* Bw, Gray or Color (see _SCANDATATYPE)         */
 	u_char	bBitDepth;		/* 1/8/14                                        */

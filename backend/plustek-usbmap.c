@@ -206,29 +206,21 @@ static SANE_Bool usb_MapDownload( pPlustek_Device dev, u_char bDataType )
 		/* write the gamma table entry to merlin */
 		if( scanning->sParam.bDataType == SCANDATATYPE_BW )	{
 		
-			iThreshold = (int)((double)scanning->sParam.siThreshold * 1.27);
-
-			/*  for registry threshold adjustment */
-/* HEINER: not needed !*/
-#if 0			
-			if((i = 128 /* HEINER// - Registry.GetThreshold() */)) {
-				j = ((iThreshold >= 0)? (127 - i): (i + 127));
-				iThreshold = i + iThreshold * j / 127;
-		/*	}  */
-#endif			
-
-			j = _MAP_SIZE / 2 - 16 * iThreshold * 128 / 127;
-			if(j < 0)
-				j = 0;
-			if(j > (int)_MAP_SIZE)
-				j = _MAP_SIZE;
+			iThreshold = (int)((double)scanning->sParam.siThreshold *
+											(_MAP_SIZE/200.0)) + (_MAP_SIZE/2);
+			iThreshold = _MAP_SIZE - iThreshold;
+			if(iThreshold < 0)
+				iThreshold = 0;
+			if(iThreshold > (int)_MAP_SIZE)
+				iThreshold = _MAP_SIZE;
 	
-			DBG(_DBG_INFO, "Threshold is at %u siThresh=%u\n", j, iThreshold);
-			
-			for(i = 0; i < j; i++)
+			DBG(_DBG_INFO, "Threshold is at %u siThresh=%i\n",
+								iThreshold, scanning->sParam.siThreshold );
+
+			for(i = 0; i < iThreshold; i++)
 				a_bMap[color*_MAP_SIZE + i] = 0;
 				
-			for(i = j; i < (int)_MAP_SIZE; i++)
+			for(i = iThreshold; i < (int)_MAP_SIZE; i++)
 				a_bMap[color*_MAP_SIZE + i] = 255;
 
 			fInverse = 1;
@@ -243,7 +235,7 @@ static SANE_Bool usb_MapDownload( pPlustek_Device dev, u_char bDataType )
 		}
 		
 		if((scanning->dwFlag & SCANDEF_Inverse) &&
-			!(scanning->dwFlag & SCANFLAG_Pseudo48)) {
+									!(scanning->dwFlag & SCANFLAG_Pseudo48)) {
 			fInverse ^= 1;
 		}	
 		
@@ -258,10 +250,11 @@ static SANE_Bool usb_MapDownload( pPlustek_Device dev, u_char bDataType )
 				map[i] = ~*pMap;
 			
 			sanei_lm9831_write( dev->fd,  0x06, map, _MAP_SIZE, SANE_FALSE );
-		}
-		else
+			
+		} else {
 			sanei_lm9831_write( dev->fd,  0x06, a_bMap+color*_MAP_SIZE,
 								 _MAP_SIZE, SANE_FALSE );
+		}								
 	
 	} /* for each color */
 	

@@ -113,6 +113,16 @@ AC_CHECK_HEADERS(fcntl.h unistd.h libc.h sys/dsreq.h sys/select.h \
 AC_CHECK_HEADERS([asm/io.h],,,[#include <sys/types.h>])
 SANE_CHECK_MISSING_HEADERS
 
+AC_CHECK_HEADER(resmgr.h,[
+	AC_CHECK_LIB(
+		resmgr,
+		rsm_open_device,[
+			AC_DEFINE(HAVE_RESMGR,1,[define if you have the resmgr library"])
+			LIBS="$LIBS -lresmgr"
+		]
+	)
+])
+
 dnl ***********************************************************************
 dnl Checks for types and structures
 dnl ***********************************************************************
@@ -464,6 +474,7 @@ echo "Configuration: `eval eval echo ${sysconfdir}`"
 echo "Libraries:     `eval eval echo ${libdir}`"
 echo "Binaries:      `eval eval echo ${bindir}` and `eval eval echo ${sbindir}`"
 echo "Manpages:      `eval eval echo ${mandir}`"
+echo "Documentation: `eval eval echo ${docdir}`"
 echo "-> Network parameters:"
 if test "${SANED}" = "saned" ; then
   echo "Build saned:   yes"

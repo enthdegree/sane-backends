@@ -55,6 +55,9 @@
 #include <stdio.h>
 #include <dirent.h>
 
+#ifdef HAVE_RESMGR
+#include <resmgr.h>
+#endif
 #ifdef HAVE_LIBUSB
 #include <usb.h>
 #endif /* HAVE_LIBUSB */
@@ -268,7 +271,12 @@ sanei_usb_init (void)
 	      if (strlen (dir_name) + strlen (dir_entry->d_name) + 1 > sizeof (devname))
 		  continue;
 	      sprintf (devname, "%s%s", dir_name, dir_entry->d_name);
-	      fd = open (devname, O_RDWR);
+	      fd = -1;
+#ifdef HAVE_RESMGR
+	      fd = rsm_open_device (devname, O_RDWR);
+#endif
+	      if (fd == -1)
+	        fd = open (devname, O_RDWR);
 	      if (fd < 0)
 		{
 		  DBG (5, "sanei_usb_init: couldn't open %s: %s\n", devname,
@@ -700,7 +708,12 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
     {
       long int flag;
       /* Using kernel scanner driver */
-      devices[devcount].fd = open (devname, O_RDWR);
+      devices[devcount].fd = -1;
+#ifdef HAVE_RESMGR
+      devices[devcount].fd = rsm_open_device (devname, O_RDWR);
+#endif
+      if (devices[devcount].fd == -1)
+        devices[devcount].fd = open (devname, O_RDWR);
       if (devices[devcount].fd < 0)
 	{
 	  SANE_Status status = SANE_STATUS_INVAL;

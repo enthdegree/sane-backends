@@ -80,6 +80,10 @@
 #define MACOSX_INTERFACE	17
 #define WIN32_INTERFACE		18
 
+#ifdef HAVE_RESMGR
+# include <resmgr.h>
+#endif
+
 #if defined (HAVE_SCSI_SG_H)
 # define USE LINUX_INTERFACE
 # include <scsi/sg.h>
@@ -768,13 +772,17 @@ static int sg_version = 0;
 static SANE_Status
 get_max_buffer_size (const char *file)
 {
-  int fd;
+  int fd = -1;
   int buffersize = SCSIBUFFERSIZE, i;
   size_t len;
   char *cc, *cc1, buf[32];
 
+#ifdef HAVE_RESMGR
+  fd = rsm_open_device(file, O_RDWR);
+#endif
 
-  fd = open (file, O_RDWR);
+  if (fd == -1)
+    fd = open (file, O_RDWR);
 
   if (fd > 0)
     {
@@ -1232,7 +1240,13 @@ sanei_scsi_open (const char *dev, int *fdp,
   }
 #endif /* defined(SGIOCSTL) || (USE == SOLARIS_INTERFACE) */
 
-  fd = open (dev, O_RDWR | O_EXCL
+  fd = -1;
+#ifdef HAVE_RESMGR
+  fd = rsm_open_device(dev, O_RDWR | O_EXCL | O_NONBLOCK);
+#endif
+
+  if (fd == -1)
+    fd = open (dev, O_RDWR | O_EXCL
 #if USE == LINUX_INTERFACE
 	     | O_NONBLOCK
 #endif
@@ -2472,7 +2486,12 @@ issue (struct req *req)
 		    dnp->base + guess_devnum);
 	else
 	  snprintf (name, name_len, "%s%d", dnp->prefix, guess_devnum);
-	dev_fd = open (name, O_RDWR | O_NONBLOCK);
+   dev_fd = -1;
+#ifdef HAVE_RESMGR
+   dev_fd = rsm_open_device (name, O_RDWR | O_NONBLOCK);
+#endif
+   if (dev_fd == -1)
+     dev_fd = open (name, O_RDWR | O_NONBLOCK);
 	if (dev_fd >= 0)
 	  {
 	    lx_sg_dev_base = k;

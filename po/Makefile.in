@@ -2,7 +2,7 @@
 #
 # See po/README for documentation.
 
-ALL_LINGUAS = de es fr nl pt ru sv
+ALL_LINGUAS = de es fr nl no pt ru sv
 
 SRC_FILES = ../include/sane/saneopts.h ../backend/artec_eplus48u.c \
   ../backend/avision.h \

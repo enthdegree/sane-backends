@@ -1,3 +1,8 @@
+2003-05-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* po/Makefile.in po/sane-backends.no.po: Added Norwegian
+	  translation (from Sigurd Stordal <sigurd.stordal@stud.ibg.uit.no>). 
+
 2003-05-06  Michael Herder <crapsite@gmx.net>
 
         * doc/descriptions/artec_eplus48u.desc:

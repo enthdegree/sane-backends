@@ -10,9 +10,9 @@
 ;
 
 :backend "umax1220u"              ; name of backend
-:version "(sep15)"                 ; version of backend
-:status :beta                   ; :alpha, :beta, :stable, :new
-;:manpage "sane-umax1220u"              ; name of manpage (if it exists)
+:version "1.0.1"                  ; version of backend
+:status :new                      ; :alpha, :beta, :stable, :new
+:manpage "sane-umax1220u"         ; name of manpage (if it exists)
 :url "http://umax1220u-sane.sourceforge.net" ; backend's web page
 
 :devicetype :scanner              ; start of a list of devices....
@@ -21,11 +21,6 @@
 
 :mfg "UMAX"                       ; name a manufacturer
 :url "http://www.umax.com/"
-:url "http://support.umax.com/"
-:url "http://www.umax.de/"
-:url "http://www.umax.com.tw/"
-:url "http://www.umaxweb.com.tw/"
-:url "http://support.umax.co.uk/"
 :model "Astra 1220U"        ; name models for above-specified mfg.
 :interface "USB"
 :comment "Rewrite of command-line driver by Paul Mackerras"

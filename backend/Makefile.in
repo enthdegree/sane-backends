@@ -277,7 +277,6 @@ libsane-umax.la: ../sanei/sanei_scsi.lo
 libsane-v4l.la: ../sanei/sanei_constrain_value.lo
 libsane-umax_pp.la: $(addsuffix .lo,$(EXTRA_umax_pp))
 libsane-umax_pp.la: ../sanei/sanei_constrain_value.lo
-libsane-umax1220u.la: ../sanei/sanei_config2.lo
 libsane-umax1220u.la: ../sanei/sanei_constrain_value.lo
 libsane-umax1220u.la: ../sanei/sanei_usb.lo
 libsane-umax1220u.la: ../sanei/sanei_pv8630.lo

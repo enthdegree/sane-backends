@@ -146,6 +146,7 @@ below:
     Connectix QuickCam     sane-qcam(5)
     Kodak DC20/DC25        sane-dc25(5)
     Kodak dc210            sane-dc210(5)
+    Kodak dc240            sane-dc240(5)
     Polaroid               sane-dmc(5)
   
   Miscellaneous backends:

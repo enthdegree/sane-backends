@@ -53,9 +53,9 @@ COMPILE = $(CC) -c $(CFLAGS) $(DEFS) $(INCLUDES) $(CPPFLAGS)
 @SET_MAKE@
 
 PRELOADABLE_BACKENDS = abaton agfafocus apple artec as6e avision bh canon \
-        coolscan dc25 @DC210@ dmc epson hp m3096g microtek microtek2 mustek \
-        mustek_pp nec @NET@ pie @PINT@ plustek pnm @QCAM@ ricoh s9036 sharp \
-        snapscan sp15c st400 tamarack umax @V4L@
+        coolscan dc25 @DC210@ @DC240@ dmc epson hp m3096g microtek microtek2 \
+	mustek mustek_pp nec @NET@ pie @PINT@ plustek pnm @QCAM@ ricoh s9036 \
+	sharp snapscan sp15c st400 tamarack umax @V4L@
 ALL_BACKENDS = $(PRELOADABLE_BACKENDS) dll
 
 LIBS = $(addprefix libsane-,$(addsuffix .la,$(ALL_BACKENDS)))
@@ -156,6 +156,7 @@ libsane.la: dll.lo dll-s.lo $(EXTRA) $(addsuffix .lo,$(DLL_PRELOAD)) $(LIBOBJS)
 
 EXTRA_hp = hp-accessor hp-device hp-handle hp-hpmem hp-option hp-scl
 EXTRA_dc210 = djpeg
+EXTRA_dc240 = djpeg
 
 # When preloading dll, we need to add in all preloaded objects:
 libsane-dll.la: $(addsuffix .lo,$(DLL_PRELOAD))
@@ -193,6 +194,7 @@ libsane-coolscan.la: ../sanei/sanei_constrain_value.lo
 libsane-coolscan.la: ../sanei/sanei_scsi.lo
 libsane-dc25.la: ../sanei/sanei_constrain_value.lo
 libsane-dc210.la: ../sanei/sanei_constrain_value.lo djpeg.lo
+libsane-dc240.la: ../sanei/sanei_constrain_value.lo djpeg.lo
 libsane-dmc.la: ../sanei/sanei_config2.lo
 libsane-dmc.la: ../sanei/sanei_constrain_value.lo
 libsane-dmc.la: ../sanei/sanei_scsi.lo

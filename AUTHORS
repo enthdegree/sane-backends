@@ -19,6 +19,7 @@ Backends:
  coolscan:      Didier Carlier, Andreas Rick (*)
  dc25:          Peter Fales (*)
  dc210:         Brian J. Murrell
+ dc240:         Peter Fales (*)
  dll:           David Mosberger
  dmc:           David F. Skoll
  epson:         Karl Heinz Kremer(*)
@@ -109,7 +110,7 @@ Michel Roelofs <michelr@stack.nl>
 Milon Firikis <milonf@ariadne-t.gr>
 Oliver Rauch <Oliver.Rauch@Wolfsburg.DE>
 Patrick Reynolds <patrickr@virginia.edu>
-Peter Fales <psfales@earthling.net>
+Peter Fales <peter@fales.com>
 Peter Kirchgessner <peter@kirchgessner.net>
 Petter Reinholdtsen <pere@td.org.uit.no>
 Randolph Bentson <bentson@grieg.holmsjoen.com>

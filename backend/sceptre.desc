@@ -10,13 +10,13 @@
 ;
 
 :backend "sceptre"
-:version "(2002-02-02)"             ; version of backend
-:status :alpha                    ; :alpha, :beta, :stable, :new
-;:manpage "sane-sceptre"          ; name of manpage (if it exists)
+:version "1.0-6"                  ; version of backend
+:status :new                      ; :alpha, :beta, :stable, :new
+:manpage "sane-sceptre"           ; name of manpage
 :url "http://www.geocities.com/harikus2000/sane" ; backend's web page
 
 :devicetype :scanner
 :mfg "Sceptre"
 :url "http://www.sceptre.com/"
-:model "S1200" 
+:model "Vividscan S1200" 
 :interface "SCSI"

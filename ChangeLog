@@ -1,3 +1,11 @@
+2001-05-26  Chris Pinkham <cpinkham@infi.net>
+
+	* backend/artec.c: Added code in sane_exit() to free memory
+	  malloced in sane_get_devices().  Declared several functions
+	  'static' so they are not exported.
+	* TODO: removed 'artec' backend from list mentioned in describing
+	  above problems.
+
 2001-05-26  Petter Reinholdtsen <pere@td.org.uit.no>
 
 	* TODO: Updated entry on library search path, sanei API

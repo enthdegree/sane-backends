@@ -1,3 +1,11 @@
+2004-02-20  Oliver Schirrmeister <oschirr@abm.de>
+
+	* backend/fujitsu.c backend/fujitsu.h backend/fujitsu-scsi.h:
+          merged the 3092 and the 3091 functions
+          inverted the image in mode color and grayscale
+          jpg hardware compression support (fi-4530C)
+
+
 2004-02-20  Stéphane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.h backend/umax_pp_low.c backend/umax_pp.conf

@@ -45,6 +45,7 @@ enum fujitsu_Option
 
   OPT_RIF,
   OPT_COMPRESSION,
+  OPT_COMPRESSION_ARG,
 
   OPT_DTC_SELECTION,
   OPT_GAMMA,
@@ -536,16 +537,10 @@ static unsigned int reader3091ColorSimplex (struct fujitsu *scanner,
                                             FILE * fd);
 static unsigned int reader3091GrayDuplex (struct fujitsu *scanner, FILE * fd,
                                           FILE * fd2);
-static unsigned int reader3092ColorDuplex (struct fujitsu *scanner, FILE * fd,
-                                          FILE * fd2);
 static void convert_bgr_to_rgb(struct fujitsu *scanner, unsigned char * buffptr, unsigned int length);
 
 static void convert_rrggbb_to_rgb(struct fujitsu *scanner, unsigned char * buffptr, unsigned int length);
 
-static unsigned int reader3092ColorSimplex (struct fujitsu *scanner,
-                                           FILE * fd);
-static unsigned int reader3092GrayDuplex (struct fujitsu *scanner, FILE * fd,
-                                         FILE * fd2);
 static unsigned int reader_gray_duplex_sequential (struct fujitsu *scanner,
                                                    FILE * fd, FILE * fd2);
 static unsigned int reader_gray_duplex_alternate (struct fujitsu *scanner,
@@ -571,11 +566,9 @@ static SANE_Status attachOne (const char *name);
 static int modelMatch (const char *product);
 
 static void setDefaults3091 (struct fujitsu *scanner);
-static void setDefaults3092 (struct fujitsu *scanner);
 static void setDefaults3096 (struct fujitsu *scanner);
 
 static SANE_Status setMode3091 (struct fujitsu *scanner, int mode);
-static SANE_Status setMode3092 (struct fujitsu *scanner, int mode);
 static SANE_Status setMode3096 (struct fujitsu *scanner, int mode);
 
 static void calculateDerivedValues (struct fujitsu *scanner);

@@ -673,6 +673,10 @@ static unsigned char window_descriptor_blockC[] = {
 #define WD_cmp_MR   2
 #define WD_cmp_MMR  3
 #define WD_cmp_JBIG 0x80
+#define WD_cmp_JPG1 0x81
+#define WD_cmp_JPG2 0x82
+#define WD_cmp_JPG3 0x83
+
 
   /* 0x21 - compression argument
    *        3091 - not supported, use 0x00

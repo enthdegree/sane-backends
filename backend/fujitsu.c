@@ -122,6 +122,10 @@
            spezification. Disable this option for these scanners.
       V 1.14 16-Dec-2003 (oschirr@abm.de)
          - Bugfix: pagewidth and pageheight where disable for the fi-4530C.
+      20-Feb-2004 (oschirr@abm.de)
+         - merged the 3092-routines with the 3091-routines.
+         - inverted the image in mode color and grayscale
+         - jpg hardware compression support (fi-4530C)
 
    SANE FLOW DIAGRAM
 
@@ -308,6 +312,7 @@ static SANE_String_Const emphasis_mode_list[] =
 static const SANE_Range variance_rate_range = { 0, 255, 1 };
 
 static const SANE_Range threshold_curve_range = { 0, 7, 1 };
+static const SANE_Range jpg_quality_range = { 0, 7, 1};
 
 static const char gradation_ordinary[] = "Ordinary";
 static const char gradation_high[] = "High";
@@ -672,12 +677,9 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
     {
 
     case MODEL_3091:
+    case MODEL_3092:
     case MODEL_FI4x20:
       setDefaults3091 (scanner);
-      break;
-
-    case MODEL_3092:
-      setDefaults3092 (scanner);
       break;
 
     case MODEL_FORCE:
@@ -932,8 +934,16 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
                   (scanner->compress_type == WD_cmp_MH) ? cmp_mh :
                   (scanner->compress_type == WD_cmp_MR) ? cmp_mr :
                   (scanner->compress_type == WD_cmp_MMR) ? cmp_mmr :
+                  (scanner->compress_type == WD_cmp_JPG1) ? cmp_jpg_base :
+                  (scanner->compress_type == WD_cmp_JPG2) ? cmp_jpg_ext :
+                  (scanner->compress_type == WD_cmp_JPG3) ? cmp_jpg_indep :
                   cmp_jbig);
           return SANE_STATUS_GOOD;
+
+	case OPT_COMPRESSION_ARG:
+	  
+	  *(SANE_Word *) val = scanner->compress_arg;
+	  return SANE_STATUS_GOOD;
 
         case OPT_GAMMA:
           strcpy (val, (scanner->gamma == WD_gamma_DEFAULT) ? gamma_default :
@@ -1473,10 +1483,9 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           switch (scanner->model)
             {
             case MODEL_3091:
+            case MODEL_3092:
             case MODEL_FI4x20:
               return (setMode3091 (scanner, newMode));
-            case MODEL_3092:
-              return (setMode3092 (scanner, newMode));
             case MODEL_FORCE:
             case MODEL_3093:
             case MODEL_3096:
@@ -1581,10 +1590,21 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             scanner->compress_type = WD_cmp_MMR;
           else if (strcmp (val, cmp_jbig) == 0)
             scanner->compress_type = WD_cmp_JBIG;
+          else if (strcmp (val, cmp_jpg_base) == 0)
+            scanner->compress_type = WD_cmp_JPG1;
+          else if (strcmp (val, cmp_jpg_ext) == 0)
+            scanner->compress_type = WD_cmp_JPG2;
+          else if (strcmp (val, cmp_jpg_indep) == 0)
+            scanner->compress_type = WD_cmp_JPG3;
           else
             return SANE_STATUS_INVAL;
 
           return SANE_STATUS_GOOD;
+
+	case OPT_COMPRESSION_ARG:
+	  
+	  scanner->compress_arg = *(SANE_Word *) val;
+	  return SANE_STATUS_GOOD;
 
         case OPT_EMPHASIS:
           if (strcmp (val, emphasis_none) == 0)
@@ -3819,6 +3839,7 @@ read_large_data_block (struct fujitsu *s, unsigned char *buffer,
   int status;
   unsigned char *myBuffer = buffer;
   size_t data_read;
+  unsigned int i;
 
   *i_data_read = 0;
   current_scanner = s;
@@ -3858,7 +3879,23 @@ read_large_data_block (struct fujitsu *s, unsigned char *buffer,
         }
       else 
         {
-          myBuffer += data_read;
+	  if (s->compress_type == WD_cmp_NONE && 
+	      (s->color_mode == MODE_COLOR || 
+	       s->color_mode == MODE_GRAYSCALE))
+	    {
+	      /* invert image if mode == Color || Gray */
+
+	      for ( i = 0; i < data_read; i++ ) 
+		{
+		  *myBuffer = *myBuffer ^ 0xff;
+		  myBuffer ++;
+		}
+	    } 
+	  else 
+	    {
+
+	      myBuffer += data_read;
+	    }
           data_left -= data_read;
         }
 
@@ -4380,29 +4417,34 @@ identify_scanner (struct fujitsu *s)
           /*
        * setup compression modes
        */
-          i = 1;                        /* compression_mode_list[0] = no compression */
+          i = 1;
+	  /* compression_mode_list[0] = no compression */
           if (get_IN_compression_MH (s->buffer))
             {
 
               s->compression_mode_list[i] = cmp_mh;
+	      s->cmp_present = SANE_TRUE;
               i++;
             }
           if (get_IN_compression_MR (s->buffer))
             {
 
               s->compression_mode_list[i] = cmp_mr;
+	      s->cmp_present = SANE_TRUE;
               i++;
             }
           if (get_IN_compression_MMR (s->buffer))
             {
 
               s->compression_mode_list[i] = cmp_mmr;
+	      s->cmp_present = SANE_TRUE;
               i++;
             }
           if (get_IN_compression_JBIG (s->buffer))
             {
 
               s->compression_mode_list[i] = cmp_jbig;
+	      s->cmp_present = SANE_TRUE;
               i++;
             }
 
@@ -4410,18 +4452,21 @@ identify_scanner (struct fujitsu *s)
             {
 
               s->compression_mode_list[i] = cmp_jpg_base;
+	      s->cmp_present = SANE_TRUE;
               i++;
             }
           if (get_IN_compression_JPG_EXT (s->buffer))
             {
 
               s->compression_mode_list[i] = cmp_jpg_ext;
+	      s->cmp_present = SANE_TRUE;
               i++;
             }
           if (get_IN_compression_JPG_INDEP (s->buffer))
             {
 
               s->compression_mode_list[i] = cmp_jpg_indep;
+	      s->cmp_present = SANE_TRUE;
               i++;
             }
 
@@ -5045,6 +5090,7 @@ reader_process (struct fujitsu *scanner, int pipe_fd, int duplex_pipeFd)
   switch (scanner->model)
     {
     case MODEL_3091:
+    case MODEL_3092:
       if ((scanner->color_mode == MODE_COLOR)
           && (scanner->duplex_mode == DUPLEX_BOTH))
         total_data_size = reader3091ColorDuplex (scanner, fp1, fp2);
@@ -5054,17 +5100,6 @@ reader_process (struct fujitsu *scanner, int pipe_fd, int duplex_pipeFd)
         total_data_size = reader3091GrayDuplex (scanner, fp1, fp2);
       else
         total_data_size = reader_generic_passthrough (scanner, fp1, 0);
-      break;
-    case MODEL_3092:
-      if ((scanner->color_mode == MODE_COLOR)
-         && (scanner->duplex_mode == DUPLEX_BOTH))
-       total_data_size = reader3092ColorDuplex (scanner, fp1, fp2);
-      else if (scanner->color_mode == MODE_COLOR)
-       total_data_size = reader3092ColorSimplex (scanner, fp1);
-      else if (scanner->duplex_mode == DUPLEX_BOTH)
-       total_data_size = reader3092GrayDuplex (scanner, fp1, fp2);
-      else
-       total_data_size = reader_generic_passthrough (scanner, fp1, 0);
       break;
 
     case MODEL_FORCE:
@@ -5562,9 +5597,25 @@ init_options (struct fujitsu *scanner)
   scanner->opt[OPT_COMPRESSION].constraint_type = SANE_CONSTRAINT_STRING_LIST;
   scanner->opt[OPT_COMPRESSION].constraint.string_list =
     scanner->compression_mode_list;
+  DBG(1, "init_options: set compression %d\n", scanner->cmp_present);
+  if (scanner->cmp_present) 
+    {
+  DBG(1, "ok compression %d\n", scanner->cmp_present);
+      scanner->opt[OPT_COMPRESSION].cap = SANE_CAP_SOFT_SELECT |
+	SANE_CAP_SOFT_DETECT;
+    }
+
+  scanner->opt[OPT_COMPRESSION_ARG].name = "compressionarg";
+  scanner->opt[OPT_COMPRESSION_ARG].title = "compression argument";
+  scanner->opt[OPT_COMPRESSION_ARG].desc = "compression quality (JPG)";
+  scanner->opt[OPT_COMPRESSION_ARG].type = SANE_TYPE_INT;
+  scanner->opt[OPT_COMPRESSION_ARG].unit = SANE_UNIT_NONE;
+  scanner->opt[OPT_COMPRESSION_ARG].constraint_type = SANE_CONSTRAINT_RANGE;
+  scanner->opt[OPT_COMPRESSION_ARG].constraint.range = &jpg_quality_range;
   if (scanner->cmp_present)
-    scanner->opt[OPT_COMPRESSION].cap = SANE_CAP_SOFT_SELECT |
+    scanner->opt[OPT_COMPRESSION_ARG].cap = SANE_CAP_SOFT_SELECT |
       SANE_CAP_SOFT_DETECT;
+  
 
   scanner->opt[OPT_GAMMA].name = "gamma";
   scanner->opt[OPT_GAMMA].title = "gamma";
@@ -5599,8 +5650,8 @@ init_options (struct fujitsu *scanner)
   scanner->opt[OPT_VARIANCE_RATE].unit = SANE_UNIT_NONE;
   scanner->opt[OPT_VARIANCE_RATE].constraint_type = SANE_CONSTRAINT_RANGE;
   scanner->opt[OPT_VARIANCE_RATE].constraint.range = &variance_rate_range;
-  scanner->opt[OPT_VARIANCE_RATE].cap =
-    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    scanner->opt[OPT_VARIANCE_RATE].cap =
+      SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
 
   scanner->opt[OPT_THRESHOLD_CURVE].name = "thresholdcurve";
   scanner->opt[OPT_THRESHOLD_CURVE].title = "threshold curve";
@@ -7370,13 +7421,21 @@ setDefaults3091 (struct fujitsu *scanner)
   scanner->reverse = 0;
   scanner->bitorder = 0;
   scanner->compress_type = 0;
+  scanner->compress_arg = 0;
   /*scanner->scanning_order = 0;*/
   setMode3091 (scanner, MODE_COLOR);
 
   scanner->val[OPT_TL_X].w = 0;
   scanner->val[OPT_TL_Y].w = 0;
   /* this size is just big enough to match letter and A4 formats */
-  scanner->bottom_right_x = SANE_FIX (215.0);
+  if (scanner->model == MODEL_3092) 
+    {
+      scanner->bottom_right_x = SANE_FIX (215.9);
+    } 
+  else
+    {
+      scanner->bottom_right_x = SANE_FIX (215.0);
+    }
   scanner->bottom_right_y = SANE_FIX (297.0);
   scanner->page_width = FIXED_MM_TO_SCANNER_UNIT (scanner->bottom_right_x);
   scanner->page_height = FIXED_MM_TO_SCANNER_UNIT (scanner->bottom_right_y);
@@ -7433,6 +7492,14 @@ setDefaults3096 (struct fujitsu *scanner)
   /* this size is just big enough to match letter and A4 formats */
   scanner->bottom_right_x = SANE_FIX (215.9);
   scanner->bottom_right_y = SANE_FIX (297.0);
+
+  if(!scanner->has_fixed_paper_size) 
+    {
+
+      scanner->page_width = FIXED_MM_TO_SCANNER_UNIT(scanner->bottom_right_x);
+      scanner->page_height = FIXED_MM_TO_SCANNER_UNIT(scanner->bottom_right_y);
+    }
+
   scanner->mirror = SANE_FALSE;
   scanner->use_temp_file = SANE_FALSE;
 
@@ -7536,10 +7603,6 @@ setMode3096 (struct fujitsu *scanner, int mode)
       scanner->brightness = 0;
       scanner->opt[OPT_BRIGHTNESS].cap = SANE_CAP_INACTIVE;
 
-      /* Compression available if installed; Gamma available. */
-      if (scanner->cmp_present)
-        scanner->opt[OPT_COMPRESSION].cap =
-          SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
       if (scanner->has_gamma)
 	{
 	  scanner->opt[OPT_GAMMA].cap =
@@ -7584,10 +7647,6 @@ setMode3096 (struct fujitsu *scanner, int mode)
             SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
         }
 
-      /* Compression available if installed; Gamma available. */
-      if (scanner->cmp_present)
-        scanner->opt[OPT_COMPRESSION].cap =
-          SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
       if (scanner->has_gamma)
 	{
 	  scanner->opt[OPT_GAMMA].cap =
@@ -7627,13 +7686,20 @@ setMode3096 (struct fujitsu *scanner, int mode)
       scanner->brightness = 0;
       scanner->opt[OPT_BRIGHTNESS].cap = SANE_CAP_INACTIVE;
 
-      /* Compression and Gamma unavailable. */
-      scanner->opt[OPT_COMPRESSION].cap = SANE_CAP_INACTIVE;
+      /* Gamma unavailable. */
       if (scanner->has_gamma) 
 	{
 	  scanner->opt[OPT_GAMMA].cap = SANE_CAP_INACTIVE;
 	}
-      scanner->compress_type = WD_cmp_NONE;
+      
+      switch (scanner->compress_type) 
+	{
+	case WD_cmp_MH:
+	case WD_cmp_MR:
+	case WD_cmp_MMR:
+	  scanner->compress_type = WD_cmp_NONE;
+	  break;
+	}
 
       /* X and y in steps without the 240 
       scanner->opt[OPT_X_RES].constraint_type = SANE_CONSTRAINT_WORD_LIST;
@@ -7677,73 +7743,4 @@ setMode3096 (struct fujitsu *scanner, int mode)
  * @@ Section 8 - M3092 specific internal routines
  */
 
-static unsigned int
-reader3092ColorSimplex (struct fujitsu *scanner, FILE * fp)
-{
-  return reader3091ColorSimplex(scanner, fp);
-}
-
-static unsigned int
-reader3092ColorDuplex (struct fujitsu *scanner, FILE * fpFront, FILE * fpBack)
-{
-  return reader3091ColorDuplex(scanner,fpFront,fpBack);
-}
-
-static unsigned int
-reader3092GrayDuplex (struct fujitsu *scanner, FILE * fpFront, FILE * fpBack)
-{
-  return reader3091GrayDuplex (scanner,fpFront,fpBack);
-}
-
-static SANE_Status
-setMode3092 (struct fujitsu *scanner, int mode)
-{
-  return setMode3091(scanner, mode);
-}
-
-/*
- * Initializes the "struct fujitsu" structure with meaningful values for the
- * M3092DCd scanner.
- */
-static void
-setDefaults3092 (struct fujitsu *scanner)
-{
-
-  scanner->use_adf = scanner->has_adf;
-  scanner->duplex_mode = DUPLEX_FRONT;
-  scanner->resolution_x = 300;
-  scanner->resolution_y = 300;
-  scanner->resolution_linked = SANE_TRUE;
-  scanner->brightness = 0;
-  scanner->threshold = 0;
-  scanner->contrast = 0;
-  scanner->reverse = 0;
-  scanner->bitorder = 0;
-  setMode3092 (scanner, MODE_COLOR);
-
-  scanner->top_left_x = 0;
-  scanner->top_left_y = 0;
-  /* this size is just big enough to match letter and A4 formats */
-  scanner->bottom_right_x = SANE_FIX (215.9);
-  scanner->bottom_right_y = SANE_FIX (297.0);
-  scanner->page_width = FIXED_MM_TO_SCANNER_UNIT (scanner->bottom_right_x);
-  scanner->page_height = FIXED_MM_TO_SCANNER_UNIT (scanner->bottom_right_y);
-  scanner->mirror = SANE_FALSE;
-  scanner->use_temp_file = SANE_FALSE;
-
-  scanner->opt[OPT_NOISE_REMOVAL].cap = SANE_CAP_INACTIVE;
-  scanner->opt[OPT_BACKGROUND].cap = SANE_CAP_INACTIVE;
-  scanner->opt[OPT_FILTERING].cap = SANE_CAP_INACTIVE;
-  scanner->opt[OPT_SMOOTHING_MODE].cap = SANE_CAP_INACTIVE;
-  scanner->opt[OPT_GRADATION].cap = SANE_CAP_INACTIVE;
-  scanner->opt[OPT_THRESHOLD_CURVE].cap = SANE_CAP_INACTIVE;
-  scanner->opt[OPT_VARIANCE_RATE].cap = SANE_CAP_INACTIVE;
-  scanner->opt[OPT_MATRIX2X2].cap = SANE_CAP_INACTIVE;
-  scanner->opt[OPT_MATRIX3X3].cap = SANE_CAP_INACTIVE;
-  scanner->opt[OPT_MATRIX4X4].cap = SANE_CAP_INACTIVE;
-  scanner->opt[OPT_MATRIX5X5].cap = SANE_CAP_INACTIVE;
-
-  scanner->opt[OPT_DROPOUT_COLOR].cap = SANE_CAP_INACTIVE;
-  scanner->dropout_color = MSEL_dropout_DEFAULT;
-}
 

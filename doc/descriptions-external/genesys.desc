@@ -24,22 +24,28 @@
 :url "http://www.avision.com/"
 
 :model "iVina FB1600"
+:url "/unsupported/umax-astra-4500.html"
 :interface "USB"
 :status :unsupported
+:comment "Same as UMAX Astra 4500."
 
 :model "iVina FB1800"
+:url "/unsupported/umax-astra-4700.html"
 :interface "USB"
 :status :unsupported
+:comment "Same as UMAX Astra 4700."
 
 
 :mfg "Canon"
 :url "http://www.canon.com/"
 
 :model "CanoScan LiDE 50"
+:url "/unsupported/canon-lide-50.html"
 :interface "USB"
 :status :unsupported
 
 :model "CanoScan LiDE 80"
+:url "/unsupported/canon-lide-80.html"
 :interface "USB"
 :status :unsupported
 
@@ -48,14 +54,117 @@
 :url "http://www.geniusnet.com.tw/"
 
 :model "ColorPage HR6X Slim"
+:url "/unsupported/genius-colorpage-hr6x.html"
 :interface "USB"
 :status :unsupported
 
 :model "ColorPage HR7X"
+:url "/unsupported/genius-colorpage-hr7x.html"
 :interface "USB"
 :status :unsupported
 
 :model "ColorPage HR8"
+:url "/unsupported/genius-colorpage-hr8.html"
+:interface "USB"
+:status :unsupported
+
+
+:mfg "Hewlett-Packard"
+:url "http://www.hp.com/"
+
+:model "ScanJet 2300c"
+:url "/unsupported/hp-scanjet-2300c.html"
+:interface "USB"
+:status :unsupported
+
+:model "ScanJet 2400c"
+:url "/unsupported/hp-scanjet-2400c.html"
+:interface "USB"
+:status :unsupported
+:comment "possible support by this backend not confirmed"
+
+:model "ScanJet 3500c"
+:url "/unsupported/hp-scanjet-3500c.html"
+:interface "USB"
+:status :unsupported
+:comment "Maybe GL646_HP, but not confirmed. Older information: Seems to use RealTek RTS8801C2-6. Vendor/Product ID 0x03F0/0x2205. See link and other Scanjet 35x0c entries."
+
+:model "ScanJet 3530c"
+:url "/unsupported/hp-scanjet-3530c.html"
+:interface "USB"
+:status :unsupported
+:comment "Maybe GL646_HP, but not confirmed. Older information: Chipset is Realtek RTS8801C2-6. Vendor/Product ID 0x03F0/0x2005. See link and other Scanjet 35x0c entries."
+
+:model "ScanJet 3570c"
+:interface "USB"
+:url "/unsupported/hp-scanjet-3570c.html"
+:status :unsupported
+:comment "Maybe GL646_HP, but not confirmed. Older information: Probably Realtek RTS8801C2-6, same ids as Scanjet 3530c. Has a TA. Vendor/product id 0x03F0/0x2005. See link and other Scanjet 35x0c entries."
+
+:model "ScanJet 3570cxi"
+;:url "http://www.realtek.com.tw/products/products1-2.aspx?modelid=37"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. See 3570c."
+
+:model "ScanJet 3670c"
+:url "/unsupported/hp-scanjet-3670c.html"
+:interface "USB"
+:status :unsupported
+:comment "possible support by this backend not confirmed"
+
+:model "ScanJet 3690c"
+:url "/unsupported/hp-scanjet-3690.html"
+:interface "USB"
+:status :unsupported
+:comment "possible support by this backend not confirmed"
+
+:model "ScanJet 4500C"
+:url "/unsupported/hp-scanjet-4500c.html"
+:interface "USB"
+:comment "Maybe GL841_HP, but not confirmed. Landscape scanner. Same as 5500C, but without ADF. Same ID as 5550c."
+:status :unsupported
+
+:model "ScanJet 4570C"
+:url "/unsupported/hp-scanjet-4570c.html"
+:interface "USB"
+:comment "Maybe GL841_HP, but not confirmed. See link for details."
+:status :unsupported
+
+:model "ScanJet 5500C"
+:url "/unsupported/hp-scanjet-5500c.html"
+:interface "USB"
+:comment "Maybe GL841_HP, but not confirmed. See link for details."
+:status :unsupported
+
+:model "ScanJet 5530C Photosmart"
+:url "/unsupported/hp-scanjet-5530.html"
+:interface "USB"
+:comment "Maybe GL841_HP, but not confirmed. See link for details."
+:status :unsupported
+
+:model "ScanJet 5550C"
+:url "/unsupported/hp-scanjet-5550c.html"
+:interface "USB"
+:comment "Maybe GL841_HP, but not confirmed. Same as 4570C, but with ADF. See link for details."
+:status :unsupported
+
+:mfg "Medion/Lifetec/Tevion/Cytron"
+:url "http://www.medion.com/"
+:url "http://www.medion.de/"
+
+:model "MD 5345"
+:url "/unsupported/medion-md6228.html"
+:interface "USB"
+:status :unsupported
+
+:model "MD 6228"
+:url "/unsupported/medion-md6228.html"
+:interface "USB"
+:status :unsupported
+
+:model "MD 6471"
+:url "/unsupported/medion-md6228.html"
 :interface "USB"
 :status :unsupported
 
@@ -65,22 +174,27 @@
 :url "http://www.plustek.com/"
 
 :model "OpticPro S12"
+:url "/unsupported/plustek-opticpro-st12.html"
 :interface "USB"
 :status :unsupported
 
 :model "OpticPro ST12"
+:url "/unsupported/plustek-opticpro-st12.html"
 :interface "USB"
 :status :unsupported
 
 :model "OpticPro ST16"
+:url "/unsupported/plustek-opticpro-st16.html"
 :interface "USB"
 :status :unsupported
 
 :model "OpticPro S24"
+:url "/unsupported/plustek-opticpro-st24.html"
 :interface "USB"
 :status :unsupported
 
 :model "OpticPro ST24"
+:url "/unsupported/plustek-opticpro-st24.html"
 :interface "USB"
 :status :unsupported
 
@@ -88,6 +202,7 @@
 :url "http://www.primax.nl/"
 
 :model "Slim-Line 1200"
+:url "/unsupported/medion-md6228.html"
 :interface "USB"
 :status :unsupported
 
@@ -96,11 +211,13 @@
 :url "http://www.umax.com/"
 
 :model "Astra 4500"
+:url "/unsupported/umax-astra-4500.html"
 :interface "USB"
 :status :unsupported
 :comment "Avision iVina FB1600 clone"
 
 :model "Astra 4700"
+:url "/unsupported/umax-astra-4700.html"
 :interface "USB"
 :status :unsupported
 :comment "Avision iVina FB1800 clone"
@@ -110,35 +227,8 @@
 :url "http://www.visioneer.com/"
 
 :model "Onetouch 7100"
+:url "/unsupported/visioneer-onetouch7100.html"
 :interface "USB"
 :status :unsupported
-
-
-:mfg "Hewlett-Packard"
-:url "http://www.hp.com/"
-
-:model "ScanJet 2300c"
-:interface "USB"
-:status :unsupported
-
-:model "ScanJet 2400c"
-:interface "USB"
-:status :unsupported
-:comment "possible support by this backend not confirmed"
-
-:model "ScanJet 3500c"
-:interface "USB"
-:status :unsupported
-:comment "possible support by this backend not confirmed"
-
-:model "ScanJet 3670c"
-:interface "USB"
-:status :unsupported
-:comment "possible support by this backend not confirmed"
-
-:model "ScanJet 3690c"
-:interface "USB"
-:status :unsupported
-:comment "possible support by this backend not confirmed"
 
 

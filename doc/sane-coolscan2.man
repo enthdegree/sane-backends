@@ -67,6 +67,7 @@ the backend is initialized (usually each time you start the frontend).
 .I --subframe <x>
 This option shifts the scan window by the specified amount (default
 unit is mm).
+.TP
 .I --infrared=yes/no
 If set to "yes", the scanner will read the infrared channel, thus allowing
 defect removal in software. The infrared image is read during a second scan,

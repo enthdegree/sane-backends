@@ -108,7 +108,7 @@
 :model "Perfection 1670"
 :interface "USB"
 :status :unsupported
-:comment "Is not and will not be supported by the epkowa backend. May be supported by the SnapScan backend later."
+:comment "Is not and will not be supported by the epkowa backend. Use the SnapScan backend instead."
 
 :model "Perfection 2400 PHOTO"
 :interface "USB"

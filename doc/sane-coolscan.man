@@ -2,7 +2,6 @@
 .IX sane-coolscan
 
 .SH NAME
-
 sane-coolscan - SANE backend for Nikon film-scanners
 
 .SH ABOUT THIS FILE
@@ -15,7 +14,7 @@ The
 .B sane-coolscan
 library implements a SANE backend that provides the interface to the following Nikon Coolscan Film scanners: Nikon LS20, LS30, LS1000, LS2000.
 
-.B Even though the backand has worked for a number of people, there are still some problems, especially in combination with some SCSI card/drivers (AHA-1505/aha152x.o) and the autofocus command. You should consider this backend 'alpha' and be carefull when using it the first time.
+.B Even though the backend has worked for a number of people, there are still some problems, especially in combination with some SCSI card/drivers (AHA-1505/aha152x.o) and the autofocus command. You should consider this backend 'alpha' and be carefull when using it the first time.
 
 .SH CONFIGURATION
 
@@ -79,7 +78,7 @@ Examples:
 
  http://andreas.rick.free.fr/sane/ The homepage of this backend
  http://www.sema.be/coolscan/  The original version of the coolscan backend by Didier
- sane-scsi(5)
+ sane(7), sane\-scsi(5)
 
 .SH THANKS TO
 

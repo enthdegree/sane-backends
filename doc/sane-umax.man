@@ -2,7 +2,6 @@
 .IX sane-umax
 
 .SH NAME
-
 sane-umax - SANE backend for UMAX scanners
 
 .SH ABOUT THIS FILE
@@ -167,6 +166,9 @@ export SANE_DEBUG_UMAX=8
 .SH BUGS
 
 X-resolutions greater than 600 dpi sometimes make problems
+
+.SH SEE ALSO
+sane(7)
 
 .SH AUTHOR
 

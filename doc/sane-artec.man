@@ -2,8 +2,7 @@
 .IX sane-artec
 
 .SH NAME
-
-sane-artec - SANE backend for Artec flatbed scanners
+sane-artec \- SANE backend for Artec flatbed scanners
 
 .SH DESCRIPTION
 The
@@ -194,7 +193,7 @@ correction is not totally working on models other than the AT3.
 
 .SH "SEE ALSO"
 
-sane\-scsi(5)
+sane(7), sane\-scsi(5)
 
 .SH AUTHOR
 

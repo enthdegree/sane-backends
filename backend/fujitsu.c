@@ -126,6 +126,8 @@
          - merged the 3092-routines with the 3091-routines.
          - inverted the image in mode color and grayscale
          - jpg hardware compression support (fi-4530C)
+      04-Mrz-2004 (oschirr@abm.de)
+         - enabled option dropoutcolor for the fi-4530C
 
    SANE FLOW DIAGRAM
 
@@ -4154,6 +4156,7 @@ identify_scanner (struct fujitsu *s)
 
       if (!strncmp (product, "fi-4530C", 8))
 	{
+          s->has_dropout_color = SANE_TRUE;
 	  s->read_mode = READ_MODE_BGR;
 	}
     }

@@ -245,6 +245,7 @@ typedef struct {
 	int     skipCalibration;
 	int     skipFine;
 	int     skipFineWhite;
+	int     disableSpeedup;
 	int     invertNegatives;
 	int     cacheCalData;
 	int     altCalibrate;  /* force use of the alternate canoscan autocal;

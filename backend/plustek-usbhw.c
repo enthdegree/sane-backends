@@ -39,6 +39,7 @@
  *        - changed usb_Wait4Warmup()
  *        - added usb_WaitPos()
  *        - added usb_FillLampRegs() - sets also PWMDutyCylce now
+ *        - added UMAX3450 TPA autodetection
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -263,11 +264,12 @@ static SANE_Bool usb_WaitPos( Plustek_Device *dev, u_long to, SANE_Bool stay )
 	DBG( _DBG_INFO2, ">>>> CURRENT MCLK_DIV= %u\n", mclk_div );
 	DBG( _DBG_INFO2, ">>>> MCH             = %u\n", mch ); 
 	DBG( _DBG_INFO2, ">>>> FFS             = %u\n", ffs ); 
-	DBG( _DBG_INFO2, ">>>> FASTSPEED       = %.3f (%.3f)\n", speed, 
-	                hw->dMaxMotorSpeed); 
+	DBG( _DBG_INFO2, ">>>> HIGH-SPEED      = %.3f (%.3f)\n", 
+	                  speed, hw->dHighSpeed); 
 
 	/* disabled ? */
-	if( hw->dHighSpeed == 0.0 ) {
+	if((hw->dHighSpeed == 0.0) || (dev->adj.disableSpeedup != 0)) {
+		DBG( _DBG_INFO2, " * Speedup disabled or not available!\n" );
 		min_ffs = 0xffff;
 		maxf    = 0.0;
 		if( !stay )
@@ -1511,13 +1513,30 @@ static SANE_Bool usb_HasTPA( Plustek_Device *dev )
 			DBG( _DBG_INFO, "EPSON-TPA NOT detected\n" );
 	
 		if( dev->adj.enableTpa ) {
-			DBG( _DBG_INFO, "EPSON-TPA  usage forced\n" );
+			DBG( _DBG_INFO, "EPSON-TPA usage forced\n" );
 			return SANE_TRUE;
 		}
-	
+
 	} else if( dev->usbDev.vendor == 0x1606 ) { /* the UMAX section   */
 
 		if((dev->usbDev.product == 0x0050) || (dev->usbDev.product == 0x0060)) {
+
+			usbio_ReadReg  ( dev->fd, 0x02, &val );
+			DBG( _DBG_INFO, "REG[0x02] = 0x%02x\n", val );
+
+			usbio_WriteReg ( dev->fd, 0x58, dev->usbDev.HwSetting.bReg_0x58 );
+			usbio_WriteReg ( dev->fd, 0x5a, dev->usbDev.HwSetting.bReg_0x5a );
+			usbio_WriteReg ( dev->fd, 0x5b, dev->usbDev.HwSetting.bReg_0x5b );
+			
+			usbio_ReadReg  ( dev->fd, 0x02, &val );
+			DBG( _DBG_INFO, "REG[0x02] = 0x%02x\n", val );
+
+			if( val & 0x02 ) {
+				DBG( _DBG_INFO, "UMAX-TPA detected\n" );
+				dev->usbDev.ModelStr = model;
+				return SANE_TRUE;
+			} else 
+				DBG( _DBG_INFO, "UMAX-TPA NOT detected\n" );
 
 			if( dev->adj.enableTpa ) {
 				DBG( _DBG_INFO, "UMAX-TPA usage forced\n" );

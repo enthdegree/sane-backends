@@ -145,7 +145,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.48-3"
+#define BACKEND_VERSION "0.48-4"
 #define BACKEND_NAME    plustek
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
@@ -265,6 +265,7 @@ static void show_cnf( pCnfDef cnf )
 	DBG( _DBG_SANE_INIT,"skipFine     : %s\n",  _YN(cnf->adj.skipFine       ));
 	DBG( _DBG_SANE_INIT,"skipFineWhite: %s\n",  _YN(cnf->adj.skipFineWhite  ));
 	DBG( _DBG_SANE_INIT,"invertNegs.  : %s\n",  _YN(cnf->adj.invertNegatives));
+	DBG( _DBG_SANE_INIT,"dis.Speedup  : %s\n",  _YN(cnf->adj.disableSpeedup ));
 	DBG( _DBG_SANE_INIT,"pos_x        : %d\n",  cnf->adj.pos.x               );
 	DBG( _DBG_SANE_INIT,"pos_y        : %d\n",  cnf->adj.pos.y               );
 	DBG( _DBG_SANE_INIT,"pos_shading_y: %d\n",  cnf->adj.posShadingY         );
@@ -1357,6 +1358,8 @@ sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 									  _INT, &config.adj.skipFineWhite,&ival);
 			decodeVal( str, "invertNegatives",
 									  _INT, &config.adj.invertNegatives,&ival);
+			decodeVal( str, "disableSpeedup",
+									  _INT, &config.adj.disableSpeedup,&ival);
 
 			decodeVal( str, "posOffX", _INT, &config.adj.pos.x, &ival );
 			decodeVal( str, "posOffY", _INT, &config.adj.pos.y, &ival );

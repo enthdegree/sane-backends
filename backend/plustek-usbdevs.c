@@ -1809,68 +1809,68 @@ static HWDef Hw0x04B8_0x011D =
 /** Umax 3400/3450 */
 static HWDef Hw0x1606_0x0060 =
 {
-    1.5,    /* dMaxMotorSpeed (Max_Speed)                */
-    0.8,    /* dMaxMoveSpeed (Max_Speed)                 */
-	0.0,    /* dHighSpeed                                   */
-    9,      /* dIntegrationTimeLowLamp                   */
-    9,      /* dIntegrationTimeHighLamp                  */
-    600,    /* wMotorDpi (Full step DPI)                 */
-    512,    /* wRAMSize (KB)                             */
-    8,      /* dMinIntegrationTimeLowres (ms)            */
-    8,      /* dMinIntegrationTimeHighres (ms)           */
-    4095,   /* wGreenPWMDutyCycleLow (reg 0x2a + 0x2b)   */
-    4095,   /* wGreenPWMDutyCycleHigh (reg 0x2a + 0x2b)  */
+	1.5,    /* dMaxMotorSpeed (Max_Speed)                */
+	0.8,    /* dMaxMoveSpeed (Max_Speed)                 */
+	3.5,    /* dHighSpeed                                */
+	9,      /* dIntegrationTimeLowLamp                   */
+	9,      /* dIntegrationTimeHighLamp                  */
+	600,    /* wMotorDpi (Full step DPI)                 */
+	512,    /* wRAMSize (KB)                             */
+	8,      /* dMinIntegrationTimeLowres (ms)            */
+	8,      /* dMinIntegrationTimeHighres (ms)           */
+	4095,   /* wGreenPWMDutyCycleLow (reg 0x2a + 0x2b)   */
+	4095,   /* wGreenPWMDutyCycleHigh (reg 0x2a + 0x2b)  */
 
-    0x06,   /* bSensorConfiguration (0x0b)               */
-    0x73,   /* sensor control settings (reg 0x0c)        */
-    0x77,   /* sensor control settings (reg 0x0d)        */
-    0x15,   /* sensor control settings (reg 0x0e)        */
+	0x06,   /* bSensorConfiguration (0x0b)               */
+	0x73,   /* sensor control settings (reg 0x0c)        */
+	0x77,   /* sensor control settings (reg 0x0d)        */
+	0x15,   /* sensor control settings (reg 0x0e)        */
 
-    {0x00, 0x03, 0x04, 0x05, 0x00, 0x00, 0x00, 0x00, 0x07, 0x03},
-                /* mono (reg 0x0f to 0x18) */
+	{0x00, 0x03, 0x04, 0x05, 0x00, 0x00, 0x00, 0x00, 0x07, 0x03},
+            /* mono (reg 0x0f to 0x18)                   */
 
-    {0x01, 0x0c, 0x0e, 0x10, 0x00, 0x00, 0x00, 0x00, 0x16, 0x0c},
+	{0x01, 0x0c, 0x0e, 0x10, 0x00, 0x00, 0x00, 0x00, 0x16, 0x0c},
                 /* color (reg 0x0f to 0x18)              */
-    _GREEN_CH,	/* bReg_0x26 color mode - bits 4 and 5   */
-    0x40,       /* bReg 0x27 color mode                  */
-    1,          /* bReg 0x29 illumination mode           */
-    /* illumination mode settings (not used for CCD devices) */
-    { 0, 0, 0, 0, 0, 0, 0 },
-    { 0, 0, 0, 0, 0, 0, 0 },
+	_GREEN_CH,  /* bReg_0x26 color mode - bits 4 and 5   */
+	0x40,       /* bReg 0x27 color mode                  */
+	1,          /* bReg 0x29 illumination mode           */
+	/* illumination mode settings (not used for CCD devices) */
+	{ 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0 },
 
-    1,      /* StepperPhaseCorrection (reg 0x1a + 0x1b)  */
-    0x2f,   /* bOpticBlackStart (reg 0x1c)               */
-    0x3e,   /* bOpticBlackEnd (reg 0x1d)                 */
-    110,    /* ? wActivePixelsStart (reg 0x1e + 0x1f)    */
-    5469,   /* wLineEnd (reg 0x20 + 0x21)                */
+	1,      /* StepperPhaseCorrection (reg 0x1a + 0x1b)  */
+	0x2f,   /* bOpticBlackStart (reg 0x1c)               */
+	0x3e,   /* bOpticBlackEnd (reg 0x1d)                 */
+	110,    /* ? wActivePixelsStart (reg 0x1e + 0x1f)    */
+	5469,   /* wLineEnd (reg 0x20 + 0x21)                */
 
-    1,      /* red lamp on    (reg 0x2c + 0x2d)          */
-    16383,  /* red lamp off   (reg 0x2e + 0x2f)          */
-    0,      /* green lamp on  (reg 0x30 + 0x31)          */
-    0,      /* green lamp off (reg 0x32 + 0x33)          */
-    32,     /* blue lamp on   (reg 0x34 + 0x35)          */
-    48,     /* blue lamp off  (reg 0x36 + 0x37)          */
+	1,      /* red lamp on    (reg 0x2c + 0x2d)          */
+	16383,  /* red lamp off   (reg 0x2e + 0x2f)          */
+	0,      /* green lamp on  (reg 0x30 + 0x31)          */
+	0,      /* green lamp off (reg 0x32 + 0x33)          */
+	32,     /* blue lamp on   (reg 0x34 + 0x35)          */
+	48,     /* blue lamp off  (reg 0x36 + 0x37)          */
 
-    3,      /* stepper motor control (reg 0x45)          */
-    0,      /* wStepsAfterPaperSensor2 (reg 0x4c + 0x4d) */
-    11,     /* steps to reverse on buffer full (reg 0x50)*/
-    0xfc,   /* acceleration profile (reg 0x51)           */
-    3,      /* lines to process (reg 0x54)               */
-    0xcb,   /* kickstart (reg 0x55)                      */
-    0x05,   /* pwm freq (reg 0x56)                       */
-    5,      /* pwm duty cycle (reg 0x57)                 */
+	3,      /* stepper motor control (reg 0x45)          */
+	0,      /* wStepsAfterPaperSensor2 (reg 0x4c + 0x4d) */
+	11,     /* steps to reverse on buffer full (reg 0x50)*/
+	0xfc,   /* acceleration profile (reg 0x51)           */
+	3,      /* lines to process (reg 0x54)               */
+	0xcb,   /* kickstart (reg 0x55)                      */
+	0x05,   /* pwm freq (reg 0x56)                       */
+	5,      /* pwm duty cycle (reg 0x57)                 */
 
-    0x0d,   /* Paper sense (reg 0x58)                    */
+	0x0d,   /* Paper sense (reg 0x58)                    */
 
-    0x44,   /* misc io12 (reg 0x59)                      */
-    0x45,   /* misc io34 (reg 0x5a)                      */
-    0x7c,   /* misc io56 (reg 0x5b)                      */
-    0,      /* test mode ADC Output CODE MSB (reg 0x5c)  */
-    0,      /* test mode ADC Output CODE LSB (reg 0x5d)  */
-    0,      /* test mode (reg 0x5e)                      */
-    _LM9832, 
-    MODEL_UMAX,
-    1.0
+	0x44,   /* misc io12 (reg 0x59)                      */
+	0x4a,   /* misc io34 (reg 0x5a)                      */
+	0x7c,   /* misc io56 (reg 0x5b)                      */
+	0,      /* test mode ADC Output CODE MSB (reg 0x5c)  */
+	0,      /* test mode ADC Output CODE LSB (reg 0x5d)  */
+	0,      /* test mode (reg 0x5e)                      */
+	_LM9832, 
+	MODEL_UMAX,
+	1.0
 };
 
 /** Umax 5400 */

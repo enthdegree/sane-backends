@@ -2295,7 +2295,7 @@ static SANE_Bool usb_AutoWarmup( Plustek_Device *dev )
 		 * when the diffs are less than thresh for at least 3 loops
 		 */
 		if((diffR < thresh) && (diffG < thresh) && (diffB < thresh)) {
-			if( stable_count >= 3 )
+			if( stable_count > 3 )
 				break;
 			stable_count++;
 		} else {

@@ -1,4 +1,4 @@
-.TH sane-mustek 5 "21 Nov 2002" @PACKAGEVERSION@ "SANE Scanner Access Now Easy"
+.TH sane-mustek 5 "21 Nov 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-mustek
 .SH NAME
 sane-mustek \- SANE backend for Mustek SCSI flatbed scanners

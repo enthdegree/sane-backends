@@ -1,4 +1,4 @@
-.TH sane-gt68xx 5 "13 Nov 2002" @PACKAGEVERSION@ "SANE Scanner Access Now Easy"
+.TH sane-gt68xx 5 "13 Nov 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-gt68xx
 .SH NAME
 sane-gt68xx \- SANE backend for GT-68XX based USB flatbed scanners

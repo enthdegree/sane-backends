@@ -1,4 +1,4 @@
-.TH gamma4scanimage 1 "11 Sep 2002" @PACKAGEVERSION@ "SANE Scanner Access Now Easy"
+.TH gamma4scanimage 1 "11 Sep 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX gamma4scanimage
 .SH NAME
 gamma4scanimage \- create a gamma table for scanimage

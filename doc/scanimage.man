@@ -1,4 +1,4 @@
-.TH scanimage 1 "22 Nov 2002" @PACKAGEVERSION@ "SANE Scanner Access Now Easy"
+.TH scanimage 1 "22 Nov 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX scanimage
 .SH NAME
 scanimage \- scan an image

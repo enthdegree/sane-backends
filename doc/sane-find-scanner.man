@@ -1,4 +1,4 @@
-.TH sane-find-scanner 1 "15 Sep 2002" @PACKAGEVERSION@ "SANE Scanner Access Now Easy"
+.TH sane-find-scanner 1 "15 Sep 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-find-scanner
 .SH NAME
 sane-find-scanner \- find SCSI and USB scanners and their device files

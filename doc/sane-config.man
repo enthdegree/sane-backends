@@ -1,4 +1,4 @@
-.TH sane-config 1 "15 October 2002" @PACKAGEVERSION@ "SANE Scanner Access Now Easy"
+.TH sane-config 1 "15 October 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .SH NAME
 sane-config \- get information about the installed version of libsane
 .SH SYNOPSIS

@@ -1,4 +1,4 @@
-.TH saned 1 "8 Oct 2002" @PACKAGEVERSION@ "SANE Scanner Access Now Easy"
+.TH saned 1 "8 Oct 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX saned
 .SH NAME
 saned \- SANE network daemon

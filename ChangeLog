@@ -11,6 +11,11 @@
 	  in do_stop: really print exit status of reader process.
 	* doc/sane-usb.man: PACKAGEVERSION fix. Removed HP exception. Added
 	  MacOS X.
+	* doc/gamma4scanimage.man doc/sane-artec_eplus48u.man 
+	  doc/sane-config.man doc/sane-find-scanner.man doc/sane-gt68xx.man
+	  doc/sane-mustek.man doc/sane-mustek_usb.man doc/sane.man
+	  doc/saned.man doc/scanimage.man: Added missing quotes around
+	  PACKAGEVERSION.
 
 2002-11-29 Oliver Rauch <Oliver.Rauch@Rauch-Domain.DE>
 

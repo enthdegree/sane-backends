@@ -1,4 +1,4 @@
-.TH sane-artec_eplus48u 5 "19 Nov 2002"  @PACKAGEVERSION@ "SANE"
+.TH sane-artec_eplus48u 5 "19 Nov 2002" "@PACKAGEVERSION@" "SANE"
 .SH NAME
 sane-artec_eplus48u \- SANE backend for the scanner Artec E+ 48U and re-badged models
 .SH DESCRIPTION

@@ -1424,6 +1424,7 @@ sane_read (SANE_Handle UNUSEDARG handle, SANE_Byte * data,
 	   SANE_Int max_length, SANE_Int * length)
 {
   SANE_Int lines = 0;
+  SANE_Char filename_buf[256];
 
   /* If there is anything in the buffer, satisfy the read from there */
   if (linebuffer_size && linebuffer_index < linebuffer_size)
@@ -1462,7 +1463,9 @@ sane_read (SANE_Handle UNUSEDARG handle, SANE_Byte * data,
 	  image_range.max--;
 
 	  myinfo |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
-	  dir_delete ((SANE_String) & name_buf[1]);
+	  strcpy((char *)filename_buf, strrchr((char *)name_buf+1,'\\')+1 );
+	  strcpy(strrchr((char *)filename_buf,'.'),"JPG");
+	  dir_delete ((SANE_String) filename_buf );
 
 	}
       if (dc240_opt_autoinc)
@@ -1985,7 +1988,6 @@ dir_delete (SANE_String fname)
 
   for (e = dir_head; e->next; e = e->next)
     {
-
       if (strcmp (fname, e->next->name) == 0)
 	{
 	  cur = e->next;

@@ -138,7 +138,7 @@ static SANE_Range image_range = {
   0
 };
 
-static SANE_String_Const *folder_list;
+static SANE_String *folder_list;
 static SANE_Int current_folder = 0;
 
 static SANE_Option_Descriptor sod[] = {
@@ -326,8 +326,24 @@ static CameraFile *data_file;
 static const char *data_ptr;
 static long data_file_total_size, data_file_current_index;
 
+static SANE_Int hack_fd;
+
 #include <sys/time.h>
 #include <unistd.h>
+
+/* Device select/open/close */
+
+static SANE_Device dev[] = {
+  {
+   "0",
+   "Gphoto2",
+   "Supported",
+   "still camera"},
+};
+
+static const SANE_Device *devlist[] = {
+  dev + 0, 0
+};
 
 /* 
  * debug_func - called for gphoto2 debugging output (if enabled)
@@ -350,23 +366,23 @@ debug_func (int level, const char *domain, const char *format,
 static SANE_Int
 init_gphoto2 (void)
 {
+  CameraList *list;
   GPPortInfoList *il;
   GPPortInfo info;
   SANE_Int n, m, port;
-  CameraList *list;
   CameraAbilitiesList *al;
 
   DBG (1, "GPHOTO2 Backend 05/16/01\n");
 
   gp_debug_printf (GP_DEBUG_HIGH, "SANE", "Initializing\n");
 
-  CHECK_RET (gp_camera_new (&camera));
-
   if (!Cam_data.camera_name)
     {
       DBG (0, "Camera name not specified in config file\n");
       exit (1);
     }
+
+  CHECK_RET (gp_camera_new (&camera));
 
   CHECK_RET (gp_abilities_list_new (&al));
   CHECK_RET (gp_abilities_list_load (al));
@@ -392,6 +408,7 @@ init_gphoto2 (void)
   CHECK_RET (gp_camera_set_port_info (camera, info));
   gp_port_info_list_free (il);
 
+  DBG (4, "init_gphoto2: about to initialize port\n");
   /*
    * Setting of speed only makes sense for serial ports. gphoto2
    * knows that and will complain if we try to set the speed for
@@ -401,15 +418,24 @@ init_gphoto2 (void)
    */
   if (Cam_data.speed && !strncmp (Cam_data.port, "serial:", 7))
     {
+      /* 
+       * Not sure why we need this hack.  The API keeps opening/closing
+       * the port, and that seems to confuse the camera.  Holding
+       * the port open seems to fix it. 
+       */
+      if ( (hack_fd=open(Cam_data.port+7,O_RDONLY)) < 0 ) {
+	return SANE_STATUS_INVAL;
+      }
+
+#ifdef HAVE_USLEEP
+      usleep (200);
+#else
+      sleep (1);
+#endif
       CHECK_RET (gp_camera_set_port_speed (camera, Cam_data.speed));
     }
-  CHECK_RET (gp_camera_init (camera));
-  CHECK_RET (gp_list_new (&list));
 
-  CHECK_RET (gp_abilities_list_new (&al));
-  CHECK_RET (gp_abilities_list_load (al));
-  CHECK_RET (m = gp_abilities_list_lookup_model (al, Cam_data.camera_name));
-  CHECK_RET (gp_abilities_list_get_abilities (al, m, &abilities));
+  CHECK_RET (gp_camera_init (camera));
 
   if (!(abilities.operations & GP_OPERATION_CAPTURE_IMAGE))
     {
@@ -432,6 +458,9 @@ init_gphoto2 (void)
 	}
     }
 
+  DBG (4, "init_gphoto2: about to get folders\n");
+
+  CHECK_RET (gp_list_new (&list));
   CHECK_RET (gp_camera_folder_list_folders (camera, TopFolder, list));
   n = gp_list_count (list);
   if (n < 0)
@@ -458,6 +487,8 @@ close_gphoto2 (void)
     {
       DBG (1, "close_gphoto2: error: could not close device\n");
     }
+
+    close(hack_fd);
 }
 
 /*
@@ -499,7 +530,7 @@ get_info (void)
     }
 
   folder_list =
-    (SANE_String_Const *) malloc ((n + 1) * sizeof (SANE_String_Const *));
+    (SANE_String *) malloc ((n + 1) * sizeof (SANE_String_Const *));
   for (n = 0; n < gp_list_count (dir_list); n++)
     {
       gp_list_get_name (dir_list, n, &val);
@@ -711,9 +742,14 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
       fclose (fp);
     }
 
+  dev[0].name=strdup(Cam_data.port);
+
+  DBG (3, "sane_init: about to init_gphoto2\n");
+
   if (init_gphoto2 () != SANE_STATUS_GOOD)
     return SANE_STATUS_INVAL;
 
+  DBG (3, "sane_init: about to get_info\n");
   if (get_info () != SANE_STATUS_GOOD)
     {
       DBG (1, "error: could not get info\n");
@@ -722,6 +758,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
     }
 
   /* load the current images array */
+  DBG (3, "sane_init: about to get_pictures_info\n");
   get_pictures_info ();
 
   if (Cam_data.pic_taken == 0)
@@ -798,20 +835,6 @@ sane_exit (void)
 {
 }
 
-/* Device select/open/close */
-
-static const SANE_Device dev[] = {
-  {
-   "0",
-   "Gphoto2",
-   "Supported",
-   "still camera"},
-};
-
-static const SANE_Device *devlist[] = {
-  dev + 0, 0
-};
-
 /*
  * sane_get_devices() - From SANE API
  */
@@ -819,10 +842,9 @@ SANE_Status
 sane_get_devices (const SANE_Device *** device_list, SANE_Bool
 		  UNUSEDARG local_only)
 {
-
   DBG (127, "sane_get_devices called\n");
 
-  *device_list = devlist;
+    *device_list = devlist;
   return SANE_STATUS_GOOD;
 }
 
@@ -1246,7 +1268,10 @@ sane_start (SANE_Handle handle)
 	}
     }
 
+  DBG (4, "sane_start: about to get file\n");
+
   CHECK_RET (gp_file_new (&data_file));
+
   sprintf (cmdbuf, "%s/%s", (char *) TopFolder,
 	   (const char *) folder_list[current_folder]);
   CHECK_RET (gp_list_get_name
@@ -1422,7 +1447,7 @@ get_pictures_info (void)
 }
 
 /*
- * sane_picture_info() - get info about picture p.  Currently we have no
+ * get_picture_info() - get info about picture p.  Currently we have no
  *	way to get information about a picture beyond it's name.
  */
 static SANE_Int
@@ -1461,7 +1486,7 @@ snap_pic (void)
       return SANE_STATUS_INVAL;
     }
 
-  CHECK_RET (gp_camera_capture (camera, GP_OPERATION_CAPTURE_IMAGE, &path));
+  CHECK_RET (gp_camera_capture (camera, GP_CAPTURE_IMAGE, &path));
 
   /* Can't just increment picture count, because if the camera has
    * zero pictures we may not know the folder name.  Start over

@@ -1,11 +1,14 @@
 2004-10-16  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* ltmain.sh: backport -framework support from libtool 2.0
+	* README.darwin: sane-find-scanner now works for SCSI, so removed
+	  statement that said it didn't. More libusb info, and link to libusb
+	  patch
 
 2004-10-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* frontend/saned.c: Fixed NULL string crash.
-	* REAME.linux: Added some more details about hotplug and Gentoo
+	* README.linux: Added some more details about hotplug and Gentoo
 	  problems.
 	* NEWS: Updated for 1.0.15.
 
@@ -34,7 +37,7 @@
 2004-10-14  Ullrich Sigwanz <usigwanz@freesurf.ch>
 
         * backend/niash.c: removing a non-ANSI conform comma.
-        adapting the gammma conversion.
+          adapting the gammma conversion.
 
 2004-10-14  Gerhard Jaeger <gerhard@gjaeger.de>
 

@@ -18,7 +18,7 @@ sm3600 backend, disable sm3600 in dll.conf if you don't need it.
 
 Backends that use the function "fork" may not work at least with USB scanners.
 That's a limitation of MacOS X (doesn't use file descriptors for USB access).
-Some backends have been modified to use threads on MAcOS X qand should
+Most backends have been modified to use threads on MacOS X and should
 work. Others don't use fork at all. Both types of backends should work with
 MacOS X. Changing the backends to use threads is an ongoing effort.
 
@@ -29,8 +29,6 @@ testing. Please send failure and success reports to the sane-devel mailing
 list. At least the Epson Perfection 1640SU and the CANON IX-06015C (CanoScan
 600) are reported to work.
 
-sane-find-scanner is not able to find SCSI scanners on MacOS X yet.
-
 USB-scanners:
 -------------
 Work with libusb. Very limited testing until now. Try "sane-find-scanner -v -v"
@@ -40,12 +38,16 @@ and 2450 Photo.
 
 There are some known problems with libusb:
 
-- Older libusb versions return a wrong number of bytes written. Most backends
+- Older libusb versions return the wrong number of bytes written. Most backends
   will return an error and won't work. Update your version of libusb.
 
-- Sometimes libusb doesn't detect your scanner. Try setting the environment
-  variable SANE_DEBUG_SANEI_USB to 255 (e.g. "setenv SANE_DEBUG_SANEI_USB 255"
-  or "export SANE_DEBUG_SANEI_USB=255) before running scanimage -L.
+- Set configuration doesn't reclaim the interface. This is important for the
+  sm3600 backend.
+
+- Libusb sets only the completion timeouts, but not the no data timeouts.
+
+A patch for these problems is available at
+https://sourceforge.net/tracker/?group_id=1674 request ID 1044204
 
 Parport-scanners:
 -----------------

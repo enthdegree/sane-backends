@@ -300,10 +300,7 @@ qc_lock_wait (QC_Device * q, int wait)
 
       sprintf (lockfile, "/tmp/LOCK.qcam.0x%x", q->port);
       q->lock_fd = open (lockfile,
-			 O_WRONLY | O_CREAT
-#ifndef F_SETLK
-			 | O_EXCL
-#endif
+			 O_WRONLY | O_CREAT | O_EXCL
 			 , 0666);
       if (q->lock_fd < 0)
 	{
@@ -331,6 +328,7 @@ qc_lock_wait (QC_Device * q, int wait)
 static SANE_Status
 qc_unlock (QC_Device *q)
 {
+  char lockfile[128];
 #ifdef F_SETLK
 #ifndef HAVE_STRUCT_FLOCK
   struct flock
@@ -363,16 +361,11 @@ qc_unlock (QC_Device *q)
 	  strerror (errno));
       return SANE_STATUS_INVAL;
     }
-#else
-  {
-    char lockfile[128];
-
-    sprintf (lockfile, "/tmp/LOCK.qcam.0x%x", q->port);
-    unlink (lockfile);
-    close (q->lock_fd);
-    q->lock_fd = -1;
-  }
 #endif
+  sprintf (lockfile, "/tmp/LOCK.qcam.0x%x", q->port);
+  unlink (lockfile);
+  close (q->lock_fd);
+  q->lock_fd = -1;
   return SANE_STATUS_GOOD;
 }
 

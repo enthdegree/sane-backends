@@ -1,3 +1,8 @@
+2003-11-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added Microtek and Visioneer
+	  scanners.
+
 2003-11-04  m. allan noah <anoah at pfeiffer dot edu>
 	* doc/descriptions/fujitsu.desc: added model "fi-4110EOX2"
 

@@ -1,3 +1,9 @@
+2003-01-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* po/sane-backends.de.po po/sane-backends.es.po po/sane-backends.fr.po
+	  po/sane-backends.pt.po po/sane-backends.ru.po po/sane-backends.sv.po:
+	  Minor updates due to backend changes.
+
 2003-01-25  Jochen Eisinger <jochen.eisinger@gmx.de>
 
 	* sanei/sanei_pa4s2.c: added some #ifdefs to make it compile with

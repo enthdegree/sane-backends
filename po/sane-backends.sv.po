@@ -9,7 +9,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.9\n"
-"POT-Creation-Date: 2003-01-18 12:45+0100\n"
+"POT-Creation-Date: 2003-01-26 15:59+0100\n"
 "PO-Revision-Date: 2002-11-30 10:13+0100\n"
 "Last-Translator: Dennis Björklund <db@zigo.dhs.org>\n"
 "Language-Team: Swedish <sv@li.org>\n"
@@ -32,7 +32,7 @@ msgstr "Grå"
 
 #: .tmp/artec_eplus48u.c:155 .tmp/epson.c:450 .tmp/gt68xx.c:116 .tmp/leo.h:270
 #: .tmp/mustek.c:126 .tmp/mustek.c:130 .tmp/mustek_usb.c:268
-#: .tmp/plustek.c:223 .tmp/plustek.c:233 .tmp/plustek.c:243 .tmp/sceptre.h:300
+#: .tmp/plustek.c:224 .tmp/plustek.c:234 .tmp/plustek.c:244 .tmp/sceptre.h:300
 #: .tmp/snapscan.c:157 .tmp/teco1.h:300 .tmp/teco2.h:354 .tmp/teco3.h:304
 #: .tmp/test.c:120 .tmp/umax.c:190 .tmp/umax_pp.c:135
 msgid "Color"
@@ -40,7 +40,7 @@ msgstr "Färg"
 
 #: .tmp/artec_eplus48u.c:2809 .tmp/gt68xx.c:584 .tmp/leo.c:871
 #: .tmp/matsushita.c:1149 .tmp/microtek2.h:611 .tmp/mustek.c:4255
-#: .tmp/mustek_usb.c:353 .tmp/plustek.c:891 .tmp/sceptre.c:753
+#: .tmp/mustek_usb.c:353 .tmp/plustek.c:918 .tmp/sceptre.c:753
 #: .tmp/snapscan-options.c:401 .tmp/teco1.c:1136 .tmp/teco2.c:1445
 #: .tmp/teco3.c:971 .tmp/umax.c:5162 .tmp/umax_pp.c:446
 msgid "Enhancement"
@@ -57,7 +57,7 @@ msgstr ""
 
 #: .tmp/artec_eplus48u.c:2888 .tmp/epson.c:2810 .tmp/gt68xx.c:614
 #: .tmp/leo.c:823 .tmp/matsushita.c:1095 .tmp/microtek2.h:610
-#: .tmp/mustek.c:4207 .tmp/mustek_usb.c:305 .tmp/plustek.c:845
+#: .tmp/mustek.c:4207 .tmp/mustek_usb.c:305 .tmp/plustek.c:872
 #: .tmp/sceptre.c:705 .tmp/snapscan-options.c:334 .tmp/teco1.c:1088
 #: .tmp/teco2.c:1397 .tmp/teco3.c:923 .tmp/test.c:616 .tmp/umax.c:5112
 #: .tmp/umax_pp.c:397
@@ -142,13 +142,13 @@ msgstr "Gammakorrigering"
 msgid "Selects the gamma corrected transfer curve"
 msgstr "Välj rasterteknik."
 
-#: .tmp/epson.c:448 .tmp/plustek.c:220 .tmp/plustek.c:230 .tmp/plustek.c:240
+#: .tmp/epson.c:448 .tmp/plustek.c:221 .tmp/plustek.c:231 .tmp/plustek.c:241
 msgid "Binary"
 msgstr "Binär"
 
 #: .tmp/epson.c:449 .tmp/gt68xx.c:117 .tmp/mustek.c:125 .tmp/mustek.c:130
-#: .tmp/mustek_usb.c:269 .tmp/plustek.c:222 .tmp/plustek.c:232
-#: .tmp/plustek.c:241 .tmp/sceptre.h:299 .tmp/snapscan.c:159 .tmp/test.c:120
+#: .tmp/mustek_usb.c:269 .tmp/plustek.c:223 .tmp/plustek.c:233
+#: .tmp/plustek.c:242 .tmp/sceptre.h:299 .tmp/snapscan.c:159 .tmp/test.c:120
 #: .tmp/umax.c:187 .tmp/umax_pp.c:135
 msgid "Gray"
 msgstr "Grå"
@@ -314,7 +314,7 @@ msgstr "max"
 
 #: .tmp/epson.c:2341 .tmp/gt68xx.c:432 .tmp/matsushita.c:1044
 #: .tmp/microtek2.h:609 .tmp/mustek.c:4070 .tmp/mustek_usb.c:260
-#: .tmp/plustek.c:750 .tmp/sceptre.c:676 .tmp/snapscan-options.c:189
+#: .tmp/plustek.c:777 .tmp/sceptre.c:676 .tmp/snapscan-options.c:189
 #: .tmp/teco2.c:1369 .tmp/test.c:291 .tmp/umax.c:4990
 msgid "Scan Mode"
 msgstr "Bildläsarläge"
@@ -678,7 +678,7 @@ msgstr ""
 msgid "High"
 msgstr "Belysning"
 
-#: .tmp/matsushita.c:244 .tmp/mustek.c:141 .tmp/plustek.c:250
+#: .tmp/matsushita.c:244 .tmp/mustek.c:141 .tmp/plustek.c:251
 msgid "Normal"
 msgstr ""
 
@@ -985,7 +985,7 @@ msgstr ""
 msgid "Sets the color balance values to the firmware provided values."
 msgstr ""
 
-#: .tmp/mustek.c:125 .tmp/plustek.c:221 .tmp/plustek.c:231 .tmp/sceptre.h:298
+#: .tmp/mustek.c:125 .tmp/plustek.c:222 .tmp/plustek.c:232 .tmp/sceptre.h:298
 #: .tmp/snapscan.c:158 .tmp/umax.c:186
 #, fuzzy
 msgid "Halftone"
@@ -1158,38 +1158,38 @@ msgstr "Kontrollerar blåa nivån"
 msgid "Controls the contrast of the blue channel of the acquired image."
 msgstr "Bestämmer kontrasten för den inlästa bilden."
 
-#: .tmp/plustek.c:234
+#: .tmp/plustek.c:235
 #, fuzzy
 msgid "Color36"
 msgstr "Färg"
 
-#: .tmp/plustek.c:242
+#: .tmp/plustek.c:243
 msgid "Gray 14/16"
 msgstr ""
 
-#: .tmp/plustek.c:244
+#: .tmp/plustek.c:245
 #, fuzzy
 msgid "Color 42/48"
 msgstr "Färg"
 
-#: .tmp/plustek.c:251
+#: .tmp/plustek.c:252
 #, fuzzy
 msgid "Transparency"
 msgstr "Transparensenhet"
 
-#: .tmp/plustek.c:252 .tmp/saneopts.h:149
+#: .tmp/plustek.c:253 .tmp/saneopts.h:149
 msgid "Negative"
 msgstr "Negativ"
 
-#: .tmp/plustek.c:258
+#: .tmp/plustek.c:259
 msgid "Dithermap 1"
 msgstr ""
 
-#: .tmp/plustek.c:259
+#: .tmp/plustek.c:260
 msgid "Dithermap 2"
 msgstr ""
 
-#: .tmp/plustek.c:260
+#: .tmp/plustek.c:261
 msgid "Randomize"
 msgstr ""
 
@@ -1937,7 +1937,7 @@ msgstr ""
 
 #: .tmp/test.c:131
 #, fuzzy
-msgid "Color patterns"
+msgid "Color pattern"
 msgstr "Nedladdat mönster A"
 
 #: .tmp/test.c:131

@@ -1931,7 +1931,7 @@ sanei_scsi_req_enter2 (int fd,
       req->sgdata.sg3.hdr.sbp = &(req->sgdata.sg3.sense_buffer[0]);
       /* 10 minutes should be ok even for slow scanners */
       req->sgdata.sg3.hdr.timeout = 1000 * 60 * 10;
-#ifdef ENABLE_DIRECTIO
+#ifdef ENABLE_SCSI_DIRECTIO
       /* for the adventurous: If direct IO is used,
          the kernel locks the buffer. This can lead to conflicts,
          if a backend uses shared memory.

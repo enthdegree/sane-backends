@@ -50,9 +50,11 @@ in devfs".
 
 Adaptec 1542 SCSI adapter:
   Using buffer sizes of more than 32768 bytes with the aha1542 driver can
-  lead to kernel panic with older kernels. To avoid this, set 
-  --enable-scsibuffersize or SANE_SG_BUFFERSIZE to 32768, or download and
-  install the SG driver 2.1.37 or newer from http://www.torque.net/sg.
+  lead to kernel panic with older kernels. To avoid this, run configure with 
+  the option --enable-scsibuffersize or set the environment variable
+  SANE_SG_BUFFERSIZE to 32768 before running scanimage or another frontend, 
+  or download and install the SG driver 2.1.37 or newer from 
+  http://www.torque.net/sg.
 
 idescsi:
   The Linux kernel "Emulation of a SCSI host adapter for IDE ATAPI
@@ -60,14 +62,13 @@ idescsi:
   SANE. If your scanner isn't found or you encounter segmentation faults
   try to disable idescsi.
 
-Direct IO: Recent versions of the Linux SG driver for the 2.4 kernels support 
-  direct IO, i.e., the SCSI adapter's DMA chip copies data directly to/from 
-  user memory. Direct IO reduces memory usage and it may give better 
-  throughput for very fast scanners, but it can lead to access conflicts, 
-  if a backend uses shared memory. SANE does not use direct IO by default,
-  if you want to use it, run
+SCSI Direct IO: Recent versions of the Linux SG driver for the 2.4 kernels 
+  support direct IO, i.e., the SCSI adapter's DMA chip copies data directly 
+  to/from user memory. Direct IO reduces memory usage, but it can lead to 
+  access conflicts, if a backend uses shared memory. SANE does not use 
+  direct IO by default. If you want to use it, run
 
-	configure --enable-directio=yes
+	configure --enable-scsi-directio=yes
 
 
 Other Information

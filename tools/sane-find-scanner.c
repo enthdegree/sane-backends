@@ -110,23 +110,86 @@ check_sg (void)
   return 1;			/* Give up, and assume yes to avoid false negatives */
 }
 
+/* Display a buffer in the log. Display by lines of 16 bytes. */
 static void
+hexdump (const char *comment, unsigned char *buf, const int length)
+{
+  int i;
+  char line[128];
+  char *ptr;
+  char asc_buf[17];
+  char *asc_ptr;
+
+  printf ("  %s\n", comment);
+
+  i = 0;
+  goto start;
+
+  do
+    {
+      if (i < length)
+	{
+	  ptr += sprintf (ptr, " %2.2x", *buf);
+
+	  if (*buf >= 32 && *buf <= 127)
+	    {
+	      asc_ptr += sprintf (asc_ptr, "%c", *buf);
+	    }
+	  else
+	    {
+	      asc_ptr += sprintf (asc_ptr, ".");
+	    }
+	}
+      else
+	{
+	  /* After the length; do nothing. */
+	  ptr += sprintf (ptr, "   ");
+	}
+
+      i++;
+      buf++;
+
+      if ((i % 16) == 0)
+	{
+	  /* It's a new line */
+	  printf ("  %s    %s\n", line, asc_buf);
+
+	start:
+	  ptr = line;
+	  *ptr = '\0';
+	  asc_ptr = asc_buf;
+	  *asc_ptr = '\0';
+
+	  ptr += sprintf (ptr, "  %3.3d:", i);
+	}
+
+    }
+  while (i < ((length + 15) & ~15));
+}
+
+static SANE_Status
 scanner_do_inquiry (unsigned char *buffer, int sfd)
 {
   size_t size;
+  SANE_Status status;
 
   DBG (5, "do_inquiry\n");
   memset (buffer, '\0', 256);	/* clear buffer */
 
   size = 5;			/* first get only 5 bytes to get size of inquiry_return_block */
   set_inquiry_return_size (inquiry.cmd, size);
-  sanei_scsi_cmd (sfd, inquiry.cmd, inquiry.size, buffer, &size);
+  status = sanei_scsi_cmd (sfd, inquiry.cmd, inquiry.size, buffer, &size);
+
+  if (status != SANE_STATUS_GOOD)
+    return (status);
 
   size = get_inquiry_additional_length (buffer) + 5;
 
   /* then get inquiry with actual size */
   set_inquiry_return_size (inquiry.cmd, size);
-  sanei_scsi_cmd (sfd, inquiry.cmd, inquiry.size, buffer, &size);
+  status = sanei_scsi_cmd (sfd, inquiry.cmd, inquiry.size, buffer, &size);
+
+  return (status);
 }
 
 static void
@@ -137,13 +200,25 @@ scanner_identify_scanner (unsigned char *buffer, int sfd, char *devicename)
   unsigned char version[5];
   unsigned char *pp;
   unsigned int devtype;
+  SANE_Status status;
   static char *devtypes[] = {
     "disk", "tape", "printer", "processor", "CD-writer",
     "CD-drive", "scanner", "optical-drive", "jukebox",
     "communicator"
   };
+  status = scanner_do_inquiry (buffer, sfd);
+  if (status != SANE_STATUS_GOOD)
+    {
+      if (verbose)
+	printf ("%s: inquiry for device %s failed (%s)\n",
+		prog_name, devicename, sane_strstatus (status));
+      return;
+    }
 
-  scanner_do_inquiry (buffer, sfd);	/* get inquiry */
+  if (verbose)
+    hexdump ("Inquiry for device:", buffer,
+	     get_inquiry_additional_length (buffer) + 5);
+
   devtype = get_inquiry_periph_devtype (buffer);
   if (!verbose && devtype != IN_periph_devtype_scanner
       /* old HP scanners use the CPU id ... */
@@ -487,12 +562,12 @@ main (int argc, char **argv)
       if (verbose)
 	{
 	  if (result != 0)
-	    printf (" failed to open\n");
+	    printf (" failed to open (%s)\n", sane_strstatus (result));
 	  else
 	    printf (" open ok\n");
 	}
 
-      if (result == 0)
+      if (result == SANE_STATUS_GOOD)
 	{
 	  scanner_identify_scanner (buffer, sfd, dev_name);
 	  sanei_scsi_close (sfd);
@@ -524,7 +599,7 @@ main (int argc, char **argv)
       if (result != SANE_STATUS_GOOD)
 	{
 	  if (verbose)
-	    printf (" failed to open (status %d)\n", result);
+	    printf (" failed to open (%s)\n", sane_strstatus (result));
 	}
       else
 	{

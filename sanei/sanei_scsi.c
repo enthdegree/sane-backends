@@ -226,7 +226,7 @@ static char lastrcmd[16]; /* hold command block of last read command */
 #endif
 
 #if USE == SOLARIS_INTERFACE
-# define MAX_DATA	(32*1024)
+# define MAX_DATA	(128*1024)
 #endif
 
 #if USE == SOLARIS_SG_INTERFACE

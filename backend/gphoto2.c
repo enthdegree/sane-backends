@@ -339,6 +339,8 @@ init_gphoto2 (void)
 
   DBG (1, "GPHOTO2 Backend 05/16/01\n");
 
+  gp_debug_printf(GP_DEBUG_HIGH,"SANE","Initializing\n");
+
   CHECK_RET (gp_camera_new (&camera));
 
   if (!Cam_data.camera_name)
@@ -1493,10 +1495,8 @@ read_info (SANE_String_Const fname)
  *  set_res - set picture size depending on resolution settings 
  */
 static void
-set_res (SANE_Int lowres)
+set_res (SANE_Int UNUSEDARG lowres)
 {
-  lowres - lowres;
-
   if (gphoto2_opt_thumbnails)
     {
       parms.bytes_per_line = THUMB_WIDTH * 3;

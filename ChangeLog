@@ -1,11 +1,15 @@
+2000-12-16  Henning Meier-Geinitz <hmg@gmx.de>
+
+	* configure configure.in: Disable warnings by default for release.
+	* sanei/sanei_wire.c: Fixed typo.
+
 2000-12-16  Jochen Eisinger <jochen.eisinger@gmx.net>
 
 	* sanei/sanei_wire.c: added test for negative parameter to memcpy()
 
 2000-12-15 Gerhard Jaeger <g.jaeger@earthling.net>
 
-    * fixed wrong options in sane-plustek.man
-
+	* fixed wrong options in sane-plustek.man
 
 2000-12-12 Oliver Rauch <Oliver.Rauch@Wolfsburg.DE>
 

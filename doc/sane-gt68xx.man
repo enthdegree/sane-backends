@@ -1,4 +1,4 @@
-.TH sane-gt68xx 5 "13 Apr 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-gt68xx 5 "15 Mar 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-gt68xx
 .SH NAME
 sane-gt68xx \- SANE backend for GT-68XX based USB flatbed scanners
@@ -194,7 +194,7 @@ firmware "/opt/gt68xx/SBfw.usb"
 .br
 vendor "Trust"
 .br
-product "Compact Scan USB 19200"
+model "Compact Scan USB 19200"
 .br
 afe 0x20 0x02 0x22 0x03 0x1f 0x04
 .RE

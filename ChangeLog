@@ -4,6 +4,7 @@
 	  scanners. Added Spot scanners.
 	* aclocal.m4 acinclude.m4 configure: Fixed MacOS X build (patch
 	  from Mattias Ellert <mattias.ellert@tsl.uu.se>).
+	* doc/sane-gt68xx.man: Fixed wrong example.
 
 2003-05-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -126,9 +126,12 @@ and add a new line (eg. for changing permissions of sg4):
 .RS
 REGISTER ^sg4 PERMISSIONS root.scanner 0660
 .RE
-.RE
-.SH FreeBSD
 .PP
+.SH FREEBSD INFO
+Auto-configuration using the "scsi *" lines in the config files doesn't seem
+to work. Set a link
+.I /dev/scanner
+to the appropriate /dev/uk device.
 .RS
 .TP
 Adaptec AHA1542CF
@@ -164,8 +167,9 @@ Tekram DC390
 Reported to work fine under FreeBSD 2.2.2R with the
 .B amd
 driver.
+.RE
 
-.SH LINUX
+.SH LINUX INFO
 First, make sure your kernel has SCSI generic support enabled.  In
 ``make xconfig'', this shows up under ``SCSI support->SCSI generic
 support''.
@@ -283,7 +287,7 @@ that the scan does not terminate properly (it causes a SCSI timeout
 after 10 minutes).  The generic AM53C974 also seems to work fine
 and does not suffer from the timeout problems.
 
-.SH Solaris, OpenStep and NeXTStep
+.SH SOLARIS, OPENSTEP AND NEXTSTEP INFO
 Under Solaris, OpenStep and NeXTStep, the generic SCSI device name
 refers to a SCSI bus, not to an individual device.  For example,
 .B /dev/sg0

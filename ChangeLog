@@ -33,7 +33,7 @@
 	* doc/descriptions-external/tevion9693usb.desc: Removed (now included).
 	* backend/test.c doc/descriptions/test.desc: Make sure that frontend bugs
 	  concerning the select fd are detected.
-
+	* doc/sane-scsi.man: Minor formatting change.
 
 2002-12-28  Karl Heinz Kremer <khk@khk.net>
 

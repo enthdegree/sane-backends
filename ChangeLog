@@ -7,6 +7,7 @@
 
 	* doc/saned.man: Added explicit path to tcpd example.
 	* sanei/sanei_usb.c: Explicitely initialize vendorID and productID.
+	* sanei/sanei_config.c sanei/sanei_config2.c: Fixed possible segfault.
 
 2002-05-30  Stéphane Voltz  <svoltz@wanadoo.fr>
 

@@ -53,8 +53,8 @@
 
 typedef struct
 {
-	unsigned char data[16];
-	int len;
+  unsigned char data[16];
+  int len;
 }
 CDB;
 
@@ -142,7 +142,7 @@ CDB;
 /*--------------------------------------------------------------------------*/
 
 static inline int
-getbitfield (unsigned char *pageaddr, int mask, int shift) \
+getbitfield (unsigned char *pageaddr, int mask, int shift)
 {
   return ((*pageaddr >> shift) & mask);
 }
@@ -173,42 +173,42 @@ getbitfield (unsigned char *pageaddr, int mask, int shift) \
 
 enum Matsushita_Option
 {
-	OPT_NUM_OPTS = 0,
+  OPT_NUM_OPTS = 0,
 
-	OPT_MODE_GROUP,
-	OPT_MODE,					/* scanner modes */
-	OPT_RESOLUTION,				/* X and Y resolution */
-	OPT_DUPLEX,					/* Duplex mode */
-	OPT_FEEDER_MODE,			/* Feeding mode */
+  OPT_MODE_GROUP,
+  OPT_MODE,			/* scanner modes */
+  OPT_RESOLUTION,		/* X and Y resolution */
+  OPT_DUPLEX,			/* Duplex mode */
+  OPT_FEEDER_MODE,		/* Feeding mode */
 
-	OPT_GEOMETRY_GROUP,
-	OPT_PAPER_SIZE,				/* Paper size */
-	OPT_TL_X,					/* upper left X */
-	OPT_TL_Y,					/* upper left Y */
-	OPT_BR_X,					/* bottom right X */
-	OPT_BR_Y,					/* bottom right Y */
+  OPT_GEOMETRY_GROUP,
+  OPT_PAPER_SIZE,		/* Paper size */
+  OPT_TL_X,			/* upper left X */
+  OPT_TL_Y,			/* upper left Y */
+  OPT_BR_X,			/* bottom right X */
+  OPT_BR_Y,			/* bottom right Y */
 
-	OPT_ENHANCEMENT_GROUP,
-	OPT_BRIGHTNESS,				/* Brightness */
-	OPT_CONTRAST,				/* Contrast */
-	OPT_AUTOMATIC_THRESHOLD,	/* Automatic threshold */
-	OPT_HALFTONE_PATTERN,		/* Halftone pattern */
-	OPT_AUTOMATIC_SEPARATION,	/* Automatic separation */
-	OPT_WHITE_LEVEL,			/* White level */
-	OPT_NOISE_REDUCTION,		/* Noise reduction */
-	OPT_IMAGE_EMPHASIS,			/* Image emphasis */
-	OPT_GAMMA,					/* Gamma */
+  OPT_ENHANCEMENT_GROUP,
+  OPT_BRIGHTNESS,		/* Brightness */
+  OPT_CONTRAST,			/* Contrast */
+  OPT_AUTOMATIC_THRESHOLD,	/* Automatic threshold */
+  OPT_HALFTONE_PATTERN,		/* Halftone pattern */
+  OPT_AUTOMATIC_SEPARATION,	/* Automatic separation */
+  OPT_WHITE_LEVEL,		/* White level */
+  OPT_NOISE_REDUCTION,		/* Noise reduction */
+  OPT_IMAGE_EMPHASIS,		/* Image emphasis */
+  OPT_GAMMA,			/* Gamma */
 
 
-	/* must come last: */
-	NUM_OPTIONS
+  /* must come last: */
+  NUM_OPTIONS
 };
 
 typedef union
 {
-	SANE_Word w;				/* word */
-	SANE_Word *wa;				/* word array */
-	SANE_String s;				/* string */
+  SANE_Word w;			/* word */
+  SANE_Word *wa;		/* word array */
+  SANE_String s;		/* string */
 }
 Option_Value;
 
@@ -240,27 +240,28 @@ SANE_I18N("Automatic separation")
 
 /* Differences between the scanners. 
  * The scsi_* fields are used to lookup the correcte entry. */
-struct scanners_supported {
-	int scsi_type;
-	char scsi_vendor[9];
-	char scsi_product[17];
+struct scanners_supported
+{
+  int scsi_type;
+  char scsi_vendor[9];
+  char scsi_product[17];
 
-	SANE_Range x_range;
-	SANE_Range y_range;
-	SANE_Range brightness_range;
-	SANE_Range contrast_range;
+  SANE_Range x_range;
+  SANE_Range y_range;
+  SANE_Range brightness_range;
+  SANE_Range contrast_range;
 
-	SANE_String_Const *scan_mode_list; /* array of scan modes */
-	const SANE_Word *resolutions_list; /* array of available resolutions */
-	const SANE_Word *resolutions_round; /* rounding values for each resolutions */
-	
-	SANE_String_Const *image_emphasis_list;	/* list of image emphasis options */
-	const int *image_emphasis_val; /* list of image emphasis values */
+  SANE_String_Const *scan_mode_list;	/* array of scan modes */
+  const SANE_Word *resolutions_list;	/* array of available resolutions */
+  const SANE_Word *resolutions_round;	/* rounding values for each resolutions */
 
-	/* Scanner capabilities. */
-	int cap;					/* bit field */
-#define MAT_CAP_DUPLEX					0x00000002 /* can do duplex */
-#define MAT_CAP_CONTRAST				0x00000004 /* have contrast */
+  SANE_String_Const *image_emphasis_list;	/* list of image emphasis options */
+  const int *image_emphasis_val;	/* list of image emphasis values */
+
+  /* Scanner capabilities. */
+  int cap;			/* bit field */
+#define MAT_CAP_DUPLEX					0x00000002	/* can do duplex */
+#define MAT_CAP_CONTRAST				0x00000004	/* have contrast */
 #define MAT_CAP_AUTOMATIC_THRESHOLD		0x00000008
 #define MAT_CAP_WHITE_LEVEL				0x00000010
 #define MAT_CAP_GAMMA					0x00000020
@@ -271,10 +272,11 @@ struct scanners_supported {
 #define MAT_CAP_MANUAL_FEED				0x00000400
 };
 
-struct paper_sizes {
-	SANE_String_Const name;		/* name of the paper */
-	int width;
-	int length;
+struct paper_sizes
+{
+  SANE_String_Const name;	/* name of the paper */
+  int width;
+  int length;
 };
 
 /*--------------------------------------------------------------------------*/
@@ -282,68 +284,68 @@ struct paper_sizes {
 /* Define a scanner occurence. */
 typedef struct Matsushita_Scanner
 {
-	struct Matsushita_Scanner *next;
-	SANE_Device sane;
+  struct Matsushita_Scanner *next;
+  SANE_Device sane;
 
-	char *devicename;
-	int sfd;					/* device handle */
+  char *devicename;
+  int sfd;			/* device handle */
 
-	/* Infos from inquiry. */
-	char scsi_type;
-	char scsi_vendor[9];
-	char scsi_product[17];
-	char scsi_version[5];
+  /* Infos from inquiry. */
+  char scsi_type;
+  char scsi_vendor[9];
+  char scsi_product[17];
+  char scsi_version[5];
 
-	/* Scanner infos. */
-	int scnum;					/* index of that scanner in
-								 * scanners_supported */
+  /* Scanner infos. */
+  int scnum;			/* index of that scanner in
+				   * scanners_supported */
 
-	SANE_String_Const *paper_sizes_list; /* names of supported papers */
-	int *paper_sizes_val;		/* indirection into paper_sizes[] */
+  SANE_String_Const *paper_sizes_list;	/* names of supported papers */
+  int *paper_sizes_val;		/* indirection into paper_sizes[] */
 
-	/* SCSI handling */
-	size_t buffer_size;				/* size of the buffer */
-	SANE_Byte *buffer;			/* for SCSI transfer. */
+  /* SCSI handling */
+  size_t buffer_size;		/* size of the buffer */
+  SANE_Byte *buffer;		/* for SCSI transfer. */
 
-	/* Scanning handling. */
-	int scanning;				/* TRUE if a scan is running. */
-	int resolution;				/* resolution in DPI, for both X and Y */
-	int x_tl;					/* X top left */
-	int y_tl;					/* Y top left */
-	int x_br;					/* X bottom right */
-	int y_br;					/* Y bottom right */
-	int width;					/* width of the scan area in mm */
-	int length;					/* length of the scan area in mm */
+  /* Scanning handling. */
+  int scanning;			/* TRUE if a scan is running. */
+  int resolution;		/* resolution in DPI, for both X and Y */
+  int x_tl;			/* X top left */
+  int y_tl;			/* Y top left */
+  int x_br;			/* X bottom right */
+  int y_br;			/* Y bottom right */
+  int width;			/* width of the scan area in mm */
+  int length;			/* length of the scan area in mm */
 
-	enum
-	{
-		MATSUSHITA_BW,
-		MATSUSHITA_HALFTONE,
-		MATSUSHITA_GRAYSCALE
-	}
-	scan_mode;
+  enum
+  {
+    MATSUSHITA_BW,
+    MATSUSHITA_HALFTONE,
+    MATSUSHITA_GRAYSCALE
+  }
+  scan_mode;
 
-	int depth;					/* depth per color */
-	int halftone_pattern;		/* haltone number, valid for MATSUSHITA_HALFTONE */
+  int depth;			/* depth per color */
+  int halftone_pattern;		/* haltone number, valid for MATSUSHITA_HALFTONE */
 
-	int bytes_left;				/* number of bytes promised to backend
-								 * left to read. */
+  int bytes_left;		/* number of bytes promised to backend
+				   * left to read. */
 
-	SANE_Parameters params;
+  SANE_Parameters params;
 
-	int page_side;				/* 0=front, 1=back */
-	int page_num;				/* current number of the page */
+  int page_side;		/* 0=front, 1=back */
+  int page_num;			/* current number of the page */
 
-	/* For Grayscale 4 bits only */
-	SANE_Byte *image;			/* keep the current image there */
-	size_t image_size;			/* allocated size of image */
-	size_t image_begin;			/* first significant byte in image */
-	size_t image_end;			/* first free byte in image */
+  /* For Grayscale 4 bits only */
+  SANE_Byte *image;		/* keep the current image there */
+  size_t image_size;		/* allocated size of image */
+  size_t image_begin;		/* first significant byte in image */
+  size_t image_end;		/* first free byte in image */
 
 
-	/* Options */
-	SANE_Option_Descriptor opt[NUM_OPTIONS];
-	Option_Value val[NUM_OPTIONS];
+  /* Options */
+  SANE_Option_Descriptor opt[NUM_OPTIONS];
+  Option_Value val[NUM_OPTIONS];
 }
 Matsushita_Scanner;
 

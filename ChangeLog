@@ -1,3 +1,7 @@
+2001-05-07  Oliver Rauch <Oliver.Rauch@rauch-domain.de>
+
+	* updated umax backend to version 1.0 build 26
+
 2001-05-15  Peter Fales <peter@fales.com>
 
 	* backend/dc25.c, backend/dc240.c - Added DBG(1,..) to print

@@ -13,6 +13,7 @@
 	  sane-fujitsu manpage.
 	* doc/.cvsignore doc/Makefile.in doc/sane.man: Adjusted for fujitsu
 	  and sp15c manpages.
+	* AUTHORS: Updated for fujitsu backend.
 
 2002-04-15  Marian Eichholz <eichholz@computer.org>
 	* sm3600 imported from sm3600.sf.net

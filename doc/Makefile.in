@@ -100,6 +100,21 @@ install: all
 	    $(INSTALL_DATA) $${doc} $(docdir)/$${doc}; \
 	  done
 
+uninstall:
+	@for page in $(SECT1); do \
+	  echo removing $${page} in $(mandir)/man1/$${page}...; \
+	  rm -f $(mandir)/man1/$${page}; \
+	done
+	@for page in $(SECT5); do \
+	  echo removing $${page} in $(mandir)/man5/$${page}...; \
+	  rm -f $(mandir)/man5/$${page}; \
+	done
+	@for page in $(SECT7); do \
+	  echo removing $${page} in $(mandir)/man7/$${page}...; \
+	  rm -f $(mandir)/man7/$${page}; \
+	done
+	rm -rf $(docdir)
+
 sane.ind: sane.tex net.tex
 	@echo Generating index for sane.ps...
 	@touch sane.ind
@@ -167,4 +182,4 @@ distclean: clean
 
 depend:
 
-.PHONY: all install depend clean html html-man sane-html install-mostang
+.PHONY: all install depend clean html html-man sane-html install-mostang uninstall

@@ -71,6 +71,14 @@ install: $(PROGRAMS)
 	    $(sbindir)/$${program}; \
 	done
 
+uninstall:
+	@for program in $(BINPROGS); do \
+	  rm -f $(bindir)/$${program}; \
+	done
+	@for program in $(SBINPROGS); do \
+	  rm -f $(sbindir)/$${program}; \
+	done
+
 test: test.o $(LIBSANE) $(LIBLIB)
 	@$(LIBTOOL) $(MLINK) $(LINK) test.o $(LIBSANE) $(LIBLIB) $(LIBS)
 
@@ -91,4 +99,4 @@ distclean: clean
 depend:
 	makedepend $(INCLUDES) *.c
 
-.PHONY: all install depend clean distclean
+.PHONY: all install depend clean distclean uninstall

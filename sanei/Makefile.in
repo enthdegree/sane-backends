@@ -70,6 +70,8 @@ libsanei.a: $(LIBSANEI_OBJS)
 
 install:
 
+uninstall:
+
 check: test_wire
 	./test_wire
 
@@ -89,4 +91,4 @@ clean:
 distclean: clean
 	rm -f Makefile
 
-.PHONY: all install check depend clean distclean
+.PHONY: all install check depend clean distclean uninstall

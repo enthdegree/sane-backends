@@ -54,6 +54,9 @@ install: install-recursive
 	  $(INSTALL_DATA) $${file} $(includedir)/sane || exit 1; \
 	done
 
+uninstall: uninstall-recursive
+	rm -rf $(includedir)/sane
+
 #
 # Keep the .cvsignore files sorted, and use this target to do it.
 #
@@ -74,8 +77,8 @@ distclean: clean distclean-recursive
 depend: depend-recursive
 
 all-recursive install-recursive clean-recursive distclean-recursive \
-depend-recursive:
-	for subdir in $(SUBDIRS); do		\
+depend-recursive uninstall-recursive:
+	@for subdir in $(SUBDIRS); do		\
 	  target=`echo $@ | sed s/-recursive//`; \
 	  echo making $$target in $$subdir;	\
 	  (cd $$subdir && $(MAKE) $$target)	\
@@ -83,4 +86,5 @@ depend-recursive:
 	done && test -z "$$fail"
 
 .PHONY: all clean depend \
-	all-recursive install-recursive clean-recursive depend-recursive
+	all-recursive install-recursive clean-recursive depend-recursive \
+	uninstall-recursive

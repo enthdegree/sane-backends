@@ -66,6 +66,8 @@ liblib.a: $(LIBLIB_OBJS)
 
 install:
 
+uninstall:
+
 check:
 
 depend:
@@ -78,4 +80,4 @@ clean:
 distclean: clean
 	rm -f Makefile
 
-.PHONY: all install check depend clean distclean
+.PHONY: all install check depend clean distclean uninstall

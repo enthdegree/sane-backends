@@ -69,6 +69,9 @@ install: sane-config sane-find-scanner
 	$(INSTALL_SCRIPT) sane-config $(bindir)/sane-config
 	$(INSTALL_PROGRAM) sane-find-scanner $(bindir)/sane-find-scanner
 
+uninstall: 
+	rm -f $(bindir)/sane-config $(bindir)/sane-find-scanner
+
 sane-config: sane-config.in $(top_builddir)/config.status 
 	cd $(top_builddir) \
           && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
@@ -94,4 +97,4 @@ clean:
 distclean: clean
 	rm -f Makefile $(DESTINATIONS) mustek600IIn-off
 
-.PHONY: all install depend clean distclean
+.PHONY: all install depend clean distclean uninstall

@@ -127,6 +127,10 @@ install:
 	  fi; \
 	done
 
+uninstall:
+	rm -rf $(libsanedir) $(configdir)
+	rm -f $(libdir)/libsane.*
+
 dll.lo: dll-preload.c
 
 dll-preload.c:
@@ -293,4 +297,4 @@ clean:
 distclean: clean
 	rm -f Makefile libsane.so
 
-.PHONY: all install depend clean distclean
+.PHONY: all install depend clean distclean uninstall

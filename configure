@@ -8537,7 +8537,7 @@ fi
 
 
 
-DISTCLEAN_FILES="*~ .*~ *.log *.bak *.old *.orig *.out *.rej \"\#*\" \".\\#*\""
+DISTCLEAN_FILES="*~ .*~ *.log *.bak *.old *.orig *.out *.rej \"\#\"* \".\\#\"*"
 
 
 trap '' 1 2 15

@@ -1,4 +1,4 @@
-.TH sane-sharp 5 "28 Dec 1999"
+.TH sane-sharp 5 "21 Nov 2000"
 .IX sane-sharp
 .SH NAME
 sane-sharp - SANE backend for SHARP scanners
@@ -27,6 +27,10 @@ Sharp	JX-610
 .br
 Sharp	JX-250
 .br
+Sharp   JX-320
+.br
+Sharp   JX-330
+.br
 Sharp	JX-350
 .RE
 .PP
@@ -37,11 +41,7 @@ Vendor	Product id:
 .br
 -----	-----------
 .br
-Sharp	JX-320
-.br
 Sharp	JX-325
-.br
-Sharp	JX-330
 
 .RE
 .SH DEVICE NAMES

@@ -115,9 +115,17 @@ Version 0.41 01/10/2002
 Version 0.42 02/12/2002
     1.0 Added custom gamma table support
     2.0 Added configuration-file options to preset some stuff
-    3.0 Changed all eMail entries to gerhard@gjaeger.de                	
+    3.0 Changed all eMail entries to gerhard@gjaeger.de
 
 Version 0.42-11 09/17/2003
     1.0 Some Kernel 2.6.x additions
     2.0 Added Primax 4800Direct 30Bit override switch
-    
+
+Somewhere on the way to 0.43 I decided to split parport & usb
+backends, so the parport backend now is also able to run complete
+in userspace by using either direct port I/O or libieee1248
+
+Version 0.43-2 04/15/2004
+    1.0 Fixed some kernel 2.6 issues
+
+        

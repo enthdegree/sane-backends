@@ -1,3 +1,9 @@
+2003-06-10  Michael Herder <crapsite@gmx.net>
+
+	* po/Makefile.in: Added Czech translation
+	* po/sane-backends.cs.po: Added Czech translation provided
+	  by Josef <joeprusa at volny dot cz>
+
 2003-06-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Canon 8000F. More info

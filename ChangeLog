@@ -1,3 +1,13 @@
+2001-04-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* PROJECTS: Added entry for the Fujitsu M3091DCd. Updated my email
+	  address.
+	* TODO: Added entry for the Fujitsu M3091DCd and a combined Fujitsu
+	  backend. Clarified that "printf" also shouldn't be used.
+	* backend/dll.desc: Added my email as contact address.
+	* backend/m3091.desc: New file for the Fujitsu M3091DCd.
+	* doc/sane-mustek.man: Updated URL.
+
 2001-04-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/mustek.CHANGES backend/umax.CHANGES backend/umax.FAQ

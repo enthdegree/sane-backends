@@ -1,5 +1,17 @@
 CHANGES for the SANE Mustek backend
 
+2001-04-23
+  * Add internationalization support (mark all strings that can be translated
+    with SANE_I18N()).
+
+2001-04-19
+  * Don't check for macro VERSION any longer in sane_init. Print out
+    PACKAGE_VERSION instead. 
+  * Update email address and homepage.
+
+2001-08-08
+  * Released Mustek backend 1.0-106
+
 2001-04-08
   * Backend status is "stable" now. Hopefully this doesn't mean that new
     bugs show up now :-)
@@ -696,4 +708,4 @@ CHANGES for the SANE Mustek backend
   * bugfix for 600 II N waiting 60 s before cancelling
 
 
-Henning Meier-Geinitz <hmg@gmx.de>
+Henning Meier-Geinitz <henning@meier-geinitz.de>

@@ -32,10 +32,6 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-#ifndef PATH_MAX
-# define PATH_MAX	1024
-#endif
-
 #include "sane/sane.h"
 #include "sane/sanei.h"
 #include "sane/sanei_config.h"
@@ -45,6 +41,10 @@
 
 #define BACKEND_NAME	agfafocus
 #include "sane/sanei_backend.h"
+
+#ifndef PATH_MAX
+# define PATH_MAX	1024
+#endif
 
 #define MM_PER_INCH	25.4
 
@@ -1625,7 +1625,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 
       if (SANE_OPTION_IS_ACTIVE (s->opt[OPT_QUALITY].cap))
         {
-          printf(" -------------- setting quality\n");
+          DBG(3, " -------------- setting quality\n");
           quality = s->val[OPT_QUALITY].s;
           if (strcmp (quality, "Low") == 0 )
 	    s->quality = 255;
@@ -1641,7 +1641,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 
       if (SANE_OPTION_IS_ACTIVE (s->opt[OPT_SOURCE].cap))
         {
-          printf(" -------------- setting source\n");
+          DBG(3, " -------------- setting source\n");
           original = s->val[OPT_SOURCE].s;
           if (strcmp (original, "Transparency") == 0)
 	    s->original = 0;

@@ -721,28 +721,28 @@ read_files (void)
 		    case level_model:
 		      if (current_model->status != status_unknown)
 			{
-			  DBG_WARN ("overwriting status of model `%s'\n",
-				    current_model->name);
+			  DBG_WARN ("overwriting status of model `%s' (backend `%s')\n",
+				    current_model->name, current_backend->name);
 			}
 		      if (strcmp (string_entry, ":alpha") == 0)
 			{
 			  DBG_WARN
-			    ("DEPRECATED status `alpha': setting status of model `%s' to `basic'\n",
-			     current_model->name);
+			    ("DEPRECATED status `alpha': setting status of model `%s' to `basic' (backend `%s')\n",
+			     current_model->name, current_backend->name);
 			  current_model->status = status_basic;
 			}
 		      else if (strcmp (string_entry, ":beta") == 0)
 			{
 			  DBG_WARN
-			    ("DEPRECATED status `beta': setting status of model `%s' to `good'\n",
-			     current_model->name);
+			    ("DEPRECATED status `beta': setting status of model `%s' to `good' (backend `%s')\n",
+			     current_model->name, current_backend->name);
 			  current_model->status = status_good;
 			}
 		      else if (strcmp (string_entry, ":stable") == 0)
 			{
 			  DBG_WARN
-			    ("DEPRECATED status `stable': setting status of model `%s' to `complete'\n",
-			     current_model->name);
+			    ("DEPRECATED status `stable': setting status of model `%s' to `complete' (backend `%s')\n",
+			     current_model->name, current_backend->name);
 			  current_model->status = status_complete;
 			}
 		      else if (strcmp (string_entry, ":minimal") == 0)
@@ -789,15 +789,15 @@ read_files (void)
 			}
 		      else
 			{
-			  DBG_ERR ("unknown status of model `%s': `%s'\n",
-				   current_model->name, string_entry);
+			  DBG_ERR ("unknown status of model `%s': `%s' (backend `%s')\n",
+				   current_model->name, string_entry, current_backend->name);
 			  current_model->status = status_untested;
 			  return SANE_FALSE;
 			}
 		      break;
 		    default:
-		      DBG_ERR ("level %d not implemented for :status\n",
-			       current_level);
+		      DBG_ERR ("level %d not implemented for :status (backend `%s')\n",
+			       current_level, current_backend->name);
 		      return SANE_FALSE;
 		    }
 
@@ -917,12 +917,14 @@ read_files (void)
 		{
 		  if (!current_type)
 		    {
-		      DBG_ERR ("use `:devicetype' keyword first\n");
+		      DBG_ERR ("use `:devicetype' keyword first (backend `%s')\n", 
+			       current_backend->name);
 		      return SANE_FALSE;
 		    }
 		  if (current_type->type < type_meta)
 		    {
-		      DBG_ERR ("use `:desc' for `:api' and `:meta' only\n");
+		      DBG_ERR ("use `:desc' for `:api' and `:meta' only (backend `%s')\n",
+			       current_backend->name);
 		      return SANE_FALSE;
 		    }
 
@@ -955,12 +957,14 @@ read_files (void)
 
 		  if (!current_type)
 		    {
-		      DBG_ERR ("use `:devicetype' keyword first\n");
+		      DBG_ERR ("use `:devicetype' keyword first (backend `%s')\n",
+			       current_backend->name);
 		      return SANE_FALSE;
 		    }
 		  if (current_type->type >= type_meta)
 		    {
-		      DBG_ERR ("use `:mfg' for hardware devices only\n");
+		      DBG_ERR ("use `:mfg' for hardware devices only (backend `%s')\n",
+			       current_backend->name);
 		      return SANE_FALSE;
 		    }
 
@@ -998,13 +1002,15 @@ read_files (void)
 
 		  if (!current_type)
 		    {
-		      DBG_ERR ("use `:devicetype' keyword first\n");
+		      DBG_ERR ("use `:devicetype' keyword first (backend `%s')\n",
+			       current_backend->name);
 		      return SANE_FALSE;
 		    }
 		  if (current_level != level_mfg
 		      && current_level != level_model)
 		    {
-		      DBG_ERR ("use `:mfg' keyword first\n");
+		      DBG_ERR ("use `:mfg' keyword first (backend `%s')\n",
+			       current_backend->name);
 		      return SANE_FALSE;
 		    }
 		  model = current_mfg->model;
@@ -1047,9 +1053,9 @@ read_files (void)
 
 		  if (current_model->interface)
 		    {
-		      DBG_WARN ("overwriting interface of model "
+		      DBG_WARN ("overwriting `%s's interface of model "
 				"`%s' to `%s' (was: `%s')\n",
-				current_model->name, string_entry,
+				current_backend->name, current_model->name, string_entry,
 				current_model->interface);
 		    }
 
@@ -1091,8 +1097,8 @@ read_files (void)
 				"`%s'\n", string_entry, current_model->name);
 		      break;
 		    default:
-		      DBG_ERR ("level %d not implemented for :url\n",
-			       current_level);
+		      DBG_ERR ("level %d not implemented for :url (backend `%s')\n",
+			       current_level, current_backend->name);
 		      return SANE_FALSE;
 		    }
 		  continue;
@@ -1125,13 +1131,13 @@ read_files (void)
 				current_model->name, string_entry);
 		      break;
 		    default:
-		      DBG_ERR ("level %d not implemented for `:comment'\n",
-			       current_level);
+		      DBG_ERR ("level %d not implemented for `:comment' (backend `%s')\n",
+			       current_level, current_backend->name);
 		      return SANE_FALSE;
 		    }
 		  continue;
 		}
-	      DBG_ERR ("unknown keyword token in line `%s'\n", line);
+	      DBG_ERR ("unknown keyword token in line `%s' of file `%s'\n", line, file_name);
 	      return SANE_FALSE;
 	    }			/* while (sanei_config_readline) */
 	  fclose (fp);

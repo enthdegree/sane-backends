@@ -1,3 +1,7 @@
+2003-06-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* tools/sane-desc.c: Mention backend name in warnings and errors.
+
 2003-06-20  Michael Herder <crapsite@gmx.net>
 
 	* doc/descriptions/artec_eplus48u.desc: Updated status fields

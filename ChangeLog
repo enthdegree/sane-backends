@@ -1,3 +1,8 @@
+2002-07-12  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* tools/sane-desc.c: Added backends mode with splitted tables.
+	  Fixed HTML colors. Spelling and other minor fixes.
+
 2002-07-08  Karl Heinz Kremer <khk@khk.net>
 	* doc/descriptions/epson.desc: fixed typo in URL
 	  added :status lines to the scanner entries

@@ -1,3 +1,6 @@
+2002-12-07 Abel Deuring <a.deuring@satzbau-gmbh.de>
+	* sanei/sanei_scsi.c: improved error handling
+
 2002-12-07  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson.c: Fixed problem with dropout color

@@ -1,3 +1,21 @@
+2001-04-19 Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* AUTHORS: Added Michael Herder and me for pnm. Updated my email
+	  address.
+	* TODO: Removed pnm entry about adding more options. Added entry about
+	  epson backend freezing when trying to detect non-epson USB scanner.
+	  Added entry about adding contact adresses to .desc files. Added
+	  comment about me working on a sane man page. Removed entry about OS/2
+	  problems in sanei_scsi.c.
+	* configure configure.in: Removed a newline in --help message.
+	* backend/pnm.c: Added several options: gamma tables 
+	  (-> arrays), resolution option (word list), read only test option
+	  (SANE_CAP_SOFT_DETECT), several options for returning status codes
+	  in sane_read (all of this is from Michael Herder <crapsite@gmx.net>).
+	  Added build version info, print version information in sane_init.
+	  Use ../include/sane/ for includes. Version is 1.0.1.
+	* backend/pnm.desc: Updated contact info and version.
+	
 2001-04-19  Gerhard Jaeger <g.jaeger@earthling.net>
 	* backend/plustek.c: removed again that old fgets() call - sorry
 

@@ -4,7 +4,7 @@
 	* backend/plustek.c: changed version number, cleanup
 	* backend/plustek-usb*.c: cleanup
 	* backend/plustek-pp.*: cleanup
-	* backend/plustek-share.h: removed, no longer needed
+	* backend/plustek-share.h backend/Makefile.in: removed, no longer needed
 
 2003-09-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

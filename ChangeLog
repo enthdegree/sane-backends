@@ -1,3 +1,10 @@
+2005-03-16  Earle F. Philhower III <earle@ziplabel.com>
+	* backend/sm3840.c backend/sm3840_scan.c backend/sm3840.conf
+	  backend/Makefile.in doc/descriptions/sm3840.desc
+	  doc/sane-sm3840.man: Added ScanMaker 4800 USB ID and
+	  documentation, fixed PPC endianness problems, fixed
+	  Makefile dependencies for sm3840 driver
+
 2005-03-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc

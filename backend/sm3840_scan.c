@@ -128,7 +128,9 @@ main (int argc, char *argv[])
   params.width = rightin - leftin;
 
   prepare_params (&params);
-  udev = find_device (0x05da, 0x30d4);
+  udev = find_device (0x05da, 0x30d4); /* 3840 */
+  if (!udev)
+    udev = find_device (0x05da, 0x30cf); /* 4800 */
   if (!udev)
     fprintf (stderr, "Unable to open scanner.\n");
   else
@@ -420,6 +422,7 @@ setup_scan (usb_dev_handle * udev, SM3840_Params * p)
       len =
 	usb_bulk_read (udev, 1, (unsigned char *) whitebalance,
 		       whitebalancesize, rd_timeout);
+      fix_endian_short (whitebalance, whitebalancesize/2);
       if (!donered)
 	{
 	  red = (whitebalance[0] + whitebalance[3] + whitebalance[6]) / 3;
@@ -485,6 +488,7 @@ setup_scan (usb_dev_handle * udev, SM3840_Params * p)
       len =
 	usb_bulk_read (udev, 1, (unsigned char *) whitebalance,
 		       whitebalancesize, rd_timeout);
+      fix_endian_short (whitebalance, whitebalancesize/2);
       if (!donered)
 	{
 	  red =
@@ -599,6 +603,7 @@ setup_scan (usb_dev_handle * udev, SM3840_Params * p)
   write_vctl (udev, 0x0c, 0x0001, 0x0000, 0x00);
   record_mem (udev, (unsigned char **) (void *)&whitescan,
 	      (5632 * 2 * 3 * (dpi == 1200 ? 2 : 1)) * 4);
+  fix_endian_short (whitescan, (5632 * 2 * 3 * (dpi == 1200 ? 2 : 1)) * 2);
   write_regs (udev, 5, 0x83, 0x00, 0xa3, 0xff, 0xa4, 0xff, 0xa1, 0xff, 0xa2,
 	      0xff);
   write_vctl (udev, 0x0c, 0x0001, 0x0000, 0x00);

@@ -1,4 +1,4 @@
-.TH sane-sm3840 5 "Feb 6, 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-sm3840 5 "Mar 15, 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-sm3840
 .SH NAME
 sane-sm3840 \- SANE backend for Microtek scanners with SCAN08 USB chip
@@ -12,15 +12,20 @@ USB chip.
 There exist backends for Microtek scanners with SCSI command set.
 Refer to sane-microtek(5) and sane-microtek2(5) for details.
 .PP
+There also exists a Microtek 3600 series driver, see sane-sm3600(5) for
+details.
+.PP
 At present, the following
 scanners are known positively to work with this backend:
 .PP
 .RS
-Vendor     Product id:     Remark:
+Vendor     Product ID:     Remark:
 .br
 --------   --------------  -----------
 .br
-Microtek   ScanMaker 3840  all modes ok
+Microtek   ScanMaker 3840  All modes OK
+.br
+Microtek   ScanMaker 4800  All modes OK
 .RE
 .PP
 If you own a Microtek scanner with the SCAN08 chip other than the ones

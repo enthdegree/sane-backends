@@ -493,7 +493,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
 
 static SANE_Status
-add_sm3840_device (SANE_String_Const devname)
+add_sm_device (SANE_String_Const devname, SANE_String_Const modname)
 {
   SM3840_Device *dev;
 
@@ -503,7 +503,7 @@ add_sm3840_device (SANE_String_Const devname)
 
   memset (dev, 0, sizeof (*dev));
   dev->sane.name = strdup (devname);
-  dev->sane.model = "ScanMaker 3840";
+  dev->sane.model = modname;
   dev->sane.vendor = "Microtek";
   dev->sane.type = "flatbed scanner";
   ++num_devices;
@@ -512,6 +512,19 @@ add_sm3840_device (SANE_String_Const devname)
 
   return (SANE_STATUS_GOOD);
 }
+
+static SANE_Status
+add_sm3840_device (SANE_String_Const devname)
+{
+  return add_sm_device (devname, "ScanMaker 3840");
+}
+
+static SANE_Status
+add_sm4800_device (SANE_String_Const devname)
+{
+  return add_sm_device (devname, "ScanMaker 4800");
+}
+
 
 /*--------------------------------------------------------------------------*/
 SANE_Status
@@ -532,7 +545,10 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   first_dev = NULL;
   num_devices = 0;
 
+  /* If we get enough scanners should use an array, but for now */
+  /* do it one-by-one... */
   sanei_usb_find_devices (0x05da, 0x30d4, add_sm3840_device);
+  sanei_usb_find_devices (0x05da, 0x30cf, add_sm4800_device);
 
   if (devlist)
     free (devlist);

@@ -11,7 +11,7 @@
 ; See doc/descriptions.txt for details.
 
 :backend "sm3840"                 ; name of backend
-:version "1.0"                    ; version of backend (or "unmaintained")
+:version "1.1"                    ; version of backend (or "unmaintained")
 :new :yes                         ; Is the backend new to this SANE release?
                                   ; :yes or :no
 :manpage "sane-sm3840"          ; name of manpage (if it exists)
@@ -37,6 +37,16 @@
                                   ; "Serial port", "IEEE-1394", "JetDirect",
                                   ; or "Proprietary".
 :comment "8 and 16 bit, color and grayscale"  ; comment about the model
+
+:model "ScanMaker 4800"           ; name models for above-specified mfg.
+:status :good                     ; :minimal, :basic, :good, :complete
+                                  ; :untested, or :unsupported
+:interface "USB"                  ; interface type of the device:
+                                  ; "SCSI", "USB", "Parport (EPP)",
+                                  ; "Parport (SPP)", "Parport (ECP)",
+                                  ; "Serial port", "IEEE-1394", "JetDirect",
+                                  ; or "Proprietary".
+:comment "Same hardware as SM3840, different color box" ; comment
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

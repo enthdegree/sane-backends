@@ -1,5 +1,17 @@
 CHANGES for the SANE Mustek backend
 
+2002-06-07
+  * Released Mustek backend 1.0-125.
+
+2002-06-07
+  * Fixed some comments.
+  * Use FORCE_GAMMA for Paragon 6000SP as 2.x versions otherwise produce
+    solid black images.
+  * Used my own address instead of sane-devel for bug reports.
+
+2002-05-31
+  * Explicitely set some arrays to 0.
+
 2002-05-28
   * Released Mustek backend 1.0-124.
 

@@ -46,7 +46,7 @@
 
 /**************************************************************************/
 /* Mustek backend version                                                 */
-#define BUILD 124
+#define BUILD 125
 /**************************************************************************/
 
 #include "../include/sane/config.h"
@@ -761,6 +761,8 @@ inquiry (Mustek_Scanner * s)
   DBG (5, "inquiry: sending INQUIRY\n");
   size = sizeof (result);
 
+  memset (result, 0, size);
+
   status = dev_cmd (s, scsi_inquiry, sizeof (scsi_inquiry), result, &size);
   if (status != SANE_STATUS_GOOD)
     return status;
@@ -1117,7 +1119,7 @@ attach (SANE_String_Const devname, Mustek_Device ** devp, SANE_Bool may_wait)
      "MFS-12000SP" */
   else if (strncmp ((SANE_String) model_name, "MSF-12000SP", 11) == 0)
     {
-      /* These values are not tested. */
+      /* These values are not tested and mostly guessed. */
       dev->x_range.max = SANE_FIX (8.5 * MM_PER_INCH);
       dev->y_range.max = SANE_FIX (13.85 * MM_PER_INCH);
       dev->x_trans_range.min = SANE_FIX (1.0);
@@ -1125,11 +1127,6 @@ attach (SANE_String_Const devname, Mustek_Device ** devp, SANE_Bool may_wait)
       dev->x_trans_range.max = SANE_FIX (200.0);
       dev->y_trans_range.max = SANE_FIX (250.0);
       dev->dpi_range.max = SANE_FIX (1200);
-      /* This is a bit of a guess.  The reports by Andreas Gaumann 
-         indicate that at least the MSF-06000SP with firmware revision
-         3.12 does not require any line-distance correction.  I'm
-         guessing this is true for all firmware revisions and for
-         MSF-12000SP and MSF-06000SP. */
       dev->flags |= MUSTEK_FLAG_LD_NONE;
       dev->flags |= MUSTEK_FLAG_PARAGON_1;
       dev->flags |= MUSTEK_FLAG_USE_BLOCK;
@@ -1172,6 +1169,11 @@ attach (SANE_String_Const devname, Mustek_Device ** devp, SANE_Bool may_wait)
       dev->x_trans_range.max = SANE_FIX (205.0);
       dev->y_trans_range.max = SANE_FIX (255.0);
       dev->dpi_range.max = SANE_FIX (600);
+      /* Looks like at least some versions of this scanner produce black images
+	 in gray and color mode if MUSTEK_FORCE_GAMMA is not set. At least 
+	 versions 2.01, 2.02 and 2.10 are reported as having this bug. 3.12
+	 doesn't need this workaround but it doesn't harm either. */
+      dev->flags |= MUSTEK_FLAG_FORCE_GAMMA;
       dev->flags |= MUSTEK_FLAG_PARAGON_1;
       dev->sane.model = "MFS-6000SP";
     }
@@ -1433,7 +1435,7 @@ attach (SANE_String_Const devname, Mustek_Device ** devp, SANE_Bool may_wait)
 	   model_name);
       DBG (0, "attach: please set the debug level to 5 and send a debug "
 	   "report\n");
-      DBG (0, "attach: to sane-devel@mostang.com (export "
+      DBG (0, "attach: to henning@meier-geinitz.de (export "
 	   "SANE_DEBUG_MUSTEK=5\n");
       DBG (0, "attach: scanimage -L 2>debug.txt). Thank you.\n");
       free (dev);
@@ -2599,7 +2601,7 @@ gamma_correction (Mustek_Scanner * s, SANE_Int color_code)
       /* Do we need to upload a gamma table even if the user didn't select
          this option? Some scanners need this work around. */
       if (!(s->hw->flags & MUSTEK_FLAG_FORCE_GAMMA) ||
-	  !(s->mode & MUSTEK_MODE_COLOR))
+	  !((s->mode & MUSTEK_MODE_COLOR) || (s->mode & MUSTEK_MODE_GRAY)))
 	{
 	  DBG (5,
 	       "gamma_correction: no custom table selected -- exititing\n");
@@ -2903,6 +2905,8 @@ line_distance (Mustek_Scanner * s)
   SANE_Byte result[5];
   size_t len;
 
+  memset (result, 0, 5);
+
   res = SANE_UNFIX (s->val[OPT_RESOLUTION].w) + 0.5;
   peak_res = SANE_UNFIX (s->hw->dpi_range.max) + 0.5;
 
@@ -3083,6 +3087,8 @@ get_image_status (Mustek_Scanner * s, SANE_Int * bpl, SANE_Int * lines)
   size_t len;
   SANE_Int busy, offset;
   long res, half_res;
+
+  memset (result, 0, 6);
 
   /* The 600 II N v1.01 and Paragon 12000SP need a larger scan-area for
      line-distance correction in color mode */

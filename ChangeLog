@@ -1,3 +1,8 @@
+2002-04-28  Frank Zago <fzago@greshamstorage.com>
+
+	* tools/Makefile.in tools/sane-find-scanner.c: bug fixes, better
+	  error reporting and display the inquiry in verbose mode.
+
 2002-04-29  Kazuya Fukuda <kaafuu@mug.biglobe.ne.jp>
 	* backend/nec.c: fixed a compile problem for Dec Unix v4
           and probably other 64 bit platform. 

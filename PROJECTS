@@ -1,4 +1,4 @@
-PROJECTS (2002-02-19)
+PROJECTS (2002-02-21)
 
 Here is a list of projects that various people have expressed interest
 in.  Before starting working on one of these projects, it may be a
@@ -71,10 +71,6 @@ http://primax.sourceforge.net/
 Relisys Scorpio Super 3 SCSI II (planned)
 http://www.xs4all.nl/~plowman/
 Mark Plowman <sane-devel@plowman.xs4all.nl>
-
-Sceptre S1200 scanner support (wip)
-http://www.geocities.com/harikus2000/sane/sane.html
-Frank Zago <fzago@greshamstorage.com>
 
 Test backend (similar to pnm backend, but doesn't read files) (planned)
 Henning Meier-Geinitz <henning@meier-geinitz.de> et. al.

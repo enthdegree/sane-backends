@@ -45,6 +45,7 @@ Backends:
                 B&W fixes by Andrew Kuchling
  ricoh:         Feico W. Dillema
  s9036:         Ingo Schneider
+ sceptre:       Frank Zago (*)
  sharp:         Kazuya Fukuda (*) and Abel Deuring (*)
  sm3600:        Marian Eichholz (*) and Glenn Ramsey (*)
  snapscan:      Kevin Charter, Franck Schneider, Michel Roelofs, Sebastien
@@ -100,6 +101,7 @@ Didier Carlier <didier@sema.be>
 Eugene S. Weiss <yossarian@users.sourceforge.net>
 Feico W. Dillema <dillema@acm.org>
 Franck Schneider <schnefra@hol.fr>
+Frank Zago <fzago@greshamstorage.com>
 Gerhard Jaeger <g.jaeger@earthling.net>
 Glenn Ramsey <glenn@componic.com>
 Gordon Matzigkeit  <gord@gnu.ai.mit.edu>

@@ -1,3 +1,8 @@
+2000-12-09  Peter Kirchgessner <peter@kirchgessner.net>
+
+        * doc/sane-hp.man, backend/hp.desc
+          Add HP ScanJet 6390C to list of supported scanners
+
 2000-12-07  Henning Meier-Geinitz <hmg@gmx.de>
 	
 	* TODO: Updated. Removed entries about plustek comment problembelm

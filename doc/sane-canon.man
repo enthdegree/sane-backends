@@ -1,19 +1,23 @@
-.TH sane-canon 5 "29 May 2001"
+.TH sane-canon 5 "03 May 2001"
 .IX sane-canon
 .SH NAME
-sane-canon - SANE backend for Canon flatbed scanners
+sane-canon - SANE backend for Canon SCSI scanners
 .SH DESCRIPTION
 The
 .B sane-canon
 library implements a SANE (Scanner Access Now Easy) backend that
-provides access to the following Canon flatbed scanners:
+provides access to the following Canon flatbed and film scanners:
 .PP
 .RS
 CanoScan 300
 .br
 CanoScan 600
 .br
-CanoScan 2700F                                                          
+CanoScan FB620S
+.br
+CanoScan FS2700F                                                          
+.br
+CanoScan FS2710                                                          
 .br
 .RE
 .PP
@@ -27,42 +31,16 @@ I consider it extremely unprobable) that your scanner will be
 damaged.
 .PP
 That said, TESTERS ARE WELCOME. Send your bug reports and comments to
-Manuel Panea <mpd@rzg.mpg.de>.
+Manuel Panea <mpd@rzg.mpg.de>; for questions concerning the FB620
+contact Mitsuru Okaniwa <m-okaniwa@bea.hi-ho.ne.jp>, for the FS2710
+Ulrich Deiters <ukd@xenon.pc.uni-koeln.de>.
 .PP
-.SH "DEVICE NAMES"
-This backend expects device names of the form:
-.PP
-.RS
-.I special
-.RE
-.PP
-Where
-.I special
-is the path-name for the special device that corresponds to a
-SCSI scanner. The special device name must be a generic SCSI device or a
-symlink to such a device.  The program 
-.IR sane-find-scanner 
-helps to find out the correct device. Under Linux, such a device name
-could be
-.I /dev/sga
-or
-.IR /dev/sge ,
-for example.  See sane-scsi(5) for details.
 
-.SH CONFIGURATION
-The contents of the
-.I canon.conf
-file is a list of device names that correspond to Canon
-scanners.  Empty lines and lines starting with a hash mark (#) are
-ignored.  Only one device name can be listed in 
-.IR canon.conf .
-
-.SH TIPS
+.SH TIPS (FS2700)
 .PP
-When scanning either slides or negatives, I found that I must set the
-gamma value to something about 2.2 to 2.4 (I set the same value for all
-three red, green, blue). Also, for slides, using "Auto Exposure" helps
-a lot.
+Scanning either slides or negatives has been found to require rather
+large gamma corrections of about 2.2 to 2.4 (same value for red, green, 
+and blue). Also, for slides, using "Auto Exposure" helps a lot.
 .PP
 The "Auto Exposure" function for slides makes the scanner do a first
 pass on the film to determine the Highlight and Shadow point
@@ -70,24 +48,31 @@ values. The "Auto Focus" function triggers yet another pass to
 determine the focus value. After that, the real scanning pass takes
 place. The "Auto Exposure" function is not available for negatives yet.
 .PP
-Even after "Auto Focus", the image I get is often a bit too
-blurred. I found that using the GIMP to do a
-"Filter->Enhance->Sharpen" at about 40 to 60 improves the image
-quite a bit. In fact, I find it so good that I might implement a
-sharpen filter into the backend in the future.                                
+Even with "Auto Focus" turned on, the scanned image is often a bit too
+blurred. Using the GIMP to do a "Filter->Enhance->Sharpen" at about 40
+to 60 improves the image considerably. It is likely that a sharpen filter
+will be included in a future version of this backend.
 .PP
 The "native" scanner resolutions of the 2700F are the integer
-sub-multiples of 2720 dpi, i.e. 1360, 680, 340 and 170. You can scan
-at any other resolution, but you will notice that the image has
-noticeably more jaggies that when using one of the "native"
-resolutions.                                                                  
+sub-multiples of 2720 dpi, i.e. 1360, 680, 340 and 170. Scanning at
+other resolutions is possible, but there will be noticeably more jaggies
+in the image than when using one of the "native" resolutions.
+.PP
+
+.SH TIPS (FS2710)
+.PP
+Gamma corrections are done not by the scanner, but by the backend.
+The scanner is always run in 12-bit mode. In "color" mode the image
+data are corrected for gamma, shadow point, etc., and then truncated
+to 8-bit intensities; the default gamma value is 2.5. In "raw" mode the
+image data are exported without corrections as 16-bit intensities; this
+mode can be recommended if extensive adjustments have to be made to a
+picture (and if the frontend can handle 16-bit intensities).
+.PP
+Negatives are handled by simple color inversion and may require manual
+removal of blue discoloration.
 .PP
 .SH FILES
-.TP
-.I @CONFIGDIR@/canon.conf
-The backend configuration file (see also description of
-.B SANE_CONFIG_DIR
-below).
 .TP
 .I @LIBDIR@/libsane-canon.a
 The static library implementing this backend.
@@ -96,20 +81,6 @@ The static library implementing this backend.
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 .SH ENVIRONMENT
-.TP
-.B SANE_CONFIG_DIR
-This environment variable specifies the list of directories that may
-contain the configuration file.  Under UNIX, the directories are
-separated by a colon (`:'), under OS/2, they are separated by a
-semi-colon (`;').  If this variable is not set, the configuration file
-is searched in two default directories: first, the current working
-directory (".") and then in @CONFIGDIR@.  If the value of the
-environment variable ends with the directory separator character, then
-the default directories are searched after the explicitly specified
-directories.  For example, setting
-.B SANE_CONFIG_DIR
-to "/tmp/config:" would result in directories "tmp/config", ".", and
-"@CONFIGDIR@" being searched (in this order).
 .TP
 .B SANE_DEBUG_CANON
 If the library was compiled with debug support enabled, this
@@ -120,13 +91,14 @@ Example:
 export SANE_DEBUG_CANON=4
 
 .SH "SEE ALSO"
-sane(7), sane\-scsi(5), sane\-find\-scanner(1)
+sane\-scsi(5)
 .br
 http://www.rzg.mpg.de/~mpd/sane/
 .br
-@DOCDIR@/canon/canon.install2700F.txt (installation of a CanoScan 2700F)
+doc/canon.install2700F.txt (installation of a CanoScan 2700F
 .br
 .SH AUTHOR
-Helmut Koeberle, Manuel Panea, and Markus Mertinat
+Helmut Koeberle, Manuel Panea, and Markus Mertinat; FB620S support
+by Mitsuru Okaniwa; FS2710 support by Ulrich Deiters
 .br
 Man page by Henning Meier-Geinitz (mostly based on canon.README)

@@ -52,7 +52,7 @@ test_unit_ready (int fd)
   DBG (31, ">> test_unit_ready\n");
 
   memset (cmd, 0, sizeof (cmd));
-  status = sanei_scsi_cmd (fd, cmd, sizeof (cmd), 0, 0);
+  status = sanei_scsi_cmd (fd, cmd, sizeof (cmd), NULL, NULL);
 
   DBG (31, "<< test_unit_ready\n");
   return (status);
@@ -60,7 +60,7 @@ test_unit_ready (int fd)
 
 #ifdef IMPLEMENT_ALL_SCANNER_SCSI_COMMANDS
 static SANE_Status
-request_sense (int fd, void *buf, size_t *buf_size)
+request_sense (int fd, void *buf, size_t * buf_size)
 {
   static u_char cmd[6];
   int status;
@@ -69,7 +69,7 @@ request_sense (int fd, void *buf, size_t *buf_size)
   memset (cmd, 0, sizeof (cmd));
   cmd[0] = 0x03;
   cmd[4] = 14;
-  status = sanei_scsi_cmd (fd, cmd, sizeof (cmd), buf, buf_size);
+  status = sanei_scsi_cmd2 (fd, cmd, sizeof (cmd), NULL, 0, buf, buf_size);
 
   DBG (31, "<< request_sense\n");
   return (status);
@@ -77,7 +77,7 @@ request_sense (int fd, void *buf, size_t *buf_size)
 #endif
 
 static SANE_Status
-inquiry (int fd, int evpd, void *buf, size_t *buf_size)
+inquiry (int fd, int evpd, void *buf, size_t * buf_size)
 {
   static u_char cmd[6];
   int status;
@@ -112,7 +112,7 @@ mode_select (int fd)
   cmd[6 + 5] = 6;
   cmd[6 + 8] = 0x02;
   cmd[6 + 9] = 0x58;
-  status = sanei_scsi_cmd (fd, cmd, sizeof (cmd), 0, 0);
+  status = sanei_scsi_cmd (fd, cmd, sizeof (cmd), NULL, NULL);
 
   DBG (31, "<< mode_select\n");
   return (status);
@@ -129,7 +129,7 @@ reserve_unit (int fd)
 
   memset (cmd, 0, sizeof (cmd));
   cmd[0] = 0x16;
-  status = sanei_scsi_cmd (fd, cmd, sizeof (cmd), 0, 0);
+  status = sanei_scsi_cmd (fd, cmd, sizeof (cmd), NULL, NULL);
 
   DBG (31, "<< reserve_unit\n");
   return (status);
@@ -146,7 +146,7 @@ release_unit (int fd)
 
   memset (cmd, 0, sizeof (cmd));
   cmd[0] = 0x17;
-  status = sanei_scsi_cmd (fd, cmd, sizeof (cmd), 0, 0);
+  status = sanei_scsi_cmd (fd, cmd, sizeof (cmd), NULL, NULL);
 
   DBG (31, "<< release_unit\n");
   return (status);
@@ -154,7 +154,7 @@ release_unit (int fd)
 #endif
 
 static SANE_Status
-mode_sense (int fd, void *buf, size_t *buf_size)
+mode_sense (int fd, void *buf, size_t * buf_size)
 {
 
   static u_char cmd[6];
@@ -181,13 +181,13 @@ scan (int fd)
   memset (cmd, 0, sizeof (cmd));
   cmd[0] = 0x1b;
   cmd[4] = 1;
-  status = sanei_scsi_cmd (fd, cmd, sizeof (cmd), 0, 0);
+  status = sanei_scsi_cmd (fd, cmd, sizeof (cmd), NULL, NULL);
 
   DBG (31, "<< scan\n");
   return (status);
 }
 
-#ifdef IMPLEMENT_ALL_SCANNER_SCSI_COMMANDS
+/* #ifdef IMPLEMENT_ALL_SCANNER_SCSI_COMMANDS */
 static SANE_Status
 send_diagnostic (int fd)
 {
@@ -198,32 +198,32 @@ send_diagnostic (int fd)
   memset (cmd, 0, sizeof (cmd));
   cmd[0] = 0x1d;
   cmd[1] = 4;
-  status = sanei_scsi_cmd (fd, cmd, sizeof (cmd), 0, 0);
+  status = sanei_scsi_cmd (fd, cmd, sizeof (cmd), NULL, NULL);
 
   DBG (31, "<< send_diagnostic\n");
   return (status);
 }
-#endif
+
+/* #endif */
 
 static SANE_Status
 set_window (int fd, void *data)
 {
-  static u_char cmd[10 + 72];
+  static u_char cmd[10];
   int status;
   DBG (31, ">> set_window\n");
 
   memset (cmd, 0, sizeof (cmd));
   cmd[0] = 0x24;
   cmd[8] = 72;
-  memcpy (cmd + 10, data, 72);
-  status = sanei_scsi_cmd (fd, cmd, sizeof (cmd), 0, 0);
+  status = sanei_scsi_cmd2 (fd, cmd, sizeof (cmd), data, 72, NULL, NULL);
 
   DBG (31, "<< set_window\n");
   return (status);
 }
 
 static SANE_Status
-get_window (int fd, void *buf, size_t *buf_size)
+get_window (int fd, void *buf, size_t * buf_size)
 {
   static u_char cmd[10];
   int status;
@@ -233,14 +233,14 @@ get_window (int fd, void *buf, size_t *buf_size)
   cmd[0] = 0x25;
   cmd[1] = 1;
   cmd[8] = 72;
-  status = sanei_scsi_cmd (fd, cmd, sizeof (cmd), buf, buf_size);
+  status = sanei_scsi_cmd2 (fd, cmd, sizeof (cmd), NULL, 0, buf, buf_size);
 
   DBG (31, "<< get_window\n");
   return (status);
 }
 
 static SANE_Status
-read_data (int fd, void *buf, size_t *buf_size)
+read_data (int fd, void *buf, size_t * buf_size)
 {
   static u_char cmd[10];
   int status;
@@ -251,7 +251,7 @@ read_data (int fd, void *buf, size_t *buf_size)
   cmd[6] = *buf_size >> 16;
   cmd[7] = *buf_size >> 8;
   cmd[8] = *buf_size;
-  status = sanei_scsi_cmd (fd, cmd, sizeof (cmd), buf, buf_size);
+  status = sanei_scsi_cmd2 (fd, cmd, sizeof (cmd), NULL, 0, buf, buf_size);
 
   DBG (31, "<< read_data\n");
   return (status);
@@ -266,7 +266,7 @@ medium_position (int fd)
 
   memset (cmd, 0, sizeof (cmd));
   cmd[0] = 0x31;
-  status = sanei_scsi_cmd (fd, cmd, sizeof (cmd), 0, 0);
+  status = sanei_scsi_cmd (fd, cmd, sizeof (cmd), NULL, NULL);
 
   DBG (31, "<< medium_position\n");
   return (status);
@@ -282,7 +282,7 @@ execute_shading (int fd)
 
   memset (cmd, 0, sizeof (cmd));
   cmd[0] = 0xe2;
-  status = sanei_scsi_cmd (fd, cmd, sizeof (cmd), 0, 0);
+  status = sanei_scsi_cmd (fd, cmd, sizeof (cmd), NULL, NULL);
 
   DBG (31, "<< execute shading\n");
   return (status);
@@ -290,8 +290,7 @@ execute_shading (int fd)
 #endif
 
 static SANE_Status
-execute_auto_focus (int fd, int mode, int speed, int AE, int count,
-		    void *buf, size_t *buf_size)
+execute_auto_focus (int fd, int mode, int speed, int AE, int count)
 {
   static u_char cmd[10];
   int status;
@@ -304,7 +303,7 @@ execute_auto_focus (int fd, int mode, int speed, int AE, int count,
   cmd[1] = mode;
   cmd[2] = (speed << 6) | AE;
   cmd[4] = count;
-  status = sanei_scsi_cmd (fd, cmd, sizeof (cmd), buf, buf_size);
+  status = sanei_scsi_cmd2 (fd, cmd, sizeof (cmd), NULL, 0, NULL, NULL);
 
   DBG (7, "<< execute auto focus\n");
   return (status);
@@ -320,16 +319,13 @@ set_adf_mode (int fd, u_char priority)
   cmd[0] = 0xd4;
   cmd[4] = 0x01;
 
-  status = sanei_scsi_cmd2 (fd, cmd, 6, 0, 0, 0, 0);
-  if (status == SANE_STATUS_GOOD)
-  {
-    status = sanei_scsi_cmd (fd, &priority, 1, 0, 0);
-  }
+  status = sanei_scsi_cmd2 (fd, cmd, sizeof (cmd), &priority, 1, NULL, NULL);
+
   return (status);
 }
 
 static SANE_Status
-get_scan_mode (int fd, u_char page, void *buf, size_t *buf_size)
+get_scan_mode (int fd, u_char page, void *buf, size_t * buf_size)
 {
   static u_char cmd[6];
   int status;
@@ -340,23 +336,23 @@ get_scan_mode (int fd, u_char page, void *buf, size_t *buf_size)
   cmd[2] = page;
 
   switch (page)
-  {
+    {
     case AUTO_DOC_FEEDER_UNIT:
     case TRANSPARENCY_UNIT:
       cmd[4] = 0x0C + PageLen;
-    break;
+      break;
 
-    case SCAN_CONTROL_CONDITIONS :
+    case SCAN_CONTROL_CONDITIONS:
       cmd[4] = 0x14 + PageLen;
-    break;
+      break;
 
     default:
       cmd[4] = 0x24 + PageLen;
-    break;
-  }
+      break;
+    }
 
   DBG (31, "get scan mode: cmd[4]='0x%0X'\n", cmd[4]);
-  status = sanei_scsi_cmd2 (fd, cmd, sizeof (cmd), 0, 0, buf, buf_size);
+  status = sanei_scsi_cmd2 (fd, cmd, sizeof (cmd), NULL, 0, buf, buf_size);
 
   DBG (31, "<< get scan mode\n");
   return (status);
@@ -366,53 +362,58 @@ get_scan_mode (int fd, u_char page, void *buf, size_t *buf_size)
 static SANE_Status
 define_scan_mode (int fd, u_char page, void *data)
 {
-  static u_char cmd[6+20];
-  int status, i, cmdlen;
+  static u_char cmd[6];
+  u_char pdata[20];
+  size_t i;
+  int status, pdatalen;
   DBG (31, ">> define scan mode\n");
 
   memset (cmd, 0, sizeof (cmd));
+  memset (pdata, 0, sizeof (data));
   cmd[0] = 0xd6;
   cmd[1] = 0x10;
   cmd[4] = (page == TRANSPARENCY_UNIT) ? 0x0c :
-    (page == SCAN_CONTROL_CONDITIONS)  ? 0x14 : 0x24;
+    (page == SCAN_CONTROL_CONDITIONS) ? 0x14 : 0x24;
 
-  memcpy (cmd + 10, data, (page == TRANSPARENCY_UNIT) ? 8 :
-	  (page == SCAN_CONTROL_CONDITIONS)  ? 16 : 24);
+  memcpy (pdata + 4, data, (page == TRANSPARENCY_UNIT) ? 8 :
+	  (page == SCAN_CONTROL_CONDITIONS) ? 16 : 24);
 
-  for(i = 0; i < sizeof(cmd); i++)
-  {
-    DBG (31, "define scan mode: cmd[%d]='0x%0X'\n", i, cmd[i]);
-  }
-  cmdlen = (page == TRANSPARENCY_UNIT) ? 18 :
-    (page == SCAN_CONTROL_CONDITIONS)  ? 26 : 34;
+  for (i = 0; i < sizeof (cmd); i++)
+    {
+      DBG (31, "define scan mode: cmd[%d]='0x%0X'\n", i, cmd[i]);
+    }
 
-  status = sanei_scsi_cmd2 (fd, cmd, 6, &cmd[10], cmdlen-6, 0, 0);
+  for (i = 0; i < sizeof (pdata); i++)
+    {
+      DBG (31, "define scan mode: pdata[%d]='0x%0X'\n", i, pdata[i]);
+    }
+
+  pdatalen = (page == TRANSPARENCY_UNIT) ? 12 :
+    (page == SCAN_CONTROL_CONDITIONS) ? 20 : 28;
+
+  status =
+    sanei_scsi_cmd2 (fd, cmd, sizeof (cmd), pdata, pdatalen, NULL, NULL);
   DBG (31, "<< define scan mode\n");
   return (status);
 }
 
 static SANE_Status
-get_density_curve (int fd, int component, void *buf, size_t *buf_size)
+get_density_curve (int fd, int component, void *buf, size_t * buf_size,
+		   int transfer_data_type)
 {
   static u_char cmd[10];
-  static u_char tbuf[256];
-  int status, i;
+  int status;
   DBG (31, ">> get_density_curve\n");
 
   memset (cmd, 0, sizeof (cmd));
   cmd[0] = 0x28;
-  cmd[2] = 0x03;
+  cmd[2] = transfer_data_type;
   cmd[4] = component;
   cmd[5] = 0;
-  cmd[6] = 0;
-  cmd[7] = 1;
-  cmd[8] = 0;
-  status = sanei_scsi_cmd (fd, cmd, sizeof (cmd), tbuf, buf_size);
-
-  for (i=0; i<256; i++)
-  {
-    ((u_char *)buf)[i] = tbuf[i];
-  }
+  cmd[6] = ((*buf_size) >> 16) & 0xff;
+  cmd[7] = ((*buf_size) >> 8) & 0xff;
+  cmd[8] = (*buf_size) & 0xff;
+  status = sanei_scsi_cmd2 (fd, cmd, sizeof (cmd), NULL, 0, buf, buf_size);
 
   DBG (31, "<< get_density_curve\n");
   return (status);
@@ -420,7 +421,7 @@ get_density_curve (int fd, int component, void *buf, size_t *buf_size)
 
 #ifdef IMPLEMENT_ALL_SCANNER_SCSI_COMMANDS
 static SANE_Status
-get_density_curve_data_format (int fd, void *buf, size_t *buf_size)
+get_density_curve_data_format (int fd, void *buf, size_t * buf_size)
 {
   static u_char cmd[10];
   int status;
@@ -442,26 +443,24 @@ get_density_curve_data_format (int fd, void *buf, size_t *buf_size)
 #endif
 
 static SANE_Status
-set_density_curve (int fd, int component, void *buf, size_t *buf_size)
+set_density_curve (int fd, int component, void *buf, size_t * buf_size,
+		   int transfer_data_type)
 {
-  static u_char cmd[10+256];
-  int status, i;
+  static u_char cmd[10];
+  int status;
   DBG (31, ">> set_density_curve\n");
 
   memset (cmd, 0, sizeof (cmd));
   cmd[0] = 0x2a;
-  cmd[2] = 0x03;
+  cmd[2] = transfer_data_type;
   cmd[4] = component;
   cmd[5] = 0;
-  cmd[6] = 0;
-  cmd[7] = 1;
-  cmd[8] = 0;
+  cmd[6] = ((*buf_size) >> 16) & 0xff;
+  cmd[7] = ((*buf_size) >> 8) & 0xff;
+  cmd[8] = (*buf_size) & 0xff;
 
-  for (i=0; i<256; i++)
-  {
-    cmd[i+10] = ((u_char *)buf)[i];
-  }
-  status = sanei_scsi_cmd (fd, cmd, sizeof (cmd), 0, 0);
+  status =
+    sanei_scsi_cmd2 (fd, cmd, sizeof (cmd), buf, *buf_size, NULL, NULL);
 
   DBG (31, "<< set_density_curve\n");
   return (status);
@@ -491,7 +490,7 @@ set_density_curve (int fd, int component, void *buf, size_t *buf_size)
 
 #ifdef IMPLEMENT_ALL_SCANNER_SCSI_COMMANDS
 static SANE_Status
-get_power_on_timer (int fd, void *buf, size_t *buf_size)
+get_power_on_timer (int fd, void *buf, size_t * buf_size)
 {
   static u_char cmd[10];
   int status;
@@ -510,7 +509,7 @@ get_power_on_timer (int fd, void *buf, size_t *buf_size)
 #endif
 
 static SANE_Status
-get_film_status (int fd, void *buf, size_t *buf_size)
+get_film_status (int fd, void *buf, size_t * buf_size)
 {
   static u_char cmd[10];
   int status;
@@ -521,14 +520,14 @@ get_film_status (int fd, void *buf, size_t *buf_size)
   cmd[6] = 0;
   cmd[7] = 0;
   cmd[8] = 4;
-  status = sanei_scsi_cmd (fd, cmd, sizeof (cmd), buf, buf_size);
+  status = sanei_scsi_cmd2 (fd, cmd, sizeof (cmd), NULL, 0, buf, buf_size);
 
   DBG (31, "<< get film status\n");
   return (status);
 }
 
 static SANE_Status
-get_data_status (int fd, void *buf, size_t *buf_size)
+get_data_status (int fd, void *buf, size_t * buf_size)
 {
   static u_char cmd[10];
   int status;
@@ -543,3 +542,177 @@ get_data_status (int fd, void *buf, size_t *buf_size)
   return (status);
 }
 
+/*************** modification for FB620S ***************/
+static SANE_Status
+reset_scanner (int fd)
+{
+  static u_char cmd[6];
+  int status;
+  DBG (31, ">> reset_scanner\n");
+
+  memset (cmd, 0, sizeof (cmd));
+  cmd[0] = 0xc1;
+  status = sanei_scsi_cmd2 (fd, cmd, sizeof (cmd), NULL, 0, NULL, NULL);
+
+  DBG (31, "<< reset_scanner \n");
+  return (status);
+}
+
+static SANE_Status
+execute_calibration (int fd)
+{
+  static u_char cmd[6];
+  u_char data[2];
+  int status;
+  DBG (31, ">> execute_calibration\n");
+
+  memset (cmd, 0, sizeof (cmd));
+  memset (data, 0, sizeof (data));
+  cmd[0] = 0xc2;
+  cmd[4] = 2;
+  status = sanei_scsi_cmd2 (fd, cmd, sizeof (cmd), data, sizeof (data),
+			    NULL, NULL);
+
+  DBG (31, "<< execute_calibration\n");
+  return (status);
+}
+
+static SANE_Status
+get_calibration_status (int fd, void *buf, size_t * buf_size)
+{
+  static u_char cmd[6];
+  int status;
+  DBG (31, ">> get_calibration_status\n");
+
+  memset (cmd, 0, sizeof (cmd));
+  cmd[0] = 0xc3;
+  cmd[4] = *buf_size;
+  status = sanei_scsi_cmd2 (fd, cmd, sizeof (cmd), NULL, 0, buf, buf_size);
+
+  DBG (31, "<< get_calibration_status\n");
+  return (status);
+}
+
+/* static SANE_Status
+get_switch_status (int fd, void *buf, size_t *buf_size)
+{
+  static u_char cmd[6];
+  int status;
+  DBG (31, ">> get_switch_status\n");
+
+  memset (cmd, 0, sizeof (cmd));
+  cmd[0] = 0xc4;
+  cmd[4] = 2;
+  status = sanei_scsi_cmd2 (fd, cmd, sizeof (cmd), NULL, 0, buf, buf_size);
+
+  DBG (31, "<< get_switch_status\n");
+  return (status);
+} */
+
+/* static SANE_Status
+wait_ready(int fd)
+{
+  SANE_Status status;
+  int retry = 0;
+
+  while ((status = test_unit_ready (fd)) != SANE_STATUS_GOOD)
+  {
+  DBG(5, "wait_ready failed (%d)\n", retry);
+  if(retry++ > 15) 
+    {
+       return SANE_STATUS_IO_ERROR;
+    }
+    sleep(3);
+  }
+  return(status);
+} */
+
+/**************************************************************************/
+/* As long as we do not know how this scanner stores its density curves,
+   we do the gamma correction with a 8 <--> 12 bit translation table
+   stored in the CANON_Scanner structure. */
+
+static SANE_Status
+get_density_curve_fs2710 (SANE_Handle handle, int component, u_char * buf,
+			  size_t * buf_size)
+{
+  CANON_Scanner *s = handle;
+  int i;
+
+  for (i = 0; i < 256; i++)
+    *buf++ = s->gamma_map[component][i << 4];
+  *buf_size = 256;
+  return (SANE_STATUS_GOOD);
+}
+
+static SANE_Status
+set_density_curve_fs2710 (SANE_Handle handle, int component, u_char * buf)
+{
+  CANON_Scanner *s = handle;
+  int i, j, hi, lo;
+  u_char *p;
+
+  for (i = 1, hi = *buf++, p = &s->gamma_map[component][0]; i <= 256; i++)
+    {
+      lo = hi;
+      hi = (i < 256) ? *buf++ : 2 * *(buf - 1) - *(buf - 2);
+      if (hi > 255)
+	hi = 255;
+      for (j = 0; j < 16; j++)	/* do a linear interpolation */
+	*p++ = (u_char) (lo + ((double) ((hi - lo) * j)) / 16.0 + 0.5);
+    }
+  return (SANE_STATUS_GOOD);
+}
+
+static SANE_Status
+set_parameters_fs2710 (SANE_Handle handle)
+{
+  CANON_Scanner *s = handle;
+  int i, j, invert, shadow[4], hilite[4];
+  double x, b, c;
+
+  shadow[1] = s->ShadowR << 4;
+  shadow[2] = s->ShadowG << 4;
+  shadow[3] = s->ShadowB << 4;
+  hilite[1] = s->HiliteR << 4;
+  hilite[2] = s->HiliteG << 4;
+  hilite[3] = s->HiliteB << 4;
+  c = ((double) s->contrast) / 128.0;
+  b = ((double) (s->brightness - 128)) / 128.0;
+
+  invert = strcmp (filmtype_list[1], s->val[OPT_NEGATIVE].s);
+
+  for (i = 1; i < 4; i++)
+    {
+      for (j = 0; j < 4096; j++)
+	{
+	  if (j <= shadow[i])
+	    s->gamma_map[i][j] = (u_char) ((s->brightness >= 128) ?
+					   2 * s->brightness - 256 : 0);
+	  else if (j < hilite[i])
+	    {
+	      x =
+		((double) (j - shadow[i])) /
+		((double) (hilite[i] - shadow[i]));
+	      /* first do the contrast correction */
+	      x =
+		(x <= 0.5) ? 0.5 * pow (2 * x,
+					c) : 1.0 - 0.5 * pow (2 * (1.0 - x),
+							      c);
+	      x = pow (x, 0.4);	/* default gamma correction */
+	      x += b;		/* brightness correction */
+	      s->gamma_map[i][j] =
+		(u_char) MAX (0, MIN (255, (int) (255.0 * x)));
+	    }
+	  else
+	    s->gamma_map[i][j] = (u_char) ((s->brightness >= 128) ?
+					   255 : 2 * s->brightness);
+	  if (invert)
+	    s->gamma_map[i][j] = 255 - s->gamma_map[i][j];
+	}
+    }
+
+  return (SANE_STATUS_GOOD);
+}
+
+/**************************************************************************/

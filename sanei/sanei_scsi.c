@@ -452,6 +452,7 @@ KillDomainServer (void)
 static HFILE driver_handle = 0;	/* file handle for device driver */
 static PVOID aspi_buf = 0;	/* Big data buffer locked by driver. */
 static int aspi_ref_count = 0;	/* # of fds using ASPI */
+static SRB *PSRBlock = 0;			/* SCSI Request Block */
 static char tmpAspi[MAXPATHLEN];	/* scsi chain scan */
 #define INQUIRY					0x12
 #define set_inquiry_return_size(icb,val)	icb[0x04]=val
@@ -473,10 +474,8 @@ open_aspi (void)
   ULONG rc;
   ULONG ActionTaken;
   USHORT lockSegmentReturn;
-  unsigned long cbreturn;
-  unsigned long cbParam;
-  SRB SRBlock;			/* SCSI Request Block */
-
+  unsigned long cbreturn = 0;
+  unsigned long cbParam = 0;
   int i, num_adapters;		/* no. of scsi adapters installed */
 
   char *devtypes[] =
@@ -494,9 +493,16 @@ open_aspi (void)
     }
    aspi_buf = _tcalloc(sanei_scsi_max_request_size, 1);
    if (aspi_buf == NULL)
-     { DBG(1, "sanei_scsi_open_aspi: _tcalloc failed");
+     { DBG(1, "sanei_scsi_open_aspi: _tcalloc aspi_buf failed");
        return 0;
      }
+
+   PSRBlock = _tcalloc(sizeof(SRB), 1);
+   if (PSRBlock == NULL)
+     { DBG(1, "sanei_scsi_open_aspi: _tcalloc PSRBlock failed");
+       return 0;
+     }
+  
   rc = DosOpen ((PSZ) "aspirou$",	/* open driver */
 		&driver_handle,
 		&ActionTaken,
@@ -520,27 +526,27 @@ open_aspi (void)
   if (rc || lockSegmentReturn)
     {
       /* DosDevIOCtl failed */
-      DBG (1, "sanei_scsi_open_aspi:  Can't lock buffer. rc= %d \n",rc);
+      DBG (1, "sanei_scsi_open_aspi:  Can't lock buffer. rc= %lu \n",rc);
       return 0;
     }
 
   /* query number of installed adapters */
-  memset (&SRBlock, 0, sizeof (SRBlock));
-  SRBlock.cmd = SRB_Inquiry;	/* host adapter inquiry */
+  memset (PSRBlock, 0, sizeof (SRB));
+  PSRBlock->cmd = SRB_Inquiry;	/* host adapter inquiry */
 
-  SRBlock.ha_num = 0;		/* host adapter number */
+  PSRBlock->ha_num = 0;		/* host adapter number */
 
-  SRBlock.flags = 0;		/* no flags set */
+  PSRBlock->flags = 0;		/* no flags set */
 
   rc = DosDevIOCtl (driver_handle, 0x92, 0x02,
-		    (void *) &SRBlock, sizeof (SRB), &cbParam,
-		    (void *) &SRBlock, sizeof (SRB), &cbreturn);
-  num_adapters = SRBlock.u.inq.num_ha;
+		    (void *) PSRBlock, sizeof (SRB), &cbParam,
+		    (void *) PSRBlock, sizeof (SRB), &cbreturn);
+  num_adapters = PSRBlock->u.inq.num_ha;
 
   DBG (1, "OS/2: installed adapters %d\n", num_adapters);
-  DBG (1, "OS/2: ASPI manager is '%s'\n", SRBlock.u.inq.aspimgr_id);
-  DBG (1, "OS/2: host adapter is '%s'\n", SRBlock.u.inq.host_id);
-  DBG (1, "OS/2: unique id is    '%s'\n", SRBlock.u.inq.unique_id);
+  DBG (1, "OS/2: ASPI manager is '%s'\n", PSRBlock->u.inq.aspimgr_id);
+  DBG (1, "OS/2: host adapter is '%s'\n", PSRBlock->u.inq.host_id);
+  DBG (1, "OS/2: unique id is    '%s'\n", PSRBlock->u.inq.unique_id);
 
   strcpy (tmpAspi, "asXXXXXX");
   mktemp (tmpAspi);
@@ -558,97 +564,97 @@ open_aspi (void)
     {
       int id;
       /* query adapter name */
-      memset (&SRBlock, 0, sizeof (SRBlock));
-      SRBlock.cmd = SRB_Inquiry;	/* host adapter inquiry */
+      memset (PSRBlock, 0, sizeof (SRB));
+      PSRBlock->cmd = SRB_Inquiry;	/* host adapter inquiry */
 
-      SRBlock.ha_num = i;	/* host adapter number */
+      PSRBlock->ha_num = i;	/* host adapter number */
 
-      SRBlock.flags = 0;	/* no flags set */
+      PSRBlock->flags = 0;	/* no flags set */
 
       rc = DosDevIOCtl (driver_handle, 0x92, 0x02,
-			(void *) &SRBlock, sizeof (SRB), &cbParam,
-			(void *) &SRBlock, sizeof (SRB), &cbreturn);
-      DBG (1, "OS/2: adapter#%02d '%s'\n", i, SRBlock.u.inq.host_id);
+			(void *) PSRBlock, sizeof (SRB), &cbParam,
+			(void *) PSRBlock, sizeof (SRB), &cbreturn);
+      DBG (1, "OS/2: adapter#%02d '%s'\n", i, PSRBlock->u.inq.host_id);
 
       /* scan scsi chain (need 15 for wide?) */
       for (id = 0; id < 7; id++)
 	{
 	  unsigned char len;
-	  unsigned char vendor[9];
-	  unsigned char product[17];
-	  unsigned char version[5];
-	  unsigned char *pp;
+	  char vendor[9];
+	  char product[17];
+	  char version[5];
+	  char *pp;
 
-	  memset (&SRBlock, 0, sizeof (SRBlock));
-	  SRBlock.cmd = SRB_Device;	/* get device type */
+	  memset (PSRBlock, 0, sizeof (SRB));
+	  PSRBlock->cmd = SRB_Device;	/* get device type */
 
-	  SRBlock.ha_num = i;	/* host adapter number */
+	  PSRBlock->ha_num = i;	/* host adapter number */
 
-	  SRBlock.flags = 0;	/* no flags set */
+	  PSRBlock->flags = 0;	/* no flags set */
 
-	  SRBlock.u.dev.target = id;	/* target id */
+	  PSRBlock->u.dev.target = id;	/* target id */
 
-	  SRBlock.u.dev.lun = 0;	/* target LUN */
+	  PSRBlock->u.dev.lun = 0;	/* target LUN */
 
 	  rc = DosDevIOCtl (driver_handle, 0x92, 0x02,
-			    (void *) &SRBlock, sizeof (SRB), &cbParam,
-			    (void *) &SRBlock, sizeof (SRB), &cbreturn);
+			    (void *) PSRBlock, sizeof (SRB), &cbParam,
+			    (void *) PSRBlock, sizeof (SRB), &cbreturn);
 	  DBG (1, "OS/2:             id#%02d status=%02xh\n",
-	       id, SRBlock.status);
+	       id, PSRBlock->status);
 
 	  /* skip if device not connected */
-	  if (SRBlock.status == SRB_BadDevice)
+	  if (PSRBlock->status == SRB_BadDevice)
 	    continue;
 
 	  DBG (1, "OS/2:                   type is '%s'\n",
-	       SRBlock.u.dev.devtype < sizeof (devtypes) / sizeof (char *)?
-	       devtypes[SRBlock.u.dev.devtype] : "unknown device");
+	       PSRBlock->u.dev.devtype < sizeof (devtypes) / sizeof (char *)?
+	       devtypes[PSRBlock->u.dev.devtype] : "unknown device");
 
 	  /* query adapter string id */
-	  memset (&SRBlock, 0, sizeof (SRBlock));
-	  SRBlock.cmd = SRB_Command;	/* execute SCSI command */
+	  memset (PSRBlock, 0, sizeof (SRB));
+	  PSRBlock->cmd = SRB_Command;	/* execute SCSI command */
 
-	  SRBlock.ha_num = i;	/* host adapter number */
-	  SRBlock.flags = SRB_Read | SRB_Post;	/* data transfer, posting */
-	  SRBlock.u.cmd.target = id;	/* Target SCSI ID */
-	  SRBlock.u.cmd.lun = 0;	/* Target SCSI LUN */
-	  SRBlock.u.cmd.data_len = 5;	/* # of bytes transferred */
-	  SRBlock.u.cmd.sense_len = 16;		/* length of sense buffer */
-	  SRBlock.u.cmd.data_ptr = NULL;	/* pointer to data buffer */
-	  SRBlock.u.cmd.link_ptr = NULL;	/* pointer to next SRB */
-	  SRBlock.u.cmd.cdb_len = 6;	/* SCSI command length */
-	  SRBlock.u.cmd.cdb_st[0] = INQUIRY;	/* inquiry command */
-	  SRBlock.u.cmd.cdb_st[1] = 0;	/* ?? length */
-	  SRBlock.u.cmd.cdb_st[2] = 0;	/* transfer length MSB */
-	  SRBlock.u.cmd.cdb_st[3] = 0;	/* transfer length */
-	  SRBlock.u.cmd.cdb_st[4] = 5;	/* transfer length LSB */
-	  SRBlock.u.cmd.cdb_st[5] = 0;
+	  PSRBlock->ha_num = i;	/* host adapter number */
+	  PSRBlock->flags = SRB_Read | SRB_Post;	/* data transfer, posting */
+	  PSRBlock->u.cmd.target = id;	/* Target SCSI ID */
+	  PSRBlock->u.cmd.lun = 0;	/* Target SCSI LUN */
+	  PSRBlock->u.cmd.data_len = 5;	/* # of bytes transferred */
+	  PSRBlock->u.cmd.sense_len = 32;		/* length of sense buffer */
+	  PSRBlock->u.cmd.data_ptr = NULL;	/* pointer to data buffer */
+	  PSRBlock->u.cmd.link_ptr = NULL;	/* pointer to next SRB */
+	  PSRBlock->u.cmd.cdb_len = 6;	/* SCSI command length */
+	  PSRBlock->u.cmd.cdb_st[0] = INQUIRY;	/* inquiry command */
+	  PSRBlock->u.cmd.cdb_st[1] = 0;	/* ?? length */
+	  PSRBlock->u.cmd.cdb_st[2] = 0;	/* transfer length MSB */
+	  PSRBlock->u.cmd.cdb_st[3] = 0;	/* transfer length */
+	  PSRBlock->u.cmd.cdb_st[4] = 5;	/* transfer length LSB */
+	  PSRBlock->u.cmd.cdb_st[5] = 0;
 	  rc = DosDevIOCtl (driver_handle, 0x92, 0x02,
-			    (void *) &SRBlock, sizeof (SRB), &cbParam,
-			    (void *) &SRBlock, sizeof (SRB), &cbreturn);
+			    (void *) PSRBlock, sizeof (SRB), &cbParam,
+			    (void *) PSRBlock, sizeof (SRB), &cbreturn);
 	  len = ((char *) aspi_buf)[4];		/* additional length */
 
 	  /* query id string */
-	  memset (&SRBlock, 0, sizeof (SRBlock));
-	  SRBlock.cmd = SRB_Command;	/* execute SCSI command */
-	  SRBlock.ha_num = i;	/* host adapter number */
-	  SRBlock.flags = SRB_Read | SRB_Post;	/* data transfer, posting */
-	  SRBlock.u.cmd.target = id;	/* Target SCSI ID */
-	  SRBlock.u.cmd.lun = 0;	/* Target SCSI LUN */
-	  SRBlock.u.cmd.data_len = 5 + len;	/* # of bytes transferred */
-	  SRBlock.u.cmd.sense_len = 16;		/* length of sense buffer */
-	  SRBlock.u.cmd.data_ptr = NULL;	/* pointer to data buffer */
-	  SRBlock.u.cmd.link_ptr = NULL;	/* pointer to next SRB */
-	  SRBlock.u.cmd.cdb_len = 6;	/* SCSI command length */
-	  SRBlock.u.cmd.cdb_st[0] = 0x12;	/* inquiry command */
-	  SRBlock.u.cmd.cdb_st[1] = 0;	/* ?? length */
-	  SRBlock.u.cmd.cdb_st[2] = 0;	/* transfer length MSB */
-	  SRBlock.u.cmd.cdb_st[3] = 0;	/* transfer length */
-	  SRBlock.u.cmd.cdb_st[4] = 5 + len;	/* transfer length LSB */
-	  SRBlock.u.cmd.cdb_st[5] = 0;
+	  memset (PSRBlock, 0, sizeof (SRB));
+	  PSRBlock->cmd = SRB_Command;	/* execute SCSI command */
+	  PSRBlock->ha_num = i;	/* host adapter number */
+	  PSRBlock->flags = SRB_Read | SRB_Post;	/* data transfer, posting */
+	  PSRBlock->u.cmd.target = id;	/* Target SCSI ID */
+	  PSRBlock->u.cmd.lun = 0;	/* Target SCSI LUN */
+	  PSRBlock->u.cmd.data_len = 5 + len;	/* # of bytes transferred */
+	  PSRBlock->u.cmd.sense_len = 32;		/* length of sense buffer */
+	  PSRBlock->u.cmd.data_ptr = NULL;	/* pointer to data buffer */
+	  PSRBlock->u.cmd.link_ptr = NULL;	/* pointer to next SRB */
+	  PSRBlock->u.cmd.cdb_len = 6;	/* SCSI command length */
+	  PSRBlock->u.cmd.cdb_st[0] = 0x12;	/* inquiry command */
+	  PSRBlock->u.cmd.cdb_st[1] = 0;	/* ?? length */
+	  PSRBlock->u.cmd.cdb_st[2] = 0;	/* transfer length MSB */
+	  PSRBlock->u.cmd.cdb_st[3] = 0;	/* transfer length */
+	  PSRBlock->u.cmd.cdb_st[4] = 5 + len;	/* transfer length LSB */
+	  PSRBlock->u.cmd.cdb_st[5] = 0;
 	  rc = DosDevIOCtl (driver_handle, 0x92, 0x02,
-			    (void *) &SRBlock, sizeof (SRB), &cbParam,
-			    (void *) &SRBlock, sizeof (SRB), &cbreturn);
+			    (void *) PSRBlock, sizeof (SRB), &cbParam,
+			    (void *) PSRBlock, sizeof (SRB), &cbreturn);
 	  DBG (1, "OS/2         '%s'\n", (char *) aspi_buf + 8);
 	  /* write data */
 	  get_inquiry_vendor ((char *) aspi_buf, vendor);
@@ -668,7 +674,7 @@ open_aspi (void)
 	  pp = product;
 	  do
 	    {
-	      if (isspace (*pp))
+	      if (isspace ((int) *pp))
 		*pp = '_';
 	    }
 	  while (*++pp);
@@ -707,6 +713,10 @@ close_aspi (void)
   if (aspi_buf)			/* Free buffer. */
     _tfree (aspi_buf);
   aspi_buf = 0;
+
+  if (PSRBlock)
+    _tfree (PSRBlock);
+  PSRBlock = 0;
 
   errno = 0;
   if (unlink (tmpAspi))			/* remove scsi descriptions */
@@ -852,7 +862,7 @@ sanei_scsi_open (const char *dev, int *fdp,
 #endif
 
 #if USE == OS2_INTERFACE
-  if (sscanf (dev, "b%dt%dl%d", &bus, &target, &lun) != 3)
+  if (sscanf (dev, "b%ut%ul%u", &bus, &target, &lun) != 3)
     {
       DBG (1, "sanei_scsi_open: device name %s is not valid\n", dev);
       return SANE_STATUS_INVAL;
@@ -3606,7 +3616,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 		    {
 		      strncpy (param[i].u.str, string, 32);
 		      param[i].u.str[31] = '\0';
-		      while (*string && !isspace (*string))
+		      while (*string && !isspace ((int) *string))
 			++string;
 		    }
 		  string = sanei_config_skip_whitespace (string);
@@ -3658,9 +3668,6 @@ sanei_scsi_cmd2 (int fd,
   ULONG rc;			/* Returns. */
   unsigned long cbreturn;
   unsigned long cbParam;
-  SRB srb;			/* SCSI Request Block */
-  /* xxx obsolete size_t cdb_size;
-  */
   if (aspi_buf == NULL) /* avoid SIGSEGV in memcpy() when calling
                            sanei_scsi_cmd2() while aspi-driver is closed */
     {
@@ -3668,74 +3675,78 @@ sanei_scsi_cmd2 (int fd,
       return SANE_STATUS_INVAL;
     }
 
-  memset ((char *) &srb, 0, sizeof (srb));	/* Okay, I'm paranoid. */
-  /* xxx obsolete cdb_size = CDB_SIZE (*(u_char *) src);*/ /* Size of command block. */
-  srb.cmd = SRB_Command;	/* execute SCSI cmd */
-  srb.ha_num = fd_info[fd].bus;	/* host adapter number */
-  srb.u.cmd.target = fd_info[fd].target;	/* Target SCSI ID */
-  srb.u.cmd.lun = fd_info[fd].lun;	/* Target SCSI LUN */
-  srb.flags = SRB_Post;		/* posting enabled */
+  if (PSRBlock == NULL) /* avoid SIGSEGV in memcpy() when calling
+                           sanei_scsi_cmd2() while aspi-driver is closed */
+    {
+      DBG (1, "sanei_scsi_cmd: Error no device (PSRBlock == NULL)\n");
+      return SANE_STATUS_INVAL;
+    }
+
+  memset (PSRBlock, 0, sizeof (SRB));	/* Okay, I'm paranoid. */
+  PSRBlock->cmd = SRB_Command;	/* execute SCSI cmd */
+  PSRBlock->ha_num = fd_info[fd].bus;	/* host adapter number */
+  PSRBlock->u.cmd.target = fd_info[fd].target;	/* Target SCSI ID */
+  PSRBlock->u.cmd.lun = fd_info[fd].lun;	/* Target SCSI LUN */
+  PSRBlock->flags = SRB_Post;		/* posting enabled */
   if (dst_size && *dst_size)
     {
       /* Reading. */
-      assert (*dst_size <= sanei_scsi_max_request_size);
-      /* xxx obsolete assert (cdb_size == src_size);
-      */
-      srb.u.cmd.data_len = *dst_size;
-      DBG (1, "sanei_scsi_cmd: Reading srb.u.cmd.data_len= %lu\n",srb.u.cmd.data_len); /* fraba */
-      srb.flags |= SRB_Read;
+      assert (*dst_size <= (size_t) sanei_scsi_max_request_size);
+      PSRBlock->u.cmd.data_len = *dst_size;
+      DBG (1, "sanei_scsi_cmd: Reading PSRBlock->u.cmd.data_len= %lu\n",
+               PSRBlock->u.cmd.data_len);
+      PSRBlock->flags |= SRB_Read;
     }
   else
     {
       /* Writing. */
-      srb.u.cmd.data_len = src_size;
-      DBG (1, "sanei_scsi_cmd: Writing srb.u.cmd.data_len= %lu\n",srb.u.cmd.data_len); /* fraba */
-      /* xxx obsolete assert (cdb_size <= src_size);
-      */
-      assert (srb.u.cmd.data_len <= sanei_scsi_max_request_size);
-      if (srb.u.cmd.data_len)
-	srb.flags |= SRB_Write;
+      PSRBlock->u.cmd.data_len = src_size;
+      DBG (1, "sanei_scsi_cmd: Writing PSRBlock->u.cmd.data_len= %lu\n",
+              PSRBlock->u.cmd.data_len);
+      assert (PSRBlock->u.cmd.data_len <= (unsigned long) sanei_scsi_max_request_size);
+      if (PSRBlock->u.cmd.data_len)
+	PSRBlock->flags |= SRB_Write;
       else
-	srb.flags |= SRB_NoTransfer;
-      memcpy (aspi_buf, (char *) src, srb.u.cmd.data_len);
+	PSRBlock->flags |= SRB_NoTransfer;
+      memcpy (aspi_buf, src, PSRBlock->u.cmd.data_len);
     }
-  srb.u.cmd.sense_len = 16;	/* length of sense buffer */
-  srb.u.cmd.data_ptr = NULL;	/* pointer to data buffer already registered */
-  srb.u.cmd.link_ptr = NULL;	/* pointer to next SRB */
-  srb.u.cmd.cdb_len = cmd_size;	/* SCSI command length */
-  memcpy (&srb.u.cmd.cdb_st[0], (char *) cmd, cmd_size);
+  PSRBlock->u.cmd.sense_len = 32;	/* length of sense buffer */
+  PSRBlock->u.cmd.data_ptr = NULL;	/* pointer to data buffer already registered */
+  PSRBlock->u.cmd.link_ptr = NULL;	/* pointer to next SRB */
+  PSRBlock->u.cmd.cdb_len = cmd_size;	/* SCSI command length */
+  memcpy (PSRBlock->u.cmd.cdb_st, cmd, cmd_size);
 
   /* Do the command. */
-  rc = DosDevIOCtl (driver_handle, 0x92, 0x02, (void *) &srb,
-		    sizeof (SRB), &cbParam,
-		    (void *) &srb, sizeof (SRB), &cbreturn);
+  rc = DosDevIOCtl (driver_handle, 0x92, 0x02,
+            (void *) PSRBlock, sizeof (SRB), &cbParam,
+		    (void *) PSRBlock, sizeof (SRB), &cbreturn);
 
   if (rc)
     {
-      DBG (1, "sanei_scsi_cmd: DosDevIOCtl failed. rc= %d \n",rc);
+      DBG (1, "sanei_scsi_cmd: DosDevIOCtl failed. rc= %lu \n",rc);
       return SANE_STATUS_IO_ERROR;
     }
 
   /* Get sense data if available. */
-  if ((srb.status == SRB_Aborted || srb.status == SRB_Error) &&
-      srb.u.cmd.target_status == SRB_CheckStatus
+  if ((PSRBlock->status == SRB_Aborted || PSRBlock->status == SRB_Error) &&
+      PSRBlock->u.cmd.target_status == SRB_CheckStatus
       && fd_info[fd].sense_handler != 0)
     {
       SANEI_SCSI_Sense_Handler s_handler = fd_info[fd].sense_handler;
-      return (*s_handler) (fd, &srb.u.cmd.cdb_st[cmd_size],
+      return (*s_handler) (fd, &PSRBlock->u.cmd.cdb_st[cmd_size],
 			   fd_info[fd].sense_handler_arg);
     }
-  if (srb.status != SRB_Done ||
-      srb.u.cmd.ha_status != SRB_NoError ||
-      srb.u.cmd.target_status != SRB_NoStatus) {
+  if (PSRBlock->status != SRB_Done ||
+      PSRBlock->u.cmd.ha_status != SRB_NoError ||
+      PSRBlock->u.cmd.target_status != SRB_NoStatus) {
     DBG (1, "sanei_scsi_cmd:  command 0x%02x failed.\n"
-            "srb.status= 0x%02x\n"
-            "srb.u.chm.ha_status= 0x%02x\n"
-            "srb.u.cmd.target_status= 0x%02x\n",
-             srb.u.cmd.cdb_st[0],
-             srb.status,
-             srb.u.cmd.ha_status,
-             srb.u.cmd.target_status);
+            "PSRBlock->status= 0x%02x\n"
+            "PSRBlock->u.chm.ha_status= 0x%02x\n"
+            "PSRBlock->u.cmd.target_status= 0x%02x\n",
+             PSRBlock->u.cmd.cdb_st[0],
+             PSRBlock->status,
+             PSRBlock->u.cmd.ha_status,
+             PSRBlock->u.cmd.target_status);
     return SANE_STATUS_IO_ERROR;
   }
 

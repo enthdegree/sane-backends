@@ -309,6 +309,12 @@ object_position (int fd, int load)
   SANE_Status status;
   DBG (11, ">> object_position\n");
 
+#if 1
+  /* At least the Ricoh 420 doesn't like that command */
+  DBG (11, "object_position: ignored\n");
+  return SANE_STATUS_GOOD;
+#endif
+
   memset (&cmd, 0, sizeof (cmd));
   cmd.opcode = IBM_SCSI_OBJECT_POSITION;
   if (load)

@@ -10,7 +10,7 @@
 
 :backend "ibm"                 ; name of backend
 :url "http://www.meier-geinitz.de/sane/ibm-backend/"
-:version "1.0-3"          ; version of backend
+:version "1.0-4"          ; version of backend
 :status :alpha                 ; :alpha, :beta, :stable, :new
 ;
 :manpage "sane-ibm"            ; name of manpage (if it exists)
@@ -25,7 +25,7 @@
 :model "2456"                  ; name models for above-specified mfg.
 :interface "SCSI"
 :status :alpha
-;:comment "?"
+:comment "Was reported to work long time ago. Reports are welcome."
 
 :mfg "Ricoh"                         ; name a manufacturer
 :model "IS-410"
@@ -36,7 +36,7 @@
 :model "IS-420"
 :interface "SCSI"
 :status :alpha
-:comment "Needs some code hacking to get it working"
+:comment "Works at least in flatbed mode."
 
 :model "IS-430"
 :interface "SCSI"

@@ -45,7 +45,7 @@
    Ricoh flatbed scanners written by Feico W. Dillema.
 */
 
-#define BUILD 3
+#define BUILD 4
 
 #include "../include/sane/config.h"
 

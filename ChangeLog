@@ -12,6 +12,9 @@
 	  gamma4scanimage, and --dont-scan option. Fixed example.
 	* doc/gamma4scanimage.man: Formatting updates. Added default values.
 	  Minor fixes.
+	* TODO: Updated backend list. Added comments for additions to sane.tex.
+	  Updated .desc file bug list. Removed scanimage entries. Added
+	  plustek man page issue.
 	
 2002-09-10  Peter Kirchgessner <peter@kirchgessner.net>
 

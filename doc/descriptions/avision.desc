@@ -14,11 +14,12 @@
 :backend "avision"
 
 ; version of backend
-:version "Build: 70"
+:version "Build: 80"
+;status: alpha, beta, stable, new
 ;:status :stable
 
 ; backend's web page
-:url "http://drocklinux.dyndns.org/rene/avision/index.html"
+:url "http://www.rocklinux-consulting.de/oss/avision/index.html"
 
 ; name of manpage (if it exists)
 :manpage "sane-avision"
@@ -182,6 +183,7 @@
 :comment "1 pass, 600 dpi, A3"
 :status :untested
 
+
 :mfg "Hewlett-Packard"
 :url "http://www.hp.com"
 
@@ -210,6 +212,7 @@
 :comment "1 pass, 1200 dpi - dual USB/SCSI interface"
 :status :good
 
+
 :mfg "Minolta"
 :url "http://www.minolta.com"
 
@@ -222,6 +225,7 @@
 :interface "USB"
 :comment "1 pass, film-scanner"
 :status :untested
+
 
 :mfg "Mitsubishi"
 
@@ -240,6 +244,7 @@
 :model "SS600"
 :interface "SCSI"
 :status :good
+
 
 :mfg "Fujitsu"
 :url "http://www.fujitsu.com/"
@@ -275,3 +280,4 @@
 :model "ScanStation"
 :interface "SCSI"
 :status :untested
+

@@ -1,3 +1,13 @@
+
+2003-10-28  Rene Rebe <rene@rocklinux.org>
+	* backend/avision.h backend/avision.c doc/descriptions/avision.desc
+	  backend/avision.conf AUTHORS: merge of the current Subversion
+	  revision of SANE/Avision. The fixes include: endianess fixes,
+	  calibration code, ADF detection, correct lamp warmup, gamma table
+	  for new ASICs, some workarounds for ASIC variations and the
+	  convertion to use OPT_SOURCE insteat of seperate OPT_ADF and
+	  OPT_TRANS.
+
 2003-10-28  Gerhard Jaeger <gerhard@gjaeger.de>
 	* doc/sane-plustek.man backend/plustek.conf backend/plustek.c:
 	  Changed configuration file back to remain compatible with the old format.

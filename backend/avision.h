@@ -83,28 +83,31 @@ typedef struct Avision_HWEntry {
   /* feature overwrites */
   enum {
     /* force no calibration */
-    AV_NO_CALIB = 1,
+    AV_NO_CALIB = (1),
     
     /* force the special C5 calibration */
-    AV_C5_CALIB = 2,
+    AV_C5_CALIB = (1<<1),
     
     /* force all in one command calibration */
-    AV_ONE_CMD_CALIB = 4,
+    AV_ONE_CALIB_CMD = (1<<2),
     
     /* no gamma table */
-    AV_NO_GAMMA = 8,
+    AV_NO_GAMMA = (1<<3),
     
     /* light check is bogus */
-    AV_LIGHT_CHECK_BOGUS = 16,
+    AV_LIGHT_CHECK_BOGUS = (1<<4),
     
     /* do not use line packing even if line_difference */
-    AV_NO_LINE_DIFFERENCE = 32,
+    AV_NO_LINE_DIFFERENCE = (1<<5),
     
     /* limit the available resolutions */
-    AV_RES_HACK = 64,
+    AV_RES_HACK = (1<<6),
     
     /* fujitsu adaption */
-    AV_FUJITSU = 128
+    AV_BIG_SCAN_CMD = (1<<7),
+    
+    /* fujitsu adaption */
+    AV_FUJITSU = (1<<8)
     
     /* maybe more ...*/
   } feature_type;
@@ -132,8 +135,8 @@ typedef enum {
   AV_NORMAL,
   AV_TRANSPARENT,
   AV_ADF,
-  AV_OPERATION_MODE_LAST
-} operation_mode;
+  AV_SOURCE_MODE_LAST
+} source_mode;
 
 enum Avision_Option
 {
@@ -147,6 +150,8 @@ enum Avision_Option
   OPT_SPEED,
   OPT_PREVIEW,
   
+  OPT_SOURCE,            /* scan source normal, transparency, ADF */
+  
   OPT_GEOMETRY_GROUP,
   OPT_TL_X,	         /* top-left x */
   OPT_TL_Y,	         /* top-left y */
@@ -158,8 +163,6 @@ enum Avision_Option
   OPT_CONTRAST,
   OPT_QSCAN,
   OPT_QCALIB,
-  OPT_TRANS,             /* Transparency Mode */
-  OPT_ADF,               /* Use ADF unit */
   
   OPT_GAMMA_VECTOR,      /* first must be gray */
   OPT_GAMMA_VECTOR_R,    /* then r g b vector */
@@ -170,6 +173,13 @@ enum Avision_Option
   
   NUM_OPTIONS            /* must come last */
 };
+
+typedef union Option_Value
+{
+  SANE_Word w;
+  SANE_Word *wa;	 /* word array */
+  SANE_String s;
+} Option_Value;
 
 typedef struct Avision_Dimensions
 {
@@ -219,8 +229,8 @@ typedef struct Avision_Device
   int inquiry_optical_res;        /* in dpi */
   int inquiry_max_res;            /* in dpi */
   
-  double inquiry_x_ranges  [AV_OPERATION_MODE_LAST]; /* in mm */
-  double inquiry_y_ranges  [AV_OPERATION_MODE_LAST]; /* in mm */
+  double inquiry_x_ranges  [AV_SOURCE_MODE_LAST]; /* in mm */
+  double inquiry_y_ranges  [AV_SOURCE_MODE_LAST]; /* in mm */
   
   int inquiry_color_boundary;
   int inquiry_gray_boundary;
@@ -273,7 +283,7 @@ typedef struct Avision_Scanner
   Avision_Dimensions avdimen;   /* scan window - detailed internals */
 
   color_mode c_mode;
-  operation_mode o_mode;
+  source_mode source_mode;
   
   /* Avision HW Access Connection (SCSI/USB abstraction) */
   Avision_Connection av_con;
@@ -475,8 +485,8 @@ typedef struct calibration_format
 } calibration_format;
 
 
-/* set/get SCSI highended variables. Declare them as an array of chars */
-/* endianness-safe, int-size safe ... */
+/* set/get SCSI highended (big-endian) variables. Declare them as an array
+ * of chars endianness-safe, int-size safe ... */
 #define set_double(var,val) var[0] = ((val) >> 8) & 0xff;  \
                             var[1] = ((val)     ) & 0xff
 
@@ -497,6 +507,12 @@ typedef struct calibration_format
 #define get_quad(var)   ((*var << 24) + \
                          (*(var + 1) << 16) + \
                          (*(var + 2) << 8) + *(var + 3))
+
+/* set/get Avision lowended (little-endian) shading data */
+#define set_double_le(var,val) var[0] = ((val)     ) & 0xff;  \
+                               var[1] = ((val) >> 8) & 0xff
+
+#define get_double_le(var) ((*(var + 1) << 8) + *var)
 
 #define BIT(n, p) ((n & ( 1 << p)) ? 1 : 0)
 

@@ -40,7 +40,8 @@
  *        - added usb_WaitPos()
  *        - added usb_FillLampRegs() - sets also PWMDutyCylce now
  *        - added UMAX3450 TPA autodetection
- * .
+ * - 0.49 - a_bRegs is now part of the device structure
+ * .                                        
  * <hr>
  * This file is part of the SANE package.
  *
@@ -95,10 +96,6 @@
 
 static u_long dwCrystalFrequency = 48000000UL;
 
-static SANE_Bool fModuleFirstHome;  /* HEINER: this has to be initialized */
-static SANE_Bool fLastScanIsAdf;
-static u_char    a_bRegs[0x80];     /**< our global register file */
-
 /** the NatSemi 983x is a big endian chip, and the line protocol data all
  *  arrives big-endian.  This determines if we need to swap to host-order
  */
@@ -146,14 +143,14 @@ static pClkMotorDef usb_GetMotorSet( eModelDef model )
  * @param fOn    - SANE_TRUE means motor on, SANE_FALSE means motor off
  * @return always SANE_TRUE
  */
-static SANE_Bool usb_MotorOn( int handle, SANE_Bool fOn )
+static SANE_Bool usb_MotorOn( Plustek_Device *dev, SANE_Bool fOn )
 {
 	if( fOn )
-		a_bRegs[0x45] |= 0x10;
+		dev->usbDev.a_bRegs[0x45] |= 0x10;
 	else
-		a_bRegs[0x45] &= ~0x10;
+		dev->usbDev.a_bRegs[0x45] &= ~0x10;
 
-	usbio_WriteReg( handle, 0x45, a_bRegs[0x45] );
+	usbio_WriteReg( dev->fd, 0x45, dev->usbDev.a_bRegs[0x45] );
 
 	return SANE_TRUE;
 }
@@ -246,7 +243,8 @@ static SANE_Bool usb_WaitPos( Plustek_Device *dev, u_long to, SANE_Bool stay )
 	double         maxf, fac, speed;
 	struct timeval start_time, t2;
 
-	HWDef         *hw = &dev->usbDev.HwSetting;
+	HWDef         *hw   = &dev->usbDev.HwSetting;
+	u_char        *regs = dev->usbDev.a_bRegs;
 
 	/* get current master clock divider */
 	usbio_ReadReg( dev->fd, 0x08, &value );
@@ -257,7 +255,7 @@ static SANE_Bool usb_WaitPos( Plustek_Device *dev, u_long to, SANE_Bool stay )
 	mch = ((value & 0x07) > 1) ? 1:3;
 
 	/* calculate the current speed */
-	ffs   = a_bRegs[0x48] * 256 + a_bRegs[0x49];
+	ffs   = regs[0x48] * 256 + regs[0x49];
 	speed = ((double)dwCrystalFrequency) /(double)((u_long)mclk_div * 32UL * 
 	                                (u_long)mch * (u_long)ffs * hw->wMotorDpi);
 
@@ -323,9 +321,9 @@ static SANE_Bool usb_WaitPos( Plustek_Device *dev, u_long to, SANE_Bool stay )
 				if((int)fac > 25 )
 					usleep( 150 * 1000 );
 
-				a_bRegs[0x48] = (u_char)(ffs >> 8);
-				a_bRegs[0x49] = (u_char)(ffs & 0xFF);
-				sanei_lm983x_write(dev->fd, 0x48, &a_bRegs[0x48], 2, SANE_TRUE);
+				regs[0x48] = (u_char)(ffs >> 8);
+				regs[0x49] = (u_char)(ffs & 0xFF);
+				sanei_lm983x_write(dev->fd, 0x48, &regs[0x48], 2, SANE_TRUE);
 				if(ffs == min_ffs )
 					ffs = 0;
 			} else {
@@ -357,7 +355,8 @@ static SANE_Bool usb_ModuleMove( Plustek_Device *dev,
 	u_short      wFastFeedStepSize;
 	double       dMaxMoveSpeed;
 	pClkMotorDef clk;
-	pHWDef       hw = &dev->usbDev.HwSetting;
+	pHWDef       hw   = &dev->usbDev.HwSetting;
+	u_char      *regs = dev->usbDev.a_bRegs;
 
 	if( bAction != MOVE_ToPaperSensor   &&
 		bAction != MOVE_EjectAllPapers  &&
@@ -395,7 +394,7 @@ static SANE_Bool usb_ModuleMove( Plustek_Device *dev,
 			return SANE_FALSE;
 
 		usbio_WriteReg( dev->fd, 0x07, 0);
-		usbio_WriteReg( dev->fd, 0x58, a_bRegs[0x58]);
+		usbio_WriteReg( dev->fd, 0x58, regs[0x58]);
 
 		usbio_ReadReg( dev->fd, 0x02, &bReg2 );
 		hw->dMaxMoveSpeed = d;
@@ -421,14 +420,14 @@ static SANE_Bool usb_ModuleMove( Plustek_Device *dev,
 	                    ((u_long)mclk_div * 8UL * 1 *
 	                    dMaxMoveSpeed * 4 * hw->wMotorDpi));
 
-	a_bRegs[0x48] = (u_char)(wFastFeedStepSize >> 8);
-	a_bRegs[0x49] = (u_char)(wFastFeedStepSize & 0xFF);
+	regs[0x48] = (u_char)(wFastFeedStepSize >> 8);
+	regs[0x49] = (u_char)(wFastFeedStepSize & 0xFF);
 
 	dwStep = dwStep * hw->wMotorDpi / 300UL;
-	a_bRegs[0x4a] = _HIBYTE(_LOWORD(dwStep));
-	a_bRegs[0x4b] = _LOBYTE(_LOWORD(dwStep));
+	regs[0x4a] = _HIBYTE(_LOWORD(dwStep));
+	regs[0x4b] = _LOBYTE(_LOWORD(dwStep));
 
-	a_bRegs[0x45] |= 0x10;
+	regs[0x45] |= 0x10;
 
 	DBG( _DBG_INFO2,"MotorDPI=%u, MaxMoveSpeed=%.3f, "
 					"FFStepSize=%u, Steps=%lu\n", hw->wMotorDpi,
@@ -436,8 +435,8 @@ static SANE_Bool usb_ModuleMove( Plustek_Device *dev,
 	DBG( _DBG_INFO2, "MOTOR: "
 					"PWM=0x%02x, PWM_DUTY=0x%02x 0x45=0x%02x "
                     "0x48=0x%02x, 0x49=0x%02x \n",
-					a_bRegs[0x56], a_bRegs[0x57], a_bRegs[0x45],
-					a_bRegs[0x48], a_bRegs[0x49] );
+					regs[0x56], regs[0x57], regs[0x45],
+					regs[0x48], regs[0x49] );
 
 	DBG( _DBG_INFO2,"MCLK_FFW = %u --> 0x%02x\n", mclk_div, (mclk_div-1)*2 );
 
@@ -462,14 +461,14 @@ static SANE_Bool usb_ModuleMove( Plustek_Device *dev,
 	if( !usbio_WriteReg(dev->fd, 0x26, 0x0C))
 		return SANE_FALSE;
 
-	_UIO(sanei_lm983x_write(dev->fd, 0x48, &a_bRegs[0x48], 2, SANE_TRUE));
-	_UIO(sanei_lm983x_write(dev->fd, 0x4A, &a_bRegs[0x4A], 2, SANE_TRUE));
+	_UIO(sanei_lm983x_write(dev->fd, 0x48, &regs[0x48], 2, SANE_TRUE));
+	_UIO(sanei_lm983x_write(dev->fd, 0x4A, &regs[0x4A], 2, SANE_TRUE));
 
 	/* disable home */
-	if( !usbio_WriteReg(dev->fd, 0x58, a_bRegs[0x58] & ~7))
+	if( !usbio_WriteReg(dev->fd, 0x58, regs[0x58] & ~7))
 		return SANE_FALSE;
 
-	if( !usbio_WriteReg(dev->fd, 0x45, a_bRegs[0x45] ))
+	if( !usbio_WriteReg(dev->fd, 0x45, regs[0x45] ))
 		return SANE_FALSE;
 
 	if( bAction == MOVE_Forward || bAction == MOVE_ToShading )
@@ -501,7 +500,7 @@ static SANE_Bool usb_ModuleMove( Plustek_Device *dev,
 
 				if( usb_SensorPaper( dev->fd )) {
 					usbio_WriteReg( dev->fd, 0x07, 0 );
-					usbio_WriteReg( dev->fd, 0x58, a_bRegs[0x58] );
+					usbio_WriteReg( dev->fd, 0x58, regs[0x58] );
 					usbio_ReadReg ( dev->fd, 0x02, &bReg2 );
 					return SANE_TRUE;
 				}
@@ -516,7 +515,7 @@ static SANE_Bool usb_ModuleMove( Plustek_Device *dev,
 
 				if( usb_SensorPaper( dev->fd )) {
 					usbio_WriteReg( dev->fd, 0x07, 0 );
-					usbio_WriteReg( dev->fd, 0x58, a_bRegs[0x58] );
+					usbio_WriteReg( dev->fd, 0x58, regs[0x58] );
 					usbio_ReadReg ( dev->fd, 0x02, &bReg2 );
 					return SANE_TRUE;
 				}
@@ -530,7 +529,7 @@ static SANE_Bool usb_ModuleMove( Plustek_Device *dev,
 			retval = usb_WaitPos( dev, 200, SANE_TRUE );
 		}
 
-		usbio_WriteReg( dev->fd, 0x58, a_bRegs[0x58] );
+		usbio_WriteReg( dev->fd, 0x58, regs[0x58] );
 		usbio_ReadReg ( dev->fd, 0x02, &bReg2 );
 	}
 
@@ -547,20 +546,21 @@ static SANE_Bool usb_ModuleToHome( Plustek_Device *dev, SANE_Bool fWait )
 	u_char    value;
 	pDCapsDef scaps = &dev->usbDev.Caps;
 	pHWDef    hw    = &dev->usbDev.HwSetting;
+	u_char   *regs  = dev->usbDev.a_bRegs;
 
 	/* Check if merlin is ready for setting command */
 	usbio_WriteReg( dev->fd, 0x58, hw->bReg_0x58 );
 	usbio_ReadReg ( dev->fd, 2, &value );
 
 	if( value & 1 ) {
-		fModuleFirstHome = SANE_FALSE;
+		dev->usbDev.fModFirstHome = SANE_FALSE;
 		return SANE_TRUE;
 	}
 
 	_UIO( usbio_ReadReg( dev->fd, 0x07, &value ));
 
-	if( fModuleFirstHome ) {
-		fModuleFirstHome = SANE_FALSE;
+	if( dev->usbDev.fModFirstHome ) {
+		dev->usbDev.fModFirstHome = SANE_FALSE;
 		if( hw->motorModel != MODEL_Tokyo600 )
 			usb_ModuleMove( dev, MOVE_Forward, hw->wMotorDpi / 2);
 	}
@@ -583,8 +583,8 @@ static SANE_Bool usb_ModuleToHome( Plustek_Device *dev, SANE_Bool fWait )
 
 			clk = usb_GetMotorSet( hw->motorModel );
 
-			a_bRegs[0x56] = clk->pwm_fast;
-			a_bRegs[0x57] = clk->pwm_duty_fast;
+			regs[0x56] = clk->pwm_fast;
+			regs[0x57] = clk->pwm_duty_fast;
 			mclk_div      = clk->mclk_fast;
 
 		} else {
@@ -597,8 +597,8 @@ static SANE_Bool usb_ModuleToHome( Plustek_Device *dev, SANE_Bool fWait )
 				case MODEL_KaoHsiung:
 				case MODEL_HuaLien:
 				default:
-					a_bRegs[0x56] = 1;
-					a_bRegs[0x57] = 63;
+					regs[0x56] = 1;
+					regs[0x57] = 63;
 					break;
 				}
 			} else { /* if(Device.Caps.OpticDpi.x == 600) */
@@ -606,23 +606,23 @@ static SANE_Bool usb_ModuleToHome( Plustek_Device *dev, SANE_Bool fWait )
 				switch( hw->motorModel ) {
 
 				case MODEL_Tokyo600:
-					a_bRegs[0x56] = 4;
-					a_bRegs[0x57] = 4;	/* 2; */
+					regs[0x56] = 4;
+					regs[0x57] = 4;	/* 2; */
 					break;
 				case MODEL_HuaLien:
 					if( dev->caps.dwFlag & SFLAG_ADF ) {
-						a_bRegs[0x56] = 64;	/* 32; */
-						a_bRegs[0x57] = 4;	/* 16; */
+						regs[0x56] = 64;	/* 32; */
+						regs[0x57] = 4;	/* 16; */
 					} else {
-						a_bRegs[0x56] = 32;
-						a_bRegs[0x57] = 16;
+						regs[0x56] = 32;
+						regs[0x57] = 16;
 					}
 					break;
 				
 				case MODEL_KaoHsiung:
 				default:
-					a_bRegs[0x56] = 64;
-					a_bRegs[0x57] = 20;
+					regs[0x56] = 64;
+					regs[0x57] = 20;
 					break;
 				}
 			}
@@ -633,20 +633,20 @@ static SANE_Bool usb_ModuleToHome( Plustek_Device *dev, SANE_Bool fWait )
 		 */
 		wFastFeedStepSize = (u_short)(dwCrystalFrequency / (mclk_div * 8 * 1 *
 		                              hw->dMaxMotorSpeed * 4 * hw->wMotorDpi));
-		a_bRegs[0x48] = (u_char)(wFastFeedStepSize >> 8);
-		a_bRegs[0x49] = (u_char)(wFastFeedStepSize & 0xFF);
-		a_bRegs[0x4a] = 0;
-		a_bRegs[0x4b] = 0;
+		regs[0x48] = (u_char)(wFastFeedStepSize >> 8);
+		regs[0x49] = (u_char)(wFastFeedStepSize & 0xFF);
+		regs[0x4a] = 0;
+		regs[0x4b] = 0;
 
-		a_bRegs[0x45] |= 0x10;
+		regs[0x45] |= 0x10;
 
 		DBG( _DBG_INFO2,"MotorDPI=%u, MaxMotorSpeed=%.3f, FFStepSize=%u\n",
 						hw->wMotorDpi, hw->dMaxMotorSpeed, wFastFeedStepSize );
 		DBG( _DBG_INFO, "MOTOR: "
 						"PWM=0x%02x, PWM_DUTY=0x%02x 0x45=0x%02x "
                         "0x48=0x%02x, 0x49=0x%02x\n",
-						a_bRegs[0x56], a_bRegs[0x57],
-						a_bRegs[0x45], a_bRegs[0x48], a_bRegs[0x49] );
+						regs[0x56], regs[0x57],
+						regs[0x45], regs[0x48], regs[0x49] );
 
 		/* The setting for chassis moving is:
 		 * MCLK divider = 6, 8 bits/pixel, HDPI divider = 12,
@@ -672,10 +672,10 @@ static SANE_Bool usb_ModuleToHome( Plustek_Device *dev, SANE_Bool fWait )
 		if( !usbio_WriteReg(dev->fd, 0x26, 0x8C))
 			return SANE_FALSE;
 
-		_UIO(sanei_lm983x_write(dev->fd, 0x48, &a_bRegs[0x48], 4, SANE_TRUE));
-		_UIO(sanei_lm983x_write(dev->fd, 0x56, &a_bRegs[0x56], 3, SANE_TRUE));
+		_UIO(sanei_lm983x_write(dev->fd, 0x48, &regs[0x48], 4, SANE_TRUE));
+		_UIO(sanei_lm983x_write(dev->fd, 0x56, &regs[0x56], 3, SANE_TRUE));
 
-		if( !usbio_WriteReg(dev->fd, 0x45, a_bRegs[0x45]))
+		if( !usbio_WriteReg(dev->fd, 0x45, regs[0x45]))
 			return SANE_FALSE;
 
 		usbio_WriteReg(dev->fd, 0x0a, 0);
@@ -702,9 +702,9 @@ static SANE_Bool usb_ModuleToHome( Plustek_Device *dev, SANE_Bool fWait )
 			}
 			wFastFeedStepSize = (WORD)(dwCrystalFrequency / (6UL * 8UL * 1 * Device.HwSetting.dMaxMotorSpeed * 4 *
 				Device.HwSetting.wMotorDpi) * 60 / 78);	
-			a_bRegs[0x48] = (u_char)(wFastFeedStepSize >> 8);
-			a_bRegs[0x49] = (u_char)(wFastFeedStepSize & 0xFF);
-			WriteRegisters(0x48, &a_bRegs[0x48], 2);
+			regs[0x48] = (u_char)(wFastFeedStepSize >> 8);
+			regs[0x49] = (u_char)(wFastFeedStepSize & 0xFF);
+			WriteRegisters(0x48, &regs[0x48], 2);
 		}
 #endif
 	}
@@ -717,6 +717,7 @@ static SANE_Bool usb_MotorSelect( Plustek_Device *dev, SANE_Bool fADF )
 {
 	pDCapsDef sCaps = &dev->usbDev.Caps;
 	pHWDef    hw    = &dev->usbDev.HwSetting;
+	u_char   *regs  = dev->usbDev.a_bRegs;
 
 	if(!_IS_PLUSTEKMOTOR(hw->motorModel)) {
 		return SANE_TRUE;
@@ -731,7 +732,7 @@ static SANE_Bool usb_MotorSelect( Plustek_Device *dev, SANE_Bool fADF )
 			hw->dMaxMoveSpeed  = 1.5;
 			sCaps->OpticDpi.y  = 600;
 		}
-		a_bRegs[0x5b] |= 0x80;
+		regs[0x5b] |= 0x80;
 		
 	} else {
 	
@@ -742,14 +743,14 @@ static SANE_Bool usb_MotorSelect( Plustek_Device *dev, SANE_Bool fADF )
 			hw->dMaxMoveSpeed  = 0.9;
 			sCaps->OpticDpi.y  = 1200;
 		}
-		a_bRegs[0x5b] &= ~0x80;
+		regs[0x5b] &= ~0x80;
 	}
 
 	/* To stop the motor moving */
 	usbio_WriteReg( dev->fd, 0x07, 0 );
 	usleep(10 * 1000);
 
-	usbio_WriteReg( dev->fd, 0x5b, a_bRegs[0x5b] );
+	usbio_WriteReg( dev->fd, 0x5b, regs[0x5b] );
 	return SANE_TRUE;
 }
 
@@ -757,25 +758,26 @@ static SANE_Bool usb_MotorSelect( Plustek_Device *dev, SANE_Bool fADF )
  */
 static SANE_Bool usb_AdjustLamps( Plustek_Device *dev )
 {
-	pHWDef hw = &dev->usbDev.HwSetting;
+	pHWDef  hw   = &dev->usbDev.HwSetting;
+	u_char *regs = dev->usbDev.a_bRegs;
 
-	a_bRegs[0x2c] = _HIBYTE(hw->red_lamp_on);
-	a_bRegs[0x2d] = _LOBYTE(hw->red_lamp_on);
-	a_bRegs[0x2e] = _HIBYTE(hw->red_lamp_off);
-	a_bRegs[0x2f] = _LOBYTE(hw->red_lamp_off);
+	regs[0x2c] = _HIBYTE(hw->red_lamp_on);
+	regs[0x2d] = _LOBYTE(hw->red_lamp_on);
+	regs[0x2e] = _HIBYTE(hw->red_lamp_off);
+	regs[0x2f] = _LOBYTE(hw->red_lamp_off);
 
-	a_bRegs[0x30] = _HIBYTE(hw->green_lamp_on);
-	a_bRegs[0x31] = _LOBYTE(hw->green_lamp_on);
-	a_bRegs[0x32] = _HIBYTE(hw->green_lamp_off);
-	a_bRegs[0x33] = _LOBYTE(hw->green_lamp_off);
+	regs[0x30] = _HIBYTE(hw->green_lamp_on);
+	regs[0x31] = _LOBYTE(hw->green_lamp_on);
+	regs[0x32] = _HIBYTE(hw->green_lamp_off);
+	regs[0x33] = _LOBYTE(hw->green_lamp_off);
 
-	a_bRegs[0x34] = _HIBYTE(hw->blue_lamp_on);
-	a_bRegs[0x35] = _LOBYTE(hw->blue_lamp_on);
-	a_bRegs[0x36] = _HIBYTE(hw->blue_lamp_off);
-	a_bRegs[0x37] = _LOBYTE(hw->blue_lamp_off);
+	regs[0x34] = _HIBYTE(hw->blue_lamp_on);
+	regs[0x35] = _LOBYTE(hw->blue_lamp_on);
+	regs[0x36] = _HIBYTE(hw->blue_lamp_off);
+	regs[0x37] = _LOBYTE(hw->blue_lamp_off);
 
-	return sanei_lm983x_write( dev->fd, 0x2c,
-	                           &a_bRegs[0x2c], 0x37-0x2c+1, SANE_TRUE );
+	return sanei_lm983x_write( dev->fd, 0x2c, 
+	                           &regs[0x2c], 0x37-0x2c+1, SANE_TRUE );
 }
 
 /**
@@ -845,7 +847,7 @@ static void usb_AdjustCISLampSettings( Plustek_Device *dev, SANE_Bool on )
 		}
 	}
 
-	a_bRegs[0x29] = hw->bReg_0x29;
+	dev->usbDev.a_bRegs[0x29] = hw->bReg_0x29;
 	usb_AdjustLamps( dev );
 }
 
@@ -900,6 +902,7 @@ static void usb_GetLampRegAndMask( u_long flag, SANE_Byte *reg, SANE_Byte *msk )
 static int usb_GetLampStatus( Plustek_Device *dev )
 {
 	int    iLampStatus = 0;
+	u_char       *regs = dev->usbDev.a_bRegs;
 	pHWDef hw          = &dev->usbDev.HwSetting;
 	pDCapsDef sc       = &dev->usbDev.Caps;
 	SANE_Byte reg, msk, val;
@@ -926,8 +929,8 @@ static int usb_GetLampStatus( Plustek_Device *dev )
 		if( 0 == reg ) {
 #if 0
 			/* probably not correct, esp. when changing from color to gray...*/
-			usbio_ReadReg( dev->fd, 0x29, &a_bRegs[0x29] );
-			if( a_bRegs[0x29] & 3 )
+			usbio_ReadReg( dev->fd, 0x29, &regs[0x29] );
+			if( regs[0x29] & 3 )
 #else
 			usbio_ReadReg( dev->fd, 0x29, &reg );
 			if( reg & 3 )
@@ -955,15 +958,15 @@ static int usb_GetLampStatus( Plustek_Device *dev )
 	
 			if((dev->usbDev.vendor == 0x04A9) && (dev->usbDev.product==0x2208)) {
 /*				DBG( _DBG_INFO, "CanoScan D660U -> Lamp is off!!! (STATUS=%i)\n", iLampStatus );*/
-				sanei_lm983x_read( dev->fd, 0x29, &a_bRegs[0x29], 3, SANE_TRUE );
-				DBG( _DBG_INFO, "[29]=0x%02x, [2A]=0x%02x, [2B]=0x%02x\n", a_bRegs[0x29], a_bRegs[0x2a], a_bRegs[0x2b] );
+				sanei_lm983x_read( dev->fd, 0x29, &regs[0x29], 3, SANE_TRUE );
+				DBG( _DBG_INFO, "[29]=0x%02x, [2A]=0x%02x, [2B]=0x%02x\n", regs[0x29], regs[0x2a], regs[0x2b] );
 				/*return 0;*/
 			}
 		}
 	} else {
-		sanei_lm983x_read(dev->fd, 0x29,&a_bRegs[0x29],0x37-0x29+1,SANE_TRUE);
+		sanei_lm983x_read(dev->fd, 0x29,&regs[0x29],0x37-0x29+1,SANE_TRUE);
 
-		if((a_bRegs[0x29] & 3) == 1) {
+		if((regs[0x29] & 3) == 1) {
 
 /* HEINER: BETTER define register to check ! */
 
@@ -972,10 +975,10 @@ static int usb_GetLampStatus( Plustek_Device *dev )
 
             } else {
 
-				if((a_bRegs[0x2e] * 256 + a_bRegs[0x2f]) > hw->wLineEnd )
+				if((regs[0x2e] * 256 + regs[0x2f]) > hw->wLineEnd )
 					iLampStatus |= DEV_LampReflection;
 
-				if((a_bRegs[0x36] * 256 + a_bRegs[0x37]) > hw->wLineEnd )
+				if((regs[0x36] * 256 + regs[0x37]) > hw->wLineEnd )
 					iLampStatus |= DEV_LampTPA;
 			}
 		}
@@ -992,7 +995,8 @@ static SANE_Bool usb_switchLampX( Plustek_Device *dev,
                                   SANE_Bool on, SANE_Bool tpa )
 {
 	SANE_Byte reg, msk;
-	pDCapsDef sc = &dev->usbDev.Caps;
+	pDCapsDef sc   = &dev->usbDev.Caps;
+	u_char   *regs = dev->usbDev.a_bRegs;
 
 	if( tpa )
 		usb_GetLampRegAndMask( _GET_TPALAMP(sc->lamp), &reg, &msk );
@@ -1005,13 +1009,13 @@ static SANE_Bool usb_switchLampX( Plustek_Device *dev,
 	DBG( _DBG_INFO, "usb_switchLampX(ON=%u,TPA=%u)\n", on, tpa );
 
 	if( on )
-		a_bRegs[reg] |= msk;
+		regs[reg] |= msk;
 	else
-		a_bRegs[reg] &= ~msk;
+		regs[reg] &= ~msk;
 
 	DBG( _DBG_INFO, "Switch Lamp: %u, regs[0x%02x] = 0x%02x\n",
-	                on, reg, a_bRegs[reg] );
-	usbio_WriteReg( dev->fd, reg, a_bRegs[reg] );
+	                on, reg, regs[reg] );
+	usbio_WriteReg( dev->fd, reg, regs[reg] );
 	return SANE_TRUE;
 }
 
@@ -1040,14 +1044,14 @@ static void usb_LedOn( Plustek_Device *dev, SANE_Bool fOn )
 	if( dev->usbDev.HwSetting.motorModel != MODEL_HuaLien )
 		return;
 
-	value = a_bRegs[0x0d];
+	value = dev->usbDev.a_bRegs[0x0d];
 
 	if( fOn )
 		value |= 0x10;
 	else
 		value &= ~0x10;
 
-	a_bRegs[0x0d] = value;
+	dev->usbDev.a_bRegs[0x0d] = value;
 	usbio_WriteReg( dev->fd, 0x0d, value );
 }
 
@@ -1056,25 +1060,26 @@ static void usb_LedOn( Plustek_Device *dev, SANE_Bool fOn )
  */
 static void usb_FillLampRegs( Plustek_Device *dev )
 {
-	pHWDef hw = &dev->usbDev.HwSetting;
+	pHWDef  hw   = &dev->usbDev.HwSetting;
+	u_char *regs = dev->usbDev.a_bRegs;
 
-	a_bRegs[0x2a] = _HIBYTE( hw->wGreenPWMDutyCycleLow );
-	a_bRegs[0x2b] = _LOBYTE( hw->wGreenPWMDutyCycleLow );
+	regs[0x2a] = _HIBYTE( hw->wGreenPWMDutyCycleLow );
+	regs[0x2b] = _LOBYTE( hw->wGreenPWMDutyCycleLow );
 
-	a_bRegs[0x2c] = _HIBYTE( hw->red_lamp_on );
-	a_bRegs[0x2d] = _LOBYTE( hw->red_lamp_on );
-	a_bRegs[0x2e] = _HIBYTE( hw->red_lamp_off);
-	a_bRegs[0x2f] = _LOBYTE( hw->red_lamp_off);
+	regs[0x2c] = _HIBYTE( hw->red_lamp_on );
+	regs[0x2d] = _LOBYTE( hw->red_lamp_on );
+	regs[0x2e] = _HIBYTE( hw->red_lamp_off);
+	regs[0x2f] = _LOBYTE( hw->red_lamp_off);
 
-	a_bRegs[0x30] = _HIBYTE( hw->green_lamp_on );
-	a_bRegs[0x31] = _LOBYTE( hw->green_lamp_on );
-	a_bRegs[0x32] = _HIBYTE( hw->green_lamp_off);
-	a_bRegs[0x33] = _LOBYTE( hw->green_lamp_off);
+	regs[0x30] = _HIBYTE( hw->green_lamp_on );
+	regs[0x31] = _LOBYTE( hw->green_lamp_on );
+	regs[0x32] = _HIBYTE( hw->green_lamp_off);
+	regs[0x33] = _LOBYTE( hw->green_lamp_off);
 
-	a_bRegs[0x34] = _HIBYTE( hw->blue_lamp_on );
-	a_bRegs[0x35] = _LOBYTE( hw->blue_lamp_on );
-	a_bRegs[0x36] = _HIBYTE( hw->blue_lamp_off);
-	a_bRegs[0x37] = _LOBYTE( hw->blue_lamp_off);
+	regs[0x34] = _HIBYTE( hw->blue_lamp_on );
+	regs[0x35] = _LOBYTE( hw->blue_lamp_on );
+	regs[0x36] = _HIBYTE( hw->blue_lamp_off);
+	regs[0x37] = _LOBYTE( hw->blue_lamp_off);
 }
 
 /** usb_LampOn
@@ -1085,6 +1090,7 @@ static SANE_Bool usb_LampOn( Plustek_Device *dev,
 	pDCapsDef      sc          = &dev->usbDev.Caps;
 	pScanDef       scanning    = &dev->scanning;
 	pHWDef         hw          = &dev->usbDev.HwSetting;
+	u_char        *regs        = dev->usbDev.a_bRegs;
 	int            iLampStatus = usb_GetLampStatus( dev );
 	int            lampId      = -1;
 	struct timeval t;
@@ -1123,20 +1129,20 @@ static SANE_Bool usb_LampOn( Plustek_Device *dev,
 					usb_switchLampX( dev, SANE_FALSE, SANE_TRUE );
 			}
 
-			memset( &a_bRegs[0x29], 0, (0x37-0x29+1));
+			memset( &regs[0x29], 0, (0x37-0x29+1));
 			
-			a_bRegs[0x29] = hw->bReg_0x29;
+			regs[0x29] = hw->bReg_0x29;
 
 			if( !usb_switchLamp(dev, SANE_TRUE )) {
 
 				if( lampId == DEV_LampReflection ) {
-					a_bRegs[0x2e] = 16383 / 256;
-					a_bRegs[0x2f] = 16383 % 256;
+					regs[0x2e] = 16383 / 256;
+					regs[0x2f] = 16383 % 256;
 				}
 
 				if( lampId == DEV_LampTPA ) {
-					a_bRegs[0x36] = 16383 / 256;
-					a_bRegs[0x37] = 16383 % 256;
+					regs[0x36] = 16383 / 256;
+					regs[0x37] = 16383 % 256;
 				}
 			}
 
@@ -1144,7 +1150,7 @@ static SANE_Bool usb_LampOn( Plustek_Device *dev,
 				usb_FillLampRegs( dev );
 
 			sanei_lm983x_write( dev->fd, 0x29,
-			                    &a_bRegs[0x29], 0x37-0x29+1, SANE_TRUE );
+			                    &regs[0x29], 0x37-0x29+1, SANE_TRUE );
 			if( lampId != dev->usbDev.currentLamp ) {
 			
 				dev->usbDev.currentLamp = lampId;
@@ -1166,17 +1172,17 @@ static SANE_Bool usb_LampOn( Plustek_Device *dev,
 
 			DBG( _DBG_INFO, "Switching Lamp off\n" );
 		
-			memset( &a_bRegs[0x29], 0, 0x37-0x29+1 );
+			memset( &regs[0x29], 0, 0x37-0x29+1 );
 			if( !usb_switchLamp(dev, SANE_FALSE )) {
 			
 				if( iStatusChange & DEV_LampReflection ) {
-					a_bRegs[0x2e] = 16383 / 256;
-					a_bRegs[0x2f] = 16383 % 256;
+					regs[0x2e] = 16383 / 256;
+					regs[0x2f] = 16383 % 256;
 				}
     	
 				if( iStatusChange & DEV_LampTPA ) {
-					a_bRegs[0x36] = 16383 / 256;
-					a_bRegs[0x37] = 16383 % 256;
+					regs[0x36] = 16383 / 256;
+					regs[0x37] = 16383 % 256;
 				}
 			}
 
@@ -1184,7 +1190,7 @@ static SANE_Bool usb_LampOn( Plustek_Device *dev,
 				usb_FillLampRegs( dev );
 
 			sanei_lm983x_write( dev->fd, 0x29,
-			                    &a_bRegs[0x29], 0x37-0x29+1, SANE_TRUE );
+			                    &regs[0x29], 0x37-0x29+1, SANE_TRUE );
 		}
 	}
 	if( usb_GetLampStatus(dev))
@@ -1217,40 +1223,41 @@ static void usb_ResetRegisters( Plustek_Device *dev )
 {
 	int linend;
 
-	pHWDef hw = &dev->usbDev.HwSetting;
+	pHWDef  hw   = &dev->usbDev.HwSetting;
+	u_char *regs = dev->usbDev.a_bRegs;
 
-	DBG( _DBG_INFO, "RESETTING REGISTERS(%i)\n", dev->initialized );
-	memset( a_bRegs, 0, sizeof(a_bRegs));
+	DBG( _DBG_INFO, "RESETTING REGISTERS(%i) - 0x%02x\n", dev->initialized,sizeof(dev->usbDev.a_bRegs));
+	memset( regs, 0, sizeof(dev->usbDev.a_bRegs));
 
-	memcpy( a_bRegs+0x0b, &hw->bSensorConfiguration, 4 );
-	memcpy( a_bRegs+0x0f, &hw->bReg_0x0f_Color, 10 );
-	a_bRegs[0x1a] = _HIBYTE( hw->StepperPhaseCorrection );
-	a_bRegs[0x1b] = _LOBYTE( hw->StepperPhaseCorrection );
+	memcpy( regs+0x0b, &hw->bSensorConfiguration, 4 );
+	memcpy( regs+0x0f, &hw->bReg_0x0f_Color, 10 );
+	regs[0x1a] = _HIBYTE( hw->StepperPhaseCorrection );
+	regs[0x1b] = _LOBYTE( hw->StepperPhaseCorrection );
 #if 0
-	a_bRegs[0x1e] = _HIBYTE( hw->wActivePixelsStart );
-	a_bRegs[0x1f] = _LOBYTE( hw->wActivePixelsStart );
+	regs[0x1e] = _HIBYTE( hw->wActivePixelsStart );
+	regs[0x1f] = _LOBYTE( hw->wActivePixelsStart );
 #endif
-	a_bRegs[0x20] = _HIBYTE( hw->wLineEnd );
-	a_bRegs[0x21] = _LOBYTE( hw->wLineEnd );
+	regs[0x20] = _HIBYTE( hw->wLineEnd );
+	regs[0x21] = _LOBYTE( hw->wLineEnd );
 
-	a_bRegs[0x22] = _HIBYTE( hw->bOpticBlackStart );
-	a_bRegs[0x22] = _LOBYTE( hw->bOpticBlackStart );
+	regs[0x22] = _HIBYTE( hw->bOpticBlackStart );
+	regs[0x22] = _LOBYTE( hw->bOpticBlackStart );
 
 	linend = hw->bOpticBlackStart + hw->wLineEnd;
 	if( linend < (hw->wLineEnd-20))
 		linend = hw->wLineEnd-20;
 
-	a_bRegs[0x24] = _HIBYTE( linend );
-	a_bRegs[0x25] = _LOBYTE( linend );
+	regs[0x24] = _HIBYTE( linend );
+	regs[0x25] = _LOBYTE( linend );
 
-	a_bRegs[0x2a] = _HIBYTE( hw->wGreenPWMDutyCycleHigh );
-	a_bRegs[0x2b] = _LOBYTE( hw->wGreenPWMDutyCycleHigh );
+	regs[0x2a] = _HIBYTE( hw->wGreenPWMDutyCycleHigh );
+	regs[0x2b] = _LOBYTE( hw->wGreenPWMDutyCycleHigh );
 
-	a_bRegs[0x45] = hw->bReg_0x45;
-	a_bRegs[0x4c] = _HIBYTE( hw->wStepsAfterPaperSensor2 );
-	a_bRegs[0x4d] = _LOBYTE( hw->wStepsAfterPaperSensor2 );
-	a_bRegs[0x50] = hw->bStepsToReverse;
-	a_bRegs[0x51] = hw->bReg_0x51;
+	regs[0x45] = hw->bReg_0x45;
+	regs[0x4c] = _HIBYTE( hw->wStepsAfterPaperSensor2 );
+	regs[0x4d] = _LOBYTE( hw->wStepsAfterPaperSensor2 );
+	regs[0x50] = hw->bStepsToReverse;
+	regs[0x51] = hw->bReg_0x51;
 
 	/* if already initialized, we ignore the MISC I/O settings as
 	 * they are used to determine the current lamp settings...
@@ -1258,19 +1265,19 @@ static void usb_ResetRegisters( Plustek_Device *dev )
 	if( dev->initialized >= 0 ) {
 
 		DBG( _DBG_INFO2, "USING MISC I/O settings\n" );
-		memcpy( a_bRegs+0x54, &hw->bReg_0x54, 0x58 - 0x54 + 1 );
-		a_bRegs[0x5c] = hw->bReg_0x5c;
-		a_bRegs[0x5d] = hw->bReg_0x5d;
-		a_bRegs[0x5e] = hw->bReg_0x5e;
-		sanei_lm983x_read( dev->fd, 0x59, &a_bRegs[0x59], 3, SANE_TRUE );
+		memcpy( regs+0x54, &hw->bReg_0x54, 0x58 - 0x54 + 1 );
+		regs[0x5c] = hw->bReg_0x5c;
+		regs[0x5d] = hw->bReg_0x5d;
+		regs[0x5e] = hw->bReg_0x5e;
+		sanei_lm983x_read( dev->fd, 0x59, &regs[0x59], 3, SANE_TRUE );
 	} else {
 
 		DBG( _DBG_INFO2, "SETTING THE MISC I/Os\n" );
-		memcpy( a_bRegs+0x54, &hw->bReg_0x54, 0x5e - 0x54 + 1 );
-		sanei_lm983x_write( dev->fd, 0x59, &a_bRegs[0x59], 3, SANE_TRUE );
+		memcpy( regs+0x54, &hw->bReg_0x54, 0x5e - 0x54 + 1 );
+		sanei_lm983x_write( dev->fd, 0x59, &regs[0x59], 3, SANE_TRUE );
 	}
 	DBG( _DBG_INFO, "MISC I/O after RESET: 0x%02x, 0x%02x, 0x%02x\n",
-	                        a_bRegs[0x59], a_bRegs[0x5a], a_bRegs[0x5b] );
+	                        regs[0x59], regs[0x5a], regs[0x5b] );
 }
 
 /** usb_ModuleStatus
@@ -1304,7 +1311,7 @@ static SANE_Bool usb_ModuleStatus( Plustek_Device *dev )
 			usbio_ReadReg( dev->fd, 2, &value );
 		}
 
-		usb_MotorOn( dev->fd, SANE_FALSE );
+		usb_MotorOn( dev, SANE_FALSE );
 		return SANE_TRUE;
 	}
 

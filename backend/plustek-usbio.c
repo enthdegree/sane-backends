@@ -22,6 +22,7 @@
  * - 0.46 - disabled reset prior to the detection of Merlin
  * - 0.47 - no changes
  * - 0.48 - cleanup
+ * - 0.49 - no changes
  * .
  * <hr>
  * This file is part of the SANE package.

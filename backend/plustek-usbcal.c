@@ -38,6 +38,7 @@
  *         - fixed problem in cano_AdjustLightsource(), so that it won't
  *           stop too early.
  * - 0.48  - cleanup
+ * - 0.49 - a_bRegs is now part of the device structure
  * 
  * This file is part of the SANE package.
  *
@@ -85,7 +86,7 @@ static int strip_state=0;
 /** depending on the strip state, the sensor is moved to the shading position
  *  and the lamp ist switched on
  */
-static int cano_PrepareToReadWhiteCal( pPlustek_Device dev )
+static int cano_PrepareToReadWhiteCal( Plustek_Device *dev )
 {
 	pHWDef hw = &dev->usbDev.HwSetting;
 	
@@ -102,9 +103,9 @@ static int cano_PrepareToReadWhiteCal( pPlustek_Device dev )
 			}
 	    	break;
 		case 2:
-			a_bRegs[0x29] = hw->bReg_0x29;
+			dev->usbDev.a_bRegs[0x29] = hw->bReg_0x29;
 			usb_switchLamp( dev, SANE_TRUE );
-			if( !usbio_WriteReg( dev->fd, 0x29, a_bRegs[0x29])) {
+			if( !usbio_WriteReg( dev->fd, 0x29, dev->usbDev.a_bRegs[0x29])) {
 				DBG( _DBG_ERROR, "cano_PrepareToReadWhiteCal() failed\n" );
 				return _E_LAMP_NOT_IN_POS;
 			}
@@ -117,7 +118,7 @@ static int cano_PrepareToReadWhiteCal( pPlustek_Device dev )
 
 /**
  */
-static int cano_PrepareToReadBlackCal( pPlustek_Device dev )
+static int cano_PrepareToReadBlackCal( Plustek_Device *dev )
 {
 	if( strip_state == 0 )
 		if(cano_PrepareToReadWhiteCal(dev))
@@ -133,13 +134,13 @@ static int cano_PrepareToReadBlackCal( pPlustek_Device dev )
 			usb_ModuleToHome( dev, SANE_TRUE );
 			usb_ModuleMove  ( dev, MOVE_Forward,
 								(u_long)dev->usbDev.pSource->DarkShadOrgY );
-			a_bRegs[0x45] &= ~0x10;
+			dev->usbDev.a_bRegs[0x45] &= ~0x10;
 			strip_state = 0;
 
 		} else {
 
 		 	/* switch lamp off to read dark data... */
-			a_bRegs[0x29] = 0;
+			dev->usbDev.a_bRegs[0x29] = 0;
 			usb_switchLamp( dev, SANE_FALSE );
 			strip_state = 2;
 		}
@@ -149,15 +150,15 @@ static int cano_PrepareToReadBlackCal( pPlustek_Device dev )
 
 /**
  */
-static int cano_LampOnAfterCalibration( pPlustek_Device dev )
+static int cano_LampOnAfterCalibration( Plustek_Device *dev )
 {
 	pHWDef hw = &dev->usbDev.HwSetting;
 
 	switch (strip_state) {
 		case 2:
-			a_bRegs[0x29] = hw->bReg_0x29;
+			dev->usbDev.a_bRegs[0x29] = hw->bReg_0x29;
 			usb_switchLamp( dev, SANE_TRUE );
-			if( !usbio_WriteReg( dev->fd, 0x29, a_bRegs[0x29])) {
+			if( !usbio_WriteReg( dev->fd, 0x29, dev->usbDev.a_bRegs[0x29])) {
 				DBG( _DBG_ERROR, "cano_LampOnAfterCalibration() failed\n" );
 				return _E_LAMP_NOT_IN_POS;
 			}
@@ -224,7 +225,7 @@ static int cano_adjLampSetting( u_short *min,
  * where the lamp_off parameter is adjustable; I'd make it more general, 
  * but I only have the CIS hardware to test.
  */
-static int cano_AdjustLightsource( pPlustek_Device dev )
+static int cano_AdjustLightsource( Plustek_Device *dev )
 {
 	char         tmp[40];
 	int          i;
@@ -450,7 +451,7 @@ cano_adjGainSetting( u_char *min, u_char *max, u_char *gain,u_long val )
  *
  * adjLightsource, above, steals most of this function's thunder.
  */
-static SANE_Bool cano_AdjustGain( pPlustek_Device dev )
+static SANE_Bool cano_AdjustGain( Plustek_Device *dev )
 {
 	char      tmp[40];
 	int       i = 0, adj = 1;
@@ -471,9 +472,9 @@ static SANE_Bool cano_AdjustGain( pPlustek_Device dev )
 	DBG( _DBG_INFO, "cano_AdjustGain()\n" );
 	if((dev->adj.rgain != -1) && 
 	   (dev->adj.ggain != -1) && (dev->adj.bgain != -1)) {
-		setAdjGain( dev->adj.rgain, &a_bRegs[0x3b] );
-		setAdjGain( dev->adj.ggain, &a_bRegs[0x3c] );
-		setAdjGain( dev->adj.bgain, &a_bRegs[0x3d] );
+		setAdjGain( dev->adj.rgain, &dev->usbDev.a_bRegs[0x3b] );
+		setAdjGain( dev->adj.ggain, &dev->usbDev.a_bRegs[0x3c] );
+		setAdjGain( dev->adj.bgain, &dev->usbDev.a_bRegs[0x3d] );
 		DBG( _DBG_INFO, "- function skipped, using frontend values!\n" );
 		return SANE_TRUE;
 	}
@@ -571,9 +572,9 @@ static SANE_Bool cano_AdjustGain( pPlustek_Device dev )
 									max_rgb.Red, max_rgb.Red, max_rgb.Green,
 									max_rgb.Green, max_rgb.Blue, max_rgb.Blue );
       
-			adj  = cano_adjGainSetting(min  , max  ,a_bRegs+0x3b,max_rgb.Red  );
-			adj += cano_adjGainSetting(min+1, max+1,a_bRegs+0x3c,max_rgb.Green);
-			adj += cano_adjGainSetting(min+2, max+2,a_bRegs+0x3d,max_rgb.Blue );
+			adj  = cano_adjGainSetting(min  , max  ,dev->usbDev.a_bRegs+0x3b,max_rgb.Red  );
+			adj += cano_adjGainSetting(min+1, max+1,dev->usbDev.a_bRegs+0x3c,max_rgb.Green);
+			adj += cano_adjGainSetting(min+2, max+2,dev->usbDev.a_bRegs+0x3d,max_rgb.Blue );
       
 	    } else {
       
@@ -584,15 +585,15 @@ static SANE_Bool cano_AdjustGain( pPlustek_Device dev )
 					w_max = ((u_short*)pScanBuffer)[dw];
 			}
       
-			adj = cano_adjGainSetting(min,max,a_bRegs+0x3c,w_max);
-			a_bRegs[0x3b] = (a_bRegs[0x3d] = a_bRegs[0x3c]);
+			adj = cano_adjGainSetting(min,max,dev->usbDev.a_bRegs+0x3c,w_max);
+			dev->usbDev.a_bRegs[0x3b] = (dev->usbDev.a_bRegs[0x3d] = dev->usbDev.a_bRegs[0x3c]);
       
 			DBG(_DBG_INFO2, "MAX(G)= 0x%04x(%u)\n", w_max, w_max );
       
 		}
-		DBG( _DBG_INFO2, "REG[0x3b] = %u\n", a_bRegs[0x3b] );
-		DBG( _DBG_INFO2, "REG[0x3c] = %u\n", a_bRegs[0x3c] );
-		DBG( _DBG_INFO2, "REG[0x3d] = %u\n", a_bRegs[0x3d] );
+		DBG( _DBG_INFO2, "REG[0x3b] = %u\n", dev->usbDev.a_bRegs[0x3b] );
+		DBG( _DBG_INFO2, "REG[0x3c] = %u\n", dev->usbDev.a_bRegs[0x3c] );
+		DBG( _DBG_INFO2, "REG[0x3d] = %u\n", dev->usbDev.a_bRegs[0x3d] );
   
 	}
   
@@ -603,15 +604,15 @@ static SANE_Bool cano_AdjustGain( pPlustek_Device dev )
 
 /**
  */
-static int cano_GetNewOffset( u_long *val, int channel, signed char *low, 
-							  signed char *now, signed char *high )
+static int cano_GetNewOffset( Plustek_Device *dev, u_long *val, int channel, 
+                              signed char *low, signed char *now, signed char *high )
 {
 	/* if we're too black, we're likely off the low end */
 	if( val[channel] <= 16 ) {
 		low[channel] =  now[channel];
 		now[channel] = (now[channel]+high[channel])/2;
 
-		a_bRegs[0x38+channel]= (now[channel]&0x3f);
+		dev->usbDev.a_bRegs[0x38+channel]= (now[channel]&0x3f);
 
 		if( low[channel]+1 >= high[channel] )
 			return 0;
@@ -621,7 +622,7 @@ static int cano_GetNewOffset( u_long *val, int channel, signed char *low,
 		high[channel]=now[channel];
 		now[channel]=(now[channel]+low[channel])/2;
 
-		a_bRegs[0x38+channel]= (now[channel]&0x3f);
+		dev->usbDev.a_bRegs[0x38+channel]= (now[channel]&0x3f);
 
 		if(low[channel]+1>=high[channel])
 			return 0;
@@ -644,7 +645,7 @@ static int cano_GetNewOffset( u_long *val, int channel, signed char *low,
    Plustek's example code disagrees with NatSemi's docs; going by the
    docs works better, I will assume the docs are correct. --Monty */
 
-static int cano_AdjustOffset( pPlustek_Device dev )
+static int cano_AdjustOffset( Plustek_Device *dev )
 {
 	char   tmp[40];
 	int    i, adj;
@@ -664,9 +665,9 @@ static int cano_AdjustOffset( pPlustek_Device dev )
 	DBG( _DBG_INFO, "cano_AdjustOffset()\n" );
 	if((dev->adj.rofs != -1) && 
 	   (dev->adj.gofs != -1) && (dev->adj.bofs != -1)) {
-		a_bRegs[0x38] = (dev->adj.rofs & 0x3f);
-		a_bRegs[0x39] = (dev->adj.gofs & 0x3f);
-		a_bRegs[0x3a] = (dev->adj.bofs & 0x3f);
+		dev->usbDev.a_bRegs[0x38] = (dev->adj.rofs & 0x3f);
+		dev->usbDev.a_bRegs[0x39] = (dev->adj.gofs & 0x3f);
+		dev->usbDev.a_bRegs[0x3a] = (dev->adj.bofs & 0x3f);
 		DBG( _DBG_INFO, "- function skipped, using frontend values!\n" );
 		return SANE_TRUE;
 	}
@@ -751,9 +752,9 @@ static int cano_AdjustOffset( pPlustek_Device dev )
 			dwSum[1] /= dwPixels;
 			dwSum[2] /= dwPixels;
       
-			adj  = cano_GetNewOffset( dwSum, 0, low, now, high );
-			adj |= cano_GetNewOffset( dwSum, 1, low, now, high );
-			adj |= cano_GetNewOffset( dwSum, 2, low, now, high );
+			adj  = cano_GetNewOffset( dev, dwSum, 0, low, now, high );
+			adj |= cano_GetNewOffset( dev, dwSum, 1, low, now, high );
+			adj |= cano_GetNewOffset( dev, dwSum, 2, low, now, high );
       
 			DBG( _DBG_INFO2, "RedOff   = %d/%d/%d\n",
 										(int)low[0],(int)now[0],(int)high[0]);
@@ -772,28 +773,30 @@ static int cano_AdjustOffset( pPlustek_Device dev )
 			DBG( _DBG_INFO2, "Sum = %lu, ave = %lu\n",
 												dwSum[0], dwSum[0] /dwPixels );
       
-			adj = cano_GetNewOffset( dwSum, 0, low, now, high );
+			adj = cano_GetNewOffset( dev, dwSum, 0, low, now, high );
 
-			a_bRegs[0x3a] = a_bRegs[0x39] = a_bRegs[0x38];
+			dev->usbDev.a_bRegs[0x3a] = dev->usbDev.a_bRegs[0x39] = dev->usbDev.a_bRegs[0x38];
       
 			DBG( _DBG_INFO2, "GrayOff = %d/%d/%d\n",
 										(int)low[0],(int)now[0],(int)high[0]);
 		}
     
-		DBG( _DBG_INFO2, "REG[0x38] = %u\n", a_bRegs[0x38] );
-		DBG( _DBG_INFO2, "REG[0x39] = %u\n", a_bRegs[0x39] );
-		DBG( _DBG_INFO2, "REG[0x3a] = %u\n", a_bRegs[0x3a] );
+		DBG( _DBG_INFO2, "REG[0x38] = %u\n", dev->usbDev.a_bRegs[0x38] );
+		DBG( _DBG_INFO2, "REG[0x39] = %u\n", dev->usbDev.a_bRegs[0x39] );
+		DBG( _DBG_INFO2, "REG[0x3a] = %u\n", dev->usbDev.a_bRegs[0x3a] );
 
-		_UIO(sanei_lm983x_write(dev->fd, 0x38, &a_bRegs[0x38], 3, SANE_TRUE));
+		_UIO(sanei_lm983x_write(dev->fd, 0x38, &dev->usbDev.a_bRegs[0x38], 3, SANE_TRUE));
 	}
   
 	if( m_ScanParam.bDataType == SCANDATATYPE_Color ) {
-    	a_bRegs[0x38] = now[0];	
-	    a_bRegs[0x39] = now[1];	
-		a_bRegs[0x3a] = now[2];
+    	dev->usbDev.a_bRegs[0x38] = now[0];	
+	    dev->usbDev.a_bRegs[0x39] = now[1];	
+		dev->usbDev.a_bRegs[0x3a] = now[2];
 	} else {
     
-		a_bRegs[0x38] = a_bRegs[0x39] = a_bRegs[0x3a] = now[0];	
+		dev->usbDev.a_bRegs[0x38] = 
+		dev->usbDev.a_bRegs[0x39] = 
+		dev->usbDev.a_bRegs[0x3a] = now[0];
 	}
   
 	DBG( _DBG_INFO, "cano_AdjustOffset() done.\n" );
@@ -804,7 +807,7 @@ static int cano_AdjustOffset( pPlustek_Device dev )
  * fine calibration part 1
  *
  */
-static SANE_Bool cano_AdjustDarkShading( pPlustek_Device dev )
+static SANE_Bool cano_AdjustDarkShading( Plustek_Device *dev )
 {
 	char         tmp[40];
 	pScanParam   pParam   = &dev->scanning.sParam;
@@ -944,7 +947,7 @@ static SANE_Bool cano_AdjustDarkShading( pPlustek_Device dev )
  * fine calibration part 2 - read the white calibration area and calculate
  * the gain coefficient for each pixel
  */
-static SANE_Bool cano_AdjustWhiteShading( pPlustek_Device dev )
+static SANE_Bool cano_AdjustWhiteShading( Plustek_Device *dev )
 {
 	char         tmp[40];
 	pScanParam   pParam   = &dev->scanning.sParam;
@@ -1074,7 +1077,7 @@ static SANE_Bool cano_AdjustWhiteShading( pPlustek_Device dev )
 
 /**
  */
-static int cano_DoCalibration( pPlustek_Device dev )
+static int cano_DoCalibration( Plustek_Device *dev )
 {
 	pScanDef  scanning = &dev->scanning;
 	pHWDef    hw       = &dev->usbDev.HwSetting;
@@ -1107,7 +1110,7 @@ static int cano_DoCalibration( pPlustek_Device dev )
 		if( cano_PrepareToReadWhiteCal(dev))
 			return SANE_FALSE;
      
-		a_bRegs[0x45] &= ~0x10;
+		dev->usbDev.a_bRegs[0x45] &= ~0x10;
 		if( !cano_AdjustLightsource(dev)) {
 			DBG( _DBG_ERROR, "Coarse Calibration failed!!!\n" );
 			return _E_INTERNAL;
@@ -1139,7 +1142,7 @@ static int cano_DoCalibration( pPlustek_Device dev )
 	if(cano_PrepareToReadBlackCal(dev))
 		return SANE_FALSE;
 
-	a_bRegs[0x45] |= 0x10;
+	dev->usbDev.a_bRegs[0x45] |= 0x10;
 	if( !cano_AdjustDarkShading(dev)) {
 		DBG( _DBG_ERROR, "Fine Calibration failed!!!\n" );
 		return _E_INTERNAL;
@@ -1174,13 +1177,13 @@ static int cano_DoCalibration( pPlustek_Device dev )
 	DBG( _DBG_INFO, "cano_DoCalibration() done\n" );
 	DBG( _DBG_INFO, "-------------------------\n" );
 	DBG( _DBG_INFO, "Static Gain:\n" );
-	DBG( _DBG_INFO, "REG[0x3b] = %u\n", a_bRegs[0x3b] );
-	DBG( _DBG_INFO, "REG[0x3c] = %u\n", a_bRegs[0x3c] );
-	DBG( _DBG_INFO, "REG[0x3d] = %u\n", a_bRegs[0x3d] );
+	DBG( _DBG_INFO, "REG[0x3b] = %u\n", dev->usbDev.a_bRegs[0x3b] );
+	DBG( _DBG_INFO, "REG[0x3c] = %u\n", dev->usbDev.a_bRegs[0x3c] );
+	DBG( _DBG_INFO, "REG[0x3d] = %u\n", dev->usbDev.a_bRegs[0x3d] );
 	DBG( _DBG_INFO, "Static Offset:\n" );
-	DBG( _DBG_INFO, "REG[0x38] = %u\n", a_bRegs[0x38] );
-	DBG( _DBG_INFO, "REG[0x39] = %u\n", a_bRegs[0x39] );
-	DBG( _DBG_INFO, "REG[0x3a] = %u\n", a_bRegs[0x3a] );
+	DBG( _DBG_INFO, "REG[0x38] = %u\n", dev->usbDev.a_bRegs[0x38] );
+	DBG( _DBG_INFO, "REG[0x39] = %u\n", dev->usbDev.a_bRegs[0x39] );
+	DBG( _DBG_INFO, "REG[0x3a] = %u\n", dev->usbDev.a_bRegs[0x3a] );
 	DBG( _DBG_INFO, "-------------------------\n" );
 
 	return SANE_TRUE;

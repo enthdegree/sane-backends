@@ -19,6 +19,7 @@
  * - 0.46 - no changes
  * - 0.47 - cleanup work
  * - 0.48 - added support for binary from color scans
+ * - 0.49 - no changes
  * .
  * <hr>
  * This file is part of the SANE package.

@@ -24,6 +24,7 @@
  * - 0.46 - fixed problem in usb_SetScanParameters()
  * - 0.47 - no changes
  * - 0.48 - minor fixes
+ * - 0.49 - a_bRegs is now part of the device structure
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -131,6 +132,7 @@ static u_short usb_SetAsicDpiX( Plustek_Device *dev, u_short xdpi )
 	u_short   res;
     pScanDef  scanning = &dev->scanning;
 	pDCapsDef scaps    = &dev->usbDev.Caps;
+	u_char   *regs     = dev->usbDev.a_bRegs;
 
 	/*
      * limit xdpi to lower value for certain devices...
@@ -148,47 +150,47 @@ static u_short usb_SetAsicDpiX( Plustek_Device *dev, u_short xdpi )
 	if (m_dHDPIDivider < 1.5)
 	{
 		m_dHDPIDivider = 1.0;
-		a_bRegs[0x09]  = 0;
+		regs[0x09]  = 0;
 	}
 	else if (m_dHDPIDivider < 2.0)
 	{
 		m_dHDPIDivider = 1.5;
-		a_bRegs[0x09]  = 1;
+		regs[0x09]  = 1;
 	}
 	else if (m_dHDPIDivider < 3.0)
 	{
 		m_dHDPIDivider = 2.0;
-		a_bRegs[0x09]  = 2;
+		regs[0x09]  = 2;
 	}
 	else if (m_dHDPIDivider < 4.0)
 	{
 		m_dHDPIDivider = 3.0;
-		a_bRegs[0x09]  = 3;
+		regs[0x09]  = 3;
 	}
 	else if (m_dHDPIDivider < 6.0)
 	{
 		m_dHDPIDivider = 4.0;
-		a_bRegs[0x09]  = 4;
+		regs[0x09]  = 4;
 	}
 	else if (m_dHDPIDivider < 8.0)
 	{
 		m_dHDPIDivider = 6.0;
-		a_bRegs[0x09]  = 5;
+		regs[0x09]  = 5;
 	}
 	else if (m_dHDPIDivider < 12.0)
 	{
 		m_dHDPIDivider = 8.0;
-		a_bRegs[0x09]  = 6;
+		regs[0x09]  = 6;
 	}
 	else
 	{
 		m_dHDPIDivider = 12.0;
-		a_bRegs[0x09]  = 7;
+		regs[0x09]  = 7;
 	}
 
 	/* adjust, if any turbo/preview mode is set, should be 0 here... */
-	if( a_bRegs[0x0a] )
-		a_bRegs[0x09] -= ((a_bRegs[0x0a] >> 2) + 2);
+	if( regs[0x0a] )
+		regs[0x09] -= ((regs[0x0a] >> 2) + 2);
 
 	DBG( _DBG_INFO2, "* HDPI: %.3f\n", m_dHDPIDivider );
 	res = (u_short)((double)scaps->OpticDpi.x / m_dHDPIDivider);
@@ -258,7 +260,8 @@ static u_short usb_SetAsicDpiY( Plustek_Device *dev, u_short ydpi )
  */
 static void usb_SetColorAndBits( Plustek_Device *dev, pScanParam pParam )
 {
-	pHWDef hw = &dev->usbDev.HwSetting;
+	pHWDef    hw   = &dev->usbDev.HwSetting;
+	u_char   *regs = dev->usbDev.a_bRegs;
 
 	/*
      * Set pixel packing, data mode and AFE operation
@@ -266,38 +269,38 @@ static void usb_SetColorAndBits( Plustek_Device *dev, pScanParam pParam )
 	switch( pParam->bDataType ) {
 		case SCANDATATYPE_Color:
 			m_bCM = 3;
-			a_bRegs[0x26] = hw->bReg_0x26 & 0x7;
+			regs[0x26] = hw->bReg_0x26 & 0x7;
 
 			/* if set to one channel color, we select the blue channel
              * as input source, this is the default, but I don't know
              * what happens, if we deselect this
              */
-			if( a_bRegs[0x26] & _ONE_CH_COLOR )
-				a_bRegs[0x26] |= (_BLUE_CH | 0x01);
+			if( regs[0x26] & _ONE_CH_COLOR )
+				regs[0x26] |= (_BLUE_CH | 0x01);
 
-			memcpy( &a_bRegs[0x0f], hw->bReg_0x0f_Color, 10 );
+			memcpy( &regs[0x0f], hw->bReg_0x0f_Color, 10 );
 			break;
 
 		case SCANDATATYPE_Gray:
 			m_bCM = 1;
-			a_bRegs[0x26] = (hw->bReg_0x26 & 0x18) | 0x04;
-			memcpy( &a_bRegs[0x0f], hw->bReg_0x0f_Mono, 10 );
+			regs[0x26] = (hw->bReg_0x26 & 0x18) | 0x04;
+			memcpy( &regs[0x0f], hw->bReg_0x0f_Mono, 10 );
 			break;
 
 		case SCANDATATYPE_BW:
 			m_bCM = 1;
-			a_bRegs[0x26] = (hw->bReg_0x26 & 0x18) | 0x04;
-			memcpy( &a_bRegs[0x0f], hw->bReg_0x0f_Mono, 10 );
+			regs[0x26] = (hw->bReg_0x26 & 0x18) | 0x04;
+			memcpy( &regs[0x0f], hw->bReg_0x0f_Mono, 10 );
 			break;
 	}
 			
-	a_bRegs[0x27] = hw->bReg_0x27;
+	regs[0x27] = hw->bReg_0x27;
 
 	if( pParam->bBitDepth > 8 ) {
-		a_bRegs[0x09] |= 0x20;         /* 14/16bit image data */
+		regs[0x09] |= 0x20;         /* 14/16bit image data */
 
 	} else if( pParam->bBitDepth == 8 ) {
-		a_bRegs[0x09] |= 0x18;        /* 8bits/per pixel */
+		regs[0x09] |= 0x18;        /* 8bits/per pixel */
 	}
 }
 
@@ -319,6 +322,7 @@ static void usb_GetScanRect( Plustek_Device *dev, pScanParam pParam )
 
 	pDCapsDef sCaps = &dev->usbDev.Caps;
 	pHWDef    hw    = &dev->usbDev.HwSetting;
+	u_char   *regs  = dev->usbDev.a_bRegs;
 
 	/* Convert pixels to physical dpi based */
 	pParam->Size.dwValidPixels = pParam->Size.dwPixels *
@@ -402,12 +406,12 @@ static void usb_GetScanRect( Plustek_Device *dev, pScanParam pParam )
 		                                           wDataPixelStart, wLineEnd );
 	}
 
-	a_bRegs[0x22] = _HIBYTE( wDataPixelStart );
-	a_bRegs[0x23] = _LOBYTE( wDataPixelStart );
+	regs[0x22] = _HIBYTE( wDataPixelStart );
+	regs[0x23] = _LOBYTE( wDataPixelStart );
 
 	/* should match: wLineEnd-wDataPixelStart%(m_dHDPIDivider*2) = 0!! */
-	a_bRegs[0x24] = _HIBYTE( wLineEnd );
-	a_bRegs[0x25] = _LOBYTE( wLineEnd );
+	regs[0x24] = _HIBYTE( wLineEnd );
+	regs[0x25] = _LOBYTE( wLineEnd );
 
 	DBG( _DBG_INFO2, ">> End-Start=%u, HDPI=%.2f\n",
 	                                 wLineEnd-wDataPixelStart, m_dHDPIDivider);
@@ -475,8 +479,8 @@ static void usb_GetScanRect( Plustek_Device *dev, pScanParam pParam )
 
 	DBG(_DBG_INFO2,"* Full Steps to Skip at Start = 0x%04x\n",pParam->Origin.y);
 
-	a_bRegs[0x4a] = _HIBYTE( pParam->Origin.y );
-	a_bRegs[0x4b] = _LOBYTE( pParam->Origin.y );
+	regs[0x4a] = _HIBYTE( pParam->Origin.y );
+	regs[0x4b] = _LOBYTE( pParam->Origin.y );
 }
 
 /** preset scan stepsize and fastfeed stepsize
@@ -486,14 +490,15 @@ static void usb_PresetStepSize( Plustek_Device *dev, pScanParam pParam )
 	u_short ssize;
 	double  mclkdiv = pParam->dMCLK;
 	pHWDef  hw      = &dev->usbDev.HwSetting;
+	u_char *regs    = dev->usbDev.a_bRegs;
 
 	ssize = (u_short)((double)dwCrystalFrequency / ( mclkdiv * 8.0 *
             (double)m_bCM * hw->dMaxMotorSpeed * 4.0 * (double)hw->wMotorDpi));
 
-	a_bRegs[0x46] = _HIBYTE( ssize );
-	a_bRegs[0x47] = _LOBYTE( ssize );
-	a_bRegs[0x48] = _HIBYTE( ssize );
-	a_bRegs[0x49] = _LOBYTE( ssize );
+	regs[0x46] = _HIBYTE( ssize );
+	regs[0x47] = _LOBYTE( ssize );
+	regs[0x48] = _HIBYTE( ssize );
+	regs[0x49] = _LOBYTE( ssize );
 
 	DBG( _DBG_INFO2, "* StepSize(Preset) = %u (0x%04x)\n", ssize, ssize );
 }
@@ -508,23 +513,24 @@ static void usb_GetDPD( Plustek_Device *dev  )
 	int    dpd;	    /* calculated dpd reg 52:53               */
 	int    st;		/* step size reg 46:47                    */
 
-	pHWDef hw = &dev->usbDev.HwSetting;
+	pHWDef  hw    = &dev->usbDev.HwSetting;
+	u_char *regs  = dev->usbDev.a_bRegs;
 
-	qtcnt = (a_bRegs [0x51] & 0x30) >> 4;	/* quarter speed count */
-	hfcnt = (a_bRegs [0x51] & 0xc0) >> 6;	/* half speed count    */
+	qtcnt = (regs[0x51] & 0x30) >> 4;	/* quarter speed count */
+	hfcnt = (regs[0x51] & 0xc0) >> 6;	/* half speed count    */
 
 	if( _LM9831 == hw->chip )
-		strev = a_bRegs [0x50] & 0x3f;		/* steps to reverse */
+		strev = regs[0x50] & 0x3f;		/* steps to reverse */
 	else /* LM9832/3 */
 	{
 		if (qtcnt == 3)
 			qtcnt = 8;
 		if (hfcnt == 3)
 			hfcnt = 8;
-		strev = a_bRegs[0x50]; /* steps to reverse */
+		strev = regs[0x50]; /* steps to reverse */
 	}
 
-	st = a_bRegs[0x46] * 256 + a_bRegs[0x47]; /* scan step size */
+	st = regs[0x46] * 256 + regs[0x47]; /* scan step size */
 
 	if (m_wLineLength == 0)
 		dpd = 0;
@@ -541,9 +547,9 @@ static void usb_GetDPD( Plustek_Device *dev  )
 	DBG( _DBG_INFO2, "* llen=%u, lineRateColor=%u, qtcnt=%u, hfcnt=%u\n",
 						  m_wLineLength, m_bLineRateColor, qtcnt, hfcnt );
 
-	a_bRegs[0x51] |= (u_char)((dpd >> 16) & 0x03);
-	a_bRegs[0x52] = (u_char)(dpd >> 8);
-	a_bRegs[0x53] = (u_char)(dpd & 0xFF);
+	regs[0x51] |= (u_char)((dpd >> 16) & 0x03);
+	regs[0x52] = (u_char)(dpd >> 8);
+	regs[0x53] = (u_char)(dpd & 0xFF);
 }
 
 /** Plusteks' poor-man MCLK calculation...
@@ -557,6 +563,7 @@ static double usb_GetMCLKDivider( Plustek_Device *dev, pScanParam pParam )
 
 	pDCapsDef sCaps = &dev->usbDev.Caps;
 	pHWDef    hw    = &dev->usbDev.HwSetting;
+	u_char   *regs  = dev->usbDev.a_bRegs;
 
 	DBG( _DBG_INFO, "usb_GetMCLKDivider()\n" );
 
@@ -584,7 +591,7 @@ static double usb_GetMCLKDivider( Plustek_Device *dev, pScanParam pParam )
 			}
 
 			if(((hw->motorModel == MODEL_HP) && (sCaps->bCCD == kNECSLIM))/* ||
-			 	( a_bRegs[0x26] & _ONE_CH_COLOR )*/) {
+			 	( regs[0x26] & _ONE_CH_COLOR )*/) {
 
        			bMaxITA = (u_char)floor((m_dMCLKDivider + 1) / 2.0);
 
@@ -599,8 +606,8 @@ static double usb_GetMCLKDivider( Plustek_Device *dev, pScanParam pParam )
 	DBG( _DBG_INFO2, "* Integration Time Adjust = %u (HDPI=%.3f,MCLKD=%.3f)\n",
 							m_bIntTimeAdjust, m_dHDPIDivider, m_dMCLKDivider );
 
-	a_bRegs[0x08] = (u_char)((m_dMCLKDivider - 1) * 2);
-	a_bRegs[0x19] = m_bIntTimeAdjust;
+	regs[0x08] = (u_char)((m_dMCLKDivider - 1) * 2);
+	regs[0x19] = m_bIntTimeAdjust;
 
 	if( m_bIntTimeAdjust != 0 ) {
 
@@ -609,11 +616,11 @@ static double usb_GetMCLKDivider( Plustek_Device *dev, pScanParam pParam )
 		if( m_wStepSize < 2 )
 			m_wStepSize = 2;
 
-		a_bRegs[0x46] = _HIBYTE(m_wStepSize);
-		a_bRegs[0x47] = _LOBYTE(m_wStepSize);
+		regs[0x46] = _HIBYTE(m_wStepSize);
+		regs[0x47] = _LOBYTE(m_wStepSize);
 
 		DBG( _DBG_INFO2, "* Stepsize = %u, 0x46=0x%02x 0x47=0x%02x\n",
-		                   m_wStepSize, a_bRegs[0x46], a_bRegs[0x47] );
+		                   m_wStepSize, regs[0x46], regs[0x47] );
 	    usb_GetDPD( dev );
 	}
 	
@@ -628,14 +635,14 @@ static double usb_GetMCLKDivider( Plustek_Device *dev, pScanParam pParam )
 	if( m_dMCLKDivider > dMaxMCLKDivider ) {
 
 		DBG( _DBG_INFO2, "* Setting GreenPWMDutyCycleLow\n" );
-		a_bRegs[0x2a] = _HIBYTE( hw->wGreenPWMDutyCycleLow );
-		a_bRegs[0x2b] = _LOBYTE( hw->wGreenPWMDutyCycleLow );
+		regs[0x2a] = _HIBYTE( hw->wGreenPWMDutyCycleLow );
+		regs[0x2b] = _LOBYTE( hw->wGreenPWMDutyCycleLow );
 
 	} else {
 
 		DBG( _DBG_INFO2, "* Setting GreenPWMDutyCycleHigh\n" );
-		a_bRegs[0x2a] = _HIBYTE( hw->wGreenPWMDutyCycleHigh );
-		a_bRegs[0x2b] = _LOBYTE( hw->wGreenPWMDutyCycleHigh );
+		regs[0x2a] = _HIBYTE( hw->wGreenPWMDutyCycleHigh );
+		regs[0x2b] = _LOBYTE( hw->wGreenPWMDutyCycleHigh );
 	}
 
 	DBG( _DBG_INFO2, "* Current MCLK Divider = %f\n", m_dMCLKDivider );
@@ -646,7 +653,8 @@ static double usb_GetMCLKDivider( Plustek_Device *dev, pScanParam pParam )
  */
 static void usb_GetStepSize( Plustek_Device *dev, pScanParam pParam )
 {
-	pHWDef hw = &dev->usbDev.HwSetting;
+	pHWDef  hw   = &dev->usbDev.HwSetting;
+	u_char *regs = dev->usbDev.a_bRegs;
 
 	/* Compute step size using equation 1 */
 	if (m_bIntTimeAdjust != 0) {
@@ -663,11 +671,11 @@ static void usb_GetStepSize( Plustek_Device *dev, pScanParam pParam )
 
 	m_wStepSize = m_wStepSize * 298 / 297;
 
-	a_bRegs[0x46] = _HIBYTE( m_wStepSize );
-	a_bRegs[0x47] = _LOBYTE( m_wStepSize );
+	regs[0x46] = _HIBYTE( m_wStepSize );
+	regs[0x47] = _LOBYTE( m_wStepSize );
 
 	DBG( _DBG_INFO2, "* Stepsize = %u, 0x46=0x%02x 0x47=0x%02x\n",
-	                  m_wStepSize, a_bRegs[0x46], a_bRegs[0x47] );
+	                  m_wStepSize, regs[0x46], regs[0x47] );
 }
 
 /**
@@ -694,22 +702,23 @@ static void usb_GetLineLength( Plustek_Device *dev )
 	int tradj;	/* ITA                                                   */
 	int en_tradj;
 
-	pHWDef hw = &dev->usbDev.HwSetting;
+	pHWDef  hw   = &dev->usbDev.HwSetting;
+	u_char *regs = dev->usbDev.a_bRegs;
 
-	tpspd = (a_bRegs[0x0a] & 0x0c) >> 2; /* turbo/preview mode speed  */
-	tpsel = a_bRegs[0x0a] & 3; 			 /* turbo/preview mode select */
+	tpspd = (regs[0x0a] & 0x0c) >> 2; /* turbo/preview mode speed  */
+	tpsel = regs[0x0a] & 3; 			 /* turbo/preview mode select */
 
-	gbnd = (a_bRegs[0x0e] & 0xf0) >> 4;	 /* TR fi1 guardband duration */
-	dur = (a_bRegs[0x0e] & 0xf);		 /* TR pulse duration         */
+	gbnd = (regs[0x0e] & 0xf0) >> 4;	 /* TR fi1 guardband duration */
+	dur = (regs[0x0e] & 0xf);		 /* TR pulse duration         */
 
-	ntr = a_bRegs[0x0d] / 128;			 /* number of tr pulses       */
+	ntr = regs[0x0d] / 128;			 /* number of tr pulses       */
 
-	afeop = a_bRegs[0x26] & 7;			 /* afe op - 3 channel or 1 channel */
+	afeop = regs[0x26] & 7;			 /* afe op - 3 channel or 1 channel */
 
-	tradj = a_bRegs[0x19] & 0x7f;		 /* integration time adjust */
+	tradj = regs[0x19] & 0x7f;		 /* integration time adjust */
 	en_tradj = (tradj) ? 1 : 0;
 
-	ctmode = (a_bRegs[0x0b] >> 3) & 3;	 /* cis tr timing mode */
+	ctmode = (regs[0x0b] >> 3) & 3;	 /* cis tr timing mode */
 
 	m_bLineRateColor = 1;	
 	if (afeop == 1 || afeop == 5) /* if 3 channel line or 1 channel mode b */
@@ -778,11 +787,12 @@ static void usb_GetLineLength( Plustek_Device *dev )
  */
 static void usb_GetMotorParam( Plustek_Device *dev, pScanParam pParam )
 {
-	int       	 idx, i;
+	int          idx, i;
 	pClkMotorDef clk;
-	pMDef     	 md;
-	pDCapsDef 	 sCaps = &dev->usbDev.Caps;
-	pHWDef    	 hw    = &dev->usbDev.HwSetting;
+	pMDef        md;
+	pDCapsDef    sCaps = &dev->usbDev.Caps;
+	pHWDef       hw    = &dev->usbDev.HwSetting;
+	u_char      *regs  = dev->usbDev.a_bRegs;
 
 	if( !_IS_PLUSTEKMOTOR(hw->motorModel)) {
 	
@@ -797,22 +807,22 @@ static void usb_GetMotorParam( Plustek_Device *dev, pScanParam pParam )
 		if( idx >= _MAX_CLK )
 			idx = _MAX_CLK - 1;
 
-		a_bRegs[0x56] = md[idx].pwm;
-		a_bRegs[0x57] = md[idx].pwm_duty;
+		regs[0x56] = md[idx].pwm;
+		regs[0x57] = md[idx].pwm_duty;
 
-		a_bRegs[0x43] = 0;
-		a_bRegs[0x44] = 0;
+		regs[0x43] = 0;
+		regs[0x44] = 0;
 
 		if( md[idx].scan_lines_per_line > 1 ) {
 
 			if((pParam->bBitDepth > 8) &&
 				(pParam->bDataType == SCANDATATYPE_Color)) {
 
-				a_bRegs[0x43] = 0xff;
-				a_bRegs[0x44] = md[idx].scan_lines_per_line;
+				regs[0x43] = 0xff;
+				regs[0x44] = md[idx].scan_lines_per_line;
 
 				DBG( _DBG_INFO2, "* Line Skipping : 0x43=0x%02x, 0x44=0x%02x\n",
-	  											a_bRegs[0x43], a_bRegs[0x44] );
+	  											regs[0x43], regs[0x44] );
 			}
 		}
 
@@ -826,28 +836,28 @@ static void usb_GetMotorParam( Plustek_Device *dev, pScanParam pParam )
         	default:
         		if(pParam->PhyDpi.x <= 200)
         		{
-        			a_bRegs[0x56] = 1;
-        			a_bRegs[0x57] = 48;	/* 63; */
+        			regs[0x56] = 1;
+        			regs[0x57] = 48;	/* 63; */
         		}
         		else if(pParam->PhyDpi.x <= 300)
         		{
-        			a_bRegs[0x56] = 2;	/* 8;  */
-        			a_bRegs[0x57] = 48;	/* 56; */
+        			regs[0x56] = 2;	/* 8;  */
+        			regs[0x57] = 48;	/* 56; */
         		}
         		else if(pParam->PhyDpi.x <= 400)
         		{
-        			a_bRegs[0x56] = 8;	
-        			a_bRegs[0x57] = 48;	
+        			regs[0x56] = 8;	
+        			regs[0x57] = 48;	
         		}
         		else if(pParam->PhyDpi.x <= 600)
         		{
-        			a_bRegs[0x56] = 2;	/* 10; */
-        			a_bRegs[0x57] = 48;	/* 56; */
+        			regs[0x56] = 2;	/* 10; */
+        			regs[0x57] = 48;	/* 56; */
         		}
         		else /* pParam->PhyDpi.x == 1200) */
         		{
-        			a_bRegs[0x56] = 1;	/* 8;  */
-        			a_bRegs[0x57] = 48;	/* 56; */
+        			regs[0x56] = 1;	/* 8;  */
+        			regs[0x57] = 48;	/* 56; */
         		}
         		break;
         	}
@@ -855,25 +865,25 @@ static void usb_GetMotorParam( Plustek_Device *dev, pScanParam pParam )
         	switch ( hw->motorModel ) {
 
         	case MODEL_Tokyo600:
-        		a_bRegs[0x56] = 16;
-        		a_bRegs[0x57] = 4;	/* 2; */
+        		regs[0x56] = 16;
+        		regs[0x57] = 4;	/* 2; */
         		break;
         	case MODEL_HuaLien:
         		{
         			if(pParam->PhyDpi.x <= 200)
         			{
-        				a_bRegs[0x56] = 64;	/* 24; */
-        				a_bRegs[0x57] = 4;	/* 16; */
+        				regs[0x56] = 64;	/* 24; */
+        				regs[0x57] = 4;	/* 16; */
         			}
         			else if(pParam->PhyDpi.x <= 300)
         			{
-        				a_bRegs[0x56] = 64;	/* 16; */
-        				a_bRegs[0x57] = 4;	/* 16; */
+        				regs[0x56] = 64;	/* 16; */
+        				regs[0x57] = 4;	/* 16; */
         			}
         			else if(pParam->PhyDpi.x <= 400)
         			{
-        				a_bRegs[0x56] = 64;	/* 16; */
-        				a_bRegs[0x57] = 4;	/* 16; */
+        				regs[0x56] = 64;	/* 16; */
+        				regs[0x57] = 4;	/* 16; */
         			}
         			else /* if(pParam->PhyDpi.x <= 600) */
         			{
@@ -881,14 +891,14 @@ static void usb_GetMotorParam( Plustek_Device *dev, pScanParam pParam )
      #if 0
         				if(ScanInf.m_fADF)
         				{
-        					a_bRegs[0x56] = 8;
-        					a_bRegs[0x57] = 48;
+        					regs[0x56] = 8;
+        					regs[0x57] = 48;
         				}
         				else
      #endif
         				{
-        					a_bRegs[0x56] = 64;	/* 2;  */
-        					a_bRegs[0x57] = 4;	/* 48; */
+        					regs[0x56] = 64;	/* 2;  */
+        					regs[0x57] = 4;	/* 48; */
         				}
         			}
         		}
@@ -897,23 +907,23 @@ static void usb_GetMotorParam( Plustek_Device *dev, pScanParam pParam )
         	default:
         		if(pParam->PhyDpi.x <= 200)
         		{
-        			a_bRegs[0x56] = 24;
-        			a_bRegs[0x57] = 16;
+        			regs[0x56] = 24;
+        			regs[0x57] = 16;
         		}
         		else if(pParam->PhyDpi.x <= 300)
         		{
-        			a_bRegs[0x56] = 16;
-        			a_bRegs[0x57] = 16;
+        			regs[0x56] = 16;
+        			regs[0x57] = 16;
         		}
         		else if(pParam->PhyDpi.x <= 400)
         		{
-        			a_bRegs[0x56] = 16;
-        			a_bRegs[0x57] = 16;
+        			regs[0x56] = 16;
+        			regs[0x57] = 16;
         		}
         		else /* if(pParam->PhyDpi.x <= 600) */
         		{
-        			a_bRegs[0x56] = 2;
-        			a_bRegs[0x57] = 48;
+        			regs[0x56] = 2;
+        			regs[0x57] = 48;
         		}
         		break;
         	}
@@ -921,15 +931,16 @@ static void usb_GetMotorParam( Plustek_Device *dev, pScanParam pParam )
 	}
 	
 	DBG( _DBG_INFO2, "* MOTOR-Settings: PWM=0x%02x, PWM_DUTY=0x%02x\n",
-	                 a_bRegs[0x56], a_bRegs[0x57] );
+	                 regs[0x56], regs[0x57] );
 }
 
 /**
  */
 static void usb_GetPauseLimit( Plustek_Device *dev, pScanParam pParam )
 {
-	int    coeffsize, scaler;
-	pHWDef hw = &dev->usbDev.HwSetting;
+	int     coeffsize, scaler;
+	pHWDef  hw   = &dev->usbDev.HwSetting;
+	u_char *regs = dev->usbDev.a_bRegs;
 
 	scaler = 1;
 	if( hw->bReg_0x26 & _ONE_CH_COLOR ) {
@@ -942,7 +953,7 @@ static void usb_GetPauseLimit( Plustek_Device *dev, pScanParam pParam )
 	coeffsize = 4 + 16 + 16;	/* gamma and shading and offset */
 
 	/* if 16 bit, then not all is used */
-	if( a_bRegs[0x09] & 0x20 ) {
+	if( regs[0x09] & 0x20 ) {
 		coeffsize = 16 + 16;	/* no gamma */
 	}
 	coeffsize *= (2*3); /* 3 colors and 2 bytes/word */
@@ -956,8 +967,8 @@ static void usb_GetPauseLimit( Plustek_Device *dev, pScanParam pParam )
 	m_dwPauseLimit -= ((pParam->Size.dwPhyBytes*scaler) / 1024 + 1);
 
 	/* If not reversing, take into account the steps to reverse */
-	if( a_bRegs[0x50] == 0 )
-		m_dwPauseLimit -= ((a_bRegs[0x54] & 7) *
+	if( regs[0x50] == 0 )
+		m_dwPauseLimit -= ((regs[0x54] & 7) *
 							(pParam->Size.dwPhyBytes * scaler) + 1023) / 1024;
 
 	DBG( _DBG_INFO2, "* PL=%lu, coeffsize=%u, scaler=%u\n",
@@ -966,22 +977,22 @@ static void usb_GetPauseLimit( Plustek_Device *dev, pScanParam pParam )
 	m_dwPauseLimit = usb_max( usb_min(m_dwPauseLimit,
 						(u_long)ceil(pParam->Size.dwTotalBytes / 1024.0)), 2);
 
-	a_bRegs[0x4e] = (u_char)floor((m_dwPauseLimit*512.0)/(2.0*hw->wDRAMSize));
+	regs[0x4e] = (u_char)floor((m_dwPauseLimit*512.0)/(2.0*hw->wDRAMSize));
 
-	if( a_bRegs[0x4e] > 1 )	{
-		a_bRegs[0x4e]--;
-		if(a_bRegs[0x4e] > 1)
-			a_bRegs[0x4e]--;
+	if( regs[0x4e] > 1 )	{
+		regs[0x4e]--;
+		if(regs[0x4e] > 1)
+			regs[0x4e]--;
 	} else
-		a_bRegs[0x4e] = 1;
+		regs[0x4e] = 1;
 
 	/*
 	 * resume, when buffer is 2/8 kbytes full (512k/2M memory)
 	 */
-	a_bRegs[0x4f] = 1;
+	regs[0x4f] = 1;
 
 	DBG( _DBG_INFO2, "* PauseLimit = %lu, [0x4e] = 0x%02x, [0x4f] = 0x%02x\n",
-	                  m_dwPauseLimit, a_bRegs[0x4e], a_bRegs[0x4f] );
+	                  m_dwPauseLimit, regs[0x4e], regs[0x4f] );
 }
 
 /** usb_GetScanLinesAndSize
@@ -1018,6 +1029,7 @@ static SANE_Bool usb_SetScanParameters( Plustek_Device *dev, pScanParam pParam )
 
 	pScanParam pdParam = &dev->scanning.sParam;
 	pHWDef     hw      = &dev->usbDev.HwSetting;
+	u_char    *regs    = dev->usbDev.a_bRegs;
 
 	m_pParam = pParam;
 
@@ -1032,7 +1044,7 @@ static SANE_Bool usb_SetScanParameters( Plustek_Device *dev, pScanParam pParam )
 */
 		hw->dMaxMoveSpeed = 1.0;
 		usb_MotorSelect( dev, SANE_TRUE );
-		usb_MotorOn( dev->fd, SANE_TRUE );
+		usb_MotorOn( dev, SANE_TRUE );
 	}
 
 	/*
@@ -1051,32 +1063,32 @@ static SANE_Bool usb_SetScanParameters( Plustek_Device *dev, pScanParam pParam )
 		if( pParam->bCalibration == PARAM_Scan ) {
 
 			if( pdParam->bSource == SOURCE_ADF ) {
-				a_bRegs[0x50] = 0;
-				a_bRegs[0x51] = 0x40;
+				regs[0x50] = 0;
+				regs[0x51] = 0x40;
 				if( pParam->PhyDpi.x <= 300)
-					a_bRegs[0x54] = (a_bRegs[0x54] & ~7) | 4;	/* 3; */
+					regs[0x54] = (regs[0x54] & ~7) | 4;	/* 3; */
 				else
-					a_bRegs[0x54] = (a_bRegs[0x54] & ~7) | 5;	/* 4; */
+					regs[0x54] = (regs[0x54] & ~7) | 5;	/* 4; */
 			} else {
-				a_bRegs[0x50] = hw->bStepsToReverse;
-				a_bRegs[0x51] = hw->bReg_0x51;
-				a_bRegs[0x54] &= ~7;
+				regs[0x50] = hw->bStepsToReverse;
+				regs[0x51] = hw->bReg_0x51;
+				regs[0x54] &= ~7;
 			}
 		} else
-			a_bRegs[0x50] = 0;
+			regs[0x50] = 0;
 	} else {
 		if( pParam->bCalibration == PARAM_Scan )
-			a_bRegs[0x50] = hw->bStepsToReverse;
+			regs[0x50] = hw->bStepsToReverse;
 		else
-			a_bRegs[0x50] = 0;
+			regs[0x50] = 0;
 	}
 
 	/* Assume we will not use ITA */
-	a_bRegs[0x19] = m_bIntTimeAdjust = 0;
+	regs[0x19] = m_bIntTimeAdjust = 0;
 
 	/* Get variables from calculation algorithms */
 	if(!(pParam->bCalibration == PARAM_Scan &&
-         pParam->bSource == SOURCE_ADF && fLastScanIsAdf )) {
+          pParam->bSource == SOURCE_ADF && dev->usbDev.fLastScanIsAdf )) {
 
 		DBG( _DBG_INFO2, "* Scan calculations...\n" );
 		usb_GetLineLength ( dev );
@@ -1102,13 +1114,13 @@ static SANE_Bool usb_SetScanParameters( Plustek_Device *dev, pScanParam pParam )
 	if( m_bIntTimeAdjust != 0 )
 		m_wFastFeedStepSize /= m_bIntTimeAdjust;
 
-	if(a_bRegs[0x0a])
-		m_wFastFeedStepSize *= ((a_bRegs[0x0a] >> 2) + 2);
-	a_bRegs[0x48] = _HIBYTE( m_wFastFeedStepSize );
-	a_bRegs[0x49] = _LOBYTE( m_wFastFeedStepSize );
+	if(regs[0x0a])
+		m_wFastFeedStepSize *= ((regs[0x0a] >> 2) + 2);
+	regs[0x48] = _HIBYTE( m_wFastFeedStepSize );
+	regs[0x49] = _LOBYTE( m_wFastFeedStepSize );
 
 	DBG( _DBG_INFO2, "* FFStepSize = %u, [0x48] = 0x%02x, [0x49] = 0x%02x\n",
-	                       m_wFastFeedStepSize, a_bRegs[0x48], a_bRegs[0x49] );
+	                       m_wFastFeedStepSize, regs[0x48], regs[0x49] );
 
 	/* Compute the number of lines to scan using actual Y resolution */
 	usb_GetScanLinesAndSize( dev, pParam );
@@ -1121,17 +1133,17 @@ static SANE_Bool usb_SetScanParameters( Plustek_Device *dev, pScanParam pParam )
 	/* For ADF .... */
 	if(pParam->bCalibration == PARAM_Scan && pParam->bSource == SOURCE_ADF)	{
 
-		if( fLastScanIsAdf ) {
+		if( dev->usbDev.fLastScanIsAdf ) {
 
-			a_bRegs[0x08] = reg8;
-			memcpy( &a_bRegs[0x38], reg38, sizeof(reg38));
-			memcpy( &a_bRegs[0x48], reg48, sizeof(reg48));
+			regs[0x08] = reg8;
+			memcpy( &regs[0x38], reg38, sizeof(reg38));
+			memcpy( &regs[0x48], reg48, sizeof(reg48));
 
 		} else {
 
-			reg8 = a_bRegs[0x08];
-			memcpy( reg38, &a_bRegs[0x38], sizeof(reg38));
-			memcpy( reg48, &a_bRegs[0x48], sizeof(reg48));
+			reg8 = regs[0x08];
+			memcpy( reg38, &regs[0x38], sizeof(reg38));
+			memcpy( reg48, &regs[0x48], sizeof(reg48));
 		}
 		usb_MotorSelect( dev, SANE_TRUE );
 	}
@@ -1148,16 +1160,16 @@ static SANE_Bool usb_SetScanParameters( Plustek_Device *dev, pScanParam pParam )
 	if( !usbio_WriteReg( dev->fd, 0x19, 6 ))
 		return SANE_FALSE;
 
-	a_bRegs[0x07] = 0;
-	a_bRegs[0x28] = 0;
+	regs[0x07] = 0;
+	regs[0x28] = 0;
 
 	/* set unused registers to 0 */
-	memset( &a_bRegs[0x03], 0, 3 );
-	memset( &a_bRegs[0x5f], 0, 0x7f-0x5f+1 );
+	memset( &regs[0x03], 0, 3 );
+	memset( &regs[0x5f], 0, 0x7f-0x5f+1 );
 
 	/* set the merlin registers */
-	_UIO(sanei_lm983x_write( dev->fd, 0x03, &a_bRegs[0x03], 3, SANE_TRUE));
-	_UIO(sanei_lm983x_write( dev->fd, 0x08, &a_bRegs[0x08], 0x7f - 0x08+1, SANE_TRUE));
+	_UIO(sanei_lm983x_write( dev->fd, 0x03, &regs[0x03], 3, SANE_TRUE));
+	_UIO(sanei_lm983x_write( dev->fd, 0x08, &regs[0x08], 0x7f - 0x08+1, SANE_TRUE));
 
     usleep( 100 );
 	
@@ -1174,8 +1186,9 @@ static SANE_Bool usb_ScanBegin( Plustek_Device *dev, SANE_Bool auto_park )
 {
 	u_char  value;
 	u_short inches;
-	pHWDef       hw = &dev->usbDev.HwSetting;
-	pDCapsDef    sc = &dev->usbDev.Caps;
+	pHWDef       hw   = &dev->usbDev.HwSetting;
+	pDCapsDef    sc   = &dev->usbDev.Caps;
+	u_char      *regs = dev->usbDev.a_bRegs;
 
 	DBG( _DBG_INFO, "usb_ScanBegin()\n" );
 
@@ -1184,7 +1197,7 @@ static SANE_Bool usb_ScanBegin( Plustek_Device *dev, SANE_Bool auto_park )
 
 	/* Disable home sensor during scan, or the chassis cannot move */
 	value = ((m_pParam->bCalibration == PARAM_Scan &&
-			  m_pParam->bSource == SOURCE_ADF)? (a_bRegs[0x58] & ~7): 0);
+			  m_pParam->bSource == SOURCE_ADF)? (regs[0x58] & ~7): 0);
 
 	if(!usbio_WriteReg( dev->fd, 0x58, value ))
 		return SANE_FALSE;
@@ -1286,6 +1299,8 @@ static SANE_Bool usb_IsDataAvailableInDRAM( Plustek_Device *dev )
 	u_char         a_bBand[3];
 	long           dwTicks;
     struct timeval t;
+	u_char         *regs  = dev->usbDev.a_bRegs;
+
 
 	DBG( _DBG_INFO, "usb_IsDataAvailableInDRAM()\n" );
 
@@ -1313,9 +1328,9 @@ static SANE_Bool usb_IsDataAvailableInDRAM( Plustek_Device *dev )
 
 			if( m_pParam->bSource != SOURCE_Reflection )
 
-				usleep(1000*(30 * a_bRegs[0x08] * dev->usbDev.Caps.OpticDpi.x / 600));
+				usleep(1000*(30 * regs[0x08] * dev->usbDev.Caps.OpticDpi.x / 600));
 			else
-				usleep(1000*(20 * a_bRegs[0x08] * dev->usbDev.Caps.OpticDpi.x / 600));
+				usleep(1000*(20 * regs[0x08] * dev->usbDev.Caps.OpticDpi.x / 600));
 
 			DBG( _DBG_INFO, "Data is available\n" );
 			return SANE_TRUE;

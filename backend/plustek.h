@@ -52,6 +52,7 @@
  *        - moved SCANDEF definitions to plustek-usb.h
  *        - removed function pointer
  *        - added OPT_BIT_DEPTH
+ * - 0.49 - added typedef struct DevList
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -391,6 +392,15 @@ typedef struct {
 
 } CnfDef, *pCnfDef;
 
+/** for supported device list
+ */
+typedef struct DevList {
+	SANE_Word       vendor_id;
+	SANE_Word       device_id;
+	SANE_Bool       attached;
+	SANE_Char      *dev_name;
+	struct DevList *next;
+} DevList;
 #endif	/* guard __PLUSTEK_H__ */
 
 /* END PLUSTEK.H.............................................................*/

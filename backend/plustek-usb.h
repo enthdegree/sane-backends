@@ -33,6 +33,8 @@
  * - 0.48 - added DEVCAPSFLAG_LargeTPA
  *        - added _WAF_BIN_FROM_COLOR and _WAF_GRAY_FROM_COLOR
  *        - added dHighSpeed to struct HwDefault
+ * - 0.49 - added a_bRegs, fModFirstHome and fLastScanIsAdf
+ *          to struct DeviceDef
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -477,6 +479,9 @@ typedef struct DeviceDef
 	u_long      dwLampOnPeriod;/**< How many seconds to keep lamp on         */
 	SANE_Bool   bLampOffOnEnd; /**< switch lamp off on end or keep cur. state*/
 	int         currentLamp;   /**< The lamp ID of the currently used lamp   */
+	SANE_Bool   fModFirstHome; /**<                                          */
+	SANE_Bool   fLastScanIsAdf;/**<                                          */
+	u_char      a_bRegs[0x80]; /**< our global register file                 */
 
 } DeviceDef, *pDeviceDef;
 

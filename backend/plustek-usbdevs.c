@@ -49,6 +49,7 @@
  *        - added parameters for UMAX 3450 TPA
  *        - parameter tuning for CanoScan D660U
  *        - cleanup
+ * - 0.49 - no changes
  * .
  * <hr>
  * This file is part of the SANE package.

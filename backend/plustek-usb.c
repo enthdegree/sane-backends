@@ -38,6 +38,7 @@
  *        - change usbDev_stopScan and usbDev_open prototype
  *        - cleanup
  * - 0.48 - added function usb_CheckAndCopyAdjs()
+ * - 0.49 - changed autodetection
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -102,9 +103,6 @@ static TabDef usbVendors[] = {
  	{ 0x049F, "Compaq"          },
 	{ 0xFFFF, NULL              }
 };
-
-/** for autodetection */
-static SANE_Char USB_devname[1024];
 
 /** we use at least 8 megs for scanning... */
 #define _SCANBUF_SIZE (8 * 1024 * 1024)
@@ -433,104 +431,158 @@ static SANE_Bool usb_IsDeviceInList( char *usbIdStr )
 	return SANE_FALSE;
 }
 
-/**
+/** get last valid entry of a list
+ */
+static DevList*
+getLast( DevList *l )
+{
+	if( l == NULL )
+		return NULL;
+
+	while( l->next != NULL )
+		l = l->next;
+	return l; 
+}
+
+/** add a new entry to our internal device list, when a device is detected
  */
 static SANE_Status usb_attach( SANE_String_Const dev_name )
 {
-	if( USB_devname[0] == '\0' ) {
-		DBG( _DBG_INFO, "Found device at >%s<\n", dev_name );
-		strncpy( USB_devname, dev_name, 1023 );
-		USB_devname[1023] = '\0';
-	} else {
-		DBG( _DBG_INFO, "Device >%s< ignoring\n", dev_name );
-	}
+	int      len;
+	DevList *tmp, *last;
 
+	/* get some memory for the entry... */
+	len = sizeof(DevList) + strlen(dev_name) + 1;
+	tmp = (DevList*)malloc(len);
+
+	/* initialize and set the values */
+	memset(tmp, 0, len );
+
+	/* the device name is part of our structure space */
+	tmp->dev_name = &((char*)tmp)[sizeof(DevList)];
+	strcpy( tmp->dev_name, dev_name );
+	tmp->attached = SANE_FALSE;
+
+	/* root set ? */
+	if( usbDevs == NULL ) {
+		usbDevs = tmp;
+	} else {
+		last = getLast(usbDevs); /* append... */
+		last->next = tmp;
+	}
 	return SANE_STATUS_GOOD;
 }
 
-/** here we roam through our list of supported devices and
- * cross check with the ones the system reports...
- * @param vendor  - pointer to receive vendor ID
- * @param product - pointer to receive product ID
- * @return SANE_TRUE if a matching device has been found or
- *         SANE_FALSE if nothing supported found...
+/**
  */
-static SANE_Bool usbDev_autodetect( SANE_Word *vendor, SANE_Word *product )
+static void
+usbGetList( DevList **devs )
 {
-	int       i;
-	SANE_Word v, p;
+	int        i;
+	SANE_Word  v, p;
+	DevList   *tmp;
 
-	DBG( _DBG_INFO, "Autodetection...\n" );
-
+	DBG( _DBG_INFO, "Retrieving all supported and conntected devices\n" );
 	for( i = 0; NULL != Settings[i].pIDString; i++ ) {
 
 		v = strtol( &(Settings[i].pIDString)[0], 0, 0 );
 		p = strtol( &(Settings[i].pIDString)[7], 0, 0 );
 
+		/* get the last entry... */
+		tmp = getLast(*devs);
 		DBG( _DBG_INFO2, "Checking for 0x%04x-0x%04x\n", v, p );
-
 		sanei_usb_find_devices( v, p, usb_attach );
 
-		if( USB_devname[0] != '\0' ) {
+		if( getLast(*devs) != tmp ) {
+			
+			if( tmp == NULL )
+				tmp = *devs;
+			else
+				tmp = tmp->next;
 
-			*vendor  = v;
-			*product = p;
-			return SANE_TRUE;
+			while( tmp != NULL ) {
+				tmp->vendor_id = v;
+				tmp->device_id = p;
+				tmp = tmp->next;
+			}
 		}
 	}
 
-	return SANE_FALSE;
+	DBG( _DBG_INFO, "Available and supported devices:\n" );
+	if( *devs == NULL )
+		DBG( _DBG_INFO, "NONE.\n" );
+
+	for( tmp = *devs; tmp; tmp = tmp->next ) {
+		DBG( _DBG_INFO, "Device: >%s< - 0x%04xx0x%04x\n", 
+			tmp->dev_name, tmp->vendor_id, tmp->device_id );
+	}
 }
 
 /**
  */
-static int usbDev_open( Plustek_Device *dev )
+static int usbDev_open( Plustek_Device *dev, DevList *devs )
 {
-	char      devStr[50];
-	int       result;
-	int       i;
-	int       lc;
-	SANE_Int  handle;
-	SANE_Byte version;
-	SANE_Word vendor, product;
-	SANE_Bool was_empty;
+	char       dn[512];
+	char       devStr[50];
+	int        result;
+	int        i;
+	int        lc;
+	SANE_Int   handle;
+	SANE_Byte  version;
+	SANE_Word  vendor, product;
+	SANE_Bool  was_empty;
+	DevList   *tmp;
 
-	DBG( _DBG_INFO, "usbDev_open(%s,%s)\n", dev->name, dev->usbId );
+	DBG( _DBG_INFO, "usbDev_open(%s,%s) - %p\n", 
+	    dev->name, dev->usbId, (void*)devs );
 
 	/* preset our internal usb device structure */
 	memset( &dev->usbDev, 0, sizeof(DeviceDef));
-	USB_devname[0] = '\0';
 
-	if( !strcmp( dev->name, "auto" )) {
+	/* devs is NULL, when called from sane_start */
+	if( devs ) {
+	
+		dn[0] = '\0';
+		if( !strcmp( dev->name, "auto" )) {
 
-		if( dev->usbId[0] == '\0' ) {
-
-			if( !usbDev_autodetect( &vendor, &product )) {
-				DBG( _DBG_ERROR, "No supported device found!\n" );
-				return -1;
+			/* use the first "unattached"... */
+			for( tmp = devs; tmp; tmp = tmp->next ) {
+				if( !tmp->attached ) {
+					tmp->attached = SANE_TRUE;
+					strcpy( dn, tmp->dev_name );
+					break;
+				}
 			}
-
 		} else {
 
 			vendor  = strtol( &dev->usbId[0], 0, 0 );
 			product = strtol( &dev->usbId[7], 0, 0 );
 
-			sanei_usb_find_devices( vendor, product, usb_attach );
-
-			if( USB_devname[0] == '\0' ) {
-				DBG( _DBG_ERROR, "No matching device found!\n" );
-        		return -1;
+			/* check the first match... */
+			for( tmp = devs; tmp; tmp = tmp->next ) {
+				if( tmp->vendor_id == vendor && tmp->device_id == product ) {
+					if( !tmp->attached ) {
+						tmp->attached = SANE_TRUE;
+						strcpy( dn, tmp->dev_name );
+						break;
+					}
+				}
 			}
 		}
 
-		if( SANE_STATUS_GOOD != sanei_usb_open( USB_devname, &handle ))
-    		return -1;
+		if( !dn[0] ) {
+			DBG( _DBG_ERROR, "No supported device found!\n" );
+			return -1;
+		}
+
+		if( SANE_STATUS_GOOD != sanei_usb_open( dn, &handle ))
+			return -1;
 
 		/* replace the old devname, so we are able to have multiple
-         * auto-detected devices
-         */
+		 * auto-detected devices
+		 */
 		free( dev->name );
-	    dev->name      = strdup( USB_devname );
+		dev->name      = strdup(dn);
 		dev->sane.name = dev->name; 
 
 	} else {
@@ -900,9 +952,9 @@ static int usbDev_setScanEnv( Plustek_Device *dev, pScanInfo si )
 	if( dev->scanning.sParam.bSource == SOURCE_ADF ) {
 
 		if( dev->scanning.dwFlag & SCANDEF_ContinuousScan )
-			fLastScanIsAdf = SANE_TRUE;
+			dev->usbDev.fLastScanIsAdf = SANE_TRUE;
 		else
-			fLastScanIsAdf = SANE_FALSE;
+			dev->usbDev.fLastScanIsAdf = SANE_FALSE;
 	}
 
     return 0;
@@ -940,11 +992,11 @@ static int usbDev_startScan( Plustek_Device *dev )
 /* HEINER: Preview currently not working correctly */
 #if 0
 	if( scanning->dwFlag & SCANDEF_QualityScan )
-		a_bRegs[0x0a] = 0;
+		dev->usbDev.a_bRegs[0x0a] = 0;
 	else
-		a_bRegs[0x0a] = 1;
+		dev->usbDev.a_bRegs[0x0a] = 1;
 #endif
-	a_bRegs[0x0a] = 0;
+	dev->usbDev.a_bRegs[0x0a] = 0;
 
 	/* Allocate shading buffer */
 	if((dev->scanning.dwFlag & SCANDEF_Adf) &&

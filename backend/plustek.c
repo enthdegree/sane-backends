@@ -71,6 +71,7 @@
  *        - closing now writer pipe, when reader_process is done
  * - 0.48 - added additional options
  *          split scanmode and bit-depth
+ * - 0.49 - improved multi-device capability
  *.
  * <hr>
  * This file is part of the SANE package.
@@ -146,7 +147,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.48-10"
+#define BACKEND_VERSION "0.49-1"
 #define BACKEND_NAME    plustek
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
@@ -177,7 +178,8 @@
 #define _PLUSTEK_USB
 
 /* declare it here, as it's used in plustek-usbscan.c too :-( */
-static SANE_Bool cancelRead;
+static SANE_Bool  cancelRead;
+static DevList   *usbDevs;
 
 /* the USB-stuff... I know this is in general no good idea, but it works */
 #ifdef _PLUSTEK_USB
@@ -1173,7 +1175,7 @@ static SANE_Status attach( const char *dev_name,
 #endif
 
 	/* go ahead and open the scanner device */
-	handle = usbDev_open( dev );
+	handle = usbDev_open( dev, usbDevs );
 	if( handle < 0 ) {
 		DBG( _DBG_ERROR,"open failed: %d\n", handle );
 		return SANE_STATUS_IO_ERROR;
@@ -1306,9 +1308,13 @@ sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 	first_dev    = NULL;
 	first_handle = NULL;
 	num_devices  = 0;
+	usbDevs      = NULL;
 
 	/* initialize the configuration structure */                
 	init_config_struct( &config );
+
+	/* try and get a list of all connected AND supported devices */
+	usbGetList( &usbDevs );
 
 	if( version_code != NULL )
 		*version_code = SANE_VERSION_CODE(V_MAJOR, V_MINOR, 0);
@@ -1433,6 +1439,7 @@ sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 void
 sane_exit( void )
 {
+	DevList        *tmp;
 	Plustek_Device *dev, *next;
 
 	DBG( _DBG_SANE_INIT, "sane_exit\n" );
@@ -1463,6 +1470,12 @@ sane_exit( void )
 	if( devlist )
 		free( devlist );
 
+	for( tmp = usbDevs;  tmp; tmp = usbDevs->next ) {
+		free( usbDevs );
+		usbDevs = tmp;
+	}
+
+	usbDevs      = NULL;
 	devlist      = NULL;
 	auth         = NULL;
 	first_dev    = NULL;
@@ -2114,7 +2127,7 @@ sane_start( SANE_Handle handle )
 
 	/* open the driver and get some information about the scanner
 	 */
-	dev->fd = usbDev_open( dev );
+	dev->fd = usbDev_open( dev, NULL );
 	if( dev->fd < 0 ) {
 		DBG( _DBG_ERROR,"sane_start: open failed: %d\n", errno );
 

@@ -12,6 +12,7 @@
  * - 0.46 - first version
  * - 0.47 - no changes
  * - 0.48 - no changes
+ * - 0.49 - a_bRegs is now part of the device structure
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -172,32 +173,34 @@ static char *usb_ReadOtherLines( FILE *fp, char *except )
 
 /**
  */
-static void usb_RestoreCalData( pCalData cal )
+static void usb_RestoreCalData( Plustek_Device *dev, CalData *cal )
 {
-	a_bRegs[0x3b] = (u_char)cal->red_gain;
-	a_bRegs[0x3c] = (u_char)cal->green_gain;
-	a_bRegs[0x3d] = (u_char)cal->blue_gain;
-	a_bRegs[0x38] = (u_char)cal->red_offs;
-	a_bRegs[0x39] = (u_char)cal->green_offs;
-	a_bRegs[0x3a] = (u_char)cal->blue_offs;
+	u_char *regs = dev->usbDev.a_bRegs;
 
-	a_bRegs[0x2a] = _HIBYTE((u_short)cal->light.green_pwm_duty);
-	a_bRegs[0x2b] = _LOBYTE((u_short)cal->light.green_pwm_duty);
+	regs[0x3b] = (u_char)cal->red_gain;
+	regs[0x3c] = (u_char)cal->green_gain;
+	regs[0x3d] = (u_char)cal->blue_gain;
+	regs[0x38] = (u_char)cal->red_offs;
+	regs[0x39] = (u_char)cal->green_offs;
+	regs[0x3a] = (u_char)cal->blue_offs;
 
-	a_bRegs[0x2c] = _HIBYTE((u_short)cal->light.red_light_on);
-	a_bRegs[0x2d] = _LOBYTE((u_short)cal->light.red_light_on);
-	a_bRegs[0x2e] = _HIBYTE((u_short)cal->light.red_light_off);
-	a_bRegs[0x2f] = _LOBYTE((u_short)cal->light.red_light_off);
+	regs[0x2a] = _HIBYTE((u_short)cal->light.green_pwm_duty);
+	regs[0x2b] = _LOBYTE((u_short)cal->light.green_pwm_duty);
 
-	a_bRegs[0x30] = _HIBYTE((u_short)cal->light.green_light_on);
-	a_bRegs[0x31] = _LOBYTE((u_short)cal->light.green_light_on);
-	a_bRegs[0x32] = _HIBYTE((u_short)cal->light.green_light_off);
-	a_bRegs[0x33] = _LOBYTE((u_short)cal->light.green_light_off);
+	regs[0x2c] = _HIBYTE((u_short)cal->light.red_light_on);
+	regs[0x2d] = _LOBYTE((u_short)cal->light.red_light_on);
+	regs[0x2e] = _HIBYTE((u_short)cal->light.red_light_off);
+	regs[0x2f] = _LOBYTE((u_short)cal->light.red_light_off);
 
-	a_bRegs[0x34] = _HIBYTE((u_short)cal->light.blue_light_on);
-	a_bRegs[0x35] = _LOBYTE((u_short)cal->light.blue_light_on);
-	a_bRegs[0x36] = _HIBYTE((u_short)cal->light.blue_light_off);
-	a_bRegs[0x37] = _LOBYTE((u_short)cal->light.blue_light_off);
+	regs[0x30] = _HIBYTE((u_short)cal->light.green_light_on);
+	regs[0x31] = _LOBYTE((u_short)cal->light.green_light_on);
+	regs[0x32] = _HIBYTE((u_short)cal->light.green_light_off);
+	regs[0x33] = _LOBYTE((u_short)cal->light.green_light_off);
+
+	regs[0x34] = _HIBYTE((u_short)cal->light.blue_light_on);
+	regs[0x35] = _LOBYTE((u_short)cal->light.blue_light_on);
+	regs[0x36] = _HIBYTE((u_short)cal->light.blue_light_off);
+	regs[0x37] = _LOBYTE((u_short)cal->light.blue_light_off);
 }
 
 /**
@@ -227,7 +230,7 @@ static void usb_CreatePrefix( pPlustek_Device dev, char *pfx )
 
 /** function to read and set the calibration data from external file
  */
-static SANE_Bool usb_ReadAndSetCalData( pPlustek_Device dev )
+static SANE_Bool usb_ReadAndSetCalData( Plustek_Device *dev )
 {
 	char       pfx[20];
 	char       tmp[1024];
@@ -290,7 +293,7 @@ static SANE_Bool usb_ReadAndSetCalData( pPlustek_Device dev )
 						&cal.light.green_pwm_duty );
 
 		if( 13 == res ) {
-			usb_RestoreCalData( &cal );
+			usb_RestoreCalData( dev, &cal );
 			ret = SANE_TRUE;
 		}
 	}
@@ -303,26 +306,28 @@ static SANE_Bool usb_ReadAndSetCalData( pPlustek_Device dev )
 
 /**
  */
-static void usb_PrepCalData( pCalData cal )
+static void usb_PrepCalData( Plustek_Device *dev, CalData *cal )
 {
+	u_char *regs = dev->usbDev.a_bRegs;
+
 	memset( cal, 0, sizeof(CalData));
     cal->version = _PT_CF_VERSION;
 
-	cal->red_gain   = (u_short)a_bRegs[0x3b];
-	cal->green_gain = (u_short)a_bRegs[0x3c];
-	cal->blue_gain  = (u_short)a_bRegs[0x3d];
-	cal->red_offs   = (u_short)a_bRegs[0x38];
-	cal->green_offs = (u_short)a_bRegs[0x39];
-	cal->blue_offs  = (u_short)a_bRegs[0x3a];
+	cal->red_gain   = (u_short)regs[0x3b];
+	cal->green_gain = (u_short)regs[0x3c];
+	cal->blue_gain  = (u_short)regs[0x3d];
+	cal->red_offs   = (u_short)regs[0x38];
+	cal->green_offs = (u_short)regs[0x39];
+	cal->blue_offs  = (u_short)regs[0x3a];
 
-	cal->light.green_pwm_duty  = a_bRegs[0x2a] * 256 + a_bRegs[0x2b];
+	cal->light.green_pwm_duty  = regs[0x2a] * 256 + regs[0x2b];
 
-	cal->light.red_light_on    = a_bRegs[0x2c] * 256 + a_bRegs[0x2d];
-	cal->light.red_light_off   = a_bRegs[0x2e] * 256 + a_bRegs[0x2f];
-	cal->light.green_light_on  = a_bRegs[0x30] * 256 + a_bRegs[0x31];
-	cal->light.green_light_off = a_bRegs[0x32] * 256 + a_bRegs[0x33];
-	cal->light.blue_light_on   = a_bRegs[0x34] * 256 + a_bRegs[0x35];
-	cal->light.blue_light_off  = a_bRegs[0x36] * 256 + a_bRegs[0x37];
+	cal->light.red_light_on    = regs[0x2c] * 256 + regs[0x2d];
+	cal->light.red_light_off   = regs[0x2e] * 256 + regs[0x2f];
+	cal->light.green_light_on  = regs[0x30] * 256 + regs[0x31];
+	cal->light.green_light_off = regs[0x32] * 256 + regs[0x33];
+	cal->light.blue_light_on   = regs[0x34] * 256 + regs[0x35];
+	cal->light.blue_light_off  = regs[0x36] * 256 + regs[0x37];
 }
 
 /** function to save/update the calibration data
@@ -353,7 +358,7 @@ static void usb_SaveCalData( pPlustek_Device dev )
 	DBG( _DBG_INFO, "- Saving calibration data to file\n" );
 	DBG( _DBG_INFO, "  %s\n", dev->calFile );
 
-	usb_PrepCalData ( &cal );
+	usb_PrepCalData ( dev, &cal );
 	usb_CreatePrefix( dev, pfx );
 
 	sprintf( set_tmp, "%s%u,%u,%u,%u,%u,%u,"

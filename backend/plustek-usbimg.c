@@ -28,6 +28,7 @@
  *          usb_ColorScaleGray16()
  *        - added usb_BWScaleFromColor() and usb_BWDuplicateFromColor
  *        - cleanup
+ * - 0.49 - a_bRegs is now part of the device structure
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -1633,7 +1634,7 @@ static SANE_Int usb_ReadData( Plustek_Device *dev )
 
 	DBG( _DBG_READ, "usb_ReadData()\n" );
 
-	pl = a_bRegs[0x4e] * hw->wDRAMSize/128;
+	pl = dev->usbDev.a_bRegs[0x4e] * hw->wDRAMSize/128;
 
 	while( scan->sParam.Size.dwTotalBytes ) {
 
@@ -1651,13 +1652,13 @@ static SANE_Int usb_ReadData( Plustek_Device *dev )
 
 		if(!scan->sParam.Size.dwTotalBytes && dw < (pl * 1024))
 		{
-			if(!(a_bRegs[0x4e] = (u_char)ceil((double)dw /
+			if(!(dev->usbDev.a_bRegs[0x4e] = (u_char)ceil((double)dw /
 			                                         (4.0 * hw->wDRAMSize)))) {
-				a_bRegs[0x4e] = 1;
+				dev->usbDev.a_bRegs[0x4e] = 1;
 			}
-			a_bRegs[0x4f] = 0;
+			dev->usbDev.a_bRegs[0x4f] = 0;
 
-			sanei_lm983x_write( dev->fd, 0x4e, &a_bRegs[0x4e], 2, SANE_TRUE );
+			sanei_lm983x_write( dev->fd, 0x4e, &dev->usbDev.a_bRegs[0x4e], 2, SANE_TRUE );
 		}
 
 		while( scan->bLinesToSkip ) {

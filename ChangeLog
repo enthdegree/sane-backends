@@ -2,6 +2,8 @@
 
 	* sanei/sanei_config.c sanei/sanei_codec_bin.c: Avoid reading
 	  uninitialized memory.
+	* sanei/sanei_config.c: Fix memleak when using env
+	  SANE_CONFIG_DIR.
 	* backend/net.c sanei/sanei_wire.c include/sane/sanei_wire.h: Make
 	  sure net backend release all memory when finished.
 	* README: Added info about the CVS repository.

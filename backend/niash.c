@@ -336,7 +336,7 @@ _SetAnalogGamma (SANE_Int * aiGamma, SANE_Int sfGamma)
 {
   int j;
   double fGamma;
-  fGamma = ((double) sfGamma) / 0x10000;
+  fGamma = ((double) sfGamma) / (0x01 << SANE_FIXED_SCALE_SHIFT);
   for (j = 0; j < 4096; j++)
     {
       int iData;

@@ -67,6 +67,8 @@
 # ifndef __KERNEL__
 #  include <assert.h>
 #  define _ASSERT(x)						assert(x)
+# else
+#  define _ASSERT(x)
 # endif
 
 # ifndef DBG

@@ -73,12 +73,13 @@
 # include <string.h>
 # include <stdio.h>
 # include <unistd.h>
-# include <sched.h>
+/*# include <sched.h>*/
 # include <sys/time.h>
 # include <sys/signal.h>
 # include <sys/ioctl.h>
-# include <sys/io.h>
-
+# ifdef HAVE_SYS_IO_H
+#  include <sys/io.h>
+# endif
 #else
 
 # include <linux/version.h>
@@ -106,12 +107,11 @@
 # define _OPF	ps->IO.fnOut
 # define _IPF	ps->IO.fnIn
 
-#if 1
+#ifdef __KERNEL__
 
 #define _OUTB_CTRL(pSD,port_value)	 _OPF(port_value,pSD->IO.pbControlPort)
 #define _OUTB_DATA(pSD,port_value)	 _OPF(port_value,pSD->IO.pbSppDataPort)
 #define _OUTB_ECTL(pSD,port_value)	 _OPF(port_value,(pSD->IO.portBase+0x402))
-#define _OUTB_STATUS(pSD,port_value) _OPF(port_value,pSD->IO.pbStatusPort)
 
 #define _INB_CTRL(pSD)				_IPF(pSD->IO.pbControlPort)
 #define _INB_DATA(pSD)				_IPF(pSD->IO.pbSppDataPort)
@@ -121,23 +121,14 @@
 
 #else
 
-#define _OUTB_CTRL(pSD,port_value)	 parport_pc_write_control(pSD->pp, port_value)
-#define _OUTB_DATA(pSD,port_value)	 parport_pc_write_data(pSD->pp, port_value)
-#define _OUTB_STATUS(pSD,port_value) parport_pc_write_status(pSD->pp, port_value)
+#define _OUTB_CTRL(pSD,port_value)   sanei_pp_outb_ctrl(pSD->pardev, port_value)
+#define _OUTB_DATA(pSD,port_value)   sanei_pp_outb_data(pSD->pardev, port_value)
+#define _OUTB_ECTL(pSD,port_value)
 
-#define _INB_CTRL(pSD)				parport_pc_read_control(pSD->pp)
-#define _INB_DATA(pSD)				parport_pc_read_data(pSD->pp)
-#define _INB_STATUS(pSD)			parport_pc_read_status(pSD->pp)
-
-#ifdef LINUX_24
-# define _OUTB_ECTL(pSD,port_value)	outb_p(port_value,(pSD->IO.portBase+0x402))
-# define _INB_EPPDATA(pSD)			inb_p(pSD->IO.pbEppDataPort)
-# define _INB_ECTL(pSD)				inb_p((pSD->IO.portBase+0x402))
-#else
-# define _OUTB_ECTL(pSD,port_value)	parport_pc_write_econtrol(pSD->pp, port_value)
-# define _INB_EPPDATA(pSD)			parport_pc_read_epp(pSD->pp)
-# define _INB_ECTL(pSD)				parport_pc_read_econtrol(pSD->pp)
-#endif
+#define _INB_CTRL(pSD)               sanei_pp_inb_ctrl(pSD->pardev)
+#define _INB_DATA(pSD)               sanei_pp_inb_data(pSD->pardev)
+#define _INB_EPPDATA(pSD)            sanei_pp_inb_epp(pSD->pardev)
+#define _INB_STATUS(pSD)             sanei_pp_inb_stat(pSD->pardev)
 
 #endif
 
@@ -174,11 +165,11 @@ typedef long long TimerDef, *pTimerDef;
  * timer topics
  */
 #ifndef __KERNEL__
-#define _DO_UDELAY(usecs)	{ int i; for( i = usecs; i--; ) outb(0x80,0); } 
-#define _DODELAY(msecs)		{ int i; for( i = msecs; i--; ) _DO_UDELAY(1000); }
+# define _DO_UDELAY(usecs)   { int i,j; for( i = usecs; i--; ) j+=i*3; }
+# define _DODELAY(msecs)     { int i; for( i = msecs; i--; ) usleep(1000); }
 #else
-#define _DO_UDELAY(usecs)	udelay(usecs)
-#define _DODELAY(msecs)		mdelay(msecs)
+# define _DO_UDELAY(usecs)   udelay(usecs)
+# define _DODELAY(msecs)     mdelay(msecs)
 #endif
 
 /*.............................................................................

@@ -19,7 +19,7 @@
  *        - for selecting the port-mode this driver uses
  * - 0.33 - added code to use faster portmodes
  * - 0.34 - added sample code for changing from ECP to PS/2 bidi mode
- * - 0.35 - added Kevins´ changes (new function miscSetFastMode())
+ * - 0.35 - added Kevins' changes (new function miscSetFastMode())
  *        - moved function initPageSettings() to module models.c
  * - 0.36 - added random generator
  *        - added additional debug messages
@@ -80,11 +80,11 @@
 /*************************** some definitions ********************************/
 
 #ifndef __KERNEL__
-#define PPA_PROBE_SPP	0x0001
-#define PPA_PROBE_PS2	0x0002
-#define PPA_PROBE_ECR	0x0010
-#define PPA_PROBE_EPP17	0x0100
-#define PPA_PROBE_EPP19	0x0200
+# define PPA_PROBE_SPP   0x0001
+# define PPA_PROBE_PS2   0x0002
+# define PPA_PROBE_ECR   0x0010
+# define PPA_PROBE_EPP17 0x0100
+# define PPA_PROBE_EPP19 0x0200
 #else
 
 /*
@@ -123,6 +123,8 @@ static int portIsClaimed[_MAX_PTDEVS] = { 0, 0, 0, 0 };
 
 /*************************** local functions *********************************/
 
+#ifdef __KERNEL__
+
 /** display the avaialable port-modes
  */
 #ifdef DEBUG
@@ -130,7 +132,6 @@ static void miscShowPortModes( int modes )
 {
 	DBG( DBG_LOW, "parport-modi:" );
 
-#ifdef __KERNEL__
 	if( modes & PARPORT_MODE_PCSPP )
 		DBG( DBG_LOW, " SPP" );
 
@@ -148,22 +149,6 @@ static void miscShowPortModes( int modes )
 
 	if( modes & PARPORT_MODE_PCECPPS2 )
 		DBG( DBG_LOW, " PS/2(ECP)" );
-#else
-	if( modes & PPA_PROBE_SPP )
-		DBG( DBG_LOW, " SPP" );
-
-	if( modes & PPA_PROBE_PS2 )
-		DBG( DBG_LOW, " PS/2" );
-
-	if( modes & PPA_PROBE_EPP17 )
-		DBG( DBG_LOW, " EPP17" );
-
-	if( modes & PPA_PROBE_EPP19 )
-		DBG( DBG_LOW, " EPP19" );
-
-	if( modes & PPA_PROBE_ECR )
-		DBG( DBG_LOW, " ECP" );
-#endif
 
 	DBG( DBG_LOW, "\n" );
 }
@@ -174,199 +159,15 @@ static void miscShowPortModes( int modes )
 static int initPortProbe( pScanData ps )
 {
     int retv = 0;
-#ifndef __KERNEL__
-	UShort	port;
-	UChar	a, b, c;
-	UInt	i, j;
-#endif
 
-	/*	
-	 * clear the controls
-	 */
+	/* clear the controls */
 	ps->IO.lastPortMode = 0xFFFF;
 
-#ifdef __KERNEL__
 	if( NULL != ps->pardev )
 		retv = ps->pardev->port->modes;
-#else
-	port = ps->IO.portBase;
-
-    DBG(DBG_SCAN, "Probing port 0x%04x\n", port);
-
-/*                 #####  ######  ######
- *                #     # #     # #     #
- *                #       #     # #     #
- *                 #####  ######  ######
- *                      # #       #
- *                #     # #       #
- *                 #####  #       #
- */
-
-    outb(0x0c, port + 0x402);
-    outb(0x0c, port + 0x002);
-    outb(0x55, port);
-    a = inb(port);
-	if (a != 0x55)
-		return retv;
-
-    DBG(DBG_SCAN, "    SPP port present\n");
-
-    retv += PPA_PROBE_SPP;
-
-/*                #######  #####  ######
- *                #       #     # #     #
- *                #       #       #     #
- *                #####   #       ######
- *                #       #       #
- *                #       #     # #
- *                #######  #####  #
- */
-
-    for (i = 1024; i > 0; i--) {	/* clear at most 1k of data from FIFO */
-		a = inb(port + 0x402);
-		if ((a & 0x03) == 0x03)
-	    	goto no_ecp;
-		if (a & 0x01)
-		    break;
-		inb(port + 0x400);	/* Remove byte from FIFO */
-    }
-
-	if (i <= 0)
-		goto no_ecp;
-
-	b = a ^ 3;
-	outb(b, port + 0x402);
-	c = inb(port + 0x402);
-
-	if (a == c) {
-		outb(0xc0, port + 0x402);	/* FIFO test */
-		j = 0;
-		while (!(inb(port + 0x402) & 0x01) && (j < 1024)) {
-	    	inb(port + 0x400);
-	    	j++;
-		}
-		if (j >= 1024)
-		    goto no_ecp;
-		i = 0;
-		j = 0;
-		while (!(inb(port + 0x402) & 0x02) && (j < 1024)) {
-		    outb(0x00, port + 0x400);
-	    	i++;
-		    j++;
-		}
-		if (j >= 1024)
-		    goto no_ecp;
-		j = 0;
-		while (!(inb(port + 0x402) & 0x01) && (j < 1024)) {
-	    	inb(port + 0x400);
-		    j++;
-		}
-		if (j >= 1024)
-		    goto no_ecp;
-
-    	DBG(DBG_SCAN, "    ECP with a %i byte FIFO present\n", i);
-
-		retv += PPA_PROBE_ECR;
-    }
-/*                ######   #####   #####
- *                #     # #     # #     #
- *                #     # #             #
- *                ######   #####   #####
- *                #             # #
- *                #       #     # #
- *                #        #####  #######
- */
-
-no_ecp:
-	if (retv & PPA_PROBE_ECR)
-		outb(0x20, port + 0x402);
-
-	outb(0x55, port);
-	outb(0x0c, port + 2);
-	a = inb(port);
-	outb(0x55, port);
-	outb(0x2c, port + 2);
-	b = inb(port);
-	if (a != b) {
-    	DBG(DBG_SCAN, "    PS/2 bidirectional port present\n");
-		retv += PPA_PROBE_PS2;
-    }
-/*                ####### ######  ######
- *                #       #     # #     #
- *                #       #     # #     #
- *                #####   ######  ######
- *                #       #       #
- *                #       #       #
- *                ####### #       #
- */
-
-    if (port & 0x007) {
-	    DBG(DBG_SCAN, "    EPP not supported at this address\n");
-		return retv;
-    }
-    if (retv & PPA_PROBE_ECR) {
-		for (i = 0x00; i < 0x80; i += 0x20) {
-	    	outb(i, port + 0x402);
-
-		    a = inb(port + 1);
-		    outb(a, port + 1);
-		    outb(a & 0xfe, port + 1);
-		    a = inb(port + 1);
-	    	if (!(a & 0x01)) {
-			    DBG(DBG_SCAN, "    Failed Intel bug check. (Phony EPP in ECP)\n");
-				return retv;
-		    }
-		}
-	    DBG(DBG_SCAN, "    Passed Intel bug check.\n");
-		outb(0x80, port + 0x402);
-    }
-    a = inb(port + 1);
-    outb(a, port + 1);
-    outb(a & 0xfe, port + 1);
-    a = inb(port + 1);
-
-    if (a & 0x01) {
-		outb(0x0c, port + 0x402);
-		outb(0x0c, port + 0x002);
-		return retv;
-    }
-
-    outb(0x04, port + 2);
-    inb(port + 4);
-    a = inb(port + 1);
-    outb(a, port + 1);
-    outb(a & 0xfe, port + 1);
-
-    if (a & 0x01) {
-	    DBG(DBG_SCAN, "    EPP 1.9 with hardware direction protocol\n");
-		retv += PPA_PROBE_EPP19;
-    } else {
-		/* The EPP timeout bit was not set, this could either be:
-		 * EPP 1.7
-		 * EPP 1.9 with software direction
-		 */
-		outb(0x24, port + 2);
-		inb(port + 4);
-		a = inb(port + 1);
-		outb(a, port + 1);
-		outb(a & 0xfe, port + 1);
-		if (a & 0x01) {
-	    	DBG(DBG_SCAN, "    EPP 1.9 with software direction protocol\n");
-		    retv += PPA_PROBE_EPP19;
-	    } else {
-    		DBG(DBG_SCAN, "    EPP 1.7\n");
-      		retv += PPA_PROBE_EPP17;
-	    }
-    }
-
-    outb(0x0c, port + 0x402);
-    outb(0x0c, port + 0x002);
-#endif
-
     return retv;
 }
 
-#ifdef __KERNEL__
 /** will be called by the parport module when we already have access, but
  * another module wants access to the port...
  */
@@ -524,35 +325,25 @@ static int miscSetFastMode( pScanData ps )
 
 	return _OK;
 }
-#endif
 
 /** check the state of the par-port and switch to EPP-mode if possible
  */
 static int miscSetPortMode( pScanData ps )
 {
-#ifndef __KERNEL__
-	if (iopl(3)) {
-		DBG( DBG_HIGH, "Could not unlock IO ports. Are you superuser?\n" );
-		return _E_LOCK;
-    }
-#endif
-
-	/*
-	 * try to detect the port settings, SPP seems to work in any case !
-	 */
-    port_feature = initPortProbe( ps );
+	/* try to detect the port settings, SPP seems to work in any case ! */
+	port_feature = initPortProbe( ps );
 
 #ifdef DEBUG
 	miscShowPortModes( port_feature );
 #endif
 
-    switch( ps->IO.forceMode ) {
+	switch( ps->IO.forceMode ) {
 
-        case 1:
-	    	DBG( DBG_LOW, "Use of SPP-mode enforced\n" );
-	        ps->IO.portMode = _PORT_SPP;
-    		return _OK;
-            break;
+		case 1:
+			DBG( DBG_LOW, "Use of SPP-mode enforced\n" );
+			ps->IO.portMode = _PORT_SPP;
+			return _OK;
+			break;
 
         case 2:
 	    	DBG( DBG_LOW, "Use of EPP-mode enforced\n" );
@@ -564,7 +355,6 @@ static int miscSetPortMode( pScanData ps )
             break;
 	}
 
-#ifdef __KERNEL__
 	if( !(port_feature & PARPORT_MODE_PCEPP)) {
 
 		if( !(port_feature & PARPORT_MODE_PCSPP )) {
@@ -575,32 +365,15 @@ static int miscSetPortMode( pScanData ps )
 			DBG(DBG_LOW, "Using SPP-mode\n" );
 		    ps->IO.portMode = _PORT_SPP;
 		}
-#else
-	if (!(port_feature & (PPA_PROBE_EPP17 | PPA_PROBE_EPP19))){
-
-		if( !(port_feature & PPA_PROBE_SPP )) {
-			DBG(DBG_HIGH,"\nThis Port supports not the  SPP- or EPP-Mode\n");
-			DBG(DBG_HIGH,"Please activate SPP-Mode, EPP-Mode or\n"
-			               "EPP + ECP-Mode!\n");
-			return _E_NOSUPP;
-		} else {
-			DBG(DBG_LOW, "Using SPP-mode\n" );
-		    ps->IO.portMode = _PORT_SPP;
-		}
-#endif
     } else {
 		DBG(DBG_LOW, "Using EPP-mode\n" );
 	    ps->IO.portMode = _PORT_EPP;
 	}
 
-#ifdef __KERNEL__
-
 	/* else try to set to a faster mode than SPP */
 	return miscSetFastMode( ps );
-#else
-    return _OK;
-#endif
 }
+#endif
 
 /** miscNextLongRand() -- generate 2**31-2 random numbers
 **
@@ -658,7 +431,6 @@ _LOC pScanData MiscAllocAndInitStruct( void )
 	}
 
 	DBG( DBG_HIGH, "ScanData = 0x%08lx\n", (ULong)ps );
-
 	return ps;	
 }
 
@@ -686,7 +458,6 @@ _LOC int MiscReinitStruct( pScanData ps )
 	miscSeedLongRand((Long)ps);
 
 	DBG( DBG_HIGH, "Init settings done\n" );
-
 	return _OK;
 }
 
@@ -695,6 +466,7 @@ _LOC int MiscReinitStruct( pScanData ps )
  */
 _LOC int MiscInitPorts( pScanData ps, int port )
 {
+#ifdef __KERNEL__
 	int status;
 
 	if( NULL == ps )
@@ -720,6 +492,17 @@ _LOC int MiscInitPorts( pScanData ps, int port )
     ps->IO.pbStatusPort  = (UShort)port+1;
     ps->IO.pbControlPort = (UShort)port+2;
     ps->IO.pbEppDataPort = (UShort)port+4;
+    
+#else
+
+	if( NULL == ps )
+		return _E_NULLPTR;
+
+	DBG(DBG_LOW, "Using EPP-mode\n" );
+	ps->IO.portMode = _PORT_EPP;
+
+	_VAR_NOT_USED( port );
+#endif
 
 	return _OK;
 }
@@ -728,8 +511,10 @@ _LOC int MiscInitPorts( pScanData ps, int port )
  */
 _LOC void MiscRestorePort( pScanData ps )
 {
+#ifdef __KERNEL__
 	if( 0 == ps->IO.pbSppDataPort )
 		return;
+#endif
 
     DBG(DBG_LOW,"MiscRestorePort()\n");
 
@@ -750,7 +535,7 @@ _LOC void MiscRestorePort( pScanData ps )
     }
 #else
     if (port_feature & PPA_PROBE_ECR ){
-		outb( ps->IO.lastPortMode, ps->IO.pbSppDataPort + 0x402);
+		_OUTB_ECTL(ps,ps->IO.lastPortMode);
     }
 #endif
 }
@@ -787,8 +572,9 @@ _LOC _INL int MiscCheckTimer( pTimerDef timer )
     } else {
 #ifdef __KERNEL__       
 		schedule();
-#else
-		sched_yield(); 
+/*#else
+		sched_yield();
+*/
 #endif
 		return _OK;
 	}
@@ -820,27 +606,8 @@ _LOC Bool MiscAllPointersSet( pScanData ps )
 _LOC int MiscRegisterPort( pScanData ps, int portAddr )
 {
 #ifndef __KERNEL__
-	int   i;
-	Bool  found;
-	ULong pref[] = { 0x378, 0x278, 0x3bc, 0xFFFFFFFF };
-
-	DBG( DBG_LOW, "Requested port at 0x%02x\n", portAddr );
-    _VAR_NOT_USED( ps );
-	
-	/*
-	 * check the port address !!!!
-	 */
-	found = _FALSE;
-	for( i = 0; 0xFFFFFFFF != pref[i]; i++ ) {
-
-		if(((ULong)portAddr != 0xFFFFFFFF) && (pref[i] == (ULong)portAddr)) {
-			found = _TRUE;
-			break;
-		}
-	}
-
-	if( !found )
-		return _E_INVALID;
+	DBG( DBG_LOW, "Assigning port handle %i\n", portAddr );
+    ps->pardev = portAddr;
 #else
 	struct parport *pp;
 
@@ -858,7 +625,7 @@ _LOC int MiscRegisterPort( pScanData ps, int portAddr )
 	 */
 	for( ps->pp = NULL; NULL != pp; ) {
 
-		if( pp->base == portAddr ) {
+		if( pp->base == (unsigned long)portAddr ) {
 			DBG( DBG_LOW, "Requested port (0x%02x) found\n", portAddr );
 			DBG( DBG_LOW, "Port mode reported: (0x%04x)\n",  pp->modes );
 			ps->pp = pp;
@@ -900,12 +667,11 @@ _LOC void MiscUnregisterPort( pScanData ps )
 		parport_unregister_device( ps->pardev );
 	}
 #else
-	_VAR_NOT_USED( ps );
+	sanei_pp_close( ps->pardev );
 #endif
 }
 
-/*.............................................................................
- * try to claim the port (KERNEL-Mode only)
+/** try to claim the port (KERNEL-Mode only)
  */
 _LOC int MiscClaimPort( pScanData ps )
 {
@@ -916,26 +682,29 @@ _LOC int MiscClaimPort( pScanData ps )
 		if( 0 != parport_claim( ps->pardev ))
 			return _E_BUSY;
 	}
+#else
+	sanei_pp_claim( ps->pardev );
 #endif
 	portIsClaimed[ps->devno]++;
 
 	return _OK;
 }
 
-/*.............................................................................
- * release previously claimed port (KERNEL-Mode only)
+/** release previously claimed port (KERNEL-Mode only)
  */
 _LOC void MiscReleasePort( pScanData ps )
 {
 	if( portIsClaimed[ps->devno] > 0 ) {
 		portIsClaimed[ps->devno]--;
 
-#ifdef __KERNEL__
 		if( 0 == portIsClaimed[ps->devno] ) {
 			DBG( DBG_HIGH, "Releasing parport\n" );
+#ifdef __KERNEL__
 			parport_release( ps->pardev );
-		}
+#else
+			sanei_pp_release( ps->pardev );
 #endif
+		}
 	}
 }
 

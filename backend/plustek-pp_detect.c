@@ -101,13 +101,15 @@ static int detectScannerConnection( pScanData ps )
 	UChar data, control, status;
 	int   retval = _E_NO_CONN;
 
+#ifdef __KERNEL__
 	DBG( DBG_LOW, "Dataport = 0x%04x\n", ps->IO.pbSppDataPort );
 	DBG( DBG_LOW, "Ctrlport = 0x%04x\n", ps->IO.pbControlPort );
+#endif
 
     detectResetPort( ps );
 
 	/*
-	 * as we´re called during InitPorts, we can be sure
+	 * as we're called during InitPorts, we can be sure
 	 * to operate in EPP-mode (hopefuly ;-)
 	 */	
 	control = _INB_CTRL( ps );
@@ -151,7 +153,7 @@ static int detectScannerConnection( pScanData ps )
 			ps->CloseScanPath( ps );
 
 			/*
-	 		 * so we´re done ´til now...
+	 		 * so we're done 'til now...
 			 */
 			DBG( DBG_HIGH, "Compare data=0x%x and status=0x%x, port=0x%x\n",
 		  				  data, status, ps->IO.portBase );
@@ -181,7 +183,11 @@ static int detectScannerConnection( pScanData ps )
      * work on the result
      */
 	if ( _OK == retval ) {
+#ifdef __KERNEL__
     	ps->sCaps.wIOBase = ps->IO.pbSppDataPort;
+#else
+    	ps->sCaps.wIOBase = ps->pardev;
+#endif
         ps->PutToIdleMode( ps );
 
 	} else {
@@ -198,7 +204,6 @@ static int detectScannerConnection( pScanData ps )
 
     return retval;
 }
-
 
 /*.............................................................................
  * we need some memory...
@@ -390,7 +395,6 @@ static int detectAsic98001( pScanData ps )
 #else
 		DBG( DBG_HIGH,
 #endif
-
 			"!!!! WARNING, have a look at function detectAsic98001() !!!!\n" );
    	ps->sCaps.AsicID  =  _ASIC_IS_98001;
   	ps->sCaps.wIOBase = ps->IO.pbSppDataPort;

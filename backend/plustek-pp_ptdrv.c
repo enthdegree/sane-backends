@@ -113,35 +113,49 @@
 
 /****************************** static vars **********************************/
 
-static pScanData PtDrvDevices[_MAX_PTDEVS] = { [0 ... (_MAX_PTDEVS-1)] = NULL};
-
 /* default port is at 0x378 */
 static int port[_MAX_PTDEVS] = { 0x378, 0, 0, 0 };
+
+#ifdef __KERNEL__
+static pScanData PtDrvDevices[_MAX_PTDEVS] = { [0 ... (_MAX_PTDEVS-1)] = NULL};
 
 /* default is 180 secs for lamp switch off */
 static int lampoff[_MAX_PTDEVS] = { [0 ... (_MAX_PTDEVS-1)] = 180 };
 
 /* warmup period for lamp (30 secs) */
-static int warmup[_MAX_PTDEVS] = { [0 ... (_MAX_PTDEVS-1)] = 30 };	
+static int warmup[_MAX_PTDEVS] = { [0 ... (_MAX_PTDEVS-1)] = 30 };
 
 /* switch lamp off on unload (default = no)*/
 static int lOffonEnd[_MAX_PTDEVS] = { [0 ... (_MAX_PTDEVS-1)] = 0 };
 
 /* model override (0-->none) */
-static UShort mov[_MAX_PTDEVS] = { [0 ... (_MAX_PTDEVS-1)] = 0 };	
+static UShort mov[_MAX_PTDEVS] = { [0 ... (_MAX_PTDEVS-1)] = 0 };
 
 /* forceMode (0--> auto, 1: SPP, 2:EPP, others: auto) */
-static UShort forceMode[_MAX_PTDEVS] = { [0 ... (_MAX_PTDEVS-1)] = 0 };	
+static UShort forceMode[_MAX_PTDEVS] = { [0 ... (_MAX_PTDEVS-1)] = 0 };
 
 /* to use delayed I/O for each device */
 static Bool slowIO[_MAX_PTDEVS] = { [0 ... (_MAX_PTDEVS-1)] = _FALSE };
+
+#else
+
+static pScanData PtDrvDevices[_MAX_PTDEVS]= { NULL,   NULL,   NULL,   NULL   };
+static int       lampoff[_MAX_PTDEVS]     = { 180,    180,    180,    180    };
+static int       warmup[_MAX_PTDEVS]      = { 30,     30,     30,     30     };
+static int       lOffonEnd[_MAX_PTDEVS]   = { 0,      0,      0,      0      };
+static UShort    mov[_MAX_PTDEVS]         = { 0,      0,      0,      0      };
+static UShort    forceMode[_MAX_PTDEVS]   = { 0,      0,      0,      0      };
+
+#endif
 
 /* timers for warmup checks				 */
 static TimerDef toTimer[_MAX_PTDEVS];	
 
 #ifndef __KERNEL__
 static Bool	PtDrvInitialized = _FALSE;
+#ifdef HAVE_SETITIMER
 static struct itimerval saveSettings;
+#endif
 #else
 static Bool deviceScanning = _FALSE;
 
@@ -154,7 +168,7 @@ extern volatile ULong jiffies;
  * the parameter interface
  */
 #if ((LINUX_VERSION_CODE > 0x020111) && defined(MODULE))
-MODULE_AUTHOR("Gerhard Jaeger");
+MODULE_AUTHOR("Gerhard Jaeger <gerhard@gjaeger.de>");
 MODULE_DESCRIPTION("Plustek parallelport-scanner driver");
 
 /* addresses this 'new' license feature... */
@@ -181,7 +195,8 @@ MODULE_PARM(slowIO,"1-" __MODULE_STRING(_MAX_PTDEVS) "i");
 MODULE_PARM_DESC(slowIO, "0 = Fast I/O, 1 = Delayed I/O");
 
 MODULE_PARM(forceMode,"1-" __MODULE_STRING(_MAX_PTDEVS) "i");
-MODULE_PARM_DESC(forceMode, "0 = use auto detection, 1 = use SPP mode, 2 = use EPP mode");
+MODULE_PARM_DESC(forceMode, "0 = use auto detection, "
+                            "1 = use SPP mode, 2 = use EPP mode");
 #endif
 
 #ifdef CONFIG_DEVFS_FS
@@ -251,8 +266,7 @@ static void ptdrvStartLampTimer( pScanData ps );
 /****************************** local functions ******************************/
 
 #ifdef __KERNEL__
-/*.............................................................................
- * depending on the device, return the data structure
+/** depending on the device, return the data structure
  */
 static pScanData get_pt_from_inode(struct inode *ip)
 {
@@ -272,8 +286,7 @@ static pScanData get_pt_from_inode(struct inode *ip)
 }
 #endif
 
-/*.............................................................................
- * copy user-space data into kernel memory
+/** copy user-space data into kernel memory
  */
 static int getUserPtr(const pVoid useraddr, pVoid where, UInt size )
 {
@@ -328,8 +341,7 @@ static int getUserPtr(const pVoid useraddr, pVoid where, UInt size )
   return err;
 }
 
-/*.............................................................................
- * copy kernel data into user mode address space
+/** copy kernel data into user mode address space
  */
 static int putUserPtr( const pVoid ptr, pVoid useraddr, UInt size )
 {
@@ -362,8 +374,7 @@ static void copy_to_user( pVoid dest, pVoid src, int len )
 }
 #endif
 
-/*.............................................................................
- *
+/**
  */
 static int putUserVal(const ULong value, pVoid useraddr, UInt size)
 {
@@ -409,8 +420,7 @@ static int putUserVal(const ULong value, pVoid useraddr, UInt size)
 	return 0;
 }
 
-/*.............................................................................
- * switch lamp 0 on
+/** switch lamp 0 on
  */
 static void ptDrvSwitchLampOn( pScanData ps )
 {
@@ -431,8 +441,7 @@ static void ptDrvSwitchLampOn( pScanData ps )
 	IOCmdRegisterToScanner(ps, ps->RegScanControl, ps->AsicReg.RD_ScanControl);
 }
 
-/*.............................................................................
- * check the lamp warmup
+/** check the lamp warmup
  */
 static void ptdrvLampWarmup( pScanData ps )
 {
@@ -488,8 +497,7 @@ static void ptdrvLampWarmup( pScanData ps )
 	MiscStartTimer( &toTimer[ps->devno], _SECOND );
 }
 
-/*.............................................................................
- *
+/**
  */
 #ifdef __KERNEL__
 static void ptdrvLampTimerIrq( ULong ptr )
@@ -540,15 +548,16 @@ static void ptdrvLampTimerIrq( int sig_num )
 	MiscReleasePort(ps);
 }
 
-/*.............................................................................
- *
+/**
  */
 static void ptdrvStartLampTimer( pScanData ps )
 {
 #ifndef __KERNEL__
 	sigset_t 		 block, pause_mask;
 	struct sigaction s;
+#ifdef HAVE_SETITIMER
 	struct itimerval interval;
+#endif
 
 	/* block SIGALRM */
 	sigemptyset( &block );
@@ -567,6 +576,7 @@ static void ptdrvStartLampTimer( pScanData ps )
 
 	sigprocmask( SIG_UNBLOCK, &block, &pause_mask );
 
+#ifdef HAVE_SETITIMER
 	/*
 	 * define a one-shot timer
 	 */
@@ -577,6 +587,9 @@ static void ptdrvStartLampTimer( pScanData ps )
 
 	if( 0 != ps->lampoff )
 		setitimer( ITIMER_REAL, &interval, &saveSettings );
+#else
+	alarm( ps->lampoff );
+#endif
 #else
 	init_timer( &tl[ps->devno] );
 
@@ -592,8 +605,7 @@ static void ptdrvStartLampTimer( pScanData ps )
 	DBG( DBG_HIGH, "Lamp-Timer started!\n" );
 }
 
-/*.............................................................................
- *
+/**
  */
 static void ptdrvStopLampTimer( pScanData ps )
 {
@@ -604,8 +616,13 @@ static void ptdrvStopLampTimer( pScanData ps )
 	sigemptyset( &block );
 	sigaddset  ( &block, SIGALRM );
 	sigprocmask( SIG_BLOCK, &block, &pause_mask );
+#ifdef HAVE_SETITIMER
 	if( 0 != ps->lampoff )
 		setitimer( ITIMER_REAL, &saveSettings, NULL );
+#else
+	_VAR_NOT_USED( ps );
+	alarm(0);
+#endif
 #else
 	if( 0 != ps->lampoff )
 		del_timer( &tl[ps->devno] );
@@ -614,8 +631,7 @@ static void ptdrvStopLampTimer( pScanData ps )
 	DBG( DBG_HIGH, "Lamp-Timer stopped!\n" );
 }
 
-/*.............................................................................
- * claim and initialize the requested port
+/** claim and initialize the requested port
  */
 static int ptdrvOpen( pScanData ps, int portBase )
 {
@@ -636,8 +652,7 @@ static int ptdrvOpen( pScanData ps, int portBase )
 	return MiscInitPorts( ps, portBase );
 }
 
-/*.............................................................................
- * free used memory (if necessary)
+/** free used memory (if necessary)
  * restore the parallel port settings and release the port
  */
 static int ptdrvClose( pScanData ps )
@@ -669,8 +684,7 @@ static int ptdrvClose( pScanData ps )
 	return _OK;
 }
 
-/*.............................................................................
- * will be called during OPEN_DEVICE ioctl call
+/** will be called during OPEN_DEVICE ioctl call
  */
 static int ptdrvOpenDevice( pScanData ps )
 {
@@ -681,10 +695,10 @@ static int ptdrvOpenDevice( pScanData ps )
 	ULong  devno;
 
 #ifdef __KERNEL__
-	UShort 			  flags;
+	UShort            flags;
 	struct pardevice *pd;
 	struct parport   *pp;
-	ProcDirDef 		  procDir;
+	ProcDirDef        procDir;
 #endif
 
 	/*
@@ -692,8 +706,8 @@ static int ptdrvOpenDevice( pScanData ps )
      */
 #ifdef __KERNEL__
 	flags    = ps->flags;
-	pd		 = ps->pardev;
-	pp		 = ps->pp;
+	pd       = ps->pardev;
+	pp       = ps->pp;
 	procDir  = ps->procDir;
 #endif
 	iobase   = ps->sCaps.wIOBase;
@@ -721,6 +735,7 @@ static int ptdrvOpenDevice( pScanData ps )
 	ps->IO.lastPortMode = lastMode;
 	ps->devno			= devno;
 
+#ifdef __KERNEL__
 	if( _TRUE == slowIO[devno] ) {
 		DBG( DBG_LOW, "Using slow I/O\n" );
 		ps->IO.slowIO = _TRUE;
@@ -732,6 +747,7 @@ static int ptdrvOpenDevice( pScanData ps )
 		ps->IO.fnOut  = IOOut;
 		ps->IO.fnIn   = IOIn;
 	}
+#endif
 	ps->ModelOverride = mov[devno];
 	ps->warmup        = warmup[devno];
 	ps->lampoff		  = lampoff[devno];
@@ -757,8 +773,8 @@ static int ptdrvOpenDevice( pScanData ps )
  */
 static int ptdrvInit( int devno )
 {
-	int		  		retval;
-	pScanData 		ps;
+	int       retval;
+	pScanData ps;
 
 	DBG( DBG_HIGH, "ptdrvInit(%u)\n", devno );
 
@@ -773,6 +789,7 @@ static int ptdrvInit( int devno )
 		return _E_ALLOC;
 	}
 
+#ifdef __KERNEL__
 	if( _TRUE == slowIO[devno] ) {
 		DBG( DBG_LOW, "Using slow I/O\n" );
 		ps->IO.slowIO = _TRUE;
@@ -784,7 +801,7 @@ static int ptdrvInit( int devno )
 		ps->IO.fnOut  = IOOut;
 		ps->IO.fnIn   = IOIn;
 	}
-
+#endif
 	ps->ModelOverride = mov[devno];
 	ps->warmup        = warmup[devno];
 	ps->lampoff		  = lampoff[devno];
@@ -820,12 +837,12 @@ static int ptdrvInit( int devno )
 	if( _OK == retval ) {
 
 #ifdef __KERNEL__	
-		_PRINT(
-#else
-		DBG( DBG_LOW,
-#endif
-		"pt_drv%u: %s found on port 0x%04x\n",
+		_PRINT( "pt_drv%u: %s found on port 0x%04x\n",
 			 devno, MiscGetModelName(ps->sCaps.Model), ps->IO.pbSppDataPort );
+#else
+		DBG( DBG_LOW, "pt_drv%u: %s found\n",
+									 devno, MiscGetModelName(ps->sCaps.Model));
+#endif
 
 		/*
 		 * initialize the timespan timer
@@ -1468,8 +1485,9 @@ static int ptdrvRead( pScanData ps, pUChar buffer, int count )
 				/* needed, esp. to avoid freezing the system in SPP mode */
 #ifdef __KERNEL__       
 				schedule();
-#else
+/*#else
 				sched_yield();
+*/
 #endif
         	}
 
@@ -1811,20 +1829,27 @@ static int pt_drv_ioctl( struct inode *inode, struct file *file,
 /*.............................................................................
  * here we only have wrapper functions
  */
-static int PtDrvInit( int portAddr, UShort model_override )
+static int PtDrvInit( const char *dev_name, UShort model_override )
 {
+	int fd;
 	int result = _OK;
 
 	if( _TRUE == PtDrvInitialized )
-		return _E_INIT;
+		return _OK;
 
-	port[0] = portAddr;
+	result = sanei_pp_open( dev_name, &fd );
+	if( SANE_STATUS_GOOD != result )
+		return result;
+
+	port[0] = fd;
 	mov[0]  = model_override;
 	
 	result = ptdrvInit( 0 );
 
 	if( _OK == result ) {
 		PtDrvInitialized = _TRUE;
+	} else {
+		ptdrvShutdown( PtDrvDevices[0] );
 	}
 
 	return result;

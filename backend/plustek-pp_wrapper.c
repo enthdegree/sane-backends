@@ -62,22 +62,11 @@
 
 /******************* wrapper functions for parport device ********************/
 
-/** stuff needed for user space stuff
- */
-#if 0
-int PtDrvInit    ( int portAddr, unsigned short model_override );
-int PtDrvShutdown( void );
-int PtDrvOpen    ( void );
-int PtDrvClose   ( void );
-int PtDrvIoctl   ( unsigned int cmd, void *arg );
-int PtDrvRead    ( unsigned char *buffer, int count );
-#endif
-
 #ifndef _BACKEND_ENABLED
   
-static int PtDrvInit( int portAddr, unsigned short model_override )
+static int PtDrvInit( char *dev_name, unsigned short model_override )
 {
-	_VAR_NOT_USED( portAddr );
+	_VAR_NOT_USED( dev_name );
 	_VAR_NOT_USED( model_override );
 	DBG( _DBG_ERROR, "Backend does not support direct I/O!\n" );
 	return -1;
@@ -131,11 +120,11 @@ static int ppDev_open( const char *dev_name, void *misc )
 	Plustek_Device *dev     = (Plustek_Device *)misc;
 
 	if( dev->adj.direct_io ) {
-
-        /* convert device name to port-address... */
-        long portaddr = strtol( dev_name, 0, 0 );
-		
-		PtDrvInit((int)portaddr, dev->adj.mov );
+		result = PtDrvInit( dev_name, dev->adj.mov );
+		if( 0 != result ) {
+			DBG( _DBG_ERROR, "open: PtDrvInit failed: %d\n", result );
+			return -1;
+		}
 	}
 
 	if( dev->adj.direct_io )
@@ -144,7 +133,7 @@ static int ppDev_open( const char *dev_name, void *misc )
 		handle = open( dev_name, O_RDONLY );
 	
 	if ( handle  < 0 ) {
-	    DBG(_DBG_ERROR, "open: can't open %s as a device\n", dev_name);
+	    DBG( _DBG_ERROR, "open: can't open %s as a device\n", dev_name );
     	return handle;
 	}
 

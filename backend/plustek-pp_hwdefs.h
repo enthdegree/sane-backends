@@ -591,6 +591,7 @@ typedef struct
  */
 typedef struct {
 
+#ifdef __KERNEL__
 	pFnOut fnOut;
 	pFnIn  fnIn;
 
@@ -600,6 +601,7 @@ typedef struct {
 	UShort pbStatusPort;
 	UShort pbControlPort;
 	UShort pbAddrOffsetPort;
+#endif
 
 	UShort portBase;
 	UShort portMode;

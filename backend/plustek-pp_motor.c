@@ -1526,7 +1526,7 @@ static void motorP96FillHalfStepTable( pScanData ps )
 
 #else
 
-#if DEBUG
+#ifdef DEBUG
 	if( 0 == wP96BaseDpi )
 		DBG( DBG_HIGH, "!!!! WARNING - motorP96FillHalfStepTable(), "
 					   "wP96BaseDpi == 0 !!!!\n" );

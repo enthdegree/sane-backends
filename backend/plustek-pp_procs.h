@@ -226,10 +226,12 @@ _LOC void IORegisterDirectToScanner( pScanData, Byte bReg );
 _LOC void IOSoftwareReset          ( pScanData ps );
 _LOC void IOReadScannerImageData   ( pScanData ps, pUChar pBuf, ULong size );
 
+#ifdef __KERNEL__
 _LOC void IOOut       ( Byte data, UShort port );
 _LOC void IOOutDelayed( Byte data, UShort port );
 _LOC Byte IOIn        ( UShort port );
 _LOC Byte IOInDelayed ( UShort port );
+#endif
 
 /*
  * implementation in plustek-pp_tpa.c

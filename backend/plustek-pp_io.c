@@ -85,8 +85,7 @@ static pFnReadData ioReadFunc[3] = {
 
 /*************************** local functions *********************************/
 
-/*.............................................................................
- * we provide some functions to read data from SPP port according to
+/** we provide some functions to read data from SPP port according to
  * the speed we have detected (ReadWriteTest!!)
  */
 static Byte ioDataFromSPPFast( pScanData ps )
@@ -579,7 +578,8 @@ static int ioP98ReadWriteTest( pScanData ps )
  */
 static void ioSPPWrite( pScanData ps, pUChar pBuffer, ULong size )
 {
-	DBG( DBG_IO , "IODELAY = %u\n", ps->IO.delay );
+	DBG( DBG_IO , "Moving %lu bytes to scanner, IODELAY = %u...\n",
+					size, ps->IO.delay );
 	switch( ps->IO.delay ) {
 	
 		case 0:
@@ -613,6 +613,7 @@ static void ioSPPWrite( pScanData ps, pUChar pBuffer, ULong size )
         	}
 			break;
 	}
+	DBG( DBG_IO , "... done.\n" );
 }
 
 /*.............................................................................
@@ -954,8 +955,9 @@ _LOC void IOReadScannerImageData( pScanData ps, pUChar pBuf, ULong size )
         ps->OpenScanPath( ps );
 }
 
-/*.............................................................................
- * the wrapper functions to support delayed and non-delayed I/O
+#ifdef __KERNEL__
+
+/** the wrapper functions to support delayed and non-delayed I/O
  */
 _LOC void IOOut( Byte data, UShort port )
 {
@@ -992,5 +994,6 @@ _LOC Byte IOInDelayed( UShort port )
 	return inb_p( port );
 #endif
 }
+#endif
 
 /* END PLUSTEK-PP_IO.C ......................................................*/

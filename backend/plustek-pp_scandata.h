@@ -117,16 +117,16 @@ typedef struct _IMAGESIZE
 
 typedef struct _IMAGEDEF
 {
-    IMAGESIZE			Image;
-    DWORD			dwVxDFlag;
-    DWORD			dwScanFlag;
-    CROPRECT			Area;
-    XY				Dpi;
-    WORD			wDataType;
-    WORD			wBrightness;
-    WORD			wPhyDpiY;
-    WORD			wResult;
-    WORD			Reserved;
+    IMAGESIZE Image;
+    DWORD     dwVxDFlag;
+    DWORD     dwScanFlag;
+    CROPRECT  Area;
+    XY        Dpi;
+    WORD      wDataType;
+    WORD      wBrightness;
+    WORD      wPhyDpiY;
+    WORD      wResult;
+    WORD      Reserved;
 } IMAGEDEF, *PIMAGEDEF;
 #endif
 
@@ -182,6 +182,8 @@ typedef struct scandata
 	struct pardevice *pardev;	/* for accessing parport... */
 	struct parport   *pp;
 	ProcDirDef		  procDir;
+#else
+	int pardev;                 /* parport handle in user-space */
 #endif
 
 	/*

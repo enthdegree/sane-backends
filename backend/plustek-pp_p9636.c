@@ -843,7 +843,6 @@ static void p9636PutToIdleMode( pScanData ps )
 
     DBG( DBG_IO, "CCD-Stop\n" );
 
-
     for( i = 0; i < 12; i++ ) {
 
         DBG(DBG_IO, "*[0x%02x] = 0x%02x\n",ccdStop[i].bReg, ccdStop[i].bParam);
@@ -1058,7 +1057,7 @@ _LOC int P9636InitAsic( pScanData ps )
 		return _E_INTERNAL;
 #endif
 
-   	DBG( DBG_LOW, "0x%02x\n", ps->sCaps.AsicID );
+	DBG( DBG_LOW, "0x%02x\n", ps->sCaps.AsicID );
 
     if( _FALSE == ps->OpenScanPath( ps )) {
     	DBG( DBG_LOW, "P9636InitAsic() failed.\n" );

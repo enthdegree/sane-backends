@@ -62,11 +62,11 @@
  */
   
 #ifdef _AIX
-# include <lalloca.h>		/* MUST come first for AIX! */
+# include "../include/lalloca.h"		/* MUST come first for AIX! */
 #endif
 
-#include "sane/config.h"
-#include <lalloca.h>
+#include "../include/sane/config.h"
+#include "../include/lalloca.h"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -83,15 +83,16 @@
 #include <sys/types.h>
 #include <sys/ioctl.h>
 
-#include "sane/sane.h"
-#include "sane/sanei.h"
-#include "sane/saneopts.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei.h"
+#include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.01-2"
+#define BACKEND_VERSION "0.01-3"
 #define BACKEND_NAME	plustek_pp
-#include "sane/sanei_backend.h"
-#include "sane/sanei_config.h"
-#include "sane/sanei_thread.h"
+#include "../include/sane/sanei_backend.h"
+#include "../include/sane/sanei_config.h"
+#include "../include/sane/sanei_thread.h"
+#include "../include/sane/sanei_pp.h"
 
 #ifdef HAVE_IOPERM
 # define _BACKEND_ENABLED
@@ -120,6 +121,9 @@
 MODELSTR;
 
 #ifdef _BACKEND_ENABLED
+#ifndef NDEBUG
+# define DEBUG
+#endif
 
 /* needed to statisfy the module code ... */
 #define _PTDRV_V0	0

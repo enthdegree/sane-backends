@@ -1,4 +1,4 @@
-.TH sane-mustek 5 "19 Nov 2000"
+.TH sane-mustek 5 "31 Dec 2000"
 .IX sane-mustek
 .SH NAME
 sane-mustek - SANE backend for Mustek flatbed scanners
@@ -97,10 +97,8 @@ SCSI scanner or the port number at which the 600 II N can
 be found (see section PARAGON 600 II N below).  For SCSI
 scanners, the special device name must be a generic SCSI device or a
 symlink to such a device.  The program 
-.IR find-scanner 
-helps to find out the correct device. It can be found in the
-.IR tools
-directory of the SANE distribution. Under Linux, such a device name
+.IR sane-find-scanner 
+helps to find out the correct device. Under Linux, such a device name
 could be
 .I /dev/sga
 or
@@ -332,7 +330,7 @@ Example:
 export SANE_DEBUG_MUSTEK=4
 
 .SH "SEE ALSO"
-sane\-scsi(5), sane-mustek_pp(5)
+sane-find-scanner(1), sane\-scsi(5), sane-mustek_pp(5)
 .SH AUTHOR
 David Mosberger, Andreas Czechanowski, Andreas Bolsch (SE extensions),
 Henning Meier-Geinitz
@@ -342,7 +340,7 @@ high resolutions and wide scanareas.
 
 Only 1, 8 and 24 bit modes are supported until now.
 
-Calibration doesn't work yet.
+Calibration doesn't work correctly for all scanners.
 
 Some scanners (e.g. Paragon 1200 A3 + Pro, SE A3) need more testing.
 

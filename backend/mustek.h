@@ -97,8 +97,6 @@
 #define MUSTEK_MODE_GRAY	(1 << 1)	/* grayscale 8 bits / pixel */
 #define MUSTEK_MODE_COLOR	(1 << 2)	/* color 24 bits / pixel */
 #define MUSTEK_MODE_HALFTONE	(1 << 3)	/* use dithering */
-#define MUSTEK_MODE_GRAY_FAST   (1 << 4)        /* Pro series fast grayscale */
-#define MUSTEK_MODE_COLOR_48    (1 << 5)        /* color 48 bits / pixel */
 
 /* Color band codes: */
 #define MUSTEK_CODE_GRAY	0
@@ -158,7 +156,9 @@ enum Mustek_Option
 
     OPT_MODE_GROUP,
     OPT_MODE,
+    OPT_FAST_GRAY_MODE,
     OPT_RESOLUTION,
+    OPT_BIT_DEPTH,
     OPT_SPEED,
     OPT_SOURCE,
     OPT_PREVIEW,
@@ -241,7 +241,6 @@ typedef struct Mustek_Device
     SANE_Int firmware_format;
     /* firmware revision system: 0 = old, x.yz; 1 = new, Vxyz */
     SANE_Int firmware_revision_system;
-    /* For SE scanners: which resolutions are allowed in color mode */
   }
 Mustek_Device;
 

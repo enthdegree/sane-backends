@@ -1,3 +1,18 @@
+2004-01-05  Gerhard Jaeger <gerhard@gjaeger.de>
+	* configure.in: added new u12 backend.
+	* AUTHORS: added myself as u12 backend author.
+	* backend/Makefile.in: added new backend u12.
+	* backend/u12.c backend/u12.h backend/u12-scanner.h backend/u12-hwdef.h
+	  backend/u12.conf backend/u12-shading.c backend/u12-tpa.c 
+	  backend/u12-ccd.c backend/u12-hw.c backend/u12-if.c backend/u12-image.c
+	  backend/u12-io.c backend/u12-map.c backend/u12-motor.c:
+	  initial checkin.
+	* backend/dll.conf: added u12 backend.
+	* doc/sane-u12.man doc/Makefile.in: added man-page for u12 backend.
+	* doc/descriptions/u12.desc: added descitpion for u12 backend.
+	* doc/descriptions/unsupported.desc: removed Plustek OpticPro U12, UT12,
+	  1212U, Genius Colorpage Vivid III, as they should be supported now.
+
 2004-01-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/gt68xx.c backend/gt68xx.conf backend/gt68xx_devices.c

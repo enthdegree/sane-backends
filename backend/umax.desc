@@ -10,7 +10,7 @@
 ;
 
 :backend "umax"                   ; name of backend
-:version "1.01-build-3"           ; version of backend
+:version "1.0-18"                 ; version of backend
 :status :stable                   ; :alpha, :beta, :stable, :new
 :manpage "sane-umax"              ; name of manpage (if it exists)
 :url "http://www.wolfsburg.de/~rauch/sane/sane-umax.html" ; backend's web page
@@ -20,13 +20,15 @@
                                   ;               :meta, :api
 
 :mfg "UMAX"                       ; name a manufacturer
-:url "http://support.umax.co.uk/"
 :url "http://www.umax.com/"
 :url "http://support.umax.com/"
 :url "http://www.umax.de/"
 :url "http://www.umax.com.tw/"
 :url "http://www.umaxweb.com.tw/"
+:url "http://support.umax.co.uk/"
 :model "parallel scanners"        ; name models for above-specified mfg.
+:comment "Not supported!!!"
+:model "USB scanners"
 :comment "Not supported!!!"
 :model "Vista S6"
 :comment "OK"
@@ -37,7 +39,7 @@
 :model "UMAX S-6EG"
 :comment "OK"
 :model "Vista-S8"
-:comment "Not tested"
+:comment "OK"
 :model "Supervista S-12"
 :comment "OK"
 :model "UMAX S-12"
@@ -52,34 +54,22 @@
 :comment "OK"
 :model "Astra 1220S"
 :comment "OK"
-:model "UC 630"
-:comment "Version 1.6 OK, others only lineart OK"
-:model "UG 630"
+:model "Astra 2200W"
 :comment "OK"
-:model "UG 80"
+:model "Astra 2400S"
 :comment "OK"
-:model "UC 840"
-:comment "Version 1.6 OK, others only lineart OK"
-:model "UC 1200S"
-:comment "does not work (firmware version ?)"
-:model "UC 1200SE"
-:comment "?"
-:model "UC 1260"
-:comment "Version 1.6 OK, others unknown"
-:model "Mirage"
-:comment "Not tested"
+:model "Mirage D-16L"
+:comment "OK"
 :model "Mirage II"
 :comment "Not tested"
 :model "Mirage IIse"
 :comment "Not tested"
-:model "Vista-T630"
-:comment "OK for some firmwareversions, on others only lineart OK"
 :model "PSD"
 :comment "OK"
 :model "PowerLook"
 :comment "Not tested"
 :model "PL-II"
-:comment "only works with some scanners! (unknown why)"
+:comment "Not tested"
 :model "PowerLook III"
 :comment "Not tested"
 :model "PowerLook 2000"
@@ -88,8 +78,27 @@
 :comment "Not tested"
 :model "Gemini D-16"
 :comment "OK"
+:model "UMAX VT600"
+:comment "not tested"
+:model "Vista-T630"
+:comment "OK for some firmwareversions, on others only lineart OK"
+:model "UC 630"
+:comment "Version 1.6(?) or 2.8(?) OK, others only lineart OK"
+:model "UG 630"
+:comment "OK"
+:model "UG 80"
+:comment "OK"
+:model "UC 840"
+:comment "Version 1.6 OK, others only lineart OK"
+:model "UC 1200S"
+:comment "unknown - please try"
+:model "UC 1200SE"
+:comment "unknown - please try"
+:model "UC 1260"
+:comment "Version 1.6 OK, others unknown"
 
 :mfg "Linotype Hell"              ; another manufacturer...
+:url "http://www.heidelberg-cps.com/"
 :model "Jade"
 :comment "OK, SCSI-ID=LinoHell Office"
 :model "Jade2"
@@ -110,6 +119,7 @@
 :comment "Not tested"
 
 :mfg "Vobis/Highscreen"
+:url "http://www.vobis.de/"
 :model "Scanboostar Premium"
 :comment "OK, SCSI-ID=LinoHell Office2"
 
@@ -118,9 +128,14 @@
 :comment "OK, SCSI-ID=UMAX UG 80"
 
 :mfg "Nikon"                      ; another manufacturer...
+:url "http://www.nikon.com/"
 :model "AX-210"
 :comment "OK"
 
+:mfg "Genius"                      ; another manufacturer...
+:url "http://www.genius.kye.de/"
+:model "ColorPage-HR5 (Pro)"
+:comment "OK, SCSI-ID=KYE ColorPage-HR5"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

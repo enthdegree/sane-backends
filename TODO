@@ -1,4 +1,4 @@
-TODO (2002-06-28)
+TODO (2002-07-14)
 
 ******** todo ********
 
@@ -96,9 +96,49 @@ doc
       select() calls and sane_cancel.
     - Add some text about the meaning of bits in 1-bit modes.
     - Define, how to handle SANE_CAP_ADVANCED for groups.
+  * desc files:
+    - Don't use ":status :new"
+      - canon630u
+    - Don't use :interface if you don't have a hardware device
+      - gphoto2
+    - Make sure, that the manufacturer (and model) names use the same spelling:
+      - umax, plustek (Genius, KYE-Genius)
+      - microtek2, umax (Vobis, Vobis/Highscreen)
+      - plustek, umax_pp, avision, hp, hpsj5s (Hewlett-Packard, HP)
+    - Check URLs:
+      - abaton (http://www.everex.com/)
+      - dmc (dmc link)
+      - sm3600 (Add a slash after the microtek URL to avoid creating
+        duplicate links in the manufacturers listing)
+      - umax (http://www.heidelberg-cps.com/ , http://support.umax.com/ ,
+        http://www.umaxweb.com.tw/ )
 
-  * sane-backends.html should be sorted by manufacturer, not by backend.
-    (wip by Henning Meier-Geinitz).
+    - Mark scanners with ":status :untested" if they are untested by the author
+      or users:
+      - artec (at6)
+      - bh
+      - coolscan2 (LS 400 ED)
+      - microtek (Scanmaker 600Z(S))
+      - plustek
+      - sharp (Maybe add JX-325 as :untested (from manpage)?)
+      - umax
+
+    - Remove unsupported scanners from the list or at least mark them with
+      ":status :unsupported":
+      - artec ("parallel port" and "USB")
+      - mustek_pp
+      - nec
+      - plustek
+      - umax
+      - umax1220u
+      - umax_pp
+
+    - Other problems/comments:
+      - bh (use backend comment instead of manufacturer comment)
+      - coolscan2 (LS-200 only mentioned in manpage?)
+      - epson (if the support for the FilmScan 200 isn't that good, maybe
+        its status should be beta or alpha)
+      - umax1220u (status for Astra 2000U should be adjusted)
 
 frontends
 ---------
@@ -109,15 +149,13 @@ frontends
        timeout. Otherwise turn on TCP keep alive (where available) and
        (maybe) check the connection from server side.
      - Add IPv6 support.
-     - Add support for IP ranges in saned.conf (like 10.0.0.0/8)
+     - Add support for IP ranges in saned.conf (like 10.0.0.0/8)?
 
   * scanimage: Add i18n (NLS) support?
 
   * scanimage: Check range of width and height. scanimage just uses the ranges
     from br-x and br-y but this is wrong for tl-x and tl-y != 0 and for
     SANE_UNIT_PIXEL.
-
- [the remaining entries have been moved to the sane-frontends package]
 
 sanei
 -----
@@ -131,15 +169,12 @@ sanei
 
   * Check if the device file has the right type before accessing it. E.g.
     check for major/minor numbers to avoid accessing a USB file as SCSI 
-    device. This is finished for sanei_scsi.c/Linux. Patches for other
-    platforms are welcome.
+    device. This is finished for sanei_scsi.c/Linux and sane-find-scanner.
+    Patches for other platforms are welcome.
 
   * sanei_scsi (Linux): Make sure that the SCSI driver is loaded when
     checking for scanners. Ideas: Open/close all the /dev/sg* files in
     sanei_scsi.c, dll.c or in a new backend.
-
-  * sanei_usb.c: Can libusb be used alternatively to the kernel scanner
-    drivers?
 
 platform-specific
 -----------------
@@ -155,9 +190,7 @@ platform-specific
 
   * Add support for semaphores also for OS/2 (currently used in snapscan).
 
-  * Add support for Mac OS X in sanei_scsi.c (and, if possible, sanei_usb.c).
-
-  * OS/2 needs a "# define strncasecmp(a, b, c) strnicmp(a, b, c)" in config.h.
+  * Add support for Mac OS X in sanei_scsi.c.
 
   * Don't use "echo -e" in shell scripts. That's not supported by the original 
     sh (-->sane-config.in).
@@ -183,6 +216,10 @@ misc
     a segfault in Sane.c.
 
 ******** done ********
+* OS/2 needs a "# define strncasecmp(a, b, c) strnicmp(a, b, c)" in config.h.
+* sanei_usb.c: Can libusb be used alternatively to the kernel scanner
+  drivers?
+* sane-backends.html should be sorted by manufacturer, not by backend.
 * Add support to sane-find-scanner to check whole directories for device
   files. E.g. /dev/scsi/scanner and /dev/scsi/processor for Solaris.
 * Add configure option to enable only the net backend for users without

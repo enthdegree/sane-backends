@@ -320,6 +320,9 @@
 /* Define if you have the <linux/ppdev.h> header file.  */
 #undef HAVE_LINUX_PPDEV_H
 
+/* Define if you have the <linux/usb.h> header file.  */
+#undef HAVE_USB_H
+
 /* Define if you have EMX's sys/hw.h headers. */
 #undef HAVE_SYS_HW_H
 

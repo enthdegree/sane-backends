@@ -1,4 +1,4 @@
-.TH scanimage 1 "24 May 2001"
+.TH scanimage 1 "20 Nov 2001"
 .IX scanimage
 .SH NAME
 scanimage - scan an image
@@ -131,11 +131,10 @@ The
 options provide the features for scanning documents using document
 feeders.  
 .B --batch[=FORMAT]
-is used to specify the format of the filename that each page will be
-written to.  Each page is written out to a single file.  If the FORMAT
-is not specified, the default of out%d.tif will be used.  
-FORMAT is given as a printf style string with one integer
-parameter.  
+is used to specify the format of the filename that each page will be written
+to.  Each page is written out to a single file.  If the FORMAT is not
+specified, the default of out%d.pnm (or out%d.tif for --format tiff) will be
+used.  FORMAT is given as a printf style string with one integer parameter.
 .B --batch-start=#
 selects the page number to start naming files with. If this option is not
 given, the counter will start at 0.
@@ -272,7 +271,7 @@ expects zero or more values in the range 0 to 255.  For example, a
 legal value for this option would be "3,4,5,6,7,8,9,10,11,12".  Since
 it's cumbersome to specify long vectors in this form, the same can be
 expressed by the abbreviated form "[0]3-[9]12".  What this means is
-that the first vector element is set to 0, the 9-th element is set to
+that the first vector element is set to 3, the 9-th element is set to
 12 and the values inbetween are interpolated linearly.  Of course, it
 is possible to specify multiple such linear segments.  For example,
 "[0]3-[2]3-[6]7,[7]10-[9]6" is equivalent to "3,3,3,4,5,6,7,10,8,6".
@@ -302,7 +301,7 @@ This directory holds various configuration files.  For details, please
 refer to the manual pages listed below.
 .TP
 .I ~/.sane/pass
-This file contains a lines of the form
+This file contains lines of the form
 .PP
 .RS
 user:password:resource

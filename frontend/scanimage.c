@@ -1486,8 +1486,8 @@ main (int argc, char **argv)
 Start image acquisition on a scanner device and write PNM image data to\n\
 standard output.\n\
 \n\
--b, --batch[=FORMAT]       working in batch mode, FORMAT is `out%%d.tif' by\n\
-                           default\n\
+-b, --batch[=FORMAT]       working in batch mode, FORMAT is `out%%d.pnm' or\n\
+                           `out%%d.tif' by default depending on --format\n\
     --batch-start=#        page number to start naming files with\n\
     --batch-count=#        how many pages to scan in batch mode\n\
     --batch-increment=#    increase number in filename by an amount of #\n\
@@ -1739,7 +1739,12 @@ List of available devices:", prog_name);
       int n = batch_start_at;
 
       if (batch && NULL == format)
-	format = "out%d.pnm";
+	{
+	  if (output_format == OUTPUT_TIFF)
+	    format = "out%d.tif";
+	  else
+	    format = "out%d.pnm";
+	}
 
       if(batch) {
         fprintf(stderr, "Scanning %d pages, incrementing by %d, numbering from %d\n",

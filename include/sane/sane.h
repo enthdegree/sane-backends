@@ -20,6 +20,26 @@
 extern "C" {
 #endif
 
+/*
+ * Compiler related options
+ */
+
+#ifdef __GNUC__
+
+/* __unused tells the compiler a variable is unused, so the
+ * compiler doesn't spit a warning. */
+#define __unused__ __attribute__((unused))
+
+#else
+
+#define __unused__
+
+#endif
+
+/*
+ * SANE types and defines
+ */
+
 #define SANE_CURRENT_MAJOR	1
 
 #define SANE_VERSION_CODE(major, minor, build)	\
@@ -34,10 +54,10 @@ extern "C" {
 #define SANE_FALSE	0
 #define SANE_TRUE	1
 
-typedef unsigned char SANE_Byte;
-typedef int SANE_Word;
-typedef SANE_Word SANE_Bool;
-typedef SANE_Word SANE_Int;
+typedef unsigned char  SANE_Byte;
+typedef int  SANE_Word;
+typedef SANE_Word  SANE_Bool;
+typedef SANE_Word  SANE_Int;
 typedef char SANE_Char;
 typedef SANE_Char *SANE_String;
 typedef const SANE_Char *SANE_String_Const;

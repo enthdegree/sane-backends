@@ -101,7 +101,8 @@ sighandler (int signum)
 {
   if (device)
     {
-      fprintf (stderr, "%s: stopping scanner...\n", prog_name);
+      fprintf (stderr, "%s: stopping scanner... (sig %d)\n", prog_name,
+	       signum);
       sane_cancel (device);
     }
 }
@@ -1186,8 +1187,14 @@ main (int argc, char **argv)
 			 device_list[i]->name, device_list[i]->vendor,
 			 device_list[i]->model, device_list[i]->type);
 	      }
-             if (defdevname)
-                  printf ("default device is `%s'\n", defdevname);
+	    if (i == 0)
+	      printf ("\nNo scanners were identified. If you were expecting "
+	        "something different,\ncheck that the scanner is plugged "
+		"in, turned on and detected by the\nfind-scanner tool (if "
+		"appropriate). Please read the documentation which came\n"
+		"with this software (README, FAQ, manpages).\n");
+	    if (defdevname)
+	      printf ("default device is `%s'\n", defdevname);
 
 	    exit (0);
 	  }
@@ -1209,7 +1216,7 @@ standard output.\n\
 \n\
 -b, --batch=FORMAT         working in batch mode\n\
     --format=pnm|tiff      file format of output file\n\
--d, --device-name=DEVICE   use a given scanner device\n\
+-d, --device-name=DEVICE   use a given scanner device (e.g. hp:/dev/scanner)\n\
 -h, --help                 display this help message and exit\n\
 -L, --list-devices         show available scanner devices\n\
 -T, --test                 test backend thoroughly\n\
@@ -1246,6 +1253,14 @@ standard output.\n\
     {
       fprintf (stderr, "%s: open of device %s failed: %s\n",
 	       prog_name, devname, sane_strstatus (status));
+      if (devname[0] == '/')
+	fprintf (stderr, "\nYou seem to have specified a UNIX device name, "
+		 "or filename instead of selecting\nthe SANE scanner or "
+		 "image acquisition device you want to use. As an example,\n"
+		 "you might want \"epson:/dev/sg0\" or "
+		 "\"hp:/dev/usbscanner0\". If any supported\ndevices are "
+		 "installed in your system, you should be able to see a "
+		 "list with\n\"scanimage --list-devices\".\n");
       if (help)
 	device = 0;
       else

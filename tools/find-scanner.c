@@ -412,7 +412,8 @@ main (int argc, char **argv)
   printf (
        "# Note that find-scanner will find any scanner that is connected\n"
        "# to a SCSI bus.  It will even find scanners that are not supported\n"
-       "# at all by SANE.\n\n");
+       "# at all by SANE. It won't find a scanner that is connected to a\n"
+       "# parallel, USB or other non-SCSI port.\n\n");
 
   if (getuid ())
     printf (

@@ -1,4 +1,4 @@
-.TH scanimage 1 "29 April 2000"
+.TH scanimage 1 "30 September 2000"
 .IX scanimage
 .SH NAME
 scanimage - scan an image
@@ -35,8 +35,9 @@ The
 .B -d
 or
 .B --device-name
-options must be followed by a SANE device-name.  A (partial) list of
-available devices can be obtained with the
+options must be followed by a SANE device-name like "epson:/dev/sg0" or 
+"hp:/dev/usbscanner0". A (partial) list of available devices can be obtained
+with the
 .B --list-devices
 option (see below).  If no device-name is specified explicitly,
 .B scanimage

@@ -1,4 +1,4 @@
-.TH sane-hp 5 "28 April 2001"
+.TH sane-hp 5 "04 Sep 2001"
 .IX sane-hp
 .SH NAME
 sane-hp - SANE backend for HP ScanJet scanners
@@ -296,6 +296,8 @@ to load a sheet. Then press 'scan' to start a scan.
 Maybe it is sufficient to press 'scan' without 'change document'
 for repeated scans. The use of the preview window is not recommended
 when working with the ADF.
+Setting a window to scan from ADF is not supported with xscanimage(1).
+Try xsane(1).
 .TP
 .B Immediate actions
 Some actions in xscanimage(1) (i.e. unload, select media, calibrate)

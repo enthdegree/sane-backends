@@ -1,3 +1,11 @@
+2000-11-10  Henning Meier-Geinitz <hmg@gmx.de>
+
+        * sanei/sanei_constrain_value.c: If constraint_type is
+	  SANE_CONSTRAINT_RANGE and quantization is used, the results may
+	  be outside the limits of the range because quantization uses the
+	  orginal value. Fixed by doing quantization with the already 
+	  checked value.
+
 2000-11-10 Gerhard Jaeger <g.jaeger@earthling.net>
 	
 	* backend/plustek.c backend/plustek.desc backend/plustek-share.h

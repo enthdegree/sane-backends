@@ -1,3 +1,8 @@
+2000-12-04  Henning Meier-Geinitz <hmg@gmx.de>
+
+	* TODO: Updated. Added entries about as6e stat problems and addition to
+	  sanei_scsi.c from FreeBSD ports.
+	
 *************************  snapshot-2000-12-04  *******************************
 
 2000-12-04  Peter Kirchgessner <peter@kirchgessner.net>

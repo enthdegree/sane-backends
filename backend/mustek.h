@@ -62,31 +62,32 @@
 
 /* Flag values */
 /* Scanner types */
-#define MUSTEK_FLAG_THREE_PASS	(1 << 0)   /* three pass scanner */
-#define MUSTEK_FLAG_PARAGON_1   (1 << 1)   /* Paragon series I scanner */
-#define MUSTEK_FLAG_PARAGON_2   (1 << 2)   /* Paragon series II (A4) scanner */
-#define MUSTEK_FLAG_SE		(1 << 3)   /* ScanExpress scanner */
-#define MUSTEK_FLAG_SE_PLUS    	(1 << 4)   /* ScanExpress Plus scanner */
-#define MUSTEK_FLAG_PRO         (1 << 5)   /* Professional series scanner */
-#define MUSTEK_FLAG_N		(1 << 6)   /* N-type scanner (non SCSI) */
+#define MUSTEK_FLAG_THREE_PASS	 (1 << 0)   /* three pass scanner */
+#define MUSTEK_FLAG_PARAGON_1    (1 << 1)   /* Paragon series I scanner */
+#define MUSTEK_FLAG_PARAGON_2    (1 << 2)   /* Paragon series II(A4) scanner */
+#define MUSTEK_FLAG_SE		 (1 << 3)   /* ScanExpress scanner */
+#define MUSTEK_FLAG_SE_PLUS    	 (1 << 4)   /* ScanExpress Plus scanner */
+#define MUSTEK_FLAG_PRO          (1 << 5)   /* Professional series scanner */
+#define MUSTEK_FLAG_N		 (1 << 6)   /* N-type scanner (non SCSI) */
 /* Additional equipment */
-#define MUSTEK_FLAG_ADF		(1 << 7)   /* automatic document feeder */
-#define MUSTEK_FLAG_ADF_READY	(1 << 8)   /* paper present */
-#define MUSTEK_FLAG_TA		(1 << 9)   /* transparency adapter */
+#define MUSTEK_FLAG_ADF		 (1 << 7)   /* automatic document feeder */
+#define MUSTEK_FLAG_ADF_READY	 (1 << 8)   /* paper present */
+#define MUSTEK_FLAG_TA		 (1 << 9)   /* transparency adapter */
 /* Line-distance correction */
-#define MUSTEK_FLAG_LD_NONE	(1 << 10)  /* no line-distance corr */
-#define MUSTEK_FLAG_LD_BLOCK    (1 << 11)  /* blockwise LD corr */
-#define MUSTEK_FLAG_LD_N1	(1 << 12)  /* LD corr for N-type v1 */
-#define MUSTEK_FLAG_LD_N2	(1 << 13)  /* LD corr for N-type v2 */
+#define MUSTEK_FLAG_LD_NONE	 (1 << 10)  /* no line-distance corr */
+#define MUSTEK_FLAG_LD_BLOCK     (1 << 11)  /* blockwise LD corr */
+#define MUSTEK_FLAG_LD_N1	 (1 << 12)  /* LD corr for N-type v1 */
+#define MUSTEK_FLAG_LD_N2	 (1 << 13)  /* LD corr for N-type v2 */
 /* Manual fixes */
-#define MUSTEK_FLAG_LD_FIX	(1 << 14)  /* need line-distance fix? */
-#define MUSTEK_FLAG_LINEART_FIX	(1 << 15)  /* lineart fix/hack */
-#define MUSTEK_FLAG_USE_EIGHTS	(1 << 16)  /* use 1/8" lengths */
-#define MUSTEK_FLAG_FORCE_GAMMA (1 << 17)  /* force gamma table upload */
-#define MUSTEK_FLAG_ENLARGE_X   (1 << 18)  /* need to enlarge x-res */
+#define MUSTEK_FLAG_LD_FIX	 (1 << 14)  /* need line-distance fix? */
+#define MUSTEK_FLAG_LINEART_FIX	 (1 << 15)  /* lineart fix/hack */
+#define MUSTEK_FLAG_USE_EIGHTS	 (1 << 16)  /* use 1/8" lengths */
+#define MUSTEK_FLAG_FORCE_GAMMA  (1 << 17)  /* force gamma table upload */
+#define MUSTEK_FLAG_ENLARGE_X    (1 << 18)  /* need to enlarge x-res */
 #define MUSTEK_FLAG_COVER_SENSOR (1 << 19) /* scanner can detect open cover */
-#define MUSTEK_FLAG_USE_BLOCK	(1 << 20)  /* use blockmode */
-#define MUSTEK_FLAG_LEGAL_SIZE	(1 << 21)  /* scanner has legal size */
+#define MUSTEK_FLAG_USE_BLOCK	 (1 << 20)  /* use blockmode */
+#define MUSTEK_FLAG_LEGAL_SIZE	 (1 << 21)  /* scanner has legal size */
+#define MUSTEK_FLAG_NO_BACKTRACK (1 << 21)  /* scanner has legal size */
 
 /* Source values: */
 #define MUSTEK_SOURCE_FLATBED	0

@@ -1,4 +1,4 @@
-.TH sane-mustek 5 "7 Jul 2001"
+.TH sane-mustek 5 "9 Jul 2001"
 .IX sane-mustek
 .SH NAME
 sane-mustek - SANE backend for Mustek flatbed scanners
@@ -123,6 +123,7 @@ The supported options are
 .BR blocksize ,
 .BR strip-height ,
 .BR disable-double-buffering ,
+.BR disable-backtracking ,
 and
 .B force-wait
 
@@ -186,6 +187,14 @@ is a global option. If set, the backend will only send one buffer at a time to
 the scanner. Try this option if you have trouble while scanning, e.g. SCSI
 errors, freezes, or the first few cm are repeated over and over again in your
 image.
+
+Option
+.B disable-backtracking
+is a positional option. If set, the scanner will not move back its slider
+after each SCSI buffer is filled (`backtracking´). Setting this option will
+lead to faster scans but may also produce horizontal stripes. This option
+doesn't work with every scanner (only some of the paragon models can modify
+backtracking).
 
 Finally,
 .B force-wait

@@ -1,37 +1,428 @@
------ todo:
+TODO (2002-02-17)
 
-- all frontends: support depths > 8 bits/channel
-- net: don't just ignore the byte-order for the image data (needed to
+******** todo ********
+
+backends
+--------
+  * Add new backends (?)
+    - hp4200 http://hp4200-backend.sourceforge.net/
+    - v4l2 http://video.inodes.org/sane-v4l2/
+    - Relisys Scorpio Super 3 SCSI II
+      Mark Plowman <sane-devel@plowman.xs4all.nl>
+      http://www.xs4all.nl/~plowman/
+    - Linux Handscanner Ioctl Interface scanner by Harald
+      Bauer <bauer-h@web.de>
+    - viceo (Visioneer OneTouch 8600)
+      http://www.littlecms.com/iphoto/otlinux.htm
+    - Genius Vivid Pro USB, Colorado USB 19200, Visioneer OneTouch 7600 
+      IBM IdeaScan 2000 USB 
+      http://homepages.paradise.net.nz/stevenel/scanner/
+    - Fujitsu M3091DCd support
+      Frederik Ramm <frederik@remote.org>
+      http://www.remote.org/frederik/projects/software/sane/
+    - Canon FB620S flatbed scanner and FS2710 film scanner
+      ftp://stthd0.pc.uni-koeln.de/pub/canon-1.08.tar.gz
+      Ulrich Deiters <ukd@xenon.pc.Uni-Koeln.DE>
+    - Hewlett-Packard ScanJet 3300C / 3400C and 4300C (wip)
+      http://sourceforge.net/projects/hp3300backend
+
+  * Update backends
+    - Combine all the Fujitsu backends into one single backend
+    
+  * All backends should check for TL_X < BR_X and TL_Y < BR_Y to
+    avoid segfaults or even scanner damage. This should NOT be done
+    in sane_control_option, it should be possible to temporary set
+    TL_X > BR_X or TL_ > BR, otherwise it is hard for a frontend to
+    set the correct values.
+
+  * Use DBG(...) instead of fprintf(stderr, ...) or printf
+     - microtek
+
+  * qcam:
+     - implement auto mode for brightness and black-level (don't
+       just advertise it!) Actually, implement an auto "backend" instead
+       that can be plugged in front of any backend with brightness/contrast
+       etc controls
+     - figure out how/if to support bulb mode
+     - convert to use sanei_pio functions instead of direct port
+       access.
+     - The result of locking isn't checked --> does it make sense at all?
+
+  * dll: Rewrite to use libtool ltdl library
+
+  * dc210, dc240, gphoto2, and jpeg stuff: move sanei_* functions to sanei/
+    (if they are necessary). 
+
+  * v4l: Problems (crash) with more than one video card. It looks like 
+    the two different cards are identified as the same card.
+
+  * Fix backends where sane_exit() does not release memory allocated by
+    sane_get_devices().
+      - abaton
+      - agfafocus
+      - apple
+      - as6e
+      - avision
+      - bh
+      - canon
+      - coolscan
+      - dmc
+      - m3096
+      - microtek
+      - qcam
+      - ricoh
+      - s9036
+      - sharp
+      - sp15c
+      - tamarack
+      
+      - etc?
+
+  * as6e: attach: memory (dev + dev-sane.name) isn't freed if driver isn't
+    found.
+
+  * avision: line 1393: word isn't freed sometimes (maybe if  cp == line?)
+
+  * net: add IPv6 support.
+
+  * Fix warnings about DBG calls:
+    - avision
+    - m3096g
+    - plustek
+    - sm3600
+    - umax
+    - umax1220u
+    - v4l
+
+doc
+---
+  * Add doxygen documentation for the remaining sanei files:
+    - sanei_pa4s2.h
+    - sanei_pio.h
+    - sanei_pv8630.h
+    - sanei_scsi.h
+    - sanei_wire.h
+
+  * sane.tex: Define the return values for sane_init?  Define the
+    consequences if sane_init doesn't return SANE_STATUS_GOOD.
+
+  * sane.tex: Add a warning/explanation about problems with 
+    sane_get_select_fd, Unix select() calls and sane_cancel.
+
+  * sane.tex: Add new sane.type = "film scanner". Check the other well known
+    strings for completeness.
+
+  * sane-backends.html should state more clearly which backends are included
+    in the distribution.
+
+frontends
+---------
+  * saned:
+     - saned times out after 60 minutes. Check if the
+       watchdog timer is really necessary (e.g. to avoid blocking scanners
+       by one user). Maybe add a command line option to saned to set the
+       timeout. Otherwise turn on TCP keep alive (where available) and
+       (maybe) check the connection from server side.
+     - Add IPv6 support.
+
+  * scanimage: Add i18n (NLS) support?
+
+ [the remaining entries have been moved to the sane-frontends package]
+
+sanei
+-----
+  * sanei_scsi: Think about a completely new interface. Details are in
+    http://www.mostang.com/pipermail/sane-devel/2002-January/001995.html .
+
+  * create sanei_parport_* and remove all inb, outb,... from all backends;
+    use libieee1284 if available (see
+    http://people.redhat.com/twaugh/libieee1284/). Or just include this
+    library into sane.
+
+  * Check if the device file has the right type before accessing it. E.g.
+    check for major/minor numbers to avoid accessing a USB file as SCSI 
+    device. This is finished for sanei_scsi.c/Linux. Patches for other
+    platforms are welcome.
+
+platform-specific
+-----------------
+  * Keep config.guess and config.sub up-to-date.
+
+  * SCSI access doesn't seem to work on Linux/Sparc. See emails from
+    Tomislav Renic on sane-devel (2001-09-21).
+
+  * Really fix all the parport/inb/outb compilation issues which break
+    porting to some non-i386 platforms.
+
+  * Add AC_OBJEXT and AC_EXEEXT to configure.in for automatically adding
+    the correct extensions (e.g. for OS/2). Also update the Makefiles
+    accordingly.
+
+  * Add support for semaphores also for OS/2 (currently used in snapscan).
+
+  * Fix shared lib problem with NetBSD. Starting scanimage results in:
+    "Cannot open "../backend/.libs/libsane.so". However, scanadf works.
+
+  * Check if a new version of libtool can fix the above mentioned issues.
+
+
+misc
+----
+  * sane-config: add options "--exec-prefix=...." and "--prefix=..."
+    compareable to gtk-config
+
+  * Check include/sane/config.h.in for unnecessary macros.
+
+  * Add configure option to enable only the net backend for users without
+    local scanners. Install only sane-dll/sane-net (or even only sane-net).
+    Maybe something like  --network-client-only or --disable-local-devices.
+
+  * Make output of sane-find-scanner more flexible. See scanimage -f for
+    details.
+
+
+******** done ********
+* make distclean should remove *.orig, *.old, .#*, *.tar.gz, and similar
+  files.
+* Shared libs work with OpenBSD. However, they are named libsane.so.1.6
+  instead of 1.0.6. Is this correct?
+* #include "../include/sane/config.h" should be the first include in every
+  file (see doc/sane-backend-writing.txt for the lalloca exception):
+* Don't use -ansi for HPUX (see sane-devel).
+* Don't use exit() in backends.
+* sanei_scsi: Check return values of req_wait and cmd in case of
+  SCSI DEVICE BUSY. Better specification of the behaviour of sanei_scsi
+  functions (e.g. return values, timeout 10 min versus 1 min)?
+* Documentation for sanei API
+* Fix missing or wrong links to backend homepages (*.desc). If a homepage
+  doesn't exist, add a contact address (where available).
+* Check all backends which use fork/kill for the kill (-1,...) bug
+  first found in the microtek2 backend.
+* Add support for qt NLS (msg2qm) if possible without too much hassle.
+* Add new backend primax http://primax.sourceforge.net/ (won't be ever a
+  real sane backend)
+* qcam: Check file handling in /tmp.
+* Add a check in the frontends if the backend delivers more data than
+  it announced by sane_get_parameters to avoid segfaults with bad 
+  backends?
+* Add installation procedure for translations of SANE backend's options.
+* check memory leaks (checked with purify and mtrace (from glibc)):
+* Test SANE on different os/platforms, fix possible compilation problems 
+   Test methods: scanimage -d pnm:0 --filename=file.pnm -T
+                 scanimage -d net:localhost:pnm:0 --filename=file.pnm -T
+                 (start saned by inetd or saned -d before testing)
+                 xscanimage / gimp with xscanimage plugin (where available)
+   All the above with shared and static libraries.->backend-writing.txt
+* Remove compiler warnings (>300 warnings even in disable-warnings mode,
+  >700 with --enable-warnings)) ->backend-writing.txt
+* Use #include "../include/sane/..." instead of #include <sane...>
+  ->backend-writing.txt
+* Use #include "../include/lalloca.h" instead of #include <lalloca.h>
+  ->backend-writing.txt
+* Update backend manpages (->backend-writing.txt).
+* Add description of --enable-parport-directio.
+* saned: Add documentation about the data connection.
+* UMAX Astra 1220U  backend
+  http://umax1220u-sane.sourceforge.net/
+* There seems to be yet another race condition or other source for
+  freezes in saned or net. Wheile scanning with pnm and auth, scanimage
+  freezes. Last message from saned: "process_request: got request 2".
+* Split configure option --enable-directio into --enable-scsi-directio and
+  --enable-parport-directio to avoid confusion. Also add appropriate
+  documentation.
+* sanei_usb: Add sanei_usb_control_msg. 
+* Add support for PV8630 USB chipset (as sanei interface):
+* Fix libsocket problem (OS/2). libsocket must be linked when testing for
+  libsyslog.
+* Add bearpaw backend (Mustek BearPaw 1200 + maybe 2400)
+  (will be supported by plustek backend)
+* Must -ldl be added to sane-config.in?
+* Use @LIBDIR@, @CONFIGDIR@ and the other @@ macros to refer to paths.
+  These are updated when installing to a non-standard prefix.
+* net: cancel doesn't work over the net at least with pnm and mustek.
+* add Jochen Eisinger's net.c and sanei_wire.c fixes/additions.
+* net.c: don't just ignore the byte-order for the image data (needed to
   support depths > 8 bits/channel)
-- mustek: for 3-pass scanners, it is said that xscanimage doesn't update
-  the scan progress bar properly between scans; it is said to stop at
-  90%, start the next pass, and once the next pass has started, it moves
-  on to 100% and the progress bar disappears at that point
-- man pages for xcam, and the API functions
-- xscanimage: provide both scale and textentry for ranges (make new widget)
-- xcam: provide access to option doc strings and allow disabling of
-  advanced options and tooltips
-- xscanimage: scanning of images whose heights is not known a priori is not
-  supported yet; this is going to be important for handheld scanners
-- qcam: implement auto mode for brightness and black-level (don't
-  just advertise it!) Actually, implement an auto "backend" instead
-  that can be plugged in front of any backend with brightness/contrast
-  etc controls
-- qcam: figure out how/if to support bulb mode
-- xcam: add dithering and support for SANE depths other than 8 bit (test
-	with Mustek backend, for example)
-- xcam: add recording feature (e.g., GIF, JPG, or MPEG)
-- dll: make it robust against against it being listed in the configuration
+* saned seems to have problems checking the peer name of incoming
+  connections. This happens at least with glibc 2.2.4 if the
+  name in saned.conf is not fully qualified. See sane-devel
+  "saned.conf hostname format".
+* If you mention sane-devel, also mention the website concerning
+  subscription (http://www.mostang.com/sane/mail.html), because you can't
+  write to sane-devel without subscribing.
+  Or use your own mail address in the manual page.
+* Check for logical errors and spelling
+* Check .desc files:
+* Check for formatting bugs in manual pages:
+* Use #include "../include/assert.h" instead of #include <assert.h> to
+  avoid problem with shared libraries on AIX.
+* scanimage: Maybe add ADF extensions from Caskey Dickson (or add them to 
+  scanadf if necessary).
+* Add Mustek USB backend (1200UB, 1200CU, 1200CU Plus)
+  http://www.meier-geinitz.de/sane/
+  Henning Meier-Geinitz <henning@meier-geinitz.de>
+* Add USB support for sane-find-scanner.
+* move .desc files for backends that are not included in SANE to
+  different directory (e.g. backends and external-backends)?
+* create sanei_usb.* (maybe containing access for libusb and direct access
+  for usb device files)? (sane-1.0.6)
+* Add sane-usb manpage
+* Check net/saned
+   - sometimes saned+net freezes right after a scan (is this still
+     occuring 2001-06-04?)
+* add warning when prefix dir is not listed in /etc/ld.so.conf on 
+  linux systems may be there is a general way to test this if the
+  destination library directory is in the search path of the
+  linker. [The correct fix is to use -R (on Solaris) and -rpath
+  (on the rest?) to include the dynamic link path in the binaries
+  / libraries. pere 2001-02-09 -- I believe this is partly fixed
+  in tools/sane-config.in 2001-05-18]
+* Add links to sane(7) in all maual pages
+* Check AIX/gcc shared lib loading problem: When starting scanimage,
+    only dll is loaded.
+    Backend libraries can't be loaded:
+    [dll] load: dlopen() failed (Symbol resolution failed for
+       /tmp/sane-bin/lib/sane/libsane-umax.so.1 because:
+       Symbol __eprintf (number 55) is not exported from dependent
+       module scanimage.
+    This happens in most libraries. The reason is assert() e.g. in
+    sanei_scsci.c. As assert() is in libgcc.a it can't be linked at runtime.
+* Don't export any other symbols than sane_* and sanei_*
+* nec:
+   - Remove references to sharp backend (grep for "JX").
+   - Check for HAVE_SYS_SHM_H before including sys/shm.h and
+     disable shared memory support if necessary.
+* lines like "if (config_line[len - 1] == '\n')" can cause segfaults and
+  should be removed (removing "\n" is already done in sanei_config_read).
+  This ist just a fast grep. Check all backends!
+* add additions/bug fixes to microtek2 from Karsten Festag
+  <karsten.festag@t-online.de> (partially done)
+* include snapscan updates http://sourceforge.net/projects/snapscan
+* as6e: change :new status to :alpha, :beta, or :stable.
+* Check Tru64 Unix compilation problems with u_int* types. They are already
+  defined in sys/bitypes.h but this file isn't checked with AC_CHECK_TYPE.
+  (-> include sys/bitypes.h in these cases).
+* Fix HP-UX problems in isfdtype.c (and maybe others). sys/stat.h doesn't
+  seem to define stuct stat (not a bug, make was used instead of gmake).
+* Polaroid SprintScan 35 LE [should be included into microtek] 
+* Maybe add script to deinstall existing sane versions
+  - make uninstall
+  - install sane-uninstall script. Advantage: uninstall possible
+    without sourcecode (I think that's not necessary because you usually
+    have the sourcecode of a newer version if you want to uninstall. hmg)
+* Add sane manpage (this is work in progress: Henning Meier-Geinitz 
+                    <henning@meier-geinitz.de>)
+   - versioning system?
+   - SANE API (maybe summary only?)
+   - point to backends and other information?
+* Add backend UMAX 1220P/2000P & HP 320C http://umax1220p.sourceforge.net
+* install all documentation that's available
+* Add a check for installed sane versions.
+  - Print a warning when already a sane version is installed
+  - If SANE is installed at a different location, ask user to
+    remove old installation first
+* epson: backend tries to detect usb scanners by default. This breaks with
+  non-epson scanners like the LM9831 bases Mustek Bearpaw 1200. The epson
+  backend freezes if such a scanner is plugged in. Try to make the test safe
+  or don't test without user interaction.
+* pnm: add more options for testing (e.g. arrays and read-only options)
+* sanei_scsi.c: OS/2: struct param breaks compilation with --enable-warnings.
+  (probably fixed by testing for os2.h in configure).
+* Check all manpages for references to find-scanner (->sane-find-scanner).
+* net.c doesn't compile on Irix because socklen_t isn't known
+* Add new backends: bh http://www.martoneconsulting.com/sane-bh.html
+* Add manpage for find-scanner.
+* Should find-scanner be installed?
+* net backend segfaults sometimes when connected to localhost. Enabling
+  debug output sometimes prevents segfaults. Cause of the problem:
+  Copying SANE_TYPE_STRINGs up to their maximum size in 
+  SANE_Option_Descriptor (strings may be shorter then size).
+* Compilation of most backends break with OS/2 and gcc because the
+  option -ansi doesn't seem to like sigset_t ?
+* Check for shm.h in configure
+* Add a global PATH_MAX macro somewhere (config.h ?) if it's not defined
+  by the system.
+* sanei_scsi.c: Add patch from FreeBSD ports (sanei_scsi_find_devices)
+  (after 1.0.4).
+* update libtool versioning system
+  - in /usr/local/lib/libsane.la "installed=no" is set, isn't 
+    "installed=yes" the correct entry?
+* plustek-share.h: remove //
+* as6e: Check result of stat for errors to avoid false recognitions of the
+  as6edriver.
+* artec: O_SYNC is not Posix. Breaks compilation on FreeBSD and (maybe) OS/2.
+* use strchr() instead of index() in mustek_pp to avoid problems when
+  icluding strings.h or string.h.
+* Add test for PTAL to acinclude.m4/configure.in
+* build on Irix fails because of problems with the jpeg library. If this
+  is removed in configure, build works. It complains about functions like
+  (typename) functionname (). It doesn't like the brackets which result
+  from expanding the macros EXTERN(x), METHODDEF(x), and GLOBAL(x) to
+  (x). Defining something like EXTERN(x) x seems to work.  Same for dc210.c
+  Something like --disable-jpeg for configure would be nice.
+* addition to hp backend (support for SCL-based HP OfficeJets)
+  http://hpoj.sourceforge.net
+* Libtool: 
+  - -version-info is used but with the current version number system 
+    -release should be used. (We should not change the version syntax
+     within an existing sane-standard, so we leave this)
+  - look for AIX problems (overwriting shared libs with eachother
+    because all libs are named libsane.so.1) (solved)
+  - look for Irix/cc problems (program searches for libsane.so.2 instead
+    of libsane.so.1). (Patch works for existing sane standard)
+* getopt.c and umax.c seem to use gettext? Can cause crash if frontends
+  are linked to libintl, too.
+* libdl is used in dll backend but -ldl is not added to LDFLAGS?
+* use strchr() instead of index() in sanei_auth, scanimage, saned
+  to avoid problems when icluding strings.h or string.h.
+* Remove frontends (at least xscanimage/xcam) from distribution. 
+* build on AIX does only work for static libraries. The shared libraries
+  seem to overwrite each other.
+* add sanei_authorize (function for all backends)
+* make authorization_callback work in net-backend and saned. Try to 
+  avoid plain text passwords?
+* Add as6e http://as6edriver.sourceforge.net/
+* stiff.c: Tiff header not written correctly: "Jaeger, Gerhard"
+  <gjaeger@sysgo.de> writes: When writing the TIFF header, you have to
+  specify the TAG "BitsPerSample", which tells a reader how many bits each
+  sample has. The current version only specifies one value (8 or 16). This
+  is wrong, as we have to specify one value for each channel (i.e for a
+  24bit RGB pic we must specify 8,8,8, see TIFF6.0 spec, [...]
+* don't install sanei_* headers
+* Add sane-pie (Pacific Image Electronics series of ScanAce SCSI scanners, and
+  the Devcom 9636/9630 BlackWidow) http://www.munton.demon.co.uk/sane
+* configure --without-x doesn't work (doesn't matter when frontends
+  are removed from package)
+* Create new package for frontends. 
+* 0 is white for sane in lineart and halftone, however, 0 is black for
+  the other modes. Possible reason: pnm data format. The SANE standard
+  doesn't talk about this (added point to SANE standard)
+* add ADF and TA entries to .desc files (not done, probably webpage gets 
+  too wide)
+* check DBG problems for non gcc compilers:
+  - no backend name output
+  - only global debug level
+* dll: make it robust against it being listed in the configuration
   file (currently bad things will happen if dll attempts to load itself)
-- PREVIEW: maybe there should be an option to limit the preview
+* scanimage: add information about backend:devicename in the man
+  page and scanimage --help.
+* scanimage: check if devicename starts with a / and print a warning
+  message
+* scanimage: if no devices are detected print a message
+* use sanei_config_read() instead of fgets()
+* use #include "sane/..." instead of #include <sane/...>
+* Update LEVEL2 file. Ideas:
+* xscanimage: Fix "Gtk-CRITICAL **: file gtkmain.c: line 534 ..." bug
+  when no SANE devices found
++ PREVIEW: maybe there should be an option to limit the preview
   scan to the selected area? YES => this will also make it easier
   to avoid the scan area selection to get confused when the user
   resizes the preview area in a way that changes the aspect ratio;
   in essence we want to allow for the preview-image to be a subregion
-  of the preview-window
-
-+++++ done:
-
+  of the preview-window (done in xsane)
++ xcam: allow disabling of advanced options and tooltips
++ man page for xcam
++ scanimage: support depths > 8 bits/channel
 + upgrade to GTK 1.2 (but stay backwards compatible to 1.0 if possible)
 + saned: check_host() consider using strncasecmp()
 + GTK: changing the length unit causes dirty pixels in the unit-labels

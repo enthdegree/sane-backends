@@ -205,7 +205,7 @@ distclean: clean
 	rm -f *.lot *.lof *.ind *.gz
 	rm -f sane.dvi sane.ps sane-backends.html
 	rm -f sane/*.html sane/*.gif
-	-rm -rf sane
+	-rm -rf sane sanei-html
 	for manpage in $(MANPAGES) ; do \
 	  rm -f $${manpage}.html ; \
 	done

@@ -1,3 +1,14 @@
+2001-11-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/mustek_usb.c backend/mustek_usb.conf backend/mustek_usb.desc
+	  backend/mustek_usb.h backend/mustek_usb_high.c 
+	  backend/mustek_usb_high.h backend/mustek_usb_low.c
+	  backend/mustek_usb_low.h backend/mustek_usb_mid.c
+	  backend/mustek_usb_mid.h doc/sane-mustek_usb.man
+	  doc/mustek_usb/mustek_usb.CHANGES doc/mustek_usb/mustek_usb.TODO:
+	  FreeBSD is supported to some degree now. Started 1200 USB support.
+	  Documentation updates. New version: 1.0-8.
+
 2001-11-12  Peter Fales <peter@fales.com>
 
 	* gphoto2.c - Debug message was not getting printed because DBG_INIT

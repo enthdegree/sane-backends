@@ -1,4 +1,8 @@
-2001-07-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
+2001-07-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* sanei/sanei_init_debug.c: Use syslog.h instead of sys/syslog.h.
+
+2001-07-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/mustek.c backend/mustek.desc doc/mustek/mustek.CHANGES:
 	  Call stop_scan only when scan was cancelled. Some more debug

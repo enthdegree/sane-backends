@@ -1,5 +1,9 @@
 2003-11-23  Jochen Eisinger <jochen@penguin-breeder.org>
 
+	* doc/descriptions/mustek_pp.desc: changed :beta to :good
+
+2003-11-23  Jochen Eisinger <jochen@penguin-breeder.org>
+
 	* backend/mustek_pp.c, sanei/sanei_pa4s2.c: added support for auto 
 	  probing of the port
 	* configure{.in}, backend/mustek_pp_ccd.*, backend/Makefile.in,

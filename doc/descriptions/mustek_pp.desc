@@ -27,22 +27,22 @@
 
 :model "ScanExpress 6000 P"
 :interface "Parport (EPP)"
-:status :beta
+:status :good
 :comment "300 dpi CCD scanner"
 
 :model "ScanExpress 600 SEP"
 :interface "Parport (EPP)"
-:status :beta
+:status :good
 :comment "300 dpi CCD scanner"
 
 :model "ScanMagic 4800 P"
 :interface "Parport (EPP)"
-:status :beta
+:status :good
 :comment "300 dpi CCD scanner"
 
 :model "600 III EP Plus"
 :interface "Parport (EPP)"
-:status :beta
+:status :good
 :comment "300 dpi CCD scanner"
 
 :model "96 CP"
@@ -76,7 +76,7 @@
 
 :model "MD 9848"
 :interface "Parport (EPP)"
-:status :beta
+:status :good
 :comment "300 dpi CCD scanner"
 
 :model "MD/LT 935x"
@@ -123,21 +123,21 @@
 
 :model "Compact II"
 :interface "Parport (EPP)"
-:status :beta
+:status :good
 :comment "300 dpi CCD scanner"
 
 :mfg "Cybercom"
 
 :model "9352"
 :interface "Parport (EPP)"
-:status :beta
+:status :good
 :comment "300 dpi CCD scanner"
 
 :mfg "Gallery"
 
 :model "4800"
 :interface "Parport (EPP)"
-:status :beta
+:status :good
 :comment "300 dpi CCD scanner"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,

@@ -1,3 +1,12 @@
+2004-07-02  Gerhard Jaeger <gerhard@gjaeger.de>
+	* po/*.po: Updated according to changes in the plustek backend.
+	* backend/plustek.c backend/plustek-usb*: Major update, see
+	  doc/plustek/Plustek-USB.changes.
+	* doc/sane-plustek.man: update
+	* doc/plustek/Plustek-USB.changes: update.
+	* doc/descriptions/plustek.desc: Removed unsupported devices, 
+	  updated some states.
+
 2004-06-30  Frank Zago  <fzago at austin dot rr dot com>
 	* backend/leo.c doc/descriptions/leo.desc: added support for 
 	  Genius FS-1130 Colorpage Scanner.

@@ -1,3 +1,7 @@
+2001-06-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* frontend/scanimage.c: Fixed small bug in output for batch mode.
+
 2001-06-03  Peter Fales <peter@fales.com>
 
 	* backend/dc240.c - Batch scanning of multiple images with scanimage

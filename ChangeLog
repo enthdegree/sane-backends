@@ -1,3 +1,6 @@
+2004-10-17  Julien Blache <jb@jblache.org>
+	* tools/hotplug/libsane.usermap: Added Epson Perfection 2480.
+
 2004-10-16  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson_usb.c: Added USB ID for Expression 10000XL

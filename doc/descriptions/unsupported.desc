@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-05-18"		; version of backend
+:version "2003-05-22"		; version of backend
 :url "http://www.meier-geinitz.de/sane/misc/unsupported.html"
 ;:status :stable			; :alpha, :beta, :stable, :new
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
@@ -25,9 +25,9 @@
 
 :model "1236 USB"
 :status :unsupported
-;:url ""
+:url "http://www.meier-geinitz.de/sane/misc/artec_1236usb.txt"
 :interface "USB"
-:comment "Unsupported. Vendor/product 0x05d8/0x4001. Is reported to be a LM983x based scanner(?). More information would be appreciated."
+:comment "Unsupported. Vendor/product 0x05d8/0x4001. Same id as one of the Artec Ultima 2000 scanners. More information (e.g. /proc/bus/usb/devices output) would be appreciated."
 
 :model "E+ Pro"
 :status :unsupported
@@ -561,10 +561,10 @@
 :comment "Probably unsupported. ASIC EICI 10440A. Vendor/product 0x461/0x346. May work with viceo backend(?), see link."
 
 :model "Primascan Colorado 2600u"
-;:url ""
+:url "http://www.meier-geinitz.de/sane/misc/visioneer-onetouch4400.txt"
 :interface "USB"
 :status :unsupported
-:comment "See Visioneer Primascan Colorado 2600u."
+:comment "Unsupported. See Visioneer Primascan Onetouch 4800."
 
 :model "Slim-Line 1200"
 ;:url ""
@@ -663,10 +663,10 @@
 :comment "Not supported. Is reported to use the E5 chipset. Uses a Primax ID. See link for some details. Looks similar to Primascan Colorado 2600u."
 
 :model "Onetouch 4400"
-;:url ""
+:url "http://www.meier-geinitz.de/sane/misc/visioneer-onetouch4400.txt"
 :interface "USB"
 :status :unsupported
-:comment "Not supported. Is reported to use LM9832 (or LM9830 + E5). Is reported to have the same ids as the Primascan Colorado 2600u, see that entry for more info."
+:comment "Not supported. Is reported to use LM9832 (or LM9830 + E5) (=GL640usb)???. Same scanner as Primax/visioneer Primascan Colorado 2600u. Vendor/product 0x0461/0x0347 (Primax!). One bulk-in and one bulk-out ep. See link for more details. Maybe it can be supported by the canon630u backend?"
 
 :model "OneTouch 4800 USB"
 :url "http://www.meier-geinitz.de/sane/misc/visioneer-onetouch4800.txt"
@@ -687,10 +687,10 @@
 :comment "Not supported. Same as 8700 and 8900 but includes a TA. Uses a Primax ID. See link for output of /proc/bus/usb/devices."
 
 :model "Primascan Colorado 2600u"
-:url "http://groups.google.com/groups?as_umsgid=%3Cb0pvfg%24oa1%241%40newsg2.svr.pol.co.uk%3E"
+:url "http://www.meier-geinitz.de/sane/misc/visioneer-onetouch4400.txt"
 :interface "USB"
 :status :unsupported
-:comment "Not supported. Chipset probably lm9830 + E5 (=GL640usb)???. Vendor/product 0x0461/0x0347 (Primax!). One bulk-in and one bulk-out ep. See link to usenet posting for some more details. Maybe it can be supported by the canon630u backend?"
+:comment "Not supported. See Visioneer Onetouch 4400."
 
 ;********************************************************************************************
 

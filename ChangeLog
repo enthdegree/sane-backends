@@ -2,6 +2,8 @@
 
 	* doc/descriptions/mustek.desc: Primax Compact 4800 SCSI is
 	  reported to work.
+	* doc/descriptions/unsupported.desc: Added more information for
+	  Artec and Visioneer/Primax scanners.
 
 2003-05-21   Stéphane Voltz  <svoltz@wanadoo.fr>
 	* backend/umax_pp_low.c: backed out clearing epp timeout. It prevented most

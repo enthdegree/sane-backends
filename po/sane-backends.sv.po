@@ -1,7 +1,7 @@
 # Swedish translation for SANE backend options.
 # Copyright (C) 2002, 2003 SANE Project.
 # Dennis Björklund <db@zigo.dhs.org>, 2002.
-# Mattias Ellert <mattias.ellert@tsl.uu.se>, 2003.
+# Mattias Ellert <mattias.ellert@tsl.uu.se>, 2003, 2004.
 #
 # Engelskans "Halftone" motsvaras av "Raster" på svenska och
 # svenskans "Halvton" heter "Continuous tone" på engelska. Dessa
@@ -9,15 +9,15 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: sane-backends 1.0.13\n"
-"POT-Creation-Date: 2004-04-04 15:13+0200\n"
-"PO-Revision-Date: 2003-11-10 14:14+0100\n"
+"Project-Id-Version: sane-backends 1.0.14\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2004-04-24 23:18+0200\n"
+"PO-Revision-Date: 2004-04-11 15:53+0200\n"
 "Last-Translator: Mattias Ellert <mattias.ellert@tsl.uu.se>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Report-Msgid-Bugs-To: \n"
 
 #: .tmp/artec_eplus48u.c:155 .tmp/gt68xx.c:119 .tmp/hp-option.c:2923
 #: .tmp/ma1509.c:101 .tmp/mustek.c:125 .tmp/mustek.c:130 .tmp/mustek_usb.c:270
@@ -33,7 +33,7 @@ msgstr "Gråskala"
 
 #: .tmp/artec_eplus48u.c:157 .tmp/epson.c:502 .tmp/gt68xx.c:117
 #: .tmp/hp-option.c:2926 .tmp/leo.h:262 .tmp/ma1509.c:101 .tmp/mustek.c:126
-#: .tmp/mustek.c:130 .tmp/mustek_usb.c:268 .tmp/plustek.c:214
+#: .tmp/mustek.c:130 .tmp/mustek_usb.c:268 .tmp/plustek.c:215
 #: .tmp/plustek_pp.c:192 .tmp/plustek_pp.c:201 .tmp/sceptre.h:292
 #: .tmp/snapscan-options.c:75 .tmp/teco1.h:293 .tmp/teco2.h:352
 #: .tmp/teco3.h:296 .tmp/test.c:122 .tmp/umax.c:191 .tmp/umax_pp.c:133
@@ -42,7 +42,7 @@ msgstr "Färg"
 
 #: .tmp/artec_eplus48u.c:2806 .tmp/gt68xx.c:607 .tmp/leo.c:871
 #: .tmp/ma1509.c:597 .tmp/matsushita.c:1191 .tmp/microtek2.h:602
-#: .tmp/mustek.c:4383 .tmp/mustek_usb.c:353 .tmp/plustek.c:748
+#: .tmp/mustek.c:4383 .tmp/mustek_usb.c:353 .tmp/plustek.c:754
 #: .tmp/plustek_pp.c:797 .tmp/sceptre.c:753 .tmp/snapscan-options.c:488
 #: .tmp/teco1.c:1146 .tmp/teco2.c:1940 .tmp/teco3.c:971 .tmp/umax.c:5214
 #: .tmp/umax_pp.c:519
@@ -60,7 +60,7 @@ msgstr "Använd standardvärden för förbättringsinställningar."
 #: .tmp/artec_eplus48u.c:2885 .tmp/epson.c:3234 .tmp/gt68xx.c:663
 #: .tmp/leo.c:823 .tmp/ma1509.c:549 .tmp/matsushita.c:1137
 #: .tmp/microtek2.h:601 .tmp/mustek.c:4335 .tmp/mustek_usb.c:305
-#: .tmp/plustek.c:702 .tmp/plustek_pp.c:751 .tmp/sceptre.c:705
+#: .tmp/plustek.c:708 .tmp/plustek_pp.c:751 .tmp/sceptre.c:705
 #: .tmp/snapscan-options.c:421 .tmp/teco1.c:1098 .tmp/teco2.c:1892
 #: .tmp/teco3.c:923 .tmp/test.c:618 .tmp/umax.c:5164 .tmp/umax_pp.c:470
 msgid "Geometry"
@@ -100,11 +100,11 @@ msgstr ""
 msgid "Button state"
 msgstr "Knappläge"
 
-#: .tmp/avision.h:516
+#: .tmp/avision.h:536
 msgid "Number of the frame to scan"
 msgstr "Bildruta att läsa in"
 
-#: .tmp/avision.h:517
+#: .tmp/avision.h:537
 msgid "Selects the number of the frame to scan"
 msgstr "Väljer numret på den bildruta som ska läsas in"
 
@@ -140,13 +140,13 @@ msgstr "Gammakorrigering"
 msgid "Selects the gamma corrected transfer curve"
 msgstr "Väljer gammakorrigerad överföringskurva"
 
-#: .tmp/epson.c:500 .tmp/plustek.c:211 .tmp/plustek_pp.c:189
+#: .tmp/epson.c:500 .tmp/plustek.c:212 .tmp/plustek_pp.c:189
 #: .tmp/plustek_pp.c:198
 msgid "Binary"
 msgstr "Binär"
 
 #: .tmp/epson.c:501 .tmp/gt68xx.c:118 .tmp/ma1509.c:101 .tmp/mustek.c:125
-#: .tmp/mustek.c:130 .tmp/mustek_usb.c:269 .tmp/plustek.c:212
+#: .tmp/mustek.c:130 .tmp/mustek_usb.c:269 .tmp/plustek.c:213
 #: .tmp/plustek_pp.c:191 .tmp/plustek_pp.c:200 .tmp/sceptre.h:291
 #: .tmp/snapscan-options.c:77 .tmp/test.c:122 .tmp/umax.c:188
 msgid "Gray"
@@ -322,7 +322,7 @@ msgstr "Max"
 
 #: .tmp/epson.c:2749 .tmp/gt68xx.c:433 .tmp/ma1509.c:499
 #: .tmp/matsushita.c:1086 .tmp/microtek2.h:600 .tmp/mustek.c:4198
-#: .tmp/mustek_usb.c:260 .tmp/plustek.c:630 .tmp/plustek_pp.c:662
+#: .tmp/mustek_usb.c:260 .tmp/plustek.c:636 .tmp/plustek_pp.c:662
 #: .tmp/sceptre.c:676 .tmp/snapscan-options.c:260 .tmp/teco2.c:1864
 #: .tmp/test.c:293 .tmp/umax.c:5042
 msgid "Scan Mode"
@@ -421,7 +421,6 @@ msgid "Adds to red based on blue level"
 msgstr "Lägger till till rött beroende på blånivån"
 
 #: .tmp/epson.c:3046
-#, fuzzy
 msgid "Controls blue level"
 msgstr "Bestämmer blånivån"
 
@@ -707,7 +706,7 @@ msgid "Slow"
 msgstr "Långsam"
 
 #: .tmp/hp-option.c:3141 .tmp/hp-option.c:3248 .tmp/matsushita.c:244
-#: .tmp/mustek.c:141 .tmp/plustek.c:221 .tmp/plustek_pp.c:208
+#: .tmp/mustek.c:141 .tmp/plustek.c:222 .tmp/plustek_pp.c:208
 msgid "Normal"
 msgstr "Normal"
 
@@ -747,7 +746,7 @@ msgstr "Diapositiv"
 msgid "Film-strip"
 msgstr "Filmremsa"
 
-#: .tmp/hp-option.c:3231 .tmp/plustek.c:223 .tmp/plustek_pp.c:210
+#: .tmp/hp-option.c:3231 .tmp/plustek.c:224 .tmp/plustek_pp.c:210
 #: .tmp/saneopts.h:176
 msgid "Negative"
 msgstr "Negativ"
@@ -1134,11 +1133,11 @@ msgid "This option turns off the lamp of the flatbed during a scan"
 msgstr ""
 "Denna inställning slår av lampan på flatbäddsbildläsaren under en inläsning"
 
-#: .tmp/microtek2.h:628
+#: .tmp/microtek2.h:628 .tmp/snapscan-options.c:310
 msgid "Quality scan"
 msgstr "Kvalitetsinläsning"
 
-#: .tmp/microtek2.h:629
+#: .tmp/microtek2.h:629 .tmp/snapscan-options.c:311
 msgid "Highest quality but lower speed"
 msgstr "Högsta kvalitet men lägre hastighet"
 
@@ -1226,7 +1225,7 @@ msgstr "Mittvärde"
 #: .tmp/microtek2.h:677
 #, c-format
 msgid "Selects which radiance level should be considered \"50 % gray\"."
-msgstr "Väljer strålglansnivå som skall tolkas som \"50% grå\"."
+msgstr "Väljer vilken strålglansnivå som skall tolkas som \"50% grå\"."
 
 #: .tmp/microtek2.h:681
 msgid "Midtone for red"
@@ -1234,7 +1233,7 @@ msgstr "Mittvärde för rött"
 
 #: .tmp/microtek2.h:682
 msgid "Selects which radiance level should be considered \"50 % red\"."
-msgstr "Väljer strålglansnivå som skall tolkas som \"50% röd\"."
+msgstr "Väljer vilken strålglansnivå som skall tolkas som \"50% röd\"."
 
 #: .tmp/microtek2.h:686
 msgid "Midtone for green"
@@ -1243,7 +1242,7 @@ msgstr "Mittvärde för grönt"
 #: .tmp/microtek2.h:687
 #, c-format
 msgid "Selects which radiance level should be considered \"50 % green\"."
-msgstr "Väljer strålglansnivå som skall tolkas som \"50% grön\"."
+msgstr "Väljer vilken strålglansnivå som skall tolkas som \"50% grön\"."
 
 #: .tmp/microtek2.h:691
 msgid "Midtone for blue"
@@ -1251,7 +1250,7 @@ msgstr "Mittvärde för blått"
 
 #: .tmp/microtek2.h:692
 msgid "Selects which radiance level should be considered \"50 % blue\"."
-msgstr "Väljer strålglansnivå som skall tolkas som \"50% blå\"."
+msgstr "Väljer vilken strålglansnivå som skall tolkas som \"50% blå\"."
 
 #: .tmp/microtek2.h:696
 msgid "Red balance"
@@ -1434,39 +1433,37 @@ msgstr "Kontrast blå kanal"
 msgid "Controls the contrast of the blue channel of the acquired image."
 msgstr "Bestämmer kontrasten för den blå kanalen i den inlästa bilden."
 
-#: .tmp/plustek.c:213
+#: .tmp/plustek.c:214
 msgid "Gray 14/16"
 msgstr "Grå 14/16"
 
-#: .tmp/plustek.c:215
+#: .tmp/plustek.c:216
 msgid "Color 42/48"
 msgstr "Färg 42/48"
 
-#: .tmp/plustek.c:222 .tmp/plustek_pp.c:209
+#: .tmp/plustek.c:223 .tmp/plustek_pp.c:209
 msgid "Transparency"
 msgstr "Skrivfilm"
 
-#: .tmp/plustek.c:813
+#: .tmp/plustek.c:819
 msgid "Device-Settings"
-msgstr ""
-
-#: .tmp/plustek.c:820
-msgid "Lampswitch"
-msgstr ""
-
-#: .tmp/plustek.c:821
-msgid "Manually switching the lamp(s)."
-msgstr ""
+msgstr "Enhetsinställningar"
 
 #: .tmp/plustek.c:826
-#, fuzzy
-msgid "Warmup-Time"
-msgstr "Värm upp lampa"
+msgid "Lampswitch"
+msgstr "Lampströmbrytare"
 
 #: .tmp/plustek.c:827
-#, fuzzy
+msgid "Manually switching the lamp(s)."
+msgstr "Slår av/på lamp(an/orna) manuellt."
+
+#: .tmp/plustek.c:832
+msgid "Warmup-Time"
+msgstr "Uppvärmningstid"
+
+#: .tmp/plustek.c:833
 msgid "Warmup-Time in seconds."
-msgstr "Värm upp lampa"
+msgstr "Uppvärmningstid i sekunder."
 
 #: .tmp/plustek_pp.c:202
 msgid "Color36"
@@ -1741,19 +1738,16 @@ msgid "White level"
 msgstr "Vitnivå"
 
 #: .tmp/saneopts.h:159
-#, fuzzy
 msgid "White level for red"
-msgstr "Vitnivå"
+msgstr "Vitninå för rött"
 
 #: .tmp/saneopts.h:160
-#, fuzzy
 msgid "White level for green"
-msgstr "Skifta blå till grön"
+msgstr "Vitnivå för grönt"
 
 #: .tmp/saneopts.h:161
-#, fuzzy
 msgid "White level for blue"
-msgstr "Vitnivå"
+msgstr "Vitnivå för blått"
 
 #: .tmp/saneopts.h:162
 msgid "Shadow"
@@ -2020,50 +2014,47 @@ msgstr "Väljer ifall den inlästa bilden skall rasteras (gittras)."
 
 #: .tmp/saneopts.h:285 .tmp/saneopts.h:300
 msgid "Selects what radiance level should be considered \"black\"."
-msgstr "Väljer strålglansnivå som skall tolkas som \"svart\"."
+msgstr "Väljer vilken strålglansnivå som skall tolkas som \"svart\"."
 
 #: .tmp/saneopts.h:288 .tmp/saneopts.h:309
 msgid "Selects what radiance level should be considered \"white\"."
-msgstr "Väljer strålglansnivå som skall tolkas som \"vit\"."
+msgstr "Väljer vilken strålglansnivå som skall tolkas som \"vit\"."
 
 #: .tmp/saneopts.h:291
-#, fuzzy
 msgid "Selects what red radiance level should be considered \"white\"."
-msgstr "Väljer strålglansnivå som skall tolkas som \"vit\"."
+msgstr "Väljer vilken röd strålglansnivå som skall tolkas som \"vit\"."
 
 #: .tmp/saneopts.h:294
-#, fuzzy
 msgid "Selects what green radiance level should be considered \"white\"."
-msgstr "Väljer strålglansnivå som skall tolkas som \"vit\"."
+msgstr "Väljer vilken grön strålglansnivå som skall tolkas som \"vit\"."
 
 #: .tmp/saneopts.h:297
-#, fuzzy
 msgid "Selects what blue radiance level should be considered \"white\"."
-msgstr "Väljer strålglansnivå som skall tolkas som \"vit\"."
+msgstr "Väljer vilken blå strålglansnivå som skall tolkas som \"vit\"."
 
 #: .tmp/saneopts.h:302
 msgid "Selects what red radiance level should be considered \"black\"."
-msgstr "Väljer röd strålglansnivå som skall tolkas som \"svart\"."
+msgstr "Väljer vilken röd strålglansnivå som skall tolkas som \"svart\"."
 
 #: .tmp/saneopts.h:304
 msgid "Selects what green radiance level should be considered \"black\"."
-msgstr "Väljer grön strålglansnivå som skall tolkas som \"svart\"."
+msgstr "Väljer vilken grön strålglansnivå som skall tolkas som \"svart\"."
 
 #: .tmp/saneopts.h:306
 msgid "Selects what blue radiance level should be considered \"black\"."
-msgstr "Väljer blå strålglansnivå som skall tolkas som \"svart\"."
+msgstr "Väljer vilken blå strålglansnivå som skall tolkas som \"svart\"."
 
 #: .tmp/saneopts.h:311
 msgid "Selects what red radiance level should be considered \"full red\"."
-msgstr "Väljer röd strålglansnivå som skall tolkas som \"helt röd\"."
+msgstr "Väljer vilken röd strålglansnivå som skall tolkas som \"helt röd\"."
 
 #: .tmp/saneopts.h:313
 msgid "Selects what green radiance level should be considered \"full green\"."
-msgstr "Väljer grön strålglansnivå som skall tolkas som \"helt grön\"."
+msgstr "Väljer vilken grön strålglansnivå som skall tolkas som \"helt grön\"."
 
 #: .tmp/saneopts.h:316
 msgid "Selects what blue radiance level should be considered \"full blue\"."
-msgstr "Väljer blå strålglansnivå som skall tolkas som \"helt blå\"."
+msgstr "Väljer vilken blå strålglansnivå som skall tolkas som \"helt blå\"."
 
 #: .tmp/saneopts.h:320
 msgid "Controls the \"hue\" (blue-level) of the acquired image."
@@ -2232,14 +2223,6 @@ msgstr ""
 "att behöva stanna med jämna mellanrum under inläsningen. Om den sätts för "
 "hög kan X-baserade framplan sluta svara på X-händelser och ditt system kan "
 "gå ned."
-
-#: .tmp/snapscan-options.c:310
-msgid "High quality"
-msgstr "Hög kvalitet"
-
-#: .tmp/snapscan-options.c:311
-msgid "Scan in (slower) high quality mode"
-msgstr "Läs in i (långsammare) högkvalitetsläge"
 
 #: .tmp/snapscan-options.c:364
 msgid "Preview mode"
@@ -2708,6 +2691,14 @@ msgstr "(1/1) Knapp"
 msgid "(1/1) Button test option. Prints some text..."
 msgstr "(1/1) Knapptestinställning. Skriver ut lite text..."
 
+#: .tmp/umax1220u.c:247 .tmp/umax.c:5800
+msgid "Lamp off"
+msgstr "Lampa av"
+
+#: .tmp/umax1220u.c:248 .tmp/umax.c:5801
+msgid "Turn off scanner lamp"
+msgstr "Slå av bildläsarlampan"
+
 #: .tmp/umax.c:189
 msgid "Color Lineart"
 msgstr "Färgstreckteckning"
@@ -2779,14 +2770,6 @@ msgstr "Lampa på"
 #: .tmp/umax.c:5784
 msgid "Turn on scanner lamp"
 msgstr "Slå på bildläsarlampan"
-
-#: .tmp/umax.c:5800 .tmp/umax1220u.c:247
-msgid "Lamp off"
-msgstr "Lampa av"
-
-#: .tmp/umax.c:5801 .tmp/umax1220u.c:248
-msgid "Turn off scanner lamp"
-msgstr "Slå av bildläsarlampan"
 
 #: .tmp/umax.c:5817
 msgid "Lamp off at exit"

@@ -21,7 +21,7 @@ static void		debug_drv_stop (SANE_Handle hndl);
 
 
 /* CIS drivers for 600CP, 1200CP, and 1200CP+
-   Version 0.11-devel, author Eddy De Greef */
+   Version 0.13-beta, author Eddy De Greef */
 
 static SANE_Status	cis600_drv_init  (SANE_Int options, 
 					  SANE_String_Const port,

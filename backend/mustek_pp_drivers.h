@@ -19,7 +19,7 @@ static Mustek_pp_Functions Mustek_pp_Drivers[] = {
 		debug_drv_stop
 	},
 	{
-		"cis600", "Eddy De Greef", "0.11-devel",
+		"cis600", "Eddy De Greef", "0.13-beta",
 		cis600_drv_init,
 		cis_drv_capabilities,
 		cis_drv_open,
@@ -31,7 +31,7 @@ static Mustek_pp_Functions Mustek_pp_Drivers[] = {
 		cis_drv_stop
 	},
 	{
-		"cis1200", "Eddy De Greef", "0.11-devel",
+		"cis1200", "Eddy De Greef", "0.13-beta",
 		cis1200_drv_init,
 		cis_drv_capabilities,
 		cis_drv_open,
@@ -43,7 +43,7 @@ static Mustek_pp_Functions Mustek_pp_Drivers[] = {
 		cis_drv_stop
 	},
 	{
-		"cis1200+", "Eddy De Greef", "0.11-devel",
+		"cis1200+", "Eddy De Greef", "0.13-beta",
 		cis1200p_drv_init,
 		cis_drv_capabilities,
 		cis_drv_open,

@@ -208,7 +208,7 @@ Sample entry for file
 .br
 .I alias char-major-40 pt_drv
 .br
-.I post-install pt_drv modprobe -k parport
+.I pre-install pt_drv modprobe -k parport
 .br
 .I options pt_drv lampoff=180 warmup=15 port=0x378 lOffonEnd=0 mov=0
 .PP

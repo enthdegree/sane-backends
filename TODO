@@ -5,10 +5,15 @@ TODO (2001-01-21)
 backends
 --------
   * Configuration problems:
-    - add options "--exec-prefix=...." and "--prefix=..." compareable to gtk-config
-    - add warning when prefix dir is not listed in /etc/ld.so.conf on linux systems
-      may be there is a general way to test this if the destination library directory
-      is in the search path of the linker.
+    - add options "--exec-prefix=...." and "--prefix=..." compareable
+      to gtk-config
+
+    - add warning when prefix dir is not listed in /etc/ld.so.conf on
+      linux systems may be there is a general way to test this if the
+      destination library directory is in the search path of the
+      linker. [The correct fix is to use -R (on Solaris) and -rpath
+      (on the rest?) to include the dynamic link path in the binaries
+      / libraries. pere 2001-02-09]
 
   * Add new backends (?)
     - Polaroid SprintScan 35 LE [should be included into microtek] 

@@ -30,6 +30,12 @@
 :status :good
 :comment "Works upto 600 dpi. No support for TA and ADF yet."				
 				
+:mfg "Fujitsu"		; name a manufacturer
+:model "fi-4110EOX2"
+:interface "USB"
+:status :unsupported
+:comment "Uses ma1509 chip, but very different from other scanners supported by backend"
+:url "http://www2.pfeiffer.edu/~anoah/fujitsu/"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ; and at the top-level.

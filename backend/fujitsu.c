@@ -360,6 +360,9 @@ static int forceModel = -1;
 /* Also set via config file. */
 static int scsiBuffer = 64 * 1024;
 
+/* flaming hack to get USB scanners
+   working without timeouts under linux */
+static unsigned int cmd_count = 0;
 
 /*
  * required for compressed data transfer. sense_handler has to tell
@@ -3024,6 +3027,8 @@ do_usb_cmd (int fd, unsigned char *cmd,
 retry:
     hexdump (IO_CMD, "<cmd<", cmd, cmd_len);
 
+    cmd_count++;
+
     if (cmd_len > 0) op_code = ((int)cmd[0]) & 0xff;
 
     if ((cmd_len+USB_CMD_HEADER_BYTES) > (int)sizeof(buf)) {
@@ -3251,6 +3256,15 @@ free_scanner (struct fujitsu *s)
                 release_unitB.size, NULL, 0, NULL);
   if (ret)
     return ret;
+
+  /* flaming hack cause some usb scanners (fi-4x20) fail 
+     to work properly on next connection if an odd number
+      of commands are sent to the scanner. */
+  if(s->connection == SANE_FUJITSU_USB && cmd_count % 2){
+    ret = get_hardware_status(s);
+    if (ret)
+      return ret;
+  }
 
   DBG (10, "free_scanner: ok\n");
   return ret;

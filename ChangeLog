@@ -1,3 +1,10 @@
+2003-12-09  Allan Noah <anoah at pfeiffer dot edu>
+	* doc/desc/{fujitsu|ma1509}.desc: move fujitsu fi-4110eox2 section
+
+2003-12-09  Allan Noah <anoah at pfeiffer dot edu>
+	* backend/fujitsu.c: count USB packets to prevent timeouts, perhaps
+          due to DATA0/1 toggle problems in certain scanners
+
 2003-12-07  Peter Fales <peter@fales-lorenz.net>
 	* acinclude.m4, aclocal.m4, configure:  remove "enabling GPHOTO2"
 	  messages printed by configure

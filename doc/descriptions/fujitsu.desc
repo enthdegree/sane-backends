@@ -49,10 +49,6 @@
 :interface "SCSI"
 :status :good
 
-:model "fi-4110EOX2"
-:interface "USB"
-:status :unsupported
-
 :model "fi-4120C"
 :interface "SCSI USB"
 :status :good

@@ -1,3 +1,10 @@
+
+2003-11-23  René Rebe <rene@rocklinux.org>
+
+	* backend/avision.c backend/avision.h: the current development state,
+          including cleanups, code refactoring and nearly complete HP
+          53xx/75xx ADF support
+
 2003-11-23  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* configure configure.in: Warnings enabled again. Added -cvs to

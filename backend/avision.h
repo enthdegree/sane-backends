@@ -103,8 +103,8 @@ typedef struct Avision_HWEntry {
     /* limit the available resolutions */
     AV_RES_HACK = (1<<6),
     
-    /* fujitsu adaption */
-    AV_BIG_SCAN_CMD = (1<<7),
+    /* some (?) USB devices like firmware */
+    AV_FIRMWARE = (1<<7),
     
     /* fujitsu adaption */
     AV_FUJITSU = (1<<8)
@@ -507,7 +507,7 @@ typedef struct calibration_format
 
 #define get_double_le(var) ((*(var + 1) << 8) + *var)
 
-#define BIT(n, p) ((n & ( 1 << p)) ? 1 : 0)
+#define BIT(n, p) ((n & (1 << p)) ? 1 : 0)
 
 #define SET_BIT(n, p) (n |= (1 << p))
 

@@ -1,11 +1,12 @@
 # Translation file for SANE Plustek backend
 # Copyright (C) 2002 Henning Meier-Geinitz <henning@meier-geinitz.de>
+#                    Gerhard Jaeger <g.jaeger@earthling.net>
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.7\n"
 "POT-Creation-Date: 2002-01-16 00:25+0100\n"
 "PO-Revision-Date: 2002-01-16 00:40+0100\n"
-"Last-Translator: Henning Meier-Geinitz <henning@meier-geinitz.de>\n"
+"Last-Translator: Gerhard Jaeger <g.jaeger@earthling.net>\n"
 "Language-Team:\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=iso-8859-1\n"
@@ -14,10 +15,6 @@ msgstr ""
 #: .tmp/plustek.c:194 .tmp/plustek.c:204 .tmp/plustek.c:214
 msgid "Binary"
 msgstr "Strichzeichnung"
-
-#: .tmp/plustek.c:195 .tmp/plustek.c:205
-msgid "Halftone"
-msgstr "Halbton"
 
 #: .tmp/plustek.c:196 .tmp/plustek.c:206 .tmp/plustek.c:215
 msgid "Gray"
@@ -57,27 +54,19 @@ msgstr "Halbtonmuster 2"
 
 #: .tmp/plustek.c:233
 msgid "Randomize"
-msgstr "Zufällig"
+msgstr "Zufallsmuster"
 
 #: .tmp/plustek.c:632
 msgid "Scan Mode"
 msgstr "Scanmodus"
 
-#: .tmp/plustek.c:671
-msgid "Selects the halftone."
-msgstr "Wählt den Halbton aus."
-
 #: .tmp/plustek.c:682
-msgid "Selects the brightness."
+msgid "Adjusts the brightness."
 msgstr "Regelt die Helligkeit."
 
 #: .tmp/plustek.c:711
 msgid "Geometry"
 msgstr "Scanbereich"
-
-#: .tmp/plustek.h:154
-msgid "Selects the picture mode."
-msgstr "Wählt den Bildmodus aus."
 
 #: .tmp/saneopts.h:105
 msgid "Number of options"
@@ -233,7 +222,7 @@ msgstr ""
 
 #: .tmp/saneopts.h:143
 msgid "Halftone pattern"
-msgstr ""
+msgstr "Halbton Matrix"
 
 #: .tmp/saneopts.h:144
 msgid "Bind X and Y resolution"
@@ -509,7 +498,7 @@ msgstr ""
 #: .tmp/saneopts.h:300
 msgid ""
 "Defines the halftoning (dithering) pattern for scanning halftoned images."
-msgstr ""
+msgstr "Definiert die für den Scanvorgang zu verwendende Halbton Matix."
 
 #: .tmp/saneopts.h:304
 msgid "Use same values for X and Y resolution"

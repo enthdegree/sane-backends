@@ -3,6 +3,8 @@
 	* backend/microtek2.desc: Added missing scanner descriptions (from
 	  karsten.festag@t-online.de (Karsten Festag)).
 	* NEWS: Updated version numbers. Added release date.
+	* configure configure.in: New version: 1.0.6. Disabled warnings by
+	  default.
 
 2001-10-28  Peter Fales <peter@fales.com>
 

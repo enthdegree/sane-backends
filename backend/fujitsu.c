@@ -92,7 +92,10 @@
       V 1.7, 10-Mar-2003 (oschirr@abm.de)
          - displays the offending byte when something is wrong in the
            window descriptor block.
-      
+      V 1.8, 28-Mar-2003 (oschirr@abm.de)
+         - fi-4120C support (anoah@pfeiffer.edu)
+         - display information about gamme in vital_product_data
+
    SANE FLOW DIAGRAM
 
    - sane_init() : initialize backend, attach scanners
@@ -605,10 +608,15 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
     case MODEL_3093:
     case MODEL_4097:
     case MODEL_FI:
-      if ( strstr (scanner->productName, "4220") ) 
-        setDefaults3091 (scanner);
+      if ( strstr (scanner->productName, "4220") || 
+	   strstr (scanner->productName, "4120")) 
+	{
+	  setDefaults3091 (scanner);
+	}
       else
-        setDefaults3096 (scanner);
+	{
+	  setDefaults3096 (scanner);
+	}
       break;
 
     case MODEL_SP15:
@@ -1398,10 +1406,15 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             case MODEL_3097:
             case MODEL_4097:
             case MODEL_FI:
-                if ( strstr (scanner->productName, "4220") ) 
+      		if ( strstr (scanner->productName, "4220") || 
+		     strstr (scanner->productName, "4120")) 
+		  {
                     return (setMode3091 (scanner, newMode));
+		  }
                 else
+		  {
                     return (setMode3096 (scanner, newMode));
+		  }
             case MODEL_SP15:
               return (setModeSP15 (scanner, newMode));
             }
@@ -2864,6 +2877,10 @@ getVitalProductData (struct fujitsu *s)
                get_IN_threshold_steps (s->buffer));
           DBG (MSG_INFO, "   contrast steps: %d\n", 
                get_IN_contrast_steps (s->buffer));
+          DBG (MSG_INFO, "   number of build in gamma patterns: %d\n", 
+               get_IN_num_gamma (s->buffer));
+          DBG (MSG_INFO, "   number of download gamma patterns: %d\n", 
+               get_IN_num_gamma_download (s->buffer));
 
           DBG (MSG_INFO, "compression processing functions:\n");
           DBG (MSG_INFO, "   compression MR: %d\n", 
@@ -6796,8 +6813,11 @@ setDefaults3091 (struct fujitsu *scanner)
 
   scanner->opt[OPT_DROPOUT_COLOR].cap = SANE_CAP_INACTIVE;
   scanner->dropout_color = MSEL_dropout_DEFAULT;
-  if ( strstr (scanner->productName, "4220" ))
-    scanner->gamma = 0x80;
+  if ( strstr (scanner->productName, "4220") ||
+       strstr (scanner->productName, "4120")) 
+    {
+      scanner->gamma = 0x80;
+    }
 
   scanner->sleep_time = 15;
   scanner->use_imprinter = SANE_FALSE;

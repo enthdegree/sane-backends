@@ -194,6 +194,8 @@ static scsiblk inquiryB = { inquiryC, sizeof (inquiryC) };
 #define get_IN_brightness_steps(in)        getnbyte(in+0x52, 1)
 #define get_IN_threshold_steps(in)         getnbyte(in+0x53, 1)
 #define get_IN_contrast_steps(in)          getnbyte(in+0x54, 1)
+#define get_IN_num_gamma(in)               getbitfield(in+0x57, 15, 4)
+#define get_IN_num_gamma_download(in)      getbitfield(in+0x57, 15, 0)
 #define get_IN_ipc_bw_reverse(in)          getbitfield(in+0x58, 1, 7)
 #define get_IN_ipc_auto1(in)               getbitfield(in+0x58, 1, 6)
 #define get_IN_ipc_auto2(in)               getbitfield(in+0x58, 1, 5)

@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.7\n"
-"POT-Creation-Date: 2002-01-11 19:24+0100\n"
-"PO-Revision-Date: 2002-01-09 14:46+0100\n"
+"POT-Creation-Date: 2002-01-15 22:33+0100\n"
+"PO-Revision-Date: 2002-01-15 23:29+0100\n"
 "Last-Translator: Henning Meier-Geinitz <henning@meier-geinitz.de>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -16,17 +16,9 @@ msgstr ""
 msgid "Source Selection"
 msgstr "Dateiauswahl"
 
-#: .tmp/pnm.c:165
-msgid "Selection of the file to load."
-msgstr "Auswahl der zu ladenden Datei"
-
 #: .tmp/pnm.c:198
 msgid "Image Enhancement"
 msgstr "Bildkorrektur"
-
-#: .tmp/pnm.c:199
-msgid "A few controls to enhance image while loading"
-msgstr "Einige Einstellungen zur Verbesserung des Bildes während des Ladens"
 
 #: .tmp/pnm.c:231
 msgid "Grayify"
@@ -63,46 +55,31 @@ msgstr ""
 "Mit dieser Option kann man prüfen, ob das Frontend damit richtig umgehen "
 "kann."
 
-#: .tmp/pnm.c:267
+#: .tmp/pnm.c:268
 msgid "Defaults"
 msgstr "Defaulteinstellungen"
 
-#: .tmp/pnm.c:268
+#: .tmp/pnm.c:269
 msgid "Set default values for enhancement controls (brightness & contrast)."
 msgstr ""
 "Stellt die Farbverbesserungseinstellungen (Helligkeit und Kontrast) auf "
 "Defaultwerte."
 
-#: .tmp/pnm.c:278
+#: .tmp/pnm.c:280
 msgid "Read only test-option"
 msgstr "Nur-Lese-Testoption"
 
-#: .tmp/pnm.c:279
+#: .tmp/pnm.c:281
 msgid "Let's see whether frontends can treat this right"
 msgstr "Mal sehen, ob das Frontend damit umgehen kann."
 
-#: .tmp/pnm.c:289
-msgid "Gamma tables"
+#: .tmp/pnm.c:291
+msgid "Gamma Tables"
 msgstr "Gammatabellen"
 
-#: .tmp/pnm.c:290
-msgid "Selection of custom gamma tables."
-msgstr "Auswahl der benutzerdefinierten Gammatabellen."
-
-#: .tmp/pnm.c:355
+#: .tmp/pnm.c:357
 msgid "Status Code Simulation"
 msgstr "Statuscode Simulation"
-
-#: .tmp/pnm.c:356
-#, fuzzy
-msgid ""
-"Forces the backend to return a specific status code after a call to sane_read"
-"(). This can be used to test whether a frontend is able to treat the status "
-"codes correctly."
-msgstr ""
-"Zwingt das Backend, einen bestimmten Statuscode nach dem Aufruf von sane_read"
-"() zurückzuliefern. Damit kann man prüfen, ob ein Frontend die Statuscodes "
-"richtig behandeln kann."
 
 #: .tmp/pnm.c:368
 msgid "Do not force status code"
@@ -198,7 +175,7 @@ msgstr ""
 
 #: .tmp/saneopts.h:105
 msgid "Number of options"
-msgstr ""
+msgstr "Optionsanzahl"
 
 #: .tmp/saneopts.h:106
 msgid "Preview"
@@ -258,7 +235,7 @@ msgstr ""
 
 #: .tmp/saneopts.h:120
 msgid "Use custom gamma table"
-msgstr "Verwende eine benutzerdefinierte Gammatabelle"
+msgstr "Verwende benutzerdefinierte Gammatabelle"
 
 #: .tmp/saneopts.h:121
 msgid "Image intensity"
@@ -471,7 +448,7 @@ msgstr ""
 #: .tmp/saneopts.h:178
 msgid ""
 "Read-only option that specifies how many options a specific devices supports."
-msgstr ""
+msgstr "Read-Only-Option, die angibt, wieviele Optionen ein bestimmtes Gerät unterstützt."
 
 #: .tmp/saneopts.h:182
 msgid "Request a preview-quality scan."
@@ -536,8 +513,7 @@ msgstr ""
 
 #: .tmp/saneopts.h:228
 msgid "Determines whether a builtin or a custom gamma-table should be used."
-msgstr ""
-"Legt fest, dass eine benutzerdefinierte Gammatabelle verwendet werden soll."
+msgstr "Legt fest, ob eine eingebaute oder benutzerdefinierte Gammatabelle verwendet werden soll."
 
 #: .tmp/saneopts.h:232
 msgid ""

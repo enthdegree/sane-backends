@@ -40,7 +40,7 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.  */
 
-#define BUILD 3
+#define BUILD 4
 
 #include "../include/sane/config.h"
 
@@ -162,7 +162,7 @@ static SANE_Option_Descriptor sod[] =
   { /* opt_source_group */
     "",
     SANE_I18N("Source Selection"),
-    SANE_I18N("Selection of the file to load."),
+    "",
     SANE_TYPE_GROUP,
     SANE_UNIT_NONE,
     0,
@@ -196,7 +196,7 @@ static SANE_Option_Descriptor sod[] =
   { /* opt_enhancement_group */
     "",
     SANE_I18N("Image Enhancement"),
-    SANE_I18N("A few controls to enhance image while loading"),
+    "",
     SANE_TYPE_GROUP,
     SANE_UNIT_NONE,
     0,
@@ -252,9 +252,10 @@ static SANE_Option_Descriptor sod[] =
   { /* opt_hand_scanner */
     "hand-scanner",
     SANE_I18N("Hand-Scanner Simulation"),
-    SANE_I18N("Simulate a hand-scanner.  Hand-scanners often do not know the image "
-    "height a priori.  Instead, they return a height of -1.  Setting this "
-    "option allows to test whether a frontend can handle this correctly."),
+    SANE_I18N("Simulate a hand-scanner.  Hand-scanners often do not know the "
+	      "image height a priori.  Instead, they return a height of -1.  "
+	      "Setting this option allows to test whether a frontend can "
+	      "handle this correctly."),
     SANE_TYPE_BOOL,
     SANE_UNIT_NONE,
     sizeof (SANE_Word),
@@ -265,7 +266,8 @@ static SANE_Option_Descriptor sod[] =
   { /* opt_default_enhancements */
     "default-enhancements",
     SANE_I18N("Defaults"),
-    SANE_I18N("Set default values for enhancement controls (brightness & contrast)."),
+    SANE_I18N("Set default values for enhancement controls (brightness & "
+	      "contrast)."),
     SANE_TYPE_BUTTON,
     SANE_UNIT_NONE,
     0,
@@ -286,8 +288,8 @@ static SANE_Option_Descriptor sod[] =
   },
   {  /* opt_gamma_group */
     "",
-    SANE_I18N("Gamma tables"),
-    SANE_I18N("Selection of custom gamma tables."),
+    SANE_I18N("Gamma Tables"),
+    "",
     SANE_TYPE_GROUP,
     SANE_UNIT_NONE,
     0,
@@ -353,9 +355,7 @@ static SANE_Option_Descriptor sod[] =
   { /* opt_status_group */
     "",
     SANE_I18N("Status Code Simulation"),
-    SANE_I18N("Forces the backend to return a specific status code after a call "
-    "to sane_read(). This can be used to test whether a frontend is able "
-    "to treat the status codes correctly."),
+    "",
     SANE_TYPE_GROUP,
     SANE_UNIT_NONE,
     0,
@@ -377,8 +377,8 @@ static SANE_Option_Descriptor sod[] =
   { /* opt_status_eof */
     "status-eof",
     SANE_I18N("Return SANE_STATUS_EOF"),
-    SANE_I18N("Force the backend to return the status code SANE_STATUS_EOF after "
-    "sane_read() has been called.") ,
+    SANE_I18N("Force the backend to return the status code SANE_STATUS_EOF "
+	      "after sane_read() has been called."),
     SANE_TYPE_BOOL,
     SANE_UNIT_NONE,
     sizeof(SANE_Bool),
@@ -389,8 +389,8 @@ static SANE_Option_Descriptor sod[] =
   { /* opt_status_jammed */
     "status-jammed",
     SANE_I18N("Return SANE_STATUS_JAMMED"),
-    SANE_I18N("Force the backend to return the status code SANE_STATUS_JAMMED after "
-    "sane_read() has been called.") ,
+    SANE_I18N("Force the backend to return the status code SANE_STATUS_JAMMED "
+	      "after sane_read() has been called."),
     SANE_TYPE_BOOL,
     SANE_UNIT_NONE,
     sizeof(SANE_Bool),
@@ -401,8 +401,8 @@ static SANE_Option_Descriptor sod[] =
   { /* opt_status_nodocs */
     "status-nodocs",
     SANE_I18N("Return SANE_STATUS_NO_DOCS"),
-    SANE_I18N("Force the backend to return the status code SANE_STATUS_NO_DOCS after "
-    "sane_read() has been called.") ,
+    SANE_I18N("Force the backend to return the status code "
+	      "SANE_STATUS_NO_DOCS after sane_read() has been called."),
     SANE_TYPE_BOOL,
     SANE_UNIT_NONE,
     sizeof(SANE_Bool),
@@ -413,8 +413,8 @@ static SANE_Option_Descriptor sod[] =
   { /* opt_status_coveropen */
     "status-coveropen",
     SANE_I18N("Return SANE_STATUS_COVER_OPEN"),
-    SANE_I18N("Force the backend to return the status code SANE_STATUS_COVER_OPEN after "
-    "sane_read() has been called.") ,
+    SANE_I18N("Force the backend to return the status code "
+	      "SANE_STATUS_COVER_OPEN after sane_read() has been called."),
     SANE_TYPE_BOOL,
     SANE_UNIT_NONE,
     sizeof(SANE_Bool),
@@ -425,8 +425,8 @@ static SANE_Option_Descriptor sod[] =
   { /* opt_status_ioerror */
     "status-ioerror",
     SANE_I18N("Return SANE_STATUS_IO_ERROR"),
-    SANE_I18N("Force the backend to return the status code SANE_STATUS_IO_ERROR after "
-    "sane_read() has been called.") ,
+    SANE_I18N("Force the backend to return the status code "
+	      "SANE_STATUS_IO_ERROR after sane_read() has been called."),
     SANE_TYPE_BOOL,
     SANE_UNIT_NONE,
     sizeof(SANE_Bool),
@@ -437,8 +437,8 @@ static SANE_Option_Descriptor sod[] =
   { /* opt_status_nomem */
     "status-nomem",
     SANE_I18N("Return SANE_STATUS_NO_MEM"),
-    SANE_I18N("Force the backend to return the status code SANE_STATUS_NO_MEM after "
-    "sane_read() has been called.") ,
+    SANE_I18N("Force the backend to return the status code SANE_STATUS_NO_MEM "
+	      "after sane_read() has been called."),
     SANE_TYPE_BOOL,
     SANE_UNIT_NONE,
     sizeof(SANE_Bool),
@@ -449,8 +449,8 @@ static SANE_Option_Descriptor sod[] =
   { /* opt_status_accessdenied */
     "status-accessdenied",
     SANE_I18N("Return SANE_STATUS_ACCESS_DENIED"),
-    SANE_I18N("Force the backend to return the status code SANE_STATUS_ACCESS_DENIED "
-    "after sane_read() has been called.") ,
+    SANE_I18N("Force the backend to return the status code "
+	      "SANE_STATUS_ACCESS_DENIED after sane_read() has been called."),
     SANE_TYPE_BOOL,
     SANE_UNIT_NONE,
     sizeof(SANE_Bool),

@@ -27,7 +27,6 @@ backends
      - microtek
 
   * check net/saned
-     - net backend segfaults if saned isn't started (or timed out)
      - net backend segfaults sometimes when connected to localhost. Enabling
        debug output sometimes prevents segfaults.
      - don't just ignore the byte-order for the image data (needed to

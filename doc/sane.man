@@ -1,4 +1,4 @@
-.TH sane 7 "25 Dec 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane 7 "06 Jan 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane
 
 .SH NAME
@@ -784,6 +784,7 @@ for details).
 .BR sane\-teco2 (5),
 .BR sane\-teco3 (5),
 .BR sane\-test (5),
+.BR sane\-u12 (5),
 .BR sane\-umax1220u (5),
 .BR sane\-umax (5),
 .BR sane\-umax_pp (5),

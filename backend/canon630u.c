@@ -252,7 +252,7 @@ static SANE_Int optionAGainValue = 1;
 
 static SANE_Option_Descriptor optionAGainDescriptor = {
   SANE_I18N ("gain"),
-  SANE_I18N ("Analog gain"),
+  SANE_I18N ("Analog Gain"),
   SANE_I18N ("Increase or decrease the analog gain of the CCD array"),
   SANE_TYPE_INT,
   SANE_UNIT_NONE,
@@ -281,6 +281,46 @@ optionAGainCallback (SANE_Option * option, SANE_Handle handle,
       break;
     case SANE_ACTION_GET_VALUE:
       *(SANE_Int *) value = optionAGainValue;
+      break;
+    }
+  return SANE_STATUS_GOOD;
+}
+
+
+static SANE_Fixed optionGammaValue = SANE_FIX (1.6);
+
+static SANE_Option_Descriptor optionGammaDescriptor = {
+  SANE_I18N ("gamma"),
+  SANE_I18N ("Gamma Correction"),
+  SANE_I18N ("Selects the gamma corrected transfer curve"),
+  SANE_TYPE_FIXED,
+  SANE_UNIT_NONE,
+  sizeof (SANE_Int),
+  SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED,
+  SANE_CONSTRAINT_NONE,
+  {NULL}
+};
+
+
+static SANE_Status
+optionGammaCallback (SANE_Option * option, SANE_Handle handle,
+		     SANE_Action action, void *value, SANE_Int * info)
+{
+  option = option;
+  handle = handle;
+  info = info;			/* Eliminate warning about unused parameters */
+
+  switch (action)
+    {
+    case SANE_ACTION_SET_AUTO:
+      return SANE_STATUS_INVAL;
+      break;
+    case SANE_ACTION_SET_VALUE:
+      optionGammaValue = *(SANE_Fixed *) value;
+      *info |= SANE_INFO_RELOAD_PARAMS;
+      break;
+    case SANE_ACTION_GET_VALUE:
+      *(SANE_Fixed *) value = optionGammaValue;
       break;
     }
   return SANE_STATUS_GOOD;
@@ -490,6 +530,7 @@ static SANE_Option so[] = {
   {&optionGrayscaleDescriptor, optionGrayscaleCallback},
 #endif
   {&optionAGainDescriptor, optionAGainCallback},
+  {&optionGammaDescriptor, optionGammaCallback},
   {&optionTopLeftXDescriptor, optionTopLeftXCallback},
   {&optionTopLeftYDescriptor, optionTopLeftYCallback},
   {&optionBotRightXDescriptor, optionBotRightXCallback},
@@ -899,7 +940,8 @@ sane_start (SANE_Handle handle)
 				   MM_IN_INCH * 600,
 				   SANE_UNFIX (optionBotRightYValue) /
 				   MM_IN_INCH * 600,
-				   optionResolutionValue, optionAGainValue);
+				   optionResolutionValue, optionAGainValue, 
+				   SANE_UNFIX (optionGammaValue));
   if (res != SANE_STATUS_GOOD)
     return res;
 

@@ -57,6 +57,7 @@
 #include <string.h>
 #include <unistd.h>		/* usleep */
 #include <time.h>
+#include <math.h>               /* exp() */
 #ifdef HAVE_OS2_H
 #include <sys/types.h> 		/* mode_t */
 #endif
@@ -454,6 +455,7 @@ typedef struct CANON_Handle
   FILE *fp;			/* output file pointer (for reading) */
   char *buf, *ptr;		/* data buffer */
   unsigned char gain;		/* static analog gain, 0 - 31 */
+  double gamma;		        /* gamma correction */
   int flags;
 #define FLG_GRAY	0x01	/* grayscale */
 #define FLG_FORCE_CAL	0x02	/* force calibration */
@@ -975,14 +977,14 @@ plugin_cal (CANON_Handle * s)
 static SANE_Status
 compute_ogn (char *calfilename)
 {
+  byte *linebuf, *oldline, *newline;
+  mode_t oldmask;
   FILE *fp;
   int width, height, nlines = 0, region = -1, i, transition = 1, badcnt;
+  int pct;
   int reglines[NREGIONS];
-  byte *linebuf, *oldline, *newline;
   float *avg;
-  float pct;
   float max_range[3], tmp1, tmp2;
-  mode_t oldmask;
 
   fp = fopen (calfilename, "r");
   if (!fp)
@@ -1014,11 +1016,13 @@ compute_ogn (char *calfilename)
       badcnt = 0;
       for (i = 0; i < width; i++)
 	{
-	  /* percentage change */
 	  pct = newline[i] - oldline[i];
-	  pct = ((pct < 0) ? -pct : pct) / newline[i];
-	  /* count pixels that have changed by 10% */
-	  if (pct > 0.10)
+	  /* Fix by M.Reinelt <reinelt@eunet.at>
+	   * do NOT use 10% (think of a dark area with
+	   * oldline=4 and newline=5, which is a change of 20% !!
+	   * Use an absolute difference of 10 as criteria
+	   */
+	  if (pct < -10 || pct > 10)
 	    {
 	      badcnt++;
 	      DBG (16, "pix%d[%d/%d] ", i, newline[i], oldline[i]);
@@ -1122,11 +1126,18 @@ compute_ogn (char *calfilename)
       /* Gain multiplier: 
          255 : 1.5 times brighter
          511 : 2 times brighter
-         1023: 3 times brighter
-         So - why did I choose 512 here?  I forgot. */
-      gain = 512 * ((max_range[i / (width / 3)] /
-		     (avg[i + width] - avg[i])) - 1);
-      offset = avg[i];
+         1023: 3 times brighter */
+
+      /* Enhanced offset and gain calculation by M.Reinelt <reinelt@eunet.at>
+       * These expressions were found by an iterative calibration process, 
+       * by changing gain and offset values for every pixel until the desired
+       * values for black and white were reached, and finding an approximation 
+       * formula.
+       * Note that offset is linear, but gain isn't!
+       */
+      offset=(double)3.53*avg[i]-125;
+      gain=(double)3861.0*exp(-0.0168*(avg[i+width]-avg[i]));
+
       DBG (14, "%d wht=%f blk=%f diff=%f gain=%d\n", i,
 	   avg[i + width], avg[i], avg[i + width] - avg[i], gain);
       /* 10-bit gain, 6-bit offset (subtractor) in two bytes */
@@ -1251,10 +1262,12 @@ scan (CANON_Handle * opt)
   write_byte (fd, COMMAND, 0x01);
   read_byte (fd, STATUS, &result);	/* wants 0c */
 
-  /* use linear gamma for now */
+  /* create gamma table */
   buf = malloc (0x400);
   for (temp = 0; temp < 0x0400; temp++)
-    buf[temp] = temp / 4;
+    /* gamma calculation by M.Reinelt <reinelt@eunet.at> */
+    buf[temp] = (double) 255.0 * exp(log((temp+0.5)/1023.0)/opt->gamma) + 0.5;
+
   /* Gamma R, write and verify */
   write_byte (fd, DATAPORT_TARGET, DP_R | DP_GAMMA);
   write_word (fd, DATAPORT_ADDR, DP_WRITE);
@@ -1406,12 +1419,13 @@ CANON_set_scan_parameters (CANON_Handle * scan,
 			   const int left,
 			   const int top,
 			   const int right,
-			   const int bottom, const int res, const int gain)
+			   const int bottom, const int res, const int gain, const double gamma)
 {
   DBG (2, "CANON_set_scan_parameters:\n");
   DBG (2, "gray  = %d (ignored)\n", gray);
   DBG (2, "res   = %d\n", res);
   DBG (2, "gain  = %d\n", gain);
+  DBG (2, "gamma = %f\n", gamma);
   DBG (2, "in 600dpi pixels:\n");
   DBG (2, "left  = %d, top    = %d\n", left, top);
   DBG (2, "right = %d, bottom = %d\n", right, bottom);
@@ -1433,12 +1447,16 @@ CANON_set_scan_parameters (CANON_Handle * scan,
   if ((gain < 0) || (gain > 64))
     return SANE_STATUS_INVAL;
 
+  if (gamma <= 0.0)
+    return SANE_STATUS_INVAL;
+
   scan->resolution = res;
   scan->x1 = left;
   scan->x2 = right - /* subtract 1 pixel */ 600 / scan->resolution;
   scan->y1 = top;
   scan->y2 = bottom;
   scan->gain = gain;
+  scan->gamma = gamma;
   scan->flags = 0;
 
   return SANE_STATUS_GOOD;

@@ -234,30 +234,17 @@ AC_DEFUN(SANE_CHECK_GPHOTO2,
 	else
 		AC_CHECK_TOOL(HAVE_GPHOTO2, gphoto2-config, false)
 		
-		if test "$with_gphoto2" = "yes" ; then
-			with_gphoto2=`gphoto2-config --prefix`
-		fi
-		GPVERSION=`gphoto2-config --version`
+		if test $HAVE_GPHOTO2 != "" 
+		then
+			if test "$with_gphoto2" = "yes" ; then
+				with_gphoto2=`gphoto2-config --prefix`
+			fi
 
-		case "$GPVERSION" in 
-		    "gphoto2 2.0" |  \
-		    "gphoto2 2.1.0" |  \
-		    "gphoto2 2.0.1"*  \
-		 ) 
 			CPPFLAGS="${CPPFLAGS} `gphoto2-config --cflags`"
 			GPHOTO2_LIBS="`gphoto2-config --libs`"
 			SANE_EXTRACT_LDFLAGS(LDFLAGS, GPHOTO2_LIBS)
 			LIBS="${LIBS} ${GPHOTO2_LIBS}"
-			;;
-		* ) 
-			echo 
-			echo "Sorry, can't use GPHOTO2"
-			echo "GPHOTO2 APIs have been changing rapidly. Only"
-			echo "the current version from CVS is likely to work."
-			echo 
-			HAVE_GPHOTO2=""
-			;;
-		esac
+		fi
 ])	fi
 ])
 

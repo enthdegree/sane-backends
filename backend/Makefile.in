@@ -212,7 +212,7 @@ install:
 	  fi; \
 	done
 	for dir in $(FIRMWARE_DIRS) ; do \
-	   $(MKDIR) $(datadir)/sane/$${dir} ; \
+	   $(MKDIR) $(DESTDIR)$(datadir)/sane/$${dir} ; \
 	 done
 
 uninstall:

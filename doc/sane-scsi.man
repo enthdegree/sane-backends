@@ -303,6 +303,11 @@ variable controls the debug level for the generic SCSI I/O subsystem.  E.g., a
 value of 128 requests all debug output to be printed by the backend. A value
 of 255 also prints kernel messages from the SCSI subsystem (where available).
 Smaller levels reduce verbosity.
+.TP
+.B SANE_SCSICMD_TIMEOUT
+sets the timeout value for SCSI commands in seconds. Overriding the default 
+value of 120 seconds should only be necessary for very slow scanners.
+
 .SH "SEE ALSO"
 sane(7), sane\-find\-scanner(1), sane\-"backendname"(5), sane\-usb(5)
 .SH AUTHOR

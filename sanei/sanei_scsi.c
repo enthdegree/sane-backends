@@ -77,9 +77,6 @@
 #define SCO_UW71_INTERFACE	15
 #define SOLARIS_USCSI_INTERFACE	16
 
-/* time out for SCSI commands in seconds */
-#define SANE_SCSICMD_TIMEOUT 60
-
 #if defined (HAVE_SCSI_SG_H)
 # define USE LINUX_INTERFACE
 # include <scsi/sg.h>
@@ -248,6 +245,8 @@ static char lastrcmd[16]; /* hold command block of last read command */
 # define MAX_DATA	(32*1024)
 #endif
 
+/* default timeout value: 120 seconds */
+static int sane_scsicmd_timeout = 120;
 int sanei_scsi_max_request_size = MAX_DATA;
 #if USE == LINUX_INTERFACE
 /* the following #defines follow Douglas Gilbert's sample code
@@ -790,19 +789,32 @@ sanei_scsi_open (const char *dev, int *fdp,
   u_int bus = 0, target = 0, lun = 0, fake_fd = 0;
   char *real_dev = 0;
   void *pdata = 0;
-  int fd;
+  char *cc, *cc1;
+  int fd, i;
 #if USE == LINUX_INTERFACE
   static int first_time = 1;
 #endif
 
+  cc = getenv("SANE_SCSICMD_TIMEOUT");
+  if (cc) 
+    {
+      i = strtol(cc, &cc1, 10);
+      /* 20 minutes are hopefully enough as a timeout value ;) */
+      if (cc != cc1 && i > 0 && i <= 1200)
+        {
+          sane_scsicmd_timeout = i;
+        }
+      else
+        {
+          DBG(1, "sanei_scsi_open: timeout value must be between 1 and 1200 seconds\n");
+        }
+    }
+  
   DBG_INIT ();
 
 #if USE == LINUX_INTERFACE
   if (first_time)
     {
-      char *cc, *cc1;
-      int i;
-
       first_time = 0;
       
       /* Try to determine a reliable value for sanei_scsi_max_request_size:
@@ -1137,7 +1149,7 @@ sanei_scsi_open (const char *dev, int *fdp,
      disconnect... ;-( */
   {
     int timeout;
-    timeout = SANE_SCSICMD_TIMEOUT * HZ;	/* how about 1 minute? ;-) */
+    timeout = sane_scsicmd_timeout * HZ;
     ioctl (fd, SG_SET_TIMEOUT, &timeout);
   }
 #endif
@@ -1962,8 +1974,7 @@ sanei_scsi_req_enter2 (int fd,
       memcpy(req->sgdata.sg3.data, cmd, cmd_size);
       (const void*) req->sgdata.sg3.hdr.cmdp = req->sgdata.sg3.data;
       req->sgdata.sg3.hdr.sbp = &(req->sgdata.sg3.sense_buffer[0]);
-      /* 1 minute should be ok even for slow scanners */
-      req->sgdata.sg3.hdr.timeout = 1000 * SANE_SCSICMD_TIMEOUT;
+      req->sgdata.sg3.hdr.timeout = 1000 * sane_scsicmd_timeout;
 #ifdef ENABLE_SCSI_DIRECTIO
       /* for the adventurous: If direct IO is used,
          the kernel locks the buffer. This can lead to conflicts,
@@ -2654,7 +2665,7 @@ sanei_scsi_cmd2 (int fd,
       hdr.databuf = (char *) src;
       hdr.datalen = src_size;
     }
-  hdr.timeout = SANE_SCSICMD_TIMEOUT * 1000;		/* 1 minute timeout */
+  hdr.timeout = sane_scsicmd_timeout * 1000;
   hdr.cmdlen = cmd_size;
   hdr.senselen = sizeof (hdr.sense);
 
@@ -2753,7 +2764,7 @@ SANE_Status sanei_scsi_cmd2(int fd,
 		 /* dxfer_len */ data_len,
 		 /* sense_len */ SSD_FULL_SIZE,
 		 /* cdb_len */ cmd_size,
-		 /* timeout */ SANE_SCSICMD_TIMEOUT * 1000);
+		 /* timeout */ sane_scsicmd_timeout * 1000);
 
    /* Run the command */
    errno = 0;
@@ -2984,7 +2995,7 @@ sanei_scsi_cmd2 (int fd,
       hdr.data_length = src_size;
     }
   hdr.cdb_length = cmd_size;
-  hdr.max_msecs = SANE_SCSICMD_TIMEOUT * 1000;	/* 1 minute timeout */
+  hdr.max_msecs = sane_scsicmd_timeout * 1000;
   if (ioctl (fd, SIOC_IO, &hdr) < 0)
     {
       DBG (1, "sanei_scsi_cmd: ioctl(SIOC_IO) failed: %s\n",
@@ -3038,7 +3049,7 @@ sanei_scsi_cmd2 (int fd,
       hdr.sr_addr = (char *) src;
       hdr.sr_dma_max = src_size;
     }
-  hdr.sr_ioto = SANE_SCSICMD_TIMEOUT;		/* I/O timeout in seconds */
+  hdr.sr_ioto = sane_scsicmd_timeout;
 
   if (ioctl (fd, SGIOCREQ, &hdr) == -1)
     {
@@ -3072,7 +3083,7 @@ sanei_scsi_cmd2 (int fd,
       sr.sr_dma_dir    = SR_DMA_RD;
       sr.sr_addr       = (char*) &sense_reply;
       sr.sr_dma_max    = sizeof (struct esense_reply);
-      sr.sr_ioto       = SANE_SCSICMD_TIMEOUT;
+      sr.sr_ioto       = sane_scsicmd_timeout;
       sr.sr_cdb_length = 6;
 
       ioctl (fd, SGIOCREQ, &sr);
@@ -3141,7 +3152,7 @@ sanei_scsi_cmd2 (int fd,
       ccb.cam_data_ptr = (u_char *) src;
       ccb.cam_dxfer_len = src_size;
     }
-  ccb.cam_timeout = SANE_SCSICMD_TIMEOUT;		/* set timeout in seconds */
+  ccb.cam_timeout = sane_scsicmd_timeout;
   ccb.cam_cdb_len = cmd_size;
   memcpy (&ccb.cam_cdb_io.cam_cdb_bytes[0], cmd, cmd_size);
 
@@ -3323,7 +3334,7 @@ sanei_scsi_cmd2 (int fd,
 	sb_ptr->SCB.sc_mode = SCB_READ;
       }
     }
-  sb_ptr->SCB.sc_time = SANE_SCSICMD_TIMEOUT * 1000; /* 1 min timeout */
+  sb_ptr->SCB.sc_time = sane_scsicmd_timeout * 1000;
   DBG(1, "sanei_scsi_cmd: sc_mode = %d, sc_cmdsz = %d, sc_datasz = %d\n",
       sb_ptr->SCB.sc_mode, sb_ptr->SCB.sc_cmdsz, sb_ptr->SCB.sc_datasz);
   {
@@ -3998,7 +4009,7 @@ sanei_scsi_cmd2 (int fd,
     }
   scmd.cdb = (char *) cmd;
   scmd.cdblen = cmd_size;
-  scmd.timeval = SANE_SCSICMD_TIMEOUT;		/* 1 minute timeout */
+  scmd.timeval = sane_scsicmd_timeout;
   scmd.sense_buf = sense_buf;
   scmd.senselen = sizeof (sense_buf);
   scmd.statusp = &status;
@@ -4088,7 +4099,7 @@ sanei_scsi_cmd2 (int fd,
 #ifndef SC_BUSY
 # define SC_BUSY		0x08
 #endif
-#define DEF_TIMEOUT SANE_SCSICMD_TIMEOUT;		/* 1 minute */
+#define DEF_TIMEOUT sane_scsicmd_timeout;
 
 /* Choosing one of the following DEF_SCG_FLG's SCG_DISRE_ENA allows
    the SCSI driver to disconnect/reconnect.  SCG_CMD_RETRY allows a
@@ -4238,7 +4249,7 @@ unit_ready (int fd)
 
 #if USE == SOLARIS_USCSI_INTERFACE
 
-#define DEF_TIMEOUT SANE_SCSICMD_TIMEOUT;		/* 1 minute */
+#define DEF_TIMEOUT sane_scsicmd_timeout;
 
 static int d_errs = 100;
 typedef struct scsi_extended_sense extended_sense_t;

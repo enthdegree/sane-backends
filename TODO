@@ -1,4 +1,4 @@
-TODO (2001-12-25)
+TODO (2001-12-27)
 
 ******** todo ********
 
@@ -13,7 +13,8 @@ backends
     - hp4200 http://hp4200-backend.sourceforge.net/
     - v4l2 http://video.inodes.org/sane-v4l2/
     - Relisys Scorpio Super 3 SCSI II
-      Mark Plowman <mplowman@wxs.nl>
+      Mark Plowman <sane-devel@plowman.xs4all.nl>
+      http://www.xs4all.nl/~plowman/
     - Linux Handscanner Ioctl Interface scanner by Harald
       Bauer <bauer-h@web.de>
     - viceo (Visioneer OneTouch 8600)
@@ -188,6 +189,10 @@ misc
   * check memory leaks (checked with purify and mtrace (from glibc)):
 
   * Add installation procedure for translations of SANE backend's options.
+
+  * Split configure option --enable-directio into --enable-scsi-directio and
+    --enable-parport-directio to avoid confusion. Also add appropriate
+    documentation.
 
 ******** done ********
 * Add bearpaw backend (Mustek BearPaw 1200 + maybe 2400)

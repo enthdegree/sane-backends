@@ -2,6 +2,8 @@
 
 	* configure configure.in: Fixed bug concerning libusb that
 	  broke compilation on NetBSD.
+	* doc/sane-find-scanner.man doc/sane-usb.man sanei/sanei_usb.c
+	  tools/sane-find-scanner.c: Added (limited) support for FreeBSD.
 
 2001-08-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -1,3 +1,6 @@
+2005-03-03  Julien Blache <jb@jblache.org>
+	* tools/hotplug-ng/libsane.hotplug: add missing quote in the grep line.
+
 2005-03-02  Julien Blache <jb@jblache.org>
 	* tools/hotplug-ng/libsane.hotplug: allow for several spaces
 	between fields in the db file.

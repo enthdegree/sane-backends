@@ -1,9 +1,23 @@
+2003-10-08  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* backend/Makefile.in : linking plustek_pp- and test-backend against
+	  sanei_thread
+	* backend/test.[ch]: added sanei_thread support
+	* backend/test-picture.ch: fixed compiler warnings
+	* backend/plustek.[ch] backend/plustek_pp.c backend/plustek-pp.h:
+	  changes due to the sanei_thread-lib work
+	* sanei/sanei_thread.c include/sane/sanei_thread.h: improved
+	  support of pthreads, changed behaviour of sanei_thread_kill(),
+	  added functions sanei_thread_sendsig() and sanei_thread_get_status()
+	  changed behaviour of sanei_thread_waitpid(), changed parameters
+	  of sanei_thread_begin()
+
 2003-10-08  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/canon630u.c: Workaround for bug in canon630u backend:
 	  The backend assumes that the id it gets back from sanei_usb_open
 	  is a file descriptor. It isn't. So sane_get_select_fd returns
-	  just a random number. That breals at least saned, other
+	  just a random number. That breaks at least saned, other
 	  frontends may not work either. This is a workaround for bug
 	  #300257.
 

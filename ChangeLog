@@ -1,3 +1,8 @@
+2001-06-14  Gerhard Jaeger <g.jaeger@earthling.net>
+
+	* doc/sane-plustek.man:
+	  Corrected URL to Plustek mailing list
+
 2001-06-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* TODO: Added link to libieee1284.

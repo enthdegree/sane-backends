@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-09-24"		; version of backend
+:version "2003-09-28"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -295,6 +295,11 @@
 :status :unsupported
 :comment "Probably unsupported. Sold 1998. Same as E-Lux j-6121."
 
+:model "M-3630 A"
+:interface "Parport"
+:status :unsupported
+:comment "Probably unsupported. "
+
 ;********************************************************************************************
 
 :mfg "Fujitsu"
@@ -321,6 +326,12 @@
 :interface "USB"
 :status :unsupported
 :comment "Not supported. Vendor/product: 0x0458/0x2018. GL646? See link for more details."
+
+:model "ColorPage HR8"
+:url "/unsupported/genius-colorpage-hr8.html"
+:interface "USB"
+:status :unsupported
+:comment "Not supported. See link for some more details."
 
 :model "Colorpage Vivid III"
 :url "/unsupported/genius-colorpage-vivid-III.html"
@@ -873,6 +884,12 @@
 :interface "USB"
 :status :unsupported
 :comment "Not supported. No chipset information available. Same as Avision iVina FB2400."
+
+:model "AstraSlim 1200 SE"
+:url "/unsupported/umax-astraslim-1200-se.html"
+:interface "USB"
+:status :unsupported
+:comment "Probably not supported currently. May be supported in future. See link for more details."
 
 :model "Powerlook 1000 USB"
 ;:url ""

@@ -1,3 +1,8 @@
+2003-09-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added Enhans, Genius and UMAX
+	  scanners.
+
 2003-09-25  Frank Zago  <fzago at austin dot rr dot com>
 
 	* README.windows: updated status of xscanimage and XSane.

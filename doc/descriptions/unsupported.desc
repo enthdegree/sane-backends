@@ -591,7 +591,7 @@
 
 ;********************************************************************************************
 
-:mfg "Spot"
+:mfg "Spot Technology"
 :comment "Spot seems have gone out of business."
 
 :model "Maxiscan A4"
@@ -600,13 +600,13 @@
 :status :unsupported
 :comment "Not supported until now. Work on a backend has started, see link for more information."
 
-:model "ScanTek 2c"
+:model "ScanTak 2c"
 :url "http://www.mostang.com/pipermail/sane-devel/2003-May/018749.html"
 :interface "SCSI"
 :status :unsupported
 :comment "Not supported. See link for more information."
 
-:model "ScanTek 3c"
+:model "ScanTak 3c"
 :url "http://www.mostang.com/pipermail/sane-devel/2003-May/018749.html"
 :interface "SCSI"
 :status :unsupported

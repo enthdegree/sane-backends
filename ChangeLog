@@ -4,6 +4,8 @@
 	  sane-find-scanner. Some clarifications.
 	* doc/scanimage.man: Use "--option arg" format for all options.
 	  Other formatting fixes.
+	* doc/gamma4scanimage.man doc/sane-config.man doc/sane-find-scanner.man
+	  doc/saned.man: Formatting updates.
 
 2002-11-22  Michael Herder <crapsite at gmx.net>
 

@@ -1,10 +1,10 @@
-.TH saned 1 "8 Oct 2002"
+.TH saned 1 "8 Oct 2002" @PACKAGEVERSION@ "SANE Scanner Access Now Easy"
 .IX saned
 .SH NAME
-saned - SANE network daemon
+saned \- SANE network daemon
 .SH SYNOPSIS
 .B saned
-.RB [ -d | -s
+.RB [ \-d | \-s
 .RI [ n ]]
 .SH DESCRIPTION
 .B saned
@@ -13,9 +13,9 @@ to access image acquisition devices available on the local host.
 .SH OPTIONS
 .PP
 The
-.B -d
+.B \-d
 and
-.B -s
+.B \-s
 flags request that
 .B saned
 run in debug mode (as opposed to
@@ -25,15 +25,17 @@ mode).  In this mode,
 explicitly waits for a connection request.  When compiled with
 debugging enabled, these flags may be followed by a number to request
 debug info. The larger the number, the more verbose the debug output.
-E.g., -d128 will request printing of all debug info. Debug level 0 means
-no debug output at all. The default value is 2. If flag
-.B -d
+E.g.,
+.B \-d128
+will request printing of all debug info. Debug level 0 means no debug output
+at all. The default value is 2. If flag
+.B \-d
 is used, the debug messages will be printed to stderr while
-.B -s
+.B \-s
 requests using syslog. 
 .SH CONFIGURATION
 First and foremost: please do
-.I not
+.B not
 install
 .B saned
 as setuid root without due consideration.  Especially when using
@@ -178,9 +180,14 @@ to "/tmp/config:" would result in directories "tmp/config", ".", and
 "@CONFIGDIR@" being searched (in this order).
 
 .SH "SEE ALSO"
-sane(7), scanimage(1), xscanimage(1), xcam(1), sane\-dll(5), sane\-net(5),
-sane\-"backendname"(5)
-
+.BR sane (7),
+.BR scanimage (1),
+.BR xscanimage (1),
+.BR xcam (1),
+.BR sane-dll (5),
+.BR sane-net (5),
+.BR sane-"backendname" (5)
+.br
 .I http://www.penguin-breeder.org/?page=sane-net
 .SH AUTHOR
 David Mosberger

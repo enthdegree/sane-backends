@@ -86,9 +86,9 @@ Look for a (SCSI) scanner only at /dev/scanner and print the result.
 .BR sane (7),
 .BR sane-scsi (5),
 .BR sane-usb (5),
-.BR scanimage(1),
-.BR xscanimage(1),
-.BR xsane(1),
+.BR scanimage (1),
+.BR xscanimage (1),
+.BR xsane (1),
 .BR sane-"backendname" (5)
 
 .SH AUTHOR

@@ -85,3 +85,17 @@ Excessive warnings "pointer of type `void *' used in arithmetic":
 
 If you use DEC cc on Linux Alpha, you may need to set LDFLAGS="-N" to
   be able to build sane-backends.
+
+The Intel C++ Compiler for IA32 and IA64 isn't supported yet. If you want
+  to try nevertheless, you will experience undefined references to inb
+  and outb functions. To avoid those replace #include <sys/io.h> with
+
+  #if defined(__ICC) && __ICC >= 700
+  # define __GNUC__ 2
+  #endif
+  #include <sys/io.h>
+  #if defined(__ICC) && __ICC >= 700
+  # undef __GNUC__
+  #elif defined(__ICC) && defined(HAVE_ASM_IO_H)
+  # include <asm/io.h>
+  #endif

@@ -14,6 +14,8 @@ Before the release:
 * ChangeLog: set release marker
 * final compilation test
 * make distclean
+* tag CVS with release tag: 'cvs tag RELEASE_1_0_4'
+* make diff from last release: 'cvs diff -uNr RELEASE_1_0_3 > sane-1.0.4.diff'
 
 Making the release:
 

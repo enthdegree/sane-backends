@@ -1,6 +1,11 @@
 ---- FEATURE FREEZE FOR SANE 1.0.9 ---
 -- snapshot 1.0.9-pre1
 
+2002-09-29  Peter Fales <peter@fales-lorenz.net>
+
+	* backend/dc25.[ch]:  Fix compiler warnings, and correct
+	  errors found by tstbackend.
+
 2002-09-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
 	
 	* doc/descriptions/mustek_usb.desc: Added "ScanExpress" for all models

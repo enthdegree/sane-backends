@@ -1,9 +1,9 @@
 /* sane - Scanner Access Now Easy.
 
    Copyright (C) 2000 Mustek.
-   Maintained by Tom Wang <tom.wang@mustek.com.tw>
+   Originally maintained by Tom Wang <tom.wang@mustek.com.tw>
 
-   Updates (C) 2001 by Henning Meier-Geinitz.
+   Copyright (C) 2001, 2002 by Henning Meier-Geinitz.
 
    This file is part of the SANE package.
 
@@ -44,9 +44,9 @@
    If you do not wish that, delete this exception notice.
 
    This file implements a SANE backend for Mustek 1200UB and similar 
-   flatbed scanners.  */
+   USB flatbed scanners.  */
 
-#define BUILD 10
+#define BUILD 11
 
 #include "../include/sane/config.h"
 
@@ -254,6 +254,7 @@ init_options (Mustek_Usb_Scanner * s)
 
   s->opt[OPT_NUM_OPTS].title = SANE_TITLE_NUM_OPTIONS;
   s->opt[OPT_NUM_OPTS].desc = SANE_DESC_NUM_OPTIONS;
+  s->opt[OPT_NUM_OPTS].type = SANE_TYPE_INT;
   s->opt[OPT_NUM_OPTS].cap = SANE_CAP_SOFT_DETECT;
   s->val[OPT_NUM_OPTS].w = NUM_OPTIONS;
 
@@ -917,6 +918,17 @@ sane_exit (void)
   for (dev = first_dev; dev; dev = next)
     {
       next = dev->next;
+      if (dev->is_prepared)
+	{
+	  status = usb_high_scan_clearup (dev);
+	  if (status != SANE_STATUS_GOOD)
+	    DBG (3, "sane_close: usb_high_scan_clearup returned %s\n",
+		 sane_strstatus (status));
+	}
+      status = usb_high_scan_exit (dev);
+      if (status != SANE_STATUS_GOOD)
+	DBG (3, "sane_close: usb_high_scan_exit returned %s\n",
+	     sane_strstatus (status));
       if (dev->chip)
 	{
 	  status = usb_high_scan_exit (dev);
@@ -988,7 +1000,8 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
     {
       /* empty devicname -> use first device */
       dev = first_dev;
-      DBG (5, "sane_open: empty devicename, trying `%s'\n", dev->name);
+      if (dev)
+	DBG (5, "sane_open: empty devicename, trying `%s'\n", dev->name);
     }
   
   if (!dev)
@@ -1091,6 +1104,7 @@ sane_close (SANE_Handle handle)
 	DBG (3, "sane_close: usb_high_scan_turn_power returned %s\n",
 	     sane_strstatus (status));
     }
+#if 0
   if (s->hw->is_prepared)
     {
       status = usb_high_scan_clearup (s->hw);
@@ -1102,7 +1116,7 @@ sane_close (SANE_Handle handle)
   if (status != SANE_STATUS_GOOD)
     DBG (3, "sane_close: usb_high_scan_exit returned %s\n",
 	 sane_strstatus (status));
-
+#endif
   if (s->hw->scan_buffer)
     {
       free (s->hw->scan_buffer);

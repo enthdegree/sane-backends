@@ -1,5 +1,13 @@
 CHANGES for the SANE Mustek USB backend
 
+2002-03-17:
+  * Release of version 1.0-11. 
+
+2002-03-16:
+  * mustek_usb.c: Fixed segfault when opening device again after closing.
+  * mustek_usb.c: Fixed possible segfault when name="".
+  * mustek_usb.c: Type for option 0 must be set to SANE_TYPE_INT explicitely.
+
 2002-02-14:
   * Fixed some problems with wrong formats in DBG statements.
 

@@ -1,3 +1,14 @@
+2001-10-17 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
+
+  * umax backend bugfixes (new version number: 1.0 build 31):
+    man page uses @LIBDIR@ and @CONFIGDIR@,
+    calibration fix for Supervista S-12 and compatible scanners
+    directory backend:
+      umax.c umax-scanner.c umax-scsidef.h
+    directory doc:
+      sane-umax.man /umax/sane-umax-advanced-options-doc.html
+      umax/sane-umax-standard-options-doc.html umax/umax.CHANGES    
+
 2001-10-27  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
   * backend/Makefile.in     backend/snapscan-usb.c

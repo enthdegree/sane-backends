@@ -11,7 +11,6 @@
 
 :backend "pie"                    ; name of backend
 :version "1.0"                    ; version of backend
-:status :beta                     ; :alpha, :beta, :stable, :new
 :manpage "sane-pie"               ; name of manpage (if it exists)
 :url "http://www.munton.demon.co.uk/sane"  ; backend's web page
 
@@ -24,7 +23,7 @@
 
 :model "9636PRO"
 :interface "SCSI"
-:status :stable
+:status :good
 
 :model "9636S"
 :interface "SCSI"
@@ -39,11 +38,11 @@
 
 :model "ScanAce 1236S"
 :interface "SCSI"
-:status :stable
+:status :good
 
 :model "ScanAce 1230S"
 :interface "SCSI"
-:status :stable
+:status :good
 
 :model "ScanAce II"
 :interface "SCSI"
@@ -89,7 +88,7 @@
 
 :model "JetScan630"
 :interface "SCSI"
-:status :stable
+:status :good
 
 :model "JetScan636PRO"
 :interface "SCSI"

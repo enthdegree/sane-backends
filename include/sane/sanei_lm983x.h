@@ -48,6 +48,8 @@
  *
  *  The National Semiconductor LM9831, LM9832, and LM9833 chips are used in
  *  many USB scanners. Examples include Plustek and Mustek devices.
+ *
+ * @sa sanei_usb.h
  */
 
 #ifndef sanei_lm983x_h

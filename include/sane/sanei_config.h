@@ -40,7 +40,7 @@
 */
 
 /** @file sanei_config.h
- * This file provides generic configuration support.  
+ * Generic configuration support.
  *
  * Use the functions of this header file if you want to read and analyze
  * configuration files.
@@ -77,7 +77,7 @@ extern FILE *sanei_config_open (const char *name);
 */
 extern char *sanei_config_read (char *str, int n, FILE *stream);
 
-/** Removes all whitespace from the beginning of a string.
+/** Remove all whitespace from the beginning of a string.
  *
  * @param str string
  *
@@ -87,7 +87,7 @@ extern char *sanei_config_read (char *str, int n, FILE *stream);
 extern const char *sanei_config_skip_whitespace (const char *str);
 
 
-/** Scans a string constant from a line of text and returns a malloced copy
+/** Scan a string constant from a line of text and return a malloced copy
  * of it.
  *
  * It's the responsibility of the caller to free the returned string constant
@@ -122,6 +122,6 @@ extern const char *sanei_config_get_string (const char *str,
  */
 extern void sanei_config_attach_matching_devices (const char *name,
 						  SANE_Status (*attach)
-						    (const char *dev));
+						  (const char *dev));
 
 #endif	/* sanei_config_h */

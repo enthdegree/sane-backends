@@ -15,12 +15,27 @@
    You should have received a copy of the GNU General Public License
    along with sane; see the file COPYING.  If not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+*/
 
-   This file declares SANE application interface.  See the SANE
-   standard for a detailed explanation of the interface.  */
+/** @file sanei_codec_ascii.h
+ * ASCII codec for network and file transmissions
+ *
+ * Instead translating data to a byte stream this codec uses ASCII hex numbers.
+ * Therefore it can be used for streams that are not 8-bit clean or which can
+ * only use printable characters. It's currently used for saving/restoring
+ * data to/from disk.
+ *
+ * @sa sanei_codec_bin.h sanei_net.h sanei_wire.h
+ */
 #ifndef sanei_codec_ascii_h
 #define sanei_codec_ascii_h
 
+/** Initialize the ascii codec
+ *
+ * Set the i/o functions of the Wire to those of the ASCII codec.
+ *
+ * @param w Wire
+ */
 extern void sanei_codec_ascii_init (Wire *w);
 
 #endif /* sanei_codec_ascii_h */

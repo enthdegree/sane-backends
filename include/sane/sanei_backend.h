@@ -1,3 +1,17 @@
+/** @file sanei_backend.h
+ * Compatibility header file for backends
+ *
+ * This file provides some defines for macros missing on some platforms.
+ * It also has the SANE API entry points. sanei_backend.h muste be included
+ * by every backend.
+ *
+ * @sa sanei.h sanei_thread.h
+ */
+
+/** @name Compatibility macros
+ * @{
+ */
+
 #include <sane/sanei_debug.h>
 
 #ifdef HAVE_SYS_HW_H
@@ -73,9 +87,12 @@
 # define SIG_UNBLOCK    2
 # define SIG_SETMASK    3
 #endif /* !HAVE_SIGPROCMASK */
+/* @} */
 
-/* Declare the entry points: */
 
+/** @name Declaration of entry points:
+ * @{
+ */
 extern SANE_Status ENTRY(init) (SANE_Int *, SANE_Auth_Callback);
 extern SANE_Status ENTRY(get_devices) (const SANE_Device ***, SANE_Bool);
 extern SANE_Status ENTRY(open) (SANE_String_Const, SANE_Handle *);
@@ -110,11 +127,14 @@ extern void ENTRY(exit) (void);
 #define sane_close(a)                   ENTRY(close) (a)
 #define sane_exit(a)                    ENTRY(exit) (a)
 #endif /* STUBS */
+/* @} */
 
-/* Internationalization for SANE backends
-   Add SANE_I18N() to all texts that can be translated.
-   E.g. out_txt = SANE_I18N("Hello"); */
-
+/** @name Internationalization for SANE backends
+ * Add SANE_I18N() to all texts that can be translated.
+ *  E.g. out_txt = SANE_I18N("Hello"); 
+ * @{
+ */
 #ifndef SANE_I18N
 #define SANE_I18N(text) text
 #endif
+/* @} */

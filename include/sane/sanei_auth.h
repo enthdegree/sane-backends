@@ -37,45 +37,58 @@
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice. 
+*/
 
-   This file implements an interface for user authorization using MD5 digest */
+/** @file sanei_auth.h
+ * Interface for authorization of resources
+ *
+ * This file implements an interface for user authorization. The authorization
+ * call is forwarded to the frontend which asks for a username and password.
+ * An MD5 digest is used if supported by the frontend.
+ *
+ * @sa sanei.h sanei_backend.h
+ */
 
 #ifndef sanei_auth_h
 #define sanei_auth_h
 
 #include "../include/sane/sane.h"
 
-/* this function needs the name of the resource to authorize, the name
- * of the backend and the auth_callback. It looks for the file:
- * 	SANE_CONFIG_DIR/backend.users
+/** Check authorization for a resource
  *
- * if this file doesn't exist, sanei_authorize always returns SANE_STATUS_GOOD
+ * This function looks for the file SANE_CONFIG_DIR/backend.users.
+ * If this file doesn't exist, sanei_authorize always returns SANE_STATUS_GOOD.
+ * The file backend.users contains a list of usernames, passwords, and
+ * resources:
  *
- * the file backend.users contains a list of resource usernames and passwords
+ * username:password:resource
+ * username:password:resource
  *
- * resource:username:password
- * resource:username:password
- *
- * if the requested resource isn't listed in this file, sanei_authorize
- * return SANE_SATUS_GOOD
- *
- * in all other cases, sanei_authorize sends a challenge to the frontend
- * of the form
+ * If the requested resource isn't listed in this file, sanei_authorize
+ * return SANE_SATUS_GOOD. In all other cases, sanei_authorize sends a
+ * challenge to the frontend of the form
  * 
  * resource$MD5$randomstring
  * 
- * where randomstring consists of the PID, the time, and some random characters
- *
- * it accepts two forms of answers
+ * where randomstring consists of the PID, the time, and some random
+ * characters. It accepts two forms of answers
  *
  * std: username:password
  * md5: username:$MD5$m5digest
  *
- * where md5digest is md5(randomstring password)
+ * where md5digest is md5(randomstring password).
  * 
- * if this resource/username/password triple is listed in backend.users
+ * If this username/password/resource triple is listed in backend.users
  * sanei_authorize returns SANE_STATUS_GOOD, in all other cases it returns
- * SANE_STATUS_ACCESS_DENIED
+ * SANE_STATUS_ACCESS_DENIED.
+ *
+ * @param resource resource to authorize
+ * @param backend backend name
+ * @param authorize auth callback
+ *
+ * @return
+ * - SANE_STATUS_GOOD - access is granted
+ * - SANE_STATUS_ACCESS_DENIED - access is denied
  */
 
 SANE_Status

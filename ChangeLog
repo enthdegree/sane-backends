@@ -1,3 +1,13 @@
+2002-02-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* include/sane/sanei.h include/sane/sanei_ab306.h
+	  include/sane/sanei_auth.h include/sane/sanei_backend.h
+	  include/sane/sanei_codec_ascii.h include/sane/sanei_codec_bin.h
+	  include/sane/sanei_config.h include/sane/sanei_debug.h
+	  include/sane/sanei_lm983x.h include/sane/sanei_thread.h
+	  include/sane/sanei_usb.h: Added, fixed and updated documentation
+	  for sanei using doxygen.
+
 2002-02-15  Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c backend/umax_pp_low.h backend/umax_pp_mid.h

@@ -31,6 +31,8 @@
  * The preprocessor is used for routing process-related function to OS/2
  * threaded code: in this way, Unix backends requires only minimal code
  * changes.
+ *
+ * @sa sanei.h sanei_backend.h
  */
 
   
@@ -38,6 +40,9 @@
 #define sanei_thread_h
 #include "../include/sane/config.h"
 
+/** @name Internal functions 
+ * @{
+ */
 /** <b>Do not use in backends</b>
  *
  * Wrapper for @c fork. 
@@ -61,6 +66,7 @@ extern int sanei_thread_waitpid( int pid, int *stat_loc, int options);
  * Wrapper for @c wait. 
  */
 extern int sanei_thread_wait( int *stat_loc);
+/* @} */
 
 /** Reader process function.
  *

@@ -51,6 +51,8 @@
  *
  * Depending on the operating system it may be necessary to run this code as
  * root.
+ *
+ * @sa sanei_pio.h sanei_scsi.h sanei_usb.h
  */
 
 

@@ -18,13 +18,15 @@
 */
 
 /** @file sanei.h
- *  Convenience macros and function declarations for backends
+ * Convenience macros and function declarations for backends
+ * @sa sanei_backend.h sanei_thread.h
  */
 
 /* Doxygen documentation */
 
 /** @mainpage SANEI (SANE internal routines) documentation
  *
+ * @image html ../sane-logo2.jpg
  * @section intro Introduction
  *
  * The header files in the include/sane/ directory named sanei_*.h provide
@@ -63,29 +65,21 @@
 
 #include <sane/sane.h>
 
-/* A few convenience macros:  */
-
+/** @name Public macros and functions
+ * @{
+ */
 /** @def STRINGIFY(x)
  * Turn parameter into string.
- *
  */
-#define STRINGIFY1(x)	#x
-#define STRINGIFY(x)	STRINGIFY1(x)
-
 /** @def PASTE(x,y)
  * Concatenate parameters.
  *
  */
-#define PASTE1(x,y)	x##y
-#define PASTE(x,y)	PASTE1(x,y)
-
 /** @def NELEMS(a)
  * Return number of elements of an array.
  *
  */
-#define NELEMS(a)	((int)(sizeof (a) / sizeof (a[0])))
-
-/**
+/** @fn extern SANE_Status sanei_constrain_value (const SANE_Option_Descriptor * opt, void * value, SANE_Word * info);
  * Check the constraints of a SANE option and adjust its value if necessary.
  *
  * Depending on the type of the option and constraint, value is modified
@@ -100,6 +94,33 @@
  * - SANE_STATUS_INVAL    - if the function wasn't able to fit value into the
  *   constraint or any other error occured
  */
+/* @} */
+
+/** @name Private macros
+ * @{
+ */
+/** @def STRINGIFY1(x)
+ * Internal use only.
+ */
+/** @def PASTE1(x,y)
+ * Internal use only.
+ */
+/* @} */
+
+/* A few convenience macros:  */
+/** @hideinitializer */
+#define NELEMS(a)	((int)(sizeof (a) / sizeof (a[0])))
+
+/** @hideinitializer */
+#define STRINGIFY1(x)	#x
+/** @hideinitializer */
+#define STRINGIFY(x)	STRINGIFY1(x)
+
+/** @hideinitializer */
+#define PASTE1(x,y)	x##y
+/** @hideinitializer */
+#define PASTE(x,y)	PASTE1(x,y)
+
 extern SANE_Status sanei_constrain_value (const SANE_Option_Descriptor * opt,
 					  void * value, SANE_Word * info);
 

@@ -126,8 +126,8 @@ static SANE_Option_Descriptor sod[] =
   },
   {
     "",
-    "Source Selection",
-    "Selection of the file to load.",
+    SANE_I18N("Source Selection"),
+    SANE_I18N("Selection of the file to load."),
     SANE_TYPE_GROUP,
     SANE_UNIT_NONE,
     0,
@@ -160,8 +160,8 @@ static SANE_Option_Descriptor sod[] =
   },
   {
     "",
-    "Image Enhancement",
-    "A few controls to enhance image while loading",
+    SANE_I18N("Image Enhancement"),
+    SANE_I18N("A few controls to enhance image while loading"),
     SANE_TYPE_GROUP,
     SANE_UNIT_NONE,
     0,
@@ -193,8 +193,8 @@ static SANE_Option_Descriptor sod[] =
   },
   {
     "grayify",
-    "Grayify",
-    "Load the image as grayscale.",
+    SANE_I18N("Grayify"),
+    SANE_I18N("Load the image as grayscale."),
     SANE_TYPE_BOOL,
     SANE_UNIT_NONE,
     sizeof (SANE_Word),
@@ -204,9 +204,9 @@ static SANE_Option_Descriptor sod[] =
   },
   {
     "three-pass",
-    "Three-Pass Simulation",
-    "Simulate a three-pass scanner by returning 3 separate frames.  "
-    "For kicks, it returns green, then blue, then red.",
+    SANE_I18N("Three-Pass Simulation"),
+    SANE_I18N("Simulate a three-pass scanner by returning 3 separate frames.  "
+    "For kicks, it returns green, then blue, then red."),
     SANE_TYPE_BOOL,
     SANE_UNIT_NONE,
     sizeof (SANE_Word),
@@ -216,10 +216,10 @@ static SANE_Option_Descriptor sod[] =
   },
   {
     "hand-scanner",
-    "Hand-Scanner Simulation",
-    "Simulate a hand-scanner.  Hand-scanners often do not know the image "
+    SANE_I18N("Hand-Scanner Simulation"),
+    SANE_I18N("Simulate a hand-scanner.  Hand-scanners often do not know the image "
     "height a priori.  Instead, they return a height of -1.  Setting this "
-    "option allows to test whether a frontend can handle this correctly.",
+    "option allows to test whether a frontend can handle this correctly."),
     SANE_TYPE_BOOL,
     SANE_UNIT_NONE,
     sizeof (SANE_Word),
@@ -229,8 +229,8 @@ static SANE_Option_Descriptor sod[] =
   },
   {
     "default-enhancements",
-    "Defaults",
-    "Set default values for enhancement controls (brightness & contrast).",
+    SANE_I18N("Defaults"),
+    SANE_I18N("Set default values for enhancement controls (brightness & contrast)."),
     SANE_TYPE_BUTTON,
     SANE_UNIT_NONE,
     0,
@@ -240,8 +240,8 @@ static SANE_Option_Descriptor sod[] =
   },
   {
     "test option",
-    "Read only test-option",
-    "Let's see whether frontends can treat this right" ,
+    SANE_I18N("Read only test-option"),
+    SANE_I18N("Let's see whether frontends can treat this right") ,
     SANE_TYPE_INT,
     SANE_UNIT_PERCENT,
     sizeof (SANE_Word),
@@ -251,8 +251,8 @@ static SANE_Option_Descriptor sod[] =
   },
   {
     "",
-    "Gamma tables",
-    "Selection of custom gamma tables.",
+    SANE_I18N("Gamma tables"),
+    SANE_I18N("Selection of custom gamma tables."),
     SANE_TYPE_GROUP,
     SANE_UNIT_NONE,
     0,
@@ -317,10 +317,10 @@ static SANE_Option_Descriptor sod[] =
   },
   {
     "",
-    "Status Code Simulation",
-    "Forces the backend to return a specific status code after a call "
+    SANE_I18N("Status Code Simulation"),
+    SANE_I18N("Forces the backend to return a specific status code after a call "
     "to sane_read(). This can be used to test whether a frontend is able"
-    "to treat the status codes correctly.",
+    "to treat the status codes correctly."),
     SANE_TYPE_GROUP,
     SANE_UNIT_NONE,
     0,
@@ -330,8 +330,8 @@ static SANE_Option_Descriptor sod[] =
   },
   {
     "status",
-    "Do not force status code",
-    "Do not force the backend to return a status code.",
+    SANE_I18N("Do not force status code"),
+    SANE_I18N("Do not force the backend to return a status code."),
     SANE_TYPE_BOOL,
     SANE_UNIT_NONE,
     sizeof(SANE_Bool),
@@ -341,9 +341,9 @@ static SANE_Option_Descriptor sod[] =
   },
   {
     "status-eof",
-    "Return SANE_STATUS_EOF",
-    "Force the backend to return the status code SANE_STATUS_EOF after "
-    "sane_read() has been called." ,
+    SANE_I18N("Return SANE_STATUS_EOF"),
+    SANE_I18N("Force the backend to return the status code SANE_STATUS_EOF after "
+    "sane_read() has been called.") ,
     SANE_TYPE_BOOL,
     SANE_UNIT_NONE,
     sizeof(SANE_Bool),
@@ -353,9 +353,9 @@ static SANE_Option_Descriptor sod[] =
   },
   {
     "status-jammed",
-    "Return SANE_STATUS_JAMMED",
-    "Force the backend to return the status code SANE_STATUS_JAMMED after "
-    "sane_read() has been called." ,
+    SANE_I18N("Return SANE_STATUS_JAMMED"),
+    SANE_I18N("Force the backend to return the status code SANE_STATUS_JAMMED after "
+    "sane_read() has been called.") ,
     SANE_TYPE_BOOL,
     SANE_UNIT_NONE,
     sizeof(SANE_Bool),
@@ -365,9 +365,9 @@ static SANE_Option_Descriptor sod[] =
   },
   {
     "status-nodocs",
-    "Return SANE_STATUS_NO_DOCS",
-    "Force the backend to return the status code SANE_STATUS_NO_DOCS after "
-    "sane_read() has been called." ,
+    SANE_I18N("Return SANE_STATUS_NO_DOCS"),
+    SANE_I18N("Force the backend to return the status code SANE_STATUS_NO_DOCS after "
+    "sane_read() has been called.") ,
     SANE_TYPE_BOOL,
     SANE_UNIT_NONE,
     sizeof(SANE_Bool),
@@ -377,9 +377,9 @@ static SANE_Option_Descriptor sod[] =
   },
   {
     "status-coveropen",
-    "Return SANE_STATUS_COVER_OPEN",
-    "Force the backend to return the status code SANE_STATUS_COVER_OPEN after "
-    "sane_read() has been called." ,
+    SANE_I18N("Return SANE_STATUS_COVER_OPEN"),
+    SANE_I18N("Force the backend to return the status code SANE_STATUS_COVER_OPEN after "
+    "sane_read() has been called.") ,
     SANE_TYPE_BOOL,
     SANE_UNIT_NONE,
     sizeof(SANE_Bool),
@@ -389,9 +389,9 @@ static SANE_Option_Descriptor sod[] =
   },
   {
     "status-ioerror",
-    "Return SANE_STATUS_IO_ERROR",
-    "Force the backend to return the status code SANE_STATUS_IO_ERROR after "
-    "sane_read() has been called." ,
+    SANE_I18N("Return SANE_STATUS_IO_ERROR"),
+    SANE_I18N("Force the backend to return the status code SANE_STATUS_IO_ERROR after "
+    "sane_read() has been called.") ,
     SANE_TYPE_BOOL,
     SANE_UNIT_NONE,
     sizeof(SANE_Bool),
@@ -401,9 +401,9 @@ static SANE_Option_Descriptor sod[] =
   },
   {
     "status-nomem",
-    "Return SANE_STATUS_NO_MEM",
-    "Force the backend to return the status code SANE_STATUS_NO_MEM after "
-    "sane_read() has been called." ,
+    SANE_I18N("Return SANE_STATUS_NO_MEM"),
+    SANE_I18N("Force the backend to return the status code SANE_STATUS_NO_MEM after "
+    "sane_read() has been called.") ,
     SANE_TYPE_BOOL,
     SANE_UNIT_NONE,
     sizeof(SANE_Bool),
@@ -413,9 +413,9 @@ static SANE_Option_Descriptor sod[] =
   },
   {
     "status-accessdenied",
-    "Return SANE_STATUS_ACCESS_DENIED",
-    "Force the backend to return the status code SANE_STATUS_ACCESS_DENIED "
-    "after sane_read() has been called." ,
+    SANE_I18N("Return SANE_STATUS_ACCESS_DENIED"),
+    SANE_I18N("Force the backend to return the status code SANE_STATUS_ACCESS_DENIED "
+    "after sane_read() has been called.") ,
     SANE_TYPE_BOOL,
     SANE_UNIT_NONE,
     sizeof(SANE_Bool),

@@ -95,6 +95,7 @@
 #define BACKEND_NAME	gphoto2
 #include "sane/sanei_backend.h"
 
+#undef HAVE_CONFIG_H
 #include "gphoto2.h"
 
 
@@ -383,7 +384,7 @@ init_gphoto2 (void)
   CHECK_RET (gp_camera_new (&camera));
 
   CHECK_RET (gp_abilities_list_new (&al));
-  CHECK_RET (gp_abilities_list_load (al));
+  CHECK_RET (gp_abilities_list_load (al, NULL));
   CHECK_RET (m =
 	     gp_abilities_list_lookup_model (al,
 					     (char *) Cam_data.camera_name));
@@ -433,7 +434,7 @@ init_gphoto2 (void)
       CHECK_RET (gp_camera_set_port_speed (camera, Cam_data.speed));
     }
 
-  CHECK_RET (gp_camera_init (camera));
+  CHECK_RET (gp_camera_init (camera, NULL));
 
   if (!(abilities.operations & GP_OPERATION_CAPTURE_IMAGE))
     {
@@ -459,7 +460,7 @@ init_gphoto2 (void)
   DBG (4, "init_gphoto2: about to get folders\n");
 
   CHECK_RET (gp_list_new (&list));
-  CHECK_RET (gp_camera_folder_list_folders (camera, TopFolder, list));
+  CHECK_RET (gp_camera_folder_list_folders (camera, TopFolder, list, NULL));
   n = gp_list_count (list);
   if (n < 0)
     {
@@ -569,7 +570,7 @@ erase (void)
   CHECK_RET (gp_list_get_name
 	     (dir_list, Cam_data.current_picture_number - 1, &filename));
 
-  CHECK_RET (gp_camera_file_delete (camera, cmdbuf, filename));
+  CHECK_RET (gp_camera_file_delete (camera, cmdbuf, filename, NULL));
 
   return SANE_STATUS_GOOD;
 }
@@ -687,7 +688,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
 	      sprintf (buf, "Image selection - %s", Cam_data.camera_name);
 
 	      CHECK_RET (gp_abilities_list_new (&al));
-	      CHECK_RET (gp_abilities_list_load (al));
+	      CHECK_RET (gp_abilities_list_load (al, NULL));
 	      CHECK_RET (entries = gp_abilities_list_count (al));
 
 	      for (n = 0; n < entries; n++)
@@ -1279,7 +1280,7 @@ sane_start (SANE_Handle handle)
 
   CHECK_RET (gp_camera_file_get (camera, cmdbuf, filename,
 				 gphoto2_opt_thumbnails ? GP_FILE_TYPE_PREVIEW
-				 : GP_FILE_TYPE_NORMAL, data_file));
+				 : GP_FILE_TYPE_NORMAL, data_file, NULL));
 
   CHECK_RET (gp_file_get_mime_type (data_file, &mime_type));
   if (strcmp (GP_MIME_JPEG, mime_type) != 0)
@@ -1486,7 +1487,7 @@ snap_pic (void)
       return SANE_STATUS_INVAL;
     }
 
-  CHECK_RET (gp_camera_capture (camera, GP_CAPTURE_IMAGE, &path));
+  CHECK_RET (gp_camera_capture (camera, GP_CAPTURE_IMAGE, &path, NULL));
 
   /* Can't just increment picture count, because if the camera has
    * zero pictures we may not know the folder name.  Start over
@@ -1553,11 +1554,11 @@ read_dir (SANE_String dir, SANE_Bool read_files)
 
   if (read_files)
     {
-      CHECK_RET (gp_camera_folder_list_files (camera, dir, dir_list));
+      CHECK_RET (gp_camera_folder_list_files (camera, dir, dir_list, NULL));
     }
   else
     {
-      CHECK_RET (gp_camera_folder_list_folders (camera, dir, dir_list));
+      CHECK_RET (gp_camera_folder_list_folders (camera, dir, dir_list, NULL));
     }
 
   retval = gp_list_count (dir_list);

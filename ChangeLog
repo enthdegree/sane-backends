@@ -1,3 +1,8 @@
+2004-02-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* sanei/sanei_usb.c: Fixed inconsistent error message (patch from 
+	  Mattias Ellert <mattias.ellert@tsl.uu.se>).
+
 2004-02-01  Gerhard Jaeger <gerhard@gjaeger.de>
 	* sanei/sanei_thread.c: added Mattias Ellerts' patch to make
 	  sanei_thread_kill work on MacOSX.

@@ -896,7 +896,7 @@ sanei_usb_write_bulk (SANE_Int dn, const SANE_Byte * buffer, size_t * size)
 #endif /* not HAVE_LIBUSB */
   else
     {
-      DBG (1, "sanei_usb_read_bulk: access method %d not implemented\n",
+      DBG (1, "sanei_usb_write_bulk: access method %d not implemented\n",
 	   devices[dn].method);
       return SANE_STATUS_INVAL;
     }

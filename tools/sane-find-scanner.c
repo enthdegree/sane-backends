@@ -515,7 +515,7 @@ check_libusb_device (struct usb_device *dev)
 		   alt_setting_nr++)
 		{
 		  struct usb_interface_descriptor *i
-		    = &interface->altsetting[0];
+		    = &interface->altsetting[alt_setting_nr];
 		  int ep_nr;
 		  printf ("   <altsetting %d>\n", alt_setting_nr);
 		  printf ("   bLength            %d\n", i->bLength);

@@ -419,7 +419,10 @@ getparmfromfile (void)
 
   parms.bytes_per_line = parms.pixels_per_line = parms.lines = 0;
   if ((fn = fopen (filename, "rb")) == NULL)
-    return -1;
+    {
+      DBG(1, "getparmfromfile: unable to open file \"%s\"\n", filename);
+      return -1;
+    }
 
   /* Skip comments. */
   do
@@ -518,7 +521,10 @@ sane_start (SANE_Handle handle)
     return SANE_STATUS_INVAL;
 
   if ((infile = fopen (filename, "rb")) == NULL)
-    return SANE_STATUS_INVAL;
+    {
+      DBG(1, "sane_start: unable to open file \"%s\"\n", filename);
+      return SANE_STATUS_INVAL;
+    }
 
   /* Skip the header (only two lines for a bitmap). */
   nlines = (ppm_type == ppm_bitmap) ? 1 : 0;

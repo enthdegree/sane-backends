@@ -1,3 +1,7 @@
+2003-05-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
+	
+	* doc/descriptions/unsupported.html: Added link for Umax astra 4700.
+
 2003-05-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* configure configure.in: Don't disable IPv& if poll is not

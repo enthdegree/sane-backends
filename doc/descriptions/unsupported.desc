@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-05-26"		; version of backend
+:version "2003-05-27"		; version of backend
 :url "http://www.meier-geinitz.de/sane/misc/unsupported.html"
 ;:status :stable			; :alpha, :beta, :stable, :new
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
@@ -649,10 +649,10 @@
 :comment "Not supported. Vendor/product 0x0638/0x0a10. Is reported to use GeneScan II GL646 chipset. Same as Avision iVina FB1600."
 
 :model "Astra 4700"
-:url "http://www.genesyslogic.com/GL660.htm"
+:url "http://www.meier-geinitz.de/sane/misc/umax-astra-4700.txt"
 :interface "USB"
 :status :unsupported
-:comment "Not supported. Is reported to use a Genesys Logic GL660USB chip (Parport to USB converter, see link) and the Avision B2 chipset. Same as Avision iVina FB1800."
+:comment "Not supported. Same as Avision iVina FB1800. See link for more details."
 
 :model "Astra 6700"
 ;:url ""

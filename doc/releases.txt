@@ -1,10 +1,12 @@
-2002-01-07
+2002-03-17
 
 This text summarizes some points to pay attention to when a new realease
 of sane-backends should be made.
 
 Before the release:
 
+* Make sure that config.guess and config.sub are up-to-date (get them from
+  ftp://ftp.gnu.org/pub/gnu/config/).
 * configure.in: increase version number
 * configure.in: remove EXTRA version number
 * configure.in: set --disable-warnings as default

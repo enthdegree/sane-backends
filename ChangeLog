@@ -1,3 +1,6 @@
+2001-07-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* configure configure.in: Enabled warnings by default.
 
 2001-07-01 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 ************************  end of code freeze ***********************************

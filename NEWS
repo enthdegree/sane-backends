@@ -1,4 +1,9 @@
 -*-Mode: outline-*-
+New with 1.0.13, released 2003-xx-xx:
+
+* Port to Cygwin
+
+
 New with 1.0.12, released 2003-05-25:
 
 * New backends: hp5400 (Hewlett Packard 54XX series), ibm (IBM 2456, Ricoh

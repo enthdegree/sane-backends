@@ -1,3 +1,9 @@
+2003-09-23  Frank Zago  <fzago at austin dot rr dot com>
+
+	* Makefile.in NEWS configure configure.in backend/Makefile.in 
+	  backend/dll.c include/sane/config.h.in sanei/sanei_scsi.c 
+	  tools/sane-find-scanner.c
+
 2003-09-23  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* configure.in: added new backend plustek_pp

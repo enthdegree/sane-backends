@@ -49,9 +49,6 @@
 /* Define to 1 if you have the <dev/ppbus/ppi.h> header file. */
 #undef HAVE_DEV_PPBUS_PPI_H
 
-/* Define to 1 if you have the <machine/cpufunc.h> header file. */
-#undef HAVE_MACHINE_CPUFUNC_H
-
 /* Is /dev/urandom available? */
 #undef HAVE_DEV_URANDOM
 
@@ -82,6 +79,9 @@
 /* Define to 1 if you have the <gscdds.h> header file. */
 #undef HAVE_GSCDDS_H
 
+/* Define to 1 if you have the `i386_set_ioperm' function. */
+#undef HAVE_I386_SET_IOPERM
+
 /* Define to 1 if you have the `inet_addr' function. */
 #undef HAVE_INET_ADDR
 
@@ -105,9 +105,6 @@
 
 /* Define to 1 if you have the `ioperm' function. */
 #undef HAVE_IOPERM
-
-/* Define to 1 if you have the `i386_set_ioperm' function. */
-#undef HAVE_I386_SET_IOPERM
 
 /* Define to 1 if you have the <io/cam/cam.h> header file. */
 #undef HAVE_IO_CAM_CAM_H
@@ -147,6 +144,9 @@
 
 /* Define if the long long type is available. */
 #undef HAVE_LONG_LONG
+
+/* Define to 1 if you have the <machine/cpufunc.h> header file. */
+#undef HAVE_MACHINE_CPUFUNC_H
 
 /* Define to 1 if you have the <mach-o/dyld.h> header file. */
 #undef HAVE_MACH_O_DYLD_H
@@ -309,6 +309,9 @@
 
 /* Define to 1 if you have the `vsyslog' function. */
 #undef HAVE_VSYSLOG
+
+/* Define to 1 if you have the <windows.h> header file. */
+#undef HAVE_WINDOWS_H
 
 /* Define to 1 if you have the `_portaccess' function. */
 #undef HAVE__PORTACCESS

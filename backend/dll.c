@@ -304,6 +304,10 @@ load (struct backend *be)
 # define PREFIX "libsane-"
 # ifdef __hpux
 #   define POSTFIX ".sl.%u"
+#elif defined (HAVE_WINDOWS_H)
+#   undef PREFIX
+#   define PREFIX "cygsane-"
+#   define POSTFIX "-%u.dll"
 # else
 #   define POSTFIX ".so.%u"
 # endif

@@ -1,0 +1,43 @@
+SANE on Cygwin/Win32
+
+Prerequisites
+=============
+
+To be able to compile sane-backends, you need to have Cygwin installed, with at least the following package(s):
+  - gcc
+
+You can get Cygwin at http://sources.redhat.com/cygwin/
+
+The scanner must be detected by Windows and not be disabled. Check
+with the hardware manager.
+
+
+Scanning
+========
+
+If you have more than one scanner, you should do the following:
+
+  - run sane-find-scanner to get the device name of the scanner. The
+    name is something like h0b0t6l0, meaning hba 0, bus 0, scsi id 6 and
+    lun 0.
+
+  - edit the config file for the backend
+    (/usr/local/etc/sane.d/xxxx.conf) and add the scanner device name on
+    an empty line.
+
+Run "scanimage > out.pnm" to get a scan.
+
+
+Limitations
+===========
+
+The current annoying limitations are:
+  - Only SCSI scanners will work. No USB/FireWire/Parallel.
+  - Only scanimage works. No graphical interface has been ported.
+  - Tested on Windows 2000 only. Should work on Windows NT/XP too;
+    may or may not work on Windows 95/98/ME.
+
+
+
+2003/9/23
+Frank Zago.

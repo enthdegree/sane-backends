@@ -106,7 +106,8 @@ AC_CHECK_HEADERS(fcntl.h unistd.h libc.h sys/dsreq.h sys/select.h \
     camlib.h os2.h sys/socket.h sys/io.h gscdds.h sys/hw.h \
     sys/types.h sys/scsi/scsi.h sys/scsi/sgdefs.h sys/scsi/targets/scgio.h \
     apollo/scsi.h sys/sdi_comm.h sys/passthrudef.h linux/ppdev.h \
-    dev/ppbus/ppi.h machine/cpufunc.h usb.h sys/bitypes.h sys/sem.h sys/poll.h IOKit/IOKitLib.h)
+    dev/ppbus/ppi.h machine/cpufunc.h usb.h sys/bitypes.h sys/sem.h sys/poll.h \
+    IOKit/IOKitLib.h windows.h)
 AC_CHECK_HEADERS([asm/io.h],,,[#include <sys/types.h>])
 SANE_CHECK_MISSING_HEADERS
 SANE_V4L_VERSION
@@ -240,6 +241,12 @@ dnl ***********************************************************************
 AC_LIBTOOL_WIN32_DLL
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
+
+dnl Windows/Cygwin needs this, else the library creation fails
+if test "$ac_cv_header_windows_h" = "yes" ; then
+  LIBTOOL_LINK_EXTRA=-no-undefined
+  AC_SUBST(LIBTOOL_LINK_EXTRA)
+fi
 
 dnl ***********************************************************************
 dnl enable/disable backends and features based on previous tests and user's
@@ -433,8 +440,8 @@ dnl ***********************************************************************
 DISTCLEAN_FILES="*~ .*~ *.log *.bak *.old *.orig *.out *.rej \"\#\"* \".\\#\"*"
 AC_SUBST(DISTCLEAN_FILES)
 
-AC_CONFIG_FILES([Makefile lib/Makefile sanei/Makefile frontend/Makefile
-  japi/Makefile backend/Makefile include/Makefile doc/Makefile
+AC_CONFIG_FILES([Makefile lib/Makefile sanei/Makefile frontend/Makefile \
+  japi/Makefile backend/Makefile include/Makefile doc/Makefile \
   po/Makefile testsuite/Makefile tools/Makefile])
 AC_CONFIG_FILES([tools/sane-config], [chmod a+x tools/sane-config])
 AC_OUTPUT

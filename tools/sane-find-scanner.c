@@ -35,6 +35,12 @@
 extern char * check_usb_chip (struct usb_device *dev, int verbosity);
 #endif
 
+#if defined (HAVE_WINDOWS_H)
+#include <windows.h>
+#include <ddk/scsi.h>
+#include <ddk/ntddscsi.h>
+#endif
+
 #include "../include/sane/sanei.h"
 #include "../include/sane/sanei_scsi.h"
 #include "../include/sane/sanei_usb.h"
@@ -676,6 +682,105 @@ get_next_file (char *dir_name, DIR * dir)
   return file_name;
 }
 
+#if defined (HAVE_WINDOWS_H)
+/* Return a list of potential scanners. There's a lot of hardcoded values here that might break on a system with lots of scsi devices. */
+static char **build_scsi_dev_list()
+{
+	char **dev_list;
+	int dev_list_index;
+	int hca;
+	HANDLE fd;
+	char scsi_hca_name[20];
+	char buffer[4096];
+	DWORD BytesReturned;
+	BOOL ret;
+	size_t dev_list_size;
+	PSCSI_ADAPTER_BUS_INFO adapter;
+	PSCSI_INQUIRY_DATA inquiry;
+	int i;
+
+	/* Allocate room for about 100 scanners. That should be enough. */
+	dev_list_size = 100;
+	dev_list_index = 0;
+	dev_list = calloc(1, dev_list_size * sizeof(char *));
+
+	hca = 0;
+
+	for(hca = 0; ; hca++) {
+
+		/* Open the adapter */
+		snprintf(scsi_hca_name, 20, "\\\\.\\Scsi%d:", hca);
+		fd = CreateFile(scsi_hca_name, GENERIC_READ | GENERIC_WRITE,
+						FILE_SHARE_READ | FILE_SHARE_WRITE,
+						NULL, OPEN_EXISTING,
+						FILE_FLAG_RANDOM_ACCESS, NULL );
+
+		if (fd == INVALID_HANDLE_VALUE) {
+			/* Assume there is no more adapter. This is wrong in the case
+			 * of hot-plug stuff, but I have yet to see it on a user
+			 * machine. */
+			break;
+		}
+
+		/* Get the inquiry info for the devices on that hca. */
+        ret = DeviceIoControl(fd,
+							  IOCTL_SCSI_GET_INQUIRY_DATA,
+							  NULL,
+							  0,
+							  buffer,
+							  sizeof(buffer),
+							  &BytesReturned,
+							  FALSE);
+
+        if(ret == 0)
+			{
+				CloseHandle(fd);
+				continue;
+			}
+
+		adapter = (PSCSI_ADAPTER_BUS_INFO)buffer;
+
+		for(i = 0; i < adapter->NumberOfBuses; i++) {	
+
+			if (adapter->BusData[i].InquiryDataOffset == 0) {
+				/* No device here */
+				continue;
+			}
+
+			inquiry = (PSCSI_INQUIRY_DATA) (buffer + 
+											adapter->BusData[i].InquiryDataOffset);
+			while(1) {
+				/* Check if it is a scanner or a processor
+				 * device. Ignore the other
+				 * device types. */
+				if (inquiry->InquiryDataLength >= 5 &&
+					((inquiry->InquiryData[0] & 0x1f) == 3 ||
+					 (inquiry->InquiryData[0] & 0x1f) == 6)) {
+					char device_name[20];
+					sprintf(device_name, "h%db%dt%dl%d", hca, inquiry->PathId, inquiry->TargetId, inquiry->Lun);
+					dev_list[dev_list_index] = strdup(device_name);
+					dev_list_index++;
+				}
+			
+				if (inquiry->NextInquiryDataOffset == 0) {
+					/* No device here */
+					break;
+				} else {
+					inquiry =  (PSCSI_INQUIRY_DATA) (buffer +
+													 inquiry->NextInquiryDataOffset);
+				}
+			}
+	    }
+
+		CloseHandle(fd);
+
+	}
+
+	return dev_list;
+
+}
+#endif
+
 int
 main (int argc, char **argv)
 {
@@ -961,7 +1066,13 @@ main (int argc, char **argv)
 	0
       };
 
+#if defined (HAVE_WINDOWS_H)
+   /* Build a list of valid of possible scanners found */
+   dev_list = build_scsi_dev_list();
+#else
       dev_list = default_dev_list;
+#endif
+
       usb_dev_list = usb_default_dev_list;
     }
 

@@ -63,7 +63,7 @@
 # include <asm/io.h>		/* older Linux */
 #elif HAVE_SYS_HW_H
 # include <sys/hw.h>		/* OS/2 */
-#elif defined(__i386__)  && defined (__GNUC__) /* other x86 with GCC (Win9x ?) */
+#elif defined(__i386__)  && defined (__GNUC__)	/* other x86 with GCC (Win9x ?) */
 
 static __inline__ void
 outb (u_char value, u_long port)
@@ -81,25 +81,31 @@ inb (u_long port)
 }
 
 static __inline__ void
-outsb(unsigned short port, const void * addr, unsigned long count)
+outsb (unsigned short port, const void *addr, unsigned long count)
 {
-__asm__ __volatile__ ("rep ; outsb" : "=S" (addr), "=c" (count) : "d" (port),"0" (addr),"1" (count));
+  __asm__ __volatile__ ("rep ; outsb":"=S" (addr), "=c" (count):"d" (port),
+			"0" (addr), "1" (count));
 }
 
 static __inline__ void
-outsw(unsigned short port, const void * addr, unsigned long count)
+outsw (unsigned short port, const void *addr, unsigned long count)
 {
-__asm__ __volatile__ ("rep ; outsw" : "=S" (addr), "=c" (count) : "d" (port),"0" (addr),"1" (count));
+  __asm__ __volatile__ ("rep ; outsw":"=S" (addr), "=c" (count):"d" (port),
+			"0" (addr), "1" (count));
 }
 
-static __inline__ void insb(unsigned short port, void * addr, unsigned long count) \
-{ 
-__asm__ __volatile__ ("rep ; insb" : "=D" (addr), "=c" (count) : "d" (port),"0" (addr),"1" (count)); 
+static __inline__ void
+insb (unsigned short port, void *addr, unsigned long count) \
+{
+  __asm__ __volatile__ ("rep ; insb":"=D" (addr), "=c" (count):"d" (port),
+			"0" (addr), "1" (count));
 }
 
-static __inline__ void insl(unsigned short port, void * addr, unsigned long count) \
-{ 
-__asm__ __volatile__ ("rep ; insl" : "=D" (addr), "=c" (count) : "d" (port),"0" (addr),"1" (count)); 
+static __inline__ void
+insl (unsigned short port, void *addr, unsigned long count) \
+{
+  __asm__ __volatile__ ("rep ; insl":"=D" (addr), "=c" (count):"d" (port),
+			"0" (addr), "1" (count));
 }
 
 #else
@@ -376,6 +382,57 @@ static void Insb (int port, unsigned char *dest, int size);
 static void Insw (int port, unsigned char *dest, int size);
 
 
+/*
+ * returns 1 if succeds in getting base addr via /proc
+ *         0 on failure
+ *
+ * on successfull return, *addr will hold parport base addr
+ */
+int
+sanei_parport_info (int number, int *addr)
+{
+  char name[256];
+  FILE *fic = NULL;
+  char buffer[64], val[16];
+  int baseadr, ecpadr;
+
+  /* try 2.4 first */
+  sprintf (name, "/proc/sys/dev/parport/parport%d/base-addr", number);
+  memset (buffer, 0, 64);
+  memset (val, 0, 16);
+  fic = fopen (name, "rb");
+  if (fic == NULL)
+    {
+      /* open failure, try 2.2 */
+      sprintf (name, "/proc/parport/%d/hardware", number);
+      fic = fopen (name, "rb");
+      if (fic == NULL)
+	{			/* no proc at all */
+	  DBG (1, "sanei_parport_info(): no /proc \n");
+	  return (0);
+	}
+      fread (buffer, 64, 1, fic);
+      fclose (fic);
+      sscanf (buffer, "base: %s", val);
+      baseadr = strtol (val, NULL, 16);
+
+    }
+  else
+    {
+      fread (buffer, 64, 1, fic);
+      fclose (fic);
+      if (sscanf (buffer, "%d %d", &baseadr, &ecpadr) < 1)
+	{
+	  /* empty base file */
+	  return (0);
+	}
+      *addr = baseadr;
+    }
+  return (1);
+}
+
+
+
 
 /*
  * gain direct acces to IO port, and set parport to the 'right' mode
@@ -394,7 +451,7 @@ sanei_umax_pp_InitPort (int port)
   char parport_name[16];
   int fd, i, found;
   int value;
-  int ectr;
+  int ectr, addr;
 #endif
 
   /* since this function must be called before */
@@ -405,11 +462,11 @@ sanei_umax_pp_InitPort (int port)
   gPort = port;
 
 #ifdef IO_SUPPORT_MISSING
- if(gPort)	/* dummy test for compiler relief */
-   {
+  if (gPort)			/* dummy test for compiler relief */
+    {
       DBG (1, "*** Direct I/O unavailable, giving up ***\n");
       return (0);
-   }
+    }
 #else
 
 #ifdef HAVE_IOPERM
@@ -447,7 +504,7 @@ sanei_umax_pp_InitPort (int port)
       spp_control = spp_control & 0x1F;
       outb (0x0C, CONTROL);
     }
-#endif 
+#endif
 #endif
 
 #ifdef HAVE_LINUX_PPDEV_H
@@ -510,17 +567,28 @@ sanei_umax_pp_InitPort (int port)
 
 	  /* write to DATA via direct io and read DATA via parport */
 	  /* if values match, we found the right parport           */
-	  Outb (DATA, 0x5A);
-	  if (ioctl (fd, PPRDATA, &value))
+	  if (sanei_parport_info (i, &addr))
 	    {
-	      DBG (16, "umax_pp: cannot read data from port <%s>\n",
-		   parport_name);
+	      if (gPort == addr)
+	        {
+		  found = 1;
+	          DBG (1, "Using /proc info\n");
+		}
 	    }
-	  value &= 0xFF;
-	  if (value == 0x5A)
+	  else
 	    {
-	      found = 1;
-	      DBG (1, "Using '%s'.\n", parport_name);
+	      Outb (DATA, 0x5A);
+	      if (ioctl (fd, PPRDATA, &value))
+		{
+		  DBG (16, "umax_pp: cannot read data from port <%s>\n",
+		       parport_name);
+		}
+	      value &= 0xFF;
+	      if (value == 0x5A)
+		{
+		  found = 1;
+		  DBG (1, "Using '%s'.\n", parport_name);
+		}
 	    }
 
 	  /* release port */
@@ -573,7 +641,7 @@ Outb (int port, int value)
 static int
 Inb (int port)
 {
-  int res=0xFF;
+  int res = 0xFF;
 #ifndef IO_SUPPORT_MISSING
   res = inb (port) & 0xFF;
 #endif
@@ -3648,57 +3716,106 @@ Test610P (int value)
   Outb (CONTROL, control);
 
   Outb (DATA, 0x22);
+  usleep(10000);
   Outb (DATA, 0x22);
+  usleep(10000);
   Outb (DATA, 0x22);
+  usleep(10000);
   Outb (DATA, 0x22);
+  usleep(10000);
   Outb (DATA, 0x22);
+  usleep(10000);
   Outb (DATA, 0x22);
+  usleep(10000);
   Outb (DATA, 0x22);
+  usleep(10000);
   Outb (DATA, 0x22);
+  usleep(10000);
   Outb (DATA, 0xAA);
+  usleep(10000);
   Outb (DATA, 0xAA);
+  usleep(10000);
   Outb (DATA, 0xAA);
+  usleep(10000);
   Outb (DATA, 0xAA);
+  usleep(10000);
   Outb (DATA, 0xAA);
+  usleep(10000);
   Outb (DATA, 0xAA);
+  usleep(10000);
   Outb (DATA, 0xAA);
+  usleep(10000);
   Outb (DATA, 0xAA);
+  usleep(10000);
   Outb (DATA, 0x55);
+  usleep(10000);
   Outb (DATA, 0x55);
+  usleep(10000);
   Outb (DATA, 0x55);
+  usleep(10000);
   Outb (DATA, 0x55);
+  usleep(10000);
   Outb (DATA, 0x55);
+  usleep(10000);
   Outb (DATA, 0x55);
+  usleep(10000);
   Outb (DATA, 0x55);
+  usleep(10000);
   Outb (DATA, 0x55);
+  usleep(10000);
   Outb (DATA, 0x00);
+  usleep(10000);
   Outb (DATA, 0x00);
+  usleep(10000);
   Outb (DATA, 0x00);
+  usleep(10000);
   Outb (DATA, 0x00);
+  usleep(10000);
   Outb (DATA, 0x00);
+  usleep(10000);
   Outb (DATA, 0x00);
+  usleep(10000);
   Outb (DATA, 0x00);
+  usleep(10000);
   Outb (DATA, 0x00);
+  usleep(10000);
   Outb (DATA, 0xFF);
+  usleep(10000);
   Outb (DATA, 0xFF);
+  usleep(10000);
   Outb (DATA, 0xFF);
+  usleep(10000);
   Outb (DATA, 0xFF);
+  usleep(10000);
   Outb (DATA, 0xFF);
+  usleep(10000);
   Outb (DATA, 0xFF);
+  usleep(10000);
   Outb (DATA, 0xFF);
+  usleep(10000);
   Outb (DATA, 0xFF);
+  usleep(10000);
   if (value)
     {
       Outb (DATA, value);
+      usleep(10000);
       Outb (DATA, value);
+      usleep(10000);
       Outb (DATA, value);
+      usleep(10000);
       Outb (DATA, value);
+      usleep(10000);
       Outb (DATA, value);
+      usleep(10000);
       Outb (DATA, value);
+      usleep(10000);
       Outb (DATA, value);
+      usleep(10000);
       Outb (DATA, value);
+      usleep(10000);
     }
   val = Inb (STATUS);
+  usleep(10000);
   Outb (DATA, data);
   Outb (CONTROL, control);
   return (1);
@@ -3716,16 +3833,22 @@ In256 (void)
   int val, i, tmp;
 
   Outb (CONTROL, 0x04);
+  usleep(10000);
   Outb (CONTROL, 0x0C);
+  usleep(10000);
   val = Inb (STATUS);
   Outb (CONTROL, 0x0E);
+  usleep(10000);
   Outb (CONTROL, 0x0E);
+  usleep(10000);
   Outb (CONTROL, 0x0E);
+  usleep(10000);
   tmp = val;
   i = 0;
   while ((tmp == val) && (i < 256))
     {
       tmp = Inb (STATUS);
+      usleep(10000);
       i++;
     }
   if (tmp != val)
@@ -3735,7 +3858,9 @@ In256 (void)
       return (0);
     }
   Outb (CONTROL, 0x04);
+  usleep(10000);
   Outb (CONTROL, 0x04);
+  usleep(10000);
   return (1);
 }
 
@@ -3758,10 +3883,18 @@ Probe610P (int recover)
       DBG (1, "Ring610P(0x87) failed (%s:%d)\n", __FILE__, __LINE__);
       return (0);
     }
+  else
+    {
+      DBG (16, "Ring610P(0x87) passed...\n");
+    }
   if (!In256 ())
     {
       DBG (1, "In256() failed (%s:%d)\n", __FILE__, __LINE__);
       return (0);
+    }
+  else
+    {
+      DBG (16, "In256() passed...\n");
     }
 
 
@@ -3771,7 +3904,6 @@ Probe610P (int recover)
   if (tmp != 0x88)
     {				/* tmp = 0x88 for 610P */
       DBG (1, "Found 0x%X expected 0x88  (%s:%d)\n", tmp, __FILE__, __LINE__);
-      return 0;
     }
 
   /* clear register 3 */
@@ -6762,7 +6894,8 @@ sanei_umax_pp_Park (void)
 
 /* calibrates CCD: returns 1 on success, 0 on failure */
 static int
-GammaCalibration (int color, int dpi, int gain, int highlight,int width, int *calibration)
+GammaCalibration (int color, int dpi, int gain, int highlight, int width,
+		  int *calibration)
 {
   int opsc32[17] =
     { 0x4A, 0x00, 0x00, 0x70, 0x00, 0x00, 0x60, 0x00, 0x17, 0x05, 0xA5, 0x08,
@@ -7515,13 +7648,12 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
 
 
   CMDSYNC (0x00);
-  /*opsc53[13] = 0x80;		 B&W bit */
-  /*opsc53[13] = 0x40;		 green bit */
-  /*opsc53[13] = 0x20;		 red bit */
-  /*opsc53[13] = 0x10;		 blue bit */
-  /* with cmd 01, may be use to do 3 pass scanning ?*/
+  /*opsc53[13] = 0x80;           B&W bit */
+  /*opsc53[13] = 0x40;           green bit */
+  /*opsc53[13] = 0x20;           red bit */
+  /*opsc53[13] = 0x10;           blue bit */
+  /* with cmd 01, may be use to do 3 pass scanning ? */
   /* bits 0 to 3 seem related to sharpness */
-  printf("opsc53[14]=0x%02X\n",opsc53[14]);
   CMDSETGET (2, 0x10, opsc53);
   CMDSETGET (8, 0x24, opscan);
   CMDSETGET (1, 0x08, opsc04);

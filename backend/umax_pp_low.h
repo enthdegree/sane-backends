@@ -107,6 +107,7 @@ extern void sanei_umax_pp_setport (int port);
 extern int sanei_umax_pp_getport (void);
 extern void sanei_umax_pp_setparport (int fd);
 extern int sanei_umax_pp_getparport (void);
+extern int sanei_parport_info (int number, int *addr);
 extern void sanei_umax_pp_setastra (int mod);
 extern int sanei_umax_pp_getastra (void);
 extern int sanei_umax_pp_ScannerStatus (void);

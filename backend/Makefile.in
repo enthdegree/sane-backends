@@ -293,6 +293,7 @@ libsane-canon_pp.la: $(addsuffix .lo,$(EXTRA_canon_pp))
 libsane-coolscan.la: ../sanei/sanei_config2.lo
 libsane-coolscan.la: ../sanei/sanei_constrain_value.lo
 libsane-coolscan.la: ../sanei/sanei_scsi.lo
+libsane-coolscan.la: ../sanei/sanei_thread.lo
 libsane-coolscan2.la: ../sanei/sanei_config2.lo
 libsane-coolscan2.la: ../sanei/sanei_constrain_value.lo
 libsane-coolscan2.la: ../sanei/sanei_scsi.lo

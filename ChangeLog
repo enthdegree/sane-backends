@@ -1,3 +1,5 @@
+******  Release of sane-backends 1.0.14. End of code freeze ******
+
 2004-04-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added link to more info about
@@ -5,6 +7,7 @@
 	* NEWS: Updated for release.
 	* backend/sm3600.h: Added last minute fix to avoid compilation
 	  trouble with gcc 3.4.
+	* configure configure.in: New version: 1.0.14.
 
 2004-04-29  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

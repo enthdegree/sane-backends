@@ -1,3 +1,10 @@
+2003-12-12  Michael Herder  <crapsite at gmx.net>
+	* backend/artec_eplus48u.c  backend/artec_eplus48u.h
+	  backend/artec_eplus48u.conf: added experimental
+	  support for the Artec E+ Pro
+	  fixed sane-Bugs-300261 (doesn't compile when
+	  NDEBUG is defined)
+
 2003-12-09  Allan Noah <anoah at pfeiffer dot edu>
 	* doc/desc/{fujitsu|ma1509}.desc: move fujitsu fi-4110eox2 section
 

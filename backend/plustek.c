@@ -46,6 +46,8 @@
  * 0.42 - added adjustment stuff
  *        added custom gamma tables
  *        fixed a problem with the "size-sliders"
+ *        fixed a bug that causes segfault when using the autodetection for USB
+ *        devices
  *
  *.............................................................................
  *
@@ -1113,7 +1115,6 @@ static SANE_Status attach( const char *dev_name, pCnfDef cnf,
     dev->name        = strdup(dev_name);    /* hold it double to avoid  */
 	dev->sane.name   = dev->name;           /* compiler warnings        */
 	dev->sane.vendor = "Plustek";
-    dev->usbId       = NULL;
 
 	memcpy( &dev->adj, &cnf->adj, sizeof(AdjDef));
 
@@ -1154,7 +1155,7 @@ static SANE_Status attach( const char *dev_name, pCnfDef cnf,
         dev->readImage   = usbDev_readImage;
 		dev->shutdown    = usbDev_shutdown;
 
-        dev->usbId = strdup( cnf->usbId );
+        strncpy( dev->usbId, cnf->usbId, _MAX_ID_LEN );
 		
 		if( cnf->adj.warmup >= 0 )
 	        dev->usbDev.dwWarmup = cnf->adj.warmup;
@@ -1432,9 +1433,6 @@ void sane_exit( void )
 		if( dev->sane.name )
 			free( dev->name );
 		
-		if( dev->usbId )
-			free( dev->usbId );
-
         if( dev->res_list )
 			free( dev->res_list );
 		free( dev );

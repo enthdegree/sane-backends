@@ -35,6 +35,8 @@
  * 0.40 - added USB stuff
  * 0.41 - added configuration stuff
  * 0.42 - added custom gamma tables
+ *        changed usbId to static array
+ *		  added _MAX_ID_LEN
  *
  *.............................................................................
  *
@@ -117,6 +119,8 @@
 #define _NEG_X			((double)_NegativePageWidth/300.0 * MM_PER_INCH)
 #define _NEG_Y			((double)_NegativePageHeight/300.0 * MM_PER_INCH)
 
+#define _MAX_ID_LEN	20
+
 /************************ some structures ************************************/
 
 enum {
@@ -169,7 +173,7 @@ typedef struct Plustek_Device
 	struct itimerval       saveSettings;     /* for lamp timer               */
 	
     /**************************** USB-stuff **********************************/
-    char                  *usbId;            /* pointer to Vendor and product*/
+    char                   usbId[_MAX_ID_LEN];/* to keep Vendor and product  */
                                              /* ID string (from conf) file   */
 #ifdef _PLUSTEK_USB
     ScanDef                scanning;         /* here we hold all stuff for   */
@@ -241,7 +245,7 @@ typedef struct {
 	
 	char     devName[PATH_MAX];
 	PORTTYPE porttype;
-	char     usbId[20];	
+	char     usbId[_MAX_ID_LEN];	
 
 	/* contains the stuff to adjust... */
 	AdjDef   adj;

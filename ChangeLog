@@ -1,3 +1,8 @@
+2002-02-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* lib/inet_pton.c: Use u_int32_t instead of in in_addr_t which isn't
+	  defined at least for OS/2.
+
 2002-02-16 Abel Deuring <a.deuring@satzbau-gmbh.de>:
 	* frontend/scanimage.c / part for the "-f" command line option:
 	  replaced the vprintf call with a loop of printf calls; fixed

@@ -66,6 +66,12 @@ Frontends:
  saned:		Andreas Beck and David Mosberger
  scanimage:	Andreas Beck, David Mosberger, Gordon Matzigkeit
 
+Sanei internal code:
+
+  Adrian Perez Jorge, Andreas Beck, Andreas Czechanowski, Christian Bucher,
+  David Mosberger-Tang, Frank Zago, Henning Meier-Geinitz, Jeff Freedman,
+  Jochen Eisinger, Marcio Teixeira, Yuri Dario
+
 Please also read the file PROJECTS for projects that are planned or
 not yet included into the SANE distribution.
 

@@ -1,3 +1,8 @@
+2002-01-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* configure configure.in: New vesrion: 1.0.7. Disabled extra version.
+	  Disabeld warnings by default.
+
 ---- CODE FREEZE FOR SANE 1.0.7 ---
 ---- sane-backends-1.0.7-beta2 ----
 

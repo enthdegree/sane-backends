@@ -117,7 +117,11 @@ sanei_thread_kill( int pid )
 {
 	DBG(2, "sanei_thread_kill() will kill %d\n", (int)pid);
 #ifdef USE_PTHREAD
+#if defined (__APPLE__) && defined (__MACH__)
+	return pthread_kill((pthread_t)pid, SIGUSR2);
+#else
 	return pthread_cancel((pthread_t)pid);
+#endif
 #elif defined HAVE_OS2_H
 	return DosKillThread(pid);
 #else
@@ -189,6 +193,16 @@ sanei_thread_sendsig( int pid, int sig )
 
 /**
  */
+#if defined (__APPLE__) && defined (__MACH__)
+static void
+thread_exit_handler( int signo )
+{
+	DBG( 2, "signal caught, calling pthread_exit now...\n" );
+	pthread_exit( PTHREAD_CANCELED );
+}
+#endif
+
+
 static void*
 local_thread( void *arg )
 {
@@ -196,10 +210,20 @@ local_thread( void *arg )
 	int            old;
 	pThreadDataDef ltd = (pThreadDataDef)arg;
 
-	DBG( 2, "thread started, calling func() now...\n" );
+#if defined (__APPLE__) && defined (__MACH__)
+	struct sigaction act;
+
+	sigemptyset(&(act.sa_mask));
+	act.sa_flags   = 0;
+	act.sa_handler = thread_exit_handler;
+	sigaction( SIGUSR2, &act, 0 );
+#else
 	pthread_setcancelstate( PTHREAD_CANCEL_ENABLE, &old );
 	pthread_setcanceltype ( PTHREAD_CANCEL_ASYNCHRONOUS, &old );
-	
+#endif
+
+	DBG( 2, "thread started, calling func() now...\n" );
+
 	status = ltd->func( ltd->func_data );
 
 	DBG( 2, "func() done - status = %d\n", status );
@@ -275,10 +299,11 @@ sanei_thread_begin( int (func)(void *args), void* args )
 		}
 	}
 
-    td.func      = func;
-    td.func_data = args;
+	td.func      = func;
+	td.func_data = args;
 
 	pid = pthread_create( &thread, NULL, local_thread, &td );
+	usleep( 1 );
 
 	if ( pid != 0 ) {
 		DBG( 1, "pthread_create() failed with %d\n", pid );

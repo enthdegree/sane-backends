@@ -1,3 +1,11 @@
+2004-10-19  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* backend/plustek.c: Using now the same strings for gain and offset 
+	  like the umax_pp backend (bug #300962).
+	* doc/plustek/Plustek-USB.changes: Update.
+	* po/*.po: Update due to changes in the Plustek backend.
+	* po/sane-backends.de.po: Fixed gain translation.
+
 2004-10-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* tools/sane-find-scanner.c: When getting string descriptors, ask
@@ -5,14 +13,13 @@
 
 2004-10-18  Ullrich Sigwanz <usigwanz@freesurf.ch>
 
-        * backend/niash_core.c: 
-        * backend/niash.c: correcting vertical scanning start 
-          point for changed max. page height
+	* backend/niash_core.c: 
+	* backend/niash.c: correcting vertical scanning start 
+	  point for changed max. page height
 
 2004-10-17  Ullrich Sigwanz <usigwanz@freesurf.ch>
 
-        * backend/niash_core.c: using exact number of lines
-          for a scan
+	* backend/niash_core.c: using exact number of lines for a scan
 
 ---- FEATURE FREEZE FOR SANE 1.0.15 ---
 -- snapshot 1.0.15-pre1
@@ -44,9 +51,9 @@
 
 2004-10-17  Ullrich Sigwanz <usigwanz@freesurf.ch>
 
-        * backend/niash_core.c: rewrote buffer portioning
-        * backend/niash_core.c (2): updated debug info 
-        * backend/niash.c: Enabling support of full DIN A4 size
+	* backend/niash_core.c: rewrote buffer portioning
+	* backend/niash_core.c (2): updated debug info 
+	* backend/niash.c: Enabling support of full DIN A4 size
 
 2004-10-16  Oliver Rauch <Oliver.Rauch@Rauch-DOmain.DE>
 
@@ -66,8 +73,8 @@
 
 2004-10-14  Ullrich Sigwanz <usigwanz@freesurf.ch>
 
-        * backend/niash.c: removing a non-ANSI conform comma.
-          adapting the gammma conversion.
+	* backend/niash.c: removing a non-ANSI conform comma.
+	  adapting the gammma conversion.
 
 2004-10-14  Gerhard Jaeger <gerhard@gjaeger.de>
 
@@ -76,7 +83,7 @@
 
 2004-10-13  Ullrich Sigwanz <usigwanz@freesurf.ch>
 
-        * backend/niash.c: Proper resource handling in sane_cancel.
+	* backend/niash.c: Proper resource handling in sane_cancel.
 
 2004-10-12  Gerhard Jaeger <gerhard@gjaeger.de>
 
@@ -111,8 +118,8 @@
 
 2004-10-11  Oliver Schirrmeister (oschirr@abm.de)
 
-        * backend/fujitsu.c: bugfix: 3091 did not work (15.12.2003)
-          M4099 supported (bw only)
+	* backend/fujitsu.c: bugfix: 3091 did not work (15.12.2003)
+	  M4099 supported (bw only)
 	  enables brightness 
 
 2004-10-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -132,11 +139,12 @@
 	  Code cleanups.
 
 2004-10-08  Ullrich Sigwanz <usigwanz@freesurf.ch>
-        * backend/niash.c: Added grayscale and lineart support
-        * backend/niash_core.c: corrected bug in line-weight in
-          function _UnScrambleLine
-        * doc/descriptions/niash.desc: changed status to complete
-          removed the color only comment
+
+	* backend/niash.c: Added grayscale and lineart support
+	* backend/niash_core.c: corrected bug in line-weight in
+	  function _UnScrambleLine
+	* doc/descriptions/niash.desc: changed status to complete
+	  removed the color only comment
   
 2004-10-06  Gerhard Jaeger <gerhard@gjaeger.de>
 

@@ -1,3 +1,9 @@
+2003-07-02  Thomas Soumarmon <thomas.soumarmon@cogitae.net>
+
+	* backend/hp5400_internal.c: Added version string for v0.87
+	which has been reported to work ok. Use of a list of versions
+	instead of several constants.
+
 2003-07-02  Peter Fales <peter@fales-lorenz.net>
 
 	* backend/gphoto2.c:  Suppress the "bad parameter" message printed

@@ -88,8 +88,18 @@
 /* #define CALIB_DEBUG */
 
 
-const char MatchVersion[] = "SilitekIBlizd C3 ScannerV0.84";
-const char MatchVersion2[] = "SilitekIBlizd C3 ScannerV0.86";
+typedef struct versionString {
+	const char strVersion[128];
+} versionString;
+
+versionString MatchVersions[] = {
+	{ "SilitekIBlizd C3 ScannerV0.84" } ,
+	{ "SilitekIBlizd C3 ScannerV0.86" } ,
+	{ "SilitekIBlizd C3 ScannerV0.87" }
+	};
+
+const int numVersions = 3;
+
 
 static TScannerModel Model_HP54xx =
   { "Hewlett-Packard", "HP54xx Flatbed Scanner" };
@@ -1183,6 +1193,9 @@ HP5400Open (THWParams * params, char *filename)
   int iHandle = hp5400_open (filename);
   char szVersion[32];
   int i;
+#ifndef NO_STRING_VERSION_MATCH
+  int versionMatched;
+#endif
 
   if (iHandle < 0)
     {
@@ -1202,22 +1215,29 @@ HP5400Open (THWParams * params, char *filename)
 
 	  HP5400_DBG (DBG_MSG, "version String :\n");
     for (i=0; i < 32; i++) {
-      HP5400_DBG (DBG_MSG, "%c", szVersion[i]);    
+      HP5400_DBG (DBG_MSG, "%c\n", szVersion[i]);
     }
     HP5400_DBG (DBG_MSG, "\n");
 
 #ifndef NO_STRING_VERSION_MATCH
-  /* Match on everything except the version number */
-  if (memcmp (szVersion + 1, MatchVersion, sizeof (MatchVersion) - 4))
-    {
-      if (memcmp (szVersion + 1, MatchVersion2, sizeof (MatchVersion2) - 4))
-	{
-	  HP5400_DBG (DBG_MSG,
-	       "Sorry, unknown scanner version. Attempted match on '%s' and '%s'\n",
-	       MatchVersion, MatchVersion2);
-	  HP5400_DBG (DBG_MSG, "Vesion is '%s'\n", szVersion);
-	  goto hp5400_close_exit;
+  i = 0;
+  versionMatched = 0;
+  while ( !versionMatched && (i < numVersions) ) {
+	if (!memcmp (szVersion + 1, MatchVersions[i] .strVersion, strlen(MatchVersions[i] .strVersion) - 4)) {
+		versionMatched = 1;
 	}
+  	i++;
+  }
+  if ( !versionMatched ) {
+	HP5400_DBG (DBG_MSG,
+	       "Sorry, unknown scanner version. Attempted match on :\n");
+	i = 0;
+	while ( i < numVersions ) {
+		HP5400_DBG (DBG_MSG, "* '%s'\n", MatchVersions[i] .strVersion);
+		i++;
+	}
+	HP5400_DBG (DBG_MSG, "Version is '%s'\n", szVersion);
+	goto hp5400_close_exit;
     }
 #else
   HP5400_DBG (DBG_MSG, "Warning, Version match is disabled. Version is '%s'\n",
@@ -1253,6 +1273,10 @@ HP5400Detect (char *filename,
 
   char szVersion[32];
   int ret = 0;
+#ifndef NO_STRING_VERSION_MATCH
+  int versionMatched = 0;
+  int i = 0;
+#endif
 
   if (iHandle < 0)
     {
@@ -1270,17 +1294,24 @@ HP5400Detect (char *filename,
     }
 
 #ifndef NO_STRING_VERSION_MATCH
-  if (memcmp (szVersion + 1, MatchVersion, sizeof (MatchVersion) - 1))
-    {
-      if (memcmp (szVersion + 1, MatchVersion2, sizeof (MatchVersion2) - 1))
-	{
-	  HP5400_DBG (DBG_MSG,
-	       "Sorry, unknown scanner version. Attempted match on '%s' and '%s'\n",
-	       MatchVersion, MatchVersion2);
-	  HP5400_DBG (DBG_MSG, "Vesion is '%s'\n", szVersion);
-	  ret = -1;
-	  goto hp5400_close_exit;
+  i = 0;
+  versionMatched = 0;
+  while ( !versionMatched && (i < numVersions) ) {
+	if (!memcmp (szVersion + 1, MatchVersions[i] .strVersion, strlen (MatchVersions[i] .strVersion) - 4)) {
+		versionMatched = 1;
 	}
+  	i++;
+  }
+  if ( !versionMatched ) {
+	HP5400_DBG (DBG_MSG,
+	       "Sorry, unknown scanner version. Attempted match on :\n");
+	i = 0;
+	while ( i < numVersions ) {
+		HP5400_DBG (DBG_MSG, "* '%s'\n", MatchVersions[i] .strVersion);
+		i++;
+	}
+	HP5400_DBG (DBG_MSG, "Version is '%s'\n", szVersion);
+	goto hp5400_close_exit;
     }
 #else
   HP5400_DBG (DBG_MSG, "Warning, Version match is disabled. Version is '%s'\n",

@@ -16,6 +16,7 @@ Backends:
  avision:       Meino Christian Cramer, Rene Rebe(*)
  bh:            Tom Martone (*)
  canon:         Helmut Koeberle, Manuel Panea (*), and Markus Mertinat
+ canon_pp:      Matthew Duggan (*), Simon Krix
  coolscan:      Didier Carlier, Andreas Rick (*)
  dc25:          Peter Fales (*)
  dc210:         Brian J. Murrell
@@ -125,6 +126,7 @@ Manuel Panea <Manuel.Panea@rzg.mpg.de>
 Marcio Teixeira <marciot@users.sourceforge.net>
 Marian Eichholz <eichholz@computer.org>
 Markus Mertinat <Markus.Mertinat@Physik.Uni-Augsburg.DE>
+Matthew Duggan <stauff1@users.sourceforge.net>
 Matthew Marjanovic <maddog@mir.com>
 Meino Christian Cramer <mccramer@s.netic.de>
 Michael Herder <crapsite@gmx.net>
@@ -142,6 +144,7 @@ Randolph Bentson <bentson@grieg.holmsjoen.com>
 Rene Rebe <rene.rebe@gmx.net>
 Roger Wolff <R.E.Wolff@BitWizard.nl>
 Sebastien Sable <Sebastien.Sable@snv.jussieu.fr>
+Simon Krix <kinsei@users.sourceforge.net>
 Simon Munton <simon@munton.demon.co.uk>
 Stéphane Voltz <svoltz@wanadoo.fr>
 Tom Martone <tom@martoneconsulting.com>

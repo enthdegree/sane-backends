@@ -1,0 +1,159 @@
+.TH sane-canon_pp 5 "30 March 2002"
+.IX sane-canon_pp
+.SH NAME
+sane-canon_pp - SANE backend for Canon Parallel Port flatbed scanners
+.SH DESCRIPTION
+The
+.B sane-canon_pp
+library implements a SANE (Scanner Access Now Easy) backend that
+provides access to the following Canon flatbed scanners:
+.PP
+.RS
+CanoScan FB330P
+.br
+CanoScan FB630P
+.br
+CanoScan N340P
+.br
+CanoScan N640P
+.br
+.RE
+.PP
+No USB scanners are supported and there are no plans to support them in 
+the future.  Other projects are working on support for USB scanners. See the 
+.B PROJECTS 
+file for more detail.  We cannot add support for the FB310P or FB320P at the
+moment, but contact us if you have one of these scanners and would really like
+to help.
+.PP
+IMPORTANT: this is alpha code. While we have made every effort to make it as
+reliable as possible, it will not always work as expected.  Feedback is still
+appreciated.  Please send any bug reports to the maintainers as listed on the
+web page (listed in
+.B SEE ALSO
+below).
+.PP
+.
+.PP
+.SH "DEVICE NAMES"
+This backend expects device names of the form presented by libieee1284.  These names are highly dependant on operating system and version.
+
+On Linux 2.4 kernels this will be of the form 
+.I "parport0"
+or older (2.2) kernels may produce names like 
+.IR "0x378"
+or simply 
+.IR "0"
+depending on your module configuration.  Check the contents of 
+.I /proc/parport
+if it exists.  If you don't want to specify a default port (or don't know 
+its name), the backend should be able to detect which port your scanner is on.
+
+.SH CONFIGURATION
+The contents of the
+.I canon_pp.conf
+file is a list of options for the driver to use.  Empty lines and lines 
+starting with a hash mark (#) are ignored.
+.PP
+The supported options are currently
+.BR ieee1284 ,
+.BR calibrate ,
+and 
+.BR force_nibble
+
+Option
+.B ieee1284 
+.IR portname
+defines which port to use.  The format of portname is OS dependant, based on 
+the names presented by libieee1284.  Please only have one of these lines, or
+all but one will be ignored.
+
+Option 
+.B calibrate 
+.IR cal-file 
+.IR [portname]
+defines which calibration file to use on a per-port basis.  If you only have 
+one scanner, the portname argument may be omitted - but be careful as this 
+will cause problems on multi-scanner systems.  You may have as many of these
+lines as you like, as long as each has a unique port name.  The tilde (`~') 
+character is acceptable and will be expaned to the value of the HOME environment.
+
+Option
+.B force_nibble
+forces the driver to use nibble mode even if ECP mode is reported to work
+by libieee1284.  This works-around the rare issue of ECP mode being reported to
+work by the library, then not working.
+
+.SH TIPS
+.PP
+Hit the "Calibrate" button before scanning.  It vastly improves the quality
+of scans.
+.PP
+To enable automatic detection of your scanner, uncomment the "canon_pp" line from
+.I @CONFIGDIR@/dll.conf
+.PP
+.SH FILES
+.TP
+.I @CONFIGDIR@/canon_pp.conf
+The backend configuration file (see also description of
+.B SANE_CONFIG_DIR
+below).
+.TP
+.I @LIBDIR@/libsane-canon_pp.a
+The static library implementing this backend.
+.TP
+.I @LIBDIR@/libsane-canon_pp.so
+The shared library implementing this backend (present on systems that
+support dynamic loading).
+.SH ENVIRONMENT
+.TP
+.B SANE_CONFIG_DIR
+This environment variable specifies the list of directories that may
+contain the configuration file.  Under UNIX, the directories are
+separated by a colon (`:'), under OS/2, they are separated by a
+semi-colon (`;').  If this variable is not set, the configuration file
+is searched in two default directories: first, the current working
+directory (".") and then in @CONFIGDIR@.  If the value of the
+environment variable ends with the directory separator character, then
+the default directories are searched after the explicitly specified
+directories.  For example, setting
+.B SANE_CONFIG_DIR
+to "/tmp/config:" would result in directories "tmp/config", ".", and
+"@CONFIGDIR@" being searched (in this order).
+.TP
+.B SANE_DEBUG_CANON_PP
+If the library was compiled with debug support enabled, this
+environment variable controls the debug level for this backend.  Higher
+debug levels increase the verbosity of the output.
+
+Example: 
+export SANE_DEBUG_CANON_PP=4
+.SH BUGS
+A note on features available in the Windows interface:
+.TP
+.B Brightness and Contrast 
+These are not implemented, and probably never will be.  These
+appear to be implented entirely in software.  Use GIMP or a similar program if
+you need these features.
+.TP
+.B Descreen Mode
+This appears on our first analysis to be just oversampling with an 
+anti-aliasing filter.  Again, it seems to be implemeneted entirely in 
+software, so GIMP is your best bet for now.
+.TP
+.B Gamma Tables
+This is under investigation, but for now only a simple gamma profile will be 
+loaded.
+
+.SH "SEE ALSO"
+sane(7), sane-dll(5)
+.BR
+http://canon-fb330p.sourceforge.net/
+
+.SH AUTHOR
+This backend is primarily the work of Simon Krix (Reverse Engineering), and 
+Matthew Duggan (SANE interface).  
+.PP
+Many thanks to Kevin Easton for his comments and help, and Kent A. Signorini 
+for his help with the N340P.
+

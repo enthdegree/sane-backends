@@ -47,7 +47,7 @@ SECT5	= sane-abaton.5 sane-agfafocus.5 sane-apple.5 sane-as6e.5 sane-dll.5 \
           sane-st400.5 sane-mustek_pp.5 sane-dc210.5 sane-v4l.5 \
           sane-snapscan.5 sane-canon.5 sane-coolscan.5 sane-bh.5 sane-dc240.5 \
           sane-umax_pp.5 sane-umax1220u.5 sane-sm3600.5 sane-usb.5 \
-          sane-mustek_usb.5 sane-sceptre.5
+          sane-mustek_usb.5 sane-sceptre.5 sane-canon_pp.5
 SECT7   = sane.7
 MANPAGES = $(SECT1) $(SECT5) $(SECT7)
 READMES = README AUTHORS COPYING ChangeLog LEVEL2 LICENSE NEWS PROBLEMS \
@@ -81,7 +81,7 @@ DISTFILES = Makefile.in backend-writing.txt doxygen-sanei.conf html.sty \
   sane-scsi.man sane-sharp.man sane-sm3600.man sane-snapscan.man \
   sane-st400.man sane-tamarack.man sane-umax.man sane-umax1220u.man \
   sane-umax_pp.man sane-usb.man sane-v4l.man sane.man sane.png \
-  sane.tex saned.man scanimage.man sane-sceptre.man \
+  sane.tex saned.man scanimage.man sane-sceptre.man sane-canon_pp.man
 
 .PHONY: all clean depend dist distclean html html-man install \
   install-mostang sane-html uninstall

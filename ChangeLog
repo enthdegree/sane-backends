@@ -1,3 +1,7 @@
+2003-04-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/sane-as6e.man: Added info about $PATH. Minor formatting fixes.
+
 2003-03-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* frontend/saned.c: Include poll.h only if new saned code is

@@ -59,6 +59,7 @@
 #include "../include/sane/sanei_pv8630.h"
 
 #define DBG_error   1
+#define DBG_info    5
 
 /* Write one control byte */
 SANE_Status
@@ -66,6 +67,7 @@ sanei_pv8630_write_byte (int fd, SANEI_PV_Index index, SANE_Byte byte)
 {
   SANE_Status status;
 
+  DBG(DBG_info, "sanei_pv8630_write_byte - index=%d, byte=%d\n", index, byte);
   status =
     sanei_usb_control_msg (fd, 0x40, PV8630_REQ_WRITEBYTE, byte, index, 0,
 			   NULL);
@@ -80,6 +82,8 @@ SANE_Status
 sanei_pv8630_read_byte (int fd, SANEI_PV_Index index, SANE_Byte * byte)
 {
   SANE_Status status;
+
+  DBG(DBG_info, "sanei_pv8630_read_byte - index=%d, byte=%p\n", index, byte);
 
   status =
     sanei_usb_control_msg (fd, 0xc0, PV8630_REQ_READBYTE, 0, index, 1, byte);

@@ -1,3 +1,7 @@
+2004-11-21  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* backend/plustek-usb.c: Fixed problem, when builing supported
+	  and connected device list.
 
 2004-11-19  Rene Rebe <rene@exactcode.de>
 

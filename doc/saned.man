@@ -1,4 +1,4 @@
-.TH saned 1 "8 Oct 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH saned 1 "9 Feb 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX saned
 .SH NAME
 saned \- SANE network daemon
@@ -32,15 +32,25 @@ at all. The default value is 2. If flag
 .B \-d
 is used, the debug messages will be printed to stderr while
 .B \-s
-requests using syslog. 
+requests using syslog.
+.PP
+If 
+.B saned
+is run from inetd or xinetd, no option can be given.
 .SH CONFIGURATION
-First and foremost: please do
+First and foremost: 
+.B saned
+is not intended to be exposed to the internet or other non-trusted
+networks. Make sure that access is limited by tcpwrappers and/or a firewall
+setup. Don't depend only on 
+.BR saned 's
+own authentification. Don't run
+.B saned
+as root if it's not necessary. And do
 .B not
 install
 .B saned
-as setuid root without due consideration.  Especially when using
-dynamic linking, there is a potential for introducing security holes
-when running this program as root.
+as setuid root.
 .PP
 The contents of the
 .I saned.conf

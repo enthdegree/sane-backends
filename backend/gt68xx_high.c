@@ -52,7 +52,8 @@
 static SANE_Status
 gt68xx_afe_ccd_auto (GT68xx_Scanner * scanner, GT68xx_Scan_Request * request);
 static SANE_Status gt68xx_afe_cis_auto (GT68xx_Scanner * scanner);
-
+static void
+gt68xx_afe_correction (SANE_Byte * value, SANE_Int correction);
 
 SANE_Status
 gt68xx_calibrator_new (SANE_Int width,
@@ -476,7 +477,7 @@ gt68xx_scanner_start_scan_extended (GT68xx_Scanner * scanner,
 {
   DECLARE_FUNCTION_NAME ("gt68xx_scanner_start_scan_extended")
     SANE_Status status;
-  GT68xx_AFE_Parameters *afe = scanner->dev->afe;
+  GT68xx_AFE_Parameters afe = *scanner->dev->afe;
 
   status = gt68xx_scanner_wait_for_positioning (scanner);
   if (status != SANE_STATUS_GOOD)
@@ -518,10 +519,25 @@ gt68xx_scanner_start_scan_extended (GT68xx_Scanner * scanner,
     }
   DBG (5,
        "gt68xx_start_scan_extended: afe: %02X %02X  %02X %02X  %02X %02X\n",
-       afe->r_offset, afe->r_pga, afe->g_offset, afe->g_pga, afe->b_offset,
-       afe->b_pga);
+       afe.r_offset, afe.r_pga, afe.g_offset, afe.g_pga, afe.b_offset,
+       afe.b_pga);
 
-  status = gt68xx_device_set_afe (scanner->dev, afe);
+  if (action == SA_SCAN)
+    {
+
+      gt68xx_afe_correction (&afe.r_offset, scanner->val[OPT_OFFSET].w);
+      gt68xx_afe_correction (&afe.g_offset, scanner->val[OPT_OFFSET].w);
+      gt68xx_afe_correction (&afe.b_offset, scanner->val[OPT_OFFSET].w);
+      gt68xx_afe_correction (&afe.r_pga, scanner->val[OPT_GAIN].w);
+      gt68xx_afe_correction (&afe.b_pga, scanner->val[OPT_GAIN].w);
+      gt68xx_afe_correction (&afe.g_pga, scanner->val[OPT_GAIN].w);
+      DBG (5,
+	   "gt68xx_start_scan_extended: corrected afe: %02X %02X  %02X %02X  %02X %02X\n",
+	   afe.r_offset, afe.r_pga, afe.g_offset, afe.g_pga, afe.b_offset,
+	   afe.b_pga);
+    }
+
+  status = gt68xx_device_set_afe (scanner->dev, &afe);
   if (status != SANE_STATUS_GOOD)
     {
       XDBG ((5, "%s: gt68xx_device_set_afe failed: %s\n", function_name,
@@ -678,8 +694,12 @@ gt68xx_scanner_calibrate (GT68xx_Scanner * scanner,
   req.mds = SANE_TRUE;
   req.mas = SANE_FALSE;
 
+#if 0
   if (scanner->dev->model->is_cis == SANE_TRUE)
     req.color = SANE_TRUE;
+#else
+  req.color = SANE_TRUE;
+#endif
 
   if (req.use_ta)
     {
@@ -881,12 +901,18 @@ gt68xx_scanner_read_line (GT68xx_Scanner * scanner,
 	}
       else
 	{
+#if 0
 	  if (scanner->dev->model->is_cis == SANE_TRUE)
 	    gt68xx_calibrator_process_line (scanner->cal_g,
 					    buffer_pointers[0]);
 	  else
 	    gt68xx_calibrator_process_line (scanner->cal_gray,
 					    buffer_pointers[0]);
+#else
+	  gt68xx_calibrator_process_line (scanner->cal_g,
+					  buffer_pointers[0]);
+#endif
+	
 	}
     }
 
@@ -921,13 +947,15 @@ struct GT68xx_Afe_Values
   SANE_Int scan_dpi;
   SANE_Fixed start_black;
   SANE_Int offset_direction;
+  SANE_Int coarse_black;
+  SANE_Int coarse_white;
 };
 
 #ifndef NDEBUG
 static void
 gt68xx_afe_dump (SANE_String_Const phase, int i, GT68xx_AFE_Parameters * afe)
 {
-  XDBG ((5, "set afe %s %2d: RGB offset/pga: %02x %02x  %02x %02x  "
+  XDBG ((3, "set afe %s %2d: RGB offset/pga: %02x %02x  %02x %02x  "
 	 "%02x %02x\n",
 	 phase, i, afe->r_offset, afe->r_pga, afe->g_offset, afe->g_pga,
 	 afe->b_offset, afe->b_pga));
@@ -944,6 +972,17 @@ gt68xx_afe_exposure_dump (SANE_String_Const phase, int i,
 }
 #endif /* not NDEBUG */
 
+static void
+gt68xx_afe_correction (SANE_Byte * value, SANE_Int correction)
+{
+  SANE_Int corrected_value = *value + correction;
+
+  if (corrected_value < 0)
+    corrected_value = 0;
+  if (corrected_value > 63)
+    corrected_value = 63;
+  *value = corrected_value;
+}
 /************************************************************************/
 /* CCD scanners                                                         */
 /************************************************************************/
@@ -1033,8 +1072,8 @@ gt68xx_afe_ccd_adjust_offset_gain (GT68xx_Afe_Values * values,
 				   unsigned int *buffer, SANE_Byte * offset,
 				   SANE_Byte * pga)
 {
-  SANE_Int black_low = 3, black_high = 18;
-  SANE_Int white_low = 234, white_high = 252;
+  SANE_Int black_low = values->coarse_black, black_high = black_low + 15;
+  SANE_Int white_high = values->coarse_white, white_low = white_high - 15; 
   SANE_Bool done = SANE_TRUE;
 
   gt68xx_afe_ccd_calc (values, buffer);
@@ -1096,8 +1135,8 @@ gt68xx_afe_ccd_adjust_offset_gain (GT68xx_Afe_Values * values,
       goto finish;
     }
  finish:
-  DBG (5, "%swhite=%d, black=%d, offset=%d, gain=%d\n",
-       done ? "DONE: " : "", values->white, values->black, *offset, *pga);
+  DBG (5, "%swhite=%d, black=%d, offset=%d, gain=%d, total_white=%d\n",
+       done ? "DONE: " : "", values->white, values->black, *offset, *pga, values->total_white);
   return done;
 
 }
@@ -1138,7 +1177,8 @@ gt68xx_afe_ccd_auto (GT68xx_Scanner * scanner,
   request.xdpi = 300;
   request.ydpi = 300;
   request.depth = 8;
-  request.color = orig_request->color;
+  /*  request.color = orig_request->color;*/
+  request.color = SANE_TRUE;
   request.mas = SANE_FALSE;
   request.mbs = SANE_FALSE;
   request.mds = SANE_TRUE;
@@ -1174,6 +1214,9 @@ gt68xx_afe_ccd_auto (GT68xx_Scanner * scanner,
     values.start_black = SANE_FIX (20.0);
   else
     values.start_black = scanner->dev->model->x_offset_mark;
+  values.coarse_black = 5;
+  values.coarse_white = 250;
+
   request.mds = SANE_FALSE;
   XDBG ((5, "%s: scan_dpi=%d, calwidth=%d, max_width=%d, "
 	 "start_black=%.1f mm\n", function_name, values.scan_dpi,
@@ -1350,7 +1393,7 @@ gt68xx_afe_cis_adjust_offset (GT68xx_Afe_Values * values,
 			      SANE_Byte * offset)
 {
   SANE_Int offs = 0, tmp_offset = *offset;
-  SANE_Int low = 8, high = 22;
+  SANE_Int low = values->coarse_black, high = low + 15;
 
   gt68xx_afe_cis_calc_black (values, black_buffer);
   if (values->black < low)
@@ -1389,15 +1432,16 @@ gt68xx_afe_cis_adjust_gain (GT68xx_Afe_Values * values,
 			    unsigned int *white_buffer, SANE_Byte * gain)
 {
   SANE_Int g = *gain;
+  SANE_Int white_high = values->coarse_white, white_low = white_high - 15; 
 
   gt68xx_afe_cis_calc_white (values, white_buffer);
 
-  if (values->white < 235)
+  if (values->white < white_low)
     {
       g += 1;
       DBG (5, "white = %d (too low) --> gain += 1\n", values->white);
     }
-  else if (values->white > 250)
+  else if (values->white > white_high)
     {
       g -= 1;
       DBG (5, "white = %d (too high) --> gain -= 1\n", values->white);
@@ -1501,6 +1545,8 @@ gt68xx_afe_cis_read_lines (GT68xx_Afe_Values * values,
   values->scan_dpi = params.xdpi;
   values->calwidth = params.pixel_xs;
   values->callines = params.pixel_ys;
+  values->coarse_black = 5;
+  values->coarse_white = 250;
 
   if (r_buffer && g_buffer && b_buffer)
     for (line = 0; line < values->callines; line++)

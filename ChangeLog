@@ -1,3 +1,15 @@
+2003-02-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/gt68xx.c backend/gt68xx_devices.c backend/gt68xx_high.c
+	  backend/gt68xx_high.h doc/descriptions/gt68xx.desc
+	  doc/descriptions/unsupported.desc doc/gt68xx/gt68xx.CHANGES:
+	  Fixed resolutions for BearPaw 1200 TA. Increase the lowest black
+	  for CCD coarse calibration. Adjusted internal gamma correction.
+	  CCD scanners use color mode for coarse+quality cal now. Preview isn't
+	  always in 8 bit mode now (can be selected by option). Upper and lower
+	  limits for coarse calibration are unified now. Added options for
+	  adjusting gain and offset.
+
 2003-02-04  Michael Herder <crapsite@gmx.net>
 
         * doc/descriptions/artec_eplus48u.desc:

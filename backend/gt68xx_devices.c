@@ -269,7 +269,7 @@ static GT68xx_Model mustek_1200ta_model = {
   SANE_TRUE,			/* Use base_ydpi for all resolutions */
 
   {600, 300, 150, 75, 50, 0},	/* possible x-resolutions */
-  {1200, 600, 300, 150, 100, 50, 0},	/* possible y-resolutions */
+  {1200, 600, 300, 150, 75, 50, 0},	/* possible y-resolutions */
   {16, 12, 8, 0},		/* possible depths in gray mode */
   {16, 12, 8, 0},		/* possible depths in color mode */
 

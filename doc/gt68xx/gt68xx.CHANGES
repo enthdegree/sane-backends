@@ -1,5 +1,18 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0-38 (2003-02-05)
+
+- Fixed resolutions for BearPaw 1200 TA (75 instead of 100).
+- Increase the lowest black for CCD coarse calibration to avoid too much black.
+- Adjusted internal gamma correction to avoid getting 0 for high gamma values.
+- CCD scanners use color mode for coarse+quality cal now. This fixes the
+  problem with extremly high gains and terrible quality cal in gray mode at
+  least for the BearPaw 1200 TA.
+--> Thanks to Alexei V. Mezin for reporting these bugs.
+- Preview isn't always in 8 bit mode now (can be selected by option).
+- Upper and lower limits for coarse calibration are unified now.
+- Added options for adjusting gain and offset.
+
 V 1.0-37 (2003-01-18)
 
 - Removed untested flag from A3 USB and Lexmark X70/X73.

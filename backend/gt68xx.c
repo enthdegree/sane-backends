@@ -48,7 +48,7 @@
 
 #include "../include/sane/config.h"
 
-#define BUILD 37
+#define BUILD 38
 #define MAX_DEBUG
 #define WARMUP_TIME 30
 #define CALIBRATION_HEIGHT 2.5
@@ -144,7 +144,7 @@ static const SANE_Range exposure_range = {
 };
 
 static const SANE_Range offset_range = {
-  0,				/* minimum */
+  -63,				/* minimum */
   63,				/* maximum */
   1				/* quantization */
 };
@@ -287,7 +287,7 @@ setup_scan_request (GT68xx_Scanner * s, GT68xx_Scan_Request * scan_request)
     scan_request->xdpi = s->dev->model->optical_xdpi;
   scan_request->ydpi = s->val[OPT_RESOLUTION].w;
 
-  if (IS_ACTIVE (OPT_BIT_DEPTH) && !s->val[OPT_PREVIEW].w)
+  if (IS_ACTIVE (OPT_BIT_DEPTH) && (!s->val[OPT_PREVIEW].w || !s->val[OPT_FAST_PREVIEW].w))
     scan_request->depth = s->val[OPT_BIT_DEPTH].w;
   else
     scan_request->depth = 8;
@@ -544,7 +544,7 @@ init_options (GT68xx_Scanner * s)
   s->opt[OPT_FULL_SCAN].constraint_type = SANE_CONSTRAINT_NONE;
   s->val[OPT_FULL_SCAN].w = SANE_FALSE;
 
-  /* automatic gain */
+  /* coarse calibration */
   s->opt[OPT_COARSE_CAL].name = "coarse-calibration";
   s->opt[OPT_COARSE_CAL].title = SANE_I18N ("Coarse calibration");
   s->opt[OPT_COARSE_CAL].desc =
@@ -557,7 +557,7 @@ init_options (GT68xx_Scanner * s)
   s->opt[OPT_COARSE_CAL].constraint_type = SANE_CONSTRAINT_NONE;
   s->val[OPT_COARSE_CAL].w = SANE_TRUE;
 
-  /* automatic gain only once */
+  /* coarse calibration only once */
   s->opt[OPT_COARSE_CAL_ONCE].name = "coarse-calibration-once";
   s->opt[OPT_COARSE_CAL_ONCE].title = 
     SANE_I18N ("Coarse calibration for first scan only");
@@ -579,6 +579,16 @@ init_options (GT68xx_Scanner * s)
   s->opt[OPT_QUALITY_CAL].unit = SANE_UNIT_NONE;
   s->opt[OPT_QUALITY_CAL].constraint_type = SANE_CONSTRAINT_NONE;
   s->val[OPT_QUALITY_CAL].w = SANE_TRUE;
+
+  /* fast preview */
+  s->opt[OPT_FAST_PREVIEW].name = "fast-preview";
+  s->opt[OPT_FAST_PREVIEW].title = SANE_I18N ("Fast preview");
+  s->opt[OPT_FAST_PREVIEW].desc =
+    SANE_I18N ("Request that all previews are done in in the fastest "
+	       "(low-quality) mode. This may be a non-color mode or a low "
+	       "resolution mode.");
+  s->opt[OPT_FAST_PREVIEW].type = SANE_TYPE_BOOL;
+  s->val[OPT_FAST_PREVIEW].w = SANE_FALSE;
 
   /* "Enhancement" group: */
   s->opt[OPT_ENHANCEMENT_GROUP].title = SANE_I18N ("Enhancement");
@@ -609,6 +619,32 @@ init_options (GT68xx_Scanner * s)
   s->opt[OPT_THRESHOLD].constraint.range = &u8_range;
   s->val[OPT_THRESHOLD].w = 128;
   DISABLE (OPT_THRESHOLD);
+
+  /* gain correction */
+  s->opt[OPT_GAIN].name = "gain";
+  s->opt[OPT_GAIN].title = 
+    SANE_I18N ("Gain correction");
+  s->opt[OPT_GAIN].desc =
+    SANE_I18N ("This value is added to the internal gain value. "
+	       "Use for extremely light or dark images.");
+  s->opt[OPT_GAIN].type = SANE_TYPE_INT;
+  s->opt[OPT_GAIN].unit = SANE_UNIT_NONE;
+  s->opt[OPT_GAIN].constraint_type = SANE_CONSTRAINT_RANGE;
+  s->opt[OPT_GAIN].constraint.range = &offset_range;
+  s->val[OPT_GAIN].w = 0;
+
+  /* offset correction */
+  s->opt[OPT_OFFSET].name = "offset";
+  s->opt[OPT_OFFSET].title = 
+    SANE_I18N ("Offset correction");
+  s->opt[OPT_OFFSET].desc =
+    SANE_I18N ("This value is added to the internal offset value. "
+	       "Use for extremely light or dark images.");
+  s->opt[OPT_OFFSET].type = SANE_TYPE_INT;
+  s->opt[OPT_OFFSET].unit = SANE_UNIT_NONE;
+  s->opt[OPT_OFFSET].constraint_type = SANE_CONSTRAINT_RANGE;
+  s->opt[OPT_OFFSET].constraint.range = &offset_range;
+  s->val[OPT_OFFSET].w = 0;
 
   /* "Geometry" group: */
   s->opt[OPT_GEOMETRY_GROUP].title = SANE_I18N ("Geometry");
@@ -1341,7 +1377,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_FULL_SCAN:
 	case OPT_COARSE_CAL:
 	case OPT_COARSE_CAL_ONCE:
+	case OPT_OFFSET:
+	case OPT_GAIN:
 	case OPT_QUALITY_CAL:
+	case OPT_FAST_PREVIEW:
 	case OPT_PREVIEW:
 	case OPT_LAMP_ON:
 	case OPT_AUTO_WARMUP:
@@ -1387,6 +1426,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_RESOLUTION:
 	case OPT_BIT_DEPTH:
 	case OPT_FULL_SCAN:
+	case OPT_FAST_PREVIEW:
 	case OPT_PREVIEW:
 	case OPT_TL_X:
 	case OPT_TL_Y:
@@ -1399,6 +1439,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_LAMP_ON:
 	case OPT_AUTO_WARMUP:
 	case OPT_COARSE_CAL_ONCE:
+	case OPT_OFFSET:
+	case OPT_GAIN:
 	case OPT_QUALITY_CAL:
 	case OPT_GAMMA_VALUE:
 	case OPT_THRESHOLD:
@@ -1547,12 +1589,15 @@ sane_start (SANE_Handle handle)
   for (i = 0; i < gamma_size; i++)
     {
       s->gamma_table [i] = 
-	(gamma_size - 1) * pow (((double) i) / (gamma_size - 1),
+	(gamma_size - 1) * pow (((double) i + 1) / (gamma_size),
 			  1.0 / SANE_UNFIX(s->dev->gamma_value)) + 0.5;
       if (s->gamma_table [i] > (gamma_size - 1))
 	s->gamma_table [i] = (gamma_size - 1);
       if (s->gamma_table [i] < 0) 
 	s->gamma_table [i] = 0;
+#if 0
+      printf ("%d %d\n", i, s->gamma_table [i]);
+#endif
     }
 
   s->calib = s->val[OPT_QUALITY_CAL].w;

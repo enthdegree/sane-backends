@@ -1,11 +1,10 @@
-TODO (2002-01-10)
+TODO (2002-01-11)
 
 ******** todo ********
 
 backends
 --------
   * Add new backends (?)
-    - primax http://primax.sourceforge.net/
     - hp4200 http://hp4200-backend.sourceforge.net/
     - v4l2 http://video.inodes.org/sane-v4l2/
     - Relisys Scorpio Super 3 SCSI II
@@ -14,7 +13,7 @@ backends
     - Linux Handscanner Ioctl Interface scanner by Harald
       Bauer <bauer-h@web.de>
     - viceo (Visioneer OneTouch 8600)
-      http://www.abaforum.es/martim/bird/otlinux.htm
+      http://www.littlecms.com/iphoto/otlinux.htm
     - Genius Vivid Pro USB, Colorado USB 19200, Visioneer OneTouch 7600 
       IBM IdeaScan 2000 USB 
       http://homepages.paradise.net.nz/stevenel/scanner/
@@ -47,7 +46,7 @@ backends
      - figure out how/if to support bulb mode
      - convert to use sanei_pio functions instead of direct port
        access.
-     - Check file handling in /tmp.
+     - The result of locking isn't checked --> does it make sense at all?
 
   * dll: Rewrite to use libtool ltdl library
 
@@ -100,6 +99,8 @@ backends
     - tamarack
     - v4l (403)
 
+  * net: add IPv6 support.
+
 doc
 ---
   * Documentation for sanei API
@@ -123,11 +124,9 @@ frontends
        by one user). Maybe add a command line option to saned to set the
        timeout. Otherwise turn on TCP keep alive (where available) and
        (maybe) check the connection from server side.
-     - Is it necessary to check the ip address of the data connection?
+     - Add IPv6 support.
 
-  * Add a check in the frontends if the backend delivers more data than
-    it announced by sane_get_parameters to avoid segfaults with bad 
-    backends?
+  * scanimage: Add i18n (NLS) support?
 
  [the remaining entries have been moved to the sane-frontends package]
 
@@ -177,6 +176,13 @@ misc
 
 
 ******** done ********
+* Add support for qt NLS (msg2qm) if possible without too much hassle.
+* Add new backend primax http://primax.sourceforge.net/ (won't be ever a
+  real sane backend)
+* qcam: Check file handling in /tmp.
+* Add a check in the frontends if the backend delivers more data than
+  it announced by sane_get_parameters to avoid segfaults with bad 
+  backends?
 * Add installation procedure for translations of SANE backend's options.
 * check memory leaks (checked with purify and mtrace (from glibc)):
 * Test SANE on different os/platforms, fix possible compilation problems 

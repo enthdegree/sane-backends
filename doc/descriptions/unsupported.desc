@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-10-14"		; version of backend
+:version "2003-10-17"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -272,10 +272,10 @@
 :url "http://www.epson.com/"
 
 :model "Perfection 1670"
-:url "http://server2.clover.com.au/~tpw/scanner/main.html"
+:url "/unsupported/epson-perfection-1670.html"
 :interface "USB"
 :status :unsupported
-:comment "Currently not supported. See link for details. Is reported to be a Benq scanner in reality and uses Benq commands."
+:comment "Currently not supported. However, there is work in progress to get it supported. See link for details."
 
 :model "Perfection 3170"
 ;:url ""
@@ -846,6 +846,12 @@
 :interface "USB IEEE-1394"
 :status :unsupported
 :comment "Probably unsupported. Film scanner that can scan directly from the magazine."
+
+:model "iScan 1800"
+:interface "USB"
+:url "/unsupported/reflecta-iscan-1800.html"
+:status :unsupported
+:comment "Probably unsupported. See link for details."
 
 ;********************************************************************************************
 

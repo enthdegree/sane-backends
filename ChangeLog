@@ -6,6 +6,9 @@
 	  New version: 1.0-125.
 	* config.guess config.sub: Updated to latest versions (from
 	  ftp://ftp.gnu.org/pub/gnu/config/).
+	* configure configure.in: Print CPPFLAGS, CFLAGS, LDFLAGS and LIBS
+	  for easier debugging. Moved AC_SUBST to the variable definitions
+	  they belong to.
 
 2002-06-05  Abel Deuring <a.deuring@satzbau-gmbh.de>
 	* doc/descriptions/sharp.desc: added "interface" parameter

@@ -1,8 +1,3 @@
-/*.............................................................................
- * Project : SANE library for Plustek parallelport flatbed scanners.
- *.............................................................................
- */
-
 /* @file plustek-pp_image.c
  * @brief functions to convert scanner data into image data
  *
@@ -37,6 +32,8 @@
  * - 0.41 - no changes
  * - 0.42 - fixed a problem for the 12bit modes fo ASIC9800x based devices
  *        - changed include names
+ * - 0.43 - removed floating point stuff
+ *        - cleanup
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -106,8 +103,7 @@ static ThreshDef xferSpeed[4] = {
 
 /*************************** local functions *********************************/
 
-/*.............................................................................
- * return the correct DPI-value
+/** return the correct DPI-value
  * The ASIC 96001/3 models are limited to an optical resolution of 300 Dpi
  * so it´s necessary to scale in X and Y direction (see scale.c)!
  */
@@ -281,9 +277,8 @@ static Bool fnReadOutScanner( pScanData ps )
     }
 }
 
-/*.............................................................................
- * Interpolates the gray data by using averaged the continuous pixels
- */	
+/** Interpolates the gray data by using averaged the continuous pixels
+ */
 static void fnP96GrayDirect( pScanData ps, pVoid pBuf, pVoid pImg, ULong bl )
 {
 	pUChar src, dest;
@@ -295,13 +290,12 @@ static void fnP96GrayDirect( pScanData ps, pVoid pBuf, pVoid pImg, ULong bl )
 		*dest = ps->pbMapRed [*src];
 }
 
-/*.............................................................................
- *	This routine used in the condition:
- *	1) The data type is B/W or GrayScale.
- *	2) The required horizontal resolution doesn't exceed the optic spec.
- *	3) The required vertical resolution exceeds the optic spec.
- *	So, the vertcal lines have to average with previous line to smooth the
- *	image.
+/** This routine used in the condition:
+ * 1) The data type is B/W or GrayScale.
+ * 2) The required horizontal resolution doesn't exceed the optic spec.
+ * 3) The required vertical resolution exceeds the optic spec.
+ * So, the vertcal lines have to average with previous line to smooth the
+ * image.
  */
 static void fnDataDirect( pScanData ps, pVoid pBuf, pVoid pImg, ULong bl )
 {
@@ -309,8 +303,7 @@ static void fnDataDirect( pScanData ps, pVoid pBuf, pVoid pImg, ULong bl )
 	memcpy( pBuf, pImg, bl );
 }
 
-/*.............................................................................
- * According to dither matrix to convert the input gray scale data into
+/** According to dither matrix to convert the input gray scale data into
  * one-bit data.
  */
 static void fnHalftoneDirect0( pScanData ps, pVoid pb, pVoid pImg, ULong bL )
@@ -337,8 +330,7 @@ static void fnHalftoneDirect0( pScanData ps, pVoid pb, pVoid pImg, ULong bL )
 	ps->dwDitherIndex = (ps->dwDitherIndex + 8) & 0x3f;
 }
 
-/*.............................................................................
- * use random generator to make halftoning
+/** use random generator to make halftoning
  */
 static void fnHalftoneDirect1( pScanData ps, pVoid pb, pVoid pImg, ULong bL )
 {
@@ -365,8 +357,7 @@ static void fnHalftoneDirect1( pScanData ps, pVoid pb, pVoid pImg, ULong bL )
 	}
 }
 
-/*.............................................................................
- * Merges the color planes to pixels style without enlarge operation.
+/** Merges the color planes to pixels style without enlarge operation.
  */
 static void fnP98ColorDirect( pScanData ps, pVoid pb, pVoid pImg, ULong bL )
 {
@@ -400,8 +391,7 @@ static void fnP96ColorDirect( pScanData ps, pVoid pb, pVoid pImg, ULong bL )
     }
 }
 
-/*.............................................................................
- * Merges the color planes to pixels style without enlarge operation.
+/** Merges the color planes to pixels style without enlarge operation.
  * The scanner returns the pixel data in Motorola-Format, so we have to swap
  */
 static void fnP98Color48( pScanData ps, pVoid pb, pVoid pImg, ULong bL )
@@ -423,8 +413,7 @@ static void fnP98Color48( pScanData ps, pVoid pb, pVoid pImg, ULong bL )
     }
 }
 
-/*.............................................................................
- * prepare for scanning
+/** prepare for scanning
  */
 static int imageP98SetupScanSettings( pScanData ps, pScanInfo pInf )
 {
@@ -527,8 +516,7 @@ static int imageP98SetupScanSettings( pScanData ps, pScanInfo pInf )
 	return _OK;
 }
 
-/*.............................................................................
- *
+/**
  */
 static void imageP98DoCopyBuffer( pScanData ps, pUChar pImage )
 {
@@ -539,8 +527,7 @@ static void imageP98DoCopyBuffer( pScanData ps, pUChar pImage )
 		ps->pFilterBuf = ps->pProcessingBuf;
 }
 
-/*.............................................................................
- *
+/**
  */
 static Bool imageP98CopyToFilterBuffer( pScanData ps, pUChar pImage )
 {
@@ -562,11 +549,10 @@ static Bool imageP98CopyToFilterBuffer( pScanData ps, pUChar pImage )
     return _TRUE;
 }
 
-/*.............................................................................
- *
+/**
  */
 static void imageP98UnSharpCompare( pScanData ps, Byte Center,
-								 Byte Neighbour, pLong pdwNewValue )
+                                    Byte Neighbour, pLong pdwNewValue )
 {
     Byte b;
 
@@ -579,8 +565,7 @@ static void imageP98UnSharpCompare( pScanData ps, Byte Center,
     }
 }
 
-/*.............................................................................
- *
+/**
  */
 static void imageP98DoFilter( pScanData ps, pUChar pPut )
 {
@@ -621,8 +606,7 @@ static void imageP98DoFilter( pScanData ps, pUChar pPut )
     }
 }
 
-/*.............................................................................
- *
+/**
  */
 static Bool imageP98DataIsReady( pScanData ps )
 {
@@ -632,7 +616,7 @@ static Bool imageP98DataIsReady( pScanData ps )
 	ps->bMoveDataOutFlag    = _DataAfterRefreshState;
 
     b = (ps->DataInf.wPhyDataType >= COLOR_TRUE24) ?
-											_BLUE_DATA_READY : _GREEN_DATA_READY;
+	                                      _BLUE_DATA_READY : _GREEN_DATA_READY;
     while( _TRUE ) {
 
 		ps->dwColorRunIndex ++;
@@ -687,8 +671,7 @@ static Bool imageP98DataIsReady( pScanData ps )
     return _TRUE;
 }
 
-/*.............................................................................
- * here we wait for one data-line
+/** here we wait for one data-line
  */
 static Bool imageP98001ReadOneImageLine( pScanData ps )
 {
@@ -732,8 +715,7 @@ static Bool imageP98001ReadOneImageLine( pScanData ps )
     return _FALSE;
 }
 
-/*.............................................................................
- * calculate the image properties according to the scanmode
+/** calculate the image properties according to the scanmode
  */
 static void imageP98GetInfo( pScanData ps, pImgDef pImgInf )
 {
@@ -751,8 +733,9 @@ static void imageP98GetInfo( pScanData ps, pImgDef pImgInf )
 	DBG( DBG_LOW, "crArea.cx = %u, crArea.cy = %u\n",
 		 pImgInf->crArea.cx, pImgInf->crArea.cy );
 
-	ps->DataInf.XYRatio = (double)ps->DataInf.xyPhyDpi.y/
-						  (double)ps->DataInf.xyPhyDpi.x;
+	ps->DataInf.XYRatio = 1000 * ps->DataInf.xyPhyDpi.y/ps->DataInf.xyPhyDpi.x;
+	DBG( DBG_LOW, "xyDpi.x = %u, xyDpi.y = %u, XYRatio = %lu\n",
+	               pImgInf->xyDpi.x, pImgInf->xyDpi.y, ps->DataInf.XYRatio );
 
 	ps->DataInf.dwAppLinesPerArea = (ULong)pImgInf->crArea.cy *
 									  pImgInf->xyDpi.y / _MEASURE_BASE;
@@ -850,8 +833,7 @@ static void imageP98GetInfo( pScanData ps, pImgDef pImgInf )
 	DBG( DBG_LOW, "Physical Bytes     = %lu\n", ps->DataInf.dwPhysBytesPerLine   );
 }
 
-/*.............................................................................
- *
+/**
  */
 static void imageP96GetInfo( pScanData ps, pImgDef pImgInf )
 {
@@ -869,11 +851,9 @@ static void imageP96GetInfo( pScanData ps, pImgDef pImgInf )
 	DBG( DBG_LOW, "crArea.cx = %u, crArea.cy = %u\n",
 		 pImgInf->crArea.cx, pImgInf->crArea.cy );
 
-	ps->DataInf.XYRatio = (double)ps->DataInf.xyPhyDpi.y/
-						  (double)ps->DataInf.xyPhyDpi.x;
-
-	DBG( DBG_LOW, "xyDpi.x = %u, xyDpi.y = %u\n",
-					 pImgInf->xyDpi.x, pImgInf->xyDpi.y );
+	ps->DataInf.XYRatio = 1000 * ps->DataInf.xyPhyDpi.y/ps->DataInf.xyPhyDpi.x;
+	DBG( DBG_LOW, "xyDpi.x = %u, xyDpi.y = %u, XYRatio = %lu\n",
+	               pImgInf->xyDpi.x, pImgInf->xyDpi.y, ps->DataInf.XYRatio );
 
 	ps->DataInf.dwAppLinesPerArea = (ULong)pImgInf->crArea.cy *
 					  					   pImgInf->xyDpi.y / _MEASURE_BASE;
@@ -955,8 +935,7 @@ static void imageP96GetInfo( pScanData ps, pImgDef pImgInf )
 	DBG( DBG_LOW, "Physical Bytes     = %lu\n", ps->DataInf.dwPhysBytesPerLine   );
 }
 
-/*.............................................................................
- * here we wait for one data-line
+/** here we wait for one data-line
  */
 static Bool imageP96ReadOneImageLine( pScanData ps )
 {
@@ -1137,8 +1116,7 @@ static Bool imageP96ReadOneImageLine( pScanData ps )
     return _FALSE;
 }
 
-/*.............................................................................
- * prepare for scanning
+/** prepare for scanning
  */
 static int imageP96SetupScanSettings( pScanData ps, pScanInfo pInf )
 {
@@ -1195,8 +1173,7 @@ static int imageP96SetupScanSettings( pScanData ps, pScanInfo pInf )
 	return _OK;
 }
 
-/*.............................................................................
- *
+/**
  */
 static Bool imageP98003DataIsReady( pScanData ps )
 {
@@ -1251,8 +1228,7 @@ static Bool imageP98003DataIsReady( pScanData ps )
     return _FALSE;
 }
 
-/*.............................................................................
- *
+/**
  */
 static Bool imageP98003ReadOneImageLine( pScanData ps )
 {
@@ -1327,8 +1303,7 @@ static Bool imageP98003ReadOneImageLine( pScanData ps )
     return _FALSE;
 }
 
-/*.............................................................................
- *
+/**
  */
 static void imageP98003SetupScanStateVariables( pScanData ps, ULong index )
 {
@@ -1418,8 +1393,7 @@ static void imageP98003SetupScanStateVariables( pScanData ps, ULong index )
     }
 }
 
-/*.............................................................................
- * PrepareScanningVariables() !!!
+/** PrepareScanningVariables() !!!
  */
 static int imageP98003SetupScanSettings( pScanData ps, pScanInfo pInf )
 {

@@ -1,12 +1,7 @@
-/*.............................................................................
- * Project : linux driver for Plustek parallel-port scanners
- *.............................................................................
- * File:	 plustek-pp_dbg.h - definition of some debug macros
- *.............................................................................
+/** @file plustek-pp_dbg.c
+ *  @brief definition of some debug macros
  *
  * Copyright (C) 2000-2004 Gerhard Jaeger <gerhard@gjaeger.de>
- *
- *.............................................................................
  *
  * This file is part of the SANE package.
  *
@@ -66,7 +61,7 @@
 #ifdef DEBUG
 # ifndef __KERNEL__
 #  include <assert.h>
-#  define _ASSERT(x)						assert(x)
+#  define _ASSERT(x) assert(x)
 # else
 #  define _ASSERT(x)
 # endif

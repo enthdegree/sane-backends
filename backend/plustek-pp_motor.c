@@ -1,8 +1,3 @@
-/*.............................................................................
- * Project : SANE library for Plustek parallelport flatbed scanners.
- *.............................................................................
- */
-
 /* @file plustek-pp_motor.c
  * @brief all functions for motor control
  *
@@ -40,6 +35,7 @@
  * - 0.40 - changed back to build 0.39-3 (disabled A3I stuff)
  * - 0.41 - no changes
  * - 0.42 - changed include names
+ * - 0.43 - no changes
  * .
  * <hr>
  * This file is part of the SANE package.

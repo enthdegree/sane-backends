@@ -1,9 +1,6 @@
-/*.............................................................................
- * Project : linux driver for Plustek parallel-port scanners
- *.............................................................................
- * File:     plustek-pp_scandata.h - here we define the ScanData structure...
- *                                   and a lot of register settings
- *.............................................................................
+/* @file plustek-pp_scandata.h
+ * @brief here we define the ScanData structure...
+ *        and a lot of register settings
  *
  * based on sources acquired from Plustek Inc.
  * Copyright (C) 1998 Plustek Inc.
@@ -14,39 +11,41 @@
  * 0.30 - initial version
  * 0.31 - no changes
  * 0.32 - added fWarmupNeeded to struct ScanData
- * 		- removed function FillDataToColorTable from struct ScanData
- *		- removed dwLampDelay from struct ScanData
+ *      - removed function FillDataToColorTable from struct ScanData
+ *      - removed dwLampDelay from struct ScanData
  * 0.33 - cosmetic changes
- *		- removed PositionLamp from structure
- *		- added dwLastPortMode to struct ScanData
+ *      - removed PositionLamp from structure
+ *      - added dwLastPortMode to struct ScanData
  * 0.34 - removed WaitBack() function from pScanData structure
- *		  removed wStayMaxStep from pScanData structure
+ *      - removed wStayMaxStep from pScanData structure
  * 0.35 - removed SetInitialGainRAM from pScanData structure
- *		  changed ModelStr list
+ *      - changed ModelStr list
  * 0.36 - added some defines for the ASIC 96001 (model 4800)
- *		  added wDither to DataInfo structure
- *		  removed dwPreferSize from struct ScannerCaps
- *		  cleanup
- *		  moved all stuff that is used by the backend and the driver
+ *      - added wDither to DataInfo structure
+ *      - removed dwPreferSize from struct ScannerCaps
+ *      - cleanup
+ *      - moved all stuff that is used by the backend and the driver
  *        to plustek-share.h which is in the backend directory
- *		  added ModelOverride parameter to struct
- *		  added strcut pardevice to struct
+ *      - added ModelOverride parameter to struct
+ *      - added strcut pardevice to struct
  * 0.37 - added bIODelay for SPP/BIDI port operations
- *		  added ReadData to struct
- *		  added ProcDirDef
- *        added ButtonCount
- *        removed RegisterToScanner from struct
- *        removed MaxDpiByInterpolation from struct
+ *      - added ReadData to struct
+ *      - added ProcDirDef
+ *      - added ButtonCount
+ *      - removed RegisterToScanner from struct
+ *      - removed MaxDpiByInterpolation from struct
  * 0.38 - added function PutToIdleMode() to struct
- *        added function Calibration() to struct
- *        changed interface of the ReInitAsic() function
- *        major changes: moved a lot of stuff to hwdefs.h
- *        added IO, Device, Shade, Scan and Bufs to struct
+ *      - added function Calibration() to struct
+ *      - changed interface of the ReInitAsic() function
+ *      - major changes: moved a lot of stuff to hwdefs.h
+ *      - added IO, Device, Shade, Scan and Bufs to struct
  * 0.39 - added forceMode to struct
- *        added f97003, b97003DarkR, b97003DarkB, b97003DarkG to struct
+ *      - added f97003, b97003DarkR, b97003DarkB, b97003DarkG to struct
  * 0.40 - no changes
  * 0.41 - no changes
  * 0.42 - no changes
+ * 0.43 - changed type of XYRatio from double to long
+ *      - cleanup
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -127,10 +126,9 @@ typedef struct {
 
     short	    	siBrightness;
 
-/*
- * CHANGE added these vars for scaling
+/* CHANGE added these vars for scaling
  */
-	double	XYRatio;
+	long    XYRatio;
 	ULong   dwPhysBytesPerLine;
 
 /*

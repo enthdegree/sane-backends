@@ -1,8 +1,3 @@
-/*.............................................................................
- * Project : SANE library for Plustek flatbed scanners.
- *.............................................................................
- */
-
 /** @file plustek-pp.h
  *  @brief Definitions for the backend.
  *
@@ -15,6 +10,8 @@
  *
  * History:
  * - 0.01 - initial version
+ * - 0.43 - bumped up version to reflect the former module code version
+ *        - removed Version from ScannerCaps
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -421,14 +418,13 @@ typedef struct {
 } RANGE, *PRANGE;
 
 typedef struct {
-    RANGE	    	rDataType;      /* available scan modes 			*/
-    unsigned long	dwFlag;		    /* refer to SECTION (1.2)           */
-    unsigned short	wIOBase;		/* refer to SECTION (1.3)			*/
-    unsigned short	wMaxExtentX;	/* scanarea width					*/
-    unsigned short	wMaxExtentY;	/* scanarea height					*/
-    unsigned short	AsicID;  		/* copy of RegAsicID 				*/
-  	unsigned short	Model;  		/* model as best we can determine 	*/
-    unsigned short	Version;		/* drivers version					*/
+	RANGE          rDataType;   /* available scan modes 			*/
+	unsigned long  dwFlag;      /* refer to SECTION (1.2)           */
+	unsigned short wIOBase;     /* refer to SECTION (1.3)			*/
+	unsigned short wMaxExtentX; /* scanarea width					*/
+	unsigned short wMaxExtentY; /* scanarea height					*/
+	unsigned short AsicID;      /* copy of RegAsicID 				*/
+	unsigned short Model;       /* model as best we can determine 	*/
 } ScannerCaps, *pScannerCaps;
 
 typedef struct {

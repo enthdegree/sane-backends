@@ -1,11 +1,8 @@
-/*.............................................................................
- * Project : linux driver for Plustek parallel-port scanners
- *.............................................................................
- * File:	 plustek-pp_scan.h - the global header for the plustek driver
- *.............................................................................
+/* @file plustek-pp_scan.h
+ * @brief the global header for the plustek driver
  *
  * Copyright (C) 2000-2004 Gerhard Jaeger <gerhard@gjaeger.de>
- *.............................................................................
+ *
  * History:
  * 0.30 - initial version
  * 0.31 - no changes
@@ -22,6 +19,7 @@
  * 0.40 - no changes
  * 0.41 - no changes
  * 0.42 - changed include names
+ * 0.43 - no changes
  * .
  * <hr>
  * This file is part of the SANE package.

@@ -1,8 +1,3 @@
-/*.............................................................................
- * Project : SANE library for Plustek parallelport flatbed scanners.
- *.............................................................................
- */
-
 /* @file plustek-pp_p9636.c
  * @brief here we have all functionality according to the p9636t
  *
@@ -36,6 +31,7 @@
  * - 0.40 - no changes
  * - 0.41 - no changes
  * - 0.42 - changed include names
+ * - 0.43 - no changes
  * .
  * <hr>
  * This file is part of the SANE package.

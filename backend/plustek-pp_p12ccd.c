@@ -1,8 +1,3 @@
-/*.............................................................................
- * Project : SANE library for Plustek parallelport flatbed scanners.
- *.............................................................................
- */
-
 /* @file plustek-pp_p12ccd.c
  * @brief here we have the whole code to intialize the CCD and DAC stuff
  *
@@ -18,6 +13,7 @@
  * - 0.40 - no changes
  * - 0.41 - no changes
  * - 0.42 - changed include names
+ * - 0.43 - no changes
  * .
  * <hr>
  * This file is part of the SANE package.

@@ -1,8 +1,3 @@
-/*.............................................................................
- * Project : SANE library for Plustek parallelport flatbed scanners.
- *.............................................................................
- */
-
 /* @file plustek-pp_misc.c
  * @brief here we have some helpful functions
 *
@@ -36,6 +31,7 @@
  *        - changed include names
  * - 0.43 - added LINUX_26 stuff
  *        - minor fixes
+ *        - removed floating point stuff
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -471,12 +467,9 @@ _LOC int MiscReinitStruct( pScanData ps )
 		return _E_NULLPTR;
 
 	memset( ps, 0, sizeof(ScanData));
-		
- 	/*
-	 * first init all constant stuff in ScanData
-	 */
-	ps->sCaps.Version = ((_PTDRV_V1 << 8) | _PTDRV_V0);
 
+	/* first init all constant stuff in ScanData
+	 */
 	ps->bCurrentSpeed = 1;
 	ps->pbMapRed      =  ps->a_bMapTable;
 	ps->pbMapGreen    = &ps->a_bMapTable[256];
@@ -618,7 +611,7 @@ _LOC _INL void MiscStartTimer( pTimerDef timer , unsigned long us)
 	gettimeofday(&start_time, NULL);	
 #endif
 
-    *timer = start_time.tv_sec * 1e6 + start_time.tv_usec + us;
+    *timer = start_time.tv_sec * 1000000 + start_time.tv_usec + us;
 }
 
 /** Checks if a timer has been expired or not. In Kernel-mode, the scheduler
@@ -637,7 +630,7 @@ _LOC _INL int MiscCheckTimer( pTimerDef timer )
 	gettimeofday(&current_time, NULL);
 #endif
 
-    if (current_time.tv_sec * 1e6 + current_time.tv_usec > *timer) {
+    if (current_time.tv_sec * 1000000 + current_time.tv_usec > *timer) {
 		return _E_TIMEOUT;
     } else {
 #ifdef __KERNEL__       

@@ -1,15 +1,11 @@
-/*.............................................................................
- * Project : linux driver for Plustek parallel-port scanners
- *.............................................................................
- * File:	 plustek-pp_hwdefs.h - different definitions for describing the
- *                                 scanner hardware
- *.............................................................................
+/* @file plustek-pp_hwdefs.h
+ * @brief different definitions for describing the scanner hardware
  *
  * based on sources acquired from Plustek Inc.
  * Copyright (C) 1998 Plustek Inc.
  * Copyright (C) 2000-2004 Gerhard Jaeger <gerhard@gjaeger.de>
  * also based on the work done by Rick Bronson <rick@efn.org>
- *.............................................................................
+ *
  * History:
  * 0.30 - initial version
  * 0.31 - corrected the values of _GAIN_P98_HIGH, _GAIN_P96_HIGH and _GAIN_LOW
@@ -31,6 +27,7 @@
  * 0.40 - no changes
  * 0.41 - added _OVR_PLUSTEK_4800P definition
  * 0.42 - added _OVR_PRIMAX_4800D30 definition
+ * 0.43 - no changes
  * .
  * <hr>
  * This file is part of the SANE package.

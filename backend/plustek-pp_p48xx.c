@@ -1,18 +1,12 @@
-/*.............................................................................
- * Project : SANE library for Plustek parallelport flatbed scanners.
- *.............................................................................
- */
-
 /* @file plustek-pp_p48xx.c
  * @brief here we have all functionality according to the ASIC96001/3 based
  *        models.
- *.............................................................................
  *
  * based on sources acquired from Plustek Inc.
  * Copyright (C) 1998 Plustek Inc.
  * Copyright (C) 2000-2004 Gerhard Jaeger <gerhard@gjaeger.de>
  * also based on the work done by Rick Bronson
- *.............................................................................
+ *
  * History:
  * - 0.30 - initial version
  * - 0.31 - fixed a bug for the return value in p48xxDoTest
@@ -40,6 +34,7 @@
  * - 0.40 - disabled A3I stuff
  * - 0.41 - no changes
  * - 0.42 - changed include names
+ * - 0.43 - no changes
  * .
  * <hr>
  * This file is part of the SANE package.

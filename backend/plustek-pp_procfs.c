@@ -1,8 +1,3 @@
-/*.............................................................................
- * Project : SANE library for Plustek parallelport flatbed scanners.
- *.............................................................................
- */
-
 /* @file plustek-pp_procfs.c
  * @brief this is the interface to the proc filesystem
  *
@@ -15,6 +10,8 @@
  * - 0.40 - no changes
  * - 0.41 - no changes
  * - 0.42 - changed include names
+ * - 0.43 - replace _PTDRV_VERx by _PTDRV_VERSTR
+ *        - cleanup
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -66,15 +63,14 @@
 
 /****************************** static vars **********************************/
 
-/*
- * for the proc filesystem
+/** for the proc filesystem
  */
 extern struct proc_dir_entry proc_root;
 static struct proc_dir_entry *base  = NULL;
 static struct proc_dir_entry *binfo = NULL;
 static ULong                  devcount;
 
-/* parallel port modes... */
+/** parallel port modes... */
 static char *procfsPortModes[] = {
 	"EPP",
 	"SPP",
@@ -84,7 +80,7 @@ static char *procfsPortModes[] = {
 	NULL
 };
 
-/* CCD-Types (as for ASIC 98001 based series) */
+/** CCD-Types (as for ASIC 98001 based series) */
 static TabDef procfsCCDTypes98001[] = {
 
 	{ _CCD_3797, "3797" },
@@ -96,7 +92,7 @@ static TabDef procfsCCDTypes98001[] = {
     { -1 ,       "unknown" }
 };
 
-/* CCD-Types (as for ASIC 98003 based series) */
+/** CCD-Types (as for ASIC 98003 based series) */
 static TabDef procfsCCDTypes98003[] = {
 
 	{ _CCD_3797, "3797" },
@@ -110,12 +106,10 @@ static TabDef procfsCCDTypes98003[] = {
     { -1 ,       "unknown" }
 };
 
-
 /****************************** local functions ******************************/
 
 #ifndef LINUX_24
-/*.............................................................................
- * This is called as the fill_inode function when an inode
+/** This is called as the fill_inode function when an inode
  * is going into (fill = 1) or out of service (fill = 0).
  *
  * Note: only the top-level directory needs to do this; if
@@ -128,8 +122,7 @@ static void procfsFillFunc( struct inode *inode, int fill )
 }
 #endif
 
-/*.............................................................................
- * returns a pointer to the port-mode string
+/** returns a pointer to the port-mode string
  */
 static const char* procfsGetMode( int mode )
 {
@@ -139,14 +132,13 @@ static const char* procfsGetMode( int mode )
 	return procfsPortModes[mode];
 }
 
-/*.............................................................................
- * determines CCD-Type string
+/** determines CCD-Type string
  */
 static const char* procfsGetCCDType( pScanData ps )
 {
-    int     i;
-    int     ccd_id = ps->Device.bCCDID;
-    pTabDef tab = procfsCCDTypes98001;
+	int     i;
+	int     ccd_id = ps->Device.bCCDID;
+	pTabDef tab = procfsCCDTypes98001;
 
 	if( _IS_ASIC98(ps->sCaps.AsicID)) {
 
@@ -168,33 +160,30 @@ static const char* procfsGetCCDType( pScanData ps )
             return "NEC/TOSHIBA Type";
     }
 
-    /* return the last entry if nothing applies! */
-    return tab[(sizeof(procfsCCDTypes98001)/sizeof(TabDef)-1)].desc;
+	/* return the last entry if nothing applies! */
+	return tab[(sizeof(procfsCCDTypes98001)/sizeof(TabDef)-1)].desc;
 }
 
-/*.............................................................................
- * will be called when reading the proc filesystem:
+/** will be called when reading the proc filesystem:
  * cat /proc/pt_drv/info
  */
 static int procfsBInfoReadProc( char *buf, char **start, off_t offset,
-	 				 	        int count, int *eof, void *data )
+                                int count, int *eof, void *data )
 {
 	int len = 0;
 
-	len += sprintf( buf, "Plustek Flatbed Scanner Driver version %d.%d-%d\n",
-										_PTDRV_V1, _PTDRV_V0, _PTDRV_BUILD );
+	len += sprintf( buf, "Plustek Flatbed Scanner Driver version "_PTDRV_VERSTR"\n" );
 
 	len += sprintf( buf + len, "Devices      : %lu\n", *((pULong)data) );
-	len += sprintf( buf + len, "IOCTL-Version: 0x%08x\n", _PTDRV_IOCTL_VERSION );
+	len += sprintf( buf + len, "IOCTL-Version: 0x%08x\n",_PTDRV_IOCTL_VERSION);
 	return len;
 }
 
-/*.............................................................................
- * will be called when reading the proc filesystem:
+/** will be called when reading the proc filesystem:
  * cat /proc/pt_drv/deviceX/info
  */
 static int procfsInfoReadProc( char *buf, char **start, off_t offset,
-	 					       int count, int *eof, void *data )
+                               int count, int *eof, void *data )
 {
 	int       len = 0;
 	pScanData ps  = (pScanData)data;
@@ -221,12 +210,11 @@ static int procfsInfoReadProc( char *buf, char **start, off_t offset,
 	return len;
 }
 
-/*.............................................................................
- * will be called when reading the proc filesystem:
+/** will be called when reading the proc filesystem:
  * cat /proc/pt_drv/devicex/buttony
  */
 static int procfsButtonsReadProc( char *buf, char **start, off_t offset,
-	 					          int count, int *eof, void *data )
+                                  int count, int *eof, void *data )
 {
 	Byte	  b;
 	int       bc  = 0;
@@ -236,7 +224,7 @@ static int procfsButtonsReadProc( char *buf, char **start, off_t offset,
 	if( NULL != ps ) {
 		bc = ps->Device.buttons;
 	}
-			
+
 	/* Check the buttons... */
 	if( 0 != bc ) {
 
@@ -259,11 +247,10 @@ static int procfsButtonsReadProc( char *buf, char **start, off_t offset,
 	return len;
 }
 
-/*.............................................................................
- * create a procfs entry
+/** create a procfs entry
  */
 static struct proc_dir_entry *new_entry( const char *name, mode_t mode,
-									     struct proc_dir_entry *parent )
+                                         struct proc_dir_entry *parent )
 {
 #ifndef LINUX_24
 	int len;
@@ -310,11 +297,10 @@ static struct proc_dir_entry *new_entry( const char *name, mode_t mode,
 	return ent;
 }
 
-/*.............................................................................
- * shutdown one proc fs entry
+/** shutdown one proc fs entry
  */
 static inline void destroy_proc_entry( struct proc_dir_entry *root,
-				      				   struct proc_dir_entry **d )
+                                       struct proc_dir_entry **d )
 {
 #ifndef LINUX_24
 	proc_unregister( root, (*d)->low_ino );
@@ -328,8 +314,7 @@ static inline void destroy_proc_entry( struct proc_dir_entry *root,
 	*d = NULL;
 }
 
-/*.............................................................................
- * shutdown the proc-tree for one device
+/** shutdown the proc-tree for one device
  */
 static void destroy_proc_tree( pScanData ps )
 {
@@ -357,8 +342,7 @@ static void destroy_proc_tree( pScanData ps )
 
 /*************************** exported functions ******************************/
 
-/*.............................................................................
- * initialize our proc-fs stuff
+/** initialize our proc-fs stuff
  */
 int ProcFsInitialize( void )
 {
@@ -380,8 +364,7 @@ int ProcFsInitialize( void )
 	return _OK;
 }
 
-/*.............................................................................
- * cleanup the base entry
+/** cleanup the base entry
  */
 void ProcFsShutdown( void )
 {
@@ -398,8 +381,7 @@ void ProcFsShutdown( void )
 	devcount = 0;
 }
 
-/*.............................................................................
- * will be called for each device, that has been found
+/** will be called for each device, that has been found
  */
 void ProcFsRegisterDevice( pScanData ps )
 {
@@ -448,8 +430,7 @@ error_exit:
 	destroy_proc_tree( ps );
 }
 
-/*.............................................................................
- * cleanup the proc-fs for a certain device
+/** cleanup the proc-fs for a certain device
  */
 void ProcFsUnregisterDevice( pScanData ps )
 {
@@ -477,6 +458,6 @@ void ProcFsUnregisterDevice( pScanData ps )
 
 #endif
 
-#endif	/* guard __KERNEL__ */
+#endif /* guard __KERNEL__ */
 
 /* END PLUSTEK-PP_PROCFS.C ..................................................*/

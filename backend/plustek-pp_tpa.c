@@ -1,8 +1,3 @@
-/*.............................................................................
- * Project : SANE library for Plustek parallelport flatbed scanners.
- *.............................................................................
- */
-
 /* @file plustek-pp_tpa.c
  * @brief Here we find some adjustments according to the scan source.
  *        This file is ASIC P9800x specific
@@ -27,6 +22,7 @@
  * - 0.40 - no changes
  * - 0.41 - no changes
  * - 0.42 - changed include names
+ * - 0.43 - no changes
  * .
  * <hr>
  * This file is part of the SANE package.

@@ -1,13 +1,9 @@
-/*.............................................................................
- * Project : linux driver for Plustek parallel-port scanners
- *.............................................................................
- * File:     plustek-pp_sysdep.h
- *           a trial to centralize changes between the different 
- *           kernel-versions some stuff is maybe not relevant, but anyway...
- *.............................................................................
+/* @file plustek-pp_sysdep.h
+ * @brief a trial to centralize changes between the different 
+ *        kernel-versions some stuff is maybe not relevant, but anyway...
  *
  * Copyright (C) 2000-2004 Gerhard Jaeger <gerhard@gjaeger.de>
- *.............................................................................
+ *
  * History:
  * 0.30 - initial version
  * 0.38 - added this header
@@ -17,6 +13,7 @@
  * 0.42 - added _GET_TIME
  *      - added LINUX_26 for new kernel
  *      - added _MINOR
+ * 0.43 - no changes
  * .
  * <hr>
  * This file is part of the SANE package.

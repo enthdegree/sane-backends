@@ -1,8 +1,3 @@
-/*.............................................................................
- * Project : SANE library for Plustek parallelport flatbed scanners.
- *.............................................................................
- */
-
 /* @file plustek-pp_scale.c
  * @brief Scaling functionality
  *
@@ -20,6 +15,7 @@
  * - 0.40 - no changes
  * - 0.41 - no changes
  * - 0.42 - changed include names
+ * - 0.43 - cleanup, removed floating point stuff
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -81,35 +77,33 @@ _LOC void ScaleX( pScanData ps, pUChar inBuf, pUChar outBuf )
 #endif
 
 	/* scale... */
-	izoom = (int)(1.0/ps->DataInf.XYRatio * 1000);
+	izoom = (int)(1000000/ps->DataInf.XYRatio);
 
 	switch( ps->DataInf.wAppDataType ) {
 
 	case COLOR_BW      : step = 0;  break;
 	case COLOR_HALFTONE: step = 0;  break;
 	case COLOR_256GRAY : step = 1;  break;
-	case COLOR_TRUE24  : step = 3;  break;	/*NOTE: COLOR_TRUE32 is the same !*/
+	case COLOR_TRUE24  : step = 3;  break; /*NOTE: COLOR_TRUE32 is the same !*/
 	case COLOR_TRUE48  : step = 6;  break;
-	default			   : step = 99; break;
+	default            : step = 99; break;
 	}
 
-	/*
-	 * when not supported, only copy the data
+	/* when not supported, only copy the data
 	 */
 	if( 99 == step ) {
 		memcpy( outBuf, inBuf, ps->DataInf.dwAppBytesPerLine );
 		return;
 	}
 
-	/*
-	 * now scale...
+	/* now scale...
 	 */
+	ddax = 0;
+	x    = 0;
 	if( 0 == step ) {
-		/*
-		 * binary scaling
+	
+		/* binary scaling
 		 */
-		ddax = 0;
-		x 	 = 0;
 		memset( outBuf, 0, ps->DataInf.dwAppBytesPerLine );
 
 		for( i = 0; i < ps->DataInf.dwPhysBytesPerLine*8; i++ ) {
@@ -131,11 +125,8 @@ _LOC void ScaleX( pScanData ps, pUChar inBuf, pUChar outBuf )
 
 	} else {
 
-		/*
-		 * color and gray scaling
+		/* color and gray scaling
 		 */
-		ddax = 0;
-		x 	 = 0;
 		for( i = 0; i < ps->DataInf.dwPhysBytesPerLine*step; i+=step ) {
 
 			ddax -= 1000;

@@ -1,11 +1,8 @@
-/*.............................................................................
- * Project : linux driver for Plustek parallel-port scanners
- *.............................................................................
- * File:     plustek-pp_types.h - some typedefs and error codes
- *.............................................................................
+/* @file plustek-pp_types.h
+ * @brief some typedefs and error codes
  *
  * Copyright (C) 2000-2004 Gerhard Jaeger <gerhard@gjaeger.de>
- *.............................................................................
+ *
  * History:
  * 0.30 - initial version
  * 0.31 - no changes
@@ -26,6 +23,7 @@
  * 0.40 - moved _VAR_NOT_USED and TabDef to plustek-share.h
  * 0.41 - no changes
  * 0.42 - moved errorcodes to plustek-share.h
+ * 0.43 - no changes
  * .
  * <hr>
  * This file is part of the SANE package.

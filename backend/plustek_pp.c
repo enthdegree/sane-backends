@@ -1,8 +1,3 @@
-/*.............................................................................
- * Project : SANE library for Plustek parallelport flatbed scanners.
- *.............................................................................
- */
- 
 /** @file plustek_pp.c
  *  @brief SANE backend for Plustek parallelport scanner
  *
@@ -15,6 +10,7 @@
  *
  * History:
  * - 0.01 - initial version, imported from the kernel-module 0.42-11
+ * - 0.43 - bumped up version to reflect the former module code version
  *.
  * <hr>
  * This file is part of the SANE package.
@@ -62,7 +58,7 @@
  */
   
 #ifdef _AIX
-# include "../include/lalloca.h"		/* MUST come first for AIX! */
+# include "../include/lalloca.h"  /* MUST come first for AIX! */
 #endif
 
 #include "../include/sane/config.h"
@@ -87,7 +83,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.01-9"
+#define BACKEND_VERSION "0.43-4"
 #define BACKEND_NAME	plustek_pp
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
@@ -122,10 +118,6 @@ MODELSTR;
 #ifndef NDEBUG
 # define DEBUG
 #endif
-
-/* needed to statisfy the module code ... */
-#define _PTDRV_V0   0
-#define _PTDRV_V1   44
 
 /* I know this is in general no good idea, but it works */
 # include "plustek-pp_io.c"
@@ -628,14 +620,14 @@ static SANE_Status initGammaSettings( Plustek_Scanner *s )
 static void checkGammaSettings( Plustek_Scanner *s )
 {
 	int i, j;
-  	
-  	for( i = 0; i < 4 ; i++ ) {
+
+	for( i = 0; i < 4 ; i++ ) {
 		for( j = 0; j < s->gamma_length; j++ ) {
 			if( s->gamma_table[i][j] > s->gamma_range.max ) {
 				s->gamma_table[i][j] = s->gamma_range.max;
 			}
-		}	
-	}	
+		}
+	}
 }
 
 /** initialize the options for the backend according to the device we have
@@ -649,7 +641,7 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	for( i = 0; i < NUM_OPTIONS; ++i ) {
 		s->opt[i].size = sizeof (SANE_Word);
 		s->opt[i].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-    }
+	}
 
 	s->opt[OPT_NUM_OPTS].name  = SANE_NAME_NUM_OPTIONS;
 	s->opt[OPT_NUM_OPTS].title = SANE_TITLE_NUM_OPTIONS;
@@ -676,12 +668,12 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	s->opt[OPT_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
 
 	if((_ASIC_IS_98001  == s->hw->caps.AsicID) ||
-   	   (_ASIC_IS_98003  == s->hw->caps.AsicID)) {
+	   (_ASIC_IS_98003  == s->hw->caps.AsicID)) {
 		s->opt[OPT_MODE].constraint.string_list = mode_9800x_list;
 	} else {
 		s->opt[OPT_MODE].constraint.string_list = mode_list;
 	}
-	s->val[OPT_MODE].w = 3;		/* Color */
+	s->val[OPT_MODE].w = 3; /* Color */
 
 	/* scan source */
 	s->opt[OPT_EXT_MODE].name  = SANE_NAME_SCAN_SOURCE;
@@ -1066,23 +1058,20 @@ static SANE_Status attach( const char *dev_name, pCnfDef cnf,
 		DBG( _DBG_ERROR, "failed to find Plustek scanner\n" );
 		dev->close(dev);
 		return SANE_STATUS_INVAL;
-    }
+	}
 
 	/* save the info we got from the driver */
 	DBG( _DBG_INFO, "Scanner information:\n" );
 	if( dev->caps.Model < MODEL_UNKNOWN ) {
-    	
-    	dev->sane.model = ModelStr[dev->caps.Model];
-    } else {
-    	
-    	dev->sane.model = ModelStr[0];
-    }
-   	
-   	DBG( _DBG_INFO, "Vendor : %s\n",      dev->sane.vendor  );
-   	DBG( _DBG_INFO, "Model  : %s\n",      dev->sane.model   );
+		dev->sane.model = ModelStr[dev->caps.Model];
+	} else {
+		dev->sane.model = ModelStr[0];
+	}
+	
+	DBG( _DBG_INFO, "Vendor : %s\n",      dev->sane.vendor  );
+	DBG( _DBG_INFO, "Model  : %s\n",      dev->sane.model   );
 	DBG( _DBG_INFO, "Asic   : 0x%02x\n",  dev->caps.AsicID  );
 	DBG( _DBG_INFO, "Flags  : 0x%08lx\n", dev->caps.dwFlag  );
-	DBG( _DBG_INFO, "Version: 0x%08x\n",  dev->caps.Version );
 
 	dev->max_x = dev->caps.wMaxExtentX*MM_PER_INCH/_MEASURE_BASE;
 	dev->max_y = dev->caps.wMaxExtentY*MM_PER_INCH/_MEASURE_BASE;
@@ -1096,7 +1085,7 @@ static SANE_Status attach( const char *dev_name, pCnfDef cnf,
 		return SANE_STATUS_INVAL;
 	}
 
-    /* build up the resolution table */
+	/* build up the resolution table */
 	dev->res_list_size = 0;
 	for( cntr = _DEF_DPI; cntr <= lens.rDpiX.wMax; cntr += 25 ) {
 		dev->res_list_size++;
@@ -1115,7 +1104,7 @@ static SANE_Status attach( const char *dev_name, pCnfDef cnf,
 	first_dev = dev;
 
 	if (devp)
-    	*devp = dev;
+		*devp = dev;
 
 	return SANE_STATUS_GOOD;
 }

@@ -1,8 +1,3 @@
-/*.............................................................................
- * Project : SANE library for Plustek parallelport flatbed scanners.
- *.............................................................................
- */
-
 /* @file plustek-pp_map.c
  * @brief functions to create and manipulate lookup tables.
  *
@@ -30,6 +25,7 @@
  * - 0.41 - no changes
  * - 0.42 - made MapAdjust global
  *        - changed include names
+ * - 0.43 - cleanup, removed floating point stuff
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -122,7 +118,7 @@ static void mapSetDitherMap( pScanData ps )
 
 	for( i = 0; i < _DITHERSIZE; i++ ) {
 		pDither[i] = pDitherSource[i];
-	}	
+	}
 }
 
 /** nothing more to say
@@ -149,7 +145,7 @@ static void mapInvertMap( pScanData ps )
  */
 static void mapInvertDitherMap( pScanData ps )
 {
-    if( ps->DataInf.dwScanFlag & SCANDEF_Inverse ) {
+	if( ps->DataInf.dwScanFlag & SCANDEF_Inverse ) {
 
 		ULong  dw;
 		pULong pDither = (pULong)ps->a_bDitherPattern;
@@ -208,7 +204,7 @@ _LOC void MapSetupDither( pScanData ps )
 {
 	DBG( DBG_LOW, "MapSetupDither() - %u\n", ps->DataInf.wAppDataType );
 
-    if( COLOR_HALFTONE == ps->DataInf.wAppDataType ) {
+	if( COLOR_HALFTONE == ps->DataInf.wAppDataType ) {
 
 		mapSetDitherMap( ps );
 	    if (ps->DataInf.dwScanFlag & SCANDEF_Inverse)
@@ -220,9 +216,9 @@ _LOC void MapSetupDither( pScanData ps )
  */
 _LOC void MapAdjust( pScanData ps, int which )
 {
-	ULong  i, tabLen;
-	pULong pdw;
-	double b, c, dw, tmp;
+	ULong  i, tabLen, dw;
+	ULong *pdw;
+	long   b, c, tmp;
 
 	DBG( DBG_LOW, "MapAdjust(%u)\n", which );
 		
@@ -232,45 +228,42 @@ _LOC void MapAdjust( pScanData ps, int which )
 		tabLen = 256;
 	}
 
-	/*
-	 * adjust brightness (b) and contrast (c) using the function:
-	 *
-	 * s´(x,y) = (s(x,y) + b) * c
+	/* adjust brightness (b) and contrast (c) using the function:
+	 * s'(x,y) = (s(x,y) + b) * c
 	 * b = [-127, 127]
 	 * c = [0,2]
 	 */
 
-	/*
-	 * scale brightness and contrast...
+	/* scale brightness and contrast...
 	 */
-	b = ((double)ps->wBrightness * 192.0)/100.0;
-	c = ((double)ps->wContrast   + 100.0)/100.0;
+	b = ps->wBrightness * 192;
+	c = ps->wContrast   + 100;
 
-	DBG( DBG_LOW, "brightness   = %i -> %i\n", ps->wBrightness, (UChar)b);
-	DBG( DBG_LOW, "contrast*100 = %i -> %i\n", ps->wContrast, (int)(c*100));
+	DBG( DBG_LOW, "brightness   = %i -> %i\n", ps->wBrightness, (UChar)(b/100));
+	DBG( DBG_LOW, "contrast*100 = %i -> %i\n", ps->wContrast, (int)(c));
 
 	for( i = 0; i < tabLen; i++ ) {
 
 		if((_MAP_MASTER == which) || (_MAP_RED == which)) {
-			tmp = ((double)(ps->a_bMapTable[i] + b)) * c;
+			tmp = ((((long)ps->a_bMapTable[i] * 100) + b) *c ) / 10000;
 			if( tmp < 0 )   tmp = 0;
 			if( tmp > 255 ) tmp = 255;
-			ps->a_bMapTable[i] = (UChar)tmp;		
-		}			
+			ps->a_bMapTable[i] = (UChar)tmp;
+		}
 
 		if((_MAP_MASTER == which) || (_MAP_GREEN == which)) {
-			tmp = ((double)(ps->a_bMapTable[tabLen+i] + b)) * c;
+			tmp = ((((long)ps->a_bMapTable[tabLen+i] * 100) + b) * c) / 10000;
 			if( tmp < 0 )   tmp = 0;
 			if( tmp > 255 ) tmp = 255;
 			ps->a_bMapTable[tabLen+i] = (UChar)tmp;
     	}
     	
 		if((_MAP_MASTER == which) || (_MAP_BLUE == which)) {
-			tmp = ((double)(ps->a_bMapTable[tabLen*2+i] + b)) * c;
+			tmp = ((((long)ps->a_bMapTable[tabLen*2+i] * 100) + b) * c) / 10000;
 			if( tmp < 0 )   tmp = 0;
 			if( tmp > 255 ) tmp = 255;
-			ps->a_bMapTable[tabLen*2+i] = (UChar)tmp;				
-		}			
+			ps->a_bMapTable[tabLen*2+i] = (UChar)tmp;
+		}
 	}
 
     if( ps->DataInf.dwScanFlag & SCANDEF_Negative ) {

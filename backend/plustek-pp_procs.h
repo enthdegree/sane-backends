@@ -1,15 +1,11 @@
-/*.............................................................................
- * Project : linux driver for Plustek parallel-port scanners
- *.............................................................................
- * File:	 plustek-pp_procs.h
- *           here are the prototypes of all exported functions
- *.............................................................................
+/** @file plustek-pp_procs.h
+ *  @brief here are the prototypes of all exported functions
  *
  * based on sources acquired from Plustek Inc.
  * Copyright (C) 1998 Plustek Inc.
  * Copyright (C) 2000-2004 Gerhard Jaeger <gerhard@gjaeger.de>
  * also based on the work done by Rick Bronson <rick@efn.org>
- *.............................................................................
+ *
  * History:
  * 0.30 - initial version
  * 0.31 - no changes
@@ -32,6 +28,7 @@
  * 0.40 - no changes
  * 0.41 - no changes
  * 0.42 - added MapAdjust
+ * 0.43 - no changes
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -249,8 +246,8 @@ _LOC void ScaleX( pScanData ps, pUChar inBuf, pUChar outBuf );
  * implementation in plustek-pp_procfs.c (Kernel-mode only)
  */
 #ifdef __KERNEL__
-int  ProcFsInitialize	   ( void );
-void ProcFsShutdown  	   ( void );
+int  ProcFsInitialize      ( void );
+void ProcFsShutdown        ( void );
 void ProcFsRegisterDevice  ( pScanData ps );
 void ProcFsUnregisterDevice( pScanData ps );
 #endif

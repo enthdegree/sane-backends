@@ -1,9 +1,4 @@
-/*.............................................................................
- * Project : SANE library for Plustek parallelport flatbed scanners.
- *.............................................................................
- */
-
-/* @file plustek-pp_dac.c -
+/* @file plustek-pp_dac.c
  * @brief all the shading function formerly found in shading.c.
  *        don't ask me why I called this file dac.c...
  *
@@ -30,6 +25,7 @@
  * - 0.40 - disabled the A3I stuff
  * - 0.41 - no changes
  * - 0.42 - changed include names
+ * - 0.43 - no changes
  * .
  * <hr>
  * This file is part of the SANE package.

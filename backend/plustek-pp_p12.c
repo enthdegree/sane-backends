@@ -1,8 +1,3 @@
-/*.............................................................................
- * Project : SANE library for Plustek parallelport flatbed scanners.
- *.............................................................................
- */
-
 /* @file plustek-pp_p12.c
  * @brief p12 and pt12 specific stuff
  *
@@ -16,6 +11,7 @@
  * - 0.40 - no changes
  * - 0.41 - no changes
  * - 0.42 - removed setting of ps->sCaps.dwFlag in p12InitiateComponentModel()
+ * - 0.43 - no changes
  * .
  * <hr>
  * This file is part of the SANE package.

@@ -1,8 +1,3 @@
-/*.............................................................................
- * Project : SANE library for Plustek parallelport flatbed scanners.
- *.............................................................................
- */
-
 /* @file plustek-pp_ptdrv.c
  * @brief this is the driver interface
  *
@@ -54,8 +49,9 @@
  *        - changed ioctl call to PutImage
  * - 0.42 - added _PTDRV_SETMAP functionality
  *        - improved the cancel functionality
- *        - added LINUX_26 stuff
+ * - 0.43 - added LINUX_26 stuff
  *        - changed include names
+ *        - changed version string stuff
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -99,12 +95,13 @@
  */
 #ifdef __KERNEL__
 # include <linux/module.h>
+# include <linux/version.h>
 
 # ifdef CONFIG_DEVFS_FS
-#  ifdef LINUX_26
-#   error "DEVFS not supported for this kernel-version"
-#  endif
 #  include <linux/devfs_fs_kernel.h>
+#  if (LINUX_VERSION_CODE > KERNEL_VERSION(2,5,69))
+#   define DEVFS_26_STYLE
+#  endif
 # endif
 #endif
 
@@ -151,8 +148,8 @@ static UShort    forceMode[_MAX_PTDEVS]   = { 0,      0,      0,      0      };
 
 #endif
 
-/* timers for warmup checks				 */
-static TimerDef toTimer[_MAX_PTDEVS];	
+/* timers for warmup checks */
+static TimerDef toTimer[_MAX_PTDEVS];
 
 #ifndef __KERNEL__
 static Bool	PtDrvInitialized = _FALSE;
@@ -167,8 +164,7 @@ static struct timer_list tl[_MAX_PTDEVS];
 /* for calculation of the timer expiration */
 extern volatile ULong jiffies;	
 
-/*
- * the parameter interface
+/* the parameter interface
  */
 #if ((LINUX_VERSION_CODE > 0x020111) && defined(MODULE))
 MODULE_AUTHOR("Gerhard Jaeger <gerhard@gjaeger.de>");
@@ -202,7 +198,7 @@ MODULE_PARM_DESC(forceMode, "0 = use auto detection, "
                             "1 = use SPP mode, 2 = use EPP mode");
 #endif
 
-#ifdef CONFIG_DEVFS_FS
+#if (defined(CONFIG_DEVFS_FS) && !defined(DEVFS_26_STYLE))
 static devfs_handle_t devfs_handle = NULL;
 #endif
 
@@ -1328,7 +1324,7 @@ static int ptdrvRead( pScanData ps, pUChar buffer, int count )
 	}
 
 	/* if we have to do some scaling, we need another buffer... */
-	if( ps->DataInf.XYRatio > 1.0 ) {
+	if( ps->DataInf.XYRatio > 1000 ) {
 
 		scaleBuf = _KALLOC( ps->DataInf.dwAppPhyBytesPerLine, GFP_KERNEL);
 		if ( NULL == scaleBuf ) {
@@ -1559,14 +1555,14 @@ int init_module( void )
     UInt i;
     int  retval = _OK;
     int  result = _OK;
-#ifdef CONFIG_DEVFS_FS
+#if (defined(CONFIG_DEVFS_FS) && !defined(DEVFS_26_STYLE))
     char controlname[24];
 #endif
 
     DBG( DBG_HIGH, "*********************************************\n" );
     DBG( DBG_HIGH, "pt_drv: init_module()\n" );
 
-#ifdef CONFIG_DEVFS_FS
+#if (defined(CONFIG_DEVFS_FS) && !defined(DEVFS_26_STYLE))
 	devfs_handle = devfs_mk_dir(NULL, "scanner", NULL);
 	if( devfs_register_chrdev(_PTDRV_MAJOR, _DRV_NAME, &pt_drv_fops)) {
 #else
@@ -1577,15 +1573,12 @@ int init_module( void )
 			    _PTDRV_MAJOR);
 		return -EIO;
 	}
+	printk( KERN_INFO "pt_drv : driver version "_PTDRV_VERSTR"\n" );
 
-    printk( KERN_INFO "pt_drv : driver version %d.%d-%d\n",
-										_PTDRV_V1, _PTDRV_V0, _PTDRV_BUILD );
-
-	/* register for proc_fs */
+	/* register the proc_fs */
 	ProcFsInitialize();
 
-	/*
-	 * go through the list of defined ports and try to find a device
+	/* go through the list of defined ports and try to find a device
 	 */
 	devCount = 0;
 	for( i = 0; i < _MAX_PTDEVS; i++ ) {
@@ -1597,11 +1590,17 @@ int init_module( void )
 		    	PtDrvDevices[i]->flags |= _PTDRV_INITALIZED;
 
 #ifdef CONFIG_DEVFS_FS
+# ifndef DEVFS_26_STYLE
 				sprintf( controlname, "scanner/pt_drv%d", devCount );
 				devfs_register( NULL, controlname,
             					DEVFS_FL_DEFAULT, _PTDRV_MAJOR, 0,
                                 (S_IFCHR | S_IRUGO | S_IWUGO | S_IFCHR),
             					&pt_drv_fops, NULL );
+# else /* DEVFS_26_STYLE */
+				devfs_mk_cdev(MKDEV(_PTDRV_MAJOR, devCount), 
+				    (S_IFCHR | S_IRUGO | S_IWUGO | S_IFCHR),
+				    "scanner/pt_drv%d", devCount);
+# endif
 #endif
 
 				ProcFsRegisterDevice( PtDrvDevices[i] );
@@ -1619,7 +1618,7 @@ int init_module( void )
 	 */
 	if( devCount == 0 ) {
 
-#ifdef CONFIG_DEVFS_FS
+#if (defined(CONFIG_DEVFS_FS) && !defined(DEVFS_26_STYLE))
         devfs_unregister_chrdev( _PTDRV_MAJOR, _DRV_NAME );
 #else
         unregister_chrdev( _PTDRV_MAJOR, _DRV_NAME );
@@ -1652,7 +1651,7 @@ void cleanup_module( void )
 {
 	UInt 	  i;
 	pScanData ps;
-#ifdef CONFIG_DEVFS_FS
+#if (defined(CONFIG_DEVFS_FS) && !defined(DEVFS_26_STYLE))
 	char           controlname[24];
 	devfs_handle_t master;
 #endif
@@ -1666,17 +1665,21 @@ void cleanup_module( void )
 
 	    if ( NULL != ps ) {
 #ifdef CONFIG_DEVFS_FS
+# ifndef DEVFS_26_STYLE
             sprintf( controlname, "scanner/pt_drv%d", i );
             master = devfs_find_handle( NULL,controlname, 0, 0,
                                         DEVFS_SPECIAL_CHR, 0 );
             devfs_unregister( master );
+# else
+	    devfs_remove("scanner/pt_drv%d", i);
+# endif
 #endif
 			ptdrvShutdown( ps );
 			ProcFsUnregisterDevice( ps );
 		 }
 	}
 
-#ifdef CONFIG_DEVFS_FS
+#if (defined(CONFIG_DEVFS_FS) && !defined(DEVFS_26_STYLE))
     devfs_unregister_chrdev( _PTDRV_MAJOR, _DRV_NAME );
 #else
     unregister_chrdev( _PTDRV_MAJOR, _DRV_NAME );

@@ -1,8 +1,3 @@
-/*.............................................................................
- * Project : SANE library for Plustek flatbed scanners.
- *.............................................................................
- */
-
 /** @file plustek-pp_wrapper.c
  *  @brief The interface to the parport driver-code and the kernel module.
  *
@@ -14,10 +9,8 @@
  * - 0.41 - added _PTDRV_ADJUST call
  * - 0.42 - added setmap function
  *        - fixed the stopscan problem, that causes a crash in the kernel module
- * - 0.43 - no changes
- * - 0.44 - added initialized setting
- * - 0.45 - no changes
- * - 0.46 - cleanup
+ * - 0.43 - added initialized setting
+ *        - cleanup
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -314,7 +307,7 @@ static int ppDev_setMap( Plustek_Device *dev, SANE_Word *map,
 		
 		if( map[i] > 0xFF )
 			buf[i] = 0xFF;
-	}	
+	}
 	
 	m.map = buf;
 	
@@ -349,7 +342,7 @@ static int ppDev_stopScan( Plustek_Device *dev, int *mode )
 		else
 			ioctl( dev->fd, _PTDRV_CLOSE_DEVICE, 0);
 	}else
-		sleep( 1 );		
+		sleep( 1 );
 
 	return retval;
 }

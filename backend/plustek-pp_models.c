@@ -1,8 +1,3 @@
-/*.............................................................................
- * Project : SANE library for Plustek parallelport flatbed scanners.
- *.............................................................................
- */
-
 /* @file plustek-pp_models.c
  * @brief model specific stuff
  *
@@ -38,6 +33,7 @@
  * - 0.42 - added SFLAG_CUSTOM_GAMMA to capabilities
  *        - added _OVR_PRIMAX_4800D30 switch
  *        - changed include names
+ * - 0.43 - no changes
  * .
  * <hr>
  * This file is part of the SANE package.

@@ -1,3 +1,20 @@
+2003-12-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* AUTHORS: Eugene S. Weiss has CVS write access now.
+	* doc/descriptions/unsupported.desc: Added and updated some
+	  scanners. 
+	* tools/sane-find-scanner.c: Actually use the number of the alt
+	  setting when printing descriptors. Fixes bug #300383 found by
+	  Gerard Klaver.
+	* backend/gt68xx.c backend/gt68xx_devices.c doc/sane-gt68xx.man
+	  doc/descriptions/gt68xx.desc doc/gt68xx/gt68xx.CHANGES:
+	  Updated code for Genius Vivid 4x and Mustek ScanExpress A3 USB.
+	  Added Genius Colorpage Vivid3 V2 and Googlegear 2000 as
+	  supported devices.
+	* backend/artec.c: Check for NULL before accessing a pointer. This
+	  may fix a segmentation fault mentioned in bug #300339. Also a
+	  compilation warning was fixed.
+
 2003-12-13  Julien BLACHE <jb@jblache.org>
 	* fronted/saned.c: use strcasecmp() instead of strcmp() when
 	matching IPv6 addresses.

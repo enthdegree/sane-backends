@@ -8,6 +8,8 @@
 	* tools/sane-config.in: Use @NUMBER_VERSION@.
 	* sane-backends.lsm: Made more compatible with LSM standard. Fixed
 	  mostang.com directory. Added OpenBSD.
+	* include/Makefile.in: Added targed "dist". Moved include targets from
+	  root dir to this file. Added standard variables and .PHONY.
 
 2001-01-08  Stéphane Voltz  <svoltz@wanadoo.fr>
 

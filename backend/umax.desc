@@ -10,7 +10,7 @@
 ;
 
 :backend "umax"                   ; name of backend
-:version "1.0-21"                 ; version of backend
+:version "1.0-24"                 ; version of backend
 :status :stable                   ; :alpha, :beta, :stable, :new
 :manpage "sane-umax"              ; name of manpage (if it exists)
 :url "http://www.wolfsburg.de/~rauch/sane/sane-umax.html" ; backend's web page

@@ -14,6 +14,8 @@
 	  found. Don't check USB devices with SCSI functions and vice versa if
 	  option force is not given. Don't do the libusb scan if an explicit
 	  device name was given.
+	* doc/sane-usb.man: Updated supported platforms list. Minor wording
+	  improvements.
 
 2002-07-13  Simon Munton <simon@munton.demon.co.uk>
 	* doc/descriptions/pie.desc: removed unsupported scanner types, 

@@ -217,7 +217,8 @@ struct SnapScan_USB_Model_desc
 static struct SnapScan_USB_Model_desc usb_scanners[] =
 {
     {0x04a5, 0x1a20, PRISA310},  /* Acer 310U */
-    {0x04a5, 0x2022, PRISA310}   /* Acer 320U */
+    {0x04a5, 0x2022, PRISA310},  /* Acer 320U */
+    {0x04b8, 0x0114, PERFECTION660}    /* Epson Perfection 660 */
 };
 #define known_usb_scanners ((int) (sizeof(usb_scanners)/sizeof(usb_scanners[0])))
 
@@ -377,6 +378,9 @@ struct snapscan_scanner
 
 /*
  * $Log$
+ * Revision 1.27  2004/03/22 00:00:40  oliver-guest
+ * Added detection for Epson 660 by USB ID since new models use new ID strings
+ *
  * Revision 1.26  2003/10/21 20:43:25  oliver-guest
  * Bugfixes for SnapScan backend
  *

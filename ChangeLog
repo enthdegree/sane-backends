@@ -1,3 +1,8 @@
+2004-03-22  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan.h Added detection for Epson 660 by USB ID
+	  since new models use new ID strings.
+
 2004-03-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
 	
 	* backend/mustek.c doc/descriptions/mustek.desc

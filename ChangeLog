@@ -7,6 +7,8 @@
 	  more expressive. Check for missing config descriptors before
 	  using them to avoid segfaults.
 	* README.openbsd: Updated concerning USB scanners.
+	* README.openbsd README.netbsd: New files. Added some information 
+	  about SCSI and USB problems.
 
 2002-07-13  Simon Munton <simon@munton.demon.co.uk>
 	* doc/descriptions/pie.desc: removed unsupported scanner types, 

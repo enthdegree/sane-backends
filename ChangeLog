@@ -1,3 +1,7 @@
+2000-10-29  Henning Meier-Geinitz <hmg@gmx.de>
+
+	* TODO: Updated.
+	
 2000-10-23  Peter Kirchgessner <peter@kirchgessner.net>
 
         *backend/hp-accessor.c hp-device.c hp-handle.c hp-hpmem.c hp.h hp.c
@@ -15,7 +19,7 @@
 	  frontend/saned.c: removed vararg macros
 
 2000-10-17  Henning Meier-Geinitz <hmg@gmx.de>
-
+ 
 	* doc/sane.tex: Added paragraph about image polarity as discussed
 	  on sane-devel. This is the version from Nick Lamb.
 	

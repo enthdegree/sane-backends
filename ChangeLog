@@ -12,6 +12,7 @@
 	* doc/sane.tex: Updated contact information.
 	* LEVEL2: Removed. Contents is either in the SANE2 standard or in
 	  the SANE2 API TODO.
+	* Makefile.in doc/Makefile.in: Removed LEVEL2.
 
 2002-12-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

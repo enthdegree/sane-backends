@@ -3,6 +3,9 @@
 	* tools/sane-find-scanner.c: For HP-UX, check the complete 
 	  /dev/rscsi/ directory for SCSI sscanners, not only the device
 	  files for the first two host adapters.
+	* TODO: Added entries about sanei_usb/ibusb, config.h/OS/2, echo -e
+	  in shell scrips, and japi.  Updated dll entry.  Removed entry about
+	  sane-find-scanner.
 
 2002-06-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

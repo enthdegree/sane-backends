@@ -1,4 +1,4 @@
-Sun Nov 12 16:44:11 CET 2000
+PROJECTS (2000-11-13)
 
 Here is a list of projects that various people have expressed interest
 in.  Before starting working on one of these projects, it may be a
@@ -43,10 +43,6 @@ Henning Meier-Geinitz <hmg@gmx.de>
 NEC PC-IN500/4C support (wip)
 <fukuda@pjs.nevt.nec.co.jp>
 
-Pacific Image Electronics series of ScanAce SCSI scanners, and the Devcom
-9636/9630 BlackWidow support (wip)
-http://www.munton.demon.co.uk/sane
-
 Polaroid SprintScan 35 LE (wip)
 Dick Bruijn <dick@wau.mis.ah.nl>
 							
@@ -76,8 +72,8 @@ Oliver Rauch <oliver.rauch@Wolfsburg.DE>
 Misc:
 -----
 
-WinSANE: Win32 TWAIN DLL to interface with scanners supported by SANE over the network
-         There are two different projects. (wip)
+WinSANE: Win32 TWAIN DLL to interface with scanners supported by SANE over the
+         network. There are two different projects. (wip)
 http://www.sunshinecomputing.com/winsane/
 http://integramicro.com/winsane
 

@@ -30,10 +30,8 @@ INSTALL_DATA = @INSTALL_DATA@
 
 @SET_MAKE@
 
-INSTALLED_INCLUDES = $(addprefix $(top_srcdir)/include/sane/,sane.h sanei.h \
-	sanei_backend.h sanei_codec_ascii.h sanei_codec_bin.h sanei_debug.h \
-	sanei_net.h sanei_scsi.h sanei_wire.h saneopts.h) \
-	include/sane/config.h include/sane/sanei_pa4s2.h
+INSTALLED_INCLUDES = $(addprefix $(top_srcdir)/include/sane/,sane.h \
+	saneopts.h)
 
 SUBDIRS	= lib sanei backend frontend doc tools
 

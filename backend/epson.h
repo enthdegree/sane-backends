@@ -59,12 +59,16 @@
 #define SANE_EPSON_CONFIG_PIO "pio"
 
 #define SANE_NAME_GAMMA_CORRECTION "gamma-correction"
-#define SANE_TITLE_GAMMA_CORRECTION "Gamma Correction"
-#define SANE_DESC_GAMMA_CORRECTION "Selectes the gamma correction value from a list of pre-defined devices or the user defined table, which can be downloaded to the scanner"
+#define SANE_TITLE_GAMMA_CORRECTION SANE_I18N("Gamma Correction")
+#define SANE_DESC_GAMMA_CORRECTION SANE_I18N("Selectes the gamma correction value from a list of pre-defined devices or the user defined table, which can be downloaded to the scanner")
 
 #define SANE_EPSON_FOCUS_NAME "focus-position"
-#define SANE_EPSON_FOCUS_TITLE "Focus Position"
-#define SANE_EPSON_FOCUS_DESC "Sets the focus position to either the glass or 2.5mm above the glass"
+#define SANE_EPSON_FOCUS_TITLE SANE_I18N("Focus Position")
+#define SANE_EPSON_FOCUS_DESC SANE_I18N("Sets the focus position to either the glass or 2.5mm above the glass")
+#define SANE_EPSON_WAIT_FOR_BUTTON_NAME "wait-for-button"
+#define SANE_EPSON_WAIT_FOR_BUTTON_TITLE SANE_I18N("Wait for Button")
+#define SANE_EPSON_WAIT_FOR_BUTTON_DESC SANE_I18N("After sending the scan command, wait until the button on the scanner is pressed to actually start the scan process.");
+
 
 #define LINES_SHUFFLE_MAX	(17)	/* 2 x 8 lines plus 1 */
 
@@ -155,6 +159,7 @@ enum
 		, OPT_FOCUS
 		, OPT_BAY
 		, OPT_EJECT
+    , OPT_WAIT_FOR_BUTTON
 	, NUM_OPTIONS
 	};
 
@@ -266,6 +271,7 @@ struct Epson_Scanner {
 	SANE_Int line_distance;		/* current line distance */
 	SANE_Int current_output_line;	/* line counter when color shuffling */
 	SANE_Int lines_written;		/* debug variable */
+  SANE_Bool wait_for_button;  /* do we have to wait until the scanner button is pressed? */
 };	
 
 typedef struct Epson_Scanner Epson_Scanner;

@@ -210,13 +210,30 @@ DoCalibration
 #define CALIB_START  200
 #define CALIB_LINES  8
 #define CALIB_GAP    10
-#define INST_ASSERT_CALIB() { if (this->nErrorState) \
-  { free(pulSum); return ltError; } }
+
+#define SM3600_CALIB_USE_MEDIAN
+
+#ifdef SM3600_CALIB_USE_MEDIAN
+typedef int (*TQSortProc)(const void *, const void *);
+
+static
+int CompareProc(const unsigned char *p1, const unsigned char *p2)
+{
+  return *p1 - *p2;
+}
+#endif
 
 __SM3600EXPORT__
 TState DoCalibration(TInstance *this)
 {
-  long   *pulSum;
+#ifdef SM3600_CALIB_USE_RMS
+  long   aulSum[MAX_PIXEL_PER_SCANLINE];
+#endif
+#ifdef SM3600_CALIB_USE_MEDIAN
+  unsigned char aauchY[CALIB_LINES][MAX_PIXEL_PER_SCANLINE];
+  unsigned char auchRow[CALIB_LINES];
+#endif
+
   int    iLine,i;
   TState rc;
   if (this->calibration.bCalibrated)
@@ -229,32 +246,52 @@ TState DoCalibration(TInstance *this)
       if (!this->calibration.achStripeY)
 	return SetError(this,SANE_STATUS_NO_MEM,"no memory for calib Y");
     }
-  pulSum=calloc(MAX_PIXEL_PER_SCANLINE,sizeof(long));
-  if (!pulSum) return SetError(this,SANE_STATUS_NO_MEM,"no memory for calib sum");
+#ifdef SM3600_CALIB_USE_RMS
+  memset(aulSum,0,sizeof(aulSum));
+#endif
   for (iLine=0; iLine<CALIB_LINES; iLine++)
     {
       dprintf(DEBUG_CALIB,"calibrating %i...\n",iLine);
       RegWriteArray(this,R_ALL, 74, auchRegsSingleLine);
-      INST_ASSERT_CALIB();
+      INST_ASSERT();
       RegWrite(this,R_CTL, 1, 0x59);    /* #2496[062.5] */
       RegWrite(this,R_CTL, 1, 0xD9);    /* #2497[062.5] */
-      rc=WaitWhileScanning(this,5); if (rc) { free(pulSum); return rc; }
-      if (BulkReadBuffer(this,this->calibration.achStripeY,
+      rc=WaitWhileScanning(this,5); if (rc) { return rc; }
+      if (BulkReadBuffer(this,
+#ifdef SM3600_CALIB_USE_RMS
+			 this->calibration.achStripeY,
+#endif
+#ifdef SM3600_CALIB_USE_MEDIAN
+			 aauchY[iLine],
+#endif
 			 MAX_PIXEL_PER_SCANLINE)
 	  !=MAX_PIXEL_PER_SCANLINE)
-	{
-	  free(pulSum);
-	  return SetError(this,SANE_STATUS_IO_ERROR,"truncated bulk");
-	}
+	return SetError(this,SANE_STATUS_IO_ERROR,"truncated bulk");
+#ifdef SM3600_CALIB_USE_RMS
       for (i=0; i<MAX_PIXEL_PER_SCANLINE; i++)
-	pulSum[i]+=(long)this->calibration.achStripeY[i]*
+	aulSum[i]+=(long)this->calibration.achStripeY[i]*
 	  (long)this->calibration.achStripeY[i];
+#endif
       DoJog(this,CALIB_GAP);
     }
+#ifdef SM3600_CALIB_USE_RMS
   for (i=0; i<MAX_PIXEL_PER_SCANLINE; i++)
-    this->calibration.achStripeY[i]=(unsigned char)(int)sqrt(pulSum[i]/CALIB_LINES);
-  free(pulSum);
-      /* scan a color line at 600 DPI */
+    this->calibration.achStripeY[i]=(unsigned char)(int)sqrt(aulSum[i]/CALIB_LINES);
+#endif
+#ifdef SM3600_CALIB_USE_MEDIAN
+  /* process the collected lines rowwise. Use intermediate buffer for qsort */
+  for (i=0; i<MAX_PIXEL_PER_SCANLINE; i++)
+    {
+      for (iLine=0; iLine<CALIB_LINES; iLine++)
+	auchRow[iLine]=aauchY[iLine][i];
+      qsort(auchRow,CALIB_LINES, sizeof(unsigned char), (TQSortProc)CompareProc);
+      this->calibration.achStripeY[i]=auchRow[(CALIB_LINES-1)/2];
+    }
+#endif
+  /* intentionally, I did *not* apply a hanning filter. Discussion
+     welcome :-) */
+  
+  /* scan a color line at 600 DPI */
   DoJog(this,-CALIB_START-CALIB_LINES*CALIB_GAP);
   INST_ASSERT();
   this->calibration.bCalibrated=true;

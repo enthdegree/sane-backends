@@ -61,14 +61,10 @@ Start: 2.4.2001
 
 #include <usb.h>
 
-#define BUILD	3
+#define BUILD	4
 
 #ifndef BACKEND_NAME
 #define BACKEND_NAME sm3600
-#endif
-
-#ifndef PATH_MAX
-#define PATH_MAX       1024
 #endif
 
 #include "sane/sane.h"
@@ -86,9 +82,9 @@ Start: 2.4.2001
 
 #include "sm3600.h"
 
-unsigned long ulDebugMask;
+static unsigned long ulDebugMask;
 
-int num_devices;
+static int		num_devices;
 static TDevice        *pdevFirst;
 static TInstance      *pinstFirst;
 
@@ -138,6 +134,7 @@ static const SANE_Range rangeGamma = { 0, 4095, 1 };
 
 static const SANE_Int setResolutions[] = { 5, 75,100,200,300,600 };
 
+static
 SANE_Status
 InitOptions(TInstance *this)
 {

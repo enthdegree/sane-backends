@@ -178,6 +178,13 @@ struct alias
     char *newname;
   };
 
+/*
+ * List of available devices, allocated by sane_get_devices, released
+ * by sane_exit()
+ */
+static const SANE_Device **devlist = NULL;
+static int devlist_size = 0, devlist_len = 0;
+
 static struct alias *first_alias;
 static SANE_Auth_Callback auth_callback;
 static struct backend *first_backend;
@@ -584,6 +591,18 @@ sane_exit (void)
       free(alias->oldname);
       free(alias);
     }
+
+  if (NULL != devlist)
+    { /* Release memory allocated by sane_get_devices(). */
+      int i = 0;
+      while (devlist[i])
+        free(devlist[i++]);
+      free(devlist);
+
+      devlist = NULL;
+      devlist_size = 0;
+      devlist_len = 0;
+    }
 }
 
 /* Note that a call to get_devices() implies that we'll have to load
@@ -594,8 +613,6 @@ sane_exit (void)
 SANE_Status
 sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 {
-  static int devlist_size = 0, devlist_len = 0;
-  static const SANE_Device **devlist;
   const SANE_Device **be_list;
   struct backend *be;
   SANE_Status status;

@@ -108,6 +108,7 @@
 #include "sane/sanei_config.h"
 #define V4L_CONFIG_FILE "v4l.conf"
 
+static const SANE_Device ** devlist = NULL;
 static int num_devices;
 static V4L_Device * first_dev;
 static V4L_Scanner * first_handle;
@@ -179,6 +180,9 @@ attach (const char *devname, V4L_Device **devp)
 {
   V4L_Device * q;
 
+  if (!devp)
+    return SANE_STATUS_INVAL;
+
   errno = 0;
 
   q = malloc (sizeof (*q));
@@ -199,12 +203,8 @@ attach (const char *devname, V4L_Device **devp)
   first_dev = q;
 
 
-  if (devp)
-    *devp = q;
+  *devp = q;
   return SANE_STATUS_GOOD;
-
-  free (q);
-  return SANE_STATUS_INVAL;
 }
 
 
@@ -626,12 +626,17 @@ sane_exit (void)
       free ((void *) dev->sane.name);
       free (dev);
     }
+
+  if (NULL != devlist)
+    {
+      free(devlist);
+      devlist = NULL;
+    }
 }
 
 SANE_Status
 sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 {
-  static const SANE_Device ** devlist = 0;
   V4L_Device *dev;
   int i;
 

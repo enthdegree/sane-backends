@@ -1,4 +1,4 @@
-TODO (2002-04-21)
+TODO (2002-04-22)
 
 ******** todo ********
 
@@ -51,7 +51,6 @@ backends
       - agfafocus
       - apple
       - as6e
-      - avision
       - bh
       - canon
       - coolscan
@@ -71,13 +70,8 @@ backends
   * net: add IPv6 support.
 
   * Fix warnings about DBG calls:
-    - avision
     - umax1220u
  
-  * Make all symbols that don't start with sane_ or sanei_ static (see
-    make libcheck):
-    - avision: Avision_Device_List
-  
   * bh: Suspicious loop ("../../backend/bh.c", line 1923: warning:
     end-of-loop code not reached), see sane-devel.
 
@@ -179,6 +173,8 @@ misc
 
 
 ******** done ********
+* Make all symbols that don't start with sane_ or sanei_ static (see
+  make libcheck):
 * avision: line 1393: word isn't freed sometimes (maybe if  cp == line?)
 * dll: Check what happens when calling sane_init/sane_open and sane_exit
        more than once.

@@ -1,5 +1,16 @@
 CHANGES for the SANE Mustek backend
 
+2000-12-05
+  * Fixed lamp setting (avoid problems with some SE scanners).
+
+2000-12-01
+  * Reduced scan area for Paragon 1200 SP PRO (to avoid bumping the scan slider
+    at the end).
+  * Removed warning for 1200 SP PRO.
+
+2000-11-26
+  * Released Mustek backend 1.0-100
+
 2000-11-26
   * Default for "fast preview" is "false" now because this option doesn't work
     for all SE scanners correctly.
@@ -38,7 +49,7 @@ CHANGES for the SANE Mustek backend
   * added more debug output in constrain_value
 
 2000-11-05
-  * Released backend version 1.0-98.
+  * Released backend version 1.0-99.
 
 2000-11-05
   * Added support for TAIV for SE 12000 SP. Lamp is turned off while

@@ -9,7 +9,7 @@
 ;
 
 :backend "mustek"		; name of backend
-:version "1.0-100"		; version of backend
+:version "1.0-101"		; version of backend
 :status :beta			; :alpha, :beta, :stable, :new
 :manpage "sane-mustek"		; name of manpage (if it exists)
 :url "http://hmg.home.pages.de/sane/"
@@ -60,7 +60,6 @@
 :comment "Please test!"
 :model "Paragon 1200 SP Pro"
 :interface "SCSI"
-:comment "Please test!"
 :model "Paragon 1200 A3 Pro"
 :interface "SCSI"
 :comment "Please test!"
@@ -73,6 +72,8 @@
 :model "Imagery 4800 SP"
 :interface "SCSI"
 :model "SCSI Connect 19200"
+:interface "SCSI"
+:model "SCSI excellence series 19200"
 :interface "SCSI"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,

@@ -10,7 +10,7 @@
 ;
 
 :backend "mustek_pp"              ; name of backend
-:version "6"                      ; version of backend
+:version "9"                      ; version of backend
 :status :alpha                    ; :alpha, :beta, :stable, :new
 :manpage "sane-mustek_pp"         ; name of manpage (if it exists)
                                   ; backend's web page
@@ -36,15 +36,15 @@
 
 :model "ScanExpress 1200 ED Plus"
 :interface "Parport (EPP)"
-:comment "doesn't work yet"
+:comment "works partly"
 
 :model "ScanMagic 1200 ED Plus"
 :interface "Parport (EPP)"
-:comment "doesn't work yet"
+:comment "works partly"
 
 :model "ScanExpress 12000 P"
 :interface "Parport (EPP)"
-:comment "doesn't work"
+:comment "doesn't work yet"
 
 :model "600 III EP Plus"
 :interface "Parport (SPP,EPP)"
@@ -61,8 +61,28 @@
 :interface "Parport (SPP)"
 :comment "aka. ``Aldi Scanner'' - works"
 
+:model "MD985x"
+:interface "Parport (EPP)"
+:comment "aka. ``Aldi Scanner (new version)'' - CIS scanner doesn't work"
+
+:mfg "Tevion"
+:url "http://www.medion.de/"
+
+:model "MD985x"
+:interface "Parport (EPP)"
+:comment "Tevion is Medion!"
+
+:mfg "LifeTec"
+
+:model "LT9891"
+:interface "Parport (EPP)"
+:comment "CIS scanner - doesn't work"
+
+:mfg "Fidelity Imaging Solutions Inc."
+
+:model "Gallery 4800"
+:interface "Parport (EPP)"
+:comment "works"
+
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.
-
-
-

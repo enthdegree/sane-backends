@@ -100,11 +100,18 @@
 /* #undef	HAVE_INVERSION */
 
 /* TODO:
- * 	- make the user authentification work
- * 	- test with 1015/ CCD 01&04 scanners
+ * 	- perhaps option bw should be set at runtime (i.e. SANE_OPT_TRESHOLD)
+ * 	- remove line ending handling code
+ * 	- test with 1015/ CCD 04&05 scanners
  * 	- add 1505 code
  * 	- sane_read should operate on a fd
- * 	- option preview should default to color mode
+ * 	- there is an transparency adapter -> support it
+ * 	- make it possible to turn lamp off during scan
+ * 	- add API docu (what's this?)
+ * 	- make the user authentification work
+ * 	- make use of ppdev
+ *
+ * The primary goal at the moment is to support ASIC 1015 - CCD 01
  */
 
 /* DEBUG
@@ -132,16 +139,27 @@
  *  			added motor control codes for ASIC 1015 CCD 01
  *  			fixed bug in config_ccd_1013 & config_ccd_1015
  *  			added resolution code to attach & sane_get_parameters
+ *  1.0.7-devel		added functions common the both 101x chipsets
+ *  			added option bw, fixed bug in sane_open
+ *  			fixed bug in sane_exit
+ *  1.0.8-devel		added some code to config_ccd_1015 & set_dpi_value
+ *  			replaced fgets by sanei_config_read
+ *  			replaced #include <sane/...> by #include "sane/..."
+ *  			added option use600
+ *  1.0.9-devel		added tons off 600 dpi code: kind of works for
+ *  			ASIC 1015 CCD 01 scanners (grayscale)
+ *  			option preview defaults to color mode
  */
 
 /* if you change the source, please set MUSTEK_PP_STATE to "devel". Do *not*
  * change the MUSTEK_PP_BUILD. */
-#define MUSTEK_PP_BUILD	6
-#define MUSTEK_PP_STATE	"alpha"
+#define MUSTEK_PP_BUILD	9
+#define MUSTEK_PP_STATE	"devel"
 
 static int num_devices = 0;
 
 static Mustek_PP_Descriptor *devlist = NULL;
+static SANE_Device **devarray = NULL;
 
 static Mustek_PP_Device *first_dev = NULL;
 
@@ -155,11 +173,23 @@ static int niceload = 0;
 
 static int wait_lamp = 5;
 
+static int bw = 127;
+
 #ifdef HAVE_AUTHORIZATION
 static SANE_Auth_Callback auth_callback;
 #endif
 
-
+/* use600 test vars */
+/* static char motor_command=0x43; */
+/* static int first_time=1; */
+/* static char unk1= 0xAA; */
+/* static char expose_time = 0x64; */
+/* static char volt[3]; */
+/*static int do_calib=0; */
+static void config_ccd_101x (Mustek_PP_Device * dev);
+static void config_ccd (Mustek_PP_Device * dev);
+static void lamp (Mustek_PP_Device * dev, int lamp_on);
+/* end of test vars */
 
 static const SANE_String_Const mode_list[] = {
   "Lineart", "Gray", "Color", 0
@@ -190,7 +220,8 @@ static const SANE_Range u8_range = {
 #define PIXEL_TO_MM(px, res)	(SANE_FIX((float )(px * MM_PER_INCH / (res / 10)) / 10.0))
 
 /* scan area is mixture of 8.5" x 11" (letter) and 8.2" x 11.6" (a4) */
-#define MUSTEK_PP_101x_MAX_H_PIXEL	2550
+/* actually it is 8.7" x 11.6" ;-) */ 
+#define MUSTEK_PP_101x_MAX_H_PIXEL	2600
 #define MUSTEK_PP_101x_MAX_V_PIXEL	3500
 
 #define MUSTEK_PP_DEFAULT_PORT		0x378
@@ -200,16 +231,43 @@ static const SANE_Range u8_range = {
 #define MUSTEK_PP_ASIC_1015	0xA5
 #define MUSTEK_PP_ASIC_1505	0xA2
 
+
+/*
+ *  Here starts the driver code for the different chipsets
+ *
+ *  The 1013 & 1015 chipsets share large portions of the code. This
+ *  shared functions end with _101x.
+ */
+
 static const u_char chan_codes_1013[] = { 0x82, 0x42, 0xC2 };
 static const u_char chan_codes_1015[] = { 0x80, 0x40, 0xC0 };
 static const u_char fullstep[] = { 0x09, 0x0C, 0x06, 0x03 };
 static const u_char halfstep[] = { 0x02, 0x03, 0x01, 0x09,
   0x08, 0x0C, 0x04, 0x06
 };
+static const u_char voltages[4][3] = { {0x5C, 0x5A, 0x63},
+{0xE6, 0xB4, 0xBE},
+{0xB4, 0xB4, 0xB4},
+{0x64, 0x50, 0x64}
+};
+
+/* Forward declarations of 1013/1015 functions */
+static void set_ccd_channel_1013 (Mustek_PP_Device * dev, int channel);
+static void motor_backward_1013 (Mustek_PP_Device * dev);
+static void return_home_1013 (Mustek_PP_Device * dev, SANE_Bool nowait);
+static void motor_forward_1013 (Mustek_PP_Device * dev);
+static void config_ccd_1013 (Mustek_PP_Device * dev);
+
+static void set_ccd_channel_1015 (Mustek_PP_Device * dev, int channel);
+/* static void motor_backward_1015 (Mustek_PP_Device * dev); */
+static void return_home_1015 (Mustek_PP_Device * dev, SANE_Bool nowait);
+static void motor_forward_1015 (Mustek_PP_Device * dev);
+static void config_ccd_1015 (Mustek_PP_Device * dev);
 
 
 /* These functions are common to all 1013/1015 chipsets */
 
+/*
 static void
 set_led (Mustek_PP_Device * dev)
 {
@@ -217,8 +275,12 @@ set_led (Mustek_PP_Device * dev)
   sanei_pa4s2_writebyte (dev->fd, 6,
 			 (dev->motor_step % 5 == 0 ? 0x03 : 0x13));
 
-}
+}*/
 
+#define set_led(dev)	sanei_pa4s2_writebyte (dev->fd, 6, \
+			(dev->motor_step % 5 == 0 ? 0x03 : 0x13))
+
+/*
 static void
 set_sti (Mustek_PP_Device * dev)
 {
@@ -227,8 +289,17 @@ set_sti (Mustek_PP_Device * dev)
   dev->bank_count++;
   dev->bank_count &= 7;
 
-}
+}*/
 
+#define set_sti(dev)	do { \
+			if (dev->desc->use600 == SANE_TRUE) \
+			  sanei_pa4s2_writebyte(dev->fd, 3, 0xFF); \
+			else \
+			  sanei_pa4s2_writebyte (dev->fd, 3, 0); \
+			dev->bank_count++; \
+			dev->bank_count &= 7; \
+			} while (0)
+/*
 static void
 get_bank_count (Mustek_PP_Device * dev)
 {
@@ -241,15 +312,26 @@ get_bank_count (Mustek_PP_Device * dev)
 
   dev->bank_count = (val & 0x07);
 
-}
+}*/
+#define get_bank_count(dev)	do { \
+				sanei_pa4s2_readbegin (dev->fd, 3); \
+				sanei_pa4s2_readbyte \
+					(dev->fd, \
+					 (u_char *)&dev->bank_count); \
+				sanei_pa4s2_readend (dev->fd); \
+				dev->bank_count &= 0x07; \
+				} while (0)
 
+/*
 static void
 reset_bank_count (Mustek_PP_Device * dev)
 {
 
   sanei_pa4s2_writebyte (dev->fd, 6, 7);
 
-}
+}*/
+#define reset_bank_count(dev)	sanei_pa4s2_writebyte (dev->fd, 6, 7)
+
 
 static void
 wait_bank_change (Mustek_PP_Device * dev, int bankcount)
@@ -257,6 +339,16 @@ wait_bank_change (Mustek_PP_Device * dev, int bankcount)
   struct timeval start, end;
   unsigned long diff;
   int firsttime = 1;
+
+  if (dev->desc->use600)
+    {
+
+      if (niceload)
+	usleep (2);
+
+      return;
+
+    }
 
   gettimeofday (&start, NULL);
 
@@ -287,27 +379,38 @@ set_dpi_value (Mustek_PP_Device * dev)
 
   sanei_pa4s2_writebyte (dev->fd, 6, 0x80);
 
-  switch (dev->CCD.hwres)
+  switch (dev->CCD.hwres * (600 / dev->desc->max_res))
     {
     case 100:
-      val = 0x00;
+      val = 0x08;
       break;
     case 200:
-      val = 0x10;
+      val = 0x00;
       break;
     case 300:
+      val = 0x50;
+      break;
+    case 400:
+      val = 0x10;
+      break;
+    case 600:
       val = 0x20;
       break;
-
+      /*
+         case 100: val=0x00; break;
+         case 200: val=0x10; break;
+         case 300: val=0x20; break; */
     }
+
 
   if (dev->ccd_type == 1)
     val |= 0x01;
 
-
   sanei_pa4s2_writebyte (dev->fd, 5, val);
 
   sanei_pa4s2_writebyte (dev->fd, 6, 0x00);
+
+  DBG (4, "set_dpi_value: value 0x%02x\n", val);
 
 }
 
@@ -316,16 +419,47 @@ set_line_adjust (Mustek_PP_Device * dev)
 {
   int adjustline;
 
-  adjustline = (dev->BottomX - dev->TopX) * dev->CCD.hwres / 300;
 
-  dev->CCD.adjustskip = dev->CCD.adjustskip * dev->CCD.hwres / 300;
 
-  sanei_pa4s2_writebyte (dev->fd, 6, 0x01);
+  if (dev->desc->use600 == SANE_FALSE)
+    {
+      adjustline =
+	(dev->BottomX - dev->TopX) * dev->CCD.hwres / dev->desc->max_res;
+      dev->CCD.adjustskip =
+	dev->CCD.adjustskip * dev->CCD.hwres / dev->desc->max_res;
+    }
+  else
+    {
+
+      adjustline = dev->params.pixels_per_line;
+
+      adjustline = adjustline * dev->CCD.hwres / dev->CCD.res;
+
+      if (dev->CCD.mode == MUSTEK_PP_MODE_COLOR)
+	adjustline <<= 3;
+
+/*	  adjustline = adjustline * dev->CCD.hwres / dev->CCD.res; */
+      adjustline += 2;
+
+      dev->CCD.adjustskip =
+	dev->CCD.adjustskip * dev->CCD.hwres / dev->CCD.res;
+
+      DBG (4, "set_line_adjust: value = %u (0x%04x)\n", adjustline,
+	   adjustline);
+
+    }
+
+  DBG (4, "set_line_adjust: ppl %u (%u), adjust %u, skip %u\n",
+       dev->params.pixels_per_line, (dev->BottomX - dev->TopX), adjustline,
+       dev->CCD.adjustskip);
+
+
   sanei_pa4s2_writebyte (dev->fd, 6, 0x11);
   sanei_pa4s2_writebyte (dev->fd, 5, (adjustline + dev->CCD.adjustskip) >> 8);
   sanei_pa4s2_writebyte (dev->fd, 6, 0x21);
   sanei_pa4s2_writebyte (dev->fd, 5,
 			 (adjustline + dev->CCD.adjustskip) & 0xFF);
+
   sanei_pa4s2_writebyte (dev->fd, 6, 0x01);
 
 }
@@ -336,24 +470,22 @@ set_lamp (Mustek_PP_Device * dev, int lamp_on)
 
   int ctr;
 
-  sanei_pa4s2_writebyte (dev->fd, 6, 0xC3);
+  if (dev->desc->use600 == SANE_FALSE)
+    sanei_pa4s2_writebyte (dev->fd, 6, 0xC3);
 
   for (ctr = 0; ctr < 3; ctr++)
     {
       sanei_pa4s2_writebyte (dev->fd, 6, (lamp_on ? 0x47 : 0x57));
-      sanei_pa4s2_writebyte (dev->fd, 6, 0x77);
+      if (dev->desc->use600 == SANE_FALSE)
+	sanei_pa4s2_writebyte (dev->fd, 6, 0x77);
     }
 
   dev->motor_step = lamp_on;
 
-  set_led (dev);
+  if (dev->desc->use600 == SANE_FALSE)
+    set_led (dev);
 
 }
-
-static const u_char voltages[3][3] = { {0x5C, 0x5A, 0x63},
-{0xE6, 0xB4, 0xBE},
-{0xB4, 0xB4, 0xB4}
-};
 
 static void
 send_voltages (Mustek_PP_Device * dev)
@@ -368,6 +500,8 @@ send_voltages (Mustek_PP_Device * dev)
       break;
     case 1:
       voltage = 1;
+/*      if (dev->asic_id == MUSTEK_PP_ASIC_1015)
+	voltage = 3; */
       break;
     default:
       voltage = 2;
@@ -393,6 +527,1105 @@ compar (const void *a, const void *b)
   return (signed int) (*(const SANE_Byte *) a) -
     (signed int) (*(const SANE_Byte *) b);
 }
+
+static void
+set_ccd_channel_101x (Mustek_PP_Device * dev, int channel)
+{
+  switch (dev->asic_id)
+    {
+    case MUSTEK_PP_ASIC_1013:
+      set_ccd_channel_1013 (dev, channel);
+      break;
+
+    case MUSTEK_PP_ASIC_1015:
+      set_ccd_channel_1015 (dev, channel);
+      break;
+    }
+}
+
+static void
+motor_forward_101x (Mustek_PP_Device * dev)
+{
+  switch (dev->asic_id)
+    {
+    case MUSTEK_PP_ASIC_1013:
+      motor_forward_1013 (dev);
+      break;
+
+    case MUSTEK_PP_ASIC_1015:
+      motor_forward_1015 (dev);
+      break;
+    }
+}
+
+static void
+motor_backward_101x (Mustek_PP_Device * dev)
+{
+  switch (dev->asic_id)
+    {
+    case MUSTEK_PP_ASIC_1013:
+      motor_backward_1013 (dev);
+      break;
+
+    case MUSTEK_PP_ASIC_1015:
+/*      motor_backward_1015 (dev); */
+      break;
+    }
+}
+
+static void
+move_motor_101x (Mustek_PP_Device * dev, int forward)
+{
+  if (forward == SANE_TRUE)
+    motor_forward_101x (dev);
+  else
+    motor_backward_101x (dev);
+
+  wait_bank_change (dev, dev->bank_count);
+  reset_bank_count (dev);
+}
+
+
+static void
+config_ccd_101x (Mustek_PP_Device * dev)
+{
+  switch (dev->asic_id)
+    {
+    case MUSTEK_PP_ASIC_1013:
+      config_ccd_1013 (dev);
+      break;
+
+    case MUSTEK_PP_ASIC_1015:
+      config_ccd_1015 (dev);
+      break;
+    }
+}
+
+
+
+static void
+read_line_101x (Mustek_PP_Device * dev, SANE_Byte * buf, SANE_Int pixel,
+		SANE_Int RefBlack, SANE_Byte * calib, SANE_Int * gamma)
+{
+
+  SANE_Byte *cal = calib;
+  u_char color;
+  int ctr, skips = dev->CCD.adjustskip + 1, cval;
+
+  if (pixel <= 0)
+    return;
+
+  sanei_pa4s2_readbegin (dev->fd, 1);
+
+
+  if (dev->desc->use600 == SANE_TRUE)
+    {
+
+
+      if (dev->CCD.hwres == dev->CCD.res)
+	{
+
+	  while (skips--)
+	    sanei_pa4s2_readbyte (dev->fd, &color);
+
+	  for (ctr = 0; ctr < pixel; ctr++)
+	    sanei_pa4s2_readbyte (dev->fd, &buf[ctr]);
+
+	}
+      else
+	{
+
+	  int pos = 0, bpos = 0;
+
+	  while (skips--)
+	    sanei_pa4s2_readbyte (dev->fd, &color);
+
+	  ctr = 0;
+
+	  do
+	    {
+
+	      sanei_pa4s2_readbyte (dev->fd, &color);
+
+	      if (ctr < (pos >> SANE_FIXED_SCALE_SHIFT))
+		{
+		  ctr++;
+		  continue;
+		}
+
+	      ctr++;
+	      pos += dev->CCD.res_step;
+
+
+	      buf[bpos++] = color;
+
+	    }
+	  while (bpos < pixel);
+
+	}
+
+      sanei_pa4s2_readend (dev->fd);
+
+      return;
+
+    }
+
+  if (dev->CCD.hwres == dev->CCD.res)
+    {
+
+      while (skips--)
+	sanei_pa4s2_readbyte (dev->fd, &color);
+
+      for (ctr = 0; ctr < pixel; ctr++)
+	{
+
+	  sanei_pa4s2_readbyte (dev->fd, &color);
+
+	  cval = color;
+
+	  if (cval < RefBlack)
+	    cval = 0;
+	  else
+	    cval -= RefBlack;
+
+	  if (cal)
+	    {
+	      if (cval >= cal[ctr])
+		cval = 0xFF;
+	      else
+		{
+		  cval <<= 8;
+		  cval /= (int) cal[ctr];
+		}
+	    }
+
+	  if (gamma)
+	    cval = gamma[cval];
+
+	  buf[ctr] = cval;
+
+	}
+
+    }
+  else
+    {
+
+      int pos = 0, bpos = 0;
+
+      while (skips--)
+	sanei_pa4s2_readbyte (dev->fd, &color);
+
+      ctr = 0;
+
+      do
+	{
+
+	  sanei_pa4s2_readbyte (dev->fd, &color);
+
+	  cval = color;
+
+	  if (ctr < (pos >> SANE_FIXED_SCALE_SHIFT))
+	    {
+	      ctr++;
+	      continue;
+	    }
+
+	  ctr++;
+	  pos += dev->CCD.res_step;
+
+
+	  if (cval < RefBlack)
+	    cval = 0;
+	  else
+	    cval -= RefBlack;
+
+	  if (cal)
+	    {
+	      if (cval >= cal[bpos])
+		cval = 0xFF;
+	      else
+		{
+		  cval <<= 8;
+		  cval /= (int) cal[bpos];
+		}
+	    }
+
+	  if (gamma)
+	    cval = gamma[cval];
+
+	  buf[bpos++] = cval;
+
+	}
+      while (bpos < pixel);
+
+    }
+
+  sanei_pa4s2_readend (dev->fd);
+
+}
+
+static void
+read_average_line_101x (Mustek_PP_Device * dev, SANE_Byte * buf, int pixel,
+			int RefBlack)
+{
+
+  SANE_Byte lbuf[4][MUSTEK_PP_101x_MAX_H_PIXEL * 2];
+  int ctr, sum;
+
+  for (ctr = 0; ctr < 4; ctr++)
+    {
+
+      wait_bank_change (dev, dev->bank_count);
+      read_line_101x (dev, lbuf[ctr], pixel, RefBlack, NULL, NULL);
+      reset_bank_count (dev);
+      if (ctr < 3)
+	set_sti (dev);
+
+    }
+
+  for (ctr = 0; ctr < pixel; ctr++)
+    {
+
+      sum = lbuf[0][ctr] + lbuf[1][ctr] + lbuf[2][ctr] + lbuf[3][ctr];
+
+      buf[ctr] = (sum / 4);
+
+    }
+
+}
+
+static void
+find_black_side_edge_101x (Mustek_PP_Device * dev)
+{
+  SANE_Byte buf[MUSTEK_PP_101x_MAX_H_PIXEL * 2];
+  SANE_Byte blackposition[5];
+  int pos = 0, ctr, blackpos;
+
+  for (ctr = 0; ctr < 20; ctr++)
+    {
+
+      motor_forward_101x (dev);
+      wait_bank_change (dev, dev->bank_count);
+      read_line_101x (dev, buf, dev->desc->max_h_size, 0, NULL, NULL);
+      reset_bank_count (dev);
+
+      dev->ref_black = dev->ref_red = dev->ref_green = dev->ref_blue = buf[0];
+
+      blackpos = dev->desc->max_h_size / 4;
+
+      while ((abs (buf[blackpos] - buf[0]) >= 15) && (blackpos > 0))
+	blackpos--;
+
+      if (blackpos > 1)
+	blackposition[pos++] = blackpos;
+
+      if (pos == 5)
+	break;
+
+    }
+
+  blackpos = 0;
+
+  for (ctr = 0; ctr < pos; ctr++)
+    if (blackposition[ctr] > blackpos)
+      blackpos = blackposition[ctr];
+
+  if (blackpos < 0x66)
+    blackpos = 0x6A;
+
+  dev->blackpos = blackpos;
+  dev->Saved_CCD.skipcount = (blackpos + 12) & 0xFF;
+
+}
+
+static void
+min_color_levels_101x (Mustek_PP_Device * dev)
+{
+
+  SANE_Byte buf[MUSTEK_PP_101x_MAX_H_PIXEL * 2];
+  int ctr, sum = 0;
+
+  for (ctr = 0; ctr < 8; ctr++)
+    {
+
+      set_ccd_channel_101x (dev, MUSTEK_PP_CHANNEL_RED);
+      set_sti (dev);
+      wait_bank_change (dev, dev->bank_count);
+
+      read_line_101x (dev, buf, dev->desc->max_h_size, 0, NULL, NULL);
+
+      reset_bank_count (dev);
+
+      sum += buf[3];
+
+    }
+
+  dev->ref_red = sum / 8;
+
+  sum = 0;
+
+  for (ctr = 0; ctr < 8; ctr++)
+    {
+
+      set_ccd_channel_101x (dev, MUSTEK_PP_CHANNEL_GREEN);
+      set_sti (dev);
+      wait_bank_change (dev, dev->bank_count);
+
+      read_line_101x (dev, buf, dev->desc->max_h_size, 0, NULL, NULL);
+
+      reset_bank_count (dev);
+
+      sum += buf[3];
+
+    }
+
+  dev->ref_green = sum / 8;
+
+  sum = 0;
+
+  for (ctr = 0; ctr < 8; ctr++)
+    {
+
+      set_ccd_channel_101x (dev, MUSTEK_PP_CHANNEL_BLUE);
+      set_sti (dev);
+      wait_bank_change (dev, dev->bank_count);
+
+      read_line_101x (dev, buf, dev->desc->max_h_size, 0, NULL, NULL);
+
+      reset_bank_count (dev);
+
+      sum += buf[3];
+
+    }
+
+  dev->ref_blue = sum / 8;
+
+}
+
+
+static void
+max_color_levels_101x (Mustek_PP_Device * dev)
+{
+
+  int ctr, line, sum;
+  SANE_Byte rbuf[32][MUSTEK_PP_101x_MAX_H_PIXEL * 2];
+  SANE_Byte gbuf[32][MUSTEK_PP_101x_MAX_H_PIXEL * 2];
+  SANE_Byte bbuf[32][MUSTEK_PP_101x_MAX_H_PIXEL * 2];
+
+  SANE_Byte maxbuf[32];
+
+  for (ctr = 0; ctr < 32; ctr++)
+    {
+
+      if (dev->CCD.mode == MUSTEK_PP_MODE_COLOR)
+	{
+
+	  set_ccd_channel_101x (dev, MUSTEK_PP_CHANNEL_RED);
+	  motor_forward_101x (dev);
+
+	  read_average_line_101x (dev, rbuf[ctr], dev->params.pixels_per_line,
+				  dev->ref_red);
+
+	  set_ccd_channel_101x (dev, MUSTEK_PP_CHANNEL_GREEN);
+	  set_sti (dev);
+
+	  read_average_line_101x (dev, gbuf[ctr], dev->params.pixels_per_line,
+				  dev->ref_green);
+
+	  set_ccd_channel_101x (dev, MUSTEK_PP_CHANNEL_BLUE);
+	  set_sti (dev);
+
+	  read_average_line_101x (dev, bbuf[ctr], dev->params.pixels_per_line,
+				  dev->ref_blue);
+
+	}
+      else
+	{
+
+	  dev->CCD.channel = MUSTEK_PP_CHANNEL_GRAY;
+
+	  motor_forward_101x (dev);
+
+	  read_average_line_101x (dev, gbuf[ctr], dev->params.pixels_per_line,
+				  dev->ref_black);
+
+	}
+
+    }
+
+
+  for (ctr = 0; ctr < dev->params.pixels_per_line; ctr++)
+    {
+      for (line = 0; line < 32; line++)
+	maxbuf[line] = gbuf[line][ctr];
+
+      qsort (maxbuf, 32, sizeof (maxbuf[0]), compar);
+
+      sum = maxbuf[4] + maxbuf[5] + maxbuf[6] + maxbuf[7];
+
+      dev->calib_g[ctr] = sum / 4;
+
+    }
+
+  if (dev->CCD.mode == MUSTEK_PP_MODE_COLOR)
+    {
+
+      for (ctr = 0; ctr < dev->params.pixels_per_line; ctr++)
+	{
+	  for (line = 0; line < 32; line++)
+	    maxbuf[line] = rbuf[line][ctr];
+
+	  qsort (maxbuf, 32, sizeof (maxbuf[0]), compar);
+
+	  sum = maxbuf[4] + maxbuf[5] + maxbuf[6] + maxbuf[7];
+
+	  dev->calib_r[ctr] = sum / 4;
+
+	}
+
+      for (ctr = 0; ctr < dev->params.pixels_per_line; ctr++)
+	{
+	  for (line = 0; line < 32; line++)
+	    maxbuf[line] = bbuf[line][ctr];
+
+	  qsort (maxbuf, 32, sizeof (maxbuf[0]), compar);
+
+	  sum = maxbuf[4] + maxbuf[5] + maxbuf[6] + maxbuf[7];
+
+	  dev->calib_b[ctr] = sum / 4;
+
+	}
+
+    }
+
+}
+
+static void
+find_black_top_edge_101x (Mustek_PP_Device * dev)
+{
+
+  int lines = 0, ctr, pos;
+  SANE_Byte buf[MUSTEK_PP_101x_MAX_H_PIXEL * 2];
+
+  dev->CCD.channel = MUSTEK_PP_CHANNEL_GRAY;
+
+  do
+    {
+
+      motor_forward_101x (dev);
+      wait_bank_change (dev, dev->bank_count);
+
+      read_line_101x
+	(dev, buf, dev->desc->max_h_size, dev->ref_black, NULL, NULL);
+
+      reset_bank_count (dev);
+
+      pos = 0;
+
+      for (ctr = dev->blackpos; ctr > dev->blackpos - 10; ctr--)
+	if (buf[ctr] <= 15)
+	  pos++;
+
+    }
+  while ((pos >= 8) && (lines++ < 67));
+
+}
+
+static void
+calibrate_device_101x (Mustek_PP_Device * dev)
+{
+
+  int saved_ppl = dev->params.pixels_per_line, ctr;
+
+  DBG (1, "calibrate_device_101x: use600 = %s\n",
+       (dev->desc->use600 ? "yes" : "no"));
+
+  if (dev->desc->use600)
+    {
+
+      int i, j;
+/*	FILE *fptr; */
+      SANE_Byte buf[MUSTEK_PP_101x_MAX_H_PIXEL * 2];
+
+      dev->Saved_CCD = dev->CCD;
+      dev->CCD.mode = MUSTEK_PP_MODE_COLOR;
+      dev->CCD.hwres = dev->CCD.res = 600;
+      dev->unknown_value = 0xAA;
+      dev->expose_time = 0x64;
+      dev->CCD.skipcount = dev->CCD.skipimagebytes = 0;
+      dev->params.pixels_per_line = 10;
+
+      config_ccd (dev);
+
+
+
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x37);
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x67);
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x17);
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x07);
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x27);
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x12);
+
+      for (i = 0; i < 8; i++)
+	for (j = 0; j < 255; j++)
+	  sanei_pa4s2_writebyte (dev->fd, 5, j);
+
+      for (j = 0; j < 8; j++)
+	sanei_pa4s2_writebyte (dev->fd, 5, j);
+
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x02);
+
+/*	fptr = fopen("/tmp/calib.1", "w"); */
+
+
+      for (ctr = 0; ctr < 100; ctr++)
+	{
+
+	  reset_bank_count (dev);
+	  sanei_pa4s2_writebyte (dev->fd, 6, 0x27);
+	  read_line_101x (dev, buf, 2048, 0, NULL, NULL);
+
+/*		fwrite(buf,2048,1,fptr); */
+
+	}
+
+/*	fclose (fptr); */
+
+      dev->CCD.hwres = dev->CCD.res = 300;
+      dev->unknown_value = 0xFE;
+      dev->expose_time = 0xFF;
+      dev->params.pixels_per_line = 150;
+      dev->voltages[0] = 0x6b;
+      dev->voltages[1] = 0x4f;
+      dev->voltages[2] = 0x65;
+
+      dev->send_voltages = 1;
+
+      config_ccd (dev);
+      get_bank_count (dev);
+
+      dev->motor_ctrl = 0x43;
+      for (ctr = 0; ctr < 3; ctr++)
+	move_motor_101x (dev, SANE_TRUE);
+
+/*	fptr = fopen("/tmp/calib.2","w"); */
+
+      read_line_101x (dev, buf, 150, 0, NULL, NULL);
+
+/*	fwrite(buf,150,1,fptr); 
+	fclose(fptr); */
+
+
+      move_motor_101x (dev, SANE_TRUE);
+
+      dev->CCD = dev->Saved_CCD;
+
+      dev->CCD.mode = MUSTEK_PP_MODE_GRAYSCALE;
+
+      dev->voltages[0] = 0x32;
+      dev->voltages[1] = 0x32;
+      dev->voltages[3] = 0x32;
+      dev->params.pixels_per_line = saved_ppl;
+
+      config_ccd (dev);
+
+      /*
+         if ((dev->CCD.hwres >= 300) && (dev->CCD.mode != MUSTEK_PP_MODE_COLOR))
+         motor_command = 0x63; */
+
+      for (ctr = 0; ctr < 4; ctr++)
+	{
+	  get_bank_count (dev);
+	  set_sti (dev);
+	}
+
+      dev->CCD.adjustskip = 3;
+
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x10);
+      sanei_pa4s2_writebyte (dev->fd, 5, 0x7f);
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x20);
+      sanei_pa4s2_writebyte (dev->fd, 5, 0x7f);
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x40);
+      sanei_pa4s2_writebyte (dev->fd, 5, 0x7f);
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x00);
+
+/*	fptr = fopen("/tmp/calib.3","w"); */
+
+      j = 0;
+
+
+      for (ctr = 0; ctr < 4; ctr++)
+	{
+
+	  read_line_101x (dev, buf, saved_ppl, 0, NULL, NULL);
+
+
+
+
+/*		fwrite(buf,saved_ppl, 1,fptr); */
+	  reset_bank_count (dev);
+	  get_bank_count (dev);
+	  set_sti (dev);
+
+	}
+
+
+
+
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x10);
+      sanei_pa4s2_writebyte (dev->fd, 5, 0x3f);
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x20);
+      sanei_pa4s2_writebyte (dev->fd, 5, 0x3f);
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x40);
+      sanei_pa4s2_writebyte (dev->fd, 5, 0x3f);
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x00);
+
+
+      for (ctr = 0; ctr < 4; ctr++)
+	{
+
+	  read_line_101x (dev, buf, saved_ppl, 0, NULL, NULL);
+/*		fwrite(buf,saved_ppl, 1,fptr); */
+	  reset_bank_count (dev);
+	  get_bank_count (dev);
+	  set_sti (dev);
+
+	}
+
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x10);
+      sanei_pa4s2_writebyte (dev->fd, 5, 0x1f);
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x20);
+      sanei_pa4s2_writebyte (dev->fd, 5, 0x1f);
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x40);
+      sanei_pa4s2_writebyte (dev->fd, 5, 0x1f);
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x00);
+
+
+      for (ctr = 0; ctr < 4; ctr++)
+	{
+
+	  read_line_101x (dev, buf, saved_ppl, 0, NULL, NULL);
+/*		fwrite(buf,saved_ppl, 1,fptr); */
+	  reset_bank_count (dev);
+	  get_bank_count (dev);
+	  set_sti (dev);
+
+	}
+
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x10);
+      sanei_pa4s2_writebyte (dev->fd, 5, 0x2f);
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x20);
+      sanei_pa4s2_writebyte (dev->fd, 5, 0x2f);
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x40);
+      sanei_pa4s2_writebyte (dev->fd, 5, 0x2f);
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x00);
+
+
+      for (ctr = 0; ctr < 4; ctr++)
+	{
+
+	  read_line_101x (dev, buf, saved_ppl, 0, NULL, NULL);
+/*		fwrite(buf,saved_ppl, 1,fptr);*/
+	  reset_bank_count (dev);
+	  get_bank_count (dev);
+	  set_sti (dev);
+
+	}
+
+      for (i = 0; i < 4; i++)
+	{
+
+	  sanei_pa4s2_writebyte (dev->fd, 6, 0x10);
+	  sanei_pa4s2_writebyte (dev->fd, 5, 0x37);
+	  sanei_pa4s2_writebyte (dev->fd, 6, 0x20);
+	  sanei_pa4s2_writebyte (dev->fd, 5, 0x37);
+	  sanei_pa4s2_writebyte (dev->fd, 6, 0x40);
+	  sanei_pa4s2_writebyte (dev->fd, 5, 0x37);
+	  sanei_pa4s2_writebyte (dev->fd, 6, 0x00);
+
+
+	  for (ctr = 0; ctr < 4; ctr++)
+	    {
+
+	      read_line_101x (dev, buf, saved_ppl, 0, NULL, NULL);
+/*		fwrite(buf,saved_ppl, 1,fptr); */
+	      reset_bank_count (dev);
+	      get_bank_count (dev);
+	      set_sti (dev);
+
+	    }
+	}
+
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x10);
+      sanei_pa4s2_writebyte (dev->fd, 5, 0x37);
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x20);
+      sanei_pa4s2_writebyte (dev->fd, 5, 0x37);
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x40);
+      sanei_pa4s2_writebyte (dev->fd, 5, 0x37);
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x00);
+
+      for (ctr = 0; ctr < 43; ctr++)
+	{
+
+
+	  read_line_101x (dev, buf, saved_ppl, 0, NULL, NULL);
+/*		fwrite(buf,saved_ppl, 1,fptr); */
+	  reset_bank_count (dev);
+	  get_bank_count (dev);
+	  motor_forward_1015 (dev);
+
+	}
+
+      lamp (dev, SANE_FALSE);
+
+      for (ctr = 0; ctr < 13; ctr++)
+	{
+
+	  read_line_101x (dev, buf, saved_ppl, 0, NULL, NULL);
+
+	  i = saved_ppl;
+	  while ((abs (buf[i] - buf[0]) >= 15) && (i > 0))
+	    i--;
+
+	  if (i > j)
+	    j = i;
+
+
+	  /*
+
+	     for (i=0 ; i<saved_ppl ; i++)
+	     if (abs(buf[i] - buf[0]) >= 15) {
+
+
+	     if (i > j)
+	     j=i;
+
+	     break;
+
+
+	     } */
+/*		fwrite(buf,saved_ppl, 1,fptr); */
+	  reset_bank_count (dev);
+	  get_bank_count (dev);
+	  set_sti (dev);
+	}
+      lamp (dev, SANE_TRUE);
+
+/*	fclose(fptr); */
+
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x10);
+      sanei_pa4s2_writebyte (dev->fd, 5, 0x37);
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x20);
+      sanei_pa4s2_writebyte (dev->fd, 5, 0x37);
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x40);
+      sanei_pa4s2_writebyte (dev->fd, 5, 0x37);
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x00);
+
+
+
+
+      dev->blackpos = 0x6a;
+      dev->Saved_CCD.skipcount = 0x6A;	/*(120 + 12) & 0xFF; */
+
+      dev->CCD = dev->Saved_CCD;
+
+      dev->send_voltages = 0;
+      config_ccd (dev);
+
+      for (ctr = 0; ctr < 3; ctr++)
+	{
+
+	  motor_forward_1015 (dev);
+
+
+	}
+
+      for (ctr = 0; ctr < 100; ctr++)
+	{
+	  read_line_101x (dev, buf, 150, 0, NULL, NULL);
+	  motor_forward_1015 (dev);
+	}
+
+
+
+
+
+      dev->CCD = dev->Saved_CCD;
+
+      dev->send_voltages = 0;
+      config_ccd (dev);
+
+
+
+
+      return;
+    }
+
+  dev->Saved_CCD = dev->CCD;
+  dev->params.pixels_per_line = dev->desc->max_h_size;
+  dev->CCD.hwres = dev->CCD.res = dev->desc->max_res;
+  dev->CCD.mode = MUSTEK_PP_MODE_GRAYSCALE;
+  dev->CCD.skipcount = dev->CCD.skipimagebytes = 0;
+  dev->CCD.invert = SANE_FALSE;
+  dev->CCD.channel = MUSTEK_PP_CHANNEL_GRAY;
+
+  config_ccd_101x (dev);
+  get_bank_count (dev);
+
+  find_black_side_edge_101x (dev);
+
+  for (ctr = 0; ctr < 4; ctr++)
+    move_motor_101x (dev, SANE_TRUE);
+
+  dev->CCD = dev->Saved_CCD;
+
+  dev->CCD.hwres = dev->CCD.res = dev->desc->max_res;
+  dev->CCD.skipcount = dev->CCD.skipimagebytes = 0;
+  dev->CCD.invert = SANE_FALSE;
+
+  config_ccd_101x (dev);
+  get_bank_count (dev);
+
+  if ((dev->CCD.mode == MUSTEK_PP_MODE_COLOR) && (dev->ccd_type != 0))
+    min_color_levels_101x (dev);
+
+  dev->CCD = dev->Saved_CCD;
+  dev->params.pixels_per_line = saved_ppl;
+  dev->CCD.invert = SANE_FALSE;
+
+  config_ccd_101x (dev);
+  get_bank_count (dev);
+
+  max_color_levels_101x (dev);
+
+  dev->params.pixels_per_line = dev->desc->max_h_size;
+  dev->CCD.mode = MUSTEK_PP_MODE_GRAYSCALE;
+  dev->CCD.hwres = dev->CCD.res = dev->desc->max_res;
+  dev->CCD.skipcount = dev->CCD.skipimagebytes = 0;
+  dev->CCD.invert = SANE_FALSE;
+
+  config_ccd_101x (dev);
+  get_bank_count (dev);
+
+  find_black_top_edge_101x (dev);
+
+  dev->CCD = dev->Saved_CCD;
+
+  dev->params.pixels_per_line = saved_ppl;
+
+  config_ccd_101x (dev);
+  get_bank_count (dev);
+
+}
+
+static void
+get_grayscale_line_101x (Mustek_PP_Device * dev, SANE_Byte * buf)
+{
+
+  int skips;
+
+  dev->line_diff +=
+    SANE_FIX ((float) dev->desc->max_res / (float) dev->CCD.res);
+
+  skips = (dev->line_diff >> SANE_FIXED_SCALE_SHIFT);
+
+  while (--skips)
+    {
+      motor_forward_101x (dev);
+      wait_bank_change (dev, dev->bank_count);
+      reset_bank_count (dev);
+    }
+
+  dev->line_diff &= 0xFFFF;
+
+  motor_forward_101x (dev);
+  wait_bank_change (dev, dev->bank_count);
+
+  read_line_101x (dev, buf, dev->params.pixels_per_line, dev->ref_black,
+		  dev->calib_g,
+		  (dev->val[OPT_CUSTOM_GAMMA].w ?
+		   dev->gamma_table[0] : NULL));
+
+  reset_bank_count (dev);
+
+}
+
+static void
+get_lineart_line_101x (Mustek_PP_Device * dev, SANE_Byte * buf)
+{
+
+  int ctr;
+  SANE_Byte gbuf[MUSTEK_PP_101x_MAX_H_PIXEL * 2];
+
+  get_grayscale_line_101x (dev, gbuf);
+
+  memset (buf, 0xFF, dev->params.bytes_per_line);
+
+  for (ctr = 0; ctr < dev->params.pixels_per_line; ctr++)
+    buf[ctr >> 3] ^= ((gbuf[ctr] > dev->desc->bw) ? (1 << (7 - ctr % 8)) : 0);
+
+}
+
+static void
+get_color_line_101x (Mustek_PP_Device * dev, SANE_Byte * buf)
+{
+
+  SANE_Byte *red, *blue, *src, *dest;
+  int gotline = 0, ctr;
+  int gored, goblue, gogreen;
+  int step = dev->CCD.line_step;
+
+  do
+    {
+
+      red = dev->red[dev->redline];
+      blue = dev->blue[dev->blueline];
+
+      dev->ccd_line++;
+
+      if ((dev->rdiff >> SANE_FIXED_SCALE_SHIFT) == dev->ccd_line)
+	{
+	  gored = 1;
+	  dev->rdiff += step;
+	}
+      else
+	gored = 0;
+
+      if ((dev->bdiff >> SANE_FIXED_SCALE_SHIFT) == dev->ccd_line)
+	{
+	  goblue = 1;
+	  dev->bdiff += step;
+	}
+      else
+	goblue = 0;
+
+      if ((dev->gdiff >> SANE_FIXED_SCALE_SHIFT) == dev->ccd_line)
+	{
+	  gogreen = 1;
+	  dev->gdiff += step;
+	}
+      else
+	gogreen = 0;
+
+      if (!gored && !goblue && !gogreen)
+	{
+	  motor_forward_101x (dev);
+	  wait_bank_change (dev, dev->bank_count);
+	  reset_bank_count (dev);
+	  if (dev->ccd_line >= (dev->CCD.line_step >> SANE_FIXED_SCALE_SHIFT))
+	    dev->redline = ++dev->redline % dev->green_offs;
+	  if (dev->ccd_line >=
+	      dev->blue_offs + (dev->CCD.line_step >> SANE_FIXED_SCALE_SHIFT))
+	    dev->blueline = ++dev->blueline % dev->blue_offs;
+	  continue;
+	}
+
+      if (gored)
+	dev->CCD.channel = MUSTEK_PP_CHANNEL_RED;
+      else if (goblue)
+	dev->CCD.channel = MUSTEK_PP_CHANNEL_BLUE;
+      else
+	dev->CCD.channel = MUSTEK_PP_CHANNEL_GREEN;
+
+      motor_forward_101x (dev);
+      wait_bank_change (dev, dev->bank_count);
+
+      if (dev->ccd_line >= dev->green_offs && gogreen)
+	{
+	  src = red;
+	  dest = buf;
+
+	  for (ctr = 0; ctr < dev->params.pixels_per_line; ctr++)
+	    {
+	      *dest = *src++;
+	      dest += 3;
+	    }
+	}
+
+      if (gored)
+	{
+
+	  read_line_101x (dev, red, dev->params.pixels_per_line, dev->ref_red,
+			  dev->calib_r,
+			  (dev->val[OPT_CUSTOM_GAMMA].w ?
+			   dev->gamma_table[1] : NULL));
+
+	  reset_bank_count (dev);
+
+	}
+
+      dev->redline = ++dev->redline % dev->green_offs;
+
+      if (dev->ccd_line >= dev->green_offs && gogreen)
+	{
+	  src = blue;
+	  dest = buf + 2;
+
+
+	  for (ctr = 0; ctr < dev->params.pixels_per_line; ctr++)
+	    {
+	      *dest = *src++;
+	      dest += 3;
+	    }
+
+	}
+
+      if (goblue)
+	{
+	  if (gored)
+	    {
+	      set_ccd_channel_101x (dev, MUSTEK_PP_CHANNEL_BLUE);
+	      set_sti (dev);
+	      wait_bank_change (dev, dev->bank_count);
+	    }
+
+	  read_line_101x (dev, blue, dev->params.pixels_per_line,
+			  dev->ref_blue, dev->calib_b,
+			  (dev->val[OPT_CUSTOM_GAMMA].w ? dev->
+			   gamma_table[3] : NULL));
+
+	  reset_bank_count (dev);
+
+	}
+
+      if (dev->ccd_line >=
+	  dev->blue_offs + (dev->CCD.line_step >> SANE_FIXED_SCALE_SHIFT))
+	dev->blueline = ++dev->blueline % dev->blue_offs;
+
+      if (gogreen)
+	{
+
+	  if (gored || goblue)
+	    {
+	      set_ccd_channel_101x (dev, MUSTEK_PP_CHANNEL_GREEN);
+	      set_sti (dev);
+	      wait_bank_change (dev, dev->bank_count);
+	    }
+
+	  read_line_101x (dev, dev->green, dev->params.pixels_per_line,
+			  dev->ref_green, dev->calib_g,
+			  (dev->val[OPT_CUSTOM_GAMMA].w ?
+			   dev->gamma_table[2] : NULL));
+
+	  reset_bank_count (dev);
+
+	  src = dev->green;
+	  dest = buf + 1;
+
+	  for (ctr = 0; ctr < dev->params.pixels_per_line; ctr++)
+	    {
+	      *dest = *src++;
+	      dest += 3;
+	    }
+
+	  gotline = 1;
+	}
+
+    }
+  while (!gotline);
+
+}
+
 
 
 /* these functions are for the 1013 chipset */
@@ -459,86 +1692,6 @@ return_home_1013 (Mustek_PP_Device * dev, SANE_Bool nowait)
 }
 
 static void
-set_start_channel_1013 (Mustek_PP_Device * dev)
-{
-
-  int channel = 0;
-
-  sanei_pa4s2_writebyte (dev->fd, 6, 0x05);
-
-  switch (dev->CCD.mode)
-    {
-    case MUSTEK_PP_MODE_LINEART:
-    case MUSTEK_PP_MODE_GRAYSCALE:
-      channel = MUSTEK_PP_CHANNEL_GRAY;
-      break;
-
-    case MUSTEK_PP_MODE_COLOR:
-      channel = MUSTEK_PP_CHANNEL_RED;
-      break;
-
-    }
-
-  set_ccd_channel_1013 (dev, channel);
-
-}
-
-static void
-set_invert_1013 (Mustek_PP_Device * dev)
-{
-
-  sanei_pa4s2_writebyte (dev->fd, 6,
-			 (dev->CCD.invert == SANE_TRUE ? 0x04 : 0x14));
-
-}
-
-static void
-set_initial_skip_1013 (Mustek_PP_Device * dev)
-{
-
-  sanei_pa4s2_writebyte (dev->fd, 6, 0x41);
-
-  dev->CCD.adjustskip = dev->CCD.skipcount + dev->CCD.skipimagebytes;
-
-  sanei_pa4s2_writebyte (dev->fd, 5, dev->CCD.adjustskip / 16 + 2);
-
-  dev->CCD.adjustskip %= 16;
-
-}
-
-static void
-config_ccd_1013 (Mustek_PP_Device * dev)
-{
-
-  if (dev->CCD.res == 0)
-	  return;
-  
-  dev->CCD.res_step =
-    SANE_FIX ((float) dev->CCD.hwres / (float) dev->CCD.res);
-
-  set_dpi_value (dev);
-
-  set_start_channel_1013 (dev);
-  set_invert_1013 (dev);
-
-  sanei_pa4s2_writebyte (dev->fd, 6, 0x37);
-  reset_bank_count (dev);
-
-  sanei_pa4s2_writebyte (dev->fd, 6, 0x27);
-  sanei_pa4s2_writebyte (dev->fd, 6, 0x67);
-  sanei_pa4s2_writebyte (dev->fd, 6, 0x17);
-  sanei_pa4s2_writebyte (dev->fd, 6, 0x77);
-
-  set_initial_skip_1013 (dev);
-
-  sanei_pa4s2_writebyte (dev->fd, 6, 0x81);
-  sanei_pa4s2_writebyte (dev->fd, 5, 0x70);
-
-  set_line_adjust (dev);
-
-}
-
-static void
 motor_forward_1013 (Mustek_PP_Device * dev)
 {
 
@@ -561,672 +1714,91 @@ motor_forward_1013 (Mustek_PP_Device * dev)
   set_sti (dev);
 }
 
+
+
 static void
-move_motor_1013 (Mustek_PP_Device * dev, int forward)
+config_ccd_1013 (Mustek_PP_Device * dev)
 {
 
-  if (forward == SANE_TRUE)
-    motor_forward_1013 (dev);
-  else
-    motor_backward_1013 (dev);
+  if (dev->CCD.res != 0)
+    dev->CCD.res_step =
+      SANE_FIX ((float) dev->CCD.hwres / (float) dev->CCD.res);
 
-  wait_bank_change (dev, dev->bank_count);
+  set_dpi_value (dev);
+
+  /* set_start_channel_1013 (dev); */
+
+  sanei_pa4s2_writebyte (dev->fd, 6, 0x05);
+
+  switch (dev->CCD.mode)
+    {
+    case MUSTEK_PP_MODE_LINEART:
+    case MUSTEK_PP_MODE_GRAYSCALE:
+      dev->CCD.channel = MUSTEK_PP_CHANNEL_GRAY;
+      break;
+
+    case MUSTEK_PP_MODE_COLOR:
+      dev->CCD.channel = MUSTEK_PP_CHANNEL_RED;
+      break;
+
+    }
+
+  set_ccd_channel_1013 (dev, dev->CCD.channel);
+
+  /* set_invert_1013 (dev); */
+
+  sanei_pa4s2_writebyte (dev->fd, 6,
+			 (dev->CCD.invert == SANE_TRUE ? 0x04 : 0x14));
+
+  sanei_pa4s2_writebyte (dev->fd, 6, 0x37);
   reset_bank_count (dev);
 
-}
+  sanei_pa4s2_writebyte (dev->fd, 6, 0x27);
+  sanei_pa4s2_writebyte (dev->fd, 6, 0x67);
+  sanei_pa4s2_writebyte (dev->fd, 6, 0x17);
+  sanei_pa4s2_writebyte (dev->fd, 6, 0x77);
 
-static void
-read_line_1013 (Mustek_PP_Device * dev, SANE_Byte * buf, SANE_Int pixel,
-		SANE_Int RefBlack, SANE_Byte * calib, SANE_Int * gamma)
-{
+  /* set_initial_skip_1013 (dev); */
 
-  SANE_Byte *cal = calib;
-  u_char color;
-  int ctr, skips = dev->CCD.adjustskip + 1, cval;
+  sanei_pa4s2_writebyte (dev->fd, 6, 0x41);
 
-  if (pixel <= 0)
-    return;
+  dev->CCD.adjustskip = dev->CCD.skipcount + dev->CCD.skipimagebytes;
 
-  sanei_pa4s2_readbegin (dev->fd, 1);
+  DBG (4, "config_ccd_1013: adjustskip %u\n", dev->CCD.adjustskip);
 
-  if (dev->CCD.hwres == dev->CCD.res)
-    {
+  sanei_pa4s2_writebyte (dev->fd, 5, dev->CCD.adjustskip / 16 + 2);
 
-      while (skips--)
-	sanei_pa4s2_readbyte (dev->fd, &color);
+  dev->CCD.adjustskip %= 16;
 
-      for (ctr = 0; ctr < pixel; ctr++)
-	{
+  sanei_pa4s2_writebyte (dev->fd, 6, 0x81);
+  sanei_pa4s2_writebyte (dev->fd, 5, 0x70);
+  sanei_pa4s2_writebyte (dev->fd, 6, 0x01);
 
-	  sanei_pa4s2_readbyte (dev->fd, &color);
 
-	  cval = color;
+  set_line_adjust (dev);
 
-	  if (cval < RefBlack)
-	    cval = 0;
-	  else
-	    cval -= RefBlack;
-
-	  if (cal)
-	    {
-	      if (cval >= cal[ctr])
-		cval = 0xFF;
-	      else
-		{
-		  cval <<= 8;
-		  cval /= (int) cal[ctr];
-		}
-	    }
-
-	  if (gamma)
-	    cval = gamma[cval];
-
-	  buf[ctr] = cval;
-
-	}
-
-    }
-  else
-    {
-
-      int pos = 0, bpos = 0;
-
-      while (skips--)
-	sanei_pa4s2_readbyte (dev->fd, &color);
-
-      ctr = 0;
-
-      do
-	{
-
-	  sanei_pa4s2_readbyte (dev->fd, &color);
-
-	  cval = color;
-
-	  if (ctr < (pos >> SANE_FIXED_SCALE_SHIFT))
-	    {
-	      ctr++;
-	      continue;
-	    }
-
-	  ctr++;
-	  pos += dev->CCD.res_step;
-
-	  if (cval < RefBlack)
-	    cval = 0;
-	  else
-	    cval -= RefBlack;
-
-	  if (cal)
-	    {
-	      if (cval >= cal[bpos])
-		cval = 0xFF;
-	      else
-		{
-		  cval <<= 8;
-		  cval /= (int) cal[bpos];
-		}
-	    }
-
-	  if (gamma)
-	    cval = gamma[cval];
-
-	  buf[bpos++] = cval;
-
-	}
-      while (bpos < pixel);
-
-    }
-
-  sanei_pa4s2_readend (dev->fd);
-
-}
-
-static void
-read_average_line_1013 (Mustek_PP_Device * dev, SANE_Byte * buf, int pixel,
-			int RefBlack)
-{
-
-  SANE_Byte lbuf[4][MUSTEK_PP_101x_MAX_H_PIXEL];
-  int ctr, sum;
-
-  for (ctr = 0; ctr < 4; ctr++)
-    {
-
-      wait_bank_change (dev, dev->bank_count);
-      read_line_1013 (dev, lbuf[ctr], pixel, RefBlack, NULL, NULL);
-      reset_bank_count (dev);
-      if (ctr < 3)
-	set_sti (dev);
-
-    }
-
-  for (ctr = 0; ctr < pixel; ctr++)
-    {
-
-      sum = lbuf[0][ctr] + lbuf[1][ctr] + lbuf[2][ctr] + lbuf[3][ctr];
-
-      buf[ctr] = (sum / 4);
-
-    }
-
-}
-
-static void
-find_black_side_edge_1013 (Mustek_PP_Device * dev)
-{
-  SANE_Byte buf[MUSTEK_PP_101x_MAX_H_PIXEL];
-  SANE_Byte blackposition[5];
-  int pos = 0, ctr, blackpos;
-
-  for (ctr = 0; ctr < 20; ctr++)
-    {
-
-      motor_forward_1013 (dev);
-      wait_bank_change (dev, dev->bank_count);
-      read_line_1013 (dev, buf, MUSTEK_PP_101x_MAX_H_PIXEL, 0, NULL, NULL);
-      reset_bank_count (dev);
-
-      dev->ref_black = dev->ref_red = dev->ref_green = dev->ref_blue = buf[0];
-
-      blackpos = MUSTEK_PP_101x_MAX_H_PIXEL / 4;
-
-      while ((abs (buf[blackpos] - buf[0]) >= 15) && (blackpos > 0))
-	blackpos--;
-
-      if (blackpos > 1)
-	blackposition[pos++] = blackpos;
-
-      if (pos == 5)
-	break;
-
-    }
-
-  blackpos = 0;
-
-  for (ctr = 0; ctr < pos; ctr++)
-    if (blackposition[ctr] > blackpos)
-      blackpos = blackposition[ctr];
-
-  if (blackpos < 0x66)
-    blackpos = 0x6A;
-
-  dev->blackpos = blackpos;
-  dev->Saved_CCD.skipcount = (blackpos + 12) & 0xFF;
-
-}
-
-static void
-min_color_levels_1013 (Mustek_PP_Device * dev)
-{
-
-  SANE_Byte buf[MUSTEK_PP_101x_MAX_H_PIXEL];
-  int ctr, sum = 0;
-
-  for (ctr = 0; ctr < 8; ctr++)
-    {
-
-      set_ccd_channel_1013 (dev, MUSTEK_PP_CHANNEL_RED);
-      set_sti (dev);
-      wait_bank_change (dev, dev->bank_count);
-
-      read_line_1013 (dev, buf, MUSTEK_PP_101x_MAX_H_PIXEL, 0, NULL, NULL);
-
-      reset_bank_count (dev);
-
-      sum += buf[3];
-
-    }
-
-  dev->ref_red = sum / 8;
-
-  sum = 0;
-
-  for (ctr = 0; ctr < 8; ctr++)
-    {
-
-      set_ccd_channel_1013 (dev, MUSTEK_PP_CHANNEL_GREEN);
-      set_sti (dev);
-      wait_bank_change (dev, dev->bank_count);
-
-      read_line_1013 (dev, buf, MUSTEK_PP_101x_MAX_H_PIXEL, 0, NULL, NULL);
-
-      reset_bank_count (dev);
-
-      sum += buf[3];
-
-    }
-
-  dev->ref_green = sum / 8;
-
-  sum = 0;
-
-  for (ctr = 0; ctr < 8; ctr++)
-    {
-
-      set_ccd_channel_1013 (dev, MUSTEK_PP_CHANNEL_BLUE);
-      set_sti (dev);
-      wait_bank_change (dev, dev->bank_count);
-
-      read_line_1013 (dev, buf, MUSTEK_PP_101x_MAX_H_PIXEL, 0, NULL, NULL);
-
-      reset_bank_count (dev);
-
-      sum += buf[3];
-
-    }
-
-  dev->ref_blue = sum / 8;
-
-}
-
-
-static void
-max_color_levels_1013 (Mustek_PP_Device * dev)
-{
-
-  int ctr, line, sum;
-  SANE_Byte rbuf[32][MUSTEK_PP_101x_MAX_H_PIXEL];
-  SANE_Byte gbuf[32][MUSTEK_PP_101x_MAX_H_PIXEL];
-  SANE_Byte bbuf[32][MUSTEK_PP_101x_MAX_H_PIXEL];
-
-  SANE_Byte maxbuf[32];
-
-  for (ctr = 0; ctr < 32; ctr++)
-    {
-
-      if (dev->CCD.mode == MUSTEK_PP_MODE_COLOR)
-	{
-
-	  set_ccd_channel_1013 (dev, MUSTEK_PP_CHANNEL_RED);
-	  motor_forward_1013 (dev);
-
-	  read_average_line_1013 (dev, rbuf[ctr], dev->params.pixels_per_line,
-				  dev->ref_red);
-
-	  set_ccd_channel_1013 (dev, MUSTEK_PP_CHANNEL_GREEN);
-	  set_sti (dev);
-
-	  read_average_line_1013 (dev, gbuf[ctr], dev->params.pixels_per_line,
-				  dev->ref_green);
-
-	  set_ccd_channel_1013 (dev, MUSTEK_PP_CHANNEL_BLUE);
-	  set_sti (dev);
-
-	  read_average_line_1013 (dev, bbuf[ctr], dev->params.pixels_per_line,
-				  dev->ref_blue);
-
-	}
-      else
-	{
-
-	  dev->CCD.channel = MUSTEK_PP_CHANNEL_GRAY;
-
-	  motor_forward_1013 (dev);
-
-	  read_average_line_1013 (dev, gbuf[ctr], dev->params.pixels_per_line,
-				  dev->ref_black);
-
-	}
-
-    }
-
-
-  for (ctr = 0; ctr < dev->params.pixels_per_line; ctr++)
-    {
-      for (line = 0; line < 32; line++)
-	maxbuf[line] = gbuf[line][ctr];
-
-      qsort (maxbuf, 32, sizeof (maxbuf[0]), compar);
-
-      sum = maxbuf[4] + maxbuf[5] + maxbuf[6] + maxbuf[7];
-
-      dev->calib_g[ctr] = sum / 4;
-
-    }
-
-  if (dev->CCD.mode == MUSTEK_PP_MODE_COLOR)
-    {
-
-      for (ctr = 0; ctr < dev->params.pixels_per_line; ctr++)
-	{
-	  for (line = 0; line < 32; line++)
-	    maxbuf[line] = rbuf[line][ctr];
-
-	  qsort (maxbuf, 32, sizeof (maxbuf[0]), compar);
-
-	  sum = maxbuf[4] + maxbuf[5] + maxbuf[6] + maxbuf[7];
-
-	  dev->calib_r[ctr] = sum / 4;
-
-	}
-
-      for (ctr = 0; ctr < dev->params.pixels_per_line; ctr++)
-	{
-	  for (line = 0; line < 32; line++)
-	    maxbuf[line] = bbuf[line][ctr];
-
-	  qsort (maxbuf, 32, sizeof (maxbuf[0]), compar);
-
-	  sum = maxbuf[4] + maxbuf[5] + maxbuf[6] + maxbuf[7];
-
-	  dev->calib_b[ctr] = sum / 4;
-
-	}
-
-    }
-
-}
-
-static void
-find_black_top_edge_1013 (Mustek_PP_Device * dev)
-{
-
-  int lines = 0, ctr, pos;
-  SANE_Byte buf[MUSTEK_PP_101x_MAX_H_PIXEL];
-
-  dev->CCD.channel = MUSTEK_PP_CHANNEL_GRAY;
-
-  do
-    {
-
-      motor_forward_1013 (dev);
-      wait_bank_change (dev, dev->bank_count);
-
-      read_line_1013
-	(dev, buf, MUSTEK_PP_101x_MAX_H_PIXEL, dev->ref_black, NULL, NULL);
-
-      reset_bank_count (dev);
-
-      pos = 0;
-
-      for (ctr = dev->blackpos; ctr > dev->blackpos - 10; ctr--)
-	if (buf[ctr] <= 15)
-	  pos++;
-
-    }
-  while ((pos >= 8) && (lines++ < 67));
-
-}
-
-static void
-calibrate_device_1013 (Mustek_PP_Device * dev)
-{
-
-  int saved_ppl = dev->params.pixels_per_line, ctr;
-
-  dev->Saved_CCD = dev->CCD;
-  dev->params.pixels_per_line = MUSTEK_PP_101x_MAX_H_PIXEL;
-  dev->CCD.hwres = dev->CCD.res = 300;
-  dev->CCD.mode = MUSTEK_PP_MODE_GRAYSCALE;
-  dev->CCD.skipcount = dev->CCD.skipimagebytes = 0;
-  dev->CCD.invert = SANE_FALSE;
-  dev->CCD.channel = MUSTEK_PP_CHANNEL_GRAY;
-
-  config_ccd_1013 (dev);
-  get_bank_count (dev);
-
-  find_black_side_edge_1013 (dev);
-
-  for (ctr = 0; ctr < 4; ctr++)
-    move_motor_1013 (dev, SANE_TRUE);
-
-  dev->CCD = dev->Saved_CCD;
-
-  dev->CCD.hwres = dev->CCD.res = 300;
-  dev->CCD.skipcount = dev->CCD.skipimagebytes = 0;
-  dev->CCD.invert = SANE_FALSE;
-
-  config_ccd_1013 (dev);
-  get_bank_count (dev);
-
-  if ((dev->CCD.mode == MUSTEK_PP_MODE_COLOR) && (dev->ccd_type != 0))
-    min_color_levels_1013 (dev);
-
-  dev->CCD = dev->Saved_CCD;
-  dev->params.pixels_per_line = saved_ppl;
-  dev->CCD.invert = SANE_FALSE;
-
-  config_ccd_1013 (dev);
-  get_bank_count (dev);
-
-  max_color_levels_1013 (dev);
-
-  dev->params.pixels_per_line = MUSTEK_PP_101x_MAX_H_PIXEL;
-  dev->CCD.mode = MUSTEK_PP_MODE_GRAYSCALE;
-  dev->CCD.hwres = dev->CCD.res = 300;
-  dev->CCD.skipcount = dev->CCD.skipimagebytes = 0;
-  dev->CCD.invert = SANE_FALSE;
-
-  config_ccd_1013 (dev);
-  get_bank_count (dev);
-
-  find_black_top_edge_1013 (dev);
-
-  dev->CCD = dev->Saved_CCD;
-
-  dev->params.pixels_per_line = saved_ppl;
-
-  config_ccd_1013 (dev);
   get_bank_count (dev);
 
 }
-
-static void
-get_grayscale_line_1013 (Mustek_PP_Device * dev, SANE_Byte * buf)
-{
-
-  int skips;
-
-  dev->line_diff += SANE_FIX (300.0 / (float) dev->CCD.res);
-
-  skips = (dev->line_diff >> SANE_FIXED_SCALE_SHIFT);
-
-  while (--skips)
-    {
-      motor_forward_1013 (dev);
-      wait_bank_change (dev, dev->bank_count);
-      reset_bank_count (dev);
-    }
-
-  dev->line_diff &= 0xFFFF;
-
-  motor_forward_1013 (dev);
-  wait_bank_change (dev, dev->bank_count);
-
-  read_line_1013 (dev, buf, dev->params.pixels_per_line, dev->ref_black,
-		  dev->calib_g,
-		  (dev->val[OPT_CUSTOM_GAMMA].w ?
-		   dev->gamma_table[0] : NULL));
-
-  reset_bank_count (dev);
-
-}
-
-static void
-get_lineart_line_1013 (Mustek_PP_Device * dev, SANE_Byte * buf)
-{
-
-  int ctr;
-  SANE_Byte gbuf[MUSTEK_PP_101x_MAX_H_PIXEL];
-
-  get_grayscale_line_1013 (dev, gbuf);
-
-  memset (buf, 0xFF, dev->params.bytes_per_line);
-
-  for (ctr = 0; ctr < dev->params.pixels_per_line; ctr++)
-    buf[ctr >> 3] ^= ((gbuf[ctr] > 127) ? (1 << (7 - ctr % 8)) : 0);
-
-}
-
-static void
-get_color_line_1013 (Mustek_PP_Device * dev, SANE_Byte * buf)
-{
-
-  SANE_Byte *red, *blue, *src, *dest;
-  int gotline = 0, ctr;
-  int gored, goblue, gogreen;
-  int step = dev->CCD.line_step;
-
-  do
-    {
-
-      red = dev->red[dev->redline];
-      blue = dev->blue[dev->blueline];
-
-      dev->ccd_line++;
-
-      if ((dev->rdiff >> SANE_FIXED_SCALE_SHIFT) == dev->ccd_line)
-	{
-	  gored = 1;
-	  dev->rdiff += step;
-	}
-      else
-	gored = 0;
-
-      if ((dev->bdiff >> SANE_FIXED_SCALE_SHIFT) == dev->ccd_line)
-	{
-	  goblue = 1;
-	  dev->bdiff += step;
-	}
-      else
-	goblue = 0;
-
-      if ((dev->gdiff >> SANE_FIXED_SCALE_SHIFT) == dev->ccd_line)
-	{
-	  gogreen = 1;
-	  dev->gdiff += step;
-	}
-      else
-	gogreen = 0;
-
-      if (!gored && !goblue && !gogreen)
-	{
-	  motor_forward_1013 (dev);
-	  wait_bank_change (dev, dev->bank_count);
-	  reset_bank_count (dev);
-	  if (dev->ccd_line >= (dev->CCD.line_step >> SANE_FIXED_SCALE_SHIFT))
-	    dev->redline = ++dev->redline % dev->green_offs;
-	  if (dev->ccd_line >=
-	      dev->blue_offs + (dev->CCD.line_step >> SANE_FIXED_SCALE_SHIFT))
-	    dev->blueline = ++dev->blueline % dev->blue_offs;
-	  continue;
-	}
-
-      if (gored)
-	dev->CCD.channel = MUSTEK_PP_CHANNEL_RED;
-      else if (goblue)
-	dev->CCD.channel = MUSTEK_PP_CHANNEL_BLUE;
-      else
-	dev->CCD.channel = MUSTEK_PP_CHANNEL_GREEN;
-
-      motor_forward_1013 (dev);
-      wait_bank_change (dev, dev->bank_count);
-
-      if (dev->ccd_line >= dev->green_offs && gogreen)
-	{
-	  src = red;
-	  dest = buf;
-
-	  for (ctr = 0; ctr < dev->params.pixels_per_line; ctr++)
-	    {
-	      *dest = *src++;
-	      dest += 3;
-	    }
-	}
-
-      if (gored)
-	{
-
-	  read_line_1013 (dev, red, dev->params.pixels_per_line, dev->ref_red,
-			  dev->calib_r,
-			  (dev->val[OPT_CUSTOM_GAMMA].w ?
-			   dev->gamma_table[1] : NULL));
-
-	  reset_bank_count (dev);
-
-	}
-
-      dev->redline = ++dev->redline % dev->green_offs;
-
-      if (dev->ccd_line >= dev->green_offs && gogreen)
-	{
-	  src = blue;
-	  dest = buf + 2;
-
-
-	  for (ctr = 0; ctr < dev->params.pixels_per_line; ctr++)
-	    {
-	      *dest = *src++;
-	      dest += 3;
-	    }
-
-	}
-
-      if (goblue)
-	{
-	  if (gored)
-	    {
-	      set_ccd_channel_1013 (dev, MUSTEK_PP_CHANNEL_BLUE);
-	      set_sti (dev);
-	      wait_bank_change (dev, dev->bank_count);
-	    }
-
-	  read_line_1013 (dev, blue, dev->params.pixels_per_line,
-			  dev->ref_blue, dev->calib_b,
-			  (dev->val[OPT_CUSTOM_GAMMA].w ? dev->
-			   gamma_table[3] : NULL));
-
-	  reset_bank_count (dev);
-
-	}
-
-      if (dev->ccd_line >=
-	  dev->blue_offs + (dev->CCD.line_step >> SANE_FIXED_SCALE_SHIFT))
-	dev->blueline = ++dev->blueline % dev->blue_offs;
-
-      if (gogreen)
-	{
-
-	  if (gored || goblue)
-	    {
-	      set_ccd_channel_1013 (dev, MUSTEK_PP_CHANNEL_GREEN);
-	      set_sti (dev);
-	      wait_bank_change (dev, dev->bank_count);
-	    }
-
-	  read_line_1013 (dev, dev->green, dev->params.pixels_per_line,
-			  dev->ref_green, dev->calib_g,
-			  (dev->val[OPT_CUSTOM_GAMMA].w ?
-			   dev->gamma_table[2] : NULL));
-
-	  reset_bank_count (dev);
-
-	  src = dev->green;
-	  dest = buf + 1;
-
-	  for (ctr = 0; ctr < dev->params.pixels_per_line; ctr++)
-	    {
-	      *dest = *src++;
-	      dest += 3;
-	    }
-
-	  gotline = 1;
-	}
-
-    }
-  while (!gotline);
-
-}
-
 
 /* these functions are for the 1015 chipset */
 
 
 static void
-wait_motor_1015 (Mustek_PP_Device * dev)
+motor_control_1015 (Mustek_PP_Device * dev, u_char control)
 {
+
+
   u_char val;
+
+  DBG (4, "motor_controll_1015: control code 0x%02x\n",
+       (unsigned int) control);
+
+  if (dev->desc->use600 == SANE_FALSE)
+    sanei_pa4s2_writebyte (dev->fd, 6, 0xF6);
+  sanei_pa4s2_writebyte (dev->fd, 6, 0x22);
+  sanei_pa4s2_writebyte (dev->fd, 5, control);
+  sanei_pa4s2_writebyte (dev->fd, 6, 0x02);
 
   do
     {
@@ -1241,33 +1813,24 @@ wait_motor_1015 (Mustek_PP_Device * dev)
 }
 
 static void
-motor_control_1015 (Mustek_PP_Device * dev, u_char control)
-{
-
-  sanei_pa4s2_writebyte (dev->fd, 6, 0xF6);
-  sanei_pa4s2_writebyte (dev->fd, 6, 0x22);
-  sanei_pa4s2_writebyte (dev->fd, 5, control);
-  sanei_pa4s2_writebyte (dev->fd, 6, 0x02);
-
-  wait_motor_1015 (dev);
-
-}
-
-static void
 return_home_1015 (Mustek_PP_Device * dev, SANE_Bool nowait)
 {
 
   u_char ishome, control = 0xC3;
 
-  switch (dev->ccd_type)
+  if (dev->desc->use600 == SANE_TRUE)
     {
-    case 1:
-      control = 0x9B;
-      break;
-	    
-    default:
-      control = 0xC3;
-      break; 
+
+      switch (dev->ccd_type)
+	{
+	case 1:
+	  control = 0xD3;
+	  break;
+
+	default:
+	  control = 0xC3;
+	  break;
+	}
     }
 
   motor_control_1015 (dev, control);
@@ -1291,166 +1854,42 @@ return_home_1015 (Mustek_PP_Device * dev, SANE_Bool nowait)
 }
 
 static void
-set_ccd_channel_1015 (Mustek_PP_Device * dev, int channel)
-{
-
-  u_char chancode = chan_codes_1015[channel];
-
-  dev->CCD.channel = channel;
-  dev->image_control &= 0x34;
-  chancode |= dev->image_control;
-  dev->image_control = chancode;
-
-  sanei_pa4s2_writebyte (dev->fd, 6, chancode);
-
-}
-
-static void
-set_start_channel_1015 (Mustek_PP_Device * dev)
-{
-
-  int channel = 0;
-
-  switch (dev->CCD.mode)
-    {
-    case MUSTEK_PP_MODE_LINEART:
-    case MUSTEK_PP_MODE_GRAYSCALE:
-      channel = MUSTEK_PP_CHANNEL_GRAY;
-      break;
-
-    case MUSTEK_PP_MODE_COLOR:
-      channel = MUSTEK_PP_CHANNEL_RED;
-      break;
-
-    }
-
-  set_ccd_channel_1015 (dev, channel);
-
-}
-
-static void
-set_invert_1015 (Mustek_PP_Device * dev)
-{
-
-  dev->image_control &= 0xE4;
-
-  if (dev->CCD.invert == SANE_FALSE)
-    dev->image_control |= 0x10;
-
-  sanei_pa4s2_writebyte (dev->fd, 6, dev->image_control);
-
-}
-
-static void
-set_initial_skip_1015 (Mustek_PP_Device * dev)
-{
-
-  sanei_pa4s2_writebyte (dev->fd, 6, 0x41);
-
-  dev->CCD.adjustskip = dev->CCD.skipcount + dev->CCD.skipimagebytes;
-
-  sanei_pa4s2_writebyte (dev->fd, 5, dev->CCD.adjustskip / 32 + 1);
-
-  dev->CCD.adjustskip %= 32;
-
-}
-
-static void
-config_ccd_1015 (Mustek_PP_Device * dev)
-{
-
-  u_char val;
-
-  if (dev->CCD.res != 0)
-    dev->CCD.res_step =
-      SANE_FIX ((float) dev->CCD.hwres / (float) dev->CCD.res);
-
-  set_dpi_value (dev);
-
-  dev->image_control = 4;
-
-  set_start_channel_1015 (dev);
-  set_invert_1015 (dev);
-
-  sanei_pa4s2_writebyte (dev->fd, 6, 0x23);
-  sanei_pa4s2_writebyte (dev->fd, 5, 0x00);
-  sanei_pa4s2_writebyte (dev->fd, 6, 0x43);
-
-  switch (dev->ccd_type)
-    {
-    case 1:
-      val = 0x6B;
-      break;
-    case 4:
-      val = 0x9F;
-      break;
-    default:
-      val = 0x92;
-      break;
-    }
-
-  sanei_pa4s2_writebyte (dev->fd, 5, val);
-  sanei_pa4s2_writebyte (dev->fd, 6, 0x03);
-
-  sanei_pa4s2_writebyte (dev->fd, 6, 0x37);
-  reset_bank_count (dev);
-
-  sanei_pa4s2_writebyte (dev->fd, 6, 0x27);
-  sanei_pa4s2_writebyte (dev->fd, 6, 0x67);
-  sanei_pa4s2_writebyte (dev->fd, 6, 0x17);
-  sanei_pa4s2_writebyte (dev->fd, 6, 0x77);
-
-  set_initial_skip_1015 (dev);
-
-  sanei_pa4s2_writebyte (dev->fd, 6, 0x81);
-
-  switch (dev->ccd_type)
-    {
-    case 1:
-      val = 0xA8;
-      break;
-    case 0:
-      val = 0x8A;
-      break;
-    default:
-      val = 0xA8;
-      break;
-    }
-
-  sanei_pa4s2_writebyte (dev->fd, 5, val);
-
-  set_line_adjust (dev);
-
-  get_bank_count (dev);
-
-}
-
-static void
 motor_forward_1015 (Mustek_PP_Device * dev)
 {
-  u_char control=0x1B;
+  u_char control = 0x1B;
 
   dev->motor_step++;
-  set_led (dev);
+  if (dev->desc->use600 == SANE_FALSE)
+    set_led (dev);
 
-  switch (dev->ccd_type)
+  if (dev->desc->use600 == SANE_TRUE)
     {
-    case 1:
-      control = 0x43;
-      break;
 
-    default:
-      control = 0x1B;
-      break;
+      switch (dev->ccd_type)
+	{
+	case 1:
+	  control = dev->motor_ctrl;
+	  break;
+
+	default:
+	  control = 0x1B;
+	  break;
+	}
     }
 
   motor_control_1015 (dev, control);
+  /*
 
-  set_ccd_channel_1015 (dev, dev->CCD.channel);
+     if ((dev->desc->use600 == SANE_TRUE) && (dev->CCD.mode != MUSTEK_PP_MODE_COLOR) && (dev->CCD.hwres < 300))
+     motor_control_1015 (dev, control); */
+
+  if (dev->desc->use600 == SANE_FALSE)
+    set_ccd_channel_1015 (dev, dev->CCD.channel);
   set_sti (dev);
 
 }
 
+/*
 static void
 motor_backward_1015 (Mustek_PP_Device * dev)
 {
@@ -1478,663 +1917,210 @@ motor_backward_1015 (Mustek_PP_Device * dev)
   set_sti (dev);
 
 }
+*/
+
 
 static void
-move_motor_1015 (Mustek_PP_Device * dev, int forward)
+set_ccd_channel_1015 (Mustek_PP_Device * dev, int channel)
 {
 
-  if (forward == SANE_TRUE)
-    motor_forward_1015 (dev);
-  else
-    motor_backward_1015 (dev);
+  u_char chancode = chan_codes_1015[channel];
 
-  wait_bank_change (dev, dev->bank_count);
-  reset_bank_count (dev);
-
-
-}
-
-static void
-read_line_1015 (Mustek_PP_Device * dev, SANE_Byte * buf, SANE_Int pixel,
-		SANE_Int RefBlack, SANE_Byte * calib, SANE_Int * gamma)
-{
-
-  SANE_Byte *cal = calib;
-  u_char color;
-  int ctr, skips = dev->CCD.adjustskip + 1, cval;
-
-  if (pixel <= 0)
-    return;
-
-  sanei_pa4s2_readbegin (dev->fd, 1);
-
-  if (dev->CCD.hwres == dev->CCD.res)
+  dev->CCD.channel = channel;
+  if (dev->desc->use600 == SANE_TRUE)
     {
-
-      while (skips--)
-	sanei_pa4s2_readbyte (dev->fd, &color);
-
-      for (ctr = 0; ctr < pixel; ctr++)
-	{
-
-	  sanei_pa4s2_readbyte (dev->fd, &color);
-
-	  cval = color;
-
-	  if (cval < RefBlack)
-	    cval = 0;
-	  else
-	    cval -= RefBlack;
-
-	  if (cal)
-	    {
-	      if (cval >= cal[ctr])
-		cval = 0xFF;
-	      else
-		{
-		  cval <<= 8;
-		  cval /= (int) cal[ctr];
-		}
-	    }
-
-	  if (gamma)
-	    cval = gamma[cval];
-
-	  buf[ctr] = cval;
-
-	}
-
+      chancode |= 0x14;
     }
   else
     {
 
-      int pos = 0, bpos = 0;
-
-      while (skips--)
-	sanei_pa4s2_readbyte (dev->fd, &color);
-
-      ctr = 0;
-
-      do
-	{
-
-	  sanei_pa4s2_readbyte (dev->fd, &color);
-
-	  cval = color;
-
-	  if (ctr < (pos >> SANE_FIXED_SCALE_SHIFT))
-	    {
-	      ctr++;
-	      continue;
-	    }
-
-	  ctr++;
-	  pos += dev->CCD.res_step;
-
-	  if (cval < RefBlack)
-	    cval = 0;
-	  else
-	    cval -= RefBlack;
-
-	  if (cal)
-	    {
-	      if (cval >= cal[bpos])
-		cval = 0xFF;
-	      else
-		{
-		  cval <<= 8;
-		  cval /= (int) cal[bpos];
-		}
-	    }
-
-	  if (gamma)
-	    cval = gamma[cval];
-
-	  buf[bpos++] = cval;
-
-	}
-      while (bpos < pixel);
+      dev->image_control &= 0x34;
+      chancode |= dev->image_control;
 
     }
 
-  sanei_pa4s2_readend (dev->fd);
+  dev->image_control = chancode;
 
-}
-
-static void
-read_average_line_1015 (Mustek_PP_Device * dev, SANE_Byte * buf, int pixel,
-			int RefBlack)
-{
-
-  SANE_Byte lbuf[4][MUSTEK_PP_101x_MAX_H_PIXEL * 2];
-  int ctr, sum;
-
-  for (ctr = 0; ctr < 4; ctr++)
-    {
-
-      wait_bank_change (dev, dev->bank_count);
-      read_line_1015 (dev, lbuf[ctr], pixel, RefBlack, NULL, NULL);
-      reset_bank_count (dev);
-      if (ctr < 3)
-	set_sti (dev);
-
-    }
-
-  for (ctr = 0; ctr < pixel; ctr++)
-    {
-
-      sum = lbuf[0][ctr] + lbuf[1][ctr] + lbuf[2][ctr] + lbuf[3][ctr];
-
-      buf[ctr] = (sum / 4);
-
-    }
-
-}
-
-static void
-find_black_side_edge_1015 (Mustek_PP_Device * dev)
-{
-  SANE_Byte buf[MUSTEK_PP_101x_MAX_H_PIXEL * 2];
-  SANE_Byte blackposition[5];
-  int pos = 0, ctr, blackpos;
-
-  for (ctr = 0; ctr < 20; ctr++)
-    {
-
-      motor_forward_1015 (dev);
-      wait_bank_change (dev, dev->bank_count);
-      read_line_1015 (dev, buf, dev->desc->max_h_size, 0, NULL, NULL);
-      reset_bank_count (dev);
-
-      dev->ref_black = dev->ref_red = dev->ref_green = dev->ref_blue = buf[0];
-
-      blackpos = dev->desc->max_h_size / 4;
-
-      while ((abs (buf[blackpos] - buf[0]) >= 15) && (blackpos > 0))
-	blackpos--;
-
-      if (blackpos > 1)
-	blackposition[pos++] = blackpos;
-
-      if (pos == 5)
-	break;
-
-    }
-
-  blackpos = 0;
-
-  for (ctr = 0; ctr < pos; ctr++)
-    if (blackposition[ctr] > blackpos)
-      blackpos = blackposition[ctr];
-
-  if (blackpos < 0x66)
-    blackpos = 0x6A;
-
-  dev->blackpos = blackpos;
-  dev->Saved_CCD.skipcount = (blackpos + 12) & 0xFF;
-
-}
-
-static void
-min_color_levels_1015 (Mustek_PP_Device * dev)
-{
-
-  SANE_Byte buf[MUSTEK_PP_101x_MAX_H_PIXEL * 2];
-  int ctr, sum = 0;
-
-  for (ctr = 0; ctr < 8; ctr++)
-    {
-
-      set_ccd_channel_1015 (dev, MUSTEK_PP_CHANNEL_RED);
-      set_sti (dev);
-      wait_bank_change (dev, dev->bank_count);
-
-      read_line_1015 (dev, buf, dev->desc->max_h_size, 0, NULL, NULL);
-
-      reset_bank_count (dev);
-
-      sum += buf[3];
-
-    }
-
-  dev->ref_red = sum / 8;
-
-  sum = 0;
-
-  for (ctr = 0; ctr < 8; ctr++)
-    {
-
-      set_ccd_channel_1015 (dev, MUSTEK_PP_CHANNEL_GREEN);
-      set_sti (dev);
-      wait_bank_change (dev, dev->bank_count);
-
-      read_line_1015 (dev, buf, dev->desc->max_h_size, 0, NULL, NULL);
-
-      reset_bank_count (dev);
-
-      sum += buf[3];
-
-    }
-
-  dev->ref_green = sum / 8;
-
-  sum = 0;
-
-  for (ctr = 0; ctr < 8; ctr++)
-    {
-
-      set_ccd_channel_1015 (dev, MUSTEK_PP_CHANNEL_BLUE);
-      set_sti (dev);
-      wait_bank_change (dev, dev->bank_count);
-
-      read_line_1015 (dev, buf, dev->desc->max_h_size, 0, NULL, NULL);
-
-      reset_bank_count (dev);
-
-      sum += buf[3];
-
-    }
-
-  dev->ref_blue = sum / 8;
+  sanei_pa4s2_writebyte (dev->fd, 6, chancode);
 
 }
 
 
 static void
-max_color_levels_1015 (Mustek_PP_Device * dev)
+config_ccd_1015 (Mustek_PP_Device * dev)
 {
 
-  int ctr, line, sum;
-  SANE_Byte rbuf[32][MUSTEK_PP_101x_MAX_H_PIXEL * 2];
-  SANE_Byte gbuf[32][MUSTEK_PP_101x_MAX_H_PIXEL * 2];
-  SANE_Byte bbuf[32][MUSTEK_PP_101x_MAX_H_PIXEL * 2];
+  u_char val;
 
-  SANE_Byte maxbuf[32];
+  if (dev->CCD.res != 0)
+    dev->CCD.res_step =
+      SANE_FIX ((float) dev->CCD.hwres / (float) dev->CCD.res);
 
-  for (ctr = 0; ctr < 32; ctr++)
+  if (dev->desc->use600 == SANE_TRUE)
     {
 
-      if (dev->CCD.mode == MUSTEK_PP_MODE_COLOR)
-	{
-
-	  set_ccd_channel_1015 (dev, MUSTEK_PP_CHANNEL_RED);
-	  motor_forward_1015 (dev);
-
-	  read_average_line_1015 (dev, rbuf[ctr], dev->params.pixels_per_line,
-				  dev->ref_red);
-
-	  set_ccd_channel_1015 (dev, MUSTEK_PP_CHANNEL_GREEN);
-	  set_sti (dev);
-
-	  read_average_line_1015 (dev, gbuf[ctr], dev->params.pixels_per_line,
-				  dev->ref_green);
-
-	  set_ccd_channel_1015 (dev, MUSTEK_PP_CHANNEL_BLUE);
-	  set_sti (dev);
-
-	  read_average_line_1015 (dev, bbuf[ctr], dev->params.pixels_per_line,
-				  dev->ref_blue);
-
-	}
+      if (dev->first_time)
+	sanei_pa4s2_writebyte (dev->fd, 6, 0x86);
       else
-	{
+	sanei_pa4s2_writebyte (dev->fd, 6, 0xC6);
 
-	  dev->CCD.channel = MUSTEK_PP_CHANNEL_GRAY;
-
-	  motor_forward_1015 (dev);
-
-	  read_average_line_1015 (dev, gbuf[ctr], dev->params.pixels_per_line,
-				  dev->ref_black);
-
-	}
-
+      dev->first_time = 0;
     }
 
+  set_dpi_value (dev);
 
-  for (ctr = 0; ctr < dev->params.pixels_per_line; ctr++)
+  dev->image_control = 4;
+
+  /* set_start_channel_1015 (dev); */
+
+  switch (dev->CCD.mode)
     {
-      for (line = 0; line < 32; line++)
-	maxbuf[line] = gbuf[line][ctr];
+    case MUSTEK_PP_MODE_LINEART:
+    case MUSTEK_PP_MODE_GRAYSCALE:
+      dev->CCD.channel = MUSTEK_PP_CHANNEL_GRAY;
+      break;
 
-      qsort (maxbuf, 32, sizeof (maxbuf[0]), compar);
-
-      sum = maxbuf[4] + maxbuf[5] + maxbuf[6] + maxbuf[7];
-
-      dev->calib_g[ctr] = sum / 4;
-
-    }
-
-  if (dev->CCD.mode == MUSTEK_PP_MODE_COLOR)
-    {
-
-      for (ctr = 0; ctr < dev->params.pixels_per_line; ctr++)
-	{
-	  for (line = 0; line < 32; line++)
-	    maxbuf[line] = rbuf[line][ctr];
-
-	  qsort (maxbuf, 32, sizeof (maxbuf[0]), compar);
-
-	  sum = maxbuf[4] + maxbuf[5] + maxbuf[6] + maxbuf[7];
-
-	  dev->calib_r[ctr] = sum / 4;
-
-	}
-
-      for (ctr = 0; ctr < dev->params.pixels_per_line; ctr++)
-	{
-	  for (line = 0; line < 32; line++)
-	    maxbuf[line] = bbuf[line][ctr];
-
-	  qsort (maxbuf, 32, sizeof (maxbuf[0]), compar);
-
-	  sum = maxbuf[4] + maxbuf[5] + maxbuf[6] + maxbuf[7];
-
-	  dev->calib_b[ctr] = sum / 4;
-
-	}
+    case MUSTEK_PP_MODE_COLOR:
+      dev->CCD.channel = MUSTEK_PP_CHANNEL_RED;
+      break;
 
     }
 
-}
+  set_ccd_channel_1015 (dev, dev->CCD.channel);
 
-static void
-find_black_top_edge_1015 (Mustek_PP_Device * dev)
-{
 
-  int lines = 0, ctr, pos;
-  SANE_Byte buf[MUSTEK_PP_101x_MAX_H_PIXEL * 2];
+  /* set_invert_1015 (dev); */
 
-  dev->CCD.channel = MUSTEK_PP_CHANNEL_GRAY;
+  dev->image_control &= 0xE4;
 
-  do
+  if (dev->CCD.invert == SANE_FALSE)
+    dev->image_control |= 0x10;
+
+
+  if (dev->desc->use600 == SANE_TRUE)
     {
 
-      motor_forward_1015 (dev);
-      wait_bank_change (dev, dev->bank_count);
-
-      read_line_1015
-	(dev, buf, dev->desc->max_h_size, dev->ref_black, NULL, NULL);
-
-      reset_bank_count (dev);
-
-      pos = 0;
-
-      for (ctr = dev->blackpos; ctr > dev->blackpos - 10; ctr--)
-	if (buf[ctr] <= 15)
-	  pos++;
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x13);
+      sanei_pa4s2_writebyte (dev->fd, 5, dev->unknown_value);	/* FIXME */
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x03);
 
     }
-  while ((pos >= 8) && (lines++ < 67));
-
-}
-
-static void
-calibrate_device_1015 (Mustek_PP_Device * dev)
-{
-
-  int saved_ppl = dev->params.pixels_per_line, ctr;
-
-  dev->Saved_CCD = dev->CCD;
-  dev->params.pixels_per_line = dev->desc->max_h_size;
-  dev->CCD.hwres = dev->CCD.res = dev->desc->max_res;
-  dev->CCD.mode = MUSTEK_PP_MODE_GRAYSCALE;
-  dev->CCD.skipcount = dev->CCD.skipimagebytes = 0;
-  dev->CCD.invert = SANE_FALSE;
-  dev->CCD.channel = MUSTEK_PP_CHANNEL_GRAY;
-
-  config_ccd_1015 (dev);
-  get_bank_count (dev);
-
-  find_black_side_edge_1015 (dev);
-
-  for (ctr = 0; ctr < 4; ctr++)
-    move_motor_1015 (dev, SANE_TRUE);
-
-  dev->CCD = dev->Saved_CCD;
-
-  dev->CCD.hwres = dev->CCD.res = dev->desc->max_res;
-  dev->CCD.skipcount = dev->CCD.skipimagebytes = 0;
-  dev->CCD.invert = SANE_FALSE;
-
-  config_ccd_1015 (dev);
-  get_bank_count (dev);
-
-  if ((dev->CCD.mode == MUSTEK_PP_MODE_COLOR) && (dev->ccd_type != 0))
-    min_color_levels_1015 (dev);
-
-  dev->CCD = dev->Saved_CCD;
-  dev->params.pixels_per_line = saved_ppl;
-  dev->CCD.invert = SANE_FALSE;
-
-  config_ccd_1015 (dev);
-  get_bank_count (dev);
-
-  max_color_levels_1015 (dev);
-
-  dev->params.pixels_per_line = dev->desc->max_h_size;
-  dev->CCD.mode = MUSTEK_PP_MODE_GRAYSCALE;
-  dev->CCD.hwres = dev->CCD.res = dev->desc->max_res;
-  dev->CCD.skipcount = dev->CCD.skipimagebytes = 0;
-  dev->CCD.invert = SANE_FALSE;
-
-  config_ccd_1015 (dev);
-  get_bank_count (dev);
-
-  find_black_top_edge_1015 (dev);
-
-  dev->CCD = dev->Saved_CCD;
-
-  dev->params.pixels_per_line = saved_ppl;
-
-  config_ccd_1015 (dev);
-  get_bank_count (dev);
-
-}
-
-static void
-get_grayscale_line_1015 (Mustek_PP_Device * dev, SANE_Byte * buf)
-{
-
-  int skips;
-
-  dev->line_diff += SANE_FIX (300.0 / (float) dev->CCD.res);
-
-  skips = (dev->line_diff >> SANE_FIXED_SCALE_SHIFT);
-
-  while (--skips)
+  else
     {
-      motor_forward_1015 (dev);
-      wait_bank_change (dev, dev->bank_count);
-      reset_bank_count (dev);
+      sanei_pa4s2_writebyte (dev->fd, 6, dev->image_control);
     }
 
-  dev->line_diff &= 0xFFFF;
+  sanei_pa4s2_writebyte (dev->fd, 6, 0x23);
+  sanei_pa4s2_writebyte (dev->fd, 5, 0x00);
 
-  motor_forward_1015 (dev);
-  wait_bank_change (dev, dev->bank_count);
+  if (dev->desc->use600 == SANE_TRUE)
+    sanei_pa4s2_writebyte (dev->fd, 6, 0x03);
 
-  read_line_1015 (dev, buf, dev->params.pixels_per_line, dev->ref_black,
-		  dev->calib_g,
-		  (dev->val[OPT_CUSTOM_GAMMA].w ?
-		   dev->gamma_table[0] : NULL));
+  sanei_pa4s2_writebyte (dev->fd, 6, 0x43);
 
+  switch (dev->ccd_type)
+    {
+    case 1:
+      if (dev->desc->use600 == SANE_TRUE)
+	val = 0x0F;
+      else
+	val = 0x6B;
+      break;
+    case 4:
+      val = 0x9F;
+      break;
+    default:
+      val = 0x92;
+      break;
+    }
+
+  sanei_pa4s2_writebyte (dev->fd, 5, val);
+  sanei_pa4s2_writebyte (dev->fd, 6, 0x03);
+
+  if (dev->desc->use600 == SANE_TRUE)
+    sanei_pa4s2_writebyte (dev->fd, 6, 0x45);	/* or 0x05 for no 8kbank */
+
+  sanei_pa4s2_writebyte (dev->fd, 6, 0x37);
   reset_bank_count (dev);
 
-}
+  sanei_pa4s2_writebyte (dev->fd, 6, 0x27);
+  sanei_pa4s2_writebyte (dev->fd, 6, 0x67);
+  sanei_pa4s2_writebyte (dev->fd, 6, 0x17);
+  sanei_pa4s2_writebyte (dev->fd, 6, 0x77);
 
-static void
-get_lineart_line_1015 (Mustek_PP_Device * dev, SANE_Byte * buf)
-{
+  /* set_initial_skip_1015 (dev); */
 
-  int ctr;
-  SANE_Byte gbuf[MUSTEK_PP_101x_MAX_H_PIXEL];
+  sanei_pa4s2_writebyte (dev->fd, 6, 0x41);
 
-  get_grayscale_line_1015 (dev, gbuf);
+  dev->CCD.adjustskip = dev->CCD.skipcount + dev->CCD.skipimagebytes;
 
-  memset (buf, 0xFF, dev->params.bytes_per_line);
+  /* if (dev->CCD.mode == MUSTEK_PP_MODE_COLOR)
+     dev->CCD.adjustskip <<= 3; */
 
-  for (ctr = 0; ctr < dev->params.pixels_per_line; ctr++)
-    buf[ctr >> 3] ^= ((gbuf[ctr] > 127) ? (1 << (7 - ctr % 8)) : 0);
 
-}
+  if ((dev->desc->use600 == SANE_TRUE) && (dev->CCD.adjustskip > 32))
+    dev->CCD.adjustskip += 26;
 
-static void
-get_color_line_1015 (Mustek_PP_Device * dev, SANE_Byte * buf)
-{
+  sanei_pa4s2_writebyte (dev->fd, 5,
+			 dev->CCD.adjustskip / 32 + (dev->desc->use600 ==
+						     SANE_TRUE ? 0 : 1));
 
-  SANE_Byte *red, *blue, *src, *dest;
-  int gotline = 0, ctr;
-  int gored, goblue, gogreen;
-  int step = dev->CCD.line_step;
+/*  if (dev->desc->use600 == SANE_FALSE)  */
+  dev->CCD.adjustskip %= 32;
 
-  do
+
+  if (dev->desc->use600 == SANE_TRUE)
+    sanei_pa4s2_writebyte (dev->fd, 6, 0x01);
+
+  sanei_pa4s2_writebyte (dev->fd, 6, 0x81);
+
+  /* expose time */
+  switch (dev->ccd_type)
+    {
+    case 1:
+
+      if (dev->desc->use600 == SANE_TRUE)
+	val = dev->expose_time;
+      else
+	val = 0xA8;
+      break;
+    case 0:
+      val = 0x8A;
+      break;
+    default:
+      val = 0xA8;
+      break;
+    }
+
+  sanei_pa4s2_writebyte (dev->fd, 5, val);
+
+  sanei_pa4s2_writebyte (dev->fd, 6, 0x01);
+
+  if ((dev->desc->use600 == SANE_TRUE) && (dev->send_voltages == 1))
     {
 
-      red = dev->red[dev->redline];
-      blue = dev->blue[dev->blueline];
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x81);
+      sanei_pa4s2_writebyte (dev->fd, 5, 0xFD);
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x01);
 
-      dev->ccd_line++;
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x13);
+      sanei_pa4s2_writebyte (dev->fd, 5, 0xFE);
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x03);
 
-      if ((dev->rdiff >> SANE_FIXED_SCALE_SHIFT) == dev->ccd_line)
-	{
-	  gored = 1;
-	  dev->rdiff += step;
-	}
-      else
-	gored = 0;
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x10);
+      sanei_pa4s2_writebyte (dev->fd, 5, dev->voltages[0]);
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x20);
+      sanei_pa4s2_writebyte (dev->fd, 5, dev->voltages[1]);
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x40);
+      sanei_pa4s2_writebyte (dev->fd, 5, dev->voltages[2]);
+      sanei_pa4s2_writebyte (dev->fd, 6, 0x00);
 
-      if ((dev->bdiff >> SANE_FIXED_SCALE_SHIFT) == dev->ccd_line)
-	{
-	  goblue = 1;
-	  dev->bdiff += step;
-	}
-      else
-	goblue = 0;
-
-      if ((dev->gdiff >> SANE_FIXED_SCALE_SHIFT) == dev->ccd_line)
-	{
-	  gogreen = 1;
-	  dev->gdiff += step;
-	}
-      else
-	gogreen = 0;
-
-      if (!gored && !goblue && !gogreen)
-	{
-	  motor_forward_1015 (dev);
-	  wait_bank_change (dev, dev->bank_count);
-	  reset_bank_count (dev);
-	  if (dev->ccd_line >= (dev->CCD.line_step >> SANE_FIXED_SCALE_SHIFT))
-	    dev->redline = ++dev->redline % dev->green_offs;
-	  if (dev->ccd_line >=
-	      dev->blue_offs + (dev->CCD.line_step >> SANE_FIXED_SCALE_SHIFT))
-	    dev->blueline = ++dev->blueline % dev->blue_offs;
-	  continue;
-	}
-
-      if (gored)
-	dev->CCD.channel = MUSTEK_PP_CHANNEL_RED;
-      else if (goblue)
-	dev->CCD.channel = MUSTEK_PP_CHANNEL_BLUE;
-      else
-	dev->CCD.channel = MUSTEK_PP_CHANNEL_GREEN;
-
-      motor_forward_1015 (dev);
-      wait_bank_change (dev, dev->bank_count);
-
-      if (dev->ccd_line >= dev->green_offs && gogreen)
-	{
-	  src = red;
-	  dest = buf;
-
-	  for (ctr = 0; ctr < dev->params.pixels_per_line; ctr++)
-	    {
-	      *dest = *src++;
-	      dest += 3;
-	    }
-	}
-
-      if (gored)
-	{
-
-	  read_line_1015 (dev, red, dev->params.pixels_per_line, dev->ref_red,
-			  dev->calib_r,
-			  (dev->val[OPT_CUSTOM_GAMMA].w ?
-			   dev->gamma_table[1] : NULL));
-
-	  reset_bank_count (dev);
-
-	}
-
-      dev->redline = ++dev->redline % dev->green_offs;
-
-      if (dev->ccd_line >= dev->green_offs && gogreen)
-	{
-	  src = blue;
-	  dest = buf + 2;
-
-
-	  for (ctr = 0; ctr < dev->params.pixels_per_line; ctr++)
-	    {
-	      *dest = *src++;
-	      dest += 3;
-	    }
-
-	}
-
-      if (goblue)
-	{
-	  if (gored)
-	    {
-	      set_ccd_channel_1015 (dev, MUSTEK_PP_CHANNEL_BLUE);
-	      set_sti (dev);
-	      wait_bank_change (dev, dev->bank_count);
-	    }
-
-	  read_line_1015 (dev, blue, dev->params.pixels_per_line,
-			  dev->ref_blue, dev->calib_b,
-			  (dev->val[OPT_CUSTOM_GAMMA].w ? dev->
-			   gamma_table[3] : NULL));
-
-	  reset_bank_count (dev);
-
-	}
-
-      if (dev->ccd_line >=
-	  dev->blue_offs + (dev->CCD.line_step >> SANE_FIXED_SCALE_SHIFT))
-	dev->blueline = ++dev->blueline % dev->blue_offs;
-
-      if (gogreen)
-	{
-
-	  if (gored || goblue)
-	    {
-	      set_ccd_channel_1015 (dev, MUSTEK_PP_CHANNEL_GREEN);
-	      set_sti (dev);
-	      wait_bank_change (dev, dev->bank_count);
-	    }
-
-	  read_line_1015 (dev, dev->green, dev->params.pixels_per_line,
-			  dev->ref_green, dev->calib_g,
-			  (dev->val[OPT_CUSTOM_GAMMA].w ?
-			   dev->gamma_table[2] : NULL));
-
-	  reset_bank_count (dev);
-
-	  src = dev->green;
-	  dest = buf + 1;
-
-	  for (ctr = 0; ctr < dev->params.pixels_per_line; ctr++)
-	    {
-	      *dest = *src++;
-	      dest += 3;
-	    }
-
-	  gotline = 1;
-	}
 
     }
-  while (!gotline);
+
+  set_line_adjust (dev);
+
+  get_bank_count (dev);
 
 }
 
@@ -2192,8 +2178,8 @@ static void
 config_ccd (Mustek_PP_Device * dev)
 {
   DBG (6, "config_ccd: %d dpi, mode %d, invert %d, size %d\n",
-		  dev->CCD.hwres, dev->CCD.mode, dev->CCD.invert,
-		  dev->params.pixels_per_line);
+       dev->CCD.hwres, dev->CCD.mode, dev->CCD.invert,
+       dev->params.pixels_per_line);
 
   switch (dev->asic_id)
     {
@@ -2218,8 +2204,18 @@ return_home (Mustek_PP_Device * dev, SANE_Bool nowait)
 
   CCD_Info CCD = dev->CCD;
 
-  dev->CCD.mode = MUSTEK_PP_MODE_GRAYSCALE;
-  dev->CCD.hwres = dev->CCD.res = 100;
+
+  if (dev->desc->use600)
+    {
+      dev->CCD.mode = MUSTEK_PP_MODE_COLOR;
+      dev->CCD.hwres = dev->CCD.res = 600;
+    }
+  else
+    {
+      dev->CCD.hwres = dev->CCD.res = 100;
+      dev->CCD.mode = MUSTEK_PP_MODE_GRAYSCALE;
+    }
+
   dev->CCD.skipcount = dev->CCD.skipimagebytes = 0;
 
   config_ccd (dev);
@@ -2288,6 +2284,9 @@ move_motor (Mustek_PP_Device * dev, int count, int forward)
   int ctr;
   int saved_niceload = niceload;
 
+  DBG (4, "move_motor: %u steps (%s)\n", count,
+       (forward == SANE_TRUE ? "forward" : "backward"));
+
   niceload = 0;
 
   for (ctr = 0; ctr < count; ctr++)
@@ -2296,11 +2295,8 @@ move_motor (Mustek_PP_Device * dev, int count, int forward)
       switch (dev->asic_id)
 	{
 	case MUSTEK_PP_ASIC_1013:
-	  move_motor_1013 (dev, forward);
-	  break;
-
 	case MUSTEK_PP_ASIC_1015:
-	  move_motor_1015 (dev, forward);
+	  move_motor_101x (dev, forward);
 	  break;
 
 	case MUSTEK_PP_ASIC_1505:
@@ -2318,14 +2314,13 @@ static void
 calibrate (Mustek_PP_Device * dev)
 {
 
+  DBG (1, "calibrate entered (asic = 0x%02x)\n", dev->asic_id);
+
   switch (dev->asic_id)
     {
     case MUSTEK_PP_ASIC_1015:
-      calibrate_device_1015 (dev);
-      break;
-
     case MUSTEK_PP_ASIC_1013:
-      calibrate_device_1013 (dev);
+      calibrate_device_101x (dev);
       break;
 
     case MUSTEK_PP_ASIC_1505:
@@ -2345,11 +2340,8 @@ get_lineart_line (Mustek_PP_Device * dev, SANE_Byte * buf)
   switch (dev->asic_id)
     {
     case MUSTEK_PP_ASIC_1015:
-      get_lineart_line_1015 (dev, buf);
-      break;
-
     case MUSTEK_PP_ASIC_1013:
-      get_lineart_line_1013 (dev, buf);
+      get_lineart_line_101x (dev, buf);
       break;
 
     case MUSTEK_PP_ASIC_1505:
@@ -2366,11 +2358,8 @@ get_grayscale_line (Mustek_PP_Device * dev, SANE_Byte * buf)
   switch (dev->asic_id)
     {
     case MUSTEK_PP_ASIC_1015:
-      get_grayscale_line_1015 (dev, buf);
-      break;
-
     case MUSTEK_PP_ASIC_1013:
-      get_grayscale_line_1013 (dev, buf);
+      get_grayscale_line_101x (dev, buf);
       break;
 
     case MUSTEK_PP_ASIC_1505:
@@ -2388,11 +2377,8 @@ get_color_line (Mustek_PP_Device * dev, SANE_Byte * buf)
   switch (dev->asic_id)
     {
     case MUSTEK_PP_ASIC_1015:
-      get_color_line_1015 (dev, buf);
-      break;
-
     case MUSTEK_PP_ASIC_1013:
-      get_color_line_1013 (dev, buf);
+      get_color_line_101x (dev, buf);
       break;
 
     case MUSTEK_PP_ASIC_1505:
@@ -2607,7 +2593,9 @@ attach (const char *devname)
   dev->requires_auth = SANE_FALSE;
 
   dev->wait_lamp = wait_lamp;
-  
+
+  dev->bw = bw;
+
   dev->asic = val;
 
   sanei_pa4s2_enable (fd, SANE_TRUE);
@@ -2617,6 +2605,8 @@ attach (const char *devname)
   sanei_pa4s2_enable (fd, SANE_FALSE);
 
   dev->ccd = (val & (dev->asic == MUSTEK_PP_ASIC_1013 ? 0x04 : 0x05));
+  /* FIXME: ASIC 1505 scanners do *not* report their CCD type ... 
+     at least not this way :-( */
 
   sanei_pa4s2_close (fd);
 
@@ -2630,26 +2620,30 @@ attach (const char *devname)
       dev->wait_bank = wait_bank;
       dev->strip_height = strip_height;
       dev->sane.model = strdup ("MFS-600IIIP");
+
+      dev->use600 = SANE_FALSE;
       break;
-      
+
     case MUSTEK_PP_ASIC_1015:
 
-      if (dev->ccd == 1)
+/*      if (dev->ccd == 1)
 	{
           dev->max_res = 600;
           dev->max_h_size = MUSTEK_PP_101x_MAX_H_PIXEL * 2;
           dev->max_v_size = MUSTEK_PP_101x_MAX_V_PIXEL * 2;
 	}
       else
-	{
-          dev->max_res = 300;
-          dev->max_h_size = MUSTEK_PP_101x_MAX_H_PIXEL;
-          dev->max_v_size = MUSTEK_PP_101x_MAX_V_PIXEL;
-	}
+	{*/
+      dev->max_res = 300;
+      dev->max_h_size = MUSTEK_PP_101x_MAX_H_PIXEL;
+      dev->max_v_size = MUSTEK_PP_101x_MAX_V_PIXEL;
+/*	}*/
 
       dev->wait_bank = wait_bank;
       dev->strip_height = strip_height;
       dev->sane.model = strdup ("MFS-600IIIP");
+
+      dev->use600 = SANE_FALSE;
       break;
 
     case MUSTEK_PP_ASIC_1505:
@@ -2663,6 +2657,7 @@ attach (const char *devname)
       dev->wait_bank = wait_bank;
       dev->strip_height = strip_height;
       dev->sane.model = strdup ("MFS-600IIIP");
+      dev->use600 = SANE_TRUE;
       break;
     }
 
@@ -2671,6 +2666,9 @@ attach (const char *devname)
   DBG (3, "attach: device %s attached\n", devname);
 
   DBG (3, "attach: asic 0x%02x, ccd %02d\n", dev->asic, dev->ccd);
+
+  DBG (4, "attach: use600 is `%s'\n",
+       (dev->use600 == SANE_TRUE ? "yes" : "no"));
 
   return SANE_STATUS_GOOD;
 }
@@ -2818,7 +2816,7 @@ init_options (Mustek_PP_Device * dev)
 #ifdef HAVE_INVERSION
 
   /* invert */
-  dev->opt[OPT_INVERT].name = SANE_NAME_NEGATIVE;
+  dev->oPt[OPT_INVERT].name = SANE_NAME_NEGATIVE;
   dev->opt[OPT_INVERT].title = SANE_TITLE_NEGATIVE;
   dev->opt[OPT_INVERT].desc = "Invert colors colors/swap black and white";
   dev->opt[OPT_INVERT].type = SANE_TYPE_BOOL;
@@ -3035,6 +3033,37 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 		  devlist[0].wait_bank = val;
 		}
 	    }
+	  else if (strncmp (cp, "bw", 2) == 0 && isspace (cp[2]))
+	    {
+	      char *end;
+	      int val;
+
+	      cp += 3;
+
+	      errno = 0;
+	      val = strtol (cp, &end, 0);
+
+	      if ((end == cp || errno) || (val < 0) || (val > 255))
+		{
+		  DBG (2, "init: invalid value `%s`, falling back to %d\n",
+		       cp, bw);
+		  val = bw;	/* safe fallback */
+		}
+
+	      DBG (3, "init: option bw %d\n", val);
+
+	      if (num_devices == 0)
+		{
+		  DBG (3, "init: setting global option bw to %d\n", val);
+		  bw = val;
+		}
+	      else
+		{
+		  DBG (3, "init: setting bw to %d for device %s\n",
+		       val, devlist[0].sane.name);
+		  devlist[0].bw = val;
+		}
+	    }
 	  else if (strncmp (cp, "wait-lamp", 9) == 0 && isspace (cp[9]))
 	    {
 	      char *end;
@@ -3103,18 +3132,39 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	      DBG (3, "init: option niceload\n");
 	      niceload = 1;
 	    }
+	  else if (strncmp (cp, "use600", 6) == 0)
+	    {
+	      if (num_devices == 0)
+		DBG (2, "init: option use600 isn't a global option\n");
+	      else
+		{
+		  DBG (3, "init: device %s is a 600 dpi scanner\n",
+		       devlist[0].sane.name);
+		  if (devlist[0].use600 == SANE_FALSE)
+		    {
+		      devlist[0].use600 = SANE_TRUE;
+		      devlist[0].max_res = 600;
+		      devlist[0].max_h_size = MUSTEK_PP_101x_MAX_H_PIXEL * 2;
+		      devlist[0].max_v_size = MUSTEK_PP_101x_MAX_V_PIXEL * 2;
+		    }
+		  else
+		    {
+		      DBG (2, "init: option use600 alreay present...\n");
+		    }
+		}
+	    }
 	  else if (strncmp (cp, "auth", 4) == 0)
 	    {
 #ifndef HAVE_AUTHORIZATION
-	      DBG(1, "init: user authentification support not compiled\n");
+	      DBG (1, "init: user authentification support not compiled\n");
 	      DEBUG ();
 #endif
 	      if (num_devices == 0)
-		DBG(2, "init: option auth isn't a global option\n");
+		DBG (2, "init: option auth isn't a global option\n");
 	      else
 		{
-   	          DBG (3, "init: device %s requires user authentification\n",
-				devlist[0].sane.name);
+		  DBG (3, "init: device %s requires user authentification\n",
+		       devlist[0].sane.name);
 		  devlist[0].requires_auth = SANE_TRUE;
 		}
 	    }
@@ -3213,6 +3263,9 @@ sane_exit (void)
   if (devlist != NULL)
     free (devlist);
 
+  if (devarray != NULL)
+    free (devarray);
+
   DBG (3, "exit: (...)\n");
 
   num_devices = 0;
@@ -3221,7 +3274,6 @@ sane_exit (void)
 SANE_Status
 sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 {
-  static const SANE_Device **devarray = NULL;
   int i;
 
   DBG (129, "unused arg: local_only = %d\n", (int) local_only);
@@ -3280,8 +3332,8 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 #ifdef HAVE_AUTHORIZATION
 
       if (desc->requires_auth == SANE_TRUE)
-        if (do_authorization (devlist[i].port) != SANE_STATUS_GOOD)
-  	  {
+	if (do_authorization (devlist[i].port) != SANE_STATUS_GOOD)
+	  {
 	    DBG (2, "open: access denied\n");
 	    DEBUG ();
 	    return SANE_STATUS_ACCESS_DENIED;
@@ -3294,10 +3346,10 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 
       if (desc->requires_auth == SANE_TRUE)
 	{
-	  DBG(1, "open: ressource %s requires user authentification\n",
-			  desc->port);
-	  DBG(3, "open: ... which isn't compiled :-(\n");
-	  DBG(2, "open: access denied\n");
+	  DBG (1, "open: ressource %s requires user authentification\n",
+	       desc->port);
+	  DBG (3, "open: ... which isn't compiled :-(\n");
+	  DBG (2, "open: access denied\n");
 	  return SANE_STATUS_ACCESS_DENIED;
 	}
 
@@ -3319,8 +3371,8 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 #ifdef HAVE_AUTHORIZATION
 
       if (devlist[0].requires_auth == SANE_TRUE)
-        if (do_authorization (devlist[0].port) != SANE_STATUS_GOOD)
-  	  {
+	if (do_authorization (devlist[0].port) != SANE_STATUS_GOOD)
+	  {
 	    DBG (2, "open: access denied\n");
 	    DEBUG ();
 	    return SANE_STATUS_ACCESS_DENIED;
@@ -3332,17 +3384,17 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 /*      DBG (1, "I wouldn't let myself be root if I were you\n"); */
       if (devlist[0].requires_auth == SANE_TRUE)
 	{
-	  DBG(1, "open: ressource %s requires user authentification\n",
-			  devlist[0].port);
-	  DBG(3, "open: ... which isn't compiled :-(\n");
-	  DBG(2, "open: access denied\n");
+	  DBG (1, "open: ressource %s requires user authentification\n",
+	       devlist[0].port);
+	  DBG (3, "open: ... which isn't compiled :-(\n");
+	  DBG (2, "open: access denied\n");
 	  return SANE_STATUS_ACCESS_DENIED;
 	}
 
 #endif
 
 
-      status = sanei_pa4s2_open (devlist[0].sane.name, &fd);
+      status = sanei_pa4s2_open (devlist[0].port, &fd);
 
       desc = &devlist[0];
     }
@@ -3373,6 +3425,12 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   dev->asic_id = dev->desc->asic;
   dev->ccd_type = dev->desc->ccd;
 
+  dev->motor_ctrl = 0x43;
+  dev->first_time = 1;
+  dev->unknown_value = 0xAA;
+  dev->expose_time = 0x64;
+  dev->send_voltages = 0;
+
   for (i = 0; i < 4; ++i)
     for (j = 0; j < 256; ++j)
       dev->gamma_table[i][j] = j;
@@ -3402,8 +3460,8 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
     PIXEL_TO_MM (dev->desc->max_v_size, (float) dev->desc->max_res);
   dev->y_range.quant = 0;
 
-  DBG(6, "open: range (0.0,0.0)-(%f,%f)\n", SANE_UNFIX(dev->x_range.max),
-		  SANE_UNFIX(dev->y_range.max));
+  DBG (6, "open: range (0.0,0.0)-(%f,%f)\n", SANE_UNFIX (dev->x_range.max),
+       SANE_UNFIX (dev->y_range.max));
 
 
   if (dev->buf == NULL)
@@ -3425,7 +3483,14 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 
   lamp (dev, SANE_TRUE);
 
+  if (dev->desc->use600)
+    dev->params.pixels_per_line = 10;
+
+  dev->CCD.hwres = dev->CCD.res = dev->desc->max_res;
+  dev->CCD.mode = MUSTEK_PP_MODE_COLOR;
+
   return_home (dev, SANE_TRUE);
+
 
   sanei_pa4s2_enable (dev->fd, SANE_FALSE);
 
@@ -3739,11 +3804,18 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
       else
 	dev->CCD.mode = MUSTEK_PP_MODE_COLOR;
 
-      DBG (3, "get_parameters: mode `%s'\n", mode);
 
-      if ((dev->val[OPT_PREVIEW].w == SANE_TRUE) &&
-	  (dev->val[OPT_GRAY_PREVIEW].w == SANE_TRUE))
-	dev->CCD.mode = MUSTEK_PP_MODE_GRAYSCALE;
+      if (dev->val[OPT_PREVIEW].w == SANE_TRUE)
+	{
+
+	  if (dev->val[OPT_GRAY_PREVIEW].w == SANE_TRUE)
+	    dev->CCD.mode = MUSTEK_PP_MODE_GRAYSCALE;
+	  else
+	    dev->CCD.mode = MUSTEK_PP_MODE_COLOR;
+
+	}
+
+      DBG (3, "get_parameters: mode `%s'\n", mode);
 
       dpi = (int) (SANE_UNFIX (dev->val[OPT_RESOLUTION].w) + 0.5);
       dev->CCD.res = dpi;
@@ -3758,8 +3830,6 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 	dev->CCD.hwres = 300;
       else if (dpi <= 400)
 	dev->CCD.hwres = 400;
-      else if (dpi <= 500)
-	dev->CCD.hwres = 500;
       else if (dpi <= 600)
 	dev->CCD.hwres = 600;
 
@@ -3871,11 +3941,16 @@ sane_start (SANE_Handle handle)
 
   sanei_pa4s2_enable (dev->fd, SANE_TRUE);
 
-  config_ccd (dev);
-  set_voltages (dev);
+  if (dev->desc->use600 == SANE_FALSE)
+    {
 
-  get_bank_count (dev);
-  ASSERT (dev->bank_count == 0);
+      config_ccd (dev);
+      set_voltages (dev);
+
+      get_bank_count (dev);
+      ASSERT (dev->bank_count == 0);
+
+    }
 
   return_home (dev, SANE_FALSE);
 
@@ -3937,12 +4012,43 @@ sane_start (SANE_Handle handle)
 
     }
 
-  /* musteka4s2 says 56 lines instead of 47 */
-  move_motor (dev, 47 + dev->TopY -
-	      (dev->CCD.mode == MUSTEK_PP_MODE_COLOR ? dev->green_offs : 0),
-	      SANE_TRUE);
+  if (dev->desc->use600)
+    {
 
-  if (dev->ccd_type == 1)
+      dev->blue_offs = 2;
+      dev->green_offs = 4;
+
+      if (dev->CCD.hwres > 300)
+	{
+
+	  dev->blue_offs = 4;
+	  dev->green_offs = 8;
+
+	}
+
+
+    }
+
+
+  if (dev->desc->use600)
+    {
+
+      dev->motor_ctrl = 0x63;
+
+      move_motor (dev, /* (dev->CCD.mode == MUSTEK_PP_MODE_COLOR ? */ 136	/* : 95) */
+		   + dev->TopY -
+		  (dev->CCD.mode ==
+		   MUSTEK_PP_MODE_COLOR ? dev->green_offs : 0), SANE_TRUE);
+
+      dev->motor_ctrl = 0x43;
+    }
+  else
+    /* musteka4s2 says 56 lines instead of 47 */
+    move_motor (dev, 47 + dev->TopY -
+		(dev->CCD.mode == MUSTEK_PP_MODE_COLOR ? dev->green_offs : 0),
+		SANE_TRUE);
+
+  if ((dev->ccd_type == 1) && (dev->desc->use600 == SANE_FALSE))
     sanei_pa4s2_writebyte (dev->fd, 6, 0x15);
 
   sanei_pa4s2_enable (dev->fd, SANE_FALSE);
@@ -3957,6 +4063,8 @@ sane_start (SANE_Handle handle)
       dev->rdiff = dev->CCD.line_step;
       dev->bdiff = dev->rdiff + (dev->blue_offs << SANE_FIXED_SCALE_SHIFT);
       dev->gdiff = dev->rdiff + (dev->green_offs << SANE_FIXED_SCALE_SHIFT);
+
+
 
       dev->red = malloc (sizeof (SANE_Byte *) * dev->green_offs);
       dev->blue = malloc (sizeof (SANE_Byte *) * dev->blue_offs);

@@ -5,6 +5,10 @@
 	  backend). Added "NIASH" keyword to hp3300backend.
 	* README.darwin: Removed comment about dynamic loading. Added
 	  sm3600 and fork problems.
+	* acinclude.m4 aclocal.m4 config.guess config.sub configure
+	  configure.in ltmain.sh: Update to latest libtool (1.4.3), config.sub
+	  and config.gues. This should fix the build problems on MacOS X
+	  concerning dynamic loading.
 
 2002-12-28  Karl Heinz Kremer <khk@khk.net>
 

@@ -1,5 +1,25 @@
 CHANGES for the SANE Mustek backend
 
+2000-04-08
+  * added output of scanning time (debuglevel 2 and higher)
+  * removed old code from sane_cancel
+
+2000-04-07
+  * fixed line-distance correction for the 600 II N
+  * rewrite of the 600 II N code
+  * documentation update for the 600 II N
+
+2000-04-06
+  * Rewrite of resolution encoding for 3-pass scanners
+  * added more comments
+  * some spelling errors corrected
+
+2000-04-03
+  * output backend and version information
+  * fixed resolution encoding for MFS12000cx
+  * Changed version system to be compatible to the SANE standard 
+    (major, minor, build); 0.78 --> 1.0-78
+  
 2000-04-02
   * released backend version 0.78
   * added MUSTEK_FLAG_DOUBLE_RES for the MFS-12000CX 3-pass scanner,

@@ -32,12 +32,12 @@
 :status :beta
 
 :model "GT-6000"
-:interface "SCSI" "Parport"
+:interface "SCSI Parport"
 :status :beta
 
 :model "ES-300C"
 :comment "US version of GT-6000"
-:interface "Parport"
+:interface "SCSI Parport"
 :status :beta
 
 :model "GT-5500"

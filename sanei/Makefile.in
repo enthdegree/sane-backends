@@ -43,6 +43,8 @@ LIBTOOL = ../libtool
 MCOMP	= --mode=compile
 MLINK	= --mode=link
 
+DISTCLEAN_FILES = @DISTCLEAN_FILES@
+
 @SET_MAKE@
 
 LIBSANEI_OBJS = sanei_ab306.o sanei_constrain_value.o sanei_init_debug.o \
@@ -100,10 +102,11 @@ depend:
 	makedepend -I. -I../include *.c
 
 clean:
-	rm -f *.out *.o *.lo *~ *.a *.bak $(OBJS) $(TESTPROGRAMS)
+	rm -f *.o *.lo *.a $(OBJS) $(TESTPROGRAMS)
 	rm -rf .libs
 
 distclean: clean
+	rm -f $(DISTCLEAN_FILES)
 	rm -f Makefile
 
 dist: $(DISTFILES)

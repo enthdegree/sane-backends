@@ -29,6 +29,8 @@ INSTALL = @INSTALL@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_DATA = @INSTALL_DATA@
 
+DISTCLEAN_FILES = @DISTCLEAN_FILES@
+
 @SET_MAKE@
 
 SUBDIRS	= include lib sanei backend frontend doc tools po
@@ -89,9 +91,12 @@ libcheck:
 clean: clean-recursive
 
 distclean: clean distclean-recursive
-	rm -f *~ *.log *.bak libtool
-	rm -f Makefile config.cache config.status
+	rm -f $(DISTCLEAN_FILES)
+	rm -f Makefile config.cache config.status libtool *.tar.gz 
+	rm -f sane-backends-*.lsm
 	rm -f japi/Makefile testsuite/Makefile
+	rm -f $(addprefix japi/,$(DISTCLEAN_FILES))
+	rm -f $(addprefix testsuite/,$(DISTCLEAN_FILES))
 	rm -rf $(distdir)
 
 depend: depend-recursive

@@ -44,6 +44,8 @@ LIBTOOL = ../libtool
 MCOMP	= --mode=compile
 MLINK	= --mode=link
 
+DISTCLEAN_FILES = @DISTCLEAN_FILES@
+
 @SET_MAKE@
 
 
@@ -81,10 +83,11 @@ depend:
 	makedepend -I. -I../include *.c
 
 clean:
-	rm -f *.out *.o *.lo *~ *.a *.bak $(TESTPROGRAMS)
+	rm -f *.o *.lo *.a $(TESTPROGRAMS)
 	rm -rf .libs
 
 distclean: clean
+	rm -f $(DISTCLEAN_FILES)
 	rm -f Makefile
 
 dist: $(DISTFILES)

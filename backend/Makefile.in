@@ -55,6 +55,8 @@ MINST	= --mode=install
 
 COMPILE = $(CC) -c $(CFLAGS) $(DEFS) $(INCLUDES) $(CPPFLAGS)
 
+DISTCLEAN_FILES = @DISTCLEAN_FILES@
+
 @SET_MAKE@
 
 PRELOADABLE_BACKENDS = abaton agfafocus apple artec as6e avision bh canon \
@@ -356,11 +358,12 @@ depend:
 	makedepend $(INCLUDES) *.c
 
 clean:
-	rm -f *.lo *.o *~ *.la libsane.la *.bak dll-preload.c
+	rm -f *.lo *.o *.la libsane.la dll-preload.c
 	find . -type l -name \*-s.c | xargs rm -f
 	rm -rf .libs
 
 distclean: clean
+	rm -f $(DISTCLEAN_FILES)
 	rm -f Makefile libsane.so
 
 dist: $(DISTFILES)

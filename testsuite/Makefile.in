@@ -38,9 +38,11 @@ TESTFILE  = testfile.pnm
 DEVICE    = pnm:0
 OPTIONS   = --filename=$(TESTFILE)
 
+DISTCLEAN_FILES = @DISTCLEAN_FILES@
+
 DISTFILES = Makefile.in README testfile.pnm 
 
-.PHONY: all dist test test.local 
+.PHONY: all clean dist distclean test test.local 
 
 all: Makefile
 	@echo "Use 'make test' to run the tests."
@@ -64,6 +66,12 @@ test.local:
 Makefile: Makefile.in ../config.status
 	cd .. \
 	  && CONFIG_FILES=testsuite/Makefile CONFIG_HEADERS= /bin/sh ./config.status
+
+clean:
+
+distclean: clean
+	rm -f $(DISTCLEAN_FILES)
+	rm -f Makefile
 
 dist: $(DISTFILES)
 	for file in $(DISTFILES); do \

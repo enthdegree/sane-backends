@@ -32,6 +32,8 @@ INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_DATA = @INSTALL_DATA@
 LN_S = @LN_S@
 
+DISTCLEAN_FILES = @DISTCLEAN_FILES@
+
 @SET_MAKE@
 
 SECT1	= saned.1 scanimage.1 sane-find-scanner.1
@@ -197,8 +199,9 @@ clean:
 	rm -f *.ilg
 
 distclean: clean
+	rm -f $(DISTCLEAN_FILES)
 	rm -f $(MANPAGES)
-	rm -f Makefile *~
+	rm -f Makefile
 	rm -f *.lot *.lof *.ind *.gz
 	rm -f sane.dvi sane.ps sane-backends.html
 	rm -f sane/*.html sane/*.gif

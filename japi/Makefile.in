@@ -58,6 +58,8 @@ MINST	= --mode=install
 
 COMPILE = $(CC) -c $(CFLAGS) $(DEFS) $(INCLUDES) $(CPPFLAGS)
 
+DISTCLEAN_FILES = @DISTCLEAN_FILES@
+
 @SET_MAKE@
 
 LIBSANE = -L`pwd`/../backend/libs -lsane
@@ -98,14 +100,14 @@ libsanej.la: Sane.lo
 Sane.lo: Sane.h
 
 clean:
-	rm -f *.class *.lo *.o *~ *.la *.bak
+	rm -f *.class *.lo *.o *.la
 	rm -f Sane.h
 	rm -rf .libs
 
 distclean: clean
+	rm -f $(DISTCLEAN_FILES)
 
 #	Install library.  Don't know where to install .class files yet.
-
 install:
 	$(MKDIR) $(libdir) $(configdir)
 	$(LIBTOOL) $(MINST) $(INSTALL_PROGRAM) libsanej.la \

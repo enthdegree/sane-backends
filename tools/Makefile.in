@@ -49,6 +49,8 @@ MINST	= --mode=install
 COMPILE = $(CC) -c $(CFLAGS) $(DEFS) $(INCLUDES) $(CPPFLAGS)
 LINK = $(CC) $(LDFLAGS) -o $@
 
+DISTCLEAN_FILES = @DISTCLEAN_FILES@
+
 @SET_MAKE@
 
 DESTINATIONS = sane-find-scanner sane-config umax_pp
@@ -102,12 +104,13 @@ depend:
 	makedepend $(INCLUDES) *.c
 
 clean:
-	rm -f *.lo *.o *~ *.la *.bak 
+	rm -f *.lo *.o *.la
 	find . -type l -name \*-s.c | xargs rm -f
 	rm -rf .libs
 
 distclean: clean
 	rm -f Makefile $(DESTINATIONS) mustek600iin-off
+	rm -f $(DISTCLEAN_FILES)
 
 dist: $(DISTFILES)
 	for file in $(DISTFILES); do \

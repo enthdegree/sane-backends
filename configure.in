@@ -59,7 +59,7 @@ if test "${ac_cv_prog_gcc}" = "yes"; then
       -Wstrict-prototypes \
       -pedantic"
 
-  dnl OS/2 and others don't include some headers with -ansi enabled
+  # OS/2 and others don't include some headers with -ansi enabled
   ANSI_FLAG=-ansi
   AC_CHECK_HEADER(os2.h,[ANSI_FLAG=],)
   case "${host_os}" in  
@@ -367,6 +367,9 @@ AC_SUBST(V_MAJOR)
 AC_SUBST(V_MINOR)
 AC_SUBST(V_REV)
 AC_SUBST(DLL_PRELOAD)
+
+DISTCLEAN_FILES="*~ .*~ *.log *.bak *.old *.orig *.out *.rej \#* .\#*"
+AC_SUBST(DISTCLEAN_FILES)
 
 AC_OUTPUT([Makefile lib/Makefile sanei/Makefile frontend/Makefile
 	   japi/Makefile backend/Makefile include/Makefile doc/Makefile

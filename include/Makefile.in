@@ -30,6 +30,8 @@ INSTALL = @INSTALL@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_DATA = @INSTALL_DATA@
 
+DISTCLEAN_FILES = @DISTCLEAN_FILES@
+
 @SET_MAKE@
 
 INSTALLED_INCLUDES = $(addprefix $(top_srcdir)/include/sane/,sane.h \
@@ -55,8 +57,10 @@ all:
 clean:
 
 distclean: clean
+	rm -f $(DISTCLEAN_FILES)
+	rm -f $(addprefix sane/,$(DISTCLEAN_FILES))
 	rm -f Makefile
-	rm -f *~ sane/*~ sane/config.h
+	rm -f sane/config.h
 
 install:
 	$(MKDIR) $(includedir)/sane

@@ -49,6 +49,8 @@ ALL_POTS = $(addsuffix .pot,$(ALL_BACKENDS))
 ALL_MOS = $(filter-out saneopts.%.mo,$(addsuffix .mo,$(basename $(ALL_POS))))
 ALL_LINGUAS = $(sort $(subst .,,$(suffix $(basename $(ALL_POS)))))
 
+DISTCLEAN_FILES = @DISTCLEAN_FILES@
+
 DISTFILES = Makefile.in README epson.de.po mustek.de.po \
   mustek_usb.de.po plustek.de.po pnm.de.po saneopts.de.po saneopts.fr.po \
   umax.de.po umax.fr.po snapscan.de.po
@@ -122,9 +124,9 @@ clean:
 	rm -f *.old
 
 distclean: clean
+	rm -f $(DISTCLEAN_FILES)
 	rm -f Makefile
 	rm -f *.pot
-	rm -f *~
 	rm -rf $(TMP_FILE_DIR)
 
 depend:

@@ -42,7 +42,7 @@
 
 /* Please increase version number with every change 
    (don't forget to update net.desc) */
-#define NET_VERSION "1.0.6"
+#define NET_VERSION "1.0.7"
 
 #ifdef _AIX
 # include "../include/lalloca.h" /* MUST come first for AIX! */
@@ -275,6 +275,7 @@ fail:
 static SANE_Status
 fetch_options (Net_Scanner * s)
 {
+  int option_number;
   DBG (3, "fetch_options: %p\n", s);
 
   if (s->opt.num_options)
@@ -302,6 +303,47 @@ fetch_options (Net_Scanner * s)
       return SANE_STATUS_IO_ERROR;
     }
 
+  if (s->local_opt.num_options == 0)
+    {
+      DBG (3, "fetch_options: creating %d local option descriptors\n",
+	   s->opt.num_options);
+      s->local_opt.desc = 
+	malloc (s->opt.num_options * sizeof (s->local_opt.desc));
+      if (!s->local_opt.desc)
+	{
+	  DBG (1, "fetch_options: couldn't malloc s->local_opt.desc\n");
+	  return SANE_STATUS_NO_MEM;
+	}
+      for (option_number = 0; 
+	   option_number < s->opt.num_options; 
+	   option_number++)
+	{
+	  s->local_opt.desc[option_number] =
+	    malloc (sizeof (SANE_Option_Descriptor));
+	  if (!s->local_opt.desc[option_number])
+	    {
+	      DBG (1, "fetch_options: couldn't malloc "
+		   "s->local_opt.desc[%d]\n", option_number);
+	      return SANE_STATUS_NO_MEM;
+	    }
+	}
+      s->local_opt.num_options = s->opt.num_options;
+    }
+  else if (s->local_opt.num_options != s->opt.num_options)
+    {
+      DBG (1, "fetch_options: option number count changed during runtime?\n");
+      return SANE_STATUS_INVAL;
+    }
+
+  DBG (3, "fetch_options: copying %d option descriptors\n", 
+       s->opt.num_options);
+      
+  for (option_number = 0; option_number < s->opt.num_options; option_number++)
+    {
+      memcpy (s->local_opt.desc[option_number], s->opt.desc[option_number],
+	      sizeof (SANE_Option_Descriptor));
+    }
+  
   s->options_valid = 1;
   DBG (3, "fetch_options: %d options fetched\n", s->opt.num_options);
   return SANE_STATUS_GOOD;
@@ -839,6 +881,8 @@ sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
   s->handle = handle;
   s->data = -1;
   s->next = first_handle;
+  s->local_opt.desc = 0;
+  s->local_opt.num_options = 0;
   first_handle = s;
   *meta_handle = s;
   DBG (3, "sane_open: success\n");
@@ -850,6 +894,7 @@ sane_close (SANE_Handle handle)
 {
   Net_Scanner *prev, *s;
   SANE_Word ack;
+  int option_number;
 
   DBG (3, "sane_close: handle %p\n", handle);
 
@@ -880,6 +925,13 @@ sane_close (SANE_Handle handle)
 	DBG (1, "sane_close: couldn't free sanei_w_option_descriptor_array "
 	     "(%s)\n", sane_strstatus (s->hw->wire.status));
     }
+
+  DBG (2, "sane_close: removing local option descriptors\n");
+  for (option_number = 0; option_number < s->local_opt.num_options;
+       option_number++)
+    free (s->local_opt.desc[option_number]);
+  if (s->local_opt.desc)
+    free (s->local_opt.desc);
 
   DBG (2, "sane_close: net_close\n");
   sanei_w_call (&s->hw->wire, SANE_NET_CLOSE,
@@ -919,7 +971,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
       DBG (2, "sane_get_option_descriptor: invalid option number\n");
       return 0;
     }
-  return s->opt.desc[option];
+  return s->local_opt.desc[option];
 }
 
 SANE_Status
@@ -1028,7 +1080,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	return SANE_STATUS_CANCELLED;
     }
   while (need_auth);
-  DBG (2, "sane_control_option: done\n");
+
+  DBG (2, "sane_control_option: done (%s)\n", sane_strstatus (status));
   return status;
 }
 

@@ -62,7 +62,7 @@ typedef struct Net_Scanner
     struct Net_Scanner *next;
 
     int options_valid;			/* are the options current? */
-    SANE_Option_Descriptor_Array opt;
+    SANE_Option_Descriptor_Array opt, local_opt;
 
     SANE_Word handle;		/* remote handle (it's a word, not a ptr!) */
 

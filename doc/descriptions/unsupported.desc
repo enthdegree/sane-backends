@@ -475,10 +475,18 @@
 
 :mfg "Genius"
 :url "http://www.geniusnet.com.tw/"
+:url "http://www.genius-kye.com/"
+
 :model "ColorPage-Slim 1200 USB2"
 :interface "USB"
 :status :unsupported
 :comment "Unsupported. See link for details."
+
+:model "ColorPage-Vivid Pro II"
+:status :unsupported
+:interface "Parport (EPP)"
+:url "http://www.dcc.fua.br/~alg/geniusvp2/"
+:comment "No SANE backend yet but a stand-alone driver exists. See link for details. Similar to Primax Colorado Direct 9600 but with E1 ASIC"
 
 ;********************************************************************************************
 

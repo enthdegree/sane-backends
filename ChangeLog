@@ -6,7 +6,8 @@
 2005-01-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added UMAX Astraslim
-	  6000. Added Trust SCSI Scan 19200 -Excellence Series-.
+	  6000. Added Trust SCSI Scan 19200 -Excellence Series-. Added
+	  ColorPage-Vivid Pro II. 
 	* tools/hotplug/libsane.usermap: Added Epson Stylus RX425 based on
 	  bug report #301114.
 

@@ -1,4 +1,4 @@
-.TH sane-hp 5 "20 Nov 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-hp 5 "06 Dec 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-hp
 .SH NAME
 sane-hp \- SANE backend for HP ScanJet scanners
@@ -55,7 +55,8 @@ PhotoSmart     C5100A R029,R030,R032    SCSI
 .RE
 .PP
 Support for models 5100C/5200C connected to the parallel port requires
-the ppSCSI driver available at http://www.torque.net/parport/ppscsi.html
+the ppSCSI driver available at 
+.IR http://www.torque.net/parport/ppscsi.html
 (under development)
 .PP
 Support for models 5200C/62X0C/63X0C connected to the USB require
@@ -65,16 +66,23 @@ for more details.
 .PP
 The "hp" backend no longer supports OfficeJet multi-function peripherals.
 For these devices use the external "hpoj" backend in version 0.90 and later of
-the "HP OfficeJet Linux driver", available at "http://hpoj.sourceforge.net".
+the "HP OfficeJet Linux driver", available at 
+.br
+.IR http://hpoj.sourceforge.net
+.
 .PP
 Because Hewlett-Packard does no longer produce scanners that support
-SCL (beside the OfficeJets), the above list is of supported scanners is
+SCL (beside the OfficeJets), the above list of supported scanners is
 complete.
 Other HP scanners are not supported by the "hp" backend, but might be supported
 by another one. See
 .IR http://www.mostang.com/sane .
 You can also watch the sane-devel mailinglist at
 .IR http://www.mostang.com/sane/mail.html .
+.PP
+More details about the hp backend can be found on its homepage 
+.IR http://www.kirchgessner.net/sane .
+.PP
 .SH "DEVICE NAMES"
 This backend expects device names of the form:
 .PP
@@ -117,8 +125,9 @@ contains a device name apply just to the most recently mentioned device.
 Supported options are
 .BR connect-scsi ,
 .BR connect-device ,
+.BR enable-image-buffering ,
 and
-.BR enable-image-buffering .
+.BR dumb-read .
 
 Option
 .B connect-scsi
@@ -142,6 +151,13 @@ Option
 .B enable-image-buffering
 stores the scanned image in memory before passing it to the frontend. Could be
 used in case of forward/backward moving scanner lamp.
+
+Option
+.B dumb-read
+can be used to work around problems with "Error during device I/O". These
+problems may occur with certain SCSI-to-USB convertors or Buslogic SCSI cards.
+The option should not be used for SCSI devices which are working correctly.
+Otherwise startup of frontends and changing parameters might be slower.
 .PP
   A sample configuration file is shown below:
 .PP

@@ -10,7 +10,7 @@
 ;
 
 :backend "hp"                     ; name of backend
-:version "1.00"                   ; version of backend
+:version "1.01"                   ; version of backend
 :status :stable                     ; :alpha, :beta, :stable, :new
 :manpage "sane-hp"                ; name of manpage (if it exists)
 :url "http://www.kirchgessner.net/" ; backend's web page

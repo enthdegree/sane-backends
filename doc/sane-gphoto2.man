@@ -27,6 +27,16 @@ be printed.
 Empty lines and lines starting with a hash mark (#) are
 ignored.  A sample configuration file is shown below:
 .PP
+The "topfolder" line specifies the "fixed" part of the file path.  For 
+example, on the Kodak DC-240, files are stored in the directory 
+/DCIM/100DC240.  The /DCIM portion is constant, but 100DC240 will
+change and must be read from the camers.  In this case, the 
+line would read "topfolder=/DCIM"
+.PP
+Some cameras don't implement a file structure and store all pictures
+in the "/" directory.  This is indicated by setting "subdirs=1" with
+"topfolder=/"
+.pp
 .RS
 port=usb:
 .br

@@ -797,8 +797,6 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
     		continue;
 			
 		len = strlen(dev_name);
-		if( dev_name[len - 1] == '\n' )
-           	dev_name[--len] = '\0';
 		if( !len)
            	continue;			/* ignore empty lines */
 

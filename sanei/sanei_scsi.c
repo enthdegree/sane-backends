@@ -3020,6 +3020,8 @@ sanei_scsi_cmd2 (int fd,
 
   memset (&hdr, 0, sizeof (hdr));
   memcpy (&hdr.sr_cdb, cmd, cmd_size);
+  hdr.sr_cdb_length=cmd_size;
+
   if (dst_size && *dst_size)
     {
       /* xxx obsolete assert (cdb_size == src_size);
@@ -3047,6 +3049,13 @@ sanei_scsi_cmd2 (int fd,
   if (hdr.sr_io_status != 1)
     DBG (1, "sanei_scsi_cmd: SGIOCREQ completed with sr_io_status=%d\n",
 	 hdr.sr_io_status);
+
+  if (hdr.sr_io_status == SR_IOST_CHKSNV)
+    {
+      /* call request_sense again but how???*/
+      return SANE_STATUS_IO_ERROR;
+    }
+
   if (hdr.sr_scsi_status == SR_IOST_CHKSV && fd_info[fd].sense_handler)
     return (*fd_info[fd].sense_handler) (fd, (u_char *) & hdr.sr_esense,
 					 fd_info[fd].sense_handler_arg);

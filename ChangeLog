@@ -3,6 +3,8 @@
 	* backend/.cvsignore frontend/.cvsignore tools/.cvsignore: Added .libs.
 	  Patch from Sylvain Petreolle <spetreolle@yahoo.fr>.
 	* TODO: Added gt68xx project and viceo.desc entry.
+	* PROJECTS doc/descriptions-external/gt68xx.desc: Added gt68xx 
+	  information.
 
 2002-09-15  Karl Heinz Kremer <khk@khk.net>
 

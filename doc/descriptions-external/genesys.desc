@@ -45,6 +45,12 @@
 :status :unsupported
 :comment "Same as LiDE 50."
 
+:model "CanoScan LiDE 40"
+:url "/unsupported/canon-lide-50.html"
+:interface "USB"
+:status :unsupported
+:comment "Same as LiDE 50."
+
 :model "CanoScan LiDE 50"
 :url "/unsupported/canon-lide-50.html"
 :interface "USB"

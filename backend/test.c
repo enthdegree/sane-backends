@@ -41,7 +41,7 @@
    This backend is for testing frontends.
 */
 
-#define BUILD 13
+#define BUILD 14
 
 #include "../include/sane/config.h"
 
@@ -70,6 +70,7 @@
 
 #define TEST_CONFIG_FILE "test.conf"
 
+static SANE_Bool inited = SANE_FALSE;
 static SANE_Device **sane_device_list = 0;
 static Test_Device *first_test_device = 0;
 
@@ -125,8 +126,8 @@ static SANE_String_Const test_picture_list[] = {
   0
 };
 
-static SANE_String_Const read_status_code_list[]= {
-  SANE_I18N("Default"), "SANE_STATUS_UNSUPPORTED", "SANE_STATUS_CANCELLED",
+static SANE_String_Const read_status_code_list[] = {
+  SANE_I18N ("Default"), "SANE_STATUS_UNSUPPORTED", "SANE_STATUS_CANCELLED",
   "SANE_STATUS_DEVICE_BUSY", "SANE_STATUS_INVAL", "SANE_STATUS_EOF",
   "SANE_STATUS_JAMMED", "SANE_STATUS_NO_DOCS", "SANE_STATUS_COVER_OPEN",
   "SANE_STATUS_IO_ERROR", "SANE_STATUS_NO_MEM", "SANE_STATUS_ACCESS_DENIED",
@@ -1338,6 +1339,9 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   if (version_code)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BUILD);
 
+  if (inited)
+    DBG (3, "sane_init: warning: already inited\n");
+
   fp = sanei_config_open (TEST_CONFIG_FILE);
   if (fp)
     {
@@ -1503,6 +1507,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   sane_device_list[num] = 0;
   srand (time (NULL));
   random_factor = ((double) rand ()) / RAND_MAX + 0.5;
+  inited = SANE_TRUE;
   return SANE_STATUS_GOOD;
 }
 
@@ -1512,6 +1517,12 @@ sane_exit (void)
   Test_Device *test_device, *previous_device;
 
   DBG (2, "sane_exit\n");
+  if (!inited)
+    {
+      DBG (1, "sane_exit: not inited, call sane_init() first\n");
+      return;
+    }
+
   test_device = first_test_device;
   while (test_device)
     {
@@ -1527,6 +1538,7 @@ sane_exit (void)
     free (sane_device_list);
   sane_device_list = NULL;
   first_test_device = NULL;
+  inited = SANE_FALSE;
   return;
 }
 
@@ -1537,6 +1549,12 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 
   DBG (2, "sane_get_devices: device_list=%p, local_only=%d\n",
        device_list, local_only);
+  if (!inited)
+    {
+      DBG (1, "sane_get_devices: not inited, call sane_init() first\n");
+      return SANE_STATUS_INVAL;
+    }
+
   if (!device_list)
     {
       DBG (1, "sane_get_devices: device_list == 0\n");
@@ -1553,6 +1571,11 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   SANE_Status status;
 
   DBG (2, "sane_open: devicename = \"%s\", handle=%p\n", devicename, handle);
+  if (!inited)
+    {
+      DBG (1, "sane_open: not inited, call sane_init() first\n");
+      return SANE_STATUS_INVAL;
+    }
 
   if (!handle)
     {
@@ -1608,6 +1631,12 @@ sane_close (SANE_Handle handle)
   Test_Device *test_device = handle;
 
   DBG (2, "sane_close: handle=%p\n", handle);
+  if (!inited)
+    {
+      DBG (1, "sane_close: not inited, call sane_init() first\n");
+      return;
+    }
+
   if (!check_handle (handle))
     {
       DBG (1, "sane_close: handle %p unknown\n", handle);
@@ -1629,6 +1658,13 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
   DBG (4, "sane_get_option_descriptor: handle=%p, option = %d\n", handle,
        option);
+  if (!inited)
+    {
+      DBG (1, "sane_get_option_descriptor: not inited, call sane_init() "
+	   "first\n");
+      return 0;
+    }
+
   if (!check_handle (handle))
     {
       DBG (1, "sane_get_option_descriptor: handle %p unknown\n", handle);
@@ -1659,6 +1695,11 @@ sane_control_option (SANE_Handle handle, SANE_Int option, SANE_Action action,
 
   DBG (4, "sane_control_option: handle=%p, opt=%d, act=%d, val=%p, info=%p\n",
        handle, option, action, value, info);
+  if (!inited)
+    {
+      DBG (1, "sane_control_option: not inited, call sane_init() first\n");
+      return SANE_STATUS_INVAL;
+    }
 
   if (!check_handle (handle))
     {
@@ -1849,7 +1890,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option, SANE_Action action,
 	  DBG (4, "sane_control_option: set option %d (%s) to %d\n",
 	       option, test_device->opt[option].name, *(SANE_Int *) value);
 	  break;
-	case opt_read_status_code:  /* String (list) */
+	case opt_read_status_code:	/* String (list) */
 	case opt_test_picture:
 	case opt_string:
 	case opt_string_constraint_string_list:
@@ -2124,6 +2165,11 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   SANE_String text_format, mode;
 
   DBG (2, "sane_get_parameters: handle=%p, params=%p\n", handle, params);
+  if (!inited)
+    {
+      DBG (1, "sane_get_parameters: not inited, call sane_init() first\n");
+      return SANE_STATUS_INVAL;
+    }
   if (!check_handle (handle))
     {
       DBG (1, "sane_get_parameters: handle %p unknown\n", handle);
@@ -2264,6 +2310,11 @@ sane_start (SANE_Handle handle)
   int pipe_descriptor[2];
 
   DBG (2, "sane_start: handle=%p\n", handle);
+  if (!inited)
+    {
+      DBG (1, "sane_start: not inited, call sane_init() first\n");
+      return SANE_STATUS_INVAL;
+    }
   if (!check_handle (handle))
     {
       DBG (1, "sane_start: handle %p unknown\n", handle);
@@ -2364,7 +2415,11 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
 
   DBG (4, "sane_read: handle=%p, data=%p, max_length = %d, length=%p\n",
        handle, data, max_length, length);
-
+  if (!inited)
+    {
+      DBG (1, "sane_read: not inited, call sane_init() first\n");
+      return SANE_STATUS_INVAL;
+    }
   if (!check_handle (handle))
     {
       DBG (1, "sane_read: handle %p unknown\n", handle);
@@ -2493,6 +2548,11 @@ sane_cancel (SANE_Handle handle)
   Test_Device *test_device = handle;
 
   DBG (2, "sane_cancel: handle = %p\n", handle);
+  if (!inited)
+    {
+      DBG (1, "sane_cancel: not inited, call sane_init() first\n");
+      return;
+    }
   if (!check_handle (handle))
     {
       DBG (1, "sane_cancel: handle %p unknown\n", handle);
@@ -2528,6 +2588,11 @@ sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 
   DBG (2, "sane_set_io_mode: handle = %p, non_blocking = %d\n", handle,
        non_blocking);
+  if (!inited)
+    {
+      DBG (1, "sane_set_io_mode: not inited, call sane_init() first\n");
+      return SANE_STATUS_INVAL;
+    }
   if (!check_handle (handle))
     {
       DBG (1, "sane_set_io_mode: handle %p unknown\n", handle);
@@ -2567,6 +2632,11 @@ sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
 
   DBG (2, "sane_get_select_fd: handle = %p, fd %s 0\n", handle,
        fd ? "!=" : "=");
+  if (!inited)
+    {
+      DBG (1, "sane_get_select_fd: not inited, call sane_init() first\n");
+      return SANE_STATUS_INVAL;
+    }
   if (!check_handle (handle))
     {
       DBG (1, "sane_get_select_fd: handle %p unknown\n", handle);

@@ -1,23 +1,27 @@
 /* sane - Scanner Access Now Easy.
-   (c) 2003 Martijn van Oosterhout, kleptog@svana.org
-   (c) 2002 Bertrik Sikken, bertrik@zonnet.nl
-  
+   Copyright (C) 2003 Martijn van Oosterhout <kleptog@svana.org>
+   Copyright (C) 2003 Thomas Soumarmon <thomas.soumarmon@cogitae.net>
+   Copyright (c) 2003 Henning Meier-Geinitz, <henning@meier-geinitz.de>
+
+   Originally copied from HP3300 testtools. Original notice follows:
+
+   Copyright (C) 2001 Bertrik Sikken (bertrik@zonnet.nl)
+
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
-   modify it under the terms of the GNU General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU General Public License
+   as published by the Free Software Foundation; either version 2
+   of the License, or (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful, but
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston,
-   MA 02111-1307, USA.
+   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
    As a special exception, the authors of SANE give permission for
    additional uses of the libraries contained in this release of SANE.
@@ -43,7 +47,7 @@
    HP5400/5470 Test util.
    Currently is only able to read back the scanner version string,
    but this basically demonstrates ability to communicate with the scanner.
-  
+
    Massively expanded. Can do calibration scan, upload gamma and calibration
    tables and stores the results of a scan. - 19/02/2003 Martijn
 */
@@ -51,7 +55,6 @@
 #include <stdio.h>		/* for printf */
 #include <stdlib.h>		/* for exit */
 #include <assert.h>
-/*#include <stdint.h>*/
 #include <errno.h>
 #include <string.h>
 #include <unistd.h>
@@ -60,6 +63,8 @@
 
 #include "hp5400.h"
 #include "hp5400_xfer.h"
+#include "hp5400_internal.h"
+#include "hp5400_debug.h" /* debug functions */
 
 
 #ifndef min
@@ -75,149 +80,27 @@
 #define PACKED
 #endif
 
-/* If this is enabled, a copy of the raw data from the scanner will be saved to 
+/* If this is enabled, a copy of the raw data from the scanner will be saved to
    imagedebug.dat and the attempted conversion to imagedebug.ppm */
 /* #define IMAGE_DEBUG */
 
 /* If this is defined you get extra info on the calibration */
 /* #define CALIB_DEBUG */
 
-#define CMD_GETVERSION   0x1200
-#define CMD_GETUITEXT    0xf00b
-#define CMD_GETCMDID     0xc500
-#define CMD_SCANREQUEST  0x2505	/* This is for previews */
-#define CMD_SCANREQUEST2 0x2500	/* This is for real scans */
-#define CMD_SCANRESPONSE 0x3400
-
-/* Testing stuff to make it work */
-#define CMD_SETDPI       0x1500	/* ??? */
-#define CMD_STOPSCAN     0x1B01	/* 0x40 = lamp in on, 0x00 = lamp is off */
-#define CMD_STARTSCAN    0x1B05	/* 0x40 = lamp in on, 0x00 = lamp is off */
-#define CMD_UNKNOWN      0x2300	/* Send fixed string */
-#define CMD_UNKNOWN2     0xD600	/* ??? Set to 0x04 */
-#define CMD_UNKNOWN3     0xC000	/* ??? Set to 02 03 03 3C */
-#define CMD_SETOFFSET    0xE700	/* two ints in network order. X-offset, Y-offset of full scan */
-				  /* Given values seem to be 0x0054 (=4.57mm) and 0x0282 (=54.36mm) */
-
-#define CMD_INITBULK1   0x0087	/* send 0x14 */
-#define CMD_INITBULK2   0x0083	/* send 0x24 */
-#define CMD_INITBULK3   0x0082	/* transfer length 0xf000 */
 
 const char MatchVersion[] = "SilitekIBlizd C3 ScannerV0.84";
 const char MatchVersion2[] = "SilitekIBlizd C3 ScannerV0.86";
-/*extern char *usb_devfile;*/	/* Is name of device to link to */
 
 static TScannerModel Model_HP54xx =
   { "Hewlett-Packard", "HP54xx Flatbed Scanner" };
 
-#ifdef STANDALONE
-/* Debug messages levels */
-#define DBG fprintf
-FILE *DBG_ASSERT = NULL;
-FILE *DBG_ERR = NULL;
-FILE *DBG_MSG = NULL;
-#endif
-
-
-
-struct ScanRequest
-{
-  u_int8_t x1;			/* Set to 0x08 */
-  u_int16_t dpix, dpiy;		/* Set to 75, 150 or 300 in network order */
-  u_int16_t offx, offy;		/* Offset to scan, in 1/300th of dpi, in network order */
-  u_int16_t lenx, leny;		/* Size of scan, in 1/300th of dpi, in network order */
-  u_int16_t flags1, flags2, flags3;	/* Undetermined flag info */
-  /* Known combinations are:
-     1st calibration scan: 0x0000, 0x0010, 0x1820  =  24bpp
-     2nd calibration scan: 0x0000, 0x0010, 0x3020  =  48bpp ???
-     3rd calibration scan: 0x0000, 0x0010, 0x3024  =  48bpp ???
-     Preview scan:         0x0080, 0x0000, 0x18E8  =   8bpp
-     4th & 5th like 2nd and 3rd
-     B&W scan:             0x0080, 0x0040, 0x08E8  =   8bpp
-     6th & 7th like 2nd and 3rd
-     True colour scan      0x0080, 0x0040, 0x18E8  =  24bpp
-   */
-  u_int8_t zero;			/* Seems to always be zero */
-  u_int16_t gamma[3];		/* Set to 100 in network order. Gamma? */
-  u_int16_t pad[3];		/* Zero padding ot 32 bytes??? */
-}
-PACKED;
-
-     /* More known combos (All 24-bit):
-        300 x  300 light calibration: 0x0000, 0x0010, 0x1820
-        300 x  300 dark calibration:  0x0000, 0x0010, 0x3024
-        75 x   75 preview scan:      0x0080, 0x0000, 0x18E8
-        300 x  300 full scan:         0x0080, 0x0000, 0x18E8
-        600 x  300 light calibration: 0x0000, 0x0010, 0x3000 
-        600 x  300 dark calibration:  0x0000, 0x0010, 0x3004
-        600 x  600 full scan:         0x0080, 0x0000, 0x18C8
-        1200 x  300 light calibration: 0x0000, 0x0010, 0x3000
-        1200 x  300 dark calibration:  0x0000, 0x0010, 0x3004
-        1200 x 1200 full scan:         0x0080, 0x0000, 0x18C8
-        2400 x  300 light calibration: 0x0000, 0x0010, 0x3000
-        2400 x  300 dark calibration:  0x0000, 0x0010, 0x3004
-        2400 x 2400 full scan:         0x0080, 0x0000, 0x18C0
-      */
-
-struct ScanResponse
-{
-  u_int16_t x1;			/* Usually 0x0000 or 0x4000 */
-  u_int32_t transfersize;	/* Number of bytes to be transferred */
-  u_int32_t xsize;		/* Shape of returned bitmap */
-  u_int16_t ysize;		/*   Why does the X get more bytes? */
-  u_int16_t pad[2];		/* Zero padding to 16 bytes??? */
-}
-PACKED;
-
-
-static int InitScan2 (enum ScanType type, struct ScanRequest *req,
-		      THWParams * pHWParams, struct ScanResponse *res,
-		      int iColourOffset, int code);
-static void FinishScan (THWParams * pHWParams);
-
-static int WriteByte (int iHandle, int cmd, char data);
-static int SetLamp (THWParams * pHWParams, int fLampOn);
-static int WarmupLamp (int iHandle);
-static int SetCalibration (int iHandle, int numPixels,
-			   unsigned int *low_vals[3],
-			   unsigned int *high_vals[3], int dpi);
-static void WriteGammaCalibTable (int iHandle, const int *pabGammaR,
-				  const int *pabGammaG,
-				  const int *pabGammaB);
-static void SetDefaultGamma (int iHandle);
-static void CircBufferInit (int iHandle, TDataPipe * p, int iBytesPerLine,
-			    int bpp, int iMisAlignment, int blksize, 
-			    int iTransferSize);
-static int CircBufferGetLine (int iHandle, TDataPipe * p, void *pabLine);
-static void CircBufferExit (TDataPipe * p);
-static void DecodeImage (FILE * file, int planes, int bpp, int xsize, int ysize,
-			 const char *filename);
-static int hp5400_test_scan_response (struct ScanResponse *resp,
-				      struct ScanRequest *req);
-static int DoAverageScan (int iHandle, struct ScanRequest *req, int code,
-			  unsigned int **array);
-static int DoScan (int iHandle, struct ScanRequest *req, const char *filename, int code,
-		   struct ScanResponse *res);
-static int Calibrate (int iHandle, int dpi);
-static int hp5400_scan (int iHandle, TScanParams * params, THWParams * pHWParams,
-			const char *filename);
-static int PreviewScan (int iHandle);
-static int InitScanner (int iHandle);
-static int InitScan (enum ScanType scantype, TScanParams * pParams,
-		     THWParams * pHWParams);
-static void FinishScan (THWParams * pHWParams);
-static int HP5400Open (THWParams * params, char *filename);
-static void HP5400Close (THWParams * params);
-static int HP5400Detect (char *filename,
-			 int (*_ReportDevice) (TScannerModel * pModel,
-					       char *pszDeviceName));
 
 int
 WriteByte (int iHandle, int cmd, char data)
 {
   if (hp5400_command_write (iHandle, cmd, 1, &data) < 0)
     {
-      DBG (DBG_MSG, "failed to send byte (cmd=%04X)\n", cmd);
+      HP5400_DBG (DBG_MSG, "failed to send byte (cmd=%04X)\n", cmd);
       return -1;
     }
   return 0;
@@ -278,7 +161,7 @@ WarmupLamp (int iHandle)
      }
    */
 
-  DBG (DBG_MSG, "***WARNING*** Warmup lamp failed...\n");
+  HP5400_DBG (DBG_MSG, "***WARNING*** Warmup lamp failed...\n");
   return -1;
 }
 
@@ -411,6 +294,7 @@ void
 CircBufferInit (int iHandle, TDataPipe * p, int iBytesPerLine,
 		int bpp, int iMisAlignment, int blksize, int iTransferSize)
 {
+  iHandle = iHandle; /* to avoid compilation warning */
   p->buffersize = max (BUFFER_SIZE, 3 * blksize);
 
   if (p->buffer)
@@ -453,7 +337,7 @@ CircBufferInit (int iHandle, TDataPipe * p, int iBytesPerLine,
   temp = fopen ("imagedebug.dat", "w+b");
 #endif
 
-  DBG (DBG_MSG,
+  HP5400_DBG (DBG_MSG,
        "Begin: line=%d (%X), pixels=%d (%X), r=%d (%X), g=%d (%X), b=%d (%X), bpp=%d, step=%d\n",
        p->linelength, p->linelength, p->pixels, p->pixels, p->roff, p->roff,
        p->goff, p->goff, p->boff, p->boff, bpp, iMisAlignment);
@@ -467,7 +351,7 @@ CircBufferGetLine (int iHandle, TDataPipe * p, void *pabLine)
 
   int maxoff = 0;
 
-/*  DBG(DBG_MSG, "CircBufferGetLine:\n");   */
+/*  HP5400_DBG(DBG_MSG, "CircBufferGetLine:\n");   */
 
   if (p->roff > maxoff)
     maxoff = p->roff;
@@ -507,15 +391,15 @@ CircBufferGetLine (int iHandle, TDataPipe * p, void *pabLine)
 
       assert ((p->bufend + p->blksize) <= p->buffersize);
 
-      DBG (DBG_MSG, "Reading block, %d bytes remain\n", p->transfersize);
+      HP5400_DBG (DBG_MSG, "Reading block, %d bytes remain\n", p->transfersize);
       p->transfersize -= p->blksize;
 
       res =
 	hp5400_bulk_read_block (iHandle, CMD_INITBULK3, cmd, sizeof (cmd),
-				p->buffer + p->bufend, p->blksize);
+    				p->buffer + p->bufend, p->blksize);
       if (res != p->blksize)
 	{
-	  DBG (DBG_ERR, "*** ERROR: Read returned %d. FATAL.", res);
+	  HP5400_DBG (DBG_ERR, "*** ERROR: Read returned %d. FATAL.", res);
 	  return -1;
 	}
 #ifdef IMAGE_DEBUG
@@ -611,7 +495,7 @@ DecodeImage (FILE * file, int planes, int bpp, int xsize, int ysize,
   /* xsize is byte width, not pixel width */
   xsize /= planes * bpp;
 
-  DBG (DBG_MSG,
+  HP5400_DBG (DBG_MSG,
        "DecodeImage(planes=%d,bpp=%d,xsize=%d,ysize=%d) => %d (file=%s)\n",
        planes, bpp, xsize, ysize, planes * bpp * xsize * ysize, filename);
 
@@ -659,12 +543,13 @@ DecodeImage (FILE * file, int planes, int bpp, int xsize, int ysize,
 int
 hp5400_test_scan_response (struct ScanResponse *resp, struct ScanRequest *req)
 {
-  DBG (DBG_MSG, "Scan response:\n");
-  DBG (DBG_MSG, "  transfersize=%d   htonl-> %d\n", resp->transfersize,
+  req = req; /* to avoid compilation warning */
+  HP5400_DBG (DBG_MSG, "Scan response:\n");
+  HP5400_DBG (DBG_MSG, "  transfersize=%d   htonl-> %d\n", resp->transfersize,
        htonl (resp->transfersize));
-  DBG (DBG_MSG, "  xsize=%d    htonl-> %d\n", resp->xsize,
+  HP5400_DBG (DBG_MSG, "  xsize=%d    htonl-> %d\n", resp->xsize,
        htonl (resp->xsize));
-  DBG (DBG_MSG, "  ysize=%d    htons-> %d\n", resp->ysize,
+  HP5400_DBG (DBG_MSG, "  ysize=%d    htons-> %d\n", resp->ysize,
        htons (resp->ysize));
   return 1;
 }
@@ -694,7 +579,7 @@ DoAverageScan (int iHandle, struct ScanRequest *req, int code,
 
   length = htonl (res.xsize) / 6;
 
-  DBG (DBG_MSG, "Calibration scan: %d pixels wide\n", length);
+  HP5400_DBG (DBG_MSG, "Calibration scan: %d pixels wide\n", length);
 
   for (j = 0; j < 3; j++)
     {
@@ -736,6 +621,8 @@ DoScan (int iHandle, struct ScanRequest *req, const char *filename, int code,
 /*  int bpp, planes; */
   int i;
 
+  code = code; /*to avoid compilation warning*/
+
   if (res == NULL)
     res = &res_temp;
 
@@ -744,7 +631,7 @@ DoScan (int iHandle, struct ScanRequest *req, const char *filename, int code,
   file = fopen (filename, "w+b");
   if (!file)
     {
-      DBG (DBG_MSG, "Couldn't open outputfile (%s)\n", strerror (errno));
+      HP5400_DBG (DBG_MSG, "Couldn't open outputfile (%s)\n", strerror (errno));
       return -1;
     }
 
@@ -838,7 +725,7 @@ Calibrate (int iHandle, int dpi)
       strcat (buffer, " ... \n");
       len += 6;
 
-      DBG (DBG_MSG, buffer);
+      HP5400_DBG (DBG_MSG, buffer);
     }
 #endif
 
@@ -896,7 +783,7 @@ Calibrate (int iHandle, int dpi)
       strcat (buffer, " ... \n");
       len += 6;
 
-      DBG (DBG_MSG, buffer);
+      HP5400_DBG (DBG_MSG, buffer);
     }
 #endif
 
@@ -913,15 +800,17 @@ hp5400_scan (int iHandle, TScanParams * params, THWParams * pHWParams,
   struct ScanResponse res;
   int result;
 
-  DBG (DBG_MSG, "\n");
-  DBG (DBG_MSG, "Scanning :\n");
-  DBG (DBG_MSG, "   dpi(x) : %d\n", params->iDpi);
-  DBG (DBG_MSG, "   dpi(y) : %d\n", params->iLpi);
-  DBG (DBG_MSG, "   x0 : %d\n", params->iLeft);
-  DBG (DBG_MSG, "   y0 : %d\n", params->iTop);
-  DBG (DBG_MSG, "   width : %d\n", params->iWidth);
-  DBG (DBG_MSG, "   height : %d\n", params->iHeight);
-  DBG (DBG_MSG, "\n");
+  pHWParams = pHWParams; /*to avoid compilation warning*/
+
+  HP5400_DBG (DBG_MSG, "\n");
+  HP5400_DBG (DBG_MSG, "Scanning :\n");
+  HP5400_DBG (DBG_MSG, "   dpi(x) : %d\n", params->iDpi);
+  HP5400_DBG (DBG_MSG, "   dpi(y) : %d\n", params->iLpi);
+  HP5400_DBG (DBG_MSG, "   x0 : %d\n", params->iLeft);
+  HP5400_DBG (DBG_MSG, "   y0 : %d\n", params->iTop);
+  HP5400_DBG (DBG_MSG, "   width : %d\n", params->iWidth);
+  HP5400_DBG (DBG_MSG, "   height : %d\n", params->iHeight);
+  HP5400_DBG (DBG_MSG, "\n");
 
   bzero (&req, sizeof (req));
 
@@ -1018,7 +907,7 @@ InitScanner (int iHandle)
 
   if (hp5400_command_write (iHandle, 0xF10B, sizeof (UISetup1), UISetup1) < 0)
     {
-      DBG (DBG_MSG, "failed to send UISetup1 (%d)\n", sizeof (UISetup1));
+      HP5400_DBG (DBG_MSG, "failed to send UISetup1 (%d)\n", sizeof (UISetup1));
       return -1;
     }
 
@@ -1027,7 +916,7 @@ InitScanner (int iHandle)
 
   if (hp5400_command_write (iHandle, 0xF10C, sizeof (UISetup2), UISetup2) < 0)
     {
-      DBG (DBG_MSG, "failed to send UISetup2\n");
+      HP5400_DBG (DBG_MSG, "failed to send UISetup2\n");
       return -1;
     }
   return 0;
@@ -1070,11 +959,11 @@ InitScan (enum ScanType scantype, TScanParams * pParams,
     return -1;
 /*  SetDefaultGamma( pHWParams->iXferHandle ); ** Must be done by caller */
 
-  DBG (DBG_MSG, "Calibration complete\n");
+  HP5400_DBG (DBG_MSG, "Calibration complete\n");
   ret =
     InitScan2 (scantype, &req, pHWParams, &res, pParams->iColourOffset, 0x40);
 
-  DBG (DBG_MSG, "InitScan2 returned %d\n", ret);
+  HP5400_DBG (DBG_MSG, "InitScan2 returned %d\n", ret);
 
   /* Pass the results back to the parent */
   pParams->iBytesPerLine = htonl (res.xsize);
@@ -1104,7 +993,7 @@ InitScan2 (enum ScanType scantype, struct ScanRequest *req,
 
   if (scantype != SCAN_TYPE_CALIBRATION)
     {
-      DBG (DBG_MSG, "Off(%d,%d) : Len(%d,%d)\n", htons (req->offx),
+      HP5400_DBG (DBG_MSG, "Off(%d,%d) : Len(%d,%d)\n", htons (req->offx),
 	   htons (req->offy), htons (req->lenx), htons (req->leny));
       /* Yes, all the htons() is silly but we want this check as late as possible */
       if (htons (req->offx) > 0x09F8)
@@ -1133,7 +1022,7 @@ InitScan2 (enum ScanType scantype, struct ScanRequest *req,
     if (hp5400_command_write (iHandle, CMD_STOPSCAN, sizeof (flag), &flag) <
 	0)
       {
-	DBG (DBG_MSG, "failed to cancel scan flag\n");
+	HP5400_DBG (DBG_MSG, "failed to cancel scan flag\n");
 	return -1;
       }
   }
@@ -1142,7 +1031,7 @@ InitScan2 (enum ScanType scantype, struct ScanRequest *req,
     char data[4] = { 0x02, 0x03, 0x03, 0x3C };
     if (hp5400_command_write (iHandle, CMD_UNKNOWN3, sizeof (data), data) < 0)
       {
-	DBG (DBG_MSG, "failed to set unknown1\n");
+	HP5400_DBG (DBG_MSG, "failed to set unknown1\n");
 	return -1;
       }
   }
@@ -1152,7 +1041,7 @@ InitScan2 (enum ScanType scantype, struct ScanRequest *req,
     if (hp5400_command_write (iHandle, CMD_UNKNOWN2, sizeof (flag), &flag) <
 	0)
       {
-	DBG (DBG_MSG, "failed to set unknown2\n");
+	HP5400_DBG (DBG_MSG, "failed to set unknown2\n");
 	return -1;
       }
   }
@@ -1161,7 +1050,7 @@ InitScan2 (enum ScanType scantype, struct ScanRequest *req,
     short dpi = htons (HW_LPI);
     if (hp5400_command_write (iHandle, CMD_SETDPI, sizeof (dpi), &dpi) < 0)
       {
-	DBG (DBG_MSG, "failed to set dpi\n");
+	HP5400_DBG (DBG_MSG, "failed to set dpi\n");
 	return -1;
       }
   }
@@ -1176,19 +1065,19 @@ InitScan2 (enum ScanType scantype, struct ScanRequest *req,
       if (hp5400_command_write
 	  (iHandle, CMD_SETOFFSET, sizeof (offsets), offsets) < 0)
 	{
-	  DBG (DBG_MSG, "failed to set offsets\n");
+	  HP5400_DBG (DBG_MSG, "failed to set offsets\n");
 	  return -1;
 	}
     }
 
-  DBG (DBG_MSG, "Scan request: \n  ");
+  HP5400_DBG (DBG_MSG, "Scan request: \n  ");
   {
-    int i;
+    size_t i;
     for (i = 0; i < sizeof (*req); i++)
       {
-	DBG (DBG_MSG, "%02X ", ((unsigned char *) req)[i]);
+	HP5400_DBG (DBG_MSG, "%02X ", ((unsigned char *) req)[i]);
       }
-    DBG (DBG_MSG, "\n");
+    HP5400_DBG (DBG_MSG, "\n");
   }
 
   if (hp5400_command_write
@@ -1197,7 +1086,7 @@ InitScan2 (enum ScanType scantype, struct ScanRequest *req,
 	SCAN_TYPE_CALIBRATION) ? CMD_SCANREQUEST2 : CMD_SCANREQUEST,
        sizeof (*req), req) < 0)
     {
-      DBG (DBG_MSG, "failed to send scan request\n");
+      HP5400_DBG (DBG_MSG, "failed to send scan request\n");
       return -1;
     }
 
@@ -1206,35 +1095,35 @@ InitScan2 (enum ScanType scantype, struct ScanRequest *req,
     if (hp5400_command_write (iHandle, CMD_STARTSCAN, sizeof (flag), &flag) <
 	0)
       {
-	DBG (DBG_MSG, "failed to set gamma flag\n");
+	HP5400_DBG (DBG_MSG, "failed to set gamma flag\n");
 	return -1;
       }
   }
 
   if (hp5400_command_read (iHandle, CMD_SCANRESPONSE, sizeof (res), &res) < 0)
     {
-      DBG (DBG_MSG, "failed to read scan response\n");
+      HP5400_DBG (DBG_MSG, "failed to read scan response\n");
       return -1;
     }
 
-  DBG (DBG_MSG, "Scan response: \n  ");
+  HP5400_DBG (DBG_MSG, "Scan response: \n  ");
   {
-    int i;
+    size_t i;
     for (i = 0; i < sizeof (res); i++)
       {
-	DBG (DBG_MSG, "%02X ", ((unsigned char *) &res)[i]);
+	HP5400_DBG (DBG_MSG, "%02X ", ((unsigned char *) &res)[i]);
       }
-    DBG (DBG_MSG, "\n");
+    HP5400_DBG (DBG_MSG, "\n");
   }
 
-  DBG (DBG_MSG, "Bytes to transfer: %d\nBitmap resolution: %d x %d\n",
+  HP5400_DBG (DBG_MSG, "Bytes to transfer: %d\nBitmap resolution: %d x %d\n",
        htonl (res.transfersize), htonl (res.xsize), htons (res.ysize));
 
-  DBG (DBG_MSG, "Proceeding to scan\n");
+  HP5400_DBG (DBG_MSG, "Proceeding to scan\n");
 
   if (htonl (res.transfersize) == 0)
     {
-      DBG (DBG_MSG, "Hmm, size is zero. Obviously a problem. Aborting...\n");
+      HP5400_DBG (DBG_MSG, "Hmm, size is zero. Obviously a problem. Aborting...\n");
       return -1;
     }
 
@@ -1248,7 +1137,7 @@ InitScan2 (enum ScanType scantype, struct ScanRequest *req,
     int planes = (bpp == 1) ? 1 : 3;
     bpp /= planes;
 
-    DBG (DBG_MSG, "bpp = %d / ( (%d * %d) * (%d * %d) / (%d * %d) ) = %d\n",
+    HP5400_DBG (DBG_MSG, "bpp = %d / ( (%d * %d) * (%d * %d) / (%d * %d) ) = %d\n",
 	 htonl (res.transfersize),
 	 htons (req->lenx), htons (req->leny),
 	 htons (req->dpix), htons (req->dpiy), HW_LPI, HW_LPI, bpp);
@@ -1282,7 +1171,7 @@ FinishScan (THWParams * pHWParams)
     if (hp5400_command_write (iHandle, CMD_STOPSCAN, sizeof (flag), &flag) <
 	0)
       {
-	DBG (DBG_MSG, "failed to set gamma flag\n");
+	HP5400_DBG (DBG_MSG, "failed to set gamma flag\n");
 	return;
       }
   }
@@ -1293,10 +1182,11 @@ HP5400Open (THWParams * params, char *filename)
 {
   int iHandle = hp5400_open (filename);
   char szVersion[32];
+  int i;
 
   if (iHandle < 0)
     {
-      DBG (DBG_MSG, "hp5400_open failed\n");
+      HP5400_DBG (DBG_MSG, "hp5400_open failed\n");
       return -1;
     }
 
@@ -1306,10 +1196,15 @@ HP5400Open (THWParams * params, char *filename)
   if (hp5400_command_read
       (iHandle, CMD_GETVERSION, sizeof (szVersion), szVersion) < 0)
     {
-      DBG (DBG_MSG, "failed to read version string\n");
+      HP5400_DBG (DBG_MSG, "failed to read version string\n");
       goto hp5400_close_exit;
     }
 
+	  HP5400_DBG (DBG_MSG, "version String :\n");
+    for (i=0; i < 32; i++) {
+      HP5400_DBG (DBG_MSG, "%c", szVersion[i]);    
+    }
+    HP5400_DBG (DBG_MSG, "\n");
 
 #ifndef NO_STRING_VERSION_MATCH
   /* Match on everything except the version number */
@@ -1317,15 +1212,15 @@ HP5400Open (THWParams * params, char *filename)
     {
       if (memcmp (szVersion + 1, MatchVersion2, sizeof (MatchVersion2) - 4))
 	{
-	  DBG (DBG_MSG,
+	  HP5400_DBG (DBG_MSG,
 	       "Sorry, unknown scanner version. Attempted match on '%s' and '%s'\n",
 	       MatchVersion, MatchVersion2);
-	  DBG (DBG_MSG, "Vesion is '%s'\n", szVersion);
+	  HP5400_DBG (DBG_MSG, "Vesion is '%s'\n", szVersion);
 	  goto hp5400_close_exit;
 	}
     }
 #else
-  DBG (DBG_MSG, "Warning, Version match is disabled. Version is '%s'\n",
+  HP5400_DBG (DBG_MSG, "Warning, Version match is disabled. Version is '%s'\n",
        szVersion);
 #endif /* NO_STRING_VERSION_MATCH */
 
@@ -1361,7 +1256,7 @@ HP5400Detect (char *filename,
 
   if (iHandle < 0)
     {
-      DBG (DBG_MSG, "hp5400_open failed\n");
+      HP5400_DBG (DBG_MSG, "hp5400_open failed\n");
       return -1;
     }
 
@@ -1369,7 +1264,7 @@ HP5400Detect (char *filename,
   if (hp5400_command_read
       (iHandle, CMD_GETVERSION, sizeof (szVersion), szVersion) < 0)
     {
-      DBG (DBG_MSG, "failed to read version string\n");
+      HP5400_DBG (DBG_MSG, "failed to read version string\n");
       ret = -1;
       goto hp5400_close_exit;
     }
@@ -1379,16 +1274,16 @@ HP5400Detect (char *filename,
     {
       if (memcmp (szVersion + 1, MatchVersion2, sizeof (MatchVersion2) - 1))
 	{
-	  DBG (DBG_MSG,
+	  HP5400_DBG (DBG_MSG,
 	       "Sorry, unknown scanner version. Attempted match on '%s' and '%s'\n",
 	       MatchVersion, MatchVersion2);
-	  DBG (DBG_MSG, "Vesion is '%s'\n", szVersion);
+	  HP5400_DBG (DBG_MSG, "Vesion is '%s'\n", szVersion);
 	  ret = -1;
 	  goto hp5400_close_exit;
 	}
     }
 #else
-  DBG (DBG_MSG, "Warning, Version match is disabled. Version is '%s'\n",
+  HP5400_DBG (DBG_MSG, "Warning, Version match is disabled. Version is '%s'\n",
        szVersion);
 #endif /* NO_STRING_VERSION_MATCH */
 
@@ -1409,13 +1304,11 @@ main (int argc, char *argv[])
   assert (sizeof (struct ScanRequest) == 32);
   assert (sizeof (struct ScanResponse) == 16);
 
-  DBG_MSG = stdout;
-  DBG_ERR = stderr;
-  DBG_ASSERT = stderr;
+  hp5400_dbg_start();
 
-  DBG (DBG_MSG,
+  HP5400_DBG (DBG_MSG,
        "HP5400/5470C sample scan utility, by Martijn van Oosterhout <kleptog@svana.org>\n");
-  DBG (DBG_MSG,
+  HP5400_DBG (DBG_MSG,
        "Based on the testutils by Bertrik Sikken (bertrik@zonnet.nl)\n");
 
   if ((argc == 6) && (!strcmp (argv[1], "-decode")))

@@ -113,7 +113,9 @@ DISTFILES = abaton.c abaton.conf abaton.h agfafocus.c agfafocus.conf \
   hp-device.c hp-device.h hp.h hp-handle.c hp-handle.h hp-hpmem.c hp-option.c \
   hp-option.h hp.README hp-scl.c hp-scl.h hp-scsi.h hp.TODO \
   hpsj5s.c hpsj5s.conf hpsj5s.h \
-  hp5400.c hp5400.h hp5400.conf hp5400_internal.c hp5400_sanei.c hp5400_xfer.h \
+  hp5400.c hp5400.h hp5400.conf hp5400_debug.c hp5400_debug.h \
+  hp5400_internal.c hp5400_internal.h hp5400_xfer.h \
+  hp5400_sane.c hp5400_sanei.c hp5400_sanei.h \
   ibm.c ibm.conf ibm.h ibm-scsi.c \
   jinclude.h \
   leo.c leo.h leo.conf \

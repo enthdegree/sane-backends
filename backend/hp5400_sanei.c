@@ -1,24 +1,27 @@
 /* sane - Scanner Access Now Easy.
-   (c) 2003 Henning Meier-Geinitz, <henning@meier-geinitz.de>
-   (c) 2003 Martijn van Oosterhout, kleptog@svana.org
-   (c) 2002 Bertrik Sikken, bertrik@zonnet.nl
+   Copyright (C) 2003 Martijn van Oosterhout <kleptog@svana.org>
+   Copyright (C) 2003 Thomas Soumarmon <thomas.soumarmon@cogitae.net>
+   Copyright (c) 2003 Henning Meier-Geinitz, <henning@meier-geinitz.de>
+
+   Originally copied from HP3300 testtools. Original notice follows:
+
+   Copyright (C) 2001 Bertrik Sikken (bertrik@zonnet.nl)
 
    This file is part of the SANE package.
-  
+
    This program is free software; you can redistribute it and/or
-   modify it under the terms of the GNU General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
-   
-   This program is distributed in the hope that it will be useful, but
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
-  
+   modify it under the terms of the GNU General Public License
+   as published by the Free Software Foundation; either version 2
+   of the License, or (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston,
-   MA 02111-1307, USA.
+   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
    As a special exception, the authors of SANE give permission for
    additional uses of the libraries contained in this release of SANE.
@@ -44,15 +47,16 @@
    Transport layer for communication with HP5400/5470 scanner.
 
    Implementation using sanei_usb
-  
+
    Additions to support bulk data transport. Added debugging info - 19/02/2003 Martijn
    Changed to use sanei_usb instead of direct /dev/usb/scanner access - 15/04/2003 Henning
 */
 
 
 #include "hp5400_xfer.h"
+#include "hp5400_debug.h"
 #include <stdio.h>
-#include "../include/sane/sanei_usb.h"
+#include "sane/sanei_usb.h"
 
 #define CMD_INITBULK1   0x0087	/* send 0x14 */
 #define CMD_INITBULK2   0x0083	/* send 0x24 */
@@ -66,19 +70,19 @@ _UsbWriteControl (int fd, int iValue, int iIndex, void *pabData, int iSize)
   int requesttype = USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT;
   int request = (iSize > 1) ? 0x04 : 0x0C;
 
-  DBG (DBG_MSG,
+  HP5400_DBG (DBG_MSG,
        "Write: reqtype = 0x%02X, req = 0x%02X, value = %04X, len = %d\n",
        requesttype, request, iValue, iSize);
 
   if (iSize > 0)
     {
       int i;
-      DBG (DBG_MSG, "  Data: ");
+      HP5400_DBG (DBG_MSG, "  Data: ");
       for (i = 0; i < iSize && i < 8; i++)
-	DBG (DBG_MSG, "%02X ", ((unsigned char *) pabData)[i]);
+	HP5400_DBG (DBG_MSG, "%02X ", ((unsigned char *) pabData)[i]);
       if (iSize > 8)
-	DBG (DBG_MSG, "...");
-      DBG (DBG_MSG, "\n");
+	HP5400_DBG (DBG_MSG, "...");
+      HP5400_DBG (DBG_MSG, "\n");
     }
 
   if (fd != -1)
@@ -102,7 +106,7 @@ _UsbReadControl (int fd, int iValue, int iIndex, void *pabData, int iSize)
   int requesttype = USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN;
   int request = (iSize > 1) ? 0x04 : 0x0C;
 
-  DBG (DBG_MSG, "Read: reqtype = 0x%02X, req = 0x%02X, value = %04X\n",
+  HP5400_DBG (DBG_MSG, "Read: reqtype = 0x%02X, req = 0x%02X, value = %04X\n",
        requesttype, request, iValue);
 
   if (fd != -1)
@@ -125,7 +129,7 @@ hp5400_open (const char *filename)
   status = sanei_usb_open (filename, &fd);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_MSG, "hp5400_open: open returned %s\n", 
+      HP5400_DBG (DBG_MSG, "hp5400_open: open returned %s\n",
 	   sane_strstatus (status));
       return -1;
     }
@@ -133,7 +137,7 @@ hp5400_open (const char *filename)
   status = sanei_usb_get_vendor_product (fd, &iVendor, &iProduct);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_MSG, "hp5400_open: can't get vendor/product ids: %s\n", 
+      HP5400_DBG (DBG_MSG, "hp5400_open: can't get vendor/product ids: %s\n",
 	   sane_strstatus (status));
       sanei_usb_close (fd);
       return -1;
@@ -141,13 +145,13 @@ hp5400_open (const char *filename)
 
   if ((iVendor != 0x03F0) || ((iProduct != 0x1005) && (iProduct != 0x1105)))
     {
-      DBG (DBG_MSG, "hp5400_open: vendor/product 0x%04X-0x%04X is not "
+      HP5400_DBG (DBG_MSG, "hp5400_open: vendor/product 0x%04X-0x%04X is not "
 	   "supported\n", iVendor, iProduct);
       sanei_usb_close (fd);
       return -1;
     }
 
-  DBG (DBG_MSG, "vendor/product 0x%04X-0x%04X opened\n", iVendor, iProduct);
+  HP5400_DBG (DBG_MSG, "vendor/product 0x%04X-0x%04X opened\n", iVendor, iProduct);
 
   return fd;
 }
@@ -169,7 +173,7 @@ hp5400_command_verify (int iHandle, int iCmd)
 
   if (iHandle < 0)
     {
-      DBG (DBG_ERR, "hp5400_command_verify: invalid handle\n");
+      HP5400_DBG (DBG_ERR, "hp5400_command_verify: invalid handle\n");
       return -1;
     }
   fd = iHandle;
@@ -179,7 +183,7 @@ hp5400_command_verify (int iHandle, int iCmd)
 
   if (abData[0] != (iCmd >> 8))
     {
-      DBG (DBG_ERR,
+      HP5400_DBG (DBG_ERR,
 	   "hp5400_command_verify failed, expected 0x%02X%02X, got 0x%02X%02X\n",
 	   (int) (iCmd >> 8), (int) (iCmd & 0xff), (int) abData[0],
 	   (int) abData[1]);
@@ -190,13 +194,13 @@ hp5400_command_verify (int iHandle, int iCmd)
   if (abData[1] != 0)		/* Error code non-zero */
     {
       _UsbReadControl (fd, 0x0300, 0, (char *) abData, 3);
-      DBG (DBG_ERR, "  error response is: %02X %02X %02X\n", abData[0],
+      HP5400_DBG (DBG_ERR, "  error response is: %02X %02X %02X\n", abData[0],
 	   abData[1], abData[2]);
 
       return -1;
     }
 
-  DBG (DBG_MSG, "Command %02X verified\n", abData[0]);
+  HP5400_DBG (DBG_MSG, "Command %02X verified\n", abData[0]);
   return 1;
 }
 
@@ -209,7 +213,7 @@ hp5400_command_read_noverify (int iHandle, int iCmd, int iLen, void *pbData)
 
   if (iHandle < 0)
     {
-      DBG (DBG_ERR, "hp5400_command_read: invalid handle\n");
+      HP5400_DBG (DBG_ERR, "hp5400_command_read: invalid handle\n");
       return -1;
     }
   fd = iHandle;
@@ -237,7 +241,7 @@ hp5400_command_write (int iHandle, int iCmd, int iLen, void *pbData)
 
   if (iHandle < 0)
     {
-      DBG (DBG_ERR, "hp5400_command_write: invalid handle\n");
+      HP5400_DBG (DBG_ERR, "hp5400_command_write: invalid handle\n");
       return -1;
     }
   fd = iHandle;
@@ -261,12 +265,12 @@ hp5400_bulk_read (int iHandle, int len, int block, FILE * file)
 
   if (iHandle < 0)
     {
-      DBG (DBG_ERR, "hp5400_command_read: invalid handle\n");
+      HP5400_DBG (DBG_ERR, "hp5400_command_read: invalid handle\n");
       return -1;
     }
   fd = iHandle;
 
-  buffer = malloc (block);
+  buffer = (unsigned char*) malloc (block);
 
   _UsbWriteControl (fd, CMD_INITBULK1, 0, &x1, 1);
   _UsbWriteControl (fd, CMD_INITBULK2, 0, &x2, 1);
@@ -277,7 +281,7 @@ hp5400_bulk_read (int iHandle, int len, int block, FILE * file)
 			sizeof (buf));
       res = block;
       sanei_usb_read_bulk (fd, buffer, &res);
-      DBG (DBG_MSG, "Read bulk returned %d, %d remain\n", res, len);
+      HP5400_DBG (DBG_MSG, "Read bulk returned %d, %d remain\n", res, len);
       if (res > 0)
 	{
 	  fwrite (buffer, (len < res) ? len : res, 1, file);
@@ -298,7 +302,7 @@ hp5400_bulk_read_block (int iHandle, int iCmd, void *cmd, int cmdlen,
 
   if (iHandle < 0)
     {
-      DBG (DBG_ERR, "hp5400_command_write: invalid handle\n");
+      HP5400_DBG (DBG_ERR, "hp5400_command_read_block: invalid handle\n");
       return -1;
     }
   fd = iHandle;
@@ -306,7 +310,7 @@ hp5400_bulk_read_block (int iHandle, int iCmd, void *cmd, int cmdlen,
   _UsbWriteControl (fd, iCmd, 0, cmd, cmdlen);
   res = len;
   sanei_usb_read_bulk (fd, buffer, &res);
-  DBG (DBG_MSG, "Read block returned %d when reading %d\n", res, len);
+  HP5400_DBG (DBG_MSG, "Read block returned %d when reading %d\n", res, len);
   return res;
 }
 
@@ -320,12 +324,12 @@ hp5400_bulk_command_write (int iHandle, int iCmd, void *cmd, int cmdlen,
 
   if (iHandle < 0)
     {
-      DBG (DBG_ERR, "hp5400_command_write: invalid handle\n");
+      HP5400_DBG (DBG_ERR, "hp5400_bulk_command_write: invalid handle\n");
       return -1;
     }
   fd = iHandle;
 
-  DBG (DBG_MSG, "bulk_command_write(%04X,<%d bytes>,<%d bytes>)\n", iCmd,
+  HP5400_DBG (DBG_MSG, "bulk_command_write(%04X,<%d bytes>,<%d bytes>)\n", iCmd,
        cmdlen, datalen);
 
   _UsbWriteControl (fd, iCmd, 0, cmd, cmdlen);
@@ -334,16 +338,16 @@ hp5400_bulk_command_write (int iHandle, int iCmd, void *cmd, int cmdlen,
     {
       {
 	int i;
-	DBG (DBG_MSG, "  Data: ");
+	HP5400_DBG (DBG_MSG, "  Data: ");
 	for (i = 0; i < datalen && i < block && i < 8; i++)
-	  DBG (DBG_MSG, "%02X ", ((unsigned char *) data + offset)[i]);
+	  HP5400_DBG (DBG_MSG, "%02X ", ((unsigned char *) data + offset)[i]);
 	if (i >= 8)
-	  DBG (DBG_MSG, "...");
-	DBG (DBG_MSG, "\n");
+	  HP5400_DBG (DBG_MSG, "...");
+	HP5400_DBG (DBG_MSG, "\n");
       }
       res = (datalen < block) ? datalen : block;
       sanei_usb_write_bulk (fd, data + offset, &res);
-      DBG (DBG_MSG, "Write returned %d, %d remain\n", res, datalen);
+      HP5400_DBG (DBG_MSG, "Write returned %d, %d remain\n", res, datalen);
       datalen -= block;
       offset += block;
     }

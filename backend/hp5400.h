@@ -1,17 +1,18 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 2003 Martijn van Oosterhout <kleptog@svana.org>
-   
+   Copyright (C) 2003 Thomas Soumarmon <thomas.soumarmon@cogitae.net>
+
    Originally copied from HP3300 testtools. Original notice follows:
-   
+
    Copyright (C) 2001 Bertrik Sikken (bertrik@zonnet.nl)
 
    This file is part of the SANE package.
-   
+
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
    as published by the Free Software Foundation; either version 2
    of the License, or (at your option) any later version.
-   
+
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -41,9 +42,10 @@
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
-   
+
    $Id$
 */
+
 
 /*
     Core HP5400 functions.
@@ -135,6 +137,7 @@ typedef struct
 				 * may be needed later. */
 }
 TScanParams;
+
 
 
 #endif /* NO _HP5400_H_ */

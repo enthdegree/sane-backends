@@ -1,24 +1,26 @@
+#ifndef __HP5400_DEBUG_H_
+#define __HP5400_DEBUG_H_
+
 /* sane - Scanner Access Now Easy.
    Copyright (C) 2003 Martijn van Oosterhout <kleptog@svana.org>
    Copyright (C) 2003 Thomas Soumarmon <thomas.soumarmon@cogitae.net>
 
-   This file was initially copied from the hp3300 testools and adjusted to
-   suit. Original copyright notice follows:
-   
+   Originally copied from HP3300 testtools. Original notice follows:
+
    Copyright (C) 2001 Bertrik Sikken (bertrik@zonnet.nl)
 
    This file is part of the SANE package.
-   
+
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
    as published by the Free Software Foundation; either version 2
    of the License, or (at your option) any later version.
-   
+
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-   
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -43,38 +45,32 @@
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
+
 */
 
+#ifndef STANDALONE
 
-/*
-    SANE interface for hp54xx scanners. Prototype.
-    Parts of this source were inspired by other backends.
-*/
+#define DEBUG_DECLARE_ONLY
+#include <sane/sanei_debug.h>
 
-#include "hp5400.h"
-#include "hp5400_debug.h"
+#define DBG_ASSERT  1
+#define DBG_ERR     16
+#define DBG_MSG     32
+#define HP5400_DBG DBG
 
-#include "sane/config.h"
-#include "sane/sane.h"
-#include "sane/sanei.h"
-#include "sane/sanei_backend.h"
-#include "sane/sanei_config.h"
-#include "sane/saneopts.h"
+#else
 
-
-#include <stdlib.h>		/* malloc, free */
-#include <string.h>		/* memcpy */
 #include <stdio.h>
+#define LOCAL_DBG
+#define HP5400_DBG fprintf
+extern FILE *DBG_ASSERT;
+extern FILE *DBG_ERR;
+extern FILE *DBG_MSG;
+
+void  hp5400_dbg_start();
+
+#endif
 
 
-#define HP5400_CONFIG_FILE "hp5400.conf"
 
-#define BUILD   2
-
-/* (source) includes for data transfer methods */
-#include "hp5400_debug.c"
-#include "hp5400_internal.c"
-#include "hp5400_sane.c"
-#include "hp5400_sanei.c"
-
-
+#endif

@@ -2,23 +2,22 @@
    Copyright (C) 2003 Martijn van Oosterhout <kleptog@svana.org>
    Copyright (C) 2003 Thomas Soumarmon <thomas.soumarmon@cogitae.net>
 
-   This file was initially copied from the hp3300 testools and adjusted to
-   suit. Original copyright notice follows:
-   
+   Originally copied from HP3300 testtools. Original notice follows:
+
    Copyright (C) 2001 Bertrik Sikken (bertrik@zonnet.nl)
 
    This file is part of the SANE package.
-   
+
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
    as published by the Free Software Foundation; either version 2
    of the License, or (at your option) any later version.
-   
+
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-   
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -45,36 +44,29 @@
    If you do not wish that, delete this exception notice.
 */
 
-
-/*
-    SANE interface for hp54xx scanners. Prototype.
-    Parts of this source were inspired by other backends.
-*/
-
-#include "hp5400.h"
 #include "hp5400_debug.h"
 
-#include "sane/config.h"
-#include "sane/sane.h"
-#include "sane/sanei.h"
-#include "sane/sanei_backend.h"
-#include "sane/sanei_config.h"
-#include "sane/saneopts.h"
 
+#ifdef STANDALONE
 
-#include <stdlib.h>		/* malloc, free */
-#include <string.h>		/* memcpy */
 #include <stdio.h>
 
+FILE *DBG_ASSERT = NULL;
+FILE *DBG_ERR = NULL;
+FILE *DBG_MSG = NULL;
 
-#define HP5400_CONFIG_FILE "hp5400.conf"
+void  hp5400_dbg_start() {
+  DBG_MSG = stdout;
+  DBG_ERR = stderr;
+  DBG_ASSERT = stderr;
+}
 
-#define BUILD   2
+#else
 
-/* (source) includes for data transfer methods */
-#include "hp5400_debug.c"
-#include "hp5400_internal.c"
-#include "hp5400_sane.c"
-#include "hp5400_sanei.c"
+#undef DEBUG_DECLARE_ONLY
+#undef _SANEI_DEBUG_H
+#include <sane/sanei_debug.h>
+
+#endif
 
 

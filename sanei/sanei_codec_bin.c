@@ -82,7 +82,7 @@ bin_w_string (Wire *w, void *v)
 	len = strlen (*s) + 1;
     }
   sanei_w_array (w, &len, v, w->codec.w_byte, 1);
-  if (!len && w->direction == WIRE_DECODE)
+  if (w->direction == WIRE_DECODE && !len)
     *s = 0;
 }
 

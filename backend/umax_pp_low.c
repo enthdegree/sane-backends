@@ -144,7 +144,6 @@ static int TestVersion (int no);
 
 static int SendCommand (int cmd);
 static void SPPResetLPT (void);
-static int SendCommandString (int *cmd);
 static int SendWord (int *cmd);
 static int SendData (int *cmd, int len);
 static int ReceiveData (int *cmd, int len);
@@ -290,15 +289,12 @@ static int cmd3[] = { 0x00, 0x08, 0x00, 0x84, -1 };	/* 2048 bytes size write */
 static int cmd4[] = { 0x00, 0x08, 0x00, 0xC4, -1 };	/* 2048 bytes size read */
 
 
-static int commande1[] = { 0x55, 0xAA, 0x00, 0x00, 0x22, 0x88, -1 };
 static int commande2[] = { 0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C,
   0x00, 0x03, 0xC1, 0x80, 0x00, 0x20, 0x02, 0x00,
   0x16, 0x41, 0xE0, 0xAC, 0x03, 0x03, 0x00, 0x00,
   0x46, 0xA0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
   0x00, 0x10, -1
 };
-static int commande3[] = { 0x55, 0xAA, 0x00, 0x08, 0x00, 0x84, -1 };
-static int commande4[] = { 0x55, 0xAA, 0x00, 0x08, 0x00, 0xC4, -1 };
 
 static int gPort = 0x378;
 
@@ -1701,52 +1697,6 @@ EPPWrite32Buffer (int size, unsigned char *source)
   Outsw (EPPDATA, source, size / 4);
 }
 
-/* send command string, returns 1 on success, 0 on failure */
-static int
-SendCommandString (int *cmd)
-{
-  int i;
-  int reg;
-
-  i = 0;
-  reg = EPPRegisterRead (0x19) & 0xF8;
-  while ((reg == 0xC8) && (cmd[i] != -1))
-    {
-      /* 1B handling */
-      if (cmd[i] == 0x1B)
-	{
-	  EPPRegisterWrite (0x1C, cmd[i]);
-	  reg = EPPRegisterRead (0x19) & 0xF8;
-	}
-      EPPRegisterWrite (0x1C, cmd[i]);
-      i++;
-      reg = EPPRegisterRead (0x19) & 0xF8;
-      while (reg == 0xE8)
-	{
-	  reg = EPPRegisterRead (0x19) & 0xF8;
-	}
-    }
-  if ((reg != 0xC0) && (reg != 0xD0))
-    {
-      DBG (0,
-	   "SendCommandString failed, expected reg19=0xC0 or 0xD0, got 0x%02X (%s:%d)\n",
-	   reg, __FILE__, __LINE__);
-      DBG (0, "Blindly going on .....\n");
-    }
-  if (((reg == 0xC0) || (reg == 0xD0)) && (cmd[i] != -1))
-    {
-      DBG (0, "SendCommandString failed (%s:%d)\n", __FILE__, __LINE__);
-      DBG (0, "Blindly going on .....\n");
-    }
-  reg = EPPRegisterRead (0x1C) & 0x10;
-  if ((reg & 0x10) != 0x10)
-    {
-      DBG (0, "SendCommandString failed reg1C=0x%02X (%s:%d)\n", reg,
-	   __FILE__, __LINE__);
-      return (0);
-    }
-  return (1);
-}
 
 
 
@@ -2566,6 +2516,44 @@ SendData (int *cmd, int len)
 /* receive data bytes from scanner   */
 /* needs data channel to be set up   */
 /* returns 1 on success, 0 otherwise */
+/* uses PausedReadBuffer             */
+static int
+PausedReadData (int size, unsigned char *dest)
+{
+  int reg;
+  int tmp;
+  int read;
+
+  reg = EPPRegisterRead (0x19) & 0xF8;
+  if ((reg != 0xC0) && (reg != 0xD0))
+    {
+      DBG (0, "Unexpected reg19: 0x%02X instead of 0xC0 or 0xD0 (%s:%d)\n",
+	   reg, __FILE__, __LINE__);
+      return (0);
+    }
+  EPPREGISTERREAD (0x0C, 0x04);
+  EPPREGISTERWRITE (0x0C, 0x44);
+  EPPRead32Buffer (0x0, dest);
+  read = PausedReadBuffer (size, dest);
+  if (read < size)
+    {
+      DBG (16,
+	   "PausedReadBuffer(%d,dest) failed, only got %d bytes (%s:%d)\n",
+	   size, read, __FILE__, __LINE__);
+      return (0);
+    }
+  DBG (16, "PausedReadBuffer(%d,dest) passed (%s:%d)\n", size, __FILE__,
+       __LINE__);
+  EPPREGISTERWRITE (0x0E, 0x0D);
+  EPPREGISTERWRITE (0x0F, 0x00);
+  return (1);
+}
+
+
+
+/* receive data bytes from scanner   */
+/* needs data channel to be set up   */
+/* returns 1 on success, 0 otherwise */
 static int
 ReceiveData (int *cmd, int len)
 {
@@ -2717,22 +2705,15 @@ InitBuffer001 (void)
   DBG (16, "SendWord(cmd4) passed (%s:%d) \n", __FILE__, __LINE__);
 
 
-  reg = EPPRegisterRead (0x19) & 0xF8;
-  if (reg != 0xD0)
-    {
-      DBG (0, "Unexpected reg19: 0x%02X instead of 0xD0 (%s:%d)\n", reg,
-	   __FILE__, __LINE__);
-      return (0);
-    }
-  EPPREGISTERREAD (0x0C, 0x04);
-  EPPREGISTERWRITE (0x0C, 0x44);
-  EPPRead32Buffer (0x0, dest);
-  read = PausedReadBuffer (2048, dest);
-  DBG (16, "PausedReadBuffer(2048,dest)=%d passed (%s:%d)\n", read, __FILE__,
-       __LINE__);
-  EPPREGISTERWRITE (0x0E, 0x0D);
-  EPPREGISTERWRITE (0x0F, 0x00);
 
+      if (PausedReadData (2048, dest) == 0)
+	{
+	  DBG (16, "PausedReadData(2048,dest) failed (%s:%d)\n", __FILE__,
+	       __LINE__);
+	  return (0);
+	}
+      DBG (16, "PausedReadData(2048,dest) passed (%s:%d)\n", __FILE__,
+	   __LINE__);
 
   if (SendWord (cmd1) == 0)
     {
@@ -2742,8 +2723,8 @@ InitBuffer001 (void)
   DBG (16, "SendWord(cmd1) passed (%s:%d)\n", __FILE__, __LINE__);
 
 
-  SendCommandString (commande2);
-  DBG (16, "SendCommandString(commande2) passed (%s:%d) \n", __FILE__,
+  SendData (commande2,0x22);
+  DBG (16, "SendData(commande2,0x22) passed (%s:%d) \n", __FILE__,
        __LINE__);
   if (SendWord (cmd3) == 0)	/* write 2048 to channel 4 */
     {
@@ -2785,22 +2766,15 @@ InitBuffer002 (void)
   EPPREGISTERWRITE (0x0F, 0x00);
 
 
-  reg = EPPRegisterRead (0x19) & 0xF8;
-  if (reg != 0xD0)
-    {
-      DBG (0, "Unexpected reg19: 0x%02X instead of 0xD0 (%s:%d)\n", reg,
-	   __FILE__, __LINE__);
-      return (0);
-    }
-  EPPREGISTERREAD (0x0C, 0x04);
-  EPPREGISTERWRITE (0x0C, 0x44);
-  EPPRead32Buffer (0x0, dest);
-  read = PausedReadBuffer (2048, dest);
-  DBG (16, "PausedReadBuffer(2048,dest)=%d passed (%s:%d)\n", read, __FILE__,
-       __LINE__);
-  EPPREGISTERWRITE (0x0E, 0x0D);
-  EPPREGISTERWRITE (0x0F, 0x00);
 
+      if (PausedReadData (2048, dest) == 0)
+	{
+	  DBG (16, "PausedReadData(2048,dest) failed (%s:%d)\n", __FILE__,
+	       __LINE__);
+	  return (0);
+	}
+      DBG (16, "PausedReadData(2048,dest) passed (%s:%d)\n", __FILE__,
+	   __LINE__);
 
   if (SendWord (cmd1) == 0)
     {
@@ -2809,8 +2783,8 @@ InitBuffer002 (void)
     }
   DBG (16, "SendWord(cmd1) passed (%s:%d)\n", __FILE__, __LINE__);
 
-  SendCommandString (commande2);
-  DBG (16, "SendCommandString(commande2) passed (%s:%d) \n", __FILE__,
+  SendData (commande2,0x22);
+  DBG (16, "SendData(commande2) passed (%s:%d) \n", __FILE__,
        __LINE__);
 
   if (SendWord (cmd3) == 0)
@@ -3855,7 +3829,7 @@ Probe610P (int recover)
 int
 sanei_umax_pp_ProbeScanner (int recover)
 {
-  int tmp, i, j;
+  int tmp, i, j, k;
   int reg;
   int read;
   unsigned char *dest = NULL;
@@ -4383,7 +4357,7 @@ sanei_umax_pp_ProbeScanner (int recover)
 
   /* some sort of countdown, some warming-up ? */
   /* maybe some pauses are needed              */
-  if (model == 0x07)
+  /* if (model == 0x07) */
     {
       EPPREGISTERWRITE (0x0A, 0x00);
       reg = EPPRegisterRead (0x0D);
@@ -4483,14 +4457,15 @@ sanei_umax_pp_ProbeScanner (int recover)
       usleep (10000);
 
       reg = EPPRegisterRead (0x10);
+      DBG (1,"Count-down value is 0x%02X  (%s:%d)\n", reg,__FILE__, __LINE__);
       /* 2 reports of CF, was FF first (typo ?) */
       /* CF seems a valid value                 */
       /* in case of CF, we may have timeout ... */
-      if (reg != 0x00)
+      /*if (reg != 0x00)
 	{
 	  DBG (0, "Warning! expected reg10=0x00, found 0x%02X! (%s:%d) \n",
 	       reg, __FILE__, __LINE__);
-	}
+	}*/
       EPPREGISTERWRITE (0x13, 0x00);
     }
 
@@ -4541,18 +4516,21 @@ sanei_umax_pp_ProbeScanner (int recover)
   reg = EPPRegisterRead (0x19) & 0xC8;
   /* if reg=E8 or D8 , we have a 'messed' scanner */
 
+  for(k=0;k<1;k++)
+  {
   /* is SendLength 34 bytes */
-  SendCommandString (commande1);
-  DBG (16, "SendCommandString(commande1) passed (%s:%d) \n", __FILE__,
+  SendWord(cmd1);
+
+  DBG (16, "SendWord(cmd1) passed (%s:%d) \n", __FILE__,
        __LINE__);
   /* SendData */
-  SendCommandString (commande2);
-  DBG (16, "SendCommandString(commande2) passed (%s:%d) \n", __FILE__,
+  SendData (commande2,0x22);
+  DBG (16, "SendData(commande2) passed (%s:%d) \n", __FILE__,
        __LINE__);
 
   /* is SendLength 2048 bytes */
-  SendCommandString (commande3);
-  DBG (16, "SendCommandString(commande3) passed (%s:%d) \n", __FILE__,
+  SendWord (cmd3);
+  DBG (16, "SendWord(cmd3) passed (%s:%d) \n", __FILE__,
        __LINE__);
 
   /* fill buffer ? */
@@ -4569,8 +4547,8 @@ sanei_umax_pp_ProbeScanner (int recover)
   TRACE (16, "SendData(donnees,2048) passed ...");
 
 
-  SendCommandString (commande4);
-  DBG (16, "SendCommandString(commande4) passed (%s:%d) \n", __FILE__,
+  SendWord(cmd4);
+  DBG (16, "SendWord(cmd4) passed (%s:%d) \n", __FILE__,
        __LINE__);
   EPPREGISTERWRITE (0x0E, 0x0D);
   EPPREGISTERWRITE (0x0F, 0x00);
@@ -4614,8 +4592,8 @@ sanei_umax_pp_ProbeScanner (int recover)
     }
   DBG (16, "SendWord(cmd1) passed (%s:%d)\n", __FILE__, __LINE__);
 
-  SendCommandString (commande2);
-  DBG (16, "SendCommandString(commande2) passed (%s:%d) \n", __FILE__,
+  SendData (commande2,0x22);
+  DBG (16, "SendData(commande2) passed (%s:%d) \n", __FILE__,
        __LINE__);
 
 
@@ -4645,9 +4623,93 @@ sanei_umax_pp_ProbeScanner (int recover)
       return (0);
     }
   TRACE (16, "SendData(donnees,2048) passed ...");
+  SendWord (cmd4);
+  DBG (16, "SendWord(cmd4) passed (%s:%d) \n", __FILE__, __LINE__);
+  EPPREGISTERWRITE (0x0E, 0x0D);
+  EPPREGISTERWRITE (0x0F, 0x00);
+
+
+
+      if (PausedReadData (2048, dest) == 0)
+	{
+	  DBG (16, "PausedReadData(2048,dest) failed (%s:%d)\n", __FILE__,
+	       __LINE__);
+	  return (0);
+	}
+      DBG (16, "PausedReadData(2048,dest) passed (%s:%d)\n", __FILE__,
+	   __LINE__);
+  }
+
+	  
+
+  if (SendWord (cmd1) == 0)
+    {
+      DBG (0, "SendWord(cmd1) failed (%s:%d)\n", __FILE__, __LINE__);
+      return (0);
+    }
+  DBG (16, "SendWord(cmd1) passed (%s:%d)\n", __FILE__, __LINE__);
+
+  SendData (commande2,0x22);
+  DBG (16, "SendData(commande2) passed (%s:%d) \n", __FILE__,
+       __LINE__);
+
+  if (SendWord (cmd3) == 0)
+    {
+      DBG (0, "SendWord(cmd3) failed (%s:%d)\n", __FILE__, __LINE__);
+      return (0);
+    }
+  DBG (16, "SendWord(cmd3) passed (%s:%d)\n", __FILE__, __LINE__);
+
+
+  i = 0;
+  while (i < 512)
+    {
+      donnees[i] = 0x00;
+      i++;
+    }
+  donnees[i] = 0xFF;
+  i++;
+  donnees[i] = 0xAA;
+  i++;
+  donnees[i] = 0x55;
+  i++;
+  donnees[i] = 0xFE;
+  i++;
+
+  for (i = 2; i < 256; i++)
+    {
+      donnees[512 + 2 * i] = i;
+      donnees[512 + 2 * i + 1] = 0xFF - i;
+    }
+  for (j = 0; j < 2; j++)
+    {
+      for (i = 0; i < 256; i++)
+	{
+	  donnees[1024 + 512 * j + 2 * i] = i;
+	  donnees[1024 + 512 * j + 2 * i + 1] = 0xFF - i;
+	}
+    }
+
+  if (SendData (donnees, 2048) == 0)
+    {
+      DBG (0, "SendData(donnees,%d) failed (%s:%d)\n", 2048, __FILE__,
+	   __LINE__);
+      return (0);
+    }
+  TRACE (16, "SendData(donnees,2048) passed ...");
+
+
+      if (InitBuffer001 () != 1)
+	{
+	  DBG (0, "InitBuffer001 failed! (%s:%d) \n", __FILE__, __LINE__);
+	  return (0);
+	}
+      DBG (16, "InitBuffer001 passed ... (%s:%d) \n", __FILE__, __LINE__);
+      DBG (16, "InitBuffer002+InitBuffer001 loop %d passed ... (%s:%d) \n", j,
+	   __FILE__, __LINE__);
 
   /* we are still connected to EPAT */
-  for (j = 0; j < 3; j++)
+  for (j = 0; j < 2; j++)
     {
       if (InitBuffer002 () != 1)
 	{
@@ -4679,20 +4741,16 @@ sanei_umax_pp_ProbeScanner (int recover)
 
   EPPREGISTERWRITE (0x0E, 0x0D);
   EPPREGISTERWRITE (0x0F, 0x00);
-  reg = EPPRegisterRead (0x19) & 0xF8;
-  if (reg != 0xC0)
-    {
-      DBG (16, "Unexpected reg19: 0x%02X instead of 0xC0 (%s:%d)\n", reg,
-	   __FILE__, __LINE__);
-    }
-  EPPREGISTERREAD (0x0C, 0x04);
-  EPPREGISTERWRITE (0x0C, 0x44);
-  EPPRead32Buffer (0x0, dest);
-  read = PausedReadBuffer (2048, dest);
-  DBG (16, "PausedReadBuffer(2048,dest)=%d passed (%s:%d)\n", read, __FILE__,
-       __LINE__);
-  EPPREGISTERWRITE (0x0E, 0x0D);
-  EPPREGISTERWRITE (0x0F, 0x00);
+
+
+      if (PausedReadData (2048, dest) == 0)
+	{
+	  DBG (16, "PausedReadData(2048,dest) failed (%s:%d)\n", __FILE__,
+	       __LINE__);
+	  return (0);
+	}
+      DBG (16, "PausedReadData(2048,dest) passed (%s:%d)\n", __FILE__,
+	   __LINE__);
 
 
 
@@ -6172,7 +6230,7 @@ MoveToOrigin (void)
     0x4D, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68,
     0xDF, 0x13, 0x1A, 0x00, -1
   };
-  int end[9] = { 0x06, 0xF4, 0xFF, 0x81, 0x3D, 0x00, 0x08, 0x00, -1 };
+  int end[9] = { 0x06, 0xF4, 0xFF, 0x81, 0x1B, 0x00, 0x08, 0x00, -1 };
   int opsc03[9] = { 0x00, 0x00, 0x00, 0xAA, 0xCC, 0xEE, 0x80, 0xFF, -1 };
 
   /* 1600P command set */
@@ -6261,8 +6319,8 @@ WarmUp (int color, int *gain)
   unsigned char buffer[5300];
   int i, val;
   int opsc02[9] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, -1 };
-  int opsc04[9] = { 0x06, 0xF4, 0xFF, 0x81, 0x3D, 0x00, 0x00, 0x00, -1 };
-  int opsc10[9] = { 0x06, 0xF4, 0xFF, 0x81, 0x3D, 0x00, 0x08, 0x00, -1 };
+  int opsc04[9] = { 0x06, 0xF4, 0xFF, 0x81, 0x1B, 0x00, 0x00, 0x00, -1 };
+  int opsc10[9] = { 0x06, 0xF4, 0xFF, 0x81, 0x1B, 0x00, 0x08, 0x00, -1 };
   int opsc18[17] =
     { 0x01, 0x00, 0x00, 0x70, 0x00, 0x00, 0x60, 0x2F, 0x2F, 0x00, 0x88, 0x08,
     0x00, 0x80, 0xA4, 0x00, -1
@@ -6692,7 +6750,7 @@ GammaCalibration (int color, int dpi, int gain, int highlight, int width,
     0x54, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x93, 0x1A, 0x00,
     -1
   };
-  int opsc04[9] = { 0x06, 0xF4, 0xFF, 0x81, 0x3D, 0x00, 0x00, 0x00, -1 };
+  int opsc04[9] = { 0x06, 0xF4, 0xFF, 0x81, 0x1B, 0x00, 0x00, 0x00, -1 };
   int opsc02[9] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, -1 };
   int size;
   unsigned char buffer[0x105798];
@@ -7063,7 +7121,7 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
   int th, tw, bpp;
   int distance, i;
 
-  int opsc04[9] = { 0x06, 0xF4, 0xFF, 0x81, 0x3D, 0x00, 0x00, 0x00, -1 };
+  int opsc04[9] = { 0x06, 0xF4, 0xFF, 0x81, 0x1B, 0x00, 0x00, 0x00, -1 };
   int opsc53[17] =
     { 0xA4, 0x80, 0x07, 0x50, 0xEC, 0x03, 0x00, 0x2F, 0x17, 0x07, 0x84, 0x08,
     0x00, 0x00, 0xAC, 0x00, -1
@@ -7403,8 +7461,8 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
 	}
       else
 	{
-	  opsc04[7] = 0xC0;
-	  opsc53[13] = 0x00;
+	  opsc04[7] = 0xA0;
+	  opsc53[13] = 0x09;
 	}
     }
   else
@@ -7420,8 +7478,8 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
 	}
       else
 	{
-	  opsc04[7] = 0x00;
-	  opsc53[13] = 0xC0;
+	  opsc04[7] = 0xA0;
+	  opsc53[13] = 0xC9;
 	}
     }
 

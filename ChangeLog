@@ -1,5 +1,13 @@
 2003-06-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* tools/sane-desc.c: Changed to use the new status system for
+	  devices: unsupported, untested, minimal, basic, good, complete.
+	  The old backend and device statuses are translated. Removed
+	  the option to generate one big table of backends (wasn't used
+	  anyway).
+
+2003-06-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
 	* README.darwin: Minor updates.
 	* TODO: Added v4l2 problem, desc file issues. Removed sm3600 
 	  MacOS	X problem + printing backends in configure.

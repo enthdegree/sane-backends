@@ -21,15 +21,16 @@
    MA 02111-1307, USA.
 */
 
-#define SANE_DESC_VERSION "1.1"
+#define SANE_DESC_VERSION "2.0"
 
 #define MAN_PAGE_LINK "http://www.mostang.com/sane/man/%s.5.html"
-#define COLOR_ALPHA       "\"#B00000\""
-#define COLOR_BETA        "\"#B0B000\""
-#define COLOR_STABLE      "\"#008000\""
-#define COLOR_UNTESTED    "\"#0000B0\""
-#define COLOR_UNSUPPORTED "\"#F00000\""
-#define COLOR_NEW         "\"#F00000\""
+#define COLOR_MINIMAL      "\"#B00000\""
+#define COLOR_BASIC        "\"#FF9000\""
+#define COLOR_GOOD         "\"#90B000\""
+#define COLOR_COMPLETE     "\"#007000\""
+#define COLOR_UNTESTED     "\"#0000B0\""
+#define COLOR_UNSUPPORTED  "\"#F00000\""
+#define COLOR_NEW          "\"#F00000\""
 
 #include <../include/sane/config.h>
 
@@ -80,11 +81,12 @@ parameter_type;
 typedef enum status_entry
 {
   status_unknown,
-  status_alpha,
-  status_beta,
-  status_stable,
   status_untested,
-  status_unsupported
+  status_unsupported,
+  status_minimal,
+  status_basic,
+  status_good,
+  status_complete
 }
 status_entry;
 
@@ -159,7 +161,7 @@ typedef struct backend_entry
   struct backend_entry *next;
   char *name;
   char *version;
-  enum status_entry status;
+  enum status_entry status; /* deprecated */
   char *manpage;
   struct url_entry *url;
   char *comment;
@@ -240,7 +242,7 @@ print_usage (char *program_name)
 	  ".desc files\n");
   printf
     ("  -m|--mode mode         Output mode (ascii, html-backends-split,\n"
-     "                         html-backends, html-mfgs)\n");
+     "                         html-mfgs)\n");
   printf ("  -t|--title \"title\"     The title used for HTML pages\n");
   printf ("  -i|--intro \"intro\"     A short description of the "
 	  "contents of the page\n");
@@ -301,11 +303,6 @@ get_options (int argc, char **argv)
 	    {
 	      DBG_INFO ("Output mode: ascii\n");
 	      mode = output_mode_ascii;
-	    }
-	  else if (strcmp (optarg, "html-backends") == 0)
-	    {
-	      DBG_INFO ("Output mode: html-backends\n");
-	      mode = output_mode_html_backends;
 	    }
 	  else if (strcmp (optarg, "html-backends-split") == 0)
 	    {
@@ -694,24 +691,24 @@ read_files (void)
 			}
 		      else if (strcmp (string_entry, ":alpha") == 0)
 			{
-			  DBG_INFO
-			    ("setting status of backend `%s' to `alpha'\n",
+			  DBG_WARN
+			    ("DEPRECATED backend status `alpha': setting status of backend `%s' to `basic'\n",
 			     current_backend->name);
-			  current_backend->status = status_alpha;
+			  current_backend->status = status_basic;
 			}
 		      else if (strcmp (string_entry, ":beta") == 0)
 			{
-			  DBG_INFO
-			    ("setting status of backend `%s' to `beta'\n",
+			  DBG_WARN
+			    ("DEPRECATED backend status `beta': setting status of backend `%s' to `good'\n",
 			     current_backend->name);
-			  current_backend->status = status_beta;
+			  current_backend->status = status_good;
 			}
 		      else if (strcmp (string_entry, ":stable") == 0)
 			{
-			  DBG_INFO
-			    ("setting status of backend `%s' to `stable'\n",
+			  DBG_WARN
+			    ("DEPRECATED backend status `stable': setting status of backend `%s' to `complete'\n",
 			     current_backend->name);
-			  current_backend->status = status_stable;
+			  current_backend->status = status_complete;
 			}
 		      else
 			{
@@ -729,24 +726,52 @@ read_files (void)
 			}
 		      if (strcmp (string_entry, ":alpha") == 0)
 			{
-			  DBG_INFO
-			    ("setting status of model `%s' to `alpha'\n",
+			  DBG_WARN
+			    ("DEPRECATED status `alpha': setting status of model `%s' to `basic'\n",
 			     current_model->name);
-			  current_model->status = status_alpha;
+			  current_model->status = status_basic;
 			}
 		      else if (strcmp (string_entry, ":beta") == 0)
 			{
-			  DBG_INFO
-			    ("setting status of model `%s' to `beta'\n",
+			  DBG_WARN
+			    ("DEPRECATED status `beta': setting status of model `%s' to `good'\n",
 			     current_model->name);
-			  current_model->status = status_beta;
+			  current_model->status = status_good;
 			}
 		      else if (strcmp (string_entry, ":stable") == 0)
 			{
-			  DBG_INFO
-			    ("setting status of model `%s' to `stable'\n",
+			  DBG_WARN
+			    ("DEPRECATED status `stable': setting status of model `%s' to `complete'\n",
 			     current_model->name);
-			  current_model->status = status_stable;
+			  current_model->status = status_complete;
+			}
+		      else if (strcmp (string_entry, ":minimal") == 0)
+			{
+			  DBG_INFO
+			    ("setting status of model `%s' to `minimal'\n",
+			     current_model->name);
+			  current_model->status = status_minimal;
+			}
+		      else if (strcmp (string_entry, ":basic") == 0)
+			{
+			  DBG_INFO
+			    ("setting status of model `%s' to `basic'\n",
+			     current_model->name);
+			  current_model->status = status_basic;
+			}
+		      else if (strcmp (string_entry, ":good") == 0)
+			{
+			  DBG_INFO
+			    ("setting status of model `%s' to `good'\n",
+			     current_model->name);
+			  current_model->status = status_good;
+			}
+		      else if (strcmp (string_entry, ":complete") == 0)
+			{
+			  DBG_INFO
+			    ("setting status of model `%s' to `complete'\n",
+			     current_model->name);
+			  current_model->status = status_complete;
 			}
 		      else if (strcmp (string_entry, ":untested") == 0)
 			{
@@ -766,10 +791,9 @@ read_files (void)
 			{
 			  DBG_ERR ("unknown status of model `%s': `%s'\n",
 				   current_model->name, string_entry);
-			  current_model->status = status_unknown;
+			  current_model->status = status_untested;
 			  return SANE_FALSE;
 			}
-
 		      break;
 		    default:
 		      DBG_ERR ("level %d not implemented for :status\n",
@@ -1142,7 +1166,7 @@ create_model_record (model_entry * model)
 }
 
 /* Calculate the priority of statuses: */
-/* alpha, beta, stable -> 2, untested -> 1, unsupported -> 0 */
+/* minimal, basic, good, complete -> 2, untested -> 1, unsupported -> 0 */
 static int
 calc_priority (status_entry status)
 {
@@ -1376,22 +1400,6 @@ ascii_print_backends (void)
       if (be->new)
 	printf (" NEW!\n");
 
-      switch (be->status)
-	{
-	case status_alpha:
-	  printf (" status alpha\n");
-	  break;
-	case status_beta:
-	  printf (" status beta\n");
-	  break;
-	case status_stable:
-	  printf (" status stable\n");
-	  break;
-	default:
-	  printf (" status *unknown*\n");
-	  break;
-	}
-
       if (be->manpage)
 	printf (" manpage `%s'\n", be->manpage);
       else
@@ -1488,16 +1496,21 @@ ascii_print_backends (void)
 			    printf ("    interface `%s'\n", model->interface);
 			  else
 			    printf ("    interface *none*\n");
+			  if (model->status == status_unknown)
+			    model->status = be->status;
 			  switch (model->status)
 			    {
-			    case status_alpha:
-			      printf ("    status alpha\n");
+			    case status_minimal:
+			      printf ("    status minimal\n");
 			      break;
-			    case status_beta:
-			      printf ("    status beta\n");
+			    case status_basic:
+			      printf ("    status basic\n");
 			      break;
-			    case status_stable:
-			      printf ("    status stable\n");
+			    case status_good:
+			      printf ("    status good\n");
+			      break;
+			    case status_complete:
+			      printf ("    status complete\n");
 			      break;
 			    case status_untested:
 			      printf ("    status untested\n");
@@ -1564,250 +1577,6 @@ html_generate_anchor_name (char *manufacturer_name)
   return name;
 }
 
-/* Generate a table of all backends providing models of type dev_type */
-static void
-html_backends_table (device_type dev_type)
-{
-  backend_entry *be = first_backend;
-  SANE_Bool found = SANE_FALSE;
-
-  /* check if we have at least one matching backend */
-  while (be)
-    {
-      type_entry *type = be->type;
-
-      while (type)
-	{
-	  if (type->type == dev_type)
-	    found = SANE_TRUE;
-	  type = type->next;
-	}
-      be = be->next;
-    }
-  if (!found)
-    {
-      printf ("<p>(none)</p>\n");
-      return;
-    }
-  be = first_backend;
-
-  printf ("<table border=1>\n");
-  printf ("<tr bgcolor=E0E0FF>\n");
-
-  switch (dev_type)
-    {
-    case type_scanner:
-    case type_stillcam:
-    case type_vidcam:
-      printf ("<th align=center rowspan=2>Backend</th>\n");
-      printf ("<th align=center rowspan=2>Manual Page</th>\n");
-      printf ("<th align=center colspan=5>Supported Devices</th>\n");
-      printf ("</tr>\n");
-      printf ("<tr bgcolor=E0E0FF>\n");
-      printf ("<th align=center>Manufacturer</th>\n");
-      printf ("<th align=center>Model</th>\n");
-      printf ("<th align=center>Interface</th>\n");
-      printf ("<th align=center>Status</th>\n");
-      printf ("<th align=center>Comment</th>\n");
-      break;
-    case type_meta:
-    case type_api:
-      printf ("<th align=center>Backend</th>\n");
-      printf ("<th align=center>Manual Page</th>\n");
-      printf ("<th align=center>Description</th>\n");
-      printf ("<th align=center>Status</th>\n");
-      printf ("<th align=center>Comment</th>\n");
-      break;
-    default:
-      DBG_ERR ("Unknown device type (%d)\n", dev_type);
-      return;
-    }
-
-  printf ("</tr>\n");
-
-  while (be)
-    {
-      type_entry *type = be->type;
-
-      while (type)
-	{
-	  if (type->type == dev_type)
-	    {
-	      mfg_entry *mfg = type->mfg;
-	      model_entry *model;
-	      int row_num = 0;
-
-	      /* count models for backend rowspan */
-	      if (mfg)		/* scanner, camera */
-		while (mfg)
-		  {
-		    model = mfg->model;
-		    while (model)
-		      {
-			model = model->next;
-			row_num++;
-		      }
-		    mfg = mfg->next;
-		  }
-	      else
-		row_num = 1;
-
-	      printf ("<tr><td align=center rowspan=%d>\n", row_num);
-	      if (be->url && be->url->name)
-		printf ("<a href=\"%s\">%s</a>\n", be->url->name, be->name);
-	      else
-		printf ("%s", be->name);
-
-	      if (be->version || be->new)
-		{
-		  printf ("<br>(");
-		  if (be->version)
-		    {
-		      printf ("v%s", be->version);
-		      if (be->new)
-			printf (", <font color=" COLOR_NEW ">NEW!</font>");
-		    }
-		  else
-		    printf ("<font color=" COLOR_NEW ">NEW!</font>");
-		  printf (")\n");
-		}
-	      printf ("</td>\n");
-	      if (be->manpage)
-		printf ("<td align=center rowspan=%d><a href=\"" MAN_PAGE_LINK
-			"\">%s</a></td>\n", row_num, be->manpage,
-			be->manpage);
-	      else
-		printf ("<td align=center rowspan=%d>?</td>\n", row_num);
-
-	      mfg = type->mfg;
-	      if (!mfg && type->desc)
-		{
-		  if (type->desc->desc)
-		    {
-		      if (type->desc->url && type->desc->url->name)
-			printf ("<td><a href=\"%s\">%s</a></td>\n",
-				type->desc->url->name, type->desc->desc);
-		      else
-			printf ("<td>%s</td>\n", type->desc->desc);
-		    }
-		  else
-		    printf ("<td>&nbsp;</td>\n");
-		  printf ("<td>");
-		  switch (be->status)
-		    {
-		    case status_alpha:
-		      printf ("<font color=" COLOR_ALPHA ">alpha</font>");
-		      break;
-		    case status_beta:
-		      printf ("<font color=" COLOR_BETA ">beta</font>");
-		      break;
-		    case status_stable:
-		      printf ("<font color=" COLOR_STABLE ">stable</font>");
-		      break;
-		    default:
-		      printf ("?");
-		      break;
-		    }
-		  printf ("</td>\n");
-
-		  if (type->desc->comment)
-		    printf ("<td>%s</td>\n", type->desc->comment);
-		  else
-		    printf ("<td>&nbsp;</td>\n");
-		  printf ("</tr>\n");
-		}
-	      while (mfg)
-		{
-		  model = mfg->model;
-		  if (model)
-		    {
-		      int num_models = 0;
-
-		      while (model)	/* count models for rowspan */
-			{
-			  model = model->next;
-			  num_models++;
-			}
-		      model = mfg->model;
-		      if (mfg != type->mfg)
-			printf ("<tr>\n");
-		      printf ("<td align=center rowspan=%d>\n", num_models);
-		      if (mfg->url && mfg->url->name)
-			printf ("<a href=\"%s\">%s</a>\n", mfg->url->name,
-				mfg->name);
-		      else
-			printf ("%s\n", mfg->name);
-
-		      while (model)
-			{
-			  enum status_entry status = model->status;
-
-			  if (model != mfg->model)
-			    printf ("<tr>\n");
-
-			  if (model->url && model->url->name)
-			    printf
-			      ("<td align=center><a href=\"%s\">%s</a></td>\n",
-			       model->url->name, model->name);
-			  else
-			    printf ("<td align=center>%s</td>\n",
-				    model->name);
-
-			  if (model->interface)
-			    printf ("<td align=center>%s</td>\n",
-				    model->interface);
-			  else
-			    printf ("<td align=center>?</td>\n");
-
-			  printf ("<td align=center>");
-			  if (status == status_unknown)
-			    status = be->status;
-			  switch (status)
-			    {
-			    case status_alpha:
-			      printf ("<font color=" COLOR_ALPHA
-				      ">alpha</font>");
-			      break;
-			    case status_beta:
-			      printf ("<font color=" COLOR_BETA
-				      ">beta</font>");
-			      break;
-			    case status_stable:
-			      printf ("<font color=" COLOR_STABLE
-				      ">stable</font>");
-			      break;
-			    case status_untested:
-			      printf ("<font color=" COLOR_UNTESTED
-				      ">untested</font>");
-			      break;
-			    case status_unsupported:
-			      printf ("<font color=" COLOR_UNSUPPORTED
-				      ">unsupported</font>");
-			      break;
-			    default:
-			      printf ("?");
-			      break;
-			    }
-			  printf ("</td>\n");
-
-			  if (model->comment && model->comment[0] != 0)
-			    printf ("<td>%s</td>\n", model->comment);
-			  else
-			    printf ("<td>&nbsp;</td>\n");
-
-			  model = model->next;
-			  printf ("</tr>\n");
-			}	/* while (model) */
-		    }		/* if (num_models) */
-		  mfg = mfg->next;
-		}		/* while (mfg) */
-	    }			/* if (type->type) */
-	  type = type->next;
-	}			/* while (type) */
-      be = be->next;
-    }				/* while (be) */
-  printf ("</table>\n");
-}
 
 /* Generate one table per backend of all backends providing models */
 /* of type dev_type */
@@ -1865,7 +1634,7 @@ html_backends_split_table (device_type dev_type)
 		  printf ("(");
 		  if (be->version)
 		    {
-		      printf ("v%s", be->version);
+		      printf ("%s", be->version);
 		      if (be->new)
 			printf (", <font color=" COLOR_NEW ">NEW!</font>");
 		    }
@@ -1897,26 +1666,9 @@ html_backends_split_table (device_type dev_type)
 	      if (be->comment)
 		printf ("<b>Comment:</b> %s<br>\n", be->comment);
 
+
 	      if (type->desc)
 		{
-		  printf ("<b>Status:</b> \n");
-		  switch (be->status)
-		    {
-		    case status_alpha:
-		      printf ("<font color=" COLOR_ALPHA ">alpha</font>");
-		      break;
-		    case status_beta:
-		      printf ("<font color=" COLOR_BETA ">beta</font>");
-		      break;
-		    case status_stable:
-		      printf ("<font color=" COLOR_STABLE ">stable</font>");
-		      break;
-		    default:
-		      printf ("?");
-		      break;
-		    }
-		  printf ("<br>\n");
-
 		  if (type->desc->desc)
 		    {
 		      if (type->desc->url && type->desc->url->name)
@@ -1997,20 +1749,24 @@ html_backends_split_table (device_type dev_type)
 
 			  printf ("<td align=center>");
 			  if (status == status_unknown)
-			    status = be->status;
+			      status = be->status;
 			  switch (status)
 			    {
-			    case status_alpha:
-			      printf ("<font color=" COLOR_ALPHA
-				      ">alpha</font>");
+			    case status_minimal:
+			      printf ("<font color=" COLOR_MINIMAL
+				      ">minimal</font>");
 			      break;
-			    case status_beta:
-			      printf ("<font color=" COLOR_BETA
-				      ">beta</font>");
+			    case status_basic:
+			      printf ("<font color=" COLOR_BASIC
+				      ">basic</font>");
 			      break;
-			    case status_stable:
-			      printf ("<font color=" COLOR_STABLE
-				      ">stable</font>");
+			    case status_good:
+			      printf ("<font color=" COLOR_GOOD
+				      ">good</font>");
+			      break;
+			    case status_complete:
+			      printf ("<font color=" COLOR_COMPLETE
+				      ">complete</font>");
 			      break;
 			    case status_untested:
 			      printf ("<font color=" COLOR_UNTESTED
@@ -2125,18 +1881,23 @@ html_mfgs_table (device_type dev_type)
 	    printf ("<td align=center>?</td>\n");
 
 	  printf ("<td align=center>");
+	  
 	  if (status == status_unknown)
 	    status = model_record->be->status;
+	  
 	  switch (status)
 	    {
-	    case status_alpha:
-	      printf ("<font color=" COLOR_ALPHA ">alpha</font>");
+	    case status_minimal:
+	      printf ("<font color=" COLOR_MINIMAL ">minimal</font>");
 	      break;
-	    case status_beta:
-	      printf ("<font color=" COLOR_BETA ">beta</font>");
+	    case status_basic:
+	      printf ("<font color=" COLOR_BASIC ">basic</font>");
 	      break;
-	    case status_stable:
-	      printf ("<font color=" COLOR_STABLE ">stable</font>");
+	    case status_good:
+	      printf ("<font color=" COLOR_GOOD ">good</font>");
+	      break;
+	    case status_complete:
+	      printf ("<font color=" COLOR_COMPLETE ">complete</font>");
 	      break;
 	    case status_untested:
 	      printf ("<font color=" COLOR_UNTESTED ">untested</font>");
@@ -2167,7 +1928,7 @@ html_mfgs_table (device_type dev_type)
 	      printf ("<br>(");
 	      if (model_record->be->version)
 		{
-		  printf ("v%s", model_record->be->version);
+		  printf ("%s", model_record->be->version);
 		  if (model_record->be->new)
 		    printf (", <font color=" COLOR_NEW ">NEW!</font>");
 		}
@@ -2223,10 +1984,10 @@ html_print_header (void)
      "href=\"mailto:jonathan@buzzard.org.uk\">\n"
      "Jonathan Buzzard</a>.</p>\n");
   printf
-    ("<p>If you have new information or corrections, please send\n"
-     "e-mail to sane-devel, the <a\n"
-     "href=\"http://www.mostang.com/sane/mail.html\">SANE mailing\n"
-     "list</a>.</p>\n"
+    ("<p>If you have new information or corrections, please contact\n"
+     "<a href=\"mailto:henning@meier-geinitz.de\">henning@meier-geinitz.de</a>\n"
+     "with as many details as possible. Also please contact me if your scanner \n"
+     "isn't mentioned in this list at all.</p>\n"
      "<p>For an explanation of the tables, see the\n"
      "<a href=\"#legend\">legend</a>.\n");
   printf
@@ -2256,88 +2017,108 @@ html_print_footer (void)
   printf ("</body> </html>\n");
 }
 
-/* Print the HTML page with one table of backends per type */
+
+/* print parts of the legend */
 static void
-html_print_backends (void)
+html_print_legend_backend (void)
 {
-  if (!title)
-    title = "SANE: Backends (Drivers)";
-  if (!intro)
-    intro = "<p> The following table summarizes the backends/drivers "
-      "distributed with the latest version of sane-backends, and the hardware "
-      "or software they support. </p>";
-
-  html_print_header ();
-
-  printf ("<p><div align=center>\n");
-
-  printf ("<h2><a name=\"SCANNERS\">Scanners</a></h2>\n");
-  html_backends_table (type_scanner);
-
-  printf ("<h2><a name=\"STILL\">Still Cameras</a></h2>\n");
-  html_backends_table (type_stillcam);
-
-  printf ("<h2><a name=\"VIDEO\">Video Cameras</a></h2>\n");
-  html_backends_table (type_vidcam);
-
-  printf ("<h2><a name=\"API\">APIs</a></h2>\n");
-  html_backends_table (type_api);
-
-  printf ("<h2><a name=\"META\">Meta Backends</a></h2>\n");
-  html_backends_table (type_meta);
-
-  printf ("</div>\n");
-
   printf
-    ("<h3><a name=\"legend\">Legend:</a></h3>\n"
-     "<blockquote>\n"
-     "<dl>\n"
-     "  <dt><b>Backend:</b></dt>\n"
-     "  <dd>Name of the backend, with a link to more extensive and\n"
-     "      detailed information, if it exists, or the email address\n"
-     "      of the author or maintainer. In parentheses if available:\n"
+    ("  <dt><b>Backend:</b></dt>\n"
+     "  <dd>Name of the backend,  in parentheses if available:\n"
      "      Version of backend/driver; newer versions may be\n"
      "      available from their home sites.<br>"
      "      <font color=" COLOR_NEW ">NEW!</font> means brand-new to the\n"
-     "      current release of SANE.\n" "  </dd>\n");
+     "      current release of SANE.<br>\n"
+     "      UNMAINTAINED means that nobody maintains that backend. Expect no \n"
+     "      new features or newly supported devices. You are welcome to take over \n"
+     "      maintainership.\n"
+     "  </dd>\n");
+}
+
+static void
+html_print_legend_link (void)
+{
+  printf
+    ("  <dt><b>Link(s):</b></dt>\n"
+     "  <dd>Link(s) to more extensive and\n"
+     "      detailed information, if it exists, or the email address\n"
+     "      of the author or maintainer.\n");
+}
+
+static void
+html_print_legend_manual (void)
+{
   printf
     ("  <dt><b>Manual Page:</b></dt>\n"
-     "  <dd>A link to the man-page on-line, if it exists.</dd>\n"
-     "  <dt><b>Supported Devices</b> (for hardware devices):</dt>\n"
-     "  <dd>Which hardware the backend supports.</dd>\n"
-     "  <dt><b>Manufacturer:</b></dt>\n"
-     "  <dd>Manufacturer, vendor or brand name of the device.</dd>\n"
-     "  <dt><b>Model:</b></dt>\n"
-     "  <dd>Name of the the device.</dd>\n"
-     "  <dt><b>Interface:</b></dt>\n"
-     "  <dd>How the device is connected to the computer.</dd>\n");
-  printf
-    ("  <dt><b>Status</b>:</dt>\n"
-     "  <dd>A vague indication of robustness and reliability.\n"
-     "      <ul><li><font color=" COLOR_UNSUPPORTED ">unsupported</font>"
-     "        means the device is not supported at least by this backend. "
-     "        It may be supported by other backends, however.\n"
-     "      <li><font color=" COLOR_UNTESTED ">untested</font> means the "
-     "        device may be supported but couldn't be tested. Be very "
-     "        careful.\n");
-  printf
-    ("      <li><font color=" COLOR_ALPHA ">alpha</font> means it must\n"
-     "        do something, but is not very well tested, probably has\n"
-     "        bugs, and may even crash your system, etc., etc.\n"
-     "      <li><font color=" COLOR_BETA ">beta</font> means it works\n"
-     "        pretty well, and looks stable and functional, but not\n"
-     "        bullet-proof.\n"
-     "      <li><font color=" COLOR_STABLE ">stable</font> means someone is\n"
-     "        pulling your leg.\n" "      </ul></dd>\n");
+     "  <dd>A link to the man-page online, if it exists.</dd>\n");
+}
+
+static void
+html_print_legend_comment (void)
+{
   printf
     ("  <dt><b>Comment:</b></dt>\n"
-     "  <dd>More information about the level of support and\n"
-     "      possible problems.</dd>\n"
-     "  <dt><b>Description</b> (for API and meta backends):</dt>\n"
-     "  <dd>The scope of application of the backend.\n"
-     "</dl>\n" "</blockquote>\n");
+     "  <dd>More information about the backend or model, e.g. the level of "
+     "      support and possible problems.</dd>\n");
+}
 
-  html_print_footer ();
+static void
+html_print_legend_manufacturer (void)
+{
+  printf
+    ("  <dt><b>Manufacturer:</b></dt>\n"
+     "  <dd>Manufacturer, vendor or brand name of the device.</dd>\n");
+}
+
+static void
+html_print_legend_model (void)
+{
+  printf
+    ("  <dt><b>Model:</b></dt>\n"
+     "  <dd>Name of the the device.</dd>\n");
+}
+
+static void
+html_print_legend_interface (void)
+{
+  printf
+     ("  <dt><b>Interface:</b></dt>\n"
+      "  <dd>How the device is connected to the computer.</dd>\n");
+}
+
+static void
+html_print_legend_status (void)
+{
+  printf
+    ("  <dt><b>Status</b>:</dt>\n"
+     "  <dd>Indicates how many of the features the device provides \n"
+     "      are supported by SANE.\n"
+     "      <ul><li><font color=" COLOR_UNSUPPORTED ">unsupported</font>"
+     "        means the device is not supported at least by this backend. "
+     "        It may be supported by other backends, however.\n");
+  printf
+    ("      <li><font color=" COLOR_UNTESTED ">untested</font> means the "
+     "        device may be supported but couldn't be tested. Be very "
+     "        careful and report success/failure.\n"
+     "      <li><font color=" COLOR_MINIMAL ">minimal</font> means that the\n"
+     "        device is detected and scans at least in one mode. But the quality \n"
+     "        is bad or important features won't work.\n");
+  printf
+    ("      <li><font color=" COLOR_BASIC ">basic</font> means it works at \n"
+     "        least in the most important modes but quality is not perfect.\n"
+     "      <li><font color=" COLOR_GOOD ">good</font> means the device is usable \n"
+     "        for day-to-day work. Some rather exotic features may be missing.\n"
+     "      <li><font color=" COLOR_COMPLETE ">complete</font> means the backends \n"
+     "        supports everything the device can do.\n"
+     "      </ul></dd>\n");
+}
+
+static void
+html_print_legend_description (void)
+{
+  printf
+    ("  <dt><b>Description</b>:</dt>\n"
+     "  <dd>The scope of application of the backend.\n");
 }
 
 /* Print the HTML page with one table of models per backend */
@@ -2368,56 +2149,20 @@ html_print_backends_split (void)
   printf ("<h2><a name=\"META\">Meta Backends</a></h2>\n");
   html_backends_split_table (type_meta);
 
-  printf
-    ("<h3><a name=\"legend\">Legend:</a></h3>\n"
-     "<blockquote>\n"
-     "<dl>\n"
-     "  <dt><b>Backend:</b></dt>\n"
-     "  <dd>Name of the backend,  In parentheses if available:\n"
-     "      Version of backend/driver; newer versions may be\n"
-     "      available from their home sites.<br>"
-     "      <font color=" COLOR_NEW ">NEW!</font> means brand-new to the\n"
-     "      current release of SANE.\n"
-     "  </dd>\n"
-     "  <dt><b>Link(s):</b></dt>\n"
-     "  <dd>Link(s) to more extensive and\n"
-     "      detailed information, if it exists, or the email address\n"
-     "      of the author or maintainer.\n");
-  printf
-    ("  <dt><b>Manual Page:</b></dt>\n"
-     "  <dd>A link to the man-page on-line, if it exists.</dd>\n"
-     "  <dt><b>Comment:</b></dt>\n"
-     "  <dd>More information about the backend or model, e.g. the level of "
-     "      support and possible problems.</dd>\n"
-     "  <dt><b>Manufacturer:</b></dt>\n"
-     "  <dd>Manufacturer, vendor or brand name of the device.</dd>\n"
-     "  <dt><b>Model:</b></dt>\n"
-     "  <dd>Name of the the device.</dd>\n"
-     "  <dt><b>Interface:</b></dt>\n"
-     "  <dd>How the device is connected to the computer.</dd>\n");
-  printf
-    ("  <dt><b>Status</b>:</dt>\n"
-     "  <dd>A vague indication of robustness and reliability.\n"
-     "      <ul><li><font color=" COLOR_UNSUPPORTED ">unsupported</font>"
-     "        means the device is not supported at least by this backend. "
-     "        It may be supported by other backends, however.\n");
-  printf
-    ("      <li><font color=" COLOR_UNTESTED ">untested</font> means the "
-     "        device may be supported but couldn't be tested. Be very "
-     "        careful.\n"
-     "      <li><font color=" COLOR_ALPHA ">alpha</font> means it must\n"
-     "        do something, but is not very well tested, probably has\n"
-     "        bugs, and may even crash your system, etc., etc.\n");
-  printf
-    ("      <li><font color=" COLOR_BETA ">beta</font> means it works\n"
-     "        pretty well, and looks stable and functional, but not\n"
-     "        bullet-proof.\n"
-     "      <li><font color=" COLOR_STABLE ">stable</font> means someone is\n"
-     "        pulling your leg.\n" "      </ul></dd>\n");
-  printf
-    ("  <dt><b>Description</b>:</dt>\n"
-     "  <dd>The scope of application of the backend.\n"
-     "</dl>\n" "</blockquote>\n");
+  printf ("<h3><a name=\"legend\">Legend:</a></h3>\n"
+	  "<blockquote><dl>\n");
+
+  html_print_legend_backend ();
+  html_print_legend_link ();
+  html_print_legend_manual ();
+  html_print_legend_comment ();
+  html_print_legend_manufacturer ();
+  html_print_legend_model ();
+  html_print_legend_interface ();
+  html_print_legend_status ();
+  html_print_legend_description ();
+
+  printf ("</dl></blockquote>\n");
 
   html_print_footer ();
 }
@@ -2453,48 +2198,19 @@ html_print_mfgs (void)
   printf
     ("<h3><a name=\"legend\">Legend:</a></h3>\n"
      "<blockquote>\n"
-     "<dl>\n"
-     "  <dt><b>Model</b>:</dt>\n"
-     "  <dd>Name of the the device.</dd>\n"
-     "  <dt><b>Interface</b>:</dt>\n"
-     "  <dd>How the device is connected to the computer.</dd>\n"
-     "  <dt><b>Status</b>:</dt>\n");
-  printf
-    ("  <dd>A vague indication of robustness and reliability.\n"
-     "      <ul><li><font color=" COLOR_UNSUPPORTED ">unsupported</font>"
-     "        means the device is not supported at least by this backend. "
-     "        It may be supported by other backends, however.\n"
-     "      <li><font color=" COLOR_UNTESTED ">untested</font> means the "
-     "        device may be supported but couldn't be tested. Be very "
-     "        careful.\n");
-  printf
-    ("      <li><font color=" COLOR_ALPHA ">alpha</font> means it must\n"
-     "        do something, but is not very well tested, probably has\n"
-     "        bugs, and may even crash your system, etc., etc.\n"
-     "      <li><font color=" COLOR_BETA ">beta</font> means it works\n"
-     "        pretty well, and looks stable and functional, but not\n"
-     "        bullet-proof.\n"
-     "      <li><font color=" COLOR_STABLE ">stable</font> means someone is\n"
-     "        pulling your leg.\n" "      </ul></dd>\n");
-  printf
-    ("  <dt><b>Comment</b>:</dt>\n"
-     "  <dd>More information about the level of support and\n"
-     "      possible problems.</dd>\n"
-     "  <dt><b>Backend</b>:</dt>\n"
-     "  <dd>Name of the backend, with a link to more extensive and\n"
-     "      detailed information, if it exists, or the email address\n"
-     "      of the author or maintainer. In parentheses if available:\n"
-     "      Version of backend/driver; newer versions may be\n"
-     "      available from their home sites.<br>\n");
-  printf
-    ("      <font color=" COLOR_NEW ">NEW!</font> means brand-new to the\n"
-     "      current release of SANE.\n"
-     "  </dd>\n"
-     "  <dt><b>Manual Page</b>:</dt>\n"
-     "  <dd>A link to the man-page on-line, if it exists.</dd>\n"
-     "  <dt><b>Description</b>:</dt>\n"
-     "  <dd>The scope of application of the backend.\n"
-     "</dl>\n" "</blockquote>\n");
+     "<dl>\n");
+
+  html_print_legend_model ();
+  html_print_legend_interface ();
+  html_print_legend_status ();
+  html_print_legend_comment ();
+  html_print_legend_backend ();
+  html_print_legend_manual ();
+
+  html_print_legend_manufacturer ();
+  html_print_legend_description ();
+
+  printf("</dl>\n" "</blockquote>\n");
 
   html_print_footer ();
 }
@@ -2517,9 +2233,6 @@ main (int argc, char **argv)
     {
     case output_mode_ascii:
       ascii_print_backends ();
-      break;
-    case output_mode_html_backends:
-      html_print_backends ();
       break;
     case output_mode_html_backends_split:
       html_print_backends_split ();

@@ -1,3 +1,7 @@
+2001-06-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* TODO: Updated documentation entries. Added compilation bug in dc25.c.
+
 2001-06-20  Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* doc/sane-umax_pp.man:  corrections according to the TODO list

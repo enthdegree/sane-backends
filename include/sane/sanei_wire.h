@@ -45,6 +45,8 @@
 
 #include <sys/types.h>
 
+#define MAX_MEM (1024 * 1024)
+
 typedef enum
   {
     WIRE_ENCODE = 0,
@@ -64,6 +66,7 @@ typedef struct Wire
     int version;		/* protocol version in use */
     WireDirection direction;
     int status;
+    int allocated_memory;
     struct
       {
 	WireCodecFunc w_byte;

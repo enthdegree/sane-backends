@@ -179,6 +179,7 @@ sanei_w_array (Wire * w, SANE_Word * len_ptr, void **v,
 	      val += element_size;
 	    }
 	  free (*v);
+	  w->allocated_memory -= (*len_ptr * element_size);
 	}
       else
 	DBG (1, "sanei_w_array: FREE: tried to free array but *len_ptr or *v "
@@ -205,6 +206,16 @@ sanei_w_array (Wire * w, SANE_Word * len_ptr, void **v,
       *len_ptr = len;
       if (len)
 	{
+	  if (((unsigned int) len) > MAX_MEM 
+	      || ((unsigned int) len * element_size) > MAX_MEM 
+	      || (w->allocated_memory + len * element_size) > MAX_MEM)
+	    {
+	      DBG (0, "sanei_w_array: DECODE: maximum amount of allocated memory "
+		   "exceeded (limit: %u, new allocation: %u, total: %u bytes)\n",
+		   MAX_MEM, len * element_size, MAX_MEM + len * element_size);
+	      w->status = ENOMEM;
+	      return;
+	    }
 	  *v = malloc (len * element_size);
 	  if (*v == 0)
 	    {
@@ -214,6 +225,7 @@ sanei_w_array (Wire * w, SANE_Word * len_ptr, void **v,
 	      return;
 	    }
 	  memset (*v, 0, len * element_size);
+	  w->allocated_memory += (len * element_size);
 	}
       else
 	*v = 0;
@@ -249,6 +261,7 @@ sanei_w_ptr (Wire * w, void **v, WireCodecFunc w_value, size_t value_size)
 	  DBG (4, "sanei_w_ptr: FREE: freeing value\n");
 	  (*w_value) (w, *v);
 	  free (*v);
+	  w->allocated_memory -= value_size;
 	}
       else
 	DBG (1, "sanei_w_ptr: FREE: tried to free value but *v or value_size "
@@ -273,6 +286,15 @@ sanei_w_ptr (Wire * w, void **v, WireCodecFunc w_value, size_t value_size)
       if (w->direction == WIRE_DECODE)
 	{
 	  DBG (4, "sanei_w_ptr: DECODE: receive data pointed at\n");
+	  if (value_size > MAX_MEM)
+	    {
+	      DBG (0, "sanei_w_ptr: DECODE: maximum amount of allocated memory "
+		   "exceeded (limit: %u, new allocation: %u, total: %u bytes)\n",
+		   MAX_MEM, value_size, (w->allocated_memory + value_size));
+	      w->status = ENOMEM;
+	      return;
+	    }
+
 	  *v = malloc (value_size);
 	  if (*v == 0)
 	    {
@@ -281,6 +303,7 @@ sanei_w_ptr (Wire * w, void **v, WireCodecFunc w_value, size_t value_size)
 	      w->status = ENOMEM;
 	      return;
 	    }
+	  w->allocated_memory += value_size;
 	  memset (*v, 0, value_size);
 	}
       (*w_value) (w, *v);
@@ -637,7 +660,7 @@ sanei_w_init (Wire * w, void (*codec_init_func) (Wire *))
   w->direction = WIRE_ENCODE;
   w->buffer.size = 8192;
   w->buffer.start = malloc (w->buffer.size);
-
+  
   if (w->buffer.start == 0)
     {
       /* Malloc failed, so return an error. */
@@ -652,6 +675,7 @@ sanei_w_init (Wire * w, void (*codec_init_func) (Wire *))
       DBG (4, "sanei_w_init: initializing codec\n");
       (*codec_init_func) (w);
     }
+  w->allocated_memory = 0;
   DBG (4, "sanei_w_init: done\n");
 }
 

@@ -1,3 +1,9 @@
+2004-10-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* include/sane/sanei_wire.h sanei/sanei_wire.c: Limit the total
+	  amount of memory used for arrays and pointers while decoding the
+	  wire to 1 MB (bug #300158). Run "make clean" before "make"!
+
 2004-10-14  Ullrich Sigwanz <usigwanz@freesurf.ch>
 
         * backend/niash.c: removing a non-ANSI conform comma.

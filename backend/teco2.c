@@ -1,7 +1,8 @@
 /* sane - Scanner Access Now Easy.
 
-   Copyright (C) 2002 Frank Zago (fzago at austin dot rr dot com)
-   
+   Copyright (C) 2002-2003 Frank Zago (fzago at austin dot rr dot com)
+   Copyright (C) 2003 Gerard Klaver
+
    This file is part of the SANE package.
    
    This program is free software; you can redistribute it and/or
@@ -50,7 +51,7 @@
 
 /*--------------------------------------------------------------------------*/
 
-#define BUILD 4			/* 2003/04/18 */
+#define BUILD 5			/* 2003/04/18 */
 #define BACKEND_NAME teco2
 #define TECO2_CONFIG_FILE "teco2.conf"
 
@@ -80,6 +81,7 @@
 
 #include "teco2.h"
 
+/* This is used to debug the backend without having the real hardware. */
 #undef sim
 #ifdef sim
 #define sanei_scsi_cmd2(a, b, c, d, e, f, g) SANE_STATUS_GOOD
@@ -88,6 +90,8 @@
 #define sanei_scsi_close(a)   SANE_STATUS_GOOD
 #endif
 
+/* For debugging purposes: output a stream straight out from the
+ * scanner without reordering the colors. */
 static int raw_output = 0;
 
 /*--------------------------------------------------------------------------*/
@@ -288,7 +292,7 @@ static const struct scanners_supported scanners[] = {
    "Relisys", "AVEC II S3",
    {1, 600, 1},			/* resolution */
    300, 600,			/* max x and Y resolution */
-   2550, 12,			/* calibration */
+   2550, 12, 3, 0,			/* calibration */
    {SANE_FIX (0), SANE_FIX (8.5 * MM_PER_INCH), 0},
    {SANE_FIX (0), SANE_FIX (11.7 * MM_PER_INCH), 0},
    vm3564_dpi_color_adjust},
@@ -297,7 +301,7 @@ static const struct scanners_supported scanners[] = {
    "Relisys", "APOLLO Express 3",
    {1, 600, 1},			/* resolution */
    300, 600,			/* max x and Y resolution */
-   2550, 12,			/* calibration */
+   2550, 12, 3, 0,			/* calibration */
    {SANE_FIX (0), SANE_FIX (8.5 * MM_PER_INCH), 0},
    {SANE_FIX (0), SANE_FIX (11.7 * MM_PER_INCH), 0},
    vm356a_dpi_color_adjust},
@@ -306,7 +310,7 @@ static const struct scanners_supported scanners[] = {
    "Relisys", "SCORPIO Super 3",
    {1, 600, 1},			/* resolution */
    300, 600,			/* max x and Y resolution */
-   2550, 12,			/* calibration */
+   2550, 12, 6, 1,			/* calibration */
    {SANE_FIX (0), SANE_FIX (8.5 * MM_PER_INCH), 0},
    {SANE_FIX (0), SANE_FIX (11.7 * MM_PER_INCH), 0},
    vm3575_dpi_color_adjust},
@@ -315,7 +319,7 @@ static const struct scanners_supported scanners[] = {
    "Relisys", "APOLLO Express 6",
    {1, 600, 1},			/* resolution */
    600, 1200,			/* max x and Y resolution */
-   5100, 8,			/* calibration */
+   5100, 8, 6, 0,		/* calibration */
    {SANE_FIX (0), SANE_FIX (210), 0},
    {SANE_FIX (0), SANE_FIX (297), 0},
    vm656a_dpi_color_adjust},
@@ -324,7 +328,7 @@ static const struct scanners_supported scanners[] = {
    "Relisys", "SCORPIO Pro",
    {1, 600, 1},			/* resolution */
    600, 1200,			/* max x and Y resolution */
-   5100, 8,			/* calibration */
+   5100, 8, 6, 0,			/* calibration */
    {SANE_FIX (0), SANE_FIX (8.5 * MM_PER_INCH), 0},
    {SANE_FIX (0), SANE_FIX (11.7 * MM_PER_INCH), 0},
    vm6575_dpi_color_adjust},
@@ -333,7 +337,7 @@ static const struct scanners_supported scanners[] = {
    "Relisys", "SCORPIO Pro-S",
    {1, 600, 1},			/* resolution */
    600, 1200,			/* max x and Y resolution */
-   5100, 8,			/* calibration */
+   5100, 8, 6, 0,		/* calibration */
    {SANE_FIX (0), SANE_FIX (8.5 * MM_PER_INCH), 0},
    {SANE_FIX (0), SANE_FIX (11.7 * MM_PER_INCH), 0},
    vm6586_dpi_color_adjust}
@@ -596,7 +600,7 @@ teco_identify_scanner (Teco_Scanner * dev)
       0x10, 0x00
     };
 #endif
-#if 0
+#if 1
     /* vm3575 */
     unsigned char table[] = {
       0x06, 0x00, 0x02, 0x02, 0x43, 0x00, 0x00, 0x00, 0x20, 0x20,
@@ -609,7 +613,7 @@ teco_identify_scanner (Teco_Scanner * dev)
       0x01, 0x00
     };
 #endif
-#if 1
+#if 0
     /* vm6586 */
     unsigned char table[] = {
       0x06, 0x00, 0x02, 0x02, 0x43, 0x00, 0x00, 0x00, 0x20, 0x20,
@@ -1017,10 +1021,22 @@ teco_wait_for_data (Teco_Scanner * dev)
  * big enough for one line, read the 12 lines of calibration, and do a
  * simple average. The input line is 1 raster for each color. However
  * the output line is interlaced (ie RBG for the first pixel, then RGB
- * for the second, and so on...). The outpur line are the value to use
- * to compensate for the white point. The range goes from 0 to 0xfff,
- * and the average is 0x800. So if the average input is 0x700, the
- * output value for that dot must be 0x1000-0x700=0x900. */
+ * for the second, and so on...). The output line are the value to use
+ * to compensate for the white point. 
+ * There is two algorithms:
+ *
+ *   The range goes from 0 to 0xfff, and the average is 0x800. So if
+ *   the average input is 0x700, the output value for that dot must be
+ *   0x1000-0x700=0x900.
+ * 
+ * and
+ *
+ *   the calibration needs to be a multiplication factor, to
+ *   compensate for the too strong or too weak pixel in the sensor.
+ *
+ * See more info in doc/teco/teco2.txt
+ *
+ **/
 static SANE_Status
 teco_do_calibration (Teco_Scanner * dev)
 {
@@ -1029,30 +1045,38 @@ teco_do_calibration (Teco_Scanner * dev)
   size_t size;
   int i;
   int j;
-  int colbyte;
   int colsub;
   int *tmp_buf;			/* hold the temporary calibration */
   size_t tmp_buf_size;
+  const char *calibration_algo;
+  int cal_algo;
+
+  DBG (DBG_proc, "teco_do_calibration: enter\n");
+
+  /* Get default calibration algorithm. */
+  cal_algo = dev->def->cal_algo;
+  if ((calibration_algo = getenv("SANE_TECO2_CAL_ALGO")) != NULL) {
+	  cal_algo = atoi(calibration_algo);
+  }
+  if (cal_algo != 0 && cal_algo != 1) {
+	  DBG(DBG_error, "Invalid calibration algorithm (%d)\n", cal_algo);
+	  cal_algo = 0;
+  }
 
   switch (dev->def->tecoref)
     {
     case TECO_VM3564:
     case TECO_VM356A:
-      colbyte = 3;
       colsub = 0x110;
       break;
     case TECO_VM3575:
-      colbyte = 6;
       colsub = 0x1100;
       break;
       /* For VM6575, 656A, 6586 until otherwise default value is used */
     default:
-      colbyte = 6;
       colsub = 0x1000;
       break;
     }
-
-  DBG (DBG_proc, "teco_do_calibration: enter\n");
 
   tmp_buf_size = dev->def->cal_length * 3 * sizeof (int);
   tmp_buf = malloc (tmp_buf_size);
@@ -1083,9 +1107,8 @@ teco_do_calibration (Teco_Scanner * dev)
 	  break;
 	}
 
-      /* Length of the scanner * 6 bytes */
-      /*  size = dev->def->cal_length * 6; */
-      size = dev->def->cal_length * colbyte;
+      /* Length of the scanner * number of bytes per color */
+      size = dev->def->cal_length * dev->def->cal_col_len;
       cdb.data[3] = (size >> 8) & 0xff;
       cdb.data[4] = (size >> 0) & 0xff;
 
@@ -1147,10 +1170,11 @@ teco_do_calibration (Teco_Scanner * dev)
   for (j = 0; j < (3 * dev->def->cal_length); j++)
     {
 
-      tmp_buf[j] = colsub - (tmp_buf[j] / dev->def->cal_lines);
-
-      /* tmp_buf[j] = ( 4206639 * dev->def->cal_lines )/tmp_buf[j]; */
-/*   tmp_buf[j] = ( 14000 * dev->def->cal_lines )/tmp_buf[j]; */
+		if (cal_algo == 1) {
+			tmp_buf[j] = ( 4206639 * dev->def->cal_lines )/tmp_buf[j];
+		} else {
+			tmp_buf[j] = colsub - (tmp_buf[j] / dev->def->cal_lines);
+		}
     }
 
   /*hexdump (DBG_info2, "calibration after average:", tmp_buf, tmp_buf_size); */
@@ -1198,7 +1222,7 @@ teco_do_calibration (Teco_Scanner * dev)
    * one, except for the command. */
 
   cdb.data[0] = 0x0E;
-  size = dev->def->cal_length * colbyte;
+  size = dev->def->cal_length * dev->def->cal_col_len;
 
   hexdump (DBG_info2, "CDB:", cdb.data, cdb.len);
   /*hexdump (DBG_info2, "calibration line sent:", dev->buffer, size); */

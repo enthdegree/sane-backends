@@ -1,3 +1,9 @@
+2003-04-23  Frank Zago  <fzago at austin dot rr dot com>
+
+	* backend/teco2.c backend/teco2.h doc/sane-teco2.man
+	  doc/teco/teco2.txt descriptions/teco2.desc: new calibration
+	  algorithm.
+
 2003-04-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* README: Removed link to (non-working) anonymous CVS. Mention CVS

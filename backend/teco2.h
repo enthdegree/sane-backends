@@ -340,6 +340,8 @@ struct scanners_supported
 
   int cal_length;		/* size of a calibration line in pixels */
   int cal_lines;		/* number of calibration lines to read */
+	int cal_col_len;			/* number of byte to code one color */
+	int cal_algo; /* default algo to use to compute calibration line */
 
   /* Minimum and maximum width and length supported. */
   SANE_Range x_range;

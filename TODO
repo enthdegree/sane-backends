@@ -1,4 +1,4 @@
-TODO (2001-05-26)
+TODO (2001-05-28)
 
 ******** todo ********
 
@@ -52,7 +52,7 @@ backends
        support depths > 8 bits/channel)
      - Add keep-alive mechanism to avoid timeouts
 
-0  * qcam:
+  * qcam:
      - implement auto mode for brightness and black-level (don't
        just advertise it!) Actually, implement an auto "backend" instead
        that can be plugged in front of any backend with brightness/contrast
@@ -86,7 +86,6 @@ backends
       - dmc
       - m3096
       - microtek
-      - microtek2 ?
       - nec
       - qcam
       - ricoh
@@ -112,7 +111,6 @@ backends
     - sp15c
 
   * Don't export any other symbols than sane_* and sanei_*
-    - artec
     - coolscan
 
 doc

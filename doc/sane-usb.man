@@ -1,122 +1,84 @@
-.TH sane-usb 5 "15 Sep 2002"
+.TH sane-usb 5 "19 Nov 2002"  @PACKAGEVERSION@ "SANE Scanner Access Now Easy"
 .IX sane-usb
 .SH NAME
-sane-usb - USB configuration tips for SANE
+sane-usb \- USB configuration tips for SANE
 .SH DESCRIPTION
-This manual page contains information on how to access scanners
-with a USB interface.
-.SH GENERAL INFO
-This manual page describes the access of USB scanners over the sanei_usb
-interface. Most SANE USB backends use the sanei_usb interface, only sm3600
-accesses the USB directly by libusb. Have a look at sane-sm3600 and section
-"LIBUSB ACCESS TIPS" of this manual page for that backend.
+This manual page contains information on how to access scanners with a USB
+interface. It focusses on two main topics: getting the scanner detected by the
+operating system kernel and using it with SANE.
 .PP
-Two methods for accessing USB devices are used by sanei_usb: direct access
-using the kernel scanner driver and access over libusb. sanei_usb tries both
-methods, if they are available. Currently USB access is tested for Linux
-(kernel, libusb), FreeBSD (kernel, libsub), NetBSD (libusb), and OpenBSD
-(kernel, libusb). Libusb access should also work on Mac OS X (Darwin) and any
-other operating system supported by libusb but hasn't been tested yet. For
-installation issues, also check the @DOCDIR@/README.platform files.
-.PP
-Most backends will detect USB scanners automatically using "usb" configuration
-file lines. This method allows to identify scanners by the USB vendor and
-product numbers.  The syntax for specifying a scanner this way is:
-.PP
-.RS
-usb
-.I VENDOR PRODUCT
-.RE
-.PP
-where
-.I VENDOR
-is the USB vendor id, and
-.I PRODUCT
-is the USB product id of the scanner. Both ids are non-negative integer
-numbers in decimal or hexadecimal format. The correct values for these fields
-can be found by looking into the syslog (e.g., /var/log/messages) or under
-Linux by issuing the command "cat /proc/bus/usb/devices/".  This is an example
-of a config file line:
-.PP
-.RS
-usb 0x055f 0x0006
-.RE
-.PP
-would have the effect that all USB devices in the system with a vendor id of
-0x55f and a product id of 0x0006 would be probed and recognized by the
-backend. The same config line in decimal format looks like this:
-.PP
-.RS
-usb 1375 6
-.RE
-.PP
-If your scanner is not detected automatically, it may be necessary to edit the
-appropriate backend configuration file before using SANE for the first time.
-For most systems, the configuration file should list the name of the USB
-device file that the scanner is connected to (e.g., under Linux,
-.B /dev/usb/scanner0
-or
-.B /dev/usbscanner0
-is such a USB device, the device file for FreeBSD is e.g.
-.BR /dev/uscanner0 ).
-If libusb is used, the device name looks like the following example:
-.B libusb:001:002
-.PP
-Do
-.I not
-create a symlink from
-.B /dev/scanner
-to the USB device because this link is used by the SCSI backends. The scanner
-may be confused if it receives SCSI commands. 
-.PP
-For a detailed description of each backend's configuration file, please refer
-to the relevant backend manual page (e.g. sane-mustek_usb for Mustek USB
-scanners).
-.PP
+This page applies to most backends and scanners, as they use the generic
+sanei_usb interface. However, there are some exceptions: USB Scanners
+supported by the avision and microtek2 backends need special USB kernel
+drivers, see
+.BR sane-avision (5)
+and
+.BR sane-microtek2 (5)
+for details. The HP backend currently supports only direct access to the
+generic kernel scanner driver. See the appropriate section in this manpage and
+.BR sane-hp (5)
+for details. The sm3600 backend supports only access via libusb. See the
+appropriate section in this manpage and
+.BR sane-sm3600 (5).
 
-.SH WHEN TO USE WHICH ACCESS METHOD
-Generally speaking, if your scanner works with one method, there is no need
-to switch to the other one.
+.SH "QUICK START"
+This is a short HOWTO-like section. For the full details, read the following
+sections. The goal of this section is to get the scanner detected by
+.BR sane-find-scanner (5).
 .PP
-Libusb is the more general approach and will be able to access any
-scanner. Also, it supports more platforms. However, the library must be
-available and installed on the system and setting permissions isn't easy at
-least on Linux.
+Run sane-find-scanner. If it lists your scanner with the correct vendor and
+product ids, you are done. See section
+.B "SANE ISSUES"
+for details on how to go on.
+.PP
+Sane-find-scanner lists your scanner, but can't detect the vendor- and product
+ids? Scanning may work nevertheless, just try with section
+.BR "SANE ISSUES" .
+If it doesn't, install libusb (see section
+.BR LIBUSB )
+or, if you use Linux, upgrade your kernel (see section
+.BR "GENERIC KERNEL SCANNER DRIVER" ).
+.PP
+Sane-find-scanner doesn't list your scanner? Does it work as root? If yes,
+there is a permission issue. If sane-find-scanner lists a device name starting with 
+.IR libusb: ,
+read
+.BR LIBUSB ,
+otherwise have a look at the section
+.BR "GENERIC KERNEL SCANNER DRIVER" ).
+.PP
+Nothing is found even as root? Either install libusb (see section
+.BR LIBUSB ),
+or make sure, that the kernel scanner driver knows the ids of your scanner
+(see section
+.BR "GENERIC KERNEL SCANNER DRIVER" ).
+
+.SH "USB ACCESS METHODS"
+Two methods for accessing USB devices are currently in use: direct access
+using the kernel scanner driver and access over libusb. By default, both
+methods are tried by SANE, if they are available. Currently USB access is
+tested for Linux (kernel, libusb), FreeBSD (kernel, libsub), NetBSD (libusb),
+and OpenBSD (kernel, libusb). Libusb access should also work on Mac OS X
+(Darwin) and any other operating system supported by libusb but hasn't been
+tested yet. For installation issues, also check the @DOCDIR@/README.platform
+files.
+.PP
+Generally speaking, if your scanner works with one method, there is no need to
+switch to the other one.
+.PP
+Libusb is the more general approach and is able to access any scanner. Also,
+it supports more platforms.
 .PP
 Autodetecting scanners and using USB control messages with the kernel access
-method only works with recent (>=v2.4.12) Linux kernels. If you need one of
-these two features on a different platform, use libusb instead.
+method only works with recent (>=v2.4.12) Linux kernels.  If you need one of
+these two features on a different platform, use libusb instead. Also, the
+kernel scanner driver may be removed from Linux 2.5/2.6 in future so libusb
+will be the only access method.
 
-.SH KERNEL SCANNER DRIVER TIPS
-Ensure that the access permissions for the USB device are set appropriately.
-We recommend to add a group "scanner" to /etc/group which contains all users
-that should have access to the scanner.  The permission of the device should
-then be set to allow group read and write access.  For example, if the scanner
-is at USB device
-.BR /dev/usb/scanner0 ,
-then the following two commands would set the permission correctly:
+.SH LIBUSB
+SANE can only use libusb 0.1.6 or newer. It needs to be installed at
+build-time.
 .PP
-.RS
-$ chgrp scanner /dev/usb/scanner0
-.br
-$ chmod 660 /dev/usb/scanner0
-.RE
-.PP
-If your scanner isn't detected automatically by your operating system's
-scanner driver, you need to tell the kernel the vendor and product ids of your
-scanner. For 
-.BR Linux ,
-this can be done with modprobe parameters: First, remove the scanner module
-(rmmod scanner), then load it again: modprobe scanner vendor=0x0001
-product=0x0002. Use the appropriate vendor and product ids (e.g. from syslog
-or cat /proc/bus/usb/devices). For OpenBSD the kernel must be recompiled. For
-details look at @DOCDIR@/README.openbsd. Similar approaches should be used for
-the other BSDs.
-.PP
-Linux kernel messages in syslog like "kernel: scanner.c: open_scanner(1):
-Unable to access minor data" can be ignored. They are generated when SANE
-scans all available USB devices for scanners.
-.SH LIBUSB ACCESS TIPS
 Libusb can only access your scanner if it's not claimed by the kernel scanner
 driver. If you want to use libusb, unload the kernel driver (e.g. rmmod
 scanner under Linux) or disable the driver when compiling a new kernel. For
@@ -145,14 +107,118 @@ none /proc/bus/usb usbfs defaults,devmode=0666  0  0
 .PP
 However, this way everyone has access to all USB devices. Another way to set
 permissions is to use the hotplug utilities
-(http://linux-hotplug.sourceforge.net/), which support dynamic setting of
-access permissions. Last, the frontends can be run as root. However, that's
-not recommended for security reasons.
+.RI ( http://linux-hotplug.sourceforge.net/ ),
+which support dynamic setting of access permissions. Last, the frontends can
+be run as root. However, that's not recommended for security reasons.
 .PP
 For the
-.IR BSDs ,
-the device files are named /dev/ugen*. Use chmod to apply appropriate
-permissions.
+.BR BSDs ,
+the device files are named 
+.IR /dev/ugen* .
+Use chmod to apply appropriate permissions.
+
+.SH "GENERIC KERNEL SCANNER DRIVER"
+Ensure that the access permissions for the USB device are set appropriately.
+We recommend to add a group "scanner" to 
+.I /etc/group
+which contains all users that should have access to the scanner.  The
+permission of the device should then be set to allow group read and write
+access.  For example, if the scanner is at USB device
+.BR /dev/usb/scanner0 ,
+then the following two commands would set the permission correctly:
+.PP
+.RS
+$ chgrp scanner /dev/usb/scanner0
+.br
+$ chmod 660 /dev/usb/scanner0
+.RE
+.PP
+If your scanner isn't detected automatically by your operating system's
+scanner driver, you need to tell the kernel the vendor and product ids of your
+scanner. For 
+.BR Linux ,
+this can be done with modprobe parameters: First, remove the scanner module
+.RI ( "rmmod scanner" ),
+then load it again: 
+.IR "modprobe scanner vendor=0x0001 product=0x0002" .
+Use the appropriate vendor and product ids (e.g. from 
+.IR /var/log/messages ,
+.IR dmesg ,
+or
+.IR "cat /proc/bus/usb/devices" ).
+Some scanners supported by the gt68xx backend are not supported by the current
+version of the generic scanner driver. See
+.BR sane-gt68xx (5)
+for details. For these scanners, there will be a message concerning "only 2 or
+three endpoints" in syslog.
+.PP
+For OpenBSD the kernel may need to be recompiled. For details look at
+@DOCDIR@/README.openbsd. Similar approaches should be used for the other BSDs.
+.PP
+Linux kernel messages in syslog like "kernel: scanner.c: open_scanner(1):
+Unable to access minor data" can be ignored. They are generated when SANE
+scans all available USB devices for scanners.
+
+.SH "SANE ISSUES"
+.PP
+This section assumes that your scanner is detected by sane-find-scanner. It
+doesn't make sense to go on, if this is not the case. While sane-find-scanner
+is able to detect any USB scanner, actual scanning will only work if the
+scanner is supported by a SANE backend. Information on the level of support
+can be found on the SANE webpage
+.RI ( http://www.mostang.com/sane/ ),
+and the individual backend manpages.
+.PP
+Most backends can detect USB scanners automatically using "usb" configuration
+file lines. This method allows to identify scanners by the USB vendor and
+product numbers.  The syntax for specifying a scanner this way is:
+.PP
+.RS
+usb
+.I VENDOR PRODUCT
+.RE
+.PP
+where
+.I VENDOR
+is the USB vendor id, and
+.I PRODUCT
+is the USB product id of the scanner. Both ids are non-negative integer
+numbers in decimal or hexadecimal format. The correct values for these fields
+can be found by looking into the syslog (e.g., /var/log/messages) or under
+Linux by issuing the command "cat /proc/bus/usb/devices/".  This is an example
+of a config file line:
+.PP
+.RS
+usb 0x055f 0x0006
+.RE
+.PP
+would have the effect that all USB devices in the system with a vendor id of
+0x55f and a product id of 0x0006 would be probed and recognized by the
+backend. 
+.PP
+If your scanner is not detected automatically, it may be necessary to edit the
+appropriate backend configuration file before using SANE for the first time.
+For most systems, the configuration file should list the name of the USB
+device file that the scanner is connected to (e.g., under Linux,
+.B /dev/usb/scanner0
+or
+.B /dev/usbscanner0
+is such a USB device, the device file for FreeBSD is e.g.
+.BR /dev/uscanner0 ).
+If libusb is used, the device name looks like the following example:
+.BR libusb:001:002 .
+.PP
+For a detailed description of each backend's configuration file, please refer
+to the relevant backend manual page (e.g. 
+.BR sane-mustek_usb (5)
+for Mustek USB scanners).
+.PP
+Do
+.B not
+create a symlink from
+.I /dev/scanner
+to the USB device because this link is used by the SCSI backends. The scanner
+may be confused if it receives SCSI commands.
 
 .SH ENVIRONMENT
 .TP
@@ -161,8 +227,13 @@ If the library was compiled with debug support enabled, this
 environment variable controls the debug level for the USB I/O
 subsystem.  E.g., a value of 128 requests all debug output to be
 printed.  Smaller levels reduce verbosity. Values greater than 4 enable
-libusb debugging (if available).
+libusb debugging (if available). Example: export SANE_DEBUG_USB=4.
+
 .SH "SEE ALSO"
-sane(7), sane\-find\-scanner(1), sane\-"backendname"(5), sane-scsi(5)
+.BR sane (7),
+.BR sane-find-scanner (1),
+.BR sane-"backendname" (5),
+.BR sane-scsi (5)
+
 .SH AUTHOR
-Henning Meier-Geinitz. Some parts were copied from the sane-scsi manual page.
+Henning Meier-Geinitz

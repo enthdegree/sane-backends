@@ -1,3 +1,9 @@
+2002-11-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/sane-usb.man: Added quick start section. New structure/order.
+	  Added list of backends that don't use sanei_usb. Added headers
+	  and fixed \- bug.
+
 2002-11-18  Frank Zago  <fzago at austin dot rr dot com>
 
 	* backend/umax-usb.c: the usb support for the umax 2200 wasn't

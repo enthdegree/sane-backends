@@ -1,4 +1,4 @@
-TODO (2001-05-28)
+TODO (2001-05-29)
 
 ******** todo ********
 
@@ -143,6 +143,8 @@ sanei
   * create sanei_parport_* and remove all inb, outb,... from all backends
    (for sane-1.0.6)
 
+  * create sanei_usb.* (maybe containing access for libusb and direct access
+    for usb device files)? (sane-1.0.6)
 
 misc
 ----

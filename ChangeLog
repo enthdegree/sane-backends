@@ -1,3 +1,10 @@
+2003-10-09  Peter Kirchgessner <peter@kirchgessner.net>
+
+	* backend/hp.c backend/hp-option.c backend/hp-scl.c:
+	  Bug #300241: fix invers image on 3c/4c/6100C at 10 bit depth
+	  Redo when TEST UNIT READY failed
+	  Redo when read returns with 0 bytes (non-SCSI only)
+
 2003-10-09  Stéphane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp.c backend/umax_pp_low.h backend/umax_pp.h

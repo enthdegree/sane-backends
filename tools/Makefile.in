@@ -64,7 +64,7 @@ LIBSANEI = ../sanei/libsanei.a
 LIBLIB = ../lib/liblib.a
 
 DISTFILES = Makefile.in README libtool-get-dll-ext mustek600iin-off.c \
-  sane-config.in sane-desc.c sane-desc.el.in sane-desc-ext.el \
+  sane-config.in sane-desc.c \
   sane-find-scanner.c umax_pp.c xerox gamma4scanimage.c check-po.awk
 
 .PHONY: all clean depend dist distclean install uninstall
@@ -116,7 +116,7 @@ clean:
 	rm -rf .libs
 
 distclean: clean
-	rm -f Makefile $(DESTINATIONS) mustek600iin-off sane-desc.el sane-desc
+	rm -f Makefile $(DESTINATIONS) mustek600iin-off sane-desc
 	rm -f $(DISTCLEAN_FILES)
 
 dist: $(DISTFILES)

@@ -11,6 +11,8 @@
 	* tools/sane-desc.el.in tools/sane-desc-ext.el: Removed because
 	  these emacs-lisp scripts haven't been used for some time now.
 	  Use sane-desc.c instead.
+	* configure configure.in tools/.cvsignore tools/Makefile.in
+	  tools/README: Removed references to sane-desc.el.
 
 2003-06-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

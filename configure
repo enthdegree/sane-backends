@@ -23804,8 +23804,6 @@ DISTCLEAN_FILES="*~ .*~ *.log *.bak *.old *.orig *.out *.rej \"\#\"* \".\\#\"*"
 
                                                                                                               ac_config_files="$ac_config_files Makefile lib/Makefile sanei/Makefile frontend/Makefile japi/Makefile backend/Makefile include/Makefile doc/Makefile po/Makefile testsuite/Makefile tools/Makefile"
 
-          ac_config_files="$ac_config_files tools/sane-desc.el"
-
           ac_config_files="$ac_config_files tools/sane-config"
 
 cat >confcache <<\_ACEOF
@@ -24343,7 +24341,6 @@ do
   "po/Makefile" ) CONFIG_FILES="$CONFIG_FILES po/Makefile" ;;
   "testsuite/Makefile" ) CONFIG_FILES="$CONFIG_FILES testsuite/Makefile" ;;
   "tools/Makefile" ) CONFIG_FILES="$CONFIG_FILES tools/Makefile" ;;
-  "tools/sane-desc.el" ) CONFIG_FILES="$CONFIG_FILES tools/sane-desc.el" ;;
   "tools/sane-config" ) CONFIG_FILES="$CONFIG_FILES tools/sane-config" ;;
   "include/sane/config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS include/sane/config.h" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5

@@ -434,7 +434,6 @@ AC_SUBST(DISTCLEAN_FILES)
 AC_CONFIG_FILES([Makefile lib/Makefile sanei/Makefile frontend/Makefile
   japi/Makefile backend/Makefile include/Makefile doc/Makefile
   po/Makefile testsuite/Makefile tools/Makefile])
-AC_CONFIG_FILES([tools/sane-desc.el])
 AC_CONFIG_FILES([tools/sane-config], [chmod a+x tools/sane-config])
 AC_OUTPUT
 

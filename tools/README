@@ -1,4 +1,4 @@
-2003-05-05
+2003-06-18
 
 This directory contains various tools that may be useful:
 
@@ -38,12 +38,6 @@ Maybe useful for SANE developers:
         Generate SANE webpages (and ASCII lists) from backend .desc files.
         Run "sane-desc --help" for details. The default lists are generated
         in doc/Makefile. 
-
- sane-desc.el, sane-desc-ext.el (OBSOLETE):
-        These are the old elisp scripts to automagically generate descriptive
-        SANE webpages from backend .desc files with emacs. Look at the
-        top of the file for more details. They are here just for reference. Use
-        sane-desc instead.
 
  check-po.awk:
         Print untranslated and fuzzy messages and their line numbers in the

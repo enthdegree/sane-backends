@@ -4,6 +4,8 @@
 	  doc/mustek/mustek.CHANGES: Fixed problem for Paragon 6000SP (color
 	  and gray modes produced solid black images). Minor cleanups.
 	  New version: 1.0-125.
+	* config.guess config.sub: Updated to latest versions (from
+	  ftp://ftp.gnu.org/pub/gnu/config/).
 
 2002-06-05  Abel Deuring <a.deuring@satzbau-gmbh.de>
 	* doc/descriptions/sharp.desc: added "interface" parameter

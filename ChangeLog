@@ -1,3 +1,9 @@
+2002-04-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/mustek.c backend/mustek.h doc/descriptions/mustek.desc
+	  doc/mustek/mustek.CHANGES: Print usefull DBG messages for options
+	  without a name. Undef MIN and MAX macros before defining them.
+
 2002-04-24  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan.c   backend/snapscan.h   backend/snapscan-options.c

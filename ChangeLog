@@ -1,3 +1,8 @@
+2002-01-14  Peter Fales <peter@fales.com>
+	* backend/gphoto2.c:  Was requiring the device to have the
+	  IMAGE_CAPTURE capability - changed this to a warning instead
+	  of an error so the "Directory Browse" camera can be used.
+
 2002-01-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* frontend/scanimage.c: Added help message for --formatted-device-list.

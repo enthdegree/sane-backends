@@ -1,3 +1,8 @@
+2003-07-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/mustek_pp.desc: Tag CCD scanners as unsupported
+	  and mention that they work in 1.0.9 or earlier.
+
 2003-07-22  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* doc/descriptions/snapscan.desc: Updated to use new status values.

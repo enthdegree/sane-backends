@@ -772,6 +772,12 @@
 :mfg "UMAX"
 :url "http://www.umax.com/"
 
+:model "Astra 4400"
+;:url "http://www.meier-geinitz.de/sane/misc/umax-astra-4500.txt"
+:interface "USB"
+:status :unsupported
+:comment "Probably not supported. No details known."
+
 :model "Astra 4500"
 :url "http://www.meier-geinitz.de/sane/misc/umax-astra-4500.txt"
 :interface "USB"

@@ -1,3 +1,8 @@
+2002-09-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions-external/tevion9693usb.desc: Added MD9693, updated
+	  Artec E+ 48U (from Michael Herder <crapsite@gmx.net>).
+
 2002-09-23  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/fujitsu.desc: Changed status to beta and added

@@ -1,4 +1,4 @@
-.TH sane-plustek_pp 5 "13 Jan 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-plustek_pp 5 "18 June 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-plustek_pp
 .SH NAME
 sane-plustek_pp \- SANE backend for Plustek parallel port
@@ -13,7 +13,7 @@ The access of the scanner is either done directly by the backend
 or via kernel module, called pt_drv which can be created out of
 the plustek_pp backend code - see also section
 .B "BUILDING THE KERNEL MODULE"
-for further information.
+for further information. 
 
 .SH "SUPPORTED DEVICES"
 
@@ -258,36 +258,27 @@ Unpack this tar-ball and go to the directory:
 .br
 .I sane-backends/doc/plustek
 .br
-Within this directory, you should find a file called:
+Within this directory, you should find a script called:
 .br
-.I Makefile.module
+.I MakeModule.sh
 .br
-Now if your Linux kernelsources are installed correctly, it should
-be possible to build, install and load the module
+Now if your Linux kernelsources are installed correctly, 
+it should be possible to build, install and load the 
+module
 .B pt_drv.
-Try
+.B Please note, 
+that the kernelsources need to be configured correctly.
+Refer to your distributions 
+manual on how this is done. As root user, try
 .br
-.I make -f Makefile.module
+.I ./MakeModule.sh
 .br
-to obtain a help text, about the targets, the makefile supports.
+the script will try and get all necessary information about your
+running kernel and will lead you through the whole installation
+process.
 .br
-Use
-.br
-.I make -f Makefile.module all
-.br
-to build the module.
-Use
-.br
-.I make -f Makefile.module install
-.br
-to install the module.
-Use
-.br
-.I make -f Makefile.module load
-.br
-to load the module.
-.br
-.B Note: Installing and loading the can only be done as superuser.
+.B Note: Installing and loading the can only be done as 
+superuser.
 .PP
 
 .SH "KERNEL MODULE SETUP"
@@ -295,7 +286,9 @@ The configuration of the kernel module is done by providing
 some or more options found below to the kernel module at
 load time. This can be done by invoking insmod with the
 appropriate parameters or appending the options to the file
-.B /etc/conf.modules
+.B /etc/modules.conf (kernel < 2.6.x)
+or
+.B /etc/modprobe.conf (kernel >= 2.6.x)
 .PP
 .B
 The Options:
@@ -419,7 +412,8 @@ has been set to EPP-mode. When detecting any other
 mode such as ECP or PS/2 the driver tries to set to a
 faster, supported mode. If this fails, it will use the
 SPP mode, as this mode should work with all Linux supported
-parallel ports.
+parallel ports. If in doubt, enter your BIOS and set it to
+any mode except ECP.
 .PP
 Former Plustek scanner models (4830, 9630) supplied a
 ISA parallel port adapter card. This card is
@@ -447,8 +441,11 @@ The static library implementing this backend.
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 .TP
-.I /lib/modules/<Kernel-Version>/misc/pt_drv.o
-The Linux Kernelmodule.
+.I /lib/modules/<Kernel-Version>/kernel/drivers/parport/pt_drv.o
+The Linux kernelmodule for kernels < 2.6.x.
+.TP
+.I /lib/modules/<Kernel-Version>/kernel/drivers/parport/pt_drv.ko
+The Linux kernelmodule for kernels >= 2.6.x.
 .PP
 
 .SH ENVIRONMENT
@@ -480,27 +477,22 @@ export SANE_DEBUG_PLUSTEK_PP=10
 .br
 .I @DOCDIR@/plustek/Plustek-PARPORT.changes
 .br
-.I http://www.gjaeger.de/scanner/plustek.html
+.I http://www.gjaeger.de/scanner/plustek_pp/
 
 .SH "CONTACT AND BUG-REPORTS"
-.PP
 Please send any information and bug-reports to:
 .br
-.B Plustek Driver Mailing List <plustek@linuxhacker.org>
-.br
-or directly to:
-.br
-.B Gerhard Jaeger <gerhard@gjaeger.de>
+.B SANE Mailing List
 .PP
 Additional info and hints can be obtained from our
 .br
 Mailing-List archive at:
 .br
-.B http://www.linuxhacker.org/cgi-bin/ezmlm-cgi/3
+.B http://www.sane-project.org/mailing-lists.html
 .PP
 or directly from the projects' homepage at:
 .br
-.B http://www.gjaeger.de/scanner/plustek.html
+.B http://www.gjaeger.de/scanner/plustek_pp/
 .PP
 To obtain debug messages from the backend, please set the
 environment-variable

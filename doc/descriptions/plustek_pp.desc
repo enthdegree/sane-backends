@@ -6,7 +6,7 @@
 :version "0.01"
 :manpage "sane-plustek_pp"
 ; backend's web page
-:url "http://www.gjaeger.de/scanner/plustek.html"
+:url "http://www.gjaeger.de/scanner/plustek_pp/"
 
 :devicetype :scanner
 

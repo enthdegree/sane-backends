@@ -1,4 +1,4 @@
-.TH sane-u12 5 "23 Apr 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-u12 5 "18 June 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-u12
 .SH NAME
 sane-u12 \- SANE backend for Plustek USB flatbed scanners,
@@ -152,7 +152,7 @@ export SANE_DEBUG_U12=10
 .br
 .I @DOCDIR@/u12/U12.changes
 .br
-.I http://www.gjaeger.de/scanner/u12.html
+.I http://www.gjaeger.de/scanner/u12/
 
 .SH "CONTACT AND BUG-REPORTS"
 Please send any information and bug-reports to:
@@ -167,7 +167,7 @@ Mailing-List archive at:
 .PP
 or directly from the projects' homepage at:
 .br
-.B http://www.gjaeger.de/scanner/u12.html
+.B http://www.gjaeger.de/scanner/u12/
 .PP
 To obtain debug messages from the backend, please set the
 environment-variable

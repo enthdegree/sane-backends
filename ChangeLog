@@ -1,3 +1,8 @@
+2003-03-22  Ulrich Deiters <ukd@xenon.pc.uni-koeln.de>
+
+	* backend/canon.c: Modified the option "eject after each scan" -
+	  Eject is suppressed for film scanners after preview scans.
+
 2003-03-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Canon LIDE 50, IBM

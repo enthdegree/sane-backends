@@ -1058,7 +1058,8 @@ do_cancel (CANON_Scanner * s)
 
   if (s->fd >= 0)
     {
-      if (s->val[OPT_EJECT_AFTERSCAN].w == SANE_TRUE)
+      if (s->val[OPT_EJECT_AFTERSCAN].w && ! (s->val[OPT_PREVIEW].w
+      && s->hw->info.is_filmscanner))
 	{
 	  DBG (3, "do_cancel: sending MEDIUM POSITION\n");
 	  status = medium_position (s->fd);

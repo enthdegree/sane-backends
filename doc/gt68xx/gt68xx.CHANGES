@@ -1,5 +1,11 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0-44 (2003-03-13)
+
+- Added Packard Bell Diamond 1200 Plus to .desc and manpage.
+- New flag to avoid running stop_scan before doing a scan. The Windows firmware
+  of the BearPaw 1200 CU Plus doesn't seem to like that.
+
 V 1.0-43 (2003-03-06)
 
 - Small requests are done with a response buffer of 8 bytes (instead of 64)

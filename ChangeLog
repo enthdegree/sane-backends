@@ -1,3 +1,12 @@
+2003-03-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/gt68xx.c backend/gt68xx_devices.c backend/gt68xx_low.h
+	  doc/sane-gt68xx.man doc/descriptions/gt68xx.desc
+	  doc/gt68xx/gt68xx.CHANGES: Added Packard Bell Diamond 1200 Plus to
+	  .desc and manpage. New flag to avoid running stop_scan before doing
+	  a scan. The Windows firmware of the BearPaw 1200 CU Plus doesn't
+	  seem to like that.
+
 2003-03-10  Oliver Schirrmeister <oschirr@abm.de>
 
 	* backend/fujitsu.c backund/fujitsu-scsi.h

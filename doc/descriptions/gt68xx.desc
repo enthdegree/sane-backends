@@ -1,6 +1,6 @@
 :backend "gt68xx"
 :status :beta
-:version "1.0-43"
+:version "1.0-44"
 :manpage "sane-gt68xx"
 :url "http://www.meier-geinitz.de/sane/gt68xx-backend/"
 :comment "Only the USB scanners mentioned below are supported. For other Mustek BearPaws, look at the Plustek and the MA-1509 backend."
@@ -111,6 +111,11 @@
 
 :mfg "Packard Bell"
 :model "Diamond 1200"
+:status :beta
+:interface "USB"
+:comment "similar to Mustek BearPaw 1200 (Plus)"
+
+:model "Diamond 1200 Plus"
 :status :beta
 :interface "USB"
 :comment "similar to Mustek BearPaw 1200 Plus"

@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
 
    Copyright (C) 2002 Sergey Vlasov <vsu@altlinux.ru>
-   Copyright (C) 2002 Henning Meier-Geinitz <henning@meier-geinitz.de>
+   Copyright (C) 2002, 2003 Henning Meier-Geinitz <henning@meier-geinitz.de>
    
    This file is part of the SANE package.
    
@@ -135,6 +135,7 @@
 #define GT68XX_FLAG_OFFSET_INV   (1 << 2)	/* Offset control is inverted */
 #define GT68XX_FLAG_UNTESTED     (1 << 3)	/* Print a warning for these scanners */
 #define GT68XX_FLAG_SE_2400      (1 << 4)	/* Special quirks for SE 2400USB */
+#define GT68XX_FLAG_NO_STOP      (1 << 5)	/* Don't call stop_scan before the scan */
 
 /* Forward typedefs */
 typedef struct GT68xx_USB_Device_Entry GT68xx_USB_Device_Entry;

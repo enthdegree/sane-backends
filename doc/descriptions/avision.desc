@@ -14,7 +14,7 @@
 :backend "avision"
 
 ; version of backend
-:version "Build: 55"
+:version "Build: 63"
 ;status: alpha, beta, stable, new
 :status :stable
 
@@ -25,10 +25,7 @@
 :manpage "sane-avision"
 
 :devicetype :scanner
-
-:mfg "Avision"
 :url "http://www.avision.com"
-
 :model "AV100CS"
 :interface "SCSI"
 :status :untested
@@ -58,87 +55,103 @@
 :status :untested
 :model "AV620CS"
 :interface "SCSI"
+:comment "1 pass, 600 dpi"
 :status :stable
 :model "AV620CS Plus"
 :interface "SCSI"
+:comment "1 pass, 1200 dpi"
 :status :stable
 :model "AV630CS"
 :interface "SCSI"
+:comment "1 pass, 1200 dpi - regularly tested"
 :status :stable
 :model "AV630CSL"
 :interface "SCSI"
+:comment "1 pass, 1200 dpi"
 :status :untested
 :model "AV6240"
 :interface "SCSI"
+:comment "1 pass, ??? dpi"
 :status :stable
 :model "AV600U"
 :interface "USB"
+:comment "1 pass, 1200 dpi"
 :status :untested
 :model "AV660S"
 :interface "USB"
+:comment "1 pass, 1200 dpi"
 :status :untested
 :model "AV680S"
 :interface "USB"
+:comment "1 pass, 1200 dpi"
 :status :untested
 :model "AV690U"
 :interface "USB"
+:comment "1 pass, 2400 dpi"
 :status :untested
 :model "AV800S"
 :interface "SCSI"
+:comment "1 pass, 1200 dpi"
 :status :untested
 :model "AV810C"
 :interface "SCSI"
+:comment "1 pass, 1200 dpi"
 :status :untested
 :model "AV820"
 :interface "SCSI"
+:comment "1 pass, 1200 dpi"
 :status :untested
 :model "AV820C"
 :interface "SCSI"
+:comment "1 pass, 1200 dpi"
 :status :untested
 :model "AV820C Plus"
 :interface "SCSI"
+:comment "1 pass, 1200 dpi"
 :status :untested
 :model "AV830C"
 :interface "SCSI"
+:comment "1 pass, 1200 dpi"
 :status :untested
 :model "AV830C Plus"
 :interface "SCSI"
+:comment "1 pass, 1200 dpi"
 :status :untested
 :model "AV880"
 :interface "SCSI"
+:comment "1 pass, 1200 dpi"
 :status :untested
 :model "AV880C"
 :interface "SCSI"
+:comment "1 pass, 1200 dpi"
 :status :untested
 :model "AV8000S"
 :interface "SCSI"
+:comment "1 pass, 1200 dpi, A3 - regularly tested"
 :status :stable
 :model "AVA3"
 :interface "SCSI"
+:comment "1 pass, 600 dpi, A3"
 :status :untested
-
-:mfg "Hewlett-Packard"
 :url "http://www.hp.com"
-
 :model "ScanJet 5300C"
 :interface "USB"
+:comment "1 pass, 1200 dpi - regularly tested"
 :status :stable
 :model "ScanJet 5370C"
 :interface "USB"
+:comment "1 pass, 2400 dpi"
 :status :alpha
 :model "ScanJet 7400c"
 :interface "USB"
-:status :alpha
-
-:mfg "Minolta"
+:comment "1 pass, 1200 dpi - the HP ScanJet 7450c/7490c are HP ScanJet 7400s plus gadgets"
+:status :beta
 :url "http://www.minolta.com"
-
 :model "FS-V1"
 :interface "USB"
+:comment "1 pass, film-scanner"
 :status :alpha
-
-:mfg "Mitsubishi"
-
+:url ""
 :model "MCA-ADFC"
 :interface "SCSI"
 :status :untested
@@ -151,9 +164,7 @@
 :model "SS600"
 :interface "SCSI"
 :status :beta
-
-:mfg "Fujitsu"
-
+:url ""
 :model "ScanPartner"
 :interface "SCSI"
 :status :untested

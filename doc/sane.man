@@ -199,7 +199,9 @@ scanner. See
 for details.
 .TP
 .B avision
-This backend supports Avision AV 630 CS flatbed scanners. See 
+This backend supports several Avision based scanners. This includes the
+original Avision scanners (like AV 630, AV 620, ...) as well as HP ScanJet 53xx and
+74xx series, Fujitsu ScanParner and Minolta film-scanner. See 
 .BR sane-avision (5)
 for details.
 .TP

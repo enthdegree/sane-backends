@@ -1,3 +1,12 @@
+
+2003-02-16  René Rebe <rene@rocklinux.org>
+
+	* backend/avision.h backend/avision.c doc/sane.man
+	  doc/descriptions/avision.desc: update to the latest Avision
+	  backend release. It includes feature and stability improvements
+	  and bug fixes. The sane man-page now mentions that the avision
+	  backend supports more than the AV 630 CS ...
+
 2003-02-15  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson.c backend/epson_usb.[ch]: Fix problem with 

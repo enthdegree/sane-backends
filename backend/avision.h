@@ -42,28 +42,9 @@
    This backend is based upon the Tamarack backend and adapted to the Avision
    scanners by René Rebe and Meino Cramer.
    
-   Copyright 1999, 2000, 2001, 2002 by
-                "René Rebe" <rene.rebe@gmx.net>
-                "Meino Christian Cramer" <mccramer@s.netic.de>
-                "Jose Paulo Moitinho de Almeida" <moitinho@civil.ist.utl.pt>
-   
-   Additional Contributers:
-                "Gunter Wagner"
-                  (some fixes and the transparency option)
-                "Martin Jelínek" <mates@sirrah.troja.mff.cuni.cz>
-                   nice attach debug output
-                "Marcin Siennicki" <m.siennicki@cloos.pl>
-                   found some typos and contributed fixes for the HP 7400
-                "Frank Zago" <fzago@greshamstorage.com>
-                   Mitsubishi IDs and report
-   
-   Very much thanks to:
-                Oliver Neukum who sponsored a HP 5300 USB scanner !!! ;-)
-                Avision INC for sponsoring a AV 8000S with ADF !!! ;-)
-                Avision INC for the documentation we got! ;-)
-   
-   Check the avision.c file for a ChangeLog ...
-   
+   Check the avision.c file for detailed copyright and change-log
+   information.
+
 ********************************************************************************/
 
 #ifndef avision_h
@@ -94,14 +75,20 @@ typedef struct Avision_HWEntry {
     /* force the special C5 calibration */
     AV_C5_CALIB = 2,
     
+    /* force all in one command calibration */
+    AV_ONE_CMD_CALIB = 4,
+    
     /* no gamma table */
-    AV_NO_GAMMA = 4,
+    AV_NO_GAMMA = 8,
     
     /* light check is bogus */
-    AV_LIGHT_CHECK_BOGUS = 8,
+    AV_LIGHT_CHECK_BOGUS = 16,
     
     /* do not use line packing even if line_difference */
-    AV_NO_LINE_DIFFERENCE = 16
+    AV_NO_LINE_DIFFERENCE = 32,
+    
+    /* fujitsu adaption */
+    AV_FUJITSU = 64
     
     /* maybe more ...*/
   } feature_type;
@@ -113,6 +100,7 @@ typedef enum {
   AV_ASIC_C1 = 1,
   AV_ASIC_C2 = 3,
   AV_ASIC_C5 = 5,
+  AV_ASIC_C6 = 6,
   AV_ASIC_OA980 = 128
 } asic_type;
 
@@ -231,6 +219,8 @@ typedef struct Avision_Device
   int inquiry_line_difference; /* software color pack */
   
   /* int inquiry_bits_per_channel; */
+
+  int scsi_buffer_size; /* nice to have SCSI buffer size */
   
   /* accessories */
   SANE_Bool acc_light_box;
@@ -283,99 +273,8 @@ typedef struct Avision_Scanner
   
 } Avision_Scanner;
 
-/* scsi command defines */
-#define AV_ADF_ON     0x80
-
-#define AV_QSCAN_ON   0x10
-#define AV_QCALIB_ON  0x08
-#define AV_TRANS_ON   0x80
-#define AV_INVERSE_ON 0x20
-
-/* request sense */
-#define VALID                       (SANE_Byte) (0x01<<7)
-#define VALID_BYTE                  (SANE_Int ) (0x00)
-#define ERRCODESTND                 (SANE_Byte) (0x70)
-#define ERRCODEAV                   (SANE_Byte) (0x7F)
-#define ERRCODEMASK                 (SANE_Byte) (0x7F)
-#define ERRCODE_BYTE                (SANE_Int ) (0x00) 
-#define FILMRK                      (SANE_Byte) (0x00)
-#define EOSMASK                     (SANE_Byte) (0x01<<6)
-#define EOS_BYTE                    (SANE_Int ) (0x02)
-#define INVALIDLOGICLEN             (SANE_Byte) (0x01<<5)
-#define ILI_BYTE                    (SANE_Int ) (0x02)
-#define SKSVMASK                    (SANE_Byte) (0x01<<7)
-#define SKSV_BYTE                   (SANE_Int ) (0x0F)
-#define BPVMASK                     (SANE_Byte) (0x01<<3)
-#define BPV_BYTE                    (SANE_Int ) (0x0F)
-#define CDMASK                      (SANE_Byte) (0x01<<6)
-#define CD_ERRINDATA                (SANE_Byte) (0x00)
-#define CD_ERRINPARAM               (SANE_Byte) (0x01)
-#define CD_BYTE                     (SANE_Int ) (0x0F)
-#define BITPOINTERMASK              (SANE_Byte) (0x07)
-#define BITPOINTER_BYTE             (SANE_Int ) (0x0F)
-#define BYTEPOINTER_BYTE1           (SANE_Int ) (0x10)
-#define BYTEPOINTER_BYTE2           (SANE_Int ) (0x11)
-#define SENSEKEY_BYTE               (SANE_Int ) (0x02)
-#define SENSEKEY_MASK               (SANE_Byte) (0x02)
-#define NOSENSE                     (SANE_Byte) (0x00)
-#define NOTREADY                    (SANE_Byte) (0x02)
-#define MEDIUMERROR                 (SANE_Byte) (0x03)
-#define HARDWAREERROR               (SANE_Byte) (0x04)
-#define ILLEGALREQUEST              (SANE_Byte) (0x05)
-#define UNIT_ATTENTION              (SANE_Byte) (0x06)
-#define VENDORSPEC                  (SANE_Byte) (0x09)
-#define ABORTEDCOMMAND              (SANE_Byte) (0x0B)
-#define ASC_BYTE                    (SANE_Int ) (0x0C)
-#define ASCQ_BYTE                   (SANE_Int ) (0x0D)
-#define ASCFILTERPOSERR             (SANE_Byte) (0xA0)
-#define ASCQFILTERPOSERR            (SANE_Byte) (0x01)
-#define ASCADFPAPERJAM              (SANE_Byte) (0x80)
-#define ASCQADFPAPERJAM             (SANE_Byte) (0x01)
-#define ASCADFCOVEROPEN             (SANE_Byte) (0x80)
-#define ASCQADFCOVEROPEN            (SANE_Byte) (0x02)
-#define ASCADFPAPERCHUTEEMPTY       (SANE_Byte) (0x80)
-#define ASCQADFPAPERCHUTEEMPTY      (SANE_Byte) (0x03)
-#define ASCINTERNALTARGETFAIL       (SANE_Byte) (0x44)
-#define ASCQINTERNALTARGETFAIL      (SANE_Byte) (0x00)
-#define ASCSCSIPARITYERROR          (SANE_Byte) (0x47)
-#define ASCQSCSIPARITYERROR         (SANE_Byte) (0x00)
-#define ASCINVALIDCOMMANDOPCODE     (SANE_Byte) (0x20)
-#define ASCQINVALIDCOMMANDOPCODE    (SANE_Byte) (0x00)
-#define ASCINVALIDFIELDCDB          (SANE_Byte) (0x24)
-#define ASCQINVALIDFIELDCDB         (SANE_Byte) (0x00)
-#define ASCLUNNOTSUPPORTED          (SANE_Byte) (0x25)
-#define ASCQLUNNOTSUPPORTED         (SANE_Byte) (0x00)
-#define ASCINVALIDFIELDPARMLIST     (SANE_Byte) (0x26)
-#define ASCQINVALIDFIELDPARMLIST    (SANE_Byte) (0x00)
-#define ASCINVALIDCOMBINATIONWIN    (SANE_Byte) (0x2C)
-#define ASCQINVALIDCOMBINATIONWIN   (SANE_Byte) (0x02)
-#define ASCMSGERROR                 (SANE_Byte) (0x43)
-#define ASCQMSGERROR                (SANE_Byte) (0x00)
-#define ASCCOMMCLREDANOTHINITIATOR  (SANE_Byte) (0x2F)
-#define ASCQCOMMCLREDANOTHINITIATOR (SANE_Byte) (0x00)
-#define ASCIOPROCTERMINATED         (SANE_Byte) (0x00)
-#define ASCQIOPROCTERMINATED        (SANE_Byte) (0x06)
-#define ASCINVBITIDMSG              (SANE_Byte) (0x3D)
-#define ASCQINVBITIDMSG             (SANE_Byte) (0x00)
-#define ASCINVMSGERROR              (SANE_Byte) (0x49)
-#define ASCQINVMSGERROR             (SANE_Byte) (0x00)
-#define ASCLAMPFAILURE              (SANE_Byte) (0x60)
-#define ASCQLAMPFAILURE             (SANE_Byte) (0x00)
-#define ASCMECHPOSERROR             (SANE_Byte) (0x15)
-#define ASCQMECHPOSERROR            (SANE_Byte) (0x01)
-#define ASCPARAMLISTLENERROR        (SANE_Byte) (0x1A)
-#define ASCQPARAMLISTLENERROR       (SANE_Byte) (0x00)
-#define ASCPARAMNOTSUPPORTED        (SANE_Byte) (0x26)
-#define ASCQPARAMNOTSUPPORTED       (SANE_Byte) (0x01)
-#define ASCPARAMVALINVALID          (SANE_Byte) (0x26)
-#define ASCQPARAMVALINVALID         (SANE_Byte) (0x02)
-#define ASCPOWERONRESET             (SANE_Byte) (0x26)
-#define ASCQPOWERONRESET            (SANE_Byte) (0x03)
-#define ASCSCANHEADPOSERROR         (SANE_Byte) (0x62)
-#define ASCQSCANHEADPOSERROR        (SANE_Byte) (0x00)
-
 /* Some Avision driver internal defines */
-#define WINID 0
+#define AV_WINID 0
 
 /* SCSI commands that the Avision scanners understand: */
 
@@ -383,6 +282,8 @@ typedef struct Avision_Scanner
 #define AVISION_SCSI_MEDIA_CHECK            0x08
 #define AVISION_SCSI_INQUIRY                0x12
 #define AVISION_SCSI_MODE_SELECT            0x15
+#define AVISION_SCSI_RESERVE_UNIT           0x16
+#define AVISION_SCSI_RELEASE_UNIT           0x17
 #define AVISION_SCSI_SCAN                   0x1b
 #define AVISION_SCSI_SET_WINDOW             0x24
 #define AVISION_SCSI_READ                   0x28
@@ -396,7 +297,7 @@ typedef struct Avision_Scanner
 #define AVISION_SCSI_OP_TRANS_CALIB_GRAY    0x04
 #define AVISION_SCSI_OP_TRANS_CALIB_COLOR   0x05
 
-/* The structures that you have to send to an avision to get it to
+/* The SCSI structures that we have to send to an avision to get it to
    do various stuff... */
 
 typedef struct command_header
@@ -446,53 +347,79 @@ typedef struct command_send
   u_int8_t reserved1;
 } command_send;
 
-typedef struct command_set_window_window_header
+typedef struct command_set_window_window
 {
-  u_int8_t reserved0 [6];
-  u_int8_t desclen [2];
-} command_set_window_window_header;
-
-typedef struct command_set_window_window_descriptor
-{
-  u_int8_t winid;
-  u_int8_t reserved0;
-  u_int8_t xres [2];
-  u_int8_t yres [2];
-  u_int8_t ulx [4];
-  u_int8_t uly [4];
-  u_int8_t width [4];
-  u_int8_t length [4];
-  u_int8_t brightness;
-  u_int8_t threshold;
-  u_int8_t contrast;
-  u_int8_t image_comp;
-  u_int8_t bpc;
-  u_int8_t halftone [2];
-  u_int8_t padding_and_bitset;
-  u_int8_t bitordering [2];
-  u_int8_t compr_type;
-  u_int8_t compr_arg;
-  u_int8_t reserved1 [6];
-  u_int8_t vendor_specid;
-  u_int8_t paralen;
-  u_int8_t bitset1;
-  u_int8_t highlight;
-  u_int8_t shadow;
-  u_int8_t linewidth [2];
-  u_int8_t linecount [2];
-  u_int8_t bitset2;
-  u_int8_t ir_exposure_time;
+  struct {
+    u_int8_t reserved0 [6];
+    u_int8_t desclen [2];
+  } header;
   
-  u_int8_t r_exposure_time [2];
-  u_int8_t g_exposure_time [2];
-  u_int8_t b_exposure_time [2];
+  struct {
+    u_int8_t winid;
+    u_int8_t reserved0;
+    u_int8_t xres [2];
+    u_int8_t yres [2];
+    u_int8_t ulx [4];
+    u_int8_t uly [4];
+    u_int8_t width [4];
+    u_int8_t length [4];
+    u_int8_t brightness;
+    u_int8_t threshold;
+    u_int8_t contrast;
+    u_int8_t image_comp;
+    u_int8_t bpc;
+    u_int8_t halftone [2];
+    u_int8_t padding_and_bitset;
+    u_int8_t bitordering [2];
+    u_int8_t compr_type;
+    u_int8_t compr_arg;
+    u_int8_t reserved1 [6];
+    
+    /* Avision specific parameters */
+    u_int8_t vendor_specific;
+    u_int8_t paralen; /* bytes following after this byte */
+  } descriptor;
   
-  u_int8_t bitset3;
-  u_int8_t auto_focus;
-  u_int8_t line_width_msb;
-  u_int8_t line_count_msb;
-  u_int8_t edge_threshold;
-} command_set_window_window_descriptor;
+  struct {
+    u_int8_t bitset1;
+    u_int8_t highlight;
+    u_int8_t shadow;
+    u_int8_t line_width [2];
+    u_int8_t line_count [2];
+    
+    /* this is quite version / model sepecific */
+    union {
+      struct {
+	u_int8_t bitset2;
+	u_int8_t reserved;
+      } old;
+      
+      struct {
+	u_int8_t bitset2;
+	u_int8_t ir_exposure_time;
+	
+	/* optional */
+	u_int8_t r_exposure_time [2];
+	u_int8_t g_exposure_time [2];
+	u_int8_t b_exposure_time [2];
+	
+	u_int8_t bitset3; /* reserved in the v2 */
+	u_int8_t auto_focus;
+	u_int8_t line_width_msb;
+	u_int8_t line_count_msb;
+	u_int8_t edge_threshold;
+      } normal;
+      
+      struct {
+	u_int8_t reserved0 [4];
+	u_int8_t paper_size;
+	u_int8_t paperx [4];
+	u_int8_t papery [4];
+	u_int8_t reserved1 [2];
+      } fujitsu;
+    } type;
+  } avision;
+} command_set_window_window;
 
 typedef struct page_header
 {

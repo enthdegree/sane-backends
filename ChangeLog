@@ -1,3 +1,11 @@
+2001-06-11  Stéphane Voltz  <svoltz@wanadoo.fr>
+
+	* backend/umax_pp_low.c backend/umax_pp_low.h backend/umax_pp_mid.c: 
+	  make use of PPGETMODES only when available in ppdev.h. Corrected OS/2
+	  typo in Outb() and rename sanei_umax_pp_Lamp() to 
+	  sanei_umax_pp_SetLamp().
+	
+
 2001-06-05  Peter Fales <peter@fales.com>
 
 	* backend/doc/sane-dc25.man, sane-dc210.man, sane-dc240.man -

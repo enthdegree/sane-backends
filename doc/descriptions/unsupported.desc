@@ -993,29 +993,34 @@
 :model "OpticPro ST16"
 :url "/unsupported/plustek-opticpro-st16.html"
 :interface "USB"
-:status :unsupported
+:comment "Not supported yet. GL646. May be supported later."
 
 :model "OpticPro S24"
 :url "/unsupported/plustek-opticpro-st24.html"
 :interface "USB"
 :status :unsupported
-:comment "Not supported yet. May be supported later, see link for details."
+:comment "Not supported yet. GL646. May be supported later, see link for details."
 
 :model "OpticPro ST24"
 :url "/unsupported/plustek-opticpro-st24.html"
 :interface "USB"
 :status :unsupported
-:comment "Not supported yet. May be supported later, see link for details."
+:comment "Not supported yet. GL646. May be supported later, see link for details."
 
-:model "OpticPro S28"
+:model "OpticPro ST28"
 :interface "USB"
 :status :unsupported
 :comment "Uses Plustek ASIC."
 
-:model "OpticPro S48"
+:model "OpticPro ST48"
 :interface "USB"
 :status :unsupported
 :comment "Uses Plustek ASIC."
+
+:model "OpticPro UA18"
+:interface "USB"
+:status :unsupported
+:comment "Probably LM983x based."
 
 :model "Spectra ADF"
 ;:url ""

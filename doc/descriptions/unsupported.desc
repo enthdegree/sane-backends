@@ -580,7 +580,7 @@
 :status :unsupported
 :comment "Probably unsupported. There seem to exist two different scanners with that name. See link for details."
 
-:model "MD 6190"
+:model "MD 40420"
 :url "/unsupported/tevion-md40420.html"
 :interface "USB"
 :status :unsupported

@@ -4,6 +4,9 @@
 	  changes the default include order (from Tim Waugh
 	  <twaugh@redhat.com>). Really check for entries in $cflags that
 	  are also in $includedir.
+	* frontend/saned.c: DNS queries for remote hosts are only done if
+	  necessary. It's now possible to use "+" without hosts/DNS entries
+	  for the connecting host.
 
 2002-02-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

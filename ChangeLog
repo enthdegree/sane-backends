@@ -2,8 +2,10 @@
 	* backend/gphoto2.c:  Was requiring the device to have the
 	  IMAGE_CAPTURE capability - changed this to a warning instead
 	  of an error so the "Directory Browse" camera can be used.
-	  Also fixed a bug that can result in extra data at the end of
-	  the iamge. 
+	  Don't require a port to be specified for the "Directory
+	  Browse" camera.  Fixed a bug that can result in extra data 
+	  at the end of the iamge.  Allow the returned image image to be 
+	  larger than the "estimate" specified in the configuration file.
 
 2002-01-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

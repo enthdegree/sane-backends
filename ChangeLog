@@ -1,3 +1,10 @@
+2004-12-26  Gerard Klaver <gerard at gkall dot hobby dot nl>
+
+	* doc/descriptions-external/hpaio.desc join two lines so html
+	  conversion possible
+	  doc/descriptions-external/stv680.desc added two webcams with
+	  different usb vid and pid 
+	  
 2004-12-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added several scanners.
@@ -9,7 +16,7 @@
 
 2004-12-15  Gerard Klaver <gerard at gkall dot hobby dot nl>
 
-	* do/descriptions-external/hpaio.desc stv680.desc 
+	* doc/descriptions-external/hpaio.desc stv680.desc 
 	  Info new external backends
 	  
 2004-12-01  Oliver Schwartz <Oliver.Schwartz@gmx.de>

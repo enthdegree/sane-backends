@@ -1,4 +1,20 @@
 -*-Mode: outline-*-
+New with 1.0.15, released 2004-??-??:
+
+* New backends: niash
+* Updated backends: agfafocus, artec_eplus48u.c, avision, canon, canon_pp,
+  coolscan, dll, epson, fujitsu, gt68xx, hp, hp5400, leo, microtek2, mustek,
+  mustek_pp, net, pie, plustek, plustek_pp, snapscan, sp15c, tamarack, teco2,
+  umax, umax_pp, u12, v4l
+* Portability fixes (especially for MacOS X, NetBSD, OS/2, 64 bit platforms).
+* sane-find-scanner detects more chipsets now.
+* Added Finnish translation. Updated other translations.
+* Several saned fixes.
+* Build system updates.
+* Documentation updates.
+* Bugfixes.
+
+
 New with 1.0.14, released 2004-05-01:
 
 * New backends: u12

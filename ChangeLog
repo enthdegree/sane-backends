@@ -1,3 +1,7 @@
+2004-10-23 Giuseppe Sacco <eppesuig@debian.org>
+
+	* Updated italian translation.
+
 2004-10-21  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* backend/gt68xx.c backend/mustek.c: Remove an extra "in".

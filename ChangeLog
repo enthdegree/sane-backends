@@ -1,6 +1,9 @@
 2001-05-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
-	
-	* sanei_codec_bin.c sanei/sanei_net.c sanei/sanei_wire.c:  Fixed
+
+	* backend/net.c backend/net.h backend/net.desc: Fixed some memory
+	  leaks. A bit of reformating. Added more debug output. Used
+	  #include "../include/sane/...".
+	* sanei_codec_bin.c sanei/sanei_net.c sanei/sanei_wire.c: Fixed
 	  some memory leaks. Used #include "../include/sane/...".
 	* frontend/scanimage.c: Added exit handler to call sane_close
 	  and sane_exit in any case and to free alloced memory. A bit of

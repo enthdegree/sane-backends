@@ -1,4 +1,4 @@
-TODO (2001-06-14)
+TODO (2001-06-20)
 
 ******** todo ********
 
@@ -102,6 +102,9 @@ backends
 
   * add a contact address for each backend (in backend.desc).
 
+  * dc25: mkdtemp doesn't exist at least on AIX, Irix and Solaris. Don't depend
+    on this function. --RELEASE CRITICAL--
+
 doc
 ---
   * Add sane-usb manpage
@@ -125,15 +128,11 @@ doc
     - artec (BUGS)
     - mustek_pp (SEE ALSO, there is no sane-musteka4s2(5))
     - plustek: (http://www.linuxhacker.org/listscgi-bin/ezmlm-cgi/3: not found!)
-    - umax_pp (DESCRIPTION: "sticky" bit --> isn't this the "setuid" bit?;
-               DEVICE NAMES: "...only one parallel port  this  port...")
 
   * Check for formatting bugs in manual pages:
     - apple (The list of scanners doesn't look like a table)
     - artec (CONFIGURATION: F<artec.conf> and similar)
     - nec (DESCRIPTION, list doesn't look like a table)
-    - pie (Last two lines in table are not aligned; the last .PP generates a
-           new page)
     - sharp (table isn't aligned)
 
   * If you mention sane-devel, also mention the website concerning
@@ -144,7 +143,6 @@ doc
     - agfafocus
     - apple
     - bh
-    - epson
     - hp
     - microtek
     - pint

@@ -61,7 +61,7 @@ init_picture_buffer (Test_Device * test_device, SANE_Byte ** buffer,
     is_little_endian ^= 1;
 
   DBG (2, "(child) init_picture_buffer test_device=%p, buffer=%p, "
-       "buffer_size=%p\n", test_device, buffer, buffer_size);
+       "buffer_size=%p\n",(void*)test_device,(void*)buffer,(void*)buffer_size);
 
   if (strcmp (test_device->val[opt_test_picture].s, "Solid black") == 0
       || strcmp (test_device->val[opt_test_picture].s, "Solid white") == 0)

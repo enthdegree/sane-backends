@@ -1,3 +1,8 @@
+2004-06-21  Gerhard Jaeger <gerhard@gjaeger.de>
+	* doc/descriptions/unsupported.desc: removed Compac S4 100 
+	  (supported by the Plustek backend), added various Plustek
+	  devices, changed OpticPro m12 to OpticSlim M12
+
 2004-06-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/microtek2.c: Fixed some (but not all) MIN related

@@ -8,6 +8,8 @@
 	* backend/mustek_usb.desc: New status: beta.
 	* README: Added description of --enable-translations.
 	* doc/sane.man: Added comment about translations.
+	* Makefile.in: Added Changelogs to DISTFILES. test/Makefile is
+	  removed in make distclean now. 
 
 2002-01-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

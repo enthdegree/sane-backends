@@ -1,4 +1,4 @@
-.TH sane-mustek 5 "24 Jul 2000"
+.TH sane-mustek 5 "23 Sep 2000"
 .IX sane-mustek
 .SH NAME
 sane-mustek - SANE backend for Mustek flatbed scanners
@@ -28,6 +28,10 @@ Paragon MFS-1200SP, MFS-12000SP
 ScanExpress 6000SP
 .br
 ScanExpress 12000SP, 12000SP Plus, Paragon 1200 III SP, ScanMagic 9636S, 9636S Plus
+.br
+ScanExpress A3 SP
+.br
+Paragon 1200 SP Pro
 .br
 Paragon 1200 A3 Pro
 .br
@@ -108,12 +112,15 @@ scanners.  Empty lines and lines starting with a hash mark (#) are
 ignored.  See sane-scsi(5) on details of what constitutes a valid
 device name.
 .PP
-The four options supported are
+The supported options are
 .BR linedistance-fix ,
 .BR lineart-fix ,
 .BR buffersize ,
+.BR blocksize ,
+.BR strip-height ,
 and
-.BR strip-height .
+.BR force-wait ,
+
 Options come in two flavors: global and positional ones.  Global
 options apply to all devices managed by the backend whereas positional
 options apply just to the most recently mentioned device.  Note that
@@ -136,12 +143,27 @@ should fix the problem but may slow down scanning a bit.
 
 Option
 .B buffersize
-is a positional option that overrides the default values set for scan 
-buffers. The buffer size is specified in kilobytes. The default value
-depends on the scanner type. Note that some ScanExpress scanners don't
-like buffer sizes above 64 kb. If your sg driver can't set SCSI buffer
-sizes at runtime you may have to change that value, too. See sane-scsi(5)
-for details.
+is a positional option that overrides the default value set for the
+total SCSI buffer size. The buffer size is specified in kilobytes. The
+default value depends on the scanner type. Because of double buffering
+the buffer actually send to the scanner is half of the size of this
+value. Note that some ScanExpress scanners don't like buffer sizes
+above 64 kb (buffersize = 128). If your sg driver can't set SCSI
+buffer sizes at runtime you may have to change that value, too. See
+sane-scsi(5) for details.
+
+Option
+.B blocksize
+is a positional option that overrides the default value set for the
+maximum amount of data scanned in one block. The buffer size is
+specified in kilobytes. Some scanners freeze if this value is bigger
+than 2048. The default value is 1 GB (so effectively no limit) for
+most scanners.
+
+Option
+.B strip-height is a global option. If enabled, the Mustek backend
+waits after each scan until the scan slider reaches its start position.
+This option may be useful for testing. Default is off (not enabled).
 
 Finally,
 .B strip-height

@@ -162,7 +162,8 @@ print_option (SANE_Device *device, int opt_num, char short_name)
 	    default:
 	      break;
 	    }
-	  if (opt->type != SANE_TYPE_STRING && opt->size > sizeof (SANE_Word))
+	  if (opt->type != SANE_TYPE_STRING && opt->size 
+	      > (SANE_Int) sizeof (SANE_Word))
 	    fputs (",...", stdout);
 	  break;
 
@@ -172,7 +173,7 @@ print_option (SANE_Device *device, int opt_num, char short_name)
 	      printf ("%d..%d",
 		      opt->constraint.range->min, opt->constraint.range->max);
 	      print_unit (opt->unit);
-	      if (opt->size > sizeof (SANE_Word))
+	      if (opt->size > (SANE_Int) sizeof (SANE_Word))
 		fputs (",...", stdout);
 	      if (opt->constraint.range->quant)
 		printf (" (in steps of %d)",
@@ -184,7 +185,7 @@ print_option (SANE_Device *device, int opt_num, char short_name)
 		    SANE_UNFIX(opt->constraint.range->min),
 		    SANE_UNFIX(opt->constraint.range->max));
 	      print_unit (opt->unit);
-	      if (opt->size > sizeof (SANE_Word))
+	      if (opt->size > (SANE_Int) sizeof (SANE_Word))
 		fputs (",...", stdout);
 	      if (opt->constraint.range->quant)
 		printf (" (in steps of %g)",
@@ -207,7 +208,7 @@ print_option (SANE_Device *device, int opt_num, char short_name)
 			SANE_UNFIX(opt->constraint.word_list[i + 1]));
 	    }
 	  print_unit (opt->unit);
-	  if (opt->size > sizeof (SANE_Word))
+	  if (opt->size > (SANE_Int) sizeof (SANE_Word))
 	    fputs (",...", stdout);
 	  break;
 
@@ -436,7 +437,7 @@ parse_vector (const SANE_Option_Descriptor * opt, const char * str,
     else
       ++index;
 
-    if (index < 0 || index >= vector_length)
+    if (index < 0 || index >= (int) vector_length)
       {
 	fprintf (stderr, "%s: option --%s: index %d out of range [0..%ld]\n",
 		 prog_name, opt->name, index, (long) vector_length - 1);
@@ -484,7 +485,7 @@ parse_vector (const SANE_Option_Descriptor * opt, const char * str,
       int i;
 
       fprintf (stderr, "%s: value for --%s is: ", prog_name, opt->name);
-      for (i = 0; i < vector_length; ++i)
+      for (i = 0; i < (int) vector_length; ++i)
 	if (opt->type == SANE_TYPE_FIXED)
 	  fprintf (stderr, "%g ", SANE_UNFIX(vector[i]));
 	else

@@ -1,8 +1,0 @@
-:backend "net"               ; name of backend
-:version "1.0.7"
-:status :beta
-:manpage "sane-net"
-:url "http://home.nexgo.de/jochen.eisinger/saned/"
-
-:devicetype :meta
-:desc "Network access to saned servers"

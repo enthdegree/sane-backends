@@ -2,7 +2,8 @@
 
 	* backend/mustek.c doc/mustek/mustek.CHANGES: Free devlist
 	  in sane_exit.
-	* TODO: Updated concerning config_line[len - 1] stuff.
+	* TODO: Updated concerning config_line[len - 1] stuff. Added
+	  some (most) backends to list of sane_get_devices leak.
 	* backend/dll.c backend/dll.desc: Removed access to uninitialized
 	  memory. Increased version number.
 	* backend/net.c backend/net.desc: Removed access to uninitialized

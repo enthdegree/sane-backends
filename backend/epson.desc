@@ -10,8 +10,8 @@
 ;
 
 :backend "epson"                  ; name of backend
-:version "0.2.02"                 ; version of backend
-:status :beta                     ; :alpha, :beta, :stable, :new
+:version "0.2.07"                 ; version of backend
+:status :stable                   ; :alpha, :beta, :stable, :new
 :manpage "sane-epson"             ; name of manpage (if it exists)
 :url "http://www.freecolormanagement.com/sane"        ; backend's web page
 
@@ -53,6 +53,12 @@
 :model "GT-7000"
 :interface "SCSI"
 
+:model "GT-8000"
+:interface "SCSI"
+
+:model "ES-8500"
+:interface "SCSI"
+
 :model "Perfection 636S"
 :comment "US version of GT-7000"
 :interface "SCSI"
@@ -89,6 +95,9 @@
 :interface "SCSI"
 
 :model "Expression 1600"
+:interface "SCSI USB IEEE-1394"
+
+:model "Expression 1680"
 :interface "SCSI USB IEEE-1394"
 
 :model "FilmScan 200"

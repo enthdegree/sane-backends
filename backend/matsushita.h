@@ -86,7 +86,7 @@ CDB;
  ((unsigned char *)buf)[3] = ((val) >>  0) & 0xff; \
 }
 
-#define MKSCSI_SCSI_TEST_UNIT_READY(cdb) \
+#define MKSCSI_TEST_UNIT_READY(cdb) \
 	cdb.data[0] = SCSI_TEST_UNIT_READY; \
 	cdb.data[1] = 0; \
 	cdb.data[2] = 0; \
@@ -104,7 +104,7 @@ CDB;
 	cdb.data[5] = 0; \
 	cdb.len = 6;
 
-#define MKSCSI_SCSI_SET_WINDOW(cdb, buflen) \
+#define MKSCSI_SET_WINDOW(cdb, buflen) \
 	cdb.data[0] = SCSI_SET_WINDOW; \
 	cdb.data[1] = 0; \
 	cdb.data[2] = 0; \
@@ -117,7 +117,7 @@ CDB;
 	cdb.data[9] = 0; \
 	cdb.len = 10;
 
-#define MKSCSI_SCSI_READ_10(cdb, dtc, dtq, buflen) \
+#define MKSCSI_READ_10(cdb, dtc, dtq, buflen) \
 	cdb.data[0] = SCSI_READ_10; \
 	cdb.data[1] = 0; \
 	cdb.data[2] = (dtc); \
@@ -201,7 +201,7 @@ enum Matsushita_Option
 
 
   /* must come last: */
-  NUM_OPTIONS
+  OPT_NUM_OPTIONS
 };
 
 typedef union
@@ -215,7 +215,6 @@ Option_Value;
 /*--------------------------------------------------------------------------*/
 
 #define BLACK_WHITE_STR		SANE_I18N("Black & White")
-#define HALFTONE_STR		SANE_I18N("Haltfone")
 #define GRAY4_STR			SANE_I18N("Grayscale 4 bits")
 #define GRAY8_STR			SANE_I18N("Grayscale 8 bits")
 
@@ -328,8 +327,9 @@ typedef struct Matsushita_Scanner
   int depth;			/* depth per color */
   int halftone_pattern;		/* haltone number, valid for MATSUSHITA_HALFTONE */
 
-  int bytes_left;		/* number of bytes promised to backend
-				   * left to read. */
+  size_t bytes_left;		/* number of bytes left to give to the backend */
+
+  size_t real_bytes_left;	/* number of bytes left the scanner will return. */
 
   SANE_Parameters params;
 
@@ -344,8 +344,8 @@ typedef struct Matsushita_Scanner
 
 
   /* Options */
-  SANE_Option_Descriptor opt[NUM_OPTIONS];
-  Option_Value val[NUM_OPTIONS];
+  SANE_Option_Descriptor opt[OPT_NUM_OPTIONS];
+  Option_Value val[OPT_NUM_OPTIONS];
 }
 Matsushita_Scanner;
 

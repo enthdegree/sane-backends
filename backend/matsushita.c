@@ -52,7 +52,7 @@
 
 /*--------------------------------------------------------------------------*/
 
-#define BUILD 5			/* 2002-03-05 */
+#define BUILD 6			/* 2002-03-13 */
 #define BACKEND_NAME matsushita
 #define MATSUSHITA_CONFIG_FILE "matsushita.conf"
 
@@ -86,13 +86,12 @@
 
 /* Lists of possible scan modes. */
 static SANE_String_Const scan_mode_list_1[] = {
-  HALFTONE_STR,
+  BLACK_WHITE_STR,
   NULL
 };
 
 static SANE_String_Const scan_mode_list_3[] = {
   BLACK_WHITE_STR,
-  HALFTONE_STR,
   GRAY4_STR,
   GRAY8_STR,
   NULL
@@ -495,9 +494,10 @@ matsushita_read_document_size (Matsushita_Scanner * dev)
   DBG (DBG_proc, "matsushita_read_document_size: enter\n");
 
   size = 0x10;
-  MKSCSI_SCSI_READ_10 (cdb, 0x80, 0, size);
+  MKSCSI_READ_10 (cdb, 0x80, 0, size);
 
-  status = sanei_scsi_cmd (dev->sfd, cdb.data, cdb.len, dev->buffer, &size);
+  status = sanei_scsi_cmd2 (dev->sfd, cdb.data, cdb.len,
+			    NULL, 0, dev->buffer, &size);
 
   if (status != SANE_STATUS_GOOD || size != 0x10)
     {
@@ -546,6 +546,16 @@ matsushita_init (void)
       return NULL;
     }
 
+  /* Allocate a buffer to store the temporary image. */
+  dev->image_size = 64 * 1024;	/* enough for 1 line at max res */
+  dev->image = malloc (dev->image_size);
+  if (dev->image == NULL)
+    {
+      free (dev->buffer);
+      free (dev);
+      return NULL;
+    }
+
   dev->sfd = -1;
 
   DBG (DBG_proc, "matsushita_init: exit\n");
@@ -572,6 +582,8 @@ matsushita_close (Matsushita_Scanner * dev)
 static void
 matsushita_free (Matsushita_Scanner * dev)
 {
+  int i;
+
   DBG (DBG_proc, "matsushita_free: enter\n");
 
   if (dev == NULL)
@@ -586,10 +598,19 @@ matsushita_free (Matsushita_Scanner * dev)
     {
       free (dev->buffer);
     }
-  if (dev->image == NULL)
+  if (dev->image)
     {
       free (dev->image);
     }
+  for (i = 1; i < OPT_NUM_OPTIONS; i++)
+    {
+      if (dev->opt[i].type == SANE_TYPE_STRING && dev->val[i].s)
+	{
+	  free (dev->val[i].s);
+	}
+    }
+  free (dev->paper_sizes_list);
+  free (dev->paper_sizes_val);
 
   free (dev);
 
@@ -609,7 +630,8 @@ matsushita_identify_scanner (Matsushita_Scanner * dev)
 
   size = 5;
   MKSCSI_INQUIRY (cdb, size);
-  status = sanei_scsi_cmd (dev->sfd, cdb.data, cdb.len, dev->buffer, &size);
+  status = sanei_scsi_cmd2 (dev->sfd, cdb.data, cdb.len,
+			    NULL, 0, dev->buffer, &size);
 
   if (status)
     {
@@ -629,7 +651,8 @@ matsushita_identify_scanner (Matsushita_Scanner * dev)
     }
 
   MKSCSI_INQUIRY (cdb, size);
-  status = sanei_scsi_cmd (dev->sfd, cdb.data, cdb.len, dev->buffer, &size);
+  status = sanei_scsi_cmd2 (dev->sfd, cdb.data, cdb.len,
+			    NULL, 0, dev->buffer, &size);
 
   if (status)
     {
@@ -895,11 +918,11 @@ matsushita_check_next_page (Matsushita_Scanner * dev)
 
   DBG (DBG_proc, "matsushita_check_next_page: enter\n");
 
-  MKSCSI_SCSI_READ_10 (cdb, 0, 0, 0);
+  MKSCSI_READ_10 (cdb, 0, 0, 0);
   cdb.data[4] = dev->page_num;	/* May be cdb.data[3] too? */
   cdb.data[5] = dev->page_side;
 
-  status = sanei_scsi_cmd (dev->sfd, cdb.data, cdb.len, NULL, NULL);
+  status = sanei_scsi_cmd2 (dev->sfd, cdb.data, cdb.len, NULL, 0, NULL, NULL);
 
   DBG (DBG_proc, "matsushita_check_next_page: exit with status %d\n", status);
 
@@ -966,7 +989,7 @@ attach_scanner (const char *devicename, Matsushita_Scanner ** devp)
 
   /* Set the default options for that scanner. */
   dev->sane.name = dev->devicename;
-  dev->sane.vendor = dev->scsi_vendor;
+  dev->sane.vendor = "Panasonic";
   dev->sane.model = dev->scsi_product;
   dev->sane.type = SANE_I18N ("sheetfed scanner");
 
@@ -1003,24 +1026,26 @@ matsushita_init_options (Matsushita_Scanner * dev)
   memset (dev->opt, 0, sizeof (dev->opt));
   memset (dev->val, 0, sizeof (dev->val));
 
-  for (i = 0; i < NUM_OPTIONS; ++i)
+  for (i = 0; i < OPT_NUM_OPTIONS; ++i)
     {
       dev->opt[i].size = sizeof (SANE_Word);
       dev->opt[i].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     }
 
   /* Number of options. */
+  dev->opt[OPT_NUM_OPTS].name = "";
   dev->opt[OPT_NUM_OPTS].title = SANE_TITLE_NUM_OPTIONS;
   dev->opt[OPT_NUM_OPTS].desc = SANE_DESC_NUM_OPTIONS;
   dev->opt[OPT_NUM_OPTS].type = SANE_TYPE_INT;
   dev->opt[OPT_NUM_OPTS].cap = SANE_CAP_SOFT_DETECT;
-  dev->val[OPT_NUM_OPTS].w = NUM_OPTIONS;
+  dev->val[OPT_NUM_OPTS].w = OPT_NUM_OPTIONS;
 
   /* Mode group */
   dev->opt[OPT_MODE_GROUP].title = SANE_I18N ("Scan Mode");
   dev->opt[OPT_MODE_GROUP].desc = "";	/* not valid for a group */
   dev->opt[OPT_MODE_GROUP].type = SANE_TYPE_GROUP;
   dev->opt[OPT_MODE_GROUP].cap = 0;
+  dev->opt[OPT_MODE_GROUP].size = 0;
   dev->opt[OPT_MODE_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
   /* Scanner supported modes */
@@ -1071,6 +1096,7 @@ matsushita_init_options (Matsushita_Scanner * dev)
   dev->opt[OPT_GEOMETRY_GROUP].desc = "";	/* not valid for a group */
   dev->opt[OPT_GEOMETRY_GROUP].type = SANE_TYPE_GROUP;
   dev->opt[OPT_GEOMETRY_GROUP].cap = 0;
+  dev->opt[OPT_GEOMETRY_GROUP].size = 0;
   dev->opt[OPT_GEOMETRY_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
   /* Paper sizes list. */
@@ -1124,6 +1150,7 @@ matsushita_init_options (Matsushita_Scanner * dev)
   dev->opt[OPT_ENHANCEMENT_GROUP].desc = "";	/* not valid for a group */
   dev->opt[OPT_ENHANCEMENT_GROUP].type = SANE_TYPE_GROUP;
   dev->opt[OPT_ENHANCEMENT_GROUP].cap = SANE_CAP_ADVANCED;
+  dev->opt[OPT_ENHANCEMENT_GROUP].size = 0;
   dev->opt[OPT_ENHANCEMENT_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
   /* Brightness */
@@ -1261,7 +1288,7 @@ matsushita_wait_scanner (Matsushita_Scanner * dev)
 
   DBG (DBG_proc, "matsushita_wait_scanner: enter\n");
 
-  MKSCSI_SCSI_TEST_UNIT_READY (cdb);
+  MKSCSI_TEST_UNIT_READY (cdb);
 
   /* Set the timeout to 60 seconds. */
   timeout = 60;
@@ -1270,7 +1297,8 @@ matsushita_wait_scanner (Matsushita_Scanner * dev)
     {
 
       /* test unit ready */
-      status = sanei_scsi_cmd (dev->sfd, cdb.data, cdb.len, NULL, NULL);
+      status = sanei_scsi_cmd2 (dev->sfd, cdb.data, cdb.len,
+				NULL, 0, NULL, NULL);
 
       if (status == SANE_STATUS_GOOD)
 	{
@@ -1293,9 +1321,9 @@ matsushita_reset_window (Matsushita_Scanner * dev)
 
   DBG (DBG_proc, "matsushita_reset_window: enter\n");
 
-  MKSCSI_SCSI_SET_WINDOW (cdb, 0);
+  MKSCSI_SET_WINDOW (cdb, 0);
 
-  status = sanei_scsi_cmd (dev->sfd, cdb.data, cdb.len, NULL, NULL);
+  status = sanei_scsi_cmd2 (dev->sfd, cdb.data, cdb.len, NULL, 0, NULL, NULL);
 
   DBG (DBG_proc, "matsushita_reset_window: exit, status=%d\n", status);
 
@@ -1308,138 +1336,304 @@ matsushita_set_window (Matsushita_Scanner * dev, int side)
 {
   size_t size;
   CDB cdb;
-  struct
-  {				/* this sucks a lot */
-    char cdb[10];
-    unsigned char window[72];
-  }
-  param;
+  unsigned char window[72];
   SANE_Status status;
   int i;
 
   DBG (DBG_proc, "matsushita_set_window: enter\n");
 
-  size = sizeof (param.window);
-  MKSCSI_SCSI_SET_WINDOW (cdb, size);
+  size = sizeof (window);
+  MKSCSI_SET_WINDOW (cdb, size);
 
-  memcpy (param.cdb, cdb.data, cdb.len);
-  memset (param.window, 0, size);
+  memset (window, 0, size);
 
   /* size of the windows descriptor block */
-  param.window[7] = 64;
+  window[7] = sizeof (window) - 8;
 
   /* Page side */
-  param.window[8] = side;
+  window[8] = side;
 
   /* X and Y resolution */
-  Ito16 (dev->resolution, &param.window[10]);
-  Ito16 (dev->resolution, &param.window[12]);
+  Ito16 (dev->resolution, &window[10]);
+  Ito16 (dev->resolution, &window[12]);
 
   /* Upper Left (X,Y) */
-  Ito32 (dev->x_tl, &param.window[14]);
-  Ito32 (dev->y_tl, &param.window[18]);
+  Ito32 (dev->x_tl, &window[14]);
+  Ito32 (dev->y_tl, &window[18]);
 
   /* Width and length */
-  Ito32 (dev->width, &param.window[22]);
-  Ito32 (dev->length, &param.window[26]);
-  Ito32 (dev->width, &param.window[56]);	/* again, verso? */
-  Ito32 (dev->length, &param.window[60]);	/* again, verso? */
+  Ito32 (dev->width, &window[22]);
+  Ito32 (dev->length, &window[26]);
+  Ito32 (dev->width, &window[56]);	/* again, verso? */
+  Ito32 (dev->length, &window[60]);	/* again, verso? */
 
   /* Brightness */
-  param.window[30] = 255 - dev->val[OPT_BRIGHTNESS].w;
-  param.window[31] = param.window[30];	/* same as brightness. */
+  window[30] = 255 - dev->val[OPT_BRIGHTNESS].w;
+  window[31] = window[30];	/* same as brightness. */
 
   /* Contrast */
-  param.window[32] = dev->val[OPT_CONTRAST].w;
+  window[32] = dev->val[OPT_CONTRAST].w;
 
   /* Image Composition */
   switch (dev->scan_mode)
     {
     case MATSUSHITA_BW:
-      param.window[33] = 0x00;
+      window[33] = 0x00;
       break;
     case MATSUSHITA_HALFTONE:
-      param.window[33] = 0x01;
+      window[33] = 0x01;
       break;
     case MATSUSHITA_GRAYSCALE:
-      param.window[33] = 0x02;
+      window[33] = 0x02;
       break;
     }
 
   /* Depth */
-  param.window[34] = dev->depth;
+  window[34] = dev->depth;
+
+  /* Halftone pattern. */
+  if (dev->scan_mode == MATSUSHITA_HALFTONE)
+    {
+      i = get_string_list_index (halftone_pattern_list,
+				 dev->val[OPT_HALFTONE_PATTERN].s);
+      window[36] = halftone_pattern_val[i];
+    }
 
   /* Gamma */
   if (dev->scan_mode == MATSUSHITA_GRAYSCALE)
     {
       i = get_string_list_index (gamma_list, dev->val[OPT_GAMMA].s);
-      param.window[52] = gamma_val[i];
+      window[52] = gamma_val[i];
     }
 
   /* Feeder mode */
   i = get_string_list_index (feeder_mode_list, dev->val[OPT_FEEDER_MODE].s);
-  param.window[65] = feeder_mode_val[i];
+  window[65] = feeder_mode_val[i];
 
   /* Image emphasis */
-  i =
-    get_string_list_index (scanners[dev->scnum].image_emphasis_list,
-			   dev->val[OPT_IMAGE_EMPHASIS].s);
-  param.window[51] = scanners[dev->scnum].image_emphasis_val[i];
+  i = get_string_list_index (scanners[dev->scnum].image_emphasis_list,
+			     dev->val[OPT_IMAGE_EMPHASIS].s);
+  window[51] = scanners[dev->scnum].image_emphasis_val[i];
 
   /* White level */
   i = get_string_list_index (white_level_list, dev->val[OPT_WHITE_LEVEL].s);
-  param.window[68] = white_level_val[i];
-
-  /* Halftone pattern. */
-  if (dev->scan_mode == MATSUSHITA_HALFTONE)
-    {
-      i =
-	get_string_list_index (halftone_pattern_list,
-			       dev->val[OPT_HALFTONE_PATTERN].s);
-      param.window[36] = halftone_pattern_val[i];
-    }
+  window[68] = white_level_val[i];
 
   if (dev->scan_mode == MATSUSHITA_BW ||
       dev->scan_mode == MATSUSHITA_HALFTONE)
     {
 
       /* Noise reduction */
-      i =
-	get_string_list_index (noise_reduction_list,
-			       dev->val[OPT_NOISE_REDUCTION].s);
-      param.window[69] = noise_reduction_val[i];
+      i = get_string_list_index (noise_reduction_list,
+				 dev->val[OPT_NOISE_REDUCTION].s);
+      window[69] = noise_reduction_val[i];
 
       /* Automatic separation */
       if (dev->val[OPT_AUTOMATIC_SEPARATION].w)
 	{
-	  param.window[67] = 0x80;
+	  window[67] = 0x80;
 	}
 
       /* Automatic threshold. Must be last because it may override
        * some previous options. */
-      i =
-	get_string_list_index (automatic_threshold_list,
-			       dev->val[OPT_AUTOMATIC_THRESHOLD].s);
-      param.window[66] = automatic_threshold_val[i];
+      i = get_string_list_index (automatic_threshold_list,
+				 dev->val[OPT_AUTOMATIC_THRESHOLD].s);
+      window[66] = automatic_threshold_val[i];
 
       if (automatic_threshold_val[i] != 0)
 	{
 	  /* Automatic threshold is enabled. */
-	  param.window[36] = 0;	/* Halftone pattern. */
-	  param.window[51] = 0;	/* Image emphasis */
-	  param.window[67] = 0;	/* Automatic separation */
-	  param.window[68] = 0;	/* White level */
-	  param.window[69] = 0;	/* Noise reduction */
+	  window[30] = 0;	/* brightness. */
+	  window[31] = 0;	/* same as brightness. */
+	  window[32] = 0;	/* contrast */
+	  window[33] = 0;	/* B&W mode */
+	  window[36] = 0;	/* Halftone pattern. */
+	  window[51] = 0;	/* Image emphasis */
+	  window[67] = 0;	/* Automatic separation */
+	  window[68] = 0;	/* White level */
+	  window[69] = 0;	/* Noise reduction */
 	}
     }
 
-  hexdump (DBG_info2, "windows", param.window, 72);
+  hexdump (DBG_info2, "windows", window, 72);
 
-  status = sanei_scsi_cmd (dev->sfd, &param, sizeof (param), NULL, NULL);
+  status = sanei_scsi_cmd2 (dev->sfd, cdb.data, cdb.len,
+			    &window, sizeof (window), NULL, NULL);
 
   DBG (DBG_proc, "matsushita_set_window: exit, status=%d\n", status);
 
   return status;
+}
+
+/* Read the image from the scanner and fill the temporary buffer with it. */
+static SANE_Status
+matsushita_fill_image (Matsushita_Scanner * dev)
+{
+  SANE_Status status;
+  size_t size;
+  CDB cdb;
+
+  DBG (DBG_proc, "matsushita_fill_image: enter\n");
+
+  assert (dev->image_begin == dev->image_end);
+  assert (dev->real_bytes_left > 0);
+
+  dev->image_begin = 0;
+  dev->image_end = 0;
+
+  while (dev->real_bytes_left)
+    {
+
+      /* 
+       * Try to read the maximum number of bytes.
+       *
+       * The windows driver reads no more than 0x8000 byte. 
+       *
+       * This backend operates differently than the windows
+       * driver. The windows TWAIN driver always read 2 more bytes
+       * at the end, so it gets a CHECK CONDITION with a short read
+       * sense. Since the linux scsi layer seem to be buggy
+       * regarding the resid, always read exactly the number of
+       * remaining bytes.  
+       */
+
+      size = dev->real_bytes_left;
+      if (size > dev->image_size - dev->image_end)
+	size = dev->image_size - dev->image_end;
+      if (size > 0x8000)
+	size = 0x8000;
+
+      if (size == 0)
+	{
+	  /* Probably reached the end of the buffer. 
+	   * Check, just in case. */
+	  assert (dev->image_end != 0);
+	  return (SANE_STATUS_GOOD);
+	}
+
+      DBG (DBG_info, "sane_read: to read   = %ld bytes (bpl=%d)\n",
+	   (long) size, dev->params.bytes_per_line);
+
+      MKSCSI_READ_10 (cdb, 0, 0, size);
+      cdb.data[4] = dev->page_num;	/* May be cdb.data[3] too? */
+      cdb.data[5] = dev->page_side;
+
+      hexdump (DBG_info2, "sane_read: READ_10 CDB", cdb.data, 10);
+
+      status = sanei_scsi_cmd2 (dev->sfd, cdb.data, cdb.len,
+				NULL, 0, dev->buffer, &size);
+
+      if (status == SANE_STATUS_EOF)
+	{
+	  DBG (DBG_proc, "sane_read: exit, end of page scan\n");
+	  return (SANE_STATUS_EOF);
+	}
+
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error, "sane_read: cannot read from the scanner\n");
+	  return status;
+	}
+
+      dev->real_bytes_left -= size;
+
+      switch (dev->depth)
+	{
+	case 1:
+	  {
+	    /* For Black & White, the bits in every bytes are mirrored.
+	     * for instance 11010001 is coded as 10001011 */
+
+	    unsigned char *src = dev->buffer;
+	    unsigned char *dest = dev->image + dev->image_end;
+	    unsigned char s;
+	    unsigned char d;
+
+	    size_t i;
+
+	    for (i = 0; i < size; i++)
+	      {
+		s = *src;
+		d = 0;
+		if (s & 0x01)
+		  d |= 0x80;
+		if (s & 0x02)
+		  d |= 0x40;
+		if (s & 0x04)
+		  d |= 0x20;
+		if (s & 0x08)
+		  d |= 0x10;
+		if (s & 0x10)
+		  d |= 0x08;
+		if (s & 0x20)
+		  d |= 0x04;
+		if (s & 0x40)
+		  d |= 0x02;
+		if (s & 0x80)
+		  d |= 0x01;
+		*dest = d;
+		src++;
+		dest++;
+	      }
+	  }
+	  break;
+
+	case 4:
+	  {
+	    /* Adjust from a depth of 4 bits ([0..15]) to 
+	     * a depth of 8 bits ([0..255]) */
+
+	    unsigned char *src = dev->buffer;
+	    unsigned char *dest = dev->image + dev->image_end;
+	    size_t i;
+
+	    /* n bytes from image --> 2*n bytes in buf. */
+
+	    for (i = 0; i < size; i++)
+	      {
+		*dest = ((*src & 0x0f) >> 0) * 17;
+		dest++;
+		*dest = ((*src & 0xf0) >> 4) * 17;
+		dest++;
+		src++;
+	      }
+
+	    size *= 2;
+	  }
+	  break;
+
+	default:
+	  memcpy (dev->image + dev->image_end, dev->buffer, size);
+	  break;
+	}
+
+      dev->image_end += size;
+
+    }
+
+  return (SANE_STATUS_GOOD);	/* unreachable */
+}
+
+/* Copy from the raw buffer to the buffer given by the backend. 
+ *
+ * len in input is the maximum length available in buf, and, in
+ * output, is the length written into buf.
+ */
+static void
+matsushita_copy_raw_to_frontend (Matsushita_Scanner * dev, SANE_Byte * buf,
+				 size_t * len)
+{
+  size_t size;
+
+  size = dev->image_end - dev->image_begin;
+  if (size > *len)
+    {
+      size = *len;
+    }
+  *len = size;
+
+  memcpy (buf, dev->image + dev->image_begin, size);
+  dev->image_begin += size;
 }
 
 /* Stop a scan. */
@@ -1509,6 +1703,10 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
       sanei_config_attach_matching_devices (dev_name, attach_one);
     }
+
+  fclose (fp);
+
+  DBG (DBG_proc, "sane_init: leave\n");
 
   return SANE_STATUS_GOOD;
 }
@@ -1604,7 +1802,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
   DBG (DBG_proc, "sane_get_option_descriptor: enter, option %d\n", option);
 
-  if ((unsigned) option >= NUM_OPTIONS)
+  if ((unsigned) option >= OPT_NUM_OPTIONS)
     {
       return NULL;
     }
@@ -1639,7 +1837,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       return SANE_STATUS_DEVICE_BUSY;
     }
 
-  if (option < 0 || option >= NUM_OPTIONS)
+  if (option < 0 || option >= OPT_NUM_OPTIONS)
     {
       return SANE_STATUS_INVAL;
     }
@@ -1713,10 +1911,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  /* Side-effect options */
 	case OPT_TL_Y:
 	case OPT_BR_Y:
-	  DBG (DBG_info, "sane_get_option PREVINFO %f \n",
-	       SANE_UNFIX (*(SANE_Word *) val));
-
-
 	case OPT_RESOLUTION:
 	  if (info)
 	    {
@@ -1764,7 +1958,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  return SANE_STATUS_GOOD;
 
 	  /* String mode */
-	case OPT_HALFTONE_PATTERN:
 	case OPT_WHITE_LEVEL:
 	case OPT_NOISE_REDUCTION:
 	case OPT_IMAGE_EMPHASIS:
@@ -1790,22 +1983,23 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	  if (strcmp (dev->val[OPT_MODE].s, BLACK_WHITE_STR) == 0)
 	    {
-	      dev->scan_mode = MATSUSHITA_BW;
-	      dev->depth = 1;
-
-	      dev->opt[OPT_AUTOMATIC_THRESHOLD].cap &= ~SANE_CAP_INACTIVE;
-	      dev->opt[OPT_AUTOMATIC_SEPARATION].cap &= ~SANE_CAP_INACTIVE;
-	      dev->opt[OPT_NOISE_REDUCTION].cap &= ~SANE_CAP_INACTIVE;
-	    }
-	  else if (strcmp (dev->val[OPT_MODE].s, HALFTONE_STR) == 0)
-	    {
-	      dev->scan_mode = MATSUSHITA_HALFTONE;
 	      dev->depth = 1;
 
 	      dev->opt[OPT_HALFTONE_PATTERN].cap &= ~SANE_CAP_INACTIVE;
 	      dev->opt[OPT_AUTOMATIC_THRESHOLD].cap &= ~SANE_CAP_INACTIVE;
 	      dev->opt[OPT_AUTOMATIC_SEPARATION].cap &= ~SANE_CAP_INACTIVE;
 	      dev->opt[OPT_NOISE_REDUCTION].cap &= ~SANE_CAP_INACTIVE;
+
+	      i = get_string_list_index (halftone_pattern_list,
+					 dev->val[OPT_HALFTONE_PATTERN].s);
+	      if (halftone_pattern_val[i] == -1)
+		{
+		  dev->scan_mode = MATSUSHITA_BW;
+		}
+	      else
+		{
+		  dev->scan_mode = MATSUSHITA_HALFTONE;
+		}
 	    }
 	  else if (strcmp (dev->val[OPT_MODE].s, GRAY4_STR) == 0)
 	    {
@@ -1836,6 +2030,22 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    }
 	  return SANE_STATUS_GOOD;
 
+	case OPT_HALFTONE_PATTERN:
+	  free (dev->val[option].s);
+	  dev->val[option].s = (SANE_String) strdup (val);
+	  i = get_string_list_index (halftone_pattern_list,
+				     dev->val[OPT_HALFTONE_PATTERN].s);
+	  if (halftone_pattern_val[i] == -1)
+	    {
+	      dev->scan_mode = MATSUSHITA_BW;
+	    }
+	  else
+	    {
+	      dev->scan_mode = MATSUSHITA_HALFTONE;
+	    }
+
+	  return SANE_STATUS_GOOD;
+
 	case OPT_PAPER_SIZE:
 	  if (strcmp (dev->val[option].s, val) == 0)
 	    return SANE_STATUS_GOOD;
@@ -1843,9 +2053,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  free (dev->val[OPT_PAPER_SIZE].s);
 	  dev->val[OPT_PAPER_SIZE].s = (SANE_Char *) strdup (val);
 
-	  i =
-	    get_string_list_index (dev->paper_sizes_list,
-				   dev->val[OPT_PAPER_SIZE].s);
+	  i = get_string_list_index (dev->paper_sizes_list,
+				     dev->val[OPT_PAPER_SIZE].s);
 	  i = dev->paper_sizes_val[i];
 
 	  /* Set the 4 corners values. */
@@ -1895,7 +2104,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	      dev->opt[OPT_NOISE_REDUCTION].cap &= ~SANE_CAP_INACTIVE;
 	      dev->opt[OPT_IMAGE_EMPHASIS].cap &= ~SANE_CAP_INACTIVE;
 	      dev->opt[OPT_AUTOMATIC_SEPARATION].cap &= ~SANE_CAP_INACTIVE;
-	      if (dev->scan_mode == MATSUSHITA_HALFTONE)
+	      if (dev->scan_mode == MATSUSHITA_BW
+		  || dev->scan_mode == MATSUSHITA_HALFTONE)
 		{
 		  dev->opt[OPT_HALFTONE_PATTERN].cap &= ~SANE_CAP_INACTIVE;
 		}
@@ -2082,6 +2292,13 @@ sane_start (SANE_Handle handle)
     }
 
   dev->bytes_left = dev->params.bytes_per_line * dev->params.lines;
+  dev->real_bytes_left = dev->params.bytes_per_line * dev->params.lines;
+  if (dev->depth == 4)
+    {
+      /* Every byte read will be expanded into 2 bytes. */
+      dev->real_bytes_left /= 2;
+    }
+
   dev->image_end = 0;
   dev->image_begin = 0;
 
@@ -2099,7 +2316,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   SANE_Status status;
   Matsushita_Scanner *dev = handle;
   size_t size;
-  CDB cdb;
+  int buf_offset;		/* offset into buf */
 
   DBG (DBG_proc, "sane_read: enter\n");
 
@@ -2111,143 +2328,45 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
       return do_cancel (dev);
     }
 
-  if (dev->depth == 4)
+  if (dev->bytes_left <= 0)
     {
-      size = dev->image_end - dev->image_begin;
-      if (size > 0)
-	{
-	  goto copy_4bits_buffer;
-	}
-    }
-
-  /* 
-   * Try to read the maximum number of bytes.
-   *
-   * The windows driver reads no more than 0x8000 byte. This backend
-   * operates differently than the windows driver. The windows TWAIN
-   * driver always read 2 more bytes at the end, so it gets a CHECK
-   * CONDITION with a short read sense. Since the linux scsi layer
-   * seem to be buggy regarding the resid, always read exactly the
-   * number of remaining bytes.  
-   */
-  size = dev->bytes_left;
-  if (size > (size_t) max_len)
-    size = max_len;
-
-  /* When depth is 4, the backend read 1 byte, but returns 2. */
-  if (dev->depth == 4)
-    {
-      size /= 2;
-    }
-
-  if (size > dev->buffer_size)
-    size = dev->buffer_size;
-  if (size > 0x8000)
-    size = 0x8000;
-
-  DBG (DBG_info, "sane_read: to read   = %ld bytes (bpl=%d)\n",
-       (long) size, dev->params.bytes_per_line);
-
-  MKSCSI_SCSI_READ_10 (cdb, 0, 0, size);
-  cdb.data[4] = dev->page_num;	/* May be cdb.data[3] too? */
-  cdb.data[5] = dev->page_side;
-
-  hexdump (DBG_info2, "sane_read: READ_10 CDB", cdb.data, 10);
-
-  if (dev->depth == 4)
-    {
-      status =
-	sanei_scsi_cmd (dev->sfd, cdb.data, cdb.len, dev->buffer, &size);
-    }
-  else
-    {
-      status = sanei_scsi_cmd (dev->sfd, cdb.data, cdb.len, buf, &size);
-    }
-
-  if (status == SANE_STATUS_EOF)
-    {
-      DBG (DBG_proc, "sane_read: exit, end of page scan\n");
       return (SANE_STATUS_EOF);
     }
 
-  if (status != SANE_STATUS_GOOD)
+  buf_offset = 0;
+
+  do
     {
-      DBG (DBG_error, "sane_read: cannot read from the scanner\n");
-      return status;
-    }
-
-  if (dev->depth == 1)
-    {
-      /* For Black & White, the bits in every bytes are mirrored.
-       * for instance 11010001 is coded as 10001011 */
-
-      size_t i;
-      unsigned char c;
-
-      for (i = 0; i < size; i++)
+      if (dev->image_begin == dev->image_end)
 	{
-	  c = 0;
-	  if (buf[i] & 0x01)
-	    c |= 0x80;
-	  if (buf[i] & 0x02)
-	    c |= 0x40;
-	  if (buf[i] & 0x04)
-	    c |= 0x20;
-	  if (buf[i] & 0x08)
-	    c |= 0x10;
-	  if (buf[i] & 0x10)
-	    c |= 0x08;
-	  if (buf[i] & 0x20)
-	    c |= 0x04;
-	  if (buf[i] & 0x40)
-	    c |= 0x02;
-	  if (buf[i] & 0x80)
-	    c |= 0x01;
-	  buf[i] = c;
-	}
-    }
-  else if (dev->depth == 4)
-    {
-      /* Adjust from a depth of 4 bits ([0..15]) to 
-       * a depth of 8 bits ([0..255]) */
-
-      size_t i;
-      unsigned char *src = dev->buffer;
-      unsigned char *dest = dev->image;
-
-      for (i = 0; i < size; i++)
-	{
-	  *dest = ((*src & 0x0f) >> 0) * 17;
-	  dest++;
-	  *dest = ((*src & 0xf0) >> 4) * 17;
-	  dest++;
-	  src++;
+	  /* Fill image */
+	  status = matsushita_fill_image (dev);
+	  if (status != SANE_STATUS_GOOD)
+	    {
+	      return (status);
+	    }
 	}
 
-      size *= 2;
+      /* Something must have been read */
+      assert (dev->image_begin != dev->image_end);
 
-      dev->image_begin = 0;
-      dev->image_end = size;
-
-    copy_4bits_buffer:
-
-      if (size)
+      /* Copy the data to the frontend buffer. */
+      size = max_len - buf_offset;
+      if (size > dev->bytes_left)
 	{
-	  /* Still got some data. Send it. */
-	  if (size > (size_t) max_len)
-	    size = max_len;
-	  if (size > (size_t) dev->bytes_left)
-	    size = dev->bytes_left;
-
-	  memcpy (buf, dev->image + dev->image_begin, size);
-	  dev->image_begin += size;
+	  size = dev->bytes_left;
 	}
+      matsushita_copy_raw_to_frontend (dev, buf + buf_offset, &size);
+
+      buf_offset += size;
+
+      dev->bytes_left -= size;
+      *len += size;
+
     }
+  while ((buf_offset != max_len) && dev->bytes_left);
 
-  dev->bytes_left -= size;
-  *len = size;
-
-  DBG (DBG_info, "bytes_left=%d\n", dev->bytes_left);
+  DBG (DBG_info, "sane_read: leave, bytes_left=%d\n", dev->bytes_left);
 
   return SANE_STATUS_GOOD;
 }
@@ -2329,6 +2448,11 @@ void
 sane_exit (void)
 {
   DBG (DBG_proc, "sane_exit: enter\n");
+
+  while (first_dev)
+    {
+      sane_close (first_dev);
+    }
 
   if (devlist)
     {

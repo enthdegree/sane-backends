@@ -1,5 +1,6 @@
 2001-05-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* TODO: Updated concerning backend bugs (export and config_line).
 	* backend/umax_pp_low.c: Fixed bus error with FreeBSD.
 
 2001-05-27  Oliver Rauch <Oliver.Rauch@rauch-domain.de>

@@ -58,7 +58,9 @@
 #include <string.h>
 #include <unistd.h>		/* usleep */
 #include <time.h>
-/*#include <linux/usb.h>*/		/* for USB_ defs */
+#ifdef HAVE_OS2_H
+#include <sys/types.h> 		/* mode_t */
+#endif
 #include "lm9830.h"
 
 #define USB_TYPE_VENDOR                 (0x02 << 5)
@@ -496,11 +498,11 @@ init (int fd)
   byte result, rv;
 
   gl640WriteReq (fd, GL640_GPIO_OE, 0x71);
-  /* Gets 0x04 first run, gets 0x64 subsequent runs. */
+  /* Gets 0x04 or 0x05 first run, gets 0x64 subsequent runs. */
   gl640ReadReq (fd, GL640_GPIO_READ, &rv);
   gl640WriteReq (fd, GL640_GPIO_OE, 0x70);
 
-  if (rv == 4)
+  if (rv != 64)
     {
       gl640WriteReq (fd, GL640_GPIO_WRITE, 0x00);
       gl640WriteReq (fd, GL640_GPIO_WRITE, 0x40);

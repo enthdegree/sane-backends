@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-11-24"		; version of backend
+:version "2003-11-26"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -277,6 +277,12 @@
 :mfg "Epson"
 :url "http://www.epson.com/"
 
+:model "CX6400"
+:url "/unsupported/epson-cx6400.html"
+:interface "USB"
+:status :unsupported
+:comment "Probably unsupported. See link for details."
+
 :model "Perfection 3170"
 ;:url ""
 :interface "USB"
@@ -457,9 +463,9 @@
 :status :unsupported
 
 :model "ScanJet 8200C"
-;:url ""
+:url "/unsupported/hp-scanjet-8200c.html"
 :interface "USB"
-:comment "Not supported. SCSI optional. Includes TA. No further information."
+:comment "Not supported. See link for details."
 :status :unsupported
 
 :model "ScanJet 8250C"
@@ -777,13 +783,7 @@
 
 ;********************************************************************************************
 
-:mfg "Packard Bell"
-
-:model "Diamond 1200"
-;:url "/unsupported/pie-1800u.html"
-:interface "USB"
-:status :unsupported
-:comment "Probably not supported yet. No information available. If you own such a device, please contact us."
+;:mfg "Packard Bell"
 
 ;********************************************************************************************
 

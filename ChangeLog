@@ -1,3 +1,8 @@
+2000-10-15  Jochen Eisinger <jochen.eisinger@gmx.net>
+
+	* include/sane/sanei_debug.h: sanei_debug_init was only declared
+	  if VARARG macros are supported. Fixed this.
+
 2000-10-08  Jochen Eisinger <jochen.eisinger@gmx.net>
 
 	* sanei/sanei_pa4s2.c: fixed all but one compiler warning

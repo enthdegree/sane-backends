@@ -1,3 +1,8 @@
+2002-03-08  Henning Meier-Geinitz <henning@meier-geinitz.d>
+
+	* doc/sane.tex: Added "multi-function peripheral" to list of types in
+	  SANE standard.
+
 2002-03-07  Henning Meier-Geinitz <henning@meier-geinitz.d>
 
 	* include/sane/config.h.in: Fix comment for HAVE_USB_H.

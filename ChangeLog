@@ -3,6 +3,10 @@
 	* backend/net.c backend/net.desc: Fixed race condition between saned
 	  sending NET_OPEN reply and net.c flushing the wire. New version:
 	  1.0.6.
+	* doc/saned.man frontend/saned.c: Changed debug handling. All debug
+	  messages use DBG now. If in inetd mode or dameon mode with "-s",
+	  the messages are printed to syslog as before. If option "-d" is used,
+	  the mesages are printed to stderr. Updated manual page.
 
 2002-01-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

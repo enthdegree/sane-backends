@@ -1,4 +1,4 @@
-TODO (2003-02-09)
+TODO (2003-02-13)
 
 ******** todo ********
 
@@ -32,6 +32,7 @@ backends
      - Geometry support is missing
      - Frequency setting is missing
      - check if v4lctl distributed with xawtv can be used
+     - Add v4l updates from Martin Palm
 
   * memory leaks:
     - sane_exit() does not release memory allocated by sane_get_devices():
@@ -69,6 +70,12 @@ backends
       [artec] 0x00: 06 00 02 01 5b 00 00 00 55 4c 54 49 4d 41 20 20 ....[...ULTIMA
       [artec] 0x10: 41 54 33 20 20 20 20 20 31 2e 36 30 20 20 20 20 AT3    1.60
     - Fix email address of Chris Pinkham. cpinkham@infi.net bounces.
+
+  * fujitsu:
+    - Add support for USB scanners (patch from Ron Cemer ron@roncemer.com)
+    - Add Fujitsu Scanpartner 93GX to list of supported devices, it worked at least 
+      with the m3096g backend.
+
 doc
 ---
   * Add doxygen documentation for the remaining sanei files:
@@ -78,7 +85,8 @@ doc
 
   * desc files:
     - Add keywords "vendor-id" and "product-id" for SCSI and USB ids.
-    - avision.desc: Is the removal of the HP 7450 intended?
+    - avision.desc: Is the removal of the HP 7450 intended? 
+    - snapscan: add Epson Perfection 660
 
   * manpages:
     - html manpages have broken links to other man pages if link is wrapped at

@@ -21,6 +21,7 @@
 	  doc/sane-sharp.man doc/sane-sm3600.man doc/sane-st400.man
 	  doc/sane-tamarack.man doc/sane-umax_pp.man doc/sane-v4l.man:
 	  Added SEE ALSO entry for sane(7).
+	* doc/sane-coolscan.man: Used @@ macros instead of fixed paths.
 
 2001-06-09  Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 

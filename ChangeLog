@@ -3,6 +3,9 @@
 	* configure configure.in include/sane/config.h.in sanei/sanei_scsi.c:
 	  Disable the new Linux SG interface for sparc64 to work-around 32 bit 
 	  userland / 64 bit kernel problems.
+	* doc/descriptions/unsupported.desc: Added HP ScanJet 3500c, 3530c,
+	  3570c, 3570cxi, 5500C and Microtek ScanMaker 3800. Updated link for
+	  ScanJet 4470C.
 
 2003-01-16  Frank Zago  <fzago at austin dot rr dot com>
 

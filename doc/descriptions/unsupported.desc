@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-01-08"		; version of backend
+:version "2003-01-17"		; version of backend
 ;:status :stable			; :alpha, :beta, :stable, :new
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 ;:url "http://www.meier-geinitz.de/sane/mustek-backend/"
@@ -92,14 +92,38 @@
 :status :unsupported
 :comment "No chipset information is available."
 
+:model "ScanJet 3500c"
+:url "http://www.realtek.com.tw/products/products1-2.aspx?modelid=37"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. Seems to use RealTek RTS8801C2-6, see link. Vendor/Product ID 0x03F0/0x2205."
+
+:model "ScanJet 3530c"
+;:url "http://www.realtek.com.tw/products/products1-2.aspx?modelid=37"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. Chipset and ids unknown, but maybe it's similar to the 3500c?"
+
+:model "ScanJet 3570c"
+;:url "http://www.realtek.com.tw/products/products1-2.aspx?modelid=37"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. Chipset unknown, but maybe it's similar to the 3500c? Has a TA. Vendor/product id 0x03F0/0x2005."
+
+:model "ScanJet 3570cxi"
+;:url "http://www.realtek.com.tw/products/products1-2.aspx?modelid=37"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. See 3570c."
+
 :model "ScanJet 4400C"
-:url "http://reapoff.sourceforge.net/hpscanner/Default.htm"
+:url "http://home.foni.net/~johanneshub/"
 :interface "USB"
 :comment "Not supported. Seems to use the same chip as the 4470C. A stand-alone program for that scanner is available."
 :status :unsupported
 
 :model "ScanJet 4470C"
-:url "http://reapoff.sourceforge.net/hpscanner/Default.htm"
+:url "http://home.foni.net/~johanneshub/"
 :interface "USB"
 :comment "Not supported. However, a stand-alone program is available."
 :status :unsupported
@@ -128,6 +152,12 @@
 :comment "Not supported yet, but in development. A test program is available."
 :status :unsupported
 
+:model "ScanJet 5500C"
+;:url ""
+:interface "USB"
+:comment "Not supported. Not much is known about this scanner. Same as 4500c series?"
+:status :unsupported
+
 ;********************************************************************************************
 
 :mfg "Microtek"
@@ -138,6 +168,12 @@
 :interface "USB"
 :status :unsupported
 :comment "Unsupported. Doesn't seem to be compatible to 3600 series, see link."
+
+:model "ScanMaker 3800"
+:url "http://www.sq.com.tw/products/spec/scan08Spec.PDF"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. Vendor/Product ids: 0x05da/0x30ce. Seems to be based on the SQ Scan08 chip. Ssee link to spec sheet."
 
 ;********************************************************************************************
 

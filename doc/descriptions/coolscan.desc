@@ -11,7 +11,6 @@
 
 :backend "coolscan"               ; name of backend
 :version "0.4.3"                  ; version of backend
-:status :alpha                     ; :alpha, :beta, :stable, :new
 :url "http://andreas.rick.free.fr/sane/" ; backend's web page
 :manpage "sane-coolscan"
 :devicetype :scanner              ; start of a list of devices....
@@ -23,15 +22,22 @@
 :model "LS-20"                 ; name models for above-specified mfg.
 :interface "SCSI"
 :comment "The LS-20 has been replaced by the LS-30"
+:status :basic
+
 :model "LS-30"                 ; name models for above-specified mfg.
 :interface "SCSI"
 :comment "alpha: only 24/30 bit RGB + 32/40 bit RGBI" 
+:status :basic
+
 :model "LS-2000"               ; name models for above-specified mfg.
 :interface "SCSI"
 :comment "alpha: only 24/36 bit + RGB 32/48 bit RGBI"
+:status :basic
+
 :model "LS-1000"
 :interface "SCSI"
 :comment "Doesn't support gamma correction" 
+:status :basic
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

@@ -10,7 +10,6 @@
 
 :backend "as6e"			; name of backend
 :version "0.4.2"		; version of backend
-:status :alpha			; :alpha, :beta, :stable, :new
 :manpage "sane-as6e"		; name of manpage (if it exists)
 :url "http://as6edriver.sourceforge.net/"
 
@@ -21,6 +20,7 @@
 
 :model "AS6E"
 :interface "Parport"
+:status :basic
 :comment "Requires the program 'as6edriver' to run."
 
 

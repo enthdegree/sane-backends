@@ -1,6 +1,5 @@
 :backend "nec"                  ; name of backend
 :version "0.12"                 ; version of backend
-:status :beta                    ; :alpha, :beta, :stable, :new
 :url "http://www5a.biglobe.ne.jp/~saetaka/"
 				; backend's homepage
 :manpage "sane-nec"
@@ -12,3 +11,4 @@
 :model "PC-IN500/4C"            ; name models for above-specified mfg.
 :interface "SCSI"
 :comment "PC-IN500/4C was sold only in JAPAN"
+:status :good

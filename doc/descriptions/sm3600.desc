@@ -8,7 +8,6 @@
 
 :backend "sm3600"                 ; name of backend
 :version "0.1"                    ; version of backend
-:status :alpha                      ; :alpha, :beta, :stable, :new
 :manpage "sane-sm3600"            ; name of manpage (if it exists)
 :url "http://sm3600.sourceforge.net/" ; backend's web page
 
@@ -20,11 +19,14 @@
 :model "ScanMaker 3600"
 :interface "USB"
 :comment "works"
+:status :basic
 
 :model "ScanMaker 3700"
 :interface "USB"
 :comment "works"
+:status :basic
 
 :model "ScanMaker 3750"
 :interface "USB"
 :comment "works (told)"
+:status :basic

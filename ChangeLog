@@ -1,3 +1,10 @@
+2003-07-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/as6e.desc doc/descriptions/bh.desc
+	  doc/descriptions/coolscan.desc doc/descriptions/nec.desc
+	  doc/descriptions/sm3600.desc doc/descriptions/st400.desc:
+	  Converted to use new :status values.
+
 2003-07-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/sane-find-scanner.man tools/Makefile.in

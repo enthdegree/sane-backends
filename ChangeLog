@@ -1,5 +1,7 @@
 2001-05-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* tools/Makefile.in: Make sure that backend/umax_pp_low.o exists
+	  when umax_pp.o is linked.
 	* backend/bh.c backend/m3096g.c backend/sp15c.c: Fixed 
 	  config_line[len-1] bug which could generate an access violation 
 	  if len==0.

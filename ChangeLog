@@ -1,3 +1,8 @@
+2003-11-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions-external/lhii.desc: Added (back) the links to
+	  the external lhii backend that supports old handscanners.
+
 -- snapshot 1.0.13-pre2
 
 2003-11-09  Henning Meier-Geinitz <henning@meier-geinitz.de>

@@ -200,6 +200,11 @@
 :status :good
 :comment "Rebadged Benq 640U."
 
+:model "Maxi A4 36 bit"
+:interface "USB"
+:status :good
+:comment "Rebadged Benq 620U, needs Benq firmware file u96v???.bin"
+
 ;------------------------------------------------------------------------------
 
 :mfg "Mitsubishi"

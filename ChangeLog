@@ -1,3 +1,9 @@
+2004-02-01 Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan-options.c: Remove non-working resolutions
+	  for Epson Perfection 1670
+	* doc/descriptions/snapscan.desc: Add Guillemot Maxi A4 36 bit
+
 2004-01-31  Matthew Duggan <stauff1@users.sourceforge.net>
 
 	* backend/canon_pp.c: Remove more compile warnings.

@@ -1,4 +1,20 @@
 -*-Mode: outline-*-
+New with 1.0.2, released 2000-03-06:
+* Aliased and hidden backend support.
+* Port to UnixWare 2.x and UnixWare 7.
+* New script 'sane-config' to help frontend developers.
+* Added Ricoh IS50 support.
+* Updated backends: Artec (v0.5.13), CANON (v991108), DC-25 (1.2), HP
+  (v0.86), Microtek (0.12.0), Microtek2 (v0.8), UMAX (v1.0-build-18),
+  Epson (v0.1.15), Sharp (v0.30), sp15c (1.12) and m3096g (1.11).
+* Automatic document feeder support for scanimage.
+* New backend for Avision AV 630 CS.
+* New Linux SCSI Generic driver.
+* Upgraded to libtool 1.3.4
+* GIMP compatibility patch.
+* OS/2 patches.
+* Bugfixes.
+
 New with 1.01:
 
 * Miscellaneous

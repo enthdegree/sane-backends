@@ -261,10 +261,9 @@ sanei_thread_waitpid( int pid, int *status )
 #else
 	int ls;
 #endif
-	int  result;
-	
-	if (status)
-		*status = 0;
+	int  result, stat;
+
+	stat = 0;
 
 	DBG(2, "sanei_thread_waitpid() - %d\n", (int)pid);
 #ifdef USE_PTHREAD
@@ -273,29 +272,32 @@ sanei_thread_waitpid( int pid, int *status )
 	if( 0 == result ) {
 		DBG(2, "* detaching thread\n" );
 		pthread_detach((pthread_t)pid );
-		
+
 		if( PTHREAD_CANCELED == ls ) {
 			DBG(2, "* thread has been canceled!\n" );
-			* status = SANE_STATUS_GOOD;
+			stat = SANE_STATUS_GOOD;
 		} else {
-			*status = *ls;
+			stat = *ls;
 		}
-		DBG(2, "* result = %d\n", *status );
+		DBG(2, "* result = %d (%p)\n", stat, (void*)status );
 	}
-
-	/* should return */
+	if (status)
+		*status = stat;
+		
+	/* should return pid */
 	return pid;
 #else
 	result = waitpid( pid, &ls, 0 );
 	if((result < 0) && (errno == ECHILD)) {
-		if( status )
-			* status = SANE_STATUS_GOOD;
+		stat   = SANE_STATUS_GOOD;
 		result = pid;
 	} else {
-		if (status) {
-			*status = eval_wp_result( pid, result, ls );
-		}
+		stat = eval_wp_result( pid, result, ls );
+		DBG(2, "* result = %d (%p)\n", stat, (void*)status );
 	}
+	if( status )
+		*status = stat;
+
 	return result;
 #endif
 }

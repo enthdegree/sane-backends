@@ -1,6 +1,7 @@
 2003-10-10  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* sanei/sanei_thread.c: Fixed some compilation errors on Darwin and OS/2
+	  Fixed segfault condition in sanei_thread_waitpid
 
 2003-10-09  Peter Kirchgessner <peter@kirchgessner.net>
 

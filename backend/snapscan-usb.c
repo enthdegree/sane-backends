@@ -55,6 +55,19 @@
 
 #include "snapscan-usb.h"
 
+/* the following code is taken from the manpage of semctl(2) */
+#if defined(__GNU_LIBRARY__) && !defined(_SEM_SEMUN_UNDEFINED)
+/* union semun is defined by including <sys/sem.h> */
+#else
+/* according to X/OPEN we have to define it ourselves */
+union semun {
+   int val;                    /* value for SETVAL */
+   struct semid_ds *buf;       /* buffer for IPC_STAT, IPC_SET */
+   unsigned short int *array;  /* array for GETALL, SETALL */
+   struct seminfo *__buf;      /* buffer for IPC_INFO */
+};
+#endif
+
 /* Global variables */
 
 static int sem_id;
@@ -149,9 +162,10 @@ static SANE_Status snapscani_usb_open(const char *dev, int *fdp,
 
 static void snapscani_usb_close(int fd) {
     static const char me[] = "snapscani_usb_close";
+    static union semun dummy_semun_arg;
 
     DBG (DL_CALL_TRACE, "%s(%d)\n", me, fd);
-    semctl(sem_id, 0, IPC_RMID, 0);
+    semctl(sem_id, 0, IPC_RMID, dummy_semun_arg);
     sanei_usb_close(fd);
 }
 
@@ -433,8 +447,11 @@ static SANE_Status usb_request_sense(SnapScan_Scanner *pss) {
 
 /*
  * $Log$
- * Revision 1.5  2001/12/17 22:51:50  oliverschwartz
- * Update to snapscan-20011212 (snapscan 1.4.3)
+ * Revision 1.6  2002/01/15 20:16:55  oliverschwartz
+ * Added workaround for bug in semctl() on PPC; backend version 1.4.5
+ *
+ * Revision 1.16  2002/01/14 21:11:56  oliverschwartz
+ * Add workaround for bug semctl() call in libc for PPC
  *
  * Revision 1.15  2001/12/09 23:06:44  oliverschwartz
  * - use sense handler for USB if scanner reports CHECK_CONDITION
@@ -454,3 +471,4 @@ static SANE_Status usb_request_sense(SnapScan_Scanner *pss) {
  * - Change copyright notice
  *
  * */
+

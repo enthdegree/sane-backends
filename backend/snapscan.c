@@ -78,7 +78,7 @@
 
 #define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
-#define BUILD                4
+#define BUILD                5
 
 #include "snapscan.h"
 
@@ -3100,8 +3100,11 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
- * Revision 1.14  2002/01/10 22:20:15  oliverschwartz
- * Update to snapscan-20020110 (snapscan 1.4.4)
+ * Revision 1.15  2002/01/15 20:16:55  oliverschwartz
+ * Added workaround for bug in semctl() on PPC; backend version 1.4.5
+ *
+ * Revision 1.38  2002/01/14 21:11:56  oliverschwartz
+ * Add workaround for bug semctl() call in libc for PPC
  *
  * Revision 1.37  2002/01/10 21:33:12  oliverschwartz
  * Set version number to 1.4.4

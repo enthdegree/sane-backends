@@ -320,6 +320,16 @@ else
 fi
 AC_SUBST(CANON_PP)
 
+if test "${sane_cv_use_libieee1284}" != "yes"
+then
+  echo "disabling HPSJ5S backend (failed to find required libieee1284 version)"
+  HPSJ5S=
+else
+  echo "enabling HPSJ5S backend"
+  HPSJ5S=hpsj5s
+fi
+AC_SUBST(HPSJ5S)
+
 if test "${HAVE_GPHOTO2}" != "gphoto2-config" \
       -o "${sane_cv_use_libjpeg}" != "yes"; then
   echo "disabling GPHOTO2 backend (not requested, or failed to find gphoto2-config or JPEG lib)"

@@ -822,8 +822,8 @@ attach (const char *devnam, CANON_Device ** devp)
     }
 
   if (ibuf[0] != 6
-      || strncmp (ibuf + 8, "CANON", 5) != 0
-      || strncmp (ibuf + 16, "IX-", 3) != 0)
+      || strncmp ((char *) (ibuf + 8), "CANON", 5) != 0
+      || strncmp ((char *) (ibuf + 16), "IX-", 3) != 0)
     {
       DBG (1, "attach: device doesn't look like a Canon scanner\n");
       sanei_scsi_close (fd);
@@ -980,11 +980,14 @@ attach (const char *devnam, CANON_Device ** devp)
 
   dev->sane.name = strdup (devnam);
   dev->sane.vendor = "CANON";
-  str = malloc (16 + 1);
-  memset (str, 0, sizeof (str));
-  strncpy (str, ibuf + 16, 16);
+  if ((str = calloc (16 + 1, 1)) == NULL)
+    {
+      sanei_scsi_close (fd);
+      fd = -1;
+      return (SANE_STATUS_NO_MEM);
+    }
+  strncpy (str, (char *) (ibuf + 16), 16);
   dev->sane.model = str;
-  /* if (!strncmp(str, "IX-27015", 5)) */
   if (strncmp (str, "IX-27015", 8) == 0)
     {
       dev->info.model = CS2700;
@@ -1707,7 +1710,10 @@ init_options (CANON_Scanner * s)
   s->opt[OPT_HW_RESOLUTION_ONLY].desc = "Use only hardware resolutions";
   s->opt[OPT_HW_RESOLUTION_ONLY].type = SANE_TYPE_BOOL;
   s->val[OPT_HW_RESOLUTION_ONLY].w = SANE_TRUE;
-  s->opt[OPT_HW_RESOLUTION_ONLY].cap |= (s->hw->info.model == CS2700 || s->hw->info.model == FS2710 || s->hw->info.model == FB620) ? 0 : SANE_CAP_INACTIVE;	/* mod. for FB620S */
+  s->opt[OPT_HW_RESOLUTION_ONLY].cap |=
+    (s->hw->info.model == CS2700 || s->hw->info.model == FS2710
+    || s->hw->info.model == FB620) ? 0 : SANE_CAP_INACTIVE;
+					/* mod. for FB620S */
 
   /* x-resolution */
   s->opt[OPT_X_RESOLUTION].name = SANE_NAME_SCAN_RESOLUTION;
@@ -1819,7 +1825,7 @@ init_options (CANON_Scanner * s)
     (s->hw->info.model == CS2700 || s->hw->info.model == FS2710) ?
     0 : SANE_CAP_INACTIVE;
   s->val[OPT_AF_ONCE].w =
-    (s->hw->info.model == CS2700 || s->hw->info.model == CS2700) ?
+    (s->hw->info.model == CS2700 || s->hw->info.model == FS2710) ?
     SANE_TRUE : SANE_FALSE;
 
   /* Manual focus */
@@ -2085,7 +2091,13 @@ init_options (CANON_Scanner * s)
   s->opt[OPT_AE].name = "ae";
   s->opt[OPT_AE].title = "Auto Exposure";
   s->opt[OPT_AE].desc = "Enable/disable the Auto Exposure feature";
-  s->opt[OPT_AE].cap |= (s->hw->info.model == CS2700 || s->hw->info.model == FS2710 || s->hw->info.model == FB620) ? SANE_CAP_INACTIVE : 0;	/* mod. for FB620S */
+  s->opt[OPT_AE].cap |=
+    (s->hw->info.model == CS2700 || s->hw->info.model == FS2710
+    || s->hw->info.model == FB620) ? SANE_CAP_INACTIVE : 0;
+					/* mod. for FB620S */
+  
+  if (s->hw->info.model == FS2710) s->opt[OPT_AE].cap &=
+    ~SANE_CAP_SOFT_SELECT;
   s->opt[OPT_AE].type = SANE_TYPE_BOOL;
   s->val[OPT_AE].w = SANE_FALSE;
 
@@ -2316,21 +2328,30 @@ do_focus (CANON_Scanner * s)
   if (s->val[OPT_AF].w == SANE_TRUE)
     {
       /* Auto-Focus */
-      status = execute_auto_focus (s->fd, AUTO_FOCUS,
-				   (s->scanning_speed ==
-				    0) ? AUTO_SCAN_SPEED : NO_AUTO_SCAN_SPEED,
-				   (s->AE ==
-				    0) ? NO_AUTO_EXPOSURE : AUTO_EXPOSURE, 0);
+      if (s->hw->info.model == FS2710)
+	status = execute_auto_focus_FS2710 (s->fd, AUTO_FOCUS,
+					    NO_AUTO_EXPOSURE, 128);
+      else
+	status = execute_auto_focus (s->fd, AUTO_FOCUS,
+				     (s->scanning_speed ==
+				      0) ? AUTO_SCAN_SPEED : NO_AUTO_SCAN_SPEED,
+				     (s->AE ==
+				      0) ? NO_AUTO_EXPOSURE : AUTO_EXPOSURE, 0);
     }
   else
     {
       /* Manual Focus */
-      status = execute_auto_focus (s->fd, MANUAL_FOCUS,
-				   (s->scanning_speed ==
-				    0) ? AUTO_SCAN_SPEED : NO_AUTO_SCAN_SPEED,
-				   (s->AE ==
-				    0) ? NO_AUTO_EXPOSURE : AUTO_EXPOSURE,
-				   s->val[OPT_FOCUS].w);
+      if (s->hw->info.model == FS2710)
+	status = execute_auto_focus_FS2710 (s->fd, MANUAL_FOCUS,
+					    NO_AUTO_EXPOSURE,
+					    s->val[OPT_FOCUS].w);
+      else
+	status = execute_auto_focus (s->fd, MANUAL_FOCUS,
+				     (s->scanning_speed ==
+				      0) ? AUTO_SCAN_SPEED : NO_AUTO_SCAN_SPEED,
+				     (s->AE ==
+				      0) ? NO_AUTO_EXPOSURE : AUTO_EXPOSURE,
+				     s->val[OPT_FOCUS].w);
     }
   if (status != SANE_STATUS_GOOD)
     {

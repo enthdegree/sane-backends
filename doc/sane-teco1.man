@@ -20,29 +20,30 @@ The scanners that should work with this backend are:
 .br
 ----------------------  --------------  -----------
 .br
-  Relisys RELI 2412        VM3530+       tested
-  Relisys AVEC 2412        VM3520+       untested
   Relisys AVEC 2400        VM3520        tested  
+  Relisys AVEC 2412        VM3520+       untested
   Relisys AVEC 4800        VM4530        untested  
   Relisys AVEC 4816        VM4530+       untested  
-  Relisys RELI DS6         VM3420        untested  
-  Relisys RELI DS15        VM3440        untested  
   Relisys RELI 2400        VM3530        untested  
+  Relisys RELI 2412        VM3530+       tested
   Relisys RELI 2412        VM3530+       untested  
   Relisys RELI 4816        VM4540        untested  
-  Relisys RELI 4830        VM4542        untested  
+  Relisys RELI 4830        VM4542        tested  
   Relisys RELI 9600        VM6530        untested  
   Relisys RELI 9612        VM6530*       untested  
   Relisys RELI 9624        VM6530+       untested  
   Relisys RELI 9630        VM6540        untested  
+  Relisys RELI DS15        VM3440        untested  
+  Relisys RELI DS6         VM3420        untested  
 
 .RE
 
 Note that the untested scanner will not be directly supported. You
 should contact the author for that.
 
-The TECO VM number can usually be found at the back of the
-scanner. It is also part of the FCC ID. 
+The TECO VM number can usually be found at the back of the scanner. It
+is also part of the FCC ID. "sane-find-scanner -v" will also show the
+scsi inquiry, and if it is a TECO scanner, the name will be there too.
 
 The options the backend supports can either be selected through
 command line options to programs like scanimage or through GUI
@@ -184,3 +185,7 @@ sane\-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
 
 The package is actively maintained by Frank Zago.
     http://fz.eryx.net/sane/#teco
+
+.SH CREDITS
+
+Thanks to Gerard Delafond for the VM4542 support.

@@ -13,6 +13,7 @@
 	  Patch from "Matthew Duggan" <stauff@guarana.org>.
 	* PROJECTS TODO: Removed canon_pp.
 	* doc/.cvsignore: Added sane-canon_pp.5.
+	* doc/descriptions-external/canon_pp.desc: Removed.
 	
 2002-03-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

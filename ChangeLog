@@ -1,3 +1,13 @@
+2003-09-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* tools/sane-desc.c: PATH_MAX is too small for long comments on
+	  win32. Actually return 0 if there is no second quotation mark. 
+	  Patch from Frank Zago  <fzago at austin dot rr dot com>. Check
+	  for !word everywhere to avoid segfaults when a quotation mark is
+	  missing.
+	* sanei/sanei_config.c: Actually return 0 if there is no second
+	  quotation mark. 
+
 2003-09-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/microtek.desc: Used new :status scheme. Added

@@ -30,6 +30,7 @@ main (int argc, char **argv)
   char dbgstr[80];
   int probe = 0;
   int port = 0x378;
+  char *name = NULL;
   int scan = 0;
   int lamp = -1;
   int i;
@@ -63,6 +64,7 @@ main (int argc, char **argv)
      -g --gain   : set RVB gain
      -z --highlight: set highlight
      -a --addr   : io port address
+     -n --name   : ppdev device name
      -r          : recover from previous failed scan
      -m --model  : model revision
    */
@@ -287,6 +289,19 @@ main (int argc, char **argv)
 	  highlight = strtol (argv[i], NULL, 16);
 	}
 
+      if ((strcmp (argv[i], "-n") == 0) || (strcmp (argv[i], "--name") == 0))
+	{
+	  if (i == (argc - 1))
+	    {
+	      Usage (argv[0]);
+	      fprintf (stderr,
+		       "expected device name ( ex: /dev/parport0 )\n");
+	      return (0);
+	    }
+	  i++;
+	  found = 1;
+	  name = argv[i];
+	}
       if ((strcmp (argv[i], "-a") == 0) || (strcmp (argv[i], "--addr") == 0))
 	{
 	  if (i == (argc - 1))
@@ -345,19 +360,19 @@ main (int argc, char **argv)
 
   /*  enable I/O */
   /* parport_claim */
-  if (sanei_umax_pp_InitPort (port) != 1)
+  if (sanei_umax_pp_InitPort (port, name) != 1)
     {
       fprintf (stderr, "failed to gain direct acces to port 0x%X!\n", port);
       return (0);
     }
   if (trace)
     {
-      printf ("UMAX 1220P scanning program version 2.8 starting ...\n");
+      printf ("UMAX 1220P scanning program version 2.9.2 starting ...\n");
 #ifdef HAVE_LINUX_PPDEV_H
       printf ("ppdev character device built-in.\n");
 #endif
 #ifdef ENABLE_PARPORT_DIRECTIO
-      printf ("direct harware access built-in.\n");
+      printf ("direct hardware access built-in.\n");
 #endif
     }
 

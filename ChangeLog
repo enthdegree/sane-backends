@@ -1,3 +1,8 @@
+2003-07-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: All the unsupported entries
+	  that pointed to .txt files have links to HTML pages now.
+
 2003-07-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Minolta and Visioneer

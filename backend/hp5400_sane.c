@@ -441,7 +441,7 @@ static int _ReportDevice(TScannerModel *pModel, char *pszDeviceName)
 static SANE_Status
 attach_one_device (SANE_String_Const devname)
 {
-  char * filename = (char*) devname;
+  const char * filename = (const char*) devname;
   if (HP5400Detect (filename, _ReportDevice) < 0)
     {
       HP5400_DBG (DBG_MSG, "attach_one_device: couldn't attach %s\n", devname);
@@ -545,7 +545,8 @@ sane_exit (void)
       for (pDev = _pFirstSaneDev; pDev; pDev = pNext)
 	{
 	  pNext = pDev->pNext;
-	  free ((void *) pDev->dev.name);
+	  /* free ((void *) (pDev->dev.name)); */
+	  free (pDev->dev.name);
 	  free (pDev);
 	}
       _pFirstSaneDev = 0;
@@ -614,7 +615,7 @@ sane_open (SANE_String_Const name, SANE_Handle * h)
     }
 
   memset (s, 0, sizeof (TScanner));	/* Clear everything to zero */
-  if (HP5400Open (&s->HWParams, (char *) name) < 0)
+  if (HP5400Open (&s->HWParams, name) < 0)
     {
       /* is this OK ? */
       HP5400_DBG (DBG_ERR, "HP5400Open failed\n");

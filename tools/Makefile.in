@@ -81,10 +81,13 @@ sane-find-scanner: sane-find-scanner.o \
 	@$(LIBTOOL) $(MLINK) $(LINK) sane-find-scanner.o $(LIBSANEI) $(LIBLIB) \
 		$(LIBS)
 
+../backend/umax_pp_low.o: ../backend/umax_pp_low.c 
+	$(COMPILE) ../backend/umax_pp_low.c -o ../backend/umax_pp_low.o \
+	  -DBACKEND_NAME=umax_pp_low
+
 umax_pp: umax_pp.o ../backend/umax_pp_low.o
 	@$(LIBTOOL) $(MLINK) $(LINK) umax_pp.o ../backend/umax_pp_low.o \
 	   $(LIBSANEI) $(LIBLIB) $(LIBS)
-
 
 depend:
 	makedepend $(INCLUDES) *.c

@@ -10,7 +10,7 @@
 ;
 
 :backend "teco2"                  ; name of backend
-:version "1.0-5"                  ; version of backend
+:version "1.0-6"                  ; version of backend
 :manpage "sane-teco2"
 :url "http://www.zago.net/sane/#teco2"   ; backend's web page
 
@@ -73,3 +73,11 @@
 :interface "SCSI"
 :status :good
 
+
+:mfg "Mustek"
+:url "http://www.mustek.com/"
+
+:model "ScanMagic 4830S"
+:comment "sub model VM3575"
+:interface "SCSI"
+:status :untested

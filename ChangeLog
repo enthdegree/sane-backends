@@ -1,3 +1,12 @@
+2001-01-06  Stéphane Voltz  <svoltz@wanadoo.fr>
+
+	* backend/umax_pp_low.c: improved warm up and color calibration
+	  of much better quality now. Manual settings now work correctly.
+	  Corrected parport mode being set before being claimed.
+	* backend/umax_pp.c: changed build number.
+	* tools/umax_pp.c: changed version.
+	  
+
 2002-01-05 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 	* backend/umax-scanner.c, umax.c, umax.conf, umax.desc, umax.h:
 	  update to backend version 1.0 build 32

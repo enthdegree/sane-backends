@@ -11,7 +11,7 @@
 
 :backend "umax_pp"              ; name of backend
 :version "1"                      ; version of backend
-:status :new                    ; :alpha, :beta, :stable, :new
+:status :beta                    ; :alpha, :beta, :stable, :new
 :manpage "sane-umax_pp"         ; name of manpage (if it exists)
                                   ; backend's web page
 :url "http://umax1220p.sourceforge.net/"
@@ -38,14 +38,14 @@
 :interface "Parport (EPP)"
 :comment "works"
 
-:model "ASTRA 610 P"
+:model "Astra 610P"
 :interface "Parport (EPP)"
 :comment "don't work (yet)"
 
 
 :mfg "Hewlett-Packard"
 
-:model "HP 3200 C"
+:model "HP 3200C"
 :interface "Parport (EPP)"
 :comment "works (relabelled 1220P and 2000P)"
 

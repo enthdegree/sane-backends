@@ -1,4 +1,4 @@
-TODO (2002-07-30)
+TODO (2002-08-10)
 
 ******** todo ********
 
@@ -78,6 +78,8 @@ backends
     or waitpid(). Both functions may fail if the frontend already did a wait
     for the children. 
 
+  * remove ptal support from configure and hp backend
+
 doc
 ---
   * Add doxygen documentation for the remaining sanei files:
@@ -98,7 +100,7 @@ doc
       - canon630u
     - Make sure, that the manufacturer (and model) names use the same spelling:
       - umax, plustek (Genius, KYE-Genius)
-      - plustek, umax_pp, avision, hp, hpsj5s (Hewlett-Packard, HP)
+      - plustek, umax_pp, avision, hp, hpsj5s (Hewlett-Packard instead of HP)
     - Check URLs:
       - dmc (dmc link)
       - sm3600 (Add a slash after the microtek URL to avoid creating

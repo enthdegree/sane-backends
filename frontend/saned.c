@@ -64,7 +64,9 @@
 #include <sys/param.h>
 #include <sys/socket.h>
 #ifdef SANED_USES_AF_INDEP
-# include <sys/poll.h>
+# ifdef HAVE_SYS_POLL_H
+#  include <sys/poll.h>
+# endif /* HAVE_SYS_POLL_H */
 #endif /* SANED_USES_AF_INDEP */
 #include <sys/time.h>
 #include <sys/types.h>

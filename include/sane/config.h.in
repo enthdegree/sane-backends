@@ -219,6 +219,9 @@
 /* Define to 1 if you have the <sys/passthrudef.h> header file. */
 #undef HAVE_SYS_PASSTHRUDEF_H
 
+/* Define to 1 if you have the <sys/poll.h> header file. */
+#undef HAVE_SYS_POLL_H
+
 /* Define to 1 if you have the <sys/scanio.h> header file. */
 #undef HAVE_SYS_SCANIO_H
 

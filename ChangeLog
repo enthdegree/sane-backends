@@ -16,6 +16,10 @@
 	  addresses and website as dead. Fixed AT3 misdectection that was
 	  on the TODO list for some time. Initialize global variables in
 	  sane_init.
+	* acinclude.m4 aclocal.m4 configure configure.in
+	  include/sane/config.h.in frontend/saned.c: Added a switch to
+	  disable libusb. Removed switch to enable ipv6 uncondinionally.
+	  Check for sys/poll.h.
 
 2003-03-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

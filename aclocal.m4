@@ -361,22 +361,17 @@ AC_DEFUN([SANE_CHECK_GPHOTO2],
 # Check for AF_INET6, determines whether or not to enable IPv6 support
 AC_DEFUN([SANE_CHECK_IPV6],
 [
-AC_MSG_CHECKING([whether to enable IPv6]) 
-AC_ARG_ENABLE(ipv6, 
-[  --enable-ipv6           enable IPv6 (with IPv4) support 
-  --disable-ipv6          disable IPv6 support], 
-[ case "$enableval" in 
-  no) 
-       AC_MSG_RESULT(no) 
-       ipv6=no 
-       ;; 
-  *)   AC_MSG_RESULT(yes) 
-       AC_DEFINE([ENABLE_IPV6], 1, [Define to 1 if the system supports IPv6]) 
-       ipv6=yes 
-       ;; 
-  esac ], 
- 
-  AC_TRY_COMPILE([
+  AC_MSG_CHECKING([whether to enable IPv6]) 
+  AC_ARG_ENABLE(ipv6, 
+    AC_HELP_STRING([--disable-ipv6],[disable IPv6 support]), 
+      [  if test "$enableval" = "no" ; then
+         AC_MSG_RESULT([no, manually disabled]) 
+         ipv6=no 
+         fi
+      ])
+
+  if test "$ipv6" != "no" ; then
+    AC_TRY_COMPILE([
 	#define INET6 
 	#include <sys/types.h> 
 	#include <sys/socket.h> ], [
@@ -385,15 +380,15 @@ AC_ARG_ENABLE(ipv6,
    	  exit(1); 
  	else 
    	  exit(0); 
-], 
-  AC_MSG_RESULT(yes) 
-  AC_DEFINE([ENABLE_IPV6], 1, [Define to 1 if the system supports IPv6]) 
-  ipv6=yes, 
-  AC_MSG_RESULT(no) 
-  ipv6=no, 
-  AC_MSG_RESULT(no) 
-  ipv6=no 
-)) 
+      ],[
+        AC_MSG_RESULT(yes) 
+        AC_DEFINE([ENABLE_IPV6], 1, [Define to 1 if the system supports IPv6]) 
+        ipv6=yes
+      ],[
+        AC_MSG_RESULT([no (couldn't compile test program)]) 
+        ipv6=no
+      ])
+  fi
 ])
 
 #

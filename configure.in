@@ -101,7 +101,7 @@ AC_CHECK_HEADERS(fcntl.h unistd.h libc.h sys/dsreq.h sys/select.h \
     camlib.h os2.h sys/socket.h sys/io.h gscdds.h sys/hw.h \
     sys/types.h sys/scsi/scsi.h sys/scsi/sgdefs.h sys/scsi/targets/scgio.h \
     apollo/scsi.h sys/sdi_comm.h sys/passthrudef.h linux/ppdev.h usb.h \
-    sys/bitypes.h sys/sem.h)
+    sys/bitypes.h sys/sem.h sys/poll.h)
 AC_CHECK_HEADERS([asm/io.h],,,[#include <sys/types.h>])
 SANE_CHECK_MISSING_HEADERS
 SANE_V4L_VERSION
@@ -196,8 +196,20 @@ dnl ***********************************************************************
 if test -c /dev/urandom ; then
     AC_DEFINE(HAVE_DEV_URANDOM, 1, [Is /dev/urandom available?])
 fi
+
+dnl libusb on enabled by default (if found)
+USE_LIBUSB=yes
+AC_ARG_ENABLE(libusb,
+  AC_HELP_STRING([--disable-libusb],
+                 [disable support for libusb]),
+  [
+    if eval "test x$enable_libusb = xno"; then
+      USE_LIBUSB=
+    fi
+  ])
+
 dnl we need both libusb header and a libusb providing usb_get_busses
-if test "${ac_cv_header_usb_h}" = "yes" ; then
+if test "${ac_cv_header_usb_h}" = "yes" && test "$USE_LIBUSB" = "yes" ; then
   AC_CHECK_LIB(usb, usb_get_busses)
   if test "${ac_cv_lib_usb_usb_get_busses}" = "yes" ; then
     HAVE_LIBUSB="yes"
@@ -311,14 +323,6 @@ else
 fi
 AC_SUBST(NET)
 AC_SUBST(SANED)
-if test "${HAVE_LIBUSB}" = "yes" ; then
-  echo "enabling SM3600 backend"
-  SM3600=sm3600
-else
-  echo "disabling SM3600 backend"
-  SM3600=
-fi
-AC_SUBST(SM3600)
 if test "${ac_cv_header_sys_sem_h}" = "no" ; then
   echo "disabling SnapScan backend"
   SNAPSCAN=
@@ -374,6 +378,15 @@ AC_ARG_ENABLE(parport-directio,
       CFLAGS="$CFLAGS -DENABLE_PARPORT_DIRECTIO"
     fi
   ])
+
+if test "${HAVE_LIBUSB}" = "yes" ; then
+  echo "enabling SM3600 backend"
+  SM3600=sm3600
+else
+  echo "disabling SM3600 backend"
+  SM3600=
+fi
+AC_SUBST(SM3600)
 
 AC_ARG_ENABLE(translations,
   AC_HELP_STRING([--disable-translations],

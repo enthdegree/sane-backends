@@ -10,6 +10,7 @@
 
 2001-04-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* sanei/sanei_wire.c: Don't free memory that's not alocced.
 	* sanei/sanei_config.c: Avoid reading uninitialized memory when 
 	  checking SANE_CONFIG_DIR.
 	* backend/mustek.c: Fixed several memory leaks.

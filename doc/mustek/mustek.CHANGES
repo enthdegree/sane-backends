@@ -1,5 +1,12 @@
 CHANGES for the SANE Mustek backend
 
+2001-11-29
+  * Released Mustek backend 1.0-115.
+
+2001-11-29
+  * Removed empty test for pro models.
+  * Added check for TL_X > BR_X or TL_Y > BR_Y.
+
 2001-11-22
   * Released Mustek backend 1.0-114.
 

@@ -46,7 +46,7 @@
 
 /**************************************************************************/
 /* Mustek backend version                                                 */
-#define BUILD 114
+#define BUILD 115
 /**************************************************************************/
 
 #include "../include/sane/config.h"
@@ -5858,6 +5858,25 @@ sane_start (SANE_Handle handle)
   if (status != SANE_STATUS_GOOD)
     return status;
 
+  /* Check for inconsistencies */
+
+  if (s->val[OPT_TL_X].w > s->val[OPT_BR_X].w)
+    {
+      DBG(0, "sane_start: %s (%.1f mm) is bigger than %s (%.1f mm) "
+	  "-- aborting\n",
+	  s->opt[OPT_TL_X].title, SANE_UNFIX(s->val[OPT_TL_X].w),
+	  s->opt[OPT_BR_X].title, SANE_UNFIX(s->val[OPT_BR_X].w));
+      return SANE_STATUS_INVAL;
+    }
+  if (s->val[OPT_TL_Y].w > s->val[OPT_BR_Y].w)
+    {
+      DBG(0, "sane_start: %s (%.1f mm) is bigger than %s (%.1f mm) "
+	  "-- aborting\n",
+	  s->opt[OPT_TL_Y].title, SANE_UNFIX(s->val[OPT_TL_Y].w),
+	  s->opt[OPT_BR_Y].title, SANE_UNFIX(s->val[OPT_BR_Y].w));
+      return SANE_STATUS_INVAL;
+    }
+
   s->total_bytes = 0;
 
   if (s->fd < 0)
@@ -5881,10 +5900,6 @@ sane_start (SANE_Handle handle)
 	s->mode = MUSTEK_MODE_COLOR;
 
       /* scanner dependant specials */
-      if (s->hw->flags && MUSTEK_FLAG_PRO)
-	{
-	  
-	}
       s->one_pass_color_scan = SANE_FALSE;
       if ((s->mode & MUSTEK_MODE_COLOR) 
 	  && !(s->hw->flags & MUSTEK_FLAG_THREE_PASS))

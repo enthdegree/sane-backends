@@ -3052,8 +3052,40 @@ sanei_scsi_cmd2 (int fd,
 
   if (hdr.sr_io_status == SR_IOST_CHKSNV)
     {
-      /* call request_sense again but how???*/
-      return SANE_STATUS_IO_ERROR;
+      struct scsi_req sr;
+      struct cdb_6 *cdbp = &sr.sr_cdb.cdb_c6;
+      struct esense_reply sense_reply;
+      int i;
+      char *p;
+      
+      /* clear struct */
+      p = (char *) cdbp;
+      for (i = 0; i < sizeof (union cdb); i++)
+        *p++ = 0;
+      memset (&sr, 0, sizeof (struct scsi_req));
+      
+      cdbp->c6_opcode = C6OP_REQSENSE;
+      cdbp->c6_lun    = 0; /* where do I get the lun from? */
+      cdbp->c6_len    = 0x20;
+      cdbp->c6_ctrl   = 0;
+
+      sr.sr_dma_dir    = SR_DMA_RD;
+      sr.sr_addr       = (char*) &sense_reply;
+      sr.sr_dma_max    = sizeof (struct esense_reply);
+      sr.sr_ioto       = SANE_SCSICMD_TIMEOUT;
+      sr.sr_cdb_length = 6;
+
+      ioctl (fd, SGIOCREQ, &sr);
+      if (sense_reply.er_ibvalid)
+	{
+	  sr.sr_esense= sense_reply;
+	  if (fd_info[fd].sense_handler)
+	    return (*fd_info[fd].sense_handler) 
+	      (fd, (u_char *) & sr.sr_esense, fd_info[fd].sense_handler_arg);
+	}
+
+      /* sense reply is invalid */
+      return SANE_STATUS_INVAL;
     }
 
   if (hdr.sr_scsi_status == SR_IOST_CHKSV && fd_info[fd].sense_handler)

@@ -1,3 +1,9 @@
+2002-03-27 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
+
+	* removed unused definitions in include/sane/saneopts.h:
+	  SMEAR, TEN_BIT_MODE, TWELVE_BIT_MODE, RGB_PREVIEW_PATCH, 
+	  START_SCAN_PATCH
+
 2002-03-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* PROJECTS: Updated canon_pp entry. Added Canon FB630U and Canon N650U

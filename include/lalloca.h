@@ -16,9 +16,8 @@
    along with sane; see the file COPYING.  If not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-   This file implements a dynamic linking based SANE meta backend.  It
-   allows managing an arbitrary number of SANE backends by using
-   dynamic linking to load backends on demand.  */
+   Choose suitable implementation of alloca.
+*/
 
 #ifndef lalloca_h
 #define lalloca_h

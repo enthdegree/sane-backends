@@ -1,3 +1,10 @@
+2001-04-17  Henning Meier-Geinitz <hmg@gmx.de>
+
+	* backend/dc210.desc backend/dc240.desc backend/microtek2.desc:
+	  Update contact information for backends. dc240 status is :NEW.
+	* TODO: added entries about as6e status shouldn't be :new, and
+	  installing all documentation files.
+	
 2001-04-16  Petter Reinholdtsen <pere@td.org.uit.no>
 
 	* Makefile.in: New target 'sort-cvsignore' to keep all .cvsignore

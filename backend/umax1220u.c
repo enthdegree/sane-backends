@@ -203,7 +203,7 @@ This option lets the user select a gray scale scan
 static SANE_Word optionGrayscaleValue = SANE_FALSE;
 
 static SANE_Option_Descriptor optionGrayscaleDescriptor = {
-  SANE_I18N ("gray"),
+  "gray",
   SANE_I18N ("Grayscale scan"),
   SANE_I18N ("Do a grayscale rather than color scan"),
   SANE_TYPE_BOOL,
@@ -243,7 +243,7 @@ lamp in the UMAX scanner
 */
 
 static SANE_Option_Descriptor optionLampOffDescriptor = {
-  SANE_I18N ("lamp-off"),
+  "lamp-off",
   SANE_I18N ("Lamp off"),
   SANE_I18N ("Turn off scanner lamp"),
   SANE_TYPE_BUTTON,

@@ -117,7 +117,7 @@ static const SANE_Int resolution_list[] =
 #define	COOLSCAN_MAX_RETRY	25
 
 
-static SANE_Status sense_handler (int scsi_fd, u_char * result, void *arg);
+static SANE_Status sense_handler (int scsi_fd, unsigned char * result, void *arg);
 static int coolscan_check_values (Coolscan_t * s);
 static int get_internal_info (Coolscan_t *);
 static void coolscan_get_inquiry_values (Coolscan_t *);
@@ -125,7 +125,7 @@ static void hexdump (int level, char *comment, unsigned char *p, int l);
 static int swap_res (Coolscan_t * s);
 /* --------------------------- COOLSCAN_DO_SCSI_CMD  ----------------------- */
 static int
-do_scsi_cmd (int fd, char *cmd, int cmd_len, char *out, size_t out_len)
+do_scsi_cmd (int fd, unsigned char *cmd, int cmd_len, unsigned char *out, size_t out_len)
 {
   int ret;
   size_t ol = out_len;
@@ -151,7 +151,7 @@ do_scsi_cmd (int fd, char *cmd, int cmd_len, char *out, size_t out_len)
 
 
 static int
-request_sense_parse (char *sensed_data)
+request_sense_parse (unsigned char *sensed_data)
 {
   int ret, sense, asc, ascq;
   sense = get_RS_sense_key (sensed_data);
@@ -1274,10 +1274,10 @@ coolscan_do_inquiry (Coolscan_t * s)
 static int
 coolscan_identify_scanner (Coolscan_t * s)
 {
-  char vendor[9];
-  char product[0x11];
-  char version[5];
-  char *pp;
+  unsigned char vendor[9];
+  unsigned char product[0x11];
+  unsigned char version[5];
+  unsigned char *pp;
   int i;
 
   vendor[8] = product[0x10] = version[4] = 0;
@@ -1423,7 +1423,7 @@ write_bytes_per_line (Coolscan_t * s)
 static void
 coolscan_trim_rowbufsize (Coolscan_t * s)
 {
-  int row_len;
+  unsigned int row_len;
   row_len = scan_bytes_per_line (s);
   s->row_bufsize = (s->row_bufsize < row_len) ? s->row_bufsize
     : s->row_bufsize - (s->row_bufsize % row_len);
@@ -1449,9 +1449,11 @@ coolscan_check_values (Coolscan_t * s)
 
 /* test_little_endian */
 
-static SANE_Bool coolscan_test_little_endian()
-{ SANE_Int testvalue = 255;
-  unsigned char *firstbyte = (char *) &testvalue;
+static SANE_Bool 
+coolscan_test_little_endian(void)
+{
+  SANE_Int testvalue = 255;
+  unsigned char *firstbyte = (unsigned char *) &testvalue;
 
   if (*firstbyte == 255)
   { return SANE_TRUE;
@@ -1696,11 +1698,11 @@ get_internal_info (Coolscan_t * s)
 static void
 coolscan_get_inquiry_values (Coolscan_t * s)
 {
-  char *inquiry_block;
+  unsigned char *inquiry_block;
 
   DBG (10, "get_inquiry_values\n");
 
-  inquiry_block = (char *) s->buffer;
+  inquiry_block = (unsigned char *) s->buffer;
   s->inquiry_len = 36;
 
   get_inquiry_vendor (inquiry_block, s->vendor);
@@ -1851,8 +1853,11 @@ hexdump (int level, char *comment, unsigned char *p, int l)
 
 
 static SANE_Status
-sense_handler (int scsi_fd, u_char * result, void *arg)
+sense_handler (int scsi_fd, unsigned char * result, void *arg)
 {
+  scsi_fd = scsi_fd;
+  arg = arg;
+
   if (result[0] != 0x70)
     {
       return SANE_STATUS_IO_ERROR;	/* we only know about this one  */
@@ -2166,6 +2171,7 @@ attach_one (const char *devName)
 static RETSIGTYPE
 sigterm_handler (int signal)
 {
+  signal = signal;
   sanei_scsi_req_flush_all ();	/* flush SCSI queue */
   _exit (SANE_STATUS_GOOD);
 }
@@ -2289,16 +2295,17 @@ static int Calc_fix_LUT(Coolscan_t * s)
   ----------------------------------------------------------------*/
 
 static int RGBIfix(Coolscan_t * scanner,
-	    unsigned char* rgbimat,
-	    unsigned char* orgbimat, 	   
+	   unsigned char* rgbimat,
+	   unsigned char* orgbimat, 	   
 	    int size,
 	    int *lutr,
 	    int *lutg,
 	    int *lutb,
 	    int *luti)
 	    
-{  unsigned char *pr,*pg,*pb,*pi;
-   unsigned char *opr,*opg,*opb,*opi;
+{
+  unsigned char *pr,*pg,*pb,*pi;
+  unsigned char *opr,*opg,*opb,*opi;
 
    int r,g,b,i;
    int ii;
@@ -2364,12 +2371,13 @@ static int RGBIfix16(Coolscan_t * scanner,
 	      int *lutb,
 	      int *luti)
 	    
-{  unsigned short *pr,*pg,*pb,*pi;
-   unsigned short *opr,*opg,*opb,*opi;
+{  
+  unsigned short *pr,*pg,*pb,*pi;
+  unsigned short *opr,*opg,*opb,*opi;
+  int x;
 
-   int r,g,b,i;
-   int ii;
-   int x;
+  scanner = scanner; lutr = lutr; lutg = lutg; lutb = lutb; luti = luti;
+
    for(x=0;x<size;x++)
    {
         pr=rgbimat+x*4;
@@ -2451,7 +2459,7 @@ static int rgb2g(unsigned char* rgbimat,unsigned char* gomat,
   written by: Andreas RICK   3.7.1999
                            
   ----------------------------------------------------------------*/
-
+#if 0
 static int RGBIfix1(unsigned char* rgbimat,unsigned char* orgbimat, 	   
 	    int size,
 	    int *lutr,
@@ -2466,6 +2474,9 @@ static int RGBIfix1(unsigned char* rgbimat,unsigned char* orgbimat,
    static int thresi=100;
    int ii;
    int x;
+
+   lutg = lutg; lutb = lutb;
+
    /* calculate regression between r and ir */
    cc.sum=0;
    cc.sumr=cc.sumii=cc.sumrr=cc.sumi=cc.sumri=0.0;
@@ -2531,13 +2542,13 @@ static int RGBIfix1(unsigned char* rgbimat,unsigned char* orgbimat,
    return 1;
 }
 
-
+#endif
 /* This function is executed as a child process. */
 static int
 reader_process (Coolscan_t * scanner, int pipe_fd)
 {
   int status;
-  int i;
+  unsigned int i;
   unsigned char h;
   unsigned int data_left;
   unsigned int data_to_read;
@@ -2636,7 +2647,8 @@ reader_process (Coolscan_t * scanner, int pipe_fd)
       {  /* Correct Infrared Channel */
 	if(scanner->bits_per_color>8)
 	{
-	  RGBIfix16(scanner,scanner->buffer,scanner->obuffer,
+	  RGBIfix16(scanner, (unsigned short * ) scanner->buffer, 
+		    (unsigned short * )scanner->obuffer,
 		 data_to_read/8,scanner->lutr,
 		 scanner->lutg,scanner->lutb,scanner->luti);
 	}
@@ -3221,6 +3233,8 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   size_t len;
   FILE *fp;
 
+  authorize = authorize;
+
   DBG_INIT ();
   DBG (10, "sane_init\n");
   if (version_code)
@@ -3275,6 +3289,8 @@ sane_get_devices (const SANE_Device *** device_list,
   static const SANE_Device **devlist = 0;
   Coolscan_t *dev;
   int i;
+
+  local_only = local_only;
 
   DBG (10, "sane_get_devices\n");
 

@@ -146,7 +146,7 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes) \
 
 typedef struct
 {
-  char *cmd;
+  unsigned char *cmd;
   int size;
 }
 scsiblk;

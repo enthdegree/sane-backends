@@ -1,28 +1,14 @@
-2001-05-04
+2001-05-17
+
+When you start writing a backend, please contact the SANE mailing list in
+order to add your backend to the PROJECTS file.
 
 Here are a few rules that should help writing a SANE-conformant
-backend:
+backend and including it into the SANE package:
 
-* Please make sure that all global symbols exported from a SANE
-  backend start with the prefix "sane" or "sanei".  You can
-  verify this by running GNU "nm" on the static library.  For
-  example:
 
-	nm -g  backend/.libs/libsane-hp.a
-
-  would list all global symbols in the HP backend.
-
-* Please test a backend with "scanimage -T" (plus other options,
-  as appropriate/necessary) as this will make sure that sane_read()
-  always returns the correct amount of data etc.
-
-* Please test a backend not just with scanimage and xscanimage, but
-  also with saned.  Based on past experience, it is often the case
-  that remote scanning can uncover subtle bugs.  Note that you don't
-  have to use two different machines to test "remote" scanning---you
-  can use one and the same machine to test a backend via saned (just
-  be sure to enable the "net" backend in dll.conf and follow the
-  steps described in saned(1)).
+PROGRAMMING
+-----------
 
 * Please follow the GNU coding standards.  It's clear that the style
   outlined there is nobody's favorite, but it's much easier to
@@ -44,24 +30,14 @@ backend:
   "this is an awfully long string" can be written as "this is an "
   "awfully long string".
 
-* Please do not assume that `size_t' is `unsigned int'.  On some
-  systems, it's `unsigned long' and the size of this type may be
-  bigger than that of an int (this is true for practially any of the
-  64-bit systems).  To print a variable of type size_t portably, cast
-  the variable to u_long and print it with the %lu specifier.  E.g.:
-
-	size_t len;
-
-	printf ("len=%lu\n", (u_long) len);
-
-* Please do not depend on GNU C specific features or, if you do, make
+* Please do not depend on compiler specific features or, if you do, make
   the dependency conditional so other compilers will still be able to
   compile the files.  In particular:
 
-	- do not use C++ style comments (//-line comments)
+    - do not use C++ style comments (//-line comments)
 
-	- do not declare dynamically sized automatic arrays; instead,
-	  use alloca() after including <lalloca.h>.  For example:
+    - do not declare dynamically sized automatic arrays; instead,
+      use alloca() after including "../include/lalloca.h".  For example:
 
 		void
 		func (int n)
@@ -69,24 +45,31 @@ backend:
 		  char buf[n];
 		}
 
-	  should be re-written as:
+      should be re-written as:
 
 		#ifdef _AIX
-		# include <lalloca.h>	/* MUST come first for AIX! */
+		# include "../include/lalloca.h" /* MUST come first for AIX! */
 		#endif
 
-		#include "sane/config.h"
-		#include <lalloca.h>
+		#include "../include/sane/config.h"
+		#include "../include/lalloca.h"
 			:
 		void
 		func (int n)
 		{
 		  char *buf = alloca (n);
 		}
+    - Don't use any #pragma directives---they're completely
+      compiler-dependent.
+
+* If you use headers or libraries that may not be available on all systems,
+  write a check for configure.in and include it conditionally. If your backend
+  depends on these libraries or headers, compile the backend only if they are 
+  available (see pint for an example).
 
 * Use #include ".../include/sane/..." to inlude the sane header files
   instead of #include <sane/...>. Otherwise problems with different installed
-  SANE versions may occur.
+  SANE versions may occur. Also this makes clear that the local files are used.
 
 * Don't forget to #include ".../include/sane/config.h" in your backend before
   any other includes. If you use lalloca.h see above for the correct
@@ -95,17 +78,71 @@ backend:
 * Include sanei_backend.h after the other includes.
 
 * It's no longer necessary to #define PATH_MAX (now in sanei_backend.h).
+  If you define it, do so *after* the system includes.
 
 * Please use sanei functions whenever possible (e.g. 
   sanei_config_read()). This makes porting to other os/platforms much
   easier.
 
-* Don't use any #pragma directives---they're completely
-  compiler-dependent.
-
 * Do make sure that your code is byte-order independent.  This is
   particularly important for networking-related code and when dealing
   with non-textual data files.
+
+* Don't use printf, fprintf or perror to output debug or error messages.
+  Use the DBG macro instead. If your backend can't detect a scanner for
+  whatever reason it shouldn't output anything as long as
+  SANE_DEBUG_BACKENDNAME isn't set. So don't use DBG(0, ...) in this case.
+
+* Please do not assume that `size_t' is `unsigned int'.  On some
+  systems, it's `unsigned long' and the size of this type may be
+  bigger than that of an int (this is true for practially any of the
+  64-bit systems).  To print a variable of type size_t portably, cast
+  the variable to u_long and print it with the %lu specifier.  E.g.:
+
+	size_t len;
+
+	DBG(3, "len=%lu\n", (u_long) len);
+
+* Don't use exit() in your backend. You will exit the whole program, not only
+  your backend.
+
+* To support translation of SANE options, please mark the descriptions (desc)
+  and title of options with SANE_I18N(). Do the same for string lists used in
+  options. The name of options mustn't be marked. This way translation of your
+  backend's options is easier. Do *not* mark macros. Especially you don't need
+  to mark standard option strings like SANE_TITLE_NUM_OPTIONS as this is
+  already done in saneopts.h.
+
+  Example: s->opt[5].title = SANE_I18N("Enhancement");
+
+
+TESTING
+-------
+
+* Please test a backend with "scanimage -T" (plus other options,
+  as appropriate/necessary) as this will make sure that sane_read()
+  always returns the correct amount of data etc.
+
+* Please test a backend not just with scanimage and xscanimage 
+  (+ other frontends), but also with saned.  Based on past experience,
+  it is often the case that remote scanning can uncover subtle bugs.
+  Note that you don't  have to use two different machines to test "remote"
+  scanning---you can use one and the same machine to test a backend via saned
+  (just be sure to enable the "net" backend in dll.conf and follow the
+  steps described in saned(1)).
+
+* Please make sure that all global symbols exported from a SANE
+  backend start with the prefix "sane" or "sanei".  You can
+  verify this by running GNU "nm" on the static library.  For
+  example:
+
+	nm -g  backend/.libs/libsane-hp.a
+
+  would list all global symbols in the HP backend.
+
+
+DOCUMENTATION
+-------------
 
 * Even if you haven't written a man-page for your backend yet, you
   *must* create a .desc file which describes it.  Anytime you submit
@@ -114,28 +151,28 @@ backend:
 
 * "template.desc." is a template for new .desc files.  If you'd like
   to try parsing your creation to recreate the sane-backends webpage,
-  look at "sane-desc.el" in the tools/ directory.
+  look at "sane-desc.el" in the tools/ directory or use 
+  "make sane-backends.html" in doc/. It may be necessary to adjust the
+  Makefile.
 
 * When your backend is included in the SANE distribution, add an entry
-  to README, AUTHORS and sane-backends.lsm. The README entry should point to
-  your documentation (man-page, website, readme).
+  to doc/sane.man, AUTHORS and sane-backends.lsm. The sane.man entry should
+  point to your documentation (man-page, website, readme).
 
 * If you want to include READMEs, HTML files or other documentation,
   please create your own directory (doc/backendname) and store your files
-  in this directory.
+  in this directory. If you only have a manual page a subdirectory isn't
+  necessary.
 
-* Don't use printf, fprintf or perror to output debug or error messages.
-  Use the DBG macro instead. If your backend can't detect a scanner for
-  whatever reason it shouldn't output anything as long as
-  SANE_DEBUG_BACKENDNAME isn't set.
 
-* Don't use exit() in your backend. You will exit the whole program, not only your
-  backend.
+INCLUDING INTO CVS
+------------------
 
-* To support translation of SANE options, please mark the descriptions (desc) and
-  title of options with SANE_I18N(). Do the same for string lists used in options.
-  The name of options mustn't be marked. This way translation of your backend's
-  options is easier. Do *not* mark macros. Especially you don't need to mark standard
-  option strings like SANE_TITLE_NUM_OPTIONS as this is already done in saneopts.h.
+* If you want to include you backend into CVS use the latest CVS to make
+  patches. Check the mailing list and the TODO list for information about
+  bugs to avoid.
 
-  Example: s->opt[5].title = SANE_I18N("Enhancement");
+* If your backend isn't included yet in the SANE CVS tree, write an email to
+  the SANE mailing list (sane-devel) and ask for inclusion. Usually one
+  of the developpers will check the backend for common mistakes and test
+  compilation. If everything is ok the backend will be added to the CVS tree.

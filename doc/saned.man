@@ -1,4 +1,4 @@
-.TH saned 1 "07 Jan 2002"
+.TH saned 1 "07 Apr 2002"
 .IX saned
 .SH NAME
 saned - SANE network daemon
@@ -120,7 +120,7 @@ service sane
 .br
    group       = saned
 .br
-   server      = /usr/local/sbin/saned
+   server      = @SBINDIR@/saned
 .br
 }
 .RE

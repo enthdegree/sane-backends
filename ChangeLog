@@ -1,3 +1,11 @@
+2003-02-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/gt68xx.c backend/gt68xx.conf doc/sane-gt68xx.man
+	  doc/descriptions/gt68xx.desc doc/gt68xx/gt68xx.CHANGES:
+	  Added vid/pid 0x07b3/0x0400 to gt68xx.conf also. Added indormation
+	  about Medion 4394. Mention ma1509 backend. Fix segfault when calling
+	  sane_open with an empty device name.
+
 2003-02-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Removed Fujitsu fi-4220C (now

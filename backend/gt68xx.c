@@ -48,7 +48,7 @@
 
 #include "../include/sane/config.h"
 
-#define BUILD 39
+#define BUILD 40
 #define MAX_DEBUG
 #define WARMUP_TIME 30
 #define CALIBRATION_HEIGHT 2.5
@@ -1214,9 +1214,11 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
     {
       /* empty devicname -> use first device */
       dev = first_dev;
-      devicename = dev->file_name;
       if (dev)
-	DBG (5, "sane_open: empty devicename, trying `%s'\n", devicename);
+	{
+	  devicename = dev->file_name;
+	  DBG (5, "sane_open: empty devicename, trying `%s'\n", devicename);
+	}
     }
 
   if (!dev)

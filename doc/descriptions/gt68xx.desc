@@ -1,9 +1,9 @@
 :backend "gt68xx"
 :status :beta
-:version "1.0-39"
+:version "1.0-40"
 :manpage "sane-gt68xx"
 :url "http://www.meier-geinitz.de/sane/gt68xx-backend/"
-:comment "Only the USB scanners mentioned below are supported. For other Mustek BearPaws, look at the Plustek backend."
+:comment "Only the USB scanners mentioned below are supported. For other Mustek BearPaws, look at the Plustek and the MA-1509 backend."
 :devicetype :scanner
 
 
@@ -118,11 +118,11 @@
 :mfg "Medion/Lifetec/Tevion/Cytron"
 :url "http://www.medion.com"
 :comment "Sold by Aldi and Tchibo."
-
-:model "LT 9452"
+	  
+:model "MD 4394"
 :status :beta
 :interface "USB"
-:comment "Similar to Mustek ScanExpress 1200 UB Plus"
+:comment "Product id 0x4002. If you have 0x4003, use artec_eplus48u backend."
 
 :model "MD/LT 9375"
 :status :untested
@@ -133,6 +133,11 @@
 :status :beta
 :interface "USB"
 :comment "Similar to Artec Ultima 2000"
+
+:model "LT 9452"
+:status :beta
+:interface "USB"
+:comment "Similar to Mustek ScanExpress 1200 UB Plus"
 
 :model "MD 9458"
 :status :beta

@@ -1,5 +1,12 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0-40 (2003-02-22)
+
+- Added vid/pid 0x07b3/0x0400 to gt68xx.conf also
+- Added indormation about Medion 4394.
+- Mention ma1509 backend.
+- Fix segfault when calling sane_open with an empty device name.
+
 V 1.0-39 (2003-02-16)
 
 - Added BearPaw 2400 CS Plus as supported.

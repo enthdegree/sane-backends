@@ -1,4 +1,4 @@
-.TH sane-gt68xx 5 "08 Jan 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-gt68xx 5 "22 Feb 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-gt68xx
 .SH NAME
 sane-gt68xx \- SANE backend for GT-68XX based USB flatbed scanners
@@ -18,6 +18,8 @@ Boeder SmartScan Slim Edition
 Lexmark X70
 .br
 Lexmark X73
+.br
+Medion/Lifetec/Tevion MD 4395
 .br
 Medion/Lifetec/Tevion/Cytron MD/LT 9385
 .br
@@ -233,6 +235,7 @@ export SANE_DEBUG_GT68XX=4
 .BR sane-usb (5),
 .BR sane-artec_eplus48u (5)
 .BR sane-plustek (5),
+.BR sane-ma1509 (5),
 .BR sane-mustek_usb (5),
 .BR sane-mustek (5),
 .BR sane-mustek_pp (5)

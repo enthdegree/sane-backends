@@ -10,6 +10,7 @@
 	  Call sane_init after sane_exit. Try to load from $LD_LIBRARY_PATH
 	  ($SHLIB_PATH, $LIBPATH) first and only check LIBDIR if opening
 	  failed. New version: 1.0.6.
+	* backend/v4l.c: Fixed some warnings.
 
 2002-04-21  Abel Deuring <a.deuring@satzbau-gmbh.de>
 	* backend/sharp.c: added a "free(devlist)" call to sane_exit

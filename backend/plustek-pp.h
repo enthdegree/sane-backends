@@ -61,41 +61,55 @@
 
 /************************ some definitions ***********************************/
 
-#define MM_PER_INCH         25.4
+/* NOTE: needs to be kept in sync with table below */
+#define MODELSTR static char *ModelStr[] = { \
+    "unknown",						 \
+    "Primax 4800",  				 \
+    "Primax 4800 Direct",  			 \
+    "Primax 4800 Direct 30Bit", 	 \
+    "Primax 9600 Direct 30Bit", 	 \
+    "4800P",  						 \
+    "4830P",  						 \
+    "600P/6000P",					 \
+    "4831P",  						 \
+    "9630P",  						 \
+    "9630PL",  						 \
+    "9636P",  						 \
+    "A3I",    						 \
+    "12000P/96000P",				 \
+    "9636P+/Turbo",					 \
+    "9636T/12000T",					 \
+	"P8",							 \
+	"P12",							 \
+	"PT12",							 \
+    "Genius Colorpage Vivid III V2", \
+	"USB-Device"					 \
+}
 
-#define PLUSTEK_CONFIG_FILE	"plustek_pp.conf"
+/* the models */
+#define MODEL_OP_UNKNOWN  0	/* unknown */
+#define MODEL_PMX_4800	  1 /* Primax Colorado 4800 like OP 4800 			 */
+#define MODEL_PMX_4800D   2 /* Primax Compact 4800 Direct, OP 600 R->G, G->R */
+#define MODEL_PMX_4800D3  3 /* Primax Compact 4800 Direct 30                 */
+#define MODEL_PMX_9600D3  4 /* Primax Compact 9600 Direct 30                 */
+#define MODEL_OP_4800P 	  5 /* 32k,  96001 ASIC, 24 bit, 300x600, 8.5x11.69  */
+#define MODEL_OP_4830P 	  6 /* 32k,  96003 ASIC, 30 bit, 300x600, 8.5x11.69  */
+#define MODEL_OP_600P 	  7	/* 32k,  96003 ASIC, 30 bit, 300x600, 8.5x11.69  */
+#define MODEL_OP_4831P 	  8 /* 128k, 96003 ASIC, 30 bit, 300x600, 8.5x11.69  */
+#define MODEL_OP_9630P 	  9	/* 128k, 96003 ASIC, 30 bit, 600x1200, 8.5x11.69 */
+#define MODEL_OP_9630PL	 10	/* 128k, 96003 ASIC, 30 bit, 600x1200, 8.5x14	 */
+#define MODEL_OP_9636P 	 11	/* 512k, 98001 ASIC, 36 bit, 600x1200, 8.5x11.69 */
+#define MODEL_OP_A3I 	 12	/* 128k, 96003 ASIC, 30 bit, 400x800,  11.69x17  */
+#define MODEL_OP_12000P  13	/* 128k, 96003 ASIC, 30 bit, 600x1200, 8.5x11.69 */
+#define MODEL_OP_9636PP  14	/* 512k, 98001 ASIC, 36 bit, 600x1200, 8.5x11.69 */
+#define MODEL_OP_9636T 	 15	/* like OP_9636PP + transparency 				 */
+#define MODEL_OP_P8      16 /* 512k, 98003 ASIC, 36 bit,  300x600, 8.5x11.69 */
+#define MODEL_OP_P12     17 /* 512k, 98003 ASIC, 36 bit, 600x1200, 8.5x11.69 */
+#define MODEL_OP_PT12    18 /* like OP_P12 + transparency 					 */
+#define MODEL_GEN_CPV2   19 /* Genius Colorpage Vivid III V2, ASIC 98003     */
+#define MODEL_UNKNOWN	 20 /* not known/supported                           */
 
-#ifndef PATH_MAX
-# define PATH_MAX 1024
-#endif
-
-/*
- * the default image size
- */
-#define _DEFAULT_TLX  		0		/* 0..216 mm */
-#define _DEFAULT_TLY  		0		/* 0..297 mm */
-#define _DEFAULT_BRX		126		/* 0..216 mm*/
-#define _DEFAULT_BRY		76.21	/* 0..297 mm */
-
-#define _DEFAULT_TP_TLX  	3.5		/* 0..42.3 mm */
-#define _DEFAULT_TP_TLY  	10.5	/* 0..43.1 mm */
-#define _DEFAULT_TP_BRX		38.5	/* 0..42.3 mm */
-#define _DEFAULT_TP_BRY		33.5	/* 0..43.1 mm */
-
-#define _DEFAULT_NEG_TLX  	1.5		/* 0..38.9 mm */
-#define _DEFAULT_NEG_TLY  	1.5		/* 0..29.6 mm */
-#define _DEFAULT_NEG_BRX	37.5	/* 0..38.9 mm */
-#define _DEFAULT_NEG_BRY	25.5	/* 0..29.6 mm */
-
-/*
- * image sizes for normal, transparent and negative modes
- */
-#define _NORMAL_X		216.0
-#define _NORMAL_Y		297.0
-#define _TP_X			((double)_TPAPageWidth/300.0 * MM_PER_INCH)
-#define _TP_Y			((double)_TPAPageHeight/300.0 * MM_PER_INCH)
-#define _NEG_X			((double)_NegativePageWidth/300.0 * MM_PER_INCH)
-#define _NEG_Y			((double)_NegativePageHeight/300.0 * MM_PER_INCH)
+#define _NO_BASE	0xFFFF
 
 /******************** from former plustek-share.h ***************************/
 
@@ -150,56 +164,89 @@
 #define _PTDRV_COMPAT_IOCTL_VERSION	0x0102
 #define _PTDRV_IOCTL_VERSION		0x0103
 
+/** for adjusting the parport stuff
+ */
+typedef struct {
+	int     lampOff;
+	int     lampOffOnEnd;
+	int     warmup;
+	int     enableTpa;
 
-/* NOTE: needs to be kept in sync with table below */
-#define MODELSTR static char *ModelStr[] = { \
-    "unknown",						 \
-    "Primax 4800",  				 \
-    "Primax 4800 Direct",  			 \
-    "Primax 4800 Direct 30Bit", 	 \
-    "Primax 9600 Direct 30Bit", 	 \
-    "4800P",  						 \
-    "4830P",  						 \
-    "600P/6000P",					 \
-    "4831P",  						 \
-    "9630P",  						 \
-    "9630PL",  						 \
-    "9636P",  						 \
-    "A3I",    						 \
-    "12000P/96000P",				 \
-    "9636P+/Turbo",					 \
-    "9636T/12000T",					 \
-	"P8",							 \
-	"P12",							 \
-	"PT12",							 \
-    "Genius Colorpage Vivid III V2", \
-	"USB-Device"					 \
-}
+	OffsDef pos; 	/* for adjusting normal scan area       */
+	OffsDef tpa; 	/* for adjusting transparency scan area */
+	OffsDef neg; 	/* for adjusting negative scan area     */
 
-/* the models */
-#define MODEL_OP_UNKNOWN  0	/* unknown */
-#define MODEL_PMX_4800	  1 /* Primax Colorado 4800 like OP 4800 			 */
-#define MODEL_PMX_4800D   2 /* Primax Compact 4800 Direct, OP 600 R->G, G->R */
-#define MODEL_PMX_4800D3  3 /* Primax Compact 4800 Direct 30                 */
-#define MODEL_PMX_9600D3  4 /* Primax Compact 9600 Direct 30                 */
-#define MODEL_OP_4800P 	  5 /* 32k,  96001 ASIC, 24 bit, 300x600, 8.5x11.69  */
-#define MODEL_OP_4830P 	  6 /* 32k,  96003 ASIC, 30 bit, 300x600, 8.5x11.69  */
-#define MODEL_OP_600P 	  7	/* 32k,  96003 ASIC, 30 bit, 300x600, 8.5x11.69  */
-#define MODEL_OP_4831P 	  8 /* 128k, 96003 ASIC, 30 bit, 300x600, 8.5x11.69  */
-#define MODEL_OP_9630P 	  9	/* 128k, 96003 ASIC, 30 bit, 600x1200, 8.5x11.69 */
-#define MODEL_OP_9630PL	 10	/* 128k, 96003 ASIC, 30 bit, 600x1200, 8.5x14	 */
-#define MODEL_OP_9636P 	 11	/* 512k, 98001 ASIC, 36 bit, 600x1200, 8.5x11.69 */
-#define MODEL_OP_A3I 	 12	/* 128k, 96003 ASIC, 30 bit, 400x800,  11.69x17  */
-#define MODEL_OP_12000P  13	/* 128k, 96003 ASIC, 30 bit, 600x1200, 8.5x11.69 */
-#define MODEL_OP_9636PP  14	/* 512k, 98001 ASIC, 36 bit, 600x1200, 8.5x11.69 */
-#define MODEL_OP_9636T 	 15	/* like OP_9636PP + transparency 				 */
-#define MODEL_OP_P8      16 /* 512k, 98003 ASIC, 36 bit,  300x600, 8.5x11.69 */
-#define MODEL_OP_P12     17 /* 512k, 98003 ASIC, 36 bit, 600x1200, 8.5x11.69 */
-#define MODEL_OP_PT12    18 /* like OP_P12 + transparency 					 */
-#define MODEL_GEN_CPV2   19 /* Genius Colorpage Vivid III V2, ASIC 98003     */
-#define MODEL_UNKNOWN	 20 /* not known/supported                           */
+	/* for adjusting the default gamma settings */
+	double  rgamma;
+	double  ggamma;
+	double  bgamma;
 
-#define _NO_BASE	0xFFFF
+	double  graygamma;
+
+} PPAdjDef, *pPPAdjDef;
+
+/** for adjusting the scanner settings
+ */
+typedef struct {
+
+	int 	direct_io;
+	int     mov;
+
+	int     lampOff;
+	int     lampOffOnEnd;
+	int     warmup;
+
+	OffsDef pos; 	/* for adjusting normal scan area       */
+	OffsDef tpa; 	/* for adjusting transparency scan area */
+	OffsDef neg; 	/* for adjusting negative scan area     */
+
+	/* for adjusting the default gamma settings */
+	double  rgamma;
+	double  ggamma;
+	double  bgamma;
+
+	double  graygamma;
+
+} AdjDef, *pAdjDef;
+
+
+#ifndef __KERNEL__
+
+#define MM_PER_INCH         25.4
+
+#define PLUSTEK_CONFIG_FILE	"plustek_pp.conf"
+
+#ifndef PATH_MAX
+# define PATH_MAX 1024
+#endif
+
+/*
+ * the default image size
+ */
+#define _DEFAULT_TLX  		0		/* 0..216 mm */
+#define _DEFAULT_TLY  		0		/* 0..297 mm */
+#define _DEFAULT_BRX		126		/* 0..216 mm*/
+#define _DEFAULT_BRY		76.21	/* 0..297 mm */
+
+#define _DEFAULT_TP_TLX  	3.5		/* 0..42.3 mm */
+#define _DEFAULT_TP_TLY  	10.5	/* 0..43.1 mm */
+#define _DEFAULT_TP_BRX		38.5	/* 0..42.3 mm */
+#define _DEFAULT_TP_BRY		33.5	/* 0..43.1 mm */
+
+#define _DEFAULT_NEG_TLX  	1.5		/* 0..38.9 mm */
+#define _DEFAULT_NEG_TLY  	1.5		/* 0..29.6 mm */
+#define _DEFAULT_NEG_BRX	37.5	/* 0..38.9 mm */
+#define _DEFAULT_NEG_BRY	25.5	/* 0..29.6 mm */
+
+/*
+ * image sizes for normal, transparent and negative modes
+ */
+#define _NORMAL_X		216.0
+#define _NORMAL_Y		297.0
+#define _TP_X			((double)_TPAPageWidth/300.0 * MM_PER_INCH)
+#define _TP_Y			((double)_TPAPageHeight/300.0 * MM_PER_INCH)
+#define _NEG_X			((double)_NegativePageWidth/300.0 * MM_PER_INCH)
+#define _NEG_Y			((double)_NegativePageHeight/300.0 * MM_PER_INCH)
 
 /************************ some structures ************************************/
 
@@ -240,52 +287,6 @@ typedef struct {
 	OffsDef neg; 	/* for adjusting negative scan area     */
 
 } CompatAdjDef, *pCompatAdjDef;
-
-/** for adjusting the parport stuff
- */
-typedef struct {
-	int     lampOff;
-	int     lampOffOnEnd;
-	int     warmup;
-	int     enableTpa;
-
-	OffsDef pos; 	/* for adjusting normal scan area       */
-	OffsDef tpa; 	/* for adjusting transparency scan area */
-	OffsDef neg; 	/* for adjusting negative scan area     */
-
-	/* for adjusting the default gamma settings */
-	double  rgamma;
-	double  ggamma;
-	double  bgamma;
-
-	double  graygamma;
-
-} PPAdjDef, *pPPAdjDef;
-
-/** for adjusting the scanner settings
- */
-typedef struct {
-
-	int 	direct_io;
-	int     mov;
-	
-	int     lampOff;
-	int     lampOffOnEnd;
-	int     warmup;
-
-	OffsDef pos; 	/* for adjusting normal scan area       */
-	OffsDef tpa; 	/* for adjusting transparency scan area */
-	OffsDef neg; 	/* for adjusting negative scan area     */
-
-	/* for adjusting the default gamma settings */
-	double  rgamma;
-	double  ggamma;
-	double  bgamma;
-
-	double  graygamma;
-	
-} AdjDef, *pAdjDef;
-
 
 /**
  */
@@ -371,6 +372,7 @@ typedef struct {
 	AdjDef adj;
 
 } CnfDef, *pCnfDef;
+#endif /* guard __KERNEL__ */
 
 #endif	/* guard __PLUSTEKPP_H__ */
 

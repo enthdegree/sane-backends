@@ -957,7 +957,8 @@ static SANE_Status sense_handler(int scsi_fd, unsigned char *result, void *arg)	
 
 static void umax_set_rgb_bind(Umax_Scanner *scanner)
 {
-  if (scanner->val[OPT_RGB_BIND].w == SANE_FALSE)
+  if ( (scanner->val[OPT_RGB_BIND].w == SANE_FALSE) &&
+       (strcmp(scanner->val[OPT_MODE].s, COLOR_STR) == 0) ) /* enable rgb options */
   {
     if (scanner->device->inquiry_analog_gamma)
     {
@@ -994,7 +995,7 @@ static void umax_set_rgb_bind(Umax_Scanner *scanner)
       scanner->opt[OPT_SCAN_EXPOS_TIME_B].cap &= ~SANE_CAP_INACTIVE;
     }
   }
-  else
+  else /* only show gray options */
   {
     if (scanner->device->inquiry_analog_gamma)
     {
@@ -1442,8 +1443,6 @@ static int umax_give_scanner(Umax_Device *dev)
 {
  int status;
 
-  umax_reposition_scanner(dev);
-
   DBG(DBG_info2, "trying to release scanner ...\n");
   status = sanei_scsi_cmd(dev->sfd, release_unit.cmd, release_unit.size, NULL, NULL);
   if (status)
@@ -1454,6 +1453,9 @@ static int umax_give_scanner(Umax_Device *dev)
   {
     DBG(DBG_info, "scanner released\n");
   }
+
+  umax_reposition_scanner(dev);
+
   return status;
 }
 
@@ -2483,11 +2485,25 @@ static void umax_correct_inquiry(Umax_Device *dev, char *vendor, char *product, 
       DBG(DBG_warning,"- lamp control enabled\n");
       dev->lamp_control_available = 1;
 
+      if (dev->calibration_area == -1) /* no calibration area defined in umax.conf */
+      {
+        DBG(DBG_warning," - calibration by driver is done for each CCD pixel\n");
+        dev->calibration_area = UMAX_CALIBRATION_AREA_CCD;
+      }
+
       if (dev->calibration_bytespp == -1) /* no calibration-bytespp defined in umax.conf */
       {
-        DBG(DBG_warning,"- setting calibration_bytespp = 1\n");
-        dev->calibration_bytespp = 1; /* scanner says 2 bytespp for calibration but 1 bytepp is correct */
+        DBG(DBG_warning,"- setting calibration_bytespp = 2\n");
+        dev->calibration_bytespp = 2;
       }
+
+#if 0
+      if (dev->calibration_width_offset == -1) /* no calibration-width-offset defined in umax.conf */
+      {
+        dev->calibration_width_offset = 5100; /* calibration is done for 1200 dpi instead of 600 dpi */
+        DBG(DBG_warning," - adding calibration width offset of %d pixels\n", dev->calibration_width_offset);
+      }
+#endif
 
       DBG(DBG_warning,"- common x and y resolution\n");
       dev->common_xy_resolutions = 1;
@@ -2514,6 +2530,12 @@ static void umax_correct_inquiry(Umax_Device *dev, char *vendor, char *product, 
         DBG(DBG_warning," - activating slow option\n");
         dev->slow = 1;
       }
+    }
+    else if (!strncmp(product, "UC840 ", 6))
+    {
+      DBG(DBG_warning,"setting up special options for %s\n", product);
+      DBG(DBG_warning," - reposition_scanner waits until move of scan head has finished\n");
+      dev->pause_after_reposition = 0;	    /* call wait_scanner */
     }
     else if (!strncmp(product, "UC1260 ", 7))
     {
@@ -2911,8 +2933,7 @@ static int umax_check_values(Umax_Device *dev)
   }
   else
   {
-    /* astra 610S needs this in umax_forget_line */
-    /* not tested with astra 600s */
+    /* astra 600S and 610S need this in umax_forget_line */
     dev->scale_y = 0.5;
   }
 
@@ -4192,6 +4213,8 @@ static SANE_Status do_cancel(Umax_Scanner *scanner)
     scanner->device->sfd = -1;
   }
 
+  scanner->device->three_pass_color = 1; /* reset color in color scanning */
+
  return SANE_STATUS_CANCELLED;
 }
 
@@ -4338,8 +4361,8 @@ static SANE_Status attach_scanner(const char *devicename, Umax_Device **devp)
   dev->x_dpi_range.min           = SANE_FIX(dev->inquiry_optical_res/100);
   dev->x_dpi_range.quant         = SANE_FIX(dev->inquiry_optical_res/100);
 #else
-  dev->x_dpi_range.min           = SANE_FIX(1);
-  dev->x_dpi_range.quant         = SANE_FIX(1);
+  dev->x_dpi_range.min           = SANE_FIX(5);
+  dev->x_dpi_range.quant         = SANE_FIX(5);
 #endif
   dev->x_dpi_range.max           = SANE_FIX(dev->inquiry_x_res);
 
@@ -4780,7 +4803,7 @@ static SANE_Status init_options(Umax_Scanner *scanner)
   scanner->opt[OPT_RGB_BIND].title = SANE_TITLE_RGB_BIND;
   scanner->opt[OPT_RGB_BIND].desc  = SANE_DESC_RGB_BIND;
   scanner->opt[OPT_RGB_BIND].type  = SANE_TYPE_BOOL;
-  scanner->val[OPT_RGB_BIND].w     = SANE_TRUE;
+  scanner->val[OPT_RGB_BIND].w     = SANE_FALSE;
 
   /* brightness */
   scanner->opt[OPT_BRIGHTNESS].name  = SANE_NAME_BRIGHTNESS;
@@ -5389,7 +5412,7 @@ SANE_Status sane_init(SANE_Int *version_code, SANE_Auth_Callback authorize)
 #else
   DBG(DBG_error,"compiled with pipe for inter-process-data-transfer\n");
 #endif
-  DBG(DBG_error,"(C) 1997-2000 by Oliver Rauch\n");
+  DBG(DBG_error,"(C) 1997-2001 by Oliver Rauch\n");
   DBG(DBG_error,"EMAIL: Oliver.Rauch@rauch-domain.de\n");
 
   if (version_code)
@@ -5780,7 +5803,7 @@ static void umax_set_max_geometry(Umax_Scanner *scanner)
     scanner->val[OPT_TL_X].w = scanner->device->x_range.min;
   }
  
-  if (scanner->val[OPT_TL_Y].w > scanner->device->y_range.min)
+  if (scanner->val[OPT_TL_Y].w < scanner->device->y_range.min)
   {
     scanner->val[OPT_TL_Y].w = scanner->device->y_range.min;
   }
@@ -6111,6 +6134,7 @@ SANE_Status sane_control_option(SANE_Handle handle, SANE_Int option, SANE_Action
           {
             *info |= SANE_INFO_RELOAD_OPTIONS;
           }
+
           if (scanner->val[option].w == SANE_FALSE)
 	  {
             scanner->opt[OPT_CAL_EXPOS_TIME].cap    |= SANE_CAP_INACTIVE;
@@ -6320,8 +6344,6 @@ SANE_Status sane_control_option(SANE_Handle handle, SANE_Int option, SANE_Action
 
         if (halftoning || strcmp(val, LINEART_STR) == 0 || strcmp(val, COLOR_LINEART_STR) == 0)
         {										    /* one bit modes */
-          scanner->val[OPT_RGB_BIND].w = SANE_TRUE;
-
           if (scanner->device->inquiry_reverse)
           {
             scanner->opt[OPT_NEGATIVE].cap  &= ~SANE_CAP_INACTIVE;
@@ -6429,8 +6451,6 @@ SANE_Status sane_control_option(SANE_Handle handle, SANE_Int option, SANE_Action
           }
 	  else /* grayscale */
 	  {
-            scanner->val[OPT_RGB_BIND].w = SANE_TRUE;
-
             scanner->exposure_time_range.min = SANE_FIX(scanner->device->inquiry_exposure_time_g_min
 	                                               * scanner->device->inquiry_exposure_time_step_unit);
 	  }

@@ -961,9 +961,26 @@ build-27 -> build-28
    * bugfix for DOR:
      - bottom-right edge keeps in position if possible when DOR is switched on
 
-   * bugfix for Astra 610S color mode:
+   * bugfix for Astra 600S and 610S color mode:
      - scale_y is set to 0.5 if y_resolutions is smaller than optical_res/2
      this does fix the color scan problems for Astra 610S.
-     Not tested for Astra 600S.
 
+   * added Heidelberg Linoscan 1400 "HDM LS4H1S" as supported scanner
+
+    
+build-28 -> build-29
+--------------------
+
+   * removed bug in umax_set_max_geomentry: now left y keeps in position when possible
+
+   * rgb bind keeps unchanged when scanmode != color (only gray selection active in this case)
+
+   * in function static int umax_give_scanner(Umax_Device *dev) moved umax_reposition_scanner(dev);
+     to the end of the function
+
+   * set calibration area for astra 2200 to full ccd and calibration_bytespp to 2
+
+   * UC840 does wait in reposition_scanner until scan head stops moving
+
+   * set minimum resolution to 5 (was 1 before what could make problems)
 

@@ -38,12 +38,12 @@
 
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
-   If you do not wish that, delete this exception notice. 
+   If you do not wish that, delete this exception notice.
 
    This backend is for testing frontends.
 */
 
-#define BUILD 25
+#define BUILD 26
 
 #include "../include/sane/config.h"
 
@@ -1276,7 +1276,6 @@ static int
 reader_task (void *data)
 {
   SANE_Status status;
-  sigset_t ignore_set;
   struct SIGACTION act;
   struct Test_Device *test_device = (struct Test_Device *) data;
 
@@ -1293,10 +1292,6 @@ reader_task (void *data)
       DBG (3, "reader_task started (as thread)\n");
     }
 
-  /* block SIGPIPE */
-  sigemptyset (&ignore_set);
-  sigaddset (&ignore_set, SIGPIPE);
-  sigprocmask (SIG_SETMASK, &ignore_set, 0);
   memset (&act, 0, sizeof (act));
   sigaction (SIGTERM, &act, 0);
 

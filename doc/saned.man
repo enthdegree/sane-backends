@@ -1,10 +1,10 @@
-.TH saned 1 "15 Oct 2001"
+.TH saned 1 "05 Jan 2002"
 .IX saned
 .SH NAME
 saned - SANE network daemon
 .SH SYNOPSIS
 .B saned
-.RB [ -d
+.RB [ -d | -s
 .RI [ n ]]
 .SH DESCRIPTION
 .B saned
@@ -14,16 +14,23 @@ to access image acquisition devices available on the local host.
 .PP
 The
 .B -d
-flag request that
+and
+.B -s
+flags request that
 .B saned
 run in debug mode (as opposed to
 .BR inetd (8)
 mode).  In this mode,
 .B saned
 explicitly waits for a connection request.  When compiled with
-debugging enabled, this flag may be followed by a number to request
-debug info.  The larger the number, the more verbose the debug output.
-E.g., -d128 will request printing of all debug info.
+debugging enabled, these flags may be followed by a number to request
+debug info. The larger the number, the more verbose the debug output.
+E.g., -d128 will request printing of all debug info. Debug level 0 means
+no debug output at all. The default value is 2. If flag
+.B -d
+is used, the debug messages will be printed to stderr while
+.B -s
+requests using syslog. 
 .SH CONFIGURATION
 First and foremost: please do
 .I not

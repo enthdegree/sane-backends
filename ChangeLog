@@ -1,3 +1,9 @@
+2004-10-04  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* backend/plustek.c: Fixed bug #300963.
+	* doc/plustek/Plustek-USB.changes: Update.
+	* po/*.po: Update.
+
 2004-10-03  Thomas Soumarmon <thomas.soumarmon@cogitae.net>
 
 	* backend/hp5400_debug.c backend/hp5400_debug.h 

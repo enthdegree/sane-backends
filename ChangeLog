@@ -1,3 +1,7 @@
+2004-11-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions-external/brother.desc. Updated comments. 9160 works.
+
 2004-11-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Updated/added several scanners.

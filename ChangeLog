@@ -1,7 +1,10 @@
 2002-07-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* tools/sane-desc.c: Added <br> after backend name. Colors can be
-	  changed by macros now. Centered entries. Code cleanup.
+	  changed by macros now. Centered entries. Code cleanup. Manufacturer
+	  page split up into seperate tables. Added links and comment display
+	  on the top of each table. Manufacturers are case-insensitive.
+	  OS/2 fix.
 	* configure: Regenerated from configure.in.
 	* doc/sane-usb.man: Mentioned control messages, usbfs, and more
 	  methods for permission adjustment.

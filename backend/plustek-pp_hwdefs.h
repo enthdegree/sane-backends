@@ -77,38 +77,39 @@
 
 /*
  * port modes
- * (WARNING: never change these defines, as they´re used as entries
+ * (WARNING: never change these defines, as they are used as entries
  *           to jump tables !!!)
  */
-#define _PORT_EPP		0
-#define _PORT_SPP		1
-#define _PORT_BIDI		2
-#define _PORT_ECP		3
-#define _PORT_ESP		4
+#define _PORT_EPP       0
+#define _PORT_SPP       1
+#define _PORT_BIDI      2
+#define _PORT_ECP       3
+#define _PORT_ESP       4
+#define _PORT_NONE      5
 
 /*
  * ScannerSize
  */
-#define _SCANSIZE_A4		0
+#define _SCANSIZE_A4        0
 #define _SCANSIZE_LETTER    1
-#define _SCANSIZE_LEGAL		2
-#define _SCANSIZE_A3		3
+#define _SCANSIZE_LEGAL     2
+#define _SCANSIZE_A3        3
 
 /*
  * Magic IDs switch printer port to scanner mode
  */
-#define _ID1ST			0x69
-#define _ID2ND			0x96
-#define _ID3RD			0xa5
-#define _ID4TH			0x5a
+#define _ID1ST          0x69
+#define _ID2ND          0x96
+#define _ID3RD          0xa5
+#define _ID4TH          0x5a
 
 /*
  * Special IDs used to reset scanner (ASIC98003)
  */
-#define _RESET1ST		0x69
-#define _RESET2ND		0x96
-#define _RESET3RD		0xaa
-#define _RESET4TH		0x55
+#define _RESET1ST       0x69
+#define _RESET2ND       0x96
+#define _RESET3RD       0xaa
+#define _RESET4TH       0x55
 
 /*
  * ID switch to printer mode

@@ -494,31 +494,35 @@ _LOC int MiscInitPorts( pScanData ps, int port )
     ps->IO.pbEppDataPort = (UShort)port+4;
 
 #else
-	int mode;
+	int mode, mts;
 
 	if( NULL == ps )
 		return _E_NULLPTR;
 
 	if( SANE_STATUS_GOOD != sanei_pp_getmodes( ps->pardev, &mode )) {
-		DBG(DBG_HIGH, "Cannot get port mode!\n" );
+		DBG( DBG_HIGH, "Cannot get port mode!\n" );
 		return _E_NO_PORT;
 	}
 
+	ps->IO.portMode = _PORT_NONE;
+	mts             = -1;
 	if( mode & SANEI_PP_MODE_SPP ) {
 		DBG( DBG_LOW, "Setting SPP-mode\n" );
 		ps->IO.portMode = _PORT_SPP;
+		mts = SANEI_PP_MODE_SPP;
 	}
 	if( mode & SANEI_PP_MODE_BIDI ) {
 		DBG( DBG_LOW, "Setting PS/2-mode\n" );
 		ps->IO.portMode = _PORT_BIDI;
+		mts = SANEI_PP_MODE_BIDI;
 	}
 	if( mode & SANEI_PP_MODE_EPP ) {
 		DBG( DBG_LOW, "Setting EPP-mode\n" );
 		ps->IO.portMode = _PORT_EPP;
+		mts = SANEI_PP_MODE_EPP;
 	}
 	if( mode & SANEI_PP_MODE_ECP ) {
 		DBG( DBG_HIGH, "ECP detected --> not supported\n" );
-		return _E_NOSUPP;
 	}
 
 	if( sanei_pp_uses_directio()) {
@@ -527,6 +531,12 @@ _LOC int MiscInitPorts( pScanData ps, int port )
 		DBG( DBG_LOW, "We're using libIEEE1284 I/O\n" );
 	}
 
+	if( ps->IO.portMode == _PORT_NONE ) {
+		DBG( DBG_HIGH, "None of the portmodes is supported.\n" );
+		return _E_NOSUPP;
+	}
+
+	sanei_pp_setmode( ps->pardev, mts );
 	_VAR_NOT_USED( port );
 #endif
 	return _OK;

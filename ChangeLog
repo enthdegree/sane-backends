@@ -1,3 +1,25 @@
+2001-04-08  Henning Meier-Geinitz <hmg@gmx.de>
+	
+	* backend/mustek.c backend/mustek.desc backend/mustek.CHANGES
+	  Added detection of the TA for the Paragon 1200 SP Pro. Added
+	  warning about not supported Trust scanners. Changed description
+	  of contarst and brightness settings. Backend status is "stable" 
+	  now. New version: 1.0-106.
+	* acinclude.m4 aclocal.m4: Fixed comment concerning dc240.
+	* configure configure.in include/sane/config.h.in: Added test for
+	  socklen_t in sys/socket.h. This fixes the compilation problem on
+	  Irix.
+	* doc/sane-avision.man doc/sane-ricoh.man doc/sane-s9036.man
+	  doc/sane-tamarack.man: find-scanner is now called
+	  sane-find-scanner and installed on the system so it's not 
+	  necessary to point to the tools directory.
+	* frontend/scanimage.c: Fixed too long line in output.
+	* sane-config.in: Name is sane-config again (was sane-backends-config
+	  due to the renaming of the package).
+	* TODO: Removed entry about net.c not compiling on Irix and
+	  references to find-scanner in the man pages. Updated numbers of
+	  the compilation warnings. Still too many, however.
+	  
 2001-04-07  Henning Meier-Geinitz <hmg@gmx.de>
 
 	* backend/sc240.c backend/dc240.h backend/dc240.conf

@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.11\n"
-"POT-Creation-Date: 2004-07-02 14:31+0200\n"
+"POT-Creation-Date: 2004-08-03 09:56+0200\n"
 "PO-Revision-Date: 2003-07-29 23:28+0100\n"
 "Last-Translator: Pavel Constantinov <pavelconstantinov@bigfoot.com>\n"
 "Language-Team:  <>\n"
@@ -27,8 +27,8 @@ msgstr "В сива скала"
 
 #: .tmp/artec_eplus48u.c:156 .tmp/epson.c:502 .tmp/hp-option.c:2926
 #: .tmp/leo.h:262 .tmp/ma1509.c:101 .tmp/mustek.c:126 .tmp/mustek.c:130
-#: .tmp/mustek_usb.c:268 .tmp/plustek.c:217 .tmp/plustek_pp.c:192
-#: .tmp/plustek_pp.c:201 .tmp/saneopts.h:389 .tmp/sceptre.h:292
+#: .tmp/mustek_usb.c:268 .tmp/plustek.c:217 .tmp/plustek_pp.c:184
+#: .tmp/plustek_pp.c:193 .tmp/saneopts.h:389 .tmp/sceptre.h:292
 #: .tmp/snapscan-options.c:75 .tmp/teco1.h:293 .tmp/teco2.h:352
 #: .tmp/teco3.h:296 .tmp/test.c:122 .tmp/umax.c:191 .tmp/umax_pp.c:137
 msgid "Color"
@@ -36,8 +36,8 @@ msgstr "Цвят"
 
 #: .tmp/artec_eplus48u.c:2805 .tmp/gt68xx.c:653 .tmp/leo.c:873
 #: .tmp/ma1509.c:597 .tmp/matsushita.c:1191 .tmp/microtek2.h:602
-#: .tmp/mustek.c:4382 .tmp/mustek_usb.c:353 .tmp/plustek.c:760
-#: .tmp/plustek_pp.c:800 .tmp/sceptre.c:753 .tmp/snapscan-options.c:488
+#: .tmp/mustek.c:4382 .tmp/mustek_usb.c:353 .tmp/plustek.c:761
+#: .tmp/plustek_pp.c:792 .tmp/sceptre.c:753 .tmp/snapscan-options.c:488
 #: .tmp/teco1.c:1146 .tmp/teco2.c:1940 .tmp/teco3.c:971 .tmp/umax.c:5214
 #: .tmp/umax_pp.c:542
 msgid "Enhancement"
@@ -54,7 +54,7 @@ msgstr "Нагласи висящи опции за повишителните �
 #: .tmp/artec_eplus48u.c:2884 .tmp/epson.c:3234 .tmp/gt68xx.c:709
 #: .tmp/leo.c:825 .tmp/ma1509.c:549 .tmp/matsushita.c:1137
 #: .tmp/microtek2.h:601 .tmp/mustek.c:4334 .tmp/mustek_usb.c:305
-#: .tmp/plustek.c:714 .tmp/plustek_pp.c:754 .tmp/sceptre.c:705
+#: .tmp/plustek.c:715 .tmp/plustek_pp.c:746 .tmp/sceptre.c:705
 #: .tmp/snapscan-options.c:421 .tmp/teco1.c:1098 .tmp/teco2.c:1892
 #: .tmp/teco3.c:923 .tmp/test.c:618 .tmp/umax.c:5164 .tmp/umax_pp.c:493
 msgid "Geometry"
@@ -134,14 +134,14 @@ msgstr "Корекция на гамата"
 msgid "Selects the gamma corrected transfer curve"
 msgstr "Избира кривата на коригираната гама"
 
-#: .tmp/epson.c:500 .tmp/plustek.c:214 .tmp/plustek_pp.c:189
-#: .tmp/plustek_pp.c:198
+#: .tmp/epson.c:500 .tmp/plustek.c:214 .tmp/plustek_pp.c:181
+#: .tmp/plustek_pp.c:190
 msgid "Binary"
 msgstr "Двоичен"
 
 #: .tmp/epson.c:501 .tmp/ma1509.c:101 .tmp/mustek.c:125 .tmp/mustek.c:130
-#: .tmp/mustek_usb.c:269 .tmp/plustek.c:215 .tmp/plustek_pp.c:191
-#: .tmp/plustek_pp.c:200 .tmp/saneopts.h:390 .tmp/sceptre.h:291
+#: .tmp/mustek_usb.c:269 .tmp/plustek.c:215 .tmp/plustek_pp.c:183
+#: .tmp/plustek_pp.c:192 .tmp/saneopts.h:390 .tmp/sceptre.h:291
 #: .tmp/snapscan-options.c:77 .tmp/test.c:122 .tmp/umax.c:188
 msgid "Gray"
 msgstr "Сиво"
@@ -318,7 +318,7 @@ msgstr "макс."
 
 #: .tmp/epson.c:2749 .tmp/gt68xx.c:442 .tmp/ma1509.c:499
 #: .tmp/matsushita.c:1086 .tmp/microtek2.h:600 .tmp/mustek.c:4197
-#: .tmp/mustek_usb.c:260 .tmp/plustek.c:642 .tmp/plustek_pp.c:665
+#: .tmp/mustek_usb.c:260 .tmp/plustek.c:643 .tmp/plustek_pp.c:657
 #: .tmp/sceptre.c:676 .tmp/snapscan-options.c:260 .tmp/teco2.c:1864
 #: .tmp/test.c:293 .tmp/umax.c:5042
 msgid "Scan Mode"
@@ -666,8 +666,8 @@ msgstr ""
 "Тази стойност се добавя към вътрешната стойност за офсет. Използвайте за "
 "прекалено светли или тъмни изображения."
 
-#: .tmp/hp-option.c:2924 .tmp/mustek.c:125 .tmp/plustek_pp.c:190
-#: .tmp/plustek_pp.c:199 .tmp/sceptre.h:290 .tmp/snapscan-options.c:76
+#: .tmp/hp-option.c:2924 .tmp/mustek.c:125 .tmp/plustek_pp.c:182
+#: .tmp/plustek_pp.c:191 .tmp/sceptre.h:290 .tmp/snapscan-options.c:76
 #: .tmp/umax.c:187
 msgid "Halftone"
 msgstr "Полутон"
@@ -726,7 +726,7 @@ msgid "Slow"
 msgstr "По-бавно"
 
 #: .tmp/hp-option.c:3141 .tmp/hp-option.c:3248 .tmp/matsushita.c:244
-#: .tmp/mustek.c:141 .tmp/plustek.c:224 .tmp/plustek_pp.c:208
+#: .tmp/mustek.c:141 .tmp/plustek.c:224 .tmp/plustek_pp.c:200
 msgid "Normal"
 msgstr "Нормално"
 
@@ -766,7 +766,7 @@ msgstr "Солидно бяло"
 msgid "Film-strip"
 msgstr "Тип филм"
 
-#: .tmp/hp-option.c:3231 .tmp/plustek.c:226 .tmp/plustek_pp.c:210
+#: .tmp/hp-option.c:3231 .tmp/plustek.c:226 .tmp/plustek_pp.c:202
 #: .tmp/saneopts.h:176
 msgid "Negative"
 msgstr "Негатив"
@@ -835,7 +835,7 @@ msgstr "Отзареди"
 msgid "Unload Document."
 msgstr "Отзареди документа."
 
-#: .tmp/hp-option.h:97
+#: .tmp/hp-option.h:97 .tmp/niash.c:492
 msgid "Calibrate"
 msgstr "Калибриране"
 
@@ -1453,6 +1453,27 @@ msgstr "Контраст - син канал"
 msgid "Controls the contrast of the blue channel of the acquired image."
 msgstr "Наглася контраста на синия канал на полученото изображение."
 
+#: .tmp/niash.c:442
+msgid "Image"
+msgstr ""
+
+#: .tmp/niash.c:475
+msgid "Miscellaneous"
+msgstr ""
+
+#: .tmp/niash.c:482
+msgid "Lamp status"
+msgstr ""
+
+#: .tmp/niash.c:483
+#, fuzzy
+msgid "Switches the lamp on or off."
+msgstr "Включва/изключва лампата"
+
+#: .tmp/niash.c:493
+msgid "Calibrates for black and white level."
+msgstr ""
+
 #: .tmp/plustek.c:216
 msgid "Gray 14/16"
 msgstr "Сиво 14/16"
@@ -1461,157 +1482,157 @@ msgstr "Сиво 14/16"
 msgid "Color 42/48"
 msgstr "Color42/48"
 
-#: .tmp/plustek.c:225 .tmp/plustek_pp.c:209
+#: .tmp/plustek.c:225 .tmp/plustek_pp.c:201
 msgid "Transparency"
 msgstr "Прозрачност"
 
-#: .tmp/plustek.c:825
+#: .tmp/plustek.c:826
 msgid "Device-Settings"
 msgstr ""
 
-#: .tmp/plustek.c:832
+#: .tmp/plustek.c:833
 msgid "Lampswitch"
 msgstr ""
 
-#: .tmp/plustek.c:833
+#: .tmp/plustek.c:834
 msgid "Manually switching the lamp(s)."
 msgstr ""
 
-#: .tmp/plustek.c:838
+#: .tmp/plustek.c:839
 #, fuzzy
 msgid "Calibration data cache"
 msgstr "Режим калибрация"
 
-#: .tmp/plustek.c:839
+#: .tmp/plustek.c:840
 msgid "Enables or disables calibration data cache."
 msgstr ""
 
-#: .tmp/plustek.c:844
+#: .tmp/plustek.c:845
 #, fuzzy
 msgid "Lamp off on shutdown"
 msgstr "Изкл. лампа при изход"
 
-#: .tmp/plustek.c:845
+#: .tmp/plustek.c:846
 msgid "Switch lamp off when leaving the backend."
 msgstr ""
 
-#: .tmp/plustek.c:850
+#: .tmp/plustek.c:851
 #, fuzzy
 msgid "Warmup-time"
 msgstr "Загрей лампата"
 
-#: .tmp/plustek.c:851
+#: .tmp/plustek.c:852
 #, fuzzy
 msgid "Warmup-time in seconds."
 msgstr "Загрей лампата"
 
-#: .tmp/plustek.c:858
+#: .tmp/plustek.c:859
 #, fuzzy
 msgid "Lampoff-time"
 msgstr "Изкл. лампа"
 
-#: .tmp/plustek.c:859
+#: .tmp/plustek.c:860
 #, fuzzy
 msgid "Lampoff-time in seconds."
 msgstr "Загрей лампата"
 
-#: .tmp/plustek.c:867
+#: .tmp/plustek.c:868
 #, fuzzy
 msgid "Analog frontend"
 msgstr "Аналогова гама - червено"
 
-#: .tmp/plustek.c:873
+#: .tmp/plustek.c:874
 #, fuzzy
 msgid "Red-gain"
 msgstr "увеличение"
 
-#: .tmp/plustek.c:874
+#: .tmp/plustek.c:875
 msgid "Red-gain value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:881
+#: .tmp/plustek.c:882
 msgid "Red-offset"
 msgstr ""
 
-#: .tmp/plustek.c:882
+#: .tmp/plustek.c:883
 msgid "Red-offset value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:889
+#: .tmp/plustek.c:890
 #, fuzzy
 msgid "Green-gain"
 msgstr "Зелено"
 
-#: .tmp/plustek.c:890
+#: .tmp/plustek.c:891
 msgid "Green-gain value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:897
+#: .tmp/plustek.c:898
 #, fuzzy
 msgid "Green-offset"
 msgstr "Включва/изключва лампата"
 
-#: .tmp/plustek.c:898
+#: .tmp/plustek.c:899
 msgid "Green-offset value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:905
+#: .tmp/plustek.c:906
 #, fuzzy
 msgid "Blue-gain"
 msgstr "Синьо"
 
-#: .tmp/plustek.c:906
+#: .tmp/plustek.c:907
 msgid "Blue-gain value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:913
+#: .tmp/plustek.c:914
 msgid "Blue-offset"
 msgstr ""
 
-#: .tmp/plustek.c:914
+#: .tmp/plustek.c:915
 msgid "Blue-offset value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:921
+#: .tmp/plustek.c:922
 #, fuzzy
 msgid "Red lamp off"
 msgstr "Включва/изключва лампата"
 
-#: .tmp/plustek.c:922
+#: .tmp/plustek.c:923
 msgid "Defines red lamp off parameter"
 msgstr ""
 
-#: .tmp/plustek.c:929
+#: .tmp/plustek.c:930
 #, fuzzy
 msgid "Green lamp off"
 msgstr "Включва/изключва лампата"
 
-#: .tmp/plustek.c:930
+#: .tmp/plustek.c:931
 msgid "Defines green lamp off parameter"
 msgstr ""
 
-#: .tmp/plustek.c:937
+#: .tmp/plustek.c:938
 #, fuzzy
 msgid "Blue lamp off"
 msgstr "Включва/изключва лампата"
 
-#: .tmp/plustek.c:938
+#: .tmp/plustek.c:939
 msgid "Defines blue lamp off parameter"
 msgstr ""
 
-#: .tmp/plustek_pp.c:202
+#: .tmp/plustek_pp.c:194
 msgid "Color36"
 msgstr "Color36"
 
-#: .tmp/plustek_pp.c:216
+#: .tmp/plustek_pp.c:208
 msgid "Dithermap 1"
 msgstr "Dithermap 1"
 
-#: .tmp/plustek_pp.c:217
+#: .tmp/plustek_pp.c:209
 msgid "Dithermap 2"
 msgstr "Dithermap 2"
 
-#: .tmp/plustek_pp.c:218
+#: .tmp/plustek_pp.c:210
 msgid "Randomize"
 msgstr "Направи произволно"
 

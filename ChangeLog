@@ -1,8 +1,12 @@
+2002-04-18  Marian Eichholz <eichholz@computer.org>
+	* backend/sm3600.c : compiles without warnings now.
+	* backend/sm3600.h : FakeCalibration prototype conditionalised, too.
+
 2002-04-17  Frank Zago <fzago@greshamstorage.com>
 
 	* TODO: changed Relisys Scorpio Super 3 contact info.
 
-2002-04-15  Marian Eichholz <eichholz@computer.org>
+2002-04-17  Marian Eichholz <eichholz@computer.org>
 	* doc/descriptions/sm3600.desc : specific models listed
 	* doc/sane-sm3600.man : warning for libusb-versions.
 	* backend/sm3600-homerun.c : FakeCalibration() conditionalised.

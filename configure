@@ -745,7 +745,7 @@ test "$program_transform_name" = "" && program_transform_name="s,x,x,"
 V_MAJOR=1
 V_MINOR=0
 V_REV=9
-V_EXTRA=
+V_EXTRA=-cvs
 
 
 
@@ -1775,7 +1775,7 @@ esac
       fi
     
 else
-  if false; then # release (false) or development (true)
+  if true; then # release (false) or development (true)
        # Warnings enabled by default (development)
        for flag in $WARN_CFLAGS; do
          case "$CFLAGS" in

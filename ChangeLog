@@ -1,3 +1,9 @@
+2002-01-25  Gerhard Jaeger <g.jaeger@earthling.net>
+
+	* backend/plustek-usb.h: changed according to avoid
+	  some gcc-3 warnings
+	* docb/sane-plustek.man: Update
+
 2002-01-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* po/Makefile.in: Added SHELL variable. Fixes po generation on OS/2.

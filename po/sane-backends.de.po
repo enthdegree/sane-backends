@@ -1,3 +1,4 @@
+# translation of sane-backends.po to 
 # German translation for SANE backend options
 # Copyright (C) 2002 SANE Project.
 # Burma Group Karlsruhe, Heiko Schaefer <heiko@burmagroup.de>, 2002.
@@ -5,20 +6,20 @@
 # Henning Meier-Geinitz <henning@meier-geinitz.de>, 2002, 2003.
 # Michael Herder <crapsite@gmx.net>, 2002.
 # Oliver Rauch <Oliver.Rauch@Rauch-domain.de>, 2002.
-# Oliver Schwartz <Oliver.Schwartz@gmx.de>, 2002.
+# Oliver Schwartz <Oliver.Schwartz@gmx.de>, 2002, 2004.
 # Karsten Festag <karsten.festag@gmx.de>, 2002.
 msgid ""
 msgstr ""
-"Project-Id-Version: sane-backends.de\n"
+"Project-Id-Version: sane-backends\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2003-10-05 13:26+0200\n"
-"PO-Revision-Date: 2004-01-09 13:12+0100\n"
-"Last-Translator: Gerhard Jaeger <gerhard@gjaeger.de>\n"
+"PO-Revision-Date: 2004-04-02 22:52+0200\n"
+"Last-Translator: Oliver Schwartz <Oliver.Schwartz@gmx.de>\n"
 "Language-Team:  <de@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: KBabel 1.0.1\n"
+"X-Generator: KBabel 1.3.1\n"
 
 #: .tmp/artec_eplus48u.c:153 .tmp/gt68xx.c:118 .tmp/hp-option.c:2874
 #: .tmp/ma1509.c:101 .tmp/mustek.c:125 .tmp/mustek.c:130 .tmp/mustek_usb.c:270
@@ -1691,7 +1692,7 @@ msgstr "Y-Auflösung"
 
 #: .tmp/saneopts.h:145
 msgid "Use custom gamma table"
-msgstr "Verwende benutzerdefinierte Gammakorrektur"
+msgstr "Verwende benutzerdefinierte Gammatabelle"
 
 #: .tmp/saneopts.h:146
 msgid "Image intensity"

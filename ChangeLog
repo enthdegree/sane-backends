@@ -2,6 +2,7 @@
 
 	* snapscan.c snapscan-options.c snapscan-scsi.c:
 	  Various bugfixes for gamma correction (Thanks to Robert Tsien)
+	* po/sane-backends.de.po: Fix translation for "gamma table"
 
 2004-04-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

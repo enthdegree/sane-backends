@@ -1,6 +1,7 @@
 2003-04-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/sane.man: Added SEE ALSO section.
+	* backend/Makefile.in: Fixed warning for dll-preload.c.
 
 2003-04-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -223,7 +223,7 @@ dll-preload.c:
 	sep=""; \
 	list="$(DLL_PRELOAD)"; \
 	if test -z "$${list}"; then \
-	  echo { 0 } >> $@; \
+	  echo { 0, 0, 0, 0, 0, 0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }} >> $@; \
 	else \
 	  for be in $$list; do \
 	    echo "$${sep}PRELOAD_DEFN($$be)" >> $@; \

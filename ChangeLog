@@ -1,3 +1,9 @@
+2004-09-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added Lexmark X1130, Dell
+	  1600n. Removed Canon LiDE 35 (now in genesys.desc) and Epson
+	  Perfection 2480 (now in snapscan.desc).
+
 2004-09-02  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 	* backend/snapscan.c backend/snapscan-scsi.c backend/snapscan-options.c
 	  backend/snapscan.h backend/snapscan.conf doc/descriptions/snapscan.desc:

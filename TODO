@@ -1,4 +1,4 @@
-TODO (2003-04-02)
+TODO (2003-04-03)
 
 ******** todo ********
 
@@ -57,7 +57,6 @@ backends
     called more than once (if sane_exit was called before)! Global variables
     must be either initialized in sane_init or reset in sane_exit.
     At least these backends segfault:
-    - mustek_pp
     - umax
     
 
@@ -171,6 +170,7 @@ misc
 
 
 ******** done ********
+* mustek_pp: Check that global variables are initialized propperly.
 * add configure switch to enable/disable libusb support
 * Fix misdetection of Artec AT3.
 * sm3600.c, .h: Fix comment header (wrong author, wrong description)

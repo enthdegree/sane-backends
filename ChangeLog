@@ -1,3 +1,8 @@
+2003-04-03  Eddy De Greef <eddy_de_greef at tiscali dot be>
+
+	* TODO: removed mustek_pp entry (Check that global variables are 
+	  initialized propperly
+
 2003-04-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* lib/Makefile.in: Recompile all targets if necessary.

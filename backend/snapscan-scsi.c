@@ -433,44 +433,7 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
                pss->buf,
                &pss->read_bytes);
     CHECK_STATUS (status, me, "snapscan_cmd");
-    /* Download Firmware for USB scanners */
-    if ( (pss->pdev->bus == USB) && (*(pss->buf + INQUIRY_HWST) & 0x02) )
-    {
-        char model[17];
 
-        status = download_firmware(pss);
-        CHECK_STATUS (status, me, "download_firmware");
-        /* send inquiry command again, wait for scanner to initialize */
-        do {
-            status = snapscan_cmd (pss->pdev->bus,
-                pss->fd,
-                pss->cmd,
-                INQUIRY_LEN,
-                pss->buf,
-                &pss->read_bytes);
-            if (status == SANE_STATUS_DEVICE_BUSY) {
-                DBG (DL_INFO, "%s: Waiting for scanner after firmware upload\n",me);
-                sleep(1);
-            }
-        } while (status == SANE_STATUS_DEVICE_BUSY);
-        CHECK_STATUS (status, me, "snapscan_cmd");
-        /* The model identifier will change after firmware upload */
-        memcpy (model, &pss->buf[INQUIRY_PRODUCT], 16);
-        model[16] = 0;
-        remove_trailing_space(model);
-        DBG (DL_INFO,
-            "%s (after firmware upload): Checking if \"%s\" is a supported scanner\n",
-            me,
-            model);
-        /* Check if it is one of our supported models */
-        pss->pdev->model = snapscani_get_model_id(model, pss->fd, pss->pdev->bus);
-        if (pss->pdev->model == UNKNOWN) {
-            DBG (DL_MINOR_ERROR,
-                "%s (after firmware upload): \"%s\" is not a supported scanner\n",
-                me,
-                model);
-        }
-    }
     /* record current parameters */
     {
         char exptime[4] = {' ', '.', ' ', 0};
@@ -534,7 +497,27 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
     pss->bytes_remaining = pss->bytes_per_line * (pss->lines + pss->chroma);
     pss->expected_read_bytes = 0;
     pss->read_bytes = 0;
+    pss->hwst = pss->buf[INQUIRY_HWST];
     pss->hconfig = pss->buf[INQUIRY_HCFG];
+    pss->bpp = 8;
+    switch (pss->pdev->model)
+    {
+    case PERFECTION1670:
+        pss->bpp = 14;
+        break;
+    default:
+        if (pss->hconfig & HCFG_ADC)
+            pss->bpp = 10;
+        break;
+    }
+    DBG (DL_DATA_TRACE,
+        "%s: hardware config = 0x%02x\n",
+        me,
+        pss->hconfig);
+    DBG (DL_DATA_TRACE,
+        "%s: bits per pixel = %lu\n",
+        me,
+        (u_long) pss->bpp);
     DBG (DL_DATA_TRACE,
         "%s: pixels per scan line = %lu\n",
         me,
@@ -622,6 +605,10 @@ static void release_unit (SnapScan_Scanner *pss)
 #define DTCQ_GAMMA_RED10 0x81
 #define DTCQ_GAMMA_GREEN10 0x82
 #define DTCQ_GAMMA_BLUE10 0x83
+#define DTCQ_GAMMA_GRAY14 0x95 /* ? */
+#define DTCQ_GAMMA_RED14 0x96
+#define DTCQ_GAMMA_GREEN14 0x97
+#define DTCQ_GAMMA_BLUE14 0x98
 
 static SANE_Status send (SnapScan_Scanner *pss, u_char dtc, u_char dtcq)
 {
@@ -670,6 +657,12 @@ static SANE_Status send (SnapScan_Scanner *pss, u_char dtc, u_char dtcq)
         case DTCQ_GAMMA_GREEN10:
         case DTCQ_GAMMA_BLUE10:
             tl = 1024;
+            break;
+        case DTCQ_GAMMA_GRAY14:    /* 14-bit tables */
+        case DTCQ_GAMMA_RED14:
+        case DTCQ_GAMMA_GREEN14:
+        case DTCQ_GAMMA_BLUE14:
+            tl = 16384;
             break;
         default:
             DBG (DL_MAJOR_ERROR, "%s: bad gamma data type qualifier 0x%x\n",
@@ -767,16 +760,16 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
     DBG (DL_CALL_TRACE, "%s Resolution: %d\n", me, pss->res);
 
     pos_factor = pss->actual_res;
-    if (pss->pdev->model == PRISA5000) 
+    if (pss->pdev->model == PRISA5000)
     {
-        if (pss->res > 600) 
+        if (pss->res > 600)
         {
             pos_factor = 1200;
         }
         else
         {
             pos_factor = 600;
-        }    
+        }
     }
 
     /* it's an ugly sound if the scanner drives against the rear
@@ -816,25 +809,23 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
     pc[SET_WINDOW_P_CONTRAST] = 128;
     {
         SnapScan_Mode mode = pss->mode;
-        u_char bpp;
+        u_char bpp = 8;
 
         if (pss->preview)
             mode = pss->preview_mode;
 
-        bpp = pss->pdev->depths[mode];
         DBG (DL_MINOR_INFO, "%s Mode: %d\n", me, mode);
         switch (mode)
         {
         case MD_COLOUR:
             pc[SET_WINDOW_P_COMPOSITION] = 0x05;    /* multi-level RGB */
-            bpp *= 3;
             break;
         case MD_BILEVELCOLOUR:
             if (pss->halftone)
                 pc[SET_WINDOW_P_COMPOSITION] = 0x04;    /* halftone RGB */
             else
                 pc[SET_WINDOW_P_COMPOSITION] = 0x03;    /* bi-level RGB */
-            bpp *= 3;
+            bpp = 1;
             break;
         case MD_GREYSCALE:
             pc[SET_WINDOW_P_COMPOSITION] = 0x02;    /* grayscale */
@@ -871,13 +862,20 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
        pss->pdev->model != PRISA610
     ) {
         pc[SET_WINDOW_P_DEBUG_MODE] = 2;        /* use full 128k buffer */
-        pc[SET_WINDOW_P_GAMMA_NO] = 0x01;        /* downloaded table */
+        if ((pss->mode != MD_LINEART) && (pss->val[OPT_CUSTOM_GAMMA].b))
+        {
+            pc[SET_WINDOW_P_GAMMA_NO] = 0x01;   /* downloaded gamma table */
+        }
     }
-    source = 0x20;
+    source = 0x0;
     if (pss->preview) {
-        source |= 0x80; /* no high quality */
-    } else {
+        source |= 0x80; /* no high quality in preview */
+    }
+    else {
         source |= 0x40; /* no preview */
+    }
+    if (!pss->highquality) {
+        source |= 0x80; /* no high quality */
     }
 
     if (pss->source == SRC_TPO) {
@@ -887,7 +885,7 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
         source |= 0x10;
     }
     pc[SET_WINDOW_P_OPERATION_MODE] = source;
-    DBG (DL_MINOR_INFO, "%s: operation mode set to %d\n", me, (int) source);
+    DBG (DL_MINOR_INFO, "%s: operation mode set to 0x%02x\n", me, (int) source);
     pc[SET_WINDOW_P_RED_UNDER_COLOR] = 0xff;    /* defaults */
     pc[SET_WINDOW_P_BLUE_UNDER_COLOR] = 0xff;
     pc[SET_WINDOW_P_GREEN_UNDER_COLOR] = 0xff;
@@ -978,11 +976,11 @@ static SANE_Status send_diagnostic (SnapScan_Scanner *pss)
 
     if (pss->pdev->model == PRISA620
         ||
-	pss->pdev->model == PRISA610
-	||
-	pss->pdev->model == SNAPSCAN1236
+     pss->pdev->model == PRISA610
         ||
-        pss->pdev->model == ARCUS1200) 
+     pss->pdev->model == SNAPSCAN1236
+        ||
+        pss->pdev->model == ARCUS1200)
     {
         return SANE_STATUS_GOOD;
     }
@@ -1172,7 +1170,7 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
                 fseek(fd, 0, SEEK_SET);
                 break;
             case PERFECTION1670:
-                /* AGFA firmware files contain an info block which
+                /* Epson firmware files contain an info block which
                    specifies the length of the firmware data. The
                    length information is stored at offset 0x64 from
                    end of file */
@@ -1225,6 +1223,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
+ * Revision 1.25  2003/10/21 20:43:25  oliver-guest
+ * Bugfixes for SnapScan backend
+ *
  * Revision 1.24  2003/10/07 19:41:34  oliver-guest
  * Updates for Epson Perfection 1670
  *

@@ -24,7 +24,7 @@
 
    As a special exception, the authors of SANE give permission for
    additional uses of the libraries contained in this release of SANE.
- 
+
    The exception is that, if you link a SANE library with other files
    to produce an executable, this does not by itself cause the
    resulting executable to be covered by the GNU General Public
@@ -78,7 +78,7 @@
 
 #define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
-#define BUILD               28
+#define BUILD               31
 
 #define BACKEND_NAME snapscan
 
@@ -127,62 +127,9 @@ if ((s) != SANE_STATUS_GOOD) { DBG(DL_MAJOR_ERROR, "%s: %s command failed: %s\n"
 #define MM_PER_IN 25.4                /* # millimetres per inch */
 #define IN_PER_MM 0.03937        /* # inches per millimetre  */
 
-/* default option values */
-
-#define DEFAULT_RES                  300
-#define DEFAULT_PREVIEW         SANE_FALSE
-
-#define DEFAULT_BRIGHTNESS        0
-#define DEFAULT_CONTRAST        0
-#define DEFAULT_GAMMA                SANE_FIX(1.8)
-#define DEFAULT_HALFTONE        SANE_FALSE
-#define DEFAULT_NEGATIVE        SANE_FALSE
-#define DEFAULT_THRESHOLD        50
-#define DEFAULT_QUALITY         SANE_TRUE
-#define DEFAULT_CUSTOM_GAMMA        SANE_FALSE
-#define DEFAULT_GAMMA_BIND        SANE_FALSE
-
 #ifndef SANE_I18N
 #define SANE_I18N(text) text
 #endif
-
-static SANE_Int def_rgb_lpr = 4;
-static SANE_Int def_gs_lpr = 12;
-
-
-/* predefined preview mode name */
-static char md_auto[] = "Auto";
-
-/* predefined scan mode names */
-static char md_colour[] = SANE_I18N("Color");
-static char md_bilevelcolour[] = SANE_I18N("Halftone");
-static char md_greyscale[] = SANE_I18N("Gray");
-static char md_lineart[] = SANE_I18N("Lineart");
-
-/* predefined scan source names */
-static char src_flatbed[] = SANE_I18N("Flatbed");
-static char src_tpo[] = SANE_I18N("Transparency Adapter");
-static char src_adf[] = SANE_I18N("Document Feeder");
-
-/* predefined scan window setting names */
-static char pdw_none[] = SANE_I18N("None");
-static char pdw_6X4[] = SANE_I18N("6x4 (inch)");
-static char pdw_8X10[] = SANE_I18N("8x10 (inch)");
-static char pdw_85X11[] = SANE_I18N("8.5x11 (inch)");
-
-/* predefined dither matrix names */
-static char dm_none[] = SANE_I18N("Halftoning Unsupported");
-static char dm_dd8x8[] = SANE_I18N("DispersedDot8x8");
-static char dm_dd16x16[] = SANE_I18N("DispersedDot16x16");
-
-/* strings */
-static char lpr_desc[] = SANE_I18N(
-    "Number of scan lines to request in a SCSI read. "
-    "Changing this parameter allows you to tune the speed at which "
-    "data is read from the scanner during scans. If this is set too "
-    "low, the scanner will have to stop periodically in the middle of "
-    "a scan; if it's set too high, X-based frontends may stop responding "
-    "to X events and your system could bog down.");
 
 /* authorization stuff */
 static SANE_Auth_Callback auth = NULL;
@@ -190,12 +137,6 @@ static SANE_Auth_Callback auth = NULL;
 static SANE_Char username[SANE_MAX_USERNAME_LEN];
 static SANE_Char password[SANE_MAX_PASSWORD_LEN];
 #endif
-
-/* bit depth tables */
-static u_char depths8[MD_NUM_MODES] =        {8, 1, 8, 1};
-static u_char depths10[MD_NUM_MODES] =        {10, 1, 10, 1};
-static u_char depths12[MD_NUM_MODES] =        {12, 1, 12, 1};
-static u_char depths14[MD_NUM_MODES] =        {14, 1, 14, 1};
 
 /* function prototypes */
 
@@ -221,13 +162,19 @@ static inline int is_colour_mode (SnapScan_Mode m)
 static inline int calibration_line_length(SnapScan_Scanner *pss)
 {
     int pos_factor = pss->actual_res;
-    int pixel_length; 
+    int pixel_length;
 
-    if (pss->pdev->model == PRISA5000) 
+    switch (pss->pdev->model)
     {
+    case PRISA5000:
         pos_factor = 600;
+        break;
+    case PERFECTION1670:
+        pos_factor = 800;
+        break;
+    default:
+        break;
     }
-
     pixel_length = pos_factor * 8.5;
 
     if(is_colour_mode(actual_mode(pss))) {
@@ -258,9 +205,8 @@ static const SANE_Device **get_devices_list = NULL;
 static SANE_Status init_gamma(SnapScan_Scanner * ps)
 {
     u_char *gamma;
-    int bpp = (ps->hconfig & HCFG_ADC) ? 10 : 8;
 
-    ps->gamma_length = 1 << bpp;
+    ps->gamma_length = 1 << ps->bpp;
 
     ps->gamma_tables =
         (SANE_Int *) malloc(4 * ps->gamma_length * sizeof(SANE_Int));
@@ -284,16 +230,16 @@ static SANE_Status init_gamma(SnapScan_Scanner * ps)
     ps->gamma_table_b = &ps->gamma_tables[3 * ps->gamma_length];
 
     /* Default tables */
-    gamma_n (ps->gamma_gs, ps->bright, ps->contrast, gamma, bpp);
+    gamma_n (ps->gamma_gs, ps->bright, ps->contrast, gamma, ps->bpp);
     gamma_to_sane (ps->gamma_length, gamma, ps->gamma_table_gs);
 
-    gamma_n (ps->gamma_r, ps->bright, ps->contrast, gamma, bpp);
+    gamma_n (ps->gamma_r, ps->bright, ps->contrast, gamma, ps->bpp);
     gamma_to_sane (ps->gamma_length, gamma, ps->gamma_table_r);
 
-    gamma_n (ps->gamma_g, ps->bright, ps->contrast, gamma, bpp);
+    gamma_n (ps->gamma_g, ps->bright, ps->contrast, gamma, ps->bpp);
     gamma_to_sane (ps->gamma_length, gamma, ps->gamma_table_g);
 
-    gamma_n (ps->gamma_b, ps->bright, ps->contrast, gamma, bpp);
+    gamma_n (ps->gamma_b, ps->bright, ps->contrast, gamma, ps->bpp);
     gamma_to_sane (ps->gamma_length, gamma, ps->gamma_table_b);
 
     free (gamma);
@@ -491,23 +437,6 @@ static SANE_Status snapscani_init_device_structure(
     (*pd)->dev.type = strdup (SNAPSCAN_TYPE);
     (*pd)->bus = bus_type;
     (*pd)->model = model_num;
-    switch (model_num)
-    {
-    case SNAPSCAN:
-    case SNAPSCAN300:
-        (*pd)->depths = depths8;
-        break;
-    case PRISA620:
-        (*pd)->depths = depths12;
-        break;
-    case PRISA4300_2:
-    case PRISA5300:
-        (*pd)->depths = depths14;
-        break;
-    default:
-        (*pd)->depths = depths10;
-        break;
-    }
 
     if (!(*pd)->dev.name  ||  !(*pd)->dev.vendor  ||  !(*pd)->dev.model  ||  !(*pd)->dev.type)
     {
@@ -983,7 +912,42 @@ SANE_Status sane_open (SANE_String_Const name, SANE_Handle * h)
             free (pss);
             return status;
         }
-        close_scanner (pss);
+
+        /* Download Firmware for USB scanners */
+        if ( (pss->pdev->bus == USB) && (pss->hwst & 0x02) )
+        {
+            char model[17];
+
+            status = download_firmware(pss);
+            CHECK_STATUS (status, me, "download_firmware");
+            /* send inquiry command again, wait for scanner to initialize */
+            do
+            {
+                DBG (DL_INFO, "%s: Waiting for scanner after firmware upload\n",me);
+                sleep(1);
+                status =  inquiry (pss);
+            } while (status == SANE_STATUS_DEVICE_BUSY);
+
+            CHECK_STATUS (status, me, "inquiry after firmware upload");
+            /* The model identifier may change after firmware upload */
+            memcpy (model, &pss->buf[INQUIRY_PRODUCT], 16);
+            model[16] = 0;
+            remove_trailing_space(model);
+            DBG (DL_INFO,
+                "%s (after firmware upload): Checking if \"%s\" is a supported scanner\n",
+                me,
+                model);
+            /* Check if it is one of our supported models */
+            pss->pdev->model = snapscani_get_model_id(model, pss->fd, pss->pdev->bus);
+
+            if (pss->pdev->model == UNKNOWN) {
+                DBG (DL_MINOR_ERROR,
+                    "%s (after firmware upload): \"%s\" is not a supported scanner\n",
+                    me,
+                    model);
+            }
+        }
+        close_scanner(pss);
 
         status = init_gamma (pss);
         if (status != SANE_STATUS_GOOD)
@@ -1258,8 +1222,8 @@ static SANE_Status download_gamma_tables (SnapScan_Scanner *pss)
     int dtcq_gamma_red;
     int dtcq_gamma_green;
     int dtcq_gamma_blue;
-    int bpp = (pss->hconfig & HCFG_ADC) ? 10 : 8;
 
+    DBG (DL_CALL_TRACE, "%s\n", me);
     switch (mode)
     {
     case MD_COLOUR:
@@ -1281,19 +1245,27 @@ static SANE_Status download_gamma_tables (SnapScan_Scanner *pss)
         break;
     }
 
-    if (bpp == 10)
+    DBG (DL_DATA_TRACE, "%s: Sending gamma table for %d bpp\n", me, pss->bpp);
+    switch (pss->bpp)
     {
+    case 10:
         dtcq_gamma_gray = DTCQ_GAMMA_GRAY10;
         dtcq_gamma_red = DTCQ_GAMMA_RED10;
         dtcq_gamma_green = DTCQ_GAMMA_GREEN10;
         dtcq_gamma_blue = DTCQ_GAMMA_BLUE10;
-    }
-    else
-    {
+        break;
+    case 14:
+        dtcq_gamma_gray = DTCQ_GAMMA_GRAY14;
+        dtcq_gamma_red = DTCQ_GAMMA_RED14;
+        dtcq_gamma_green = DTCQ_GAMMA_GREEN14;
+        dtcq_gamma_blue = DTCQ_GAMMA_BLUE14;
+        break;
+    default:
         dtcq_gamma_gray = DTCQ_GAMMA_GRAY8;
         dtcq_gamma_red = DTCQ_GAMMA_RED8;
         dtcq_gamma_green = DTCQ_GAMMA_GREEN8;
         dtcq_gamma_blue = DTCQ_GAMMA_BLUE8;
+        break;
     }
 
     if (is_colour_mode(mode))
@@ -1342,34 +1314,34 @@ static SANE_Status download_gamma_tables (SnapScan_Scanner *pss)
             {
                 /* Use greyscale gamma for all rgb channels */
                 gamma_n (gamma_gs, pss->bright, pss->contrast,
-                         pss->buf + SEND_LENGTH, bpp);
+                         pss->buf + SEND_LENGTH, pss->bpp);
                 status = send (pss, DTC_GAMMA, dtcq_gamma_red);
                 CHECK_STATUS (status, me, "send");
 
                 gamma_n (gamma_gs, pss->bright, pss->contrast,
-                         pss->buf + SEND_LENGTH, bpp);
+                         pss->buf + SEND_LENGTH, pss->bpp);
                 status = send (pss, DTC_GAMMA, dtcq_gamma_green);
                 CHECK_STATUS (status, me, "send");
 
                 gamma_n (gamma_gs, pss->bright, pss->contrast,
-                         pss->buf + SEND_LENGTH, bpp);
+                         pss->buf + SEND_LENGTH, pss->bpp);
                 status = send (pss, DTC_GAMMA, dtcq_gamma_blue);
                 CHECK_STATUS (status, me, "send");
             }
             else
             {
                 gamma_n (gamma_r, pss->bright, pss->contrast,
-                         pss->buf + SEND_LENGTH, bpp);
+                         pss->buf + SEND_LENGTH, pss->bpp);
                 status = send (pss, DTC_GAMMA, dtcq_gamma_red);
                 CHECK_STATUS (status, me, "send");
 
                 gamma_n (gamma_g, pss->bright, pss->contrast,
-                         pss->buf + SEND_LENGTH, bpp);
+                         pss->buf + SEND_LENGTH, pss->bpp);
                 status = send (pss, DTC_GAMMA, dtcq_gamma_green);
                 CHECK_STATUS (status, me, "send");
 
                 gamma_n (gamma_b, pss->bright, pss->contrast,
-                         pss->buf + SEND_LENGTH, bpp);
+                         pss->buf + SEND_LENGTH, pss->bpp);
                 status = send (pss, DTC_GAMMA, dtcq_gamma_blue);
                 CHECK_STATUS (status, me, "send");
             }
@@ -1387,7 +1359,7 @@ static SANE_Status download_gamma_tables (SnapScan_Scanner *pss)
         else
         {
             gamma_n (gamma_gs, pss->bright, pss->contrast,
-                     pss->buf + SEND_LENGTH, bpp);
+                     pss->buf + SEND_LENGTH, pss->bpp);
             status = send (pss, DTC_GAMMA, dtcq_gamma_gray);
             CHECK_STATUS (status, me, "send");
         }
@@ -1770,6 +1742,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.34  2003/10/21 20:43:25  oliver-guest
+ * Bugfixes for SnapScan backend
+ *
  * Revision 1.33  2003/10/07 18:29:20  oliver-guest
  * Initial support for Epson 1670, minor bugfix
  *

@@ -1,3 +1,9 @@
+2003-10-21  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+ 	* backend/snapscan.h backend/snapscan.c backend/snapscan-option.c
+	  backend/snapscan-scsi.c backend/snapscan.conf: Bugfixes, 
+	  hopefully better support for Epson 1670.
+
 2003-10-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions-external/epkowa.desc: Added Perfection 1670 as

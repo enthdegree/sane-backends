@@ -49,6 +49,59 @@
 /* $Id$
    SANE SnapScan backend */
 
+/* default option values */
+
+#define DEFAULT_RES             300
+#define DEFAULT_PREVIEW         SANE_FALSE
+#define DEFAULT_HIGHQUALITY     SANE_FALSE
+#define DEFAULT_BRIGHTNESS      0
+#define DEFAULT_CONTRAST        0
+#define DEFAULT_GAMMA           SANE_FIX(1.8)
+#define DEFAULT_HALFTONE        SANE_FALSE
+#define DEFAULT_NEGATIVE        SANE_FALSE
+#define DEFAULT_THRESHOLD       50
+#define DEFAULT_QUALITY         SANE_TRUE
+#define DEFAULT_CUSTOM_GAMMA    SANE_FALSE
+#define DEFAULT_GAMMA_BIND      SANE_FALSE
+
+static SANE_Int def_rgb_lpr = 4;
+static SANE_Int def_gs_lpr = 12;
+
+
+/* predefined preview mode name */
+static char md_auto[] = "Auto";
+
+/* predefined scan mode names */
+static char md_colour[] = SANE_I18N("Color");
+static char md_bilevelcolour[] = SANE_I18N("Halftone");
+static char md_greyscale[] = SANE_I18N("Gray");
+static char md_lineart[] = SANE_I18N("Lineart");
+
+/* predefined scan source names */
+static char src_flatbed[] = SANE_I18N("Flatbed");
+static char src_tpo[] = SANE_I18N("Transparency Adapter");
+static char src_adf[] = SANE_I18N("Document Feeder");
+
+/* predefined scan window setting names */
+static char pdw_none[] = SANE_I18N("None");
+static char pdw_6X4[] = SANE_I18N("6x4 (inch)");
+static char pdw_8X10[] = SANE_I18N("8x10 (inch)");
+static char pdw_85X11[] = SANE_I18N("8.5x11 (inch)");
+
+/* predefined dither matrix names */
+static char dm_none[] = SANE_I18N("Halftoning Unsupported");
+static char dm_dd8x8[] = SANE_I18N("DispersedDot8x8");
+static char dm_dd16x16[] = SANE_I18N("DispersedDot16x16");
+
+/* strings */
+static char lpr_desc[] = SANE_I18N(
+    "Number of scan lines to request in a SCSI read. "
+    "Changing this parameter allows you to tune the speed at which "
+    "data is read from the scanner during scans. If this is set too "
+    "low, the scanner will have to stop periodically in the middle of "
+    "a scan; if it's set too high, X-based frontends may stop responding "
+    "to X events and your system could bog down.");
+
 /* ranges */
 static const SANE_Range x_range_fb =
 {
@@ -59,7 +112,7 @@ static const SANE_Range y_range_fb =
     SANE_FIX (0.0), SANE_FIX (297.0), 0
 };        /* mm */
 
-/* default TPO range (shortest y_range 
+/* default TPO range (shortest y_range
    to avoid tray collision.
 */
 static const SANE_Range x_range_tpo_default =
@@ -237,6 +290,17 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_PREVIEW].constraint_type = SANE_CONSTRAINT_NONE;
     ps->preview = DEFAULT_PREVIEW;
 
+    po[OPT_HIGHQUALITY].name = "high-quality";
+    po[OPT_HIGHQUALITY].title = SANE_I18N("High quality");
+    po[OPT_HIGHQUALITY].desc = SANE_I18N("Scan in (slower) high quality mode");
+    po[OPT_HIGHQUALITY].type = SANE_TYPE_BOOL;
+    po[OPT_HIGHQUALITY].unit = SANE_UNIT_NONE;
+    po[OPT_HIGHQUALITY].size = sizeof (SANE_Word);
+    po[OPT_HIGHQUALITY].cap =
+        SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_AUTOMATIC;
+    po[OPT_HIGHQUALITY].constraint_type = SANE_CONSTRAINT_NONE;
+    ps->highquality = DEFAULT_HIGHQUALITY;
+
     po[OPT_BRIGHTNESS].name = SANE_NAME_BRIGHTNESS;
     po[OPT_BRIGHTNESS].title = SANE_TITLE_BRIGHTNESS;
     po[OPT_BRIGHTNESS].desc = SANE_DESC_BRIGHTNESS;
@@ -288,9 +352,9 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_PREVIEW_MODE].type = SANE_TYPE_STRING;
     po[OPT_PREVIEW_MODE].unit = SANE_UNIT_NONE;
     po[OPT_PREVIEW_MODE].size = 32;
-    po[OPT_PREVIEW_MODE].cap = SANE_CAP_SOFT_SELECT 
+    po[OPT_PREVIEW_MODE].cap = SANE_CAP_SOFT_SELECT
                                | SANE_CAP_SOFT_DETECT
-                               | SANE_CAP_ADVANCED 
+                               | SANE_CAP_ADVANCED
                                | SANE_CAP_AUTOMATIC;
     po[OPT_PREVIEW_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
     switch (ps->pdev->model)
@@ -783,6 +847,9 @@ SANE_Status sane_control_option (SANE_Handle h,
         case OPT_PREVIEW:
             *(SANE_Bool *) v = pss->preview;
             break;
+        case OPT_HIGHQUALITY:
+            *(SANE_Bool *) v = pss->highquality;
+            break;
         case OPT_MODE:
             DBG (DL_VERBOSE,
                  "%s: writing \"%s\" to location %p\n",
@@ -914,6 +981,11 @@ SANE_Status sane_control_option (SANE_Handle h,
                 *i |= SANE_INFO_RELOAD_PARAMS;
             break;
         case OPT_PREVIEW:
+            pss->preview = *(SANE_Bool *) v;
+            if (i)
+                *i |= SANE_INFO_RELOAD_PARAMS;
+            break;
+        case OPT_HIGHQUALITY:
             pss->preview = *(SANE_Bool *) v;
             if (i)
                 *i |= SANE_INFO_RELOAD_PARAMS;
@@ -1319,6 +1391,11 @@ SANE_Status sane_control_option (SANE_Handle h,
             if (i)
                 *i |= SANE_INFO_RELOAD_PARAMS;
             break;
+        case OPT_HIGHQUALITY:
+            pss->highquality = SANE_FALSE;
+            if (i)
+                *i |= SANE_INFO_RELOAD_PARAMS;
+            break;
         case OPT_MODE:
             pss->mode_s = md_colour;
             pss->mode = MD_COLOUR;
@@ -1393,6 +1470,9 @@ SANE_Status sane_control_option (SANE_Handle h,
 
 /*
  * $Log$
+ * Revision 1.10  2003/10/21 20:43:25  oliver-guest
+ * Bugfixes for SnapScan backend
+ *
  * Revision 1.9  2003/10/07 18:29:20  oliver-guest
  * Initial support for Epson 1670, minor bugfix
  *

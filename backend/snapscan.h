@@ -183,7 +183,6 @@ static struct SnapScan_Model_desc scanners[] =
     {"ACERSCAN_A4____1",    ACER300F},
     {"Perfection 660",      PERFECTION660},
     {"EPSON Scanner",       PERFECTION1670}, /* dummy entry to detect scanner */
-    {"GT-8400",             PERFECTION1670},
     {"ARCUS 1200",          ARCUS1200}
 };
 #define known_scanners ((int) (sizeof(scanners)/sizeof(scanners[0])))
@@ -230,6 +229,7 @@ typedef enum
     OPT_PREVIEW,           /* preview mode toggle */
     OPT_MODE,              /* scan mode */
     OPT_PREVIEW_MODE,      /* preview mode */
+    OPT_HIGHQUALITY,       /* scan quality (fast / high) */
     OPT_SOURCE,            /* scan source (flatbed / TPO) */
     OPT_GEOMETRY_GROUP,    /* geometry group */
     OPT_TLX,               /* top left x */
@@ -292,7 +292,6 @@ typedef struct snapscan_device
     SANE_Range y_range;           /* y dimension of scan area */
     SnapScan_Model model;         /* type of scanner */
     SnapScan_Bus bus;             /* bus of the device usb/scsi */
-    u_char *depths;               /* bit depth table */
     SANE_Char *firmware_filename; /* The name of the firmware file for USB scanners */
     struct snapscan_device *pnext;
 }
@@ -330,6 +329,7 @@ struct snapscan_scanner
     size_t bytes_per_line;        /* bytes per scan line */
     size_t pixels_per_line;       /* pixels per scan line */
     u_char hconfig;               /* hardware configuration byte */
+    u_char hwst;                  /* hardware status byte */
     float ms_per_line;            /* speed: milliseconds per scan line */
     SANE_Bool nonblocking;        /* wait on reads for data? */
     char *sense_str;              /* sense string */
@@ -342,7 +342,9 @@ struct snapscan_scanner
     SANE_Option_Descriptor options[NUM_OPTS];  /* the option descriptors */
     Option_Value val[NUM_OPTS];  /* the options themselves... */
     SANE_Int res;                /* resolution */
+    SANE_Int bpp;                /* bit depth */
     SANE_Bool preview;           /* preview mode toggle */
+    SANE_Bool highquality;       /* high quality mode toggle */
     SANE_String mode_s;          /* scanning mode */
     SANE_String source_s;        /* scanning source */
     SANE_String preview_mode_s;  /* scanning mode for preview */
@@ -375,6 +377,9 @@ struct snapscan_scanner
 
 /*
  * $Log$
+ * Revision 1.26  2003/10/21 20:43:25  oliver-guest
+ * Bugfixes for SnapScan backend
+ *
  * Revision 1.25  2003/10/07 19:41:34  oliver-guest
  * Updates for Epson Perfection 1670
  *

@@ -1,5 +1,7 @@
 2001-05-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* doc/releases.txt: Removed comment about net.* and dll.* version
+	  updating. Added info about make install-mostang.
 	* TODO: Updated concerning backend bugs (export and config_line).
 	* backend/umax_pp_low.c: Fixed bus error with FreeBSD.
 

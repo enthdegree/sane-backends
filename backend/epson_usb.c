@@ -15,18 +15,16 @@ SANE_Word sanei_epson_usb_product_ids[] = {
   0x107,			/* ES-2000 / Expression 1600 */
   0x10e,			/* ES-2200 / Expression 1680 */
   0x10f,			/* GT-7200 / Perfection 1250 */
-  0x110,			/* GT-8200 / Perfection 1650 */
   0x112,			/* GT-9700 / Perfection 2450 */
   0x116,			/* GT-9400 / Perfection 3170 */
   0x11b,			/* GT-9300 / Perfection 2400 */
   0x11c,			/* GT-9800 / Perfection 3200 */
-  0x11d,			/* GT-7300 / Perfection 1260 */
   0x11e,			/* GT-8300 / Perfection 1660 */
   0x126,			/* ES-7000 / GT-15000 */
   0x128,			/* GT-X700 / Perfection 4870 */
   0x801,			/* CC-600 / CX-5[1234]00 */
   0x802,			/* CC-570 / CX-3[12]00 */
-  0x806,			/* PM-A850 */
+  0x806,			/* PM-A850 / RX600 */
   0x807,			/* RX-500 */
   0x808,			/* CX-5400 */
   0				/* last entry - this is used for devices that are specified 

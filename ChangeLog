@@ -1,3 +1,8 @@
+2004-12-15  Gerard Klaver <gerard at gkall dot hobby dot nl>
+
+	* do/descriptions-external/hpaio.desc stv680.desc 
+	  Info new external backends
+	  
 2004-12-01  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan.c backend/snapscan-scsi.c backend/snapscan-options.c:

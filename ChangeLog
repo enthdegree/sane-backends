@@ -1,3 +1,8 @@
+2003-05-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/mustek.desc: Primax Compact 4800 SCSI is
+	  reported to work.
+
 2003-05-21   Stéphane Voltz  <svoltz@wanadoo.fr>
 	* backend/umax_pp_low.c: backed out clearing epp timeout. It prevented most
 	  common settings to use the umax_pp backend.

@@ -148,8 +148,8 @@
 :url "http://www.primax.nl/"
 :model "Compact 4800 SCSI"
 :interface "SCSI"
-:status :untested
-:comment "Probably Mustek 600 II CD compatible"
+:status :stable
+:comment "Mustek 600 II CD compatible"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

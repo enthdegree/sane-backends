@@ -1,3 +1,8 @@
+2004-06-02  Oliver Schirrmeister <oschirr@abm.de>
+
+	* fujitsu.c
+	bugfix: It is possible to read duplex color now.
+
 2004-05-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* AUTHORS: Mattias Ellert has CVS write access now.

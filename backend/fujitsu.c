@@ -128,7 +128,9 @@
          - jpg hardware compression support (fi-4530C)
       04-Mrz-2004 (oschirr@abm.de)
          - enabled option dropoutcolor for the fi-4530C, and fi-4x20C
-         
+      02.06.2004 (oschirr@abm.de)
+         - bugfix: can read duplex color now
+   
    SANE FLOW DIAGRAM
 
    - sane_init() : initialize backend, attach scanners
@@ -6313,6 +6315,7 @@ reader_duplex_alternate (struct fujitsu *scanner,
       else {
           /* write data to buffer */
           memcpy (duplexPointer, largeBuffer, i_data_read);
+          duplexPointer += data_to_read;
       }
 
       DBG (MSG_IO_READ,

@@ -16,6 +16,8 @@
 	  doc/sane-st400.man: Added link to mostang.com mailing list page.
 	* backend/net.c backend/net.desc: Fixed byte order problems for 16
 	  bits per color image data (from mh <crapsite@gmx.net>).
+	* TODO: Removed entries about .desc files, man pages and net.c
+	  byte-order problem.
 
 2001-10-09  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

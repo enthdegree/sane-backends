@@ -1,3 +1,14 @@
+2000-11-13  Simon Munton <simon@munton.demon.co.uk>
+
+	* backend/pie.c backend/pie-scsidef.c backend/pie.conf backend/pie.desc
+	  doc/sane-pie.man: Added Pacific Image Electronics backend for ScanAce
+	  range of scanners (also supports DevCom BlackWidow scanners and ADLIB
+	  JetScan scanners).
+	* README backend/Makefile.in backend/dll.conf doc/Makefile.in: Added pie
+	  backend.
+	* sane.lsm: Added keywords for pie backend.
+	* AUTHORS: Added myself as maintainer of pie backend.
+
 2000-11-12  Henning Meier-Geinitz <hmg@gmx.de>
 
 	* doc/sane.tex: Fixed a typo.

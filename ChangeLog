@@ -1,3 +1,9 @@
+2002-04-15  Marian Eichholz <eichholz@computer.org>
+	* doc/descriptions/sm3600.desc : specific models listed
+	* doc/sane-sm3600.man : warning for libusb-versions.
+	* backend/sm3600-homerun.c : FakeCalibration() conditionalised.
+	* backend/sm3600.c : Improved portability, less warnings
+
 2002-04-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/fujitsu-scsi.h backend/fujitsu.c backend/fujitsu.conf

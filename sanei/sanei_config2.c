@@ -50,6 +50,7 @@
 #include "sane/sanei.h"
 #include "sane/sanei_config.h"
 #include "sane/sanei_scsi.h"
+#include "sane/sanei_usb.h"
 
 /* This logically belongs to sanei_config.c but not every backend that
    uses sanei_config() wants to depend on this function.  */
@@ -59,7 +60,7 @@ sanei_config_attach_matching_devices (const char *name,
 				      SANE_Status (*attach) (const char *dev))
 {
   int bus = -1, channel = -1, id = -1, lun = -1;
-  char *vendor = 0, *model = 0, *type = 0, *end;
+  char *vendor = 0, *model = 0, *type = 0, *end, *product;
 
   if (strncmp (name, "scsi", 4) == 0)
     {
@@ -142,6 +143,36 @@ sanei_config_attach_matching_devices (const char *name,
 	free (model);
       if (type)
 	free (type);
+    }
+  else if (strncmp (name, "usb", 3) == 0)
+    {
+      SANE_Word vendorID = 0, productID = 0;
+
+      name += 3;
+
+      name = sanei_config_skip_whitespace (name);
+      if (*name)
+	{
+	  name = sanei_config_get_string (name, &vendor);
+	  if (vendor)
+	    {
+	      vendorID = strtol (vendor, 0, 0);
+	      free (vendor);
+	    }
+	  name = sanei_config_skip_whitespace (name);
+	}
+
+      name = sanei_config_skip_whitespace (name);
+      if (*name)
+	{
+	  name = sanei_config_get_string (name, &product);
+	  if (product)
+	    {
+	      productID = strtol (product, 0, 0);
+	      free (product);
+	    }
+	}
+      sanei_usb_find_devices (vendorID, productID, attach);
     }
   else 
     (*attach) (name);

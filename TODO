@@ -1,21 +1,16 @@
-TODO (2002-09-18)
+TODO (2002-10-02)
 
 ******** todo ********
 
 backends
 --------
-  * Add new backends
-    - hp4200 http://hp4200-backend.sourceforge.net/
+  * Add new backends (+ means scheduled for SANE 1.0.10)
     - Hewlett-Packard ScanJet 3300C / 3400C and 4300C (wip)
       http://sourceforge.net/projects/hp3300backend
-    - gt68xx backend
+    + gt68xx backend
       http://www.meier-geinitz.de/sane/gt68xx-backend/
-
-  * All backends should check for TL_X < BR_X and TL_Y < BR_Y to
-    avoid segfaults or even scanner damage. This should NOT be done
-    in sane_control_option, it should be possible to temporary set
-    TL_X > BR_X or TL_ > BR, otherwise it is hard for a frontend to
-    set the correct values.
+    + tevion9693usb backend
+      http://www.angelfire.com/linux/crapsite/
 
   * qcam:
      - implement auto mode for brightness and black-level (don't
@@ -27,18 +22,13 @@ backends
        access.
      - The result of locking isn't checked --> does it make sense at all?
 
-  * dll: 
-     - Rewrite to use libtool ltdl library. Is this necessary? It seems to
-       work...
-
   * dc210, dc240, gphoto2, and jpeg stuff: move sanei_* functions to sanei/
     (if they are necessary). That's probably for SANE2. 
 
   * v4l:
-     - Problems (crash) with more than one video card. It looks like 
-       the two different cards are identified as the same card.
      - Geometry support is missing
      - Frequency setting is missing
+     - check if v4lctl distributed with xawtv can be used
 
   * Fix backends where sane_exit() does not release memory allocated by
     sane_get_devices().
@@ -73,11 +63,6 @@ backends
     "../../backend/coolscan-scsidef.h", line 160: warning: initialization
     type mismatch; empty declarations), see sane-devel.
 
-  * Check the return value of wait() and waitpid(). This is important, if
-    the status value is checked for e.g. WIFEXITED after the call of wait()
-    or waitpid(). Both functions may fail if the frontend already did a wait
-    for the children. 
-
 doc
 ---
   * Add doxygen documentation for the remaining sanei files:
@@ -90,7 +75,6 @@ doc
       sane_init doesn't return SANE_STATUS_GOOD.
     - Add a warning/explanation about problems with sane_get_select_fd, Unix
       select() calls and sane_cancel.
-    - Add some text about the meaning of bits in 1-bit modes.
     - Define, how to handle SANE_CAP_ADVANCED for groups.
     - sane_start() can also return SANE_STATUS_INVAL
     - sane_set_io_mode: SANE_STATUS_UNSUPPORTED should mean: "The backend does
@@ -108,8 +92,7 @@ doc
     - Add viceo.desc to descriptions-external (from Steven Ellis 
       <viceo@stevencherie.net>)
 
-  * sane-plustek.man: fix warnings on Debian systems ("sane-plustek contains a
-    pointer loop")
+    - Add keywords "vendor-id" and "product-id" for SCSI and USB ids.
 
 frontends
 ---------
@@ -183,6 +166,14 @@ misc
 
 
 ******** done ********
+* sane.tex: Add some text about the meaning of bits in 1-bit modes.
+* dll: 
+   - Rewrite to use libtool ltdl library. Is this necessary? It seems to
+     work...
+* Problems (crash) with more than one video card. It looks like 
+  the two different cards are identified as the same card.
+* sane-plustek.man: fix warnings on Debian systems ("sane-plustek contains a
+  pointer loop")
 * scanimage: add option to avoid scanning (for setting options only)
 * Mark scanners with ":status :untested" if they are untested by the author
   or users:

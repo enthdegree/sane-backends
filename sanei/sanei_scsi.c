@@ -225,6 +225,23 @@ static char lastrcmd[16]; /* hold command block of last read command */
 # define MAX_DATA	(DFLTPHYS - PAGE_SIZE)
 #endif
 
+#if USE == SOLARIS_INTERFACE
+# define MAX_DATA       (128*1024)
+#endif
+
+#if USE == SOLARIS_SG_INTERFACE
+# define MAX_DATA       (128*1024)
+#endif
+
+#if USE == SOLARIS_USCSI_INTERFACE
+# define MAX_DATA       (128*1024)
+#endif
+
+#if USE == IRIX_INTERFACE
+# define MAX_DATA       (128*1024)
+#endif
+
+
 #ifndef MAX_DATA
 # define MAX_DATA	(32*1024)
 #endif

@@ -1,3 +1,9 @@
+2003-01-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* configure configure.in include/sane/config.h.in sanei/sanei_scsi.c:
+	  Disable the new Linux SG interface for sparc64 to work-around 32 bit 
+	  userland / 64 bit kernel problems.
+
 2003-01-16  Frank Zago  <fzago at austin dot rr dot com>
 
 	* backend/leo.c doc/descriptions/leo.desc doc/leo/leo.txt: Added

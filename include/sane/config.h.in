@@ -8,6 +8,9 @@
 /* Define to 1 if using `alloca.c'. */
 #undef C_ALLOCA
 
+/* Should we disable SCSI generic v3? */
+#undef DISABLE_LINUX_SG_IO
+
 /* Define to 1 if you have `alloca', as a function or macro. */
 #undef HAVE_ALLOCA
 
@@ -368,13 +371,13 @@
 /* Define to `int' if <sys/types.h> does not define. */
 #undef pid_t
 
-/* Define scsireq_t as `struct scsireq' if necessary. */
+/* Define scsireq_t as \`struct scsireq\' if necessary. */
 #undef scsireq_t
 
 /* Define to `unsigned' if <sys/types.h> does not define. */
 #undef size_t
 
-/* Define socklen_t as `int' if necessary. */
+/* Define socklen_t as \`int\' if necessary. */
 #undef socklen_t
 
 /* Define to `long' if <sys/types.h> does not define. */

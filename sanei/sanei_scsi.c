@@ -179,6 +179,10 @@
 # include "sanei_DomainOS.h"
 #endif
 
+#ifdef DISABLE_LINUX_SG_IO
+#undef SG_IO
+#endif /* DISABLE_LINUX_SG_IO */
+
 #ifndef USE
 # define USE STUBBED_INTERFACE
 #endif

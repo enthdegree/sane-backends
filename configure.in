@@ -202,6 +202,11 @@ if test "${ac_cv_header_usb_h}" = "yes" ; then
   fi
 fi
 
+dnl disable Linux SCSI generic version 3 to avoid 32/64 bit problems
+if test "`uname`" = "sparc64" ; then
+  AC_DEFINE(DISABLE_LINUX_SG_IO, 1, [Should we disable SCSI generic v3?])
+fi
+
 dnl ***********************************************************************
 dnl initialize libtool
 dnl ***********************************************************************

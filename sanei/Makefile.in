@@ -50,13 +50,14 @@ DISTCLEAN_FILES = @DISTCLEAN_FILES@
 LIBSANEI_OBJS = sanei_ab306.o sanei_constrain_value.o sanei_init_debug.o \
 	sanei_net.o sanei_wire.o sanei_codec_ascii.o sanei_codec_bin.o \
 	sanei_scsi.o sanei_config.o sanei_config2.o sanei_pio.o sanei_pa4s2.o \
-	sanei_auth.o sanei_usb.o sanei_thread.o sanei_pv8630.o sanei_lm983x.o
+	sanei_auth.o sanei_usb.o sanei_thread.o sanei_pv8630.o \
+	sanei_lm983x.o @SANEI_JPEG@
 
 LIBSANEI_LTOBJS = sanei_ab306.lo sanei_constrain_value.lo sanei_init_debug.lo \
 	sanei_net.lo sanei_wire.lo sanei_codec_ascii.lo sanei_codec_bin.lo \
 	sanei_scsi.lo sanei_config.lo sanei_config2.lo sanei_pio.lo \
 	sanei_pa4s2.lo sanei_auth.lo sanei_usb.lo sanei_thread.lo \
-	sanei_pv8630.lo sanei_lm983x.lo
+	sanei_pv8630.lo sanei_lm983x.lo @SANEI_JPEG_LO@
 
 TARGETS = libsanei.a $(LIBSANEI_LTOBJS)
 TESTPROGRAMS = test_wire

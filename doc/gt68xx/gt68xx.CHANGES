@@ -1,5 +1,11 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0-57 (2004-03-28)
+
+* Plustek U16B: Added GT68XX_FLAG_SE_2400. Fixed color order.
+* Increased debug level for setup_scan.
+* Fixed CCD ocarse calibration.
+
 V 1.0-56 (2004-03-19)
 
 * Genius Vivid 4xe now has color order RGB.

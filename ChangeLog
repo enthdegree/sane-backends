@@ -1,3 +1,12 @@
+2004-03-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/gt68xx.c backend/gt68xx_devices.c
+	  backend/gt68xx_gt6801.c backend/gt68xx_gt6816.c
+	  backend/gt68xx_high.c doc/descriptions/gt68xx.desc
+	  doc/gt68xx/gt68xx.CHANGES: Plustek U16B: Added 
+	  GT68XX_FLAG_SE_2400. Fixed color order.Increased debug 
+	  level for setup_scan. Fixed CCD ocarse calibration.
+
 2004-03-27  Peter Kirchgessner <peter@kirchgessner.net>
 
 	* backend/hp.c, hp-scl.c, hp.h, doc/sane-hp.man,

@@ -1,5 +1,5 @@
 :backend "gt68xx"
-:version "1.0-56"
+:version "1.0-57"
 :manpage "sane-gt68xx"
 :url "http://www.meier-geinitz.de/sane/gt68xx-backend/"
 :comment "Only the USB scanners mentioned below are supported. For other Mustek BearPaws, look at the Plustek and the MA-1509 backend."
@@ -256,17 +256,17 @@
 :model "OpticPro U16B"
 :interface "USB"
 :status :minimal
-:comment "Is detected but images look strange."
+:comment "Only gray mode works."
 
 :model "OpticPro U16B+"
 :interface "USB"
 :status :minimal
-:comment "Is detected but images look strange. Same scanner as U16B?"
+:comment "Only gray mode works. Same scanner as U16B?"
 
 :model "OpticPro UT16B"
 :interface "USB"
-:status :untested
-:comment "Should be detected but may not work. Please contact me if you own such a device. Same as U16B but with a transparency adapter?"
+:status :minimal
+:comment "Only gray mode works. Transparency adapter not supported yet. Please contact me if you own such a device. "
 
 :model "OpticSlim 1200"
 :interface "USB"

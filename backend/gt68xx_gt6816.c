@@ -257,7 +257,7 @@ gt6816_setup_scan (GT68xx_Device * dev,
   SANE_Fixed x0, y0, xs, ys;
   SANE_Bool backtrack = SANE_FALSE;
 
-  XDBG ((5, "%s: enter (action=%s)\n", function_name,
+  XDBG ((6, "%s: enter (action=%s)\n", function_name,
 	 action == SA_CALIBRATE ? "calibrate" :
 	 action == SA_CALIBRATE_ONE_LINE ? "calibrate one line" :
 	 action == SA_SCAN ? "scan" : "calculate only"));
@@ -292,7 +292,7 @@ gt6816_setup_scan (GT68xx_Device * dev,
 	base_ydpi = model->optical_ydpi;
     }
 
-  XDBG ((5, "%s: base_xdpi=%d, base_ydpi=%d\n", function_name,
+  XDBG ((6, "%s: base_xdpi=%d, base_ydpi=%d\n", function_name,
 	 base_xdpi, base_ydpi));
 
 
@@ -365,7 +365,7 @@ gt6816_setup_scan (GT68xx_Device * dev,
       }
 
     default:
-      XDBG ((5, "%s: invalid action=%d\n", function_name, (int) action));
+      XDBG ((1, "%s: invalid action=%d\n", function_name, (int) action));
       return SANE_STATUS_INVAL;
     }
 
@@ -375,14 +375,14 @@ gt6816_setup_scan (GT68xx_Device * dev,
   pixel_xs = SANE_UNFIX (xs) * xdpi / MM_PER_INCH + 0.5;
 
 
-  XDBG ((5, "%s: xdpi=%d, ydpi=%d\n", function_name, xdpi, ydpi));
-  XDBG ((5, "%s: color=%s, depth=%d\n", function_name,
+  XDBG ((6, "%s: xdpi=%d, ydpi=%d\n", function_name, xdpi, ydpi));
+  XDBG ((6, "%s: color=%s, depth=%d\n", function_name,
 	 color ? "TRUE" : "FALSE", depth));
-  XDBG ((5, "%s: pixel_x0=%d, pixel_y0=%d\n", function_name,
+  XDBG ((6, "%s: pixel_x0=%d, pixel_y0=%d\n", function_name,
 	 pixel_x0, pixel_y0));
-  XDBG ((5, "%s: pixel_xs=%d, pixel_ys=%d\n", function_name,
+  XDBG ((6, "%s: pixel_xs=%d, pixel_ys=%d\n", function_name,
 	 pixel_xs, pixel_ys));
-  XDBG ((5, "%s: backtrack=%d\n", function_name, backtrack));
+  XDBG ((6, "%s: backtrack=%d\n", function_name, backtrack));
 
 
   color_mode_code = 0x80;	/* What does this mean ? */
@@ -399,7 +399,7 @@ gt6816_setup_scan (GT68xx_Device * dev,
       color_mode_code |= (1 << 4);
     }
 
-  XDBG ((5, "%s: color_mode_code = 0x%02X\n", function_name,
+  XDBG ((6, "%s: color_mode_code = 0x%02X\n", function_name,
 	 color_mode_code));
 
   overscan_lines = 0;
@@ -420,7 +420,7 @@ gt6816_setup_scan (GT68xx_Device * dev,
       params->ld_shift_g = ld_shift_g * ydpi / optical_ydpi;
       params->ld_shift_b = ld_shift_b * ydpi / optical_ydpi;
       params->ld_shift_double = 0;
-      XDBG ((5, "%s: overscan=%d, ld=%d/%d/%d\n", function_name,
+      XDBG ((6, "%s: overscan=%d, ld=%d/%d/%d\n", function_name,
 	     overscan_lines, params->ld_shift_r, params->ld_shift_g,
 	     params->ld_shift_b));
     }
@@ -435,13 +435,13 @@ gt6816_setup_scan (GT68xx_Device * dev,
       else
 	overscan_lines += params->ld_shift_double;
 
-      XDBG ((5, "%s: overscan=%d, ld double=%d\n", function_name,
+      XDBG ((6, "%s: overscan=%d, ld double=%d\n", function_name,
 	     overscan_lines, params->ld_shift_double));
     }
 
   abs_x0 = pixel_x0 * base_xdpi / xdpi;
   abs_y0 = pixel_y0 * base_ydpi / ydpi;
-  XDBG ((5, "%s: abs_x0=%d, abs_y0=%d\n", function_name, abs_x0, abs_y0));
+  XDBG ((6, "%s: abs_x0=%d, abs_y0=%d\n", function_name, abs_x0, abs_y0));
 
   params->double_column = abs_x0 & 1;
 
@@ -450,7 +450,7 @@ gt6816_setup_scan (GT68xx_Device * dev,
   pixel_align = 32;		/* best case for depth = 16 */
   while ((depth * pixel_align) % (64 * 8) != 0)
     pixel_align *= 2;
-  XDBG ((5, "%s: pixel_align=%d\n", function_name, pixel_align));
+  XDBG ((6, "%s: pixel_align=%d\n", function_name, pixel_align));
 
   if (pixel_xs % pixel_align == 0)
     scan_xs = pixel_xs;
@@ -463,7 +463,7 @@ gt6816_setup_scan (GT68xx_Device * dev,
     abs_ys = 2;
   else
     abs_ys = scan_ys * base_ydpi / ydpi;
-  XDBG ((5, "%s: abs_xs=%d, abs_ys=%d\n", function_name, abs_xs, abs_ys));
+  XDBG ((6, "%s: abs_xs=%d, abs_ys=%d\n", function_name, abs_xs, abs_ys));
 
   if (model->is_cis)
     {
@@ -474,20 +474,20 @@ gt6816_setup_scan (GT68xx_Device * dev,
       line_mode = SANE_FALSE;
       if (!color)		/* ??? */
 	{
-	  XDBG ((5, "%s: using line mode for monochrome scan\n",
+	  XDBG ((6, "%s: using line mode for monochrome scan\n",
 		 function_name));
 	  line_mode = SANE_TRUE;
 	}
       else if (ydpi >= model->ydpi_force_line_mode)
 	{
-	  XDBG ((5, "%s: forcing line mode for ydpi=%d\n", function_name,
+	  XDBG ((6, "%s: forcing line mode for ydpi=%d\n", function_name,
 		 ydpi));
 	  line_mode = SANE_TRUE;
 	}
 #if 1
       else if (ydpi == 600 && depth > 12)	/* XXX */
 	{
-	  XDBG ((5, "%s: forcing line mode for ydpi=%d, depth=%d\n",
+	  XDBG ((6, "%s: forcing line mode for ydpi=%d, depth=%d\n",
 		 function_name, ydpi, depth));
 	  line_mode = SANE_TRUE;
 	}
@@ -506,7 +506,7 @@ gt6816_setup_scan (GT68xx_Device * dev,
 
   if (scan_bpl > 15600 && !line_mode)	/* ??? */
     {
-      XDBG ((5, "%s: scan_bpl=%d, trying line mode\n", function_name,
+      XDBG ((6, "%s: scan_bpl=%d, trying line mode\n", function_name,
 	     scan_bpl));
       line_mode = SANE_TRUE;
       if (scan_bpl % 3)
@@ -526,7 +526,7 @@ gt6816_setup_scan (GT68xx_Device * dev,
 
   if (scan_bpl > 15600)		/* ??? */
     {
-      XDBG ((5, "%s: scan_bpl=%d, too large\n", function_name, scan_bpl));
+      XDBG ((1, "%s: scan_bpl=%d, too large\n", function_name, scan_bpl));
       return SANE_STATUS_INVAL;
     }
 
@@ -535,9 +535,9 @@ gt6816_setup_scan (GT68xx_Device * dev,
   if (color && line_mode)
     scan_ys *= 3;
 
-  XDBG ((5, "%s: scan_xs=%d, scan_ys=%d\n", function_name, scan_xs, scan_ys));
+  XDBG ((6, "%s: scan_xs=%d, scan_ys=%d\n", function_name, scan_xs, scan_ys));
 
-  XDBG ((5, "%s: scan_bpl=%d\n", function_name, scan_bpl));
+  XDBG ((6, "%s: scan_bpl=%d\n", function_name, scan_bpl));
 
   if (!request->calculate)
     {
@@ -556,7 +556,7 @@ gt6816_setup_scan (GT68xx_Device * dev,
       if (action != SA_SCAN)
 	motor_mode_2 |= 1 << 3;
 
-      XDBG ((5, "%s: motor_mode_1 = 0x%02X, motor_mode_2 = 0x%02X\n",
+      XDBG ((6, "%s: motor_mode_1 = 0x%02X, motor_mode_2 = 0x%02X\n",
 	     function_name, motor_mode_1, motor_mode_2));
 
       /* Fill in the setup command */

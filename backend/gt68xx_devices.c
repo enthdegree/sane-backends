@@ -909,10 +909,10 @@ static GT68xx_Model plustek_u16b_model = {
   600,				/* base x-res used to calculate geometry */
   600,				/* base y-res used to calculate geometry */
   50,				/* if ydpi is equal or higher, use linemode */
-  SANE_TRUE,			/* Use base_ydpi for all resolutions */
+  SANE_FALSE,			/* Use base_ydpi for all resolutions */
 
   {600, 300, 150, 75, 0},	/* possible x-resolutions */
-  {1200, 600, 300, 150, 75, 0},	/* possible y-resolutions */
+  {600, 300, 150, 75, 0},	/* possible y-resolutions */
   {12, 8, 0},			/* possible depths in gray mode */
   {12, 8, 0},			/* possible depths in color mode */
 
@@ -934,13 +934,13 @@ static GT68xx_Model plustek_u16b_model = {
   0, 8, 16,			/* RGB CCD Line-distance correction in pixel */
   0,				/* CCD distcance for CCD with 6 lines) */
 
-  COLOR_ORDER_BGR,		/* Order of the CCD/CIS colors */
-  {0x1c, 0x29, 0x1c, 0x2c, 0x1c, 0x2b},	/* Default offset/gain */
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
+  {0x18, 0x16, 0x16, 0x0f, 0x17, 0x11},	/* Default offset/gain */
   {0x157, 0x157, 0x157},	/* Default exposure parameters */
   SANE_FIX (2.0),		/* Default gamma value */
 
   SANE_FALSE,			/* Is this a CIS scanner? */
-  GT68XX_FLAG_UNTESTED | GT68XX_FLAG_OFFSET_INV	/* Which flags are needed for this scanner? */
+  GT68XX_FLAG_UNTESTED | GT68XX_FLAG_OFFSET_INV | GT68XX_FLAG_SE_2400 /* Which flags are needed for this scanner? */
   /* completely untested */
 };
 

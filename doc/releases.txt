@@ -1,4 +1,4 @@
-2001-04-16
+2001-05-27
 
 This text summarizes some points to pay attention to when a new realease
 of sane-backends should be made.
@@ -8,7 +8,6 @@ Before the release:
 * configure.in: increase version number
 * configure.in: set --disable-warnings as default
 * configure: recreate
-* net.c net.desc dll.c dll.desc: update version numbers
 * NEWS: update and enter date of release
 * sane-backends.lsm: update
 * ChangeLog: set release marker
@@ -23,7 +22,8 @@ Making the release:
 * make tar.gz and sane-backends-x.y.z.lsm
 * upload both to mostang.com
 * make sane-backends.html and upload to mostang.com
-* update SANE standard and man pages on mostang.com
+* update SANE standard and man pages on mostang.com 
+  (look at `make install-mostang' for both)
 * check and update platforms page on mostang.com
 * write announcements on mostang.com and sane-devel, maybe others
   (e.g. freshmeat)

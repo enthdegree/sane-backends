@@ -52,15 +52,28 @@
 
 #include <sys/types.h>
 
+typedef enum Avision_ConnectionType {
+  AV_SCSI,
+  AV_USB
+} Avision_ConnectionType;
+
+/* information needed for device access */
+typedef struct Avision_Connection {
+  Avision_ConnectionType logical_connection;
+  int scsi_fd;			/* SCSI filedescriptor */
+  SANE_Int usb_dn;		/* USB (libusb or scanner.c) device number */
+} Avision_Connection;
+
 typedef struct Avision_HWEntry {
-  char* mfg;
-  char* model;
+  char* scsi_mfg;
+  char* scsi_model;
+  int   usb_vendor;
+  int   usb_product;
   const char* real_mfg;
   const char* real_model;
   
-  enum {AV_SCSI,
-	AV_USB
-  } connection_type;
+  /* the one of the device - not what we see via the OS' kernel */
+  Avision_ConnectionType physical_connection;
   
   enum {AV_FLATBED,
 	AV_FILM,
@@ -87,8 +100,11 @@ typedef struct Avision_HWEntry {
     /* do not use line packing even if line_difference */
     AV_NO_LINE_DIFFERENCE = 32,
     
+    /* limit the available resolutions */
+    AV_RES_HACK = 64,
+    
     /* fujitsu adaption */
-    AV_FUJITSU = 64
+    AV_FUJITSU = 128
     
     /* maybe more ...*/
   } feature_type;
@@ -184,6 +200,7 @@ typedef struct Avision_Device
 {
   struct Avision_Device* next;
   SANE_Device sane;
+  Avision_ConnectionType logical_connection;
   
   /* structs used to store config options */
   SANE_Range dpi_range;
@@ -240,7 +257,6 @@ typedef struct Avision_Device
   SANE_Bool is_calibrated;
   
   Avision_HWEntry* hw;
-  
 } Avision_Device;
 
 /* all the state relevant for the SANE interface */
@@ -266,8 +282,13 @@ typedef struct Avision_Scanner
   color_mode c_mode;
   operation_mode o_mode;
   
-  int fd;			/* SCSI filedescriptor */
+  /* Avision HW Access Connection (SCSI/USB abstraction) */
+  Avision_Connection av_con;
+
   pid_t reader_pid;		/* process id of reader */
+#ifdef HAVE_OS2_H
+   int reader_fds;		/* OS/2: pipe write handler for reader */
+#endif
   int pipe;			/* pipe to reader process */
   int line;			/* current line number during scan */
   
@@ -279,6 +300,7 @@ typedef struct Avision_Scanner
 /* SCSI commands that the Avision scanners understand: */
 
 #define AVISION_SCSI_TEST_UNIT_READY        0x00
+#define AVISION_SCSI_REQUEST_SENSE          0x03
 #define AVISION_SCSI_MEDIA_CHECK            0x08
 #define AVISION_SCSI_INQUIRY                0x12
 #define AVISION_SCSI_MODE_SELECT            0x15
@@ -461,7 +483,7 @@ typedef struct calibration_format
 
 
 /* set/get SCSI highended variables. Declare them as an array of chars */
-/* endianness-safe, int-size safe... */
+/* endianness-safe, int-size safe ... */
 #define set_double(var,val) var[0] = ((val) >> 8) & 0xff;  \
                             var[1] = ((val)     ) & 0xff
 
@@ -483,9 +505,9 @@ typedef struct calibration_format
                          (*(var + 1) << 16) + \
                          (*(var + 2) << 8) + *(var + 3))
 
-#define BIT(n, p) ((n & ( 1 << p))?1:0)
+#define BIT(n, p) ((n & ( 1 << p)) ? 1 : 0)
 
-#define SET_BIT(n, p) (n |= 1 << p)
+#define SET_BIT(n, p) (n |= (1 << p))
 
 /* These should be in saneopts.h */
 #define SANE_NAME_FRAME "frame"

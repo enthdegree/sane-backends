@@ -14,7 +14,7 @@
 :backend "avision"
 
 ; version of backend
-:version "Build: 64"
+:version "Build: 69"
 ;status: alpha, beta, stable, new
 :status :stable
 
@@ -37,6 +37,12 @@
 :model "AV100S"
 :interface "SCSI"
 :status :untested
+:model "AV210"
+:interface "USB"
+:status :untested
+:model "AV220"
+:interface "USB"
+:status :untested
 :model "AV240SC"
 :interface "SCSI"
 :status :untested
@@ -54,6 +60,10 @@
 :status :untested
 :model "AV6120"
 :interface "SCSI"
+:status :untested
+:model "AV610CU Scancopier"
+:interface "USB"
+:comment "1 pass, 600 dpi"
 :status :untested
 :model "AV620CS"
 :interface "SCSI"
@@ -76,6 +86,10 @@
 :comment "1 pass, ??? dpi"
 :status :stable
 :model "AV600U"
+:interface "USB"
+:comment "1 pass, 1200 dpi"
+:status :untested
+:model "AV600U Plus"
 :interface "USB"
 :comment "1 pass, 1200 dpi"
 :status :untested
@@ -165,6 +179,10 @@
 :interface "USB"
 :comment "1 pass, film-scanner"
 :status :alpha
+:model "Elite II"
+:interface "USB"
+:comment "1 pass, film-scanner"
+:status :untested
 
 :mfg "Mitsubishi"
 :model "MCA-ADFC"
@@ -201,5 +219,8 @@
 :interface "SCSI"
 :status :untested
 :model "ScanPartner Jr"
+:interface "SCSI"
+:status :untested
+:model "ScanStation"
 :interface "SCSI"
 :status :untested

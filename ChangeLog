@@ -1,3 +1,10 @@
+2003-03-24  Rene Rebe <rene.rebe@gmx.net>
+
+	* backend/Makefile.in backend/avision.c backend/avision.conf
+	  backend/avision.h doc/descriptions/avision.desc: updated
+          avision backend to latest build. This includes user-space
+	  USB support and OS/2 thread handling.
+
 2003-03-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Canon CanoScan FB620U.

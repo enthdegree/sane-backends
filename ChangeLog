@@ -1,3 +1,8 @@
+2003-07-17  Abel Deuring <a.deuring@satzbau-gmbh.de>
+
+	* sanei/sanei_scsi.c: improved SCSI error handling in
+	  sanei_scsi_cmd2 for FREEBSD_CAM_INTERFACE
+
 2003-07-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* sanei/sanei_usb.c: Enable close_on_exec in sanei_usb_open.

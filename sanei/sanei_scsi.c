@@ -2768,22 +2768,19 @@ SANE_Status sanei_scsi_cmd2(int fd,
                            const void *src, size_t src_size,
 			   void *dst, size_t * dst_size) {
 
-   /* xxx obsolete size_t 		cdb_size; 
-   */
    struct cam_device	*dev;
    union ccb		*ccb;
    int			rv;
    u_int32_t		ccb_flags;
    char*		data_buf;
    size_t		data_len;
+   SANE_Status          status;
    
    if (fd < 0 || fd > CAM_MAXDEVS || cam_devices[fd] == NULL) {
       fprintf(stderr, "attempt to reference invalid unit %d\n", fd);
       return SANE_STATUS_INVAL;
    }
 
-   /* xxx obsolete: cdb_size = CDB_SIZE (*(u_char *) src);
-   */
    dev = cam_devices[fd];
    ccb = cam_getccb(dev);
     
@@ -2836,19 +2833,29 @@ SANE_Status sanei_scsi_cmd2(int fd,
       DBG (1, "sanei_scsi_cmd: scsi returned with status %d\n", 
 	   (ccb->ccb_h.status & CAM_STATUS_MASK));
 
-      if((ccb->ccb_h.status & CAM_STATUS_MASK) 
-	 == SANE_STATUS_DEVICE_BUSY)
-	 return SANE_STATUS_DEVICE_BUSY;
+      switch (ccb->ccb_h.status & CAM_STATUS_MASK)
+      {
+         case CAM_BUSY:
+         case CAM_SEL_TIMEOUT:
+         case CAM_SCSI_BUSY:
+            status = SANE_STATUS_DEVICE_BUSY;
+            break;
+         default:
+            status = SANE_STATUS_IO_ERROR;
+      }
 
       handler = fd_info[fd].sense_handler;
-      if (handler) {
-	 SANE_Status st = (*handler) (fd, ((u_char*)(&ccb->csio.sense_data)),
+      if (handler && (ccb->ccb_h.status & CAM_AUTOSNS_VALID)) {
+	 SANE_Status st = (*handler) 
+	     (fd, ((u_char*)(&ccb->csio.sense_data)),
 				      fd_info[fd].sense_handler_arg);
 	 cam_freeccb(ccb);
 	 return st;
       }
-      else
-	 return SANE_STATUS_IO_ERROR;
+      else {
+	  cam_freeccb(ccb);
+	  return status;
+      }
    }
    cam_freeccb(ccb);
    return SANE_STATUS_GOOD;

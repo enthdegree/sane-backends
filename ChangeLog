@@ -5,6 +5,11 @@
 	
 2001-05-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* backend/snapscan-scsi.c backend/snapscan-sources.c
+	  backend/snapscan-sources.h backend/snapscan-usb.c
+	  backend/snapscan-usb.h backend/snapscan.c backend/snapscan.conf
+	  backend/snapscan.desc backend/snapscan.h: Updated snapscan backend to
+	  version 1.2 (from Sebastien Sable <Sebastien.Sable@snv.jussieu.fr>).
 	* doc/backend-writing.txt: Added "make libcheck" info.
 	* backend/sm3600-color.c backend/sm3600-gray.c backend/sm3600-homerun.c
 	  backend/sm3600-scanmtek.c backend/sm3600-scanusb.c

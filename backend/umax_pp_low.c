@@ -401,7 +401,7 @@ sanei_parport_info (int number, int *addr)
 int
 sanei_umax_pp_InitPort (int port, char *name)
 {
-  int fd;
+  int fd, ectr;
   int found = 0;
 #if ((defined HAVE_IOPERM)||(defined HAVE_LINUX_PPDEV_H))
   int mode;
@@ -555,7 +555,7 @@ sanei_umax_pp_InitPort (int port, char *name)
 
 	  if (!found)
 	    {
-	      DBG (1, "device %s does not fit ...\n",name);
+	      DBG (1, "device %s does not fit ...\n", name);
 	    }
 	  else
 	    {
@@ -620,6 +620,17 @@ sanei_umax_pp_InitPort (int port, char *name)
   mode = getgid ();
   setregid (mode, mode);
 #endif
+
+  /* set up ECPEPP the hard way ... */
+  /* frob_econtrol (port, 0xe0, 4 << 5);
+     unsigned char ectr = inb (ECONTROL (pb));
+     outb ((ectr & ~m) ^ v, ECONTROL (pb));     */
+  ectr = Inb (ECPCONTROL);
+  if (ectr != 0xFF)
+    {
+      ectr = (ectr & ~(0xE0)) ^ (4 << 5);
+      Outb (ECPCONTROL, ectr);
+    }
 
 
 #endif /* IO_SUPPORT_MISSING */
@@ -2515,6 +2526,7 @@ SendWord (int *cmd)
     case 1220:
     case 1600:
     case 2000:
+    default:
       return (SendWord1220P (cmd));
     }
   return (0);
@@ -2589,6 +2601,7 @@ RingScanner (void)
       usleep (UMAX_PP_PAUSE);
       status = Inb (STATUS);
       usleep (UMAX_PP_PAUSE);
+      /* status = 126 when scanner not connected .... */
       if ((status & 0xB8) != 0x18)
 	{
 	  DBG (1, "status %d doesn't match! %s:%d\n", status, __FILE__,
@@ -3975,6 +3988,7 @@ sanei_umax_pp_InitTransport (int recover)
     case 1220:
     case 1600:
     case 2000:
+    default:
       return (InitTransport1220P (recover));
     }
   return (0);
@@ -4158,8 +4172,8 @@ Probe610P (int recover)
   recover = 0;			/* quit compiler quiet .. */
 
   /* make sure we won't try 1220/200P later */
-  if(!sanei_umax_pp_getastra())
-  	sanei_umax_pp_setastra (610);
+  if (!sanei_umax_pp_getastra ())
+    sanei_umax_pp_setastra (610);
   if (!Test610P (0x87))
     {
       DBG (1, "Ring610P(0x87) failed (%s:%d)\n", __FILE__, __LINE__);
@@ -4992,7 +5006,7 @@ sanei_umax_pp_ProbeScanner (int recover)
 	   __FILE__, __LINE__);
       if (CmdSetDataBuffer (voidbuf) != 1)
 	{
-	  DBG (0, "Loop %d: CmdSetDataBuffer(voidbuf) failed ! (%s:%d) \n",i,
+	  DBG (0, "Loop %d: CmdSetDataBuffer(voidbuf) failed ! (%s:%d) \n", i,
 	       __FILE__, __LINE__);
 	  return (0);
 	}
@@ -5235,6 +5249,7 @@ Prologue (void)
     case 1220:
     case 1600:
     case 2000:
+    default:
       return (connect_epat ());
     }
   return (0);
@@ -5252,6 +5267,7 @@ Epilogue (void)
     case 1220:
     case 1600:
     case 2000:
+    default:
       return (deconnect_epat ());
     }
   return (0);
@@ -6601,8 +6617,8 @@ MoveToOrigin (void)
   if ((edge <= 30) && (sanei_umax_pp_getastra () != 1600))
     {
       DBG (2, "MoveToOrigin() detected a 1600P");
-  if(!sanei_umax_pp_getastra())
-      sanei_umax_pp_setastra (1600);
+      if (!sanei_umax_pp_getastra ())
+	sanei_umax_pp_setastra (1600);
     }
   edge = EdgePosition (300, 180, buffer);
   /* rounded to lowest integer, since upping origin might lead */
@@ -7945,7 +7961,7 @@ sanei_umax_pp_CheckModel (void)
 
   /* if we have already detected a scanner different from */
   /* default type, no need to check again                 */
-  if (sanei_umax_pp_getastra () != 1220)
+  if (sanei_umax_pp_getastra ())
     return sanei_umax_pp_getastra ();
 
   /* get scanner status */
@@ -8032,13 +8048,14 @@ sanei_umax_pp_CheckModel (void)
   /* if data has turned into 0, we have a 2000P       */
   if (dest[1] == 0x00)
     {
-  if(!sanei_umax_pp_getastra())
       sanei_umax_pp_setastra (2000);
       err = 2000;
     }
   else
     {
       /* detects 1600  by finding black scans */
+      /* we defaults to 1220 */
+      sanei_umax_pp_setastra (1220);
       MoveToOrigin ();
       err = sanei_umax_pp_getastra ();
 

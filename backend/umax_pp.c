@@ -189,16 +189,20 @@ attach (const char *devname)
     return SANE_STATUS_INVAL;
 
   /* if the name begins with a slash, it's a device, else it's an addr */
-  if ((devname[0] == '/'))
+  if (devname != NULL)
     {
-      strncpy (name, devname, 64);
-    }
-  else
-    {
-      if ((devname[0] == '0') && ((devname[1] == 'x') || (devname[1] == 'X')))
-	prt = strtol (devname + 2, NULL, 16);
+      if ((devname[0] == '/'))
+	{
+	  strncpy (name, devname, 64);
+	}
       else
-	prt = atoi (devname);
+	{
+	  if ((devname[0] == '0')
+	      && ((devname[1] == 'x') || (devname[1] == 'X')))
+	    prt = strtol (devname + 2, NULL, 16);
+	  else
+	    prt = atoi (devname);
+	}
     }
 
 
@@ -257,8 +261,7 @@ attach (const char *devname)
 
   if (ret != UMAX1220P_OK)
     {
-      DBG (1, "attach: failed to recognize scanner model on %s\n",
-	   devname);
+      DBG (1, "attach: failed to recognize scanner model on %s\n", devname);
       return SANE_STATUS_IO_ERROR;
     }
   sprintf (model, "Astra %dP", mdl);
@@ -628,7 +631,8 @@ init_options (Umax_PP_Device * dev)
 
 
 
-SANE_Status sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
+SANE_Status
+sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
   char dev_name[512];
   const char *cp;
@@ -1005,7 +1009,8 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   return SANE_STATUS_GOOD;
 }
 
-SANE_Status sane_open (SANE_String_Const devicename, SANE_Handle * handle)
+SANE_Status
+sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 {
   Umax_PP_Device *dev;
   Umax_PP_Descriptor *desc;
@@ -1035,9 +1040,12 @@ SANE_Status sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 
       desc = &devlist[i];
 
-      if (devlist[i].ppdevice[0] == '/')
+      if (devlist[i].ppdevice != NULL)
 	{
-	  name = devlist[i].ppdevice;
+	  if (devlist[i].ppdevice[0] == '/')
+	    {
+	      name = devlist[i].ppdevice;
+	    }
 	}
       else
 	{
@@ -1721,7 +1729,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 }
 
 
-SANE_Status sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
+SANE_Status
+sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 {
   Umax_PP_Device *dev = handle;
   int dpi, remain;
@@ -1876,7 +1885,8 @@ SANE_Status sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 }
 
 
-SANE_Status sane_start (SANE_Handle handle)
+SANE_Status
+sane_start (SANE_Handle handle)
 {
   Umax_PP_Device *dev = handle;
   int rc, autoset;
@@ -2153,7 +2163,8 @@ sane_cancel (SANE_Handle handle)
     }
 }
 
-SANE_Status sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
+SANE_Status
+sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 {
   DBG (129, "unused arg: handle = %p, non_blocking = %d\n",
        handle, (int) non_blocking);
@@ -2163,10 +2174,11 @@ SANE_Status sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
   return SANE_STATUS_UNSUPPORTED;
 }
 
-SANE_Status sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
+SANE_Status
+sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
 {
 
-  DBG (129, "unused arg: handle = %p, fd = %p\n", handle, (void *)fd);
+  DBG (129, "unused arg: handle = %p, fd = %p\n", handle, (void *) fd);
 
   DBG (2, "get_select_fd: not supported\n");
 

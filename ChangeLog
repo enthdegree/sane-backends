@@ -4,7 +4,9 @@
 	* backend/v4l.c: Fixed device list. Added more verbose error output.
 	  Unified DBG messages. Fixed depth option. Reordered options in
 	  init_options to reflect real order. Added some markers (/* ??? */)
-	  for suspicious code.
+	  for suspicious code. Used GNU indent style.
+	* backend/v4l.h backend/v4l-frequencies.h backend/v4l-grab.h:  Used GNU
+	  indent style.
 
 2002-08-22  Frank Zago  <fzago at austin dot rr dot com>
 

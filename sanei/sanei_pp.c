@@ -506,26 +506,99 @@ no_ecp:
     return retv;
 }
 
+/**
+ */
+static int pp_set_scpmode( int fd )
+{
+	SANE_Byte tmp;
+	DBG( 4, "pp_set_scpmode\n" );
+	
+#ifdef HAVE_IOPL
+	tmp  = inbyte402( fd );
+	tmp &= 0x1f;
+	outbyte402( fd, tmp );
+#endif
+	tmp  = inb_ctrl( fd );
+	tmp &= 0x0f;
+	outb_ctrl ( fd, tmp );
+	
+	return SANE_STATUS_GOOD;
+}
+
+static int pp_set_bidimode( int fd )
+{
+	SANE_Byte tmp;
+	DBG( 4, "pp_set_bidimode\n" );
+#ifdef HAVE_IOPL
+	tmp = inbyte402( fd );
+	tmp = (tmp & 0x1f) | 0x20;
+	outbyte402( fd, tmp );
+#endif
+	tmp = inb_ctrl( fd );
+	tmp = (tmp & 0x0f) | 0x20;
+	outb_ctrl ( fd, tmp );
+	
+	return SANE_STATUS_GOOD;
+}
+
+static int pp_set_eppmode( int fd )
+{
+	SANE_Byte tmp;
+	DBG( 4, "pp_set_eppmode\n" );
+#ifdef HAVE_IOPL
+	tmp = inbyte402( fd );
+	tmp = (tmp & 0x1f) | 0x80;
+	outbyte402( fd, tmp );
+#endif
+	tmp = inb_ctrl( fd );
+	tmp = (tmp & 0xf0) | 0x40;
+	outb_ctrl ( fd, tmp );
+	
+	return SANE_STATUS_GOOD;
+}
+
+static int pp_set_ecpmode( int fd )
+{
+#ifdef HAVE_IOPL
+	SANE_Byte tmp;
+#endif
+	
+	DBG( 4, "pp_set_ecpmode\n" );
+#ifdef HAVE_IOPL
+	tmp = inbyte402( fd );
+	tmp = (tmp & 0x1f) | 0x60;
+	outbyte402( fd, tmp );
+	return SANE_STATUS_GOOD;
+#endif
+	return SANE_STATUS_UNSUPPORTED;
+}
+
 /** set the parallel port mode
  */
 static int
 pp_setmode( int fd, int mode )
 {
-/* FIXME: move from plustek_pp backend... */
-	_VAR_NOT_USED( fd );
-	_VAR_NOT_USED( mode );
+	int ret;
+
+	if( 0 == (mode & port[fd].caps)) {
+		DBG( 2, "pp_setmode: mode not supported %d\n", mode );
+		return SANE_STATUS_UNSUPPORTED;
+	}
+	
+	switch( mode ) {
+		case SANEI_PP_MODE_SPP:  ret = pp_set_scpmode( fd );  break;
+		case SANEI_PP_MODE_BIDI: ret = pp_set_bidimode( fd ); break;
+		case SANEI_PP_MODE_EPP:  ret = pp_set_eppmode( fd );  break;
+		case SANEI_PP_MODE_ECP:  ret = pp_set_ecpmode( fd );  break;
+
+		default:
+			DBG( 2, "pp_setmode: invalid mode %d\n", mode );
+			return SANE_STATUS_INVAL;
+	}
+
+	return ret;
 
 #if 0
-	/*
-	 *  when previously found the EPP mode, break right here
-	 */
-	if (( _PORT_EPP == ps->IO.portMode ) && (!(port_feature & PARPORT_MODE_PCECR)))
- 		return _OK;
-
- 	/* CHECK REMOVE: from here we should have SPP (Paranoia Code !) */
-	if (( _PORT_SPP != ps->IO.portMode ) && (!(port_feature & PARPORT_MODE_PCECR)))
- 		return _OK;
-
 	DBG(DBG_LOW, "Trying faster mode...\n" );
 
 	/*
@@ -638,17 +711,7 @@ pp_setmode( int fd, int mode )
 			ps->IO.portMode = _PORT_SPP;
 		}
 	}
-
-	/* reaching this point, we're back in SPP mode and there's no need
-	 * to restore at shutdown...
-	 */
-	ps->IO.lastPortMode = 0xFFFF;
 #endif
-	return _OK;
-}
-	
-
-	return SANE_STATUS_GOOD;
 }
 
 #endif
@@ -1269,7 +1332,6 @@ sanei_pp_setmode( int fd, int mode )
 	return SANE_STATUS_GOOD;
 #else
     return pp_setmode( fd, mode );
-
 #endif
 }
 

@@ -3,7 +3,7 @@
 :status :beta                   ; :alpha, :beta, :stable, :new
 :url "http://www.satzbau-gmbh.de/staff/abel/sane-sharp.html" 
 				; backend's homepage
-
+:manpage "sane-sharp"
 :devicetype :scanner
 
 :mfg "SHARP"                    ; name a manufacturer

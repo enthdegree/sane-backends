@@ -75,6 +75,9 @@ extern void sanei_w_void (Wire *w);
 extern void sanei_w_byte (Wire *w, SANE_Byte *v);
 extern void sanei_w_char (Wire *w, SANE_Char *v);
 extern void sanei_w_word (Wire *w, SANE_Word *v);
+extern void sanei_w_bool (Wire *w, SANE_Bool *v);
+extern void sanei_w_ptr (Wire *w, void **v, WireCodecFunc w_value,
+                         size_t value_size);
 extern void sanei_w_string (Wire *w, SANE_String *v);
 extern void sanei_w_status (Wire *w, SANE_Status *v);
 extern void sanei_w_constraint_type (Wire *w, SANE_Constraint_Type *v);

@@ -308,6 +308,10 @@ load (struct backend *be)
 #   undef PREFIX
 #   define PREFIX "cygsane-"
 #   define POSTFIX "-%u.dll"
+#elif defined (HAVE_OS2_H)
+#   undef PREFIX
+#   define PREFIX ""
+#   define POSTFIX ".dll"
 # else
 #   define POSTFIX ".so.%u"
 # endif

@@ -1,3 +1,8 @@
+2004-04-23  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/dll.c: Fixed dynamic loading of backend libraries
+	  on OS/2. Patch from Franz Bakan <fbakan@gmx.net>.
+
 2004-04-23  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/sane-u12.man doc/plustek/Plustek-USB.changes: updates.

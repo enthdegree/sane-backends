@@ -43,7 +43,8 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
 
-   This file implements a SANE backend for Mustek 1200UB flatbed scanners.  */
+   This file implements a SANE backend for Mustek 1200UB and similar 
+   flatbed scanners.  */
 
 #ifndef mustek_usb_low_h
 #define mustek_usb_low_h
@@ -75,7 +76,8 @@ typedef enum Mustek_Type
   MT_1200UB,
   MT_1200CU,
   MT_1200CU_PLUS,
-  MT_600CU
+  MT_600CU,
+  MT_600USB
 }
 Mustek_Type;
 

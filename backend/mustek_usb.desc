@@ -1,6 +1,6 @@
 :backend "mustek_usb"
 :status :new
-:version "1.0-7"
+:version "1.0-8"
 :manpage "sane-mustek_usb"
 :url "http://www.meier-geinitz.de/sane/"
 
@@ -17,6 +17,8 @@
 :model "1200 UB"
 :interface "USB"
 :comment "Only 1200 UB is supported, NOT UB Plus!"
+:model "1200 USB"
+:interface "USB"
 
 :mfg "Trust"
 :url "http://www.trust-site.com"

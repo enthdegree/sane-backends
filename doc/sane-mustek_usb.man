@@ -1,4 +1,4 @@
-.TH sane-mustek 5 "13 Sep 2001"
+.TH sane-mustek 5 "15 Nov 2001"
 .IX sane-mustek_usb
 .SH NAME
 sane-mustek_usb - SANE backend for Mustek USB flatbed scanners
@@ -30,9 +30,16 @@ This backend is based on the 1200ub backend provided by Mustek. It was
 modified to fit into the SANE distribution, some bugs were fixed, support
 for the 600 CU was added, and some features added.
 .PP
-This is BETA software. It currently only works on Linux. It doesn't
-work on FreeBSD for unknown reasons. Other systems are untested. See BUGS for
-more information.
+This is BETA software. It currently only works on Linux and FreeBSD. Other
+systems are untested. See BUGS for more information.
+.PP
+This backend can only work with scanners that are already detected by the
+operating system. For Linux, it may be necessary to load the scanner module
+with additional vendor/product parameters /see
+/usr/src/linux/Documentation/usb/scanner.txt for details). With FreeBSD upto
+4.4 only the 1200 CU will work out-of-the box. For other scanners, their ids
+must be added to the FreeBSD uscanner.c file and a new kernel must be
+compiled.
 .PP
 If you own a Mustek (or Trust) scanner other than the ones listed above that
 works with this backend, please let me know this by sending the scanner's exact
@@ -54,6 +61,9 @@ With Linux, such a device name could be
 or
 .IR /dev/usbscanner1 ,
 for example.
+.PP
+For FreeBSD use
+.IR /dev/uscanner0 .
 
 .SH CONFIGURATION
 The contents of the
@@ -75,9 +85,10 @@ Instead of using the device name, the scanner can be autodetected by
 .I "usb vendor_id product_id"
 statements which are already included into
 .IR mustek_usb.conf .
-This is supported with Linux 2.4.8 and higher. "vendor_id" and "product_id"
-are hexadecimal numbers that identfy the scanner. If this doesn't work, a
-device name and the option specifying the scanner type must be placed in 
+This is only supported with Linux 2.4.8 and higher. "vendor_id" and
+"product_id" are hexadecimal numbers that identfy the scanner. If this doesn't
+work, a device name and the option specifying the scanner type must be placed
+in
 .IR mustek_usb.conf .
 .PP
 A sample configuration file is shown below:
@@ -151,12 +162,19 @@ sane(7), sane-usb(5), sane\-mustek(5), sane\-mustek_pp(5)
 @DOCDIR@/mustek_usb/mustek_usb.TODO
  
 .SH AUTHOR
-Tom Wang (Mustek), Henning Meier-Geinitz <henning@meier-geinitz.de>
+Tom Wang (Mustek, original 1200ub backend), Henning Meier-Geinitz
+<henning@meier-geinitz.de>
 
 
 .SH BUGS
-This is BETA software. That means that it may contain bugs. More detailed bug
-information is available at the Mustek backend homepage
+This is BETA software. That means that it may contain bugs. 
+.PP
+FreeBSD support is shaky. Most of the time, scanning will work only in the
+first xscanimage/xsabe session. After closing the frontend, the scanner will
+freeze. The reason is unknown until now.
+.PP
+More detailed bug information is
+available at the Mustek backend homepage
 .IR http://www.meier-geinitz.de/sane/ .
 See also the CHANGES and TODO files.
 Please contact me if you find a bug or missing feature:

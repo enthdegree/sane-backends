@@ -43,7 +43,8 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
 
-   This file implements a SANE backend for Mustek 1200UB flatbed scanners.  */
+   This file implements a SANE backend for Mustek 1200UB and similar 
+   flatbed scanners.  */
   
 #ifndef mustek_usb_high_h
 #define mustek_usb_high_h
@@ -267,13 +268,10 @@ typedef struct Mustek_Usb_Device
   SANE_Byte init_green_offset;
   SANE_Byte init_blue_offset;
   
-  SANE_Int init_rgb_36_back_track;
   SANE_Int init_rgb_24_back_track;
   SANE_Int init_mono_8_back_track;
-  SANE_Int init_mono_4_back_track;
-  SANE_Int init_mono_1_back_track;
   
-  SANE_Bool is_opened;
+  SANE_Bool is_open;
   SANE_Bool is_prepared;
   SANE_Word expose_time;
   SANE_Word dummy;
@@ -314,6 +312,11 @@ typedef struct Mustek_Usb_Device
   SANE_Word * gamma_table;
   SANE_Word skips_per_row;
   
+  /* CCD */
+  SANE_Bool is_adjusted_mono_600_offset;
+  SANE_Bool is_adjusted_mono_600_exposure;
+  SANE_Word mono_600_exposure;
+
   Calibrator *red_calibrator;
   Calibrator *green_calibrator;
   Calibrator *blue_calibrator;
@@ -492,9 +495,6 @@ static SANE_Status
 usb_high_scan_safe_forward (Mustek_Usb_Device * dev, SANE_Int step_count);
 
 static SANE_Status
-usb_high_scan_load_private_profile (Mustek_Usb_Device * dev);
-
-static SANE_Status
 usb_high_scan_init_asic (Mustek_Usb_Device * dev, Sensor_Type sensor);
 
 static SANE_Status 
@@ -563,6 +563,18 @@ usb_high_scan_adjust_rgb_600_power_delay (Mustek_Usb_Device * dev);
 
 static SANE_Status
 usb_high_scan_adjust_mono_600_power_delay (Mustek_Usb_Device * dev);
+
+static SANE_Status
+usb_high_scan_adjust_mono_600_exposure (Mustek_Usb_Device * dev);
+
+static SANE_Status
+usb_high_scan_adjust_mono_600_offset (Mustek_Usb_Device * dev);
+
+static SANE_Status
+usb_high_scan_adjust_mono_600_pga (Mustek_Usb_Device * dev);
+
+static SANE_Status
+usb_high_scan_adjust_mono_600_skips_per_row (Mustek_Usb_Device * dev);
 
 static SANE_Status
 usb_high_scan_adjust_rgb_300_power_delay (Mustek_Usb_Device * dev);

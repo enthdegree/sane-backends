@@ -43,7 +43,8 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
 
-   This file implements a SANE backend for Mustek 1200UB flatbed scanners.  */
+   This file implements a SANE backend for Mustek 1200UB and similar 
+   flatbed scanners.  */
 
 #include <unistd.h>
 
@@ -2762,16 +2763,17 @@ usb_low_identify_scanner (SANE_Int fd, Mustek_Type *scanner_type)
 	    case 0x0002: 
 	      devtype = MT_600CU;
 	      break;
-#if 0
 	    case 0x0003:
 	      devtype = MT_1200USB;
 	      break;
-#endif
 	    case 0x0006:
 	      devtype = MT_1200UB;
 	      break;
 	    case 0x0008:
 	      devtype = MT_1200CU_PLUS;
+	      break;
+	    case 0x0873:
+	      devtype = MT_600USB;
 	      break;
 	    default:
 	      if (scanner_type)

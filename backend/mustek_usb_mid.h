@@ -487,4 +487,9 @@ usb_mid_front_set_blue_pga (ma1017 * chip, SANE_Byte pga);
 static SANE_Status
 usb_mid_front_set_rgb_signal (ma1017 * chip);
 
+/* CCD */
+static SANE_Word
+usb_mid_frontend_max_offset_index (ma1017 * chip);
+#define OFFSET_TABLE_SIZE 256;
+
 #endif /* mustek_usb_mid_h */

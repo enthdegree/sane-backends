@@ -2618,6 +2618,16 @@ usb_mid_front_set_blue_offset (ma1017 * chip, SANE_Byte offset)
   return SANE_STATUS_GOOD;
 }
 
+/* CCD */
+SANE_Word
+usb_mid_frontend_max_offset_index (ma1017 * chip)
+{
+  DBG (6, "usb_mid_front_max_offset_index: start\n");
+  
+  DBG (6, "usb_mid_front_max_offset_index: exit\n");
+  return OFFSET_TABLE_SIZE - 1;
+}
+
 SANE_Status
 usb_mid_front_set_red_pga (ma1017 * chip, SANE_Byte pga)
 {

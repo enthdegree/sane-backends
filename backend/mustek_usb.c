@@ -43,9 +43,10 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
 
-   This file implements a SANE backend for Mustek 1200UB flatbed scanners.  */
+   This file implements a SANE backend for Mustek 1200UB and similar 
+   flatbed scanners.  */
 
-#define BUILD 7
+#define BUILD 8
 
 #include "../include/sane/config.h"
 
@@ -496,13 +497,16 @@ attach (SANE_String_Const devname, Mustek_Usb_Device ** devp,
       dev->sane.model = "1200 CU Plus";
       break;
     case MT_1200USB:
-      dev->sane.model = "1200 USB";
+      dev->sane.model = "1200 USB (unsupported)";
       break;
     case MT_1200UB:
       dev->sane.model = "1200 UB";
       break;
     case MT_600CU:
       dev->sane.model = "600 CU";
+      break;
+    case MT_600USB:
+      dev->sane.model = "600 USB (unsupported)";
       break;
     default:
       dev->sane.model = "(unidentified)";
@@ -966,7 +970,6 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   first_handle = s;
   
   *handle = s;
-  RIE(usb_high_scan_load_private_profile (s->hw));
   strcpy (s->hw->device_name, devicename);
 
   RIE(usb_high_scan_turn_power (s->hw, SANE_TRUE));
@@ -1038,6 +1041,13 @@ sane_close (SANE_Handle handle)
   else
     first_handle = s->next;
   
+  if (s->hw->is_open)
+    {
+      status = usb_high_scan_turn_power (s->hw, SANE_FALSE);
+      if (status != SANE_STATUS_GOOD)
+	DBG (3, "sane_close: usb_high_scan_turn_power returned %s\n",
+	     sane_strstatus (status));
+    }
   if (s->hw->is_prepared)
     {
       status = usb_high_scan_clearup (s->hw);

@@ -43,7 +43,8 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
 
-   This file implements a SANE backend for Mustek 1200UB flatbed scanners.  */
+   This file implements a SANE backend for Mustek 1200UB and similar 
+   flatbed scanners.  */
 
 #include "mustek_usb_high.h"
 #include "mustek_usb_mid.c"
@@ -734,67 +735,64 @@ usb_high_scan_init (Mustek_Usb_Device * dev)
   dev->init_bytes_per_strip =  8 * 1024;
   dev->adjust_length_300 = 2560;
   dev->adjust_length_600 = 5120;
-  dev->init_min_expose_time = 2700;
-  dev->init_skips_per_row_300 = 12;   /* this value must be times of 6 */
-  dev->init_skips_per_row_600 = 12;   /* this value must be times of 6 */
-  dev->init_j_lines = 60;
+  dev->init_min_expose_time = 4992;
+  dev->init_skips_per_row_300 = 56;   /* this value must be times of 6 */
+  dev->init_skips_per_row_600 = 72;   /* this value must be times of 6 */
+  dev->init_j_lines = 154;
   dev->init_k_lines = 16;
-  dev->init_k_filter = 3;
+  dev->init_k_filter = 8;
   dev->init_k_loops = 2;
   dev->init_pixel_rate_lines = 50;
   dev->init_pixel_rate_filts = 37;
-  dev->init_powerdelay_lines = 3;
-  dev->init_home_lines = 80;
+  dev->init_powerdelay_lines = 2;
+  dev->init_home_lines = 160;
   dev->init_dark_lines = 50;
-  dev->init_k_level = 250;
-  dev->init_max_power_delay = 245;
-  dev->init_min_power_delay = 245;
-  dev->init_adjust_way = 0;
+  dev->init_k_level = 245;
+  dev->init_max_power_delay = 240;
+  dev->init_min_power_delay = 136;
+  dev->init_adjust_way = 1;
   dev->init_green_black_factor = 0.0;
   dev->init_blue_black_factor = 0.0;
   dev->init_red_black_factor = 0.0;
   dev->init_gray_black_factor = 0.0;
-  dev->init_green_factor = 0.0;
-  dev->init_blue_factor = 0.0;
-  dev->init_red_factor = 0.0;
-  dev->init_gray_factor = 0.0;
+  dev->init_green_factor = 0.82004;
+  dev->init_blue_factor = 0.84954;
+  dev->init_red_factor = 0.826375;
+  dev->init_gray_factor = 0.833375;
   
-  dev->init_red_rgb_600_pga = 0;
-  dev->init_green_rgb_600_pga = 0;
-  dev->init_blue_rgb_600_pga = 0;
-  dev->init_mono_600_pga = 0;
-  dev->init_red_rgb_300_pga = 0;
-  dev->init_green_rgb_300_pga = 0;
-  dev->init_blue_rgb_300_pga = 0;
-  dev->init_mono_300_pga = 0;
-  dev->init_expose_time = 3200;
-  dev->init_red_rgb_600_power_delay = 0;
-  dev->init_green_rgb_600_power_delay = 0;
-  dev->init_blue_rgb_600_power_delay = 0;
-  dev->init_red_mono_600_power_delay = 0;
-  dev->init_green_mono_600_power_delay = 0;
-  dev->init_blue_mono_600_power_delay = 0;
-  dev->init_red_rgb_300_power_delay = 0;
-  dev->init_green_rgb_300_power_delay = 0;
-  dev->init_blue_rgb_300_power_delay = 0;
-  dev->init_red_mono_300_power_delay = 0;
-  dev->init_green_mono_300_power_delay = 0;
-  dev->init_blue_mono_300_power_delay = 0;
+  dev->init_red_rgb_600_pga = 8;
+  dev->init_green_rgb_600_pga = 8;
+  dev->init_blue_rgb_600_pga = 8;
+  dev->init_mono_600_pga = 8;
+  dev->init_red_rgb_300_pga = 8;
+  dev->init_green_rgb_300_pga = 8;
+  dev->init_blue_rgb_300_pga = 8;
+  dev->init_mono_300_pga = 8;
+  dev->init_expose_time = 9024;
+  dev->init_red_rgb_600_power_delay = 80;
+  dev->init_green_rgb_600_power_delay = 80;
+  dev->init_blue_rgb_600_power_delay = 80;
+  dev->init_red_mono_600_power_delay = 80;
+  dev->init_green_mono_600_power_delay = 80;
+  dev->init_blue_mono_600_power_delay = 80;
+  dev->init_red_rgb_300_power_delay = 80;
+  dev->init_green_rgb_300_power_delay = 80;
+  dev->init_blue_rgb_300_power_delay = 80;
+  dev->init_red_mono_300_power_delay = 80;
+  dev->init_green_mono_300_power_delay = 80;
+  dev->init_blue_mono_300_power_delay = 80;
   dev->init_threshold = 128;
   
-  dev->init_top_ref = 0x10;
-  dev->init_front_end = 0x10;
-  dev->init_red_offset = 0x00;
-  dev->init_green_offset = 0x00;
-  dev->init_blue_offset = 0x00;
+  dev->init_top_ref = 128;
+  dev->init_front_end = 16;
+  dev->init_red_offset = 0;
+  dev->init_green_offset = 0;
+  dev->init_blue_offset = 0;
   
-  dev->init_rgb_36_back_track = 80;
   dev->init_rgb_24_back_track = 80;
   dev->init_mono_8_back_track = 80;
-  dev->init_mono_4_back_track = 80;
-  dev->init_mono_1_back_track = 80;
 
-  dev->is_opened = SANE_FALSE;
+  dev->is_open = SANE_FALSE;
   dev->is_prepared = SANE_FALSE;
   dev->expose_time = 4000;
   dev->width = 2550;
@@ -839,6 +837,7 @@ usb_high_scan_init (Mustek_Usb_Device * dev)
   dev->threshold = 128;
   dev->gamma_table = 0;
   dev->skips_per_row = 0;
+
 
   dev->red_calibrator = NULL;
   dev->green_calibrator = NULL;
@@ -923,23 +922,31 @@ usb_high_scan_turn_power (Mustek_Usb_Device * dev, SANE_Bool is_on)
   DBG (5, "usb_high_scan_turn_power: start, turn %s power\n", 
        is_on ? "on" : "off");
 
-  if (dev->is_opened)
-    {
-      DBG (3, "usb_high_scan_turn_power: is_opened\n");
-      return SANE_STATUS_INVAL;
-    }
-  RIE(usb_low_open (dev->chip, dev->device_name));
-
   if (is_on)
     {
+      if (dev->is_open)
+	{
+	  DBG (3, "usb_high_scan_turn_power: wanted to turn on power, "
+	       "but scanner already open\n");
+	  return SANE_STATUS_INVAL;
+	}
+      RIE(usb_low_open (dev->chip, dev->device_name));
+      dev->is_open = SANE_TRUE;
       RIE(usb_low_turn_peripheral_power (dev->chip, SANE_TRUE));
       RIE(usb_low_turn_lamp_power (dev->chip, SANE_TRUE));
     }
   else
     {
+      if (!dev->is_open)
+	{
+	  DBG (3, "usb_high_scan_turn_power: wanted to turn off power, "
+	       "but scanner already closed\n");
+	  return SANE_STATUS_INVAL;
+	}
       RIE(usb_low_turn_lamp_power (dev->chip, SANE_FALSE));
+      RIE(usb_low_close (dev->chip));
+      dev->is_open = SANE_FALSE;
     }
-  RIE(usb_low_close (dev->chip));
 
   DBG (5, "usb_high_scan_turn_power: exit\n");
   return SANE_STATUS_GOOD;
@@ -952,16 +959,14 @@ usb_high_scan_back_home (Mustek_Usb_Device * dev)
 
   DBG (5, "usb_high_scan_back_home: start\n");
 
-  if (dev->is_opened)
+  if (!dev->is_open)
     {
-      DBG (3, "usb_high_scan_back_home: is already open\n");
+      DBG (3, "usb_high_scan_back_home: not open\n");
       return SANE_STATUS_INVAL;
     }
-  RIE(usb_low_open (dev->chip, dev->device_name));
 
   RIE(usb_low_set_ccd_width (dev->chip, dev->init_min_expose_time));
   RIE(usb_mid_motor_prepare_home (dev->chip));
-  RIE(usb_low_close (dev->chip));
 
   DBG (5, "usb_high_scan_back_home: exit\n");
   return SANE_STATUS_GOOD;
@@ -973,12 +978,6 @@ usb_high_scan_set_threshold (Mustek_Usb_Device * dev, SANE_Byte threshold)
   DBG (5, "usb_high_scan_set_threshold: start, dev=%p, threshold=%d\n",
        dev, threshold);
 
-  if (dev->is_opened)
-    {
-      DBG (3, "usb_high_scan_set_threshold: is already opened\n");
-      return SANE_STATUS_INVAL;
-    }
-
   dev->threshold = threshold;
   DBG (5, "usb_high_scan_set_threshold: exit\n");
   return SANE_STATUS_GOOD;
@@ -989,11 +988,6 @@ usb_high_scan_embed_gamma (Mustek_Usb_Device * dev, SANE_Word * gamma_table)
 {
   DBG (5, "usb_high_scan_embed_gamma: start, dev=%p, gamma_table=%d\n",
        dev, gamma_table);
-  if (dev->is_opened)
-    {
-      DBG (5,"usb_high_scan_embed_gamma is_opened\n");
-      return SANE_STATUS_INVAL;
-    }
   if (!dev->is_prepared)
     {
       DBG (5,"usb_high_scan_embed_gamma !is_prepared\n");
@@ -1012,9 +1006,9 @@ usb_high_scan_reset (Mustek_Usb_Device * dev)
 
   DBG (5, "usb_high_scan_reset: start\n");
 
-  if (dev->is_opened)
+  if (!dev->is_open)
     {
-      DBG (3, "usb_high_scan_reset: is_opened\n");
+      DBG (3, "usb_high_scan_reset: not open\n");
       return SANE_STATUS_INVAL;
     }
   if (!dev->is_prepared)
@@ -1022,11 +1016,9 @@ usb_high_scan_reset (Mustek_Usb_Device * dev)
       DBG (3, "usb_high_scan_reset: !is_prepared\n");
       return SANE_STATUS_INVAL;
     }
-  RIE(usb_low_open (dev->chip, dev->device_name));
   RIE(usb_high_scan_init_asic (dev, dev->chip->sensor));
   RIE(usb_low_set_ccd_width (dev->chip, dev->init_min_expose_time));
   RIE(usb_mid_motor_prepare_home (dev->chip));
-  RIE(usb_low_close (dev->chip));
   RIE(usb_high_scan_set_threshold (dev, dev->init_threshold));
   RIE(usb_high_scan_embed_gamma (dev, NULL));
   dev->is_adjusted_rgb_600_power_delay = SANE_FALSE;
@@ -1073,11 +1065,12 @@ usb_high_scan_hardware_calibration (Mustek_Usb_Device * dev)
   
   DBG (5, "usb_high_scan_hardware_calibration: start\n");
 
-  RIE(usb_high_scan_safe_forward (dev, dev->init_home_lines));
+  if (dev->is_cis_detected)
+    RIE(usb_high_scan_safe_forward (dev, dev->init_home_lines));
 
   switch (dev->init_adjust_way)
     {
-    case 1:
+    case 1: /* CIS */
       switch (dev->scan_mode)
 	{
 	case RGB24EXT:
@@ -1113,6 +1106,35 @@ usb_high_scan_hardware_calibration (Mustek_Usb_Device * dev)
 	      RIE(usb_high_scan_evaluate_pixel_rate (dev));
 	      RIE(usb_high_scan_adjust_mono_300_power_delay (dev));
 	    }
+	  break;
+	default:
+	  break;
+	}
+      break;
+    case 3: /* CCD */
+      switch (dev->scan_mode)
+	{
+	case RGB24EXT:
+	  dev->red_rgb_600_pga = dev->init_red_rgb_600_pga;
+	  dev->green_rgb_600_pga = dev->init_green_rgb_600_pga;
+	  dev->blue_rgb_600_pga = dev->init_blue_rgb_600_pga;
+	  dev->skips_per_row =   dev->init_skips_per_row_600;
+	  /* RIE(usb_high_scan_adjust_rgb_600_exposure (dev); fixme */
+	  /* RIE(usb_high_scan_adjust_rgb_600_offset (dev); fixme */
+	  /* RIE(usb_high_scan_adjust_rgb_600_pga (dev); fixme */
+	  /* 	m_isAdjustedRgb600Offset=FALSE; */
+	  /* RIE(usb_high_scan_adjust_rgb_600_offset (dev); fixme */
+	  /* RIE(usb_high_scan_adjust_rgb_600_skips_per_row (dev); fixme */
+	  break;
+	case GRAY8EXT:
+	  dev->mono_600_pga = dev->init_mono_600_pga;
+	  dev->skips_per_row = dev->init_skips_per_row_600;
+	  RIE(usb_high_scan_adjust_mono_600_exposure (dev));
+	  /* RIE(usb_high_scan_adjust_mono_600_offset (dev); fixme */
+	  /* RIE(usb_high_scan_adjust_mono_600_pga (dev); fixme */
+	  dev->is_adjusted_mono_600_offset = SANE_FALSE;
+	  /* RIE(usb_high_scan_adjust_mono_600_offset (dev); fixme */
+	  /* RIE(usb_high_scan_adjust_mono_600_skips_per_row (dev); fixme */
 	  break;
 	default:
 	  break;
@@ -1284,6 +1306,30 @@ usb_high_scan_detect_sensor (Mustek_Usb_Device *dev)
     case MT_1200USB:
       dev->chip->sensor = ST_NEC600;
       dev->chip->motor = MT_1200;
+      dev->init_min_expose_time = 2250;
+      dev->init_skips_per_row_600 = 0;
+      dev->init_home_lines = 32;
+      dev->init_dark_lines = 10;
+      dev->init_max_power_delay = 220;
+      dev->init_min_power_delay = 220;
+      dev->init_adjust_way = 3;
+      dev->init_red_rgb_600_pga = 30;
+      dev->init_green_rgb_600_pga = 30;
+      dev->init_blue_rgb_600_pga = 30;
+      dev->init_mono_600_pga = 30;
+      dev->init_expose_time = 16000;
+
+      dev->init_top_ref = 6;
+      dev->init_front_end = 12;
+      dev->init_red_offset = 128;
+      dev->init_green_offset = 128;
+      dev->init_blue_offset = 128;
+
+      dev->init_rgb_24_back_track = 0;
+      dev->init_mono_8_back_track = 40;
+
+      dev->is_cis_detected = SANE_FALSE;
+
       DBG (4, "usb_high_scan_detect_sensor: sensor=Canon 600 dpi, motor="
 	   "1200 dpi\n");
       break;
@@ -1316,9 +1362,7 @@ usb_high_scan_detect_sensor (Mustek_Usb_Device *dev)
 	dev->x_dpi = 600;
 	dev->y_dpi = 1200;
 	dev->width = 5400;
-	RIE(usb_low_open (dev->chip, dev->device_name));
 	
-	dev->is_opened = SANE_TRUE;
 	RIE(usb_high_scan_init_asic (dev, ST_CANON600));
 	RIE(usb_low_turn_peripheral_power (dev->chip, SANE_TRUE));
 	RIE(usb_low_enable_motor (dev->chip, SANE_TRUE));/* Enable Motor */
@@ -1363,8 +1407,6 @@ usb_high_scan_detect_sensor (Mustek_Usb_Device *dev)
 	  }
 	
 	/* Release Resource */
-	usb_low_close (dev->chip);
-	dev->is_opened = SANE_FALSE;
 	free (buffer);
 	buffer = NULL;
 
@@ -1391,9 +1433,9 @@ usb_high_scan_setup_scan (Mustek_Usb_Device * dev, Colormode color_mode,
   SANE_Word left_bound;
 
   DBG (5, "usb_high_scan_setup_scan: start, is_invert=%d\n", is_invert);
-  if (dev->is_opened)
+  if (!dev->is_open)
     {
-      DBG (5,"usb_high_scan_setup_scan: is_opened\n");
+      DBG (5,"usb_high_scan_setup_scan: not open\n");
       return SANE_STATUS_INVAL;
     }
   if (!dev->is_prepared)
@@ -1401,34 +1443,39 @@ usb_high_scan_setup_scan (Mustek_Usb_Device * dev, Colormode color_mode,
       DBG (5,"usb_high_scan_setup_scan: !is_prepared\n");
       return SANE_STATUS_INVAL;
     }
-  RIE(usb_low_open (dev->chip, dev->device_name));
-  dev->is_opened = SANE_TRUE;
 
   RIE(usb_high_scan_init_asic (dev, dev->chip->sensor));
   RIE(usb_low_turn_peripheral_power (dev->chip, SANE_TRUE));
   RIE(usb_low_enable_motor (dev->chip, SANE_TRUE));	/* Enable Motor */
   RIE(usb_low_turn_lamp_power (dev->chip, SANE_TRUE));
   RIE(usb_low_invert_image (dev->chip, SANE_FALSE));
+  if (!dev->is_cis_detected)
+    {
+      usb_mid_front_set_front_end_mode (dev->chip, 16);
+      usb_mid_front_enable (dev->chip, SANE_TRUE);
+      usb_mid_front_set_top_reference (dev->chip, 244);
+      usb_mid_front_set_rgb_signal (dev->chip);
+    }
 
+  /* Compute necessary variables */
   dev->scan_mode = color_mode;
   dev->x_dpi = x_dpi;
   dev->y_dpi = y_dpi;
   dev->width = width;
-
-  /* Compute necessary variable */
-  upper_bound = ((SANE_Word) (((SANE_Word) (y) * 600L) 
-			      / (SANE_Word) (dev->y_dpi)) 
-		 + dev->init_j_lines);	/* in 600dpi */
   
   switch (dev->scan_mode)
     {
     case RGB24EXT:
       dev->bytes_per_row = 3 * dev->width;
+      upper_bound = ((y * 600) / dev->y_dpi) + dev->init_j_lines; 
       break;
     case GRAY8EXT:
       dev->bytes_per_row = dev->width;
+      upper_bound = ((y * 600) / dev->y_dpi) + dev->init_j_lines + 4; 
+      /* fixme */
       break;
     default:
+      upper_bound = ((y * 600) / dev->y_dpi) + dev->init_j_lines + 4; 
       break;
     }
 
@@ -1468,6 +1515,7 @@ usb_high_scan_setup_scan (Mustek_Usb_Device * dev, Colormode color_mode,
   RIE(usb_high_scan_step_forward (dev, upper_bound));
   RIE(usb_high_scan_prepare_scan (dev));
   RIE(usb_low_start_rowing (dev->chip));
+  /* pat_chromator fixme (init for calibration?) */
   DBG (5, "usb_high_scan_setup_scan: exit\n");
   return SANE_STATUS_GOOD;
 }
@@ -1479,9 +1527,9 @@ usb_high_scan_get_rows (Mustek_Usb_Device * dev, SANE_Byte * block,
   SANE_Status status;
 
   DBG (5, "usb_high_scan_get_rows: start, %d rows\n", rows);
-  if (!dev->is_opened)
+  if (!dev->is_open)
     {
-      DBG (3, "usb_high_scan_get_rows: !is_opened\n");
+      DBG (3, "usb_high_scan_get_rows: not open\n");
       return SANE_STATUS_INVAL;
     }
   if (!dev->is_prepared)
@@ -1505,9 +1553,9 @@ usb_high_scan_stop_scan (Mustek_Usb_Device * dev)
   SANE_Status status;
   
   DBG (5, "usb_high_scan_stop_scan: start\n");
-  if (!dev->is_opened)
+  if (!dev->is_open)
     {
-      DBG (3, "usb_high_scan_stop_scan: !is_opened\n");
+      DBG (3, "usb_high_scan_stop_scan: not open\n");
       return SANE_STATUS_INVAL;
     }
   if (!dev->is_prepared)
@@ -1542,78 +1590,10 @@ usb_high_scan_stop_scan (Mustek_Usb_Device * dev)
     }
 
   RIE(usb_low_stop_rowing (dev->chip));
-  RIE(usb_low_turn_lamp_power (dev->chip, SANE_FALSE));
-  RIE(usb_low_close (dev->chip));
-  dev->is_opened = SANE_FALSE;
+  if (!dev->is_cis_detected)
+    RIE(usb_low_turn_lamp_power (dev->chip, SANE_FALSE));
 
   DBG (5, "usb_high_scan_stop_scan: exit\n");
-  return SANE_STATUS_GOOD;
-}
-
-SANE_Status
-usb_high_scan_load_private_profile (Mustek_Usb_Device * dev)
-{
-  DBG (5, "usb_high_scan_load_private_profile: start, dev=%p\n", dev);
-
-  dev->init_min_expose_time = 4992;
-  dev->init_skips_per_row_600 = 72;
-  dev->init_skips_per_row_300 = 56;
-  dev->init_j_lines = 154;
-  dev->init_k_lines = 16;
-  dev->init_k_filter = 8;
-  dev->init_k_loops = 2;
-  dev->init_pixel_rate_lines = 50;
-  dev->init_pixel_rate_filts = 37;
-  dev->init_powerdelay_lines = 2;
-  dev->init_home_lines = 160;
-  dev->init_dark_lines = 50;
-  dev->init_k_level = 245;
-  dev->init_max_power_delay = 240;
-  dev->init_min_power_delay = 136;
-  dev->init_adjust_way = 1;
-  dev->init_green_black_factor = -2.0;
-  dev->init_blue_black_factor = 0.0;
-  dev->init_red_black_factor = 0.0;
-  dev->init_gray_black_factor = 0.0;
-  dev->init_green_factor = 0.82004;
-  dev->init_blue_factor = 0.84954;
-  dev->init_red_factor = 0.826375;
-  dev->init_gray_factor = 0.833375;
-  dev->init_red_rgb_600_pga = 8;
-  dev->init_green_rgb_600_pga = 8;
-  dev->init_blue_rgb_600_pga = 8;
-  dev->init_mono_600_pga = 8;
-  dev->init_red_rgb_300_pga = 8;
-  dev->init_green_rgb_300_pga = 8;
-  dev->init_blue_rgb_300_pga = 8;
-  dev->init_mono_300_pga = 8;
-  dev->init_expose_time = 9024;
-  dev->init_red_rgb_600_power_delay = 80;
-  dev->init_green_rgb_600_power_delay = 80;
-  dev->init_blue_rgb_600_power_delay = 80;
-  dev->init_red_mono_600_power_delay = 80;
-  dev->init_green_mono_600_power_delay = 80;
-  dev->init_blue_mono_600_power_delay = 80;
-  dev->init_red_rgb_300_power_delay = 80;
-  dev->init_green_rgb_300_power_delay = 80;
-  dev->init_blue_rgb_300_power_delay = 80;
-  dev->init_red_mono_300_power_delay = 80;
-  dev->init_green_mono_300_power_delay = 80;
-  dev->init_blue_mono_300_power_delay = 80;
-  dev->init_threshold = 128;
-
-  dev->init_top_ref = 128;
-  dev->init_front_end = 16;
-  dev->init_red_offset = 0;
-  dev->init_green_offset = 0;
-  dev->init_blue_offset = 0;
-
-  dev->init_rgb_36_back_track = 80;
-  dev->init_rgb_24_back_track = 80;
-  dev->init_mono_8_back_track = 80;
-  dev->init_mono_4_back_track = 80;
-  dev->init_mono_1_back_track = 80;
-  DBG (5, "usb_high_scan_load_private_profile: exit\n");
   return SANE_STATUS_GOOD;
 }
 
@@ -1921,6 +1901,61 @@ usb_high_scan_adjust_mono_600_power_delay (Mustek_Usb_Device * dev)
   return SANE_STATUS_GOOD;
 }
 
+/* CCD */
+SANE_Status
+usb_high_scan_adjust_mono_600_exposure (Mustek_Usb_Device * dev)
+{
+  SANE_Word transfer_time;
+  SANE_Status status;
+
+  DBG (5, "usb_high_scan_adjust_mono_600_exposure: start\n");
+  if (dev->is_adjusted_mono_600_exposure)
+    return SANE_STATUS_GOOD;
+
+  RIE(usb_high_scan_evaluate_pixel_rate (dev));
+  transfer_time = dev->pixel_rate * dev->x_dpi / 600;
+  if (transfer_time > 16000)
+    transfer_time = 16000;
+
+  dev->mono_600_exposure = 
+    MAX(5504, MAX(transfer_time,
+		  usb_mid_motor_mono_capability (dev->chip, dev->y_dpi)));
+  dev->mono_600_exposure = ((dev->mono_600_exposure + 63) / 64) * 64;
+  dev->is_adjusted_mono_600_exposure = SANE_TRUE;
+  DBG (5, "usb_high_scan_adjust_mono_600_exposure: exit\n");
+  return SANE_STATUS_GOOD;
+}
+
+/* CCD */
+SANE_Status
+usb_high_scan_adjust_mono_600_offset (Mustek_Usb_Device * dev)
+{
+  DBG (5, "usb_high_scan_adjust_mono_600_offset: start\n");
+  if (dev->is_adjusted_mono_600_offset)
+    return SANE_STATUS_GOOD;
+
+  DBG (5, "usb_high_scan_adjust_mono_600_offset: exit\n");
+  return SANE_STATUS_GOOD;
+}
+
+/* CCD */
+SANE_Status
+usb_high_scan_adjust_mono_600_pga (Mustek_Usb_Device * dev)
+{
+  DBG (5, "usb_high_scan_adjust_mono_600_pga: start\n");
+  DBG (5, "usb_high_scan_adjust_mono_600_pga: exit\n");
+  return SANE_STATUS_GOOD;
+}
+
+/* CCD */
+SANE_Status
+usb_high_scan_adjust_mono_600_skips_per_row (Mustek_Usb_Device * dev)
+{
+  DBG (5, "usb_high_scan_adjust_mono_600_skips_per_row: start\n");
+  DBG (5, "usb_high_scan_adjust_mono_600_skips_per_row: exit\n");
+  return SANE_STATUS_GOOD;
+}
+
 SANE_Status
 usb_high_scan_adjust_rgb_300_power_delay (Mustek_Usb_Device * dev)
 {
@@ -2034,6 +2069,8 @@ SANE_Status
 usb_high_scan_evaluate_pixel_rate (Mustek_Usb_Device * dev)
 {
   DBG (5, "usb_high_scan_evaluate_pixel_rate: start, dev=%p\n", dev);
+
+  /* fixme: new for CCD */
   dev->pixel_rate = 2000;
   dev->is_evaluate_pixel_rate = SANE_TRUE;
   DBG (5, "usb_high_scan_evaluate_pixel_rate: exit\n");
@@ -2048,10 +2085,19 @@ usb_high_scan_calibration_rgb_24 (Mustek_Usb_Device * dev)
   SANE_Word i;
   SANE_Status status;
   SANE_Word lines_left;
+  SANE_Word minor_average;
 
   DBG (5, "usb_high_scan_calibration_rgb_24: start, dev=%p\n", dev);
-  RIE(usb_mid_motor_prepare_calibrate_rgb (dev->chip, dev->y_dpi));
-  RIE(usb_low_turn_lamp_power (dev->chip, SANE_TRUE));
+  if (dev->is_cis_detected)
+    {
+      RIE(usb_mid_motor_prepare_calibrate_rgb (dev->chip, dev->y_dpi));
+      RIE(usb_low_turn_lamp_power (dev->chip, SANE_TRUE));
+      minor_average = 2;
+    }
+  else
+    {
+      minor_average = 1;
+    }
 
   dev->red_calibrator = (Calibrator *) malloc (sizeof (Calibrator));
   if (!dev->red_calibrator)
@@ -2061,7 +2107,7 @@ usb_high_scan_calibration_rgb_24 (Mustek_Usb_Device * dev)
 			 dev->init_k_level << 8, 0));
   RIE(usb_high_cal_prepare (dev->red_calibrator, dev->width));
   RIE(usb_high_cal_embed_gamma (dev->red_calibrator, dev->gamma_table));
-  RIE(usb_high_cal_setup (dev->red_calibrator, 1, 2, 8, dev->width,
+  RIE(usb_high_cal_setup (dev->red_calibrator, 1, minor_average, 8, dev->width,
 			  &white_need, &dark_need));
 
   dev->green_calibrator = (Calibrator *) malloc (sizeof (Calibrator));
@@ -2071,8 +2117,8 @@ usb_high_scan_calibration_rgb_24 (Mustek_Usb_Device * dev)
 			 dev->init_k_level << 8, 0));
   RIE(usb_high_cal_prepare (dev->green_calibrator, dev->width));
   RIE(usb_high_cal_embed_gamma (dev->green_calibrator, dev->gamma_table));
-  RIE(usb_high_cal_setup (dev->green_calibrator, 1, 2, 8, dev->width,
-			  &white_need, &dark_need));
+  RIE(usb_high_cal_setup (dev->green_calibrator, 1, minor_average, 8,
+			  dev->width,  &white_need, &dark_need));
 
   dev->blue_calibrator = (Calibrator *) malloc (sizeof (Calibrator));
   if (!dev->blue_calibrator)
@@ -2082,8 +2128,8 @@ usb_high_scan_calibration_rgb_24 (Mustek_Usb_Device * dev)
 			 dev->init_k_level << 8, 0));
   RIE(usb_high_cal_prepare (dev->blue_calibrator, dev->width));
   RIE(usb_high_cal_embed_gamma (dev->blue_calibrator, dev->gamma_table));
-  RIE(usb_high_cal_setup (dev->blue_calibrator, 1, 2, 8, dev->width,
-			  &white_need, &dark_need));
+  RIE(usb_high_cal_setup (dev->blue_calibrator, 1, minor_average, 8,
+			  dev->width,  &white_need, &dark_need));
 
   /* K White */
   RIE(usb_low_start_rowing (dev->chip));
@@ -2258,12 +2304,13 @@ usb_high_scan_step_forward (Mustek_Usb_Device * dev, SANE_Int step_count)
   RIE(usb_mid_motor_prepare_step (dev->chip, (SANE_Word) step_count));
   /* Startup */
   RIE(usb_low_start_rowing (dev->chip));
-  /* Wait to Stop */
+  /* Wait for stop */
   /* Linux USB seems buggy on timeout... sleep before really try  */
   /* to read the flag from scanner */
   usleep (step_count * 2 * 1000);
   RIE(usb_low_wait_rowing_stop (dev->chip));
-  RIE(usb_low_set_ccd_width (dev->chip, dev->expose_time));
+  if (!dev->is_cis_detected)
+    RIE(usb_low_set_ccd_width (dev->chip, dev->expose_time));
 
   DBG (5, "usb_high_scan_step_forward: start\n");
   return SANE_STATUS_GOOD;

@@ -1,5 +1,27 @@
 CHANGES for the SANE Mustek USB backend
 
+2001-11-15
+  * Release of version 1.0-8. 
+
+2001-11-15
+  * Updated manual page concerning FreeBSD and kernel configuration.
+
+2001-11-14
+
+  * Added 600 USB detection. No support at all yet.
+  * Removed unneccessary calls to usb_low_open and usb_low_close. This
+    fixed the FreeBSD problems.
+  * Updated all SANE comments ("1200UB and similar").
+
+2001-11-11
+
+  * Added function usb_high_scan_adjust_mono_600_exposure.
+
+2001-10-14
+
+  * Added start values for the 1200USB.
+  * Removed load_private_profile (now in usb_high_scan_init).
+
 2001-10-07
   * Release of version 1.0-7. 
 

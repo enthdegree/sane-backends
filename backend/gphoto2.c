@@ -1,11 +1,11 @@
-/* Please note!  This is extremely alpha code, and is really intended as
- * a "proof of concept" since I don't yet know whether it's going to 
- * to be practical and/or possible to implement a the complete backend.
- * It's also been tested with only cameras I have access to: the Kodak DC240
+/* Please note!  Although intended to support multiple camera types
+ * it's been tested with only cameras I have access to: the Kodak DC240
  * and the Directory Browse "camera."  I'm very interested 
  * in learning what it would take to support more cameras.  In 
  * particular, the current incarnation will only support cameras
  * that directly generate jpeg files.
+ * 
+ * Please report sucesses or failures using this backend!
  *  
  * However, having said that, I've already found it to be quite useful
  * even in its current form - one reason is that gphoto2 provides access
@@ -106,8 +106,7 @@
 #include <gphoto2-camera.h>
 #include <gphoto2-port-log.h>
 
-#define CHECK_EXIT(f) {int res = f; if (res < 0) {DBG (0,"ERROR: %s\n", gp_result_as_string (res)); return (SANE_STATUS_INVAL);}}
-#define CHECK_RET(f) {int res = f; if (res < 0) {DBG (0,"ERROR: %s\n", gp_result_as_string (res)); return (SANE_STATUS_INVAL);}}
+#define CHECK_RET(f) {int res = f; if (res < 0) {DBG (1,"ERROR: %s\n", gp_result_as_string (res)); return (SANE_STATUS_INVAL);}}
 
 #ifndef PATH_MAX
 # define PATH_MAX	1024
@@ -433,7 +432,7 @@ init_gphoto2 (void)
 	}
     }
 
-  if (abilities.speed[n] == 0 && !strncmp (Cam_data.port, "serial:", 7) )
+  if (abilities.speed[n] == 0 && !strncmp (Cam_data.port, "serial:", 7))
     {
       DBG (0,
 	   "%s: error: %d is not a valid speed for this camers.  Use \"gphoto2 --camera \"%s\" --abilities\" for list.\n",
@@ -684,9 +683,9 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
        * file is unlikely.  So, give and return failure 
        */
       DBG (0, "warning: %s:  missing config file '%s'\n"
-	"If you aren't using gphoto2, you should disable it in dll.conf.\n"
-	"If you do want to use gphoto2, you'll need to install the config\n"
-	"file in %s.\n", f, GPHOTO2_CONFIG_FILE,GPHOTO2_CONFIG_FILE);
+	   "If you aren't using gphoto2, you should disable it in dll.conf.\n"
+	   "If you do want to use gphoto2, you'll need to install the config\n"
+	   "file in %s.\n", f, GPHOTO2_CONFIG_FILE, GPHOTO2_CONFIG_FILE);
 
       return SANE_STATUS_INVAL;
     }

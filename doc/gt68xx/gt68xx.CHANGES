@@ -1,5 +1,17 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0-58 (2004-04-04)
+
+* Added BGR color order for pixel mode. Until now, only line mode worked in
+  that mode.
+* Plustek U16B uses setup_scan for gt6816 now.
+* Fixed linedistance for Plustek U16B.
+* Enabled 16 bit mode for Plustek U16B.
+* Fixed margins for Plustek U16B.
+* Made 600 dpi mode for Mustek BearPaw 2400 TA Plus a bit faster.
+* Changed Mustek ScanExpress A3 linedistance correction to 1, 5, 5 (?).
+* Added detection of Visioneer Onetouch 7300.
+
 V 1.0-57 (2004-03-28)
 
 * Plustek U16B: Added GT68XX_FLAG_SE_2400. Fixed color order.

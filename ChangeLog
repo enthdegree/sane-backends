@@ -1,3 +1,13 @@
+2004-04-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/gt68xx.c backend/gt68xx.conf backend/gt68xx_devices.c
+	  backend/gt68xx_mid.c doc/sane-gt68xx.man doc/descriptions/gt68xx.desc
+	  doc/gt68xx/gt68xx.CHANGES:
+	  Added BGR color order for pixel mode. Plustek OpticPro U16B works
+	  in color mode now. Made 600 dpi mode for Mustek BearPaw 2400 TA
+	  Plus a bit faster. Changed Mustek ScanExpress A3 linedistance
+	  correction. Added detection of Visioneer Onetouch 7300.
+
 2004-04-04  Gerhard Jaeger <gerhard@gjaeger.de>
 	* doc/descriptions/plustek.desc: added Canon D660U.
 	* doc/plustek/Plustek-USB.changes doc/plustek/Plustek-USB-TODO.txt

@@ -739,6 +739,7 @@ line_read_rgb_8_pixel_mode (GT68xx_Line_Reader * reader,
   return SANE_STATUS_GOOD;
 }
 
+
 static SANE_Status
 line_read_rgb_12_pixel_mode (GT68xx_Line_Reader * reader,
 			     unsigned int **buffer_pointers_return)
@@ -803,6 +804,103 @@ line_read_rgb_16_pixel_mode (GT68xx_Line_Reader * reader,
   return SANE_STATUS_GOOD;
 }
 
+static SANE_Status
+line_read_bgr_8_pixel_mode (GT68xx_Line_Reader * reader,
+			    unsigned int **buffer_pointers_return)
+{
+  SANE_Status status;
+  size_t size;
+  SANE_Int pixels_per_line;
+  SANE_Byte *pixel_buffer = reader->pixel_buffer;
+
+  size = reader->params.scan_bpl;
+  RIE (gt68xx_device_read (reader->dev, pixel_buffer, &size));
+
+  pixels_per_line = reader->pixels_per_line;
+  unpack_8_rgb (pixel_buffer,
+		DELAY_BUFFER_WRITE_PTR (&reader->b_delay), pixels_per_line);
+  ++pixel_buffer;
+  unpack_8_rgb (pixel_buffer,
+		DELAY_BUFFER_WRITE_PTR (&reader->g_delay), pixels_per_line);
+  ++pixel_buffer;
+  unpack_8_rgb (pixel_buffer,
+		DELAY_BUFFER_WRITE_PTR (&reader->r_delay), pixels_per_line);
+
+  buffer_pointers_return[0] = DELAY_BUFFER_READ_PTR (&reader->r_delay);
+  buffer_pointers_return[1] = DELAY_BUFFER_READ_PTR (&reader->g_delay);
+  buffer_pointers_return[2] = DELAY_BUFFER_READ_PTR (&reader->b_delay);
+
+  DELAY_BUFFER_STEP (&reader->r_delay);
+  DELAY_BUFFER_STEP (&reader->g_delay);
+  DELAY_BUFFER_STEP (&reader->b_delay);
+
+  return SANE_STATUS_GOOD;
+}
+
+
+static SANE_Status
+line_read_bgr_12_pixel_mode (GT68xx_Line_Reader * reader,
+			     unsigned int **buffer_pointers_return)
+{
+  SANE_Status status;
+  size_t size;
+  SANE_Byte *pixel_buffer = reader->pixel_buffer;
+
+  size = reader->params.scan_bpl;
+  RIE (gt68xx_device_read (reader->dev, pixel_buffer, &size));
+
+  unpack_12_le_rgb (pixel_buffer,
+		    DELAY_BUFFER_WRITE_PTR (&reader->b_delay),
+		    DELAY_BUFFER_WRITE_PTR (&reader->g_delay),
+		    DELAY_BUFFER_WRITE_PTR (&reader->r_delay),
+		    reader->pixels_per_line);
+
+  buffer_pointers_return[0] = DELAY_BUFFER_READ_PTR (&reader->r_delay);
+  buffer_pointers_return[1] = DELAY_BUFFER_READ_PTR (&reader->g_delay);
+  buffer_pointers_return[2] = DELAY_BUFFER_READ_PTR (&reader->b_delay);
+
+  DELAY_BUFFER_STEP (&reader->r_delay);
+  DELAY_BUFFER_STEP (&reader->g_delay);
+  DELAY_BUFFER_STEP (&reader->b_delay);
+
+  return SANE_STATUS_GOOD;
+}
+
+static SANE_Status
+line_read_bgr_16_pixel_mode (GT68xx_Line_Reader * reader,
+			     unsigned int **buffer_pointers_return)
+{
+  SANE_Status status;
+  size_t size;
+  SANE_Int pixels_per_line;
+  SANE_Byte *pixel_buffer = reader->pixel_buffer;
+
+  size = reader->params.scan_bpl;
+  RIE (gt68xx_device_read (reader->dev, pixel_buffer, &size));
+
+  pixels_per_line = reader->pixels_per_line;
+  unpack_16_le_rgb (pixel_buffer,
+		    DELAY_BUFFER_WRITE_PTR (&reader->b_delay),
+		    pixels_per_line);
+  pixel_buffer += 2;
+  unpack_16_le_rgb (pixel_buffer,
+		    DELAY_BUFFER_WRITE_PTR (&reader->g_delay),
+		    pixels_per_line);
+  pixel_buffer += 2;
+  unpack_16_le_rgb (pixel_buffer,
+		    DELAY_BUFFER_WRITE_PTR (&reader->r_delay),
+		    pixels_per_line);
+
+  buffer_pointers_return[0] = DELAY_BUFFER_READ_PTR (&reader->r_delay);
+  buffer_pointers_return[1] = DELAY_BUFFER_READ_PTR (&reader->g_delay);
+  buffer_pointers_return[2] = DELAY_BUFFER_READ_PTR (&reader->b_delay);
+
+  DELAY_BUFFER_STEP (&reader->r_delay);
+  DELAY_BUFFER_STEP (&reader->g_delay);
+  DELAY_BUFFER_STEP (&reader->b_delay);
+
+  return SANE_STATUS_GOOD;
+}
 
 static SANE_Status
 gt68xx_line_reader_init_delays (GT68xx_Line_Reader * reader)
@@ -978,11 +1076,26 @@ gt68xx_line_reader_new (GT68xx_Device * dev,
   else
     {
       if (reader->params.depth == 8)
-	reader->read = line_read_rgb_8_pixel_mode;
+	{
+	  if (dev->model->line_mode_color_order == COLOR_ORDER_RGB)
+	    reader->read = line_read_rgb_8_pixel_mode;
+	  else if (dev->model->line_mode_color_order == COLOR_ORDER_BGR)
+	    reader->read = line_read_bgr_8_pixel_mode;
+	}
       else if (reader->params.depth == 12)
-	reader->read = line_read_rgb_12_pixel_mode;
+	{
+	  if (dev->model->line_mode_color_order == COLOR_ORDER_RGB)
+	    reader->read = line_read_rgb_12_pixel_mode;
+	  else if (dev->model->line_mode_color_order == COLOR_ORDER_BGR)
+	    reader->read = line_read_bgr_12_pixel_mode;
+	}
       else if (reader->params.depth == 16)
-	reader->read = line_read_rgb_16_pixel_mode;
+	{
+	  if (dev->model->line_mode_color_order == COLOR_ORDER_RGB)
+	    reader->read = line_read_rgb_16_pixel_mode;
+	  else if (dev->model->line_mode_color_order == COLOR_ORDER_BGR)
+	    reader->read = line_read_bgr_16_pixel_mode;
+	}
     }
 
   if (reader->read == NULL)

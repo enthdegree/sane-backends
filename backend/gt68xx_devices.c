@@ -185,8 +185,8 @@ static GT68xx_Command_Set plustek_u16b_command_set = {
 
   /* activate */ NULL,
   /* deactivate */ NULL,
-  gt6801_check_plustek_firmware, /* not tested */
-  gt6801_u16b_download_firmware, /* ok? */
+  gt6801_check_plustek_firmware, /* ok */
+  gt6801_u16b_download_firmware, /* ok */
   gt6801_get_power_status, /* not tested */
   /* get_ta_status (FIXME: implement this) */ NULL,
   gt6801_lamp_control, /* ok */
@@ -196,8 +196,8 @@ static GT68xx_Command_Set plustek_u16b_command_set = {
   gt68xx_generic_start_scan, /* ok */
   gt68xx_generic_read_scanned_data, /* ok */
   gt6801_u16b_stop_scan,  /* ok */
-  gt6801_setup_scan, /* not tested */
-  gt68xx_generic_set_afe, /* not tested */
+  gt6816_setup_scan, /* ? */
+  gt68xx_generic_set_afe, /* ok */
   /* set_exposure_time */ NULL,
   gt68xx_generic_get_id /* not tested */
 };
@@ -779,7 +779,7 @@ static GT68xx_Model mustek_a3usb_model = {
 
   SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
 
-  0, 4, 2,			/* RGB CCD Line-distance correction in pixel */
+  1, 5, 5,			/* RGB CCD Line-distance correction in pixel */
   0,				/* CCD distcance for CCD with 6 lines) */
 
   COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
@@ -908,17 +908,17 @@ static GT68xx_Model plustek_u16b_model = {
   1200,				/* maximum motor resolution */
   600,				/* base x-res used to calculate geometry */
   600,				/* base y-res used to calculate geometry */
-  50,				/* if ydpi is equal or higher, use linemode */
-  SANE_FALSE,			/* Use base_ydpi for all resolutions */
+  2400,				/* if ydpi is equal or higher, use linemode */
+  SANE_TRUE,			/* Use base_ydpi for all resolutions */
 
   {600, 300, 150, 75, 0},	/* possible x-resolutions */
   {600, 300, 150, 75, 0},	/* possible y-resolutions */
-  {12, 8, 0},			/* possible depths in gray mode */
-  {12, 8, 0},			/* possible depths in color mode */
+  {16, 8, 0},			/* possible depths in gray mode */
+  {16, 12, 8, 0},			/* possible depths in color mode */
 
-  SANE_FIX (3.5),		/* Start of scan area in mm  (x) */
-  SANE_FIX (7.5),		/* Start of scan area in mm (y) */
-  SANE_FIX (218.0),		/* Size of scan area in mm (x) */
+  SANE_FIX (5.5),		/* Start of scan area in mm  (x) */
+  SANE_FIX (8.5),		/* Start of scan area in mm (y) */
+  SANE_FIX (216.0),		/* Size of scan area in mm (x) */
   SANE_FIX (299.0),		/* Size of scan area in mm (y) */
 
   SANE_FIX (0.0),		/* Start of white strip in mm (y) */
@@ -931,17 +931,17 @@ static GT68xx_Model plustek_u16b_model = {
 
   SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
 
-  0, 8, 16,			/* RGB CCD Line-distance correction in pixel */
+  0, 16, 32,			/* RGB CCD Line-distance correction in pixel */
   0,				/* CCD distcance for CCD with 6 lines) */
 
-  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
+  COLOR_ORDER_BGR,		/* Order of the CCD/CIS colors */
   {0x18, 0x16, 0x16, 0x0f, 0x17, 0x11},	/* Default offset/gain */
   {0x157, 0x157, 0x157},	/* Default exposure parameters */
   SANE_FIX (2.0),		/* Default gamma value */
 
   SANE_FALSE,			/* Is this a CIS scanner? */
-  GT68XX_FLAG_UNTESTED | GT68XX_FLAG_OFFSET_INV | GT68XX_FLAG_SE_2400 /* Which flags are needed for this scanner? */
-  /* completely untested */
+  GT68XX_FLAG_OFFSET_INV	/* Which flags are needed for this scanner? */
+  /* Tested with a U16B by Henning Meier-Geinitz */
 };
 
 static GT68xx_Model genius_vivid3x_model  = {
@@ -1286,6 +1286,55 @@ static GT68xx_Model plustek_opticslim2400_model = {
 };
 /* By Detlef Gausepohl <detlef at sunrise.psycho.rwth-aachen.de> */
 
+static GT68xx_Model visioneer_onetouch_7300_model = {
+  "visioneer-onetouch-7300",	/* Name */
+  "Visioneer",				/* Device vendor string */
+  "OneTouch 7300",			/* Device model name */
+  "Cis3r5b1.fw",			/* Name of the firmware file */
+  SANE_FALSE,				/* Dynamic allocation flag */
+
+  &mustek_gt6816_command_set,	/* Command set used by this scanner */
+
+  1200,					/* maximum optical sensor resolution */
+  1200,					/* maximum motor resolution */
+  1200,					/* base x-res used to calculate geometry */
+  1200,					/* base y-res used to calculate geometry */
+  1200,					/* if ydpi is equal or higher, use linemode */
+  SANE_FALSE,			/* Use base_ydpi for all resolutions */
+
+  {1200, 600, 300, 150, 75, 50, 0},	/* possible x-resolutions */
+  {1200, 1200, 600, 300, 150, 75, 50, 0},	/* possible y-resolutions */
+  {16, 8, 0},			/* possible depths in gray mode */
+  {16, 8, 0},			/* possible depths in color mode */
+
+  SANE_FIX (1.0),		/* Start of scan area in mm  (x) */
+  SANE_FIX (9.5),		/* Start of scan area in mm (y) */
+  SANE_FIX (218.0),		/* Size of scan area in mm (x) */
+  SANE_FIX (299.0),		/* Size of scan area in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (140.0),		/* Start of black mark in mm (x) */
+
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+
+  0, 0, 0,				/* RGB CCD Line-distance correction in pixel */
+  0,					/* CCD distcance for CCD with 6 lines) */
+
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
+  {0x15, 0x09, 0x18, 0x11, 0x16, 0x0c},	/* Default offset/gain */
+  {0x157, 0x157, 0x157},	/* Default exposure parameters */
+  SANE_FIX (2.0),			/* Default gamma value */
+
+  SANE_TRUE,				/* Is this a CIS scanner? */
+  GT68XX_FLAG_UNTESTED
+};
+/* Untested. Based on Plustek OpticPro 2400. */
+
 
 static GT68xx_USB_Device_Entry gt68xx_usb_device_list[] = {
   {0x055f, 0x0218, &mustek_2400ta_model},
@@ -1313,5 +1362,6 @@ static GT68xx_USB_Device_Entry gt68xx_usb_device_list[] = {
   {0x0458, 0x201a, &genius_vivid4xe_model},
   {0x0458, 0x201b, &genius_vivid4x_model},
   {0x0458, 0x201f, &genius_vivid1200ex_model},
+  {0x04a7, 0x0444, &visioneer_onetouch_7300_model},
   {0, 0, NULL}
 };

@@ -1,5 +1,5 @@
 :backend "gt68xx"
-:version "1.0-57"
+:version "1.0-58"
 :manpage "sane-gt68xx"
 :url "http://www.meier-geinitz.de/sane/gt68xx-backend/"
 :comment "Only the USB scanners mentioned below are supported. For other Mustek BearPaws, look at the Plustek and the MA-1509 backend."
@@ -255,18 +255,18 @@
 
 :model "OpticPro U16B"
 :interface "USB"
-:status :minimal
-:comment "Only gray mode works."
+:status :good
+:comment "Works upto 600 dpi."
 
 :model "OpticPro U16B+"
 :interface "USB"
-:status :minimal
-:comment "Only gray mode works. Same scanner as U16B?"
+:status :untested
+:comment "Probably works. Please tell me if you own such a device."
 
 :model "OpticPro UT16B"
 :interface "USB"
-:status :minimal
-:comment "Only gray mode works. Transparency adapter not supported yet. Please contact me if you own such a device. "
+:status :untested
+:comment "Probably works. Transparency adapter not supported yet. Please contact me if you own such a device. "
 
 :model "OpticSlim 1200"
 :interface "USB"
@@ -301,5 +301,15 @@
 :status :good
 :interface "USB"
 :comment "Works, if you have vendor id 0x055f and product id 0x0006, use the mustek_usb backend instead, similar to Mustek ScanExpress 1200 UB (Plus)"
+
+; -----------------------------------------------------------------------------
+
+:mfg "Visioneer"
+:url "http://www.visioneer.com/"
+
+:model "OneTouch 7300"
+:interface "USB"
+:status :untested
+:comment "Should be detected but may not work. Please tell me if you own such a device."
 
 ; -----------------------------------------------------------------------------

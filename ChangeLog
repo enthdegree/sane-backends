@@ -1,3 +1,14 @@
+2004-04-04  Gerhard Jaeger <gerhard@gjaeger.de>
+	* doc/descriptions/plustek.desc: added Canon D660U.
+	* doc/plustek/Plustek-USB.changes doc/plustek/Plustek-USB-TODO.txt
+	  doc/plustek/Plustek-USB.txt: update
+	* po/sane-backends.*.po: new strings, as the plustek backend has changed.
+	* backend/plustek.[ch], plustek-usb.[ch], plustek-usb.cal.c,
+	  plustek-usbdevs.c, plustek-usbhw.c, plustek-usbimg.c,
+	  plustek-usbshading.c: added Canon D660U support, cleanup, bug-fixing.
+	* backend/plustek.conf: added red_lampoff, green_lampoff and blue_lampoff
+	  parameters.
+
 2004-04-02  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* snapscan.c snapscan-options.c snapscan-scsi.c:

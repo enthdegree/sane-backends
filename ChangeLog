@@ -10,6 +10,10 @@
 	* po/Makefile.in po/sane-backends.de.po po/sane-backends.es.po
 	  po/sane-backends.fr.po po/sane-backends.nl.po po/sane-backends.pt.po
 	  po/sane-backends.ru.po po/sane-backends.sv.po: Updated for ma1509.
+	* doc/backend-writing.txt: Some parts concerning PRJECTS/.desc files
+	  are rewritten. Added information about initializing global variables
+	  and sizeof (void *) != sizeof (int) (from Martijn van Oosterhout
+	  <kleptog@svana.org>).
 
 2003-02-23  Simon Munton <simon@munton.demon.co.uk>
         * backend/pie.c: increment BUILD (was missed in last change)

@@ -16,8 +16,8 @@
 
 */
 
-#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.23 - 2002-09-01"
-#define SANE_EPSON_BUILD	223
+#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.24 - 2002-10-05"
+#define SANE_EPSON_BUILD	224
 
 /*
    This file is part of the SANE package.
@@ -59,6 +59,8 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
+   2002-10-05	Fixed problem with incorrect response to sane_get_parameters()
+   		in certain situations.
    2002-09-01	USB scanners are now using libsane-usb funtions
    2002-08-17	Fixed typo in variable name. 
 		Fixed IEEE-1394 problem with Perfection-2450.
@@ -263,7 +265,7 @@
 #	include  <lalloca.h>		/* MUST come first for AIX! */
 #endif
 
-/* ------------------------------------------------------------ SANE INTERNATIONALISATION ------------------ */
+/* --------------------- SANE INTERNATIONALISATION ------------------ */
 
 #ifndef SANE_I18N
 #define SANE_I18N(text) (text)
@@ -796,6 +798,7 @@ static void sane_deactivate( Epson_Scanner * s, SANE_Int option, SANE_Bool * cha
 static void sane_optstate( SANE_Bool state, Epson_Scanner * s, SANE_Int option, SANE_Bool * change);
 static void close_scanner( Epson_Scanner * s);
 static SANE_Status open_scanner( Epson_Scanner * s);
+SANE_Status sane_auto_eject ( Epson_Scanner * s);
 
 /*
  *
@@ -861,7 +864,7 @@ receive(Epson_Scanner * s, void *buf, ssize_t buf_size, SANE_Status * status)
 	} 
         else if ( s->hw->connection == SANE_EPSON_PIO) 
 	{
-		if( buf_size == ( n = sanei_pio_read( s->fd, buf, (size_t) buf_size)))
+		if (buf_size == (n = sanei_pio_read( s->fd, buf, (size_t) buf_size)))
 			*status = SANE_STATUS_GOOD;
 		else
 			*status = SANE_STATUS_INVAL;
@@ -870,7 +873,7 @@ receive(Epson_Scanner * s, void *buf, ssize_t buf_size, SANE_Status * status)
 	{
 		/* !!! only report an error if we don't read anything */
 		n = buf_size;	/* buf_size gets overwritten */
-		*status = sanei_usb_read_bulk(s->fd, (SANE_Byte *) buf, &n);
+		*status = sanei_usb_read_bulk(s->fd, (SANE_Byte *) buf, (size_t *) &n);
 		if (n > 0)
 			*status = SANE_STATUS_GOOD;
 	}
@@ -1075,17 +1078,20 @@ static SANE_Status set_resolution ( Epson_Scanner * s, int xres, int yres) {
 /*
  * set_scan_area() 
  *
- * Sends the "set scan area" command to the scanner with the currently selected scan area.
- * This scan area is already corrected for "color shuffling" if necessary.
+ * Sends the "set scan area" command to the scanner with the currently selected 
+ * scan area. This scan area is already corrected for "color shuffling" if 
+ * necessary.
  */
-
-static SANE_Status set_scan_area ( Epson_Scanner * s, int x, int y, int width, int height) {
+static SANE_Status set_scan_area(Epson_Scanner * s, int x, int y, 
+		int width, int height) 
+{
 	SANE_Status status;
 	u_char params[ 8];
 
-	DBG( 1, "set_scan_area: %p %d %d %d %d\n", ( void *) s, x, y, width, height);
+	DBG(1, "set_scan_area: %p %d %d %d %d\n", ( void *) s, x, y, width, height);
 
-	if( ! s->hw->cmd->set_scan_area) {
+	if( ! s->hw->cmd->set_scan_area) 
+	{
 		DBG( 1, "set_scan_area not supported\n");
 		return SANE_STATUS_GOOD;
 	}
@@ -3629,14 +3635,29 @@ SANE_Status sane_control_option ( SANE_Handle handle,
  * the current settings.
  *
  */
-
-SANE_Status sane_get_parameters ( SANE_Handle handle, SANE_Parameters * params) 
+SANE_Status 
+sane_get_parameters(SANE_Handle handle, SANE_Parameters * params) 
 {
 	Epson_Scanner * s = ( Epson_Scanner *) handle;
 	int ndpi;
 	int bytes_per_pixel;
 
 	DBG(5, "sane_get_parameters()\n");
+
+	/* 
+	 * If sane_start was already called, then just retrieve the parameters
+	 * from the scanner data structure
+	 */
+
+	if (!s->eof && s->ptr != NULL)
+	{
+		DBG(5, "Returning saved params structure\n");
+		if (params != NULL)
+			*params = s->params;
+		return SANE_STATUS_GOOD;
+	}
+
+	/* otherwise initialize the params structure and gather the data */
 
 	memset( &s->params, 0, sizeof( SANE_Parameters));
 
@@ -3661,17 +3682,16 @@ SANE_Status sane_get_parameters ( SANE_Handle handle, SANE_Parameters * params)
 		}
 	}
 
-		DBG( 3, "Preview = %d\n", s->val[OPT_PREVIEW].w);
-		DBG( 3, "Resolution = %d\n", s->val[OPT_RESOLUTION].w);
+	DBG( 3, "Preview = %d\n", s->val[OPT_PREVIEW].w);
+	DBG( 3, "Resolution = %d\n", s->val[OPT_RESOLUTION].w);
 
-		DBG( 1, "get para %p %p tlx %f tly %f brx %f bry %f [mm]\n"
+	DBG( 1, "get para %p %p tlx %f tly %f brx %f bry %f [mm]\n"
 			, ( void * ) s
 			, ( void * ) s->val
 			, SANE_UNFIX( s->val[ OPT_TL_X].w)
 			, SANE_UNFIX( s->val[ OPT_TL_Y].w)
 			, SANE_UNFIX( s->val[ OPT_BR_X].w)
-			, SANE_UNFIX( s->val[ OPT_BR_Y].w)
-			);
+			, SANE_UNFIX( s->val[ OPT_BR_Y].w));
 
 	/* 
 	 * Calculate bytes_per_pixel and bytes_per_line for 
@@ -3721,7 +3741,7 @@ SANE_Status sane_get_parameters ( SANE_Handle handle, SANE_Parameters * params)
 		s->params.bytes_per_line = s->params.pixels_per_line * s->params.depth / 8;
 	}
 
-	if( NULL != params)
+	if (NULL != params)
 		*params = s->params;
 
 	return SANE_STATUS_GOOD;
@@ -3739,7 +3759,7 @@ SANE_Status sane_start ( SANE_Handle handle)
 {
 	Epson_Scanner * s = ( Epson_Scanner *) handle;
 	SANE_Status status;
-  SANE_Bool button_status;
+	SANE_Bool button_status;
 	const struct mode_param * mparam;
 	u_char params[4];
 	int ndpi;
@@ -3749,26 +3769,27 @@ SANE_Status sane_start ( SANE_Handle handle)
 
 	open_scanner( s);
 /*
- *  There is some undocumented special with TPU enable/disable.
+ *  There is some undocumented special behavior with the TPU enable/disable.
  *      TPU power	ESC e		status
  *	on		0		NAK
  *	on		1		ACK
  *	off		0		ACK
  *	off		1		NAK
  *
- * probably it make no sense to scan with TPU powered on and source flatbed, cause light
- * will come from both sides.
+ * It makes no sense to scan with TPU powered on and source flatbed, because 
+ * light will come from both sides.
  */
 
-	if( s->hw->extension) {
+	if (s->hw->extension) 
+	{
 		status = control_extension(s, s->hw->use_extension);
 
-		if( SANE_STATUS_GOOD != status) {
-			DBG( 0, "Probably you have to power %s your TPU\n"
-				, s->hw->use_extension ? "on" : "off");
+		if( SANE_STATUS_GOOD != status) 
+		{
+			DBG( 0, "You may have to power %s your TPU\n", 
+					s->hw->use_extension ? "on" : "off");
 
-			DBG(0, "Also you may have to restart sane, cause it ignores\n");
-			DBG(0, "the return code the backend is sending.\n");
+			DBG(0, "Also you may have to restart the Sane frontend.");
 
 			return status;
 		}
@@ -3787,7 +3808,8 @@ SANE_Status sane_start ( SANE_Handle handle)
 		/* 
 		 * set the focus position according to the extension used:
 		 * if the TPU is selected, then focus 2.5mm above the glass,
-		 * otherwise focus on the glass
+		 * otherwise focus on the glass. Scanners that don't support
+		 * this feature, will just ignore these calls.
 		 */
 
 		if (s->hw->focusSupport == SANE_TRUE)
@@ -3809,7 +3831,8 @@ SANE_Status sane_start ( SANE_Handle handle)
 	DBG(1, "sane_start: Setting data format to %d bits\n", mparam->depth);
 	status = set_data_format( s, mparam->depth);
 
-	if( SANE_STATUS_GOOD != status) {
+	if (SANE_STATUS_GOOD != status) 
+	{
 		DBG( 1, "sane_start: set_data_format failed: %s\n", sane_strstatus( status));
 		return status;
 	}
@@ -3818,47 +3841,51 @@ SANE_Status sane_start ( SANE_Handle handle)
 	 * The byte sequence mode was introduced in B5, for B[34] we need line sequence mode 
 	 */
 
-	if( (s->hw->cmd->level[0] == 'D' || 
-            (s->hw->cmd->level[0] == 'B' && s->hw->level >= 5)) && mparam->mode_flags == 0x02)
+	if ((s->hw->cmd->level[0] == 'D' || 
+				(s->hw->cmd->level[0] == 'B' && s->hw->level >= 5)) && 
+			mparam->mode_flags == 0x02)
 	{
 		status = set_color_mode( s, 0x13);
 	}
 	else
 	{
-		status = set_color_mode( s , mparam->mode_flags
-			  | ( mparam->dropout_mask
-			    & dropout_params[ s->val[ OPT_DROPOUT].w]
-			    )
-			);
+		status = set_color_mode( s , mparam->mode_flags | ( mparam->dropout_mask
+					& dropout_params[ s->val[ OPT_DROPOUT].w]));
 	}
 
-	if( SANE_STATUS_GOOD != status) {
-		DBG( 1, "sane_start: set_color_mode failed: %s\n", sane_strstatus( status));
+	if (SANE_STATUS_GOOD != status) 
+	{
+		DBG(1, "sane_start: set_color_mode failed: %s\n", sane_strstatus( status));
 		return status;
 	}
 
-
-	if( s->hw->cmd->set_halftoning && SANE_OPTION_IS_ACTIVE( s->opt[ OPT_HALFTONE].cap) ) {
+	if (s->hw->cmd->set_halftoning && 
+			SANE_OPTION_IS_ACTIVE( s->opt[ OPT_HALFTONE].cap) ) 
+	{
 		status = set_halftoning( s, halftone_params[ s->val[ OPT_HALFTONE].w]);
 
-		if( SANE_STATUS_GOOD != status) {
-			DBG( 1, "sane_start: set_halftoning failed: %s\n", sane_strstatus( status));
+		if( SANE_STATUS_GOOD != status) 
+		{
+			DBG( 1, "sane_start: set_halftoning failed: %s\n", 
+					sane_strstatus( status));
 			return status;
 		}
 	}
 
 
-	if( SANE_OPTION_IS_ACTIVE( s->opt[ OPT_BRIGHTNESS].cap) ) {
+	if (SANE_OPTION_IS_ACTIVE( s->opt[ OPT_BRIGHTNESS].cap) ) 
+	{
 		status = set_bright( s, s->val[OPT_BRIGHTNESS].w);
 
-		if( SANE_STATUS_GOOD != status) {
+		if( SANE_STATUS_GOOD != status) 
+		{
 			DBG( 1, "sane_start: set_bright failed: %s\n", sane_strstatus( status));
 			return status;
 		}
 	}
 
-	if( SANE_OPTION_IS_ACTIVE( s->opt[ OPT_MIRROR].cap) ) {
-
+	if (SANE_OPTION_IS_ACTIVE( s->opt[ OPT_MIRROR].cap) ) 
+	{
 		status = mirror_image( s, mirror_params[ s->val[ OPT_MIRROR].w]);
 
 		if( SANE_STATUS_GOOD != status) {
@@ -3887,29 +3914,34 @@ SANE_Status sane_start ( SANE_Handle handle)
  *  NOTE: I think I should throw that "params" stuff as long w is already the value.
  */
 
-	if( SANE_OPTION_IS_ACTIVE( s->opt[ OPT_AAS].cap) ) {
+	if (SANE_OPTION_IS_ACTIVE( s->opt[ OPT_AAS].cap) ) 
+	{
+		status = control_auto_area_segmentation(s, 
+				speed_params[ s->val[ OPT_AAS].w]);
 
-		status = control_auto_area_segmentation( s, speed_params[ s->val[ OPT_AAS].w]);
-
-		if( SANE_STATUS_GOOD != status) {
-			DBG( 1, "sane_start: control_auto_area_segmentation failed: %s\n", sane_strstatus( status));
+		if( SANE_STATUS_GOOD != status) 
+		{
+			DBG( 1, "sane_start: control_auto_area_segmentation failed: %s\n", 
+					sane_strstatus( status));
 			return status;
 		}
 	}
 
-	s->invert_image = SANE_FALSE;	/* default to not inverting the image */
+	s->invert_image = SANE_FALSE;	/* default: to not inverting the image */
 
-	if( SANE_OPTION_IS_ACTIVE( s->opt[ OPT_FILM_TYPE].cap) ) {
+	if (SANE_OPTION_IS_ACTIVE(s->opt[ OPT_FILM_TYPE].cap)) 
+	{
 		s->invert_image = (s->val[ OPT_FILM_TYPE].w == FILM_TYPE_NEGATIVE);
 		status = set_film_type( s, film_params[ s->val[ OPT_FILM_TYPE].w]);
 		if( SANE_STATUS_GOOD != status) {
-			DBG( 1, "sane_start: set_film_type failed: %s\n", sane_strstatus( status));
+			DBG( 1, "sane_start: set_film_type failed: %s\n", 
+					sane_strstatus( status));
 			return status;
 		}
 	}
 
-	if( SANE_OPTION_IS_ACTIVE( s->opt[ OPT_BAY].cap) ) {
-
+	if (SANE_OPTION_IS_ACTIVE( s->opt[ OPT_BAY].cap)) 
+	{
 		status = set_bay( s, s->val[ OPT_BAY].w);
 
 		if( SANE_STATUS_GOOD != status) {
@@ -4012,17 +4044,18 @@ SANE_Status sane_start ( SANE_Handle handle)
 		}
 	}
 
-	ndpi = s->val[ OPT_RESOLUTION].w;
+	ndpi = s->val[OPT_RESOLUTION].w;
 
 	status = set_resolution( s, ndpi, ndpi);
 
-	if( SANE_STATUS_GOOD != status) {
+	if (SANE_STATUS_GOOD != status) 
+	{
 		DBG( 1, "sane_start: set_resolution(%d, %d) failed: %s\n", 
-			ndpi, ndpi, sane_strstatus( status));
+				ndpi, ndpi, sane_strstatus( status));
 		return status;
-    	}
+	}
 
-	status = sane_get_parameters( handle, NULL);
+	status = sane_get_parameters(handle, NULL);
 
 	if( status != SANE_STATUS_GOOD)
 		return status;
@@ -4052,34 +4085,34 @@ SANE_Status sane_start ( SANE_Handle handle)
  */
 
 	if (s->val[OPT_WAIT_FOR_BUTTON].w == SANE_TRUE)
-  {
-    s->hw->wait_for_button = SANE_TRUE;
+	{
+		s->hw->wait_for_button = SANE_TRUE;
 
-    while (s->hw->wait_for_button == SANE_TRUE)
-    {
-	    if (s->canceling == SANE_TRUE)
-      {
-        s->hw->wait_for_button = SANE_FALSE;
-      }
-      /* get the button status from the scanner */
-      else if (request_push_button_status(s, &button_status) == SANE_STATUS_GOOD)
-      {
-        if (button_status == SANE_TRUE)
-        {
-         s->hw->wait_for_button = SANE_FALSE;
-        }
-        else
-        {
-         sleep(1);
-        }
-      }
-      else
-      {
-        /* we run into an eror condition, just continue */
-        s->hw->wait_for_button = SANE_FALSE;
-      }
-    }
-  }
+		while (s->hw->wait_for_button == SANE_TRUE)
+		{
+			if (s->canceling == SANE_TRUE)
+			{
+				s->hw->wait_for_button = SANE_FALSE;
+			}
+			/* get the button status from the scanner */
+			else if (request_push_button_status(s, &button_status) == SANE_STATUS_GOOD)
+			{
+				if (button_status == SANE_TRUE)
+				{
+					s->hw->wait_for_button = SANE_FALSE;
+				}
+				else
+				{
+					sleep(1);
+				}
+			}
+			else
+			{
+				/* we run into an eror condition, just continue */
+				s->hw->wait_for_button = SANE_FALSE;
+			}
+		}
+	}
 
 
 /*
@@ -4137,36 +4170,36 @@ SANE_Status sane_start ( SANE_Handle handle)
    * lines according to the selected scan area.
    */
 	if (s->hw->color_shuffle == SANE_TRUE) 
-	 {
+	{
 
-	   /* start the scan 2*line_distance earlier */
-	   top -= 2*s->line_distance;
-	   if (top < 0)
-	    {
-	      top = 0;
-	    }
+		/* start the scan 2*line_distance earlier */
+		top -= 2*s->line_distance;
+		if (top < 0)
+		{
+			top = 0;
+		}
 
-	   /* scan 4*line_distance lines more */
-           s->params.lines += 4*s->line_distance;
-	 }
+		/* scan 4*line_distance lines more */
+		s->params.lines += 4*s->line_distance;
+	}
 
 	/* 
 	 * If (top + s->params.lines) is larger than the max scan area, reset
 	 * the number of scan lines:
 	 */
 	if (SANE_UNFIX( s->val[ OPT_BR_Y].w) / 25.4 * ndpi < (s->params.lines + top))
-	 {
-	   s->params.lines = ((int) SANE_UNFIX(s->val[OPT_BR_Y].w) / 
-	   	25.4 * ndpi + 0.5) - top;
-	 }
+	{
+		s->params.lines = ((int) SANE_UNFIX(s->val[OPT_BR_Y].w) / 
+				25.4 * ndpi + 0.5) - top;
+	}
 
 
-	status = set_scan_area( s, left, top, s->params.pixels_per_line, 
-		s->params.lines);
+	status = set_scan_area(s, left, top, s->params.pixels_per_line, s->params.lines);
 
-	if( SANE_STATUS_GOOD != status) {
+	if( SANE_STATUS_GOOD != status) 
+	{
 		DBG( 1, "sane_start: set_scan_area failed: %s\n", 
-			sane_strstatus( status));
+				sane_strstatus( status));
 		return status;
 	}
 
@@ -4213,10 +4246,10 @@ SANE_Status sane_start ( SANE_Handle handle)
 
 		if( SANE_STATUS_GOOD != status) {
 			DBG( 1, "sane_start: set_lcount(%d) failed: %s\n", 
-				lcount, sane_strstatus (status));
+					lcount, sane_strstatus (status));
 			return status;
 		}
-   	}
+	}
 
 	if(s->hw->cmd->request_extended_status != 0 && SANE_TRUE == s->hw->extension) 
 	{ 
@@ -4234,12 +4267,12 @@ SANE_Status sane_start ( SANE_Handle handle)
 			len = 4;				/* receive header */
 
 			receive( s, result, len, &status);
-    			if( SANE_STATUS_GOOD != status)
-      				return status;
+			if( SANE_STATUS_GOOD != status)
+				return status;
 
 			len = result[ 3] << 8 | result[ 2];
 			buf = alloca( len);
-	
+
 			receive( s, buf, len, &status);		/* reveive actual status data */
 	
 			if( buf[ 0] & 0x80) 
@@ -4288,17 +4321,18 @@ SANE_Status sane_start ( SANE_Handle handle)
 
 #if 0
 	    DBG(10, "SANE_START: length=%d\n", len);
-	    for (i = 1; i <= len; i++) { 
-	      DBG(10, "SANE_START: %d: %c\n", i, buf[i-1]); 
-	    }
+	    for (i = 1; i <= len; i++) 
+		{ 
+			DBG(10, "SANE_START: %d: %c\n", i, buf[i-1]); 
+		}
 #endif
 
-	    DBG( 5, "SANE_START: color: %d\n", (int) buf[1]);
-	    DBG( 5, "SANE_START: resolution (x, y): (%d, %d)\n", 
-		 (int) (buf[4]<<8|buf[3]), (int) (buf[6]<<8|buf[5]));
-	    DBG( 5, "SANE_START: area[dots] (x-offset, y-offset), (x-range, y-range): (%d, %d), (%d, %d)\n",
-		 (int) (buf[9]<<8|buf[8]), (int) (buf[11]<<8|buf[10]), 
-		 (int) (buf[13]<<8|buf[12]), (int) (buf[15]<<8|buf[14]));
+		DBG( 5, "SANE_START: color: %d\n", (int) buf[1]);
+		DBG( 5, "SANE_START: resolution (x, y): (%d, %d)\n", 
+				(int) (buf[4]<<8|buf[3]), (int) (buf[6]<<8|buf[5]));
+		DBG( 5, "SANE_START: area[dots] (x-offset, y-offset), (x-range, y-range): (%d, %d), (%d, %d)\n",
+				(int) (buf[9]<<8|buf[8]), (int) (buf[11]<<8|buf[10]), 
+				(int) (buf[13]<<8|buf[12]), (int) (buf[15]<<8|buf[14]));
 	    DBG( 5, "SANE_START: data format: %d\n", (int) buf[17]);
 	    DBG( 5, "SANE_START: halftone: %d\n", (int) buf[19]);
 	    DBG( 5, "SANE_START: brightness: %d\n", (int) buf[21]);
@@ -4323,25 +4357,25 @@ SANE_Status sane_start ( SANE_Handle handle)
 	if (s->hw->color_shuffle == SANE_TRUE)
 	{
 
-	/* initialize the line buffers */
-	  for (i = 0; i < s->line_distance * 2 + 1; i++)
-	   {
-	     if (s->line_buffer[i] != NULL)
-	       free(s->line_buffer[i]);
+		/* initialize the line buffers */
+		for (i = 0; i < s->line_distance * 2 + 1; i++)
+		{
+			if (s->line_buffer[i] != NULL)
+				free(s->line_buffer[i]);
 
-	     s->line_buffer[i] = malloc(s->params.bytes_per_line);  
-	     if (s->line_buffer[i] == NULL)
-	      {
-	        /* free the memory we've malloced so far */
-	        for (j = 0; j < i; j++)
-	         {
-	           free(s->line_buffer[j]);
-		   s->line_buffer[j] = NULL;
-	         }
-		DBG( 1, "out of memory (line %d)\n", __LINE__);
-	        return SANE_STATUS_NO_MEM;
-	      }
-	   }
+			s->line_buffer[i] = malloc(s->params.bytes_per_line);  
+			if (s->line_buffer[i] == NULL)
+			{
+				/* free the memory we've malloced so far */
+				for (j = 0; j < i; j++)
+				{
+					free(s->line_buffer[j]);
+					s->line_buffer[j] = NULL;
+				}
+				DBG( 1, "out of memory (line %d)\n", __LINE__);
+				return SANE_STATUS_NO_MEM;
+			}
+		}
 	}
 
 	params[0] = ESC;
@@ -4349,10 +4383,11 @@ SANE_Status sane_start ( SANE_Handle handle)
 
 	send( s, params, 2, &status);
 
-	if( SANE_STATUS_GOOD != status) {
+	if( SANE_STATUS_GOOD != status) 
+	{
 		DBG( 1, "sane_start: start failed: %s\n", sane_strstatus( status));
 		return status;
-    	}
+	}
 
 	s->eof = SANE_FALSE;
 	s->buf = realloc( s->buf, lcount * s->params.bytes_per_line);
@@ -5438,3 +5473,7 @@ SANE_Status sane_get_select_fd ( SANE_Handle handle, SANE_Int * fd)
 
 	return SANE_STATUS_UNSUPPORTED;
 }
+
+/*
+vim:ts=4:sw=4:cindent:
+*/

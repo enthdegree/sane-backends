@@ -104,7 +104,7 @@
 
 /* if you change the source, please set UMAX_PP_STATE to "devel". Do *not*
  * change the UMAX_PP_BUILD. */
-#define UMAX_PP_BUILD	9
+#define UMAX_PP_BUILD	8
 #define UMAX_PP_STATE	"devel"
 
 static int num_devices = 0;
@@ -132,7 +132,7 @@ static int blue_highlight = 0;
 
 
 static const SANE_String_Const mode_list[] = {
-  "Gray", "Color", 0
+  SANE_I18N("Lineart"), SANE_I18N("Gray"), SANE_I18N("Color"), 0
 };
 
 static const SANE_Range u4_range = {
@@ -346,7 +346,7 @@ init_options (Umax_PP_Device * dev)
 
   /* "Mode" group: */
 
-  dev->opt[OPT_MODE_GROUP].title = SANE_I18N("Scan Mode");
+  dev->opt[OPT_MODE_GROUP].title = SANE_I18N ("Scan Mode");
   dev->opt[OPT_MODE_GROUP].name = "";
   dev->opt[OPT_MODE_GROUP].desc = "";
   dev->opt[OPT_MODE_GROUP].type = SANE_TYPE_GROUP;
@@ -393,7 +393,7 @@ init_options (Umax_PP_Device * dev)
 
   /* "Geometry" group: */
 
-  dev->opt[OPT_GEOMETRY_GROUP].title = SANE_I18N("Geometry");
+  dev->opt[OPT_GEOMETRY_GROUP].title = SANE_I18N ("Geometry");
   dev->opt[OPT_GEOMETRY_GROUP].desc = "";
   dev->opt[OPT_GEOMETRY_GROUP].name = "";
   dev->opt[OPT_GEOMETRY_GROUP].type = SANE_TYPE_GROUP;
@@ -441,7 +441,7 @@ init_options (Umax_PP_Device * dev)
 
   /* "Enhancement" group: */
 
-  dev->opt[OPT_ENHANCEMENT_GROUP].title = SANE_I18N("Enhancement");
+  dev->opt[OPT_ENHANCEMENT_GROUP].title = SANE_I18N ("Enhancement");
   dev->opt[OPT_ENHANCEMENT_GROUP].desc = "";
   dev->opt[OPT_ENHANCEMENT_GROUP].name = "";
   dev->opt[OPT_ENHANCEMENT_GROUP].type = SANE_TYPE_GROUP;
@@ -449,9 +449,9 @@ init_options (Umax_PP_Device * dev)
   dev->opt[OPT_ENHANCEMENT_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
   /* lamp control */
-  dev->opt[OPT_LAMP_CONTROL].name = SANE_I18N("lamp-control");
-  dev->opt[OPT_LAMP_CONTROL].title = SANE_I18N("Lamp on");
-  dev->opt[OPT_LAMP_CONTROL].desc = SANE_I18N("Sets lamp on/off");
+  dev->opt[OPT_LAMP_CONTROL].name = SANE_I18N ("lamp-control");
+  dev->opt[OPT_LAMP_CONTROL].title = SANE_I18N ("Lamp on");
+  dev->opt[OPT_LAMP_CONTROL].desc = SANE_I18N ("Sets lamp on/off");
   dev->opt[OPT_LAMP_CONTROL].type = SANE_TYPE_BOOL;
   dev->opt[OPT_LAMP_CONTROL].size = sizeof (SANE_Word);
   dev->opt[OPT_LAMP_CONTROL].unit = SANE_UNIT_NONE;
@@ -516,16 +516,16 @@ init_options (Umax_PP_Device * dev)
 
   /*  gain group */
   dev->opt[OPT_MANUAL_GAIN].name = "manual-channel-gain";
-  dev->opt[OPT_MANUAL_GAIN].title = SANE_I18N("Gain");
-  dev->opt[OPT_MANUAL_GAIN].desc = SANE_I18N("Color channels gain settings");
+  dev->opt[OPT_MANUAL_GAIN].title = SANE_I18N ("Gain");
+  dev->opt[OPT_MANUAL_GAIN].desc = SANE_I18N ("Color channels gain settings");
   dev->opt[OPT_MANUAL_GAIN].type = SANE_TYPE_BOOL;
   dev->opt[OPT_MANUAL_GAIN].cap |= SANE_CAP_ADVANCED;
   dev->val[OPT_MANUAL_GAIN].w = SANE_FALSE;
 
   /* gray gain */
   dev->opt[OPT_GRAY_GAIN].name = "gray-gain";
-  dev->opt[OPT_GRAY_GAIN].title = SANE_I18N("Gray gain");
-  dev->opt[OPT_GRAY_GAIN].desc = SANE_I18N("Sets gray channel gain");
+  dev->opt[OPT_GRAY_GAIN].title = SANE_I18N ("Gray gain");
+  dev->opt[OPT_GRAY_GAIN].desc = SANE_I18N ("Sets gray channel gain");
   dev->opt[OPT_GRAY_GAIN].type = SANE_TYPE_INT;
   dev->opt[OPT_GRAY_GAIN].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
   dev->opt[OPT_GRAY_GAIN].unit = SANE_UNIT_NONE;
@@ -536,8 +536,8 @@ init_options (Umax_PP_Device * dev)
 
   /* red gain */
   dev->opt[OPT_RED_GAIN].name = "red-gain";
-  dev->opt[OPT_RED_GAIN].title = SANE_I18N("Red gain");
-  dev->opt[OPT_RED_GAIN].desc = SANE_I18N("Sets red channel gain");
+  dev->opt[OPT_RED_GAIN].title = SANE_I18N ("Red gain");
+  dev->opt[OPT_RED_GAIN].desc = SANE_I18N ("Sets red channel gain");
   dev->opt[OPT_RED_GAIN].type = SANE_TYPE_INT;
   dev->opt[OPT_RED_GAIN].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
   dev->opt[OPT_RED_GAIN].unit = SANE_UNIT_NONE;
@@ -548,8 +548,8 @@ init_options (Umax_PP_Device * dev)
 
   /* green gain */
   dev->opt[OPT_GREEN_GAIN].name = "green-gain";
-  dev->opt[OPT_GREEN_GAIN].title = SANE_I18N("Green gain");
-  dev->opt[OPT_GREEN_GAIN].desc = SANE_I18N("Sets green channel gain");
+  dev->opt[OPT_GREEN_GAIN].title = SANE_I18N ("Green gain");
+  dev->opt[OPT_GREEN_GAIN].desc = SANE_I18N ("Sets green channel gain");
   dev->opt[OPT_GREEN_GAIN].type = SANE_TYPE_INT;
   dev->opt[OPT_GREEN_GAIN].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
   dev->opt[OPT_GREEN_GAIN].unit = SANE_UNIT_NONE;
@@ -560,8 +560,8 @@ init_options (Umax_PP_Device * dev)
 
   /* blue gain */
   dev->opt[OPT_BLUE_GAIN].name = "blue-gain";
-  dev->opt[OPT_BLUE_GAIN].title = SANE_I18N("Blue gain");
-  dev->opt[OPT_BLUE_GAIN].desc = SANE_I18N("Sets blue channel gain");
+  dev->opt[OPT_BLUE_GAIN].title = SANE_I18N ("Blue gain");
+  dev->opt[OPT_BLUE_GAIN].desc = SANE_I18N ("Sets blue channel gain");
   dev->opt[OPT_BLUE_GAIN].type = SANE_TYPE_INT;
   dev->opt[OPT_BLUE_GAIN].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
   dev->opt[OPT_BLUE_GAIN].unit = SANE_UNIT_NONE;
@@ -572,16 +572,18 @@ init_options (Umax_PP_Device * dev)
 
   /*  highlight group */
   dev->opt[OPT_MANUAL_HIGHLIGHT].name = "manual-highlight";
-  dev->opt[OPT_MANUAL_HIGHLIGHT].title = SANE_I18N("Highlight");
-  dev->opt[OPT_MANUAL_HIGHLIGHT].desc = SANE_I18N("Color channels highlight settings");
+  dev->opt[OPT_MANUAL_HIGHLIGHT].title = SANE_I18N ("Highlight");
+  dev->opt[OPT_MANUAL_HIGHLIGHT].desc =
+    SANE_I18N ("Color channels highlight settings");
   dev->opt[OPT_MANUAL_HIGHLIGHT].type = SANE_TYPE_BOOL;
   dev->opt[OPT_MANUAL_HIGHLIGHT].cap |= SANE_CAP_ADVANCED;
   dev->val[OPT_MANUAL_HIGHLIGHT].w = SANE_FALSE;
 
   /* gray highlight */
   dev->opt[OPT_GRAY_HIGHLIGHT].name = "gray-highlight";
-  dev->opt[OPT_GRAY_HIGHLIGHT].title = SANE_I18N("Gray highlight");
-  dev->opt[OPT_GRAY_HIGHLIGHT].desc = SANE_I18N("Sets gray channel highlight");
+  dev->opt[OPT_GRAY_HIGHLIGHT].title = SANE_I18N ("Gray highlight");
+  dev->opt[OPT_GRAY_HIGHLIGHT].desc =
+    SANE_I18N ("Sets gray channel highlight");
   dev->opt[OPT_GRAY_HIGHLIGHT].type = SANE_TYPE_INT;
   dev->opt[OPT_GRAY_HIGHLIGHT].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
   dev->opt[OPT_GRAY_HIGHLIGHT].unit = SANE_UNIT_NONE;
@@ -592,8 +594,8 @@ init_options (Umax_PP_Device * dev)
 
   /* red highlight */
   dev->opt[OPT_RED_HIGHLIGHT].name = "red-highlight";
-  dev->opt[OPT_RED_HIGHLIGHT].title = SANE_I18N("Red highlight");
-  dev->opt[OPT_RED_HIGHLIGHT].desc = SANE_I18N("Sets red channel highlight");
+  dev->opt[OPT_RED_HIGHLIGHT].title = SANE_I18N ("Red highlight");
+  dev->opt[OPT_RED_HIGHLIGHT].desc = SANE_I18N ("Sets red channel highlight");
   dev->opt[OPT_RED_HIGHLIGHT].type = SANE_TYPE_INT;
   dev->opt[OPT_RED_HIGHLIGHT].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
   dev->opt[OPT_RED_HIGHLIGHT].unit = SANE_UNIT_NONE;
@@ -604,8 +606,9 @@ init_options (Umax_PP_Device * dev)
 
   /* green highlight */
   dev->opt[OPT_GREEN_HIGHLIGHT].name = "green-highlight";
-  dev->opt[OPT_GREEN_HIGHLIGHT].title = SANE_I18N("Green highlight");
-  dev->opt[OPT_GREEN_HIGHLIGHT].desc = SANE_I18N("Sets green channel highlight");
+  dev->opt[OPT_GREEN_HIGHLIGHT].title = SANE_I18N ("Green highlight");
+  dev->opt[OPT_GREEN_HIGHLIGHT].desc =
+    SANE_I18N ("Sets green channel highlight");
   dev->opt[OPT_GREEN_HIGHLIGHT].type = SANE_TYPE_INT;
   dev->opt[OPT_GREEN_HIGHLIGHT].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
   dev->opt[OPT_GREEN_HIGHLIGHT].unit = SANE_UNIT_NONE;
@@ -616,8 +619,9 @@ init_options (Umax_PP_Device * dev)
 
   /* blue highlight */
   dev->opt[OPT_BLUE_HIGHLIGHT].name = "blue-highlight";
-  dev->opt[OPT_BLUE_HIGHLIGHT].title = SANE_I18N("Blue highlight");
-  dev->opt[OPT_BLUE_HIGHLIGHT].desc = SANE_I18N("Sets blue channel highlight");
+  dev->opt[OPT_BLUE_HIGHLIGHT].title = SANE_I18N ("Blue highlight");
+  dev->opt[OPT_BLUE_HIGHLIGHT].desc =
+    SANE_I18N ("Sets blue channel highlight");
   dev->opt[OPT_BLUE_HIGHLIGHT].type = SANE_TYPE_INT;
   dev->opt[OPT_BLUE_HIGHLIGHT].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
   dev->opt[OPT_BLUE_HIGHLIGHT].unit = SANE_UNIT_NONE;
@@ -1533,7 +1537,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    {
 	      const char *mode = dev->val[OPT_MODE].s;
 
-	      if (strcmp (mode, "Gray") == 0)
+	      if ((strcmp (mode, "Gray") == 0)
+		  || (strcmp (mode, "Lineart") == 0))
 		dev->opt[OPT_GRAY_HIGHLIGHT].cap &= ~SANE_CAP_INACTIVE;
 	      else if (strcmp (mode, "Color") == 0)
 		{
@@ -1569,7 +1574,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    {
 	      const char *mode = dev->val[OPT_MODE].s;
 
-	      if (strcmp (mode, "Gray") == 0)
+	      if ((strcmp (mode, "Gray") == 0)
+		  || (strcmp (mode, "Lineart") == 0))
 		dev->opt[OPT_GRAY_GAIN].cap &= ~SANE_CAP_INACTIVE;
 	      else if (strcmp (mode, "Color") == 0)
 		{
@@ -1606,7 +1612,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    {
 	      const char *mode = dev->val[OPT_MODE].s;
 
-	      if (strcmp (mode, "Gray") == 0)
+	      if ((strcmp (mode, "Gray") == 0)
+		  || (strcmp (mode, "Lineart") == 0))
 		{
 		  dev->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
 		  sanei_umax_pp_gamma (NULL, dev->val[OPT_GAMMA_VECTOR].wa,
@@ -1661,7 +1668,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	    if (dev->val[OPT_CUSTOM_GAMMA].w == SANE_TRUE)
 	      {
-		if (strcmp (val, "Gray") == 0)
+		if ((strcmp (val, "Gray") == 0)
+		    || (strcmp (val, "Lineart") == 0))
 		  {
 		    dev->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
 		    sanei_umax_pp_gamma (NULL, dev->val[OPT_GAMMA_VECTOR].wa,
@@ -1688,7 +1696,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	    if (dev->val[OPT_MANUAL_HIGHLIGHT].w == SANE_TRUE)
 	      {
-		if (strcmp (val, "Gray") == 0)
+		if ((strcmp (val, "Gray") == 0)
+		    || (strcmp (val, "Lineart") == 0))
 		  dev->opt[OPT_GRAY_HIGHLIGHT].cap &= ~SANE_CAP_INACTIVE;
 		else if (strcmp (val, "Color") == 0)
 		  {
@@ -1707,7 +1716,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	    if (dev->val[OPT_MANUAL_GAIN].w == SANE_TRUE)
 	      {
-		if (strcmp (val, "Gray") == 0)
+		if ((strcmp (val, "Gray") == 0)
+		    || (strcmp (val, "Lineart") == 0))
 		  dev->opt[OPT_GRAY_GAIN].cap &= ~SANE_CAP_INACTIVE;
 		else if (strcmp (val, "Color") == 0)
 		  {
@@ -1739,15 +1749,20 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   DBG (64, "sane_get_parameters\n");
 
   /* color/gray */
-  if (strcmp (dev->val[OPT_MODE].s, "Gray") == 0)
-    dev->color = UMAX_PP_MODE_GRAYSCALE;
+  if (strcmp (dev->val[OPT_MODE].s, "Color") != 0)
+  {
+  	if (strcmp (dev->val[OPT_MODE].s, "Gray") != 0)
+    		dev->color = UMAX_PP_MODE_LINEART;
+	else
+    		dev->color = UMAX_PP_MODE_GRAYSCALE;
+  }
   else
     dev->color = UMAX_PP_MODE_COLOR;
 
   /* highlight control */
   if (dev->val[OPT_MANUAL_HIGHLIGHT].w == SANE_TRUE)
     {
-      if (dev->color == UMAX_PP_MODE_GRAYSCALE)
+      if (dev->color != UMAX_PP_MODE_COLOR)
 	{
 	  dev->red_highlight = 0;
 	  dev->green_highlight = (int) (dev->val[OPT_GRAY_HIGHLIGHT].w);
@@ -1770,7 +1785,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   /* gain control */
   if (dev->val[OPT_MANUAL_GAIN].w == SANE_TRUE)
     {
-      if (dev->color == UMAX_PP_MODE_GRAYSCALE)
+      if (dev->color != UMAX_PP_MODE_COLOR)
 	{
 	  dev->red_gain = 0;
 	  dev->green_gain = (int) (dev->val[OPT_GRAY_GAIN].w);
@@ -1947,7 +1962,7 @@ sane_start (SANE_Handle handle)
 				dev->BottomX - dev->TopX,
 				dev->BottomY - dev->TopY,
 				dev->dpi,
-				1,
+				2,
 				autoset,
 				(dev->red_gain << 8) +
 				(dev->green_gain << 4) + dev->blue_gain,
@@ -1969,10 +1984,9 @@ sane_start (SANE_Handle handle)
 				dev->BottomX - dev->TopX,
 				dev->BottomY - dev->TopY,
 				dev->dpi,
-				0,
-				autoset,
-				dev->gray_gain << 4,
-				dev->gray_highlight << 4,
+				(dev->color ==
+				 UMAX_PP_MODE_GRAYSCALE) ? 1 : 0, autoset,
+				dev->gray_gain << 4, dev->gray_highlight << 4,
 				&(dev->bpp), &(dev->tw), &(dev->th));
     }
 
@@ -2005,6 +2019,8 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   int last, rc;
   int x, y, nl, ll;
   SANE_Byte *lbuf;
+  int max = 0;
+  int min = 255;
 
 
   /* no data until further notice */
@@ -2104,6 +2120,28 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	  /* avoids memcopy */
 	  free (dev->buf);
 	  dev->buf = lbuf;
+	}
+
+      /* software lineart */
+      if (dev->color == UMAX_PP_MODE_LINEART)
+	{
+	  DBG (64, "sane_read: software lineart\n");
+	     
+	  for (y = 0; y < length; y++)
+	    {
+	      if (dev->buf[dev->bufread + y] > max)
+		max = dev->buf[dev->bufread + y];
+	      if (dev->buf[dev->bufread + y] < min)
+		min = dev->buf[dev->bufread + y];
+	    }
+	  max = (min + max) / 2;
+	  for (y = 0; y < length; y++)
+	    {
+	      if (dev->buf[dev->bufread + y] > max)
+		dev->buf[dev->bufread + y] = 255;
+	      else
+		dev->buf[dev->bufread + y] = 0;
+	    }
 	}
     }
 

@@ -345,8 +345,18 @@ sanei_umax_pp_start (int x, int y, int width, int height, int dpi, int color,
   else
     sanei_umax_pp_setauto (0);
 
-  if (color)
-    col = RGB_MODE;
+  switch(color)
+  {
+  	case 0:
+    		col = BW2_MODE;
+		break;
+  	case 1:
+    		col = BW_MODE;
+		break;
+	case 2:
+    		col = RGB_MODE;
+		break;
+  }
 
   if (sanei_umax_pp_StartScan
       (x + 144, y, width, height, dpi, col, gain, highlight, rbpp, rtw,

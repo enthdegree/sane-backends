@@ -3,6 +3,8 @@
 	* doc/descriptions/sp15c.desc: Added missing slash in URL.
 	* doc/descriptions/fujitsu.desc: Changed status to :beta. Added
 	  some URLs.
+	* frontend/Makefile.in: Use LIBS = @LIBS@ to make sure that 
+	  -lsyslog and -lsocket are linked for OS/2.
 
 2002-07-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

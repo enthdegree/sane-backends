@@ -77,10 +77,10 @@ static scsiblk inquiry = {
 static void
 usage (char *msg)
 {
-  fprintf (stderr, "Usage: %s [-hv] [devname ...]\n", prog_name);
+  fprintf (stderr, "Usage: %s [-hvqf] [devname ...]\n", prog_name);
   fprintf (stderr, "\t-h: print this help message\n");
   fprintf (stderr, "\t-v: be more verbose (can be used multiple times)\n");
-  fprintf (stderr, "\t-q: be more quiet\n");
+  fprintf (stderr, "\t-q: be quiet (print only devices, no comments)\n");
   fprintf (stderr, "\t-f: force opening devname as SCSI even if it looks "
 	   "like USB\n");
   if (msg)
@@ -350,8 +350,8 @@ check_usb_file (char *file_name)
 	{
 	  if (verbose > 1)
 	    printf (" open ok, vendor and product ids were identified\n");
-	  printf ("found USB scanner (vendor = 0x%04x, "
-		  "product = 0x%04x) at %s\n", vendor, product, file_name);
+	  printf ("found USB scanner (vendor=0x%04x, "
+		  "product=0x%04x) at %s\n", vendor, product, file_name);
 	}
       else
 	{
@@ -453,7 +453,7 @@ check_libusb_device (struct usb_device *dev)
 	  printf (" (%s%s%s)", vendor ? vendor : "",
 		  (vendor && product) ? " " : "", product ? product : "");
 	}
-      printf ("\n");
+      printf (">\n");
       printf ("bLength               %d\n", d->bLength);
       printf ("bDescriptorType       %d\n", d->bDescriptorType);
       printf ("bcdUSB                %d.%d%d\n", d->bcdUSB >> 8,
@@ -522,9 +522,10 @@ check_libusb_device (struct usb_device *dev)
 		  printf ("   bInterfaceProtocol %d\n",
 			  i->bInterfaceProtocol);
 		  printf ("   iInterface         %d (%s)\n", i->iInterface,
-			  i->iInterface 
+			  i->iInterface
 			  ? get_libusb_string_descriptor (dev,
-							  i->iInterface) : "");
+							  i->
+							  iInterface) : "");
 		  for (ep_nr = 0; ep_nr < i->bNumEndpoints; ep_nr++)
 		    {
 		      struct usb_endpoint_descriptor *e = &i->endpoint[ep_nr];

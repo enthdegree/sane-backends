@@ -2,6 +2,7 @@
 
 	* TODO: Added entries about the fork/kill(-1,...) issue, the inb/outb
 	  problems, config.guess and sane-config.in.
+	* sanei/Makefile.in: Added sanei_thread for OS/2 portability.
 
 2001-11-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

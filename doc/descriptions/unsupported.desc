@@ -170,13 +170,30 @@
 
 ;********************************************************************************************
 
-:mfg "Epson"
-:url "http://www.epson.com/"
+;:mfg "Epson"
+;:url "http://www.epson.com/"
 
-:model "Perfection 660"
-:interface "USB"
+;********************************************************************************************
+
+:mfg "E-Lux"
+;:url ""
+:comment "E-Lux and Enhans seem to have been purchased by dysan, now known as MEMOREX"
+
+:model "j-6121"
+:interface "Parport"
 :status :unsupported
-:comment "Unsupported. Vendor/product: 0x04b8/0x0114."
+:comment "Probably unsupported. Sold 1998. Same as E-Lux j-6121."
+
+;********************************************************************************************
+
+:mfg "Enhans"
+;:url ""
+:comment "E-Lux and Enhans seem to have been purchased by dysan, now known as MEMOREX"
+
+:model "j-6121"
+:interface "Parport"
+:status :unsupported
+:comment "Probably unsupported. Sold 1998. Same as E-Lux j-6121."
 
 ;********************************************************************************************
 
@@ -542,12 +559,6 @@
 :status :unsupported
 :comment "See Visioneer Primascan Colorado 2600u."
 
-:model "JEWEL 4800"
-:url "http://gkall.hobby.nl/notes2.html"
-:interface "SCSI"
-:status :unsupported
-:comment "Not supported. However, a patch for the teco2 backend and some information is available. Model VM3564."
-
 :model "Slim-Line 1200"
 ;:url ""
 :interface "USB"
@@ -626,6 +637,12 @@
 :interface "USB"
 :status :unsupported
 :comment "Not supported. Is reported to use LM9832 (or LM9830 + E5). Is reported to have the same ids as the Primascan Colorado 2600u, see that entry for more info."
+
+:model "OneTouch 5300 USB"
+:url "http://www.meier-geinitz.de/sane/misc/visioneer-onetouch5300usb.txt"
+:interface "USB"
+:status :unsupported
+:comment "Not supported. Vendor/product ids 0x04a7/0x0226. See link for output of /proc/bus/usb/devices. The output looks very similar to that of the 8920."
 
 :model "Onetouch 8920"
 :url "http://www.meier-geinitz.de/sane/misc/visioneer-onetouch8920.txt"

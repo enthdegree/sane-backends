@@ -12,6 +12,10 @@
 	* README.openbsd: libusb is necessary for some backends.
 	* Makefile.in doc/Makefile.in doc/sane.man: The lists of supported
 	  devices are now generated and installed by default.
+	* NEWS: Updated for 1.0-12.
+	* doc/descriptions/unsupported.desc: Removed Epson Perfection 660
+	  (now supported by snapscan backend), Primax Jewel 4800 (teco2).
+	  Added Enhans/E-Lux j-6121 and Visioneer OneTouch 5300 USB.
 	
 2003-04-18  Frank Zago  <fzago at austin dot rr dot com>
 

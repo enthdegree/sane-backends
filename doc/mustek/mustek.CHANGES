@@ -1,5 +1,15 @@
 CHANGES for the SANE Mustek backend
 
+2003-10-29
+  * Released Mustek backend 1.0-134
+
+2003-10-29
+  * Added support for sanei_thread.
+  * Removed OS/2 specific code.
+
+2003-10-15
+  * Added more debug messages.
+
 2003-09-21
   * Released Mustek backend 1.0-133
 

@@ -345,6 +345,7 @@ libsane-mustek.la: ../sanei/sanei_config2.lo
 libsane-mustek.la: ../sanei/sanei_constrain_value.lo
 libsane-mustek.la: ../sanei/sanei_scsi.lo
 libsane-mustek.la: ../sanei/sanei_ab306.lo
+libsane-mustek.la: ../sanei/sanei_thread.lo
 libsane-mustek_pp.la: ../sanei/sanei_constrain_value.lo
 libsane-mustek_pp.la: ../sanei/sanei_pa4s2.lo
 libsane-mustek_pp_ccd.la: ../sanei/sanei_constrain_value.lo

@@ -46,7 +46,7 @@
 
 /**************************************************************************/
 /* Mustek backend version                                                 */
-#define BUILD 133
+#define BUILD 134
 /**************************************************************************/
 
 #include "../include/sane/config.h"
@@ -63,16 +63,13 @@
 
 #include <sys/time.h>
 #include <sys/types.h>
-#include <sys/wait.h>
 
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 #include "../include/sane/sanei_scsi.h"
 #include "../include/sane/sanei_ab306.h"
-#ifdef HAVE_OS2_H
 #include "../include/sane/sanei_thread.h"
-#endif
 
 #define BACKEND_NAME	mustek
 #include "../include/sane/sanei_backend.h"
@@ -2867,37 +2864,31 @@ do_stop (Mustek_Scanner * s)
 
       /* ensure child knows it's time to stop: */
       DBG (5, "do_stop: terminating reader process\n");
-      kill (s->reader_pid, SIGTERM);
+      sanei_thread_kill (s->reader_pid);
 
-      pid = waitpid (s->reader_pid, &exit_status, 0);
+      pid = sanei_thread_waitpid (s->reader_pid, &exit_status);
       if (pid < 0)
 	{
-	  DBG (1, "do_stop: waitpid failed, already terminated? (%s)\n",
+	  DBG (1, "do_stop: sanei_thread_waitpid failed, already terminated? (%s)\n",
 	       strerror (errno));
 	}
-      else if (WIFEXITED (exit_status))
+      else
 	{
 	  DBG (2, "do_stop: reader process terminated with status %s\n",
-	       sane_strstatus (WEXITSTATUS (exit_status)));
+	       sane_strstatus (exit_status));
 	  if (status != SANE_STATUS_CANCELLED 
-	      && WEXITSTATUS (exit_status) != SANE_STATUS_GOOD)
-	    status = WEXITSTATUS (exit_status);
+	      && exit_status != SANE_STATUS_GOOD)
+	    status = exit_status;
 	}
-      else if (WIFSIGNALED (status))
-	{
-	  DBG (2, "do_stop: reader process was terminated by signal %d\n",
-	       WTERMSIG (exit_status));
-	  if (WTERMSIG (exit_status) != 15)
-	    status = SANE_STATUS_IO_ERROR;
-	}
-      else
-	DBG (1, "do_stop: reader process terminated by unknown reason\n");
 
       s->reader_pid = 0;
     }
 
   if (s->fd >= 0)
     {
+      if (!sanei_thread_is_forked())
+	sanei_scsi_req_flush_all (); /* flush SCSI queue */
+
       if (s->hw->flags & MUSTEK_FLAG_PRO)
 	{
 	  if (s->total_bytes < s->params.lines * s->params.bytes_per_line)
@@ -2922,28 +2913,16 @@ do_stop (Mustek_Scanner * s)
 	  DBG (5, "do_stop: waiting for scanner to be ready\n");
 	  dev_wait_ready (s);
 	}
+
+      do_eof (s);
       DBG (5, "do_stop: closing scanner\n");
       dev_close (s);
       s->fd = -1;
     }
 
+  DBG (5, "do_stop: finished\n");
   return status;
 }
-
-#ifdef HAVE_OS2_H
-/*
- * reader thread for OS/2: need a wrapper, because threads can have
- * only one parameter.
-*/
-static void
-os2_reader_process (void *data)
-{
-  struct Mustek_Scanner *scanner = (struct Mustek_Scanner *) data;
-
-  DBG (1, "reader_process thread started\n");
-  reader_process (scanner, scanner->reader_fds);
-}
-#endif
 
 /* Paragon I + II: Determine the CCD's distance between the primary color
    lines.  */
@@ -4712,21 +4691,24 @@ output_data (Mustek_Scanner * s, FILE * fp,
 static RETSIGTYPE
 sigterm_handler (int signal)
 {
-  DBG (5, "sigterm_handler: started, signal is %d, starting sanei_scsi_req_flush_all()\n", signal);
-  sanei_scsi_req_flush_all ();	/* flush SCSI queue */
-  DBG (5, "sigterm_handler: sanei_scsi_req_flush_all() finisheshed, _exiting()\n");
+  DBG (4, "sigterm_handler: started, signal is %d, starting sanei_scsi_req_flush_all()\n", signal);
+  sanei_scsi_req_flush_all (); /* flush SCSI queue */
+  DBG (4, "sigterm_handler: sanei_scsi_req_flush_all() finisheshed, _exiting()\n");
   _exit (SANE_STATUS_GOOD);
 }
 
+
 static SANE_Int
-reader_process (Mustek_Scanner * s, SANE_Int fd)
+reader_process (void * data)
 {
+  Mustek_Scanner * s = (Mustek_Scanner *) data;
   SANE_Int lines_per_buffer, bpl;
   SANE_Byte *extra = 0, *ptr;
   sigset_t sigterm_set;
   struct SIGACTION act;
   SANE_Status status;
   FILE *fp;
+  int fd = s->reader_fds;
   SANE_Int buffernumber = 0;
   SANE_Int buffer_count, max_buffers;
   struct
@@ -4742,12 +4724,33 @@ reader_process (Mustek_Scanner * s, SANE_Int fd)
   }
   bstat[2];
 
+  DBG (3, "reader_process: started\n");
+  if (sanei_thread_is_forked())
+    {
+      DBG (4, "reader_process: using fork ()\n");
+      close (s->pipe);
+      s->pipe = -1;
+    }
+  else
+    {
+      DBG (4, "reader_process: using threads\n");
+    }
+
+  if (sanei_thread_is_forked())
+    {
+      /* ignore SIGTERM while writing SCSI commands */
+      sigemptyset (&sigterm_set);
+      sigaddset (&sigterm_set, SIGTERM);
+
+      /* call our sigterm handler to clean up ongoing SCSI requests */
+      memset (&act, 0, sizeof (act));
+      act.sa_handler = sigterm_handler;
+      sigaction (SIGTERM, &act, 0);
+    }
+
   if (disable_double_buffering)
     DBG (3, "reader_process: disable_double_buffering is set, this may be "
 	 "slow\n");
-
-  sigemptyset (&sigterm_set);
-  sigaddset (&sigterm_set, SIGTERM);
 
   fp = fdopen (fd, "w");
   if (!fp)
@@ -4830,10 +4833,6 @@ reader_process (Mustek_Scanner * s, SANE_Int fd)
 	  return SANE_STATUS_NO_MEM;
 	}
     }
-
-  memset (&act, 0, sizeof (act));
-  act.sa_handler = sigterm_handler;
-  sigaction (SIGTERM, &act, 0);
 
   if (s->hw->flags & MUSTEK_FLAG_N)
     {
@@ -5042,6 +5041,8 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   FILE *fp;
 
   DBG_INIT ();
+
+  sanei_thread_init ();
 
 #ifdef DBG_LEVEL
   debug_level = DBG_LEVEL;
@@ -5424,6 +5425,7 @@ sane_exit (void)
   devlist = 0;
   first_dev = 0;
   sanei_ab306_exit ();		/* may have to do some cleanup */
+  DBG (5, "sane_exit: finished\n");
 }
 
 SANE_Status
@@ -5555,6 +5557,7 @@ sane_close (SANE_Handle handle)
     first_handle = s->next;
   free (handle);
   handle = 0;
+  DBG (5, "sane_close: finished\n");
 }
 
 const SANE_Option_Descriptor *
@@ -6072,6 +6075,7 @@ sane_start (SANE_Handle handle)
   Mustek_Scanner *s = handle;
   SANE_Status status;
   int fds[2];
+  struct SIGACTION act;
 
   if (!s)
     {
@@ -6374,38 +6378,33 @@ sane_start (SANE_Handle handle)
 
   s->line = 0;
 
+  /* don't call any SIGTERM or SIGCHLD handlers 
+     this is to stop xsane and other frontends from calling 
+     its quit handlers */
+  memset      (&act, 0, sizeof (act));
+  sigaction   (SIGTERM, &act, 0);
+  sigaction   (SIGCHLD, &act, 0);
+
   if (pipe (fds) < 0)
     return SANE_STATUS_IO_ERROR;
 
-#ifndef HAVE_OS2_H
-  s->reader_pid = fork ();
-#else
-  /* create reader routine as new process or thread */
   s->reader_fds = fds[1];
-  s->reader_pid = sanei_thread_begin (os2_reader_process, (void *) s);
-#endif
-  if (s->reader_pid == 0)
+
+  /* create reader routine as new process or thread */
+  s->reader_pid = sanei_thread_begin (reader_process, (void *) s);
+
+  if (s->reader_pid < 0)
     {
-      SANE_Int status;
-      sigset_t ignore_set;
-      struct SIGACTION act;
-
-      close (fds[0]);
-
-      sigfillset (&ignore_set);
-      sigdelset (&ignore_set, SIGTERM);
-      sigprocmask (SIG_SETMASK, &ignore_set, 0);
-      memset (&act, 0, sizeof (act));
-      sigaction (SIGTERM, &act, 0);
-
-      status = reader_process (s, fds[1]);
-
-      /* don't use exit() since that would run the atexit() handlers... */
-      _exit (status);
+      DBG (1, "sane_start: sanei_thread_begin failed (%s)\n", strerror(errno));
+      return SANE_STATUS_NO_MEM;
     }
-#ifndef HAVE_OS2_H
-  close (fds[1]);
-#endif
+
+  if (sanei_thread_is_forked ())
+    {
+      close (s->reader_fds);
+      s->reader_fds = -1;
+    }
+
   s->pipe = fds[0];
 
   return SANE_STATUS_GOOD;
@@ -6545,7 +6544,7 @@ sane_cancel (SANE_Handle handle)
       s->cancelled = SANE_TRUE;
       do_stop (handle);
     }
-  DBG (4, "sane_cancel finished\n");
+  DBG (5, "sane_cancel: finished\n");
 }
 
 SANE_Status

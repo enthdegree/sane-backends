@@ -9,7 +9,7 @@
 ;
 
 :backend "mustek"		; name of backend
-:version "1.0-133"		; version of backend
+:version "1.0-134"		; version of backend
 :manpage "sane-mustek"		; name of manpage (if it exists)
 :url "http://www.meier-geinitz.de/sane/mustek-backend/"
 :comment "Most Mustek SCSI scanners are supported by this backend. For USB scanners, look at the mustek_usb backend."

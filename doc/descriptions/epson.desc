@@ -110,4 +110,4 @@
 
 :model "FilmScan 200"
 :interface "SCSI"
-:comment "A better backend for the FilmScan 200 can be found at <A HREF=\"http://www.vjet.demon.co.uk/scanner/\">http://www.vjet.demon.cu.uk/scanner/</A>"
+:comment "A better backend for the FilmScan 200 can be found at <A HREF=\"http://www.vjet.demon.co.uk/scanner/\">http://www.vjet.demon.co.uk/scanner/</A>"

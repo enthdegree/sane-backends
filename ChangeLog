@@ -1,3 +1,13 @@
+2001-09-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/mustek_usb.c backend/mustek_usb.desc
+	  backend/mustek_usb_high.c backend/mustek_usb_high.h
+	  backend/mustek_usb_mid.c backend/mustek_usb_mid.h
+	  doc/sane-mustek_usb.man doc/mustek_usb/mustek_usb.CHANGES
+	  doc/mustek_usb/mustek_usb.TODO: Update to mustek_usb backend
+	  1.0-6. Increased resolution to the maximum hardware supports.
+	  No fixed resolution any more. Gamma table support. Bugfixes.
+	
 2001-09-12  Peter Fales <peter@fales.com>
 
 	* acinclude.m4 aclocal.m4 configure configure.in: Changes to

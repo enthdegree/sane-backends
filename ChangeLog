@@ -56,6 +56,7 @@
 	  Updated for separated lists of backends. Use package version in
 	  internal list. Don't use version and man page in external list.
 	* tools/sane-desc.el: Removed.
+	* configure configure.in: Added tools/sane-desc.el to output files.
 	
 2002-03-19  Frank Zago <fzago@greshamstorage.com>
 

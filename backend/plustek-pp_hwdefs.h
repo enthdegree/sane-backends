@@ -76,11 +76,6 @@
 #define __HWDEFS_H__
 
 /*
- * port definitions
- */
-#define _EPPDATA_PORT	4
-
-/*
  * port modes
  * (WARNING: never change these defines, as they´re used as entries
  *           to jump tables !!!)

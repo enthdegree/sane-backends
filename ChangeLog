@@ -1,3 +1,7 @@
+2001-06-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* TODO: Updated the entries about documentation.
+
 2001-06-13  Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 
 	* sanei/sanei-scsi.c: Corrected bug in sanei_scsi_cmd2 for IRIX:

@@ -1,4 +1,4 @@
-PROJECTS (2000-11-19)
+PROJECTS (2001-01-09)
 
 Here is a list of projects that various people have expressed interest
 in.  Before starting working on one of these projects, it may be a
@@ -34,11 +34,14 @@ ftp://www.cs.ubishops.ca/pub/lhii/
 HP USB backend for HP 4200 (wip)
 http://hp4200-backend.sourceforge.net/
 
-Mustek BearPaw USB scanner (planned) 
+Mustek BearPaw USB scanner (wip)
 Henning Meier-Geinitz <hmg@gmx.de>
 
 Mustek 1200 CU USB scanner (planned)
 Daniel Münch <aris.to@gmx.de>
+
+Mustek 1200 UB USB scanner (wip)
+ftp://ftp.mustek.com.tw/pub/driver/1200UB/Linux/
 
 Polaroid SprintScan 35 LE (wip)
 Dick Bruijn <dick@wau.mis.ah.nl>

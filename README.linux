@@ -84,6 +84,12 @@ about missing SCSI headers.
 Other Information
 =================
 
+Compilation errors in /usr/include/linux/videodev.h: These errors happen if 
+  there is a link /usr/include/linux -> /usr/src/linux/include/linux. Most
+  distributions come with their own Linux-specific headers so this link is
+  ususally not a good idea (and frowned upon by the kernel hackers). As a
+  workaround, make sure that the link points to a Linux 2.4 kernel (not 2.6).
+
 Excessive warnings "pointer of type `void *' used in arithmetic":
   Some older versions of glibc generate these warnings not related to SANE
   source code. To suppress these warnings do

@@ -46,7 +46,7 @@
 
 /**************************************************************************/
 /* Mustek backend version                                                 */
-#define BUILD 101
+#define BUILD 102
 /**************************************************************************/
 
 #include "sane/config.h"
@@ -1518,7 +1518,7 @@ constrain_value (Mustek_Scanner *s, SANE_Int option, void *value,
   return status;
 }
 
-/* Quantize s->req.resolution and return the resolution code for the
+/* Quantize s->val[OPT_RESOLUTION].w and return the resolution code for the
    quantized resolution.  Quantization depends on scanner type (single
    pass vs. three-pass) and resolution */
 static SANE_Int
@@ -1850,10 +1850,8 @@ set_window_pro (Mustek_Scanner *s)
   pixels_per_mm = SANE_UNFIX (s->hw->dpi_range.max) / MM_PER_INCH;
 
   /* The next for 16 bit values are x0, y0, x1, y1 in pixels at max res */
-  STORE16L(cp, (SANE_UNFIX (s->val[OPT_TL_X].w) - \
-		SANE_UNFIX (s->hw->x_range.min)) * pixels_per_mm + 0.5);
-  STORE16L(cp, (SANE_UNFIX (s->val[OPT_TL_Y].w) - \
-		SANE_UNFIX (s->hw->y_range.min)) * pixels_per_mm + 0.5);
+  STORE16L(cp, SANE_UNFIX (s->val[OPT_TL_X].w) * pixels_per_mm + 0.5);
+  STORE16L(cp, SANE_UNFIX (s->val[OPT_TL_Y].w) * pixels_per_mm + 0.5);
   STORE16L(cp, SANE_UNFIX (s->val[OPT_BR_X].w) * pixels_per_mm + 0.5);
   STORE16L(cp, SANE_UNFIX (s->val[OPT_BR_Y].w) * pixels_per_mm + 0.5);
   *cp++ = 0x14; /* what's this? */
@@ -5505,6 +5503,9 @@ sane_start (SANE_Handle handle)
 	}
       else
 	status = mode_select_paragon (s, MUSTEK_CODE_GRAY);
+
+      if (status != SANE_STATUS_GOOD)
+	goto stop_scanner_and_return;
 
       s->scanning = SANE_TRUE;
       s->cancelled = SANE_FALSE;

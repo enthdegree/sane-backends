@@ -9,6 +9,7 @@
 	  - removed usage of gettext from lib/getopt.c
 	  - removed test for libintl/gettext in configure[.in]
 	  - removed intllib from frontend/Makfile.in
+	* updated umax.desc
 
 2000-12-03  Karl Heinz Kremer <khk@khk.net>
 

@@ -1,3 +1,8 @@
+2001-04-21 Karl Heinz Kremer <khk@khk.net>
+
+	* backend/epson.conf: Commented out the usb config entry, this can
+	  block other USB scanners from being recognized.
+
 2001-04-19 Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* AUTHORS: Added Michael Herder and me for pnm. Updated my email

@@ -2624,14 +2624,31 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 SANE_Status
 sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 {
+  SANE_Status status;
+  Teco_Scanner *dev = handle;
+
   DBG (DBG_proc, "sane_set_io_mode: enter\n");
 
   handle = handle;		/* silence gcc */
   non_blocking = non_blocking;	/* silence gcc */
 
+  if (dev->scanning == SANE_FALSE)
+    {
+      return SANE_STATUS_INVAL;
+    }
+
+  if (non_blocking == SANE_FALSE)
+    {
+      status = SANE_STATUS_GOOD;
+    }
+  else
+    {
+      status = SANE_STATUS_UNSUPPORTED;
+    }
+
   DBG (DBG_proc, "sane_set_io_mode: exit\n");
 
-  return SANE_STATUS_UNSUPPORTED;
+  return status;
 }
 
 SANE_Status

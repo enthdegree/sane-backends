@@ -29,7 +29,7 @@
 	* TODO: Updated .desc file, mapages, sanei_usb and OS/2 entries. Removed
 	  entry about po files.
 	* po/Makefile.in: Remove sane-backends.pot from list of distributed 
-	  files.
+	  files. Add microtek2 files.
 	* backend/microtek2.c backend/microtek2.h:  Improved support for
 	  Scanmaker X12USL. Alpha support for Scanmaker 9800XL. Some bugfixes.
 	  (From Karsten Festag <karsten.festag@gmx.de>).

@@ -9,6 +9,7 @@ SRC_FILES = ../include/sane/saneopts.h ../backend/artec_eplus48u.c \
   ../backend/canon630u.c ../backend/epson.c ../backend/epson.h \
   ../backend/gt68xx.c ../backend/leo.c ../backend/leo.h \
   ../backend/matsushita.c ../backend/matsushita.h ../backend/mustek.c \
+  ../backend/microtek2.c ../backend/microtek2.h \
   ../backend/mustek_usb.c ../backend/plustek.c ../backend/pnm.c \
   ../backend/sceptre.c ../backend/sceptre.h ../backend/snapscan.c \
   ../backend/snapscan-options.c ../backend/teco1.c ../backend/teco1.h \

@@ -31,19 +31,21 @@ srcdir="@srcdir@"
 top_srcdir="@top_srcdir@"
 cflags=
 
-usage="\
-Usage: \n\
-  $scriptname --version         - show installed script and SANE version\n\
-  $scriptname --ldflags         - linker flags required to link with SANE\n\
-  $scriptname --libs            - libraries required to link with SANE\n\
-  $scriptname --cflags          - compiler flags required to find SANE headers\n\
-  $scriptname --help            - show usage info (this message)          \n\
-  $scriptname --help SUBCOMMAND - show help for SUBCOMMAND                \n\
-  $scriptname --prefix          - prefix used during SANE compile\n\
-  $scriptname --exec-prefix     - exec-prefix used during SANE compile\n"
+function usage ()
+{
+  echo "Usage: "  1>&2
+  echo "$scriptname --version         - show installed script and SANE version"  1>&2
+  echo "$scriptname --ldflags         - linker flags required to link with SANE"  1>&2
+  echo "$scriptname --libs            - libraries required to link with SANE"  1>&2
+  echo "$scriptname --cflags          - compiler flags required to find SANE headers"  1>&2
+  echo "$scriptname --help            - show usage info (this message)          "  1>&2
+  echo "$scriptname --help SUBCOMMAND - show help for SUBCOMMAND                "  1>&2
+  echo "$scriptname --prefix          - prefix used during SANE compile"  1>&2
+  echo "$scriptname --exec-prefix     - exec-prefix used during SANE compile"  1>&2
+}
 
 if test $# -eq 0; then
-      echo -e "${usage}" 1>&2
+      usage
       exit 1
 fi
 
@@ -54,7 +56,7 @@ if test $# -gt 0; then
       ;;
     --help)
       if test $# -eq 1; then
-        echo -e "${usage}" 1>&2
+        usage
       elif test $# -eq 2; then
         case $2 in 
           --cflags)
@@ -76,7 +78,7 @@ if test $# -gt 0; then
             ;;
         esac
       else
-        echo -e "${usage}" 1>&2
+        usage
       fi
       exit 1
       ;;
@@ -110,7 +112,7 @@ if test $# -gt 0; then
       echo ${exec_prefix}
       ;;
     *)
-      echo -e "${usage}" 1>&2
+      usage
       exit 1
       ;;
   esac

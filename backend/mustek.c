@@ -46,7 +46,7 @@
 
 /**************************************************************************/
 /* Mustek backend version                                                 */
-#define BUILD 121
+#define BUILD 122
 /**************************************************************************/
 
 #include "../include/sane/config.h"
@@ -171,9 +171,9 @@ static SANE_String_Const halftone_list[] = {
   SANE_I18N ("5x5 coarse"), SANE_I18N ("5x5 fine"), SANE_I18N ("4x4 coarse"),
   SANE_I18N ("4x4 normal"), SANE_I18N ("4x4 fine"), SANE_I18N ("3x3 normal"),
   SANE_I18N ("2x2 normal"), SANE_I18N ("8x8 custom"),
-    SANE_I18N ("6x6 custom"),
+  SANE_I18N ("6x6 custom"),
   SANE_I18N ("5x5 custom"), SANE_I18N ("4x4 custom"),
-    SANE_I18N ("3x3 custom"),
+  SANE_I18N ("3x3 custom"),
   SANE_I18N ("2x2 custom"),
   0
 };
@@ -5479,7 +5479,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
       DBG (1, "sane_get_option_descriptor: handle is null!\n");
       return 0;
     }
-  if (s->opt[option].name)
+  if (s->opt[option].name && s->opt[option].name[0] != 0)
     DBG (5, "sane_get_option_descriptor for option %s (%sactive%s)\n",
 	 s->opt[option].name,
 	 s->opt[option].cap & SANE_CAP_INACTIVE ? "in" : "",
@@ -5517,7 +5517,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       return SANE_STATUS_INVAL;
     }
 
-  if (s->opt[option].name)
+  if (s->opt[option].name && s->opt[option].name[0] != 0)
     DBG (5, "sane_control_option (%s option %s)\n",
 	 action == SANE_ACTION_GET_VALUE ? "get" :
 	 (action == SANE_ACTION_SET_VALUE ? "set" : "unknown action with"),

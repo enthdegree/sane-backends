@@ -1,5 +1,14 @@
 CHANGES for the SANE Mustek backend
 
+2002-04-24:
+  * Released Mustek backend 1.0-122.
+
+2002-04-24:
+  * Undef MIN and MAX if they are defined in mustek.h to avoid warnings.
+
+2002-04-22:
+  * Fixed debug output in sane_control_option and sane_get_device_descriptor.
+
 2002-04-10:
   * Released Mustek backend 1.0-121.
 

@@ -971,12 +971,11 @@ sanei_pa4s2_scsi_pp_get_status(int fd, u_char *status)
   DBG (6, "sanei_pa4s2_scsi_pp_get_status: called for fd %d\n",
        fd);
 
-#if defined (HAVE_LIBIEEE1284)
-  DBG (3, "sanei_pa4s2_scsi_pp_get_status: not implemented yet for libieee1284\n");
-  return SANE_STATUS_UNSUPPORTED;
+#if defined(HAVE_LIBIEEE1284)
+  if ((fd < 0) || (fd >= pplist.portc))
 #else
-
   if ((fd < 0) || (fd >= NELEMS (port)))
+#endif
     {
 
       DBG (2, "sanei_pa4s2_scsi_pp_get_status: invalid fd %d\n", fd);
@@ -990,8 +989,13 @@ sanei_pa4s2_scsi_pp_get_status(int fd, u_char *status)
     {
 
       DBG (2, "sanei_pa4s2_scsi_pp_get_status: port is not in use\n");
+#if defined(HAVE_LIBIEEE1284)
+      DBG (4, "sanei_pa4s2_scsi_pp_get_status: port is '%s'\n",
+      		pplist.portv[fd]->name);
+#else
       DBG (6, "sanei_pa4s2_scsi_pp_get_status: port is 0x%03lx\n",
 	   port[fd].base);
+#endif
       DBG (5, "sanei_pa4s2_scsi_pp_get_status: returning SANE_STATUS_INVAL\n");
 
       return SANE_STATUS_INVAL;
@@ -1002,20 +1006,24 @@ sanei_pa4s2_scsi_pp_get_status(int fd, u_char *status)
     {
 
       DBG (2, "sanei_pa4s2_scsi_pp_get_status: port is not enabled\n");
+#if defined(HAVE_LIBIEEE1284)
+      DBG (4, "sanei_pa4s2_scsi_pp_get_status: port is '%s'\n",
+      		pplist.portv[fd]->name);
+#else
       DBG (6, "sanei_pa4s2_scsi_pp_get_status: port is 0x%03lx\n",
 	   port[fd].base);
+#endif
       DBG (5, "sanei_pa4s2_scsi_pp_get_status: returning SANE_STATUS_INVAL\n");
 
       return SANE_STATUS_INVAL;
 
     }
 
-  outb(0x4, port[fd].base+2);
-  stat=inb(port[fd].base+1)^0x80;
-  *status=(stat&0x2f)|((stat&0x10)<<2)|((stat&0x40)<<1)|((stat&0x80)>>3);
+  outbyte2 (fd, 0x4);
+  stat = inbyte1 (fd)^0x80;
+  *status = (stat&0x2f)|((stat&0x10)<<2)|((stat&0x40)<<1)|((stat&0x80)>>3);
   DBG (5, "sanei_pa4s2_scsi_pp_get_status: status=0x%02X\n", *status);
   DBG (6, "sanei_pa4s2_scsi_pp_get_status: returning SANE_STATUS_GOOD\n");
-#endif
 
   return SANE_STATUS_GOOD;
 }
@@ -1027,15 +1035,13 @@ sanei_pa4s2_scsi_pp_get_status(int fd, u_char *status)
 SANE_Status
 sanei_pa4s2_scsi_pp_reg_select (int fd, int reg)
 {
-  int base;
-
   TEST_DBG_INIT ();
 
-#if defined (HAVE_LIBIEEE1284)
-  DBG (3, "sanei_pa4s2_scsi_pp_reg_select: not implemented yet for libieee1284\n");
-  return SANE_STATUS_UNSUPPORTED;
+#if defined(HAVE_LIBIEEE1284)
+  if ((fd < 0) || (fd >= pplist.portc))
 #else
   if ((fd < 0) || (fd >= NELEMS (port)))
+#endif
     {
 
       DBG (2, "sanei_pa4s2_scsi_pp_reg_select: invalid fd %d\n", fd);
@@ -1049,8 +1055,13 @@ sanei_pa4s2_scsi_pp_reg_select (int fd, int reg)
     {
 
       DBG (2, "sanei_pa4s2_scsi_pp_reg_select: port is not in use\n");
-      DBG (6, "sanei_pa4s2_scsi_pp_reg_select: port is 0x%03lx\n",
+#if defined(HAVE_LIBIEEE1284)
+      DBG (4, "sanei_pa4s2_scsi_pp_get_status: port is '%s'\n",
+      		pplist.portv[fd]->name);
+#else
+      DBG (6, "sanei_pa4s2_scsi_pp_get_status: port is 0x%03lx\n",
 	   port[fd].base);
+#endif
       DBG (5, "sanei_pa4s2_scsi_pp_reg_select: returning SANE_STATUS_INVAL\n");
 
       return SANE_STATUS_INVAL;
@@ -1061,27 +1072,34 @@ sanei_pa4s2_scsi_pp_reg_select (int fd, int reg)
     {
 
       DBG (2, "sanei_pa4s2_scsi_pp_reg_select: port is not enabled\n");
-      DBG (6, "sanei_pa4s2_scsi_pp_reg_select: port is 0x%03lx\n",
+#if defined(HAVE_LIBIEEE1284)
+      DBG (4, "sanei_pa4s2_scsi_pp_get_status: port is '%s'\n",
+      		pplist.portv[fd]->name);
+#else
+      DBG (6, "sanei_pa4s2_scsi_pp_get_status: port is 0x%03lx\n",
 	   port[fd].base);
+#endif
       DBG (5, "sanei_pa4s2_scsi_pp_reg_select: returning SANE_STATUS_INVAL\n");
 
       return SANE_STATUS_INVAL;
 
     }
 
-  base=port[fd].base;
-
+#if defined(HAVE_LIBIEEE1284)
+  DBG (6, "sanei_pa4s2_scsi_pp_reg_select: selecting register %u at port '%s'\n",
+       (int) reg, pplist.portv[fd]->name);
+#else
   DBG (6, "sanei_pa4s2_scsi_pp_reg_select: selecting register %u at 0x%03x\n",
-       (int) reg, base);
+       (int) reg, port[fd].base);
+#endif
 
-  outb (reg | 0x58, base + 0);
-  outb (0x04, base + 2);
-  outb (0x06, base + 2);
-  outb (0x04, base + 2);
-  outb (0x04, base + 2);
+  outbyte0 (fd, reg | 0x58);
+  outbyte2 (fd, 0x04);
+  outbyte2 (fd, 0x06);
+  outbyte2 (fd, 0x04);
+  outbyte2 (fd, 0x04);
 
   return SANE_STATUS_GOOD;
-#endif
 }
 
 /*
@@ -1101,10 +1119,6 @@ sanei_pa4s2_scsi_pp_open (const char *dev, int *fd)
   DBG(4, "sanei_pa4s2_scsi_pp_open: called for device '%s'\n", dev);
   DBG(5, "sanei_pa4s2_scsi_pp_open: trying to connect to port\n");
 
-#if defined (HAVE_LIBIEEE1284)
-  DBG (3, "sanei_pa4s2_scsi_pp_open: not implemented yet for libieee1284\n");
-  return SANE_STATUS_UNSUPPORTED;
-#else
   if ((*fd = pa4s2_open (dev, &status)) == -1)
     {
 
@@ -1154,7 +1168,6 @@ sanei_pa4s2_scsi_pp_open (const char *dev, int *fd)
   DBG (4, "sanei_pa4s2_scsi_pp_open: returning SANE_STATUS_GOOD\n");
 
   return SANE_STATUS_GOOD;
-#endif
 }
 
 SANE_Status

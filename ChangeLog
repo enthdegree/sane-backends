@@ -1,3 +1,7 @@
+2004-01-10  Julien BLACHE <jb@jblache.org>
+	* sanei/sanei_pa4s2.c: libieee1284 support for scsi_pp functions.
+	This is untested but should work.
+
 2004-01-10  Oliver Rauch <oliver.rauch@rauch-domain.de>
 	* doc/umax: corrected links in umax documentations
 

@@ -48,7 +48,7 @@
 
 /*--------------------------------------------------------------------------*/
 
-#define BUILD 8			/* 2002/05/29 */
+#define BUILD 9			/* 2002/09/19 */
 #define BACKEND_NAME leo
 #define LEO_CONFIG_FILE "leo.conf"
 
@@ -129,7 +129,9 @@ static const halftone_pattern_t *const halftone_pattern_val[] = {
 /* Define the supported scanners and their characteristics. */
 static const struct scanners_supported scanners[] = {
   {6, "ACROSS  ", "                ",
-   "Across", "FS-1130"}
+   "Across", "FS-1130"},
+  {6, "LEO     ", "LEOScan-S3      ",
+   "Leo", "S3"}
 };
 
 /*--------------------------------------------------------------------------*/
@@ -571,7 +573,7 @@ leo_get_scan_size (Leo_Scanner * dev)
     {
       DBG (DBG_error,
 	   "leo_get_scan_size: GET DATA BUFFER STATUS returned an invalid size (%ld)\n",
-	   (long)size);
+	   (long) size);
       return SANE_STATUS_IO_ERROR;
     }
 
@@ -629,7 +631,7 @@ get_filled_data_length (Leo_Scanner * dev, size_t * to_read)
     {
       DBG (DBG_error,
 	   "get_filled_data_length: GET DATA BUFFER STATUS returned an invalid size (%ld)\n",
-	   (long)size);
+	   (long) size);
       return SANE_STATUS_IO_ERROR;
     }
 
@@ -1083,7 +1085,7 @@ leo_fill_image (Leo_Scanner * dev)
       dev->real_bytes_left -= size;
 
       DBG (DBG_info, "leo_fill_image: real bytes left = %ld\n",
-	   (long)dev->real_bytes_left);
+	   (long) dev->real_bytes_left);
     }
 
   return (SANE_STATUS_GOOD);	/* unreachable */
@@ -1904,7 +1906,8 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
     }
   while ((buf_offset != max_len) && dev->bytes_left);
 
-  DBG (DBG_info, "sane_read: leave, bytes_left=%ld\n", (long)dev->bytes_left);
+  DBG (DBG_info, "sane_read: leave, bytes_left=%ld\n",
+       (long) dev->bytes_left);
 
   return SANE_STATUS_GOOD;
 }

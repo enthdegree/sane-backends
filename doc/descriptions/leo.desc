@@ -10,7 +10,7 @@
 ;
 
 :backend "leo"                    ; name of backend
-:version "1.0-3"                  ; version of backend
+:version "1.0-9"                  ; version of backend
 :status :beta                      ; :alpha, :beta, :stable, :new
 :manpage "sane-leo"               ; name of manpage (if it exists)
 :url "http://fz.eryx.net/sane/#leo" ; backend's web page
@@ -18,9 +18,10 @@
 :devicetype :scanner              ; start of a list of devices....
 
 :mfg "LEO"
-:model "FS-1130" 
+:model "LEOScan S3" 
 :interface "SCSI"
-:status :untested
+:comment "FCC ID LUZFS1130"
+:status :beta
 
 :mfg "Across Technologies"
 :model "FS-1130"

@@ -19,6 +19,7 @@ The scanners that should work with this backend are:
 ----------------------  -----------
 .br
   Across FS-1130          tested
+  Leo S3                  tested
 
 .RE
 

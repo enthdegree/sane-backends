@@ -49,6 +49,9 @@ static const char RCSid_sh[] = "$Header$";
 /* ------------------------------------------------------------------------- */
 /*
  * $Log$
+ * Revision 1.5  2004/11/13 19:53:04  fzago-guest
+ * Fixes some warnings.
+ *
  * Revision 1.4  2003/12/27 17:48:38  hmg-guest
  * Silenced some compilation warnings.
  *
@@ -537,7 +540,7 @@ static scsiblk window_descriptor_blockB =
 
 /* ==================================================================== */
 
-static scsiblk *lint_catcher[] =
+static scsiblk __unused__ *lint_catcher[] =
 {&reserve_unitB,
  &release_unitB,
  &inquiryB,

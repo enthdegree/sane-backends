@@ -49,6 +49,9 @@ static const char RCSid_h[] = "$Header$";
 /* ------------------------------------------------------------------------- */
 /*
  * $Log$
+ * Revision 1.6  2004/11/13 19:53:04  fzago-guest
+ * Fixes some warnings.
+ *
  * Revision 1.5  2004/05/23 17:28:56  hmg-guest
  * Use sanei_thread instead of fork() in the unmaintained backends.
  * Patches from Mattias Ellert (bugs: 300635, 300634, 300633, 300629).
@@ -270,7 +273,7 @@ static int
 static int
   wait_scanner (struct sp15c *s);
 
-static int
+static int __unused__
   sp15c_object_position (struct sp15c *s);
 
 static SANE_Status
@@ -279,7 +282,7 @@ static SANE_Status
 static void
   swap_res (struct sp15c *s);
 
-static int
+static int __unused__
   sp15c_object_discharge (struct sp15c *s);
 
 static int

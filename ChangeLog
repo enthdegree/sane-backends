@@ -1,3 +1,7 @@
+2001-05-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* PROJECTS: Added hpoj project.
+
 2001-05-25 Jochen Eisinger <jochen.eisinger@gmx.net>
 
 	* doc/sane-mustek_pp.man, backend/mustek_pp.desc: Changed URL

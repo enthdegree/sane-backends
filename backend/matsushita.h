@@ -221,7 +221,7 @@ Option_Value;
 /*--------------------------------------------------------------------------*/
 
 #define SANE_NAME_DUPLEX			"duplex"
-#define SANE_NAME_PAPER_SIZE		"paper_size"
+#define SANE_NAME_PAPER_SIZE		"paper-size"
 #define SANE_NAME_AUTOSEP			"autoseparation"
 
 #define SANE_TITLE_DUPLEX			SANE_I18N("Duplex")

@@ -1,4 +1,4 @@
-.TH saned 1 "10 Jun 2001"
+.TH saned 1 "15 Oct 2001"
 .IX saned
 .SH NAME
 saned - SANE network daemon
@@ -35,13 +35,13 @@ when running this program as root.
 .PP
 The contents of the
 .I saned.conf
-file is a list of host names that are permitted to use local SANE
-devices.  Empty lines and lines starting with a hash mark (#) are
-ignored.  A line containing the single character ``+'' is interpreted
-to match any hostname.  This allows any remote machine to use your
-scanner and may present a security risk, so this shouldn't be used
-unless you know what you're doing.  A sample configuration file is
-shown below:
+file is a list of fully qualified domain names (FQDN) that are permitted to
+use local SANE devices.  Connections from localhost are always permitted.
+Empty lines and lines starting with a hash mark (#) are ignored.  A line
+containing the single character ``+'' is interpreted to match any hostname.
+This allows any remote machine to use your scanner and may present a security
+risk, so this shouldn't be used unless you know what you're doing.  A sample
+configuration file is shown below:
 .PP
 .RS
 scan-client.somedomain.firm

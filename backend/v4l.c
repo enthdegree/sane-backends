@@ -571,6 +571,7 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback authorize)
   size_t len;
   FILE *fp;
 
+  authorize = authorize; /* stop gcc from complaining */
   DBG_INIT();
 
   if (version_code)
@@ -982,10 +983,10 @@ sane_start (SANE_Handle handle)
      {
         s->mmap = TRUE;
         DBG(2, "MMAP Frame\n");
-        DBG(2, "Buffersize %d , Buffers %d , Offset %d\n",
-            ov_mbuf.size,ov_mbuf.frames,ov_mbuf.offsets);
+        DBG(2, "Buffersize %d , Buffers %d , Offset %p\n",
+            ov_mbuf.size, ov_mbuf.frames, ov_mbuf.offsets);
         buffer = mmap (0,ov_mbuf.size,PROT_READ|PROT_WRITE,MAP_SHARED,s->fd,0);
-        DBG(2, "MMAPed Frame, Capture 1 Pict into %x\n",buffer);
+        DBG(2, "MMAPed Frame, Capture 1 Pict into %p\n", buffer);
         gb.frame = 0;
         gb.width = window.width;
         gb.width = parms.pixels_per_line;

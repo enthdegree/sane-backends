@@ -1,3 +1,17 @@
+2000-11-30  Henning Meier-Geinitz <hmg@gmx.de>
+
+	* README.irix: Removed. Problem with libjpeg is solved.
+	* TODO: Updated. Removed hpoj addition. Added snapscan link. Added 
+	  entry about net backend segfaulting if using net:localhost. Removed
+	  artec O_SYNC problem. Removed Irix jpeg problem. Removed PTAL 
+	  addition.
+	* doc/saned.man: Added paragraph about xinetd (from Matt Mozur 
+	  <matt.mozur@sourwood.net>). Removed links to backends, added
+	  sane-"backendname" instead.
+	* doc/sane-net.man: Added comment about segfaults if scanning
+	  on localhost.
+	* sanei/sanei_scsi.c: Added missing DBG_INIT (from FreeBSD ports).
+
 2000-11-30 Gerhard Jaeger <g.jaeger@earthling.net>
 	
     * backend/plustek.c backend/plustek.desc backend/plustek-share.h

@@ -1,3 +1,12 @@
+2000-11-22  Oliver Rauch <Oliver.Rauch@Wolfsburg.DE>
+
+	* changed configure and configure.in, removed test for sting.h/strings.h
+	  this is not needed because we use strchr instead (always in string.h)
+	  of index (sometimes in string.h, sometimes in strings.h)
+
+	* changed ltconfig for aix4*, repleace -o $objdir/$soname by -o $lib,
+	  the shared libraries are handled correct now
+
 2000-11-21 Abel Deuring <a.deuring@satzbau-gmbh.de>
 	* backend/sharp.c, backend/sharp.desc, doc/sharp.man: Support
 	  for JX320 added	

@@ -42,6 +42,7 @@
  * - 0.45 - added readLine function
  * - 0.46 - flag initialized is now used as device index
  *        - added calFile to Plustek_Device
+ *        - removed _OPT_HALFTONE
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -96,8 +97,10 @@
 # define PATH_MAX 1024
 #endif
 
-/*
- * the default image size
+#define _MEASURE_BASE		300UL
+#define _DEF_DPI		 	50
+
+/** the default image size
  */
 #define _DEFAULT_TLX  		0		/* 0..216 mm */
 #define _DEFAULT_TLY  		0		/* 0..297 mm */
@@ -114,9 +117,16 @@
 #define _DEFAULT_NEG_BRX	37.5	/* 0..38.9 mm */
 #define _DEFAULT_NEG_BRY	25.5	/* 0..29.6 mm */
 
-/*
- * image sizes for normal, transparent and negative modes
+/** image sizes for normal, transparent and negative modes
  */
+#define _TPAPageWidth		500U
+#define _TPAPageHeight		510U
+#define _TPAMinDpi		    150
+#define _TPAModeSupportMin	COLOR_TRUE24
+
+#define _NegativePageWidth  460UL
+#define _NegativePageHeight 350UL
+
 #define _NORMAL_X		216.0
 #define _NORMAL_Y		297.0
 #define _TP_X			((double)_TPAPageWidth/300.0 * MM_PER_INCH)
@@ -124,42 +134,101 @@
 #define _NEG_X			((double)_NegativePageWidth/300.0 * MM_PER_INCH)
 #define _NEG_Y			((double)_NegativePageHeight/300.0 * MM_PER_INCH)
 
+/** scan modes
+ */
+#define COLOR_BW     	0
+#define COLOR_256GRAY	1
+#define COLOR_GRAY16 	2
+#define COLOR_TRUE24 	3
+#define COLOR_TRUE48 	4
+
+/** usb id buffer
+ */
 #define _MAX_ID_LEN	20
+
+
+/**
+ */
+#define SFLAG_SCANNERDEV        0x00000002  /* is scannerdevice             */
+#define SFLAG_FLATBED           0x00000004  /* is flatbed scanner           */
+
+#define SFLAG_ADF		    	0x00000010  /* Automatic document feeder    */
+#define SFLAG_TPA       	    0x00000080	/* has transparency	adapter     */
+#define SFLAG_BUTTONOPT         0x00000100  /* has buttons                  */
+
+#define SFLAG_CUSTOM_GAMMA		0x00000200  /* driver supports custom gamma */
+
+/**
+ */
+#define SCANDEF_Transparency	    0x00000100	/* Scanning from transparency*/
+#define SCANDEF_Negative	    	0x00000200	/* Scanning from negative    */
+#define SCANDEF_QualityScan	    	0x00000400	/* Scanning in quality mode  */
+#define SCANDEF_ContinuousScan      0x00001000
+#define SCANDEF_TPA                 (SCANDEF_Transparency | SCANDEF_Negative)
+
+#define SCANDEF_Adf                 0x00020000  /* Scan from ADF tray        */
+
+/**
+ */
+#define SOURCE_Reflection	0
+#define SOURCE_Transparency	1
+#define SOURCE_Negative 	2
+#define SOURCE_ADF          3
+
+/** for Gamma tables
+ */
+#define _MAP_RED    0
+#define _MAP_GREEN  1
+#define _MAP_BLUE   2
+#define _MAP_MASTER 3
+
+/** generic error codes...
+ */
+#define _FIRST_ERR	-9000
+
+#define _E_ALLOC            (_FIRST_ERR-1)  /**< error allocating memory    */
+#define _E_INVALID          (_FIRST_ERR-2)  /**< invalid parameter detected */
+#define _E_INTERNAL         (_FIRST_ERR-3)  /**< internal error             */
+#define _E_ABORT            (_FIRST_ERR-4)  /**< operation aborted          */
+
+#define _E_LAMP_NOT_IN_POS  (_FIRST_ERR-10)
+#define _E_LAMP_NOT_STABLE  (_FIRST_ERR-11)
+#define _E_NODATA           (_FIRST_ERR-12)
+#define _E_BUFFER_TOO_SMALL (_FIRST_ERR-13)
+#define _E_DATAREAD         (_FIRST_ERR-14)
+
 
 /************************ some structures ************************************/
 
 enum {
-    OPT_NUM_OPTS = 0,
-    OPT_MODE_GROUP,
-    OPT_MODE,
+	OPT_NUM_OPTS = 0,
+	OPT_MODE_GROUP,
+	OPT_MODE,
 	OPT_EXT_MODE,
-    OPT_RESOLUTION,
-    OPT_PREVIEW,
-    OPT_GEOMETRY_GROUP,
-    OPT_TL_X,
-    OPT_TL_Y,
-    OPT_BR_X,
-    OPT_BR_Y,
+	OPT_RESOLUTION,
+	OPT_PREVIEW,
+	OPT_GEOMETRY_GROUP,
+	OPT_TL_X,
+	OPT_TL_Y,
+	OPT_BR_X,
+	OPT_BR_Y,
 	OPT_ENHANCEMENT_GROUP,
-    OPT_HALFTONE,
-    OPT_BRIGHTNESS,
-    OPT_CONTRAST,
-    OPT_CUSTOM_GAMMA,
-    OPT_GAMMA_VECTOR,
-    OPT_GAMMA_VECTOR_R,
-    OPT_GAMMA_VECTOR_G,
-    OPT_GAMMA_VECTOR_B,
-    NUM_OPTIONS
+	OPT_BRIGHTNESS,
+	OPT_CONTRAST,
+	OPT_CUSTOM_GAMMA,
+	OPT_GAMMA_VECTOR,
+	OPT_GAMMA_VECTOR_R,
+	OPT_GAMMA_VECTOR_G,
+	OPT_GAMMA_VECTOR_B,
+	NUM_OPTIONS
 };
 
-/*
- * to distinguish between parallelport and USB device
+/**
  */
-typedef enum {
-	PARPORT = 0,
-	USB,
-	NUM_PORTTYPES
-} PORTTYPE;
+typedef struct {
+	int x;
+	int y;
+} OffsDef, *pOffsDef;
 
 /** for adjusting the scanner settings
  */
@@ -194,9 +263,52 @@ typedef struct {
 	double  ggamma;
 	double  bgamma;
 
+	
 	double  graygamma;
 
 } AdjDef, *pAdjDef;
+
+typedef struct {
+	unsigned short x;
+    unsigned short y;
+    unsigned short cx;
+    unsigned short cy;
+} CropRect, *pCropRect;
+
+typedef struct image {
+	unsigned long dwFlag;
+	CropRect      crArea;
+	XY            xyDpi;
+	unsigned short	wDataType;
+} ImgDef, *pImgDef;
+
+typedef struct {
+	unsigned long dwPixelsPerLine;
+	unsigned long dwBytesPerLine;
+	unsigned long dwLinesPerArea;
+	ImgDef        ImgDef;
+} CropInfo, *pCropInfo;
+
+typedef struct {
+	ImgDef ImgDef;
+	short  siBrightness;
+	short  siContrast;
+} ScanInfo, *pScanInfo;
+
+typedef struct {
+    unsigned long	dwFlag;
+    unsigned short	wMaxExtentX;	/**< scanarea width					*/
+    unsigned short	wMaxExtentY;	/**< scanarea height				*/
+} ScannerCaps, *pScannerCaps;
+
+/** for defining the scanmodes
+ */
+typedef const struct mode_param
+{
+	int color;
+	int depth;
+	int scanmode;
+} ModeParam, *pModeParam;
 
 typedef struct Plustek_Device
 {
@@ -219,12 +331,10 @@ typedef struct Plustek_Device
     /**************************** USB-stuff **********************************/
     char                   usbId[_MAX_ID_LEN];/* to keep Vendor and product  */
                                              /* ID string (from conf) file   */
-#ifdef _PLUSTEK_USB
-    ScanDef                scanning;         /* here we hold all stuff for   */
+    struct ScanDef         scanning;         /* here we hold all stuff for   */
                                              /* the USB-scanner              */
-	DeviceDef              usbDev;	
+	struct DeviceDef       usbDev;	
 	struct itimerval       saveSettings;     /* for lamp timer               */
-#endif
     /*
      * each device we support may need other access functions...
      */
@@ -232,16 +342,12 @@ typedef struct Plustek_Device
     int  (*close)      ( struct Plustek_Device* );
     void (*shutdown)   ( struct Plustek_Device* );
     int  (*getCaps)    ( struct Plustek_Device* );
-    int  (*getLensInfo)( struct Plustek_Device*, pLensInfo  );
     int  (*getCropInfo)( struct Plustek_Device*, pCropInfo  );
-    int  (*putImgInfo) ( struct Plustek_Device*, pImgDef    );
     int  (*setScanEnv) ( struct Plustek_Device*, pScanInfo  );
     int  (*setMap)     ( struct Plustek_Device*, SANE_Word*,
 												 SANE_Word, SANE_Word );
-    int  (*startScan)  ( struct Plustek_Device*, pStartScan );
+    int  (*startScan)  ( struct Plustek_Device* );
     int  (*stopScan)   ( struct Plustek_Device*, int* );
-    int  (*readImage)  ( struct Plustek_Device*, SANE_Byte*, unsigned long );
-
     int  (*prepare)    ( struct Plustek_Device*, SANE_Byte* );
     int  (*readLine)   ( struct Plustek_Device* );
 
@@ -264,7 +370,7 @@ typedef struct Plustek_Scanner
     SANE_Status             exit_code;      /* status of the reader process  */
     int 					pipe;			/* pipe to reader process        */
 	unsigned long			bytes_read;		/* number of bytes currently read*/
-    Plustek_Device 		   *hw;				/* pointer to current device     */
+    pPlustek_Device 		hw;				/* pointer to current device     */
     Option_Value 			val[NUM_OPTIONS];
     SANE_Byte 			   *buf;            /* the image buffer              */
     SANE_Bool 				scanning;       /* TRUE during scan-process      */

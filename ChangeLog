@@ -1,3 +1,11 @@
+2003-09-29  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* doc/sane-plustek.man: minor update
+	* backend/plustek.c: changed version number, cleanup
+	* backend/plustek-usb*.c: cleanup
+	* backend/plustek-pp.*: cleanup
+	* backend/plustek-share.h: removed, no longer needed
+
 2003-09-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Enhans, Genius and UMAX
@@ -71,8 +79,8 @@
 
 2003-09-23  Frank Zago  <fzago at austin dot rr dot com>
 
-	* Makefile.in NEWS configure configure.in backend/Makefile.in 
-	  backend/dll.c include/sane/config.h.in sanei/sanei_scsi.c 
+	* Makefile.in NEWS configure configure.in backend/Makefile.in
+	  backend/dll.c include/sane/config.h.in sanei/sanei_scsi.c
 	  tools/sane-find-scanner.c: cygwin port.
 
 2003-09-23  Gerhard Jaeger <gerhard@gjaeger.de>

@@ -27,6 +27,7 @@
  * - 0.46 - added UMAX1200 for 5400 model
  *        - removed _WAF_FIX_GAIN and _WAF_FIX_OFS
  *        - added skipCoarseCalib to ScanDef
+ *        - added additional defines for cis and epson-ccd sensor
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -78,10 +79,11 @@
 #define	kNEC8861	3
 #define	kNEC3778	4
 #define	kNECSLIM	5
-#define	kCIS650     6
-#define	kCIS670     7
-#define	kCIS1220    8
-#define	kCIS1240    9
+#define	kCIS650 	6
+#define	kCIS670 	7
+#define	kCIS1220	8
+#define	kCIS1240	9
+#define	kEPSON  	10
 
 /*********************************** plustek_types.h!!! ************************/
 
@@ -148,6 +150,13 @@ typedef union {
 	pHiLoDef	  philo;
 
 } AnyPtr, *pAnyPtr;
+
+typedef struct {
+	unsigned short x;
+	unsigned short y;
+} XY, *pXY;
+
+#define _VAR_NOT_USED(x)	((x)=(x))
 
 /*****************************************************************************/
 
@@ -285,16 +294,14 @@ enum MODULEMOVE
 /** SCANDEF.dwFlags */
 enum SCANFLAG
 {
-	SCANFLAG_bgr			= SCANDEF_ColorBGROrder,
-	SCANFLAG_BottomUp		= SCANDEF_BmpStyle,
-	SCANFLAG_Invert			= SCANDEF_Inverse,
-	SCANFLAG_DWORDBoundary	= SCANDEF_BoundaryDWORD,
-	SCANFLAG_RightAlign		= SCANDEF_RightAlign,
-	SCANFLAG_StillModule	= SCANDEF_DontBackModule,
-/*	SCANFLAG_EnvirOk		= 0x80000000, */
+	SCANFLAG_bgr			= 0x00000010,
+	SCANFLAG_BottomUp		= 0x00000020,
+	SCANFLAG_Invert			= 0x00000040,
+	SCANFLAG_DWORDBoundary	= 0x00000080,
+	SCANFLAG_RightAlign		= 0x00000100,
+	SCANFLAG_StillModule	= 0x00000200, 
 	SCANFLAG_StartScan		= 0x40000000,
 	SCANFLAG_Scanning		= 0x20000080,
-	SCANFLAG_ThreadActivated= 0x10000200,
 	SCANFLAG_Pseudo48		= 0x08000000,
 	SCANFLAG_SampleY		= 0x04000000
 };

@@ -156,7 +156,6 @@ typedef struct {
 
 } RBGPtrDef;
 
-
 typedef struct {
 	ULong Red;
 	ULong Green;

@@ -547,7 +547,7 @@ static DCapsDef Cap0x04B8_0x010F_0 =
 	/* Normal */
 	{{   25,   85},  10, -1, {2550, 3508}, { 100, 100 }, COLOR_BW },
 	/* Positive */
-	{{ 1100,  972}, 720, -1, { 473,  414}, { 150, 150 }, COLOR_GRAY16 },
+	{{ 1100,  972}, 740, -1, { 473,  414}, { 150, 150 }, COLOR_GRAY16 },
 	/* Negative */
 	{{ 1116, 1049}, 720, -1, { 567,  414}, { 150, 150 }, COLOR_GRAY16 },
 	{{ 0,  0},   0, -1, {0, 0}, { 0, 0 }, 0 },
@@ -556,7 +556,7 @@ static DCapsDef Cap0x04B8_0x010F_0 =
 	SENSORORDER_rgb,
 	8,			        /* sensor distance                         */
 	4,      	        /* number of buttons                       */
-	kNEC8861,           /* use default settings during calibration */
+	kEPSON,             /* use default settings during calibration */
 	0,                  /* not used here...                        */
 	_WAF_MISC_IO_LAMPS, /* use miscio 6 for lamp switching         */
  	_MIO6 + _TPA(_MIO1) /* and miscio 1 for optional TPA           */

@@ -303,6 +303,15 @@ static void usb_GetSoftwareOffsetGain( pPlustek_Device dev )
 
 	switch( sCaps->bCCD ) {
 
+	case kEPSON:
+		DBG( _DBG_INFO2, "kEPSON adjustments\n" );
+#if 0
+		pParam->swGain[0] = 800;
+		pParam->swGain[1] = 800;
+		pParam->swGain[2] = 800;
+#endif
+		break;
+	
 	case kNECSLIM:
 		DBG( _DBG_INFO2, "kNECSLIM adjustments\n" );
 		if( pParam->PhyDpi.x <= 150 ) {
@@ -686,7 +695,7 @@ static SANE_Bool usb_AdjustGain( pPlustek_Device dev, int fNegative )
 #if 0
 	m_ScanParam.Size.dwPixels = dev->usbDev.pSource->Size.x *
 								scaps->OpticDpi.x / 300UL;
-#endif								
+#endif
 	m_ScanParam.Size.dwBytes  = m_ScanParam.Size.dwPixels *
 								2 * m_ScanParam.bChannels;
 
@@ -749,7 +758,7 @@ TOGAIN:
 
 			rgb.Red = rgb.Green = rgb.Blue = dwGrayMax = 0;
 
-			for( dw = 0; dw < dwLoop;) {
+			for( dw = 0; dw < dwLoop; ) {
 
 				rgbSum.Red = rgbSum.Green = rgbSum.Blue = 0;
 				for( dw10 = 20; dw10--; dw++ ) {
@@ -1152,6 +1161,7 @@ static SANE_Bool usb_AdjustOffset( pPlustek_Device dev )
 	else
 		dwPixels = (u_long)(hw->bOpticBlackEnd - hw->bOpticBlackStart );
 
+	m_ScanParam.Size.dwPixels = 2550;
 	m_ScanParam.Size.dwBytes  = m_ScanParam.Size.dwPixels * 2 *
 														m_ScanParam.bChannels;
 	if( hw->bReg_0x26 & _ONE_CH_COLOR &&

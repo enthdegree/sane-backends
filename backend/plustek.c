@@ -62,6 +62,7 @@
  *          based in Montys' great work
  *        - added altCalibration option
  *        - removed parallelport support --> new backend: plustek_pp
+ *        - cleanup
  *.
  * <hr>
  * This file is part of the SANE package.
@@ -135,7 +136,7 @@
 #include "sane/sanei.h"
 #include "sane/saneopts.h"
 
-#define BACKEND_VERSION "0.46-1"
+#define BACKEND_VERSION "0.46-2"
 #define BACKEND_NAME	plustek
 #include "sane/sanei_backend.h"
 #include "sane/sanei_config.h"
@@ -145,10 +146,7 @@
 # define _PLUSTEK_USB
 #endif
 
-#include "plustek-share.h"
-#ifdef _PLUSTEK_USB
-# include "plustek-usb.h"
-#endif
+#include "plustek-usb.h"
 #include "plustek.h"
 
 /*********************** the debug levels ************************************/
@@ -202,16 +200,6 @@ static ModeParam mode_params[] =
   {1, 16, COLOR_TRUE48}
 };
 
-/* HEINER
-static const SANE_String_Const mode_list[] =
-{
-	SANE_I18N("Binary"),
-	SANE_I18N("Halftone"),
-	SANE_I18N("Gray"),
-	SANE_I18N("Color"),
-	NULL
-};
-*/
 static const SANE_String_Const mode_usb_list[] =
 {
 	SANE_I18N("Binary"),
@@ -230,25 +218,12 @@ static const SANE_String_Const ext_mode_list[] =
 	NULL
 };
 
-static const SANE_String_Const halftone_list[] =
-{
-	SANE_I18N("Dithermap 1"),
-	SANE_I18N("Dithermap 2"),
-	SANE_I18N("Randomize"),
-	NULL
-};
-
 static const SANE_Range percentage_range =
 {
 	-100 << SANE_FIXED_SCALE_SHIFT, /* minimum 		*/
 	 100 << SANE_FIXED_SCALE_SHIFT, /* maximum 		*/
 	   1 << SANE_FIXED_SCALE_SHIFT  /* quantization */
 };
-
-/*
- * lens info
- */
-static LensInfo lens = {{0,0,0,0,},{0,0,0,0,},{0,0,0,0,},{0,0,0,0,},0,0};
 
 /* authorization stuff */
 static SANE_Auth_Callback auth = NULL;
@@ -447,8 +422,9 @@ static RETSIGTYPE sigalarm_handler( int signo )
 static int reader_process( Plustek_Scanner *scanner, int pipe_fd )		
 {
 	int              line;
-	unsigned long	 status;
-	unsigned long 	 data_length;
+	unsigned char   *buf;
+	unsigned long    status;
+	unsigned long    data_length;
 	struct SIGACTION act;
 
 	DBG( _DBG_PROC, "reader_process started\n" );
@@ -477,30 +453,20 @@ static int reader_process( Plustek_Scanner *scanner, int pipe_fd )
 	}
 	
 	/* here we read all data from the driver... */
-	if( scanner->hw->readImage ) {
+	buf    = scanner->buf;
+	status = scanner->hw->prepare( scanner->hw, buf );
+	
+	if( 0 == status ) {
 
-		status = (unsigned long)scanner->hw->readImage( scanner->hw,
-                                                    scanner->buf, data_length);
-	} else {
+		for( line = 0; line < scanner->params.lines; line++ ) {
 
-		unsigned char *buf = scanner->buf;
-
-
-		status = scanner->hw->prepare( scanner->hw, buf );
-    	
-        if( 0 == status ) {
-
-			for( line = 0; line < scanner->params.lines; line++ ) {
-
-				status = scanner->hw->readLine( scanner->hw );
-				if((int)status < 0 ) {
-					break;
-				}
-
-			    write( pipe_fd, buf, scanner->params.bytes_per_line );
-
-				buf += scanner->params.bytes_per_line;
+			status = scanner->hw->readLine( scanner->hw );
+			if((int)status < 0 ) {
+				break;
 			}
+
+			write( pipe_fd, buf, scanner->params.bytes_per_line );
+    		buf += scanner->params.bytes_per_line;
 		}
 	}
 
@@ -515,12 +481,6 @@ static int reader_process( Plustek_Scanner *scanner, int pipe_fd )
 			return SANE_STATUS_DEVICE_BUSY;
 
 		return SANE_STATUS_IO_ERROR;
-    }
-
-	/* send to parent */
-	if( scanner->hw->readImage ) {
-		DBG( _DBG_PROC, "sending %lu bytes to parent\n", status );
-	    write( pipe_fd, scanner->buf, status );
 	}
 
 	pipe_fd = -1;
@@ -591,11 +551,11 @@ static SANE_Status do_cancel( Plustek_Scanner *scanner, SANE_Bool closepipe  )
  */
 static SANE_Status limitResolution( Plustek_Device *dev )
 {
-	dev->dpi_range.min = /*lens.rDpiY.wMin; */ _DEF_DPI;
+	dev->dpi_range.min = _DEF_DPI;
  	if( dev->dpi_range.min < _DEF_DPI )
 		dev->dpi_range.min = _DEF_DPI;
 
-	dev->dpi_range.max   = lens.rDpiY.wPhyMax;
+	dev->dpi_range.max   = dev->usbDev.Caps.OpticDpi.x * 2;
 	dev->dpi_range.quant = 0;
 	dev->x_range.min 	 = 0;
 	dev->x_range.max 	 = SANE_FIX(dev->max_x);
@@ -724,17 +684,6 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	s->opt[OPT_EXT_MODE].constraint.string_list = ext_mode_list;
 	s->val[OPT_EXT_MODE].w = 0; /* Normal */
 	
-	/* halftone */
-	s->opt[OPT_HALFTONE].name  = SANE_NAME_HALFTONE_PATTERN;
-	s->opt[OPT_HALFTONE].title = SANE_TITLE_HALFTONE;
-	s->opt[OPT_HALFTONE].desc  = SANE_DESC_HALFTONE_PATTERN;
-	s->opt[OPT_HALFTONE].type  = SANE_TYPE_STRING;
-	s->opt[OPT_HALFTONE].size  = 32;
-	s->opt[OPT_HALFTONE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
-	s->opt[OPT_HALFTONE].constraint.string_list = halftone_list;
-	s->val[OPT_HALFTONE].w = 0;	/* Standard dithermap */
-	s->opt[OPT_HALFTONE].cap |= SANE_CAP_INACTIVE;
-
 	/* brightness */
 	s->opt[OPT_BRIGHTNESS].name  = SANE_NAME_BRIGHTNESS;
 	s->opt[OPT_BRIGHTNESS].title = SANE_TITLE_BRIGHTNESS;
@@ -1106,14 +1055,11 @@ static SANE_Status attach( const char *dev_name, pCnfDef cnf,
 	dev->open  	     = usbDev_open;
 	dev->close 	     = usbDev_close;
 	dev->getCaps     = usbDev_getCaps;
-	dev->getLensInfo = usbDev_getLensInfo;
 	dev->getCropInfo = usbDev_getCropInfo;
-	dev->putImgInfo  = NULL;
 	dev->setScanEnv  = usbDev_setScanEnv;
 	dev->startScan   = usbDev_startScan;
 	dev->stopScan    = usbDev_stopScan;
 	dev->setMap      = usbDev_setMap;
-	dev->readImage   = NULL;
 	dev->readLine    = usbDev_readLine;
 	dev->prepare     = usbDev_Prepare;
 	dev->shutdown    = usbDev_shutdown;
@@ -1154,20 +1100,6 @@ static SANE_Status attach( const char *dev_name, pCnfDef cnf,
 		return SANE_STATUS_IO_ERROR;
     }
 
-	result = dev->getLensInfo( dev, &lens );
-	if( result < 0 ) {
-		DBG( _DBG_ERROR, "dev->getLensInfo() failed(%d)\n", result );
-		dev->close(dev);
-		return SANE_STATUS_IO_ERROR;
-	}
-
-	/* did we fail on connection? */
-	if( _NO_BASE == dev->caps.wIOBase ) {
-		DBG( _DBG_ERROR, "failed to find Plustek scanner\n" );
-		dev->close(dev);
-		return SANE_STATUS_INVAL;
-    }
-
 	/* save the info we got from the driver */
 	DBG( _DBG_INFO, "Scanner information:\n" );
 #ifdef _PLUSTEK_USB
@@ -1184,8 +1116,12 @@ static SANE_Status attach( const char *dev_name, pCnfDef cnf,
 	dev->max_x = dev->caps.wMaxExtentX*MM_PER_INCH/_MEASURE_BASE;
 	dev->max_y = dev->caps.wMaxExtentY*MM_PER_INCH/_MEASURE_BASE;
 
-	dev->res_list = (SANE_Int *)calloc(((lens.rDpiX.wMax -_DEF_DPI)/25 + 1),
-			     sizeof (SANE_Int));  /* one more to avoid a buffer overflow */
+	/* calculate the size of the resolution list +
+	 * one more to avoid a buffer overflow, then allocate it...
+	 */
+	dev->res_list = (SANE_Int *)
+					calloc((((dev->usbDev.Caps.OpticDpi.x*16)-_DEF_DPI)/25+1),
+						sizeof (SANE_Int));  
 
 	if (NULL == dev->res_list) {
 		DBG( _DBG_ERROR, "alloc fail, resolution problem\n" );
@@ -1195,7 +1131,7 @@ static SANE_Status attach( const char *dev_name, pCnfDef cnf,
 
     /* build up the resolution table */
 	dev->res_list_size = 0;
-	for( cntr = _DEF_DPI; cntr <= lens.rDpiX.wMax; cntr += 25 ) {
+	for( cntr = _DEF_DPI; cntr <= (dev->usbDev.Caps.OpticDpi.x*16); cntr += 25 ) {
 		dev->res_list_size++;
 		dev->res_list[dev->res_list_size - 1] = (SANE_Int)cntr;
 	}
@@ -1314,7 +1250,7 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 			decodeVal( str, "enableTPA", _INT, &config.adj.enableTpa, &ival);
 			decodeVal( str, "cacheCalData",
 									     _INT, &config.adj.cacheCalData,&ival);
-			decodeVal( str, "altCalibrate",
+			decodeVal( str, "altCalibration",
 									     _INT, &config.adj.altCalibrate,&ival);
 			decodeVal( str, "skipCalibration",
 									  _INT, &config.adj.skipCalibration,&ival);
@@ -1564,7 +1500,7 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 	SANE_Status              status;
 	const SANE_String_Const *optval;
 	pModeParam               mp;
-	int                      scanmode;
+	int                      scanmode, idx;
 
 	if ( s->scanning )
 		return SANE_STATUS_DEVICE_BUSY;
@@ -1598,7 +1534,6 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 
 			case OPT_MODE:
 			case OPT_EXT_MODE:
-			case OPT_HALFTONE:
 				strcpy ((char *) value,
 					  s->opt[option].constraint.string_list[s->val[option].w]);
 				break;
@@ -1716,20 +1651,12 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 							((*(SANE_Word *)value) >> SANE_FIXED_SCALE_SHIFT);
 	    			break;
 
-		    	case OPT_MODE: {
-
-                    int idx = (optval - mode_usb_list);
-
-					mp = getModeList( s );
-	    			if( mp[idx].scanmode != COLOR_HALFTONE ){
-		    			s->opt[OPT_HALFTONE].cap     |= SANE_CAP_INACTIVE;
-			    		s->opt[OPT_CONTRAST].cap     &= ~SANE_CAP_INACTIVE;
-			    		s->opt[OPT_CUSTOM_GAMMA].cap &= ~SANE_CAP_INACTIVE;
-				    } else {
-					    s->opt[OPT_HALFTONE].cap     &= ~SANE_CAP_INACTIVE;
-    					s->opt[OPT_CONTRAST].cap     |= SANE_CAP_INACTIVE;
-			    		s->opt[OPT_CUSTOM_GAMMA].cap |= SANE_CAP_INACTIVE;
-	    			}
+		    	case OPT_MODE: 
+                    idx = (optval - mode_usb_list);
+					mp  = getModeList( s );
+					
+					s->opt[OPT_CONTRAST].cap     &= ~SANE_CAP_INACTIVE;
+					s->opt[OPT_CUSTOM_GAMMA].cap &= ~SANE_CAP_INACTIVE;
 
 	    			if( mp[idx].scanmode == COLOR_BW ) {
 			    		s->opt[OPT_CONTRAST].cap     |= SANE_CAP_INACTIVE;
@@ -1756,10 +1683,7 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 
 			    	if( NULL != info )
     					*info |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
-                }
 
-           		/* fall through to OPT_HALFTONE */
-	    		case OPT_HALFTONE:
 			    	s->val[option].w = optval - s->opt[option].constraint.string_list;
 				    break;
 
@@ -1779,10 +1703,9 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 					    s->val[OPT_TL_Y].w = SANE_FIX(_DEFAULT_TLY);
    	    				s->val[OPT_BR_X].w = SANE_FIX(_DEFAULT_BRX);
     					s->val[OPT_BR_Y].w = SANE_FIX(_DEFAULT_BRY);
-	    				s->val[OPT_MODE].w = 3;		/* COLOR_TRUE24 */
 
 					    s->opt[OPT_MODE].constraint.string_list = mode_usb_list;
-	    				s->val[OPT_MODE].w = 3;		/* COLOR_TRUE24 */
+	    				s->val[OPT_MODE].w = COLOR_TRUE24;
 
 				    } else {
 
@@ -1804,19 +1727,11 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
    					    	s->val[OPT_BR_X].w = SANE_FIX(_DEFAULT_NEG_BRX);
 						    s->val[OPT_BR_Y].w = SANE_FIX(_DEFAULT_NEG_BRY);
     					}
-/* HEINER
-	    				if( s->hw->caps.dwFlag & SFLAG_TPA ) {
-*/	    				
-		    				s->opt[OPT_MODE].constraint.string_list =
+	    				s->opt[OPT_MODE].constraint.string_list =
 											&mode_usb_list[_TPAModeSupportMin];
-/* HEINER       	    		} else {
-				    		s->opt[OPT_MODE].constraint.string_list =
-												&mode_list[_TPAModeSupportMin];
-					    }
- */						s->val[OPT_MODE].w = 0;		/* COLOR_24 is the default */
+						s->val[OPT_MODE].w = 0;		/* COLOR_24 is the default */
         			}
 
-		    		s->opt[OPT_HALFTONE].cap |= SANE_CAP_INACTIVE;
 				    s->opt[OPT_CONTRAST].cap &= ~SANE_CAP_INACTIVE;
 
     				if( NULL != info )
@@ -1917,20 +1832,21 @@ SANE_Status sane_get_parameters( SANE_Handle handle, SANE_Parameters *params )
  */
 SANE_Status sane_start( SANE_Handle handle )
 {
-	Plustek_Scanner *s = (Plustek_Scanner *) handle;
-	pModeParam		 mp;
+	Plustek_Scanner *s = (Plustek_Scanner *)handle;
+	pPlustek_Device  dev;
+	pModeParam       mp;
 
-	int			result;
-	int 		ndpi;
-	int 		left, top;
-	int 		width, height;
-	int			scanmode;
+	int         result;
+	int         ndpi;
+	int         left, top;
+	int         width, height;
+	int         scanmode;
 	int         fds[2];
-	StartScan	start;
-	CropInfo	crop;
+	double      dpi_x, dpi_y;
+	CropInfo    crop;
 	ScanInfo    sinfo;
 	SANE_Status status;
-    SANE_Word   tmp;
+	SANE_Word   tmp;
 
 	DBG( _DBG_SANE_INIT, "sane_start\n" );
 
@@ -1944,11 +1860,13 @@ SANE_Status sane_start( SANE_Handle handle )
 		return status;
 	}
 
+	dev = s->hw;
+
 	/*
 	 * open the driver and get some information about the scanner
 	 */
-	s->hw->fd = drvopen( s->hw );
-	if( s->hw->fd < 0 ) {
+	dev->fd = drvopen( dev );
+	if( dev->fd < 0 ) {
 		DBG( _DBG_ERROR,"sane_start: open failed: %d\n", errno );
 
 		if( errno == EBUSY )
@@ -1957,27 +1875,13 @@ SANE_Status sane_start( SANE_Handle handle )
 		return SANE_STATUS_IO_ERROR;
 	}
 
-	result = s->hw->getCaps( s->hw );
+	result = dev->getCaps( dev );
 	if( result < 0 ) {
 		DBG( _DBG_ERROR, "dev->getCaps() failed(%d)\n", result);
-		s->hw->close( s->hw );
+		dev->close( dev );
 		return SANE_STATUS_IO_ERROR;
     }
 	
-	result = s->hw->getLensInfo( s->hw, &lens );
-	if( result < 0 ) {
-		DBG( _DBG_ERROR, "dev->getLensInfo() failed(%d)\n", result );
-		s->hw->close( s->hw );
-		return SANE_STATUS_IO_ERROR;
-    }
-
-	/* did we fail on connection? */
-	if ( s->hw->caps.wIOBase == _NO_BASE ) {
-		DBG( _DBG_ERROR, "failed to find Plustek scanner\n" );
-		s->hw->close( s->hw );
-		return SANE_STATUS_INVAL;
-	}
-
 	/* All ready to go.  Set image def and see what the scanner
 	 * says for crop info.
 	 */
@@ -1999,17 +1903,17 @@ SANE_Status sane_start( SANE_Handle handle )
     }
 
 	/* position and extent are always relative to 300 dpi */
-	left   = (int)(SANE_UNFIX (s->val[OPT_TL_X].w)*(double)lens.rDpiX.wPhyMax/
-							(MM_PER_INCH*((double)lens.rDpiX.wPhyMax/300.0)));
-	top    = (int)(SANE_UNFIX (s->val[OPT_TL_Y].w)*(double)lens.rDpiY.wPhyMax/
-							(MM_PER_INCH*((double)lens.rDpiY.wPhyMax/300.0)));
+	dpi_x = (double)dev->usbDev.Caps.OpticDpi.x; 
+	dpi_y = (double)dev->usbDev.Caps.OpticDpi.x * 2;
+	
+	left   = (int)(SANE_UNFIX (s->val[OPT_TL_X].w)*dpi_x/
+												(MM_PER_INCH*(dpi_x/300.0)));
+	top    = (int)(SANE_UNFIX (s->val[OPT_TL_Y].w)*dpi_y/
+												(MM_PER_INCH*(dpi_y/300.0)));
 	width  = (int)(SANE_UNFIX (s->val[OPT_BR_X].w - s->val[OPT_TL_X].w) *
-					(double)lens.rDpiX.wPhyMax /
-							(MM_PER_INCH *((double)lens.rDpiX.wPhyMax/300.0)));
+										dpi_x / (MM_PER_INCH *(dpi_x/300.0)));
 	height = (int)(SANE_UNFIX (s->val[OPT_BR_Y].w - s->val[OPT_TL_Y].w) *
-					(double)lens.rDpiY.wPhyMax /
-							(MM_PER_INCH *((double)lens.rDpiY.wPhyMax/300.0)));
-
+										dpi_y / (MM_PER_INCH *(dpi_y/300.0)));
 	/*
 	 * adjust mode list according to the model we use and the
 	 * source we have
@@ -2020,53 +1924,26 @@ SANE_Status sane_start( SANE_Handle handle )
 	DBG( _DBG_INFO, "scanmode = %u\n", scanmode );
 
 	/* clear it out just in case */
-	memset (&sinfo, 0, sizeof(sinfo));
-	sinfo.ImgDef.xyDpi.x   = ndpi;
-	sinfo.ImgDef.xyDpi.y   = ndpi;
-	sinfo.ImgDef.crArea.x  = left;  /* offset from left edge to area you want to scan */
-	sinfo.ImgDef.crArea.y  = top;  	/* offset from top edge to area you want to scan  */
-	sinfo.ImgDef.crArea.cx = width; /* always relative to 300 dpi */
-	sinfo.ImgDef.crArea.cy = height;
-	sinfo.ImgDef.wDataType = scanmode;
-
-/*
- * CHECK: what about the 10 bit mode?
- */
-	if( COLOR_TRUE48 == scanmode )
-		sinfo.ImgDef.wBits = OUTPUT_12Bits;
-	else if( COLOR_TRUE32 == scanmode )
-		sinfo.ImgDef.wBits = OUTPUT_10Bits;
-	else
-		sinfo.ImgDef.wBits = OUTPUT_8Bits;
-
-	sinfo.ImgDef.dwFlag = SCANDEF_QualityScan;
+	memset (&crop, 0, sizeof(crop));
+	crop.ImgDef.xyDpi.x   = ndpi;
+	crop.ImgDef.xyDpi.y   = ndpi;
+	crop.ImgDef.crArea.x  = left;  /* offset from left edge to area you want to scan */
+	crop.ImgDef.crArea.y  = top;  	/* offset from top edge to area you want to scan  */
+	crop.ImgDef.crArea.cx = width; /* always relative to 300 dpi */
+	crop.ImgDef.crArea.cy = height;
+	crop.ImgDef.wDataType = scanmode;
+	crop.ImgDef.dwFlag    = SCANDEF_QualityScan;
 
 	switch( s->val[OPT_EXT_MODE].w ) {
-		case 1: sinfo.ImgDef.dwFlag |= SCANDEF_Transparency; break;
-		case 2: sinfo.ImgDef.dwFlag |= SCANDEF_Negative; 	 break;
+		case 1: crop.ImgDef.dwFlag |= SCANDEF_Transparency; break;
+		case 2: crop.ImgDef.dwFlag |= SCANDEF_Negative;     break;
 		default: break;
 	}
 
-	sinfo.ImgDef.wLens = s->hw->caps.wLens;
-
-	/* only for parallel-port devices */
-	if( s->hw->putImgInfo ) {
-		result = s->hw->putImgInfo( s->hw, &sinfo.ImgDef );
-		if( result < 0 ) {
-			DBG( _DBG_ERROR, "dev->putImgInfo failed(%d)\n", result );
-			s->hw->close( s->hw );
-			return SANE_STATUS_IO_ERROR;
-		}
-	} else {
-
-		memcpy( &(crop.ImgDef), &sinfo.ImgDef, sizeof(ImgDef));
-
-	}
-
-	result = s->hw->getCropInfo( s->hw, &crop );
+	result = dev->getCropInfo( dev, &crop );
 	if( result < 0 ) {
 	    DBG( _DBG_ERROR, "dev->getCropInfo() failed(%d)\n", result );
-		s->hw->close( s->hw );
+		dev->close( dev );
     	return SANE_STATUS_IO_ERROR;
     }
 
@@ -2076,53 +1953,51 @@ SANE_Status sane_start( SANE_Handle handle )
 	s->params.lines 		  = crop.dwLinesPerArea;
 
 	/* build a SCANINFO block and get ready to scan it */
-	sinfo.ImgDef.dwFlag |= (SCANDEF_BuildBwMap | SCANDEF_QualityScan);
+	crop.ImgDef.dwFlag |= SCANDEF_QualityScan;
 
 	/* remove that for preview scans */
 	if( s->val[OPT_PREVIEW].w )
-		sinfo.ImgDef.dwFlag &= (~SCANDEF_QualityScan);
+		crop.ImgDef.dwFlag &= (~SCANDEF_QualityScan);
 
     /* set adjustments for brightness and contrast */
 	sinfo.siBrightness = s->val[OPT_BRIGHTNESS].w;
 	sinfo.siContrast   = s->val[OPT_CONTRAST].w;
-	sinfo.wDither	   = s->val[OPT_HALFTONE].w;
 
-	DBG( _DBG_SANE_INIT, "bright %i contrast %i\n", sinfo.siBrightness,
-   			 									       sinfo.siContrast);
+    memcpy( &sinfo.ImgDef, &crop.ImgDef, sizeof(ImgDef));
+	
+	DBG( _DBG_SANE_INIT, "brightness %i, contrast %i\n",
+						sinfo.siBrightness, sinfo.siContrast );
 
-	result = s->hw->setScanEnv( s->hw, &sinfo );
+	result = dev->setScanEnv( dev, &sinfo );
 	if( result < 0 ) {
 		DBG( _DBG_ERROR, "dev->setEnv() failed(%d)\n", result );
-		s->hw->close( s->hw );
+		dev->close( dev );
 		return SANE_STATUS_IO_ERROR;
     }
 
     /* download gamma correction tables... */
-	if( scanmode <= COLOR_256GRAY || scanmode == COLOR_GRAY16 ) {
-	   	s->hw->setMap( s->hw, s->gamma_table[0], s->gamma_length, _MAP_MASTER);
+	if( scanmode <= COLOR_GRAY16 ) {
+	   	dev->setMap( dev, s->gamma_table[0], s->gamma_length, _MAP_MASTER);
 	} else {
-	   	s->hw->setMap( s->hw, s->gamma_table[1], s->gamma_length, _MAP_RED   );
-   		s->hw->setMap( s->hw, s->gamma_table[2], s->gamma_length, _MAP_GREEN );
-   		s->hw->setMap( s->hw, s->gamma_table[3], s->gamma_length, _MAP_BLUE  );
+	   	dev->setMap( dev, s->gamma_table[1], s->gamma_length, _MAP_RED   );
+   		dev->setMap( dev, s->gamma_table[2], s->gamma_length, _MAP_GREEN );
+   		dev->setMap( dev, s->gamma_table[3], s->gamma_length, _MAP_BLUE  );
     }
-	/* work-around for USB... */
-	start.dwLinesPerScan = s->params.lines;
 
-	result = s->hw->startScan( s->hw, &start );
+	result = dev->startScan( dev );
 	if( result < 0 ) {
 		DBG( _DBG_ERROR, "dev->startScan() failed(%d)\n", result );
-		s->hw->close( s->hw );
+		dev->close( dev );
 		return SANE_STATUS_IO_ERROR;
     }
 
-	DBG( _DBG_SANE_INIT, "dwflag = 0x%lx dwBytesPerLine = %ld, "
-		 "dwLinesPerScan = %ld\n",
-					 start.dwFlag, start.dwBytesPerLine, start.dwLinesPerScan);
+	DBG( _DBG_SANE_INIT, "dwflag = 0x%lx dwBytesPerLine = %ld \n",
+						dev->scanning.dwFlag, dev->scanning.dwBytesLine );
 
 	s->buf = realloc( s->buf, (s->params.lines) * s->params.bytes_per_line );
 	if( NULL == s->buf ) {
 		DBG( _DBG_ERROR, "realloc failed\n" );
-		s->hw->close( s->hw );
+		dev->close( dev );
 		return SANE_STATUS_NO_MEM;
 	}
 
@@ -2138,7 +2013,7 @@ SANE_Status sane_start( SANE_Handle handle )
 	if( pipe(fds) < 0 ) {
 		DBG( _DBG_ERROR, "ERROR: could not create pipe\n" );
 	    s->scanning = SANE_FALSE;
-		s->hw->close( s->hw );
+		dev->close( dev );
 		return SANE_STATUS_IO_ERROR;
 	}
 
@@ -2151,7 +2026,7 @@ SANE_Status sane_start( SANE_Handle handle )
 	if( s->reader_pid < 0 ) {
 		DBG( _DBG_ERROR, "ERROR: could not create child process\n" );
 	    s->scanning = SANE_FALSE;
-		s->hw->close( s->hw );
+		dev->close( dev );
 		return SANE_STATUS_IO_ERROR;
 	}
 

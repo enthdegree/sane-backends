@@ -98,7 +98,6 @@
 # define _USER_MODE
 #endif
 
-#include "plustek-share.h"
 #include "plustek-pp.h"
 
 /*********************** the debug levels ************************************/
@@ -549,7 +548,7 @@ static SANE_Status do_cancel( Plustek_Scanner *scanner, SANE_Bool closepipe  )
  */
 static SANE_Status limitResolution( Plustek_Device *dev )
 {
-	dev->dpi_range.min = /*lens.rDpiY.wMin; */ _DEF_DPI;
+	dev->dpi_range.min = _DEF_DPI;
  	if( dev->dpi_range.min < _DEF_DPI )
 		dev->dpi_range.min = _DEF_DPI;
 
@@ -1922,13 +1921,14 @@ SANE_Status sane_start( SANE_Handle handle )
 /*
  * CHECK: what about the 10 bit mode?
  */
+#if 0
 	if( COLOR_TRUE48 == scanmode )
 		sinfo.ImgDef.wBits = OUTPUT_12Bits;
 	else if( COLOR_TRUE32 == scanmode )
 		sinfo.ImgDef.wBits = OUTPUT_10Bits;
 	else
 		sinfo.ImgDef.wBits = OUTPUT_8Bits;
-
+#endif
 	sinfo.ImgDef.dwFlag = SCANDEF_QualityScan;
 
 	switch( s->val[OPT_EXT_MODE].w ) {
@@ -1936,8 +1936,6 @@ SANE_Status sane_start( SANE_Handle handle )
 		case 2: sinfo.ImgDef.dwFlag |= SCANDEF_Negative; 	 break;
 		default: break;
 	}
-
-	sinfo.ImgDef.wLens = s->hw->caps.wLens;
 
 	/* only for parallel-port devices */
 	if( s->hw->putImgInfo ) {

@@ -1,4 +1,4 @@
-.TH sane-plustek 5 "24 September 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-plustek 5 "28 September 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-plustek
 .SH NAME
 sane-plustek \- SANE backend for Plustek parallel port and
@@ -228,7 +228,7 @@ option cacheCalData b
 1 --> save results of coarse calibration in ~/.sane/ directory
 .RE
 .PP
-option altCalibrate b
+option altCalibration b
 .RS
 .I b
 0 --> use standard calibration routines,

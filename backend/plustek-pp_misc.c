@@ -677,8 +677,6 @@ _LOC int MiscReinitStruct( pScanData ps )
 	ps->sCaps.Version = ((_PTDRV_V1 << 8) | _PTDRV_V0);
 
 	ps->bCurrentSpeed = 1;
-	ps->sCaps.wLens   = 1;   /* set wNumberOfLens */
-
 	ps->pbMapRed      =  ps->a_bMapTable;
 	ps->pbMapGreen    = &ps->a_bMapTable[256];
 	ps->pbMapBlue     = &ps->a_bMapTable[512];

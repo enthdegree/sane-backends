@@ -176,19 +176,8 @@ static void modelInitPageSettings( pScanData ps )
  */
 static void modelInitCaps( pScanData ps )
 {
-    if(	_ASIC_IS_96001 == ps->sCaps.AsicID )
-    	ps->sCaps.dwBits = _BITS_8;
-    else
-    	ps->sCaps.dwBits = _BITS_10;
-
-	ps->sCaps.rDataType.wMin    = 0;
-	ps->sCaps.rDataType.wDef    = COLOR_TRUE24;
-	ps->sCaps.rDataType.wMax    = COLOR_TRUE24;
-	ps->sCaps.rDataType.wPhyMax = COLOR_TRUE24;
-	ps->sCaps.wIOBase 		    = _NO_BASE;
-	ps->sCaps.wLens 			= 1;
-    ps->sCaps.dwFlag            = (SFLAG_SCANNERDEV +
-								   SFLAG_FLATBED + SFLAG_CUSTOM_GAMMA);
+	ps->sCaps.wIOBase = _NO_BASE;
+    ps->sCaps.dwFlag  = (SFLAG_SCANNERDEV+SFLAG_FLATBED+SFLAG_CUSTOM_GAMMA);
 }
 
 /*.............................................................................
@@ -594,10 +583,6 @@ _LOC void ModelSet9636( pScanData ps )
 	ps->Device.DataOriginX = 72;
 	ps->sCaps.AsicID = _ASIC_IS_98001;
 
-	ps->sCaps.dwBits 		     = _BITS_12;
-	ps->sCaps.rDataType.wMax 	 = COLOR_TRUE48;
-	ps->sCaps.rDataType.wPhyMax  = COLOR_TRUE48;
-
 	ps->TotalBufferRequire = _LINE_BUFSIZE * 2 + _LINE_BUFSIZE1 +
 			 					ps->BufferForColorRunTable + _PROCESS_BUFSIZE;
 
@@ -621,10 +606,6 @@ _LOC void ModelSetP12( pScanData ps )
 	ps->Device.DataOriginX = 72;
     ps->sCaps.Model  = MODEL_OP_PT12;
 	ps->sCaps.AsicID = _ASIC_IS_98003;
-
-	ps->sCaps.dwBits 		    = _BITS_12;
-	ps->sCaps.rDataType.wMax 	= COLOR_TRUE48;
-	ps->sCaps.rDataType.wPhyMax = COLOR_TRUE48;
 
 	ps->TotalBufferRequire = _SizeTotalBufTpa;
 

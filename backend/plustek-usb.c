@@ -78,7 +78,14 @@
 #ifndef PATH_MAX
 # define PATH_MAX	1024
 #endif
- 
+
+/** useful for description tables
+ */
+typedef struct {
+	int	  id;
+	char *desc;
+} TabDef, *pTabDef;
+  
 /** to allow different vendors...
  */
 static TabDef usbVendors[] = {
@@ -672,12 +679,6 @@ static int usbDev_getCaps( Plustek_Device *dev )
 
 	DBG( _DBG_INFO, "usbDev_getCaps()\n" );
 
-	dev->caps.rDataType.wMin    = scaps->Normal.MinDpi.x;
-	dev->caps.rDataType.wDef    = scaps->Normal.MinDpi.x;
-	dev->caps.rDataType.wMax    = scaps->OpticDpi.y;
-	dev->caps.rDataType.wPhyMax = scaps->OpticDpi.x;
-
-	dev->caps.dwBits = _BITS_12;
 	dev->caps.dwFlag = (SFLAG_SCANNERDEV + SFLAG_FLATBED + SFLAG_CUSTOM_GAMMA);
 
 	if(((DEVCAPSFLAG_Positive == scaps->wFlags)  &&
@@ -686,47 +687,8 @@ static int usbDev_getCaps( Plustek_Device *dev )
 		dev->caps.dwFlag |= SFLAG_TPA;
 	}
 
-	dev->caps.wLens   = 1;
 	dev->caps.wMaxExtentX = scaps->Normal.Size.x;
 	dev->caps.wMaxExtentY = scaps->Normal.Size.y;
-
-    return 0;
-}
-
-/** usbDev_getLensInfo
- * set the info for the scan-area.
- */
-static int usbDev_getLensInfo( Plustek_Device *dev, pLensInfo lens )
-{
-	DBG( _DBG_INFO, "usbDev_getLensInfo()\n" );
-
-	lens->wBeginX = 0;
-	lens->wBeginY = 0;
-
-	lens->rExtentX.wMin	   = 150;
-	lens->rExtentX.wDef    =
-	lens->rExtentX.wMax    =
-	lens->rExtentX.wPhyMax = dev->usbDev.Caps.Normal.Size.x;
-
-	lens->rExtentY.wMin    = 150;
-	lens->rExtentY.wDef    =
-	lens->rExtentY.wMax    =
-	lens->rExtentY.wPhyMax = dev->usbDev.Caps.Normal.Size.y;	
-
-    /* set the DPI stuff */
-	lens->rDpiX.wMin 	  = 16;
-	lens->rDpiX.wDef 	  = 50;
-	lens->rDpiX.wMax 	  = (dev->usbDev.Caps.OpticDpi.x *16);
-	lens->rDpiX.wPhyMax   = dev->usbDev.Caps.OpticDpi.x;
-	lens->rDpiY.wMin 	  = 16;
-	lens->rDpiY.wDef 	  = 50;
-	lens->rDpiY.wMax 	  = (dev->usbDev.Caps.OpticDpi.x *16);
-	lens->rDpiY.wPhyMax   = (dev->usbDev.Caps.OpticDpi.x * 2);
-
-	lens->rDpiY.wMin      = dev->usbDev.Caps.Normal.MinDpi.y;
-
-	DBG( _DBG_INFO, "wMAX=%u, WPHYMAX=%u\n", lens->rDpiY.wMax, lens->rDpiY.wPhyMax );
-
     return 0;
 }
 
@@ -747,7 +709,7 @@ static int usbDev_getCropInfo( Plustek_Device *dev, pCropInfo ci )
 	ci->dwLinesPerArea  = size.dwLines;
 	ci->dwBytesPerLine  = size.dwBytes;
 
-	if( ci->ImgDef.dwFlag & SCANDEF_BoundaryDWORD )
+	if( ci->ImgDef.dwFlag & SCANFLAG_DWORDBoundary )
 		ci->dwBytesPerLine = (ci->dwBytesPerLine + 3UL) & 0xfffffffcUL;
 
 	DBG( _DBG_INFO, "PPL = %lu\n",  ci->dwPixelsPerLine );
@@ -945,7 +907,7 @@ static int usbDev_stopScan( Plustek_Device *dev, int *mode )
 
 /**
  */
-static int usbDev_startScan( Plustek_Device *dev, pStartScan start )
+static int usbDev_startScan( Plustek_Device *dev )
 {
     pScanDef   scanning = &dev->scanning;
 	static int iSkipLinesForADF = 0;
@@ -979,9 +941,6 @@ static int usbDev_startScan( Plustek_Device *dev, pStartScan start )
 
 		scanning->dwFlag |= SCANFLAG_StartScan;
 		usb_LampOn( dev, SANE_TRUE, SANE_TRUE );
-
-		start->dwBytesPerLine = scanning->dwBytesLine;
-		start->dwFlag 		  = scanning->dwFlag;
 
 		m_fStart    = m_fFirst = SANE_TRUE;
 		m_fAutoPark =

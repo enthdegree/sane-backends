@@ -195,7 +195,7 @@ static SANE_Bool usb_MapDownload( pPlustek_Device dev, u_char bDataType )
 			fInverse ^= 1;
 		}
 		
-		if((scanning->dwFlag & SCANDEF_Inverse) &&
+		if((scanning->dwFlag & SCANFLAG_Invert) &&
 									!(scanning->dwFlag & SCANFLAG_Pseudo48)) {
 			fInverse ^= 1;
 		}	

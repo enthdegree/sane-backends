@@ -185,7 +185,6 @@ typedef long long TimerDef, *pTimerDef;
  * include the shared stuff right here, this concerns the ioctl interface
  * and the communication stuff
  */
-#include "plustek-share.h"
 #include "plustek-pp.h"
 
 /*.............................................................................

@@ -9,6 +9,8 @@
 	  warnings, Added detection for IS-410 and IS-430.
 	* doc/descriptions-external/ibm.desc: Removed, now included in
 	  SANE distribution.
+	* include/md5.h: Don't use __attribute__ for compilers that don't
+	  support it.
 	
 2003-04-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

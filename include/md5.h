@@ -83,6 +83,12 @@ typedef unsigned long int md5_uintptr;
 
 #define __md5_buffer md5_buffer
 
+#ifdef __GNUC__
+#define ALIGN __attribute__ ((__aligned__ (__alignof__ (md5_uint32))))
+#else
+#define ALIGN
+#endif 
+
 /* Structure to save state of computation between the single steps.  */
 struct md5_ctx
 {
@@ -93,7 +99,7 @@ struct md5_ctx
 
   md5_uint32 total[2];
   md5_uint32 buflen;
-  char buffer[128] __attribute__ ((__aligned__ (__alignof__ (md5_uint32))));
+  char buffer[128] ALIGN;
 };
 
 /*

@@ -1,3 +1,11 @@
+2005-01-12  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added Genius ColorPage-Slim
+	  1200 USB2.
+	* doc/descriptions-external/genesys.desc: Added Canon Lide 40.
+	* doc/descriptions-external/brother.desc: Added several scanners
+	  and updated the status of others based on user comments.
+
 2005-01-12  Julien Blache <jb@jblache.org>
 
 	* tools/hotplug/libusbscanner: use sysfs to get the device number,

@@ -16,8 +16,7 @@
                                   ; :yes or :no
 ;:manpage "sane-template"          ; name of manpage (if it exists)
 :url "http://solutions.brother.com/Library/sol/printer/linux/sane_drivers.html" ; backend's web page
-:url "http://home.arcor.de/matthus/20041104.html"
-:comment "Supports only USB models. External backend made by brother. As this software contains non-free parts, it can't be included into SANE. Several reports about this backend tell us that it doesn't seem to work at least in older versions. The second link has some more information about this backend. Please tell us if your scanner works with that backend." 
+:comment "Supports only USB models. External backend made by brother. As this software contains non-free parts, it can't be included into SANE." 
                                   ; comment about the backend
 
 :devicetype :scanner              ; start of a list of devices....
@@ -33,197 +32,272 @@
 :status :untested
 :interface "USB"
 ;:url ""  ; model's URL
-:comment "Nobody has reported any success with this scanner. Try brother backend 0.0.12, which is not on the brother website yet (ask brother for that version). If the backend works for you, please tell us."
+:comment "No report yet."
 
 :model "DCP-1400"
 :status :untested
 :interface "USB"
 ;:url ""  ; model's URL
-:comment "Nobody has reported any success with this scanner. Try brother backend 0.0.12, which is not on the brother website yet (ask brother for that version). If the backend works for you, please tell us."
+:comment "No report yet."
+
+:model "DCP-4020C"
+:status :untested
+:interface "USB"
+;:url ""  ; model's URL
+:comment "No report yet."
 
 :model "DCP-8020"
 :status :untested
 :interface "USB"
 ;:url ""  ; model's URL
-:comment "Nobody has reported any success with this scanner. Try brother backend 0.0.12, which is not on the brother website yet (ask brother for that version). If the backend works for you, please tell us."
+:comment "No report yet."
 
 :model "DCP-8025D"
+:status :good
+:interface "USB"
+;:url ""  ; model's URL
+
+:model "DCP-8040"
 :status :untested
 :interface "USB"
 ;:url ""  ; model's URL
-:comment "Nobody has reported any success with this scanner. Try brother backend 0.0.12, which is not on the brother website yet (ask brother for that version). If the backend works for you, please tell us."
+:comment "No report yet."
+
+:model "DCP-8045D"
+:status :untested
+:interface "USB"
+;:url ""  ; model's URL
+:comment "No report yet."
+
+
+:model "FAX1800C"
+:status :untested
+:interface "USB"
 
 :model "FAX1815C"
 :status :untested
 :interface "USB"
 ;:url ""  ; model's URL
-:comment "Nobody has reported any success with this scanner. Try brother backend 0.0.12, which is not on the brother website yet (ask brother for that version). If the backend works for you, please tell us."
+:comment "No report yet."
 
 :model "FAX1820C"
 :status :untested
 :interface "USB"
 ;:url ""  ; model's URL
-:comment "Nobody has reported any success with this scanner. Try brother backend 0.0.12, which is not on the brother website yet (ask brother for that version). If the backend works for you, please tell us."
+:comment "No report yet."
 
 :model "FAX1920CN"
 :status :untested
 :interface "USB"
 ;:url ""  ; model's URL
-:comment "Nobody has reported any success with this scanner. Try brother backend 0.0.12, which is not on the brother website yet (ask brother for that version). If the backend works for you, please tell us."
+:comment "No report yet."
 
 :model "FAX-2850"
 :status :untested
 :interface "USB"
 ;:url ""  ; model's URL
-:comment "Nobody has reported any success with this scanner. Try brother backend 0.0.12, which is not on the brother website yet (ask brother for that version). If the backend works for you, please tell us."
+:comment "No report yet."
 
 :model "FAX-2900"
 :status :untested
 :interface "USB"
 ;:url ""  ; model's URL
-:comment "Nobody has reported any success with this scanner. Try brother backend 0.0.12, which is not on the brother website yet (ask brother for that version). If the backend works for you, please tell us."
+:comment "No report yet."
 
 :model "FAX-3800"
 :status :untested
 :interface "USB"
 ;:url ""  ; model's URL
-:comment "Nobody has reported any success with this scanner. Try brother backend 0.0.12, which is not on the brother website yet (ask brother for that version). If the backend works for you, please tell us."
+:comment "No report yet."
 
 :model "FAX-4100"
 :status :untested
 :interface "USB"
 ;:url ""  ; model's URL
-:comment "Nobody has reported any success with this scanner. Try brother backend 0.0.12, which is not on the brother website yet (ask brother for that version). If the backend works for you, please tell us."
+:comment "No report yet."
 
 :model "FAX-4750e"
 :status :untested
 :interface "USB"
 ;:url ""  ; model's URL
-:comment "Nobody has reported any success with this scanner. Try brother backend 0.0.12, which is not on the brother website yet (ask brother for that version). If the backend works for you, please tell us."
+:comment "No report yet."
 
 :model "FAX-5750e"
 :status :untested
 :interface "USB"
 ;:url ""  ; model's URL
-:comment "Nobody has reported any success with this scanner. Try brother backend 0.0.12, which is not on the brother website yet (ask brother for that version). If the backend works for you, please tell us."
+:comment "No report yet."
 
-:model "MFC3220C"
+
+
+:model "MFC-3100C"
+:status :untested
+:interface "USB"
+
+:model "MFC-3200C"
+:status :untested
+:interface "USB"
+
+:model "MFC-3220C"
 :status :untested
 :interface "USB"
 ;:url ""  ; model's URL
-:comment "Nobody has reported any success with this scanner. Try brother backend 0.0.12, which is not on the brother website yet (ask brother for that version). If the backend works for you, please tell us."
+:comment "No report yet."
 
-:model "MFC3320CN"
+:model "MFC-3320CN"
 :status :untested
 :interface "USB"
 ;:url ""  ; model's URL
-:comment "Nobody has reported any success with this scanner. Try brother backend 0.0.12, which is not on the brother website yet (ask brother for that version). If the backend works for you, please tell us."
+:comment "No report yet."
 
-:model "MFC3420C"
+:model "MFC-3420C"
 :status :good
 :interface "USB"
 ;:url ""  ; model's URL
 :comment "Is reported to work well with the bother backend."
 
-:model "MFC3820CN"
+:model "MFC-3820CN"
 :status :untested
 :interface "USB"
 ;:url ""  ; model's URL
-:comment "Nobody has reported any success with this scanner. Try brother backend 0.0.12, which is not on the brother website yet (ask brother for that version). If the backend works for you, please tell us."
+:comment "No report yet."
+
+:model "MFC-4420C"
+:status :untested
+:interface "USB"
 
 :model "MFC-4800"
-:status :untested
+:status :good
 :interface "USB"
 ;:url ""  ; model's URL
-:comment "Nobody has reported any success with this scanner. Try brother backend 0.0.12, which is not on the brother website yet (ask brother for that version). If the backend works for you, please tell us."
+
+:model "MFC-4820C"
+:status :good
+:interface "USB"
+
+:model "MFC-5100C"
+:status :good
+:interface "USB"
+
+:model "MFC-5200C"
+:status :good
+:interface "USB"
+
+:model "MFC-580"
+:status :good
+:interface "USB"
+
+:model "MFC-590"
+:status :good
+:interface "USB"
 
 :model "MFC-6800"
 :status :untested
 :interface "USB"
 ;:url ""  ; model's URL
-:comment "Nobody has reported any success with this scanner. Try brother backend 0.0.12, which is not on the brother website yet (ask brother for that version). If the backend works for you, please tell us."
+:comment "No report yet."
 
 :model "MFC-8220"
 :status :untested
 :interface "USB"
 ;:url ""  ; model's URL
-:comment "Nobody has reported any success with this scanner. Try brother backend 0.0.12, which is not on the brother website yet (ask brother for that version). If the backend works for you, please tell us."
+:comment "No report yet."
 
 :model "MFC-8420"
-:status :untested
+:status :good
 :interface "USB"
 ;:url ""  ; model's URL
-:comment "Nobody has reported any success with this scanner. Try brother backend 0.0.12, which is not on the brother website yet (ask brother for that version). If the backend works for you, please tell us."
+
+:model "MFC-8440"
+:status :good
+:interface "USB"
+;:url ""  ; model's URL
 
 :model "MFC-8500"
 :status :untested
 :interface "USB"
 ;:url ""  ; model's URL
-:comment "Nobody has reported any success with this scanner. Try brother backend 0.0.12, which is not on the brother website yet (ask brother for that version). If the backend works for you, please tell us."
+:comment "No report yet."
 
 :model "MFC-8820D"
 :status :good
 :interface "USB"
 ;:url ""  ; model's URL
-:comment "Is reported to work well with backend version 0.0.12 (which is not yet on the brother website)."
+:comment "Is reported to work well with backend version 0.0.12."
+
+:model "MFC-8840D"
+:status :untested
+:interface "USB"
+;:url ""  ; model's URL
+:comment "No report yet."
+
+:model "MFC-890"
+:status :good
+:interface "USB"
 
 :model "MFC-9030"
 :status :untested
 :interface "USB"
 ;:url ""  ; model's URL
-:comment "Nobody has reported any success with this scanner. Try brother backend 0.0.12, which is not on the brother website yet (ask brother for that version). If the backend works for you, please tell us."
+:comment "No report yet."
 
 :model "MFC-9070"
 :status :untested
 :interface "USB"
 ;:url ""  ; model's URL
-:comment "Nobody has reported any success with this scanner. Try brother backend 0.0.12, which is not on the brother website yet (ask brother for that version). If the backend works for you, please tell us."
+:comment "No report yet."
 
 :model "MFC-9160"
 :status :good
 :interface "USB"
 ;:url ""  ; model's URL
-:comment "Is reported to work well with backend version 0.0.12 (which is not yet on the brother website)."
+:comment "Is reported to work well with backend version 0.0.12."
+
+:model "MFC-9160"
+:status :untested
+:interface "USB"
+;:url ""  ; model's URL
+:comment "No report yet."
 
 :model "MFC-9180"
 :status :untested
 :interface "USB"
 ;:url ""  ; model's URL
-:comment "Nobody has reported any success with this scanner. Try brother backend 0.0.12, which is not on the brother website yet (ask brother for that version). If the backend works for you, please tell us."
+:comment "No report yet."
 
 :model "MFC-9660"
 :status :untested
 :interface "USB"
 ;:url ""  ; model's URL
-:comment "Nobody has reported any success with this scanner. Try brother backend 0.0.12, which is not on the brother website yet (ask brother for that version). If the backend works for you, please tell us."
+:comment "No report yet."
 
 :model "MFC-9700"
 :status :untested
 :interface "USB"
 ;:url ""  ; model's URL
-:comment "Nobody has reported any success with this scanner. Try brother backend 0.0.12, which is not on the brother website yet (ask brother for that version). If the backend works for you, please tell us."
+:comment "No report yet."
 
 :model "MFC-9760"
 :status :untested
 :interface "USB"
 ;:url ""  ; model's URL
-:comment "Nobody has reported any success with this scanner. Try brother backend 0.0.12, which is not on the brother website yet (ask brother for that version). If the backend works for you, please tell us."
+:comment "No report yet."
 
 :model "MFC-9800"
 :status :untested
 :interface "USB"
 ;:url ""  ; model's URL
-:comment "Nobody has reported any success with this scanner. Try brother backend 0.0.12, which is not on the brother website yet (ask brother for that version). If the backend works for you, please tell us."
+:comment "No report yet."
 
 :model "MFC-9860"
 :status :untested
 :interface "USB"
 ;:url ""  ; model's URL
-:comment "Nobody has reported any success with this scanner. Try brother backend 0.0.12, which is not on the brother website yet (ask brother for that version). If the backend works for you, please tell us."
+:comment "No report yet."
 
 :model "MFC-9880"
 :status :untested
 :interface "USB"
 ;:url ""  ; model's URL
-:comment "Nobody has reported any success with this scanner. Try brother backend 0.0.12, which is not on the brother website yet (ask brother for that version). If the backend works for you, please tell us."
+:comment "No report yet."
 

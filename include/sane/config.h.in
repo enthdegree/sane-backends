@@ -390,6 +390,9 @@
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
 
+/* Define if pthreads should be used instead of forked processes. */
+#undef USE_PTHREAD
+
 /* Define to the version of the distribution. */
 #undef VERSION
 

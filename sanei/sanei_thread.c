@@ -113,7 +113,7 @@ sanei_thread_wait( int *stat_loc)
 
 #else /* HAVE_OS2_H */
 
-#ifdef HAVE_LIBPTHREAD
+#ifdef USE_PTHREAD
 # include <pthread.h>
 #else
 # include <sys/wait.h>
@@ -123,7 +123,7 @@ int
 sanei_thread_begin( void (*start)(void *arg), void* args )
 {
 	int       pid;
-#ifdef HAVE_LIBPTHREAD
+#ifdef USE_PTHREAD
 	pthread_t thread;
 
 	pid = pthread_create( &thread, NULL, start, args );
@@ -163,7 +163,7 @@ int
 sanei_thread_kill( int pid, int sig)
 {
 	DBG(2, "sanei_thread_kill() will kill %d\n", (int)pid);
-#ifdef HAVE_LIBPTHREAD
+#ifdef USE_PTHREAD
 	return pthread_kill((pthread_t)pid, sig );
 #else
 	return kill( pid, sig );
@@ -176,7 +176,7 @@ sanei_thread_waitpid( int pid, int *stat_loc, int options )
 	if (stat_loc)
 		*stat_loc = 0;
 
-#ifdef HAVE_LIBPTHREAD
+#ifdef USE_PTHREAD
 
 	_VAR_NOT_USED( options );
 
@@ -191,7 +191,7 @@ sanei_thread_waitpid( int pid, int *stat_loc, int options )
 SANE_Bool
 sanei_thread_is_forked( void )
 {
-#ifdef HAVE_LIBPTHREAD
+#ifdef USE_PTHREAD
 	return SANE_FALSE;
 #else
 	return SANE_TRUE;

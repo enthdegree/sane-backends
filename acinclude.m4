@@ -227,7 +227,6 @@ AC_DEFUN([SANE_CHECK_IEEE1284],
 # Checks for pthread support
 AC_DEFUN([SANE_CHECK_PTHREAD],
 [
-  AC_MSG_CHECKING([whether to enable pthread support])
 
   case "${host_os}" in
   darwin*) # currently only enabled on MacOS X
@@ -242,25 +241,25 @@ AC_DEFUN([SANE_CHECK_PTHREAD],
   # the user
   AC_ARG_ENABLE( [fork-process],
     AC_HELP_STRING([--enable-fork-process],
-                   [use fork instead of pthread (default)]),
+                   [use fork instead of pthread (default=no for MacOS X, yes for everything else)]),
     [
       if test $enableval != yes ; then
         use_pthread=yes
       fi
     ])
-  AC_MSG_RESULT([$use_pthread])
   if test $use_pthread = yes ; then
     AC_CHECK_HEADERS(pthread.h,
-    [AC_CHECK_LIB(pthread,pthread_create,)
-       saved_LIBS="${LIBS}"
-       LIBS="${LIBS} -lpthread"
-       AC_CHECK_FUNCS(pthread_create, enable_dynamic=yes,)
-       AC_CHECK_FUNCS(pthread_kill,   enable_dynamic=yes,)
-       AC_CHECK_FUNCS(pthread_join,   enable_dynamic=yes,)
-       AC_CHECK_FUNCS(pthread_detach, enable_dynamic=yes,)
-       LIBS="${saved_LIBS}"
+    [
+       AC_CHECK_LIB(pthread,pthread_create)
+       AC_CHECK_FUNCS([pthread_create pthread_kill pthread_join pthread_detach],,use_pthread=no)
     ],)
   fi
+  if test $use_pthread = yes ; then
+    AC_DEFINE_UNQUOTED(USE_PTHREAD, "$use_pthread",
+                   [Define if pthreads should be used instead of forked processes.])
+  fi
+  AC_MSG_CHECKING([whether to enable pthread support])
+  AC_MSG_RESULT([$use_pthread])
 ])
 
 #

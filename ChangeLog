@@ -1,3 +1,8 @@
+2002-10-08  Stéphane Voltz  <svoltz@wanadoo.fr>
+
+	* backend/umax_pp.c: use macros from saneopts.h to fix translations
+	  problems
+
 2002-10-08  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* po/plustek.de.po: Cleanup

@@ -1,3 +1,7 @@
+2000-08-23 Abel Deuring <a.deuring@satzbau-gmbh.de>
+	* sanei/sanei_scsi.c: Second attempt to fix the errno bug
+	  in the Linux command queue handling. 
+
 2000-08-19  Henning Meier-Geinitz <hmg@gmx.de>
 
 	* TODO: Included TODO file for 1.0.4.

@@ -1,12 +1,12 @@
-Begin3
-Title:          SANE-BACKENDS
+Begin4
+Title:          sane-backends
 Version:        _VERSION_
 Entered-date:   _DATE_
 Description:    SANE (Scanner Access Now Easy) is a universal scanner
                 interface. SANE-BACKENDS comes complete with documentation,
                 several backends, scanimage command line frontend, and
                 networking support. For other/graphical frontends take a look
-                at SANE-FRONTENDS and XSANE.
+                at sane-frontends and XSane.
 Keywords:       camera, scanner, Abaton, Agfa, Apple, Artec, Avision, Canon,
                 DevCom, Epson, Fujitsu, gPhoto, HP, Kodak (DC25, DC210 and DC240),
                 Microtek, Mustek,  NEC, Nikon CoolScan, Polaroid Digital
@@ -15,8 +15,9 @@ Keywords:       camera, scanner, Abaton, Agfa, Apple, Artec, Avision, Canon,
                 Video for Linux, network server & client, Java API & client
 Author:         David.Mosberger@acm.org (David Mosberger-Tang)
                 (see AUTHORS for complete list)
-Maintained-by:  David.Mosberger@acm.org (David Mosberger-Tang)
+Maintained-by:  henning@meier-geinitz.de (Henning Meier-Geinitz)
                 Oliver.Rauch@rauch-domain.de (Oliver Rauch)
+                David.Mosberger@acm.org (David Mosberger-Tang)
 Primary-site:   ftp.mostang.com /pub/sane
                 _T_S_ kB sane-backends-_VERSION_.tar.gz
                 _L_S_ kB sane-backends-_VERSION_.lsm
@@ -25,7 +26,8 @@ Alternate-site: tsx-11.mit.edu /pub/linux/packages/sane
                 gd.tuwien.ac.at /hci/sane/
 Platforms:      AIX, Digital Unix, HP Apollo Domain/OS, FreeBSD, HP-UX, IRIX,
                 Linux (Alpha, m68k, SPARC, x86), NetBSD, OpenStep (x86),
-                SCO OpenServer 5.x (x86), OS/2, Solaris (SPARC, x86), SunOS
+                SCO OpenServer 5.x (x86), OS/2, Solaris (SPARC, x86), SunOS.
+                GNU make is needed.
 Copying-policy: GPL (programs), relaxed GPL (libraries), and public domain
                 (SANE standard)
 End

@@ -1,4 +1,4 @@
-.TH sane-plustek 5 "09 April 2001"
+.TH sane-plustek 5 "14 June 2001"
 .IX sane-plustek
 .SH NAME
 sane-plustek - SANE backend for Plustek parallel port flatbed scanners
@@ -179,6 +179,13 @@ specifies which I/O functions the driver should use, 1 --> use
 delayed functions, 0 --> use the non-delayed ones
 .RE
 .PP
+forceMode=fm
+.RS
+.I fm
+specifies port mode which should be used, 0 --> autodetection,
+1 --> use SPP mode and 2 --> use EPP mode
+.RE
+.PP
 mov=m
 .RS
 .I m
@@ -216,19 +223,19 @@ mov=m
 .RE
 .PP
 Sample entry for file
-.B /etc/conf.modules
+.B /etc/modules.conf
 :
 .br
 .I alias char-major-40 pt_drv
 .br
 .I pre-install pt_drv modprobe -k parport
 .br
-.I options pt_drv lampoff=180 warmup=15 port=0x378 lOffonEnd=0 mov=0
+.I options pt_drv lampoff=180 warmup=15 port=0x378 lOffonEnd=0 mov=0 slowIO=0 forceMode=0
 .PP
 For multidevice support, simply add values separated by commas to
 the different options
 .br
-.I options pt_drv port=0x378,0x278 mov=0,4
+.I options pt_drv port=0x378,0x278 mov=0,4 slowIO=0,1 forceMode=0,1
 .PP
 Remember to call depmod after changing /etc/conf.modules.
 .PP
@@ -284,7 +291,7 @@ Additional info and hints can be obtained in our
 .br
 Mailing-List archive at:
 .br
-.B http://www.linuxhacker.org/listscgi-bin/ezmlm-cgi/3
+.B http://www.linuxhacker.org/cgi-bin/ezmlm-cgi/3
 .PP
 
 .SH "BUGS & RESTRICTIONS"
@@ -343,5 +350,6 @@ ASIC 96003/1 based models:
 * The scanquality of the A3I is poor
 .br
 
-.SH SEE ALSO
-sane(7)
+
+
+

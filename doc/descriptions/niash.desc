@@ -22,17 +22,17 @@
 
 :model "ScanJet 3300c"
 :interface "USB"
-:comment "NIASH00012/00013/00014 chip. Color scans only."
+:comment "Color scans only."
 :status :basic
 
 :model "ScanJet 3400c"
 :interface "USB"
-:comment "NIASH00019 chip. Color scans only."
+:comment "Color scans only. If you use Linux 2.6, version 2.6.8 or newer is necessary."
 :status :basic
 
 :model "ScanJet 4300c"
 :interface "USB"
-:comment "NIASH00019 chip. Color scans only."
+:comment "Color scans only. If you use Linux 2.6, version 2.6.8 or newer is necessary."
 :status :basic
 
 :mfg "Agfa"
@@ -40,7 +40,7 @@
 
 :model "Snapscan Touch"
 :interface "USB"
-:comment "NIASH00014 chip. Color scans only."
+:comment "Color scans only."
 :status :basic
 
 

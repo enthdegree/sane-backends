@@ -1,5 +1,6 @@
 2001-05-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* backend/mustek.c: Updated some comments.
 	* TODO: Removed the entry about the config_line[len-1] bug.
 	* configure configure.in include/sane/config.h.in backend/qcam.c:
 	  Check for struct flock and define it if necessary. 

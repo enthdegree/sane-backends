@@ -65,13 +65,29 @@
 #include <unistd.h>
 #endif
 
-#ifdef HAVE_SYS_IO_H
+#if defined(__ICC) /* the Intel C++ Compiler cannot expand asm inline macros */
+
+#if defined(HAVE_SYS_IO_H)
 #include <sys/io.h>
-#elif HAVE_ASM_IO_H
+#elif defined(HAVE_ASM_IO_H)
 #include <asm/io.h>		/* ugly, but backwards compatible */
-#elif HAVE_SYS_HW_H
+#elif defined(HAVE_SYS_HW_H)
 #include <sys/hw.h>
-#elif defined(__i386__)  && defined (__GNUC__)
+#endif
+
+#undef HAVE_SYS_IO_H
+#undef HAVE_ASM_IO_H
+#undef HAVE_SYS_HW_H
+
+#endif
+
+#if defined(HAVE_SYS_IO_H)
+#include <sys/io.h>
+#elif defined(HAVE_ASM_IO_H)
+#include <asm/io.h>		/* ugly, but backwards compatible */
+#elif defined(HAVE_SYS_HW_H)
+#include <sys/hw.h>
+#elif defined(__i386__)  && ( defined (__GNUC__) || defined (__ICC) )
 
 static __inline__ void
 outb (u_char value, u_long port)

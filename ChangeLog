@@ -11,6 +11,9 @@
 	* backend/pnm.c doc/descriptins/pnm.desc: sane_set_io_mode
 	  checks for !non_blocking and scanning now. Fixed coding-style.
 	  New version: 1.0.8.
+	* TODO: Added dll init/exit problem. Added non-static symbol problem.
+	  Added info about missing definition of 1-bit modes in sane.tex.
+	  Added entry about sane-find-scanner searching directories.
 
 2002-04-09  Petter Reinholdtsen <pere@td.org.uit.no>
 

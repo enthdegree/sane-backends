@@ -1,5 +1,12 @@
 CHANGES for the SANE Mustek backend
 
+2002-04-10:
+  * Released Mustek backend 1.0-121.
+
+2002-04-10:
+  * Set freed variables to 0 at sane_exit.
+  * Coding-style fixed.
+
 2002-04-06:
   * Released Mustek backend 1.0-120.
 

@@ -89,13 +89,14 @@ static struct option basic_options[] = {
   {"format", required_argument, NULL, OPTION_FORMAT},
   {"accept-md5-only", no_argument, NULL, OPTION_MD5},
   {"icc-profile", required_argument, NULL, 'i'},
+  {"dont-scan", no_argument, NULL, 'n'},
   {0, 0, NULL, 0}
 };
 
 #define OUTPUT_PNM      0
 #define OUTPUT_TIFF     1
 
-#define BASE_OPTSTRING	"d:hi:Lf:vVTb"
+#define BASE_OPTSTRING	"d:hi:Lf:nvVTb"
 #define STRIP_HEIGHT	256	/* # lines we increment image height */
 
 static struct option *all_options;
@@ -106,6 +107,7 @@ static int verbose;
 static int test;
 static int output_format = OUTPUT_PNM;
 static int help;
+static int dont_scan = 0;
 static const char *prog_name;
 static SANE_Option_Descriptor window_option[2];
 static int window[4];
@@ -1506,6 +1508,9 @@ main (int argc, char **argv)
 	case 'T':
 	  test = 1;
 	  break;
+	case 'n':
+	  dont_scan = 1;
+	  break;
 	case OPTION_BATCH_INCREMENT:
 	  batch_increment = atoi (optarg);
 	  break;
@@ -1664,6 +1669,13 @@ main (int argc, char **argv)
 Start image acquisition on a scanner device and write PNM image data to\n\
 standard output.\n\
 \n\
+-d, --device-name=DEVICE   use a given scanner device (e.g. hp:/dev/scanner)\n\
+    --format=pnm|tiff      file format of output file\n\
+-i, --icc-profile=PROFILE  include this ICC profile into TIFF file\n\
+-L, --list-devices         show available scanner devices\n\
+-f, --formatted-device-list=FORMAT similar to -L, but the FORMAT of the output\n\
+                           can be specified: %%d (device name), %%v (vendor),\n\
+                           %%m (model), %%t (type), and %%i (index number)\n\
 -b, --batch[=FORMAT]       working in batch mode, FORMAT is `out%%d.pnm' or\n\
                            `out%%d.tif' by default depending on --format\n\
     --batch-start=#        page number to start naming files with\n\
@@ -1671,18 +1683,12 @@ standard output.\n\
     --batch-increment=#    increase number in filename by an amount of #\n\
     --batch-double         increment page number by two for 2sided originals\n\
                            being scanned in a single sided scanner\n\
-    --format=pnm|tiff      file format of output file\n\
--d, --device-name=DEVICE   use a given scanner device (e.g. hp:/dev/scanner)\n\
--h, --help                 display this help message and exit\n\
--L, --list-devices         show available scanner devices\n\
--f, --formatted-device-list=FORMAT similar to -L, but the FORMAT of the output\n\
-                           can be specified: %%d (device name), %%v (vendor),\n\
-                           %%m (model), %%t (type), and %%i (index number)\n\
--T, --test                 test backend thoroughly\n\
--v, --verbose              give even more status messages\n\
--V, --version              print version information\n\
     --accept-md5-only      only accept authorization requests using md5\n\
--i, --icc-profile=PROFILE  include this ICC profile into TIFF file\n", prog_name);
+-n, --dont-scan            only set options, don't actually scan\n\
+-T, --test                 test backend thoroughly\n\
+-h, --help                 display this help message and exit\n\
+-v, --verbose              give even more status messages\n\
+-V, --version              print version information\n", prog_name);
 
   if (!devname)
     {
@@ -1912,6 +1918,9 @@ List of available devices:", prog_name);
       fputc ('\n', stdout);
       exit (0);
     }
+
+  if (dont_scan)
+    exit (0);
 
   if (output_format != OUTPUT_PNM)
     resolution_value = get_resolution ();

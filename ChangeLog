@@ -1,3 +1,14 @@
+2001-11-11 Abel Deuring <a.deuring@satzbau-gmbh.de>
+	* sanei/sanei_scsi.c (Linux part): 
+          - improved handling of status codes returned by the SG driver. 
+          Device status INTERMEDIATE GOOD and CONDITION MET are now mapped 
+          to SANE_STATUS_GOOD; device status BUSY and a few driver status 
+          codes are mapped to SANE_STATUS_DEVICE_BUSY
+          - On SCSI command completion, the (sometimes bogus) residual count 
+          is no longer subtracted from *req->dstlen
+        * backend/sharp.c: if a READ command fails with SANE_STATUS_DEVICE_BUSY,
+          retry a few times.
+
 2001-11-10  Karl Heinz Kremer <khk@khk.net>
 
 	* backends/epson.[ch]: all strings tagged with I18N macro

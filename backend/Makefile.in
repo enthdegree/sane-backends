@@ -277,6 +277,7 @@ libsane-artec.la: ../sanei/sanei_constrain_value.lo
 libsane-artec.la: ../sanei/sanei_scsi.lo
 libsane-artec_eplus48u.la: ../sanei/sanei_constrain_value.lo
 libsane-artec_eplus48u.la: ../sanei/sanei_usb.lo
+libsane-artec_eplus48u.la: ../sanei/sanei_thread.lo
 libsane-as6e.la: ../sanei/sanei_constrain_value.lo
 libsane-avision.la: ../sanei/sanei_config2.lo
 libsane-avision.la: ../sanei/sanei_constrain_value.lo

@@ -1,3 +1,9 @@
+2004-05-18  Michael Herder <crapmail@nurfuerspam.de>
+
+	* backend/Makefile.in: 
+	  adjusted for use with sanei_thread and artec_eplus48u backend
+	  (thanks Mattias Ellert)
+
 2004-05-16  Oliver Rauch <Oliver.Rauch@Rauch-DOmain.DE>
 
 	* sanei/sanei_config.c: added DIR_SEP=";" and PATH_SEP="\\"

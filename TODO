@@ -1,4 +1,4 @@
-TODO (2001-05-16)
+TODO (2001-05-24)
 
 ******** todo ********
 
@@ -16,8 +16,6 @@ backends
       / libraries. pere 2001-02-09]
 
   * Add new backends (?)
-    - Polaroid SprintScan 35 LE [should be included into microtek] 
-      Dick Bruijn <dick@wau.mis.ah.nl>
     - primax http://primax.sourceforge.net/
     - hp4200 http://hp4200-backend.sourceforge.net/
     - v4l2 http://video.inodes.org/sane-v4l2/
@@ -101,7 +99,6 @@ backends
       - sharp
       - sp15c
       - tamarack
-      - umax
       
       - etc?
 
@@ -122,7 +119,6 @@ backends
     - m3096g
     - microtek2
     - sp15c
-    - umax
 
 doc
 ---
@@ -132,6 +128,8 @@ doc
     - any ideas for this?
 
   * sane.tex: Define the return values for sane_init?
+
+  * Add links to sane(7) in all maual pages
  
 frontends
 ---------
@@ -162,11 +160,6 @@ misc
   * move .desc files for backends that are not included in SANE to
     different directory (e.g. backends and external-backends)?
 
-  * Maybe add script to deinstall existing sane versions
-    - make uninstall
-    - install sane-uninstall script. Advantage: uninstall possible
-      without sourcecode
-
   * Use #include "../include/sane/..." instead of #include <sane...>
 
   * Use #include "../include/lalloca.h" instead of #include <lalloca.h>
@@ -180,7 +173,6 @@ misc
   * Add USB support for sane-find-scanner.
 
   * check memory leaks (checked with purify and mtrace (from glibc)):
-    - sanei_wire.c: lots of leaks, e.g. lines 145 + 185
     - sanei_scsi.c: line 1262
     - most backends: sanei_get_devices?
 
@@ -202,6 +194,12 @@ misc
   * Add installation procedure for translations of SANE backend's options.
 
 ******** done ********
+* Polaroid SprintScan 35 LE [should be included into microtek] 
+* Maybe add script to deinstall existing sane versions
+  - make uninstall
+  - install sane-uninstall script. Advantage: uninstall possible
+    without sourcecode (I think that's not necessary because you usually
+    have the sourcecode of a newer version if you want to uninstall. hmg)
 * Add sane manpage (this is work in progress: Henning Meier-Geinitz 
                     <henning@meier-geinitz.de>)
    - versioning system?

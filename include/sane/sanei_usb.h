@@ -25,21 +25,21 @@
 #include "../include/sane/sane.h"
 
 /* Initialize sanei_usb. Call this before any other sanei_usb function */
-void
+extern void
 sanei_usb_init (void);
 
 /* Get the vendor and product numbers for a given file descriptor. Currently,
    only scanners supported by the Linux USB scanner module can be found. Linux
    version must be 2.4.8 or higher. Returns SANE_STATUS_GOOD if the ids have
    been found, otherwise SANE_STATUS_UNSUPPORTED. */
-SANE_Status
+extern SANE_Status
 sanei_usb_get_vendor_product (SANE_Int fd, SANE_Word * vendor,
 			      SANE_Word * product);
 
 /* Find device names for given vendor and product ids. Above mentioned 
    limitations apply. The function attach is called for every device which
    has been found.*/
-SANE_Status
+extern SANE_Status
 sanei_usb_find_devices (SANE_Int vendor, SANE_Int product,
 			SANE_Status (*attach) (SANE_String_Const devname));
 
@@ -47,11 +47,11 @@ sanei_usb_find_devices (SANE_Int vendor, SANE_Int product,
    success, SANE_STATUS_GOOD is returned. If the file couldn't be accessed
    due to permissions, SANE_STATUS_ACCESS_DENIED is returned. For every
    other error, the return value is SANE_STATUS_INVAL. */
-SANE_Status
+extern SANE_Status
 sanei_usb_open (SANE_String_Const devname, SANE_Int *fd);
 
 /* Close an USB device represented by its file desciptor. */
-void
+extern void
 sanei_usb_close (SANE_Int fd);
 
 /* Initiate a bulk transfer read of up to zize bytes from the device to
@@ -59,7 +59,7 @@ sanei_usb_close (SANE_Int fd);
    read. Returns SANE_STATUS_GOOD on succes, SANE_STATUS_EOF if zero bytes
    have been read, SANE_STATUS_IO_ERROR if an error occured during the read,
    and SANE_STATUS_INVAL on every other error. */
-SANE_Status
+extern SANE_Status
 sanei_usb_read_bulk (SANE_Int fd, SANE_Byte * buffer, size_t *size);
 
 /* Initiate a bulk transfer write of up to size bytes from buffer to the
@@ -67,7 +67,7 @@ sanei_usb_read_bulk (SANE_Int fd, SANE_Byte * buffer, size_t *size);
    written. Returns SANE_STATUS_GOOD on succes, SANE_STATUS_IO_ERROR if an
    error occured during the read, and SANE_STATUS_INVAL on every other
    error. */
-SANE_Status
+extern SANE_Status
 sanei_usb_write_bulk (SANE_Int fd, SANE_Byte * buffer, size_t *size);
 
 /* A convenience function to support expanding device name patterns
@@ -84,4 +84,23 @@ sanei_usb_write_bulk (SANE_Int fd, SANE_Byte * buffer, size_t *size);
 extern void 
 sanei_usb_attach_matching_devices (const char *name,
 				   SANE_Status (*attach) (const char *dev));
+
+/* Sends/Receives a control message to/from the USB device.
+   data is the buffer to send/receive the data. len is the length of
+   that data, or the length of the data to receive. The other arguments
+   are passed directly to usb_control_msg (see the Linux USB project for
+   documentation).
+
+   The function returns 
+     SANE_STATUS_IO_ERROR on error, 
+     SANE_STATUS_GOOD on success,
+	 SANE_STATUS_UNSUPPORTED if the feature is not supported by the
+	                         OS or SANE.
+*/
+
+extern SANE_Status
+sanei_usb_control_msg (SANE_Int fd, SANE_Int rtype, SANE_Int req,
+		       SANE_Int value, SANE_Int index, SANE_Int len,
+		       SANE_Byte *data);
+
 #endif /* sanei_usb_h */

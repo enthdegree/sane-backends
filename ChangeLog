@@ -27,6 +27,7 @@
 	* doc/saned.man: Added info about data connection.
 	* po/mustek.de.po: Updated German translation for the Mustek SCSI
 	  backend.
+	* frontend/.gdbinit: Removed unnecessary file.
 
 2001-01-08  Stéphane Voltz  <svoltz@wanadoo.fr>
 

@@ -5,7 +5,6 @@ TODO (2000-11-19)
 backends
 --------
   * add new backends (?)
-    - as6e http://as6edriver.sourceforge.net/
     - bh http://www.martoneconsulting.com/sane-bh.html
     - Polaroid SprintScan 35 LE [should be included into microtek] 
       Dick Bruijn <dick@wau.mis.ah.nl>
@@ -133,6 +132,7 @@ misc
   * libdl is used in dll backend but -ldl is not added to LDFLAGS?
 
 ******** done ********
+* Add as6e http://as6edriver.sourceforge.net/
 * stiff.c: Tiff header not written correctly: "Jaeger, Gerhard"
   <gjaeger@sysgo.de> writes: When writing the TIFF header, you have to
   specify the TAG "BitsPerSample", which tells a reader how many bits each

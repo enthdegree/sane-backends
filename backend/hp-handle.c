@@ -432,7 +432,7 @@ sanei_hp_handle_startScan (HpHandle this)
                                        SCL_UNLOAD, &minval, &maxval)
               != SANE_STATUS_GOOD )
         && (sanei_hp_device_support_get (this->dev->sanedev.name,
-                                       SCL_UNLOAD, &minval, &maxval)
+                                       SCL_CHANGE_DOC, &minval, &maxval)
               != SANE_STATUS_GOOD ) )
     {
 

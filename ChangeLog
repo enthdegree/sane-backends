@@ -7,6 +7,9 @@
 	* frontend/saned.c: Try to get the correct port number when
 	  /etc/services doesn't list "sane" by asking for "6566". Check
 	  result of socket(). Print ip faimily and port.
+	* configure configure.in frontend/Makefile.in tools/Makefile.in:
+	  Remove -all_load again and try to use the correct link order for
+	  libraries.
 
 2003-05-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

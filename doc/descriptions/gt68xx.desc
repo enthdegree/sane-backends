@@ -1,11 +1,11 @@
 :backend "gt68xx"
 :status :beta
 :version "1.0-37"
-:new :yes
 :manpage "sane-gt68xx"
 :url "http://www.meier-geinitz.de/sane/gt68xx-backend/"
 :comment "Only the USB scanners mentioned below are supported. For other Mustek BearPaws, look at the Plustek backend."
 :devicetype :scanner
+
 
 :mfg "Mustek"
 :url "http://www.mustek.com/"
@@ -65,12 +65,13 @@
 :model "ScanExpress A3 USB"
 :interface "USB"
 :status :beta
-:comment "Works."
+;:comment ""
 
 :model "ScanExpress 2400 USB"
 :interface "USB"
 :status :untested
 :comment "Should be detected but may need some more work in the code. Testers welcome."
+
 
 :mfg "Plustek"
 :url "http://www.plustek.de/"
@@ -86,7 +87,8 @@
 :status :untested
 :comment "Isn't detected yet but may work some time in future. Testers welcome."
 
-:mfg "Artec"
+
+:mfg "Artec/Ultima"
 :url "http://www.artecusa.com/"
 
 :model "Ultima 2000"
@@ -99,11 +101,13 @@
 :interface "USB"
 :comment "Testers welcome"
 
+
 :mfg "Boeder"
 :model "Sm@rtScan Slim Edition"
 :status :beta
 :interface "USB"
 :comment "similar to Artec Ultima 2000"
+
 
 :mfg "Packard Bell"
 :model "Diamond 1200"
@@ -113,12 +117,12 @@
 
 :mfg "Medion/Lifetec/Tevion/Cytron"
 :url "http://www.medion.com"
-:comment "Sold by Aldi and Tchibo"
+:comment "Sold by Aldi and Tchibo."
 
 :model "LT 9452"
 :status :beta
 :interface "USB"
-:comment "Simlar to Mustek ScanExpress 1200 UB Plus"
+:comment "Similar to Mustek ScanExpress 1200 UB Plus"
 
 :model "MD/LT 9375"
 :status :untested
@@ -135,6 +139,7 @@
 :interface "USB"
 :comment "Similar to Artec Ultima 2000 (e+?)"
 
+
 :mfg "Trust"
 :url "http://www.trust-site.com"
 
@@ -148,6 +153,7 @@
 :interface "USB"
 :comment "works, if you have vendor id 0x055f and product id 0x0006, use the mustek_usb backend instead, similar to Mustek ScanExpress 1200 UB (Plus)"
 
+
 :mfg "Lexmark"
 :url "http://www.lexmark.com/"
 :model "X70"
@@ -159,6 +165,7 @@
 :status :beta
 :interface "USB"
 :comment "works, some resolutions fail at 16 bit, same as X70"
+
 
 :mfg "Genius"
 :url "http://www.genius-kye.com/"

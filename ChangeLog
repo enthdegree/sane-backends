@@ -1,3 +1,8 @@
+2003-01-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/gt68xx.desc doc/descriptions/unsupported.desc:
+	  Unified manufacturer names. Minor bugfixes.
+
 2003-01-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
         * configure configure.in: Warnings enabled again. Used extra version

@@ -1,6 +1,6 @@
-dnl aclocal.m4 generated automatically by aclocal 1.4-p5
+dnl aclocal.m4 generated automatically by aclocal 1.4-p4
 
-dnl Copyright (C) 1994, 1995-8, 1999, 2001 Free Software Foundation, Inc.
+dnl Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -220,7 +220,9 @@ AC_DEFUN(SANE_CHECK_GPHOTO2,
 		fi
 		GPVERSION=`gphoto2-config --version`
 
-		if test "$GPVERSION" != "gphoto2 2.0beta4dev8" && test "$GPVERSION" != "gphoto2 2.0beta4dev9" && "$GPVERSION" != "gphoto2 2.0beta5dev1" ; then 
+		if test "$GPVERSION" != "gphoto2 2.0beta4dev8" && 
+                   test "$GPVERSION" != "gphoto2 2.0beta4dev9" && 
+                   test "$GPVERSION" != "gphoto2 2.0beta5dev1" ; then 
 			echo 
 			echo "Sorry, can't use GPHOTO2"
 			echo "GPHOTO2 APIs have been changing rapidly. Only"

@@ -1,3 +1,7 @@
+2005-01-19  Oliver Rauch <Oliver.Rauch@rauch-domain.de>
+
+	* backend/coolscan.c: added initilization of dev->scanning = SANE_FALSE
+
 2005-01-18  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan.h: Added ID for Benq 5250C

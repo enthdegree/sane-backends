@@ -3357,6 +3357,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 
   dev->sfd = -1;
   dev->pipe = -1;
+  dev->scanning = SANE_FALSE;
 
   init_options (dev);
   *handle = dev;

@@ -1,12 +1,42 @@
 CHANGES for the SANE Mustek backend
 
+2000-12-30
+  * Implemented calibration (color and gray mode) for the Paragon 1200 Pro.
+    It's not perfect and needs lots of tests. It may work for the Paragon
+    A3 also but is not tested.
+  * SE 12000 SP Plus calibration is now better but not yet perfect.
+
+2000-12-27
+  * Enabled fast_preview for the Pro scanners (30 dpi).
+  * Increased scan width to 8.6" for 1200 Pro.
+
+2000-12-26
+  * Added calibration for the SE 12000 SP Plus. Doesn't fully work until now 
+    (images are too dark and colored).
+
+2000-12-23
+  * Added option for Legal format (because the ScanExpress 12000 SP A4 size
+    scanner can't be distinguished from the Paragon 1200 LS Legal size scanner
+    by software).
+  
+2000-12-21
+  * Added a few checks for Null-Pointers.
+  * Removed old code for SE calibration.
+  * Added option "quality calibration" for SE Plus scanners
+
+2000-12-21
+  * sane-backends 1.0.4 was released (including Mustek backend 1.0.102).
+
+2000-12-10
+  * Released Mustek backend 1.0-102
+  
 2000-12-09
   * Fixed wrong comment in encode_resolution
   * Added missing test for return status in sane_start
   * Fixed wrong calculation of tlx and tly for Pro series scanners
 
 2000-12-05
-  * Released Mustek backend 1.0-100
+  * Released Mustek backend 1.0-101
  
 2000-12-05
   * Fixed lamp setting (avoid problems with some SE scanners).

@@ -1,7 +1,6 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 1996, 1997 David Mosberger-Tang, 1998 Andreas Bolsch for
-   extension to ScanExpress models version 0.5,
-   2000 Henning Meier-Geinitz
+   extension to ScanExpress models version 0.5, 2000 Henning Meier-Geinitz
    This file is part of the SANE package.
    
    This program is free software; you can redistribute it and/or
@@ -86,6 +85,7 @@
 #define MUSTEK_FLAG_ENLARGE_X   (1 << 18)  /* need to enlarge x-res */
 #define MUSTEK_FLAG_COVER_SENSOR (1 << 19) /* scanner can detect open cover */
 #define MUSTEK_FLAG_USE_BLOCK	(1 << 20)  /* use blockmode */
+#define MUSTEK_FLAG_LEGAL_SIZE	(1 << 21)  /* scanner has legal size */
 
 /* Source values: */
 #define MUSTEK_SOURCE_FLATBED	0
@@ -126,7 +126,7 @@
 /* Convenience macros */
 #define MIN(a,b)	((a) < (b) ? (a) : (b))
 #define MAX(a,b)	((a) > (b) ? (a) : (b))
-/* Copy values to memeory ('L' = little endian, 'B' = big endian */
+/* Copy values to memory ('L' = little endian, 'B' = big endian */
 #define STORE16L(cp,v)				\
 do {						\
     int value = (v);				\
@@ -224,6 +224,7 @@ typedef struct Mustek_Device
         SANE_Int bytes;
         SANE_Int lines;
 	SANE_Byte *buffer;
+	SANE_Word *line_buffer[3];
       }
     cal;    
     /* current and maximum buffer size used by the backend */

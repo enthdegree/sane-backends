@@ -29,6 +29,8 @@ ScanExpress 6000SP
 .br
 ScanExpress 12000SP, 12000SP Plus, Paragon 1200 III SP, ScanMagic 9636S, 9636S Plus
 .br
+Paragon 1200 LS
+.br
 ScanExpress A3 SP
 .br
 Paragon 1200 SP Pro
@@ -115,6 +117,7 @@ device name.
 The supported options are
 .BR linedistance-fix ,
 .BR lineart-fix ,
+.BR legal-size
 .BR buffersize ,
 .BR blocksize ,
 .BR strip-height ,
@@ -140,6 +143,12 @@ is positional and works around a timing problem that seems to exist
 with certain MFS-12000SP scanners.  The problem manifests itself in
 dropped lines when scanning in lineart mode.  Turning on this option
 should fix the problem but may slow down scanning a bit.
+
+Option
+.B legal-size
+is positional and sets the size of the scan area to Legal format. Set this
+option if you own a Paragon 12000 LS. It can't be distinguished by
+software from a ScanExpress 12000 SP (ISO A4 format).
 
 Option
 .B buffersize

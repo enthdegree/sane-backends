@@ -1,3 +1,7 @@
+2002-04-11  Stéphane Voltz  <svoltz@wanadoo.fr>
+
+	* backend/umax_pp_low.c:  fixed 8 bits I/O support
+
 2002-04-10  Oliver Schwartz <oliver.schwartz@gmx.de>
  
 	* backend/snapscan-scsi.c

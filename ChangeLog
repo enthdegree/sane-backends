@@ -1,3 +1,15 @@
+2002-02-15  Stéphane Voltz  <svoltz@wanadoo.fr>
+
+	* backend/umax_pp_low.c backend/umax_pp_low.h backend/umax_pp_mid.h
+	  backend/umax_pp_mid.c backend/umax_pp.c backend/umax_pp.h
+	  backend/umax_pp.conf:  added ppdev character device name passing 
+	  from conf file. Allow model overide from conf option. DBG macros 
+	  clean-up. Fixed color inversion for 1660P models. Fixed potential 
+	  crash when custom dump files could not be opened for writing.
+	* doc/sane-umax_pp.man: updates to match backned new parameter and 
+	  behaviour
+	* tools/umax_pp.c: added device name argument
+		
 2002-02-14  Jochen Eisinger <jochen.eisinger@gmx.net>
 
 	* sanei/sanei_auth.h: remove strange line-ending handling code

@@ -4,7 +4,16 @@
 	  1600n. Removed Canon LiDE 35 (now in genesys.desc) and Epson
 	  Perfection 2480 (now in snapscan.desc).
 	* doc/descriptions-external/genesys.desc: Added Canon LiDE 35.
-
+	* backend/gt68xx.c backend/gt68xx.conf backend/gt68xx_devices.c
+	  backend/gt68xx_low.h backend/gt68xx_shm_channel.c
+	  doc/sane-gt68xx.man doc/descriptions/gt68xx.desc
+	  doc/gt68xx/gt68xx.CHANGES: Fixed firmware name for Mustek 1248
+	  UB. Changed status to basic. Removed "unsupported" warning.
+	  Added workaround for shared memory compilation problem on
+	  Windows. It's now possible to add a new vendor/product id line
+	  to gt68xx.conf to test yet unsupported scanners without changing
+	  the source code.
+	
 2004-09-02  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 	* backend/snapscan.c backend/snapscan-scsi.c backend/snapscan-options.c
 	  backend/snapscan.h backend/snapscan.conf doc/descriptions/snapscan.desc:

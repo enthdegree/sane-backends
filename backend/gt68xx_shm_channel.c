@@ -54,6 +54,14 @@
 #include <fcntl.h>
 #include <errno.h>
 
+#ifndef SHM_R
+#define SHM_R 0
+#endif
+
+#ifndef SHM_W
+#define SHM_W 0
+#endif
+
 /** Shared memory channel.
  *
  */

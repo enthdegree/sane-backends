@@ -164,6 +164,55 @@ static GT68xx_Command_Set plustek_gt6801_command_set = {
   gt68xx_generic_get_id
 };
 
+static GT68xx_Model unknown_model = {
+  "unknown-scanner",	/* Name */
+  "unknown manufacturer",			/* Device vendor string */
+  "unknown device -- use override to select",	/* Device model name */
+  "unknown",			/* Name of the firmware file */
+  SANE_FALSE,			/* Dynamic allocation flag */
+
+  &mustek_gt6816_command_set,	/* Command set used by this scanner */
+
+  600,				/* maximum optical sensor resolution */
+  1200,				/* maximum motor resolution */
+  600,				/* base x-res used to calculate geometry */
+  600,				/* base y-res used to calculate geometry */
+  1200,				/* if ydpi is equal or higher, use linemode */
+  1200,   			/* if ydpi is equal or higher, disable backtracking */
+  SANE_FALSE,			/* Use base_ydpi for all resolutions */
+
+  {600, 300, 150, 75, 50, 0},	/* possible x-resolutions */
+  {1200, 600, 300, 150, 75, 50, 0},	/* possible y-resolutions */
+  {8, 0},		/* possible depths in gray mode */
+  {8, 0},		/* possible depths in color mode */
+
+  SANE_FIX (0.0),		/* Start of scan area in mm  (x) */
+  SANE_FIX (13.0),		/* Start of scan area in mm (y) */
+  SANE_FIX (200.0),		/* Size of scan area in mm (x) */
+  SANE_FIX (280.0),		/* Size of scan area in mm (y) */
+
+  SANE_FIX (9.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of black mark in mm (x) */
+
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+
+  0, 0, 0,			/* RGB CCD Line-distance correction in pixel */
+  0,				/* CCD distcance for CCD with 6 lines) */
+
+  COLOR_ORDER_BGR,		/* Order of the CCD/CIS colors */
+  {0x14, 0x07, 0x14, 0x07, 0x14, 0x07},	/* Default offset/gain */
+  {0x157, 0x157, 0x157},	/* Default exposure parameters */
+  SANE_FIX (2.0),		/* Default gamma value */
+
+  SANE_TRUE,			/* Is this a CIS scanner? */
+  GT68XX_FLAG_NO_STOP		/* Which flags are needed for this scanner? */
+    /* Standard values for unknown scanner */
+};
 
 static GT68xx_Model mustek_2400ta_model = {
   "mustek-bearpaw-2400-ta",	/* Name */
@@ -571,7 +620,7 @@ static GT68xx_Model mustek_scanexpress1248ub_model = {
   "mustek-scanexpress-1248-ub",	/* Name */
   "Mustek",			/* Device vendor string */
   "ScanExpress 1248 UB",	/* Device model name */
-  "PS1Dfw.usb",			/* Name of the firmware file */
+  "SBSfw.usb",			/* Name of the firmware file */
   SANE_FALSE,			/* Dynamic allocation flag */
 
   &mustek_gt6816_command_set,	/* Command set used by this scanner */
@@ -613,7 +662,7 @@ static GT68xx_Model mustek_scanexpress1248ub_model = {
   SANE_FIX (2.0),		/* Default gamma value */
 
   SANE_TRUE,			/* Is this a CIS scanner? */
-  GT68XX_FLAG_UNTESTED | GT68XX_FLAG_NO_STOP		/* Which flags are needed for this scanner? */
+  GT68XX_FLAG_NO_STOP		/* Which flags are needed for this scanner? */
     /* Completely untested, seems to use gt6816 CIS, details unknown */
 };
 
@@ -1431,6 +1480,7 @@ static GT68xx_Model visioneer_onetouch_7300_model = {
 
 
 static GT68xx_USB_Device_Entry gt68xx_usb_device_list[] = {
+  {0x10000, 0x10000, &unknown_model}, /* used for yet unknown scanners */
   {0x055f, 0x0218, &mustek_2400ta_model},
   {0x055f, 0x0219, &mustek_2400taplus_model},
   {0x055f, 0x021c, &mustek_1200cuplus_model},

@@ -1,5 +1,13 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0.63 (2004-09-03)
+
+* Fixed firmware name for Mustek 1248 UB. Changed status to basic. Removed
+  "unsupported" warning.
+* Added workaround for shared memory compilation problem on Windows.
+* It's now possible to add a new vendor/product id line to gt68xx.conf to test
+  yet unsupported scanners without changing the source code.
+
 V 1.0.62 (2004-08-08)
 
 * Added detection for Mustek ScanExpress 1248 UB. It's untested however and I

@@ -496,6 +496,7 @@ struct GT68xx_Device
   size_t read_bytes_in_buffer;
   size_t read_bytes_left;
   SANE_Byte gray_mode_color;
+  SANE_Bool manual_selection;
 #ifdef USE_FORK
   Shm_Channel *shm_channel;
   pid_t reader_pid;

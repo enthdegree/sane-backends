@@ -1,5 +1,5 @@
 :backend "gt68xx"
-:version "1.0-62"
+:version "1.0-63"
 :manpage "sane-gt68xx"
 :url "http://www.meier-geinitz.de/sane/gt68xx-backend/"
 :comment "Only the USB scanners mentioned below are supported. For other Mustek BearPaws, look at the Plustek and the MA-1509 backend."
@@ -215,8 +215,8 @@
 
 :model "ScanExpress 1248 UB"
 :interface "USB"
-:status :untested
-:comment "Is detected now but is completely untested. Please contact me if you own such a device."
+:status :basic
+:comment "Woeks but image quality is not perfect yet (stripes). Please contact me if you want to help fixing that."
 
 :model "ScanExpress A3 USB"
 :interface "USB"

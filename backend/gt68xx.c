@@ -48,7 +48,7 @@
 
 #include "../include/sane/config.h"
 
-#define BUILD 62
+#define BUILD 63
 #define MAX_DEBUG
 #define WARMUP_TIME 60
 #define CALIBRATION_HEIGHT 2.5
@@ -805,12 +805,20 @@ attach (SANE_String_Const devname, GT68xx_Device ** devp, SANE_Bool may_wait)
 
   if (!gt68xx_device_is_configured (dev))
     {
-      DBG (4, "attach: device `%s' is not supported: %s\n", devname,
-	   sane_strstatus (status));
-      gt68xx_device_free (dev);
-      if (devp)
-	*devp = 0;
-      return status;
+      GT68xx_Model * model;
+      DBG (2, "attach: Warning: device `%s' is not listed in device table\n", devname);
+      DBG (2, "attach: If you have manually added it, use override in gt68xx.conf\n");
+      gt68xx_device_get_model ("unknown-scanner", &model);
+      status = gt68xx_device_set_model (dev, model);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (4, "attach: couldn't set model: %s\n", sane_strstatus (status));
+	  gt68xx_device_free (dev);
+	  if (devp)
+	    *devp = 0;
+	  return status;
+	}
+      dev->manual_selection = SANE_TRUE;
     }
 
   dev->file_name = strdup (devname);
@@ -1311,6 +1319,33 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
       DBG (0, "         henning@meier-geinitz.de. Please provide as many\n");
       DBG (0, "         details as possible, e.g. the exact name of your\n");
       DBG (0, "         scanner and what does (not) work.\n");
+    }
+
+  if (dev->manual_selection)
+    {
+      DBG (0, "WARNING: You have manually added the ids of your scanner \n");
+      DBG (0, "         to gt68xx.conf. Please use an appropriate override \n");
+      DBG (0, "         for your scanner. Use extreme care and switch off \n");
+      DBG (0, "         the scanner immediately if you hear unusual noise. \n");
+      DBG (0, "         Please report any success to \n");
+      DBG (0, "         henning@meier-geinitz.de. Please provide as many\n");
+      DBG (0, "         details as possible, e.g. the exact name of your\n");
+      DBG (0, "         scanner, ids, settings etc.\n");
+      
+      if (strcmp (dev->model->name, "unknown-scanner") == 0)
+	{
+	  GT68xx_USB_Device_Entry *entry;
+
+	  DBG (0, "ERROR: You haven't chosen an override in gt68xx.conf. Please use \n");
+	  DBG (0, "       one of the following: \n");
+
+	  for (entry = gt68xx_usb_device_list; entry->model; ++entry)
+	    {
+	      if (strcmp (entry->model->name, "unknown-scanner") != 0)
+		DBG (0, "       %s\n", entry->model->name);
+	    }
+	  return SANE_STATUS_UNSUPPORTED;
+	}
     }
 
   /* The firmware check is disabled by default because it may confuse

@@ -1,5 +1,6 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 1997 Andreas Beck
+   Copyright (C) 2001, 2002 Henning Meier-Geinitz
    This file is part of the SANE package.
 
    SANE is free software; you can redistribute it and/or modify it under
@@ -106,7 +107,6 @@ byte_order;
    it does is save a remote user some work by reducing the amount of
    text s/he has to type when authentication is requested.  */
 static const char *default_username = "saned-user";
-static char hostname[MAXHOSTNAMELEN];
 static char *remote_hostname;
 static struct in_addr remote_address;
 
@@ -344,19 +344,19 @@ decode_handle (Wire * w, const char *op)
   return h;
 }
 
-/* Check hostnames ignoring case as DNS should. */
+/* Access control */
 static SANE_Status
 check_host (int fd)
 {
   struct sockaddr_in sin;
   int j, access_ok = 0;
   struct hostent *he;
-  char r_addr[16]; /* 16 = make sure there is room for IPv6 addr */
-  char l_addr[16];
   char text_addr[64];
-  unsigned int r_length;
-  unsigned int l_length;
-  char rhost[1024];
+  char config_line[1024];
+  char hostname[MAXHOSTNAMELEN];
+  char *r_hostname;
+  static struct in_addr config_line_address;
+  
   int len;
   FILE *fp;
 
@@ -367,47 +367,22 @@ check_host (int fd)
       DBG (DBG_ERR, "check_host: getpeername failed: %s\n", strerror (errno));
       return SANE_STATUS_INVAL;
     }
+  r_hostname = inet_ntoa (sin.sin_addr);
+  remote_hostname = strdup (r_hostname);
   DBG (DBG_WARN, "check_host: access by remote host: %s\n", 
-       inet_ntoa (sin.sin_addr));
-  /* Save remote address for check of data connection */
+       remote_hostname);
+  /* Save remote address for check of control and data connections */
   memcpy (&remote_address, &sin.sin_addr, sizeof (remote_address));
 
-  /* Always allow access from local host. Do it here to avoid DNS lookups. */
+  /* Always allow access from local host. Do it here to avoid DNS lookups
+     and reading saned.conf. */
   if (IN_LOOPBACK (ntohl (sin.sin_addr.s_addr)))
     {
       DBG (DBG_MSG,
 	   "check_host: remote host is IN_LOOPBACK: access accepted\n");
-      remote_hostname = "localhost";
       return SANE_STATUS_GOOD;
     }
   DBG (DBG_DBG, "check_host: remote host is not IN_LOOPBACK\n");
-
-  /* Get remote name and store primary address */
-  he = gethostbyaddr ((const char *) &sin.sin_addr,
-		      sizeof (sin.sin_addr), sin.sin_family);
-  if (!he)
-    {
-      DBG (DBG_ERR, "check_host: gethostbyaddr failed: %s\n",
-	   strerror (errno));
-      return SANE_STATUS_INVAL;
-    }
-  remote_hostname = strdup (he->h_name);
-  DBG (DBG_DBG, "check_host: remote hostname (from DNS): %s\n",
-       remote_hostname);
-  r_length = he->h_length;
-  if (r_length > sizeof(r_addr))
-    {
-      DBG (DBG_ERR, "check_host: remote address length too long: %d > %d\n",
-	   r_length,
-           sizeof(r_addr));
-      return SANE_STATUS_INVAL;
-    }
-  memcpy(&r_addr[0], he->h_addr_list[0], r_length);
-  if (!inet_ntop (he->h_addrtype, he->h_addr_list[0], text_addr,
-		  sizeof (text_addr)))
-    strcpy (text_addr, "[error]");
-  DBG (DBG_DBG, "check_host: remote host address (from DNS): %s\n",
-       text_addr);
 
   /* Get name of local host */
   if (gethostname (hostname, sizeof (hostname)) < 0)
@@ -427,24 +402,15 @@ check_host (int fd)
     }
   DBG (DBG_DBG, "check_host: local hostname (from DNS): %s\n",
        he->h_name);
-  l_length = he->h_length;
-  if (l_length > sizeof(l_addr))
+  
+  if ((he->h_length == 4) || he->h_addrtype == AF_INET)
     {
-      DBG (DBG_ERR, "check_host: local address length too long: %d > %d\n",
-	   l_length,
-           sizeof(l_addr));
-      return SANE_STATUS_INVAL;
-     }
-  memcpy(&l_addr[0], he->h_addr_list[0], l_length);
-  if (!inet_ntop (he->h_addrtype, he->h_addr_list[0], text_addr,
-		  sizeof (text_addr)))
-    strcpy (text_addr, "[error]");
-  DBG (DBG_DBG, "check_host: local host address (from DNS): %s\n",
-       text_addr);
-
-  if (r_length == l_length)
-    {
-      if (memcmp(l_addr, r_addr, r_length) == 0)   
+      if (!inet_ntop (he->h_addrtype, he->h_addr_list[0], text_addr,
+		      sizeof (text_addr)))
+	strcpy (text_addr, "[error]");
+      DBG (DBG_DBG, "check_host: local host address (from DNS): %s\n",
+	   text_addr);
+      if (memcmp (he->h_addr_list[0], &remote_address.s_addr, 4) == 0)   
 	{
 	  DBG (DBG_MSG, 
 	       "check_host: remote host has same addr as local: "
@@ -454,17 +420,15 @@ check_host (int fd)
     }
   else
     {
-      /* Ignoring localhost address */
-      DBG (DBG_DBG, 
-	   "check_host: remote and local addresses have different "
-	   "length %d != %d\n", r_length, l_length);
+      DBG (DBG_ERR, "check_host: can't get local address "
+	   "(only IPv4 is supported)\n");
     }
+
   DBG (DBG_DBG, 
        "check_host: remote host doesn't have same addr as local\n");
 
   /* must be a remote host: check contents of PATH_NET_CONFIG or
      /etc/hosts.equiv if former doesn't exist: */
-
   for (j = 0; j < NELEMS (config_file_names); ++j)
     {
       DBG (DBG_DBG, "check_host: opening config file: %s\n",
@@ -480,44 +444,57 @@ check_host (int fd)
 	       config_file_names[j], strerror (errno));
 	  continue;
 	}
-
-      while (!access_ok && sanei_config_read (rhost, sizeof (rhost), fp))
+      
+      while (!access_ok && sanei_config_read (config_line, 
+					      sizeof (config_line), fp))
 	{
-	  if (rhost[0] == '#')	/* ignore line comments */
+	  DBG (DBG_DBG, "check_host: config file line: `%s'\n", config_line);
+	  if (config_line[0] == '#')	/* ignore line comments */
 	    continue;
-	  len = strlen (rhost);
-
+	  len = strlen (config_line);
+	  
 	  if (!len)
 	    continue;		/* ignore empty lines */
-
-	  DBG (DBG_DBG, "check_host: config file line: `%s'\n", rhost);
-
-          if (strcmp (rhost, "+") == 0)
+	  
+	  if (strcmp (config_line, "+") == 0)
 	    {
 	      access_ok = 1;
 	      DBG (DBG_DBG, 
-		   "check_host: access accepted from every host (`+')\n");
+		   "check_host: access accepted from any host (`+')\n");
 	    }
 	  else
 	    {
-	      he = gethostbyname (rhost);
-	      if (!he)
+	      if (inet_aton (config_line, &config_line_address))
 		{
-		  DBG (DBG_WARN, 
-		       "check_host: gethostbyname for `%s' failed: %s\n",
-		       rhost, strerror (errno));
-		  continue;
+		  if (memcmp (&remote_address.s_addr, 
+			      &config_line_address.s_addr, 4) == 0)
+		    access_ok = 1;
 		}
-	      
-	      if (!inet_ntop (he->h_addrtype, he->h_addr_list[0], text_addr,
-			      sizeof (text_addr)))
-		strcpy (text_addr, "[error]");
-	      DBG (DBG_MSG, 
-		   "check_host: checking for `%s' (%s) (from DNS)\n",
-		   he->h_name, text_addr);
-	      if (r_length == (unsigned int) he->h_length
-		  && memcmp (&r_addr[0], he->h_addr_list[0], r_length) == 0)
-		  access_ok = 1;
+	      else
+		{
+		  DBG (DBG_DBG, 
+		       "check_host: inet_aton for `%s' failed\n",
+		       config_line);
+		  he = gethostbyname (config_line);
+		  if (!he)
+		    {
+		      DBG (DBG_DBG, 
+			   "check_host: gethostbyname for `%s' failed: %s\n",
+			   config_line, strerror (errno));
+		      DBG (DBG_MSG, "check_host: entry isn't an IP address "
+			   "and can't be found in DNS\n");
+		      continue;
+		    }
+		  if (!inet_ntop (he->h_addrtype, he->h_addr_list[0],
+				  text_addr, sizeof (text_addr)))
+		    strcpy (text_addr, "[error]");
+		  DBG (DBG_MSG, 
+		       "check_host: DNS lookup returns IP address: %s\n",
+		       text_addr);
+		  if (memcmp (&remote_address.s_addr, 
+			      he->h_addr_list[0], 4) == 0)
+		    access_ok = 1;
+		}
 	    }
 	}
       fclose (fp);

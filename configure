@@ -3301,7 +3301,7 @@ if test "${ac_cv_c_compiler_gnu}" = "yes"; then
   # OS/2 and others don't include some headers with -ansi enabled
   ANSI_FLAG=-ansi
   case "${host_os}" in
-    solaris* | hpux* | os2* )
+    solaris* | hpux* | os2* | darwin* )
       ANSI_FLAG=
       ;;
   esac

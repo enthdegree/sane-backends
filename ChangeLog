@@ -1,4 +1,8 @@
-2004-11-14  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+2004-12-01  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* doc/descriptions/unsupported.desc: removed Epson Perfection 1270
+
+2004-12-01  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan.h backend/snapscan.c backend/snapscan-scsi.c 
 	  backend/snapscan-options.c doc/descriptions/snapscan.desc: 

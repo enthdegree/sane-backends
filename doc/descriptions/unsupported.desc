@@ -404,23 +404,11 @@
 :mfg "Epson"
 :url "http://www.epson.com/"
 
-:model "GT-7400U"
-:url "/unsupported/epson-perfection-1270.html"
-:interface "USB"
-:status :unsupported
-:comment "Probably unsupported. May work with snapscan backend after some modification. See link for details."
-
 :model "GT-F600"
 ;:url "/unsupported/"
 :interface "USB"
 :status :unsupported
 :comment "Unsupported. Doesn't speak ESC/I. Closely related to the GT-9400. It will be supported by epkowa backeend in future."
-
-:model "Perfection 1270"
-:url "/unsupported/epson-perfection-1270.html"
-:interface "USB"
-:status :unsupported
-:comment "Probably unsupported. May work with snapscan backend after some modification. See link for details."
 
 :model "Perfection 4180"
 ;:url "/unsupported/"

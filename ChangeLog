@@ -1,3 +1,11 @@
+2001-10-31  Peter Fales <peter@fales.com>
+
+	* dc240.c - fix a bug that causes the backend's internal directory
+	  to get out of sync with the camera directory when a file is deleted
+	* gphoto2.c - include the gphoto2 port name as part of the SANE
+	  device name and improve reliability when using the gphoto2
+	  serial port libs.
+
 2001-11-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* configure configure.in: Enabled warnings by default.

@@ -2082,7 +2082,7 @@ sanei_scsi_req_wait (void *id)
 
               /* check for errors, but let the sense_handler decide.... */
               if ( (req->sgdata.cdb.hdr.result != 0) ||
-                  (   (req->sgdata.cdb.hdr.sense_buffer[0] & 0x7f) != 0))
+                  (   (req->sgdata.cdb.hdr.sense_buffer[0] & 0x7f) != 0)
 #ifdef HAVE_SG_TARGET_STATUS
                    /* this is messy... Sometimes it happens that we have
                       a valid looking sense buffer, but the DRIVER_SENSE
@@ -2091,6 +2091,7 @@ sanei_scsi_req_wait (void *id)
                    */
                    && (req->sgdata.cdb.hdr.driver_status & DRIVER_SENSE)
 #endif
+                  )
                 {
                   SANEI_SCSI_Sense_Handler handler
                     = fd_info[req->fd].sense_handler;

@@ -33,6 +33,7 @@
 	  backend/snapscan-usb.c backend/snapscan.c backend/teco3.c
 	  backend/test.c backend/umax-usb.c backend/umax1220u-common.c:
 	  64 bit platform fixes (bug #300799).
+	* backend/Makefile.in tools/Makefile.in: Fixed DESTFILES.
 
 2004-10-02  Thomas Soumarmon <thomas.soumarmon@cogitae.net>
 

@@ -63,9 +63,9 @@ LIBSANEI = ../sanei/libsanei.a
 # Library routines that should be part of libc, but aren't on some systems:
 LIBLIB = ../lib/liblib.a
 
-DISTFILES = Makefile.in README libtool-get-dll-ext mustek600iin-off.c \
-  sane-config.in sane-desc.c check-usb-chip.c \
-  sane-find-scanner.c umax_pp.c xerox gamma4scanimage.c check-po.awk
+DISTFILES = Makefile.in RenSaneDlls.cmd README libtool-get-dll-ext     \
+	mustek600iin-off.c sane-config.in sane-desc.c check-usb-chip.c \
+	sane-find-scanner.c umax_pp.c xerox gamma4scanimage.c check-po.awk
 
 SUBDIRS = hotplug
 
@@ -92,7 +92,8 @@ sane-config: sane-config.in $(top_builddir)/config.status
           && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
 sane-find-scanner: sane-find-scanner.o check-usb-chip.o ../backend/sane_strstatus.lo \
-	../sanei/sanei_scsi.lo ../sanei/sanei_usb.lo ../sanei/sanei_init_debug.lo
+	../sanei/sanei_scsi.lo ../sanei/sanei_usb.lo ../sanei/sanei_init_debug.lo \
+	../sanei/sanei_config.lo
 	@$(LIBTOOL) $(MLINK) $(LINK) sane-find-scanner.o check-usb-chip.o \
 	  ../backend/sane_strstatus.lo $(LIBSANEI) $(LIBLIB) $(LIBS)
 

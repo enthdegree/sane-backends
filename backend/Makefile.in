@@ -118,7 +118,7 @@ DISTFILES = abaton.c abaton.conf abaton.h agfafocus.c agfafocus.conf \
   mustek_pp_ccd300.h mustek_scsi_pp.c mustek_scsi_pp.h mustek_usb.c mustek_usb.conf \
   mustek_usb.h mustek_usb_high.c mustek_usb_high.h mustek_usb_low.c \
   mustek_usb_low.h mustek_usb_mid.c mustek_usb_mid.h nec.c nec.conf nec.h \
-  net.c net.conf net.h niash.c niash_core.c niash_core.h niash_types.h \
+  net.c net.conf net.h niash.c niash_core.c niash_core.h \
   niash_xfer.c niash_xfer.h pie.c pie.conf pie-scsidef.h pint.c pint.h \
   plustek.c plustek.conf plustek-usbdevs.c plustek.h \
   plustek-usb.c plustek-usb.h plustek-usbhw.c plustek-usbimg.c \

@@ -1,3 +1,9 @@
+2004-05-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/dll.c doc/descriptions/dll.desc: Work around 8 char
+	  limit for dynamic loading on OS/2 (patch from Franz Bakan
+	  <fbakan@gmx.net>).
+
 2004-05-24  m. allan noah <anoah at pfeiffer dot edu>
 	* backend/fujitsu.[ch]: apply Mattias Ellert's thread patch
 	                        split packet counter into r and w

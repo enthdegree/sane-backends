@@ -44,7 +44,7 @@
 
 /* Please increase version number with every change 
    (don't forget to update dll.desc) */
-#define DLL_VERSION "1.0.10"
+#define DLL_VERSION "1.0.11"
 
 #ifdef _AIX
 # include "lalloca.h"		/* MUST come first for AIX! */
@@ -378,8 +378,14 @@ load (struct backend *be)
 
   while (dir)
     {
+#ifdef HAVE_OS2_H   /* only max 8.3 names possible for dlls on OS/2 */
+      snprintf (libname, sizeof (libname), "%s/" PREFIX "%.2s%.6s" POSTFIX,
+		dir, be->name, strlen(be->name)>8 ? (be->name)+strlen(be->name)-6 :
+                                            (be->name)+2, V_MAJOR);
+#else
       snprintf (libname, sizeof (libname), "%s/" PREFIX "%s" POSTFIX,
 		dir, be->name, V_MAJOR);
+#endif
       DBG (4, "load: trying to load `%s'\n", libname);
       fp = fopen (libname, "r");
       if (fp)

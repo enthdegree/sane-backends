@@ -107,8 +107,6 @@ doc
   * Documentation for sanei API
     - any ideas for this?
  
-  * install all documentation that's available
-
 frontends
 ---------
   * dll: Rewrite to use libtool ltdl library
@@ -160,7 +158,17 @@ misc
     - sanei_scsi.c: line 1262
     - most backends: sanei_get_devices?
 
+  * Check AIX/gcc shared lib loading problem: When starting scanimage,
+    only dll is loaded.
+    Backend libraries can't be loaded:
+    [dll] load: dlopen() failed (Symbol resolution failed for
+       /tmp/sane-bin/lib/sane/libsane-umax.so.1 because:
+       Symbol __eprintf (number 55) is not exported from dependent
+       module scanimage.
+    This happens in all libraries.
+
 ******** done ********
+* install all documentation that's available
 * Add a check for installed sane versions.
   - Print a warning when already a sane version is installed
   - If SANE is installed at a different location, ask user to

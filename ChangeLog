@@ -1,3 +1,8 @@
+2002-05-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* sanei/sanei_scsi.c: Fixed sanei_scsi_cmd2() for OPENSTEP (from 
+	  Oliver Schirrmeister <oschirr@abm.de>).
+
 2002-05-21  Petter Reinholdtsen <pere@td.org.uit.no>
 
 	* include/Makefile.in (install): Make it possible to install when

@@ -16,8 +16,8 @@
 
 */
 
-#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.16 - 2001-11-13"
-#define SANE_EPSON_BUILD	216
+#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.17 - 2002-01-05"
+#define SANE_EPSON_BUILD	217
 
 /*
    This file is part of the SANE package.
@@ -59,6 +59,11 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
+
+   2002-01-05   Version 0.2.17
+		Check for and set s->fd to -1 when device is closed.		
+		Removed black gamma table - only use RGB even for grayscale
+   2002-01-01   Do not call access() for OS/2 systems
    2001-11-13   Version 0.2.16
 		Do not call access() for parallel port scanners.
    2001-11-11   Version 0.2.15
@@ -236,7 +241,7 @@
 */
 
 
-/* #define TEST_IOCTL */
+ #define TEST_IOCTL
 
 /* DON'T CHANGE THE NEXT LINE ! */
 /* #undef FORCE_COLOR_SHUFFLE */
@@ -294,19 +299,19 @@
  */
 static SANE_Status sense_handler (int scsi_fd, u_char *result, void *arg)
 {
-  /* to get rid of warnings */
-  scsi_fd = scsi_fd;
-  arg = arg;
+	/* to get rid of warnings */
+	scsi_fd = scsi_fd;
+	arg = arg;
 
-  if (result[0] && result[0]!=0x70)
-    {
-      DBG (2, "sense_handler() : sense code = 0x%02x\n", result[0]);
-      return SANE_STATUS_IO_ERROR;
-    }
-  else
-    {
-      return SANE_STATUS_GOOD;
-    }
+	if (result[0] && result[0]!=0x70)
+	{
+		DBG (2, "sense_handler() : sense code = 0x%02x\n", result[0]);
+		return SANE_STATUS_IO_ERROR;
+	}
+	else
+	{
+		return SANE_STATUS_GOOD;
+	}
 }
 
 /*
@@ -385,6 +390,8 @@ static int scsi_write ( int fd, const void * buf, size_t buf_size, SANE_Status *
 #	define  XtOffset(p_type,field)  ((size_t)&(((p_type)NULL)->field))
 #	define  XtOffsetOf(s_type,field)  XtOffset(s_type*,field)
 #endif
+
+#define NUM_OF_HEX_ELEMENTS (16)
 
 /* NOTE: you can find these codes with "man ascii". */
 #define	 STX	0x02
@@ -957,6 +964,57 @@ static ssize_t receive ( Epson_Scanner * s, void *buf, ssize_t buf_size, SANE_St
 			DBG( 127, "buf[%u] %02x %c\n", k, s[ k], isprint( s[ k]) ? s[ k] : '.');
 	 	}
 	}
+#else
+	{
+		int i;
+		ssize_t k;
+		ssize_t hex_start = 0;
+		const u_char * s = buf;
+		char hex_str[NUM_OF_HEX_ELEMENTS*3+1];
+		char tmp_str[NUM_OF_HEX_ELEMENTS*3+1];
+		char ascii_str[NUM_OF_HEX_ELEMENTS*2+1];
+
+		hex_str[0] = '\0';
+		ascii_str[0] = '\0';
+
+		for (k=0; k<buf_size; k++)
+		{
+			/* write out the data in lines of 16 bytes */
+			/* add the next hex value to the hex string */
+			sprintf(tmp_str, "%s %02x", hex_str, s[k]);
+			strcpy(hex_str, tmp_str);
+
+			/* add the character to the ascii string */
+			sprintf(tmp_str, "%s %c",  ascii_str, isprint( s[k]) ? s[k] : '.');
+			strcpy(ascii_str, tmp_str);
+
+			if ((k % (NUM_OF_HEX_ELEMENTS)) == 0)
+			{
+				if (k!=0)	/* don't do this the first time */
+				{
+fprintf(stderr, "running from i=%d to %d\n", strlen(hex_str), NUM_OF_HEX_ELEMENTS*3);
+					for (i = strlen(hex_str); i < (NUM_OF_HEX_ELEMENTS*3); i++)
+					{
+						hex_str[i] = ' ';
+					}
+					hex_str[NUM_OF_HEX_ELEMENTS+1] = '\0';
+
+					DBG(125, "recv buf[%05d]: %s   %s\n", hex_start, hex_str, ascii_str);
+					hex_start = k;
+					hex_str[0] = '\0';
+					ascii_str[0] = '\0';
+				}
+			}
+		}
+
+		for (i = strlen(hex_str); i < NUM_OF_HEX_ELEMENTS*3; i++)
+		{
+			hex_str[i] = ' ';
+		}
+		hex_str[NUM_OF_HEX_ELEMENTS+1] = '\0';
+
+		DBG(125, "recv buf[%05d]: %s   %s\n", hex_start, hex_str, ascii_str);
+	}
 #endif
 
 	return n;
@@ -1101,9 +1159,16 @@ static SANE_Status set_scan_area ( Epson_Scanner * s, int x, int y, int width, i
 	SANE_Status status;
 	u_char params[ 8];
 
+	DBG( 1, "set_scan_area: %p %d %d %d %d\n", ( void *) s, x, y, width, height);
+
 	if( ! s->hw->cmd->set_scan_area) {
+		DBG( 1, "set_scan_area not supported\n");
 		return SANE_STATUS_GOOD;
 	}
+
+	/* verify the scan area */
+	if (x < 0 || y <0 || width<=0 || height<=0)
+		return SANE_STATUS_INVAL;
 
 	params[0] = ESC;
 	params[1] = s->hw->cmd->set_scan_area;
@@ -1121,8 +1186,6 @@ static SANE_Status set_scan_area ( Epson_Scanner * s, int x, int y, int width, i
 	params[ 5] = width >> 8;
 	params[ 6] = height;
 	params[ 7] = height >> 8;
-
-	DBG( 1, "set_scan_area: %p %d %d %d %d\n", ( void *) s, x, y, width, height);
 
 	send( s, params, 8, &status);
 	status = expect_ack( s);
@@ -1190,7 +1253,8 @@ static SANE_Status set_gamma_table ( Epson_Scanner * s) {
 	u_char gamma [ 257];
 	int n;
 	int table;
-	static const char gamma_cmds[] = { 'M', 'R', 'G', 'B' };
+/*	static const char gamma_cmds[] = { 'M', 'R', 'G', 'B' }; */
+	static const char gamma_cmds[] = { 'R', 'G', 'B' };
 
 
 	DBG( 1, "set_gamma_table: starting.\n" );
@@ -1208,7 +1272,7 @@ static SANE_Status set_gamma_table ( Epson_Scanner * s) {
 		int	c, i, j;
 
 		DBG (1, "set_gamma_table()\n");
-		for (c=0; c<4; c++) {
+		for (c=0; c<3; c++) {
 			for (i=0; i<256; i+= 16) {
 				char gammaValues[16*3 + 1], newValue[3];
 
@@ -1235,7 +1299,7 @@ static SANE_Status set_gamma_table ( Epson_Scanner * s) {
  *  this gives a negative image.
  */
 
-	for( table = 0; table < 4; table++ ) {
+	for( table = 0; table < 3; table++ ) {
 		gamma[0] = gamma_cmds[ table ];
 		if (s->invert_image) {
 			for( n = 0; n < 256; ++n) {
@@ -1359,15 +1423,25 @@ static SANE_Status reset ( Epson_Scanner * s) {
  * close function is called.
  */
 
-static void close_scanner ( Epson_Scanner * s) {
+static void close_scanner ( Epson_Scanner * s) 
+{
+	if (s->fd == -1)
+		return;
 
 	if( s->hw->connection == SANE_EPSON_SCSI)
+	{
 		sanei_scsi_close( s->fd);
+	}
 	else if ( s->hw->connection == SANE_EPSON_PIO) 
+	{
 		sanei_pio_close( s->fd);
+	}
 	else if ( s->hw->connection == SANE_EPSON_USB)
+	{
 		close( s->fd);
+	}
 
+	s->fd = -1;
 	return;
 }
 
@@ -1384,12 +1458,16 @@ static SANE_Status open_scanner ( Epson_Scanner * s)
 
 	DBG(5, "open_scanner()\n");
 
+	/* don't do this for OS2: */
+#ifndef HAVE_OS2_H
+
 	/* test the device name */
 	if ((s->hw->connection != SANE_EPSON_PIO) && (access(s->hw->sane.name, R_OK | W_OK)  != 0))
 	{
 		DBG(1, "sane_start: access(%s, R_OK | W_OK) failed\n", s->hw->sane.name);
 		return SANE_STATUS_ACCESS_DENIED;
 	}
+#endif
 
 
 	if( s->hw->connection == SANE_EPSON_SCSI) {
@@ -2395,6 +2473,7 @@ static SANE_Status init_options ( Epson_Scanner * s) {
 
 
 		/* gamma vector */
+/* 
 		s->opt[ OPT_GAMMA_VECTOR].name  = SANE_NAME_GAMMA_VECTOR;
 		s->opt[ OPT_GAMMA_VECTOR].title = SANE_TITLE_GAMMA_VECTOR;
 		s->opt[ OPT_GAMMA_VECTOR].desc  = SANE_DESC_GAMMA_VECTOR;
@@ -2405,6 +2484,7 @@ static SANE_Status init_options ( Epson_Scanner * s) {
 		s->opt[ OPT_GAMMA_VECTOR].constraint_type = SANE_CONSTRAINT_RANGE;
 		s->opt[ OPT_GAMMA_VECTOR].constraint.range = &u8_range;
 		s->val[ OPT_GAMMA_VECTOR].wa = &s->gamma_table [ 0] [ 0];
+*/
 
 
 		/* red gamma vector */
@@ -2417,7 +2497,7 @@ static SANE_Status init_options ( Epson_Scanner * s) {
 		s->opt[ OPT_GAMMA_VECTOR_R].size = 256 * sizeof (SANE_Word);
 		s->opt[ OPT_GAMMA_VECTOR_R].constraint_type = SANE_CONSTRAINT_RANGE;
 		s->opt[ OPT_GAMMA_VECTOR_R].constraint.range = &u8_range;
-		s->val[ OPT_GAMMA_VECTOR_R].wa = &s->gamma_table [ 1] [ 0];
+		s->val[ OPT_GAMMA_VECTOR_R].wa = &s->gamma_table [ 0] [ 0];
 
 
 		/* green gamma vector */
@@ -2430,7 +2510,7 @@ static SANE_Status init_options ( Epson_Scanner * s) {
 		s->opt[ OPT_GAMMA_VECTOR_G].size = 256 * sizeof (SANE_Word);
 		s->opt[ OPT_GAMMA_VECTOR_G].constraint_type = SANE_CONSTRAINT_RANGE;
 		s->opt[ OPT_GAMMA_VECTOR_G].constraint.range = &u8_range;
-		s->val[ OPT_GAMMA_VECTOR_G].wa = &s->gamma_table [ 2] [ 0];
+		s->val[ OPT_GAMMA_VECTOR_G].wa = &s->gamma_table [ 1] [ 0];
 
 
 		/* red gamma vector */
@@ -2443,16 +2523,17 @@ static SANE_Status init_options ( Epson_Scanner * s) {
 		s->opt[ OPT_GAMMA_VECTOR_B].size = 256 * sizeof (SANE_Word);
 		s->opt[ OPT_GAMMA_VECTOR_B].constraint_type = SANE_CONSTRAINT_RANGE;
 		s->opt[ OPT_GAMMA_VECTOR_B].constraint.range = &u8_range;
-		s->val[ OPT_GAMMA_VECTOR_B].wa = &s->gamma_table [ 3] [ 0];
+		s->val[ OPT_GAMMA_VECTOR_B].wa = &s->gamma_table [ 2] [ 0];
 
-		if (gamma_userdefined[s->val[ OPT_GAMMA_CORRECTION].w] == SANE_TRUE )
+		if (s->hw->cmd->set_gamma_table &&
+				gamma_userdefined[s->val[ OPT_GAMMA_CORRECTION].w] == SANE_TRUE )
 		{
-			s->opt[ OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
+/*			s->opt[ OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE; */
 			s->opt[ OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
 			s->opt[ OPT_GAMMA_VECTOR_G].cap &= ~SANE_CAP_INACTIVE;
 			s->opt[ OPT_GAMMA_VECTOR_B].cap &= ~SANE_CAP_INACTIVE;
 		} else {
-			s->opt[ OPT_GAMMA_VECTOR].cap |= SANE_CAP_INACTIVE;
+/*			s->opt[ OPT_GAMMA_VECTOR].cap |= SANE_CAP_INACTIVE; */
 			s->opt[ OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
 			s->opt[ OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
 			s->opt[ OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
@@ -2462,13 +2543,13 @@ static SANE_Status init_options ( Epson_Scanner * s) {
 		memset(&s->gamma_table[0], 0, 256 * sizeof(SANE_Word));
 		memset(&s->gamma_table[1], 0, 256 * sizeof(SANE_Word));
 		memset(&s->gamma_table[2], 0, 256 * sizeof(SANE_Word));
-		memset(&s->gamma_table[3], 0, 256 * sizeof(SANE_Word));
+/*		memset(&s->gamma_table[3], 0, 256 * sizeof(SANE_Word)); */
 		for (i = 0 ; i < 256 ; i++) 
 		{
 			s->gamma_table[0][i] = i;
 			s->gamma_table[1][i] = i;
 			s->gamma_table[2][i] = i;
-			s->gamma_table[3][i] = i;
+/*			s->gamma_table[3][i] = i; */
 		}
 
 
@@ -3141,7 +3222,7 @@ static SANE_Status getvalue( SANE_Handle handle,
 	Option_Value           * sval = &(s->val[ option ]);
 
 	switch (option) {
-	case OPT_GAMMA_VECTOR:
+/* 	case OPT_GAMMA_VECTOR: */
 	case OPT_GAMMA_VECTOR_R:
 	case OPT_GAMMA_VECTOR_G:
 	case OPT_GAMMA_VECTOR_B:
@@ -3382,7 +3463,7 @@ static SANE_Status setvalue( SANE_Handle handle,
 	}
 
 	switch (option) {
-	case OPT_GAMMA_VECTOR:
+/* 	case OPT_GAMMA_VECTOR: */
 	case OPT_GAMMA_VECTOR_R:
 	case OPT_GAMMA_VECTOR_G:
 	case OPT_GAMMA_VECTOR_B:
@@ -3517,7 +3598,7 @@ static SANE_Status setvalue( SANE_Handle handle,
 		SANE_Bool f = gamma_userdefined[ optindex ];
 
 		sval->w = optindex;
-		sane_optstate( f, s, OPT_GAMMA_VECTOR, &reload );
+/*		sane_optstate( f, s, OPT_GAMMA_VECTOR, &reload ); */
 		sane_optstate( f, s, OPT_GAMMA_VECTOR_R, &reload );
 		sane_optstate( f, s, OPT_GAMMA_VECTOR_G, &reload );
 		sane_optstate( f, s, OPT_GAMMA_VECTOR_B, &reload );
@@ -3964,7 +4045,8 @@ SANE_Status sane_start ( SANE_Handle handle)
 		}
 	}
 
-	if( SANE_OPTION_IS_ACTIVE( s->opt[ OPT_GAMMA_CORRECTION].cap) ) {
+	if( s->hw->cmd->set_gamma && 
+		SANE_OPTION_IS_ACTIVE( s->opt[ OPT_GAMMA_CORRECTION].cap) ) {
 		int val;
 		if (s->hw->cmd->level[0] == 'D')
 		{
@@ -3984,7 +4066,8 @@ SANE_Status sane_start ( SANE_Handle handle)
 			 * value from the table (0x01), for grayscale or color mode 
 			 * add one and send 0x02.
 			 */
-			if( s->val[ OPT_GAMMA_CORRECTION].w <= 1) {
+/*			if( s->val[ OPT_GAMMA_CORRECTION].w <= 1) { */
+			if( s->val[ OPT_GAMMA_CORRECTION].w == 0) {
 				val += mparam->depth == 1 ? 0 : 1;
 			}
 		}
@@ -3998,7 +4081,8 @@ SANE_Status sane_start ( SANE_Handle handle)
 		}
 	}
 
-	if (gamma_userdefined[s->val[ OPT_GAMMA_CORRECTION].w])
+	if (s->hw->cmd->set_gamma_table &&
+		gamma_userdefined[s->val[ OPT_GAMMA_CORRECTION].w])
 	{	/* user defined. */
 		status = set_gamma_table( s);
 

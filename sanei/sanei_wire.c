@@ -128,7 +128,8 @@ sanei_w_array (Wire *w, SANE_Word *len_ptr, void **v, WireCodecFunc w_element,
 
   if (w->direction == WIRE_FREE)
     {
-      free (*v);
+      if (*v)
+	free (*v);
       return;
     }
 

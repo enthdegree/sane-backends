@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-11-06"		; version of backend
+:version "2003-11-07"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -331,11 +331,17 @@
 :mfg "Genius"
 :url "http://www.geniusnet.com.tw/"
 
+:model "ColorPage HR6X Slim"
+:url "/unsupported/genius-colorpage-hr6x.html"
+:interface "USB"
+:status :unsupported
+:comment "Not supported. Vendor/product: 0x0458/0x2019. GL646. See link for more details."
+
 :model "ColorPage HR7X Slim"
 :url "/unsupported/genius-colorpage-hr7x.html"
 :interface "USB"
 :status :unsupported
-:comment "Not supported. Vendor/product: 0x0458/0x2018. GL646? See link for more details."
+:comment "Not supported. Vendor/product: 0x0458/0x2018. GL646. See link for more details."
 
 :model "ColorPage HR8"
 :url "/unsupported/genius-colorpage-hr8.html"
@@ -471,6 +477,12 @@
 
 :mfg "Lexmark"
 :url "http://www.lexmark.com/"
+
+:model "X75"
+:url "/unsupported/lexmark-x75.html"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. See link for details."
 
 :model "X83"
 :url "/unsupported/lexmark-x83.html"

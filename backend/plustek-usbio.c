@@ -1,22 +1,25 @@
 /*.............................................................................
- * Project : SANE library for Plustek USB flatbed scanners.
+ * Project : SANE library for Plustek flatbed scanners.
  *.............................................................................
- * File:	 plustek-usbio.c - some I/O stuff
- *.............................................................................
+ */
+
+/** @file plustek-usbio.c
+ *  @brief Some I/O stuff.
  *
- * based on sources acquired from Plustek Inc.
+ * Based on sources acquired from Plustek Inc.<br>
  * Copyright (C) 2001-2002 Gerhard Jaeger <gerhard@gjaeger.de>
- *.............................................................................
+ *
  * History:
- * 0.40 - starting version of the USB support
- * 0.41 - moved some functions to a sane library (sanei_lm983x.c)
- * 0.42 - no changes
- * 0.43 - no changes
- * 0.44 - added dump registers and dumpPic functions
- *        beautyfied output of ASIC detection
- *
- *.............................................................................
- *
+ * History:
+ * - 0.40 - starting version of the USB support
+ * - 0.41 - moved some functions to a sane library (sanei_lm983x.c)
+ * - 0.42 - no changes
+ * - 0.43 - no changes
+ * - 0.44 - added dump registers and dumpPic functions
+ *        - beautyfied output of ASIC detection
+ * - 0.45 - fixed dumpRegs
+ * .
+ * <hr>
  * This file is part of the SANE package.
  *
  * This program is free software; you can redistribute it and/or
@@ -54,8 +57,9 @@
  * If you write modifications of your own for SANE, it is your choice
  * whether to permit this exception to apply to your modifications.
  * If you do not wish that, delete this exception notice.
+ * <hr>
  */
-
+ 
 #include "sane/sanei_usb.h"
 #include "sane/sanei_lm983x.h"
 
@@ -143,6 +147,8 @@ static void dumpregs( int fd, SANE_Byte *cmp )
 	DBG( _DBG_INFO2, "%s\n", buf );
 
 	if( cmp ) {
+
+		buf[0] = '\0';
 
 		DBG( _DBG_INFO2, "Internal setting:\n" );
 		for( i = 0x0; i < 0x80; i++ ) {

@@ -1,32 +1,34 @@
 /*.............................................................................
  * Project : SANE library for Plustek flatbed scanners.
  *.............................................................................
- * File:	 plustek-share.h - definitions for the backend and the driver
- *.............................................................................
+ */
+
+/** @file plustek-share.h
+ *  @brief Common definitions for the backend and the kernel driver
  *
- * Copyright (C) 2000-2002 Gerhard Jaeger <gerhard@gjaeger.de>
- *.............................................................................
+ * Copyright (C) 2001-2002 Gerhard Jaeger <gerhard@gjaeger.de>
+ *
  * History:
- * 0.36 - initial version
- * 0.37 - updated scanner info list
- *        removed override switches
- * 0.38 - changed the dwFlag entry in ScannerCaps and its meaning
- *        changed _NO_BASE
- *        fixed model list
- *		  removed gray-scale capabilities for TPA scans
- * 0.39 - added user-space stuff
- *        added Genius Colorpage Vivid III V2 stuff
- * 0.40 - added stuff to share with USB and Parport
- * 0.41 - changed the IOCTL version number
- *        added adjustment stuff
- * 0.42 - added FLAG_CUSTOM_GAMMA and _MAP_ definitions
- *        changed IOCTL interface to allow downloadable MAPS
- *        added error codes
- * 0.43 - added tpa entry for AdjDef
- * 0.44 - extended AdjDef
- *
- *.............................................................................
- *
+ * - 0.36 - initial version
+ * - 0.37 - updated scanner info list
+ *        - removed override switches
+ * - 0.38 - changed the dwFlag entry in ScannerCaps and its meaning
+ *        - changed _NO_BASE
+ *        - fixed model list
+ *		  - removed gray-scale capabilities for TPA scans
+ * - 0.39 - added user-space stuff
+ *        - added Genius Colorpage Vivid III V2 stuff
+ * - 0.40 - added stuff to share with USB and Parport
+ * - 0.41 - changed the IOCTL version number
+ *        - added adjustment stuff
+ * - 0.42 - added FLAG_CUSTOM_GAMMA and _MAP_ definitions
+ *        - changed IOCTL interface to allow downloadable MAPS
+ *        - added error codes
+ * - 0.43 - added tpa entry for AdjDef
+ * - 0.44 - extended AdjDef
+ * - 0.45 - added skipFine and skipFineWhite to AdjDef
+ * .
+ * <hr>
  * This file is part of the SANE package.
  *
  * This program is free software; you can redistribute it and/or
@@ -64,6 +66,7 @@
  * If you write modifications of your own for SANE, it is your choice
  * whether to permit this exception to apply to your modifications.
  * If you do not wish that, delete this exception notice.
+ * <hr>
  */
 #ifndef __PLUSTEK_SHARE_H__
 #define __PLUSTEK_SHARE_H__
@@ -260,6 +263,8 @@ typedef struct {
 	int     warmup;
 	int     enableTpa;
 	int     skipCalibration;
+	int     skipFine;
+	int     skipFineWhite;
 	int     invertNegatives;
 
 	int rgain;
@@ -484,7 +489,7 @@ typedef struct {
 #define COLOR_TRUE36		5
 
 /* We don't support halftone mode now --> Plustek statement for USB */
-#define COLOR_GRAY16		COLOR_HALFTONE
+#define COLOR_GRAY16		6
 
 
 /* IDs the ASIC returns */

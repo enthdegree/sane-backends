@@ -1,3 +1,15 @@
+2002-10-15  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* doc/sane-plustek.man: update to reflect version change
+	* doc/descriptions/plustek.desc: Added some Canon entries, status updates
+	* backend/plustek.conf updated options
+	* backend/plustek.c backend/plustek-devs.c backend/plustek-usb.c
+	  backend/plustek-usbhw.c backend/plustek-pp.c
+	  backend/plustek-usbmap.c backend/plustek-usbimg.c
+	  backend/plustek-usbscan.c backend/plustek-usbshading.c
+	  backend/plustek.h backend/plustek-share.h backend/plustek-usb.h
+	  New version + support for libusb
+
 2003-01-09  Peter Fales  <peter@fales-lorenz.net>
 
         * backend/dc210.c, backend/dc240.c:  Fix compile failure
@@ -510,7 +522,7 @@
 
         * backend/umax_pp.c  backend/umax_pp_mid.c : OS/2 compile fix, indent
           correction
-          
+
 2002-11-03  Karl Heinz Kremer <khk@khk.net>
 
         * sanei/sanei_usb.c: Use endpoint address with direction information
@@ -553,7 +565,7 @@
 
         * configure, acinclude.m4, aclocal.m4 - Remove checks for 
           specific version numbers of gphoto2 - that's not good for long 
-          term maintenance, and the API has settled down enough that all 
+          term maintenance, and the API has settled down enough that all
           recent versions (both releases and CVS) are workable for SANE.
           It is still necessary to specify --with-gphoto2 if you want to
           use the gphoto2 backend.

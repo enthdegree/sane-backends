@@ -1,25 +1,32 @@
 /*.............................................................................
- * Project : SANE library for Plustek USB flatbed scanners.
+ * Project : SANE library for Plustek flatbed scanners.
  *.............................................................................
- * File:	 plustek-usb.c - the interface functions to the USB driver stuff
- *.............................................................................
+ */
+
+/** @file plustek-usb.c
+ *  @brief The interface functions to the USB driver stuff.
  *
- * based on sources acquired from Plustek Inc.
+ * Based on sources acquired from Plustek Inc.<br>
  * Copyright (C) 2001-2002 Gerhard Jaeger <gerhard@gjaeger.de>
- *.............................................................................
+ *
  * History:
- * 0.40 - starting version of the USB support
- * 0.41 - removed CHECK
- *        added Canon to the manufacturer list
- * 0.42 - added warmup stuff
- *        added setmap function
- *        changed detection stuff, so we first check whether
- *        the vendor and product Ids match with the ones in our list
- * 0.43 - cleanup
- * 0.44 - changes to integration CIS based devices
- *
- *.............................................................................
- *
+ * - 0.40 - starting version of the USB support
+ * - 0.41 - removed CHECK
+ *        - added Canon to the manufacturer list
+ * - 0.42 - added warmup stuff
+ *        - added setmap function
+ *        - changed detection stuff, so we first check whether
+ *        - the vendor and product Ids match with the ones in our list
+ * - 0.43 - cleanup
+ * - 0.44 - changes to integration CIS based devices
+ * - 0.45 - added skipFine assignment
+ *        - added auto device name detection if only product and vendor id<br>
+ *          has been specified
+ *        - made 16-bit gray mode work
+ *        - added special handling for Genius devices
+ *        - added TPA autodetection for EPSON Photo
+ * .
+ * <hr>
  * This file is part of the SANE package.
  *
  * This program is free software; you can redistribute it and/or
@@ -57,9 +64,10 @@
  * If you write modifications of your own for SANE, it is your choice
  * whether to permit this exception to apply to your modifications.
  * If you do not wish that, delete this exception notice.
+ * <hr>
  */
 
-/*
+/**
  * to allow different vendors...
  */
 static TabDef usbVendors[] = {
@@ -71,12 +79,20 @@ static TabDef usbVendors[] = {
 	{ 0x03F0, "Hewlett-Packard" },
 	{ 0x04B8, "Epson"           },
 	{ 0x04A9, "Canon"           },
+ 	{ 0x1606, "UMAX"            },
+	
 	{ 0xFFFF, NULL              }
 };
 
+/** for autodetection */
+SANE_Char USB_devname[1024];
+
+/** we use at least 8 megs for scanning... */
+#define _SCANBUF_SIZE (8 * 1024 * 1024)
+
 /********************** the USB scanner interface ****************************/
 
-/*.............................................................................
+/**
  * assign the values to the structures used by the currently found scanner
  */
 static void usb_initDev( pPlustek_Device dev, int idx, int handle, int vendor )
@@ -87,6 +103,7 @@ static void usb_initDev( pPlustek_Device dev, int idx, int handle, int vendor )
 	DBG( _DBG_INFO, "usb_initDev(%d,0x%04x,%u)\n",
 											idx, vendor, dev->initialized );
 
+	/* copy the original values... */											
 	memcpy( &dev->usbDev.Caps, Settings[idx].pDevCaps, sizeof(DCapsDef));
 	memcpy( &dev->usbDev.HwSetting, Settings[idx].pHwDef, sizeof(HWDef));
 
@@ -102,9 +119,17 @@ static void usb_initDev( pPlustek_Device dev, int idx, int handle, int vendor )
     if( dev->adj.skipCalibration > 0 )
 		dev->usbDev.Caps.workaroundFlag |= _WAF_BYPASS_CALIBRATION;
 
+    if( dev->adj.skipFine > 0 )
+		dev->usbDev.Caps.workaroundFlag |= _WAF_SKIP_FINE;
+
+    if( dev->adj.skipFineWhite > 0 )
+		dev->usbDev.Caps.workaroundFlag |= _WAF_SKIP_WHITEFINE;
+		
     if( dev->adj.invertNegatives > 0 )
 		dev->usbDev.Caps.workaroundFlag |= _WAF_INV_NEGATIVE_MAP;
-	
+
+	DBG( _DBG_INFO, "Device WAF: 0x%08lx\n", dev->usbDev.Caps.workaroundFlag );
+			
 	/*
 	 * adjust data origin
 	 */
@@ -131,15 +156,40 @@ static void usb_initDev( pPlustek_Device dev, int idx, int handle, int vendor )
 		
 	/*
 	 * the following you normally get from the registry...
-	 * 30 and 8 are for a UT12
 	 */
-	bMaxITA                  = 0;     /* Maximum integration time adjust */
-    dev->usbDev.dwBufferSize = 8 * 1024 * 1024; /*min val is 4MB!!!*/
+	bMaxITA = 0;     /* Maximum integration time adjust */
 		
 	dev->usbDev.ModelStr = Settings[idx].pModelString;
 
 	dev->fd = handle;
-	
+
+	/* check for TPA on EPSON device
+	 */
+	if( !dev->initialized && vendor == 0x04B8 ) {
+
+		u_char t;
+
+		usb_switchLampX   ( dev, SANE_FALSE, SANE_TRUE );
+		usbio_WriteReg    ( handle, 0x58, 0x1d );
+		usbio_WriteReg    ( handle, 0x59, 0x49 );
+		usbio_ReadReg     ( handle, 0x02, &t );
+		usbio_WriteReg    ( handle, 0x58, dev->usbDev.HwSetting.bReg_0x58 );
+		usbio_WriteReg    ( handle, 0x59, dev->usbDev.HwSetting.bReg_0x59 );
+
+		DBG( _DBG_INFO, "REG[0x02] = 0x%02x\n", t );
+
+		if( t & 0x02 ) {
+			DBG( _DBG_INFO, "TPA detected\n" );
+  			dev->usbDev.Caps.wFlags |= DEVCAPSFLAG_TPA;
+		} else
+			DBG( _DBG_INFO, "TPA NOT detected\n" );
+
+		if( dev->adj.enableTpa ) {
+			DBG( _DBG_INFO, "Enabled TPA for EPSON (override)\n" );
+  			dev->usbDev.Caps.wFlags |= DEVCAPSFLAG_TPA;
+     	}
+    }
+
 	/*
      * well now we patch the vendor string...
      * if not found, the default vendor will be Plustek
@@ -152,13 +202,6 @@ static void usb_initDev( pPlustek_Device dev, int idx, int handle, int vendor )
 			break;
 		}
 	}
-
-	if( vendor == 0x04B8 ) {
-		if( dev->adj.enableTpa ) {
-			DBG( _DBG_INFO, "Enabled TPA for EPSON\n" );
-  			dev->usbDev.Caps.wFlags |= DEVCAPSFLAG_TPA;
-     	}
-    }
 
 	dev->usbDev.currentLamp = usb_GetLampStatus( dev );
 
@@ -189,7 +232,7 @@ static void usb_initDev( pPlustek_Device dev, int idx, int handle, int vendor )
 	dev->initialized = SANE_TRUE;
 }
 
-/*.............................................................................
+/**
  * will be used for retrieving a Plustek device
  */
 static int usb_CheckForPlustekDevice( int handle, pPlustek_Device dev )
@@ -254,7 +297,7 @@ static int usb_CheckForPlustekDevice( int handle, pPlustek_Device dev )
 
 		if( 0 == strcmp( Settings[i].pIDString, tmp )) {
 	    	DBG(_DBG_INFO, "Device description for >%s< found.\n", tmp );
-			usb_initDev( dev, i, handle, 0x07B3 );
+			usb_initDev( dev, i, handle, dev->usbDev.vendor );
 	    	return handle;
 		}
 	}
@@ -262,7 +305,7 @@ static int usb_CheckForPlustekDevice( int handle, pPlustek_Device dev )
 	return -1;
 }
 
-/*.............................................................................
+/**
  * will be called upon sane_exit
  */
 static void usbDev_shutdown( Plustek_Device *dev  )
@@ -318,7 +361,57 @@ static SANE_Bool usb_IsDeviceInList( char *usbIdStr )
 	return SANE_FALSE;
 }
 
-/*.............................................................................
+/**
+ *
+ */
+static SANE_Status usb_attach( SANE_String_Const dev_name )
+{
+	if( USB_devname[0] == '\0' ) {
+		DBG( _DBG_INFO, "Found device at >%s<\n", dev_name );
+		strncpy( USB_devname, dev_name, 1023 );
+		USB_devname[1023] = '\0';
+	} else {
+		DBG( _DBG_INFO, "Device >%s< ignoring\n", dev_name );
+	}
+
+	return SANE_STATUS_GOOD;
+}
+
+/** here we roam through our list of supported devices and
+ * cross check with the ones the system reports...
+ * @param vendor  - pointer to receive vendor ID
+ * @param product - pointer to receive product ID
+ * @return SANE_TRUE if a matching device has been found or
+ *         SANE_FALSE if nothing supported found...
+ */
+static SANE_Bool usbDev_autodetect( SANE_Word *vendor, SANE_Word *product )
+{
+	int       i;
+	SANE_Word v, p;
+
+	DBG( _DBG_INFO, "Autodetection...\n" );
+
+	for( i = 0; NULL != Settings[i].pIDString; i++ ) {
+
+		v = strtol( &(Settings[i].pIDString)[0], 0, 0 );
+		p = strtol( &(Settings[i].pIDString)[7], 0, 0 );
+
+		DBG( _DBG_INFO2, "Checking for 0x%04x-0x%04x\n", v, p );
+
+		sanei_usb_find_devices( v, p, usb_attach );
+
+		if( USB_devname[0] != '\0' ) {
+
+			*vendor  = v;
+			*product = p;
+       		return SANE_TRUE;
+		}
+	}
+
+	return SANE_FALSE;
+}
+
+/**
  *
  */
 static int usbDev_open( const char *dev_name, void *misc )
@@ -336,9 +429,44 @@ static int usbDev_open( const char *dev_name, void *misc )
 
     /* preset our internal usb device structure */
    	memset( &dev->usbDev, 0, sizeof(DeviceDef));
+	USB_devname[0] = '\0';
 
-    if( SANE_STATUS_GOOD != sanei_usb_open( dev_name, &handle )) {
-        return -1;
+	if( !strcmp( dev_name, "auto" )) {
+
+		if( dev->usbId[0] == '\0' ) {
+
+			if( !usbDev_autodetect( &vendor, &product )) {
+				DBG( _DBG_ERROR, "No supported device found!\n" );
+				return -1;
+			}
+
+		} else {
+
+			vendor  = strtol( &dev->usbId[0], 0, 0 );
+			product = strtol( &dev->usbId[7], 0, 0 );
+
+			sanei_usb_find_devices( vendor, product, usb_attach );
+
+			if( USB_devname[0] == '\0' ) {
+				DBG( _DBG_ERROR, "No matching device found!\n" );
+        		return -1;
+			}
+		}
+
+		if( SANE_STATUS_GOOD != sanei_usb_open( USB_devname, &handle ))
+    		return -1;
+
+		/* replace the old devname, so we are able to have multiple
+         * auto-detected devices
+         */
+		free( dev->name );
+	    dev->name      = strdup( USB_devname );
+		dev->sane.name = dev->name; 
+
+	} else {
+
+		if( SANE_STATUS_GOOD != sanei_usb_open( dev_name, &handle ))
+    		return -1;
 	}
 	
 	was_empty = SANE_FALSE;
@@ -403,14 +531,10 @@ static int usbDev_open( const char *dev_name, void *misc )
 		return -1;
     }
 
-#if 1
 	dev->fd = handle;
     usbio_ResetLM983x ( dev );
 	usb_IsScannerReady( dev );
 	dev->fd = -1;
-#else	
-	sanei_lm983x_reset( handle );
-#endif
 
 	dev->usbDev.vendor  = vendor;
 	dev->usbDev.product = product;
@@ -420,7 +544,7 @@ static int usbDev_open( const char *dev_name, void *misc )
 	 * (PCB = printed circuit board), so it's possible to have one
 	 * product ID and up to 7 different devices...
 	 */
-	if( 0x07B3 == vendor ) {
+	if((0x07B3 == vendor) || (0x0458 == vendor)) {
 	
 		handle = usb_CheckForPlustekDevice( handle, dev );
 	
@@ -457,7 +581,7 @@ static int usbDev_open( const char *dev_name, void *misc )
 	return -1;
 }
 
-/*.............................................................................
+/**
  *
  */
 static int usbDev_close( Plustek_Device *dev )
@@ -567,7 +691,7 @@ static int usbDev_getCropInfo( Plustek_Device *dev, pCropInfo ci )
     return 0;
 }
 
-/*.............................................................................
+/**
  *
  */
 static int usbDev_setMap( Plustek_Device *dev, SANE_Word *map,
@@ -603,11 +727,13 @@ static int usbDev_setMap( Plustek_Device *dev, SANE_Word *map,
 	return 0;
 }
 
-/*.............................................................................
+/**
  *
  */
 static int usbDev_setScanEnv( Plustek_Device *dev, pScanInfo si )
 {
+	pHWDef hw = &dev->usbDev.HwSetting;
+
 	DBG( _DBG_INFO, "usbDev_setScanEnv()\n" );
 
     /* clear all the stuff */
@@ -621,15 +747,12 @@ static int usbDev_setScanEnv( Plustek_Device *dev, pScanInfo si )
 
 	if( si->ImgDef.wDataType == COLOR_256GRAY ) {
 
-#if 0
-		if( dev->scanning.fGrayFromColor = Registry.GetGrayFromColor())
-			si->ImgDef.wDataType = COLOR_TRUE24;
-		else
-#endif
 		if( !(si->ImgDef.dwFlag & SCANDEF_Adf ) &&
  		  (dev->usbDev.Caps.OpticDpi.x == 1200 && si->ImgDef.xyDpi.x <= 300)) {
 			dev->scanning.fGrayFromColor = 2;
 			si->ImgDef.wDataType = COLOR_TRUE24;
+
+			DBG( _DBG_INFO, "Gray from color set!\n" );
 		}
 	}
 
@@ -669,6 +792,27 @@ static int usbDev_setScanEnv( Plustek_Device *dev, pScanInfo si )
 			dev->scanning.dwBytesLine = dev->scanning.sParam.Size.dwBytes;
 	}
 
+	/* on CIS based devices we have to reconfigure the illumination
+     * settings for the gray modes
+     */
+	if( hw->bReg_0x26 & _ONE_CH_COLOR ) {
+
+		if((dev->scanning.sParam.bDataType == SCANDATATYPE_Gray) ||
+		   (dev->scanning.sParam.bDataType == SCANDATATYPE_BW)) {
+
+			hw->bReg_0x29 = hw->illu_mono.mode;
+
+			memcpy( &hw->red_lamp_on,
+					&hw->illu_mono.red_lamp_on, sizeof(u_short) * 6 );
+
+		} else {
+			hw->bReg_0x29 = hw->illu_color.mode;
+
+			memcpy( &hw->red_lamp_on,
+					&hw->illu_color.red_lamp_on, sizeof(u_short) * 6 );
+		}
+	}
+
 	if( dev->scanning.dwFlag & SCANFLAG_BottomUp)
 		dev->scanning.lBufAdjust = -(long)dev->scanning.dwBytesLine;
 	else
@@ -691,26 +835,34 @@ static int usbDev_setScanEnv( Plustek_Device *dev, pScanInfo si )
     if( dev->scanning.sParam.bSource == SOURCE_Reflection ) {
 
     	dev->usbDev.pSource = &dev->usbDev.Caps.Normal;
-    	dev->scanning.sParam.Origin.x += dev->usbDev.pSource->DataOrigin.x + (u_long)dev->usbDev.Normal.lLeft;
-    	dev->scanning.sParam.Origin.y += dev->usbDev.pSource->DataOrigin.y + (u_long)dev->usbDev.Normal.lUp;
+    	dev->scanning.sParam.Origin.x += dev->usbDev.pSource->DataOrigin.x +
+												(u_long)dev->usbDev.Normal.lLeft;
+    	dev->scanning.sParam.Origin.y += dev->usbDev.pSource->DataOrigin.y +
+												(u_long)dev->usbDev.Normal.lUp;
 
     } else if( dev->scanning.sParam.bSource == SOURCE_Transparency ) {
 
 		dev->usbDev.pSource = &dev->usbDev.Caps.Positive;
-    	dev->scanning.sParam.Origin.x += dev->usbDev.pSource->DataOrigin.x + (u_long)dev->usbDev.Positive.lLeft;
-    	dev->scanning.sParam.Origin.y += dev->usbDev.pSource->DataOrigin.y + (u_long)dev->usbDev.Positive.lUp;
+    	dev->scanning.sParam.Origin.x += dev->usbDev.pSource->DataOrigin.x +
+											(u_long)dev->usbDev.Positive.lLeft;
+    	dev->scanning.sParam.Origin.y += dev->usbDev.pSource->DataOrigin.y +
+											(u_long)dev->usbDev.Positive.lUp;
 
 	} else if( dev->scanning.sParam.bSource == SOURCE_Negative ) {
 
 		dev->usbDev.pSource = &dev->usbDev.Caps.Negative;
-    	dev->scanning.sParam.Origin.x += dev->usbDev.pSource->DataOrigin.x + (u_long)dev->usbDev.Negative.lLeft;
-    	dev->scanning.sParam.Origin.y += dev->usbDev.pSource->DataOrigin.y + (u_long)dev->usbDev.Negative.lUp;
+    	dev->scanning.sParam.Origin.x += dev->usbDev.pSource->DataOrigin.x +
+											(u_long)dev->usbDev.Negative.lLeft;
+    	dev->scanning.sParam.Origin.y += dev->usbDev.pSource->DataOrigin.y +
+											(u_long)dev->usbDev.Negative.lUp;
 
 	} else {
 
 		dev->usbDev.pSource = &dev->usbDev.Caps.Adf;
-    	dev->scanning.sParam.Origin.x += dev->usbDev.pSource->DataOrigin.x + (u_long)dev->usbDev.Normal.lLeft;
-    	dev->scanning.sParam.Origin.y += dev->usbDev.pSource->DataOrigin.y + (u_long)dev->usbDev.Normal.lUp;
+    	dev->scanning.sParam.Origin.x += dev->usbDev.pSource->DataOrigin.x +
+											(u_long)dev->usbDev.Normal.lLeft;
+    	dev->scanning.sParam.Origin.y += dev->usbDev.pSource->DataOrigin.y +
+											(u_long)dev->usbDev.Normal.lUp;
 	}
 
 	if( dev->scanning.sParam.bSource == SOURCE_ADF ) {
@@ -724,7 +876,7 @@ static int usbDev_setScanEnv( Plustek_Device *dev, pScanInfo si )
     return 0;
 }
 
-/*.............................................................................
+/**
  *
  */
 static int usbDev_stopScan( Plustek_Device *dev, int *mode )
@@ -746,7 +898,7 @@ static int usbDev_stopScan( Plustek_Device *dev, int *mode )
     return 0;
 }
 
-/*.............................................................................
+/**
  *
  */
 static int usbDev_startScan( Plustek_Device *dev, pStartScan start )
@@ -756,7 +908,7 @@ static int usbDev_startScan( Plustek_Device *dev, pStartScan start )
 
 	DBG( _DBG_INFO, "usbDev_startScan()\n" );
 
-/* HEINER: PReview currently not working correctly */
+/* HEINER: Preview currently not working correctly */
 #if 0
 	if( scanning->dwFlag & SCANDEF_QualityScan )
 		a_bRegs[0x0a] = 0;
@@ -764,7 +916,6 @@ static int usbDev_startScan( Plustek_Device *dev, pStartScan start )
 		a_bRegs[0x0a] = 1;
 #endif
 	a_bRegs[0x0a] = 0;
-
 
 	/* Allocate shading buffer */
 	if((dev->scanning.dwFlag & SCANDEF_Adf) &&
@@ -778,7 +929,7 @@ static int usbDev_startScan( Plustek_Device *dev, pStartScan start )
 
 	scanning->sParam.PhyDpi.x = usb_SetAsicDpiX(dev,scanning->sParam.UserDpi.x);
 	scanning->sParam.PhyDpi.y = usb_SetAsicDpiY(dev,scanning->sParam.UserDpi.y);
-	scanning->pScanBuffer = (u_char*)malloc( dev->usbDev.dwBufferSize );
+	scanning->pScanBuffer = (u_char*)malloc( _SCANBUF_SIZE );
 
 	if( NULL != scanning->pScanBuffer ) {
 
@@ -795,9 +946,9 @@ static int usbDev_startScan( Plustek_Device *dev, pStartScan start )
     return _E_ALLOC;
 }
 
-/*.............................................................................
+/**
  * do the reading stuff here...
- * first we perform the calibration step, and the we read the image
+ * first we perform the calibration step, and then we read the image
  * line for line
  */
 static int usbDev_readImage( struct Plustek_Device *dev,
@@ -825,151 +976,152 @@ static int usbDev_readImage( struct Plustek_Device *dev,
 	DBG( _DBG_INFO, "calibration done.\n" );
 
 	scaler = 1;
-	if( hw->bReg_0x26 & _ONE_CH_COLOR ) {
-   		if( pParam->bDataType == SCANDATATYPE_Color ) {
-			scaler = 3;
-		}
+	if((hw->bReg_0x26 & _ONE_CH_COLOR) &&
+	   (scanning->sParam.bDataType == SCANDATATYPE_Color)) {
+		scaler = 3;
 	}
 
 	if( !( scanning->dwFlag & SCANFLAG_Scanning )) {
 
 		usleep( 10 * 1000 );
 
-		if( usb_SetScanParameters( dev, &scanning->sParam )) {
-/* what if error !!!*/
-
-			/*
-			 * if we bypass the calibration step, we wait on lamp warmup here...
-			 */
-			if( scaps->workaroundFlag & _WAF_BYPASS_CALIBRATION ) {
-        		if( !usb_Wait4Warmup( dev )) {
-					DBG( _DBG_INFO, "ReadImage() - Cancel detected...\n" );
-					return 0;
-				}
-			}
-
-			scanning->pbScanBufBegin = scanning->pScanBuffer;
-
-			if((dev->caps.dwFlag & SFLAG_ADF) && (scaps->OpticDpi.x == 600))
-				scanning->dwLinesScanBuf = 8;
-			else
-				scanning->dwLinesScanBuf = 32;
-
-			scanning->dwBytesScanBuf     = scanning->dwLinesScanBuf *
-										   scanning->sParam.Size.dwPhyBytes *
-										   scaler;
-
-			scanning->dwNumberOfScanBufs = dev->usbDev.dwBufferSize /
-										   scanning->dwBytesScanBuf;
-			scanning->dwLinesPerScanBufs = scanning->dwNumberOfScanBufs *
-										   scanning->dwLinesScanBuf;
-			scanning->pbScanBufEnd       = scanning->pbScanBufBegin +
-										   scanning->dwLinesPerScanBufs *
-										   scanning->sParam.Size.dwPhyBytes *
-										   scaler;
-
-			if( scanning->sParam.bChannels == 3 ) {
-
-				scanning->dwLinesDiscard = (u_long)scaps->bSensorDistance *
-								scanning->sParam.PhyDpi.y / scaps->OpticDpi.y;
-
-				switch( scaps->bSensorOrder ) {
-
-				case SENSORORDER_rgb:
-					scanning->Red.pb   = scanning->pbScanBufBegin;
-					scanning->Green.pb = scanning->pbScanBufBegin +
-										 scanning->dwLinesDiscard *
-										 scanning->sParam.Size.dwPhyBytes;
-					scanning->Blue.pb  = scanning->pbScanBufBegin +
-										 scanning->dwLinesDiscard *
-										 scanning->sParam.Size.dwPhyBytes * 2UL;
-					break;
-
-				case SENSORORDER_rbg:
-					scanning->Red.pb   = scanning->pbScanBufBegin;
-					scanning->Blue.pb  = scanning->pbScanBufBegin +
-										 scanning->dwLinesDiscard *
-										 scanning->sParam.Size.dwPhyBytes;
-					scanning->Green.pb = scanning->pbScanBufBegin +
-										 scanning->dwLinesDiscard *
-										 scanning->sParam.Size.dwPhyBytes * 2UL;
-					break;
-					
-				case SENSORORDER_gbr:
-					scanning->Green.pb = scanning->pbScanBufBegin;
-					scanning->Blue.pb  = scanning->pbScanBufBegin +
-						                 scanning->dwLinesDiscard *
-                                         scanning->sParam.Size.dwPhyBytes;
-					scanning->Red.pb   = scanning->pbScanBufBegin +
-						                 scanning->dwLinesDiscard *
-                                         scanning->sParam.Size.dwPhyBytes * 2UL;
-					break;
-					
-				case SENSORORDER_grb:
-					scanning->Green.pb = scanning->pbScanBufBegin;
-					scanning->Red.pb   = scanning->pbScanBufBegin +
-						                 scanning->dwLinesDiscard *
-                                         scanning->sParam.Size.dwPhyBytes;
-					scanning->Blue.pb  = scanning->pbScanBufBegin +
-						                 scanning->dwLinesDiscard *
-                                         scanning->sParam.Size.dwPhyBytes * 2UL;
-					break;
-					
-				case SENSORORDER_brg:
-					scanning->Blue.pb  = scanning->pbScanBufBegin;
-					scanning->Red.pb   = scanning->pbScanBufBegin +
-						                 scanning->dwLinesDiscard *
-                                         scanning->sParam.Size.dwPhyBytes;
-					scanning->Green.pb = scanning->pbScanBufBegin +
-						                 scanning->dwLinesDiscard *
-                                         scanning->sParam.Size.dwPhyBytes * 2UL;
-					break;
-					
-				case SENSORORDER_bgr:
-					scanning->Blue.pb  = scanning->pbScanBufBegin;
-					scanning->Green.pb = scanning->pbScanBufBegin +
-						                 scanning->dwLinesDiscard *
-                                         scanning->sParam.Size.dwPhyBytes;
-					scanning->Red.pb   = scanning->pbScanBufBegin +
-						                 scanning->dwLinesDiscard *
-                                        scanning->sParam.Size.dwPhyBytes * 2UL;
-				}
-
-				/* double it for last channel */
-				scanning->dwLinesDiscard <<= 1;
-				scanning->dwGreenShift = (7UL+scanning->sParam.bBitDepth) >> 3;
-				scanning->Green.pb += scanning->dwGreenShift;
-				scanning->Blue.pb  += (scanning->dwGreenShift * 2);
-
-				if( scanning->dwFlag & SCANFLAG_bgr) {
-
-					u_char *pb = scanning->Blue.pb;
-
-					scanning->Blue.pb = scanning->Red.pb;
-					scanning->Red.pb  = pb;
-					scanning->dwBlueShift = 0;
-					scanning->dwRedShift  = scanning->dwGreenShift << 1;
-				} else {
-					scanning->dwRedShift  = 0;
-					scanning->dwBlueShift = scanning->dwGreenShift << 1;
-				}
-
-			} else {
-
-				/* this might be simple gray operation or AFE 1 channel op */
-				scanning->dwLinesDiscard = 0;
-				scanning->Green.pb       = scanning->pbScanBufBegin;
-
-				if( hw->bReg_0x26 & _ONE_CH_COLOR ) {
-
-					scanning->Red.pb   = scanning->pbScanBufBegin;
-					scanning->Green.pb = scanning->pbScanBufBegin +
-										 (scanning->sParam.Size.dwPhyBytes );
-					scanning->Blue.pb  = scanning->pbScanBufBegin +
-										 (scanning->sParam.Size.dwPhyBytes )* 2UL;
-        		}
-			}
+		if( !usb_SetScanParameters( dev, &scanning->sParam )) {
+			DBG( _DBG_ERROR, "Setting Scan Parameters failed!\n" );
+			return 0;
 		}
+
+   		/*
+   		 * if we bypass the calibration step, we wait on lamp warmup here...
+   		 */
+   		if( scaps->workaroundFlag & _WAF_BYPASS_CALIBRATION ) {
+       		if( !usb_Wait4Warmup( dev )) {
+   				DBG( _DBG_INFO, "ReadImage() - Cancel detected...\n" );
+   				return 0;
+   			}
+   		}
+
+   		scanning->pbScanBufBegin = scanning->pScanBuffer;
+
+   		if((dev->caps.dwFlag & SFLAG_ADF) && (scaps->OpticDpi.x == 600))
+   			scanning->dwLinesScanBuf = 8;
+   		else
+   			scanning->dwLinesScanBuf = 32;
+
+   		scanning->dwBytesScanBuf     = scanning->dwLinesScanBuf *
+   									   scanning->sParam.Size.dwPhyBytes *
+   									   scaler;
+
+   		scanning->dwNumberOfScanBufs = _SCANBUF_SIZE /
+   									   scanning->dwBytesScanBuf;
+   		scanning->dwLinesPerScanBufs = scanning->dwNumberOfScanBufs *
+   									   scanning->dwLinesScanBuf;
+   		scanning->pbScanBufEnd       = scanning->pbScanBufBegin +
+   									   scanning->dwLinesPerScanBufs *
+   									   scanning->sParam.Size.dwPhyBytes *
+   									   scaler;
+
+   		if( scanning->sParam.bChannels == 3 ) {
+
+   			scanning->dwLinesDiscard = (u_long)scaps->bSensorDistance *
+   							scanning->sParam.PhyDpi.y / scaps->OpticDpi.y;
+
+   			switch( scaps->bSensorOrder ) {
+
+   			case SENSORORDER_rgb:
+   				scanning->Red.pb   = scanning->pbScanBufBegin;
+   				scanning->Green.pb = scanning->pbScanBufBegin +
+   									 scanning->dwLinesDiscard *
+   									 scanning->sParam.Size.dwPhyBytes;
+   				scanning->Blue.pb  = scanning->pbScanBufBegin +
+   									 scanning->dwLinesDiscard *
+   									 scanning->sParam.Size.dwPhyBytes * 2UL;
+   				break;
+
+   			case SENSORORDER_rbg:
+   				scanning->Red.pb   = scanning->pbScanBufBegin;
+   				scanning->Blue.pb  = scanning->pbScanBufBegin +
+   									 scanning->dwLinesDiscard *
+   									 scanning->sParam.Size.dwPhyBytes;
+   				scanning->Green.pb = scanning->pbScanBufBegin +
+   									 scanning->dwLinesDiscard *
+   									 scanning->sParam.Size.dwPhyBytes * 2UL;
+   				break;
+
+   			case SENSORORDER_gbr:
+   				scanning->Green.pb = scanning->pbScanBufBegin;
+   				scanning->Blue.pb  = scanning->pbScanBufBegin +
+   					                 scanning->dwLinesDiscard *
+                                        scanning->sParam.Size.dwPhyBytes;
+   				scanning->Red.pb   = scanning->pbScanBufBegin +
+   					                 scanning->dwLinesDiscard *
+                                        scanning->sParam.Size.dwPhyBytes * 2UL;
+   				break;
+
+   			case SENSORORDER_grb:
+   				scanning->Green.pb = scanning->pbScanBufBegin;
+   				scanning->Red.pb   = scanning->pbScanBufBegin +
+   					                 scanning->dwLinesDiscard *
+                                        scanning->sParam.Size.dwPhyBytes;
+   				scanning->Blue.pb  = scanning->pbScanBufBegin +
+   					                 scanning->dwLinesDiscard *
+                                        scanning->sParam.Size.dwPhyBytes * 2UL;
+   				break;
+
+   			case SENSORORDER_brg:
+   				scanning->Blue.pb  = scanning->pbScanBufBegin;
+   				scanning->Red.pb   = scanning->pbScanBufBegin +
+   					                 scanning->dwLinesDiscard *
+                                        scanning->sParam.Size.dwPhyBytes;
+   				scanning->Green.pb = scanning->pbScanBufBegin +
+   					                 scanning->dwLinesDiscard *
+                                        scanning->sParam.Size.dwPhyBytes * 2UL;
+   				break;
+
+   			case SENSORORDER_bgr:
+   				scanning->Blue.pb  = scanning->pbScanBufBegin;
+   				scanning->Green.pb = scanning->pbScanBufBegin +
+   					                 scanning->dwLinesDiscard *
+                                        scanning->sParam.Size.dwPhyBytes;
+   				scanning->Red.pb   = scanning->pbScanBufBegin +
+   					                 scanning->dwLinesDiscard *
+                                       scanning->sParam.Size.dwPhyBytes * 2UL;
+   			}
+
+   			/* double it for last channel */
+   			scanning->dwLinesDiscard <<= 1;
+   			scanning->dwGreenShift = (7UL+scanning->sParam.bBitDepth) >> 3;
+   			scanning->Green.pb += scanning->dwGreenShift;
+   			scanning->Blue.pb  += (scanning->dwGreenShift * 2);
+
+   			if( scanning->dwFlag & SCANFLAG_bgr) {
+
+   				u_char *pb = scanning->Blue.pb;
+
+   				scanning->Blue.pb = scanning->Red.pb;
+   				scanning->Red.pb  = pb;
+   				scanning->dwBlueShift = 0;
+   				scanning->dwRedShift  = scanning->dwGreenShift << 1;
+   			} else {
+   				scanning->dwRedShift  = 0;
+   				scanning->dwBlueShift = scanning->dwGreenShift << 1;
+   			}
+
+   		} else {
+
+   			/* this might be simple gray operation or AFE 1 channel op */
+   			scanning->dwLinesDiscard = 0;
+   			scanning->Green.pb       = scanning->pbScanBufBegin;
+
+			if(( scanning->sParam.bDataType == SCANDATATYPE_Color ) && 
+   			   ( hw->bReg_0x26 & _ONE_CH_COLOR )) {
+
+   				scanning->Red.pb   = scanning->pbScanBufBegin;
+   				scanning->Green.pb = scanning->pbScanBufBegin +
+   									 (scanning->sParam.Size.dwPhyBytes );
+   				scanning->Blue.pb  = scanning->pbScanBufBegin +
+   									 (scanning->sParam.Size.dwPhyBytes )* 2UL;
+       		}
+   		}
 
 		/* set a funtion to process the RAW data... */
 		usb_GetImageProc( dev );
@@ -1033,6 +1185,7 @@ static int usbDev_readImage( struct Plustek_Device *dev,
 	DBG(_DBG_INFO,"dwPhyPixels      = %lu\n",scanning->sParam.Size.dwPhyPixels);
 	DBG(_DBG_INFO,"dwTotalBytes     = %lu\n",scanning->sParam.Size.dwTotalBytes);
 	DBG(_DBG_INFO,"dwPixels         = %lu\n",scanning->sParam.Size.dwPixels);
+	DBG(_DBG_INFO,"dwBytes          = %lu\n",scanning->sParam.Size.dwBytes);
 	DBG(_DBG_INFO,"dwValidPixels    = %lu\n",scanning->sParam.Size.dwValidPixels);
 	DBG(_DBG_INFO,"dwBytesScanBuf   = %lu\n",scanning->dwBytesScanBuf );
 	DBG(_DBG_INFO,"dwLinesDiscard   = %lu\n",scanning->dwLinesDiscard );
@@ -1123,14 +1276,11 @@ static int usbDev_readImage( struct Plustek_Device *dev,
 
 			if( hw->bReg_0x26 & _ONE_CH_COLOR ) {
 
-   				if( pParam->bDataType == SCANDATATYPE_Color ) {
-
-					scanning->Red.pb   = scanning->pbScanBufBegin;
-					scanning->Green.pb = scanning->pbScanBufBegin +
+				scanning->Red.pb   = scanning->pbScanBufBegin;
+				scanning->Green.pb = scanning->pbScanBufBegin +
 										 (scanning->sParam.Size.dwPhyBytes );
-					scanning->Blue.pb  = scanning->pbScanBufBegin +
-										 (scanning->sParam.Size.dwPhyBytes )* 2UL;
-				}
+				scanning->Blue.pb  = scanning->pbScanBufBegin +
+									 (scanning->sParam.Size.dwPhyBytes )* 2UL;
 			}
 		}
 

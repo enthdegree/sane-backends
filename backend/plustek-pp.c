@@ -1,26 +1,24 @@
 /*.............................................................................
  * Project : SANE library for Plustek flatbed scanners.
  *.............................................................................
- * File:	 plustek_pp.c - the interface to the parport driver...
- *.............................................................................
+ */
+
+/** @file plustek-pp.c
+ *  @brief The interface to the parport driver.
  *
- * based on Kazuhiro Sasayama previous work on
- * plustek.[ch] file from the SANE package.
- * original code taken from sane-0.71
- * Copyright (C) 1997 Hypercore Software Design, Ltd.
- * also based on the work done by Rick Bronson
- * Copyright (C) 2000-2002 Gerhard Jaeger <gerhard@gjaeger.de>
- *.............................................................................
+ * Based on sources acquired from Plustek Inc.<br>
+ * Copyright (C) 2001-2002 Gerhard Jaeger <gerhard@gjaeger.de>
+ *
  * History:
- * 0.40 - initial version
- * 0.41 - added _PTDRV_ADJUST call
- * 0.42 - added setmap function
- *        fixed the stopscan problem, that causes a crash in the kernel module
- * 0.43 - no changes
- * 0.44 - added initialized setting
- *
- *.............................................................................
- *
+ * - 0.40 - initial version
+ * - 0.41 - added _PTDRV_ADJUST call
+ * - 0.42 - added setmap function
+ *        - fixed the stopscan problem, that causes a crash in the kernel module
+ * - 0.43 - no changes
+ * - 0.44 - added initialized setting
+ * - 0.45 - no changes
+ * .
+ * <hr>
  * This file is part of the SANE package.
  *
  * This program is free software; you can redistribute it and/or
@@ -58,6 +56,7 @@
  * If you write modifications of your own for SANE, it is your choice
  * whether to permit this exception to apply to your modifications.
  * If you do not wish that, delete this exception notice.
+ * <hr>
  */
 
 /******************* wrapper functions for parport device ********************/

@@ -1,45 +1,47 @@
 /*.............................................................................
  * Project : SANE library for Plustek flatbed scanners.
  *.............................................................................
- * File:	 plustek.h - definitions for the backend
- *.............................................................................
+ */
+
+/** @file plustek.h
+ *  @brief Definitions for the backend.
  *
- * based on Kazuhiro Sasayama previous
- * Work on plustek.[ch] file from the SANE package.
+ * Based on Kazuhiro Sasayama previous
+ * Work on plustek.[ch] file from the SANE package.<br>
  *
- * original code taken from sane-0.71
- * Copyright (C) 1997 Hypercore Software Design, Ltd.
- * Copyright (C) 2000-2002 Gerhard Jaeger <gerhard@gjaeger.de>
- *.............................................................................
+ * original code taken from sane-0.71<br>
+ * Copyright (C) 1997 Hypercore Software Design, Ltd.<br>
+ * Copyright (C) 2001-2002 Gerhard Jaeger <gerhard@gjaeger.de>
+ *
  * History:
- * 0.30 - initial version
- * 0.31 - no changes
- * 0.32 - no changes
- * 0.33 - no changes
- * 0.34 - moved some definitions and typedefs from plustek.c
- * 0.35 - removed OPT_MODEL from options list
- *		  added max_y to struct Plustek_Scan
- * 0.36 - added reader_pid, pipe and bytes_read to struct Plustek_Scanner
- *		  removed unused variables from struct Plustek_Scanner
- *        moved fd from struct Plustek_Scanner to Plustek_Device
- *		  added next members to struct Plustek_Scanner and Plustek_Device
- * 0.37 - added max_x to struct Plustek_Device
- * 0.38 - added caps to struct Plustek_Device
- *        added exit code to struct Plustek_Scanner
- *        removed dropout stuff
- * 0.39 - PORTTYPE enum
- *        added function pointers to control a scanner device
+ * - 0.30 - initial version
+ * - 0.31 - no changes
+ * - 0.32 - no changes
+ * - 0.33 - no changes
+ * - 0.34 - moved some definitions and typedefs from plustek.c
+ * - 0.35 - removed OPT_MODEL from options list
+ *		  - added max_y to struct Plustek_Scan
+ * - 0.36 - added reader_pid, pipe and bytes_read to struct Plustek_Scanner
+ *		  - removed unused variables from struct Plustek_Scanner
+ *        - moved fd from struct Plustek_Scanner to Plustek_Device
+ *		  - added next members to struct Plustek_Scanner and Plustek_Device
+ * - 0.37 - added max_x to struct Plustek_Device
+ * - 0.38 - added caps to struct Plustek_Device
+ *        - added exit code to struct Plustek_Scanner
+ *        - removed dropout stuff
+ * - 0.39 - PORTTYPE enum
+ *        - added function pointers to control a scanner device
  *        (Parport and USB)
- * 0.40 - added USB stuff
- * 0.41 - added configuration stuff
- * 0.42 - added custom gamma tables
- *        changed usbId to static array
- *		  added _MAX_ID_LEN
- * 0.43 - no changes
- * 0.44 - added flag initialized
- *
- *.............................................................................
- *
+ * - 0.40 - added USB stuff
+ * - 0.41 - added configuration stuff
+ * - 0.42 - added custom gamma tables
+ *        - changed usbId to static array
+ *		  - added _MAX_ID_LEN
+ * - 0.43 - no changes
+ * - 0.44 - added flag initialized
+ * - 0.45 - no changes
+ * .
+ * <hr>
  * This file is part of the SANE package.
  *
  * This program is free software; you can redistribute it and/or
@@ -77,6 +79,7 @@
  * If you write modifications of your own for SANE, it is your choice
  * whether to permit this exception to apply to your modifications.
  * If you do not wish that, delete this exception notice.
+ * <hr>
  */
 #ifndef __PLUSTEK_H__
 #define __PLUSTEK_H__

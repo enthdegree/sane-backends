@@ -10,7 +10,7 @@
 ;
 
 :backend "plustek"              ; name of backend
-:version "0.44"                 ; version of backend
+:version "0.45"                 ; version of backend
 :status :stable                 ; :alpha, :beta, :stable, :new
 :manpage "sane-plustek"         ; name of manpage (if it exists)
 
@@ -215,22 +215,18 @@
 :model "Perfection 1250"
 :interface "USB"
 :status :stable
-:comment "Mostly OK"
 
 :model "Perfection 1250Photo"
 :interface "USB"
 :status :stable
-:comment "Mostly OK - use option enableTPA"
 
 :model "Perfection 1260"
 :interface "USB"
 :status :stable
-:comment "Mostly OK"
 
 :model "Perfection 1260Photo"
 :interface "USB"
 :status :stable
-:comment "Mostly OK - use option enableTPA"
 
 :mfg "Umax"                  ; name of manufacturer
 :url "http://www.umax.com/"
@@ -238,7 +234,10 @@
 :model "UMAX 3400"
 :interface "USB"
 :status :stable
-:comment "Mostly OK"
+
+:model "UMAX 5400"
+:interface "USB"
+:status :untested
 
 :mfg "Canon"                    ; name a manufacturer
 :url "http://www.canon.com/"
@@ -246,12 +245,32 @@
 :model "CanoScan N650U/N656U"
 :interface "USB"
 :status :stable
-:comment "8-bit Color mode only"
+:comment "Poor color picture quality"
+
+:model "CanoScan N1220U"
+:interface "USB"
+:status :stable
+:comment "Poor color picture quality"
 
 :model "CanoScan N670U/N676U" 
 :interface "USB"
 :status :stable
-:comment "8-bit Color mode only"
+:comment "Poor color picture quality"
+
+:model "CanoScan N1240U"
+:interface "USB"
+:status :stable
+:comment "Poor color picture quality"
+
+:model "CanoScan LIDE20"
+:interface "USB"
+:status :stable
+:comment "Poor color picture quality"
+
+:model "CanoScan LIDE30"
+:interface "USB"
+:status :stable
+:comment "Poor color picture quality"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

@@ -1,30 +1,32 @@
 /*.............................................................................
- * Project : SANE library for Plustek USB flatbed scanners.
+ * Project : SANE library for Plustek flatbed scanners.
  *.............................................................................
- * File:	 plustek-usbhw.c
- *.............................................................................
+ */
+
+/** @file plustek-usbhw.c
+ *  @brief Functions to control the scanner hardware.
  *
- * based on sources acquired from Plustek Inc.
+ * Based on sources acquired from Plustek Inc.<br>
  * Copyright (C) 2001-2002 Gerhard Jaeger <gerhard@gjaeger.de>
- *.............................................................................
+ *
  * History:
- * 0.40 - starting version of the USB support
- * 0.41 - added EPSON1250 specific stuff
- *      - added alternative usb_IsScannerReady function
- * 0.42 - added warmup stuff
- *        added UMAX 3400 stuff
- *        fixed problem with minimum wait time...
- * 0.43 - added usb_switchLamp for non-Plustek devices
- * 0.44 - added bStepsToReverse and active Pixelstart values
- *        to resetRegister function
- *        modified getLampStatus function for CIS devices
- *        added usb_Wait4Warmup()
- *        moved usb_IsEscPressed to this file
- *        added usb_switchLampX
- *        do now not reinitialized MISC I/O pins upon reset registers
- *
- *.............................................................................
- *
+ * - 0.40 - starting version of the USB support
+ * - 0.41 - added EPSON1250 specific stuff
+ *        - added alternative usb_IsScannerReady function
+ * - 0.42 - added warmup stuff
+ *        - added UMAX 3400 stuff
+ *        - fixed problem with minimum wait time...
+ * - 0.43 - added usb_switchLamp for non-Plustek devices
+ * - 0.44 - added bStepsToReverse and active Pixelstart values
+ *        - to resetRegister function
+ *        - modified getLampStatus function for CIS devices
+ *        - added usb_Wait4Warmup()
+ *        - moved usb_IsEscPressed to this file
+ *        - added usb_switchLampX
+ *        - do now not reinitialized MISC I/O pins upon reset registers
+ * - 0.45 - added function usb_AdjustLamps() to tweak CIS lamp settings
+ * .
+ * <hr>
  * This file is part of the SANE package.
  *
  * This program is free software; you can redistribute it and/or
@@ -62,7 +64,9 @@
  * If you write modifications of your own for SANE, it is your choice
  * whether to permit this exception to apply to your modifications.
  * If you do not wish that, delete this exception notice.
+ * <hr>
  */
+ 
 #include <sys/time.h>
 
 #define DEV_LampReflection      1
@@ -77,7 +81,7 @@ static u_long dwCrystalFrequency = 48000000UL;
 
 static SANE_Bool fModuleFirstHome;  /* HEINER: this has to be initialized */
 static SANE_Bool fLastScanIsAdf;
-static u_char    a_bRegs[0x80];
+static u_char    a_bRegs[0x80];     /**< our global register file */
 
 
 /** usb_GetMotorSet
@@ -162,7 +166,7 @@ static SANE_Bool usb_IsScannerReady( pPlustek_Device dev )
 	return SANE_FALSE;
 }
 
-/*.............................................................................
+/**
  *
  */
 static SANE_Bool usb_SensorAdf( int handle )
@@ -174,7 +178,7 @@ static SANE_Bool usb_SensorAdf( int handle )
 	return (value & 0x20);
 }
 
-/*.............................................................................
+/**
  *
  */
 static SANE_Bool usb_SensorPaper( int handle )
@@ -186,7 +190,7 @@ static SANE_Bool usb_SensorPaper( int handle )
 	return (value & 0x02);
 }
 
-/*.............................................................................
+/**
  * Home sensor always on when backward move.
  * dwStep is steps to move and based on 300 dpi, but
  * if the action is MOVE_Both, it becomes the times
@@ -203,11 +207,10 @@ static SANE_Bool usb_ModuleMove( pPlustek_Device dev,
 	pClkMotorDef clk;
 	pHWDef       hw = &dev->usbDev.HwSetting;
 
-	/* Check if LM9831 is ready for setting command */
 	if( bAction != MOVE_ToPaperSensor   &&
 		bAction != MOVE_EjectAllPapers  &&
 		bAction != MOVE_SkipPaperSensor &&
-		bAction != MOVE_ToShading       && !dwStep) {
+		bAction != MOVE_ToShading       && !dwStep ) {
 
 		return SANE_TRUE;
 	}
@@ -257,8 +260,13 @@ static SANE_Bool usb_ModuleMove( pPlustek_Device dev,
 
 		if( dToShadingSpeed != 0.0 )
 			dMaxMoveSpeed = dToShadingSpeed;
-		else
-			dMaxMoveSpeed = hw->dMaxMoveSpeed - 0.5;
+		else {
+
+			if( hw->dMaxMoveSpeed > 0.5 )
+				dMaxMoveSpeed = hw->dMaxMoveSpeed - 0.5;
+			else
+				dMaxMoveSpeed = hw->dMaxMoveSpeed;
+		}
 	} else {
 
 		dMaxMoveSpeed = hw->dMaxMoveSpeed;
@@ -497,6 +505,8 @@ static SANE_Bool usb_ModuleToHome( pPlustek_Device dev, SANE_Bool fWait )
 
 		a_bRegs[0x45] |= 0x10;
 
+		DBG( _DBG_INFO2,"MotorDPI=%u, MaxMotorSpeed=%.3f, FFStepSize=%u\n",
+						hw->wMotorDpi, hw->dMaxMotorSpeed, wFastFeedStepSize );
 		DBG( _DBG_INFO, "MOTOR: "
 						"PWM=0x%02x, PWM_DUTY=0x%02x 0x45=0x%02x "
                         "0x48=0x%02x, 0x49=0x%02x\n",
@@ -591,7 +601,7 @@ static SANE_Bool usb_ModuleToHome( pPlustek_Device dev, SANE_Bool fWait )
 	return SANE_TRUE;
 }
 
-/*.............................................................................
+/**
  *
  */
 static SANE_Bool usb_MotorSelect( pPlustek_Device dev, SANE_Bool fADF )
@@ -823,6 +833,32 @@ static void usb_LedOn( pPlustek_Device dev, SANE_Bool fOn )
 		a_bRegs[0x0d] = value;
 		usbio_WriteReg( dev->fd, 0x0d, value );
 	}
+}
+
+/** function to adjust the lamp settings of a device
+ *
+ */
+static SANE_Bool usb_AdjustLamps( pPlustek_Device dev )
+{
+	pHWDef hw = &dev->usbDev.HwSetting;
+
+	a_bRegs[0x2c] = hw->red_lamp_on / 256;
+	a_bRegs[0x2d] = hw->red_lamp_on & 0xFF;
+	a_bRegs[0x2e] = hw->red_lamp_off / 256;
+	a_bRegs[0x2f] = hw->red_lamp_off & 0xFF;
+
+	a_bRegs[0x30] = hw->green_lamp_on / 256;
+	a_bRegs[0x31] = hw->green_lamp_on & 0xFF;
+	a_bRegs[0x32] = hw->green_lamp_off / 256;
+	a_bRegs[0x33] = hw->green_lamp_off & 0xFF;
+
+	a_bRegs[0x34] = hw->blue_lamp_on / 256;
+	a_bRegs[0x35] = hw->blue_lamp_on & 0xFF;
+	a_bRegs[0x36] = hw->blue_lamp_off / 256;
+	a_bRegs[0x37] = hw->blue_lamp_off & 0xFF;
+
+	return sanei_lm983x_write( dev->fd, 0x2c,
+							   &a_bRegs[0x2c], 0x37-0x2c+1, SANE_TRUE );
 }
 
 /** usb_LampOn

@@ -1,4 +1,4 @@
-.TH sane-plustek 5 "14 October 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-plustek 5 "10 January 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-plustek
 .SH NAME
 sane-plustek \- SANE backend for Plustek parallel port and
@@ -126,7 +126,7 @@ BrightScan OpticPro         OpticPro P12
 The Backend is able to support USB scanner based on the National
 Semiconductor chipset LM9831, LM9832 and LM9833. The following tables
 show various devices which are currently reported to work. If your
-Plustek scanner has another Product ID, then the device is 
+Plustek scanner has another Product ID, then the device is
 .B NOT
 supported, as it contains unsupported ASICs inside.
 .br
@@ -209,7 +209,22 @@ USB Model:         ASIC:  Properties:              Prod-ID
 .br
 ----------------------------------------------------------
 .br
-UMAX 3400          LM9832 1200x2400dpi 42bit   2Mb 0x0060
+UMAX 3400/2420     LM9832  600x1200dpi 42bit 512Kb 0x0060
+.br
+UMAX 5400          LM9832 1200x2400dpi 42bit 512Kb 0x0160
+.PP
+
+Vendor Epson - ID: 0x04B8
+.br
+----------------------------------------------------------
+.br
+USB Model:         ASIC:  Properties:              Prod-ID
+.br
+----------------------------------------------------------
+.br
+Perfection 1250    LM9832 1200x2400dpi 42bit 512Kb 0x010F
+.br
+Perfection 1260    LM9832 1200x2400dpi 42bit 512Kb 0x011D
 .PP
 
 Vendor CANON - ID: 0x04A9
@@ -220,9 +235,17 @@ USB Model:         ASIC:  Properties:              Prod-ID
 .br
 ----------------------------------------------------------
 .br
-CanoScan N650/656U LM9832 1200x2400dpi 48bit 512Kb 0x2206
+CanoScan N650/656U LM9832  600x1200dpi 42bit 512Kb 0x2206
 .br
-CanoScan N670/676U LM9832 1200x2400dpi 48bit 512Kb 0x220D
+CanoScan N1220U    LM9832 1200x2400dpi 42bit 512Kb 0x2207
+.br
+CanoScan N670/676U LM9833  600x1200dpi 48bit 512Kb 0x220D
+.br
+CanoScan N1240U    LM9833 1200x2400dpi 48bit 512Kb 0x220E
+.br
+CanoScan LIDE20    LM9833  600x1200dpi 48bit 512Kb 0x220D
+.br
+CanoScan LIDE30    LM9833 1200x2400dpi 48bit 512Kb 0x220E
 .PP
 
 .SH "OTHER PLUSTEK SCANNERS"
@@ -233,7 +256,7 @@ and is supported by the
 backend.
 .br
 Only the National Semiconductor LM9831/2 based devices of Plustek
-are supported by this driver. Older versions of the U12, the UT12, 
+are supported by this driver. Older versions of the U12, the UT12,
 the U1212 and U1248 (GrandTech chipset are not supported)
 .PP
 
@@ -455,7 +478,9 @@ tells the backend, that the following devicename (here
 .I /dev/usbscanner
 ) has to be interpreted as USB scanner device. If vendor- and
 product-id has not been specified, the backend tries to
-detect this by its own.
+detect this by its own. If device ist set to
+.I auto
+ then the next matching device is used.
 .PP
 .B
 The Options:

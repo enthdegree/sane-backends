@@ -1,60 +1,63 @@
 /*.............................................................................
  * Project : SANE library for Plustek flatbed scanners.
  *.............................................................................
- * File:	 plustek.c - the SANE backend for the plustek driver
- *.............................................................................
+ */
+ 
+/** @file plustek.c
+ *  @brief SANE backend for Plustek scanner
  *
- * based on Kazuhiro Sasayama previous work on
- * plustek.[ch] file from the SANE package.
- * original code taken from sane-0.71
- * Copyright (C) 1997 Hypercore Software Design, Ltd.
- * also based on the work done by Rick Bronson
- * Copyright (C) 2000-2002 Gerhard Jaeger <gerhard@gjaeger.de>
- *.............................................................................
+ * Based on Kazuhiro Sasayama previous work on
+ * plustek.[ch] file from the SANE package.<br>
+ * Original code taken from sane-0.71<br>
+ * Copyright (C) 1997 Hypercore Software Design, Ltd.<br>
+ * Also based on the work done by Rick Bronson<br>
+ * Copyright (C) 2000-2002 Gerhard Jaeger <gerhard@gjaeger.de><br>
+ *
  * History:
- * 0.30 - initial version
- * 0.31 - no changes
- * 0.32 - no changes
- * 0.33 - no changes
- * 0.34 - moved some definitions and typedefs to plustek.h
- * 0.35 - removed Y-correction for 12000P model
- *        getting Y-size of scan area from driver
- * 0.36 - disabled Dropout, as this does currently not work
- *        enabled Halftone selection only for Halftone-mode
- *        made the cancel button work by using a child process during read
- *        added version code to driver interface
- *        cleaned up the code
- *        fixed sane compatibility problems
- *        added multiple device support
- *        12bit color-depth are now available for scanimage
- * 0.37 - removed X/Y autocorrection, now correcting the stuff
- *        before scanning
- *        applied Michaels' patch to solve the sane_get_parameter problem
- *        getting X-size of scan area from driver
- *        applied Michaels´ patch for OPT_RESOLUTION (SANE_INFO_INEXACT stuff)
- * 0.38 - now using the information from the driver
- *        some minor fixes
- *        removed dropout stuff
- *        removed some warning conditions
- * 0.39 - added stuff to use the backend completely in user mode
- *        fixed a potential buffer problem
- *        removed function attach_one()
- *        added USB interface stuff
- * 0.40 - USB scanning works now
- * 0.41 - added some configuration stuff and also changed .conf file
- *        added call to sanei_usb_init() and sanei_lm983x_init()
- * 0.42 - added adjustment stuff
- *        added custom gamma tables
- *        fixed a problem with the "size-sliders"
- *        fixed a bug that causes segfault when using the autodetection for USB
- *        devices
- *        added OS/2 switch to disable the USB stuff for OS/2
- * 0.43 - added support for PREVIEW flag
- * 0.44 - added _DBG_DUMP debug level
- *        fixed a bug, that stops our lamp timer
- *
- *.............................................................................
- *
+ * - 0.30 - initial version
+ * - 0.31 - no changes
+ * - 0.32 - no changes
+ * - 0.33 - no changes
+ * - 0.34 - moved some definitions and typedefs to plustek.h
+ * - 0.35 - removed Y-correction for 12000P model<br>
+ *        -  getting Y-size of scan area from driver
+ * - 0.36 - disabled Dropout, as this does currently not work<br>
+ *        - enabled Halftone selection only for Halftone-mode<br>
+ *        - made the cancel button work by using a child process during read<br>
+ *        - added version code to driver interface<br>
+ *        - cleaned up the code<br>
+ *        - fixed sane compatibility problems<br>
+ *        - added multiple device support<br>
+ *        - 12bit color-depth are now available for scanimage
+ * - 0.37 - removed X/Y autocorrection, now correcting the stuff
+ *          before scanning
+ *        - applied Michaels' patch to solve the sane_get_parameter problem<br>
+ *        - getting X-size of scan area from driver<br>
+ *        - applied Michaels patch for OPT_RESOLUTION (SANE_INFO_INEXACT stuff)
+ * - 0.38 - now using the information from the driver
+ *        - some minor fixes<br>
+ *        - removed dropout stuff<br>
+ *        - removed some warning conditions
+ * - 0.39 - added stuff to use the backend completely in user mode<br>
+ *        - fixed a potential buffer problem<br>
+ *        - removed function attach_one()<br>
+ *        - added USB interface stuff
+ * - 0.40 - USB scanning works now
+ * - 0.41 - added some configuration stuff and also changed .conf file<br>
+ *        - added call to sanei_usb_init() and sanei_lm983x_init()
+ * - 0.42 - added adjustment stuff<br>
+ *        - added custom gamma tables<br>
+ *        - fixed a problem with the "size-sliders"<br>
+ *        - fixed a bug that causes segfault when using the autodetection for
+ *          USB devices<br>
+ *        - added OS/2 switch to disable the USB stuff for OS/2
+ * - 0.43 - added support for PREVIEW flag
+ * - 0.44 - added _DBG_DUMP debug level<br>
+ *        - fixed a bug, that stops our lamp timer
+ * - 0.45 - added additional flags
+ *        - added WIFSIGNALED to check result of child termination
+ *.
+ * <hr>
  * This file is part of the SANE package.
  *
  * This program is free software; you can redistribute it and/or
@@ -92,7 +95,13 @@
  * If you write modifications of your own for SANE, it is your choice
  * whether to permit this exception to apply to your modifications.
  * If you do not wish that, delete this exception notice.
+ * <hr>
  */
+
+/** @mainpage
+ *  @verbinclude Plustek-USB.txt
+ */
+  
 #ifdef _AIX
 # include <lalloca.h>		/* MUST come first for AIX! */
 #endif
@@ -120,12 +129,12 @@
 #include "sane/sanei.h"
 #include "sane/saneopts.h"
 
-#define BACKEND_VERSION "0.44-10"
+#define BACKEND_VERSION "0.45-1"
 #define BACKEND_NAME	plustek
 #include "sane/sanei_backend.h"
 #include "sane/sanei_config.h"
 
-/* might be used to disable all USB stuff - esp. for OS/2 */
+/** might be used to disable all USB stuff - esp. for OS/2 */
 #ifndef HAVE_OS2_H
 # define _PLUSTEK_USB
 #endif
@@ -199,9 +208,10 @@ static ModeParam mode_9800x_params[] =
 
 static ModeParam mode_usb_params[] =
 {
-  {0, 1, COLOR_BW},
-  {0, 8, COLOR_256GRAY},
-  {1, 8, COLOR_TRUE24},
+  {0, 1,  COLOR_BW},
+  {0, 8,  COLOR_256GRAY},
+  {0, 16, COLOR_GRAY16},
+  {1, 8,  COLOR_TRUE24},
   {1, 16, COLOR_TRUE48}
 };
 
@@ -229,8 +239,9 @@ static const SANE_String_Const mode_usb_list[] =
 {
 	SANE_I18N("Binary"),
 	SANE_I18N("Gray"),
+	SANE_I18N("Gray 14/16"),
 	SANE_I18N("Color"),
-	SANE_I18N("Color42"),
+	SANE_I18N("Color 42/48"),
 	NULL
 };
 
@@ -238,8 +249,7 @@ static const SANE_String_Const ext_mode_list[] =
 {
 	SANE_I18N("Normal"),
 	SANE_I18N("Transparency"),
-/*	SANE_I18N("Negative"),TEMP. DISABLED ! */
-	"Negative",
+	SANE_I18N("Negative"),
 	NULL
 };
 
@@ -288,6 +298,8 @@ static void show_cnf( pCnfDef cnf )
 	DBG( _DBG_SANE_INIT, "lampOff      : %d\n",   cnf->adj.lampOff         );
 	DBG( _DBG_SANE_INIT, "lampOffOnEnd : %d\n",   cnf->adj.lampOffOnEnd    );
 	DBG( _DBG_SANE_INIT, "skipCalibr.  : %d\n",   cnf->adj.skipCalibration );
+	DBG( _DBG_SANE_INIT, "skipFine     : %d\n",   cnf->adj.skipFine        );
+	DBG( _DBG_SANE_INIT, "skipFineWhite: %d\n",   cnf->adj.skipFineWhite   );
 	DBG( _DBG_SANE_INIT, "invertNegs.  : %d\n",   cnf->adj.invertNegatives );
 	DBG( _DBG_SANE_INIT, "pos_x        : %d\n",   cnf->adj.pos.x           );
 	DBG( _DBG_SANE_INIT, "pos_y        : %d\n",   cnf->adj.pos.y           );
@@ -308,8 +320,7 @@ static void show_cnf( pCnfDef cnf )
 	DBG( _DBG_SANE_INIT, "---------------------\n" );
 }
 
-/**
- * open the device specific driver and reset the internal timing stuff
+/** open the device specific driver and reset the internal timing stuff
  * @param  dev - pointer to the device specific structure
  * @return the function returns the result of the open call, on success
  *         of course the handle
@@ -327,8 +338,7 @@ static int drvopen(	Plustek_Device *dev )
 	return handle;
 }
 
-/*
- * Calls the devic specific stop and close functions.
+/** Calls the device specific stop and close functions.
  * @param  dev - pointer to the device specific structure
  * @return The function always returns SANE_STATUS_GOOD
  */
@@ -356,8 +366,7 @@ static SANE_Status drvclose( Plustek_Device *dev )
 	return SANE_STATUS_GOOD;
 }
 
-/*.............................................................................
- * according to the mode and source we return the corresponding mode list
+/** according to the mode and source we return the corresponding mode list
  */
 static pModeParam getModeList( Plustek_Scanner *scanner )
 {
@@ -381,7 +390,7 @@ static pModeParam getModeList( Plustek_Scanner *scanner )
 	if( 0 != scanner->val[OPT_EXT_MODE].w ) {
 		
 		if( _ASIC_IS_USB == scanner->hw->caps.AsicID )
-			mp = &mp[_TPAModeSupportMin-1];
+			mp = &mp[_TPAModeSupportMin];
 		else
 			mp = &mp[_TPAModeSupportMin];
 	}		
@@ -408,11 +417,19 @@ static SANE_Bool getReaderProcessExitCode( Plustek_Scanner *scanner )
     		DBG( _DBG_INFO, "res=%i, status=%i\n",res,status );
 
             if( WIFEXITED( status )) {
+
                 scanner->exit_code = WEXITSTATUS(status);
-	    		DBG( _DBG_INFO, "Child WEXITSTATUS = %d\n", scanner->exit_code );
+	    		DBG( _DBG_INFO, "Child WEXITSTATUS = %d\n",scanner->exit_code);
+
             } else {
-                scanner->exit_code = SANE_STATUS_GOOD;
-	    		DBG( _DBG_INFO, "Child termination okay\n" );
+
+				if( !WIFSIGNALED( status )) {
+	                scanner->exit_code = SANE_STATUS_GOOD;
+		    		DBG( _DBG_INFO, "Child termination okay\n" );
+				} else {
+		    		DBG( _DBG_ERROR, "Child terminated by signal %d\n",
+															WTERMSIG(status));
+				}				
             }
 
 			scanner->reader_pid = -1;
@@ -423,7 +440,7 @@ static SANE_Bool getReaderProcessExitCode( Plustek_Scanner *scanner )
     return SANE_FALSE;
 }
 
-/*.............................................................................
+/**
  *
  */
 static SANE_Status close_pipe( Plustek_Scanner *scanner )
@@ -439,7 +456,7 @@ static SANE_Status close_pipe( Plustek_Scanner *scanner )
 	return SANE_STATUS_EOF;
 }
 
-/*.............................................................................
+/**
  *
  */
 static void sig_chldhandler( int signo )
@@ -447,8 +464,7 @@ static void sig_chldhandler( int signo )
 	DBG( _DBG_PROC, "Child is down (signal=%d)\n", signo );
 }
 
-/*.............................................................................
- * signal handler to kill the child process
+/** signal handler to kill the child process
  */
 static RETSIGTYPE reader_process_sigterm_handler( int signal )
 {
@@ -468,8 +484,7 @@ static RETSIGTYPE sigalarm_handler( int signal )
 	DBG( _DBG_PROC, "ALARM!!!\n" );
 }
 
-/*.............................................................................
- * executed as a child process
+/** executed as a child process
  * read the data from the driver and send the to the parent process
  */
 static int reader_process( Plustek_Scanner *scanner, int pipe_fd )		
@@ -533,8 +548,7 @@ static int reader_process( Plustek_Scanner *scanner, int pipe_fd )
 	return SANE_STATUS_GOOD;
 }
 
-/*.............................................................................
- * stop the current scan process
+/** stop the current scan process
  */
 static SANE_Status do_cancel( Plustek_Scanner *scanner, SANE_Bool closepipe  )
 {
@@ -600,8 +614,7 @@ static SANE_Status do_cancel( Plustek_Scanner *scanner, SANE_Bool closepipe  )
 	return SANE_STATUS_CANCELLED;
 }
 
-/**
- * because of some internal problems (inside the parport driver), we have to
+/** because of some internal problems (inside the parport driver), we have to
  * limit the max resolution to optical resolution. This is done by this
  * function
  * @param  dev - pointer to the device specific structure
@@ -636,8 +649,7 @@ static SANE_Status limitResolution( Plustek_Device *dev )
 	return SANE_STATUS_GOOD;
 }
 
-/**
- * Currently we support only LM9831/2/3 chips and these use the same
+/** Currently we support only LM9831/2/3 chips and these use the same
  * sizes...
  * @param  s - pointer to the scanner specific structure
  * @return The function always returns SANE_STATUS_GOOD
@@ -664,6 +676,7 @@ static SANE_Status initGammaSettings( Plustek_Scanner *s )
 	}
   	
   	DBG( _DBG_INFO, "Presetting Gamma tables (len=%u)\n", s->gamma_length );
+  	DBG( _DBG_INFO, "----------------------------------\n" );
   	
   	/*
   	 * preset the gamma maps
@@ -693,8 +706,7 @@ static SANE_Status initGammaSettings( Plustek_Scanner *s )
 	return SANE_STATUS_GOOD;
 }  	
 
-/**
- * Check the gamma vectors we got back and limit if necessary
+/** Check the gamma vectors we got back and limit if necessary
  * @param  s - pointer to the scanner specific structure
  * @return nothing
  */
@@ -711,8 +723,7 @@ static void checkGammaSettings( Plustek_Scanner *s )
 	}	
 }
 
-/*.............................................................................
- * initialize the options for the backend according to the device we have
+/** initialize the options for the backend according to the device we have
  */
 static SANE_Status init_options( Plustek_Scanner *s )
 {
@@ -751,7 +762,7 @@ static SANE_Status init_options( Plustek_Scanner *s )
 
 	if( _ASIC_IS_USB == s->hw->caps.AsicID ) {
 		s->opt[OPT_MODE].constraint.string_list = mode_usb_list;
-		s->val[OPT_MODE].w = 2;		/* Color */
+		s->val[OPT_MODE].w = 3;		/* Color */
 		
 	} else {
 		if((_ASIC_IS_98001  == s->hw->caps.AsicID) ||
@@ -948,8 +959,7 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	return SANE_STATUS_GOOD;
 }
 
-/**
- * Function to retrieve the vendor and product id from a given string
+/** Function to retrieve the vendor and product id from a given string
  * @param src  - string, that should be investigated
  * @param dest - pointer to a string to receive the USB ID
  */
@@ -1000,8 +1010,7 @@ static void decodeUsbIDs( char *src, char **dest )
 #define _INT   0
 #define _FLOAT 1
 
-/**
- * function to decode an value and give it back to the caller.
+/** function to decode an value and give it back to the caller.
  * @param src    -  pointer to the source string to check
  * @param opt    -  string that keeps the option name to check src for
  * @param what   - _FLOAT or _INT
@@ -1072,8 +1081,7 @@ static SANE_Bool decodeVal( char *src, char *opt,
    	return SANE_FALSE;
 }
 
-/**
- * function to retrive the device name of a given string
+/** function to retrive the device name of a given string
  * @param src  -  string that keeps the option name to check src for
  * @param dest -  pointer to the string, that should receive the detected
  *                devicename
@@ -1106,8 +1114,7 @@ static SANE_Bool decodeDevName( char *src, char *dest )
    	return SANE_FALSE;
 }
 
-/*.............................................................................
- * attach a device to the backend
+/** attach a device to the backend
  */
 static SANE_Status attach( const char *dev_name, pCnfDef cnf,
 										                Plustek_Device **devp )
@@ -1297,13 +1304,15 @@ static SANE_Status attach( const char *dev_name, pCnfDef cnf,
 	return SANE_STATUS_GOOD;
 }
 
-/**
- * function to preset a configuration structure
+/** function to preset a configuration structure
  * @param cnf - pointer to the structure that should be initialized
  */
-static void init_config_struct( pCnfDef cnf )
+static void init_config_struct( pCnfDef cnf, SANE_Bool is_usb )
 {
     memset( cnf, 0, sizeof(CnfDef));
+
+	if( is_usb )
+		strcpy( cnf->devName, "auto" );
 
 	cnf->adj.warmup       = -1;
 	cnf->adj.lampOff      = -1;
@@ -1322,8 +1331,7 @@ static void init_config_struct( pCnfDef cnf )
 	cnf->adj.bgamma    = 1.0;
 }
 
-/*.............................................................................
- * intialize the backend
+/** intialize the backend
  */
 SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 {
@@ -1353,7 +1361,7 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 	num_devices  = 0;
 
 	/* initialize the configuration structure */
-	init_config_struct( &config );
+	init_config_struct( &config, SANE_FALSE );
 
 	if( version_code != NULL )
 		*version_code = SANE_VERSION_CODE(V_MAJOR, V_MINOR, 0);
@@ -1396,6 +1404,10 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
    			decodeVal( str, "enableTPA", _INT, &config.adj.enableTpa, &ival);
 			decodeVal( str, "skipCalibration",
 									  _INT, &config.adj.skipCalibration,&ival);
+			decodeVal( str, "skipFine",
+									  _INT, &config.adj.skipFine,&ival);
+			decodeVal( str, "skipFineWhite",
+									  _INT, &config.adj.skipFineWhite,&ival);
 			decodeVal( str, "invertNegatives",
 									  _INT, &config.adj.invertNegatives,&ival);
 
@@ -1425,7 +1437,7 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 				attach( config.devName, &config, 0 );
 		
 			/* re-initialize the configuration structure */
-			init_config_struct( &config );
+			init_config_struct( &config, SANE_TRUE );
 		
 		    tmp = config.usbId;
 			decodeUsbIDs( str, &tmp );
@@ -1441,7 +1453,7 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 				attach( config.devName, &config, 0 );
 											
 			/* re-initialize the configuration structure */
-			init_config_struct( &config );
+			init_config_struct( &config, SANE_FALSE );
 			DBG( _DBG_SANE_INIT, "next device is a PARPORT device\n" );
 			continue;				
 		
@@ -1461,8 +1473,7 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 	return SANE_STATUS_GOOD;
 }
 
-/*.............................................................................
- * cleanup the backend...
+/** cleanup the backend...
  */
 void sane_exit( void )
 {
@@ -1504,8 +1515,7 @@ void sane_exit( void )
 	first_handle = NULL;
 }
 
-/*.............................................................................
- * return a list of all devices
+/** return a list of all devices
  */
 SANE_Status sane_get_devices(const SANE_Device ***device_list,
 														SANE_Bool local_only )
@@ -1533,8 +1543,7 @@ SANE_Status sane_get_devices(const SANE_Device ***device_list,
 	return SANE_STATUS_GOOD;
 }
 
-/*.............................................................................
- * open the sane device
+/** open the sane device
  */
 SANE_Status sane_open( SANE_String_Const devicename, SANE_Handle* handle )
 {
@@ -1594,8 +1603,7 @@ SANE_Status sane_open( SANE_String_Const devicename, SANE_Handle* handle )
 	return SANE_STATUS_GOOD;
 }
 
-/*.............................................................................
- *
+/**
  */
 void sane_close (SANE_Handle handle)
 {
@@ -1632,8 +1640,7 @@ void sane_close (SANE_Handle handle)
 	free(s);
 }
 
-/*.............................................................................
- * goes through a string list and returns the start-address of the string
+/** goes through a string list and returns the start-address of the string
  * that has been found, or NULL on error
  */
 static const SANE_String_Const *search_string_list(
@@ -1648,8 +1655,7 @@ static const SANE_String_Const *search_string_list(
 	return list;
 }
 
-/*.............................................................................
- * return or set the parameter values, also do some checks
+/** return or set the parameter values, also do some checks
  */
 SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 							     SANE_Action action, void *value,
@@ -1781,8 +1787,9 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 					    					    					
     				if( SANE_TRUE == s->val[option].w ) {
     				
-    					if( scanmode == COLOR_256GRAY ) {
-						    s->opt[OPT_GAMMA_VECTOR].cap   &= ~SANE_CAP_INACTIVE;
+    					if((scanmode == COLOR_256GRAY) ||
+						   (scanmode == COLOR_GRAY16)) {
+						    s->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
 						} else {
 						    s->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
 						    s->opt[OPT_GAMMA_VECTOR_G].cap &= ~SANE_CAP_INACTIVE;
@@ -1793,8 +1800,9 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 	
 						initGammaSettings( s );
     				
-    					if( scanmode == COLOR_256GRAY ) {
-						    s->opt[OPT_GAMMA_VECTOR].cap   |= SANE_CAP_INACTIVE;
+    					if((scanmode == COLOR_256GRAY) ||
+						   (scanmode == COLOR_GRAY16)) {
+						    s->opt[OPT_GAMMA_VECTOR].cap |= SANE_CAP_INACTIVE;
 						} else {						
 						    s->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
 						    s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
@@ -1845,7 +1853,8 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 					if( s->val[OPT_CUSTOM_GAMMA].w &&
 			    		!(s->opt[OPT_CUSTOM_GAMMA].cap & SANE_CAP_INACTIVE)) {
 			    		
-	    				if( mp[idx].scanmode == COLOR_256GRAY ) {
+    					if((mp[idx].scanmode == COLOR_256GRAY) ||
+						   (mp[idx].scanmode == COLOR_GRAY16)) {
 						    s->opt[OPT_GAMMA_VECTOR].cap   &= ~SANE_CAP_INACTIVE;
 						} else {
 					    	s->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
@@ -1886,7 +1895,7 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 				    		s->opt[OPT_MODE].constraint.string_list = mode_9800x_list;
 					    } else if( _ASIC_IS_USB  == s->hw->caps.AsicID ) {
 						    s->opt[OPT_MODE].constraint.string_list = mode_usb_list;
-		    				s->val[OPT_MODE].w = 2;		/* COLOR_TRUE24 */
+		    				s->val[OPT_MODE].w = 3;		/* COLOR_TRUE24 */
 						} else {
 						    s->opt[OPT_MODE].constraint.string_list = mode_list;
     					}
@@ -1916,7 +1925,7 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 	    				
 							if( _ASIC_IS_USB == s->hw->caps.AsicID )
 			    				s->opt[OPT_MODE].constraint.string_list =
-											&mode_usb_list[_TPAModeSupportMin-1];
+											&mode_usb_list[_TPAModeSupportMin];
 							else											
 			    				s->opt[OPT_MODE].constraint.string_list =
 											&mode_9800x_list[_TPAModeSupportMin];
@@ -1957,8 +1966,7 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 	return SANE_STATUS_GOOD;
 }
 
-/*.............................................................................
- * according to the option number, return a pointer to a descriptor
+/** according to the option number, return a pointer to a descriptor
  */
 const SANE_Option_Descriptor *
    			 sane_get_option_descriptor( SANE_Handle handle, SANE_Int option )
@@ -1971,8 +1979,7 @@ const SANE_Option_Descriptor *
 	return &(s->opt[option]);
 }
 
-/*.............................................................................
- * return the current parameter settings
+/** return the current parameter settings
  */
 SANE_Status sane_get_parameters( SANE_Handle handle, SANE_Parameters *params )
 {
@@ -2026,8 +2033,7 @@ SANE_Status sane_get_parameters( SANE_Handle handle, SANE_Parameters *params )
 	return SANE_STATUS_GOOD;
 }
 
-/*.............................................................................
- * initiate the scan process
+/** initiate the scan process
  */
 SANE_Status sane_start( SANE_Handle handle )
 {
@@ -2214,7 +2220,7 @@ SANE_Status sane_start( SANE_Handle handle )
     }
 
     /* download gamma correction tables... */
-	if( scanmode <= COLOR_256GRAY ) {
+	if( scanmode <= COLOR_256GRAY || scanmode == COLOR_GRAY16 ) {
 	   	s->hw->setMap( s->hw, s->gamma_table[0], s->gamma_length, _MAP_MASTER);
 	} else {
 	   	s->hw->setMap( s->hw, s->gamma_table[1], s->gamma_length, _MAP_RED   );
@@ -2306,8 +2312,7 @@ SANE_Status sane_start( SANE_Handle handle )
 	return SANE_STATUS_GOOD;
 }
 
-/*.............................................................................
- * function to read the data from our child process
+/** function to read the data from our child process
  */
 SANE_Status sane_read( SANE_Handle handle, SANE_Byte *data,
 									   SANE_Int max_length, SANE_Int *length )
@@ -2366,8 +2371,7 @@ SANE_Status sane_read( SANE_Handle handle, SANE_Byte *data,
 	return SANE_STATUS_GOOD;
 }
 
-/*.............................................................................
- * cancel the scanning process
+/** cancel the scanning process
  */
 void sane_cancel (SANE_Handle handle)
 {
@@ -2379,8 +2383,7 @@ void sane_cancel (SANE_Handle handle)
 		do_cancel( s, SANE_FALSE );
 }
 
-/*.............................................................................
- * set the pipe to blocking/non blocking mode
+/** set the pipe to blocking/non blocking mode
  */
 SANE_Status sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 {
@@ -2407,8 +2410,7 @@ SANE_Status sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 	return SANE_STATUS_GOOD;
 }
 
-/*.............................................................................
- * return the descriptor if available
+/** return the descriptor if available
  */
 SANE_Status sane_get_select_fd( SANE_Handle handle, SANE_Int * fd )
 {

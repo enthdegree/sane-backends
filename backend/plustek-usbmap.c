@@ -1,21 +1,23 @@
 /*.............................................................................
- * Project : SANE library for Plustek USB flatbed scanners.
+ * Project : SANE library for Plustek flatbed scanners.
  *.............................................................................
- * File:	 plustek-usbmap.c - creating and manipulating lookup tables
- *.............................................................................
+ */
+
+/** @file plustek-usbmap.c
+ *  @brief Creating and manipulating lookup tables.
  *
- * based on sources acquired from Plustek Inc.
+ * Based on sources acquired from Plustek Inc.<br>
  * Copyright (C) 2001-2002 Gerhard Jaeger <gerhard@gjaeger.de>
- *.............................................................................
+ *
  * History:
- * 0.40 - starting version of the USB support
- * 0.41 - fixed brightness problem for lineart mode
- * 0.42 - removed preset of linear gamma tables
- * 0.43 - no changes
- * 0.44 - map inversion for negatatives now only upon user request
- *
- *.............................................................................
- *
+ * - 0.40 - starting version of the USB support
+ * - 0.41 - fixed brightness problem for lineart mode
+ * - 0.42 - removed preset of linear gamma tables
+ * - 0.43 - no changes
+ * - 0.44 - map inversion for negatatives now only upon user request
+ * - 0.45 - no changes
+ * .
+ * <hr>
  * This file is part of the SANE package.
  *
  * This program is free software; you can redistribute it and/or
@@ -53,6 +55,7 @@
  * If you write modifications of your own for SANE, it is your choice
  * whether to permit this exception to apply to your modifications.
  * If you do not wish that, delete this exception notice.
+ * <hr>
  */
 
 #define _MAP_SIZE		4096U
@@ -72,7 +75,7 @@ static void usb_MapAdjust( pPlustek_Device dev )
 	/*
 	 * adjust brightness (b) and contrast (c) using the function:
 	 *
-	 * s´(x,y) = (s(x,y) + b) * c
+	 * s(x,y) = (s(x,y) + b) * c
 	 * b = [-127, 127]
 	 * c = [0,2]
 	 */
@@ -93,7 +96,7 @@ static void usb_MapAdjust( pPlustek_Device dev )
 		tmp = ((double)(a_bMap[i] + b)) * c;
 		if( tmp < 0 )   tmp = 0;
 		if( tmp > 255 ) tmp = 255;
-		a_bMap[i] = (u_char)tmp;		
+		a_bMap[i] = (u_char)tmp;
 
 		tmp = ((double)(a_bMap[tabLen+i] + b)) * c;
 		if( tmp < 0 )   tmp = 0;
@@ -103,7 +106,7 @@ static void usb_MapAdjust( pPlustek_Device dev )
 		tmp = ((double)(a_bMap[tabLen*2+i] + b)) * c;
 		if( tmp < 0 )   tmp = 0;
 		if( tmp > 255 ) tmp = 255;
-		a_bMap[tabLen*2+i] = (u_char)tmp;				
+		a_bMap[tabLen*2+i] = (u_char)tmp;
 	}
 }
 
@@ -131,6 +134,10 @@ static SANE_Bool usb_MapDownload( pPlustek_Device dev, u_char bDataType )
 	if( !usbio_WriteReg( dev->fd, 7, 0))
 		return SANE_FALSE;
 
+	/* we download all the time all three color maps, as we run
+     * into trouble elsewhere on CanoScan models using gray mode
+     */
+#if 0
 	if( bDataType == SCANDATATYPE_Color ) {
 		color    = 0;
 		maxColor = 3;
@@ -138,6 +145,12 @@ static SANE_Bool usb_MapDownload( pPlustek_Device dev, u_char bDataType )
 		color    = 1;
 		maxColor = 2;
 	}
+#else
+	_VAR_NOT_USED( bDataType );
+
+	color    = 0;
+	maxColor = 3;
+#endif
 
 	for( ; color < maxColor; color++) {
 	

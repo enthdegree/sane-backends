@@ -1,50 +1,79 @@
 /*.............................................................................
- * Project : linux driver for Plustek USB scanners
+ * Project : SANE library for Plustek flatbed scanners.
  *.............................................................................
- * File:	 plustek-usb.h
- *           here are the definitions we need...
- *.............................................................................
+ */
+
+/** @file plustek-usb.h
+ *  @brief Main defines for the USB devices.
  *
- * based on sources acquired from Plustek Inc.
+ * Based on sources acquired from Plustek Inc.<br>
  * Copyright (C) 2001-2002 Gerhard Jaeger <gerhard@gjaeger.de>
- *.............................................................................
+ *
  * History:
- * 0.40 - starting version of the USB support
- * 0.41 - added workaround flag to struct DevCaps
- * 0.42 - added MODEL_NOPLUSTEK
- *        replaced fLM9831 by chip (valid entries: _LM9831, _LM9832, _LM9833)
- *        added _WAF_MISC_IO3_LAMP for UMAX 3400
- * 0.43 - added _WAF_MISC_IOx_LAMP (x=1,2,4,5)
- *        added CLKDef
- * 0.44 - added vendor and product ID to struct DeviceDef
- *        added _WAF_BYPASS_CALIBRATION
- *		  added _WAF_INV_NEGATIVE_MAP
+ * - 0.40 - starting version of the USB support
+ * - 0.41 - added workaround flag to struct DevCaps
+ * - 0.42 - added MODEL_NOPLUSTEK
+ *        - replaced fLM9831 by chip (valid entries: _LM9831, _LM9832, _LM9833)
+ *        - added _WAF_MISC_IO3_LAMP for UMAX 3400
+ * - 0.43 - added _WAF_MISC_IOx_LAMP (x=1,2,4,5)
+ *        - added CLKDef
+ * - 0.44 - added vendor and product ID to struct DeviceDef
+ *        - added _WAF_BYPASS_CALIBRATION
+ *		  - added _WAF_INV_NEGATIVE_MAP
+ * - 0.45 - added _WAF_SKIP_FINE for skipping fine calibration
+ *          added _WAF_SKIP_WHITEFINE for skipping fine white calibration
+ *          added MCLK setting for 16 bit modes
+ * .
+ * <hr>
+ * This file is part of the SANE package.
  *
- *.............................................................................
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston,
+ * MA 02111-1307, USA.
+ *
+ * As a special exception, the authors of SANE give permission for
+ * additional uses of the libraries contained in this release of SANE.
+ *
+ * The exception is that, if you link a SANE library with other files
+ * to produce an executable, this does not by itself cause the
+ * resulting executable to be covered by the GNU General Public
+ * License.  Your use of that executable is in no way restricted on
+ * account of linking the SANE library code into it.
+ *
+ * This exception does not, however, invalidate any other reasons why
+ * the executable file might be covered by the GNU General Public
+ * License.
+ *
+ * If you submit changes to SANE to the maintainers to be included in
+ * a subsequent release, you agree by submitting the changes that
+ * those changes may be distributed with this exception intact.
+ *
+ * If you write modifications of your own for SANE, it is your choice
+ * whether to permit this exception to apply to your modifications.
+ * If you do not wish that, delete this exception notice.
+ * <hr>
  */
 #ifndef __PLUSTEK_USB_H__
 #define __PLUSTEK_USB_H__
 
-/* CCD ID (PCB ID): total 3 bits */
+/** CCD ID (PCB ID): total 3 bits */
 #define	kNEC3799	0
 #define kSONY518	1
 #define	kSONY548	2
 #define	kNEC8861	3
 #define	kNEC3778	4
+#define	kNECSLIM	5
 
 /*********************************** plustek_types.h!!! ************************/
 
@@ -123,7 +152,7 @@ typedef union {
 #define DRAM_UsedByAsic8BitMode			216				/* in KB */
 #define DRAM_UsedByAsic16BitMode		196 /*192*/		/* in KB */
 
-/* Chip-types */
+/** Chip-types */
 typedef enum _CHIPSET
 {
 	_LM9831,
@@ -131,7 +160,7 @@ typedef enum _CHIPSET
 	_LM9833
 } eChipDef;
 
-/* ScanParam.bCalibration */
+/** ScanParam.bCalibration */
 enum _SHADINGID
 {
 	PARAM_Scan,
@@ -141,7 +170,7 @@ enum _SHADINGID
 	PARAM_Offset
 };
 
-/* ScanParam.bDataType */
+/** ScanParam.bDataType */
 enum _SCANDATATYPE
 {
 	SCANDATATYPE_BW,
@@ -149,7 +178,7 @@ enum _SCANDATATYPE
 	SCANDATATYPE_Color
 };
 
-/* DCapsDef.bSensorColor */
+/** DCapsDef.bSensorColor */
 enum _SENSORCOLOR
 {
 	SENSORORDER_rgb,
@@ -160,7 +189,7 @@ enum _SENSORCOLOR
 	SENSORORDER_bgr
 };
 
-/* DCapsDef.wFlags */
+/** DCapsDef.wFlags */
 enum _DEVCAPSFLAG
 {
 	DEVCAPSFLAG_Normal		= 0x0001,
@@ -170,6 +199,7 @@ enum _DEVCAPSFLAG
 	DEVCAPSFLAG_Adf			= 0x0008
 };
 
+/** to allow some workarounds */
 enum _WORKAROUNDS
 {
 	_WAF_NONE               = 0x00000000, /* no fix anywhere needed          */
@@ -177,9 +207,12 @@ enum _WORKAROUNDS
 	_WAF_MISC_IO_LAMPS      = 0x00000002, /* special lamp switching          */
 	_WAF_BLACKFINE          = 0x00000004, /* use black calibration strip     */
 	_WAF_BYPASS_CALIBRATION = 0x00000008, /* no calibration,use linear gamma */
-	_WAF_INV_NEGATIVE_MAP   = 0x00000010  /* the backend does the neg. stuff */
+	_WAF_INV_NEGATIVE_MAP   = 0x00000010, /* the backend does the neg. stuff */
+	_WAF_SKIP_FINE          = 0x00000020, /* skip the fine calbration        */
+	_WAF_SKIP_WHITEFINE     = 0x00000040  /* skip the fine white calbration  */
 };
 
+/** for lamps connected to the misc I/O pins*/
 enum _LAMPS
 {
 	_NO_MIO = 0,
@@ -191,28 +224,39 @@ enum _LAMPS
 	_MIO6   = 0x0020
 };
 
-#define _TPA(flag)          ((u_long)(flag << 16))
+/** for encoding a misc I/O register as TPA */
+#define _TPA(register)          ((u_long)(register << 16))
+
+/** Mask to check for available TPA */
 #define _HAS_TPA(flag)		(flag & 0xFFFF0000)
+
+/** Get the TPA misc I/O register */
 #define _GET_TPALAMP(flag)	(flag >> 16)
 
-/* motor types */
+/** motor types */
 typedef enum
 {
 	MODEL_KaoHsiung = 0,
 	MODEL_HuaLien,
 	MODEL_Tokyo600,
-	MODEL_NOPLUSTEK_600,  /* for 600 dpi models   */
-	MODEL_NOPLUSTEK_1200, /* for 1200 dpi models  */
-	MODEL_MUSTEK600,      /* for BearPaw 1200     */
-	MODEL_MUSTEK1200,     /* for BearPaw 2400     */
-	MODEL_HP,             /* for HP2x00           */
-	MODEL_CANON1200,      /* for Canon N670U/676U */
+	MODEL_NOPLUSTEK_600,  /**< for 600 dpi models   */
+	MODEL_NOPLUSTEK_1200, /**< for 1200 dpi models  */
+	MODEL_EPSON,          /**< for EPSON1250/1260   */
+	MODEL_MUSTEK600,      /**< for BearPaw 1200     */
+	MODEL_MUSTEK1200,     /**< for BearPaw 2400     */
+	MODEL_HP,             /**< for HP2x00           */
+	MODEL_CANON650 ,      /**< for Canon N650U/656U */
+	MODEL_CANON1220,      /**< for Canon N1220U     */
+	MODEL_CANON670 ,      /**< for Canon N670U/676U */
+	MODEL_CANON1240,      /**< for Canon N1240U     */
+	MODEL_UMAX,           /**< for UMAX 3400/3450   */
 	MODEL_LAST
 } eModelDef;
 
+/** to distinguish between Plustek and other devices */
 #define _IS_PLUSTEKMOTOR(x) (x<=MODEL_Tokyo600)
 
-/* Generic usage */
+/** Generic usage */
 enum _CHANNEL
 {
 	CHANNEL_red,
@@ -221,7 +265,7 @@ enum _CHANNEL
 	CHANNEL_rgb
 };
 
-/* motor movement */
+/** motor movement */
 enum MODULEMOVE
 {
 	MOVE_Forward,
@@ -233,7 +277,7 @@ enum MODULEMOVE
 	MOVE_ToShading
 };
 
-/* SCANDEF.dwFlags */
+/** SCANDEF.dwFlags */
 enum SCANFLAG
 {
 	SCANFLAG_bgr			= SCANDEF_ColorBGROrder,
@@ -258,39 +302,56 @@ typedef	struct Origins
 
 typedef struct SrcAttr
 {
-	XY     DataOrigin;		/* The origin x is from visible pixel not CCD    */
-                            /* pixel 0, in 300 DPI base.                     */
-							/* The origin y is from visible top (glass area),*/
-                            /* in 300 DPI                                    */
-	short  ShadingOriginY;	/* The origin y is from top of scanner body      */
-	XY     Size;			/* Scanning width/height, in 300 DPI base.       */
-	XY     MinDpi;			/* Minimum dpi supported for scanning            */
-	u_char bMinDataType;	/* Minimum data type supports                    */
+	XY     DataOrigin;		/**< The origin x is from visible pixel not CCD  */
+                            /*   pixel 0, in 300 DPI base.                   */
+							/*   The origin y is from visible top            */
+                            /*  (glass area), in 300 DPI                     */
+	short  ShadingOriginY;	/**< The origin y is from top of scanner body    */
+	short  DarkShadOrgY;    /**< if the device has a dark calibration strip  */
+	XY     Size;			/**< Scanning width/height, in 300 DPI base.     */
+	XY     MinDpi;			/**< Minimum dpi supported for scanning          */
+	u_char bMinDataType;	/**< Minimum data type supports                  */
 
 } SrcAttrDef, *pSrcAttrDef;
 
 typedef struct DevCaps
 {
-	SrcAttrDef	Normal;			/* Reflection                                */
-	SrcAttrDef	Positive;		/* Positive film                             */
-	SrcAttrDef	Negative;		/* Negative film                             */
-	SrcAttrDef	Adf;			/* Adf device                                */
-	XY   		OpticDpi;		/* Maximum DPI                               */
-	u_short		wFlags;			/* Flag to indicate what kinds of elements   */
-                                /* are available                             */
-	u_char		bSensorOrder;	/* CCD color sequences, see _SENSORORDER     */
-	u_char		bSensorDistance;/* CCD Color distance                        */
-	u_char		bButtons;		/* Number of buttons                         */
-	u_char		bCCD;			/* CCD ID                                    */
-	u_char		bPCB;			/* PCB ID                                    */
-	u_long		workaroundFlag;	/* Flag to allow special work arounds, see   */
-	                            /* _WORKAROUNDS                              */
-	u_long      lamp;           /* for lamp: loword: normal, hiword: tpa     */
+	SrcAttrDef	Normal;			/**< Reflection                              */
+	SrcAttrDef	Positive;		/**< Positive film                           */
+	SrcAttrDef	Negative;		/**< Negative film                           */
+	SrcAttrDef	Adf;			/**< Adf device                              */
+	XY   		OpticDpi;		/**< Maximum DPI                             */
+	u_short		wFlags;			/**< Flag to indicate what kinds of elements */
+                                /*   are available                           */
+	u_char		bSensorOrder;	/**< CCD color sequences, see _SENSORORDER   */
+	u_char		bSensorDistance;/**< CCD Color distance                      */
+	u_char		bButtons;		/**< Number of buttons                       */
+	u_char		bCCD;			/**< CCD ID                                  */
+	u_char		bPCB;			/**< PCB ID                                  */
+	u_long		workaroundFlag;	/**< Flag to allow special work arounds, see */
+	                            /*   _WORKAROUNDS                            */
+	u_long      lamp;           /**< for lamp: loword: normal, hiword: tpa   */
 
 } DCapsDef, *pDCapsDef;
 
-/*
- * TODO: strip down non-used stuff
+/**
+ * for keeping intial illumination settings
+ */
+typedef struct
+{
+	u_char  mode;
+
+	u_short red_lamp_on;
+	u_short red_lamp_off;
+	u_short green_lamp_on;
+	u_short green_lamp_off;
+	u_short blue_lamp_on;
+	u_short blue_lamp_off;
+
+} IllumiDef, *pIllumiDef;
+
+
+/** basic register settings
  */
 typedef struct HWDefault
 {
@@ -319,8 +380,12 @@ typedef struct HWDefault
 	u_char              bReg_0x26;
 	u_char              bReg_0x27;
 	
-	/* illumination mode reg 0x29 */
+	/* illumination mode reg 0x29 (runtime) */
 	u_char              bReg_0x29;
+
+	/* initial illumination settings */
+	IllumiDef           illu_mono;
+	IllumiDef           illu_color;
 	
 	/* 0x1a & 0x1b, remember the u_char order is not Intel
 	 * format, you have to pay your attention when you
@@ -338,7 +403,7 @@ typedef struct HWDefault
 	u_short				wActivePixelsStart;		/* 0x1e & 0x1f */
 	u_short				wLineEnd;				/* 0x20 & 0x21 */
 	
-	/* illumination settings */
+	/* illumination settings (runtime) */
 	u_short             red_lamp_on;			/* 0x2c & 0x2d */
 	u_short             red_lamp_off;			/* 0x2e & 0x2f */
 	u_short             green_lamp_on;			/* 0x30 & 0x31 */
@@ -368,28 +433,26 @@ typedef struct HWDefault
 
 } HWDef, *pHWDef;
 
-/*
- *
+/** device description during runtime
  */
 typedef struct DeviceDef
 {
-	char*       ModelStr;        /* pointer to our model string              */
-	int         vendor;          /* vendor ID                                */
-	int         product;         /* product ID                               */
-	DCapsDef    Caps;			 /* pointer to the attribute of current dev  */
-	HWDef       HwSetting;	     /* Pointer to the characteristics of device */
-	pSrcAttrDef pSource;		 /* Scanning src, it's equal to Caps.Normal  */
-							     /* on the source that the user specified.   */
-	OrgDef	    Normal;		     /* Reflection - Pix to adjust scanning orgs */
-	OrgDef	    Positive;		 /* Pos film - Pix to adjust scanning orgs   */
-	OrgDef	    Negative;		 /* Neg film - Pix to adjust scanning orgs   */
-	OrgDef	    Adf;			 /* Adf - Pixels to adjust scanning origins  */
-	u_long	    dwWarmup;		 /* Ticks to wait for lamp stable, in ms.    */
-	u_long	    dwTicksLampOn;   /* The ticks when lamp turns on             */
-	u_long	    dwLampOnPeriod;  /* How many seconds to keep lamp on         */
-	SANE_Bool	bLampOffOnEnd;   /* switch lamp off on end or keep cur. state*/
-	int		    currentLamp;	 /* The lamp ID                              */
-	u_long      dwBufferSize;    /*                                          */
+	char*       ModelStr;      /**< pointer to our model string              */
+	int         vendor;        /**< vendor ID                                */
+	int         product;       /**< product ID                               */
+	DCapsDef    Caps;          /**< pointer to the attribute of current dev  */
+	HWDef       HwSetting;     /**< Pointer to the characteristics of device */
+	pSrcAttrDef pSource;       /**< Scanning src, it's equal to Caps.Normal  */
+							   /**< on the source that the user specified.   */
+	OrgDef	    Normal;        /**< Reflection - Pix to adjust scanning orgs */
+	OrgDef	    Positive;      /**< Pos film - Pix to adjust scanning orgs   */
+	OrgDef	    Negative;      /**< Neg film - Pix to adjust scanning orgs   */
+	OrgDef	    Adf;           /**< Adf - Pixels to adjust scanning origins  */
+	u_long	    dwWarmup;      /**< Ticks to wait for lamp stable, in ms.    */
+	u_long	    dwTicksLampOn; /**< The ticks when lamp turns on             */
+	u_long	    dwLampOnPeriod;/**< How many seconds to keep lamp on         */
+	SANE_Bool	bLampOffOnEnd; /**< switch lamp off on end or keep cur. state*/
+	int		    currentLamp;   /**< The lamp ID of the currently used lamp   */
 
 } DeviceDef, *pDeviceDef;
 
@@ -403,24 +466,26 @@ typedef struct Settings
 
 } SetDef, *pSetDef;
 
+/**
+ */
 typedef struct
 {
-	/* User Information */
-	u_long dwBytes;
-	u_long dwPixels;
-	u_long dwLines;
+	/** User Information */
+	u_long dwBytes;       /**< bytes per line  */
+	u_long dwPixels;      /**< pixels per line */
+	u_long dwLines;       /**< lines           */
 
-	/* Driver Info */
-	u_long dwValidPixels; /* only valid pixels, not incl. pad pix (B/W, Gray)*/
-	u_long dwPhyPixels;	  /* inlcude pad pixels for ASIC (B/W, Gray)         */
-	u_long dwPhyBytes;
-	u_long dwPhyLines;	  /* should include the extra lines accord to the    */
-                          /* request dpi (CCD lines distance)                */
-	u_long dwTotalBytes;  /* Total bytes per scan                            */
+	/** Driver Info */
+	u_long dwValidPixels; /**< only valid pixels, not incl. pad pix(B/W,Gray)*/
+	u_long dwPhyPixels;	  /**< inlcude pad pixels for ASIC (B/W, Gray)       */
+	u_long dwPhyBytes;    /**< bytes to read from ASIC                       */
+	u_long dwPhyLines;	  /**< should include the extra lines accord to the  */
+                          /*   request dpi (CCD lines distance)              */
+	u_long dwTotalBytes;  /**< Total bytes per scan                          */
+
 } WinInfo, *pWinInfo;
 
-/*
- *
+/**
  */
 typedef struct
 {
@@ -439,17 +504,17 @@ typedef struct
 	/* INPUT - User info. All sizes and coordinates are specified in the
      * unit based on 300 DPI
      */
-	XY      UserDpi;		/* User specified DPI                            */
-	XY   	Origin;			/* Scanning origin in optic dpi                  */
-	double	dMCLK;			/* for positive & negative & Adf                 */
+	XY      UserDpi;		/**< User specified DPI                          */
+	XY   	Origin;			/**> Scanning origin in optic dpi                */
+	double	dMCLK;			/**< for positive & negative & Adf               */
 	short	brightness;		
 	short	contrast;		
-	short	siThreshold;	/* only for B/W output                           */
-	u_char	bSource;		/* Reflection/Positive/Negative/Adf (SOURCE_xxx) */
-	u_char	bDataType;		/* Bw, Gray or Color (see _SCANDATATYPE)         */
-	u_char	bBitDepth;		/* 1/8/14                                        */
-	u_char	bChannels;		/* Color or Gray                                 */
-	u_char  bCalibration;	/* 1 or 2: the origin.x is from CCD pixel 0 and the
+	short	siThreshold;	/**< only for B/W output                         */
+	u_char	bSource;		/**< Reflection/Positive/Negative/Adf(SOURCE_xxx)*/
+	u_char	bDataType;		/**< Bw, Gray or Color (see _SCANDATATYPE)       */
+	u_char	bBitDepth;		/**< 1/8/14                                      */
+	u_char	bChannels;		/**< Color or Gray                               */
+	u_char  bCalibration;	/**< 1 or 2: the origin.x is from CCD pixel 0 and
 							 *		   the origin.y is from Top of scanner.
 							 * 		   In this case, the WININFO.dwPhyLines
                              *         will not included the extra lines for
@@ -457,39 +522,31 @@ typedef struct
 							 * 0: normal scan, the both directions have to
                              *    add the distance
                              */
-	int		swOffset[3];
-	int	    swGain[3];
+	int		swOffset[3];	/**< for calibration adjustment                  */
+	int	    swGain[3];      /**< for calibration adjustment                  */
+
 } ScanParam, *pScanParam;
 
 struct Plustek_Device;
 
-/**
- *
+/** structure to hold all necessary buffer informations for current scan
  */
 typedef struct ScanDef
 {
-    /*
-     * from calibration...
-     */
-    SANE_Bool           fCalibrated;
+    SANE_Bool           fCalibrated;    /**< calibrated or not              */
+	u_long				dwFlag;         /**< scan attributes                */
 
-    /*
-     * the other stuff...
-     */
-	u_long				dwFlag;
+	ScanParam			sParam;         /**< all we need to scan            */
 
-	ScanParam			sParam;
+	AnyPtr 				UserBuf;        /**< pointer to the user buffer     */
+	u_long				dwLinesUser;	/**< Number of lines of user buffer */
+	u_long				dwBytesLine;	/**< Bytes per line of user buffer. */
 
-	/* User buffer */
-	AnyPtr 				UserBuf;
-	u_long				dwLinesUser;	/* Number of lines of user buffer */
-	u_long				dwBytesLine;	/* Bytes per line of user buffer. */
+	/** Image processing routine according to the scan mode  */
+	void (*pfnProcess)(struct Plustek_Device*);
 
-	void (*pfnProcess)(struct Plustek_Device*);/* Image process routine */
+	u_char*				pScanBuffer;	/**< our scan buffer */
 
-	/* Scan buffer */
-	u_char*				pScanBuffer;
-	u_long				dwTotalBytes;	/* Total bytes of image */
 	u_long				dwLinesPerScanBufs;
 	u_long				dwNumberOfScanBufs;
 
@@ -508,22 +565,22 @@ typedef struct ScanDef
 	AnyPtr				Red;
 	AnyPtr				Blue;
 	
-	long				lBufAdjust;		/* bytes to	adjust buffer pointer */
-										/* after a image line processed   */
-	u_short				wSumY;			/* for lines sampling */
+	long				lBufAdjust;		/**< bytes to adjust buffer pointer  */
+										/*   after a image line processed    */
+	u_short				wSumY;			/**<  for line sampling              */
 	
-	u_char				bLineDistance;	/* Color offset in specific dpi y  */
-	int					fGrayFromColor;
+	u_char				bLineDistance;	/**< Color offset in specific dpi y  */
+	int					fGrayFromColor; /**< channel to use for gray mode    */
 
-	u_char				bLinesToSkip;
+	u_char				bLinesToSkip;	/**< how many lines to skip at start */
 
 } ScanDef, *pScanDef;
 
 
+/** max number of different colck settings */
 #define _MAX_CLK	10
 
-/**
- *
+/** structure to hold PWN settings
  */
 typedef struct
 {
@@ -532,36 +589,36 @@ typedef struct
 
 } MDef, *pMDef;
 
-/**
- * array used to get motor-settings and mclk-settings
+/** array used to get motor-settings and mclk-settings
  */
 static int dpi_ranges[] = {	75,100,150,200,300,400,600,800,1200,2400 };
 
-/**
- *
+/** according to the CCD and motor, we provide various settings
  */
 typedef struct {
 
-	eModelDef motorModel;
+	eModelDef motorModel;	/**< the motor ID */
 
-	u_char pwm_fast;
-	u_char pwm_duty_fast;
-	u_char mclk_fast;
+	u_char pwm_fast;		/**< PWM during fast movement      */
+	u_char pwm_duty_fast;   /**< PWM duty during fast movement */
+	u_char mclk_fast;       /**< MCLK during fast movement     */
 
-    /*
+    /**
      * here we define some ranges for better supporting
      * non-Plustek devices with it's different hardware
      * we can set the MCLK and the motor PWM stuff for color
-     * and gray modes
+     * and gray modes (8bit and 14/16bit modes)
      *    0    1     2     3     4     5     6      7     8      9
      * <= 75 <=100 <=150 <=200 <=300 <=400 <=600 <= 800 <=1200 <=2400DPI
      */
-	MDef   motor_sets[_MAX_CLK];
-	double color_mclk[_MAX_CLK];
-	double gray_mclk[_MAX_CLK];
+	MDef   motor_sets[_MAX_CLK];	/**< motor PWM settings during scan      */
+	double color_mclk_8[_MAX_CLK];  /**< MCLK settings for color scan        */
+	double color_mclk_16[_MAX_CLK]; /**< MCLK settings for color (16bit) scan*/
+	double gray_mclk_8[_MAX_CLK];   /**< MCLK settings for gray scan         */
+	double gray_mclk_16[_MAX_CLK];  /**< MCLK settings for gray (16bit) scan */
 
 } ClkMotorDef, *pClkMotorDef;
 
-#endif	/* guard __PLUSTEK_USB_H__ */
+#endif /* guard __PLUSTEK_USB_H__ */
 
 /* END PLUSTEK-USB.H ........................................................*/

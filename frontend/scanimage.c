@@ -1491,17 +1491,12 @@ main (int argc, char **argv)
 	      }
 	    else 
 	      {
-	        int i = 0, n = 0, maxarg = 8;
-	        char *percent;
-	        char *start, *fmt;
-	        const char **arglist = malloc(8 * sizeof(char**));
-	        if (arglist == 0)
-	          {
-	            fprintf(stderr, "%s: not enough memory\n", prog_name);
-	            exit(1);
-	          }
+	        int i = 0, int_arg = 0;
+	        char *percent, *start, *fmt;
+	        const char *text_arg = 0;
+	        char cc, ftype;
 	        
-	        fmt = malloc(strlen(optarg));
+	        fmt = malloc(strlen(optarg)+1);
 	        if (fmt == 0)
 	          {
 	            fprintf(stderr, "%s: not enough memory\n", prog_name);
@@ -1510,71 +1505,82 @@ main (int argc, char **argv)
 	        
 	        for (i = 0; device_list[i]; ++i)
 	          {
-	            n = 0;
 	            strcpy(fmt, optarg);
 	            start = fmt;
-	            while( (percent = strchr(start, '%')) )
+	            while(*start && (percent = strchr(start, '%')) )
 	              {
 	                percent++;
-  	                if (percent)
+  	                if (*percent)
 	                  {
-	                    if (n >= maxarg)
-	                      {
-	                        maxarg = 2 * maxarg;
-	                        arglist = realloc(arglist, maxarg * sizeof(char**));
-	                        if (arglist == 0)
-	                          {
-				    fprintf(stderr, "%s: not enough memory\n", 
-					    prog_name);
-		                    exit(1);
-	                          } 
-	                      }
 	                    switch (*percent)
 	                      {
 	                        case 'd':
-	                          arglist[n++] = device_list[i]->name;
-	                          *percent = 's';
+	                          text_arg = device_list[i]->name;
+	                          ftype = *percent = 's';
 	                          break;
 	                        case 'v':
-	                          arglist[n++] = device_list[i]->vendor;
-	                          *percent = 's';
+	                          text_arg = device_list[i]->vendor;
+	                          ftype = *percent = 's';
 	                          break;
 	                        case 'm':
-	                          arglist[n++] = device_list[i]->model;
-	                          *percent = 's';
+	                          text_arg = device_list[i]->model;
+	                          ftype = *percent = 's';
 	                          break;
 	                        case 't':
-	                          arglist[n++] = device_list[i]->type;
-	                          *percent = 's';
+	                          text_arg = device_list[i]->type;
+	                          ftype = *percent = 's';
 	                          break;
 	                        case 'i':
-	                          arglist[n++] = (char *) i;
+	                          int_arg = i;
+	                          ftype = 'i';
 	                          break;
 	                        case '%':
+	                          ftype = 0;
 	                          break;
 	                        default:
 	                          fprintf(stderr, "%s: unknown format specifier %%%c\n",
 					  prog_name, *percent);
 				  *percent = '%';
+				  ftype = 0;
 	                      }
 	                    percent++;
+	                    cc = *percent;
+	                    *percent = 0;
+	                    switch (ftype)
+	                      {
+	                        case 's':
+	                          printf(start, text_arg);
+	                          break;
+	                        case 'i':
+	                          printf(start, int_arg);
+	                          break;
+	                        case 0:
+	                          printf(start);
+	                          break;
+	                      }
+	                    *percent = cc;
+	                    start = percent;
 	                  }
-	                start = percent;
+	                else
+	                  {
+	                    /* last char of the string is a '%', suppress it */
+	                    *start = 0;
+	                    break;
+	                  }
 	              }
-	            vprintf(fmt, arglist);
-		    va_end(arglist);
+	            if (*start)
+	              printf(start);
 	          }
 	      }
-	        
 	    if (i == 0 && ch != 'f')
 	      printf ("\nNo scanners were identified. If you were expecting "
 		      "something different,\ncheck that the scanner is plugged "
 		      "in, turned on and detected by the\nsane-find-scanner tool "
 		      "(if appropriate). Please read the documentation\nwhich came "
 		      "with this software (README, FAQ, manpages).\n");
+
 	    if (defdevname)
 	      printf ("default device is `%s'\n", defdevname);
-
 	    exit (0);
 	  }
 

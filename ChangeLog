@@ -1,3 +1,24 @@
+2002-08-22  Frank Zago  <fzago at austin dot rr dot com>
+
+	* backend/ricoh.c backend/ricoh.h backend/apple.c
+	  backend/agfafocus.c backend/abaton.c
+	  sanei/sanei_pv8630.c: Fixed some warnings.
+
+2002-08-22 20:59  fzago
+
+	* doc/sane-teco1.man: Added Dextra scanner to the list of
+	  untested, but potentialy supported, scanners.
+	* doc/teco/teco1.txt: Added RELI 4830 inquiry string.
+	* doc/descriptions/teco3.desc: Increased version number.
+	* backend/: teco3.c, teco3.h: Added threshold option for black &
+	  white.
+	* doc/descriptions/teco1.desc: Added 3 new (untested) scanners.
+	* backend/teco1.conf: Fixed the scsi inquiry string for the
+	  VM4542.
+	* backend/teco1.c backend/teco1.h: Enlarged the gamma table for
+	  the VM4542 (1024 entries as opposed to 256 for the previous
+	  scanners).
+
 2002-08-22  Andras Major <andras@users.sourceforge.net>
 
 	* backend/coolscan2.c doc/descriptions/coolscan2.desc
@@ -64,7 +85,7 @@
 
 	* backend/canon_pp.c backend/canon_pp-dev.c backend/caon_pp-io.c
 	  backend/canon_pp-dev.h: Many changes: Bug fixes, less memory leaks 
-	  (none left now?), more relaible, faster.  Biggest changes are 
+	  (none left now?), more reliable, faster.  Biggest changes are 
 	  speculative reads (ask scanner to read more while data processing 
 	  occurs) and more reliable sending of commands.  Slight performance
 	  increase over previous version.

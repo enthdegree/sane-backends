@@ -1,3 +1,9 @@
+2003-01-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc
+	  doc/descriptions-external/primax.desc: Some Primax scanners (and
+	  clones) are now supported by the primax backend.
+
 2003-01-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* po/sane-backends.pt.po: Even more Portuguese translations from

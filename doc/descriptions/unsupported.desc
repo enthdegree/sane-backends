@@ -45,12 +45,6 @@
 :mfg "Genius"
 :url "http://www.geniusnet.com.tw/"
 
-:model "Colorpage-Vivid+"
-:url "http://primax.sourceforge.net/"
-:interface "Parport"
-:status :unsupported
-:comment "Not supported. However, a stand-alone program is available."
-
 :model "HR7X Slim"
 :url "http://www.genesyslogic.com/GL646.htm"
 :interface "USB"
@@ -114,30 +108,8 @@
 
 ;********************************************************************************************
 
-:mfg "Nework"
-
-:model "Scanny MM100"
-:url "http://primax.sourceforge.net/"
-:interface "Parport"
-:status :unsupported
-:comment "Not supported. However, a stand-alone program is available."
-
-;********************************************************************************************
-
 :mfg "Primax"
 :url "http://www.primax.nl/"
-
-:model "Colorado Direct 300"
-:url "http://primax.sourceforge.net/"
-:interface "Parport"
-:status :unsupported
-:comment "Not supported. However, a stand-alone program is available."
-
-:model "Colorado Direct 600/30bit"
-:url "http://primax.sourceforge.net/"
-:interface "Parport"
-:status :unsupported
-:comment "Not supported. However, a stand-alone program is available."
 
 :model "Colorado Direct 9600"
 :url "http://home2.swipnet.se/~w-25069/pxscan.html"
@@ -165,22 +137,6 @@
 :interface "SCSI"
 :status :unsupported
 :comment "Not supported. However, a patch for the teco2 backend and some information is available. Model VM3564."
-
-;********************************************************************************************
-
-:mfg "Storm"
-
-:model "Totalscan"
-:url "http://primax.sourceforge.net/"
-:interface "Parport"
-:status :unsupported
-:comment "Not supported. However, a stand-alone program is available."
-
-:model "ImageWave"
-:url "http://primax.sourceforge.net/"
-:interface "Parport"
-:status :unsupported
-:comment "Not supported. However, a stand-alone program is available."
 
 ;********************************************************************************************
 

@@ -49,7 +49,7 @@
 
 /** @mainpage SANEI (SANE internal routines) documentation
  *
- * @image html ../sane-logo2.jpg
+ * @image html ../images/sane-logo2.jpg
  * @section intro Introduction
  *
  * The header files in the include/sane/ directory named sanei_*.h provide

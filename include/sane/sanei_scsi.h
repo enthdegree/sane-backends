@@ -87,8 +87,7 @@ extern int sanei_scsi_max_request_size;
  * @param channel
  * @param id
  * @param lun
- * @param attach callback invoked once for each device
- * @param dev real devicename (passed to attach callback)
+ * @param attach callback invoked once for each device, dev is the real devicename (passed to attach callback)
  *
  */
 extern void sanei_scsi_find_devices (const char *vendor, const char *model,
@@ -103,7 +102,7 @@ extern void sanei_scsi_find_devices (const char *vendor, const char *model,
  * If it's necessary to adjust the SCSI buffer size, use 
  * sanei_scsi_open_extended().
  *
- * @param devicename name of the devicefile, e.g. "/dev/sg0"
+ * @param device_name name of the devicefile, e.g. "/dev/sg0"
  * @param fd file descriptor
  * @param sense_handler called whenever the SCSI driver returns a sense buffer
  * @param sense_arg pointer to data for the sense handler
@@ -133,7 +132,7 @@ extern SANE_Status sanei_scsi_open (const char * device_name, int * fd,
  *
  * Note that the value of *buffersize may differ for different files.
  *
- * @param devicename name of the devicefile, e.g. "/dev/sg0"
+ * @param device_name name of the devicefile, e.g. "/dev/sg0"
  * @param fd file descriptor
  * @param sense_handler called whenever the SCSI driver returns a sense buffer
  * @param sense_arg pointer to data for the sense handler

@@ -1,3 +1,7 @@
+2003-10-23  Frank Zago <fzago at austin dot rr dot com>
+
+	* README.windows: added note about libusb port for cygwin.
+
 2003-10-23  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* backend/plustek.c backend/plustek-usb.c:

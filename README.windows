@@ -39,7 +39,7 @@ The current annoying limitations are:
   - Tested on Windows 2000 only. Should work on Windows NT/XP too;
     may or may not work on Windows 95/98/ME.
 
+Note: there is a Cygwin libusb port (http://sourceforge.net/projects/libusb-win32) so USB scanners might work too.
 
-
-2003/9/25
+2003/10/23
 Frank Zago.

@@ -228,8 +228,7 @@ fi
 
 dnl check for IPv6 (can be overriden by --enable-ipv6)
 if test "$ac_cv_func_getnameinfo" = "yes" \
-  && test "$ac_cv_func_getaddrinfo" = "yes" \
-  && test "$ac_cv_func_poll" = "yes" ; then
+  && test "$ac_cv_func_getaddrinfo" = "yes" ; then
   SANE_CHECK_IPV6
 else
   ipv6="no"

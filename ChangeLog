@@ -1,3 +1,8 @@
+2000-11-15  Rene Rebe <rene.rebe@gmx.net>
+	* backend/avision.[c,h]: some fixes for brightness and contrast via
+	  the gamma-table. New config-option to force the backend to use DIN A4
+	  ("option force-a4"). Clean up.
+	
 2000-11-14  Rene Rebe <rene.rebe@gmx.net>
 	* backend/avision.[h,c]: Added gamma table support in hardware.
 	  Brightness and contrast emulation via the hardware gamma table.

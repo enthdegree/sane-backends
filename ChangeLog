@@ -1,3 +1,8 @@
+2003-05-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* po/sane-backends.fr.po: Fixed two wrong codings of accented
+	  characters.
+
 2003-05-27  Frank Zago  <fzago at austin dot rr dot com>
 
 	* PROJECTS: Changed entry for win32 SANE project.

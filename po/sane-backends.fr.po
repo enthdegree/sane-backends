@@ -13,14 +13,15 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.12\n"
-"POT-Creation-Date: 2003-05-11 12:06+0200\n"
-"PO-Revision-Date: 2003-05-05 17:04+0200\n"
+"POT-Creation-Date: 2003-05-27 01:47+0200\n"
+"PO-Revision-Date: 2003-05-30 16:34CET\n"
 "Last-Translator: Yann E. MORIN <yann dot morin dot 1998 at anciens dot enib "
 "dot fr>\n"
-"Language-Team: \n"
+"Language-Team:\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 0.9.5\n"
 
 # ####################################################
 # YEM-20030511 : Acknowledgements
@@ -59,7 +60,7 @@ msgstr "Niveaux de gris"
 # sceptre.h:280
 #: .tmp/artec_eplus48u.c:155 .tmp/epson.c:456 .tmp/gt68xx.c:116 .tmp/leo.h:270
 #: .tmp/ma1509.c:101 .tmp/mustek.c:126 .tmp/mustek.c:130 .tmp/mustek_usb.c:268
-#: .tmp/plustek.c:224 .tmp/plustek.c:234 .tmp/plustek.c:244 .tmp/sceptre.h:300
+#: .tmp/plustek.c:225 .tmp/plustek.c:235 .tmp/plustek.c:245 .tmp/sceptre.h:300
 #: .tmp/snapscan.c:157 .tmp/teco1.h:300 .tmp/teco2.h:358 .tmp/teco3.h:304
 #: .tmp/test.c:123 .tmp/umax.c:194 .tmp/umax_pp.c:133
 msgid "Color"
@@ -67,7 +68,7 @@ msgstr "Couleur"
 
 #: .tmp/artec_eplus48u.c:2809 .tmp/gt68xx.c:594 .tmp/leo.c:871
 #: .tmp/ma1509.c:597 .tmp/matsushita.c:1149 .tmp/microtek2.h:611
-#: .tmp/mustek.c:4294 .tmp/mustek_usb.c:353 .tmp/plustek.c:918
+#: .tmp/mustek.c:4294 .tmp/mustek_usb.c:353 .tmp/plustek.c:917
 #: .tmp/sceptre.c:753 .tmp/snapscan-options.c:403 .tmp/teco1.c:1136
 #: .tmp/teco2.c:1679 .tmp/teco3.c:971 .tmp/umax.c:5188 .tmp/umax_pp.c:461
 msgid "Enhancement"
@@ -84,7 +85,7 @@ msgstr "Valeurs par défaut pour les réglages fins."
 #: .tmp/artec_eplus48u.c:2888 .tmp/epson.c:2831 .tmp/gt68xx.c:650
 #: .tmp/leo.c:823 .tmp/ma1509.c:549 .tmp/matsushita.c:1095
 #: .tmp/microtek2.h:610 .tmp/mustek.c:4246 .tmp/mustek_usb.c:305
-#: .tmp/plustek.c:872 .tmp/sceptre.c:705 .tmp/snapscan-options.c:336
+#: .tmp/plustek.c:871 .tmp/sceptre.c:705 .tmp/snapscan-options.c:336
 #: .tmp/teco1.c:1088 .tmp/teco2.c:1631 .tmp/teco3.c:923 .tmp/test.c:619
 #: .tmp/umax.c:5138 .tmp/umax_pp.c:412
 msgid "Geometry"
@@ -183,14 +184,14 @@ msgid "Selects the gamma corrected transfer curve"
 msgstr "Sélectionne la courbe de correction gamma"
 
 # sceptre.h:280
-#: .tmp/epson.c:454 .tmp/plustek.c:221 .tmp/plustek.c:231 .tmp/plustek.c:241
+#: .tmp/epson.c:454 .tmp/plustek.c:222 .tmp/plustek.c:232 .tmp/plustek.c:242
 msgid "Binary"
 msgstr "Noir et blanc"
 
 # sceptre.h:280
 #: .tmp/epson.c:455 .tmp/gt68xx.c:117 .tmp/ma1509.c:101 .tmp/mustek.c:125
-#: .tmp/mustek.c:130 .tmp/mustek_usb.c:269 .tmp/plustek.c:223
-#: .tmp/plustek.c:233 .tmp/plustek.c:242 .tmp/sceptre.h:299
+#: .tmp/mustek.c:130 .tmp/mustek_usb.c:269 .tmp/plustek.c:224
+#: .tmp/plustek.c:234 .tmp/plustek.c:243 .tmp/sceptre.h:299
 #: .tmp/snapscan.c:159 .tmp/test.c:123 .tmp/umax.c:191
 msgid "Gray"
 msgstr "Gris"
@@ -356,7 +357,7 @@ msgstr "max"
 
 #: .tmp/epson.c:2362 .tmp/gt68xx.c:432 .tmp/ma1509.c:499
 #: .tmp/matsushita.c:1044 .tmp/microtek2.h:609 .tmp/mustek.c:4109
-#: .tmp/mustek_usb.c:260 .tmp/plustek.c:777 .tmp/sceptre.c:676
+#: .tmp/mustek_usb.c:260 .tmp/plustek.c:776 .tmp/sceptre.c:676
 #: .tmp/snapscan-options.c:189 .tmp/teco2.c:1603 .tmp/test.c:294
 #: .tmp/umax.c:5016
 msgid "Scan Mode"
@@ -810,7 +811,7 @@ msgstr "Moyen"
 msgid "High"
 msgstr "Haut"
 
-#: .tmp/matsushita.c:244 .tmp/mustek.c:141 .tmp/plustek.c:251
+#: .tmp/matsushita.c:244 .tmp/mustek.c:141 .tmp/plustek.c:252
 msgid "Normal"
 msgstr "Normal"
 
@@ -1006,8 +1007,7 @@ msgstr "Valeur de gamma rouge"
 
 #: .tmp/microtek2.h:666
 msgid "Selects a value for scalar gamma correction (red channel)"
-msgstr ""
-"Sélectionne une valeur numérique pour la correction gamma (canal rouge)"
+msgstr "Sélectionne une valeur numérique pour la correction gamma (canal rouge)"
 
 #: .tmp/microtek2.h:670
 msgid "Scalar gamma green"
@@ -1030,8 +1030,7 @@ msgid "Channel"
 msgstr "Canal"
 
 #: .tmp/microtek2.h:681
-msgid ""
-"Selects the colour band, \"Master\" means that all colours are affected."
+msgid "Selects the colour band, \"Master\" means that all colours are affected."
 msgstr ""
 "Sélectionne la bande de couleur, \"Toutes\" signifie que toutes les couleurs "
 "sont affectées."
@@ -1106,7 +1105,7 @@ msgid "Sets the color balance values to the firmware provided values."
 msgstr "Règle les valeurs de balance avec les valeurs d'usine."
 
 # sceptre.h:280
-#: .tmp/mustek.c:125 .tmp/plustek.c:222 .tmp/plustek.c:232 .tmp/sceptre.h:298
+#: .tmp/mustek.c:125 .tmp/plustek.c:223 .tmp/plustek.c:233 .tmp/sceptre.h:298
 #: .tmp/snapscan.c:158 .tmp/umax.c:190
 msgid "Halftone"
 msgstr "Demi-teinte"
@@ -1256,37 +1255,37 @@ msgid "Controls the contrast of the blue channel of the acquired image."
 msgstr "Contrôle le constraste bleu de l'image à numériser."
 
 # sceptre.h:280
-#: .tmp/plustek.c:235
+#: .tmp/plustek.c:236
 msgid "Color36"
 msgstr "Couleur 36 bits"
 
-#: .tmp/plustek.c:243
+#: .tmp/plustek.c:244
 msgid "Gray 14/16"
 msgstr "Gris 14/16 bits"
 
 # sceptre.h:280
-#: .tmp/plustek.c:245
+#: .tmp/plustek.c:246
 msgid "Color 42/48"
 msgstr "Couleur 42/48 bits"
 
-#: .tmp/plustek.c:252
+#: .tmp/plustek.c:253
 msgid "Transparency"
 msgstr "Transparence"
 
-#: .tmp/plustek.c:253 .tmp/saneopts.h:149
+#: .tmp/plustek.c:254 .tmp/saneopts.h:149
 msgid "Negative"
 msgstr "Négatif"
 
-#: .tmp/plustek.c:259
+#: .tmp/plustek.c:260
 msgid "Dithermap 1"
 msgstr ""
 
-#: .tmp/plustek.c:260
+#: .tmp/plustek.c:261
 msgid "Dithermap 2"
 msgstr ""
 
 # Incredibly, I can't find a suitable translation... :-(
-#: .tmp/plustek.c:261
+#: .tmp/plustek.c:262
 msgid "Randomize"
 msgstr ""
 
@@ -1606,7 +1605,7 @@ msgstr "Lier les échantillonage X et Y"
 
 #: .tmp/saneopts.h:150
 msgid "Quality calibration"
-msgstr "Calibration de la qualitÃ©"
+msgstr "Calibration de la qualité"
 
 #: .tmp/saneopts.h:151
 msgid "Double Optical Resolution"
@@ -1693,8 +1692,7 @@ msgid "Set lamp density"
 msgstr "Fixer la puissance de la lampe"
 
 #: .tmp/saneopts.h:177
-msgid ""
-"Read-only option that specifies how many options a specific devices supports."
+msgid "Read-only option that specifies how many options a specific devices supports."
 msgstr ""
 "Option, lecture seule, qui indique le nombre d'options supportées par un "
 "périphérique spécifique."
@@ -1771,8 +1769,7 @@ msgstr "Choisit la résolution verticale de l'image à numériser"
 
 #: .tmp/saneopts.h:227
 msgid "Determines whether a builtin or a custom gamma-table should be used."
-msgstr ""
-"Détermine si une table gamma standard ou personnalisée doit etre utilisée."
+msgstr "Détermine si une table gamma standard ou personnalisée doit etre utilisée."
 
 #: .tmp/saneopts.h:231
 msgid ""
@@ -1822,23 +1819,19 @@ msgstr "Spécifie quel niveau de luminosité est considéré comme étant \"noir
 
 #: .tmp/saneopts.h:261 .tmp/saneopts.h:273
 msgid "Selects what radiance level should be considered \"white\"."
-msgstr ""
-"Spécifie quel niveau de luminosité est considéré comme étant \"blanc\"."
+msgstr "Spécifie quel niveau de luminosité est considéré comme étant \"blanc\"."
 
 #: .tmp/saneopts.h:266
 msgid "Selects what red radiance level should be considered \"black\"."
-msgstr ""
-"Spécifie quel niveau de luminosité rouge est considéré comme étant \"noir\"."
+msgstr "Spécifie quel niveau de luminosité rouge est considéré comme étant \"noir\"."
 
 #: .tmp/saneopts.h:268
 msgid "Selects what green radiance level should be considered \"black\"."
-msgstr ""
-"Spécifie quel niveau de luminosité verte est considéré comme étant \"noir\"."
+msgstr "Spécifie quel niveau de luminosité verte est considéré comme étant \"noir\"."
 
 #: .tmp/saneopts.h:270
 msgid "Selects what blue radiance level should be considered \"black\"."
-msgstr ""
-"Spécifie quel niveau de luminosité bleue est considéré comme étant \"noir\"."
+msgstr "Spécifie quel niveau de luminosité bleue est considéré comme étant \"noir\"."
 
 #: .tmp/saneopts.h:275
 msgid "Selects what red radiance level should be considered \"full red\"."
@@ -1884,10 +1877,8 @@ msgstr ""
 "demi-ton."
 
 #: .tmp/saneopts.h:299
-msgid ""
-"Defines the halftoning (dithering) pattern for scanning halftoned images."
-msgstr ""
-"Définit le motif de demi-ton utilisé pour numériser les images demi-ton."
+msgid "Defines the halftoning (dithering) pattern for scanning halftoned images."
+msgstr "Définit le motif de demi-ton utilisé pour numériser les images demi-ton."
 
 #: .tmp/saneopts.h:303
 msgid "Use same values for X and Y resolution"
@@ -1985,37 +1976,6 @@ msgstr "Autorise la sélection de la puissance de la lampe"
 msgid "flatbed scanner"
 msgstr "numériseur à plat"
 
-#: .tmp/snapscan-options.c:279
-msgid "Preview mode"
-msgstr "Aperçu"
-
-#: .tmp/snapscan-options.c:281
-msgid ""
-"Select the mode for previews. Greyscale previews usually give the best "
-"combination of speed and detail."
-msgstr ""
-"Sélectionne le mode de prévisualisation. Les aperçus en niveaux de gris "
-"donnent habituellement le meilleur compromis entre vitesse et détails."
-
-#: .tmp/snapscan-options.c:387
-msgid "Predefined settings"
-msgstr "Valeurs prédéfinies"
-
-#: .tmp/snapscan-options.c:389
-msgid ""
-"Provides standard scanning areas for photographs, printed pages and the like."
-msgstr ""
-"Fournit des emplacements standards pour la numérisation de photos, de pages "
-"imprimées, etc..."
-
-#: .tmp/snapscan-options.c:632
-msgid "Colour lines per read"
-msgstr "Nombre de lignes en couleurs par cycle de lecture"
-
-#: .tmp/snapscan-options.c:644
-msgid "Greyscale lines per read"
-msgstr "Nombre de lignes en niveaux de gris par cycle de lecture"
-
 #: .tmp/snapscan.c:165
 msgid "Document Feeder"
 msgstr "Chargeur automatique de document"
@@ -2062,6 +2022,36 @@ msgstr ""
 "des pauses lors du transfert, tandis qu'une valeur trop élevée pourrait "
 "empécher les applications Xwindow de traiter les évènements X, et votre "
 "système pourrait s'écrouler."
+
+#: .tmp/snapscan-options.c:279
+msgid "Preview mode"
+msgstr "Aperçu"
+
+#: .tmp/snapscan-options.c:281
+msgid ""
+"Select the mode for previews. Greyscale previews usually give the best "
+"combination of speed and detail."
+msgstr ""
+"Sélectionne le mode de prévisualisation. Les aperçus en niveaux de gris "
+"donnent habituellement le meilleur compromis entre vitesse et détails."
+
+#: .tmp/snapscan-options.c:387
+msgid "Predefined settings"
+msgstr "Valeurs prédéfinies"
+
+#: .tmp/snapscan-options.c:389
+msgid "Provides standard scanning areas for photographs, printed pages and the like."
+msgstr ""
+"Fournit des emplacements standards pour la numérisation de photos, de pages "
+"imprimées, etc..."
+
+#: .tmp/snapscan-options.c:632
+msgid "Colour lines per read"
+msgstr "Nombre de lignes en couleurs par cycle de lecture"
+
+#: .tmp/snapscan-options.c:644
+msgid "Greyscale lines per read"
+msgstr "Nombre de lignes en niveaux de gris par cycle de lecture"
 
 #: .tmp/teco1.c:1145 .tmp/teco1.c:1146 .tmp/teco2.c:1688 .tmp/teco2.c:1689
 #: .tmp/teco3.c:980 .tmp/teco3.c:981
@@ -2121,10 +2111,8 @@ msgid "Three-pass simulation"
 msgstr "Simulation d'une numérisation à trois passes"
 
 #: .tmp/test.c:355
-msgid ""
-"Simulate a three-pass scanner. In color mode, three frames are transmitted."
-msgstr ""
-"Simule une numérisation à trois passes, en renvoyant 3 trames séparées. "
+msgid "Simulate a three-pass scanner. In color mode, three frames are transmitted."
+msgstr "Simule une numérisation à trois passes, en renvoyant 3 trames séparées. "
 
 #: .tmp/test.c:370
 msgid "Set the order of frames"
@@ -2192,8 +2180,7 @@ msgstr "Taille de la limite de lecture"
 
 #: .tmp/test.c:471
 msgid "The (maximum) amount of data transferred with each call to sane_read()."
-msgstr ""
-"La taille maximale des données transférées à chaque appel à sane_read()."
+msgstr "La taille maximale des données transférées à chaque appel à sane_read()."
 
 #: .tmp/test.c:486
 msgid "Read delay"
@@ -2208,8 +2195,7 @@ msgid "Duration of read-delay"
 msgstr "Durée du délai de lecture"
 
 #: .tmp/test.c:500
-msgid ""
-"How long to wait after transferring each buffer of data through the pipe."
+msgid "How long to wait after transferring each buffer of data through the pipe."
 msgstr "Temps à attendre après avoir transféré les données lues."
 
 #: .tmp/test.c:515
@@ -2261,8 +2247,7 @@ msgid "Offer select file descriptor"
 msgstr ""
 
 #: .tmp/test.c:578
-msgid ""
-"Offer a select filedescriptor for detecting if sane_read() will return data."
+msgid "Offer a select filedescriptor for detecting if sane_read() will return data."
 msgstr ""
 "Présente un descripteur de fichier de type select(2) pour tester si un appel "
 "a sane_read() renverra des données."
@@ -2402,8 +2387,7 @@ msgid "(4/6) Int array"
 msgstr "(4/6) Tableau d'entiers"
 
 #: .tmp/test.c:868
-msgid ""
-"(4/6) Int test option with unit mm and using an array without constraints."
+msgid "(4/6) Int test option with unit mm and using an array without constraints."
 msgstr ""
 "(4/6) Tableau d'options à valeur entière sans domaine de variations. Unité : "
 "mm."
@@ -2487,8 +2471,7 @@ msgstr "(2/3) Chaine listée"
 
 #: .tmp/test.c:1012
 msgid "(2/3) String test option with string list constraint."
-msgstr ""
-"(2/3) Chaine de caratères dont les valeurs possibles sont dans une liste."
+msgstr "(2/3) Chaine de caratères dont les valeurs possibles sont dans une liste."
 
 #: .tmp/test.c:1031
 msgid "(3/3) String constraint long string list"
@@ -2513,6 +2496,14 @@ msgstr "(1/1) Bouton"
 #: .tmp/test.c:1066
 msgid "(1/1) Button test option. Prints some text..."
 msgstr "(1/1) Bouton de test. Affiche du texte..."
+
+#: .tmp/umax1220u.c:247 .tmp/umax.c:5774
+msgid "Lamp off"
+msgstr "Lampe éteinte"
+
+#: .tmp/umax1220u.c:248 .tmp/umax.c:5775
+msgid "Turn off scanner lamp"
+msgstr "Eteint la lampe du scanner"
 
 #: .tmp/umax.c:192
 msgid "Color Lineart"
@@ -2586,14 +2577,6 @@ msgstr "Lampe allumée"
 msgid "Turn on scanner lamp"
 msgstr "Allume la lampe du scanner"
 
-#: .tmp/umax.c:5774 .tmp/umax1220u.c:247
-msgid "Lamp off"
-msgstr "Lampe éteinte"
-
-#: .tmp/umax.c:5775 .tmp/umax1220u.c:248
-msgid "Turn off scanner lamp"
-msgstr "Eteint la lampe du scanner"
-
 #: .tmp/umax.c:5791
 msgid "Lamp off at exit"
 msgstr "Eteindre la lampe à la sortie"
@@ -2620,7 +2603,7 @@ msgstr "Activer l'UTA"
 
 #: .tmp/umax_pp.c:482
 msgid "Sets UTA on/off"
-msgstr "Activer/d�activer l'adaptateur universel de transparents (UTA)"
+msgstr "Activer/déactiver l'adaptateur universel de transparents (UTA)"
 
 #: .tmp/umax_pp.c:549
 msgid "Color channels brightness settings"
@@ -2682,69 +2665,3 @@ msgstr "Fixe le contraste pour le vert"
 msgid "Sets blue channel contrast"
 msgstr "Fixe le contraste pour le bleu"
 
-#~ msgid "Gain"
-#~ msgstr "Gain"
-
-# sceptre.h:280
-#~ msgid "Gray gain"
-#~ msgstr "Gain gris"
-
-#~ msgid "Red gain"
-#~ msgstr "Gain rouge"
-
-#~ msgid "Green gain"
-#~ msgstr "Gain vert"
-
-#~ msgid "Blue gain"
-#~ msgstr "Gain bleu"
-
-#~ msgid "Color channels highlight settings"
-#~ msgstr "Réglages du contraste par couleur"
-
-#~ msgid "Gray highlight"
-#~ msgstr "Contraste gris"
-
-#~ msgid "Sets gray channel highlight"
-#~ msgstr "Fixe le contraste des gris"
-
-#~ msgid "Sets green channel highlight"
-#~ msgstr "Fixe le contraste des verts"
-
-#~ msgid "Sets blue channel highlight"
-#~ msgstr "Fixe le contraste des bleus"
-
-#~ msgid "Black level coarse calibration"
-#~ msgstr "Calibration grossière du niveau noir"
-
-#~ msgid "White level coarse calibration"
-#~ msgstr "Calibration  grossière du niveau blanc"
-
-#~ msgid "Offset (brightness) of the red channel."
-#~ msgstr "Contrôle la brillance de l'image à numériser."
-
-#~ msgid "Offset (brightness) of the blue channel."
-#~ msgstr "Contrôle la brillance de l'image à numériser."
-
-#~ msgid "Gain (contrast) of the red channel."
-#~ msgstr "Contrôle le constraste de l'image à numériser."
-
-#~ msgid "Gain (contrast) of the blue channel."
-#~ msgstr "Contrôle le constraste de l'image à numériser."
-
-#~ msgid "lamp-off"
-#~ msgstr "Eteindre la lampe"
-
-#~ msgid "10 bit-mode"
-#~ msgstr "mode 10 bits"
-
-#~ msgid "12 bit-mode"
-#~ msgstr "mode 12 bits"
-
-#~ msgid "Preview patch"
-#~ msgstr "Aire de prévisualisation"
-
-#~ msgid "Output with 10 bits instead of 8 bits"
-#~ msgstr "Sortie sur 10 bits au lieu de 8"
-
-#~ msgid "Output with 12 bits instead of 8 bits"
-#~ msgstr "Sortie sur 12 bits au lieu de 8"

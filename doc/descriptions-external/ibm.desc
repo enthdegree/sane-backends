@@ -31,3 +31,8 @@
 :status :untested
 :comment "Untested, please report!"
 
+:model "IS-420"
+:interface "SCSI"
+:status :alpha
+:comment "Flatbed works after change in source code."
+

@@ -403,10 +403,28 @@ init_dc240 (DC240 * camera)
 #ifdef HAVE_CFMAKERAW
   cfmakeraw (&tty_new);
 #else
-  tty_new.c_lflag &= ~(ICANON | ECHO | ISIG);
+  /* Modified to set the port REALLY as required (9600, 8b, 1sb, NO parity).
+     Code inspired by the gPhoto2 serial port setup */
+
+  /* input control settings */
+  tty_new.c_iflag &= ~(IGNBRK | IGNCR | INLCR | ICRNL | IUCLC |
+                      IXANY | IXON | IXOFF | INPCK | ISTRIP);
+  tty_new.c_iflag |= (BRKINT | IGNPAR);
+  /* output control settings */
+  tty_new.c_oflag &= ~OPOST;
+  /* hardware control settings */
+  tty_new.c_cflag = (tty_new.c_cflag & ~CSIZE) | CS8;
+  tty_new.c_cflag &= ~(PARENB | PARODD | CSTOPB);
+# if defined(__sgi)
+  tty_new.c_cflag &= ~CNEW_RTSCTS;
+# else
+  tty_new.c_cflag &= ~CRTSCTS;
+# endif
+  tty_new.c_cflag |= CLOCAL | CREAD;
 #endif
-  tty_new.c_oflag &= ~CSTOPB;
-  tty_new.c_lflag = 0;
+  /* line discipline settings */
+  tty_new.c_lflag &= ~(ICANON | ISIG | ECHO | ECHONL | ECHOE |
+                       ECHOK | IEXTEN);
   tty_new.c_cc[VMIN] = 0;
   tty_new.c_cc[VTIME] = 5;
   cfsetospeed (&tty_new, B9600);
@@ -421,7 +439,15 @@ init_dc240 (DC240 * camera)
   /* send a break to get it back to a known state */
 
 #ifdef HAVE_TCSENDBREAK
+# if defined(__sgi)
+  /* Maybe you should consider the following for all the platforms, not just
+     IRIX. Again, inspired by the gPhoto2 DC240 camera library setup */
+
+  ioctl (camera->fd, TCSBRK, 0);
+  ioctl (camera->fd, TCSBRK, 1);
+# else
   tcsendbreak (camera->fd, 4);
+# endif
 #else
 # if defined(TCSBRKP)
   ioctl (camera->fd, TCSBRKP, 4);
@@ -429,6 +455,7 @@ init_dc240 (DC240 * camera)
   ioctl (camera->fd, TCSBRK, 4);
 # endif
 #endif
+
   /* and wait for it to recover from the break */
 
 #ifdef HAVE_USLEEP

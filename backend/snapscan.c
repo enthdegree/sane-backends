@@ -1305,7 +1305,7 @@ SANE_Status sane_get_devices (const SANE_Device ***device_list,
     DBG (DL_CALL_TRACE,
          "%s (%p, %ld)\n",
          me,
-         (void *) device_list,
+         (const void *) device_list,
          (long) local_only);
 
     /* Waste the last list returned from this function */
@@ -3087,8 +3087,11 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
- * Revision 1.6  2001/10/09 09:45:16  oliverschwartz
- * update snapscan to snapshot 20011008
+ * Revision 1.7  2001/10/10 07:30:06  oliverschwartz
+ * fix compiler warnings
+ *
+ * Revision 1.23  2001/10/09 22:34:23  oliverschwartz
+ * fix compiler warnings
  *
  * Revision 1.22  2001/10/08 19:26:01  oliverschwartz
  * - Disable quality calibration for scanners that do not support it

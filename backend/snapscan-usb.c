@@ -302,10 +302,10 @@ static SANE_Status usb_cmd(int fd, const void *src, size_t src_size,
   /* Since the  "Send Diagnostic" command isn't supported by
      all Snapscan USB-scanners it's disabled .
   */
-  if(((char *)src)[0] == SEND_DIAGNOSTIC)
+  if(((const char *)src)[0] == SEND_DIAGNOSTIC)
       return(SANE_STATUS_GOOD);
 
-  cmdlen = usb_cmdlen(*((char *)src));
+  cmdlen = usb_cmdlen(*((const char *)src));
   datalen = src_size - cmdlen;
 
   DBG(DL_DATA_TRACE, "%s: cmdlen=%d, datalen=%d\n",me,cmdlen,datalen);
@@ -319,7 +319,7 @@ static SANE_Status usb_cmd(int fd, const void *src, size_t src_size,
   /* Send data only if the scanner is expecting it */
   if(datalen > 0 && (tstatus == TRANSACTION_WRITE)) {
       /* Send data to scanner */
-      RETURN_ON_FAILURE( usb_write(fd, ((SANE_Byte *) src) + cmdlen, datalen) );
+      RETURN_ON_FAILURE( usb_write(fd, ((const SANE_Byte *) src) + cmdlen, datalen) );
 
       /* Read status */
       RETURN_ON_FAILURE( usb_read_status(fd, NULL, &tstatus) );
@@ -419,8 +419,11 @@ static void dequeue_bq()
 }
 /*
  * $Log$
- * Revision 1.2  2001/10/09 09:45:14  oliverschwartz
- * update snapscan to snapshot 20011008
+ * Revision 1.3  2001/10/10 07:30:06  oliverschwartz
+ * fix compiler warnings
+ *
+ * Revision 1.13  2001/10/09 22:34:23  oliverschwartz
+ * fix compiler warnings
  *
  * Revision 1.12  2001/09/18 15:01:07  oliverschwartz
  * - Read scanner id string again after firmware upload

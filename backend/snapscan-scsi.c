@@ -1,22 +1,22 @@
 /* sane - Scanner Access Now Easy.
- 
+
    Copyright (C) 1997, 1998, 2001 Franck Schnefra, Michel Roelofs,
    Emmanuel Blot, Mikko Tyolajarvi, David Mosberger-Tang, Wolfgang Goeller,
    Petter Reinholdtsen, Gary Plewa, Sebastien Sable, Mikael Magnusson,
    Oliver Schwartz and Kevin Charter
- 
+
    This file is part of the SANE package.
- 
+
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
    published by the Free Software Foundation; either version 2 of the
    License, or (at your option) any later version.
- 
+
    This program is distributed in the hope that it will be useful, but
    WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    General Public License for more details.
- 
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 59 Temple Place - Suite 330, Boston,
@@ -1071,7 +1071,7 @@ static SANE_Status get_firmware_name(char** firmware_path)
 
 static SANE_Status download_firmware(SnapScan_Scanner * pss)
 {
-    char *pFwBuf, *pCDB;
+    unsigned char *pFwBuf, *pCDB;
     char* firmware_path = NULL;
     FILE *fd;
     size_t bufLength,cdbLength;
@@ -1081,7 +1081,7 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
     int readByte;
 
     bModelNo =*(pss->buf + INQUIRY_HWMI);
-    zero_buf(cModel, 255);
+    zero_buf((unsigned char *)cModel, 255);
     sprintf(cModelName, "%d", bModelNo);
     DBG(DL_INFO, "Looking up %s\n", cModelName);
     status = get_firmware_name(&firmware_path);
@@ -1129,7 +1129,7 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
             }
 
             DBG(DL_INFO, "Size of firmware: %d\n", bufLength);
-            pCDB = (char *)malloc(bufLength + cdbLength);
+            pCDB = (unsigned char *)malloc(bufLength + cdbLength);
             pFwBuf = pCDB + cdbLength;
             zero_buf (pCDB, cdbLength);
             readByte = fread(pFwBuf,1,bufLength,fd);
@@ -1153,8 +1153,11 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
- * Revision 1.5  2001/10/09 09:45:10  oliverschwartz
- * update snapscan to snapshot 20011008
+ * Revision 1.6  2001/10/10 07:30:04  oliverschwartz
+ * fix compiler warnings
+ *
+ * Revision 1.18  2001/10/09 22:34:23  oliverschwartz
+ * fix compiler warnings
  *
  * Revision 1.17  2001/10/08 19:26:01  oliverschwartz
  * - Disable quality calibration for scanners that do not support it

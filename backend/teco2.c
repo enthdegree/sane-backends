@@ -295,7 +295,7 @@ static const struct scanners_supported scanners[] = {
    "Relisys", "AVEC II S3",
    {1, 600, 1},			/* resolution */
    300, 600,			/* max x and Y resolution */
-   2550, 12, 3, 0,			/* calibration */
+   2550, 12, 3, 0,		/* calibration */
    {SANE_FIX (0), SANE_FIX (8.5 * MM_PER_INCH), 0},
    {SANE_FIX (0), SANE_FIX (11.7 * MM_PER_INCH), 0},
    vm3564_dpi_color_adjust},
@@ -304,7 +304,7 @@ static const struct scanners_supported scanners[] = {
    "Relisys", "APOLLO Express 3",
    {1, 600, 1},			/* resolution */
    300, 600,			/* max x and Y resolution */
-   2550, 12, 3, 0,			/* calibration */
+   2550, 12, 3, 0,		/* calibration */
    {SANE_FIX (0), SANE_FIX (8.5 * MM_PER_INCH), 0},
    {SANE_FIX (0), SANE_FIX (11.7 * MM_PER_INCH), 0},
    vm356a_dpi_color_adjust},
@@ -313,7 +313,7 @@ static const struct scanners_supported scanners[] = {
    "Relisys", "SCORPIO Super 3",
    {1, 600, 1},			/* resolution */
    300, 600,			/* max x and Y resolution */
-   2550, 12, 6, 1,			/* calibration */
+   2550, 12, 6, 1,		/* calibration */
    {SANE_FIX (0), SANE_FIX (8.5 * MM_PER_INCH), 0},
    {SANE_FIX (0), SANE_FIX (11.7 * MM_PER_INCH), 0},
    vm3575_dpi_color_adjust},
@@ -331,7 +331,7 @@ static const struct scanners_supported scanners[] = {
    "Relisys", "SCORPIO Pro",
    {1, 600, 1},			/* resolution */
    600, 1200,			/* max x and Y resolution */
-   5100, 8, 6, 0,			/* calibration */
+   5100, 8, 6, 0,		/* calibration */
    {SANE_FIX (0), SANE_FIX (8.5 * MM_PER_INCH), 0},
    {SANE_FIX (0), SANE_FIX (11.7 * MM_PER_INCH), 0},
    vm6575_dpi_color_adjust},
@@ -1058,13 +1058,15 @@ teco_do_calibration (Teco_Scanner * dev)
 
   /* Get default calibration algorithm. */
   cal_algo = dev->def->cal_algo;
-  if ((calibration_algo = getenv("SANE_TECO2_CAL_ALGO")) != NULL) {
-	  cal_algo = atoi(calibration_algo);
-  }
-  if (cal_algo != 0 && cal_algo != 1) {
-	  DBG(DBG_error, "Invalid calibration algorithm (%d)\n", cal_algo);
-	  cal_algo = 0;
-  }
+  if ((calibration_algo = getenv ("SANE_TECO2_CAL_ALGO")) != NULL)
+    {
+      cal_algo = atoi (calibration_algo);
+    }
+  if (cal_algo != 0 && cal_algo != 1)
+    {
+      DBG (DBG_error, "Invalid calibration algorithm (%d)\n", cal_algo);
+      cal_algo = 0;
+    }
 
   switch (dev->def->tecoref)
     {
@@ -1173,11 +1175,14 @@ teco_do_calibration (Teco_Scanner * dev)
   for (j = 0; j < (3 * dev->def->cal_length); j++)
     {
 
-		if (cal_algo == 1) {
-			tmp_buf[j] = ( 4206639 * dev->def->cal_lines )/tmp_buf[j];
-		} else {
-			tmp_buf[j] = colsub - (tmp_buf[j] / dev->def->cal_lines);
-		}
+      if (cal_algo == 1)
+	{
+	  tmp_buf[j] = (4206639 * dev->def->cal_lines) / tmp_buf[j];
+	}
+      else
+	{
+	  tmp_buf[j] = colsub - (tmp_buf[j] / dev->def->cal_lines);
+	}
     }
 
   /*hexdump (DBG_info2, "calibration after average:", tmp_buf, tmp_buf_size); */

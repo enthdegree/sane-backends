@@ -11,6 +11,9 @@
 /* Should we disable SCSI generic v3? */
 #undef DISABLE_LINUX_SG_IO
 
+/* Define to 1 if the system supports IPv6 */
+#undef ENABLE_IPV6
+
 /* Define to 1 if you have `alloca', as a function or macro. */
 #undef HAVE_ALLOCA
 
@@ -51,8 +54,14 @@
 /* Define to 1 if you have the <fcntl.h> header file. */
 #undef HAVE_FCNTL_H
 
+/* Define to 1 if you have the `getaddrinfo' function. */
+#undef HAVE_GETADDRINFO
+
 /* Define to 1 if you have the `getenv' function. */
 #undef HAVE_GETENV
+
+/* Define to 1 if you have the `getnameinfo' function. */
+#undef HAVE_GETNAMEINFO
 
 /* Define to 1 if you have the `getpagesize' function. */
 #undef HAVE_GETPAGESIZE

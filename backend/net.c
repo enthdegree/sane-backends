@@ -1,5 +1,8 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 1997 David Mosberger-Tang
+   Copyright (C) 2003 Julien BLACHE <jb@jblache.org>
+      AF-independent code + IPv6
+
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -40,10 +43,6 @@
 
    This file implements a SANE network-based meta backend.  */
 
-/* Please increase version number with every change
-   (don't forget to update net.desc) */
-#define NET_VERSION "1.0.10"
-
 #ifdef _AIX
 # include "../include/lalloca.h" /* MUST come first for AIX! */
 #endif
@@ -83,14 +82,33 @@
 #include "../include/sane/sanei_config.h"
 #define NET_CONFIG_FILE "net.conf"
 
+/* Please increase version number with every change
+   (don't forget to update net.desc) */
+
+/* define the version string depending on which network code is used */
+#if defined (HAVE_GETADDRINFO) && defined (HAVE_GETNAMEINFO)
+# define NET_USES_AF_INDEP
+# ifdef ENABLE_IPV6
+#  define NET_VERSION "1.0.11 (AF-indep+IPv6)"
+# else
+#  define NET_VERSION "1.0.11 (AF-indep)"
+# endif /* ENABLE_IPV6 */
+#else
+# undef ENABLE_IPV6
+# define NET_VERSION "1.0.11"
+#endif /* HAVE_GETADDRINFO && HAVE_GETNAMEINFO */
+
 static SANE_Auth_Callback auth_callback;
 static Net_Device *first_device;
 static Net_Scanner *first_handle;
 static const SANE_Device **devlist;
-static int saned_port;
 static int client_big_endian; /* 1 == big endian; 0 == little endian */
 static int server_big_endian; /* 1 == big endian; 0 == little endian */
 static int depth; /* bits per pixel */
+
+#ifndef NET_USES_AF_INDEP
+static int saned_port;
+#endif /* !NET_USES_AF_INDEP */
 
 /* This variable is only needed, if the depth is 16bit/channel and
    client/server have different endianness.  A value of -1 means, that there's
@@ -109,6 +127,99 @@ static int hang_over;
    e.g.  because the frontend requested only one byte per call.
 */
 static int left_over;
+
+
+#ifdef NET_USES_AF_INDEP
+static SANE_Status
+add_device (const char *name, Net_Device ** ndp)
+{
+  struct addrinfo hints;
+  struct addrinfo *res;
+  struct addrinfo *resp;
+  struct sockaddr_in *sin;
+#ifdef ENABLE_IPV6
+  struct sockaddr_in6 *sin6;
+#endif /* ENABLE_IPV6 */
+
+  Net_Device *nd = NULL;
+
+  int error;
+  short sane_port = htons (6566);
+
+  DBG (1, "add_device: adding backend %s\n", name);
+
+  memset (&hints, 0, sizeof(hints));
+
+# ifdef ENABLE_IPV6
+  hints.ai_family = PF_UNSPEC;
+# else
+  hints.ai_family = PF_INET;
+# endif /* ENABLE_IPV6 */
+
+  error = getaddrinfo (name, "sane", &hints, &res);
+  if (error)
+    {
+      error = getaddrinfo (name, NULL, &hints, &res);
+      if (error)
+	{
+	  DBG (1, "add_device: error while getting address of host %s: %s\n",
+	       name, gai_strerror (error));
+
+	  return SANE_STATUS_IO_ERROR;
+	}
+      else
+	{
+          for (resp = res; resp != NULL; resp = resp->ai_next) 
+            { 
+              switch (resp->ai_family) 
+                { 
+                  case AF_INET: 
+                    sin = (struct sockaddr_in *) resp->ai_addr; 
+                    sin->sin_port = sane_port; 
+                    break; 
+#ifdef ENABLE_IPV6 
+		  case AF_INET6: 
+		    sin6 = (struct sockaddr_in6 *) resp->ai_addr; 
+		    sin6->sin6_port = sane_port; 
+		    break; 
+#endif /* ENABLE_IPV6 */ 
+                }
+	    } 
+	}
+    }
+
+  nd = malloc (sizeof (Net_Device));
+  if (!nd)
+    {
+      DBG (1, "add_device: not enough memory for Net_Device struct\n");
+      
+      freeaddrinfo (res);
+      return SANE_STATUS_NO_MEM;
+    }
+
+  memset (nd, 0, sizeof (Net_Device));
+  nd->name = strdup (name);
+  if (!nd->name)
+    {
+      DBG (1, "add_device: not enough memory to duplicate name\n");
+      free(nd);
+      return SANE_STATUS_NO_MEM;
+    }
+      
+  nd->addr = res;
+  nd->ctl = -1;
+
+  nd->next = first_device;
+
+  first_device = nd;
+      
+  if (ndp)
+    *ndp = nd;
+  DBG (2, "add_device: backend %s added\n", name);
+  return SANE_STATUS_GOOD;
+}
+
+#else /* !NET_USES_AF_INDEP */
 
 static SANE_Status
 add_device (const char *name, Net_Device ** ndp)
@@ -161,6 +272,69 @@ add_device (const char *name, Net_Device ** ndp)
   DBG (2, "add_device: backend %s added\n", name);
   return SANE_STATUS_GOOD;
 }
+#endif /* NET_USES_AF_INDEP */
+
+
+#ifdef NET_USES_AF_INDEP
+static SANE_Status
+connect_dev (Net_Device * dev)
+{
+  struct addrinfo *addrp;
+
+  SANE_Word version_code;
+  SANE_Init_Reply reply;
+  SANE_Status status = SANE_STATUS_IO_ERROR;
+  SANE_Init_Req req;
+  SANE_Bool connected = SANE_FALSE;
+#ifdef TCP_NODELAY
+  int on = 1;
+  int level = -1;
+#endif
+
+  int i;
+
+  DBG (2, "connect_dev: trying to connect to %s\n", dev->name);
+
+  for (addrp = dev->addr, i = 0; (addrp != NULL) && (connected == SANE_FALSE); addrp = addrp->ai_next, i++)
+    {
+# ifdef ENABLE_IPV6
+      if ((addrp->ai_family != AF_INET) && (addrp->ai_family != AF_INET6))
+# else /* !ENABLE_IPV6 */
+      if (addrp->ai_family != AF_INET)
+# endif /* ENABLE_IPV6 */
+	{
+	  DBG (1, "connect_dev: [%d] don't know how to deal with addr family %d\n",
+	       i, addrp->ai_family);
+	  break;
+	}
+      
+      dev->ctl = socket (addrp->ai_family, SOCK_STREAM, 0);
+      if (dev->ctl < 0)
+	{
+	  DBG (1, "connect_dev: [%d] failed to obtain socket (%s)\n",
+	       i, strerror (errno));
+	  dev->ctl = -1;
+	  break;
+	}
+
+      if (connect (dev->ctl, addrp->ai_addr, addrp->ai_addrlen) < 0)
+	{
+	  DBG (1, "connect_dev: [%d] failed to connect (%s)\n", i, strerror (errno));
+	  dev->ctl = -1;
+	  break;
+	}
+      DBG (3, "connect_dev: [%d] connection succeeded (%s)\n", i, (addrp->ai_family == AF_INET6) ? "IPv6" : "IPv4");
+      dev->addr_used = addrp;
+      connected = SANE_TRUE;
+    }
+
+  if (connected != SANE_TRUE)
+    {
+      DBG (1, "connect_dev: couldn't connect to host (see messages above)\n");
+      return SANE_STATUS_IO_ERROR;
+    }
+
+#else /* !NET_USES_AF_INDEP */
 
 static SANE_Status
 connect_dev (Net_Device * dev)
@@ -202,6 +376,7 @@ connect_dev (Net_Device * dev)
       return SANE_STATUS_IO_ERROR;
     }
   DBG (3, "connect_dev: connection succeeded\n");
+#endif /* NET_USES_AF_INDEP */
 
 #ifdef TCP_NODELAY
 # ifdef SOL_TCP
@@ -287,6 +462,7 @@ fail:
   dev->ctl = -1;
   return status;
 }
+
 
 static SANE_Status
 fetch_options (Net_Scanner * s)
@@ -444,12 +620,15 @@ SANE_Status
 sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
   char device_name[PATH_MAX];
-  struct servent *serv;
   const char *env;
   size_t len;
   FILE *fp;
   short ns = 0x1234;
   unsigned char *p = (unsigned char *)(&ns);
+
+#ifndef NET_USES_AF_INDEP
+  struct servent *serv;
+#endif /* !NET_USES_AF_INDEP */
 
   DBG_INIT ();
 
@@ -484,6 +663,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
       DBG (3, "sane_init: Client has little endian byte order\n");
     }
 
+#ifndef NET_USES_AF_INDEP
   DBG (2, "sane_init: determining sane service port\n");
   serv = getservbyname ("sane", "tcp");
 
@@ -498,6 +678,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
       DBG (1, "sane_init: could not find `sane' service (%s); using default "
 	   "port %d\n", strerror (errno), ntohs (saned_port));
     }
+#endif /* !NET_USES_AF_INDEP */
 
   DBG (2, "sane_init: searching for config file\n");
   fp = sanei_config_open (NET_CONFIG_FILE);
@@ -533,6 +714,30 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	  next = copy;
 	  while ((host = strsep (&next, ":")))
 	    {
+#ifdef ENABLE_IPV6
+	      if (host[0] == '[')
+		{
+		  /* skip '[' (host[0]) */
+		  host++;
+		  /* get the rest of the IPv6 addr (we're screwed if ] is missing)
+		   * Is it worth checking for the matching ] ? Not for now. */
+		  strsep (&next, "]");
+		  /* add back the ":" that got removed by the strsep() */
+		  host[strlen (host)] = ':';
+		  /* host now holds the IPv6 address */
+		  
+		  /* skip the ':' that could be after ] (avoids a call to strsep() */
+		  if (next[0] == ':')
+		    next++;
+		}
+
+	      /* 
+	       * if the IPv6 is last in the list, the strsep() call in the while()
+	       * will return a string with the first char being '\0'. Skip it.
+	       */
+	      if (host[0] == '\0')
+		  continue;
+#endif /* ENABLE_IPV6 */
 	      DBG (2, "sane_init: trying to add %s\n", host);
 	      add_device (host, 0);
 	    }
@@ -580,6 +785,12 @@ sane_exit (void)
 	}
       if (dev->name)
 	free ((void *) dev->name);
+
+#ifdef NET_USES_AF_INDEP      
+      if (dev->addr)
+	freeaddrinfo(dev->addr);
+#endif /* NET_USES_AF_INDEP */
+
       free (dev);
     }
   if (devlist)
@@ -693,11 +904,23 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 	{
 	  SANE_Device *rdev;
 	  char *mem;
+#ifdef ENABLE_IPV6
+	  SANE_Bool IPv6 = SANE_FALSE;
+#endif /* ENABLE_IPV6 */
 
 	  /* create a new device entry with a device name that is the
 	     sum of the backend name a colon and the backend's device
 	     name: */
 	  len = strlen (dev->name) + 1 + strlen (reply.device_list[i]->name);
+
+#ifdef ENABLE_IPV6
+	  if (strchr (dev->name, ':') != NULL)
+	    {
+	      len += 2;
+	      IPv6 = SANE_TRUE;
+	    }
+#endif /* ENABLE_IPV6 */
+
 	  mem = malloc (sizeof (*dev) + len + 1);
 	  if (!mem)
 	    {
@@ -707,8 +930,22 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 			    &reply);
 	      return SANE_STATUS_NO_MEM;
 	    }
+
+	  memset (mem, 0, sizeof (*dev) + len);
 	  full_name = mem + sizeof (*dev);
-	  strcpy (full_name, dev->name);
+	  
+#ifdef ENABLE_IPV6
+	  if (IPv6 == SANE_TRUE)
+	    strcat (full_name, "[");
+#endif /* ENABLE_IPV6 */
+
+	  strcat (full_name, dev->name);
+
+#ifdef ENABLE_IPV6	  
+	  if (IPv6 == SANE_TRUE)
+	    strcat (full_name, "]");
+#endif /* ENABLE_IPV6 */
+
 	  strcat (full_name, ":");
 	  strcat (full_name, reply.device_list[i]->name);
 	  DBG (3, "sane_get_devices: got %s\n", full_name);
@@ -723,11 +960,11 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 	    {
 	      DBG (1, "sane_get_devices: not enough free memory\n");
 	      if (rdev->vendor)
-		free (rdev->vendor);
+		free ((void *) rdev->vendor);
 	      if (rdev->model)
-		free (rdev->model);
+		free ((void *) rdev->model);
 	      if (rdev->type)
-		free (rdev->type);
+		free ((void *) rdev->type);
 	      free (rdev);
 	      sanei_w_free (&dev->wire,
 			    (WireCodecFunc) sanei_w_get_devices_reply,
@@ -756,6 +993,10 @@ sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
 {
   SANE_Open_Reply reply;
   const char *dev_name;
+#ifdef ENABLE_IPV6
+  const char *tmp_name;
+  SANE_Bool v6addr = SANE_FALSE;
+#endif /* ENABLE_IPV6 */
   SANE_String nd_name;
   SANE_Status status;
   SANE_Word handle;
@@ -764,12 +1005,46 @@ sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
   int need_auth;
 
   DBG (3, "sane_open(\"%s\")\n", full_name);
+  
+#ifdef ENABLE_IPV6
+  /*
+   * Check whether a numerical IPv6 host was specified
+   * [2001:42:42::12] <== check for '[' as full_name[0]
+   * ex: [2001:42:42::12]:test:0 (syntax taken from Apache 2)
+   */
+  if (full_name[0] == '[')
+    {
+      v6addr = SANE_TRUE;
+      tmp_name = strchr (full_name, ']');
+      if (!tmp_name)
+	{
+	  DBG (1, "sane_open: incorrect host address: missing matching ']'\n");
+	  return SANE_STATUS_INVAL;
+	}
+    }
+  else
+    tmp_name = full_name;
 
-  dev_name = strchr (full_name, ':');
+  dev_name = strchr (tmp_name, ':');
+#else /* !ENABLE_IPV6 */
+
+  dev_name = strchr (full_name, ':');  
+#endif /* ENABLE_IPV6 */
+
   if (dev_name)
     {
 #ifdef strndupa
+# ifdef ENABLE_IPV6
+      if (v6addr == SANE_TRUE)
+	nd_name = strndupa (full_name + 1, dev_name - full_name - 2);
+      else
+	nd_name = strndupa (full_name, dev_name - full_name);
+
+# else /* !ENABLE_IPV6 */
+
       nd_name = strndupa (full_name, dev_name - full_name);
+# endif /* ENABLE_IPV6 */
+
       if (!nd_name)
 	{
 	  DBG (1, "sane_open: not enough free memory\n");
@@ -778,14 +1053,41 @@ sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
 #else
       char *tmp;
 
+# ifdef ENABLE_IPV6
+      if (v6addr == SANE_TRUE)
+	tmp = alloca (dev_name - full_name - 2 + 1);
+      else
+	tmp = alloca (dev_name - full_name + 1);
+
+# else /* !ENABLE_IPV6 */
+
       tmp = alloca (dev_name - full_name + 1);
+# endif /* ENABLE_IPV6 */
+
       if (!tmp)
 	{
 	  DBG (1, "sane_open: not enough free memory\n");
 	  return SANE_STATUS_NO_MEM;
 	}
+
+# ifdef ENABLE_IPV6
+      if (v6addr == SANE_TRUE)
+	{
+	  memcpy (tmp, full_name + 1, dev_name - full_name - 2);
+	  tmp[dev_name - full_name - 2] = '\0';
+	}
+      else
+	{
+	  memcpy (tmp, full_name, dev_name - full_name);
+	  tmp[dev_name - full_name] = '\0';
+	}
+
+# else /* !ENABLE_IPV6 */
+
       memcpy (tmp, full_name, dev_name - full_name);
       tmp[dev_name - full_name] = '\0';
+# endif /* ENABLE_IPV6 */
+
       nd_name = tmp;
 #endif
       ++dev_name;		/* skip colon */
@@ -795,7 +1097,26 @@ sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
       /* if no colon interpret full_name as the host name; an empty
          device name will cause us to open the first device of that
          host.  */
+#ifdef ENABLE_IPV6
+      if (v6addr == SANE_TRUE)
+	{
+	  nd_name = alloca (strlen (full_name) - 2 + 1);
+	  if (!nd_name)
+	    {
+	      DBG (1, "sane_open: not enough free memory\n");
+	      return SANE_STATUS_NO_MEM;
+	    }
+	  memcpy (nd_name, full_name + 1, strlen (full_name) - 2);
+	  nd_name[strlen (full_name) - 2] = '\0';
+	}
+      else
+	nd_name = (char *) full_name;
+
+#else /* !ENABLE_IPV6 */
+
       nd_name = (char *) full_name;
+#endif /* ENABLE_IPV6 */
+
       dev_name = "";
     }
   DBG (2, "sane_open: host = %s, device = %s\n", nd_name, dev_name);
@@ -1136,6 +1457,146 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   return status;
 }
 
+#ifdef NET_USES_AF_INDEP
+SANE_Status
+sane_start (SANE_Handle handle)
+{
+  Net_Scanner *s = handle;
+  SANE_Start_Reply reply;
+  struct sockaddr_in sin;
+  struct sockaddr *sa;
+#ifdef ENABLE_IPV6
+  struct sockaddr_in6 sin6;
+#endif /* ENABLE_IPV6 */
+  SANE_Status status;
+  int fd, need_auth;
+  socklen_t len;
+  u_int16_t port;			/* Internet-specific */
+
+
+  DBG (3, "sane_start\n");
+
+  hang_over = -1;
+  left_over = -1;
+
+  if (s->data >= 0)
+    {
+      DBG (2, "sane_start: data pipe already exists\n");
+      return SANE_STATUS_INVAL;
+    }
+
+  /* Do this ahead of time so in case anything fails, we can
+     recover gracefully (without hanging our server).  */
+
+  switch (s->hw->addr_used->ai_family)
+    {
+      case AF_INET:
+	len = sizeof (sin);
+	sa = (struct sockaddr *) &sin;
+	break;
+#ifdef ENABLE_IPV6
+      case AF_INET6:
+	len = sizeof (sin6);
+	sa = (struct sockaddr *) &sin6;
+	break;
+#endif /* ENABLE_IPV6 */
+      default:
+	DBG (1, "sane_start: unknown address family : %d\n",
+	     s->hw->addr_used->ai_family);
+	return SANE_STATUS_INVAL;
+    }
+
+  if (getpeername (s->hw->ctl, sa, &len) < 0)
+    {
+      DBG (1, "sane_start: getpeername() failed (%s)\n", strerror (errno));
+      return SANE_STATUS_IO_ERROR;
+    }
+
+  fd = socket (s->hw->addr_used->ai_family, SOCK_STREAM, 0);
+  if (fd < 0)
+    {
+      DBG (1, "sane_start: socket() failed (%s)\n", strerror (errno));
+      return SANE_STATUS_IO_ERROR;
+    }
+
+  DBG (3, "sane_start: remote start\n");
+  sanei_w_call (&s->hw->wire, SANE_NET_START,
+		(WireCodecFunc) sanei_w_word, &s->handle,
+		(WireCodecFunc) sanei_w_start_reply, &reply);
+  do
+    {
+      status = reply.status;
+      port = reply.port;
+      if (reply.byte_order == 0x1234)
+	{
+	  server_big_endian = 0;
+	  DBG (1, "sane_start: server has little endian byte order\n");
+	}
+      else
+	{
+	  server_big_endian = 1;
+	  DBG (1, "sane_start: server has big endian byte order\n");
+	}
+
+      need_auth = (reply.resource_to_authorize != 0);
+      if (need_auth)
+	{
+	  DBG (3, "sane_start: auth required\n");
+	  do_authorization (s->hw, reply.resource_to_authorize);
+
+	  sanei_w_free (&s->hw->wire,
+			(WireCodecFunc) sanei_w_start_reply, &reply);
+
+	  sanei_w_set_dir (&s->hw->wire, WIRE_DECODE);
+
+	  sanei_w_start_reply (&s->hw->wire, &reply);
+
+	  continue;
+	}
+      sanei_w_free (&s->hw->wire, (WireCodecFunc) sanei_w_start_reply,
+		    &reply);
+      if (need_auth && !s->hw->auth_active)
+	return SANE_STATUS_CANCELLED;
+
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (1, "sane_start: remote start failed (%s)\n",
+	       sane_strstatus (status));
+	  close (fd);
+	  return status;
+	}
+    }
+  while (need_auth);
+  DBG (3, "sane_start: remote start finished, data at port %hu\n", port);
+
+  switch (s->hw->addr_used->ai_family)
+    {
+      case AF_INET:
+	sin.sin_port = htons (port);
+	break;
+#ifdef ENABLE_IPV6
+      case AF_INET6:
+	sin6.sin6_port = htons (port);
+	break;
+#endif /* ENABLE_IPV6 */
+    }
+
+  if (connect (fd, sa, len) < 0)
+    {
+      DBG (1, "sane_start: connect() failed (%s)\n", strerror (errno));
+      close (fd);
+      return SANE_STATUS_IO_ERROR;
+    }
+  shutdown (fd, 1);
+  s->data = fd;
+  s->reclen_buf_offset = 0;
+  s->bytes_remaining = 0;
+  DBG (3, "sane_start: done (%s)\n", sane_strstatus (status));
+  return status;
+}
+
+#else /* !NET_USES_AF_INDEP */
+
 SANE_Status
 sane_start (SANE_Handle handle)
 {
@@ -1240,6 +1701,8 @@ sane_start (SANE_Handle handle)
   DBG (3, "sane_start: done (%s)\n", sane_strstatus (status));
   return status;
 }
+#endif /* NET_USES_AF_INDEP */
+
 
 SANE_Status
 sane_read (SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,

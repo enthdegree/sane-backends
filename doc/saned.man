@@ -68,15 +68,22 @@ scan-client.somedomain.firm
 # this is a comment
 .br
 192.168.0.1
+.br
+::1
 .RE
 .PP
 The case of the host names does not matter, so AHost.COM is considered
-identical to ahost.com.
+identical to ahost.com. IPv6 addresses should always be specified in their
+compressed form.
 
 For
 .B saned
 to work properly, it is also necessary to add a configuration line to
 .IR /etc/inetd.conf .
+Note that your inetd must support IPv6 if you
+want to connect to saned over IPv6 ; xinetd and openbsd-inetd are known to
+support IPv6, check the documentation for your inetd daemon.
+.PP
 The configuration line normally looks like this:
 .PP
 .RS

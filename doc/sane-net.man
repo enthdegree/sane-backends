@@ -20,7 +20,7 @@ This backend expects device names of the form:
 .PP
 Where
 .I host
-is the name of the (remote-) host and
+is the name (or IP address) of the (remote-) host and
 .I device
 is the name of the device on this host that should be addressed.
 If the device name does not contain a colon (:), then the entire string
@@ -28,35 +28,50 @@ is treated as the
 .I device
 string for the default host.  The default host is the host listed last
 in the configuration file (see below).
+.PP
+An IPv6 address can be specified enclosed in square brackets:
+.PP
+.RS
+.IR [::1] : device
+.RE
 .SH CONFIGURATION
 The contents of the
-.IR net.conf .
-file is a list of host names that should be contacted for
+.IR net.conf
+file is a list of host names (or IP addresses) that should be contacted for
 scan requests.  Empty lines and lines starting with a hash mark (#) are
-ignored.  A sample configuration file is shown below:
+ignored.  Note that IPv6 addresses in this file do not need to be enclosed
+in square brackets.  A sample configuration file is shown below:
 .PP
 .RS
 scan-server.somedomain.firm
 .br
+192.168.0.1
+.br
 # this is a comment
 .br
 localhost
+.br
+::1
 .RE
 .PP
-The above list of host names can be extended at run-time using environment
+The above list of hosts can be extended at run-time using environment
 variable
 .BR SANE_NET_HOSTS .
-This environment variable is a colon-separated list of hostnames that
-should be contacted in addition to the hosts mentioned in the
-configuration file.  For example, a user could set the environment
+This environment variable is a colon-separated list of hostnames or IP
+addresses that should be contacted in addition to the hosts mentioned in
+the configuration file.  For example, a user could set the environment
 variable to the string:
 .PP
 .RS
-new.scanner.com:scanner.univ.edu
+new.scanner.com:[::1]:192.168.0.2:scanner.univ.edu
 .RE
 .PP
 To request that hosts
 .I new.scanner.com
+,
+.I [::1]
+,
+.I 192.168.0.2
 and
 .I scanner.univ.edu
 are contacted in addition to the hosts listed above.
@@ -65,7 +80,7 @@ For this backend to function properly, it is also necessary to define the
 .B sane
 service in
 .IR /etc/services .
-At present, the
+The
 .B sane
 service should be defined using a line of the following form:
 .PP
@@ -103,7 +118,8 @@ to "/tmp/config:" would result in directories "tmp/config", ".", and
 "@CONFIGDIR@" being searched (in this order).
 .TP
 .B SANE_NET_HOSTS
-A colon-separated list of host names to be contacted by this backend.
+A colon-separated list of host names or IP addresses to be contacted by this
+backend.
 .TP
 .B SANE_DEBUG_NET
 If the library was compiled with debug support enabled, this

@@ -12,6 +12,7 @@ dnl   JAPHAR_GREP_CFLAGS(flag, cmd_if_missing, cmd_if_present)
 dnl   SANE_LINKER_RPATH
 dnl   SANE_CHECK_U_TYPES
 dnl   SANE_CHECK_GPHOTO2
+dnl   SANE_CHECK_IPV6
 dnl   SANE_PROTOTYPES
 dnl   AC_PROG_LIBTOOL
 dnl
@@ -342,6 +343,45 @@ AC_DEFUN([SANE_CHECK_GPHOTO2],
 			LIBS="${LIBS} ${GPHOTO2_LIBS}"
 		fi
 ])	fi
+])
+
+#
+# Check for AF_INET6, determines whether or not to enable IPv6 support
+AC_DEFUN([SANE_CHECK_IPV6],
+[
+AC_MSG_CHECKING([whether to enable IPv6]) 
+AC_ARG_ENABLE(ipv6, 
+[  --enable-ipv6           enable IPv6 (with IPv4) support 
+  --disable-ipv6          disable IPv6 support], 
+[ case "$enableval" in 
+  no) 
+       AC_MSG_RESULT(no) 
+       ipv6=no 
+       ;; 
+  *)   AC_MSG_RESULT(yes) 
+       AC_DEFINE([ENABLE_IPV6], 1, [Define to 1 if the system supports IPv6]) 
+       ipv6=yes 
+       ;; 
+  esac ], 
+ 
+  AC_TRY_COMPILE([
+	#define INET6 
+	#include <sys/types.h> 
+	#include <sys/socket.h> ], [
+	 /* AF_INET6 available check */  
+ 	if (socket(AF_INET6, SOCK_STREAM, 0) < 0) 
+   	  exit(1); 
+ 	else 
+   	  exit(0); 
+], 
+  AC_MSG_RESULT(yes) 
+  AC_DEFINE([ENABLE_IPV6], 1, [Define to 1 if the system supports IPv6]) 
+  ipv6=yes, 
+  AC_MSG_RESULT(no) 
+  ipv6=no, 
+  AC_MSG_RESULT(no) 
+  ipv6=no 
+)) 
 ])
 
 #

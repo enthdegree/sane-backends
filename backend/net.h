@@ -1,5 +1,8 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 1997 David Mosberger-Tang
+   Copyright (C) 2003 Julien BLACHE <jb@jblache.org>
+      AF-independent code + IPv6
+
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -44,12 +47,18 @@
 #include <sys/socket.h>
 
 #include "../include/sane/sanei_wire.h"
+#include "../include/sane/config.h"
 
 typedef struct Net_Device
   {
     struct Net_Device *next;
     const char *name;
+#if defined (HAVE_GETADDRINFO) && defined (HAVE_GETNAMEINFO)
+    struct addrinfo *addr;
+    struct addrinfo *addr_used;
+#else
     struct sockaddr addr;
+#endif /* HAVE_GETADDRINFO && HAVE_GETNAMEINFO */
     int ctl;			/* socket descriptor (or -1) */
     Wire wire;
     int auth_active;

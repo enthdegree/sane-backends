@@ -1,6 +1,9 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 1997 Andreas Beck
    Copyright (C) 2001, 2002 Henning Meier-Geinitz
+   Copyright (C) 2003 Julien BLACHE <jb@jblache.org>
+       AF-independent + IPv6 code
+
    This file is part of the SANE package.
 
    SANE is free software; you can redistribute it and/or modify it under
@@ -54,6 +57,7 @@
 
 #include <sys/param.h>
 #include <sys/socket.h>
+#include <sys/poll.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <arpa/inet.h>
@@ -74,11 +78,25 @@
 # define IN_LOOPBACK(addr) (addr == 0x7f000001L)
 #endif
 
+#ifdef ENABLE_IPV6
+# define SANE_IN6_IS_ADDR_LOOPBACK(a) \
+        (((const uint32_t *) (a))[0] == 0                                   \
+         && ((const uint32_t *) (a))[1] == 0                                \
+         && ((const uint32_t *) (a))[2] == 0                                \
+         && ((const uint32_t *) (a))[3] == htonl (1)) 
+#endif /* ENABLE_IPV6 */
+
 #ifndef MAXHOSTNAMELEN
 # define MAXHOSTNAMELEN 120
 #endif
 
 #define SANED_CONFIG_FILE "saned.conf"
+
+#if defined(HAVE_GETADDRINFO) && defined (HAVE_GETNAMEINFO)
+# define SANED_USES_AF_INDEP
+#else
+# undef ENABLE_IPV6
+#endif /* HAVE_GETADDRINFO && HAVE_GETNAMEINFO */
 
 typedef struct
 {
@@ -107,8 +125,14 @@ byte_order;
    it does is save a remote user some work by reducing the amount of
    text s/he has to type when authentication is requested.  */
 static const char *default_username = "saned-user";
-static char *remote_hostname;
+static char *remote_ip;
+
+#ifdef SANED_USES_AF_INDEP
+static struct sockaddr_storage remote_address;
+static int remote_address_len;
+#else
 static struct in_addr remote_address;
+#endif /* SANED_USES_AF_INDEP */
 
 #ifndef _PATH_HEQUIV
 # define _PATH_HEQUIV   "/etc/hosts.equiv"
@@ -371,6 +395,300 @@ decode_handle (Wire * w, const char *op)
 }
 
 /* Access control */
+#ifdef SANED_USES_AF_INDEP
+static SANE_Status
+check_host (int fd)
+{
+  struct sockaddr_in *sin = NULL;
+#ifdef ENABLE_IPV6
+  struct sockaddr_in6 *sin6;
+#endif /* ENABLE_IPV6 */
+  struct addrinfo hints;
+  struct addrinfo *res;
+  struct addrinfo *resp;
+  int j, access_ok = 0;
+  int err;
+  char text_addr[64];
+#ifdef ENABLE_IPV6
+  char *remote_ipv4 = NULL; /* in case we have an IPv4-mapped address (eg ::ffff:127.0.0.1) */
+  struct addrinfo *remote_ipv4_addr = NULL;
+#endif /* ENABLE_IPV6 */
+  char config_line[1024];
+  char hostname[MAXHOSTNAMELEN];
+
+#ifdef ENABLE_IPV6  
+  SANE_Bool IPv4map = SANE_FALSE;
+#endif /* ENABLE_IPV6 */
+
+  int len;
+  FILE *fp;
+
+  /* Get address of remote host */
+  remote_address_len = sizeof (remote_address);
+  if (getpeername (fd, (struct sockaddr *) &remote_address, (socklen_t *) &remote_address_len) < 0)
+    {
+      DBG (DBG_ERR, "check_host: getpeername failed: %s\n", strerror (errno));
+      remote_ip = strdup ("[error]");
+      return SANE_STATUS_INVAL;
+    }
+
+  err = getnameinfo ((struct sockaddr *) &remote_address, remote_address_len,
+		     hostname, sizeof (hostname), NULL, 0, NI_NUMERICHOST);
+  if (err)
+    {
+      DBG (DBG_DBG, "check_host: getnameinfo failed: %s\n", gai_strerror(err));
+      remote_ip = strdup ("[error]");
+      return SANE_STATUS_INVAL;
+    }
+  else
+    remote_ip = strdup (hostname);
+
+#ifdef ENABLE_IPV6  
+  if (strncmp (remote_ip, "::ffff:", 7) == 0)
+    {
+      DBG (DBG_DBG, "check_host: detected an IPv4-mapped address\n");
+      remote_ipv4 = remote_ip + 7;
+      IPv4map = SANE_TRUE;
+
+      memset (&hints, 0, sizeof (struct addrinfo));
+      hints.ai_flags = AI_NUMERICHOST;
+      hints.ai_family = PF_INET;
+      
+      err = getaddrinfo (remote_ipv4, NULL, &hints, &res);
+      if (err)
+	{
+	  DBG (DBG_DBG, "check_host: getaddrinfo() failed: %s\n", gai_strerror (err));
+	  IPv4map = SANE_FALSE; /* we failed, remote_ipv4_addr points to nothing */
+	}
+      else
+	{
+	  remote_ipv4_addr = res;
+	  sin = (struct sockaddr_in *)res->ai_addr;
+	}
+    }
+#endif /* ENABLE_IPV6 */
+
+  DBG (DBG_WARN, "check_host: access by remote host: %s\n", remote_ip);
+
+  /* Always allow access from local host. Do it here to avoid DNS lookups
+     and reading saned.conf. */
+
+#ifdef ENABLE_IPV6
+  if (IPv4map == SANE_TRUE)
+    {
+      if (IN_LOOPBACK (ntohl (sin->sin_addr.s_addr)))
+	{
+	  DBG (DBG_MSG,
+	       "check_host: remote host is IN_LOOPBACK: access granted\n");
+	  freeaddrinfo (remote_ipv4_addr);
+	  return SANE_STATUS_GOOD;
+	}
+      freeaddrinfo (remote_ipv4_addr);
+    }
+#endif /* ENABLE_IPV6 */
+
+  sin = (struct sockaddr_in *) &remote_address;
+#ifdef ENABLE_IPV6
+  sin6 = (struct sockaddr_in6 *) &remote_address;
+#endif /* ENABLE_IPV6 */
+
+  switch (remote_address.ss_family)
+    {
+      case AF_INET:
+	if (IN_LOOPBACK (ntohl (sin->sin_addr.s_addr)))
+	  {
+	    DBG (DBG_MSG,
+		 "check_host: remote host is IN_LOOPBACK: access granted\n");
+	    return SANE_STATUS_GOOD;
+	  }
+	break;
+#ifdef ENABLE_IPV6
+      case AF_INET6:
+	if (SANE_IN6_IS_ADDR_LOOPBACK (sin6->sin6_addr.s6_addr))
+	  {
+	    DBG (DBG_MSG,
+		 "check_host: remote host is IN6_LOOPBACK: access granted\n");
+	    return SANE_STATUS_GOOD;
+	  }
+	break;
+#endif /* ENABLE_IPV6 */
+      default:
+	break;
+    }
+
+  DBG (DBG_DBG, "check_host: remote host is not IN_LOOPBACK"
+#ifdef ENABLE_IPV6
+       " nor IN6_LOOPBACK"
+#endif /* ENABLE_IPV6 */
+       "\n");
+
+
+  /* Get name of local host */
+  if (gethostname (hostname, sizeof (hostname)) < 0)
+    {
+      DBG (DBG_ERR, "check_host: gethostname failed: %s\n", strerror (errno));
+      return SANE_STATUS_INVAL;
+    }
+  DBG (DBG_DBG, "check_host: local hostname: %s\n", hostname);
+
+  /* Get local addresses */
+  memset (&hints, 0, sizeof (hints));
+  hints.ai_flags = AI_CANONNAME;
+#ifdef ENABLE_IPV6
+  hints.ai_family = PF_UNSPEC;
+#else
+  hints.ai_family = PF_INET;
+#endif /* ENABLE_IPV6 */
+
+  err = getaddrinfo (hostname, NULL, &hints, &res);
+  if (err)
+    {
+      DBG (DBG_ERR, "check_host: getaddrinfo failed: %s\n",
+	   gai_strerror (err));
+      return SANE_STATUS_INVAL;
+    }
+  else
+    {
+      for (resp = res; resp != NULL; resp = resp->ai_next)
+	{
+	  DBG (DBG_DBG, "check_host: local hostname(s) (from DNS): %s\n",
+	       resp->ai_canonname);
+	  
+	  err = getnameinfo (resp->ai_addr, resp->ai_addrlen, text_addr,
+			     sizeof (text_addr), NULL, 0, NI_NUMERICHOST);
+	  if (err)
+		strncpy (text_addr, "[error]", 8);
+
+#ifdef ENABLE_IPV6	  
+	  if ((strcmp (text_addr, remote_ip) == 0) ||
+	      ((IPv4map == SANE_TRUE) && (strcmp (text_addr, remote_ipv4) == 0)))
+#else
+	  if (strcmp (text_addr, remote_ip) == 0)
+#endif /* ENABLE_IPV6 */
+	    {
+	      DBG (DBG_MSG, "check_host: remote host has same addr as local: access granted\n");
+	      
+	      freeaddrinfo (res);
+	      
+	      return SANE_STATUS_GOOD;
+	    }
+	}
+      
+      freeaddrinfo (res);
+      
+      DBG (DBG_DBG, 
+	   "check_host: remote host doesn't have same addr as local\n");
+    }
+
+  /* must be a remote host: check contents of PATH_NET_CONFIG or
+     /etc/hosts.equiv if former doesn't exist: */
+  for (j = 0; j < NELEMS (config_file_names); ++j)
+    {
+      DBG (DBG_DBG, "check_host: opening config file: %s\n",
+	   config_file_names[j]);
+      if (config_file_names[j][0] == '/')
+	fp = fopen (config_file_names[j], "r");
+      else
+	fp = sanei_config_open (config_file_names[j]);
+      if (!fp)
+	{
+	  DBG (DBG_MSG,
+	       "check_host: can't open config file: %s (%s)\n",
+	       config_file_names[j], strerror (errno));
+	  continue;
+	}
+      
+      while (!access_ok && sanei_config_read (config_line, 
+					      sizeof (config_line), fp))
+	{
+	  DBG (DBG_DBG, "check_host: config file line: `%s'\n", config_line);
+	  if (config_line[0] == '#')	/* ignore line comments */
+	    continue;
+	  len = strlen (config_line);
+	  
+	  if (!len)
+	    continue;		/* ignore empty lines */
+	  
+	  if (strcmp (config_line, "+") == 0)
+	    {
+	      access_ok = 1;
+	      DBG (DBG_DBG, 
+		   "check_host: access granted from any host (`+')\n");
+	    }
+	  /* compare remote_ip (remote IP address) to the config_line */
+	  else if (strcmp (config_line, remote_ip) == 0)
+	    {
+	      access_ok = 1;
+	      DBG (DBG_DBG,
+		   "check_host: access granted from IP address %s\n", remote_ip);
+	    }
+#ifdef ENABLE_IPV6
+	  else if ((IPv4map == SANE_TRUE) && (strcmp (config_line, remote_ipv4) == 0))
+	    {
+	      access_ok = 1;
+	      DBG (DBG_DBG,
+		   "check_host: access granted from IP address %s (IPv4-mapped)\n", remote_ip);
+	    }
+#endif /* ENABLE_IPV6 */
+	  else
+	    {
+	      memset (&hints, 0, sizeof (hints));
+	      hints.ai_flags = AI_CANONNAME;
+#ifdef ENABLE_IPV6
+	      hints.ai_family = PF_UNSPEC;
+#else
+	      hints.ai_family = PF_INET;
+#endif /* ENABLE_IPV6 */
+	      
+	      err = getaddrinfo (config_line, NULL, &hints, &res);
+	      if (err)
+		{
+		  DBG (DBG_DBG, 
+		       "check_host: getaddrinfo for `%s' failed: %s\n",
+		       config_line, gai_strerror (err));
+		  DBG (DBG_MSG, "check_host: entry isn't an IP address "
+		       "and can't be found in DNS\n");
+		  continue;
+		}
+	      else
+		{
+		  for (resp = res; resp != NULL; resp = resp->ai_next)
+		    {
+		      err = getnameinfo (resp->ai_addr, resp->ai_addrlen, text_addr,
+					 sizeof (text_addr), NULL, 0, NI_NUMERICHOST);
+		      if (err)
+			strncpy (text_addr, "[error]", 8);
+		      
+		      DBG (DBG_MSG,  
+			   "check_host: DNS lookup returns IP address: %s\n", 
+			   text_addr); 
+		      
+#ifdef ENABLE_IPV6			  
+		      if ((strcmp (text_addr, remote_ip) == 0) ||
+			  ((IPv4map == SANE_TRUE) && (strcmp (text_addr, remote_ipv4) == 0)))
+#else
+		      if (strcmp (text_addr, remote_ip) == 0)
+#endif /* ENABLE_IPV6 */
+			access_ok = 1;
+		      
+		      if (access_ok)
+			break;
+		    }
+		  freeaddrinfo (res);
+		}
+	    }
+	}
+    }
+  
+  fclose (fp);
+  if (access_ok)
+    return SANE_STATUS_GOOD;
+  
+  return SANE_STATUS_ACCESS_DENIED;
+}
+
+#else /* !SANED_USES_AF_INDEP */
+
 static SANE_Status
 check_host (int fd)
 {
@@ -391,12 +709,13 @@ check_host (int fd)
   if (getpeername (fd, (struct sockaddr *) &sin, (socklen_t *) &len) < 0)
     {
       DBG (DBG_ERR, "check_host: getpeername failed: %s\n", strerror (errno));
+      remote_ip = strdup ("[error]");
       return SANE_STATUS_INVAL;
     }
   r_hostname = inet_ntoa (sin.sin_addr);
-  remote_hostname = strdup (r_hostname);
+  remote_ip = strdup (r_hostname);
   DBG (DBG_WARN, "check_host: access by remote host: %s\n", 
-       remote_hostname);
+       remote_ip);
   /* Save remote address for check of control and data connections */
   memcpy (&remote_address, &sin.sin_addr, sizeof (remote_address));
 
@@ -530,6 +849,8 @@ check_host (int fd)
   return SANE_STATUS_ACCESS_DENIED;
 }
 
+#endif /* SANED_USES_AF_INDEP */
+
 static int
 init (Wire * w)
 {
@@ -543,9 +864,11 @@ init (Wire * w)
   status = check_host (w->io.fd);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_WARN, "init: access by host %s denied\n", remote_hostname);
+      DBG (DBG_WARN, "init: access by host %s denied\n", remote_ip);
       return -1;
     }
+  else
+    DBG (DBG_MSG, "init: access granted\n");
 
   sanei_w_set_dir (w, WIRE_DECODE);
   if (w->status)
@@ -583,8 +906,8 @@ init (Wire * w)
   reply.version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR,
 					  SANEI_NET_PROTOCOL_VERSION);
 
-  DBG (DBG_WARN, "init: access by %s@%s accepted\n",
-       default_username, remote_hostname);
+  DBG (DBG_WARN, "init: access granted to %s@%s\n",
+       default_username, remote_ip);
 
   if (status == SANE_STATUS_GOOD)
     {
@@ -611,6 +934,108 @@ init (Wire * w)
 
   return 0;
 }
+
+#ifdef SANED_USES_AF_INDEP
+static int
+start_scan (Wire * w, int h, SANE_Start_Reply * reply)
+{
+  struct sockaddr_storage ss;
+  struct sockaddr_in *sin;
+#ifdef ENABLE_IPV6
+  struct sockaddr_in6 *sin6;
+#endif /* ENABLE_IPV6 */
+  SANE_Handle be_handle;
+  int fd, len;
+
+  be_handle = handle[h].handle;
+
+  len = sizeof (ss);
+  if (getsockname (w->io.fd, (struct sockaddr *) &ss, (socklen_t *) &len) < 0)
+    {
+      DBG (DBG_ERR, "start_scan: failed to obtain socket address (%s)\n",
+	   strerror (errno));
+      reply->status = SANE_STATUS_IO_ERROR;
+      return -1;
+    }
+
+  fd = socket (ss.ss_family, SOCK_STREAM, 0);
+  if (fd < 0)
+    {
+      DBG (DBG_ERR, "start_scan: failed to obtain data socket (%s)\n",
+	   strerror (errno));
+      reply->status = SANE_STATUS_IO_ERROR;
+      return -1;
+    }
+
+  switch (ss.ss_family)
+    {
+      case AF_INET:
+	sin = (struct sockaddr_in *) &ss;
+	sin->sin_port = 0;
+	break;
+#ifdef ENABLE_IPV6
+      case AF_INET6:
+	sin6 = (struct sockaddr_in6 *) &ss;
+	sin6->sin6_port = 0;
+	break;
+#endif /* ENABLE_IPV6 */
+      default:
+	break;
+    }
+
+  if (bind (fd, (struct sockaddr *) &ss, len) < 0)
+    {
+      DBG (DBG_ERR, "start_scan: failed to bind address (%s)\n",
+	   strerror (errno));
+      reply->status = SANE_STATUS_IO_ERROR;
+      return -1;
+    }
+
+  if (listen (fd, 1) < 0)
+    {
+      DBG (DBG_ERR, "start_scan: failed to make socket listen (%s)\n",
+	   strerror (errno));
+      reply->status = SANE_STATUS_IO_ERROR;
+      return -1;
+    }
+
+  if (getsockname (fd, (struct sockaddr *) &ss, (socklen_t *) &len) < 0)
+    {
+      DBG (DBG_ERR, "start_scan: failed to obtain socket address (%s)\n",
+	   strerror (errno));
+      reply->status = SANE_STATUS_IO_ERROR;
+      return -1;
+    }
+
+  switch (ss.ss_family)
+    {
+      case AF_INET:
+	sin = (struct sockaddr_in *) &ss;
+	reply->port = ntohs (sin->sin_port);
+	break;
+#ifdef ENABLE_IPV6
+      case AF_INET6:
+	sin6 = (struct sockaddr_in6 *) &ss;
+	reply->port = ntohs (sin6->sin6_port);
+	break;
+#endif /* ENABLE_IPV6 */
+      default:
+	break;
+    }
+
+  DBG (DBG_MSG, "start_scan: using port %d for data\n", reply->port);
+
+  reply->status = sane_start (be_handle);
+  if (reply->status == SANE_STATUS_GOOD)
+    {
+      handle[h].scanning = 1;
+      handle[h].docancel = 0;
+    }
+
+  return fd;
+}
+
+#else /* !SANED_USES_AF_INDEP */
 
 static int
 start_scan (Wire * w, int h, SANE_Start_Reply * reply)
@@ -677,6 +1102,7 @@ start_scan (Wire * w, int h, SANE_Start_Reply * reply)
 
   return fd;
 }
+#endif /* SANED_USES_AF_INDEP */
 
 static int
 store_reclen (SANE_Byte * buf, size_t buf_size, int i, size_t reclen)
@@ -958,7 +1384,7 @@ process_request (Wire * w)
 	  }
 	else
 	  {
-	    DBG (DBG_MSG, "process_request: access to resource `%s' accepted\n", 
+	    DBG (DBG_MSG, "process_request: access to resource `%s' granted\n", 
 		 resource);
 	    free (resource);
 	    memset (&reply, 0, sizeof (reply));	/* avoid leaking bits */
@@ -1089,6 +1515,51 @@ process_request (Wire * w)
 
 	sanei_w_reply (w, (WireCodecFunc) sanei_w_start_reply, &reply);
 
+#ifdef SANED_USES_AF_INDEP
+	if (reply.status == SANE_STATUS_GOOD)
+	  {
+	    struct sockaddr_storage ss;
+	    char text_addr[64];
+	    int len;
+	    int error;
+
+	    DBG (DBG_MSG, "process_request: waiting for data connection\n");
+	    data_fd = accept (fd, 0, 0);
+	    close (fd);
+
+	    /* Get address of remote host */
+	    len = sizeof (ss);
+	    if (getpeername (data_fd, (struct sockaddr *) &ss, (socklen_t *) &len) < 0)
+	      {
+		DBG (DBG_ERR, "process_request: getpeername failed: %s\n",
+		     strerror (errno));
+		return;
+	      }
+
+	    error = getnameinfo ((struct sockaddr *) &ss, len, text_addr,
+				 sizeof (text_addr), NULL, 0, NI_NUMERICHOST);
+	    if (error)
+	      {
+		DBG (DBG_ERR, "process_request: getnameinfo failed: %s\n",
+		     gai_strerror (error));
+		return;
+	      }
+
+	    DBG (DBG_MSG, "process_request: access to data port from %s\n",
+		 text_addr);
+	    
+	    if (strcmp (text_addr, remote_ip) != 0)
+	      {
+		DBG (DBG_ERR, "process_request: however, only %s is authorized\n",
+		     text_addr);
+		DBG (DBG_ERR, "process_request: configuration problem or attack?\n");
+		close (data_fd);
+		data_fd = -1;
+		quit (0);
+	      }
+
+#else /* !SANED_USES_AF_INDEP */
+
 	if (reply.status == SANE_STATUS_GOOD)
 	  {
 	    struct sockaddr_in sin;
@@ -1126,6 +1597,7 @@ process_request (Wire * w)
 	    else
 	      DBG (DBG_MSG, "process_request: access to data port from %s\n",
 		   inet_ntoa (sin.sin_addr));
+#endif /* SANED_USES_AF_INDEP */
 
 	    if (data_fd < 0)
 	      {
@@ -1168,6 +1640,274 @@ process_request (Wire * w)
       quit (0);
     }
 }
+
+#ifdef SANED_USES_AF_INDEP
+int
+main (int argc, char *argv[])
+{
+  int fd = -1;
+  int on = 1;
+#ifdef TCP_NODELAY
+  int level = -1;
+#endif
+
+  debug = DBG_WARN;
+  openlog ("saned", LOG_PID | LOG_CONS, LOG_DAEMON);
+
+  prog_name = strrchr (argv[0], '/');
+  if (prog_name)
+    ++prog_name;
+  else
+    prog_name = argv[0];
+
+  byte_order.w = 0;
+  byte_order.ch = 1;
+
+  sanei_w_init (&wire, sanei_codec_bin_init);
+  wire.io.read = read;
+  wire.io.write = write;
+
+  if (argc == 2 && 
+      (strncmp (argv[1], "-d", 2) == 0 || strncmp (argv[1], "-s", 2) == 0))
+    {
+      /* don't operate in daemon mode: wait for connection request: */
+      struct addrinfo *res;
+      struct addrinfo *resp;
+      struct addrinfo hints;
+      struct sockaddr_in *sin;
+#ifdef ENABLE_IPV6
+      struct sockaddr_in6 *sin6;
+#endif /* ENABLE_IPV6 */
+      struct pollfd *fds = NULL;
+      struct pollfd *fdp = NULL;
+      int nfds;
+      int err;
+      int i;
+      short sane_port = htons (6566);
+
+      if (argv[1][2])
+	debug = atoi (argv[1] + 2);
+      if (strncmp (argv[1], "-d", 2) == 0)
+	log_to_syslog = SANE_FALSE;
+
+      DBG (DBG_WARN, "main: starting debug mode (level %d)\n", debug);
+
+      DBG (DBG_DBG, 
+	   "main: trying to get port for service `sane' (getaddrinfo)\n");
+
+      memset (&hints, 0, sizeof (struct addrinfo));
+
+      hints.ai_family = PF_UNSPEC;
+      hints.ai_flags = AI_PASSIVE;
+      hints.ai_socktype = SOCK_STREAM;
+
+      err = getaddrinfo (NULL, "sane", &hints, &res);
+      if (err)
+	{
+	  /*
+	   * You cannot pass (NULL, NULL, &hints, &res) to getaddrinfo,
+	   * so request a good-old well known service, and change the port
+	   * afterwards as a workaround
+	   */
+	  err = getaddrinfo (NULL, "telnet", &hints, &res);
+	  if (err)
+	    {
+	      DBG (DBG_ERR, "main: getaddrinfo() failed: %s\n", gai_strerror (err));
+	      exit (1);
+	    }
+	  else
+	    {
+	      DBG (DBG_WARN, "main: \"sane\" service unknown on your host; you should add\n");
+	      DBG (DBG_WARN, "main:      sane 6566/tcp saned # SANE network scanner daemon\n");
+	      DBG (DBG_WARN, "main: to your /etc/services file (or equivalent). Proceeding anyway.\n");
+
+              for (resp = res; resp != NULL; resp = resp->ai_next) 
+                { 
+                  switch (resp->ai_family) 
+                    { 
+                      case AF_INET: 
+                        sin = (struct sockaddr_in *) resp->ai_addr; 
+                        sin->sin_port = sane_port; 
+                        break; 
+#ifdef ENABLE_IPV6 
+                      case AF_INET6: 
+                        sin6 = (struct sockaddr_in6 *) resp->ai_addr; 
+                        sin6->sin6_port = sane_port; 
+                        break; 
+#endif /* ENABLE_IPV6 */ 
+                    } 
+                } 
+	    }
+	}
+
+      for (resp = res, nfds = 0; resp != NULL; resp = resp->ai_next, nfds++)
+	;
+      
+      fds = malloc (nfds * sizeof (struct pollfd));
+
+      if (fds == NULL)
+	{
+	  DBG (DBG_ERR, "main: not enough memory for fds\n");
+	  freeaddrinfo (res);
+	  exit (1);
+	}
+
+      for (resp = res, i = 0, fdp = fds; resp != NULL; resp = resp->ai_next, i++, fdp++)
+	{
+#ifdef ENABLE_IPV6
+	  if ((resp->ai_family != AF_INET) && (resp->ai_family != AF_INET6))
+#else
+	  if (resp->ai_family != AF_INET)
+#endif /* ENABLE_IPV6 */
+	    {
+	      fdp--;
+	      nfds--;
+	      continue;
+	    }
+
+	  DBG (DBG_DBG, "main: [%d] socket ()\n", i);
+	  fd = socket (resp->ai_family, SOCK_STREAM, 0);
+	  
+	  DBG (DBG_DBG, "main: [%d] setsockopt ()\n", i);
+	  if (setsockopt (fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof (on)))
+	    DBG (DBG_ERR, "main: [%d] failed to put socket in SO_REUSEADDR mode (%s)\n",
+		 i, strerror (errno));
+	  
+	  DBG (DBG_DBG, "main: [%d] bind ()\n", i);
+	  if (bind (fd, resp->ai_addr, resp->ai_addrlen) < 0)
+	    {
+	      /*
+	       * binding a socket may fail, eg if we already
+	       * to the IPv6 addr returned by getaddrinfo (usually the first one),
+	       * or if IPv6 isn't supported, but saned was built with IPv6 support
+	       */
+	      DBG (DBG_ERR, "main: [%d] bind failed: %s\n", i, strerror (errno));
+
+	      close (fd);
+	      
+	      nfds--;
+	      fdp--;
+	      continue;
+	    }
+
+	  DBG (DBG_DBG, "main: [%d] listen ()\n", i);
+	  if (listen (fd, 1) < 0)
+	    {
+	      DBG (DBG_ERR, "main: [%d] listen failed: %s\n", i, strerror (errno));
+	      exit (1);
+	    }
+
+	  fdp->fd = fd;
+	  fdp->events = POLLIN;
+	}
+
+      resp = NULL;
+      freeaddrinfo (res);
+
+      if (nfds <= 0)
+	{
+	  DBG (DBG_ERR, "main: couldn't bind an address. Exiting.\n");
+	  exit (1);
+	}
+	
+      DBG (DBG_MSG, "main: waiting for control connection\n");
+
+      while (1)
+	{
+	  if (poll (fds, nfds, -1) < 0)
+	    {
+	      if (errno == EINTR)
+		continue;
+	      else
+		{
+		  DBG (DBG_ERR, "main: poll failed: %s\n", strerror (errno));
+		  free (fds);
+		  exit (1);
+		}
+	    }
+
+	  for (i = 0, fdp = fds; i < nfds; i++, fdp++)
+	    {
+	      if (! (fdp->revents & POLLIN))
+		continue;
+
+	      wire.io.fd = accept (fdp->fd, 0, 0);
+	      if (wire.io.fd < 0)
+		{
+		  DBG (DBG_ERR, "main: accept failed: %s", strerror (errno));
+		  free (fds);
+		  exit (1);
+		}
+
+	      for (i = 0, fdp = fds; i < nfds; i++, fdp++)
+		close (fdp->fd);
+
+	      free (fds);
+
+	      break;
+	    }
+	  break;
+	}
+    }
+  else
+    /* use filedescriptor opened by inetd: */
+#ifdef HAVE_OS2_H
+    /* under OS/2, the socket handle is passed as argument on the command
+       line; the socket handle is relative to IBM TCP/IP, so a call
+       to impsockethandle() is required to add it to the EMX runtime */
+  if (argc == 2)
+    {
+      wire.io.fd = _impsockhandle (atoi (argv[1]), 0);
+      if (wire.io.fd == -1)
+	perror ("impsockhandle");
+    }
+  else
+#endif /* HAVE_OS2_H */
+    wire.io.fd = 1;
+
+  signal (SIGALRM, quit);
+  signal (SIGPIPE, quit);
+
+#ifdef TCP_NODELAY
+# ifdef SOL_TCP
+  level = SOL_TCP;
+# else /* !SOL_TCP */
+  /* Look up the protocol level in the protocols database. */
+  {
+    struct protoent *p;
+    p = getprotobyname ("tcp");
+    if (p == 0)
+      {
+	DBG (DBG_WARN, "main: cannot look up `tcp' protocol number");
+      }
+    else
+      level = p->p_proto;
+  }
+# endif	/* SOL_TCP */
+  if (level == -1
+      || setsockopt (wire.io.fd, level, TCP_NODELAY, &on, sizeof (on)))
+    DBG (DBG_WARN, "main: failed to put socket in TCP_NODELAY mode (%s)",
+	 strerror (errno));
+#endif /* !TCP_NODELAY */
+
+/* define the version string depending on which network code is used */
+#ifdef ENABLE_IPV6
+  DBG (DBG_WARN, "saned (AF-indep+IPv6) from %s ready\n", PACKAGE_STRING);
+#else
+  DBG (DBG_WARN, "saned (AF-indep) from %s ready\n", PACKAGE_STRING);
+#endif /* ENABLE_IPV6 */
+
+  if (init (&wire) < 0)
+    quit (0);
+
+  while (1)
+    {
+      reset_watchdog ();
+      process_request (&wire);
+    }
+}
+
+#else /* !SANED_USES_AF_INDEP */
 
 int
 main (int argc, char *argv[])
@@ -1287,7 +2027,7 @@ main (int argc, char *argv[])
     p = getprotobyname ("tcp");
     if (p == 0)
       {
-	DBG (DBG_WARN, "main:: cannot look up `tcp' protocol number");
+	DBG (DBG_WARN, "main: cannot look up `tcp' protocol number");
       }
     else
       level = p->p_proto;
@@ -1310,3 +2050,4 @@ main (int argc, char *argv[])
       process_request (&wire);
     }
 }
+#endif /* SANED_USES_AF_INDEP */

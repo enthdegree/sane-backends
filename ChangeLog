@@ -2,6 +2,10 @@
 
 	* doc/descriptions/unsupported.desc: Added Medion MD 6228, Microtek
 	  ScanPort 3000, and PIE Primefilm 1800u.
+	* acinclude.m4 aclocal.m4 configure configure.in backend/net.c
+	  backend/net.h doc/sane-net.man doc/saned.man frontend/saned.c
+	  include/sane/config.h.in: Added support for IPv6. Updated
+	  manpages. Patch from Julien BLACHE <jb@jblache.org>.
 
 2003-03-28  Oliver Schirrmeister <oschirr@abm.de>
 

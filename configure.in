@@ -180,7 +180,8 @@ AC_FUNC_ALLOCA
 AC_FUNC_MMAP
 AC_CHECK_FUNCS(atexit inet_addr inet_aton inet_ntoa ioperm mkdir \
     scsireq_enter strftime strstr strtod  \
-    cfmakeraw tcsendbreak strcasecmp strncasecmp _portaccess)
+    cfmakeraw tcsendbreak strcasecmp strncasecmp _portaccess \
+    getaddrinfo getnameinfo)
 AC_REPLACE_FUNCS(getenv inet_ntop inet_pton isfdtype sigprocmask snprintf \
     strdup strndup strsep usleep vsyslog)
 SANE_PROTOTYPES
@@ -206,6 +207,13 @@ fi
 dnl disable Linux SCSI generic version 3 to avoid 32/64 bit problems
 if sparc64 -q > /dev/null 2>&1 ; then
   AC_DEFINE(DISABLE_LINUX_SG_IO, 1, [Should we disable SCSI generic v3?])
+fi
+
+dnl check for IPv6 (can be overriden by --enable-ipv6)
+if test "$ac_cv_func_getnameinfo" = "yes" && test "$ac_cv_func_getaddrinfo" = "yes" ; then
+  SANE_CHECK_IPV6
+else
+  ipv6="no"
 fi
 
 dnl ***********************************************************************
@@ -433,6 +441,8 @@ echo "Configuration: `eval eval echo ${sysconfdir}`"
 echo "Libraries:     `eval eval echo ${libdir}`"
 echo "Binaries:      `eval eval echo ${bindir}` and `eval eval echo ${sbindir}`"
 echo "Manpages:      `eval eval echo ${mandir}`"
+echo "Network parameters:"
+echo "IPv6 support:  `eval eval echo ${ipv6}`"
 
 if test "$SANE_CONFIG_PATH" != "no" ; then
   SANE_INSTALLED_VERSION=`$SANE_CONFIG_PATH --version`

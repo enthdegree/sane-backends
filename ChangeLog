@@ -1,3 +1,8 @@
+2001-01-14  Petter Reinholdtsen <pere@td.org.uit.no>
+
+	* configure.in include/sane/config.h.in: Move definition of
+	HAVE_DEV_URANDOM and SCSIBUFFERSIZE from CFLAGS to config.h.
+
 2001-01-07  Abel Deuring <a.deuring@satzbau-gmbh.de>
 
 	* sanei/sanei_scsi-c: (Linux part) timeout for SCSI commands

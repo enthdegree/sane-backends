@@ -2,6 +2,10 @@
 
 	* NEWS: Updated list of backends.
 	* doc/sane-usb.man: Added remark about old name of usbfs.
+	* doc/descriptions/unsupported.desc: Added Artec Ultima 2000 (0x4001
+	  model), Canon CanoScan D660U, Compaq S200, Epson Perfection 660,
+	  HP ScanJet 4570C, Microtek ScanMaker 3630. Updated ScanJet 5400C and
+	  5470C URLs, Canon FB1210 information.
 
 2003-01-13  Jochen Eisinger <jochen.eisinger@gmx.de>
 

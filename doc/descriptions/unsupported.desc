@@ -19,6 +19,17 @@
 
 ;********************************************************************************************
 
+:mfg "Artec"
+:url "http://www.artecusa.com/"
+
+:model "Ultima 2000 (0x4001)"
+:status :unsupported
+:url "http://umax1220u-sane.sourceforge.net/index.php?ScannerChipsets"
+:interface "USB"
+:comment "Same name, but different ids: vendor/product 0x05d8/0x4001 is not supported. Chips: WINBOND W6662CF, POWERVISION PV108630-C2L, ATC 93LC46 (EEPROM?). The chips look similar to that reported on the umax1220u page. The scanner with product id 0x4002 is supported by the gt68xx backend."
+
+;********************************************************************************************
+
 :mfg "Canon"
 :url "http://www.canon.com/"
 
@@ -26,13 +37,39 @@
 :url "http://sourceforge.net/projects/canonscanner/"
 :interface "USB"
 :status :unsupported
-:comment "Not supported. However, a stand-alone program is available."
+:comment "Not supported. Vendor/product 0x4a9/0x2205. However, a stand-alone program for FreeBSD is available."
+
+:model "CanoScan D660U"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. Vendor/product 0x04a9/0x2208.  Nothing else is known about these scanners, any information is appreciated."
 
 :model "CanoScan D1250U2"
 :url "http://www.mostang.com/pipermail/sane-devel/2003-January/017146.html"
 :interface "USB"
 :status :unsupported
 :comment "Not supported. However, some information is available."
+
+;********************************************************************************************
+
+:mfg "Compaq"
+:url "http://www.compaq.com/"
+
+:model "S200"
+;:url "http://sourceforge.net/projects/canonscanner/"
+:interface "USB"
+:status :unsupported
+:comment "Not supported. 2400x1200 dpi. Vendor=0x049f, Product=0x0021. One bulk-in, one bulk-out and one interrupt endpoint. Type-number: U0001-HB21, another type nr on the inside:  75100512-00"
+
+;********************************************************************************************
+
+:mfg "Epson"
+:url "http://www.epson.com/"
+
+:model "Perfection 660"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. Vendor/product: 0x04b8/0x0114."
 
 ;********************************************************************************************
 
@@ -44,6 +81,82 @@
 :interface "USB"
 :status :unsupported
 :comment "Not supported. Is reported to use the GL646 chipset (see link)."
+
+;********************************************************************************************
+
+:mfg "Hewlett-Packard"			; name a manufacturer
+:url "http://www.hp.com/"
+
+:model "ScanJet 2300C"
+:interface "USB"
+:status :unsupported
+:comment "No chipset information is available."
+
+:model "ScanJet 4400C"
+:url "http://reapoff.sourceforge.net/hpscanner/Default.htm"
+:interface "USB"
+:comment "Not supported. Seems to use the same chip as the 4470C. A stand-alone program for that scanner is available."
+:status :unsupported
+
+:model "ScanJet 4470C"
+:url "http://reapoff.sourceforge.net/hpscanner/Default.htm"
+:interface "USB"
+:comment "Not supported. However, a stand-alone program is available."
+:status :unsupported
+
+:model "ScanJet 4570C"
+;:url ""
+:interface "USB"
+:comment "Not supported. Vendor/product: 0x03f0/0x1305. Not much is known about this scanner. The manual says:  4500c and 5500c series."
+:status :unsupported
+
+:model "ScanJet 5400C"
+:url "http://sourceforge.net/projects/hp5400backend/"
+:interface "USB"
+:comment "Not supported yet, but in development. A test program is available."
+:status :unsupported
+
+:model "ScanJet 5470C"
+:url "http://sourceforge.net/projects/hp5400backend/"
+:interface "USB"
+:comment "Not supported yet, but in development. A test program is available."
+:status :unsupported
+
+;********************************************************************************************
+
+:mfg "Microtek"
+:url "http://www.microtek.com/"
+
+:model "ScanMaker 3630"
+:url "http://sm3600.sourceforge.net/"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. Doesn't seem to be compatible to 3600 series, see link."
+
+;********************************************************************************************
+
+:mfg "Mustek"			; name a manufacturer
+:url "http://www.mustek.com/"
+:url "http://www.mustek.de/"
+:url "http://www.mustek.com.tw/"
+
+:model "BearPaw 2400 TA Pro"
+:url "http://www.meier-geinitz.de/sane/misc/mustek-scanners.html#UNSUPPORTED"
+:interface "USB"
+:comment "Not supported. See link for some information."
+:status :unsupported
+
+:model "BearPaw 4800 TA Pro"
+:url "http://www.meier-geinitz.de/sane/misc/mustek-scanners.html#UNSUPPORTED"
+:interface "USB"
+:comment "Not supported. See link for some information."
+:status :unsupported
+
+:model "BearPaw 1200 F"
+:url "http://www.meier-geinitz.de/sane/misc/mustek-scanners.html#UNSUPPORTED"
+:interface "USB"
+:comment "Not supported. See link for some information."
+:status :unsupported
 
 ;********************************************************************************************
 
@@ -80,65 +193,6 @@
 :interface "USB"
 :status :unsupported
 :comment "Uses the Genesys Logic GL646 chipset."
-
-;********************************************************************************************
-
-:mfg "Hewlett-Packard"			; name a manufacturer
-:url "http://www.hp.com/"
-
-:model "ScanJet 2300C"
-:interface "USB"
-:status :unsupported
-:comment "No chipset information is available."
-
-:model "ScanJet 4400C"
-:url "http://reapoff.sourceforge.net/hpscanner/Default.htm"
-:interface "USB"
-:comment "Not supported. Seems to use the same chip as the 4470C. A stand-alone program for that scanner is available."
-:status :unsupported
-
-:model "ScanJet 4470C"
-:url "http://reapoff.sourceforge.net/hpscanner/Default.htm"
-:interface "USB"
-:comment "Not supported. However, a stand-alone program is available."
-:status :unsupported
-
-:model "ScanJet 5400C"
-:url "http://home.kabelfoon.nl/~bertrik/hp5400/index.html"
-:interface "USB"
-:comment "Not supported. However, a stand-alone program is available."
-:status :unsupported
-
-:model "ScanJet 5470C"
-:url "http://home.kabelfoon.nl/~bertrik/hp5400/index.html"
-:interface "USB"
-:comment "Not supported. However, a stand-alone program is available."
-:status :unsupported
-
-;********************************************************************************************
-
-:mfg "Mustek"			; name a manufacturer
-:url "http://www.mustek.com/"
-:url "http://www.mustek.de/"
-:url "http://www.mustek.com.tw/"
-
-:model "BearPaw 2400 TA Pro"
-:url "http://www.meier-geinitz.de/sane/misc/mustek-scanners.html#UNSUPPORTED"
-:interface "USB"
-:comment "Not supported. See link for some information."
-:status :unsupported
-
-:model "BearPaw 4800 TA Pro"
-:url "http://www.meier-geinitz.de/sane/misc/mustek-scanners.html#UNSUPPORTED"
-:interface "USB"
-:comment "Not supported. See link for some information."
-:status :unsupported
-
-:model "BearPaw 1200 F"
-:url "http://www.meier-geinitz.de/sane/misc/mustek-scanners.html#UNSUPPORTED"
-:interface "USB"
-:comment "Not supported. See link for some information."
-:status :unsupported
 
 ;********************************************************************************************
 

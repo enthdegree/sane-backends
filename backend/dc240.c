@@ -313,7 +313,7 @@ static SANE_Byte read_dir_pck[] = READ_DIR_PCK;
 static struct pkt_speed speeds[] = SPEEDS;
 static struct termios tty_orig;
 
-static struct dir_buf dir_buf;
+SANE_Byte dir_buf2[2 + CAMDIRENTRYSIZE * DIRENTRIES];
 
 static struct cam_dirlist *dir_head = NULL;
 
@@ -1843,13 +1843,14 @@ read_dir (SANE_String dir)
       return -1;
     }
 
-  if (read_data (Camera.fd, (SANE_Byte *) & dir_buf, 256) == -1)
+
+  if (read_data (Camera.fd, (SANE_Byte *) & dir_buf2, 256) == -1)
     {
       DBG (1, "%s: error: read_data returned -1\n", f);
       return -1;
     }
 
-  entries = (dir_buf.entries_msb << 8) + dir_buf.entries_lsb;
+  entries = (dir_buf2[0] << 8) + dir_buf2[1];
   DBG (127, "%s: result of dir read is %x, number of entries=%d\n", f, r,
        entries);
 
@@ -1860,8 +1861,9 @@ read_dir (SANE_String dir)
     }
 
   /* Determine if it's time to read another 256 byte buffer from the camera */
-  next_buf = ((SANE_Byte *) & dir_buf) + 256;
-  while ((SANE_Byte *) (&dir_buf.entry[entries]) >= (SANE_Byte *) next_buf)
+
+  next_buf = ((SANE_Byte *) & dir_buf2) + 256;
+  while (dir_buf2 + 2 + CAMDIRENTRYSIZE * entries >= (SANE_Byte *) next_buf)
     {
 
       DBG (127, "%s: reading additional directory buffer\n", f);
@@ -1879,15 +1881,16 @@ read_dir (SANE_String dir)
       /* Hack: I don't know what attr is used for, so setting it
        * to zero is a convenient way to put in the null terminator
        */
-      dir_buf.entry[i].attr = 0;
-      DBG (127, "%s: entry=%s\n", f, dir_buf.entry[i].name);
+      get_attr (i) = 0;
+      DBG (127, "%s: entry=%s\n", f, get_name (i));
 
-      if (dir_buf.entry[i].name[0] == '.')
+      if ((get_name (i))[0] == '.')
 	{
 	  continue;
 	}
 
-      if (dir_insert (&dir_buf.entry[i]) != 0)
+      if (dir_insert
+	  ((struct cam_dirent *) &dir_buf2[2 + CAMDIRENTRYSIZE * i]) != 0)
 	{
 	  DBG (1, "%s: error: failed to insert dir entry\n", f);
 	  return -1;

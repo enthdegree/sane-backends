@@ -39,9 +39,9 @@ SANE_INCLUDES = $(INSTALLED_INCLUDES) \
                 $(addprefix $(top_srcdir)/include/sane/,config.h.in sanei.h \
                 sanei_ab306.h sanei_auth.h sanei_backend.h \
                 sanei_codec_ascii.h sanei_codec_bin.h sanei_config.h \
-                sanei_debug.h sanei_net.h sanei_pa4s2.h sanei_pio.h \
-                sanei_pv8630.h sanei_scsi.h sanei_thread.h sanei_usb.h \
-                sanei_wire.h)
+                sanei_debug.h sanei_lm983x.h sanei_net.h sanei_pa4s2.h \
+                sanei_pio.h sanei_pv8630.h sanei_scsi.h sanei_thread.h \
+                sanei_usb.h sanei_wire.h)
 
 OTHER_INCLUDES = $(addprefix $(top_srcdir)/include/,Makefile.in getopt.h \
                 lalloca.h lassert.h md5.h )

@@ -1,3 +1,7 @@
+2001-11-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* sane-backends.lsm: Added keyword gphoto.
+	
 2001-10-31  Peter Fales <peter@fales.com>
 
 	* acinclude.m4, aclocal.m4, configure - Fix build failure due to 

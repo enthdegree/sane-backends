@@ -21,7 +21,7 @@
 
 :mfg "Fujitsu"  ; name a manufacturer
 :url "http://www.fcpa.fujitsu.com/products/scanners/"
-:url "http://www.fujitsu.com"
+:url "http://www.fujitsu.com/"
 
 :model "SP15C"                  ; name models for above-specified mfg.
 :interface "SCSI"

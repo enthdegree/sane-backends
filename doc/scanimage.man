@@ -11,6 +11,8 @@ scanimage - scan an image
 .RB [ --accept-md5-only ]
 .RB [ -h | --help ]
 .RB [ -L | --list-devices ]
+.RB [ -f | --formatted-device-list 
+.IR format ]
 .RB [ -T | --test ]
 .RB [ -v | --verbose ]
 .RB [ -V | --version ]
@@ -94,6 +96,27 @@ a configuration file, the only way to access it is by its full device
 name.  You may need to consult your system administrator to find out
 the names of such devices.
 .PP
+The
+.B -f
+or
+.B --formatted-device-list
+option works similar to --list-devices, but requires a format string. 
+scanimage replaces the placeholders 
+.B %d %v %m %t %i
+with the device name, vendor name, model name, scanner type and an index
+number respectively. The command
+.PP
+.RS
+scanimage -f "scanner number %i device %d is a %t, model %m, produced by %v"
+.PP
+.RE
+will produce something like:
+.PP
+.RS
+scanner number 0  device sharp:/dev/sg1 is  a  flatbed scanner, model JX250
+SCSI, produced by SHARP
+.PP
+.RE
 The
 .B -T
 or

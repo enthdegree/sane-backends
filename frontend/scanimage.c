@@ -75,6 +75,7 @@ Image;
 static struct option basic_options[] = {
   {"device-name", required_argument, NULL, 'd'},
   {"list-devices", no_argument, NULL, 'L'},
+  {"formatted-device-list", required_argument, NULL, 'f'},
   {"help", no_argument, NULL, 'h'},
   {"verbose", no_argument, NULL, 'v'},
   {"test", no_argument, NULL, 'T'},
@@ -92,7 +93,7 @@ static struct option basic_options[] = {
 #define OUTPUT_PNM      0
 #define OUTPUT_TIFF     1
 
-#define BASE_OPTSTRING	"d:hLvVTb"
+#define BASE_OPTSTRING	"d:hLf:vVTb"
 #define STRIP_HEIGHT	256	/* # lines we increment image height */
 
 static struct option *all_options;
@@ -1466,8 +1467,9 @@ main (int argc, char **argv)
 	  accept_only_md5_auth = 1;
 	  break;
 	case 'L':
+	case 'f':
 	  {
-	    int i;
+	    int i = 0;
 
 	    status = sane_get_devices (&device_list, SANE_FALSE);
 	    if (status != SANE_STATUS_GOOD)
@@ -1477,13 +1479,89 @@ main (int argc, char **argv)
 		exit (1);
 	      }
 
-	    for (i = 0; device_list[i]; ++i)
-	      {
-		printf ("device `%s' is a %s %s %s\n",
-			device_list[i]->name, device_list[i]->vendor,
-			device_list[i]->model, device_list[i]->type);
+            if (ch == 'L')
+              {
+	        for (i = 0; device_list[i]; ++i)
+	          {
+		    printf ("device `%s' is a %s %s %s\n",
+			    device_list[i]->name, device_list[i]->vendor,
+			    device_list[i]->model, device_list[i]->type);
+	          }
 	      }
-	    if (i == 0)
+	    else 
+	      {
+	        int i = 0, n = 0, maxarg = 8;
+	        char *percent;
+	        char *start, *fmt;
+	        const char **arglist = malloc(8 * sizeof(char**));
+	        if (arglist == 0)
+	          {
+	            printf("no enough memory\n");
+	            exit(1);
+	          }
+	        
+	        fmt = malloc(strlen(optarg));
+	        if (fmt == 0)
+	          {
+	            printf("no enough memory\n");
+	            exit(1);
+	          }
+	        
+	        for (i = 0; device_list[i]; ++i)
+	          {
+	            n = 0;
+	            strcpy(fmt, optarg);
+	            start = fmt;
+	            while( (percent = strchr(start, '%')) )
+	              {
+	                percent++;
+  	                if (percent)
+	                  {
+	                    if (n >= maxarg)
+	                      {
+	                        maxarg = 2 * maxarg;
+	                        arglist = realloc(arglist, maxarg * sizeof(char**));
+	                        if (arglist == 0)
+	                          {
+	  	                    printf("no enough memory\n");
+		                    exit(1);
+	                          } 
+	                      }
+	                    switch (*percent)
+	                      {
+	                        case 'd':
+	                          arglist[n++] = device_list[i]->name;
+	                          *percent = 's';
+	                          break;
+	                        case 'v':
+	                          arglist[n++] = device_list[i]->vendor;
+	                          *percent = 's';
+	                          break;
+	                        case 'm':
+	                          arglist[n++] = device_list[i]->model;
+	                          *percent = 's';
+	                          break;
+	                        case 't':
+	                          arglist[n++] = device_list[i]->type;
+	                          *percent = 's';
+	                          break;
+	                        case 'i':
+	                          arglist[n++] = (char *) i;
+	                          break;
+	                        case '%':
+	                          break;
+	                        default:
+	                          printf("unkonwn format specifier %%%c\n", *percent);
+	                      }
+	                    percent++;
+	                  }
+	                start = percent;
+	              }
+	            vprintf(fmt, arglist);
+	          }
+	      }
+	        
+	    if (i == 0 && ch != 'f')
 	      printf ("\nNo scanners were identified. If you were expecting "
 		      "something different,\ncheck that the scanner is plugged "
 		      "in, turned on and detected by the\nsane-find-scanner tool "

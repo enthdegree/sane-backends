@@ -5,6 +5,9 @@
 	  return codes for sane_start. Description of sane_set_io_mode is
 	  more precise.
 	* sanei/sanei_usb.c: Really check for bulk_out ep when writing.
+	* TODO: Added microtek2 problem. Updated sane.tex and desc sections.
+	  Added scanimage width/height problem. Added possible solution to po
+	  file mess.
 
 2002-10-15  Peter Kirchgessner <peter@kirchgessner.net>
 

@@ -1,4 +1,4 @@
-TODO (2002-10-02)
+TODO (2002-10-15)
 
 ******** todo ********
 
@@ -63,6 +63,9 @@ backends
     "../../backend/coolscan-scsidef.h", line 160: warning: initialization
     type mismatch; empty declarations), see sane-devel.
 
+  * microtek2.c (scsi_read_control_bits): Make sure to pass a size_t*
+    to sanei_scsi_cmd().
+
 doc
 ---
   * Add doxygen documentation for the remaining sanei files:
@@ -71,24 +74,14 @@ doc
     - sanei_wire.h
 
   * sane.tex:
-    - Define the return values for sane_init?  Define the consequences if
-      sane_init doesn't return SANE_STATUS_GOOD.
     - Add a warning/explanation about problems with sane_get_select_fd, Unix
-      select() calls and sane_cancel.
-    - Define, how to handle SANE_CAP_ADVANCED for groups.
-    - sane_start() can also return SANE_STATUS_INVAL
-    - sane_set_io_mode: SANE_STATUS_UNSUPPORTED should mean: "The backend does
-      not support the requested I/O mode.". Also explain in more detail that
-      this function must be called after sane_start.
+      select() calls and sane_cancel (-->backend-writing.txt?).
+    - Define, how to handle SANE_CAP_ADVANCED for groups. (-->backend-writing.txt?)
     - Add a well-known option that represents the status of buttons or some other
       means to support buttons if this is possible before SANE2. Keep in mind
       locking issues.
 
   * desc files:
-    - Remove unsupported scanners from the list or at least mark them with
-      ":status :unsupported":
-      - mustek_pp
-
     - Add viceo.desc to descriptions-external (from Steven Ellis 
       <viceo@stevencherie.net>)
 
@@ -108,6 +101,9 @@ frontends
   * scanimage: Check range of width and height. scanimage just uses the ranges
     from br-x and br-y but this is wrong for tl-x and tl-y != 0 and for
     SANE_UNIT_PIXEL.
+  
+  * scanimage: Reduce range of width and length if tlx or tly is different 
+    from 0 to avoid warnings.
 
 sanei
 -----
@@ -164,8 +160,18 @@ misc
   * Fix japi to run on current jdks. Swing is now included, and there is
     a segfault in Sane.c.
 
+  * po files: use msgcat if available, remove awk hook instead.
 
 ******** done ********
+* sane.tex:
+    - Define the return values for sane_init?  Define the consequences if
+      sane_init doesn't return SANE_STATUS_GOOD.
+    - sane_start() can also return SANE_STATUS_INVAL
+    - sane_set_io_mode: SANE_STATUS_UNSUPPORTED should mean: "The backend does
+      not support the requested I/O mode.". Also explain in more detail that
+      this function must be called after sane_start.
+* Remove unsupported scanners from the list or at least mark them with
+  ":status :unsupported":
 * sane.tex: Add some text about the meaning of bits in 1-bit modes.
 * dll: 
    - Rewrite to use libtool ltdl library. Is this necessary? It seems to

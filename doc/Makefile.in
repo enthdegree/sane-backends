@@ -60,7 +60,9 @@ READMES = README AUTHORS COPYING ChangeLog LICENSE NEWS PROBLEMS \
           README.solaris README.unixware2 README.unixware7 TODO
 DOCS    = backend-writing.txt sane.ps sane.dvi
 BACKDIRS= canon leo matsushita mustek mustek_usb plustek umax sceptre teco gt68xx
-LATEX	= TEXINPUTS=$(srcdir):$$TEXINPUTS latex
+LATEX	= TEXINPUTS=$(srcdir):$$TEXINPUTS @LATEX@
+DVIPS   = @DVIPS@
+MAKEINDEX = @MAKEINDEX@
 DLH	= TEXINPUTS=$(srcdir):$$TEXINPUTS dlh
 MAN2HTML= nroff -man |\
 	  man2html -compress  -topm 6 -botm 6 -title $${page} \
@@ -71,6 +73,12 @@ WWW_PATH= /home/httpd/html/sane/
 
 HTML_PAGES = sane-backends.html sane-backends-external.html \
              sane-mfgs.html sane-mfgs-external.html
+
+ifeq (@USE_LATEX@,no)
+STANDARD =
+else
+STANDARD = sane.ps
+endif
 
 SUBDIRS = $(BACKDIRS) icons figs descriptions descriptions-external
 
@@ -98,7 +106,7 @@ DISTFILES = Makefile.in backend-writing.txt descriptions.txt \
 .PHONY: all clean depend dist distclean html html-man install \
   install-mostang sane-html uninstall
 
-all: sane.ps $(MANPAGES) html-pages
+all: $(STANDARD) $(MANPAGES) html-pages
 
 %.1 %.5 %.7: %.man
 	@sed -e 's|@DATADIR@|$(datadir)|g' \
@@ -164,14 +172,14 @@ uninstall:
 sane.ind: sane.tex net.tex
 	@echo Generating index for sane.ps...
 	@touch sane.ind
-	@-$(LATEX) $(srcdir)/sane </dev/null >/dev/null && \
-	  makeindex sane.idx 2>/dev/null
+	@$(LATEX) $(srcdir)/sane </dev/null >/dev/null && \
+	 $(MAKEINDEX) sane.idx 2>/dev/null
 
 sane.ps: sane.ind
 	@echo Generating sane.ps...
-	@-$(LATEX) $(srcdir)/sane </dev/null >/dev/null && \
-	  $(LATEX) $(srcdir)/sane </dev/null >/dev/null && \
-	  dvips sane.dvi -o sane.ps 2>/dev/null
+	@$(LATEX) $(srcdir)/sane </dev/null >/dev/null && \
+	 $(LATEX) $(srcdir)/sane </dev/null >/dev/null && \
+	 $(DVIPS) sane.dvi -o sane.ps 2>/dev/null
 
 sane-html: sane.ind
 	$(DLH) $(srcdir)/sane.tex

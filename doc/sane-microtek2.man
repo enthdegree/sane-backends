@@ -1,0 +1,176 @@
+.TH sane-microtek2 5 "06 Nov 1998"
+.IX sane-microtek2
+.SH NAME
+sane-microtek2 - SANE backend for Microtek scanners with SCSI-2 command set
+.SH DESCRIPTION
+The
+.B sane-microtek2
+library implements a SANE (Scanner Access Now Easy) backend that
+provides access to some Microtek scanners with a SCSI-2 command set.
+This backend should be considered alpha.
+.PP 
+There exists a different backend for Microtek scanners with SCSI-1
+command set. Refer to sane-microtek(5) for details.
+.PP
+At present, the following
+scanners are known positively to work with this backend:
+.PP
+.RS
+Vendor     Product id:     Remark:
+.br
+--------   --------------  -----------
+.br
+Microtek   E3plus          all modes ok
+.br
+Microtek   X6              all modes ok
+.br
+Microtek   ScanMaker 330   all modes ok
+.br
+Microtek   ScanMaker 630   all modes ok
+.br
+Microtek   ScanMaker 636   all modes ok
+.br
+Microtek   Phantom 636     all modes ok
+.br
+Vobis      HighScan        all modes ok
+.RE
+.PP
+If you own a Microtek scanner with SCSI-2 interface other than the ones
+listed above, it may or may not work with SANE!
+
+.SH "FRONTEND OPTIONS"
+This backend dynamically enables the options for the frontend,
+that are supported by the scanner in dependence of the scanning-mode
+and other options. Not supported options are disabled.
+.PP
+The following options are supported by the Microtek2-driver:
+.PP
+Color, grayscale, halftone and lineart scans.
+.PP
+Highlight, midtone, shadow, contrast, brightness, exposure time control, 
+gamma correction, threshold (dependent of the scan mode)
+.PP
+Transparency media adapter, automatic document feeder
+
+.SH "DEVICE NAMES"
+This backend expects device names of the form:
+.PP
+.RS
+.IR special
+.RE
+.PP
+Where
+.I special
+is the UNIX path-name for the special device that corresponds to the
+scanner.  The special device name must be a generic SCSI device or a
+symlink to such a device.  Under Linux, such a device name could be
+.IR /dev/sga
+or
+.IR /dev/sge ,
+for example.
+.SH CONFIGURATION
+The configuration file for this backend resides in
+.IR @CONFIGDIR@/microtek2.conf .
+Its contents is a list of device names that correspond to Microtek
+scanners with SCSI-2 interface. Empty lines and lines starting with 
+a hash mark (#) are ignored.
+.PP
+The configuration file may also contain options. Currently two options are
+supported:
+.PP
+.RS
+option dump <n>
+.br
+option strip-height <n>
+.RE
+.PP
+If
+.I option dump <n>
+is enabled additional informations about the SCSI
+commands that are sent to the scanner are printed to stderr. This option
+is primarily useful for debugging purpose.
+.PP
+If n=1 the contents of the command blocks
+and the results for the INQUIRY and READ SCANNER ATTRIBUTES command are 
+printed to stderr.
+.PP
+If n=2 the contents of the command blocks for all other SCSI commands are
+printed to stderr, too. If n=3 the contents of the gamma table is 
+printed, too. If n=4 all scan data is additionally printed to stderr.
+.PP
+The default is n=1.
+.PP
+The
+.I option strip-height <n>
+, where <n> is a floating point number, limits the amount of data that is
+read from the scanner with one read command.
+The unit is inch and <n> defaults to 1.0,
+if this option is not set in the configuration file. If less than <n> inch
+of data fit into the SCSI buffer, then the smaller value is used and this
+option has no effect.
+.PP
+If your system has a big SCSI buffer and you want to make use of the whole
+buffer, increase the value for <n>. For example, if <n> is set to 14.0,
+no restrictions apply for scanners with a letter, legal or A4 sized
+scan area.
+.PP
+At present the options apply to all devices in the configuration file and
+cannnot be set on a per device basis.
+.PP
+A sample configuration file is shown below:
+.PP
+.RS
+option dump 1
+.br
+option strip-height 1.0
+.br
+/dev/scanner
+.br
+# this is a comment
+.br
+/dev/sge
+.RE
+
+This backend also supports the new configuration file format which makes
+it easier to detect scanners under Linux. If you have only one scanner it
+would be best to use the configuration file for this backend, that
+is distributed with SANE. This file is shown below:
+.PP
+.RS
+option dump 1
+.br
+option strip-height 14.0
+.br
+scsi * * Scanner
+.RE
+
+In this case all SCSI-Scanners should be detected automatically.
+
+.SH FILES
+.TP
+.I @CONFIGDIR@/microtek2.conf
+The backend configuration file.
+.TP
+.I @LIBDIR@/libsane-microtek2.a
+The static library implementing this backend.
+.TP
+.I @LIBDIR@/libsane-microtek2.so
+The shared library implementing this backend (present on systems that
+support dynamic loading).
+.SH ENVIRONMENT
+.TP
+.B SANE_DEBUG_MICROTEK2
+If the library was compiled with debug support enabled, this
+environment variable controls the debug level for this backend.  E.g.,
+a value of 128 requests all debug output to be printed.  Smaller
+levels reduce verbosity. To see error messages on stderr set
+SANE_DEBUG_MICROTEK2 to 1 (Remark: The whole debugging levels should
+be better revised).
+.br
+E.g. just say:
+.br
+export SANE_DEBUG_MICROTEK2=128
+.SH "SEE ALSO"
+sane-scsi(5)
+.SH AUTHOR
+Bernd Schroeder

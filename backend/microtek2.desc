@@ -1,0 +1,27 @@
+:backend "microtek2"              ; name of backend
+:version "0.6"                    ; version of backend
+:status :alpha                    ; :alpha, :beta, :stable, :new
+:manpage "sane-microtek2"         ; name of manpage (if it exists)
+
+:devicetype :scanner              ; start of a list of devices....
+
+:mfg "Microtek"                   ; name a manufacturer
+:url "http://www.microtek.com/"
+:model "parallel models unsupported"
+:model "ScanMaker V300"
+:model "ScanMaker V310"
+:model "ScanMaker V600"
+:model "ScanMaker E3plus"         ; name models for above-specified mfg.
+:model "ScanMaker X6"
+:model "ScanMaker X6EL"
+:model "ScanMaker 330"
+:model "ScanMaker 630"
+:model "ScanMaker 636"
+:model "ScanMaker 9600XL"
+:comment "only flatbed mode ?"
+:model "Phantom 636"
+
+:mfg "Vobis"
+:url "http://www.vobis.de/"
+:model "HighScan"                 ; name models for above-specified mfg.
+:comment "only E3plus based models"

@@ -1,3 +1,8 @@
+2001-06-09  Karl Heinz Kremer <khk@khk.net>
+
+	* backend/epson.c: Changed debug level for for an informational
+	  message in the sense_handler from 0 to 2.
+
 2001-06-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* README.os2: Added link to Franz Bakan's web page.

@@ -523,7 +523,7 @@ send_voltages (Mustek_PP_Device * dev)
 
 }
 
-int
+static int
 compar (const void *a, const void *b)
 {
   return (signed int) (*(const SANE_Byte *) a) -

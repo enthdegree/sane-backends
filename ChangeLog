@@ -1,3 +1,9 @@
+2003-08-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* README.darwin sanei/sanei_scsi.c: Added support for the
+	  MacOS X IOKit SCSI Architecture Model API. Added support for
+	  Firewire scanners. Patch from Guy Brooker <guy_brooker@mac.com>.
+
 2003-07-22  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan.c backend/snapscan.h backend/snapscan-scsi.c

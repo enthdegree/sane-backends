@@ -313,14 +313,14 @@
 
 #include  <sane/sanei_pio.h>
 
-#include  "epson.h"
-#include  "epson_scsi.h"
-#include  "epson_usb.h"
-
 #define  BACKEND_NAME epson
 #include  <sane/sanei_backend.h>
 
 #include  <sane/sanei_config.h>
+
+#include  "epson.h"
+#include  "epson_scsi.h"
+#include  "epson_usb.h"
 
 #define  EPSON_CONFIG_FILE	"epson.conf"
 

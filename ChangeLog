@@ -1,3 +1,7 @@
+2003-09-14  Karl Heinz Kremer <khk@khk.net>
+
+	* backend/epson.c: put Henning's #include change back in.
+
 2003-09-14  Stéphane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c: reworked inb/out functions. The backend now

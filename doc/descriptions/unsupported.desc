@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-10-03"		; version of backend
+:version "2003-10-05"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -269,7 +269,13 @@
 :url "http://server2.clover.com.au/~tpw/scanner/main.html"
 :interface "USB"
 :status :unsupported
-:comment "Currently not supported. See link for details."
+:comment "Currently not supported. See link for details. Is reported to be a Benq scanner in reality and uses Benq commands."
+
+:model "Perfection 3170"
+;:url ""
+:interface "USB"
+:status :unsupported
+:comment "Probably unsupported. Seems to neither use Epson nor Benq protocol. Details appreciated."
 
 ;********************************************************************************************
 
@@ -684,6 +690,16 @@
 
 ;********************************************************************************************
 
+:mfg "Packard Bell"
+
+:model "Diamond 1200"
+;:url "/unsupported/pie-1800u.html"
+:interface "USB"
+:status :unsupported
+:comment "Probably not supported yet. No information available. If you own such a device, please contact us."
+
+;********************************************************************************************
+
 :mfg "Plustek"
 :url "http://www.plustek.de/"
 :url "http://www.plustek.com/"
@@ -951,6 +967,11 @@
 :interface "USB"
 :status :unsupported
 :comment "Not supported. Vendor/product: 0x04a7/0x022c."
+
+:model "PaperPort 3100b"
+:interface "Parport"
+:status :unsupported
+:comment "Most probably not supported. More details would be appreciated."
 
 :model "Primascan Colorado 2600u"
 :url "/unsupported/visioneer-onetouch4400.html"

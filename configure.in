@@ -98,6 +98,13 @@ if test "${ac_cv_prog_gcc}" = "yes"; then
 fi # ac_cv_prog_gcc
 echo using CFLAGS=${CFLAGS}
 
+dnl special LDFLAGS
+case "${host_os}" in  
+  aix*) #enable .so libraries, disable archives
+    LDFLAGS="$LDFLAGS -Wl,-brtl"
+    ;;
+esac
+
 dnl Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS(fcntl.h unistd.h libc.h sys/dsreq.h sys/select.h \

@@ -1,4 +1,4 @@
-TODO (2003-04-17)
+TODO (2003-04-27)
 
 ******** todo ********
 
@@ -129,6 +129,9 @@ sanei
 
   * sanei_usb:
     - some scanners seem to provide more than one bulk-in endpoint(?) 
+
+  * sanei_scsi: Add patches for MacOS X support from Mattias Ellert
+  <mattias.ellert@tsl.uu.se>.
 
 
 platform-specific

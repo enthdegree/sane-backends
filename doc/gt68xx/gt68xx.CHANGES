@@ -1,3 +1,13 @@
+V 1.0-31 (2002-11-21)
+
+- Changed 150 to 200 dpi for Mustek BearPaw 2400 TA.
+- Fixed warnings in gt68xx_low.c
+- Used DBG instead of XDBG ing gt68xx_low.c
+- Minor manpage fixes. Added man page links to other backends.
+- gt68xx_low.h: Fixed __FUNCTION__ bug on non-gcc compilers.
+- Added more details about the BSDs in the manpage.
+- Fixed color order for ScanExpress A3 USB.
+
 V 1.0-30 (2002-11-13)
 
 - Added basic support for Plustek OpticPro 1248U (from Gerhard Jaeger

@@ -1,7 +1,7 @@
-.TH sane-gt68xx 5 "13 Nov 2002"
+.TH sane-gt68xx 5 "13 Nov 2002" @PACKAGEVERSION@ "SANE Scanner Access Now Easy"
 .IX sane-gt68xx
 .SH NAME
-sane-gt68xx - SANE backend for GT-68XX based USB flatbed scanners
+sane-gt68xx \- SANE backend for GT-68XX based USB flatbed scanners
 .SH DESCRIPTION
 The
 .B sane-gt68xx
@@ -33,6 +33,8 @@ Mustek BearPaw 2400 CU (Plus)
 .br
 Mustek BearPaw 2400 TA (Plus)
 .br
+Mustek ScanExpress A3 USB
+.br
 Mustek ScanExpress 1200 UB Plus
 .br
 Packard Bell Diamond 1200
@@ -47,24 +49,32 @@ Trust Flat Scan USB 19200
 More details can be found on the gt68xx backend homepage 
 .IR http://www.meier-geinitz.de/sane/gt68xx/ .
 .PP
+The Artec E+ 48U and its clones are supported by the artec_eplus48u backend, see
+.BR sane-artec_eplus48u (5)
+for details.
+.PP
 This is BETA software. Especially if you test new or untested scanners, keep
 your hand at the scanner's plug and unplug it, if the head bumps at the end of
 the scan area.
 .PP
 If you own a scanner other than the ones listed above that works with this
 backend, please let me know this by sending the scanner's exact model name and
-the USB vendor and device ids (e.g. from /proc/bus/usb/devices,
-sane-find-scanner or syslog) to me. Even if the scanner's name is only
-slightly different from the models mentioned above, please let me know.
+the USB vendor and device ids (e.g. from
+.IR /proc/bus/usb/devices ,
+.I sane-find-scanner
+or syslog) to me. Even if the scanner's name is only slightly different from
+the models mentioned above, please let me know.
 .PP
 .SH KERNEL ISSUES
 If libusb-0.1.6 or later is installed, this section can be skipped. The
 scanner should be found by sane-find-scanner without further actions. For
-setting permissions and general USB information looks at sane-usb(5).
+setting permissions and general USB information looks at
+.BR sane-usb (5).
 .PP
 The scanners based on the GT-6816 (Mustek BearPaw TA and BearPaw Plus models,
 the Packard Bell and the Lexmark scanner) need a Linux kernel 2.4.12 or newer.
-Recent 2.2 kernels may also work, but I haven't tested them.
+Recent 2.2 kernels may also work, but I haven't tested them. Older kernels or
+other operating systems won't work. Use libusb instead.
 .PP
 The scanners based on the GT-6801 (all other scanners) need an updated kernel
 scanner module that is not yet included in the official kernel code. It can
@@ -74,13 +84,20 @@ instruction.
 .SH FIRMWARE FILE
 You need a firmware file for your scanner. That's a small file containing
 software that will be uploaded to the scanner's memory. It's usually named
-*.usb, e.g. PS1fw.usb. It comes on the installation CD that was provided by
-the manufacturer, but it may be packaged together with the installation
-program in an .exe file. For Mustek scanners, the file can be dowloaded from
-the gt68xx backend homepage. For other scanners, check the CD for .usb
-files. If everything else fails, you must install the Windows driver and get
-the firmware from there (usually in the windows/system or system32
-directories). Put that firmware file into @DATADIR@/sane/gt68xx/.
+*.usb, e.g. 
+.IR PS1fw.usb .
+It comes on the installation CD that was provided by the manufacturer, but it
+may be packaged together with the installation program in an .exe file. For
+Mustek scanners, the file can be dowloaded from the gt68xx backend
+homepage. For other scanners, check the CD for .usb files. If everything else
+fails, you must install the Windows driver and get the firmware from there
+(usually in the 
+.I windows/system
+or
+.I system32
+directories). Put that firmware file into
+.IR @DATADIR@/sane/gt68xx/ .
+
 .SH CONFIGURATION
 The contents of the
 .I gt68xx.conf
@@ -88,51 +105,52 @@ file is a list of usb lines containing vendor and product ids that correspond
 to USB scanners. The file can also contain option lines.  Empty lines and
 lines starting with a hash mark (#) are ignored.  The scanners are
 autodetected by
-.I usb vendor_id product_id
+.B usb vendor_id product_id
 statements which are already included into
 .IR gt68xx.conf .
 "vendor_id" and "product_id" are hexadecimal numbers that identfy the
 scanner. 
 .PP
 The 
-.IR override ,
-.IR firmware ,
-.IR vendor ,
+.BR override ,
+.BR firmware ,
+.BR vendor ,
 and
-.I model
+.B model
 options must be placed after the
-.I usb
+.B usb
 line they refer to.
 .PP
 Option
-.I override
+.B override
 is used to override the default model parameters. That's necessary for some
 scanners that use the same vendor/product ids but are different. For these
 scanners there are already commented out override lines in the configuration
 file. 
-.I override "mustek-scanexpress-1200-ub-plus"
+.B override "mustek-scanexpress-1200-ub-plus"
 is necessary for the Mustek Scanexpress 1200 UB Plus, the
 Medion/Lifetec/Tevion LT 9452, and the Trust Compact Scan USB 19200.
-.I override "artec-ultima-2000"
+.B override "artec-ultima-2000"
 is used for the Artec Ultima 2000, the Boeder SmartScan Slim Edition, the
 Medion/ Lifetec/ Tevion/ Cytron MD/LT 9385, the Medion/ Lifetec/ Tevion MD
 9458, and the Trust Flat Scan USB 19200.
-.I override "mustek-bearpaw-2400-cu"
+.B override "mustek-bearpaw-2400-cu"
 is necessary for the Mustek BearPaw 2400 CU.
 .PP
 Option
-.I firmware
+.B firmware
 selects the name and path of the firmware file. It's only necessary if the
 default (or override) doesn't work. The default firmware directory is
-@DATADIR@/sane/gt68xx/. You may need to create this directory. If you
-want to place the firmware files at a different path, use a 
-.I firmware
+.IR @DATADIR@/sane/gt68xx/ .
+You may need to create this directory. If you want to place the firmware files
+at a different path, use a
+.B firmware
 line.
 .PP
 The 
-.I vendor
+.B vendor
 and
-.I model
+.B model
 options are not absolutely necessary but for convenience. Quite a lot of
 scanners from different manufacturers share the same vendor/product ids so you
 can set the "correct" name here.
@@ -150,7 +168,6 @@ vendor "Trust"
 .br
 product "Compact Scan USB 19200"
 .RE
-
 
 .SH FILES
 .TP
@@ -190,20 +207,29 @@ Example:
 export SANE_DEBUG_GT68XX=4
 
 .SH "SEE ALSO"
-sane(7), sane-usb(5)
+.BR sane (7),
+.BR sane-usb (5),
+.BR sane-artec_eplus48u (5)
+.BR sane-plustek (5),
+.BR sane-mustek_usb (5),
+.BR sane-mustek (5),
+.BR sane-mustek_pp (5)
 .br
-@DOCDIR@/gt68xx/gt68xx.CHANGES
- 
+.I @DOCDIR@/gt68xx/gt68xx.CHANGES
+.br
+.I http://www.meier-geinitz.de/sane/gt68xx
+
 .SH AUTHOR
 Henning Meier-Geinitz <henning@meier-geinitz.de>
 .br
 The original gt68xx driver was written by Sergey Vlasov, Andreas Nowack, and
 David Stevenson. Thanks for sending patches and answering questions to them
 and all the other contributors.
+
 .SH BUGS
-Currently scanning seems to only work under Linux. With the BSDs, either the
-first command after the firmware boot or the reading of the scanned data times
-out.
+Currently scanning seems to only work reliably under Linux. With the FreeBSD,
+NetBSD and OpenBSD scanning works only once. Then either the scanner has to be
+replugged or even a reboot is necessary. That's most probably a kernel issue.
 .PP
 The first few lines of the image are garbage for the 2400 TA
 Plus.
@@ -216,8 +242,7 @@ Y-resolution differ.
 .PP
 Support for buttons is missing.
 .PP
-More detailed bug information is
-available at the gt68xx backend homepage
+More detailed bug information is available at the gt68xx backend homepage
 .IR http://www.meier-geinitz.de/sane/gt68xx .
 Please contact me if you find a bug or missing feature:
 <henning@meier-geinitz.de>

@@ -70,7 +70,7 @@
   do {                                                                  \
     if (!(dev))                                                         \
       {                                                                 \
-        XDBG ((3, "%s: BUG: NULL device\n", (func_name)));              \
+        DBG (0, "BUG: NULL device\n");                                 \
         return SANE_STATUS_INVAL;                                       \
       }                                                                 \
   } while (SANE_FALSE)
@@ -85,7 +85,8 @@
     CHECK_DEV_NOT_NULL ((dev), (func_name));                            \
     if ((dev)->fd == -1)                                                \
       {                                                                 \
-        XDBG ((3, "%s: BUG: device %p not open\n", (func_name), (dev)));\
+        DBG (0, "%s: BUG: device %p not open\n", (func_name),           \
+             ((void *) dev));                                          \
         return SANE_STATUS_INVAL;                                       \
       }                                                                 \
   } while (SANE_FALSE)
@@ -100,8 +101,8 @@
     CHECK_DEV_OPEN ((dev), (func_name));                                \
     if (!(dev)->active)                                                 \
       {                                                                 \
-        XDBG ((3, "%s: BUG: device %p not active\n",                    \
-               (func_name), (dev)));                                    \
+        DBG (0, "%s: BUG: device %p not active\n", (func_name),         \
+               ((void *) dev));                                        \
         return SANE_STATUS_INVAL;                                       \
       }                                                                 \
   } while (SANE_FALSE)
@@ -139,9 +140,9 @@ dump_req (SANE_String_Const prefix, GT68xx_Packet req)
 SANE_Status
 gt68xx_device_new (GT68xx_Device ** dev_return)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_device_new") GT68xx_Device *dev;
+  GT68xx_Device *dev;
 
-  XDBG ((7, "%s: enter\n", function_name));
+  DBG (7, "gt68xx_device_new: enter\n");
   if (!dev_return)
     return SANE_STATUS_INVAL;
 
@@ -149,8 +150,8 @@ gt68xx_device_new (GT68xx_Device ** dev_return)
 
   if (!dev)
     {
-      XDBG ((3, "%s: couldn't malloc %d bytes for device\n",
-	     function_name, sizeof (GT68xx_Device)));
+      DBG (3, "gt68xx_device_new: couldn't malloc %d bytes for device\n",
+	   sizeof (GT68xx_Device));
       *dev_return = 0;
       return SANE_STATUS_NO_MEM;
     }
@@ -171,15 +172,14 @@ gt68xx_device_new (GT68xx_Device ** dev_return)
   dev->shm_channel = NULL;
 #endif /* USE_FORK */
 
-  XDBG ((7, "%s: leave: ok\n", function_name));
+  DBG (7, "gt68xx_device_new:: leave: ok\n");
   return SANE_STATUS_GOOD;
 }
 
 SANE_Status
 gt68xx_device_free (GT68xx_Device * dev)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_device_free")
-    XDBG ((7, "%s: enter: dev=%p\n", function_name, dev));
+  DBG (7, "gt68xx_device_free: enter: dev=%p\n", (void *) dev);
   if (dev)
     {
       if (dev->active)
@@ -190,15 +190,15 @@ gt68xx_device_free (GT68xx_Device * dev)
 
       if (dev->model && dev->model->allocated)
 	{
-	  XDBG ((7, "%s: freeing model data %p\n", function_name,
-		 dev->model));
+	  DBG (7, "gt68xx_device_free: freeing model data %p\n",
+	       (void *) dev->model);
 	  free (dev->model);
 	}
 
-      XDBG ((7, "%s: freeing dev\n", function_name));
+      DBG (7, "gt68xx_device_free: freeing dev\n");
       free (dev);
     }
-  XDBG ((7, "%s: leave: ok\n", function_name));
+  DBG (7, "gt68xx_device_free: leave: ok\n");
   return SANE_STATUS_GOOD;
 }
 
@@ -219,17 +219,17 @@ gt68xx_find_usb_device_entry (SANE_Word vendor, SANE_Word product)
 static SANE_Status
 gt68xx_device_identify (GT68xx_Device * dev)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_device_identify") SANE_Status status;
+  SANE_Status status;
   SANE_Word vendor, product;
   GT68xx_USB_Device_Entry *entry;
 
-  CHECK_DEV_OPEN (dev, function_name);
+  CHECK_DEV_OPEN (dev, "gt68xx_device_identify");
 
   status = sanei_usb_get_vendor_product (dev->fd, &vendor, &product);
   if (status != SANE_STATUS_GOOD)
     {
-      XDBG ((3, "%s: error getting USB id: %s\n",
-	     function_name, sane_strstatus (status)));
+      DBG (3, "gt68xx_device_identify: error getting USB id: %s\n",
+	   sane_strstatus (status));
       return status;
     }
 
@@ -242,8 +242,8 @@ gt68xx_device_identify (GT68xx_Device * dev)
   else
     {
       dev->model = NULL;
-      XDBG ((3, "%s: unknown USB device (vendor 0x%04x, product 0x%04x)\n",
-	     function_name, vendor, product));
+      DBG (3, "gt68xx_device_identify: unknown USB device (vendor 0x%04x, "
+	   "product 0x%04x)\n", vendor, product);
       return SANE_STATUS_INVAL;
     }
 
@@ -253,24 +253,24 @@ gt68xx_device_identify (GT68xx_Device * dev)
 SANE_Status
 gt68xx_device_open (GT68xx_Device * dev, const char *dev_name)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_device_open") SANE_Status status;
+  SANE_Status status;
   SANE_Int fd;
 
-  XDBG ((7, "%s: enter: dev=%p\n", function_name, dev));
+  DBG (7, "gt68xx_device_open: enter: dev=%p\n", (void *) dev);
 
-  CHECK_DEV_NOT_NULL (dev, function_name);
+  CHECK_DEV_NOT_NULL (dev, "gt68xx_device_open");
 
   if (dev->fd != -1)
     {
-      XDBG ((3, "%s: device already open\n", function_name));
+      DBG (3, "gt68xx_device_open: device already open\n");
       return SANE_STATUS_INVAL;
     }
 
   status = sanei_usb_open (dev_name, &fd);
   if (status != SANE_STATUS_GOOD)
     {
-      XDBG ((3, "%s: sanei_usb_open failed: %s\n",
-	     function_name, sane_strstatus (status)));
+      DBG (3, "gt68xx_device_open: sanei_usb_open failed: %s\n",
+	   sane_strstatus (status));
       return status;
     }
 
@@ -279,17 +279,16 @@ gt68xx_device_open (GT68xx_Device * dev, const char *dev_name)
   if (!dev->model)
     gt68xx_device_identify (dev);
 
-  XDBG ((7, "%s: leave: ok\n", function_name));
+  DBG (7, "gt68xx_device_open: leave: ok\n");
   return SANE_STATUS_GOOD;
 }
 
 SANE_Status
 gt68xx_device_close (GT68xx_Device * dev)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_device_close")
-    XDBG ((7, "%s: enter: dev=%p\n", function_name, dev));
+  DBG (7, "gt68xx_device_close: enter: dev=%p\n", (void *) dev);
 
-  CHECK_DEV_OPEN (dev, function_name);
+  CHECK_DEV_OPEN (dev, "gt68xx_device_close");
 
   if (dev->active)
     gt68xx_device_deactivate (dev);
@@ -297,7 +296,7 @@ gt68xx_device_close (GT68xx_Device * dev)
   sanei_usb_close (dev->fd);
   dev->fd = -1;
 
-  XDBG ((7, "%s: leave: ok\n", function_name));
+  DBG (7, "gt68xx_device_close: leave: ok\n");
   return SANE_STATUS_GOOD;
 }
 
@@ -313,9 +312,9 @@ gt68xx_device_is_configured (GT68xx_Device * dev)
 SANE_Status
 gt68xx_device_set_model (GT68xx_Device * dev, GT68xx_Model * model)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_device_set_model") if (dev->active)
+  if (dev->active)
     {
-      XDBG ((3, "%s: device already active\n", function_name));
+      DBG (3, "gt68xx_device_set_model: device already active\n");
       return SANE_STATUS_INVAL;
     }
 
@@ -348,12 +347,11 @@ gt68xx_device_get_model (SANE_String name, GT68xx_Model ** model)
 SANE_Status
 gt68xx_device_unshare_model (GT68xx_Device * dev)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_device_unshare_model")
-    CHECK_DEV_OPEN (dev, function_name);
+  CHECK_DEV_OPEN (dev, "gt68xx_device_unshare_model");
 
   if (dev->active)
     {
-      XDBG ((3, "%s: device already active\n", function_name));
+      DBG ((3, "gt68xx_device_unshare_model: device already active\n");
       return SANE_STATUS_INVAL;
     }
 
@@ -379,31 +377,31 @@ gt68xx_device_unshare_model (GT68xx_Device * dev)
 SANE_Status
 gt68xx_device_activate (GT68xx_Device * dev)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_device_activate") SANE_Status status;
+  SANE_Status status;
 
-  CHECK_DEV_OPEN (dev, function_name);
+  CHECK_DEV_OPEN (dev, "gt68xx_device_activate");
 
   if (dev->active)
     {
-      XDBG ((3, "%s: device already active\n", function_name));
+      DBG (3, "gt68xx_device_activate: device already active\n");
       return SANE_STATUS_INVAL;
     }
 
   if (!gt68xx_device_is_configured (dev))
     {
-      XDBG ((3, "%s: device is not configured\n", function_name));
+      DBG (3, "gt68xx_device_activate: device is not configured\n");
       return SANE_STATUS_INVAL;
     }
 
-  XDBG ((7, "%s: model \"%s\"\n", function_name, dev->model->name));
+  DBG (7, "gt68xx_device_activate: model \"%s\"\n", dev->model->name);
 
   if (dev->model->command_set->activate)
     {
       status = (*dev->model->command_set->activate) (dev);
       if (status != SANE_STATUS_GOOD)
 	{
-	  XDBG ((3, "%s: command-set-specific activate failed: %s\n",
-		 function_name, sane_strstatus (status)));
+	  DBG (3, "gt68xx_device_activate: command-set-specific "
+	       "activate failed: %s\n", sane_strstatus (status));
 	  return status;
 	}
     }
@@ -422,10 +420,9 @@ gt68xx_device_activate (GT68xx_Device * dev)
 SANE_Status
 gt68xx_device_deactivate (GT68xx_Device * dev)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_device_deactivate")
-    SANE_Status status = SANE_STATUS_GOOD;
+  SANE_Status status = SANE_STATUS_GOOD;
 
-  CHECK_DEV_ACTIVE (dev, function_name);
+  CHECK_DEV_ACTIVE (dev, "gt68xx_device_deactivate");
 
   if (dev->read_active)
     gt68xx_device_read_finish (dev);
@@ -435,8 +432,8 @@ gt68xx_device_deactivate (GT68xx_Device * dev)
       status = (*dev->model->command_set->deactivate) (dev);
       if (status != SANE_STATUS_GOOD)
 	{
-	  XDBG ((3, "%s: command set-specific deactivate failed: %s\n",
-		 function_name, sane_strstatus (status)));
+	  DBG (3, "gt68xx_device_deactivate: command set-specific deactivate failed: %s\n",
+	       sane_strstatus (status));
 	  /* proceed with deactivate anyway */
 	}
     }
@@ -456,11 +453,11 @@ SANE_Status
 gt68xx_device_memory_write (GT68xx_Device * dev,
 			    SANE_Word addr, SANE_Word size, SANE_Byte * data)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_device_memory_write") SANE_Status status;
+  SANE_Status status;
 
-  XDBG ((8, "%s: dev=%p, addr=0x%x, size=0x%x, data=%p\n",
-	 function_name, dev, addr, size, data));
-  CHECK_DEV_ACTIVE (dev, function_name);
+  DBG (8, "gt68xx_device_memory_write: dev=%p, addr=0x%x, size=0x%x, data=%p\n",
+       (void *) dev, addr, size, data);
+  CHECK_DEV_ACTIVE (dev, "gt68xx_device_memory_write");
 
   status = sanei_usb_control_msg (dev->fd, 0x40, 0x01,
 				  dev->model->command_set->memory_write_value,
@@ -468,8 +465,8 @@ gt68xx_device_memory_write (GT68xx_Device * dev,
 
   if (status != SANE_STATUS_GOOD)
     {
-      XDBG ((3, "%s: sanei_usb_control_msg failed: %s\n",
-	     function_name, sane_strstatus (status)));
+      DBG (3, "gt68xx_device_memory_write: sanei_usb_control_msg failed: %s\n",
+	   sane_strstatus (status));
     }
 
   return status;
@@ -479,11 +476,11 @@ SANE_Status
 gt68xx_device_memory_read (GT68xx_Device * dev,
 			   SANE_Word addr, SANE_Word size, SANE_Byte * data)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_device_memory_read") SANE_Status status;
+  SANE_Status status;
 
-  XDBG ((8, "%s: dev=%p, addr=0x%x, size=0x%x, data=%p\n",
-	 function_name, dev, addr, size, data));
-  CHECK_DEV_ACTIVE (dev, function_name);
+  DBG (8, "gt68xx_device_memory_read: dev=%p, addr=0x%x, size=0x%x, data=%p\n",
+       (void *) dev, addr, size, data);
+  CHECK_DEV_ACTIVE (dev, "gt68xx_device_memory_read");
 
   status = sanei_usb_control_msg (dev->fd, 0xc0, 0x01,
 				  dev->model->command_set->memory_read_value,
@@ -491,8 +488,8 @@ gt68xx_device_memory_read (GT68xx_Device * dev,
 
   if (status != SANE_STATUS_GOOD)
     {
-      XDBG ((3, "%s: sanei_usb_control_msg failed: %s\n",
-	     function_name, sane_strstatus (status)));
+      DBG (3, "gt68xx_device_memory_read: sanei_usb_control_msg failed: %s\n",
+	   sane_strstatus (status));
     }
 
   return status;
@@ -504,19 +501,19 @@ gt68xx_device_generic_req (GT68xx_Device * dev,
 			   SANE_Word res_value, SANE_Word res_index,
 			   GT68xx_Packet cmd, GT68xx_Packet res)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_device_generic_req") SANE_Status status;
+  SANE_Status status;
 
-  XDBG ((7, "%s: command=0x%02x\n", function_name, cmd[0]));
+  DBG (7, "gt68xx_device_generic_req: command=0x%02x\n", cmd[0]);
   DUMP_REQ (">>", cmd);
-  CHECK_DEV_ACTIVE (dev, function_name);
+  CHECK_DEV_ACTIVE (dev, "gt68xx_device_generic_req");
 
   status = sanei_usb_control_msg (dev->fd,
 				  0x40, 0x01, cmd_value, cmd_index,
 				  GT68XX_PACKET_SIZE, cmd);
   if (status != SANE_STATUS_GOOD)
     {
-      XDBG ((3, "%s: writing command failed: %s\n",
-	     function_name, sane_strstatus (status)));
+      DBG (3, "gt68xx_device_generic_req: writing command failed: %s\n",
+	     sane_strstatus (status));
       return status;
     }
 
@@ -527,8 +524,8 @@ gt68xx_device_generic_req (GT68xx_Device * dev,
 				  GT68XX_PACKET_SIZE, res);
   if (status != SANE_STATUS_GOOD)
     {
-      XDBG ((3, "%s: reading response failed: %s\n",
-	     function_name, sane_strstatus (status)));
+      DBG (3, "gt68xx_device_generic_req: reading response failed: %s\n",
+	     sane_strstatus (status));
       return status;
     }
 
@@ -734,22 +731,22 @@ SANE_Status
 gt68xx_device_read_raw (GT68xx_Device * dev, SANE_Byte * buffer,
 			size_t * size)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_device_read_raw") SANE_Status status;
+  SANE_Status status;
 
-  CHECK_DEV_ACTIVE (dev, function_name);
+  CHECK_DEV_ACTIVE (dev, "gt68xx_device_read_raw");
 
-  XDBG ((7, "%s: enter: size=%lu\n", function_name, (unsigned long) *size));
+  DBG (7, "gt68xx_device_read_raw: enter: size=%lu\n", (unsigned long) *size);
 
   status = sanei_usb_read_bulk (dev->fd, buffer, size);
 
   if (status != SANE_STATUS_GOOD)
     {
-      XDBG ((3, "%s: bulk read failed: %s\n",
-	     function_name, sane_strstatus (status)));
+      DBG (3, "gt68xx_device_read_raw: bulk read failed: %s\n",
+	   sane_strstatus (status));
       return status;
     }
 
-  XDBG ((7, "%s: leave: size=%lu\n", function_name, (unsigned long) *size));
+  DBG (7, "gt68xx_device_read_raw: leave: size=%lu\n", (unsigned long) *size);
 
   return SANE_STATUS_GOOD;
 }
@@ -757,12 +754,12 @@ gt68xx_device_read_raw (GT68xx_Device * dev, SANE_Byte * buffer,
 SANE_Status
 gt68xx_device_set_read_buffer_size (GT68xx_Device * dev, size_t buffer_size)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_device_set_read_buffer_size")
-    CHECK_DEV_NOT_NULL (dev, function_name);
+  CHECK_DEV_NOT_NULL (dev, "gt68xx_device_set_read_buffer_size");
 
   if (dev->read_active)
     {
-      XDBG ((3, "%s: BUG: read already active\n", function_name));
+      DBG (3, "gt68xx_device_set_read_buffer_size: BUG: read already "
+	   "active\n");
       return SANE_STATUS_INVAL;
     }
 
@@ -773,7 +770,7 @@ gt68xx_device_set_read_buffer_size (GT68xx_Device * dev, size_t buffer_size)
       return SANE_STATUS_GOOD;
     }
 
-  XDBG ((3, "%s: bad buffer size\n", function_name));
+  DBG (3, "gt68xx_device_set_read_buffer_size: bad buffer size\n");
   return SANE_STATUS_INVAL;
 }
 
@@ -781,34 +778,34 @@ SANE_Status
 gt68xx_device_read_prepare (GT68xx_Device * dev, size_t expected_count,
 			    SANE_Bool final_scan)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_device_read_prepare") size_t buffer_size;
+  size_t buffer_size;
 
-  CHECK_DEV_ACTIVE (dev, function_name);
+  CHECK_DEV_ACTIVE (dev, "gt68xx_device_read_prepare");
 
   if (dev->read_active)
     {
-      XDBG ((3, "%s: read already active\n", function_name));
+      DBG (3, "gt68xx_device_read_prepare: read already active\n");
       return SANE_STATUS_INVAL;
     }
-  XDBG ((5, "%s: total size: %lu bytes\n", function_name,
-	 (unsigned long) expected_count));
+  DBG (5, "gt68xx_device_read_prepare: total size: %lu bytes\n",
+	 (unsigned long) expected_count);
 
   buffer_size = dev->requested_buffer_size;
-  XDBG ((5, "%s: requested buffer size: %lu\n",
-	 function_name, (unsigned long) buffer_size));
+  DBG (5, "gt68xx_device_read_prepare: requested buffer size: %lu\n",
+       (unsigned long) buffer_size);
   if (buffer_size > expected_count)
     {
       buffer_size = (expected_count + 63UL) & ~63UL;
     }
-  XDBG ((5, "%s: real size: %lu\n",
-	 function_name, (unsigned long) buffer_size));
+  DBG (5, "gt68xx_device_read_prepare: real size: %lu\n",
+       (unsigned long) buffer_size);
 
   dev->read_buffer_size = buffer_size;
   dev->read_buffer = (SANE_Byte *) malloc (buffer_size);
   if (!dev->read_buffer)
     {
-      XDBG ((3, "%s: not enough memory for the read buffer (%lu bytes)\n",
-	     function_name, (unsigned long) buffer_size));
+      DBG (3, "gt68xx_device_read_prepare: not enough memory for the read buffer (%lu bytes)\n",
+	   (unsigned long) buffer_size);
       return SANE_STATUS_NO_MEM;
     }
 
@@ -825,7 +822,7 @@ gt68xx_device_read_prepare (GT68xx_Device * dev, size_t expected_count,
 static void
 gt68xx_reader_process (GT68xx_Device * dev)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_reader_process") SANE_Status status;
+  SANE_Status status;
   SANE_Int buffer_id;
   SANE_Byte *buffer_addr;
   size_t size;
@@ -839,30 +836,29 @@ gt68xx_reader_process (GT68xx_Device * dev)
 					      &buffer_id, &buffer_addr);
       if (status != SANE_STATUS_GOOD)
 	break;
-      XDBG ((9, "%s: buffer %d: get\n", function_name, buffer_id));
+      DBG (9, "gt68xx_reader_process: buffer %d: get\n", buffer_id);
 
       size = dev->read_buffer_size;
 
-      XDBG ((9,
-	     "%s: buffer %d: trying to read %lu bytes (%lu bytes left, line %d)\n",
-	     function_name, buffer_id, (unsigned long) size,
-	     (unsigned long) read_bytes_left, line));
+      DBG (9, "gt68xx_reader_process: buffer %d: trying to read %lu bytes "
+	   "(%lu bytes left, line %d)\n", buffer_id, (unsigned long) size,
+	   (unsigned long) read_bytes_left, line);
       status = gt68xx_device_read_raw (dev, buffer_addr, &size);
 
       if (status != SANE_STATUS_GOOD)
 	break;
-      XDBG ((9, "%s: buffer %d: read %lu bytes (line %d)\n",
-	     function_name, buffer_id, (unsigned long) size, line));
+      DBG (9, "gt68xx_reader_process: buffer %d: read %lu bytes (line %d)\n",
+	   buffer_id, (unsigned long) size, line);
 
       status = shm_channel_writer_put_buffer (dev->shm_channel,
 					      buffer_id, size);
       if (status != SANE_STATUS_GOOD)
 	break;
-      XDBG ((9, "%s: buffer %d: put\n", function_name, buffer_id));
+      DBG (9, "gt68xx_reader_process: buffer %d: put\n", buffer_id);
       read_bytes_left -= size;
       line++;
     }
-  XDBG ((9, "%s: finished, now sleeping\n", function_name));
+  DBG (9, "gt68xx_reader_process: finished, now sleeping\n");
   sleep (5 * 60);		/* wait until we are killed (or timeout) */
   shm_channel_writer_close (dev->shm_channel);
 }
@@ -870,12 +866,12 @@ gt68xx_reader_process (GT68xx_Device * dev)
 static SANE_Status
 gt68xx_device_read_start_fork (GT68xx_Device * dev)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_device_read_start_fork") SANE_Status status;
+  SANE_Status status;
   int pid;
 
   if (dev->shm_channel)
     {
-      XDBG ((3, "%s: BUG: shm_channel already created\n", function_name));
+      DBG (3, "gt68xx_device_read_start_fork: BUG: shm_channel already created\n");
       return SANE_STATUS_INVAL;
     }
 
@@ -883,8 +879,8 @@ gt68xx_device_read_start_fork (GT68xx_Device * dev)
     shm_channel_new (dev->read_buffer_size, SHM_BUFFERS, &dev->shm_channel);
   if (status != SANE_STATUS_GOOD)
     {
-      XDBG ((3, "%s: cannot create shared memory channel: %s\n",
-	     function_name, sane_strstatus (status)));
+      DBG (3, "gt68xx_device_read_start_fork: cannot create shared memory channel: "
+	   "%s\n", sane_strstatus (status));
       dev->shm_channel = NULL;
       return status;
     }
@@ -893,7 +889,8 @@ gt68xx_device_read_start_fork (GT68xx_Device * dev)
 
   if (pid == -1)
     {
-      XDBG ((3, "%s: cannot fork: %s\n", function_name, strerror (errno)));
+      DBG (3, "gt68xx_device_read_start_fork: cannot fork: %s\n",
+	   strerror (errno));
       shm_channel_free (dev->shm_channel);
       dev->shm_channel = NULL;
       return SANE_STATUS_NO_MEM;
@@ -936,7 +933,7 @@ gt68xx_device_read_start (GT68xx_Device * dev)
 SANE_Status
 gt68xx_device_read (GT68xx_Device * dev, SANE_Byte * buffer, size_t * size)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_device_read") SANE_Status status;
+  SANE_Status status;
   size_t byte_count = 0;
   size_t left_to_read = *size;
   size_t transfer_size, block_size, raw_block_size;
@@ -946,11 +943,11 @@ gt68xx_device_read (GT68xx_Device * dev, SANE_Byte * buffer, size_t * size)
   SANE_Int buffer_bytes;
 #endif /* USE_FORK */
 
-  CHECK_DEV_ACTIVE (dev, function_name);
+  CHECK_DEV_ACTIVE (dev, "gt68xx_device_read");
 
   if (!dev->read_active)
     {
-      XDBG ((3, "%s: read not active\n", function_name));
+      DBG (3, "gt68xx_device_read: read not active\n");
       return SANE_STATUS_INVAL;
     }
 
@@ -964,8 +961,8 @@ gt68xx_device_read (GT68xx_Device * dev, SANE_Byte * buffer, size_t * size)
 	  if (block_size == 0)
 	    break;
 	  raw_block_size = (block_size + 63UL) & ~63UL;
-	  XDBG ((7, "%s: trying to read %ld bytes\n",
-		 function_name, (long) raw_block_size));
+	  DBG (7, "gt68xx_device_read: trying to read %ld bytes\n",
+	       (long) raw_block_size);
 
 #ifdef USE_FORK
 	  if (dev->shm_channel)
@@ -976,12 +973,12 @@ gt68xx_device_read (GT68xx_Device * dev, SANE_Byte * buffer, size_t * size)
 						      &buffer_bytes);
 	      if (status == SANE_STATUS_GOOD && buffer_addr != NULL)
 		{
-		  XDBG ((9, "%s: buffer %d: get\n", function_name,
-			 buffer_id));
+		  DBG (9, "gt68xx_device_read: buffer %d: get\n",
+			 buffer_id);
 		  memcpy (dev->read_buffer, buffer_addr, buffer_bytes);
 		  shm_channel_reader_put_buffer (dev->shm_channel, buffer_id);
-		  XDBG ((9, "%s: buffer %d: put\n", function_name,
-			 buffer_id));
+		  DBG (9, "gt68xx_device_read: buffer %d: put\n",
+			 buffer_id);
 		}
 	    }
 	  else
@@ -990,7 +987,7 @@ gt68xx_device_read (GT68xx_Device * dev, SANE_Byte * buffer, size_t * size)
 					     &raw_block_size);
 	  if (status != SANE_STATUS_GOOD)
 	    {
-	      XDBG ((3, "%s: read failed\n", function_name));
+	      DBG (3, "gt68xx_device_read: read failed\n");
 	      return status;
 	    }
 	  dev->read_pos = 0;
@@ -1023,17 +1020,16 @@ gt68xx_device_read (GT68xx_Device * dev, SANE_Byte * buffer, size_t * size)
 SANE_Status
 gt68xx_device_read_finish (GT68xx_Device * dev)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_device_read_finish")
-    CHECK_DEV_ACTIVE (dev, function_name);
+  CHECK_DEV_ACTIVE (dev, "gt68xx_device_read_finish");
 
   if (!dev->read_active)
     {
-      XDBG ((3, "%s: read not active\n", function_name));
+      DBG (3, "gt68xx_device_read_finish: read not active\n");
       return SANE_STATUS_INVAL;
     }
 
-  XDBG ((7, "%s: read_bytes_left = %ld\n",
-	 function_name, (long) dev->read_bytes_left));
+  DBG (7, "gt68xx_device_read_finish: read_bytes_left = %ld\n",
+       (long) dev->read_bytes_left);
 
 #ifdef USE_FORK
   if (dev->shm_channel)
@@ -1046,10 +1042,10 @@ gt68xx_device_read_finish (GT68xx_Device * dev)
     {
       int status;
       usleep (100000);
-      XDBG ((7, "%s: trying to kill reader process\n", function_name));
+      DBG (7, "gt68xx_device_read_finish: trying to kill reader process\n");
       kill (dev->reader_pid, SIGKILL);
       waitpid (dev->reader_pid, &status, 0);
-      XDBG ((7, "%s: reader process killed\n", function_name));
+      DBG (7, "gt68xx_device_read_finish: reader process killed\n");
       dev->reader_pid = 0;
     }
 #endif /* USE_FORK */
@@ -1065,17 +1061,17 @@ gt68xx_device_read_finish (GT68xx_Device * dev)
 static SANE_Status
 gt68xx_device_check_result (GT68xx_Packet res, SANE_Byte command)
 {
-  DECLARE_FUNCTION_NAME ("gt68xx_device_check_result") if (res[0] != 0)
+  if (res[0] != 0)
     {
-      XDBG ((0, "%s: result was %2X %2X (expected: %2X %2X)\n",
-	     function_name, res[0], res[1], 0, command));
+      DBG (0, "gt68xx_device_check_result: result was %2X %2X "
+	   "(expected: %2X %2X)\n", res[0], res[1], 0, command);
       return SANE_STATUS_IO_ERROR;
     }
   /* The Gt681xfw.usb firmware doesn't return the command byte
      in the second byte, so we can't rely on that test */
   if (res[1] != command)
-    XDBG ((5, "%s: warning: result was %2X %2X (expected: %2X %2X)\n",
-	   function_name, res[0], res[1], 0, command));
+    DBG (5, "gt68xx_device_check_result: warning: result was %2X %2X "
+	 "(expected: %2X %2X)\n", res[0], res[1], 0, command);
   return SANE_STATUS_GOOD;
 }
 

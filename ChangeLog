@@ -6,6 +6,15 @@
 	  information about non-Linux OS.
 	* doc/sane-mustek.man: Minor fixes. Added links to ther backends
 	  providing support for Mustek scanners.
+	* backend/gt68xx.c backend/gt68xx_devices.c backend/gt68xx_gt6816.c
+	  backend/gt68xx_low.c backend/gt68xx_low.h doc/sane-gt68xx.man
+	  doc/descriptions/gt68xx.desc doc/gt68xx/gt68xx.CHANGES:
+	  Changed 150 to 200 dpi for Mustek BearPaw 2400 TA. Fixed warnings
+	  in gt68xx_low.c. Used DBG instead of XDBG ing gt68xx_low.c.
+	  Minor manpage fixes. Added man page links to other backends.
+	  gt68xx_low.h: Fixed __FUNCTION__ bug on non-gcc compilers.
+	  Added more details about the BSDs in the manpage. Fixed color order
+	  for ScanExpress A3 USB.
 
 2002-11-21  Michael Herder <crapsite at gmx.net>
 

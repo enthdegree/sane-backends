@@ -103,6 +103,10 @@
 
 #ifdef MAX_DEBUG
 
+#ifndef __FUNCTION__
+#  define __FUNCTION__ "somewhere"
+#endif
+
 #define RIE(function) \
   do \
     { \

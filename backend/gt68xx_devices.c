@@ -142,8 +142,8 @@ static GT68xx_Model mustek_2400ta_model = {
   1200,
   1200,
   SANE_FALSE,
-  {1200, 600, 300, 150, 100, 50, 0},
-  {2400, 1200, 600, 300, 150, 100, 50, 0},
+  {1200, 600, 300, 200, 100, 50, 0},
+  {2400, 1200, 600, 300, 200, 100, 50, 0},
   {16, 12, 8, 0},
   {16, 12, 8, 0},
   SANE_FIX (3.67),
@@ -552,7 +552,7 @@ static GT68xx_Model mustek_a3usb_model = {
   0, 0, 0,			/* no LD correction */
   0,
 
-  COLOR_ORDER_BGR,
+  COLOR_ORDER_RGB,
   {0x14, 0x07, 0x14, 0x07, 0x14, 0x07},
   {0x157, 0x157, 0x157},
   SANE_TRUE,

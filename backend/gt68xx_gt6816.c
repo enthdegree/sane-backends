@@ -481,7 +481,7 @@ gt6816_setup_scan (GT68xx_Device * dev,
 	  line_mode = SANE_TRUE;
 	}
 #if 1
-      else if (ydpi == 600 && depth == 16)	/* XXX */
+      else if (ydpi == 600 && depth > 12)	/* XXX */
 	{
 	  XDBG ((5, "%s: forcing line mode for ydpi=%d, depth=%d\n",
 		 function_name, ydpi, depth));

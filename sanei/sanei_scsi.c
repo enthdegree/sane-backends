@@ -2223,7 +2223,8 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
   char vendor[32], model[32], type[32], revision[32];
   int bus, channel, id, lun;
 
-  int number, i, defined;
+  int number, i;
+  int defined = 0;
   char line[256], dev_name[128];
   const char *string;
   FILE *proc_fp;

@@ -712,6 +712,16 @@
 :status :unsupported
 :comment "Unsupported. No details yet."
 
+:model "OpticPro S28"
+:interface "USB"
+:status :unsupported
+:comment "Uses Plustek ASIC."
+
+:model "OpticPro S48"
+:interface "USB"
+:status :unsupported
+:comment "Uses Plustek ASIC."
+
 :model "Spectra ADF"
 ;:url ""
 :interface "Proprietary"

@@ -7,6 +7,7 @@
 	* backend/plustek.c: changed version number
 	* backend/plustek-pp.*: changed file headers and copyright info
 	  applied some minor fixes
+	* doc/unsupported.desc: Added Plustek OpticPro S28 and S48
 
 2003-09-23  Frank Zago  <fzago at austin dot rr dot com>
 

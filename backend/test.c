@@ -1260,12 +1260,21 @@ reader_process (Test_Device * test_device, SANE_Int fd)
     }
 
   free (buffer);
-  DBG (4, "(child) reader_process: finished,  wrote %d bytes, expected %d "
+
+  if (sanei_thread_is_forked ())
+    {
+	  DBG (4, "(child) reader_process: finished,  wrote %d bytes, expected %d "
        "bytes, now waiting\n", byte_count, bytes_total);
-  while (SANE_TRUE)
-    sleep (10);
-  DBG (4, "(child) reader_process: this should have never happened...");
-  close (fd);
+	  while (SANE_TRUE)
+	    sleep (10);
+	  DBG (4, "(child) reader_process: this should have never happened...");
+	  close (fd);
+    }
+  else
+    {
+	  DBG (4, "(child) reader_process: finished,  wrote %d bytes, expected %d "
+       "bytes\n", byte_count, bytes_total);
+    }
   return SANE_STATUS_GOOD;
 }
 
@@ -1308,12 +1317,12 @@ finish_pass (Test_Device * test_device)
 
   DBG (2, "finish_pass: test_device=%p\n", (void *) test_device);
   test_device->scanning = SANE_FALSE;
-  if (test_device->pipe > 0)
+  if (test_device->pipe >= 0)
     {
       DBG (2, "finish_pass: closing pipe\n");
       close (test_device->pipe);
       DBG (2, "finish_pass: pipe closed\n");
-      test_device->pipe = 0;
+      test_device->pipe = -1;
     }
   if (test_device->reader_pid > 0)
     {
@@ -1336,6 +1345,14 @@ finish_pass (Test_Device * test_device)
 	       sane_strstatus (status));
 	}
       test_device->reader_pid = 0;
+    }
+  /* this happens when running in thread context... */
+  if (test_device->reader_fds >= 0)
+    {
+      DBG (2, "finish_pass: closing reader pipe\n");
+      close (test_device->reader_fds);
+      DBG (2, "finish_pass: reader pipe closed\n");
+      test_device->reader_fds = -1;
     }
   return return_status;
 }
@@ -1591,8 +1608,8 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
       test_device->eof = SANE_FALSE;
       test_device->scanning = SANE_FALSE;
       test_device->cancelled = SANE_FALSE;
-      test_device->reader_pid = 0;
-      test_device->pipe = 0;
+      test_device->reader_pid = -1;
+      test_device->pipe = -1;
       DBG (4, "sane_init: new device: `%s' is a %s %s %s\n",
 	   test_device->sane.name, test_device->sane.vendor,
 	   test_device->sane.model, test_device->sane.type);

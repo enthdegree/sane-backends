@@ -1,3 +1,7 @@
+2004-02-08  Oliver Rauch <oliver.rauch@rauch-domain.de>
+	* backend/umax: bugfix for DOR mode, sane-umax-build-43
+	* doc/umax/umax.CHANGES updated
+
 2004-02-07  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson.h, backend/epson_usb.h: Increase timeout for lamp warmup

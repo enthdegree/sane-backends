@@ -1113,7 +1113,7 @@ build-37 -> build-38 (sane-backends-1.0.9)
   * added Power Look 2000 as supported scanner
 
 
-build-38 -> build-39
+build-38 -> build-39 (sane-backends-1.0.10)
 --------------------
 
   * Power Look 2000: corrected wrong calibration-width-offset from 52 to 22
@@ -1123,13 +1123,13 @@ build-38 -> build-39
 
   * replaced fork() by thread for OS2
 
-build-39 -> build-40
+build-39 -> build-40 (sane-backends-1.0.12)
 --------------------
 
   * UC630: dev->pause_after_reposition = 0
 
 
-build-40 -> build-41
+build-40 -> build-41 (sane-backends-1.0.13)
 --------------------
 
   * Astra 2200 SU via USB connection: quality calibration is reset and not selectable
@@ -1143,4 +1143,16 @@ build-41 -> build-42
   * added call sanei_scsi_req_flush_all(); to do_cancel - in threaded case this is not done when reader_process is cancled
 
   * in reader_process: marked freed scsi buffers as freed(NULL). This is necessary when reader_process is run as thread!
+
+  * Backend is compatible to Mac OS-X now.
+
+
+build-42 -> build-43
+--------------------
+
+  * DOR mode does test for non negative upper_left_x values, set to 0 if negative
+
+
+build-43 -> build-44
+--------------------
 

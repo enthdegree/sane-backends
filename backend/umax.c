@@ -49,7 +49,7 @@
 
 /* --------------------------------------------------------------------------------------------------------- */
 
-#define BUILD 42
+#define BUILD 43
 
 /* --------------------------------------------------------------------------------------------------------- */
 
@@ -7604,6 +7604,11 @@ SANE_Status sane_start(SANE_Handle handle)
     {
       DBG(DBG_info,"substracting DOR x-origin-offset from upper left x\n");
       scanner->device->upper_left_x -= scanner->device->inquiry_dor_x_off * scanner->device->x_coordinate_base; /* correct DOR x-origin */
+
+      if (scanner->device->upper_left_x < 0) /* rounding errors may create a negative value */
+      {
+        scanner->device->upper_left_x = 0; /* but negative values are not allowed */
+      }
     }
 
     scanner->params.bytes_per_line  = scanner->device->row_len;

@@ -3,8 +3,15 @@
 #ifndef HAVE_INET_NTOP
 
 #include <string.h>
-#include <sys/socket.h>
-#include <sys/types.h>
+
+#ifdef HAVE_OS2_H
+# include <sys/socket.h>
+# include <sys/types.h>
+#else
+# include <sys/types.h>
+# include <sys/socket.h>
+#endif
+
 #include <netinet/in.h>
 #include <arpa/inet.h>
 

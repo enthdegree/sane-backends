@@ -709,7 +709,7 @@ umaxinit (UMAX_Handle * scan)
 
   if ((s & 0x40) == 0)
     {
-      DBG (4, "umaxinit: turning on lamp and restoring\n", s);
+      DBG (4, "umaxinit: turning on lamp and restoring\n");
       CHK (cwritev_opc1_lamp_ctrl (scan, UMAX_LAMP_ON));
       CHK (cwritev_opb3_restore (scan));
 
@@ -724,7 +724,7 @@ umaxinit (UMAX_Handle * scan)
         }
     }
 
-  DBG (4, "umaxinit: checkpoint 6\n", s);
+  DBG (4, "umaxinit: checkpoint 6\n");
 
   CHK (csend (scan, CMD_0));
 

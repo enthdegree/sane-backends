@@ -1,7 +1,9 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 1996, 1997 David Mosberger-Tang and Andreas Czechanowski,
    1998 Andreas Bolsch for extension to ScanExpress models version 0.6,
-   2000-2003 Henning Meier-Geinitz.
+   2000-2003 Henning Meier-Geinitz,
+   2003 James Perry (600 EP).
+   
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -41,12 +43,12 @@
    If you do not wish that, delete this exception notice.
 
    This file implements a SANE backend for Mustek and some Trust flatbed
-   scanners with SCSI or proprietary interface.  */
+   scanners with SCSI, parallel port (600 EP)  or proprietary interface.  */
 
 
 /**************************************************************************/
 /* Mustek backend version                                                 */
-#define BUILD 134
+#define BUILD 135
 /**************************************************************************/
 
 #include "../include/sane/config.h"
@@ -76,6 +78,7 @@
 #include "../include/sane/sanei_config.h"
 
 #include "mustek.h"
+#include "mustek_scsi_pp.h"
 
 #ifndef SANE_I18N
 #define SANE_I18N(text) text
@@ -442,10 +445,38 @@ n_wait_ready (Mustek_Scanner * s)
 }
 
 static SANE_Status
+scsi_pp_wait_ready (Mustek_Scanner * s)
+{
+  struct timeval now, start;
+  SANE_Status status;
+
+  gettimeofday (&start, 0);
+
+  DBG (5, "scsi_pp_wait_ready\n");
+  while (1)
+    {
+      status = mustek_scsi_pp_test_ready (s->fd);
+      if (status == SANE_STATUS_GOOD)
+	return SANE_STATUS_GOOD;
+
+      gettimeofday (&now, 0);
+      if (now.tv_sec - start.tv_sec >= MAX_WAITING_TIME)
+	{
+	  DBG (1, "scsi_pp_wait_ready: timed out after %lu seconds\n",
+	       (u_long) (now.tv_sec - start.tv_sec));
+	  return SANE_STATUS_INVAL;
+	}
+      usleep (100000);		/* retry after 100ms */
+    }
+}
+
+static SANE_Status
 dev_wait_ready (Mustek_Scanner * s)
 {
   if (s->hw->flags & MUSTEK_FLAG_N)
     return n_wait_ready (s);
+  else if (s->hw->flags & MUSTEK_FLAG_SCSI_PP)
+    return scsi_pp_wait_ready (s);
   else if (s->hw->flags & MUSTEK_FLAG_THREE_PASS)
     {
       SANE_Status status;
@@ -510,8 +541,22 @@ dev_open (SANE_String_Const devname, Mustek_Scanner * s,
 	{
 	  DBG (3, "dev_open: %s: can't open %s as an AB306N device\n",
 	       sane_strstatus (status), devname);
-	  DBG (1, "dev_open: can't open %s\n", devname);
-	  return SANE_STATUS_INVAL;
+
+	  status = mustek_scsi_pp_open (devname, &s->fd);
+	  if (status == SANE_STATUS_GOOD)
+	    {
+	      s->hw->flags |= MUSTEK_FLAG_SCSI_PP;
+	      DBG (3, "dev_open: %s is a SCSI-over-parallel device\n",
+		   devname);
+	    }
+	  else
+	    {
+	      DBG (3,
+		   "dev_open: %s: can't open %s as a SCSI-over-parallel device\n",
+		   sane_strstatus (status), devname);
+	      DBG (1, "dev_open: can't open %s\n", devname);
+	      return SANE_STATUS_INVAL;
+	    }
 	}
     }
   return SANE_STATUS_GOOD;
@@ -548,6 +593,8 @@ dev_cmd (Mustek_Scanner * s, const void *src, size_t src_size,
     }
   if (s->hw->flags & MUSTEK_FLAG_N)
     status = sanei_ab306_cmd (s->fd, src, src_size, dst, dst_size);
+  else if (s->hw->flags & MUSTEK_FLAG_SCSI_PP)
+    status = mustek_scsi_pp_cmd (s->fd, src, src_size, dst, dst_size);
   else
     status = sanei_scsi_cmd (s->fd, src, src_size, dst, dst_size);
 
@@ -597,6 +644,17 @@ dev_block_read_start (Mustek_Scanner * s, SANE_Int lines)
       readlines[3] = (lines >> 8) & 0xff;
       readlines[4] = (lines >> 0) & 0xff;
       return sanei_ab306_cmd (s->fd, readlines, sizeof (readlines), 0, 0);
+    }
+  else if (s->hw->flags & MUSTEK_FLAG_SCSI_PP)
+    {
+      SANE_Byte readlines[6];
+
+      memset (readlines, 0, sizeof (readlines));
+      readlines[0] = MUSTEK_SCSI_READ_SCANNED_DATA;
+      readlines[2] = (lines >> 16) & 0xff;
+      readlines[3] = (lines >> 8) & 0xff;
+      readlines[4] = (lines >> 0) & 0xff;
+      return mustek_scsi_pp_cmd (s->fd, readlines, sizeof (readlines), 0, 0);
     }
   else if (s->hw->flags & MUSTEK_FLAG_PARAGON_2)
     {
@@ -652,6 +710,15 @@ dev_read_req_enter (Mustek_Scanner * s, SANE_Byte * buf, SANE_Int lines,
 
       return sanei_ab306_rdata (s->fd, planes, buf, lines, bpl);
     }
+  else if (s->hw->flags & MUSTEK_FLAG_SCSI_PP)
+    {
+      SANE_Int planes;
+
+      *idp = 0;
+      planes = (s->mode & MUSTEK_MODE_COLOR) ? 3 : 1;
+
+      return mustek_scsi_pp_rdata (s->fd, planes, buf, lines, bpl);
+    }
   else
     {
       if (s->hw->flags & MUSTEK_FLAG_SE)
@@ -693,6 +760,8 @@ dev_close (Mustek_Scanner * s)
 {
   if (s->hw->flags & MUSTEK_FLAG_N)
     sanei_ab306_close (s->fd);
+  else if (s->hw->flags & MUSTEK_FLAG_SCSI_PP)
+    mustek_scsi_pp_close (s->fd);
   else
     sanei_scsi_close (s->fd);
 }
@@ -799,8 +868,8 @@ paragon_2_get_adf_status (Mustek_Scanner * s)
       DBG (1, "paragon_2_get_adf_status: %s\n", sane_strstatus (status));
       return status;
     }
-  DBG (5, "paragon_2_get_adf_status: sense_buffer: %x %x %x %x\n", sense_buffer[0],
-       sense_buffer[1], sense_buffer[3], sense_buffer[3]);
+  DBG (5, "paragon_2_get_adf_status: sense_buffer: %x %x %x %x\n",
+       sense_buffer[0], sense_buffer[1], sense_buffer[3], sense_buffer[3]);
 
   if (sense_buffer[0] == 0x00 && sense_buffer[1] == 0x00)
     return SANE_STATUS_GOOD;
@@ -1192,9 +1261,9 @@ attach (SANE_String_Const devname, Mustek_Device ** devp, SANE_Bool may_wait)
       dev->y_trans_range.max = SANE_FIX (255.0);
       dev->dpi_range.max = SANE_FIX (600);
       /* Looks like at least some versions of this scanner produce black images
-	 in gray and color mode if MUSTEK_FORCE_GAMMA is not set. At least 
-	 versions 2.01, 2.02 and 2.10 are reported as having this bug. 3.12
-	 doesn't need this workaround but it doesn't harm either. */
+         in gray and color mode if MUSTEK_FORCE_GAMMA is not set. At least 
+         versions 2.01, 2.02 and 2.10 are reported as having this bug. 3.12
+         doesn't need this workaround but it doesn't harm either. */
       dev->flags |= MUSTEK_FLAG_FORCE_GAMMA;
       dev->flags |= MUSTEK_FLAG_PARAGON_1;
       dev->sane.model = "MFS-6000SP";
@@ -1316,6 +1385,14 @@ attach (SANE_String_Const devname, Mustek_Device ** devp, SANE_Bool may_wait)
 	  dev->y_trans_range.max = SANE_FIX (238.0);
 	  dev->max_block_buffer_size = 1024 * 1024 * 1024;
 	  dev->sane.model = "600 II N";
+	}
+      else if (dev->flags & MUSTEK_FLAG_SCSI_PP)
+	{
+	  /* FIXME; experiment with different line distance codes later */
+	  dev->dpi_range.min = SANE_FIX (75.0);
+	  dev->flags |= MUSTEK_FLAG_LD_NONE;
+	  dev->max_block_buffer_size = 2 * 1024 * 1024;
+	  dev->sane.model = "600 II EP";
 	}
       else
 	{
@@ -1999,7 +2076,7 @@ set_window_pro (Mustek_Scanner * s)
   STORE16L (cp, SANE_UNFIX (s->val[OPT_BR_Y].w) * pixels_per_mm + 0.5);
 
   if (strcmp (s->hw->sane.model, "1200 SP PRO") != 0)
-    *cp++ = 0x3c; /* Only needed for A3 Pro, 60 minutes until lamp-off */
+    *cp++ = 0x3c;		/* Only needed for A3 Pro, 60 minutes until lamp-off */
   DBG (5, "set_window_pro\n");
 
   return dev_cmd (s, cmd, (cp - cmd), 0, 0);
@@ -2080,7 +2157,8 @@ send_calibration_lines_pro (Mustek_Scanner * s)
   if (!cmd1 || !cmd2)
     {
       DBG (1, "send_calibration_lines_pro: failed to malloc %ld bytes for "
-	   "sending lines\n", (long int) (buf_size + sizeof (scsi_send_data)));
+	   "sending lines\n",
+	   (long int) (buf_size + sizeof (scsi_send_data)));
       return SANE_STATUS_NO_MEM;
     }
   memset (cmd1, 0, sizeof (scsi_send_data));
@@ -2242,7 +2320,8 @@ send_calibration_lines_se (Mustek_Scanner * s, SANE_Word color)
   if (!cmd)
     {
       DBG (1, "send_calibration_lines_se: failed to malloc %ld bytes for "
-	   "sending lines\n", (long int) (buf_size + sizeof (scsi_send_data)));
+	   "sending lines\n",
+	   (long int) (buf_size + sizeof (scsi_send_data)));
       return SANE_STATUS_NO_MEM;
     }
   memset (cmd, 0, sizeof (scsi_send_data));
@@ -2717,7 +2796,7 @@ gamma_correction (Mustek_Scanner * s, SANE_Int color_code)
 		val = s->gamma_table[table][i * 256 / bytes_per_channel];
 	      else
 		val = i * 256 / bytes_per_channel;
-	      if ((s->mode & MUSTEK_MODE_COLOR) 
+	      if ((s->mode & MUSTEK_MODE_COLOR)
 		  && (s->val[OPT_CUSTOM_GAMMA].w == SANE_TRUE))
 		/* compose intensity gamma and color channel gamma: */
 		val = s->gamma_table[0][val];
@@ -2869,14 +2948,15 @@ do_stop (Mustek_Scanner * s)
       pid = sanei_thread_waitpid (s->reader_pid, &exit_status);
       if (pid < 0)
 	{
-	  DBG (1, "do_stop: sanei_thread_waitpid failed, already terminated? (%s)\n",
+	  DBG (1,
+	       "do_stop: sanei_thread_waitpid failed, already terminated? (%s)\n",
 	       strerror (errno));
 	}
       else
 	{
 	  DBG (2, "do_stop: reader process terminated with status %s\n",
 	       sane_strstatus (exit_status));
-	  if (status != SANE_STATUS_CANCELLED 
+	  if (status != SANE_STATUS_CANCELLED
 	      && exit_status != SANE_STATUS_GOOD)
 	    status = exit_status;
 	}
@@ -2886,8 +2966,8 @@ do_stop (Mustek_Scanner * s)
 
   if (s->fd >= 0)
     {
-      if (!sanei_thread_is_forked())
-	sanei_scsi_req_flush_all (); /* flush SCSI queue */
+      if (!sanei_thread_is_forked ())
+	sanei_scsi_req_flush_all ();	/* flush SCSI queue */
 
       if (s->hw->flags & MUSTEK_FLAG_PRO)
 	{
@@ -4691,17 +4771,20 @@ output_data (Mustek_Scanner * s, FILE * fp,
 static RETSIGTYPE
 sigterm_handler (int signal)
 {
-  DBG (4, "sigterm_handler: started, signal is %d, starting sanei_scsi_req_flush_all()\n", signal);
-  sanei_scsi_req_flush_all (); /* flush SCSI queue */
-  DBG (4, "sigterm_handler: sanei_scsi_req_flush_all() finisheshed, _exiting()\n");
+  DBG (4,
+       "sigterm_handler: started, signal is %d, starting sanei_scsi_req_flush_all()\n",
+       signal);
+  sanei_scsi_req_flush_all ();	/* flush SCSI queue */
+  DBG (4,
+       "sigterm_handler: sanei_scsi_req_flush_all() finisheshed, _exiting()\n");
   _exit (SANE_STATUS_GOOD);
 }
 
 
 static SANE_Int
-reader_process (void * data)
+reader_process (void *data)
 {
-  Mustek_Scanner * s = (Mustek_Scanner *) data;
+  Mustek_Scanner *s = (Mustek_Scanner *) data;
   SANE_Int lines_per_buffer, bpl;
   SANE_Byte *extra = 0, *ptr;
   sigset_t sigterm_set;
@@ -4725,7 +4808,7 @@ reader_process (void * data)
   bstat[2];
 
   DBG (3, "reader_process: started\n");
-  if (sanei_thread_is_forked())
+  if (sanei_thread_is_forked ())
     {
       DBG (4, "reader_process: using fork ()\n");
       close (s->pipe);
@@ -4736,7 +4819,7 @@ reader_process (void * data)
       DBG (4, "reader_process: using threads\n");
     }
 
-  if (sanei_thread_is_forked())
+  if (sanei_thread_is_forked ())
     {
       /* ignore SIGTERM while writing SCSI commands */
       sigemptyset (&sigterm_set);
@@ -5115,7 +5198,8 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	  cp = sanei_config_get_string (cp, &word);
 	  if (!word)
 	    {
-	      DBG (1, "sane_init: config file line %d: missing quotation mark?\n",
+	      DBG (1,
+		   "sane_init: config file line %d: missing quotation mark?\n",
 		   linenumber);
 	      continue;
 	    }
@@ -5127,7 +5211,8 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	      cp = sanei_config_get_string (cp, &word);
 	      if (!word)
 		{
-		  DBG (1, "sane_init: config file line %d: missing quotation mark?\n",
+		  DBG (1,
+		       "sane_init: config file line %d: missing quotation mark?\n",
 		       linenumber);
 		  continue;
 		}
@@ -5280,7 +5365,8 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	      cp = sanei_config_get_string (cp, &word);
 	      if (!word)
 		{
-		  DBG (1, "sane_init: config file line %d: missing quotation mark?\n",
+		  DBG (1,
+		       "sane_init: config file line %d: missing quotation mark?\n",
 		       linenumber);
 		  continue;
 		}
@@ -5334,7 +5420,8 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	      cp = sanei_config_get_string (cp, &word);
 	      if (!word)
 		{
-		  DBG (1, "sane_init: config file line %d: missing quotation mark?\n",
+		  DBG (1,
+		       "sane_init: config file line %d: missing quotation mark?\n",
 		       linenumber);
 		  continue;
 		}
@@ -5425,6 +5512,7 @@ sane_exit (void)
   devlist = 0;
   first_dev = 0;
   sanei_ab306_exit ();		/* may have to do some cleanup */
+  mustek_scsi_pp_exit ();
   DBG (5, "sane_exit: finished\n");
 }
 
@@ -6194,12 +6282,16 @@ sane_start (SANE_Handle handle)
       goto stop_scanner_and_return;
     }
 
-  status = inquiry (s);
-  if (status != SANE_STATUS_GOOD)
+  if (!(s->hw->flags & MUSTEK_FLAG_SCSI_PP))
     {
-      DBG (1, "sane_start: inquiry command failed: %s\n",
-	   sane_strstatus (status));
-      goto stop_scanner_and_return;
+      /* SCSI-over-parallel port doesn't seem to like being inquired here */
+      status = inquiry (s);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (1, "sane_start: inquiry command failed: %s\n",
+	       sane_strstatus (status));
+	  goto stop_scanner_and_return;
+	}
     }
 
   if ((strcmp (s->val[OPT_SOURCE].s, "Automatic Document Feeder") == 0) &&
@@ -6338,9 +6430,13 @@ sane_start (SANE_Handle handle)
       if (status != SANE_STATUS_GOOD)
 	goto stop_scanner_and_return;
 
-      status = send_gamma_table (s);
-      if (status != SANE_STATUS_GOOD)
-	goto stop_scanner_and_return;
+      if (!(s->hw->flags & MUSTEK_FLAG_SCSI_PP))
+	{
+	  /* This second gamma table download upsets the SCSI-over-parallel models */
+	  status = send_gamma_table (s);
+	  if (status != SANE_STATUS_GOOD)
+	    goto stop_scanner_and_return;
+	}
 
       s->ld.max_value = 0;
       if (!(s->hw->flags & MUSTEK_FLAG_THREE_PASS))
@@ -6381,9 +6477,9 @@ sane_start (SANE_Handle handle)
   /* don't call any SIGTERM or SIGCHLD handlers 
      this is to stop xsane and other frontends from calling 
      its quit handlers */
-  memset      (&act, 0, sizeof (act));
-  sigaction   (SIGTERM, &act, 0);
-  sigaction   (SIGCHLD, &act, 0);
+  memset (&act, 0, sizeof (act));
+  sigaction (SIGTERM, &act, 0);
+  sigaction (SIGCHLD, &act, 0);
 
   if (pipe (fds) < 0)
     return SANE_STATUS_IO_ERROR;
@@ -6395,7 +6491,8 @@ sane_start (SANE_Handle handle)
 
   if (s->reader_pid < 0)
     {
-      DBG (1, "sane_start: sanei_thread_begin failed (%s)\n", strerror(errno));
+      DBG (1, "sane_start: sanei_thread_begin failed (%s)\n",
+	   strerror (errno));
       return SANE_STATUS_NO_MEM;
     }
 
@@ -6599,3 +6696,5 @@ sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
   *fd = s->pipe;
   return SANE_STATUS_GOOD;
 }
+
+#include "mustek_scsi_pp.c"

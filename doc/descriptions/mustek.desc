@@ -39,6 +39,16 @@
 :interface "SCSI"
 :status :complete
 
+:model "Paragon 600 II ED"
+:interface "Parport"
+:status :untested
+:comment "Completely untested. If it's the same as the 600 II EP, it may work. Please contact me if you own such a device."
+
+:model "Paragon 600 II EP"
+:interface "Parport"
+:status :untested
+:comment "Not tested yet but should work. Please contact me if you own such a device."
+
 :model "ScanMagic 600 II SP"
 :interface "SCSI"
 :status :complete

@@ -69,6 +69,7 @@
 #define MUSTEK_FLAG_SE_PLUS    	 (1 << 4)	/* ScanExpress Plus scanner */
 #define MUSTEK_FLAG_PRO          (1 << 5)	/* Professional series scanner */
 #define MUSTEK_FLAG_N		 (1 << 6)	/* N-type scanner (non SCSI) */
+#define MUSTEK_FLAG_SCSI_PP      (1 << 22)	/* SCSI over parallel (e.g. 600 II EP) */
 /* Additional equipment */
 #define MUSTEK_FLAG_ADF		 (1 << 7)	/* automatic document feeder */
 #define MUSTEK_FLAG_ADF_READY	 (1 << 8)	/* paper present */

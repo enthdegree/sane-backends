@@ -87,6 +87,22 @@ extern char ** sanei_pa4s2_devices(void);
  */
 extern SANE_Status sanei_pa4s2_open (const char *dev, int *fd);
 
+/** Open pa4s2 SCSI-over-parallel device 
+ *
+ * Opens *dev as pa4s2 SCSI-over-parallel device.
+ *
+ * @param dev IO port address ("0x378", "0x278", or "0x3BC")
+ * @param fd file descriptor
+ * 
+ * @return 
+ * - SANE_STATUS_GOOD - on success
+ * - SANE_STATUS_INVAL - if no scanner was found or the port number was wrong
+ * - SANE_STATUS_DEVICE_BUSY - if the device is already in use
+ * - SANE_STATUS_IO_ERROR - if the port couldn't be accessed
+ * 
+ */
+extern SANE_Status sanei_pa4s2_scsi_pp_open (const char *dev, int *fd);
+
 /** Close pa4s2 device 
  *
  * @param fd file descriptor
@@ -136,6 +152,27 @@ extern SANE_Status sanei_pa4s2_enable (int fd, int enable);
  */
 extern SANE_Status sanei_pa4s2_readbegin (int fd, u_char reg);
 
+/** Return port status information
+ *
+ * @param fd file descriptor
+ * @param status variable to receive status
+ *
+ * @return
+ * - SANE_STATUS_GOOD - on success
+ * - SANE_STATUS_INVAL - if fd is invalid or device not in use
+ */
+extern SANE_Status sanei_pa4s2_scsi_pp_get_status (int fd, u_char *status);
+
+/** Selects a register number on a SCSI-over-parallel scanner
+ *
+ * @param fd file descriptor
+ * @param reg register number
+ *
+ * @return
+ * - SANE_STATUS_GOOD - on success
+ * - SANE_STATUS_INVAL - if fd is invalid
+ */
+extern SANE_Status sanei_pa4s2_scsi_pp_reg_select (int fd, int reg);
 
 /** Read a register 
  *

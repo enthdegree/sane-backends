@@ -3,6 +3,14 @@
 	* doc/descriptions-external/niash.desc: Added information that
 	  this backend will be included soon. Fixed "Snapscan" to
 	  "SnapScan" (bug #300394).
+	* backend/mustek_scsi_pp.c backend/mustek_scsi_pp.h
+	  backend/Makefile.in  backend/mustek.c
+	  backend/mustek.conf backend/mustek.h doc/sane-mustek.man
+	  doc/sane.man doc/descriptions/mustek.desc
+	  include/sane/sanei_pa4s2.h sanei/sanei_pa4s2.c: Added support
+	  for Mustek Paragon 600 II EP (SCSI-over-parallel port). This is
+	  based on a patch from James Perry. Support for libiee1284 is
+	  missing until now. Closes bug #300143.
 
 2003-12-23  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -1,5 +1,6 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 2000-2003 Jochen Eisinger <jochen.eisinger@gmx.net>
+   Copyright (C) 2003 James Perry (scsi_pp functions)
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -957,6 +958,204 @@ sanei_pa4s2_devices()
   return devices;
 }
 
+/*
+ * Needed for SCSI-over-parallel scanners (Paragon 600 II EP)
+ */
+SANE_Status
+sanei_pa4s2_scsi_pp_get_status(int fd, u_char *status)
+{
+  u_char stat;
+
+  TEST_DBG_INIT ();
+
+  DBG (6, "sanei_pa4s2_scsi_pp_get_status: called for fd %d\n",
+       fd);
+
+#if defined (HAVE_LIBIEEE1284)
+  DBG (3, "sanei_pa4s2_scsi_pp_get_status: not implemented yet for libieee1284\n");
+  return SANE_STATUS_UNSUPPORTED;
+#else
+
+  if ((fd < 0) || (fd >= NELEMS (port)))
+    {
+
+      DBG (2, "sanei_pa4s2_scsi_pp_get_status: invalid fd %d\n", fd);
+      DBG (6, "sanei_pa4s2_scsi_pp_get_status: returning SANE_STATUS_INVAL\n");
+
+      return SANE_STATUS_INVAL;
+
+    }
+
+  if (port[fd].in_use == SANE_FALSE)
+    {
+
+      DBG (2, "sanei_pa4s2_scsi_pp_get_status: port is not in use\n");
+      DBG (6, "sanei_pa4s2_scsi_pp_get_status: port is 0x%03lx\n",
+	   port[fd].base);
+      DBG (5, "sanei_pa4s2_scsi_pp_get_status: returning SANE_STATUS_INVAL\n");
+
+      return SANE_STATUS_INVAL;
+
+    }
+
+  if (port[fd].enabled == SANE_FALSE)
+    {
+
+      DBG (2, "sanei_pa4s2_scsi_pp_get_status: port is not enabled\n");
+      DBG (6, "sanei_pa4s2_scsi_pp_get_status: port is 0x%03lx\n",
+	   port[fd].base);
+      DBG (5, "sanei_pa4s2_scsi_pp_get_status: returning SANE_STATUS_INVAL\n");
+
+      return SANE_STATUS_INVAL;
+
+    }
+
+  outb(0x4, port[fd].base+2);
+  stat=inb(port[fd].base+1)^0x80;
+  *status=(stat&0x2f)|((stat&0x10)<<2)|((stat&0x40)<<1)|((stat&0x80)>>3);
+  DBG (5, "sanei_pa4s2_scsi_pp_get_status: status=0x%02X\n", *status);
+  DBG (6, "sanei_pa4s2_scsi_pp_get_status: returning SANE_STATUS_GOOD\n");
+#endif
+
+  return SANE_STATUS_GOOD;
+}
+
+/*
+ * SCSI-over-parallel scanners need this done when a register is
+ * selected
+ */ 
+SANE_Status
+sanei_pa4s2_scsi_pp_reg_select (int fd, int reg)
+{
+  int base;
+
+  TEST_DBG_INIT ();
+
+#if defined (HAVE_LIBIEEE1284)
+  DBG (3, "sanei_pa4s2_scsi_pp_reg_select: not implemented yet for libieee1284\n");
+  return SANE_STATUS_UNSUPPORTED;
+#else
+  if ((fd < 0) || (fd >= NELEMS (port)))
+    {
+
+      DBG (2, "sanei_pa4s2_scsi_pp_reg_select: invalid fd %d\n", fd);
+      DBG (6, "sanei_pa4s2_scsi_pp_reg_select: returning SANE_STATUS_INVAL\n");
+
+      return SANE_STATUS_INVAL;
+
+    }
+
+  if (port[fd].in_use == SANE_FALSE)
+    {
+
+      DBG (2, "sanei_pa4s2_scsi_pp_reg_select: port is not in use\n");
+      DBG (6, "sanei_pa4s2_scsi_pp_reg_select: port is 0x%03lx\n",
+	   port[fd].base);
+      DBG (5, "sanei_pa4s2_scsi_pp_reg_select: returning SANE_STATUS_INVAL\n");
+
+      return SANE_STATUS_INVAL;
+
+    }
+
+  if (port[fd].enabled == SANE_FALSE)
+    {
+
+      DBG (2, "sanei_pa4s2_scsi_pp_reg_select: port is not enabled\n");
+      DBG (6, "sanei_pa4s2_scsi_pp_reg_select: port is 0x%03lx\n",
+	   port[fd].base);
+      DBG (5, "sanei_pa4s2_scsi_pp_reg_select: returning SANE_STATUS_INVAL\n");
+
+      return SANE_STATUS_INVAL;
+
+    }
+
+  base=port[fd].base;
+
+  DBG (6, "sanei_pa4s2_scsi_pp_reg_select: selecting register %u at 0x%03x\n",
+       (int) reg, base);
+
+  outb (reg | 0x58, base + 0);
+  outb (0x04, base + 2);
+  outb (0x06, base + 2);
+  outb (0x04, base + 2);
+  outb (0x04, base + 2);
+
+  return SANE_STATUS_GOOD;
+#endif
+}
+
+/*
+ * The SCSI-over-parallel scanners need to be handled a bit differently
+ * when opened, as they don't return a valid ASIC ID, so this can't be
+ * used for detecting valid read modes
+ */
+SANE_Status
+sanei_pa4s2_scsi_pp_open (const char *dev, int *fd)
+{
+
+  u_char val;
+  SANE_Status status;
+
+  TEST_DBG_INIT ();
+
+  DBG(4, "sanei_pa4s2_scsi_pp_open: called for device '%s'\n", dev);
+  DBG(5, "sanei_pa4s2_scsi_pp_open: trying to connect to port\n");
+
+#if defined (HAVE_LIBIEEE1284)
+  DBG (3, "sanei_pa4s2_scsi_pp_open: not implemented yet for libieee1284\n");
+  return SANE_STATUS_UNSUPPORTED;
+#else
+  if ((*fd = pa4s2_open (dev, &status)) == -1)
+    {
+
+      DBG (5, "sanei_pa4s2_scsi_pp_open: connection failed\n");
+
+      return status;
+
+    }
+
+  DBG (6, "sanei_pa4s2_scsi_pp_open: connected to device using fd %u\n", *fd);
+
+  DBG (5, "sanei_pa4s2_scsi_pp_open: checking for scanner\n");
+
+  if (sanei_pa4s2_enable (*fd, SANE_TRUE)!=SANE_STATUS_GOOD)
+    {
+      DBG (3, "sanei_pa4s2_scsi_pp_open: error enabling device\n");
+      return SANE_STATUS_IO_ERROR;
+    }
+
+  /*
+   * Instead of checking ASIC ID, check device status
+   */
+  if (sanei_pa4s2_scsi_pp_get_status(*fd, &val)!=SANE_STATUS_GOOD)
+    {
+      DBG (3, "sanei_pa4s2_scsi_pp_open: error getting device status\n");
+      sanei_pa4s2_enable (*fd, SANE_FALSE);
+      return SANE_STATUS_IO_ERROR;
+    }
+  val&=0xf0;
+
+  if ((val==0xf0)||(val&0x40)||(!(val&0x20)))
+    {
+      DBG (3, "sanei_pa4s2_scsi_pp_open: device returned status 0x%02X\n", val);
+      sanei_pa4s2_enable (*fd, SANE_FALSE);
+      return SANE_STATUS_DEVICE_BUSY;
+    }
+
+  if (sanei_pa4s2_enable (*fd, SANE_FALSE)!=SANE_STATUS_GOOD)
+    {
+      DBG (3, "sanei_pa4s2_scsi_pp_open: error disabling device\n");
+      return SANE_STATUS_IO_ERROR;
+    }
+
+  /* FIXME: it would be nice to try to use a better mode here, but how to
+   * know if it's going to work? */
+
+  DBG (4, "sanei_pa4s2_scsi_pp_open: returning SANE_STATUS_GOOD\n");
+
+  return SANE_STATUS_GOOD;
+#endif
+}
 
 SANE_Status
 sanei_pa4s2_open (const char *dev, int *fd)
@@ -1848,6 +2047,36 @@ sanei_pa4s2_devices()
   DBG (5, "sanei_pa4s2_devices: returning empty list\n");
 
   return calloc(1, sizeof(char *));
+}
+
+SANE_Status
+sanei_pa4s2_scsi_pp_get_status(int fd, u_char *status)
+{
+  TEST_DBG_INIT ();
+  DBG (4, "sanei_pa4s2_scsi_pp_get_status: fd=%d, status=%p\n",
+       fd, (void *) status);
+  DBG (3, "sanei_pa4s2_scsi_pp_get_status: A4S2 support not compiled\n");
+  return SANE_STATUS_UNSUPPORTED;
+}
+
+SANE_Status
+sanei_pa4s2_scsi_pp_reg_select (int fd, int reg)
+{
+  TEST_DBG_INIT ();
+  DBG (4, "sanei_pa4s2_scsi_pp_reg_select: fd=%d, reg=%d\n",
+       fd, reg);
+  DBG (3, "sanei_pa4s2_devices: A4S2 support not compiled\n");
+  return SANE_STATUS_UNSUPPORTED;
+}
+
+SANE_Status
+sanei_pa4s2_scsi_pp_open (const char *dev, int *fd)
+{
+  TEST_DBG_INIT ();
+  DBG (4, "sanei_pa4s2_scsi_pp_open: dev=%s, fd=%p\n",
+       dev, (void *) fd);
+  DBG (3, "sanei_pa4s2_scsi_pp_open: A4S2 support not compiled\n");
+  return SANE_STATUS_UNSUPPORTED;
 }
 
 #endif /* !HAVE_IOPERM */

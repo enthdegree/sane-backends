@@ -1,14 +1,14 @@
-.TH sane-mustek 5 "5 Dec 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-mustek 5 "25 Dec 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-mustek
 .SH NAME
-sane-mustek \- SANE backend for Mustek SCSI flatbed scanners
+sane-mustek \- SANE backend for Mustek SCSI flatbed scanners (and some other devices)
 .SH DESCRIPTION
 The
 .B sane-mustek
-library implements a SANE (Scanner Access Now Easy) backend that provides
-access to Mustek (and some relabeled Trust and Primax) SCSI flatbed scanners.
-At present, the following scanners are known to work more or less with this
-backend:
+library implements a SANE (Scanner Access Now Easy) backend that provides access
+to Mustek (and some relabeled Trust and Primax) SCSI and parport flatbed
+scanners.  At present, the following scanners are known to work more or less
+with this backend:
 .PP
 .RS
 Paragon MFS-6000CX
@@ -37,6 +37,8 @@ Paragon 1200 SP Pro
 .br
 Paragon 1200 A3 Pro
 .br
+Paragon 600 II EP 
+.br
 Paragon 600 II N
 .br
 Trust Imagery 1200
@@ -57,19 +59,21 @@ More details can be found on the Mustek SCSI backend homepage
 Don't mix up MFS (Paragon), Pro and ScanExpress models! They're
 completely different. Check the exact model name!
 .PP
-Note that most of the above scanners come with a SCSI interface.  The
-only non-SCSI scanner that has some support at this point is the 600
-II N scanner which comes with its own parallel port adapter (i.e., it
-does
+Note that most of the above scanners come with a SCSI interface.  The only
+non-SCSI scanners that have some support at this point is the 600 II N and 600
+II EP scanners. The former one comes with its own parallel port adapter (i.e.,
+it does
 .I not
-attach to the printer port). It uses the SCSI protocoll internally, too. More
-info on how to use the 600 II N can be found below in section
-.BR "PARAGON 600 II N" .
+attach to the printer port). Both scanners use the SCSI protocoll internally,
+too. More info on how to use these parallel port scanners can be found below in
+section
+.BR "PARALLEL PORT SCANNERS" .
 Other parallel port scanners are not supported by this backend but you may be
 successful using the Mustek parallel port backend mustek_pp, see
 .BR sane-mustek_pp (5).
-USB scanners are also not supported by this backend but the mustek_usb,
+USB scanners are also not supported by this backend but the ma1509, mustek_usb,
 gt68xx, and plustek backends include support for some of them, see
+.BR sane-ma1509 (5),
 .BR sane-mustek_usb (5),
 .BR sane-gt68xx "(5), and"
 .BR sane-plustek (5).
@@ -107,17 +111,17 @@ This backend expects device names of the form:
 Where
 .I special
 is either the path-name for the special device that corresponds to a
-SCSI scanner or the port number at which the 600 II N can
+SCSI scanner or the port number at which the parallel port scanners can
 be found (see section 
-.B "PARAGON 600 II N"
+.B "PARALLEL PORT SCANNERS"
 below).  For SCSI scanners, the special device name must be a generic SCSI
 device or a symlink to such a device.  The program
 .I sane-find-scanner 
 helps to find out the correct device. Under Linux, such a device name
 could be
-.I /dev/sga
+.I /dev/sg0
 or
-.IR /dev/sge ,
+.IR /dev/sg3 ,
 for example.  See 
 .BR sane-scsi (5)
 for details.
@@ -281,16 +285,19 @@ Details on how to get the Mustek SCSI adapters and other cards running can be
 found at
 .IR http://www.meier-geinitz.de/sane/mustek-backend/#SCSI .
 
-.SH "PARAGON 600 II N"
-This backend has support for the Paragon 600 II N parallel port
-scanner.  Note that this scanner comes with its own ISA card that
-implements a funky parallel port (in other words, the scanner does not
-connected to the printer parallel port).
+.SH "PARALLEL PORT SCANNERS"
+This backend has support for the Paragon 600 II EP and Paragon 600 II N parallel
+port scanners.  Note that the latter scanner comes with its own ISA card that
+implements a funky parallel port (in other words, the scanner does not connected
+to the printer parallel port).
 .PP
-This scanner can be configured by listing the port number
-of the adapter in the mustek.conf file.  Valid port numbers are
+These scanners can be configured by listing the port number
+of the adapter or the parallel port in the mustek.conf file.  Valid port numbers
+for the 600 II N are
 .IR 0x26b ", " 0x2ab ", " 0x2eb ", " 0x22b ", " 0x32b ", " 0x36b ", "
 .IR 0x3ab ", " 0x3eb .
+For the 600 II EP use one of these:
+.IR 0x378 ", " 0x278 ", " 0x3bc .
 Pick one that doesn't conflict with the other hardware in your computer. Put
 only one number on a single line. Example:
 .PP
@@ -298,7 +305,7 @@ only one number on a single line. Example:
 .I 0x3eb
 .RE
 .PP
-Note that for this scanner root privileges are required to access the
+Note that for these scanners usually root privileges are required to access the
 I/O ports.  Thus, either make frontends such as 
 .BR scanimage (1)
 and 
@@ -306,18 +313,6 @@ and
 setuid root (generally not recommended for safety reasons) or, alternatively,
 access this backend through the network daemon 
 .BR saned (1).
-On systems which support this feature, the scanner can be accessed through
-.IR /dev/port .
-Don't forget to adjust the permissions for 
-.IR /dev/port .
-At least with recent Linux kernels root privileges are necessary for 
-.I /dev/port
-access, even with full permissions set for all users..
-.PP
-If your images have horizontal stripes in color mode, check option
-.B linedistance-fix
-(see above). Apply this option for a scanner with firmware version 2.x and
-disable it for version 1.x.
 .PP
 If the Mustek backend blocks while sending the inqiury command to the scanner,
 add the option
@@ -325,7 +320,7 @@ add the option
 to
 .IR mustek.conf .
 .PP
-Also note that after a while of no activity, some scanners themself (not
+Also note that after a while of no activity, some scanners themselves (not
 the SANE backend) turns off their CCFL lamps. This shutdown is not always
 perfect with the result that the lamp sometimes continues to glow
 dimly at one end. This doesn't appear to be dangerous since as soon as
@@ -394,7 +389,7 @@ export SANE_DEBUG_MUSTEK=4
 
 .SH AUTHOR
 David Mosberger, Andreas Czechanowski, Andreas Bolsch (SE extensions),
-Henning Meier-Geinitz
+Henning Meier-Geinitz, James Perry (600 II EP).
 
 .SH BUGS
 Scanning with the SCSI adapters supplied by Mustek is very slow at

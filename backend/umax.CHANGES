@@ -827,7 +827,7 @@ build-22 -> build-23
     * for Astra 2200 selection for different x/y resolutions is disabled
 
     
-build-23 -> build-24
+build-23 -> build-24 (sane-1.0.4)
 --------------------
 
     * forcing calibration_bytespp = 1 for Astra 2100S
@@ -841,4 +841,69 @@ build-23 -> build-24
     
 build-24 -> build-25
 --------------------
+
+   * dev->lamp_control_available is preset to 0
+
+   * dev is erased (0) after it is allocated
+
+   * added special options for PowerLook 3000:
+     - calibration is done for each CCD pixel
+     - calibration_bytespp is set to 1
+     the scanner still is not listed as supported scanner because
+     the changes are not tested
+
+   * added options that are read from umax.conf:
+
+     - execute-request-sense:
+       values: 0=disabled, 1=enabled, default=0
+       If set to 1 umax_do_request_sense is called in umax_do_calibration.
+       This can hang the system (but has been enabled until this version)
+
+     - scsi-buffer-size-min, scsi-buffer-size-max:
+       values: 4096-1048576, default min=65536, max=131072
+
+     - scan-lines, preview-lines:
+       values: 1-65535, default scan-lines=40, preview-lines=10
+       define the maximum number of lines that are scanned into one buffer
+
+     - force-preview-bit-rgb:
+       values: 0=disabled, 1=enabled, default=0
+       set preview bit in rgb real scan
+
+     - slow-speed, care-about-smearing:
+       values: -1=auto, 0=disabled, 1=enabled, default=-1
+       dangerous options, needed for some scanners
+
+     - calibration-full-ccd:
+       values: -1=auto, 0=disabled, 1=enabled, default=-1
+       do calibration for each pixel of ccd instead of selected image
+
+     - calibration-width-offset:
+       values: -1=disabled, >=0 set value
+       add an offset width to the calculated with for image/ccd
+
+     - calibration-bytes-pixel:
+       values: -1=disabled, 0=not set, 1=1 byte/pixel, 2=x bytes/pixel
+       use # bytes per pixel for calibration
+
+     - invert-shading-data:
+       values: -1=auto, 0=disabled, 1=enabled, default=-1
+       invert shading data before sending it back to the scanner
+
+     - lamp-control-available:
+       values: 0=automatically set by driver - if known, 1=available, default=0
+
+   * updated html-documentation
+
+   * updated sane-umax.man
+
+   * added pre focus options (PowerLook 3000):
+     - FP  - fix focus position
+     - FDC - lens calibration in doc position
+     - PF  - disable pre focus
+     - LCL - use 0.6/0.0mm holder focus position
+
+   * added #define SANE_I18N(text) text to umax.c. This is to mark the backend
+     specific texts that shall be translated by the frontend
+
 

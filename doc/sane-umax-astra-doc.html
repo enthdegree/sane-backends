@@ -1,0 +1,491 @@
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Oliver Rauch">
+   <meta name="Description" content="unix scanner driver for UMAX scanners">
+   <title>SANE-umax - UMAX Astra scanners</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EF" vlink="#51188E" alink="#FF0000">
+
+
+<table>
+<tr>
+<td width=200>
+<img SRC="sane-logo.jpg" alt="SANE-logo" hspace=60 align=BOTTOM>
+<br>
+<img SRC="sane-umax-text.jpg" alt="UMAX-logo" HSPACE=50>
+</td>
+<td>
+<blockquote>
+<h1><font color="#009900">UMAX Astra scanners</font></h1>
+</blockquote>
+</td>
+</tr>
+</table>
+
+
+<hr WIDTH="100%">
+
+<table>
+<tr>
+<td VALIGN=TOP WIDTH="250" BGCOLOR="#E0E0FF">
+<br>
+<ul>
+<li><a href="sane-umax-doc.html">Index</a></li>
+<li>Frontend options:</li>
+<ul>
+<li><a href="sane-umax-standard-options-doc.html">Standard options</a></li>
+<li><a href="sane-umax-advanced-options-doc.html">Advanced options</a></li>
+</ul>
+<li>Supported scanners:</li>
+<ul>
+<li><a href="sane-umax-powerlook-doc.html">Power Look series</a></li>
+<li><a href="sane-umax-mirage-doc.html">Mirage series</a></li>
+<li><a href="sane-umax-astra-doc.html">Astra series</a></li>
+<li><a href="sane-umax-vista-doc.html">Vista series</a></li>
+<li><a href="sane-umax-uc-doc.html">UC series</a></li>
+<li><a href="sane-umax-others-doc.html">others</a></li>
+<li><a href="sane-umax-not-listed-doc.html">Not listed scanners</a></li>
+<li><a href="sane-umax-scanner-clones-doc.html">UMAX scanner clones</a></li>
+</ul>
+<li><a href="sane-umax-parport-doc.html">UMAX parallel port scanners</a></li>
+<li><a href="sane-umax-config-doc.html">Configuration</a></li>
+<li><a href="sane-umax-speed-doc.html">Speed of UMAX scanners</a></li>
+<li><a href="http://www.rauch-domain.de/sane-umax">SANE-umax homepage</a></li>
+<li><a href="http://www.mostang.com/sane/">SANE homepage</a></li>
+<li><a href="http://www.xsane.org/">XSane homepage</a></li>
+</ul>
+<br>
+</td>
+
+
+<td VALIGN=TOP BGCOLOR="#FFFFFF">
+<center>
+<table BORDER>
+<tr BGCOLOR="#40E0D0" NOSAVE>
+<td VALIGN=TOP COLSPAN="10" NOSAVE>
+<center><b><font face="Arial">UMAX scanners</font></b></center>
+</td>
+</tr>
+
+<tr NOSAVE>
+<td COLSPAN="10" BGCOLOR="#CCFFFF" NOSAVE>&nbsp;<b>Astra series:</b></td>
+</tr>
+
+<tr ALIGN=CENTER NOSAVE>
+<td NOSAVE>
+<center><b><font face="Arial">Name</font></b></center>
+</td>
+
+<td NOSAVE>
+<center><b><font face="Arial">SCSI-ID</font></b></center>
+</td>
+
+<td NOSAVE>
+<center><b><font face="Arial">Versions</font></b></center>
+</td>
+
+<td NOSAVE>
+<center><b>UTA</b></center>
+</td>
+
+<td>
+<center><b>ADF</b></center>
+</td>
+
+<td NOSAVE>
+<center><b><font face="Arial">B/W</font></b></center>
+</td>
+
+<td NOSAVE>
+<center><b><font face="Arial">Gray</font></b></center>
+</td>
+
+<td NOSAVE>
+<center><b><font face="Arial">Color</font></b></center>
+</td>
+
+<td NOSAVE>
+<center><b><font face="Arial">Bits/pixel</font></b></center>
+</td>
+
+<td NOSAVE>
+<center><b>Resolution</b></center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center><font face="Arial"><font size=-1><a href="http://www.umax.de/eu/Scanner/astra600s.htm">Astra
+600S</a></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>Astra 600S</font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>all</font></font></center>
+</td>
+
+<td>
+<center><font size=-1>X</font></center>
+</td>
+
+<td>
+<center><font size=-1>&nbsp;</font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>1,8,24</font></font></center>
+</td>
+
+<td>
+<center><font size=-1>300 x 600</font></center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center><font face="Arial"><font size=-1><a href="http://www.umax.de/eu/Scanner/astra610s.htm">Astra
+610S</a></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>Astra 610S</font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>all</font></font></center>
+</td>
+
+<td>
+<center><font size=-1>--</font></center>
+</td>
+
+<td>
+<center><font size=-1>&nbsp;</font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>1,8,24</font></font></center>
+</td>
+
+<td>
+<center><font size=-1>300 x 600</font></center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center><font face="Arial"><font size=-1><a href="http://www.umax.de/eu/Scanner/astra1200s.htm">Astra
+1200S</a></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>Astra 1200S</font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>all but 2.9 <font color="#993300">***</font></font></font></center>
+</td>
+
+<td>
+<center><font size=-1>X</font></center>
+</td>
+
+<td>
+<center><font size=-1>&nbsp;</font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>1,8,10,24,30</font></font></center>
+</td>
+
+<td>
+<center><font size=-1>600 x 1200</font></center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center><font face="Arial"><font size=-1><a href="http://www.umax.de/eu/Scanner/astra1220.htm">Astra
+1220S</a></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>Astra 1220S</font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>all</font></font></center>
+</td>
+
+<td>
+<center><font size=-1>X</font></center>
+</td>
+
+<td>
+<center><font size=-1>&nbsp;</font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>1,8,12,24,36</font></font></center>
+</td>
+
+<td>
+<center><font size=-1>600 x 1200</font></center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center><font face="Arial"><font size=-1><a href="http://www.umax.de/eu/Scanner/astra2100s.htm">Astra
+2100S</a></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>Astra 2100S</font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>all</font></font></center>
+</td>
+
+<td>
+<center><font size=-1>X&nbsp;</font></center>
+</td>
+
+<td>
+<center><font size=-1>&nbsp;</font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>ok</font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>ok</font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>ok</font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>1,8,12,24,36</font></font></center>
+</td>
+
+<td>
+<center><font size=-1>600 x 1200</font></center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center><font face="Arial"><font size=-1><a href="http://www.umax.de/eu/Scanner/astra2200.htm">Astra
+2200</a></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>Astra 2200</font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1><font color="#000000">all (2.1)
+</font><font color="#993300">****</font></font></font></center>
+</td>
+
+<td>
+<center><font size=-1>incl&nbsp;</font></center>
+</td>
+
+<td>
+<center><font size=-1>&nbsp;</font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>1,8,12,24,36</font></font></center>
+</td>
+
+<td>
+<center><font size=-1>600 x 1200</font></center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center><font face="Arial"><font size=-1><a href="http://www.umax.de/eu/Scanner/astra2400s.htm">Astra
+2400S</a></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>Astra 2400S</font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>all (1.1)</font></font></font></center>
+</td>
+
+<td>
+<center><font color="#000000"><font size=-1>X</font></font></center>
+</td>
+
+<td>
+<center><font color="#000000"><font size=-1>X&nbsp;</font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>1,8,12,24,36</font></font></center>
+</td>
+
+<td>
+<center><font size=-1>600 x 2400</font></center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center><font face="Arial"><font size=-1><a href="http://www.umax.de/eu/Scanner/astra_mx3.htm">Astra
+MX3</a></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>Astra 2200</font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#FF1493"><font size=-1>?
+</font><font color="#993300">****</font></font></font></center>
+</td>
+
+<td>
+<center><font size=-1>X&nbsp;</font></center>
+</td>
+
+<td>
+<center><font size=-1>&nbsp;</font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>1,8,12,24,36</font></font></center>
+</td>
+
+<td>
+<center><font size=-1>600 x 1200</font></center>
+</td>
+</tr>
+
+</table>
+</center>
+
+<center>
+<br>
+<font color="#990000">*** Astra 1200S-C with external power supply and Firmware Version 2.9 could make problems.</font>
+<br>
+<font color="#990000">**** Astra 2200 and MX3 are supported via SCSI. Connection via the USB bus not tested.</font>
+<p>
+<font color="#990000">UTA = Umax Transparancy Adapter, ADF = Automatic Document Feeder</font>
+<br>
+<font color="#990000">(X = supported by scanner, incl = is included)</font>
+<br>
+<hr WIDTH="100%">
+<br>
+<font color="#009900">This page has been changed on 12th. february 2001</font></center>
+</blockquote>
+</td>
+</tr>
+</table>
+
+<hr WIDTH="100%">
+
+<blockquote>
+Author: <a href="mailto:Oliver.Rauch@rauch-domain.de">Oliver Rauch</a>
+</blockquote>
+
+</body>
+</html>

@@ -2,7 +2,7 @@
 
 /* umax-scanner.c: scanner-definiton file for UMAX scanner driver.
   
-   (C) 1997-2000 Oliver Rauch
+   (C) 1997-2001 Oliver Rauch
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
@@ -104,9 +104,9 @@ static char *scanner_str[] =
 /*  "UMAX ",	"Mirage II ", */
   "UMAX ",	"Mirage IIse ",
 /*  "UMAX ",	"PL-II ", */
-/*  "UMAX ",	"Power Look 2000 ", */
+/*  "UMAX ",	"PowerLook 2000 ", */
   "UMAX ",	"PowerLook III ",
-/*  "UMAX ",	"Power Look 3000 ", */
+/*  "UMAX ",	"PowerLook 3000 ", */
   "UMAX ",	"Gemini D-16 ",
   "LinoHell",	"JADE ",
   "LinoHell",	"Office ",

@@ -4,7 +4,7 @@
 
    umax.c 
 
-   (C) 1997-2000 Oliver Rauch
+   (C) 1997-2001 Oliver Rauch
 
    This file is part of the SANE package.
 
@@ -49,7 +49,7 @@
 
 /* --------------------------------------------------------------------------------------------------------- */
 
-#define BUILD 24
+#define BUILD 25
 
 /* --------------------------------------------------------------------------------------------------------- */
 
@@ -103,6 +103,12 @@ in ADF mode this is done often:
 #define UMAX_CONFIG_FILE "umax.conf"
 #define MM_PER_INCH	 25.4
 
+/* ------------------------------------------------------------ SANE INTERNATIONALISATION ------------------ */
+
+#ifndef SANE_I18N
+#define SANE_I18N(text) text
+#endif 
+
 /* ------------------------------------------------------------ INCLUDES ----------------------------------- */
 
 #include "sane/config.h"
@@ -126,7 +132,6 @@ in ADF mode this is done often:
 
 #include <assert.h>
 #include <math.h>
-#include <getopt.h>
 #include <string.h>
 
 #include "umax-scsidef.h"
@@ -148,16 +153,16 @@ in ADF mode this is done often:
 
 /* ------------------------------------------------------------ STRINGDEFINITIONS -------------------------- */
 
-#define FLB_STR "Flatbed"
-#define UTA_STR "Transparency Adapter"
-#define ADF_STR "Automatic Document Feeder"
+#define FLB_STR			SANE_I18N("Flatbed")
+#define UTA_STR			SANE_I18N("Transparency Adapter")
+#define ADF_STR 		SANE_I18N("Automatic Document Feeder")
 
-#define LINEART_STR         "Lineart"
-#define HALFTONE_STR        "Halftone"
-#define GRAY_STR            "Gray"
-#define COLOR_LINEART_STR   "Color Lineart"
-#define COLOR_HALFTONE_STR  "Color Halftone"
-#define COLOR_STR           "Color"
+#define LINEART_STR		SANE_I18N("Lineart")
+#define HALFTONE_STR		SANE_I18N("Halftone")
+#define GRAY_STR		SANE_I18N("Gray")
+#define COLOR_LINEART_STR	SANE_I18N("Color Lineart")
+#define COLOR_HALFTONE_STR	SANE_I18N("Color Halftone")
+#define COLOR_STR		SANE_I18N("Color")
 
 /* ------------------------------------------------------------ DEFINITIONS -------------------------------- */
 
@@ -171,19 +176,43 @@ in ADF mode this is done often:
 static SANE_String scan_mode_list[7];
 static SANE_String_Const source_list[4];
 static SANE_Int bit_depth_list[9];
-static int umax_scsi_maxqueue    = 2; /* use command queueing depth 2 as default */
 static SANE_Auth_Callback frontend_authorize_callback;
+
+static unsigned int umax_scsi_buffer_size_min = 65536;  /* default: minimum scsi buffer size: 64 KB */
+static unsigned int umax_scsi_buffer_size_max = 131072; /* default: maximum scsi buffer size: 128 KB */
+
+/* number of lines that shall be scanned in one buffer for preview if possible */
+/* this value should not be too large because it defines the step size in which */
+/* the scanned parts are displayed while preview scan is in progress */
+static unsigned int umax_preview_lines = 10; /* default: 10 preview lines */
+
+/* number of lines that shall be scanned in one buffer for scan if possible */
+static unsigned int umax_scan_lines    = 40; /* default: 40 scan lines */
+
+static unsigned int umax_scsi_maxqueue = 2; /* use command queueing depth 2 as default */
+static unsigned int umax_execute_request_sense = 0; /* default: do not use request sense in do_calibration */
+static unsigned int umax_force_preview_bit_rgb = 0; /* default: do not force preview bit in real color scan */
+
+/* predefine fast scan, used by most scanners */
+static int umax_slow  = -1; /* use slow scanning speed */
+static int umax_smear = -1; /* don`t care about image smearing problem */
+
+static int umax_calibration_area = -1;         /* -1=auto, 0=calibration on image, 1=calibration for full ccd */
+static int umax_calibration_width_offset = -1; /* -1=auto */
+static int umax_calibration_bytespp = -1;      /* -1=auto */
+static int umax_invert_shading_data = -1;      /* -1=auto */
+static int umax_lamp_control_available = 0;    /* 0=disabled */
 
 /* ------------------------------------------------------------ CALIBRATION MODE --------------------------- */
 
 #ifdef UMAX_CALIBRATION_MODE_SELECTABLE
 
-#define CALIB_MODE_0000     "Use Image Composition"
-#define CALIB_MODE_1111     "Bi-level black and white (lineart mode)"
-#define CALIB_MODE_1110     "Dithered/halftone black & white (halftone mode)"
-#define CALIB_MODE_1101     "Multi-level black & white (grayscale mode)"
-#define CALIB_MODE_1010     "Multi-level RGB color (one pass color)"
-#define CALIB_MODE_1001     "Ignore calibration"
+#define CALIB_MODE_0000		SANE_I18N("Use Image Composition")
+#define CALIB_MODE_1111		SANE_I18N("Bi-level black and white (lineart mode)")
+#define CALIB_MODE_1110		SANE_I18N("Dithered/halftone black & white (halftone mode)")
+#define CALIB_MODE_1101		SANE_I18N("Multi-level black & white (grayscale mode)")
+#define CALIB_MODE_1010		SANE_I18N("Multi-level RGB color (one pass color)")
+#define CALIB_MODE_1001		SANE_I18N("Ignore calibration")
 
 static SANE_String_Const calibration_list[] =
 {
@@ -198,42 +227,13 @@ static SANE_String_Const calibration_list[] =
 
 #endif
 
-/* ------------------------------------------------------------ SHADING LIST ------------------------------- */
-
-#ifdef UMAX_SHADING_TYPE_SELECTABLE
-
-#define SHADING_TYPE_ONE_LINE_TEXT        "use one shading line"
-#define SHADING_TYPE_AVERAGE_TEXT         "calculate average"
-#define SHADING_TYPE_ONE_LINE_INVERT_TEXT "use one shading line and invert"
-#define SHADING_TYPE_AVERAGE_INVERT_TEXT  "calculate average and invert"
-
-static SANE_String_Const shading_list[] =
-{
-    SHADING_TYPE_ONE_LINE_TEXT,
-    SHADING_TYPE_AVERAGE_TEXT,
-    SHADING_TYPE_ONE_LINE_INVERT_TEXT,
-    SHADING_TYPE_AVERAGE_INVERT_TEXT,
-    0
-};
-
-#endif
-
 /* --------------------------------------------------------------------------------------------------------- */
 
 enum
 {
-    UMAX_CALIBRATION_AREA_IMAGE,
-    UMAX_CALIBRATION_AREA_CCD,
+    UMAX_CALIBRATION_AREA_IMAGE = 0,
+    UMAX_CALIBRATION_AREA_CCD
 };
-
-enum
-{
-    SHADING_TYPE_ONE_LINE = 0,
-    SHADING_TYPE_AVERAGE,
-    SHADING_TYPE_ONE_LINE_INVERT,
-    SHADING_TYPE_AVERAGE_INVERT
-};
-                     
 
 static const SANE_Int pattern_dim_list[] =
 {
@@ -1834,11 +1834,17 @@ static SANE_Status umax_set_window_param(Umax_Device *dev)
   set_WD_gamma(buffer_r, dev->digital_gamma_r);						/* set digital gamma */ 
   set_WD_module(buffer_r, dev->module);						  /* flatbed or transparency */ 
   set_WD_CBHS(buffer_r, dev->cbhs_range);							/* 50 or 255 */ 
+  set_WD_FF(buffer_r, dev->fix_focus_position);					       /* fix focus position */
   set_WD_RMIF(buffer_r, dev->reverse_multi);					     /* reverse color-values */
+  set_WD_FDC(buffer_r, dev->lens_cal_in_doc_pos);		    /* lens calibration in document position */
+  set_WD_PF(buffer_r, dev->disable_pre_focus);						/* disable pre focus */
+  set_WD_LCL(buffer_r, dev->holder_focus_pos_0mm);		    /* 0.6mm <-> 0.0mm holder focus position */
   set_WD_HBT(buffer_r, dev->low_byte_first);			       /* set byte order for 16 bit scanners */
   set_WD_DOR(buffer_r, dev->dor);						   /* double-resolution-mode */ 
   set_WD_scan_exposure_level(buffer_r, dev->exposure_time_scan_r);		       /* scan exposure time */
   set_WD_calibration_exposure_level(buffer_r, dev->exposure_time_calibration_r);/* calibration exposure time */
+
+  set_WD_MF(buffer_r, dev->manual_focus);				       /* automatic <-> manual focus */
   set_WD_line_arrangement(buffer_r, WD_line_arrengement_by_fw);		      /* line arrangement by scanner */
   set_WD_warmup(buffer_r, dev->warmup);								   /* warmup */
 
@@ -2097,14 +2103,6 @@ static SANE_Status umax_start_scan(Umax_Device *dev)
   set_SC_adf(    scan.cmd, dev->adf);							/* ADF, 0=off, 1=use */
   set_SC_preview(scan.cmd, dev->preview);							/* 1=preview */
   
-  if (dev->RGB_PREVIEW_FIX != 0)                            /* in RGB-mode set preview bit, eg. for UMAX S6E */
-  {
-    if (dev->colormode == RGB)
-    {
-       set_SC_preview(scan.cmd, 1);
-    }
-  }
-
   set_SC_wid(scan.cmd, 1, 0);								/* Window-Identifier */
 
   set_SC_xfer_length(scan.cmd, size);							  /* following Bytes */
@@ -2139,17 +2137,29 @@ static SANE_Status umax_do_calibration(Umax_Device *dev)
   {
    unsigned char *shading_data = 0;
    unsigned int i, j;
+   long *average;
+
 
     DBG(DBG_info,"driver is doing calibration\n");
 
-    umax_do_request_sense(dev);					   /* new request-sense call to get all data */
+    memset(dev->buffer[0], 0, rs_return_block_size);					  /* clear sense data buffer */
+
+    if (umax_execute_request_sense)
+    {
+      DBG(DBG_info,"request sense call is enabled\n");
+      umax_do_request_sense(dev);					   /* new request-sense call to get all data */
+    }
+    else
+    {
+      DBG(DBG_info,"request sense call is disabled\n");
+    }
 
     if (get_RS_SCC_condition_code(dev->buffer[0]) != 1)
     {
       DBG(DBG_warning,"WARNING: missing informations about shading-data\n");
       DBG(DBG_warning,"         driver tries to guess missing values!\n");
 
-      if (dev->calibration_area == UMAX_CALIBRATION_AREA_IMAGE) /* calibration is done with image geometry and depth */
+      if (dev->calibration_area != UMAX_CALIBRATION_AREA_CCD) /* calibration is done with image geometry and depth */
       {
         DBG(DBG_warning,"         Calibration is done with selected image geometry and depth!\n");
 
@@ -2180,7 +2190,11 @@ static SANE_Status umax_do_calibration(Umax_Device *dev)
         DBG(DBG_warning,"         Calibration is done for each CCD pixel with full depth!\n");
 
         width = dev->maxwidth * dev->relevant_optical_res / dev->x_coordinate_base;
-        width = width + dev->calibration_width_offset; 
+
+        if (dev->calibration_width_offset > 0) /* driver or user (umax.conf) define an offset */
+        {
+          width = width + dev->calibration_width_offset; 
+        }
 
         if (dev->colormode == RGB)
         {
@@ -2206,7 +2220,7 @@ static SANE_Status umax_do_calibration(Umax_Device *dev)
       bytespp =  get_RS_SCC_calibration_bytespp(dev->buffer[0]);
     }
 
-    if (dev->calibration_bytespp) /* correct bytespp if necessary and driver knows about it */
+    if (dev->calibration_bytespp > 0) /* correct bytespp if necessary and driver knows about it or user did select it */
     {
       bytespp = dev->calibration_bytespp;
     }
@@ -2223,114 +2237,89 @@ static SANE_Status umax_do_calibration(Umax_Device *dev)
     /* (although 0 is not black) my scanner sends values around 220 */
     /* for some scanners the data is simply sent back, other scanners want 255-value as awnswer */
 
-    if ( (dev->shading_type == SHADING_TYPE_ONE_LINE) || (dev->shading_type == SHADING_TYPE_ONE_LINE_INVERT) )	/* last line */
+    average = calloc(width, sizeof(long));
+    if (average == 0)
     {
-      DBG(DBG_info,"using last shading line as shading data!\n");
+      DBG(DBG_error,"ERROR: could not allocate memory for averaging shading data: calibration aborted\n");
+     return SANE_STATUS_NO_MEM;
+    }
 
-      shading_data = calloc(width, bytespp);
-      if (shading_data == 0)
-      {
-        DBG(DBG_error,"ERROR: could not allocate memory for shading data: calibration aborted\n");
-        return SANE_STATUS_NO_MEM;
-      }
+    shading_data = calloc(width, bytespp);
+    if (shading_data == 0)
+    {
+      DBG(DBG_error,"ERROR: could not allocate memory for shading data: calibration aborted\n");
+     return SANE_STATUS_NO_MEM;
+    }
+
+    if (bytespp == 1)					 /* 1 byte per pixel */
+    {
+      DBG(DBG_info,"calculating average value for 8 bit shading data!\n");
 
       for (i=0; i<lines; i++)
       {
         umax_read_shading_data(dev, width * bytespp);
-        DBG(DBG_read,"shading-line %d read\n", i+1);
+
+        for (j=0; j<width; j++)
+        {
+          average[j] += (long) dev->buffer[0][j];
+        }
+
+        DBG(DBG_read,"8 bit shading-line %d read\n", i+1);
       }
 
-      memcpy(shading_data, dev->buffer[0], width * bytespp);
+      for (j=0; j<width; j++)
+      {
+        shading_data[j] = (unsigned char) (average[j] / lines);
+      }
     }
-    else if ( (dev->shading_type == SHADING_TYPE_AVERAGE) || (dev->shading_type == SHADING_TYPE_AVERAGE_INVERT) )
-	/* average of all lines */
+    else if (dev->low_byte_first) /* 2 bytes per pixel with low byte first */
     {
-     long *average;
+      DBG(DBG_info,"calculating average value for 16 bit shading data (low byte first)!\n");
 
-      average = calloc(width, sizeof(long));
-      if (average == 0)
+      for (i=0; i<lines; i++)
       {
-        DBG(DBG_error,"ERROR: could not allocate memory for averaging shading data: calibration aborted\n");
-        return SANE_STATUS_NO_MEM;
-      }
-
-      shading_data = calloc(width, bytespp);
-      if (shading_data == 0)
-      {
-        DBG(DBG_error,"ERROR: could not allocate memory for shading data: calibration aborted\n");
-        return SANE_STATUS_NO_MEM;
-      }
-
-      if (bytespp == 1)					 /* 1 byte per pixel */
-      {
-        DBG(DBG_info,"calculating average value for 8 bit shading data!\n");
-
-        for (i=0; i<lines; i++)
-        {
-          umax_read_shading_data(dev, width * bytespp);
-
-	  for (j=0; j<width; j++)
-	  {
-	    average[j] += (long) dev->buffer[0][j];
-	  }
-
-          DBG(DBG_read,"8 bit shading-line %d read\n", i+1);
-	}
+        umax_read_shading_data(dev, width * bytespp);
 
         for (j=0; j<width; j++)
         {
-          shading_data[j] = (unsigned char) (average[j] / lines);
+          average[j] += (long) 256 * dev->buffer[0][2*j+1] + dev->buffer[0][2*j] ;
         }
+
+        DBG(DBG_read,"16 bit shading-line %d read\n", i+1);
       }
-      else if (dev->low_byte_first) /* 2 bytes per pixel with low byte first */
+
+      for (j=0; j<width; j++)
       {
-        DBG(DBG_info,"calculating average value for 16 bit shading data (low byte first)!\n");
+        shading_data[2*j+1] = (unsigned char) (average[j] / (256 * lines));
+        shading_data[2*j]   = (unsigned char) (average[j] / lines);
+      }
+    }
+    else					/* 2 bytes per pixel with highbyte first */
+    {
+      DBG(DBG_info,"calculating average value for 16 bit shading data (high byte first)!\n");
 
-        for (i=0; i<lines; i++)
-        {
-          umax_read_shading_data(dev, width * bytespp);
-
-          for (j=0; j<width; j++)
-          {
-            average[j] += (long) 256 * dev->buffer[0][2*j+1] + dev->buffer[0][2*j] ;
-          }
-
-          DBG(DBG_read,"16 bit shading-line %d read\n", i+1);
-	}
+      for (i=0; i<lines; i++)
+      {
+        umax_read_shading_data(dev, width * bytespp);
 
         for (j=0; j<width; j++)
         {
-          shading_data[2*j+1] = (unsigned char) (average[j] / (256 * lines));
-          shading_data[2*j]   = (unsigned char) (average[j] / lines);
+          average[j] += (long) 256 * dev->buffer[0][2*j] + dev->buffer[0][2*j + 1] ;
         }
+
+        DBG(DBG_read,"16 bit shading-line %d read\n", i+1);
       }
-      else					/* 2 bytes per pixel with highbyte first */
+
+      for (j=0; j<width; j++)
       {
-        DBG(DBG_info,"calculating average value for 16 bit shading data (high byte first)!\n");
-
-        for (i=0; i<lines; i++)
-        {
-          umax_read_shading_data(dev, width * bytespp);
-
-          for (j=0; j<width; j++)
-          {
-            average[j] += (long) 256 * dev->buffer[0][2*j] + dev->buffer[0][2*j + 1] ;
-          }
-
-          DBG(DBG_read,"16 bit shading-line %d read\n", i+1);
-	}
-
-        for (j=0; j<width; j++)
-        {
-          shading_data[2*j]   = (unsigned char) (average[j] / (256 * lines));
-          shading_data[2*j+1] = (unsigned char) (average[j] / lines);
-        }
+        shading_data[2*j]   = (unsigned char) (average[j] / (256 * lines));
+        shading_data[2*j+1] = (unsigned char) (average[j] / lines);
       }
+    }
 
-      free(average);
-    } /* average */
+    free(average);
 
-    if ( (dev->shading_type == SHADING_TYPE_ONE_LINE_INVERT) || (dev->shading_type == SHADING_TYPE_AVERAGE_INVERT) )			/* invert data */
+    if ( (dev->invert_shading_data) ) /* invert data */
     {
       if (bytespp == 1)
       {
@@ -2415,8 +2404,11 @@ static void umax_correct_inquiry(Umax_Device *dev, char *vendor, char *product, 
 	set_inquiry_CCD_line_distance(dev->buffer[0], 8);
         /* we should reset ADF-bit here too */
 
-        DBG(DBG_warning," - activating inversion of shading data\n");
-        dev->shading_type = SHADING_TYPE_AVERAGE_INVERT;	  /* shading type = average value and invert */
+        if (dev->invert_shading_data == -1) /* nothing defined in umax.conf */
+        {
+          DBG(DBG_warning," - activating inversion of shading data\n");
+          dev->invert_shading_data = 1;
+        }
       }
     }
     else if (!strncmp(product, "Astra 610S ", 11))
@@ -2435,8 +2427,11 @@ static void umax_correct_inquiry(Umax_Device *dev, char *vendor, char *product, 
 	set_inquiry_fb_uta_line_arrangement_mode(dev->buffer[0], 33);
 	set_inquiry_CCD_line_distance(dev->buffer[0], 8);
 
-        DBG(DBG_warning," - activating inversion of shading data\n");
-        dev->shading_type = SHADING_TYPE_AVERAGE_INVERT;	  /* shading type = average value and invert */
+        if (dev->invert_shading_data == -1) /* nothing defined in umax.conf */
+        {
+          DBG(DBG_warning," - activating inversion of shading data\n");
+          dev->invert_shading_data = 1;
+        }
       }
     }
     else if ( (!strncmp(product, "Astra 1200S ", 12)) ||
@@ -2453,16 +2448,25 @@ static void umax_correct_inquiry(Umax_Device *dev, char *vendor, char *product, 
       DBG(DBG_warning,"setting up special options for %s\n", product);
       DBG(DBG_warning,"- lamp control enabled\n");
       dev->lamp_control_available = 1;
-      DBG(DBG_warning,"- setting calibration_bytespp = 1\n");
-      dev->calibration_bytespp = 1; /* scanner says 2 bytespp for calibration but 1 bytepp is correct */
+
+      if (dev->calibration_bytespp == -1) /* no calibration-bytespp defined in umax.conf */
+      {
+        DBG(DBG_warning,"- setting calibration_bytespp = 1\n");
+        dev->calibration_bytespp = 1; /* scanner says 2 bytespp for calibration but 1 bytepp is correct */
+      }
     }
     else if (!strncmp(product, "Astra 2200 ", 11))
     {
       DBG(DBG_warning,"setting up special options for %s\n", product);
       DBG(DBG_warning,"- lamp control enabled\n");
       dev->lamp_control_available = 1;
-      DBG(DBG_warning,"- setting calibration_bytespp = 1\n");
-      dev->calibration_bytespp = 1; /* scanner says 2 bytespp for calibration but 1 bytepp is correct */
+
+      if (dev->calibration_bytespp == -1) /* no calibration-bytespp defined in umax.conf */
+      {
+        DBG(DBG_warning,"- setting calibration_bytespp = 1\n");
+        dev->calibration_bytespp = 1; /* scanner says 2 bytespp for calibration but 1 bytepp is correct */
+      }
+
       DBG(DBG_warning,"- common x and y resolution\n");
       dev->common_xy_resolutions = 1;
     }
@@ -2482,8 +2486,12 @@ static void umax_correct_inquiry(Umax_Device *dev, char *vendor, char *product, 
     else if (!strncmp(product, "Vista-T630 ", 11))
     {
       DBG(DBG_warning,"setting up special options for %s\n", product);
-      DBG(DBG_warning," - activating slow option\n");
-      dev->slow = 1;
+
+      if (dev->slow == -1) /* option is not predefined in umax.conf */
+      {
+        DBG(DBG_warning," - activating slow option\n");
+        dev->slow = 1;
+      }
     }
     else if (!strncmp(product, "UC1260 ", 7))
     {
@@ -2518,36 +2526,64 @@ static void umax_correct_inquiry(Umax_Device *dev, char *vendor, char *product, 
     else if (!strncmp(product, "Mirage D-16L ", 13))
     {
       DBG(DBG_warning,"setting up special options for %s\n", product);
-      DBG(DBG_warning," - calibration by driver is done for each CCD pixel\n");
-      dev->calibration_area = UMAX_CALIBRATION_AREA_CCD;
-      DBG(DBG_warning," - adding calibration width offset of 308 pixels\n");
-      dev->calibration_width_offset = 308;
+      if (dev->calibration_area == -1) /* no calibration area defined in umax.conf */
+      {
+        DBG(DBG_warning," - calibration by driver is done for each CCD pixel\n");
+        dev->calibration_area = UMAX_CALIBRATION_AREA_CCD;
+      }
+
+      if (dev->calibration_width_offset == -1) /* no calibration-width-offset defined in umax.conf */
+      {
+        DBG(DBG_warning," - adding calibration width offset of 308 pixels\n");
+        dev->calibration_width_offset = 308;
+      }
     }
-    else if (!strncmp(product, "PowerLook III ", 13))
+    else if (!strncmp(product, "PowerLook III ", 14))
     {
       DBG(DBG_warning,"setting up special options for %s\n", product);
-      DBG(DBG_warning," - adding calibration width offset of 28 pixels\n");
-      dev->calibration_width_offset = 28;
+
+      if (dev->calibration_width_offset == -1) /* no calibration-width-offset defined in umax.conf */
+      {
+        DBG(DBG_warning," - adding calibration width offset of 28 pixels\n");
+        dev->calibration_width_offset = 28;
+      }
+      /* calibration_area = image */
+    }
+    else if (!strncmp(product, "PowerLook 3000 ", 15))
+    {
+      DBG(DBG_warning,"setting up special options for %s\n", product);
+
+      if (dev->calibration_area == -1) /* no calibration area defined in umax.conf */
+      {
+        DBG(DBG_warning," - calibration by driver is done for each CCD pixel\n");
+        dev->calibration_area = UMAX_CALIBRATION_AREA_CCD;
+      }
+
+      if (dev->calibration_bytespp == -1) /* no calibration-bytespp defined in umax.conf */
+      {
+        DBG(DBG_warning,"- setting calibration_bytespp = 1\n");
+        dev->calibration_bytespp = 1; /* scanner says 2 bytespp for calibration but 1 bytepp is correct */
+      }
     }
     else
     {
       DBG(DBG_warning,"using standard options for %s\n", product);
     }
+  }
 
-#ifdef PREVIEW_FIX_ON
-    dev->RGB_PREVIEW_FIX = 1;
-    DBG(DBG_warning,"activating preview fix\n");
-#endif
+  if (dev->slow == -1) /* option is not predefined in umax.conf */
+  {
+    dev->slow = 0;
+  }
 
-#ifdef SANE_UMAX_DEBUG_S12
-    if (!strncmp(product, "UMAX S-12G ", 11))
-    {
-      DBG(DBG_error0,"ATTENTION: using test options for %s\n", product);
-      DBG(DBG_error0," - turning on lamp control\n");
-      dev->lamp_control_available = 1;
-    }
-#endif
+  if (dev->smear == -1) /* option is not predefined in umax.conf */
+  {
+    dev->smear = 0;
+  }
 
+  if (dev->invert_shading_data == -1) /* nothing defined in umax.conf */
+  {
+    dev->invert_shading_data = 0;
   }
 }
 
@@ -2619,7 +2655,7 @@ static int umax_identify_scanner(Umax_Device *dev)
      "******************************************************************\n"
      "***             !!!! CONTINUE AT YOUR OWN RISK !!!!            ***\n"
      "******************************************************************\n"
-     "Please contact Oliver.Rauch@Wolfsburg.DE\n",
+     "Please contact Oliver.Rauch@rauch-domain.de\n",
      vendor, product, version, dev->devicename);
 
     return 0; 
@@ -2654,7 +2690,7 @@ static int umax_identify_scanner(Umax_Device *dev)
     DBG(DBG_error0, "ERROR: %s scanner %s version %s on device %s\n"
          "is currently an unrecognized device, and inquiry is too short,\n"
          "so we are not able to continue!\n"
-         "Please contact Oliver.Rauch@Wolfsburg.DE\n",
+         "Please contact Oliver.Rauch@rauch-domain.de\n",
          vendor, product, version, dev->devicename);
   }
 
@@ -2672,6 +2708,12 @@ static void umax_trim_rowbufsize(Umax_Device *dev)
   if (dev->row_bufsize > dev->row_len)
   {
     lines = dev->row_bufsize / dev->row_len;
+
+    if (lines > dev->lines_max) /* reduce number of lines to scan if set up in config file */
+    {
+      lines = dev->lines_max;
+    }
+
     dev->row_bufsize = lines * dev->row_len;
   }
 
@@ -3042,7 +3084,7 @@ static int umax_check_values(Umax_Device *dev)
 
   /* ---------------------------- speed and smear  ------------------------- */
   
-  if (dev->slow != 0)
+  if (dev->slow == 1)
   {
     dev->WD_speed = WD_speed_slow;
   }
@@ -3051,7 +3093,10 @@ static int umax_check_values(Umax_Device *dev)
     dev->WD_speed = WD_speed_fast;
   }
 
-  if (dev->smear != 0) {dev->WD_speed += WD_speed_smear;}
+  if (dev->smear == 1)
+  {
+    dev->WD_speed += WD_speed_smear;
+  }
 
   /* ---------------------- test bits per pixel  --------------------------- */
   
@@ -3418,6 +3463,11 @@ static void umax_get_inquiry_values(Umax_Device *dev)
   dev->inquiry_highlight     = 1 - get_inquiry_sc_no_highlight(inquiry_block);
   dev->inquiry_analog_gamma  = get_inquiry_analog_gamma(inquiry_block);
   dev->inquiry_lineart_order = get_inquiry_lineart_order(inquiry_block);
+
+  dev->inquiry_lens_cal_in_doc_pos  = get_inquiry_manual_focus(inquiry_block);
+  dev->inquiry_manual_focus         = get_inquiry_manual_focus(inquiry_block);
+  dev->inquiry_sel_uta_lens_cal_pos = get_inquiry_manual_focus(inquiry_block);
+
   dev->inquiry_gamma_dwload  = get_inquiry_gamma_download_available(inquiry_block);
 
   if (get_inquiry_gamma_type_2(inquiry_block) != 0)
@@ -3638,8 +3688,8 @@ static int umax_reader_process(Umax_Device *dev, FILE *fp, unsigned int image_si
  int status;
  int bytes        = 1;
  int queue_filled = 0;
- int bufnr_queue  = 0;
- int bufnr_read   = 0;
+ unsigned int bufnr_queue  = 0;
+ unsigned int bufnr_read   = 0;
  unsigned int data_left_to_read  = image_size;
  unsigned int data_left_to_queue = image_size;
  unsigned int data_to_read;
@@ -3784,6 +3834,11 @@ static void umax_initialize_values(Umax_Device *dev)	      /* called each time b
   dev->preview               = 0;							    /* 1 for preview */
   dev->quality               = 0;						      /* quality calibration */
   dev->warmup                = 0;							       /* warmup-bit */
+  dev->fix_focus_position    = 0;						       /* fix focus position */
+  dev->lens_cal_in_doc_pos   = 0;				    /* lens calibration in document position */
+  dev->disable_pre_focus     = 0;							/* disable pre focus */
+  dev->holder_focus_pos_0mm  = 0;				    /* 0.6mm <-> 0.0mm holder focus position */
+  dev->manual_focus          = 0;					       /* automatic <-> manual focus */
   dev->colormode             = 0;				      /* LINEART, HALFTONE, GRAYSCALE or RGB */
   dev->adf                   = 0;						   /* 1 if adf shall be used */
   dev->uta                   = 0;						   /* 1 if uta shall be used */
@@ -3864,8 +3919,35 @@ static void umax_init(Umax_Device *dev)		     /* umax_init is called once while 
   dev->pixelbuffer                       = NULL;
 
   /* config file or predefined settings */
-  dev->request_scsi_maxqueue = umax_scsi_maxqueue;
-  DBG(DBG_info, "request_scsi_maxqueue = %d\n", dev->request_scsi_maxqueue);
+  dev->request_scsi_maxqueue    = umax_scsi_maxqueue;
+  dev->request_preview_lines    = umax_preview_lines;
+  dev->request_scan_lines       = umax_scan_lines;
+  dev->execute_request_sense    = umax_execute_request_sense;
+  dev->scsi_buffer_size_min     = umax_scsi_buffer_size_min;
+  dev->scsi_buffer_size_max     = umax_scsi_buffer_size_max;
+  dev->force_preview_bit_rgb    = umax_force_preview_bit_rgb;
+  dev->slow                     = umax_slow;
+  dev->smear                    = umax_smear;
+  dev->calibration_area         = umax_calibration_area;
+  dev->calibration_width_offset = umax_calibration_width_offset;
+  dev->calibration_bytespp      = umax_calibration_bytespp;
+  dev->invert_shading_data      = umax_invert_shading_data;
+  dev->lamp_control_available   = umax_lamp_control_available;
+
+  DBG(DBG_info, "request_scsi_maxqueue    = %d\n", dev->request_scsi_maxqueue);
+  DBG(DBG_info, "request_preview_lines    = %d\n", dev->request_preview_lines);
+  DBG(DBG_info, "request_scan_lines       = %d\n", dev->request_scan_lines);
+  DBG(DBG_info, "execute_request_sense    = %d\n", dev->execute_request_sense);
+  DBG(DBG_info, "scsi_buffer_size_min     = %d\n", dev->scsi_buffer_size_min);
+  DBG(DBG_info, "scsi_buffer_size_max     = %d\n", dev->scsi_buffer_size_max);
+  DBG(DBG_info, "force_preview_bit_rgb    = %d\n", dev->force_preview_bit_rgb);
+  DBG(DBG_info, "slow                     = %d\n", dev->slow);
+  DBG(DBG_info, "smear                    = %d\n", dev->smear);
+  DBG(DBG_info, "calibration_area         = %d\n", dev->calibration_area);
+  DBG(DBG_info, "calibration_width_offset = %d\n", dev->calibration_width_offset);
+  DBG(DBG_info, "calibration_bytespp      = %d\n", dev->calibration_bytespp);
+  DBG(DBG_info, "invert_shading_data      = %d\n", dev->invert_shading_data);
+  DBG(DBG_info, "lamp_control_available   = %d\n", dev->lamp_control_available);
 
 
   dev->inquiry_len                       = 0;
@@ -3939,19 +4021,9 @@ static void umax_init(Umax_Device *dev)		     /* umax_init is called once while 
   dev->x_coordinate_base = 1200;						/* these are the 1200pt/inch */
   dev->y_coordinate_base = 1200;						/* these are the 1200pt/inch */
 
-  dev->slow              = 0;				       /* predefine fast scan, used by most scanners */
-  dev->smear             = 0;
-
-  dev->shading_type      = SHADING_TYPE_AVERAGE;		  	     /* shading type = average value */
-  dev->RGB_PREVIEW_FIX   = 0;						     /* fix for umax s6e/ Astra 6X0S */
-
   dev->button0_pressed   = 0;						      /* reset button 0 pressed flag */
   dev->button1_pressed   = 0;						      /* reset button 1 pressed flag */
   dev->button2_pressed   = 0;						      /* reset button 2 pressed flag */
-
-  dev->calibration_area  = UMAX_CALIBRATION_AREA_IMAGE;
-  dev->calibration_width_offset = 0;
-  dev->calibration_bytespp = 0;
 
   dev->pause_for_color_calibration = 0;			/* pause between start_scan and do_calibration in ms */
   dev->pause_for_gray_calibration  = 0;			/* pause between start_scan and do_calibration in ms */
@@ -4060,6 +4132,7 @@ static SANE_Status attach_scanner(const char *devicename, Umax_Device **devp)
   {
      return SANE_STATUS_NO_MEM;
   }
+  memset(dev, '\0', sizeof(Umax_Device)); /* clear structure */
 
   DBG(DBG_info, "attach_scanner: opening %s\n", devicename);
 
@@ -4237,7 +4310,7 @@ static int reader_process(Umax_Scanner *scanner, int pipe_fd)		      /* executed
  int status;
  unsigned int data_length;
  struct SIGACTION act;
- int i;
+ unsigned int i;
 
   DBG(DBG_sane_proc,"reader_process started\n");
 
@@ -4334,7 +4407,7 @@ static SANE_Status init_options(Umax_Scanner *scanner)
   scanner->val[OPT_NUM_OPTS].w     = NUM_OPTIONS;
 
   /* "Mode" group: */
-  scanner->opt[OPT_MODE_GROUP].title = "Scan Mode";
+  scanner->opt[OPT_MODE_GROUP].title = SANE_I18N("Scan Mode");
   scanner->opt[OPT_MODE_GROUP].desc  = "";
   scanner->opt[OPT_MODE_GROUP].type  = SANE_TYPE_GROUP;
   scanner->opt[OPT_MODE_GROUP].cap   = 0;
@@ -4456,7 +4529,7 @@ static SANE_Status init_options(Umax_Scanner *scanner)
   /* ------------------------------ */
 
   /* "Geometry" group: */
-  scanner->opt[OPT_GEOMETRY_GROUP].title = "Geometry";
+  scanner->opt[OPT_GEOMETRY_GROUP].title = SANE_I18N("Geometry");
   scanner->opt[OPT_GEOMETRY_GROUP].desc  = "";
   scanner->opt[OPT_GEOMETRY_GROUP].type  = SANE_TYPE_GROUP;
   scanner->opt[OPT_GEOMETRY_GROUP].cap   = SANE_CAP_ADVANCED;
@@ -4506,7 +4579,7 @@ static SANE_Status init_options(Umax_Scanner *scanner)
 
 
   /* "Enhancement" group: */
-  scanner->opt[OPT_ENHANCEMENT_GROUP].title = "Enhancement";
+  scanner->opt[OPT_ENHANCEMENT_GROUP].title = SANE_I18N("Enhancement");
   scanner->opt[OPT_ENHANCEMENT_GROUP].desc  = "";
   scanner->opt[OPT_ENHANCEMENT_GROUP].type  = SANE_TYPE_GROUP;
   scanner->opt[OPT_ENHANCEMENT_GROUP].cap   = 0;
@@ -4566,7 +4639,9 @@ static SANE_Status init_options(Umax_Scanner *scanner)
   scanner->val[OPT_QUALITY].w     = SANE_FALSE;
 
   if (scanner->device->inquiry_quality_ctrl == 0)
-  { scanner->opt[OPT_QUALITY].cap  |= SANE_CAP_INACTIVE; }
+  {
+    scanner->opt[OPT_QUALITY].cap  |= SANE_CAP_INACTIVE;
+  }
 
 
   /* double optical resolution */
@@ -4577,7 +4652,9 @@ static SANE_Status init_options(Umax_Scanner *scanner)
   scanner->val[OPT_DOR].w     = SANE_FALSE;
 
   if (scanner->device->inquiry_dor == 0)
-  { scanner->opt[OPT_DOR].cap  |= SANE_CAP_INACTIVE; }
+  {
+    scanner->opt[OPT_DOR].cap  |= SANE_CAP_INACTIVE;
+  }
 
 
   /* warmup */
@@ -4588,7 +4665,9 @@ static SANE_Status init_options(Umax_Scanner *scanner)
   scanner->val[OPT_WARMUP].w     = SANE_FALSE;
 
   if (scanner->device->inquiry_max_warmup_time == 0)
-  { scanner->opt[OPT_WARMUP].cap  |= SANE_CAP_INACTIVE; }
+  {
+    scanner->opt[OPT_WARMUP].cap  |= SANE_CAP_INACTIVE;
+  }
 
   scanner->opt[OPT_RGB_BIND].name  = SANE_NAME_RGB_BIND;
   scanner->opt[OPT_RGB_BIND].title = SANE_TITLE_RGB_BIND;
@@ -4835,7 +4914,7 @@ static SANE_Status init_options(Umax_Scanner *scanner)
 
 
   /* "Advanced" group: */
-  scanner->opt[OPT_ADVANCED_GROUP].title = "Advanced";
+  scanner->opt[OPT_ADVANCED_GROUP].title = SANE_I18N("Advanced");
   scanner->opt[OPT_ADVANCED_GROUP].desc  = "";
   scanner->opt[OPT_ADVANCED_GROUP].type  = SANE_TYPE_GROUP;
   scanner->opt[OPT_ADVANCED_GROUP].cap   = SANE_CAP_ADVANCED;
@@ -4993,10 +5072,72 @@ static SANE_Status init_options(Umax_Scanner *scanner)
 
   /* ------------------------------ */
 
+  /* disable pre focus */
+  scanner->opt[OPT_DISABLE_PRE_FOCUS].name  = "disable-pre-focus";
+  scanner->opt[OPT_DISABLE_PRE_FOCUS].title = SANE_I18N("Disable pre focus");
+  scanner->opt[OPT_DISABLE_PRE_FOCUS].desc  = SANE_I18N("Do not calibrate focus");
+  scanner->opt[OPT_DISABLE_PRE_FOCUS].type  = SANE_TYPE_BOOL;
+  scanner->val[OPT_DISABLE_PRE_FOCUS].w     = SANE_FALSE;
+
+  if (scanner->device->inquiry_manual_focus == 0)
+  {
+    scanner->opt[OPT_DISABLE_PRE_FOCUS].cap  |= SANE_CAP_INACTIVE;
+  }
+
+  /* manual pre focus */
+  scanner->opt[OPT_MANUAL_PRE_FOCUS].name  = "manual-pre-focus";
+  scanner->opt[OPT_MANUAL_PRE_FOCUS].title = SANE_I18N("Manual pre focus");
+  scanner->opt[OPT_MANUAL_PRE_FOCUS].desc  = "";
+  scanner->opt[OPT_MANUAL_PRE_FOCUS].type  = SANE_TYPE_BOOL;
+  scanner->val[OPT_MANUAL_PRE_FOCUS].w     = SANE_FALSE;
+
+  if (scanner->device->inquiry_manual_focus == 0)
+  {
+    scanner->opt[OPT_MANUAL_PRE_FOCUS].cap  |= SANE_CAP_INACTIVE;
+  }
+
+  /* fix focus position */
+  scanner->opt[OPT_FIX_FOCUS_POSITION].name  = "fix-focus-position";
+  scanner->opt[OPT_FIX_FOCUS_POSITION].title = SANE_I18N("Fix focus position");
+  scanner->opt[OPT_FIX_FOCUS_POSITION].desc  = "";
+  scanner->opt[OPT_FIX_FOCUS_POSITION].type  = SANE_TYPE_BOOL;
+  scanner->val[OPT_FIX_FOCUS_POSITION].w     = SANE_FALSE;
+
+  if (scanner->device->inquiry_manual_focus == 0)
+  {
+    scanner->opt[OPT_FIX_FOCUS_POSITION].cap  |= SANE_CAP_INACTIVE;
+  }
+
+  /* lens calibration in doc position */
+  scanner->opt[OPT_LENS_CALIBRATION_DOC_POS].name  = "lens-calibration-in-doc-position";
+  scanner->opt[OPT_LENS_CALIBRATION_DOC_POS].title = SANE_I18N("Lens calibration in doc position");
+  scanner->opt[OPT_LENS_CALIBRATION_DOC_POS].desc  = SANE_I18N("Calibrate lens focus in document position");
+  scanner->opt[OPT_LENS_CALIBRATION_DOC_POS].type  = SANE_TYPE_BOOL;
+  scanner->val[OPT_LENS_CALIBRATION_DOC_POS].w     = SANE_FALSE;
+
+  if (scanner->device->inquiry_lens_cal_in_doc_pos == 0)
+  {
+    scanner->opt[OPT_LENS_CALIBRATION_DOC_POS].cap  |= SANE_CAP_INACTIVE;
+  }
+
+  /* 0mm holder focus position */
+  scanner->opt[OPT_HOLDER_FOCUS_POS_0MM].name  = "holder-focus-position-0mm";
+  scanner->opt[OPT_HOLDER_FOCUS_POS_0MM].title = SANE_I18N("Holder focus position 0mm");
+  scanner->opt[OPT_HOLDER_FOCUS_POS_0MM].desc  = SANE_I18N("Use 0mm holder focus position instead of 0.6mm");
+  scanner->opt[OPT_HOLDER_FOCUS_POS_0MM].type  = SANE_TYPE_BOOL;
+  scanner->val[OPT_HOLDER_FOCUS_POS_0MM].w     = SANE_FALSE;
+
+  if (scanner->device->inquiry_sel_uta_lens_cal_pos == 0)
+  {
+    scanner->opt[OPT_HOLDER_FOCUS_POS_0MM].cap  |= SANE_CAP_INACTIVE;
+  }
+
+  /* ------------------------------ */
+
   /* lamp on */
   scanner->opt[OPT_LAMP_ON].name  = "lamp-on";
-  scanner->opt[OPT_LAMP_ON].title = "Lamp on";
-  scanner->opt[OPT_LAMP_ON].desc  = "Turn on scanner lamp";
+  scanner->opt[OPT_LAMP_ON].title = SANE_I18N("Lamp on");
+  scanner->opt[OPT_LAMP_ON].desc  = SANE_I18N("Turn on scanner lamp");
   scanner->opt[OPT_LAMP_ON].type  = SANE_TYPE_BUTTON;
   scanner->opt[OPT_LAMP_ON].unit  = SANE_UNIT_NONE;
   scanner->opt[OPT_LAMP_ON].size  = 0;
@@ -5012,8 +5153,8 @@ static SANE_Status init_options(Umax_Scanner *scanner)
 
   /* lamp off */
   scanner->opt[OPT_LAMP_OFF].name  = "lamp-off";
-  scanner->opt[OPT_LAMP_OFF].title = "Lamp off";
-  scanner->opt[OPT_LAMP_OFF].desc  = "Turn off scanner lamp";
+  scanner->opt[OPT_LAMP_OFF].title = SANE_I18N("Lamp off");
+  scanner->opt[OPT_LAMP_OFF].desc  = SANE_I18N("Turn off scanner lamp");
   scanner->opt[OPT_LAMP_OFF].type  = SANE_TYPE_BUTTON;
   scanner->opt[OPT_LAMP_OFF].unit  = SANE_UNIT_NONE;
   scanner->opt[OPT_LAMP_OFF].size  = 0;
@@ -5029,8 +5170,8 @@ static SANE_Status init_options(Umax_Scanner *scanner)
 
   /* lamp off at exit */
   scanner->opt[OPT_LAMP_OFF_AT_EXIT].name  = "lamp-off-at-exit";
-  scanner->opt[OPT_LAMP_OFF_AT_EXIT].title = "Lamp off at exit";
-  scanner->opt[OPT_LAMP_OFF_AT_EXIT].desc  = "Turn off lamp when program exits";
+  scanner->opt[OPT_LAMP_OFF_AT_EXIT].title = SANE_I18N("Lamp off at exit");
+  scanner->opt[OPT_LAMP_OFF_AT_EXIT].desc  = SANE_I18N("Turn off lamp when program exits");
   scanner->opt[OPT_LAMP_OFF_AT_EXIT].type  = SANE_TYPE_BOOL;
   scanner->val[OPT_LAMP_OFF_AT_EXIT].w     = SANE_FALSE;
 
@@ -5041,28 +5182,11 @@ static SANE_Status init_options(Umax_Scanner *scanner)
 
   /* ------------------------------ */
 
-#ifdef UMAX_SPEED_SELECTABLE
-/* do not change this values, umax say: always use the fastes setting */
-  /* slow-scan */
-  scanner->opt[OPT_SLOW].name  = "slow";
-  scanner->opt[OPT_SLOW].title = "Slow speed";
-  scanner->opt[OPT_SLOW].desc  = "Scan with slow speed";
-  scanner->opt[OPT_SLOW].type  = SANE_TYPE_BOOL;
-  scanner->val[OPT_SLOW].w     = SANE_FALSE;
-
-  /* smear */
-  scanner->opt[OPT_SMEAR].name  = SANE_NAME_SMEAR;
-  scanner->opt[OPT_SMEAR].title = SANE_TITLE_SMEAR;
-  scanner->opt[OPT_SMEAR].desc  = SANE_DESC_SMEAR;
-  scanner->opt[OPT_SMEAR].type  = SANE_TYPE_BOOL;
-  scanner->val[OPT_SMEAR].w     = SANE_FALSE;
-#endif
-
 #ifdef UMAX_CALIBRATION_MODE_SELECTABLE
   /* calibration mode */
   scanner->opt[OPT_CALIB_MODE].name  = "calibrationmode";
-  scanner->opt[OPT_CALIB_MODE].title = "Calibration mode";
-  scanner->opt[OPT_CALIB_MODE].desc  = "Define calibration mode";
+  scanner->opt[OPT_CALIB_MODE].title = SANE_I18N("Calibration mode");
+  scanner->opt[OPT_CALIB_MODE].desc  = SANE_I18N("Define calibration mode");
   scanner->opt[OPT_CALIB_MODE].type  = SANE_TYPE_STRING;
   scanner->opt[OPT_CALIB_MODE].size  = max_string_size(calibration_list);
   scanner->opt[OPT_CALIB_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
@@ -5071,21 +5195,6 @@ static SANE_Status init_options(Umax_Scanner *scanner)
 
   if (scanner->device->inquiry_calibration == 0)
   { scanner->opt[OPT_CALIB_MODE].cap  |= SANE_CAP_INACTIVE; }
-#endif
-
-#ifdef UMAX_SHADING_TYPE_SELECTABLE
-  /* shading type */
-  scanner->opt[OPT_SHADING_TYPE].name  = "shadingtype";
-  scanner->opt[OPT_SHADING_TYPE].title = "Shading type";
-  scanner->opt[OPT_SHADING_TYPE].desc  = "Define calculation of shading data";
-  scanner->opt[OPT_SHADING_TYPE].type  = SANE_TYPE_STRING;
-  scanner->opt[OPT_SHADING_TYPE].size  = max_string_size(shading_list);
-  scanner->opt[OPT_SHADING_TYPE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
-  scanner->opt[OPT_SHADING_TYPE].constraint.string_list = shading_list;
-  scanner->val[OPT_SHADING_TYPE].s     = (SANE_Char*)strdup(shading_list[scanner->device->shading_type]);
-
-  if (scanner->device->inquiry_quality_ctrl == 0)
-  { scanner->opt[OPT_SHADING_TYPE].cap  |= SANE_CAP_INACTIVE; }
 #endif
 
   /* preview */
@@ -5107,12 +5216,52 @@ static SANE_Status init_options(Umax_Scanner *scanner)
 
 
 /* callback function for sanei_config_attach_matching_devices(dev_name, attach_one) */
-static SANE_Status attach_one (const char *name)
+static SANE_Status attach_one(const char *name)
 {
   attach_scanner(name, 0);
  return SANE_STATUS_GOOD;
 }
 
+/* ------------------------------------------------------------ UMAX TEST CONFIGURE OPTION ------------------ */
+
+static SANE_Status umax_test_configure_option(const char *option_str, char *test_name, int *test_value, int test_min, int test_max)
+/* returns with 1 if option was found, 0 if option was not found */
+{
+ const char *value_str;
+ char *end_ptr;
+ int value;
+
+  if (strncmp(option_str, test_name, strlen(test_name)) == 0)
+  {
+    value_str = sanei_config_skip_whitespace(option_str+strlen(test_name));
+
+    errno = 0;
+    value = strtol(value_str, &end_ptr, 10);
+    if (end_ptr == value_str || errno) 
+    {
+      DBG(DBG_error, "ERROR: inavlid value \"%s\" for option %s in %s\n", value_str, test_name, UMAX_CONFIG_FILE);
+    }
+    else
+    {
+      if (value < test_min)
+      {
+        DBG(DBG_error, "ERROR: value \"%d\" is too small for option %s in %s\n", value, test_name, UMAX_CONFIG_FILE);
+        value = test_min;
+      }
+      else if (value > test_max)
+      {
+        DBG(DBG_error, "ERROR: value \"%d\" is too large for option %s in %s\n", value, test_name, UMAX_CONFIG_FILE);
+        value = test_max;
+      }
+
+      *test_value = value;
+
+      DBG(DBG_info, "option %s = %d\n", test_name, *test_value);
+    }
+    return 1;
+  }
+ return 0;
+}
 
 /* ------------------------------------------------------------ SANE INIT ---------------------------------- */
 
@@ -5121,9 +5270,6 @@ SANE_Status sane_init(SANE_Int *version_code, SANE_Auth_Callback authorize)
 {
  char config_line[PATH_MAX];
  const char *option_str;
- const char *value_str;
- char *end_ptr;
- int value;
  size_t len;
  FILE *fp;
 
@@ -5137,7 +5283,7 @@ SANE_Status sane_init(SANE_Int *version_code, SANE_Auth_Callback authorize)
   DBG(DBG_error,"compiled with old pipe for inter-process-data-transfer\n");
 #endif
   DBG(DBG_error,"(C) 1997-2000 by Oliver Rauch\n");
-  DBG(DBG_error,"EMAIL: Oliver.Rauch@Wolfsburg.DE\n");
+  DBG(DBG_error,"EMAIL: Oliver.Rauch@rauch-domain.de\n");
 
   if (version_code)
   {
@@ -5153,6 +5299,8 @@ SANE_Status sane_init(SANE_Int *version_code, SANE_Auth_Callback authorize)
     return SANE_STATUS_GOOD;
   }
 
+  DBG(DBG_info, "reading configure file %s\n", UMAX_CONFIG_FILE);
+
   while(sanei_config_read(config_line, sizeof(config_line), fp))
   {
     if (config_line[0] == '#')
@@ -5164,34 +5312,20 @@ SANE_Status sane_init(SANE_Int *version_code, SANE_Auth_Callback authorize)
     {
       option_str = sanei_config_skip_whitespace(config_line+6);
 
-      if (strncmp(option_str, "scsi-maxqueue", 13) == 0)
-      {
-        value_str = sanei_config_skip_whitespace(option_str+13);
-
-        errno = 0;
-        value = strtol(value_str, &end_ptr, 10);
-        if (end_ptr == value_str || errno) 
-        {
-          DBG(DBG_error, "ERROR: inavlid value \"%s\" scsi-maxqueue in %s\n", value_str, UMAX_CONFIG_FILE);
-        }
-        else
-        {
-          umax_scsi_maxqueue = value;
-
-          if (umax_scsi_maxqueue < 1)
-          {
-            umax_scsi_maxqueue = 1;
-            DBG(DBG_error, "ERROR: inavlid value \"%d\" for scsi-maxqueue in %s\n", value, UMAX_CONFIG_FILE);
-          }
-          else if (umax_scsi_maxqueue > SANE_UMAX_SCSI_MAXQUEUE)
-          {
-            umax_scsi_maxqueue = 8;
-            DBG(DBG_error, "ERROR: inavlid value \"%d\" for scsi-maxqueue in %s\n", value, UMAX_CONFIG_FILE);
-          }
-
-          DBG(DBG_info, "umax-scsi-maxqueue = %d\n", umax_scsi_maxqueue);
-        }
-      }
+      if      (umax_test_configure_option(option_str, "scsi-maxqueue",            &umax_scsi_maxqueue, 1, SANE_UMAX_SCSI_MAXQUEUE));
+      else if (umax_test_configure_option(option_str, "scsi-buffer-size-min",     &umax_scsi_buffer_size_min,   4096, 1048576));
+      else if (umax_test_configure_option(option_str, "scsi-buffer-size-max",     &umax_scsi_buffer_size_max,   4096, 1048576));
+      else if (umax_test_configure_option(option_str, "preview-lines",            &umax_preview_lines,             1,   65535));
+      else if (umax_test_configure_option(option_str, "scan-lines",               &umax_scan_lines,                1,   65535));
+      else if (umax_test_configure_option(option_str, "execute-request-sense",    &umax_execute_request_sense,     0,   1));
+      else if (umax_test_configure_option(option_str, "force-preview-bit-rgb",    &umax_force_preview_bit_rgb,     0,   1));
+      else if (umax_test_configure_option(option_str, "slow-speed",               &umax_slow,                     -1,   1));
+      else if (umax_test_configure_option(option_str, "care-about-smearing",      &umax_smear,                    -1,   1));
+      else if (umax_test_configure_option(option_str, "calibration-full-ccd",     &umax_calibration_area,         -1,   1));
+      else if (umax_test_configure_option(option_str, "calibration-width-offset", &umax_calibration_width_offset, -1,   65535));
+      else if (umax_test_configure_option(option_str, "calibration-bytes-pixel",  &umax_calibration_bytespp,      -1,   2));
+      else if (umax_test_configure_option(option_str, "invert-shading-data",      &umax_invert_shading_data,      -1,   1));
+      else if (umax_test_configure_option(option_str, "lamp-control-available",   &umax_lamp_control_available,    0,   1));
       else
       {
         DBG(DBG_error,"ERROR: unknown option \"%s\" in %s\n", option_str, UMAX_CONFIG_FILE);
@@ -5214,6 +5348,8 @@ SANE_Status sane_init(SANE_Int *version_code, SANE_Auth_Callback authorize)
     /* ok, theis should be one or more devices: try to attach it/them */
     sanei_config_attach_matching_devices(config_line, attach_one);
   }
+
+  DBG(DBG_info, "finished reading configure file\n");
 
   fclose(fp);
 
@@ -5288,6 +5424,8 @@ SANE_Status sane_open(SANE_String_Const devicename, SANE_Handle *handle)
 
   if (devicename[0])								    /* search for devicename */
   {
+    DBG(DBG_sane_info,"sane_open: devicename=%s\n", devicename);
+
     for (dev = first_dev; dev; dev = dev->next)
     {
       if (strcmp(dev->sane.name, devicename) == 0)
@@ -5307,6 +5445,7 @@ SANE_Status sane_open(SANE_String_Const devicename, SANE_Handle *handle)
   }
   else
   {
+    DBG(DBG_sane_info,"sane_open: no devicename, opening first device\n");
     dev = first_dev; 							/* empty devicename -> use first device */
   }
 
@@ -5542,10 +5681,6 @@ SANE_Status sane_control_option(SANE_Handle handle, SANE_Int option, SANE_Action
       case OPT_QUALITY:
       case OPT_DOR:
       case OPT_WARMUP:
-#ifdef UMAX_SPEED_SELECTABLE
-      case OPT_SLOW:
-      case OPT_SMEAR:
-#endif
       case OPT_RGB_BIND:
       case OPT_ANALOG_GAMMA:
       case OPT_ANALOG_GAMMA_R:
@@ -5575,6 +5710,11 @@ SANE_Status sane_control_option(SANE_Handle handle, SANE_Int option, SANE_Action
       case OPT_SCAN_EXPOS_TIME_B:
       case OPT_CAL_LAMP_DEN:
       case OPT_SCAN_LAMP_DEN:
+      case OPT_DISABLE_PRE_FOCUS:
+      case OPT_MANUAL_PRE_FOCUS:
+      case OPT_FIX_FOCUS_POSITION:
+      case OPT_LENS_CALIBRATION_DOC_POS:
+      case OPT_HOLDER_FOCUS_POS_0MM: 
       case OPT_LAMP_OFF_AT_EXIT:
       case OPT_SELECT_LAMP_DENSITY:
         *(SANE_Word *) val = scanner->val[option].w;
@@ -5596,10 +5736,6 @@ SANE_Status sane_control_option(SANE_Handle handle, SANE_Int option, SANE_Action
       /* fall through */
 #ifdef UMAX_CALIBRATION_MODE_SELECTABLE
       case OPT_CALIB_MODE:
-      /* fall through */
-#endif
-#ifdef UMAX_SHADING_TYPE_SELECTABLE
-      case OPT_SHADING_TYPE:
       /* fall through */
 #endif
         strcpy (val, scanner->val[option].s);
@@ -5661,10 +5797,6 @@ SANE_Status sane_control_option(SANE_Handle handle, SANE_Int option, SANE_Action
       case OPT_NEGATIVE:
       case OPT_QUALITY:
       case OPT_WARMUP:
-#ifdef UMAX_SPEED_SELECTABLE
-      case OPT_SLOW:
-      case OPT_SMEAR:
-#endif
       case OPT_PREVIEW:
       case OPT_ANALOG_GAMMA:
       case OPT_ANALOG_GAMMA_R:
@@ -5691,6 +5823,11 @@ SANE_Status sane_control_option(SANE_Handle handle, SANE_Int option, SANE_Action
       case OPT_SCAN_EXPOS_TIME_B:
       case OPT_CAL_LAMP_DEN:
       case OPT_SCAN_LAMP_DEN:
+      case OPT_DISABLE_PRE_FOCUS:
+      case OPT_MANUAL_PRE_FOCUS:
+      case OPT_FIX_FOCUS_POSITION:
+      case OPT_LENS_CALIBRATION_DOC_POS:
+      case OPT_HOLDER_FOCUS_POS_0MM: 
       case OPT_LAMP_OFF_AT_EXIT:
         scanner->val[option].w = *(SANE_Word *) val;
        return SANE_STATUS_GOOD;
@@ -5921,9 +6058,6 @@ SANE_Status sane_control_option(SANE_Handle handle, SANE_Int option, SANE_Action
 #ifdef UMAX_CALIBRATION_MODE_SELECTABLE
       case OPT_CALIB_MODE:
       /* fall through */
-#endif
-#ifdef UMAX_SHADING_TYPE_SELECTABLE
-      case OPT_SHADING_TYPE:
 #endif
       {
         if (scanner->val[option].s)
@@ -6339,72 +6473,6 @@ SANE_Status sane_start(SANE_Handle handle)
 
   if (scanner->device->sfd < 0)   /* first call, don`t run this routine again on multi frame or multi image scan */
   {
-#ifdef HAVE_SANEI_SCSI_OPEN_EXTENDED
-#if 0
-   unsigned int scsi_bufsize = 131072; /* 128KB */
-#else
-   unsigned int scsi_bufsize = scanner->device->inquiry_vidmem*2;
-
-    if (scanner->val[OPT_PREVIEW].w)
-    {
-      scsi_bufsize = 65536; /* use 64KB buffers in preview mode */
-    }
-
-    if (scsi_bufsize < 32768) /* < 32KB */
-    {
-      scsi_bufsize = 32768; /* ask at least for 32KB */
-    }
-#endif
-
-    if (sanei_scsi_open_extended(scanner->device->sane.name, &(scanner->device->sfd), sense_handler,
-                                 scanner->device, (int *) &scsi_bufsize) != 0)
-    {
-      DBG(DBG_error, "ERROR: sane_start: open failed\n");
-      return SANE_STATUS_INVAL;
-    }
-
-    if (scsi_bufsize < 32768) /* < 32KB */
-    {
-      DBG(DBG_error, "ERROR: sane_start: sanei_scsi_open_extended returned too small scsi buffer\n");
-      sanei_scsi_close((scanner->device->sfd));
-      return SANE_STATUS_NO_MEM;
-    }
-    DBG(DBG_info, "sane_start: sanei_scsi_open_extended returned scsi buffer size = %d\n", scsi_bufsize);
-
-    if (scsi_bufsize != scanner->device->bufsize)
-    {
-      DBG(DBG_info, "sane_start: buffer size has changed, reallocating buffer\n");
-
-      if (scanner->device->buffer[0])
-      {
-        DBG(DBG_info, "sane_start: freeing SCSI buffer[0]\n");
-        free(scanner->device->buffer[0]);									     /* free buffer */
-      }
-
-      scanner->device->bufsize = scsi_bufsize;
-
-      DBG(DBG_info, "sane_start: allocating SCSI buffer[0]\n");
-      scanner->device->buffer[0]  = malloc(scanner->device->bufsize);					  /* allocate buffer */
-
-      if (!scanner->device->buffer[0]) /* malloc failed */
-      {
-        DBG(DBG_error, "ERROR: sane_start: could not allocate buffer[0]\n");
-        sanei_scsi_close(scanner->device->sfd);
-        scanner->device->bufsize = 0;
-       return SANE_STATUS_NO_MEM;
-      }
-    }
-#else
-    if ( sanei_scsi_open(scanner->device->sane.name, &(scanner->device->sfd), sense_handler,
-                         scanner->device) != SANE_STATUS_GOOD )
-    {
-       DBG(DBG_error, "ERROR: sane_start: open of %s failed:\n", scanner->device->sane.name);
-       return SANE_STATUS_INVAL;
-    }
-
-    /* there is no need to reallocate the buffer because the size is fixed */
-#endif
-
     umax_initialize_values(scanner->device);								    /* reset values */
 
     scanner->device->three_pass_color = 1;
@@ -6449,17 +6517,6 @@ SANE_Status sane_start(SANE_Handle handle)
         scanner->device->adf = 0;
       }
     }
-
-    /* grab scanner */
-    if (umax_grab_scanner(scanner->device))
-    {
-      sanei_scsi_close(scanner->device->sfd);
-      scanner->device->sfd=-1;
-      DBG(DBG_warning,"WARNING: unable to reserve scanner: device busy\n");
-     return SANE_STATUS_DEVICE_BUSY;
-    }
-
-    scanner->scanning = SANE_TRUE;
 
     if (scanner->device->inquiry_GIB & 32)						/* 16 bit input mode */
     {
@@ -6546,10 +6603,11 @@ SANE_Status sane_start(SANE_Handle handle)
     scanner->device->preview           = scanner->val[OPT_PREVIEW].w;
     scanner->device->warmup            = scanner->val[OPT_WARMUP].w;
 
-#ifdef UMAX_SPEED_SELECTABLE
-    scanner->device->slow              = scanner->val[OPT_SLOW].w;
-    scanner->device->smear             = scanner->val[OPT_SMEAR].w;
-#endif
+    scanner->device->fix_focus_position   = scanner->val[OPT_FIX_FOCUS_POSITION].w;
+    scanner->device->lens_cal_in_doc_pos  = scanner->val[OPT_LENS_CALIBRATION_DOC_POS].w;
+    scanner->device->disable_pre_focus    = scanner->val[OPT_DISABLE_PRE_FOCUS].w;
+    scanner->device->holder_focus_pos_0mm = scanner->val[OPT_HOLDER_FOCUS_POS_0MM].w;
+    scanner->device->manual_focus         = scanner->val[OPT_MANUAL_PRE_FOCUS].w;
 
     scanner->device->analog_gamma_r =
     scanner->device->analog_gamma_g =
@@ -6633,6 +6691,16 @@ SANE_Status sane_start(SANE_Handle handle)
       }
     }
 
+    if (scanner->device->force_preview_bit_rgb != 0)          /* in RGB-mode set preview bit, eg. for UMAX S6E */
+    {
+      if (scanner->device->colormode == RGB)
+      {
+        DBG(DBG_sane_info,"setting preview bit = 1 (option force-preview-bit-rgb)\n");
+        scanner->device->preview = SANE_TRUE;
+      }
+    }
+
+
 #ifdef UMAX_CALIBRATION_MODE_SELECTABLE
     if (strcmp(scanner->val[OPT_CALIB_MODE].s, CALIB_MODE_0000) == 0)
     {
@@ -6660,25 +6728,6 @@ SANE_Status sane_start(SANE_Handle handle)
     }
 #endif
 
-#ifdef UMAX_SHADING_TYPE_SELECTABLE
-    if (strcmp(scanner->val[OPT_SHADING_TYPE].s, SHADING_TYPE_ONE_LINE_TEXT) == 0)
-    {
-      scanner->device->shading_type = SHADING_TYPE_ONE_LINE;
-    }
-    else if (strcmp(scanner->val[OPT_SHADING_TYPE].s, SHADING_TYPE_AVERAGE_TEXT) == 0)
-    {
-      scanner->device->shading_type = SHADING_TYPE_AVERAGE;
-    }
-    else if (strcmp(scanner->val[OPT_SHADING_TYPE].s, SHADING_TYPE_ONE_LINE_INVERT_TEXT) == 0)
-    {
-      scanner->device->shading_type = SHADING_TYPE_ONE_LINE_INVERT;
-    }
-    else if (strcmp(scanner->val[OPT_SHADING_TYPE].s, SHADING_TYPE_AVERAGE_INVERT_TEXT) == 0)
-    {
-      scanner->device->shading_type = SHADING_TYPE_AVERAGE_INVERT;
-    }
-#endif
-
     /* get and set geometric values for scanning */
     scanner->device->x_resolution = SANE_UNFIX(scanner->val[OPT_X_RESOLUTION].w);
     scanner->device->y_resolution = SANE_UNFIX(scanner->val[OPT_Y_RESOLUTION].w);
@@ -6701,9 +6750,6 @@ SANE_Status sane_start(SANE_Handle handle)
     {
       DBG(DBG_error,"ERROR: invalid scan-values\n");
       scanner->scanning = SANE_FALSE;
-      umax_give_scanner(scanner->device); /* reposition and release scanner */
-      sanei_scsi_close(scanner->device->sfd);
-      scanner->device->sfd=-1;
      return SANE_STATUS_INVAL;
     }
 
@@ -6711,6 +6757,7 @@ SANE_Status sane_start(SANE_Handle handle)
     scanner->params.pixels_per_line = scanner->device->width_in_pixels; 
     scanner->params.lines           = scanner->device->length_in_pixels;
 
+    scanner->scanning = SANE_TRUE;
     sane_get_parameters(scanner, 0);
 
     DBG(DBG_sane_info,"x_resolution (dpi)      = %u\n", scanner->device->x_resolution);
@@ -6753,11 +6800,6 @@ SANE_Status sane_start(SANE_Handle handle)
             scanner->device->exposure_time_scan_g,
             scanner->device->exposure_time_scan_b);
 
-#ifdef UMAX_SHADING_TYPE_SELECTABLE
-    DBG(DBG_sane_info,"shading type            = %s\n", scanner->val[OPT_SHADING_TYPE].s);
-#endif
-    DBG(DBG_sane_info,"shading type number     = %d\n", scanner->device->shading_type);
-
 #ifdef UMAX_CALIBRATION_MODE_SELECTABLE
     DBG(DBG_sane_info,"calibration             = %s\n", scanner->val[OPT_CALIB_MODE].s);
 #endif
@@ -6769,6 +6811,110 @@ SANE_Status sane_start(SANE_Handle handle)
     DBG(DBG_sane_info,"ADF                     = %d\n", scanner->device->adf);
     DBG(DBG_sane_info,"slow scan speed         = %d\n", scanner->device->slow);
     DBG(DBG_sane_info,"smear                   = %d\n", scanner->device->smear);
+    DBG(DBG_sane_info,"manual focus            = %d\n", scanner->device->manual_focus);
+    DBG(DBG_sane_info,"fix focus position      = %d\n", scanner->device->fix_focus_position);
+    DBG(DBG_sane_info,"disable pre focus       = %d\n", scanner->device->disable_pre_focus);
+    DBG(DBG_sane_info,"lens cal in doc pos     = %d\n", scanner->device->lens_cal_in_doc_pos);
+    DBG(DBG_sane_info,"holder focus pos 0mm    = %d\n", scanner->device->holder_focus_pos_0mm);
+
+#ifdef HAVE_SANEI_SCSI_OPEN_EXTENDED
+    {
+     unsigned int scsi_bufsize  = 0;
+
+      if (scanner->val[OPT_PREVIEW].w) /* preview mode */
+      {
+        scanner->device->lines_max = scanner->device->request_preview_lines;
+      }
+      else /* scan mode */
+      {
+        scanner->device->lines_max = scanner->device->request_scan_lines;
+      }
+
+      scsi_bufsize = scanner->device->width_in_pixels * scanner->device->lines_max;
+
+      if (scsi_bufsize == 0) /* no scsi buffer size, take scanner buffer size */
+      {
+        scsi_bufsize = scanner->device->inquiry_vidmem;
+      }
+
+      if (scsi_bufsize < scanner->device->scsi_buffer_size_min) /* make sure buffer has at least minimum size */
+      {
+        scsi_bufsize = scanner->device->scsi_buffer_size_min;
+      }
+      else if (scsi_bufsize > scanner->device->scsi_buffer_size_max) /* make sure buffer does not exceed maximum size */
+      {
+        scsi_bufsize = scanner->device->scsi_buffer_size_max;
+      }
+
+      if (sanei_scsi_open_extended(scanner->device->sane.name, &(scanner->device->sfd), sense_handler,
+                                   scanner->device, (int *) &scsi_bufsize) != 0)
+      {
+        DBG(DBG_error, "ERROR: sane_start: open failed\n");
+        scanner->scanning = SANE_FALSE;
+        return SANE_STATUS_INVAL;
+      }
+
+      if (scsi_bufsize < scanner->device->scsi_buffer_size_min) /* minimum size must be available */
+      {
+        DBG(DBG_error, "ERROR: sane_start: sanei_scsi_open_extended returned too small scsi buffer\n");
+        sanei_scsi_close((scanner->device->sfd));
+        scanner->scanning = SANE_FALSE;
+        return SANE_STATUS_NO_MEM;
+      }
+      DBG(DBG_info, "sane_start: sanei_scsi_open_extended returned scsi buffer size = %d\n", scsi_bufsize);
+
+      if (scsi_bufsize < scanner->device->width_in_pixels) /* print warning when buffer is smaller than one scanline */
+      {
+        DBG(DBG_warning, "WARNING: sane_start: scsi buffer is smaller than one scanline\n");
+      }
+
+      if (scsi_bufsize != scanner->device->bufsize)
+      {
+        DBG(DBG_info, "sane_start: buffer size has changed, reallocating buffer\n");
+
+        if (scanner->device->buffer[0])
+        {
+          DBG(DBG_info, "sane_start: freeing SCSI buffer[0]\n");
+          free(scanner->device->buffer[0]);									     /* free buffer */
+        }
+
+        scanner->device->bufsize = scsi_bufsize;
+
+        DBG(DBG_info, "sane_start: allocating SCSI buffer[0]\n");
+        scanner->device->buffer[0]  = malloc(scanner->device->bufsize);					  /* allocate buffer */
+
+        if (!scanner->device->buffer[0]) /* malloc failed */
+        {
+          DBG(DBG_error, "ERROR: sane_start: could not allocate buffer[0]\n");
+          sanei_scsi_close(scanner->device->sfd);
+          scanner->device->bufsize = 0;
+          scanner->scanning = SANE_FALSE;
+         return SANE_STATUS_NO_MEM;
+        }
+      }
+    }
+#else
+    if ( sanei_scsi_open(scanner->device->sane.name, &(scanner->device->sfd), sense_handler,
+                         scanner->device) != SANE_STATUS_GOOD )
+    {
+      scanner->scanning = SANE_FALSE;
+      DBG(DBG_error, "ERROR: sane_start: open of %s failed:\n", scanner->device->sane.name);
+      return SANE_STATUS_INVAL;
+    }
+
+    /* there is no need to reallocate the buffer because the size is fixed */
+#endif
+
+
+    /* grab scanner */
+    if (umax_grab_scanner(scanner->device))
+    {
+      sanei_scsi_close(scanner->device->sfd);
+      scanner->device->sfd=-1;
+      scanner->scanning = SANE_FALSE;
+      DBG(DBG_warning,"WARNING: unable to reserve scanner: device busy\n");
+     return SANE_STATUS_DEVICE_BUSY;
+    }
 
 /* halftone pattern download is not ready in this version */
 #if 0

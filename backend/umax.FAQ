@@ -42,8 +42,12 @@ A: This is a problem of some scsi-drivers.
 Q: I want to use the scsi-card that comes with my umax scanner.
    What card is it and is it supported by my os?
 
-A: The cards that come with the umax scanners are very simple cards.
-   I suggest not to use this cards.
+A: There are at least two kind of scsi controller cards that
+   come with UMAX scanners.
+
+ ISA-Card:
+   The ISA-cards that come with the umax scanners are very simple cards.
+   I suggest not to use these cards.
 
    If you really want to try:
    the UDS-IS11 ISA-card is a DTC3181E-card based on the NCR5380-chip.
@@ -61,7 +65,14 @@ A: The cards that come with the umax scanners are very simple cards.
 
    (Thanks to Colin Brough and Hans Schaefer for that tip)
 
-   As fat as I know the PCI card is not supported by linux.
+
+ PCI-Card:
+   Some UMAX Scanners come with a PCI SCSI controller card DOMEX DMX3191E.
+   This card shall be compatible to the Advansys ABP940U (Chip: Advansys
+   ASC3030). The card shall work without problems with the Advansys SCSI
+   driver for linux.
+
+   (Thanks to Volker Ossenkopf for that tip)
 
 -------------------------------------------------------------------------------
 

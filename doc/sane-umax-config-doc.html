@@ -1,52 +1,187 @@
-<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
 <html>
 <head>
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
    <meta name="Author" content="Oliver Rauch">
-   <meta name="Keywords" content="umax,scanner,driver,linux,unix,os/2">
-   <title>SANE-UMAX documentation - configuration</title>
+   <meta name="Description" content="unix scanner driver for UMAX scanners">
+   <title>SANE-umax - Configuration</title>
 </head>
 <body text="#000000" bgcolor="#FFFFFF" link="#0000EF" vlink="#51188E" alink="#FF0000">
-<img SRC="sane-logo2.jpg" height=150 width=128 align=LEFT>
-<br>&nbsp;
-<br>&nbsp;
-<h1>
-&nbsp;&nbsp;&nbsp;&nbsp; <u><font color="#000099">CONFIGURATION</font></u></h1>
-<img SRC="sane-umax-text.jpg" height=45 width=157>
-<br>&nbsp;
-<br>&nbsp;
+
+
+<table>
+<tr>
+<td width=200>
+<img SRC="sane-logo.jpg" alt="SANE-logo" hspace=60 align=BOTTOM>
+<br>
+<img SRC="sane-umax-text.jpg" alt="UMAX-logo" HSPACE=50>
+</td>
+<td>
+<blockquote>
+<h1><font color="#009900">Configuration</font></h1>
+</blockquote>
+</td>
+</tr>
+</table>
+
+
+<hr WIDTH="100%">
+
+<table>
+<tr>
+<td VALIGN=TOP WIDTH="250" BGCOLOR="#E0E0FF">
+<br>
+<ul>
+<li><a href="sane-umax-doc.html">Index</a></li>
+<li>Frontend options:</li>
+<ul>
+<li><a href="sane-umax-standard-options-doc.html">Standard options</a></li>
+<li><a href="sane-umax-advanced-options-doc.html">Advanced options</a></li>
+</ul>
+<li>Supported scanners:</li>
+<ul>
+<li><a href="sane-umax-powerlook-doc.html">Power Look series</a></li>
+<li><a href="sane-umax-mirage-doc.html">Mirage series</a></li>
+<li><a href="sane-umax-astra-doc.html">Astra series</a></li>
+<li><a href="sane-umax-vista-doc.html">Vista series</a></li>
+<li><a href="sane-umax-uc-doc.html">UC series</a></li>
+<li><a href="sane-umax-others-doc.html">others</a></li>
+<li><a href="sane-umax-not-listed-doc.html">Not listed scanners</a></li>
+<li><a href="sane-umax-scanner-clones-doc.html">UMAX scanner clones</a></li>
+</ul>
+<li><a href="sane-umax-parport-doc.html">UMAX parallel port scanners</a></li>
+<li><a href="sane-umax-config-doc.html">Configuration</a></li>
+<li><a href="sane-umax-speed-doc.html">Speed of UMAX scanners</a></li>
+<li><a href="http://www.rauch-domain.de/sane-umax">SANE-umax homepage</a></li>
+<li><a href="http://www.mostang.com/sane/">SANE homepage</a></li>
+<li><a href="http://www.xsane.org/">XSane homepage</a></li>
+</ul>
+<br>
+</td>
+
+
+<td VALIGN=TOP BGCOLOR="#FFFFFF">
+<blockquote>
+<br>
 <h2>
-CONFIGURATION:</h2>
+CONFIGURATION:
+</h2>
 
 <blockquote>The configuration file for this backend resides in
 <dd>
 /usr/local/etc/sane.d/umax.conf.</dd>
 </blockquote>
 
-<blockquote>Its contents is a list of device names that correspond to UMAX
+<blockquote>
+Its contents is a list of options and device names that correspond to UMAX
 scanners. Empty lines and lines starting with a hash mark (#) are ignored.
 A sample configuration file is shown below:
-<br>&nbsp;
-<dd>
-#scsi Vendor Model Type Bus Channel ID LUN</dd>
-
-<dd>
-scsi UMAX * Scanner * * * * *</dd>
-
-<dd>
-/dev/scanner</dd>
-
-<dd>
-# this is a comment</dd>
-
-<dd>
-/dev/sge</dd>
+<br>
+<dd>option scsi-buffer-size-min 65536</dd>
+<dd>option scsi-buffer-size-max 131072</dd>
+<dd>option scan-lines 40</dd>
+<dd>option preview-lines 10</dd>
+<dd>option scsi-maxqueue 2</dd>
+<dd>option execute-request-sense 0</dd>
+<dd>option force-preview-bit-rgb 0</dd>
+<dd>option slow-speed -1</dd>
+<dd>option care-about-smearing -1</dd>
+<dd>option calibration-full-ccd -1</dd>
+<dd>option calibration-width-offset -1</dd>
+<dd>option calibration-bytes-pixel -1</dd>
+<dd>option invert-shading-data -1</dd>
+<dd>option lamp-control-available 0</dd>
+<dd>#scsi Vendor Model Type Bus Channel ID LUN</dd>
+<dd>scsi UMAX * Scanner * * * * *</dd>
+<dd>/dev/scanner</dd>
+<dd># this is a comment</dd>
+<dd>/dev/sge</dd>
 </blockquote>
 
-<blockquote>The special device name must be a generic SCSI device or a
+<blockquote>
+The special device name must be a generic SCSI device or a
 symlink to such a device. To find out to which device your scanner is assigned
 and how you have to set the permissions of that device, have a look at
-<a href="http://www.mostang.com/sane/sane-scsi.html">sane-scsi</a>.</blockquote>
+<a href="http://www.mostang.com/sane/sane-scsi.html">sane-scsi</a>.
+</blockquote>
+
+<blockquote>
+When the generic scsi driver of the system supports selection
+of scsi buffer sizes the umax backend calculates the scsi buffer
+sizes in dependance of the numbers of bytes per scanline.
+With <i>scsi-buffer-size-min</i> and <i>scsi-buffer-size-max</i>
+the scsi buffer size can be defined in a range between 4KB and 1MB.
+<p>
+The option <i>scan-lines</i> defines the the number of lines that
+shall be scanned with one scsi read command for a real scan.
+The number of lines that are read with one scsi command for
+preview scans are defined by the option <i>preview-lines</i>.
+Both have to be in the range between 1 and 65536.
+<p>
+With the option <i>scsi-maxqueue</i> you can define the number
+of scsi commands that shall be queued. UMAX scanners do not
+support command queueing - as far as I know. But some scsi controller
+drivers do support queueing in the kernel. In this case it does not
+make sense to queue more than 2 commands.
+<p>
+When you are able to do color previews but color scans do not
+work you can set the option <i>force-preview-bit-rgb 1</i>.
+This always sets the preview bit when acquiring a color scan.
+The image quality may be reduced.
+<p>
+Some scanners (especally very old scanners) may need the options
+<i>slow-speed</i> and/or <i>care-about-smearing</i>. The value
+-1 uses the value defined by the driver, 0 disables the feature,
+1 enables the feature. <b>Do not change these options unless
+you really know what you do, you can destroy your scanner
+by setting wrong values for this options!!!</b>
+<p>
+The option <i>execute-request-sense</i> disables(0) or enables(1)
+the scsi command REQUEST_SENSE. The command can be called when the
+scanner asks the driver to do calibration. The driver does
+not know the required calibration parameters for all scanners.
+Some scanners return the needed parameters when the driver
+executes the REQUEST_SENSE command. But there is a problem
+with the REQUEST_SENSE command on some systems with some
+scsi controller drivers. This can cause a system hang.
+So the safe way is to disable the REQUEST_SENSE command,
+but the driver may not be able to do correct calibration
+in this case.
+<p>
+For some scanners the calibration has to be done by the driver.
+For this the driver has to know some values about the calibration
+data. When the REQUEST_SENSE command is disabled or the scanner
+does not return the correct data the driver needs to know the
+correct parameters. For some scanners the parameters are stored
+in the driver. When these values are not set correct the image
+might look very strange. To be sure that you have a problem
+with the calibration please enable debug output.
+<blockquote>
+<i>calibration-full-ccd</i>:
+The calibration can be done for each element of the CCD (1)
+or for each pixel of the requested image(0). 
+The value -1 enables the value defined in the driver.
+</blockquote>
+<blockquote>
+<i>calibration-width-offset</i>:
+Some scanners use more pixels than calculated by image/CCD
+parameters. A value larger or equal 0 defines the offset.
+The value -1 enables the value defined in the driver.
+</blockquote>
+<blockquote>
+<i>calibration-bytes-pixel</i>:
+Some scanners use 1 byte calibration data although the
+scanner supports more than 8 bits/pixel. You can define
+1 or 2 bytes per pixel calinration data. 
+The value -1 enables the value defined in the driver.
+</blockquote>
+<blockquote>
+<i>invert-shading-data</i>:
+Some scanners need inverted shading data (1), others
+need original shading data (0).
+The value -1 enables the value defined in the driver.
+</blockquote>
+
+</blockquote>
 
 <h2>
 SCSI ADAPTER TIPS:</h2>
@@ -115,7 +250,8 @@ environment variable controls the debug level for this backend. E.g., a
 value of 128 requests all debug output to be printed. Smaller levels reduce
 verbosity:</blockquote>
 
-<center><table BORDER=2 CELLSPACING=2 CELLPADDING=2 WIDTH="700" >
+<center>
+<table BORDER>
 <tr BGCOLOR="#40E0D0">
 <td VALIGN=TOP COLSPAN="2"><b><font face="Arial">SANE_DEBUG_UMAX values</font></b></td>
 </tr>
@@ -241,16 +377,23 @@ Example:</h4>
 <dd>
 export SANE_DEBUG_UMAX=8</dd>
 
+<center>
+</blockquote>
+<hr WIDTH="100%">
+<br>
+<font color="#009900">This page has been changed on 27th. feburary 2001</font>
+<br>
+<br>
+</center>
+</td>
+</tr>
+</table>
+
+<hr WIDTH="100%">
+
 <blockquote>
-<center><a href="sane-umax-doc.html">SANE-UMAX-index</a></center>
+Author: <a href="mailto:Oliver.Rauch@rauch-domain.de">Oliver Rauch</a>
 </blockquote>
 
-<center>
-<hr WIDTH="100%">
-<br><font color="#009900">This page has been changed on 3rd.&nbsp; june
-1999</font></center>
-
-<p><br>
-<br>
 </body>
 </html>

@@ -33,14 +33,72 @@ shown below:
  /dev/scanner 
  # this is a comment
  #
- # for the following commands:
- # - set command queueing depth to 4
  option scsi-maxqueue 4
- # - turn off lamp (if command is supported) when sane_close is called
- option lamp-off-at-exit 1
- # - turn off lamp (if command is supported) after 60 minutes duty time
- option lamp-off-time 60
+ option scsi-buffer-size-min 65536
+ option scsi-buffer-size-max 131072
+ option scan-lines 40
+ option preview-lines 10
+ option scsi-maxqueue 2
+ option execute-request-sense 0
+ option force-preview-bit-rgb 0
+ option slow-speed -1
+ option care-about-smearing -1
+ option calibration-full-ccd -1
+ option calibration-width-offset -1
+ option calibration-bytes-pixel -1
+ option invert-shading-data -1 
+ option lamp-control-available 0
  /dev/sge 
+
+ - execute-request-sense:
+   values: 0=disabled, 1=enabled, default=0
+   If set to 1 umax_do_request_sense is called in
+   umax_do_calibration. This can hang the system
+   (but has been enabled until this version)
+ 
+ - scsi-buffer-size-min, scsi-buffer-size-max:
+   values: 4096-1048576, default min=65536, max=131072
+ 
+ - scan-lines, preview-lines:
+   values: 1-65535,
+   default: scan-lines=40, preview-lines=10
+   define the maximum number of lines that are scanned
+   into one buffer
+ 
+ - force-preview-bit-rgb:
+   values: 0=disabled, 1=enabled, default=0
+   set preview bit in rgb real scan
+ 
+ - slow-speed, care-about-smearing:
+   values: -1=auto, 0=disabled, 1=enabled, default=-1
+   dangerous options, needed for some scanners
+   do not changed these options until you really know
+   what you do, you may destroy your scanner when you
+   define wrong values for this options
+ 
+ - calibration-full-ccd:
+   values: -1=auto, 0=disabled, 1=enabled, default=-1
+   do calibration for each pixel of ccd instead of
+   selected image
+ 
+ - calibration-width-offset:
+   values: -1=disabled, >=0 set value
+   add an offset width to the calculated with for
+   image/ccd
+ 
+ - calibration-bytes-pixel:
+   values: -1=disabled, 0=not set, 1=1 byte/pixel,
+   2=x bytes/pixel
+   use # bytes per pixel for calibration
+ 
+ - invert-shading-data:
+   values: -1=auto, 0=disabled, 1=enabled, default=-1
+   invert shading data before sending it back to the
+   scanner
+ 
+ - lamp-control-available:
+   values: 0=automatically set by driver - if known,
+   1=available, default=0
 
 The special device name must be a generic SCSI device or a symlink to such a device.
 To find out to which device your scanner is assigned and how you have to set the

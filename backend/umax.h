@@ -2,7 +2,7 @@
 
 /* umax.h - headerfile for SANE-backend for umax scanners
   
-   (C) 1997-2000 Oliver Rauch
+   (C) 1997-2001 Oliver Rauch
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
@@ -63,8 +63,6 @@
 /* #define SANE_UMAX_DEBUG_S12 */
 /* #define PREVIEW_FIX_ON */
 
-/* #define UMAX_SHADING_TYPE_SELECTABLE */
-/* #define UMAX_SPEED_SELECTABLE */
 /* #define UMAX_CALIBRATION_MODE_SELECTABLE */
 
                                          
@@ -150,6 +148,12 @@ enum Umax_Option
     OPT_SCAN_EXPOS_TIME_G,
     OPT_SCAN_EXPOS_TIME_B,
 
+    OPT_DISABLE_PRE_FOCUS,
+    OPT_MANUAL_PRE_FOCUS,
+    OPT_FIX_FOCUS_POSITION,
+    OPT_LENS_CALIBRATION_DOC_POS,
+    OPT_HOLDER_FOCUS_POS_0MM,
+
     OPT_CAL_LAMP_DEN,
     OPT_SCAN_LAMP_DEN,
 
@@ -160,17 +164,8 @@ enum Umax_Option
     OPT_LAMP_OFF,
     OPT_LAMP_OFF_AT_EXIT,
 
-#ifdef UMAX_SPEED_SELECTABLE
-    OPT_SLOW,
-    OPT_SMEAR,
-#endif
-
 #ifdef UMAX_CALIBRATION_MODE_SELECTABLE
     OPT_CALIB_MODE,
-#endif
-
-#ifdef UMAX_SHADING_TYPE_SELECTABLE
-    OPT_SHADING_TYPE,
 #endif
 
     OPT_PREVIEW,					/* preview, sets preview-bit and bind x/y-resolution */
@@ -214,8 +209,14 @@ typedef struct Umax_Device
   void                  *queue_id[SANE_UMAX_SCSI_MAXQUEUE];				    /* scsi queue id */
   unsigned int		bufsize;
   unsigned int		row_bufsize;
-  int			request_scsi_maxqueue;
-  int			scsi_maxqueue;
+  unsigned int		request_scsi_maxqueue;
+  unsigned int		request_preview_lines;
+  unsigned int		request_scan_lines;
+  unsigned int		execute_request_sense;
+  unsigned int		force_preview_bit_rgb;
+  unsigned int		scsi_buffer_size_min;
+  unsigned int		scsi_buffer_size_max;
+  unsigned int		scsi_maxqueue;
 
   unsigned char		*pixelbuffer;					   /* buffer used for pixel ordering */
   unsigned int		pixelline_max;				/* number of lines that fit into pixelbuffer */
@@ -243,6 +244,7 @@ typedef struct Umax_Device
   int			three_pass;					  /* used in RGB-mode if 3-pass => 1 */
   int			three_pass_color;			  /* select color for scanning in 3pass mode */
   unsigned int		row_len;					    /* len of one scan-line in bytes */
+  unsigned int		lines_max;					  /* maximum number of lines to scan */
   unsigned int		max_value;							/* used for pnm-file */
 
   /* data defined by inquiry */
@@ -311,9 +313,13 @@ typedef struct Umax_Device
   int			inquiry_reverse_multi;				  /* 1 = multi bit reverse supported */
   int			inquiry_analog_gamma;				       /* 1 = analog gamma supported */
   int			inquiry_lineart_order;				     /* 1 = LSB first, 0 = MSB first */
+
+  int			inquiry_lens_cal_in_doc_pos;		/* 1 = lens calibration in doc pos supported */
+  int			inquiry_manual_focus;				       /* 1 = manual focus supported */
+  int			inquiry_sel_uta_lens_cal_pos;   /* 1 = selection of lens calib pos for uta supported */
+
   int			inquiry_gamma_dwload;				     /* 1 = gamma download supported */
   int			inquiry_gamma_DCF;				      /* gamma download curve format */
-
 
   int			inquiry_one_pass_color;					     /* 1 = 1 pass supported */
   int			inquiry_three_pass_color;				     /* 1 = 3 pass supported */
@@ -369,7 +375,6 @@ typedef struct Umax_Device
   int			set_auto;					    /* 0 or 1, don't know what it is */
   int			preview;							     /* 1 if preview */
   int			quality;					/* 1 = quality_calibration, 0 = fast */
-  int			shading_type;				      /* 0 = last line, 1 = average, 2 = ??? */
   int			reverse;					      /* 1: exchange black and white */
   int			reverse_multi;						   /* 1: invert color values */
   int			WD_speed;				       /* is a combination of slow and smear */
@@ -377,6 +382,11 @@ typedef struct Umax_Device
   int			smear;				       /* 1: don't care about image smearing problem */
   int			dor;								/* double resolution */
   int			cbhs_range;					       /* 50,255 or 255+autoexposure */
+  int			fix_focus_position;					       /* fix focus position */
+  int			lens_cal_in_doc_pos;			    /* lens calibration in document position */
+  int			disable_pre_focus;						/* disable pre focus */
+  int			holder_focus_pos_0mm;			    /* 0.6mm <-> 0.0mm holder focus position */
+  int			manual_focus;					       /* automatic <-> manual focus */
   int			warmup;								 /* 1=set warmup-bit */
   int			module;							  /* flatbed or transparency */
   int			adf;							       /* 1 if ADF turned on */
@@ -432,6 +442,7 @@ typedef struct Umax_Device
   int			calibration_area;		      /* define calibration area if no area is given */
   int                   calibration_width_offset;  /* some scanners do calibrate with some additional pixels */
   int                   calibration_bytespp;		   /* correction of bytespp if driver knows about it */
+  int			invert_shading_data;	     /* invert shading data before sending it to the scanner */
   int                   common_xy_resolutions;			/* do not allow different x and y resolution */
   int			pause_for_color_calibration;	/* pause between start_scan and do_calibration in ms */
   int			pause_for_gray_calibration;	/* pause between start_scan and do_calibration in ms */
@@ -440,7 +451,6 @@ typedef struct Umax_Device
   int			pause_for_moving;	       /* pause for moving scanhead over full scanarea in ms */
   int			lamp_control_available;		       /* is set when scanner supportes lamp control */
 
-  int                   RGB_PREVIEW_FIX;
 #ifdef HAVE_SANEI_IPC
   sanei_ipc			*ipc;
 #endif

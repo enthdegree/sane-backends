@@ -2,7 +2,7 @@
 
 /* umax-uc630.c: inquiry for UMAX scanner uc630
   
-   (C) 1997-2000 Oliver Rauch
+   (C) 1997-2001 Oliver Rauch
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as

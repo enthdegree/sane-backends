@@ -2,7 +2,7 @@
 
 /* umax-ug80.c: inquiry for UMAX scanner ug80
   
-   (C) 1998-2000 Oliver Rauch
+   (C) 1998-2001 Oliver Rauch
    
    Thanks to Andreas Hofmeister <hofmeist@informatik.uni-freiburg.de>
    for his help!

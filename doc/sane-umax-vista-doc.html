@@ -1,0 +1,694 @@
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Oliver Rauch">
+   <meta name="Description" content="unix scanner driver for UMAX scanners">
+   <title>SANE-umax - UMAX Vista scanners</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EF" vlink="#51188E" alink="#FF0000">
+
+
+<table>
+<tr>
+<td width=200>
+<img SRC="sane-logo.jpg" alt="SANE-logo" hspace=60 align=BOTTOM>
+<br>
+<img SRC="sane-umax-text.jpg" alt="UMAX-logo" HSPACE=50>
+</td>
+<td>
+<blockquote>
+<h1><font color="#009900">UMAX Vista scanners</font></h1>
+</blockquote>
+</td>
+</tr>
+</table>
+
+
+<hr WIDTH="100%">
+
+<table>
+<tr>
+<td VALIGN=TOP WIDTH="250" BGCOLOR="#E0E0FF">
+<br>
+<ul>
+<li><a href="sane-umax-doc.html">Index</a></li>
+<li>Frontend options:</li>
+<ul>
+<li><a href="sane-umax-standard-options-doc.html">Standard options</a></li>
+<li><a href="sane-umax-advanced-options-doc.html">Advanced options</a></li>
+</ul>
+<li>Supported scanners:</li>
+<ul>
+<li><a href="sane-umax-powerlook-doc.html">Power Look series</a></li>
+<li><a href="sane-umax-mirage-doc.html">Mirage series</a></li>
+<li><a href="sane-umax-astra-doc.html">Astra series</a></li>
+<li><a href="sane-umax-vista-doc.html">Vista series</a></li>
+<li><a href="sane-umax-uc-doc.html">UC series</a></li>
+<li><a href="sane-umax-others-doc.html">others</a></li>
+<li><a href="sane-umax-not-listed-doc.html">Not listed scanners</a></li>
+<li><a href="sane-umax-scanner-clones-doc.html">UMAX scanner clones</a></li>
+</ul>
+<li><a href="sane-umax-parport-doc.html">UMAX parallel port scanners</a></li>
+<li><a href="sane-umax-config-doc.html">Configuration</a></li>
+<li><a href="sane-umax-speed-doc.html">Speed of UMAX scanners</a></li>
+<li><a href="http://www.rauch-domain.de/sane-umax">SANE-umax homepage</a></li>
+<li><a href="http://www.mostang.com/sane/">SANE homepage</a></li>
+<li><a href="http://www.xsane.org/">XSane homepage</a></li>
+</ul>
+<br>
+</td>
+
+
+<td VALIGN=TOP BGCOLOR="#FFFFFF">
+<br>
+<center>
+<table BORDER>
+<tr BGCOLOR="#40E0D0" NOSAVE>
+<td VALIGN=TOP COLSPAN="10" NOSAVE>
+<center><b><font face="Arial">UMAX scanners</font></b></center>
+</td>
+</tr>
+
+<tr NOSAVE>
+<td COLSPAN="10" BGCOLOR="#CCFFFF" NOSAVE><b>&nbsp;Vista series:</b></td>
+</tr>
+
+<tr ALIGN=CENTER NOSAVE>
+<td NOSAVE>
+<center><b><font face="Arial">Name</font></b></center>
+</td>
+
+<td NOSAVE>
+<center><b><font face="Arial">SCSI-ID</font></b></center>
+</td>
+
+<td NOSAVE>
+<center><b><font face="Arial">Versions</font></b></center>
+</td>
+
+<td NOSAVE>
+<center><b>UTA</b></center>
+</td>
+
+<td>
+<center><b>ADF</b></center>
+</td>
+
+<td NOSAVE>
+<center><b><font face="Arial">B/W</font></b></center>
+</td>
+
+<td NOSAVE>
+<center><b><font face="Arial">Gray</font></b></center>
+</td>
+
+<td NOSAVE>
+<center><b><font face="Arial">Color</font></b></center>
+</td>
+
+<td NOSAVE>
+<center><b><font face="Arial">Bits/pixel</font></b></center>
+</td>
+
+<td NOSAVE>
+<center><b>Resolution</b></center>
+</td>
+</tr>
+
+<tr ALIGN=LEFT NOSAVE>
+<td>
+<center><font face="Arial"><font size=-1>Vista S6</font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>Vista-S6</font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>all</font></font></center>
+</td>
+
+<td NOSAVE>
+<center><font size=-1>X</font></center>
+</td>
+
+<td>
+<center><font size=-1>X</font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>1,8,24</font></font></center>
+</td>
+
+<td>
+<center><font size=-1>300 x 600</font></center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center><font face="Arial"><font size=-1>Vista S6E</font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>Vista-S6E</font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>all</font></font></center>
+</td>
+
+<td>
+<center><font size=-1>X</font></center>
+</td>
+
+<td>
+<center><font size=-1>X</font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>1,8,24</font></font></font></center>
+</td>
+
+<td>
+<center><font size=-1>300 x 600</font></center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>Vista S6E</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>UMAX S-6E</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>all</font></font></font></center>
+</td>
+
+<td>
+<center><font size=-1>X</font></center>
+</td>
+
+<td>
+<center><font size=-1>X</font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>1,8,24</font></font></font></center>
+</td>
+
+<td>
+<center><font size=-1>300 x 600</font></center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>Vista S6E</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>UMAX S-6EG</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>all</font></font></font></center>
+</td>
+
+<td>
+<center><font size=-1>X</font></center>
+</td>
+
+<td>
+<center><font size=-1>X</font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>1,8,24</font></font></center>
+</td>
+
+<td>
+<center><font size=-1>300 x 600</font></center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center><font face="Arial"><font size=-1>Vista S8</font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>Vista-S8</font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>all</font></font></font></center>
+</td>
+
+<td>
+<center><font size=-1>X</font></center>
+</td>
+
+<td>
+<center><font size=-1>X</font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>1,8,24</font></font></center>
+</td>
+
+<td>
+<center><font size=-1>400 x 800</font></center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center><font face="Arial"><font size=-1>Supervista S12</font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>Supervista S-12</font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>all</font></font></center>
+</td>
+
+<td>
+<center><font size=-1>X</font></center>
+</td>
+
+<td>
+<center><font size=-1>X</font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>1,8,24</font></font></center>
+</td>
+
+<td>
+<center><font size=-1>600 x 1200*</font></center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center><font face="Arial"><font size=-1>Supervista S12</font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>UMAX S-12G</font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>all</font></font></center>
+</td>
+
+<td>
+<center><font size=-1>X</font></center>
+</td>
+
+<td>
+<center><font size=-1>X</font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>1,8,24</font></font></center>
+</td>
+
+<td>
+<center><font size=-1>600 x 1200*</font></center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center><font face="Arial"><font size=-1>Supervista S12</font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>UMAX S-12</font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>all</font></font></center>
+</td>
+
+<td>
+<center><font size=-1>X</font></center>
+</td>
+
+<td>
+<center><font size=-1>X</font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>1,8,24</font></font></center>
+</td>
+
+<td>
+<center><font size=-1>600 x 1200*</font></center>
+</td>
+</tr>
+
+
+
+
+<tr NOSAVE>
+<td COLSPAN="10" BGCOLOR="#CCFFFF" NOSAVE><font size=-1>&nbsp;</font><b>Old Vista scanner:</b></td>
+</tr>
+
+<tr NOSAVE>
+<td NOSAVE>
+<center><b><font face="Arial">Name/ID</font></b></center>
+</td>
+
+<td NOSAVE>
+<center><b><font face="Arial">Versions</font></b></center>
+</td>
+
+<td>
+<center><b>UTA</b></center>
+</td>
+
+<td>
+<center><b>ADF</b></center>
+</td>
+
+<td NOSAVE>
+<center><b><font face="Arial">Lineart</font></b></center>
+</td>
+
+<td NOSAVE>
+<center><b><font face="Arial">B/W</font></b></center>
+</td>
+
+<td NOSAVE>
+<center><b><font face="Arial">Gray</font></b></center>
+</td>
+
+<td NOSAVE>
+<center><b><font face="Arial">Color</font></b></center>
+</td>
+
+<td NOSAVE>
+<center><b><font face="Arial">Bits/pixel</font></b></center>
+</td>
+
+<td NOSAVE>
+<center><b><font face="Arial">Resolution</font></b></center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center><font face="Arial"><font size=-1>Vista VT600</font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#3333FF"><font size=-1>? (try UC630
+V2.8)</font></font></font></center>
+</td>
+
+<td>
+<center><font size=-1>--</font></center>
+</td>
+
+<td>
+<center><font size=-1>&nbsp;</font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>?</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>?</font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>?</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>?</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>1,8,24</font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>300 x 600</font></font></center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center><font face="Arial"><font size=-1>Vista T630</font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#3333FF"><font size=-1>some</font></font></font></center>
+</td>
+
+<td>
+<center><font size=-1>X#</font></center>
+</td>
+
+<td>
+<center><font size=-1>&nbsp;</font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>--</font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font color="#000000"><font size=-1>ok, 3pass</font></font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>1,8,24</font></font></center>
+</td>
+
+<td>
+<center><font face="Arial"><font size=-1>300 x 600</font></font></center>
+</td>
+
+</tr>
+</td>
+</table>
+
+<p>
+
+
+<center>
+<p><font color="#990000">* Supervista S12 scanners allow scanning up to
+1200x1200 dpi.</font>
+<p><font color="#990000">UTA = Umax Transparancy Adapter, ADF = Automatic
+Document Feeder</font>
+<br><font color="#990000">(X = supported by scanner, incl = is included)</font>
+
+
+<blockquote>
+<center>
+<font color="#990000"># There is no UTA available for the
+Vista T630, the UTA-V6 is limited supported, if you have problems with
+your Vista T630 scanner and you have a UTA-V6 connected, try without UTA!</font>
+<p><font color="#990000">## 10/30 bits/pixel are used internally, the output
+bit depth is 8/24 bits/pixel</font>
+</center>
+</blockquote>
+
+<p>
+
+<center><table BORDER>
+<tr NOSAVE>
+<td COLSPAN="3" BGCOLOR="#40E0D0" NOSAVE>
+<center>
+<b>Suggested firmware versions for old UMAX scanners</b>
+</center>
+</td>
+</tr>
+
+<tr NOSAVE>
+<td NOSAVE>
+<center><b><font color="#000000">Name</font></b></center>
+</td>
+
+<td NOSAVE>
+<center>
+<b>suggested firmware version</b>
+<br>(<a href="http://www.umax.de/upgrds.html">read on UMAX's german website</a>)
+</center>
+</td>
+
+<td>
+<center><b>last firmware version</b></center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center><font color="#000000">Vista VT600</font></center>
+</td>
+
+<td>
+<center>
+<a href="http://www.umax.de/upgrds.html">use the UC630 firmware (2.8)</a>
+</center>
+</td>
+
+<td>
+<center>?</center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center>Vista T630</center>
+</td>
+
+<td>
+<center>--</center>
+</td>
+
+<td>
+<center>1.5</center>
+</td>
+</tr>
+
+</table></center>
+
+<br>
+<br>
+Here you can find
+<a href="http://support.umax.co.uk/firmware/f107B.htm">
+information about firmware versions of UMAX scanners</a>.
+<br>
+
+<br>
+<hr WIDTH="100%">
+<br><font color="#009900">This page has been changed on 12th. february 2001</font></center>
+</blockquote>
+</td>
+</tr>
+</table>
+
+<hr WIDTH="100%">
+
+<blockquote>
+Author: <a href="mailto:Oliver.Rauch@rauch-domain.de">Oliver Rauch</a>
+</blockquote>
+
+</body>
+</html>

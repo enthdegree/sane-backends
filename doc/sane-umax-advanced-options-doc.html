@@ -3,7 +3,7 @@
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
    <meta name="Author" content="Oliver Rauch">
    <meta name="Description" content="unix scanner driver for UMAX scanners">
-   <title>SANE-umax backend</title>
+   <title>SANE-umax - Advanced options</title>
 </head>
 <body text="#000000" bgcolor="#FFFFFF" link="#0000EF" vlink="#51188E" alink="#FF0000">
 
@@ -17,7 +17,7 @@
 </td>
 <td>
 <blockquote>
-<h1><font color="#009900">SANE-umax backend</font></h1>
+<h1><font color="#009900">SANE-umax advanced options</font></h1>
 </blockquote>
 </td>
 </tr>
@@ -56,13 +56,106 @@
 <li><a href="http://www.xsane.org/">XSane homepage</a></li>
 </ul>
 <br>
-</td>
-
+</td>              
 
 <td VALIGN=TOP BGCOLOR="#FFFFFF">
 <blockquote>
 <br>
+
+This backend dynamically enabeles the options that are supported
+by the scanner in dependence of the scanning-mode and other options. Here
+is an example of the frontend <a href="http://www.wolfsburg.de/~rauch/sane/sane-xsane.html">
+<i>XSane</i></a>:
+<br>
+<br>
+<br>
+
+<center><img SRC="sane-umax-advanced.jpg" height=235 width=291></center>
+
+<p><br>
+<center><table BORDER=2 CELLSPACING=2 CELLPADDING=2>
+<tr BGCOLOR="#40E0D0">
+<td><b>Advanced options</b></td>
+
+<td><b>Remark</b></td>
+</tr>
+
+<tr>
+<td>Set exposure time</td>
+
+<td>Enable selection of exposure time, if not enabled, scanner uses default
+values. *</td>
+</tr>
+
+<tr>
+<td>Cal. exposure time</td>
+
+<td>Define exposure time for calibration. *</td>
+</tr>
+
+<tr>
+<td>Scan exposure time</td>
+
+<td>Define exposure time for scan. *</td>
+</tr>
+
+<tr>
+<td>Set lamp density</td>
+
+<td>Enable selection of lamp density, if not enabled, scanner automatically
+selects a value. *</td>
+</tr>
+
+<tr>
+<td>Cal. lamp density</td>
+
+<td>Define lamp density for calibration. *</td>
+</tr>
+
+<tr>
+<td>Set scan lamp density</td>
+
+<td>Enable selection of lamp density for scan, if not enabled scanner uses
+the value that was used for calibration. *</td>
+</tr>
+
+<tr>
+<td>Scan lamp density</td>
+
+<td>Define lamp density for scan. *</td>
+</tr>
+
+<tr>
+<td>lamp on</td>
+
+<td>Turn on scanner lamp. *</td>
+</tr>
+
+<tr>
+<td>lamp off</td>
+
+<td>Turn off scanner lamp. *</td>
+</tr>
+
+<tr>
+<td>lamp off at exit</td>
+
+<td>Turn off scanner lamp when program exits (when sane_close is called)
+*</td>
+</tr>
+</table></center>
+
+<center>
+<p>* only available for some scanners</center>
+
 </blockquote>
+<br>
+<hr WIDTH="100%">
+<br>
+<center>
+<font color="#009900">This page has been changed on 5th. february 2001</font>
+</center>
+<br>
 </td>
 </tr>
 </table>

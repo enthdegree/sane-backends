@@ -11,6 +11,8 @@
 	  doc/sane-gt68xx.man doc/descriptions/gt68xx.desc
 	  doc/gt68xx/gt68xx.CHANGES: Minor fixes for Mustek A3 USB,
 	  Genius ColorPage Vivid4 and Mustek BearPaw 2448 CS/TA Plus.
+	* Makefile.in tools/Makefile.in: Added some missing files to
+	  DISTFILES.
 
 2004-04-10  Jochen Eisinger <jochen@penguin-breeder.org>
 

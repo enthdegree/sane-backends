@@ -67,6 +67,8 @@ DISTFILES = Makefile.in README libtool-get-dll-ext mustek600iin-off.c \
   sane-config.in sane-desc.c check-usb-chip.c \
   sane-find-scanner.c umax_pp.c xerox gamma4scanimage.c check-po.awk
 
+SUBDIRS = hotplug
+
 .PHONY: all clean depend dist distclean install uninstall
 
 .c.o:
@@ -120,6 +122,13 @@ distclean: clean
 	rm -f $(DISTCLEAN_FILES)
 
 dist: $(DISTFILES)
+	for subdir in $(SUBDIRS) ; do \
+	  $(MKDIR) $(distdir)/tools/$${subdir} ; \
+	  for file in $${subdir}/* ; do \
+	    ln $$file $(distdir)/doc/$${subdir} 2> /dev/null \
+	      || cp -p $$file $(distdir)/tools/$${subdir} ; \
+	  done ; \
+	done
 	for file in $(DISTFILES); do \
 	  ln $$file $(distdir)/tools 2> /dev/null \
 	    || cp -p $$file $(distdir)/tools ; \

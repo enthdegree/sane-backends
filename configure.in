@@ -406,6 +406,17 @@ AC_ARG_ENABLE(translations,
 )
 AC_SUBST(INSTALL_TRANSLATIONS)
 
+AC_ARG_ENABLE(local-backends,
+    [  --disable-local-backends turns off compilation of all backends but net],
+    [
+      if eval "test x$enable_local_backends = xno"; then 
+        SELECTED_BACKENDS="net"
+      fi
+    ],
+,
+)
+AC_SUBST(SELECTED_BACKENDS)
+
 AC_PATH_PROG(SANE_CONFIG_PATH, sane-config, no)
 AC_CHECK_LIB(sane, sane_init, LIBSANE_EXISTS="yes")
 
@@ -438,7 +449,11 @@ else
     echo "*** SANE files and reinstall this version."
   fi
 fi
-
+if test "$SELECTED_BACKENDS" != "" ; then
+  echo "*** Warning: Local backends have been disabled.  This means that scanners"
+  echo "*** connected to your local computer won't be supported.  Only a network"
+  echo "*** connection to a remote host ist possible."
+fi
 
 echo "****************************************************************"
 echo "* Please be sure to read file PROBLEMS in this directory       *"

@@ -65,6 +65,10 @@ PRELOADABLE_BACKENDS = abaton agfafocus apple artec as6e avision bh canon \
         mustek mustek_pp mustek_usb nec @NET@ pie @PINT@ plustek \
         @PNM@ @QCAM@ ricoh s9036 sceptre sharp @SM3600@ @SNAPSCAN@ \
         sp15c st400 tamarack test teco1 umax umax_pp umax1220u @V4L@
+ifneq (@SELECTED_BACKENDS@,)
+PRELOADABLE_BACKENDS = @SELECTED_BACKENDS@
+endif
+
 ALL_BACKENDS = $(PRELOADABLE_BACKENDS) dll
 
 LIBS = $(addprefix libsane-,$(addsuffix .la,$(ALL_BACKENDS)))

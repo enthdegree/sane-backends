@@ -63,8 +63,23 @@ sanei_constrain_value (const SANE_Option_Descriptor * opt, void * value,
       w = *(SANE_Word *) value;
       range = opt->constraint.range;
 
-      if (w < range->min || w > range->max)
-	return SANE_STATUS_INVAL;		/* out of range */
+      if (w < range->min)
+      {
+        *(SANE_Word *) value = range->min;
+        if (info)
+        {
+          *info |= SANE_INFO_INEXACT;
+        }
+      }
+
+      if (w > range->max)
+      {
+        *(SANE_Word *) value = range->max;
+        if (info)
+        {
+          *info |= SANE_INFO_INEXACT;
+        }
+      }
 
       if (range->quant)
 	{

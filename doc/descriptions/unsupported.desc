@@ -568,15 +568,6 @@
 
 ;********************************************************************************************
 
-:mfg "Relisys"
-:model "AVEC II S3"
-:url "http://gkall.hobby.nl/notes2.html"
-:interface "SCSI"
-:status :unsupported
-:comment "Not supported. However, a patch for the teco2 backend and some information is available. Model VM3564."
-
-;********************************************************************************************
-
 :mfg "Syscan"
 
 :model "TravelScan 460/464"

@@ -27,7 +27,7 @@
 
 :model "AVEC II S3"
 :interface "SCSI"
-:comment :sub model VM3564"
+:comment "sub model VM3564"
 :status :alpha
 
 :model "SCORPIO Super 3"
@@ -59,6 +59,11 @@
 :mfg "Primax"
 :url "http://www.primax.nl/"
 
+:model "Jewel 4800"
+:comment "sub model VM356A"
+:interface "SCSI"
+:status :alpha
+
 :model "Profi 9600"
 :comment "sub model VM6575"
 :interface "SCSI"
@@ -68,3 +73,4 @@
 :comment "sub model VM6586"
 :interface "SCSI"
 :status :beta
+

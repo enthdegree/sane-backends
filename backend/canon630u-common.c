@@ -50,7 +50,6 @@
    This code has not been tested on anything other than Linux/i386.
 */
 
-#include <sys/types.h>
 #include <errno.h>
 #include <fcntl.h>		/* open */
 #include <stdio.h>
@@ -412,8 +411,9 @@ read_bulk_size (int fd, int ks, int remainder, byte * dest, int destsize)
     }
   if (destsize && (destsize < bytes))
     {
-      DBG (1, "read_bulk_size: buffer too small! (%d/%d)\n", destsize, bytes);
-      return -1;
+      DBG (3, "read_bulk_size: more data than buffer (%d/%d)\n",
+	   destsize, bytes);
+      bytes = destsize;
     }
 
   if (bytes == 0)

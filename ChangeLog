@@ -39,6 +39,9 @@
 	  Explicitely set the alternative setting. When closing, call clear_halt,
 	  and reset_ep, and release_interface explicitley. On errors in
 	  write/read, call clear_halt.
+	* TODO: Added sm3600 issue, htmla manpage issue, sanei_scsi stuff.
+	  Updated desc file, sanei_usb, and MacOSX  entries. Deleted sane.tex
+	  stuff (now TODO for SANE2).
 
 2002-12-28  Karl Heinz Kremer <khk@khk.net>
 

@@ -1,4 +1,4 @@
-TODO (2002-12-07)
+TODO (2002-12-30)
 
 ******** todo ********
 
@@ -17,6 +17,9 @@ backends
      - convert to use sanei_pio functions instead of direct port
        access.
      - The result of locking isn't checked --> does it make sense at all?
+
+  * sm3600.c, .h:
+     - Fix comment header (wrong author, wrong description)
 
   * dc210, dc240, gphoto2, and jpeg stuff: move sanei_* functions to sanei/
     (if they are necessary). That's probably for SANE2. 
@@ -59,18 +62,7 @@ doc
     - sanei_pv8630.h
     - sanei_wire.h
 
-  * sane.tex:
-    - Add a warning/explanation about problems with sane_get_select_fd, Unix
-      select() calls and sane_cancel (-->backend-writing.txt?).
-    - Define, how to handle SANE_CAP_ADVANCED for groups. 
-      (-->backend-writing.txt?)
-    - Add a well-known option that represents the status of buttons or some
-      other means to support buttons if this is possible before SANE2. Keep
-      in mind locking issues.
-
   * desc files:
-    - Add viceo.desc to descriptions-external (from Steven Ellis 
-      <viceo@stevencherie.net>)
     - snapscan.desc: Add Mitsubishi DV650U usb scanner
       "It turns out the DV650U has the same ID string (FlatbedScanner_23),
        vendor & product ID (0x04a5, 0x20b0) and firmware file (u176v042.bin)
@@ -78,6 +70,11 @@ doc
     - Add Epson Stylus cx3200 MFP to epson.desc (supported only with
       patch to Linux USB scanner driver)
     - Add keywords "vendor-id" and "product-id" for SCSI and USB ids.
+    - add unsupported.desc with links to information about unsupported scanners
+
+  * manpages:
+    - html manpages have broken links to other man pages if link is wrapped at
+      the end of the line (e.g. sane-pint points to pint.5.html).
 
 frontends
 ---------
@@ -102,7 +99,8 @@ frontends
 sanei
 -----
   * sanei_scsi: Think about a completely new interface. Details are in
-    http://www.mostang.com/pipermail/sane-devel/2002-January/001995.html .
+    http://www.mostang.com/pipermail/sane-devel/2002-January/001995.html and
+    http://www.mostang.com/pipermail/sane-devel/2002-December/016773.html.
 
   * create sanei_parport_* and remove all inb, outb,... from all backends;
     use libieee1284 if available (see
@@ -123,7 +121,8 @@ sanei
 
   * sanei_usb:
     - using only the first interface may be a problem with all-in-one devices
-    - some scanners semm to provide more than one bulk-in endpoint(?) 
+    - some scanners seem to provide more than one bulk-in endpoint(?) 
+
 
 platform-specific
 -----------------
@@ -140,8 +139,8 @@ platform-specific
     - Find out why libusb doesn't work propperly. Seems to work with some
       scanners, however.
     - More docu in README.darwin.
-    - Check libtool glitches. Does an update make sense?
-    - sm3600 is reported to crash with MacOS X.
+    - sm3600 is reported to crash with MacOS X. Actually, the crash is in
+      libusb::usb_find_devices().
   
   * OS/2 issues: 
     - configure creates 264 sh-thd-??????? files?
@@ -168,6 +167,17 @@ misc
   * Remove backend-specific .po files when they are no longer needed.
 
 ******** done ********
+* MacOS X: Check libtool glitches. Does an update make sense?
+* sane.tex (->sane2):
+ - Add a warning/explanation about problems with sane_get_select_fd, Unix
+   select() calls and sane_cancel (-->backend-writing.txt?).
+ - Define, how to handle SANE_CAP_ADVANCED for groups. 
+   (-->backend-writing.txt?)
+ - Add a well-known option that represents the status of buttons or some
+   other means to support buttons if this is possible before SANE2. Keep
+   in mind locking issues.
+* Add viceo.desc to descriptions-external (from Steven Ellis 
+  <viceo@stevencherie.net>)
 * Add AC_OBJEXT and AC_EXEEXT to configure.in for automatically adding
   the correct extensions (e.g. for OS/2).--> that's now done automatically
 * MacOS X: Check that LDFLAGS approach in configure works for dynamic loading.

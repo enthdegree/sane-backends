@@ -178,7 +178,7 @@ static SANE_String_Const source_list[4];
 static SANE_Int bit_depth_list[9];
 static SANE_Auth_Callback frontend_authorize_callback;
 
-static int umax_scsi_buffer_size_min = 65536;  /* default: minimum scsi buffer size: 64 KB */
+static int umax_scsi_buffer_size_min = 32768;  /* default: minimum scsi buffer size: 32 KB */
 static int umax_scsi_buffer_size_max = 131072; /* default: maximum scsi buffer size: 128 KB */
 
 /* number of lines that shall be scanned in one buffer for preview if possible */

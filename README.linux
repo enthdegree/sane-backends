@@ -36,11 +36,12 @@ to the configuration file. This should be documented in the man page for
 your backend. To find out about the right SCSI device use sane-find-scanner:
 
 # sane-find-scanner
-sane-find-scanner: found scanner "SCANNER  2.02" at device /dev/scanner
-sane-find-scanner: found scanner "SCANNER  2.02" at device /dev/sg0
-sane-find-scanner: found scanner "SCANNER  2.02" at device /dev/sga 
+found SCSI scanner "SCANNER  2.02" at /dev/scanner
+found SCSI scanner "SCANNER  2.02" at /dev/sg0
+found SCSI scanner "SCANNER  2.02" at /dev/sga 
 
-It may help to set a symbolic link /dev/scanner to the respective device.
+It may help to set a symbolic link /dev/scanner to the respective device if
+automatic detection does not work.
 
 If you need more information on the Linux SCSI subsystem, look at
 http://www.torque.net/scsi/linux_scsi_24/index.html. Although this

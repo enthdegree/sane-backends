@@ -8,6 +8,7 @@
 	* README.freebsd: Automatic SCSI detection does work, so this part
 	  was removed. libusb is necessary for some backends. Some parport
 	  scanners seem to work.
+	* README.linux: Minor updates.
 
 2003-04-18  Frank Zago  <fzago at austin dot rr dot com>
 

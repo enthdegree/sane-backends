@@ -27,6 +27,7 @@
 :devicetype :scanner
 
 :mfg "Avision"
+:url "http://www.avision.com"
 :model "AV100CS"
 :interface "SCSI"
 :status :untested
@@ -136,6 +137,7 @@
 :status :untested
 
 :mfg "Hewlett-Packard"
+:url "http://www.hp.com"
 :model "ScanJet 5300C"
 :interface "USB"
 :comment "1 pass, 1200 dpi - regularly tested"
@@ -146,10 +148,19 @@
 :status :alpha
 :model "ScanJet 7400c"
 :interface "USB"
-:comment "1 pass, 1200 dpi - the HP ScanJet 7450c/7490c are normal HP ScanJet 7400c plus gadgets"
+:comment "1 pass, 1200 dpi - dual USB/SCSI interface"
+:status :beta
+:model "ScanJet 7450c"
+:interface "USB"
+:comment "1 pass, 1200 dpi - dual USB/SCSI interface"
+:status :beta
+:model "ScanJet 7490c"
+:interface "USB"
+:comment "1 pass, 1200 dpi - dual USB/SCSI interface"
 :status :beta
 
 :mfg "Minolta"
+:url "http://www.minolta.com"
 :model "FS-V1"
 :interface "USB"
 :comment "1 pass, film-scanner"
@@ -170,6 +181,7 @@
 :status :beta
 
 :mfg "Fujitsu"
+:url "http://www.fujitsu.com/"
 :model "ScanPartner"
 :interface "SCSI"
 :status :untested

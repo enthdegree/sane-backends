@@ -1561,7 +1561,7 @@ attach (SANE_String_Const devname, Mustek_Device ** devp, SANE_Bool may_wait)
 	   "carefull and read\n  the PROBLEMS file in the sane directory. "
 	   "Please set the debug level of this\n  backend to maximum "
 	   "(export SANE_DEBUG_MUSTEK=255) and send the output of\n  "
-	   "scanimage -L to the SANE mailing list sane-devel@mostang.com. "
+	   "scanimage -L to the SANE mailing list sane-devel@lists.alioth.debian.org. "
 	   "Please include\n  the exact model name of your scanner and to "
 	   "which extend it works.\n");
     }

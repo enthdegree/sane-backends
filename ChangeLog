@@ -3,6 +3,8 @@
 	* doc/descriptions/unsupported.desc: Added link to more info about
 	  Microtek ScanMaker 3630.
 	* NEWS: Updated for release.
+	* backend/sm3600.h: Added last minute fix to avoid compilation
+	  trouble with gcc 3.4.
 
 2004-04-29  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

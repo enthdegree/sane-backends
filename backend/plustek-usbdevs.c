@@ -7,7 +7,7 @@
  *  @brief Here we have our USB device definitions.
  *
  * Based on sources acquired from Plustek Inc.<br>
- * Copyright (C) 2001-2004 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2005 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.40 - starting version of the USB support
@@ -49,7 +49,7 @@
  *        - added parameters for UMAX 3450 TPA
  *        - parameter tuning for CanoScan D660U
  *        - cleanup
- * - 0.49 - no changes
+ * - 0.49 - tweaked motor settings for EPSON and CANON1200
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -2488,7 +2488,7 @@ static ClkMotorDef Motors[] = {
 		{ 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
 		{ 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 5.0, 6.0, 6.0, 6.0 },
 		/* Gray mode MCLK settings */
-		{ 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,  6.0,  6.0,  6.0 },
+		{ 7.0, 7.0, 6.0, 6.0, 6.0, 6.0, 6.0,  6.0,  6.0,  6.0 },
 		{ 6.5, 6.5, 6.0, 6.0, 6.0, 6.0, 8.0, 12.0, 12.0, 12.0 }
 	},
 
@@ -2526,8 +2526,8 @@ static ClkMotorDef Motors[] = {
 		/* <=400dpi     <=600dpi     <=800dpi     <=1200dpi    <=2400dpi */
 		 { 2, 1, 1 }, { 2, 1, 1 }, { 2, 1, 1 }, { 2, 1, 1 }, { 2, 1, 1 }},
 		/* Color mode MCLK settings */
-		{ 2.0, 2.0, 2.0, 2.0, 2.0, 2.5, 3.0, 4.0, 6.0, 6.0 },
-		{ 2.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 4.0, 6.0, 6.0 },
+		{ 2.0, 2.0, 2.5, 2.5, 2.5, 2.5, 4.0, 4.0, 6.0, 6.0 },
+		{ 2.0, 2.0, 2.5, 2.5, 3.0, 3.0, 3.0, 4.0, 6.0, 6.0 },
 		/* Gray mode MCLK settings */
 		{ 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 9.0, 9.0, 18.0, 18.0 },
 		{ 6.0, 6.0, 6.0, 6.0, 6.0, 8.0, 9.0, 9.0, 18.0, 18.0 }

@@ -33,7 +33,7 @@ inet_pton (int af, const char *src, void *dst)
 # if !defined(INADDR_NONE)
 #  define INADDR_NONE -1
 # endif /* !defined(INADDR_NONE) */
-      in_addr_t in;
+      u_int32_t in;
 
       in = inet_addr (src);
       if (in != INADDR_NONE)

@@ -1,3 +1,12 @@
+2000-11-25  Henning Meier-Geinitz <hmg@gmx.de>
+
+	* configure configure.in acinclude.m4 aclocal.m4 
+	  include/sane/config.h.in: Added test for PTAL library and headers 
+	  (patch from David Paschal <paschal@rcsis.co>). Some reformating of 
+	  the output of configure --help.
+
+	* backend/GUIDE: Updated entry about #include.
+	
 2000-11-24  Henning Meier-Geinitz <hmg@gmx.de>
 
 	* AUTHORS: Removed authors of xscanimage and xcam (now in 
@@ -7,7 +16,10 @@
 	  in backends/Makefile anymore).
 	* sane.lsm: X-frontends are no longer included. Used blanks instead of
 	  tabs.
-	
+	* doc/scanimage.man: Removed links to backends, added generic link
+	  instead.
+	* doc/.cvsignore frontend/.cvsignore: X-frontends are no longer included.
+
 2000-11-24  Oliver Rauch <Oliver.Rauch@Wolfsburg.DE>
 
 	* changed configure.in, configure frontend/Makefile.in

@@ -10,6 +10,8 @@
 	* backend/Makefile.in backend/test.c backend/test.conf backend/test.h
 	  backend/test-picture.c: Added new test backend.
 	* doc/Makefile.in: Added sane-test man page. Added teco doc directory.
+	* doc/sane.man doc/sane-test.man doc/.cvsignore: Added sane-test
+	  manual page.
 
 2002-04-12  Frank Zago <fzago@greshamstorage.com>
 

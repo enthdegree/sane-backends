@@ -1,3 +1,8 @@
+2001-11-11  Peter Fales <peter@fales.com>
+
+	* gphoto2.c - Number of images was not getting updated after
+	  capturing a new image
+
 2001-11-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/dll.c backend/dll.desc doc/sane-dll.man: Added some debug

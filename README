@@ -6,7 +6,17 @@ SANE stands for Scanner Access Now Easy.
 This package contains the SANE libraries (this means backends and
 network scanning parts) and the command line frontend scanimage.
 You always find the most recent version of SANE on:
-http://www.mostang.com/sane
+
+  http://www.mostang.com/sane
+
+The source is available via anonymous CVS, hosted by The Hungry
+Programmers. Information on the CVS repository is available from
+<URL:http://www.student.uit.no/~pere/linux/sane/cvs-server.html>.  The
+following will fetch the latests source:
+
+  cvs -d :pserver:anoncvs@anoncvs.hungry.com:/cvsroot login 
+  [password "anoncvs"] 
+  cvs -d :pserver:anoncvs@anoncvs.hungry.com:/cvsroot co sane
 
 There are several graphical frontends available for SANE.
 XSane is available on http://www.xsane.org

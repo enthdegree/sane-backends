@@ -1,5 +1,15 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0-60 (2004-04-19)
+
+* Mustek BearPaw 2448 TA PLUS:
+  - Fixed resolution settings (added missinf 200 dpi mode)
+  - Fixed margins
+  - Fixed black mark
+  - Fixed TA margins
+  - Removed untested flag
+  - Changed status to "good"
+
 V 1.0-59 (2004-04-10)
 
 * Used 0, 4, 4 as linedistance for Mustek A3 USB.

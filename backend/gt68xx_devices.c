@@ -315,22 +315,22 @@ static GT68xx_Model mustek_2448taplus_model = {
   1200,				/* if ydpi is equal or higher, use linemode */
   SANE_FALSE,			/* Use base_ydpi for all resolutions */
 
-  {1200, 600, 300, 100, 0},	/* possible x-resolutions */
-  {2400, 1200, 600, 300, 100, 0},	/* possible y-resolutions */
+  {1200, 600, 300, 200, 100, 0},	/* possible x-resolutions */
+  {2400, 1200, 600, 300, 200, 100, 0},	/* possible y-resolutions */
   {16, 12, 8, 0},			/* possible depths in gray mode */
   {16, 12, 8, 0},		/* possible depths in color mode */
 
   SANE_FIX (7.41),		/* Start of scan area in mm  (x) */
   SANE_FIX (7.4),		/* Start of scan area in mm (y) */
-  SANE_FIX (217.5),		/* Size of scan area in mm (x) */
-  SANE_FIX (298.0),		/* Size of scan area in mm (y) */
+  SANE_FIX (216.3),		/* Size of scan area in mm (x) */
+  SANE_FIX (297.5),		/* Size of scan area in mm (y) */
 
   SANE_FIX (0.0),		/* Start of white strip in mm (y) */
-  SANE_FIX (3.5),		/* Start of black mark in mm (x) */
+  SANE_FIX (3.9),		/* Start of black mark in mm (x) */
 
   SANE_FIX (94.0),		/* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (107.0) /* Start of scan area in TA mode in mm (y) */ ,
-  SANE_FIX (37.0),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (105.0),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (36.0),		/* Size of scan area in TA mode in mm (x) */
   SANE_FIX (165.0),		/* Size of scan area in TA mode in mm (y) */
 
   SANE_FIX (95.0),		/* Start of white strip in TA mode in mm (y) */
@@ -344,7 +344,7 @@ static GT68xx_Model mustek_2448taplus_model = {
   SANE_FIX (2.0),		/* Default gamma value */
 
   SANE_FALSE,			/* Is this a CIS scanner? */
-  GT68XX_FLAG_UNTESTED		/* Which flags are needed for this scanner? */
+  0				/* Which flags are needed for this scanner? */
     /* Based on data from Jakub Dvo?ák <xdvorak@chello.cz>. */
 };
 

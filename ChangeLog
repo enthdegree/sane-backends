@@ -1,3 +1,9 @@
+2004-04-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/gt68xx.c backend/gt68xx_devices.c
+	  doc/descriptions/gt68xx.desc doc/gt68xx/gt68xx.CHANGES:
+	  Minor fixes for Mustek BearPaw 2448 TA Plus.
+
 2004-04-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* acinclude.m4 aclocal.m4 configure: Don't use -ansi on MacOS X.

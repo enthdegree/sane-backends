@@ -3,6 +3,8 @@
 	* tools/sane-desc.c: Added <br> after backend name. Colors can be
 	  changed by macros now. Centered entries. Code cleanup.
 	* configure: Regenerated from configure.in.
+	* doc/sane-usb.man: Mentioned control messages, usbfs, and more
+	  methods for permission adjustment.
 
 2002-07-06  Max Vorobiev <pcwizard@yandex.ru>
 

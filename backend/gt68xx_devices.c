@@ -1279,11 +1279,11 @@ static GT68xx_Model genius_vivid3xe_model  = {
   /* mostly untested, based on the Genius Vivid3x */
 };
 
-static GT68xx_Model genius_vivid1200ex_model  = {
-  "genius-colorpage-vivid-1200-ex",  /* Name */
+static GT68xx_Model genius_vivid1200xe_model  = {
+  "genius-colorpage-vivid-1200-xe",  /* Name */
   "Genius",                     /* Device vendor string */
-  "Colorpage Vivid 1200 EX",         /* Device model name */
-  "ccd548.fw",                  /* Name of the firmware file */
+  "Colorpage Vivid 1200 XE",         /* Device model name */
+  "ccd569.fw",                  /* Name of the firmware file */
   SANE_FALSE,                   /* Dynamic allocation flag */
 
   &mustek_gt6816_command_set,  /* Command set used by this scanner */
@@ -1507,7 +1507,7 @@ static GT68xx_USB_Device_Entry gt68xx_usb_device_list[] = {
   {0x0458, 0x2017, &genius_vivid3xe_model},
   {0x0458, 0x201a, &genius_vivid4xe_model},
   {0x0458, 0x201b, &genius_vivid4x_model},
-  {0x0458, 0x201f, &genius_vivid1200ex_model},
+  {0x0458, 0x201f, &genius_vivid1200xe_model},
   {0x04a7, 0x0444, &visioneer_onetouch_7300_model},
   {0, 0, NULL}
 };

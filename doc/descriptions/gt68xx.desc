@@ -1,5 +1,5 @@
 :backend "gt68xx"
-:version "1.0-63"
+:version "1.0-64"
 :manpage "sane-gt68xx"
 :url "http://www.meier-geinitz.de/sane/gt68xx-backend/"
 :comment "Only the USB scanners mentioned below are supported. For other Mustek BearPaws, look at the Plustek and the MA-1509 backend."
@@ -73,10 +73,10 @@
 :interface "USB"
 :comment "Should work but has limited testing. Please contact me if you own such a device."
 
-:model "Colorpage Vivid 1200 EX"
-:status :untested
+:model "Colorpage Vivid 1200 XE"
+:status :minimal
 :interface "USB"
-:comment "Should be detected but may not work."
+:comment "Gray and lineart works. Preview doesn't work."
 
 ; -----------------------------------------------------------------------------
 
@@ -309,6 +309,11 @@
 :interface "USB"
 :comment "Works, if you have vendor id 0x055f and product id 0x0006, use the mustek_usb backend instead, similar to Mustek ScanExpress 1200 UB (Plus)"
 
+:model "240TH Easy Webscan Gold"
+:status :good
+:interface "USB"
+:comment "Same as Mustek Bearpaw 2400 TA plus."
+
 ; -----------------------------------------------------------------------------
 
 :mfg "Visioneer"
@@ -316,7 +321,7 @@
 
 :model "OneTouch 7300"
 :interface "USB"
-:status :untested
-:comment "Should be detected but may not work. Please tell me if you own such a device."
+:status :basic
+:comment "Works but may need some fine tuning concerning calibration."
 
 ; -----------------------------------------------------------------------------

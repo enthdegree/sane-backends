@@ -1,4 +1,4 @@
-.TH sane-gt68xx 5 "3 Sep 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-gt68xx 5 "2 Oct 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-gt68xx
 .SH NAME
 sane-gt68xx \- SANE backend for GT-68XX based USB flatbed scanners
@@ -30,6 +30,8 @@ Genius Colorpage Vivid4
 Genius Colorpage Vivid4x
 .br
 Genius Colorpage Vivid4xe
+.br
+Genius Colorpage Vivid 1200 xe
 .br
 Googlegear 2000
 .br
@@ -94,6 +96,8 @@ RevScan 19200i
 Trust Compact Scan USB 19200
 .br
 Trust Flat Scan USB 19200
+.br
+Trust 240TH Easy Webscan Gold
 .RE
 .PP
 More details can be found on the gt68xx backend homepage

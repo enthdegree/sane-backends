@@ -1,8 +1,11 @@
 2004-10-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added several
-	scanners. Removed Genius Vivid 1200 XE (actually supported by
-	gt68xx backend).
+	  scanners. Removed Genius Vivid 1200 XE (actually supported by
+	  gt68xx backend).
+	* backend/gt68xx.c backend/gt68xx.conf backend/gt68xx_devices.c
+	  doc/sane-gt68xx.man doc/descriptions/gt68xx.desc
+	  doc/gt68xx/gt68xx.CHANGES: Updates of supported scanners.
 
 2004-10-01  Oliver Rauch <Oliver.Rauch@Rauch-DOmain.DE>
 

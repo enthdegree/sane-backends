@@ -1,5 +1,12 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0.64 (2004-10-02)
+
+* Added Trust 240TH easy Webscan Gold to list of supported devices.
+* Changed status of Visioneer 7300 to basic.
+* Changed name of Genius 1200 EX to "XE". That seems to be the real name. Fixed
+  firmware name. Changed status to "minimal."
+
 V 1.0.63 (2004-09-03)
 
 * Fixed firmware name for Mustek 1248 UB. Changed status to basic. Removed

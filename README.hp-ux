@@ -3,3 +3,6 @@ the compiler flags when using HP's C compiler (not gcc).  This can be
 done by invoking configure with:
 
 	CC=cc CPPFLAGS=-D_HPUX_SOURCE CFLAGS=-Aa ./configure
+
+HP's make utility may have problems with some of the Makefiles, if it
+complains about missing separators, please try gmake (GNU make).

@@ -88,6 +88,9 @@
  */
 #undef STACK_DIRECTION
 
+/* Define if struct flock is available */
+#undef HAVE_STRUCT_FLOCK
+
 /* Define if you have the ANSI C header files.  */
 #undef STDC_HEADERS
 
@@ -405,5 +408,7 @@
 # define _POSIX_SOURCE
 # define __EXTENSIONS__
 #endif
+
+
 
 #endif /* SANE_CONFIG_H */

@@ -1,3 +1,8 @@
+2005-02-03  Ulrich Sigwanz <usigwanz@freesurf.ch>
+        * backend/niash_xfer.c:
+        * tools/hotplug/libsane.usermap:
+          added ID for Silitek-HP-ScanJet-3400c-Clone
+          
 2005-01-19  Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 
 	* backend/coolscan.c: added initilization of dev->scanning = SANE_FALSE

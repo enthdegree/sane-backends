@@ -39,6 +39,8 @@ STATIC TScannerModel ScannerModels[] = {
   ,
   {"Hewlett-Packard", "ScanJet 4300C", 0x3F0, 0x305, eHp4300c}
   ,
+  {"Silitek Corp.", "HP ScanJet 4300c", 0x47b, 0x1002, eHp3400c}
+  ,
   {"Agfa", "Snapscan Touch", 0x6BD, 0x100, eAgfaTouch}
   ,
 /* last entry all zeros */

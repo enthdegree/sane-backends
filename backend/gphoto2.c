@@ -348,8 +348,8 @@ static const SANE_Device *devlist[] = {
 /* 
  * debug_func - called for gphoto2 debugging output (if enabled)
  */
-static void
-debug_func (int level, const char *domain, const char *format,
+static void 
+debug_func (GPLogLevel level, const char *domain, const char *format,
 	    va_list args, void UNUSEDARG * data)
 {
   if (level == GP_LOG_ERROR)
@@ -371,8 +371,6 @@ init_gphoto2 (void)
   GPPortInfo info;
   SANE_Int n, m, port;
   CameraAbilitiesList *al;
-
-  DBG (1, "GPHOTO2 Backend 05/16/01\n");
 
   gp_debug_printf (GP_DEBUG_HIGH, "SANE", "Initializing\n");
 
@@ -603,6 +601,8 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
   CameraAbilitiesList *al;
   size_t len;
   FILE *fp;
+
+  DBG (1, "GPHOTO2 Backend $Id$\n");
 
   DBG_INIT ();
 
@@ -1490,8 +1490,17 @@ snap_pic (void)
 
   /* Can't just increment picture count, because if the camera has
    * zero pictures we may not know the folder name.  Start over
-   * with get_info and get_pictures_info
+   * with get_info and get_pictures_info.  (We didn't have the call
+   * to init_gphoto2() here before, but that was causing us to not 
+   * see the new image - need to use a biggger hammer to get it to
+   * re-read the camera directory 
    */
+DBG(0, "PSF - old pic count is %d, about to get_info\n",Cam_data.pic_taken);
+  if (init_gphoto2 () != SANE_STATUS_GOOD)
+    {
+      return SANE_STATUS_INVAL;
+    }
+
   if (get_info () != SANE_STATUS_GOOD)
     {
       DBG (1, "error: could not get info\n");
@@ -1499,6 +1508,7 @@ snap_pic (void)
       return SANE_STATUS_INVAL;
     }
 
+DBG(0, "PSF - new pic count is %d, about to get_pictures_info\n",Cam_data.pic_taken);
   if (get_pictures_info () == NULL)
     {
       DBG (1, "%s: Failed to get new picture info\n", f);
@@ -1506,6 +1516,7 @@ snap_pic (void)
       return SANE_STATUS_INVAL;
     }
 
+DBG(0, "PSF - new pic count is %d, completed get_pictures_info\n",Cam_data.pic_taken);
 
   sod[GPHOTO2_OPT_IMAGE_NUMBER].cap |= SANE_CAP_INACTIVE;
   Cam_data.current_picture_number = Cam_data.pic_taken;

@@ -7,6 +7,8 @@
 PACKAGE="@PACKAGE@"
 scriptname="sane-config"
 
+LINKER_RPATH="@LINKER_RPATH@"
+
 prefix="@prefix@"
 exec_prefix="@exec_prefix@"
 
@@ -79,7 +81,11 @@ if test $# -gt 0; then
       exit 1
       ;;
     --ldflags)
-      echo "-L${libdir}"
+
+      if test -z "$linker_rpath"; then
+        echo "-L${libdir}"
+      else
+        echo "-L${libdir} ${linker_rpath}${libdir}"
       ;;
     --libs)
       echo "-lsane ${LIBS}"

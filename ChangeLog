@@ -1,3 +1,8 @@
+2004-10-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* acinclude.m4 config.guess config.sub configure ltmain.sh: Update
+	  to libtool 1.5.10.
+
 2004-10-11  Oliver Schirrmeister (oschirr@abm.de)
 
         * backend/fujitsu.c: bugfix: 3091 did not work (15.12.2003)

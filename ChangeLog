@@ -5,6 +5,8 @@
 	* sanei/sanei_scsi.c: Use O_NONBLOCK when opening an sg device under
 	  Linux. Return SANE_STATUS_DEVICE_BUSY if EBUSY. Check for buffer==0
 	  for OS/2.
+	* doc/sane-scsi.man: Added more information about NCR/Symbios 810 and
+	  Tekram DC315 controllers under Linux.
 
 2002-04-12  Frank Zago <fzago@greshamstorage.com>
 

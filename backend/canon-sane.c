@@ -198,7 +198,7 @@ sane_close (SANE_Handle handle)
     {
       if (s->fd == -1)
 	{
-	  sanei_scsi_open (s->hw->sane.name, &s->fd, sense_handler, s);
+	  sanei_scsi_open (s->hw->sane.name, &s->fd, sense_handler, 0);
 	}
       status = medium_position (s->fd);
       if (status != SANE_STATUS_GOOD)
@@ -335,7 +335,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	  memset (gbuf, 0, sizeof (gbuf));
 	  buf_size = 256;
-	  sanei_scsi_open (s->hw->sane.name, &s->fd, sense_handler, s);
+	  sanei_scsi_open (s->hw->sane.name, &s->fd, sense_handler, 0);
 	  transfer_data_type = 0x03;
 
 	  DBG (21, "sending GET_DENSITY_CURVE\n");
@@ -669,7 +669,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    }
 	  s->opt[OPT_TPU_PN].cap ^= SANE_CAP_INACTIVE;
 	  s->opt[OPT_TPU_DCM].cap ^= SANE_CAP_INACTIVE;
-	  *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+          if (info)
+     	  *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
 	  return SANE_STATUS_GOOD;
 
 	case OPT_TPU_DCM:
@@ -693,6 +694,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    }
 	  else
 	    s->hw->tpu.ControlMode = 0;
+          if (info)
 	  *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
 	  return SANE_STATUS_GOOD;
 
@@ -869,7 +871,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	  /* modification for FB620S */
 	case OPT_CALIBRATION_NOW:
-	  sanei_scsi_open (s->hw->sane.name, &s->fd, sense_handler, s);
+	  sanei_scsi_open (s->hw->sane.name, &s->fd, sense_handler, 0);
 	  if (status == SANE_STATUS_GOOD)
 	    {
 
@@ -893,7 +895,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  return status;
 
 	case OPT_SCANNER_SELF_DIAGNOSTIC:
-	  sanei_scsi_open (s->hw->sane.name, &s->fd, sense_handler, s);
+	  sanei_scsi_open (s->hw->sane.name, &s->fd, sense_handler, 0);
 	  if (status == SANE_STATUS_GOOD)
 	    {
 	      status = send_diagnostic (s->fd);
@@ -919,7 +921,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  return status;
 
 	case OPT_RESET_SCANNER:
-	  sanei_scsi_open (s->hw->sane.name, &s->fd, sense_handler, s);
+	  sanei_scsi_open (s->hw->sane.name, &s->fd, sense_handler, 0);
 	  if (status == SANE_STATUS_GOOD)
 	    {
 	      time (&(s->time1));
@@ -972,7 +974,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  return status;
 
 	case OPT_EJECT_NOW:
-	  sanei_scsi_open (s->hw->sane.name, &s->fd, sense_handler, s);
+	  sanei_scsi_open (s->hw->sane.name, &s->fd, sense_handler, 0);
 	  status = medium_position (s->fd);
 	  if (status != SANE_STATUS_GOOD)
 	    {
@@ -1230,7 +1232,7 @@ sane_start (SANE_Handle handle)
   if (status != SANE_STATUS_GOOD)
     return status;
 
-  status = sanei_scsi_open (s->hw->sane.name, &s->fd, sense_handler, s);
+  status = sanei_scsi_open (s->hw->sane.name, &s->fd, sense_handler, 0);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (1, "open of %s failed: %s\n",

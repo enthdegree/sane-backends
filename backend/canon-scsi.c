@@ -310,6 +310,25 @@ execute_auto_focus (int fd, int mode, int speed, int AE, int count)
 }
 
 static SANE_Status
+execute_auto_focus_FS2710 (int fd, int mode, int AE, int count)
+{
+  static u_char cmd[10];
+  int status;
+  DBG (7, ">> execute auto focus 2710\n");
+  DBG (7, ">> focus: mode='%d', count='%d'\n", mode, count);
+
+  memset (cmd, 0, sizeof (cmd));
+  cmd[0] = 0xe0;
+  cmd[1] = mode;
+  cmd[2] =  AE;
+  cmd[4] = (char) (28 * ((int) (count/28.5)) - 12);
+  status = sanei_scsi_cmd2 (fd, cmd, sizeof (cmd), NULL, 0, NULL, NULL);
+
+  DBG (7, "<< execute auto focus2710\n");
+  return (status);
+}
+
+static SANE_Status
 set_adf_mode (int fd, u_char priority)
 {
   static u_char cmd[6];

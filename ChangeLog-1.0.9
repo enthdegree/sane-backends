@@ -1,5 +1,13 @@
 ******  Release of sane-backends 1.0.9. End of code freeze ******
 
+2002-11-13  Ulrich Deiters <ukd@xenon.pc.uni-koeln.de>
+
+	* modified the Canon SCSI backend (now version 1.10):
+	* backend/canon.c, canon-scsi.c: Added support of focus control for
+	  the FS2710 film scanner.
+	  backend/canon-sane.c: Set handler_arg in sanei_scsi_open() calls
+	  to zero to avoid crashes with Mandrake Linux 9.0
+
 2002-10-23  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions-external/gt68xx.conf: Updated status of scanners.

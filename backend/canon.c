@@ -8,6 +8,8 @@
    (Canon refused to make the FS2710 documentation available,
    hence not all features are supported.)
 
+   backend version: 1.10
+
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or

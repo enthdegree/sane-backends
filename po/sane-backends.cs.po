@@ -4,71 +4,72 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends.cs\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2003-10-05 13:26+0200\n"
+"POT-Creation-Date: 2004-04-04 15:13+0200\n"
 "PO-Revision-Date: 2003-06-10 08:45GMT\n"
 "Last-Translator: Josef  <joeprusa@volny.cz>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Report-Msgid-Bugs-To: \n"
 "X-Generator: KBabel 0.9.5\n"
 
-#: .tmp/artec_eplus48u.c:153 .tmp/gt68xx.c:118 .tmp/hp-option.c:2874
+#: .tmp/artec_eplus48u.c:155 .tmp/gt68xx.c:119 .tmp/hp-option.c:2923
 #: .tmp/ma1509.c:101 .tmp/mustek.c:125 .tmp/mustek.c:130 .tmp/mustek_usb.c:270
-#: .tmp/sceptre.h:289 .tmp/snapscan.c:160 .tmp/umax.c:190 .tmp/umax_pp.c:133
+#: .tmp/sceptre.h:289 .tmp/snapscan-options.c:78 .tmp/umax.c:186
+#: .tmp/umax_pp.c:133
 msgid "Lineart"
 msgstr "Perokresba"
 
-#: .tmp/artec_eplus48u.c:154 .tmp/hp-option.c:2876 .tmp/leo.h:261
-#: .tmp/teco1.h:291 .tmp/teco2.h:349 .tmp/teco3.h:295 .tmp/umax_pp.c:133
+#: .tmp/artec_eplus48u.c:156 .tmp/hp-option.c:2925 .tmp/leo.h:261
+#: .tmp/teco1.h:292 .tmp/teco2.h:351 .tmp/teco3.h:295 .tmp/umax_pp.c:133
 msgid "Grayscale"
 msgstr "Stupně šedé"
 
-#: .tmp/artec_eplus48u.c:155 .tmp/epson.c:473 .tmp/gt68xx.c:116
-#: .tmp/hp-option.c:2877 .tmp/leo.h:262 .tmp/ma1509.c:101 .tmp/mustek.c:126
-#: .tmp/mustek.c:130 .tmp/mustek_usb.c:268 .tmp/plustek.c:209
-#: .tmp/plustek_pp.c:190 .tmp/plustek_pp.c:199 .tmp/sceptre.h:292
-#: .tmp/snapscan.c:157 .tmp/teco1.h:292 .tmp/teco2.h:350 .tmp/teco3.h:296
-#: .tmp/test.c:123 .tmp/umax.c:195 .tmp/umax_pp.c:133
+#: .tmp/artec_eplus48u.c:157 .tmp/epson.c:502 .tmp/gt68xx.c:117
+#: .tmp/hp-option.c:2926 .tmp/leo.h:262 .tmp/ma1509.c:101 .tmp/mustek.c:126
+#: .tmp/mustek.c:130 .tmp/mustek_usb.c:268 .tmp/plustek.c:214
+#: .tmp/plustek_pp.c:192 .tmp/plustek_pp.c:201 .tmp/sceptre.h:292
+#: .tmp/snapscan-options.c:75 .tmp/teco1.h:293 .tmp/teco2.h:352
+#: .tmp/teco3.h:296 .tmp/test.c:122 .tmp/umax.c:191 .tmp/umax_pp.c:133
 msgid "Color"
 msgstr "Barva"
 
-#: .tmp/artec_eplus48u.c:2809 .tmp/gt68xx.c:594 .tmp/leo.c:871
-#: .tmp/ma1509.c:597 .tmp/matsushita.c:1149 .tmp/microtek2.h:602
-#: .tmp/mustek.c:4294 .tmp/mustek_usb.c:353 .tmp/plustek.c:781
-#: .tmp/plustek_pp.c:811 .tmp/sceptre.c:753 .tmp/snapscan-options.c:403
-#: .tmp/teco1.c:1136 .tmp/teco2.c:1786 .tmp/teco3.c:971 .tmp/umax.c:5195
-#: .tmp/umax_pp.c:461
+#: .tmp/artec_eplus48u.c:2806 .tmp/gt68xx.c:607 .tmp/leo.c:871
+#: .tmp/ma1509.c:597 .tmp/matsushita.c:1191 .tmp/microtek2.h:602
+#: .tmp/mustek.c:4383 .tmp/mustek_usb.c:353 .tmp/plustek.c:748
+#: .tmp/plustek_pp.c:797 .tmp/sceptre.c:753 .tmp/snapscan-options.c:488
+#: .tmp/teco1.c:1146 .tmp/teco2.c:1940 .tmp/teco3.c:971 .tmp/umax.c:5214
+#: .tmp/umax_pp.c:519
 msgid "Enhancement"
 msgstr "Vylepšení"
 
-#: .tmp/artec_eplus48u.c:2878 .tmp/pnm.c:276
+#: .tmp/artec_eplus48u.c:2875 .tmp/pnm.c:276
 msgid "Defaults"
 msgstr "Standardní nastavení"
 
-#: .tmp/artec_eplus48u.c:2880
+#: .tmp/artec_eplus48u.c:2877
 msgid "Set default values for enhancement controls."
 msgstr "Nastavit standardní hodnoty prvků pro vylepšení obrázku"
 
-#: .tmp/artec_eplus48u.c:2888 .tmp/epson.c:3123 .tmp/gt68xx.c:650
-#: .tmp/leo.c:823 .tmp/ma1509.c:549 .tmp/matsushita.c:1095
-#: .tmp/microtek2.h:601 .tmp/mustek.c:4246 .tmp/mustek_usb.c:305
-#: .tmp/plustek.c:735 .tmp/plustek_pp.c:765 .tmp/sceptre.c:705
-#: .tmp/snapscan-options.c:336 .tmp/teco1.c:1088 .tmp/teco2.c:1738
-#: .tmp/teco3.c:923 .tmp/test.c:619 .tmp/umax.c:5145 .tmp/umax_pp.c:412
+#: .tmp/artec_eplus48u.c:2885 .tmp/epson.c:3234 .tmp/gt68xx.c:663
+#: .tmp/leo.c:823 .tmp/ma1509.c:549 .tmp/matsushita.c:1137
+#: .tmp/microtek2.h:601 .tmp/mustek.c:4335 .tmp/mustek_usb.c:305
+#: .tmp/plustek.c:702 .tmp/plustek_pp.c:751 .tmp/sceptre.c:705
+#: .tmp/snapscan-options.c:421 .tmp/teco1.c:1098 .tmp/teco2.c:1892
+#: .tmp/teco3.c:923 .tmp/test.c:618 .tmp/umax.c:5164 .tmp/umax_pp.c:470
 msgid "Geometry"
 msgstr "Geometrie"
 
-#: .tmp/artec_eplus48u.c:2936
+#: .tmp/artec_eplus48u.c:2933
 msgid "Calibration"
 msgstr "Kalibrace"
 
-#: .tmp/artec_eplus48u.c:2945
+#: .tmp/artec_eplus48u.c:2942
 msgid "Calibrate before next scan"
 msgstr "Kalibrovat před dalším skenem"
 
-#: .tmp/artec_eplus48u.c:2947
+#: .tmp/artec_eplus48u.c:2944
 msgid ""
 "If enabled, the device will be calibrated before the next scan. Otherwise, "
 "calibration is performed only before the first start."
@@ -76,11 +77,11 @@ msgstr ""
 "Pokud je zvolena tato volba, je skener kalibrován před každým dalším skenem. "
 "Jinak se kalibruje pouze před prvním skenem."
 
-#: .tmp/artec_eplus48u.c:2958
+#: .tmp/artec_eplus48u.c:2955
 msgid "Only perform shading-correction"
 msgstr "Provést pouze korekci stínů"
 
-#: .tmp/artec_eplus48u.c:2960
+#: .tmp/artec_eplus48u.c:2957
 msgid ""
 "If enabled, only the shading correction is performed during calibration. The "
 "default values for gain, offset and exposure time, either build-in or from "
@@ -90,15 +91,15 @@ msgstr ""
 "Pro zisk, odstup a expozici jsou použity standardní hodnoty - buď vestavěné "
 "nebo z konfiguračního souboru."
 
-#: .tmp/artec_eplus48u.c:2971
+#: .tmp/artec_eplus48u.c:2968
 msgid "Button state"
 msgstr "Stav tlačítek"
 
-#: .tmp/avision.h:507
+#: .tmp/avision.h:516
 msgid "Number of the frame to scan"
 msgstr "Číslo políčka pro sken"
 
-#: .tmp/avision.h:508
+#: .tmp/avision.h:517
 msgid "Selects the number of the frame to scan"
 msgstr "Zvolí číslo políčka, které bude naskenováno"
 
@@ -134,374 +135,379 @@ msgstr "Korekce gama"
 msgid "Selects the gamma corrected transfer curve"
 msgstr "Nastaví gama korekci přenosové křivky"
 
-#: .tmp/epson.c:471 .tmp/plustek.c:206 .tmp/plustek_pp.c:187
-#: .tmp/plustek_pp.c:196
+#: .tmp/epson.c:500 .tmp/plustek.c:211 .tmp/plustek_pp.c:189
+#: .tmp/plustek_pp.c:198
 msgid "Binary"
 msgstr "Binární"
 
-#: .tmp/epson.c:472 .tmp/gt68xx.c:117 .tmp/ma1509.c:101 .tmp/mustek.c:125
-#: .tmp/mustek.c:130 .tmp/mustek_usb.c:269 .tmp/plustek.c:207
-#: .tmp/plustek_pp.c:189 .tmp/plustek_pp.c:198 .tmp/sceptre.h:291
-#: .tmp/snapscan.c:159 .tmp/test.c:123 .tmp/umax.c:192
+#: .tmp/epson.c:501 .tmp/gt68xx.c:118 .tmp/ma1509.c:101 .tmp/mustek.c:125
+#: .tmp/mustek.c:130 .tmp/mustek_usb.c:269 .tmp/plustek.c:212
+#: .tmp/plustek_pp.c:191 .tmp/plustek_pp.c:200 .tmp/sceptre.h:291
+#: .tmp/snapscan-options.c:77 .tmp/test.c:122 .tmp/umax.c:188
 msgid "Gray"
 msgstr "Šedá"
 
-#: .tmp/epson.c:479
+#: .tmp/epson.c:507
 #, fuzzy
 msgid "Simplex"
 msgstr "Oboustraně"
 
-#: .tmp/epson.c:480 .tmp/matsushita.h:219
+#: .tmp/epson.c:508 .tmp/matsushita.h:219
 msgid "Duplex"
 msgstr "Oboustraně"
 
-#: .tmp/epson.c:489 .tmp/gt68xx.c:123 .tmp/ma1509.c:106 .tmp/mustek.c:148
-#: .tmp/mustek.c:152 .tmp/mustek.c:156 .tmp/snapscan.c:163 .tmp/umax.c:186
+#: .tmp/epson.c:517 .tmp/gt68xx.c:124 .tmp/ma1509.c:106 .tmp/mustek.c:148
+#: .tmp/mustek.c:152 .tmp/mustek.c:156 .tmp/snapscan-options.c:81
+#: .tmp/umax.c:182
 msgid "Flatbed"
 msgstr "Stolní"
 
-#: .tmp/epson.c:490
+#: .tmp/epson.c:518
 msgid "Transparency Unit"
 msgstr "Prosvětlovací jednotka"
 
-#: .tmp/epson.c:491 .tmp/mustek.c:152 .tmp/umax.c:188
+#: .tmp/epson.c:519 .tmp/mustek.c:152 .tmp/umax.c:184
 msgid "Automatic Document Feeder"
 msgstr "Automatický podavač dokumentů"
 
-#: .tmp/epson.c:511
+#: .tmp/epson.c:539
 msgid "Positive Film"
 msgstr "Pozitivní film"
 
-#: .tmp/epson.c:512
+#: .tmp/epson.c:540
 msgid "Negative Film"
 msgstr "Negativní film"
 
-#: .tmp/epson.c:518
+#: .tmp/epson.c:545
 msgid "Focus on glass"
 msgstr "Zaostření na sklo"
 
-#: .tmp/epson.c:519
+#: .tmp/epson.c:546
 msgid "Focus 2.5mm above glass"
 msgstr "Zaostření 2,5 mm nad sklo"
 
-#: .tmp/epson.c:545 .tmp/epson.c:553 .tmp/epson.c:565 .tmp/epson.c:587
+#: .tmp/epson.c:572 .tmp/epson.c:580 .tmp/epson.c:592 .tmp/epson.c:614
 #: .tmp/leo.c:109 .tmp/matsushita.c:138 .tmp/matsushita.c:159
-#: .tmp/matsushita.c:191 .tmp/matsushita.c:213
+#: .tmp/matsushita.c:191 .tmp/matsushita.c:213 .tmp/snapscan-options.c:86
 msgid "None"
 msgstr "Žádné"
 
-#: .tmp/epson.c:546 .tmp/epson.c:554 .tmp/epson.c:566
+#: .tmp/epson.c:573 .tmp/epson.c:581 .tmp/epson.c:593
 msgid "Halftone A (Hard Tone)"
 msgstr "Polotón A (ostrý)"
 
-#: .tmp/epson.c:547 .tmp/epson.c:555 .tmp/epson.c:567
+#: .tmp/epson.c:574 .tmp/epson.c:582 .tmp/epson.c:594
 msgid "Halftone B (Soft Tone)"
 msgstr "Polotón B (měkký)"
 
-#: .tmp/epson.c:548 .tmp/epson.c:556 .tmp/epson.c:568
+#: .tmp/epson.c:575 .tmp/epson.c:583 .tmp/epson.c:595
 msgid "Halftone C (Net Screen)"
 msgstr "Polotón C (síť - \"Net Screen\")"
 
-#: .tmp/epson.c:557 .tmp/epson.c:569
+#: .tmp/epson.c:584 .tmp/epson.c:596
 msgid "Dither A (4x4 Bayer)"
 msgstr "Rozptyl A (4x4 Bayer)"
 
-#: .tmp/epson.c:558 .tmp/epson.c:570
+#: .tmp/epson.c:585 .tmp/epson.c:597
 msgid "Dither B (4x4 Spiral)"
 msgstr "Rozptyl B (4x4 Spirálový)"
 
-#: .tmp/epson.c:559 .tmp/epson.c:571
+#: .tmp/epson.c:586 .tmp/epson.c:598
 msgid "Dither C (4x4 Net Screen)"
 msgstr "Rozptyl C (4x4 Síťový)"
 
-#: .tmp/epson.c:560 .tmp/epson.c:572
+#: .tmp/epson.c:587 .tmp/epson.c:599
 msgid "Dither D (8x4 Net Screen)"
 msgstr "Rozptyl D (8x4 Síťový)"
 
-#: .tmp/epson.c:573
+#: .tmp/epson.c:600
 msgid "Text Enhanced Technology"
 msgstr "Technika vylepšení textu"
 
-#: .tmp/epson.c:574
+#: .tmp/epson.c:601
 msgid "Download pattern A"
 msgstr "Download vzor A"
 
-#: .tmp/epson.c:575
+#: .tmp/epson.c:602
 msgid "Download pattern B"
 msgstr "Download vzor B"
 
-#: .tmp/epson.c:588 .tmp/epson.c:2928 .tmp/hp-option.c:3040
+#: .tmp/epson.c:615 .tmp/epson.c:3032 .tmp/hp-option.c:3089
 msgid "Red"
 msgstr "Červená"
 
-#: .tmp/epson.c:589 .tmp/epson.c:2924 .tmp/hp-option.c:3041
+#: .tmp/epson.c:616 .tmp/epson.c:3028 .tmp/hp-option.c:3090
 msgid "Green"
 msgstr "Zelená"
 
-#: .tmp/epson.c:590 .tmp/epson.c:2932 .tmp/hp-option.c:3042
+#: .tmp/epson.c:617 .tmp/epson.c:3036 .tmp/hp-option.c:3091
 msgid "Blue"
 msgstr "Modrá"
 
-#: .tmp/epson.c:620
+#: .tmp/epson.c:647
 msgid "No Correction"
 msgstr "Bez korekce"
 
-#: .tmp/epson.c:621 .tmp/epson.c:646
+#: .tmp/epson.c:648 .tmp/epson.c:673
 msgid "User defined"
 msgstr "Uživatelské nastavení"
 
-#: .tmp/epson.c:622
+#: .tmp/epson.c:649
 msgid "Impact-dot printers"
 msgstr "Jehličkové tiskárny"
 
-#: .tmp/epson.c:623
+#: .tmp/epson.c:650
 msgid "Thermal printers"
 msgstr "Teplocitlivé tiskárny"
 
-#: .tmp/epson.c:624
+#: .tmp/epson.c:651
 msgid "Ink-jet printers"
 msgstr "Inkoustové tiskárny"
 
-#: .tmp/epson.c:625
+#: .tmp/epson.c:652
 msgid "CRT monitors"
 msgstr "CRT monitory"
 
-#: .tmp/epson.c:645 .tmp/hp-option.c:3173 .tmp/test.c:139
+#: .tmp/epson.c:672 .tmp/hp-option.c:3222 .tmp/test.c:138
 msgid "Default"
 msgstr "Standard"
 
-#: .tmp/epson.c:647
+#: .tmp/epson.c:674
 msgid "High density printing"
 msgstr "Tisk ve vysoké kvalitě"
 
-#: .tmp/epson.c:648
+#: .tmp/epson.c:675
 msgid "Low density printing"
 msgstr "Tisk v nízké kvalitě"
 
-#: .tmp/epson.c:649
+#: .tmp/epson.c:676
 msgid "High contrast printing"
 msgstr "Tisk s vysokým kontrastem"
 
-#: .tmp/epson.c:668
+#: .tmp/epson.c:694
 msgid "User defined (Gamma=1.0)"
 msgstr "Uživatelsky definováno (Gama=1,0)"
 
-#: .tmp/epson.c:669
+#: .tmp/epson.c:695
 msgid "User defined (Gamma=1.8)"
 msgstr "Uživatelsky definováno (Gama=1,8)"
 
-#: .tmp/epson.c:739
+#: .tmp/epson.c:765
 msgid "CD"
 msgstr "CD"
 
-#: .tmp/epson.c:740
+#: .tmp/epson.c:766
 msgid "A5 portrait"
 msgstr "A5 na výšku"
 
-#: .tmp/epson.c:741
+#: .tmp/epson.c:767
 msgid "A5 landscape"
 msgstr "A5 na šířku"
 
-#: .tmp/epson.c:742
+#: .tmp/epson.c:768
 msgid "Letter"
 msgstr "Letter"
 
-#: .tmp/epson.c:743
+#: .tmp/epson.c:769
 msgid "A4"
 msgstr "A4"
 
-#: .tmp/epson.c:744
-msgid "max"
+#: .tmp/epson.c:770
+#, fuzzy
+msgid "Max"
 msgstr "max"
 
-#: .tmp/epson.c:2655 .tmp/gt68xx.c:432 .tmp/ma1509.c:499
-#: .tmp/matsushita.c:1044 .tmp/microtek2.h:600 .tmp/mustek.c:4109
-#: .tmp/mustek_usb.c:260 .tmp/plustek.c:663 .tmp/plustek_pp.c:676
-#: .tmp/sceptre.c:676 .tmp/snapscan-options.c:189 .tmp/teco2.c:1710
-#: .tmp/test.c:294 .tmp/umax.c:5023
+#: .tmp/epson.c:2749 .tmp/gt68xx.c:433 .tmp/ma1509.c:499
+#: .tmp/matsushita.c:1086 .tmp/microtek2.h:600 .tmp/mustek.c:4198
+#: .tmp/mustek_usb.c:260 .tmp/plustek.c:630 .tmp/plustek_pp.c:662
+#: .tmp/sceptre.c:676 .tmp/snapscan-options.c:260 .tmp/teco2.c:1864
+#: .tmp/test.c:293 .tmp/umax.c:5042
 msgid "Scan Mode"
 msgstr "Režim skenování"
 
-#: .tmp/epson.c:2687
+#: .tmp/epson.c:2781
 msgid "Selects the halftone."
 msgstr "Zvolit polotóny"
 
-#: .tmp/epson.c:2708
+#: .tmp/epson.c:2803
 msgid "Dropout"
 msgstr "Výpadek"
 
-#: .tmp/epson.c:2709
+#: .tmp/epson.c:2804
 msgid "Selects the dropout."
 msgstr "Nastaví výpadek."
 
-#: .tmp/epson.c:2721
+#: .tmp/epson.c:2816
 msgid "Selects the brightness."
 msgstr "Nastaví jas."
 
-#: .tmp/epson.c:2735
+#: .tmp/epson.c:2831
 msgid "Sharpness"
 msgstr "Zaostření"
 
-#: .tmp/epson.c:2867
+#: .tmp/epson.c:2967
 msgid "Color correction"
 msgstr "Barevná korekce"
 
-#: .tmp/epson.c:2868
+#: .tmp/epson.c:2970
 msgid "Sets the color correction table for the selected output device."
 msgstr "Nastaví tabulku barevných korekcí pro vybrané výstupní zařízení."
 
-#: .tmp/epson.c:2907
+#: .tmp/epson.c:3011
 msgid "Color correction coefficients"
 msgstr "Koeficienty barevných korekcí"
 
-#: .tmp/epson.c:2908
+#: .tmp/epson.c:3012
 msgid "Matrix multiplication of RGB"
 msgstr "Násobící matice RGB"
 
-#: .tmp/epson.c:2925
+#: .tmp/epson.c:3029
 msgid "Shift green to red"
 msgstr "Posun zelená-červená"
 
-#: .tmp/epson.c:2926
+#: .tmp/epson.c:3030
 msgid "Shift green to blue"
 msgstr "Posun zelená-modrá"
 
-#: .tmp/epson.c:2927
+#: .tmp/epson.c:3031
 msgid "Shift red to green"
 msgstr "Posun červená-zelená"
 
-#: .tmp/epson.c:2929
+#: .tmp/epson.c:3033
 msgid "Shift red to blue"
 msgstr "Posun červená-modrá"
 
-#: .tmp/epson.c:2930
+#: .tmp/epson.c:3034
 msgid "Shift blue to green"
 msgstr "Posun modrá-zelená"
 
-#: .tmp/epson.c:2931
+#: .tmp/epson.c:3035
 msgid "Shift blue to red"
 msgstr "Posun modrá-červená"
 
-#: .tmp/epson.c:2934
+#: .tmp/epson.c:3038
 msgid "Controls green level"
 msgstr "Ovládá úroveň zelené"
 
-#: .tmp/epson.c:2935
+#: .tmp/epson.c:3039
 msgid "Adds to red based on green level"
 msgstr "Přidává červenou v závislosti na úrovni zelené"
 
-#: .tmp/epson.c:2936
+#: .tmp/epson.c:3040
 msgid "Adds to blue based on green level"
 msgstr "Přidává modrou v závislosti na úrovni zelené"
 
-#: .tmp/epson.c:2937
+#: .tmp/epson.c:3041
 msgid "Adds to green based on red level"
 msgstr "Přidává zelenou v závislosti na úrovni červené"
 
-#: .tmp/epson.c:2938
+#: .tmp/epson.c:3042
 msgid "Controls red level"
 msgstr "Ovládá úroveň červené"
 
-#: .tmp/epson.c:2939
+#: .tmp/epson.c:3043
 msgid "Adds to blue based on red level"
 msgstr "Přidává modrou v závislosti na úrovni červené"
 
-#: .tmp/epson.c:2940
+#: .tmp/epson.c:3044
 msgid "Adds to green based on blue level"
 msgstr "Přidává zelenou v závislosti na úrovni modré"
 
-#: .tmp/epson.c:2941
+#: .tmp/epson.c:3045
 msgid "Adds to red based on blue level"
 msgstr "Přidává červenou v závislosti na úrovni modré"
 
-#: .tmp/epson.c:2942
-msgid "Control blue level"
+#: .tmp/epson.c:3046
+#, fuzzy
+msgid "Controls blue level"
 msgstr "Ovládá úroveň modré"
 
-#: .tmp/epson.c:3029 .tmp/snapscan-options.c:625 .tmp/umax.c:5534
+#: .tmp/epson.c:3133 .tmp/snapscan-options.c:711 .tmp/umax.c:5553
 msgid "Advanced"
 msgstr "Pokročilé"
 
-#: .tmp/epson.c:3037
+#: .tmp/epson.c:3141
 msgid "Mirror image"
 msgstr "Zrcadlit obrázek"
 
-#: .tmp/epson.c:3038
+#: .tmp/epson.c:3142
 msgid "Mirror the image."
 msgstr "Zrcadlí obrázek."
 
-#: .tmp/epson.c:3050 .tmp/epson.c:3062
+#: .tmp/epson.c:3168
 msgid "Speed"
 msgstr "Rychlost"
 
-#: .tmp/epson.c:3074
+#: .tmp/epson.c:3181
 msgid "Auto area segmentation"
 msgstr "Automatické rozložení plochy"
 
-#: .tmp/epson.c:3086
+#: .tmp/epson.c:3194
 msgid "Short resolution list"
 msgstr "Zkrácený seznam rozlišení"
 
-#: .tmp/epson.c:3087
+#: .tmp/epson.c:3196
 msgid "Display short resolution list"
 msgstr "Zobrazí zkrácený seznam rozlišení"
 
-#: .tmp/epson.c:3094
+#: .tmp/epson.c:3203
 msgid "Zoom"
 msgstr "Přiblížení"
 
-#: .tmp/epson.c:3095
+#: .tmp/epson.c:3205
 msgid "Defines the zoom factor the scanner will use"
 msgstr "Nastaví faktor přiblížení, který skener použije"
 
-#: .tmp/epson.c:3174
+#: .tmp/epson.c:3285
 msgid "Quick format"
 msgstr "Rychlý formát"
 
-#: .tmp/epson.c:3185
+#: .tmp/epson.c:3296
 msgid "Optional equipment"
 msgstr "Volitelné příslušenství"
 
-#: .tmp/epson.c:3210
+#: .tmp/epson.c:3322
 msgid "Film type"
 msgstr "Typ filmu"
 
-#: .tmp/epson.c:3254
+#: .tmp/epson.c:3367
 msgid "Eject"
 msgstr "Vysunout"
 
-#: .tmp/epson.c:3255
+#: .tmp/epson.c:3368
 msgid "Eject the sheet in the ADF"
 msgstr "Vysunout papír z automatického podavače"
 
-#: .tmp/epson.c:3266
+#: .tmp/epson.c:3380
 msgid "Auto eject"
 msgstr "Automaticky vysunout"
 
-#: .tmp/epson.c:3267
+#: .tmp/epson.c:3381
 msgid "Eject document after scanning"
 msgstr "Vysunout dokument po naskenování"
 
-#: .tmp/epson.c:3279
+#: .tmp/epson.c:3393
 msgid "ADF Mode"
 msgstr ""
 
-#: .tmp/epson.c:3280
+#: .tmp/epson.c:3395
 msgid "Selects the ADF mode (simplex/duplex)"
 msgstr ""
 
-#: .tmp/epson.c:3294
+#: .tmp/epson.c:3409
 msgid "Bay"
 msgstr "Pozice"
 
-#: .tmp/epson.c:3295
-msgid "select bay to scan"
+#: .tmp/epson.c:3410
+#, fuzzy
+msgid "Select bay to scan"
 msgstr "zvolte pozici pro sken"
 
 #: .tmp/epson.h:69
+#, fuzzy
 msgid ""
-"Selectes the gamma correction value from a list of pre-defined devices or "
-"the user defined table, which can be downloaded to the scanner"
+"Selects the gamma correction value from a list of pre-defined devices or the "
+"user defined table, which can be downloaded to the scanner"
 msgstr ""
 "Zvolit gama korekci ze seznamu předdefinovaných zařízení nebo uživatelské "
 "tabulky, kterou lze nahrát do skeneru"
@@ -526,28 +532,28 @@ msgstr ""
 "Po odeslání příkazu ke skenování se s vlastním skenem čeká až na stisk "
 "tlačítka na skeneru."
 
-#: .tmp/gt68xx.c:124 .tmp/ma1509.c:106 .tmp/mustek.c:156 .tmp/snapscan.c:164
-#: .tmp/umax.c:187
+#: .tmp/gt68xx.c:125 .tmp/ma1509.c:106 .tmp/mustek.c:156
+#: .tmp/snapscan-options.c:82 .tmp/umax.c:183
 msgid "Transparency Adapter"
 msgstr "Prosvětlovací adaptér"
 
-#: .tmp/gt68xx.c:473
+#: .tmp/gt68xx.c:474
 msgid "Lamp always on"
 msgstr "Zapnout lampu na stálo"
 
-#: .tmp/gt68xx.c:475
+#: .tmp/gt68xx.c:476
 msgid "Don't turn off the lamp after leaving the frontend."
 msgstr "Po ukončení programu nevypínat lampu."
 
-#: .tmp/gt68xx.c:516
+#: .tmp/gt68xx.c:517
 msgid "Debugging Options"
 msgstr "Volby pro ladění"
 
-#: .tmp/gt68xx.c:525
+#: .tmp/gt68xx.c:528
 msgid "Automatic warmup"
 msgstr "Automaticky zahřát"
 
-#: .tmp/gt68xx.c:527
+#: .tmp/gt68xx.c:530
 msgid ""
 "Warm-up until the lamp's brightness is constant instead of insisting on 30 "
 "seconds warm-up time."
@@ -555,11 +561,11 @@ msgstr ""
 "Zahřát lampu dokud její jas není konstantní namísto standardního 30ti "
 "sekundového zahřívání."
 
-#: .tmp/gt68xx.c:538
+#: .tmp/gt68xx.c:541
 msgid "Full scan"
 msgstr "Plný sken"
 
-#: .tmp/gt68xx.c:540
+#: .tmp/gt68xx.c:543
 msgid ""
 "Scan the complete scanning area including calibration strip. Be carefull. "
 "Don't select the full height. For testing only."
@@ -567,11 +573,11 @@ msgstr ""
 "Naskenovat kompletní skenovací plochu včetně kalibračního proužku. Opatrně! "
 "Nenastavujte plnou výšku! Pouze pro testování!"
 
-#: .tmp/gt68xx.c:549
+#: .tmp/gt68xx.c:554
 msgid "Coarse calibration"
 msgstr "Hrubá kalibrace"
 
-#: .tmp/gt68xx.c:551
+#: .tmp/gt68xx.c:556
 msgid ""
 "Setup gain and offset for scanning automatically. If this option is "
 "disabled, options for setting the analog frontend parameters manually are "
@@ -581,11 +587,11 @@ msgstr ""
 "jsou zobrazeny ovádací prvky pro mauální nastavení. Tato volba je standardně "
 "zapnuta. Pouze pro testování!"
 
-#: .tmp/gt68xx.c:563
+#: .tmp/gt68xx.c:570
 msgid "Coarse calibration for first scan only"
 msgstr "Hrubá kalibrace pouze pro první sken"
 
-#: .tmp/gt68xx.c:565
+#: .tmp/gt68xx.c:572
 msgid ""
 "Coarse calibration is only done for the first scan. Works with most scanners "
 "and can save scanning time. If the image brightness is different with each "
@@ -595,11 +601,11 @@ msgstr ""
 "a může zkrátit čas skenování. Pokud se obrázek s každým dalším skenem mění, "
 "vyřaďte tuto volbu. Pouze pro testování!"
 
-#: .tmp/gt68xx.c:585 .tmp/mustek.c:4238
+#: .tmp/gt68xx.c:596 .tmp/mustek.c:4327
 msgid "Fast preview"
 msgstr "Rychlý náhled"
 
-#: .tmp/gt68xx.c:587 .tmp/mustek.c:4239
+#: .tmp/gt68xx.c:598 .tmp/mustek.c:4328
 msgid ""
 "Request that all previews are done in in the fastest (low-quality) mode. "
 "This may be a non-color mode or a low resolution mode."
@@ -607,19 +613,19 @@ msgstr ""
 "Požaduje, aby se všechny náhledy dělaly v nejrychleším režimu (s nízkou "
 "kvalitou). To může znamenat např. černobílý režim nebo nízké rozlišení."
 
-#: .tmp/gt68xx.c:603
+#: .tmp/gt68xx.c:616
 msgid "Gamma value"
 msgstr "Hodnota gama"
 
-#: .tmp/gt68xx.c:604
+#: .tmp/gt68xx.c:617
 msgid "Sets the gamma value of all channels."
 msgstr "Nastavuje hodnotu gama pro všechny kanály."
 
-#: .tmp/gt68xx.c:626
+#: .tmp/gt68xx.c:639
 msgid "Gain correction"
 msgstr "Nastavení zisku"
 
-#: .tmp/gt68xx.c:628
+#: .tmp/gt68xx.c:641
 msgid ""
 "This value is added to the internal gain value. Use for extremely light or "
 "dark images."
@@ -627,11 +633,11 @@ msgstr ""
 "Tato hodnota je přičtena k interní hodnotě zisku. Používá se v případě "
 "extrémně tmavých nebo světlých obrázků."
 
-#: .tmp/gt68xx.c:639
+#: .tmp/gt68xx.c:652
 msgid "Offset correction"
 msgstr "Korekce odstupu"
 
-#: .tmp/gt68xx.c:641
+#: .tmp/gt68xx.c:654
 msgid ""
 "This value is added to the internal offset value. Use for extremely light or "
 "dark images."
@@ -639,297 +645,297 @@ msgstr ""
 "Tato hodnota je přičtena k interní hodnotě odstupu. Používá se v případě "
 "extrémně tmavých nebo světlých obrázků."
 
-#: .tmp/hp-option.c:2875 .tmp/mustek.c:125 .tmp/plustek_pp.c:188
-#: .tmp/plustek_pp.c:197 .tmp/sceptre.h:290 .tmp/snapscan.c:158
-#: .tmp/umax.c:191
+#: .tmp/hp-option.c:2924 .tmp/mustek.c:125 .tmp/plustek_pp.c:190
+#: .tmp/plustek_pp.c:199 .tmp/sceptre.h:290 .tmp/snapscan-options.c:76
+#: .tmp/umax.c:187
 msgid "Halftone"
 msgstr "Polotóny"
 
-#: .tmp/hp-option.c:2988
+#: .tmp/hp-option.c:3037
 #, fuzzy
 msgid "Coarse"
 msgstr "8x8 hrubý"
 
-#: .tmp/hp-option.c:2989
+#: .tmp/hp-option.c:3038
 #, fuzzy
 msgid "Fine"
 msgstr "Jméno souboru"
 
-#: .tmp/hp-option.c:2990
+#: .tmp/hp-option.c:3039
 #, fuzzy
 msgid "Bayer"
 msgstr "Pozice"
 
-#: .tmp/hp-option.c:2991
+#: .tmp/hp-option.c:3040
 #, fuzzy
 msgid "Vertical"
 msgstr "8x8 vertikála"
 
-#: .tmp/hp-option.c:2992
+#: .tmp/hp-option.c:3041
 msgid "Horizontal"
 msgstr ""
 
-#: .tmp/hp-option.c:2993 .tmp/hp-option.c:3044
+#: .tmp/hp-option.c:3042 .tmp/hp-option.c:3093
 #, fuzzy
 msgid "Custom"
 msgstr "8x8 volitelný"
 
-#: .tmp/hp-option.c:3034 .tmp/hp-option.c:3090 .tmp/hp-option.c:3105
+#: .tmp/hp-option.c:3083 .tmp/hp-option.c:3139 .tmp/hp-option.c:3154
 #, fuzzy
 msgid "Auto"
 msgstr "Automaticky"
 
-#: .tmp/hp-option.c:3035
+#: .tmp/hp-option.c:3084
 msgid "NTSC RGB"
 msgstr ""
 
-#: .tmp/hp-option.c:3036
+#: .tmp/hp-option.c:3085
 msgid "XPA RGB"
 msgstr ""
 
-#: .tmp/hp-option.c:3037
+#: .tmp/hp-option.c:3086
 msgid "Pass-through"
 msgstr ""
 
-#: .tmp/hp-option.c:3038
+#: .tmp/hp-option.c:3087
 #, fuzzy
 msgid "NTSC Gray"
 msgstr "Šedá"
 
-#: .tmp/hp-option.c:3039
+#: .tmp/hp-option.c:3088
 #, fuzzy
 msgid "XPA Gray"
 msgstr "Šedá"
 
-#: .tmp/hp-option.c:3091
+#: .tmp/hp-option.c:3140
 #, fuzzy
 msgid "Slow"
 msgstr "Pomalejší"
 
-#: .tmp/hp-option.c:3092 .tmp/hp-option.c:3199 .tmp/matsushita.c:244
-#: .tmp/mustek.c:141 .tmp/plustek.c:216 .tmp/plustek_pp.c:206
+#: .tmp/hp-option.c:3141 .tmp/hp-option.c:3248 .tmp/matsushita.c:244
+#: .tmp/mustek.c:141 .tmp/plustek.c:221 .tmp/plustek_pp.c:208
 msgid "Normal"
 msgstr "Normální"
 
-#: .tmp/hp-option.c:3093
+#: .tmp/hp-option.c:3142
 #, fuzzy
 msgid "Fast"
 msgstr "Rychlejší"
 
-#: .tmp/hp-option.c:3094
+#: .tmp/hp-option.c:3143
 msgid "Extra Fast"
 msgstr ""
 
-#: .tmp/hp-option.c:3106 .tmp/hp-option.c:3273 .tmp/hp-option.c:3286
+#: .tmp/hp-option.c:3155 .tmp/hp-option.c:3322 .tmp/hp-option.c:3335
 msgid "Off"
 msgstr ""
 
-#: .tmp/hp-option.c:3107
+#: .tmp/hp-option.c:3156
 msgid "2-pixel"
 msgstr ""
 
-#: .tmp/hp-option.c:3108
+#: .tmp/hp-option.c:3157
 msgid "4-pixel"
 msgstr ""
 
-#: .tmp/hp-option.c:3109
+#: .tmp/hp-option.c:3158
 msgid "8-pixel"
 msgstr ""
 
-#: .tmp/hp-option.c:3120
+#: .tmp/hp-option.c:3169
 msgid "Print"
 msgstr ""
 
-#: .tmp/hp-option.c:3121
+#: .tmp/hp-option.c:3170
 #, fuzzy
 msgid "Slide"
 msgstr "Zcela bílá"
 
-#: .tmp/hp-option.c:3122
+#: .tmp/hp-option.c:3171
 #, fuzzy
 msgid "Film-strip"
 msgstr "Typ filmu"
 
-#: .tmp/hp-option.c:3182 .tmp/plustek.c:218 .tmp/plustek_pp.c:208
-#: .tmp/saneopts.h:170
+#: .tmp/hp-option.c:3231 .tmp/plustek.c:223 .tmp/plustek_pp.c:210
+#: .tmp/saneopts.h:176
 msgid "Negative"
 msgstr "Negativ"
 
-#: .tmp/hp-option.c:3200
+#: .tmp/hp-option.c:3249
 msgid "ADF"
 msgstr ""
 
-#: .tmp/hp-option.c:3201
+#: .tmp/hp-option.c:3250
 msgid "XPA"
 msgstr ""
 
-#: .tmp/hp-option.c:3274 .tmp/hp-option.c:3287
+#: .tmp/hp-option.c:3323 .tmp/hp-option.c:3336
 msgid "On"
 msgstr ""
 
-#: .tmp/hp-option.c:3275 .tmp/hp-option.c:3288
+#: .tmp/hp-option.c:3324 .tmp/hp-option.c:3337
 msgid "Conditional"
 msgstr ""
 
-#: .tmp/hp-option.h:57
+#: .tmp/hp-option.h:60
 #, fuzzy
 msgid "Sharpening"
 msgstr "Zaostření"
 
-#: .tmp/hp-option.h:58
+#: .tmp/hp-option.h:61
 msgid "Set sharpening value."
 msgstr ""
 
-#: .tmp/hp-option.h:63
+#: .tmp/hp-option.h:66
 #, fuzzy
 msgid "Auto Threshold"
 msgstr "Automatické nastavení prahových hodnot"
 
-#: .tmp/hp-option.h:65
+#: .tmp/hp-option.h:68
 msgid "Enable automatic determination of threshold for line-art scans."
 msgstr ""
 
-#: .tmp/hp-option.h:70
+#: .tmp/hp-option.h:73
 #, fuzzy
 msgid "Smoothing"
 msgstr "Jemný"
 
-#: .tmp/hp-option.h:71
+#: .tmp/hp-option.h:74
 #, fuzzy
 msgid "Select smoothing filter."
 msgstr "Zvolit polotóny"
 
-#: .tmp/hp-option.h:76
+#: .tmp/hp-option.h:79
 msgid "Unload media after scan"
 msgstr ""
 
-#: .tmp/hp-option.h:77
+#: .tmp/hp-option.h:80
 #, fuzzy
 msgid "Unloads the media after a scan."
 msgstr "Načíst obrázek v úrovních šedé."
 
-#: .tmp/hp-option.h:82
+#: .tmp/hp-option.h:85
 #, fuzzy
 msgid "Change document"
 msgstr "Vylepšení"
 
-#: .tmp/hp-option.h:83
+#: .tmp/hp-option.h:86
 msgid "Change Document."
 msgstr ""
 
-#: .tmp/hp-option.h:88
+#: .tmp/hp-option.h:91
 msgid "Unload"
 msgstr ""
 
-#: .tmp/hp-option.h:89
+#: .tmp/hp-option.h:92
 msgid "Unload Document."
 msgstr ""
 
-#: .tmp/hp-option.h:94
+#: .tmp/hp-option.h:97
 msgid "Calibrate"
 msgstr "Kalibrovat"
 
-#: .tmp/hp-option.h:95
+#: .tmp/hp-option.h:98
 #, fuzzy
 msgid "Start calibration process."
 msgstr "Hrubá kalibrace"
 
-#: .tmp/hp-option.h:100
+#: .tmp/hp-option.h:103
 #, fuzzy
 msgid "Media"
 msgstr "Střední"
 
-#: .tmp/hp-option.h:101
+#: .tmp/hp-option.h:104
 msgid "Set type of media."
 msgstr ""
 
-#: .tmp/hp-option.h:106
+#: .tmp/hp-option.h:109
 #, fuzzy
 msgid "Exposure time"
 msgstr "Nastavit expoziční čas"
 
-#: .tmp/hp-option.h:108
+#: .tmp/hp-option.h:111
 #, c-format
 msgid ""
 "A longer exposure time lets the scanner collect more light. Suggested use is "
-"175% for prints, 150% for normal slides and \"Negatives\" for negative film. "
+"175% for prints, 150% for normal slides and \"Negative\" for negative film. "
 "For dark (underexposed) images you can increase this value."
 msgstr ""
 
-#: .tmp/hp-option.h:116 .tmp/hp-option.h:123
+#: .tmp/hp-option.h:119 .tmp/hp-option.h:126
 #, fuzzy
 msgid "Color Matrix"
 msgstr "Barevný vzorek"
 
-#: .tmp/hp-option.h:118
+#: .tmp/hp-option.h:121
 #, fuzzy
 msgid "Set the scanners color matrix."
 msgstr "Nastavuje kontrast červeného kanálu"
 
-#: .tmp/hp-option.h:124
+#: .tmp/hp-option.h:127
 msgid "Custom color matrix."
 msgstr ""
 
-#: .tmp/hp-option.h:129
+#: .tmp/hp-option.h:132
 #, fuzzy
 msgid "Mono Color Matrix"
 msgstr "Barevný vzorek"
 
-#: .tmp/hp-option.h:130
+#: .tmp/hp-option.h:133
 msgid "Custom color matrix for grayscale scans."
 msgstr ""
 
-#: .tmp/hp-option.h:135
+#: .tmp/hp-option.h:138
 #, fuzzy
 msgid "Mirror horizontal"
 msgstr "Zrcadlit obrázek"
 
-#: .tmp/hp-option.h:136
+#: .tmp/hp-option.h:139
 #, fuzzy
 msgid "Mirror image horizontally."
 msgstr "Zrcadlit obrázek"
 
-#: .tmp/hp-option.h:141
+#: .tmp/hp-option.h:144
 #, fuzzy
 msgid "Mirror vertical"
 msgstr "Zrcadlit obrázek"
 
-#: .tmp/hp-option.h:142
+#: .tmp/hp-option.h:145
 #, fuzzy
 msgid "Mirror image vertically."
 msgstr "Zrcadlit obrázek"
 
-#: .tmp/hp-option.h:147
+#: .tmp/hp-option.h:150
 #, fuzzy
 msgid "Update options"
 msgstr "Zvláštní volby"
 
-#: .tmp/hp-option.h:148
+#: .tmp/hp-option.h:151
 #, fuzzy
 msgid "Update options."
 msgstr "Testovací volby s pevnou des. čárkou"
 
-#: .tmp/hp-option.h:153
+#: .tmp/hp-option.h:156
 msgid "8 bit output"
 msgstr ""
 
-#: .tmp/hp-option.h:155
+#: .tmp/hp-option.h:158
 msgid "Use bit depth greater eight internally, but output only eight bits."
 msgstr ""
 
-#: .tmp/hp-option.h:161
+#: .tmp/hp-option.h:164
 msgid "Front button wait"
 msgstr ""
 
-#: .tmp/hp-option.h:162
+#: .tmp/hp-option.h:165
 msgid "Wait to scan for front-panel button push."
 msgstr ""
 
-#: .tmp/hp-option.h:169
+#: .tmp/hp-option.h:172
 msgid "Shut off lamp"
 msgstr ""
 
-#: .tmp/hp-option.h:170
+#: .tmp/hp-option.h:173
 #, fuzzy
 msgid "Shut off scanner lamp."
 msgstr "Vypnout lampu skeneru"
@@ -954,11 +960,11 @@ msgstr "8x8 Bayer"
 msgid "8x8 Vertical Line"
 msgstr "8x8 vertikála"
 
-#: .tmp/leo.c:781 .tmp/saneopts.h:134
+#: .tmp/leo.c:781 .tmp/saneopts.h:137
 msgid "Scan mode"
 msgstr "Režim skenu"
 
-#: .tmp/leo.h:260 .tmp/matsushita.h:209 .tmp/teco1.h:290 .tmp/teco2.h:348
+#: .tmp/leo.h:260 .tmp/matsushita.h:209 .tmp/teco1.h:291 .tmp/teco2.h:350
 #: .tmp/teco3.h:294
 msgid "Black & White"
 msgstr "Černobílý"
@@ -1015,7 +1021,7 @@ msgstr "Jemný"
 msgid "Low"
 msgstr "Nízká"
 
-#: .tmp/matsushita.c:215 .tmp/matsushita.c:230 .tmp/matsushita.c:1256
+#: .tmp/matsushita.c:215 .tmp/matsushita.c:230 .tmp/matsushita.c:1298
 msgid "Medium"
 msgstr "Střední"
 
@@ -1035,23 +1041,23 @@ msgstr "Jedna strana"
 msgid "All pages"
 msgstr "Všechny strany"
 
-#: .tmp/matsushita.c:994
+#: .tmp/matsushita.c:1036
 msgid "sheetfed scanner"
 msgstr "skener s podavačem"
 
-#: .tmp/matsushita.c:1086
+#: .tmp/matsushita.c:1128
 msgid "Feeder mode"
 msgstr "Režim podavače"
 
-#: .tmp/matsushita.c:1087
+#: .tmp/matsushita.c:1129
 msgid "Sets the feeding mode"
 msgstr "Nastavuje režim podavače"
 
-#: .tmp/matsushita.c:1184
+#: .tmp/matsushita.c:1226
 msgid "Automatic threshold"
 msgstr "Automatické nastavení prahových hodnot"
 
-#: .tmp/matsushita.c:1187
+#: .tmp/matsushita.c:1229
 msgid ""
 "Automatically sets brightness, contrast, white level, gamma, noise reduction "
 "and image emphasis"
@@ -1059,23 +1065,23 @@ msgstr ""
 "Automaticky nastaví jas, kontrast, úroveň bílé, gama korekci, redukci šumu a "
 "zvýraznění obrázku"
 
-#: .tmp/matsushita.c:1235
+#: .tmp/matsushita.c:1277
 msgid "Noise reduction"
 msgstr "Redukce šumu"
 
-#: .tmp/matsushita.c:1237
+#: .tmp/matsushita.c:1279
 msgid "Reduce the isolated dot noise"
 msgstr "Redukuje izolovaný bodový šum"
 
-#: .tmp/matsushita.c:1248
+#: .tmp/matsushita.c:1290
 msgid "Image emphasis"
 msgstr "Zvýraznění obrázku"
 
-#: .tmp/matsushita.c:1249
+#: .tmp/matsushita.c:1291
 msgid "Sets the image emphasis"
 msgstr "Nastaví zvýraznění obrázku"
 
-#: .tmp/matsushita.c:1260 .tmp/matsushita.c:1261
+#: .tmp/matsushita.c:1302 .tmp/matsushita.c:1303
 msgid "Gamma"
 msgstr "Gama"
 
@@ -1390,87 +1396,109 @@ msgstr "3x3 volitelný"
 msgid "2x2 custom"
 msgstr "2x2 volitelný"
 
-#: .tmp/mustek.c:4141
+#: .tmp/mustek.c:4230
 msgid "Fast gray mode"
 msgstr "Stupně šedé - rychlý režim"
 
-#: .tmp/mustek.c:4142
+#: .tmp/mustek.c:4231
 msgid "Scan in fast gray mode (lower quality)."
 msgstr "Skenuje se ve stupních šedé v rychlé režimu (nižší kvalitě)"
 
-#: .tmp/mustek.c:4316 .tmp/umax_pp.c:569
+#: .tmp/mustek.c:4405 .tmp/umax_pp.c:627
 msgid "Red brightness"
 msgstr "Jas červené"
 
-#: .tmp/mustek.c:4317
+#: .tmp/mustek.c:4406
 msgid "Controls the brightness of the red channel of the acquired image."
 msgstr "Nastavuje jas červeného kanálu naskenovaného obrázku."
 
-#: .tmp/mustek.c:4329 .tmp/umax_pp.c:582
+#: .tmp/mustek.c:4418 .tmp/umax_pp.c:640
 msgid "Green brightness"
 msgstr "Jas zelené"
 
-#: .tmp/mustek.c:4330
+#: .tmp/mustek.c:4419
 msgid "Controls the brightness of the green channel of the acquired image."
 msgstr "Nastavuje jas zeleného kanálu naskenovaného obrázku."
 
-#: .tmp/mustek.c:4342 .tmp/umax_pp.c:595
+#: .tmp/mustek.c:4431 .tmp/umax_pp.c:653
 msgid "Blue brightness"
 msgstr "Jas modré"
 
-#: .tmp/mustek.c:4343
+#: .tmp/mustek.c:4432
 msgid "Controls the brightness of the blue channel of the acquired image."
 msgstr "Nastavuje jas modrého kanálu naskenovaného obrázku."
 
-#: .tmp/mustek.c:4368
+#: .tmp/mustek.c:4457
 msgid "Contrast red channel"
 msgstr "Kontrast červeného kanálu"
 
-#: .tmp/mustek.c:4369
+#: .tmp/mustek.c:4458
 msgid "Controls the contrast of the red channel of the acquired image."
 msgstr "Nastavuje kontrast červeného kanálu naskenovaného obrázku."
 
-#: .tmp/mustek.c:4381
+#: .tmp/mustek.c:4470
 msgid "Contrast green channel"
 msgstr "Kontrast zeleného kanálu"
 
-#: .tmp/mustek.c:4382
+#: .tmp/mustek.c:4471
 msgid "Controls the contrast of the green channel of the acquired image."
 msgstr "Nastavuje kontrast zeleného kanálu naskenovaného obrázku."
 
-#: .tmp/mustek.c:4394
+#: .tmp/mustek.c:4483
 msgid "Contrast blue channel"
 msgstr "Kontrast modrého kanálu"
 
-#: .tmp/mustek.c:4395
+#: .tmp/mustek.c:4484
 msgid "Controls the contrast of the blue channel of the acquired image."
 msgstr "Nastavuje kontrast modrého kanálu naskenovaného obrázku."
 
-#: .tmp/plustek.c:208
+#: .tmp/plustek.c:213
 msgid "Gray 14/16"
 msgstr "Šedá 14/16"
 
-#: .tmp/plustek.c:210
+#: .tmp/plustek.c:215
 msgid "Color 42/48"
 msgstr "Barva 42/48"
 
-#: .tmp/plustek.c:217 .tmp/plustek_pp.c:207
+#: .tmp/plustek.c:222 .tmp/plustek_pp.c:209
 msgid "Transparency"
 msgstr "Průsvitná předloha"
 
-#: .tmp/plustek_pp.c:200
+#: .tmp/plustek.c:813
+msgid "Device-Settings"
+msgstr ""
+
+#: .tmp/plustek.c:820
+msgid "Lampswitch"
+msgstr ""
+
+#: .tmp/plustek.c:821
+msgid "Manually switching the lamp(s)."
+msgstr ""
+
+#: .tmp/plustek.c:826
+#, fuzzy
+msgid "Warmup-Time"
+msgstr "Zahřát lampu"
+
+#: .tmp/plustek.c:827
+#, fuzzy
+msgid "Warmup-Time in seconds."
+msgstr "Zahřát lampu"
+
+#: .tmp/plustek_pp.c:202
 msgid "Color36"
 msgstr "Barva 36"
 
-#: .tmp/plustek_pp.c:214
+#: .tmp/plustek_pp.c:216
 msgid "Dithermap 1"
 msgstr "Rozptyl 1"
 
-#: .tmp/plustek_pp.c:215
+#: .tmp/plustek_pp.c:217
 msgid "Dithermap 2"
 msgstr "Rozptyl 2"
 
-#: .tmp/plustek_pp.c:216
+#: .tmp/plustek_pp.c:218
 msgid "Randomize"
 msgstr "Náhodný"
 
@@ -1628,261 +1656,276 @@ msgstr ""
 "Přinutit backend, aby po volání sane_read() vrátil stavový kód "
 "SANE_STATUS_ACCESS_DENIED."
 
-#: .tmp/saneopts.h:130
+#: .tmp/saneopts.h:133
 msgid "Number of options"
 msgstr "Množství voleb"
 
-#: .tmp/saneopts.h:131
+#: .tmp/saneopts.h:134
 msgid "Preview"
 msgstr "Náhled"
 
-#: .tmp/saneopts.h:132
+#: .tmp/saneopts.h:135
 msgid "Force monochrome preview"
 msgstr "Vynutit monochromatický náhled"
 
-#: .tmp/saneopts.h:133
+#: .tmp/saneopts.h:136
 msgid "Bit depth"
 msgstr "Bitová hloubka"
 
-#: .tmp/saneopts.h:135
+#: .tmp/saneopts.h:138
 msgid "Scan speed"
 msgstr "Rychlost skenu"
 
-#: .tmp/saneopts.h:136
+#: .tmp/saneopts.h:139
 msgid "Scan source"
 msgstr "Zdroj"
 
-#: .tmp/saneopts.h:137
+#: .tmp/saneopts.h:140
 msgid "Force backtracking"
 msgstr "Skenovat při zpětném chodu"
 
-#: .tmp/saneopts.h:138
+#: .tmp/saneopts.h:141
 msgid "Top-left x"
 msgstr "Levý horní roh x"
 
-#: .tmp/saneopts.h:139
+#: .tmp/saneopts.h:142
 msgid "Top-left y"
 msgstr "Levý horní roh y"
 
-#: .tmp/saneopts.h:140
+#: .tmp/saneopts.h:143
 msgid "Bottom-right x"
 msgstr "Pravý dolní roh x"
 
-#: .tmp/saneopts.h:141
+#: .tmp/saneopts.h:144
 msgid "Bottom-right y"
 msgstr "Pravý dolní roh y"
 
-#: .tmp/saneopts.h:142
+#: .tmp/saneopts.h:145
 msgid "Scan resolution"
 msgstr "Rozlišení"
 
-#: .tmp/saneopts.h:143
+#: .tmp/saneopts.h:146
 msgid "X-resolution"
 msgstr "Rozlišení X"
 
-#: .tmp/saneopts.h:144
+#: .tmp/saneopts.h:147
 msgid "Y-resolution"
 msgstr "Rozlišení Y"
 
-#: .tmp/saneopts.h:145
+#: .tmp/saneopts.h:148
 msgid "Use custom gamma table"
 msgstr "Použít uživatelskou tabulku gama"
 
-#: .tmp/saneopts.h:146
+#: .tmp/saneopts.h:149
 msgid "Image intensity"
 msgstr "Intenzita obrázku"
 
-#: .tmp/saneopts.h:147
+#: .tmp/saneopts.h:150
 msgid "Red intensity"
 msgstr "Intenzita červené"
 
-#: .tmp/saneopts.h:148
+#: .tmp/saneopts.h:151
 msgid "Green intensity"
 msgstr "Intenzita zelené"
 
-#: .tmp/saneopts.h:149
+#: .tmp/saneopts.h:152
 msgid "Blue intensity"
 msgstr "Intenzita modré"
 
-#: .tmp/saneopts.h:150 .tmp/umax_pp.c:547
+#: .tmp/saneopts.h:153 .tmp/umax_pp.c:605
 msgid "Brightness"
 msgstr "Jas"
 
-#: .tmp/saneopts.h:151
+#: .tmp/saneopts.h:154
 msgid "Contrast"
 msgstr "Kontrast"
 
-#: .tmp/saneopts.h:152
+#: .tmp/saneopts.h:155
 msgid "Grain size"
 msgstr "Rozměr zrna"
 
-#: .tmp/saneopts.h:153
+#: .tmp/saneopts.h:156
 msgid "Halftoning"
 msgstr "Polotóny"
 
-#: .tmp/saneopts.h:154
+#: .tmp/saneopts.h:157
 msgid "Black level"
 msgstr "Úroveň černé"
 
-#: .tmp/saneopts.h:155
+#: .tmp/saneopts.h:158
 msgid "White level"
 msgstr "Úroveň bílé"
 
-#: .tmp/saneopts.h:156
+#: .tmp/saneopts.h:159
+#, fuzzy
+msgid "White level for red"
+msgstr "Úroveň bílé"
+
+#: .tmp/saneopts.h:160
+#, fuzzy
+msgid "White level for green"
+msgstr "Posun modrá-zelená"
+
+#: .tmp/saneopts.h:161
+#, fuzzy
+msgid "White level for blue"
+msgstr "Úroveň bílé"
+
+#: .tmp/saneopts.h:162
 msgid "Shadow"
 msgstr "Stíny"
 
-#: .tmp/saneopts.h:157
+#: .tmp/saneopts.h:163
 msgid "Shadow for red"
 msgstr "Stíny červené"
 
-#: .tmp/saneopts.h:158
+#: .tmp/saneopts.h:164
 msgid "Shadow for green"
 msgstr "Stíny zelené"
 
-#: .tmp/saneopts.h:159
+#: .tmp/saneopts.h:165
 msgid "Shadow for blue"
 msgstr "Stíny modré"
 
-#: .tmp/saneopts.h:160
+#: .tmp/saneopts.h:166
 msgid "Highlight"
 msgstr "Světlé body"
 
-#: .tmp/saneopts.h:161
+#: .tmp/saneopts.h:167
 msgid "Highlight for red"
 msgstr "Světlé body červené"
 
-#: .tmp/saneopts.h:162
+#: .tmp/saneopts.h:168
 msgid "Highlight for green"
 msgstr "Světlé body zelené"
 
-#: .tmp/saneopts.h:163
+#: .tmp/saneopts.h:169
 msgid "Highlight for blue"
 msgstr "Světlé body modré"
 
-#: .tmp/saneopts.h:164
+#: .tmp/saneopts.h:170
 msgid "Hue"
 msgstr "Odstín"
 
-#: .tmp/saneopts.h:165
+#: .tmp/saneopts.h:171
 msgid "Saturation"
 msgstr "Sytost"
 
-#: .tmp/saneopts.h:166
+#: .tmp/saneopts.h:172
 msgid "Filename"
 msgstr "Jméno souboru"
 
-#: .tmp/saneopts.h:167
+#: .tmp/saneopts.h:173
 msgid "Halftone pattern size"
 msgstr "Rozměr vzorku polotónu"
 
-#: .tmp/saneopts.h:168
+#: .tmp/saneopts.h:174
 msgid "Halftone pattern"
 msgstr "Vzorek polotónu"
 
-#: .tmp/saneopts.h:169
+#: .tmp/saneopts.h:175
 msgid "Bind X and Y resolution"
 msgstr "Svázat rozlišení X a Y"
 
-#: .tmp/saneopts.h:171
+#: .tmp/saneopts.h:177
 msgid "Quality calibration"
 msgstr "Kalibrace kvality"
 
-#: .tmp/saneopts.h:172
+#: .tmp/saneopts.h:178
 msgid "Double Optical Resolution"
 msgstr "Dvojnásobné optické rozlišení"
 
-#: .tmp/saneopts.h:173
+#: .tmp/saneopts.h:179
 msgid "Bind RGB"
 msgstr "Svázat RGB"
 
-#: .tmp/saneopts.h:174
+#: .tmp/saneopts.h:180
 msgid "Threshold"
 msgstr "Prahová hodnota"
 
-#: .tmp/saneopts.h:175
+#: .tmp/saneopts.h:181
 msgid "Analog gamma correction"
 msgstr "Analogová korekce gama"
 
-#: .tmp/saneopts.h:176
+#: .tmp/saneopts.h:182
 msgid "Analog gamma red"
 msgstr "Analogová korekce gama pro červenou"
 
-#: .tmp/saneopts.h:177
+#: .tmp/saneopts.h:183
 msgid "Analog gamma green"
 msgstr "Analogová korekce gama pro zelenou"
 
-#: .tmp/saneopts.h:178
+#: .tmp/saneopts.h:184
 msgid "Analog gamma blue"
 msgstr "Analogová korekce gama pro modrou"
 
-#: .tmp/saneopts.h:179
+#: .tmp/saneopts.h:185
 msgid "Bind analog gamma"
 msgstr "Svázat analogovou hodnotu gama"
 
-#: .tmp/saneopts.h:180
+#: .tmp/saneopts.h:186
 msgid "Warmup lamp"
 msgstr "Zahřát lampu"
 
-#: .tmp/saneopts.h:181
+#: .tmp/saneopts.h:187
 msgid "Cal. exposure-time"
 msgstr "Kalibr. expoziční čas"
 
-#: .tmp/saneopts.h:182
+#: .tmp/saneopts.h:188
 msgid "Cal. exposure-time for red"
 msgstr "Kalibr. expoziční čas pro červenou"
 
-#: .tmp/saneopts.h:183
+#: .tmp/saneopts.h:189
 msgid "Cal. exposure-time for green"
 msgstr "Kalibr. expoziční čas pro zelenou"
 
-#: .tmp/saneopts.h:185
+#: .tmp/saneopts.h:191
 msgid "Cal. exposure-time for blue"
 msgstr "Kalibr. expoziční čas pro modrou"
 
-#: .tmp/saneopts.h:186
+#: .tmp/saneopts.h:192
 msgid "Scan exposure-time"
 msgstr "Zjistit expoziční čas"
 
-#: .tmp/saneopts.h:187
+#: .tmp/saneopts.h:193
 msgid "Scan exposure-time for red"
 msgstr "Zjistit expoziční čas pro červenou"
 
-#: .tmp/saneopts.h:188
+#: .tmp/saneopts.h:194
 msgid "Scan exposure-time for green"
 msgstr "Zjistit expoziční čas pro zelenou"
 
-#: .tmp/saneopts.h:190
+#: .tmp/saneopts.h:196
 msgid "Scan exposure-time for blue"
 msgstr "Zjistit expoziční čas pro modrou"
 
-#: .tmp/saneopts.h:191
+#: .tmp/saneopts.h:197
 msgid "Set exposure-time"
 msgstr "Nastavit expoziční čas"
 
-#: .tmp/saneopts.h:192
+#: .tmp/saneopts.h:198
 msgid "Cal. lamp density"
 msgstr "Kalibrovat svítivost (density) lampy"
 
-#: .tmp/saneopts.h:193
+#: .tmp/saneopts.h:199
 msgid "Scan lamp density"
 msgstr "Zjistit svítivost (density) lampy"
 
-#: .tmp/saneopts.h:194
+#: .tmp/saneopts.h:200
 msgid "Set lamp density"
 msgstr "Nastavit svítivost (density) lampy"
 
-#: .tmp/saneopts.h:198
+#: .tmp/saneopts.h:204
 msgid ""
 "Read-only option that specifies how many options a specific devices supports."
 msgstr ""
 "Hodnota pouze pro čtení, která udává, kolik voleb dané zařízení podporuje."
 
-#: .tmp/saneopts.h:202
+#: .tmp/saneopts.h:208
 msgid "Request a preview-quality scan."
 msgstr "Požaduje sken v kvalitě náhledu."
 
-#: .tmp/saneopts.h:205
+#: .tmp/saneopts.h:211
 msgid ""
 "Request that all previews are done in monochrome mode.  On a three-pass "
 "scanner this cuts down the number of passes to one and on a one-pass "
@@ -1892,7 +1935,7 @@ msgstr ""
 "trojprůchodovém skeneru to snižuje počet průchodů na jeden, na "
 "jednoprůchodovém skeneru to snižuje paměťové nároky a čas skenování náhledu."
 
-#: .tmp/saneopts.h:211
+#: .tmp/saneopts.h:217
 msgid ""
 "Number of bits per sample, typical values are 1 for \"line-art\" and 8 for "
 "multibit scans."
@@ -1900,58 +1943,58 @@ msgstr ""
 "Počet bitů na vzorek, typicky je 1 pro \"perokresbu\" a 8 pro vícebitové "
 "skeny."
 
-#: .tmp/saneopts.h:215
+#: .tmp/saneopts.h:221
 #, fuzzy
 msgid "Selects the scan mode (e.g., lineart, monochrome, or color)."
 msgstr "Zvolí režim skenování (tj. perokresba, stupně šedé nebo barva)."
 
-#: .tmp/saneopts.h:218
+#: .tmp/saneopts.h:224
 msgid "Determines the speed at which the scan proceeds."
 msgstr "Určuje, jakou rychlostí se skenuje."
 
-#: .tmp/saneopts.h:221
+#: .tmp/saneopts.h:227
 msgid "Selects the scan source (such as a document-feeder)."
 msgstr "Volí zdroj skenování (např. automatický podavač)."
 
-#: .tmp/saneopts.h:224
+#: .tmp/saneopts.h:230
 msgid "Controls whether backtracking is forced."
 msgstr "Nastavuje, zda je povolen ypětný průchod."
 
-#: .tmp/saneopts.h:227
+#: .tmp/saneopts.h:233
 msgid "Top-left x position of scan area."
 msgstr "Levý horní roh x skenované plochy."
 
-#: .tmp/saneopts.h:230
+#: .tmp/saneopts.h:236
 msgid "Top-left y position of scan area."
 msgstr "Levý horní roh y skenované plochy."
 
-#: .tmp/saneopts.h:233
+#: .tmp/saneopts.h:239
 msgid "Bottom-right x position of scan area."
 msgstr "Pravý dolní roh x skenované plochy."
 
-#: .tmp/saneopts.h:236
+#: .tmp/saneopts.h:242
 msgid "Bottom-right y position of scan area."
 msgstr "Pravý dolní roh y skenované plochy."
 
-#: .tmp/saneopts.h:239
+#: .tmp/saneopts.h:245
 msgid "Sets the resolution of the scanned image."
 msgstr "Nastavuje rozlišení skenovaného obrázku."
 
-#: .tmp/saneopts.h:242
+#: .tmp/saneopts.h:248
 msgid "Sets the horizontal resolution of the scanned image."
 msgstr "Nastavuje horizontální rozlišení skenovaného obrázku."
 
-#: .tmp/saneopts.h:245
+#: .tmp/saneopts.h:251
 msgid "Sets the vertical resolution of the scanned image."
 msgstr "Nastavuje vertikální rozlišení skenovaného obrázku."
 
-#: .tmp/saneopts.h:248
+#: .tmp/saneopts.h:254
 msgid "Determines whether a builtin or a custom gamma-table should be used."
 msgstr ""
 "Volí, zda má být použita vestavěná nebo uživatelem definovaná tabulka gama "
 "korekcí."
 
-#: .tmp/saneopts.h:252
+#: .tmp/saneopts.h:258
 msgid ""
 "Gamma-correction table.  In color mode this option equally affects the red, "
 "green, and blue channels simultaneously (i.e., it is an intensity gamma "
@@ -1960,27 +2003,27 @@ msgstr ""
 "Tabluka gama korekcí.  V barevném režimu ovlivňuje červený, zelený a modrý "
 "kanál současně (tj. jde o tabulku gama korekcí intenzity)."
 
-#: .tmp/saneopts.h:257
+#: .tmp/saneopts.h:263
 msgid "Gamma-correction table for the red band."
 msgstr "Tabulka gama korekcí pro červené pásmo."
 
-#: .tmp/saneopts.h:260
+#: .tmp/saneopts.h:266
 msgid "Gamma-correction table for the green band."
 msgstr "Tabulka gama korekcí pro zelené pásmo."
 
-#: .tmp/saneopts.h:263
+#: .tmp/saneopts.h:269
 msgid "Gamma-correction table for the blue band."
 msgstr "Tabulka gama korekcí pro modré pásmo."
 
-#: .tmp/saneopts.h:266
+#: .tmp/saneopts.h:272
 msgid "Controls the brightness of the acquired image."
 msgstr "Ovládá jas naskenovaného obrázku."
 
-#: .tmp/saneopts.h:269
+#: .tmp/saneopts.h:275
 msgid "Controls the contrast of the acquired image."
 msgstr "Ovládá kontrast naskenovaného obrázku."
 
-#: .tmp/saneopts.h:272
+#: .tmp/saneopts.h:278
 msgid ""
 "Selects the \"graininess\" of the acquired image.  Smaller values result in "
 "sharper images."
@@ -1988,49 +2031,64 @@ msgstr ""
 "Ovládá \"zrnitost\" naskenovaného obrázku. Nižší hodnoty znamenají ostřejší "
 "obrázek."
 
-#: .tmp/saneopts.h:276
+#: .tmp/saneopts.h:282
 msgid "Selects whether the acquired image should be halftoned (dithered)."
 msgstr ""
 "Volí, zda naskenovaný obrázek má být převeden na černobílý pomocí rozptylu."
 
-#: .tmp/saneopts.h:279 .tmp/saneopts.h:285
+#: .tmp/saneopts.h:285 .tmp/saneopts.h:300
 msgid "Selects what radiance level should be considered \"black\"."
 msgstr "Nastavuje, jaká úroveň jasu má být považována za \"černou\"."
 
-#: .tmp/saneopts.h:282 .tmp/saneopts.h:294
+#: .tmp/saneopts.h:288 .tmp/saneopts.h:309
 msgid "Selects what radiance level should be considered \"white\"."
 msgstr "Nastavuje, jaká úroveň jasu má být považována za \"bílou\"."
 
-#: .tmp/saneopts.h:287
+#: .tmp/saneopts.h:291
+#, fuzzy
+msgid "Selects what red radiance level should be considered \"white\"."
+msgstr "Nastavuje, jaká úroveň jasu má být považována za \"bílou\"."
+
+#: .tmp/saneopts.h:294
+#, fuzzy
+msgid "Selects what green radiance level should be considered \"white\"."
+msgstr "Nastavuje, jaká úroveň jasu má být považována za \"bílou\"."
+
+#: .tmp/saneopts.h:297
+#, fuzzy
+msgid "Selects what blue radiance level should be considered \"white\"."
+msgstr "Nastavuje, jaká úroveň jasu má být považována za \"bílou\"."
+
+#: .tmp/saneopts.h:302
 msgid "Selects what red radiance level should be considered \"black\"."
 msgstr "Nastavuje, jaká úroveň červené má být považována za \"černou\"."
 
-#: .tmp/saneopts.h:289
+#: .tmp/saneopts.h:304
 msgid "Selects what green radiance level should be considered \"black\"."
 msgstr "Nastavuje, jaká úroveň zelené má být považována za \"černou\"."
 
-#: .tmp/saneopts.h:291
+#: .tmp/saneopts.h:306
 msgid "Selects what blue radiance level should be considered \"black\"."
 msgstr "Nastavuje, jaká úroveň modré má být považována za \"černou\"."
 
-#: .tmp/saneopts.h:296
+#: .tmp/saneopts.h:311
 msgid "Selects what red radiance level should be considered \"full red\"."
 msgstr ""
 "Nastavuje, jaká úroveň červené má být považována za \"zcela červenou\"."
 
-#: .tmp/saneopts.h:298
+#: .tmp/saneopts.h:313
 msgid "Selects what green radiance level should be considered \"full green\"."
 msgstr "Nastavuje, jaká úroveň zelené má být považována za \"zcela zelenou\"."
 
-#: .tmp/saneopts.h:301
+#: .tmp/saneopts.h:316
 msgid "Selects what blue radiance level should be considered \"full blue\"."
 msgstr "Nastavuje, jaká úroveň modré má být považována za \"zcela modrou\"."
 
-#: .tmp/saneopts.h:305
+#: .tmp/saneopts.h:320
 msgid "Controls the \"hue\" (blue-level) of the acquired image."
 msgstr "Nastavuje \"odstín\" (úroveň modré) naskenovaného obrázku."
 
-#: .tmp/saneopts.h:308
+#: .tmp/saneopts.h:323
 msgid ""
 "The saturation level controls the amount of \"blooming\" that occurs when "
 "acquiring an image with a camera. Larger values cause more blooming."
@@ -2038,11 +2096,11 @@ msgstr ""
 "Úroveň nasycení ovládá úroveň \"sytosti\" barev, obzvláště patrné u "
 "fotografií. Vyšší hodnoty znamenají výraznější barvy."
 
-#: .tmp/saneopts.h:313
+#: .tmp/saneopts.h:328
 msgid "The filename of the image to be loaded."
 msgstr "Jméno souboru obrázku, který bude načten."
 
-#: .tmp/saneopts.h:316
+#: .tmp/saneopts.h:331
 msgid ""
 "Sets the size of the halftoning (dithering) pattern used when scanning "
 "halftoned images."
@@ -2050,141 +2108,137 @@ msgstr ""
 "Nastaví rozměr polotónového (rozptylového) vzoru při skenování polotónových "
 "obrázků. "
 
-#: .tmp/saneopts.h:320
+#: .tmp/saneopts.h:335
 msgid ""
 "Defines the halftoning (dithering) pattern for scanning halftoned images."
 msgstr ""
 "Definuje polotónový (rozptylový) vzor při skenování polotónových obrázků. "
 
-#: .tmp/saneopts.h:324
+#: .tmp/saneopts.h:339
 msgid "Use same values for X and Y resolution"
 msgstr "Použít shodné rozlišení pro osu X a Y"
 
-#: .tmp/saneopts.h:326
+#: .tmp/saneopts.h:341
 msgid "Swap black and white"
 msgstr "Zaměnit černou a bílou"
 
-#: .tmp/saneopts.h:328
+#: .tmp/saneopts.h:343
 msgid "Do a quality white-calibration"
 msgstr "Provést kvalitní kalibraci bílé"
 
-#: .tmp/saneopts.h:330
+#: .tmp/saneopts.h:345
 msgid "Use lens that doubles optical resolution"
 msgstr "Použít dvojité optické rozližení objektivu"
 
-#: .tmp/saneopts.h:332 .tmp/saneopts.h:344
+#: .tmp/saneopts.h:347 .tmp/saneopts.h:359
 msgid "In RGB-mode use same values for each color"
 msgstr "V režimu RGB použít stejné hodnoty pro všechny barvy"
 
-#: .tmp/saneopts.h:334
+#: .tmp/saneopts.h:349
 msgid "Select minimum-brightness to get a white point"
 msgstr "Zvolit minimální jas pro bílý bod"
 
-#: .tmp/saneopts.h:336
+#: .tmp/saneopts.h:351
 msgid "Analog gamma-correction"
 msgstr "Analogová korekce gama"
 
-#: .tmp/saneopts.h:338
+#: .tmp/saneopts.h:353
 msgid "Analog gamma-correction for red"
 msgstr "Analogová korekce gama pro červenou"
 
-#: .tmp/saneopts.h:340
+#: .tmp/saneopts.h:355
 msgid "Analog gamma-correction for green"
 msgstr "Analogová korekce gama pro zelenou"
 
-#: .tmp/saneopts.h:342
+#: .tmp/saneopts.h:357
 msgid "Analog gamma-correction for blue"
 msgstr "Analogová korekce gama pro modrou"
 
-#: .tmp/saneopts.h:346
+#: .tmp/saneopts.h:361
 msgid "Warmup lamp before scanning"
 msgstr "Zahřát lampu před skenováním"
 
-#: .tmp/saneopts.h:348
+#: .tmp/saneopts.h:363
 msgid "Define exposure-time for calibration"
 msgstr "Nastavit expoziční dobu pro kalibraci"
 
-#: .tmp/saneopts.h:350
+#: .tmp/saneopts.h:365
 msgid "Define exposure-time for red calibration"
 msgstr "Nastavit expoziční dobu pro kalibraci červené"
 
-#: .tmp/saneopts.h:352
+#: .tmp/saneopts.h:367
 msgid "Define exposure-time for green calibration"
 msgstr "Nastavit expoziční dobu pro kalibraci zelené"
 
-#: .tmp/saneopts.h:354
+#: .tmp/saneopts.h:369
 msgid "Define exposure-time for blue calibration"
 msgstr "Nastavit expoziční dobu pro kalibraci modré"
 
-#: .tmp/saneopts.h:356
+#: .tmp/saneopts.h:371
 msgid "Define exposure-time for scan"
 msgstr "Nastavit expoziční dobu pro sken"
 
-#: .tmp/saneopts.h:358
+#: .tmp/saneopts.h:373
 msgid "Define exposure-time for red scan"
 msgstr "Nastavit expoziční dobu pro sken červené"
 
-#: .tmp/saneopts.h:360
+#: .tmp/saneopts.h:375
 msgid "Define exposure-time for green scan"
 msgstr "Nastavit expoziční dobu pro sken zelené"
 
-#: .tmp/saneopts.h:362
+#: .tmp/saneopts.h:377
 msgid "Define exposure-time for blue scan"
 msgstr "Nastavit expoziční dobu pro sken modré"
 
-#: .tmp/saneopts.h:364
+#: .tmp/saneopts.h:379
 msgid "Enable selection of exposure-time"
 msgstr "Povolit volbu expozičních časů"
 
-#: .tmp/saneopts.h:366
+#: .tmp/saneopts.h:381
 msgid "Define lamp density for calibration"
 msgstr "Definovat svítivost (density) lampy pro kalibraci"
 
-#: .tmp/saneopts.h:368
+#: .tmp/saneopts.h:383
 msgid "Define lamp density for scan"
 msgstr "Definovat svítivost (density) lampy pro sken"
 
-#: .tmp/saneopts.h:370
+#: .tmp/saneopts.h:385
 msgid "Enable selection of lamp density"
 msgstr "Povolit volbu svítivosti (density) lampy"
 
-#: .tmp/sceptre.c:596 .tmp/teco2.c:1660
+#: .tmp/sceptre.c:596 .tmp/teco2.c:1814
 msgid "flatbed scanner"
 msgstr "Stolní skener"
 
-#: .tmp/snapscan.c:165
+#: .tmp/snapscan-options.c:83
 msgid "Document Feeder"
 msgstr "Podavač dokumentů"
 
-#: .tmp/snapscan.c:168
-msgid "none"
-msgstr "žádný"
-
-#: .tmp/snapscan.c:169
+#: .tmp/snapscan-options.c:87
 msgid "6x4 (inch)"
 msgstr "15 x 10 (cm)"
 
-#: .tmp/snapscan.c:170
+#: .tmp/snapscan-options.c:88
 msgid "8x10 (inch)"
 msgstr "20x24 (cm)"
 
-#: .tmp/snapscan.c:171
+#: .tmp/snapscan-options.c:89
 msgid "8.5x11 (inch)"
 msgstr "22x28 (cm)"
 
-#: .tmp/snapscan.c:174
+#: .tmp/snapscan-options.c:92
 msgid "Halftoning Unsupported"
 msgstr "Polotón není podporován"
 
-#: .tmp/snapscan.c:175
+#: .tmp/snapscan-options.c:93
 msgid "DispersedDot8x8"
 msgstr "Bodový rozptyl 8x8"
 
-#: .tmp/snapscan.c:176
+#: .tmp/snapscan-options.c:94
 msgid "DispersedDot16x16"
 msgstr "Bodový rozptyl 16x16"
 
-#: .tmp/snapscan.c:180
+#: .tmp/snapscan-options.c:98
 msgid ""
 "Number of scan lines to request in a SCSI read. Changing this parameter "
 "allows you to tune the speed at which data is read from the scanner during "
@@ -2198,11 +2252,21 @@ msgstr ""
 "zastavovat, pokud je příliš vysoké, skenovací rozhraní v prostředí X mohou "
 "přestat reagovat a systém může zkolabovat."
 
-#: .tmp/snapscan-options.c:279
+#: .tmp/snapscan-options.c:310
+#, fuzzy
+msgid "High quality"
+msgstr "Světlé body"
+
+#: .tmp/snapscan-options.c:311
+#, fuzzy
+msgid "Scan in (slower) high quality mode"
+msgstr "Skenuje se ve stupních šedé v rychlé režimu (nižší kvalitě)"
+
+#: .tmp/snapscan-options.c:364
 msgid "Preview mode"
 msgstr "Režim náhledu"
 
-#: .tmp/snapscan-options.c:281
+#: .tmp/snapscan-options.c:366
 msgid ""
 "Select the mode for previews. Greyscale previews usually give the best "
 "combination of speed and detail."
@@ -2210,54 +2274,54 @@ msgstr ""
 "Volí režim náhledu. Náhled ve stupních šedé obvykle nabízí nejlepší "
 "kombinaci rychlosti a detailu."
 
-#: .tmp/snapscan-options.c:387
+#: .tmp/snapscan-options.c:472
 msgid "Predefined settings"
 msgstr "Přednastavené hodnoty"
 
-#: .tmp/snapscan-options.c:389
+#: .tmp/snapscan-options.c:474
 msgid ""
 "Provides standard scanning areas for photographs, printed pages and the like."
 msgstr ""
 "Poskytuje standardní skenovací plochu pro fotografie, vytištěné stránky apod."
 
-#: .tmp/snapscan-options.c:632
+#: .tmp/snapscan-options.c:718
 msgid "Colour lines per read"
 msgstr "Počet barevných čar na jedno čtení"
 
-#: .tmp/snapscan-options.c:644
+#: .tmp/snapscan-options.c:730
 msgid "Greyscale lines per read"
 msgstr "Počet čar ve stupních šedi na jedno čtení"
 
-#: .tmp/teco1.c:1145 .tmp/teco1.c:1146 .tmp/teco2.c:1795 .tmp/teco2.c:1796
+#: .tmp/teco1.c:1155 .tmp/teco1.c:1156 .tmp/teco2.c:1949 .tmp/teco2.c:1950
 #: .tmp/teco3.c:980 .tmp/teco3.c:981
 msgid "Dither"
 msgstr "Rozptyl"
 
-#: .tmp/test.c:133
+#: .tmp/test.c:132
 msgid "Solid black"
 msgstr "Zcela černá"
 
-#: .tmp/test.c:133
+#: .tmp/test.c:132
 msgid "Solid white"
 msgstr "Zcela bílá"
 
-#: .tmp/test.c:134
+#: .tmp/test.c:133
 msgid "Color pattern"
 msgstr "Barevný vzorek"
 
-#: .tmp/test.c:134
+#: .tmp/test.c:133
 msgid "Grid"
 msgstr "Mřížka"
 
-#: .tmp/test.c:159 .tmp/test.c:167
+#: .tmp/test.c:158 .tmp/test.c:166
 msgid "First entry"
 msgstr "První položka"
 
-#: .tmp/test.c:159 .tmp/test.c:167
+#: .tmp/test.c:158 .tmp/test.c:166
 msgid "Second entry"
 msgstr "Druhá položka"
 
-#: .tmp/test.c:161
+#: .tmp/test.c:160
 msgid ""
 "This is the very long third entry. Maybe the frontend has an idea how to "
 "display it"
@@ -2265,11 +2329,11 @@ msgstr ""
 "Toto je velice dlouhá třetí položka. Doufejme, že frontend tuší, jak ji "
 "správně zobrazit"
 
-#: .tmp/test.c:336
+#: .tmp/test.c:335
 msgid "Hand-scanner simulation"
 msgstr "Simulace ručního skeneru"
 
-#: .tmp/test.c:337
+#: .tmp/test.c:336
 msgid ""
 "Simulate a hand-scanner.  Hand-scanners do not know the image height a "
 "priori.  Instead, they return a height of -1.  Setting this option allows to "
@@ -2280,32 +2344,32 @@ msgstr ""
 "Proto vracejí výšku 1. Tato volba umožnuje otestovat, jestli se s tím "
 "frontend vyrovná."
 
-#: .tmp/test.c:354
+#: .tmp/test.c:353
 msgid "Three-pass simulation"
 msgstr "Simulace trojitého průchodu"
 
-#: .tmp/test.c:355
+#: .tmp/test.c:354
 msgid ""
 "Simulate a three-pass scanner. In color mode, three frames are transmitted."
 msgstr "Simuluje trojprůchodový skener tak, že vrací 3 oddělené obrázky. "
 
-#: .tmp/test.c:370
+#: .tmp/test.c:369
 msgid "Set the order of frames"
 msgstr "Nastavit pořadí kanálů"
 
-#: .tmp/test.c:371
+#: .tmp/test.c:370
 msgid "Set the order of frames in three-pass color mode."
 msgstr "Nastavit pořadí kanálů v trojprůchodovém barevném režimu."
 
-#: .tmp/test.c:403
+#: .tmp/test.c:402
 msgid "Special Options"
 msgstr "Zvláštní volby"
 
-#: .tmp/test.c:416
+#: .tmp/test.c:415
 msgid "Select the test picture"
 msgstr "Zvolit testovací obrázek"
 
-#: .tmp/test.c:418
+#: .tmp/test.c:417
 msgid ""
 "Select the kind of test picture. Available options:\n"
 "Solid black: fills the whole scan with black.\n"
@@ -2320,11 +2384,11 @@ msgstr ""
 "režimu.\n"
 "Mřížka: vykreslí černobílou mřížku o šířce a výšce 10 mm / čtvereček."
 
-#: .tmp/test.c:439
+#: .tmp/test.c:438
 msgid "Invert endianness"
 msgstr "Převrátit endian (invert endianness)"
 
-#: .tmp/test.c:440
+#: .tmp/test.c:439
 msgid ""
 "Exchange upper and lower byte of image data in 16 bit modes. This option can "
 "be used to test the 16 bit modes of frontends, e.g. if the frontend uses the "
@@ -2334,44 +2398,44 @@ msgstr ""
 "volbu lze použít k testu 16-bitových režimů frontendů, např. zda frontend "
 "používá správný endian."
 
-#: .tmp/test.c:456
+#: .tmp/test.c:455
 msgid "Read limit"
 msgstr "Limit čtení"
 
-#: .tmp/test.c:457
+#: .tmp/test.c:456
 msgid "Limit the amount of data tranferred with each call to sane_read()."
 msgstr "Omezit množství dat, přenášených každým voláním sane_read()."
 
-#: .tmp/test.c:470
+#: .tmp/test.c:469
 msgid "Size of read-limit"
 msgstr "Velikost limitu čtení"
 
-#: .tmp/test.c:471
+#: .tmp/test.c:470
 msgid "The (maximum) amount of data transferred with each call to sane_read()."
 msgstr "Maximální velikost dat, přenášených při kaýždém volání sane_read()."
 
-#: .tmp/test.c:486
+#: .tmp/test.c:485
 msgid "Read delay"
 msgstr "Prodleva čtení"
 
-#: .tmp/test.c:487
+#: .tmp/test.c:486
 msgid "Delay the transfer of data to the pipe."
 msgstr "Prodleva pro přenos dat do roury."
 
-#: .tmp/test.c:499
+#: .tmp/test.c:498
 msgid "Duration of read-delay"
 msgstr "Doba prodlevy čtení"
 
-#: .tmp/test.c:500
+#: .tmp/test.c:499
 msgid ""
 "How long to wait after transferring each buffer of data through the pipe."
 msgstr "Jak dlouho se má čekat po přenesení každé dávky dat rourou."
 
-#: .tmp/test.c:515
+#: .tmp/test.c:514
 msgid "Return-value of sane_read"
 msgstr "Návratová hodnota sane_read"
 
-#: .tmp/test.c:517
+#: .tmp/test.c:516
 msgid ""
 "Select the return-value of sane_read(). \"Default\" is the normal handling "
 "for scanning. All other status codes are for testing how the frontend "
@@ -2381,19 +2445,19 @@ msgstr ""
 "při skenování. Všechny ostatní stavové hodnoty jsou pro testování, jak si s "
 "nimi frontend poradí."
 
-#: .tmp/test.c:534
+#: .tmp/test.c:533
 msgid "Loss of pixels per line"
 msgstr "Ztráta bodů na řádku"
 
-#: .tmp/test.c:536
+#: .tmp/test.c:535
 msgid "The number of pixels that are wasted at the end of each line."
 msgstr "Počet bodů na konci každé řádky, které nejsou využity."
 
-#: .tmp/test.c:549
+#: .tmp/test.c:548
 msgid "Fuzzy parameters"
 msgstr "Nepřesné (fuzzy) parametry"
 
-#: .tmp/test.c:550
+#: .tmp/test.c:549
 msgid ""
 "Return fuzzy lines and bytes per line when sane_parameters() is called "
 "before sane_start()."
@@ -2401,29 +2465,29 @@ msgstr ""
 "Vrátit nepřesné (fuzzy) řádky bajty na řádku, pokud je volána funkce "
 "sane_parameters() před sane_start()"
 
-#: .tmp/test.c:563
+#: .tmp/test.c:562
 msgid "Use non-blocking IO"
 msgstr "Použít neblokující V/V"
 
-#: .tmp/test.c:564
+#: .tmp/test.c:563
 msgid "Use non-blocking IO for sane_read() if supported by the frontend."
 msgstr "Použít neblokující V/V pro sane_read(), pokud to frontend podporuje."
 
-#: .tmp/test.c:577
+#: .tmp/test.c:576
 msgid "Offer select file descriptor"
 msgstr "Nabídnout select file descriptor"
 
-#: .tmp/test.c:578
+#: .tmp/test.c:577
 msgid ""
 "Offer a select filedescriptor for detecting if sane_read() will return data."
 msgstr ""
 "Nabídnout select file descriptor pro detekci, zda sane_read() vrátí data."
 
-#: .tmp/test.c:591
+#: .tmp/test.c:590
 msgid "Enable test options"
 msgstr "Povolit testovací volby"
 
-#: .tmp/test.c:592
+#: .tmp/test.c:591
 msgid ""
 "Enable various test options. This is for testing the ability of frontends to "
 "view and modify all the different SANE option types."
@@ -2431,23 +2495,23 @@ msgstr ""
 "Povoluje různé testovací volby. Je tu pro testování schopností frontendů "
 "zobrazit a změnit všechny možné typy voleb SANE."
 
-#: .tmp/test.c:606
+#: .tmp/test.c:605
 msgid "Print options"
 msgstr "Tisk voleb"
 
-#: .tmp/test.c:607
+#: .tmp/test.c:606
 msgid "Print a list of all options."
 msgstr "Vytisknout seznam všech voleb"
 
-#: .tmp/test.c:684
+#: .tmp/test.c:683
 msgid "Bool test options"
 msgstr "Boolovské (ano/ne) testovací volby"
 
-#: .tmp/test.c:697
+#: .tmp/test.c:696
 msgid "(1/6) Bool soft select soft detect"
 msgstr "(1/6) Boolovská softwarová volba, softwarová detekce"
 
-#: .tmp/test.c:699
+#: .tmp/test.c:698
 msgid ""
 "(1/6) Bool test option that has soft select and soft detect (and advanced) "
 "capabilities. That's just a normal bool option."
@@ -2455,11 +2519,11 @@ msgstr ""
 "(1/6) Boolovská volba, která umožňuje softwarovou volbu a softwarovou "
 "detekci (a pokročilejší). Je to v podstatě normální boolovská volba."
 
-#: .tmp/test.c:715
+#: .tmp/test.c:714
 msgid "(2/6) Bool hard select soft detect"
 msgstr "(2/6) Boolovská s hardwarovým výběrem a softwarovou detekcí"
 
-#: .tmp/test.c:717
+#: .tmp/test.c:716
 msgid ""
 "(2/6) Bool test option that has hard select and soft detect (and advanced) "
 "capabilities. That means the option can't be set by the frontend but by the "
@@ -2469,11 +2533,11 @@ msgstr ""
 "detekci (a pokročilejší). To znamená, že volbu nelze nastavit frontendem ale "
 "je nastavena uživatelem (např. stisknutím tlačítka na zařízení)."
 
-#: .tmp/test.c:734
+#: .tmp/test.c:733
 msgid "(3/6) Bool hard select"
 msgstr "(3/6) Boolovská volba s hardwarovým výběrem"
 
-#: .tmp/test.c:735
+#: .tmp/test.c:734
 msgid ""
 "(3/6) Bool test option that has hard select (and advanced) capabilities. "
 "That means the option can't be set by the frontend but by the user (e.g. by "
@@ -2483,11 +2547,11 @@ msgstr ""
 "výběr. To znamená, že volbu nelze změnit frontendem ale jen uživatelem "
 "(např. stiskem tlačítka na zařízení) a frontend ji nemůže ani načíst."
 
-#: .tmp/test.c:753
+#: .tmp/test.c:752
 msgid "(4/6) Bool soft detect"
 msgstr "(4/6) Boolovská volba se softwarovou detekcí"
 
-#: .tmp/test.c:754
+#: .tmp/test.c:753
 msgid ""
 "(4/6) Bool test option that has soft detect (and advanced) capabilities. "
 "That means the option is read-only."
@@ -2495,11 +2559,11 @@ msgstr ""
 "(4/6) Boolovská testovací volba podporující softwarovou detekci (a "
 "pokročilejší). To znamená, že jde o volbu pouze ke čtení."
 
-#: .tmp/test.c:770
+#: .tmp/test.c:769
 msgid "(5/6) Bool soft select soft detect emulated"
 msgstr "(5/6) Boolovská volba s emulací softwarové volby"
 
-#: .tmp/test.c:771
+#: .tmp/test.c:770
 #, fuzzy
 msgid ""
 "(5/6) Bool test option that has soft select, soft detect, and emulated (and "
@@ -2508,13 +2572,13 @@ msgstr ""
 "(5/6) Boolovská testovací volba, která podporuje softwarovou volbu, detekci "
 "a emulaci (plus pokročilejší). "
 
-#: .tmp/test.c:787
+#: .tmp/test.c:786
 msgid "(6/6) Bool soft select soft detect auto"
 msgstr ""
 "(6/6) Boolovská volba se softwarovou volbou a automatickou softwarovou "
 "detekcí"
 
-#: .tmp/test.c:788
+#: .tmp/test.c:787
 msgid ""
 "(6/6) Bool test option that has soft select, soft detect, and automatic (and "
 "advanced) capabilities. This option can be automatically set by the backend."
@@ -2523,23 +2587,23 @@ msgstr ""
 "softwarovou detekci (a pokročilejší). Tato volba může být automaticky "
 "nastavena backendem."
 
-#: .tmp/test.c:805
+#: .tmp/test.c:804
 msgid "Int test options"
 msgstr "Celočíselné (Int) testovací volby"
 
-#: .tmp/test.c:818
+#: .tmp/test.c:817
 msgid "(1/6) Int"
 msgstr "(1/6) Celočíselná"
 
-#: .tmp/test.c:819
+#: .tmp/test.c:818
 msgid "(1/6) Int test option with no unit and no constraint set."
 msgstr "(1/6) Celočíselná testovací volba bez jednotek a nastavených omezení."
 
-#: .tmp/test.c:834
+#: .tmp/test.c:833
 msgid "(2/6) Int constraint range"
 msgstr "(2/6) Celočíselná volba s omezením rozsahu"
 
-#: .tmp/test.c:835
+#: .tmp/test.c:834
 msgid ""
 "(2/6) Int test option with unit pixel and constraint range set. Minimum is "
 "4, maximum 192, and quant is 2."
@@ -2547,30 +2611,30 @@ msgstr ""
 "(2/6) Celočíselná testovací volba s jednotkou bod a omezením rozsahu. "
 "Minimum is 4, maximum 192, krok je 2."
 
-#: .tmp/test.c:851
+#: .tmp/test.c:850
 msgid "(3/6) Int constraint word list"
 msgstr "(3/6) Celočíselný seznam s omezením"
 
-#: .tmp/test.c:852
+#: .tmp/test.c:851
 #, fuzzy
 msgid "(3/6) Int test option with unit bits and constraint word list set."
 msgstr ""
 "(3/6) Celočíselná testovací volba s jednokou bit a omezením množinou slov. "
 
-#: .tmp/test.c:867
+#: .tmp/test.c:866
 msgid "(4/6) Int array"
 msgstr "(4/6) Celočíselné pole"
 
-#: .tmp/test.c:868
+#: .tmp/test.c:867
 msgid ""
 "(4/6) Int test option with unit mm and using an array without constraints."
 msgstr "(4/6) Celočíselné testovací pole s jednotkou mm a polem bez omezení."
 
-#: .tmp/test.c:883
+#: .tmp/test.c:882
 msgid "(5/6) Int array constraint range"
 msgstr "(5/6) Celočíselné pole s omezením rozsahu"
 
-#: .tmp/test.c:884
+#: .tmp/test.c:883
 #, fuzzy
 msgid ""
 "(5/6) Int test option with unit dpi and using an array with a range "
@@ -2579,11 +2643,11 @@ msgstr ""
 "(5/6) Celočíselné testovací pole s jednotkou mm a omezením rozsahu. Minimum "
 "je 4, maximum 192, krok 2."
 
-#: .tmp/test.c:901
+#: .tmp/test.c:900
 msgid "(6/6) Int array constraint word list"
 msgstr "(6/6) Celočíselné pole s omezením množinou slov"
 
-#: .tmp/test.c:902
+#: .tmp/test.c:901
 #, fuzzy
 msgid ""
 "(6/6) Int test option with unit percent and using an array with a word list "
@@ -2592,23 +2656,23 @@ msgstr ""
 "(6/6) Celočíselné testovací pole s jednotkou procenta a omezením rozsahu "
 "pomocí množiny slov."
 
-#: .tmp/test.c:918
+#: .tmp/test.c:917
 msgid "Fixed test options"
 msgstr "Testovací volby s pevnou des. čárkou"
 
-#: .tmp/test.c:931
+#: .tmp/test.c:930
 msgid "(1/3) Fixed"
 msgstr "(1/3) Číslo s pevnou des. čárkou"
 
-#: .tmp/test.c:932
+#: .tmp/test.c:931
 msgid "(1/3) Fixed test option with no unit and no constraint set."
 msgstr "(1/3) Číslo s pevnou desetinnou čárkou, bez jednotek a bez omezení."
 
-#: .tmp/test.c:947
+#: .tmp/test.c:946
 msgid "(2/3) Fixed constraint range"
 msgstr "(2/3) Číslo s pevnou des. čárkou a omezeným rozsahem"
 
-#: .tmp/test.c:948
+#: .tmp/test.c:947
 msgid ""
 "(2/3) Fixed test option with unit microsecond and constraint range set. "
 "Minimum is -42.17, maximum 32767.9999, and quant is 2.0."
@@ -2616,42 +2680,42 @@ msgstr ""
 "(2/3) Číslo s pevnou des. čárkou, jednotkou mikrosekundy a omezením rozsahu. "
 "Minimum je -42,17, maximum 32767,999, krok 2,0."
 
-#: .tmp/test.c:964
+#: .tmp/test.c:963
 msgid "(3/3) Fixed constraint word list"
 msgstr "(3/3)  Číslo s pevnou desetinnou čárkou s omezením seznamem slov"
 
-#: .tmp/test.c:965
+#: .tmp/test.c:964
 #, fuzzy
 msgid "(3/3) Fixed test option with no unit and constraint word list set."
 msgstr ""
 "(3/3)  Číslo s pevnou desetinnou čárkou bez jednotky a s omezením seznamem "
 "slov"
 
-#: .tmp/test.c:980
+#: .tmp/test.c:979
 msgid "String test options"
 msgstr "Testovací volby řetězcové"
 
-#: .tmp/test.c:993
+#: .tmp/test.c:992
 msgid "(1/3) String"
 msgstr "(1/3) Řetězec"
 
-#: .tmp/test.c:994
+#: .tmp/test.c:993
 msgid "(1/3) String test option without constraint."
 msgstr "(1/3) Řetězcová volba bez omezení."
 
-#: .tmp/test.c:1011
+#: .tmp/test.c:1010
 msgid "(2/3) String constraint string list"
 msgstr "(2/3) Řetězcová volba s omezením seznamem"
 
-#: .tmp/test.c:1012
+#: .tmp/test.c:1011
 msgid "(2/3) String test option with string list constraint."
 msgstr "(2/3) Řetězcová volba s omezením seznamem."
 
-#: .tmp/test.c:1031
+#: .tmp/test.c:1030
 msgid "(3/3) String constraint long string list"
 msgstr "(3/3) Řetězcová volba s omezením dlouhým seznamem"
 
-#: .tmp/test.c:1032
+#: .tmp/test.c:1031
 msgid ""
 "(3/3) String test option with string list constraint. Contains some more "
 "entries..."
@@ -2659,173 +2723,176 @@ msgstr ""
 "(3/3) Řetězcová volba s dlouhými řetězci s omezením seznamem. Obsahuje "
 "poněkud více položek..."
 
-#: .tmp/test.c:1052
+#: .tmp/test.c:1051
 msgid "Button test options"
 msgstr "Testovací volby tlačítkové"
 
-#: .tmp/test.c:1065
+#: .tmp/test.c:1064
 msgid "(1/1) Button"
 msgstr "(1/1) Tlačítko"
 
-#: .tmp/test.c:1066
+#: .tmp/test.c:1065
 msgid "(1/1) Button test option. Prints some text..."
 msgstr "(1/1) Testovací tlačítková volba. Vytiskne nějaký text..."
 
-#: .tmp/umax1220u.c:247 .tmp/umax.c:5781
-msgid "Lamp off"
-msgstr "Vypnout lampu"
-
-#: .tmp/umax1220u.c:248 .tmp/umax.c:5782
-msgid "Turn off scanner lamp"
-msgstr "Vypnout lampu skeneru"
-
-#: .tmp/umax.c:193
+#: .tmp/umax.c:189
 msgid "Color Lineart"
 msgstr "Barevná perokresba"
 
-#: .tmp/umax.c:194
+#: .tmp/umax.c:190
 msgid "Color Halftone"
 msgstr "Barevný polotón"
 
-#: .tmp/umax.c:240
+#: .tmp/umax.c:236
 msgid "Use Image Composition"
 msgstr "Uživatelské nastavení obrázku"
 
-#: .tmp/umax.c:241
+#: .tmp/umax.c:237
 msgid "Bi-level black and white (lineart mode)"
 msgstr "Dvouúrovňová černobílá (perokresba)"
 
-#: .tmp/umax.c:242
+#: .tmp/umax.c:238
 msgid "Dithered/halftone black & white (halftone mode)"
 msgstr "Polotónová černobílá s rozptylem (polotón)"
 
-#: .tmp/umax.c:243
+#: .tmp/umax.c:239
 msgid "Multi-level black & white (grayscale mode)"
 msgstr "Víceúrovňová černobílá (úrovně šedé)"
 
-#: .tmp/umax.c:244
+#: .tmp/umax.c:240
 msgid "Multi-level RGB color (one pass color)"
 msgstr "Víceúrovňová RGB barva (jednoprůchodová barva)"
 
-#: .tmp/umax.c:245
+#: .tmp/umax.c:241
 msgid "Ignore calibration"
 msgstr "Ignorovat kalibraci"
 
-#: .tmp/umax.c:5702
+#: .tmp/umax.c:5721
 msgid "Disable pre focus"
 msgstr "Vyřadit předběžné zaostření"
 
-#: .tmp/umax.c:5703
+#: .tmp/umax.c:5722
 msgid "Do not calibrate focus"
 msgstr "Nekalibrovat zaostření"
 
-#: .tmp/umax.c:5714
+#: .tmp/umax.c:5733
 msgid "Manual pre focus"
 msgstr "Manuální předběžné zaostření"
 
-#: .tmp/umax.c:5726
+#: .tmp/umax.c:5745
 msgid "Fix focus position"
 msgstr "Pozice pevného zaostření"
 
-#: .tmp/umax.c:5738
+#: .tmp/umax.c:5757
 msgid "Lens calibration in doc position"
 msgstr "Kalibrace čočky na pozici dokumentu"
 
-#: .tmp/umax.c:5739
+#: .tmp/umax.c:5758
 msgid "Calibrate lens focus in document position"
 msgstr "Kalibrovat zaostření čočky na pozici dokumentu"
 
-#: .tmp/umax.c:5750
+#: .tmp/umax.c:5769
 msgid "Holder focus position 0mm"
 msgstr "Pozice zaostření podavače 0mm"
 
-#: .tmp/umax.c:5751
+#: .tmp/umax.c:5770
 msgid "Use 0mm holder focus position instead of 0.6mm"
 msgstr "Použít pozici 0mm zaostření podavače místo 0,6mm"
 
-#: .tmp/umax.c:5764 .tmp/umax_pp.c:471
+#: .tmp/umax.c:5783 .tmp/umax_pp.c:529
 msgid "Lamp on"
 msgstr "Zapnout lampu"
 
-#: .tmp/umax.c:5765
+#: .tmp/umax.c:5784
 msgid "Turn on scanner lamp"
 msgstr "Zapnout lampu skeneru"
 
-#: .tmp/umax.c:5798
+#: .tmp/umax.c:5800 .tmp/umax1220u.c:247
+msgid "Lamp off"
+msgstr "Vypnout lampu"
+
+#: .tmp/umax.c:5801 .tmp/umax1220u.c:248
+msgid "Turn off scanner lamp"
+msgstr "Vypnout lampu skeneru"
+
+#: .tmp/umax.c:5817
 msgid "Lamp off at exit"
 msgstr "Vypnout lampu při ukončení"
 
-#: .tmp/umax.c:5799
+#: .tmp/umax.c:5818
 msgid "Turn off lamp when program exits"
 msgstr "Vypnout lampu při ukončení programu"
 
-#: .tmp/umax.c:5854
+#: .tmp/umax.c:5873
 msgid "Calibration mode"
 msgstr "Režim kalibrace"
 
-#: .tmp/umax.c:5855
+#: .tmp/umax.c:5874
 msgid "Define calibration mode"
 msgstr "Definovat režim kalibrace"
 
-#: .tmp/umax_pp.c:472
+#: .tmp/umax_pp.c:530
 msgid "Sets lamp on/off"
 msgstr "Zapíná/vypíná lampu"
 
-#: .tmp/umax_pp.c:481
+#: .tmp/umax_pp.c:539
 msgid "UTA on"
 msgstr "UTA zapnuto"
 
-#: .tmp/umax_pp.c:482
+#: .tmp/umax_pp.c:540
 msgid "Sets UTA on/off"
 msgstr "Zapíná/vypíná UTA"
 
-#: .tmp/umax_pp.c:549
+#: .tmp/umax_pp.c:607
 msgid "Color channels brightness settings"
 msgstr "Nastavení jasu barevných kanálů"
 
-#: .tmp/umax_pp.c:556
+#: .tmp/umax_pp.c:614
 msgid "Gray brightness"
 msgstr "Jas šedé"
 
-#: .tmp/umax_pp.c:558
+#: .tmp/umax_pp.c:616
 msgid "Sets gray channel brightness"
 msgstr "Nastavuje jas šedého kanálu"
 
-#: .tmp/umax_pp.c:571
+#: .tmp/umax_pp.c:629
 msgid "Sets red channel brightness"
 msgstr "Nastavuje jas červeného kanálu"
 
-#: .tmp/umax_pp.c:584
+#: .tmp/umax_pp.c:642
 msgid "Sets green channel brightness"
 msgstr "Nastavuje jas zeleného kanálu"
 
-#: .tmp/umax_pp.c:597
+#: .tmp/umax_pp.c:655
 msgid "Sets blue channel brightness"
 msgstr "Nastavuje jas modrého kanálu"
 
-#: .tmp/umax_pp.c:610
+#: .tmp/umax_pp.c:668
 msgid "Color channels contrast settings"
 msgstr "Nastavení kontrastu barevných kanálů"
 
-#: .tmp/umax_pp.c:617
+#: .tmp/umax_pp.c:675
 msgid "Gray contrast"
 msgstr "Kontrast šedé"
 
-#: .tmp/umax_pp.c:618
+#: .tmp/umax_pp.c:676
 msgid "Sets gray channel contrast"
 msgstr "Nastavuje kontrast šedého kanálu"
 
-#: .tmp/umax_pp.c:630
+#: .tmp/umax_pp.c:688
 msgid "Sets red channel contrast"
 msgstr "Nastavuje kontrast červeného kanálu"
 
-#: .tmp/umax_pp.c:643
+#: .tmp/umax_pp.c:701
 msgid "Sets green channel contrast"
 msgstr "Nastavuje kontrast zeleného kanálu"
 
-#: .tmp/umax_pp.c:655
+#: .tmp/umax_pp.c:713
 msgid "Sets blue channel contrast"
 msgstr "Nastavuje kontrast modrého kanálu"
+
+#~ msgid "none"
+#~ msgstr "žádný"
 
 #~ msgid "cal"
 #~ msgstr "kal"

@@ -13,8 +13,9 @@
 # usb module         match_flags idVendor idProduct bcdDevice_lo bcdDevice_hi bDeviceClass bDeviceSubClass bDeviceProtocol bInterfaceClass bInterfaceSubClass bInterfaceProtocol driver_info
 #
 #
-# The following list already conatins a lot of scanners. If your scanner
-# isn't mentioned there, add it as explained above.
+# The following list already contains a lot of scanners. If your scanner
+# isn't mentioned there, add it as explained above and mail the entry to
+# the sane-devel mailing list.
 
 # Hewlett-Packard|ScanJet 4100C
 libusbscanner             0x0003      0x03f0   0x0101    0x0000       0x0000       0x00         0x00            0x00            0x00            0x00               0x00               0x00000000
@@ -208,6 +209,8 @@ libusbscanner             0x0003      0x04a9   0x2215    0x0000       0x0000    
 libusbscanner             0x0003      0x04a9   0x3042    0x0000       0x0000       0x00         0x00            0x00            0x00            0x00               0x00               0x00000000
 # Nikon|Coolscan LS 40 ED
 libusbscanner             0x0003      0x04b0   0x4000    0x0000       0x0000       0x00         0x00            0x00            0x00            0x00               0x00               0x00000000
+# Nikon|Coolscan LS 5000 ED
+libusbscanner             0x0003      0x04b0   0x4002    0x0000       0x0000       0x00         0x00            0x00            0x00            0x00               0x00               0x00000000
 # Epson Corp.|Perfection 636
 libusbscanner             0x0003      0x04b8   0x0101    0x0000       0x0000       0x00         0x00            0x00            0x00            0x00               0x00               0x00000000
 # Epson Corp.|GT-2200
@@ -254,6 +257,8 @@ libusbscanner             0x0003      0x04b8   0x011f    0x0000       0x0000    
 libusbscanner             0x0003      0x04b8   0x0801    0x0000       0x0000       0x00         0x00            0x00            0x00            0x00               0x00               0x00000000
 # Epson Corp.|Stylus CX3200
 libusbscanner             0x0003      0x04b8   0x0802    0x0000       0x0000       0x00         0x00            0x00            0x00            0x00               0x00               0x00000000
+# EPSON Corp.|Stylus CX5400
+libusbscanner             0x0003      0x04b8   0x0808    0x0000       0x0000       0x00         0x00            0x00            0x00            0x00               0x00               0x00000000
 # Fujitsu|fi-4220c USB/SCSI
 libusbscanner             0x0003      0x04c5   0x1041    0x0000       0x0000       0x00         0x00            0x00            0x00            0x00               0x00               0x00000000
 # Fujitsu|fi-4120c USB/SCSI

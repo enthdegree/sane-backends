@@ -1,6 +1,8 @@
 2004-04-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* NEWS: Added some more updated backends and danish translation.
+	* tools/hotplug/libsane.usermap: Added Epson Stylus CX5400 and
+	  Nikon Coolscan 5000 ED. Minor documentation updates.
 
 2004-04-15  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

@@ -64,7 +64,7 @@ WWW_PATH= /home/httpd/html/sane/
 
 SUBDIRS = $(BACKDIRS) icons figs
 
-DISTFILES = Makefile.in backend-writing.txt html.sty net.tex \
+DISTFILES = Makefile.in backend-writing.txt doxygen-sanei.conf html.sty net.tex \
   releases.txt sane-abaton.man sane-agfafocus.man sane-apple.man \
   sane-artec.man sane-as6e.man sane-avision.man sane-bh.man \
   sane-canon.man sane-coolscan.man sane-dc210.man sane-dc240.man \

@@ -119,28 +119,29 @@ AC_DEFUN([SANE_CHECK_DLL_LIB],
 [
   dnl Checks for dll libraries: dl
   if test "${enable_dynamic}" != "no"; then
-    AC_CHECK_HEADERS(dlfcn.h,
-    [AC_CHECK_LIB(dl,dlopen, DL_LIB=-ldl)
-     saved_LIBS="${LIBS}"
-     LIBS="${LIBS} ${DL_LIB}"
-     AC_CHECK_FUNCS(dlopen, enable_dynamic=yes,)
-     LIBS="${saved_LIBS}"
-    ],)
-
-    # HP/UX DLL handling
-    AC_CHECK_HEADERS(dl.h,
-    [AC_CHECK_LIB(dld,shl_load, DL_LIB=-ldld)
-     saved_LIBS="${LIBS}"
-     LIBS="${LIBS} ${DL_LIB}"
-     AC_CHECK_FUNCS(shl_load, enable_dynamic=yes,)
-     LIBS="${saved_LIBS}"
-    ],)
-  
     #Mac OS X/Darwin
     AC_CHECK_HEADERS(mach-o/dyld.h,
     [AC_CHECK_FUNCS(NSLinkModule, enable_dynamic=yes,)
      DL_LIB=""
-    ],)
+    ],
+    [
+      # dlopen
+      AC_CHECK_HEADERS(dlfcn.h,
+      [AC_CHECK_LIB(dl,dlopen, DL_LIB=-ldl)
+       saved_LIBS="${LIBS}"
+       LIBS="${LIBS} ${DL_LIB}"
+       AC_CHECK_FUNCS(dlopen, enable_dynamic=yes,)
+       LIBS="${saved_LIBS}"
+      ],)
+      # HP/UX DLL handling
+      AC_CHECK_HEADERS(dl.h,
+      [AC_CHECK_LIB(dld,shl_load, DL_LIB=-ldld)
+       saved_LIBS="${LIBS}"
+       LIBS="${LIBS} ${DL_LIB}"
+       AC_CHECK_FUNCS(shl_load, enable_dynamic=yes,)
+       LIBS="${saved_LIBS}"
+      ],)
+    ])
   fi
   AC_SUBST(DL_LIB)
 

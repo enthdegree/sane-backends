@@ -1,3 +1,8 @@
+2003-02-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* aclocal.m4 acinclude.m4 configure configure.in: Check for MacOS X
+	  native dynamic loading first before lookinf for libdl.
+
 2003-02-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* frontend/saned.c sanei/sanei_codec_bin.c sanei/sanei_wire.c: Check

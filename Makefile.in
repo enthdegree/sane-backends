@@ -36,7 +36,8 @@ DISTCLEAN_FILES = @DISTCLEAN_FILES@
 SUBDIRS	= include lib sanei backend frontend doc tools po
 
 DISTFILES = AUTHORS COPYING ChangeLog ChangeLog-1.0.0 ChangeLog-1.0.1 \
-  ChangeLog-1.0.2 ChangeLog-1.0.3 ChangeLog-1.0.4 ChangeLog-1.0.5 LEVEL2 \
+  ChangeLog-1.0.2 ChangeLog-1.0.3 ChangeLog-1.0.4 ChangeLog-1.0.5 \
+  ChangeLog-1.0.6 ChangeLog-1.0.7 ChangeLog-1.0.8 LEVEL2 \
   LICENSE Makefile.in NEWS \
   PROBLEMS PROJECTS README README.aix README.beos README.darwin \
   README.freebsd \

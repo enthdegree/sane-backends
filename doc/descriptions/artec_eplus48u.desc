@@ -41,15 +41,15 @@
 
 :mfg "Memorex"
 :url "http://www.artecusa.com/"
-:status :good
 :model "MEM 48U"
+:status :good
 :interface "USB"
 :comment "Different product id: 0x4005"
 
 :mfg "Microstar"
 :url "http://www.microstar.de/"
-:status :good
 :model "MR 9791"
+:status :good
 :interface "USB"
 
 :mfg "UMAX"

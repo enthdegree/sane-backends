@@ -56,7 +56,7 @@
    *********************************************************************
  */
 
-#include "sane/config.h"
+#include "../include/sane/config.h"
 
 #include <ctype.h>
 #include <limits.h>

@@ -43,7 +43,7 @@
    This backend is for testing frontends.
 */
 
-#define BUILD 26
+#define BUILD 27
 
 #include "../include/sane/config.h"
 
@@ -955,7 +955,7 @@ init_options (Test_Device * test_device)
     od->cap |= SANE_CAP_INACTIVE;
   od->constraint_type = SANE_CONSTRAINT_RANGE;
   od->constraint.range = &fixed_constraint_range;
-  test_device->val[opt_fixed_constraint_range].w = SANE_FIX (42.0);
+  test_device->val[opt_fixed_constraint_range].w = SANE_FIX (41.83);
 
   /* opt_fixed_constraint_word_list */
   od = &test_device->opt[opt_fixed_constraint_word_list];

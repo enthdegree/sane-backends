@@ -1,3 +1,8 @@
+2003-12-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/test.c doc/descriptions/test.desc: Fixed initial value
+	  for --fixed-constraint-range (bug #300388).
+
 2003-12-18  Gerhard Jaeger <gerhard@gjaeger.de>
 	* doc/sane-plustek.man: new version, minor fixes
 	* doc/descriptions/plustek.desc: new backend version

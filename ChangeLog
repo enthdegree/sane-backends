@@ -1,3 +1,8 @@
+2002-09-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/.cvsignore frontend/.cvsignore tools/.cvsignore: Added .libs.
+	  Patch from Sylvain Petreolle <spetreolle@yahoo.fr>.
+
 2002-09-15  Karl Heinz Kremer <khk@khk.net>
 
 	* doc/sane-epson.man: Fixed typo (PIP->PIO)

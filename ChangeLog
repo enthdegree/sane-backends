@@ -1,3 +1,7 @@
+2003-12-22  Gerard Klaver <gerard at gkall dot hobby dot nl>
+
+	* tools/check-usb-chip.c: Added patch for test ICM532B.
+
 2003-12-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/test.c doc/descriptions/test.desc: Fixed initial value

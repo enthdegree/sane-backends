@@ -4,6 +4,8 @@
    Copyright (C) 2003 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2003 Gerhard Jäger <gerhard@gjaeger.de>
                       for LM983x tests
+   Copyright (C) 2003 Gerard Klaver <gerard at gkall dot hobby dot nl>
+                      for ICM532B tests
 
    This file is part of the SANE package.
 
@@ -1334,6 +1336,184 @@ check_gl660_gl646 (struct usb_device *dev)
 }
 
 
+/********** the icm532b section version 0.2 **********/
+/*          no write and read test registers yet     */
+
+static char *
+check_icm532b (struct usb_device *dev)
+{
+  unsigned char val;
+  int result;
+  usb_dev_handle *handle;
+
+  if (verbose > 2)
+    printf ("    checking for ICM532B ...\n");
+
+  /* Check device descriptor */
+  if ((dev->descriptor.bDeviceClass != USB_CLASS_VENDOR_SPEC)
+      || (dev->config[0].interface[0].altsetting[0].bInterfaceClass != 0xff))
+    {
+      if (verbose > 2)
+	printf
+	  ("  check 1, this is not a ICM532B (bDeviceClass = %d, bInterfaceClass = %d)\n",
+	   dev->descriptor.bDeviceClass,
+	   dev->config[0].interface[0].altsetting[0].bInterfaceClass);
+      return 0;
+    }
+  if (dev->descriptor.bcdUSB != 0x110)
+    {
+      if (verbose > 2)
+	printf ("  check 2, this is not a ICM532B (bcdUSB = 0x%x)\n",
+		dev->descriptor.bcdUSB);
+      return 0;
+    }
+  if (dev->descriptor.bDeviceSubClass != 0xff)
+    {
+      if (verbose > 2)
+	printf ("  check 3, this is not a ICM532B (bDeviceSubClass = 0x%x)\n",
+		dev->descriptor.bDeviceSubClass);
+      return 0;
+    }
+  if (dev->descriptor.bDeviceProtocol != 0xff)
+    {
+      if (verbose > 2)
+	printf ("  check 4, this is not a ICM532B (bDeviceProtocol = 0x%x)\n",
+		dev->descriptor.bDeviceProtocol);
+      return 0;
+    }
+
+  /* Check endpoints */
+  if (dev->config[0].interface[0].altsetting[0].bNumEndpoints != 0x01)
+    {
+      if (verbose > 2)
+	printf ("  check 5, this is not a ICM532B (bNumEndpoints = %d)\n",
+		dev->config[0].interface[0].altsetting[0].bNumEndpoints);
+      return 0;
+    }
+  /* Check bEndpointAddress */
+  if (dev->config[0].interface[0].altsetting[0].endpoint[0].
+      bEndpointAddress != 0x81)
+    {
+      if (verbose > 2)
+	printf ("  check 6, this is not a ICM532B (bEndpointAddress = %d)\n",
+		dev->config[0].interface[0].altsetting[0].endpoint[0].bEndpointAddress);
+      return 0;
+    }
+  /* Check bmAttributes */
+  if (dev->config[0].interface[0].altsetting[0].endpoint[0].
+      bmAttributes != 0x01)
+    {
+      if (verbose > 2)
+	printf ("  check , this is not a ICM532B (bEndpointAddress = %d)\n",
+		dev->config[0].interface[0].altsetting[0].endpoint[0].bmAttributes);
+      return 0;
+    }
+  if ((dev->config[0].interface[0].altsetting[0].bAlternateSetting != 0x00)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[0].
+	  wMaxPacketSize != 0x00))
+    {
+      if (verbose > 2)
+	printf
+	  ("  check 8, this is not a ICM532B (bAlternateSetting = 0x%x, wMaxPacketSize = 0x%x)\n",
+	   dev->config[0].interface[0].altsetting[0].bAlternateSetting,
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].
+	   wMaxPacketSize);
+      return 0;
+    }
+
+  if ((dev->config[0].interface[0].altsetting[1].bAlternateSetting != 0x01)
+      || (dev->config[0].interface[0].altsetting[1].endpoint[0].
+	  wMaxPacketSize != 0x100))
+    {
+      if (verbose > 2)
+	printf
+	  ("  check 9, this is not a ICM532B (bAlternatesetting = 0x%x, wMaxPacketSize = 0x%x)\n",
+	   dev->config[0].interface[0].altsetting[1].bAlternateSetting,
+	   dev->config[0].interface[0].altsetting[1].endpoint[0].
+	   wMaxPacketSize);
+      return 0;
+    } 
+  if ((dev->config[0].interface[0].altsetting[2].bAlternateSetting != 0x02)
+      || (dev->config[0].interface[0].altsetting[2].endpoint[0].
+	  wMaxPacketSize != 0x180))
+    {
+      if (verbose > 2)
+	printf
+	  ("  check 10, this is not a ICM532B (bAlternatesetting = 0x%x, wMaxPacketSize = 0x%x)\n",
+	   dev->config[0].interface[0].altsetting[2].bAlternateSetting,
+	   dev->config[0].interface[0].altsetting[2].endpoint[0].
+	   wMaxPacketSize);
+      return 0;
+    } 
+  if ((dev->config[0].interface[0].altsetting[3].bAlternateSetting != 0x03)
+      || (dev->config[0].interface[0].altsetting[3].endpoint[0].
+	  wMaxPacketSize != 0x200))
+    {
+      if (verbose > 2)
+	printf
+	  ("  check 11, this is not a ICM532B (bAlternatesetting = 0x%x, wMaxPacketSize = 0x%x)\n",
+	   dev->config[0].interface[0].altsetting[3].bAlternateSetting,
+	   dev->config[0].interface[0].altsetting[3].endpoint[0].
+	   wMaxPacketSize);
+      return 0;
+    } 
+  if ((dev->config[0].interface[0].altsetting[4].bAlternateSetting != 0x04)
+      || (dev->config[0].interface[0].altsetting[4].endpoint[0].
+	  wMaxPacketSize != 0x280))
+    {
+      if (verbose > 2)
+	printf
+	  ("  check 12, this is not a ICM532B (bAlternatesetting = 0x%x, wMaxPacketSize = 0x%x)\n",
+	   dev->config[0].interface[0].altsetting[4].bAlternateSetting,
+	   dev->config[0].interface[0].altsetting[4].endpoint[0].
+	   wMaxPacketSize);
+      return 0;
+    } 
+  if ((dev->config[0].interface[0].altsetting[5].bAlternateSetting != 0x05)
+      || (dev->config[0].interface[0].altsetting[5].endpoint[0].
+	  wMaxPacketSize != 0x300))
+    {
+      if (verbose > 2)
+	printf
+	  ("  check 13, this is not a ICM532B (bAlternatesetting = 0x%x, wMaxPacketSize = 0x%x)\n",
+	   dev->config[0].interface[0].altsetting[5].bAlternateSetting,
+	   dev->config[0].interface[0].altsetting[5].endpoint[0].
+	   wMaxPacketSize);
+      return 0;
+    } 
+  if ((dev->config[0].interface[0].altsetting[6].bAlternateSetting != 0x06)
+      || (dev->config[0].interface[0].altsetting[6].endpoint[0].
+	  wMaxPacketSize != 0x380))
+    {
+      if (verbose > 2)
+	printf
+	  ("  check 14, this is not a ICM532B (bAlternatesetting = 0x%x, wMaxPacketSize = 0x%x)\n",
+	   dev->config[0].interface[0].altsetting[6].bAlternateSetting,
+	   dev->config[0].interface[0].altsetting[6].endpoint[0].
+	   wMaxPacketSize);
+      return 0;
+    } 
+  if ((dev->config[0].interface[0].altsetting[7].bAlternateSetting != 0x07)
+      || (dev->config[0].interface[0].altsetting[7].endpoint[0].
+	  wMaxPacketSize != 0x3ff))
+    {
+      if (verbose > 2)
+	printf
+	  ("  check 15, this is not a ICM532B (bAlternatesetting = 0x%x, wMaxPacketSize = 0x%x)\n",
+	   dev->config[0].interface[0].altsetting[7].bAlternateSetting,
+	   dev->config[0].interface[0].altsetting[7].endpoint[0].
+	   wMaxPacketSize);
+      return 0;
+    } 
+
+  result = prepare_interface (dev, &handle);
+  if (!result)
+    return "ICM532B?";
+
+  finish_interface (handle);
+  return "ICM532B";
+}
+/* ====================================== end of icm532b ==================*/
 
 char *
 check_usb_chip (struct usb_device *dev, int verbosity)
@@ -1367,6 +1547,9 @@ check_usb_chip (struct usb_device *dev, int verbosity)
 
   if (!chip_name)
     chip_name = check_gl660_gl646 (dev);
+
+  if (!chip_name)
+    chip_name = check_icm532b (dev);
 
   if (verbose > 2)
     {

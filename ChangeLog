@@ -1,5 +1,6 @@
 2001-05-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* tools/Makefile.in tools/.cvsignore: Added mustek600iin-off.
 	* sanei/sanei_codec_ascii.c tools/mustek600iin-off.c
 	  tools/sane-find-scanner.c frontend/stiff.c: Used #include
 	  "../include/sane/...".

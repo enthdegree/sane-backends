@@ -3,7 +3,11 @@
 	* doc/descriptions/unsupported.desc: Added Minolta and Visioneer
 	  scanners. Updated Avision, Medion, and UMAX scanners.
 	* tools/check-usb-chip.c: Added test for Genesys Logig GL660 +
-	  GL646 combination. Added some more messages about what's going on.
+	  GL646 combination. Added some more messages about what's going
+	  on.
+	* TODO: Added frontend linking issue and color management
+	  discussion. Removed sanei_jpeg move and avision patch entries.
+	  Updated global init issue and desc file entry.
 
 2003-07-29  Matthew Duggan <stauff1@users.sourceforge.net>
 

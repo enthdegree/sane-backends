@@ -1,4 +1,4 @@
-TODO (2003-07-25)
+TODO (2003-07-29)
 
 ******** todo ********
 
@@ -20,9 +20,6 @@ backends
      - convert to use sanei_pio functions instead of direct port
        access.
      - The result of locking isn't checked --> does it make sense at all?
-
-  * dc210, dc240, gphoto2, and jpeg stuff: move sanei_* functions to sanei/
-    (if they are necessary). That's probably for SANE2.
 
   * v4l:
      - Geometry support is missing
@@ -60,7 +57,6 @@ backends
     must be either initialized in sane_init or reset in sane_exit.
     At least these backends segfault:
     - microtek
-    - hp5400
 
   * fujitsu: option names shouldn't contain "_"
 
@@ -68,9 +64,6 @@ backends
     http://www.mostang.com/pipermail/sane-devel/2003-June/019332.html
 
   * mustek_pp: Re-enable support for CCD scanners.
-
-  * avision: Add patch for using the --source option from priya
-   <priyag@newgen.co.in> (?)
 
   * Don't mark option names with SANE_I18N (see po/README for details):
     - canon630u.c ("cal")
@@ -85,12 +78,11 @@ doc
   * desc files:
     - Add keywords "vendor-id" and "product-id" for SCSI and USB ids.
     - umax: genius.kye.de times out?
-    - umax, artec_eplus48u: http://www.umax.com.tw/ times out?
     - plustek: add Genius ColorPage HR6X EPP as supported
     - Change all description files to use the new status keyword:
-      avision, canon, canon630u, coolscan2, fujitsu,
-      hp, hp5400, hpsj5s, microtek, microtek2,
-      plustek, sharp, st400, umax1220u.
+      avision, canon, canon630u, epson, fujitsu,
+      hp, hpsj5s, microtek, microtek2,
+      plustek, sharp, umax1220u.
 
   * manpages:
     - html manpages have broken links to other man pages if link is wrapped at
@@ -114,6 +106,8 @@ frontends
   * scanimage: Check range of width and height. scanimage just uses the ranges
     from br-x and br-y but this is wrong for tl-x and tl-y != 0 and for
     SANE_UNIT_PIXEL.
+
+  * check why the frontends are linked against libsanei.
 
 
 sanei
@@ -181,18 +175,19 @@ misc
     for c++ and fortran.
 
   * Check the license of these files, they don't contain the SANE exception:
-      include/sane/sanei.h 		David Mosberger-Tang and Andreas Beck
-      include/sane/sanei_codec_ascii.h  David Mosberger-Tang and Andreas Beck
-      include/sane/sanei_codec_bin.h	David Mosberger-Tang and Andreas Beck 
-      include/sane/saneopts.h		David Mosberger-Tang and Andreas Beck
-   Probably just forgotten to move from GPL to GPL+SANE.
-      include/lalloca.h			The Free Software Foundation			
-      include/lassert.h			Henning Meier-Geinitz, FSF(?)
-      sanei/linux_sg3_err.h		? (somewhere from the linux kernel or sg tools?)		
-   External files. Check for replacements. Are they necessary at all?
+      backend/snapscan-usb.h + .c
+    The GPL only license may void the GPL + exception in snapscan.c.
 
+  * Think about color management, calibration with reference targets and the
+    usage of .icm files. Do we need backend support for that or can it be done
+    in the frontends completely?
+    See:
+    http://www.mostang.com/pipermail/sane-devel/2003-July/019523.html
+    http://www.mostang.com/pipermail/sane-devel/2003-July/019528.html
 
 ******** done ********
+* avision: Add patch for using the --source option from priya
+* dc210, dc240, gphoto2, and jpeg stuff: move sanei_* functions to sanei/
 * scanimage: Check handling of short string-list options.
 * scanimage: Print "inactive" for all inactive option types
 * sanei_scsi: Add FreeBSD fixes:

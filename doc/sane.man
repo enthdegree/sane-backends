@@ -1,4 +1,4 @@
-.TH sane 7 "April 20th, 2002"
+.TH sane 7 "April 22nd, 2002"
 .IX sane
 
 .SH NAME
@@ -164,6 +164,10 @@ parallel port scanners.  See sane-canon_pp(5) for details.
 .B coolscan
 This is a SANE backend for Nikon Coolscan film-scanners. See sane-coolscan(5)
 for details.
+.TP
+.B coolscan2
+This is a SANE backend for Nikon Coolscan film-scanners. There is
+currently no man page. See http://coolscan2.sourceforge.net .
 .TP
 .B epson
 The SANE epson backend provides support for Epson SCSI, parallel port and USB

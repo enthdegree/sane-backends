@@ -37,6 +37,8 @@
 :interface "SCSI"
 :model "M4097"
 :interface "SCSI"
+:model "fi-4220C"
+:interface "SCSI USB"
 :model "fi-4340C"
-:interface "SCSI"
+:interface "SCSI USB"
 

@@ -1,3 +1,9 @@
+2003-02-20  Oliver Schirrmeister <oschirr@abm.de>
+	* patch from <ron@roncemer.com>:
+	  fi4220 support
+	  USB support for scanners which send SCSI commands over usb
+	
+
 2003-02-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions-external/ma1509.desc: Added description of the 

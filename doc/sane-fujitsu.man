@@ -4,13 +4,13 @@
 .IX sane-m3096g
 
 .SH NAME
-sane-fujitsu \- SANE backend for Fujitsu flatbed scanners
+sane-fujitsu \- SANE backend for Fujitsu flatbed and ADF scanners
 
 .SH DESCRIPTION
 The
 .B sane-fujitsu
 library implements a SANE (Scanner Access Now Easy) backend which
-provides access to Fujitsu flatbed scanners.
+provides access to Fujitsu flatbed and ADF scanners.
 At present, the following
 scanners are known to work with this backend:
 .PP
@@ -26,6 +26,8 @@ FUJITSU  M3093GX
 FUJITSU  M3093GD            
 .br
 FUJITSU  M4097
+.br
+FUJITSU  fi-4220C           
 .br
 FUJITSU  fi-4340C           
 .br
@@ -157,6 +159,7 @@ often be alleviated by using "scsi-buf-size=32768".
 sane(7),
 sane\-scsi(5),
 sane\-sp15c(5)
+sane\-usb(5),
 .br
 Fujitsu ScanPartner 15C OEM Manual, Doc. No. 250-0081-0
 .br
@@ -172,6 +175,7 @@ with credit to the unnamed author of the coolscan driver
 3091 driver: Frederik Ramm <frederik@remote.org>
 3093GD,fi-4340C, ipc and cmp options: Oliver Schirrmeister <oschirr@abm.de>
 3092 patch: Mario Goppold <mgoppold@tbzpariv.tcc-chemnitz.de>
+fi-4220C patch and USB support: Ronald B. Cemer <ron@roncemer.com>
 .SH LIMITATIONS
 Only tested with Linux 2.4 
 

@@ -77,6 +77,10 @@
          - 3092 support (mgoppold@tbz-pariv.de)
          - tested 4097 support
          - changed some functions to receive compressed data
+      V 1.4, 13-Feb-2003
+         - fi-4220C support (ron@roncemer.com)
+         - USB support for scanners which send SCSI commands over usb
+           (ron@roncemer.com)
 
    SANE FLOW DIAGRAM
 
@@ -124,6 +128,7 @@
 
 #include "sane/sanei_backend.h"
 #include "sane/sanei_scsi.h"
+#include "sane/sanei_usb.h"
 #include "sane/saneopts.h"
 #include "sane/sanei_config.h"
 
@@ -338,6 +343,11 @@ static struct fujitsu *current_scanner;
 static const SANE_Device **devlist = 0;
 
 /*
+ * used by attachScanner and attachOne
+ */
+static Fujitsu_Connection_Type mostRecentConfigConnectionType = SANE_FUJITSU_SCSI;
+
+/*
  * @@ Section 2 - SANE Interface
  */
 
@@ -364,10 +374,13 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   size_t len;
   FILE *fp;
 
+  mostRecentConfigConnectionType = SANE_FUJITSU_SCSI;
   authorize = authorize;        /* get rid of compiler warning */
 
   DBG_INIT ();
   DBG (10, "sane_init\n");
+
+  sanei_usb_init();
 
   if (version_code)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, 0);
@@ -393,6 +406,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
   while (sanei_config_read (line, PATH_MAX, fp))
     {
+      int vendor, product;
 
       /* ignore comments */
       if (line[0] == '#')
@@ -457,11 +471,23 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
                    lp);
             }
         }
-      else                      /* must be a device name if it's not an option */
+        else if (sscanf(lp, "usb %i %i", &vendor, &product) == 2)
         {
+	    mostRecentConfigConnectionType = SANE_FUJITSU_USB;
+	    sanei_usb_attach_matching_devices(lp, attachOne);
+	    mostRecentConfigConnectionType = SANE_FUJITSU_SCSI;
+        }
+        else                      /* must be a device name if it's not an option */
+        {
+	  if ((strncmp ("usb", lp, 3) == 0) && isspace (lp[3])) {
+	    lp += 3;
+	    lp = sanei_config_skip_whitespace (lp);
+	    mostRecentConfigConnectionType = SANE_FUJITSU_USB;
+	  }
           strncpy (devName, lp, sizeof (devName));
           devName[sizeof (devName) - 1] = '\0';
           sanei_config_attach_matching_devices (devName, attachOne);
+	  mostRecentConfigConnectionType = SANE_FUJITSU_SCSI;
         }
     }
   fclose (fp);
@@ -568,7 +594,10 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
     case MODEL_3093:
     case MODEL_4097:
     case MODEL_FI:
-      setDefaults3096 (scanner);
+      if ( strstr (scanner->productName, "4220") ) 
+        setDefaults3091 (scanner);
+      else
+        setDefaults3096 (scanner);
       break;
 
     case MODEL_SP15:
@@ -1351,7 +1380,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             case MODEL_3097:
             case MODEL_4097:
             case MODEL_FI:
-              return (setMode3096 (scanner, newMode));
+    		if ( strstr (scanner->productName, "4220") ) 
+            	    return (setMode3091 (scanner, newMode));
+    		else
+            	    return (setMode3096 (scanner, newMode));
             case MODEL_SP15:
               return (setModeSP15 (scanner, newMode));
             }
@@ -1871,23 +1903,35 @@ sane_start (SANE_Handle handle)
   if (scanner->sfd < 0)
     {
       /* first call */
-      if (sanei_scsi_open (scanner->sane.name, &(scanner->sfd),
-                           senseHandler, 0) != SANE_STATUS_GOOD)
-        {
-          DBG (MSG_ERR, 
-               "sane_start: open of %s failed:\n", scanner->sane.name);
-          return SANE_STATUS_INVAL;
-        }
+      if (scanner->connection == SANE_FUJITSU_USB) {
+	    DBG (10, "sane_start opening USB device\n");
+	    if (sanei_usb_open (scanner->sane.name, &(scanner->sfd)) !=
+		SANE_STATUS_GOOD) {
+		DBG (MSG_ERR, 
+		     "sane_start: open of %s failed:\n", scanner->sane.name);
+		return SANE_STATUS_INVAL;
+	    }
+      } else if (scanner->connection == SANE_FUJITSU_SCSI) {
+	    DBG (10, "sane_start opening SCSI device\n");
+	    if (sanei_scsi_open (scanner->sane.name, &(scanner->sfd),
+				 scsiSenseHandler, 0) != SANE_STATUS_GOOD) {
+		DBG (MSG_ERR, 
+		     "sane_start: open of %s failed:\n", scanner->sane.name);
+		return SANE_STATUS_INVAL;
+	    }
+      }
     }
   scanner->object_count = 1;
   scanner->eof = SANE_FALSE;
 
-
-
   if ((ret = grabScanner (scanner)))
     {
       DBG (5, "sane_start: unable to reserve scanner\n");
-      sanei_scsi_close (scanner->sfd);
+      if (scanner->connection == SANE_FUJITSU_USB) {
+	    sanei_usb_close (scanner->sfd);
+      } else if (scanner->connection == SANE_FUJITSU_SCSI) {
+	    sanei_scsi_close (scanner->sfd);
+      }
       scanner->object_count = 0;
       scanner->sfd = -1;
       return ret;
@@ -1907,7 +1951,11 @@ sane_start (SANE_Handle handle)
     {
       DBG (5, "sane_start: ERROR: failed to start send command\n");
       freeScanner (scanner);
-      sanei_scsi_close (scanner->sfd);
+      if (scanner->connection == SANE_FUJITSU_USB) {
+	    sanei_usb_close (scanner->sfd);
+      } else if (scanner->connection == SANE_FUJITSU_SCSI) {
+	    sanei_scsi_close (scanner->sfd);
+      }
       scanner->object_count = 0;
       scanner->sfd = -1;
       return ret;
@@ -1917,7 +1965,11 @@ sane_start (SANE_Handle handle)
     {
       DBG (5, "sane_start: ERROR: failed to start imprinter command\n");
       freeScanner (scanner);
-      sanei_scsi_close (scanner->sfd);
+      if (scanner->connection == SANE_FUJITSU_USB) {
+	    sanei_usb_close (scanner->sfd);
+      } else if (scanner->connection == SANE_FUJITSU_SCSI) {
+	    sanei_scsi_close (scanner->sfd);
+      }
       scanner->object_count = 0;
       scanner->sfd = -1;
       return ret;
@@ -1929,7 +1981,11 @@ sane_start (SANE_Handle handle)
     {
       DBG (5, "sane_start: WARNING: ADF empty\n");
       freeScanner (scanner);
-      sanei_scsi_close (scanner->sfd);
+      if (scanner->connection == SANE_FUJITSU_USB) {
+	    sanei_usb_close (scanner->sfd);
+      } else if (scanner->connection == SANE_FUJITSU_SCSI) {
+	    sanei_scsi_close (scanner->sfd);
+      }
       scanner->object_count = 0;
       scanner->sfd = -1;
       return ret;
@@ -1942,7 +1998,11 @@ sane_start (SANE_Handle handle)
     {
       DBG (5, "sane_start: ERROR: failed to set window\n");
       freeScanner (scanner);
-      sanei_scsi_close (scanner->sfd);
+      if (scanner->connection == SANE_FUJITSU_USB) {
+	    sanei_usb_close (scanner->sfd);
+      } else if (scanner->connection == SANE_FUJITSU_SCSI) {
+	    sanei_scsi_close (scanner->sfd);
+      }
       scanner->object_count = 0;
       scanner->sfd = -1;
       return ret;
@@ -1965,7 +2025,11 @@ sane_start (SANE_Handle handle)
       DBG (MSG_ERR, "ERROR: could not create pipe\n");
       scanner->object_count = 0;
       freeScanner (scanner);
-      sanei_scsi_close (scanner->sfd);
+      if (scanner->connection == SANE_FUJITSU_USB) {
+	    sanei_usb_close (scanner->sfd);
+      } else if (scanner->connection == SANE_FUJITSU_SCSI) {
+	    sanei_scsi_close (scanner->sfd);
+      }
       scanner->sfd = -1;
       return SANE_STATUS_IO_ERROR;
     }
@@ -1980,7 +2044,11 @@ sane_start (SANE_Handle handle)
               DBG (MSG_ERR, "ERROR: could not create temporary file.\n");
               scanner->object_count = 0;
               freeScanner (scanner);
-              sanei_scsi_close (scanner->sfd);
+	      if (scanner->connection == SANE_FUJITSU_USB) {
+		    sanei_usb_close (scanner->sfd);
+	      } else if (scanner->connection == SANE_FUJITSU_SCSI) {
+		    sanei_scsi_close (scanner->sfd);
+	      }
               scanner->sfd = -1;
               return SANE_STATUS_IO_ERROR;
             }
@@ -1992,7 +2060,11 @@ sane_start (SANE_Handle handle)
               DBG (MSG_ERR, "ERROR: could not create duplex pipe.\n");
               scanner->object_count = 0;
               freeScanner (scanner);
-              sanei_scsi_close (scanner->sfd);
+	      if (scanner->connection == SANE_FUJITSU_USB) {
+		    sanei_usb_close (scanner->sfd);
+	      } else if (scanner->connection == SANE_FUJITSU_SCSI) {
+		    sanei_scsi_close (scanner->sfd);
+	      }
               scanner->sfd = -1;
               return SANE_STATUS_IO_ERROR;
             }
@@ -2294,7 +2366,7 @@ static SANE_Status
 attachScanner (const char *devicename, struct fujitsu **devp)
 {
   struct fujitsu *dev;
-  int sfd;
+  SANE_Int sfd;
 
   DBG (15, "attach_scanner: %s\n", devicename);
 
@@ -2312,11 +2384,19 @@ attachScanner (const char *devicename, struct fujitsu **devp)
     }
 
   DBG (15, "attach_scanner: opening %s\n", devicename);
-  if (sanei_scsi_open (devicename, &sfd, senseHandler, 0) != 0)
-    {
-      DBG (5, "attach_scanner: open failed\n");
-      return SANE_STATUS_INVAL;
+  if (mostRecentConfigConnectionType == SANE_FUJITSU_USB) {
+    DBG (15, "attachScanner opening USB device\n");
+    if (sanei_usb_open (devicename, &sfd) != SANE_STATUS_GOOD) {
+        DBG (5, "attach_scanner: open failed\n");
+	return SANE_STATUS_INVAL;
     }
+  } else if (mostRecentConfigConnectionType == SANE_FUJITSU_SCSI) {
+    DBG (15, "attachScanner opening SCSI device\n");
+    if (sanei_scsi_open (devicename, &sfd, scsiSenseHandler, 0) != 0) {
+	DBG (5, "attach_scanner: open failed\n");
+	return SANE_STATUS_INVAL;
+    }
+  }
 
   if (NULL == (dev = malloc (sizeof (*dev))))
     return SANE_STATUS_NO_MEM;
@@ -2327,6 +2407,7 @@ attachScanner (const char *devicename, struct fujitsu **devp)
     return SANE_STATUS_NO_MEM;
 
   dev->devicename = strdup (devicename);
+  dev->connection = mostRecentConfigConnectionType;
   dev->sfd = sfd;
 
   /*
@@ -2335,14 +2416,22 @@ attachScanner (const char *devicename, struct fujitsu **devp)
   if (identifyScanner (dev) != 0)
     {
       DBG (5, "attach_scanner: scanner identification failed\n");
-      sanei_scsi_close (dev->sfd);
+      if (dev->connection == SANE_FUJITSU_USB) {
+	    sanei_usb_close (dev->sfd);
+      } else if (dev->connection == SANE_FUJITSU_SCSI) {
+	    sanei_scsi_close (dev->sfd);
+      }
       free (dev->buffer);
       free (dev);
       return SANE_STATUS_INVAL;
     }
 
   /* Why? */
-  sanei_scsi_close (dev->sfd);
+  if (dev->connection == SANE_FUJITSU_USB) {
+	sanei_usb_close (dev->sfd);
+  } else if (dev->connection == SANE_FUJITSU_SCSI) {
+	sanei_scsi_close (dev->sfd);
+  }
   dev->sfd = -1;
 
   dev->sane.name = dev->devicename;
@@ -2380,7 +2469,7 @@ attachOne (const char *name)
  * Responsible for producing a meaningful debug message.
  */
 static SANE_Status
-senseHandler (int scsi_fd, u_char * sensed_data, void *arg)
+scsiSenseHandler (int scsi_fd, u_char * sensed_data, void *arg)
 {
   unsigned int ret = SANE_STATUS_IO_ERROR;
   unsigned int sense = get_RS_sense_key (sensed_data);
@@ -2615,7 +2704,8 @@ doInquiry (struct fujitsu *s)
  
   hexdump (MSG_IO, "inquiry", inquiryB.cmd, inquiryB.size);
 
-  do_scsi_cmd (s->sfd, inquiryB.cmd, inquiryB.size, s->buffer, 96, NULL);
+  do_cmd (s->connection, s->sfd, inquiryB.cmd, inquiryB.size,
+	       s->buffer, 96, NULL);
 }
 
 static SANE_Status
@@ -2631,26 +2721,37 @@ get_hardware_status (struct fujitsu *s)
     {
       int sfd;
 
-      if (sanei_scsi_open (s->devicename, &sfd, senseHandler, 0) != 0)
-        {
-          DBG (5, "get_hardware_status: open failed\n");
-          return SANE_STATUS_INVAL;
-        }
-      
+      if (s->connection == SANE_FUJITSU_USB) {
+	    DBG (10, "get_hardware_status opening USB device\n");
+	    if (sanei_usb_open (s->devicename, &sfd) != SANE_STATUS_GOOD) {
+		DBG (5, "get_hardware_status: open failed\n");
+		return SANE_STATUS_INVAL;
+	    }
+      } else if (s->connection == SANE_FUJITSU_SCSI) {
+	    DBG (10, "get_hardware_status opening SCSI device\n");
+	    if (sanei_scsi_open (s->devicename, &sfd, scsiSenseHandler, 0)!=0) {
+		DBG (5, "get_hardware_status: open failed\n");
+		return SANE_STATUS_INVAL;
+	    }
+      }      
       hexdump (MSG_IO, "get_hardware_status", 
                hw_statusB.cmd, hw_statusB.size);
 
-      ret = do_scsi_cmd (sfd, hw_statusB.cmd, hw_statusB.size,
-                         s->buffer, 10, NULL);
-      sanei_scsi_close (sfd);
+      ret = do_cmd (s->connection, sfd, hw_statusB.cmd, hw_statusB.size,
+                    s->buffer, 10, NULL);
+      if (s->connection == SANE_FUJITSU_USB) {
+	    sanei_usb_close (sfd);
+      } else if (s->connection == SANE_FUJITSU_SCSI) {
+	    sanei_scsi_close (sfd);
+      }
     }
   else
     {
       hexdump (MSG_IO, "get_hardware_status", 
                hw_statusB.cmd, hw_statusB.size);
 
-      ret = do_scsi_cmd (s->sfd, hw_statusB.cmd, hw_statusB.size,
-                         s->buffer, 10, NULL);
+      ret = do_cmd (s->connection, s->sfd, hw_statusB.cmd, hw_statusB.size,
+                    s->buffer, 10, NULL);
     }
 
   if (ret == SANE_STATUS_GOOD)
@@ -2686,8 +2787,8 @@ getVitalProductData (struct fujitsu *s)
   set_IN_page_code (inquiryB.cmd, 0xf0);
 
   hexdump (MSG_IO, "get_vital_product_data", inquiryB.cmd, inquiryB.size);
-  ret = do_scsi_cmd (s->sfd, inquiryB.cmd, inquiryB.size, 
-                     s->buffer, 0x64, NULL);
+  ret = do_cmd (s->connection, s->sfd, inquiryB.cmd, inquiryB.size, 
+                s->buffer, 0x64, NULL);
   if (ret == SANE_STATUS_GOOD)
     {
       DBG (MSG_INFO, "standard options\n");
@@ -2780,15 +2881,31 @@ getVitalProductData (struct fujitsu *s)
   return ret;
 }
 
-
+/**
+ * Sends a command to the device. This calls do_scsi_cmd or do_usb_cmd.
+ */
+static int
+do_cmd (Fujitsu_Connection_Type connection, int fd, unsigned char *cmd,
+	     int cmd_len, unsigned char *out, size_t req_out_len,
+	     size_t *res_out_len)
+{
+    if (connection == SANE_FUJITSU_SCSI) {
+	return do_scsi_cmd(fd, cmd, cmd_len, out, req_out_len, res_out_len);
+    }
+    if (connection == SANE_FUJITSU_USB) {
+	return do_usb_cmd(fd, cmd, cmd_len, out, req_out_len, res_out_len);
+    }
+    return SANE_STATUS_INVAL;
+}
 
 /**
  * Sends a SCSI command to the device. This is just a wrapper around 
  * sanei_scsi_cmd with some debug printing.
  */
 static int
-do_scsi_cmd (int fd, unsigned char *cmd, int cmd_len,
-             unsigned char *out, size_t req_out_len, size_t *res_out_len)
+do_scsi_cmd (int fd, unsigned char *cmd,
+	     int cmd_len, unsigned char *out, size_t req_out_len,
+	     size_t *res_out_len)
 {
   int ret;
   size_t ol = req_out_len;
@@ -2823,6 +2940,118 @@ do_scsi_cmd (int fd, unsigned char *cmd, int cmd_len,
   return ret;
 }
 
+#define USB_CMD_HEADER_BYTES 19
+#define USB_CMD_MIN_BYTES 31
+
+/**
+ * Sends a USB command to the device.
+ */
+static int
+do_usb_cmd (int fd, unsigned char *cmd,
+	     int cmd_len, unsigned char *out, size_t req_out_len,
+	     size_t *res_out_len)
+{
+    int ret = SANE_STATUS_GOOD;
+    size_t cnt, ol;
+    int op_code = 0;
+    int i, j;
+    int tries = 0;
+    unsigned char buf[1024];
+/*    unsigned char sense_bytes[64]; */
+
+retry:
+    hexdump (IO_CMD, "<cmd<", cmd, cmd_len);
+
+    if (cmd_len > 0) op_code = ((int)cmd[0]) & 0xff;
+
+    if ((cmd_len+USB_CMD_HEADER_BYTES) > (int)sizeof(buf)) {
+	    /* Command too long. */
+	return SANE_STATUS_INVAL;
+    }
+    buf[0] = (unsigned char)'C';
+    for (i = 1; i < USB_CMD_HEADER_BYTES; i++) buf[i] = (unsigned char)0;
+    memcpy(&buf[USB_CMD_HEADER_BYTES], cmd, cmd_len);
+    for (i = USB_CMD_HEADER_BYTES+cmd_len; i < USB_CMD_MIN_BYTES; i++) {
+	buf[i] = (unsigned char)0;
+    }
+	/* The SCAN command must be at least 32 bytes long. */
+    if ( (op_code == SCAN) && (i < 32) ) {
+	for (; i < 32; i++) buf[i] = (unsigned char)0;
+    }
+
+    for (j = 0; j < i;) {
+	cnt = i-j;
+	    /* First URB has to be 31 bytes. */
+	    /* All other URBs must be 64 bytes (max) per URB. */
+	if ( (j == 0) && (cnt > 31) ) cnt = 31; else if (cnt > 64) cnt = 64;
+	hexdump (IO_CMD, "*** URB going out:", &buf[j], cnt);
+	DBG (IO_CMD, "try to write %u bytes\n", cnt);
+	ret = sanei_usb_write_bulk(fd, &buf[j], &cnt);
+	DBG (IO_CMD, "wrote %u bytes\n", cnt);
+	if (ret != SANE_STATUS_GOOD) break;
+	j += cnt;
+    }
+    if (ret != SANE_STATUS_GOOD) {
+	DBG (MSG_ERR, "*** Got error %d trying to write\n", ret);
+    }
+
+    ol = 0;
+    if (ret == SANE_STATUS_GOOD) {
+	if ( (out != NULL) && (req_out_len > 0) ) {
+	    while (ol < req_out_len) {
+		cnt = (size_t)(req_out_len-ol);
+		DBG (IO_CMD, "try to read %u bytes\n", cnt);
+		ret = sanei_usb_read_bulk(fd, &out[ol], &cnt);
+		DBG (IO_CMD, "read %u bytes\n", cnt);
+		if (cnt > 0) {
+		    hexdump (IO_CMD, "*** Data read:", &out[ol], cnt);
+		}
+		if (ret != SANE_STATUS_GOOD) {
+		    DBG(MSG_ERR, "*** Got error %d trying to read\n", ret);
+		}
+		if (ret != SANE_STATUS_GOOD) break;
+		ol += cnt;
+	    }
+	}
+
+	DBG(MSG_ERR, "*** Try to read CSW\n");
+	cnt = sizeof(buf);
+	sanei_usb_read_bulk(fd, buf, &cnt);
+	hexdump (IO_CMD, "*** Read CSW", buf, cnt);
+    }
+
+	/* Auto-retry failed data reads, in case the scanner is busy. */
+    if ( (op_code == READ) && (tries < 100) && (ol == 0) ) {
+	usleep(100000L);
+	tries++;
+	goto retry;
+    }
+
+  if (res_out_len != NULL)
+    {
+      *res_out_len = ol;
+    }
+
+  if ((req_out_len != 0) && (req_out_len != ol))
+    {
+      DBG (MSG_ERR, "do_usb_cmd: asked %lu bytes, got %lu\n",
+           (u_long) req_out_len, (u_long) ol);
+    }
+
+  if (ret)
+    {
+      DBG (MSG_ERR, "do_usb_cmd: returning 0x%08x\n", ret);
+    }
+
+  DBG (IO_CMD_RES, "do_usb_cmd: returning %lu bytes:\n", (u_long) ol);
+
+  if (out != NULL && ol != 0)
+    {
+      hexdump (IO_CMD_RES, ">rslt>", out, (ol > 0x60) ? 0x60 : ol);
+    }
+
+  return ret;
+}
 
 /**
  * Prints a hex dump of the given buffer onto the debug output stream.
@@ -2927,8 +3156,8 @@ freeScanner (struct fujitsu *s)
 #endif
 
   hexdump (MSG_IO, "release_unit", release_unitB.cmd, release_unitB.size);
-  ret = do_scsi_cmd (s->sfd, release_unitB.cmd, release_unitB.size, 
-                     NULL, 0, NULL);
+  ret = do_cmd (s->connection, s->sfd, release_unitB.cmd,
+		release_unitB.size, NULL, 0, NULL);
   if (ret)
     return ret;
 
@@ -2959,8 +3188,8 @@ grabScanner (struct fujitsu *s)
   wait_scanner (s);
 
   hexdump (MSG_IO, "reserve_unit", reserve_unitB.cmd, reserve_unitB.size);
-  ret = do_scsi_cmd (s->sfd, reserve_unitB.cmd, reserve_unitB.size, 
-                     NULL, 0, NULL);
+  ret = do_cmd (s->connection, s->sfd, reserve_unitB.cmd,
+		reserve_unitB.size, NULL, 0, NULL);
   if (ret)
     return ret;
 
@@ -2968,7 +3197,7 @@ grabScanner (struct fujitsu *s)
   return 0;
 }
 
-static int fujitsu_wait_scanner(int fd) 
+static int fujitsu_wait_scanner(Fujitsu_Connection_Type connection, int fd) 
 {
   int ret = -1;
   int cnt = 0;
@@ -2979,8 +3208,8 @@ static int fujitsu_wait_scanner(int fd)
     {
       hexdump (MSG_IO, "test_unit_ready", test_unit_readyB.cmd,
                test_unit_readyB.size);
-      ret = do_scsi_cmd (fd, test_unit_readyB.cmd,
-                         test_unit_readyB.size, 0, 0, NULL);
+      ret = do_cmd (connection, fd, test_unit_readyB.cmd,
+                    test_unit_readyB.size, 0, 0, NULL);
       if (ret == SANE_STATUS_DEVICE_BUSY)
         {
           usleep (500000);      /* wait 0.5 seconds */
@@ -3009,7 +3238,7 @@ static int fujitsu_wait_scanner(int fd)
 static int
 wait_scanner (struct fujitsu *s)
 {
-  return fujitsu_wait_scanner(s->sfd);
+  return fujitsu_wait_scanner(s->connection, s->sfd);
 }
 
 /**
@@ -3041,7 +3270,8 @@ object_position (struct fujitsu *s, int i_load)
     }
 
   hexdump (MSG_IO, "object_position", s->buffer, object_positionB.size);
-  ret = do_scsi_cmd (s->sfd, s->buffer, object_positionB.size, NULL, 0, NULL);
+  ret = do_cmd (s->connection, s->sfd, s->buffer, object_positionB.size,
+		NULL, 0, NULL);
   if (ret != SANE_STATUS_GOOD)
     return ret;
   wait_scanner (s);
@@ -3073,7 +3303,8 @@ objectDischarge (struct fujitsu *s)
      set_OP_autofeed (s->buffer, OP_Discharge);
   }
   hexdump (MSG_IO, "object_position", s->buffer, object_positionB.size);
-  ret = do_scsi_cmd (s->sfd, s->buffer, object_positionB.size, NULL, 0, NULL);
+  ret = do_cmd (s->connection, s->sfd, s->buffer, object_positionB.size,
+		NULL, 0, NULL);
   wait_scanner (s);
   DBG (10, "objectDischarge: ok\n");
   return ret;
@@ -3090,8 +3321,8 @@ do_reset (struct fujitsu *scanner)
 
   DBG (10, "doReset\n");
   if (scanner->model == MODEL_3092) {
-     ret = do_scsi_cmd (scanner->sfd, reset_unitB.cmd, reset_unitB.size, 
-			NULL, 0, NULL);
+     ret = do_cmd (scanner->connection, scanner->sfd, reset_unitB.cmd,
+		   reset_unitB.size, NULL, 0, NULL);
      if (ret)
        return ret;
   }
@@ -3140,7 +3371,11 @@ doCancel (struct fujitsu *scanner)
     {
       freeScanner (scanner);
       DBG (10, "doCancel: close filedescriptor\n");
-      sanei_scsi_close (scanner->sfd);
+      if (scanner->connection == SANE_FUJITSU_USB) {
+	    sanei_usb_close (scanner->sfd);
+      } else if (scanner->connection == SANE_FUJITSU_SCSI) {
+	    sanei_scsi_close (scanner->sfd);
+      }
       scanner->sfd = -1;
     }
 
@@ -3210,7 +3445,7 @@ startScan (struct fujitsu *s)
     }
 
   hexdump (MSG_IO, "start_scan", command, cmdsize);
-  ret = do_scsi_cmd (s->sfd, command, cmdsize, NULL, 0, NULL);
+  ret = do_cmd (s->connection, s->sfd, command, cmdsize, NULL, 0, NULL);
 
   free (command);
 
@@ -3259,8 +3494,8 @@ set_mode_params (struct fujitsu *s)
       hexdump (MSG_IO, "mode_select", s->buffer, 
                i_param_size + mode_selectB.size);
 
-      ret = do_scsi_cmd (s->sfd, s->buffer,
-                         i_param_size + mode_selectB.size, NULL, 0, NULL);
+      ret = do_cmd (s->connection, s->sfd, s->buffer,
+                    i_param_size + mode_selectB.size, NULL, 0, NULL);
 
     }
 
@@ -3286,30 +3521,40 @@ fujitsu_set_sleep_mode(struct fujitsu *s)
 
   if (s->model == MODEL_FI) /*...and others */
     {
+	/* With the fi-series scanners, we have to use a 10-byte header
+	 * instead of a 4-byte header when communicating via USB.  This
+	 * may be a firmware bug. */
+      scsiblk *headerB;
+      int xfer_length_pos_adj;
+      if (s->connection == SANE_FUJITSU_USB) {
+	  headerB = &mode_select_usb_headerB;
+	  xfer_length_pos_adj = mode_select_headerB.size-mode_select_usb_headerB.size;
+      } else {
+	  headerB = &mode_select_headerB;
+	  xfer_length_pos_adj = 0;
+      }
       memcpy (s->buffer, mode_selectB.cmd, mode_selectB.size);
-      memcpy (s->buffer + mode_selectB.size, mode_select_headerB.cmd,
-              mode_select_headerB.size);
-      memcpy (s->buffer + mode_selectB.size + mode_select_headerB.size,
+      memcpy (s->buffer + mode_selectB.size, headerB->cmd,
+              headerB->size);
+      memcpy (s->buffer + mode_selectB.size + headerB->size,
               mode_select_parameter_blockB.cmd,
               mode_select_parameter_blockB.size);
   
-  
-  
-      command = s->buffer + mode_selectB.size + mode_select_headerB.size;
+      command = s->buffer + mode_selectB.size + headerB->size;
       i_cmd_size = 6;
       set_MSEL_len (command, i_cmd_size);
 
       set_MSEL_pagecode (command, MSEL_sleep);
       set_MSEL_sleep_mode(command, s->sleep_time);
   
-      i_param_size = mode_select_headerB.size + i_cmd_size + 2;
-      set_MSEL_xfer_length (s->buffer, i_param_size);
+      i_param_size = headerB->size + i_cmd_size + 2;
+      set_MSEL_xfer_length (s->buffer, i_param_size + xfer_length_pos_adj);
 
       hexdump (MSG_IO, "mode_select", s->buffer, 
                i_param_size + mode_selectB.size);
   
-      ret = do_scsi_cmd (s->sfd, s->buffer,
-                         i_param_size + mode_selectB.size, NULL, 0, NULL);
+      ret = do_cmd (s->connection, s->sfd, s->buffer,
+                    i_param_size + mode_selectB.size, NULL, 0, NULL);
 
       if (!ret)
         {
@@ -3429,8 +3674,8 @@ read_large_data_block (struct fujitsu *s, unsigned char *buffer,
       set_R_window_id (readB.cmd, i_window_id);
       set_R_xfer_length (readB.cmd, dataToRead);
 
-      status = do_scsi_cmd (s->sfd, readB.cmd, readB.size, myBuffer, 
-                            dataToRead, &data_read);    
+      status = do_cmd (s->connection, s->sfd, readB.cmd, readB.size,
+		       myBuffer, dataToRead, &data_read);    
 
       if (status == SANE_STATUS_EOF)
         {
@@ -4105,22 +4350,34 @@ imprinter(struct fujitsu *s)
         {
           int sfd;
 
-          if (sanei_scsi_open (s->devicename, &sfd, senseHandler, 0) != 0)
-            {
-              DBG (5, "imprinter: open failed\n");
-              return SANE_STATUS_INVAL;
-            }
+	  if (s->connection == SANE_FUJITSU_USB) {
+		DBG (10, "imprinter opening USB device\n");
+		if (sanei_usb_open (s->devicename, &sfd) != SANE_STATUS_GOOD) {
+		    DBG (5, "imprinter: open failed\n");
+		    return SANE_STATUS_INVAL;
+		}
+	  } else if (s->connection == SANE_FUJITSU_SCSI) {
+		DBG (10, "imprinter opening SCSI device\n");
+		if (sanei_scsi_open
+			(s->devicename, &sfd, scsiSenseHandler, 0) != 0) {
+		    DBG (5, "imprinter: open failed\n");
+		    return SANE_STATUS_INVAL;
+		}
+	  }
       
-          fujitsu_wait_scanner(sfd);
-          ret = do_scsi_cmd (sfd, s->buffer,
-                             imprinterB.size + i_size,
-                             NULL, 0, NULL);
-          sanei_scsi_close (sfd);
+          fujitsu_wait_scanner(s->connection, sfd);
+          ret = do_cmd (s->connection, sfd, s->buffer, imprinterB.size + i_size,
+                        NULL, 0, NULL);
+	  if (s->connection == SANE_FUJITSU_USB) {
+		sanei_usb_close (sfd);
+	  } else if (s->connection == SANE_FUJITSU_SCSI) {
+		sanei_scsi_close (sfd);
+	  }
         } 
       else 
         {
-          ret = do_scsi_cmd (s->sfd, s->buffer,
-                             imprinterB.size + i_size,
+          ret = do_cmd (s->connection, s->sfd, s->buffer,
+                        imprinterB.size + i_size,
                              NULL, 0, NULL);
         }
 
@@ -4191,9 +4448,9 @@ fujitsu_send(struct fujitsu *s)
       hexdump (MSG_IO, "send", s->buffer, 
                i_strlen +  send_imprinterB.size + sendB.size);
 
-      ret = do_scsi_cmd (s->sfd, s->buffer,
-                         i_strlen +  send_imprinterB.size + sendB.size,
-                         NULL, 0, NULL);
+      ret = do_cmd (s->connection, s->sfd, s->buffer,
+                    i_strlen +  send_imprinterB.size + sendB.size,
+                    NULL, 0, NULL);
 
     }
 
@@ -4219,6 +4476,7 @@ setWindowParam (struct fujitsu *s)
   unsigned char buffer[max_WDB_size];
   int ret;
   int scsiCommandLength = 0;
+  scsiblk *setwinB;
 
   /* the amout of window data we're going to send. may have to be reduced 
    * depending on scanner model. */
@@ -4352,18 +4610,24 @@ setWindowParam (struct fujitsu *s)
    * follows without a header of its own. 
    */
 
+    if ( (s->model == MODEL_FI) && (s->connection == SANE_FUJITSU_USB) ) {
+	setwinB = &set_usb_windowB;
+    } else {
+	setwinB = &set_windowB;
+    }
+
   /* SET WINDOW command and command descriptor block. 
    * The transfer length will be filled in later using set_SW_xferlen.
    */
-  memcpy (s->buffer, set_windowB.cmd, set_windowB.size);
+  memcpy (s->buffer, setwinB->cmd, setwinB->size);
 
   /* header for first set of window data */
-  memcpy ((s->buffer + set_windowB.size),
+  memcpy ((s->buffer + setwinB->size),
           window_parameter_data_blockB.cmd,
           window_parameter_data_blockB.size);
 
   /* set window data size */
-  set_WPDB_wdblen ((s->buffer + set_windowB.size), windowDataSize);
+  set_WPDB_wdblen ((s->buffer + setwinB->size), windowDataSize);
 
   if (s->duplex_mode == DUPLEX_BACK)
     {
@@ -4375,7 +4639,7 @@ setWindowParam (struct fujitsu *s)
     }
 
   /* now copy window data itself */
-  memcpy (s->buffer + set_windowB.size + window_parameter_data_blockB.size,
+  memcpy (s->buffer + setwinB->size + window_parameter_data_blockB.size,
           buffer, windowDataSize);
 
   /* when in duplex mode, add a second window */
@@ -4394,7 +4658,7 @@ setWindowParam (struct fujitsu *s)
           set_WD_paper_length_Y (buffer, 0);
         }
       hexdump (MSG_IO, "Window set - back", buffer, windowDataSize);
-      memcpy (s->buffer + set_windowB.size +
+      memcpy (s->buffer + setwinB->size +
               window_parameter_data_blockB.size + windowDataSize, buffer,
               windowDataSize);
       set_SW_xferlen (s->buffer,
@@ -4402,7 +4666,7 @@ setWindowParam (struct fujitsu *s)
                        2 * windowDataSize));
       scsiCommandLength =
         window_parameter_data_blockB.size + 2 * windowDataSize +
-        set_windowB.size;
+        setwinB->size;
     }
   else
     {
@@ -4410,10 +4674,11 @@ setWindowParam (struct fujitsu *s)
       set_SW_xferlen (s->buffer, (window_parameter_data_blockB.size +
                                   windowDataSize));
       scsiCommandLength =
-        window_parameter_data_blockB.size + windowDataSize + set_windowB.size;
+        window_parameter_data_blockB.size + windowDataSize + setwinB->size;
     }
 
-  ret = do_scsi_cmd (s->sfd, s->buffer, scsiCommandLength, NULL, 0, NULL);
+  ret = do_cmd (s->connection, s->sfd, s->buffer, scsiCommandLength,
+		NULL, 0, NULL);
   if (ret)
     return ret;
   DBG (10, "set_window_param: ok\n");
@@ -6427,7 +6692,7 @@ setDefaults3091 (struct fujitsu *scanner)
   scanner->val[OPT_TL_X].w = 0;
   scanner->val[OPT_TL_Y].w = 0;
   /* this size is just big enough to match letter and A4 formats */
-  scanner->bottom_right_x = SANE_FIX (215.9);
+  scanner->bottom_right_x = SANE_FIX (215.0);
   scanner->bottom_right_y = SANE_FIX (297.0);
   scanner->page_width = FIXED_MM_TO_SCANNER_UNIT (scanner->bottom_right_x);
   scanner->page_height = FIXED_MM_TO_SCANNER_UNIT (scanner->bottom_right_y);
@@ -6453,6 +6718,8 @@ setDefaults3091 (struct fujitsu *scanner)
 
   scanner->opt[OPT_DROPOUT_COLOR].cap = SANE_CAP_INACTIVE;
   scanner->dropout_color = MSEL_dropout_DEFAULT;
+  if ( strstr (scanner->productName, "4220" ))
+    scanner->gamma = 0x80;
 
   scanner->sleep_time = 15;
   scanner->use_imprinter = SANE_FALSE;

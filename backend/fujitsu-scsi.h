@@ -230,6 +230,16 @@ static unsigned char set_windowC[] =
 static scsiblk set_windowB = { set_windowC, sizeof (set_windowC) };
 #define set_SW_xferlen(sb, len) putnbyte(sb + 0x06, len, 3)
 
+	/* With the fi-series scanners, we have to use a 12-byte command
+	 * instead of a 10-byte command when communicating via USB.  This
+	 * may be a firmware bug. */
+static unsigned char set_usb_windowC[] =
+  { SET_WINDOW, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00 };
+/* opcode,  lun,  _____4 X reserved____,  transfer length, control byte */
+static scsiblk set_usb_windowB = { set_usb_windowC, sizeof (set_usb_windowC) };
+#define set_SW_xferlen(sb, len) putnbyte(sb + 0x06, len, 3)
+
 /* ==================================================================== */
 
 static unsigned char object_positionC[] =
@@ -375,6 +385,17 @@ static unsigned char mode_select_headerC[] = {
 };
 static scsiblk mode_select_headerB = {
   mode_select_headerC, sizeof (mode_select_headerC)
+};
+
+
+	/* With the fi-series scanners, we have to use a 10-byte header
+	 * instead of a 4-byte header when communicating via USB.  This
+	 * may be a firmware bug. */
+static unsigned char mode_select_usb_headerC[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+static scsiblk mode_select_usb_headerB = {
+  mode_select_usb_headerC, sizeof (mode_select_usb_headerC)
 };
 
 

@@ -102,6 +102,13 @@ enum fujitsu_Option
 };
 
 
+typedef enum {				/* hardware connection to the scanner */
+        SANE_FUJITSU_NODEV,		/* default, no HW specified yet */
+	SANE_FUJITSU_SCSI,		/* SCSI interface */
+	SANE_FUJITSU_PIO,		/* parallel interface */
+	SANE_FUJITSU_USB		/* USB interface */
+} Fujitsu_Connection_Type;
+
 struct fujitsu
 {
   struct fujitsu *next;
@@ -121,6 +128,9 @@ struct fujitsu
   int model;			/* The scanner model.                        */
 
   char *devicename;		/* The name of the scanner device.           */
+
+  Fujitsu_Connection_Type connection;	/* hardware interface type */
+
   int sfd;			/* The scanner device file descriptor.       */
 
   int color_raster_offset;	/* offset between r and b scan line and    */
@@ -466,15 +476,25 @@ static void doInquiry (struct fujitsu *s);
 static SANE_Status attachScanner (const char *devicename,
 				  struct fujitsu **devp);
 
-static SANE_Status senseHandler (int scsi_fd, u_char * result, void *arg);
+static SANE_Status scsiSenseHandler (int scsi_fd, u_char * result, void *arg);
 
 static int identifyScanner (struct fujitsu *s);
 
 static void doInquiry (struct fujitsu *s);
 
+static int
+do_cmd (Fujitsu_Connection_Type connection, int fd, unsigned char *cmd,
+	     int cmd_len, unsigned char *out, size_t req_out_len,
+	     size_t *res_out_len);
+
 static int do_scsi_cmd (int fd, unsigned char *cmd, int cmd_len,
 			unsigned char *out, size_t req_out_len, 
 			size_t *res_out_len);
+
+static int
+do_usb_cmd (int fd, unsigned char *cmd,
+	     int cmd_len, unsigned char *out, size_t req_out_len,
+	     size_t *res_out_len);
 
 static void hexdump (int level, char *comment, unsigned char *p, int l);
 

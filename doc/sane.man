@@ -1,4 +1,4 @@
-.TH sane 7 "Nov 22th, 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane 7 "Feb 24th, 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane
 
 .SH NAME
@@ -277,6 +277,11 @@ for details.
 This backend supports the Leo S3 and the Across FS-1130, which is a re-badged
 LEO FS-1130 scanner. See
 .BR sane-leo (5)
+for details.
+.TP
+.B ma1509
+The ma1509 backend supports the Mustek BearPaw 1200F USB flatbed scanner. See
+.BR sane-ma1509 (5)
 for details.
 .TP
 .B matsushita

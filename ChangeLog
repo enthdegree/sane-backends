@@ -3,6 +3,8 @@
 	* backend/Makefile.in backend/dll.conf backend/ma1509.c
 	  backend/ma1509.conf backend/ma1509.h: Added new backend ma1509 for
 	  Mustek BearPaw 1200F scanners.
+	* doc/Makefile.in doc/descriptions/ma1509.desc doc/sane-ma1509.man
+	  doc/sane.man doc/.cvsignore: Added documentation for ma1509 backend.
 
 2003-02-23  Simon Munton <simon@munton.demon.co.uk>
         * backend/pie.c: increment BUILD (was missed in last change)

@@ -1,4 +1,4 @@
-.TH sane 7 "17 Apr 2002"
+.TH sane 7 "April 20th, 2002"
 .IX sane
 
 .SH NAME
@@ -177,6 +177,10 @@ fi-4340 SCSI scanners. See sane-fujitsu(5) for details.
 The SANE hp backend provides access to HP ScanJet scanners and OfficeJet
 multi-function peripherals (MFPs) which support SCL (Scanner Control Language
 by HP). See sane-hp(5) for details.
+.TP
+.B leo
+This backend support the Across FS-1130, which is a re-badged LEO
+FS-1130 scanner. See sane-leo(5) for details.
 .TP
 .B matsushita
 This backend supports some Panasonic KVSS high speed scanners. See

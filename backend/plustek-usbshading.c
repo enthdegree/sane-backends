@@ -7,7 +7,7 @@
  *  @brief Calibration routines.
  *
  * Based on sources acquired from Plustek Inc.<br>
- * Copyright (C) 2001-2004 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2005 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.40 - starting version of the USB support
@@ -27,6 +27,7 @@
  * - 0.48 - added more debug output
  *        - added usb_AutoWarmup()
  * - 0.49 - a_bRegs is now part of the device structure
+ *        - using now PhyDpi.y as selector for the motor MCLK range
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -197,7 +198,7 @@ static void	usb_SetMCLK( Plustek_Device *dev, pScanParam pParam )
 	clk = usb_GetMotorSet( hw->motorModel );
 	idx = 0;
 	for( i = 0; i < _MAX_CLK; i++ ) {
-		if( pParam->PhyDpi.x <= dpi_ranges[i] )
+		if( pParam->PhyDpi.y <= dpi_ranges[i] )
 			break;
 		idx++;
 	}

@@ -1,5 +1,15 @@
-Plustek.changes (2004-09-01) Gerhard Jäger <gerhard@gjaeger.de>
+Plustek.changes (2004-08-02) Gerhard Jäger <gerhard@gjaeger.de>
 ===============================================================
+
+V 0.47-7 (2004-08-02)
+---------------------
+- fixed bypass calibration function for CIS devices
+- added lampoff stuff to config file
+
+V 0.47-6 (2004-21-01)
+---------------------
+- Cleanup work
+- Changed lamp off timer for non-setitimer systems
 
 V 0.47-5 (2004-09-01)
 ---------------------

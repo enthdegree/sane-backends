@@ -1,5 +1,5 @@
-Plustek-USB.txt (2003-27-11) Gerhard Jäger <gerhard@gjaeger.de>
-================================================================
+Plustek-USB.txt (2004-03-28) Gerhard Jäger <gerhard@gjaeger.de>
+===============================================================
 
 NOTE:
 -----
@@ -93,6 +93,7 @@ Product ID       Device-description and status
 0x????           FB620U        - not integrated
 0x2206           N650U         - working
 0x2207           N1220U        - working
+0x2208           D660U         - working
 0x220D           N670U/LiDE20  - working
 0x220E           N1240U/LiDE30 - working
 

@@ -1,4 +1,4 @@
-Plustek-USB-TODO.txt (2003-28-10) Gerhard Jäger <gerhard@gjaeger.de>
+Plustek-USB-TODO.txt (2004-03-22) Gerhard Jäger <gerhard@gjaeger.de>
 ====================================================================
 
 TODO (in general):
@@ -14,11 +14,13 @@ Model             Description                           Workaround
 
 HP 2100c          Straight Line Bug                     none
 EPSON Photo       Negative Scanning quality bad         none
+CIS devices       Skip calibration does not work        none
 
 ********************************* DONE ***************************************
 
 Canon             fine calibration does not work                fixed
 Canon  650        color modes >=600 dpi too dark                fixed
+Canon  660        add support                                   done
 Canon 1220        image quality not very good                   fixed
 Canon 1240        gray mode too bright                          fixed
 

@@ -1,3 +1,9 @@
+2002-05-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/plustek-usbscan.c: Critical bugfix to avoid bumping the
+	  scan slider at the end of the scan. Commited on behalf of 
+	  g-jaeger@t-online.de (G. Jaeger).
+
 2002-05-26  Karl Heinz Kremer <khk@khk.net>
 
 	* doc/descriptions/epson.desc

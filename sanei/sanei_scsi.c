@@ -1693,6 +1693,7 @@ issue (struct req *req)
                             }
                         }
                      );
+              IF_DBG(if (DBG_LEVEL >= 255) system("cat /proc/scsi/sg/debug 1>&2");)
 #ifdef SG_IO
             }
           else
@@ -1717,6 +1718,7 @@ issue (struct req *req)
                             }
                         }
                      );
+              IF_DBG(if (DBG_LEVEL >= 255) system("cat /proc/scsi/sg/debug 1>&2");)
             }
 #endif
           if (rp == fdp->sane_qhead && errno == EAGAIN)
@@ -2019,8 +2021,8 @@ sanei_scsi_req_wait (void *id)
 
                   DBG (1, "sanei_scsi_req_wait: SCSI command complained: %s\n",
                        strerror (req->sgdata.cdb.hdr.result));
-                  DBG(10, "sense buffer: %02x %02x 02x %02x %02x %02 %02x %02x"
-                          "%02x %02x %02x %02x %02x %02x %02x %02x\n",
+                  DBG(10, "sense buffer: %02x %02x %02x %02x %02x %02x %02x %02x"
+                          " %02x %02x %02x %02x %02x %02x %02x %02x\n",
                           req->sgdata.cdb.hdr.sense_buffer[0],
                           req->sgdata.cdb.hdr.sense_buffer[1],
                           req->sgdata.cdb.hdr.sense_buffer[2],
@@ -2037,11 +2039,14 @@ sanei_scsi_req_wait (void *id)
                           req->sgdata.cdb.hdr.sense_buffer[13],
                           req->sgdata.cdb.hdr.sense_buffer[14],
                           req->sgdata.cdb.hdr.sense_buffer[15]);
+                  /* xxx compilation breaks with the original SG header: */
+                  #if 0
                   DBG(10, "target status: %02x host status: %02x"
                           " driver status: %02x\n",
                           req->sgdata.cdb.hdr.target_status,
                           req->sgdata.cdb.hdr.host_status,
                           req->sgdata.cdb.hdr.driver_status);
+                  #endif
 
                  if (req->sgdata.cdb.hdr.result == EBUSY)
                    status = SANE_STATUS_DEVICE_BUSY;
@@ -2078,7 +2083,7 @@ sanei_scsi_req_wait (void *id)
 
                  DBG (1, "sanei_scsi_req_wait: SCSI command complained: %s\n",
                       strerror(errno));
-                 DBG(10, "sense buffer: %02x %02x 02x %02x %02x %02 %02x %02x"
+                 DBG(10, "sense buffer: %02x %02x %02x %02x %02x %02x %02x %02x"
                          " %02x %02x %02x %02x %02x %02x %02x %02x\n",
                          req->sgdata.sg3.sense_buffer[0],
                          req->sgdata.sg3.sense_buffer[1],
@@ -2223,8 +2228,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
   char vendor[32], model[32], type[32], revision[32];
   int bus, channel, id, lun;
 
-  int number, i;
-  int defined = 0;
+  int number, i, defined;
   char line[256], dev_name[128];
   const char *string;
   FILE *proc_fp;

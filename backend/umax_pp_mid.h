@@ -186,5 +186,6 @@ extern void sanei_umax_pp_setastra (int val);
 /* set gamma tables */
 extern void sanei_umax_pp_gamma (int *red, int *green, int *blue);
 
-
+/* sets coordinate of first usable left pixel */
+extern int sanei_umax_pp_getLeft (void);
 #endif

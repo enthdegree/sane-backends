@@ -102,6 +102,7 @@ typedef struct Umax_PP_Descriptor
   SANE_String ppdevice;
 
   SANE_Int max_res;
+  SANE_Int ccd_res;
   SANE_Int max_h_size;
   SANE_Int max_v_size;
   long int buf_size;

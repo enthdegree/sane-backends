@@ -43,7 +43,11 @@
 /* CREDITS:
    Started by being a mere copy of mustek_pp 
    by Jochen Eisinger <jochen.eisinger@gmx.net> 
-   then evolved in its own thing                                       */
+   then evolved in its own thing                                       
+   
+   support for the 610P has been made possible thank to an hardware donation
+   by William Stuart
+   */
 
 
 #include "../include/sane/config.h"
@@ -102,7 +106,7 @@
  *  see Changelog
  */
 
-#define UMAX_PP_BUILD	14
+#define UMAX_PP_BUILD	15
 #define UMAX_PP_STATE	"dev"
 
 static int num_devices = 0;
@@ -299,12 +303,14 @@ attach (const char *devname)
   if (mdl > 610)
     {				/* Astra 1220, 1600 and 2000 */
       dev->max_res = 1200;
+      dev->ccd_res = 600;
       dev->max_h_size = 5100;
-      dev->max_v_size = 7000 - 8; /* -8: workaround 'y overflow bug at 600 dpi' */
+      dev->max_v_size = 7000 - 8;	/* -8: workaround 'y overflow bug at 600 dpi' */
     }
   else
     {				/* Astra 610 */
       dev->max_res = 600;
+      dev->ccd_res = 300;
       dev->max_h_size = 2550;
       dev->max_v_size = 3500;
     }
@@ -379,18 +385,35 @@ static SANE_Int
 umax_pp_get_sync (SANE_Int dpi)
 {
   /* delta between color frames */
-  switch (dpi)
+  if (sanei_umax_pp_getastra () > 610)
     {
-    case 1200:
-      return 8;
-    case 600:
-      return 4;
-    case 300:
-      return 2;
-    case 150:
-      return 1;
-    default:
-      return 0;
+      switch (dpi)
+	{
+	case 1200:
+	  return 8;
+	case 600:
+	  return 4;
+	case 300:
+	  return 2;
+	case 150:
+	  return 1;
+	default:
+	  return 0;
+	}
+    }
+  else
+    {
+      switch (dpi)
+	{
+	case 600:
+	  return 8;
+	case 300:
+	  return 8;
+	case 150:
+	  return 4;
+	default:
+	  return 2;
+	}
     }
 }
 
@@ -1973,9 +1996,9 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
     }
   else
     {
-      dev->red_contrast = 2;
-      dev->green_contrast = 2;
-      dev->blue_contrast = 2;
+      dev->red_contrast = 6;
+      dev->green_contrast = 6;
+      dev->blue_contrast = 6;
     }
 
   /* brightness control */
@@ -2031,12 +2054,12 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 	{
 	  DBG (64, "sane_get_parameters: %d-%d -> remain is %d\n",
 	       dev->BottomX, dev->TopX, remain);
-	  if (dev->BottomX + remain < 5100)
+	  if (dev->BottomX + remain < dev->desc->max_h_size)
 	    dev->BottomX += remain;
 	  else
 	    {
-	      remain -= (5100 - dev->BottomX);
-	      dev->BottomX = 5100;
+	      remain -= (dev->desc->max_h_size - dev->BottomX);
+	      dev->BottomX = dev->desc->max_h_size;
 	      dev->TopX -= remain;
 	    }
 	}
@@ -2061,32 +2084,32 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
       dev->dpi = 75;
       dev->TopX = 0;
       dev->TopY = 0;
-      dev->BottomX = 5100;
-      dev->BottomY = 7000;
+      dev->BottomX = dev->desc->max_h_size;
+      dev->BottomY = dev->desc->max_v_size;
     }
 
 
   /* fill params */
   dev->params.last_frame = SANE_TRUE;
-  dev->params.lines = ((dev->BottomY - dev->TopY) * dev->dpi) / 600;
-  if (dev->dpi == 1200)
-    dpi = 600;
+  dev->params.lines =
+    ((dev->BottomY - dev->TopY) * dev->dpi) / dev->desc->ccd_res;
+  if (dev->dpi >= dev->desc->ccd_res)
+    dpi = dev->desc->ccd_res;
   else
     dpi = dev->dpi;
-  dev->params.pixels_per_line = ((dev->BottomX - dev->TopX) * dpi) / 600;
-  dev->params.bytes_per_line = dev->params.pixels_per_line;
+  dev->params.pixels_per_line =
+    ((dev->BottomX - dev->TopX) * dpi) / dev->desc->ccd_res;
   if (dev->color == UMAX_PP_MODE_COLOR)
     {
-      dev->params.bytes_per_line *= 3;
+      dev->params.bytes_per_line = dev->params.pixels_per_line * 3;
       dev->params.format = SANE_FRAME_RGB;
     }
   else
     {
+      dev->params.bytes_per_line = dev->params.pixels_per_line;
       dev->params.format = SANE_FRAME_GRAY;
     }
   dev->params.depth = 8;
-
-
 
   /* success */
   if (params != NULL)
@@ -2100,12 +2123,12 @@ sane_start (SANE_Handle handle)
 {
   Umax_PP_Device *dev = handle;
   int rc, autoset;
-  int delta = 0;
+  int delta = 0, points;
 
   /* sanity check */
   if (dev->state == UMAX_PP_STATE_SCANNING)
     {
-      DBG (2, "start: device is already scanning\n");
+      DBG (2, "sane_start: device is already scanning\n");
       DEBUG ();
 
       return SANE_STATUS_DEVICE_BUSY;
@@ -2114,14 +2137,14 @@ sane_start (SANE_Handle handle)
   /* if cancelled, check if head is back home */
   if (dev->state == UMAX_PP_STATE_CANCELLED)
     {
-      DBG (2, "start: checking if scanner is parking head .... \n");
+      DBG (2, "sane_start: checking if scanner is parking head .... \n");
 
       rc = sanei_umax_pp_status ();
 
       /* check if scanner busy parking */
       if (rc == UMAX1220P_BUSY)
 	{
-	  DBG (2, "start: scanner busy\n");
+	  DBG (2, "sane_start: scanner busy\n");
 	  return SANE_STATUS_DEVICE_BUSY;
 	}
       dev->state = UMAX_PP_STATE_IDLE;
@@ -2145,11 +2168,12 @@ sane_start (SANE_Handle handle)
   if (dev->color == UMAX_PP_MODE_COLOR)
     {
       delta = umax_pp_get_sync (dev->dpi);
-      DBG (64, "start:umax_pp_start(%d,%d,%d,%d,%d,1,%X,%X)\n",
+      points = 2 * delta;
+      DBG (64, "sane_start:umax_pp_start(%d,%d,%d,%d,%d,1,%X,%X)\n",
 	   dev->TopX,
-	   dev->TopY - 2 * delta,
+	   dev->TopY - points,
 	   dev->BottomX - dev->TopX,
-	   dev->BottomY - dev->TopY,
+	   dev->BottomY - dev->TopY + points,
 	   dev->dpi,
 	   (dev->red_brightness << 8) + (dev->green_brightness << 4) +
 	   dev->blue_brightness,
@@ -2157,9 +2181,9 @@ sane_start (SANE_Handle handle)
 	   dev->blue_contrast);
 
       rc = sanei_umax_pp_start (dev->TopX,
-				dev->TopY - 2 * delta,
+				dev->TopY - points,
 				dev->BottomX - dev->TopX,
-				dev->BottomY - dev->TopY,
+				dev->BottomY - dev->TopY + points,
 				dev->dpi,
 				2,
 				autoset,
@@ -2175,10 +2199,12 @@ sane_start (SANE_Handle handle)
       /* substract it from real scanning */
       /* zone                            */
       dev->th -= 2 * delta;
+      DBG (64, "sane_start: bpp=%d,tw=%d,th=%d\n", dev->bpp, dev->tw,
+	   dev->th);
     }
   else
     {
-      DBG (64, "start:umax_pp_start(%d,%d,%d,%d,%d,0,%X,%X)\n",
+      DBG (64, "sane_start:umax_pp_start(%d,%d,%d,%d,%d,0,%X,%X)\n",
 	   dev->TopX,
 	   dev->TopY,
 	   dev->BottomX - dev->TopX,
@@ -2189,16 +2215,18 @@ sane_start (SANE_Handle handle)
 				dev->BottomX - dev->TopX,
 				dev->BottomY - dev->TopY,
 				dev->dpi,
-				(dev->color ==
-				 UMAX_PP_MODE_GRAYSCALE) ? 1 : 0, autoset,
+				1,
+				autoset,
 				dev->gray_brightness << 4,
 				dev->gray_contrast << 4, &(dev->bpp),
 				&(dev->tw), &(dev->th));
+      DBG (64, "sane_start: bpp=%d,tw=%d,th=%d\n", dev->bpp, dev->tw,
+	   dev->th);
     }
 
   if (rc != UMAX1220P_OK)
     {
-      DBG (2, "start: failure\n");
+      DBG (2, "sane_start: failure\n");
       DEBUG ();
 
       return SANE_STATUS_IO_ERROR;
@@ -2221,7 +2249,7 @@ sane_start (SANE_Handle handle)
 			    2 * delta * dev->tw * dev->bpp);
       if (rc != UMAX1220P_OK)
 	{
-	  DBG (2, "start: preload buffer failed\n");
+	  DBG (2, "sane_start: preload buffer failed\n");
 	  return SANE_STATUS_IO_ERROR;
 	}
     }
@@ -2253,7 +2281,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   /* sanity check */
   if (dev->state == UMAX_PP_STATE_CANCELLED)
     {
-      DBG (2, "read: scan cancelled\n");
+      DBG (2, "sane_read: scan cancelled\n");
       DEBUG ();
 
       return SANE_STATUS_CANCELLED;
@@ -2262,7 +2290,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   /* eof test */
   if (dev->read >= dev->th * ll)
     {
-      DBG (2, "read: end of scan reached\n");
+      DBG (2, "sane_read: end of scan reached\n");
       return SANE_STATUS_EOF;
     }
 
@@ -2285,12 +2313,14 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	  length = (dev->bufsize / ll) * ll;
 	}
 
-      delta = umax_pp_get_sync (dev->dpi);
 
       if (dev->color == UMAX_PP_MODE_COLOR)
-	rc =
-	  sanei_umax_pp_read (length, dev->tw, dev->dpi, last,
-			      dev->buf + UMAX_PP_RESERVE);
+	{
+	  delta = umax_pp_get_sync (dev->dpi);
+	  rc =
+	    sanei_umax_pp_read (length, dev->tw, dev->dpi, last,
+				dev->buf + UMAX_PP_RESERVE);
+	}
       else
 	rc = sanei_umax_pp_read (length, dev->tw, dev->dpi, last, dev->buf);
       if (rc != UMAX1220P_OK)
@@ -2337,16 +2367,37 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	    {
 	      for (x = 0; x < dev->tw; x++)
 		{
-		  /* red value: sync'ed */
-		  lbuf[x * dev->bpp + y * ll + UMAX_PP_RESERVE] =
-		    dev->buf[x + y * ll + 2 * dev->tw + UMAX_PP_RESERVE];
-		  /* green value, +delta line ahead of sync */
-		  lbuf[x * dev->bpp + y * ll + 1 + UMAX_PP_RESERVE] =
-		    dev->buf[x + (y - delta) * ll + dev->tw +
-			     UMAX_PP_RESERVE];
-		  /* blue value, +2*delta line ahead of sync */
-		  lbuf[x * dev->bpp + y * ll + 2 + UMAX_PP_RESERVE] =
-		    dev->buf[x + (y - 2 * delta) * ll + UMAX_PP_RESERVE];
+		  switch (sanei_umax_pp_getastra ())
+		    {
+		    case 610:
+		      /* green value: sync'ed */
+		      lbuf[x * dev->bpp + y * ll + 1 + UMAX_PP_RESERVE] =
+			dev->buf[x + y * ll + 2 * dev->tw + UMAX_PP_RESERVE];
+
+		      /* blue value, +delta line ahead of sync */
+		      lbuf[x * dev->bpp + y * ll + 2 + UMAX_PP_RESERVE] =
+			dev->buf[x + (y - delta) * ll + dev->tw +
+				 UMAX_PP_RESERVE];
+
+		      /* red value, +2*delta line ahead of sync */
+		      lbuf[x * dev->bpp + y * ll + UMAX_PP_RESERVE] =
+			dev->buf[x + (y - 2 * delta) * ll + UMAX_PP_RESERVE];
+
+		      break;
+		    default:
+		      /* red value: sync'ed */
+		      lbuf[x * dev->bpp + y * ll + UMAX_PP_RESERVE] =
+			dev->buf[x + y * ll + 2 * dev->tw + UMAX_PP_RESERVE];
+
+		      /* green value, +delta line ahead of sync */
+		      lbuf[x * dev->bpp + y * ll + 1 + UMAX_PP_RESERVE] =
+			dev->buf[x + (y - delta) * ll + dev->tw +
+				 UMAX_PP_RESERVE];
+
+		      /* blue value, +2*delta line ahead of sync */
+		      lbuf[x * dev->bpp + y * ll + 2 + UMAX_PP_RESERVE] =
+			dev->buf[x + (y - 2 * delta) * ll + UMAX_PP_RESERVE];
+		    }
 		}
 	    }
 	  /* store last data lines for next reordering */
@@ -2375,7 +2426,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   *len = length;
   dev->bufread += length;
   dev->read += length;
-  DBG (64, "sane_read %ld bytes read\n", length);
+  DBG (64, "sane_read: %ld bytes read\n", length);
 
   return SANE_STATUS_GOOD;
 

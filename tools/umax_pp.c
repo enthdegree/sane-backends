@@ -33,17 +33,18 @@ main (int argc, char **argv)
   char *name = NULL;
   int scan = 0;
   int lamp = -1;
-  int i,fd;
+  int i, fd;
   int found;
   int recover = 0;
   int trace = 0;
+  int maxw,maxh;
 
 /* scanning parameters : defaults to preview (75 dpi color, full scan area) */
   int brightness = 0x0;
-  int contrast = 0x2C0;
+  int contrast = 0x646;
   int dpi = 75;
   int x = 0, y = 0;
-  int width = 5100, height = 7000;
+  int width = -1, height = -1;
   int color = RGB_MODE;
 
 
@@ -120,11 +121,6 @@ main (int argc, char **argv)
 	      return 0;
 	    }
 	  x = atoi (argv[i + 1]);
-	  if (x < 0 || x > 5100)
-	    {
-	      fprintf (stderr, "x must be between 0 and 5099\n");
-	      return 0;
-	    }
 	  i++;
 	  found = 1;
 	}
@@ -138,11 +134,6 @@ main (int argc, char **argv)
 	      return 0;
 	    }
 	  y = atoi (argv[i + 1]);
-	  if (y < 0 || y > 7000)
-	    {
-	      fprintf (stderr, "y must be between 0 and 7000\n");
-	      return 0;
-	    }
 	  i++;
 	  found = 1;
 	}
@@ -156,17 +147,6 @@ main (int argc, char **argv)
 	      return 0;
 	    }
 	  width = atoi (argv[i + 1]);
-	  if ((width < 1) || (width > 5100))
-	    {
-	      fprintf (stderr, "width must be between 1 and 5100\n");
-	      return 0;
-	    }
-	  if (x + width > 5100)
-	    {
-	      fprintf (stderr,
-		       "Right side of scan area exceed physical limits (x+witdh>5100)\n");
-	      return 0;
-	    }
 	  i++;
 	  found = 1;
 	}
@@ -181,17 +161,6 @@ main (int argc, char **argv)
 	      return 0;
 	    }
 	  height = atoi (argv[i + 1]);
-	  if ((height < 1) || (height > 7000))
-	    {
-	      fprintf (stderr, "height must be between 1 and 7000\n");
-	      return 0;
-	    }
-	  if (y + height > 7100)
-	    {
-	      fprintf (stderr,
-		       "Bottom side of scan area exceed physical limits (y+height>7100)\n");
-	      return 0;
-	    }
 	  i++;
 	  found = 1;
 	}
@@ -220,6 +189,8 @@ main (int argc, char **argv)
       if ((strcmp (argv[i], "-s") == 0) || (strcmp (argv[i], "--scan") == 0))
 	{
 	  scan = 1;
+	  /* we have to probe again if we scan */
+	  probe = 1;
 	  found = 1;
 	}
 
@@ -356,9 +327,6 @@ main (int argc, char **argv)
     }
 
 
-  /* set x origin left to right */
-  x = 144 + (5100 - x) - width;
-
   /*  enable I/O */
   /* parport_claim */
   if (sanei_umax_pp_initPort (port, name) != 1)
@@ -368,7 +336,7 @@ main (int argc, char **argv)
     }
   if (trace)
     {
-      printf ("UMAX 1220P scanning program version 5.1 starting ...\n");
+      printf ("UMAX 610P/1220P/2000P scanning program version 6.0 starting ...\n");
 #ifdef HAVE_LINUX_PPDEV_H
       printf ("ppdev character device built-in.\n");
 #endif
@@ -426,6 +394,7 @@ main (int argc, char **argv)
       /* free scanner if a scan is planned */
       if (scan)
 	sanei_umax_pp_endSession ();
+      printf ("Done ....\n");
     }
 
   /* lamp on/off: must come after probing (610p handling) */
@@ -459,6 +428,60 @@ main (int argc, char **argv)
   /* scan */
   if (scan)
     {
+      printf ("Scanning ....\n");
+      if (sanei_umax_pp_getastra () < 1210)
+	{
+	  maxw = 2550;
+	  maxh = 3500;
+	}
+      else
+	{
+	  maxw = 5100;
+	  maxh = 7000;
+	}
+      if (width < 0)
+	width = maxw;
+      if (height < 0)
+	height = maxh;
+
+      if ((width < 1) || (width > maxw))
+	{
+	  fprintf (stderr, "width must be between 1 and %d\n", maxw);
+	  return 0;
+	}
+      if (x + width > maxw)
+	{
+	  fprintf (stderr,
+		   "Right side of scan area exceed physical limits (x+witdh>%d)\n",
+		   maxw);
+	  return 0;
+	}
+      if (y < 0 || y > maxh)
+	{
+	  fprintf (stderr, "y must be between 0 and %d\n", maxh - 1);
+	  return 0;
+	}
+      if (x < 0 || x > maxw)
+	{
+	  fprintf (stderr, "x must be between 0 and %d\n", maxw - 1);
+	  return 0;
+	}
+      if ((height < 1) || (height > maxh))
+	{
+	  fprintf (stderr, "height must be between 1 and %d\n", maxh);
+	  return 0;
+	}
+      if (y + height > maxh)
+	{
+	  fprintf (stderr,
+		   "Bottom side of scan area exceed physical limits (y+height>%d)\n",
+		   maxh);
+	  return 0;
+	}
+
+      /* set x origin left to right */
+      x = sanei_umax_pp_getLeft() + (maxw - x) - width;
+
       /* init transport layer */
       /* 0: failed
          1: success
@@ -474,15 +497,6 @@ main (int argc, char **argv)
 	  printf ("initTransport() failed (%s:%d)\n", __FILE__, __LINE__);
 	  return 0;
 	}
-      /*i = sanei_umax_pp_checkModel ();
-         if (i < 610)
-         {
-         sanei_umax_pp_endSession ();
-         printf ("checkModel() failed (%s:%d)\n", __FILE__, __LINE__);
-         return 0;
-         }
-         if (trace)
-         printf ("UMAX Astra %dP detected \n", i); */
       /* init scanner */
       if (sanei_umax_pp_initScanner (recover) == 0)
 	{
@@ -499,6 +513,7 @@ main (int argc, char **argv)
 
       /* wait for head parking */
       sanei_umax_pp_parkWait ();
+      printf ("Done ....\n");
     }
   sanei_umax_pp_endSession ();
 #ifdef HAVE_LINUX_PPDEV_H

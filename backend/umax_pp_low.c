@@ -544,6 +544,8 @@ static int SPPsendWord610p (int *cmd);
 static int cmdSet610p (int cmd, int len, int *buffer);
 static int cmdGet610p (int cmd, int len, int *buffer);
 static int initScanner610p (int recover);
+static int cmdGetBuffer610p (int cmd, int len, unsigned char *buffer);
+
 
 /* parport mode setting */
 static void compatMode (void);
@@ -583,7 +585,7 @@ static int connect (void);
 static void disconnect (void);
 static void bufferRead (int size, unsigned char *dest);
 static void bufferWrite (int size, unsigned char *source);
-static int PausedbufferRead (int size, unsigned char *dest);
+static int pausedBufferRead (int size, unsigned char *dest);
 
 
 static void ClearRegister (int reg);
@@ -604,12 +606,26 @@ static int cmdGetBlockBuffer (int cmd, int len, int window,
 
 static void bloc2Decode (int *op);
 static void bloc8Decode (int *op);
-
+/*
+ * high level operations
+ */
+static int loadDefaultTables (void);
+static int inquire (void);
+static int offsetCalibration (int color, int *offRed, int *offGreen,
+			      int *offBlue);
+static int coarseGainCalibration (int color, int dcRed, int dcGreen,
+				  int dcBlue, int *offRed, int *offGreen,
+				  int *offBlue);
+static int
+shadingCalibration (int color, int dcRed, int dcGreen, int dcBlue,
+		    int vgaRed, int vgaGreen, int vgaBlue, int *calibration);
+static int
+gammaCalibration (int color, int dcRed, int dcGreen, int dcBlue,
+		  int vgaRed, int vgaGreen, int vgaBlue, int *calibration);
 
 #define WRITESLOW(x,y) \
         PS2registerWrite((x),(y)); \
         DBG(16,"PS2registerWrite(0x%X,0x%X) passed...   (%s:%d)\n",(x),(y),__FILE__,__LINE__);
-
 #define SLOWNIBBLEREGISTERREAD(x,y) \
         tmp=PS2registerRead(x);\
         if(tmp!=y)\
@@ -618,12 +634,9 @@ static void bloc8Decode (int *op);
                 /*return 0;*/ \
         }\
         DBG(16,"PS2registerRead(0x%X)=0x%X passed... (%s:%d)\n",x,y,__FILE__,__LINE__);
-
-
 #define REGISTERWRITE(x,y) \
         registerWrite((x),(y)); \
         DBG(16,"registerWrite(0x%X,0x%X) passed...   (%s:%d)\n",(x),(y),__FILE__,__LINE__);
-
 #define REGISTERREAD(x,y) \
         tmp=registerRead(x);\
         if(tmp!=y)\
@@ -632,75 +645,58 @@ static void bloc8Decode (int *op);
                 return 0;\
         }\
         DBG(16,"registerRead(0x%X)=0x%X passed... (%s:%d)\n",x,y,__FILE__,__LINE__);
-
-
 #define TRACE(level,msg)        DBG(level, msg"  (%s:%d)\n",__FILE__,__LINE__);
-
-
 #define CMDSYNC(x)        if(sanei_umax_pp_cmdSync(x)!=1)\
                         {\
                                 DBG(0,"cmdSync(0x%02X) failed (%s:%d)\n",x,__FILE__,__LINE__);\
                                 return 0;\
                         }\
-                        TRACE(16,"cmdSync() passed ...")
-
+                        DBG(16,"cmdSync(0x%02X)=%02X passed ... (%s:%d)\n",x,sanei_umax_pp_scannerStatus(),__FILE__,__LINE__)
 #define CMDSETGET(cmd,len,sent) if(cmdSetGet(cmd,len,sent)!=1)\
                                 {\
                                         DBG(0,"cmdSetGet(0x%02X,%d,sent) failed (%s:%d)\n",cmd,len,__FILE__,__LINE__);\
                                         return 0;\
                                 }\
                                 TRACE(16,"cmdSetGet() passed ...")
-
 #define YOFFSET                40
 #define YOFFSET1220P        40
 #define YOFFSET2000P        40
-
-
-
-#define COMPLETIONWAIT        if(CompletionWait()==0)\
+#define COMPLETIONWAIT        if(completionWait()==0)\
                         {\
-                                DBG(0,"CompletionWait() failed (%s:%d)\n",__FILE__,__LINE__);\
+                                DBG(0,"completionWait() failed (%s:%d)\n",__FILE__,__LINE__);\
                                 return 0;\
                         }\
-                        TRACE(16,"CompletionWait() passed ...")
-
-#define MOVE(x,y,t)        if(Move(x,y,t)==0)\
+                        TRACE(16,"completionWait() passed ...")
+#define MOVE(x,y,t)        if(move(x,y,t)==0)\
                         {\
-                                DBG(0,"Move(%d,%d,buffer) failed (%s:%d)\n",x,y,__FILE__,__LINE__);\
+                                DBG(0,"move(%d,%d,buffer) failed (%s:%d)\n",x,y,__FILE__,__LINE__);\
                                 return 0;\
                         }\
-                        TRACE(16,"Move() passed ...")
-
+                        TRACE(16,"move() passed ...")
 #define CMDGETBUF(cmd,len,sent) if(cmdGetBuffer(cmd,len,sent)!=1)\
                                 {\
                                         DBG(0,"cmdGetBuffer(0x%02X,%ld,buffer) failed (%s:%d)\n",cmd,(long)len,__FILE__,__LINE__);\
                                         return 0;\
                                 }\
-                                TRACE(16,"cmdGetBuffer() passed ...")
-
+                                DBG(16,"cmdGetBuffer(%ld) passed ... (%s:%d)\n",(long)len,__FILE__,__LINE__);
 #define CMDGETBUF32(cmd,len,sent) if(cmdGetBuffer32(cmd,len,sent)!=1)\
                                 {\
                                         DBG(0,"cmdGetBuffer32(0x%02X,%ld,buffer) failed (%s:%d)\n",cmd,(long)len,__FILE__,__LINE__);\
                                         return 0;\
                                 }\
                                 TRACE(16,"cmdGetBuffer32() passed ...")
-
 #define CMDSET(cmd,len,sent) if(cmdSet(cmd,len,sent)!=1)\
                                 {\
                                         DBG(0,"cmdSet(0x%02X,%d,sent) failed (%s:%d)\n",cmd,len,__FILE__,__LINE__);\
                                         return 0;\
                                 }\
                                 TRACE(16,"cmdSet() passed ...")
-
 #define CMDGET(cmd,len,sent) if(cmdGet(cmd,len,sent)!=1)\
                                 {\
                                         DBG(0,"cmdGet(0x%02X,%d,read) failed (%s:%d)\n",cmd,len,__FILE__,__LINE__);\
                                         return 0;\
                                 }\
                                 TRACE(16,"cmdGet() passed ...")
-
-
-
 static int gPort = 0x378;
 
 /* global control vars */
@@ -713,9 +709,12 @@ static int gEPAT = 0;		/* signals fast mode ? */
 static int g6FE = 0;
 static int gECP = 0;
 
+static int gLeft = 144;		/* default value for 1220P */
+
 /* default gamma translation table */
 static int ggamma[256] =
-  { 0x00, 0x06, 0x0A, 0x0D, 0x10, 0x12, 0x14, 0x17, 0x19, 0x1B, 0x1D, 0x1F,
+  { 0x00, 0x06, 0x0A, 0x0D, 0x10, 0x12, 0x14, 0x17, 0x19, 0x1B, 0x1D,
+  0x1F,
   0x21, 0x23, 0x24, 0x26, 0x28, 0x2A, 0x2B, 0x2D, 0x2E, 0x30, 0x31, 0x33,
   0x34, 0x36, 0x37, 0x39, 0x3A, 0x3B, 0x3D, 0x3E, 0x40, 0x41, 0x42, 0x43,
   0x45, 0x46, 0x47, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4F, 0x50, 0x51, 0x52,
@@ -1631,6 +1630,7 @@ Outsw (int port, unsigned char *source, int size)
 
 /* we're trying to gather information on the scanner here, */
 /* and published it through an easy interface              */
+/* will turn it into a struct when 610P code will be done  */
 static int scannerStatus = 0;
 static int epp32 = 1;
 static int gMode = 0;
@@ -1638,6 +1638,22 @@ static int gprobed = 0;
 static int model = 0x15;
 static int astra = 0;
 static int hasUTA = 0;
+
+/* signals that scan width matches full ccd width */
+static int fullCCDWidth = 0;
+
+int
+sanei_umax_pp_getfull (void)
+{
+  return fullCCDWidth;
+}
+
+void
+sanei_umax_pp_setfull (int mod)
+{
+  fullCCDWidth = mod;
+}
+
 
 int
 sanei_umax_pp_UTA (void)
@@ -1717,6 +1733,24 @@ void
 sanei_umax_pp_setastra (int mod)
 {
   astra = mod;
+}
+
+int
+sanei_umax_pp_getLeft (void)
+{
+  switch (sanei_umax_pp_getastra ())
+    {
+    case 610:
+      return 92;
+    default:
+      return 144;
+    }
+}
+
+void
+sanei_umax_pp_setLeft (int mod)
+{
+  gLeft = mod;
 }
 
 int
@@ -1937,7 +1971,7 @@ PS2Something (int reg)
   Outb (CONTROL, 0x06);
   Outb (CONTROL, 0x06);
   Outb (CONTROL, 0x06);
-  breg = Inb (STATUS);
+  breg = Inb (STATUS) & 0xF8;
   low = breg;
   breg = breg & 0x08;
   /* surely means register(0x10)=0x0B */
@@ -3592,6 +3626,8 @@ putByte610p (int data)
 	   status, __FILE__, __LINE__);
       return 0;
     }
+
+
   Outb (CONTROL, 0x05);
   status = Inb (STATUS) & 0xF8;
   Outb (CONTROL, control);
@@ -3612,7 +3648,7 @@ sync610p (void)
     {
       DBG (0, "sync610p failed (got 0x%02X expected 0x38)! (%s:%d)\n",
 	   status, __FILE__, __LINE__);
-      /* return 0; XXX STEF XXX */
+      return 0;
     }
   Outb (CONTROL, 0x07);
   status = Inb (STATUS) & 0xF8;
@@ -3620,7 +3656,7 @@ sync610p (void)
     {
       DBG (0, "sync610p failed (got 0x%02X expected 0x38)! (%s:%d)\n",
 	   status, __FILE__, __LINE__);
-      /* return 0; XXX STEF XXX */
+      return 0;
     }
   Outb (CONTROL, 0x04);
   status = Inb (STATUS) & 0xF8;
@@ -3628,12 +3664,11 @@ sync610p (void)
     {
       DBG (0, "sync610p failed (got 0x%02X expected 0xF8)! (%s:%d)\n",
 	   status, __FILE__, __LINE__);
-      /* return 0; XXX STEF XXX */
+      return 0;
     }
   Outb (CONTROL, 0x05);
   Inb (CONTROL);		/* 0x05 expected */
   Outb (CONTROL, 0x04);
-  TRACE (16, "sync610p() passed ");
   return 1;
 }
 
@@ -3681,17 +3716,10 @@ getStatus610p (void)
 {
   int data, status;
 
-  /* XXX STEF: we have to save current mode and restore it on return */
   byteMode ();
   status = Inb (STATUS) & 0xF8;
   Outb (CONTROL, 0x26);		/* data reverse */
   data = Inb (DATA);
-  if ((data & 0x28) != 0x08)
-    {
-      DBG (0, "getStatus610p failed unexpected data 0x%02X! (%s:%d)\n",
-	   data, __FILE__, __LINE__);
-      return 0;
-    }
   scannerStatus = data;
   Outb (CONTROL, 0x24);
   return status;
@@ -3837,8 +3865,6 @@ connect610p (void)
       DBG (0, "connect610p control=%02X, expected 0x04 (%s:%d)\n", control,
 	   __FILE__, __LINE__);
     }
-
-  TRACE (16, "connect610p() passed ");
   return 1;
 }
 
@@ -4067,7 +4093,7 @@ WaitOnError (void)
 #ifdef HAVE_LINUX_PPDEV_H
 /* read up to size bytes, returns bytes read */
 static int
-ParportPausedbufferRead (int size, unsigned char *dest)
+ParportpausedBufferRead (int size, unsigned char *dest)
 {
   unsigned char status, bval;
   int error;
@@ -4265,10 +4291,9 @@ ParportPausedbufferRead (int size, unsigned char *dest)
 }
 #endif
 
-
 /* read up to size bytes, returns bytes read */
 static int
-DirectPausedbufferRead (int size, unsigned char *dest)
+DirectpausedBufferRead (int size, unsigned char *dest)
 {
   int control;
   int status;
@@ -4404,16 +4429,16 @@ DirectPausedbufferRead (int size, unsigned char *dest)
 
 
 int
-PausedbufferRead (int size, unsigned char *dest)
+pausedBufferRead (int size, unsigned char *dest)
 {
   EPPBlockMode (0x80);
 #ifdef HAVE_LINUX_PPDEV_H
   if (sanei_umax_pp_getparport () > 0)
-    return ParportPausedbufferRead (size, dest);
+    return ParportpausedBufferRead (size, dest);
 #endif
   /* only EPP hardware access for now */
   if (gMode == UMAX_PP_PARPORT_EPP)
-    return DirectPausedbufferRead (size, dest);
+    return DirectpausedBufferRead (size, dest);
   return 0;
 }
 
@@ -4556,7 +4581,7 @@ SPPsendWord610p (int *cmd)
     {
       DBG (0, "SPPsendWord610p found 0x%02X expected 0x88  (%s:%d)\n", status,
 	   __FILE__, __LINE__);
-      /* XXX STEF XXX return 0; */
+      return 0;
     }
   Outb (CONTROL, 0x04);
 
@@ -4567,7 +4592,7 @@ SPPsendWord610p (int *cmd)
     {
       DBG (0, "SPPsendWord610p found 0x%02X expected 0x88  (%s:%d)\n", status,
 	   __FILE__, __LINE__);
-      /* XXX STEF XXX return 0; */
+      return 0;
     }
   Outb (CONTROL, 0x04);
 
@@ -4580,7 +4605,7 @@ SPPsendWord610p (int *cmd)
 	{
 	  DBG (0, "SPPsendWord610p found 0x%02X expected 0x88  (%s:%d)\n",
 	       status, __FILE__, __LINE__);
-	  /* return 0; XXX STEF XXX */
+	  return 0;
 	}
       Outb (CONTROL, 0x04);
     }
@@ -4599,7 +4624,7 @@ SPPsendWord610p (int *cmd)
     {
       DBG (0, "SPPsendWord610p found 0x%X expected 0x80 or 0xA0 (%s:%d)\n",
 	   status, __FILE__, __LINE__);
-      /* return 0; XXX STEF XXX */
+      return 0;
     }
   Outb (DATA, 0x7F);
   status = Inb (STATUS) & 0xF8;
@@ -4607,7 +4632,7 @@ SPPsendWord610p (int *cmd)
     {
       DBG (0, "SPPsendWord610p found 0x%X expected 0xC0  (%s:%d)\n", status,
 	   __FILE__, __LINE__);
-      /* return 0; XXX STEF XXX */
+      return 0;
     }
   Outb (DATA, 0xFF);
   if (cmd[3] == 0xC2)
@@ -4627,7 +4652,7 @@ SPPsendWord610p (int *cmd)
 	  DBG (0,
 	       "SPPsendWord610p found 0x%X expected 0x80 or 0xA0 (%s:%d)\n",
 	       status, __FILE__, __LINE__);
-	  /* return 0; XXX STEF XXX */
+	  return 0;
 	}
       Outb (DATA, 0x7F);
       status = Inb (STATUS) & 0xF8;
@@ -4635,7 +4660,7 @@ SPPsendWord610p (int *cmd)
 	{
 	  DBG (0, "SPPsendWord610p found 0x%X expected 0xC0  (%s:%d)\n",
 	       status, __FILE__, __LINE__);
-	  /* return 0; XXX STEF XXX */
+	  return 0;
 	}
       Outb (DATA, 0xFF);
     }
@@ -4669,7 +4694,7 @@ EPPsendWord610p (int *cmd)
       DBG (0,
 	   "EPPsendWord610p failed, expected tmp=0xC8 , found 0x%02X (%s:%d)\n",
 	   tmp, __FILE__, __LINE__);
-      /* return 0; XXX STEF XXX */
+      return 0;
     }
 
   /* sets to EPP, and get sure that data direction is forward */
@@ -4684,7 +4709,7 @@ EPPsendWord610p (int *cmd)
       DBG (0,
 	   "EPPsendWord610p failed, expected tmp=0xC8 , found 0x%02X (%s:%d)\n",
 	   tmp, __FILE__, __LINE__);
-      /* return 0; XXX STEF XXX */
+      return 0;
     }
   tmp = (Inb (CONTROL) & 0xE0) | 0x04;
   Outb (CONTROL, tmp);
@@ -4700,7 +4725,7 @@ EPPsendWord610p (int *cmd)
 	  DBG (0,
 	       "EPPsendWord610p failed, expected tmp=0xC8 , found 0x%02X (%s:%d)\n",
 	       tmp, __FILE__, __LINE__);
-	  /* return 0; XXX STEF XXX */
+	  return 0;
 	}
     }
 
@@ -5249,7 +5274,8 @@ sendData610p (int *cmd, int len)
 
   i = 0;
   status = 0xC8;
-  while ((i < len) && ((status & 0x08) == 0x08))
+  /* while ((i < len) && ((status & 0x08) == 0x08)) XXX STEF XXX */
+  while (i < len)
     {
       /* escape special values */
       if (cmd[i] == 0x1B)
@@ -5359,7 +5385,7 @@ sendData (int *cmd, int len)
 /* receive data bytes from scanner   */
 /* needs data channel to be set up   */
 /* returns 1 on success, 0 otherwise */
-/* uses PausedbufferRead             */
+/* uses pausedBufferRead             */
 static int
 pausedReadData (int size, unsigned char *dest)
 {
@@ -5394,16 +5420,16 @@ pausedReadData (int size, unsigned char *dest)
     }
   else
     {
-      read = PausedbufferRead (size, dest);
+      read = pausedBufferRead (size, dest);
     }
   if (read < size)
     {
       DBG (16,
-	   "PausedbufferRead(%d,dest) failed, only got %d bytes (%s:%d)\n",
+	   "pausedBufferRead(%d,dest) failed, only got %d bytes (%s:%d)\n",
 	   size, read, __FILE__, __LINE__);
       return 0;
     }
-  DBG (16, "PausedbufferRead(%d,dest) passed (%s:%d)\n", size, __FILE__,
+  DBG (16, "pausedBufferRead(%d,dest) passed (%s:%d)\n", size, __FILE__,
        __LINE__);
   REGISTERWRITE (0x0E, 0x0D);
   REGISTERWRITE (0x0F, 0x00);
@@ -5426,7 +5452,7 @@ receiveData610p (int *cmd, int len)
   byteMode ();
   while (i < len)
     {
-      status = Inb (STATUS);
+      status = Inb (STATUS) & 0xF8;
       Outb (CONTROL, 0x26);	/* data reverse+ 'reg' */
       cmd[i] = Inb (DATA);
       Outb (CONTROL, 0x24);	/* data reverse+ 'reg' */
@@ -5743,16 +5769,7 @@ sanei_umax_pp_endSession (void)
 int
 initScanner610p (int recover)
 {
-  int i, first;
-  int buffer[0x306];
-  int inquire[16];
-  /* close to opsc35 */
-  int cmd01[36] = { 0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C,
-    0x00, 0x03, 0xC1, 0x80, 0x60, 0x20, 0x00, 0x00,
-    0x16, 0x41, 0xE0, 0xAC, 0x03, 0x03, 0x00, 0x00,
-    0x46, 0xA0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0xF0, 0x1B, -1
-  };
+  int first, rc;
   int cmd55AA[9] = { 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA, -1 };
   int cmd02[17] = { 0x02, 0x80, 0x00, 0x40, 0x30, 0x00, 0xC0, 0x2F,
     0x2F, 0x07, 0x00, 0x00, 0x00, 0x80, 0xF0, 0x00, -1
@@ -5790,75 +5807,30 @@ initScanner610p (int recover)
   int op03[9] = { 0x00, 0x00, 0x00, 0xAA, 0xCC, 0xEE, 0xFF, 0xFF, -1 };
 
   byteMode ();			/* just to get sure */
-  CMDSET (8, 0x23, cmd01);
-  /* all values but two last should be the same */
-  CMDGET (8, 0x23, buffer);
+  first = 0;
+  rc = inquire ();
+  if (rc == 0)
+    {
+      DBG (0, "inquire() failed ! (%s:%d) \n", __FILE__, __LINE__);
+      return 0;
+    }
+  if (rc == 2)
+    {
+      DBG (1, "inquire() signals re-homing needed ... (%s:%d) \n",
+	   __FILE__, __LINE__);
+      first = 1;
+    }
+  DBG (1, "inquire() passed ... (%s:%d) \n", __FILE__, __LINE__);
 
-  /* inquire scanner status */
-  /* if every byte but inquire[14], first probe,
-   * we'll have to do the re-homing */
-  CMDGET (2, 0x10, inquire);
-  /* we assume first init unless inquire has values in it */
-  first = 1;
-  for (i = 0; i < 14; i++)
+  rc = loadDefaultTables ();
+  if (rc == 0)
     {
-      if (inquire[i] != 0)
-	first = 0;
+      DBG (0, "loadDefaultTables() failed ! (%s:%d) \n", __FILE__, __LINE__);
+      return 0;
     }
-  if (inquire[15] != 0)
-    first = 0;
-  if (first)
-    {
-      DBG (8, "SCANNER INQUIRE STATUS is 0x%02X\n", inquire[14]);
-    }
-  /* recovery overrides first */
+  DBG (1, "loadDefaultTables() passed ... (%s:%d) \n", __FILE__, __LINE__);
   if (recover)
     first = 1;
-
-  cmd01[12] = 0x00;
-  cmd01[14] = 0x02;
-  cmd01[33] = buffer[33];
-  CMDSETGET (8, 0x22, cmd01);
-  CMDSYNC (0xC2);
-
-  /* default gamma table */
-  buffer[0] = 0;
-  buffer[1] = 0;
-  buffer[2] = 0;
-  for (i = 3; i < 771; i++)
-    buffer[i] = i % 256;
-  buffer[771] = 0xFF;
-  buffer[772] = 0xFF;
-  CMDSETGET (4, 0x305, buffer);
-  CMDSETGET (8, 0x22, cmd01);
-  CMDSYNC (0xC2);
-
-  /* these buffers are likely used to convert 10bits 
-   * values scanned to 8 bits , green seems to have
-   * a better sensitivity, hence a finer transform */
-  for (i = 0; i < 256; i++)
-    {
-      buffer[2 * i] = i;
-      buffer[2 * i + 1] = 0;
-    }
-  CMDSET (4, 0x200, buffer);
-  CMDSETGET (8, 0x22, cmd01);
-  CMDSYNC (0xC2);
-
-  for (i = 0; i < 256; i++)
-    {
-      buffer[2 * i] = i;
-      buffer[2 * i + 1] = 1;
-    }
-  CMDSET (4, 0x200, buffer);
-  CMDSETGET (8, 0x22, cmd01);
-
-  for (i = 0; i < 256; i++)
-    {
-      buffer[2 * i] = i;
-      buffer[2 * i + 1] = 0;
-    }
-  CMDSET (4, 0x200, buffer);
 
   CMDSETGET (2, 0x10, cmd02);
   CMDSETGET (1, 0x08, cmd55AA);
@@ -5884,6 +5856,7 @@ initScanner610p (int recover)
       CMDSYNC (0x00);
       CMDSETGET (4, 0x08, op03);
       CMDSYNC (0x40);
+      CMDSYNC (0xC2);
       sleep (2);
     }
 
@@ -5895,10 +5868,10 @@ initScanner610p (int recover)
   CMDSYNC (0x00);
   CMDSETGET (4, 0x08, op03);
   CMDSYNC (0x40);
+  CMDSYNC (0xC2);
   sleep (2);
 
   /* means 'CONTINUE MOVE' */
-  CMDSYNC (0xC2);
   CMDSYNC (0x00);
   while ((scannerStatus & MOTOR_BIT) == 0)
     {
@@ -5925,10 +5898,10 @@ initScanner610p (int recover)
       CMDSYNC (0x00);
       CMDSETGET (4, 0x08, op03);
       CMDSYNC (0x40);
+      CMDSYNC (0xC2);
       sleep (9);
     }
 
-  CMDSYNC (0xC2);
   CMDSYNC (0x00);
 
   /* this code has been added, without corresponding logs/
@@ -6857,7 +6830,7 @@ probeECP (unsigned char *dest)
   Outb (CONTROL, 0x04);
   Outb (CONTROL, 0x04);
   Outb (CONTROL, 0x04);
-  breg = Inb (STATUS);
+  breg = Inb (STATUS) & 0xF8;
   breg = (Inb (STATUS)) & 0xF8;
   if (breg != 0xC8)
     {
@@ -7888,6 +7861,9 @@ cmdGet610p (int cmd, int len, int *val)
   int word[5];
   int i, status;
 
+  if ((cmd == 8) && (len > 0x23))
+    len = 0x22;
+
   /* compute word */
   word[0] = len / 65536;
   word[1] = len / 256 % 256;
@@ -7956,33 +7932,19 @@ cmdSet610p (int cmd, int len, int *val)
   int word[5];
   int i, status;
 
+  if ((cmd == 8) && (len > 0x23))
+    {
+      /* blank useless extra bytes */
+      for (i = 0x22; i < len; i++)
+	val[i] = 0x00;
+    }
+
   /* compute word */
   word[0] = len / 65536;
   word[1] = len / 256 % 256;
   word[2] = len % 256;
   word[3] = (cmd & 0x3F) | 0x80;
   word[4] = -1;
-
-  if (DBG_LEVEL >= 8)
-    {
-      char *str = NULL;
-
-      str = malloc (3 * len + 1);
-      if (str != NULL)
-	{
-	  for (i = 0; i < len; i++)
-	    {
-	      sprintf (str + 3 * i, "%02X ", val[i]);
-	    }
-	  str[3 * i] = 0x00;
-	  DBG (8, "String sent     for %02X: %s\n", cmd, str);
-	  free (str);
-	}
-      else
-	{
-	  TRACE (8, "not enough memory for debugging ...");
-	}
-    }
 
   connect610p ();
   sync610p ();
@@ -8023,6 +7985,27 @@ cmdSet (int cmd, int len, int *val)
   int word[5];
   int i;
 
+  if (DBG_LEVEL >= 8)
+    {
+      char *str = NULL;
+
+      str = malloc (3 * len + 1);
+      if (str != NULL)
+	{
+	  for (i = 0; i < len; i++)
+	    {
+	      sprintf (str + 3 * i, "%02X ", val[i]);
+	    }
+	  str[3 * i] = 0x00;
+	  DBG (8, "String sent     for %02X: %s\n", cmd, str);
+	  free (str);
+	}
+      else
+	{
+	  TRACE (8, "not enough memory for debugging ...");
+	}
+    }
+
   if (sanei_umax_pp_getastra () == 610)
     return cmdSet610p (cmd, len, val);
 
@@ -8062,26 +8045,6 @@ cmdSet (int cmd, int len, int *val)
 	{
 	  DBG (0, "cmdSet: prologue failed !   (%s:%d)\n", __FILE__,
 	       __LINE__);
-	}
-      if (DBG_LEVEL >= 8)
-	{
-	  char *str = NULL;
-
-	  str = malloc (3 * len + 1);
-	  if (str != NULL)
-	    {
-	      for (i = 0; i < len; i++)
-		{
-		  sprintf (str + 3 * i, "%02X ", val[i]);
-		}
-	      str[3 * i] = 0x00;
-	      DBG (8, "String sent     for %02X: %s\n", cmd, str);
-	      free (str);
-	    }
-	  else
-	    {
-	      TRACE (8, "not enough memory for debugging ...");
-	    }
 	}
 
       /* send data */
@@ -8190,7 +8153,7 @@ cmdSetGet (int cmd, int len, int *val)
   /* cmd 08 as 2 length depending upon model */
   if ((cmd == 8) && (getModel () == 0x07))
     {
-      len = 35;
+      len = 0x23;
     }
 
   /* first we send */
@@ -8209,6 +8172,9 @@ cmdSetGet (int cmd, int len, int *val)
       epilogue ();
       return 0;
     }
+
+  /* wait a littlle to let the scanner time to think */
+  usleep(20000);
 
   /* then we receive */
   if (cmdGet (cmd, len, tampon) == 0)
@@ -8239,19 +8205,125 @@ cmdSetGet (int cmd, int len, int *val)
 }
 
 
+
 /* 1 OK, 0 failed */
 static int
-cmdGetBuffer (int cmd, int len, unsigned char *buffer)	/* ECP OK */
+cmdGetBuffer610p (int cmd, int len, unsigned char *buffer)
+{
+  int status, i, tmp;
+  int word[5];
+  int read, needed, max;
+
+  /* first we set length and channel */
+  /* compute word */
+  word[0] = len / 65536;
+  word[1] = (len / 256) % 256;
+  word[2] = len % 256;
+  word[3] = (cmd & 0x0F) | 0xC0;
+  word[4] = -1;
+
+  connect610p ();
+  sync610p ();
+  if (sendLength610p (word) == 0)
+    {
+      DBG (0, "sendLength610p(word) failed... (%s:%d)\n", __FILE__, __LINE__);
+      return 0;
+    }
+  status = getStatus610p ();
+  scannerStatus = status;
+  if ((status != 0xC0) && (status != 0xD0))
+    {
+      DBG (1, "Found 0x%X expected 0xC0 or 0xD0 (%s:%d)\n", status, __FILE__,
+	   __LINE__);
+      return 0;
+    }
+  disconnect610p ();
+
+  if (sanei_umax_pp_getfull () == 1)
+    max = 2550 / 3;
+  else
+    max = 32768;
+  read = 0;
+  while (read < len)
+    {
+      if (len - read > max)
+	needed = max;
+      else
+	needed = len - read;
+
+      if (sanei_umax_pp_getfull () == 0)
+	status = getStatus610p ();
+      else
+	status = 0x20;
+
+      /* wait for data ready */
+      while ((status & 0x80) == 0x00)
+	{
+	  connect610p ();
+	  Outb (CONTROL, 0x07);
+	  Outb (DATA, 0xFF);
+	  tmp = Inb (DATA);
+	  if (tmp != 0xFF)
+	    {
+	      DBG (0,
+		   "cmdGetBuffer610p found 0x%02X expected 0xFF  (%s:%d)\n",
+		   tmp, __FILE__, __LINE__);
+	      return 0;
+	    }
+	  status = Inb (STATUS) & 0xF8;
+	  if ((status & 0x80) == 0x00)
+	    disconnect610p ();
+	  else
+	    {
+	      Outb (CONTROL, 0x04);
+	      sync610p ();
+	      byteMode ();
+	    }
+	}
+
+      i = 0;
+      while (i < needed)
+	{
+	  if (sanei_umax_pp_getfull () == 0)
+	    {
+	      status = Inb (STATUS) & 0xF8;
+	      if (status == 0xC8)
+		{
+		  for (tmp = 0; tmp < 18; tmp++)
+		    status = Inb (STATUS) & 0xF8;
+		  break;
+		}
+	    }
+	  Outb (CONTROL, 0x26);	/* data reverse+ 'reg' */
+	  buffer[read + i] = Inb (DATA);
+	  Outb (CONTROL, 0x24);	/* data reverse+ 'reg' */
+	  i++;
+	}
+      byteMode ();
+      disconnect610p ();
+      read += i;
+    }
+
+  return 1;
+}
+
+
+/* 1 OK, 0 failed */
+static int
+cmdGetBuffer (int cmd, int len, unsigned char *buffer)
 {
   int reg, tmp, i;
   int word[5], read;
   int needed;
 
+  if (sanei_umax_pp_getastra () == 610)
+    return cmdGetBuffer610p (cmd, len, buffer);
+
   /* compute word */
   word[0] = len / 65536;
   word[1] = len / 256 % 256;
   word[2] = len % 256;
-  word[3] = (cmd & 0x3F) | 0x80 | 0x40;
+  word[3] = (cmd & 0x0F) | 0xC0;
   word[4] = -1;
 
   /* send word: len+addr(?) */
@@ -8313,7 +8385,7 @@ cmdGetBuffer (int cmd, int len, unsigned char *buffer)	/* ECP OK */
 	}
       else
 	{
-	  tmp = PausedbufferRead (needed, buffer + read);
+	  tmp = pausedBufferRead (needed, buffer + read);
 	}
       if (tmp < needed)
 	{
@@ -8692,7 +8764,7 @@ bloc2Decode (int *op)
 
 
   scanh = op[0] + (op[1] & 0x3F) * 256;
-  skiph = ((op[1] & 0xC0) >> 6) + (op[2] * 4) + ((op[3] & 0x0F) << 10);
+  skiph = ((op[1] & 0xC0) >> 6) + (op[2] << 2) + ((op[3] & 0x0F) << 10);
 
   if (op[3] & 0x10)
     dir = 1;
@@ -8719,17 +8791,19 @@ bloc2Decode (int *op)
   DBG (0, "\t->scan height   =0x%04X (%d)\n", scanh, scanh);
   DBG (0, "\t->skip height   =0x%04X (%d)\n", skiph, skiph);
   DBG (0, "\t->y dpi         =0x%04X (%d)\n", dpi, dpi);
-  DBG (0, "\t->channel 1 brightness=0x%02X (%d)\n", op[10] & 0x0F,
-       op[10] & 0x0F);
-  DBG (0, "\t->channel 2 brightness=0x%02X (%d)\n", (op[10] & 0xF0) / 16,
-       (op[10] & 0xF0) / 16);
-  DBG (0, "\t->channel 3 brightness=0x%02X (%d)\n", op[11] & 0x0F,
-       op[11] & 0x0F);
-  DBG (0, "\t->channel 1 high=0x%02X (%d)\n", (op[11] / 16) & 0x0F,
-       (op[11] / 16) & 0x0F);
-  DBG (0, "\t->channel 2 high=0x%02X (%d)\n", (op[12] & 0xF0) / 16,
-       (op[12] & 0xF0) / 16);
-  DBG (0, "\t->channel 3 high=0x%02X (%d)\n", op[12] & 0x0F, op[12] & 0x0F);
+  DBG (0, "\t->channel 1 VGA=0x%02X (%d)\n", (op[10] & 0x0F),
+       (op[10] & 0x0F));
+  DBG (0, "\t->channel 2 VGA=0x%02X (%d)\n", (op[10] & 0xF0) >> 4,
+       (op[10] & 0xF0) >> 4);
+  DBG (0, "\t->channel 3 VGA=0x%02X (%d)\n", (op[11] & 0x0F),
+       (op[11] & 0x0F));
+  DBG (0, "\t->channel 1 DC =0x%02X (%d)\n", (op[11] & 0xF0) >> 4,
+       (op[11] & 0xF0) >> 4);
+  DBG (0, "\t->channel 2 DC =0x%02X (%d)\n", (op[12] & 0x3C) >> 2,
+       (op[12] & 0x3C) >> 2);
+  DBG (0, "\t->channel 3 DC =0x%02X (%d)\n", (op[13] & 0x0F),
+       (op[13] & 0x0F));
+
   if (dir)
     DBG (0, "\t->forward direction\n");
   else
@@ -8765,10 +8839,14 @@ bloc8Decode (int *op)
 {
   int i, bpl;
   int xskip;
-  int xend;
+  int xend, len;
   char str[128];
 
-  for (i = 0; i < 36; i++)
+  if (sanei_umax_pp_getastra () < 1220)
+    len = 34;
+  else
+    len = 36;
+  for (i = 0; i < len; i++)
     sprintf (str + 3 * i, "%02X ", (unsigned char) op[i]);
   str[3 * i] = 0x00;
   DBG (0, "Command bloc 8: %s\n", str);
@@ -8779,19 +8857,202 @@ bloc8Decode (int *op)
   xend = (op[18] & 0xF0) / 16 + 16 * op[19];
   if (op[33] & 0x80)
     xend += 0x1000;
-  bpl = (op[24] - 0x41) * 256 + 8192 * (op[34] & 0x01) + op[23];
+  if (len > 34)
+    bpl = (op[24] - 0x41) * 256 + 8192 * (op[34] & 0x01) + op[23];
+  else
+    bpl = (op[24] - 0x41) * 256 + op[23];
 
   DBG (0, "\t->xskip     =0x%X (%d)\n", xskip, xskip);
   DBG (0, "\t->xend      =0x%X (%d)\n", xend, xend);
   DBG (0, "\t->scan width=0x%X (%d)\n", xend - xskip - 1, xend - xskip - 1);
   DBG (0, "\t->bytes/line=0x%X (%d)\n", bpl, bpl);
+  DBG (0, "\t->raw       =0x%X (%d)\n", op[24] * 256 + op[23],
+       op[24] * 256 + op[23]);
   DBG (0, "\n");
 }
 
-static int
-CompletionWait (void)		/* ECP OK */
+/* 
+ * encodes DC offsets: must be in [0..0x0F] range
+ */
+static void
+encodeDC (int dcRed, int dcGreen, int dcBlue, int *motor)
 {
+  motor[11] = (motor[11] & 0x0F) | dcRed << 4;
+  motor[12] = (motor[12] & 0xC3) | dcGreen << 2;
+  motor[13] = (motor[13] & 0xF0) | dcBlue;
+}
+
+
+/* 
+ * encodes VGA : must be in [0..0x0F] range
+ */
+static void
+encodeVGA (int vgaRed, int vgaGreen, int vgaBlue, int *motor)
+{
+  motor[10] = (vgaGreen << 4) | vgaRed;
+  motor[11] = (motor[11] & 0xF0) | vgaBlue;
+}
+
+/*
+ * this function encodes total head movement which includes
+ * y movement and scan area height
+ * height is scan area height
+ * ypos   is head movement before scan
+ * total move will be ypos+height */
+static void
+encodeHY (int height, int ypos, int *motor)
+{
+  motor[0] = height % 256;
+  motor[1] = (height / 256) & 0x3F;
+  motor[1] = motor[1] | (ypos & 0x03) << 6;
+  motor[2] = (ypos >> 2) % 256;
+  motor[3] = (motor[3] & 0xF0) | ((ypos >> 10) & 0x0F);
+}
+
+/*
+ * this function encodes x start and x end on the CCD
+ * w is width of scanning area
+ * x is start of scanning area
+ * dpi is x resolution
+ * color is non zero if scanning in color
+ * bytes is on aoverride for bpl, since it sin't clear today when
+ * the formula has to be applied
+ */
+static void
+encodeWX (int width, int xstart, int dpi, int color, int *ccd, int bytes)
+{
+  int xend;
+  int bpl;
+  int x;
+
+  xend = xstart + width;
+  x = xstart - 1;
+
+  /* x start encoding */
+  ccd[17] = x % 256;
+  ccd[18] = (ccd[18] & 0xF0) | ((x / 256) & 0x0F);
+  /* models >=1220P have a 600 dpi CCD: x is bigger */
+  if (sanei_umax_pp_getastra () > 610)
+    {
+      if (x > 0x1000)
+	ccd[33] |= 0x40;
+      else
+	ccd[33] &= 0xBF;
+    }
+
+  /* x end encoding */
+  ccd[18] = (ccd[18] & 0x0F) | ((xend % 16) << 4);
+  ccd[19] = (xend / 16) % 256;
+  /* models >=1220P have a 600 dpi CCD: x is bigger */
+  if (sanei_umax_pp_getastra () > 610)
+    {
+      if (xend > 0x1000)
+	ccd[33] |= 0x80;
+      else
+	ccd[33] &= 0x7F;
+    }
+
+  /* now bytes per line */
+  /* bpl = (op[24] - 0x41) * 256 + 8192 * (op[34] & 0x01) + op[23]; */
+  bpl = (color == 0 ? 1 : 3) * width * dpi;
+  if (sanei_umax_pp_getastra () > 610)
+    {
+      bpl /= 600;
+      if (bpl >= 8192)
+	ccd[34] |= 0x01;
+      else
+	ccd[34] &= 0xFE;
+    }
+  else
+    {
+      bpl /= 300;
+    }
+  if (bytes > 0)
+    bpl = bytes;
+  ccd[23] = bpl % 256;
+  ccd[24] = 0x41 + ((bpl / 256) & 0x1F);
+}
+
+  /* cropping coefficient: last 2 bytes gives the coefficient applied */
+  /* to data scanned to get the actual image resolution               */
+static void
+encodeCoefficient (int color, int dpi, int *calibration)
+{
+  int w, idx = 0;
+  int *coeff;
+
+  /* 75, 150, 300, 600 and 1200 dpi */
+  int color610p[4][2] =
+    { {0x88, 0x88}, {0xAA, 0xAA}, {0xFF, 0xFF}, {0xFF, 0xFF} };
+  int gray610p[4][2] =
+    { {0x88, 0x01}, {0xAA, 0x11}, {0xFF, 0xAA}, {0xFF, 0xFF} };
+
+  /* FF means coeff=1
+   * AA       coeff=1/2
+   * 88       coeff=1/4
+   * 80       coeff=1/8
+   * first coeff for CCD (x)
+   * second coeff for motor steps (y)
+   */
+  int color1220p[5][2] =
+    { {0x80, 0xAA}, {0x88, 0xFF}, {0xAA, 0xFF}, {0xFF, 0xFF}, {0xFF, 0xFF} };
+  int gray1220p[5][2] =
+    { {0x80, 0x88}, {0x88, 0xAA}, {0xAA, 0xFF}, {0xFF, 0xFF}, {0xFF, 0xFF} };
+
+  switch (dpi)
+    {
+    case 1200:
+      idx = 4;
+      break;
+    case 600:
+      idx = 3;
+      break;
+    case 300:
+      idx = 2;
+      break;
+    case 150:
+      idx = 1;
+      break;
+    case 75:
+      idx = 0;
+      break;
+    }
+
+  if (sanei_umax_pp_getastra () < 1210)
+    {
+      w = 2550;
+      if (color >= RGB_MODE)
+	coeff = color610p[idx];
+      else
+	coeff = gray610p[idx];
+    }
+  else
+    {
+      w = 5100;
+      if (color >= RGB_MODE)
+	coeff = color1220p[idx];
+      else
+	coeff = gray1220p[idx];
+    }
+
+  /* x coefficient */
+  calibration[3 * w + 768] = coeff[0];
+
+  /* y coefficient */
+  calibration[3 * w + 769] = coeff[1];
+}
+
+static int
+completionWait (void)
+{
+  /* for 610P, wait and sync is done while 
+   * reading data from the scanner */
   CMDSYNC (0x40);
+  usleep (100000);
+  CMDSYNC (0xC2);
+  if ((sanei_umax_pp_getastra () == 610)
+      || ((sanei_umax_pp_scannerStatus () & 0x90) == 0x90))
+    return 1;
   do
     {
       usleep (100000);
@@ -8966,7 +9227,7 @@ DumpRGB (int width, int height, unsigned char *data, char *name)
 }
 
 static int
-EvalGain (int sum, int count)
+evalGain (int sum, int count)
 {
   int gn;
   float pct;
@@ -8997,7 +9258,7 @@ EvalGain (int sum, int count)
 }
 
 static void
-ComputeCalibrationData (int color, int dpi, int width, unsigned char *source,
+computeCalibrationData (int color, int dpi, int width, unsigned char *source,
 			int *data)
 {
   int p, i, l;
@@ -9016,7 +9277,7 @@ ComputeCalibrationData (int color, int dpi, int width, unsigned char *source,
 	  sum = 0;
 	  for (l = 0; l < 66; l++)
 	    sum += source[i + l * 5100 * 3];
-	  data[i] = EvalGain (sum, l);
+	  data[i] = evalGain (sum, l);
 	}
       else
 	data[i] = 0x00;
@@ -9031,7 +9292,7 @@ ComputeCalibrationData (int color, int dpi, int width, unsigned char *source,
       sum = 0;
       for (l = 0; l < 66; l++)
 	sum += source[i + l * 5100 * 3 + 5100];
-      data[p + i] = EvalGain (sum, l);
+      data[p + i] = evalGain (sum, l);
     }
 
 
@@ -9045,7 +9306,7 @@ ComputeCalibrationData (int color, int dpi, int width, unsigned char *source,
 	  sum = 0;
 	  for (l = 0; l < 66; l++)
 	    sum += source[i + l * 5100 * 3 + 5100 * 2];
-	  data[p + i] = EvalGain (sum, l);
+	  data[p + i] = evalGain (sum, l);
 	}
       else
 	data[p + i] = 0x00;
@@ -9119,20 +9380,23 @@ ComputeCalibrationData (int color, int dpi, int width, unsigned char *source,
 /* 0: failed  
    1: success                                          */
 static int
-Move (int distance, int precision, unsigned char *buffer)
+move (int distance, int precision, unsigned char *buffer)
 {
-  int header[17] =
-    { 0x01, 0x00, 0x00, 0x20, 0x00, 0x00, 0x60, 0x2F, 0x2F, 0x01, 0x00, 0x00,
-    0x00, 0x80, 0xA4, 0x00, -1
+  int header[17] = {
+    0x01, 0x00, 0x00, 0x20, 0x00, 0x00, 0x60, 0x2F,
+    0x2F, 0x01, 0x00, 0x00, 0x00, 0x80, 0xA4, 0x00,
+    -1
   };
-  int body[37] =
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x04, 0x00, 0x6E, 0xF6, 0x79, 0xBF, 0x01, 0x00, 0x00, 0x00,
-    0x46, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x13, 0x1A, 0x00,
+  int body[37] = {
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00,
+    0x6E, 0xF6, 0x79, 0xBF, 0x01, 0x00, 0x00, 0x00,
+    0x46, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68,
+    0xDF, 0x13, 0x1A, 0x00,
     -1
   };
   int end[9] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, -1 };
-  int steps, len;
+  int steps, len, cmdlen;
   unsigned char tmp[0x200];
   unsigned char *ptr;
 
@@ -9179,11 +9443,29 @@ Move (int distance, int precision, unsigned char *buffer)
     }
   if (steps > 0)
     {
-      header[1] = (steps << 6) & 0xFF;
-      header[2] = (steps >> 2) & 0xFF;
-      header[3] = header[3] | ((steps >> 10) & 0x0F);
+      encodeHY (1, steps, header);
     }
 
+
+  if (sanei_umax_pp_getastra () < 1220)
+    {
+      header[6] = 0xC0;
+
+      body[16] = 0x76;		/* encodeWX */
+      body[17] = 0x00;
+      body[18] = 0x15;
+      body[19] = 0x70;
+      body[20] = 0x01;
+      body[21] = 0x00;
+
+      body[28] = 0x4D;
+      body[29] = 0x4B;
+      body[30] = 0xD0;
+
+      cmdlen = 0x22;
+    }
+  else
+    cmdlen = 0x24;
 
   /* precision: default header set to precision on */
   if (precision == PRECISION_OFF)
@@ -9192,33 +9474,30 @@ Move (int distance, int precision, unsigned char *buffer)
 	header[8] = 0x15;
       else
 	header[8] = 0x17;
-      header[14] = 0xAC;
+      if (sanei_umax_pp_getastra () > 610)
+	header[14] = 0xAC;
       body[20] = 0x06;
     }
-  if (DBG_LEVEL >= 128)
-    {
-      bloc2Decode (header);
-      bloc8Decode (body);
-    }
   CMDSETGET (0x02, 16, header);
-  CMDSETGET (0x08, 36, body);
+  CMDSETGET (0x08, cmdlen, body);
   if (DBG_LEVEL >= 128)
     {
       bloc2Decode (header);
       bloc8Decode (body);
     }
   CMDSYNC (0xC2);
-  if (sanei_umax_pp_scannerStatus () & 0x80)
+  if ((sanei_umax_pp_scannerStatus () & 0x80)
+      || (sanei_umax_pp_getastra () < 1220))
     {
       CMDSYNC (0x00);
     }
   CMDSETGET (4, len, end);
   COMPLETIONWAIT;
+  CMDGETBUF (4, 0x200, ptr);
   if (DBG_LEVEL >= 128)
     {
       Dump (0x200, ptr, NULL);
     }
-  CMDGETBUF (4, 0x200, ptr);
   DBG (16, "MOVE STATUS IS 0x%02X  (%s:%d)\n", sanei_umax_pp_scannerStatus (),
        __FILE__, __LINE__);
   CMDSYNC (0x00);
@@ -9230,7 +9509,7 @@ Move (int distance, int precision, unsigned char *buffer)
 /* for each column, finds the row where white/black transition occurs
         then returns the average */
 static float
-EdgePosition (int width, int height, unsigned char *data)
+edgePosition (int width, int height, unsigned char *data)
 {
   int ecnt, x, y;
   float epos;
@@ -9309,23 +9588,33 @@ moveToOrigin (void)
 {
   unsigned char buffer[54000];
   float edge;
-  int val, delta;
-  int header[17] =
-    { 0xB4, 0x00, 0x00, 0x70, 0x00, 0x00, 0x60, 0x2F, 0x2F, 0x05, 0x00, 0x00,
-    0x00, 0x80, 0xA4, 0x00, -1
+  int val, delta = 188;
+  int header[17] = {
+    0xB4, 0x00, 0x00, 0x70, 0x00, 0x00, 0x60, 0x2F,
+    0x2F, 0x05, 0x00, 0x00, 0x00, 0x80, 0xA4, 0x00, -1
   };
-  int body[37] =
-    { 0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C, 0x00, 0x04, 0x40, 0x01,
-    0x00, 0x00, 0x04, 0x00, 0x6E, 0xFB, 0xC4, 0xE5, 0x06, 0x00, 0x00, 0x60,
-    0x4D, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x13, 0x1A, 0x00,
+
+  int body[37] = {
+    0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C,
+    0x00, 0x04, 0x40, 0x01, 0x00, 0x00, 0x04, 0x00,
+    0x6E, 0xFB, 0xC4, 0xE5, 0x06, 0x00, 0x00, 0x60,
+    0x4D, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68,
+    0xDF, 0x13, 0x1A, 0x00, -1
+  };
+
+  int end[9] = {
+    0x06, 0xF4, 0xFF, 0x81, 0x1B, 0x00, 0x08, 0x00,
     -1
   };
-  int end[9] = { 0x06, 0xF4, 0xFF, 0x81, 0x1B, 0x00, 0x08, 0x00, -1 };
-  int opsc03[9] = { 0x00, 0x00, 0x00, 0xAA, 0xCC, 0xEE, 0x80, 0xFF, -1 };
+  int opsc03[9] = {
+    0x00, 0x00, 0x00, 0xAA, 0xCC, 0xEE, 0x80, 0xFF,
+    -1
+  };
+  int w = 300, h = 180, len = 36;
 
-  /* 1600P command set */
-  if (sanei_umax_pp_getastra () == 1600)
+  switch (sanei_umax_pp_getastra ())
     {
+    case 1600:
       header[8] = 0x2B;
 
       body[29] = 0x1A;
@@ -9334,41 +9623,78 @@ moveToOrigin (void)
       end[0] = 0x19;
       end[1] = 0xD5;
       end[4] = 0x1B;
+
+    case 1220:
+    case 2000:
+      w = 300;
+      h = 180;
+      len = 36;
+      delta = -188;
+      CMDSYNC (0x00);
+      CMDSYNC (0xC2);
+      CMDSYNC (0x00);
+      MOVE (196, PRECISION_OFF, NULL);
+      break;
+
+    case 610:
+
+      w = 512;
+      h = 90;
+      len = 34;
+      delta = -81;
+
+      opsc03[6] = 0xFF;		/* instead of 0x80 */
+
+      encodeHY (h, 60, header);
+
+      /* will add encodeDpi(dpi,cmd) */
+      header[6] = 0xC0;
+      header[8] = 0x17;
+
+      body[13] = 0x20;
+      body[14] = 0x02;
+
+      body[16] = 0x76;
+
+      encodeWX (0x200, 0x501, 300, 0, body, 0x500);
+
+      /* fixed values for all 610p commands */
+      body[28] = 0x4D;
+      body[29] = 0x4B;
+      body[30] = 0xD0;
+
+      /* LM9811 command block ? */
+      end[0] = 0x88;
+      end[1] = 0xE6;
+      end[2] = 0xFD;
+      end[3] = 0x8E;
+      end[4] = 0x30;
+
+      break;
     }
 
-  /* sync scanner then move head by the estimated origin */
-  CMDSYNC (0x00);
-  CMDSYNC (0xC2);
-  CMDSYNC (0x00);
-  MOVE (196, PRECISION_OFF, NULL);
 
-  /* scan 2400 'x' by 180 y, B&W at 600 dpi, starting at the   */
-  /* first quarter of the x area. This should cover a black    */
-  /* line drawn in the middle of a white area, under the piece */
-  /* that separates the 'little' window and the scan window    */
-  CMDSETGET (0x02, 16, header);
-  CMDSETGET (0x08, 36, body);
-  if (DBG_LEVEL > 128)
-    {
-      bloc2Decode (header);
-      bloc8Decode (body);
-    }
-  CMDSETGET (0x01, 8, end);
+  /* scan an area where is a white and a black regions, which  */
+  /* can be detected and gives this offset to the origin of the */
+  /* scanning windows                                          */
+  CMDSETGET (2, 0x10, header);
+  CMDSETGET (8, len, body);
+  CMDSETGET (1, 0x08, end);
 
   CMDSYNC (0xC2);
   CMDSYNC (0x00);
   /* signals black & white ? */
-  CMDSETGET (0x04, 8, opsc03);
+  CMDSETGET (4, 8, opsc03);
   COMPLETIONWAIT;
-  CMDGETBUF (0x04, 54000, buffer);	/* get find position data */
+  CMDGETBUF (4, w * h, buffer);	/* get find position data */
   if (DBG_LEVEL > 128)
     {
-      DumpNB (300, 180, buffer, NULL);
+      DumpNB (w, h, buffer, NULL);
     }
 
   /* detection of 1600P is a by product of origin finding */
   edge = 0.0;
-  for (val = 0; val < 54000; val++)
+  for (val = 0; val < w * h; val++)
     if (buffer[val] > edge)
       edge = buffer[val];
   DBG (32, "MAX VALUE=%f        (%s:%d)\n", edge, __FILE__, __LINE__);
@@ -9377,19 +9703,23 @@ moveToOrigin (void)
       DBG (2, "moveToOrigin() detected a 1600P");
       sanei_umax_pp_setastra (1600);
     }
-  edge = EdgePosition (300, 180, buffer);
+  edge = edgePosition (w, h, buffer);
   /* rounded to lowest integer, since upping origin might lead */
   /* to bump in the other side if doing a full size preview    */
   val = (int) (edge);
 
-  /* edge is 60 dots (at 600 dpi) from origin */
-  /* origin=current pos - 180 + edge + 60     */
-  /* grumpf, there is an offset somewhere ... */
-  delta = -188 + val;
+  delta += val;
   DBG (64, "Edge=%f, val=%d, delta=%d\n", edge, val, delta);
 
   /* move back to y-coordinate origin */
-  MOVE (delta, PRECISION_ON, NULL);
+  if (sanei_umax_pp_getastra () < 1220)
+    {
+      MOVE (delta, PRECISION_OFF, NULL);
+    }
+  else
+    {
+      MOVE (delta, PRECISION_ON, NULL);
+    }
 
   /* head successfully set to the origin */
   return 1;
@@ -9400,12 +9730,13 @@ moveToOrigin (void)
 /* X is red
    Y is blue
    Z is green
-
+   the calibration routine follow closely the 
+   application guide of LM9811
    returns if OK, else 0
 */
 
 static int
-WarmUp (int color, int *brightness)
+warmUp (int color, int *brightness, int *contrast)
 {
   unsigned char buffer[5300];
   int i, val, min, max;
@@ -9442,8 +9773,9 @@ WarmUp (int color, int *brightness)
     { 0x09, 0x00, 0x00, 0x70, 0x00, 0x00, 0x60, 0x2F, 0x2F, 0x00, 0x00, 0x00,
     0x00, 0x40, 0xA4, 0x00, -1
   };
-  float offsetX, offsetY, offsetZ;
+  float offsetX, offsetY, offsetZ, low, high;
 
+  DBG (16, "entering warmUp() ... (%s:%d) \n", __FILE__, __LINE__);
 
   /* really dirty hack: somethig is buggy in BW mode    */
   /* we override mode with color until the bug is found */
@@ -9468,14 +9800,8 @@ WarmUp (int color, int *brightness)
       opsc48[13] = 0x42;
     }
 
-  /* block that repeats : another kind of move .... */
-  /* scan one line of 24 bytes at the right/left    */
-  /* maybe black calibration since it is out of the */
-  /* scanning area                                  */
-  /* color calibration: offset detection            */
-  /* scan 24 pixels wide, 1 pixel height at 600 dpi */
-  /* without moving the head. Pixels are 'under the */
-  /* roof', so should be black                      */
+  /* offset calibration, scan 24 bytes of black in each color */
+  /* component see section 5.1 of LM9811 datasheet */
   if (color >= RGB_MODE)
     {
       CMDSETGET (2, 0x10, opsc48);
@@ -9494,7 +9820,7 @@ WarmUp (int color, int *brightness)
       val = 0;
       for (i = 0; i < 24; i++)
 	val += buffer[i];
-      offsetX = (float) val / i;
+      low = (float) val / i;	/* Vadc1 */
 
 
       CMDSYNC (0x00);
@@ -9505,9 +9831,11 @@ WarmUp (int color, int *brightness)
       val = 0;
       for (i = 0; i < 24; i++)
 	val += buffer[i];
-      offsetX += (float) val / i;
+      high = (float) val / i;	/* Vadc2 */
       if (DBG_LEVEL >= 128)
 	Dump (0x18, buffer, NULL);
+
+      offsetX = 15.0 + 0.3 * (low - high);
 
       /* block that repeats */
       /* must be monochrome since hscan=1 */
@@ -9539,7 +9867,7 @@ WarmUp (int color, int *brightness)
       val = 0;
       for (i = 0; i < 24; i++)
 	val += buffer[i];
-      offsetY = (float) val / i;
+      low = (float) val / i;
 
       CMDSYNC (0x00);
       opsc04[7] = opsc04[7] | 0x10;	/* brightness ? */
@@ -9551,7 +9879,9 @@ WarmUp (int color, int *brightness)
       val = 0;
       for (i = 0; i < 24; i++)
 	val += buffer[i];
-      offsetY += (float) val / i;
+      high = (float) val / i;
+
+      offsetY = 15.0 + 0.3 * (low - high);
     }
 
   /* block that repeats */
@@ -9584,7 +9914,7 @@ WarmUp (int color, int *brightness)
   val = 0;
   for (i = 0; i < 24; i++)
     val += buffer[i];
-  offsetZ = (float) val / i;
+  low = (float) val / i;
 
   CMDSYNC (0x00);
   opsc04[7] = opsc04[7] | 0x10;
@@ -9596,22 +9926,28 @@ WarmUp (int color, int *brightness)
   val = 0;
   for (i = 0; i < 24; i++)
     val += buffer[i];
-  offsetZ += (float) val / i;
+  high = (float) val / i;
+
+  offsetZ = 15.0 + 0.3 * (low - high);
+
+  DBG (32, "STEF: offsets(X,Y,Z)=(%f,%f,%f)\n", offsetX, offsetY, offsetZ);
+  *contrast = ((int) offsetX) * 256 + ((int) offsetY) * 16 + ((int) offsetZ);
 
 
 	/***********************/
   /* auto brightness computing */
 	/***********************/
 
-  /* color correction set to 53 05 */
+  /* color correction set to 5,3,5 */
   /* for a start                   */
   *brightness = 0x535;
+
   CMDSETGET (2, 0x10, opsc18);
   CMDSETGET (8, 0x24, opsc39);
   opsc04[7] = opsc04[7] & 0x20;
   opsc04[6] = 0x06;		/* one channel brightness value */
   CMDSETGET (1, 0x08, opsc10);	/* was opsc04, extraneaous string */
-  /* that prevents using Move .... */
+  /* that prevents using move .... */
   CMDSYNC (0xC2);
   CMDSYNC (0x00);
   CMDSETGET (4, 0x08, opsc02);
@@ -9800,19 +10136,24 @@ WarmUp (int color, int *brightness)
 	}
     }
   *brightness = (*brightness & 0xF0F) + (opsc04[6] - 1) * 16;
-  DBG (1, "Warm-up done ...\n");
+  DBG (1, "warmUp() done ...\n");
   return 1;
 }
 
 /* park head: returns 1 on success, 0 otherwise  */
-/* distance is in 75 dpi unit                    */
 int
 sanei_umax_pp_park (void)
 {
-  int op11[17] =
-    { 0x01, 0x80, 0x0C, 0x70, 0x00, 0x00, 0xC0, 0x2F, 0x17, 0x01, 0x00, 0x00,
-    0x00, 0x80, 0xA4, 0x00, -1
+  int header610[17] = {
+    0x01, 0x00, 0x01, 0x40, 0x30, 0x00, 0xC0, 0x2F, 0x17, 0x05, 0x00, 0x00,
+    0x00, 0x80, 0xF4, 0x00, -1
   };
+  int body610[35] = {
+    0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C, 0x00, 0x03, 0xC1, 0x80,
+    0x00, 0x20, 0x02, 0x00, 0x16, 0x80, 0x15, 0x78, 0x03, 0x03, 0x00, 0x00,
+    0x46, 0xA0, 0x00, 0x8B, 0x4D, 0x4B, 0xD0, 0x68, 0xDF, 0x1B, -1
+  };
+
   int header[17] =
     { 0x01, 0x00, 0x01, 0x70, 0x00, 0x00, 0x60, 0x2F, 0x13, 0x05, 0x00, 0x00,
     0x00, 0x80, 0xF0, 0x00, -1
@@ -9823,33 +10164,23 @@ sanei_umax_pp_park (void)
     0x46, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x1B, 0x1A, 0x00,
     -1
   };
-  int op02[35] = { 0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C,
-    0x00, 0x04, 0x40, 0x01, 0x00, 0x20, 0x02, 0x00,
-    0x76, 0x00, 0x75, 0xEF, 0x06, 0x00, 0x00, 0xF6,
-    0x4D, 0xA0, 0x00, 0x8B, 0x4D, 0x4B, 0xD0, 0x68,
-    0xDF, 0x1B, -1
-  };
-  int op03[9] = { 0x00, 0x00, 0x00, 0xAA, 0xCC, 0xEE, 0xFF, 0xFF, -1 };
 
   int status = 0x90;
 
   CMDSYNC (0x00);
 
-  if (sanei_umax_pp_getastra () != 610)
+  if (sanei_umax_pp_getastra () > 610)
     {
-      CMDSETGET (0x02, 16, header);
-      CMDSETGET (0x08, 36, body);
+      CMDSETGET (0x02, 0x10, header);
+      CMDSETGET (0x08, 0x24, body);
     }
   else
     {
-      CMDSETGET (0x02, 16, op11);
-      CMDSETGET (0x08, 36, op02);
-      CMDSYNC (0xC2);
-      CMDSYNC (0x00);
-      CMDSETGET (4, 0x08, op03);
+      CMDSETGET (0x02, 0x10, header610);
+      CMDSETGET (0x08, 0x22, body610);
     }
-
   CMDSYNC (0x40);
+
 
   status = sanei_umax_pp_scannerStatus ();
   DBG (16, "PARKING STATUS is 0x%02X (%s:%d)\n", status, __FILE__, __LINE__);
@@ -9860,7 +10191,7 @@ sanei_umax_pp_park (void)
 
 /* calibrates CCD: returns 1 on success, 0 on failure */
 static int
-ColorCalibration (int color, int dpi, int brightness, int contrast, int width,
+colorCalibration (int color, int dpi, int brightness, int contrast, int width,
 		  int *calibration)
 {
   int opsc32[17] =
@@ -9991,9 +10322,9 @@ ColorCalibration (int color, int dpi, int brightness, int contrast, int width,
 	  DumpNB (5100, 66, buffer, NULL);
 	}
     }
-  ComputeCalibrationData (color, dpi, width, buffer, calibration);
+  computeCalibrationData (color, dpi, width, buffer, calibration);
 
-  DBG (1, "Color calibration done ...\n");
+  DBG (1, "colorCalibration() done ...\n");
   return 1;
 }
 
@@ -10003,9 +10334,10 @@ int
 sanei_umax_pp_readBlock (long len, int window, int dpi, int last,
 			 unsigned char *buffer)
 {
-  DBG (8, "ReadBlock(%ld,%d,%d,%d)\n", len, window, dpi, last);
+  DBG (8, "readBlock(%ld,%d,%d,%d)\n", len, window, dpi, last);
   /* EPP block reading is available only when dpi >=600 */
-  if ((dpi >= 600) && (gMode != UMAX_PP_PARPORT_ECP))
+  if ((dpi >= 600)
+      && (gMode != UMAX_PP_PARPORT_ECP) && (sanei_umax_pp_getastra () > 610))
     {
       DBG (8, "cmdGetBlockBuffer(4,%ld,%d);\n", len, window);
       len = cmdGetBlockBuffer (4, len, window, buffer);
@@ -10018,6 +10350,11 @@ sanei_umax_pp_readBlock (long len, int window, int dpi, int last,
     }
   else
     {
+      if ((sanei_umax_pp_getastra () < 1210) && (len > 0xFDCE))
+	{
+	  len = 0xFDCE;
+	  last = 0;
+	}
       DBG (8, "cmdGetBuffer(4,%ld);\n", len);
       if (cmdGetBuffer (4, len, buffer) != 1)
 	{
@@ -10042,7 +10379,6 @@ sanei_umax_pp_readBlock (long len, int window, int dpi, int last,
 	    }
 	  else
 	    DBG (0, " success ...\n");
-
 	}
     }
   return len;
@@ -10062,15 +10398,66 @@ sanei_umax_pp_scan (int x, int y, int width, int height, int dpi, int color,
   int *dest = NULL;
   int bpl, hp;
   int th, tw, bpp;
-  int distance = 0, nb;
-  int bx, by;
+  int nb;
+  int bx, by, delta;
+  int reserve, rc, remain;
 
-  if (sanei_umax_pp_startScan
-      (x, y, width, height, dpi, color, brightness, contrast, &bpp, &tw,
-       &th) == 1)
+  /* colors don't come in sync, so we must increase y */
+  /* to have extra lines to reorder datas             */
+  if (sanei_umax_pp_getastra () > 610)
     {
-      COMPLETIONWAIT;
+      switch (dpi)
+	{
+	case 1200:
+	  delta = 8;
+	  break;
+	case 600:
+	  delta = 4;
+	  break;
+	case 300:
+	  delta = 2;
+	  break;
+	case 150:
+	  delta = 1;
+	  break;
+	default:
+	  delta = 0;
+	  break;
+	}
+    }
+  else
+    {
+      if (color >= RGB_MODE)
+	{
+	  switch (dpi)
+	    {
+	    case 600:
+	      delta = 8;
+	      break;
+	    case 300:
+	      delta = 8;
+	      break;
+	    case 150:
+	      delta = 4;
+	      break;
+	    default:
+	      delta = 2;
+	      break;
+	    }
+	}
+      else
+	delta = 0;
+    }
 
+  if (color >= RGB_MODE)
+    rc = sanei_umax_pp_startScan
+      (x, y - 2 * delta, width, height + 2 * delta, dpi, color, brightness,
+       contrast, &bpp, &tw, &th);
+  else
+    rc = sanei_umax_pp_startScan
+      (x, y, width, height, dpi, color, brightness, contrast, &bpp, &tw, &th);
+  if (rc == 1)
+    {
       /* blocksize must be multiple of the number of bytes per line */
       /* max is 2096100                                             */
       /* so blocksize will hold a round number of lines, easing the */
@@ -10083,16 +10470,23 @@ sanei_umax_pp_scan (int x, int y, int width, int height, int dpi, int color,
       nb = 0;
       read = 0;
 
+      /* we need a 2 * delta lines reserve to reorder data */
+      if (color >= RGB_MODE)
+	reserve = 3 * 2 * delta * tw;
+      else
+	reserve = 0;
+
       /* get scanned data */
       somme = bpp * tw * th;
       DBG (8, "Getting buffer %d*%d*%d=%ld=0x%lX    (%s:%d)  \n", bpp, tw, th,
 	   somme, somme, __FILE__, __LINE__);
 
       /* allocate memory */
-      buffer = (unsigned char *) malloc (blocksize);
+      buffer = (unsigned char *) malloc (blocksize + reserve);
       if (buffer == NULL)
 	{
-	  DBG (0, "Failed to allocate %ld bytes, giving up....\n", blocksize);
+	  DBG (0, "Failed to allocate %ld bytes, giving up....\n",
+	       blocksize + reserve);
 	  DBG (0, "Try to scan at lower resolution, or a smaller area.\n");
 	  gCancel = 1;
 	}
@@ -10108,7 +10502,7 @@ sanei_umax_pp_scan (int x, int y, int width, int height, int dpi, int color,
 	{
 	  /* write pnm header */
 	  if (color >= RGB_MODE)
-	    fprintf (fout, "P6\n%d %d\n255\n", tw, th);
+	    fprintf (fout, "P6\n%d %d\n255\n", tw, th - 2 * delta);
 	  else
 	    fprintf (fout, "P5\n%d %d\n255\n", tw, th);
 	}
@@ -10117,18 +10511,21 @@ sanei_umax_pp_scan (int x, int y, int width, int height, int dpi, int color,
 #ifdef HAVE_SYS_TIME_H
       gettimeofday (&td, NULL);
 #endif
+      remain = 0;
       while ((read < somme) && (!gCancel))
 	{
 	  /* 2096100 max */
-	  if (somme - read > blocksize)
-	    len = blocksize;
+	  if (somme - read > blocksize - remain)
+	    len = blocksize - remain;
 	  else
 	    len = somme - read;
 	  len =
-	    sanei_umax_pp_readBlock (len, tw, dpi, (len < blocksize), buffer);
+	    sanei_umax_pp_readBlock (len, tw, dpi, (len < blocksize),
+				     buffer + (read ==
+					       0 ? 0 : reserve) + remain);
 	  if (len == 0)
 	    {
-	      DBG (0, "ReadBlock failed, cancelling scan ...\n");
+	      DBG (0, "sanei_umax_pp_readBlock failed, cancelling scan ...\n");
 	      gCancel = 1;
 	    }
 
@@ -10144,9 +10541,52 @@ sanei_umax_pp_scan (int x, int y, int width, int height, int dpi, int color,
 		{
 		  /* using an image format that doesn't need   */
 		  /* reordering would speed up write operation */
-		  hp = len / bpl;
-		  if (sanei_umax_pp_getastra () != 1600)
+
+		  /* don't forget remaining bytes from previous block */
+		  hp = (len + remain) / bpl;
+		  remain = (len + remain) - hp * bpl;
+		  switch (sanei_umax_pp_getastra ())
 		    {
+		    case 6100:
+		      fwrite (buffer, len, 1, fout);
+		      break;
+
+		    case 610:
+		      for (by = 0; by < hp - (read == 0 ? 2 * delta : 0);
+			   by++)
+			{
+			  for (bx = 0; bx < tw; bx++)
+			    {
+			      /* scanner data: red line, blue line then green line */
+			      /* red */
+			      fputc (buffer
+				     [3 * (by - 2 * delta) * tw + bx +
+				      reserve], fout);
+			      /* green */
+			      fputc (buffer
+				     [3 * by * tw + 2 * tw +
+				      bx + reserve], fout);
+			      /* blue */
+			      fputc (buffer
+				     [3 * (by - delta) * tw + tw + bx +
+				      reserve], fout);
+			    }
+			}
+		      /* copy tail lines for next block */
+		      memcpy (buffer, buffer + 3 * by * tw, reserve + remain);
+		      break;
+		    case 1600:
+		      for (by = 0; by < hp; by++)
+			{
+			  for (bx = 0; bx < tw; bx++)
+			    {
+			      fputc (buffer[3 * by * tw + 2 * tw + bx], fout);
+			      fputc (buffer[3 * by * tw + bx], fout);
+			      fputc (buffer[3 * by * tw + tw + bx], fout);
+			    }
+			}
+		      break;
+		    default:
 		      for (by = 0; by < hp; by++)
 			{
 			  for (bx = 0; bx < tw; bx++)
@@ -10156,18 +10596,9 @@ sanei_umax_pp_scan (int x, int y, int width, int height, int dpi, int color,
 			      fputc (buffer[3 * by * tw + bx], fout);
 			    }
 			}
-		    }
-		  else
-		    {
-		      for (by = 0; by < hp; by++)
-			{
-			  for (bx = 0; bx < tw; bx++)
-			    {
-			      fputc (buffer[3 * by * tw + 2 * tw + bx], fout);
-			      fputc (buffer[3 * by * tw + bx], fout);
-			      fputc (buffer[3 * by * tw + tw + bx], fout);
-			    }
-			}
+		      /* put remaining partial lines at start of buffer */
+		      memcpy (buffer, buffer + hp * bpl, remain);
+		      break;
 		    }
 		}
 	      else
@@ -10189,10 +10620,6 @@ sanei_umax_pp_scan (int x, int y, int width, int height, int dpi, int color,
 	fclose (fout);
       free (dest);
       free (buffer);
-
-
-      /* park head */
-      distance = distance + y + height;
     }				/* if start scan OK */
   else
     {
@@ -10220,7 +10647,7 @@ sanei_umax_pp_scan (int x, int y, int width, int height, int dpi, int color,
 
 
   /* end ... */
-  DBG (1, "Scan done ...\n");
+  DBG (16, "Scan done ...\n");
   return 1;
 }
 
@@ -10235,32 +10662,17 @@ int
 sanei_umax_pp_parkWait (void)
 {
   int status;
-  int op21[17] =
-    { 0x01, 0x00, 0x01, 0x40, 0x30, 0x00, 0xC0, 0x2F, 0x17, 0x05, 0x00, 0x00,
-    0x00, 0x80, 0xF4, 0x00, -1
-  };
-  int op22[35] = { 0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C,
-    0x00, 0x03, 0xC1, 0x80, 0x00, 0x20, 0x02, 0x00,
-    0x16, 0x80, 0x15, 0x78, 0x03, 0x03, 0x00, 0x00,
-    0x46, 0xA0, 0x00, 0x8B, 0x4D, 0x4B, 0xD0, 0x68,
-    0xDF, 0x1B, -1
-  };
 
   /* check if head is at home */
+  DBG (16, "entering parkWait ...\n");
   do
     {
-      if (sanei_umax_pp_getastra () == 610)
-	{			/* send 'CONTINUE' */
-	  CMDSYNC (0xC2);
-	  CMDSETGET (2, 0x10, op21);
-	  CMDSETGET (8, 0x22, op22);
-	}
       usleep (1000);
       CMDSYNC (0x40);
       status = sanei_umax_pp_scannerStatus ();
     }
   while ((status & MOTOR_BIT) == 0x00);
-  DBG (1, "parkWait done ...\n");
+  DBG (16, "parkWait done ...\n");
   return 1;
 }
 
@@ -10277,26 +10689,28 @@ sanei_umax_pp_startScan (int x, int y, int width, int height, int dpi,
 {
   unsigned char *buffer;
   int *dest = NULL;
-  int state[16];
-  int err = 0;
+  int rc = 0;
   int calibration[3 * 5100 + 768 + 2 + 1];
-  int xdpi, ydpi, bpl, h;
+  int xdpi, ydpi, h;
   int th, tw, bpp;
-  int distance, i;
   int hwdpi = 600;		/* CCD hardware dpi */
+  /* DC offsets */
+  int dcRed, dcGreen, dcBlue;
+  int vgaRed, vgaGreen, vgaBlue;
+  int len;
 
-  int opsc04[9] = { 0x06, 0xF4, 0xFF, 0x81, 0x1B, 0x00, 0x00, 0x00, -1 };
-  int opsc53[17] =
-    { 0xA4, 0x80, 0x07, 0x50, 0xEC, 0x03, 0x00, 0x2F, 0x17, 0x07, 0x84, 0x08,
-    0x00, 0x00, 0xAC, 0x00, -1
-  };
-  int opsc35[37] =
-    { 0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C, 0x00, 0x03, 0xC1, 0x80,
-    0x00, 0x00, 0x04, 0x00, 0x16, 0x41, 0xE0, 0xAC, 0x03, 0x03, 0x00, 0x00,
-    0x46, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x13, 0x1A, 0x00,
+  int lm9811[9] = {
+    0x06, 0xF4, 0xFF, 0x81, 0x1B, 0x00, 0x00, 0x00,
     -1
   };
-  int opscan[37] =
+
+  int motor[17] = {
+    0xA4, 0x80, 0x07, 0x50, 0xEC, 0x03, 0x00, 0x2F,
+    0x17, 0x07, 0x84, 0x08, 0x90, 0x00, 0xAC, 0x00,
+    -1
+  };
+
+  int ccd[37] =
     { 0x00, 0x00, 0xB0, 0x4F, 0xD8, 0xE7, 0xFA, 0x10, 0xEF, 0xC4, 0x3C, 0x71,
     0x0F, 0x00, 0x04, 0x00, 0x6E, 0x61, 0xA1, 0x24, 0xC4, 0x7E, 0x00, 0xAE,
     0x41, 0xA0, 0x0A, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x33, 0x1A, 0x00,
@@ -10316,6 +10730,61 @@ sanei_umax_pp_startScan (int x, int y, int width, int height, int dpi,
   if (sanei_umax_pp_getastra () == 610)
     {
       hwdpi = 300;
+      len = 0x22;
+
+      lm9811[0] = 0x88;
+      lm9811[1] = 0xE6;
+      lm9811[2] = 0xFD;
+      lm9811[3] = 0x8E;
+      lm9811[4] = 0x30;
+      lm9811[5] = 0x00;
+      lm9811[6] = 0x8F;
+      lm9811[7] = 0x80;
+
+      motor[3] = 0x30;
+      motor[4] = 0x0E;
+      motor[5] = 0x02;
+      motor[12] = 0xAA;
+
+      ccd[0] = 0x00;
+      ccd[1] = 0x00;
+      ccd[2] = 0xD8;
+      ccd[3] = 0x27;
+      ccd[4] = 0xEC;
+      ccd[5] = 0x53;
+      ccd[6] = 0x7D;
+      ccd[7] = 0x8A;
+      ccd[8] = 0x77;
+      ccd[9] = 0xE2;
+      ccd[10] = 0x9E;
+      ccd[11] = 0xF8;
+      ccd[12] = 0x07;
+      ccd[13] = 0x20;
+      ccd[14] = 0x02;
+      ccd[15] = 0x00;
+      ccd[16] = 0x76;
+      ccd[17] = 0x5D;
+      ccd[18] = 0xE0;
+      ccd[19] = 0x13;
+      ccd[20] = 0xE2;
+      ccd[21] = 0x20;
+      ccd[22] = 0x00;
+      ccd[23] = 0xA8;
+      ccd[24] = 0x41;
+      ccd[25] = 0xA0;
+      ccd[26] = 0x0A;
+      ccd[27] = 0x8B;
+      ccd[28] = 0x4D;
+      ccd[29] = 0x4B;
+      ccd[30] = 0xD0;
+      ccd[31] = 0x68;
+      ccd[32] = 0xDF;
+      ccd[33] = 0x13;
+    }
+  else
+    {
+      len = 0x24;
+      hwdpi = 600;
     }
   DBG (8, "startScan(%d,%d,%d,%d,%d,%d,%X);\n", x, y, width, height, dpi,
        color, brightness);
@@ -10330,150 +10799,136 @@ sanei_umax_pp_startScan (int x, int y, int width, int height, int dpi,
   /* 1600P have a different CCD command block */
   if (sanei_umax_pp_getastra () == 1600)
     {
-      opsc04[0] = 0x19;
-      opsc04[1] = 0xD5;
-      opsc04[4] = 0x1B;
-      opsc04[7] = 0x70;
+      lm9811[0] = 0x19;
+      lm9811[1] = 0xD5;
+      lm9811[4] = 0x1B;
+      lm9811[7] = 0x70;
 
-      opscan[29] = 0x1A;
-      opscan[30] = 0xEE;
+      ccd[29] = 0x1A;
+      ccd[30] = 0xEE;
 
-      opsc35[29] = 0x1A;
-      opsc35[30] = 0xEE;
-
-      opsc53[13] = 0x03;	/* may be blur filter */
+      motor[13] = 0x03;		/* may be blur filter */
     }
 
+  /* matches intTransport610P */
   /* get scanner status */
-  if (DBG_LEVEL > 8)
+  rc = inquire ();
+  if (rc == 0)
     {
-      char str[64];
-      CMDGET (0x02, 16, state);
-      for (i = 0; i < 16; i++)
-	sprintf (str + 3 * i, "%02X ", state[i]);
-      str[48] = 0x00;
-      DBG (8, "SCANNER STATE=%s\n", str);
+      DBG (0, "inquire() failed ! (%s:%d) \n", __FILE__, __LINE__);
+      return 0;
     }
+  DBG (16, "inquire() passed ... (%s:%d)\n", __FILE__, __LINE__);
 
-  dest = (int *) malloc (65536 * 4);
-  if (sanei_umax_pp_getastra () != 1600)
+  dest = (int *) malloc (65536 * sizeof (int));
+
+  rc = loadDefaultTables ();
+  if (rc == 0)
     {
-      CMDSETGET (0x08, 36, opsc35);
-      CMDSYNC (0xC2);
-
-      if (dest == NULL)
-	{
-	  DBG (0, "%s:%d failed to allocate 256 Ko !\n", __FILE__, __LINE__);
-	  return 0;
-	}
-
-      /* init some buffer : default calibration data ? */
-      /* looks like a standard gamma table             */
-      dest[0] = 0x00;
-      dest[1] = 0x00;
-      dest[2] = 0x00;
-      for (i = 0; i < 768; i++)
-	dest[i + 3] = i % 256;
-      dest[768 + 3] = 0xAA;
-      dest[768 + 4] = 0xAA;
-      dest[768 + 5] = -1;
-      CMDSETGET (0x04, 768 + 5, dest);
-
-
-      /* check buffer returned */
-      for (i = 0; i < 768; i++)
-	{
-	  if (dest[i + 3] != (i % 256))
-	    {
-	      DBG
-		(0,
-		 "Error data altered: byte %d=0x%02X, should be 0x%02X !    (%s:%d)\n",
-		 i, dest[i + 3], i % 256, __FILE__, __LINE__);
-	      err = 1;
-	    }
-	}
-      if (err)
-	return 0;
+      DBG (0, "loadDefaultTables() failed ! (%s:%d) \n", __FILE__, __LINE__);
+      return 0;
     }
-
-
-  /* new part of buffer ... */
-  for (i = 0; i < 256; i++)
-    {
-      dest[i * 2] = i;
-      dest[i * 2 + 1] = 0;
-    }
-  CMDSETGET (0x08, 36, opsc35);
-  CMDSYNC (0xC2);
-  CMDSET (0x04, 512, dest);
-
-  /* another new part ... */
-  for (i = 0; i < 256; i++)
-    {
-      dest[i * 2] = i;
-      dest[i * 2 + 1] = 0x04;	/* instead of 0x00 */
-    }
-  opsc35[2] = 0x06;		/* instead of 0x04, write flag ? */
-  CMDSETGET (0x08, 36, opsc35);
-  CMDSYNC (0xC2);
-  CMDSET (0x04, 512, dest);
-
-  opsc35[2] = 0x04;		/* return to initial value, read flag? */
-  CMDSETGET (0x08, 36, opsc35);
-  CMDGET (0x04, 512, dest);
-
-  /* check buffer returned */
-  /* if 0x4 are still 0x0 (hum..), we got a 1220P, else it is a 2000P */
-  for (i = 0; i < 256; i++)
-    {
-      if ((dest[2 * i] != i)
-	  || ((dest[2 * i + 1] != 0x04) && (dest[2 * i + 1] != 0x00)))
-	{
-	  DBG
-	    (0,
-	     "Error data altered: expected %d=(0x%02X,0x04), found (0x%02X,0x%02X) !    (%s:%d)\n",
-	     i, i, dest[i * 2], dest[i * 2 + 1], __FILE__, __LINE__);
-	  err = 1;
-	}
-    }
-  if (err)
-    return 0;
+  DBG (16, "loadDefaultTables() passed ... (%s:%d)\n", __FILE__, __LINE__);
 
   /* find and move to zero */
   if (moveToOrigin () == 0)
     {
-      DBG (0, "MoveToOrign() failed ... (%s:%d)\n", __FILE__, __LINE__);
+      DBG (0, "moveToOrigin() failed ... (%s:%d)\n", __FILE__, __LINE__);
     }
   else
     {
-      DBG (16, "MoveToOrign() passed ... (%s:%d)\n", __FILE__, __LINE__);
+      DBG (16, "moveToOrigin() passed ... (%s:%d)\n", __FILE__, __LINE__);
     }
 
   /* 1600P have a different CCD command block */
   if (sanei_umax_pp_getastra () == 1600)
     {
-      opsc04[0] = 0x19;
-      opsc04[1] = 0xD5;
-      opsc04[4] = 0x1B;
-      opsc04[7] = 0x70;
+      lm9811[0] = 0x19;
+      lm9811[1] = 0xD5;
+      lm9811[4] = 0x1B;
+      lm9811[7] = 0x70;
 
-      opscan[29] = 0x1A;
-      opscan[30] = 0xEE;
+      ccd[29] = 0x1A;
+      ccd[30] = 0xEE;
 
-      opsc35[29] = 0x1A;
-      opsc35[30] = 0xEE;
-
-      opsc53[13] = 0x03;	/* may be blur filter */
+      motor[13] = 0x03;		/* may be blur filter */
     }
 
+  /* don't break 1220P/2000P yet ... */
+  if (sanei_umax_pp_getastra () < 1220)
+    {
 
-  /* adjust brightness and color offset */
-  /* red*256+green*16+blue        */
   if (sanei_umax_pp_getauto ())
     {
-      if (WarmUp (color, &brightness) == 0)
+      if (offsetCalibration (color, &dcRed, &dcGreen, &dcBlue) == 0)
 	{
-	  DBG (0, "Warm-up failed !!! (%s:%d)\n", __FILE__, __LINE__);
+	  DBG (0, "offsetCalibration failed !!! (%s:%d)\n", __FILE__,
+	       __LINE__);
+	  return 0;
+	}
+      DBG (16, "offsetCalibration(%d=>%d,%d,%d) passed ... (%s:%d)\n",
+	   color, dcRed, dcGreen, dcBlue, __FILE__, __LINE__);
+      MOVE (-69, PRECISION_OFF, NULL);
+
+      if (coarseGainCalibration
+	  (color, dcRed, dcGreen, dcBlue, &vgaRed, &vgaGreen, &vgaBlue) == 0)
+	{
+	  DBG (0, "coarseGainCalibration failed !!! (%s:%d)\n", __FILE__,
+	       __LINE__);
+	  return 0;
+	}
+      DBG (16,
+	   "coarseGainCalibration(%d,%d,%d,%d=>%d,%d,%d) passed ... (%s:%d)\n",
+	   color, dcRed, dcGreen, dcBlue, vgaRed, vgaGreen, vgaBlue, __FILE__,
+	   __LINE__);
+    }
+    else
+    {
+      dcBlue = contrast % 16;
+      dcGreen = (contrast / 16) % 16;
+      dcRed = contrast / 256;
+      vgaBlue = brightness % 16;
+      vgaRed = (brightness / 16) % 16;
+      vgaGreen = brightness / 256;
+    }
+    MOVE (-31, PRECISION_OFF, NULL);
+
+      /* ccd calibration */
+      if (shadingCalibration
+	  (color, dcRed, dcGreen, dcBlue, vgaRed, vgaGreen, vgaBlue,
+	   calibration) == 0)
+	{
+	  DBG (0, "shadingCalibration failed !!! (%s:%d)\n", __FILE__,
+	       __LINE__);
+	  return 0;
+	}
+      DBG (16,
+	   "shadingCalibration(%d,%d,%d,%d,%d,%d,%d) passed ... (%s:%d)\n",
+	   color, dcRed, dcGreen, dcBlue, vgaRed, vgaGreen, vgaBlue, __FILE__,
+	   __LINE__);
+
+      /* gamma calibration */
+      if (gammaCalibration
+	  (color, dcRed, dcGreen, dcBlue, vgaRed, vgaGreen, vgaBlue,
+	   calibration) == 0)
+	{
+	  DBG (0, "gammaCalibration failed !!! (%s:%d)\n", __FILE__,
+	       __LINE__);
+	  return 0;
+	}
+      DBG (16,
+	   "gammaCalibration(%d,%d,%d,%d,%d,%d,%d) passed ... (%s:%d)\n",
+	   color, dcRed, dcGreen, dcBlue, vgaRed, vgaGreen, vgaBlue, __FILE__,
+	   __LINE__);
+    }
+  else
+    /* adjust brightness and color offset */
+    /* red*256+green*16+blue        */
+  if (sanei_umax_pp_getauto ())
+    {
+      if (warmUp (color, &brightness, &contrast) == 0)
+	{
+	  DBG (0, "warmUp() failed !!! (%s:%d)\n", __FILE__, __LINE__);
 	  return 0;
 	}
     }
@@ -10489,7 +10944,8 @@ sanei_umax_pp_startScan (int x, int y, int width, int height, int dpi,
   /* EPPRead32Buffer does not work                         */
   /* with length not multiple of four bytes, so we enlarge */
   /* width to meet this criteria ...                       */
-  if ((getEPPMode () == 32) && (xdpi >= 600) && (width & 0x03))
+  if ((getEPPMode () == 32) && (xdpi >= 600) && (width & 0x03)
+      && (sanei_umax_pp_getastra () > 610))
     {
       width += (4 - (width & 0x03));
       /* in case we go too far on the right */
@@ -10503,28 +10959,63 @@ sanei_umax_pp_startScan (int x, int y, int width, int height, int dpi,
   th = (height * dpi) / hwdpi;
   tw = (width * xdpi) / hwdpi;
 
-  /* do gamma calibration */
-  if (ColorCalibration (color, dpi, brightness, contrast, width, calibration)
-      == 0)
+  /* do calibration */
+  if (sanei_umax_pp_getastra () > 610)
     {
-      DBG (0, "Gamma calibration failed !!! (%s:%d)\n", __FILE__, __LINE__);
-      return 0;
+      if (colorCalibration
+	  (color, dpi, brightness, contrast, width, calibration) == 0)
+	{
+	  DBG (0, "colorCalibration failed !!! (%s:%d)\n", __FILE__,
+	       __LINE__);
+	  return 0;
+	}
+      TRACE (16, "colorCalibration() passed ...");
+      dcBlue = contrast % 16;
+      dcGreen = (contrast / 16) % 16;
+      dcRed = contrast / 256;
+      vgaBlue = brightness % 16;
+      vgaRed = (brightness / 16) % 16;
+      vgaGreen = brightness / 256;
     }
-  TRACE (16, "ColorCalibration() passed ...")
-    /* it is faster to move at low resolution, then scan */
-    /* than scan & move at high resolution               */
-    distance = 0;
 
-  /* work around some strange unresolved bug */
-  y += 8;
-
-  /* move fast to scan target if possible */
-  if ((dpi > 150) && (y > 100))
+  /* correct y to match exact scan area start 
+   * and lets room for a leading zone so that 
+   * we can reorder data */
+  switch (sanei_umax_pp_getastra ())
     {
-      distance = y;
+    case 610:
+      if (color >= RGB_MODE)
+	      switch(dpi)
+	      {
+		  case 600:
+		  case 300:
+			  y+=48;
+			  break;
+		  case 150:
+			  y+=40;
+			  break;
+		  case 75:
+			  y+=36;
+			  break;
+		  default:
+		    y += 64;
+		    break;
+	      }
+      else
+	y += 48;
+      break;
+    default:
+      y += 8;
+      break;
+    }
 
+  /* for 1220P/2000P move fast to scan target if possible */
+  /* it is faster to move at low resolution, then scan */
+  /* than scan & move at high resolution               */
+  if ((sanei_umax_pp_getastra () > 610 && (dpi > 300)) && (y > 100))
+    {
       /* move at 150 dpi resolution */
-      Move (y / 2, PRECISION_OFF, NULL);
+      move (y / 2, PRECISION_OFF, NULL);
 
       /* keep the remainder for scan */
       y = y % 4;
@@ -10537,19 +11028,21 @@ sanei_umax_pp_startScan (int x, int y, int width, int height, int dpi,
   height = (th * hwdpi) / dpi;
 
   ydpi = dpi;
-  if (color >= RGB_MODE)
+  if (ydpi < 300)
     {
-      if (dpi < 150)
-	ydpi = 150;
-    }
-  else
-    {
-      if (dpi < 300)
+      if ((color >= RGB_MODE) && (sanei_umax_pp_getastra () > 610))
+	{
+	  if (dpi < 150)
+	    ydpi = 150;
+	}
+      else
 	ydpi = 300;
     }
+  if ((color < RGB_MODE) && (sanei_umax_pp_getastra () <= 610))
+    ydpi = 600;
 
-  /* XXX STEF XXX : bug here, we may overflow there */
-  /* now, how to handle this ?                      */
+  /* XXX STEF XXX : bug here, we overflow there */
+  /* at maximum resolution                      */
   if (color >= RGB_MODE)
     {
       h = ((height * ydpi) / hwdpi) + 8;
@@ -10558,133 +11051,147 @@ sanei_umax_pp_startScan (int x, int y, int width, int height, int dpi,
   else
     {
       h = ((height * ydpi) / hwdpi) + 4;
+      if (sanei_umax_pp_getastra () <= 610)
+	h += 16;
       bpp = 1;
     }
-  bpl = (bpp * width * xdpi) / hwdpi;
 
   /* sets y resolution */
   switch (ydpi)
     {
     case 1200:
-      opsc53[6] = 0x60;
-      opsc53[8] = 0x5E;		/* *WORKING* value */
-      opsc53[8] = 0x5F;		/* 5F gives wrong colors ? */
-      opsc53[8] = 0x58;
-      opsc53[9] = 0x05;
-      /* XXX test value XXX opsc53[14] = opsc53[14] & 0xF0;  ~ 0x08 -> scan AND move */
-      /* XXX test value XXX opsc53[14] = (opsc53[14] & 0xF0) | 0x04;         -> 600 dpi ? */
-      /* XXX test value XXX opsc53[14] = (opsc53[14] & 0xF0) | 0x0C; */
-      opsc53[14] = opsc53[14] & 0xF0;	/* *WORKING* 1200 dpi */
+      motor[6] = 0x60;
+      motor[8] = 0x5E;		/* *WORKING* value */
+      motor[8] = 0x5F;		/* 5F gives wrong colors ? */
+      motor[8] = 0x58;
+      motor[9] = 0x05;
+      /* XXX test value XXX motor[14] = motor[14] & 0xF0;  ~ 0x08 -> scan AND move */
+      /* XXX test value XXX motor[14] = (motor[14] & 0xF0) | 0x04;         -> 600 dpi ? */
+      /* XXX test value XXX motor[14] = (motor[14] & 0xF0) | 0x0C; */
+      motor[14] = motor[14] & 0xF0;	/* *WORKING* 1200 dpi */
       break;
 
     case 600:
-      opsc53[6] = 0x60;
-      opsc53[8] = 0x2F;
-      opsc53[9] = 0x05;
-      opsc53[14] = (opsc53[14] & 0xF0) | 0x04;
+      if (sanei_umax_pp_getastra () <= 610)
+	{
+	  motor[6] = 0xC0;
+	  motor[7] = 0x2F;
+	  motor[14] = motor[14] & 0xF0;
+	  if (color >= RGB_MODE)
+	    motor[14] |= 0x04;
+	}
+      else
+	{
+	  motor[6] = 0x60;
+	  motor[14] = (motor[14] & 0xF0) | 0x04;
+	}
+      motor[8] = 0x2F;
+      motor[9] = 0x05;
       break;
 
     case 300:
-      opsc53[6] = 0x00;
-      opsc53[8] = 0x17;
-      opsc53[9] = 0x05;
-      opsc53[14] = (opsc53[14] & 0xF0) | 0x0C;
+      if (sanei_umax_pp_getastra () <= 610)
+	{
+	  motor[6] = 0xC0;
+	  motor[14] = motor[14] & 0xF0;
+	  if (color >= RGB_MODE)
+	    motor[14] |= 0x04;
+	}
+      else
+	{
+	  motor[6] = 0x00;
+	  motor[14] = (motor[14] & 0xF0) | 0x0C;
+	}
+      motor[8] = 0x17;
+      motor[9] = 0x05;
 
       /* si | 0C h=2*w, si | 04 h=w ? */
 
       break;
 
     case 150:
-      opsc53[6] = 0x00;
-      opsc53[8] = 0x17;
-      opsc53[9] = 0x07;
-      opsc53[14] = (opsc53[14] & 0xF0) | 0x0C;
+      if (sanei_umax_pp_getastra () <= 610)
+	{
+	  motor[6] = 0xC0;
+	  motor[9] = 0x05;
+	  motor[14] = motor[14] & 0xF0;
+	  if (color >= RGB_MODE)
+	    motor[14] |= 0x04;
+	}
+      else
+	{
+	  motor[6] = 0x00;
+	  motor[9] = 0x07;
+	  motor[14] = (motor[14] & 0xF0) | 0x0C;
+	}
+      motor[8] = 0x17;
       break;
     }
 
-  /* channels brightness */
-  opsc53[10] = brightness / 16;
-  opsc53[11] = ((contrast / 16) & 0xF0) | (brightness % 16);
-  opsc53[12] = contrast % 256;
-
-  /* scan height */
-  opsc53[0] = h % 256;
-  opsc53[1] = h / 256;
+  /* different values for 610P in B&W */
+  if ((sanei_umax_pp_getastra () <= 610) && (color < RGB_MODE))
+    {
+      motor[7] = 0xC8;
+      motor[8] = 0x2F;
+      motor[9] = 0x05;
+    }
 
   /* y start -1 */
-  y = (y * ydpi) / hwdpi - 1;
-  if (y > 0)
-    {
-      opsc53[1] |= (y % 4) * 64;
-      opsc53[2] = (y / 4) % 256;
-      opsc53[3] = 0x50 | ((y >> 10) & 0x0F);
-    }
-  else
-    {
-      opsc53[2] = 0x00;
-      opsc53[3] = 0x50;
-    }
-
-  /* x start -1 */
-  opscan[17] = (x - 1) % 256;
-  opscan[18] = (((x - 1) / 256) & 0x0F);
-  opscan[33] = 0x33;
-  if (x - 1 > 0x1000)
-    opscan[33] |= 0x40;
-
-  /* x end */
-  opscan[18] |= (((x + width) % 16) * 16);
-  opscan[19] = ((x + width) / 16) % 256;
-  if (x + width > 0x1000)
-    opscan[33] |= 0x80;
-
-  /* bytes per line */
-  opscan[24] = 0x41 + (bpl & 0x1FFF) / 256;
-  opscan[23] = bpl % 256;
-
+  y = (y * ydpi) / hwdpi;
 
   if (color >= RGB_MODE)
     {
-      opsc53[7] = 0x2F;
       /* 00 seems to give better results ?     */
       /* 80 some more brightness, lamp power level ? */
       /* 8x does not make much difference      */
-      opsc04[6] = 0x8F;
-      if (sanei_umax_pp_getastra () == 1600)
+      lm9811[6] = 0x8F;
+      switch (sanei_umax_pp_getastra ())
 	{
-	  opsc04[7] = 0x70;
-	  opsc53[13] = 0x03;
-	}
-      else
-	{
-	  opsc04[7] = 0xF0;
-	  opsc53[13] = 0x09;
+	case 610:
+	  lm9811[7] = 0x80;
+	  motor[13] = 0x20;
+	  break;
+	case 1600:
+	  lm9811[7] = 0x70;
+	  motor[13] = 0x03;
+	  break;
+	default:
+	  lm9811[7] = 0xF0;
+	  motor[13] = 0x09;
 	}
     }
   else
     {
-      opsc53[7] = 0x40;
-      opsc53[13] = 0xC0;
-      opsc04[6] = 0x80 | ((brightness / 16) & 0x0F);
-      if (sanei_umax_pp_getastra () == 1600)
+      motor[13] = 0xC0;
+      lm9811[6] = 0x80 | vgaGreen;
+      switch (sanei_umax_pp_getastra ())
 	{
-	  opsc04[7] = 0x20;
-	  opsc53[13] = 0xC3;
-	}
-      else
-	{
-	  opsc04[7] = 0xA0;
-	  opsc53[13] = 0xC9;
+	case 610:
+	  lm9811[7] = 0xA0;
+	  lm9811[6] = lm9811[6] | 0x40;
+	  motor[13] = 0x6F;
+	  break;
+	case 1600:
+	  lm9811[7] = 0x20;
+	  motor[13] = 0xC3;
+	  break;
+	default:
+	  lm9811[7] = 0xA0;
+	  motor[13] = 0xC9;
 	}
     }
 
+  encodeCoefficient (color, dpi, calibration);
+  encodeWX (width, x, dpi, color, ccd, 0);
+  encodeHY (h, y, motor);
+  encodeDC (dcRed, dcGreen, dcBlue, motor);
+  encodeVGA (vgaRed, vgaGreen, vgaBlue, motor);
 
-  CMDSYNC (0x00);
 #ifdef UMAX_PP_DANGEROUS_EXPERIMENT
-  /*opsc53[13] = 0x80;           B&W bit */
-  /*opsc53[13] = 0x40;           green bit */
-  /*opsc53[13] = 0x20;           red bit */
-  /*opsc53[13] = 0x10;           blue bit */
+  /*motor[13] = 0x80;           B&W bit */
+  /*motor[13] = 0x40;           green bit */
+  /*motor[13] = 0x20;           red bit */
+  /*motor[13] = 0x10;           blue bit */
   /* with cmd 01, may be use to do 3 pass scanning ? */
   /* bits 0 to 3 seem related to sharpness */
   f = fopen ("/tmp/dangerous.params", "rb");
@@ -10701,15 +11208,15 @@ sanei_umax_pp_startScan (int x, int y, int width, int height, int dpi,
 	    case 0:
 	      break;
 	    case 1:
-	      base = opsc04;
+	      base = lm9811;
 	      max = 8;
 	      break;
 	    case 2:
-	      base = opsc53;
+	      base = motor;
 	      max = 16;
 	      break;
 	    case 8:
-	      base = opscan;
+	      base = ccd;
 	      max = 36;
 	      break;
 	    default:
@@ -10741,14 +11248,28 @@ sanei_umax_pp_startScan (int x, int y, int width, int height, int dpi,
     }
 #endif
 
+  if (DBG_LEVEL >= 64)
+    {
+      bloc2Decode (motor);
+      bloc8Decode (ccd);
+    }
 
-  CMDSETGET (2, 0x10, opsc53);
-  CMDSETGET (8, 0x24, opscan);
-  CMDSETGET (1, 0x08, opsc04);
+  CMDSYNC (0x00);
+  CMDSETGET (2, 0x10, motor);
+  CMDSETGET (8, len, ccd);
+  CMDSETGET (1, 0x08, lm9811);
   CMDSYNC (0xC2);
-  CMDSET (4, 0x3EC6, calibration);
-  COMPLETIONWAIT;
 
+  /* 3 ccd lines + 3 gamma tables + end tag */
+  if (sanei_umax_pp_getastra () <= 610)
+    {
+      CMDSET (4, 0x20E4, calibration);
+    }
+  else
+    {
+      CMDSET (4, 0x3EC6, calibration);
+    }
+  COMPLETIONWAIT;
 
   *rbpp = bpp;
   *rtw = tw;
@@ -10789,7 +11310,7 @@ sanei_umax_pp_checkModel (void)
   CMDSETGET (0x08, 36, opsc35);
   CMDSYNC (0xC2);
 
-  dest = (int *) malloc (65536 * 4);
+  dest = (int *) malloc (65536 * sizeof (int));
   if (dest == NULL)
     {
       DBG (0, "%s:%d failed to allocate 256 Ko !\n", __FILE__, __LINE__);
@@ -10932,4 +11453,923 @@ sanei_umax_pp_gamma (int *red, int *green, int *blue)
     {
       ggBlue = ggamma;
     }
+}
+
+/* initialize scanner by loading default transformation table */
+/* O: failure
+ * 1: OK
+ */
+int
+loadDefaultTables (void)
+{
+  int cmd01[36] = {
+    0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C,
+    0x00, 0x03, 0xC1, 0x80, 0x60, 0x20, 0x00, 0x00,
+    0x16, 0x41, 0xE0, 0xAC, 0x03, 0x03, 0x00, 0x00,
+    0x46, 0xA0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0xF0, 0x13, -1
+  };
+  int opsc35[37] = {
+    0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C,
+    0x00, 0x03, 0xC1, 0x80, 0x00, 0x00, 0x04, 0x00,
+    0x16, 0x41, 0xE0, 0xAC, 0x03, 0x03, 0x00, 0x00,
+    0x46, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68,
+    0xDF, 0x13, 0x1A, 0x00,
+    -1
+  };
+  int i, len, *cmd, err;
+  int buffer[774];
+  int rc = 1;
+
+
+  /* 1600P have a different CCD command block */
+  if (sanei_umax_pp_getastra () == 1600)
+    {
+      opsc35[29] = 0x1A;
+      opsc35[30] = 0xEE;
+    }
+
+  if (sanei_umax_pp_getastra () <= 610)
+    {
+      len = 0x22;
+      cmd = cmd01;
+      /* XXX STEF XXX if we send F0, we get 0x10 back */
+      cmd[0x21] = 0x10;
+    }
+  else
+    {
+      len = 0x24;
+      cmd = opsc35;
+    }
+
+  /* set and reread first table */
+  /* since 1660P seems to have another type of CCD 
+   * this table is not sent/needed
+   */
+  err = 0;
+  if (sanei_umax_pp_getastra () != 1600)
+    {
+      CMDSETGET (8, len, cmd);
+      CMDSYNC (0xC2);
+      buffer[0] = 0x00;
+      buffer[1] = 0x00;
+      buffer[2] = 0x00;
+      for (i = 0; i < 768; i++)
+	buffer[i + 3] = i % 256;
+      if (sanei_umax_pp_getastra () <= 610)
+	{
+	  buffer[768 + 3] = 0xFF;
+	  buffer[768 + 4] = 0xFF;
+	}
+      else
+	{
+	  buffer[768 + 3] = 0xAA;
+	  buffer[768 + 4] = 0xAA;
+	}
+      buffer[768 + 5] = -1;
+      CMDSETGET (4, 0x305, buffer);
+
+
+      /* check buffer returned */
+      for (i = 0; i < 768; i++)
+	{
+	  if (buffer[i + 3] != (i % 256))
+	    {
+	      DBG
+		(0,
+		 "Error data altered: byte %d=0x%02X, should be 0x%02X !    (%s:%d)\n",
+		 i, buffer[i + 3], i % 256, __FILE__, __LINE__);
+	      err = 1;
+	    }
+	}
+      if (err)
+	return 0;
+    }
+
+  /* second table ... */
+  for (i = 0; i < 256; i++)
+    {
+      buffer[i * 2] = i;
+      buffer[i * 2 + 1] = 0;
+    }
+  CMDSETGET (8, len, cmd);
+  CMDSYNC (0xC2);
+  CMDSET (4, 0x200, buffer);
+
+  /* third table ... */
+  if (sanei_umax_pp_getastra () <= 610)
+    {
+      for (i = 0; i < 256; i++)
+	{
+	  buffer[i * 2] = i;
+	  buffer[i * 2 + 1] = 0x01;	/* instead of 0x00 */
+	}
+    }
+  else
+    {
+      for (i = 0; i < 256; i++)
+	{
+	  buffer[i * 2] = i;
+	  buffer[i * 2 + 1] = 0x04;	/* instead of 0x00 */
+	}
+    }
+  opsc35[2] = 0x06;
+  cmd01[1] = 0x80;
+  CMDSETGET (8, len, cmd);
+  CMDSYNC (0xC2);
+  CMDSET (4, 0x200, buffer);
+
+  opsc35[2] = 0x04;
+  cmd01[1] = 0x00;
+  CMDSETGET (8, len, cmd);
+  CMDGET (4, 0x200, buffer);
+  /* check buffer returned */
+  /* if 0x4 are still 0x0 (hum..), we got a 1220P, else it is a 2000P */
+  for (i = 0; i < 256; i++)
+    {
+      if ((buffer[2 * i] != i)
+	  || ((buffer[2 * i + 1] != 0x04) && (buffer[2 * i + 1] != 0x01)
+	      && (buffer[2 * i + 1] != 0x00)))
+	{
+	  DBG
+	    (0,
+	     "Error data altered: expected %d=(0x%02X,0x04), found (0x%02X,0x%02X) !    (%s:%d)\n",
+	     i, i, buffer[i * 2], buffer[i * 2 + 1], __FILE__, __LINE__);
+	  err = 1;
+	}
+    }
+  if (err)
+    return 0;
+
+  return rc;
+}
+
+/* inquire scanner status 
+ * O: failure
+ * 1: OK
+ * 2: first scanner init, needs re-homing
+ */
+int
+inquire (void)
+{
+  int cmd01[36] = {
+    0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C,
+    0x00, 0x03, 0xC1, 0x80, 0x60, 0x20, 0x00, 0x00,
+    0x16, 0x41, 0xE0, 0xAC, 0x03, 0x03, 0x00, 0x00,
+    0x46, 0xA0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0xF0, 0x1B, -1
+  };
+  int buffer[37];
+  int rc = 1, first, i;
+  char str[106];
+
+
+  /* inquiry: ask for RAM, CCD, ... */
+  CMDSET (8, 0x23, cmd01);
+  CMDGET (8, 0x23, buffer);
+
+  if (DBG_LEVEL > 8)
+    {
+      for (i = 0; i < 35; i++)
+	sprintf (str + 3 * i, "%02X ", buffer[i]);
+      str[105] = 0x00;
+      DBG (8, "SCANNER INFORMATION=%s\n", str);
+    }
+
+  /* get state */
+  CMDGET (2, 0x10, buffer);
+  first = 1;
+  for (i = 0; i < 14; i++)
+    {
+      if (buffer[i] != 0)
+	first = 0;
+    }
+  if (buffer[15] != 0)
+    first = 0;
+  if (first)
+    rc = 2;
+
+  if (DBG_LEVEL > 8)
+    {
+      for (i = 0; i < 16; i++)
+	sprintf (str + 3 * i, "%02X ", buffer[i]);
+      str[48] = 0x00;
+      DBG (8, "SCANNER STATE=%s\n", str);
+    }
+
+  return rc;
+}
+
+/*
+ * computes DC offset to have black pixel really black out of
+ * CCD ie black gives 0
+ * 610P doesn't implement method described in LM9811 datasheet
+ * but scan a black line with decreasing offsets until the 
+ * scanned data reach a 'good black level'.
+ * returns 1 and DC offsets in the corresponding vars on success .
+ * On failure, returns 0.
+ */
+static int
+offsetCalibration (int color, int *offRed, int *offGreen, int *offBlue)
+{
+  int motor[17] = {
+    0x11, 0x00, 0x00, 0x70, 0x00, 0x00, 0xC0, 0x2F,
+    0x17, 0x00, 0x00, 0xF0, 0x7D, 0x5F, 0xA4, 0x00,
+    -1
+  };
+
+  int ccd[37] = {
+    0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C,
+    0x00, 0x04, 0x40, 0x01, 0x00, 0x20, 0x02, 0x00,
+    0x76, 0x12, 0xB0, 0x03, 0x06, 0x00, 0x00, 0x00,
+    0x46, 0xA0, 0x00, 0x8B, 0x4D, 0x4B, 0xD0, 0x68,
+    0xDF, 0x13, 0x1A, 0x00,
+    -1
+  };
+
+  int lm9811[9] = {
+    0x88, 0xE6, 0xFD, 0x8E, 0x30, 0x00, 0x40, 0xF0,
+    -1
+  };
+
+  int commit[9] = {
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF,
+    -1
+  };
+
+
+  int offset;
+  int level;
+  unsigned char data[40];
+  int i;
+  int len;
+  int w;
+
+  DBG (16, "entering offsetCalibration() ... (%s:%d)\n", __FILE__, __LINE__);
+
+  if (sanei_umax_pp_getastra () < 1220)
+    {
+      len = 0x22;
+      w = 40;
+    }
+  else
+    {
+      len = 0x24;
+      w = 40;
+    }
+
+      *offRed = 0;
+  *offGreen = 0;
+      *offBlue = 0;
+
+  /* first color channel: used both in color and b&w modes */
+  /* offset to the max */
+  /* supposed to be green componant */
+  offset = 0x10;
+  do
+    {
+      offset--;
+
+      /* 7D: 0111 1101 */
+      /* sets for the current offset */
+      motor[12] = (offset << 2) | 0x40 | 0x01;
+      lm9811[7] = offset << 4;
+
+      /* sends commands */
+      CMDSYNC (0x00);
+      CMDSETGET (2, 0x10, motor);
+      CMDSETGET (8, len, ccd);
+      CMDSETGET (1, 0x08, lm9811);
+      CMDSYNC (0xC2);
+      CMDSETGET (4, 0x08, commit);
+      COMPLETIONWAIT;
+      CMDGETBUF (4, w, data);
+      if (DBG_LEVEL > 128)
+	{
+	  DumpNB (w, 1, data, NULL);
+	}
+      level = 0;
+      for (i = 0; i < w; i++)
+	level += data[i];
+    }
+  /* loop while average >0.5 */
+  while ((offset > 0) && ((level * 2) / w > 1));
+  *offGreen = offset;
+
+  /* offset calibration for the two other channels when in color */
+  if (color >= RGB_MODE)
+    {
+      motor[0] = 0x01;
+
+      offset = 0x10;
+      do
+	{
+	  offset--;
+
+	  /* sets for the current offset */
+	  motor[13] = 0x90 | offset;
+	  lm9811[7] = offset << 4;
+
+	  /* sends commands */
+	  CMDSYNC (0x00);
+	  CMDSETGET (2, 0x10, motor);
+	  CMDSETGET (8, len, ccd);
+	  CMDSETGET (1, 0x08, lm9811);
+	  CMDSYNC (0xC2);
+	  CMDSETGET (4, 0x08, commit);
+	  COMPLETIONWAIT;
+	  CMDGETBUF (4, w, data);
+	  if (DBG_LEVEL > 128)
+	    {
+	      DumpNB (w, 1, data, NULL);
+	    }
+	  level = 0;
+	  for (i = 0; i < w; i++)
+	    level += data[i];
+	}
+      /* loop while average >0.5 */
+      while ((offset > 0) && ((level * 2) / w > 1));
+      *offBlue = offset;
+
+      /* last color component */
+      motor[0] = 0x09;
+      ccd[13] = 0xD0 | (ccd[13] & 0x0F);
+
+      offset = 0x10;
+      do
+	{
+	  offset--;
+
+	  /* sets for the current offset */
+	  motor[11] = offset << 4;
+	  lm9811[7] = offset << 4;
+
+	  /* sends commands */
+	  CMDSYNC (0x00);
+	  CMDSETGET (2, 0x10, motor);
+	  CMDSETGET (8, len, ccd);
+	  CMDSETGET (1, 0x08, lm9811);
+	  CMDSYNC (0xC2);
+	  CMDSYNC (0x00);
+	  CMDSETGET (4, 0x08, commit);
+
+	  COMPLETIONWAIT;
+	  CMDGETBUF (4, w, data);
+	  if (DBG_LEVEL > 128)
+	    {
+	      DumpNB (w, 1, data, NULL);
+	    }
+	  level = 0;
+	  for (i = 0; i < w; i++)
+	    level += data[i];
+	}
+      /* loop while average >0.5 */
+      while ((offset > 0) && ((level * 2) / w > 1));
+      *offRed = offset;
+    }
+  else
+    {
+      *offRed = 0x0F;
+      *offBlue = 0x0F;
+    }
+
+  return 1;
+}
+
+/*
+ * computes Video Gain Amplifier : LM9811 can corrects up to 3dB of
+ * light variation. So we must adjust VGA so that dynamic range is
+ * within 3db. It is achieved when min white pixel >= max white pixel / 2.8
+ * So we scan a white area and decrease gain until this condition is met.
+ * returns 1 and VGA values in the corresponding vars on success .
+ * On failure, returns 0.
+ */
+static int
+coarseGainCalibration (int color, int dcRed, int dcGreen, int dcBlue,
+		       int *vgaRed, int *vgaGreen, int *vgaBlue)
+{
+  int motor[17] = {
+    0x11, 0x00, 0x00, 0x70, 0x00, 0x00, 0xC0, 0x2F,
+    0x17, 0x00, 0xFF, 0xAF, 0xAA, 0x6A, 0xA4, 0x00,
+    -1
+  };
+
+  int ccd[37] = {
+    0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C,
+    0x00, 0x04, 0x40, 0x01, 0x00, 0x20, 0x02, 0x00,
+    0x76, 0x41, 0xE0, 0xAC, 0x06, 0x00, 0x00, 0x9C,
+    0x4A, 0xA0, 0x00, 0x8B, 0x4D, 0x4B, 0xD0, 0x68,
+    0xDF, 0x13, 0x1A, 0x00,
+    -1
+  };
+
+  /*
+   * lm9811[7]= VGA << 4
+   * lm9811[6]= 0x40 | DC offset
+   */
+  int lm9811[9] = {
+    0x88, 0xE6, 0xFD, 0x8E, 0x30, 0x00, 0x40, 0xF0,
+    -1
+  };
+
+  int commit[9] = {
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF,
+    -1
+  };
+
+  unsigned char data[5400];
+  int i, len;
+  int w, xstart, xend;
+  int min, max;
+
+  /* desired max value for white pixel */
+  unsigned char targetCode = 0xFA;
+
+  TRACE (16, "entering coarseGainCalibration ...\n");
+  if (sanei_umax_pp_getastra () < 1220)
+    {
+      w = 2700;
+      len = 0x22;
+    }
+  else
+    {
+      w = 5400;
+      len = 0x24;
+    }
+
+  /* first scan : taking a reference full width scan to 
+   * find usable full width of the CCD
+   */
+  *vgaRed = 0x08;
+  *vgaGreen = 0x00;
+  *vgaBlue = 0x00;
+
+  /* scanning red component -> h=1 */
+  motor[0] = 0x01;
+  motor[13] = 0xAA;		/* will be 6A below */
+
+  encodeDC (dcRed, dcGreen, dcBlue, motor);
+  encodeVGA (*vgaRed, *vgaGreen, *vgaBlue, motor);
+
+  lm9811[7] = dcRed << 4;
+  lm9811[6] = 0x40 | *vgaRed;
+
+  CMDSYNC (0x00);
+  CMDSETGET (2, 0x10, motor);
+  CMDSETGET (8, len, ccd);
+  CMDSETGET (1, 0x08, lm9811);
+  CMDSYNC (0xC2);
+  CMDSETGET (4, 0x08, commit);
+
+  COMPLETIONWAIT;
+  CMDGETBUF (4, w, data);
+  if (DBG_LEVEL > 128)
+    {
+      DumpNB (w, 1, data, NULL);
+    }
+
+  /* find usable CCD area */
+  i = 0;
+  while ((i < w) && (data[i] <= (targetCode * 2) / 5))
+    i++;
+  xstart = i;
+  i = w - 1;
+  while ((i > 0) && (data[i] <= (targetCode * 2) / 5))
+    i--;
+  xend = i;
+  DBG (32, "coarseGainCalibration: xstart=%d, xend=%d ->left=%d\n", xstart,
+       xend, ((xend + xstart - w) / 2));
+  /* choose best 'left' position */
+  sanei_umax_pp_setLeft ((xend + xstart - w) / 2);
+
+  /* now do VGA calibration for green (=B&W channel) */
+  motor[0] = 0x11;
+  motor[13] = 0x60 | (motor[13] & 0x0F);
+
+  *vgaRed = 0x0F;
+  *vgaGreen = 0x0F;
+  *vgaBlue = 0x0F;
+
+  for (*vgaGreen = 0x0F; *vgaGreen > 0; (*vgaGreen)--)
+    {
+      encodeDC (dcRed, dcGreen, dcBlue, motor);
+      encodeVGA (*vgaRed, *vgaGreen, *vgaBlue, motor);
+
+      lm9811[7] = dcGreen << 4;
+      lm9811[6] = 0x40 | *vgaGreen;
+
+      CMDSETGET (2, 0x10, motor);
+      CMDSETGET (8, len, ccd);
+      CMDSETGET (1, 0x08, lm9811);
+      CMDSYNC (0xC2);
+      CMDSYNC (0x00);
+      CMDSETGET (4, 0x08, commit);
+
+      COMPLETIONWAIT;
+      CMDGETBUF (4, w, data);
+
+      if (DBG_LEVEL > 128)
+	{
+	  DumpNB (w, 1, data, NULL);
+	}
+
+      min = 0xFF;
+      max = 0x00;
+      for (i = xstart; i <= xend; i++)
+	{
+	  if (data[i] < min)
+	    min = data[i];
+	  if (data[i] > max)
+	    max = data[i];
+	}
+      if ((max <= targetCode) && (min > (((float) targetCode) / 2.8)))
+	break;
+      DBG (32, "coarseGainCalibration, target/2.8=%f\n",
+	   (((float) targetCode) / 2.8));
+      DBG (32, "coarseGainCalibration, green: min=%d, max=%d\n", min, max);
+    }
+
+  if (color >= RGB_MODE)
+    {
+      motor[0] = 0x01;
+      motor[13] = 0xA0 | (motor[13] & 0x0F);
+
+      for (*vgaBlue = 0x0F; *vgaBlue > 0; (*vgaBlue)--)
+	{
+	  encodeDC (dcRed, dcGreen, dcBlue, motor);
+	  encodeVGA (*vgaRed, *vgaGreen, *vgaBlue, motor);
+
+	  lm9811[7] = dcBlue << 4;
+	  lm9811[6] = 0x40 | *vgaBlue;
+
+	  CMDSETGET (2, 0x10, motor);
+	  CMDSETGET (8, len, ccd);
+	  CMDSETGET (1, 0x08, lm9811);
+	  CMDSYNC (0xC2);
+	  CMDSYNC (0x00);
+	  CMDSETGET (4, 0x08, commit);
+
+	  COMPLETIONWAIT;
+	  CMDGETBUF (4, w, data);
+
+	  if (DBG_LEVEL > 128)
+	    {
+	      DumpNB (w, 1, data, NULL);
+	    }
+
+	  min = 0xFF;
+	  max = 0x00;
+	  for (i = xstart; i <= xend; i++)
+	    {
+	      if (data[i] < min)
+		min = data[i];
+	      if (data[i] > max)
+		max = data[i];
+	    }
+	  if ((max <= targetCode) && (min > (((float) targetCode) / 2.8)))
+	    break;
+	  DBG (32, "coarseGainCalibration, blue: min=%d, max=%d\n", min, max);
+	}
+
+      motor[0] = 0x09;
+      motor[13] = 0xE0 | (motor[13] & 0x0F);
+
+      for (*vgaRed = 0x0F; *vgaRed > 0; (*vgaRed)--)
+	{
+	  encodeDC (dcRed, dcGreen, dcBlue, motor);
+	  encodeVGA (*vgaRed, *vgaGreen, *vgaBlue, motor);
+
+	  lm9811[7] = dcRed << 4;
+	  lm9811[6] = 0x40 | *vgaRed;
+
+	  CMDSETGET (2, 0x10, motor);
+	  CMDSETGET (8, len, ccd);
+	  CMDSETGET (1, 0x08, lm9811);
+	  CMDSYNC (0xC2);
+	  CMDSYNC (0x00);
+	  CMDSETGET (4, 0x08, commit);
+
+	  COMPLETIONWAIT;
+	  CMDGETBUF (4, w, data);
+
+	  if (DBG_LEVEL > 128)
+	    {
+	      DumpNB (w, 1, data, NULL);
+	    }
+
+	  min = 0xFF;
+	  max = 0x00;
+	  for (i = xstart; i <= xend; i++)
+	    {
+	      if (data[i] < min)
+		min = data[i];
+	      if (data[i] > max)
+		max = data[i];
+	    }
+	  if ((max <= targetCode) && (min > (((float) targetCode) / 2.8)))
+	    break;
+	  DBG (32, "coarseGainCalibration, red: min=%d, max=%d\n", min, max);
+	}
+    }
+  else
+    {
+      *vgaRed = 0x0F;
+      *vgaBlue = 0x0F;
+    }
+
+  TRACE (16, "coarseGainCalibration end ...\n");
+  return 1;
+}
+
+/*
+ * computes PGA offset for each pixel of the ccd.
+ * We scan a white area with PGA=0 and computes the
+ * offset to push the result in the correctable range
+ * returns 1 and PGA values in 'calibration' var on success .
+ * On failure, returns 0.
+ */
+static int
+shadingCalibration (int color, int dcRed, int dcGreen, int dcBlue,
+		    int vgaRed, int vgaGreen, int vgaBlue, int *calibration)
+{
+  int motor[17] = {
+    0x5A, 0x80, 0x02, 0x70, 0x00, 0x00, 0xC0, 0x00,
+    0x17, 0x05, 0x6C, 0xAB, 0xAA, 0x2A, 0xA4, 0x00,
+    -1
+  };
+
+  int ccd[37] = {
+    0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C,
+    0x00, 0x04, 0x40, 0x01, 0x00, 0x20, 0x02, 0x00,
+    0x76, 0x5D, 0x40, 0xA5, 0x06, 0x00, 0x00, 0xE2,
+    0x5E, 0xA0, 0x00, 0x8B, 0x4D, 0x4B, 0xD0, 0x68,
+    0xDF, 0x13, 0x1A, 0x00,
+    -1
+  };
+
+  /*
+   * lm9811[7]= VGA << 4
+   * lm9811[6]= 0x40 | DC offset
+   */
+  int lm9811[9] = {
+    0x88, 0xE6, 0xFD, 0x8E, 0x30, 0x00, 0x0F, 0x80,
+    -1
+  };
+
+  int commit[9] = {
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF,
+    -1
+  };
+
+  int len, dpi, size;
+  int w, h, x, y;
+  int sum, i;
+  float avg, coeff;
+  unsigned char *data = NULL;
+
+  TRACE (16, "entering shadingCalibration ...\n");
+  if (sanei_umax_pp_getastra () < 1220)
+    {
+      len = 0x22;
+      w = 2550;
+      x = 94;
+      y = 10;
+      dpi = 300;
+      h = 90;
+    }
+  else
+    {
+      len = 0x24;
+      w = 5100;
+      x = 180;
+      y = 10;
+      dpi = 600;
+      h = 67;
+    }
+
+  data = (unsigned char *) malloc (w * h * 3);
+  if (data == NULL)
+    {
+      DBG (0, "shadingCalibration: failed to allocate memory (%s:%d)\n",
+	   __FILE__, __LINE__);
+      return 0;
+    }
+
+  /* prepare scan command */
+  encodeWX (w, x, dpi, color, ccd, 7650);
+  encodeHY (h, y, motor);
+  encodeDC (dcRed, dcGreen, dcBlue, motor);
+  encodeVGA (vgaRed, vgaGreen, vgaBlue, motor);
+  if (DBG_LEVEL > 128)
+    {
+      bloc2Decode (motor);
+      bloc8Decode (ccd);
+    }
+
+  CMDSYNC (0x00);
+  CMDSETGET (2, 0x10, motor);
+  CMDSETGET (8, len, ccd);
+  CMDSETGET (1, 0x08, lm9811);
+  CMDSYNC (0xC2);
+  CMDSETGET (4, 0x08, commit);
+  COMPLETIONWAIT;
+
+  if (color >= RGB_MODE)
+    {
+      /* picture height is scan area height minus y    */
+      /* then we substract 6 lines that aren't scanned */
+      h = h - y - 6;
+      size = w * 3 * h;
+    }
+  else
+    {
+      h = h - y - 1;
+      size = w * h;
+    }
+  DBG (128, "shadingCalibration: trying to read 0x%06X bytes ... (%s:%d)\n",
+       size, __FILE__, __LINE__);
+  /* since we know that each scan line matches CCD width, we signals
+   * that data reading doens't need to sync on each byte, but at each
+   * row end
+   */
+  sanei_umax_pp_setfull (1);
+  CMDGETBUF (4, size, data);
+  sanei_umax_pp_setfull (0);
+
+  /* computes correction here ... */
+  /* debug image files */
+  /* data is in R B G order */
+  if (DBG_LEVEL > 128)
+    {
+      DumpNB (w * 3, h, data, NULL);
+      DumpNB (w, h * 3, data, NULL);
+    }
+
+  for (x = 0; x < w; x++)
+    {
+      for (i = 0; i < 3; i++)
+	{
+	  sum = 0;
+	  for (y = 8; y < h - 8; y++)
+	    sum += data[(y * 3 + i) * w + x];
+	  avg = ((float) (sum)) / ((float) (h - 16));
+	  coeff = (256.0 * (256.0 / avg - 1.0)) / 1.95 + 0.5;
+	  /* prevent overflow */
+	  if (coeff > 127)
+	    coeff = 127;
+	  calibration[x + i * w] = coeff;
+	  /*calibration[x + i * w] = evalGain (sum, h - 16); */
+	}
+    }
+
+  free (data);
+  TRACE (16, "shadingCalibration end ...\n");
+  return 1;
+}
+
+/*
+ * this is certainly gamma calibration
+ * We scan a white area with PGA=0 and computes the
+ * offset to push the result in the correctable range
+ * returns 1 and PGA values in 'calibration' var on success .
+ * On failure, returns 0.
+ */
+static int
+gammaCalibration (int color, int dcRed, int dcGreen, int dcBlue,
+		  int vgaRed, int vgaGreen, int vgaBlue, int *calibration)
+{
+  int motor[17] = {
+    0x14, 0x80, 0x02, 0x60, 0xDE, 0x01, 0xC0, 0x2F,
+    0x17, 0x00, 0x6C, 0xAB, 0xAA, 0x2A, 0xA4, 0x00,
+    -1
+  };
+
+  int ccd[37] = {
+    0x00, 0x00, 0xD8, 0x27, 0xEC, 0x53, 0x7D, 0x8A,
+    0x77, 0xE3, 0x1D, 0x79, 0x07, 0x20, 0x02, 0x00,
+    0x76, 0x41, 0x80, 0xA3, 0xE5, 0x1D, 0x00, 0xF2,
+    0x5D, 0xA0, 0x00, 0x8B, 0x4D, 0x4B, 0xD0, 0x68,
+    0xDF, 0x13, 0x1A, 0x00,
+    -1
+  };
+
+  /*
+   * lm9811[7]= VGA << 4
+   * lm9811[6]= 0x40 | DC offset
+   * lm9811[6].bit7 = use shading data
+   */
+  int lm9811[9] = {
+    0x88, 0xE6, 0xFD, 0x8E, 0x30, 0x00, 0x8F, 0x80,
+    -1
+  };
+
+  int *commit = NULL;
+
+  int len, dpi, size;
+  int w, h, x, y;
+  int ofst;
+  unsigned char *data = NULL;
+
+  TRACE (16, "entering gammaCalibration ...\n");
+  if (sanei_umax_pp_getastra () < 1220)
+    {
+      len = 0x22;
+      ofst = 28;
+      w = 2550;
+      x = 94 - ofst;		/* left shift compared to shading calibration */
+      y = 10;
+      dpi = 75;
+      h = 20;
+    }
+  else
+    {
+      len = 0x24;
+      ofst = 28;
+      w = 5100;
+      x = 180;
+      y = 10;
+      dpi = 600;
+      h = 67;
+    }
+
+  commit = (int *) malloc ((w * 3 + 5) * sizeof (int));
+  if (commit == NULL)
+    {
+      DBG (0, "gammaCalibration: failed to allocate memory (%s:%d)\n",
+	   __FILE__, __LINE__);
+      return 0;
+    }
+
+  data = (unsigned char *) malloc (w * h * 3);
+  if (data == NULL)
+    {
+      DBG (0, "gammaCalibration: failed to allocate memory (%s:%d)\n",
+	   __FILE__, __LINE__);
+      free (commit);
+      return 0;
+    }
+
+  /* prepare scan command */
+  encodeWX (w, x, dpi, color, ccd, 7410);
+  encodeHY (h, y, motor);
+  encodeDC (dcRed, dcGreen, dcBlue, motor);
+  encodeVGA (vgaRed, vgaGreen, vgaBlue, motor);
+  if (DBG_LEVEL > 128)
+    {
+      bloc2Decode (motor);
+      bloc8Decode (ccd);
+    }
+
+  /* build shading calibration data */
+  memset (commit, 0x00, (3 * w + 5) * sizeof (int));
+  for (x = ofst; x < w; x++)
+    {
+      commit[x] = calibration[x - ofst];
+      commit[x + w] = calibration[x - ofst + w];
+      commit[x + 2 * w] = calibration[x - ofst + 2 * w];
+    }
+  /* image data cropping coefficient  */
+  commit[3 * w + 3] = 0xFF;
+  commit[3 * w + 4] = 0xFF;
+
+  CMDSYNC (0x00);
+  CMDSETGET (2, 0x10, motor);
+  CMDSETGET (8, len, ccd);
+  CMDSETGET (1, 0x08, lm9811);
+  CMDSYNC (0xC2);
+  CMDSETGET (4, 3 * w + 5, commit);
+  free (commit);
+  COMPLETIONWAIT;
+
+  if (color >= RGB_MODE)
+    {
+      /* picture height is scan area height minus y    */
+      h = h - y;
+      size = w * 3 * h;
+    }
+  else
+    {
+      h = h - y - 1;
+      size = w * h;
+    }
+  DBG (128, "gammaCalibration: trying to read 0x%06X bytes ... (%s:%d)\n",
+       size, __FILE__, __LINE__);
+  CMDGETBUF (4, size, data);
+  if (DBG_LEVEL > 128)
+    DumpNB (w, size / w, data, NULL);
+
+  /* XXX STEF XXX */
+  /* here we have color data that can are used to build gamma tables */
+  /* however, we have to figure how to do it ....                    */
+  /* use default color tables                                        */
+  for (x = 0; x < 256; x++)
+    {
+      calibration[3 * w + x] = ggRed[x];
+      calibration[3 * w + x + 256] = ggGreen[x];
+      calibration[3 * w + x + 512] = ggBlue[x];
+    }
+
+  free (data);
+  TRACE (16, "gammaCalibration end ...\n");
+  return 1;
 }

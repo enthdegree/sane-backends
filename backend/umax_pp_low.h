@@ -73,11 +73,11 @@ extern void sanei_umax_pp_setauto (int mode);
 
 
 #ifndef PRECISION_ON
-#define PRECISION_ON  1
-#define PRECISION_OFF 0
-#define LAMP_STATE	0x20
+#define PRECISION_ON	1
+#define PRECISION_OFF	0
 
-#define MOTOR_BIT     0x40
+#define LAMP_STATE	0x20
+#define MOTOR_BIT	0x40
 
 #define UMAX_PP_PARPORT_PS2      0x01
 #define UMAX_PP_PARPORT_BYTE     0x02
@@ -108,6 +108,10 @@ extern void sanei_umax_pp_setparport (int fd);
 extern int sanei_umax_pp_getparport (void);
 extern void sanei_umax_pp_setastra (int mod);
 extern int sanei_umax_pp_getastra (void);
+extern void sanei_umax_pp_setLeft (int mod);
+extern int sanei_umax_pp_getLeft (void);
+extern void sanei_umax_pp_setfull (int mod);
+extern int sanei_umax_pp_getfull (void);
 extern int sanei_umax_pp_scannerStatus (void);
 extern int sanei_umax_pp_probeScanner (int recover);
 

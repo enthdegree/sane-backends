@@ -1,6 +1,6 @@
-dnl aclocal.m4 generated automatically by aclocal 1.4-p4
+dnl aclocal.m4 generated automatically by aclocal 1.4-p5
 
-dnl Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
+dnl Copyright (C) 1994, 1995-8, 1999, 2001 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -206,48 +206,25 @@ AC_CHECK_TYPE(u_long, unsigned long)
 # Checks for gphoto2 libs, needed by gphoto2 backend
 AC_DEFUN(SANE_CHECK_GPHOTO2,
 [
-
-	GPHOTO2_TMP_HAVE_GPHOTO2=no
 	AC_ARG_WITH(gphoto2,
 	  [  --with-gphoto2[=DIR]    specify the top-level GPHOTO2 directory 
                           [default=/usr/local]])
-
-
 	
 	if test "$with_gphoto2" = "no" ; then
 		echo disabling GPHOTO2
 	else
-		AC_CHECK_TOOL(HAVE_GPHOTO2, gphoto2, false)
+		AC_CHECK_TOOL(HAVE_GPHOTO2, gphoto2-config, false)
 		
-
-		GPHOTO2_OLD_CPPFLAGS=${CPPFLAGS}
-		GPHOTO2_OLD_LDFLAGS=${LDFLAGS}
-
 		if test "$with_gphoto2" = "yes" ; then
-			with_gphoto2=/usr/local
+			with_gphoto2=`gphoto2-config --prefix`
 		fi
 
-
-		CPPFLAGS="${CPPFLAGS} -I$with_gphoto2/include/gphoto2"
-		LDFLAGS="${LDFLAGS} -L$with_gphoto2/lib -L$with_gphoto2/lib/gphoto2"
-
-		AC_CHECK_HEADERS(gphoto2.h,
-			AC_CHECK_LIB(gphoto2,gp_camera_init,
-				LDFLAGS="${LDFLAGS} -lgphoto2"
-				GPHOTO2_TMP_HAVE_GPHOTO2=yes))
-
-		if test "${GPHOTO2_TMP_HAVE_GPHOTO2}" != "yes" ; then
-			CPPFLAGS=${GPHOTO2_OLD_CPPFLAGS}
-			LDFLAGS=${GPHOTO2_OLD_LDFLAGS}
-			HAVE_GPHOTO2="false"
-		fi
+		CPPFLAGS="${CPPFLAGS} `gphoto2-config --cflags`"
+		GPHOTO2_LIBS="`gphoto2-config --libs`"
+		SANE_EXTRACT_LDFLAGS(LDFLAGS, GPHOTO2_LIBS)
+		LIBS="${LIBS} ${GPHOTO2_LIBS}"
 	fi
-
-	unset GPHOTO2_TMP_HAVE_GPHOTO2
-	unset GPHOTO2_OLD_CPPFLAGS
-	unset GPHOTO2_OLD_LDFLAGS
 ])
-
 
 
 # serial 40 AC_PROG_LIBTOOL

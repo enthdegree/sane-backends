@@ -37,6 +37,9 @@
 	* include/getopt.h lib/getopt.c lib/getopt1.c: Update to glibc
 	  2.3.1 version. This fixes a compilation warning. Further more,
 	  the code is now LGPLed.
+	* include/md5.h lib/md5.c: Update to glibc 2.3.1 version. The code
+	  is now LGPLed. Changed the K&R style and added prototypes to
+	  avoid warnings.
 
 2003-03-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -1,3 +1,9 @@
+2001-11-10  Karl Heinz Kremer <khk@khk.net>
+
+	* backends/epson.[ch]: all strings tagged with I18N macro
+	  Added support for scan button, scanner waits for button if the
+	  option "wait-for-button" is activated.
+
 2001-11-10  Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c backend/umax_pp_low.h backend/umax_pp_mid.c
@@ -74,7 +80,7 @@
 
 2001-10-28  Karl Heinz Kremer <khk@khk.net>
 
-  * backend/epson.c: Fixed bug in recognition of faulty Perfection 1650
+	* backend/epson.c: Fixed bug in recognition of faulty Perfection 1650
 
 2001-10-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
@@ -159,9 +165,9 @@
 
 2001-10-20  Karl Heinz Kremer <khk@khk.net>
 
-  * backend/epson.[ch]: Fix for older Perfection 1650 scanners -
-    their firmware only reports half of the vertical scanning
-    area and they need to swap two color channels.
+	* backend/epson.[ch]: Fix for older Perfection 1650 scanners -
+	  their firmware only reports half of the vertical scanning
+	  area and they need to swap two color channels.
 
 2001-10-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

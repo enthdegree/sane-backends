@@ -175,6 +175,12 @@
 /* Define if you have the strdup function.  */
 #undef HAVE_STRDUP
 
+/* Is /dev/urandom available? */
+#undef HAVE_DEV_URANDOM
+
+/* SCSI command buffer size */
+#undef SCSIBUFFERSIZE
+
 /* Define if you have the strncasecmp function.  */
 #undef HAVE_STRNCASECMP
 

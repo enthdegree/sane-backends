@@ -1,4 +1,4 @@
-2002-01-24
+2002-03-21
 
 Here are a few rules and tips that should help writing a
 SANE-conformant backend and including it into the SANE package:
@@ -184,30 +184,35 @@ TESTING
 DOCUMENTATION
 -------------
 
-* Even if you haven't written a man-page for your backend yet, you
-  *must* create a .desc file which describes it.  Anytime you submit
-  source code for your backend, you should include an update to the
-  .desc file which reflects the new state of the backend.
+* Even if you haven't written a man-page for your backend yet, you *must*
+  create a .desc file which describes it. Anytime you submit source code for
+  your backend, you should include an update to the .desc file which reflects
+  the new state of the backend. The .desc files are used to create the HTML
+  lists of supported devices.
 
-* "template.desc." is a template for new .desc files.  If you'd like
-  to try parsing your creation to recreate the sane-backends webpage,
-  look at "sane-desc.el" in the tools/ directory or use 
-  "make sane-backends.html" in doc/. It may be necessary to adjust the
-  Makefile.
+* The .desc files are located in the directories "doc/descriptions" and
+  "doc/external/descriptions" (for included and external backends).
 
-* When your backend is included in the SANE distribution, add an entry
-  to doc/sane.man, AUTHORS and sane-backends.lsm. The sane.man entry should
-  point to your documentation (man-page, website, readme).
+* "template.desc." is a template for new .desc files. The format of the files
+  in the two directories is very similar.  If you'd like to try parsing your
+  creation to recreate the sane-backends webpages, look at "sane-desc.el" and
+  "sane-desc-ext.el" in the tools/ directory or use "make sane-backends.html"
+  and "make sane-backends-external.html" in "doc/". It may be necessary to
+  adjust the Makefile.
+
+* When your backend is included in the SANE distribution, add an entry to
+  doc/sane.man, AUTHORS and sane-backends.lsm. The sane.man entry should point
+  to your documentation (man-page, website, readme).  Also move your .desc
+  file from "doc/external-descriptions" to "doc/descriptions".
 
 * In your manual page (backend.man), use @LIBDIR@ and the other macros for
-  path names to the libraries, config files and documentation. Don't use
-  fixed paths as they will be wrong if SANE is installed with a different
-  prefix (e.g. /usr instead of /usr/local).
+  path names to the libraries, config files and documentation. Don't use fixed
+  paths as they will be wrong if SANE is installed with a different prefix
+  (e.g. /usr instead of /usr/local).
 
-* If you want to include READMEs, HTML files or other documentation,
-  please create your own directory (doc/backendname) and store your files
-  in this directory. If you only have a manual page a subdirectory isn't
-  necessary.
+* If you want to include READMEs, HTML files or other documentation, please
+  create your own directory (doc/backendname) and store your files in this
+  directory. If you only have a manual page a subdirectory isn't necessary.
 
 * Please keep your manpages and .desc files up-to-date especially regarding
   version numbers.

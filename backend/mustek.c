@@ -46,7 +46,7 @@
 
 /**************************************************************************/
 /* Mustek backend version                                                 */
-#define BUILD 127
+#define BUILD 128
 /**************************************************************************/
 
 #include "../include/sane/config.h"
@@ -1960,7 +1960,11 @@ set_window_pro (Mustek_Scanner * s)
 
   memset (cmd, 0, sizeof (cmd));
   cmd[0] = MUSTEK_SCSI_SET_WINDOW;
-  cmd[8] = 0x09;
+  if (strcmp (s->hw->sane.model, "1200 SP PRO") == 0)
+    cmd[8] = 0x09;
+  else
+    cmd[8] = 0x0a;
+
   cp = cmd + sizeof (scsi_set_window);	/* skip command block           */
 
   *cp++ = 0;			/* what's this? */
@@ -1972,7 +1976,8 @@ set_window_pro (Mustek_Scanner * s)
   STORE16L (cp, SANE_UNFIX (s->val[OPT_BR_X].w) * pixels_per_mm + 0.5);
   STORE16L (cp, SANE_UNFIX (s->val[OPT_BR_Y].w) * pixels_per_mm + 0.5);
 
-/**cp++ = 0x14;*//* what's this? */
+  if (strcmp (s->hw->sane.model, "1200 SP PRO") != 0)
+    *cp++ = 0x3c; /* Only needed for A3 Pro, 60 minutes until lamp-off */
   DBG (5, "set_window_pro\n");
 
   return dev_cmd (s, cmd, (cp - cmd), 0, 0);

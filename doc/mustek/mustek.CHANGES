@@ -1,5 +1,11 @@
 CHANGES for the SANE Mustek backend
 
+2002-10-11
+  * Released Mustek backend 1.0-128
+
+2002-10-10
+  * Fixed lamp off time (60 minutes) for the 1200 A3 Pro.
+
 2002-07-30
   * Released Mustek backend 1.0-127.
 

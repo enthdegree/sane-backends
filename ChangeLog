@@ -1,3 +1,8 @@
+2002-10-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/mustek.c doc/mustek/mustek.CHANGES: Fixed shutting off
+	  the lamp for the Paragon 1200 A3 Pro.
+
 2002-10-10  Petter Reinholdtsen <pere@td.org.uit.no>
 
 	* backend/canon630u-common.c: Change type of size parameter from

@@ -55,6 +55,9 @@
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
+#ifdef HAVE_SYS_IO_H
+#include <sys/io.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -69,71 +72,409 @@
 #include <dev/ppbus/ppbconf.h>
 #endif
 
+#ifdef HAVE_MACHINE_CPUFUNC_H
+#include <machine/cpufunc.h>
+#endif
+
+#ifdef HAVE_I386_SET_IOPERM
+#include <machine/sysarch.h>
+#endif
+
 #ifdef HAVE_LINUX_PPDEV_H
 #include <sys/ioctl.h>
 #include <linux/parport.h>
 #include <linux/ppdev.h>
 #endif
 
-#if HAVE_SYS_IO_H && defined __GNUC__
-# include <sys/io.h>		/* GNU libc based Linux */
-#elif HAVE_ASM_IO_H && defined __i386__
-# include <asm/io.h>		/* older Linux */
-#elif HAVE_SYS_HW_H
-# include <sys/hw.h>		/* OS/2 */
-#else
-#ifdef _ICC
+/*************************************************/
+/* here we define sanei_inb/sanei_outb based on  */
+/* OS dependant inb/outb definitions             */
+/* SANE_INB is defined whenever a valid inb/outb */
+/* definition has been found                     */
+/* once all these work, it might be moved to     */
+/* sanei_pio.c                                   */
+/*************************************************/
 
-static inline unsigned char
-inb (unsigned int port)
+#ifdef ENABLE_PARPORT_DIRECTIO
+
+#if (! defined SANE_INB ) && ( defined HAVE_SYS_HW_H )	/* OS/2 EMX case */
+#define SANE_INB 1
+static int
+sanei_ioperm (int start, int length, int enable)
+{
+  if (enable)
+    return _portaccess (port, port + length - 1);
+  return 0;
+}
+
+static unsigned char
+sanei_inb (unsigned int port)
+{
+  return _inp8 (port) & 0xFF;
+}
+
+static void
+sanei_outb (unsigned int port, unsigned char value)
+{
+  _outp8 (port, value);
+}
+
+static void
+sanei_insb (unsigned int port, unsigned char *addr, unsigned long count)
+{
+  _inps8 (port, (unsigned char *) addr, count);
+}
+
+static void
+sanei_insl (unsigned int port, unsigned char *addr, unsigned long count)
+{
+  _inps32 (port, (unsigned long *) addr, count);
+}
+
+static void
+sanei_outsb (unsigned int port, const unsigned char *addr,
+	     unsigned long count)
+{
+  _outps8 (port, (unsigned char *) addr, count);
+}
+
+static void
+sanei_outsl (unsigned int port, const unsigned char *addr,
+	     unsigned long count)
+{
+  _outps32 (port, (unsigned long *) addr, count);
+}
+#endif /* OS/2 EMX case */
+
+
+
+#if (! defined SANE_INB ) && ( defined HAVE_MACHINE_CPUFUNC_H )	/* FreeBSD case */
+#define SANE_INB 2
+static int
+sanei_ioperm (int start, int length, int enable)
+{
+#ifdef HAVE_I386_SET_IOPERM
+  return i386_set_ioperm (start, length, enable);
+#else
+  int fd = 0;
+
+  /* makes compilers happy */
+  start = length + enable;
+  fd = open ("/dev/io", O_RDONLY);
+  if (fd > 0)
+    return 0;
+  return -1;
+#endif
+}
+
+static unsigned char
+sanei_inb (unsigned int port)
+{
+  return inb (port);
+}
+
+static void
+sanei_outb (unsigned int port, unsigned char value)
+{
+  outb (port, value);
+}
+
+static void
+sanei_insb (unsigned int port, unsigned char *addr, unsigned long count)
+{
+  insb (port, addr, count);
+}
+
+static void
+sanei_insl (unsigned int port, unsigned char *addr, unsigned long count)
+{
+  insl (port, addr, count);
+}
+
+static void
+sanei_outsb (unsigned int port, const unsigned char *addr,
+	     unsigned long count)
+{
+  outsb (port, addr, count);
+}
+
+static void
+sanei_outsl (unsigned int port, const unsigned char *addr,
+	     unsigned long count)
+{
+  outsl (port, addr, count);
+}
+#endif /* FreeBSD case */
+
+
+/* linux GCC on i386 */
+#if ( ! defined SANE_INB ) && ( defined HAVE_SYS_IO_H ) && ( defined __GNUC__ ) && ( defined __i386__ )
+#define SANE_INB 3
+
+static int
+sanei_ioperm (int start, int length, int enable)
+{
+#ifdef HAVE_IOPERM
+  return ioperm (start, length, enable);
+#else
+  /* linux without ioperm ? hum ... */
+  /* makes compilers happy */
+  start = length + enable;
+  return 0;
+#endif
+}
+
+static unsigned char
+sanei_inb (unsigned int port)
+{
+  return inb (port);
+}
+
+static void
+sanei_outb (unsigned int port, unsigned char value)
+{
+  outb (value, port);
+}
+
+static void
+sanei_insb (unsigned int port, unsigned char *addr, unsigned long count)
+{
+  insb (port, addr, count);
+}
+
+static void
+sanei_insl (unsigned int port, unsigned char *addr, unsigned long count)
+{
+  insl (port, addr, count);
+}
+
+static void
+sanei_outsb (unsigned int port, const unsigned char *addr,
+	     unsigned long count)
+{
+  outsb (port, addr, count);
+}
+
+static void
+sanei_outsl (unsigned int port, const unsigned char *addr,
+	     unsigned long count)
+{
+  /* oddly, 32 bit I/O are done with outsw instead of the expected outsl */
+  outsw (port, addr, count);
+}
+#endif /* linux GCC on i386 */
+
+
+/* linux GCC non i386 */
+#if ( ! defined SANE_INB ) && ( defined HAVE_SYS_IO_H ) && ( defined __GNUC__ ) && ( ! defined __i386__ )
+#define SANE_INB 4
+static int
+sanei_ioperm (int start, int length, int enable)
+{
+#ifdef HAVE_IOPERM
+  return ioperm (start, length, enable);
+#else
+  /* linux without ioperm ? hum ... */
+  /* makes compilers happy */
+  start = length + enable;
+  return 0;
+#endif
+}
+
+static unsigned char
+sanei_inb (unsigned int port)
+{
+  return inb (port);
+}
+
+static void
+sanei_outb (unsigned int port, unsigned char value)
+{
+  outb (value, port);
+}
+
+static void
+sanei_insb (unsigned int port, unsigned char *addr, unsigned long count)
+{
+  int i;
+
+  for (i = 0; i < count; i++)
+    addr[i] = sanei_inb (port);
+}
+
+static void
+sanei_insl (unsigned int port, unsigned char *addr, unsigned long count)
+{
+  for (i = 0; i < count * 4; i++)
+    addr[i] = sanei_inb (port);
+}
+
+static void
+sanei_outsb (unsigned int port, const unsigned char *addr,
+	     unsigned long count)
+{
+  int i;
+
+  for (i = 0; i < count; i++)
+    sanei_outb (port, addr[i]);
+}
+
+static void
+sanei_outsl (unsigned int port, const unsigned char *addr,
+	     unsigned long count)
+{
+  int i;
+
+  for (i = 0; i < count * 4; i++)
+    sanei_outb (port, addr[i]);
+}
+#endif /* linux GCC non i386 */
+
+
+/* ICC on i386 */
+#if ( ! defined SANE_INB ) && ( defined __INTEL_COMPILER ) && ( defined __i386__ )
+#define SANE_INB 5
+static int
+sanei_ioperm (int start, int length, int enable)
+{
+#ifdef HAVE_IOPERM
+  return ioperm (start, length, enable);
+#else
+  /* ICC without ioperm() ... */
+  /* makes compilers happy */
+  start = length + enable;
+  return 0;
+#endif
+}
+static unsigned char
+sanei_inb (unsigned int port)
 {
   unsigned char ret;
 
-  __asm__ __volatile__ ("inb %1,%0":"=a" (ret):"d" ((u_int) port));
+  __asm__ __volatile__ ("inb %%dx,%%al":"=a" (ret):"d" ((u_int) port));
   return ret;
 }
 
-static inline void
-outb (unsigned int port, unsigned char value)
+static void
+sanei_outb (unsigned int port, unsigned char value)
 {
-  __asm__ __volatile__ ("outb %0,%1"::"a" (value), "d" ((u_int) port));
+  __asm__ __volatile__ ("outb %%al,%%dx"::"a" (value), "d" ((u_int) port));
 }
 
-static inline void
-insb (unsigned int port, void *addr, unsigned long count)
+static void
+sanei_insb (unsigned int port, void *addr, unsigned long count)
 {
   __asm__ __volatile__ ("rep ; insb":"=D" (addr), "=c" (count):"d" (port),
 			"0" (addr), "1" (count));
 }
 
-static inline void
-insl (unsigned int port, void *addr, unsigned long count)
+static void
+sanei_insl (unsigned int port, void *addr, unsigned long count)
 {
   __asm__ __volatile__ ("rep ; insl":"=D" (addr), "=c" (count):"d" (port),
 			"0" (addr), "1" (count));
 }
 
-static inline void
-outsb (unsigned int port, const void *addr, unsigned long count)
+static void
+sanei_outsb (unsigned int port, const void *addr, unsigned long count)
 {
   __asm__ __volatile__ ("rep ; outsb":"=S" (addr), "=c" (count):"d" (port),
 			"0" (addr), "1" (count));
 }
 
-static inline void
-outsw (unsigned int port, const void *addr, unsigned long count)
+static void
+sanei_outsl (unsigned int port, const void *addr, unsigned long count)
 {
-  __asm__ __volatile__ ("rep ; outsw":"=S" (addr), "=c" (count):"d" (port),
+  __asm__ __volatile__ ("rep ; outsl":"=S" (addr), "=c" (count):"d" (port),
 			"0" (addr), "1" (count));
 }
 
-#else
-#ifdef ENABLE_PARPORT_DIRECTIO
-#warning "ENABLE_PARPORT_DIRECTIO overriden"
+#endif /* ICC on i386 */
+
+/* direct io requested, but no valid inb/oub */
+#if ( ! defined SANE_INB) && ( defined ENABLE_PARPORT_DIRECTIO )
+#warning "ENABLE_PARPORT_DIRECTIO cannot be used du to lack of inb/out definition"
 #undef ENABLE_PARPORT_DIRECTIO
 #endif
-#endif
-#endif
+
+#endif /* ENABLE_PARPORT_DIRECTIO */
+/*
+ * no inb/outb without --enable-parport-directio *
+ */
+#ifndef ENABLE_PARPORT_DIRECTIO
+#define SANE_INB 0
+static int
+sanei_ioperm (int start, int length, int enable)
+{
+  /* make compilers happy */
+  enable = start + length;
+
+  /* returns failure */
+  return -1;
+}
+
+static unsigned char
+sanei_inb (unsigned int port)
+{
+  /* makes compilers happy */
+  port = 0;
+  return 255;
+}
+
+static void
+sanei_outb (unsigned int port, unsigned char value)
+{
+  /* makes compilers happy */
+  port = 0;
+  value = 0;
+}
+
+static void
+sanei_insb (unsigned int port, unsigned char *addr, unsigned long count)
+{
+  /* makes compilers happy */
+  if (addr)
+    {
+      port = 0;
+      count = 0;
+    }
+}
+
+static void
+sanei_insl (unsigned int port, unsigned char *addr, unsigned long count)
+{
+  /* makes compilers happy */
+  if (addr)
+    {
+      port = 0;
+      count = 0;
+    }
+}
+
+static void
+sanei_outsb (unsigned int port, const unsigned char *addr,
+	     unsigned long count)
+{
+  /* makes compilers happy */
+  if (addr)
+    {
+      port = 0;
+      count = 0;
+    }
+}
+
+static void
+sanei_outsl (unsigned int port, const unsigned char *addr,
+	     unsigned long count)
+{
+  /* makes compilers happy */
+  if (addr)
+    {
+      port = 0;
+      count = 0;
+    }
+}
+#endif /* ENABLE_PARPORT_DIRECTIO is not defined */
 
 /* we need either direct io or ppdev */
 #if ! defined ENABLE_PARPORT_DIRECTIO && ! defined HAVE_LINUX_PPDEV_H && ! defined HAVE_DEV_PPBUS_PPI_H
@@ -422,7 +763,7 @@ sanei_parport_info (int number, int *addr)
       if (fic == NULL)
 	{			/* no proc at all */
 	  DBG (1, "sanei_parport_info(): no /proc \n");
-	  return (0);
+	  return 0;
 	}
       fread (buffer, 64, 1, fic);
       fclose (fic);
@@ -437,11 +778,11 @@ sanei_parport_info (int number, int *addr)
       if (sscanf (buffer, "%d %d", &baseadr, &ecpadr) < 1)
 	{
 	  /* empty base file */
-	  return (0);
+	  return 0;
 	}
       *addr = baseadr;
     }
-  return (1);
+  return 1;
 }
 
 
@@ -458,7 +799,7 @@ sanei_umax_pp_InitPort (int port, char *name)
 {
   int fd, ectr;
   int found = 0, ecp = 1;
-#if ((defined HAVE_IOPERM)||(defined HAVE_LINUX_PPDEV_H))
+#if ((defined HAVE_IOPERM)||(defined HAVE_MACHINE_CPUFUNC_H)||(defined HAVE_LINUX_PPDEV_H))
   int mode;
 #endif
 #ifdef HAVE_LINUX_PPDEV_H
@@ -468,6 +809,7 @@ sanei_umax_pp_InitPort (int port, char *name)
   /* since this function must be called before */
   /* any other, we put debug init here         */
   DBG_INIT ();
+  DBG (1, "SANE_INB level %d\n", SANE_INB);
 
   /* sets global vars */
   ggGreen = ggamma;
@@ -492,7 +834,7 @@ sanei_umax_pp_InitPort (int port, char *name)
     {
       DBG (0, "sanei_umax_pp_InitPort cannot use direct hardware access\n");
       DBG (0, "if not compiled with --enable-parport-directio\n");
-      return (0);
+      return 0;
     }
 #endif
 
@@ -502,7 +844,7 @@ sanei_umax_pp_InitPort (int port, char *name)
 
 #ifdef IO_SUPPORT_MISSING
   DBG (1, "*** Direct I/O or ppdev unavailable, giving up ***\n");
-  return (0);
+  return 0;
 #else
 
 
@@ -527,7 +869,7 @@ sanei_umax_pp_InitPort (int port, char *name)
 		       name);
 		  break;
 		}
-	      return (0);
+	      return 0;
 
 	    }
 	  /* claim port */
@@ -575,7 +917,7 @@ sanei_umax_pp_InitPort (int port, char *name)
 		      ioctl (fd, PPSETMODE, &mode);
 		      ioctl (fd, PPRELEASE);
 		      close (fd);
-		      return (0);
+		      return 0;
 		    }
 		}
 
@@ -612,7 +954,7 @@ sanei_umax_pp_InitPort (int port, char *name)
 		      ioctl (fd, PPSETMODE, &mode);
 		      ioctl (fd, PPRELEASE);
 		      close (fd);
-		      return (0);
+		      return 0;
 		    }
 		  else
 		    {
@@ -646,7 +988,7 @@ sanei_umax_pp_InitPort (int port, char *name)
 	    {
 	      DBG (1, "Using %s ...\n", name);
 	      sanei_umax_pp_setparport (fd);
-	      return (1);
+	      return 1;
 	    }
 	}
     }
@@ -675,7 +1017,7 @@ sanei_umax_pp_InitPort (int port, char *name)
 		       name);
 		  break;
 		}
-	      return (0);
+	      return 0;
 	    }
 	  else
 	    {
@@ -692,62 +1034,29 @@ sanei_umax_pp_InitPort (int port, char *name)
 		  Outb (ECPCONTROL, ectr);
 		  DBG (1, "Setting ECPEPP  ...\n");
 		}
-	      return (1);
+	      return 1;
 	    }
 	}
     }
 #endif /* HAVE_DEV_PPBUS_PPI_H */
 
-
-#ifdef HAVE_SYS_HW_H
-  /* gainig io perm under OS/2                    */
-  /* IOPL must has been raised to 3 in config.sys */
-  /* for EMX portaccess always succeeds           */
-  if (!found)
-    {
-      _portaccess (port, port + 7);
-      return (1);
-    }
-#endif
-
-
-  /* FreeBSD and NetBSD with compatibility opion 9 */
-  /* opening /dev/io raise IOPL to level 3         */
-  fd = open ("/dev/io", O_RDWR);
-  if (errno == EACCES)
-    {
-      /* /dev/io exist but process hasn't the right permission */
-      DBG (1, "/dev/io could not gain access to 0x%X\n", port);
-      return (0);
-    }
-  if ((errno == ENXIO) || (errno == ENOENT))
-    {
-      /* /dev/io does not exist */
-      DBG (16, "no '/dev/io' device\n");
-    }
-  else if (errno != 0)
-    {
-      /* /dev/io we get an unexpected error */
-      DBG (1, "opening '/dev/io' got unexpected errno=%d\n", errno);
-      return (0);
-    }
-  else
-    return (1);
-
-#ifdef HAVE_IOPERM
   if (port < 0x400)
     {
-      if (ioperm (port, 8, 1) != 0)
+      if (sanei_ioperm (port, 8, 1) != 0)
 	{
-	  DBG (1, "ioperm could not gain access to 0x%X\n", port);
-	  return (0);
+	  DBG (1, "sanei_ioperm() could not gain access to 0x%X\n", port);
+	  return 0;
 	}
+      DBG (1, "sanei_ioperm( 0x%X,8,1) OK ...\n", port);
     }
+
+#ifdef HAVE_IOPERM
   /* ECP i/o range */
   if (iopl (3) != 0)
     {
       DBG (1, "iopl could not raise IO permission to level 3\n");
-      return (0);
+      DBG (1, "*NO* ECP support\n");
+      ecp = 0;
     }
 
   /* set up ECPEPP the hard way ... */
@@ -764,18 +1073,14 @@ sanei_umax_pp_InitPort (int port, char *name)
 	  Outb (ECPCONTROL, ectr);
 	}
     }
-
-  /* in case of suid, return to real user rights */
-  mode = getuid ();
-  setreuid (mode, mode);
-  mode = getgid ();
-  setregid (mode, mode);
+#else
+  ecp = 0;
 #endif
 
 
 
 #endif /* IO_SUPPORT_MISSING */
-  return (1);
+  return 1;
 }
 
 
@@ -886,13 +1191,7 @@ Outb (int port, int value)
     }
 #endif /* HAVE_DEV_PPBUS_PPI_H */
 
-#ifdef ENABLE_PARPORT_DIRECTIO
-#ifdef HAVE_SYS_HW_H
-  _outp8 (port, value);
-#else
-  outb (value, port);
-#endif /* HAVE_SYS_HW_H      */
-#endif /* ENABLE_PARPORT_DIRECTIO    */
+  sanei_outb (port, value);
 
 #endif /* IO_SUPPORT_MISSING */
 }
@@ -1011,13 +1310,8 @@ Inb (int port)
 	}
     }
 #endif /* HAVE_DEV_PPBUS_PPI_H */
-#ifdef ENABLE_PARPORT_DIRECTIO
-#ifdef HAVE_SYS_HW_H
-  res = _inp8 (port) & 0xFF;
-#else
-  res = inb (port) & 0xFF;
-#endif /* HAVE_SYS_HW_H */
-#endif /* ENABLE_PARPORT_DIRECTIO    */
+
+  res = sanei_inb (port);
 
 #endif /* IO_SUPPORT_MISSING */
   return res;
@@ -1028,24 +1322,19 @@ static void
 Insb (int port, unsigned char *dest, int size)
 {
 #ifndef IO_SUPPORT_MISSING
+
 #ifdef HAVE_DEV_PPBUS_PPI_H
   int i;
-  for (i = 0; i < size; i++)
-    dest[i] = Inb (port);
+  if (sanei_umax_pp_getparport () > 0)
+    {
+      for (i = 0; i < size; i++)
+	dest[i] = Inb (port);
+      return;
+    }
 #endif /* HAVE_DEV_PPBUS_PPI_H */
-#ifdef ENABLE_PARPORT_DIRECTIO
-#ifndef __i386__
-  int i;
-  for (i = 0; i < size; i++)
-    dest[i] = Inb (port);
-#else
-#ifdef HAVE_SYS_HW_H
-  _inps8 (port, dest, size);
-#else
-  insb (port, dest, size);
-#endif
-#endif
-#endif /* ENABLE_PARPORT_DIRECTIO    */
+
+  sanei_insb (port, dest, size);
+
 #endif
 }
 
@@ -1057,24 +1346,16 @@ Outsb (int port, unsigned char *source, int size)
 #ifdef HAVE_DEV_PPBUS_PPI_H
   int i;
 
-  for (i = 0; i < size; i++)
-    Outb (port, source[i]);
+  if (sanei_umax_pp_getparport () > 0)
+    {
+      for (i = 0; i < size; i++)
+	Outb (port, source[i]);
+      return;
+    }
 #endif /* HAVE_DEV_PPBUS_PPI_H */
 
-#ifdef ENABLE_PARPORT_DIRECTIO
-#ifndef __i386__
-  int i;
+  sanei_outsb (port, source, size);
 
-  for (i = 0; i < size; i++)
-    Outb (port, source[i]);
-#else
-#ifdef HAVE_SYS_HW_H
-  _outps8 (port, source, size);
-#else
-  outsb (port, source, size);
-#endif
-#endif
-#endif /* ENABLE_PARPORT_DIRECTIO    */
 #endif
 }
 
@@ -1089,24 +1370,16 @@ Insw (int port, unsigned char *dest, int size)
 #ifdef HAVE_DEV_PPBUS_PPI_H
   int i;
 
-  for (i = 0; i < size * 4; i++)
-    dest[i] = Inb (port);
+  if (sanei_umax_pp_getparport () > 0)
+    {
+      for (i = 0; i < size * 4; i++)
+	dest[i] = Inb (port);
+      return;
+    }
 #endif /* HAVE_DEV_PPBUS_PPI_H */
 
-#ifdef ENABLE_PARPORT_DIRECTIO
-#ifndef __i386__
-  int i;
+  sanei_insl (port, dest, size);
 
-  for (i = 0; i < size * 4; i++)
-    dest[i] = Inb (port);
-#else
-#ifdef HAVE_SYS_HW_H
-  _inps32 (port, (unsigned long *) dest, size);
-#else
-  insl (port, dest, size);
-#endif
-#endif
-#endif /* ENABLE_PARPORT_DIRECTIO    */
 #endif
 }
 
@@ -1118,24 +1391,16 @@ Outsw (int port, unsigned char *source, int size)
 #ifdef HAVE_DEV_PPBUS_PPI_H
   int i;
 
-  for (i = 0; i < size * 4; i++)
-    Outb (port, source[i]);
+  if (sanei_umax_pp_getparport () > 0)
+    {
+      for (i = 0; i < size * 4; i++)
+	Outb (port, source[i]);
+      return;
+    }
 #endif /* HAVE_DEV_PPBUS_PPI_H */
 
-#ifdef ENABLE_PARPORT_DIRECTIO
-#ifndef __i386__
-  int i;
+  sanei_outsl (port, source, size);
 
-  for (i = 0; i < size * 4; i++)
-    Outb (port, source[i]);
-#else
-#ifdef HAVE_SYS_HW_H
-  _outps32 (port, (unsigned long *) source, size);
-#else
-  outsw (port, source, size);
-#endif
-#endif
-#endif /* ENABLE_PARPORT_DIRECTIO    */
 #endif
 }
 
@@ -1152,7 +1417,7 @@ static int hasUTA = 0;
 int
 sanei_umax_pp_UTA (void)
 {
-  return (hasUTA);
+  return hasUTA;
 }
 
 int
@@ -1160,15 +1425,15 @@ sanei_umax_pp_ScannerStatus (void)
 {
   /* 0x07 variant returns status with bit 0 or 1 allways set to 1 */
   /* so we mask it out                                            */
-  return (scannerStatus & 0xFC);
+  return scannerStatus & 0xFC;
 }
 
 static int
 GetEPPMode (void)
 {
   if (epp32)
-    return (32);
-  return (8);
+    return 32;
+  return 8;
 }
 
 static void
@@ -1183,7 +1448,7 @@ SetEPPMode (int mode)
 static int
 GetModel (void)
 {
-  return (model);
+  return model;
 }
 
 static void
@@ -1196,7 +1461,7 @@ SetModel (int mod)
 int
 sanei_umax_pp_getparport (void)
 {
-  return (gParport);
+  return gParport;
 }
 
 void
@@ -1208,7 +1473,7 @@ sanei_umax_pp_setparport (int fd)
 int
 sanei_umax_pp_getport (void)
 {
-  return (gPort);
+  return gPort;
 }
 
 void
@@ -1220,7 +1485,7 @@ sanei_umax_pp_setport (int port)
 int
 sanei_umax_pp_getastra (void)
 {
-  return (astra);
+  return astra;
 }
 
 void
@@ -1567,7 +1832,7 @@ SlowNibbleRegisterRead (int reg)
 
   /* merge nibbles and return */
   high = (high & 0xF0) | ((low & 0xF0) >> 4);
-  return (high);
+  return high;
 }
 
 
@@ -1883,7 +2148,7 @@ Init002 (int arg)
   int data;
 
   if (arg == 1)
-    return (0);
+    return 0;
   Outb (DATA, 0x0B);
   Outb (CONTROL, 0x04);
   Outb (CONTROL, 0x04);
@@ -1901,9 +2166,9 @@ Init002 (int arg)
   Outb (CONTROL, 0x04);
   if (data == gEPAT)
     {
-      return (1);
+      return 1;
     }
-  return (0);
+  return 0;
 }
 
 
@@ -1974,7 +2239,7 @@ EPPRegisterRead (int reg)
   control = Inb (CONTROL);
   control = control & 0x1F;
   Outb (CONTROL, control);
-  return (value);
+  return value;
 }
 
 static int
@@ -2222,10 +2487,10 @@ CheckEPAT (void)
 
   version = RegisterRead (0x0B);
   if (version == 0xC7)
-    return (0);
+    return 0;
   DBG (0, "CheckEPAT: expected EPAT version 0xC7, got 0x%X! (%s:%d)\n",
        version, __FILE__, __LINE__);
-  return (-1);
+  return -1;
 
 }
 
@@ -2243,7 +2508,7 @@ Init005 (int arg)
 
       /* failed ? */
       if (res != arg)
-	return (1);
+	return 1;
 
       /* ror arg */
       res = arg & 0x01;
@@ -2254,7 +2519,7 @@ Init005 (int arg)
       /* next loop */
       count--;
     }
-  return (0);
+  return 0;
 }
 
 
@@ -2282,11 +2547,11 @@ Init021 (void)
     {
       DBG (0, "Init021: SendCommand(0xE0) failed! (%s:%d)\n", __FILE__,
 	   __LINE__);
-      return (0);
+      return 0;
     }
   ClearRegister (0);
   Init001 ();
-  return (1);
+  return 1;
 }
 
 /* 1 OK, 0 failure */
@@ -2296,9 +2561,9 @@ Init022 (void)
   if (Init021 () != 1)
     {
       DBG (0, "Init022: Init021() failed! (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
-  return (1);
+  return 1;
 }
 
 
@@ -2502,7 +2767,7 @@ WaitOnError (void)
 	}
     }
   while ((status != 0) && (c == 0));
-  return (c);
+  return c;
 }
 
 
@@ -2559,7 +2824,7 @@ ParportPausedReadBuffer (int size, unsigned char *dest)
       if (error)
 	{
 	  DBG (0, "Read error (%s:%d)\n", __FILE__, __LINE__);
-	  return (0);
+	  return 0;
 	}
     }
 
@@ -2571,7 +2836,7 @@ ParportPausedReadBuffer (int size, unsigned char *dest)
   if (size == 0)
     {
       DBG (0, "case not handled! (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
 
   word = 0;
@@ -2697,7 +2962,7 @@ ParportPausedReadBuffer (int size, unsigned char *dest)
   if (rc)
     DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
 	 __FILE__, __LINE__);
-  return (bread);
+  return bread;
 }
 #endif
 
@@ -2733,7 +2998,7 @@ DirectPausedReadBuffer (int size, unsigned char *dest)
       if (error)
 	{
 	  DBG (0, "Read error (%s:%d)\n", __FILE__, __LINE__);
-	  return (0);
+	  return 0;
 	}
     }
 
@@ -2745,7 +3010,7 @@ DirectPausedReadBuffer (int size, unsigned char *dest)
   if (size == 0)
     {
       DBG (0, "case not handled! (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
 
   word = 0;
@@ -2835,7 +3100,7 @@ DirectPausedReadBuffer (int size, unsigned char *dest)
   read++;
   control = Inb (CONTROL) & 0x1F;
   Outb (CONTROL, control);
-  return (read);
+  return read;
 }
 
 
@@ -2844,9 +3109,9 @@ PausedReadBuffer (int size, unsigned char *dest)
 {
 #ifdef HAVE_LINUX_PPDEV_H
   if (sanei_umax_pp_getparport () > 0)
-    return (ParportPausedReadBuffer (size, dest));
+    return ParportPausedReadBuffer (size, dest);
 #endif
-  return (DirectPausedReadBuffer (size, dest));
+  return DirectPausedReadBuffer (size, dest);
 }
 
 
@@ -2879,7 +3144,7 @@ retry:
 	{
 	  DBG (0, "SendWord failed (reg1C=0x%02X)   (%s:%d)\n", reg, __FILE__,
 	       __LINE__);
-	  return (0);
+	  return 0;
 	}
       for (i = 0; i < 10; i++)
 	{
@@ -2927,7 +3192,7 @@ retry:
   if (((reg == 0xC0) || (reg == 0xD0)) && (cmd[i] != -1))
     {
       DBG (0, "SendWord failed: short send  (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   reg = RegisterRead (0x1C);
   DBG (16, "SendWord, reg1C=0x%02X (%s:%d)\n", reg, __FILE__, __LINE__);
@@ -2942,14 +3207,14 @@ retry:
     {
       DBG (0, "SendWord failed: acknowledge not received (%s:%d)\n", __FILE__,
 	   __LINE__);
-      return (0);
+      return 0;
     }
   if (try)
     {
       DBG (0, "SendWord retry success (retry %d time%s) ... (%s:%d)\n", try,
 	   (try > 1) ? "s" : "", __FILE__, __LINE__);
     }
-  return (1);
+  return 1;
 }
 
 
@@ -2971,7 +3236,7 @@ SendWord610P (int *cmd)
       DBG (0,
 	   "SendWord610P failed, expected tmp=0xC8 , found 0x%02X (%s:%d)\n",
 	   tmp, __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   tmp = Inb (CONTROL);
   Outb (CONTROL, 0x04);
@@ -2983,7 +3248,7 @@ SendWord610P (int *cmd)
       DBG (0,
 	   "SendWord610P failed, expected tmp=0xC8 , found 0x%02X (%s:%d)\n",
 	   tmp, __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   tmp = Inb (CONTROL);
   Outb (CONTROL, 0x04);
@@ -2999,7 +3264,7 @@ SendWord610P (int *cmd)
 	  DBG (0,
 	       "SendWord610P failed, expected tmp=0xC8 , found 0x%02X (%s:%d)\n",
 	       tmp, __FILE__, __LINE__);
-	  return (0);
+	  return 0;
 	}
     }
 
@@ -3026,7 +3291,7 @@ SendWord610P (int *cmd)
     }
   tmp = Inb (EPPDATA);
   scannerStatus = tmp;
-  return (1);
+  return 1;
 }
 
 /*
@@ -3039,12 +3304,12 @@ SendWord (int *cmd)
   switch (sanei_umax_pp_getastra ())
     {
     case 610:
-      return (SendWord610P (cmd));
+      return SendWord610P (cmd);
     case 1220:
     case 1600:
     case 2000:
     default:
-      return (SendWord1220P (cmd));
+      return SendWord1220P (cmd);
     }
 }
 
@@ -3078,7 +3343,7 @@ RingScanner (int count, unsigned long delay)
   if (g674 == 1)
     {
       DBG (1, "OUCH! %s:%d\n", __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
 
   /* send ring string */
@@ -3242,7 +3507,7 @@ RingScanner (int count, unsigned long delay)
   /* restore state */
   Outb (CONTROL, control);
   Outb (DATA, data);
-  return (ret);
+  return ret;
 }
 
 /*****************************************************************************/
@@ -3354,7 +3619,7 @@ TestVersion (int no)
 	       count, __FILE__, __LINE__);
 	  Outb (CONTROL, control);
 	  Outb (DATA, data);
-	  return (0);
+	  return 0;
 	}
 
       /* next */
@@ -3402,7 +3667,7 @@ retry:
 	  if (try > 10)
 	    {
 	      DBG (0, "Aborting...\n");
-	      return (0);
+	      return 0;
 	    }
 	  else
 	    {
@@ -3430,7 +3695,7 @@ retry:
 		    {
 		      DBG (0, "SendLength retry failed (%s:%d)\n", __FILE__,
 			   __LINE__);
-		      return (0);
+		      return 0;
 		    }
 
 		  Epilogue ();
@@ -3507,7 +3772,7 @@ retry:
     {
       DBG (0, "SendLength failed: sent only %d bytes out of %d (%s:%d)\n", i,
 	   len, __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
 
 
@@ -3521,14 +3786,14 @@ retry:
     {
       DBG (0, "SendLength failed: acknowledge not received (%s:%d)\n",
 	   __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   if (try)
     {
       DBG (0, "SendLength retry success (retry %d time%s) ... (%s:%d)\n", try,
 	   (try > 1) ? "s" : "", __FILE__, __LINE__);
     }
-  return (1);
+  return 1;
 }
 
 
@@ -3582,7 +3847,7 @@ SendData (int *cmd, int len)
     {
       DBG (0, "SendData failed: sent only %d bytes out of %d (%s:%d)\n", i,
 	   len, __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
 
 
@@ -3597,9 +3862,9 @@ SendData (int *cmd, int len)
     {
       DBG (0, "SendData failed: acknowledge not received (%s:%d)\n", __FILE__,
 	   __LINE__);
-      return (0);
+      return 0;
     }
-  return (1);
+  return 1;
 }
 
 
@@ -3621,7 +3886,7 @@ PausedReadData (int size, unsigned char *dest)
     {
       DBG (0, "Unexpected reg19: 0x%02X instead of 0xC0 or 0xD0 (%s:%d)\n",
 	   reg, __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   REGISTERREAD (0x0C, 0x04);
   REGISTERWRITE (0x0C, 0x44);	/* sets data direction ? */
@@ -3632,13 +3897,13 @@ PausedReadData (int size, unsigned char *dest)
       DBG (16,
 	   "PausedReadBuffer(%d,dest) failed, only got %d bytes (%s:%d)\n",
 	   size, read, __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   DBG (16, "PausedReadBuffer(%d,dest) passed (%s:%d)\n", size, __FILE__,
        __LINE__);
   REGISTERWRITE (0x0E, 0x0D);
   REGISTERWRITE (0x0F, 0x00);
-  return (1);
+  return 1;
 }
 
 
@@ -3678,7 +3943,7 @@ ReceiveData (int *cmd, int len)
       DBG (0,
 	   "ReceiveData failed: received only %d bytes out of %d (%s:%d)\n",
 	   i, len, __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
 
 
@@ -3692,9 +3957,9 @@ ReceiveData (int *cmd, int len)
     {
       DBG (0, "ReceiveData failed: acknowledge not received (%s:%d)\n",
 	   __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
-  return (1);
+  return 1;
 }
 
 
@@ -3743,7 +4008,7 @@ Fonc001 (void)
 	}
     }
   if (res != 0)
-    return (0);
+    return 0;
 
   /* send 0x04 */
   RegisterWrite (0x1A, 0x04);
@@ -3758,7 +4023,7 @@ Fonc001 (void)
 	}
     }
   if (res != 0)
-    return (0);
+    return 0;
 
   /* send 0x05 */
   RegisterWrite (0x1A, 0x05);
@@ -3773,11 +4038,11 @@ Fonc001 (void)
 	}
     }
   if (res != 0)
-    return (0);
+    return 0;
 
   /* end */
   RegisterWrite (0x1A, 0x84);
-  return (1);
+  return 1;
 }
 
 
@@ -3799,7 +4064,7 @@ FoncSendWord (int *cmd)
       /* return -1 */
       DBG (0, "Error! expected reg0B=0x%02X, found 0x%02X! (%s:%d) \n", gEPAT,
 	   reg, __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   reg = RegisterRead (0x0D);
   reg = (reg & 0xE8) | 0x43;
@@ -3833,7 +4098,7 @@ FoncSendWord (int *cmd)
   Outb (DATA, 0x04);
   tmp = Inb (CONTROL) & 0x1F;
   Outb (CONTROL, tmp);
-  return (1);
+  return 1;
 }
 
 
@@ -3872,7 +4137,7 @@ CmdSetDataBuffer (int *data)
   if (SendData (data, 2048) == 0)
     {
       DBG (0, "SendData(data,%d) failed (%s:%d)\n", 2048, __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   TRACE (16, "SendData(data,2048) passed ...");
 
@@ -3884,7 +4149,7 @@ CmdSetDataBuffer (int *data)
     {
       DBG (16, "PausedReadData(2048,dest) failed (%s:%d)\n", __FILE__,
 	   __LINE__);
-      return (0);
+      return 0;
     }
   DBG (16, "PausedReadData(2048,dest) passed (%s:%d)\n", __FILE__, __LINE__);
 
@@ -3899,7 +4164,7 @@ CmdSetDataBuffer (int *data)
 	     data[i], i, dest[i], __FILE__, __LINE__);
 	}
     }
-  return (1);
+  return 1;
 }
 
 
@@ -3924,17 +4189,17 @@ sanei_umax_pp_ReleaseScanner (void)
 	{
 	  DBG (0, "SendCommand(0x40) (%s:%d) failed ...\n", __FILE__,
 	       __LINE__);
-	  return (0);
+	  return 0;
 	}
     }
   if (SendCommand (0x30) == 0)
     {
       DBG (0, "SendCommand(0x30) (%s:%d) failed ...\n", __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   DBG (1, "ReleaseScanner() done ...\n");
 
-  return (1);
+  return 1;
 }
 
 
@@ -3963,7 +4228,7 @@ sanei_umax_pp_EndSession (void)
   if (SendCommand (0xE0) == 0)
     {
       DBG (0, "SendCommand(0xE0) (%s:%d) failed ...\n", __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   DBG (16, "SendCommand(0xE0) passed... (%s:%d)\n", __FILE__, __LINE__);
 
@@ -4015,7 +4280,7 @@ sanei_umax_pp_EndSession (void)
 
   /* OUF */
   DBG (1, "End session done ...\n");
-  return (1);
+  return 1;
 }
 
 
@@ -4088,7 +4353,7 @@ sanei_umax_pp_InitScanner (int recover)
     {
       DBG (0, "CmdSetGet(0x02,j,sentcmd) failed (%s:%d)\n", __FILE__,
 	   __LINE__);
-      return (0);
+      return 0;
     }
   DBG (16, "CmdSetGet(0x02,j,sentcmd) passed ... (%s:%d)\n", __FILE__,
        __LINE__);
@@ -4101,7 +4366,7 @@ sanei_umax_pp_InitScanner (int recover)
 	{
 	  DBG (0, "CmdSetGet(0x02,j,sentcmd) failed (%s:%d)\n", __FILE__,
 	       __LINE__);
-	  return (0);
+	  return 0;
 	}
       DBG (16, "CmdSetGet(0x02,j,sentcmd) passed ... (%s:%d)\n", __FILE__,
 	   __LINE__);
@@ -4129,7 +4394,7 @@ sanei_umax_pp_InitScanner (int recover)
 	{
 	  DBG (0, "CmdSetGet(0x02,j,sentcmd) failed (%s:%d)\n", __FILE__,
 	       __LINE__);
-	  return (0);
+	  return 0;
 	}
       DBG (16, "CmdSetGet(0x01,j,sentcmd) passed ... (%s:%d)\n", __FILE__,
 	   __LINE__);
@@ -4140,7 +4405,7 @@ sanei_umax_pp_InitScanner (int recover)
   if (CmdGet (0x08, 36, readcmd) == 0)
     {
       DBG (0, "CmdGet(0x08,36,readcmd) failed (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   if (DBG_LEVEL >= 32)
     {
@@ -4156,7 +4421,7 @@ sanei_umax_pp_InitScanner (int recover)
     {
       DBG (1, "Warning: scanner motor on, giving up ...  (%s:%d)\n", __FILE__,
 	   __LINE__);
-      return (3);
+      return 3;
     }
 
   /* head homing needed ? */
@@ -4301,13 +4566,13 @@ sanei_umax_pp_InitScanner (int recover)
 	}
 
       /* signal homing */
-      return (2);
+      return 2;
     }
 
 
   /* end ... */
   DBG (1, "Scanner init done ...\n");
-  return (1);
+  return 1;
 }
 
 
@@ -4343,7 +4608,7 @@ InitTransport610P (int recover)
   if (SendCommand (0xE0) == 0)
     {
       DBG (0, "SendCommand(0xE0) (%s:%d) failed ...\n", __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   DBG (16, "SendCommand(0xE0) passed...\n");
   g6FE = 1;
@@ -4355,7 +4620,7 @@ InitTransport610P (int recover)
   if (SendWord (zero) == 0)
     {
       DBG (0, "SendWord(zero) failed (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   DBG (16, "SendWord(zero) passed (%s:%d)\n", __FILE__, __LINE__);
 
@@ -4363,7 +4628,7 @@ InitTransport610P (int recover)
 
   /* OK ! */
   DBG (1, "InitTransport610P done ...\n");
-  return (1);
+  return 1;
 }
 
 /* 
@@ -4404,7 +4669,7 @@ InitTransport1220P (int recover)
   if (SendCommand (0xE0) == 0)
     {
       DBG (0, "SendCommand(0xE0) (%s:%d) failed ...\n", __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   DBG (16, "SendCommand(0xE0) passed...\n");
   g6FE = 1;
@@ -4422,12 +4687,12 @@ InitTransport1220P (int recover)
       sanei_umax_pp_ReleaseScanner ();
       if (sanei_umax_pp_ProbeScanner (recover) != 1)
 	{
-	  return (0);
+	  return 0;
 	}
       else
 	{
 	  sanei_umax_pp_ReleaseScanner ();
-	  return (2);		/* signals retry InitTransport() */
+	  return 2;		/* signals retry InitTransport() */
 	}
     }
 
@@ -4471,7 +4736,7 @@ InitTransport1220P (int recover)
   if (dest == NULL)
     {
       DBG (0, "Failed to allocate 64 Ko !\n");
-      return (0);
+      return 0;
     }
   for (i = 0; i < 256; i++)
     {
@@ -4515,7 +4780,7 @@ InitTransport1220P (int recover)
 	      DBG (0,
 		   "Altered buffer value at %03X, expected %02X, found %02X\n",
 		   j * 2, j, dest[j * 2]);
-	      return (0);
+	      return 0;
 	    }
 	  if (dest[j * 2 + 1] != 0xFF - j)
 	    {
@@ -4523,14 +4788,14 @@ InitTransport1220P (int recover)
 		(0,
 		 "Altered buffer value at %03X, expected %02X, found %02X\n",
 		 j * 2 + 1, 0xFF - j, dest[j * 2 + 1]);
-	      return (0);
+	      return 0;
 	    }
 	  if (dest[512 + j * 2] != j)
 	    {
 	      DBG (0,
 		   "Altered buffer value at %03X, expected %02X, found %02X\n",
 		   512 + j * 2, j, dest[512 + j * 2]);
-	      return (0);
+	      return 0;
 	    }
 	  if (dest[512 + j * 2 + 1] != 0xFF - j)
 	    {
@@ -4538,7 +4803,7 @@ InitTransport1220P (int recover)
 		(0,
 		 "Altered buffer value at %03X, expected 0x%02X, found 0x%02X\n",
 		 512 + j * 2 + 1, 0xFF - j, dest[512 + j * 2 + 1]);
-	      return (0);
+	      return 0;
 	    }
 	}
       if (GetEPPMode () == 32)
@@ -4552,7 +4817,7 @@ InitTransport1220P (int recover)
   if (Fonc001 () != 1)
     {
       DBG (0, "Fonc001() failed ! (%s:%d) \n", __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   DBG (16, "Fonc001() passed ...  (%s:%d) \n", __FILE__, __LINE__);
 
@@ -4560,7 +4825,7 @@ InitTransport1220P (int recover)
   if (SendWord (zero) == 0)
     {
       DBG (0, "SendWord(zero) failed (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   DBG (16, "SendWord(zero) passed (%s:%d)\n", __FILE__, __LINE__);
   Epilogue ();
@@ -4568,7 +4833,7 @@ InitTransport1220P (int recover)
   /* OK ! */
   free (dest);
   DBG (1, "InitTransport1220P done ...\n");
-  return (1);
+  return 1;
 }
 
 /* 
@@ -4586,12 +4851,12 @@ sanei_umax_pp_InitTransport (int recover)
   switch (sanei_umax_pp_getastra ())
     {
     case 610:
-      return (InitTransport610P (recover));
+      return InitTransport610P (recover);
     case 1220:
     case 1600:
     case 2000:
     default:
-      return (InitTransport1220P (recover));
+      return InitTransport1220P (recover);
     }
 }
 
@@ -4714,7 +4979,7 @@ Test610P (int value)
   usleep (10000);
   Outb (DATA, data);
   Outb (CONTROL, control);
-  return (1);
+  return 1;
 }
 
 
@@ -4751,13 +5016,13 @@ In256 (void)
     {
       DBG (1, "Error, expected status 0x%02X, got 0x%02X (%s:%d)\n", val, tmp,
 	   __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   Outb (CONTROL, 0x04);
   usleep (10000);
   Outb (CONTROL, 0x04);
   usleep (10000);
-  return (1);
+  return 1;
 }
 
 /* 1: OK
@@ -4778,7 +5043,7 @@ Probe610P (int recover)
   if (!Test610P (0x87))
     {
       DBG (1, "Test610P(0x87) failed (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   else
     {
@@ -4787,7 +5052,7 @@ Probe610P (int recover)
   if (!In256 ())
     {
       DBG (1, "In256() failed (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   else
     {
@@ -4829,7 +5094,7 @@ Probe610P (int recover)
   /* successfull end ... */
   DBG (1, "UMAX Astra 610P detected\n");
   DBG (1, "Probe610P done ...\n");
-  return (1);
+  return 1;
 }
 
 
@@ -4891,7 +5156,7 @@ sanei_umax_pp_ProbeScanner (int recover)
     {
       DBG (1, "No 1220P/2000P scanner detected by 'RingScanner()'...\n");
       DBG (1, "Trying 610P...\n");
-      return (Probe610P (recover));
+      return Probe610P (recover);
     }
   DBG (16, "RingScanner passed...\n");
 
@@ -4900,14 +5165,14 @@ sanei_umax_pp_ProbeScanner (int recover)
   if (SendCommand (0x30) == 0)
     {
       DBG (0, "SendCommand(0x30) (%s:%d) failed ...\n", __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   DBG (16, "SendCommand(0x30) passed ... (%s:%d)\n", __FILE__, __LINE__);
   g67E = 4;			/* bytes to read */
   if (SendCommand (0x00) == 0)
     {
       DBG (0, "SendCommand(0x00) (%s:%d) failed ...\n", __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   DBG (16, "SendCommand(0x00) passed... (%s:%d)\n", __FILE__, __LINE__);
   g67E = 0;			/* bytes to read */
@@ -4957,13 +5222,13 @@ sanei_umax_pp_ProbeScanner (int recover)
   if (SendCommand (0x40) == 0)
     {
       DBG (0, "SendCommand(0x40) (%s:%d) failed ...\n", __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   DBG (16, "SendCommand(0x40) passed...\n");
   if (SendCommand (0xE0) == 0)
     {
       DBG (0, "SendCommand(0xE0) (%s:%d) failed ...\n", __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   DBG (16, "SendCommand(0xE0) passed...\n");
 
@@ -5164,26 +5429,12 @@ sanei_umax_pp_ProbeScanner (int recover)
 	   __FILE__, __LINE__);
       if (reg == 0xFF)
 	{
-	  /* EPP mode not set: try ECP if is available */
-	  /* reset EPAT */
-	  reg = Inb (CONTROL) & 0x04;
-	  Outb (CONTROL, reg);
-	  Outb (ECPCONTROL, 0x34);
-	  Outb (CONTROL, reg);
-	  reg = reg | 0x08;
-	  Outb (CONTROL, reg);
-	  Outb (CONTROL, reg);
-	  Outb (CONTROL, reg);
-	  Outb (CONTROL, reg);
-	  for (i = 0; i < 256; i++)
-	    reg = Inb (STATUS);
-
 	  DBG (0,
 	       "*** It appears that EPP data transfer doesn't work    ***\n");
 	  DBG (0,
 	       "*** Please read SETTING EPP section in sane-umax_pp.5 ***\n");
 	}
-      return (0);
+      return 0;
     }
   else
     {
@@ -5216,13 +5467,13 @@ sanei_umax_pp_ProbeScanner (int recover)
 	    {
 	      DBG (0, "Loop %d, char %d EPPReadBuffer failed! (%s:%d)\n", i,
 		   j * 2, __FILE__, __LINE__);
-	      return (0);
+	      return 0;
 	    }
 	  if (dest[2 * j + 1] != (0xFF - (j % 256)))
 	    {
 	      DBG (0, "Loop %d, char %d EPPReadBuffer failed! (%s:%d)\n", i,
 		   j * 2 + 1, __FILE__, __LINE__);
-	      return (0);
+	      return 0;
 	    }
 	}
       DBG (16, "Loop %d: EPPReadBuffer(0x400,dest) passed... (%s:%d)\n", i,
@@ -5247,7 +5498,7 @@ sanei_umax_pp_ProbeScanner (int recover)
   Init001 ();
 
   if (CheckEPAT () != 0)
-    return (0);
+    return 0;
   DBG (16, "CheckEPAT() passed... (%s:%d)\n", __FILE__, __LINE__);
 
   tmp = Inb (CONTROL) & 0x1F;
@@ -5438,7 +5689,7 @@ sanei_umax_pp_ProbeScanner (int recover)
       {
 	DBG (0, "Error! expected reg0B=0x%02X, found 0x%02X! (%s:%d) \n",
 	     gEPAT, reg, __FILE__, __LINE__);
-	return (0);
+	return 0;
       }
 
     reg = RegisterRead (0x0D);
@@ -5548,7 +5799,7 @@ sanei_umax_pp_ProbeScanner (int recover)
     {
       DBG (0, "Error! expected reg0B=0x%02X, found 0x%02X! (%s:%d) \n", gEPAT,
 	   reg, __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
 
   reg = RegisterRead (0x0D);
@@ -5577,7 +5828,7 @@ sanei_umax_pp_ProbeScanner (int recover)
   if (Fonc001 () != 1)
     {
       DBG (0, "Fonc001() failed ! (%s:%d) \n", __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   DBG (16, "Fct001() passed (%s:%d) \n", __FILE__, __LINE__);
   reg = RegisterRead (0x19) & 0xC8;
@@ -5605,7 +5856,7 @@ sanei_umax_pp_ProbeScanner (int recover)
     {
       DBG (0, "CmdSetDataBuffer(initbuf) failed ! (%s:%d) \n", __FILE__,
 	   __LINE__);
-      return (0);
+      return 0;
     }
   DBG (16, "CmdSetDataBuffer(initbuf) passed... (%s:%d)\n", __FILE__,
        __LINE__);
@@ -5613,7 +5864,7 @@ sanei_umax_pp_ProbeScanner (int recover)
     {
       DBG (0, "CmdSetDataBuffer(voidbuf) failed ! (%s:%d) \n", __FILE__,
 	   __LINE__);
-      return (0);
+      return 0;
     }
   DBG (16, "CmdSetDataBuffer(voidbuf) passed... (%s:%d)\n", __FILE__,
        __LINE__);
@@ -5630,7 +5881,7 @@ sanei_umax_pp_ProbeScanner (int recover)
 	{
 	  DBG (0, "CmdSetDataBuffer(initbuf) failed ! (%s:%d) \n", __FILE__,
 	       __LINE__);
-	  return (0);
+	  return 0;
 	}
       DBG (16, "Loop %d: CmdSetDataBuffer(initbuf) passed... (%s:%d)\n", i,
 	   __FILE__, __LINE__);
@@ -5638,7 +5889,7 @@ sanei_umax_pp_ProbeScanner (int recover)
 	{
 	  DBG (0, "Loop %d: CmdSetDataBuffer(voidbuf) failed ! (%s:%d) \n", i,
 	       __FILE__, __LINE__);
-	  return (0);
+	  return 0;
 	}
     }
 
@@ -5675,13 +5926,13 @@ sanei_umax_pp_ProbeScanner (int recover)
   if (Fonc001 () != 1)
     {
       DBG (0, "Fonc001() failed ! (%s:%d) \n", __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   DBG (16, "Fct001() passed (%s:%d) \n", __FILE__, __LINE__);
   if (SendWord (zero) == 0)
     {
       DBG (0, "SendWord(zero) failed (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   Epilogue ();
   DBG (16, "SendWord(zero) passed (%s:%d)\n", __FILE__, __LINE__);
@@ -5693,7 +5944,7 @@ sanei_umax_pp_ProbeScanner (int recover)
   if (val == 0)
     {
       DBG (0, "InitScanner() failed (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
 
 
@@ -5711,7 +5962,7 @@ sanei_umax_pp_ProbeScanner (int recover)
 
   free (dest);
   DBG (1, "Probe done ...\n");
-  return (1);
+  return 1;
 }
 
 
@@ -5728,7 +5979,7 @@ deconnect_epat (void)
   SendCommand (30);
   Outb (DATA, gData);
   Outb (CONTROL, gControl);
-  return (1);
+  return 1;
 }
 
 
@@ -5749,7 +6000,7 @@ connect_epat (void)
 	   __LINE__);
       /* we try to clean all */
       Epilogue ();
-      return (0);
+      return 0;
     }
   Outb (DATA, 0x00);
   Outb (CONTROL, 0x01);
@@ -5765,7 +6016,7 @@ connect_epat (void)
 	   reg, __FILE__, __LINE__);
       /* we try to clean all */
       Epilogue ();
-      return (0);
+      return 0;
     }
   reg = RegisterRead (0x0D);
   reg = (reg | 0x43) & 0xEB;
@@ -5786,7 +6037,7 @@ connect_epat (void)
   REGISTERWRITE (0x0A, 0x1C);
   REGISTERWRITE (0x0E, 0x10);
   REGISTERWRITE (0x0F, 0x1C);
-  return (1);
+  return 1;
 }
 
 
@@ -5823,7 +6074,7 @@ connect_610P (void)
     {
       DBG (0, "Error! expected STATUS=0x38, found 0x%02X! (%s:%d) \n", tmp,
 	   __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   Outb (CONTROL, 0x07);
   tmp = Inb (STATUS);
@@ -5831,7 +6082,7 @@ connect_610P (void)
     {
       DBG (0, "Error! expected STATUS=0x38, found 0x%02X! (%s:%d) \n", tmp,
 	   __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   Outb (CONTROL, 0x04);
   tmp = Inb (STATUS);
@@ -5839,9 +6090,9 @@ connect_610P (void)
     {
       DBG (0, "Error! expected STATUS=0xF8, found 0x%02X! (%s:%d) \n", tmp,
 	   __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
-  return (1);
+  return 1;
 }
 
 
@@ -5860,13 +6111,13 @@ deconnect_610P (void)
 	{
 	  DBG (0, "Error! expected CONTROL=0x04, found 0x%02X! (%s:%d) \n",
 	       tmp, __FILE__, __LINE__);
-	  return (0);
+	  return 0;
 	}
     }
   while ((i < 41) && (tmp == 0x04));
 
   Outb (DATA, gData);
-  return (1);
+  return 1;
 }
 
 static int
@@ -5875,12 +6126,12 @@ Prologue (void)
   switch (sanei_umax_pp_getastra ())
     {
     case 610:
-      return (connect_610P ());
+      return connect_610P ();
     case 1220:
     case 1600:
     case 2000:
     default:
-      return (connect_epat ());
+      return connect_epat ();
     }
 }
 
@@ -5892,12 +6143,12 @@ Epilogue (void)
   switch (sanei_umax_pp_getastra ())
     {
     case 610:
-      return (deconnect_610P ());
+      return deconnect_610P ();
     case 1220:
     case 1600:
     case 2000:
     default:
-      return (deconnect_epat ());
+      return deconnect_epat ();
     }
 }
 
@@ -5924,14 +6175,14 @@ CmdSet (int cmd, int len, int *val)
   if (!Prologue ())
     {
       DBG (0, "CmdSet: Prologue failed !   (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
 
   /* send data */
   if (SendLength (word, 4) == 0)
     {
       DBG (0, "SendLength(word,4) failed (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   TRACE (16, "SendLength(word,4) passed ...");
 
@@ -5973,13 +6224,13 @@ CmdSet (int cmd, int len, int *val)
 	  DBG (0, "SendData(word,%d) failed (%s:%d)\n", len, __FILE__,
 	       __LINE__);
 	  Epilogue ();
-	  return (0);
+	  return 0;
 	}
       TRACE (16, "SendData(val,len) passed ...");
       /* body end */
       Epilogue ();
     }
-  return (1);
+  return 1;
 }
 
 static int
@@ -6005,14 +6256,14 @@ CmdGet (int cmd, int len, int *val)
   if (!Prologue ())
     {
       DBG (0, "CmdGet: Prologue failed !   (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
 
   /* send data */
   if (SendLength (word, 4) == 0)
     {
       DBG (0, "SendLength(word,4) failed (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   TRACE (16, "SendLength(word,4) passed ...");
 
@@ -6024,7 +6275,7 @@ CmdGet (int cmd, int len, int *val)
   if (!Prologue ())
     {
       DBG (0, "CmdGet: Prologue failed !   (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
 
   /* get actual data */
@@ -6032,7 +6283,7 @@ CmdGet (int cmd, int len, int *val)
     {
       DBG (0, "ReceiveData(val,len) failed (%s:%d)\n", __FILE__, __LINE__);
       Epilogue ();
-      return (0);
+      return 0;
     }
   if (DBG_LEVEL >= 8)
     {
@@ -6055,7 +6306,7 @@ CmdGet (int cmd, int len, int *val)
 	}
     }
   Epilogue ();
-  return (1);
+  return 1;
 }
 
 
@@ -6077,7 +6328,7 @@ CmdSetGet (int cmd, int len, int *val)
   if (CmdSet (cmd, len, val) == 0)
     {
       DBG (0, "CmdSetGet failed !  (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
 
   tampon = (int *) malloc (len * sizeof (int));
@@ -6087,7 +6338,7 @@ CmdSetGet (int cmd, int len, int *val)
       DBG (0, "Failed to allocate room for %d int ! (%s:%d)\n", len, __FILE__,
 	   __LINE__);
       Epilogue ();
-      return (0);
+      return 0;
     }
 
   /* then we receive */
@@ -6096,7 +6347,7 @@ CmdSetGet (int cmd, int len, int *val)
       DBG (0, "CmdSetGet failed !  (%s:%d)\n", __FILE__, __LINE__);
       free (tampon);
       Epilogue ();
-      return (0);
+      return 0;
     }
 
   /* check and copy */
@@ -6115,7 +6366,7 @@ CmdSetGet (int cmd, int len, int *val)
 
   /* OK */
   free (tampon);
-  return (1);
+  return 1;
 }
 
 
@@ -6138,7 +6389,7 @@ CmdGetBuffer (int cmd, int len, unsigned char *buffer)
   if (FoncSendWord (word) == 0)
     {
       DBG (0, "FoncSendWord(word) failed (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   DBG (16, "(%s:%d) passed \n", __FILE__, __LINE__);
   Init022 ();
@@ -6149,7 +6400,7 @@ CmdGetBuffer (int cmd, int len, unsigned char *buffer)
       /* return -1 */
       DBG (0, "Error! expected reg0B=0x%02X, found 0x%02X! (%s:%d) \n", gEPAT,
 	   reg, __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   reg = RegisterRead (0x0D);
   reg = (reg & 0xE8) | 0x43;
@@ -6180,7 +6431,7 @@ CmdGetBuffer (int cmd, int len, unsigned char *buffer)
   if ((reg != 0xC0) && (reg != 0xD0))
     {
       DBG (0, "CmdGetBuffer failed (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
 
   read = 0;
@@ -6189,7 +6440,7 @@ CmdGetBuffer (int cmd, int len, unsigned char *buffer)
     {
       DBG (0, "CmdGetBuffer failed: unexpected status 0x%02X  ...(%s:%d)\n",
 	   reg, __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   REGISTERWRITE (0x0C, reg | 0x40);
 
@@ -6256,7 +6507,7 @@ CmdGetBuffer (int cmd, int len, unsigned char *buffer)
 
   /* epilogue */
   Epilogue ();
-  return (1);
+  return 1;
 }
 
 /* 1 OK, 0 failed */
@@ -6275,14 +6526,14 @@ CmdGetBuffer32 (int cmd, int len, unsigned char *buffer)
   if (!Prologue ())
     {
       DBG (0, "CmdSet: Prologue failed !   (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
 
   /* send data */
   if (SendLength (word, 4) == 0)
     {
       DBG (0, "SendLength(word,4) failed (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   TRACE (16, "SendLength(word,4) passed ...");
 
@@ -6303,14 +6554,14 @@ CmdGetBuffer32 (int cmd, int len, unsigned char *buffer)
     {
       DBG (0, "CmdGetBuffer32 failed: unexpected status 0x%02X  ...(%s:%d)\n",
 	   reg, __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   reg = RegisterRead (0x0C);
   if (reg != 0x04)
     {
       DBG (0, "CmdGetBuffer32 failed: unexpected status 0x%02X  ...(%s:%d)\n",
 	   reg, __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   REGISTERWRITE (0x0C, reg | 0x40);
 
@@ -6359,7 +6610,7 @@ CmdGetBuffer32 (int cmd, int len, unsigned char *buffer)
 
   /* OK ! */
   Epilogue ();
-  return (1);
+  return 1;
 }
 
 int
@@ -6383,13 +6634,13 @@ sanei_umax_pp_CmdSync (int cmd)
   if (SendLength (word, 4) == 0)
     {
       DBG (0, "SendLength(word,4) failed (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   TRACE (16, "SendLength(word,4) passed ...");
 
   /* end OK */
   Epilogue ();
-  return (1);
+  return 1;
 }
 
 
@@ -6425,7 +6676,7 @@ CmdGetBlockBuffer (int cmd, int len, int window, unsigned char *buffer)
   if (SendLength (word, 4) == 0)
     {
       DBG (0, "SendLength(word,4) failed (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   TRACE (16, "SendLength(word,4) passed ...");
   /* head end */
@@ -6474,7 +6725,7 @@ CmdGetBlockBuffer (int cmd, int len, int window, unsigned char *buffer)
 		 "Time-out (%.2f s) waiting for scanner ... giving up on status 0x%02X !   (%s:%d)\n",
 		 elapsed, reg, __FILE__, __LINE__);
 	      Epilogue ();
-	      return (read);
+	      return read;
 	    }
 #endif
 	}
@@ -6493,7 +6744,7 @@ CmdGetBlockBuffer (int cmd, int len, int window, unsigned char *buffer)
 	  DBG (0,
 	       "CmdGetBlockBuffer failed: unexpected value reg0C=0x%02X  ...(%s:%d)\n",
 	       reg, __FILE__, __LINE__);
-	  return (0);
+	  return 0;
 	}
       REGISTERWRITE (0x0C, reg | 0x40);
 
@@ -6535,7 +6786,7 @@ CmdGetBlockBuffer (int cmd, int len, int window, unsigned char *buffer)
 	     "Time-out (%.2f s) waiting for scanner ... giving up on status 0x%02X !   (%s:%d)\n",
 	     elapsed, reg, __FILE__, __LINE__);
 	  Epilogue ();
-	  return (read);
+	  return read;
 	}
 #endif
     }
@@ -6552,7 +6803,7 @@ CmdGetBlockBuffer (int cmd, int len, int window, unsigned char *buffer)
 
   /* OK ! */
   Epilogue ();
-  return (read);
+  return read;
 }
 
 static void
@@ -6680,7 +6931,7 @@ CompletionWait (void)
     }
   while ((sanei_umax_pp_ScannerStatus () & 0x90) != 0x90);
   CMDSYNC (0xC2);
-  return (1);
+  return 1;
 }
 
 int
@@ -6703,12 +6954,12 @@ sanei_umax_pp_SetLamp (int on)
   if ((state == 0) && (on == 0))
     {
       DBG (0, "Lamp already off ... (%s:%d)\n", __FILE__, __LINE__);
-      return (1);
+      return 1;
     }
   if ((state) && (on))
     {
       DBG (2, "Lamp already on ... (%s:%d)\n", __FILE__, __LINE__);
-      return (1);
+      return 1;
     }
 
   /* set lamp state */
@@ -6720,11 +6971,11 @@ sanei_umax_pp_SetLamp (int on)
     {
       DBG (0, "CmdSetGet(0x02,16,buffer) failed (%s:%d)\n", __FILE__,
 	   __LINE__);
-      return (0);
+      return 0;
     }
   DBG (16, "CmdSetGet(0x02,16,buffer) passed ... (%s:%d)\n", __FILE__,
        __LINE__);
-  return (1);
+  return 1;
 }
 
 static int num = 0;
@@ -6882,7 +7133,7 @@ EvalGain (int sum, int count)
     gn = 0;
   else if (gn > 127)
     gn = 127;
-  return (gn);
+  return gn;
 }
 
 static void
@@ -7026,7 +7277,7 @@ Move (int distance, int precision, unsigned char *buffer)
   unsigned char *ptr;
 
   if (distance == 0)
-    return (0);
+    return 0;
 
   if (buffer == NULL)
     ptr = tmp;
@@ -7111,7 +7362,7 @@ Move (int distance, int precision, unsigned char *buffer)
   DBG (16, "MOVE STATUS IS 0x%02X  (%s:%d)\n", sanei_umax_pp_ScannerStatus (),
        __FILE__, __LINE__);
   CMDSYNC (0x00);
-  return (1);
+  return 1;
 }
 
 
@@ -7188,7 +7439,7 @@ EdgePosition (int width, int height, unsigned char *data)
       DumpRGB (width, height, dbuffer, NULL);
       free (dbuffer);
     }
-  return (epos);
+  return epos;
 }
 
 
@@ -7281,7 +7532,7 @@ MoveToOrigin (void)
   MOVE (delta, PRECISION_ON, NULL);
 
   /* head successfully set to the origin */
-  return (1);
+  return 1;
 }
 
 
@@ -7690,7 +7941,7 @@ WarmUp (int color, int *brightness)
     }
   *brightness = (*brightness & 0xF0F) + (opsc04[6] - 1) * 16;
   DBG (1, "Warm-up done ...\n");
-  return (1);
+  return 1;
 }
 
 /* park head: returns 1 on success, 0 otherwise  */
@@ -7721,7 +7972,7 @@ sanei_umax_pp_Park (void)
   status = sanei_umax_pp_ScannerStatus ();
   DBG (16, "PARKING STATUS is 0x%02X (%s:%d)\n", status, __FILE__, __LINE__);
   DBG (1, "Park command issued ...\n");
-  return (1);
+  return 1;
 }
 
 
@@ -7861,7 +8112,7 @@ ColorCalibration (int color, int dpi, int brightness, int contrast, int width,
   ComputeCalibrationData (color, dpi, width, buffer, calibration);
 
   DBG (1, "Color calibration done ...\n");
-  return (1);
+  return 1;
 }
 
 
@@ -7912,7 +8163,7 @@ sanei_umax_pp_ReadBlock (long len, int window, int dpi, int last,
 
 	}
     }
-  return (len);
+  return len;
 }
 
 int
@@ -8088,7 +8339,7 @@ sanei_umax_pp_Scan (int x, int y, int width, int height, int dpi, int color,
 
   /* end ... */
   DBG (1, "Scan done ...\n");
-  return (1);
+  return 1;
 }
 
 
@@ -8110,7 +8361,7 @@ sanei_umax_pp_ParkWait (void)
     }
   while ((status & MOTOR_BIT) == 0x00);
   DBG (1, "ParkWait done ...\n");
-  return (1);
+  return 1;
 }
 
 
@@ -8168,7 +8419,7 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
     {
       DBG (0, "Failed to allocate 2096100 bytes... (%s:%d)\n", __FILE__,
 	   __LINE__);
-      return (0);
+      return 0;
     }
 
   /* 1600P have a different CCD command block */
@@ -8208,7 +8459,7 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
       if (dest == NULL)
 	{
 	  DBG (0, "%s:%d failed to allocate 256 Ko !\n", __FILE__, __LINE__);
-	  return (0);
+	  return 0;
 	}
 
       /* init some buffer : default calibration data ? */
@@ -8237,7 +8488,7 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
 	    }
 	}
       if (err)
-	return (0);
+	return 0;
     }
 
 
@@ -8281,7 +8532,7 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
 	}
     }
   if (err)
-    return (0);
+    return 0;
 
   /* find and move to zero */
   if (MoveToOrigin () == 0)
@@ -8318,7 +8569,7 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
       if (WarmUp (color, &brightness) == 0)
 	{
 	  DBG (0, "Warm-up failed !!! (%s:%d)\n", __FILE__, __LINE__);
-	  return (0);
+	  return 0;
 	}
     }
 
@@ -8351,7 +8602,7 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
       == 0)
     {
       DBG (0, "Gamma calibration failed !!! (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
   TRACE (16, "ColorCalibration() passed ...")
     /* it is faster to move at low resolution, then scan */
@@ -8596,7 +8847,7 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
   *rth = th;
 
   free (buffer);
-  return (1);
+  return 1;
 }
 
 /* 
@@ -8634,7 +8885,7 @@ sanei_umax_pp_CheckModel (void)
   if (dest == NULL)
     {
       DBG (0, "%s:%d failed to allocate 256 Ko !\n", __FILE__, __LINE__);
-      return (0);
+      return 0;
     }
 
   /* init some buffer : default calibration data ? */
@@ -8662,7 +8913,7 @@ sanei_umax_pp_CheckModel (void)
 	}
     }
   if (err)
-    return (0);
+    return 0;
 
 
   /* new part of buffer ... */
@@ -8737,7 +8988,7 @@ sanei_umax_pp_CheckModel (void)
 
   /* return guessed model number */
   CMDSYNC (0x00);
-  return (err);
+  return err;
 }
 
 

@@ -1,3 +1,8 @@
+2003-09-14  Stéphane Voltz <svoltz@wanadoo.fr>
+
+	* backend/umax_pp_low.c: reworked inb/out functions. The backend now
+	  works on FreeBSD.
+
 2003-09-12  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson.c: Increment only once in loop to find USB scanners,

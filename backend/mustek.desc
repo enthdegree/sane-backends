@@ -9,71 +9,38 @@
 ;
 
 :backend "mustek"		; name of backend
-:version "1.0-99"		; version of backend
+:version "0.73"			; version of backend
 :status :beta			; :alpha, :beta, :stable, :new
 :manpage "sane-mustek"		; name of manpage (if it exists)
-:url "http://hmg.home.pages.de/sane/"
 
 :devicetype :scanner
 
 :mfg "Mustek"			; name a manufacturer
 :url "http://www.mustek.com/"
-
-:model "Paragon MFS-6000CX"
-:interface "SCSI"
-:comment "3-pass"
-:model "Paragon MFS-12000CX"
-:interface "SCSI"
-:comment "3-pass"
-:model "Paragon MFC-600S"
-:interface "SCSI"
-:model "Paragon 600 II CD"
-:interface "SCSI"
-:model "ScanMagic 600 II SP"
-:interface "SCSI"
-:model "Paragon MFC-800S"
-:interface "SCSI"
-:model "Paragon 800 II SP"
-:interface "SCSI"
-:model "Paragon MFS-6000SP"
-:interface "SCSI"
-:model "Paragon MFS-8000SP"
-:interface "SCSI"
-:model "Paragon MFS-1200SP"
-:interface "SCSI"
-:model "Paragon MFS-12000SP"
-:interface "SCSI"
-:model "ScanExpress 6000SP"
-:interface "SCSI"
-:model "ScanExpress 12000SP"
-:interface "SCSI"
-:model "ScanExpress 12000SP Plus"
-:interface "SCSI"
-:model "Paragon 1200 III SP"
-:interface "SCSI"
-:model "ScanMagic 9636S"
-:interface "SCSI"
-:model "ScanMagic 9636S Plus"
-:interface "SCSI"
-:model "ScanExpress A3 SP"
-:interface "SCSI"
-:comment "Please test!"
-:model "Paragon 1200 SP Pro"
-:interface "SCSI"
-:comment "Please test!"
-:model "Paragon 1200 A3 Pro"
-:interface "SCSI"
-:comment "Please test!"
-:model "Paragon 600 II N"
-:interface "Proprietary"
-:mfg "Trust"			; name a manufacturer
-:url "http://www.trust-site.com"
-:model "Imagery 1200 SP"
-:interface "SCSI"
-:model "Imagery 4800 SP"
-:interface "SCSI"
-:model "SCSI Connect 19200"
-:interface "SCSI"
+:model "MFC-600S"		; name models for above-specified mfg.
+:comment "1 pass; (f/w >= 1.01; scsi id MFC-06000CZ)"
+:model "MFC-600CD"		; name models for above-specified mfg.
+:comment "1 pass; (f/w >= 2.03; scsi id MFC-06000CZ)"
+:model "MFS-6000CX"
+:comment "3 pass; (f/w >= 2.71; scsi id MSF-06000CX)"
+:model "MSF-6000SP"
+:comment "1 pass; (f/w >= 3.12; scsi id MSF-06000SP)"
+:model "MFS-8000SP"
+:comment "1 pass; (f/w >= 2.05; scsi id MSF-08000SP) lineart drops lines?"
+:model "MFC-800S"
+:comment "1 pass; (f/w == 1.06; scsi id MFC-08000CZ) color fails?"
+:model "MFS-1200SP"
+:comment "1 pass; (f/w == 1.00; scsi id MSF-12000SP)"
+:model "MFS-1200SP"
+:comment "1 pass; (f/w == 1.07; scsi id MFS-12000SP)"
+:model "MFS-1200SP"
+:comment "1 pass; (f/w == 1.02; scsi id MFS-12000SP) color fails?"
+:model "MFS-12000CX"
+:comment "3 pass; (f/w == 2.71; scsi id MFS-12000CX)"
+:model "SE-6000SP"
+:comment "1 pass; (f/w ==  ?  ; scsi id C03 S10IDW)"
+:model "SE-12000SP"
+:comment "1 pass; (f/w == 1.01; scsi id C06 S12IDW)"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

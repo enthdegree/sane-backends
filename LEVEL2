@@ -1,4 +1,4 @@
-Tue Nov  7 20:30:51 CET 2000
+Tue Jun  3 10:22:33 1997
 
 Here are some ideas under discussion for the next major revision of
 the SANE API:
@@ -16,23 +16,3 @@ the SANE API:
  o Support for other multimedia types, such as audio.  This probably
    would also require adding a write() interface to the SANE API.
    [Suggested by Erik Troan <ewt@redhat.com>.]
-
- o add support for buttons etc. on the scanner/camera
-
- o add support for sending messages from the backend to the frontend
-   (e.g. for warm up time)
-
- o Change of the version number system (the current standard version
-   system is not really used in the SANE distribution).
-
- o add more frame types
-
- o add alpha channel so that RGBI scanners like Nikon LS-20 can
-   send infra-red info back to gimp for post-processing
-
- o Might be nice if arbitrarily defined multiple channels, were possible.
-   Some way of indicating the number of channels possible, and some
-   details (wavelength, bandwidth, ...)
-
-
-see sane-devel archive for more ideas

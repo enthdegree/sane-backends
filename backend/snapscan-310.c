@@ -360,8 +360,8 @@ transfer_data_diff (u_char * buf, SnapScan_Scanner * pss)
 }
 
 /* $Log$
- * Revision 1.1  1999/08/09 18:05:54  pere
- * Initial revision
+ * Revision 1.1.1.1  1999/08/09 18:05:54  pere
+ * Wiped old repository.  Imported v1.0.1.
  *
  * Revision 1.1.3.1  1998/03/10 23:42:01  eblot
  * Debugging: large windows, color preview

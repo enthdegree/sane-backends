@@ -3622,8 +3622,8 @@ sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 
 /* $Log$
- * Revision 1.1  1999/08/09 18:05:49  pere
- * Initial revision
+ * Revision 1.1.1.1  1999/08/09 18:05:49  pere
+ * Wiped old repository.  Imported v1.0.1.
  *
  * Revision 1.40  1998/12/16  18:43:06  charter
  * Fixed major version problem precipitated by release of SANE-1.00.

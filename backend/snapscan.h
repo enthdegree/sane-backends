@@ -231,8 +231,8 @@ SnapScan_Scanner;
 #endif
 
 /* $Log$
- * Revision 1.1  1999/08/09 18:05:53  pere
- * Initial revision
+ * Revision 1.1.1.1  1999/08/09 18:05:53  pere
+ * Wiped old repository.  Imported v1.0.1.
  *
  * Revision 1.25  1998/12/16  18:40:53  charter
  * Commented the INOPERATIVE define to get rid of spurious brightness

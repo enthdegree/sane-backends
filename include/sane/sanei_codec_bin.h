@@ -15,25 +15,12 @@
    You should have received a copy of the GNU General Public License
    along with sane; see the file COPYING.  If not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
-/** @file sanei_codec_bin.h
- * Binary codec for network transmissions
- *
- * Transtale data to a byte stream while taking byte order problems into
- * account. This codec is currently used for saned and the network backend.
- *
- * @sa sanei_codec_ascii.h sanei_net.h sanei_wire.h
- */
 
+   This file declares SANE application interface.  See the SANE
+   standard for a detailed explanation of the interface.  */
 #ifndef sanei_codec_bin_h
 #define sanei_codec_bin_h
 
-/** Initialize the binary codec
- *
- * Set the i/o functions of the Wire to those of the binary codec.
- *
- * @param w Wire
- */
 extern void sanei_codec_bin_init (Wire *w);
 
 #endif /* sanei_codec_bin_h */

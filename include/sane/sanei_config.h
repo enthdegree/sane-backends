@@ -37,91 +37,40 @@
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
-*/
 
-/** @file sanei_config.h
- * Generic configuration support.
- *
- * Use the functions of this header file if you want to read and analyze
- * configuration files.
-*/
+   This file provides generic configuration support.  */
 
 #ifndef sanei_config_h
 
 #include <stdio.h>
 
-/** Search configuration file \a name along directory list and return file
- * pointer if such a file exists.  
- *
- * The following directory list is used:
- *	1st: SANE_CONFIG_DIR environment variable.
- *	2nd: PATH_SANE_CONFIG_DIR set during configuration.
- *	3rd: Current directory.
- * @param name filename with extension but without path (such as "mustek.conf")
- *
- * @return file pointer, or NULL if not found
- *
- */
 extern FILE *sanei_config_open (const char *name);
-
-/** Read a line from configuration file.
- *
- * Strips all unwanted chars.  Use this instead of fgets() to remove
- * line ending chars on all known platforms.
- *
- * @param str points to the buffer for the line
- * @param n size of the buffer
- * @param stream file pointer
- *
- * @return \a str on success and NULL on error
-*/
-extern char *sanei_config_read (char *str, int n, FILE *stream);
-
-/** Remove all whitespace from the beginning of a string.
- *
- * @param str string
- *
- * @return string without leading whitespace
- *
- */
 extern const char *sanei_config_skip_whitespace (const char *str);
-
-
-/** Scan a string constant from a line of text and return a malloced copy
- * of it.
- *
- * It's the responsibility of the caller to free the returned string constant
- * at an appropriate time.  Whitespace in front of the string constant is
- * ignored.  Whitespace can be included in the string constant by enclosing it
- * in double-quotes.
- *
- * @param str line of text to scan for a string constant
- * @param string_const copy of the string constant
- *
- * @return a pointer to the position in str where the scan stopped
- */
+/* Scan a string constant from the string pointed to by STR and return
+   a malloced copy of it in *STRING_CONST (it's the responsibility of
+   the caller to free the returned string at an appropriate time).
+   Whitespace in front of the string constant is ignored.  Whitespace
+   can be included in the string constant by enclosing it in
+   double-quotes.  A return val of NULL indicates that no string
+   constant was found. */
 extern const char *sanei_config_get_string (const char *str,
 					    char **string_const);
 
-/** Expand device name patterns into a list of devices.
- *
- * Apart from a normal device name (such as /dev/sdb), this function currently
- * supports SCSI device specifications of the form:
- *
- *	scsi VENDOR MODEL TYPE BUS CHANNEL ID LUN
- *
- * Where VENDOR is the desired vendor name.  MODEL is the desired model name.
- * TYPE is the desired device type.  All of these can be set to * to match
- * anything.  To include whitespace in these strings, enclose them in
- * double-quotes (").  BUS, ID, and LUN are the desired SCSI bus, id, and
- * logical-unit numbers.  These can be set to * or simply omitted to match
- * anything.
- *
- * @param name device name pattern
- * @param attach attach function
- */
+/* A convenience function to support expanding device name patterns
+   into a list of devices.  Apart from a normal device name
+   (such as /dev/sdb), this function currently supports SCSI
+   device specifications of the form:
+
+	scsi VENDOR MODEL TYPE BUS CHANNEL ID LUN
+
+   Where VENDOR is the desired vendor name.  MODEL is the desired
+   MODEL name.  TYPE is the desired device type.  All of these can be
+   set to * to match anything.  To include whitespace in these
+   strings, enclose them in double-quotes (").  BUS, ID, and LUN are
+   the desired SCSI bus, id, and logical-unit numbers.  These can be
+   set to * or simply omitted to match anything.  */
 extern void sanei_config_attach_matching_devices (const char *name,
 						  SANE_Status (*attach)
-						  (const char *dev));
+						    (const char *dev));
 
 #endif	/* sanei_config_h */

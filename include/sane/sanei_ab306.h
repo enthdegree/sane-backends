@@ -37,25 +37,6 @@
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.  */
-
-
-/** @file sanei_ab306.h
- * Support for the Mustek-proprietary SCSI-over-parallel-port
- * interface AB306.
- *
- * This chip is used by the Mustek Paragon 600 II N. It's similar to a parport
- * but has it's own ISA card and cable. 
- * 
- * /dev/port access is used where available. If this doesn't work, inb/outb
- * functions or inb/outb assembler code is used.
- *
- * Depending on the operating system it may be necessary to run this code as
- * root.
- *
- * @sa sanei_pio.h sanei_scsi.h sanei_usb.h
- */
-
-
 #ifndef sanei_ab306_h
 #define sanei_ab306_h
 
@@ -63,95 +44,14 @@
 
 #include <sane/sane.h>
 
-/**
- * Open the connection to an AB306 device.
- *
- * The scanner is also turned on.
- *
- * @param dev Port address as text.
- * @param fd  Information about port address and I/O method. fd is not a file
- *            descriptor. The name and type are used for compatibility reasons.
- *
- * @return
- * - SANE_STATUS_GOOD - on success
- * - SANE_STATUS_INVAL - if the port address can't be interpreted
- * - SANE_STATUS_IO_ERROR - if the device file for a port couldn't be accessed
- */
 SANE_Status	sanei_ab306_open (const char *dev, int *fd);
-
-/**
- * Close the connection to an AB306 device.
- *
- * @param fd  Information about port address and I/O method.
- *
- */
 void		sanei_ab306_close (int fd);
-
-/**
- * Exit ab306.
- *
- * Also powers down all devices.
- *
- */
 void		sanei_ab306_exit (void);
 
-/**
- * Get the permission for direct access to the ports.
- *
- * The only occasion this function must be called, is when the I/O privilege
- * was lost, e.g. after forking. Otherwise, it's called automatically by
- * sanei_ab306_open().
- *
- * @param fd  Information about port address and I/O method.
- *
- * @return
- * - SANE_STATUS_GOOD - on success
- * - SANE_STATUS_IO_ERROR - if the i/o privilege was denied by the operating
- *   system
- */
 SANE_Status	sanei_ab306_get_io_privilege (int fd);
-/**
- * Find out if the device is ready to accept new commands.
- *
- * @param fd  Information about port address and I/O method.
- *
- * @return
- * - SANE_STATUS_GOOD - if the device is ready
- * - SANE_STATUS_DEVICE_BUSY if the device is still busy (try again later)
- */
 SANE_Status	sanei_ab306_test_ready (int fd);
-
-/**
- * Send a command to the AB306 device.
- *
- * @param fd  Information about port address and I/O method.
- * @param src Data to be sent to the device.
- * @param src_size Size of data to be sent to the device.
- * @param dst Data to be received from the device.
- * @param dst_size Size of data to be received from the device
- *
- * @return
- * - SANE_STATUS_GOOD - on success
- * - SANE_STATUS_IO_ERROR - if an error occured during the dialog with the
- *   device
- */
 SANE_Status	sanei_ab306_cmd (int fd, const void *src, size_t src_size,
 				 void *dst, size_t *dst_size);
-
-/**
- * Read scanned image data.
- *
- * @param fd  Information about port address and I/O method.
- * @param planes Bytes per pixel (3 for color, 1 for all other modes)
- * @param buf Buffer for image data.
- * @param lines Number of lines
- * @param bpl Bytes per line
- *
- * @return
- * - SANE_STATUS_GOOD - on success
- * - SANE_STATUS_IO_ERROR - if an error occured during the dialog with the 
- *   device
- */
 SANE_Status	sanei_ab306_rdata (int fd, int planes,
 				   SANE_Byte *buf, int lines, int bpl);
 

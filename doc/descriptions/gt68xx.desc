@@ -210,6 +210,7 @@
 ; -----------------------------------------------------------------------------
 
 :mfg "Packard Bell"
+
 :model "Diamond 1200"
 :status :good
 :interface "USB"
@@ -219,6 +220,11 @@
 :status :good
 :interface "USB"
 :comment "Similar to Mustek BearPaw 1200 Plus"
+
+:model "Diamond 2450"
+:status :basic
+:interface "USB"
+;:comment "Needs more testing."
 
 ; -----------------------------------------------------------------------------
 

@@ -203,6 +203,12 @@ add_backend (const char *name, struct backend **bep)
 
   DBG(1, "adding backend %s\n", name);
 
+  if (strcmp(name,"dll") == 0)
+    {
+      DBG( 0, "remove the dll-backend from your dll.conf !!!\n");
+      return SANE_STATUS_GOOD;
+    }
+
   for (prev = 0, be = first_backend; be; prev = be, be = be->next)
     if (strcmp (be->name, name) == 0)
       {

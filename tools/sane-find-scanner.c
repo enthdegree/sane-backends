@@ -1438,8 +1438,11 @@ main (int argc, char **argv)
     }
   if (verbose > 1)
     printf ("This is sane-find-scanner from %s\n", PACKAGE_STRING);
-  if (verbose > 0)
-    printf ("\n");
+
+  printf ("\n  # sane-find-scanner will now attempt to detect your scanner. If the"
+	  "\n  # result is different from what you expected, first make sure your"
+	  "\n  # scanner is powered up and properly connected to your computer.\n\n");
+
   if (verbose > 1)
     printf ("searching for SCSI scanners:\n");
 

@@ -1,3 +1,8 @@
+2004-12-29  Julien Blache <jb@jblache.org>
+	* tools/sane-find-scanner.c: Added a hint about switching the
+	scanner on and connecting it to the computer before doing
+	anything.
+
 2004-12-26  Gerard Klaver <gerard at gkall dot hobby dot nl>
 
 	* doc/descriptions-external/hpaio.desc join two lines so html

@@ -497,10 +497,14 @@ else
     echo "*** SANE files and reinstall this version."
   fi
 fi
+if eval "test x${sysconfdir} = x/usr/etc" ; then
+  echo "*** WARNING: Configuration files are stored in /usr/etc. If this is not"
+  echo "*** intended, use --sysconfdir to set another path (e.g. "/etc")."
+fi
 if test "$SELECTED_BACKENDS" != "" ; then
   echo "*** Warning: Local backends have been disabled.  This means that scanners"
   echo "*** connected to your local computer won't be supported.  Only a network"
-  echo "*** connection to a remote host ist possible."
+  echo "*** connection to a remote host is possible."
 fi
 
 echo "****************************************************************"

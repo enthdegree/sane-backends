@@ -1,3 +1,8 @@
+2002-10-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* configure configure.in: Added a warning if sysconfdir is set to
+	  /usr/etc.
+
 2002-10-25  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/Makefile.in backend/dll.conf backend/gt68xx.c

@@ -211,6 +211,11 @@ SetCalibration (int iHandle, int numPixels, unsigned int *low_vals[3],
 		unsigned int *high_vals[3], int dpi)
 {
   char cmd[8];
+  /* unsigned char cmd[8]; */ /* should fix the compilation warning
+				 but I don't have a scanner right now 
+				 to check that the fix does not break
+				 calibration */
+  
   int i, j;
   struct CalPixel
   {
@@ -238,7 +243,7 @@ SetCalibration (int iHandle, int numPixels, unsigned int *low_vals[3],
   int calSize = numLoop * calBlockSize * numCalBlock;
 
   calinfo = malloc (calSize);
-  bzero (calinfo, calSize);
+  memset (calinfo, 0, calSize);
 
   for (j = 0; j < numLoop * numCalBlock * CALPIXBYBLOCK; j++)
     {
@@ -735,7 +740,7 @@ Calibrate (int iHandle, int dpi)
 #endif
 
 /* The first calibration scan. Finds maximum of each CCD */
-  bzero (&req, sizeof (req));
+  memset(&req, 0, sizeof(req));
 
   req.x1 = 0x08;
   req.dpix = htons (300);	/* = 300 dpi */
@@ -793,7 +798,7 @@ Calibrate (int iHandle, int dpi)
 #endif
 
 /* The second calibration scan. Finds minimum of each CCD */
-  bzero (&req, sizeof (req));
+  memset(&req, 0, sizeof(req));
 
   req.x1 = 0x08;
   req.dpix = htons (300);	/* = 300 dpi */
@@ -877,7 +882,7 @@ hp5400_scan (int iHandle, TScanParams * params, THWParams * pHWParams,
   HP5400_DBG (DBG_MSG, "   height : %d\n", params->iHeight);
   HP5400_DBG (DBG_MSG, "\n");
 
-  bzero (&req, sizeof (req));
+  memset(&req, 0, sizeof(req));
 
   req.x1 = 0x08;
   req.dpix = htons (params->iDpi);
@@ -999,8 +1004,8 @@ InitScan (enum ScanType scantype, TScanParams * pParams,
   struct ScanRequest req;
   struct ScanResponse res;
   int ret;
-
-  bzero (&req, sizeof (req));
+  
+  memset(&req, 0, sizeof(req));
 
   req.x1 = 0x08;
   req.dpix = htons (pParams->iDpi);	/* = 300 dpi */
@@ -1053,7 +1058,7 @@ InitScan2 (enum ScanType scantype, struct ScanRequest *req,
   struct ScanResponse res;
   int iHandle = pHWParams->iXferHandle;
 
-  bzero (&res, sizeof (res));
+  memset(&res, 0, sizeof(res));
 
   /* Protect scanner from damage. This stops stpuid errors.  It basically
    * limits you to the scanner glass. Stuff like calibrations which need

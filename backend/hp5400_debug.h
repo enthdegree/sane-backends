@@ -50,6 +50,7 @@
 
 #ifndef STANDALONE
 
+#define DEBUG_NOT_STATIC
 #define DEBUG_DECLARE_ONLY
 #include "../include/sane/sanei_debug.h"
 

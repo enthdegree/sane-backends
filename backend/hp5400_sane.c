@@ -50,6 +50,7 @@
     Parts of this source were inspired by other backends.
 */
 
+#include "../include/sane/config.h"
 
 /* definitions for debug */
 #include "hp5400_debug.h"
@@ -59,7 +60,6 @@
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
 #include "../include/sane/saneopts.h"
-#include "../include/sane/config.h"
 #include "../include/sane/sanei_usb.h"
 
 #include <stdlib.h>         /* malloc, free */
@@ -174,6 +174,7 @@ typedef struct TDevListEntry
 {
   struct TDevListEntry *pNext;
   SANE_Device dev;
+  char* devname;
 }
 TDevListEntry;
 
@@ -428,7 +429,11 @@ static int _ReportDevice(TScannerModel *pModel, const char *pszDeviceName)
 
   /* fill in new element */
   pNew->pNext = 0;
-  pNew->dev.name = (char*)strdup(pszDeviceName);
+  /* we use devname to avoid having to free a const
+   * pointer */
+  pNew->devname = (char*)strdup(pszDeviceName);
+  pNew->dev.name = pNew->devname;
+  (char*)strdup(pszDeviceName);
   pNew->dev.vendor = pModel->pszVendor;
   pNew->dev.model = pModel->pszName;
   pNew->dev.type = "flatbed scanner";
@@ -536,7 +541,6 @@ void
 sane_exit (void)
 {
   TDevListEntry *pDev, *pNext;
-
   HP5400_DBG (DBG_MSG, "sane_exit\n");
 
   /* free device list memory */
@@ -545,8 +549,8 @@ sane_exit (void)
       for (pDev = _pFirstSaneDev; pDev; pDev = pNext)
 	{
 	  pNext = pDev->pNext;
-	  /* free ((void *) (pDev->dev.name)); */
-	  free (pDev->dev.name);
+	  free (pDev->devname);
+	  /* pDev->dev.name is the same pointer that pDev->devname */
 	  free (pDev);
 	}
       _pFirstSaneDev = 0;

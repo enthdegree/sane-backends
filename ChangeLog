@@ -1,3 +1,9 @@
+2004-10-03  Thomas Soumarmon <thomas.soumarmon@cogitae.net>
+
+	* backend/hp5400_debug.c backend/hp5400_debug.h 
+	  backend/hp5400_internal.c backend/hp5400_sane.c: 
+	  removing more hp5400 compilation warnings
+
 2004-10-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Nikon LS-5000 ED (bug

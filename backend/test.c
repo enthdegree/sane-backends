@@ -41,7 +41,7 @@
    This backend is for testing frontends.
 */
 
-#define BUILD 12
+#define BUILD 13
 
 #include "../include/sane/config.h"
 
@@ -54,6 +54,7 @@
 #include <sys/wait.h>
 #include <time.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"

@@ -10,7 +10,7 @@
 ;
 
 :backend "test"               ; name of backend
-:version "1.0-12"                    ; version of backend
+:version "1.0-13"                    ; version of backend
 :status :beta                    ; :alpha, :beta, :stable, :new
 :manpage "sane-test"           ; name of manpage (if it exists)
 :url "http://www.meier-geinitz.de/sane/test-backend/" ; backend's web page

@@ -82,8 +82,6 @@
 #include "sane/sanei.h"
 #include "sane/saneopts.h"
 
-#include <X11/Intrinsic.h>
-
 #include "v4l-grab.h"
 #if what_is_this
 #  include "colorspace.h"
@@ -93,6 +91,9 @@
 #include <linux/videodev.h>
 
 #define SYNC_TIMEOUT 1
+
+#define TRUE  1
+#define FALSE 0
 
 #include "v4l.h"
 

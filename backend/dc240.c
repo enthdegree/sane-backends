@@ -1,4 +1,3 @@
-
 /***************************************************************************
  * _S_A_N_E - Scanner Access Now Easy.
 
@@ -130,6 +129,9 @@ static SANE_Range image_range = {
   0
 };
 
+static SANE_String **folder_list;
+static SANE_Int current_folder = 0;
+
 static SANE_Option_Descriptor sod[] = {
   {
    SANE_NAME_NUM_OPTIONS,
@@ -144,7 +146,7 @@ static SANE_Option_Descriptor sod[] = {
    }
   ,
 
-#define D25_OPT_IMAGE_SELECTION 1
+#define DC240_OPT_IMAGE_SELECTION 1
   {
    "",
    "Image Selection",
@@ -158,7 +160,21 @@ static SANE_Option_Descriptor sod[] = {
    }
   ,
 
-#define DC240_OPT_IMAGE_NUMBER 2
+#define DC240_OPT_FOLDER 2
+  {
+   "folder",
+   "Folder",
+   "Select folder within camera",
+   SANE_TYPE_STRING,
+   SANE_UNIT_NONE,
+   256,
+   SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+   SANE_CONSTRAINT_STRING_LIST,
+   {NULL}
+   }
+  ,
+
+#define DC240_OPT_IMAGE_NUMBER 3
   {
    "image",
    "Image Number",
@@ -172,7 +188,7 @@ static SANE_Option_Descriptor sod[] = {
    }
   ,
 
-#define DC240_OPT_THUMBS 3
+#define DC240_OPT_THUMBS 4
   {
    "thumbs",
    "Load Thumbnail",
@@ -185,7 +201,7 @@ static SANE_Option_Descriptor sod[] = {
    {NULL}
    }
   ,
-#define DC240_OPT_SNAP 4
+#define DC240_OPT_SNAP 5
   {
    "snap",
    "Snap new picture",
@@ -198,7 +214,7 @@ static SANE_Option_Descriptor sod[] = {
    {NULL}
    }
   ,
-#define DC240_OPT_LOWRES 5
+#define DC240_OPT_LOWRES 6
   {
    "lowres",
    "Low Resolution",
@@ -213,7 +229,7 @@ static SANE_Option_Descriptor sod[] = {
    }
   ,
 
-#define DC240_OPT_ERASE 6
+#define DC240_OPT_ERASE 7
   {
    "erase",
    "Erase",
@@ -227,7 +243,7 @@ static SANE_Option_Descriptor sod[] = {
    }
   ,
 
-#define DC240_OPT_DEFAULT 7
+#define DC240_OPT_DEFAULT 8
   {
    "default-enhancements",
    "Defaults",
@@ -240,7 +256,8 @@ static SANE_Option_Descriptor sod[] = {
    {NULL}
    }
   ,
-#define DC240_OPT_INIT_DC240 8
+
+#define DC240_OPT_INIT_DC240 9
   {
    "camera-init",
    "Re-establish Communications",
@@ -254,7 +271,7 @@ static SANE_Option_Descriptor sod[] = {
    }
   ,
 
-#define DC240_OPT_AUTOINC 9
+#define DC240_OPT_AUTOINC 10
   {
    "autoinc",
    "Auto Increment",
@@ -493,6 +510,8 @@ get_info (DC240 * camera)
 
   SANE_Char f[] = "get_info";
   SANE_Byte buf[256];
+  SANE_Int n;
+  struct cam_dirlist *e;
 
   if (send_pck (camera->fd, info_pck) == -1)
     {
@@ -547,7 +566,33 @@ get_info (DC240 * camera)
       image_range.max = Camera.pic_taken;
     }
 
-  read_dir ("\\PCCARD\\DCIM\\*.*");
+  n = read_dir ("\\PCCARD\\DCIM\\*.*");
+
+  /* If we've already got a folder_list, free it up before starting
+   * the new one 
+   */
+  if (folder_list != NULL)
+    {
+      int tmp;
+      for (tmp = 0; folder_list[tmp]; tmp++)
+	{
+	  free (folder_list[tmp]);
+	}
+      free (folder_list);
+    }
+
+  folder_list = (SANE_String * *)malloc ((n + 1) * sizeof (SANE_String *));
+  for (e = dir_head, n = 0; e; e = e->next, n++)
+    {
+      folder_list[n] = (SANE_String *) strdup (e->name);
+      if (strchr ((char *) folder_list[n], ' '))
+	{
+	  *strchr ((char *) folder_list[n], ' ') = '\0';
+	}
+    }
+  folder_list[n] = NULL;
+  sod[DC240_OPT_FOLDER].constraint.string_list =
+    (SANE_String_Const *) folder_list;
 
   return 0;
 
@@ -576,7 +621,7 @@ read_data (SANE_Int fd, SANE_Byte * buf, SANE_Int sz)
       if (retries != 1)
 	{
 
-	  DBG (3, "Attempt retry %d\n", retries);
+	  DBG (2, "Attempt retry %d\n", retries);
 	  c = 0xe3;
 	  if (write (fd, (char *) &c, 1) != 1)
 	    {
@@ -589,7 +634,7 @@ read_data (SANE_Int fd, SANE_Byte * buf, SANE_Int sz)
       /* read the control byte */
       if (read (fd, &c, 1) != 1)
 	{
-	  DBG (1,
+	  DBG (3,
 	       "read_data: error: "
 	       "read for packet control byte returned bad stat!us\n");
 	  return -1;
@@ -606,13 +651,13 @@ read_data (SANE_Int fd, SANE_Byte * buf, SANE_Int sz)
 
       if (r <= 0)
 	{
-	  DBG (1, "read_data: warning: read returned -1\n");
+	  DBG (2, "read_data: warning: read returned -1\n");
 	  continue;
 	}
 
       if (n < sz || read (fd, &rcsum, 1) != 1)
 	{
-	  DBG (1, "read_data: warning: buffer underrun or no checksum\n");
+	  DBG (2, "read_data: warning: buffer underrun or no checksum\n");
 	  continue;
 	}
 
@@ -996,21 +1041,23 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	  /* get the image's resolution, unless the camera has no 
 	   * pictures yet 
-           */
-	  if ( Camera.pic_taken != 0 ) {
-	    set_res (Camera.
-		     Pictures[Camera.current_picture_number - 1].low_res);
-	  }
+	   */
+	  if (Camera.pic_taken != 0)
+	    {
+	      set_res (Camera.
+		       Pictures[Camera.current_picture_number - 1].low_res);
+	    }
 	  break;
 
 	case DC240_OPT_THUMBS:
 	  dc240_opt_thumbnails = !!*(SANE_Word *) value;
 	  myinfo |= SANE_INFO_RELOAD_PARAMS;
 
-	  if ( Camera.pic_taken != 0 ) {
-	    set_res (Camera.
-		   Pictures[Camera.current_picture_number - 1].low_res);
-	  }
+	  if (Camera.pic_taken != 0)
+	    {
+	      set_res (Camera.
+		       Pictures[Camera.current_picture_number - 1].low_res);
+	    }
 	  break;
 
 	case DC240_OPT_SNAP:
@@ -1042,7 +1089,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 /* XXX - change the number of pictures left depending on resolution
    perhaps just call get_info again?
- */
+*/
 	  set_res (dc240_opt_lowres);
 
 	  break;
@@ -1053,6 +1100,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	case DC240_OPT_AUTOINC:
 	  dc240_opt_autoinc = !!*(SANE_Word *) value;
+	  break;
+
+	case DC240_OPT_FOLDER:
+	  printf ("FIXME set folder not implemented yet\n");
 	  break;
 
 	case DC240_OPT_DEFAULT:
@@ -1121,6 +1172,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	case DC240_OPT_AUTOINC:
 	  *(SANE_Word *) value = dc240_opt_autoinc;
+	  break;
+
+	case DC240_OPT_FOLDER:
+	  strcpy ((char *) value, (char *) folder_list[current_folder]);
 	  break;
 
 	default:
@@ -1294,6 +1349,7 @@ sane_start (SANE_Handle handle)
     struct jpeg_error_mgr jerr;
     SANE_Int row_stride, n;
     SANE_Char f[] = "sane_start";
+    SANE_Char path[256];
     struct cam_dirlist *e;
     name_buf[0] = 0x80;
 
@@ -1302,9 +1358,17 @@ sane_start (SANE_Handle handle)
 	if (n == Camera.current_picture_number)
 	  break;
       }
-    DBG (9, "%s: pic to read is %d name is %s\n", f, n, e->name);
 
-    strcpy ((char *) &name_buf[1], e->name);
+    strcpy (path, "\\PCCARD\\DCIM\\");
+    strcat (path, (char *) folder_list[current_folder]);
+    strcat (path, "\\");
+    strcat (path, e->name);
+    path[strlen (path) - 3] = '\0';
+    strcat (path, ".JPG");
+
+    DBG (9, "%s: pic to read is %d name is %s\n", f, n, path);
+
+    strcpy ((char *) &name_buf[1], path);
     for (i = 49; i <= 56; i++)
       {
 	name_buf[i] = 0xff;
@@ -1471,6 +1535,7 @@ static PictureInfo *
 get_pictures_info (void)
 {
   SANE_Char f[] = "get_pictures_info";
+  SANE_Char path[256];
   SANE_Int num_pictures;
   SANE_Int p;
   PictureInfo *pics;
@@ -1481,10 +1546,11 @@ get_pictures_info (void)
       Camera.Pictures = NULL;
     }
 
-  /* PSF fixme: Eventually need to read dir names - for now
-   * just assume 100DC240
-   */
-  num_pictures = read_dir ("\\PCCARD\\DCIM\\100DC240\\*.*");
+  strcpy (path, "\\PCCARD\\DCIM\\");
+  strcat (path, (char *) folder_list[current_folder]);
+  strcat (path, "\\*.*");
+
+  num_pictures = read_dir (path);
   if (num_pictures != Camera.pic_taken)
     {
       DBG (2,
@@ -1531,7 +1597,12 @@ get_picture_info (PictureInfo * pic, SANE_Int p)
 
   read_info (e->name);
 
-  /* Validate picture info */
+  /* Validate picture info 
+   * byte 0 - 1 == picture info
+   * byte 1 - 5 == DC240 Camera
+   * byte 2 - 3 == JFIF file
+   * byte 6 - 0 == Image is complete
+   */
   if (info_buf[0] != 1 || info_buf[1] != 5 || info_buf[2] != 3
       || info_buf[6] != 0)
     {
@@ -1542,6 +1613,20 @@ get_picture_info (PictureInfo * pic, SANE_Int p)
     }
 
   pic->low_res = info_buf[3] == 0 ? SANE_TRUE : SANE_FALSE;
+
+  /* 
+   * byte 12 - Year MSB
+   * byte 13 - Year LSB
+   * byte 14 - Month
+   * byte 15 - Day
+   * byte 16 - Hour
+   * byte 17 - Minute
+   * byte 18 - Second
+   */
+  DBG (1, "Picture %d taken %02d/%02d/%02d %02d:%02d:%02d\n",
+       p, info_buf[14],
+       info_buf[15], (info_buf[12] << 8) + info_buf[13],
+       info_buf[16], info_buf[17], info_buf[18]);
 
   return 0;
 }
@@ -1733,6 +1818,14 @@ read_info (SANE_String fname)
   SANE_Byte buf[256];
   SANE_Int i;
   SANE_Char f[] = "read_info";
+  SANE_Char path[256];
+
+  strcpy (path, "\\PCCARD\\DCIM\\");
+  strcat (path, (char *) folder_list[current_folder]);
+  strcat (path, "\\");
+  strcat (path, fname);
+  path[strlen (path) - 3] = '\0';
+  strcat (path, ".JPG");
 
   if (send_pck (Camera.fd, pic_info_pck) == -1)
     {
@@ -1741,7 +1834,7 @@ read_info (SANE_String fname)
     }
 
   buf[0] = 0x80;
-  strcpy ((char *) &buf[1], fname);
+  strcpy ((char *) &buf[1], path);
   for (i = 49; i <= 56; i++)
     {
       buf[i] = 0xff;
@@ -1840,10 +1933,7 @@ dir_insert (struct cam_dirent *entry)
       return -1;
     }
 
-  strcpy (cur->name, "\\PCCARD\\DCIM\\100DC240\\");
-  strcat (cur->name, entry->name);
-  cur->name[strlen (cur->name) - 3] = '\0';
-  strcat (cur->name, ".JPG");
+  strcpy (cur->name, entry->name);
   DBG (127, "dir_insert: name is %s\n", cur->name);
 
   cur->next = NULL;

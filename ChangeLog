@@ -4,6 +4,8 @@
 	  Translations are now enabled by default if the gettext tools are
 	  found. Use msgcat if available. Don't update the .po files
 	  automatically.
+	* TODO: Added entries about canon.c model extraction bug, and sanei_usb
+	  issue. Updated entries about MAcOS X support. Removed po files entry. 
 
 2002-10-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

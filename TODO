@@ -1,4 +1,4 @@
-TODO (2002-10-24)
+TODO (2002-11-03)
 
 ******** todo ********
 
@@ -63,6 +63,16 @@ backends
 
   * microtek2.c (scsi_read_control_bits): Make sure to pass a size_t*
     to sanei_scsi_cmd().
+
+  * canon.c: Fix model extraction code.
+
+  * Make sure that USB backends don't depend on the kernel USB scanner
+    driver but also work with libusb. The linux kernel scanner driver may be
+    gone in Linux 2.6.0.
+    - epson: already has a check for vendor/device ids but may need a way
+             to search for all epson scanners automaticall
+    - plustek: will need some work to autodetect all supported scanners
+    - hp: currently no support for sanei_usb at all
 
 doc
 ---
@@ -138,10 +148,14 @@ platform-specific
 
   * Add support for semaphores also for OS/2 (currently used in snapscan).
 
-  * Add support for Mac OS X in sanei_scsi.c.
-
   * Find out why USB on *BSD only works once (at least for Mustek scanners
     and OHCI).
+
+  * Fix MacOS X issues: 
+    - Add support in sanei_scsi.c.
+    - Find out why libusb doesn't work propperly.
+    - Check if dll.c need to use the .dylib postfix for libraries.
+    - sm3600 is reported to crash with MacOS X.
 
 misc
 ----
@@ -160,9 +174,8 @@ misc
   * Fix japi to run on current jdks. Swing is now included, and there is
     a segfault in Sane.c.
 
-  * po files: use msgcat if available, remove awk hook instead.
-
 ******** done ********
+* po files: use msgcat if available, remove awk hook instead.
 * sane.tex:
     - Define the return values for sane_init?  Define the consequences if
       sane_init doesn't return SANE_STATUS_GOOD.

@@ -1,3 +1,7 @@
+2002-01-05 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
+	* backend/umax-scanner.c, umax.c, umax.conf, umax.desc, umax.h:
+	  update to backend version 1.0 build 32
+
 2002-01-05  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson.[ch]: Check for (and set) s->fd to -1 when 

@@ -43,9 +43,26 @@
    HP Scanner Control Language (SCL).
 */
 
-static char *hp_backend_version = "0.88";
+static char *hp_backend_version = "0.91";
 /* Changes:
 
+   V 0.91, 04-Sep-2000, David Paschal (paschal@rcsis.com):
+      - Added support for flatbed HP OfficeJets
+      - (PK) fix problem with cancel preview
+
+   V 0.90, 02-Sep-2000, PK:
+      - fix timing problem between killing child and writing to pipe
+      - change fprintf(stderr,...) to DBG
+      - change include <sane..> to "sane.." in hp.h
+      - change handling of options that have global effects.
+        i.e. if option scanmode is received (has global effect),
+        all options that "may change" are send to the scanner again.
+        This fixes a problem that --resolution specified infront of
+        --mode on command line of scanimage was ignored.
+        NOTE: This change does not allow to specify --depth 12 infront of
+        --mode color, because --depth is only enabled with --mode color.
+      - add depth greater 8 bits for mode grayscale
+      - add option for 8 bit output but 10/12 bit scanning
    V 0.88, 25-Jul-2000, PK:
       - remove inlines
    V 0.88, 20-Jul-2000, PK:
@@ -162,6 +179,10 @@ static char *hp_backend_version = "0.88";
 #include "hp-device.h"
 #include "hp-handle.h"
 
+#ifdef HAVE_PTAL
+#include <ptal.h>
+#endif
+
 #ifndef PATH_MAX
 # define PATH_MAX	1024
 #endif
@@ -174,19 +195,25 @@ sanei_hp_dbgdump (const void * bufp, size_t len)
   const hp_byte_t *buf	= bufp;
   int		offset	= 0;
   int		i;
-  FILE *	fp	= stderr;
+  char line[128], pt[32];
 
   for (offset = 0; offset < (int)len; offset += 16)
     {
-      fprintf(fp, " 0x%04X ", offset);
+      sprintf (line," 0x%04X ", offset);
       for (i = offset; i < offset + 16 && i < (int)len; i++)
-	  fprintf(fp, " %02X", buf[i]);
+      {
+	  sprintf (pt," %02X", buf[i]);
+          strcat (line, pt);
+      }
       while (i++ < offset + 16)
-	  fputs("   ", fp);
-      fputs("  ", fp);
+	  strcat (line, "   ");
+      strcat (line, "  ");
       for (i = offset; i < offset + 16 && i < (int)len; i++)
-	  fprintf(fp, "%c", isprint(buf[i]) ? buf[i] : '.');
-      fputs("\n", fp);
+      {
+	  sprintf (pt, "%c", isprint(buf[i]) ? buf[i] : '.');
+          strcat (line, pt);
+      }
+      DBG(16,"%s\n",line);
     }
 }
 
@@ -480,6 +507,7 @@ hp_get_dev (const char *devname, HpDevice* devp)
   else if (hp_connect == HP_CONNECT_PIO) connect = "pio";
   else if (hp_connect == HP_CONNECT_USB) connect = "usb";
   else if (hp_connect == HP_CONNECT_RESERVE) connect = "reserve";
+  else if (hp_connect == HP_CONNECT_PTAL) connect = "ptal";
   else connect = "unknown";
 
   DBG(3, "hp_get_dev: New device %s, connect-%s, scsi-request=%lu\n",
@@ -581,6 +609,16 @@ hp_read_config (void)
               config->connect = HP_CONNECT_RESERVE;
               config->use_scsi_request = 0;
             }
+            else if (strcmp (arg2, "connect-ptal") == 0)
+            {
+#ifdef HAVE_PTAL
+              config->connect = HP_CONNECT_PTAL;
+              config->use_scsi_request = 0;
+#else
+              DBG(1,"hp_read_config: connect-ptal:\n");
+              DBG(1,"  hp-backend not compiled with PTAL support.\n");
+#endif
+            }
             else if (strcmp (arg2, "disable-scsi-request") == 0)
             {
               config->use_scsi_request = 0;
@@ -673,32 +711,42 @@ hp_update_devlist (void)
 
 SANE_Status
 sane_init (SANE_Int *version_code, SANE_Auth_Callback authorize)
-{
+{SANE_Status status;
+
   DBG_INIT();
-  DBG(3, "init called\n");
+  DBG(3, "sane_init called\n");
+
+#ifdef HAVE_PTAL
+  ptalInit();
+#endif
 
   hp_destroy();
 
   if (version_code)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, VERSIO);
 
-  return hp_init();
+  status = hp_init();
+  DBG(3, "sane_init will finish with %s\n", sane_strstatus (status));
+  return status;
 }
 
 void
 sane_exit (void)
 {
-  DBG(3, "exit called\n");
+  DBG(3, "sane_exit called\n");
   hp_destroy();
+  DBG(3, "sane_exit will finish\n");
 }
 
 SANE_Status
 sane_get_devices (const SANE_Device ***device_list, SANE_Bool local_only)
 {
-  DBG(3, "get_devices called\n");
+  DBG(3, "sane_get_devices called\n");
 
   RETURN_IF_FAIL( hp_update_devlist() );
   *device_list = global.devlist;
+  DBG(3, "sane_get_devices will finish with %s\n",
+      sane_strstatus (SANE_STATUS_GOOD));
   return SANE_STATUS_GOOD;
 }
 
@@ -707,6 +755,8 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
 {
   HpDevice	dev	= 0;
   HpHandle	h;
+
+  DBG(3, "sane_open called\n");
 
   RETURN_IF_FAIL( hp_read_config() );
 
@@ -727,6 +777,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
   RETURN_IF_FAIL( hp_handle_list_add(&global.handle_list, h) );
 
   *handle = h;
+  DBG(3, "sane_open will finish with %s\n", sane_strstatus (SANE_STATUS_GOOD));
   return SANE_STATUS_GOOD;
 }
 
@@ -735,15 +786,27 @@ sane_close (SANE_Handle handle)
 {
   HpHandle	h  = handle;
 
+  DBG(3, "sane_close called\n");
+
   if (!FAILED( hp_handle_list_remove(&global.handle_list, h) ))
       sanei_hp_handle_destroy(h);
+
+  DBG(3, "sane_close will finish\n");
 }
 
 const SANE_Option_Descriptor *
 sane_get_option_descriptor (SANE_Handle handle, SANE_Int optnum)
 {
   HpHandle 	h = handle;
-  return sanei_hp_handle_saneoption(h, optnum);
+  const SANE_Option_Descriptor *optd;
+
+  DBG(10, "sane_get_option_descriptor called\n");
+
+  optd = sanei_hp_handle_saneoption(h, optnum);
+
+  DBG(10, "sane_get_option_descriptor will finish\n");
+
+  return optd;
 }
 
 SANE_Status
@@ -751,21 +814,44 @@ sane_control_option (SANE_Handle handle, SANE_Int optnum,
 		     SANE_Action action, void *valp, SANE_Int *info)
 {
   HpHandle h = handle;
-  return sanei_hp_handle_control(h, optnum, action, valp, info);
+  SANE_Status status;
+
+  DBG(10, "sane_control_option called\n");
+
+  status = sanei_hp_handle_control(h, optnum, action, valp, info);
+
+  DBG(10, "sane_control_option will finish with %s\n",
+      sane_strstatus (status));
+  return status;
 }
 
 SANE_Status
 sane_get_parameters (SANE_Handle handle, SANE_Parameters *params)
 {
   HpHandle h = handle;
-  return sanei_hp_handle_getParameters(h, params);
+  SANE_Status status;
+
+  DBG(10, "sane_get_parameters called\n");
+
+  status = sanei_hp_handle_getParameters(h, params);
+
+  DBG(10, "sane_get_parameters will finish with %s\n",
+      sane_strstatus (status));
+  return status;
 }
 
 SANE_Status
 sane_start (SANE_Handle handle)
 {
   HpHandle h = handle;
-  return sanei_hp_handle_startScan(h);
+  SANE_Status status;
+
+  DBG(3, "sane_start called\n");
+
+  status = sanei_hp_handle_startScan(h);
+
+  DBG(3, "sane_start will finish with %s\n", sane_strstatus (status));
+  return status;
 }
 
 SANE_Status
@@ -775,8 +861,12 @@ sane_read (SANE_Handle handle, SANE_Byte *buf, SANE_Int max_len, SANE_Int *len)
   size_t	length	= max_len;
   SANE_Status	status;
 
+  DBG(16, "sane_read called\n");
+
   status =  sanei_hp_handle_read(h, buf, &length);
   *len = length;
+
+  DBG(16, "sane_read will finish with %s\n", sane_strstatus (status));
   return status;
 }
 
@@ -784,19 +874,40 @@ void
 sane_cancel (SANE_Handle handle)
 {
   HpHandle h = handle;
+
+  DBG(3, "sane_cancel called\n");
+
   sanei_hp_handle_cancel(h);
+
+  DBG(3, "sane_cancel will finish\n");
 }
 
 SANE_Status
 sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 {
   HpHandle h = handle;
-  return sanei_hp_handle_setNonblocking(h, non_blocking);
+  SANE_Status status;
+
+  DBG(3, "sane_set_io_mode called\n");
+
+  status = sanei_hp_handle_setNonblocking(h, non_blocking);
+
+  DBG(3, "sane_set_io_mode will finish with %s\n",
+      sane_strstatus (status));
+  return status;
 }
 
 SANE_Status
 sane_get_select_fd (SANE_Handle handle, SANE_Int *fd)
 {
   HpHandle h = handle;
-  return sanei_hp_handle_getPipefd(h, fd);
+  SANE_Status status;
+
+  DBG(10, "sane_get_select_fd called\n");
+
+  status = sanei_hp_handle_getPipefd(h, fd);
+
+  DBG(10, "sane_get_select_fd will finish with %s\n",
+      sane_strstatus (status));
+  return status;
 }

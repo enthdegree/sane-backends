@@ -69,6 +69,10 @@ extern int sanei_debug_hp;
 #include "hp-scsi.h"
 #include "hp-scl.h"
 
+#ifdef HAVE_PTAL
+#include <ptal.h>
+#endif
+
 #define HP_SCSI_INQ_LEN		(36)
 #define HP_SCSI_CMD_LEN		(6)
 #define HP_SCSI_BUFSIZ	(HP_SCSI_MAX_WRITE + HP_SCSI_CMD_LEN)
@@ -80,6 +84,10 @@ extern int sanei_debug_hp;
  */
 struct hp_scsi_s
 {
+#ifdef HAVE_PTAL
+    ptalDevice_t dev;
+    ptalChannel_t chan;
+#endif
     int		fd;
     char      * devname;
 
@@ -119,6 +127,10 @@ static SANE_Status
 hp_nonscsi_write (HpScsi this, hp_byte_t *data, size_t len, HpConnect connect)
 
 {int n = -1;
+#ifdef HAVE_PTAL
+ int isReset;
+ struct timeval startTimeout,continueTimeout;
+#endif
 
  if (len <= 0) return SANE_STATUS_GOOD;
 
@@ -140,6 +152,45 @@ hp_nonscsi_write (HpScsi this, hp_byte_t *data, size_t len, HpConnect connect)
      n = -1;
      break;
 
+   case HP_CONNECT_PTAL:
+#ifndef HAVE_PTAL
+     n = -1;
+#else
+     /* Check to see if we need to re-open the scan channel in case
+      * JetDirect closed it due to an idle timeout. */
+     if (ptalChannelOpenOrReopen(this->chan)==PTAL_ERROR) {
+
+     	break;
+     }
+     if (ptalChannelPrepareForSelect(this->chan,&this->fd,0,0,0,0)==
+         PTAL_ERROR) {
+
+     	break;
+     }
+
+     /* If we're sending an SCL RESET command, then flush stale
+      * response data after sending the command.  Otherwise,
+      * flush stale data before sending the command.  This is
+      * necessary because data is buffered between us and the
+      * scanner, which will not be affected by the SCL RESET. */
+     isReset=(len==2 && data[0]==27 && data[1]=='E');
+     startTimeout.tv_sec=0;
+     startTimeout.tv_usec=0;
+     continueTimeout.tv_sec=2;
+     continueTimeout.tv_usec=0;
+
+     if (!isReset) {
+	ptalChannelFlush(this->chan,&startTimeout,&continueTimeout);
+     }
+
+     n=ptalChannelWrite(this->chan,data,len);
+
+     if (isReset) {
+	ptalChannelFlush(this->chan,&startTimeout,&continueTimeout);
+     }
+#endif
+     break;
+
    default:
      n = -1;
      break;
@@ -152,9 +203,13 @@ hp_nonscsi_write (HpScsi this, hp_byte_t *data, size_t len, HpConnect connect)
 }
 
 static SANE_Status
-hp_nonscsi_read (HpScsi this, hp_byte_t *data, size_t *len, HpConnect connect)
+hp_nonscsi_read (HpScsi this, hp_byte_t *data, size_t *len, HpConnect connect,
+  int isResponse)
 
 {int n = -1;
+#ifdef HAVE_PTAL
+ struct timeval continueTimeout;
+#endif
 
  if (*len <= 0) return SANE_STATUS_GOOD;
 
@@ -174,6 +229,18 @@ hp_nonscsi_read (HpScsi this, hp_byte_t *data, size_t *len, HpConnect connect)
 
    case HP_CONNECT_RESERVE:
      n = -1;
+     break;
+
+   case HP_CONNECT_PTAL:
+#ifndef HAVE_PTAL
+     n = -1;
+#else
+     continueTimeout.tv_sec=0;
+     if (isResponse) continueTimeout.tv_sec=1;
+     if (*len>1024) continueTimeout.tv_sec=2;
+     continueTimeout.tv_usec=10000;
+     n=ptalSclChannelRead(this->chan,data,*len,0,&continueTimeout,isResponse);
+#endif
      break;
 
    default:
@@ -237,6 +304,12 @@ hp_nonscsi_open (const char *devname, int *fd, HpConnect connect)
      status = SANE_STATUS_INVAL;
      break;
 
+   case HP_CONNECT_PTAL:
+     /* This is handled in hp_nonscsi_write()
+      * because we need more than the file descriptor. */
+     status = SANE_STATUS_INVAL;
+     break;
+
    default:
      status = SANE_STATUS_INVAL;
      break;
@@ -271,6 +344,11 @@ hp_nonscsi_close (int fd, HpConnect connect)
    case HP_CONNECT_RESERVE:
      break;
 
+   case HP_CONNECT_PTAL:
+     /* This is handled in hp_scsi_close()
+      * because we need more than the file descriptor. */
+     break;
+
    default:
      break;
  }
@@ -286,6 +364,26 @@ sanei_hp_nonscsi_new (HpScsi * newp, const char * devname, HpConnect connect)
   if (!new)
     return SANE_STATUS_NO_MEM;
 
+#ifdef HAVE_PTAL
+ if (connect==HP_CONNECT_PTAL) {
+    /* The constant allocation and deallocation of the HpScsi object
+     * does not work well with OfficeJets, especially when connected
+     * to JetDirect.  As a somewhat inefficient workaround, we
+     * allocate and set up the PTAL channel once, and look it up by
+     * device name and service type on successive HpScsi instantiations. */
+    new->dev=ptalDeviceOpen((char *)devname);
+    if (!new->dev) {
+      sanei_hp_free(new);
+      return SANE_STATUS_NO_MEM;
+    }
+    new->chan=ptalChannelFindOrAllocate(new->dev,PTAL_STYPE_SCAN,0,0);
+    if (!new->chan) {
+      sanei_hp_free(new);
+      return SANE_STATUS_NO_MEM;
+    }
+    new->fd=PTAL_NO_FD;
+ } else {
+#endif
   status = hp_nonscsi_open(devname, &new->fd, connect);
   if (FAILED(status))
   {
@@ -293,6 +391,9 @@ sanei_hp_nonscsi_new (HpScsi * newp, const char * devname, HpConnect connect)
     sanei_hp_free(new);
     return SANE_STATUS_IO_ERROR;
   }
+#ifdef HAVE_PTAL
+ }
+#endif
 
   /* For SCSI-devices we would have the inquire command here */
   strncpy (new->inq_data, "\003zzzzzzzHP      MODELx          R000",
@@ -308,15 +409,28 @@ sanei_hp_nonscsi_new (HpScsi * newp, const char * devname, HpConnect connect)
 
 static void
 hp_scsi_close (HpScsi this)
-
 {HpConnect connect;
 
+ DBG(3, "scsi_close: closing fd %ld\n", (long)this->fd);
+
  connect = sanei_hp_scsi_get_connect (this);
+
+#ifdef HAVE_PTAL
+ if (connect==HP_CONNECT_PTAL) {
+   ptalChannelClose(this->chan);
+ } else {
+#endif
+
+ assert(this->fd >= 0);
 
  if (connect != HP_CONNECT_SCSI)
    hp_nonscsi_close (this->fd, connect);
  else
    sanei_scsi_close (this->fd);
+
+#ifdef HAVE_PTAL
+ }
+#endif
 }
 
 SANE_Status
@@ -374,12 +488,29 @@ sanei_hp_scsi_new (HpScsi * newp, const char * devname)
   return SANE_STATUS_GOOD;
 }
 
-void
-sanei_hp_scsi_destroy (HpScsi this)
-{
-  assert(this->fd >= 0);
-  DBG(3, "scsi_close: closing fd %d\n", this->fd);
 
+
+/* The "completely" parameter was added for OfficeJet support.
+ * For JetDirect connections, closing and re-opening the scan
+ * channel is very time consuming.  Also, the OfficeJet G85
+ * unloads a loaded document in the ADF when the scan channel
+ * gets closed.  The solution is to "completely" destroy the
+ * connection, including closing and deallocating the PTAL
+ * channel, when initially probing the device in hp-device.c,
+ * but leave it open while the frontend is actually using the
+ * device (from hp-handle.c), and "completely" destroy it when
+ * the frontend closes its handle. */
+void
+sanei_hp_scsi_destroy (HpScsi this,int completely)
+{
+  /* Moved to hp_scsi_close():
+   * assert(this->fd >= 0);
+   * DBG(3, "scsi_close: closing fd %d\n", this->fd);
+   */
+
+#ifdef HAVE_PTAL
+ if (sanei_hp_scsi_get_connect(this)!=HP_CONNECT_PTAL || completely)
+#endif
   hp_scsi_close (this);
   if ( this->devname ) sanei_hp_free (this->devname);
   sanei_hp_free(this);
@@ -542,8 +673,13 @@ hp_scsi_scl(HpScsi this, HpScl scl, int val)
 }
 
 
+/* The OfficeJets tend to return inquiry responses containing array
+ * data in two packets.  The added "isResponse" parameter tells
+ * ptalSclChannelRead whether it should keep reading until it gets
+ * a well-formed response.  Naturally, this parameter would be zero
+ * when reading scan data. */
 static SANE_Status
-hp_scsi_read (HpScsi this, void * dest, size_t *len)
+hp_scsi_read (HpScsi this, void * dest, size_t *len, int isResponse)
 {
   HpConnect connect;
   static hp_byte_t read_cmd[6] = { 0x08, 0, 0, 0, 0, 0 };
@@ -562,7 +698,7 @@ hp_scsi_read (HpScsi this, void * dest, size_t *len)
   }
   else
   {
-    RETURN_IF_FAIL( hp_nonscsi_read (this, dest, len, connect) );
+    RETURN_IF_FAIL( hp_nonscsi_read (this, dest, len, connect, isResponse) );
   }
   DBG(16, "scsi_read:  %lu bytes:\n", (unsigned long) *len);
   DBGDUMP(16, dest, *len);
@@ -575,6 +711,7 @@ static int signal_caught = 0;
 static RETSIGTYPE
 signal_catcher (int sig)
 {
+  DBG(1,"signal_catcher(sig=%d): old signal_caught=%d\n",sig,signal_caught);
   if (!signal_caught)
       signal_caught = sig;
 }
@@ -688,6 +825,53 @@ hp_scale_to_16bit(int count, register unsigned char *data, int depth,
     }
 }
 
+
+static void
+hp_scale_to_8bit(int count, register unsigned char *data, int depth,
+                 hp_bool_t invert)
+{
+    register unsigned int tmp, mask;
+    register hp_bool_t lowbyte_first = is_lowbyte_first_byteorder ();
+    unsigned int shift1 = depth-8;
+    int k;
+    unsigned char *dataout = data;
+
+    if ((count <= 0) || (shift1 <= 0)) return;
+
+    mask = 1;
+    for (k = 1; k < depth; k++) mask |= (1 << k);
+
+    if (lowbyte_first)
+    {
+      while (count--) {
+         tmp = ((((unsigned int)data[0])<<8) | ((unsigned int)data[1])) & mask;
+         tmp >>= shift1;
+         if (invert) tmp = ~tmp;
+         *(dataout++) = tmp & 255U;
+         data += 2;
+      }
+    }
+    else  /* Highbyte first */
+    {
+      while (count--) {
+         tmp = ((((unsigned int)data[0])<<8) | ((unsigned int)data[1])) & mask;
+         tmp >>= shift1;
+         if (invert) tmp = ~tmp;
+         *(dataout++) = tmp & 255U;
+         data += 2;
+      }
+    }
+}
+
+static void
+hp_soft_invert(int count, register unsigned char *data) {
+	while (count>0) {
+		*data = ~(*data);
+		data++;
+		count--;
+	}
+}
+
 static PROCDATA_HANDLE *
 process_data_init (HpProcessData *procdata, const unsigned char *map,
                    int outfd, hp_bool_t use_imgbuf)
@@ -717,6 +901,7 @@ process_data_init (HpProcessData *procdata, const unsigned char *map,
  if ( procdata->mirror_vertical || use_imgbuf)
  {
    tsz = procdata->lines*procdata->bytes_per_line;
+   if (procdata->out8) tsz /= 2;
    ph->image_ptr = ph->image_buf = sanei_hp_alloc (tsz);
    if ( !ph->image_buf )
    {
@@ -756,7 +941,9 @@ process_data_write (PROCDATA_HANDLE *ph, unsigned char *data, int nbytes)
    return SANE_STATUS_GOOD;
 
  DBG(12, "process_data_write: write %d bytes\n", ph->wr_buf_size);
- if ( write (ph->outfd, ph->wr_buf, ph->wr_buf_size) != ph->wr_buf_size)
+ /* Don't write data if we got a signal in the meantime */
+ if (   signal_caught
+     || (write (ph->outfd, ph->wr_buf, ph->wr_buf_size) != ph->wr_buf_size))
  {
    DBG(1, "process_data_write: write failed: %s\n",
        signal_caught ? "signal caught" : strerror(errno));
@@ -768,7 +955,8 @@ process_data_write (PROCDATA_HANDLE *ph, unsigned char *data, int nbytes)
  /* For large amount of data write it from data-buffer */
  while ( nbytes > ph->wr_buf_size )
  {
-   if ( write (ph->outfd, data, ph->wr_buf_size) != ph->wr_buf_size)
+   if (   signal_caught
+       || (write (ph->outfd, data, ph->wr_buf_size) != ph->wr_buf_size))
    {
      DBG(1, "process_data_write: write failed: %s\n",
          signal_caught ? "signal caught" : strerror(errno));
@@ -787,12 +975,11 @@ process_data_write (PROCDATA_HANDLE *ph, unsigned char *data, int nbytes)
  return SANE_STATUS_GOOD;
 }
 
-
 static SANE_Status
 process_scanline (PROCDATA_HANDLE *ph, unsigned char *linebuf,
                   int bytes_per_line)
 
-{
+{int out_bytes_per_line = bytes_per_line;
  HpProcessData *procdata;
 
  if (ph == NULL) return SANE_STATUS_INVAL;
@@ -802,18 +989,33 @@ process_scanline (PROCDATA_HANDLE *ph, unsigned char *linebuf,
    hp_data_map (ph->map, bytes_per_line, linebuf);
 
  if (procdata->bits_per_channel > 8)
-   hp_scale_to_16bit( bytes_per_line/2, linebuf,
-                      procdata->bits_per_channel,
-                      procdata->invert);
+ {
+   if (procdata->out8)
+   {
+     hp_scale_to_8bit( bytes_per_line/2, linebuf,
+                       procdata->bits_per_channel,
+                       procdata->invert);
+     out_bytes_per_line /= 2;
+   }
+   else
+   {
+     hp_scale_to_16bit( bytes_per_line/2, linebuf,
+                        procdata->bits_per_channel,
+                        procdata->invert);
+   }
+ } else if (procdata->invert) {
+   hp_soft_invert(bytes_per_line,linebuf);
+ }
 
  if ( ph->image_buf )
  {
    DBG(5, "process_scanline: save in memory\n");
 
-   if ( ph->image_ptr+bytes_per_line-1 <= ph->image_buf+ph->image_buf_size-1 )
+   if (    ph->image_ptr+out_bytes_per_line-1
+        <= ph->image_buf+ph->image_buf_size-1 )
    {
-     memcpy(ph->image_ptr, linebuf, bytes_per_line);
-     ph->image_ptr += bytes_per_line;
+     memcpy(ph->image_ptr, linebuf, out_bytes_per_line);
+     ph->image_ptr += out_bytes_per_line;
    }
    else
    {
@@ -823,7 +1025,7 @@ process_scanline (PROCDATA_HANDLE *ph, unsigned char *linebuf,
  else /* Save scanlines in a bigger buffer. */
  {    /* Otherwise we will get performance problems */
 
-   RETURN_IF_FAIL ( process_data_write (ph, linebuf, bytes_per_line) );
+   RETURN_IF_FAIL ( process_data_write (ph, linebuf, out_bytes_per_line) );
  }
  return SANE_STATUS_GOOD;
 }
@@ -892,7 +1094,7 @@ process_data_flush (PROCDATA_HANDLE *ph)
  if ( ph->wr_left != ph->wr_buf_size ) /* Something in write buffer ? */
  {
    nbytes = ph->wr_buf_size - ph->wr_left;
-   if ( write (ph->outfd, ph->wr_buf, nbytes) != nbytes)
+   if ( signal_caught || (write (ph->outfd, ph->wr_buf, nbytes) != nbytes))
    {
      DBG(1, "process_data_flush: write failed: %s\n",
          signal_caught ? "signal caught" : strerror(errno));
@@ -906,6 +1108,7 @@ process_data_flush (PROCDATA_HANDLE *ph)
  if ( ph->image_buf )
  {
    bytes_per_line = procdata->bytes_per_line;
+   if (procdata->out8) bytes_per_line /= 2;
    image_len = (size_t) (ph->image_ptr - ph->image_buf);
    num_lines = ((int)(image_len + bytes_per_line-1)) / bytes_per_line;
 
@@ -917,7 +1120,8 @@ process_data_flush (PROCDATA_HANDLE *ph)
      image_data = ph->image_buf + (num_lines-1) * bytes_per_line;
      while (num_lines > 0 )
      {
-       if (write(ph->outfd, image_data, bytes_per_line) != bytes_per_line)
+       if (   signal_caught
+           || (write(ph->outfd, image_data, bytes_per_line) != bytes_per_line))
        {
          DBG(1,"process_data_finish: write from memory failed: %s\n",
              signal_caught ? "signal caught" : strerror(errno));
@@ -933,7 +1137,8 @@ process_data_flush (PROCDATA_HANDLE *ph)
      image_data = ph->image_buf;
      while (num_lines > 0 )
      {
-       if (write(ph->outfd, image_data, bytes_per_line) != bytes_per_line)
+       if (   signal_caught
+           || (write(ph->outfd, image_data, bytes_per_line) != bytes_per_line))
        {
          DBG(1,"process_data_finish: write from memory failed: %s\n",
              signal_caught ? "signal caught" : strerror(errno));
@@ -1173,7 +1378,7 @@ sanei_hp_scsi_pipeout (HpScsi this, int outfd, HpProcessData *procdata)
 
       DBG(3, "do_read: try to read data (%lu bytes)\n", (unsigned long)nread);
 
-      status = hp_scsi_read (this, read_buf, &nread);
+      status = hp_scsi_read (this, read_buf, &nread, 0);
       if (status != SANE_STATUS_GOOD)
       {
         DBG(1, "do_read: Error from scsi_read: %s\n",sane_strstatus(status));
@@ -1258,7 +1463,7 @@ _hp_scl_inq (HpScsi scsi, HpScl scl, HpScl inq_cmnd,
 
   RETURN_IF_FAIL( hp_scsi_scl(scsi, inq_cmnd, SCL_INQ_ID(scl)) );
 
-  status =  hp_scsi_read(scsi, buf, &bufsize);
+  status =  hp_scsi_read(scsi, buf, &bufsize, 1);
   if (FAILED(status))
     {
       DBG(1, "scl_inq: read failed (%s)\n", sane_strstatus(status));
@@ -1341,7 +1546,7 @@ sanei_hp_scl_upload_binary (HpScsi scsi, HpScl scl, size_t *lengthhp,
 
   RETURN_IF_FAIL( hp_scsi_scl(scsi, SCL_UPLOAD_BINARY_DATA, SCL_INQ_ID(scl)) );
 
-  status =  hp_scsi_read(scsi, buf, &bufsize);
+  status =  hp_scsi_read(scsi, buf, &bufsize, 0);
   if (FAILED(status))
     {
       DBG(1, "scl_upload_binary: read failed (%s)\n", sane_strstatus(status));
@@ -1397,7 +1602,7 @@ sanei_hp_scl_upload_binary (HpScsi scsi, HpScl scl, size_t *lengthhp,
   if ( val > 0 )
     {
       sv = val;
-      status = hp_scsi_read(scsi, hpdata, &sv);
+      status = hp_scsi_read(scsi, hpdata, &sv, 0);
       if (status != SANE_STATUS_GOOD)
         sanei_hp_free ( *bufhp );
     }

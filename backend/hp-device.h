@@ -47,19 +47,21 @@
 #include "hp.h"
 
 enum hp_device_compat_e {
-    HP_COMPAT_PLUS 	= 1 << 0, /* Hp ScanJet Plus */
+    HP_COMPAT_PLUS 	= 1 << 0, /* HP ScanJet Plus */
     HP_COMPAT_2C	= 1 << 1,
     HP_COMPAT_2P	= 1 << 2,
     HP_COMPAT_2CX	= 1 << 3,
-    HP_COMPAT_4C	= 1 << 4, /* also for 3C, 6100C */
+    HP_COMPAT_4C	= 1 << 4, /* also 3c, 6100C */
     HP_COMPAT_3P	= 1 << 5,
     HP_COMPAT_4P	= 1 << 6,
-    HP_COMPAT_5P	= 1 << 7,
-    HP_COMPAT_5100C	= 1 << 8, /* also 4100 C */
-    HP_COMPAT_PS	= 1 << 9, /* Hp PhotoSmart Photo Scanner */
-    HP_COMPAT_6200C	= 1 << 10,
-    HP_COMPAT_5200C	= 1 << 11,
-    HP_COMPAT_6300C	= 1 << 12
+    HP_COMPAT_5P	= 1 << 7, /* also 4100C, 5100C */
+    HP_COMPAT_5100C	= 1 << 8, /* redundant with 5p */
+    HP_COMPAT_PS	= 1 << 9, /* HP PhotoSmart Photo Scanner */
+    HP_COMPAT_OJ_1150C	= 1 << 10,
+    HP_COMPAT_OJ_1170C	= 1 << 11, /* also later OfficeJets */
+    HP_COMPAT_6200C	= 1 << 12,
+    HP_COMPAT_5200C	= 1 << 13,
+    HP_COMPAT_6300C	= 1 << 14
 };
 
 struct hp_device_s

@@ -46,11 +46,11 @@
 #define HP_H_INCLUDED
 #include <limits.h>
 #include <sys/types.h>
-#include <sane/sane.h>
+#include "sane/sane.h"
 
 #undef BACKEND_NAME
 #define BACKEND_NAME	hp
-#include <sane/sanei_debug.h>
+#include "sane/sanei_debug.h"
 
 /* FIXME: these should be options? */
 #undef ENABLE_7x12_TONEMAPS
@@ -102,7 +102,8 @@ typedef int 		hp_bool_t;
 typedef unsigned char	hp_byte_t;
 
 typedef enum { HP_CONNECT_SCSI, HP_CONNECT_DEVICE,
-               HP_CONNECT_PIO, HP_CONNECT_USB, HP_CONNECT_RESERVE } HpConnect;
+               HP_CONNECT_PIO, HP_CONNECT_USB, HP_CONNECT_RESERVE,
+	       HP_CONNECT_PTAL } HpConnect;
 
 typedef struct
 {
@@ -156,8 +157,10 @@ typedef long int HpScl;
 typedef struct
 {
   int lines;
-  int bytes_per_line;
+  int bytes_per_line;     /* as received from scanner */
   int bits_per_channel;
+  hp_bool_t out8;         /* This flag is set and only set, when data with */
+                          /* depths > 8 is to be mapped to 8 bit output. */
   hp_bool_t mirror_vertical;
   hp_bool_t invert;
   HpScl startscan;

@@ -157,6 +157,9 @@ sanei_hp_device_support_probe (HpScsi scsi)
    SCL_BW_DITHER,
    SCL_CONTRAST,
    SCL_BRIGHTNESS,
+#ifdef SCL_SHARPENING
+   SCL_SHARPENING,
+#endif
    SCL_MIRROR_IMAGE,
    SCL_X_RESOLUTION,
    SCL_Y_RESOLUTION,
@@ -175,6 +178,7 @@ sanei_hp_device_support_probe (HpScsi scsi)
    SCL_CHANGE_DOC,
    SCL_ADF_BFEED
  };
+ enum hp_device_compat_e compat;
 
  DBG(1, "hp_device_support_probe: Check supported commands for %s\n",
      sanei_hp_scsi_devicename (scsi) );
@@ -193,6 +197,14 @@ sanei_hp_device_support_probe (HpScsi scsi)
                                   &(sclsupport->maxval));
    sclsupport->is_supported = (status == SANE_STATUS_GOOD);
    sclsupport->checked = 1;
+
+   /* The OfficeJets seem to ignore brightness and contrast settings,
+    * so we'll pretend they're not supported at all. */
+   if (((sclprobe[k]==SCL_BRIGHTNESS) || (sclprobe[k]==SCL_CONTRAST)) &&
+       (sanei_hp_device_probe (&compat, scsi) == SANE_STATUS_GOOD) &&
+       (compat & HP_COMPAT_OJ_1150C)) {
+	 sclsupport->is_supported=0;
+   }
 
    if (sclsupport->is_supported)
    {
@@ -217,18 +229,20 @@ sanei_hp_device_probe (enum hp_device_compat_e *compat, HpScsi scsi)
       const char *	model;
       enum hp_device_compat_e	flag;
   }	probes[] = {
-      { SCL_HP_MODEL_1, "Plus",  HP_COMPAT_PLUS },
-      { SCL_HP_MODEL_2, "IIc",   HP_COMPAT_2C },
-      { SCL_HP_MODEL_3, "IIp",   HP_COMPAT_2P },
-      { SCL_HP_MODEL_4, "IIcx",  HP_COMPAT_2CX },
-      { SCL_HP_MODEL_5, "4c/3c", HP_COMPAT_4C },
-      { SCL_HP_MODEL_6, "3p",    HP_COMPAT_3P },
-      { SCL_HP_MODEL_8, "4P",    HP_COMPAT_4P },
-      { SCL_HP_MODEL_9, "5P",    HP_COMPAT_5P },
-      { SCL_HP_MODEL_10, "Photo Scanner",    HP_COMPAT_PS },
-      { SCL_HP_MODEL_14, "6200C/6250C",    HP_COMPAT_6200C },
-      { SCL_HP_MODEL_16, "5200C",HP_COMPAT_5200C },
-      { SCL_HP_MODEL_17, "6300C/6350C",HP_COMPAT_6300C }
+      { SCL_HP_MODEL_1, "ScanJet Plus",             HP_COMPAT_PLUS },
+      { SCL_HP_MODEL_2, "ScanJet IIc",              HP_COMPAT_2C },
+      { SCL_HP_MODEL_3, "ScanJet IIp",              HP_COMPAT_2P },
+      { SCL_HP_MODEL_4, "ScanJet IIcx",             HP_COMPAT_2CX },
+      { SCL_HP_MODEL_5, "ScanJet 3c/4c/6100C",      HP_COMPAT_4C },
+      { SCL_HP_MODEL_6, "ScanJet 3p",               HP_COMPAT_3P },
+      { SCL_HP_MODEL_8, "ScanJet 4p",               HP_COMPAT_4P },
+      { SCL_HP_MODEL_9, "ScanJet 5p/4100C/5100C",   HP_COMPAT_5P },
+      { SCL_HP_MODEL_10,"PhotoSmart Photo Scanner", HP_COMPAT_PS },
+      { SCL_HP_MODEL_11,"OfficeJet 1150C",          HP_COMPAT_OJ_1150C },
+      { SCL_HP_MODEL_12,"OfficeJet 1170C or later", HP_COMPAT_OJ_1170C },
+      { SCL_HP_MODEL_14,"ScanJet 6200C/6250C",      HP_COMPAT_6200C },
+      { SCL_HP_MODEL_16,"ScanJet 5200C",            HP_COMPAT_5200C },
+      { SCL_HP_MODEL_17,"ScanJet 6300C/6350C",      HP_COMPAT_6300C }
   };
   int		i;
   char		buf[8];
@@ -260,7 +274,7 @@ sanei_hp_device_probe (enum hp_device_compat_e *compat, HpScsi scsi)
       if (!FAILED( status = sanei_hp_scl_upload(scsi, probes[i].cmd,
 					  buf, sizeof(buf)) ))
 	{
-	  DBG(1, "probe_scanner: Scanjet %s compatible\n", probes[i].model);
+	  DBG(1, "probe_scanner: %s compatible\n", probes[i].model);
 	  *compat |= probes[i].flag;
 	}
       else if (!UNSUPPORTED( status ))
@@ -298,7 +312,7 @@ hp_nonscsi_device_new (HpDevice * newp, const char * devname, HpConnect connect)
       || memcmp(sanei_hp_scsi_vendor(scsi), "HP      ", 8) != 0)
     {
       DBG(1, "%s: does not seem to be an HP scanner\n", devname);
-      sanei_hp_scsi_destroy(scsi);
+      sanei_hp_scsi_destroy(scsi,1);
       return SANE_STATUS_INVAL;
     }
 #endif
@@ -307,7 +321,7 @@ hp_nonscsi_device_new (HpDevice * newp, const char * devname, HpConnect connect)
   if (FAILED( sanei_hp_scl_reset(scsi) ))
     {
       DBG(1, "hp_nonscsi_device_new: SCL reset failed\n");
-      sanei_hp_scsi_destroy(scsi);
+      sanei_hp_scsi_destroy(scsi,1);
       return SANE_STATUS_IO_ERROR;
     }
 
@@ -334,7 +348,7 @@ hp_nonscsi_device_new (HpDevice * newp, const char * devname, HpConnect connect)
       sanei_hp_device_support_probe (scsi);
       status = sanei_hp_optset_new(&(this->options), scsi, this);
   }
-  sanei_hp_scsi_destroy(scsi);
+  sanei_hp_scsi_destroy(scsi,1);
 
   if (FAILED(status))
     {
@@ -363,6 +377,8 @@ sanei_hp_device_new (HpDevice * newp, const char * devname)
   SANE_Status	status;
   char *	str;
 
+  DBG(3, "sanei_hp_device_new: %s\n", devname);
+
   connect = sanei_hp_get_connect (devname);
   if ( connect != HP_CONNECT_SCSI )
     return hp_nonscsi_device_new (newp, devname, connect);
@@ -377,7 +393,7 @@ sanei_hp_device_new (HpDevice * newp, const char * devname)
       || memcmp(sanei_hp_scsi_vendor(scsi), "HP      ", 8) != 0)
     {
       DBG(1, "%s: does not seem to be an HP scanner\n", devname);
-      sanei_hp_scsi_destroy(scsi);
+      sanei_hp_scsi_destroy(scsi,1);
       return SANE_STATUS_INVAL;
     }
 
@@ -385,7 +401,7 @@ sanei_hp_device_new (HpDevice * newp, const char * devname)
   if (FAILED( sanei_hp_scl_reset(scsi) ))
     {
       DBG(1, "sanei_hp_device_new: SCL reset failed\n");
-      sanei_hp_scsi_destroy(scsi);
+      sanei_hp_scsi_destroy(scsi,1);
       return SANE_STATUS_IO_ERROR;
     }
 
@@ -412,7 +428,7 @@ sanei_hp_device_new (HpDevice * newp, const char * devname)
       sanei_hp_device_support_probe (scsi);
       status = sanei_hp_optset_new(&this->options, scsi, this);
   }
-  sanei_hp_scsi_destroy(scsi);
+  sanei_hp_scsi_destroy(scsi,1);
 
   if (FAILED(status))
     {

@@ -147,7 +147,6 @@ struct hp_option_descriptor_s
     HpScl		scl_command;
     int                 minval, maxval, startval; /* for simulation */
     HpChoice		choices;
-    /* unsigned nchan, chan */
 };
 
 struct hp_data_info_s
@@ -163,7 +162,7 @@ static const struct hp_option_descriptor_s
     GAMMA_VECTOR_7x12[1],
     RGB_TONEMAP[1], GAMMA_VECTOR_R[1], GAMMA_VECTOR_G[1], GAMMA_VECTOR_B[1],
 #endif
-    HALFTONE_PATTERN[1], MEDIA[1], BIT_DEPTH[1], SCAN_SOURCE[1],
+    HALFTONE_PATTERN[1], MEDIA[1], OUT8[1], BIT_DEPTH[1], SCAN_SOURCE[1],
 #ifdef FAKE_COLORSEP_MATRIXES
     SEPMATRIX[1],
 #endif
@@ -517,7 +516,7 @@ hp_option_imm_set (HpOptSet optset, HpOption this, HpData data,
 
   if (FAILED( status = sanei_constrain_value(optd, valp, info) ))
     {
-      DBG(1, "option_set: %s: constrain_value failed :%s\n",
+      DBG(1, "option_imm_set: %s: constrain_value failed :%s\n",
 	  this->descriptor->name, sane_strstatus(status));
       return status;
     }
@@ -526,7 +525,7 @@ hp_option_imm_set (HpOptSet optset, HpOption this, HpData data,
 
   if (_values_are_equal(this, data, old_val, valp))
     {
-      DBG(3, "option_set: value unchanged\n");
+      DBG(3, "option_imm_set: value unchanged\n");
       return SANE_STATUS_GOOD;
     }
 
@@ -557,12 +556,19 @@ hp_option_set (HpOption this, HpData data, void * valp, SANE_Int * info)
   HpSaneOption	optd	= hp_option_saneoption(this, data);
   hp_byte_t *	old_val	= alloca(optd->size);
   SANE_Status	status;
+  char sval[64];
 
 
   if (!SANE_OPTION_IS_SETTABLE(optd->cap) || !this->data_acsr)
       return SANE_STATUS_INVAL;
   if (!old_val)
       return SANE_STATUS_NO_MEM;
+
+  sval[0] = '\0';
+  if (this->descriptor->type == SANE_TYPE_INT)
+    sprintf (sval," value=%d", *(int*)valp);
+
+  DBG(10,"hp_option_set: %s%s\n", this->descriptor->name, sval);
 
   if (FAILED( status = sanei_constrain_value(optd, valp, info) ))
     {
@@ -575,7 +581,7 @@ hp_option_set (HpOption this, HpData data, void * valp, SANE_Int * info)
 
   if (_values_are_equal(this, data, old_val, valp))
     {
-      DBG(3, "option_set: value unchanged\n");
+      DBG(3, "option_set: %s: value unchanged\n",this->descriptor->name);
       return SANE_STATUS_GOOD;
     }
 
@@ -592,6 +598,9 @@ hp_option_set (HpOption this, HpData data, void * valp, SANE_Int * info)
 	  *info |= SANE_INFO_RELOAD_OPTIONS;
       if (this->descriptor->affects_scan_params)
 	  *info |= SANE_INFO_RELOAD_PARAMS;
+
+      DBG(3, "option_set: %s: info=0x%lx\n",this->descriptor->name,
+          (long)*info);
     }
 
   return SANE_STATUS_GOOD;
@@ -644,11 +653,28 @@ hp_option_control (HpOption this, HpData data,
   }
 }
 
+
+static void
+hp_option_reprogram (HpOption this, HpOptSet optset, HpData data, HpScsi scsi)
+{
+  if (this->descriptor->may_change)
+  {
+    DBG(5, "hp_option_reprogram: %s\n", this->descriptor->name);
+
+    hp_option_program (this, scsi, optset, data);
+  }
+}
+
+
 static void
 hp_option_reprobe (HpOption this, HpOptSet optset, HpData data, HpScsi scsi)
 {
   if (this->descriptor->may_change)
+  {
+    DBG(5, "hp_option_reprobe: %s\n", this->descriptor->name);
+
     (*this->descriptor->probe)((_HpOption)this, scsi, optset, data);
+  }
 }
 
 static void
@@ -701,7 +727,7 @@ _set_size (HpOption opt, HpData data, SANE_Int size)
   _hp_option_saneoption(opt, data)->size = size;
 }
 
-#ifdef HP_EXPERIMENTAL
+/* #ifdef HP_EXPERIMENTAL */
 static SANE_Status
 _probe_int (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
 {
@@ -722,7 +748,7 @@ _probe_int (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
   _set_size(this, data, sizeof(SANE_Int));
   return _set_range(this, data, minval, 1, maxval);
 }
-#endif
+/* #endif */
 
 static SANE_Status
 _probe_int_brightness (_HpOption this, HpScsi scsi, HpOptSet optset,
@@ -787,6 +813,14 @@ _probe_resolution (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
   sanei_hp_accessor_setint(this->data_acsr, data, val);
   _set_size(this, data, sizeof(SANE_Int));
 
+  /* The HP OfficeJet Pro 1150C crashes the scan head when scanning at
+   * resolutions less than 42 dpi.  Set a safe minimum resolution.
+   * Hopefully 50 dpi is safe enough. */
+  if ((sanei_hp_device_probe(&compat,scsi)==SANE_STATUS_GOOD) &&
+      ((compat&(HP_COMPAT_OJ_1150C|HP_COMPAT_OJ_1170C))==HP_COMPAT_OJ_1150C)) {
+	if (minval<50) minval=50;
+  }
+
   /* HP Photosmart scanner does not allow scanning at arbitrary resolutions */
   /* for slides/negatives. Must be multiple of 300 dpi. Set quantization. */
 
@@ -824,17 +858,6 @@ _probe_bool (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
   return SANE_STATUS_GOOD;
 }
 
-static SANE_Status
-_probe_preview (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
-{
-  int		val	= 0;
-
-  if (!(this->data_acsr = sanei_hp_accessor_bool_new(data)))
-      return SANE_STATUS_NO_MEM;
-  sanei_hp_accessor_setint(this->data_acsr, data, val);
-  _set_size(this, data, sizeof(SANE_Bool));
-  return SANE_STATUS_GOOD;
-}
 
 static SANE_Status
 _probe_change_doc (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
@@ -862,6 +885,36 @@ _probe_change_doc (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
   return SANE_STATUS_GOOD;
 }
 
+/* The OfficeJets support SCL_UNLOAD even when no ADF is installed, so
+ * this function was added to check for SCL_ADF_CAPABILITY, similar to
+ * _probe_change_doc(), to hide the unnecessary "Unload" button on
+ * non-ADF OfficeJets. */
+static SANE_Status
+_probe_unload (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
+
+{SANE_Status status;
+ int cap = 0;
+
+  DBG(2, "probe_unload: inquire ADF capability\n");
+
+  status = sanei_hp_scl_inquire(scsi, SCL_ADF_CAPABILITY, &cap, 0, 0);
+  if ( (status != SANE_STATUS_GOOD) || (cap == 0))
+    return SANE_STATUS_UNSUPPORTED;
+
+  DBG(2, "probe_unload: check if unload is supported\n");
+
+  status = sanei_hp_scl_inquire(scsi, SCL_UNLOAD, &cap, 0, 0);
+  if ( status != SANE_STATUS_GOOD )
+    return SANE_STATUS_UNSUPPORTED;
+
+  if (!(this->data_acsr = sanei_hp_accessor_bool_new(data)))
+      return SANE_STATUS_NO_MEM;
+  sanei_hp_accessor_setint(this->data_acsr, data, cap);
+  _set_size(this, data, sizeof(SANE_Bool));
+
+  return SANE_STATUS_GOOD;
+}
+
 static SANE_Status
 _probe_calibrate (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
 {
@@ -870,6 +923,13 @@ _probe_calibrate (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
   int media;
   int download_calib_file = 1;
   enum hp_device_compat_e compat;
+
+  /* The OfficeJets don't seem to support calibration, so we'll
+   * remove it from the option list to reduce frontend clutter. */
+  if ((sanei_hp_device_probe (&compat, scsi) == SANE_STATUS_GOOD) &&
+      (compat & HP_COMPAT_OJ_1150C)) {
+	return SANE_STATUS_UNSUPPORTED;
+  }
 
   /* If we have a Photosmart scanner, we only download the calibration file */
   /* when medium is set to prints */
@@ -972,14 +1032,24 @@ _probe_choice (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
   {
     enum hp_scanmode_e scanmode = sanei_hp_optset_scanmode (optset, data);
 
-    /* Some PhotoSmart scanner report support for only 24 bit. */
-    /* But they also support 30 bit. Dont rely on the inquire in this case */
-    if (   (maxval == 24)
-        && (sanei_hp_device_probe (&compat, scsi) == SANE_STATUS_GOOD)
+    /* The data width inquiries seem not to work properly on PhotoSmart */
+    /* Sometimes they report just 24 bits, but support 30 bits too. */
+    /* Sometimes they report min/max to be 24/8. Assume they all support */
+    /* at least 10 bits per channel for RGB. Grayscale is only supported */
+    /* with 8 bits. */
+    if (   (sanei_hp_device_probe (&compat, scsi) == SANE_STATUS_GOOD)
         && (compat & HP_COMPAT_PS))
     {
-      DBG(1, "choice_option_probe: set max. datawidth to 30 for photosmart");
-      maxval = 30;
+      if (scanmode == HP_SCANMODE_GRAYSCALE)
+      {
+        minval = 8; if (maxval < 8) maxval = 8;
+      }
+      else if (scanmode == HP_SCANMODE_COLOR)
+      {
+        minval = 24; if (maxval < 30) maxval = 30;
+      }
+      DBG(1, "choice_option_probe: set max. datawidth to %d for photosmart\n",
+          maxval);
     }
 
     if ( scanmode ==  HP_SCANMODE_COLOR )
@@ -988,6 +1058,15 @@ _probe_choice (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
       maxval /= 3; if ( maxval <= 0) maxval = 1;
       val /= 3; if (val <= 0) val = 1;
     }
+
+#if 0
+    /* The OfficeJets claim to support >8 bits per color, but it may not
+     * work on some models.  This code (if not commented out) disables it. */
+    if ((sanei_hp_device_probe (&compat, scsi) == SANE_STATUS_GOOD) &&
+        (compat & HP_COMPAT_OJ_1150C)) {
+          if (maxval>8) maxval=8;
+    }
+#endif
   }
 
   choices = _make_choice_list(this->descriptor->choices, minval, maxval);
@@ -1114,7 +1193,8 @@ _probe_scan_type (_HpOption this, HpScsi scsi, HpOptSet optset,
   /* Inquire XPA capability is supported only by IIcx and 6100c/4c/3c. */
   /* But more devices support XPA scan window. So dont inquire XPA cap. */
   if ( compat & (  HP_COMPAT_2CX | HP_COMPAT_4C | HP_COMPAT_4P
-                 | HP_COMPAT_5P | HP_COMPAT_5100C | HP_COMPAT_6200C) )
+                 | HP_COMPAT_5P | HP_COMPAT_5100C | HP_COMPAT_6200C) &&
+       !(compat&HP_COMPAT_OJ_1150C) )
   {
     scan_types[numchoices++] = this->descriptor->choices[2];
   }
@@ -1222,8 +1302,6 @@ static SANE_Status _probe_front_button(_HpOption this, HpScsi scsi,
                                       HpOptSet optset, HpData data)
 {
   int val = 0;
-  const HpDeviceInfo *info =
-         sanei_hp_device_info_get(sanei_hp_scsi_devicename(scsi));
 
   if ( sanei_hp_scl_inquire(scsi, SCL_FRONT_BUTTON, &val, 0, 0)
         != SANE_STATUS_GOOD )
@@ -2412,8 +2490,22 @@ _enable_halftonevec (HpOption this, HpOptSet optset, HpData data,
 static hp_bool_t
 _enable_data_width (HpOption this, HpOptSet optset, HpData data,
                    const HpDeviceInfo *info)
+{enum hp_scanmode_e mode;
+
+ mode = sanei_hp_optset_scanmode (optset, data);
+ return ( (mode == HP_SCANMODE_GRAYSCALE) || (mode == HP_SCANMODE_COLOR) );
+}
+
+static hp_bool_t
+_enable_out8 (HpOption this, HpOptSet optset, HpData data,
+              const HpDeviceInfo *info)
 {
- return (sanei_hp_optset_scanmode (optset, data) == HP_SCANMODE_COLOR);
+  if (hp_optset_isEnabled (optset, data, SANE_NAME_BIT_DEPTH, info))
+  {
+    int data_width = sanei_hp_optset_data_width (optset, data);
+    return (((data_width > 8) && (data_width <= 16)) || (data_width > 24));
+  }
+  return 0;
 }
 
 static hp_bool_t
@@ -2507,7 +2599,7 @@ static const struct hp_option_descriptor_s SCAN_MODE_GROUP[1] = {{
 static const struct hp_option_descriptor_s PREVIEW_MODE[1] = {{
     SCANNER_OPTION(PREVIEW, BOOL, NONE),
     NO_REQUIRES,
-    _probe_preview,
+    _probe_bool,
     0,0,0,0,0,0,0,0,0,0,0,0 /* for gcc-s sake */
 }};
 
@@ -2553,6 +2645,14 @@ static const struct hp_option_descriptor_s CONTRAST[1] = {{
     _probe_int_brightness, _program_generic_simulate, _enable_brightness,
     0, 0, 0, 0, 0, SCL_CONTRAST, -127, 127, 0, 0
 }};
+#ifdef SCL_SHARPENING
+static const struct hp_option_descriptor_s SHARPENING[1] = {{
+    SCANNER_OPTION(SHARPENING, INT, NONE),
+    NO_REQUIRES,
+    _probe_int, _program_generic, 0,
+    0, 0, 0, 0, 0, SCL_SHARPENING, -127, 127, 0, 0
+}};
+#endif
 static const struct hp_option_descriptor_s AUTO_THRESHOLD[1] = {{
     SCANNER_OPTION(AUTO_THRESHOLD, BOOL, NONE),
     NO_REQUIRES,
@@ -2779,6 +2879,27 @@ static const struct hp_option_descriptor_s BIT_DEPTH[1] = {{
     1, 1, 1, 0, 1, SCL_DATA_WIDTH, 0, 0, 0, _data_widths
 }};
 
+static const struct hp_option_descriptor_s OUT8[1] =
+{
+  {
+    SCANNER_OPTION(OUTPUT_8BIT, BOOL, NONE),
+    NO_REQUIRES,            /* enum hp_device_compat_e requires */
+    _probe_bool,            /* SANE_Status (*probe)() */
+    0,                      /* SANE_Status (*program)() */
+    _enable_out8,           /* hp_bool_t (*enable)() */
+    0,                      /* hp_bool_t has_global_effect */
+    0,                      /* hp_bool_t affects_scan_params */
+    0,                      /* hp_bool_t program_immediate */
+    0,                      /* hp_bool_t suppress_for_scan */
+    0,                      /* hp_bool_t may_change */
+    0,                      /* HpScl scl_command */
+    0,                      /* int minval */
+    0,                      /* int maxval */
+    0,                      /* int startval */
+    0                       /* HpChoice choices */
+  }
+};
+
 /* The 100% setting may cause problems within the scanner */
 static const struct hp_choice_s _ps_exposure_times[] = {
     /* {0, "100%", 0, 0, 0}, */
@@ -2839,7 +2960,7 @@ static const struct hp_option_descriptor_s CHANGE_DOC[1] = {{
 static const struct hp_option_descriptor_s UNLOAD[1] = {{
     SCANNER_OPTION(UNLOAD, BUTTON, NONE),
     NO_REQUIRES,
-    _probe_bool, _program_unload, 0,
+    _probe_unload, _program_unload, 0,
     0, 0, 1, 1, 0, SCL_UNLOAD, 0, 0, 0, 0
 }};
 
@@ -2983,7 +3104,11 @@ static HpOptionDescriptor hp_options[] = {
     SCAN_MODE, SCAN_RESOLUTION, DEVPIX_RESOLUTION,
 
     ENHANCEMENT_GROUP,
-    BRIGHTNESS, CONTRAST, AUTO_THRESHOLD,
+    BRIGHTNESS, CONTRAST,
+#ifdef SCL_SHARPENING
+    SHARPENING,
+#endif
+    AUTO_THRESHOLD,
 
     ADVANCED_GROUP,
     CUSTOM_GAMMA,
@@ -3008,7 +3133,7 @@ static HpOptionDescriptor hp_options[] = {
 #endif
     HALFTONE_PATTERN_8x8, HORIZONTAL_DITHER_8x8,
 
-    SCAN_SPEED, SMOOTHING, MEDIA, PS_EXPOSURE_TIME, BIT_DEPTH,
+    SCAN_SPEED, SMOOTHING, MEDIA, PS_EXPOSURE_TIME, BIT_DEPTH, OUT8,
     SCAN_SOURCE, BUTTON_WAIT, UNLOAD_AFTER_SCAN,
     CHANGE_DOC, UNLOAD, CALIBRATE,
 
@@ -3099,6 +3224,25 @@ sanei_hp_optset_scanmode (HpOptSet this, HpData data)
   return hp_option_getint(mode, data);
 }
 
+
+hp_bool_t
+sanei_hp_optset_output_8bit (HpOptSet this, HpData data)
+{
+  HpOption option_out8;
+  int out8;
+
+  option_out8 = hp_optset_get(this, OUT8);
+  if (option_out8)
+  {
+    out8 = hp_option_getint(option_out8, data);
+    return out8;
+  }
+  return 0;
+}
+
+
+/* Returns the data width that is send to the scanner, depending */
+/* on the scanmode. (b/w: 1, gray: 8..12, color: 24..36 */
 int
 sanei_hp_optset_data_width (HpOptSet this, HpData data)
 {
@@ -3114,12 +3258,19 @@ sanei_hp_optset_data_width (HpOptSet this, HpData data)
           break;
 
    case HP_SCANMODE_GRAYSCALE:
-          datawidth = 8;
+          opt_dwidth = hp_optset_get(this, BIT_DEPTH);
+          if (opt_dwidth)
+            datawidth = hp_option_getint (opt_dwidth, data);
+          else
+            datawidth = 8;
           break;
 
    case HP_SCANMODE_COLOR:
           opt_dwidth = hp_optset_get(this, BIT_DEPTH);
-          datawidth = 3 * hp_option_getint (opt_dwidth, data);
+          if (opt_dwidth)
+            datawidth = 3 * hp_option_getint (opt_dwidth, data);
+          else
+            datawidth = 24;
           break;
  }
  return datawidth;
@@ -3148,7 +3299,7 @@ sanei_hp_optset_mirror_vert (HpOptSet this, HpData data, HpScsi scsi)
 hp_bool_t sanei_hp_optset_start_wait(HpOptSet this, HpData data, HpScsi scsi)
 {
   HpOption mode;
-  int wait, sec_dir;
+  int wait;
 
   if ((mode = hp_optset_get(this, BUTTON_WAIT)) == 0)
     return(0);
@@ -3255,6 +3406,20 @@ hp_optset_fix_geometry_options (HpOptSet this, HpDevice dev)
 }
 
 static void
+hp_optset_reprogram (HpOptSet this, HpData data, HpScsi scsi)
+{
+  int i;
+
+  DBG(5, "hp_optset_reprogram: %lu options\n",
+      (unsigned long) this->num_opts);
+
+  for (i = 0; i < (int)this->num_opts; i++)
+      hp_option_reprogram(this->options[i], this, data, scsi);
+
+  DBG(5, "hp_optset_reprogram: finished\n");
+}
+
+static void
 hp_optset_reprobe (HpOptSet this, HpData data, HpScsi scsi)
 {
   int i;
@@ -3265,6 +3430,7 @@ hp_optset_reprobe (HpOptSet this, HpData data, HpScsi scsi)
   for (i = 0; i < (int)this->num_opts; i++)
       hp_option_reprobe(this->options[i], this, data, scsi);
 
+  DBG(5, "hp_optset_reprobe: finished\n");
 }
 
 static void
@@ -3344,6 +3510,8 @@ sanei_hp_optset_download (HpOptSet this, HpData data, HpScsi scsi)
      is_preview = hp_option_getint (option, data);
      if ( is_preview )
      {
+       /* For preview we only use 8 bit per channel */
+
        DBG(3, "sanei_hp_optset_download: Set up preview options\n");
 
        info = sanei_hp_device_info_get ( sanei_hp_scsi_devicename  (scsi) );
@@ -3354,6 +3522,10 @@ sanei_hp_optset_download (HpOptSet this, HpData data, HpScsi scsi)
          if (data_width > 24)
          {
            sanei_hp_scl_set(scsi, SCL_DATA_WIDTH, 24);
+         }
+         else if ((data_width > 8) && (data_width <= 16))
+         {
+           sanei_hp_scl_set(scsi, SCL_DATA_WIDTH, 8);
          }
        }
      }
@@ -3441,6 +3613,8 @@ sanei_hp_optset_control (HpOptSet this, HpData data,
   HpOption	opt  = hp_optset_getByIndex(this, optnum);
   SANE_Int	my_info = 0;
 
+  DBG(3,"sanei_hp_optset_control: %s\n", opt ? opt->descriptor->name : "");
+
   if (infop)
       *infop = 0;
   else
@@ -3458,6 +3632,15 @@ sanei_hp_optset_control (HpOptSet this, HpData data,
   if ((*infop & SANE_INFO_RELOAD_OPTIONS) != 0)
   {const HpDeviceInfo *info;
 
+      DBG(3,"sanei_hp_optset_control: reprobe\n");
+
+      /* At first we try to reprogram the parameters that may have changed */
+      /* by an option that had a global effect.  This is necessary to */
+      /* specify options in an arbitrary order. Example: */
+      /* Changing scan mode resets scan resolution in the scanner. */
+      /* If resolution is set from the API before scan mode, we must */
+      /* reprogram the resolution afterwards. */
+      hp_optset_reprogram(this, data, scsi);
       hp_optset_reprobe(this, data, scsi);
       info = sanei_hp_device_info_get ( sanei_hp_scsi_devicename  (scsi) );
       hp_optset_updateEnables(this, data, info);
@@ -3492,16 +3675,28 @@ sanei_hp_optset_guessParameters (HpOptSet this, HpData data,
       p->format = SANE_FRAME_GRAY;
       p->depth  = 8;
       p->bytes_per_line  = p->pixels_per_line;
+      if ( !sanei_hp_optset_output_8bit (this, data) )
+      {
+        data_width = sanei_hp_optset_data_width (this, data);
+        if ( data_width > 8 )
+        {
+          p->depth *= 2;
+          p->bytes_per_line *= 2;
+        }
+      }
       break;
   case HP_SCANMODE_COLOR: /* RGB */
       p->format = SANE_FRAME_RGB;
       p->depth = 8;
       p->bytes_per_line  = 3 * p->pixels_per_line;
-      data_width = sanei_hp_optset_data_width (this, data);
-      if ( data_width > 24 )
+      if ( !sanei_hp_optset_output_8bit (this, data) )
       {
-        p->depth *= 2;
-        p->bytes_per_line *= 2;
+        data_width = sanei_hp_optset_data_width (this, data);
+        if ( data_width > 24 )
+        {
+          p->depth *= 2;
+          p->bytes_per_line *= 2;
+        }
       }
       break;
   default:

@@ -49,7 +49,7 @@
 SANE_Status sanei_hp_nonscsi_new (HpScsi * newp, const char * devname,
                                   HpConnect connect);
 SANE_Status sanei_hp_scsi_new	(HpScsi * newp, const char * devname);
-void	    sanei_hp_scsi_destroy	(HpScsi this);
+void	    sanei_hp_scsi_destroy	(HpScsi this,int completely);
 
 hp_byte_t * sanei_hp_scsi_inq        (HpScsi this);
 const char *sanei_hp_scsi_model	     (HpScsi this);

@@ -51,6 +51,13 @@
  *
  * FIXME: this should become standard
  */
+
+#ifndef SANE_NAME_SHARPENING
+# define SANE_NAME_SHARPENING "sharpening"
+# define SANE_TITLE_SHARPENING "Sharpening"
+# define SANE_DESC_SHARPENING "Set sharpening value."
+#endif
+
 #ifndef SANE_NAME_AUTO_THRESHOLD
 # define SANE_NAME_AUTO_THRESHOLD "auto-threshold"
 # define SANE_TITLE_AUTO_THRESHOLD "Auto Threshold"
@@ -138,6 +145,13 @@
 # define SANE_NAME_UPDATE "update-options"
 # define SANE_TITLE_UPDATE "Update options"
 # define SANE_DESC_UPDATE "Update options."
+#endif
+
+#ifndef SANE_NAME_OUTPUT_8BIT
+# define SANE_NAME_OUTPUT_8BIT   "output-8bit"
+# define SANE_TITLE_OUTPUT_8BIT  "8 bit output"
+# define SANE_DESC_OUTPUT_8BIT   "Use bit depth greater eight internally,\
+ but output only eight bits"
 #endif
 
 #ifndef SANE_NAME_BUTTON_WAIT
@@ -248,6 +262,7 @@ SANE_Status sanei_hp_optset_control (HpOptSet this, HpData data,
 SANE_Status sanei_hp_optset_guessParameters (HpOptSet this, HpData data,
                                SANE_Parameters * p);
 enum hp_scanmode_e sanei_hp_optset_scanmode (HpOptSet this, HpData data);
+hp_bool_t sanei_hp_optset_output_8bit (HpOptSet this, HpData data);
 int sanei_hp_optset_data_width (HpOptSet this, HpData data);
 hp_bool_t sanei_hp_optset_isImmediate (HpOptSet this, int optnum);
 hp_bool_t sanei_hp_optset_mirror_vert (HpOptSet this, HpData data, HpScsi scsi);

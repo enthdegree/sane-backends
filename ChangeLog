@@ -1,3 +1,8 @@
+2004-07-28  Gerard Klaver <gerard at gkall dot hobby dot nl>
+
+	* doc/descriptions/unsupported.desc: Added Logitech PageScan USB and
+	  Grandtek Scopecam 
+
 2004-07-26  Gerhard Jaeger <gerhard@gjaeger.de>
 	* sanei/sanei_usb.c sanei/sanei configure configure.in: Added 
 	  resource manager library support.

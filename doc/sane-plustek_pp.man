@@ -1,4 +1,4 @@
-.TH sane-plustek_pp 5 "09 Jan 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-plustek_pp 5 "13 Jan 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-plustek_pp
 .SH NAME
 sane-plustek_pp \- SANE backend for Plustek parallel port
@@ -168,8 +168,15 @@ or
 .PP
 .I direct
 tells the backend, that the following devicename (here
-.I /dev/pt_drv
-) has to be interpreted as parallel port scanner device.
+.I 0x378
+) has to be interpreted as parallel port scanner device. In
+fact it is the address to use, alternatively you can use
+.I /dev/parport0
+if the backend has been compiled with libieee1284 support.
+.I kernel
+should only be used, when a kernel-module has been built
+out of the backend sources. See below for more instructions
+about this.
 .PP
 Further options:
 .PP
@@ -470,10 +477,8 @@ export SANE_DEBUG_PLUSTEK_PP=10
 
 .SH "SEE ALSO"
 .BR sane (7),
-.BR sane\-usb (5),
-.BR sane\-plustek_pp (5),
 .br
-.I @DOCDIR@/plustek/Plustek-PAPPORT.changes
+.I @DOCDIR@/plustek/Plustek-PARPORT.changes
 .br
 .I http://www.gjaeger.de/scanner/plustek.html
 

@@ -1,3 +1,8 @@
+2003-08-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* po/Makefile.in po/sane-backends.it.po: Added Italien translation
+	(from Luca Clemente <luca.clem@zerobase.it>).
+
 2003-08-22  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson*.[ch]: Fixed compile problem on Linux

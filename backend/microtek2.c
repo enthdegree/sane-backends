@@ -68,7 +68,6 @@
 #include <fcntl.h>
 #include <ctype.h>
 #include <sys/types.h>
-#include <sys/wait.h>
 #include <signal.h>
 #include <errno.h>
 
@@ -83,10 +82,7 @@
 #include "../include/sane/sanei_config.h"
 #include "../include/sane/sanei_scsi.h"
 #include "../include/sane/saneopts.h"
-
-#ifdef HAVE_OS2_H
 #include "../include/sane/sanei_thread.h"
-#endif
 
 #ifndef TESTBACKEND
 #define BACKEND_NAME microtek2
@@ -466,6 +462,8 @@ sane_init(SANE_Int *version_code, SANE_Auth_Callback authorize)
 #else
     trash = authorize;     /* prevents compiler warning "unused variable" */
 #endif
+
+    sanei_thread_init();
 
     match = 0;
     fp = sanei_config_open(MICROTEK2_CONFIG_FILE);
@@ -912,8 +910,8 @@ cancel_scan(Microtek2_Scanner *ms)
        likely what we really want - --mj, 2001/Nov/19 */
     if (ms->pid > 1)
       {
-       kill(ms->pid, SIGTERM);
-       waitpid(ms->pid, NULL, 0);
+       sanei_thread_kill(ms->pid);
+       sanei_thread_waitpid(ms->pid, NULL);
       }
 
     return status;
@@ -5465,11 +5463,7 @@ sane_start(SANE_Handle handle)
       }
 
     /* create reader routine as new thread or process */
-#ifdef HAVE_OS2_H
     ms->pid = sanei_thread_begin( reader_process,(void*) ms);
-#else
-    ms->pid = fork();
-#endif
 
     if ( ms->pid == -1 )
       {
@@ -5477,12 +5471,9 @@ sane_start(SANE_Handle handle)
         status = SANE_STATUS_IO_ERROR;
         goto cleanup;
       }
-    else if ( ms->pid == 0 )           /* child process */
-        _exit(reader_process(ms));
 
-#ifndef HAVE_OS2_H
-    close(ms->fd[1]);
-#endif
+    if (sanei_thread_is_forked()) close(ms->fd[1]);
+
     return SANE_STATUS_GOOD;
 
 cleanup:
@@ -7099,9 +7090,11 @@ set_exposure(Microtek2_Scanner *ms)
 
 /*---------- reader_process() ------------------------------------------------*/
 
-static SANE_Status        
-reader_process(Microtek2_Scanner *ms)
+static int
+reader_process(void *data)
 {
+    Microtek2_Scanner *ms = (Microtek2_Scanner *) data;
+
     SANE_Status status;
     Microtek2_Info *mi;
     Microtek2_Device *md;
@@ -7113,9 +7106,9 @@ reader_process(Microtek2_Scanner *ms)
 
     md = ms->dev;
     mi = &md->info[md->scan_source];
-#ifndef HAVE_OS2_H
-    close(ms->fd[0]);
-#endif
+
+    if (sanei_thread_is_forked()) close(ms->fd[0]);
+
     sigemptyset (&sigterm_set);
     sigaddset (&sigterm_set, SIGTERM);
     memset (&act, 0, sizeof (act));

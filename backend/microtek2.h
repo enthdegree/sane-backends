@@ -1287,8 +1287,8 @@ read_cx_shading_image(Microtek2_Scanner *);
 static SANE_Status
 read_cx_shading(Microtek2_Scanner *);
 
-static SANE_Status
-reader_process(Microtek2_Scanner *);
+static int
+reader_process(void *);
 
 static SANE_Status
 restore_gamma_options(SANE_Option_Descriptor *, Option_Value *);

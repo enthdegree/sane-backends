@@ -49,6 +49,10 @@ static const char RCSid_h[] = "$Header$";
 /* ------------------------------------------------------------------------- */
 /*
  * $Log$
+ * Revision 1.5  2004/05/23 17:28:56  hmg-guest
+ * Use sanei_thread instead of fork() in the unmaintained backends.
+ * Patches from Mattias Ellert (bugs: 300635, 300634, 300633, 300629).
+ *
  * Revision 1.4  2003/12/27 17:48:38  hmg-guest
  * Silenced some compilation warnings.
  *
@@ -132,6 +136,7 @@ struct sp15c
     char *devicename;		/* name of the scanner device */
     int sfd;			/* output file descriptor, scanner device */
     int pipe;
+    int reader_pipe;
 
     int scanning;		/* "in progress" flag */
     int autofeeder;		/* detected */
@@ -287,7 +292,7 @@ static int
   sp15c_start_scan (struct sp15c *s);
 
 static int
-  reader_process (struct sp15c *scanner, int pipe_fd);
+  reader_process (void *scanner);
 
 static SANE_Status
   do_eof (struct sp15c *scanner);

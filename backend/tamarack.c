@@ -47,7 +47,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
-#include <sys/wait.h>
 #include <unistd.h>
 #include <sys/time.h>
 
@@ -55,6 +54,7 @@
 #include "sane/sanei.h"
 #include "sane/saneopts.h"
 #include "sane/sanei_scsi.h"
+#include "sane/sanei_thread.h"
 #include "sane/sanei_config.h"
 
 /* For timeval... */
@@ -470,8 +470,8 @@ do_cancel (Tamarack_Scanner *s)
       int exit_status;
 
       /* ensure child knows it's time to stop: */
-      kill (s->reader_pid, SIGTERM);
-      while (wait (&exit_status) != s->reader_pid);
+      sanei_thread_kill (s->reader_pid);
+      sanei_thread_waitpid (s->reader_pid, &exit_status);
       s->reader_pid = 0;
     }
 
@@ -811,13 +811,27 @@ init_options (Tamarack_Scanner *s)
    to update any of the variables in the main process (in particular
    the scanner state cannot be updated).  */
 static int
-reader_process (Tamarack_Scanner *s, int fd)
+reader_process (void *scanner)
 {
+  Tamarack_Scanner *s = (Tamarack_Scanner *) scanner;
+  int fd = s->reader_pipe;
+
   SANE_Byte *data;
   int lines_per_buffer, bpl;
   SANE_Status status;
   sigset_t sigterm_set;
+  sigset_t ignore_set;
+  struct SIGACTION act;
   FILE *fp;
+
+  if (sanei_thread_is_forked()) close (s->pipe);
+
+  sigfillset (&ignore_set);
+  sigdelset (&ignore_set, SIGTERM);
+  sigprocmask (SIG_SETMASK, &ignore_set, 0);
+
+  memset (&act, 0, sizeof (act));
+  sigaction (SIGTERM, &act, 0);
 
   sigemptyset (&sigterm_set);
   sigaddset (&sigterm_set, SIGTERM);
@@ -889,6 +903,8 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback authorize)
   authorize = authorize; /* silence compilation warnings */
 
   DBG_INIT();
+
+  sanei_thread_init();
 
   if (version_code)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, 0);
@@ -1363,25 +1379,11 @@ sane_start (SANE_Handle handle)
   if (pipe (fds) < 0)
     return SANE_STATUS_IO_ERROR;
 
-  s->reader_pid = fork ();
-  if (s->reader_pid == 0) {
-    sigset_t ignore_set;
-    struct SIGACTION act;
-    
-    close (fds[0]);
-    
-    sigfillset (&ignore_set);
-    sigdelset (&ignore_set, SIGTERM);
-    sigprocmask (SIG_SETMASK, &ignore_set, 0);
-    
-    memset (&act, 0, sizeof (act));
-    sigaction (SIGTERM, &act, 0);
-    
-    /* don't use exit() since that would run the atexit() handlers... */
-    _exit (reader_process (s, fds[1]));
-  }
-  close (fds[1]);
   s->pipe = fds[0];
+  s->reader_pipe = fds[1];
+  s->reader_pid = sanei_thread_begin (reader_process, (void *) s);
+
+  if (sanei_thread_is_forked()) close (s->reader_pipe);
 
   return SANE_STATUS_GOOD;
 
@@ -1430,7 +1432,7 @@ sane_cancel (SANE_Handle handle)
   Tamarack_Scanner *s = handle;
 
   if (s->reader_pid > 0)
-    kill (s->reader_pid, SIGTERM);
+    sanei_thread_kill (s->reader_pid);
   s->scanning = SANE_FALSE;
 }
 

@@ -122,6 +122,7 @@ typedef struct AgfaFocus_Scanner
     int fd;			/* SCSI filedescriptor */
     pid_t reader_pid;		/* process id of reader */
     int pipe;			/* pipe to reader process */
+    int reader_pipe;		/* pipe from reader process */
 
     /* scanner dependent/low-level state: */
     AgfaFocus_Device *hw;

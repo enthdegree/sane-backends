@@ -269,6 +269,7 @@ libsane-abaton.la: ../sanei/sanei_scsi.lo
 libsane-agfafocus.la: ../sanei/sanei_config2.lo
 libsane-agfafocus.la: ../sanei/sanei_constrain_value.lo
 libsane-agfafocus.la: ../sanei/sanei_scsi.lo
+libsane-agfafocus.la: ../sanei/sanei_thread.lo
 libsane-apple.la: ../sanei/sanei_config2.lo
 libsane-apple.la: ../sanei/sanei_constrain_value.lo
 libsane-apple.la: ../sanei/sanei_scsi.lo
@@ -344,6 +345,7 @@ libsane-microtek.la: ../sanei/sanei_scsi.lo
 libsane-microtek2.la: ../sanei/sanei_config2.lo
 libsane-microtek2.la: ../sanei/sanei_constrain_value.lo
 libsane-microtek2.la: ../sanei/sanei_scsi.lo
+libsane-microtek2.la: ../sanei/sanei_thread.lo
 libsane-mustek.la: ../sanei/sanei_config2.lo
 libsane-mustek.la: ../sanei/sanei_constrain_value.lo
 libsane-mustek.la: ../sanei/sanei_scsi.lo
@@ -395,12 +397,14 @@ libsane-snapscan.la: ../sanei/sanei_thread.lo
 libsane-sp15c.la: ../sanei/sanei_config2.lo
 libsane-sp15c.la: ../sanei/sanei_constrain_value.lo
 libsane-sp15c.la: ../sanei/sanei_scsi.lo
+libsane-sp15c.la: ../sanei/sanei_thread.lo
 libsane-st400.la: ../sanei/sanei_config2.lo
 libsane-st400.la: ../sanei/sanei_constrain_value.lo
 libsane-st400.la: ../sanei/sanei_scsi.lo
 libsane-tamarack.la: ../sanei/sanei_config2.lo
 libsane-tamarack.la: ../sanei/sanei_constrain_value.lo
 libsane-tamarack.la: ../sanei/sanei_scsi.lo
+libsane-tamarack.la: ../sanei/sanei_thread.lo
 libsane-test.la: ../sanei/sanei_constrain_value.lo
 libsane-test.la: ../sanei/sanei_thread.lo
 libsane-teco1.la: ../sanei/sanei_config2.lo

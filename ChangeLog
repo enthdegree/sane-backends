@@ -2,6 +2,11 @@
 
 	* tools/check-usb-scanner.c: Detect GL660+GL646 on USB2 also.
 	  Fixed Mustek MA1017 scanner freeze problem.
+	* backend/Makefile.in backend/agfafocus.c backend/agfafocus.h
+	  backend/microtek2.c backend/microtek2.h backend/sp15c.c
+	  backend/sp15c.h backend/tamarack.c backend/tamarack.h:
+	  Use sanei_thread instead of fork() in the unmaintained backends.
+	  Patches from Mattias Ellert (bugs: 300635, 300634, 300633, 300629).
 
 2004-05-21  Gerhard Jaeger <gerhard@gjaeger.de>
 

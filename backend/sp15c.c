@@ -45,6 +45,10 @@ static const char RCSid[] = "$Header$";
 
 /*
  * $Log$
+ * Revision 1.6  2004/05/23 17:28:56  hmg-guest
+ * Use sanei_thread instead of fork() in the unmaintained backends.
+ * Patches from Mattias Ellert (bugs: 300635, 300634, 300633, 300629).
+ *
  * Revision 1.5  2003/12/27 17:48:38  hmg-guest
  * Silenced some compilation warnings.
  *
@@ -176,14 +180,13 @@ static const char RCSid[] = "$Header$";
 #include <string.h>
 
 #include <sys/types.h>
-#include <sys/wait.h>
 #include <unistd.h>
 
 #include "sane/sanei_backend.h"
 #include "sane/sanei_scsi.h"
 #include "sane/saneopts.h"
 #include "sane/sanei_config.h"
-
+#include "sane/sanei_thread.h"
 
 #include "sp15c-scsi.h"
 #include "sp15c.h"
@@ -240,6 +243,8 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
   DBG_INIT ();
   DBG (10, "sane_init\n");
+
+  sanei_thread_init ();
 
   if (version_code)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, 0);
@@ -819,27 +824,11 @@ sane_start (SANE_Handle handle)
       return SANE_STATUS_IO_ERROR;
     }
 
-  scanner->reader_pid = fork ();
-  if (scanner->reader_pid == 0)
-    {
-      /* reader_pid = 0 ===> child process */
-      sigset_t ignore_set;
-      struct SIGACTION act;
-
-      close (fds[0]);
-
-      sigfillset (&ignore_set);
-      sigdelset (&ignore_set, SIGTERM);
-      sigprocmask (SIG_SETMASK, &ignore_set, 0);
-
-      memset (&act, 0, sizeof (act));
-      sigaction (SIGTERM, &act, 0);
-
-      /* don't use exit() since that would run the atexit() handlers... */
-      _exit (reader_process (scanner, fds[1]));
-    }
-  close (fds[1]);
   scanner->pipe = fds[0];
+  scanner->reader_pipe = fds[1];
+  scanner->reader_pid = sanei_thread_begin (reader_process, (void *) scanner);
+
+  close (scanner->reader_pipe);
 
   DBG (10, "sane_start: ok\n");
   return SANE_STATUS_GOOD;
@@ -1733,10 +1722,9 @@ do_cancel (struct sp15c *scanner)
       int exit_status;
       DBG (10, "do_cancel: kill reader_process\n");
       /* ensure child knows it's time to stop: */
-      kill (scanner->reader_pid, SIGTERM);
-      while (wait (&exit_status) != scanner->reader_pid)
-        DBG (50, "wait for scanner to stop\n");
-      ;
+      sanei_thread_kill (scanner->reader_pid);
+      DBG (50, "wait for scanner to stop\n");
+      sanei_thread_waitpid (scanner->reader_pid, &exit_status);
       scanner->reader_pid = 0;
     }
 
@@ -1929,18 +1917,31 @@ sigterm_handler (int signal)
 
 /* This function is executed as a child process. */
 static int
-reader_process (struct sp15c *scanner, int pipe_fd)
+reader_process (void *data)
 {
+  struct sp15c *scanner = (struct sp15c *) data;
+  int pipe_fd = scanner->reader_pipe;
+
   int status;
   unsigned int data_left;
   unsigned int data_to_read;
   FILE *fp;
+  sigset_t ignore_set;
   sigset_t sigterm_set;
   struct SIGACTION act;
   unsigned int i;
   unsigned char *src, *dst;
 
   DBG (10, "reader_process started\n");
+
+  if (sanei_thread_is_forked) close (scanner->pipe);
+
+  sigfillset (&ignore_set);
+  sigdelset (&ignore_set, SIGTERM);
+  sigprocmask (SIG_SETMASK, &ignore_set, 0);
+
+  memset (&act, 0, sizeof (act));
+  sigaction (SIGTERM, &act, 0);
 
   sigemptyset (&sigterm_set);
   sigaddset (&sigterm_set, SIGTERM);

@@ -30,13 +30,13 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/types.h>
-#include <sys/wait.h>
 
 #include "sane/sane.h"
 #include "sane/sanei.h"
 #include "sane/sanei_config.h"
 #include "sane/saneopts.h"
 #include "sane/sanei_scsi.h"
+#include "sane/sanei_thread.h"
 
 #define BACKEND_NAME	agfafocus
 #include "sane/sanei_backend.h"
@@ -952,8 +952,8 @@ do_cancel (AgfaFocus_Scanner * s)
       int exit_status;
 
       /* ensure child knows it's time to stop: */
-      kill (s->reader_pid, SIGTERM);
-      while (wait (&exit_status) != s->reader_pid);
+      sanei_thread_kill (s->reader_pid);
+      sanei_thread_waitpid (s->reader_pid, &exit_status);
       s->reader_pid = 0;
     }
 
@@ -1282,6 +1282,8 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   authorize = authorize;		/* silence gcc */
 
   DBG_INIT ();
+
+  sanei_thread_init ();
 
   if (version_code)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, 0);
@@ -1775,8 +1777,11 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
    to update any of the variables in the main process (in particular
    the scanner state cannot be updated).  */
 static int
-reader_process (AgfaFocus_Scanner * s, int fd)
+reader_process (void *scanner)
 {
+  AgfaFocus_Scanner *s = (AgfaFocus_Scanner *) scanner;
+  int fd = s->reader_pipe;
+
   SANE_Status status;
   SANE_Byte *data;
   int lines_read = 0;
@@ -1784,6 +1789,17 @@ reader_process (AgfaFocus_Scanner * s, int fd)
   int bytes_per_line = 0, total_lines = 0;
   int i;
   sigset_t sigterm_set;
+  sigset_t ignore_set;
+  struct SIGACTION act;
+
+  if (sanei_thread_is_forked()) close (s->pipe);
+
+  sigfillset (&ignore_set);
+  sigdelset (&ignore_set, SIGTERM);
+  sigprocmask (SIG_SETMASK, &ignore_set, 0);
+
+  memset (&act, 0, sizeof (act));
+  sigaction (SIGTERM, &act, 0);
 
   sigemptyset (&sigterm_set);
   sigaddset (&sigterm_set, SIGTERM);
@@ -1985,25 +2001,11 @@ sane_start (SANE_Handle handle)
   if (pipe (fds) < 0)
     return SANE_STATUS_IO_ERROR;
 
-  s->reader_pid = fork ();
-  if (s->reader_pid == 0) {
-    sigset_t ignore_set;
-    struct SIGACTION act;
-    
-    close (fds[0]);
-    
-    sigfillset (&ignore_set);
-    sigdelset (&ignore_set, SIGTERM);
-    sigprocmask (SIG_SETMASK, &ignore_set, 0);
-    
-    memset (&act, 0, sizeof (act));
-    sigaction (SIGTERM, &act, 0);
-    
-    /* don't use exit() since that would run the atexit() handlers... */
-    _exit (reader_process (s, fds[1]));
-  }
-  close (fds[1]);
   s->pipe = fds[0];
+  s->reader_pipe = fds[1];
+  s->reader_pid = sanei_thread_begin (reader_process, (void *) s);
+
+  if (sanei_thread_is_forked()) close (s->reader_pipe);
 
   return SANE_STATUS_GOOD;
 }
@@ -2047,7 +2049,7 @@ sane_cancel (SANE_Handle handle)
   AgfaFocus_Scanner *s = handle;
 
   if (s->reader_pid > 0)
-    kill (s->reader_pid, SIGTERM);
+    sanei_thread_kill (s->reader_pid);
   s->scanning = SANE_FALSE;
 }
 

@@ -36,6 +36,9 @@
 	  missing or defective links in the .desc files. Removed entry about
 	  translations.
 	* lib/inet_ntop.c: Changed order of includes for OS/2 compatibility.
+	* frontend/scanimage.c: Added output of bytes scanned in total.
+	  Added warning that's printed if scanimage gets more data then
+	  expected from the parameters.
 
 2002-01-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -314,12 +314,6 @@
 :mfg "Epson"
 :url "http://www.epson.com/"
 
-:model "CX6400"
-:url "/unsupported/epson-cx6400.html"
-:interface "USB"
-:status :unsupported
-:comment "Probably unsupported. See link for details."
-
 :model "GT-7400U"
 :url "/unsupported/epson-perfection-1270.html"
 :interface "USB"

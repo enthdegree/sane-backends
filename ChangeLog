@@ -1,3 +1,8 @@
+2004-03-19  Karl Heinz Kremer <khk@khk.net>
+
+	* doc/descriptions/epson.desc: Added Perfection 4870 and CX-6400
+	* doc/descriptions/unsupported.desc: Removed CX-6400
+
 2004-03-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/gt68xx.c backend/gt68xx.conf backend/gt68xx_devices.c

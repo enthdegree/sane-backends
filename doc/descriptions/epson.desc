@@ -129,6 +129,11 @@
 :interface "USB"
 :status :complete
 
+:model "Perfection 4870"
+:comment "US version of the GT-9800"
+:interface "USB"
+:status :complete
+
 :model "Expression 636"
 :comment "US version of GT-9500"
 :interface "SCSI"
@@ -157,5 +162,9 @@
 :status :good
 
 :model "CX-5200"
+:interface "USB"
+:status :good
+
+:model "CX-6400"
 :interface "USB"
 :status :good

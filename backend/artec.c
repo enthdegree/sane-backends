@@ -51,7 +51,7 @@
    *********************************************************************
    For feedback/information:
 
-   cpinkham@infi.net
+   cpinkham@corp.infi.net
    http://www4.infi.net/~cpinkham/sane/sane-artec-doc.html
    *********************************************************************
  */

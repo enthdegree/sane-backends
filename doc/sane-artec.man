@@ -200,4 +200,4 @@ sane(7), sane\-scsi(5)
 
 .SH AUTHOR
 
-Chris Pinkham (cpinkham@infi.net) (does not exist anymore?)
+Chris Pinkham (cpinkham@corp.infi.net)

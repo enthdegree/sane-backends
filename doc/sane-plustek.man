@@ -1,4 +1,4 @@
-.TH sane-plustek 5 "23 August 2000"
+.TH sane-plustek 5 "19 September 2000"
 .IX sane-plustek
 .SH NAME
 sane-plustek - SANE backend for Plustek parallel port flatbed scanners
@@ -27,6 +27,8 @@ OpticPro 9636P+/Turbo  98001 600x1200 dpi 36bit 512Kb
 OpticPro 9636P         98001 600x1200 dpi 36bit 512Kb
 .br
 OpticPro 12000P/96000P 96003 600x1200 dpi 30bit 128Kb
+.br
+OpticPro 9600P         96003 600x1200 dpi 30bit 128Kb
 .br
 OpticPro 9630P/FBIV    96003 600x1200 dpi 30bit 128Kb
 .br
@@ -73,6 +75,19 @@ Colorado 4800 Direct        OpticPro 600    mov=2
 Colorado 4800 Direct 30bit  OpticPro 4830   not tested
 .br
 Colorado 9600 Direct 30bit  OpticPro 9630   not tested
+.PP
+
+.SH "ARIES SCANNERS"
+
+There's one scanner sold as Aries Scanner, but is in fact a
+Plustek device.
+The following table will show the relationship:
+.PP
+Model:                      Plustek Model:  Remarks:
+.br
+--------------------------- --------------  ------------
+.br
+Scan-It 4800                OpticPro 600    mov=2
 .PP
 
 .SH "DEVICE NAMES"

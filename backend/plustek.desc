@@ -50,6 +50,10 @@
 :interface "Parport (SPP, EPP)"
 :comment "OK - use driver-switch mov=1"
 
+:model "OpticPro 9600P"
+:interface "Parport (SPP, EPP)"
+:comment "OK"
+
 :model "OpticPro 12000P/96000P"
 :interface "Parport (SPP, EPP)"
 :comment "OK"
@@ -60,7 +64,7 @@
 
 :model "OpticPro 9636P+/Turbo"
 :interface "Parport (SPP, EPP)"
-:comment "OK"
+:comment "OK - use driver-switch mov=3"
 
 :model "OpticPro 9636T"
 :interface "Parport (SPP, EPP)"
@@ -113,6 +117,12 @@
 :model "Compact 9600 Direct-30"
 :interface "Parport (SPP, EPP)"
 :comment "Not tested, (same as OP9630P)"
+
+:mfg "Aries"                  ; name of manufacturer
+
+:model "Scan-It Pro 4800"
+:interface "Parport (SPP, EPP)"
+:comment "OK - use driver-switch mov=2"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

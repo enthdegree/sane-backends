@@ -96,7 +96,7 @@ DISTFILES = Makefile.in abaton.c abaton.conf abaton.desc abaton.h \
   mustek_pp.h mustek_usb.c mustek_usb.conf mustek_usb.desc \
   mustek_usb.h mustek_usb_high.c mustek_usb_high.h mustek_usb_low.c \
   mustek_usb_low.h mustek_usb_mid.c mustek_usb_mid.h nec.c nec.conf \
-  nec.desc nec.h net.c net.conf net.desc net.h pie-scsidef.h pie.c \
+  nec.desc nec.h net.c net.conf net.desc net.h niash.desc pie-scsidef.h pie.c \
   pie.conf pie.desc pint.c pint.desc pint.h plustek-devs.c \
   plustek-pp.c plustek-share.h plustek-usb.c plustek-usb.h \
   plustek-usbhw.c plustek-usbimg.c plustek-usbio.c plustek-usbmap.c \

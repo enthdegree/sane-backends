@@ -1,8 +1,6 @@
 # po/Makefile.in
-INSTALL_TRANSLATIONS = @INSTALL_TRANSLATIONS@
-all: $(if $(INSTALL_TRANSLATIONS),update-mo)
-
 # See po/README for documentation.
+all: check-mo
 
 # Create one line per backend with all files containing translatable text:
 epson.*.po: ../backend/epson.c ../backend/epson.h 
@@ -11,8 +9,6 @@ mustek_usb.*.po: ../backend/mustek_usb.c
 plustek.*.po: ../backend/plustek.c ../backend/plustek.h
 pnm.*.po: ../backend/pnm.c
 umax.*.po: ../backend/umax.c
-
-saneopts.*.po: ../include/sane/saneopts.h
 
 # end of configuration
 
@@ -27,6 +23,12 @@ srcdir = @srcdir@
 PACKAGE = @PACKAGE@
 VERSION = @VERSION@
 distdir = $(top_srcdir)/$(PACKAGE)-$(VERSION)
+
+INSTALL_TRANSLATIONS = @INSTALL_TRANSLATIONS@
+ifeq ($(INSTALL_TRANSLATIONS),install-translations)
+UNINSTALL_TRANSLATIONS = uninstall-translations
+UPDATE_MO = update-mo
+endif
 
 MKDIR = $(top_srcdir)/mkinstalldirs
 INSTALL = @INSTALL@
@@ -45,15 +47,15 @@ ALL_POTS = $(addsuffix .pot,$(ALL_BACKENDS))
 ALL_MOS = $(filter-out saneopts.%.mo,$(addsuffix .mo,$(basename $(ALL_POS))))
 ALL_LINGUAS = $(sort $(subst .,,$(suffix $(basename $(ALL_POS)))))
 
-INSTALL_TRANSLATIONS = @INSTALL_TRANSLATIONS@
-
 DISTFILES = Makefile.in README epson.de.po mustek.de.po \
-  mustek_usb.de.po plustek.de.po pnm.de.po saneopts.po umax.de.po 
+  mustek_usb.de.po plustek.de.po pnm.de.po saneopts.de.po umax.de.po 
 
 .PHONY: all clean depend dist distclean install install-translations \
   uninstall update-mo update-po generate-%
 
 .SUFFIXES: .po .mo
+
+saneopts.*.po: ../include/sane/saneopts.h
 
 # backend.lang.po -> backend.lang.mo
 .po.mo:
@@ -88,6 +90,8 @@ update-po: $(ALL_POS)
 
 update-mo: $(ALL_MOS)
 
+check-mo: $(UPDATE_MO)
+
 $(addprefix install-,$(ALL_MOS)):
 	@mo_file=$(subst install-,,$@) ; \
 	 backend=$(basename $(basename $(subst install-,,$@))) ; \
@@ -97,7 +101,9 @@ $(addprefix install-,$(ALL_MOS)):
 	 $(MKDIR) $${dir} && \
 	 $(INSTALL_DATA) $${mo_file} $${dir}/sane-$${backend}.mo ;
 
-install: $(if $(INSTALL_TRANSLATIONS),$(addprefix install-,$(ALL_MOS)))
+install-translations: $(addprefix install-,$(ALL_MOS))
+
+install: $(INSTALL_TRANSLATIONS)
 
 uninstall-translations:
 	@for lang in $(ALL_LINGUAS) ; do \
@@ -106,7 +112,7 @@ uninstall-translations:
 	   rm -f $${dir}/sane-*.mo ; \
 	 done
 
-uninstall: $(if $(INSTALL_TRANSLATIONS),uninstall-translations)
+uninstall: $(UNINSTALL_TRANSLATIONS)
 
 clean:
 	rm -f *.mo

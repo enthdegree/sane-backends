@@ -213,12 +213,13 @@ AC_DEFUN(SANE_CHECK_GPHOTO2,
 			echo "GPHOTO2 APIs have been changing rapidly. Only"
 			echo "the current version from CVS is likely to work."
 			echo 
+			HAVE_GPHOTO2=""
+		else
+			CPPFLAGS="${CPPFLAGS} `gphoto2-config --cflags`"
+			GPHOTO2_LIBS="`gphoto2-config --libs`"
+			SANE_EXTRACT_LDFLAGS(LDFLAGS, GPHOTO2_LIBS)
+			LIBS="${LIBS} ${GPHOTO2_LIBS}"
 		fi
-
-		CPPFLAGS="${CPPFLAGS} `gphoto2-config --cflags`"
-		GPHOTO2_LIBS="`gphoto2-config --libs`"
-		SANE_EXTRACT_LDFLAGS(LDFLAGS, GPHOTO2_LIBS)
-		LIBS="${LIBS} ${GPHOTO2_LIBS}"
 ])	fi
 ])
 

@@ -1,7 +1,7 @@
 :backend "gt68xx"
 :status :alpha
-:version "1.0-26"
-;:manpage "sane-gt68xx"
+:version "1.0-27"
+:manpage "sane-gt68xx"
 :url "http://www.meier-geinitz.de/sane/gt68xx-backend/"
 :comment "Only the USB scanners mentioned below are supported. For other Mustek BearPaws, look at the Plustek backend."
 :devicetype :scanner
@@ -13,12 +13,10 @@
 
 :model "BearPaw 1200 CS"
 :interface "USB"
-:status :untested
-:comment "is detected, should work, comments are welcome"
+:status :beta
 
 :model "BearPaw 1200 CU"
 :interface "USB"
-:comment "works"
 :status :beta
 
 :model "BearPaw 1200 CU Plus"
@@ -29,7 +27,7 @@
 :model "BearPaw 1200 TA"
 :interface "USB"
 :status :beta
-:comment "works, TA supported"
+:comment "Transparency adapter supported"
 
 :model "BearPaw 2400 CS"
 :interface "USB"
@@ -54,16 +52,15 @@
 :model "BearPaw 2400 TA"
 :interface "USB"
 :status :beta
-:comment "works, TA supported"
+:comment "Transparency adapter supported"
 
 :model "BearPaw 2400 TA Plus"
 :interface "USB"
 :status :beta
-:comment "works, TA supported"
+:comment "Transparency adapter supported"
 
 :model "ScanExpress 1200 UB Plus"
 :interface "USB"
-:comment "works"
 :status :beta
 
 :model "ScanExpress A3 USB"
@@ -85,60 +82,65 @@
 :url "http://www.artecusa.com/"
 
 :model "Ultima 2000"
-:status :alpha
+:status :beta
 :interface "USB"
 :comment "works, only product id 0x4002 is supported"
 
+:model "Ultima 2000 e+"
+:status :untested
+:interface "USB"
+:comment "Testers welcome"
+
 :mfg "Boeder"
 :model "Sm@rtScan Slim Edition"
-:status :alpha
+:status :beta
 :interface "USB"
-:comment "works, similar to Artec Ultima 2000"
+:comment "similar to Artec Ultima 2000"
 
 :mfg "Packard Bell"
 :model "Diamond 1200"
-:status :alpha
+:status :beta
 :interface "USB"
-:comment "works, similar to Mustek BearPaw 1200 Plus"
+:comment "similar to Mustek BearPaw 1200 Plus"
 
 :mfg "Medion/Lifetec/Tevion/Cytron"
 :url "http://www.medion.com"
 :comment "Sold by Aldi and Tchibo"
 
 :model "LT 9452"
-:status :alpha
+:status :beta
 :interface "USB"
-:comment "works"
+:comment "Simlar to Mustek ScanExpress 1200 UB Plus"
 
 :model "MD/LT 9385"
-:status :alpha
+:status :beta
 :interface "USB"
-:comment "works"
+:comment "Similar to Artec Ultima 2000"
 
 :model "MD 9458"
-:status :alpha
+:status :beta
 :interface "USB"
-:comment "works"
+:comment "Similar to Artec Ultima 2000 (e+?)"
 
 :mfg "Trust"
 :url "http://www.trust-site.com"
 
 :model "Flat Scan USB 19200"
-:status :untested
+:status :beta
 :interface "USB"
-:comment "Contact author if you own such a model"
+:comment "Similar to Artec Ultima 2000"
 
 :model "Compact Scan USB 19200"
 :status :alpha
 :interface "USB"
-:comment "works, if you have vendor id 0x055f and product id 0x0006, use the mustek_usb backend instead "
+:comment "works, if you have vendor id 0x055f and product id 0x0006, use the mustek_usb backend instead, similar to Mustek ScanExpress 1200 UB (Plus)"
 
 :mfg "Lexmark"
 :url "http://www.lexmark.com/"
 :model "X70"
 :status :alpha
 :interface "USB"
-:comment "works up to 600 dpi"
+:comment "works in all resolutions but 50 and 1200 dpi"
 
 :model "X73"
 :status :untested

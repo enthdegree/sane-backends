@@ -1,4 +1,4 @@
-.TH sane 7 "July 25th, 2002"
+.TH sane 7 "Oct 24th, 2002"
 .IX sane
 
 .SH NAME
@@ -96,6 +96,7 @@ compiling and installing SANE.
 .TP
 .B SCSI configuration
 For information about various systems and SCSI controllers see sane-scsi(5).
+.TP
 .B USB configuration
 For information about USB configuration see sane-usb(5).
 
@@ -177,6 +178,11 @@ flatbed scanners. See sane-epson(5) for details.
 The fujitsu backend provides support for Fujitsu 3091, 3093, 3096 and
 fi-4340 SCSI scanners. See sane-fujitsu(5) for details.
 .TP
+.B gt68xx
+The gt68xx backend provides support scanners based on the Grandtech GT-6801
+and GT-6816 chips like the Artec Ultima 2000 and several Mustek BearPaw CU and
+TA models. See sane-gt68xx(5) for details.
+.TP
 .B hp
 The SANE hp backend provides access to HP ScanJet scanners and OfficeJet
 multi-function peripherals (MFPs) which support SCL (Scanner Control Language
@@ -211,9 +217,8 @@ The mustek_pp backend provides access to Mustek parallel port flatbed
 scanners. See sane-mustek_pp(5) for details.
 .TP
 .B mustek_usb
-The mustek_usb backend provides access to some Mustek USB flatbed
-scanners. Some Mustek BearPaw scanners are supported by the plustek backend,
-however. See sane-mustek_usb(5) for details.
+The mustek_usb backend provides access to some Mustek ScanExpress USB flatbed
+scanners. See sane-mustek_usb(5) for details.
 .TP
 .B nec
 The SANE nec backend supports the NEC PC-IN500/4C SCSI scanner. See

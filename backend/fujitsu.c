@@ -127,8 +127,8 @@
          - inverted the image in mode color and grayscale
          - jpg hardware compression support (fi-4530C)
       04-Mrz-2004 (oschirr@abm.de)
-         - enabled option dropoutcolor for the fi-4530C
-
+         - enabled option dropoutcolor for the fi-4530C, and fi-4x20C
+         
    SANE FLOW DIAGRAM
 
    - sane_init() : initialize backend, attach scanners
@@ -7459,7 +7459,6 @@ setDefaults3091 (struct fujitsu *scanner)
   scanner->opt[OPT_MATRIX4X4].cap = SANE_CAP_INACTIVE;
   scanner->opt[OPT_MATRIX5X5].cap = SANE_CAP_INACTIVE;
 
-  scanner->opt[OPT_DROPOUT_COLOR].cap = SANE_CAP_INACTIVE;
   scanner->dropout_color = MSEL_dropout_DEFAULT;
 
   scanner->sleep_time = 15;
@@ -7618,11 +7617,6 @@ setMode3096 (struct fujitsu *scanner, int mode)
       scanner->opt[OPT_Y_RES].constraint_type = SANE_CONSTRAINT_WORD_LIST;
       scanner->opt[OPT_Y_RES].constraint.word_list = allowableResolutionsBW;
       */
-      if (scanner->has_dropout_color)
-        {
-          scanner->opt[OPT_DROPOUT_COLOR].cap =
-            SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
-        }
 
       /* verify that the currently set resolutions aren't out of order */
       /* - for this specific scanner that's not necessary since */
@@ -7662,11 +7656,7 @@ setMode3096 (struct fujitsu *scanner, int mode)
       scanner->opt[OPT_Y_RES].constraint_type = SANE_CONSTRAINT_WORD_LIST;
       scanner->opt[OPT_Y_RES].constraint.word_list = allowableResolutionsBW;
       */
-      if (scanner->has_dropout_color)
-        {
-          scanner->opt[OPT_DROPOUT_COLOR].cap =
-            SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
-        }
+
       /* verify that the currently set resolutions aren't out of order */
       /* - for this specific scanner that's not necessary since */
       /* monochrome mode supports the superset of resolutions  */
@@ -7711,11 +7701,6 @@ setMode3096 (struct fujitsu *scanner, int mode)
       scanner->opt[OPT_Y_RES].constraint.word_list = allowableResolutionsGray;
       */
 
-      if (scanner->has_dropout_color)
-        {
-          scanner->opt[OPT_DROPOUT_COLOR].cap =
-            SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
-        }
       /* verify that the currently set resolutions aren't out of order */
       /*
       if (scanner->resolution_x == 240)

@@ -1,5 +1,8 @@
 2004-03-04  Oliver Schirrmeister <oschirr@abm.de>
 	* backend/fujitsu.c 
+          enabled dropoutcolor for fi4x20C
+2004-03-04  Oliver Schirrmeister <oschirr@abm.de>
+	* backend/fujitsu.c 
           enabled dropoutcolor for fi4530C
 
 2004-03-03  Gerhard Jaeger <gerhard@gjaeger.de>

@@ -1,6 +1,8 @@
 2002-04-08  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* Makefile.in: make libcheck now also checks for non-static variables.
+	* v4l.c: Some variables haven't been static. sane_set_io_mode must
+	  return SANE_STATUS_GOOD if non_blocking == SANE_FALSE.
 
 2002-04-08  Rene Rebe <rene.rebe@gmx.net>
 	* backend/avision.c backend/avision.h doc/descriptions/avision.desc

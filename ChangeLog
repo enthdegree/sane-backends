@@ -1,3 +1,7 @@
+2001-01-03  Henning Meier-Geinitz <hmg@gmx.de>
+
+	* PROJECTS: Added Umax 1220P / HP3200C.
+
 2000-12-31  Henning Meier-Geinitz <hmg@gmx.de>
 
 	* tools/find-scanner.c: Removed. Now called sane-find-scanner.

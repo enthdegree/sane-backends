@@ -10,6 +10,8 @@
 	* backend/plustek.[ch] backend/plustek-usb*.[ch]: copyright updates
 	  and some changes concerning the CanoScan lamp calibration.
 	* backend/u12.[ch] backend/u12-*.[ch]: copyright updates.
+	* backend/plustek_pp.[ch] backend/plustek-pp*.[ch]: copyright updates
+	  and minor fixes.
 
 2004-01-08  Oliver Rauch <oliver.rauch@rauch-domain.de>
 	* backend/umax.c: changed order of includes because of compilation error

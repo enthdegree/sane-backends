@@ -1,3 +1,5 @@
+******  Release of sane-backends 1.0.7. End of code freeze ******
+
 2002-02-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* acinclude.m4 aclocal.m4 configure: Added a missing "test" command

@@ -4,14 +4,14 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends.cs\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-06-20 00:36+0200\n"
+"POT-Creation-Date: 2004-06-21 10:26+0200\n"
 "PO-Revision-Date: 2003-06-10 08:45GMT\n"
 "Last-Translator: Josef  <joeprusa@volny.cz>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Report-Msgid-Bugs-To: \n"
 "X-Generator: KBabel 0.9.5\n"
 
 #: .tmp/artec_eplus48u.c:154 .tmp/hp-option.c:2923 .tmp/ma1509.c:101
@@ -28,7 +28,7 @@ msgstr "Stupně šedé"
 
 #: .tmp/artec_eplus48u.c:156 .tmp/epson.c:502 .tmp/hp-option.c:2926
 #: .tmp/leo.h:262 .tmp/ma1509.c:101 .tmp/mustek.c:126 .tmp/mustek.c:130
-#: .tmp/mustek_usb.c:268 .tmp/plustek.c:215 .tmp/plustek_pp.c:192
+#: .tmp/mustek_usb.c:268 .tmp/plustek.c:216 .tmp/plustek_pp.c:192
 #: .tmp/plustek_pp.c:201 .tmp/saneopts.h:389 .tmp/sceptre.h:292
 #: .tmp/snapscan-options.c:75 .tmp/teco1.h:293 .tmp/teco2.h:352
 #: .tmp/teco3.h:296 .tmp/test.c:122 .tmp/umax.c:191 .tmp/umax_pp.c:137
@@ -37,8 +37,8 @@ msgstr "Barva"
 
 #: .tmp/artec_eplus48u.c:2805 .tmp/gt68xx.c:653 .tmp/leo.c:871
 #: .tmp/ma1509.c:597 .tmp/matsushita.c:1191 .tmp/microtek2.h:602
-#: .tmp/mustek.c:4382 .tmp/mustek_usb.c:353 .tmp/plustek.c:754
-#: .tmp/plustek_pp.c:797 .tmp/sceptre.c:753 .tmp/snapscan-options.c:488
+#: .tmp/mustek.c:4382 .tmp/mustek_usb.c:353 .tmp/plustek.c:755
+#: .tmp/plustek_pp.c:800 .tmp/sceptre.c:753 .tmp/snapscan-options.c:488
 #: .tmp/teco1.c:1146 .tmp/teco2.c:1940 .tmp/teco3.c:971 .tmp/umax.c:5214
 #: .tmp/umax_pp.c:542
 msgid "Enhancement"
@@ -55,7 +55,7 @@ msgstr "Nastavit standardní hodnoty prvků pro vylepšení obrázku"
 #: .tmp/artec_eplus48u.c:2884 .tmp/epson.c:3234 .tmp/gt68xx.c:709
 #: .tmp/leo.c:823 .tmp/ma1509.c:549 .tmp/matsushita.c:1137
 #: .tmp/microtek2.h:601 .tmp/mustek.c:4334 .tmp/mustek_usb.c:305
-#: .tmp/plustek.c:708 .tmp/plustek_pp.c:751 .tmp/sceptre.c:705
+#: .tmp/plustek.c:709 .tmp/plustek_pp.c:754 .tmp/sceptre.c:705
 #: .tmp/snapscan-options.c:421 .tmp/teco1.c:1098 .tmp/teco2.c:1892
 #: .tmp/teco3.c:923 .tmp/test.c:618 .tmp/umax.c:5164 .tmp/umax_pp.c:493
 msgid "Geometry"
@@ -95,11 +95,11 @@ msgstr ""
 msgid "Button state"
 msgstr "Stav tlačítek"
 
-#: .tmp/avision.h:536
+#: .tmp/avision.h:534
 msgid "Number of the frame to scan"
 msgstr "Číslo políčka pro sken"
 
-#: .tmp/avision.h:537
+#: .tmp/avision.h:535
 msgid "Selects the number of the frame to scan"
 msgstr "Zvolí číslo políčka, které bude naskenováno"
 
@@ -135,13 +135,13 @@ msgstr "Korekce gama"
 msgid "Selects the gamma corrected transfer curve"
 msgstr "Nastaví gama korekci přenosové křivky"
 
-#: .tmp/epson.c:500 .tmp/plustek.c:212 .tmp/plustek_pp.c:189
+#: .tmp/epson.c:500 .tmp/plustek.c:213 .tmp/plustek_pp.c:189
 #: .tmp/plustek_pp.c:198
 msgid "Binary"
 msgstr "Binární"
 
 #: .tmp/epson.c:501 .tmp/ma1509.c:101 .tmp/mustek.c:125 .tmp/mustek.c:130
-#: .tmp/mustek_usb.c:269 .tmp/plustek.c:213 .tmp/plustek_pp.c:191
+#: .tmp/mustek_usb.c:269 .tmp/plustek.c:214 .tmp/plustek_pp.c:191
 #: .tmp/plustek_pp.c:200 .tmp/saneopts.h:390 .tmp/sceptre.h:291
 #: .tmp/snapscan-options.c:77 .tmp/test.c:122 .tmp/umax.c:188
 msgid "Gray"
@@ -319,7 +319,7 @@ msgstr "max"
 
 #: .tmp/epson.c:2749 .tmp/gt68xx.c:442 .tmp/ma1509.c:499
 #: .tmp/matsushita.c:1086 .tmp/microtek2.h:600 .tmp/mustek.c:4197
-#: .tmp/mustek_usb.c:260 .tmp/plustek.c:636 .tmp/plustek_pp.c:662
+#: .tmp/mustek_usb.c:260 .tmp/plustek.c:637 .tmp/plustek_pp.c:665
 #: .tmp/sceptre.c:676 .tmp/snapscan-options.c:260 .tmp/teco2.c:1864
 #: .tmp/test.c:293 .tmp/umax.c:5042
 msgid "Scan Mode"
@@ -734,7 +734,7 @@ msgid "Slow"
 msgstr "Pomalejší"
 
 #: .tmp/hp-option.c:3141 .tmp/hp-option.c:3248 .tmp/matsushita.c:244
-#: .tmp/mustek.c:141 .tmp/plustek.c:222 .tmp/plustek_pp.c:208
+#: .tmp/mustek.c:141 .tmp/plustek.c:223 .tmp/plustek_pp.c:208
 msgid "Normal"
 msgstr "Normální"
 
@@ -777,7 +777,7 @@ msgstr "Zcela bílá"
 msgid "Film-strip"
 msgstr "Typ filmu"
 
-#: .tmp/hp-option.c:3231 .tmp/plustek.c:224 .tmp/plustek_pp.c:210
+#: .tmp/hp-option.c:3231 .tmp/plustek.c:225 .tmp/plustek_pp.c:210
 #: .tmp/saneopts.h:176
 msgid "Negative"
 msgstr "Negativ"
@@ -1473,39 +1473,121 @@ msgstr "Kontrast modrého kanálu"
 msgid "Controls the contrast of the blue channel of the acquired image."
 msgstr "Nastavuje kontrast modrého kanálu naskenovaného obrázku."
 
-#: .tmp/plustek.c:214
+#: .tmp/plustek.c:215
 msgid "Gray 14/16"
 msgstr "Šedá 14/16"
 
-#: .tmp/plustek.c:216
+#: .tmp/plustek.c:217
 msgid "Color 42/48"
 msgstr "Barva 42/48"
 
-#: .tmp/plustek.c:223 .tmp/plustek_pp.c:209
+#: .tmp/plustek.c:224 .tmp/plustek_pp.c:209
 msgid "Transparency"
 msgstr "Průsvitná předloha"
 
-#: .tmp/plustek.c:819
+#: .tmp/plustek.c:820
 msgid "Device-Settings"
 msgstr ""
 
-#: .tmp/plustek.c:826
+#: .tmp/plustek.c:827
 msgid "Lampswitch"
 msgstr ""
 
-#: .tmp/plustek.c:827
+#: .tmp/plustek.c:828
 msgid "Manually switching the lamp(s)."
 msgstr ""
 
-#: .tmp/plustek.c:832
-#, fuzzy
-msgid "Warmup-Time"
-msgstr "Zahřát lampu"
-
 #: .tmp/plustek.c:833
 #, fuzzy
-msgid "Warmup-Time in seconds."
+msgid "Calibration data cache"
+msgstr "Režim kalibrace"
+
+#: .tmp/plustek.c:834
+msgid "Enables or disables calibration data cache."
+msgstr ""
+
+#: .tmp/plustek.c:839
+#, fuzzy
+msgid "Lamp off on shutdown"
+msgstr "Vypnout lampu při ukončení"
+
+#: .tmp/plustek.c:840
+msgid "Switch lamp off when leaving the backend."
+msgstr ""
+
+#: .tmp/plustek.c:845
+#, fuzzy
+msgid "Warmup-time"
 msgstr "Zahřát lampu"
+
+#: .tmp/plustek.c:846
+#, fuzzy
+msgid "Warmup-time in seconds."
+msgstr "Zahřát lampu"
+
+#: .tmp/plustek.c:853
+#, fuzzy
+msgid "Lampoff-time"
+msgstr "Vypnout lampu"
+
+#: .tmp/plustek.c:854
+#, fuzzy
+msgid "Lampoff-time in seconds."
+msgstr "Zahřát lampu"
+
+#: .tmp/plustek.c:862
+#, fuzzy
+msgid "Red-gain"
+msgstr "zisk"
+
+#: .tmp/plustek.c:863
+msgid "Red-gain value of the AFE"
+msgstr ""
+
+#: .tmp/plustek.c:870
+#, fuzzy
+msgid "Green-gain"
+msgstr "Zelená"
+
+#: .tmp/plustek.c:871
+msgid "Green-gain value of the AFE"
+msgstr ""
+
+#: .tmp/plustek.c:878
+#, fuzzy
+msgid "Blue-gain"
+msgstr "Modrá"
+
+#: .tmp/plustek.c:879
+msgid "Blue-gain value of the AFE"
+msgstr ""
+
+#: .tmp/plustek.c:886
+#, fuzzy
+msgid "Red lamp off"
+msgstr "Zapíná/vypíná lampu"
+
+#: .tmp/plustek.c:887
+msgid "Defines red lamp off parameter"
+msgstr ""
+
+#: .tmp/plustek.c:894
+#, fuzzy
+msgid "Green lamp off"
+msgstr "Zapíná/vypíná lampu"
+
+#: .tmp/plustek.c:895
+msgid "Defines green lamp off parameter"
+msgstr ""
+
+#: .tmp/plustek.c:902
+#, fuzzy
+msgid "Blue lamp off"
+msgstr "Zapíná/vypíná lampu"
+
+#: .tmp/plustek.c:903
+msgid "Defines blue lamp off parameter"
+msgstr ""
 
 #: .tmp/plustek_pp.c:202
 msgid "Color36"
@@ -2746,14 +2828,6 @@ msgstr "(1/1) Tlačítko"
 msgid "(1/1) Button test option. Prints some text..."
 msgstr "(1/1) Testovací tlačítková volba. Vytiskne nějaký text..."
 
-#: .tmp/umax1220u.c:247 .tmp/umax.c:5800
-msgid "Lamp off"
-msgstr "Vypnout lampu"
-
-#: .tmp/umax1220u.c:248 .tmp/umax.c:5801
-msgid "Turn off scanner lamp"
-msgstr "Vypnout lampu skeneru"
-
 #: .tmp/umax.c:189
 msgid "Color Lineart"
 msgstr "Barevná perokresba"
@@ -2825,6 +2899,14 @@ msgstr "Zapnout lampu"
 #: .tmp/umax.c:5784
 msgid "Turn on scanner lamp"
 msgstr "Zapnout lampu skeneru"
+
+#: .tmp/umax.c:5800 .tmp/umax1220u.c:247
+msgid "Lamp off"
+msgstr "Vypnout lampu"
+
+#: .tmp/umax.c:5801 .tmp/umax1220u.c:248
+msgid "Turn off scanner lamp"
+msgstr "Vypnout lampu skeneru"
 
 #: .tmp/umax.c:5817
 msgid "Lamp off at exit"
@@ -2918,9 +3000,6 @@ msgstr "Nastavuje kontrast modrého kanálu"
 
 #~ msgid "gray"
 #~ msgstr "šedá"
-
-#~ msgid "gain"
-#~ msgstr "zisk"
 
 #~ msgid "gamma"
 #~ msgstr "gama"

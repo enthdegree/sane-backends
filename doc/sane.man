@@ -1,4 +1,4 @@
-.TH sane 7 "9 Sep 2001"
+.TH sane 7 "10 Jan 2002"
 .IX sane
 
 .SH NAME
@@ -49,7 +49,8 @@ yet included into the SANE distribution.
 .P
 Your help is always appreciated. Look at @DOCDIR@/TODO for things that should
 be done. Not only programmers are needed, but also reading and fixing the
-documentation and reporting bugs would be nice. Contact the SANE mailing list
+documentation and reporting bugs would be nice. Further more, translations
+of the backend options are needed. Contact the SANE mailing list
 for details.
 
 .SH SOFTWARE PACKAGES

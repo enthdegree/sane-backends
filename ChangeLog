@@ -1,3 +1,10 @@
+2002-04-10  Oliver Schwartz <oliver.schwartz@gmx.de>
+ 
+	* backend/snapscan-usb.c
+          make bqelements static
+        * backend/snapscan-scsi.c
+          disable send_diagnostic() for SnapScan 1236
+
 2002-04-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/mustek_usb.c doc/descriptions/mustek_usb.desc

@@ -12,6 +12,8 @@
 	* doc/Makefile.in: Added sane-test man page. Added teco doc directory.
 	* doc/sane.man doc/sane-test.man doc/.cvsignore: Added sane-test
 	  manual page.
+	* doc/descriptions-external/test.desc doc/descriptions/test.desc:
+	  Moved test.desc to doc/descriptions and updated this file.
 
 2002-04-12  Frank Zago <fzago@greshamstorage.com>
 

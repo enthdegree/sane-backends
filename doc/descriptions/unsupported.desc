@@ -803,6 +803,11 @@
 :status :unsupported
 :comment "Uses Plustek ASIC."
 
+:model "OpticSlim 2400"
+:interface "USB"
+:status :unsupported
+:comment "Probably the same as OpticSlim 1200, with higher resolution."
+
 :model "Spectra ADF"
 ;:url ""
 :interface "Proprietary"

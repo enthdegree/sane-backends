@@ -94,7 +94,10 @@
            window descriptor block.
       V 1.8, 28-Mar-2003 (oschirr@abm.de)
          - fi-4120C support (anoah@pfeiffer.edu)
-         - display information about gamme in vital_product_data
+         - display information about gamma in vital_product_data
+      V 1.9 04-Jun-2003 
+         - separated the 4120 and 4220 into another model (anoah@pfeiffer.edu)
+         - color support for the 4x20 (anoah@pfeiffer.edu)
 
    SANE FLOW DIAGRAM
 
@@ -183,7 +186,7 @@ static const char mode_color[] = "Color";
 static SANE_String_Const modeList3091[] =
   { mode_lineart, mode_grayscale, mode_color, NULL };
 static SANE_String_Const modeList3096[] =
-  { mode_lineart, mode_halftone, mode_grayscale, NULL };
+  { mode_lineart, mode_halftone, mode_grayscale, mode_color, NULL };
 
 static const char lampRed[] = "red";
 static const char lampGreen[] = "green";
@@ -596,8 +599,10 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
     {
 
     case MODEL_3091:
+    case MODEL_FI4x20:
       setDefaults3091 (scanner);
       break;
+
     case MODEL_3092:
       setDefaults3092 (scanner);
       break;
@@ -608,20 +613,9 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
     case MODEL_3093:
     case MODEL_4097:
     case MODEL_FI:
-      if ( strstr (scanner->productName, "4220") || 
-	   strstr (scanner->productName, "4120")) 
-	{
-	  setDefaults3091 (scanner);
-	}
-      else
-	{
-	  setDefaults3096 (scanner);
-	}
+      setDefaults3096 (scanner);
       break;
 
-    case MODEL_SP15:
-      setDefaultsSP15 (scanner);
-      break;
     default:
       DBG (MSG_ERR, "sane_open: unknown model\n");
       return SANE_STATUS_INVAL;
@@ -1397,6 +1391,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           switch (scanner->model)
             {
             case MODEL_3091:
+            case MODEL_FI4x20:
               return (setMode3091 (scanner, newMode));
             case MODEL_3092:
               return (setMode3092 (scanner, newMode));
@@ -1406,17 +1401,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             case MODEL_3097:
             case MODEL_4097:
             case MODEL_FI:
-      		if ( strstr (scanner->productName, "4220") || 
-		     strstr (scanner->productName, "4120")) 
-		  {
-                    return (setMode3091 (scanner, newMode));
-		  }
-                else
-		  {
-                    return (setMode3096 (scanner, newMode));
-		  }
-            case MODEL_SP15:
-              return (setModeSP15 (scanner, newMode));
+              return (setMode3096 (scanner, newMode));
             }
           return SANE_STATUS_INVAL;
 
@@ -2655,7 +2640,7 @@ scsi_sense_handler (int scsi_fd, u_char * sensed_data, void *arg)
 	    {
 	      
 	      DBG(MSG_ERR, 
-		  "offending byte is %d. (Byte %d in window descriptor block)\n", 
+		  "offending byte is %x. (Byte %x in window descriptor block)\n", 
 		  get_RS_offending_byte(sensed_data),
 		  get_RS_offending_byte(sensed_data)-8);
 	    }
@@ -2843,6 +2828,20 @@ getVitalProductData (struct fujitsu *s)
            (double) get_IN_window_length (s->buffer)/
            (double) get_IN_basic_y_res(s->buffer) * 2.54);
 
+      DBG (MSG_INFO, "functions:\n");
+      DBG (MSG_INFO, "   binary scanning: %d\n", 
+           get_IN_monochrome (s->buffer));
+      DBG (MSG_INFO, "   gray scanning: %d\n", 
+           get_IN_multilevel (s->buffer));
+      DBG (MSG_INFO, "   half-tone scanning: %d\n", 
+           get_IN_half_tone (s->buffer));
+      DBG (MSG_INFO, "   color binary scanning: %d\n",
+           get_IN_monochrome_rgb (s->buffer));
+      DBG (MSG_INFO, "   color scanning: %d\n", 
+           get_IN_multilevel_rgb (s->buffer));
+      DBG (MSG_INFO, "   color half-tone scanning: %d\n",
+           get_IN_half_tone_rgb (s->buffer));
+
       if (get_IN_page_length (s->buffer) > 0x19) 
         {
           DBG (MSG_INFO, "image memory: %d bytes\n",
@@ -2855,20 +2854,6 @@ getVitalProductData (struct fujitsu *s)
           DBG (MSG_INFO, "   duplex %d\n", get_IN_duplex (s->buffer));
           DBG (MSG_INFO, "   flatbed %d\n", get_IN_flatbed (s->buffer));
           DBG (MSG_INFO, "   adf %d\n", get_IN_adf (s->buffer));
-
-          DBG (MSG_INFO, "functions:\n");
-          DBG (MSG_INFO, "   binary scanning: %d\n", 
-               get_IN_monochrome (s->buffer));
-          DBG (MSG_INFO, "   gray scanning: %d\n", 
-               get_IN_multilevel (s->buffer));
-          DBG (MSG_INFO, "   half-tone scanning: %d\n", 
-               get_IN_half_tone (s->buffer));
-          DBG (MSG_INFO, "   color binary scanning: %d\n",
-               get_IN_monochrome_rgb (s->buffer));
-          DBG (MSG_INFO, "   color scanning: %d\n", 
-               get_IN_multilevel_rgb (s->buffer));
-          DBG (MSG_INFO, "   color half-tone scanning: %d\n",
-               get_IN_half_tone_rgb (s->buffer));
 
           DBG (MSG_INFO, "image control functions:\n");
           DBG (MSG_INFO, "   brightness steps: %d\n", 
@@ -3144,7 +3129,7 @@ hexdump (int level, char *comment, unsigned char *p, int l)
               DBG (level, "%s\n", line);
               ptr = line;
             }
-          sprintf (ptr, "%3.3d:", i);
+          sprintf (ptr, "%3.3x:", i);
           ptr += 4;
         }
       sprintf (ptr, " %2.2x", *p);
@@ -3596,7 +3581,7 @@ fujitsu_set_sleep_mode(struct fujitsu *s)
 
   ret = SANE_STATUS_GOOD;
 
-  if (s->model == MODEL_FI) /*...and others */
+  if (s->model == MODEL_FI4x20 || s->model == MODEL_FI) /*...and others */
     {
         /* With the fi-series scanners, we have to use a 10-byte header
          * instead of a 4-byte header when communicating via USB.  This
@@ -3820,6 +3805,7 @@ identify_scanner (struct fujitsu *s)
   char version[5];
   char *pp;
 
+  DBG (1, "current version\n");
   DBG (10, "identify_scanner\n");
 
   vendor[8] = product[0x10] = version[4] = 0;
@@ -3892,7 +3878,7 @@ identify_scanner (struct fujitsu *s)
        (s->model == MODEL_3097) ? "3097" :
        (s->model == MODEL_3093) ? "3093" :
        (s->model == MODEL_4097) ? "4097" :
-       (s->model == MODEL_SP15) ? "SP15" :
+       (s->model == MODEL_FI4x20) ? "fi-4x20" :
        (s->model == MODEL_FI) ? "fi-series" : "unknown");
 
   strcpy (s->vendorName, vendor);
@@ -4010,6 +3996,11 @@ identify_scanner (struct fujitsu *s)
               s->x_res_range.quant = s->y_res_range.quant = 1;
             }
         }
+    }
+  else if (s->model == MODEL_FI4x20)
+    {
+      s->can_read_alternate = SANE_TRUE;
+      s->has_dropout_color = SANE_TRUE;
     }
   else if (s->model == MODEL_FI)
     {
@@ -4377,9 +4368,9 @@ modelMatch (const char *product)
     {
       return MODEL_3093;
     }
-  else if (strstr (product, "SP15"))
+  else if (strstr (product, "fi-4120") || strstr (product, "fi-4220"))
     {
-      return MODEL_SP15;
+      return MODEL_FI4x20;
     }
   else if (strstr (product, "fi-"))
     {
@@ -4690,7 +4681,7 @@ setWindowParam (struct fujitsu *s)
    * follows without a header of its own. 
    */
 
-    if ( (s->model == MODEL_FI) && (s->connection == SANE_FUJITSU_USB) ) {
+    if ( ( (s->model == MODEL_FI4x20) || (s->model == MODEL_FI) ) && (s->connection == SANE_FUJITSU_USB) ) {
         setwinB = &set_usb_windowB;
     } else {
         setwinB = &set_windowB;
@@ -4951,7 +4942,7 @@ reader_process (struct fujitsu *scanner, int pipe_fd, int duplex_pipeFd)
     case MODEL_FI:
       if (scanner->duplex_mode == DUPLEX_BOTH)
         {
-
+                                                                                                                  
           if (scanner->can_read_alternate)
             {
               total_data_size =
@@ -4965,9 +4956,42 @@ reader_process (struct fujitsu *scanner, int pipe_fd, int duplex_pipeFd)
         }
       else
         {
-
           total_data_size = reader_generic_passthrough (scanner, fp1, 0);
         }
+      break;
+
+
+    case MODEL_FI4x20:
+      if (scanner->duplex_mode == DUPLEX_BOTH) {
+
+        if (scanner->color_mode == MODE_COLOR){
+          if (scanner->can_read_alternate) {
+            total_data_size = reader_bgr_duplex_alternate (scanner, fp1, fp2);
+          }
+          else {
+            total_data_size = reader_bgr_duplex_sequential (scanner, fp1, fp2);
+          }
+        }
+        else {
+          if (scanner->can_read_alternate) {
+            total_data_size = reader_gray_duplex_alternate (scanner, fp1, fp2);
+          }
+          else {
+            total_data_size = reader_gray_duplex_sequential (scanner, fp1, fp2);
+          }
+        }
+
+      }
+      else { /*simplex*/
+
+        if (scanner->color_mode == MODE_COLOR){
+          total_data_size = reader_bgr_simplex (scanner, fp1, 0);
+        }
+        else {
+          total_data_size = reader_generic_passthrough (scanner, fp1, 0);
+        }
+
+      }
       break;
 
     default:
@@ -5764,7 +5788,7 @@ init_options (struct fujitsu *scanner)
   opt->unit = SANE_UNIT_NONE;
   opt->constraint_type = SANE_CONSTRAINT_RANGE;
   opt->constraint.range=&range_sleep_mode;
-  if (scanner->model == MODEL_FI) /*...and others */
+  if (scanner->model == MODEL_FI || scanner->model == MODEL_FI4x20) /*...and others */
     {
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     } 
@@ -6307,6 +6331,314 @@ reader3091ColorDuplex (struct fujitsu *scanner, FILE * fp_front, FILE * fp_back)
 
 
 static unsigned int
+reader_bgr_duplex_alternate (struct fujitsu *scanner,
+                              FILE * fp_front, FILE * fp_back)
+{
+
+  int status;
+  unsigned int i_left_front, i_left_back;
+  unsigned int total_data_size, data_to_read;
+  unsigned int duplexBufferSize;
+  unsigned char *duplexBuffer;
+  unsigned char *duplexPointer;
+  unsigned int largeBufferSize = 0;
+  unsigned int i_data_read, i;
+  unsigned char *buffptr;
+  unsigned char *b, *g, *r;
+
+  i_left_front = scanner->bytes_per_scan_line * scanner->scan_height_pixels;
+  i_left_back = i_left_front;
+
+  /* Only allocate memory if we're not using a temp file. */
+  if (scanner->use_temp_file)
+    {
+      duplexBuffer = duplexPointer = NULL;
+      duplexBufferSize = 0;
+    }
+  else
+    {
+      /*
+       * allocate a buffer for the back side because sane_read will 
+       * first read the front side and then the back side. If I write
+       * to the pipe directly sane_read will not read from that pipe
+       * and the write will block.
+       */
+      duplexBuffer = malloc (duplexBufferSize = i_left_back);
+      if (duplexBuffer == NULL)
+        {
+          DBG (MSG_ERR,
+               "reader_process: out of memory for duplex buffer (try option --swapfile)\n");
+          return (0);
+        }
+      duplexPointer = duplexBuffer;
+    }
+
+  largeBufferSize =
+    scanner->scsi_buf_size -
+    (scanner->scsi_buf_size % scanner->bytes_per_scan_line);
+
+  total_data_size = 0;
+
+  do
+    {
+      data_to_read = (i_left_front < largeBufferSize)
+        ? i_left_front : largeBufferSize;
+
+      DBG (5, "reader_process: read %d bytes from front side\n", data_to_read);
+      status = read_large_data_block (scanner, scanner->buffer, data_to_read, 
+                                      0x0, &i_data_read);
+
+      switch (status)
+        {
+        case SANE_STATUS_GOOD:
+          break;
+        case SANE_STATUS_EOF:
+          DBG (5, "reader_process: EOM (no more data) length = %d\n",
+               scanner->i_transfer_length);
+          data_to_read -= scanner->i_transfer_length;
+          i_left_front = data_to_read;
+          break;
+        case SANE_STATUS_DEVICE_BUSY:
+          DBG (5, "device busy");
+          data_to_read = 0;
+          break;
+        default:
+          DBG (MSG_ERR, 
+               "reader_process: unable to get image data from scanner!\n");
+          fclose (fp_front);
+          fclose (fp_back);
+          return (0);
+        }
+
+      /* pointer into scsi data */
+      buffptr = scanner->buffer;
+
+      total_data_size += data_to_read;
+
+      for (i=data_to_read; i > 0; i-=3){
+        b = buffptr;
+	buffptr++;
+        g = buffptr;
+	buffptr++;
+        r = buffptr;
+	buffptr++;
+
+        fwrite (r, 1, 1, fp_front);
+        fwrite (g, 1, 1, fp_front);
+        fwrite (b, 1, 1, fp_front);
+      }
+
+      i_left_front -= data_to_read;
+      DBG (5,
+           "reader_process_front: buffer of %d bytes read; %d bytes to go\n",
+           data_to_read, i_left_front);
+
+
+      /*
+       * read back side
+       */
+      data_to_read = (i_left_back < largeBufferSize)
+        ? i_left_back : largeBufferSize;
+
+      DBG (5, "reader_process: read %d bytes from back side\n", data_to_read);
+      status = read_large_data_block (scanner, scanner->buffer, data_to_read, 
+                                      0x80, &i_data_read);
+
+      switch (status)
+        {
+        case SANE_STATUS_GOOD:
+          break;
+        case SANE_STATUS_EOF:
+          DBG (5, "reader_process: EOM (no more data) length = %d\n",
+               scanner->i_transfer_length);
+          data_to_read -= scanner->i_transfer_length;
+          i_left_back = data_to_read;
+          break;
+        case SANE_STATUS_DEVICE_BUSY:
+          DBG (5, "device busy");
+          data_to_read = 0;
+          break;
+        default:
+          DBG (MSG_ERR, 
+               "reader_process: unable to get image data from scanner!\n");
+          fclose (fp_front);
+          fclose (fp_back);
+          return (0);
+        }
+
+      /* pointer into scsi data */
+      buffptr = scanner->buffer;
+
+      total_data_size += data_to_read;
+
+      if (scanner->use_temp_file) {
+
+        for (i=data_to_read; i > 0; i-=3){
+          b = buffptr;
+  	  buffptr++;
+          g = buffptr;
+	  buffptr++;
+          r = buffptr;
+	  buffptr++;
+
+          if((unsigned int) fwrite (r, 1, 1, fp_back) != 1){
+            fclose (fp_back);
+            DBG (MSG_ERR, "reader_process: out of disk space while writing temp file\n");
+            return (0);
+          }
+          if((unsigned int) fwrite (g, 1, 1, fp_back) != 1){
+            fclose (fp_back);
+            DBG (MSG_ERR, "reader_process: out of disk space while writing temp file\n");
+            return (0);
+          }
+          if((unsigned int) fwrite (b, 1, 1, fp_back) != 1){
+            fclose (fp_back);
+            DBG (MSG_ERR, "reader_process: out of disk space while writing temp file\n");
+            return (0);
+          }
+        }
+
+      }
+      else {
+        for (i=data_to_read; i > 0; i-=3){
+          b = buffptr;
+  	  buffptr++;
+          g = buffptr;
+	  buffptr++;
+          r = buffptr;
+	  buffptr++;
+
+          memcpy (duplexPointer, r, 1);
+          duplexPointer++;
+          memcpy (duplexPointer, g, 1);
+          duplexPointer++;
+          memcpy (duplexPointer, b, 1);
+          duplexPointer++;
+        }
+
+      }
+
+      i_left_back -= data_to_read;
+      DBG (5,
+           "reader_process_back: buffer of %d bytes read; %d bytes to go\n",
+           data_to_read, i_left_back);
+    }
+  while (i_left_front > 0 || i_left_back > 0);
+
+  fflush (fp_front);
+  fclose (fp_front);
+
+  if (scanner->use_temp_file)
+    {
+      fflush (fp_back);
+    }
+  else
+    {
+      fwrite (duplexBuffer, 1, duplexBufferSize, fp_back);
+      fflush(fp_back);
+      fclose(fp_back);
+      free (duplexBuffer);
+    }
+
+  return total_data_size;
+}
+
+static unsigned int
+reader_bgr_duplex_sequential (struct fujitsu *scanner,
+                               FILE * fp_front, FILE * fp_back)
+{
+  unsigned int i_total_size;
+
+  i_total_size = 0;
+
+  i_total_size += reader_bgr_simplex (scanner, fp_front, 0);
+  i_total_size += reader_bgr_simplex (scanner, fp_back, 0x80);
+
+  return i_total_size;
+}
+
+static unsigned int
+reader_bgr_simplex (struct fujitsu *scanner, FILE * fp_front, int i_window_id)
+{
+
+  int status;
+  unsigned int i_left_front;
+  unsigned int total_data_size, data_to_read;
+  unsigned int largeBufferSize = 0;
+  unsigned int i_data_read, i;
+  unsigned char *buffptr;
+  unsigned char *b, *g, *r;
+
+  i_left_front = scanner->bytes_per_scan_line * scanner->scan_height_pixels;
+
+  largeBufferSize =
+    scanner->scsi_buf_size -
+    (scanner->scsi_buf_size % scanner->bytes_per_scan_line);
+
+  total_data_size = 0;
+
+  do {
+      data_to_read = (i_left_front < largeBufferSize)
+        ? i_left_front : largeBufferSize;
+
+      DBG (5, "reader_process: read %d bytes\n", data_to_read);
+      status = read_large_data_block (scanner, scanner->buffer, data_to_read, 
+                                      i_window_id, &i_data_read);
+
+      switch (status)
+        {
+        case SANE_STATUS_GOOD:
+          break;
+        case SANE_STATUS_EOF:
+          DBG (5, "reader_process: EOM (no more data) length = %d\n",
+               scanner->i_transfer_length);
+          data_to_read -= scanner->i_transfer_length;
+          i_left_front = data_to_read;
+          break;
+        case SANE_STATUS_DEVICE_BUSY:
+          DBG (5, "device busy");
+          data_to_read = 0;
+          break;
+        default:
+          DBG (MSG_ERR, 
+               "reader_process: unable to get image data from scanner!\n");
+          fclose (fp_front);
+          return (0);
+        }
+
+      /* pointer into scsi data */
+      buffptr = scanner->buffer;
+
+      total_data_size += data_to_read;
+
+      for (i=data_to_read; i > 0; i-=3){
+        b = buffptr;
+	buffptr++;
+        g = buffptr;
+	buffptr++;
+        r = buffptr;
+	buffptr++;
+
+        fwrite (r, 1, 1, fp_front);
+        fwrite (g, 1, 1, fp_front);
+        fwrite (b, 1, 1, fp_front);
+      }
+
+      i_left_front -= data_to_read;
+      DBG (5,
+           "reader_process_front: buffer of %d bytes read; %d bytes to go\n",
+           data_to_read, i_left_front);
+
+
+  } while (i_left_front > 0);
+
+  fflush (fp_front);
+  fclose (fp_front);
+
+  return total_data_size;
+}
+
+static unsigned int
 reader_gray_duplex_alternate (struct fujitsu *scanner,
                               FILE * fp_front, FILE * fp_back)
 {
@@ -6392,7 +6724,7 @@ reader_gray_duplex_alternate (struct fujitsu *scanner,
       total_data_size += data_to_read;
       fwrite (scanner->buffer, 1, data_to_read, fp_front);
       i_left_front -= data_to_read;
-      DBG (5,
+      DBG (15,
            "reader_process_front: buffer of %d bytes read; %d bytes to go\n",
            data_to_read, i_left_front);
 
@@ -6403,7 +6735,7 @@ reader_gray_duplex_alternate (struct fujitsu *scanner,
       data_to_read = (i_left_back < largeBufferSize)
         ? i_left_back : largeBufferSize;
 
-      DBG (5, "reader_process: read %d bytes from back side\n", data_to_read);
+      DBG (15, "reader_process: read %d bytes from back side\n", data_to_read);
       status = read_large_data_block (scanner, scanner->buffer, data_to_read, 
                                       0x80, &i_data_read);
 
@@ -6813,11 +7145,9 @@ setDefaults3091 (struct fujitsu *scanner)
 
   scanner->opt[OPT_DROPOUT_COLOR].cap = SANE_CAP_INACTIVE;
   scanner->dropout_color = MSEL_dropout_DEFAULT;
-  if ( strstr (scanner->productName, "4220") ||
-       strstr (scanner->productName, "4120")) 
-    {
+
+  if ( scanner->model == MODEL_FI4x20) 
       scanner->gamma = 0x80;
-    }
 
   scanner->sleep_time = 15;
   scanner->use_imprinter = SANE_FALSE;

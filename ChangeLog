@@ -1,3 +1,8 @@
+2003-06-03  Oliver Schirrmeister <oschirr@abm.de>
+
+	* backend/fujitsu.c, backend/fujitsu.h: separated the 4x20 
+	  into another model and color support for the 4x20
+
 2003-06-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/Makefile.in: hp5400 doesn't need sanei_config2.

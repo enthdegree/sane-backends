@@ -370,6 +370,8 @@ struct fujitsu
 #define MODEL_3097 7
 /** Fujitsu M3092DCd (300x600dpi, color, duplex, FB and ADF) */
 #define MODEL_3092 8
+/** ScanPartner fi-4120 and ScanParter fi-4220 scsi/usb */
+#define MODEL_FI4x20   9
 
 /* A note regarding the MODEL... constants. There's a place in
  * identifyScanner() where the INQUIRY data is parsed and the model
@@ -544,6 +546,21 @@ static unsigned int reader_gray_duplex_sequential (struct fujitsu *scanner,
                                                    FILE * fd, FILE * fd2);
 static unsigned int reader_gray_duplex_alternate (struct fujitsu *scanner,
                                                   FILE * fd, FILE * fd2);
+static unsigned int reader_bgr_duplex_sequential (struct fujitsu *scanner,
+                                                   FILE * fd, FILE * fd2);
+static unsigned int reader_bgr_duplex_alternate (struct fujitsu *scanner,
+                                                  FILE * fd, FILE * fd2);
+static unsigned int reader_bgr_simplex (struct fujitsu *scanner, FILE * fd, int i_window_id);
+static unsigned int reader_bgr_duplex_sequential (struct fujitsu *scanner,
+                                                   FILE * fd, FILE * fd2);
+static unsigned int reader_bgr_duplex_alternate (struct fujitsu *scanner,
+                                                  FILE * fd, FILE * fd2);
+static unsigned int reader_bgr_simplex (struct fujitsu *scanner, FILE * fd, int i_window_id);
+static unsigned int reader_bgr_duplex_sequential (struct fujitsu *scanner,
+                                                   FILE * fd, FILE * fd2);
+static unsigned int reader_bgr_duplex_alternate (struct fujitsu *scanner,
+                                                  FILE * fd, FILE * fd2);
+static unsigned int reader_bgr_simplex (struct fujitsu *scanner, FILE * fd, int i_window_id);
 
 static unsigned int reader_generic_passthrough (struct fujitsu *scanner,
                                                 FILE * fd, int i_window_id);

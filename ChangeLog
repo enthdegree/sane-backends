@@ -4,6 +4,13 @@
 	  doc/mustek_usb/mustek_usb.CHANGES: Cleanup in sane_control_option,
 	  sane_set_io_mode, sane_get_select_fd and sane_exit. New version:
 	  1.0-13.
+	* backend/mustek_usb.c backend/mustek_usb_high.c
+	  backend/mustek_usb_high.h backend/mustek_usb_low.c
+	  backend/mustek_usb_low.h backend/mustek_usb_mid.c
+	  backend/mustek_usb_mid.h: Fixed coding-style.
+	* backend/pnm.c doc/descriptins/pnm.desc: sane_set_io_mode
+	  checks for !non_blocking and scanning now. Fixed coding-style.
+	  New version: 1.0.8.
 
 2002-04-09  Petter Reinholdtsen <pere@td.org.uit.no>
 

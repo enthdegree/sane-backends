@@ -1,4 +1,4 @@
-.TH sane-snapscan 5 "27 July 2000"
+.TH sane-snapscan 5 "08 Dec 2000"
 .IX sane-snapscan
 .SH NAME
 sane-snapscan - SANE backend for AGFA SnapScan flatbed scanners
@@ -81,6 +81,8 @@ Man page doesn't provide much information yet.
 sane\-scsi(5)
 .br
 http://www.cs.ualberta.ca/~charter/SnapScan/snapscan.html
+.br
+http://sourceforge.net/projects/snapscan/ (new development website)
 
 .SH AUTHOR
 Kevin Charter, Franck Schneider, and Michel Roelofs

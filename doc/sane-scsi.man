@@ -1,4 +1,4 @@
-.TH sane-scsi 5 "26 July 2000"
+.TH sane-scsi 5 "10 Dec 2000"
 .IX sane-scsi
 .SH NAME
 sane-scsi - SCSI adapter tips for scanners
@@ -6,11 +6,13 @@ sane-scsi - SCSI adapter tips for scanners
 This manual page contains various operating-system specific tips and
 tricks on how to get scanners with a SCSI interface working.
 .SH GENERAL INFO
-For scanners with a SCSI interface, it is necessary to edit the
+For scanners with a SCSI interface, it may be necessary to edit the
 appropriate backend configuration file before using SANE for the first
 time.  For most systems, the configuration file should list the name
 of the generic SCSI device that the scanner is connected to (e.g., under
 Linux,
+.B /dev/sg4
+or
 .B /dev/sge
 is such a generic SCSI device).  It is customary to create a symlink
 from
@@ -135,11 +137,11 @@ First, make sure your kernel has SCSI generic support enabled.  In
 ``make xconfig'', this shows up under ``SCSI support->SCSI generic
 support''.
 .PP
-To keep scanning times to a minimum, it is strongly recommended to use
-a large buffer size for the generic SCSI driver.  By default, Linux
-uses a buffer of size 32KB.  This works, but for many cheaper scanners
-this causes scanning to be slower by about a factor of four than when
-using a size of 127KB.  Linux defines the size of this buffer by macro
+To keep scanning times to a minimum, it is strongly recommended to use a large
+buffer size for the generic SCSI driver.  By default, older Linux kernels use
+a buffer of size 32KB.  This works, but for many cheaper scanners this causes
+scanning to be slower by about a factor of four than when using a size of
+127KB.  Linux defines the size of this buffer by macro
 .B SG_BIG_BUFF
 in header file
 .IR /usr/include/scsi/sg.h .
@@ -187,12 +189,15 @@ under Linux:
 .RS
 .TP
 Adaptec AHA-1505/AHA-1542/AHA-2940
-Reported to work fine with Linux v2.0.
+Reported to work fine with Linux v2.0. If you encounter kernel freezes
+or other unexpected behaviour get the latest Linux kernel (2.2.17 seems to
+work) or reduce SCSI buffer size to 32 kB.
 .TP
 ASUS SC200
 Reported to work fine with Linux v2.0.
 .TP
-BusLogic BT958 To configure the BusLogic card, you may need to follow
+BusLogic BT958
+To configure the BusLogic card, you may need to follow
 these instructions (contributed by Jeremy <jeremy@xxedgexx.com>):
 During boot, when your BusLogic adapter is being initialized, press
 Ctrl-B to enter your BusLogic adapter setup.  Choose the address which
@@ -203,27 +208,33 @@ configuration''.  Change ``Negotiation'' to ``async'' and change
 ``Disconnect'' to ``off''. Press Esc, save, and Esc again until you
 are asked to reboot.
 .TP
-Mustek 53c400/DTCT436 or DTC3181E ISA SCSI card
-If your card is jumper-less (plug and pray) and the Linux kernel fails
-to recognize your card, then you may need the patch
-.I mustek-scsi-0.2.patch.gz
-which is available at
-.IR ftp://ftp.mostang.com/pub/sane/ .
-Once the kernel detects the card, it should work all right.  However,
-while it should work, do not expect good performance out of this
-card---it has no interrupt line and therefore while a scan is in
-progress, the system becomes almost unusable.
+NCR/Symbios 53c400/53c400a or Domex DTC3181E/L/LE (DTCT436/436P) ISA SCSI card
+This card is supplied by Mustek (and other vendors). If you use Linux 2.0.x
+you may 
+need a patch from Ingmar Baumgart's homepage:
+.br
+.IR http://rzstud1.rz.uni-karlsruhe.de/~uh49/mustek-scsi.html
+.br
+The SCSI cards are supported by the module g_NCR5380.  It's necessary to tell
+the kernel the io port and type of card.  Example for a 53c400a: ``modprobe
+g_NCR5380 ncr_addr=0x280 ncr_53c400a=1''.  Once the kernel detects the card,
+it should work all right.  However, while it should work, do not expect good
+performance out of this card---it has no interrupt line and therefore while a
+scan is in progress, the system becomes almost unusable.  You may change the
+values of the USLEEP macros in drivers/scsi/g_NCR5380.c.  Some documentation is
+in this file and NCR5380.c.
 .TP
-ncr810
+NCR/Symbios 810
 For this card, make sure the SCSI timeout is reasonably big; the
-default timeout for the Linux kernels before 2.0.33 is 10 seconds,
-which is way too low when scanning large area.  If you get messages of
-the form ``restart (ncr dead ?)'' in your /var/log/messages file or on
-the system console, it's an indication that the timeout is too short.
-In this case, find the line ``if (np->latetime>10)'' in file
-ncr53c8xx.c (normally in directory /usr/src/linux/drivers/scsi) and
-change the constant 10 to, say, 60 (one minute).  Then rebuild the
-kernel/module and try again.
+default timeout for the Linux kernels before 2.0.33 is 10 seconds, which is
+way too low when scanning large area.  If you get messages of the form
+``restart (ncr dead ?)'' in your /var/log/messages file or on the system
+console, it's an indication that the timeout is too short.  In this case, find
+the line ``if (np->latetime>10)'' in file ncr53c8xx.c (normally in directory
+/usr/src/linux/drivers/scsi) and change the constant 10 to, say, 60 (one
+minute).  Then rebuild the kernel/module and try again. For some scanners it
+may be necssary to disable disconnect/reconnect. To achieve this use the
+option ncr53c8xx="disc:n".
 .TP
 Tekram DC390
 Version 1.11 of the Tekram driver seems to work fine mostly, except
@@ -251,7 +262,6 @@ environment variable controls the debug level for the generic SCSI I/O
 subsystem.  E.g., a value of 128 requests all debug output to be
 printed.  Smaller levels reduce verbosity.
 .SH "SEE ALSO"
-sane\-dmc(5), sane\-epson(5), sane\-hp(5), sane\-microtek(5),
- sane\-microtek2(5), sane\-mustek(5), sane\-umax(5)
+sane-"backendname"(5)
 .SH AUTHOR
 David Mosberger

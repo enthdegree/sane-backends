@@ -62,7 +62,7 @@
 #define LINES_TO_FEED	480	/*Default feed length */
 
 static int scanner_d = -1;	/*This is handler to the only-supported. Will be fixed. */
-static char scanner_path[PATH_MAX] = "parport0";	/*String for device-file */
+static char scanner_path[PATH_MAX] = "";	/*String for device-file */
 static SANE_Byte bLastCalibration;	/*Here we store calibration result */
 static SANE_Byte bCalibration;	/*Here we store new calibration value */
 static SANE_Byte bHardwareState;	/*Here we store copy of hardware flags register */
@@ -180,7 +180,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
   if (!config_file)		/*Failed to open config file */
     {
-      DBG (1, "sane_init: no config file found.Use default device.");
+      DBG (1, "sane_init: no config file found.");
       return SANE_STATUS_GOOD;
     }
 
@@ -1059,16 +1059,16 @@ CalibrateScanElements ()
   SANE_Byte arLowSaveBorders[] = { 0x95, 0x94, 0x96 };
   /*Speeds, used for calibration */
   SANE_Byte arSpeeds[] = { 0x3B, 0x37, 0x3F };
-  int j, Average, /* Temp, */ Index, /* Line, */ timeout;
+  int j, Average, Temp, Index, /* Line, */ timeout,Calibration;
   SANE_Byte bTest /*, Min, Max, Result */ ;
   /*For current color component: (values from arrays). Next two lines - starting and terminating. */
 
-  /*SANE_Byte CurrentUpTransferBorder1, CurrentUpTransferBorder2;
-     SANE_Byte CurrentLowTransferBorder1, CurrentLowTransferBorder2;
-     SANE_Byte CurrentUpSaveBorder;
-     SANE_Byte CurrentLowSaveBorder;
-     SANE_Byte CurrentSpeed1, CurrentSpeed2; */
-  /* SANE_Byte CorrectingValue; */
+  SANE_Byte CurrentUpTransferBorder;
+  SANE_Byte CurrentLowTransferBorder;
+  SANE_Byte CurrentUpSaveBorder;
+  SANE_Byte CurrentLowSaveBorder;
+  SANE_Byte CurrentSpeed1, CurrentSpeed2; 
+  SANE_Byte CorrectionValue;
   SANE_Byte FilteredBuffer[2570];
 
   CallFunctionWithParameter (0xA1, 2);
@@ -1156,28 +1156,107 @@ CalibrateScanElements ()
 	      (((bTest & 0x80) == 0) && ((bTest & 0x3F) >= 5))));
 
       /*Let's read it... */
-      CallFunctionWithParameter (0xCD, 0);
-      CallFunctionWithRetVal (0xC8);
-      WriteScannerRegister (0x70, 0xC8);
-      WriteAddress (0x20);
-      ReadDataBlock (FilteredBuffer, 2570);
+      if(timeout < 1000)
+      {
+        CallFunctionWithParameter (0xCD, 0);
+        CallFunctionWithRetVal (0xC8);
+        WriteScannerRegister (0x70, 0xC8);
+        WriteAddress (0x20);
+
+        ReadDataBlock (FilteredBuffer, 2570);
+      }
 
       CallFunctionWithParameter (0x91, 0);	/*Stop engine. */
 
-      /*For now this code is not required, but it soon be fixed. */
+     /*Note: if first read failed, junk would be calculated, but if previous
+	read was succeded, but last one failed, previous data'ld be used.
+     */
+     for(Temp = 0, j = 0; j < 2570; j++)
+     Temp += FilteredBuffer[j];
+     Temp /= 2570;
 
-      /*mdelay(10);
-
-         for(Temp = 0, j = 0; j < 2570; j++)
-         Temp += Buffer5Lines[0][j];
-         Temp /= 2570;
-
-         if((Average == 0)||(Average > Temp))
-         Average = Temp; */
+     if((Average == 0)||(Average > Temp))
+     Average = Temp; 
     }
 
-/*    Average -= 16;
-    printk("hpsj5s: Average is %d\n", Average);*/
+    for(Index = 0; Index < 3; Index++) /*Three color components*/
+    {
+	CurrentUpTransferBorder = arUpTransferBorders[Index];
+	CallFunctionWithParameter (0xC6, 0xFF);
+	CallFunctionWithParameter (0x92, CurrentUpTransferBorder|0x80);
+	for(j=2999; j>0; j--)
+	    CallFunctionWithParameter (0xC6, 0xFF);
+
+	CurrentLowTransferBorder = arLowTransferBorders[Index];
+	CallFunctionWithParameter (0xC6, 0x0);
+	CallFunctionWithParameter (0x92, CurrentLowTransferBorder|0x80);
+	for(j=2999; j>0; j--)
+	    CallFunctionWithParameter (0xC6, 0);
+	
+	CurrentUpSaveBorder = arUpSaveBorders[Index];
+	CallFunctionWithParameter (CurrentUpSaveBorder, 0xFF);
+
+	CurrentLowSaveBorder = arLowSaveBorders[Index];
+	CallFunctionWithParameter (CurrentLowSaveBorder, 0x0);
+	CallFunctionWithParameter (0x90,0);
+	Calibration = 0x80;
+	CallFunctionWithParameter (CurrentUpSaveBorder, 0x80);
+	
+	CurrentSpeed1 = CurrentSpeed2 = arSpeeds[Index];
+	
+	for(CorrectionValue = 0x40; CorrectionValue != 0;CorrectionValue >>= 2)
+	{
+	    CallFunctionWithParameter (0x91, CurrentSpeed2);
+	    usleep(10);
+
+    	    /*waiting for scaned line... */
+	    for(j = 0; j < 5; j++)
+	    {
+    		timeout = 0;
+    		do
+		{
+		    bTest = CallFunctionWithRetVal (0xB5);
+		    timeout++;
+		    usleep (1);
+		}
+    		while ((timeout < 1000) &&
+	    	((((bTest & 0x80) == 1) && ((bTest & 0x3F) <= 2)) ||
+	        (((bTest & 0x80) == 0) && ((bTest & 0x3F) >= 5))));
+
+    		/*Let's read it... */
+    		if(timeout < 1000)
+    		{
+    		    CallFunctionWithParameter (0xCD, 0);
+        	    CallFunctionWithRetVal (0xC8);
+		    WriteScannerRegister (0x70, 0xC8);
+    	    	    WriteAddress (0x20);
+
+    		    ReadDataBlock (FilteredBuffer, 2570);
+    		}
+	    }/*5 times we read. I don't understand what for, but so does HP's driver.
+		Perhaps, we can optimize it in future.*/
+	    WriteScannerRegister (0x91, 0);
+	    usleep(10);
+	    
+	    for(Temp = 0,j = 0; j < 16;j++)
+		Temp += FilteredBuffer[509+j]; /*At this offset calcalates HP's driver.*/
+	    Temp /= 16;
+	    
+	    if(Average > Temp)
+	    {
+		Calibration += CorrectionValue;
+		Calibration = 0xFF < Calibration ? 0xFF : Calibration; /*min*/
+	    }
+	    else
+		Calibration -= CorrectionValue;
+	    
+	    WriteScannerRegister (CurrentUpSaveBorder, Calibration);
+	}/*By CorrectionValue we tune UpSaveBorder*/
+
+	WriteScannerRegister (0x90, 8);
+	WriteScannerRegister (0x91, CurrentSpeed1);
+	usleep(10);
+    }/*By color components*/
 
   return;
 }
@@ -1442,6 +1521,10 @@ OpenScanner (const char *scanner_path)
 {
   int handle;
   int caps;
+
+  /*Scaner name was specified in config file?*/
+  if (strlen(scanner_path) == 0)
+    return -1;
 
   for (handle = 0; handle < pl.portc; handle++)
     {

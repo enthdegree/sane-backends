@@ -1,3 +1,9 @@
+2001-04-14  Gerhard Jaeger <g.jaeger@earthling.net>
+	* backend/plustek.c backend/plustek.desc backend/plustek.h
+      backend/plustek-share.h
+      minor fixes and additional scanner models
+    * doc/sane-plustek.man added info about slowIO switch
+
 2001-04-13  Oliver Rauch <Oliver.Rauch@Rauch-domain.de>
 	* changed my email address in AUTHORS
 

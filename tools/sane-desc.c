@@ -1,0 +1,1857 @@
+/* 
+   sane-desc.c -- generate list of supported SANE devices
+
+   Copyright (C) 2002 Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+   This file is part of the SANE package.
+
+   This program is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public License as
+   published by the Free Software Foundation; either version 2 of the
+   License, or (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 59 Temple Place - Suite 330, Boston,
+   MA 02111-1307, USA.
+*/
+
+#define SANE_DESC_VERSION "0.2"
+
+#define MAN_PAGE_LINK "http://www.mostang.com/sane/man/%s.5.html"
+#include <../include/sane/config.h>
+
+#include <getopt.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <stdarg.h>
+#include <errno.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <dirent.h>
+#include <limits.h>
+#include <libgen.h>
+#include <ctype.h>
+#include <time.h>
+
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei_config.h"
+
+#ifndef PATH_MAX
+# define PATH_MAX 1024
+#endif
+
+#define DBG_ERR current_debug_level = 0; debug_call
+#define DBG_WARN current_debug_level = 1; debug_call
+#define DBG_INFO current_debug_level = 2; debug_call
+#define DBG_DBG current_debug_level = 3; debug_call
+
+
+typedef enum output_mode
+{
+  output_mode_ascii = 0,
+  output_mode_html_backends,
+  output_mode_html_mfgs
+}
+output_mode;
+
+typedef enum parameter_type
+{
+  param_none = 0,
+  param_string
+}
+parameter_type;
+
+typedef enum status_entry
+{
+  status_unknown,
+  status_alpha,
+  status_beta,
+  status_stable
+}
+status_entry;
+
+typedef enum device_type
+{
+  type_unknown,
+  type_scanner,
+  type_stillcam,
+  type_vidcam,
+  type_meta,
+  type_api
+}
+device_type;
+
+typedef enum level
+{
+  level_backend,
+  level_mfg,
+  level_model,
+  level_desc
+}
+level;
+
+typedef struct url_entry
+{
+  struct url_entry *next;
+  char *name;
+}
+url_entry;
+
+typedef struct model_entry
+{
+  struct model_entry *next;
+  char *name;
+  char *interface;
+  struct url_entry *url;
+  char *comment;
+}
+model_entry;
+
+typedef struct desc_entry
+{
+  struct desc_entry *next;
+  char *desc;
+  struct url_entry *url;
+  char *comment;
+}
+desc_entry;
+
+typedef struct mfg_entry
+{
+  struct mfg_entry *next;
+  char *name;
+  struct url_entry *url;
+  char *comment;
+  struct model_entry *model;
+}
+mfg_entry;
+
+typedef struct type_entry
+{
+  struct type_entry *next;
+  enum device_type type;
+  struct desc_entry *desc;
+  struct mfg_entry *mfg;
+}
+type_entry;
+
+typedef struct backend_entry
+{
+  struct backend_entry *next;
+  char *name;
+  char *version;
+  enum status_entry status;
+  char *manpage;
+  struct url_entry *url;
+  char *comment;
+  struct type_entry *type;
+  SANE_Bool new;
+  SANE_Bool printed;
+}
+backend_entry;
+
+typedef struct backend_record_entry
+{
+  struct backend_record_entry *next;
+  struct backend_entry *be;
+}
+backend_record_entry;
+  
+typedef struct mfg_record_entry
+{
+  struct mfg_record_entry *next;
+  char *name;
+  struct backend_record_entry * be_record;
+}
+mfg_record_entry;
+
+
+static char *program_name;
+static int debug = 0;
+static int current_debug_level = 0;
+static char *search_dir = 0;
+static backend_entry *first_backend = 0;
+static enum output_mode mode = output_mode_ascii;
+static char *title = 0;
+static char *intro = 0;
+
+static void
+debug_call (const char *fmt, ...)
+{
+  va_list ap;
+  char *level_txt;
+
+  va_start (ap, fmt);
+  if (debug >= current_debug_level)
+    {
+      /* print to stderr */
+      switch (current_debug_level)
+	{
+	case 0:
+	  level_txt = "ERROR:";
+	  break;
+	case 1:
+	  level_txt = "Warning:";
+	  break;
+	case 2:
+	  level_txt = "Info:";
+	  break;
+	default:
+	  level_txt = "";
+	  break;
+	}
+      fprintf (stderr, "[%s] %8s ", program_name, level_txt);
+      vfprintf (stderr, fmt, ap);
+    }
+  va_end (ap);
+}
+
+static void
+print_usage (char *program_name)
+{
+  printf ("Usage: %s [-s dir] [-m mode] [-d level] [-h] [-V]\n", program_name);
+  printf ("  -s|--search-dir dir    Specify the directory that contains "
+	  ".desc files\n");
+  printf ("  -m|--mode mode         Output mode (ascii, hmtl-backends, "
+	  "html-mfgs)\n");
+  printf ("  -t|--title \"title\"     The title used for HTML pages\n");
+  printf ("  -i|--intro \"intro\"     A short description of the "
+	  "contents of the page\n");
+  printf ("  -d|--debug-level level Specify debug level (0-3)\n");
+  printf ("  -h|--help              Print help message\n");
+  printf ("  -V|--version           Print version information\n");
+  printf ("Report bugs to <henning@meier-geinitz.de>\n");
+}
+
+static void
+print_version (void)
+{
+  printf ("sane-desc %s (%s)\n", SANE_DESC_VERSION, PACKAGE_VERSION);
+  printf ("Copyright (C) 2002 Henning Meier-Geinitz "
+	  "<henning@meier-geinitz.de>\n"
+	  "sane-desc comes with NO WARRANTY, to the extent permitted by "
+	  "law.\n"
+	  "You may redistribute copies of sane-desc under the terms of the "
+	  "GNU General\n"
+	  "Public License.\n"
+	  "For more information about these matters, see the files named "
+	  "COPYING.\n");
+}
+
+static SANE_Bool
+get_options (int argc, char **argv)
+{
+  int longindex;
+  int opt;
+  static struct option desc_options[] = {
+    {"search-dir", required_argument, NULL, 's'},
+    {"mode", required_argument, NULL, 'm'},
+    {"title", required_argument, NULL, 't'},
+    {"intro", required_argument, NULL, 'i'},
+    {"debug-level", required_argument, NULL, 'd'},
+    {"help", 0, NULL, 'h'},
+    {"version", 0, NULL, 'V'},
+    {0, 0, 0, 0}
+  };
+
+  while ((opt = getopt_long (argc, argv, "s:m:t:i:d:hV", desc_options,
+			     &longindex)) != -1)
+    {
+      switch (opt)
+	{
+	case 'h':
+	  print_usage (argv[0]);
+	  exit (0);
+	case 'V':
+	  print_version ();
+	  exit (0);
+	case 's':
+	  search_dir = strdup (optarg);
+	  DBG_INFO ("setting search directory to `%s'\n", search_dir);
+	  break;
+	case 'm':
+	  if (strcmp (optarg, "ascii") == 0)
+	    {
+	      DBG_INFO ("Output mode: ascii\n");
+	      mode = output_mode_ascii;
+	    }
+	  else if (strcmp (optarg, "html-backends") == 0)
+	    {
+	      DBG_INFO ("Output mode: html-backends\n");
+	      mode = output_mode_html_backends;
+	    }
+	  else if (strcmp (optarg, "html-mfgs") == 0)
+	    {
+	      DBG_INFO ("Output mode: html-mfgs\n");
+	      mode = output_mode_html_mfgs;
+	    }
+	  else
+	    {
+	      DBG_ERR ("Unknown output mode: %s\n", optarg);
+	      exit (1);
+	    }
+	  break;
+	case 't':
+	  title = optarg;
+	  DBG_INFO ("setting title to `%s'\n", optarg);
+	  break;
+	case 'i':
+	  intro = optarg;
+	  DBG_INFO ("setting intro to `%s'\n", optarg);
+	  break;
+	case 'd':
+	  debug = atoi (optarg);
+	  DBG_INFO ("setting debug level to %d\n", debug);
+	  break;
+	case '?':
+	  DBG_ERR ("unknown option (use -h for help)\n");
+	  return SANE_FALSE;
+	case ':':
+	  DBG_ERR ("missing parameter (use -h for help)\n");
+	  return SANE_FALSE;
+	default:
+	  DBG_ERR ("missing option (use -h for help)\n");
+	  return SANE_FALSE;
+	}
+    }
+  if (!search_dir)
+    search_dir = ".";
+  return SANE_TRUE;
+}
+
+static void
+create_url_entry (url_entry ** start_entry, url_entry ** entry)
+{
+  *entry = *start_entry;
+  if (*entry)
+    {
+      while ((*entry)->next)
+	*entry = (*entry)->next;
+      (*entry)->next = calloc (1, sizeof (url_entry));
+      (*entry) = (*entry)->next;
+    }
+  else
+    {
+      *start_entry = calloc (1, sizeof (url_entry));
+      *entry = *start_entry;
+    }
+  if (!*entry)
+    {
+      DBG_ERR ("calloc failed (%s)\n", strerror (errno));
+      exit (1);
+    }
+  return;
+}
+
+static const char *
+get_string (const char *str, char **string_const)
+{
+  const char *start;
+  size_t len;
+
+  str = sanei_config_skip_whitespace (str);
+
+  if (*str == '"')
+    {
+      start = ++str;
+      while (*str && (*str != '"' || *(str - 1) == '\\'))
+	++str;
+      len = str - start;
+      if (*str == '"')
+	++str;
+      else
+	start = 0;		/* final double quote is missing */
+    }
+  else
+    {
+      start = str;
+      while (*str && !isspace (*str))
+	++str;
+      len = str - start;
+    }
+  if (start)
+    *string_const = strndup (start, len);
+  else
+    string_const = 0;
+  return str;
+}
+
+
+static SANE_Status
+read_keyword (SANE_String line, SANE_String keyword_token,
+	      parameter_type p_type, void *argument)
+{
+  SANE_String_Const cp;
+  SANE_Char *word;
+
+  word = 0;
+
+  cp = get_string (line, &word);
+
+  if (strcmp (word, keyword_token) != 0)
+    return SANE_STATUS_INVAL;
+
+  free (word);
+  word = 0;
+
+  switch (p_type)
+    {
+    case param_none:
+      return SANE_STATUS_GOOD;
+    case param_string:
+      {
+	char * pos;
+	cp = get_string (cp, &word);
+	/* remove escaped quotations */
+	while ((pos = strstr (word, "\\\"")) != 0)
+	    *pos = ' ';
+	       
+	DBG_DBG ("read_keyword: set entry `%s' to `%s'\n", keyword_token,
+		 word);
+	*(SANE_String *) argument = strdup (word);
+	break;
+      }
+    default:
+      DBG_ERR ("read_keyword: unknown param_type %d\n", p_type);
+      return SANE_STATUS_INVAL;
+    }				/* switch */
+
+  if (word)
+    free (word);
+  word = 0;
+  return SANE_STATUS_GOOD;
+}
+
+static SANE_Bool
+read_files (void)
+{
+  struct stat stat_buf;
+  DIR *dir;
+  struct dirent *dir_entry;
+  FILE *fp;
+  char file_name[PATH_MAX];
+  SANE_Char line[PATH_MAX], *word;
+  SANE_String_Const cp;
+  backend_entry *current_backend = 0;
+  type_entry *current_type = 0;
+  mfg_entry *current_mfg = 0;
+  model_entry *current_model = 0;
+  enum level current_level = level_backend;
+
+  DBG_INFO ("looking for .desc files in `%s'\n", search_dir);
+  if (stat (search_dir, &stat_buf) < 0)
+    {
+      DBG_ERR ("cannot stat `%s' (%s)\n", search_dir, strerror (errno));
+      return SANE_FALSE;
+    }
+  if (!S_ISDIR (stat_buf.st_mode))
+    {
+      DBG_ERR ("`%s' is not a directory\n", search_dir);
+      return SANE_FALSE;
+    }
+  if ((dir = opendir (search_dir)) == 0)
+    {
+      DBG_ERR ("cannot read directory `%s' (%s)\n", search_dir,
+	       strerror (errno));
+      return SANE_FALSE;
+    }
+
+  while ((dir_entry = readdir (dir)) != NULL)
+    {
+      if (strlen (dir_entry->d_name) > 5 &&
+	  strcmp (dir_entry->d_name + strlen (dir_entry->d_name) - 5,
+		  ".desc") == 0)
+	{
+	  if (strlen (search_dir)
+	      + strlen (dir_entry->d_name) + 1 + 1 > PATH_MAX)
+	    {
+	      DBG_ERR ("filename too long\n");
+	      return SANE_FALSE;
+	    }
+	  sprintf (file_name, "%s/%s", search_dir, dir_entry->d_name);
+	  DBG_INFO ("-> reading desc file: %s\n", file_name);
+	  fp = fopen (file_name, "r");
+	  if (!fp)
+	    {
+	      DBG_ERR ("can't open desc file: %s (%s)\n", file_name,
+		       strerror (errno));
+	      return SANE_FALSE;
+	    }
+	  current_backend = 0;
+	  current_type = 0;
+	  current_mfg = 0;
+	  current_model = 0;
+	  while (sanei_config_read (line, sizeof (line), fp))
+	    {
+	      char *string_entry = 0;
+	      word = 0;
+
+	      cp = get_string (line, &word);
+	      if (!word || cp == line)
+		{
+		  DBG_DBG ("ignoring empty line\n");
+		  if (word)
+		    free (word);
+		  word = 0;
+		  continue;
+		}
+	      if (word[0] == ';')
+		{
+		  DBG_DBG ("ignoring comment line\n");
+		  free (word);
+		  word = 0;
+		  continue;
+		}
+	      DBG_DBG ("line: %s\n", line);
+
+	      if (read_keyword (line, ":backend", param_string, &string_entry)
+		  == SANE_STATUS_GOOD)
+		{
+		  backend_entry *be = 0;
+		  DBG_INFO ("creating backend entry `%s'\n", string_entry);
+
+		  be = calloc (1, sizeof (backend_entry));
+		  if (!be)
+		    {
+		      DBG_ERR ("calloc failed (%s)\n", strerror (errno));
+		      return SANE_FALSE;
+		    }
+		  be->next = first_backend;
+		  first_backend = be;
+		  be->name = string_entry;
+		  be->printed = SANE_FALSE;
+		  be->status = status_unknown;
+		  be->new = SANE_FALSE;
+		  current_backend = be;
+		  current_type = 0;
+		  current_mfg = 0;
+		  current_model = 0;
+		  current_level = level_backend;
+		  continue;
+		}
+	      if (!current_backend)
+		{
+		  DBG_ERR ("use `:backend' keyword first\n");
+		  return SANE_FALSE;
+		}
+	      if (read_keyword (line, ":version", param_string, &string_entry)
+		  == SANE_STATUS_GOOD)
+		{
+		  if (current_backend->version)
+		    DBG_WARN ("overwriting version of backend `%s' to `%s`"
+			      "(was: `%s')\n",
+			      current_backend->name, string_entry,
+			      current_backend->version);
+
+		  DBG_INFO ("setting version of backend `%s' to `%s`\n",
+			    current_backend->name, string_entry);
+		  current_backend->version = string_entry;
+		  continue;
+		}
+	      if (read_keyword (line, ":status", param_string, &string_entry)
+		  == SANE_STATUS_GOOD)
+		{
+		  if (current_backend->status != status_unknown)
+		    DBG_WARN ("overwriting status of backend `%s'\n",
+			      current_backend->name);
+		  if (strcmp (string_entry, ":new") == 0)
+		    {
+		      DBG_WARN ("ignored `%s' status :new, use keyword "
+				"`:new :yes' instead\n", current_backend->name);
+		      current_backend->status = status_unknown;
+		    }
+		  else if (strcmp (string_entry, ":alpha") == 0)
+		    {
+		      DBG_INFO ("setting status of backend `%s' to `alpha'\n",
+				current_backend->name);
+		      current_backend->status = status_alpha;
+		    }
+		  else if (strcmp (string_entry, ":beta") == 0)
+		    {
+		      DBG_INFO ("setting status of backend `%s' to `beta'\n",
+				current_backend->name);
+		      current_backend->status = status_beta;
+		    }
+		  else if (strcmp (string_entry, ":stable") == 0)
+		    {
+		      DBG_INFO
+			("setting status of backend `%s' to `stable'\n",
+			 current_backend->name);
+		      current_backend->status = status_stable;
+		    }
+		  else
+		    {
+		      DBG_ERR ("unknown status of backend `%s': `%s'\n",
+			       current_backend->name, string_entry);
+		      current_backend->status = status_unknown;
+		      return SANE_FALSE;
+		    }
+		  continue;
+		}
+	      if (read_keyword (line, ":new", param_string, &string_entry)
+		  == SANE_STATUS_GOOD)
+		{
+		  if (strcmp (string_entry, ":yes") == 0)
+		    {
+		      DBG_INFO ("backend %s is new in this SANE release\n",
+				current_backend->name);
+		      current_backend->new = SANE_TRUE;
+		    }
+		  else if (strcmp (string_entry, ":no") == 0)
+		    {
+		      DBG_INFO ("backend %s is NOT new in this SANE release\n",
+				current_backend->name);
+		      current_backend->new = SANE_FALSE;
+		    }
+		  else
+		    {
+		      DBG_ERR ("unknown :new parameter of backend `%s': "
+			       "`%s'\n", current_backend->name, string_entry);
+		      current_backend->new = SANE_FALSE;
+		      return SANE_FALSE;
+		    }
+		  continue;
+		}
+	      if (read_keyword (line, ":manpage", param_string, &string_entry)
+		  == SANE_STATUS_GOOD)
+		{
+		  if (current_backend->manpage)
+		    DBG_WARN ("overwriting manpage of backend `%s' to `%s`"
+			      "(was: `%s')\n",
+			      current_backend->name, string_entry,
+			      current_backend->manpage);
+
+		  DBG_INFO ("setting manpage of backend `%s' to `%s`\n",
+			    current_backend->name, string_entry);
+		  current_backend->manpage = string_entry;
+		  continue;
+		}
+	      if (read_keyword
+		  (line, ":devicetype", param_string,
+		   &string_entry) == SANE_STATUS_GOOD)
+		{
+		  type_entry *type = 0;
+
+		  type = current_backend->type;
+
+		  DBG_INFO ("adding `%s' to list of device types of backend "
+			    "`%s'\n", string_entry, current_backend->name);
+
+		  if (type)
+		    {
+		      while (type->next)
+			type = type->next;
+		      type->next = calloc (1, sizeof (type_entry));
+		      type = type->next;
+		    }
+		  else
+		    {
+		      current_backend->type = calloc (1, sizeof (type_entry));
+		      type = current_backend->type;
+		    }
+		  
+		  type->type = type_unknown;
+		  if (strcmp (string_entry, ":scanner") == 0)
+		    {
+		      DBG_INFO ("setting device type of backend `%s' to "
+				"scanner\n", current_backend->name);
+		      type->type = type_scanner;
+		    }
+		  else if (strcmp (string_entry, ":stillcam") == 0)
+		    {
+		      DBG_INFO ("setting device type of backend `%s' to "
+				"still camera\n", current_backend->name);
+		      type->type = type_stillcam;
+		    }
+		  else if (strcmp (string_entry, ":vidcam") == 0)
+		    {
+		      DBG_INFO ("setting device type of backend `%s' to "
+				"video camera\n", current_backend->name);
+		      type->type = type_vidcam;
+		    }
+		  else if (strcmp (string_entry, ":api") == 0)
+		    {
+		      DBG_INFO ("setting device type of backend `%s' to "
+				"API\n", current_backend->name);
+		      type->type = type_api;
+		    }
+		  else if (strcmp (string_entry, ":meta") == 0)
+		    {
+		      DBG_INFO ("setting device type of backend `%s' to "
+				"meta\n", current_backend->name);
+		      type->type = type_meta;
+		    }
+		  else
+		    {
+		      DBG_ERR ("unknown device type of backend `%s': `%s'\n",
+			       current_backend->name, string_entry);
+		      type->type = type_unknown;
+		      return SANE_FALSE;
+		    }
+		  current_type = type;
+		  current_mfg = 0;
+		  current_model = 0;
+		  continue;
+		}
+	      if (read_keyword (line, ":desc", param_string, &string_entry)
+		  == SANE_STATUS_GOOD)
+		{
+		  if (!current_type)
+		    {
+		      DBG_ERR ("use `:devicetype' keyword first\n");
+		      return SANE_FALSE;
+		    }
+		  if (current_type->type < type_meta)
+		    {
+		      DBG_ERR ("use `:desc' for `:api' and `:meta' only\n");
+		      return SANE_FALSE;
+		    }
+
+		  if (current_type->desc)
+		    DBG_WARN ("overwriting description of  device type of "
+			      "backend `%s' to `%s` (was: `%s')\n",
+			      current_backend->name, string_entry,
+			      current_type->desc);
+
+		  DBG_INFO ("setting description of backend `%s' to `%s`\n",
+			    current_backend->name, string_entry);
+		  current_type->desc = calloc (1, sizeof (desc_entry));
+		  if (!current_type->desc)
+		    {
+		      DBG_ERR ("calloc failed (%s)\n", strerror (errno));
+		      return SANE_FALSE;
+		    }
+		  current_type->desc->desc = string_entry;
+		  current_level = level_desc;
+		  current_mfg = 0;
+		  current_model = 0;
+		  continue;
+		}
+	      if (read_keyword (line, ":mfg", param_string, &string_entry)
+		  == SANE_STATUS_GOOD)
+		{
+		  mfg_entry *mfg = 0;
+
+		  if (!current_type)
+		    {
+		      DBG_ERR ("use `:devicetype' keyword first\n");
+		      return SANE_FALSE;
+		    }
+		  if (current_type->type >= type_meta)
+		    {
+		      DBG_ERR ("use `:mfg' for hardware devices only\n");
+		      return SANE_FALSE;
+		    }
+
+		  mfg = current_type->mfg;
+		  if (mfg)
+		    {
+		      while (mfg->next)
+			mfg = mfg->next;
+		      mfg->next = calloc (1, sizeof (mfg_entry));
+		      mfg = mfg->next;
+		    }
+		  else
+		    {
+		      current_type->mfg = calloc (1, sizeof (mfg_entry));
+		      mfg = current_type->mfg;
+		    }
+
+		  if (!mfg)
+		    {
+		      DBG_ERR ("calloc failed (%s)\n", strerror (errno));
+		      return SANE_FALSE;
+		    }
+		  mfg->name = string_entry;
+		  DBG_INFO ("adding mfg entry %s to backend `%s'\n",
+			    string_entry, current_backend->name);
+		  current_mfg = mfg;
+		  current_model = 0;
+		  current_level = level_mfg;
+		  continue;
+		}
+	      if (read_keyword (line, ":model", param_string, &string_entry)
+		  == SANE_STATUS_GOOD)
+		{
+		  model_entry *model = 0;
+
+		  if (!current_type)
+		    {
+		      DBG_ERR ("use `:devicetype' keyword first\n");
+		      return SANE_FALSE;
+		    }
+		  if (current_level != level_mfg
+		      && current_level != level_model)
+		    {
+		      DBG_ERR ("use `:mfg' keyword first\n");
+		      return SANE_FALSE;
+		    }
+		  model = current_mfg->model;
+		  if (model)
+		    {
+		      while (model->next)
+			model = model->next;
+		      model->next = calloc (1, sizeof (model_entry));
+		      model = model->next;
+		    }
+		  else
+		    {
+		      current_mfg->model = calloc (1, sizeof (model_entry));
+		      model = current_mfg->model;
+		    }
+
+		  if (!model)
+		    {
+		      DBG_ERR ("calloc failed (%s)\n", strerror (errno));
+		      return SANE_FALSE;
+		    }
+		  model->name = string_entry;
+		  DBG_INFO ("adding model entry %s to manufacturer `%s'\n",
+			    string_entry, current_mfg->name);
+		  current_model = model;
+		  current_level = level_model;
+		  continue;
+		}
+	      if (read_keyword
+		  (line, ":interface", param_string,
+		   &string_entry) == SANE_STATUS_GOOD)
+		{
+		  if (!current_model)
+		    {
+		      DBG_WARN ("ignored `%s' :interface, only allowed for "
+				"hardware devices\n", current_backend->name);
+		      continue;
+		    }
+
+		  if (current_model->interface)
+		    DBG_WARN ("overwriting interface of model "
+			      "`%s' to `%s` (was: `%s')\n",
+			      current_model->name, string_entry,
+			      current_type->desc);
+
+		  DBG_INFO ("setting interface of model `%s' to `%s`\n",
+			    current_model->name, string_entry);
+		  current_model->interface = string_entry;
+		  continue;
+		}
+	      if (read_keyword (line, ":url", param_string, &string_entry)
+		  == SANE_STATUS_GOOD)
+		{
+		  url_entry *url = 0;
+
+		  switch (current_level)
+		    {
+		    case level_backend:
+		      create_url_entry (&current_backend->url, &url);
+		      DBG_INFO ("adding `%s' to list of urls of backend "
+				"`%s'\n", string_entry,
+				current_backend->name);
+		      break;
+		    case level_mfg:
+		      create_url_entry (&current_mfg->url, &url);
+		      DBG_INFO ("adding `%s' to list of urls of mfg "
+				"`%s'\n", string_entry, current_mfg->name);
+		      break;
+		    case level_desc:
+		      create_url_entry (&current_type->desc->url, &url);
+		      DBG_INFO ("adding `%s' to list of urls of description "
+				"for backend `%s'\n", string_entry,
+				current_backend->name);
+		      break;
+		    case level_model:
+		      create_url_entry (&current_model->url, &url);
+		      DBG_INFO ("adding `%s' to list of urls of model "
+				"`%s'\n", string_entry, current_model->name);
+		      break;
+		    default:
+		      DBG_ERR ("level %d not implemented for :url\n",
+			       current_level);
+		      return SANE_FALSE;
+		    }
+		  url->name = string_entry;
+		  continue;
+		}
+	      if (read_keyword (line, ":comment", param_string, &string_entry)
+		  == SANE_STATUS_GOOD)
+		{
+		  switch (current_level)
+		    {
+		    case level_backend:
+		      current_backend->comment = string_entry;
+		      DBG_INFO ("setting comment of backend %s to `%s'\n",
+				current_backend->name, string_entry);
+		      break;
+		    case level_mfg:
+		      current_mfg->comment = string_entry;
+		      DBG_INFO
+			("setting comment of manufacturer %s to `%s'\n",
+			 current_mfg->name, string_entry);
+		      break;
+		    case level_desc:
+		      current_type->desc->comment = string_entry;
+		      DBG_INFO ("setting comment of description for "
+				"backend %s to `%s'\n", current_backend->name,
+				string_entry);
+		      break;
+		    case level_model:
+		      current_model->comment = string_entry;
+		      DBG_INFO ("setting comment of model %s to `%s'\n",
+				current_model->name, string_entry);
+		      break;
+		    default:
+		      DBG_ERR ("level %d not implemented for `:comment'\n",
+			       current_level);
+		      return SANE_FALSE;
+		    }
+		  continue;
+		}
+	      DBG_ERR ("unknown keyword token in line `%s'\n", line);
+	      return SANE_FALSE;
+	    }
+	  fclose (fp);
+	}
+    }
+  if (!first_backend)
+    {
+      DBG_ERR ("Couldn't find any .desc file\n");
+      return SANE_FALSE;
+    }
+  return SANE_TRUE;
+}
+
+static mfg_record_entry *
+sort_by_mfg (device_type dev_type)
+{
+  mfg_record_entry *first_mfg_record = 0, *mfg_record = 0;
+  backend_entry *be = first_backend;
+  mfg_record_entry *last_mfg_record = 0;
+  mfg_record_entry *next_mfg_record = first_mfg_record->next;
+  
+  SANE_Bool changed = SANE_FALSE;
+
+  while (be)
+    {
+      type_entry *type = be->type;
+      while (type)
+	{
+	  if (type->type == dev_type)
+	    {
+	      mfg_entry *mfg = type->mfg;
+	      while (mfg)
+		{
+		  mfg_record = first_mfg_record;
+		  while (mfg_record)
+		    {
+		      if (strcmp (mfg_record->name, mfg->name) == 0)
+			{
+			  backend_record_entry *be_record = mfg_record->be_record;
+			  if (be_record)
+			    {
+			      while (be_record->next)
+				be_record = be_record->next;
+			      be_record->next = calloc (1, sizeof (backend_record_entry));
+			      if (!be_record->next)
+				{
+				  DBG_ERR ("sort_by_mfg: couldn't calloc "
+					   "backend_record_entry\n");
+				}
+			      be_record = be_record->next;
+			    }
+			  else
+			    {
+			      mfg_record->be_record 
+				= calloc (1, sizeof (backend_record_entry));
+			      if (!mfg_record->be_record)
+				{
+				  DBG_ERR ("sort_by_mfg: couldn't calloc "
+					   "backend_record_entry\n");
+				}
+			      be_record = mfg_record->be_record; 
+			    }
+			  be_record->be = be;
+			  break;
+			}
+		      mfg_record = mfg_record->next;
+		    }
+		  
+		  if (!first_mfg_record)
+		    {
+		      first_mfg_record 
+			= calloc (1, sizeof (mfg_record_entry));
+		      if (!first_mfg_record)
+			{
+			  DBG_ERR ("sort_by_mfg: couldn't calloc "
+				   "mfg_record_entry\n");
+			}
+		      first_mfg_record->name = mfg->name;
+		      first_mfg_record->be_record = calloc (1, sizeof (backend_record_entry));
+		      if (!first_mfg_record->be_record)
+			{
+			  DBG_ERR ("sort_by_mfg: couldn't calloc "
+				   "backend_record_entry\n");
+			}
+		      first_mfg_record->be_record->be = be; 
+		    }
+		  else if (!mfg_record)
+		    {
+		      mfg_record = calloc (1, sizeof (mfg_record_entry));
+		      if (!mfg_record)
+			{
+			  DBG_ERR ("sort_by_mfg: couldn't calloc "
+				   "mfg_record_entry\n");
+			}
+		      mfg_record->name = mfg->name;
+		      mfg_record->be_record = calloc (1, sizeof (backend_record_entry));
+		      if (!mfg_record->be_record)
+			{
+			  DBG_ERR ("sort_by_mfg: couldn't calloc "
+				   "backend_record_entry\n");
+			}
+		      mfg_record->next = first_mfg_record;
+		      first_mfg_record = mfg_record;
+		      mfg_record->be_record->be = be;
+		    }
+		  mfg = mfg->next;
+		}
+	    }
+	  type = type->next;
+	}
+      be = be->next;
+    }
+  
+  do
+    {
+      changed = SANE_FALSE;
+      last_mfg_record = 0;
+      mfg_record = first_mfg_record;
+      next_mfg_record = first_mfg_record->next;
+      while (mfg_record->next)
+	{
+	  if (strcasecmp (mfg_record->name, mfg_record->next->name) > 0)
+	    {
+	      mfg_record_entry *a = mfg_record, *b = mfg_record->next,
+		*c = mfg_record->next->next;
+	      mfg_record = b;
+	      if (last_mfg_record)
+		last_mfg_record->next = b;
+	      else
+		first_mfg_record = b;
+	      mfg_record->next = a;
+	      a->next = c;
+	      changed = SANE_TRUE;
+	    }
+	  last_mfg_record = mfg_record;
+	  mfg_record = mfg_record->next;
+	}
+    }
+  while (changed);
+
+  return first_mfg_record;
+}
+
+static void
+sort_by_backend (void)
+{
+  backend_entry *last_be = 0, *be = first_backend;
+  backend_entry *next_be = first_backend->next;
+  SANE_Bool changed = SANE_FALSE;
+
+  do
+    {
+      changed = SANE_FALSE;
+      last_be = 0;
+      be = first_backend;
+      next_be = first_backend->next;
+      while (be->next)
+	{
+	  if (strcasecmp (be->name, be->next->name) > 0)
+	    {
+	      backend_entry *a = be, *b = be->next, *c = be->next->next;
+	      be = b;
+	      if (last_be)
+		last_be->next = b;
+	      else
+		first_backend = b;
+	      be->next = a;
+	      a->next = c;
+	      changed = SANE_TRUE;
+	    }
+	  last_be = be;
+	  be = be->next;
+	}
+    }
+  while (changed);
+}
+
+
+static void
+ascii_print_backends (void)
+{
+  backend_entry *be;
+  
+  sort_by_backend ();
+  be = first_backend;
+  while (be)
+    {
+      url_entry *url = be->url;
+      type_entry *type = be->type;
+
+      if (be->name)
+	printf ("backend `%s'\n", be->name);
+      else
+	printf ("backend *none*\n");
+
+      if (be->version)
+	printf (" version `%s'\n", be->version);
+      else
+	printf (" version *none*\n");
+
+      if (be->new)
+	printf (" NEW!\n");
+
+      switch (be->status)
+	{
+	case status_alpha:
+	  printf (" status alpha\n");
+	  break;
+	case status_beta:
+	  printf (" status beta\n");
+	  break;
+	case status_stable:
+	  printf (" status stable\n");
+	  break;
+	default:
+	  printf (" status *unknown*\n");
+	  break;
+	}
+
+      if (be->manpage)
+	printf (" manpage `%s'\n", be->manpage);
+      else
+	printf (" manpage *none*\n");
+
+      if (url)
+	while (url)
+	  {
+	    printf (" url `%s'\n", url->name);
+	    url = url->next;
+	  }
+      else
+	printf (" url *none*\n");
+
+      if (be->comment)
+	printf (" comment `%s'\n", be->comment);
+      else
+	printf (" comment *none*\n");
+
+      if (type)
+	while (type)
+	  {
+	    switch (type->type)
+	      {
+	      case type_scanner:
+		printf (" type scanner\n");
+		break;
+	      case type_stillcam:
+		printf (" type stillcam\n");
+		break;
+	      case type_vidcam:
+		printf (" type vidcam\n");
+		break;
+	      case type_meta:
+		printf (" type meta\n");
+		break;
+	      case type_api:
+		printf (" type api\n");
+		break;
+	      default:
+		printf (" type *unknown*\n");
+		break;
+	      }
+	    if (type->desc)
+	      {
+		url_entry *url = type->desc->url;
+		printf ("  desc `%s'\n", type->desc->desc);
+		if (url)
+		  while (url)
+		    {
+		      printf ("   url `%s'\n", url->name);
+		      url = url->next;
+		    }
+		else
+		  printf ("   url *none*\n");
+		
+		if (type->desc->comment)
+		  printf ("   comment `%s'\n", type->desc->comment);
+		else
+		  printf ("   comment *none*\n");
+	      }
+	    else if (type->type >= type_meta)
+	      printf ("  desc *none*\n");
+	    
+	    if (type->mfg)
+	      {
+		mfg_entry *mfg = type->mfg;
+		while (mfg)
+		  {
+		    model_entry *model = mfg->model;
+		    url_entry *url = mfg->url;
+		    
+		    printf ("  mfg `%s'\n", mfg->name);
+		    if (url)
+		      while (url)
+			{
+			  printf ("   url `%s'\n", url->name);
+			  url = url->next;
+			}
+		    else
+		      printf ("   url *none*\n");
+		    
+		    if (mfg->comment)
+		      printf ("   comment `%s'\n", mfg->comment);
+		    else
+		      printf ("   comment *none*\n");
+		    
+		    if (model)
+		      while (model)
+			{
+			  url_entry *url = model->url;
+			  printf ("   model `%s'\n", model->name);
+			  if (model->interface)
+			    printf ("    interface `%s'\n",
+				    model->interface);
+			  else
+			    printf ("    interface *none*\n");
+			  if (url)
+			    while (url)
+			      {
+				printf ("    url `%s'\n", url->name);
+				url = url->next;
+			      }
+			  else
+			    printf ("    url *none*\n");
+			  
+			  if (model->comment)
+			    printf ("    comment `%s'\n", model->comment);
+			  else
+			    printf ("    comment *none*\n");
+			  
+			  model = model->next;
+			}
+		    else
+		      printf ("   model *none*\n");
+		    
+		    /* ... */
+		    mfg = mfg->next;
+		  }
+	      }
+	    else if (type->type < type_meta)
+	      printf ("  mfg *none*\n");
+	    type = type->next;
+	  }
+      else
+	printf (" type *none*\n");
+      be = be->next;
+    }
+}
+
+
+static void
+html_backends_table (device_type dev_type)
+{
+  backend_entry *be = first_backend;
+
+  printf ("<table border=1>\n");
+  printf ("<tr bgcolor=E0E0FF>\n");
+
+  switch (dev_type)
+    {
+    case type_scanner:
+    case type_stillcam:
+    case type_vidcam:
+      printf ("<th align=center rowspan=2>Backend</th>\n");
+      printf ("<th align=center rowspan=2>Manual Page</th>\n");
+      printf ("<th align=center colspan=4>Supported Devices</th>\n");
+      printf ("</tr>\n");
+      printf ("<tr bgcolor=E0E0FF>\n");
+      printf ("<th align=center>Manufacturer</th>\n");
+      printf ("<th align=center>Model</th>\n");
+      printf ("<th align=center>Interface</th>\n");
+      printf ("<th align=center>Comment</th>\n");
+      break;
+    case type_meta:
+    case type_api:
+      printf ("<th align=center>Backend</th>\n");
+      printf ("<th align=center>Manual Page</th>\n");
+      printf ("<th align=center>Description</th>\n");
+      printf ("<th align=center>Comment</th>\n");
+      break;
+    default:
+      DBG_ERR ("Unknown device type (%d)\n", dev_type);
+      return;
+    }
+
+  printf ("</tr>\n");
+
+  while (be)
+    {
+      type_entry *type = be->type;
+      
+      while (type)
+	{
+	  if (type->type == dev_type)
+	    {
+	      mfg_entry *mfg = type->mfg;
+	      model_entry *model = mfg->model;
+	      int row_num = 0;
+	      
+	      /* count models for backend rowspan */
+	      if (mfg) /* scanner, camera */
+		while (mfg) 
+		  {
+		    model = mfg->model;
+		    while (model)
+		      {
+			model = model->next;
+			row_num++;
+		      }
+		    mfg = mfg->next;
+		  }
+	      else row_num = 1;
+		  
+	      printf ("<tr><td rowspan=%d>\n", row_num);
+	      if (be->url && be->url->name)
+		printf ("<a href=\"%s\">%s</a>\n", be->url->name, be->name);
+	      else
+		printf ("%s", be->name);
+	      if (be->version)
+		printf (" (v%s, ", be->version);
+	      else
+		printf (" (");
+	      switch (be->status)
+		{
+		case status_alpha:
+		  printf ("<font color=bb0000>alpha</font>");
+		  break;
+		case status_beta:
+		  printf ("<font color=806000>beta</font>");
+		  break;
+		case status_stable:
+		  printf ("<font color=008000>stable</font>");
+		  break;
+		default:
+		  printf ("?");
+		  break;
+		}
+	      if (be->new)
+		printf ("<font color=\"red\">, NEW!</font>)");
+	      else
+		printf (")");
+	      printf ("</td>\n");
+	      printf ("<td rowspan=%d><a href=\"" MAN_PAGE_LINK
+		      "\">%s</a></td>\n", row_num, be->manpage,
+		      be->manpage);
+
+	      mfg = type->mfg;
+	      if (!mfg && type->desc)
+		{
+		  if (type->desc->desc)
+		    {
+		      if (type->desc->url && type->desc->url->name)
+			printf ("<td><a href=\"%s\">%s</a></td>\n", 
+				type->desc->url->name, type->desc->desc);
+		      else
+			printf ("<td>%s</td>\n", type->desc->desc);
+		    }
+		  else
+		    printf ("<td>&nbsp;</td>\n");
+		  if (type->desc->comment)
+		    printf ("<td>%s</td>\n", type->desc->comment);
+		  else
+		    printf ("<td>&nbsp;</td>\n");
+		  printf ("</tr>\n");
+		}
+	      while (mfg)
+		{
+		  int num_models = 0;
+		  
+		  model = mfg->model;
+		  while (model) /* count models for rowspan */
+		    {
+		      model = model->next;
+		      num_models++;
+		    }
+		  if (num_models > 0)
+		    {
+		      model = mfg->model;
+		      if (mfg != type->mfg)
+			printf ("<tr>\n");
+		      printf ("<td rowspan=%d>\n", num_models);
+		      if (mfg->url && mfg->url->name)
+			printf ("<a href=\"%s\">%s</a>\n", mfg->url->name,
+				mfg->name);
+		      else
+			printf ("%s\n", mfg->name);
+			
+		      while (model)
+			{
+			  if (model != mfg->model)
+			    printf ("<tr>\n");
+		    
+			  if (model->url && model->url->name)
+			    printf ("<td><a href=\"%s\">%s</a></td>\n",
+				    model->url->name, model->name);
+			  else
+			    printf ("<td>%s</td>\n", model->name);
+
+			  if (model->interface)
+			    printf ("<td>%s</td>\n", model->interface);
+			  else
+			    printf ("<td>?</td>\n");
+
+			  if (model->comment && model->comment[0] != 0)
+			    printf ("<td>%s</td>\n", model->comment);
+			  else
+			    printf ("<td>&nbsp;</td>\n");
+
+			  model = model->next;
+			  printf ("</tr>\n");
+			}
+		    }
+		  mfg = mfg->next;
+		}
+	    }
+	  type = type->next;
+	}
+      be = be->next;
+    }
+  printf ("</table>\n");
+}
+
+
+
+static void
+html_mfgs_table (device_type dev_type)
+{
+  backend_entry *be = first_backend;
+  mfg_record_entry *mfg_record = 0, *first_mfg_record = 0;
+
+  first_mfg_record = sort_by_mfg (dev_type);
+  mfg_record = first_mfg_record;
+
+  printf ("<table border=1>\n");
+  printf ("<tr bgcolor=E0E0FF>\n");
+
+  switch (dev_type)
+    {
+    case type_scanner:
+    case type_stillcam:
+    case type_vidcam:
+      printf ("<th align=center>Manufacturer</th>\n");
+      printf ("<th align=center>Model</th>\n");
+      printf ("<th align=center>Interface</th>\n");
+      printf ("<th align=center>Comment</th>\n");
+      printf ("<th align=center>Backend</th>\n");
+      printf ("<th align=center>Manpage</th>\n");
+      break;
+    case type_meta:
+    case type_api:
+      printf ("<th align=center>Backend</th>\n");
+      printf ("<th align=center>Manual Page</th>\n");
+      printf ("<th align=center>Description</th>\n");
+      printf ("<th align=center>Comment</th>\n");
+      break;
+    default:
+      DBG_ERR ("Unknown device type (%d)\n", dev_type);
+      return;
+    }
+
+  printf ("</tr>\n");
+
+  while (mfg_record)
+    {
+      backend_record_entry *be_record = mfg_record->be_record;
+
+      while (be_record)
+	{
+	  type_entry *type;
+	  be = be_record->be;
+
+	  type = be->type;
+
+	  while (type)
+	    {
+	      if (type->type == dev_type)
+		{
+		  mfg_entry *mfg = type->mfg;
+		  model_entry *model = mfg->model;
+		  
+		  mfg = type->mfg;
+		  while (mfg)
+		    {
+		      model = mfg->model;
+		      if (strcasecmp (mfg->name, mfg_record->name) == 0)
+			{
+			  while (model)
+			    {
+			      printf ("<tr><td>\n");
+			      if (mfg->url && mfg->url->name)
+				printf ("<a href=\"%s\">%s</a>\n", mfg->url->name,
+					mfg->name);
+			      else
+				printf ("%s\n", mfg->name);
+			      printf ("</td>\n");
+			      
+			      if (model->url && model->url->name)
+				printf ("<td><a href=\"%s\">%s</a></td>\n",
+					model->url->name, model->name);
+			      else
+				printf ("<td>%s</td>\n", model->name);
+			      
+			      if (model->interface)
+				printf ("<td>%s</td>\n", model->interface);
+			      else
+				printf ("<td>?</td>\n");
+			      
+			      if (model->comment && model->comment[0] != 0)
+				printf ("<td>%s</td>\n", model->comment);
+			      else
+				printf ("<td>&nbsp;</td>\n");
+			      
+			      printf ("<td>\n");
+			      if (be->url && be->url->name)
+				printf ("<a href=\"%s\">%s</a>\n", be->url->name, be->name);
+			      else
+				printf ("%s", be->name);
+			      if (be->version)
+				printf (" (v%s, ", be->version);
+			      else
+				printf (" (");
+			      switch (be->status)
+				{
+				case status_alpha:
+				  printf ("<font color=bb0000>alpha</font>");
+				  break;
+				case status_beta:
+				  printf ("<font color=806000>beta</font>");
+				  break;
+				case status_stable:
+				  printf ("<font color=008000>stable</font>");
+				  break;
+				default:
+				  printf ("?");
+				  break;
+				}
+			      if (be->new)
+				printf ("<font color=\"red\">, NEW!</font>)");
+			      else
+				printf (")");
+			      printf ("</td>\n");
+			      printf ("<td><a href=\"" MAN_PAGE_LINK
+				      "\">%s</a></td>\n", be->manpage,
+				      be->manpage);
+
+			      printf ("</tr>\n");
+			      model = model->next;
+			    } /* while model */
+			} /* if strcasecmp */
+		      mfg = mfg->next;
+		    } /* while mfg */
+		} /* if type */
+	      type = type->next;
+	    } /* while type */
+	  be_record = be_record->next;
+	} /* while be_record */
+      mfg_record = mfg_record->next;
+    } /* while mfg_record */
+  printf ("</table>\n");
+}
+
+static void
+html_print_backends (void)
+{
+  backend_entry *be;
+  time_t current_time = time (0);
+
+  sort_by_backend ();
+  be = first_backend;
+
+  if (!title)
+    title = "SANE: Backend (Drivers)";
+  if (!intro)
+    intro = "<p> The following table summarizes the backends/drivers "
+      "distributed with the latest version of sane-backends, and the hardware "
+      "or software they support. </p>";
+
+  printf ("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 ");
+  printf ("Transitional//EN\">\n");
+  printf ("<html> <head>\n");
+  printf ("<meta http-equiv=\"Content-Type\" content=\"text/html; ");
+  printf ("charset=iso-8859-1\">\n");
+  printf ("<title>%s</title>\n", title);
+  printf ("</head>\n");
+
+  printf ("<body bgcolor=FFFFFF>\n");
+  printf ("<div align=center>\n");
+  printf ("<img src=\"http://www.mostang.com/sane/sane.png\" alt=\"SANE\">\n");
+  printf ("<h1>%s</h1>\n", title);
+  printf ("</div>\n");
+  printf ("<hr>\n");
+  printf ("%s\n", intro);
+  printf ("<p>This is only a summary!\n");
+  printf ("Please consult the manpages and the author-supplied webpages\n");
+  printf ("for more detailed (and usually important) information\n");
+  printf ("concerning each backend.</p>\n");
+  printf ("<p>There are special tables for <a\n");
+  printf ("href=\"http://www.buzzard.org.uk/jonathan/scanners.html\"\n");
+  printf (">parallel port</a> and <a\n");
+  printf ("href=\"http://www.buzzard.org.uk/jonathan/scanners-usb.html\">\n");
+  printf ("USB</a> scanners from <a\n");
+  printf ("href=\"mailto:jonathan@buzzard.org.uk\">\n");
+  printf ("Jonathan Buzzard</a>.</p>\n");
+  printf ("<p>If you have new information or corrections, please send\n");
+  printf ("e-mail to sane-devel, the <a\n");
+  printf ("href=\"http://www.mostang.com/sane/mail.html\">SANE mailing\n");
+  printf ("list</a>.</p>\n");
+  printf ("<p>(For an explanation of the tables, see the\n");
+  printf ("<a href=\"#legend\">legend</a>.)\n");
+  printf ("<p>There are tables for <a href=\"#SCANNERS\">scanners</a>,\n");
+  printf ("<a href=\"#STILL\">still cameras</a>,\n");
+  printf ("<a href=\"#VIDEO\">video cameras</a>,\n");
+  printf ("<a href=\"#API\">APIs</a>, and\n");
+  printf ("<a href=\"#META\">meta backends</a>\n");
+
+  printf ("<p><div align=center>\n");
+
+  printf ("<h2><a name=\"SCANNERS\">Scanners</a></h2>\n");
+  html_backends_table (type_scanner);
+
+  printf ("<h2><a name=\"STILL\">Still Cameras</a></h2>\n");
+  html_backends_table (type_stillcam);
+
+  printf ("<h2><a name=\"VIDEO\">Video Cameras</a></h2>\n");
+  html_backends_table (type_vidcam);
+
+  printf ("<h2><a name=\"API\">APIs</a></h2>\n");
+  html_backends_table (type_api);
+
+  printf ("<h2><a name=\"META\">Meta Backends</a></h2>\n");
+  html_backends_table (type_meta);
+
+  printf ("</div>\n");
+
+  printf ("<h3><a name=\"legend\">Legend:</a></h3>\n");
+  printf ("<blockquote>\n");
+  printf ("<dl>\n");
+  printf ("  <dt><b>Backend:</b></dt>\n");
+  printf ("  <dd>Name of the backend, with a link to more extensive and\n");
+  printf ("      detailed information, if it exists, or the email address\n");
+  printf ("      of the author or maintainer. In parentheses if available:\n");
+  printf ("      Version of backend/driver; newer versions may be\n");
+  printf ("      available from their home sites. Status of the backend:\n");
+  printf ("      A vague indication of robustness and reliability.\n");
+  printf ("      <ul><li><font color=\"bb0000\">alpha</font> means it must\n");
+  printf ("        do something, but is not very well tested, probably has\n");
+  printf ("        bugs, and may even crash your system, etc., etc.\n");
+  printf ("      <li><font color=\"806000\">beta</font> means it works\n");
+  printf ("        pretty well, and looks stable and functional, but not\n");
+  printf ("        bullet-proof.\n");
+  printf ("      <li><font color=\"008000\">stable</font> means someone is\n");
+  printf ("        pulling your leg.\n");
+  printf ("      </ul>\n");
+  printf ("      <font color=\"red\">NEW!</font> means brand-new to the\n");
+  printf ("      current release of SANE.\n");
+  printf ("  </dd>\n");
+
+  printf ("  <dt><b>Manual Page:</b></dt>\n");
+  printf ("  <dd>A link to the man-page on-line, if it exists.</dd>\n");
+
+  printf ("  <dt><b>Supported Devices</b> (for hardware devices):</dt>\n");
+  printf ("  <dd>Which hardware the backend supports.</dd>\n");
+  printf ("  <dt><b>Manufacturer:</b></dt>\n");
+  printf ("  <dd>Manufacturer, Vendor or brand name of the device.</dd>\n");
+  printf ("  <dt><b>Model:</b></dt>\n");
+  printf ("  <dd>Name of the the device.</dd>\n");
+  printf ("  <dt><b>Interface:</b></dt>\n");
+  printf ("  <dd>How the device is connected to the computer.</dd>\n");
+  printf ("  <dt><b>Comment:</b></dt>\n");
+  printf ("  <dd>More information about the level of support and\n");
+  printf ("      possible problems.</dd>\n");
+
+  printf ("  <dt><b>Description</b> (for API and meta backends):</dt>\n");
+  printf ("  <dd>The scope of application of the backend.\n");
+
+  printf ("</dl>\n");
+
+  printf ("</blockquote>\n");
+
+  printf ("<hr>\n");
+  printf ("<a href=\"http://www.mostang.com/sane/\">[Back]</a>\n");
+  printf ("<address>\n");
+  printf ("<a href=\"http://www.mostang.com/sane/mail.html\"\n");
+  printf (">sane-devel@mostang.com</a> / SANE Development mailing list\n");
+  printf ("</address>\n");
+  printf ("<font size=-1>\n");
+  printf ("This page was last updated on %s\n", 
+	  asctime (localtime (&current_time)));
+  printf ("</font>\n");
+  printf ("</body> </html>\n");
+}
+
+static void
+html_print_mfgs (void)
+{
+  time_t current_time = time (0);
+
+  if (!title)
+    title = "SANE: Supported Devices";
+
+  if (!intro)
+    intro = "<p> The following table summarizes the devices supported "
+      "by the latest version of sane-backends. </p>";
+
+  printf ("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 ");
+  printf ("Transitional//EN\">\n");
+  printf ("<html> <head>\n");
+  printf ("<meta http-equiv=\"Content-Type\" content=\"text/html; ");
+  printf ("charset=iso-8859-1\">\n");
+  printf ("<title>%s</title>\n", title);
+  printf ("</head>\n");
+
+  printf ("<body bgcolor=FFFFFF>\n");
+  printf ("<div align=center>\n");
+  printf ("<img src=\"http://www.mostang.com/sane/sane.png\" alt=\"SANE\">\n");
+  printf ("<h1>%s</h1>\n", title);
+  printf ("</div>\n");
+  printf ("<hr>\n");
+  printf ("%s\n", intro);
+  printf ("<p>This is only a summary!\n");
+  printf ("Please consult the manpages and the author-supplied webpages\n");
+  printf ("for more detailed (and usually important) information\n");
+  printf ("concerning each backend.</p>\n");
+  printf ("<p>There are special tables for <a\n");
+  printf ("href=\"http://www.buzzard.org.uk/jonathan/scanners.html\"\n");
+  printf (">parallel port</a> and <a\n");
+  printf ("href=\"http://www.buzzard.org.uk/jonathan/scanners-usb.html\">\n");
+  printf ("USB</a> scanners from <a\n");
+  printf ("href=\"mailto:jonathan@buzzard.org.uk\">\n");
+  printf ("Jonathan Buzzard</a>.</p>\n");
+  printf ("<p>If you have new information or corrections, please send\n");
+  printf ("e-mail to sane-devel, the <a\n");
+  printf ("href=\"http://www.mostang.com/sane/mail.html\">SANE mailing\n");
+  printf ("list</a>.</p>\n");
+  printf ("<p>(For an explanation of the tables, see the\n");
+  printf ("<a href=\"#legend\">legend</a>.)\n");
+  printf ("<p>There are tables for <a href=\"#SCANNERS\">scanners</a>,\n");
+  printf ("<a href=\"#STILL\">still cameras</a>,\n");
+  printf ("<a href=\"#VIDEO\">video cameras</a>,\n");
+  printf ("<a href=\"#API\">APIs</a>, and\n");
+  printf ("<a href=\"#META\">meta backends</a>\n");
+
+  printf ("<p><div align=center>\n");
+
+  printf ("<h2><a name=\"SCANNERS\">Scanners</a></h2>\n");
+  html_mfgs_table (type_scanner);
+
+  printf ("<h2><a name=\"STILL\">Still Cameras</a></h2>\n");
+  html_mfgs_table (type_stillcam);
+
+  printf ("<h2><a name=\"VIDEO\">Video Cameras</a></h2>\n");
+  html_mfgs_table (type_vidcam);
+
+  printf ("<h2><a name=\"API\">APIs</a></h2>\n");
+  html_backends_table (type_api);
+
+  printf ("<h2><a name=\"META\">Meta Backends</a></h2>\n");
+  html_backends_table (type_meta);
+
+  printf ("</div>\n");
+
+  printf ("<h3><a name=\"legend\">Legend:</a></h3>\n");
+  printf ("<blockquote>\n");
+  printf ("<dl>\n");
+  printf ("  <dt><b>Manufacturer:</b></dt>\n");
+  printf ("  <dd>Manufacturer, Vendor or brand name of the device.</dd>\n");
+  printf ("  <dt><b>Model:</b></dt>\n");
+  printf ("  <dd>Name of the the device.</dd>\n");
+  printf ("  <dt><b>Interface:</b></dt>\n");
+  printf ("  <dd>How the device is connected to the computer.</dd>\n");
+  printf ("  <dt><b>Comment:</b></dt>\n");
+  printf ("  <dd>More information about the level of support and\n");
+  printf ("      possible problems.</dd>\n");
+  printf ("  <dt><b>Backend:</b></dt>\n");
+  printf ("  <dd>Name of the backend, with a link to more extensive and\n");
+  printf ("      detailed information, if it exists, or the email address\n");
+  printf ("      of the author or maintainer. In parentheses if available:\n");
+  printf ("      Version of backend/driver; newer versions may be\n");
+  printf ("      available from their home sites. Status of the backend:\n");
+  printf ("      A vague indication of robustness and reliability.\n");
+  printf ("      <ul><li><font color=\"bb0000\">alpha</font> means it must\n");
+  printf ("        do something, but is not very well tested, probably has\n");
+  printf ("        bugs, and may even crash your system, etc., etc.\n");
+  printf ("      <li><font color=\"806000\">beta</font> means it works\n");
+  printf ("        pretty well, and looks stable and functional, but not\n");
+  printf ("        bullet-proof.\n");
+  printf ("      <li><font color=\"008000\">stable</font> means someone is\n");
+  printf ("        pulling your leg.\n");
+  printf ("      </ul>\n");
+  printf ("      <font color=\"red\">NEW!</font> means brand-new to the\n");
+  printf ("      current release of SANE.\n");
+  printf ("  </dd>\n");
+
+  printf ("  <dt><b>Manual Page:</b></dt>\n");
+  printf ("  <dd>A link to the man-page on-line, if it exists.</dd>\n");
+
+  printf ("  <dt><b>Description</b> (for API and meta backends):</dt>\n");
+  printf ("  <dd>The scope of application of the backend.\n");
+
+  printf ("</dl>\n");
+
+  printf ("</blockquote>\n");
+
+  printf ("<hr>\n");
+  printf ("<a href=\"http://www.mostang.com/sane/\">[Back]</a>\n");
+  printf ("<address>\n");
+  printf ("<a href=\"http://www.mostang.com/sane/mail.html\"\n");
+  printf (">sane-devel@mostang.com</a> / SANE Development mailing list\n");
+  printf ("</address>\n");
+  printf ("<font size=-1>\n");
+  printf ("This page was last updated on %s\n", 
+	  asctime (localtime (&current_time)));
+  printf ("</font>\n");
+  printf ("</body> </html>\n");
+}
+
+
+int
+main (int argc, char **argv)
+{
+  char *full_name;
+
+  full_name = strdup (argv[0]);
+  program_name = basename (full_name);
+  DBG_DBG ("starting %s\n", program_name);
+
+  if (!get_options (argc, argv))
+    return 1;
+  if (!read_files ())
+    return 1;
+  switch (mode)
+    {
+    case output_mode_ascii: ascii_print_backends (); break;
+    case output_mode_html_backends: html_print_backends (); break;
+    case output_mode_html_mfgs: html_print_mfgs (); break;
+    default: DBG_ERR ("Unknown output mode\n"); return 1;
+    }
+  
+
+  return 0;
+}

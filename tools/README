@@ -26,9 +26,13 @@ This directory contains various tools that may be useful:
 	1600P and 2000P, without using the backend. So that
 	scanner protocol can be tested directly.
 
-Maybe usefull for SANE developers:
+Maybe useful for SANE developers:
 
- sane-desc.el:
+ sane-desc:
+        Generate SANE webpages (and ASCII lists) from backend .desc files.
+        Use "make sane-desc" to compile. Run "sane-desc --help" for details.
+
+ sane-desc.el, sane-desc-ext.el:
         Some handy elisp stuff to automagically generate descriptive
         SANE webpages from backend .desc files with emacs. Look at the
         top of the file for more details.

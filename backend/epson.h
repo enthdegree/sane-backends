@@ -78,6 +78,8 @@
 
 #define LINES_SHUFFLE_MAX	(17)	/* 2 x 8 lines plus 1 */
 
+#define SANE_EPSON_MAX_RETRIES	(120)	/* how often do we retry during warmup ? */
+
 typedef struct {
 	char * level;
 

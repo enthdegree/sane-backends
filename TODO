@@ -1,4 +1,4 @@
-TODO (2002-09-11)
+TODO (2002-09-16)
 
 ******** todo ********
 
@@ -8,6 +8,8 @@ backends
     - hp4200 http://hp4200-backend.sourceforge.net/
     - Hewlett-Packard ScanJet 3300C / 3400C and 4300C (wip)
       http://sourceforge.net/projects/hp3300backend
+    - gt68xx backend
+      http://www.meier-geinitz.de/sane/gt68xx-backend/
 
   * All backends should check for TL_X < BR_X and TL_Y < BR_Y to
     avoid segfaults or even scanner damage. This should NOT be done
@@ -106,7 +108,11 @@ doc
       ":status :unsupported":
       - mustek_pp
 
-  * sane-plustek.man: fix warnings on Debian systems ("sane-plustek contains a pointer loop")
+    - Add viceo.desc to descriptions-external (from Steven Ellis 
+      <viceo@stevencherie.net>)
+
+  * sane-plustek.man: fix warnings on Debian systems ("sane-plustek contains a
+    pointer loop")
 
 frontends
 ---------

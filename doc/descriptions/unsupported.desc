@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-04-22"		; version of backend
+:version "2003-04-30"		; version of backend
 :url "http://www.meier-geinitz.de/sane/misc/unsupported.html"
 ;:status :stable			; :alpha, :beta, :stable, :new
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
@@ -27,7 +27,7 @@
 :status :unsupported
 ;:url ""
 :interface "USB"
-:comment "Unsupported. Is reported to be a LM983x based scanner. More information would be appreciated."
+:comment "Unsupported. Vendor/product 0x05d8/0x4001. Is reported to be a LM983x based scanner(?). More information would be appreciated."
 
 :model "E+ Pro"
 :status :unsupported
@@ -117,8 +117,9 @@
 
 :model "CanoScan D660U"
 :interface "USB"
+:url "http://www.meier-geinitz.de/sane/misc/canon-d660u.txt"
 :status :unsupported
-:comment "Unsupported. Vendor/product 0x04a9/0x2208.  Nothing else is known about these scanners, any information is appreciated."
+:comment "Unsupported. Vendor/product 0x04a9/0x2208. See link for more information."
 
 :model "CanoScan D1250U2"
 :url "http://www.mostang.com/pipermail/sane-devel/2003-January/017146.html"
@@ -237,7 +238,7 @@
 :interface "USB"
 :url "http://www.meier-geinitz.de/sane/misc/hp-photo-1000.txt"
 :status :unsupported
-:comment "Not supported by SANE. However, it's detected as mass storage device so just mounting it may work. See link for devices data."
+:comment "Not supported by SANE. However, it's detected as mass storage device so just mounting it is reported to work. See link for devices data."
 
 :model "ScanJet 2300C"
 :interface "USB"

@@ -28,6 +28,8 @@
 	* tools/Makefile.in: Build sane-desc by default.
 	* tools/sane-desc.c: Fixed segfault.
 	* doc/Makefile.in: Only use latex if available.
+	* doc/descriptions/unsupported.desc: Updated info on Artec, Canon
+	  and HP scanners.
 
 2003-04-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -1,4 +1,4 @@
-.TH sane 7 "13 Apr 2002"
+.TH sane 7 "17 Apr 2002"
 .IX sane
 
 .SH NAME
@@ -169,14 +169,14 @@ for details.
 The SANE epson backend provides support for Epson SCSI, parallel port and USB
 flatbed scanners. See sane-epson(5) for details.
 .TP
+.B fujitsu
+The fujitsu backend provides support for Fujitsu 3091, 3093, 3096 and
+fi-4340 SCSI scanners. See sane-fujitsu(5) for details.
+.TP
 .B hp
 The SANE hp backend provides access to HP ScanJet scanners and OfficeJet
 multi-function peripherals (MFPs) which support SCL (Scanner Control Language
 by HP). See sane-hp(5) for details.
-.TP
-.B m3096g
-This backend supports the Fujitsu M3096Gm flatbed scanner. See sane-fujitsu(5)
-for details.
 .TP
 .B matsushita
 This backend supports some Panasonic KVSS high speed scanners. See
@@ -240,8 +240,8 @@ The snapscan backend supports AGFA SnapScan flatbed scanners. See
 sane-snapscan(5) for details.
 .TP
 .B sp15c
-This backend supports the FCPA ScanPartner 15C flatbed scanner. See
-sane-fujitsu(5) for details.
+This backend supports the Fujitsu FCPA ScanPartner 15C flatbed scanner. See
+sane-sp15c(5) for details.
 .TP
 .B st400
 The sane-st400 backend provides access to Siemens ST400 and ST800. See

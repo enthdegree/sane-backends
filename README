@@ -143,4 +143,6 @@ Removing
 
 Type "make uninstall" to remove SANE from your system. This will also remove
 older versions of SANE if they have been installed at the same prefix.
-Warning: Your configuration in etc/sane.d/*.conf will be deleted also.
+Warning: Your configuration will be deleted also so make sure you have a
+backup. By default the configuration files are located in
+the directory /usr/local/etc/sane.d/.

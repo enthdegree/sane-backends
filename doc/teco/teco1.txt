@@ -34,6 +34,12 @@ Inquiry page 0x82
    000: 06 82 00 12 11 54 45 43 4f 20 56 4d 34 35 34 32    .....TECO VM4542
    016: 20 56 31 2e 30 33                                  V1.03
 
+Dextra DF-600P - VM3510
+   000: 06 00 02 02 24 00 00 10 44 46 2D 36 30 30 4D 20    ....$...DF-600M 
+   016: 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20                     
+   032: 31 2E 31 37 31 2E 31 37 02                         1.171.17.       
+
+
 /*--------------------------------------------------------------------------*/
 
 SCSI commands supported by the RELISYS VM3530+:
@@ -171,3 +177,10 @@ park the CCD:
 /*--------------------------------------------------------------------------*/
 
 The vendor specific command 0x09 and 0x0e are issued by the windows driver to the AVEC 2400, but the scanner rejects them.
+
+/*--------------------------------------------------------------------------*/
+
+The Dextra DF600-P is a VM3510. It's older than the other scanner and
+is a little more primitive. The driver recognizes its scsi id and fake
+a more evolved one. The scan sequence is also simplified. The rest is
+identical.

@@ -2,6 +2,7 @@
 
 	* backend/plustek-pp_misc.c: fixed multiple parport problem for kernel 2.6.x.
 	* backend/plustek_pp.c: bumped up version number.
+	* doc/plustek/BUID: bumped up build number.
 
 2004-06-08  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

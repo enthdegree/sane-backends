@@ -38,8 +38,10 @@ int PASTE(sanei_debug_,BACKEND_NAME);
 #ifdef HAVE_VARARG_MACROS
 # define DBG(level, msg, args...)					\
   do {									\
-    if (DBG_LEVEL >= (level))			\
+    if (DBG_LEVEL >= (level)){			\
       fprintf (stderr, "[" STRINGIFY(BACKEND_NAME) "] " msg, ##args);	\
+      fflush(stderr); \
+    }			\
   } while (0)
 
   extern void sanei_init_debug (const char * backend, int * debug_level_var);

@@ -1,3 +1,8 @@
+2002-10-05  Karl Heinz Kremer <khk@khk.net>
+
+	* backend/epson.c: Fixed problem with incorrect response to 
+	  sane_get_parameters() in certain situations.
+
 2002-10-04  Jochen Eisinger <jochen.eisinger@gmx.de>
 
 	* doc/descriptions/mustek_pp.desc: add :status tags to each

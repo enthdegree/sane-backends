@@ -152,7 +152,7 @@ connect_dev (Net_Device * dev)
   struct sockaddr_in *sin;
   SANE_Word version_code;
   SANE_Init_Reply reply;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_IO_ERROR;
   SANE_Init_Req req;
 #ifdef TCP_NODELAY
   int on = 1;
@@ -228,6 +228,7 @@ connect_dev (Net_Device * dev)
     {
       DBG (1, "connect_dev: argument marshalling error (%s)\n",
 	   strerror (dev->wire.status));
+      status = SANE_STATUS_IO_ERROR;
       goto fail;
     }
 
@@ -248,6 +249,7 @@ connect_dev (Net_Device * dev)
     {
       DBG (1, "connect_dev: major version mismatch: got %d, expected %d\n",
 	   SANE_VERSION_MAJOR (version_code), V_MAJOR);
+      status = SANE_STATUS_IO_ERROR;
       goto fail;
     }
   if (SANE_VERSION_BUILD (version_code) != SANEI_NET_PROTOCOL_VERSION
@@ -256,6 +258,7 @@ connect_dev (Net_Device * dev)
       DBG (1, "connect_dev: network protocol version mismatch: "
 	   "got %d, expected %d\n",
 	   SANE_VERSION_BUILD (version_code), SANEI_NET_PROTOCOL_VERSION);
+      status = SANE_STATUS_IO_ERROR;
       goto fail;
     }
   dev->wire.version = SANE_VERSION_BUILD (version_code);
@@ -266,7 +269,7 @@ fail:
   DBG (2, "connect_dev: closing connection to %s\n", dev->name);
   close (dev->ctl);
   dev->ctl = -1;
-  return SANE_STATUS_IO_ERROR;
+  return status;
 }
 
 static SANE_Status

@@ -1,3 +1,11 @@
+2003-10-30  Gerhard Jaeger <gerhard@gjaeger.de>
+	* sanei/lib/sanei_pp.c: Made sanei_pp_set_datadir work in no ieee1284 mode.
+	  Fixed a minor bug in delay calculation.
+	* include/sanei/sanei_pp.h: Added some control-port definitions.
+	* backend/plustek_pp.c backend/plustek-pp*:
+	  Made PS/2 bidirectional mode work.
+	* doc/plustek/PLUSTEK-PARPORT.txt: Update.
+
 2003-10-29  Gerhard Jaeger <gerhard@gjaeger.de>
 	* sanei/lib/sanei_pp.c include/sanei/sanei_pp.h:
 	  Added functions sanei_pp_set_datadir() and sanei_pp_uses_directio().

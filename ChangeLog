@@ -1,3 +1,8 @@
+2003-10-07  m. allan noah <anoah at pfeiffer dot edu>
+
+	* backend/fujitsu.c: removed ~25 '_' from option names (#300139)
+	* backend/fujitsu.conf: added lines for known usb scanners
+
 2003-10-07  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 	* backend/snapscan.h backend/snapscan-scsi.c
 	  Updates for Epson Perfection 1670

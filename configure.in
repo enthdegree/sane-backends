@@ -183,6 +183,7 @@ AC_CHECK_FUNCS(atexit inet_addr inet_aton inet_ntoa ioperm mkdir \
     cfmakeraw tcsendbreak strcasecmp strncasecmp _portaccess)
 AC_REPLACE_FUNCS(getenv inet_ntop inet_pton isfdtype sigprocmask snprintf \
     strdup strndup strsep usleep vsyslog)
+SANE_PROTOTYPES
 if test "$ac_cv_header_os2_h" = "yes" ; then
   AC_DEFINE(strncasecmp, strnicmp, [Define for OS/2 only])
   AC_DEFINE(strcasecmp, stricmp, [Define for OS/2 only])

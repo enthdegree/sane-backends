@@ -24,6 +24,7 @@ dnl   JAPHAR_GREP_CFLAGS(flag, cmd_if_missing, cmd_if_present)
 dnl   SANE_LINKER_RPATH
 dnl   SANE_CHECK_U_TYPES
 dnl   SANE_CHECK_GPHOTO2
+dnl   SANE_PROTOTYPES
 dnl   AC_PROG_LIBTOOL
 dnl
 
@@ -354,6 +355,72 @@ AC_DEFUN([SANE_CHECK_GPHOTO2],
 ])	fi
 ])
 
+#
+# Generate prototypes for functions not available on the system
+AC_DEFUN([SANE_PROTOTYPES],
+[
+AH_BOTTOM([
+
+/* Prototype for getenv */
+#ifndef HAVE_GETENV
+char * getenv(const char *name);
+#endif
+
+/* Prototype for inet_ntop */
+#ifndef HAVE_INET_NTOP
+#include <sys/types.h>
+const char * inet_ntop (int af, const void *src, char *dst, size_t cnt);
+#endif
+
+/* Prototype for inet_pton */
+#ifndef HAVE_INET_PTON
+int inet_pton (int af, const char *src, void *dst);
+#endif
+
+/* Prototype for isfdtype */
+#ifndef HAVE_ISFDTYPE
+int isfdtype(int fd, int fdtype);
+#endif
+
+/* Prototype for sigprocmask */
+#ifndef HAVE_SIGPROCMASK
+int sigprocmask (int how, int *new, int *old);
+#endif
+
+/* Prototype for snprintf */
+#ifndef HAVE_SNPRINTF
+#include <sys/types.h>
+int snprintf (char *str,size_t count,const char *fmt,...);
+#endif
+
+/* Prototype for strdup */
+#ifndef HAVE_STRDUP
+char *strdup (const char * s);
+#endif
+
+/* Prototype for strndup */
+#ifndef HAVE_STRNDUP
+#include <sys/types.h>
+char *strndup(const char * s, size_t n);
+#endif
+
+/* Prototype for strsep */
+#ifndef HAVE_STRSEP
+char *strsep(char **stringp, const char *delim);
+#endif
+
+/* Prototype for usleep */
+#ifndef HAVE_USLEEP
+unsigned int usleep (unsigned int useconds);
+#endif
+
+/* Prototype for vsyslog */
+#ifndef HAVE_VSYSLOG
+#include <stdarg.h>
+void vsyslog(int priority, const char *format, va_list args);
+#endif
+])
+])
 
 # libtool.m4 - Configure libtool for the host system. -*-Shell-script-*-
 

@@ -3,6 +3,9 @@
 	* backend/bh.c backend/coolscan.c: Minor conversion fixes (from
 	  Andrea Suatoni <a.suatoni@telefonica.net>).
 	* backend/test.c: Use "Color pattern" consistantly.
+	* acinclude.m4 aclocal.m4 configure configure.in 
+	  include/sane/config.h.in: Declare prototypes for all functions that
+	  may miss on some platforms.
 
 2003-01-24  Gerhard Jaeger <gerhard@gjaeger.de>
 	* doc/plustek/Plustek-USB-TODO.txt

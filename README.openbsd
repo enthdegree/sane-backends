@@ -1,0 +1,33 @@
+SANE and OpenBSD
+----------------
+
+Building:
+---------
+Don't forget to use GNU make (gmake). E.g. "MAKE=gmake ./configure". 
+SANE should compile and install out-of-the-box.
+
+SCSI-scanners:
+--------------
+SANE only supports the generic /dev/uk? devices. /dev/ss? won't work. If your
+scanner is detected by the ss driver, disable the driver with the "config"
+utility or compile a new kernel without ss. Set a link /dev/scanner to
+/dev/uk0 (or whatever you use) and/or edit your backend's config file
+appropriately.
+
+USB-scanners:
+-------------
+USB-Scanners are supported in principle since OpenBSD 2.9. Only the USB
+scanner driver "uscanner" is supported. "ugen" won't work. To get your scanner
+detected by the uscanner driver, it may be necessary to add it's vendor and
+device ids to the kernel and recompile (sys/devs/usb/uscanner.c). With OpenBSD
+3.0 there is also a bug concerning uscanner that prevents accessing the
+/dev/uscanner devices.  Get a newer kernel in this case. If your MAKEDEV won't
+make /dev/uscanner0 do it manually: "mknod /dev/uscanner0 c 77 0" for the
+first scanner. Edit your backend's configuration file appropriately.
+
+Parport-scanners:
+-----------------
+I don't have any information about these. Please contact me or the SANE mailing
+list if you succeded in using one of these.
+
+2001-12-25 Henning Meier-Geinitz <henning@meier-geinitz.de>

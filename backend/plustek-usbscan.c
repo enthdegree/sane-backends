@@ -1082,8 +1082,6 @@ static SANE_Bool usb_SetScanParameters( Plustek_Device *dev, pScanParam pParam )
 	/* Assume we will not use ITA */
 	a_bRegs[0x19] = m_bIntTimeAdjust = 0;
 
-	/* Initiate variables */
-
 	/* Get variables from calculation algorithms */
 	if(!(pParam->bCalibration == PARAM_Scan &&
          pParam->bSource == SOURCE_ADF && fLastScanIsAdf )) {
@@ -1101,8 +1099,8 @@ static SANE_Bool usb_SetScanParameters( Plustek_Device *dev, pScanParam pParam )
 		m_dMCLKDivider = 1.0;
 
 	m_wFastFeedStepSize = (u_short)(dwCrystalFrequency /
-							(m_dMCLKDivider * 8 * m_bCM * hw->dMaxMoveSpeed *
-							 4 * hw->wMotorDpi));
+	                          (m_dMCLKDivider * 8 * m_bCM * hw->dMaxMoveSpeed *
+	                           4 * hw->wMotorDpi));
 	/* CIS special ;-) */
 	if((hw->bReg_0x26 & _ONE_CH_COLOR) && (m_bCM == 1)) {
 		DBG( _DBG_INFO2, "* CIS FFStep-Speedup\n" );
@@ -1184,9 +1182,8 @@ static SANE_Bool usb_ScanBegin( Plustek_Device *dev, SANE_Bool auto_park )
 {
 	u_char  value;
 	u_short inches;
-	pHWDef       hw  = &dev->usbDev.HwSetting;
-	pDCapsDef    sc  = &dev->usbDev.Caps;
-	pClkMotorDef clk = usb_GetMotorSet( hw->motorModel );
+	pHWDef       hw = &dev->usbDev.HwSetting;
+	pDCapsDef    sc = &dev->usbDev.Caps;
 
 	DBG( _DBG_INFO, "usb_ScanBegin()\n" );
 
@@ -1252,7 +1249,7 @@ static SANE_Bool usb_ScanBegin( Plustek_Device *dev, SANE_Bool auto_park )
 
 	inches = (u_short)((m_pParam->Origin.y *300UL)/hw->wMotorDpi);
 	DBG( _DBG_INFO2, ">>> INC=%u, DOY=%u\n", inches, sc->Normal.DataOrigin.y );
-	if((inches > sc->Normal.DataOrigin.y ) && (clk->min_ffstep != 0xffff))
+	if( inches > sc->Normal.DataOrigin.y )
 		usb_WaitPos( dev, 150, SANE_FALSE );
 	return SANE_TRUE;
 }
@@ -1468,8 +1465,8 @@ static void usb_GetImageInfo( Plustek_Device *dev, pImgDef pInfo, pWinInfo pSize
  */
 static void usb_SaveImageInfo( Plustek_Device *dev, pImgDef pInfo )
 {
-	pHWDef     hw     = &dev->usbDev.HwSetting;
-	pScanParam pParam = &dev->scanning.sParam;
+	HWDef     *hw     = &dev->usbDev.HwSetting;
+	ScanParam *pParam = &dev->scanning.sParam;
 
 	DBG( _DBG_INFO, "usb_SaveImageInfo()\n" );
 

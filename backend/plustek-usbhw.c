@@ -239,20 +239,56 @@ static SANE_Bool usb_SensorPaper( int handle )
 static SANE_Bool usb_WaitPos( Plustek_Device *dev, u_long to, SANE_Bool stay )
 {
 	SANE_Bool      retval;
-	u_char         value;
-	u_short        ffs, step;
+	u_char         value, mclk_div, mch;
+	u_short        ffs, step, min_ffs;
 	long           dwTicks;
-	double         fac;
-    struct timeval start_time, t2;
-	pClkMotorDef   clk = usb_GetMotorSet( dev->usbDev.HwSetting.motorModel );
+	double         maxf, fac, speed;
+	struct timeval start_time, t2;
+
+	HWDef         *hw = &dev->usbDev.HwSetting;
+
+	/* get current master clock divider */
+	usbio_ReadReg( dev->fd, 0x08, &value );
+	mclk_div = (value >> 1) + 1;
+
+	/* get current channel mode */
+	usbio_ReadReg( dev->fd, 0x26, &value );
+	mch = ((value & 0x07) > 1) ? 1:3;
+
+	/* calculate the current speed */
+	ffs   = a_bRegs[0x48] * 256 + a_bRegs[0x49];
+	speed = ((double)dwCrystalFrequency) /(double)((u_long)mclk_div * 32UL * 
+	                                (u_long)mch * (u_long)ffs * hw->wMotorDpi);
+
+	DBG( _DBG_INFO2, ">>>> CURRENT MCLK_DIV= %u\n", mclk_div );
+	DBG( _DBG_INFO2, ">>>> MCH             = %u\n", mch ); 
+	DBG( _DBG_INFO2, ">>>> FFS             = %u\n", ffs ); 
+	DBG( _DBG_INFO2, ">>>> FASTSPEED       = %.3f (%.3f)\n", speed, 
+	                hw->dMaxMotorSpeed); 
+
+	/* disabled ? */
+	if( hw->dHighSpeed == 0.0 ) {
+		min_ffs = 0xffff;
+		maxf    = 0.0;
+		if( !stay )
+			return SANE_TRUE;
+
+	} else {
+		min_ffs = (u_short)(dwCrystalFrequency /((u_long)mclk_div * 32UL * 
+		                   (u_long)mch * hw->dHighSpeed * hw->wMotorDpi));
+		maxf = (ffs - min_ffs)/4;
+		if( maxf > 100.0 )
+			maxf = 100.0;
+		if( maxf < 5.0 )
+			maxf = 5.0;
+	} 
+	DBG( _DBG_INFO2, ">>>> MIN_FFS         = %u (%.3f)\n", min_ffs, maxf); 
 
 	gettimeofday( &start_time, NULL );
-
     dwTicks = start_time.tv_sec + to;
-	step = 1;
-	ffs  = a_bRegs[0x48] * 256 + a_bRegs[0x49];
+	step    = 1;
+	retval  = SANE_FALSE;
 
-	retval = SANE_FALSE;
 	for(;;) {
 
 		usleep( 1000 );
@@ -265,31 +301,41 @@ static SANE_Bool usb_WaitPos( Plustek_Device *dev, u_long to, SANE_Bool stay )
 	    if( t2.tv_sec > dwTicks )
 			break;
 
-		fac = 100.0/step;
-		if((u_short)fac < ffs ) 
-			ffs -= fac;
-		else
-			ffs = 0;
-
-		if( ffs > clk->min_ffstep  ) {
-
-			if((int)fac > 25 )
-				usleep( 150 * 1000 );
-
-			a_bRegs[0x48] = (u_char)((u_short)ffs >> 8);
-			a_bRegs[0x49] = (u_char)((u_short)ffs & 0xFF);
-			sanei_lm983x_write(dev->fd, 0x48, &a_bRegs[0x48], 2, SANE_TRUE);
-		} else {
-		
-			if( !stay ) {
-				retval = SANE_TRUE;
-				break;
+		if( min_ffs != 0xffff ) {
+			
+			fac = maxf/step;
+			if( ffs ) {
+				if((u_short)fac < ffs ) {
+					ffs -= fac;
+					if( ffs < min_ffs )
+						ffs = min_ffs;
+				} else {
+					if(ffs != min_ffs )
+						ffs = min_ffs;
+					else
+						ffs = 0;
+				}
 			}
-		}
-		step++;
 
+			if( ffs >= min_ffs ) {
+				if((int)fac > 25 )
+					usleep( 150 * 1000 );
+
+				a_bRegs[0x48] = (u_char)(ffs >> 8);
+				a_bRegs[0x49] = (u_char)(ffs & 0xFF);
+				sanei_lm983x_write(dev->fd, 0x48, &a_bRegs[0x48], 2, SANE_TRUE);
+				if(ffs == min_ffs )
+					ffs = 0;
+			} else {
+		
+				if( !stay ) {
+					retval = SANE_TRUE;
+					break;
+				}
+			}
+			step++;
+		}
 	}
-	DBG( _DBG_INFO2, "# FSS=%u (0x%04x) - %u steps\n", ffs, ffs, step );
 	return retval;
 }
 
@@ -358,22 +404,11 @@ static SANE_Bool usb_ModuleMove( Plustek_Device *dev,
 	usbio_WriteReg( dev->fd, 0x0a, 0 );
 
 	/* Compute fast feed step size, use equation 3 and equation 8 */
-	if( bAction == MOVE_ToShading )	{
+	dMaxMoveSpeed = hw->dMaxMoveSpeed;
 
-		double dToShadingSpeed = 0.0; /* HEINER: check callRegistry.GetToShadingSpeed(); */
-
-		if( dToShadingSpeed != 0.0 )
-			dMaxMoveSpeed = dToShadingSpeed;
-		else {
-
-			if( hw->dMaxMoveSpeed > 0.5 )
-				dMaxMoveSpeed = hw->dMaxMoveSpeed - 0.5;
-			else
-				dMaxMoveSpeed = hw->dMaxMoveSpeed;
-		}
-	} else {
-
-		dMaxMoveSpeed = hw->dMaxMoveSpeed;
+	if( bAction == MOVE_ToShading ) {
+		if( hw->dMaxMoveSpeed > 0.5 )
+			dMaxMoveSpeed = hw->dMaxMoveSpeed - 0.5;
 	}
 
 	clk = usb_GetMotorSet( hw->motorModel );
@@ -381,8 +416,8 @@ static SANE_Bool usb_ModuleMove( Plustek_Device *dev,
 	mclk_div = clk->mclk_fast;
 
 	wFastFeedStepSize = (u_short)(dwCrystalFrequency /
-						((u_long)mclk_div * 8UL * 1 *
-						dMaxMoveSpeed * 4 * hw->wMotorDpi));
+	                    ((u_long)mclk_div * 8UL * 1 *
+	                    dMaxMoveSpeed * 4 * hw->wMotorDpi));
 
 	a_bRegs[0x48] = (u_char)(wFastFeedStepSize >> 8);
 	a_bRegs[0x49] = (u_char)(wFastFeedStepSize & 0xFF);
@@ -515,11 +550,6 @@ static SANE_Bool usb_ModuleToHome( Plustek_Device *dev, SANE_Bool fWait )
 	usbio_WriteReg( dev->fd, 0x58, hw->bReg_0x58 );
 	usbio_ReadReg ( dev->fd, 2, &value );
 
-	/* check current position... */
-#if 0	
-	_UIO(usbio_ReadReg( dev->fd, 2, &value ));
-#endif	
-
 	if( value & 1 ) {
 		fModuleFirstHome = SANE_FALSE;
 		return SANE_TRUE;
@@ -540,13 +570,11 @@ static SANE_Bool usb_ModuleToHome( Plustek_Device *dev, SANE_Bool fWait )
 
 		if( hw->motorModel == MODEL_Tokyo600 ) {
 			usbio_WriteReg( dev->fd, 0x07, 0 );
-		} else 	{
-				
+		} else {
 			_UIO( usbio_ResetLM983x( dev ));
-
 			usleep(200*1000);
 		}
-		
+
 		if(!_IS_PLUSTEKMOTOR(hw->motorModel)) {
 
 			pClkMotorDef clk;
@@ -672,8 +700,8 @@ static SANE_Bool usb_ModuleToHome( Plustek_Device *dev, SANE_Bool fWait )
 			}
 			wFastFeedStepSize = (WORD)(dwCrystalFrequency / (6UL * 8UL * 1 * Device.HwSetting.dMaxMotorSpeed * 4 *
 				Device.HwSetting.wMotorDpi) * 60 / 78);	
-			a_bRegs [0x48] = (BYTE)(wFastFeedStepSize >> 8);
-			a_bRegs [0x49] = (BYTE)(wFastFeedStepSize & 0xFF);
+			a_bRegs[0x48] = (u_char)(wFastFeedStepSize >> 8);
+			a_bRegs[0x49] = (u_char)(wFastFeedStepSize & 0xFF);
 			WriteRegisters(0x48, &a_bRegs[0x48], 2);
 		}
 #endif

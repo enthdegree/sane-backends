@@ -31,8 +31,8 @@
  * - 0.47 - cleanup work
  *        - added gamma to struct HWDefault
  * - 0.48 - added DEVCAPSFLAG_LargeTPA
- *        - added min_ffstep to ClkMotorDef
  *        - added _WAF_BIN_FROM_COLOR and _WAF_GRAY_FROM_COLOR
+ *        - added dHighSpeed to struct HwDefault
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -383,6 +383,7 @@ typedef struct HWDefault
 {
 	double              dMaxMotorSpeed;    /* Inches/second, max. scan speed */
 	double              dMaxMoveSpeed;     /* Inches/second, max. move speed */
+	double              dHighSpeed;        /* for speeding up the sensor     */
 	double              dIntegrationTimeLowLamp;
 	double              dIntegrationTimeHighLamp;
 	u_short             wMotorDpi;                      /* Full step DPI */
@@ -624,8 +625,7 @@ typedef struct {
 	u_char  pwm_fast;       /**< PWM during fast movement      */
 	u_char  pwm_duty_fast;  /**< PWM duty during fast movement */
 	u_char  mclk_fast;      /**< MCLK during fast movement     */
-	u_short min_ffstep;     /**< minimal ffstep size for speedup, 
-	                             0xffff disables the stuff */
+
     /**
      * here we define some ranges for better supporting
      * non-Plustek devices with it's different hardware

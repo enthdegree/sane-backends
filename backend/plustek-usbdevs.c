@@ -709,6 +709,7 @@ static HWDef Hw0x07B3_0x0017_0 =
 {
 	1.5,            /* dMaxMotorSpeed (Max_Speed)               */
 	1.2,            /* dMaxMoveSpeed (Max_Speed)                */
+	0.0,            /* dHighSpeed                               */
 	9,              /* dIntegrationTimeLowLamp                  */
 	9,              /* dIntegrationTimeHighLamp                 */
 	300,            /* wMotorDpi (Full step DPI)                */
@@ -773,7 +774,7 @@ static HWDef Hw0x07B3_0x0017_0 =
  */
 static HWDef Hw0x07B3_0x0007_0 =
 {
-	1.5, 1.2,
+	1.5, 1.2, 0.0,
 	9, 9,
 	300,
 	512,
@@ -818,7 +819,7 @@ static HWDef Hw0x07B3_0x0007_0 =
  */
 static HWDef Hw0x07B3_0x0007_2 =
 {
-	1.4, 1.2,
+	1.4, 1.2, 0.0,
 	9, 9,
 	600,
 	512,
@@ -863,7 +864,7 @@ static HWDef Hw0x07B3_0x0007_2 =
  */
 static HWDef Hw0x07B3_0x0007_4 =
 {
-	1.1, 0.9,
+	1.1, 0.9, 0.0,
 	12,	12,
 	600,
 	2048,
@@ -908,7 +909,7 @@ static HWDef Hw0x07B3_0x0007_4 =
  */
 static HWDef Hw0x07B3_0x000F_0 =
 {
-	1.5, 1.0,
+	1.5, 1.0, 0.0,
 	9, 9,
 	300,
 	512,
@@ -953,7 +954,7 @@ static HWDef Hw0x07B3_0x000F_0 =
  */
 static HWDef Hw0x07B3_0x0013_0 =
 {
-	1.5, 1.2,
+	1.5, 1.2, 0.0,
 	9, 9,
 	300,
 	512,
@@ -998,7 +999,7 @@ static HWDef Hw0x07B3_0x0013_0 =
  */
 static HWDef Hw0x07B3_0x0013_4 =
 {
-	1.0, 0.9,
+	1.0, 0.9, 0.0,
 	12, 12,
 	600,	
 	2048,
@@ -1043,7 +1044,7 @@ static HWDef Hw0x07B3_0x0013_4 =
  */
 static HWDef Hw0x07B3_0x000F_4 =
 {
-	1.1, 0.9,
+	1.1, 0.9, 0.0,
 	12,	12,
 	600,	
 	2048,	
@@ -1088,7 +1089,7 @@ static HWDef Hw0x07B3_0x000F_4 =
  */
 static HWDef Hw0x07B3_0x0016_4 =
 {
-	1.0, 0.9,
+	1.0, 0.9, 0.0,
 	12,	12,
 	600,	
 	2048,	
@@ -1133,41 +1134,41 @@ static HWDef Hw0x07B3_0x0016_4 =
  */
 static HWDef Hw0x07B3_0x0017_4 =
 {
-	1.0, 0.9,
-	12, 12,		
-	600,	
+	1.0, 0.9, 0.0,
+	12, 12,
+	600,
 	2048,
-	8, 8,	
+	8, 8,
 	4095, 4095,
-	0x06, 0x20,	0x2f, 0x2a,
+	0x06, 0x20, 0x2f, 0x2a,
 	{2, 7, 5, 6, 6, 7, 0, 0, 0, 5},	
 	{20, 4, 13, 16, 19, 22, 0, 0, 23, 11},
 	_GREEN_CH,
 	0,
-	1,		
+	1,
 	/* illumination mode settings (not used for CCD devices)    */
 	{ 0, 0, 0, 0, 0, 0, 0 },
 	{ 0, 0, 0, 0, 0, 0, 0 },
 	1,
-	13,		
-	62,		
-	320,	
-	10684,	
+	13,
+	62,
+	320,
+	10684,
     0,
     16383,
     0,
     0,
     0,
     16383,
-	3,		
-	0,	
-	0x1e,	
-	0xa8,	
-	0,		
+	3,
+	0,
+	0x1e,
+	0xa8,
+	0,
 	0xff,
-	10,		
-	48,		
-	0x0d, 0x22, 0x82, 0x88,	
+	10,
+	48,
+	0x0d, 0x22, 0x82, 0x88,
 	0, 0, 0,
 	_LM9832,
 	MODEL_KaoHsiung,
@@ -1178,7 +1179,7 @@ static HWDef Hw0x07B3_0x0017_4 =
  */
 static HWDef Hw0x07B3_0x0017_1 =
 {
-	1.5, 1.5,
+	1.5, 1.5, 0.0,
 	9, 9,
 	200,
 	2048,
@@ -1223,26 +1224,26 @@ static HWDef Hw0x07B3_0x0017_1 =
  */
 static HWDef Hw0x07B3_0x0012_0 =
 {
-	1.5, 1.4,	
-	9, 9,		
-	600,	
-	2048,	
-	4, 5,		
-	3000, 4095,	
-	0x02, 0x04, 0x37, 0x13,	
-	{2, 7, 0, 1, 0, 0, 0, 0, 4, 0},		
-	{5, 23, 1, 3, 0, 0, 0, 12, 10, 22},	
+	1.5, 1.4, 0.0,
+	9, 9,
+	600,
+	2048,
+	4, 5,
+	3000, 4095,
+	0x02, 0x04, 0x37, 0x13,
+	{2, 7, 0, 1, 0, 0, 0, 0, 4, 0},
+	{5, 23, 1, 3, 0, 0, 0, 12, 10, 22},
 	_GREEN_CH,
 	0,
-	1,		
+	1,
 	/* illumination mode settings (not used for CCD devices)    */
 	{ 0, 0, 0, 0, 0, 0, 0 },
 	{ 0, 0, 0, 0, 0, 0, 0 },
 	1,
-	14,		
-	62,		
-	110,	
-	5400,	
+	14,
+	62,
+	110,
+	5400,
     0,
     16383,
     0,
@@ -1268,26 +1269,26 @@ static HWDef Hw0x07B3_0x0012_0 =
  */
 static HWDef Hw0x07B3_0x0017_2 =
 {
-	1.5, 1.2,	
-	9, 9,		
-	300,	
-	512,	
-	4, 5,		
-	3000, 4095,	
-	0x02, 0, 0x2f, 0x36,	
+	1.5, 1.2, 0.0,
+	9, 9,
+	300,
+	512,
+	4, 5,
+	3000, 4095,
+	0x02, 0, 0x2f, 0x36,
 	{2, 7, 0, 1, 0, 0, 0, 0, 4, 0},
 	{5, 0, 1, 4, 7, 10, 0, 0, 12, 0},
 	_GREEN_CH,
 	0,
-	1,		
+	1,
 	/* illumination mode settings (not used for CCD devices)    */
 	{ 0, 0, 0, 0, 0, 0, 0 },
 	{ 0, 0, 0, 0, 0, 0, 0 },
 	1,
-	16,		
-	64,		
-	110,	
-	5416,	
+	16,
+	64,
+	110,
+	5416,
     0,
     16383,
     0,
@@ -1313,37 +1314,37 @@ static HWDef Hw0x07B3_0x0017_2 =
  */
 static HWDef Hw0x07B3_0x0017_3 =
 {
-	1.5, 1.2,	
-	9, 9,		
-	300,	
+	1.5, 1.2, 0.0,
+	9, 9,
+	300,
 	512,
-	4, 5,		
-	3000, 4095,	
-	0x02, 0x04, 0x37, 0x13,	
-	{2, 7, 0, 1, 0, 0, 0, 0, 4, 0},		
-	{5, 23, 1, 4, 7, 10, 0, 0, 11, 23},	
+	4, 5,
+	3000, 4095,
+	0x02, 0x04, 0x37, 0x13,
+	{2, 7, 0, 1, 0, 0, 0, 0, 4, 0},
+	{5, 23, 1, 4, 7, 10, 0, 0, 11, 23},
 	_GREEN_CH,
 	0,
-	1,		
+	1,
 	/* illumination mode settings (not used for CCD devices)    */
 	{ 0, 0, 0, 0, 0, 0, 0 },
 	{ 0, 0, 0, 0, 0, 0, 0 },
 	1,
-	14,		
-	62,		
-	110,	
-	5400,	
+	14,
+	62,
+	110,
+	5400,
     0,
     16383,
     0,
     0,
     0,
     16383,
-	3,		
-	0,		
+	3,
+	0,
 	0x1e,
-	0xa8,	
-	0,		
+	0xa8,
+	0,
 	0xff,	
 	64,		
 	20,		
@@ -1358,28 +1359,29 @@ static HWDef Hw0x07B3_0x0017_3 =
  */
 static HWDef Hw0x03F0_0x0505 =
 {
-	1.05,	/* dMaxMotorSpeed (Max_Speed)               */
-	1.05,	/* dMaxMoveSpeed (Max_Speed)                */
-	6,		/* dIntegrationTimeLowLamp                  */
-	8,		/* dIntegrationTimeHighLamp                 */
-	600,	/* ok wMotorDpi (Full step DPI)             */
-	512,	/* wRAMSize (KB)                            */
-	6,		/* dMinIntegrationTimeLowres (ms)           */
-	6,		/* dMinIntegrationTimeHighres (ms)          */
-	0,	    /* wGreenPWMDutyCycleLow                    */
-	0,	    /* wGreenPWMDutyCycleHigh                   */
-	0x02,	/* bSensorConfiguration (0x0b)              */
-	0x00,	/* bReg_0x0c                                */
-	0x2F,	/* bReg_0x0d                                */
-	0x13,	/* bReg_0x0e                                */
-		    /* bReg_0x0f_Mono[10] (0x0f to 0x18)        */
+	1.05,   /* dMaxMotorSpeed (Max_Speed)               */
+	1.05,   /* dMaxMoveSpeed (Max_Speed)                */
+	0.0,    /* dHighSpeed                               */
+	6,      /* dIntegrationTimeLowLamp                  */
+	8,      /* dIntegrationTimeHighLamp                 */
+	600,    /* wMotorDpi (Full step DPI)                */
+	512,    /* wRAMSize (KB)                            */
+	6,      /* dMinIntegrationTimeLowres (ms)           */
+	6,      /* dMinIntegrationTimeHighres (ms)          */
+	0,      /* wGreenPWMDutyCycleLow                    */
+	0,      /* wGreenPWMDutyCycleHigh                   */
+	0x02,   /* bSensorConfiguration (0x0b)              */
+	0x00,   /* bReg_0x0c                                */
+	0x2F,   /* bReg_0x0d                                */
+	0x13,   /* bReg_0x0e                                */
+	        /* bReg_0x0f_Mono[10] (0x0f to 0x18)        */
 
 	{ 0x02, 0x07, 0x01, 0x02, 0x02, 0x03, 0x00, 0x00, 0x04, 0x07 },
 
-    		/* bReg_0x0f_Color[10] (0x0f to 0x18)       */
+	       /* bReg_0x0f_Color[10] (0x0f to 0x18)       */
 	{ 0x08, 0x17, 0x00, 0x03, 0x08, 0x0b, 0x00, 0x00, 0x0a, 0x14 },
 	
-	_GREEN_CH,	/* bReg_0x26 color mode - bits 4 and 5  */
+	_GREEN_CH,  /* bReg_0x26 color mode - bits 4 and 5  */
 	0,          /* bReg 0x27 color mode                 */
 	
 	1,          /* bReg 0x29 illumination mode          */
@@ -1427,6 +1429,7 @@ static HWDef Hw0x03F0_0x0605 =
 {
 	1.05,	/* dMaxMotorSpeed (Max_Speed)               */
 	1.05,	/* dMaxMoveSpeed (Max_Speed)                */
+	0.0,    /* dHighSpeed                               */
 	6,		/* dIntegrationTimeLowLamp                  */
 	8,		/* dIntegrationTimeHighLamp                 */
 	600,	/* ok wMotorDpi (Full step DPI)             */
@@ -1494,6 +1497,7 @@ static HWDef Hw0x0400_0x1000_0 =
 {
 	1.25,   /* ok dMaxMotorSpeed (Max_Speed)                */
 	1.25,   /* ok dMaxMoveSpeed (Max_Speed)                 */
+	0.0,    /* ok dHighSpeed                                */
 	12,     /* ok dIntegrationTimeLowLamp                   */
 	12,     /* ok dIntegrationTimeHighLamp                  */
 	600,    /* ok wMotorDpi (Full step DPI)                 */
@@ -1552,6 +1556,7 @@ static HWDef Hw0x0400_0x1001_1 =
 {
 	1.25,   /* ok dMaxMotorSpeed (Max_Speed)                */
 	1.25,   /* ok dMaxMoveSpeed (Max_Speed)                 */
+	0.0,    /* dHighSpeed                                   */
 	12,     /* ok dIntegrationTimeLowLamp                   */
 	12,     /* ok dIntegrationTimeHighLamp                  */
 	600,    /* ok wMotorDpi (Full step DPI)                 */
@@ -1608,18 +1613,19 @@ static HWDef Hw0x0400_0x1001_1 =
 /** BearPaw 2400 */
 static HWDef Hw0x0400_0x1001_0 =
 {
-1.0 /*	1.8*/,   	/* ok dMaxMotorSpeed (Max_Speed)                */
-0.9	/*1.8 */,  	/* ok dMaxMoveSpeed (Max_Speed)                 */
+	1.0/*1.8*/, /* ok dMaxMotorSpeed (Max_Speed)            */
+	0.9/*1.8*/, /* ok dMaxMoveSpeed (Max_Speed)             */
+	0.0,    /* ok dHighSpeed                                */
 	12,     /* ok dIntegrationTimeLowLamp                   */
 	12,     /* ok dIntegrationTimeHighLamp                  */
-1200 /*	600*/ ,   /* ok wMotorDpi (Full step DPI)                 */
+	1200 /*	600*/ ,   /* ok wMotorDpi (Full step DPI)       */
 	2048,   /* ok wRAMSize (KB)                             */
 	9,      /* ok dMinIntegrationTimeLowres (ms)            */
 	9,      /* ok dMinIntegrationTimeHighres (ms)           */
 	1169,   /* ok wGreenPWMDutyCycleLow (reg 0x2a + 0x2b)   */
 	1169,   /* ok wGreenPWMDutyCycleHigh (reg 0x2a + 0x2b)  */
 
-0x02 /*	0x06*/,   /* ok bSensorConfiguration (0x0b)               */
+0x02 /*0x06*/,   /* ok bSensorConfiguration (0x0b)          */
 	0x3c,   /* ok sensor control settings (reg 0x0c)        */
 	0x3f,   /* ok sensor control settings (reg 0x0d)        */
 	0x11,   /* ok sensor control settings (reg 0x0e)        */
@@ -1673,6 +1679,7 @@ static HWDef Hw0x04B8_0x010F =
 {
 	0.8,    /* dMaxMotorSpeed (Max_Speed)                   */
 	0.8,    /* dMaxMoveSpeed (Max_Speed)                    */
+	4.1,    /* dHighSpeed                                   */
 	12,     /* dIntegrationTimeLowLamp                      */
 	12,     /* dIntegrationTimeHighLamp                     */
 	600,    /* wMotorDpi (Full step DPI)                    */
@@ -1738,6 +1745,7 @@ static HWDef Hw0x04B8_0x011D =
 {
 	0.9,    /* dMaxMotorSpeed (Max_Speed)                   */
 	0.8,    /* dMaxMoveSpeed (Max_Speed)                    */
+	4.1,    /* dHighSpeed                                   */
 	12,     /* dIntegrationTimeLowLamp                      */
 	12,     /* dIntegrationTimeHighLamp                     */
 	600,    /* wMotorDpi (Full step DPI)                    */
@@ -1803,6 +1811,7 @@ static HWDef Hw0x1606_0x0060 =
 {
     1.5,    /* dMaxMotorSpeed (Max_Speed)                */
     0.8,    /* dMaxMoveSpeed (Max_Speed)                 */
+	0.0,    /* dHighSpeed                                   */
     9,      /* dIntegrationTimeLowLamp                   */
     9,      /* dIntegrationTimeHighLamp                  */
     600,    /* wMotorDpi (Full step DPI)                 */
@@ -1869,6 +1878,7 @@ static HWDef Hw0x1606_0x0160 =
 {
     1.1,    /* dMaxMotorSpeed (Max_Speed)                */
     0.9,    /* dMaxMoveSpeed (Max_Speed)                 */
+	0.0,    /* dHighSpeed                                   */
     9,      /* dIntegrationTimeLowLamp                   */
     9,      /* dIntegrationTimeHighLamp                  */
     600,    /* wMotorDpi (Full step DPI)                 */
@@ -1933,9 +1943,10 @@ static HWDef Hw0x1606_0x0160 =
 /** Canon 650/656 */
 static HWDef Hw0x04A9_0x2206 =
 {
-    0.86,   /* dMaxMotorSpeed (Max_Speed)                    */
-    0.243,  /* dMaxMoveSpeed (Max_Speed)                     */
-    100,    /* dIntegrationTimeLowLamp                       */
+	0.86,   /* dMaxMotorSpeed (Max_Speed)                    */
+	0.243,  /* dMaxMoveSpeed (Max_Speed)                     */
+	0.0,    /* dHighSpeed                                    */
+	100,    /* dIntegrationTimeLowLamp                       */
     100,    /* dIntegrationTimeHighLamp                      */
     1200,   /* wMotorDpi (Full step DPI)                     */
     512,    /* wRAMSize (KB)                                 */
@@ -2003,6 +2014,7 @@ static HWDef Hw0x04A9_0x2207 =
 {
     0.72,   /* dMaxMotorSpeed (Max_Speed)                     */
     0.36,   /* dMaxMoveSpeed (Max_Speed)                      */
+	0.0,    /* dHighSpeed                                     */
     100,    /* wIntegrationTimeLowLamp                        */
     100,    /* wIntegrationTimeHighLamp                       */
     1200,   /* wMotorDpi (Full step DPI)                      */
@@ -2068,76 +2080,75 @@ static HWDef Hw0x04A9_0x2207 =
 /** Canon D660U */
 static HWDef Hw0x04A9_0x2208 =
 {
-    1.2,    /* dMaxMotorSpeed (Max_Speed)                     */
-    1.1,    /* dMaxMoveSpeed (Max_Speed)                      */
-    9,      /* dIntegrationTimeLowLamp                        */
-    9,      /* dIntegrationTimeHighLamp                       */
-    300,    /* wMotorDpi (Full step DPI)                      */
-    512,    /* wRAMSize (KB)                                  */
-    8,      /* dMinIntegrationTimeLowres (ms)                 */
-    8,      /* dMinIntegrationTimeHighres (ms)                */
-    4095,   /* wGreenPWMDutyCycleLow (reg 0x2a + 0x2b)        */
-    4095,   /* wGreenPWMDutyCycleHigh (reg 0x2a + 0x2b)       */
+	1.2,    /* dMaxMotorSpeed (Max_Speed)                     */
+	1.1,    /* dMaxMoveSpeed (Max_Speed)                      */
+	3.5,    /* dHighSpeed                                     */
+	9,      /* dIntegrationTimeLowLamp                        */
+	9,      /* dIntegrationTimeHighLamp                       */
+	300,    /* wMotorDpi (Full step DPI)                      */
+	512,    /* wRAMSize (KB)                                  */
+	8,      /* dMinIntegrationTimeLowres (ms)                 */
+	8,      /* dMinIntegrationTimeHighres (ms)                */
+	4095,   /* wGreenPWMDutyCycleLow (reg 0x2a + 0x2b)        */
+	4095,   /* wGreenPWMDutyCycleHigh (reg 0x2a + 0x2b)       */
 
-    0x02,   /* bSensorConfiguration (0x0b)                    */
-    0x60,   /* sensor control settings (reg 0x0c)             */
-    0x2f,   /* sensor control settings (reg 0x0d)             */
-    0x13,   /* sensor control settings (reg 0x0e)             */
+	0x02,   /* bSensorConfiguration (0x0b)                    */
+	0x60,   /* sensor control settings (reg 0x0c)             */
+	0x2f,   /* sensor control settings (reg 0x0d)             */
+	0x13,   /* sensor control settings (reg 0x0e)             */
 
-#if 0
-    {0x02, 0x07, 0x00, 0x02, 0x00, 0x00, 0x00, 0x04, 0x0b },
-#endif
-    {0x06, 0x17, 0x01, 0x03, 0x05, 0x07, 0x00, 0x00, 0x0b },
-    {0x06, 0x17, 0x01, 0x03, 0x05, 0x07, 0x00, 0x00, 0x0b },
-    _GREEN_CH,
-    0,      /* bReg 0x27 color mode                           */
-    1,      /* bReg 0x29 illumination mode                    */
+	{0x06, 0x17, 0x01, 0x03, 0x05, 0x07, 0x00, 0x00, 0x0b },
+	{0x06, 0x17, 0x01, 0x03, 0x05, 0x07, 0x00, 0x00, 0x0b },
+	_GREEN_CH,
+	0,      /* bReg 0x27 color mode                           */
+	1,      /* bReg 0x29 illumination mode                    */
     
-    /* illumination mode settings (not used for CCD devices)  */
-    { 0, 0, 0, 0, 0, 0, 0 },
-    { 0, 0, 0, 0, 0, 0, 0 },
+	/* illumination mode settings (not used for CCD devices)  */
+	{ 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0 },
 
-    0,      /* StepperPhaseCorrection (reg 0x1a + 0x1b)       */
-    13,     /* bOpticBlackStart (reg 0x1c)                    */
-    33,     /* bOpticBlackEnd (reg 0x1d)                      */
-    64,     /* wActivePixelsStart (reg 0x1e + 0x1f)           */
-    5440,   /* wLineEnd (reg 0x20 + 0x21)                     */
+	0,      /* StepperPhaseCorrection (reg 0x1a + 0x1b)       */
+	13,     /* bOpticBlackStart (reg 0x1c)                    */
+	33,     /* bOpticBlackEnd (reg 0x1d)                      */
+	64,     /* wActivePixelsStart (reg 0x1e + 0x1f)           */
+	5440,   /* wLineEnd (reg 0x20 + 0x21)                     */
     
-    16383,  /* red lamp on    (reg 0x2c + 0x2d)               */
-    1,      /* red lamp off   (reg 0x2e + 0x2f)               */
-    0,      /* green lamp on  (reg 0x30 + 0x31)               */
-    0,      /* green lamp off (reg 0x32 + 0x33)               */
-    0,      /* blue lamp on   (reg 0x34 + 0x35)               */
-    0,      /* blue lamp off  (reg 0x36 + 0x37)               */
+	16383,  /* red lamp on    (reg 0x2c + 0x2d)               */
+	1,      /* red lamp off   (reg 0x2e + 0x2f)               */
+	0,      /* green lamp on  (reg 0x30 + 0x31)               */
+	0,      /* green lamp off (reg 0x32 + 0x33)               */
+	0,      /* blue lamp on   (reg 0x34 + 0x35)               */
+	0,      /* blue lamp off  (reg 0x36 + 0x37)               */
 
-    3,      /* stepper motor control (reg 0x45)               */
-    0,      /* wStepsAfterPaperSensor2 (reg 0x4c + 0x4d)      */
-    0x20,   /* steps to reverse when buffer is full reg 0x50) */
-    0xfc,   /* acceleration profile (reg 0x51)                */
-    0,      /* lines to process (reg 0x54)                    */
-    0,      /* kickstart (reg 0x55)                           */
-    0x02,   /* pwm freq (reg 0x56)                            */
-    0x1f,   /* pwm duty cycle (reg 0x57)                      */
-    0x05,   /* Paper sense (reg 0x58)                         */
-    0x44,   /* misc io12 (reg 0x59)                           */
-    0x14,   /* misc io34 (reg 0x5a)                           */
-    0x11,   /* misc io56 (reg 0x5b)                           */
-    0,      /* test mode ADC Output CODE MSB (reg 0x5c)       */
-    0,      /* test mode ADC Output CODE LSB (reg 0x5d)       */
-    0,      /* test mode (reg 0x5e)                           */
-    _LM9832,
-    MODEL_CANONCCD1200,
-    1.5
+	3,      /* stepper motor control (reg 0x45)               */
+	0,      /* wStepsAfterPaperSensor2 (reg 0x4c + 0x4d)      */
+	0x20,   /* steps to reverse when buffer is full reg 0x50) */
+	0xfc,   /* acceleration profile (reg 0x51)                */
+	0,      /* lines to process (reg 0x54)                    */
+	0,      /* kickstart (reg 0x55)                           */
+	0x02,   /* pwm freq (reg 0x56)                            */
+	0x1f,   /* pwm duty cycle (reg 0x57)                      */
+	0x05,   /* Paper sense (reg 0x58)                         */
+	0x44,   /* misc io12 (reg 0x59)                           */
+	0x14,   /* misc io34 (reg 0x5a)                           */
+	0x11,   /* misc io56 (reg 0x5b)                           */
+	0,      /* test mode ADC Output CODE MSB (reg 0x5c)       */
+	0,      /* test mode ADC Output CODE LSB (reg 0x5d)       */
+	0,      /* test mode (reg 0x5e)                           */
+	_LM9832,
+	MODEL_CANONCCD1200,
+	1.5
 };
 
 /** Canon 670/676/LiDE20 */
 static HWDef Hw0x04A9_0x220D =
 {
-    0.86,   /* dMaxMotorSpeed (Max_Speed)                    */
-    0.243,  /* dMaxMoveSpeed (Max_Speed)                     */
-    100,    /* dIntegrationTimeLowLamp                       */
-    100,    /* dIntegrationTimeHighLamp                      */
-    1200,   /* wMotorDpi (Full step DPI)                     */
+    0.86,   /* dMaxMotorSpeed (Max_Speed)                     */
+    0.243,  /* dMaxMoveSpeed (Max_Speed)                      */
+	0.0,    /* dHighSpeed                                     */
+    100,    /* dIntegrationTimeLowLamp                        */
+    100,    /* dIntegrationTimeHighLamp                       */
+    1200,   /* wMotorDpi (Full step DPI)                      */
     512,    /* wRAMSize (KB)                                  */
     3.75,   /* dMinIntegrationTimeLowres (ms)                 */
     5.75,   /* dMinIntegrationTimeHighres (ms)                */
@@ -2203,6 +2214,7 @@ static HWDef Hw0x04A9_0x220E =
 {
     0.72,   /* dMaxMotorSpeed (Max_Speed)                     */
     0.36,   /* dMaxMoveSpeed (Max_Speed)                      */
+	0.0,    /* dHighSpeed                                     */
     100,    /* wIntegrationTimeLowLamp                        */
     100,    /* wIntegrationTimeHighLamp                       */
     1200,   /* wMotorDpi (Full step DPI)                      */
@@ -2369,7 +2381,7 @@ static SetDef Settings[] =
 static ClkMotorDef Motors[] = {
 
 	{ MODEL_KaoHsiung,
-		64, 20, 6, 0xffff, /* PWM, PWM_Duty, MCLK for fast move, ffstep */
+		64, 20, 6, /* PWM, PWM_Duty, MCLK for fast move */
 		
 		/* Motor settings (PWM and PWM_Duty) */
 		{{ 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 },
@@ -2382,7 +2394,7 @@ static ClkMotorDef Motors[] = {
 		{ 2, 2, 2, 2, 2, 3, 3, 3, 3, 3 }
 	},
 
-	{ MODEL_HuaLien, 64, 20, 6, 0xffff,
+	{ MODEL_HuaLien, 64, 20, 6,
 		/* Motor settings (PWM and PWM_Duty) */
 		{{ 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 },
 		 { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }},
@@ -2394,7 +2406,7 @@ static ClkMotorDef Motors[] = {
 		{ 2, 2, 2, 2, 2, 3, 3, 3, 3, 3 }
 	},
 
-	{ MODEL_Tokyo600, 4, 4, 6, 0xffff,
+	{ MODEL_Tokyo600, 4, 4, 6,
 		/* Motor settings (PWM and PWM_Duty) */
 		{{ 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 },
 		 { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }},
@@ -2406,7 +2418,7 @@ static ClkMotorDef Motors[] = {
 		{ 2, 2, 2, 2, 2, 3, 3, 3, 3, 3 }
 	},
 
-	{ MODEL_MUSTEK600, 4, 4, 6, 0xffff,
+	{ MODEL_MUSTEK600, 4, 4, 6,
 		/* Motor settings (PWM and PWM_Duty) */
 		{{ 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 },
 		 { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }},
@@ -2418,7 +2430,7 @@ static ClkMotorDef Motors[] = {
 		{ 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 11.5, 11.5, 11.5, 11.5 }
 	},
 
-	{ MODEL_MUSTEK1200, 2, 32, 3, 0xffff,
+	{ MODEL_MUSTEK1200, 2, 32, 3,
 		/* Motor settings (PWM and PWM_Duty) */
 		/* <=75dpi       <=100dpi      <=150dpi      <=200dpi      <=300dpi   */
 		{{ 2, 32, 1 }, { 2, 32, 1 }, { 2, 32, 1 }, { 2, 32, 1 }, { 2, 32, 1 },
@@ -2434,7 +2446,7 @@ static ClkMotorDef Motors[] = {
 	},
 
 	/* settings good for the HP models (tested with 2200)*/
-	{ MODEL_HP, 8, 60, 6, 0xffff,
+	{ MODEL_HP, 8, 60, 6,
 		/* Motor settings (PWM and PWM_Duty) */
 		{{ 8, 60, 1 }, { 8, 60, 1 }, { 8, 60, 1 }, { 8, 60, 1 }, { 8, 60, 1 },
 		 { 8, 60, 1 }, { 8, 60, 1 }, { 8, 60, 1 }, { 8, 60, 1 }, { 8, 60, 1 }},
@@ -2448,7 +2460,7 @@ static ClkMotorDef Motors[] = {
 		{ 8.0, 8.0, 8.0, 8.0, 8.0, 13.0, 13.0, 13.0, 13.0, 13.0 }
 	},
 
-	{ MODEL_CANON600, 8, 51, 6, 0xffff,
+	{ MODEL_CANON600, 8, 51, 6,
 		/* Motor settings (PWM and PWM_Duty) */
 		/* <=75dpi       <=100dpi      <=150dpi      <=200dpi      <=300dpi  */
 		{{ 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 },
@@ -2464,7 +2476,7 @@ static ClkMotorDef Motors[] = {
 		{ 12.5, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0 }
 	},
 
-	{ MODEL_CANON1200, 8, 51, 3, 0x0150,
+	{ MODEL_CANON1200, 8, 51, 3,
 		/* Motor settings (PWM and PWM_Duty) */
 		/* <=75dpi       <=100dpi      <=150dpi      <=200dpi      <=300dpi  */
 		{{ 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 },
@@ -2480,7 +2492,7 @@ static ClkMotorDef Motors[] = {
 	},
 
 	/* settings good for the UMAX models (tested with 3400) */
-	{ MODEL_UMAX, 16, 4, 6, 0xffff,
+	{ MODEL_UMAX, 16, 4, 6,
 		/* Motor settings (PWM and PWM_Duty) */
 		{{ 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 },
 		 { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }},
@@ -2492,7 +2504,7 @@ static ClkMotorDef Motors[] = {
 		{ 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5 }
 	},
 
-	{ MODEL_UMAX1200, 16, 4, 6, 0xffff /*0x0c0*/,
+	{ MODEL_UMAX1200, 16, 4, 6,
 		/* Motor settings (PWM and PWM_Duty) */
 		{{ 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 },
 		 { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }},
@@ -2505,7 +2517,7 @@ static ClkMotorDef Motors[] = {
 	},
 
 	/* settings good for the EPSON models */
-	{ MODEL_EPSON, 2, 1, 6, 0x0065,
+	{ MODEL_EPSON, 2, 1, 6,
 		/* Motor settings (PWM and PWM_Duty) */
 		/* <=75dpi      <=100dpi     <=150dpi     <=200dpi     <=300dpi  */
 		{{ 2, 1, 1 }, { 2, 1, 1 }, { 2, 1, 1 }, { 2, 1, 1 }, { 2, 1, 1 },
@@ -2520,7 +2532,7 @@ static ClkMotorDef Motors[] = {
 		{ 6.0, 6.0, 6.0, 6.0, 6.0, 8.0, 9.0, 9.0, 18.0, 18.0 }
 	},
 
-	{ MODEL_CANONCCD1200, 2, 31, 6, 0x0120,
+	{ MODEL_CANONCCD1200, 2, 31, 6,
 		/* Motor settings (PWM and PWM_Duty) */
 		/* <=75dpi       <=100dpi      <=150dpi      <=200dpi      <=300dpi  */
 		{{ 2, 31, 1 }, { 2, 31, 1 }, { 2, 31, 1 }, { 2, 31, 1 }, { 2, 31, 1 },

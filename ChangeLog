@@ -1,3 +1,8 @@
+2002-01-25 Karl Heinz Kremer <khk@khk.net>
+
+	* backend/epson.desc, doc/sane-epson.man: Added Perfection
+	  1650 and 2450 scanners to supported scanners list.
+
 2002-01-25 Abel Deuring <a.deuring@satzbau-gmbh.de>
 	* frontend/scanimage.c: illegal placeholders in the -f format
 	  string are now replaced by "%%". (Bug found by Peter Fales)

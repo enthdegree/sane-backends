@@ -5,6 +5,10 @@
 	  is still buggy but this has to be done by someone who has a qcam.
 	* sanei/sanei_lm983x.c: Added #include <sys/types.h> (OS/2 complains
 	  otherwise).
+	* backend/pnm.c backend/pnm.desc po/pnm.de.po: hand_scanner and
+	  three_pass options need SANE_INFO_RELOAD_PARAMETERS. All options
+	  have a symbolic name now. Removed bogus translation from po. New
+	  version: 1.0.3.
 
 2002-01-10  Tom Martone <tom@martoneconsulting.com>
         * backend/bh.c

@@ -1,3 +1,7 @@
+2002-04-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/test.c doc/descriptions/test.desc: Added missing include.
+
 2002-04-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/net.c doc/descriptions/net.desc: Fixed bug in sane_read that

@@ -1,3 +1,9 @@
+2001-07-40  Stéphane Voltz  <svoltz@wanadoo.fr>
+
+	* backend/umax_pp.c backend/umax_pp_low.c:
+	  Fixed higlight parsing bug in conf file. Fixed 'greenish'
+	  looking scans bug. Started probe sequence rewrite/cleanup.
+
 2001-07-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* sanei/sanei_init_debug.c: Use syslog.h instead of sys/syslog.h.

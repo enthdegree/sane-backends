@@ -1239,6 +1239,8 @@ main (int argc, char *argv[])
 	 strerror (errno));
 #endif /* !TCP_NODELAY */
 
+  DBG (DBG_WARN, "saned from %s ready\n", PACKAGE_STRING);
+
   if (init (&wire) < 0)
     quit (0);
 

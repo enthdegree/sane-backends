@@ -1,3 +1,7 @@
+2003-01-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* frontend/saned.c: Print version number.
+
 2002-12-31  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson.c: Removed one '//' comment.

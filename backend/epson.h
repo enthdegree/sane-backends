@@ -228,6 +228,9 @@ struct Epson_Device {
 	SANE_Int  optical_res;		/* optical resolution */
 	SANE_Int  max_line_distance;
 
+  SANE_Bool need_double_vertical;
+  SANE_Bool need_color_reorder;
+
 	EpsonCmd cmd;
 };
 

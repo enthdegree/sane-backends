@@ -25,10 +25,10 @@ Backends:
  dll:           David Mosberger
  dmc:           David F. Skoll
  epson:         Karl Heinz Kremer(*)
+ fujitsu:       Randolph Bentson, Frederik Ramm, Oliver Schirrmeister (*)
  gphoto2:       Peter Fales (*)
  hp:            Peter Kirchgessner (*)
                 Geoffrey Dairiki
- m3096g:        Randolph Bentson, Oliver Schirrmeister (*)
  matsushita:    Frank Zago (*)
  microtek:      Matthew Marjanovic (*)
  microtek2:     Bernd Schroeder, Karsten Festag (*)
@@ -107,6 +107,7 @@ Eugene S. Weiss <yossarian@users.sourceforge.net>
 Feico W. Dillema <dillema@acm.org>
 Franck Schneider <schnefra@hol.fr>
 Frank Zago <fzago@greshamstorage.com>
+Frederik Ramm <frederik@remote.org>
 Gerhard Jaeger <gerhard@gjaeger.de>
 Glenn Ramsey <glenn@componic.com>
 Gordon Matzigkeit  <gord@gnu.ai.mit.edu>

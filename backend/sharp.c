@@ -2503,6 +2503,10 @@ sane_exit (void)
       free ((void *) dev->sane.model);
       free (dev);
     }
+  
+  if (devlist)
+    free(devlist):
+  devlist = 0;
   first_dev = 0;
 
   DBG (10, ">>\n");

@@ -283,11 +283,11 @@ sceptre_identify_scanner (Sceptre_Scanner * dev)
     }
 
   dev->scsi_type = dev->buffer[0] & 0x1f;
-  strncpy (dev->scsi_vendor, dev->buffer + 0x08, 0x08);
+  memcpy (dev->scsi_vendor, dev->buffer + 0x08, 0x08);
   dev->scsi_vendor[0x08] = 0;
-  strncpy (dev->scsi_product, dev->buffer + 0x10, 0x010);
+  memcpy (dev->scsi_product, dev->buffer + 0x10, 0x010);
   dev->scsi_product[0x10] = 0;
-  strncpy (dev->scsi_version, dev->buffer + 0x20, 0x04);
+  memcpy (dev->scsi_version, dev->buffer + 0x20, 0x04);
   dev->scsi_version[0x04] = 0;
 
   DBG (DBG_info, "device is \"%s\" \"%s\" \"%s\"\n",
@@ -1131,8 +1131,8 @@ sceptre_fill_image (Sceptre_Scanner * dev)
 	  return status;
 	}
 
-      DBG (DBG_info, "sceptre_fill_image: real bytes left = %d\n",
-	   dev->real_bytes_left);
+      DBG (DBG_info, "sceptre_fill_image: real bytes left = %ld\n",
+	   (long)dev->real_bytes_left);
 
       switch (dev->scan_mode)
 	{
@@ -1492,8 +1492,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
     {
       return SANE_STATUS_INVAL;
     }
-
-  assert (dev->opt[option].name);
 
   if (action == SANE_ACTION_GET_VALUE)
     {
@@ -1994,7 +1992,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
     }
   while ((buf_offset != max_len) && dev->bytes_left);
 
-  DBG (DBG_info, "sane_read: leave, bytes_left=%d\n", dev->bytes_left);
+  DBG (DBG_info, "sane_read: leave, bytes_left=%ld\n", (long)dev->bytes_left);
 
   return SANE_STATUS_GOOD;
 }

@@ -58,9 +58,6 @@
 
 #define ASSERT(cond) (!(cond) ? DBG(DBG_ASSERT, "!!! ASSERT(%S) FAILED!!!\n",STRINGIFY(cond));)
 
-/* other definitions */
-#define TRUE 1
-#define FALSE 0
 
 #define MM_TO_PIXEL(_mm_, _dpi_)    ((_mm_) * (_dpi_) / 25.4 )
 #define PIXEL_TO_MM(_pixel_, _dpi_) ((_pixel_) * 25.4 / (_dpi_) )
@@ -116,9 +113,9 @@ typedef struct
 
   /* fCancelled needed to let sane issue the cancel message
      instead of an error message */
-  int fCancelled;		/* TRUE if scanning cancelled */
+  SANE_Bool fCancelled;		/* SANE_TRUE if scanning cancelled */
 
-  int fScanning;		/* TRUE if actively scanning */
+  SANE_Bool fScanning;		/* SANE_TRUE if actively scanning */
 
   int WarmUpTime;		/* time to wait before a calibration starts */
   unsigned char CalWhite[3];	/* values for the last calibration of white */
@@ -188,13 +185,13 @@ _TimeElapsed (struct timeval *start, struct timeval *now, int iTime)
 static void
 _WarmUpLamp (TScanner * s, int iMode)
 {
-  bool fLampOn;
+  SANE_Bool fLampOn;
   /* on startup don't care what was before
      assume lamp was off, and the previous
      cal values can never be reached */
   if (iMode == WARMUP_AFTERSTART)
     {
-      fLampOn = FALSE;
+      fLampOn = SANE_FALSE;
       s->CalWhite[0] = s->CalWhite[1] = s->CalWhite[2] = (unsigned char) (-1);
     }
   else
@@ -207,7 +204,7 @@ _WarmUpLamp (TScanner * s, int iMode)
       /* determine the time to wait at least */
       s->WarmUpTime = aiWarmUpTime[iMode];
       /* switch on the lamp */
-      SetLamp (&s->HWParams, TRUE);
+      SetLamp (&s->HWParams, SANE_TRUE);
     }
 }
 
@@ -218,17 +215,17 @@ _WaitForLamp (TScanner * s, unsigned char *pabCalibTable)
   int i;			/* rgb loop */
   int iCal = 0;			/* counter */
   int iCurrent = 0;		/* buffer and time-holder swap flag */
-  bool fHasCal;
+  SANE_Bool fHasCal;
   unsigned char CalWhite[2][3];	/* toggling buffer */
   int iDelay = 0;		/* delay loop counter */
-  _WarmUpLamp (s, FALSE);
+  _WarmUpLamp (s, SANE_FALSE);
 
 
   /* get the time stamp for the wait loops */
   if (s->WarmUpTime)
     gettimeofday (&now[iCurrent], 0);
   SimpleCalibExt (&s->HWParams, pabCalibTable, CalWhite[iCurrent]);
-  fHasCal = TRUE;
+  fHasCal = SANE_TRUE;
 
   DBG (DBG_MSG, "_WaitForLamp: first calibration\n");
 
@@ -240,13 +237,13 @@ _WaitForLamp (TScanner * s, unsigned char *pabCalibTable)
          the current one would have */
       if (s->WarmUpTime && fHasCal)
 	{
-	  bool fOver = TRUE;
+	  SANE_Bool fOver = SANE_TRUE;
 	  for (i = 0; fOver && i < 3; ++i)
 	    {
 	      if (!s->CalWhite[i])
-		fOver = FALSE;
+		fOver = SANE_FALSE;
 	      else if (CalWhite[iCurrent][i] < s->CalWhite[i])
-		fOver = FALSE;
+		fOver = SANE_FALSE;
 	    }
 
 	  /* warm up is not needed, when calibration data is above
@@ -287,7 +284,7 @@ _WaitForLamp (TScanner * s, unsigned char *pabCalibTable)
 	  else
 	    DBG (DBG_MSG, "_WaitForLamp: delay loop %d        \r", ++iDelay);
 	  sleep (1);
-	  fHasCal = FALSE;
+	  fHasCal = SANE_FALSE;
 	  gettimeofday (&now[!iCurrent], 0);
 	}
 
@@ -306,7 +303,7 @@ _WaitForLamp (TScanner * s, unsigned char *pabCalibTable)
 	  ++iCal;
 	  iCurrent = !iCurrent;	/* swap the test-buffer, and time-holder */
 	  SimpleCalibExt (&s->HWParams, pabCalibTable, CalWhite[iCurrent]);
-	  fHasCal = TRUE;
+	  fHasCal = SANE_TRUE;
 
 	  for (i = 0; i < 3; ++i)
 	    {
@@ -654,8 +651,8 @@ sane_open (SANE_String_Const name, SANE_Handle * h)
       return SANE_STATUS_DEVICE_BUSY;
     }
   _InitOptions (s);
-  s->fScanning = FALSE;
-  s->fCancelled = FALSE;
+  s->fScanning = SANE_FALSE;
+  s->fCancelled = SANE_FALSE;
   *h = s;
 
   /* Turn on lamp by default at startup */
@@ -675,7 +672,7 @@ sane_close (SANE_Handle h)
   s = (TScanner *) h;
 
   /* turn off scanner lamp */
-  SetLamp (&s->HWParams, FALSE);
+  SetLamp (&s->HWParams, SANE_FALSE);
 
   /* close scanner */
   NiashClose (&s->HWParams);
@@ -707,13 +704,13 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
 		     void *pVal, SANE_Int * pInfo)
 {
   TScanner *s;
-  int fVal;
+  SANE_Bool fVal;
   static char szTable[15000];
   char szTemp[16];
   int *pi;
   int i;
   SANE_Int info;
-  bool fLampIsOn;
+  SANE_Bool fLampIsOn;
   SANE_Status status;
 
   DBG (DBG_MSG, "sane_control_option: option %d, action %d\n", n, Action);
@@ -821,7 +818,7 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
 	  if (fVal)
 	    _WarmUpLamp (s, WARMUP_INSESSION);
 	  else
-	    SetLamp (&s->HWParams, FALSE);
+	    SetLamp (&s->HWParams, SANE_FALSE);
 	  break;
 
 	case optCalibrate:
@@ -939,7 +936,7 @@ sane_start (SANE_Handle h)
   s->ScanParams.iWidth = par.pixels_per_line * iScaleDown;
   s->ScanParams.iHeight = par.lines * iScaleDown;
   s->ScanParams.iBottom = 14200UL;
-  s->ScanParams.fCalib = FALSE;
+  s->ScanParams.fCalib = SANE_FALSE;
 
   /* perform a simple calibration just before scanning */
   _WaitForLamp (s, abCalibTable);
@@ -978,8 +975,8 @@ sane_start (SANE_Handle h)
 		  s->ScanParams.iLpi * s->HWParams.iSensorSkew / HW_LPI,
 		  s->HWParams.iReversedHead, iScaleDown, iScaleDown);
 
-  s->fScanning = TRUE;
-  s->fCancelled = FALSE;
+  s->fScanning = SANE_TRUE;
+  s->fCancelled = SANE_FALSE;
   return SANE_STATUS_GOOD;
 }
 
@@ -1001,7 +998,7 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 	{
 	  DBG (DBG_MSG, "\n");
 	  DBG (DBG_MSG, "sane_read: sane_read cancelled\n");
-	  s->fCancelled = FALSE;
+	  s->fCancelled = SANE_FALSE;
 	  return SANE_STATUS_CANCELLED;
 	}
       else
@@ -1023,8 +1020,8 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
       *len = 0;
       DBG (DBG_MSG, "\n");
       DBG (DBG_MSG, "sane_read: end of scan\n");
-      s->fCancelled = FALSE;
-      s->fScanning = FALSE;
+      s->fCancelled = SANE_FALSE;
+      s->fScanning = SANE_FALSE;
       return SANE_STATUS_EOF;
     }
 
@@ -1048,8 +1045,8 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 	  *len = 0;
 	  DBG (DBG_MSG, "\n");
 	  DBG (DBG_MSG, "sane_read: read after end of buffer\n");
-	  s->fCancelled = FALSE;
-	  s->fScanning = FALSE;
+	  s->fCancelled = SANE_FALSE;
+	  s->fScanning = SANE_FALSE;
 	  return SANE_STATUS_EOF;
 	}
 
@@ -1079,8 +1076,8 @@ sane_cancel (SANE_Handle h)
 
   /* Make sure the scanner head returns home */
   FinishScan (&s->HWParams);
-  s->fCancelled = TRUE;
-  s->fScanning = FALSE;
+  s->fCancelled = SANE_TRUE;
+  s->fScanning = SANE_FALSE;
 }
 
 

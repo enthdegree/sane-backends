@@ -27,7 +27,6 @@
 #define _NIASH_XFER_H_
 
 #include <stdio.h>		/* for FILE * */
-#include "niash_types.h"
 
 /* register codes for the USB - IEEE1284 bridge */
 #define USB_SETUP       0x82
@@ -90,7 +89,7 @@ STATIC void NiashWriteBulk (int iXferHandle, unsigned char *pabBuf,
 STATIC void NiashReadBulk (int iXferHandle, unsigned char *pabBuf, int iSize);
 STATIC void NiashWakeup (int iXferHandle);
 
-STATIC bool MatchUsbDevice (int iVendor, int iProduct,
+STATIC SANE_Bool MatchUsbDevice (int iVendor, int iProduct,
 			    TScannerModel ** ppeModel);
 
 #endif /* _NIASH_XFER_H_ */

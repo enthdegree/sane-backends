@@ -119,7 +119,7 @@ _ConvertMotorTable (unsigned char *pabOld, unsigned char *pabNew, int iSize,
 
   Returns TRUE if a NIASH chipset was found.
 *************************************************************************/
-static bool
+static SANE_Bool
 _ProbeRegisters (THWParams * pHWParams)
 {
   unsigned char bData1, bData2;
@@ -138,7 +138,7 @@ _ProbeRegisters (THWParams * pHWParams)
   if ((bData1 != 0x55) || (bData2 != 0xAA))
     {
       DBG (DBG_ERR, "  No NIASH chipset found!\n");
-      return FALSE;
+      return SANE_FALSE;
     }
 
   /* check writeability of register 3 bit 1 */
@@ -179,7 +179,7 @@ _ProbeRegisters (THWParams * pHWParams)
 	}
     }
 
-  return TRUE;
+  return SANE_TRUE;
 }
 
 
@@ -204,10 +204,10 @@ NiashOpen (THWParams * pHWParams, const char *pszName)
   pHWParams->iSensorSkew = 8;
   pHWParams->iTopLeftX = 0;
   pHWParams->iTopLeftY = 3;
-  pHWParams->fReg07 = FALSE;
+  pHWParams->fReg07 = SANE_FALSE;
   pHWParams->iSkipLines = 0;
   pHWParams->iExpTime = 5408;
-  pHWParams->iReversedHead = TRUE;
+  pHWParams->iReversedHead = SANE_TRUE;
 
   switch (pHWParams->eModel)
     {
@@ -224,12 +224,12 @@ NiashOpen (THWParams * pHWParams, const char *pszName)
       DBG (DBG_MSG, "Setting params for Hp3400c/Hp4300c\n");
       pHWParams->iTopLeftX = 3;
       pHWParams->iTopLeftY = 14;
-      pHWParams->fReg07 = TRUE;
+      pHWParams->fReg07 = SANE_TRUE;
       break;
 
     case eAgfaTouch:
       DBG (DBG_MSG, "Setting params for AgfaTouch\n");
-      pHWParams->iReversedHead = FALSE;	/* head not reversed on Agfa Touch */
+      pHWParams->iReversedHead = SANE_FALSE;	/* head not reversed on Agfa Touch */
       pHWParams->iTopLeftX = 3;
       pHWParams->iTopLeftY = 10;
       pHWParams->iSkipLines = 7;
@@ -264,7 +264,7 @@ NiashClose (THWParams * pHWPar)
 
 
 static void
-WriteRegWord (int iHandle, unsigned char bReg, word wData)
+WriteRegWord (int iHandle, unsigned char bReg, SANE_Word wData)
 {
   NiashWriteReg (iHandle, bReg, wData & 0xFF);
   NiashWriteReg (iHandle, bReg + 1, (wData >> 8) & 0xFF);
@@ -639,7 +639,7 @@ InitNiashCommon (TScanParams * pParams, THWParams * pHWParams)
 
 
 /* write registers */
-STATIC bool
+STATIC SANE_Bool
 InitScan (TScanParams * pParams, THWParams * pHWParams)
 {
   int iHeight;
@@ -658,20 +658,20 @@ InitScan (TScanParams * pParams, THWParams * pHWParams)
       break;
     default:
       DBG (DBG_ERR, "Invalid dpi (%d)\n", pParams->iDpi);
-      return FALSE;
+      return SANE_FALSE;
     }
 
   iHeight = (pParams->iBottom - pParams->iTop + 1);
   if (iHeight <= 0)
     {
       DBG (DBG_ERR, "Invalid height (%d)\n", iHeight);
-      return FALSE;
+      return SANE_FALSE;
     }
 
   if (pParams->iWidth <= 0)
     {
       DBG (DBG_ERR, "Invalid width (%d)\n", pParams->iWidth);
-      return FALSE;
+      return SANE_FALSE;
     }
 
   switch (pParams->iLpi)
@@ -682,7 +682,7 @@ InitScan (TScanParams * pParams, THWParams * pHWParams)
       break;
     default:
       DBG (DBG_ERR, "Invalid lpi (%d)\n", pParams->iLpi);
-      return FALSE;
+      return SANE_FALSE;
     }
 
   /* exposure time (in units of 24/Fcrystal?), must be divisible by 8 !!! */
@@ -690,7 +690,7 @@ InitScan (TScanParams * pParams, THWParams * pHWParams)
   if ((iExpTime % 8) != 0)
     {
       DBG (DBG_ERR, "Invalid exposure time (%d)\n", iExpTime);
-      return FALSE;
+      return SANE_FALSE;
     }
 
   /*
@@ -717,20 +717,20 @@ InitScan (TScanParams * pParams, THWParams * pHWParams)
   /* common NIASH init */
   InitNiashCommon (pParams, pHWParams);
 
-  return TRUE;
+  return SANE_TRUE;
 }
 
 
 /************************************************************************/
 
-static bool
+static SANE_Bool
 XferBufferGetLine (int iHandle, TDataPipe * p, unsigned char *pabLine)
 {
   unsigned char bData;
 
   /* all calculated transfers done ? */
   if (p->iLinesLeft == 0)
-    return FALSE;
+    return SANE_FALSE;
 
   /* time for a fresh read? */
   if (p->iCurLine == 0)
@@ -758,7 +758,7 @@ XferBufferGetLine (int iHandle, TDataPipe * p, unsigned char *pabLine)
   /* one transfer line less to the XFerBuffer */
   if (p->iLinesLeft > 0)
     --(p->iLinesLeft);
-  return TRUE;
+  return SANE_TRUE;
 }
 
 
@@ -780,7 +780,7 @@ XferBufferInit (int iHandle, TDataPipe * p)
 /* static procedure that fills the circular buffer in advance to any
    circular buffer data retrieval */
 static void
-CircBufferFill (int iHandle, TDataPipe * p, bool iReversedHead)
+CircBufferFill (int iHandle, TDataPipe * p, SANE_Bool iReversedHead)
 {
   int i;
   for (i = 0; i < p->iLinesPerCircBuf; i++)
@@ -824,7 +824,7 @@ XferBufferExit (TDataPipe * p)
 static void
 _UnscrambleLine (unsigned char *pabLine,
 		 unsigned char *pabRed, unsigned char *pabGrn,
-		 unsigned char *pabBlu, int iWidth, bool iReversedHead,
+		 unsigned char *pabBlu, int iWidth, SANE_Bool iReversedHead,
 		 int iScaleDownDpi, int iBufWeight)
 {
   /* never change an approved algorithm ...
@@ -903,9 +903,9 @@ _UnscrambleLine (unsigned char *pabLine,
 
 
 /* gets an unscrambled line from the circular buffer. the first couple of lines contain garbage */
-STATIC bool
+STATIC SANE_Bool
 CircBufferGetLine (int iHandle, TDataPipe * p, unsigned char *pabLine,
-		   bool iReversedHead)
+		   SANE_Bool iReversedHead)
 {
   int iLineCount;
   for (iLineCount = 0; iLineCount < p->iScaleDownLpi; ++iLineCount)
@@ -915,14 +915,14 @@ CircBufferGetLine (int iHandle, TDataPipe * p, unsigned char *pabLine,
 	  if (!XferBufferGetLine (iHandle, p,
 				  &p->pabCircBuf[p->iRedLine *
 						 p->iBytesPerLine]))
-	    return FALSE;
+	    return SANE_FALSE;
 	}
       else
 	{
 	  if (!XferBufferGetLine (iHandle, p,
 				  &p->pabCircBuf[p->iBluLine *
 						 p->iBytesPerLine]))
-	    return FALSE;
+	    return SANE_FALSE;
 	}
 
       if (pabLine != NULL)
@@ -940,14 +940,14 @@ CircBufferGetLine (int iHandle, TDataPipe * p, unsigned char *pabLine,
       p->iGrnLine = (p->iGrnLine + 1) % p->iLinesPerCircBuf;
       p->iBluLine = (p->iBluLine + 1) % p->iLinesPerCircBuf;
     }
-  return TRUE;
+  return SANE_TRUE;
 }
 
 
 STATIC void
 CircBufferInit (int iHandle, TDataPipe * p,
 		int iWidth, int iHeight,
-		int iMisAlignment, bool iReversedHead,
+		int iMisAlignment, SANE_Bool iReversedHead,
 		int iScaleDownDpi, int iScaleDownLpi)
 {
 
@@ -1145,19 +1145,19 @@ CreateCalibTable (unsigned char *abWhite, unsigned char bBlackR,
 /*************************************************************************
   Lamp control functions
 *************************************************************************/
-STATIC bool
-GetLamp (THWParams * pHWParams, bool * pfLampIsOn)
+STATIC SANE_Bool
+GetLamp (THWParams * pHWParams, SANE_Bool * pfLampIsOn)
 {
   unsigned char bData;
 
   NiashReadReg (pHWParams->iXferHandle, 0x03, &bData);
   *pfLampIsOn = ((bData & 0x01) != 0);
-  return TRUE;
+  return SANE_TRUE;
 }
 
 
-STATIC bool
-SetLamp (THWParams * pHWParams, bool fLampOn)
+STATIC SANE_Bool
+SetLamp (THWParams * pHWParams, SANE_Bool fLampOn)
 {
   unsigned char bData;
   int iHandle;
@@ -1173,14 +1173,14 @@ SetLamp (THWParams * pHWParams, bool fLampOn)
     {
       NiashWriteReg (iHandle, 0x03, bData & ~0x01);
     }
-  return TRUE;
+  return SANE_TRUE;
 }
 
 
 /*************************************************************************
   Experimental simple calibration, but also returning the white levels
 *************************************************************************/
-STATIC bool
+STATIC SANE_Bool
 SimpleCalibExt (THWParams * pHWPar, unsigned char *pabCalibTable,
 		unsigned char *pabCalWhite)
 {
@@ -1195,7 +1195,7 @@ SimpleCalibExt (THWParams * pHWPar, unsigned char *pabCalibTable,
   unsigned char *pabWhite;
   int iWhiteR, iWhiteG, iWhiteB;
   int iHandle;
-  bool iReversedHead;
+  SANE_Bool iReversedHead;
   int startWhiteY, endWhiteY;
   int startBlackY, endBlackY;
   int startBlackX, endBlackX;
@@ -1215,7 +1215,7 @@ SimpleCalibExt (THWParams * pHWPar, unsigned char *pabCalibTable,
   Params.iLeft = 0;
   Params.iWidth = HW_PIXELS;
   Params.iHeight = 54;
-  Params.fCalib = TRUE;
+  Params.fCalib = SANE_TRUE;
 
   /* write gamma table with neutral gain / offset */
   CalcGamma (abGamma, 1.0);
@@ -1225,7 +1225,7 @@ SimpleCalibExt (THWParams * pHWPar, unsigned char *pabCalibTable,
     {
       if (pabCalWhite)
 	pabCalWhite[0] = pabCalWhite[1] = pabCalWhite[2] = 0;
-      return FALSE;
+      return SANE_FALSE;
     }
 
   /* Definition of white and black areas */
@@ -1315,7 +1315,7 @@ SimpleCalibExt (THWParams * pHWPar, unsigned char *pabCalibTable,
       pabCalWhite[1] = iWhiteG;
       pabCalWhite[2] = iWhiteB;
     }
-  return TRUE;
+  return SANE_TRUE;
 }
 
 
@@ -1331,91 +1331,3 @@ FinishScan (THWParams * pHWParams)
   NiashWriteReg (pHWParams->iXferHandle, 0x02, 0x80);
 }
 
-
-
-/*************************************************************************
-  These function will only be available when compiled without the
-  sane-niash main file
-*************************************************************************/
-
-#ifndef WITH_NIASH
-/*************************************************************************
-  Experimental simple calibration
-
-  Basic idea:
-  * a strip starting at position 0 is scanned in
-  * per-pixel white level is determined by average of first 4 lines
-  * global black level is determined by minimum value of all lines
-*************************************************************************/
-bool
-SimpleCalib (THWParams * pHWPar, unsigned char *pabCalibTable)
-{
-  return SimpleCalibExt (pHWPar, pabCalibTable, NULL);
-}
-
-
-/* utility function to show a hexdump of a buffer */
-void
-DumpHex (unsigned char *pabData, int iLen, int iWidth)
-{
-  int i;
-  for (i = 0; i < iLen; i++)
-    {
-      if ((i % iWidth) == 0)
-	{
-	  printf ("\n%04X", i);
-	}
-      printf (" %02X", pabData[i]);
-    }
-  printf ("\n");
-}
-
-/*************************************************************************
-  ScanLines
-  =========
-    Helper function to scan in an image and output the result to a file.
-
-  IN  pFile     File to write image data to
-      pParams   User-defineable settings describing the image to be scanned
-      pHWParams Scanner hardware settings
-
-*************************************************************************/
-void
-ScanLines (FILE * pFile, TScanParams * pParams, THWParams * pHWParams)
-{
-  static unsigned char abBuf[HW_PIXELS * 3];
-  int iBytesPerLine;
-  int iHeight;
-  int iHandle;
-  bool iReversedHead;
-  TDataPipe DataPipe;
-
-  iHandle = pHWParams->iXferHandle;
-
-  iHeight = pParams->iHeight;
-  iBytesPerLine = pParams->iWidth * 3;
-  DataPipe.iSkipLines = 0;
-  if (pHWParams->fReg07)
-    {
-      DataPipe.iSkipLines +=
-	(pHWParams->iTopLeftY * pParams->iLpi * 10) / 254;
-    }
-  iReversedHead = pHWParams->iReversedHead;
-
-  if (InitScan (pParams, pHWParams))
-    {
-      CircBufferInit (iHandle, &DataPipe,
-		      pParams->iWidth, pParams->iHeight,
-		      pHWParams->iSensorSkew * pParams->iLpi / HW_LPI,
-		      iReversedHead, 1, 1);
-      while (iHeight-- > 0)
-	{
-	  CircBufferGetLine (iHandle, &DataPipe, abBuf, iReversedHead);
-	  fwrite (abBuf, 1, iBytesPerLine, pFile);
-	}
-      CircBufferExit (&DataPipe);
-    }
-  FinishScan (pHWParams);
-}
-
-#endif /* NO WITH_NIASH */

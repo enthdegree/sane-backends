@@ -60,7 +60,7 @@ static TScannerModel *_pModel;
 
   Returns TRUE if a matching USB scanner was found
 */
-STATIC bool
+STATIC SANE_Bool
 MatchUsbDevice (int iVendor, int iProduct, TScannerModel ** ppModel)
 {
   TScannerModel *pModels = ScannerModels;
@@ -73,13 +73,13 @@ MatchUsbDevice (int iVendor, int iProduct, TScannerModel ** ppModel)
 	  DBG (DBG_MSG, "found %s %s\n", pModels->pszVendor,
 	       pModels->pszName);
 	  *ppModel = pModels;
-	  return TRUE;
+	  return SANE_TRUE;
 	}
       /* next model to match */
       pModels++;
     }
   DBG (DBG_MSG, "nothing found\n");
-  return FALSE;
+  return SANE_FALSE;
 }
 
 /************************************************************************
@@ -228,7 +228,7 @@ NiashWriteBulk (int iHandle, unsigned char *pabBuf, int iSize)
 {
   /*  byte  abSetup[8] = {0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
      HP3400 probably needs 0x01, 0x01 */
-  byte abSetup[8] = { 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+  SANE_Byte abSetup[8] = { 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
   size_t size;
 
   if (iHandle < 0)
@@ -260,7 +260,7 @@ NiashWriteBulk (int iHandle, unsigned char *pabBuf, int iSize)
 static void
 NiashReadBulk (int iHandle, unsigned char *pabBuf, int iSize)
 {
-  byte abSetup[8] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+  SANE_Byte abSetup[8] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
   size_t size;
 
   if (iHandle < 0)

@@ -28,7 +28,6 @@
 
 #include <unistd.h>
 
-#include "niash_types.h"
 #include "niash_xfer.h"		/* for EScannerModel */
 
 #define HP3300C_RIGHT  330
@@ -48,10 +47,10 @@ typedef struct
   int iTopLeftY;		/* in mm */
   int iSensorSkew;		/* in units of 1/1200 inch */
   int iSkipLines;		/* lines of garbage to skip */
-  bool fReg07;			/* NIASH00019 */
-  bool fGamma16;		/* if TRUE, gamma entries are 16 bit */
+  SANE_Bool fReg07;			/* NIASH00019 */
+  SANE_Bool fGamma16;		/* if TRUE, gamma entries are 16 bit */
   int iExpTime;
-  bool iReversedHead;		/* Head is reversed */
+  SANE_Bool iReversedHead;		/* Head is reversed */
   int iBufferSize;		/* Size of internal scan buffer */
   EScannerModel eModel;
 } THWParams;
@@ -96,13 +95,13 @@ STATIC int NiashOpen (THWParams * pHWParams, const char *pszName);
 STATIC void NiashClose (THWParams * pHWParams);
 
 /* more sof. method that also returns the values of the white (RGB) value */
-STATIC bool SimpleCalibExt (THWParams * pHWPar, unsigned char *pabCalibTable,
+STATIC SANE_Bool SimpleCalibExt (THWParams * pHWPar, unsigned char *pabCalibTable,
 			    unsigned char *pabCalWhite);
 
-STATIC bool GetLamp (THWParams * pHWParams, bool * pfLampIsOn);
-STATIC bool SetLamp (THWParams * pHWParams, bool fLampOn);
+STATIC SANE_Bool GetLamp (THWParams * pHWParams, SANE_Bool * pfLampIsOn);
+STATIC SANE_Bool SetLamp (THWParams * pHWParams, SANE_Bool fLampOn);
 
-STATIC bool InitScan (TScanParams * pParams, THWParams * pHWParams);
+STATIC SANE_Bool InitScan (TScanParams * pParams, THWParams * pHWParams);
 STATIC void FinishScan (THWParams * pHWParams);
 
 STATIC void CalcGamma (unsigned char *pabTable, double Gamma);
@@ -117,18 +116,12 @@ STATIC void WriteGammaCalibTable (unsigned char *pabGammaR,
 /* iHeight is lines in scanner resolution */
 STATIC void CircBufferInit (int iHandle, TDataPipe * p,
 			    int iWidth, int iHeight,
-			    int iMisAlignment, bool iReversedHead,
+			    int iMisAlignment, SANE_Bool iReversedHead,
 			    int iScaleDownDpi, int iScaleDownLpi);
 
 /* returns false, when trying to read after end of buffer */
-STATIC bool CircBufferGetLine (int iHandle, TDataPipe * p,
-			       unsigned char *pabLine, bool iReversedHead);
+STATIC SANE_Bool CircBufferGetLine (int iHandle, TDataPipe * p,
+			       unsigned char *pabLine, SANE_Bool iReversedHead);
 STATIC void CircBufferExit (TDataPipe * p);
-
-#ifndef WITH_NIASH
-void DumpHex (unsigned char *pabData, int iLen, int iWidth);
-void ScanLines (FILE * pFile, TScanParams * pParams, THWParams * pHWParams);
-bool SimpleCalib (THWParams * pHWPar, unsigned char *pabCalibTable);
-#endif /* NO WITH_NIASH */
 
 #endif /* _NIASH_CORE_H_ */

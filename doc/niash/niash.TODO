@@ -28,12 +28,13 @@ To do:
 
 - figure out what the USB interrupts mean that sometimes occur.
 
-- Get rid of mytypes.h / fix types
-  Now an int is implicitly assumed to be 32 bit.
 
 
 Done
 ====
+
+- Get rid of mytypes.h / fix types
+  Now an int is implicitly assumed to be 32 bit.
 
 - make backend comply with tstbackend
 -> all externs and publics removed when compiling towards sane

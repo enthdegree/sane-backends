@@ -16,6 +16,7 @@
 	  autoconf 2.5 syntax for AC_OUTPUT and AC_CONFIG_FILES. Make
 	  sane-config executable. Print flags and installation directories
 	  near the end of configure output.
+	* po/Makefile.in: Added autoconf comment, removed MSGCAT variable.
 
 2002-12-04  Matthew Duggan <stauff1@users.sourceforge.net>
 	* backend/canon_pp-dev.c: Don't compare firmware version numbers - 

@@ -1,4 +1,5 @@
-# po/Makefile.in
+# @configure_input@
+#
 # See po/README for documentation.
 
 ALL_LINGUAS = de es fr ru sv
@@ -47,7 +48,6 @@ INSTALL_DATA = @INSTALL_DATA@
 MSGFMT = @MSGFMT@
 XGETTEXT = @XGETTEXT@
 MSGMERGE = @MSGMERGE@
-MSGCAT = @MSGCAT@
 
 TMP_FILE_DIR = .tmp
 

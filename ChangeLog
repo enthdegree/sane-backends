@@ -1,3 +1,8 @@
+2003-02-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions-external/ma1509.desc: Added description of the 
+	  ma1509 backend for Mustek BearPaw 1200F scanners.
+
 2003-02-18   Stéphane Voltz  <svoltz@wanadoo.fr>
 
         * backend/umax_pp_low.c: icc compile fixes, and

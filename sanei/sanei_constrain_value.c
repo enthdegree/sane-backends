@@ -45,6 +45,8 @@
 #include <sys/types.h>
 #include <stdlib.h>
 
+#include <stdio.h>
+
 #include "sane/sane.h"
 #include "sane/sanei.h"
 
@@ -71,7 +73,7 @@ sanei_check_value (const SANE_Option_Descriptor * opt, void * value)
 
       if (range->quant)
 	{
-	  v = (w - range->min + range->quant/2) / range->quant;
+	  v = (unsigned int) (w - range->min + range->quant/2) / range->quant;
 	  v = v * range->quant + range->min;
 	  if (v != w)
 	    return SANE_STATUS_INVAL;
@@ -143,7 +145,7 @@ sanei_constrain_value (const SANE_Option_Descriptor * opt, void * value,
 
       if (range->quant)
 	{
-	  v = (w - range->min + range->quant/2) / range->quant;
+	  v = (unsigned int) (w - range->min + range->quant/2) / range->quant;
 	  v = v * range->quant + range->min;
 	  if (v != w)
 	    {

@@ -1,3 +1,8 @@
+2001-01-09  Henning Meier-Geinitz <hmg@gmx.de>
+
+	* PROJECTS TODO: Added/updated entries about backends for Mustek
+	  BearPaw and 1200 UB scanners.
+
 2001-01-07  Abel Deuring <a.deuring@satzbau-gmbh.de>
 
 	* sanei/sanei_scsi-c: (Linux part) improved detection of
@@ -9,7 +14,6 @@
 	* backend/sharp.c: Test for existence of shm.h added.
 	* TODO: Removed entry about missing detection of shm.h in sharp
 	  backend.
-	  
 
 2001-01-03  Henning Meier-Geinitz <hmg@gmx.de>
 

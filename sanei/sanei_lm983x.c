@@ -54,7 +54,7 @@
 #include <string.h>
 #include <errno.h>
 
-#define BACKEND_NAME	sanei_lm983x
+#define BACKEND_NAME	sanei_lm983x   /**< the name of this module for dbg  */
 
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei_debug.h"
@@ -66,12 +66,22 @@
 #define _MIN(a,b)	((a) < (b) ? (a) : (b))
 #define _MAX(a,b)	((a) > (b) ? (a) : (b))
 
-#define _CMD_BYTE_CNT	   4
-#define _MAX_RETRY         20
-#define _LM9831_MAX_REG    0x7f
-#define _MAX_TRANSFER_SIZE 60
+#define _CMD_BYTE_CNT	   4           /**< header for LM983x transfers      */
+#define _MAX_RETRY         20          /**< number of tries for reset        */
+#define _LM9831_MAX_REG    0x7f        /**< number of LM983x bytes           */
+#define _MAX_TRANSFER_SIZE 60          /**< max. number of bytes to transfer */
 
 /******************************* the functions *******************************/
+
+/**
+ * function to initialize this library, currently only enables the debugging
+ * functionality
+ */
+void
+sanei_lm983x_init( void )
+{
+	DBG_INIT();
+}
 
 /**
  * function to write one data byte to a specific LM983x register
@@ -87,7 +97,7 @@
 SANE_Status
 sanei_lm983x_write_byte( SANE_Int fd, SANE_Byte reg, SANE_Byte value )
 {
-  return sanei_lm983x_write( fd, reg, &value, 1, SANE_FALSE );
+    return sanei_lm983x_write( fd, reg, &value, 1, SANE_FALSE );
 }
 
 /**
@@ -292,7 +302,7 @@ SANE_Bool sanei_lm983x_reset( SANE_Int fd )
 		if( _CMD_BYTE_CNT == write( fd, cmd_buffer, _CMD_BYTE_CNT )) {
 		
 			/* Then read the register in question */
-			u_long cbBytes = 1;
+			unsigned long cbBytes = 1;
 			
 			if( read( fd, &tmp, cbBytes )) {
 			
@@ -308,6 +318,7 @@ SANE_Bool sanei_lm983x_reset( SANE_Int fd )
 					wrt_buffer[2] = 0;
 					wrt_buffer[3] = 1;
 					wrt_buffer[4] = 0; /* <--- The data for the register */
+					                   /* should this be 0x20????        */
 
 					/* We will attempt to reset it but we really don't do
 					 * anything if this fails

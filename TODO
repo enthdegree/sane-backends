@@ -1,4 +1,4 @@
-TODO (2000-10-03)
+TODO (2000-10-29)
 
 ******** todo ********
 
@@ -82,9 +82,6 @@ frontends
 
   * xcam: add recording feature (e.g., GIF, JPG, or MPEG)
 
-  * dll: make it robust against it being listed in the configuration
-    file (currently bad things will happen if dll attempts to load itself)
- 
   * dll: Rewrite to use libtool ltdl library
 
   * For 3-pass scanners, xscanimage doesn't update the scan progress
@@ -102,7 +99,7 @@ frontends
 
 sanei
 -----
-  * don't install sanei_* headers (?)
+  * don't install sanei_* headers
 
   * add sanei_authorize (function for all backends)
 
@@ -117,10 +114,6 @@ misc
       of libsane.so.1). This was fixed by a "bad hack" which should be 
       reverted .
 
-  * check DBG problems for non gcc compilers:
-    - no backend name output
-    - only global debug level
-
   * remove compiler warnings (>400 warnings even in disable-warning mode!)
 
   * Test SANE on different os/platforms, fix possible compilation problems 
@@ -133,20 +126,24 @@ misc
   * move .desc files for backends that are not included in SANE to
     different directory (e.g. backends and external-backends)
 
-  * add ADF and TA entries to .desc files
-
   * Add a check for installed sane versions.
 
   * Print a warning when already a sane version is installed.
 
   * Maybe add script to detect and deinstall existing sane versions
 
-  * 0 is white for sane in lineart and halftone, however, 0 is black for
-    the other modes. Possible reason: pnm data format. The SANE standard
-    doesn't talk about this.
-
 ******** done ********
 
+* 0 is white for sane in lineart and halftone, however, 0 is black for
+  the other modes. Possible reason: pnm data format. The SANE standard
+  doesn't talk about this (added point to SANE standard)
+* add ADF and TA entries to .desc files (not done, probably webpage gets 
+  too wide)
+* check DBG problems for non gcc compilers:
+  - no backend name output
+  - only global debug level
+* dll: make it robust against it being listed in the configuration
+  file (currently bad things will happen if dll attempts to load itself)
 * scanimage: add information about backend:devicename in the man
   page and scanimage --help.
 * scanimage: check if devicename starts with a / and print a warning

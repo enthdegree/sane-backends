@@ -81,6 +81,10 @@
          - fi-4220C support (ron@roncemer.com)
          - USB support for scanners which send SCSI commands over usb
            (ron@roncemer.com)
+      V 1.5, 20-Feb-2003 OS (oschirr@abm.de)
+         - set availability of options THRESHOLD und VARIANCE
+           correctly
+         - option RIF is available for 3091 und 3092
 
    SANE FLOW DIAGRAM
 
@@ -189,7 +193,7 @@ static SANE_String_Const dropout_color_list[] =
 };
 
 
-static const SANE_Range default_threshold_range = { 0, 255, 1 };
+static const SANE_Range default_threshold_range = { 1, 255, 1 };
 static const SANE_Range default_brightness_range = { 0, 255, 1 };
 static const SANE_Range default_contrast_range = { 0, 255, 1 };
 
@@ -817,7 +821,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           return SANE_STATUS_GOOD;
 
         case OPT_RIF:
-          *(SANE_Bool *) val = scanner->rif;
+          *(SANE_Bool *) val = scanner->reverse;
           return SANE_STATUS_GOOD;
 
         case OPT_BRIGHTNESS:
@@ -856,7 +860,14 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           return SANE_STATUS_GOOD;
 
         case OPT_OUTLINE_EXTRACTION:
-          *(SANE_Bool *) val = scanner->outline;
+	  if (scanner->outline == 0x80)
+	    {
+	      *(SANE_Bool *) val = 1;
+	    } 
+	  else 
+	    {
+	      *(SANE_Bool *) val = 0;
+	    }
           return SANE_STATUS_GOOD;
 
         case OPT_EMPHASIS:
@@ -1458,11 +1469,18 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           return SANE_STATUS_GOOD;
 
         case OPT_RIF:
-          scanner->rif = *(SANE_Bool *) val;
+          scanner->reverse = *(SANE_Bool *) val;
           return SANE_STATUS_GOOD;
 
         case OPT_OUTLINE_EXTRACTION:
-          scanner->outline = *(SANE_Bool *) val;
+	  if ((*(SANE_Bool *) val)) 
+	    {
+	      scanner->outline = 0x80;
+	    } 
+	  else 
+	    {
+	      scanner->outline = 0x00;
+	    }
           return SANE_STATUS_GOOD;
 
         case OPT_COMPRESSION:
@@ -1595,14 +1613,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
               scanner->opt[OPT_SMOOTHING_MODE].cap = SANE_CAP_INACTIVE;
               scanner->opt[OPT_GRADATION].cap = SANE_CAP_INACTIVE;
               scanner->opt[OPT_THRESHOLD_CURVE].cap = SANE_CAP_INACTIVE;
-              scanner->opt[OPT_VARIANCE_RATE].cap = SANE_CAP_SOFT_DETECT
-                | SANE_CAP_SOFT_SELECT;
               scanner->noise_removal = 0;
-              *info |= SANE_INFO_RELOAD_PARAMS;
             }
           else
             {
-              scanner->opt[OPT_VARIANCE_RATE].cap = SANE_CAP_INACTIVE;
               scanner->opt[OPT_NOISE_REMOVAL].cap = SANE_CAP_SOFT_DETECT
                 | SANE_CAP_SOFT_SELECT;
               scanner->opt[OPT_BACKGROUND].cap = SANE_CAP_SOFT_DETECT
@@ -1616,6 +1630,27 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
               scanner->opt[OPT_THRESHOLD_CURVE].cap = SANE_CAP_SOFT_DETECT
                 | SANE_CAP_SOFT_SELECT;
             }
+
+	  switch (scanner->dtc_selection) 
+	    {
+	    case WD_dtc_selection_DYNAMIC:
+
+              scanner->opt[OPT_THRESHOLD].cap = SANE_CAP_INACTIVE;
+              scanner->opt[OPT_VARIANCE_RATE].cap = SANE_CAP_INACTIVE;
+	      break;
+
+	    case WD_dtc_selection_SIMPLIFIED:
+              scanner->opt[OPT_VARIANCE_RATE].cap = SANE_CAP_SOFT_DETECT
+                | SANE_CAP_SOFT_SELECT;
+              scanner->opt[OPT_THRESHOLD].cap = SANE_CAP_INACTIVE;
+	      break;
+
+	    case WD_dtc_selection_DEFAULT: 
+	    default:
+              scanner->opt[OPT_THRESHOLD].cap = SANE_CAP_SOFT_DETECT
+                | SANE_CAP_SOFT_SELECT;
+              scanner->opt[OPT_VARIANCE_RATE].cap = SANE_CAP_INACTIVE;
+	    }
 
           *info |= SANE_INFO_RELOAD_OPTIONS;
           return SANE_STATUS_GOOD;
@@ -3844,6 +3879,7 @@ identifyScanner (struct fujitsu *s)
       s->has_adf = SANE_TRUE;
       s->has_fb = SANE_FALSE;
       s->has_contrast = SANE_FALSE;
+      s->has_reverse = SANE_TRUE;
       s->color_raster_offset = get_IN_raster (s->buffer);
       s->duplex_raster_offset = get_IN_frontback (s->buffer);
       s->duplex_present =
@@ -4139,6 +4175,7 @@ identifyScanner (struct fujitsu *s)
           s->has_white_level_follow =
             get_IN_ipc_white_level_follow (s->buffer);
           s->has_subwindow = get_IN_ipc_subwindow (s->buffer);
+	  s->has_reverse = get_IN_ipc_bw_reverse(s->buffer);
 
           /*
            * get threshold, brightness and contrast ranges.
@@ -4537,14 +4574,7 @@ setWindowParam (struct fujitsu *s)
   set_WD_bitsperpixel (buffer,
                        (s->color_mode == MODE_COLOR) ? 8 : s->scanner_depth);
 
-  if (s->model == MODEL_3092)
-    {
-      set_WD_rif (buffer, SANE_TRUE);
-    }
-  else
-    {
-      set_WD_rif (buffer, s->reverse);
-    }
+  set_WD_rif (buffer, s->reverse);
 
   set_WD_brightness (buffer, s->brightness);
   set_WD_threshold (buffer, s->threshold);
@@ -5275,8 +5305,10 @@ init_options (struct fujitsu *scanner)
   scanner->opt[OPT_RIF].desc = "reverse image format";
   scanner->opt[OPT_RIF].type = SANE_TYPE_BOOL;
   scanner->opt[OPT_RIF].unit = SANE_UNIT_NONE;
-  if (scanner->ipc_present)
+  if (scanner->has_reverse)
     scanner->opt[OPT_RIF].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+  else
+    opt->cap = SANE_CAP_INACTIVE;
 
   scanner->opt[OPT_AUTOSEP].name = "autoseparation";
   scanner->opt[OPT_AUTOSEP].title = "automatic separation";

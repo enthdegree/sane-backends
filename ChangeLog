@@ -1,4 +1,8 @@
 2003-02-20  Oliver Schirrmeister <oschirr@abm.de>
+        * make option RIF available for 3091 and 3092, bugfix
+	* set availability of options THRESHOLD und VARIANCE
+	
+2003-02-20  Oliver Schirrmeister <oschirr@abm.de>
 	* patch from <ron@roncemer.com>:
 	  fi4220 support
 	  USB support for scanners which send SCSI commands over usb

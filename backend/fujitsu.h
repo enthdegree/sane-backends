@@ -150,6 +150,7 @@ struct fujitsu
   int has_emphasis;		/* ............                           */
   int has_autosep;		/* ............                           */
   int has_mirroring;		/* ............                           */
+  int has_reverse;
   int has_white_level_follow;	/* ............                           */
   int has_subwindow;		/* ............                            */
   int has_dropout_color;	/*  */
@@ -304,7 +305,6 @@ struct fujitsu
   int threshold;
   int contrast;
 
-  int rif;
   int bitorder;
   int compress_type;
   int compress_arg;

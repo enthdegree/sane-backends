@@ -1,3 +1,11 @@
+2003-10-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions-external/epkowa.desc: Added Perfection 1670 as
+	  "unsupported". Changes status of 1260 PHOTO to :basic because of
+	  broken TPU support. Fixed missing quotation mark in Perfection
+	  1200S entry.
+	* AUTHORS: Oliver Schirrmeister has a CVS account now.
+
 2003-10-21  Stéphane Voltz <svoltz@wanadoo.fr>
 	* doc/sane-umax_pp.man: added help for new configuration option
 	* tools/umax_pp.c: uppded version number

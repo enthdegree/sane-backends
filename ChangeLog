@@ -3,6 +3,20 @@
 	* doc/descriptions/unsupported.desc
 	  doc/descriptions-external/genesys.desc: Moved some Plustek
 	  devices over to the genesys descriptions.
+	* tools/hotplug/libsane.usermap: Added some Plustek devices.
+	* mkinstalldirs: Added -o and -g options for changing the
+	  owner and group of an installed directory.
+	* acinclude.m4, configure.in, configure: Added --enable-locking
+	  and --with-group to enable device locking via sanei_access-lib
+	  and to specify the group of the locking directory.
+	* include/sane/config.h.in: ENABLE_LOCKING has been added
+	  by automake/autoconf.
+	* backend/Makefile.in: Added installation of 
+	  $(localstatesanedir)/lock/sane, were the lockfile should go to.
+	  Also added linking of sanei_access to the plustek backend.
+	* include/Makefile.in: Added sane/sanei_access.h.
+	* sanei/Makefile.in: Added sanei_access.c.
+	* include/sane/sanei_access.h sanei/sanei_access.h: Initial checkin.
 
 2005-03-31 Julien Blache <jb@jblache.org>
 

@@ -42,7 +42,7 @@
 
 /* Please increase version number with every change
    (don't forget to update net.desc) */
-#define NET_VERSION "1.0.8"
+#define NET_VERSION "1.0.9"
 
 #ifdef _AIX
 # include "../include/lalloca.h" /* MUST come first for AIX! */
@@ -1268,8 +1268,10 @@ sane_read (SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
     {
       if (left_over > -1)
 	{
-	  DBG (3, "sane_read: left_over from previous call, return immediately\n");
-	  /* return the byte, we've currently scanned; hang_over becomes left_over */
+	  DBG (3, "sane_read: left_over from previous call, return "
+	       "immediately\n");
+	  /* return the byte, we've currently scanned; hang_over becomes 
+	     left_over */
 	  *data = (SANE_Byte) left_over;
 	  left_over = -1;
 	  *length = 1;
@@ -1347,8 +1349,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
     max_length = s->bytes_remaining;
 
   nread = read (s->data, data, max_length);
-  s->bytes_remaining -= nread;
-
+  
   if (nread < 0)
     {
       DBG (2, "sane_read: error code %s\n", strerror (errno));
@@ -1361,6 +1362,8 @@ sane_read (SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
 	  return SANE_STATUS_IO_ERROR;
 	}
     }
+
+  s->bytes_remaining -= nread;
 
   *length = nread;
   /* Check whether we are scanning with a depth of 16 bits/pixel and whether
@@ -1375,7 +1378,8 @@ sane_read (SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
       /* special case: 1 byte scanned and hang_over */
       if ((nread == 1) && (hang_over > -1))
 	{
-	  /* return the byte, we've currently scanned; hang_over becomes left_over */
+	  /* return the byte, we've currently scanned; hang_over becomes 
+	     left_over */
 	  left_over = hang_over;
 	  hang_over = -1;
 	  return SANE_STATUS_GOOD;
@@ -1393,12 +1397,12 @@ sane_read (SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
 	  temp_hang_over = *(data + nread - 1);
 	  memmove (data + 1, data, nread - 1);
 	  *data = (SANE_Byte) hang_over;
-	  /* what happens with the last byte depends on whether the number of bytes
-	     is even or odd */
+	  /* what happens with the last byte depends on whether the number
+	     of bytes is even or odd */
 	  if (is_even == 1)
 	    {
-	      /* number of bytes is even; no new hang_over, exchange last byte with
-		 hang over; last byte becomes left_over */
+	      /* number of bytes is even; no new hang_over, exchange last
+		 byte with hang over; last byte becomes left_over */
 	      left_over = *(data + nread - 1);
 	      *(data + nread - 1) = temp_hang_over;
 	      hang_over = -1;
@@ -1417,7 +1421,8 @@ sane_read (SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
 	}
       else if (nread == 1)
 	{
-	  /* if only one byte has been read, save it as hang_over and return length=0 */
+	  /* if only one byte has been read, save it as hang_over and return
+	     length=0 */
 	  hang_over = (int) *data;
 	  *length = 0;
 	  return SANE_STATUS_GOOD;

@@ -1,5 +1,8 @@
 2001-01-14  Petter Reinholdtsen <pere@td.org.uit.no>
 
+	* include/sane/sanei_wire.h: Add missing prototype for
+	sanei_w_ptr() and sanei_w_bool().
+
 	* configure.in include/sane/config.h.in: Move definition of
 	HAVE_DEV_URANDOM and SCSIBUFFERSIZE from CFLAGS to config.h.
 
